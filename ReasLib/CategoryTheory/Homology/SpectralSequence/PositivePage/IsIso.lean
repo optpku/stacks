@@ -77,9 +77,6 @@ theorem isIsoFrom_page
     (h : IsIsoFrom f 1 le_rfl) (r : ℕ+) :
     IsIso (f.positivePage r) := sorry
 
-variable {E E' : SpectralSequence C c 0} (f : E ⟶ E') [IsIso f]
-#synth IsIso (Page.One.map f)
-
 end Hom
 
 end SpectralSequence

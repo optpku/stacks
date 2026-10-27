@@ -45,7 +45,8 @@ pseudo-pullback cell, up to its dependent endpoint transport. -/
 theorem map.fstIso.hom (ψ : CospanTransform F₁ G₁ F₂ G₂) :
     (map.fstIso ψ).hom.hom ≍
       (BasedCategory.PseudoPullback.map.fstIso
-        (LocallyInduced.TwoFibreProduct.CospanTransform.forget ψ)).hom := sorry
+        (LocallyInduced.TwoFibreProduct.CospanTransform.forget ψ)).hom := by
+  rfl
 
 /-- Forgetting the inverse first-projection comparison recovers the inverse explicit
 pseudo-pullback cell. -/
@@ -53,14 +54,16 @@ pseudo-pullback cell. -/
 theorem map.fstIso.inv (ψ : CospanTransform F₁ G₁ F₂ G₂) :
     (map.fstIso ψ).inv.hom =
       (BasedCategory.PseudoPullback.map.fstIso
-        (LocallyInduced.TwoFibreProduct.CospanTransform.forget ψ)).inv := sorry
+        (LocallyInduced.TwoFibreProduct.CospanTransform.forget ψ)).inv := by
+  rfl
 
 /-- Forgetting the forward second-projection comparison recovers the corresponding explicit
 pseudo-pullback cell, up to its dependent endpoint transport. -/
 theorem map.sndIso.hom (ψ : CospanTransform F₁ G₁ F₂ G₂) :
     (map.sndIso ψ).hom.hom ≍
       (BasedCategory.PseudoPullback.map.sndIso
-        (LocallyInduced.TwoFibreProduct.CospanTransform.forget ψ)).hom := sorry
+        (LocallyInduced.TwoFibreProduct.CospanTransform.forget ψ)).hom := by
+  rfl
 
 /-- Forgetting the inverse second-projection comparison recovers the inverse explicit
 pseudo-pullback cell. -/
@@ -68,29 +71,34 @@ pseudo-pullback cell. -/
 theorem map.sndIso.inv (ψ : CospanTransform F₁ G₁ F₂ G₂) :
     (map.sndIso ψ).inv.hom =
       (BasedCategory.PseudoPullback.map.sndIso
-        (LocallyInduced.TwoFibreProduct.CospanTransform.forget ψ)).inv := sorry
+        (LocallyInduced.TwoFibreProduct.CospanTransform.forget ψ)).inv := by
+  rfl
 
 /-- The forward component of the natural first-projection comparison is the canonical
 first-projection cell, up to its dependent endpoint transport. -/
 theorem map.fstNatIso.hom.app (ψ : CospanTransform F₁ G₁ F₂ G₂) :
-    map.fstNatIso.hom.app ψ ≍ (map.fstIso ψ).hom := sorry
+    map.fstNatIso.hom.app ψ ≍ (map.fstIso ψ).hom := by
+  rfl
 
 /-- The inverse component of the natural first-projection comparison is the inverse canonical
 first-projection cell. -/
 @[simp]
 theorem map.fstNatIso.inv.app (ψ : CospanTransform F₁ G₁ F₂ G₂) :
-    map.fstNatIso.inv.app ψ = (map.fstIso ψ).inv := sorry
+    map.fstNatIso.inv.app ψ = (map.fstIso ψ).inv := by
+  rfl
 
 /-- The forward component of the natural second-projection comparison is the canonical
 second-projection cell, up to its dependent endpoint transport. -/
 theorem map.sndNatIso.hom.app (ψ : CospanTransform F₁ G₁ F₂ G₂) :
-    map.sndNatIso.hom.app ψ ≍ (map.sndIso ψ).hom := sorry
+    map.sndNatIso.hom.app ψ ≍ (map.sndIso ψ).hom := by
+  rfl
 
 /-- The inverse component of the natural second-projection comparison is the inverse canonical
 second-projection cell. -/
 @[simp]
 theorem map.sndNatIso.inv.app (ψ : CospanTransform F₁ G₁ F₂ G₂) :
-    map.sndNatIso.inv.app ψ = (map.sndIso ψ).inv := sorry
+    map.sndNatIso.inv.app ψ = (map.sndIso ψ).inv := by
+  rfl
 
 /-- The first-projection comparison is natural in a modification of cospan transformations. -/
 theorem map₂.fstCommutes
@@ -100,7 +108,18 @@ theorem map₂.fstCommutes
       (map.fstIso φ).hom ≍
         (map.fstIso ψ).hom ≫
           _root_.CategoryTheory.FiberedCategoryOver.TwoFibreProduct.fst F₁ G₁ ◁
-            CospanTransform.Hom.left Γ := sorry
+            CospanTransform.Hom.left Γ := by
+  apply heq_of_eq
+  apply ObjectProperty.hom_ext
+  apply BasedNatTrans.ext
+  apply NatTrans.ext
+  funext A
+  change
+    (CospanTransform.Hom.left Γ).hom.toNatTrans.app
+        (BasedCategory.PseudoPullback.fstObj A) ≫ 𝟙 _ =
+      𝟙 _ ≫ (CospanTransform.Hom.left Γ).hom.toNatTrans.app
+        (BasedCategory.PseudoPullback.fstObj A)
+  simp only [Category.comp_id, Category.id_comp]
 
 /-- The second-projection comparison is natural in a modification of cospan transformations. -/
 theorem map₂.sndCommutes
@@ -110,7 +129,18 @@ theorem map₂.sndCommutes
       (map.sndIso φ).hom ≍
         (map.sndIso ψ).hom ≫
           _root_.CategoryTheory.FiberedCategoryOver.TwoFibreProduct.snd F₁ G₁ ◁
-            CospanTransform.Hom.right Γ := sorry
+            CospanTransform.Hom.right Γ := by
+  apply heq_of_eq
+  apply ObjectProperty.hom_ext
+  apply BasedNatTrans.ext
+  apply NatTrans.ext
+  funext A
+  change
+    (CospanTransform.Hom.right Γ).hom.toNatTrans.app
+        (BasedCategory.PseudoPullback.sndObj A) ≫ 𝟙 _ =
+      𝟙 _ ≫ (CospanTransform.Hom.right Γ).hom.toNatTrans.app
+        (BasedCategory.PseudoPullback.sndObj A)
+  simp only [Category.comp_id, Category.id_comp]
 
 end FiberedCategoryOver.TwoFibreProduct
 

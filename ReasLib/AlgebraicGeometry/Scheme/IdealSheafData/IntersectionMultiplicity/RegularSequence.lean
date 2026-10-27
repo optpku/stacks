@@ -39,9 +39,9 @@ theorem intersectionMultiplicity_eq_multiplicityInDegree
     let x := (V ⊔ W).subschemeι ξ.1
     let R := Y.presheaf.stalk x
     let I := RingedSpace.idealSheafStalkIdeal
-      (LocallyRingedSpace.closedImmersionIdealSubobject V.subschemeι.toLRSHom) x
+      (LocallyRingedSpace.Hom.kernelIdealSubobject V.subschemeι.toLRSHom) x
     let J := RingedSpace.idealSheafStalkIdeal
-      (LocallyRingedSpace.closedImmersionIdealSubobject W.subschemeι.toLRSHom) x
+      (LocallyRingedSpace.Hom.kernelIdealSubobject W.subschemeι.toLRSHom) x
     let M := R ⧸ J
     ∀ (f : Fin c → R)
       (hreg : RingTheory.Sequence.IsRegular R (List.ofFn f))
@@ -60,9 +60,9 @@ theorem intersectionMultiplicity_eq_factorial_mul_leadingCoeff
     let x := (V ⊔ W).subschemeι ξ.1
     let R := Y.presheaf.stalk x
     let I := RingedSpace.idealSheafStalkIdeal
-      (LocallyRingedSpace.closedImmersionIdealSubobject V.subschemeι.toLRSHom) x
+      (LocallyRingedSpace.Hom.kernelIdealSubobject V.subschemeι.toLRSHom) x
     let J := RingedSpace.idealSheafStalkIdeal
-      (LocallyRingedSpace.closedImmersionIdealSubobject W.subschemeι.toLRSHom) x
+      (LocallyRingedSpace.Hom.kernelIdealSubobject W.subschemeι.toLRSHom) x
     let M := R ⧸ J
     ∀ (f : Fin c → R)
       (hreg : RingTheory.Sequence.IsRegular R (List.ofFn f))
@@ -84,9 +84,9 @@ theorem intersectionHilbertPolynomial_leadingCoeff_pos
     let x := (V ⊔ W).subschemeι ξ.1
     let R := Y.presheaf.stalk x
     let I := RingedSpace.idealSheafStalkIdeal
-      (LocallyRingedSpace.closedImmersionIdealSubobject V.subschemeι.toLRSHom) x
+      (LocallyRingedSpace.Hom.kernelIdealSubobject V.subschemeι.toLRSHom) x
     let J := RingedSpace.idealSheafStalkIdeal
-      (LocallyRingedSpace.closedImmersionIdealSubobject W.subschemeι.toLRSHom) x
+      (LocallyRingedSpace.Hom.kernelIdealSubobject W.subschemeι.toLRSHom) x
     let M := R ⧸ J
     ∀ (f : Fin c → R)
       (hreg : RingTheory.Sequence.IsRegular R (List.ofFn f))
@@ -108,9 +108,9 @@ theorem intersectionMultiplicity_regularSequence_spec
     let x := (V ⊔ W).subschemeι ξ.1
     let R := Y.presheaf.stalk x
     let I := RingedSpace.idealSheafStalkIdeal
-      (LocallyRingedSpace.closedImmersionIdealSubobject V.subschemeι.toLRSHom) x
+      (LocallyRingedSpace.Hom.kernelIdealSubobject V.subschemeι.toLRSHom) x
     let J := RingedSpace.idealSheafStalkIdeal
-      (LocallyRingedSpace.closedImmersionIdealSubobject W.subschemeι.toLRSHom) x
+      (LocallyRingedSpace.Hom.kernelIdealSubobject W.subschemeι.toLRSHom) x
     let M := R ⧸ J
     ∀ (f : Fin c → R)
       (hreg : RingTheory.Sequence.IsRegular R (List.ofFn f))

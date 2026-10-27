@@ -118,7 +118,7 @@ instance instIsPreadicRing (κ : Type u) [CommRing κ] :
 
 /-- The rational-exponent series ring over a field is a domain. -/
 instance instIsDomain (κ : Type u) [Field κ] : IsDomain (RationalExponentSeries κ) :=
-  sorry
+  inferInstance
 
 /-- The rational-exponent series ring over a field is a valuation ring. -/
 instance instValuationRing (κ : Type u) [Field κ] : ValuationRing (RationalExponentSeries κ) :=

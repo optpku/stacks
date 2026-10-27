@@ -6,68 +6,49 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import Mathlib.AlgebraicGeometry.AffineScheme
-public import Mathlib.AlgebraicGeometry.Cover.Open
-public import stacks_project.Chap63.Remark_63_4_8_Alternative_construction_Cech
-public import stacks_project.Chap63.Remark_63_4_8_Alternative_construction_Cokernel
+public import ReasLib.AlgebraicGeometry.Scheme.Cover.Separated
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.LowerShriek.LocallyQuasiFinite.Cech.Stalk
 import StacksCheckRecall
 
 /-!
 # Alternative construction of locally quasi-finite lower shriek
 
-Remark 63.4.8: for a locally quasi-finite morphism, `f_!` may be recovered as
-the cokernel of the penultimate Čech map of separated restrictions, for example
-along an affine open covering of the source.
+The canonical affine cover `X.affineCover` gives the open family
+`fun i ↦ (X.affineCover.f i).opensRange`. It covers by
+`Scheme.OpenCover.isOpenCover_opensRange`, its members are affine by
+`isAffineOpen_opensRange`, and its restrictions over any target are separated
+by `Scheme.OpenCover.isSeparated_opensRange_comp`.
 -/
 
-@[expose] public section
-
+open CategoryTheory CategoryTheory.Limits
 open AlgebraicGeometry AlgebraicGeometry.Scheme
 open AlgebraicGeometry.Scheme.Etale
+open AlgebraicGeometry.Scheme.GeometricPoint
 open TopologicalSpace
 
 universe u
 
-/- Remark 63.4.8 (Alternative construction) (1): Let `f : X ⟶ Y` be a locally
-quasi-finite morphism of schemes. Given an open covering `𝒰` of `X` such that
-each restriction `(𝒰 i).ι ≫ f` is separated, the functor `f_!` is the cokernel
-of the penultimate map
-`⊕_{i0,i1} f_{i0 i1,!}(F|_{X_{i0 i1}}) ⟶ ⊕_{i0} f_{i0,!}(F|_{X_{i0}})`,
-where the summands are formed with the separated construction
-`etaleLowerShriek` of Section 63.3. -/
+/- Remark 63.4.8 (Alternative construction) (1): For a locally quasi-finite
+morphism in the Stacks convention, a covering by opens with separated
+restrictions identifies lower shriek with the cokernel of the signed separated
+Čech map from ordered-pair summands to singleton summands. -/
 @[stacks 0F5I]
-#check lowerShriekCechCokernelFunctor
+#check (AlgebraicGeometry.Scheme.Etale.lowerShriekCechCokernelIso :
+  ∀ {X Y : Scheme.{u}} (f : X ⟶ Y) [LocallyQuasiFinite f] [LocallyOfFiniteType f]
+    [HasSheafify Y.smallEtaleTopology AddCommGrpCat.{u}]
+    [HasCoproducts.{u} (Sheaf Y.smallEtaleTopology AddCommGrpCat.{u})]
+    {ι : Type u} (𝒰 : ι → X.Opens) [∀ i, IsSeparated ((𝒰 i).ι ≫ f)]
+    (h𝒰 : IsOpenCover 𝒰), lowerShriekCechCokernelFunctor f 𝒰 ≅ lowerShriek f)
 
-/- Remark 63.4.8 (Alternative construction) (2): Computing stalks of this
-cokernel by the separated formula `etaleLowerShriekStalkIso` of Lemma 63.3.17
-recovers the coproduct formula `(f_! F)_ȳ ≅ ⊕_{f(x̄)=ȳ} F_x̄` of
-Lemma 63.4.5. -/
+/- Remark 63.4.8 (Alternative construction) (2): Computing the alternative
+construction's stalks from the separated stalk formula gives the coproduct of
+stalks over same-field geometric lifts, as in Lemma 63.4.5. -/
 @[stacks 0F5I]
-#check lowerShriekCechCokernelStalkIso
-
-namespace AlgebraicGeometry.Scheme.Etale
-
-/-- The affine open covering of a scheme, as an indexed family of affine
-opens. -/
-noncomputable def affineOpensCover (X : Scheme.{u}) : X.affineCover.I₀ → X.Opens :=
-  fun i ↦ (X.affineCover.f i).opensRange
-
-/-- The affine open covering is an open covering of `X`. -/
-theorem isOpenCover_affineOpensCover (X : Scheme.{u}) :
-    IsOpenCover (affineOpensCover X) :=
-  sorry
-
-/-- Each member of the affine open covering is an affine open. -/
-instance isAffine_affineOpensCover (X : Scheme.{u}) (i : X.affineCover.I₀) :
-    IsAffine (affineOpensCover X i) :=
-  sorry
-
-/-- Affine members of `affineOpensCover` are affine opens. -/
-theorem isAffineOpen_affineOpensCover (X : Scheme.{u})
-    (i : X.affineCover.I₀) :
-    IsAffineOpen (affineOpensCover X i) :=
-  sorry
-
-end AlgebraicGeometry.Scheme.Etale
-
-end
+#check (AlgebraicGeometry.Scheme.Etale.lowerShriekCechCokernelStalkIso :
+  ∀ {X Y : Scheme.{u}} (f : X ⟶ Y) [LocallyQuasiFinite f] [LocallyOfFiniteType f]
+    [HasSheafify Y.smallEtaleTopology AddCommGrpCat.{u}]
+    [HasCoproducts.{u} (Sheaf Y.smallEtaleTopology AddCommGrpCat.{u})]
+    {ι : Type u} (𝒰 : ι → X.Opens) [∀ i, IsSeparated ((𝒰 i).ι ≫ f)]
+    (h𝒰 : IsOpenCover 𝒰) (ybar : GeometricPoint Y),
+    lowerShriekCechCokernelFunctor f 𝒰 ⋙ (toSmallEtalePoint ybar).sheafFiber ≅
+      abelianStalkCoproduct f ybar)

@@ -61,7 +61,7 @@ end CategoryTheory.GrothendieckTopology
 namespace RingedSite.Hom
 
 variable {X : RingedSite.{uX, vX, w}} {Y : RingedSite.{uY, vY, w}}
-variable (f : X.Hom Y) (V : Y)
+variable (f : X.Hom Y) (V : Y.carrier)
 variable [UnivLE.{max uX vX, w}] [UnivLE.{max uY vX, w}]
 variable [UnivLE.{max uY vY vX, w}]
 
@@ -69,20 +69,23 @@ variable [UnivLE.{max uY vY vX, w}]
 mate of the explicit direct-image localization square. -/
 noncomputable def localizationInverseImageComparison :
     Y.siteTopology.overPullback (Type w) V ⋙
-        (Over.post f.base).sheafPullback (Type w)
-          (Y.siteTopology.over V) (X.siteTopology.over (f.base.obj V)) ⟶
-      f.base.sheafPullback (Type w) Y.siteTopology X.siteTopology ⋙
+        (@Functor.sheafPullback _ _ _ _ (Over.post f.base) (Type w) _
+          (Y.siteTopology.over V) (X.siteTopology.over (f.base.obj V))
+          (localization_isContinuous f V) _) ⟶
+      (@Functor.sheafPullback _ _ _ _ f.base (Type w) _
+        Y.siteTopology X.siteTopology (Hom.base_isContinuous f) _) ⋙
         X.siteTopology.overPullback (Type w) (f.base.obj V) :=
   ((mateEquiv
-      (f.base.sheafAdjunctionContinuous (Type w)
-        Y.siteTopology X.siteTopology)
-      ((Over.post f.base).sheafAdjunctionContinuous (Type w)
-        (Y.siteTopology.over V) (X.siteTopology.over (f.base.obj V)))).symm
-    (f.base.sheafPushforwardOverPostComp V (Type w)).inv).natTrans
+      (@Functor.sheafAdjunctionContinuous _ _ _ _ f.base (Type w) _
+        Y.siteTopology X.siteTopology (Hom.base_isContinuous f) _)
+      (@Functor.sheafAdjunctionContinuous _ _ _ _ (Over.post f.base) (Type w) _
+        (Y.siteTopology.over V) (X.siteTopology.over (f.base.obj V))
+        (localization_isContinuous f V) _)).symm
+    (@Functor.sheafPushforwardOverPostComp _ _ _ _ X.siteTopology Y.siteTopology
+      f.base (Hom.base_isContinuous f) V (Type w) _).inv).natTrans
 
-/-- The localized inverse-image comparison is invertible.  This named instance is proof-only:
-the concrete comparison above does not inspect it to manufacture inverse data. -/
-instance localizationInverseImageComparison_isIso :
+/-- The localized inverse-image comparison is invertible. -/
+theorem localizationInverseImageComparison_isIso :
     IsIso (localizationInverseImageComparison f V) := sorry
 
 end RingedSite.Hom
@@ -92,7 +95,7 @@ namespace RingedSite.Localization.AmbientSquare
 variable {X : RingedSite.{uX, vX, w}} {Y : RingedSite.{uY, vY, w}}
 variable [X.siteTopology.HasSheafCompose (forget RingCat.{w})]
 variable [Y.siteTopology.HasSheafCompose (forget RingCat.{w})]
-variable (f : X.Hom Y) {V : Y} {U : X} (c : U ⟶ f.base.obj V)
+variable (f : X.Hom Y) {V : Y.carrier} {U : X.carrier} (c : U ⟶ f.base.obj V)
 variable [UnivLE.{max uX vX, w}] [UnivLE.{max uY vY, w}]
 variable [UnivLE.{max uY vX, w}] [UnivLE.{max uY vY vX, w}]
 
@@ -144,10 +147,18 @@ noncomputable def inverseImageComparison :
     Functor.whiskerLeft (f.toToposHom).toTopos.inverseImage
       (X.siteTopology.overForgetInverseImageIso.{w} U).inv
 
-/-- The inverse-image comparison in the ambient localization square is invertible.  This named
-instance remains proof-level debt rather than concrete data selected by `asIso`. -/
-instance inverseImageComparison_isIso :
-    IsIso (inverseImageComparison f c) := sorry
+/-- The inverse-image comparison in the ambient localization square is invertible. -/
+theorem inverseImageComparison_isIso :
+    IsIso (inverseImageComparison f c) := by
+  letI := f.localizationInverseImageComparison_isIso V
+  unfold inverseImageComparison
+  repeat' apply IsIso.comp_isIso'
+  · infer_instance
+  · exact Functor.isIso_whiskerRight _ _
+  · exact Functor.isIso_whiskerRight _ _
+  · infer_instance
+  · exact Functor.isIso_whiskerLeft _ _
+  · infer_instance
 
 /-- The direct-image comparison obtained by conjugating the canonical inverse-image
 comparison across the two composite adjunctions. -/
@@ -160,8 +171,11 @@ noncomputable def pushforwardComparison :
     (inverseImageComparison f c)
 
 /-- The direct-image comparison is invertible. -/
-instance pushforwardComparison_isIso :
-    IsIso (pushforwardComparison f c) := sorry
+theorem pushforwardComparison_isIso :
+    IsIso (pushforwardComparison f c) := by
+  letI := inverseImageComparison_isIso f c
+  unfold pushforwardComparison
+  infer_instance
 
 /-- Compatibility of the ambient localization comparison with the two composite ring-valued
 direct-image structure maps. -/
@@ -171,19 +185,20 @@ theorem comparison_comm :
           (pushforwardComparison f c)).app (X.localization U).structureSheaf =
       (leftLower f c).directStructureMap := sorry
 
-/-- Lemma 18.20.2 (04J1) (1): the forward `2`-morphism making the ambient localization square
+/-- The forward `2`-morphism making the ambient localization square
 commute as a square of ringed topoi. -/
 @[stacks 04J1 "ambient comparison"]
 noncomputable def comparison : ToposHom.TwoMorphism (upperRight f) (leftLower f c) where
   hom := pushforwardComparison f c
   comm := comparison_comm f c
 
-/-- Lemma 18.20.2 (04J1) (1): the forward `2`-morphism in the ambient localization square is
+/-- The forward `2`-morphism in the ambient localization square is
 invertible on its underlying direct-image natural transformation. -/
 @[stacks 04J1 "(1), invertible comparison"]
-instance comparison_hom_isIso : IsIso (comparison f c).hom := sorry
+theorem comparison_hom_isIso : IsIso (comparison f c).hom :=
+  pushforwardComparison_isIso f c
 
-/-- Lemma 18.20.2 (04J1) (1): the four canonical edges and forward `2`-cell of the ambient
+/-- The four canonical edges and forward `2`-cell of the ambient
 localization square. -/
 @[stacks 04J1 "ambient square"]
 noncomputable def square :
@@ -194,10 +209,10 @@ noncomputable def square :
   lower := lower (Y := Y) (V := V)
   cell := comparison f c
 
-/-- Lemma 18.20.2 (04J1) (1): the ambient localization square is invertible, without selecting
-an inverse `2`-cell as concrete data. -/
+/-- The ambient localization square is invertible. -/
 @[stacks 04J1 "(1), invertible square"]
-instance square_isInvertible : (square f c).IsInvertible := sorry
+theorem square_isInvertible : (square f c).IsInvertible :=
+  comparison_hom_isIso f c
 
 end RingedSite.Localization.AmbientSquare
 
@@ -208,7 +223,7 @@ variable [X.siteTopology.HasSheafCompose (forget RingCat.{w})]
 variable [Y.siteTopology.HasSheafCompose (forget RingCat.{w})]
 variable [UnivLE.{max uX vX, w}] [UnivLE.{max uY vY, w}]
 variable [UnivLE.{max uY vY vX, w}]
-variable (f : X.Hom Y) {V V' : Y} {U U' : X}
+variable (f : X.Hom Y) {V V' : Y.carrier} {U U' : X.carrier}
 variable (c : U ⟶ f.base.obj V) (b : V' ⟶ V) (a : U' ⟶ U)
 variable (c' : U' ⟶ f.base.obj V')
 
@@ -252,10 +267,12 @@ noncomputable def corePushforwardComparison :
         (f.localizationToposHom V).toTopos.pushforward ⟶
       (f.localizationToposHom V').toTopos.pushforward ⋙
         (Localization.relocalization Y b).toTopos.pushforward :=
-  CatCommSq.BeckChevalley.comparison
+  @CatCommSq.BeckChevalley.comparison _ _ _ _ _ _ _ _
     (Y.siteTopology.over V') (X.siteTopology.over (f.base.obj V'))
     (Y.siteTopology.over V) (X.siteTopology.over (f.base.obj V))
-    (baseSquare f b)
+    _ _ _ _ inferInstance inferInstance
+    (Hom.localization_isContinuous f V) (Hom.localization_isContinuous f V')
+    inferInstance inferInstance inferInstance inferInstance (baseSquare f b)
 
 /-- The forward direct-image comparison for the relocalization square determined by a
 commutative square `c' ≫ f.base.map b = a ≫ c` in the source site. -/
@@ -281,10 +298,10 @@ noncomputable def pushforwardComparison
       (corePushforwardComparison f b) ≫
     (Functor.associator _ _ _).inv
 
-/-- Lemma 18.20.2 (04J1) (2): the direct-image comparison in the relocalization square is
+/-- The direct-image comparison in the relocalization square is
 invertible. -/
 @[stacks 04J1 "(2), direct-image invertibility"]
-instance pushforwardComparison_isIso
+theorem pushforwardComparison_isIso
     (hcomm : c' ≫ f.base.map b = a ≫ c) :
     IsIso (pushforwardComparison f c b a c' hcomm) := sorry
 
@@ -298,7 +315,7 @@ theorem comparison_comm
             (X.localization U').structureSheaf =
       (leftLower f b c').directStructureMap := sorry
 
-/-- Lemma 18.20.2 (04J1) (2): the forward `2`-morphism comparing relocalization before and after
+/-- The forward `2`-morphism comparing relocalization before and after
 a localized morphism of ringed topoi. -/
 @[stacks 04J1 "(2), comparison"]
 noncomputable def comparison
@@ -307,14 +324,15 @@ noncomputable def comparison
   hom := pushforwardComparison f c b a c' hcomm
   comm := comparison_comm f c b a c' hcomm
 
-/-- Lemma 18.20.2 (04J1) (2): the forward `2`-morphism in the relocalization square is
+/-- The forward `2`-morphism in the relocalization square is
 invertible on its underlying direct-image natural transformation. -/
 @[stacks 04J1 "(2), invertible comparison"]
-instance comparison_hom_isIso
+theorem comparison_hom_isIso
     (hcomm : c' ≫ f.base.map b = a ≫ c) :
-    IsIso (comparison f c b a c' hcomm).hom := sorry
+    IsIso (comparison f c b a c' hcomm).hom :=
+  pushforwardComparison_isIso f c b a c' hcomm
 
-/-- Lemma 18.20.2 (04J1) (2): the four canonical relocalization and localized-morphism edges,
+/-- The four canonical relocalization and localized-morphism edges,
 together with their forward `2`-cell. -/
 @[stacks 04J1 "(2), relocalization square"]
 noncomputable def square
@@ -328,15 +346,15 @@ noncomputable def square
   lower := lower (Y := Y) b
   cell := comparison f c b a c' hcomm
 
-/-- Lemma 18.20.2 (04J1) (2): the relocalization square is invertible, expressed as a reusable
-Prop-valued typeclass rather than chosen inverse data. -/
+/-- The relocalization square is invertible. -/
 @[stacks 04J1 "(2), invertible square"]
-instance square_isInvertible
+theorem square_isInvertible
     (hcomm : c' ≫ f.base.map b = a ≫ c) :
-    (square f c b a c' hcomm).IsInvertible := sorry
+    (square f c b a c' hcomm).IsInvertible :=
+  comparison_hom_isIso f c b a c' hcomm
 
 end RingedSite.Localization.RelocalizationSquare
 
 -- The slice-restriction comparison is data-clean.  The remaining concrete comparisons inherit
 -- `sorryAx` from Prop-valued continuity/exactness and structure-map coherence in the existing
--- site/topos infrastructure; no inverse is chosen from any of the `IsIso` instances above.
+-- site/topos infrastructure; no inverse is chosen from any of the invertibility proofs above.

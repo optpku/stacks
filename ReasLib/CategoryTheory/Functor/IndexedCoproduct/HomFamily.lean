@@ -60,7 +60,7 @@ theorem isCompatible_iff {U : J ⥤ Type w} {V W : J ⥤ C}
     (F : HomFamily U V W) :
     F.IsCompatible ↔
       ∀ ⦃Delta Delta' : J⦄ (f : Delta ⟶ Delta') (u : U.obj Delta),
-        V.map f ≫ F Delta' (U.map f u) = F Delta u ≫ W.map f := sorry
+        V.map f ≫ F Delta' (U.map f u) = F Delta u ≫ W.map f := Iff.rfl
 
 /-- Compatible degreewise families of morphisms indexed by `U`. -/
 @[stacks 017B "compatible indexed-coproduct morphism families"]
@@ -85,14 +85,22 @@ def HomFamily.postcompose {U : J ⥤ Type w} {V W W' : J ⥤ C}
 theorem HomFamily.postcompose.apply {U : J ⥤ Type w}
     {V W W' : J ⥤ C} (g : W ⟶ W')
     (F : HomFamily.Compatible U V W) (Delta : J) (u : U.obj Delta) :
-    HomFamily.postcompose g F Delta u = F.1 Delta u ≫ g.app Delta := sorry
+    HomFamily.postcompose g F Delta u = F.1 Delta u ≫ g.app Delta := rfl
 
 /-- Postcomposition preserves compatibility of indexed degreewise families. -/
 @[stacks 017D "postcomposition preserves indexed-coproduct compatibility"]
 theorem HomFamily.postcompose.isCompatible {U : J ⥤ Type w}
     {V W W' : J ⥤ C} (g : W ⟶ W')
     (F : HomFamily.Compatible U V W) :
-    (HomFamily.postcompose g F).IsCompatible := sorry
+    (HomFamily.postcompose g F).IsCompatible := by
+  intro Delta Delta' f u
+  change V.map f ≫ (F.1 Delta' (U.map f u) ≫ g.app Delta') =
+    (F.1 Delta u ≫ g.app Delta) ≫ W'.map f
+  calc
+    _ = (V.map f ≫ F.1 Delta' (U.map f u)) ≫ g.app Delta' :=
+      (Category.assoc _ _ _).symm
+    _ = (F.1 Delta u ≫ W.map f) ≫ g.app Delta' := by rw [F.2 f u]
+    _ = _ := by rw [Category.assoc, g.naturality, ← Category.assoc]
 
 /-- Postcomposition as a morphism between the corresponding types of compatible families. -/
 @[stacks 017D "map on compatible indexed-coproduct families"]
@@ -108,14 +116,20 @@ theorem HomFamily.postcompose.map.apply {U : J ⥤ Type w}
     {V W W' : J ⥤ C} (g : W ⟶ W')
     (F : HomFamily.Compatible U V W) (Delta : J) (u : U.obj Delta) :
     (HomFamily.postcompose.map g F).1 Delta u =
-      F.1 Delta u ≫ g.app Delta := sorry
+      F.1 Delta u ≫ g.app Delta := rfl
 
 /-- Postcomposition by an identity induces the identity map on compatible families. -/
 @[simp, stacks 017D "identity postcomposition on indexed-coproduct families"]
 theorem HomFamily.postcompose.map_id (U : J ⥤ Type w)
     (V W : J ⥤ C) :
     HomFamily.postcompose.map (U := U) (V := V) (𝟙 W) =
-      𝟙 (HomFamily.Compatible U V W) := sorry
+      𝟙 (HomFamily.Compatible U V W) := by
+  apply ConcreteCategory.hom_ext
+  intro F
+  apply Subtype.ext
+  funext Delta u
+  change F.1 Delta u ≫ 𝟙 (W.obj Delta) = F.1 Delta u
+  exact Category.comp_id _
 
 /-- Postcomposition of compatible families respects composition of target morphisms. -/
 @[simp, stacks 017D "composition of postcomposition maps on indexed-coproduct families"]
@@ -123,7 +137,14 @@ theorem HomFamily.postcompose.map_comp (U : J ⥤ Type w) (V : J ⥤ C)
     {W₁ W₂ W₃ : J ⥤ C} (g : W₁ ⟶ W₂) (h : W₂ ⟶ W₃) :
     HomFamily.postcompose.map (U := U) (V := V) (g ≫ h) =
       HomFamily.postcompose.map (U := U) (V := V) g ≫
-        HomFamily.postcompose.map (U := U) (V := V) h := sorry
+        HomFamily.postcompose.map (U := U) (V := V) h := by
+  apply ConcreteCategory.hom_ext
+  intro F
+  apply Subtype.ext
+  funext Delta u
+  change F.1 Delta u ≫ (g.app Delta ≫ h.app Delta) =
+    (F.1 Delta u ≫ g.app Delta) ≫ h.app Delta
+  exact (Category.assoc _ _ _).symm
 
 /-- Compatible families as a functor of the target diagram. -/
 @[stacks 017D "compatible indexed-coproduct Hom-family functor"]
@@ -150,14 +171,21 @@ def HomFamily.precompose {U : J ⥤ Type w} {V₁ V₂ W : J ⥤ C}
 theorem HomFamily.precompose.apply {U : J ⥤ Type w}
     {V₁ V₂ W : J ⥤ C} (f : V₁ ⟶ V₂)
     (F : HomFamily.Compatible U V₂ W) (Delta : J) (u : U.obj Delta) :
-    HomFamily.precompose f F Delta u = f.app Delta ≫ F.1 Delta u := sorry
+    HomFamily.precompose f F Delta u = f.app Delta ≫ F.1 Delta u := rfl
 
 /-- Precomposition preserves compatibility of indexed degreewise families. -/
 @[stacks 017D "precomposition preserves indexed-coproduct compatibility"]
 theorem HomFamily.precompose.isCompatible {U : J ⥤ Type w}
     {V₁ V₂ W : J ⥤ C} (f : V₁ ⟶ V₂)
     (F : HomFamily.Compatible U V₂ W) :
-    (HomFamily.precompose f F).IsCompatible := sorry
+    (HomFamily.precompose f F).IsCompatible := by
+  intro Delta Delta' g u
+  change V₁.map g ≫ (f.app Delta' ≫ F.1 Delta' (U.map g u)) =
+    (f.app Delta ≫ F.1 Delta u) ≫ W.map g
+  calc
+    _ = (f.app Delta ≫ V₂.map g) ≫ F.1 Delta' (U.map g u) := by
+      rw [← Category.assoc, f.naturality]
+    _ = _ := by rw [Category.assoc, F.2 g u, ← Category.assoc]
 
 /-- Precomposition as a morphism between the corresponding types of compatible families. -/
 @[stacks 017D "precomposition map on compatible indexed-coproduct families"]
@@ -173,14 +201,20 @@ theorem HomFamily.precompose.map.apply {U : J ⥤ Type w}
     {V₁ V₂ W : J ⥤ C} (f : V₁ ⟶ V₂)
     (F : HomFamily.Compatible U V₂ W) (Delta : J) (u : U.obj Delta) :
     (HomFamily.precompose.map f F).1 Delta u =
-      f.app Delta ≫ F.1 Delta u := sorry
+      f.app Delta ≫ F.1 Delta u := rfl
 
 /-- Precomposition by an identity induces the identity map on compatible families. -/
 @[simp, stacks 017D "identity precomposition on indexed-coproduct families"]
 theorem HomFamily.precompose.map_id (U : J ⥤ Type w)
     (V W : J ⥤ C) :
     HomFamily.precompose.map (U := U) (W := W) (𝟙 V) =
-      𝟙 (HomFamily.Compatible U V W) := sorry
+      𝟙 (HomFamily.Compatible U V W) := by
+  apply ConcreteCategory.hom_ext
+  intro F
+  apply Subtype.ext
+  funext Delta u
+  change 𝟙 (V.obj Delta) ≫ F.1 Delta u = F.1 Delta u
+  exact Category.id_comp _
 
 /-- Precomposition reverses composition of source morphisms. -/
 @[simp, stacks 017D "composition of precomposition maps on indexed-coproduct families"]
@@ -188,7 +222,14 @@ theorem HomFamily.precompose.map_comp (U : J ⥤ Type w) (W : J ⥤ C)
     {V₁ V₂ V₃ : J ⥤ C} (f : V₁ ⟶ V₂) (g : V₂ ⟶ V₃) :
     HomFamily.precompose.map (U := U) (W := W) (f ≫ g) =
       HomFamily.precompose.map (U := U) (W := W) g ≫
-        HomFamily.precompose.map (U := U) (W := W) f := sorry
+        HomFamily.precompose.map (U := U) (W := W) f := by
+  apply ConcreteCategory.hom_ext
+  intro F
+  apply Subtype.ext
+  funext Delta u
+  change (f.app Delta ≫ g.app Delta) ≫ F.1 Delta u =
+    f.app Delta ≫ (g.app Delta ≫ F.1 Delta u)
+  exact Category.assoc _ _ _
 
 end SourceVariable
 
@@ -206,14 +247,19 @@ def HomFamily.restrict {U₁ U₂ : J ⥤ Type w} {V W : J ⥤ C}
 theorem HomFamily.restrict.apply {U₁ U₂ : J ⥤ Type w}
     {V W : J ⥤ C} (a : U₁ ⟶ U₂)
     (F : HomFamily.Compatible U₂ V W) (Delta : J) (u : U₁.obj Delta) :
-    HomFamily.restrict a F Delta u = F.1 Delta (a.app Delta u) := sorry
+    HomFamily.restrict a F Delta u = F.1 Delta (a.app Delta u) := rfl
 
 /-- Restriction preserves compatibility of indexed degreewise families. -/
 @[stacks 017D "restriction preserves indexed-coproduct compatibility"]
 theorem HomFamily.restrict.isCompatible {U₁ U₂ : J ⥤ Type w}
     {V W : J ⥤ C} (a : U₁ ⟶ U₂)
     (F : HomFamily.Compatible U₂ V W) :
-    (HomFamily.restrict a F).IsCompatible := sorry
+    (HomFamily.restrict a F).IsCompatible := by
+  intro Delta Delta' f u
+  change V.map f ≫ F.1 Delta' (a.app Delta' (U₁.map f u)) =
+    F.1 Delta (a.app Delta u) ≫ W.map f
+  rw [a.naturality_apply]
+  exact F.2 f (a.app Delta u)
 
 /-- Restriction as a morphism between the corresponding types of compatible families. -/
 @[stacks 017D "restriction map on compatible indexed-coproduct families"]
@@ -229,14 +275,19 @@ theorem HomFamily.restrict.map.apply {U₁ U₂ : J ⥤ Type w}
     {V W : J ⥤ C} (a : U₁ ⟶ U₂)
     (F : HomFamily.Compatible U₂ V W) (Delta : J) (u : U₁.obj Delta) :
     (HomFamily.restrict.map a F).1 Delta u =
-      F.1 Delta (a.app Delta u) := sorry
+      F.1 Delta (a.app Delta u) := rfl
 
 /-- Restriction along an identity induces the identity map on compatible families. -/
 @[simp, stacks 017D "identity restriction on indexed-coproduct families"]
 theorem HomFamily.restrict.map_id (U : J ⥤ Type w)
     (V W : J ⥤ C) :
     HomFamily.restrict.map (V := V) (W := W) (𝟙 U) =
-      𝟙 (HomFamily.Compatible U V W) := sorry
+      𝟙 (HomFamily.Compatible U V W) := by
+  apply ConcreteCategory.hom_ext
+  intro F
+  apply Subtype.ext
+  funext Delta u
+  rfl
 
 /-- Restriction reverses composition of indexing-diagram morphisms. -/
 @[simp, stacks 017D "composition of restriction maps on indexed-coproduct families"]
@@ -244,7 +295,12 @@ theorem HomFamily.restrict.map_comp (V W : J ⥤ C)
     {U₁ U₂ U₃ : J ⥤ Type w} (a : U₁ ⟶ U₂) (b : U₂ ⟶ U₃) :
     HomFamily.restrict.map (V := V) (W := W) (a ≫ b) =
       HomFamily.restrict.map (V := V) (W := W) b ≫
-        HomFamily.restrict.map (V := V) (W := W) a := sorry
+        HomFamily.restrict.map (V := V) (W := W) a := by
+  apply ConcreteCategory.hom_ext
+  intro F
+  apply Subtype.ext
+  funext Delta u
+  rfl
 
 /-- Restriction along the inverse of an index isomorphism undoes restriction along its
 forward map. -/
@@ -253,7 +309,12 @@ theorem HomFamily.restrict.left_inv {U₁ U₂ : J ⥤ Type w} {V W : J ⥤ C}
     (e : U₁ ≅ U₂) (F : HomFamily.Compatible U₂ V W) :
     HomFamily.restrict.map (V := V) (W := W) e.inv
         (HomFamily.restrict.map (V := V) (W := W) e.hom F) =
-      F := sorry
+      F := by
+  apply Subtype.ext
+  funext Delta u
+  change F.1 Delta (e.hom.app Delta (e.inv.app Delta u)) = F.1 Delta u
+  exact congrArg (F.1 Delta)
+    (congrArg (fun k : U₂ ⟶ U₂ ↦ k.app Delta u) e.inv_hom_id)
 
 /-- Restriction along an index isomorphism undoes restriction along its inverse. -/
 @[stacks 017D "index-isomorphism restriction right inverse"]
@@ -261,7 +322,12 @@ theorem HomFamily.restrict.right_inv {U₁ U₂ : J ⥤ Type w} {V W : J ⥤ C}
     (e : U₁ ≅ U₂) (F : HomFamily.Compatible U₁ V W) :
     HomFamily.restrict.map (V := V) (W := W) e.hom
         (HomFamily.restrict.map (V := V) (W := W) e.inv F) =
-      F := sorry
+      F := by
+  apply Subtype.ext
+  funext Delta u
+  change F.1 Delta (e.inv.app Delta (e.hom.app Delta u)) = F.1 Delta u
+  exact congrArg (F.1 Delta)
+    (congrArg (fun k : U₁ ⟶ U₁ ↦ k.app Delta u) e.hom_inv_id)
 
 /-- An isomorphism of indexing diagrams induces an equivalence of compatible families, in
 the contravariant direction of index restriction. -/
@@ -279,14 +345,14 @@ def HomFamily.restrictEquiv {U₁ U₂ : J ⥤ Type w}
 theorem HomFamily.restrictEquiv.apply {U₁ U₂ : J ⥤ Type w}
     (e : U₁ ≅ U₂) (V W : J ⥤ C) (F : HomFamily.Compatible U₂ V W) :
     HomFamily.restrictEquiv e V W F =
-      HomFamily.restrict.map (V := V) (W := W) e.hom F := sorry
+      HomFamily.restrict.map (V := V) (W := W) e.hom F := rfl
 
 /-- The inverse map of `restrictEquiv` is restriction along the inverse index map. -/
 @[simp, stacks 017D "index-isomorphism family equivalence inverse map"]
 theorem HomFamily.restrictEquiv.symm_apply {U₁ U₂ : J ⥤ Type w}
     (e : U₁ ≅ U₂) (V W : J ⥤ C) (F : HomFamily.Compatible U₁ V W) :
     (HomFamily.restrictEquiv e V W).symm F =
-      HomFamily.restrict.map (V := V) (W := W) e.inv F := sorry
+      HomFamily.restrict.map (V := V) (W := W) e.inv F := rfl
 
 /-- Evaluate index-isomorphism restriction at one degree and one index. -/
 @[simp, stacks 017D "index-isomorphism family equivalence component"]
@@ -294,7 +360,7 @@ theorem HomFamily.restrictEquiv.apply_apply {U₁ U₂ : J ⥤ Type w}
     (e : U₁ ≅ U₂) (V W : J ⥤ C) (F : HomFamily.Compatible U₂ V W)
     (Delta : J) (u : U₁.obj Delta) :
     (HomFamily.restrictEquiv e V W F).1 Delta u =
-      F.1 Delta (e.hom.app Delta u) := sorry
+      F.1 Delta (e.hom.app Delta u) := rfl
 
 /-- Evaluate inverse index-isomorphism restriction at one degree and one index. -/
 @[simp, stacks 017D "inverse index-isomorphism family equivalence component"]
@@ -302,7 +368,7 @@ theorem HomFamily.restrictEquiv.symm_apply_apply {U₁ U₂ : J ⥤ Type w}
     (e : U₁ ≅ U₂) (V W : J ⥤ C) (F : HomFamily.Compatible U₁ V W)
     (Delta : J) (u : U₂.obj Delta) :
     ((HomFamily.restrictEquiv e V W).symm F).1 Delta u =
-      F.1 Delta (e.inv.app Delta u) := sorry
+      F.1 Delta (e.inv.app Delta u) := rfl
 
 end IndexVariable
 
@@ -316,7 +382,14 @@ theorem HomFamily.precompose.postcompose
     HomFamily.precompose.map (U := U) (W := W₁) f ≫
         HomFamily.postcompose.map (U := U) (V := V₁) g =
       HomFamily.postcompose.map (U := U) (V := V₂) g ≫
-        HomFamily.precompose.map (U := U) (W := W₂) f := sorry
+        HomFamily.precompose.map (U := U) (W := W₂) f := by
+  apply ConcreteCategory.hom_ext
+  intro F
+  apply Subtype.ext
+  funext Delta u
+  change (f.app Delta ≫ F.1 Delta u) ≫ g.app Delta =
+    f.app Delta ≫ (F.1 Delta u ≫ g.app Delta)
+  exact Category.assoc _ _ _
 
 /-- Index restriction commutes with target postcomposition on compatible families. -/
 @[simp, stacks 017D "index-target interchange for indexed-coproduct families"]
@@ -326,7 +399,12 @@ theorem HomFamily.restrict.postcompose
     HomFamily.restrict.map (V := V) (W := W₁) a ≫
         HomFamily.postcompose.map (U := U₁) (V := V) g =
       HomFamily.postcompose.map (U := U₂) (V := V) g ≫
-        HomFamily.restrict.map (V := V) (W := W₂) a := sorry
+        HomFamily.restrict.map (V := V) (W := W₂) a := by
+  apply ConcreteCategory.hom_ext
+  intro F
+  apply Subtype.ext
+  funext Delta u
+  rfl
 
 /-- Index restriction commutes with source precomposition on compatible families. -/
 @[simp, stacks 017D "index-source interchange for indexed-coproduct families"]
@@ -336,7 +414,12 @@ theorem HomFamily.restrict.precompose
     HomFamily.restrict.map (V := V₂) (W := W) a ≫
         HomFamily.precompose.map (U := U₁) (W := W) f =
       HomFamily.precompose.map (U := U₂) (W := W) f ≫
-        HomFamily.restrict.map (V := V₁) (W := W) a := sorry
+        HomFamily.restrict.map (V := V₁) (W := W) a := by
+  apply ConcreteCategory.hom_ext
+  intro F
+  apply Subtype.ext
+  funext Delta u
+  rfl
 
 end Variance
 
@@ -355,14 +438,33 @@ theorem HomFamily.ofHom.apply {U : J ⥤ Type w} {V W : J ⥤ C}
     [HasIndexedCoprod U V] (f : indexedCoprod U V ⟶ W)
     (Delta : J) (u : U.obj Delta) :
     HomFamily.ofHom f Delta u =
-      Sigma.ι (fun _ : U.obj Delta ↦ V.obj Delta) u ≫ f.app Delta := sorry
+      Sigma.ι (fun _ : U.obj Delta ↦ V.obj Delta) u ≫ f.app Delta := rfl
 
 /-- The family extracted from a morphism out of an indexed coproduct is compatible. -/
 @[stacks 017D "extracted indexed-coproduct family compatibility"]
 theorem HomFamily.ofHom.isCompatible {U : J ⥤ Type w}
     {V W : J ⥤ C} [HasIndexedCoprod U V]
     (f : indexedCoprod U V ⟶ W) :
-    (HomFamily.ofHom f).IsCompatible := sorry
+    (HomFamily.ofHom f).IsCompatible := by
+  intro Delta Delta' g u
+  change V.map g ≫ (Sigma.ι (fun _ : U.obj Delta' ↦ V.obj Delta')
+      (U.map g u) ≫ f.app Delta') =
+    (Sigma.ι (fun _ : U.obj Delta ↦ V.obj Delta) u ≫ f.app Delta) ≫ W.map g
+  calc
+    _ = (Sigma.ι (fun _ : U.obj Delta ↦ V.obj Delta) u ≫
+        (indexedCoprod U V).map g) ≫ f.app Delta' := by
+      change _ = (Sigma.ι _ u ≫ Sigma.map'
+        (f := fun _ : U.obj Delta ↦ V.obj Delta)
+        (g := fun _ : U.obj Delta' ↦ V.obj Delta')
+        (U.map g) (fun _ ↦ V.map g)) ≫ _
+      rw [Sigma.ι_comp_map', Category.assoc]
+    _ = Sigma.ι (fun _ : U.obj Delta ↦ V.obj Delta) u ≫
+        ((indexedCoprod U V).map g ≫ f.app Delta') := Category.assoc _ _ _
+    _ = Sigma.ι (fun _ : U.obj Delta ↦ V.obj Delta) u ≫
+        (f.app Delta ≫ W.map g) :=
+      congrArg (fun k ↦ Sigma.ι (fun _ : U.obj Delta ↦ V.obj Delta) u ≫ k)
+        (f.naturality g)
+    _ = _ := (Category.assoc _ _ _).symm
 
 /-- Package the family extracted from an indexed-coproduct morphism with its compatibility. -/
 @[stacks 017D "compatible family extracted from an indexed-coproduct morphism"]
@@ -377,7 +479,7 @@ theorem HomFamily.ofHom.compatible.apply
     {U : J ⥤ Type w} {V W : J ⥤ C} [HasIndexedCoprod U V]
     (f : indexedCoprod U V ⟶ W) (Delta : J) (u : U.obj Delta) :
     (HomFamily.ofHom.compatible f).1 Delta u =
-      Sigma.ι (fun _ : U.obj Delta ↦ V.obj Delta) u ≫ f.app Delta := sorry
+      Sigma.ι (fun _ : U.obj Delta ↦ V.obj Delta) u ≫ f.app Delta := rfl
 
 /-- The coproduct maps associated to a compatible family satisfy the diagram naturality
 square. -/
@@ -387,7 +489,24 @@ theorem HomFamily.toHom.commSq
     (F : HomFamily.Compatible U V W) {Delta Delta' : J}
     (f : Delta ⟶ Delta') :
     CommSq ((indexedCoprod U V).map f) (Limits.Sigma.desc (fun u ↦ F.1 Delta u))
-      (Limits.Sigma.desc (fun u ↦ F.1 Delta' u)) (W.map f) := sorry
+      (Limits.Sigma.desc (fun u ↦ F.1 Delta' u)) (W.map f) := by
+  refine ⟨?_⟩
+  apply Sigma.hom_ext
+  intro u
+  calc
+    Sigma.ι (fun _ : U.obj Delta ↦ V.obj Delta) u ≫
+        ((indexedCoprod U V).map f ≫ Sigma.desc (fun u ↦ F.1 Delta' u)) =
+        V.map f ≫ F.1 Delta' (U.map f u) := by
+      change Sigma.ι _ u ≫
+        (Sigma.map'
+          (f := fun _ : U.obj Delta ↦ V.obj Delta)
+          (g := fun _ : U.obj Delta' ↦ V.obj Delta')
+          (U.map f) (fun _ ↦ V.map f) ≫ Sigma.desc _) = _
+      rw [← Category.assoc, Sigma.ι_comp_map', Category.assoc, Sigma.ι_desc]
+    _ = F.1 Delta u ≫ W.map f := F.2 f u
+    _ = Sigma.ι (fun _ : U.obj Delta ↦ V.obj Delta) u ≫
+        (Sigma.desc (fun u ↦ F.1 Delta u) ≫ W.map f) := by
+      rw [← Category.assoc, Sigma.ι_desc]
 
 /-- Assemble a compatible degreewise family into a morphism from the indexed coproduct. -/
 @[stacks 017D "assemble a compatible indexed-coproduct family"]
@@ -403,7 +522,7 @@ theorem HomFamily.toHom.app
     {U : J ⥤ Type w} {V W : J ⥤ C} [HasIndexedCoprod U V]
     (F : HomFamily.Compatible U V W) (Delta : J) :
     (HomFamily.toHom F).app Delta =
-      Limits.Sigma.desc (fun u ↦ F.1 Delta u) := sorry
+      Limits.Sigma.desc (fun u ↦ F.1 Delta u) := rfl
 
 /-- Projecting an assembled indexed-coproduct map recovers the chosen family component. -/
 @[reassoc (attr := simp), stacks 017D "assembled indexed-coproduct family injection"]
@@ -412,21 +531,31 @@ theorem HomFamily.toHom.app_ι
     (F : HomFamily.Compatible U V W) (Delta : J) (u : U.obj Delta) :
     Sigma.ι (fun _ : U.obj Delta ↦ V.obj Delta) u ≫
         (HomFamily.toHom F).app Delta =
-      F.1 Delta u := sorry
+      F.1 Delta u := by
+  exact Sigma.ι_desc (fun u ↦ F.1 Delta u) u
 
 /-- Assembling the family extracted from an indexed-coproduct map recovers that map. -/
 @[stacks 017D "indexed-coproduct Hom-family assembly left inverse"]
 theorem HomFamily.toHom.left_inv
     {U : J ⥤ Type w} {V W : J ⥤ C} [HasIndexedCoprod U V]
     (f : indexedCoprod U V ⟶ W) :
-    HomFamily.toHom (HomFamily.ofHom.compatible f) = f := sorry
+    HomFamily.toHom (HomFamily.ofHom.compatible f) = f := by
+  apply NatTrans.ext
+  funext Delta
+  apply Sigma.hom_ext
+  intro u
+  exact Sigma.ι_desc (fun u ↦
+    Sigma.ι (fun _ : U.obj Delta ↦ V.obj Delta) u ≫ f.app Delta) u
 
 /-- Extracting the family from its assembled map recovers the compatible family. -/
 @[stacks 017D "indexed-coproduct Hom-family assembly right inverse"]
 theorem HomFamily.toHom.right_inv
     {U : J ⥤ Type w} {V W : J ⥤ C} [HasIndexedCoprod U V]
     (F : HomFamily.Compatible U V W) :
-    HomFamily.ofHom.compatible (HomFamily.toHom F) = F := sorry
+    HomFamily.ofHom.compatible (HomFamily.toHom F) = F := by
+  apply Subtype.ext
+  funext Delta u
+  exact Sigma.ι_desc (fun u ↦ F.1 Delta u) u
 
 /-- Morphisms from an indexed coproduct are equivalent to compatible indexed families. -/
 @[stacks 017D "indexed-coproduct Hom-family equivalence"]
@@ -443,14 +572,14 @@ def HomFamily.homEquiv (U : J ⥤ Type w) (V W : J ⥤ C)
 theorem HomFamily.homEquiv.apply
     {U : J ⥤ Type w} {V W : J ⥤ C} [HasIndexedCoprod U V]
     (f : indexedCoprod U V ⟶ W) :
-    HomFamily.homEquiv U V W f = HomFamily.ofHom.compatible f := sorry
+    HomFamily.homEquiv U V W f = HomFamily.ofHom.compatible f := rfl
 
 /-- The inverse map of `HomFamily.homEquiv` assembles the compatible family. -/
 @[simp, stacks 017D "indexed-coproduct Hom-family equivalence inverse formula"]
 theorem HomFamily.homEquiv.symm_apply
     {U : J ⥤ Type w} {V W : J ⥤ C} [HasIndexedCoprod U V]
     (F : HomFamily.Compatible U V W) :
-    (HomFamily.homEquiv U V W).symm F = HomFamily.toHom F := sorry
+    (HomFamily.homEquiv U V W).symm F = HomFamily.toHom F := rfl
 
 /-- The indexed-coproduct Hom-family equivalence is natural under target postcomposition. -/
 @[stacks 017D "indexed-coproduct Hom-family target postcomposition"]
@@ -459,7 +588,13 @@ theorem HomFamily.homEquiv.postcompose
     (g : W₁ ⟶ W₂) (f : indexedCoprod U V ⟶ W₁) :
     HomFamily.ofHom.compatible (f ≫ g) =
       HomFamily.postcompose.map (U := U) (V := V) g
-        (HomFamily.ofHom.compatible f) := sorry
+        (HomFamily.ofHom.compatible f) := by
+  apply Subtype.ext
+  funext Delta u
+  change Sigma.ι (fun _ : U.obj Delta ↦ V.obj Delta) u ≫
+      (f.app Delta ≫ g.app Delta) =
+    (Sigma.ι (fun _ : U.obj Delta ↦ V.obj Delta) u ≫ f.app Delta) ≫ g.app Delta
+  exact (Category.assoc _ _ _).symm
 
 /-- The indexed-coproduct Hom-family equivalence is natural under source precomposition. -/
 @[stacks 017D "indexed-coproduct Hom-family source naturality"]
@@ -469,7 +604,13 @@ theorem HomFamily.homEquiv.precompose
     (f : V₁ ⟶ V₂) (h : indexedCoprod U V₂ ⟶ W) :
     HomFamily.ofHom.compatible (indexedCoprod.hom U f ≫ h) =
       HomFamily.precompose.map (U := U) (W := W) f
-        (HomFamily.ofHom.compatible h) := sorry
+        (HomFamily.ofHom.compatible h) := by
+  apply Subtype.ext
+  funext Delta u
+  change Sigma.ι (fun _ : U.obj Delta ↦ V₁.obj Delta) u ≫
+      (Limits.Sigma.map (fun _ : U.obj Delta ↦ f.app Delta) ≫ h.app Delta) =
+    f.app Delta ≫ (Sigma.ι (fun _ : U.obj Delta ↦ V₂.obj Delta) u ≫ h.app Delta)
+  rw [← Category.assoc, Sigma.ι_map, Category.assoc]
 
 /-- The indexed-coproduct Hom-family equivalence is natural under index restriction. -/
 @[stacks 017D "indexed-coproduct Hom-family index naturality"]
@@ -479,7 +620,13 @@ theorem HomFamily.homEquiv.restrict
     (a : U₁ ⟶ U₂) (h : indexedCoprod U₂ V ⟶ W) :
     HomFamily.ofHom.compatible (indexedCoprod.indexHom V a ≫ h) =
       HomFamily.restrict.map (V := V) (W := W) a
-        (HomFamily.ofHom.compatible h) := sorry
+        (HomFamily.ofHom.compatible h) := by
+  apply Subtype.ext
+  funext Delta u
+  change Sigma.ι (fun _ : U₁.obj Delta ↦ V.obj Delta) u ≫
+      (Sigma.map' (a.app Delta) (fun _ ↦ 𝟙 (V.obj Delta)) ≫ h.app Delta) =
+    Sigma.ι (fun _ : U₂.obj Delta ↦ V.obj Delta) (a.app Delta u) ≫ h.app Delta
+  rw [← Category.assoc, Sigma.ι_comp_map', Category.id_comp]
 
 /-- Compatible degreewise families are corepresented by the indexed coproduct. -/
 @[stacks 017D "corepresentability of compatible indexed-coproduct families"]
@@ -495,7 +642,7 @@ theorem HomFamily.corepresentableBy.homEquiv.apply
     {U : J ⥤ Type w} {V W : J ⥤ C} [HasIndexedCoprod U V]
     (f : indexedCoprod U V ⟶ W) (Delta : J) (u : U.obj Delta) :
     ((HomFamily.corepresentableBy (U := U) (V := V)).homEquiv f).1 Delta u =
-      Sigma.ι (fun _ : U.obj Delta ↦ V.obj Delta) u ≫ f.app Delta := sorry
+      Sigma.ι (fun _ : U.obj Delta ↦ V.obj Delta) u ≫ f.app Delta := rfl
 
 end UniversalProperty
 

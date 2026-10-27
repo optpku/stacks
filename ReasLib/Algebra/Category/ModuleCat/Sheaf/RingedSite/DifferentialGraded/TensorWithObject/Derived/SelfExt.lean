@@ -50,8 +50,13 @@ noncomputable abbrev regularShiftMap
         ((tensorFunctor K).obj
           (DifferentialGradedModule.Derived.regularObject (endDGA K)))
         ((tensorFunctor K).obj
-          (DifferentialGradedModule.Derived.regularObject (endDGA K))) n :=
-  (tensorFunctor K).shiftedHomLinearMap (R := ℤ)
+          (DifferentialGradedModule.Derived.regularObject (endDGA K))) n := by
+  let hAdd : (tensorFunctor K).Additive :=
+    @Functor.IsTriangulated.instAdditive _ _ _ _ _ _ (tensorFunctor K)
+      (tensorFunctor_commShift K) _ _ _ _ _ _ _ _ (tensorFunctor_isTriangulated K)
+  exact @Functor.shiftedHomLinearMap ℤ _ _ _ _ _ _ _ _ _ _ _
+    (tensorFunctor K) (tensorFunctor_commShift K) hAdd
+    (@Functor.intLinear _ _ _ _ _ _ (tensorFunctor K) hAdd)
     (DifferentialGradedModule.Derived.regularObject (endDGA K))
     (DifferentialGradedModule.Derived.regularObject (endDGA K)) n
 
@@ -60,9 +65,9 @@ comparison from the tensor image of the regular module to `K`. -/
 @[reassoc, stacks 09LZ "compatibility of regular and enriched self-Ext"]
 theorem regularSelfExt_comm
     (K : Complex (J := J) (O := O)) (n : ℤ) (x : (endDGA K).homology n) :
-    ShiftedHom.map
+    @ShiftedHom.map _ _ _ _ _ _ _ _ _ _ _
           (DifferentialGradedModule.Derived.regularSelfExtLinearMap (endDGA K) n x)
-          (tensorFunctor K) ≫
+          (tensorFunctor K) (tensorFunctor_commShift K) ≫
         (shiftFunctor _ n).map (regularComparison K) =
       regularComparison K ≫ CochainComplex.Enriched.selfExtLinearMap K n x := sorry
 

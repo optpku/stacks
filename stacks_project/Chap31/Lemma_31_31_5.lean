@@ -35,9 +35,12 @@ support of the corresponding degree quotient is disjoint from `U`. -/
       [∀ U, GradedRing (sectionGrading U)]
       (P : ∀ U : S.affineOpens, AlgebraicGeometry.ProjTwistPresentation (sectionGrading U))
       (model : ∀ (U : S.affineOpens) (d : ℕ),
-        (𝒜 (Int.ofNat d)).val.obj (Opposite.op (U : S.Opens)) ≃ sectionGrading U d)
+        (𝒜 (Int.ofNat d)).val.obj (Opposite.op (U : S.Opens)) ≃+ sectionGrading U d)
+      (hModel : ∀ U : S.affineOpens,
+        AlgebraicGeometry.AffineOpenSectionProj.IsAffineOpenSectionModel
+          (sectionGrading U) 𝒜 U (model U))
       (presentation : AlgebraicGeometry.Scheme.RelativeProjTwist.Presentation
-        𝒜 A σ sectionGrading P model p)
+        𝒜 A σ sectionGrading P (fun U d ↦ (model U d).toEquiv) p)
       (i : Z ⟶ X) [AlgebraicGeometry.IsClosedImmersion i]
       [AlgebraicGeometry.QuasiCompact p]
       [AlgebraicGeometry.Scheme.Hom.FinitePresentation i]
@@ -46,7 +49,7 @@ support of the corresponding degree quotient is disjoint from `U`. -/
       (hdisjoint : Disjoint (U : Set S) (Set.range (i ≫ p).base)),
       ∃ (d : ℕ) (F : Subobject (𝒜 (Int.ofNat d)))
         (Q : AlgebraicGeometry.Scheme.RelativeProjTwist.Presentation.ClosedSubschemeQuotient
-          presentation i),
+          presentation hqc hModel i),
         0 < d ∧
           F ∈ AlgebraicGeometry.Scheme.Modules.finiteTypeQuasiCoherentSubobjects
             (𝒜 (Int.ofNat d)) ∧

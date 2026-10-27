@@ -43,7 +43,7 @@ theorem liftedAssociatedStructureSheaf_eq (X : GroupoidsOver S)
       (sheafCompose (X.associatedTopology τ)
           (Scheme.Site.ringUniverseLift.{u, u + 1})).obj
         (associatedStructureSheaf X τ) :=
-  sorry
+  rfl
 
 /-- Componentwise, the lifted sheaf is the `ULift` of the canonical sections of
 `𝒪_𝒳`. -/
@@ -52,7 +52,7 @@ theorem liftedAssociatedStructureSheaf_obj {X : GroupoidsOver S}
     (liftedAssociatedStructureSheaf X τ).obj.obj (op x) =
       Scheme.Site.ringUniverseLiftObj.{u, u + 1}
         ((associatedStructureSheaf X τ).obj.obj (op x)) :=
-  sorry
+  rfl
 
 /-- The lifted structure sheaf at an object over `U` has value the universe lift
 of the global-section ring `Γ(U, 𝒪_U)`. -/
@@ -61,7 +61,7 @@ theorem liftedAssociatedStructureSheaf_obj_globalSections {X : GroupoidsOver S}
     (liftedAssociatedStructureSheaf X τ).obj.obj (op x) =
       Scheme.Site.ringUniverseLiftObj.{u, u + 1}
         (RingCat.of Γ((X.p.obj x).left, ⊤)) :=
-  sorry
+  rfl
 
 /-- The associated `τ`-site of `X`, ringed by the universe-lifted structure sheaf. -/
 abbrev liftedAssociatedRingedSite (X : GroupoidsOver S) (τ : StandardTopology) :
@@ -75,7 +75,7 @@ theorem liftedAssociatedRingedSite_structureSheaf (X : GroupoidsOver S)
     (τ : StandardTopology) :
     (liftedAssociatedRingedSite X τ).structureSheaf =
       liftedAssociatedStructureSheaf X τ :=
-  sorry
+  rfl
 
 /-- The restriction `𝒪` of the lifted structure sheaf `𝒪_𝒳` along
 `affineInclusion X`, as a sheaf on the associated affine `τ`-site. -/
@@ -93,7 +93,7 @@ theorem associatedAffineStructureSheaf_eq (X : GroupoidsOver S)
       ((affineInclusion X).sheafPushforwardContinuous RingCat.{u + 1}
           (X.associatedAffineTopology τ) (X.associatedTopology τ)).obj
         (liftedAssociatedStructureSheaf X τ) :=
-  sorry
+  rfl
 
 /-- The restriction of `𝒪_𝒳` to `𝒳_affine` is a sheaf for every associated
 affine `τ`-topology. -/
@@ -101,7 +101,7 @@ theorem associatedAffineStructureSheaf_isSheaf (X : GroupoidsOver S)
     (τ : StandardTopology) :
     Presheaf.IsSheaf (X.associatedAffineTopology τ)
       (associatedAffineStructureSheaf X τ).obj :=
-  sorry
+  (associatedAffineStructureSheaf X τ).property
 
 /-- On an affine object `x`, the restricted structure sheaf agrees with the
 lifted value of `𝒪_𝒳` at `x`. -/
@@ -109,7 +109,7 @@ theorem associatedAffineStructureSheaf_obj (X : GroupoidsOver S)
     (τ : StandardTopology) (x : Affine X) :
     (associatedAffineStructureSheaf X τ).obj.obj (op x) =
       (liftedAssociatedStructureSheaf X τ).obj.obj (op x.obj) :=
-  sorry
+  rfl
 
 /-- Unfolding of the restricted structure sheaf as precomposition along
 `affineInclusion`. -/
@@ -130,7 +130,7 @@ theorem associatedAffineStructureSheafToPushforward_eq (X : GroupoidsOver S)
           RingCat.{u + 1} (X.associatedAffineTopology τ)
           (X.associatedTopology τ)).app
         (liftedAssociatedStructureSheaf X τ) :=
-  sorry
+  rfl
 
 /-- The associated affine `τ`-site of `X`, ringed by the restriction of `𝒪_𝒳`. -/
 abbrev associatedAffineRingedSite (X : GroupoidsOver S) (τ : StandardTopology) :
@@ -144,7 +144,7 @@ theorem associatedAffineRingedSite_structureSheaf (X : GroupoidsOver S)
     (τ : StandardTopology) :
     (associatedAffineRingedSite X τ).structureSheaf =
       associatedAffineStructureSheaf X τ :=
-  sorry
+  rfl
 
 /-- The affine inclusion as a functor of the associated ringed sites. -/
 abbrev affineInclusionRinged (X : GroupoidsOver S) (τ : StandardTopology) :
@@ -156,6 +156,6 @@ abbrev affineInclusionRinged (X : GroupoidsOver S) (τ : StandardTopology) :
 theorem affineInclusionRinged_obj (X : GroupoidsOver S) (τ : StandardTopology)
     (x : Affine X) :
     (affineInclusionRinged X τ).obj x = (affineInclusion X).obj x :=
-  sorry
+  rfl
 
 end AlgebraicGeometry.GroupoidsOver

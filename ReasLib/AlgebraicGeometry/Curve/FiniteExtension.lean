@@ -72,13 +72,6 @@ theorem coefficientRing_toSubring_bijective (k k' : Type u)
     [Field k] [Field k'] [Algebra k k'] :
     Function.Bijective (coefficientRing_toSubring k k') := sorry
 
-/-- The canonical coefficient ring is ring-equivalent to the displayed polynomial subring. -/
-noncomputable def coefficientRingEquivSubring (k k' : Type u)
-    [Field k] [Field k'] [Algebra k k'] :
-    coefficientRing k k' ≃+* coefficientSubring k k' :=
-  RingEquiv.ofBijective (coefficientRing_toSubring k k')
-    (coefficientRing_toSubring_bijective k k')
-
 /-- Evaluation at zero commutes with the coefficient extension on polynomials. -/
 theorem coefficientPolynomialMap_comm (k k' : Type u) [Field k] [Field k'] [Algebra k k'] :
     CommRingCat.ofHom (Polynomial.evalRingHom (0 : k)) ≫

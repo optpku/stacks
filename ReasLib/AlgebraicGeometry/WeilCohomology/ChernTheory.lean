@@ -41,25 +41,23 @@ structure ChernTheory
     (H : V → Type q) [∀ X, Ring (H X)] [∀ X, Algebra F (H X)] where
   /-- Data (D0): the Tate line is one-dimensional. -/
   tateLine_rank : Module.finrank F TateLine = 1
-  /-- The cohomological-degree and Tate-twist summands of total cohomology. -/
-  Hgrade : ∀ X, ℤ × ℤ → Submodule F (H X)
-  /-- The bigraded summands exhaust total cohomology. -/
+  /-- The single integer grading of total cohomology. -/
+  Hgrade : ∀ X, ℤ → Submodule F (H X)
+  /-- The single graded summands exhaust total cohomology. -/
   Hgrade_isInternal : ∀ X, DirectSum.IsInternal (Hgrade X)
-  /-- Tensoring with the Tate line raises the twist index by one. -/
-  tateTwist : ∀ X i j, Hgrade X (i, j) ⊗[F] TateLine ≃ₗ[F] Hgrade X (i, j + 1)
-  /-- The unit has bidegree `(0, 0)`. -/
-  one_mem : ∀ X, (1 : H X) ∈ Hgrade X (0, 0)
-  /-- Cup product adds both bidegrees. -/
-  mul_mem : ∀ X {p r : ℤ × ℤ} (a : Hgrade X p) (b : Hgrade X r),
+  /-- The unit has cohomological degree zero. -/
+  one_mem : ∀ X, (1 : H X) ∈ Hgrade X (0)
+  /-- Cup product adds cohomological degrees. -/
+  mul_mem : ∀ X {p r : ℤ} (a : Hgrade X p) (b : Hgrade X r),
     (a : H X) * b ∈ Hgrade X (p + r)
   /-- Homogeneous cup products are graded-commutative. -/
-  gradedComm : ∀ X {i i' j j' : ℤ} (a : Hgrade X (i, j))
-      (b : Hgrade X (i', j')),
+  gradedComm : ∀ X {i i' : ℤ} (a : Hgrade X (i))
+      (b : Hgrade X (i')),
     (a : H X) * b = (-1 : H X) ^ (i * i').natAbs * ((b : H X) * a)
   /-- Data (D1): contravariant pullback on total cohomology. -/
   pullback : ∀ {X Y : V}, (X ⟶ Y) → H Y →ₐ[F] H X
-  /-- Pullback preserves both bidegrees. -/
-  pullback_mem : ∀ {X Y : V} (f : X ⟶ Y) (p : ℤ × ℤ) (a : Hgrade Y p),
+  /-- Pullback preserves both cohomological degrees. -/
+  pullback_mem : ∀ {X Y : V} (f : X ⟶ Y) (p : ℤ) (a : Hgrade Y p),
     pullback f a ∈ Hgrade X p
   /-- Pullback by an identity is the identity. -/
   pullback_id : ∀ X, pullback (𝟙 X) = AlgHom.id F (H X)
@@ -68,9 +66,46 @@ structure ChernTheory
     pullback (f ≫ g) = (pullback f).comp (pullback g)
   /-- Data (D2'): the first Chern class on the canonical Picard group. -/
   firstChernClass : ∀ X,
-    (geometry.scheme.obj X).left.PicardGroup →+ Hgrade X (2, 1)
+    (geometry.scheme.obj X).left.PicardGroup →+ Hgrade X (2)
 
 namespace ChernTheory
+
+section ExternalTwists
+
+variable {k : Type u} [Field k] {F : Type v} [Field F] [CharZero F]
+    {TateLine : Type x} [AddCommGroup TateLine] [Module F TateLine]
+    {V : Type w} [Category.{z} V]
+    {dimension : V → ℕ} {product : V → V → V}
+    {fst : ∀ X Y, product X Y ⟶ X} {snd : ∀ X Y, product X Y ⟶ Y}
+    {point : V} {CH : V → Type y} [∀ X, CommRing (CH X)]
+    {CHgrade : ∀ X, ℤ → Submodule ℤ (CH X)} [∀ X, GradedAlgebra (CHgrade X)]
+    {cyclePullback : ∀ {X Y : V}, (X ⟶ Y) → CHgrade Y →ₐᵍ[ℤ] CHgrade X}
+    {cyclePushforward : ∀ {X Y : V}, (X ⟶ Y) → CH X →+ CH Y}
+    {pointCycle : CHgrade point 0}
+    {geometry : SmoothProjectiveContext k V dimension product fst snd point CH CHgrade
+      cyclePullback cyclePushforward pointCycle}
+    {H : V → Type q} [∀ X, Ring (H X)] [∀ X, Algebra F (H X)]
+
+variable (T : ChernTheory F TateLine geometry H)
+
+/-- External twists of a homogeneous cohomology space. -/
+abbrev twistedGrade (X : V) (i n : ℤ) := Tate.Twist F TateLine (T.Hgrade X i) n
+
+/-- Actual tensor-power Tate shift, derived from D0. Coordinate adapter using the chosen Tate coordinates; canonical external
+compatibility and coherence are tracked by RL-2195. -/
+def tateTwist (X : V) (i n : ℤ) :
+    T.twistedGrade X i n ⊗[F] TateLine ≃ₗ[F] T.twistedGrade X i (n + 1) :=
+  Tate.shift T.tateLine_rank (T.Hgrade X i) n
+
+/-- D2' as a map to the external tensor product H²(X) ⊗ F(1). Coordinate adapter using the chosen Tate coordinates; canonical external
+compatibility and coherence are tracked by RL-2195. -/
+def twistedFirstChernClass (X : V) :
+    (geometry.scheme.obj X).left.PicardGroup →+ T.twistedGrade X 2 1 :=
+  (Tate.trivialization T.tateLine_rank (T.Hgrade X 2) 1).symm.toLinearMap.toAddMonoidHom.comp
+    (T.firstChernClass X)
+
+end ExternalTwists
+
 
 /-- Forget the axioms and auxiliary geometric choices of an existing pre-Weil
 theory, after identifying its Picard groups with the canonical Picard groups of
@@ -97,7 +132,6 @@ def ofPreWeilTheory
   tateLine_rank := T.tateLine_rank
   Hgrade := T.Hgrade
   Hgrade_isInternal := T.Hgrade_isInternal
-  tateTwist := T.tateTwist
   one_mem := T.one_mem
   mul_mem := T.mul_mem
   gradedComm := T.gradedComm
@@ -111,7 +145,7 @@ def ofPreWeilTheory
 cohomology functor, and canonical-Picard first Chern class. -/
 def ofFunctor := @ChernTheory.mk
 
-/-- `ofFunctor` retains the supplied bigrading. -/
+/-- `ofFunctor` retains the supplied single grading. -/
 theorem ofFunctor_Hgrade
     {k : Type u} [Field k] {F : Type v} [Field F] [CharZero F]
     {TateLine : Type x} [AddCommGroup TateLine] [Module F TateLine]
@@ -127,24 +161,23 @@ theorem ofFunctor_Hgrade
       cyclePullback cyclePushforward pointCycle}
     {H : V → Type q} [∀ X, Ring (H X)] [∀ X, Algebra F (H X)]
     (tateLine_rank : Module.finrank F TateLine = 1)
-    (Hgrade : ∀ X, ℤ × ℤ → Submodule F (H X))
+    (Hgrade : ∀ X, ℤ → Submodule F (H X))
     (Hgrade_isInternal : ∀ X, DirectSum.IsInternal (Hgrade X))
-    (tateTwist : ∀ X i j, Hgrade X (i, j) ⊗[F] TateLine ≃ₗ[F] Hgrade X (i, j + 1))
-    (one_mem : ∀ X, (1 : H X) ∈ Hgrade X (0, 0))
-    (mul_mem : ∀ X {p r : ℤ × ℤ} (a : Hgrade X p) (b : Hgrade X r),
+    (one_mem : ∀ X, (1 : H X) ∈ Hgrade X (0))
+    (mul_mem : ∀ X {p r : ℤ} (a : Hgrade X p) (b : Hgrade X r),
       (a : H X) * b ∈ Hgrade X (p + r))
-    (gradedComm : ∀ X {i i' j j' : ℤ} (a : Hgrade X (i, j))
-      (b : Hgrade X (i', j')),
+    (gradedComm : ∀ X {i i' : ℤ} (a : Hgrade X (i))
+      (b : Hgrade X (i')),
       (a : H X) * b = (-1 : H X) ^ (i * i').natAbs * ((b : H X) * a))
     (pullback : ∀ {X Y : V}, (X ⟶ Y) → H Y →ₐ[F] H X)
-    (pullback_mem : ∀ {X Y : V} (f : X ⟶ Y) (p : ℤ × ℤ) (a : Hgrade Y p),
+    (pullback_mem : ∀ {X Y : V} (f : X ⟶ Y) (p : ℤ) (a : Hgrade Y p),
       pullback f a ∈ Hgrade X p)
     (pullback_id : ∀ X, pullback (𝟙 X) = AlgHom.id F (H X))
     (pullback_comp : ∀ {X Y Z : V} (f : X ⟶ Y) (g : Y ⟶ Z),
       pullback (f ≫ g) = (pullback f).comp (pullback g))
     (firstChernClass : ∀ X,
-      (geometry.scheme.obj X).left.PicardGroup →+ Hgrade X (2, 1)) :
-    (ofFunctor tateLine_rank Hgrade Hgrade_isInternal tateTwist one_mem mul_mem
+      (geometry.scheme.obj X).left.PicardGroup →+ Hgrade X (2)) :
+    (ofFunctor tateLine_rank Hgrade Hgrade_isInternal one_mem mul_mem
       gradedComm pullback pullback_mem pullback_id pullback_comp firstChernClass).Hgrade =
         Hgrade := sorry
 
@@ -164,7 +197,7 @@ noncomputable def pullbackGrade
       cyclePullback cyclePushforward pointCycle}
     {H : V → Type q} [∀ X, Ring (H X)] [∀ X, Algebra F (H X)]
     (T : ChernTheory F TateLine geometry H) {X Y : V}
-    (f : X ⟶ Y) (p : ℤ × ℤ) : T.Hgrade Y p →ₗ[F] T.Hgrade X p :=
+    (f : X ⟶ Y) (p : ℤ) : T.Hgrade Y p →ₗ[F] T.Hgrade X p :=
   LinearMap.codRestrict (T.Hgrade X p)
     ((T.pullback f).toLinearMap.domRestrict (T.Hgrade Y p)) (T.pullback_mem f p)
 
@@ -184,7 +217,7 @@ theorem pullbackGrade_apply
       cyclePullback cyclePushforward pointCycle}
     {H : V → Type q} [∀ X, Ring (H X)] [∀ X, Algebra F (H X)]
     (T : ChernTheory F TateLine geometry H) {X Y : V}
-    (f : X ⟶ Y) (p : ℤ × ℤ) (a : T.Hgrade Y p) :
+    (f : X ⟶ Y) (p : ℤ) (a : T.Hgrade Y p) :
     T.pullback f a = T.pullbackGrade f p a := sorry
 
 /-- The canonical exterior-product map determined by D1 and the product in the
@@ -246,7 +279,7 @@ structure CycleClass
   /-- The cycle-class ring homomorphism. -/
   map : ∀ X, CH X →+* H X
   /-- Codimension `i` maps to bidegree `(2 * i, i)`. -/
-  map_mem : ∀ X (i : ℤ) (z : CHgrade X i), map X z ∈ T.Hgrade X (2 * i, i)
+  map_mem : ∀ X (i : ℤ) (z : CHgrade X i), map X z ∈ T.Hgrade X (2 * i)
   /-- Cycle classes commute with canonical Chow pullback. -/
   map_pullback : ∀ {X Y : V} (f : X ⟶ Y) (z : CH Y),
     map X (cyclePullback f z) = T.pullback f (map Y z)
@@ -259,6 +292,31 @@ structure CycleClass
         (effectiveCartierDivisorPicardClass (geometry.scheme.map i).left hi)
 
 namespace CycleClass
+
+/-- The source-prescribed external Tate-valued cycle class associated to a
+cycle-class system.  The underlying map is the supplied cycle-class map; the
+Tate factor is introduced by the genuine tensor-power trivialization. Coordinate adapter using the chosen Tate coordinates; canonical external
+compatibility and coherence are tracked by RL-2195. -/
+def twistedMap
+    {k : Type u} [Field k] {F : Type v} [Field F] [CharZero F]
+    {TateLine : Type x} [AddCommGroup TateLine] [Module F TateLine]
+    {V : Type w} [Category.{z} V]
+    {dimension : V → ℕ} {product : V → V → V}
+    {fst : ∀ X Y, product X Y ⟶ X} {snd : ∀ X Y, product X Y ⟶ Y}
+    {point : V} {CH : V → Type y} [∀ X, CommRing (CH X)]
+    {CHgrade : ∀ X, ℤ → Submodule ℤ (CH X)} [∀ X, GradedAlgebra (CHgrade X)]
+    {cyclePullback : ∀ {X Y : V}, (X ⟶ Y) → CHgrade Y →ₐᵍ[ℤ] CHgrade X}
+    {cyclePushforward : ∀ {X Y : V}, (X ⟶ Y) → CH X →+ CH Y}
+    {pointCycle : CHgrade point 0}
+    {geometry : SmoothProjectiveContext k V dimension product fst snd point CH CHgrade
+      cyclePullback cyclePushforward pointCycle}
+    {H : V → Type q} [∀ X, Ring (H X)] [∀ X, Algebra F (H X)]
+    {T : ChernTheory F TateLine geometry H} (gamma : T.CycleClass)
+    (X : V) (i : ℤ) : CHgrade X i →+ T.twistedGrade X (2 * i) i :=
+  (Tate.trivialization T.tateLine_rank (T.Hgrade X (2 * i)) i).symm.toLinearMap.toAddMonoidHom.comp
+    { toFun := fun z ↦ ⟨gamma.map X z, gamma.map_mem X i z⟩
+      map_zero' := Subtype.ext (map_zero _)
+      map_add' := fun a b ↦ Subtype.ext ((gamma.map X).map_add a b) }
 
 /-- Build a cycle-class system from explicit homomorphisms and their canonical
 Chow compatibility laws. -/
@@ -281,7 +339,7 @@ theorem ofHom_map
     {H : V → Type q} [∀ X, Ring (H X)] [∀ X, Algebra F (H X)]
     {T : ChernTheory F TateLine geometry H}
     (map : ∀ X, CH X →+* H X)
-    (map_mem : ∀ X (i : ℤ) (z : CHgrade X i), map X z ∈ T.Hgrade X (2 * i, i))
+    (map_mem : ∀ X (i : ℤ) (z : CHgrade X i), map X z ∈ T.Hgrade X (2 * i))
     (map_pullback : ∀ {X Y : V} (f : X ⟶ Y) (z : CH Y),
       map X (cyclePullback f z) = T.pullback f (map Y z))
     (map_cartier : ∀ {Y X : V} (i : Y ⟶ X)
@@ -367,7 +425,7 @@ def IsNormalizedTrace
     {H : V → Type q} [∀ X, Ring (H X)] [∀ X, Algebra F (H X)]
     (T : ChernTheory F TateLine geometry H) (gamma : T.CycleClass)
     (X : V) (trace : H X →ₗ[F] F) : Prop :=
-  (∀ p : ℤ × ℤ, p ≠ (2 * (dimension X : ℤ), (dimension X : ℤ)) →
+  (∀ p : ℤ, p ≠ (2 * (dimension X : ℤ)) →
       ∀ a : T.Hgrade X p, trace a = 0) ∧
     ∀ (diagonal : X ⟶ product X X), IsDiagonal geometry diagonal →
       ∀ (z : CHgrade (product X X) (dimension X)),
@@ -395,7 +453,7 @@ theorem isNormalizedTrace_iff
     (T : ChernTheory F TateLine geometry H) (gamma : T.CycleClass)
     (X : V) (trace : H X →ₗ[F] F) :
     T.IsNormalizedTrace gamma X trace ↔
-      ((∀ p : ℤ × ℤ, p ≠ (2 * (dimension X : ℤ), (dimension X : ℤ)) →
+      ((∀ p : ℤ, p ≠ (2 * (dimension X : ℤ)) →
           ∀ a : T.Hgrade X p, trace a = 0) ∧
         ∀ (diagonal : X ⟶ product X X), IsDiagonal geometry diagonal →
           ∀ (z : CHgrade (product X X) (dimension X)),
@@ -445,10 +503,10 @@ structure InitialAxioms
   axiomA3 : ∀ {P X : V} (p : P ⟶ X) (E : (geometry.scheme.obj X).left.Modules)
       (n : ℕ) (hE : Scheme.Modules.IsFiniteLocallyFreeOfRank n E)
       (hp : Scheme.ProjectiveBundle.Representation (geometry.scheme.map p).left E)
-      (i j : ℤ),
+      (_hn : 0 < n) (i j : ℤ),
     ∃ e : (∀ r : Fin n,
-        T.Hgrade X (i - 2 * ((r : ℕ) : ℤ), j - ((r : ℕ) : ℤ))) ≃ₗ[F]
-          T.Hgrade P (i, j),
+        T.Hgrade X (i - 2 * ((r : ℕ) : ℤ))) ≃ₗ[F]
+          T.Hgrade P (i),
       ∀ a, (e a : H P) = ∑ r : Fin n,
         T.pullback p (a r) *
           (T.firstChernClass P
@@ -509,7 +567,7 @@ def SatisfiesAxiomA8
     (eG : geometry.scheme.obj G ≅ SchemeOverField.globalSectionsSpec (geometry.scheme.obj X)),
     (geometry.scheme.map g).left =
         (SchemeOverField.toGlobalSectionsSpec (geometry.scheme.obj X)).left ≫ eG.inv.left →
-      Function.Bijective (T.pullbackGrade g (0, 0))
+      Function.Bijective (T.pullbackGrade g 0)
 
 /-- The A8 predicate unfolds to pullback along the canonical global-sections map. -/
 theorem satisfiesAxiomA8_iff
@@ -532,7 +590,7 @@ theorem satisfiesAxiomA8_iff
         (eG : geometry.scheme.obj G ≅ SchemeOverField.globalSectionsSpec (geometry.scheme.obj X)),
         (geometry.scheme.map g).left =
             (SchemeOverField.toGlobalSectionsSpec (geometry.scheme.obj X)).left ≫ eG.inv.left →
-          Function.Bijective (T.pullbackGrade g (0, 0)) := sorry
+          Function.Bijective (T.pullbackGrade g 0) := sorry
 
 /-- Axiom (A9): normalized traces obey the divisor trace formula. -/
 def SatisfiesAxiomA9
@@ -557,7 +615,7 @@ def SatisfiesAxiomA9
       dimension X = dimension Y + 1 →
         ∀ (gamma : T.CycleClass) (traceX : H X →ₗ[F] F) (traceY : H Y →ₗ[F] F),
           T.IsNormalizedTrace gamma X traceX → T.IsNormalizedTrace gamma Y traceY →
-            ∀ a : T.Hgrade X (2 * (dimension Y : ℤ), (dimension Y : ℤ)),
+            ∀ a : T.Hgrade X (2 * (dimension Y : ℤ)),
               traceY (T.pullback i a) = traceX
                 ((a : H X) * T.firstChernClass X
                   (effectiveCartierDivisorPicardClass (geometry.scheme.map i).left hi))
@@ -589,7 +647,7 @@ theorem satisfiesAxiomA9_iff
             ∀ (gamma : T.CycleClass) (traceX : H X →ₗ[F] F) (traceY : H Y →ₗ[F] F),
               T.IsNormalizedTrace gamma X traceX →
                 T.IsNormalizedTrace gamma Y traceY →
-                ∀ a : T.Hgrade X (2 * (dimension Y : ℤ), (dimension Y : ℤ)),
+                ∀ a : T.Hgrade X (2 * (dimension Y : ℤ)),
                   traceY (T.pullback i a) = traceX
                     ((a : H X) * T.firstChernClass X
                       (effectiveCartierDivisorPicardClass

@@ -24,16 +24,16 @@ theorem of_localizationAway_unitIdeal
     {A : Type u} [CommRing A] [IsNoetherianRing A]
     {ι : Type v} [Finite ι]
     [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
-    (HA : MonoidalClosed (DerivedCategory (ModuleCat.{u} A)))
+    (CA : CanonicalClosedPresentation (A := A))
     (f : ι → A) (hunit : Ideal.span (Set.range f) = ⊤)
     [∀ i, MonoidalCategory
       (DerivedCategory (ModuleCat.{u} (Localization.Away (f i))))]
-    (Hlocal : ∀ i, MonoidalClosed
-      (DerivedCategory (ModuleCat.{u} (Localization.Away (f i)))))
+    (Clocal : ∀ i, CanonicalClosedPresentation
+      (A := Localization.Away (f i)))
     (ω : DerivedCategory (ModuleCat.{u} A))
     (hlocal : ∀ i,
       ((ModuleCat.derivedExtensionOfScalars
-        (algebraMap A (Localization.Away (f i)))).obj ω).IsDualizingComplex (Hlocal i)) :
-    ω.IsDualizingComplex HA := sorry
+        (algebraMap A (Localization.Away (f i)))).obj ω).IsCanonicalDualizingComplex (Clocal i)) :
+    ω.IsCanonicalDualizingComplex CA := sorry
 
 end CategoryTheory.DerivedCategory.IsDualizingComplex

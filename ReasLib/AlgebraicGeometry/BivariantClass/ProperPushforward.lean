@@ -26,7 +26,8 @@ theorem properPushforwardSquare
     (f : X ⟶ Y) (g : Y ⟶ T) (i : Y' ⟶ Y) (g' : Y' ⟶ T') (h : T' ⟶ T)
     (square : IsPullback i.left g'.left g.left h.left) :
     IsPullback (pullback.fst f i).left (pullback.snd f i ≫ g').left
-      (f ≫ g).left h.left := sorry
+      (f ≫ g).left h.left := by
+  exact ((IsPullback.of_hasPullback f i).map (Over.forget S)).paste_vert square
 
 /-- The cap family obtained by evaluating on the base change of a proper morphism and
 then applying proper pushforward on relative Chow groups. -/

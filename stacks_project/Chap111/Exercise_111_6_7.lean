@@ -26,4 +26,4 @@ the T₀ property. -/
 #check (PrimeSpectrum.instT0Space : ∀ {R : Type u} [CommSemiring R], T0Space (PrimeSpectrum R))
 
 /- Concrete non-T₀ example given by the indiscrete topology on `Bool`. -/
-#check (IndiscreteTopology.notT0WithTopologyBool : ¬ T0Space (WithTopology Bool ⊤))
+#check (IndiscreteTopology.not_t0Space_withTopology_bool : ¬ T0Space (WithTopology Bool ⊤))

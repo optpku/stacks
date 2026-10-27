@@ -15,7 +15,6 @@ public import ReasLib.Topology.ConstructibleTopology.Specialization
 
 This module packages the equivalent separation, specialization, and
 constructible-topology criteria for a spectral space to be profinite.
-@stack 0905
 -/
 
 @[expose] public section
@@ -38,16 +37,8 @@ theorem t2Space_iff_totallyDisconnectedSpace (X : Type u) [TopologicalSpace X]
     [SpectralSpace X] :
     T2Space X ↔ TotallyDisconnectedSpace X := sorry
 
-/-- For a spectral space, Hausdorffness is equivalent to every compact open
+/-- For a spectral space, Hausdorffness is equivalent to every open compact
 subset being closed. -/
-@[stacks 0905 "Hausdorff iff compact opens are closed"]
-theorem t2Space_iff_compactOpen_isClosed (X : Type u) [TopologicalSpace X]
-    [SpectralSpace X] :
-    T2Space X ↔ ∀ U : CompactOpens X, IsClosed (U : Set X) := sorry
-
-/-- For a spectral space, Hausdorffness is equivalent to every open compact subset being closed.
-This is the unbundled-set formulation used when compact opens arise from a construction rather
-than as elements of `CompactOpens X`. -/
 @[stacks 0905 "Hausdorff iff open compact subsets are closed"]
 theorem t2Space_iff_forall_isOpen_isCompact_isClosed (X : Type u) [TopologicalSpace X]
     [SpectralSpace X] :
@@ -96,5 +87,3 @@ theorem profinite_criteria (X : Type u) [TopologicalSpace X] [SpectralSpace X] :
         constructibleTopology X = ‹TopologicalSpace X› ] := sorry
 
 end SpectralSpace
-
--- Public smoke checks keep the reusable criteria discoverable from this leaf.

@@ -165,14 +165,20 @@ def indexedCoprod.mapHom {Δ₁ Δ₂ : J} (f : Δ₁ ⟶ Δ₂) :
 @[stacks 017C "indexed-coproduct reindexing identity law"]
 theorem indexedCoprod.mapHom.id (Δ : J) :
     indexedCoprod.mapHom U V (𝟙 Δ) =
-      𝟙 (∐ fun _ : U.obj Δ ↦ V.obj Δ) := sorry
+      𝟙 (∐ fun _ : U.obj Δ ↦ V.obj Δ) := by
+  apply Sigma.hom_ext
+  intro u
+  simp [indexedCoprod.mapHom]
 
 /-- Indexed-coproduct reindexing preserves composition. -/
 @[stacks 017C "indexed-coproduct reindexing composition law"]
 theorem indexedCoprod.mapHom.comp {Δ₁ Δ₂ Δ₃ : J}
     (f : Δ₁ ⟶ Δ₂) (g : Δ₂ ⟶ Δ₃) :
     indexedCoprod.mapHom U V (f ≫ g) =
-      indexedCoprod.mapHom U V f ≫ indexedCoprod.mapHom U V g := sorry
+      indexedCoprod.mapHom U V f ≫ indexedCoprod.mapHom U V g := by
+  apply Sigma.hom_ext
+  intro u
+  simp [indexedCoprod.mapHom, Category.assoc]
 
 /-- The indexed coproduct diagram: given `U : J ⥤ Type w` and `V : J ⥤ C`, its value
 at `Δ : J` is the coproduct `∐ (fun _ : U.obj Δ ↦ V.obj Δ)`, with structure maps
@@ -187,19 +193,20 @@ def indexedCoprod : J ⥤ C where
 /-- The value of an indexed coproduct is the corresponding coproduct in the target category. -/
 @[simp, stacks 017C "indexed-coproduct object formula"]
 theorem indexedCoprod.obj (Δ : J) :
-    (indexedCoprod U V).obj Δ = ∐ (fun _ : U.obj Δ ↦ V.obj Δ) := sorry
+    (indexedCoprod U V).obj Δ = ∐ (fun _ : U.obj Δ ↦ V.obj Δ) := rfl
 
 /-- The structure map of an indexed coproduct is the reindexing coproduct map. -/
 @[simp, stacks 017C "indexed-coproduct map formula"]
 theorem indexedCoprod.map {Δ₁ Δ₂ : J} (f : Δ₁ ⟶ Δ₂) :
-    (indexedCoprod U V).map f = Sigma.map' (U.map f) (fun _ ↦ V.map f) := sorry
+    (indexedCoprod U V).map f = Sigma.map' (U.map f) (fun _ ↦ V.map f) := rfl
 
 /-- An injection into an indexed coproduct followed by its structure map is the corresponding
 injection after reindexing, followed by the structure map of the valued diagram. -/
 @[stacks 017C "indexed-coproduct structure-map injection formula"]
 theorem indexedCoprod.ι.map {Δ₁ Δ₂ : J} (f : Δ₁ ⟶ Δ₂) (u : U.obj Δ₁) :
     Sigma.ι (fun _ : U.obj Δ₁ ↦ V.obj Δ₁) u ≫ (indexedCoprod U V).map f =
-      V.map f ≫ Sigma.ι (fun _ : U.obj Δ₂ ↦ V.obj Δ₂) (U.map f u) := sorry
+      V.map f ≫ Sigma.ι (fun _ : U.obj Δ₂ ↦ V.obj Δ₂) (U.map f u) := by
+  simp [indexedCoprod, indexedCoprod.mapHom]
 
 /-- A morphism out of an indexed coproduct is componentwise natural with respect to its
 coproduct injections. -/
@@ -210,7 +217,13 @@ theorem indexedCoprod.hom_naturality {X : J ⥤ C}
       (V.map f)
       (Sigma.ι (fun _ : U.obj Δ₁ ↦ V.obj Δ₁) u ≫ h.app Δ₁)
       (Sigma.ι (fun _ : U.obj Δ₂ ↦ V.obj Δ₂) (U.map f u) ≫ h.app Δ₂)
-      (X.map f) := sorry
+      (X.map f) := by
+  constructor
+  change V.map f ≫ (Sigma.ι (fun _ : U.obj Δ₂ ↦ V.obj Δ₂) (U.map f u) ≫ h.app Δ₂) =
+    (Sigma.ι (fun _ : U.obj Δ₁ ↦ V.obj Δ₁) u ≫ h.app Δ₁) ≫ X.map f
+  simpa [indexedCoprod, indexedCoprod.mapHom, ← Category.assoc] using
+    congrArg (fun k ↦ Sigma.ι (fun _ : U.obj Δ₁ ↦ V.obj Δ₁) u ≫ k)
+      (h.naturality f)
 
 /-- Two morphisms out of an indexed coproduct are equal when they agree after every
 degreewise coproduct injection. -/
@@ -220,7 +233,10 @@ theorem indexedCoprod.hom_ext {X : J ⥤ C}
     (h : ∀ (Δ : J) (u : U.obj Δ),
       Sigma.ι (fun _ : U.obj Δ ↦ V.obj Δ) u ≫ f.app Δ =
         Sigma.ι (fun _ : U.obj Δ ↦ V.obj Δ) u ≫ g.app Δ) :
-    f = g := sorry
+    f = g := by
+  apply NatTrans.ext
+  funext Δ
+  exact Sigma.hom_ext _ _ (h Δ)
 
 namespace indexedCoprod
 
@@ -241,7 +257,12 @@ def homApp [HasIndexedCoprod U V] [HasIndexedCoprod U W]
 theorem homApp.naturality [HasIndexedCoprod U V] [HasIndexedCoprod U W]
     (f : V ⟶ W) {Δ₁ Δ₂ : J} (g : Δ₁ ⟶ Δ₂) :
     (indexedCoprod U V).map g ≫ homApp U f Δ₂ =
-      homApp U f Δ₁ ≫ (indexedCoprod U W).map g := sorry
+      homApp U f Δ₁ ≫ (indexedCoprod U W).map g := by
+  apply Sigma.hom_ext
+  intro u
+  simpa [homApp, Category.assoc] using
+    congrArg (fun k ↦ k ≫ Sigma.ι (fun _ : U.obj Δ₂ ↦ W.obj Δ₂) (U.map g u))
+      (f.naturality g)
 
 /-- A morphism of valued diagrams induces a morphism between their indexed coproducts. -/
 @[stacks 017C "indexed-coproduct induced morphism"]
@@ -254,7 +275,7 @@ def hom [HasIndexedCoprod U V] [HasIndexedCoprod U W]
 @[simp, stacks 017C "indexed-coproduct induced component formula"]
 theorem hom_app [HasIndexedCoprod U V] [HasIndexedCoprod U W]
     (f : V ⟶ W) (Δ : J) :
-    (hom U f).app Δ = homApp U f Δ := sorry
+    (hom U f).app Δ = homApp U f Δ := rfl
 
 /-- Evaluation of an induced indexed-coproduct morphism on a coproduct injection. -/
 @[reassoc (attr := simp), stacks 017C "indexed-coproduct induced injection formula"]
@@ -262,19 +283,26 @@ theorem hom.ι
     [HasIndexedCoprod U V] [HasIndexedCoprod U W]
     (f : V ⟶ W) (Δ : J) (u : U.obj Δ) :
     Sigma.ι (fun _ : U.obj Δ ↦ V.obj Δ) u ≫ (hom U f).app Δ =
-      f.app Δ ≫ Sigma.ι (fun _ : U.obj Δ ↦ W.obj Δ) u := sorry
+      f.app Δ ≫ Sigma.ι (fun _ : U.obj Δ ↦ W.obj Δ) u :=
+  Sigma.ι_map (fun _ : U.obj Δ ↦ f.app Δ) u
 
 /-- Indexed coproducts preserve identity morphisms in the valued variable. -/
 @[simp, stacks 017C "indexed-coproduct induced identity"]
 theorem hom.id (V : J ⥤ C) [HasIndexedCoprod U V] :
-    hom U (𝟙 V) = 𝟙 (indexedCoprod U V) := sorry
+    hom U (𝟙 V) = 𝟙 (indexedCoprod U V) := by
+  apply indexedCoprod.hom_ext U V
+  intro Δ u
+  simp [hom, homApp, indexedCoprod]
 
 /-- Indexed coproducts preserve composition in the valued variable. -/
 @[stacks 017C "indexed-coproduct induced composition"]
 theorem hom.comp {V W X : J ⥤ C}
     [HasIndexedCoprod U V] [HasIndexedCoprod U W] [HasIndexedCoprod U X]
     (f : V ⟶ W) (g : W ⟶ X) :
-    hom U (f ≫ g) = hom U f ≫ hom U g := sorry
+    hom U (f ≫ g) = hom U f ≫ hom U g := by
+  apply indexedCoprod.hom_ext U V
+  intro Δ u
+  simp [hom, homApp, indexedCoprod, Category.assoc]
 
 end ObjectVariable
 
@@ -295,7 +323,12 @@ def indexHomApp [HasIndexedCoprod U₁ V] [HasIndexedCoprod U₂ V]
 theorem indexHomApp.naturality [HasIndexedCoprod U₁ V] [HasIndexedCoprod U₂ V]
     (a : U₁ ⟶ U₂) {Delta₁ Delta₂ : J} (f : Delta₁ ⟶ Delta₂) :
     (indexedCoprod U₁ V).map f ≫ indexHomApp V a Delta₂ =
-      indexHomApp V a Delta₁ ≫ (indexedCoprod U₂ V).map f := sorry
+      indexHomApp V a Delta₁ ≫ (indexedCoprod U₂ V).map f := by
+  apply Sigma.hom_ext
+  intro u
+  simpa [indexHomApp, Category.assoc] using
+    congrArg (fun t ↦ V.map f ≫ Sigma.ι (fun _ : U₂.obj Delta₂ ↦ V.obj Delta₂) t)
+      (a.naturality_apply f u)
 
 /-- A morphism of indexing diagrams induces a morphism between the corresponding indexed
 coproducts. -/
@@ -309,7 +342,7 @@ def indexHom [HasIndexedCoprod U₁ V] [HasIndexedCoprod U₂ V]
 @[simp, stacks 017C "indexed-coproduct index-map component formula"]
 theorem indexHom_app [HasIndexedCoprod U₁ V] [HasIndexedCoprod U₂ V]
     (a : U₁ ⟶ U₂) (Delta : J) :
-    (indexHom V a).app Delta = indexHomApp V a Delta := sorry
+    (indexHom V a).app Delta = indexHomApp V a Delta := rfl
 
 /-- An index-induced morphism sends each coproduct injection to the injection selected by the
 image of its index. -/
@@ -317,19 +350,26 @@ image of its index. -/
 theorem indexHom.ι [HasIndexedCoprod U₁ V] [HasIndexedCoprod U₂ V]
     (a : U₁ ⟶ U₂) (Delta : J) (u : U₁.obj Delta) :
     Sigma.ι (fun _ : U₁.obj Delta ↦ V.obj Delta) u ≫ (indexHom V a).app Delta =
-      Sigma.ι (fun _ : U₂.obj Delta ↦ V.obj Delta) (a.app Delta u) := sorry
+      Sigma.ι (fun _ : U₂.obj Delta ↦ V.obj Delta) (a.app Delta u) := by
+  simp [indexHomApp]
 
 /-- Indexed coproducts preserve identity morphisms in the indexing-diagram variable. -/
 @[simp, stacks 017C "indexed-coproduct index-map identity"]
 theorem indexHom.id (U : J ⥤ Type w) [HasIndexedCoprod U V] :
-    indexHom V (𝟙 U) = 𝟙 (indexedCoprod U V) := sorry
+    indexHom V (𝟙 U) = 𝟙 (indexedCoprod U V) := by
+  apply indexedCoprod.hom_ext U V
+  intro Delta u
+  simp [indexHom, indexHomApp, indexedCoprod]
 
 /-- Indexed coproducts preserve composition in the indexing-diagram variable. -/
 @[stacks 017C "indexed-coproduct index-map composition"]
 theorem indexHom.comp {U₁ U₂ U₃ : J ⥤ Type w}
     [HasIndexedCoprod U₁ V] [HasIndexedCoprod U₂ V] [HasIndexedCoprod U₃ V]
     (a : U₁ ⟶ U₂) (b : U₂ ⟶ U₃) :
-    indexHom V (a ≫ b) = indexHom V a ≫ indexHom V b := sorry
+    indexHom V (a ≫ b) = indexHom V a ≫ indexHom V b := by
+  apply indexedCoprod.hom_ext U₁ V
+  intro Delta u
+  simp [indexHom, indexHomApp, indexedCoprod]
 
 end IndexVariable
 
@@ -364,12 +404,12 @@ def indexFunctor : (J ⥤ Type w) ⥤ (J ⥤ C) where
 diagram. -/
 @[simp, stacks 017C "indexed-coproduct index-functor object formula"]
 theorem indexFunctor.obj (U : J ⥤ Type w) :
-    (indexFunctor V).obj U = indexedCoprod U V := sorry
+    (indexFunctor V).obj U = indexedCoprod U V := rfl
 
 /-- The map part of `indexFunctor V` is induced by the indexing-diagram morphism. -/
 @[simp, stacks 017C "indexed-coproduct index-functor map formula"]
 theorem indexFunctor.map {U₁ U₂ : J ⥤ Type w} (a : U₁ ⟶ U₂) :
-    (indexFunctor V).map a = indexHom V a := sorry
+    (indexFunctor V).map a = indexHom V a := rfl
 
 end IndexVariableFunctor
 
@@ -383,7 +423,10 @@ theorem indexHom.naturality
     [HasIndexedCoprod U₁ V] [HasIndexedCoprod U₁ W]
     [HasIndexedCoprod U₂ V] [HasIndexedCoprod U₂ W]
     (a : U₁ ⟶ U₂) (f : V ⟶ W) :
-    hom U₁ f ≫ indexHom W a = indexHom V a ≫ hom U₂ f := sorry
+    hom U₁ f ≫ indexHom W a = indexHom V a ≫ hom U₂ f := by
+  apply indexedCoprod.hom_ext U₁ V
+  intro Delta u
+  simp [hom, homApp, indexHom, indexHomApp, indexedCoprod]
 
 end MixedVariable
 
@@ -403,12 +446,15 @@ def indexHom.natTrans (a : U₁ ⟶ U₂) :
 /-- The component of the natural transformation induced by an indexing-diagram morphism. -/
 @[simp, stacks 017C "indexed-coproduct index natural-transformation component"]
 theorem indexHom.natTrans.app (a : U₁ ⟶ U₂) (V : J ⥤ C) :
-    (indexHom.natTrans (C := C) a).app V = indexHom V a := sorry
+    (indexHom.natTrans (C := C) a).app V = indexHom V a := rfl
 
 /-- The indexing natural transformation associated to an identity is the identity. -/
 @[simp, stacks 017C "indexed-coproduct index natural-transformation identity"]
 theorem indexHom.natTrans.id (U : J ⥤ Type w) [HasIndexedCoprods U C] :
-    indexHom.natTrans (C := C) (𝟙 U) = 𝟙 (functor (C := C) U) := sorry
+    indexHom.natTrans (C := C) (𝟙 U) = 𝟙 (functor (C := C) U) := by
+  apply NatTrans.ext
+  funext V
+  exact indexHom.id V U
 
 /-- Indexing natural transformations preserve composition. -/
 @[stacks 017C "indexed-coproduct index natural-transformation composition"]
@@ -416,7 +462,10 @@ theorem indexHom.natTrans.comp {U₁ U₂ U₃ : J ⥤ Type w}
     [HasIndexedCoprods U₁ C] [HasIndexedCoprods U₂ C] [HasIndexedCoprods U₃ C]
     (a : U₁ ⟶ U₂) (b : U₂ ⟶ U₃) :
     indexHom.natTrans (C := C) (a ≫ b) =
-      indexHom.natTrans (C := C) a ≫ indexHom.natTrans (C := C) b := sorry
+      indexHom.natTrans (C := C) a ≫ indexHom.natTrans (C := C) b := by
+  apply NatTrans.ext
+  funext V
+  exact indexHom.comp V a b
 
 end IndexNaturalTransformation
 
@@ -429,14 +478,18 @@ variable (K : E ⥤ (J ⥤ Type w)) [HasIndexedCoprods.OfIndex K C]
 @[stacks 017C "indexed-coproduct bifunctor identity"]
 theorem bifunctor.map_id (X : E) :
     indexHom.natTrans (C := C) (K.map (𝟙 X)) =
-      𝟙 (functor (C := C) (K.obj X)) := sorry
+      𝟙 (functor (C := C) (K.obj X)) := by
+  rw [K.map_id]
+  exact indexHom.natTrans.id (K.obj X)
 
 /-- Composition law for index-variable natural transformations along an indexing functor. -/
 @[stacks 017C "indexed-coproduct bifunctor composition"]
 theorem bifunctor.map_comp {X Y Z : E} (f : X ⟶ Y) (g : Y ⟶ Z) :
     indexHom.natTrans (C := C) (K.map (f ≫ g)) =
       indexHom.natTrans (C := C) (K.map f) ≫
-        indexHom.natTrans (C := C) (K.map g) := sorry
+        indexHom.natTrans (C := C) (K.map g) := by
+  rw [K.map_comp]
+  exact indexHom.natTrans.comp (K.map f) (K.map g)
 
 /-- Indexed coproduct as a curried bifunctor, with the indexing variable restricted along
 `K`. -/
@@ -451,13 +504,13 @@ def bifunctor : E ⥤ (J ⥤ C) ⥤ (J ⥤ C) where
 indexed coproduct. -/
 @[simp, stacks 017C "indexed-coproduct bifunctor object formula"]
 theorem bifunctor.obj_obj (X : E) (V : J ⥤ C) :
-    ((bifunctor (C := C) K).obj X).obj V = indexedCoprod (K.obj X) V := sorry
+    ((bifunctor (C := C) K).obj X).obj V = indexedCoprod (K.obj X) V := rfl
 
 /-- The component of the indexed-coproduct bifunctor on a morphism in its indexing
 variable. -/
 @[simp, stacks 017C "indexed-coproduct bifunctor map formula"]
 theorem bifunctor.map_app {X Y : E} (f : X ⟶ Y) (V : J ⥤ C) :
-    ((bifunctor (C := C) K).map f).app V = indexHom V (K.map f) := sorry
+    ((bifunctor (C := C) K).map f).app V = indexHom V (K.map f) := rfl
 
 end Bifunctor
 

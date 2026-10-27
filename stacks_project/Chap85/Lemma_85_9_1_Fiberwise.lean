@@ -6,19 +6,9 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import Mathlib.Algebra.Homology.QuasiIso
-public import Mathlib.AlgebraicTopology.AlternatingFaceMapComplex
-public import Mathlib.CategoryTheory.Sites.Abelian
-public import stacks_project.Chap85.Lemma_85_9_1_Pullback
+public import ReasLib.CategoryTheory.Sites.Grothendieck.AugmentationResolution
 
-/-!
-# Alternating-face complex of `g_{n!}(a_n⁻¹ G)` on a fiberwise simplicial site
-
-In Situation 85.3.3 case B, with an augmentation towards a site `D` as in
-Remark 85.4.1, the simplicial abelian sheaf `n ↦ g_{n!}(a_n⁻¹ G)` on the total
-Grothendieck construction, its augmentation to `a⁻¹ G`, and the associated
-alternating-face chain complex.
--/
+/-! The canonical alternating-face complex and augmentation of abelian inverse images. -/
 
 @[expose] public section
 
@@ -37,7 +27,6 @@ variable {D : Type u} [Category.{v} D] (K : Precoverage D)
 variable (u0 : F.obj (op ⦋0⦌) ⥤ D)
 variable [IsFiberwiseSite F J]
 variable [IsAugmentation F J K u0]
-variable [∀ n, (ι F (op n)).IsContinuous (J (op n)).toGrothendieck (topology F J)]
 variable [∀ n, HasWeakSheafify (J n).toGrothendieck AddCommGrpCat.{w}]
 variable [HasWeakSheafify (topology F J) AddCommGrpCat.{w}]
 variable [∀ n, ∀ P : (F.obj (op n))ᵒᵖ ⥤ AddCommGrpCat.{w},
@@ -46,152 +35,13 @@ variable [∀ (m n : SimplexCategory) (φ : m ⟶ n) (P : (F.obj (op n))ᵒᵖ �
     ((F.map φ.op).toFunctor).op.HasPointwiseRightKanExtension P]
 variable (G : Sheaf K.toGrothendieck AddCommGrpCat.{w})
 
-/-- The structure map `g_{m!}(a_m⁻¹ G) ⟶ g_{n!}(a_n⁻¹ G)` induced by a fiberwise
-simplex operator `φ : n ⟶ m`. -/
-def fiberLowerShriekInverseImage_map {n m : SimplexCategory} (φ : n ⟶ m) :
-    (fiberAbelianLowerShriek F J m).obj
-      ((IsAugmentation.abelianStageInverseImage F J K u0 m).obj G) ⟶
-    (fiberAbelianLowerShriek F J n).obj
-      ((IsAugmentation.abelianStageInverseImage F J K u0 n).obj G) :=
-  ((fiberAbelianLowerShriek_adjunction F J m).homEquiv
-      ((IsAugmentation.abelianStageInverseImage F J K u0 m).obj G)
-      ((fiberAbelianLowerShriek F J n).obj
-        ((IsAugmentation.abelianStageInverseImage F J K u0 n).obj G))).symm
-    ((IsAugmentation.abelianStageInverseImage_comp F J K u0 φ).inv.app G ≫
-      fiberAbelianLowerShriek_component F J φ
-        ((IsAugmentation.abelianStageInverseImage F J K u0 n).obj G))
-
-/-- Identity simplex operators induce identity structure maps in case B. -/
-theorem fiberLowerShriekInverseImage_map_id (n : SimplexCategory) :
-    fiberLowerShriekInverseImage_map F J K u0 G (𝟙 n) =
-      𝟙 ((fiberAbelianLowerShriek F J n).obj
-        ((IsAugmentation.abelianStageInverseImage F J K u0 n).obj G)) :=
-  sorry
-
-/-- Structure maps of `n ↦ g_{n!}(a_n⁻¹ G)` are functorial in fiberwise simplex
-operators. -/
-theorem fiberLowerShriekInverseImage_map_comp {l n m : SimplexCategory}
-    (ψ : l ⟶ n) (φ : n ⟶ m) :
-    fiberLowerShriekInverseImage_map F J K u0 G (ψ ≫ φ) =
-      fiberLowerShriekInverseImage_map F J K u0 G φ ≫
-        fiberLowerShriekInverseImage_map F J K u0 G ψ :=
-  sorry
-
-/-- Opposite identity operators act as identity maps in case B. -/
-theorem fiberLowerShriekInverseImage_map_id_op (n : SimplexCategoryᵒᵖ) :
-    fiberLowerShriekInverseImage_map F J K u0 G (𝟙 n.unop) =
-      𝟙 ((fiberAbelianLowerShriek F J n.unop).obj
-        ((IsAugmentation.abelianStageInverseImage F J K u0 n.unop).obj G)) :=
-  sorry
-
-/-- Opposite composition of simplex operators acts as composition of structure maps
-in case B. -/
-theorem fiberLowerShriekInverseImage_map_comp_op {n m p : SimplexCategoryᵒᵖ}
-    (f : n ⟶ m) (g : m ⟶ p) :
-    fiberLowerShriekInverseImage_map F J K u0 G (f ≫ g).unop =
-      fiberLowerShriekInverseImage_map F J K u0 G f.unop ≫
-        fiberLowerShriekInverseImage_map F J K u0 G g.unop :=
-  sorry
-
-/-- The simplicial abelian sheaf `n ↦ g_{n!}(a_n⁻¹ G)` on the total fiberwise site. -/
-def fiberLowerShriekInverseImage :
-    SimplicialObject (Sheaf (topology F J) AddCommGrpCat.{w}) where
-  obj n :=
-    (fiberAbelianLowerShriek F J n.unop).obj
-      ((IsAugmentation.abelianStageInverseImage F J K u0 n.unop).obj G)
-  map f := fiberLowerShriekInverseImage_map F J K u0 G f.unop
-  map_id := fiberLowerShriekInverseImage_map_id_op F J K u0 G
-  map_comp := fiberLowerShriekInverseImage_map_comp_op F J K u0 G
-
-/-- The value of `fiberLowerShriekInverseImage` at `n` is `g_{n!}(a_n⁻¹ G)`. -/
-theorem fiberLowerShriekInverseImage_obj (n : SimplexCategory) :
-    (fiberLowerShriekInverseImage F J K u0 G).obj (op n) =
-      (fiberAbelianLowerShriek F J n).obj
-        ((IsAugmentation.abelianStageInverseImage F J K u0 n).obj G) :=
-  sorry
-
-/-- The source face map `d_i : g_{(n+1)!}(a_{n+1}⁻¹ G) ⟶ g_{n!}(a_n⁻¹ G)` in case B. -/
-def fiberInverseImageFace (n : ℕ) (i : Fin (n + 2)) :
-    (fiberLowerShriekInverseImage F J K u0 G).obj (op ⦋n + 1⦌) ⟶
-      (fiberLowerShriekInverseImage F J K u0 G).obj (op ⦋n⦌) :=
-  (fiberLowerShriekInverseImage F J K u0 G).δ i
-
-/-- The face map `fiberInverseImageFace i` is the simplicial operator `δ i`. -/
-theorem fiberInverseImageFace_eq (n : ℕ) (i : Fin (n + 2)) :
-    fiberInverseImageFace F J K u0 G n i =
-      (fiberLowerShriekInverseImage F J K u0 G).δ i :=
-  sorry
-
-/-- The component of the case B augmentation `g_{n!}(a_n⁻¹ G) ⟶ a⁻¹ G` at a simplex `n`. -/
-def fiberInverseImageAugmented_hom_app (n : SimplexCategoryᵒᵖ) :
-    (fiberLowerShriekInverseImage F J K u0 G).obj n ⟶
-      (IsAugmentation.abelianInverseImage F J K u0).obj G :=
-  ((fiberAbelianLowerShriek_adjunction F J n.unop).homEquiv
-      ((IsAugmentation.abelianStageInverseImage F J K u0 n.unop).obj G)
-      ((IsAugmentation.abelianInverseImage F J K u0).obj G)).symm
-    (IsAugmentation.restrictAbelianInverseImageIso F J K u0 G n.unop).inv
-
-/-- Naturality of the degreewise case B augmentation `g_{n!}(a_n⁻¹ G) ⟶ a⁻¹ G`. -/
-theorem fiberInverseImageAugmented_hom_naturality :
-    ∀ ⦃n m : SimplexCategoryᵒᵖ⦄ (f : n ⟶ m),
-      (fiberLowerShriekInverseImage F J K u0 G).map f ≫
-          fiberInverseImageAugmented_hom_app F J K u0 G m =
-        fiberInverseImageAugmented_hom_app F J K u0 G n ≫
-          ((SimplicialObject.const _).obj
-            ((IsAugmentation.abelianInverseImage F J K u0).obj G)).map f :=
-  sorry
-
-/-- The natural transformation `n ↦ g_{n!}(a_n⁻¹ G) ⟶ const (a⁻¹ G)` in case B. -/
-def fiberInverseImageAugmented_hom :
-    fiberLowerShriekInverseImage F J K u0 G ⟶
-      (SimplicialObject.const _).obj
-        ((IsAugmentation.abelianInverseImage F J K u0).obj G) where
-  app := fiberInverseImageAugmented_hom_app F J K u0 G
-  naturality := fiberInverseImageAugmented_hom_naturality F J K u0 G
-
-/-- The augmented simplicial object of `g_{n!}(a_n⁻¹ G)` over `a⁻¹ G` in case B. -/
-def fiberInverseImageAugmented :
-    SimplicialObject.Augmented (Sheaf (topology F J) AddCommGrpCat.{w}) where
-  left := fiberLowerShriekInverseImage F J K u0 G
-  right := (IsAugmentation.abelianInverseImage F J K u0).obj G
-  hom := fiberInverseImageAugmented_hom F J K u0 G
-
 variable [HasSheafify (topology F J) AddCommGrpCat.{w}]
 
-/-- The alternating-face chain complex `… → g_{2!}(a_2⁻¹ G) → g_{1!}(a_1⁻¹ G) →
-g_{0!}(a_0⁻¹ G)` in case B. -/
-abbrev fiberInverseImageComplex :
-    ChainComplex (Sheaf (topology F J) AddCommGrpCat.{w}) ℕ :=
-  (alternatingFaceMapComplex _).obj
-    (SimplicialObject.Augmented.drop.obj (fiberInverseImageAugmented F J K u0 G))
+#check (CategoryTheory.Grothendieck.fiberInverseImageAugmentation F J K u0 G :
+  CategoryTheory.Grothendieck.fiberInverseImageComplex F J K u0 G ⟶
+    (ChainComplex.single₀ _).obj ((IsAugmentation.abelianInverseImage F J K u0).obj G))
 
-/-- Degree `n` of `fiberInverseImageComplex` is the abelian sheaf `g_{n!}(a_n⁻¹ G)`. -/
-theorem fiberInverseImageComplex_X (n : ℕ) :
-    (fiberInverseImageComplex F J K u0 G).X n =
-      (fiberAbelianLowerShriek F J ⦋n⦌).obj
-        ((IsAugmentation.abelianStageInverseImage F J K u0 ⦋n⦌).obj G) :=
-  sorry
-
-/-- Differentials of `fiberInverseImageComplex` are the alternating sums of face maps. -/
-theorem fiberInverseImageComplex_d_eq (n : ℕ) :
-    (fiberInverseImageComplex F J K u0 G).d (n + 1) n =
-      ∑ i : Fin (n + 2),
-        (-1 : ℤ) ^ (i : ℕ) • fiberInverseImageFace F J K u0 G n i :=
-  sorry
-
-/-- The canonical chain-map augmentation from `fiberInverseImageComplex` to `a⁻¹ G`
-concentrated in degree zero. -/
-def fiberInverseImageAugmentation :
-    fiberInverseImageComplex F J K u0 G ⟶
-      (ChainComplex.single₀ _).obj
-        ((IsAugmentation.abelianInverseImage F J K u0).obj G) :=
-  AlternatingFaceMapComplex.ε.app (fiberInverseImageAugmented F J K u0 G)
-
-/-- The degree-zero component of `fiberInverseImageAugmentation` is the simplicial
-augmentation at `⦋0⦌`. -/
-theorem fiberInverseImageAugmentation_f_zero :
-    (fiberInverseImageAugmentation F J K u0 G).f 0 =
-      (fiberInverseImageAugmented F J K u0 G).hom.app (op ⦋0⦌) :=
-  sorry
+#check (AlgebraicTopology.AlternatingFaceMapComplex.ε_app_f_zero (fiberInverseImageAugmented F J K u0 G) :
+  (fiberInverseImageAugmentation F J K u0 G).f 0 = (fiberInverseImageAugmented F J K u0 G).hom.app (op ⦋0⦌))
 
 end CategoryTheory.Grothendieck

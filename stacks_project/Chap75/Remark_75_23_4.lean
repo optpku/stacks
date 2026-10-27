@@ -7,7 +7,7 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 import StacksCheckRecall
-public import stacks_project.Chap75.Remark_75_23_4_BaseChange
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.ProjectionFormula.ExtRepresentability.BaseChange
 
 @[expose] public section
 
@@ -15,7 +15,6 @@ open AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace CategoryTheory
 open AlgebraicGeometry.AlgebraicSpace.ModuleDerived
 open AlgebraicGeometry.AlgebraicSpace.Modules
 open CategoryTheory.DerivedCategory CategoryTheory.Limits
-open CategoryTheory.MonoidalCategory CategoryTheory.MonoidalClosed
 open ComplexShape DerivedCategory.TStructure TopologicalSpace
 
 universe u
@@ -30,12 +29,8 @@ by derived pullback. -/
 @[stacks 0DKL] #check
   (AlgebraicGeometry.AlgebraicSpace.ModuleDerived.RepresentsExt.pullback :
     ∀ {S : Scheme.{u}} {X B : AlgebraicSpace S}
-      [MonoidalCategory (ModuleDerived X)] [MonoidalCategory (ModuleDerived B)]
-      [localizationMonoidal X]
       (f : X ⟶ B)
       [LocallyOfFiniteType f] [QuasiSeparated f] [IsNoetherian B]
-      (H : MonoidalClosed (ModuleDerived X))
-      (H_B : MonoidalClosed (ModuleDerived B))
       (E : ModuleDerived X)
       (hE_minus : (t.minus : ObjectProperty (ModuleDerived X)) E)
       (hE_coherent :
@@ -47,17 +42,13 @@ by derived pullback. -/
       (hG_flat : ∀ i : ℤ, ∀ x, Modules.flatOverAt (G.X i) f x)
       (hG_support :
         ∀ i : ℤ,
-          ClosedSubset.IsProperOver f
+          ClosedSubset.ProperOver f
             (Closeds.closure (Modules.moduleSupport (G.X i))))
       (L : ModuleDerived B) (hL : IsPseudoCoherent B L)
-      (hrep : RepresentsExt f H H_B E G L)
+      (hrep : RepresentsExt f E G L)
       {X' Y' : AlgebraicSpace S}
-      [MonoidalCategory (ModuleDerived X')] [localizationMonoidal X']
-      [MonoidalCategory (ModuleDerived Y')]
-      (H' : MonoidalClosed (ModuleDerived X'))
-      (H_Y' : MonoidalClosed (ModuleDerived Y'))
       (g' : X' ⟶ X) (f' : X' ⟶ Y') (g : Y' ⟶ B)
       (sq : IsPullback g' f' f g),
-      RepresentsExt f' H' H_Y' ((modulePullbackDerived g').obj E)
+      RepresentsExt f' ((modulePullbackDerived g').obj E)
         (((Modules.pullback g').mapHomologicalComplex (up ℤ)).obj G)
         ((modulePullbackDerived g).obj L))

@@ -6,10 +6,8 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import Mathlib.Tactic.CrossRefAttribute
-public import stacks_project.Chap85.Lemma_85_23_3_Equivalence
-public import stacks_project.Chap85.Lemma_85_23_3_Fiberwise
-public import stacks_project.Chap85.Lemma_85_23_3_Total
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.RingedSite.Localization.Simplicial.UnboundedDescent
 
 /-!
 # Lemma 85.23.3
@@ -84,30 +82,32 @@ variable [ToposHom.HasModulePullbackDerived (toAmbient K.simplicial)]
 variable [ToposHom.HasModulePushforwardDerived (toAmbient K.simplicial)]
 variable [ToposHom.HasModuleDerivedAdjunction (toAmbient K.simplicial)]
 
-/-- Lemma 85.23.3
-Let `(C, O_C)` be a ringed site. Assume given weak Serre subcategories `A_U ⊂ Mod(O_U)`
-satisfying conditions (1), (2), and (3). Assume `C` has equalizers and fibre products and let
-`K` be a hypercovering. Let `((C / K)_total, O)` be as in Remark 85.16.5. Let `A_total ⊂ Mod(O)`
-denote the weak Serre subcategory of cartesian `O`-modules `F` whose restriction `F_n` is in
-`A_{K_n}` for all `n`. Then the functor `La^*` defines an equivalence
-`D_A(O_C) ≌ D_{A_total}(O)` with quasi-inverse `Ra_*`. -/
-@[stacks 0DC7]
-def moduleCohomologyInEquivalence :
-    (DerivedCategory.cohomologyIn A.global).FullSubcategory ≌
-      (DerivedCategory.cohomologyIn (A.total K.simplicial)).FullSubcategory :=
-  cohomologyInEquivalence A K
+/- Lemma 85.23.3. For a terminal hypercovering and a local restriction-stable weak Serre
+family with fiberwise bounded cohomology, canonical `La^*` is an equivalence. The restricted
+canonical adjunction below identifies `Ra_*` as its quasi-inverse. -/
+@[stacks 0DC7] #check
+  (RingedSite.Localization.AtSimplicialSR.pullbackFunctor_isEquivalence A K :
+    (RingedSite.Localization.AtSimplicialSR.pullbackFunctor A K).IsEquivalence)
 
-/-- The forward functor of `moduleCohomologyInEquivalence` is `La^*` corestricted to
-`D_{A_total}(O)`. -/
-theorem moduleCohomologyInEquivalence_functor :
-    (moduleCohomologyInEquivalence A K).functor = pullbackFunctor A K :=
-  sorry
+#check (RingedSite.Localization.AtSimplicialSR.pullbackFunctor A K :
+  (DerivedCategory.cohomologyIn A.global).FullSubcategory ⥤
+    (DerivedCategory.cohomologyIn (A.total K.simplicial)).FullSubcategory)
 
-/-- The inverse functor of `moduleCohomologyInEquivalence` is `Ra_*` restricted from
-`D_{A_total}(O)`. -/
-theorem moduleCohomologyInEquivalence_inverse :
-    (moduleCohomologyInEquivalence A K).inverse = pushforwardFunctor A K :=
-  sorry
+#check (RingedSite.Localization.AtSimplicialSR.pushforwardFunctor A K :
+  (DerivedCategory.cohomologyIn (A.total K.simplicial)).FullSubcategory ⥤
+    (DerivedCategory.cohomologyIn A.global).FullSubcategory)
+
+#check (RingedSite.Localization.AtSimplicialSR.cohomologyInDerivedAdjunction A K :
+  RingedSite.Localization.AtSimplicialSR.pullbackFunctor A K ⊣
+    RingedSite.Localization.AtSimplicialSR.pushforwardFunctor A K)
+
+#check (RingedSite.Localization.AtSimplicialSR.cohomologyInUnit_app_isIso A K :
+  ∀ E : (DerivedCategory.cohomologyIn A.global).FullSubcategory,
+    IsIso ((RingedSite.Localization.AtSimplicialSR.cohomologyInDerivedAdjunction A K).unit.app E))
+
+#check (RingedSite.Localization.AtSimplicialSR.cohomologyInCounit_app_isIso A K :
+  ∀ G : (DerivedCategory.cohomologyIn (A.total K.simplicial)).FullSubcategory,
+    IsIso ((RingedSite.Localization.AtSimplicialSR.cohomologyInDerivedAdjunction A K).counit.app G))
 
 end RingedSite.Localization.AtSimplicialSR
 

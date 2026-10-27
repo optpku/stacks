@@ -40,13 +40,13 @@ variable [JD.WEqualsLocallyBijective AddCommGrpCat.{max u v}]
 variable {𝒪C : Sheaf JC CommRingCat.{max u v}}
 variable {𝒪D : Sheaf JD CommRingCat.{max u v}}
 variable (f : RingedSite.ofCommRingSheaf JC 𝒪C ⟶ RingedSite.ofCommRingSheaf JD 𝒪D)
-variable [f.modulePushforward.IsRightAdjoint]
+variable [(RingedSite.Hom.modulePushforward f).IsRightAdjoint]
 
 /-- Lemma 18.39.1 (05VD): pullback along an arbitrary morphism of ringed sites preserves flat
 module sheaves. -/
 @[stacks 05VD, stacks 0H97 "ringed-space specialization"]
 instance modulePullback (M : ringedSiteModuleCategory JD 𝒪D) [IsFlat 𝒪D M] :
-    IsFlat 𝒪C (f.modulePullback.obj M) := sorry
+    IsFlat 𝒪C ((RingedSite.Hom.modulePullback f).obj M) := sorry
 
 end SheafOfModules.RingedSite.IsFlat
 
@@ -61,7 +61,7 @@ variable [JD.WEqualsLocallyBijective AddCommGrpCat.{max u v}]
 variable {𝒪C : Sheaf JC CommRingCat.{max u v}}
 variable {𝒪D : Sheaf JD CommRingCat.{max u v}}
 variable (f : RingedSite.ofCommRingSheaf JC 𝒪C ⟶ RingedSite.ofCommRingSheaf JD 𝒪D)
-variable [f.modulePushforward.IsRightAdjoint]
+variable [(RingedSite.Hom.modulePushforward f).IsRightAdjoint]
 
 /-- Lemma 18.39.4 (0G6R): module pullback preserves a short exact sequence whose quotient term
 is flat. -/
@@ -70,6 +70,6 @@ theorem map_shortExact_of_flat_X₃
     (S : ShortComplex (SheafOfModules.RingedSite.ringedSiteModuleCategory JD 𝒪D))
     (hS : S.ShortExact)
     [SheafOfModules.RingedSite.IsFlat 𝒪D S.X₃] :
-    (S.map f.modulePullback).ShortExact := sorry
+    (S.map (RingedSite.Hom.modulePullback f)).ShortExact := sorry
 
 end RingedSite.Hom

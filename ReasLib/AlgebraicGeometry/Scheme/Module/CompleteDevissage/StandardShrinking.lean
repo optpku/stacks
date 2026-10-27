@@ -26,6 +26,65 @@ noncomputable section
 
 universe u
 
+namespace AlgebraicGeometry.Scheme.Modules
+
+/-- The canonical comparison from a restricted pushforward to the pushforward of a
+restriction. It is adjoint to pushing forward the restriction unit on the auxiliary
+scheme, using the commutative square of the two open immersions. -/
+def restrictPushforwardMap {Z Y : Scheme.{u}} (π : Z ⟶ Y) (G : Z.Modules)
+    (U : Z.Opens) (V : Y.Opens) (e : U ≤ π ⁻¹ᵁ V) :
+    ((pushforward π).obj G).restrict V.ι ⟶
+      (pushforward (π.resLE V U e)).obj (G.restrict U.ι) :=
+  ((restrictAdjunction V.ι).homEquiv _ _).symm
+    ((pushforward π).map ((restrictAdjunction U.ι).unit.app G) ≫
+      (pushforwardComp U.ι π).hom.app (G.restrict U.ι) ≫
+      (pushforwardCongr (Scheme.Hom.resLE_comp_ι π e).symm).hom.app
+        (G.restrict U.ι) ≫
+      (pushforwardComp (π.resLE V U e) V.ι).inv.app (G.restrict U.ι))
+
+/-- Restrict a comparison from a finite free sheaf using the canonical free-sheaf
+restriction isomorphism and the canonical restriction/pushforward comparison. No
+invertibility of the pushforward comparison is needed to define this map. -/
+def restrictFreeComparison {Z Y : Scheme.{u}} (π : Z ⟶ Y) (G : Z.Modules) (rank : ℕ)
+    (α : (SheafOfModules.freeFin rank : Y.Modules) ⟶ (pushforward π).obj G)
+    (U : Z.Opens) (V : Y.Opens) (e : U ≤ π ⁻¹ᵁ V) :
+    (SheafOfModules.freeFin rank : V.toScheme.Modules) ⟶
+      (pushforward (π.resLE V U e)).obj (G.restrict U.ι) :=
+  SheafOfModules.mapFree (restrictFunctor V.ι) (ULift.{u} (Fin rank))
+      (restrictUnitIso V.ι).inv ≫
+    (restrictFunctor V.ι).map α ≫ restrictPushforwardMap π G U V e
+
+/-- On each standard basis summand, the restricted comparison is the restriction of
+the original summand map followed by the canonical pushforward comparison. -/
+theorem ιFree_restrictFreeComparison {Z Y : Scheme.{u}} (π : Z ⟶ Y) (G : Z.Modules)
+    (rank : ℕ)
+    (α : (SheafOfModules.freeFin rank : Y.Modules) ⟶ (pushforward π).obj G)
+    (U : Z.Opens) (V : Y.Opens) (e : U ≤ π ⁻¹ᵁ V) (j : ULift.{u} (Fin rank)) :
+    SheafOfModules.ιFree j ≫ restrictFreeComparison π G rank α U V e =
+      (restrictUnitIso V.ι).inv ≫
+        (restrictFunctor V.ι).map (SheafOfModules.ιFree j ≫ α) ≫
+          restrictPushforwardMap π G U V e := by
+  simp [restrictFreeComparison, Functor.map_comp, Category.assoc]
+  rfl
+
+namespace CompleteDevissageOver.Stage
+
+/-- The rank and comparison map of a stage are the restrictions of those of the
+original stage. This property is independent of the distinguished-point conditions. -/
+structure IsComparisonRestriction {S : Scheme.{u}} {s : S}
+    (T : Stage S s) (B : S.Opens) (U : T.Z.left.Opens) (V : T.Y.left.Opens)
+    (hUV : U ≤ T.π.left ⁻¹ᵁ V)
+    {s' : B.toScheme} (T' : Stage B.toScheme s') : Prop where
+  /-- Restriction retains the rank of the comparison source. -/
+  rank_eq : T'.rank = T.rank
+  /-- The restricted comparison is the canonical restriction of the original map. -/
+  α_eq : HEq T'.α
+    (restrictFreeComparison T.π.left T.G T.rank T.α U V hUV)
+
+end CompleteDevissageOver.Stage
+
+end AlgebraicGeometry.Scheme.Modules
+
 namespace AlgebraicGeometry.Scheme.Modules.CompleteDevissageAtAmbientPoint
 
 variable {S X : Scheme.{u}} {f : X ⟶ S} {F : X.Modules}
@@ -34,7 +93,8 @@ variable {S X : Scheme.{u}} {f : X ⟶ S} {F : X.Modules}
 
 /-- A standard shrinking of a complete dévissage at an ambient point consists of
 compatible standard shrinkings of its one-step stages over one common base open,
-together with the resulting complete dévissage of the restricted source module. -/
+together with the resulting complete dévissage of the restricted source module.
+Every stage retains its rank and uses the canonical restriction of its comparison map. -/
 structure StandardShrinking (D : CompleteDevissageAtAmbientPoint f F x) where
   /-- The standard shrinking of the initial one-step dévissage. -/
   initial :
@@ -167,8 +227,59 @@ structure StandardShrinking (D : CompleteDevissageAtAmbientPoint f F x) where
         (D.toCompleteDevissageOver.transitionStep i).sourceQuasicoherent
         (D.toCompleteDevissageOver.transitionStep i).sourceFiniteType
         (D.y i.castSucc) (D.successorStep i) (successor i))
+  /-- Every chosen auxiliary open maps into the corresponding chosen model open. -/
+  auxiliary_le_model (i : Fin (D.toCompleteDevissageOver.last + 1)) :
+    auxiliary i ≤ (D.toCompleteDevissageOver.stage i).π.left ⁻¹ᵁ model i
+  /-- The comparison map at every restricted stage is the canonical restriction of the
+  comparison map at the corresponding original stage, with the same rank. -/
+  restricted_comparison (i : Fin (D.toCompleteDevissageOver.last + 1)) :
+    let h_lft' :=
+      @OneStepDevissageAtAmbientPoint.StandardShrinking.restrictedLocallyOfFiniteType S
+        (Over.mk f) F h_f h_qc h_ft x D.initialStep initial
+    let h_qc' :=
+      @OneStepDevissageAtAmbientPoint.StandardShrinking.restrictedQuasicoherent S
+        (Over.mk f) F h_f h_qc h_ft x D.initialStep initial
+    let h_ft' :=
+      @OneStepDevissageAtAmbientPoint.StandardShrinking.restrictedFiniteType S
+        (Over.mk f) F h_f h_qc h_ft x D.initialStep initial
+    let D' := @CompleteDevissageAtAmbientPoint.toCompleteDevissageOver _ _ _ _
+      h_lft' h_qc' h_ft' _ restricted
+    CompleteDevissageOver.Stage.IsComparisonRestriction
+      (D.toCompleteDevissageOver.stage i)
+      (@OneStepDevissageAtAmbientPoint.StandardShrinking.base S (Over.mk f) F
+        h_f h_qc h_ft x D.initialStep initial)
+      (auxiliary i) (model i)
+      (auxiliary_le_model i)
+      (D'.stage (Fin.cast (by
+        simpa [D'] using congrArg Nat.succ restricted_last.symm) i))
 
 namespace StandardShrinking
+
+/-- The stagewise restriction specification carried by a complete shrinking. -/
+def comparisonRestriction {D : CompleteDevissageAtAmbientPoint f F x}
+    (W : D.StandardShrinking) (i : Fin (D.toCompleteDevissageOver.last + 1)) : Prop :=
+  let W₀ := @CompleteDevissageAtAmbientPoint.StandardShrinking.initial S X f F
+    h_f h_qc h_ft x D W
+  let W' := @CompleteDevissageAtAmbientPoint.StandardShrinking.restricted S X f F
+    h_f h_qc h_ft x D W
+  let h_lft' :=
+    @OneStepDevissageAtAmbientPoint.StandardShrinking.restrictedLocallyOfFiniteType S
+      (Over.mk f) F h_f h_qc h_ft x D.initialStep W₀
+  let h_qc' :=
+    @OneStepDevissageAtAmbientPoint.StandardShrinking.restrictedQuasicoherent S
+      (Over.mk f) F h_f h_qc h_ft x D.initialStep W₀
+  let h_ft' :=
+    @OneStepDevissageAtAmbientPoint.StandardShrinking.restrictedFiniteType S
+      (Over.mk f) F h_f h_qc h_ft x D.initialStep W₀
+  let D' := @CompleteDevissageAtAmbientPoint.toCompleteDevissageOver _ _ _ _
+    h_lft' h_qc' h_ft' _ W'
+  CompleteDevissageOver.Stage.IsComparisonRestriction
+    (D.toCompleteDevissageOver.stage i)
+    (@OneStepDevissageAtAmbientPoint.StandardShrinking.base S (Over.mk f) F
+      h_f h_qc h_ft x D.initialStep W₀)
+    (W.auxiliary i) (W.model i)
+    (W.auxiliary_le_model i) (D'.stage (Fin.cast (by
+      simpa [D'] using congrArg Nat.succ W.restricted_last.symm) i))
 
 /-- Construct a complete standard shrinking from its explicit stagewise shrinkings,
 compatible indexed opens, and restricted complete dévissage. -/
@@ -207,8 +318,9 @@ theorem point_mem_spec {D : CompleteDevissageAtAmbientPoint f F x}
     (f x ∈ W.base ∧ x ∈ W.source) ∧
       ((∀ i, D.z i ∈ W.auxiliary i) ∧ ∀ i, D.y i ∈ W.model i) := sorry
 
-/-- The restricted complete dévissage has the same length and consists exactly of the
-stored restricted initial and successor one-step dévissages. -/
+/-- The restricted complete dévissage has the same length and the stored one-step
+restrictions. Every stage, including the terminal stage, retains its rank and the
+canonical restriction of its comparison map. -/
 theorem restriction_spec {D : CompleteDevissageAtAmbientPoint f F x}
     (W : D.StandardShrinking) :
     let W₀ := @CompleteDevissageAtAmbientPoint.StandardShrinking.initial S X f F
@@ -232,7 +344,7 @@ theorem restriction_spec {D : CompleteDevissageAtAmbientPoint f F x}
           h_lft' h_qc' h_ft' _ W')
         (@OneStepDevissageAtAmbientPoint.StandardShrinking.restricted S (Over.mk f) F
           h_f h_qc h_ft x D.initialStep W₀)) ∧
-    ∀ i, HEq (@CompleteDevissageAtAmbientPoint.successorStep _ _ _ _
+    (∀ i, HEq (@CompleteDevissageAtAmbientPoint.successorStep _ _ _ _
         h_lft' h_qc' h_ft' _ W' (Fin.cast W.restricted_last.symm i))
       (@OneStepDevissageAtAmbientPoint.StandardShrinking.restricted S
         (D.toCompleteDevissageOver.stage i.castSucc).Y
@@ -240,7 +352,11 @@ theorem restriction_spec {D : CompleteDevissageAtAmbientPoint f F x}
         (D.toCompleteDevissageOver.transitionStep i).locallyOfFiniteType
         (D.toCompleteDevissageOver.transitionStep i).sourceQuasicoherent
         (D.toCompleteDevissageOver.transitionStep i).sourceFiniteType
-        (D.y i.castSucc) (D.successorStep i) (W.successor i)) := sorry
+        (D.y i.castSucc) (D.successorStep i) (W.successor i))) ∧
+    ∀ i, (W.auxiliary i ≤ (D.toCompleteDevissageOver.stage i).π.left ⁻¹ᵁ W.model i) ∧
+      comparisonRestriction W i := by
+  exact ⟨⟨W.restricted_last, W.restricted_initial⟩, W.restricted_successor,
+    fun i ↦ ⟨W.auxiliary_le_model i, W.restricted_comparison i⟩⟩
 
 end StandardShrinking
 
@@ -254,7 +370,8 @@ variable {S X : Scheme.{u}} {f : X ⟶ S} {F : X.Modules}
 
 /-- A standard shrinking of a complete dévissage at a support point consists of
 compatible standard shrinkings of its one-step stages over one common base open,
-together with the resulting complete dévissage of the restricted source module. -/
+together with the resulting complete dévissage of the restricted source module.
+Every stage retains its rank and uses the canonical restriction of its comparison map. -/
 structure StandardShrinking (D : CompleteDevissageAt f F x) where
   /-- The standard shrinking of the initial one-step dévissage. -/
   initial :
@@ -387,8 +504,59 @@ structure StandardShrinking (D : CompleteDevissageAt f F x) where
         (D.toCompleteDevissageOver.transitionStep i).sourceQuasicoherent
         (D.toCompleteDevissageOver.transitionStep i).sourceFiniteType
         (D.y i.castSucc) (D.successorStep i) (successor i))
+  /-- Every chosen auxiliary open maps into the corresponding chosen model open. -/
+  auxiliary_le_model (i : Fin (D.toCompleteDevissageOver.last + 1)) :
+    auxiliary i ≤ (D.toCompleteDevissageOver.stage i).π.left ⁻¹ᵁ model i
+  /-- The comparison map at every restricted stage is the canonical restriction of the
+  comparison map at the corresponding original stage, with the same rank. -/
+  restricted_comparison (i : Fin (D.toCompleteDevissageOver.last + 1)) :
+    let h_lft' :=
+      @OneStepDevissageAt.StandardShrinking.restrictedLocallyOfFiniteType S
+        (Over.mk f) F h_f h_qc h_ft x D.initialStep initial
+    let h_qc' :=
+      @OneStepDevissageAt.StandardShrinking.restrictedQuasicoherent S
+        (Over.mk f) F h_f h_qc h_ft x D.initialStep initial
+    let h_ft' :=
+      @OneStepDevissageAt.StandardShrinking.restrictedFiniteType S
+        (Over.mk f) F h_f h_qc h_ft x D.initialStep initial
+    let D' := @CompleteDevissageAt.toCompleteDevissageOver _ _ _ _
+      h_lft' h_qc' h_ft' _ restricted
+    CompleteDevissageOver.Stage.IsComparisonRestriction
+      (D.toCompleteDevissageOver.stage i)
+      (@OneStepDevissageAt.StandardShrinking.base S (Over.mk f) F
+        h_f h_qc h_ft x D.initialStep initial)
+      (auxiliary i) (model i)
+      (auxiliary_le_model i)
+      (D'.stage (Fin.cast (by
+        simpa [D'] using congrArg Nat.succ restricted_last.symm) i))
 
 namespace StandardShrinking
+
+/-- The stagewise restriction specification carried by a support-point shrinking. -/
+def comparisonRestriction {D : CompleteDevissageAt f F x}
+    (W : D.StandardShrinking) (i : Fin (D.toCompleteDevissageOver.last + 1)) : Prop :=
+  let W₀ := @CompleteDevissageAt.StandardShrinking.initial S X f F
+    h_f h_qc h_ft x D W
+  let W' := @CompleteDevissageAt.StandardShrinking.restricted S X f F
+    h_f h_qc h_ft x D W
+  let h_lft' :=
+    @OneStepDevissageAt.StandardShrinking.restrictedLocallyOfFiniteType S
+      (Over.mk f) F h_f h_qc h_ft x D.initialStep W₀
+  let h_qc' :=
+    @OneStepDevissageAt.StandardShrinking.restrictedQuasicoherent S
+      (Over.mk f) F h_f h_qc h_ft x D.initialStep W₀
+  let h_ft' :=
+    @OneStepDevissageAt.StandardShrinking.restrictedFiniteType S
+      (Over.mk f) F h_f h_qc h_ft x D.initialStep W₀
+  let D' := @CompleteDevissageAt.toCompleteDevissageOver _ _ _ _
+    h_lft' h_qc' h_ft' _ W'
+  CompleteDevissageOver.Stage.IsComparisonRestriction
+    (D.toCompleteDevissageOver.stage i)
+    (@OneStepDevissageAt.StandardShrinking.base S (Over.mk f) F
+      h_f h_qc h_ft x D.initialStep W₀)
+    (W.auxiliary i) (W.model i)
+    (W.auxiliary_le_model i) (D'.stage (Fin.cast (by
+      simpa [D'] using congrArg Nat.succ W.restricted_last.symm) i))
 
 /-- Construct a complete standard shrinking from its explicit stagewise shrinkings,
 compatible indexed opens, and restricted complete dévissage. -/
@@ -422,8 +590,9 @@ theorem point_mem_spec {D : CompleteDevissageAt f F x} (W : D.StandardShrinking)
         h_f h_qc h_ft x D.initialStep W₀) ∧
       ((∀ i, D.z i ∈ W.auxiliary i) ∧ ∀ i, D.y i ∈ W.model i) := sorry
 
-/-- The restricted complete dévissage has the same length and consists exactly of the
-stored restricted initial and successor one-step dévissages. -/
+/-- The restricted complete dévissage has the same length and the stored one-step
+restrictions. Every stage, including the terminal stage, retains its rank and the
+canonical restriction of its comparison map. -/
 theorem restriction_spec {D : CompleteDevissageAt f F x} (W : D.StandardShrinking) :
     let W₀ := @CompleteDevissageAt.StandardShrinking.initial S X f F
       h_f h_qc h_ft x D W
@@ -442,7 +611,7 @@ theorem restriction_spec {D : CompleteDevissageAt f F x} (W : D.StandardShrinkin
       HEq (@CompleteDevissageAt.initialStep _ _ _ _ h_lft' h_qc' h_ft' _ W')
         (@OneStepDevissageAt.StandardShrinking.restricted S (Over.mk f) F
           h_f h_qc h_ft x D.initialStep W₀)) ∧
-    ∀ i, HEq (@CompleteDevissageAt.successorStep _ _ _ _ h_lft' h_qc' h_ft' _ W'
+    (∀ i, HEq (@CompleteDevissageAt.successorStep _ _ _ _ h_lft' h_qc' h_ft' _ W'
         (Fin.cast W.restricted_last.symm i))
       (@OneStepDevissageAt.StandardShrinking.restricted S
         (D.toCompleteDevissageOver.stage i.castSucc).Y
@@ -450,7 +619,11 @@ theorem restriction_spec {D : CompleteDevissageAt f F x} (W : D.StandardShrinkin
         (D.toCompleteDevissageOver.transitionStep i).locallyOfFiniteType
         (D.toCompleteDevissageOver.transitionStep i).sourceQuasicoherent
         (D.toCompleteDevissageOver.transitionStep i).sourceFiniteType
-        (D.y i.castSucc) (D.successorStep i) (W.successor i)) := sorry
+        (D.y i.castSucc) (D.successorStep i) (W.successor i))) ∧
+    ∀ i, (W.auxiliary i ≤ (D.toCompleteDevissageOver.stage i).π.left ⁻¹ᵁ W.model i) ∧
+      comparisonRestriction W i := by
+  exact ⟨⟨W.restricted_last, W.restricted_initial⟩, W.restricted_successor,
+    fun i ↦ ⟨W.auxiliary_le_model i, W.restricted_comparison i⟩⟩
 
 end StandardShrinking
 

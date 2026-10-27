@@ -15,7 +15,7 @@ open CategoryTheory
 universe u v w
 
 variable {A : Type u} [CommRing A]
-variable (I : Ideal A)
+variable (I : Ideal A) [Fact I.FG]
 variable [HasDerivedCategory.{w} (ModuleCat.{v} A)]
 variable [HasDerivedCategory.{w}
   ((ModuleCat.isIdealPowerTorsion I : ObjectProperty (ModuleCat.{v} A)).FullSubcategory)]

@@ -48,7 +48,8 @@ theorem naturality
     (B : Stage.{u, v, q, r, r'} (J := J) S P x y)
     (f : A ⟶ B) {i j : κ} (g : i ⟶ j) :
     ((Functor.const κ).obj A).map g ≫ f =
-      f ≫ ((Functor.const κ).obj B).map g := sorry
+      f ≫ ((Functor.const κ).obj B).map g :=
+  ((Functor.const κ).map f).naturality g
 
 end constant
 
@@ -70,21 +71,21 @@ namespace constant
 theorem stage
     (B : Stage.{u, v, q, r, r'} (J := J) S P x y)
     (f : A ⟶ B) (i : κ) :
-    (constant (J := J) (A := A) (κ := κ) B f).stage i = B := sorry
+    (constant (J := J) (A := A) (κ := κ) B f).stage i = B := rfl
 
 /-- Every transition of a constant based diagram is the identity of its target stage. -/
 @[simp]
 theorem hom
     (B : Stage.{u, v, q, r, r'} (J := J) S P x y)
     (f : A ⟶ B) {i j : κ} (hij : i ≤ j) :
-    (constant (J := J) (A := A) (κ := κ) B f).hom hij = 𝟙 B := sorry
+    (constant (J := J) (A := A) (κ := κ) B f).hom hij = 𝟙 B := rfl
 
 /-- Every base leg of a constant based diagram is its chosen stage morphism. -/
 @[simp]
 theorem fromBase
     (B : Stage.{u, v, q, r, r'} (J := J) S P x y)
     (f : A ⟶ B) (i : κ) :
-    (constant (J := J) (A := A) (κ := κ) B f).fromBase i = f := sorry
+    (constant (J := J) (A := A) (κ := κ) B f).fromBase i = f := rfl
 
 end constant
 
@@ -95,7 +96,8 @@ theorem naturality {κ' : Type z'} [Preorder κ']
     (D : Diagram (J := J) A κ') (f : κ →o κ')
     {i j : κ} (g : i ⟶ j) :
     ((Functor.const κ).obj A).map g ≫ D.fromBase (f j) =
-      D.fromBase (f i) ≫ (f.toFunctor ⋙ D.functor).map g := sorry
+      D.fromBase (f i) ≫ (f.toFunctor ⋙ D.functor).map g :=
+  D.base.naturality (f.toFunctor.map g)
 
 end reindex
 
@@ -115,7 +117,7 @@ namespace reindex
 @[simp]
 theorem stage {κ' : Type z'} [Preorder κ']
     (D : Diagram (J := J) A κ') (f : κ →o κ') (i : κ) :
-    (reindex D f).stage i = D.stage (f i) := sorry
+    (reindex D f).stage i = D.stage (f i) := rfl
 
 /-- A transition of a reindexed based diagram is the original transition at the mapped
 comparison. -/
@@ -123,19 +125,19 @@ comparison. -/
 theorem hom {κ' : Type z'} [Preorder κ']
     (D : Diagram (J := J) A κ') (f : κ →o κ')
     {i j : κ} (hij : i ≤ j) :
-    (reindex D f).hom hij = D.hom (f.monotone hij) := sorry
+    (reindex D f).hom hij = D.hom (f.monotone hij) := rfl
 
 /-- A base leg of a reindexed based diagram is the original base leg at the image index. -/
 @[simp]
 theorem fromBase {κ' : Type z'} [Preorder κ']
     (D : Diagram (J := J) A κ') (f : κ →o κ') (i : κ) :
-    (reindex D f).fromBase i = D.fromBase (f i) := sorry
+    (reindex D f).fromBase i = D.fromBase (f i) := rfl
 
 /-- Reindexing a based diagram along the identity order homomorphism changes
 no data. -/
 @[simp]
 theorem id (D : Diagram (J := J) A κ) :
-    reindex D OrderHom.id = D := sorry
+    reindex D OrderHom.id = D := rfl
 
 /-- Successive reindexings agree with reindexing along the composite order
 homomorphism. -/
@@ -143,7 +145,7 @@ homomorphism. -/
 theorem comp {κ' : Type z'} {κ'' : Type z''}
     [Preorder κ'] [Preorder κ''] (D : Diagram (J := J) A κ'')
     (f : κ' →o κ'') (g : κ →o κ') :
-    reindex (reindex D f) g = reindex D (f.comp g) := sorry
+    reindex (reindex D f) g = reindex D (f.comp g) := rfl
 
 end reindex
 

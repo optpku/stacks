@@ -7,6 +7,7 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import Mathlib.AlgebraicGeometry.AffineScheme
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.ChosenPresentation.FiniteLimits
 public import Mathlib.AlgebraicGeometry.Sites.Proetale
 public import Mathlib.CategoryTheory.Category.Cat
 public import Mathlib.CategoryTheory.Countable
@@ -120,6 +121,78 @@ theorem spec (site : BigProetaleSite.{u}) :
 pro-étale site. -/
 def toGrothendieck (site : BigProetaleSite.{u}) : GrothendieckTopology site.carrier :=
   @Pretopology.toGrothendieck site.carrier (Cat.str site.carrier) site.hasPullbacks site.pretopology
+
+
+/-- The bounded pro-étale conditions imply the ordinary chosen-site laws.
+The pro-étale object bound dominates the ordinary countable-successor bound;
+no closure under all ambient covering sources is used. -/
+theorem chosen_specification (X : BigProetaleSite.{u}) :
+    IsChosenBigSite Scheme.proetalePrecoverage X.carrier X.hasPullbacks
+      X.toScheme X.seedSchemes X.seedCoverings X.pretopology := sorry
+
+/-- Keep the carrier, scheme functor, seeds, and pretopology of the bounded
+pro-étale construction as a chosen presentation. -/
+def toChosenBigSite (X : BigProetaleSite.{u}) :
+    ChosenBigSite.{u, u} Scheme.proetalePrecoverage where
+  carrier := X.carrier
+  hasPullbacks := X.hasPullbacks
+  toScheme := X.toScheme
+  fullyFaithful := X.fullyFaithful
+  seedSchemes := X.seedSchemes
+  seedCoverings := X.seedCoverings
+  pretopology := X.pretopology
+  specification := X.chosen_specification
+
+/-- The empty diagram has a limit by the countable-limit clause of Tag 000J.
+This proof uses the supplied bounded-site specification, not an admitted
+existence theorem from which an object would then be chosen. -/
+theorem hasLimitEmpty (X : BigProetaleSite.{u}) :
+    HasLimit (Functor.empty.{0} X.carrier) := by
+  exact (X.spec.2.2.2.2.2.2.1 (Functor.empty.{0} X.carrier)).mpr inferInstance
+
+/-- The comparison map for each countable limit is an isomorphism. -/
+theorem limitPost_isIso (X : BigProetaleSite.{u})
+    {J : Type} [SmallCategory J] [CountableCategory J]
+    (F : J ⥤ X.carrier) [HasLimit F] [HasLimit (F ⋙ X.toScheme)] :
+    IsIso (limit.post F X.toScheme) :=
+  X.spec.2.2.2.2.2.2.2.1 F
+
+/-- The empty limit of the bounded carrier, representing the terminal scheme.
+It is the standard categorical limit construction with its full universal
+property supplied by `hasLimitEmpty`. -/
+noncomputable def specZ (X : BigProetaleSite.{u}) : X.carrier :=
+  letI : HasLimit (Functor.empty.{0} X.carrier) := X.hasLimitEmpty
+  limit (Functor.empty.{0} X.carrier)
+
+/-- Identify the represented empty limit with the actual integer spectrum
+using the supplied limit comparison and terminality in schemes. -/
+noncomputable def specZIso (X : BigProetaleSite.{u}) :
+    X.toScheme.obj X.specZ ≅ Spec (CommRingCat.of (ULift.{u} ℤ)) := by
+  letI : HasLimit (Functor.empty.{0} X.carrier) := X.hasLimitEmpty
+  letI := X.limitPost_isIso (Functor.empty.{0} X.carrier)
+  let e₁ : X.toScheme.obj (limit (Functor.empty.{0} X.carrier)) ≅
+      limit (Functor.empty.{0} X.carrier ⋙ X.toScheme) :=
+    asIso (limit.post (Functor.empty.{0} X.carrier) X.toScheme)
+  let e₂ : limit (Functor.empty.{0} X.carrier ⋙ X.toScheme) ≅
+      Spec (CommRingCat.of (ULift.{u} ℤ)) :=
+    ((isLimitEquivIsTerminalOfIsEmpty _ (limit.cone _)).toFun
+      (limit.isLimit (Functor.empty.{0} X.carrier ⋙ X.toScheme))).uniqueUpToIso
+        specULiftZIsTerminal
+  exact e₁ ≪≫ e₂
+
+/-- Apply the generic represented-terminal interface to any bounded small
+pro-étale site, retaining its carrier in the same universe. -/
+noncomputable def withSpecZ (X : BigProetaleSite.{u}) :
+    ChosenBigSite.WithSpecZ.{u, u} Scheme.proetalePrecoverage where
+  toChosenBigSite := X.toChosenBigSite
+  specZ := X.specZ
+  specZIso := X.specZIso
+
+/-- Integer-spectrum representation is a consequence of bounded-site
+construction, not an extra hypothesis of the source-facing facade. -/
+theorem exists_specZ (X : BigProetaleSite.{u}) :
+    ∃ Z : X.carrier, Nonempty (X.toScheme.obj Z ≅ Spec (CommRingCat.of (ULift.{u} ℤ))) :=
+  ⟨X.specZ, ⟨X.specZIso⟩⟩
 
 end BigProetaleSite
 

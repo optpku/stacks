@@ -33,16 +33,16 @@ variable (P : Compactification.Of Y X)
 variable [HasSheafify X.left.smallEtaleTopology (ModuleCat.{u} Λ)]
 variable [∀ U : X.left.Etale,
   HasWeakSheafify (X.left.smallEtaleTopology.over U) (ModuleCat.{u} Λ)]
-variable [HasDerivedCategory (Sheaf X.left.smallEtaleTopology (ModuleCat.{u} Λ))]
+variable [hX : HasDerivedCategory (Sheaf X.left.smallEtaleTopology (ModuleCat.{u} Λ))]
 variable [HasSheafify P.obj.right.left.smallEtaleTopology (ModuleCat.{u} Λ)]
 variable [∀ U : P.obj.right.left.Etale,
   HasWeakSheafify (P.obj.right.left.smallEtaleTopology.over U) (ModuleCat.{u} Λ)]
-variable [HasDerivedCategory
+variable [hP : HasDerivedCategory
   (Sheaf P.obj.right.left.smallEtaleTopology (ModuleCat.{u} Λ))]
 variable [HasSheafify Y.smallEtaleTopology (ModuleCat.{u} Λ)]
 variable [∀ U : Y.Etale,
   HasWeakSheafify (Y.smallEtaleTopology.over U) (ModuleCat.{u} Λ)]
-variable [HasDerivedCategory (Sheaf Y.smallEtaleTopology (ModuleCat.{u} Λ))]
+variable [hY : HasDerivedCategory (Sheaf Y.smallEtaleTopology (ModuleCat.{u} Λ))]
 variable [∀ F : X.left.Etaleᵒᵖ ⥤ ModuleCat.{u} Λ,
   (etaleRestriction (Compactification.Of.ι P)).op.HasLeftKanExtension F]
 variable [(etaleExtensionByZero (Compactification.Of.ι P)
@@ -84,18 +84,18 @@ end LowerShriek
 
 section CompactSupport
 
-variable {k : Type u} [Field k] {Λ : Type u} [CommRing Λ]
+variable {k : Type u} [Field k] {Λ : Type u} [Ring Λ]
 variable {X : SchemeOverField k}
 variable [IsSeparated X.hom] [Scheme.Hom.FiniteType X.hom]
 variable (P : Compactification.Of (Spec (CommRingCat.of k)) X)
 variable [HasSheafify X.left.smallEtaleTopology (ModuleCat.{u} Λ)]
 variable [∀ U : X.left.Etale,
   HasWeakSheafify (X.left.smallEtaleTopology.over U) (ModuleCat.{u} Λ)]
-variable [HasDerivedCategory (Sheaf X.left.smallEtaleTopology (ModuleCat.{u} Λ))]
+variable [hX : HasDerivedCategory (Sheaf X.left.smallEtaleTopology (ModuleCat.{u} Λ))]
 variable [HasSheafify P.obj.right.left.smallEtaleTopology (ModuleCat.{u} Λ)]
 variable [∀ U : P.obj.right.left.Etale,
   HasWeakSheafify (P.obj.right.left.smallEtaleTopology.over U) (ModuleCat.{u} Λ)]
-variable [HasDerivedCategory
+variable [hP : HasDerivedCategory
   (Sheaf P.obj.right.left.smallEtaleTopology (ModuleCat.{u} Λ))]
 variable [HasSheafify (Spec (CommRingCat.of k)).smallEtaleTopology
   (ModuleCat.{u} Λ)]

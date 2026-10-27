@@ -40,11 +40,13 @@ noncomputable abbrev smallCardinal (X : C) [Small.{w} (Subobject X)] : Cardinal.
 target. -/
 @[stacks 079D "monomorphism"]
 theorem cardinalMk_le_of_mono {X Y : C} (f : X ⟶ Y) [Mono f] :
-    Cardinal.mk (Subobject X) ≤ Cardinal.mk (Subobject Y) := sorry
+    Cardinal.mk (Subobject X) ≤ Cardinal.mk (Subobject Y) :=
+  Cardinal.mk_le_of_injective (Subobject.map_obj_injective f)
 
 /-- Isomorphic objects have equally large subobject lattices. -/
 theorem cardinalMk_eq_of_iso {X Y : C} (e : X ≅ Y) :
-    Cardinal.mk (Subobject X) = Cardinal.mk (Subobject Y) := sorry
+    Cardinal.mk (Subobject X) = Cardinal.mk (Subobject Y) :=
+  le_antisymm (cardinalMk_le_of_mono e.hom) (cardinalMk_le_of_mono e.inv)
 
 section Abelian
 
@@ -54,26 +56,45 @@ variable [Abelian C]
 subobject. -/
 theorem exists_obj_pullback_obj_eq_of_epi {X Y : C} (f : X ⟶ Y) [Epi f]
     (P : Subobject Y) :
-    (Subobject.exists f).obj ((Subobject.pullback f).obj P) = P := sorry
+    (Subobject.exists f).obj ((Subobject.pullback f).obj P) = P := by
+  haveI : Epi (pullbackπ f P) :=
+    Abelian.epi_fst_of_isLimit P.arrow f (Subobject.isPullback f P).isLimit
+  let F : StrongEpiMonoFactorisation (((Subobject.pullback f).obj P).arrow ≫ f) :=
+    { I := (P : C)
+      m := P.arrow
+      e := pullbackπ f P
+      e_strong_epi := strongEpi_of_epi _
+      fac := (Subobject.isPullback f P).w }
+  apply Subobject.eq_of_comm (X := (Subobject.exists f).obj ((Subobject.pullback f).obj P))
+    (Y := P)
+    (IsImage.isoExt (Subobject.imageFactorisation f ((Subobject.pullback f).obj P)).isImage
+      F.toMonoIsImage)
+  exact IsImage.isoExt_hom_m _ _
 
 /-- Pullback along an epimorphism embeds the subobject lattice of the target into that of the
 source. -/
 theorem pullback_obj_injective_of_epi {X Y : C} (f : X ⟶ Y) [Epi f] :
-    Function.Injective (Subobject.pullback f).obj := sorry
+    Function.Injective (Subobject.pullback f).obj := by
+  intro P Q h
+  rw [← exists_obj_pullback_obj_eq_of_epi f P,
+    ← exists_obj_pullback_obj_eq_of_epi f Q, h]
 
 /-- The subobject lattice of the target of an epimorphism has cardinality at most that of its
 source. -/
 @[stacks 079D "epimorphism"]
 theorem cardinalMk_le_of_epi {X Y : C} (f : X ⟶ Y) [Epi f] :
-    Cardinal.mk (Subobject Y) ≤ Cardinal.mk (Subobject X) := sorry
+    Cardinal.mk (Subobject Y) ≤ Cardinal.mk (Subobject X) :=
+  Cardinal.mk_le_of_injective (pullback_obj_injective_of_epi f)
 
 /-- The image of a morphism has no more subobjects than its source. -/
 theorem cardinalMk_image_le {X Y : C} (f : X ⟶ Y) :
-    Cardinal.mk (Subobject (imageSubobject f)) ≤ Cardinal.mk (Subobject X) := sorry
+    Cardinal.mk (Subobject (imageSubobject f : C)) ≤ Cardinal.mk (Subobject X) :=
+  cardinalMk_le_of_epi (factorThruImageSubobject f)
 
 /-- The kernel of a morphism has no more subobjects than its source. -/
 theorem cardinalMk_kernel_le {X Y : C} (f : X ⟶ Y) :
-    Cardinal.mk (Subobject (kernelSubobject f)) ≤ Cardinal.mk (Subobject X) := sorry
+    Cardinal.mk (Subobject (kernelSubobject f : C)) ≤ Cardinal.mk (Subobject X) :=
+  cardinalMk_le_of_mono (kernelSubobject f).arrow
 
 end Abelian
 

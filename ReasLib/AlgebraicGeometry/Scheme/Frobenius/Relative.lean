@@ -40,6 +40,12 @@ of `S`. -/
 abbrev relativeFrobeniusTarget : Scheme.{u} :=
   pullback f (Scheme.absoluteFrobenius p S)
 
+/-- The Frobenius twist of a morphism to a scheme of characteristic `p` has
+characteristic `p`. -/
+instance relativeFrobeniusTarget_isCharP {p : ℕ} [Fact p.Prime]
+    {X S : Scheme.{u}} [Scheme.IsCharP S p] (f : X ⟶ S) :
+    Scheme.IsCharP (relativeFrobeniusTarget (p := p) f) p := sorry
+
 /-- The Frobenius twist of `f`, viewed as a scheme over `S` by its second pullback projection. -/
 def relativeFrobeniusTargetOver : Over S :=
   Over.mk (pullback.snd f (Scheme.absoluteFrobenius p S))

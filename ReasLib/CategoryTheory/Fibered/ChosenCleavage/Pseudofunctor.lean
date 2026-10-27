@@ -48,7 +48,8 @@ noncomputable def fiberPseudofunctor (p : S ⥤ C) [p.IsFibered] :
 @[simp]
 theorem FiberPseudofunctor.obj (p : S ⥤ C) [p.IsFibered] (U : C) :
     (fiberPseudofunctor p).obj (LocallyDiscrete.mk (Opposite.op U)) =
-      Cat.of (p.Fiber U) := sorry
+      Cat.of (p.Fiber U) := by
+  rfl
 
 /-- The action of the selected fiber pseudofunctor on a base arrow is the selected reindexing
 functor. -/
@@ -56,21 +57,24 @@ functor. -/
 theorem FiberPseudofunctor.map.toFunctor (p : S ⥤ C) [p.IsFibered]
     {U V : C} (f : V ⟶ U) :
     ((fiberPseudofunctor p).map f.op.toLoc).toFunctor =
-      Chosen.reindex p f := sorry
+      Chosen.reindex p f := by
+  rfl
 
 /-- Objectwise computation of selected fiber-pseudofunctor reindexing. -/
 @[simp]
 theorem FiberPseudofunctor.map.obj (p : S ⥤ C) [p.IsFibered]
     {U V : C} (f : V ⟶ U) (x : p.Fiber U) :
     ((fiberPseudofunctor p).map f.op.toLoc).toFunctor.obj x =
-      Chosen.reindexObj p f x := sorry
+      Chosen.reindexObj p f x := by
+  rfl
 
 /-- Morphismwise computation of selected fiber-pseudofunctor reindexing. -/
 @[simp]
 theorem FiberPseudofunctor.map.hom (p : S ⥤ C) [p.IsFibered]
     {U V : C} (f : V ⟶ U) {x y : p.Fiber U} (φ : x ⟶ y) :
     ((fiberPseudofunctor p).map f.op.toLoc).toFunctor.map φ =
-      Chosen.reindexMap p f φ := sorry
+      Chosen.reindexMap p f φ := by
+  rfl
 
 /-- The action of `fiberPseudofunctor p` along `f.op` is canonically the reindexing functor for the
 selected cleavage. -/
@@ -86,7 +90,8 @@ the selected object-action computation theorem. -/
 theorem FiberPseudofunctor.mapIso.hom.app
     (p : S ⥤ C) [p.IsFibered] {U V : C} (f : V ⟶ U) (x : p.Fiber U) :
     (FiberPseudofunctor.mapIso p f).hom.app x =
-      eqToHom (FiberPseudofunctor.map.obj p f x) := sorry
+      eqToHom (FiberPseudofunctor.map.obj p f x) := by
+  rfl
 
 /-- The inverse component of the selected map comparison is the reverse pointwise transport
 attached to the selected object-action computation theorem. -/
@@ -94,7 +99,8 @@ attached to the selected object-action computation theorem. -/
 theorem FiberPseudofunctor.mapIso.inv.app
     (p : S ⥤ C) [p.IsFibered] {U V : C} (f : V ⟶ U) (x : p.Fiber U) :
     (FiberPseudofunctor.mapIso p f).inv.app x =
-      eqToHom (FiberPseudofunctor.map.obj p f x).symm := sorry
+      eqToHom (FiberPseudofunctor.map.obj p f x).symm := by
+  rfl
 
 /-- Reindexing through the selected fiber pseudofunctor is characterized by factorization through
 the selected strongly cartesian arrow. -/
@@ -103,7 +109,16 @@ theorem FiberPseudofunctor.map.fac (p : S ⥤ C) [p.IsFibered]
     {U V : C} (f : V ⟶ U) {x y : p.Fiber U} (φ : x ⟶ y) :
     (((fiberPseudofunctor p).map f.op.toLoc).toFunctor.map φ).1 ≫
         Chosen.cartesianHom p f y =
-      Chosen.cartesianHom p f x ≫ φ.1 := sorry
+      Chosen.cartesianHom p f x ≫ φ.1 := by
+  let χ := Cleavage.ofIsFibered p
+  letI : p.IsStronglyCartesian f (χ.cartesianHom f y) :=
+    (χ.reindexLift f y).isStronglyCartesian
+  letI : p.IsHomLift f (χ.cartesianHom f x ≫ φ.1) :=
+    @IsHomLift.comp_lift_id_right' C S _ _ p V U
+      (χ.reindexObj f x).1 x.1 y.1 f (χ.cartesianHom f x)
+      (χ.reindexLift f x).isStronglyCartesian.toIsHomLift U φ.1 φ.2
+  exact IsStronglyCartesian.fac p f (χ.cartesianHom f y)
+    (g := 𝟙 V) (Category.id_comp f).symm (χ.cartesianHom f x ≫ φ.1)
 
 /-- The hom component of the identity comparison for the selected fiber pseudofunctor is the
 inverse component of the selected cleavage unit comparison. -/
@@ -111,7 +126,8 @@ inverse component of the selected cleavage unit comparison. -/
 theorem FiberPseudofunctor.mapIdOp.hom.app (p : S ⥤ C) [p.IsFibered]
     (U : C) (x : p.Fiber U) :
     ((fiberPseudofunctor p).mapIdOp U).hom.toNatTrans.app x =
-      (Chosen.Reindex.idIsoApp p U x).inv := sorry
+      (Chosen.Reindex.idIsoApp p U x).inv := by
+  rfl
 
 /-- The inverse component of the identity comparison for the selected fiber pseudofunctor is the
 forward component of the selected cleavage unit comparison. -/
@@ -119,7 +135,8 @@ forward component of the selected cleavage unit comparison. -/
 theorem FiberPseudofunctor.mapIdOp.inv.app (p : S ⥤ C) [p.IsFibered]
     (U : C) (x : p.Fiber U) :
     ((fiberPseudofunctor p).mapIdOp U).inv.toNatTrans.app x =
-      (Chosen.Reindex.idIsoApp p U x).hom := sorry
+      (Chosen.Reindex.idIsoApp p U x).hom := by
+  rfl
 
 /-- The hom component of mathlib's standard identity comparison is the inverse selected unit
 component. -/
@@ -128,7 +145,8 @@ theorem FiberPseudofunctor.mapId.hom.app (p : S ⥤ C) [p.IsFibered]
     (U : C) (x : p.Fiber U) :
     ((fiberPseudofunctor p).mapId
       (LocallyDiscrete.mk (Opposite.op U))).hom.toNatTrans.app x =
-        (Chosen.Reindex.idIsoApp p U x).inv := sorry
+        (Chosen.Reindex.idIsoApp p U x).inv := by
+  rfl
 
 /-- The inverse component of mathlib's standard identity comparison is the forward selected unit
 component. -/
@@ -137,7 +155,8 @@ theorem FiberPseudofunctor.mapId.inv.app (p : S ⥤ C) [p.IsFibered]
     (U : C) (x : p.Fiber U) :
     ((fiberPseudofunctor p).mapId
       (LocallyDiscrete.mk (Opposite.op U))).inv.toNatTrans.app x =
-        (Chosen.Reindex.idIsoApp p U x).hom := sorry
+        (Chosen.Reindex.idIsoApp p U x).hom := by
+  rfl
 
 /-- The hom component of the composition comparison for the selected fiber pseudofunctor is the
 selected cleavage composition comparison. -/
@@ -145,7 +164,8 @@ selected cleavage composition comparison. -/
 theorem FiberPseudofunctor.mapCompOp.hom.app (p : S ⥤ C) [p.IsFibered]
     {U V W : C} (f : V ⟶ U) (g : W ⟶ V) (x : p.Fiber U) :
     ((fiberPseudofunctor p).mapCompOp f g).hom.toNatTrans.app x =
-      (Chosen.Reindex.compIsoApp p f g x).hom := sorry
+      (Chosen.Reindex.compIsoApp p f g x).hom := by
+  rfl
 
 /-- The inverse component of the composition comparison for the selected fiber pseudofunctor is
 the inverse selected cleavage comparison. -/
@@ -153,7 +173,8 @@ the inverse selected cleavage comparison. -/
 theorem FiberPseudofunctor.mapCompOp.inv.app (p : S ⥤ C) [p.IsFibered]
     {U V W : C} (f : V ⟶ U) (g : W ⟶ V) (x : p.Fiber U) :
     ((fiberPseudofunctor p).mapCompOp f g).inv.toNatTrans.app x =
-      (Chosen.Reindex.compIsoApp p f g x).inv := sorry
+      (Chosen.Reindex.compIsoApp p f g x).inv := by
+  rfl
 
 /-- The hom component of mathlib's standard composition comparison is the selected cleavage
 composition component. -/
@@ -161,7 +182,8 @@ composition component. -/
 theorem FiberPseudofunctor.mapComp.hom.app (p : S ⥤ C) [p.IsFibered]
     {U V W : C} (f : V ⟶ U) (g : W ⟶ V) (x : p.Fiber U) :
     ((fiberPseudofunctor p).mapComp f.op.toLoc g.op.toLoc).hom.toNatTrans.app x =
-      (Chosen.Reindex.compIsoApp p f g x).hom := sorry
+      (Chosen.Reindex.compIsoApp p f g x).hom := by
+  rfl
 
 /-- The inverse component of mathlib's standard composition comparison is the inverse selected
 cleavage composition component. -/
@@ -169,7 +191,8 @@ cleavage composition component. -/
 theorem FiberPseudofunctor.mapComp.inv.app (p : S ⥤ C) [p.IsFibered]
     {U V W : C} (f : V ⟶ U) (g : W ⟶ V) (x : p.Fiber U) :
     ((fiberPseudofunctor p).mapComp f.op.toLoc g.op.toLoc).inv.toNatTrans.app x =
-      (Chosen.Reindex.compIsoApp p f g x).inv := sorry
+      (Chosen.Reindex.compIsoApp p f g x).inv := by
+  rfl
 
 /-- Over a specified composite, the forward selected pseudofunctor component is the selected
 specified-composite reindexing comparison. -/
@@ -179,7 +202,12 @@ theorem FiberPseudofunctor.mapCompOp'.hom.app
     {A B D : C} (f : B ⟶ D) (g : A ⟶ B) (gf : A ⟶ D)
     (hgf : g ≫ f = gf) (x : p.Fiber D) :
     ((fiberPseudofunctor p).mapCompOp' f g gf hgf).hom.toNatTrans.app x =
-      (Chosen.Reindex.specifiedCompIsoApp p f g gf hgf x).hom := sorry
+      (Chosen.Reindex.specifiedCompIsoApp p f g gf hgf x).hom := by
+  subst gf
+  change ((fiberPseudofunctor p).mapComp' f.op.toLoc g.op.toLoc _ rfl).hom.toNatTrans.app x =
+    𝟙 _ ≫ (Chosen.Reindex.compIsoApp p f g x).hom
+  rw [Pseudofunctor.mapComp'_eq_mapComp, Category.id_comp]
+  rfl
 
 /-- Over a specified composite, the inverse selected pseudofunctor component is the inverse
 selected specified-composite reindexing comparison. -/
@@ -189,7 +217,12 @@ theorem FiberPseudofunctor.mapCompOp'.inv.app
     {A B D : C} (f : B ⟶ D) (g : A ⟶ B) (gf : A ⟶ D)
     (hgf : g ≫ f = gf) (x : p.Fiber D) :
     ((fiberPseudofunctor p).mapCompOp' f g gf hgf).inv.toNatTrans.app x =
-      (Chosen.Reindex.specifiedCompIsoApp p f g gf hgf x).inv := sorry
+      (Chosen.Reindex.specifiedCompIsoApp p f g gf hgf x).inv := by
+  subst gf
+  change ((fiberPseudofunctor p).mapComp' f.op.toLoc g.op.toLoc _ rfl).inv.toNatTrans.app x =
+    (Chosen.Reindex.compIsoApp p f g x).inv ≫ 𝟙 _
+  rw [Pseudofunctor.mapComp'_eq_mapComp, Category.comp_id]
+  rfl
 
 /-- The hom component of the composition comparison over a specified composite factors the
 iterated selected cartesian arrows through the selected arrow over that composite. -/
@@ -200,7 +233,24 @@ theorem FiberPseudofunctor.mapCompOp'.hom.app.fac (p : S ⥤ C) [p.IsFibered]
     (((fiberPseudofunctor p).mapCompOp' f g gf hgf).hom.toNatTrans.app x).1 ≫
         Chosen.cartesianHom p g (Chosen.reindexObj p f x) ≫
         Chosen.cartesianHom p f x =
-      Chosen.cartesianHom p gf x := sorry
+      Chosen.cartesianHom p gf x := by
+  rw [FiberPseudofunctor.mapCompOp'.hom.app]
+  subst gf
+  let χ := Cleavage.ofIsFibered p
+  letI : p.IsStronglyCartesian (g ≫ f)
+      (χ.cartesianHom g (χ.reindexObj f x) ≫ χ.cartesianHom f x) :=
+    @IsStronglyCartesian.comp C S _ _ p A B D
+      (χ.reindexObj g (χ.reindexObj f x)).1 (χ.reindexObj f x).1 x.1 g f
+      (χ.cartesianHom g (χ.reindexObj f x)) (χ.cartesianHom f x)
+      (χ.reindexLift g (χ.reindexObj f x)).isStronglyCartesian
+      (χ.reindexLift f x).isStronglyCartesian
+  letI : p.IsHomLift (g ≫ f) (χ.cartesianHom (g ≫ f) x) :=
+    (χ.reindexLift (g ≫ f) x).isStronglyCartesian.toIsHomLift
+  change (𝟙 _ ≫ (Cleavage.Reindex.compIsoApp χ f g x).hom).1 ≫ _ ≫ _ = _
+  rw [Category.id_comp]
+  exact IsStronglyCartesian.fac p (g ≫ f)
+    (χ.cartesianHom g (χ.reindexObj f x) ≫ χ.cartesianHom f x)
+    (g := 𝟙 A) (Category.id_comp (g ≫ f)).symm (χ.cartesianHom (g ≫ f) x)
 
 /-- The inverse component of the composition comparison over a specified composite factors the
 selected cartesian arrow through the two iterated selected arrows. -/
@@ -211,7 +261,24 @@ theorem FiberPseudofunctor.mapCompOp'.inv.app.fac (p : S ⥤ C) [p.IsFibered]
     (((fiberPseudofunctor p).mapCompOp' f g gf hgf).inv.toNatTrans.app x).1 ≫
         Chosen.cartesianHom p gf x =
       Chosen.cartesianHom p g (Chosen.reindexObj p f x) ≫
-        Chosen.cartesianHom p f x := sorry
+        Chosen.cartesianHom p f x := by
+  rw [FiberPseudofunctor.mapCompOp'.inv.app]
+  subst gf
+  let χ := Cleavage.ofIsFibered p
+  letI : p.IsStronglyCartesian (g ≫ f) (χ.cartesianHom (g ≫ f) x) :=
+    (χ.reindexLift (g ≫ f) x).isStronglyCartesian
+  letI : p.IsHomLift (g ≫ f)
+      (χ.cartesianHom g (χ.reindexObj f x) ≫ χ.cartesianHom f x) :=
+    (@IsStronglyCartesian.comp C S _ _ p A B D
+      (χ.reindexObj g (χ.reindexObj f x)).1 (χ.reindexObj f x).1 x.1 g f
+      (χ.cartesianHom g (χ.reindexObj f x)) (χ.cartesianHom f x)
+      (χ.reindexLift g (χ.reindexObj f x)).isStronglyCartesian
+      (χ.reindexLift f x).isStronglyCartesian).toIsHomLift
+  change ((Cleavage.Reindex.compIsoApp χ f g x).inv ≫ 𝟙 _).1 ≫ _ = _
+  rw [Category.comp_id]
+  exact IsStronglyCartesian.fac p (g ≫ f) (χ.cartesianHom (g ≫ f) x)
+    (g := 𝟙 A) (Category.id_comp (g ≫ f)).symm
+    (χ.cartesianHom g (χ.reindexObj f x) ≫ χ.cartesianHom f x)
 
 end Functor
 

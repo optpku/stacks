@@ -6,17 +6,21 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap103.Definition_103_7_1_Comparison
-public import stacks_project.Chap103.Definition_103_7_1_FlatBaseChange
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.Etale.FlatBaseChange
 import StacksCheckRecall
 
 @[expose] public section
 
 open AlgebraicGeometry CategoryTheory
 
+universe u
+
 /- Definition 103.7.1: let `X` be an algebraic stack and let `F` in
 `Mod(X_étale, 𝒪_X)`. We say `F` has the flat base change property if and only
 if the comparison `c_φ : f_small^*(F|_{U'_étale}) ⟶ F|_{U_étale}` is an
 isomorphism whenever `φ : x ⟶ x'` lies over a flat morphism of schemes
 `f : U ⟶ U'`. -/
-@[stacks 0762] #check AlgebraicGeometry.GroupoidsOver.HasFlatBaseChange
+@[stacks 0762] #check (AlgebraicGeometry.GroupoidsOver.HasFlatBaseChange :
+  ∀ {S : Scheme.{u}} {X : AlgebraicGeometry.GroupoidsOver S}
+    [AlgebraicGeometry.AlgebraicStack X],
+    AlgebraicGeometry.GroupoidsOver.etaleModules X → Prop)

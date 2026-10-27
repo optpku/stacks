@@ -35,8 +35,8 @@ theorem pushforward_baseChange_isIso_of_isPerfect
     {X' X S' S : Scheme.{u}}
     (g' : X' ⟶ X) (f' : X' ⟶ S') (f : X ⟶ S) (g : S' ⟶ S)
     [Flat f] [IsProper f] [Scheme.Hom.FinitePresentation f]
-    [HasPair (RingedSpace.opensRingedSiteHom f.toShHom)]
-    [HasPair (RingedSpace.opensRingedSiteHom f'.toShHom)]
+    [RingedSpace.DerivedAdjunction.HasPair f.toShHom]
+    [RingedSpace.DerivedAdjunction.HasPair f'.toShHom]
     [IsIso (RingedSpace.modulePullbackDerived.compComparison f'.toShHom g.toShHom)]
     [IsIso (RingedSpace.modulePullbackDerived.compComparison g'.toShHom f.toShHom)]
     (sq : IsPullback g' f' f g)
@@ -62,8 +62,8 @@ theorem pushforward_single_baseChange_isIso_of_finitePresentation
     {X' X S' S : Scheme.{u}}
     (g' : X' ⟶ X) (f' : X' ⟶ S') (f : X ⟶ S) (g : S' ⟶ S)
     [IsProper f] [Scheme.Hom.FinitePresentation f]
-    [HasPair (RingedSpace.opensRingedSiteHom f.toShHom)]
-    [HasPair (RingedSpace.opensRingedSiteHom f'.toShHom)]
+    [RingedSpace.DerivedAdjunction.HasPair f.toShHom]
+    [RingedSpace.DerivedAdjunction.HasPair f'.toShHom]
     [IsIso (RingedSpace.modulePullbackDerived.compComparison f'.toShHom g.toShHom)]
     [IsIso (RingedSpace.modulePullbackDerived.compComparison g'.toShHom f.toShHom)]
     (sq : IsPullback g' f' f g)

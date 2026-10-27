@@ -38,18 +38,12 @@ class IsSmooth (p : F ⥤ ArtinianLocalAlgCat Λ k) [IsFibered.InGroupoids p.op]
 /-- The identity functor on `ArtinianLocalAlgCat Λ k` is smooth. -/
 instance instIsSmoothId : IsSmooth (𝟭 (ArtinianLocalAlgCat Λ k)) := sorry
 
-/-- Smoothness of a category cofibered in groupoids is smoothness of its structure morphism. -/
+/-- Smoothness of a category cofibered in groupoids is smoothness of its structure morphism.
+The converse is available explicitly through `isSmooth_iff`. -/
 instance IsSmooth.spec (p : F ⥤ ArtinianLocalAlgCat Λ k) [IsFibered.InGroupoids p.op]
     [h : IsSmooth p] :
     BasedFunctor.IsSmooth (BasedCategory.toBase (BasedCategory.ofFunctor p)) :=
   h.isSmooth_toBase
-
-/-- A smooth structure morphism makes its category cofibered in groupoids smooth. -/
-instance instIsSmooth.of_toBase (p : F ⥤ ArtinianLocalAlgCat Λ k)
-    [IsFibered.InGroupoids p.op]
-    [h : BasedFunctor.IsSmooth (BasedCategory.toBase (BasedCategory.ofFunctor p))] :
-    IsSmooth p where
-  isSmooth_toBase := h
 
 /-- Smoothness supplies a lift along every surjection, with the over-`f` cell, the vertical over
 `𝟙 B` cell, and triangle commutativity. -/
@@ -61,18 +55,15 @@ theorem IsSmooth.exists_lift (p : F ⥤ ArtinianLocalAlgCat Λ k) [IsFibered.InG
       p.IsHomLift f β ∧ (𝟭 (ArtinianLocalAlgCat Λ k)).IsHomLift (𝟙 B) γ ∧
         γ ≫ α = p.map β := sorry
 
-/-- Unobstructedness is the same property as smoothness. -/
+/-- Unobstructedness is a reducible synonym for smoothness, as in Stacks tag 06HP. -/
 abbrev IsUnobstructed (p : F ⥤ ArtinianLocalAlgCat Λ k) [IsFibered.InGroupoids p.op] :
     Prop :=
   IsSmooth p
 
-/-- Unobstructedness is equivalent to smoothness. -/
-theorem isUnobstructed_iff (p : F ⥤ ArtinianLocalAlgCat Λ k)
-    [IsFibered.InGroupoids p.op] : IsUnobstructed p ↔ IsSmooth p := sorry
-
 /-- Smoothness of a category cofibered in groupoids is smoothness of its structure morphism. -/
 theorem isSmooth_iff (p : F ⥤ ArtinianLocalAlgCat Λ k) [IsFibered.InGroupoids p.op] :
     IsSmooth p ↔
-      BasedFunctor.IsSmooth (BasedCategory.toBase (BasedCategory.ofFunctor p)) := sorry
+      BasedFunctor.IsSmooth (BasedCategory.toBase (BasedCategory.ofFunctor p)) :=
+  ⟨fun h ↦ h.isSmooth_toBase, fun h ↦ ⟨h⟩⟩
 
 end CategoryTheory.Functor

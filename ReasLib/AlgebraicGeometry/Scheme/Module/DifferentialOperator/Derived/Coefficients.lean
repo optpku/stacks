@@ -137,29 +137,29 @@ theorem rightFiberCoefficientHom_eq {S X Y : Scheme.{u}} (a : X ⟶ S) (b : Y �
 /-- The coefficient complex obtained by pulling the realization of `F` to the fiber product. -/
 noncomputable abbrev leftPullbackComplex {S X Y : Scheme.{u}}
     (a : X ⟶ S) (b : Y ⟶ S)
-    [(leftCoefficientHom a b).modulePushforward.IsRightAdjoint]
+    [(RingedSite.Hom.modulePushforward.{u} (leftCoefficientHom a b)).IsRightAdjoint]
     (F : CochainComplex (Hom.FiniteOrderDifferentialOperatorCat a) ℤ) :=
-  (leftCoefficientHom a b).modulePullbackComplex.obj
+  (RingedSite.Hom.modulePullbackComplex.{u} (leftCoefficientHom a b)).obj
     ((Hom.FiniteOrderDifferentialOperatorCat.toCoefficientComplex a).obj F)
 
 /-- The coefficient complex obtained by pulling the realization of `G` to the fiber product. -/
 noncomputable abbrev rightPullbackComplex {S X Y : Scheme.{u}}
     (a : X ⟶ S) (b : Y ⟶ S)
-    [(rightCoefficientHom a b).modulePushforward.IsRightAdjoint]
+    [(RingedSite.Hom.modulePushforward.{u} (rightCoefficientHom a b)).IsRightAdjoint]
     (G : CochainComplex (Hom.FiniteOrderDifferentialOperatorCat b) ℤ) :=
-  (rightCoefficientHom a b).modulePullbackComplex.obj
+  (RingedSite.Hom.modulePullbackComplex.{u} (rightCoefficientHom a b)).obj
     ((Hom.FiniteOrderDifferentialOperatorCat.toCoefficientComplex b).obj G)
 
 /-- The two presentations of the direct image of a pulled-back module in the left
 coefficient square agree. -/
 theorem leftPullbackPushforward_eq {S X Y : Scheme.{u}}
     (a : X ⟶ S) (b : Y ⟶ S)
-    [(leftCoefficientHom a b).modulePushforward.IsRightAdjoint]
+    [(RingedSite.Hom.modulePushforward.{u} (leftCoefficientHom a b)).IsRightAdjoint]
     (M : X.Modules) :
     (restrictionAlong (Hom.FiniteOrderDifferentialOperatorCat.coefficientMap a)).obj
         ((Scheme.Modules.pushforward (pullback.fst a b)).obj
           ((Scheme.Modules.pullback (pullback.fst a b)).obj M)) =
-      (leftCoefficientHom a b).modulePushforward.obj
+      (RingedSite.Hom.modulePushforward.{u} (leftCoefficientHom a b)).obj
         ((restrictionAlong
           (Hom.FiniteOrderDifferentialOperatorCat.coefficientMap
             (pullback.fst a b ≫ a))).obj
@@ -169,9 +169,9 @@ theorem leftPullbackPushforward_eq {S X Y : Scheme.{u}}
 ordinary scheme pullback along the first projection. -/
 noncomputable def leftPullbackComparison {S X Y : Scheme.{u}}
     (a : X ⟶ S) (b : Y ⟶ S)
-    [(leftCoefficientHom a b).modulePushforward.IsRightAdjoint]
+    [(RingedSite.Hom.modulePushforward.{u} (leftCoefficientHom a b)).IsRightAdjoint]
     (M : X.Modules) :
-    (leftCoefficientHom a b).modulePullback.obj
+    (RingedSite.Hom.modulePullback.{u} (leftCoefficientHom a b)).obj
         ((restrictionAlong (Hom.FiniteOrderDifferentialOperatorCat.coefficientMap a)).obj M) ⟶
       (restrictionAlong
         (Hom.FiniteOrderDifferentialOperatorCat.coefficientMap
@@ -187,12 +187,12 @@ noncomputable def leftPullbackComparison {S X Y : Scheme.{u}}
 coefficient square agree. -/
 theorem rightPullbackPushforward_eq {S X Y : Scheme.{u}}
     (a : X ⟶ S) (b : Y ⟶ S)
-    [(rightCoefficientHom a b).modulePushforward.IsRightAdjoint]
+    [(RingedSite.Hom.modulePushforward.{u} (rightCoefficientHom a b)).IsRightAdjoint]
     (M : Y.Modules) :
     (restrictionAlong (Hom.FiniteOrderDifferentialOperatorCat.coefficientMap b)).obj
         ((Scheme.Modules.pushforward (pullback.snd a b)).obj
           ((Scheme.Modules.pullback (pullback.snd a b)).obj M)) =
-      (rightCoefficientHom a b).modulePushforward.obj
+      (RingedSite.Hom.modulePushforward.{u} (rightCoefficientHom a b)).obj
         ((restrictionAlong
           (Hom.FiniteOrderDifferentialOperatorCat.coefficientMap
             (pullback.fst a b ≫ a))).obj
@@ -202,9 +202,9 @@ theorem rightPullbackPushforward_eq {S X Y : Scheme.{u}}
 ordinary scheme pullback along the second projection. -/
 noncomputable def rightPullbackComparison {S X Y : Scheme.{u}}
     (a : X ⟶ S) (b : Y ⟶ S)
-    [(rightCoefficientHom a b).modulePushforward.IsRightAdjoint]
+    [(RingedSite.Hom.modulePushforward.{u} (rightCoefficientHom a b)).IsRightAdjoint]
     (M : Y.Modules) :
-    (rightCoefficientHom a b).modulePullback.obj
+    (RingedSite.Hom.modulePullback.{u} (rightCoefficientHom a b)).obj
         ((restrictionAlong (Hom.FiniteOrderDifferentialOperatorCat.coefficientMap b)).obj M) ⟶
       (restrictionAlong
         (Hom.FiniteOrderDifferentialOperatorCat.coefficientMap
@@ -219,8 +219,8 @@ noncomputable def rightPullbackComparison {S X Y : Scheme.{u}}
 /-- The intermediate total complex of the two coefficient-module pullbacks on `X ×_S Y`. -/
 noncomputable abbrev coefficientTensorComplex {S X Y : Scheme.{u}}
     (a : X ⟶ S) (b : Y ⟶ S)
-    [(leftCoefficientHom a b).modulePushforward.IsRightAdjoint]
-    [(rightCoefficientHom a b).modulePushforward.IsRightAdjoint]
+    [(RingedSite.Hom.modulePushforward.{u} (leftCoefficientHom a b)).IsRightAdjoint]
+    [(RingedSite.Hom.modulePushforward.{u} (rightCoefficientHom a b)).IsRightAdjoint]
     (F : CochainComplex (Hom.FiniteOrderDifferentialOperatorCat a) ℤ)
     (G : CochainComplex (Hom.FiniteOrderDifferentialOperatorCat b) ℤ) :=
   HomologicalComplex.tensorObj (leftPullbackComplex a b F) (rightPullbackComplex a b G)
@@ -228,8 +228,8 @@ noncomputable abbrev coefficientTensorComplex {S X Y : Scheme.{u}}
 /-- The tensor bicomplex of the two ordinary coefficient pullbacks admits its canonical total. -/
 theorem coefficientTensorComplex_hasTotal {S X Y : Scheme.{u}}
     (a : X ⟶ S) (b : Y ⟶ S)
-    [(leftCoefficientHom a b).modulePushforward.IsRightAdjoint]
-    [(rightCoefficientHom a b).modulePushforward.IsRightAdjoint]
+    [(RingedSite.Hom.modulePushforward.{u} (leftCoefficientHom a b)).IsRightAdjoint]
+    [(RingedSite.Hom.modulePushforward.{u} (rightCoefficientHom a b)).IsRightAdjoint]
     (F : CochainComplex (Hom.FiniteOrderDifferentialOperatorCat a) ℤ)
     (G : CochainComplex (Hom.FiniteOrderDifferentialOperatorCat b) ℤ) :
     HomologicalComplex.HasMapBifunctor (leftPullbackComplex a b F)
@@ -240,8 +240,8 @@ theorem coefficientTensorComplex_hasTotal {S X Y : Scheme.{u}}
 /-- The derived object represented by the intermediate coefficient tensor complex. -/
 noncomputable abbrev coefficientTensor {S X Y : Scheme.{u}}
     (a : X ⟶ S) (b : Y ⟶ S)
-    [(leftCoefficientHom a b).modulePushforward.IsRightAdjoint]
-    [(rightCoefficientHom a b).modulePushforward.IsRightAdjoint]
+    [(RingedSite.Hom.modulePushforward.{u} (leftCoefficientHom a b)).IsRightAdjoint]
+    [(RingedSite.Hom.modulePushforward.{u} (rightCoefficientHom a b)).IsRightAdjoint]
     (F : CochainComplex (Hom.FiniteOrderDifferentialOperatorCat a) ℤ)
     (G : CochainComplex (Hom.FiniteOrderDifferentialOperatorCat b) ℤ) :
     CoefficientDerived (pullback.fst a b ≫ a) :=
@@ -251,8 +251,8 @@ noncomputable abbrev coefficientTensor {S X Y : Scheme.{u}}
 /-- The intermediate coefficient tensor is obtained by localizing its explicit total complex. -/
 theorem coefficientTensor_def {S X Y : Scheme.{u}}
     (a : X ⟶ S) (b : Y ⟶ S)
-    [(leftCoefficientHom a b).modulePushforward.IsRightAdjoint]
-    [(rightCoefficientHom a b).modulePushforward.IsRightAdjoint]
+    [(RingedSite.Hom.modulePushforward.{u} (leftCoefficientHom a b)).IsRightAdjoint]
+    [(RingedSite.Hom.modulePushforward.{u} (rightCoefficientHom a b)).IsRightAdjoint]
     (F : CochainComplex (Hom.FiniteOrderDifferentialOperatorCat a) ℤ)
     (G : CochainComplex (Hom.FiniteOrderDifferentialOperatorCat b) ℤ) :
     coefficientTensor a b F G =

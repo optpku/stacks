@@ -61,7 +61,8 @@ namespace mid
 /-- The quotient midpoint is finitely presented over the base ring. -/
 @[stacks 07CK "finite presentation of a smooth quotient midpoint"]
 instance finitePresentation (F : Smooth I f) :
-    Algebra.FinitePresentation R F.mid := sorry
+    Algebra.FinitePresentation R F.mid :=
+  Algebra.FinitePresentation.quotient F.ideal_fg
 
 end mid
 
@@ -73,7 +74,7 @@ abbrev toTarget (F : Smooth I f) : F.mid →ₐ[R] B := F.base.toTarget
 
 /-- The quotient maps factor the original algebra homomorphism. -/
 theorem factor (F : Smooth I f) :
-    F.toTarget.comp F.fromSource = f := sorry
+    F.toTarget.comp F.fromSource = f := F.base.factor
 
 /-- Forget the smooth prequotient presentation while retaining the induced
 finite-presentation factorisation. -/
@@ -84,12 +85,12 @@ noncomputable def toFinite (F : Smooth I f) : AlgHom.Factorisation.Finite f :=
 /-- The finite factorisation preserves the source map. -/
 @[simp]
 theorem fromSource_toFinite (F : Smooth I f) :
-    F.toFinite.fromSource = F.fromSource := sorry
+    F.toFinite.fromSource = F.fromSource := rfl
 
 /-- The finite factorisation preserves the target map. -/
 @[simp]
 theorem toTarget_toFinite (F : Smooth I f) :
-    F.toFinite.toTarget = F.toTarget := sorry
+    F.toFinite.toTarget = F.toTarget := rfl
 
 /-- The smoothness, ideal conditions, and triangle law carried by a smooth
 quotient factorisation. -/
@@ -98,7 +99,8 @@ theorem spec (F : Smooth I f) :
     Algebra.Smooth R F.prequotient ∧
       F.ideal ≤ I.map (algebraMap R F.prequotient) ∧
       F.ideal.FG ∧
-      F.toTarget.comp F.fromSource = f := sorry
+      F.toTarget.comp F.fromSource = f :=
+  ⟨inferInstance, F.ideal_le, F.ideal_fg, F.factor⟩
 
 /-- Attach smoothness and the two ideal conditions to an existing quotient
 factorisation. -/
@@ -117,7 +119,7 @@ theorem base_of (F : AlgHom.QuotientFactorisation f)
     [Algebra.Smooth R F.prequotient]
     {ideal_le : F.ideal ≤ I.map (algebraMap R F.prequotient)}
     {ideal_fg : F.ideal.FG} :
-    (of F ideal_le ideal_fg).base = F := sorry
+    (of F ideal_le ideal_fg).base = F := rfl
 
 /-- Build a smooth quotient factorisation directly from a smooth algebra, an
 ideal, and the two maps through its quotient. -/
@@ -142,7 +144,7 @@ theorem base_ofMaps {P : Type (max u v w)} [CommRing P] [Algebra R P]
     {factor : toTarget.comp fromSource = f}
     {ideal_le : J ≤ I.map (algebraMap R P)} {ideal_fg : J.FG} :
     (ofMaps J fromSource toTarget factor ideal_le ideal_fg).base =
-      AlgHom.QuotientFactorisation.ofMaps J fromSource toTarget factor := sorry
+      AlgHom.QuotientFactorisation.ofMaps J fromSource toTarget factor := rfl
 
 /-- The defining ideal of a smooth quotient factorisation built by `ofMaps`
 is the supplied ideal. -/
@@ -152,7 +154,7 @@ theorem ideal_ofMaps {P : Type (max u v w)} [CommRing P] [Algebra R P]
     (fromSource : A →ₐ[R] P ⧸ J) (toTarget : P ⧸ J →ₐ[R] B)
     {factor : toTarget.comp fromSource = f}
     {ideal_le : J ≤ I.map (algebraMap R P)} {ideal_fg : J.FG} :
-    (ofMaps J fromSource toTarget factor ideal_le ideal_fg).ideal = J := sorry
+    (ofMaps J fromSource toTarget factor ideal_le ideal_fg).ideal = J := rfl
 
 /-- The source map of a smooth quotient factorisation built by `ofMaps` is
 the supplied source map. -/
@@ -164,7 +166,7 @@ theorem fromSource_ofMaps
     {factor : toTarget.comp fromSource = f}
     {ideal_le : J ≤ I.map (algebraMap R P)} {ideal_fg : J.FG} :
     (ofMaps J fromSource toTarget factor ideal_le ideal_fg).fromSource =
-      fromSource := sorry
+      fromSource := rfl
 
 /-- The target map of a smooth quotient factorisation built by `ofMaps` is
 the supplied target map. -/
@@ -176,7 +178,7 @@ theorem toTarget_ofMaps
     {factor : toTarget.comp fromSource = f}
     {ideal_le : J ≤ I.map (algebraMap R P)} {ideal_fg : J.FG} :
     (ofMaps J fromSource toTarget factor ideal_le ideal_fg).toTarget =
-      toTarget := sorry
+      toTarget := rfl
 
 end Smooth
 

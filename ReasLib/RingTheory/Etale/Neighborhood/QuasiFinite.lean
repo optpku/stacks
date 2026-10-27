@@ -9,6 +9,7 @@ module
 public import Mathlib.RingTheory.QuasiFinite.Basic
 public import Mathlib.Tactic.CrossRefAttribute
 public import ReasLib.RingTheory.Etale.Neighborhood
+public import ReasLib.RingTheory.Etale.Point.QuasiFinite
 public import ReasLib.RingTheory.Ideal.Over
 public import ReasLib.RingTheory.QuasiFinite.Decomposition
 
@@ -22,7 +23,9 @@ public import ReasLib.RingTheory.QuasiFinite.Decomposition
 This leaf packages the finite-product output that occurs after passing to an
 etale neighborhood of a prime. The finite part and the residual
 quasi-finite-free factor are data; residue-field refinements are separate
-predicates on that data.
+predicates on that data. The pointed decomposition is owned by
+`EtalePoint.QuasiFiniteDecomposition`; the neighborhood package is its thin
+specialization by bijectivity of the base point's residue-field map.
 -/
 
 universe u v w
@@ -33,21 +36,47 @@ open scoped TensorProduct
 
 /-- A finite-product decomposition after an etale neighborhood of a prime.
 
-The selected point of `neighborhood` controls all fiber conditions. Keeping it
-bundled prevents consumers from rebuilding the same etale neighborhood and
-residue-field identification with incompatible definitional equalities. -/
+The underlying data is the canonical pointed etale decomposition, with the
+additional residue-field condition. The `neighborhood` and `product` API is
+recovered from this data without choosing a new algebra or point. -/
 @[stacks 00UK "quasi-finite finite-product decomposition"]
 structure QuasiFiniteDecomposition
     {R : Type u} [CommRing R] (p : PrimeSpectrum R)
     {S : Type v} [CommRing S] [Algebra R S] where
-  /-- The etale neighborhood over the selected base point. -/
-  neighborhood : EtaleNeighborhood.{u, w} p
-  /-- The reusable product decomposition over the neighborhood's selected
-  point. -/
-  product : PrimeSpectrum.QuasiFiniteDecomposition neighborhood.point
-    (neighborhood.carrier ⊗[R] S)
+  /-- The canonical pointed etale decomposition underlying the specialization. -/
+  toEtalePointDecomposition :
+    EtalePoint.QuasiFiniteDecomposition.{u, v, w} p (S := S)
+  /-- The pointed extension is an etale neighborhood. -/
+  residueField_bijective : Function.Bijective
+    toEtalePointDecomposition.etalePoint.residueFieldMap
 
 namespace QuasiFiniteDecomposition
+
+/-- Recover the etale neighborhood by restoring its residue-field condition. -/
+def neighborhood
+    {R : Type u} [CommRing R] {p : PrimeSpectrum R}
+    {S : Type v} [CommRing S] [Algebra R S]
+    (D : QuasiFiniteDecomposition.{u, v, w} p (S := S)) :
+    EtaleNeighborhood.{u, w} p :=
+  EtaleNeighborhood.ofEtalePoint D.toEtalePointDecomposition.etalePoint
+    D.residueField_bijective
+
+/-- The product data is the underlying pointed decomposition's product data. -/
+abbrev product
+    {R : Type u} [CommRing R] {p : PrimeSpectrum R}
+    {S : Type v} [CommRing S] [Algebra R S]
+    (D : QuasiFiniteDecomposition.{u, v, w} p (S := S)) :
+    PrimeSpectrum.QuasiFiniteDecomposition D.neighborhood.point
+      (D.neighborhood.carrier ⊗[R] S) :=
+  D.toEtalePointDecomposition.decomposition
+
+/-- The recovered neighborhood has exactly the underlying pointed extension. -/
+@[simp]
+theorem neighborhood_toEtalePoint
+    {R : Type u} [CommRing R] {p : PrimeSpectrum R}
+    {S : Type v} [CommRing S] [Algebra R S]
+    (D : QuasiFiniteDecomposition.{u, v, w} p (S := S)) :
+    D.neighborhood.toEtalePoint = D.toEtalePointDecomposition.etalePoint := rfl
 
 /-- The finite index type supplied by the underlying product decomposition. -/
 abbrev ι
@@ -105,8 +134,37 @@ noncomputable def of
     (N : EtaleNeighborhood.{u, w} p)
     (D : PrimeSpectrum.QuasiFiniteDecomposition N.point (N.carrier ⊗[R] S)) :
     QuasiFiniteDecomposition.{u, v, w} p (S := S) where
-  neighborhood := N
-  product := D
+  toEtalePointDecomposition := EtalePoint.QuasiFiniteDecomposition.of N.toEtalePoint D
+  residueField_bijective := N.residueField_bijective
+
+/-- The neighborhood constructor preserves its supplied neighborhood. -/
+@[simp]
+theorem neighborhood_of
+    {R : Type u} [CommRing R] {p : PrimeSpectrum R}
+    {S : Type v} [CommRing S] [Algebra R S]
+    (N : EtaleNeighborhood.{u, w} p)
+    (D : PrimeSpectrum.QuasiFiniteDecomposition N.point (N.carrier ⊗[R] S)) :
+    (of N D).neighborhood = N := rfl
+
+/-- The neighborhood constructor preserves its supplied product data. -/
+@[simp]
+theorem product_of
+    {R : Type u} [CommRing R] {p : PrimeSpectrum R}
+    {S : Type v} [CommRing S] [Algebra R S]
+    (N : EtaleNeighborhood.{u, w} p)
+    (D : PrimeSpectrum.QuasiFiniteDecomposition N.point (N.carrier ⊗[R] S)) :
+    (of N D).product = D := rfl
+
+/-- Forgetting the residue-field condition on a constructed decomposition
+uses the neighborhood's canonical pointed extension. -/
+@[simp]
+theorem toEtalePointDecomposition_of
+    {R : Type u} [CommRing R] {p : PrimeSpectrum R}
+    {S : Type v} [CommRing S] [Algebra R S]
+    (N : EtaleNeighborhood.{u, w} p)
+    (D : PrimeSpectrum.QuasiFiniteDecomposition N.point (N.carrier ⊗[R] S)) :
+    (of N D).toEtalePointDecomposition =
+      EtalePoint.QuasiFiniteDecomposition.of N.toEtalePoint D := rfl
 
 /-- The etale, fiber, finiteness, and non-quasi-finite-remainder properties
 carried by a quasi-finite decomposition.  The product equivalence itself is

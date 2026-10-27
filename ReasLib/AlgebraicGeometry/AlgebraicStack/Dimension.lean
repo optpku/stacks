@@ -41,7 +41,7 @@ def dimensionToEInt (d : WithBot ℕ∞) : EInt :=
 /-- `dimensionToEInt` is `WithBot.map` of `WithTop.map Int.ofNat`. -/
 theorem dimensionToEInt_apply (d : WithBot ℕ∞) :
     dimensionToEInt d = WithBot.map (WithTop.map Int.ofNat) d :=
-  sorry
+  rfl
 
 /-- The difference of two `WithBot ℕ∞` dimensions, as an extended integer. -/
 def dimensionDiff (a b : WithBot ℕ∞) : EInt :=
@@ -56,7 +56,7 @@ def dimensionDiff (a b : WithBot ℕ∞) : EInt :=
 /-- On finite values, `dimensionDiff` is ordinary integer subtraction. -/
 theorem dimensionDiff_nat (n m : ℕ) :
     dimensionDiff n m = ((n : ℤ) - (m : ℤ) : EInt) :=
-  sorry
+  rfl
 
 /-- The dimension of a locally Noetherian algebraic stack at a point, as the supremum of
 presentation differences `dimensionAt u - fiberDimensionAt s (e u)` along points of the
@@ -101,7 +101,7 @@ at points. -/
 theorem dimension_eq_iSup_dimensionAt {S : Scheme.{u}} (X : GroupoidsOver S)
     [AlgebraicStack X] [IsLocallyNoetherian X] :
     dimension X = ⨆ x : Points X, dimensionAt x :=
-  sorry
+  rfl
 
 /-- On the slice of a locally Noetherian scheme, the stack dimension recovers the usual
 topological Krull dimension after embedding into `EInt`. -/
@@ -143,8 +143,10 @@ theorem dimensionDiffAt_independent {S : Scheme.{u}} {X : GroupoidsOver S}
       (Points.mk (FieldValuedPoint.ofAlgebraicSpace p)) = x)
     (hp' : Points.map (GroupoidAlgebraicSpace.SmallQuotient.atlas P'.groupoid ≫ P'.hom)
       (Points.mk (FieldValuedPoint.ofAlgebraicSpace p')) = x) :
-    P.dimensionDiffAt p = P'.dimensionDiffAt p' :=
-  sorry
+    P.dimensionDiffAt p = P'.dimensionDiffAt p' := by
+  calc
+    P.dimensionDiffAt p = dimensionAt x := (dimensionAt_eq x P p hp).symm
+    _ = P'.dimensionDiffAt p' := dimensionAt_eq x P' p' hp'
 
 /-- A presentation difference at a point of a locally Noetherian algebraic stack is
 positive infinity or an integer. -/
@@ -154,8 +156,10 @@ theorem dimensionDiffAt_eq_top_or_int {S : Scheme.{u}} {X : GroupoidsOver S}
     (p : AlgebraicSpace.FieldValuedPoint P.groupoid.U.left)
     (hp : Points.map (GroupoidAlgebraicSpace.SmallQuotient.atlas P.groupoid ≫ P.hom)
       (Points.mk (FieldValuedPoint.ofAlgebraicSpace p)) = x) :
-    P.dimensionDiffAt p = ⊤ ∨ ∃ n : ℤ, P.dimensionDiffAt p = n :=
-  sorry
+    P.dimensionDiffAt p = ⊤ ∨ ∃ n : ℤ, P.dimensionDiffAt p = n := by
+  have h : dimensionAt x = P.dimensionDiffAt p := dimensionAt_eq x P p hp
+  rw [← h]
+  exact dimensionAt_eq_top_or_int x
 
 /-- The local dimension of the source fibre of a presentation at the identity arrow
 of an object-space point is a natural number. -/

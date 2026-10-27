@@ -27,7 +27,7 @@ variable {dimension : V → ℕ} {product : V → V → V}
 variable {fst : ∀ X Y, product X Y ⟶ X} {snd : ∀ X Y, product X Y ⟶ Y}
 variable {point : V} {H : V → Type x} {CH : V → Type y}
 variable [∀ X, Ring (H X)] [∀ X, Algebra F (H X)] [∀ X, CommRing (CH X)]
-variable {Hgrade : ∀ X, ℤ × ℤ → Submodule F (H X)}
+variable {Hgrade : ∀ X, ℤ → Submodule F (H X)}
 variable {CHgrade : ∀ X, ℤ → Submodule ℤ (CH X)}
 variable [∀ X, GradedAlgebra (Hgrade X)] [∀ X, GradedAlgebra (CHgrade X)]
 variable {cyclePullback : ∀ {X Y : V}, (X ⟶ Y) → CHgrade Y →ₐᵍ[ℤ] CHgrade X}
@@ -35,6 +35,10 @@ variable {cyclePushforward : ∀ {X Y : V}, (X ⟶ Y) → CH X →+ CH Y}
 
 variable (T : SchemeClassicalTheory k F TateLine V dimension product fst snd point
   H CH Hgrade CHgrade cyclePullback cyclePushforward)
+
+/-- The represented smooth structure supplies the finite-type instance used
+in the relative dimension functions below; no extra assumption is introduced. -/
+local instance representedSmoothEuler (X : V) : Smooth (T.scheme.obj X).hom := T.smooth X
 
 /-- The alternating cohomological dimension sum equals the degree of the diagonal self-intersection. -/
 theorem eulerChar_eq_diagonalDegree
@@ -79,7 +83,7 @@ theorem eulerChar_eq_diagonalDegree
                   (T.scheme.obj (product X X))
                   (T.projective (product X X)).isProper.toLocallyOfFiniteType p))) :
     (∑ i : Fin (2 * d + 1), (-1 : ℤ) ^ (i : ℕ) *
-      (Module.finrank F (Hgrade X ((i : ℤ), 0)) : ℤ)) =
+      (Module.finrank F (Hgrade X ((i : ℤ))) : ℤ)) =
       @ChowGroup.degree k _ (T.scheme.obj (product X X))
         (T.projective (product X X)).isProper (chowTopEquivProduct diagonalSelfIntersection) := sorry
 

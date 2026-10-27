@@ -80,7 +80,8 @@ variable [F.toBoundedBelowDerived.HasRightDerivedFunctor
 cohomological degrees. -/
 @[stacks 05TD]
 theorem degree.isZero_of_neg (i : ℤ) (hi : i < 0) :
-    IsZero (degree F i) := sorry
+    IsZero (degree F i) :=
+  Functor.RightDerived.degree.isZero_of_neg F (functor F) (unit F) i hi
 
 namespace degree
 
@@ -98,23 +99,27 @@ end degree
 exact. -/
 @[stacks 05TD]
 theorem zero.preservesFiniteLimits :
-    PreservesFiniteLimits (degree F 0) := sorry
+    PreservesFiniteLimits (degree F 0) :=
+  Functor.RightDerived.zero.preservesFiniteLimits F (functor F) (unit F)
 
 /-- Degree zero of the canonical bounded-below right-derived functor is left exact as a
 typeclass instance. -/
 @[stacks 05TD "canonical bounded right-derived degree-zero instance"]
-instance degree.preservesFiniteLimits : PreservesFiniteLimits (degree F 0) := sorry
+instance degree.preservesFiniteLimits : PreservesFiniteLimits (degree F 0) :=
+  zero.preservesFiniteLimits F
 
 /-- The canonical degree-zero comparison is invertible exactly when the
 underived functor is left exact. -/
 @[stacks 05TD]
 theorem zero.isIso_iff_preservesFiniteLimits :
-    IsIso (zero F) ↔ PreservesFiniteLimits F := sorry
+    IsIso (zero F) ↔ PreservesFiniteLimits F :=
+  Functor.RightDerived.zero.isIso_iff_preservesFiniteLimits F (functor F) (unit F)
 
 /-- For a left exact functor, the canonical bounded-below degree-zero comparison is an
 isomorphism available to typeclass search. -/
 @[stacks 05TD "canonical bounded right-derived comparison instance"]
-instance zero.isIso [PreservesFiniteLimits F] : IsIso (zero F) := sorry
+instance zero.isIso [PreservesFiniteLimits F] : IsIso (zero F) :=
+  (zero.isIso_iff_preservesFiniteLimits F).2 inferInstance
 
 end RightDerived.Bounded
 

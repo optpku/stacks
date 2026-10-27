@@ -35,6 +35,7 @@ variable [∀ X, Ring (H X)] [∀ X, Algebra F (H X)] [∀ X, AddCommGroup (Pica
 
 /- Lemma 45.14.7 (1): data (D0), (D1), and (D2') satisfying axioms
 (A1)–(A7) satisfy axiom (B)(a): exterior product is a Künneth isomorphism
+/- 抽象层对角类 mixin：待 RL-2194 完成锚定后移除。 -/
 for smooth-projective objects. -/
 @[stacks 0FIL] #check (WeilCohomology.kunnethMap_bijective_of_axiomsA1ToA7 :
   ∀ (T : SchemePreWeilTheory k F TateLine V dimension product fst snd point CH CHgrade
@@ -46,7 +47,7 @@ for smooth-projective objects. -/
 product is the tensor product of the two zero-extended integration maps. -/
 @[stacks 0FIL] #check (WeilCohomology.integral_eq_tensorProductTrace_of_axiomsA1ToA7 :
   ∀ (T : SchemePreWeilTheory k F TateLine V dimension product fst snd point CH CHgrade
-    cyclePullback cyclePushforward pointCycle H Picard) (X Y : V) {d e : ℕ}
+    cyclePullback cyclePushforward pointCycle H Picard) [T.HasDiagonalClassRelation] (X Y : V) {d e : ℕ}
     (hX : T.IsNonemptyEquidimensional X d) (hY : T.IsNonemptyEquidimensional Y e),
     T.integral (T.product_isNonemptyEquidimensional hX hY) =
       tensorProductTrace (T.kunnethMap X Y)
@@ -57,11 +58,21 @@ product is the tensor product of the two zero-extended integration maps. -/
 product of the two zero-extended integrals. -/
 @[stacks 0FIL] #check (WeilCohomology.integral_kunnethMap_tmul_of_axiomsA1ToA7 :
   ∀ (T : SchemePreWeilTheory k F TateLine V dimension product fst snd point CH CHgrade
-    cyclePullback cyclePushforward pointCycle H Picard) (X Y : V) {d e : ℕ}
+    cyclePullback cyclePushforward pointCycle H Picard) [T.HasDiagonalClassRelation] (X Y : V) {d e : ℕ}
     (hX : T.IsNonemptyEquidimensional X d) (hY : T.IsNonemptyEquidimensional Y e)
     (a : H X) (b : H Y),
     T.integral (T.product_isNonemptyEquidimensional hX hY)
         (T.kunnethMap X Y (a ⊗ₜ[F] b)) =
       T.integral hX a * T.integral hY b)
+
+/- The product-trace identity on the source's external dimension twists. -/
+@[stacks 0FIL] #check (WeilCohomology.twistedIntegral_kunnethMap_tmul_of_axiomsA1ToA7 :
+  ∀ (T : SchemePreWeilTheory k F TateLine V dimension product fst snd point CH CHgrade
+    cyclePullback cyclePushforward pointCycle H Picard) [T.HasDiagonalClassRelation] (X Y : V) {d e : ℕ}
+    (hX : T.IsNonemptyEquidimensional X d) (hY : T.IsNonemptyEquidimensional Y e)
+    (a : T.twistedCohomology X d) (b : T.twistedCohomology Y e),
+    T.twistedIntegral (T.product_isNonemptyEquidimensional hX hY)
+        (T.twistedKunnethMap X Y d e (a ⊗ₜ[F] b)) =
+      T.twistedIntegral hX a * T.twistedIntegral hY b)
 
 end WeilCohomology

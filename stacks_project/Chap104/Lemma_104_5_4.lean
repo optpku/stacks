@@ -6,7 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap104.Lemma_104_5_4_Colocalization
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Derived.Colocalization
 import StacksCheckRecall
 
 /-!
@@ -22,14 +22,39 @@ canonical distinguished triangle `E' ⟶ E ⟶ P ⟶ E'⟦1⟧` in
 @[expose] public section
 
 open AlgebraicGeometry AlgebraicGeometry.AlgebraicStack CategoryTheory
-open AlgebraicGeometry.GroupoidsOver
+open AlgebraicGeometry.GroupoidsOver CategoryTheory.Pretriangulated
 
-/- Lemma 104.5.4 (1): the counit `Lg_! g^* E ⟶ E` completes to a distinguished
-triangle in `D_{LQCoh^{fbc}}(𝒪_X)` whose third vertex is parasitic. -/
-@[stacks 07BA]
-#check DerivedLQCohFbc.exists_colocalizationTriangle
+universe u
 
-/- Lemma 104.5.4 (2): `Hom_{D(𝒪_X)}(Lg_! g^* E, P') = 0` for every `P'` in
-`D_{Parasitic ∩ LQCoh^{fbc}}(𝒪_X)`. -/
+/- Lemma 104.5.4: the canonical counit admits a distinguished completion with
+parasitic third vertex; its source is left-orthogonal to parasitic-LQCoh objects,
+and such completions are canonical up to unique isomorphism fixing E. -/
 @[stacks 07BA]
-#check DerivedLQCohFbc.colocalize_hom_eq_zero
+#check (AlgebraicGeometry.AlgebraicStack.DerivedLQCohFbc.exists_colocalizationTriangle :
+    ∀ {S : Scheme.{u}} (X : GroupoidsOver S) [AlgebraicStack X]
+      (E : DerivedLQCohFbc X),
+      ∃ (P : DerivedLQCohFbc X) (f : E ⟶ P)
+        (δ : P ⟶ ((DerivedLQCohFbc.colocalize X).obj E)⟦(1 : ℤ)⟧),
+        Triangle.mk ((DerivedLQCohFbc.colocalizeCounit X).app E) f δ ∈
+            distTriang (DerivedLQCohFbc X) ∧
+          derivedParasitic X P)
+
+#check (AlgebraicGeometry.AlgebraicStack.DerivedLQCohFbc.colocalize_hom_eq_zero :
+    ∀ {S : Scheme.{u}} (X : GroupoidsOver S) [AlgebraicStack X]
+      (E : DerivedLQCohFbc X),
+      (DerivedCategory.cohomologyIn (FppfModules.parasiticLQCohFbc X)).leftOrthogonal
+        ((DerivedLQCohFbc.inclusion X).obj ((DerivedLQCohFbc.colocalize X).obj E)))
+
+#check (AlgebraicGeometry.AlgebraicStack.DerivedLQCohFbc.colocalizationTriangle_unique :
+    ∀ {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X]
+      {E P P' : DerivedLQCohFbc X}
+      {f : E ⟶ P} {δ : P ⟶ ((DerivedLQCohFbc.colocalize X).obj E)⟦(1 : ℤ)⟧}
+      {f' : E ⟶ P'} {δ' : P' ⟶ ((DerivedLQCohFbc.colocalize X).obj E)⟦(1 : ℤ)⟧},
+      Triangle.mk ((DerivedLQCohFbc.colocalizeCounit X).app E) f δ ∈
+          distTriang (DerivedLQCohFbc X) →
+      Triangle.mk ((DerivedLQCohFbc.colocalizeCounit X).app E) f' δ' ∈
+          distTriang (DerivedLQCohFbc X) →
+      derivedParasitic X P → derivedParasitic X P' →
+      ∃! e : Triangle.mk ((DerivedLQCohFbc.colocalizeCounit X).app E) f δ ≅
+          Triangle.mk ((DerivedLQCohFbc.colocalizeCounit X).app E) f' δ',
+        e.hom.hom₂ = 𝟙 E)

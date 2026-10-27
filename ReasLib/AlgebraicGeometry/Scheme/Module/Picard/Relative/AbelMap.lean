@@ -94,9 +94,8 @@ noncomputable def abelSection
     [GeometricallyIrreducible X.hom] [SmoothOfRelativeDimension 1 X.hom]
     [IsProper X.hom] (d : ℕ) :
     (functor X).obj.obj (op (Hilbert.functor X d).reprX) :=
-  (eqToHom (functor_val X).symm).app _
-    (((Scheme.fppfTopology.over (Spec (CommRingCat.of k))).toSheafify
-      (presheaf X)).app _ (abelPicardClass X d))
+  ((Scheme.fppfTopology.over (Spec (CommRingCat.of k))).toSheafify
+    (presheaf X)).app _ (abelPicardClass X d)
 
 /-- The universal divisor class has relative degree `d`. -/
 theorem abelSection_mem_degreeSubfunctor

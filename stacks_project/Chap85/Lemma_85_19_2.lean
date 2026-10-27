@@ -6,9 +6,9 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import Mathlib.CategoryTheory.IsomorphismClasses
-public import Mathlib.Tactic.CrossRefAttribute
-public import stacks_project.Chap85.Lemma_85_19_2_Adjunction
+import StacksCheckRecall
+public import ReasLib.CategoryTheory.Sites.Hypercovering.DerivedAdjunction
+public import ReasLib.CategoryTheory.Sites.Hypercovering.PresheafTarget.DerivedDescent
 
 /-!
 # Lemma 85.19.2
@@ -41,25 +41,16 @@ variable [∀ P : (Grothendieck (overSiteDiagram K.toSimplicialObject))ᵒᵖ �
     AddCommGrpCat.{max w u v},
     (totalForget K.toSimplicialObject).op.HasPointwiseRightKanExtension P]
 
-/-- Lemma 85.19.2: Let `C` be a site with fibre products and `X` an object of
-`C`. Let `K` be a hypercovering of `X`. For `E ∈ D(C / X)` the map
+/- Lemma 85.19.2: For every `E ∈ D(C / X)`, the canonical map
 `E ⟶ Ra_* a⁻¹ E` is an isomorphism. -/
-@[stacks 0D8L]
-theorem derivedUnit_app_isIso
-    (E : DerivedCategory (Sheaf (J.over X) AddCommGrpCat.{max w u v})) :
-    IsIso ((derivedUnit J X K).app E :
-      E ⟶ (directImageDerived J X K).obj ((inverseImageDerived J X K).obj E)) :=
-  sorry
+@[stacks 0D8L] #check
+  (CategoryTheory.SemiRepresentableFamily.derivedUnit_app_isIso.{w, v, max u v}
+    (J.over X) (CategoryTheory.Hypercovering.toSliceTerminal J X K) :
+    ∀ E : DerivedCategory (Sheaf (J.over X) AddCommGrpCat.{max w u v}),
+      IsIso ((CategoryTheory.Hypercovering.derivedUnit J X K).app E))
 
-/-- The derived unit `𝟭 ⟶ a⁻¹ ⋙ Ra_*` is an isomorphism of functors on `D(C / X)`. -/
-theorem derivedUnit_isIso : IsIso (derivedUnit J X K) :=
-  sorry
-
-/-- Every `E ∈ D(C / X)` is isomorphic to `Ra_* a⁻¹ E`. -/
-theorem isIsomorphic_inverseImageDirectImage
-    (E : DerivedCategory (Sheaf (J.over X) AddCommGrpCat.{max w u v})) :
-    IsIsomorphic E
-      ((directImageDerived J X K).obj ((inverseImageDerived J X K).obj E)) :=
-  sorry
+#check (CategoryTheory.SemiRepresentableFamily.derivedUnit_isIso.{w, v, max u v}
+  (J.over X) (CategoryTheory.Hypercovering.toSliceTerminal J X K) :
+  IsIso (CategoryTheory.Hypercovering.derivedUnit J X K))
 
 end CategoryTheory.Hypercovering

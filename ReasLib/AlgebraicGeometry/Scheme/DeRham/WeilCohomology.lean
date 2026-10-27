@@ -31,41 +31,38 @@ cohomological degree and Tate twist preserve canonical pullback, the constant-on
 wedge cup products, and Tate trivialization, and identify its integral Chow operations
 with operational Chow cohomology and proper pushforward capped with fundamental classes. -/
 def RealizesCohomology (T : WeilCohomology.SchemeClassicalTheory.Object k k) : Prop :=
-  (fun (T : WeilCohomology.SchemeClassicalTheory.Object k k)
-    (S : T.V ⥤ SchemeOverField k)
-    (pullback : ∀ (X Y : T.V), (X ⟶ Y) → T.H Y → T.H X)
-    (twist : ∀ X i j,
-      TensorProduct k (T.Hgrade X (i, j)) T.TateLine ≃ₗ[k] T.Hgrade X (i, j + 1)) =>
-  (∃ (comparison : ∀ (X : T.V) (i j : ℤ), T.Hgrade X (i, j) ≃ₗ[k]
-        cohomologyOverAffineBase (A := CommRingCat.of k) (S.obj X).hom i)
+  letI : ∀ X, GradedAlgebra (T.Hgrade X) := T.hHgrade
+  letI : ∀ X, GradedAlgebra (T.CHgrade X) := T.hCHgrade
+  (let S := T.theory.scheme
+   ∃ (comparison : ∀ (X : T.V) (i n : ℤ),
+        T.theory.twistedGrade X i n ≃ₗ[k]
+          cohomologyOverAffineBase (A := CommRingCat.of k) (S.obj X).hom i)
       (tate : T.TateLine ≃ₗ[k] k),
-    (∀ (X Y : T.V) (f : X ⟶ Y) (i j : ℤ) (a : T.Hgrade Y (i, j)),
-      ((comparison X i j).toEquiv.symm
-        ((Cohomology.pullbackOverField (k := k)
-          (X := S.obj X) (Y := S.obj Y)
-          (S.map f) i).hom
-          (comparison Y i j a))).val = pullback X Y f a) ∧
-    (∀ X, ((comparison X 0 0).toEquiv.symm
-      (ClassAction.cohomologyOneCanonical (S.obj X).hom)).val = 1) ∧
-    (∀ X i i' j j' (a : T.Hgrade X (i, j)) (b : T.Hgrade X (i', j')),
-      ((comparison X (i + i') (j + j')).toEquiv.symm
-        ((CanonicalAction.cupMorphism (S.obj X).hom i i').hom
-          (TensorProduct.tmul (coefficientRing (S.obj X).hom)
-            (comparison X i j a) (comparison X i' j' b)))).val =
-        (a : T.H X) * b) ∧
-    (∀ X i j (a : T.Hgrade X (i, j)) (t : T.TateLine),
-      comparison X i (j + 1) (twist X i j (TensorProduct.tmul k a t)) =
-        tate t • comparison X i j a))) T (@WeilCohomology.SchemeClassicalTheory.scheme k _ k _ _ T.TateLine _ _ T.V _
-    T.dimension T.product T.fst T.snd T.point (fun X ↦ T.H X) (fun X ↦ T.CH X)
-    _ _ _ T.Hgrade T.CHgrade T.hHgrade T.hCHgrade T.cyclePullback
-    T.cyclePushforward T.theory)
-    (fun _ _ f a ↦ (@WeilCohomology.SchemeClassicalTheory.pullback k _ k _ _ T.TateLine _ _ T.V _
-    T.dimension T.product T.fst T.snd T.point (fun X ↦ T.H X) (fun X ↦ T.CH X)
-    _ _ _ T.Hgrade T.CHgrade T.hHgrade T.hCHgrade T.cyclePullback
-    T.cyclePushforward T.theory) f a) (@WeilCohomology.SchemeClassicalTheory.tateTwist k _ k _ _ T.TateLine _ _ T.V _
-    T.dimension T.product T.fst T.snd T.point (fun X ↦ T.H X) (fun X ↦ T.CH X)
-    _ _ _ T.Hgrade T.CHgrade T.hHgrade T.hCHgrade T.cyclePullback
-    T.cyclePushforward T.theory) ∧
+     (∀ (X Y : T.V) (f : X ⟶ Y) (i n : ℤ)
+        (a : T.theory.twistedGrade Y i n),
+       ((WeilCohomology.Tate.trivialization T.theory.tateLine_rank (T.Hgrade X i) n)
+          ((comparison X i n).symm
+            ((Cohomology.pullbackOverField (k := k) (X := S.obj X) (Y := S.obj Y)
+              (S.map f) i).hom (comparison Y i n a))) : T.H X) =
+         T.theory.pullback f
+           ((WeilCohomology.Tate.trivialization T.theory.tateLine_rank (T.Hgrade Y i) n) a)) ∧
+     (∀ X,
+       ((WeilCohomology.Tate.trivialization T.theory.tateLine_rank (T.Hgrade X 0) 0)
+         ((comparison X 0 0).symm
+           (ClassAction.cohomologyOneCanonical (S.obj X).hom)) : T.H X) = 1) ∧
+     (∀ X i i' n n' (a : T.theory.twistedGrade X i n)
+        (b : T.theory.twistedGrade X i' n'),
+       ((WeilCohomology.Tate.trivialization T.theory.tateLine_rank
+           (T.Hgrade X (i + i')) (n + n'))
+         ((comparison X (i + i') (n + n')).symm
+           ((CanonicalAction.cupMorphism (S.obj X).hom i i').hom
+             (TensorProduct.tmul (coefficientRing (S.obj X).hom)
+               (comparison X i n a) (comparison X i' n' b)))) : T.H X) =
+       ((WeilCohomology.Tate.trivialization T.theory.tateLine_rank (T.Hgrade X i) n) a : T.H X) *
+         ((WeilCohomology.Tate.trivialization T.theory.tateLine_rank (T.Hgrade X i') n') b : T.H X)) ∧
+     (∀ X i n (a : T.theory.twistedGrade X i n) (t : T.TateLine),
+       comparison X i (n + 1) (T.theory.tateTwist X i n (TensorProduct.tmul k a t)) =
+         tate t • comparison X i n a)) ∧
   (fun (T : WeilCohomology.SchemeClassicalTheory.Object k k)
     [_finite : ∀ X : T.V, LocallyOfFiniteType ((@WeilCohomology.SchemeClassicalTheory.scheme k _ k _ _ T.TateLine _ _ T.V _
     T.dimension T.product T.fst T.snd T.point (fun X ↦ T.H X) (fun X ↦ T.CH X)

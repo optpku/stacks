@@ -14,6 +14,7 @@ public import Mathlib.CategoryTheory.Sites.CoverLifting
 public import Mathlib.Algebra.Homology.ShortComplex.PreservesHomology
 public import ReasLib.CategoryTheory.Sites.AbelianSheaf.Additive
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Etale
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Etale.BaseChange
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.PresentationInclusion
 
 /-!
@@ -43,7 +44,9 @@ variable {S : Scheme.{u}}
 def etaleRestriction {X Y : AlgebraicSpace S} (f : X ⟶ Y) [Etale f] :
     smallEtaleSite X ⥤ smallEtaleSite Y where
   obj U := @smallEtaleSite.mk S Y U.left (U.hom ≫ f)
-    (@Etale.etale_comp S (ofOver U.left) X U.hom Y f U.prop ‹Etale f›)
+    { of_etale := fun φ hφ ↦ by
+        exact Etale.of_etale (f := f) (φ ≫ U.hom)
+          (Etale.of_etale (f := U.hom) φ hφ) }
   map {U V} g := MorphismProperty.CostructuredArrow.homMk g.left trivial
     (by
       change (ofOverFunctor S).map g.left ≫ (V.hom ≫ f) = U.hom ≫ f
@@ -70,14 +73,29 @@ theorem etaleRestriction_map {X Y : AlgebraicSpace S} (f : X ⟶ Y) [Etale f]
 
 /-- Restriction along an identity morphism is the identity functor. -/
 theorem etaleRestriction_id (X : AlgebraicSpace S) :
-    etaleRestriction (𝟙 X) = 𝟭 (smallEtaleSite X) :=
-  sorry
+    etaleRestriction (𝟙 X) = 𝟭 (smallEtaleSite X) := by
+  refine CategoryTheory.Functor.ext (fun U => ?_) (fun U V g => ?_)
+  · refine MorphismProperty.Comma.ext rfl (Subsingleton.elim _ _) ?_
+    change HEq (U.hom ≫ 𝟙 X) U.hom
+    exact heq_of_eq (Category.comp_id U.hom)
+  · apply MorphismProperty.CostructuredArrow.Hom.ext
+    simp only [MorphismProperty.Comma.comp_left, MorphismProperty.Comma.eqToHom_left,
+      CategoryTheory.Functor.id_map]
+    change g.left = (𝟙 _) ≫ g.left ≫ (𝟙 _)
+    simp
 
 /-- Restriction is functorial in the étale morphism. -/
 theorem etaleRestriction_comp {X Y Z : AlgebraicSpace S} (f : X ⟶ Y) (g : Y ⟶ Z)
     [Etale f] [Etale g] :
-    etaleRestriction (f ≫ g) = etaleRestriction f ⋙ etaleRestriction g :=
-  sorry
+    etaleRestriction (f ≫ g) = etaleRestriction f ⋙ etaleRestriction g := by
+  refine CategoryTheory.Functor.ext (fun U => ?_) (fun U V k => ?_)
+  · refine MorphismProperty.Comma.ext rfl (Subsingleton.elim _ _) ?_
+    change HEq (U.hom ≫ (f ≫ g)) ((U.hom ≫ f) ≫ g)
+    exact heq_of_eq (Category.assoc U.hom f g).symm
+  · apply MorphismProperty.CostructuredArrow.Hom.ext
+    simp only [MorphismProperty.Comma.comp_left, MorphismProperty.Comma.eqToHom_left]
+    change k.left = (𝟙 _) ≫ k.left ≫ (𝟙 _)
+    simp
 
 /-- Postcomposition with an étale morphism of algebraic spaces is continuous for the small
 étale topologies. -/
@@ -149,13 +167,18 @@ def etaleRestriction_comp_inclusion {X Y : AlgebraicSpace S} (f : X ⟶ Y) [Etal
 
 /-- Restriction of abelian sheaves along an étale morphism is additive. -/
 instance etaleRestrictionSheaf_additive {X Y : AlgebraicSpace S} (f : X ⟶ Y) [Etale f] :
-    (etaleRestrictionSheaf f AddCommGrpCat.{u + 1}).Additive :=
-  sorry
+    (etaleRestrictionSheaf f AddCommGrpCat.{u + 1}).Additive where
+  map_add := by
+    intro F G a b
+    ext U
+    rfl
 
 /-- Restriction of abelian sheaves along an étale morphism preserves homology. -/
 instance etaleRestrictionSheaf_preservesHomology {X Y : AlgebraicSpace S} (f : X ⟶ Y) [Etale f] :
-    (etaleRestrictionSheaf f AddCommGrpCat.{u + 1}).PreservesHomology :=
-  sorry
+    (etaleRestrictionSheaf f AddCommGrpCat.{u + 1}).PreservesHomology := by
+  letI := ((etaleRestriction f).sheafAdjunctionCocontinuous AddCommGrpCat.{u + 1}
+    (smallEtaleTopology X) (smallEtaleTopology Y)).isLeftAdjoint
+  infer_instance
 
 /-- Restriction of abelian sheaves along an étale morphism preserves injective objects. -/
 instance etaleRestrictionSheaf_preservesInjectiveObjects {X Y : AlgebraicSpace S}
@@ -169,7 +192,7 @@ namespace Etale
 theorem fst_of_isPullback {X' X Y' Y : AlgebraicSpace S}
     {h : X' ⟶ X} {f' : X' ⟶ Y'} {f : X ⟶ Y} {g : Y' ⟶ Y}
     (h_cart : IsPullback h f' f g) [Etale g] : Etale h :=
-  sorry
+  Etale.of_isPullback h_cart.flip inferInstance
 
 end Etale
 

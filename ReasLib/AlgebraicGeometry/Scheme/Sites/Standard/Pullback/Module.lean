@@ -28,7 +28,7 @@ namespace AlgebraicGeometry.StandardTopology.Big
 
 /-- Module pushforward along the canonical same-topology pullback morphism has
 the canonical inverse-image left adjoint. -/
-theorem pullbackRingedHom_modulePushforward_isRightAdjoint
+@[instance] theorem pullbackRingedHom_modulePushforward_isRightAdjoint
     (τ : StandardTopology) {S T : Scheme.{u}} (f : T ⟶ S) :
     ((pullbackRingedHom τ f).modulePushforward.{u}).IsRightAdjoint := sorry
 

@@ -53,7 +53,8 @@ def IsCanonicalPushforwardMap
     (φ : X ⟶ P) : Prop :=
   ∃ lift : Scheme.ProjectiveBundle.Lift π f,
     lift.hom = φ ∧
-      hπ.liftEquiv f lift =
+      hπ.liftToQuotientClass f lift =
+        CategoryTheory.InvertibleQuotient.IsoClass.mk
         { object := L
           isInvertible := hL
           hom := (Scheme.Modules.pullbackPushforwardAdjunction f).counit.app L
@@ -72,7 +73,8 @@ theorem isCanonicalPushforwardMap_iff
     IsCanonicalPushforwardMap f L hπ hcounit φ ↔
       ∃ lift : Scheme.ProjectiveBundle.Lift π f,
         lift.hom = φ ∧
-          hπ.liftEquiv f lift =
+          hπ.liftToQuotientClass f lift =
+        CategoryTheory.InvertibleQuotient.IsoClass.mk
             { object := L
               isInvertible := hL
               hom := (Scheme.Modules.pullbackPushforwardAdjunction f).counit.app L

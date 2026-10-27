@@ -136,50 +136,50 @@ theorem sheafTransition_homEquiv {m n : ℕ} (φ : ⦋m⦌ ⟶ ⦋n⦌)
 
 /-- A sheaf on `Y_Zar` is cartesian when `F(φ) : f_φ⁻¹ F_m ⟶ F_n` is an isomorphism for
 every simplex operator `φ`. -/
-class IsCartesian (G : Sheaf (zariskiTopology Y) A) : Prop where
+class IsCartesianSheaf (G : Sheaf (zariskiTopology Y) A) : Prop where
   /-- Every simplex-operator comparison `F(φ)` is an isomorphism. -/
   isIso_transition : ∀ {m n : ℕ} (φ : ⦋m⦌ ⟶ ⦋n⦌), IsIso (sheafTransition Y A φ G)
 
 /-- Cartesianness is equivalent to every `F(φ)` being an isomorphism. -/
-theorem isCartesian_iff (G : Sheaf (zariskiTopology Y) A) :
-    IsCartesian Y A G ↔
+theorem isCartesianSheaf_iff (G : Sheaf (zariskiTopology Y) A) :
+    IsCartesianSheaf Y A G ↔
       ∀ {m n : ℕ} (φ : ⦋m⦌ ⟶ ⦋n⦌), IsIso (sheafTransition Y A φ G) :=
   ⟨fun h ↦ h.isIso_transition, fun h ↦ ⟨h⟩⟩
 
 /-- A sheaf whose every simplex-operator comparison is an isomorphism is cartesian. -/
 instance instIsCartesian_of_isIso (G : Sheaf (zariskiTopology Y) A)
     [h : ∀ {m n : ℕ} (φ : ⦋m⦌ ⟶ ⦋n⦌), IsIso (sheafTransition Y A φ G)] :
-    IsCartesian Y A G where
+    IsCartesianSheaf Y A G where
   isIso_transition := h
 
 /-- Every simplex-operator comparison of a cartesian sheaf is an isomorphism. -/
 instance instIsIso_sheafTransition (G : Sheaf (zariskiTopology Y) A)
-    [IsCartesian Y A G] {m n : ℕ} (φ : ⦋m⦌ ⟶ ⦋n⦌) :
+    [IsCartesianSheaf Y A G] {m n : ℕ} (φ : ⦋m⦌ ⟶ ⦋n⦌) :
     IsIso (sheafTransition Y A φ G) :=
-  IsCartesian.isIso_transition φ
+  IsCartesianSheaf.isIso_transition φ
 
 /-- The isomorphism `F(φ) : f_φ⁻¹ F_m ≅ F_n` attached to a cartesian sheaf. -/
-def transitionIso (G : Sheaf (zariskiTopology Y) A) [IsCartesian Y A G]
+def transitionIso (G : Sheaf (zariskiTopology Y) A) [IsCartesianSheaf Y A G]
     {m n : ℕ} (φ : ⦋m⦌ ⟶ ⦋n⦌) :
     (sheafInverseImage Y A φ).obj ((sheafComponent Y m A).obj G) ≅
       (sheafComponent Y n A).obj G :=
   asIso (sheafTransition Y A φ G)
 
 /-- The forward map of `transitionIso` is `sheafTransition`. -/
-theorem transitionIso_hom (G : Sheaf (zariskiTopology Y) A) [IsCartesian Y A G]
+theorem transitionIso_hom (G : Sheaf (zariskiTopology Y) A) [IsCartesianSheaf Y A G]
     {m n : ℕ} (φ : ⦋m⦌ ⟶ ⦋n⦌) :
     (transitionIso Y A G φ).hom = sheafTransition Y A φ G :=
   rfl
 
 /-- The object property of being a cartesian sheaf on `Y_Zar`. -/
 abbrev cartesianProperty : ObjectProperty (Sheaf (zariskiTopology Y) A) :=
-  fun G ↦ IsCartesian Y A G
+  fun G ↦ IsCartesianSheaf Y A G
 
 /-- The category of cartesian sheaves on `Y_Zar`. -/
 abbrev Cartesian := (cartesianProperty Y A).FullSubcategory
 
 /-- The underlying sheaf of an object of `Cartesian` is cartesian. -/
-theorem cartesian_isCartesian (G : Cartesian Y A) : IsCartesian Y A G.obj :=
+theorem cartesian_isCartesian (G : Cartesian Y A) : IsCartesianSheaf Y A G.obj :=
   G.property
 
 end CartesianSheaves
@@ -196,7 +196,7 @@ instance inverseImage_isCartesian {X : TopCat.{u}} (a : Y ⟶ constSpace X)
     [∀ P : (zariskiSite (constSpace X))ᵒᵖ ⥤ B, (zariskiMap a).op.HasLeftKanExtension P]
     [HasOpensMapLeftKanExtension Y B]
     (F : Sheaf (Opens.grothendieckTopology X) B) :
-    IsCartesian Y B ((inverseImage a B).obj F) :=
+    IsCartesianSheaf Y B ((inverseImage a B).obj F) :=
   sorry
 
 /-- Inverse image of a set-valued sheaf along the geometric augmentation is cartesian. -/
@@ -210,7 +210,7 @@ public instance augmentationMorphism_inverseImage_isCartesian {X : TopCat.{u}}
     [∀ P : (zariskiSite (constSpace X))ᵒᵖ ⥤ Type u,
       (constProjection X).op.HasPointwiseRightKanExtension P]
     (F : Sheaf (Opens.grothendieckTopology X) (Type u)) :
-    IsCartesian Y (Type u) ((augmentationMorphism a)⁻¹.obj F) :=
+    IsCartesianSheaf Y (Type u) ((augmentationMorphism a)⁻¹.obj F) :=
   sorry
 
 end CategoryTheory.SimplicialObject

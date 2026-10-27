@@ -6,9 +6,9 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import Mathlib.Tactic.CrossRefAttribute
 public import ReasLib.CategoryTheory.Sites.Hypercovering.Augmented
-public import stacks_project.Chap85.Lemma_85_19_3
+public import ReasLib.CategoryTheory.Sites.Hypercovering.DerivedGlobalSections
+import StacksCheckRecall
 
 /-!
 # Lemma 85.21.3
@@ -62,20 +62,25 @@ variable [∀ P : (Grothendieck
     AddCommGrpCat.{max w u v},
     (totalForget (toHypercovering.{w} A hA).toSimplicialObject).op.HasPointwiseRightKanExtension P]
 
-/-- Lemma 85.21.3: Let `C` be a site with fibre products and `X` an object of
+/- Lemma 85.21.3: Let `C` be a site with fibre products and `X` an object of
 `C`. Let `a : U ⟶ X` be a hypercovering of `X` in `C` as defined above. For
 `E ∈ D(C / X)` the canonical map `RΓ(X, E) ⟶ RΓ((C / U)_total, a⁻¹ E)` is an
 isomorphism. -/
-@[stacks 09X9]
-theorem rGammaInverseImageComparison_app_isIso
-    (E : DerivedCategory (Sheaf (J.over A.right) AddCommGrpCat.{max w u v})) :
-    IsIso ((Hypercovering.rGammaInverseImageComparison J A.right (toHypercovering.{w} A hA)).app E) :=
-  sorry
+@[stacks 09X9] #check
+  (CategoryTheory.SemiRepresentableFamily.rGammaInverseImageComparison_app_isIso.{w, v, max u v}
+    (J.over A.right) (CategoryTheory.Hypercovering.toSliceTerminal J A.right
+      (toHypercovering.{w} A hA)) :
+    ∀ E : DerivedCategory (Sheaf (J.over A.right) AddCommGrpCat.{max w u v}),
+      IsIso ((CategoryTheory.Hypercovering.rGammaInverseImageComparison J A.right
+        (toHypercovering.{w} A hA)).app E))
 
-/-- The comparison `RΓ(X, -) ⟶ a⁻¹ ⋙ RΓ((C / U)_total, -)` is an isomorphism of
+/- The comparison `RΓ(X, -) ⟶ a⁻¹ ⋙ RΓ((C / U)_total, -)` is an isomorphism of
 functors on `D(C / X)`. -/
-theorem rGammaInverseImageComparison_isIso :
-    IsIso (Hypercovering.rGammaInverseImageComparison J A.right (toHypercovering.{w} A hA)) :=
-  sorry
+#check
+  (CategoryTheory.SemiRepresentableFamily.rGammaInverseImageComparison_isIso.{w, v, max u v}
+    (J.over A.right) (CategoryTheory.Hypercovering.toSliceTerminal J A.right
+      (toHypercovering.{w} A hA)) :
+    IsIso (CategoryTheory.Hypercovering.rGammaInverseImageComparison J A.right
+      (toHypercovering.{w} A hA)))
 
 end CategoryTheory.SimplicialObject.Augmented

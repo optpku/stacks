@@ -60,21 +60,43 @@ filtered.  The canonical pointed-etale category is the shared owner. -/
 #check (CommAlgCat.Over.Etale.isFiltered (R := R) (T := Ksep) :
   IsFiltered (CommAlgCat.Over.Etale.category R Ksep))
 
+variable {Rsh : Type u} [CommRing Rsh]
+variable [Algebra (Localization.AtPrime p) Rsh]
+variable [IsStrictHenselizationOf (Localization.AtPrime p) Rsh]
+variable (coordinate : IsStrictHenselizationOf.PointedEtale.Coordinate
+  (Ideal.ResidueField.ker_algebraMap_eq_of_scalarTower
+    (R := R) (p := p) (K := Ksep)) Rsh)
+variable (presentation : IsStrictHenselizationOf.PointedEtale.Presentation
+  (hbase := Ideal.ResidueField.ker_algebraMap_eq_of_scalarTower
+    (R := R) (p := p) (K := Ksep)) coordinate)
+
 /- Lemma 10.155.11 (2), tag `04GW`: the source diagram
 `(S, q, φ) ↦ S` has the chosen strict henselization as a colimit.  The
 source cocone and its colimit assertion are owned by the generic pointed-etale
-presentation API. -/
+presentation API.  In this same-universe specialization, the required
+`Small.{u} R` instance is automatic. -/
 @[stacks 04GW]
-#check @IsStrictHenselizationOf.PointedEtale.Presentation.sourceCocone
+#check (IsStrictHenselizationOf.PointedEtale.Presentation.sourceCocone
+  (hbase := _) coordinate presentation : Cocone (CommAlgCat.Over.Etale.diagram R Ksep))
 @[stacks 04GW]
-#check @IsStrictHenselizationOf.PointedEtale.Presentation.sourceIsColimit
+#check (IsStrictHenselizationOf.PointedEtale.Presentation.sourceIsColimit
+  (hbase := _) coordinate presentation :
+  Nonempty (IsColimit (IsStrictHenselizationOf.PointedEtale.Presentation.sourceCocone
+    (hbase := _) coordinate presentation)))
 
 /- Lemma 10.155.11 (3), tag `04GW`: the localized diagram
 `(S, q, φ) ↦ S_q` has the chosen strict henselization as a colimit.  The
 localized cocone and its Prop-valued colimit assertion are shared directly. -/
 @[stacks 04GW]
-#check @IsStrictHenselizationOf.PointedEtale.Presentation.cocone
+#check (IsStrictHenselizationOf.PointedEtale.Presentation.cocone
+  (hbase := _) coordinate presentation :
+  Cocone (CommAlgCat.Over.Etale.Localization.diagram
+    (Ideal.ResidueField.ker_algebraMap_eq_of_scalarTower
+      (R := R) (p := p) (K := Ksep))))
 @[stacks 04GW]
-#check @IsStrictHenselizationOf.PointedEtale.Presentation.isColimit
+#check (IsStrictHenselizationOf.PointedEtale.Presentation.isColimit
+  (hbase := _) coordinate presentation :
+  Nonempty (IsColimit (IsStrictHenselizationOf.PointedEtale.Presentation.cocone
+    (hbase := _) coordinate presentation)))
 
 end Chap10

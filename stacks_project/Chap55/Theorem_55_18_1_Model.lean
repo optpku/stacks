@@ -199,18 +199,16 @@ universe u
         Nonempty (SemistableReductionBranch R K K' C m))
 
 #check (AlgebraicGeometry.Scheme.Hom.specialFiber :
-  ∀ (R K : Type u) [CommRing R] [IsDomain R]
-    [IsDiscreteValuationRing R] [Field K] [Algebra R K] [IsFractionRing R K]
-    {C : SchemeOverField K} [Curve C] [Smooth C.hom] [Projective C.hom]
-    (M : SemistableModel R K C),
-    Scheme)
+  ∀ {R : Type u} [CommRing R] [IsLocalRing R]
+    {X : Scheme.{u}} (f : X ⟶ Spec (CommRingCat.of R)),
+    Scheme.{u})
 
 #check (AlgebraicGeometry.Scheme.Hom.specialFiber_def :
   ∀ {R K : Type u} [CommRing R] [IsDomain R]
     [IsDiscreteValuationRing R] [Field K] [Algebra R K] [IsFractionRing R K]
     {C : SchemeOverField K} [Curve C] [Smooth C.hom] [Projective C.hom]
     (M : SemistableModel R K C),
-    specialFiber R K M =
+    M.regularModel.base.specialFiber =
       M.regularModel.base.fiber (IsLocalRing.closedPoint R))
 
 #check (AlgebraicGeometry.Scheme.Hom.specialFiberOverResidueField :

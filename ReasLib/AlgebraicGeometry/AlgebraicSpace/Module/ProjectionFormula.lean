@@ -99,13 +99,36 @@ theorem toRingedToposHom_directStructureMap {X Y : AlgebraicSpace S} (f : X ⟶ 
 
 /-- Restriction of scalars along the inverse-image structure map of `toRingedToposHom f φ`
 is a right adjoint. -/
-instance restrictScalars_toRingedToposHom_isRightAdjoint {X Y : AlgebraicSpace S}
+theorem restrictScalars_toRingedToposHom_isRightAdjoint {X Y : AlgebraicSpace S}
     (f : X ⟶ Y) {A : Sheaf (smallEtaleTopology Y) CommRingCat.{u}}
     {B : Sheaf (smallEtaleTopology X) CommRingCat.{u}}
     (φ : (etaleRingedSite Y A).structureSheaf ⟶
       (ringPushforward f).obj (etaleRingedSite X B).structureSheaf) :
     (SheafOfModules.restrictScalars.{u} (toRingedToposHom f φ).structureMap).IsRightAdjoint :=
   sorry
+
+namespace EtaleModules
+
+variable {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+variable {A : Sheaf (smallEtaleTopology Y) CommRingCat.{u}}
+  {B : Sheaf (smallEtaleTopology X) CommRingCat.{u}}
+variable (φ : (etaleRingedSite Y A).structureSheaf ⟶
+  (ringPushforward f).obj (etaleRingedSite X B).structureSheaf)
+
+/-- Inverse image of modules over commutative étale coefficient sheaves. -/
+def pullback : SheafOfModules.{u} (etaleRingedSite Y A).structureSheaf ⥤
+    SheafOfModules.{u} (etaleRingedSite X B).structureSheaf :=
+  @RingedSite.ToposHom.modulePullback (etaleRingedSite X B) (etaleRingedSite Y A)
+    _ _ (toRingedToposHom f φ)
+    (restrictScalars_toRingedToposHom_isRightAdjoint f φ)
+
+/-- Inverse image of étale modules is left adjoint to their direct image. -/
+def adjunction : pullback f φ ⊣ (toRingedToposHom f φ).modulePushforward :=
+  @RingedSite.ToposHom.moduleAdjunction (etaleRingedSite X B) (etaleRingedSite Y A)
+    _ _ (toRingedToposHom f φ)
+    (restrictScalars_toRingedToposHom_isRightAdjoint f φ)
+
+end EtaleModules
 
 /-- Sections of the ringed-topos direct image of a commutative ring sheaf commute. -/
 theorem ringDirectImage_mul_comm {X Y : AlgebraicSpace S} (f : X ⟶ Y)
@@ -120,7 +143,8 @@ theorem ringDirectImage_mul_comm {X Y : AlgebraicSpace S} (f : X ⟶ Y)
   sorry
 
 /-- Direct image of a commutative étale ring sheaf remains commutative on sections. -/
-instance ringDirectImage_commRing {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+@[implicit_reducible]
+def ringDirectImage_commRing {X Y : AlgebraicSpace S} (f : X ⟶ Y)
     {A : Sheaf (smallEtaleTopology Y) CommRingCat.{u}}
     {B : Sheaf (smallEtaleTopology X) CommRingCat.{u}}
     (φ : (etaleRingedSite Y A).structureSheaf ⟶
@@ -334,15 +358,15 @@ def modulePullbackTensorComparison {X Y : AlgebraicSpace S} (f : X ⟶ Y)
     (φ : (etaleRingedSite Y A).structureSheaf ⟶
       (ringPushforward f).obj (etaleRingedSite X B).structureSheaf)
     (M N : SheafOfModules.{u} (etaleRingedSite Y A).structureSheaf) :
-    (toRingedToposHom f φ).modulePullback.obj (M ⊗ N) ⟶
-      (toRingedToposHom f φ).modulePullback.obj M ⊗
-        (toRingedToposHom f φ).modulePullback.obj N :=
-  ((toRingedToposHom f φ).moduleAdjunction.homEquiv _ _).symm
-    (((toRingedToposHom f φ).moduleAdjunction.unit.app M ⊗ₘ
-        (toRingedToposHom f φ).moduleAdjunction.unit.app N) ≫
+    (EtaleModules.pullback f φ).obj (M ⊗ N) ⟶
+      (EtaleModules.pullback f φ).obj M ⊗
+        (EtaleModules.pullback f φ).obj N :=
+  ((EtaleModules.adjunction f φ).homEquiv _ _).symm
+    (((EtaleModules.adjunction f φ).unit.app M ⊗ₘ
+        (EtaleModules.adjunction f φ).unit.app N) ≫
       modulePushforward_tensorComparison f φ
-        ((toRingedToposHom f φ).modulePullback.obj M)
-        ((toRingedToposHom f φ).modulePullback.obj N))
+        ((EtaleModules.pullback f φ).obj M)
+        ((EtaleModules.pullback f φ).obj N))
 
 /-- `modulePullbackTensorComparison` is the adjunction transpose of the tensor of the two
 adjunction units. -/
@@ -353,12 +377,12 @@ theorem modulePullbackTensorComparison_eq {X Y : AlgebraicSpace S} (f : X ⟶ Y)
       (ringPushforward f).obj (etaleRingedSite X B).structureSheaf)
     (M N : SheafOfModules.{u} (etaleRingedSite Y A).structureSheaf) :
     modulePullbackTensorComparison f φ M N =
-      ((toRingedToposHom f φ).moduleAdjunction.homEquiv _ _).symm
-        (((toRingedToposHom f φ).moduleAdjunction.unit.app M ⊗ₘ
-            (toRingedToposHom f φ).moduleAdjunction.unit.app N) ≫
+      ((EtaleModules.adjunction f φ).homEquiv _ _).symm
+        (((EtaleModules.adjunction f φ).unit.app M ⊗ₘ
+            (EtaleModules.adjunction f φ).unit.app N) ≫
           modulePushforward_tensorComparison f φ
-            ((toRingedToposHom f φ).modulePullback.obj M)
-            ((toRingedToposHom f φ).modulePullback.obj N)) :=
+            ((EtaleModules.pullback f φ).obj M)
+            ((EtaleModules.pullback f φ).obj N)) :=
   rfl
 
 /-- The canonical projection-formula map
@@ -372,8 +396,8 @@ noncomputable def projectionFormula {X Y : AlgebraicSpace S} (f : X ⟶ Y)
     (G : SheafOfModules.{u} (etaleRingedSite X B).structureSheaf) :
     F ⊗ (toRingedToposHom f φ).modulePushforward.obj G ⟶
       (toRingedToposHom f φ).modulePushforward.obj
-        ((toRingedToposHom f φ).modulePullback.obj F ⊗ G) :=
-  (toRingedToposHom f φ).moduleAdjunction.projectionFormulaMateOf
+        ((EtaleModules.pullback f φ).obj F ⊗ G) :=
+  (EtaleModules.adjunction f φ).projectionFormulaMateOf
     (fun M N ↦ modulePullbackTensorComparison f φ M N) F G
 
 /-- `projectionFormula` is the right projection-formula mate of the module adjunction along the
@@ -386,7 +410,7 @@ theorem projectionFormula_eq {X Y : AlgebraicSpace S} (f : X ⟶ Y)
     (F : SheafOfModules.{u} (etaleRingedSite Y A).structureSheaf)
     (G : SheafOfModules.{u} (etaleRingedSite X B).structureSheaf) :
     projectionFormula f φ F G =
-      (toRingedToposHom f φ).moduleAdjunction.projectionFormulaMateOf
+      (EtaleModules.adjunction f φ).projectionFormulaMateOf
         (fun M N ↦ modulePullbackTensorComparison f φ M N) F G :=
   rfl
 
@@ -399,11 +423,11 @@ theorem projectionFormula_spec {X Y : AlgebraicSpace S} (f : X ⟶ Y)
       (ringPushforward f).obj (etaleRingedSite X B).structureSheaf)
     (F : SheafOfModules.{u} (etaleRingedSite Y A).structureSheaf)
     (G : SheafOfModules.{u} (etaleRingedSite X B).structureSheaf) :
-    ((toRingedToposHom f φ).moduleAdjunction.homEquiv _ _).symm
+    ((EtaleModules.adjunction f φ).homEquiv _ _).symm
         (projectionFormula f φ F G) =
       modulePullbackTensorComparison f φ F
           ((toRingedToposHom f φ).modulePushforward.obj G) ≫
-        (𝟙 _ ⊗ₘ (toRingedToposHom f φ).moduleAdjunction.counit.app G) :=
+        (𝟙 _ ⊗ₘ (EtaleModules.adjunction f φ).counit.app G) :=
   sorry
 
 end AlgebraicGeometry.AlgebraicSpace

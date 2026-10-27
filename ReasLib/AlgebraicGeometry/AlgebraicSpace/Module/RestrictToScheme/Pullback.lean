@@ -77,18 +77,29 @@ def inverseComparison {T Z : Over S} (t : T ⟶ Z) (M : (ofOver Z).Modules)
     [M.IsQuasicoherent] :
     (restrictToScheme T).obj ((pullback (ofOverMap t)).obj M) ⟶
       (Scheme.Modules.pullback t.left).obj ((restrictToScheme Z).obj M) :=
-  homOfUnderlying T.left.ringCatSheaf (inverseUnderlying t M) sorry sorry
+  by
+    let α := inverseUnderlying t M
+    have laws :
+        (∀ V (x y : ((restrictToScheme T).obj ((pullback (ofOverMap t)).obj M)).val.obj V),
+          underlyingApp T.left.ringCatSheaf α V (x + y) =
+            underlyingApp T.left.ringCatSheaf α V x +
+              underlyingApp T.left.ringCatSheaf α V y) ∧
+        (∀ V (r : T.left.ringCatSheaf.obj.obj V)
+          (x : ((restrictToScheme T).obj ((pullback (ofOverMap t)).obj M)).val.obj V),
+          underlyingApp T.left.ringCatSheaf α V (r • x) =
+            r • underlyingApp T.left.ringCatSheaf α V x) := by sorry
+    exact homOfUnderlying T.left.ringCatSheaf α laws.1 laws.2
 
 /-- The restriction/pullback comparison on quasi-coherent modules has both concrete
 maps specified. Only linearity, naturality and the inverse laws are deferred. -/
 def restrictPullbackIso {T Z : Over S} (t : T ⟶ Z) (M : (ofOver Z).Modules)
     [M.IsQuasicoherent] :
     (restrictToScheme T).obj ((pullback (ofOverMap t)).obj M) ≅
-      (Scheme.Modules.pullback t.left).obj ((restrictToScheme Z).obj M) where
-  hom := inverseComparison t M
-  inv := pullbackComparison t M
-  hom_inv_id := sorry
-  inv_hom_id := sorry
+      (Scheme.Modules.pullback t.left).obj ((restrictToScheme Z).obj M) := by
+  let hom := inverseComparison t M
+  let inv := pullbackComparison t M
+  have laws : hom ≫ inv = 𝟙 _ ∧ inv ≫ hom = 𝟙 _ := by sorry
+  exact ⟨hom, inv, laws.1, laws.2⟩
 
 
 /-- Restriction commutes with pullback on the category of quasi-coherent inputs. -/
@@ -105,8 +116,7 @@ theorem pullbackIsQuasicoherent {X Y : AlgebraicSpace S} (g : X ⟶ Y)
     ((pullback g).obj M).IsQuasicoherent :=
   pullback_quasiCoherentModuleProperty g hM
 
-/-- Scheme pullback of a restriction identifies with restriction of the composite
-algebraic-space pullback. This retains the pre-migration quasi-coherence hypothesis. -/
+/-- For a quasi-coherent module, scheme pullback of its restriction identifies with restriction of the composite algebraic-space pullback. -/
 def compositePullbackIso {X : AlgebraicSpace S} {T Z : Over S}
     (g : ofOver Z ⟶ X) (t : T ⟶ Z) (M : X.Modules) [M.IsQuasicoherent] :
     (Scheme.Modules.pullback t.left).obj

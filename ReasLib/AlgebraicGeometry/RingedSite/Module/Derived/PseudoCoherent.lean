@@ -35,9 +35,9 @@ section
 
 variable {X : RingedSite.{u, v, w}}
 variable [UnivLE.{max u v, w}]
-variable [∀ U : X,
+variable [∀ U : X.carrier,
   HasWeakSheafify (X.localization U).siteTopology AddCommGrpCat.{w}]
-variable [∀ U : X,
+variable [∀ U : X.carrier,
   (X.localization U).siteTopology.WEqualsLocallyBijective AddCommGrpCat.{w}]
 
 namespace CochainComplex
@@ -46,9 +46,9 @@ namespace CochainComplex
 perfect complex inducing cohomology isomorphisms above `m` and an epimorphism in degree `m`. -/
 @[stacks 08FT]
 def IsMPseudoCoherent (E : CochainComplex (ModuleCat.{w} X) ℤ) (m : ℤ) : Prop :=
-  ∀ U : X, ∃ T : X.siteTopology.Cover U, ∀ I : T.Arrow,
+  ∀ U : X.carrier, ∃ T : X.siteTopology.Cover U, ∀ I : T.Arrow,
     ∃ E' : CochainComplex (ModuleCat.{w} (X.localization I.Y)) ℤ,
-      RingedSite.CochainComplex.IsStrictlyPerfect E' ∧
+      RingedSite.CochainComplex.IsStrictlyPerfect (X := X.localization I.Y) E' ∧
         ∃ alpha : E' ⟶ (localizedRestrictionComplex.{w} X I.Y).obj E,
           (∀ j : ℤ, m < j → IsIso (HomologicalComplex.homologyMap alpha j)) ∧
             Epi (HomologicalComplex.homologyMap alpha m)
@@ -61,7 +61,7 @@ def IsPseudoCoherent (E : CochainComplex (ModuleCat.{w} X) ℤ) : Prop :=
 
 end CochainComplex
 
--- Local instance justification (defeq pin): align DerivedCategory.Q with RingedSite.Hom.ModuleDerived.
+-- Local instance justification (defeq pin): DerivedCategory.Q must use the standard module-sheaf localization fixed by RingedSite.Hom.ModuleDerived.
 attribute [local instance] RingedSite.Hom.moduleCat_hasDerivedCategory
 
 namespace RingedSite.Hom.ModuleDerived

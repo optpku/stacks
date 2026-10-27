@@ -35,6 +35,8 @@ variable [HasSheafify Y.smallEtaleTopology AddCommGrpCat.{u}]
 variable [∀ P : Y.Etaleᵒᵖ ⥤ AddCommGrpCat.{u},
   (smallEtalePullback morphism).op.HasLeftKanExtension P]
 
+attribute [local instance] HasSheafify.isRightAdjoint
+
 /- The natural abelian sections pullback remains available for conditional derived transport. -/
 #check (AlgebraicGeometry.Scheme.etaleAbelianSectionsPullbackNatTrans morphism :
   siteAbelianSectionsFunctor Y.smallEtaleTopology

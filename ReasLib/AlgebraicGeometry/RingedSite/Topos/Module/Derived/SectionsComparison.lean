@@ -20,18 +20,12 @@ universe uX vX uY vY w
 
 namespace RingedSite.ToposHom
 
--- Local instance justification (defeq pin): the derived presentation must be
--- the existing RingedSite.Hom.ModuleDerived, not a newly chosen localization.
+-- Local instance justification (defeq pin): derived presentations must be Hom.ModuleDerived, rather than a newly chosen localization.
 attribute [local instance] Hom.moduleCat_hasDerivedCategory
--- Local instance justification (proof-local temporary data): homotopy lifts
--- use the existing canonical additivity theorem for module-valued sections.
+-- Local instance justification (proof-local temporary data): homotopy lifts use the canonical additivity theorem for module-valued sections.
 attribute [local instance] Hom.moduleGlobalSectionsFunctor_additive
--- Local instance justification (defeq pin): units use the same existence
--- proof as Hom.moduleDerivedGlobalSections.
+-- Local instance justification (defeq pin): sections units must use the existence certificate defining Hom.moduleDerivedGlobalSections.
 attribute [local instance] Hom.moduleGlobalSectionsToModuleDerived_hasRightDerivedFunctor
--- Local instance justification: use the existing additive direct image and its actual
--- Grothendieck-source derived availability for the displayed target functor and unit.
-attribute [local instance] modulePushforward_additive modulePushforwardToDerived.hasRightDerived
 
 variable {X : RingedSite.{uX, vX, w}} {Y : RingedSite.{uY, vY, w}}
 variable [X.siteTopology.HasSheafCompose (forget RingCat.{w})]
@@ -52,7 +46,8 @@ noncomputable abbrev sectionsSource :=
 
 /-- The homotopy-level direct image followed by sections. -/
 noncomputable abbrev sectionsTarget :=
-  f.modulePushforward.mapHomotopyCategory (up ℤ) ⋙ Hom.moduleGlobalSectionsToModuleDerived.{w} Y
+  (@Functor.mapHomotopyCategory _ _ _ _ _ _ _ f.modulePushforward
+    (modulePushforward_additive f) (up ℤ)) ⋙ Hom.moduleGlobalSectionsToModuleDerived.{w} Y
 
 /-- Derived sections followed by exact scalar restriction. -/
 noncomputable abbrev sectionsSourceDerived :=
@@ -60,7 +55,8 @@ noncomputable abbrev sectionsSourceDerived :=
 
 /-- Derived direct image followed by derived sections. -/
 noncomputable abbrev sectionsTargetDerived :=
-  f.modulePushforwardDerived ⋙ Hom.moduleDerivedGlobalSections.{w} Y
+  (@modulePushforwardDerived _ _ _ _ f _ _
+    (modulePushforwardToDerived.hasRightDerived f)) ⋙ Hom.moduleDerivedGlobalSections.{w} Y
 
 /-- The source right-derived unit is the usual sections unit with scalars restricted. -/
 noncomputable def sectionsSourceUnit :
@@ -73,29 +69,37 @@ noncomputable def sectionsSourceUnit :
 /-- The target unit first derives sections and then derives direct image. -/
 noncomputable def sectionsTargetUnit :
     f.sectionsTarget ⟶ Hom.moduleLocalization.{w} X ⋙ f.sectionsTargetDerived :=
-  Functor.whiskerLeft (f.modulePushforward.mapHomotopyCategory (up ℤ))
+  Functor.whiskerLeft (@Functor.mapHomotopyCategory _ _ _ _ _ _ _ f.modulePushforward
+    (modulePushforward_additive f) (up ℤ))
     (Functor.totalRightDerivedUnit (Hom.moduleGlobalSectionsToModuleDerived.{w} Y)
       (Hom.moduleLocalization.{w} Y) (Hom.ModuleQis.{w} Y)) ≫
     (Functor.associator _ _ _).inv ≫
     Functor.whiskerRight
-      (Functor.totalRightDerivedUnit (modulePushforwardToDerived f)
-        (Hom.moduleLocalization.{w} X) (Hom.ModuleQis.{w} X))
+      (@Functor.totalRightDerivedUnit _ _ _ _ _ _ (modulePushforwardToDerived f)
+        (Hom.moduleLocalization.{w} X) (Hom.ModuleQis.{w} X) inferInstance
+        (modulePushforwardToDerived.hasRightDerived f))
       (Hom.moduleDerivedGlobalSections.{w} Y) ≫ (Functor.associator _ _ _).hom
 
 /-- Exact scalar restriction preserves the right-derived sections model. -/
-noncomputable instance sectionsSource_isRightDerived :
+theorem sectionsSource_isRightDerived :
     f.sectionsSourceDerived.IsRightDerivedFunctor f.sectionsSourceUnit (Hom.ModuleQis.{w} X) := sorry
 
 /-- Direct image followed by sections computes derived sections on the source. -/
-noncomputable instance sectionsTarget_isRightDerived :
+theorem sectionsTarget_isRightDerived :
     f.sectionsTargetDerived.IsRightDerivedFunctor f.sectionsTargetUnit (Hom.ModuleQis.{w} X) := sorry
 
 /-- The underived sections isomorphism transported to homotopy categories. -/
 noncomputable def sectionsHomotopyIso :
     (Hom.moduleGlobalSectionsFunctor.{w} X ⋙ f.globalSectionsRestriction).mapHomotopyCategory (up ℤ) ≅
-      (f.modulePushforward ⋙ Hom.moduleGlobalSectionsFunctor.{w} Y).mapHomotopyCategory (up ℤ) where
-  hom := NatTrans.mapHomotopyCategory f.moduleGlobalSectionsPushforwardIso.inv (up ℤ)
-  inv := NatTrans.mapHomotopyCategory f.moduleGlobalSectionsPushforwardIso.hom (up ℤ)
+      (@Functor.mapHomotopyCategory _ _ _ _ _ _ _
+        (f.modulePushforward ⋙ Hom.moduleGlobalSectionsFunctor.{w} Y)
+        (Functor.additive_of_iso f.moduleGlobalSectionsPushforwardIso.symm) (up ℤ)) where
+  hom := @NatTrans.mapHomotopyCategory _ _ _ _ _ _ _ _ _ inferInstance
+    (Functor.additive_of_iso f.moduleGlobalSectionsPushforwardIso.symm)
+    f.moduleGlobalSectionsPushforwardIso.inv (up ℤ)
+  inv := @NatTrans.mapHomotopyCategory _ _ _ _ _ _ _ _ _
+    (Functor.additive_of_iso f.moduleGlobalSectionsPushforwardIso.symm) inferInstance
+    f.moduleGlobalSectionsPushforwardIso.hom (up ℤ)
   hom_inv_id := sorry
   inv_hom_id := sorry
 
@@ -112,15 +116,19 @@ noncomputable def sectionsHomotopyComparison : f.sectionsSource ≅ f.sectionsTa
       DerivedCategory.Qh ≪≫
     Functor.isoWhiskerRight f.sectionsHomotopyIso DerivedCategory.Qh ≪≫
     Functor.isoWhiskerRight
-      (Functor.mapHomotopyCategoryCompIso
-        (Iso.refl (f.modulePushforward ⋙ Hom.moduleGlobalSectionsFunctor.{w} Y)) (up ℤ)).symm
+      (@Functor.mapHomotopyCategoryCompIso _ _ _ _ _ _ _ _ _ _ _ _ _
+        (Iso.refl (f.modulePushforward ⋙ Hom.moduleGlobalSectionsFunctor.{w} Y))
+        (modulePushforward_additive f) inferInstance
+        (Functor.additive_of_iso f.moduleGlobalSectionsPushforwardIso.symm) (up ℤ)).symm
       DerivedCategory.Qh ≪≫ Functor.associator _ _ _
 
 /-- The derived module-valued sections comparison induced by the actual
 underived natural isomorphism and the specified right-derived units. -/
 noncomputable def derivedGlobalSectionsPushforwardIso :
     f.sectionsSourceDerived ≅ f.sectionsTargetDerived :=
-  Functor.rightDerivedNatIso f.sectionsSourceDerived f.sectionsTargetDerived
-    f.sectionsSourceUnit f.sectionsTargetUnit (Hom.ModuleQis.{w} X) f.sectionsHomotopyComparison
+  @Functor.rightDerivedNatIso _ _ _ _ _ _ f.sectionsSourceDerived f.sectionsTargetDerived
+    _ _ _ f.sectionsSourceUnit f.sectionsTargetUnit (Hom.ModuleQis.{w} X) inferInstance
+    (sectionsSource_isRightDerived f) (sectionsTarget_isRightDerived f)
+    f.sectionsHomotopyComparison
 
 end RingedSite.ToposHom

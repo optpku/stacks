@@ -6,8 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap76.Lemma_76_11_1_Presentation
-public import stacks_project.Chap76.Lemma_76_11_1_Sequence
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Picard.Thickening
 import StacksCheckRecall
 
 @[expose] public section
@@ -38,7 +37,8 @@ abelian groups
 `0 ⟶ H⁰(X, I) ⟶ H⁰(X', 𝒪_{X'}ˣ) ⟶ H⁰(X, 𝒪_Xˣ) ⟶ H¹(X, I) ⟶
   Pic(X') ⟶ Pic(X) ⟶ H²(X, I) ⟶ ⋯`. -/
 @[stacks 0DNM] #check
-  (AlgebraicGeometry.AlgebraicSpace.IsFirstOrderThickening.picardCohomologySequence_exact i :
-    (AlgebraicGeometry.AlgebraicSpace.IsFirstOrderThickening.picardCohomologySequence i).Exact)
+  (AlgebraicGeometry.AlgebraicSpace.IsFirstOrderThickening.picardCohomologySequence_longExact i :
+    (AlgebraicGeometry.AlgebraicSpace.IsFirstOrderThickening.picardCohomologySequence i).Exact ∧
+      ∀ n : ℕ, (AlgebraicGeometry.AlgebraicSpace.IsFirstOrderThickening.unitsWindow i n).Exact)
 
 end AlgebraicGeometry.AlgebraicSpace.IsFirstOrderThickening

@@ -63,7 +63,8 @@ Proof strategy: unfold inclusionObj; both structural isomorphisms are identities
 the identity-functor map equation followed by the category identity laws. -/
 private theorem inclusionMap_w (F : C ⥤ D) {X Y : C} (f : X ⟶ Y) :
     (𝟭 D).map (F.map f) ≫ (inclusionObj F Y).iso.hom =
-      (inclusionObj F X).iso.hom ≫ F.map f := sorry
+      (inclusionObj F X).iso.hom ≫ F.map f := by
+  simp [inclusionObj]
 
 /-- The canonical mapping-path morphism associated to a source morphism. -/
 private def inclusionMap (F : C ⥤ D) {X Y : C} (f : X ⟶ Y) :
@@ -77,14 +78,22 @@ private def inclusionMap (F : C ⥤ D) {X Y : C} (f : X ⟶ Y) :
 Proof strategy: apply CategoricalPullback.hom_ext and use F.map_id on the first component and the
 category identity law on the second component. -/
 private theorem inclusionMap_id (F : C ⥤ D) (X : C) :
-    inclusionMap F (𝟙 X) = 𝟙 (inclusionObj F X) := sorry
+    inclusionMap F (𝟙 X) = 𝟙 (inclusionObj F X) := by
+  apply CategoricalPullback.hom_ext
+  · change F.map (𝟙 X) = 𝟙 (F.obj X)
+    exact F.map_id X
+  · rfl
 
 /-- The canonical mapping-path map preserves composition.
 
 Proof strategy: apply CategoricalPullback.hom_ext; the first component is F.map_comp and the
 second component is definitionally the original composite. -/
 private theorem inclusionMap_comp (F : C ⥤ D) {X Y Z : C} (f : X ⟶ Y) (g : Y ⟶ Z) :
-    inclusionMap F (f ≫ g) = inclusionMap F f ≫ inclusionMap F g := sorry
+    inclusionMap F (f ≫ g) = inclusionMap F f ≫ inclusionMap F g := by
+  apply CategoricalPullback.hom_ext
+  · change F.map (f ≫ g) = F.map f ≫ F.map g
+    exact F.map_comp f g
+  · rfl
 
 end Implementation
 
@@ -101,31 +110,31 @@ end InclusionImplementation
 
 Proof strategy: unfold inclusion and its private object implementation. -/
 @[simp] theorem inclusion_obj_fst (F : C ⥤ D) (X : C) :
-    ((inclusion F).obj X).fst = F.obj X := sorry
+    ((inclusion F).obj X).fst = F.obj X := rfl
 
 /-- The second component of a canonical mapping-path object.
 
 Proof strategy: unfold inclusion and its private object implementation. -/
 @[simp] theorem inclusion_obj_snd (F : C ⥤ D) (X : C) :
-    ((inclusion F).obj X).snd = X := sorry
+    ((inclusion F).obj X).snd = X := rfl
 
 /-- The comparison isomorphism of a canonical mapping-path object.
 
 Proof strategy: unfold inclusion and its private object implementation. -/
 @[simp] theorem inclusion_obj_iso (F : C ⥤ D) (X : C) :
-    ((inclusion F).obj X).iso = Iso.refl _ := sorry
+    ((inclusion F).obj X).iso = Iso.refl _ := rfl
 
 /-- The first component of the canonical mapping-path image of a morphism.
 
 Proof strategy: unfold inclusion and its private map implementation. -/
 @[simp] theorem inclusion_map_fst (F : C ⥤ D) {X Y : C} (f : X ⟶ Y) :
-    ((inclusion F).map f).fst = F.map f := sorry
+    ((inclusion F).map f).fst = F.map f := rfl
 
 /-- The second component of the canonical mapping-path image of a morphism.
 
 Proof strategy: unfold inclusion and its private map implementation. -/
 @[simp] theorem inclusion_map_snd (F : C ⥤ D) {X Y : C} (f : X ⟶ Y) :
-    ((inclusion F).map f).snd = f := sorry
+    ((inclusion F).map f).snd = f := rfl
 
 /-- The unit component of the mapping-path equivalence is the identity on the original source
 object. -/
@@ -138,7 +147,9 @@ theorem inclusionUnitIsoApp_naturality
     (F : C ⥤ D) {X Y : C} (f : X ⟶ Y) :
     f ≫ (inclusionUnitIsoApp F Y).hom =
       (inclusionUnitIsoApp F X).hom ≫
-        ((inclusion F) ⋙ π₂ (𝟭 D) F).map f := sorry
+        ((inclusion F) ⋙ π₂ (𝟭 D) F).map f := by
+  change f ≫ 𝟙 Y = 𝟙 X ≫ f
+  simp
 
 /-- The unit of the canonical mapping-path equivalence. -/
 def inclusionUnitIso (F : C ⥤ D) :
@@ -150,7 +161,8 @@ def inclusionUnitIso (F : C ⥤ D) :
 theorem inclusionCounitIsoApp_comm (F : C ⥤ D) (X : Functor.MappingPath F) :
     (𝟭 D).map X.iso.inv ≫ X.iso.hom =
       (Iso.refl (F.obj X.snd)).hom ≫
-        F.map (Iso.refl X.snd).hom := sorry
+        F.map (Iso.refl X.snd).hom := by
+  simp
 
 /-- The counit component of the mapping-path equivalence uses the stored comparison isomorphism
 on the first projection and the identity on the second projection. -/
@@ -164,7 +176,12 @@ theorem inclusionCounitIsoApp_naturality
     (F : C ⥤ D) {X Y : Functor.MappingPath F} (f : X ⟶ Y) :
     ((π₂ (𝟭 D) F) ⋙ inclusion F).map f ≫
         (inclusionCounitIsoApp F Y).hom =
-      (inclusionCounitIsoApp F X).hom ≫ f := sorry
+      (inclusionCounitIsoApp F X).hom ≫ f := by
+  apply CategoricalPullback.hom_ext
+  · change F.map f.snd ≫ Y.iso.inv = X.iso.inv ≫ f.fst
+    simpa using f.w'
+  · change f.snd ≫ 𝟙 Y.snd = 𝟙 X.snd ≫ f.snd
+    simp
 
 /-- The counit of the canonical mapping-path equivalence. -/
 def inclusionCounitIso (F : C ⥤ D) :
@@ -176,7 +193,12 @@ def inclusionCounitIso (F : C ⥤ D) :
 theorem inclusionEquivalence_triangle (F : C ⥤ D) (X : C) :
     (inclusion F).map ((inclusionUnitIso F).hom.app X) ≫
         (inclusionCounitIso F).hom.app ((inclusion F).obj X) =
-      𝟙 ((inclusion F).obj X) := sorry
+      𝟙 ((inclusion F).obj X) := by
+  apply CategoricalPullback.hom_ext
+  · change F.map (𝟙 X) ≫ (Iso.refl (F.obj X)).inv = 𝟙 (F.obj X)
+    simp
+  · change 𝟙 X ≫ 𝟙 X = 𝟙 X
+    simp
 
 /-- The canonical equivalence from a category to the mapping path of a functor. Its inverse is
 the second pullback projection, so no inverse-object choice is introduced. -/
@@ -192,23 +214,23 @@ def inclusionEquivalence (F : C ⥤ D) :
 /-- The forward functor of the mapping-path equivalence is the canonical inclusion. -/
 @[simp]
 theorem inclusionEquivalence_functor (F : C ⥤ D) :
-    (inclusionEquivalence F).functor = inclusion F := sorry
+    (inclusionEquivalence F).functor = inclusion F := rfl
 
 /-- The inverse functor of the mapping-path equivalence is the second pullback projection. -/
 @[simp]
 theorem inclusionEquivalence_inverse (F : C ⥤ D) :
-    (inclusionEquivalence F).inverse = π₂ (𝟭 D) F := sorry
+    (inclusionEquivalence F).inverse = π₂ (𝟭 D) F := rfl
 
 /-- The unit of the mapping-path equivalence is the named identity comparison. -/
 @[simp]
 theorem inclusionEquivalence_unitIso (F : C ⥤ D) :
-    (inclusionEquivalence F).unitIso = inclusionUnitIso F := sorry
+    (inclusionEquivalence F).unitIso = inclusionUnitIso F := rfl
 
 /-- The counit of the mapping-path equivalence is the named comparison built from each
 mapping-path object's stored isomorphism. -/
 @[simp]
 theorem inclusionEquivalence_counitIso (F : C ⥤ D) :
-    (inclusionEquivalence F).counitIso = inclusionCounitIso F := sorry
+    (inclusionEquivalence F).counitIso = inclusionCounitIso F := rfl
 
 /-- The first component of the forward mapping-path counit is the inverse stored comparison
 isomorphism. -/
@@ -216,14 +238,14 @@ isomorphism. -/
 theorem inclusionEquivalence_counitIso_hom_app_fst
     (F : C ⥤ D) (X : Functor.MappingPath F) :
     ((inclusionEquivalence F).counitIso.hom.app X).fst =
-      X.iso.inv := sorry
+      X.iso.inv := rfl
 
 /-- The second component of the forward mapping-path counit is the identity. -/
 @[simp]
 theorem inclusionEquivalence_counitIso_hom_app_snd
     (F : C ⥤ D) (X : Functor.MappingPath F) :
     ((inclusionEquivalence F).counitIso.hom.app X).snd =
-      𝟙 X.snd := sorry
+      𝟙 X.snd := rfl
 
 /-- The first component of the inverse mapping-path counit is the stored comparison
 isomorphism. -/
@@ -231,21 +253,22 @@ isomorphism. -/
 theorem inclusionEquivalence_counitIso_inv_app_fst
     (F : C ⥤ D) (X : Functor.MappingPath F) :
     ((inclusionEquivalence F).counitIso.inv.app X).fst =
-      X.iso.hom := sorry
+      X.iso.hom := rfl
 
 /-- The second component of the inverse mapping-path counit is the identity. -/
 @[simp]
 theorem inclusionEquivalence_counitIso_inv_app_snd
     (F : C ⥤ D) (X : Functor.MappingPath F) :
     ((inclusionEquivalence F).counitIso.inv.app X).snd =
-      𝟙 X.snd := sorry
+      𝟙 X.snd := rfl
 
 /-- The canonical mapping-path inclusion is an equivalence.
 
 Proof strategy: use the explicit `inclusionEquivalence F`, whose inverse is projection to the
 second component. -/
 instance inclusionIsEquivalence (F : C ⥤ D) :
-    (inclusion F).IsEquivalence := sorry
+    (inclusion F).IsEquivalence :=
+  (inclusionEquivalence F).isEquivalence_functor
 
 end MappingPath
 

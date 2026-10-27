@@ -20,6 +20,6 @@ variable (I : Ideal A) (hI : I.FG)
 `I`, the intended local-cohomology functor has signature
 `D(A) ⟶ D_{I^∞-torsion}(A)`. -/
 @[stacks 0A6Q] #check
-  (CategoryTheory.DerivedCategory.LocalCohomology.functor I :
+  (CategoryTheory.DerivedCategory.LocalCohomology.functor I hI :
     DerivedCategory (ModuleCat A) ⥤
       DerivedCategory.CohomologyIn (ModuleCat.isIdealPowerTorsion I))

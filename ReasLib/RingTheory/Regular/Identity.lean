@@ -27,5 +27,3 @@ universe u
 instance instId (R : Type u) [CommRing R] : (RingHom.id R).Regular := sorry
 
 end RingHom.Regular
-
-#synth ∀ (R : Type) [CommRing R], (RingHom.id R).Regular

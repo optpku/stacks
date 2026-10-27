@@ -119,4 +119,39 @@ instance instIsQuasicoherent {S : Scheme.{u}} {X Y Z : AlgebraicSpace S}
 
 end reverse
 
+section
+
+variable {S : Scheme.{u}} {X Y Z : AlgebraicSpace S}
+variable (f : Y ⟶ X) (i : Z ⟶ X) [IsClosedImmersion i]
+variable {H H' : (U i).Modules} {G G' : Y.Modules}
+variable (φ : (pullback (restrictF f i)).obj H ⟶ restrict G (j' f i))
+variable (φ' : (pullback (restrictF f i)).obj H' ⟶ restrict G' (j' f i))
+variable (a : H ⟶ H') (b : G ⟶ G')
+variable (w : (pullback (restrictF f i)).map a ≫ φ' =
+  φ ≫ (restrictFunctor (j' f i)).map b)
+
+include w in
+/-- Compatible component maps carry the reverse kernel into the target reverse kernel. -/
+private theorem reverseMap_condition :
+    (kernel.ι (comparison f i H G φ) ≫
+      biprod.map ((pushforward (j i)).map a) ((pushforward f).map b)) ≫
+        comparison f i H' G' φ' = 0 :=
+  sorry
+
+/-- Compatible morphisms of the two components induce a morphism of reverse kernels. -/
+@[no_expose] def reverseMap : reverse f i H G φ ⟶ reverse f i H' G' φ' :=
+  kernel.lift (comparison f i H' G' φ')
+    (kernel.ι (comparison f i H G φ) ≫
+      biprod.map ((pushforward (j i)).map a) ((pushforward f).map b))
+    (reverseMap_condition f i φ φ' a b w)
+
+/-- The induced reverse-kernel morphism restricts the biproduct of the pushforward maps. -/
+theorem reverseMap_ι :
+    reverseMap f i φ φ' a b w ≫ kernel.ι (comparison f i H' G' φ') =
+      kernel.ι (comparison f i H G φ) ≫
+        biprod.map ((pushforward (j i)).map a) ((pushforward f).map b) := by
+  exact kernel.lift_ι _ _ _
+
+end
+
 end AlgebraicGeometry.AlgebraicSpace.Modules.FormalGlueing

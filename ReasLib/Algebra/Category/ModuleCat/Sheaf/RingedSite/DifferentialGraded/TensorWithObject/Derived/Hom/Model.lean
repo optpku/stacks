@@ -201,9 +201,9 @@ theorem cohomologyMap_shiftedHom (K : Complex (J := J) (O := O))
           ((TensorWithObject.tensorFunctor K).obj M)
           ((TensorWithObject.tensorFunctor K).obj N) I.complex I.ι n
           (cohomologyMap K M N I n x) =
-      ShiftedHom.map
+      @ShiftedHom.map _ _ _ _ _ _ _ _ _ _ _
           (DifferentialGradedModule.Derived.homologyHomLinearMap M N n x)
-          (tensorFunctor K) ≫
+          (tensorFunctor K) (tensorFunctor_commShift K) ≫
         (shiftFunctor _ n).map
           ((tensorCounit K).app
             ((DifferentialGradedModule.toK (endDGA K)).obj N)) := sorry

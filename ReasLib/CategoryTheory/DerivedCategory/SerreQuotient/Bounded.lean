@@ -34,12 +34,37 @@ variable (P : ObjectProperty A) [P.IsSerreClass]
 variable [HasDerivedCategory.{wA} A]
 variable [HasDerivedCategory.{wQ} P.isoModSerre.Localization]
 
+private theorem isZero_obj_iff_cohomologyIn (X : DerivedCategory A) :
+    Limits.IsZero (P.isoModSerre.Q.mapDerivedCategory.obj X) ↔
+      DerivedCategory.cohomologyIn P X := by
+  constructor
+  · intro hX i
+    apply (SerreClassLocalization.isZero_obj_iff P.isoModSerre.Q P _).1
+    exact (Functor.MapDerivedCategory.homologyIso P.isoModSerre.Q X i).isZero_iff.1
+      ((DerivedCategory.homologyFunctor P.isoModSerre.Localization i).map_isZero hX)
+  · intro hX
+    have h (i : ℤ) : Limits.IsZero
+        ((DerivedCategory.homologyFunctor P.isoModSerre.Localization i).obj
+          (P.isoModSerre.Q.mapDerivedCategory.obj X)) :=
+      (Functor.MapDerivedCategory.homologyIso P.isoModSerre.Q X i).isZero_iff.2
+        ((SerreClassLocalization.isZero_obj_iff P.isoModSerre.Q P _).2 (hX i))
+    haveI : (P.isoModSerre.Q.mapDerivedCategory.obj X).IsLE 0 :=
+      (DerivedCategory.isLE_iff _ _).2 (fun i _ ↦ h i)
+    haveI : (P.isoModSerre.Q.mapDerivedCategory.obj X).IsGE 1 :=
+      (DerivedCategory.isGE_iff _ _).2 (fun i _ ↦ h i)
+    exact t.isZero _ 0 1
+
 namespace Plus.Quotient
 
 /-- The derived Serre quotient sends bounded-below objects to bounded-below objects. -/
 theorem obj_mem (X : DerivedCategory.Plus A) :
     (t.plus : ObjectProperty (DerivedCategory P.isoModSerre.Localization))
-      ((DerivedCategory.Plus.ι ⋙ P.isoModSerre.Q.mapDerivedCategory).obj X) := sorry
+      ((DerivedCategory.Plus.ι ⋙ P.isoModSerre.Q.mapDerivedCategory).obj X) := by
+  obtain ⟨n, hn⟩ := (DerivedCategory.plus_iff X.obj).1 X.property
+  refine (DerivedCategory.plus_iff _).2 ⟨n, ?_⟩
+  intro i hi
+  exact (Functor.MapDerivedCategory.homologyIso P.isoModSerre.Q X.obj i).isZero_iff.2
+    (P.isoModSerre.Q.map_isZero (hn i hi))
 
 /-- The restriction of the derived Serre quotient functor to bounded-below derived
 categories. -/
@@ -61,7 +86,17 @@ noncomputable def compιIso :
 cohomology in the Serre class. -/
 @[stacks 06XM "bounded-below derived Serre kernel"]
 theorem kernel_eq :
-    Functor.kernel (functor P) = DerivedCategory.Plus.cohomologyIn P := sorry
+    Functor.kernel (functor P) = DerivedCategory.Plus.cohomologyIn P := by
+  ext X
+  change Limits.IsZero ((functor P).obj X) ↔ DerivedCategory.cohomologyIn P X.obj
+  constructor
+  · intro hX
+    exact (isZero_obj_iff_cohomologyIn P X.obj).1
+      (DerivedCategory.Plus.ι.map_isZero hX)
+  · intro hX
+    exact Limits.IsZero.of_full_of_faithful_of_isZero
+      DerivedCategory.Plus.ι ((functor P).obj X)
+      ((isZero_obj_iff_cohomologyIn P X.obj).2 hX)
 
 /-- Stacks 06XM (bounded-below): a Serre quotient with a fully faithful left adjoint induces
 the localization of the bounded-below derived category at the cohomology-in-`P` Verdier system. -/
@@ -78,7 +113,12 @@ namespace Minus.Quotient
 /-- The derived Serre quotient sends bounded-above objects to bounded-above objects. -/
 theorem obj_mem (X : DerivedCategory.Minus A) :
     (t.minus : ObjectProperty (DerivedCategory P.isoModSerre.Localization))
-      ((DerivedCategory.Minus.ι ⋙ P.isoModSerre.Q.mapDerivedCategory).obj X) := sorry
+      ((DerivedCategory.Minus.ι ⋙ P.isoModSerre.Q.mapDerivedCategory).obj X) := by
+  obtain ⟨n, hn⟩ := (DerivedCategory.minus_iff X.obj).1 X.property
+  refine (DerivedCategory.minus_iff _).2 ⟨n, ?_⟩
+  intro i hi
+  exact (Functor.MapDerivedCategory.homologyIso P.isoModSerre.Q X.obj i).isZero_iff.2
+    (P.isoModSerre.Q.map_isZero (hn i hi))
 
 /-- The restriction of the derived Serre quotient functor to bounded-above derived
 categories. -/
@@ -100,7 +140,17 @@ noncomputable def compιIso :
 cohomology in the Serre class. -/
 @[stacks 06XM "bounded-above derived Serre kernel"]
 theorem kernel_eq :
-    Functor.kernel (functor P) = DerivedCategory.Minus.cohomologyIn P := sorry
+    Functor.kernel (functor P) = DerivedCategory.Minus.cohomologyIn P := by
+  ext X
+  change Limits.IsZero ((functor P).obj X) ↔ DerivedCategory.cohomologyIn P X.obj
+  constructor
+  · intro hX
+    exact (isZero_obj_iff_cohomologyIn P X.obj).1
+      (DerivedCategory.Minus.ι.map_isZero hX)
+  · intro hX
+    exact Limits.IsZero.of_full_of_faithful_of_isZero
+      DerivedCategory.Minus.ι ((functor P).obj X)
+      ((isZero_obj_iff_cohomologyIn P X.obj).2 hX)
 
 /-- Stacks 06XM (bounded-above): a Serre quotient with a fully faithful left adjoint induces
 the localization of the bounded-above derived category at the cohomology-in-`P` Verdier system. -/
@@ -117,7 +167,9 @@ namespace Bounded.Quotient
 /-- The derived Serre quotient sends bounded objects to bounded objects. -/
 theorem obj_mem (X : DerivedCategory.Bounded A) :
     (t.bounded : ObjectProperty (DerivedCategory P.isoModSerre.Localization))
-      ((DerivedCategory.Bounded.ι ⋙ P.isoModSerre.Q.mapDerivedCategory).obj X) := sorry
+      ((DerivedCategory.Bounded.ι ⋙ P.isoModSerre.Q.mapDerivedCategory).obj X) := by
+  exact ⟨Plus.Quotient.obj_mem P ⟨X.obj, X.property.1⟩,
+    Minus.Quotient.obj_mem P ⟨X.obj, X.property.2⟩⟩
 
 /-- The restriction of the derived Serre quotient functor to bounded derived categories. -/
 @[stacks 06XM "bounded derived Serre quotient"]
@@ -138,7 +190,17 @@ noncomputable def compιIso :
 the Serre class. -/
 @[stacks 06XM "bounded derived Serre kernel"]
 theorem kernel_eq :
-    Functor.kernel (functor P) = DerivedCategory.Bounded.cohomologyIn P := sorry
+    Functor.kernel (functor P) = DerivedCategory.Bounded.cohomologyIn P := by
+  ext X
+  change Limits.IsZero ((functor P).obj X) ↔ DerivedCategory.cohomologyIn P X.obj
+  constructor
+  · intro hX
+    exact (isZero_obj_iff_cohomologyIn P X.obj).1
+      (DerivedCategory.Bounded.ι.map_isZero hX)
+  · intro hX
+    exact Limits.IsZero.of_full_of_faithful_of_isZero
+      DerivedCategory.Bounded.ι ((functor P).obj X)
+      ((isZero_obj_iff_cohomologyIn P X.obj).2 hX)
 
 /-- Stacks 06XM (bounded): a Serre quotient with a fully faithful left adjoint induces the
 localization of the bounded derived category at the cohomology-in-`P` Verdier system. -/

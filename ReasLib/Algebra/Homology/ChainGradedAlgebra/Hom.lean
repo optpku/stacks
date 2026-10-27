@@ -46,16 +46,18 @@ instance instCoeFun : CoeFun (Hom A B) (fun _ ↦ ∀ i : ℤ, A.X i → B.X i) 
 /-- Evaluation of a graded-algebra homomorphism is evaluation of its degreewise map. -/
 @[simp]
 theorem coe_apply (f : Hom A B) (i : ℤ) (x : A.X i) :
-    f i x = f.map i x := sorry
+    f i x = f.map i x := rfl
 
 /-- A graded-algebra homomorphism preserves the unit. -/
 @[simp]
-theorem map_one_apply (f : Hom A B) : f 0 A.one = B.one := sorry
+theorem map_one_apply (f : Hom A B) : f 0 A.one = B.one := by
+  exact f.map_one
 
 /-- A graded-algebra homomorphism preserves multiplication of homogeneous elements. -/
 @[simp]
 theorem map_mul_apply (f : Hom A B) (i j : ℤ) (a : A.X i) (b : A.X j) :
-    f (i + j) (A.mul i j a b) = B.mul i j (f i a) (f j b) := sorry
+    f (i + j) (A.mul i j a b) = B.mul i j (f i a) (f j b) := by
+  exact f.map_mul i j a b
 
 /-- The degreewise linear family underlying the identity homomorphism. -/
 def idMap (A : ChainGradedAlgebra.{u, v} R) :
@@ -64,13 +66,13 @@ def idMap (A : ChainGradedAlgebra.{u, v} R) :
 
 /-- The identity family preserves the unit. -/
 theorem idMap_one (A : ChainGradedAlgebra.{u, v} R) :
-    idMap A 0 A.one = A.one := sorry
+    idMap A 0 A.one = A.one := rfl
 
 /-- The identity family preserves homogeneous multiplication. -/
 theorem idMap_mul (A : ChainGradedAlgebra.{u, v} R) (i j : ℤ)
     (a : A.X i) (b : A.X j) :
     idMap A (i + j) (A.mul i j a b) =
-      A.mul i j (idMap A i a) (idMap A j b) := sorry
+      A.mul i j (idMap A i a) (idMap A j b) := rfl
 
 /-- The identity homomorphism of a chain-graded algebra. -/
 def id (A : ChainGradedAlgebra.{u, v} R) : Hom A A where
@@ -85,13 +87,18 @@ def compMap (g : Hom B C) (f : Hom A B) :
 
 /-- The composite degreewise family preserves the unit. -/
 theorem compMap_one (g : Hom B C) (f : Hom A B) :
-    compMap g f 0 A.one = C.one := sorry
+    compMap g f 0 A.one = C.one := by
+  change g.map 0 (f.map 0 A.one) = C.one
+  rw [f.map_one, g.map_one]
 
 /-- The composite degreewise family preserves homogeneous multiplication. -/
 theorem compMap_mul (g : Hom B C) (f : Hom A B) (i j : ℤ)
     (a : A.X i) (b : A.X j) :
     compMap g f (i + j) (A.mul i j a b) =
-      C.mul i j (compMap g f i a) (compMap g f j b) := sorry
+      C.mul i j (compMap g f i a) (compMap g f j b) := by
+  change g.map (i + j) (f.map (i + j) (A.mul i j a b)) =
+    C.mul i j (g.map i (f.map i a)) (g.map j (f.map j b))
+  rw [f.map_mul, g.map_mul]
 
 /-- Composition of degree-preserving graded-algebra homomorphisms. -/
 def comp (g : Hom B C) (f : Hom A B) : Hom A C where
@@ -102,43 +109,59 @@ def comp (g : Hom B C) (f : Hom A B) : Hom A C where
 /-- The degreewise map of the identity homomorphism is the identity linear map. -/
 @[simp]
 theorem id_map (A : ChainGradedAlgebra.{u, v} R) (i : ℤ) :
-    (id A).map i = LinearMap.id := sorry
+    (id A).map i = LinearMap.id := rfl
 
 /-- The degreewise map of a composite is the composite of the degreewise maps. -/
 @[simp]
 theorem comp_map (g : Hom B C) (f : Hom A B) (i : ℤ) :
-    (comp g f).map i = (g.map i).comp (f.map i) := sorry
+    (comp g f).map i = (g.map i).comp (f.map i) := rfl
 
 /-- The identity homomorphism acts as the identity on homogeneous elements. -/
 @[simp]
 theorem id_apply (A : ChainGradedAlgebra.{u, v} R) (i : ℤ) (x : A.X i) :
-    id A i x = x := sorry
+    id A i x = x := rfl
 
 /-- Composition acts by pointwise function composition. -/
 @[simp]
 theorem comp_apply (g : Hom B C) (f : Hom A B) (i : ℤ) (x : A.X i) :
-    comp g f i x = g i (f i x) := sorry
+    comp g f i x = g i (f i x) := rfl
 
 /-- Homomorphisms are determined by their degreewise linear maps. -/
 theorem ext_map {f g : Hom A B} (h : ∀ i : ℤ, f.map i = g.map i) :
-    f = g := sorry
+    f = g := by
+  cases f
+  cases g
+  cases funext h
+  rfl
 
 /-- Homomorphisms are determined by their values on homogeneous elements. -/
 @[ext]
 theorem ext {f g : Hom A B}
-    (h : ∀ i : ℤ, ∀ x : A.X i, f i x = g i x) : f = g := sorry
+    (h : ∀ i : ℤ, ∀ x : A.X i, f i x = g i x) : f = g := by
+  apply ext_map
+  intro i
+  exact LinearMap.ext (h i)
 
 /-- Left composition with an identity homomorphism is neutral. -/
 @[simp]
-theorem id_comp (f : Hom A B) : comp f (id A) = f := sorry
+theorem id_comp (f : Hom A B) : comp f (id A) = f := by
+  apply ext
+  intro i x
+  rfl
 
 /-- Right composition with an identity homomorphism is neutral. -/
 @[simp]
-theorem comp_id (f : Hom A B) : comp (id B) f = f := sorry
+theorem comp_id (f : Hom A B) : comp (id B) f = f := by
+  apply ext
+  intro i x
+  rfl
 
 /-- Composition of chain-graded algebra homomorphisms is associative. -/
 theorem assoc (f : Hom A B) (g : Hom B C) (h : Hom C D) :
-    comp h (comp g f) = comp (comp h g) f := sorry
+    comp h (comp g f) = comp (comp h g) f := by
+  apply ext
+  intro i x
+  rfl
 
 /-- The morphism of graded objects underlying a chain-graded algebra homomorphism. -/
 def toGradedMap (f : Hom A B) : A.toGradedObject ⟶ B.toGradedObject :=
@@ -147,15 +170,15 @@ def toGradedMap (f : Hom A B) : A.toGradedObject ⟶ B.toGradedObject :=
 /-- The underlying graded-object map is the corresponding degreewise module morphism. -/
 @[simp]
 theorem toGradedMap_apply (f : Hom A B) (i : ℤ) :
-    f.toGradedMap i = ModuleCat.ofHom (f.map i) := sorry
+    f.toGradedMap i = ModuleCat.ofHom (f.map i) := rfl
 
 /-- The identity homomorphism induces the identity morphism of graded objects. -/
 theorem toGradedMap_id (A : ChainGradedAlgebra.{u, v} R) :
-    (id A).toGradedMap = 𝟙 A.toGradedObject := sorry
+    (id A).toGradedMap = 𝟙 A.toGradedObject := rfl
 
 /-- A composite homomorphism induces the composite morphism of graded objects. -/
 theorem toGradedMap_comp (g : Hom B C) (f : Hom A B) :
-    (comp g f).toGradedMap = f.toGradedMap ≫ g.toGradedMap := sorry
+    (comp g f).toGradedMap = f.toGradedMap ≫ g.toGradedMap := rfl
 
 end ChainGradedAlgebra.Hom
 
@@ -178,13 +201,13 @@ instance instCategoryCoeFun {A B : ChainGradedAlgebra.{u, v} R} :
 /-- The categorical identity is the explicit identity homomorphism. -/
 @[simp]
 theorem category_id (A : ChainGradedAlgebra.{u, v} R) :
-    (𝟙 A : A ⟶ A) = (Hom.id A : A ⟶ A) := sorry
+    (𝟙 A : A ⟶ A) = (Hom.id A : A ⟶ A) := rfl
 
 /-- Categorical composition is explicit composition of graded-algebra homomorphisms. -/
 @[simp]
 theorem category_comp {A B C : ChainGradedAlgebra.{u, v} R}
     (f : A ⟶ B) (g : B ⟶ C) :
-    f ≫ g = (Hom.comp (g : Hom B C) (f : Hom A B) : A ⟶ C) := sorry
+    f ≫ g = (Hom.comp (g : Hom B C) (f : Hom A B) : A ⟶ C) := rfl
 
 /-- Forget a chain-graded algebra to its graded object of modules. -/
 @[stacks 09PR "infrastructure: the forgetful functor for chain-graded algebras"]
@@ -197,24 +220,24 @@ def forget : ChainGradedAlgebra.{u, v} R ⥤ GradedObject ℤ (ModuleCat.{v} R) 
 /-- The forgetful functor sends an algebra to its underlying graded object. -/
 @[simp]
 theorem forget_obj (A : ChainGradedAlgebra.{u, v} R) :
-    (forget (R := R)).obj A = A.toGradedObject := sorry
+    (forget (R := R)).obj A = A.toGradedObject := rfl
 
 /-- Evaluation after forgetting returns the corresponding homogeneous component. -/
 @[simp]
 theorem forget_obj_apply (A : ChainGradedAlgebra.{u, v} R) (i : ℤ) :
-    (forget (R := R)).obj A i = A.X i := sorry
+    (forget (R := R)).obj A i = A.X i := rfl
 
 /-- The forgetful functor acts on morphisms degreewise. -/
 @[simp]
 theorem forget_map_apply {A B : ChainGradedAlgebra.{u, v} R}
     (f : A ⟶ B) (i : ℤ) :
     (forget (R := R)).map f i =
-      ModuleCat.ofHom ((f : Hom A B).map i) := sorry
+      ModuleCat.ofHom ((f : Hom A B).map i) := rfl
 
 /-- The linear map underlying the forgotten degree-`i` morphism is `f.map i`. -/
 @[simp]
 theorem forget_map_hom {A B : ChainGradedAlgebra.{u, v} R}
     (f : A ⟶ B) (i : ℤ) :
-    ((forget (R := R)).map f i).hom = (f : Hom A B).map i := sorry
+    ((forget (R := R)).map f i).hom = (f : Hom A B).map i := rfl
 
 end ChainGradedAlgebra

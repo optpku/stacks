@@ -29,7 +29,7 @@ variable {dimension : V → ℕ} {product : V → V → V}
 variable {fst : ∀ X Y, product X Y ⟶ X} {snd : ∀ X Y, product X Y ⟶ Y}
 variable {point : V} {H : V → Type x} {CH : V → Type y}
 variable [∀ X, Ring (H X)] [∀ X, Algebra F (H X)] [∀ X, CommRing (CH X)]
-variable {Hgrade : ∀ X, ℤ × ℤ → Submodule F (H X)}
+variable {Hgrade : ∀ X, ℤ → Submodule F (H X)}
 variable {CHgrade : ∀ X, ℤ → Submodule ℤ (CH X)}
 variable [∀ X, GradedAlgebra (Hgrade X)] [∀ X, GradedAlgebra (CHgrade X)]
 variable {cyclePullback : ∀ {X Y : V}, (X ⟶ Y) → CHgrade Y →ₐᵍ[ℤ] CHgrade X}
@@ -43,7 +43,7 @@ theorem cycleClass_pushforward_one_mem
     {X Y : V} {d e : ℕ} (hX : T.IsNonemptyEquidimensional X d)
     (hY : T.IsNonemptyEquidimensional Y e) (i : X ⟶ Y) :
     T.cycleClass Y (cyclePushforward i (1 : CHgrade X 0)) ∈
-      Hgrade Y (2 * ((e : ℤ) - d), (e : ℤ) - d) := sorry
+      Hgrade Y (2 * ((e : ℤ) - d)) := sorry
 
 /-- For a closed immersion of nonempty equidimensional represented schemes, the cycle
 class of the pushed-forward fundamental cycle is the cohomological pushforward of one. -/
@@ -54,7 +54,7 @@ theorem fundamentalCycleClass_eq_pushforward_one
     (hY : T.IsNonemptyEquidimensional Y e) (i : X ⟶ Y)
     [IsClosedImmersion (T.scheme.map i).left] :
     T.cycleClass Y (cyclePushforward i (1 : CHgrade X 0)) =
-      T.pushforward hX hY i (1 : Hgrade X (0, 0)) := sorry
+      T.pushforward hX hY i (1 : Hgrade X (0)) := sorry
 
 end SchemeClassicalTheory
 

@@ -6,8 +6,8 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap77.Lemma_77_3_2_Purity
-public import stacks_project.Chap77.Theorem_77_4_7_FlatOver
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Purity.Flat
+import StacksCheckRecall
 
 /-!
 # Lemma 77.6.5
@@ -25,20 +25,20 @@ universe u
 namespace AlgebraicGeometry.AlgebraicSpace.Modules
 namespace IsPureOver
 
-/-- Lemma 77.6.5: Let `S` be a scheme. Let `f : X ⟶ Y` be a decent, finite type
+/- Lemma 77.6.5: Let `S` be a scheme. Let `f : X ⟶ Y` be a decent, finite type
 morphism of algebraic spaces over `S`. Let `ℱ` be a finite type quasi-coherent
 `𝒪_X`-module. Assume `ℱ` is flat over `Y`. In this case `ℱ` is pure relative to
 `Y` if and only if `ℱ` is universally pure relative to `Y`.
 Here `|X|` and `|Y|` are `Points X` and `Points Y`, flatness over `Y` is
 `∀ x : Points X, flatOverAt ℱ f x`, purity relative to `Y` is `ℱ.IsPureOver f`,
 and universal purity relative to `Y` is `ℱ.IsUniversallyPureOver f`. -/
-@[stacks 0CW5]
-theorem iff_universally_of_flatOver {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (f : X ⟶ Y) [FiniteType f] [Decent f] (ℱ : X.Modules)
-    [ℱ.IsQuasicoherent] [ℱ.IsFiniteType]
-    (h_flat : ∀ x : Points X, flatOverAt ℱ f x) :
-    ℱ.IsPureOver f ↔ ℱ.IsUniversallyPureOver f :=
-  sorry
+@[stacks 0CW5] #check
+  (AlgebraicGeometry.AlgebraicSpace.Modules.IsPureOver.iff_universally_of_flatOver :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+      (f : X ⟶ Y) [FiniteType f] [Decent f] (ℱ : X.Modules)
+      [ℱ.IsQuasicoherent] [ℱ.IsFiniteType]
+      (h_flat : ∀ x : Points X, flatOverAt ℱ f x),
+      ℱ.IsPureOver f ↔ ℱ.IsUniversallyPureOver f)
 
 end IsPureOver
 end AlgebraicGeometry.AlgebraicSpace.Modules

@@ -88,16 +88,37 @@ noncomputable def schemeGrpObj {S : Scheme.{u}} (X : Over S)
     [(functor X).obj.IsRepresentable] : GrpObj (scheme X) :=
   GrpObj.ofRepresentableBy (scheme X) (groupFunctor X) (groupRepresentation X)
 
+/-- Explicit closure laws required to regard the degree-zero locus as a group.
+For higher-dimensional schemes an Euler-characteristic difference need not be
+additive on line bundles, so this hypothesis must not be omitted. -/
+class DegreeZeroIsSubgroup {S : Scheme.{u}} (X : Over S) : Prop where
+  one_mem : ∀ T : (Over S)ᵒᵖ,
+    (groupFunctorForgetIso X).hom.app T 1 ∈ (degreeSubfunctor X 0).obj T
+  mul_mem : ∀ (T : (Over S)ᵒᵖ) (a b : (groupFunctor X).obj T),
+    (groupFunctorForgetIso X).hom.app T a ∈ (degreeSubfunctor X 0).obj T →
+    (groupFunctorForgetIso X).hom.app T b ∈ (degreeSubfunctor X 0).obj T →
+    (groupFunctorForgetIso X).hom.app T (a * b) ∈ (degreeSubfunctor X 0).obj T
+  inv_mem : ∀ (T : (Over S)ᵒᵖ) (a : (groupFunctor X).obj T),
+    (groupFunctorForgetIso X).hom.app T a ∈ (degreeSubfunctor X 0).obj T →
+    (groupFunctorForgetIso X).hom.app T a⁻¹ ∈ (degreeSubfunctor X 0).obj T
+
+/-- On proper curves, degree is additive under tensor product and changes sign
+under duality; these properties descend to the fppf Picard sheaf. -/
+instance degreeZeroIsSubgroup_of_properCurve {k : Type u} [Field k]
+    (X : SchemeOverField k) [Curve X] [IsProper X.hom] :
+    DegreeZeroIsSubgroup X := by
+  sorry
+
 /-- At every test scheme, the degree-zero sections form a subgroup of the Picard group. -/
-noncomputable def degreeZeroSectionSubgroup {S : Scheme.{u}} (X : Over S)
+noncomputable def degreeZeroSectionSubgroup {S : Scheme.{u}} (X : Over S) [DegreeZeroIsSubgroup X]
     (T : (Over S)ᵒᵖ) : Subgroup ((groupFunctor X).obj T) where
   carrier := {x | (groupFunctorForgetIso X).hom.app T x ∈ (degreeSubfunctor X 0).obj T}
-  one_mem' := sorry
-  mul_mem' := sorry
-  inv_mem' := sorry
+  one_mem' := DegreeZeroIsSubgroup.one_mem T
+  mul_mem' := fun ha hb ↦ DegreeZeroIsSubgroup.mul_mem T _ _ ha hb
+  inv_mem' := fun ha ↦ DegreeZeroIsSubgroup.inv_mem T _ ha
 
 /-- The group-valued functor of degree-zero sections of the relative Picard functor. -/
-noncomputable def degreeZeroGroupFunctor {S : Scheme.{u}} (X : Over S) :
+noncomputable def degreeZeroGroupFunctor {S : Scheme.{u}} (X : Over S) [DegreeZeroIsSubgroup X] :
     (Over S)ᵒᵖ ⥤ GrpCat.{u + 1} where
   obj T := GrpCat.of (degreeZeroSectionSubgroup X T)
   map f := GrpCat.ofHom
@@ -110,7 +131,7 @@ noncomputable def degreeZeroGroupFunctor {S : Scheme.{u}} (X : Over S) :
 
 /-- Forgetting the group structure on `degreeZeroGroupFunctor X` recovers the degree-zero
 Picard subfunctor. -/
-noncomputable def degreeZeroGroupFunctorForgetIso {S : Scheme.{u}} (X : Over S) :
+noncomputable def degreeZeroGroupFunctorForgetIso {S : Scheme.{u}} (X : Over S) [DegreeZeroIsSubgroup X] :
     degreeZeroGroupFunctor X ⋙ forget GrpCat ≅ (degreeSubfunctor X 0).toFunctor :=
   NatIso.ofComponents
     (fun T ↦ Equiv.toIso
@@ -122,21 +143,21 @@ noncomputable def degreeZeroGroupFunctorForgetIso {S : Scheme.{u}} (X : Over S) 
 
 /-- The degree-zero component represents the underlying functor of
 `degreeZeroGroupFunctor X`. -/
-noncomputable def degreeZeroGroupRepresentation {S : Scheme.{u}} (X : Over S)
+noncomputable def degreeZeroGroupRepresentation {S : Scheme.{u}} (X : Over S) [DegreeZeroIsSubgroup X]
     [(degreeSubfunctor X 0).toFunctor.IsRepresentable] :
     (degreeZeroGroupFunctor X ⋙ forget GrpCat).RepresentableBy (component X 0) :=
   (componentRepresentation X 0).ofIso (degreeZeroGroupFunctorForgetIso X).symm
 
 /-- The canonical group-object structure on the degree-zero Picard component. -/
 @[implicit_reducible]
-noncomputable def componentZeroGrpObj {S : Scheme.{u}} (X : Over S)
+noncomputable def componentZeroGrpObj {S : Scheme.{u}} (X : Over S) [DegreeZeroIsSubgroup X]
     [(degreeSubfunctor X 0).toFunctor.IsRepresentable] : GrpObj (component X 0) :=
   GrpObj.ofRepresentableBy (component X 0) (degreeZeroGroupFunctor X)
     (degreeZeroGroupRepresentation X)
 
 /-- The unit, multiplication, and inverse of the degree-zero component factor the
 corresponding operations on the Picard scheme through its component inclusion. -/
-noncomputable def componentZeroFactorization {S : Scheme.{u}} (X : Over S)
+noncomputable def componentZeroFactorization {S : Scheme.{u}} (X : Over S) [DegreeZeroIsSubgroup X]
     [(degreeSubfunctor X 0).toFunctor.IsRepresentable]
     [(functor X).obj.IsRepresentable] :
     @GrpObj.Factorization (Over S) _ _ (component X 0) (scheme X)
@@ -153,7 +174,7 @@ noncomputable def componentZeroFactorization {S : Scheme.{u}} (X : Over S)
 
 /-- The component-zero factorization satisfies the unit, multiplication, and inverse
 compatibility equations. -/
-theorem componentZeroFactorization_spec {S : Scheme.{u}} (X : Over S)
+theorem componentZeroFactorization_spec {S : Scheme.{u}} (X : Over S) [DegreeZeroIsSubgroup X]
     [(degreeSubfunctor X 0).toFunctor.IsRepresentable]
     [(functor X).obj.IsRepresentable] :
     @GrpObj.Factorization.one (Over S) _ _ (component X 0) (scheme X)
@@ -172,7 +193,7 @@ theorem componentZeroFactorization_spec {S : Scheme.{u}} (X : Over S)
 
 /-- The inclusion of the degree-zero component preserves the Picard group-object
 operations. -/
-theorem componentZeroInclusion_isMonHom {S : Scheme.{u}} (X : Over S)
+theorem componentZeroInclusion_isMonHom {S : Scheme.{u}} (X : Over S) [DegreeZeroIsSubgroup X]
     [(degreeSubfunctor X 0).toFunctor.IsRepresentable]
     [(functor X).obj.IsRepresentable] :
     @IsMonHom (Over S) _ _ (component X 0) (scheme X)

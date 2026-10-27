@@ -6,7 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import ReasLib.AlgebraicGeometry.RingedSite.Topos.TwoMorphism.Basic
+public import ReasLib.AlgebraicGeometry.RingedSite.Topos.StructureSheaf
 public import ReasLib.CategoryTheory.Adjunction.LeftExact.Localization
 public import ReasLib.CategoryTheory.Limits.OverPost
 import Mathlib.Tactic.CrossRefAttribute
@@ -39,10 +39,9 @@ section DirectImage
 
 variable (f : Hom X Y)
 variable [PreservesFiniteLimits
-  (f.base.sheafPullback (Type w) Y.siteTopology X.siteTopology)]
+  (f.sheafPullback (A := Type w))]
 
-/-- Lemma 18.22.1 (04IF), ringed layer: the underlying direct-image-form structure map of the
-morphism localized at `G`. -/
+/-- The underlying direct-image-form structure map of the morphism localized at `G`. -/
 @[stacks 04IF "(structure map)"]
 noncomputable def localizedUnderlyingDirectImageMap
     (G : Sheaf Y.siteTopology (Type w)) :
@@ -60,7 +59,7 @@ section InverseImage
 
 variable (f : Hom X Y)
 variable [PreservesFiniteLimits
-  (f.base.sheafPullback (Type w) Y.siteTopology X.siteTopology)]
+  (f.sheafPullback (A := Type w))]
 
 /-- The canonical inverse-image comparison in the ambient square for localization along
 `s : F ⟶ f⁻¹G`.  It compares localization followed by pullback along `s` with applying
@@ -98,8 +97,8 @@ noncomputable def localizedInverseImageSourceIso
       (TwoSquare.overPost.rightAdjointIso f.toMorphismOfTopoi.inverseImage G)
       (Over.pullback s)).app (underlyingStructureSheaf Y)
 
-/-- Lemma 18.22.3 (04J8), ringed layer: the inverse-image-form map on underlying structure
-sheaves for localization along `s : F ⟶ f⁻¹G`. -/
+/-- The inverse-image-form map on underlying structure sheaves for localization along
+`s : F ⟶ f⁻¹G`. -/
 @[stacks 04J8 "(structure map)"]
 noncomputable def localizedUnderlyingInverseImageMap
     {G : Sheaf Y.siteTopology (Type w)}
@@ -125,8 +124,8 @@ theorem localizedAmbientIso_structure
         (Over.star F).map f.underlyingInverseImageMap =
       localizedUnderlyingInverseImageMap f s := sorry
 
-/-- Lemma 18.22.3 (04J8), functoriality: the base-change isomorphism associated to a commuting
-square is compatible with the localized underlying structure maps. -/
+/-- The base-change isomorphism associated to a commuting square is compatible with the
+localized underlying structure maps. -/
 @[stacks 04J8 "(base change)"]
 theorem localizedUnderlyingInverseImageMap_commSq
     {G G' : Sheaf Y.siteTopology (Type w)}

@@ -246,21 +246,6 @@ theorem system_comp_natRestriction {ι : Type u} [Finite ι] (f : ι → R) :
     system f ⋙ ChainDGAlgebra.natRestrictionFunctor R =
       KoszulComplex.powerSystem f := sorry
 
-section StrictCommutativityInference
-
-variable {ι : Type u} [Finite ι] (f : ι → R) (n : ℕ)
-
--- These checks guard the intentional instance design: exact and zero-based stages share one
--- owner, while the opaque system has precisely the objectwise bridge needed by typeclass search.
-#synth (pow f n).IsStrictlyCommutative
-#synth (power f n).IsStrictlyCommutative
-#synth ((system f).obj (op n)).IsStrictlyCommutative
-#synth (pow f n).IsNonnegative
-#synth (power f n).IsNonnegative
-#synth ((system f).obj (op n)).IsNonnegative
-
-end StrictCommutativityInference
-
 -- All object and morphism data are explicit functor images of the existing Koszul monoids and
 -- transitions. Any `sorryAx` dependency is confined to proposition-valued bridge statements and
 -- inherited monoidal/DGA law fields.

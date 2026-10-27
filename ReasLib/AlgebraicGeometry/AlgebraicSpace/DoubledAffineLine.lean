@@ -49,7 +49,12 @@ theorem chartMap_w (k : Type u) [Field k] (i : Fin 2) :
     DoubleAlong.chartMap (AffineLineInvolution.puncturedOpen k) i ≫
         DoubleAlong.fold (AffineLineInvolution.puncturedOpen k) ≫
           (AffineLineInvolution.cover k).hom =
-      (AffineLineInvolution.cover k).hom := sorry
+      (AffineLineInvolution.cover k).hom := by
+  have h :
+      DoubleAlong.chartMap (AffineLineInvolution.puncturedOpen k) i ≫
+          DoubleAlong.fold (AffineLineInvolution.puncturedOpen k) = 𝟙 _ :=
+    Multicoequalizer.π_desc _ _ _ _ _
+  rw [← Category.assoc, h, Category.id_comp]
 
 /-- The affine line with zero doubled, as a scheme over `Spec k`. -/
 def cover (k : Type u) [Field k] : Over (base k) :=
@@ -58,13 +63,13 @@ def cover (k : Type u) [Field k] : Over (base k) :=
 
 /-- The underlying scheme of `cover k` is the doubled affine line. -/
 theorem cover_left (k : Type u) [Field k] :
-    (cover k).left = doubledScheme k := sorry
+    (cover k).left = doubledScheme k := rfl
 
 /-- The structure morphism of `cover k` is the fold followed by `𝔸¹_k ⟶ Spec k`. -/
 theorem cover_hom (k : Type u) [Field k] :
     (cover k).hom =
       DoubleAlong.fold (AffineLineInvolution.puncturedOpen k) ≫
-        (AffineLineInvolution.cover k).hom := sorry
+        (AffineLineInvolution.cover k).hom := rfl
 
 /-- The open immersion of the `i`-th affine-line chart into the doubled line, over `Spec k`. -/
 def chartHom (k : Type u) [Field k] (i : Fin 2) :
@@ -75,7 +80,7 @@ def chartHom (k : Type u) [Field k] (i : Fin 2) :
 /-- The underlying scheme map of `chartHom k i` is the canonical doubled-scheme chart map. -/
 theorem chartHom_left (k : Type u) [Field k] (i : Fin 2) :
     (chartHom k i).left =
-      DoubleAlong.chartMap (AffineLineInvolution.puncturedOpen k) i := sorry
+      DoubleAlong.chartMap (AffineLineInvolution.puncturedOpen k) i := rfl
 
 /-- The coproduct of the two affine-line charts, as a scheme over `Spec k`. -/
 def chartCoproduct (k : Type u) [Field k] : Over (base k) :=
@@ -100,8 +105,52 @@ is not relatively representable. -/
 theorem AffineLineInvolution.not_relativelyRepresentable_toAffineLine
     (k : Type u) [Field k] [NeZero (2 : k)] :
     ¬ uliftYoneda.{u + 1}.relativelyRepresentable
-        (AffineLineInvolution.toAffineLine k).hom :=
-  sorry
+        (AffineLineInvolution.toAffineLine k).hom := by
+  intro h
+  let F : Over (AffineLineInvolution.base k) ⥤
+      (Over (AffineLineInvolution.base k))ᵒᵖ ⥤ Type (u + 1) := uliftYoneda.{u + 1}
+  let P : MorphismProperty (Over (AffineLineInvolution.base k)) :=
+    MorphismProperty.over (@IsImmersion)
+  let R := P.relative F
+  haveI : P.IsStableUnderBaseChange := {
+    of_isPullback sq hg :=
+      MorphismProperty.of_isPullback (P := @IsImmersion)
+        (sq.map (Over.forget (AffineLineInvolution.base k))) hg }
+  -- A representable morphism to a represented target has represented source.
+  let a := h.pullback (𝟙 _)
+  haveI : IsIso (h.fst (𝟙 _)) :=
+    (h.isPullback (𝟙 _)).isIso_fst_of_isIso (by
+      change IsIso (𝟙 (F.obj (AffineLineInvolution.cover k)))
+      infer_instance)
+  let e : F.obj a ≅ (AffineLineInvolution.sheafOfPoints k).obj := asIso (h.fst (𝟙 _))
+  -- The diagonal of a scheme over the base is an immersion.
+  have hd : P (diag a) := by
+    change IsImmersion (diag a).left
+    let c := Over.prodLeftIsoPullback a a
+    have hc : (diag a).left ≫ c.hom = pullback.diagonal a.hom := by
+      apply pullback.hom_ext
+      · simpa [c, diag, ← Over.comp_left] using
+          congrArg (fun f : a ⟶ a ↦ f.left) (prod.lift_fst (𝟙 a) (𝟙 a))
+      · simpa [c, diag, ← Over.comp_left] using
+          congrArg (fun f : a ⟶ a ↦ f.left) (prod.lift_snd (𝟙 a) (𝟙 a))
+    have hd' : IsImmersion ((diag a).left ≫ c.hom) := by
+      rw [hc]
+      infer_instance
+    exact (MorphismProperty.cancel_right_of_respectsIso @IsImmersion _ c.hom).mp hd'
+  have hd' : R (F.map (diag a) ≫ prodComparison F a a) :=
+    MorphismProperty.RespectsIso.postcomp R _ _ (MorphismProperty.relative_map hd)
+  have hc : F.map (diag a) ≫ prodComparison F a a = diag (F.obj a) := by
+    apply prod.hom_ext
+    · simp only [Category.assoc, prodComparison_fst, ← F.map_comp,
+        diag, prod.lift_fst, F.map_id]
+    · simp only [Category.assoc, prodComparison_snd, ← F.map_comp,
+        diag, prod.lift_snd, F.map_id]
+  have hd'' : R (diag (F.obj a)) := hc ▸ hd'
+  have hx : R (e.hom ≫ diag (AffineLineInvolution.sheafOfPoints k).obj) :=
+    prod.diag_map e.hom ▸
+      MorphismProperty.RespectsIso.postcomp R _ _ hd''
+  exact AffineLineInvolution.not_isImmersion_diag_sheafOfPoints k
+    ((R.cancel_left_of_respectsIso e.hom _).mp hx)
 
 /-- Pullback along a universal homeomorphism of algebraic spaces need not induce an
 equivalence of spaces-étale sites. -/
@@ -156,7 +205,7 @@ theorem ChartRestrictions.iff {k : Type u} [Field k] (f : atlasHom k) :
           (Scheme.fppfTopology.over (base k)).uliftYoneda.{u + 1}.map
               (AffineLineInvolution.involution k) ≫
             AffineLineInvolution.atlas k :=
-  sorry
+  ⟨fun h ↦ ⟨h.chart0, h.chart1⟩, fun h ↦ ⟨h.1, h.2⟩⟩
 
 /-- If `k` is algebraically closed of characteristic zero, then `𝔸¹_k`
 has no nontrivial connected finite étale covering. -/
@@ -216,15 +265,77 @@ theorem finiteLocallyFreeOfRank_toAffineCoproduct
 /-- The doubled affine line is connected. -/
 @[stacks 05ZI]
 theorem connected_cover (k : Type u) [Field k] :
-    ConnectedSpace (cover k).left :=
-  sorry
+    ConnectedSpace (cover k).left := by
+  haveI : ConnectedSpace (AffineLineInvolution.cover k).left := by
+    change ConnectedSpace (AffineSpace (ULift.{u} (Fin 1)) (Spec (CommRingCat.of k)))
+    infer_instance
+  let s : base k ⟶ (AffineLineInvolution.cover k).left :=
+    AffineSpace.homOfVector (𝟙 _) (fun _ ↦ 1)
+  have hs : s ⁻¹ᵁ AffineLineInvolution.puncturedOpen k = ⊤ := by
+    change s ⁻¹ᵁ (AffineLineInvolution.cover k).left.basicOpen
+      (AffineLineInvolution.coord k) = ⊤
+    rw [Scheme.preimage_basicOpen_top]
+    change (base k).basicOpen
+      ((AffineSpace.homOfVector (𝟙 (base k)) (fun _ : ULift.{u} (Fin 1) ↦ 1)).appTop
+        (AffineSpace.coord (base k) (ULift.up (0 : Fin 1)))) = ⊤
+    rw [AffineSpace.homOfVector_appTop_coord, Scheme.basicOpen_one]
+  let x := s (default : base k)
+  have hx : x ∈ AffineLineInvolution.puncturedOpen k := by
+    change (default : base k) ∈ s ⁻¹ᵁ AffineLineInvolution.puncturedOpen k
+    rw [hs]
+    trivial
+  have hglue :
+      DoubleAlong.chartMap (AffineLineInvolution.puncturedOpen k) 0 x =
+        DoubleAlong.chartMap (AffineLineInvolution.puncturedOpen k) 1 x := by
+    have h := (DoubleAlong.glueData (AffineLineInvolution.puncturedOpen k)).glue_condition
+      (ULift.up (0 : Fin 2)) (ULift.up (1 : Fin 2))
+    have h' :
+        (AffineLineInvolution.puncturedOpen k).ι ≫
+            DoubleAlong.chartMap (AffineLineInvolution.puncturedOpen k) 0 =
+          (AffineLineInvolution.puncturedOpen k).ι ≫
+            DoubleAlong.chartMap (AffineLineInvolution.puncturedOpen k) 1 := by
+      simp [DoubleAlong.glueData, DoubleAlong.Impl.glueData,
+        CategoryTheory.GlueData.ofGlueData', CategoryTheory.GlueData'.f',
+        DoubleAlong.Impl.glueData', DoubleAlong.Impl.glueT, DoubleAlong.Impl.glueF] at h
+      exact (cancel_epi _).mp h.symm
+    simpa using congrArg
+      (fun f : (AffineLineInvolution.puncturedOpen k).toScheme ⟶ doubledScheme k ↦
+        f ⟨x, hx⟩) h'
+  have hcover :
+      Set.range (DoubleAlong.chartMap (AffineLineInvolution.puncturedOpen k) 0) ∪
+          Set.range (DoubleAlong.chartMap (AffineLineInvolution.puncturedOpen k) 1) =
+        Set.univ := by
+    apply Set.eq_univ_of_forall
+    intro y
+    obtain ⟨⟨i⟩, z, hz⟩ :=
+      (DoubleAlong.glueData (AffineLineInvolution.puncturedOpen k)).ι_jointly_surjective y
+    fin_cases i
+    · exact Or.inl ⟨z, hz⟩
+    · exact Or.inr ⟨z, hz⟩
+  apply connectedSpace_iff_univ.mpr
+  change _root_.IsConnected (Set.univ : Set (doubledScheme k))
+  rw [← hcover]
+  exact IsConnected.union ⟨_, ⟨x, rfl⟩, ⟨x, hglue.symm⟩⟩
+    (isConnected_range
+      (DoubleAlong.chartMap (AffineLineInvolution.puncturedOpen k) 0).continuous)
+    (isConnected_range
+      (DoubleAlong.chartMap (AffineLineInvolution.puncturedOpen k) 1).continuous)
 
 /-- A morphism glued from the two charts is nontrivial. -/
 @[stacks 05ZI]
 theorem not_isIso_atlasHom (k : Type u) [Field k] [CharZero k]
     (f : atlasHom k) (hf : ChartRestrictions f) :
-    ¬ IsIso f :=
-  sorry
+    ¬ IsIso f := by
+  intro h
+  letI := h
+  haveI : IsIso f.hom := inferInstance
+  obtain ⟨g, hg⟩ := uliftYoneda.{u + 1}.map_surjective
+    (f.hom ≫ (AffineLineInvolution.toAffineLine k).hom)
+  have hrep : uliftYoneda.{u + 1}.relativelyRepresentable
+      (f.hom ≫ (AffineLineInvolution.toAffineLine k).hom) :=
+    hg ▸ Functor.relativelyRepresentable.map _ g
+  exact AffineLineInvolution.not_relativelyRepresentable_toAffineLine k
+    ((uliftYoneda.{u + 1}.relativelyRepresentable.cancel_left_of_respectsIso f.hom _).mp hrep)
 
 
 

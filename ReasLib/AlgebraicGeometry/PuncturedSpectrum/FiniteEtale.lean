@@ -47,13 +47,12 @@ open IsLocalRing
 
 noncomputable section
 
-variable {A : Type u} [CommRing A] [IsNoetherianRing A] [IsLocalRing A]
-variable (f : maximalIdeal A)
-
 /-- For a Noetherian local ring `A` and `f` in its maximal ideal, restriction of
 finite étale covers along `principalQuotientMap f` is full if `(A, (f))` is a
 henselian pair and powers of `f` annihilate `H¹_𝔪(A)` and `H²_𝔪(A)`. -/
 instance finiteEtaleBaseChange_full_of_localCohomology
+    {A : Type u} [CommRing A] [IsNoetherianRing A] [IsLocalRing A]
+    (f : maximalIdeal A)
     [HenselianRing A (principalIdeal f)]
     [Fact (Module.IsAnnihilatedByPower (Ideal.span ({(f : A)} : Set A))
       ((localCohomology (maximalIdeal A) 1).obj (ModuleCat.of A A)))]
@@ -65,6 +64,8 @@ instance finiteEtaleBaseChange_full_of_localCohomology
 finite étale covers along `principalQuotientMap f` is faithful if `(A, (f))` is a
 henselian pair and powers of `f` annihilate `H¹_𝔪(A)` and `H²_𝔪(A)`. -/
 instance finiteEtaleBaseChange_faithful_of_localCohomology
+    {A : Type u} [CommRing A] [IsNoetherianRing A] [IsLocalRing A]
+    (f : maximalIdeal A)
     [HenselianRing A (principalIdeal f)]
     [Fact (Module.IsAnnihilatedByPower (Ideal.span ({(f : A)} : Set A))
       ((localCohomology (maximalIdeal A) 1).obj (ModuleCat.of A A)))]

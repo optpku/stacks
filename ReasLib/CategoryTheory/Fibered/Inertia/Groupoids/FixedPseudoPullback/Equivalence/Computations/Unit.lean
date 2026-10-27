@@ -41,7 +41,7 @@ theorem diagonalComparisonEquivalence.unit.hom (F : X ⟶ Y) :
         (BasedFunctor.RelativeInertia.diagonalComparison.unitIso
           (FiberedCategoryOver.Groupoids.toBasedFunctor F))
         (BasedFunctor.RelativeInertia.diagonalComparison.counitIso
-          (FiberedCategoryOver.Groupoids.toBasedFunctor F))).hom := sorry
+          (FiberedCategoryOver.Groupoids.toBasedFunctor F))).hom := rfl
 
 /-- The based projection of the inverse unit cell of the groupoid-fibration relative-inertia
 equivalence is the inverse canonical adjusted unit. -/
@@ -53,7 +53,7 @@ theorem diagonalComparisonEquivalence.unit.inv (F : X ⟶ Y) :
         (BasedFunctor.RelativeInertia.diagonalComparison.unitIso
           (FiberedCategoryOver.Groupoids.toBasedFunctor F))
         (BasedFunctor.RelativeInertia.diagonalComparison.counitIso
-          (FiberedCategoryOver.Groupoids.toBasedFunctor F))).inv := sorry
+          (FiberedCategoryOver.Groupoids.toBasedFunctor F))).inv := rfl
 
 /-- The forward total-category component of the groupoid-fibred comparison unit is the component
 of the canonical adjusted based unit. -/
@@ -68,7 +68,7 @@ theorem diagonalComparisonEquivalence.unit.app.hom
           (BasedFunctor.RelativeInertia.diagonalComparison.unitIso
             (FiberedCategoryOver.Groupoids.toBasedFunctor F))
           (BasedFunctor.RelativeInertia.diagonalComparison.counitIso
-            (FiberedCategoryOver.Groupoids.toBasedFunctor F)))).hom.app A := sorry
+            (FiberedCategoryOver.Groupoids.toBasedFunctor F)))).hom.app A := rfl
 
 /-- The inverse total-category component of the groupoid-fibred comparison unit is the component
 of the inverse canonical adjusted unit. -/
@@ -83,7 +83,7 @@ theorem diagonalComparisonEquivalence.unit.app.inv
           (BasedFunctor.RelativeInertia.diagonalComparison.unitIso
             (FiberedCategoryOver.Groupoids.toBasedFunctor F))
           (BasedFunctor.RelativeInertia.diagonalComparison.counitIso
-            (FiberedCategoryOver.Groupoids.toBasedFunctor F)))).inv.app A := sorry
+            (FiberedCategoryOver.Groupoids.toBasedFunctor F)))).inv.app A := rfl
 
 /-- The forward groupoid-fibred comparison-unit components are natural in morphisms of the
 fixed relative-inertia category. -/
@@ -95,7 +95,10 @@ theorem diagonalComparisonEquivalence.unit.naturality
       ((diagonalComparisonEquivalence F).hom ≫ (diagonalComparisonEquivalence F).inv)
     let η : 𝟭 (FiberedCategoryOver.Groupoids.total (relativeInertia F)) ⟶ H :=
       FiberedCategoryOver.Groupoids.toNatTrans ((diagonalComparisonEquivalence F).unit.hom)
-    φ ≫ η.app B = η.app A ≫ H.map φ := sorry
+    φ ≫ η.app B = η.app A ≫ H.map φ := by
+  let η : 𝟭 (FiberedCategoryOver.Groupoids.total (relativeInertia F)) ⟶ _ :=
+    FiberedCategoryOver.Groupoids.toNatTrans ((diagonalComparisonEquivalence F).unit.hom)
+  exact η.naturality φ
 
 /-- The forward unit naturality equation after postcomposition, with the original public
 parenthesization retained. -/
@@ -124,7 +127,10 @@ theorem diagonalComparisonEquivalence.unit.invNaturality
       ((diagonalComparisonEquivalence F).hom ≫ (diagonalComparisonEquivalence F).inv)
     let η : H ⟶ 𝟭 (FiberedCategoryOver.Groupoids.total (relativeInertia F)) :=
       FiberedCategoryOver.Groupoids.toNatTrans ((diagonalComparisonEquivalence F).unit.inv)
-    η.app A ≫ φ = H.map φ ≫ η.app B := sorry
+    η.app A ≫ φ = H.map φ ≫ η.app B := by
+  let η : _ ⟶ 𝟭 (FiberedCategoryOver.Groupoids.total (relativeInertia F)) :=
+    FiberedCategoryOver.Groupoids.toNatTrans ((diagonalComparisonEquivalence F).unit.inv)
+  exact (η.naturality φ).symm
 
 /-- The inverse unit naturality equation after postcomposition, with the original public
 parenthesization retained. -/
@@ -148,7 +154,9 @@ theorem diagonalComparisonEquivalence.unit.app.hom.isHomLift
     (relativeInertia F).p.IsHomLift
       (𝟙 ((relativeInertia F).p.obj A))
       ((FiberedCategoryOver.Groupoids.toNatTrans
-        ((diagonalComparisonEquivalence F).unit.hom)).app A) := sorry
+        ((diagonalComparisonEquivalence F).unit.hom)).app A) := by
+  exact (FiberedCategoryOver.Groupoids.toBasedNatTrans
+    ((diagonalComparisonEquivalence F).unit.hom)).isHomLift' A
 
 /-- Every inverse groupoid-fibred comparison-unit component is vertical over its base object. -/
 theorem diagonalComparisonEquivalence.unit.app.inv.isHomLift
@@ -157,7 +165,9 @@ theorem diagonalComparisonEquivalence.unit.app.inv.isHomLift
     (relativeInertia F).p.IsHomLift
       (𝟙 ((relativeInertia F).p.obj A))
       ((FiberedCategoryOver.Groupoids.toNatTrans
-        ((diagonalComparisonEquivalence F).unit.inv)).app A) := sorry
+        ((diagonalComparisonEquivalence F).unit.inv)).app A) := by
+  exact (FiberedCategoryOver.Groupoids.toBasedNatTrans
+    ((diagonalComparisonEquivalence F).unit.inv)).isHomLift' A
 
 /-- The underlying arrow of a forward groupoid-fibred comparison-unit component is an identity. -/
 @[simp]
@@ -166,7 +176,12 @@ theorem diagonalComparisonEquivalence.unit.app.underlying.hom
     CategoryTheory.RelativeInertia.hom
         ((FiberedCategoryOver.Groupoids.toNatTrans
           ((diagonalComparisonEquivalence F).unit.hom)).app A) =
-      𝟙 A.obj := sorry
+      𝟙 A.obj := by
+  -- The explicit unit, coherence cells, and first counit components are identities.
+  change (𝟙 A.obj ≫
+    ((𝟙 A.obj ≫ ((𝟙 A.obj ≫ (𝟙 A.obj ≫ 𝟙 A.obj)) ≫ 𝟙 A.obj)) ≫
+      𝟙 A.obj)) = 𝟙 A.obj
+  simp only [Category.id_comp]
 
 /-- The underlying arrow of an inverse groupoid-fibred comparison-unit component is an identity. -/
 @[simp]
@@ -175,7 +190,19 @@ theorem diagonalComparisonEquivalence.unit.app.underlying.inv
     CategoryTheory.RelativeInertia.hom
         ((FiberedCategoryOver.Groupoids.toNatTrans
           ((diagonalComparisonEquivalence F).unit.inv)).app A) =
-      𝟙 A.obj := sorry
+      𝟙 A.obj := by
+  have h := congrArg
+    (fun η => CategoryTheory.RelativeInertia.hom
+      ((FiberedCategoryOver.Groupoids.toNatTrans η).app A))
+    (diagonalComparisonEquivalence F).unit.hom_inv_id
+  change CategoryTheory.RelativeInertia.hom
+      ((FiberedCategoryOver.Groupoids.toNatTrans
+        ((diagonalComparisonEquivalence F).unit.hom)).app A) ≫
+    CategoryTheory.RelativeInertia.hom
+      ((FiberedCategoryOver.Groupoids.toNatTrans
+        ((diagonalComparisonEquivalence F).unit.inv)).app A) = 𝟙 A.obj at h
+  rw [diagonalComparisonEquivalence.unit.app.underlying.hom] at h
+  exact (Category.id_comp _).symm.trans h
 
 end FiberedCategoryOver.Groupoids.RelativeInertia
 end CategoryTheory

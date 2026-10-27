@@ -79,14 +79,17 @@ quotient presentation determined by its restricted ambient twists. -/
       [∀ U, GradedRing (sectionGrading U)]
       (P : ∀ U : S.affineOpens, AlgebraicGeometry.ProjTwistPresentation (sectionGrading U))
       (model : ∀ (U : S.affineOpens) (d : ℕ),
-        (𝒜 (Int.ofNat d)).val.obj (Opposite.op (U : S.Opens)) ≃ sectionGrading U d)
+        (𝒜 (Int.ofNat d)).val.obj (Opposite.op (U : S.Opens)) ≃+ sectionGrading U d)
+      (hModel : ∀ U : S.affineOpens,
+        AlgebraicGeometry.AffineOpenSectionProj.IsAffineOpenSectionModel
+          (sectionGrading U) 𝒜 U (model U))
       (presentation : AlgebraicGeometry.Scheme.RelativeProjTwist.Presentation
-        𝒜 A σ sectionGrading P model p)
+        𝒜 A σ sectionGrading P (fun U d ↦ (model U d).toEquiv) p)
       (i : Z ⟶ X) [AlgebraicGeometry.IsClosedImmersion i]
       [AlgebraicGeometry.QuasiCompact p],
       Nonempty
         (AlgebraicGeometry.Scheme.RelativeProjTwist.Presentation.CanonicalClosedSubschemeQuotient
-          presentation i))
+          presentation hqc hModel i))
 
 /- The positive homogeneous generators in the weighted example have period six. -/
 #check (AlgebraicGeometry.WeightedProjExample.generators_period :

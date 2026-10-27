@@ -35,19 +35,9 @@ theorem IsOpenImmersion.iff_isIso_stalkMap
     IsOpenImmersion f ↔
       IsOpenEmbedding f.base ∧ ∀ x : X, IsIso (f.stalkMap x) := sorry
 
-/-- The range of an open immersion is open. -/
-@[stacks 01HE "open image of an open immersion"]
-theorem IsOpenImmersion.isOpen_range
-    {X Y : LocallyRingedSpace.{u}} (f : X ⟶ Y) [IsOpenImmersion f] :
-    IsOpen (Set.range f.base) := sorry
-
 namespace Hom
 
 variable {X Y : LocallyRingedSpace.{u}} (f : X ⟶ Y) [H : IsOpenImmersion f]
-
-/-- The underlying map of an open immersion is an open embedding. -/
-@[stacks 01HE "open-embedding readout"]
-theorem isOpenEmbedding : IsOpenEmbedding f.base := sorry
 
 /-- The image of an open immersion as an open subset of its target. -/
 @[stacks 01HE "image open of an open immersion"]

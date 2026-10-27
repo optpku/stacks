@@ -30,17 +30,30 @@ variable {C₁ : Type u₁} {C₂ : Type u₂}
   {W₁ : MorphismProperty C₁} {W₂ : MorphismProperty C₂}
   {Φ : LocalizerMorphism W₁ W₂}
 
+private theorem Map.reindex_eq_transport {X Y : C₂} {f g : X ⟶ Y}
+    {R : Φ.LeftResolution X} {S : Φ.LeftResolution Y}
+    (h : f = g) (m : Map f R S) : Map.reindex h m = h ▸ m := by
+  cases h
+  cases m
+  rfl
+
 namespace displayedCategory
 
 /-- The displayed left-identity law for maps of left resolutions. -/
 theorem id_comp {X Y : C₂} {f : X ⟶ Y}
     {R : Φ.LeftResolution X} {S : Φ.LeftResolution Y} (m : Map f R S) :
-    (Category.id_comp f) ▸ Map.comp (Map.id R) m = m := sorry
+    (Category.id_comp f) ▸ Map.comp (Map.id R) m = m := by
+  rw [← Map.reindex_eq_transport]
+  cases m
+  simp only [Map.reindex, Map.comp, Map.id, Category.id_comp]
 
 /-- The displayed right-identity law for maps of left resolutions. -/
 theorem comp_id {X Y : C₂} {f : X ⟶ Y}
     {R : Φ.LeftResolution X} {S : Φ.LeftResolution Y} (m : Map f R S) :
-    (Category.comp_id f) ▸ Map.comp m (Map.id S) = m := sorry
+    (Category.comp_id f) ▸ Map.comp m (Map.id S) = m := by
+  rw [← Map.reindex_eq_transport]
+  cases m
+  simp only [Map.reindex, Map.comp, Map.id, Category.comp_id]
 
 /-- The displayed associativity law for maps of left resolutions. -/
 theorem assoc {W X Y Z : C₂} {f : W ⟶ X} {g : X ⟶ Y} {h : Y ⟶ Z}
@@ -48,7 +61,12 @@ theorem assoc {W X Y Z : C₂} {f : W ⟶ X} {g : X ⟶ Y} {h : Y ⟶ Z}
     {T : Φ.LeftResolution Y} {U : Φ.LeftResolution Z}
     (m : Map f R S) (n : Map g S T) (q : Map h T U) :
     (Category.assoc f g h) ▸ Map.comp (Map.comp m n) q =
-      Map.comp m (Map.comp n q) := sorry
+      Map.comp m (Map.comp n q) := by
+  rw [← Map.reindex_eq_transport]
+  cases m
+  cases n
+  cases q
+  simp only [Map.reindex, Map.comp, Category.assoc]
 
 end displayedCategory
 
@@ -68,18 +86,18 @@ namespace displayedCategory
 /-- The displayed objects are left resolutions of the corresponding base object. -/
 @[simp]
 theorem obj (Φ : LocalizerMorphism W₁ W₂) (X : C₂) :
-    (displayedCategory Φ).obj X = Φ.LeftResolution X := sorry
+    (displayedCategory Φ).obj X = Φ.LeftResolution X := rfl
 
 /-- The displayed morphisms are maps of left resolutions over the corresponding base arrow. -/
 @[simp]
 theorem hom (Φ : LocalizerMorphism W₁ W₂) {X Y : C₂} (f : X ⟶ Y)
     (R : Φ.LeftResolution X) (S : Φ.LeftResolution Y) :
-    (displayedCategory Φ).Hom f R S = Map f R S := sorry
+    (displayedCategory Φ).Hom f R S = Map f R S := rfl
 
 /-- The displayed identity is the canonical identity map of a left resolution. -/
 @[simp]
 theorem id (Φ : LocalizerMorphism W₁ W₂) {X : C₂} (R : Φ.LeftResolution X) :
-    (displayedCategory Φ).id R = Map.id R := sorry
+    (displayedCategory Φ).id R = Map.id R := rfl
 
 /-- Displayed composition is the canonical composition of left-resolution maps. -/
 @[simp]
@@ -87,7 +105,7 @@ theorem comp (Φ : LocalizerMorphism W₁ W₂)
     {X Y Z : C₂} {f : X ⟶ Y} {g : Y ⟶ Z}
     {R : Φ.LeftResolution X} {S : Φ.LeftResolution Y} {T : Φ.LeftResolution Z}
     (m : Map f R S) (n : Map g S T) :
-    (displayedCategory Φ).comp m n = Map.comp m n := sorry
+    (displayedCategory Φ).comp m n = Map.comp m n := rfl
 
 end displayedCategory
 
@@ -98,14 +116,16 @@ namespace Map
 theorem reindex_eq_cast {X Y : C₂} {f g : X ⟶ Y}
     {R : Φ.LeftResolution X} {S : Φ.LeftResolution Y}
     (h : f = g) (m : Map f R S) :
-    reindex h m = DisplayedCategory.Hom.cast (displayedCategory Φ) h m := sorry
+    reindex h m = DisplayedCategory.Hom.cast (displayedCategory Φ) h m :=
+  reindex_eq_transport h m
 
 /-- Generic displayed transport can be converted back to left-resolution map reindexing. -/
 @[stacks 0GSL "owner-level transport of left-resolution maps"]
 theorem cast_eq_reindex {X Y : C₂} {f g : X ⟶ Y}
     {R : Φ.LeftResolution X} {S : Φ.LeftResolution Y}
     (h : f = g) (m : Map f R S) :
-    DisplayedCategory.Hom.cast (displayedCategory Φ) h m = reindex h m := sorry
+    DisplayedCategory.Hom.cast (displayedCategory Φ) h m = reindex h m :=
+  (reindex_eq_cast h m).symm
 
 end Map
 

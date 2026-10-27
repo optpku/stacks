@@ -101,14 +101,20 @@ def restrictionApp (M : SheafOfModules.{w} R) {U V : Cᵒᵖ} (f : U ⟶ V) :
 
 /-- Underlying restriction functions preserve identities. -/
 theorem restrictionApp_id (M : SheafOfModules.{w} R) (U : Cᵒᵖ) :
-    restrictionApp R M (𝟙 U) = 𝟙 (M.val.obj U : Type w) := sorry
+    restrictionApp R M (𝟙 U) = 𝟙 (M.val.obj U : Type w) := by
+  ext x
+  change M.val.map (𝟙 U) x = x
+  rw [M.val.map_id]
+  rfl
 
 /-- Underlying restriction functions preserve composition. -/
 theorem restrictionApp_comp (M : SheafOfModules.{w} R) {U V W : Cᵒᵖ}
     (f : U ⟶ V) (g : V ⟶ W) :
     restrictionApp R M (f ≫ g) =
       (restrictionApp R M f : (M.val.obj U : Type w) ⟶ (M.val.obj V : Type w)) ≫
-        (restrictionApp R M g : (M.val.obj V : Type w) ⟶ (M.val.obj W : Type w)) := sorry
+        (restrictionApp R M g : (M.val.obj V : Type w) ⟶ (M.val.obj W : Type w)) := by
+  ext x
+  exact M.val.map_comp_apply f g x
 
 /-- The ordinary presheaf of types underlying a sheaf of modules. -/
 abbrev carrierPresheaf (M : SheafOfModules.{w} R) : Cᵒᵖ ⥤ Type w where
@@ -119,7 +125,8 @@ abbrev carrierPresheaf (M : SheafOfModules.{w} R) : Cᵒᵖ ⥤ Type w where
 
 /-- The ordinary underlying presheaf of types of a sheaf of `R`-modules is a sheaf. -/
 theorem carrierIsSheaf (M : SheafOfModules.{w} R) :
-    Presheaf.IsSheaf J (carrierPresheaf R M) := sorry
+    Presheaf.IsSheaf J (carrierPresheaf R M) := by
+  exact ((sheafCompose J (forget AddCommGrpCat.{w})).obj (addSheaf R M)).property
 
 /-- The type-valued sheaf underlying a sheaf of `R`-modules. -/
 noncomputable abbrev carrier (M : SheafOfModules.{w} R) : Sheaf J (Type w) :=
@@ -151,7 +158,10 @@ def zeroApp :
 /-- Naturality of the zero sections. -/
 theorem zeroApp_naturality {U V : Cᵒᵖ} (f : U ⟶ V) :
     (MonoidalCategory.tensorUnit (Sheaf J (Type w))).obj.map f ≫ zeroApp R M V =
-      zeroApp R M U ≫ (carrier R M).obj.map f := sorry
+      zeroApp R M U ≫ (carrier R M).obj.map f := by
+  ext x
+  change (0 : M.val.obj V) = M.val.map f 0
+  exact (map_zero (M.val.map f).hom).symm
 
 /-- The zero operation on the internalized module. -/
 def zero : 𝟙_ (Sheaf J (Type w)) ⟶ carrier R M :=
@@ -167,7 +177,10 @@ def addApp : ((carrier R M) ⊗ (carrier R M)).obj.obj U ⟶ (carrier R M).obj.o
 /-- Naturality of sectionwise addition. -/
 theorem addApp_naturality {U V : Cᵒᵖ} (f : U ⟶ V) :
     ((carrier R M) ⊗ (carrier R M)).obj.map f ≫ addApp R M V =
-      addApp R M U ≫ (carrier R M).obj.map f := sorry
+      addApp R M U ≫ (carrier R M).obj.map f := by
+  ext x
+  change M.val.map f x.1 + M.val.map f x.2 = M.val.map f (x.1 + x.2)
+  exact (map_add (M.val.map f).hom x.1 x.2).symm
 
 /-- Addition on the internalized module. -/
 def add : carrier R M ⊗ carrier R M ⟶ carrier R M :=
@@ -182,7 +195,10 @@ def negApp : (carrier R M).obj.obj U ⟶ (carrier R M).obj.obj U :=
 /-- Naturality of sectionwise negation. -/
 theorem negApp_naturality {U V : Cᵒᵖ} (f : U ⟶ V) :
     (carrier R M).obj.map f ≫ negApp R M V =
-      negApp R M U ≫ (carrier R M).obj.map f := sorry
+      negApp R M U ≫ (carrier R M).obj.map f := by
+  ext x
+  change -M.val.map f x = M.val.map f (-x)
+  exact (map_neg (M.val.map f).hom x).symm
 
 /-- Negation on the internalized module. -/
 def neg : carrier R M ⟶ carrier R M :=
@@ -198,7 +214,10 @@ def smulApp : ((ringCarrier R) ⊗ (carrier R M)).obj.obj U ⟶ (carrier R M).ob
 /-- Naturality of the sectionwise left scalar action. -/
 theorem smulApp_naturality {U V : Cᵒᵖ} (f : U ⟶ V) :
     ((ringCarrier R) ⊗ (carrier R M)).obj.map f ≫ smulApp R M V =
-      smulApp R M U ≫ (carrier R M).obj.map f := sorry
+      smulApp R M U ≫ (carrier R M).obj.map f := by
+  ext x
+  change R.obj.map f x.1 • M.val.map f x.2 = M.val.map f (x.1 • x.2)
+  exact (M.val.map_smul f x.1 x.2).symm
 
 /-- The left action of the internal ring on the internalized module. -/
 def smul : ringCarrier R ⊗ carrier R M ⟶ carrier R M :=
@@ -207,16 +226,25 @@ def smul : ringCarrier R ⊗ carrier R M ⟶ carrier R M :=
       naturality := fun {_ _} f ↦ smulApp_naturality R M f }
 
 /-- Zero is a left identity for internal module addition. -/
-theorem zero_add : zero R M ▷ carrier R M ≫ add R M = (λ_ (carrier R M)).hom := sorry
+theorem zero_add : zero R M ▷ carrier R M ≫ add R M = (λ_ (carrier R M)).hom := by
+  ext U x
+  change (0 : M.val.obj U) + x.2 = x.2
+  exact _root_.zero_add _
 
 /-- Zero is a right identity for internal module addition. -/
-theorem add_zero : carrier R M ◁ zero R M ≫ add R M = (ρ_ (carrier R M)).hom := sorry
+theorem add_zero : carrier R M ◁ zero R M ≫ add R M = (ρ_ (carrier R M)).hom := by
+  ext U x
+  change x.1 + (0 : M.val.obj U) = x.1
+  exact _root_.add_zero _
 
 /-- Internal module addition is associative. -/
 theorem add_assoc :
     add R M ▷ carrier R M ≫ add R M =
       (α_ (carrier R M) (carrier R M) (carrier R M)).hom ≫
-        carrier R M ◁ add R M ≫ add R M := sorry
+        carrier R M ◁ add R M ≫ add R M := by
+  ext U x
+  change (x.1.1 + x.1.2) + x.2 = x.1.1 + (x.1.2 + x.2)
+  exact _root_.add_assoc _ _ _
 
 /-- The additive-monoid structure of the internalized module. -/
 @[implicit_reducible]
@@ -230,12 +258,18 @@ def addMonObj : AddMonObj (carrier R M) where
 /-- Negation is a left additive inverse on the internalized module. -/
 theorem neg_add :
     lift (neg R M) (𝟙 (carrier R M)) ≫ add R M =
-      toUnit (carrier R M) ≫ zero R M := sorry
+      toUnit (carrier R M) ≫ zero R M := by
+  ext U x
+  change -x + x = (0 : M.val.obj U)
+  exact neg_add_cancel _
 
 /-- Negation is a right additive inverse on the internalized module. -/
 theorem add_neg :
     lift (𝟙 (carrier R M)) (neg R M) ≫ add R M =
-      toUnit (carrier R M) ≫ zero R M := sorry
+      toUnit (carrier R M) ≫ zero R M := by
+  ext U x
+  change x + -x = (0 : M.val.obj U)
+  exact add_neg_cancel _
 
 /-- The additive-group structure of the internalized module. -/
 @[implicit_reducible]
@@ -247,32 +281,50 @@ def addGrpObj : AddGrpObj (carrier R M) where
 
 /-- The internalized additive group is commutative. -/
 theorem isCommAddMonObj :
-    @IsCommAddMonObj (Sheaf J (Type w)) _ _ _ (carrier R M) (addMonObj R M) := sorry
+    @IsCommAddMonObj (Sheaf J (Type w)) _ _ _ (carrier R M) (addMonObj R M) := by
+  letI : BraidedCategory (Sheaf J (Type w)) := InternalRing.sheafBraidedCategory J
+  letI := addMonObj R M
+  refine ⟨?_⟩
+  ext U x
+  change x.2 + x.1 = x.1 + x.2
+  exact _root_.add_comm _ _
 
 /-- The internal scalar action is unital. -/
 theorem one_smul :
     (InternalRing.monObj R).one ▷ carrier R M ≫ smul R M =
-      (λ_ (carrier R M)).hom := sorry
+      (λ_ (carrier R M)).hom := by
+  ext U x
+  change (1 : R.obj.obj U) • x.2 = x.2
+  exact _root_.one_smul _ _
 
 /-- The internal scalar action is associative. -/
 theorem mul_smul :
     (InternalRing.monObj R).mul ▷ carrier R M ≫ smul R M =
       (α_ (ringCarrier R) (ringCarrier R) (carrier R M)).hom ≫
-        ringCarrier R ◁ smul R M ≫ smul R M := sorry
+        ringCarrier R ◁ smul R M ≫ smul R M := by
+  ext U x
+  exact SemigroupAction.mul_smul (ringSectionEquiv R U x.1.1) (ringSectionEquiv R U x.1.2)
+    (sectionEquiv R M U x.2)
 
 /-- Addition of internal scalars distributes over the action. -/
 theorem add_smul :
     InternalRing.add R ▷ carrier R M ≫ smul R M =
       lift (fst (ringCarrier R) (ringCarrier R) ▷ carrier R M ≫ smul R M)
           (snd (ringCarrier R) (ringCarrier R) ▷ carrier R M ≫ smul R M) ≫
-        add R M := sorry
+        add R M := by
+  ext U x
+  exact _root_.add_smul (ringSectionEquiv R U x.1.1) (ringSectionEquiv R U x.1.2)
+    (sectionEquiv R M U x.2)
 
 /-- The internal scalar action distributes over module addition. -/
 theorem smul_add :
     ringCarrier R ◁ add R M ≫ smul R M =
       lift ((ringCarrier R ◁ fst (carrier R M) (carrier R M)) ≫ smul R M)
           ((ringCarrier R ◁ snd (carrier R M) (carrier R M)) ≫ smul R M) ≫
-        add R M := sorry
+        add R M := by
+  ext U x
+  exact _root_.smul_add (ringSectionEquiv R U x.1)
+    (sectionEquiv R M U x.2.1) (sectionEquiv R M U x.2.2)
 
 /-- The internal left-module structure associated to a sheaf of modules. -/
 @[implicit_reducible]
@@ -294,7 +346,9 @@ def carrierMapApp {M N : SheafOfModules.{w} R} (f : M ⟶ N) (U : Cᵒᵖ) :
 theorem carrierMapApp_naturality {M N : SheafOfModules.{w} R} (f : M ⟶ N)
     {U V : Cᵒᵖ} (g : U ⟶ V) :
     (carrier R M).obj.map g ≫ carrierMapApp R f V =
-      carrierMapApp R f U ≫ (carrier R N).obj.map g := sorry
+      carrierMapApp R f U ≫ (carrier R N).obj.map g := by
+  ext x
+  exact PresheafOfModules.naturality_apply f.val g x
 
 /-- The underlying type-valued sheaf map induced by a morphism of sheaves of modules. -/
 def carrierMap {M N : SheafOfModules.{w} R} (f : M ⟶ N) : carrier R M ⟶ carrier R N :=
@@ -303,11 +357,15 @@ def carrierMap {M N : SheafOfModules.{w} R} (f : M ⟶ N) : carrier R M ⟶ carr
       naturality := fun {_ _} g ↦ carrierMapApp_naturality R f g }
 
 /-- The underlying type-valued sheaf construction preserves identity morphisms. -/
-theorem carrierMap_id (M : SheafOfModules.{w} R) : carrierMap R (𝟙 M) = 𝟙 (carrier R M) := sorry
+theorem carrierMap_id (M : SheafOfModules.{w} R) : carrierMap R (𝟙 M) = 𝟙 (carrier R M) := by
+  ext U x
+  rfl
 
 /-- The underlying type-valued sheaf construction preserves composition. -/
 theorem carrierMap_comp {L M N : SheafOfModules.{w} R} (f : L ⟶ M) (g : M ⟶ N) :
-    carrierMap R (f ≫ g) = carrierMap R f ≫ carrierMap R g := sorry
+    carrierMap R (f ≫ g) = carrierMap R f ≫ carrierMap R g := by
+  ext U x
+  rfl
 
 /-- Forget a sheaf of modules to its underlying type-valued sheaf. -/
 noncomputable def underlying : SheafOfModules.{w} R ⥤ Sheaf J (Type w) where
@@ -330,7 +388,26 @@ theorem toInternal_isModuleHom (R : Sheaf J RingCat.{w})
     {M N : SheafOfModules.{w} R} (f : M ⟶ N) :
     @IsModuleHom (Sheaf J (Type w)) _ _ (InternalRing.sheafBraidedCategory J)
       (InternalRing.toInternalObj R) (ToInternal.carrier R M) (ToInternal.carrier R N)
-      (ToInternal.moduleObj R M) (ToInternal.moduleObj R N) (ToInternal.carrierMap R f) := sorry
+      (ToInternal.moduleObj R M) (ToInternal.moduleObj R N) (ToInternal.carrierMap R f) := by
+  refine @IsModuleHom.mk (Sheaf J (Type w)) _ _ (InternalRing.sheafBraidedCategory J)
+    (InternalRing.toInternalObj R) (ToInternal.carrier R M) (ToInternal.carrier R N)
+    (ToInternal.moduleObj R M) (ToInternal.moduleObj R N) (ToInternal.carrierMap R f) ?_ ?_
+  · refine @IsAddMonHom.mk (Sheaf J (Type w)) _ _ (ToInternal.carrier R M)
+      (ToInternal.carrier R N) (ToInternal.addMonObj R M) (ToInternal.addMonObj R N)
+      (ToInternal.carrierMap R f) ?_ ?_
+    · ext U x
+      change f.val.app U 0 = 0
+      exact map_zero (f.val.app U).hom
+    · ext U x
+      change f.val.app U (x.1 + x.2) = f.val.app U x.1 + f.val.app U x.2
+      exact map_add (f.val.app U).hom _ _
+  · refine @IsModHom.mk (Sheaf J (Type w)) _ _ (Sheaf J (Type w)) _ _
+      (ToInternal.ringCarrier R) (InternalRing.monObj R) (ToInternal.carrier R M)
+      (ToInternal.carrier R N) (ToInternal.moduleObj R M).toModObj
+      (ToInternal.moduleObj R N).toModObj (ToInternal.carrierMap R f) ?_
+    ext U x
+    change f.val.app U (x.1 • x.2) = x.1 • f.val.app U x.2
+    exact (f.val.app U).hom.map_smul _ _
 
 /-- Convert a morphism of sheaves of modules to an internal-module morphism. -/
 noncomputable def toInternalMap (R : Sheaf J RingCat.{w})
@@ -342,12 +419,16 @@ noncomputable def toInternalMap (R : Sheaf J RingCat.{w})
 
 /-- Conversion to internal modules preserves identity morphisms. -/
 theorem toInternalMap_id (R : Sheaf J RingCat.{w}) (M : SheafOfModules.{w} R) :
-    toInternalMap R (𝟙 M) = 𝟙 (toInternalObj R M) := sorry
+    toInternalMap R (𝟙 M) = 𝟙 (toInternalObj R M) := by
+  apply Subtype.ext
+  exact ToInternal.carrierMap_id R M
 
 /-- Conversion to internal modules preserves composition. -/
 theorem toInternalMap_comp (R : Sheaf J RingCat.{w}) {L M N : SheafOfModules.{w} R}
     (f : L ⟶ M) (g : M ⟶ N) :
-    toInternalMap R (f ≫ g) = ModuleObjects.comp R (toInternalMap R f) (toInternalMap R g) := sorry
+    toInternalMap R (f ≫ g) = ModuleObjects.comp R (toInternalMap R f) (toInternalMap R g) := by
+  apply Subtype.ext
+  exact ToInternal.carrierMap_comp R f g
 
 /-- The functor from sheaves of left modules to internal left-module objects. -/
 @[stacks 0FRE "sheaves of modules as internal module objects"]
@@ -411,17 +492,28 @@ def smulData : SMul (R.obj.obj U) ((sheaf R M).obj.obj U) := ⟨smul R M U⟩
 
 /-- Reconstructed sectionwise addition is associative. -/
 theorem addAssoc (a b c : (sheaf R M).obj.obj U) :
-    add R M U (add R M U a b) c = add R M U a (add R M U b c) := sorry
+    add R M U (add R M U a b) c = add R M U a (add R M U b c) := by
+  exact congrArg (fun f : _ ⟶ sheaf R M ↦ f.hom.app U ((a, b), c))
+    (@AddMonObj.add_assoc (Sheaf J (Type w)) _ _ (sheaf R M)
+      (data R M).toAddGrpObj.toAddMonObj)
 
 /-- Reconstructed zero is a left additive identity. -/
-theorem zeroAdd (a : (sheaf R M).obj.obj U) : add R M U (zero R M U) a = a := sorry
+theorem zeroAdd (a : (sheaf R M).obj.obj U) : add R M U (zero R M U) a = a := by
+  exact congrArg (fun f : _ ⟶ sheaf R M ↦ f.hom.app U (PUnit.unit, a))
+    (@AddMonObj.zero_add (Sheaf J (Type w)) _ _ (sheaf R M)
+      (data R M).toAddGrpObj.toAddMonObj)
 
 /-- Reconstructed negation is a left additive inverse. -/
 theorem negAddCancel (a : (sheaf R M).obj.obj U) :
-    add R M U (neg R M U a) a = zero R M U := sorry
+    add R M U (neg R M U a) a = zero R M U := by
+  exact congrArg (fun f : _ ⟶ sheaf R M ↦ f.hom.app U a)
+    (@AddGrpObj.left_neg (Sheaf J (Type w)) _ _ (sheaf R M) (data R M).toAddGrpObj)
 
 /-- Reconstructed sectionwise addition is commutative. -/
-theorem addComm (a b : (sheaf R M).obj.obj U) : add R M U a b = add R M U b a := sorry
+theorem addComm (a b : (sheaf R M).obj.obj U) : add R M U a b = add R M U b a := by
+  exact congrArg (fun f : _ ⟶ sheaf R M ↦ f.hom.app U (b, a))
+    (@IsCommAddMonObj.add_comm (Sheaf J (Type w)) _ _ (InternalRing.sheafBraidedCategory J)
+      (sheaf R M) (data R M).toAddGrpObj.toAddMonObj (data R M).toIsCommAddMonObj)
 
 /-- The additive commutative group reconstructed on a section of an internal module. -/
 @[implicit_reducible]
@@ -432,18 +524,30 @@ noncomputable def addCommGroup : AddCommGroup ((sheaf R M).obj.obj U) :=
 
 /-- Reconstructed scalar multiplication distributes over module addition. -/
 theorem smulAdd (r : R.obj.obj U) (x y : (sheaf R M).obj.obj U) :
-    smul R M U r (add R M U x y) = add R M U (smul R M U r x) (smul R M U r y) := sorry
+    smul R M U r (add R M U x y) = add R M U (smul R M U r x) (smul R M U r y) := by
+  exact congrArg (fun f : _ ⟶ sheaf R M ↦ f.hom.app U (r, (x, y)))
+    (@ModuleObj.smul_add (Sheaf J (Type w)) _ _ (InternalRing.sheafBraidedCategory J)
+      (InternalRing.toInternalObj R) (sheaf R M) (data R M))
 
 /-- Reconstructed addition of scalars distributes over scalar multiplication. -/
 theorem addSmul (r s : R.obj.obj U) (x : (sheaf R M).obj.obj U) :
-    smul R M U (r + s) x = add R M U (smul R M U r x) (smul R M U s x) := sorry
+    smul R M U (r + s) x = add R M U (smul R M U r x) (smul R M U s x) := by
+  exact congrArg (fun f : _ ⟶ sheaf R M ↦ f.hom.app U ((r, s), x))
+    (@ModuleObj.add_smul (Sheaf J (Type w)) _ _ (InternalRing.sheafBraidedCategory J)
+      (InternalRing.toInternalObj R) (sheaf R M) (data R M))
 
 /-- Reconstructed scalar multiplication is associative. -/
 theorem mulSmul (r s : R.obj.obj U) (x : (sheaf R M).obj.obj U) :
-    smul R M U (r * s) x = smul R M U r (smul R M U s x) := sorry
+    smul R M U (r * s) x = smul R M U r (smul R M U s x) := by
+  exact congrArg (fun f : _ ⟶ sheaf R M ↦ f.hom.app U ((r, s), x))
+    (@ModObj.mul_smul (Sheaf J (Type w)) _ _ (Sheaf J (Type w)) _ _
+      (ToInternal.ringCarrier R) (InternalRing.monObj R) (sheaf R M) (data R M).toModObj)
 
 /-- Reconstructed scalar multiplication is unital. -/
-theorem oneSmul (x : (sheaf R M).obj.obj U) : smul R M U 1 x = x := sorry
+theorem oneSmul (x : (sheaf R M).obj.obj U) : smul R M U 1 x = x := by
+  exact congrArg (fun f : _ ⟶ sheaf R M ↦ f.hom.app U (PUnit.unit, x))
+    (@ModObj.one_smul (Sheaf J (Type w)) _ _ (Sheaf J (Type w)) _ _
+      (ToInternal.ringCarrier R) (InternalRing.monObj R) (sheaf R M) (data R M).toModObj)
 
 /-- The module structure reconstructed on a section of an internal module. -/
 @[implicit_reducible]
@@ -462,12 +566,16 @@ variable {U} {V : Cᵒᵖ}
 /-- Restrictions preserve reconstructed sectionwise addition. -/
 theorem mapAdd (f : U ⟶ V) (x y : (sheaf R M).obj.obj U) :
     (sheaf R M).obj.map f (add R M U x y) =
-      add R M V ((sheaf R M).obj.map f x) ((sheaf R M).obj.map f y) := sorry
+      add R M V ((sheaf R M).obj.map f x) ((sheaf R M).obj.map f y) := by
+  exact (congrArg (fun g : _ ⟶ (sheaf R M).obj.obj V ↦ g (x, y))
+    ((data R M).toAddGrpObj.toAddMonObj.add.hom.naturality f)).symm
 
 /-- Restrictions commute with the reconstructed semilinear scalar action. -/
 theorem mapSmul (f : U ⟶ V) (r : R.obj.obj U) (x : (sheaf R M).obj.obj U) :
     (sheaf R M).obj.map f (smul R M U r x) =
-      smul R M V (R.obj.map f r) ((sheaf R M).obj.map f x) := sorry
+      smul R M V (R.obj.map f r) ((sheaf R M).obj.map f x) := by
+  exact (congrArg (fun g : _ ⟶ (sheaf R M).obj.obj V ↦ g (r, x))
+    ((data R M).toModObj.smul.hom.naturality f)).symm
 
 /-- The semilinear restriction map between reconstructed section modules. -/
 noncomputable def mapLinearMap (f : U ⟶ V) :
@@ -486,14 +594,21 @@ noncomputable def map (f : U ⟶ V) :
 theorem mapId (U : Cᵒᵖ) :
     map R M (𝟙 U) =
       (ModuleCat.restrictScalarsId' (R.obj.map (𝟙 U)).hom
-        (congrArg RingCat.Hom.hom (R.obj.map_id U))).inv.app _ := sorry
+        (congrArg RingCat.Hom.hom (R.obj.map_id U))).inv.app _ := by
+  ext x
+  change (sheaf R M).obj.map (𝟙 U) x = x
+  exact CategoryTheory.congr_fun ((sheaf R M).obj.map_id U) x
 
 /-- Reconstructed module restrictions preserve composition. -/
 theorem mapComp {U V W : Cᵒᵖ} (f : U ⟶ V) (g : V ⟶ W) :
     map R M (f ≫ g) = map R M f ≫
       (ModuleCat.restrictScalars (R.obj.map f).hom).map (map R M g) ≫
       (ModuleCat.restrictScalarsComp' (R.obj.map f).hom (R.obj.map g).hom
-        (R.obj.map (f ≫ g)).hom (congrArg RingCat.Hom.hom (R.obj.map_comp f g))).inv.app _ := sorry
+        (R.obj.map (f ≫ g)).hom (congrArg RingCat.Hom.hom (R.obj.map_comp f g))).inv.app _ := by
+  ext x
+  change (sheaf R M).obj.map (f ≫ g) x =
+    (sheaf R M).obj.map g ((sheaf R M).obj.map f x)
+  exact CategoryTheory.congr_fun ((sheaf R M).obj.map_comp f g) x
 
 /-- The presheaf of modules reconstructed from an internal module. -/
 noncomputable def presheaf : PresheafOfModules.{w} R.obj where
@@ -503,7 +618,9 @@ noncomputable def presheaf : PresheafOfModules.{w} R.obj where
   map_comp := mapComp R M
 
 /-- The reconstructed presheaf of modules satisfies the sheaf condition. -/
-theorem isSheaf : Presheaf.IsSheaf J (presheaf R M).presheaf := sorry
+theorem isSheaf : Presheaf.IsSheaf J (presheaf R M).presheaf := by
+  exact Presheaf.isSheaf_of_isSheaf_comp J (presheaf R M).presheaf
+    (forget AddCommGrpCat.{w}) (sheaf R M).property
 
 end FromInternal
 
@@ -522,12 +639,20 @@ variable (f : ModuleObjects.Hom R M N)
 theorem homMapAdd (U : Cᵒᵖ) (x y : (sheaf R M).obj.obj U) :
     (ModuleObjects.hom R f).hom.app U (add R M U x y) =
       add R N U ((ModuleObjects.hom R f).hom.app U x)
-        ((ModuleObjects.hom R f).hom.app U y) := sorry
+        ((ModuleObjects.hom R f).hom.app U y) := by
+  exact congrArg (fun g : _ ⟶ sheaf R N ↦ g.hom.app U (x, y))
+    (@IsAddMonHom.add_hom (Sheaf J (Type w)) _ _ (sheaf R M) (sheaf R N)
+      (data R M).toAddGrpObj.toAddMonObj (data R N).toAddGrpObj.toAddMonObj
+      (ModuleObjects.hom R f) f.2.toIsAddMonHom)
 
 /-- An internal-module morphism preserves reconstructed scalar multiplication on every section. -/
 theorem homMapSmul (U : Cᵒᵖ) (r : R.obj.obj U) (x : (sheaf R M).obj.obj U) :
     (ModuleObjects.hom R f).hom.app U (smul R M U r x) =
-      smul R N U r ((ModuleObjects.hom R f).hom.app U x) := sorry
+      smul R N U r ((ModuleObjects.hom R f).hom.app U x) := by
+  exact congrArg (fun g : _ ⟶ sheaf R N ↦ g.hom.app U (r, x))
+    (@IsModHom.smul_hom (Sheaf J (Type w)) _ _ (Sheaf J (Type w)) _ _
+      (ToInternal.ringCarrier R) (InternalRing.monObj R) (sheaf R M) (sheaf R N)
+      (data R M).toModObj (data R N).toModObj (ModuleObjects.hom R f) f.2.toIsModHom)
 
 /-- The linear map on sections induced by an internal-module morphism. -/
 noncomputable def homLinearMap (U : Cᵒᵖ) : obj R M U →ₗ[R.obj.obj U] obj R N U where
@@ -542,7 +667,9 @@ noncomputable def homApp (U : Cᵒᵖ) : obj R M U ⟶ obj R N U :=
 /-- Reconstructed components of an internal-module morphism are natural in the site object. -/
 theorem homNaturality {U V : Cᵒᵖ} (g : U ⟶ V) :
     map R M g ≫ (ModuleCat.restrictScalars (R.obj.map g).hom).map (homApp f V) =
-      homApp f U ≫ map R N g := sorry
+      homApp f U ≫ map R N g := by
+  ext x
+  exact CategoryTheory.congr_fun ((ModuleObjects.hom R f).hom.naturality g) x
 
 /-- The morphism of module presheaves reconstructed from an internal-module morphism. -/
 noncomputable def presheafMap : presheaf R M ⟶ presheaf R N where
@@ -558,13 +685,17 @@ noncomputable def fromInternalMap (R : Sheaf J RingCat.{w}) {M N : ModuleObjects
 
 /-- Reconstruction from internal modules preserves identity morphisms. -/
 theorem fromInternalMap_id (R : Sheaf J RingCat.{w}) (M : ModuleObjects R) :
-    fromInternalMap R (𝟙 M) = 𝟙 (fromInternalObj R M) := sorry
+    fromInternalMap R (𝟙 M) = 𝟙 (fromInternalObj R M) := by
+  ext U x
+  rfl
 
 /-- Reconstruction from internal modules preserves composition. -/
 theorem fromInternalMap_comp (R : Sheaf J RingCat.{w}) {L M N : ModuleObjects R}
     (f : ModuleObjects.Hom R L M) (g : ModuleObjects.Hom R M N) :
     fromInternalMap R (ModuleObjects.comp R f g) =
-      fromInternalMap R f ≫ fromInternalMap R g := sorry
+      fromInternalMap R f ≫ fromInternalMap R g := by
+  ext U x
+  rfl
 
 /-- The functor reconstructing sheaves of modules from internal module objects. -/
 @[stacks 0FRE "internal module objects as sheaves of modules"]
@@ -583,7 +714,23 @@ theorem fromToHomIsModuleHom (R : Sheaf J RingCat.{w}) (M : ModuleObjects R) :
     @IsModuleHom (Sheaf J (Type w)) _ _ (InternalRing.sheafBraidedCategory J)
       (InternalRing.toInternalObj R) (ToInternal.carrier R (fromInternalObj R M))
       (FromInternal.sheaf R M) (ToInternal.moduleObj R (fromInternalObj R M))
-      (FromInternal.data R M) (𝟙 (FromInternal.sheaf R M)) := sorry
+      (FromInternal.data R M) (𝟙 (FromInternal.sheaf R M)) := by
+  refine @IsModuleHom.mk (Sheaf J (Type w)) _ _ (InternalRing.sheafBraidedCategory J)
+    (InternalRing.toInternalObj R) (ToInternal.carrier R (fromInternalObj R M)) (FromInternal.sheaf R M)
+    (ToInternal.moduleObj R (fromInternalObj R M)) (FromInternal.data R M) (𝟙 (FromInternal.sheaf R M)) ?_ ?_
+  · refine @IsAddMonHom.mk (Sheaf J (Type w)) _ _ (ToInternal.carrier R (fromInternalObj R M)) (FromInternal.sheaf R M)
+      (ToInternal.moduleObj R (fromInternalObj R M)).toAddGrpObj.toAddMonObj
+      (FromInternal.data R M).toAddGrpObj.toAddMonObj (𝟙 (FromInternal.sheaf R M)) ?_ ?_
+    · ext U x
+      rfl
+    · ext U x
+      rfl
+  · refine @IsModHom.mk (Sheaf J (Type w)) _ _ (Sheaf J (Type w)) _ _
+      (ToInternal.ringCarrier R) (InternalRing.monObj R) (ToInternal.carrier R (fromInternalObj R M)) (FromInternal.sheaf R M)
+      (ToInternal.moduleObj R (fromInternalObj R M)).toModObj (FromInternal.data R M).toModObj
+      (𝟙 (FromInternal.sheaf R M)) ?_
+    ext U x
+    rfl
 
 /-- The forward component comparing an internal module with reconstruction through sheaves of
 modules. -/
@@ -599,7 +746,23 @@ theorem fromToInvIsModuleHom (R : Sheaf J RingCat.{w}) (M : ModuleObjects R) :
     @IsModuleHom (Sheaf J (Type w)) _ _ (InternalRing.sheafBraidedCategory J)
       (InternalRing.toInternalObj R) (FromInternal.sheaf R M)
       (ToInternal.carrier R (fromInternalObj R M)) (FromInternal.data R M)
-      (ToInternal.moduleObj R (fromInternalObj R M)) (𝟙 (FromInternal.sheaf R M)) := sorry
+      (ToInternal.moduleObj R (fromInternalObj R M)) (𝟙 (FromInternal.sheaf R M)) := by
+  refine @IsModuleHom.mk (Sheaf J (Type w)) _ _ (InternalRing.sheafBraidedCategory J)
+    (InternalRing.toInternalObj R) (FromInternal.sheaf R M) (ToInternal.carrier R (fromInternalObj R M))
+    (FromInternal.data R M) (ToInternal.moduleObj R (fromInternalObj R M)) (𝟙 (FromInternal.sheaf R M)) ?_ ?_
+  · refine @IsAddMonHom.mk (Sheaf J (Type w)) _ _ (FromInternal.sheaf R M) (ToInternal.carrier R (fromInternalObj R M))
+      (FromInternal.data R M).toAddGrpObj.toAddMonObj
+      (ToInternal.moduleObj R (fromInternalObj R M)).toAddGrpObj.toAddMonObj (𝟙 (FromInternal.sheaf R M)) ?_ ?_
+    · ext U x
+      rfl
+    · ext U x
+      rfl
+  · refine @IsModHom.mk (Sheaf J (Type w)) _ _ (Sheaf J (Type w)) _ _
+      (ToInternal.ringCarrier R) (InternalRing.monObj R) (FromInternal.sheaf R M) (ToInternal.carrier R (fromInternalObj R M))
+      (FromInternal.data R M).toModObj (ToInternal.moduleObj R (fromInternalObj R M)).toModObj
+      (𝟙 (FromInternal.sheaf R M)) ?_
+    ext U x
+    rfl
 
 /-- The inverse component comparing an internal module with reconstruction through sheaves of
 modules. -/
@@ -612,11 +775,17 @@ noncomputable def fromToInv (R : Sheaf J RingCat.{w}) (M : ModuleObjects R) :
 /-- The two internal-module comparison directions compose to the reconstructed identity. -/
 theorem fromToHomInvId (R : Sheaf J RingCat.{w}) (M : ModuleObjects R) :
     ModuleObjects.comp R (fromToHom R M) (fromToInv R M) =
-      𝟙 (toInternalObj R (fromInternalObj R M)) := sorry
+      𝟙 (toInternalObj R (fromInternalObj R M)) := by
+  apply Subtype.ext
+  change 𝟙 _ ≫ 𝟙 _ = 𝟙 _
+  exact Category.id_comp _
 
 /-- The two internal-module comparison directions compose to the original identity. -/
 theorem fromToInvHomId (R : Sheaf J RingCat.{w}) (M : ModuleObjects R) :
-    ModuleObjects.comp R (fromToInv R M) (fromToHom R M) = 𝟙 M := sorry
+    ModuleObjects.comp R (fromToInv R M) (fromToHom R M) = 𝟙 M := by
+  apply Subtype.ext
+  change 𝟙 _ ≫ 𝟙 _ = 𝟙 _
+  exact Category.id_comp _
 
 /-- The component comparing an internal module with reconstruction through sheaves of modules. -/
 noncomputable def fromToAppIso (R : Sheaf J RingCat.{w}) (M : ModuleObjects R) :
@@ -630,7 +799,10 @@ noncomputable def fromToAppIso (R : Sheaf J RingCat.{w}) (M : ModuleObjects R) :
 theorem fromToNaturality (R : Sheaf J RingCat.{w}) {M N : ModuleObjects R}
     (f : ModuleObjects.Hom R M N) :
     (fromInternal R ⋙ toInternal R).map f ≫ (fromToAppIso R N).hom =
-      (fromToAppIso R M).hom ≫ (𝟭 (ModuleObjects R)).map f := sorry
+      (fromToAppIso R M).hom ≫ (𝟭 (ModuleObjects R)).map f := by
+  apply Subtype.ext
+  ext U x
+  rfl
 
 end Comparison
 
@@ -648,14 +820,16 @@ variable (R : Sheaf J RingCat.{w}) (A : SheafOfModules.{w} R) (U : Cᵒᵖ)
 theorem toFromHomMapAdd (x y : (FromInternal.sheaf R (toInternalObj R A)).obj.obj U) :
     ToInternal.sectionEquiv R A U
         (FromInternal.add R (toInternalObj R A) U x y) =
-      ToInternal.sectionEquiv R A U x + ToInternal.sectionEquiv R A U y := sorry
+      ToInternal.sectionEquiv R A U x + ToInternal.sectionEquiv R A U y := by
+  rfl
 
 /-- Reconstructing after internalization preserves sectionwise scalar multiplication. -/
 theorem toFromHomMapSmul (r : R.obj.obj U)
     (x : (FromInternal.sheaf R (toInternalObj R A)).obj.obj U) :
     ToInternal.sectionEquiv R A U
         (FromInternal.smul R (toInternalObj R A) U r x) =
-      r • ToInternal.sectionEquiv R A U x := sorry
+      r • ToInternal.sectionEquiv R A U x := by
+  rfl
 
 /-- The identity linear map from reconstructed sections to the original section module. -/
 noncomputable def toFromHomLinearMap :
@@ -669,13 +843,15 @@ theorem toFromInvMapAdd (x y : A.val.obj U) :
     (ToInternal.sectionEquiv R A U).symm (x + y) =
       FromInternal.add R (toInternalObj R A) U
         ((ToInternal.sectionEquiv R A U).symm x)
-        ((ToInternal.sectionEquiv R A U).symm y) := sorry
+        ((ToInternal.sectionEquiv R A U).symm y) := by
+  rfl
 
 /-- The inverse identity function preserves reconstructed scalar multiplication. -/
 theorem toFromInvMapSmul (r : R.obj.obj U) (x : A.val.obj U) :
     (ToInternal.sectionEquiv R A U).symm (r • x) =
       FromInternal.smul R (toInternalObj R A) U r
-        ((ToInternal.sectionEquiv R A U).symm x) := sorry
+        ((ToInternal.sectionEquiv R A U).symm x) := by
+  rfl
 
 /-- The identity linear map from the original section module to reconstructed sections. -/
 noncomputable def toFromInvLinearMap :
@@ -698,13 +874,17 @@ noncomputable def toFromInvApp :
 theorem toFromHomNaturality {U V : Cᵒᵖ} (f : U ⟶ V) :
     FromInternal.map R (toInternalObj R A) f ≫
         (ModuleCat.restrictScalars (R.obj.map f).hom).map (toFromHomApp R A V) =
-      toFromHomApp R A U ≫ A.val.map f := sorry
+      toFromHomApp R A U ≫ A.val.map f := by
+  ext x
+  rfl
 
 /-- The inverse sectionwise components of the module-sheaf comparison are natural. -/
 theorem toFromInvNaturality {U V : Cᵒᵖ} (f : U ⟶ V) :
     A.val.map f ≫
         (ModuleCat.restrictScalars (R.obj.map f).hom).map (toFromInvApp R A V) =
-      toFromInvApp R A U ≫ FromInternal.map R (toInternalObj R A) f := sorry
+      toFromInvApp R A U ≫ FromInternal.map R (toInternalObj R A) f := by
+  ext x
+  rfl
 
 /-- The forward morphism of module presheaves in the reconstruction comparison. -/
 noncomputable def toFromHomPresheaf :
@@ -728,10 +908,14 @@ noncomputable def toFromInv : A ⟶ fromInternalObj R (toInternalObj R A) :=
 
 /-- The two module-sheaf comparison directions compose to the reconstructed identity. -/
 theorem toFromHomInvId :
-    toFromHom R A ≫ toFromInv R A = 𝟙 (fromInternalObj R (toInternalObj R A)) := sorry
+    toFromHom R A ≫ toFromInv R A = 𝟙 (fromInternalObj R (toInternalObj R A)) := by
+  ext U x
+  rfl
 
 /-- The two module-sheaf comparison directions compose to the original identity. -/
-theorem toFromInvHomId : toFromInv R A ≫ toFromHom R A = 𝟙 A := sorry
+theorem toFromInvHomId : toFromInv R A ≫ toFromHom R A = 𝟙 A := by
+  ext U x
+  rfl
 
 /-- The component comparing a sheaf of modules with reconstruction through internal modules. -/
 noncomputable def toFromAppIso : fromInternalObj R (toInternalObj R A) ≅ A where
@@ -743,7 +927,9 @@ noncomputable def toFromAppIso : fromInternalObj R (toInternalObj R A) ≅ A whe
 /-- The module-sheaf reconstruction comparison is natural. -/
 theorem toFromNaturality {A B : SheafOfModules.{w} R} (f : A ⟶ B) :
     (toInternal R ⋙ fromInternal R).map f ≫ (toFromAppIso R B).hom =
-      (toFromAppIso R A).hom ≫ (𝟭 (SheafOfModules.{w} R)).map f := sorry
+      (toFromAppIso R A).hom ≫ (𝟭 (SheafOfModules.{w} R)).map f := by
+  ext U x
+  rfl
 
 end Comparison
 
@@ -757,7 +943,10 @@ noncomputable def toFromIso (R : Sheaf J RingCat.{w}) :
 theorem equivalence_triangle (R : Sheaf J RingCat.{w}) (A : SheafOfModules.{w} R) :
     (toInternal R).map ((toFromIso R).inv.app A) ≫
         (fromToIso R).hom.app ((toInternal R).obj A) =
-      𝟙 ((toInternal R).obj A) := sorry
+      𝟙 ((toInternal R).obj A) := by
+  apply Subtype.ext
+  ext U x
+  rfl
 
 /-- Sheaves of left modules are equivalent to internal left modules over the associated internal
 ring in type-valued sheaves. -/

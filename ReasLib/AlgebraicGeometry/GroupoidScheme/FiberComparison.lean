@@ -55,7 +55,8 @@ theorem existsSourceFiberBaseChangeIso_mapPoint {S : Scheme.{u}} (G : GroupoidSc
           pullback.fst F'.hom g' (e.hom.left x) = Scheme.Hom.asFiber G.s.left r' := sorry
 
 /-- When both structure maps are flat, the source-map germs at arrows with a common target
-are flat locally on the base isomorphic. -/
+are flat locally on the base isomorphic, using germs at chosen points of Scheme fibre products.
+Flatness is tested on the distinguished stalk maps of the common-base germ morphisms. -/
 theorem sourceGermsFlatLocallyIsomorphic {S : Scheme.{u}} (G : GroupoidScheme S)
     [Flat G.s.left] [Flat G.t.left] (r r' : G.R.left)
     (h_target : G.t.left r = G.t.left r') :
@@ -68,7 +69,8 @@ theorem sourceGermsFlatLocallyIsomorphic {S : Scheme.{u}} (G : GroupoidScheme S)
 
 /-- For a non-Zariski standard topology, the source-map germs at arrows with a common target
 are locally on the base isomorphic when both structure maps have the topology's defining
-morphism property. -/
+morphism property.  The comparison uses selected points of Scheme fibre products; the base
+maps satisfy the existing `representedBy` germ property. -/
 theorem sourceGermsLocallyIsomorphic {S : Scheme.{u}} (G : GroupoidScheme S)
     (r r' : G.R.left) (h_target : G.t.left r = G.t.left r')
     (τ : StandardTopology) (hτ : τ ≠ .zariski)

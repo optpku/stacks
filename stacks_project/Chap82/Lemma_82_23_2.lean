@@ -6,32 +6,24 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap82.Definition_82_22_1_Gysin
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.ChowGroup.RefinedGysin
 import StacksCheckRecall
 
 @[expose] public section
 
 open CategoryTheory CategoryTheory.MonoidalCategory
 open AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
-open AlgebraicGeometry.AlgebraicSpace.Hom
 
 universe u
 
-/- Lemma 82.23.2: In Situation 82.2.1, for good `X / B` and a Definition 82.22.1
-triple `(L, s, i : D ⟶ X)` with `D = Z(s)` and `i = zeroSchemeι L s`, the
-cycle-level Gysin `Hom.gysin` factors through `RationalEquivalence.boundaries`
-by `Hom.gysinCycleHom_mem_boundaries`, inducing the additive map
-`Hom.chowGysin δ pX L s k : Hom.chowGroup pX δ (k + 1) →+
-Hom.chowGroup (zeroSchemeι L s ≫ pX) δ k`.
-On representatives, `Hom.chowGysin_chowMk` recovers `Hom.gysin`, which is
-definitionally `chowGysin ∘ chowMk`. -/
-@[stacks 0ERA]
-#check
-  (Hom.chowGysin :
-    ∀ {S : Scheme.{u}} {B : AlgebraicSpace S}
-      [UniversallyCatenary B] [IsQuasiSeparated B] (δ : Points B → ℤ)
-      [IsDimensionFunction δ] {X : AlgebraicSpace S} (pX : X ⟶ B)
-      [QuasiSeparated pX] [LocallyOfFiniteType pX] (L : X.Modules)
-      [isInvertibleObject L] (s : L.sections) (k : ℤ),
+/- Lemma 82.23.2: The refined Gysin homomorphism sends rational boundaries
+to rational boundaries and hence induces a homomorphism on Chow groups.
+On cycle representatives it is the Chow class of refined intersection. -/
+@[stacks 0ERA] #check (AlgebraicGeometry.AlgebraicSpace.ChowGroup.RefinedGysin.gysin :
+    ∀ {S : Scheme.{u}} {B X : AlgebraicSpace S}
+      [UniversallyCatenary B] [IsQuasiSeparated B]
+      (pX : X ⟶ B) [QuasiSeparated pX] [LocallyOfFiniteType pX]
+      (δ : Points B → ℤ) [IsDimensionFunction δ]
+      (L : X.Modules) [isInvertibleObject L] (s : L.sections) (k : ℤ),
       Hom.chowGroup pX δ (k + 1) →+
         Hom.chowGroup (zeroSchemeι L s ≫ pX) δ k)

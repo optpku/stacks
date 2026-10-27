@@ -14,8 +14,9 @@ public import ReasLib.CategoryTheory.Filtration.Complex.Convergence
 
 @stack 0BK5
 
-Eventual vanishing of stage cohomology above and eventual stabilization below give boundedness,
-finite induced cohomology filtrations, and convergence of an associated spectral sequence.
+Eventual vanishing of stage cohomology above and eventual stabilization below give boundedness
+of the page-one tail, finite induced cohomology filtrations, and convergence of an associated
+spectral sequence.
 -/
 
 @[expose] public section
@@ -55,15 +56,15 @@ theorem eventuallyStabilizesBelow_of_quasiIso
     (hQuasi : ∃ p₁ : ℤ, ∀ ⦃p : ℤ⦄, p ≤ p₁ → QuasiIso (K.stageInclusion p)) :
     eventuallyStabilizesBelow K := sorry
 
-/-- The stagewise vanishing and stabilization criteria make every associated spectral sequence
-bounded. -/
+/-- The stagewise vanishing and stabilization criteria make the page-one tail of every associated
+spectral sequence bounded. -/
 @[stacks 0BK5, stacks 0H7W "boundedness from eventual stage cohomology"]
 theorem associated_isBounded
     (K : FilteredComplex C) (E : CohomologicalSpectralSequence C 0)
     (hAssoc : FilteredComplex.IsAssociated K E)
     (hvanish : eventuallyVanishesAbove K)
     (hstabilize : eventuallyStabilizesBelow K) :
-    E.IsBounded := sorry
+    CohomologicalSpectralSequence.IsBounded (CohomologicalSpectralSequence.Page.One.ofZero E) := sorry
 
 /-- The stagewise vanishing and stabilization criteria make all induced cohomology filtrations
 finite. -/

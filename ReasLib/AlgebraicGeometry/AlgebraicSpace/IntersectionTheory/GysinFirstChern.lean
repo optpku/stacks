@@ -7,6 +7,7 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.IntersectionTheory.FirstChernChow
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.ChowGroup.RefinedGysin
 
 /-! The Chow Gysin map of a zero scheme commutes with first-Chern cap. -/
 
@@ -36,10 +37,10 @@ theorem chowGysin_firstChernCap {S : Scheme.{u}}
     (N : X.Modules) [isInvertibleObject N]
     [isInvertibleObject ((Modules.pullback (zeroSchemeι L s)).obj N)]
     (k : ℤ) (α : chowGroup f δ (k + 1 + 1)) :
-    chowGysin δ f L s k (FirstChernChow.cap f δ N (k + 1) α) =
+    ChowGroup.RefinedGysin.gysin f δ L s k (FirstChernChow.cap f δ N (k + 1) α) =
       FirstChernChow.cap (zeroSchemeι L s ≫ f) δ
         ((Modules.pullback (zeroSchemeι L s)).obj N) k
-        (chowGysin δ f L s (k + 1) α) :=
+        (ChowGroup.RefinedGysin.gysin f δ L s (k + 1) α) :=
   sorry
 
 end AlgebraicGeometry.AlgebraicSpace.Hom

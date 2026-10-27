@@ -49,17 +49,17 @@ abbrev FiniteNormalEtaleOver (A : Type u) [CommRing A]
 namespace FiniteNormalEtaleOver
 
 /-- Objects in this subcategory are finite over the base. -/
-def finite {A : Type u} [CommRing A] {U : (Spec (CommRingCat.of A)).Opens}
+instance finite {A : Type u} [CommRing A] {U : (Spec (CommRingCat.of A)).Opens}
     (B : FiniteNormalEtaleOver A U) : Module.Finite A B.obj :=
   B.property.1
 
 /-- Objects in this subcategory have normal underlying rings. -/
-def normal {A : Type u} [CommRing A] {U : (Spec (CommRingCat.of A)).Opens}
+instance normal {A : Type u} [CommRing A] {U : (Spec (CommRingCat.of A)).Opens}
     (B : FiniteNormalEtaleOver A U) : IsNormalRing B.obj :=
   B.property.2.1
 
 /-- Objects in this subcategory are etale over the specified open. -/
-def etale {A : Type u} [CommRing A] {U : (Spec (CommRingCat.of A)).Opens}
+instance etale {A : Type u} [CommRing A] {U : (Spec (CommRingCat.of A)).Opens}
     (B : FiniteNormalEtaleOver A U) :
     Etale (Spec.map (CommRingCat.ofHom (algebraMap A B.obj)) ∣_ U) :=
   B.property.2.2
@@ -85,23 +85,23 @@ abbrev FiniteNormalTorsionFreeEtaleOver (A : Type u) [CommRing A]
 namespace FiniteNormalTorsionFreeEtaleOver
 
 /-- Objects in this subcategory are finite over the base. -/
-def finite {A : Type u} [CommRing A] {U : (Spec (CommRingCat.of A)).Opens}
+instance finite {A : Type u} [CommRing A] {U : (Spec (CommRingCat.of A)).Opens}
     (B : FiniteNormalTorsionFreeEtaleOver A U) : Module.Finite A B.obj :=
   B.property.1.1
 
 /-- Objects in this subcategory have normal underlying rings. -/
-def normal {A : Type u} [CommRing A] {U : (Spec (CommRingCat.of A)).Opens}
+instance normal {A : Type u} [CommRing A] {U : (Spec (CommRingCat.of A)).Opens}
     (B : FiniteNormalTorsionFreeEtaleOver A U) : IsNormalRing B.obj :=
   B.property.1.2.1
 
 /-- Objects in this subcategory are etale over the specified open. -/
-def etale {A : Type u} [CommRing A] {U : (Spec (CommRingCat.of A)).Opens}
+instance etale {A : Type u} [CommRing A] {U : (Spec (CommRingCat.of A)).Opens}
     (B : FiniteNormalTorsionFreeEtaleOver A U) :
     Etale (Spec.map (CommRingCat.ofHom (algebraMap A B.obj)) ∣_ U) :=
   B.property.1.2.2
 
 /-- Objects in this subcategory are torsion-free over the base. -/
-def torsionFree {A : Type u} [CommRing A] {U : (Spec (CommRingCat.of A)).Opens}
+instance torsionFree {A : Type u} [CommRing A] {U : (Spec (CommRingCat.of A)).Opens}
     (B : FiniteNormalTorsionFreeEtaleOver A U) : Module.IsTorsionFree A B.obj :=
   B.property.2
 

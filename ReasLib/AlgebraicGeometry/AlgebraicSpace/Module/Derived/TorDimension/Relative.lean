@@ -91,6 +91,19 @@ theorem hasTorAmplitudeInOver_iff (f : X ⟶ Y) (E : ModuleDerived X) (a b : ℤ
         ((restrictToRelativeCoefficients f).obj E) a b :=
   Iff.rfl
 
+/-- Finite relative Tor dimension is finite Tor dimension after restriction to inverse-image
+coefficients. -/
+abbrev HasFiniteTorDimensionOver (f : X ⟶ Y) (E : ModuleDerived X) : Prop :=
+  DerivedCategory.DerivedTensor.HasFiniteTorDimension
+    ((restrictToRelativeCoefficients f).obj E)
+
+/-- Finite relative Tor dimension is equivalent to the existence of a finite relative
+Tor-amplitude interval. -/
+theorem hasFiniteTorDimensionOver_iff (f : X ⟶ Y) (E : ModuleDerived X) :
+    HasFiniteTorDimensionOver f E ↔ ∃ a b : ℤ, HasTorAmplitudeInOver f E a b :=
+  DerivedCategory.DerivedTensor.hasFiniteTorDimension_iff
+    ((restrictToRelativeCoefficients f).obj E)
+
 /-- A module is flat over the base exactly when its degree-zero complex has relative
 Tor-amplitude in `[0, 0]`. -/
 theorem hasTorAmplitudeInOver_single_iff_isFlatOver (f : X ⟶ Y) (M : Modules X) :

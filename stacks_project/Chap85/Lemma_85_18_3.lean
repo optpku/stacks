@@ -6,8 +6,8 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import Mathlib.Tactic.CrossRefAttribute
-public import stacks_project.Chap85.Lemma_85_18_3_Comparison
+public import ReasLib.AlgebraicGeometry.RingedSite.Localization.Simplicial.DerivedGlobalSections
+import StacksCheckRecall
 
 /-!
 # Lemma 85.18.3
@@ -45,11 +45,6 @@ variable [∀ P : (Grothendieck (overSiteDiagram K.simplicial))ᵒᵖ ⥤ Type w
 variable [(overSiteTotalTopology X.siteTopology K.simplicial).HasSheafCompose
     (CategoryTheory.forget RingCat.{w})]
 variable [X.siteTopology.HasSheafCompose (CategoryTheory.forget RingCat.{w})]
-variable [(SheafOfModules.restrictScalars.{w}
-    (toAmbient K.simplicial).structureMap).IsRightAdjoint]
-variable [ToposHom.HasModulePullbackDerived (toAmbient K.simplicial)]
-variable [ToposHom.HasModulePushforwardDerived (toAmbient K.simplicial)]
-variable [HasModuleDerivedAdjunction K]
 variable [HasWeakSheafify X.siteTopology AddCommGrpCat.{w}]
 variable [HasWeakSheafify (site K.simplicial).siteTopology AddCommGrpCat.{w}]
 variable [HasGlobalSectionsFunctor X.siteTopology AddCommGrpCat.{w}]
@@ -57,16 +52,15 @@ variable [HasGlobalSectionsFunctor (site K.simplicial).siteTopology AddCommGrpCa
 variable [IsGrothendieckAbelian (RingedSite.ModuleCat.{w} X)]
 variable [IsGrothendieckAbelian (RingedSite.ModuleCat.{w} (site K.simplicial))]
 
-/-- Lemma 85.18.3: Let `C` be a site with equalizers and fibre products. Let `O_C`
+/- Lemma 85.18.3: Let `C` be a site with equalizers and fibre products. Let `O_C`
 be a sheaf of rings. Let `K` be a hypercovering. For `E ∈ D(O_C)` the canonical map
 `RΓ(C, E) ⟶ RΓ((C / K)_total, La^* E)` is an isomorphism. -/
-@[stacks 0DA1]
-theorem rGammaPullbackComparison_app_isIso (E : Hom.ModuleDerived.{w} X) :
-    IsIso ((rGammaPullbackComparison K).app E) :=
-  sorry
+@[stacks 0DA1] #check
+  (RingedSite.Localization.AtSimplicialSR.rGammaPullbackComparison_app_isIso K :
+    ∀ E : Hom.ModuleDerived.{w} X,
+      IsIso ((RingedSite.Localization.AtSimplicialSR.rGammaPullbackComparison K).app E))
 
-/-- The comparison `RΓ(C, -) ⟶ La^* ⋙ RΓ((C / K)_total, -)` is an isomorphism of functors. -/
-theorem rGammaPullbackComparison_isIso : IsIso (rGammaPullbackComparison K) :=
-  sorry
+#check (RingedSite.Localization.AtSimplicialSR.rGammaPullbackComparison_isIso K :
+  IsIso (RingedSite.Localization.AtSimplicialSR.rGammaPullbackComparison K))
 
 end RingedSite.Localization.AtSimplicialSR

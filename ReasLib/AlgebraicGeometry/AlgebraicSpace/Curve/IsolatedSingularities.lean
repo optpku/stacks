@@ -12,6 +12,7 @@ public import Mathlib.Topology.KrullDimension
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.Smooth.Basic
 public import ReasLib.AlgebraicGeometry.Scheme.OverField
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Curve.Category
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Curve.OverField
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.IsolatedSingularities
 
 /-! # Families of curves with isolated singularities -/
@@ -43,46 +44,6 @@ isomorphisms. -/
 instance instIsClosedUnderIsomorphisms_isolatedSingularities
     (S : Scheme.{u}) : (isolatedSingularities S).IsClosedUnderIsomorphisms :=
   sorry
-
-/-- The morphism of algebraic spaces over `Spec k` associated to a scheme over
-a field. -/
-def schemeOverFieldHom {k : Type u} [Field k] (X : SchemeOverField k) :
-    ofOver (Over.mk X.hom) ⟶
-      ofOver (Over.mk (𝟙 (Spec (CommRingCat.of k)))) :=
-  ofOverHomMk X.hom (Category.comp_id X.hom)
-
-/-- A proper scheme over a field is fp-flat-proper as a morphism of algebraic
-spaces. -/
-instance instFpFlatProper_schemeOverFieldHom {k : Type u} [Field k]
-    (X : SchemeOverField k) [IsProper X.hom] :
-    FpFlatProper (schemeOverFieldHom X) :=
-  sorry
-
-/-- A proper scheme of topological Krull dimension at most one over a field has
-relative dimension at most one as a morphism of algebraic spaces. -/
-theorem relativeDimensionLE_schemeOverFieldHom {k : Type u} [Field k]
-    (X : SchemeOverField k) [IsProper X.hom]
-    (hdim : topologicalKrullDim X.left ≤ 1) :
-    RelativeDimensionLE (schemeOverFieldHom X) 1 :=
-  sorry
-
-/-- Package a proper scheme of topological Krull dimension at most one over a
-field as a family of curves over `Spec k`. -/
-def mkOfSchemeOverField {k : Type u} [Field k] (X : SchemeOverField k)
-    [IsProper X.hom] (hdim : topologicalKrullDim X.left ≤ 1) :
-    Obj (Spec (CommRingCat.of k)) :=
-  @mk (Spec (CommRingCat.of k)) (Over.mk (𝟙 (Spec (CommRingCat.of k))))
-    (ofOver (Over.mk X.hom)) (schemeOverFieldHom X)
-    (instFpFlatProper_schemeOverFieldHom X)
-    (relativeDimensionLE_schemeOverFieldHom X hdim)
-
-/-- The structure morphism of `mkOfSchemeOverField X hdim` is
-`schemeOverFieldHom X`. -/
-theorem mkOfSchemeOverField_hom {k : Type u} [Field k]
-    (X : SchemeOverField k) [IsProper X.hom]
-    (hdim : topologicalKrullDim X.left ≤ 1) :
-    hom (mkOfSchemeOverField X hdim) = schemeOverFieldHom X :=
-  rfl
 
 /-- Every family of curves has a largest open on its base with isolated
 singularities. Its inverse image is the corresponding largest open after every

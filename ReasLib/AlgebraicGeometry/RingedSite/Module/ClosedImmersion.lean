@@ -35,8 +35,12 @@ namespace RingedSite.Hom.ModulePushforward
 variable {X : RingedSite.{uX, vX, w}} {Y : RingedSite.{uY, vY, w}}
 variable [UnivLE.{max uX vX, z}] [UnivLE.{max uY vX, z}]
 variable (f : X.Hom Y)
-variable [PreservesFiniteLimits
-  (f.base.sheafPullback (Type z) Y.siteTopology X.siteTopology)]
+
+/-- The base functor is continuous with the certificate stored in the ringed-site morphism. -/
+-- Local instance justification (defeq pin): pin continuity to f.base_isContinuous so IsAnnihilatedByKernel elaborates with the certificate stored in f.structureSheafMap.
+local instance baseIsContinuous : f.base.IsContinuous Y.siteTopology X.siteTopology :=
+  f.base_isContinuous
+variable [PreservesFiniteLimits (f.sheafPullback (A := Type z))]
 
 /-- Module pushforward is exact when the underlying morphism of topoi is a closed immersion;
 epimorphy of the structure map is not needed. -/

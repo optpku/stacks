@@ -42,15 +42,37 @@ noncomputable def pointResidueFieldMap (s : c.pt)
         exact h)).inv ≫
     (D.map f.unop).residueFieldMap ((c.π.app j.unop) s)
 
+set_option backward.isDefEq.respectTransparency false in
+private theorem pointResidueFieldMap_toLimit (s : c.pt)
+    {i j : (OrderDual I)ᵒᵖ} (f : i ⟶ j) :
+    pointResidueFieldMap D c s f ≫ (c.π.app j.unop).residueFieldMap s =
+      (c.π.app i.unop).residueFieldMap s := by
+  unfold pointResidueFieldMap
+  rw [Category.assoc, ← Scheme.residueFieldMap_comp,
+    Scheme.Hom.residueFieldMap_congr (c.w f.unop)]
+  simp
+
 /-- The residue-field map of an identity transition is the identity. -/
 theorem pointResidueFieldMap_id (s : c.pt) (i : (OrderDual I)ᵒᵖ) :
-    pointResidueFieldMap D c s (𝟙 i) = 𝟙 _ := sorry
+    pointResidueFieldMap D c s (𝟙 i) = 𝟙 _ := by
+  have : Mono ((c.π.app i.unop).residueFieldMap s) :=
+    ConcreteCategory.mono_of_injective _
+      ((c.π.app i.unop).residueFieldMap s).hom.injective
+  apply (cancel_mono ((c.π.app i.unop).residueFieldMap s)).mp
+  exact (pointResidueFieldMap_toLimit D c s (𝟙 i)).trans (Category.id_comp _).symm
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Residue-field maps attached to transitions preserve composition. -/
 theorem pointResidueFieldMap_comp (s : c.pt)
     {i j k : (OrderDual I)ᵒᵖ} (f : i ⟶ j) (g : j ⟶ k) :
     pointResidueFieldMap D c s (f ≫ g) =
-      pointResidueFieldMap D c s f ≫ pointResidueFieldMap D c s g := sorry
+      pointResidueFieldMap D c s f ≫ pointResidueFieldMap D c s g := by
+  have : Mono ((c.π.app k.unop).residueFieldMap s) :=
+    ConcreteCategory.mono_of_injective _
+      ((c.π.app k.unop).residueFieldMap s).hom.injective
+  apply (cancel_mono ((c.π.app k.unop).residueFieldMap s)).mp
+  rw [pointResidueFieldMap_toLimit, Category.assoc, pointResidueFieldMap_toLimit,
+    pointResidueFieldMap_toLimit]
 
 /-- The diagram of residue fields of the stagewise images of a point. -/
 noncomputable def pointResidueFieldDiagram (s : c.pt) :
@@ -69,7 +91,8 @@ noncomputable def pointResidueFieldToLimit (s : c.pt) (i : (OrderDual I)ᵒᵖ) 
 theorem pointResidueFieldToLimit_naturality (s : c.pt)
     {i j : (OrderDual I)ᵒᵖ} (f : i ⟶ j) :
     (pointResidueFieldDiagram D c s).map f ≫ pointResidueFieldToLimit D c s j =
-      pointResidueFieldToLimit D c s i := sorry
+      pointResidueFieldToLimit D c s i := by
+  exact pointResidueFieldMap_toLimit D c s f
 
 /-- The canonical cocone from the stagewise residue fields to the residue field of the
 limiting point. -/
@@ -90,15 +113,31 @@ noncomputable def pointClosureSchemeMap (s : c.pt)
       change (D.map f) ((c.π.app i) s) = (c.π.app j) s at h
       exact h)
 
+private theorem pointClosureMapOfEq_ι {X Y : Scheme.{u}} (f : X ⟶ Y)
+    (x : X) (y : Y) (h : f x = y) :
+    PointClosure.mapOfEq f x y h ≫ PointClosure.ι y = PointClosure.ι x ≫ f := by
+  subst y
+  change (PointClosure.map f x ≫ 𝟙 _) ≫ PointClosure.ι (f x) = _
+  rw [Category.comp_id]
+  exact IdealSheafData.subschemeMap_subschemeι _ _ f _
+
 /-- The reduced point-closure map of an identity transition is the identity. -/
 theorem pointClosureSchemeMap_id (s : c.pt) (i : OrderDual I) :
-    pointClosureSchemeMap D c s (𝟙 i) = 𝟙 _ := sorry
+    pointClosureSchemeMap D c s (𝟙 i) = 𝟙 _ := by
+  apply (cancel_mono (PointClosure.ι ((c.π.app i) s))).mp
+  dsimp only [pointClosureSchemeMap]
+  rw [pointClosureMapOfEq_ι]
+  simp
 
 /-- Reduced point-closure maps attached to transitions preserve composition. -/
 theorem pointClosureSchemeMap_comp (s : c.pt)
     {i j k : OrderDual I} (f : i ⟶ j) (g : j ⟶ k) :
     pointClosureSchemeMap D c s (f ≫ g) =
-      pointClosureSchemeMap D c s f ≫ pointClosureSchemeMap D c s g := sorry
+      pointClosureSchemeMap D c s f ≫ pointClosureSchemeMap D c s g := by
+  apply (cancel_mono (PointClosure.ι ((c.π.app k) s))).mp
+  dsimp only [pointClosureSchemeMap]
+  rw [pointClosureMapOfEq_ι, Category.assoc, pointClosureMapOfEq_ι,
+    ← Category.assoc, pointClosureMapOfEq_ι, Category.assoc, D.map_comp]
 
 /-- The inverse diagram of reduced closures of the stagewise images of a point. -/
 noncomputable def pointClosureSchemeDiagram (s : c.pt) : OrderDual I ⥤ Scheme.{u} where
@@ -112,11 +151,16 @@ noncomputable def pointClosureSchemeToStage (s : c.pt) (i : OrderDual I) :
     PointClosure.scheme s ⟶ (pointClosureSchemeDiagram D c s).obj i :=
   PointClosure.mapOfEq (c.π.app i) s ((c.π.app i) s) rfl
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The maps from the reduced closure of the limiting point are natural in the stage. -/
 theorem pointClosureSchemeToStage_naturality (s : c.pt)
     {i j : OrderDual I} (f : i ⟶ j) :
     pointClosureSchemeToStage D c s i ≫ (pointClosureSchemeDiagram D c s).map f =
-      pointClosureSchemeToStage D c s j := sorry
+      pointClosureSchemeToStage D c s j := by
+  apply (cancel_mono (PointClosure.ι ((c.π.app j) s))).mp
+  dsimp only [pointClosureSchemeToStage, pointClosureSchemeDiagram, pointClosureSchemeMap]
+  rw [Category.assoc, pointClosureMapOfEq_ι, ← Category.assoc, pointClosureMapOfEq_ι,
+    pointClosureMapOfEq_ι, Category.assoc, c.w f]
 
 /-- The canonical cone of reduced point closures over the inverse system. -/
 noncomputable def pointClosureSchemeCone (s : c.pt) :

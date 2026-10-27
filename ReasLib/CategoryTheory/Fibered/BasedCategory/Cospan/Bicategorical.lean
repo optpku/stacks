@@ -49,42 +49,52 @@ def obj
 theorem obj.left
     (psi : Bicategory.CospanTransform
       (B := BasedCategory.{vB, uB} C) F₁ G₁ F₂ G₂) :
-    (obj psi).left = psi.left := sorry
+    (obj psi).left = psi.left := by
+  rfl
 
 /-- Forgetting a bicategorical cospan transformation retains its right component. -/
 @[simp]
 theorem obj.right
     (psi : Bicategory.CospanTransform
       (B := BasedCategory.{vB, uB} C) F₁ G₁ F₂ G₂) :
-    (obj psi).right = psi.right := sorry
+    (obj psi).right = psi.right := by
+  rfl
 
 /-- Forgetting a bicategorical cospan transformation retains its common-target component. -/
 @[simp]
 theorem obj.base
     (psi : Bicategory.CospanTransform
       (B := BasedCategory.{vB, uB} C) F₁ G₁ F₂ G₂) :
-    (obj psi).base = psi.base := sorry
+    (obj psi).base = psi.base := by
+  rfl
 
 /-- Forgetting a bicategorical cospan transformation retains its left comparison. -/
 @[simp]
 theorem obj.leftIso
     (psi : Bicategory.CospanTransform
       (B := BasedCategory.{vB, uB} C) F₁ G₁ F₂ G₂) :
-    (obj psi).leftIso = psi.leftIso := sorry
+    (obj psi).leftIso = psi.leftIso := by
+  rfl
 
 /-- Forgetting a bicategorical cospan transformation retains its right comparison. -/
 @[simp]
 theorem obj.rightIso
     (psi : Bicategory.CospanTransform
       (B := BasedCategory.{vB, uB} C) F₁ G₁ F₂ G₂) :
-    (obj psi).rightIso = psi.rightIso := sorry
+    (obj psi).rightIso = psi.rightIso := by
+  rfl
 
 /-- Forgetting the identity bicategorical cospan transformation gives the generic identity
 transformation. -/
 theorem obj.id (F : X₁ ⥤ᵇ S₁) (G : Y₁ ⥤ᵇ S₁) :
     obj (Bicategory.CospanTransform.id
       (B := BasedCategory.{vB, uB} C) F G) =
-      BasedCospanTransform.id F G := sorry
+      BasedCospanTransform.id F G := by
+  unfold obj BasedCospanTransform.id
+  congr 1 <;> apply Iso.ext <;> apply BasedNatTrans.ext <;> apply NatTrans.ext <;> funext x
+  all_goals
+    change 𝟙 _ ≫ 𝟙 _ = 𝟙 _
+    exact Category.id_comp _
 
 /-- Forgetting vertical composition of bicategorical cospan transformations gives vertical
 composition in the generic owner. -/
@@ -95,7 +105,13 @@ theorem obj.comp
       (B := BasedCategory.{vB, uB} C) F₁ G₁ F₂ G₂)
     (phi : Bicategory.CospanTransform
       (B := BasedCategory.{vB, uB} C) F₂ G₂ F₃ G₃) :
-    obj (psi.comp phi) = (obj psi).comp (obj phi) := sorry
+    obj (psi.comp phi) = (obj psi).comp (obj phi) := by
+  unfold obj BasedCospanTransform.comp
+  congr 1 <;> apply Iso.ext <;> apply BasedNatTrans.ext <;> apply NatTrans.ext <;> funext x
+  all_goals
+    change (((𝟙 _ ≫ _) ≫ 𝟙 _) ≫ _) ≫ 𝟙 _ = _
+    simp only [Category.id_comp, Category.comp_id]
+    rfl
 
 variable {psi phi chi : Bicategory.CospanTransform
   (B := BasedCategory.{vB, uB} C) F₁ G₁ F₂ G₂}
@@ -107,7 +123,13 @@ theorem map.leftNaturality (alpha : Pseudofunctor.StrongTrans.Hom psi phi) :
         (obj phi).leftIso.hom =
       (obj psi).leftIso.hom ≫
         BasedCategory.whiskerLeft F₁
-          (Bicategory.CospanTransform.Hom.base alpha) := sorry
+          (Bicategory.CospanTransform.Hom.base alpha) := by
+  exact (Iso.comp_inv_eq
+    (phi.naturality (Quiver.Hom.toLoc Limits.WalkingCospan.Hom.inl))).2
+      (((Iso.eq_inv_comp
+        (psi.naturality (Quiver.Hom.toLoc Limits.WalkingCospan.Hom.inl))).2
+          (alpha.as.naturality (Quiver.Hom.toLoc Limits.WalkingCospan.Hom.inl)).symm).trans
+            (Category.assoc _ _ _).symm)
 
 /-- The three components of a bicategorical modification satisfy the generic right naturality
 equation after forgetting the walking-cospan packaging. -/
@@ -116,7 +138,13 @@ theorem map.rightNaturality (alpha : Pseudofunctor.StrongTrans.Hom psi phi) :
         (obj phi).rightIso.hom =
       (obj psi).rightIso.hom ≫
         BasedCategory.whiskerLeft G₁
-          (Bicategory.CospanTransform.Hom.base alpha) := sorry
+          (Bicategory.CospanTransform.Hom.base alpha) := by
+  exact (Iso.comp_inv_eq
+    (phi.naturality (Quiver.Hom.toLoc Limits.WalkingCospan.Hom.inr))).2
+      (((Iso.eq_inv_comp
+        (psi.naturality (Quiver.Hom.toLoc Limits.WalkingCospan.Hom.inr))).2
+          (alpha.as.naturality (Quiver.Hom.toLoc Limits.WalkingCospan.Hom.inr)).symm).trans
+            (Category.assoc _ _ _).symm)
 
 /-- Forget a bicategorical modification to a modification between the generic based cospan
 transformations. -/
@@ -131,30 +159,37 @@ def map (alpha : Pseudofunctor.StrongTrans.Hom psi phi) :
 /-- Forgetting a bicategorical modification retains its left endpoint component. -/
 @[simp]
 theorem map.left (alpha : Pseudofunctor.StrongTrans.Hom psi phi) :
-    (map alpha).left = Bicategory.CospanTransform.Hom.left alpha := sorry
+    (map alpha).left = Bicategory.CospanTransform.Hom.left alpha := by
+  rfl
 
 /-- Forgetting a bicategorical modification retains its right endpoint component. -/
 @[simp]
 theorem map.right (alpha : Pseudofunctor.StrongTrans.Hom psi phi) :
-    (map alpha).right = Bicategory.CospanTransform.Hom.right alpha := sorry
+    (map alpha).right = Bicategory.CospanTransform.Hom.right alpha := by
+  rfl
 
 /-- Forgetting a bicategorical modification retains its common-target component. -/
 @[simp]
 theorem map.base (alpha : Pseudofunctor.StrongTrans.Hom psi phi) :
-    (map alpha).base = Bicategory.CospanTransform.Hom.base alpha := sorry
+    (map alpha).base = Bicategory.CospanTransform.Hom.base alpha := by
+  rfl
 
 /-- Forgetting an identity bicategorical modification gives the identity generic
 modification. -/
 @[simp]
 theorem map.id (psi : Bicategory.CospanTransform
     (B := BasedCategory.{vB, uB} C) F₁ G₁ F₂ G₂) :
-    map (𝟙 psi) = 𝟙 (obj psi) := sorry
+    map (𝟙 psi) = 𝟙 (obj psi) := by
+  apply Subtype.ext
+  rfl
 
 /-- Forgetting vertical composition of bicategorical modifications preserves composition. -/
 @[simp]
 theorem map.comp (alpha : psi ⟶ phi) (beta : phi ⟶ chi) :
     map (alpha ≫ beta) =
-      BasedCospanTransform.Hom.comp (map alpha) (map beta) := sorry
+      BasedCospanTransform.Hom.comp (map alpha) (map beta) := by
+  apply Subtype.ext
+  rfl
 
 /-- The forgetful bridge from bicategorical cospan transformations and modifications to their
 universe-polymorphic based counterparts. -/
@@ -172,12 +207,14 @@ def functor :
 theorem functor.obj
     (psi : Bicategory.CospanTransform
       (B := BasedCategory.{vB, uB} C) F₁ G₁ F₂ G₂) :
-    functor.obj psi = obj psi := sorry
+    functor.obj psi = obj psi := by
+  rfl
 
 /-- The morphism action of the bicategorical-to-generic forgetful functor is `map`. -/
 @[simp]
 theorem functor.map (alpha : psi ⟶ phi) :
-    functor.map alpha = map alpha := sorry
+    functor.map alpha = map alpha := by
+  rfl
 
 /-- Forget an isomorphism of bicategorical cospan transformations to an isomorphism of generic
 based cospan transformations. -/
@@ -188,13 +225,15 @@ def mapIso (e : psi ≅ phi) : obj psi ≅ obj phi :=
 modification. -/
 @[simp]
 theorem mapIso.hom (e : psi ≅ phi) :
-    (mapIso e).hom = map e.hom := sorry
+    (mapIso e).hom = map e.hom := by
+  rfl
 
 /-- The inverse map of a forgotten bicategorical cospan isomorphism is the forgotten inverse
 modification. -/
 @[simp]
 theorem mapIso.inv (e : psi ≅ phi) :
-    (mapIso e).inv = map e.inv := sorry
+    (mapIso e).inv = map e.inv := by
+  rfl
 
 section MapCoherence
 
@@ -247,14 +286,17 @@ def toBasedTransform (psi : S ⟶ T) :
 transformation. -/
 @[simp]
 theorem toBasedTransform.id (S : Bicategory.Cospan (BasedCategory.{vB, uB} C)) :
-    toBasedTransform (𝟙 S) = BasedCospanTransform.id S.fst S.snd := sorry
+    toBasedTransform (𝟙 S) = BasedCospanTransform.id S.fst S.snd := by
+  exact BasedCospanTransform.Bicategorical.obj.id S.fst S.snd
 
 /-- Forgetting a composite of bundled cospan morphisms gives the composite of their generic
 based cospan transformations. -/
 @[simp]
 theorem toBasedTransform.comp (psi : R ⟶ S) (phi : S ⟶ T) :
     toBasedTransform (psi ≫ phi) =
-      (toBasedTransform psi).comp (toBasedTransform phi) := sorry
+      (toBasedTransform psi).comp (toBasedTransform phi) := by
+  exact BasedCospanTransform.Bicategorical.obj.comp
+    (toCospanTransform psi) (toCospanTransform phi)
 
 end Bicategory.Cospan.Hom
 
@@ -278,7 +320,9 @@ modification. -/
 theorem toBasedModification.id (psi : S ⟶ T) :
     toBasedModification (𝟙 psi) =
       BasedCospanTransform.Hom.id
-        (Bicategory.Cospan.Hom.toBasedTransform psi) := sorry
+        (Bicategory.Cospan.Hom.toBasedTransform psi) := by
+  exact BasedCospanTransform.Bicategorical.map.id
+    (Bicategory.Cospan.Hom.toCospanTransform psi)
 
 /-- Forgetting vertical composition of bundled cospan `2`-morphisms preserves vertical
 composition of generic modifications. -/
@@ -286,7 +330,9 @@ composition of generic modifications. -/
 theorem toBasedModification.comp (alpha : psi ⟶ phi) (beta : phi ⟶ chi) :
     toBasedModification (alpha ≫ beta) =
       BasedCospanTransform.Hom.comp
-        (toBasedModification alpha) (toBasedModification beta) := sorry
+        (toBasedModification alpha) (toBasedModification beta) := by
+  exact BasedCospanTransform.Bicategorical.map.comp
+    (toModification alpha) (toModification beta)
 
 end Bicategory.Cospan.Hom₂
 
@@ -307,7 +353,8 @@ def basedTransformFunctor
 @[simp]
 theorem basedTransformFunctor.obj
     (S T : Bicategory.Cospan (BasedCategory.{vB, uB} C)) (psi : S ⟶ T) :
-    (basedTransformFunctor S T).obj psi = Hom.toBasedTransform psi := sorry
+    (basedTransformFunctor S T).obj psi = Hom.toBasedTransform psi := by
+  rfl
 
 /-- The morphism action of the direct bundled-to-generic cospan functor is
 `Hom₂.toBasedModification`. -/
@@ -315,7 +362,8 @@ theorem basedTransformFunctor.obj
 theorem basedTransformFunctor.map
     (S T : Bicategory.Cospan (BasedCategory.{vB, uB} C))
     {psi phi : S ⟶ T} (alpha : psi ⟶ phi) :
-    (basedTransformFunctor S T).map alpha = Hom₂.toBasedModification alpha := sorry
+    (basedTransformFunctor S T).map alpha = Hom₂.toBasedModification alpha := by
+  rfl
 
 end Bicategory.Cospan
 

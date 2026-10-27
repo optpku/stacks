@@ -8,6 +8,7 @@ module
 
 import Init
 public import Mathlib.Algebra.DualNumber
+public import Mathlib.RingTheory.DualNumber
 public import Mathlib.AlgebraicGeometry.Morphisms.ClosedImmersion
 public import Mathlib.AlgebraicGeometry.Morphisms.Finite
 public import Mathlib.Algebra.Homology.ShortComplex.ShortExact
@@ -32,7 +33,8 @@ def dualNumberDlog {k : Type u} [Field k] (u : (DualNumber k)ˣ) : k :=
   u.val.snd / u.val.fst
 
 /-- The dual-number local ring structure used to evaluate `vartheta` at its closed point. -/
-instance dualNumber_isLocalRing {k : Type u} [Field k] : IsLocalRing (DualNumber k) := sorry
+instance dualNumber_isLocalRing {k : Type u} [Field k] : IsLocalRing (DualNumber k) :=
+  inferInstance
 
 /-- A sheaf morphism to the dual-number skyscraper is the pullback induced by `vartheta` when
 its map on the support stalk is the canonical map of the scheme morphism. -/
@@ -82,18 +84,21 @@ theorem isTangentPullback_iff
             (Inseparable.of_eq hpx.symm)).hom ≫
             TopCat.Presheaf.stalkPushforward CommRingCat f.left.base X'.left.presheaf
               (vartheta (IsLocalRing.closedPoint (DualNumber k))) ≫
-            Scheme.stalkClosedPointTo vartheta := sorry
+            Scheme.stalkClosedPointTo vartheta := Iff.rfl
 
 /-- The top-open component of a point skyscraper is propositionally the chosen ring. -/
 theorem pointRingSheaf_top_eq {R : Type u} [hR : CommRing R] (X : Scheme.{u}) (x : X) :
     CommRingCat.of R =
-      (pointRingSheaf X x R).1.obj (Opposite.op (⊤ : Opens X.toTopCat)) := sorry
+      (pointRingSheaf X x R).1.obj (Opposite.op (⊤ : Opens X.toTopCat)) := by
+  simp [pointRingSheaf, atPoint, skyscraperSheaf, skyscraperPresheaf]
 
 /-- The corresponding additive component after forgetting the ring structure. -/
 theorem pointRingSheaf_top_additive_eq {R : Type u} [hR : CommRing R] (X : Scheme.{u}) (x : X) :
     AddCommGrpCat.of R =
       (additiveSheaf (pointRingSheaf X x R)).1.obj
-        (Opposite.op (⊤ : Opens X.toTopCat)) := sorry
+        (Opposite.op (⊤ : Opens X.toTopCat)) := by
+  exact congrArg (forget₂ CommRingCat RingCat ⋙ forget₂ RingCat AddCommGrpCat).obj
+    (pointRingSheaf_top_eq X x)
 
 /-- The dual-number section represented by an element on the top open of the point skyscraper. -/
 noncomputable def dualNumberTopSection
@@ -115,13 +120,13 @@ theorem dualNumberTopSection_def
     {k : Type u} [Field k] (X : Scheme.{u}) (x : X) (z : DualNumber k) :
     dualNumberTopSection X x z =
       (eqToHom (@pointRingSheaf_top_additive_eq (DualNumber k)
-        TrivSqZeroExt.commRing X x)).hom z := sorry
+        TrivSqZeroExt.commRing X x)).hom z := rfl
 
 /-- The top-open scalar section is the section represented by its scalar value. -/
 theorem scalarTopSection_def
     {k : Type u} [Field k] (X : Scheme.{u}) (x : X) (a : k) :
     scalarTopSection X x a =
-      (eqToHom (pointRingSheaf_top_additive_eq X x)).hom a := sorry
+      (eqToHom (pointRingSheaf_top_additive_eq X x)).hom a := rfl
 
 /-- Canonical pullback, coefficient, and dlog data attached to the tangent vector `vartheta`.
 The two projection morphisms are specified against this same pullback, so the dlog arrow cannot
@@ -227,7 +232,8 @@ theorem SquishingTangentMaps.projection_spec
               (eqToHom (pointRingSheaf_top_eq X.left
                 (SchemeOverField.rationalPoint x (IsLocalRing.closedPoint k)))).hom.toMonoidHom u)) =
         scalarTopSection X.left
-          (SchemeOverField.rationalPoint x (IsLocalRing.closedPoint k)) (dualNumberDlog u)) := sorry
+          (SchemeOverField.rationalPoint x (IsLocalRing.closedPoint k)) (dualNumberDlog u)) :=
+  ⟨maps.coefficientProjection_formula, maps.dlogProjection_formula⟩
 
 /-- Construct canonical tangent maps from a pullback and its coefficient and dlog projections. -/
 def SquishingTangentMaps.ofPullback
@@ -331,7 +337,7 @@ theorem coefficientEvaluationOf_def
     (x : SchemeOverField.point k ⟶ X)
     (maps : SquishingTangentMaps X X' f vartheta x) :
     coefficientEvaluationOf X X' f vartheta x maps =
-      additiveSheafMap maps.varthetaPullback ≫ maps.coefficientProjection := sorry
+      additiveSheafMap maps.varthetaPullback ≫ maps.coefficientProjection := rfl
 
 /-- The units dlog map induced by the canonical tangent pullback. -/
 noncomputable def dlogEvaluationOf
@@ -357,7 +363,7 @@ theorem dlogEvaluationOf_def
     (x : SchemeOverField.point k ⟶ X)
     (maps : SquishingTangentMaps X X' f vartheta x) :
     dlogEvaluationOf X X' f vartheta x maps =
-      CategoryTheory.Sheaf.unitsAddMap maps.varthetaPullback ≫ maps.dlogProjection := sorry
+      CategoryTheory.Sheaf.unitsAddMap maps.varthetaPullback ≫ maps.dlogProjection := rfl
 
 end AlgebraicGeometry
 

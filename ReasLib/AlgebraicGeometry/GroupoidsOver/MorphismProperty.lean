@@ -9,6 +9,7 @@ module
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Surjective
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Smooth
 public import ReasLib.AlgebraicGeometry.GroupoidsOver.Representable
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.Representable.Property
 
 /-!
 # Smooth and surjective morphisms of groupoid fibrations
@@ -53,6 +54,22 @@ class Surjective {S : Scheme.{u}} {X Y : GroupoidsOver S} (f : X ⟶ Y) : Prop w
     RepresentsBaseChange f y Fy fy → AlgebraicSpace.Surjective fy
 
 namespace Smooth
+
+/-- For a 1-morphism representable by algebraic spaces, the named smoothness
+class is equivalent to testing smoothness on every representing morphism.
+
+Stacks, Tag 03YK:
+`source/stacks-official-a04446e57ec1/additional-sources-1.md:3842-3863`.
+The representability hypothesis is needed because `has` only tests existing
+representations. -/
+theorem iff_has {S : Scheme.{u}} {X Y : GroupoidsOver S} (f : X ⟶ Y)
+    (hf : relativelyRepresentableByAlgebraicSpaces f) :
+    Smooth f ↔ has (@AlgebraicSpace.Smooth S) f := by
+  constructor
+  · intro h
+    exact h.of_represents
+  · intro h
+    exact ⟨hf, h⟩
 
 /-- The identity 1-morphism of a category fibred in groupoids is smooth. -/
 instance id {S : Scheme.{u}} {X : GroupoidsOver S} : Smooth (𝟙 X) := sorry

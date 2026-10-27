@@ -27,36 +27,36 @@ universe uX vX uY vY w
 namespace RingedSite.ToposHom
 
 variable {X : RingedSite.{uX, vX, w}} {Y : RingedSite.{uY, vY, w}}
-variable [X.siteTopology.HasSheafCompose (forget RingCat.{w})]
-  [Y.siteTopology.HasSheafCompose (forget RingCat.{w})]
+variable [@GrothendieckTopology.HasSheafCompose X.carrier X.carrier.str RingCat.{w} inferInstance (Type w) inferInstance X.siteTopology (forget RingCat.{w})]
+  [@GrothendieckTopology.HasSheafCompose Y.carrier Y.carrier.str RingCat.{w} inferInstance (Type w) inferInstance Y.siteTopology (forget RingCat.{w})]
 variable (f : ToposHom X Y)
 
 /-- The right adjoint before combining the two restrictions of scalars. -/
 noncomputable def moduleRightComposite :
-    SheafOfModules.{w} X.structureSheaf ⥤ SheafOfModules.{w} Y.structureSheaf :=
-  SheafOfModules.restrictScalars f.structureMap ⋙
-    f.toTopos.moduleRightOver Y.structureSheaf
+    (@_root_.SheafOfModules.{w} X.carrier X.carrier.str X.siteTopology X.structureSheaf) ⥤ (@_root_.SheafOfModules.{w} Y.carrier Y.carrier.str Y.siteTopology Y.structureSheaf) :=
+  (@SheafOfModules.restrictScalars.{w} X.carrier X.carrier.str X.siteTopology _ _ f.structureMap) ⋙
+    (@MorphismOfTopoiIn.moduleRightOver Y.carrier Y.carrier.str Y.siteTopology X.carrier X.carrier.str X.siteTopology inferInstance inferInstance f.toTopos Y.structureSheaf)
 
 /-- The composite right adjoint has the usual underlying direct-image sheaf. -/
 noncomputable def moduleRightCompositeForgetIso :
-    f.moduleRightComposite ⋙ Sheaf.InternalModule.ToInternal.underlying Y.structureSheaf ≅
-      Sheaf.InternalModule.ToInternal.underlying X.structureSheaf ⋙ f.toTopos.pushforward :=
+    f.moduleRightComposite ⋙ (@Sheaf.InternalModule.ToInternal.underlying Y.carrier Y.carrier.str Y.siteTopology inferInstance Y.structureSheaf) ≅
+      (@Sheaf.InternalModule.ToInternal.underlying X.carrier X.carrier.str X.siteTopology inferInstance X.structureSheaf) ⋙ f.toTopos.pushforward :=
   Functor.associator _ _ _ ≪≫
-    Functor.isoWhiskerLeft (SheafOfModules.restrictScalars f.structureMap)
-      (f.toTopos.moduleRightOverForgetIso Y.structureSheaf)
+    Functor.isoWhiskerLeft ((@SheafOfModules.restrictScalars.{w} X.carrier X.carrier.str X.siteTopology _ _ f.structureMap))
+      ((@MorphismOfTopoiIn.moduleRightOverForgetIso Y.carrier Y.carrier.str Y.siteTopology X.carrier X.carrier.str X.siteTopology inferInstance inferInstance f.toTopos Y.structureSheaf))
 
 /-- Combining scalar restrictions preserves the specified underlying sheaf
 map, with scalar compatibility induced by the ring-adjunction mate. -/
-noncomputable def moduleRightComparisonHom (M : SheafOfModules.{w} X.structureSheaf) :
+noncomputable def moduleRightComparisonHom (M : (@_root_.SheafOfModules.{w} X.carrier X.carrier.str X.siteTopology X.structureSheaf)) :
     f.moduleRightComposite.obj M ⟶ f.modulePushforward.obj M :=
-  Sheaf.InternalModule.homOfUnderlying Y.structureSheaf
+  @Sheaf.InternalModule.homOfUnderlying Y.carrier Y.carrier.str Y.siteTopology inferInstance Y.structureSheaf _ _
     ((f.moduleRightCompositeForgetIso).hom.app M ≫
       (ModulePushforward.forgetIso f).inv.app M) sorry sorry
 
 /-- The reverse comparison uses the inverse of the same forgetful isomorphisms. -/
-noncomputable def moduleRightComparisonInv (M : SheafOfModules.{w} X.structureSheaf) :
+noncomputable def moduleRightComparisonInv (M : (@_root_.SheafOfModules.{w} X.carrier X.carrier.str X.siteTopology X.structureSheaf)) :
     f.modulePushforward.obj M ⟶ f.moduleRightComposite.obj M :=
-  Sheaf.InternalModule.homOfUnderlying Y.structureSheaf
+  @Sheaf.InternalModule.homOfUnderlying Y.carrier Y.carrier.str Y.siteTopology inferInstance Y.structureSheaf _ _
     ((ModulePushforward.forgetIso f).hom.app M ≫
       (f.moduleRightCompositeForgetIso).inv.app M) sorry sorry
 
@@ -70,12 +70,12 @@ noncomputable def moduleRightComparison : f.moduleRightComposite ≅ f.modulePus
         inv_hom_id := sorry })
     sorry
 
-variable [(SheafOfModules.restrictScalars.{w} f.structureMap).IsRightAdjoint]
+variable [((@SheafOfModules.restrictScalars.{w} X.carrier X.carrier.str X.siteTopology _ _ f.structureMap)).IsRightAdjoint]
 
 /-- Compose the geometric module adjunction and scalar-extension adjunction. -/
 noncomputable def moduleCompositeAdjunction :
     f.modulePullback ⊣ f.moduleRightComposite :=
-  (f.toTopos.moduleAdjunction Y.structureSheaf).comp (ModulePullback.scalarAdjunction f)
+  ((@MorphismOfTopoiIn.moduleAdjunction Y.carrier Y.carrier.str Y.siteTopology X.carrier X.carrier.str X.siteTopology inferInstance inferInstance f.toTopos Y.structureSheaf)).comp (ModulePullback.scalarAdjunction f)
 
 /-- Pullback is left adjoint to the existing ringed-topos module pushforward. -/
 noncomputable def moduleAdjunction : f.modulePullback ⊣ f.modulePushforward :=

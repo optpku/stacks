@@ -106,11 +106,11 @@ variable {A : Type u} [CommRing A]
 theorem existsAdicStabilizationIndex
     {A : Type u} [CommRing A] [IsNoetherianRing A]
     [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
-    (H : MonoidalClosed (DerivedCategory (ModuleCat.{u} A)))
+    (C : CategoryTheory.DerivedCategory.CanonicalClosedPresentation (A := A))
     (I : Ideal A) (M : Type u)
     [AddCommGroup M] [Module A M] [Module.Finite A M]
     (T : Set (PrimeSpectrum A)) (s d : ℤ)
-    (h : AlgebraizationSituation H I M T s d) :
+    (h : AlgebraizationSituation C I M T s d) :
     ∃ m₀ : ℕ,
       CategoryTheory.ModuleCat.SupportedOn.IsAdicStabilizationIndex
         T I (ModuleCat.of A M) s m₀ := sorry
@@ -127,11 +127,11 @@ cohomology system. -/
 theorem exists_stabilizingIdeal_limitComparison
     {A : Type u} [CommRing A] [IsNoetherianRing A]
     [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
-    (H : MonoidalClosed (DerivedCategory (ModuleCat.{u} A)))
+    (C : CategoryTheory.DerivedCategory.CanonicalClosedPresentation (A := A))
     (I a : Ideal A) (hIa : I ≤ a) [IsAdicComplete I A]
     (M : Type u) [AddCommGroup M] [Module A M] [Module.Finite A M]
     (s d : ℤ)
-    (hSituation : AlgebraizationSituation H I M
+    (hSituation : AlgebraizationSituation C I M
       (PrimeSpectrum.zeroLocus (a : Set A)) s d)
     (δ : PrimeSpectrum A → ℤ) [IsDimensionFunction δ]
     (δmax δmin : ℤ)

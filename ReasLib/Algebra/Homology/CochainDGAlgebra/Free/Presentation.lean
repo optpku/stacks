@@ -68,9 +68,9 @@ theorem generatorWord_val (P : Presentation A) {n : ℤ} (s : P.generators n) :
 def generator (P : Presentation A) {n : ℤ} (s : P.generators n) : A.X n :=
   P.basis n (P.generatorWord s)
 
-/-- The canonical inclusion is injective in every degree. -/
+/-- Over a nontrivial ground ring, the canonical inclusion is injective in every degree. -/
 @[stacks 0BZ7 "injectivity of the homogeneous generator inclusion"]
-theorem generator_injective (P : Presentation A) (n : ℤ) :
+theorem generator_injective [Nontrivial R] (P : Presentation A) (n : ℤ) :
     Function.Injective (fun s : P.generators n ↦ P.generator s) := sorry
 
 /-- A degree-preserving map from the generators of `P` to a cochain differential graded

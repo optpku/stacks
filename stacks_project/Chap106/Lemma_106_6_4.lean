@@ -6,8 +6,8 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap106.Remark_106_6_1_Category_of_lifts_Category
-public import ReasLib.CategoryTheory.Fibered.Stack.InGroupoids
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Lift.Stack
+import StacksCheckRecall
 
 /-!
 # The category of lifts is a stack in groupoids
@@ -19,14 +19,10 @@ open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicStack
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicStack.Lift
-
-/-- Lemma 106.6.4: the functor `p iX x : Object iX x ⥤ AlgebraicSpace.spacesEtaleSite W`
-constructed in Remark 106.6.1 is a stack in groupoids on the spaces-étale site of `W`. -/
-@[stacks 0CJU]
-instance instIsStackInGroupoids {S : Scheme.{u}} {X X' : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack X'] (iX : X ⟶ X') [IsThickening iX]
-    {W : AlgebraicSpace S} (x : W.toGroupoids ⟶ X) [Groupoids.Hom.Smooth x] :
-    IsStack.InGroupoids (AlgebraicSpace.spacesEtaleTopology W) (p iX x) := sorry
-
-end AlgebraicGeometry.AlgebraicStack.Lift
+/- Lemma 106.6.4: the category of lifts is a stack in groupoids. -/
+@[stacks 0CJU] #check (AlgebraicGeometry.AlgebraicStack.Lift.instIsStackInGroupoids :
+  ∀ {S : Scheme.{u}} {X X' : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack X']
+    (iX : X ⟶ X') [IsThickening iX] {W : AlgebraicSpace S}
+    (x : W.toGroupoids ⟶ X) [Groupoids.Hom.Smooth x],
+    IsStack.InGroupoids (AlgebraicSpace.spacesEtaleTopology W)
+      (AlgebraicGeometry.AlgebraicStack.Lift.p iX x))

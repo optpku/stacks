@@ -40,16 +40,28 @@ def IsLocallyFinite {d : X → ℤ} {k : ℤ} (n : Coefficients d k) : Prop :=
 
 /-- The zero coefficient family is locally finite. -/
 private theorem zero_isLocallyFinite (d : X → ℤ) (k : ℤ) :
-    IsLocallyFinite (0 : Coefficients d k) := sorry
+    IsLocallyFinite (0 : Coefficients d k) := by
+  intro U _
+  simp
 
 /-- Addition preserves local finiteness of coefficient families. -/
 private theorem add_isLocallyFinite {d : X → ℤ} {k : ℤ} {a b : Coefficients d k}
     (ha : IsLocallyFinite a) (hb : IsLocallyFinite b) :
-    IsLocallyFinite (a + b) := sorry
+    IsLocallyFinite (a + b) := by
+  intro U hU
+  refine ((ha U hU).union (hb U hU)).subset ?_
+  intro x hx
+  by_cases hax : a x = 0
+  · show x ∈ {x | x.1 ∈ U ∧ a x ≠ 0} ∪ {x | x.1 ∈ U ∧ b x ≠ 0}
+    exact Or.inr ⟨hx.1, by simpa [Pi.add_apply, hax] using hx.2⟩
+  · show x ∈ {x | x.1 ∈ U ∧ a x ≠ 0} ∪ {x | x.1 ∈ U ∧ b x ≠ 0}
+    exact Or.inl ⟨hx.1, hax⟩
 
 /-- Negation preserves local finiteness of coefficient families. -/
 private theorem neg_isLocallyFinite {d : X → ℤ} {k : ℤ} {a : Coefficients d k}
-    (ha : IsLocallyFinite a) : IsLocallyFinite (-a) := sorry
+    (ha : IsLocallyFinite a) : IsLocallyFinite (-a) := by
+  intro U hU
+  simpa only [Pi.neg_apply, neg_ne_zero] using ha U hU
 
 /-- The subgroup of locally finite families in the unrestricted product of degree-zero
 Milnor K-groups of residue fields. -/
@@ -75,17 +87,50 @@ def fromCoefficients (d : X → ℤ) (k : ℤ) (n : Coefficients d k) : X → �
 
 /-- The coefficients of a cycle form a locally finite family. -/
 private theorem toCoefficients_isLocallyFinite (d : X → ℤ) (k : ℤ)
-    (α : CycleGroup X d k) : IsLocallyFinite (toCoefficients d k α) := sorry
+    (α : CycleGroup X d k) : IsLocallyFinite (toCoefficients d k α) := by
+  intro U hU
+  have hfinite :=
+    (toAlgebraicCycle d k α).locallyFiniteSupport.finite_inter_support_of_isCompact hU
+  refine Set.Finite.of_injOn (f := fun x : {x : X // d x = k} ↦ x.1) ?_
+    (fun _ _ _ _ h ↦ Subtype.ext h) hfinite
+  intro x hx
+  refine ⟨hx.1, ?_⟩
+  change toAlgebraicCycle d k α x.1 ≠ 0
+  intro hzero
+  apply hx.2
+  change (MilnorK.degreeZeroEquiv (X.residueField x.1))
+    (toAlgebraicCycle d k α x.1) = 0
+  rw [hzero, map_zero]
 
 /-- The integer extension of a locally finite coefficient family has locally finite support. -/
 private theorem fromCoefficients_locallyFiniteSupport (d : X → ℤ) (k : ℤ)
     (n : Coefficients d k) (hn : IsLocallyFinite n) :
-    LocallyFiniteSupport (fromCoefficients d k n) := sorry
+    LocallyFiniteSupport (fromCoefficients d k n) := by
+  intro x
+  obtain ⟨U, hU, hxU, _⟩ :=
+    exists_isAffineOpen_mem_and_subset (show x ∈ (⊤ : X.Opens) from trivial)
+  refine ⟨(U : Set X), U.isOpen.mem_nhds hxU, ?_⟩
+  refine ((hn U hU.isCompact).image (fun y : {x : X // d x = k} ↦ y.1)).subset ?_
+  intro y hy
+  by_cases h : d y = k
+  · show y ∈ (fun y : {x : X // d x = k} ↦ y.1) '' {x | x.1 ∈ U ∧ n x ≠ 0}
+    refine ⟨⟨y, h⟩, ⟨hy.1, ?_⟩, rfl⟩
+    intro hzero
+    apply hy.2
+    change fromCoefficients d k n y = 0
+    rw [fromCoefficients, dif_pos h]
+    change (MilnorK.degreeZeroEquiv (X.residueField y)).symm (n ⟨y, h⟩) = 0
+    rw [hzero, map_zero]
+  · show y ∈ (fun y : {x : X // d x = k} ↦ y.1) '' {x | x.1 ∈ U ∧ n x ≠ 0}
+    exact False.elim (hy.2 (by simp [fromCoefficients, h]))
 
 /-- The integer extension of a coefficient family vanishes off the weight-`k` locus. -/
 private theorem fromCoefficients_dimension (d : X → ℤ) (k : ℤ)
     (n : Coefficients d k) :
-    ∀ x, fromCoefficients d k n x ≠ 0 → d x = k := sorry
+    ∀ x, fromCoefficients d k n x ≠ 0 → d x = k := by
+  intro x hx
+  by_contra h
+  exact hx (by simp [fromCoefficients, h])
 
 /-- A locally finite coefficient family defines a cycle supported in weight `k`. -/
 private def fromLocallyFinite (d : X → ℤ) (k : ℤ) (n : locallyFinite d k) :
@@ -99,16 +144,38 @@ private def fromLocallyFinite (d : X → ℤ) (k : ℤ) (n : locallyFinite d k) 
 /-- Reconstructing a cycle from its degree-zero coefficients recovers the cycle. -/
 private theorem fromLocallyFinite_toCoefficients (d : X → ℤ) (k : ℤ)
     (α : CycleGroup X d k) :
-    fromLocallyFinite d k ⟨toCoefficients d k α, toCoefficients_isLocallyFinite d k α⟩ = α :=
-  sorry
+    fromLocallyFinite d k ⟨toCoefficients d k α, toCoefficients_isLocallyFinite d k α⟩ = α := by
+  apply Subtype.ext
+  apply Function.locallyFinsuppWithin.ext
+  intro x
+  change fromCoefficients d k (toCoefficients d k α) x = α.1 x
+  by_cases hx : d x = k
+  · show fromCoefficients d k (toCoefficients d k α) x = α.1 x
+    rw [fromCoefficients, dif_pos hx]
+    change (MilnorK.degreeZeroEquiv (X.residueField x)).symm
+      (MilnorK.degreeZeroEquiv (X.residueField x) (α.1 x)) = α.1 x
+    exact (MilnorK.degreeZeroEquiv (X.residueField x)).symm_apply_apply (α.1 x)
+  · show fromCoefficients d k (toCoefficients d k α) x = α.1 x
+    rw [fromCoefficients, dif_neg hx]
+    symm
+    by_contra hzero
+    exact hx ((AlgebraicCycle.mem_dimensionSubgroup d k α.1).mp α.2 x hzero)
 
 /-- Taking coefficients of the cycle of a locally finite family recovers that family. -/
 private theorem toCoefficients_fromLocallyFinite (d : X → ℤ) (k : ℤ)
-    (n : locallyFinite d k) : toCoefficients d k (fromLocallyFinite d k n) = n.1 := sorry
+    (n : locallyFinite d k) : toCoefficients d k (fromLocallyFinite d k n) = n.1 := by
+  funext x
+  change MilnorK.degreeZeroEquiv (X.residueField x.1)
+    (fromCoefficients d k n.1 x.1) = n.1 x
+  rw [fromCoefficients, dif_pos x.2]
+  exact (MilnorK.degreeZeroEquiv (X.residueField x.1)).apply_symm_apply (n.1 x)
 
 /-- Taking degree-zero coefficients preserves addition of cycles. -/
 private theorem toCoefficients_add (d : X → ℤ) (k : ℤ) (α β : CycleGroup X d k) :
-    toCoefficients d k (α + β) = toCoefficients d k α + toCoefficients d k β := sorry
+    toCoefficients d k (α + β) = toCoefficients d k α + toCoefficients d k β := by
+  change coefficientsEquiv d k ((fun x ↦ α.1 x.1) + (fun x ↦ β.1 x.1)) =
+    coefficientsEquiv d k (fun x ↦ α.1 x.1) + coefficientsEquiv d k (fun x ↦ β.1 x.1)
+  exact map_add (coefficientsEquiv d k) _ _
 
 /-- Cycles supported in weight `k` are additively equivalent to locally finite families
 of degree-zero Milnor K-coefficients on the weight-`k` locus. -/

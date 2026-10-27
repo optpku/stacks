@@ -29,7 +29,7 @@ variable {dimension : V → ℕ} {product : V → V → V}
 variable {fst : ∀ X Y, product X Y ⟶ X} {snd : ∀ X Y, product X Y ⟶ Y}
 variable {point : V} {H : V → Type x} {CH : V → Type y}
 variable [∀ X, Ring (H X)] [∀ X, Algebra F (H X)] [∀ X, CommRing (CH X)]
-variable {Hgrade : ∀ X, ℤ × ℤ → Submodule F (H X)}
+variable {Hgrade : ∀ X, ℤ → Submodule F (H X)}
 variable {CHgrade : ∀ X, ℤ → Submodule ℤ (CH X)}
 variable [∀ X, GradedAlgebra (Hgrade X)] [∀ X, GradedAlgebra (CHgrade X)]
 variable {cyclePullback : ∀ {X Y : V},
@@ -42,7 +42,7 @@ variable {cyclePushforward : ∀ {X Y : V}, (X ⟶ Y) → CH X →+ CH Y}
     ∀ (T : SchemeClassicalTheory k F TateLine V dimension product fst snd point
         H CH Hgrade CHgrade cyclePullback cyclePushforward)
       {X : V} (hX : T.IsNonemptyEquidimensional X 0) (i : ℤ) (hi : i ≠ 0),
-      Hgrade X (i, 0) = ⊥)
+      Hgrade X (i) = ⊥)
 
 /- Lemma 45.10.2 (2): degree-zero cohomology is finite separable. -/
 @[stacks 0FHQ] #check
@@ -50,8 +50,8 @@ variable {cyclePushforward : ∀ {X Y : V}, (X ⟶ Y) → CH X →+ CH Y}
     ∀ (T : SchemeClassicalTheory k F TateLine V dimension product fst snd point
         H CH Hgrade CHgrade cyclePullback cyclePushforward)
       {X : V} (hX : T.IsNonemptyEquidimensional X 0),
-      Module.Finite F (Hgrade X (0, 0)) ∧
-        @Algebra.IsSeparable F (Hgrade X (0, 0)) inferInstance
+      Module.Finite F (Hgrade X (0)) ∧
+        @Algebra.IsSeparable F (Hgrade X (0)) inferInstance
           (T.degreeZeroCommRing X).toRing inferInstance)
 
 /- Lemma 45.10.2 (3): the degree-zero finrank equals scheme degree. -/
@@ -60,7 +60,7 @@ variable {cyclePushforward : ∀ {X Y : V}, (X ⟶ Y) → CH X →+ CH Y}
     ∀ (T : SchemeClassicalTheory k F TateLine V dimension product fst snd point
         H CH Hgrade CHgrade cyclePullback cyclePushforward)
       {X : V} (hX : T.IsNonemptyEquidimensional X 0),
-      Module.finrank F (Hgrade X (0, 0)) =
+      Module.finrank F (Hgrade X (0)) =
         SchemeOverField.GlobalSections.finrank (T.scheme.obj X))
 
 /- Lemma 45.10.2 (4): integration equals the algebra trace. -/
@@ -69,8 +69,8 @@ variable {cyclePushforward : ∀ {X Y : V}, (X ⟶ Y) → CH X →+ CH Y}
     ∀ (T : SchemeClassicalTheory k F TateLine V dimension product fst snd point
         H CH Hgrade CHgrade cyclePullback cyclePushforward)
       {X : V} (hX : T.IsNonemptyEquidimensional X 0),
-      (T.integral hX).comp (Hgrade X (0, 0)).subtype =
-        @Algebra.trace F (Hgrade X (0, 0)) inferInstance
+      (T.integral hX).comp (Hgrade X (0)).subtype =
+        @Algebra.trace F (Hgrade X (0)) inferInstance
           (T.degreeZeroCommRing X) inferInstance)
 
 /- Pointwise companion for the trace identity. -/
@@ -79,9 +79,9 @@ variable {cyclePushforward : ∀ {X Y : V}, (X ⟶ Y) → CH X →+ CH Y}
     ∀ (T : SchemeClassicalTheory k F TateLine V dimension product fst snd point
         H CH Hgrade CHgrade cyclePullback cyclePushforward)
       {X : V} (hX : T.IsNonemptyEquidimensional X 0)
-      (a : Hgrade X (0, 0)),
+      (a : Hgrade X (0)),
       T.integral hX a =
-        @Algebra.trace F (Hgrade X (0, 0)) inferInstance
+        @Algebra.trace F (Hgrade X (0)) inferInstance
           (T.degreeZeroCommRing X) inferInstance a)
 
 /- Lemma 45.10.2 (5): the fundamental cycle class is one. -/

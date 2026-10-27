@@ -46,9 +46,10 @@ namespace IsLocalSurjection
 theorem of {f : R →+* S} (h_local : IsLocalHom f) (h_surjective : Function.Surjective f) :
     f.IsLocalSurjection := sorry
 
-/-- A surjective homomorphism from a local ring is a local surjection. -/
-theorem of_surjective [IsLocalRing R] {f : R →+* S} (hf : Function.Surjective f) :
-    f.IsLocalSurjection := sorry
+/-- A surjective homomorphism from a local ring to a nontrivial ring is a local surjection. -/
+theorem of_surjective [IsLocalRing R] [Nontrivial S] {f : R →+* S}
+    (hf : Function.Surjective f) : f.IsLocalSurjection :=
+  ⟨IsLocalHom.of_surjective f hf, hf⟩
 
 /-- A local surjection is a local ring homomorphism. -/
 theorem isLocalHom {f : R →+* S} (hf : f.IsLocalSurjection) :
@@ -66,17 +67,27 @@ theorem comp {T : Type w} [CommRing T] {f : R →+* S} {g : S →+* T}
     (hg : g.IsLocalSurjection) (hf : f.IsLocalSurjection) :
     (g.comp f).IsLocalSurjection := sorry
 
-/-- The target of a local surjection from a local ring is a local ring. -/
+/-- The target of a local surjection from a local ring is a local ring. Locality of the map
+already forces the target to be nontrivial. -/
 theorem isLocalRing [IsLocalRing R] {f : R →+* S} (hf : f.IsLocalSurjection) :
-    IsLocalRing S := sorry
+    IsLocalRing S := by
+  letI : IsLocalHom f := hf.1
+  haveI : Nontrivial S := nontrivial_of_ne (0 : S) 1 (by
+    intro h
+    have hunit : IsUnit (f 0) := by
+      rw [map_zero, h]
+      exact isUnit_one
+    exact not_isUnit_zero (IsLocalHom.map_nonunit 0 hunit))
+  exact IsLocalRing.of_surjective' f hf.2
 
 end IsLocalSurjection
 
-/-- For a homomorphism from a local ring, being a local surjection is equivalent to being
-surjective. -/
+/-- For a homomorphism from a local ring to a nontrivial ring, being a local surjection is
+equivalent to being surjective. -/
 @[simp, stacks 09Q3 "local surjection from a local source"]
-theorem isLocalSurjection_iff_surjective [IsLocalRing R] (f : R →+* S) :
-    f.IsLocalSurjection ↔ Function.Surjective f := sorry
+theorem isLocalSurjection_iff_surjective [IsLocalRing R] [Nontrivial S] (f : R →+* S) :
+    f.IsLocalSurjection ↔ Function.Surjective f :=
+  ⟨fun hf => hf.2, IsLocalSurjection.of_surjective⟩
 
 /-- A surjective ring homomorphism remains surjective after localizing at a
 target prime and its contraction. -/

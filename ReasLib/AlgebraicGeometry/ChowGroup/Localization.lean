@@ -89,7 +89,8 @@ theorem closedPushforward_chowClass (U : X.Opens) (k : ℤ)
           inferInstance k γ) =
       @chowClass X (LocallyOfFiniteType.isLocallyNoetherian p)
         (p.relativeDimensionFunction δ) inferInstance k
-        (CycleGroup.Localization.closedPushforward p δ U k γ) := sorry
+        (CycleGroup.Localization.closedPushforward p δ U k γ) := by
+  rfl
 
 /-- Restriction to an open subscheme on degree-`k` Chow groups. -/
 noncomputable def openPullback (U : X.Opens) (k : ℤ) :
@@ -114,12 +115,26 @@ theorem openPullback_chowClass (U : X.Opens) (k : ℤ)
           (p.relativeDimensionFunction δ) inferInstance k α) =
       @chowClass U.toScheme (LocallyOfFiniteType.isLocallyNoetherian (U.ι ≫ p))
         ((U.ι ≫ p).relativeDimensionFunction δ) inferInstance k
-        (CycleGroup.Localization.openPullback p δ U k α) := sorry
+        (CycleGroup.Localization.openPullback p δ U k α) := by
+  rfl
 
 /-- Closed-complement pushforward followed by open pullback is zero on Chow groups. -/
 theorem closedPushforward_comp_openPullback (U : X.Opens) (k : ℤ) :
     AddCommGrpCat.ofHom (Localization.closedPushforward p δ U k) ≫
-      AddCommGrpCat.ofHom (Localization.openPullback p δ U k) = 0 := sorry
+      AddCommGrpCat.ofHom (Localization.openPullback p δ U k) = 0 := by
+  letI := LocallyOfFiniteType.isLocallyNoetherian p
+  letI := LocallyOfFiniteType.isLocallyNoetherian (U.ι ≫ p)
+  letI := LocallyOfFiniteType.isLocallyNoetherian
+    ((Scheme.ClosedSubschemeStructure.reduced U.compl).ι ≫ p)
+  ext γ
+  change Localization.openPullback p δ U k
+    (Localization.closedPushforward p δ U k (chowClass _ k γ)) = 0
+  rw [closedPushforward_chowClass, openPullback_chowClass]
+  have hγ := ConcreteCategory.congr_hom
+    (CycleGroup.Localization.closedPushforward_comp_openPullback p δ U k) γ
+  change CycleGroup.Localization.openPullback p δ U k
+    (CycleGroup.Localization.closedPushforward p δ U k γ) = 0 at hγ
+  rw [hγ, map_zero]
 
 /-- The localization short complex of degree-`k` Chow groups associated to an open subscheme. -/
 noncomputable def complex (U : X.Opens) (k : ℤ) : ShortComplex Ab :=
@@ -130,22 +145,53 @@ noncomputable def complex (U : X.Opens) (k : ℤ) : ShortComplex Ab :=
 /-- The first arrow in the Chow localization complex is closed-complement pushforward. -/
 theorem complex_f (U : X.Opens) (k : ℤ) :
     (Localization.complex p δ U k).f =
-      AddCommGrpCat.ofHom (Localization.closedPushforward p δ U k) := sorry
+      AddCommGrpCat.ofHom (Localization.closedPushforward p δ U k) := by
+  rfl
 
 /-- The second arrow in the Chow localization complex is open pullback. -/
 theorem complex_g (U : X.Opens) (k : ℤ) :
     (Localization.complex p δ U k).g =
-      AddCommGrpCat.ofHom (Localization.openPullback p δ U k) := sorry
+      AddCommGrpCat.ofHom (Localization.openPullback p δ U k) := by
+  rfl
 
 /-- The Chow localization complex is exact at the ambient scheme, and restriction to the open
 subscheme is an epimorphism. -/
 theorem exact {S X : Scheme.{u}} (p : X ⟶ S) [UniversallyCatenary S]
     [LocallyOfFiniteType p] (δ : S → ℤ) [IsDimensionFunction δ]
     (U : X.Opens) (k : ℤ) :
-    (complex p δ U k).Exact ∧ Epi (complex p δ U k).g := sorry
+    (complex p δ U k).Exact ∧ Epi (complex p δ U k).g := by
+  letI := LocallyOfFiniteType.isLocallyNoetherian p
+  letI := LocallyOfFiniteType.isLocallyNoetherian (U.ι ≫ p)
+  letI := LocallyOfFiniteType.isLocallyNoetherian
+    ((Scheme.ClosedSubschemeStructure.reduced U.compl).ι ≫ p)
+  constructor
+  · show (complex p δ U k).Exact
+    apply (ShortComplex.ab_exact_iff _).2
+    intro α hα
+    obtain ⟨α, rfl⟩ := QuotientAddGroup.mk_surjective α
+    change Localization.openPullback p δ U k (chowClass _ k α) = 0 at hα
+    rw [openPullback_chowClass] at hα
+    obtain ⟨γ, hγ⟩ := CycleGroup.Localization.exists_closedPushforward p δ U k α 0 (by
+      simpa only [RationalEquivalence.RationallyEquivalent, map_zero, sub_zero] using
+        (QuotientAddGroup.eq_zero_iff _).1 hα)
+    refine ⟨chowClass _ k γ, ?_⟩
+    change Localization.closedPushforward p δ U k (chowClass _ k γ) = chowClass _ k α
+    rw [closedPushforward_chowClass]
+    apply Eq.symm
+    apply QuotientAddGroup.eq_iff_sub_mem.mpr
+    simpa only [RationalEquivalence.RationallyEquivalent, zero_add] using hγ
+  · show Epi (complex p δ U k).g
+    apply (AddCommGrpCat.epi_iff_surjective _).2
+    intro α
+    obtain ⟨α, rfl⟩ := QuotientAddGroup.mk_surjective α
+    obtain ⟨β, hβ⟩ := CycleGroup.Localization.openPullback_surjective p δ U k α
+    refine ⟨chowClass _ k β, ?_⟩
+    change Localization.openPullback p δ U k (chowClass _ k β) = chowClass _ k α
+    rw [openPullback_chowClass, hβ]
 
 /-- Restriction to an open subscheme is canonically an epimorphism on Chow groups. -/
 instance openPullback_epi (U : X.Opens) (k : ℤ) :
-    Epi (Localization.complex p δ U k).g := sorry
+    Epi (Localization.complex p δ U k).g :=
+  (Localization.exact p δ U k).2
 
 end AlgebraicGeometry.ChowGroup.Localization

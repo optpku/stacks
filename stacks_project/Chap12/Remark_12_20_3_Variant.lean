@@ -78,7 +78,8 @@ identifications, and the usual cycle and boundary filtrations and page quotients
 
 section InfinityPage
 
-variable [CompleteLattice (Subobject (S.page 1).obj)]
+variable [LocallySmall.{v} A] [WellPowered.{v} A]
+  [HasWidePullbacks.{v} A] [HasCoproducts.{v} A]
 
 #check (S.cycleInfinity : Subobject (S.page 1).obj)
 #check (S.boundaryInfinity : Subobject (S.page 1).obj)

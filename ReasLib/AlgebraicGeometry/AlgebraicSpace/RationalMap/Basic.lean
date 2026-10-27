@@ -42,7 +42,7 @@ def domainInf {U V X : AlgebraicSpace S} (ι : U ⟶ X) (j : V ⟶ X) : Algebrai
 theorem domainInf_functorOfPoints {U V X : AlgebraicSpace S} (ι : U ⟶ X) (j : V ⟶ X) :
     (domainInf ι j).functorOfPoints =
       pullback (C := ((Over S)ᵒᵖ ⥤ Type u)) ι j :=
-  sorry
+  rfl
 
 /-- The first projection `U ×_X V ⟶ U`. -/
 def domainInfFst {U V X : AlgebraicSpace S} (ι : U ⟶ X) (j : V ⟶ X) :
@@ -62,12 +62,24 @@ def domainInfHom {U V X : AlgebraicSpace S} (ι : U ⟶ X) (j : V ⟶ X) :
 /-- The two projections of `domainInf` agree after composing to `X`. -/
 theorem domainInf_condition {U V X : AlgebraicSpace S} (ι : U ⟶ X) (j : V ⟶ X) :
     domainInfFst ι j ≫ ι = domainInfSnd ι j ≫ j :=
-  sorry
+  (ReasLibPullback.isPullback ι j).w
 
 /-- The fibre product of two open immersions into `X` remains an open immersion into `X`. -/
 instance instIsOpenImmersionDomainInfHom {U V X : AlgebraicSpace S} (ι : U ⟶ X) (j : V ⟶ X)
-    [IsOpenImmersion ι] [IsOpenImmersion j] : IsOpenImmersion (domainInfHom ι j) :=
-  sorry
+    [IsOpenImmersion ι] [IsOpenImmersion j] : IsOpenImmersion (domainInfHom ι j) := by
+  letI : MorphismProperty.IsStableUnderComposition
+      (MorphismProperty.over (@AlgebraicGeometry.IsOpenImmersion) :
+        MorphismProperty (Over S)) :=
+    ⟨fun f g hf hg ↦ MorphismProperty.comp_mem
+      (@AlgebraicGeometry.IsOpenImmersion) f.left g.left hf hg⟩
+  exact ⟨MorphismProperty.comp_mem
+    (MorphismProperty.over (@AlgebraicGeometry.IsOpenImmersion)).presheaf
+    (domainInfFst ι j) ι
+    ((MorphismProperty.relative_isStableUnderBaseChange
+      (MorphismProperty.over (@AlgebraicGeometry.IsOpenImmersion))).of_isPullback
+      (ReasLibPullback.pullbackOver_isPullback ι j X.isSheaf X.representableDiagonal).flip
+      (IsOpenImmersion.presheaf (f := j)))
+    (IsOpenImmersion.presheaf (f := ι))⟩
 
 /-- An open immersion `ι : U ⟶ X` of algebraic spaces is dense when every nonempty open
 subspace of `X` meets `U`. -/
@@ -77,13 +89,39 @@ def IsDense {U X : AlgebraicSpace S} (ι : U ⟶ X) : Prop :=
 
 /-- The identity morphism of an algebraic space is a dense open immersion. -/
 theorem isDense_id (X : AlgebraicSpace S) : IsDense (𝟙 X) :=
-  sorry
+  fun V hV ↦ hV.map (Points.map
+    (ReasLibPullback.pullbackLift (𝟙 X) V.hom V.hom (𝟙 V.left) (by simp)))
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The fibre product of two dense open immersions is again dense in the target. -/
 theorem isDense_domainInfHom {U V X : AlgebraicSpace S} {ι : U ⟶ X} {j : V ⟶ X}
     [IsOpenImmersion ι] [IsOpenImmersion j]
-    (hι : IsDense ι) (hj : IsDense j) : IsDense (domainInfHom ι j) :=
-  sorry
+    (hι : IsDense ι) (hj : IsDense j) : IsDense (domainInfHom ι j) := by
+    intro W hW
+    letI : IsOpenImmersion W.hom := W.prop
+    let T : smallZariskiSite X :=
+      MorphismProperty.Over.mk ⊤ (domainInfHom j W.hom) inferInstance
+    have hT : Nonempty (Points T.left) := hj W hW
+    let a : domainInf ι T.hom ⟶ domainInf ι j :=
+      ReasLibPullback.pullbackLift ι j (domainInfFst ι T.hom)
+        (domainInfSnd ι T.hom ≫ domainInfFst j W.hom)
+        (by simpa only [T, MorphismProperty.Over.mk_hom, domainInfHom, Category.assoc]
+          using domainInf_condition ι T.hom)
+    have ha : a ≫ domainInfFst ι j = domainInfFst ι T.hom :=
+      ReasLibPullback.pullbackLift_fst _ _ _ _ _
+    have hw : a ≫ domainInfHom ι j =
+        (domainInfSnd ι T.hom ≫ domainInfSnd j W.hom) ≫ W.hom := by
+      calc
+        a ≫ domainInfHom ι j = domainInfFst ι T.hom ≫ ι := by
+          rw [domainInfHom, ← Category.assoc, ha]
+        _ = domainInfSnd ι T.hom ≫ T.hom := domainInf_condition ι T.hom
+        _ = (domainInfSnd ι T.hom ≫ domainInfSnd j W.hom) ≫ W.hom := by
+          change domainInfSnd ι T.hom ≫ (domainInfFst j W.hom ≫ j) = _
+          exact (congrArg (fun k ↦ domainInfSnd ι T.hom ≫ k)
+            (domainInf_condition j W.hom)).trans (Category.assoc _ _ _).symm
+    exact (hι T hT).map (Points.map
+      (ReasLibPullback.pullbackLift (domainInfHom ι j) W.hom a
+        (domainInfSnd ι T.hom ≫ domainInfSnd j W.hom) hw))
 
 /-- The whole space, as an object of the small Zariski site. -/
 def idObj (X : AlgebraicSpace S) : smallZariskiSite X :=
@@ -91,16 +129,17 @@ def idObj (X : AlgebraicSpace S) : smallZariskiSite X :=
 
 /-- The structure morphism of `idObj X` is the identity on `X`. -/
 theorem idObj_hom (X : AlgebraicSpace S) : (idObj X).hom = 𝟙 X :=
-  sorry
+  rfl
 
 /-- The fibre product of two open subspaces, as an object of the small Zariski site. -/
 def domainInfSite {X : AlgebraicSpace S} (U V : smallZariskiSite X) : smallZariskiSite X :=
-  MorphismProperty.Over.mk ⊤ (domainInfHom U.hom V.hom) sorry
+  MorphismProperty.Over.mk ⊤ (domainInfHom U.hom V.hom)
+    (@instIsOpenImmersionDomainInfHom S U.left V.left X U.hom V.hom U.prop V.prop)
 
 /-- The structure morphism of `domainInfSite U V` is the fibre-product projection to `X`. -/
 theorem domainInfSite_hom {X : AlgebraicSpace S} (U V : smallZariskiSite X) :
     (domainInfSite U V).hom = domainInfHom U.hom V.hom :=
-  sorry
+  rfl
 
 /-- A partial map from `X` to `Y` is a morphism into `Y` defined on a dense open subspace of
 `X`. -/
@@ -122,12 +161,12 @@ def ofHom {X Y : AlgebraicSpace S} (f : X ⟶ Y) : PartialMap X Y where
 
 /-- The underlying morphism of `ofHom f` is `f`. -/
 theorem ofHom_hom {X Y : AlgebraicSpace S} (f : X ⟶ Y) : (ofHom f).hom = f :=
-  sorry
+  rfl
 
 /-- The domain of `ofHom f` is the whole source space. -/
 theorem ofHom_domain_hom {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     (ofHom f).domain.hom = 𝟙 X :=
-  sorry
+  rfl
 
 /-- Restrict a partial map along a morphism of dense open subspaces of the domain. -/
 def restrict {X Y : AlgebraicSpace S} (f : PartialMap X Y) {U : smallZariskiSite X}
@@ -140,7 +179,7 @@ def restrict {X Y : AlgebraicSpace S} (f : PartialMap X Y) {U : smallZariskiSite
 theorem restrict_hom {X Y : AlgebraicSpace S} (f : PartialMap X Y) {U : smallZariskiSite X}
     (ιU : U ⟶ f.domain) (hU : IsDense U.hom) :
     (f.restrict ιU hU).hom = ιU.left ≫ f.hom :=
-  sorry
+  rfl
 
 /-- Two partial maps are equivalent if they agree after restriction to some dense open subspace
 contained in both domains. -/
@@ -150,17 +189,61 @@ def equiv {X Y : AlgebraicSpace S} (f g : PartialMap X Y) : Prop :=
 
 /-- Equivalence of partial maps is reflexive. -/
 theorem equiv_refl {X Y : AlgebraicSpace S} (f : PartialMap X Y) : equiv f f :=
-  sorry
+  ⟨f.domain, f.dense_domain, 𝟙 _, 𝟙 _, rfl⟩
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The setoid of partial maps under agreement on a dense open. -/
 def setoid (X Y : AlgebraicSpace S) : Setoid (PartialMap X Y) where
   r := equiv
-  iseqv := sorry
+  iseqv := {
+    refl := equiv_refl
+    symm := by
+      rintro f g ⟨W, hW, hWl, hWr, h⟩
+      exact ⟨W, hW, hWr, hWl, h.symm⟩
+    trans := by
+      rintro f g h ⟨U, hU, uf, ug, hfg⟩ ⟨V, hV, vg, vh, hgh⟩
+      let W := domainInfSite U V
+      have hW : IsDense W.hom :=
+        @isDense_domainInfHom S U.left V.left X U.hom V.hom U.prop V.prop hU hV
+      let p : W ⟶ U := MorphismProperty.Over.homMk (domainInfFst U.hom V.hom) rfl
+      let q : W ⟶ V := MorphismProperty.Over.homMk (domainInfSnd U.hom V.hom)
+        (domainInf_condition U.hom V.hom).symm
+      haveI hmono : @Mono ((Over S)ᵒᵖ ⥤ Type u) _
+          g.domain.left.functorOfPoints X.functorOfPoints g.domain.hom := by
+        apply MorphismProperty.presheaf_monomorphisms_le_monomorphisms _
+        apply MorphismProperty.relative_monotone (P :=
+          MorphismProperty.over (@AlgebraicGeometry.IsOpenImmersion)) ?_ _ g.domain.prop.presheaf
+        intro A B k hk
+        haveI : AlgebraicGeometry.IsOpenImmersion k.left := hk
+        exact CategoryTheory.Over.mono_of_mono_left k
+      have hm : p.left ≫ ug.left = q.left ≫ vg.left := by
+        apply (cancel_mono (C := ((Over S)ᵒᵖ ⥤ Type u))
+          (g.domain.hom : g.domain.left.functorOfPoints ⟶ X.functorOfPoints)).mp
+        calc
+          (p.left ≫ ug.left) ≫ g.domain.hom = W.hom := by
+            exact (Category.assoc _ _ _).trans
+              ((congrArg (fun k ↦ p.left ≫ k) (MorphismProperty.Over.w ug)).trans
+                (MorphismProperty.Over.w p))
+          _ = (q.left ≫ vg.left) ≫ g.domain.hom := by
+            exact ((Category.assoc _ _ _).trans
+              ((congrArg (fun k ↦ q.left ≫ k) (MorphismProperty.Over.w vg)).trans
+                (MorphismProperty.Over.w q))).symm
+      refine ⟨W, hW, p ≫ uf, q ≫ vh, ?_⟩
+      change (p.left ≫ uf.left) ≫ f.hom = (q.left ≫ vh.left) ≫ h.hom
+      calc
+        (p.left ≫ uf.left) ≫ f.hom = p.left ≫ (ug.left ≫ g.hom) := by
+          rw [Category.assoc]
+          exact congrArg (fun k ↦ p.left ≫ k) hfg
+        _ = q.left ≫ (vg.left ≫ g.hom) := by rw [← Category.assoc, hm, Category.assoc]
+        _ = (q.left ≫ vh.left) ≫ h.hom := by
+          rw [Category.assoc]
+          exact congrArg (fun k ↦ q.left ≫ k) hgh
+  }
 
 /-- The setoid relation on partial maps is `PartialMap.equiv`. -/
 theorem setoid_rel_iff {X Y : AlgebraicSpace S} (f g : PartialMap X Y) :
     setoid X Y f g ↔ equiv f g :=
-  sorry
+  Iff.rfl
 
 end PartialMap
 
@@ -176,17 +259,19 @@ def PartialMap.toRationalMap {X Y : AlgebraicSpace S} (f : PartialMap X Y) :
 /-- Every rational map is represented by some partial map. -/
 theorem RationalMap.exists_rep {X Y : AlgebraicSpace S} (f : RationalMap X Y) :
     ∃ g : PartialMap X Y, g.toRationalMap = f :=
-  sorry
+  Quotient.exists_rep f
 
 /-- Two partial maps determine the same rational map if and only if they are equivalent. -/
 theorem PartialMap.toRationalMap_eq_iff {X Y : AlgebraicSpace S} {f g : PartialMap X Y} :
     f.toRationalMap = g.toRationalMap ↔ f.equiv g :=
-  sorry
+  ⟨Quotient.exact, fun h ↦ @Quotient.sound _ (PartialMap.setoid X Y) f g h⟩
 
 /-- Restriction along a smaller dense open does not change the associated rational map. -/
 theorem PartialMap.restrict_toRationalMap {X Y : AlgebraicSpace S} (f : PartialMap X Y)
     {U : smallZariskiSite X} (ιU : U ⟶ f.domain) (hU : IsDense U.hom) :
     (f.restrict ιU hU).toRationalMap = f.toRationalMap :=
-  sorry
+  Quotient.sound ⟨U, hU, 𝟙 U, ιU, by
+    change (𝟙 U.left) ≫ (ιU.left ≫ f.hom) = ιU.left ≫ f.hom
+    exact Category.id_comp _⟩
 
 end AlgebraicGeometry.AlgebraicSpace

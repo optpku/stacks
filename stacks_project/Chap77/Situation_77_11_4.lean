@@ -6,9 +6,9 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap77.«77_11_4_1_Functor»
-public import stacks_project.Chap67.Lemma_67_23_3_Pullback
-public import stacks_project.Chap67.Lemma_67_15_2
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Flattening.InDimensions
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.FiniteType.BaseChange
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Pullback.LocalGeneration
 import StacksCheckRecall
 
 @[expose] public section
@@ -26,7 +26,8 @@ finite-type quasi-coherent module, base change defines a subterminal contravaria
 functor on schemes over `Y`, recording where the pullback is flat over the new base
 in dimensions at least `n`. -/
 @[stacks 0CWU] #check
-  (Flattening.flatInDimensionsFunctor f ℱ n : (SchemeOver Y)ᵒᵖ ⥤ Type u)
+  (AlgebraicGeometry.AlgebraicSpace.Flattening.flatInDimensionsFunctor f ℱ n :
+    (SchemeOver Y)ᵒᵖ ⥤ Type u)
 
 #check
   (Modules.baseChangeSpace f T.hom : AlgebraicSpace S)

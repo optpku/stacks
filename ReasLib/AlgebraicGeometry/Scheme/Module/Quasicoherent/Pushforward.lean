@@ -54,7 +54,11 @@ noncomputable def pushforwardOf
 @[stacks 01LC "additivity of restricted quasicoherent pushforward", instance]
 instance pushforwardOf.additive
     (f : X ⟶ S) (hpush : preservesQuasiCoherent f) :
-    (pushforwardOf f hpush).Additive := sorry
+    (pushforwardOf f hpush).Additive where
+  map_add := by
+    intro F G phi psi
+    apply ObjectProperty.hom_ext
+    exact (Scheme.Modules.pushforward f).map_add
 
 namespace pushforwardOf
 
@@ -89,7 +93,8 @@ noncomputable def pushforward (f : X ⟶ S) [QuasiCompact f] [QuasiSeparated f] 
 @[stacks 01LC "additivity of quasicoherent pushforward", instance]
 instance pushforward.additive
     (f : X ⟶ S) [QuasiCompact f] [QuasiSeparated f] :
-    (pushforward f).Additive := sorry
+    (pushforward f).Additive :=
+  pushforwardOf.additive f (pushforward.mapsTo f)
 
 /-- Forgetting quasicoherence after restricted pushforward recovers ambient
 module-sheaf pushforward. -/
@@ -108,7 +113,7 @@ module-sheaf pushforward. -/
 theorem obj_obj (f : X ⟶ S) [QuasiCompact f] [QuasiSeparated f]
     (F : QCoh X) :
     ((pushforward f).obj F).obj =
-      (Scheme.Modules.pushforward f).obj F.obj := sorry
+      (Scheme.Modules.pushforward f).obj F.obj := rfl
 
 /-- The underlying morphism of quasicoherent pushforward is the ambient
 pushforward of the underlying morphism. -/
@@ -116,7 +121,7 @@ pushforward of the underlying morphism. -/
 theorem map_hom (f : X ⟶ S) [QuasiCompact f] [QuasiSeparated f]
     {F G : QCoh X} (phi : F ⟶ G) :
     ((pushforward f).map phi).hom =
-      (Scheme.Modules.pushforward f).map phi.hom := sorry
+      (Scheme.Modules.pushforward f).map phi.hom := rfl
 
 /-- Pushforward along the identity is canonically isomorphic to the identity
 on quasicoherent modules. -/
@@ -167,14 +172,18 @@ identity-pushforward comparison. -/
 @[simp, stacks 01LC "identity pushforward forward component"]
 theorem hom_app_hom (X : Scheme.{u}) (F : QCoh X) :
     ((pushforward.idIso X).hom.app F).hom =
-      (Scheme.Modules.pushforwardId X).hom.app F.obj := sorry
+      (Scheme.Modules.pushforwardId X).hom.app F.obj := by
+  change (Scheme.Modules.pushforwardId X).hom.app F.obj ≫ 𝟙 _ = _
+  exact Category.comp_id _
 
 /-- The underlying inverse component of identity pushforward is the ambient
 identity-pushforward comparison. -/
 @[simp, stacks 01LC "identity pushforward inverse component"]
 theorem inv_app_hom (X : Scheme.{u}) (F : QCoh X) :
     ((pushforward.idIso X).inv.app F).hom =
-      (Scheme.Modules.pushforwardId X).inv.app F.obj := sorry
+      (Scheme.Modules.pushforwardId X).inv.app F.obj := by
+  change 𝟙 _ ≫ (Scheme.Modules.pushforwardId X).inv.app F.obj = _
+  exact Category.id_comp _
 
 end pushforward.idIso
 
@@ -186,7 +195,7 @@ theorem hom_app_hom {f g : X ⟶ S} (h : f = g)
     [QuasiCompact f] [QuasiSeparated f]
     [QuasiCompact g] [QuasiSeparated g] (F : QCoh X) :
     ((pushforward.congrIso h).hom.app F).hom =
-      (Scheme.Modules.pushforwardCongr h).hom.app F.obj := sorry
+      (Scheme.Modules.pushforwardCongr h).hom.app F.obj := rfl
 
 /-- The underlying inverse component of the equal-morphism comparison. -/
 @[simp, stacks 01LC "equal-morphism pushforward inverse component"]
@@ -194,7 +203,7 @@ theorem inv_app_hom {f g : X ⟶ S} (h : f = g)
     [QuasiCompact f] [QuasiSeparated f]
     [QuasiCompact g] [QuasiSeparated g] (F : QCoh X) :
     ((pushforward.congrIso h).inv.app F).hom =
-      (Scheme.Modules.pushforwardCongr h).inv.app F.obj := sorry
+      (Scheme.Modules.pushforwardCongr h).inv.app F.obj := rfl
 
 end pushforward.congrIso
 
@@ -208,7 +217,9 @@ theorem hom_app_hom {Y : Scheme.{u}}
     [QuasiCompact f] [QuasiSeparated f]
     [QuasiCompact g] [QuasiSeparated g] (F : QCoh X) :
     ((pushforward.compIso f g).hom.app F).hom =
-      (Scheme.Modules.pushforwardComp f g).hom.app F.obj := sorry
+      (Scheme.Modules.pushforwardComp f g).hom.app F.obj := by
+  change 𝟙 _ ≫ (Scheme.Modules.pushforwardComp f g).hom.app F.obj = _
+  exact Category.id_comp _
 
 /-- The underlying inverse component of composite pushforward is the ambient
 pushforward-composition comparison. -/
@@ -218,7 +229,9 @@ theorem inv_app_hom {Y : Scheme.{u}}
     [QuasiCompact f] [QuasiSeparated f]
     [QuasiCompact g] [QuasiSeparated g] (F : QCoh X) :
     ((pushforward.compIso f g).inv.app F).hom =
-      (Scheme.Modules.pushforwardComp f g).inv.app F.obj := sorry
+      (Scheme.Modules.pushforwardComp f g).inv.app F.obj := by
+  change (Scheme.Modules.pushforwardComp f g).inv.app F.obj ≫ 𝟙 _ = _
+  exact Category.comp_id _
 
 /-- The composition comparisons satisfy associativity after the canonical
 transport across categorical reassociation. -/
@@ -233,7 +246,19 @@ theorem associativity {W X Y Z : Scheme.{u}}
         pushforward.congrIso (Category.assoc f g h) =
       Functor.associator (pushforward f) (pushforward g) (pushforward h) ≪≫
         Functor.isoWhiskerLeft (pushforward f) (pushforward.compIso g h) ≪≫
-        pushforward.compIso f (g ≫ h) := sorry
+        pushforward.compIso f (g ≫ h) := by
+  apply Iso.ext
+  apply NatTrans.ext
+  funext F
+  apply ObjectProperty.hom_ext
+  simp only [Iso.trans_hom, NatTrans.comp_app, FullSubcategory.comp_hom,
+    Functor.isoWhiskerRight_hom, Functor.whiskerRight_app,
+    Functor.isoWhiskerLeft_hom, Functor.whiskerLeft_app,
+    hom_app_hom, pushforward.map_hom, pushforward.congrIso.hom_app_hom,
+    Functor.associator_hom_app, FullSubcategory.id_hom]
+  ext U x
+  change (F.obj.presheaf.map (𝟙 _)).hom x = x
+  simp
 
 /-- The composition comparison satisfies the left identity law. -/
 @[stacks 01LC "quasicoherent pushforward left identity"]
@@ -242,7 +267,19 @@ theorem left_unit (f : X ⟶ Y)
     pushforward.compIso (𝟙 X) f ≪≫
         pushforward.congrIso (Category.id_comp f) =
       Functor.isoWhiskerRight (pushforward.idIso X) (pushforward f) ≪≫
-        Functor.leftUnitor (pushforward f) := sorry
+        Functor.leftUnitor (pushforward f) := by
+  apply Iso.ext
+  apply NatTrans.ext
+  funext F
+  apply ObjectProperty.hom_ext
+  simp only [Iso.trans_hom, NatTrans.comp_app, FullSubcategory.comp_hom,
+    Functor.isoWhiskerRight_hom, Functor.whiskerRight_app,
+    hom_app_hom, pushforward.map_hom, pushforward.congrIso.hom_app_hom,
+    pushforward.idIso.hom_app_hom, Functor.leftUnitor_hom_app,
+    FullSubcategory.id_hom]
+  ext U x
+  change (F.obj.presheaf.map (𝟙 _)).hom x = x
+  simp
 
 /-- The composition comparison satisfies the right identity law. -/
 @[stacks 01LC "quasicoherent pushforward right identity"]
@@ -251,7 +288,19 @@ theorem right_unit (f : X ⟶ Y)
     pushforward.compIso f (𝟙 Y) ≪≫
         pushforward.congrIso (Category.comp_id f) =
       Functor.isoWhiskerLeft (pushforward f) (pushforward.idIso Y) ≪≫
-        Functor.rightUnitor (pushforward f) := sorry
+        Functor.rightUnitor (pushforward f) := by
+  apply Iso.ext
+  apply NatTrans.ext
+  funext F
+  apply ObjectProperty.hom_ext
+  simp only [Iso.trans_hom, NatTrans.comp_app, FullSubcategory.comp_hom,
+    Functor.isoWhiskerLeft_hom, Functor.whiskerLeft_app,
+    hom_app_hom, pushforward.congrIso.hom_app_hom,
+    pushforward.idIso.hom_app_hom, Functor.rightUnitor_hom_app,
+    FullSubcategory.id_hom]
+  ext U x
+  change (F.obj.presheaf.map (𝟙 _)).hom x = x
+  exact congrArg (fun k => k.hom x) (F.obj.presheaf.map_id _)
 
 end pushforward.compIso
 
@@ -263,7 +312,7 @@ componentwise the identity. -/
 theorem hom_app (f : X ⟶ S) [QuasiCompact f] [QuasiSeparated f]
     (F : QCoh X) :
     (pushforward.inclusionIso f).hom.app F =
-      𝟙 ((Scheme.Modules.pushforward f).obj F.obj) := sorry
+      𝟙 ((Scheme.Modules.pushforward f).obj F.obj) := rfl
 
 /-- The inverse inclusion comparison for quasicoherent pushforward is
 componentwise the identity. -/
@@ -271,7 +320,7 @@ componentwise the identity. -/
 theorem inv_app (f : X ⟶ S) [QuasiCompact f] [QuasiSeparated f]
     (F : QCoh X) :
     (pushforward.inclusionIso f).inv.app F =
-      𝟙 ((Scheme.Modules.pushforward f).obj F.obj) := sorry
+      𝟙 ((Scheme.Modules.pushforward f).obj F.obj) := rfl
 
 end pushforward.inclusionIso
 
@@ -289,7 +338,8 @@ quasi-coherent modules. -/
 instance isQuasicoherent
     (f : X ⟶ S) [QuasiCompact f] [QuasiSeparated f]
     (F : X.Modules) [F.IsQuasicoherent] :
-    ((pushforward f).obj F).IsQuasicoherent := sorry
+    ((pushforward f).obj F).IsQuasicoherent :=
+  QCoh.pushforward.mapsTo f F inferInstance
 
 /-- Explicit-hypothesis form of qcqs pushforward preserving
 quasi-coherence. -/
@@ -297,7 +347,8 @@ quasi-coherence. -/
 theorem isQuasicoherentOf
     (f : X ⟶ S) [QuasiCompact f] [QuasiSeparated f]
     {F : X.Modules} (hF : F.IsQuasicoherent) :
-    ((pushforward f).obj F).IsQuasicoherent := sorry
+    ((pushforward f).obj F).IsQuasicoherent :=
+  QCoh.pushforward.mapsTo f F hF
 
 end pushforward
 

@@ -49,8 +49,7 @@ variable [Functor.HasRightDerivedFunctor
 abbrev additivePushforward :
     Sheaf X.siteTopology AddCommGrpCat.{z} ⥤
       Sheaf Y.siteTopology AddCommGrpCat.{z} :=
-  f.base.sheafPushforwardContinuous AddCommGrpCat.{z}
-    Y.siteTopology X.siteTopology
+  f.sheafPushforwardContinuous (A := AddCommGrpCat.{z})
 
 /-- The homotopy-to-derived additive sheaf pushforward. -/
 @[stacks 0D6J "underlying additive pushforward on homotopy categories"]

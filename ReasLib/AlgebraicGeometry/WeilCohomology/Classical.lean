@@ -39,7 +39,7 @@ structure ClassicalTheory
     (cyclePushforward : ∀ {X Y : V}, (X ⟶ Y) → CH X →+ CH Y)
     (pointCycle : CHgrade point 0) where
   /-- The smooth-projective geometric and Chow-theoretic presentation over `k`. -/
-  geometry : SmoothProjectiveContext k V dimension product fst snd point CH CHgrade
+  geometry : SmoothProjectiveVarietyContext k V dimension product fst snd point CH CHgrade
     cyclePullback cyclePushforward pointCycle
   /-- Contravariant pullback as a degree-preserving algebra homomorphism. -/
   pullback : ∀ {X Y : V}, (X ⟶ Y) → Hgrade Y →ₐᵍ[F] Hgrade X
@@ -131,7 +131,7 @@ variable {pointCycle : CHgrade point 0}
 /-- Build a classical Weil cohomology theory from its explicit maps and the atomic
 Poincaré-duality, Künneth, and cycle-class laws. -/
 def ofAxioms
-    (geometry : SmoothProjectiveContext k V dimension product fst snd point CH CHgrade
+    (geometry : SmoothProjectiveVarietyContext k V dimension product fst snd point CH CHgrade
       cyclePullback cyclePushforward pointCycle)
     (pullback : ∀ {X Y : V}, (X ⟶ Y) → Hgrade Y →ₐᵍ[F] Hgrade X)
     (pullback_id : ∀ X, pullback (𝟙 X) = GradedAlgHom.id F (Hgrade X))

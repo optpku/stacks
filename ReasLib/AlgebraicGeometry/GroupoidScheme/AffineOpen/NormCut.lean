@@ -126,7 +126,29 @@ theorem invariantInterior_isOpenInvariant [IsFinite G.t.left] (W : G.U.left.Open
 /-- An orbit already contained in `W` lies in the invariant interior of `W`. -/
 theorem orbit_subset_invariantInterior [IsFinite G.t.left] (u : G.U.left)
     (W : G.U.left.Opens) (hW : G.t.left '' (G.s.left ⁻¹' {u}) ⊆ W) :
-    G.t.left '' (G.s.left ⁻¹' {u}) ⊆ invariantInterior G W := sorry
+    G.t.left '' (G.s.left ⁻¹' {u}) ⊆ invariantInterior G W := by
+  rintro _ ⟨r, hr, rfl⟩
+  apply (mem_invariantInterior G W (G.t.left r)).mpr
+  rintro ⟨q, hqW, hqt⟩
+  have hi_source : G.s.left (G.i.left q) = G.t.left q := by
+    simpa using congrArg (fun f ↦ f.left q) G.inverse_source
+  have hi_target : G.t.left (G.i.left q) = G.s.left q := by
+    simpa using congrArg (fun f ↦ f.left q) G.inverse_target
+  have hPullback :
+      IsPullback (Limits.pullback.fst G.s G.t).left
+        (Limits.pullback.snd G.s G.t).left G.s.left G.t.left := by
+    simpa using (IsPullback.of_hasPullback G.s G.t).map (Over.forget S)
+  -- The points `i(q)` and `r` have matching endpoints, so lift them to the scheme pullback.
+  obtain ⟨p, hp_fst, hp_snd⟩ := Scheme.exists_preimage_of_isPullback hPullback
+    (G.i.left q) r (hi_source.trans hqt)
+  have hsource : G.s.left (G.c.left p) = G.s.left r := by
+    simpa [hp_snd] using congrArg (fun f ↦ f.left p) G.comp_source
+  have htarget : G.t.left (G.c.left p) = G.t.left (G.i.left q) := by
+    simpa [hp_fst] using congrArg (fun f ↦ f.left p) G.comp_target
+  -- The composite is an arrow from `u` to `s(q)`, contradicting `s(q) ∉ W`.
+  apply hqW
+  rw [← hi_target, ← htarget]
+  exact hW ⟨G.c.left p, by simpa [hsource] using hr, rfl⟩
 
 /-- The principal-open section selected by native finite-prime avoidance. -/
 def orbitSection [IsFinite G.s.left] [IsFinite G.t.left] (u : G.U.left)

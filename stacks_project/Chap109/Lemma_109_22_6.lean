@@ -6,14 +6,15 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import ReasLib.AlgebraicGeometry.AlgebraicSpace.CohStack.Hom.Smooth
-public import stacks_project.Chap109.Lemma_109_22_7_Substack
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Curve.Stable.Smooth
+import StacksCheckRecall
 
 /-!
 # Smoothness of the moduli stacks of stable curves
 
 The structure morphisms `ℳ̄ ⟶ Spec(Z)` and, for `2 ≤ g`, `ℳ̄_g ⟶ Spec(Z)`
-are smooth.
+are smooth. The checks below express their base changes over an arbitrary
+scheme `S`, retaining the source-defined genus range `2 ≤ g`.
 -/
 
 @[expose] public section
@@ -29,21 +30,20 @@ namespace AlgebraicGeometry.AlgebraicSpace
 namespace Spaces
 namespace Curves
 
-/-- Lemma 109.22.6 (1): the structure morphism `ℳ̄ ⟶ Spec(Z)` is smooth. -/
-@[stacks 0E79]
-instance instSmooth_stable (S : Scheme.{u}) :
+/- Lemma 109.22.6: the structure morphisms of the stable moduli stack and its
+genus-`g` loci, for `2 ≤ g`, are smooth, also after base change to a scheme. -/
+@[stacks 0E79] #check
+  (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.instSmooth_stable :
+    ∀ (S : Scheme.{u}),
     CohStack.Hom.Smooth
-      (inclusionOf (stable S) ≫ CohStack.toIdentitySlice (toGroupoids S)) :=
-  sorry
+      (inclusionOf (stable S) ≫ CohStack.toIdentitySlice (toGroupoids S)))
 
-/-- Lemma 109.22.6 (2): for `2 ≤ g`, the structure morphism `ℳ̄_g ⟶ Spec(Z)`
-is smooth. -/
-@[stacks 0E79]
-instance instSmooth_stableOfGenus (g : ℕ) (S : Scheme.{u}) :
+#check
+  (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.instSmooth_stableOfGenus :
+    ∀ (g : ℕ) (S : Scheme.{u}) [Fact (2 ≤ g)],
     CohStack.Hom.Smooth
       (inclusionOf (stableOfGenus g S) ≫
-        CohStack.toIdentitySlice (toGroupoids S)) :=
-  sorry
+        CohStack.toIdentitySlice (toGroupoids S)))
 
 end Curves
 end Spaces

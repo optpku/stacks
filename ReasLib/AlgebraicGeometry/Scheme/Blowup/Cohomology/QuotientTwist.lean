@@ -87,12 +87,12 @@ noncomputable def inverseExceptionalSection
   let c :
       (SheafOfModules.unit X.toRingedSpace.ringCatSheaf : X.toRingedSpace.Modules) ⟶
         (@ihom _ _ (RingedSpace.modulesMonoidalCategory X.toRingedSpace) L
-          (MonoidalCategory.isInvertibleObject.closed L)).obj
+          (MonoidalClosed.closed L)).obj
           (SheafOfModules.unit X.toRingedSpace.ringCatSheaf) :=
     (RingedSpace.unitIsoTensorUnit X.toRingedSpace).hom ≫
       @MonoidalClosed.curry _ _ (RingedSpace.modulesMonoidalCategory X.toRingedSpace)
         L (SheafOfModules.unit X.toRingedSpace.ringCatSheaf) (𝟙_ _)
-        (MonoidalCategory.isInvertibleObject.closed L) ((ρ_ L).hom ≫ e)
+        (MonoidalClosed.closed L) ((ρ_ L).hom ≫ e)
   (RingedSpace.InvertiblePower.sheaf
       (exceptionalIdeal I p).toSubobject.toModule (-1)).unitHomEquiv
     (c ≫

@@ -7,18 +7,38 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 import ReasLib.CategoryTheory.Filtration.Derived.Injective
-import stacks_project.Chap64.Lemma_64_7_2_Projective
-import stacks_project.Chap64.Lemma_64_7_2_Minus
+import ReasLib.CategoryTheory.Filtration.Derived.Projective
+import ReasLib.CategoryTheory.Filtration.Derived.RightExact
 import StacksCheckRecall
-
-@[expose] public section
 
 open CategoryTheory
 
-/- Lemma 64.7.2 (1): if C has enough injectives, then DF⁺(C) ≌ K⁺(I), where I is the
-full additive subcategory of Filᶠ(C) consisting of filtered injective objects. -/
-@[stacks 03TB] #check @FilteredObject.FiniteDerived.Plus.FilteredInjective.equivalenceOfEnoughInjectives
+universe v u
 
-/- Lemma 64.7.2 (2): if C has enough projectives, then DF⁻(C) ≌ K⁻(P), where P is the
-full additive subcategory of Filᶠ(C) consisting of filtered projective objects. -/
-@[stacks 03TB] #check @FilteredObject.FiniteDerived.Minus.FilteredProjective.equivalenceOfEnoughProjectives
+namespace CategoryTheory.FilteredObject.FiniteDerived
+variable (C : Type u) [_root_.CategoryTheory.Category.{v} C] [Abelian C]
+variable [HasDerivedCategory (GradedObject ℤ C)]
+variable (h_inverts : AssociatedGraded.Inverts C)
+
+section
+variable [EnoughInjectives C]
+
+/- Lemma 64.7.2 (1): if C has enough injectives, then the bounded-below
+   filtered-injective model is the filtered derived category. -/
+@[stacks 03TB] #check (CategoryTheory.FilteredObject.FiniteDerived.Plus.FilteredInjective.isEquivalence C h_inverts :
+  Functor.IsEquivalence
+    (CategoryTheory.FilteredObject.FiniteDerived.Plus.FilteredInjective.functor C h_inverts))
+
+end
+
+section
+variable [EnoughProjectives C]
+
+/- Lemma 64.7.2 (2): if C has enough projectives, then the bounded-above
+   filtered-projective model is the filtered derived category. -/
+@[stacks 03TB] #check (CategoryTheory.FilteredObject.FiniteDerived.Minus.FilteredProjective.isEquivalence C h_inverts :
+  Functor.IsEquivalence
+    (CategoryTheory.FilteredObject.FiniteDerived.Minus.FilteredProjective.functor C h_inverts))
+end
+
+end CategoryTheory.FilteredObject.FiniteDerived

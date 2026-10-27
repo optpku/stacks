@@ -28,6 +28,7 @@ noncomputable section
 universe u
 
 attribute [local instance] SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor
+attribute [local instance 2000] CategoryTheory.instHasWeakSheafifyOfHasSheafify
 
 namespace AlgebraicGeometry.Scheme.Limit.QcqsAffineLimit
 

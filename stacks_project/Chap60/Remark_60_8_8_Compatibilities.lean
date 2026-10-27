@@ -6,84 +6,48 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap60.Remark_60_8_5_Functoriality
-public import stacks_project.Chap60.Remark_60_8_7_Structure_morphism
-public import ReasLib.AlgebraicGeometry.Scheme.Sites.Zariski.Big
-import Mathlib.Tactic.CrossRefAttribute
-
-@[expose] public section
+public import ReasLib.AlgebraicGeometry.Crystalline.StructureMorphism
+import StacksCheckRecall
 
 open CategoryTheory CategoryTheory.Limits AlgebraicGeometry
-
-noncomputable section
+open AlgebraicGeometry.Scheme.Crystalline
 
 universe u
 
-namespace AlgebraicGeometry.Scheme.Crystalline
-
-section Compatibilities
-
-variable {p : ℕ} [Fact (Nat.Prime p)]
-variable {S S' : Scheme.{u}} (I : S.IdealSheafData) (I' : S'.IdealSheafData)
-variable (γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V))
-variable (γ' : ∀ V : S'.affineOpens, DividedPowers (I'.ideal V))
-variable (h_compatible :
-  ∀ (V : S.affineOpens) (f : Γ(S, V)),
-    (γ V).IsDPMorphism (γ (S.affineBasicOpen f))
-      (S.presheaf.map (homOfLE (S.basicOpen_le f)).op).hom)
-variable (h'_compatible :
-  ∀ (V : S'.affineOpens) (f : Γ(S', V)),
-    (γ' V).IsDPMorphism (γ' (S'.affineBasicOpen f))
-      (S'.presheaf.map (homOfLE (S'.basicOpen_le f)).op).hom)
-variable (s : S ⟶ Spec (.of (ULift.{u} (Int.LocalizationAtPrime p))))
-variable (s' : S' ⟶ Spec (.of (ULift.{u} (Int.LocalizationAtPrime p))))
-variable {X Y : Scheme.{u}} (x₀ : X ⟶ I.subscheme) (y₀ : Y ⟶ I'.subscheme)
-variable (f : X ⟶ Y)
-variable (g : DividedPowerSchemeHom I I' s s')
-variable (h_comm : f ≫ y₀ = x₀ ≫ g.zeroFiberMap)
+variable {p : ℕ} [Fact (Nat.Prime p)] (B B' : Base.{u} p)
+variable (f : B.source ⟶ B'.source)
+variable (g : DividedPowerSchemeHom B.ideal B'.ideal B.toSpec B'.toSpec)
+variable (h_comm : f ≫ B'.sourceToClosed = B.sourceToClosed ≫ g.zeroFiberMap)
 variable (h_dividedPowers_compatible :
-  ∀ (V : S'.affineOpens) (W : S.affineOpens)
+  ∀ (V : B'.scheme.affineOpens) (W : B.scheme.affineOpens)
     (hVW : W.1 ≤ g.base ⁻¹ᵁ V.1),
-    (γ' V).IsDPMorphism (γ W) (g.base.appLE V W hVW).hom)
+    (B'.dividedPowers V).IsDPMorphism (B.dividedPowers W) (g.base.appLE V W hVW).hom)
+variable [HasSheafify
+  (crystallineZariskiTopology B.scheme B.ideal B.dividedPowers B.compatible
+    B.source B.sourceToClosed) (Type (u + 1))]
+variable [HasSheafify
+  (crystallineZariskiTopology B'.scheme B'.ideal B'.dividedPowers B'.compatible
+    B'.source B'.sourceToClosed) (Type (u + 1))]
+variable [∀ P : (RelativeCRIS B.scheme B.ideal B.dividedPowers B.compatible
+    B.source B.sourceToClosed)ᵒᵖ ⥤ Type (u + 1),
+  (bigStructureFunctor B.scheme B.ideal B.dividedPowers B.compatible B.toSpec
+    B.source B.sourceToClosed B.prime_nilpotent).op.HasPointwiseRightKanExtension P]
+variable [∀ P : (RelativeCRIS B'.scheme B'.ideal B'.dividedPowers B'.compatible
+    B'.source B'.sourceToClosed)ᵒᵖ ⥤ Type (u + 1),
+  (bigStructureFunctor B'.scheme B'.ideal B'.dividedPowers B'.compatible B'.toSpec
+    B'.source B'.sourceToClosed B'.prime_nilpotent).op.HasPointwiseRightKanExtension P]
 
-/-- Remark 60.8.8 (Compatibilities): in the functoriality situation of
-Remark 60.8.5, the underlying morphisms of topoi form a commutative square.
-The equality of inverse-image functors expresses the two routes from sheaves on
-the big Zariski topos of `S'` to sheaves on the crystalline topos of `Y/S'`.
--/
-@[stacks 07MG]
-theorem crystallineToposHom_bigStructureMorphism
-    (pX : ∀ U : X.affineOpens, IsNilpotent (p : Γ(X, U)))
-    (pY : ∀ U : Y.affineOpens, IsNilpotent (p : Γ(Y, U)))
-    [HasWeakSheafify
-      (crystallineZariskiTopology S' I' γ' h'_compatible Y y₀)
-      (Type (u + 1))]
-    [∀ P : (RelativeCRIS S I γ h_compatible X x₀)ᵒᵖ ⥤ Type (u + 1),
-      (Functor.op (CrystallineFunctor.of f g h_comm pX pY
-        h_dividedPowers_compatible).toRelativeFunctor).HasLeftKanExtension P]
-    [PreservesFiniteLimits
-      ((CrystallineFunctor.of f g h_comm pX pY
-        h_dividedPowers_compatible).toRelativeFunctor.sheafPullback (Type (u + 1))
-        (crystallineZariskiTopology S I γ h_compatible X x₀)
-        (crystallineZariskiTopology S' I' γ' h'_compatible Y y₀))]
-    [HasSheafify
-      (crystallineZariskiTopology S I γ h_compatible X x₀)
-      (Type (u + 1))]
-    [∀ P : (RelativeCRIS S I γ h_compatible X x₀)ᵒᵖ ⥤ Type (u + 1),
-      (bigStructureFunctor S I γ h_compatible s X x₀ pX).op.HasPointwiseRightKanExtension P]
-    [HasSheafify
-      (crystallineZariskiTopology S' I' γ' h'_compatible Y y₀)
-      (Type (u + 1))]
-    [∀ P : (RelativeCRIS S' I' γ' h'_compatible Y y₀)ᵒᵖ ⥤ Type (u + 1),
-      (bigStructureFunctor S' I' γ' h'_compatible s' Y y₀ pY).op.HasPointwiseRightKanExtension P] :
-    (Zariski.Big.morphismOfTopoi g.base).inverseImage ⋙
-        (bigStructureMorphism S I γ h_compatible s X x₀ pX).inverseImage ⋙
-        (crystallineToposHom I I' γ γ' h_compatible h'_compatible s s' x₀ y₀ f g
-          h_comm h_dividedPowers_compatible pX pY).inverseImage =
-      (bigStructureMorphism S' I' γ' h'_compatible s' Y y₀ pY).inverseImage := sorry
-
-end Compatibilities
-
-end AlgebraicGeometry.Scheme.Crystalline
-
-end
+/- Remark 60.8.8 (Compatibilities)
+The underlying morphisms of topoi commute up to a canonical natural isomorphism
+of inverse images. The ringed enhancement fails for the source-object structure
+functor: it would require maps from functions on U to functions on its thickening T,
+including an impossible unital ring map 𝔽₃ → ℤ/9ℤ. -/
+@[stacks 07MG] #check
+  (AlgebraicGeometry.Scheme.Crystalline.crystallineToposHom_bigStructureMorphismIso
+    B B' f g h_comm h_dividedPowers_compatible :
+    (Scheme.Zariski.Big.morphismOfTopoi g.base).inverseImage ⋙
+        (bigStructureMorphism B.scheme B.ideal B.dividedPowers B.compatible B.toSpec
+          B.source B.sourceToClosed B.prime_nilpotent).inverseImage ≅
+      (bigStructureMorphism B'.scheme B'.ideal B'.dividedPowers B'.compatible B'.toSpec
+          B'.source B'.sourceToClosed B'.prime_nilpotent).inverseImage ⋙
+        (functorialToposHom B B' f g h_comm h_dividedPowers_compatible).inverseImage)

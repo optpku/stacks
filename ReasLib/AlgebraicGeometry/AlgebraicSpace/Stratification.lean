@@ -44,13 +44,21 @@ def stratumPoints (U : ℕ → OpenSubspace X) (n : ℕ) : Set (Points X) :=
 and not in the next one. -/
 theorem mem_stratumPoints (U : ℕ → OpenSubspace X) (n : ℕ) {x : Points X} :
     x ∈ stratumPoints U n ↔ x ∈ (U n).pointsSet ∧ x ∉ (U (n + 1)).pointsSet :=
-  sorry
+  Iff.rfl
 
 /-- The inverse image of `stratumPoints U n` in `|U n|` is closed, so it carries a
 reduced induced closed subspace structure. -/
 theorem isClosed_preimage_stratumPoints (U : ℕ → OpenSubspace X) (n : ℕ) :
-    IsClosed ((Points.map (U n).ι) ⁻¹' stratumPoints U n) :=
-  sorry
+    IsClosed ((Points.map (U n).ι) ⁻¹' stratumPoints U n) := by
+  have h : (Points.map (U n).ι) ⁻¹' stratumPoints U n =
+      ((Points.map (U n).ι) ⁻¹' (U (n + 1)).pointsSet)ᶜ := by
+    ext x
+    constructor
+    · exact fun hx ↦ hx.2
+    · exact fun hx ↦ ⟨⟨x, rfl⟩, hx⟩
+  rw [h]
+  exact ((OpenSubspace.isOpen_pointsSet (U (n + 1))).preimage
+    (Points.continuous_map (U n).ι)).isClosed_compl
 
 /-- The reduced induced closed subspace `T_{n+1} ⊂ U_{n+1}` on the inverse image of
 the successive difference of open stages. -/
@@ -62,13 +70,17 @@ def reducedStratum (U : ℕ → OpenSubspace X) (n : ℕ) : ClosedSubspace (U n)
 `stratumPoints U n` in `|U n|`. -/
 theorem reducedStratum_pointsSet (U : ℕ → OpenSubspace X) (n : ℕ) :
     (reducedStratum U n).pointsSet = (Points.map (U n).ι) ⁻¹' stratumPoints U n :=
-  sorry
+  (ClosedSubspaceStructure.reduced
+    ⟨(Points.map (U n).ι) ⁻¹' stratumPoints U n,
+      isClosed_preimage_stratumPoints U n⟩).pointsSet_eq
 
 /-- The closed subspace `reducedStratum U n` is reduced in the étale-local sense. -/
 theorem reducedStratum_isReduced (U : ℕ → OpenSubspace X) (n : ℕ) :
     hasEtaleLocal (AlgebraicGeometry.IsReduced : ObjectProperty Scheme.{u})
       (reducedStratum U n).X :=
-  sorry
+  ReducedClosed.Construction.actual_reduced (U n).X
+    ⟨(Points.map (U n).ι) ⁻¹' stratumPoints U n,
+      isClosed_preimage_stratumPoints U n⟩
 
 /-- A nested sequence of open subspaces of `X` equipped with separated-scheme
 surjective étale presentations that are isomorphisms over the successive reduced
@@ -143,7 +155,7 @@ theorem ofStages_openStage (openStage : ℕ → OpenSubspace X) (schemeStage : �
         isSeparated_schemeStage etale_cover surjective_cover isIso_cover_stratum
         quasiCompactFieldPoint_mem_stratum).openStage =
       openStage :=
-  sorry
+  rfl
 
 /-- The presenting schemes of a filtration built by `ofStages` are the supplied schemes. -/
 @[simp]
@@ -162,7 +174,7 @@ theorem ofStages_schemeStage (openStage : ℕ → OpenSubspace X) (schemeStage :
         isSeparated_schemeStage etale_cover surjective_cover isIso_cover_stratum
         quasiCompactFieldPoint_mem_stratum).schemeStage =
       schemeStage :=
-  sorry
+  rfl
 
 /-- The cover morphisms of a filtration built by `ofStages` are the supplied covers. -/
 @[simp]
@@ -181,7 +193,7 @@ theorem ofStages_cover (openStage : ℕ → OpenSubspace X) (schemeStage : ℕ �
         isSeparated_schemeStage etale_cover surjective_cover isIso_cover_stratum
         quasiCompactFieldPoint_mem_stratum).cover =
       cover :=
-  sorry
+  rfl
 
 /-- The nested, endpoint, separated, étale, surjective, isomorphism-over-stratum,
 and quasi-compact field-point conditions of a scheme-stratum filtration. -/
@@ -193,7 +205,9 @@ theorem spec (F : SchemeStratumFiltration X) :
       (∀ n, IsIso (pullback.snd (F.cover n) (reducedStratum F.openStage n).ι)) ∧
       ∀ p : FieldValuedPoint X, QuasiCompact p.hom →
         ∃ n, Points.mk p ∈ stratumPoints F.openStage n :=
-  sorry
+  ⟨F.antitone_pointsSet, F.pointsSet_zero, F.isSeparated_schemeStage,
+    F.etale_cover, F.surjective_cover, F.isIso_cover_stratum,
+    F.quasiCompactFieldPoint_mem_stratum⟩
 
 /-- In any pullback square for `cover n` along `reducedStratum n`, the projection
 to the reduced stratum is an isomorphism. -/
@@ -201,8 +215,10 @@ theorem isIso_snd_of_isPullback (F : SchemeStratumFiltration X) (n : ℕ)
     {P : AlgebraicSpace S} {pV : P ⟶ ofOver (F.schemeStage n)}
     {pT : P ⟶ (reducedStratum F.openStage n).X}
     (h : IsPullback pV pT (F.cover n) (reducedStratum F.openStage n).ι) :
-    IsIso pT :=
-  sorry
+    IsIso pT := by
+  letI := F.isIso_cover_stratum n
+  rw [← h.isoPullback_hom_snd]
+  infer_instance
 
 end SchemeStratumFiltration
 

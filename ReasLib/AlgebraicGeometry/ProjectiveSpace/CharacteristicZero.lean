@@ -63,7 +63,7 @@ theorem inducedFunctionFieldDegree_eq_of_complexBaseChange
       (schemeOver R 1)).left]
     [IsDominant ((Over.pullback (Spec.map (CommRingCat.ofHom φ))).map π).left] :
     ((Over.pullback (Spec.map (CommRingCat.ofHom φ))).map π).left.inducedFunctionFieldDegree =
-      π.left.inducedFunctionFieldDegree := sorry
+      π.left.inducedFunctionFieldDegree := inducedFunctionFieldDegree_eq_of_charZeroBaseChange φ π
 
 /-- A dominant projective-line endomorphism over a finite field has a common
 characteristic-zero model and a complex specialization preserving its degree. -/

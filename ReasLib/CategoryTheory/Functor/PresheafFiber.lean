@@ -56,21 +56,27 @@ lemma presheafFiber_hom_ext {F : Cᵒᵖ ⥤ Type w} {E : Type w}
     {f g : u.presheafFiber.obj F ⟶ E}
     (h : ∀ (X : C) (x : u.obj X),
       u.toPresheafFiber X x F ≫ f = u.toPresheafFiber X x F ≫ g) :
-    f = g := sorry
+    f = g := by
+  apply colimit.hom_ext
+  intro j
+  exact h j.unop.1 j.unop.2
 
 /-- Generators are compatible with presheaf restriction. -/
 @[elementwise, simp, reassoc]
 lemma toPresheafFiber_w
     {F : Cᵒᵖ ⥤ Type w} {X Y : C} (f : X ⟶ Y) (x : u.obj X) :
     F.map f.op ≫ u.toPresheafFiber X x F =
-      u.toPresheafFiber Y (u.map f x) F := sorry
+      u.toPresheafFiber Y (u.map f x) F := by
+  exact colimit.w ((π u).op ⋙ F)
+    (homMk (u.elementsMk X x) (u.elementsMk Y (u.map f x)) f rfl).op
 
 /-- Generators are natural in the presheaf argument. -/
 @[elementwise, simp, reassoc]
 lemma toPresheafFiber_naturality
     {F G : Cᵒᵖ ⥤ Type w} (f : F ⟶ G) (X : C) (x : u.obj X) :
     u.toPresheafFiber X x F ≫ u.presheafFiber.map f =
-      f.app (op X) ≫ u.toPresheafFiber X x G := sorry
+      f.app (op X) ≫ u.toPresheafFiber X x G := by
+  exact colimit.ι_map (whiskerLeft (π u).op f) (op (u.elementsMk X x))
 
 /-- A compatible family of maps defines a natural transformation to the constant diagram. -/
 private theorem presheafFiberDesc_naturality {F : Cᵒᵖ ⥤ Type w} {E : Type w}
@@ -79,7 +85,11 @@ private theorem presheafFiberDesc_naturality {F : Cᵒᵖ ⥤ Type w} {E : Type 
       F.map f.op ≫ φ X x = φ Y (u.map f x))
     {j k : u.Elementsᵒᵖ} (arrow : j ⟶ k) :
     ((π u).op ⋙ F).map arrow ≫ φ k.unop.1 k.unop.2 =
-      φ j.unop.1 j.unop.2 ≫ 𝟙 E := sorry
+      φ j.unop.1 j.unop.2 ≫ 𝟙 E := by
+  change F.map arrow.unop.val.op ≫ φ k.unop.1 k.unop.2 =
+    φ j.unop.1 j.unop.2 ≫ 𝟙 E
+  simpa only [Category.comp_id, arrow.unop.property] using
+    hφ arrow.unop.val k.unop.2
 
 /-- Descend a compatible family of maps to a map out of the fiber. -/
 noncomputable def presheafFiberDesc {F : Cᵒᵖ ⥤ Type w} {E : Type w}
@@ -100,7 +110,8 @@ lemma toPresheafFiber_presheafFiberDesc {F : Cᵒᵖ ⥤ Type w} {E : Type w}
     (hφ : ∀ ⦃X Y : C⦄ (f : X ⟶ Y) (x : u.obj X),
       F.map f.op ≫ φ X x = φ Y (u.map f x))
     (X : C) (x : u.obj X) :
-    u.toPresheafFiber X x F ≫ u.presheafFiberDesc φ hφ = φ X x := sorry
+    u.toPresheafFiber X x F ≫ u.presheafFiberDesc φ hφ = φ X x := by
+  exact colimit.ι_desc _ _
 
 /-! ### Costalk (right adjoint to fiber) -/
 
@@ -109,7 +120,10 @@ variable (u : C ⥤ Type w)
 /-- Precomposition by the image of an identity arrow acts identically on functions. -/
 private theorem presheafCostalkObj_map_id (E : Type w) (X : Cᵒᵖ) :
     (TypeCat.ofHom fun (value : u.obj X.unop → E) element ↦
-      value (u.map (𝟙 X).unop element)) = 𝟙 (u.obj X.unop → E) := sorry
+      value (u.map (𝟙 X).unop element)) = 𝟙 (u.obj X.unop → E) := by
+  ext value element
+  change value (u.map (𝟙 X.unop) element) = value element
+  simp
 
 /-- Precomposition by the image of a composite agrees with successive restrictions. -/
 private theorem presheafCostalkObj_map_comp (E : Type w) {X Y Z : Cᵒᵖ}
@@ -119,7 +133,11 @@ private theorem presheafCostalkObj_map_comp (E : Type w) {X Y Z : Cᵒᵖ}
       (TypeCat.ofHom fun (value : u.obj X.unop → E) element ↦
         value (u.map first.unop element)) ≫
       (TypeCat.ofHom fun (value : u.obj Y.unop → E) element ↦
-        value (u.map second.unop element)) := sorry
+        value (u.map second.unop element)) := by
+  ext value element
+  change value (u.map (second.unop ≫ first.unop) element) =
+    value (u.map first.unop (u.map second.unop element))
+  simp
 
 /-- The presheaf of functions from the values of `u` to a fixed set. -/
 private def presheafCostalkObj (E : Type w) : Cᵒᵖ ⥤ Type w where
@@ -136,7 +154,9 @@ private theorem presheafCostalkMap_naturality {E E' : Type w} (map : E ⟶ E')
       (TypeCat.ofHom fun (value : u.obj Y.unop → E) element ↦ map (value element)) =
       (TypeCat.ofHom fun (value : u.obj X.unop → E) element ↦ map (value element)) ≫
       (TypeCat.ofHom fun (value : u.obj X.unop → E') element ↦
-        value (u.map arrow.unop element)) := sorry
+        value (u.map arrow.unop element)) := by
+  ext value element
+  rfl
 
 /-- Postcomposition induces a natural transformation between function-valued presheaves. -/
 private def presheafCostalkMap {E E' : Type w} (map : E ⟶ E') :
@@ -146,13 +166,17 @@ private def presheafCostalkMap {E E' : Type w} (map : E ⟶ E') :
 
 /-- Postcomposition with an identity induces the identity natural transformation. -/
 private theorem presheafCostalk_map_id (E : Type w) :
-    presheafCostalkMap u (𝟙 E) = 𝟙 (presheafCostalkObj u E) := sorry
+    presheafCostalkMap u (𝟙 E) = 𝟙 (presheafCostalkObj u E) := by
+  ext X value
+  rfl
 
 /-- Postcomposition preserves composition as a natural transformation of presheaves. -/
 private theorem presheafCostalk_map_comp {E E' E'' : Type w}
     (first : E ⟶ E') (second : E' ⟶ E'') :
     presheafCostalkMap u (first ≫ second) =
-      presheafCostalkMap u first ≫ presheafCostalkMap u second := sorry
+      presheafCostalkMap u first ≫ presheafCostalkMap u second := by
+  ext X value
+  rfl
 
 /-- The presheaf-valued costalk functor: sends a set `E` to the presheaf `X ↦ (u.obj X → E)`.
 This is right adjoint to `presheafFiber u`. -/
@@ -173,7 +197,12 @@ private theorem presheafFiberCostalkTo_naturality {F : Cᵒᵖ ⥤ Type w} {E : 
       φ (colimit.ι ((π u).op ⋙ F) (op (u.elementsMk Y.unop element)) value)) =
       (TypeCat.ofHom fun (value : F.obj X) element ↦
         φ (colimit.ι ((π u).op ⋙ F) (op (u.elementsMk X.unop element)) value)) ≫
-      (u.presheafCostalk.obj E).map arrow := sorry
+      (u.presheafCostalk.obj E).map arrow := by
+  ext value element
+  change φ (u.toPresheafFiber Y.unop element F (F.map arrow value)) =
+    φ (u.toPresheafFiber X.unop (u.map arrow.unop element) F value)
+  exact congrArg (fun z ↦ φ z)
+    (ConcreteCategory.congr_hom (toPresheafFiber_w u arrow.unop element) value)
 
 /-- A map from a presheaf fiber induces a costalk transformation by evaluating generators. -/
 private def presheafFiberCostalkTo {F : Cᵒᵖ ⥤ Type w} {E : Type w}
@@ -189,7 +218,14 @@ private theorem presheafFiberCostalkFrom_naturality {F : Cᵒᵖ ⥤ Type w} {E 
       (TypeCat.ofHom fun (value : F.obj (op k.unop.1)) ↦
         ψ.app (op k.unop.1) value k.unop.2) =
       (TypeCat.ofHom fun (value : F.obj (op j.unop.1)) ↦
-        ψ.app (op j.unop.1) value j.unop.2) ≫ 𝟙 E := sorry
+        ψ.app (op j.unop.1) value j.unop.2) ≫ 𝟙 E := by
+  ext value
+  change ψ.app (op k.unop.1) (F.map arrow.unop.val.op value) k.unop.2 =
+    ψ.app (op j.unop.1) value j.unop.2
+  have h := congrFun (ψ.naturality_apply arrow.unop.val.op value) k.unop.2
+  change ψ.app (op k.unop.1) (F.map arrow.unop.val.op value) k.unop.2 =
+    ψ.app (op j.unop.1) value (u.map arrow.unop.val k.unop.2) at h
+  simpa only [arrow.unop.property] using h
 
 /-- A costalk transformation induces a map from the fiber by colimit descent. -/
 private def presheafFiberCostalkFrom {F : Cᵒᵖ ⥤ Type w} {E : Type w}
@@ -200,29 +236,53 @@ private def presheafFiberCostalkFrom {F : Cᵒᵖ ⥤ Type w} {E : Type w}
                ψ.app (op j.unop.1) value j.unop.2
              naturality := fun _ _ arrow ↦ presheafFiberCostalkFrom_naturality u ψ arrow } }
 
+/-- Descent of a costalk transformation evaluates its component on each generator. -/
+private theorem presheafFiberCostalkFrom_ι {F : Cᵒᵖ ⥤ Type w} {E : Type w}
+    (ψ : F ⟶ u.presheafCostalk.obj E) (X : C) (x : u.obj X) :
+    u.toPresheafFiber X x F ≫ presheafFiberCostalkFrom u ψ =
+      TypeCat.ofHom (fun value ↦ ψ.app (op X) value x) := by
+  exact colimit.ι_desc _ _
+
 /-- Descent after evaluation on generators recovers the original map from the fiber. -/
 private theorem presheafFiberCostalk_left_inv {F : Cᵒᵖ ⥤ Type w} {E : Type w}
     (φ : u.presheafFiber.obj F ⟶ E) :
-    presheafFiberCostalkFrom u (presheafFiberCostalkTo u φ) = φ := sorry
+    presheafFiberCostalkFrom u (presheafFiberCostalkTo u φ) = φ := by
+  apply u.presheafFiber_hom_ext
+  intro X x
+  change colimit.ι _ _ ≫ colimit.desc _ _ = _
+  rw [colimit.ι_desc]
+  rfl
 
 /-- Evaluation on generators after descent recovers the original costalk transformation. -/
 private theorem presheafFiberCostalk_right_inv {F : Cᵒᵖ ⥤ Type w} {E : Type w}
     (ψ : F ⟶ u.presheafCostalk.obj E) :
-    presheafFiberCostalkTo u (presheafFiberCostalkFrom u ψ) = ψ := sorry
+    presheafFiberCostalkTo u (presheafFiberCostalkFrom u ψ) = ψ := by
+  ext X value
+  funext element
+  change (u.toPresheafFiber X.unop element F ≫ presheafFiberCostalkFrom u ψ) value =
+    ψ.app X value element
+  exact ConcreteCategory.congr_hom (presheafFiberCostalkFrom_ι u ψ X.unop element) value
 
 /-- Descent of costalk transformations commutes with precomposition in the presheaf. -/
 private theorem presheafFiberCostalk_naturality_left_symm
     {F' F : Cᵒᵖ ⥤ Type w} {E : Type w}
     (map : F' ⟶ F) (ψ : F ⟶ u.presheafCostalk.obj E) :
     presheafFiberCostalkFrom u (map ≫ ψ) =
-      u.presheafFiber.map map ≫ presheafFiberCostalkFrom u ψ := sorry
+      u.presheafFiber.map map ≫ presheafFiberCostalkFrom u ψ := by
+  apply u.presheafFiber_hom_ext
+  intro X x
+  rw [← Category.assoc, toPresheafFiber_naturality, Category.assoc,
+    presheafFiberCostalkFrom_ι, presheafFiberCostalkFrom_ι]
+  rfl
 
 /-- Evaluation on generators commutes with postcomposition of maps from the fiber. -/
 private theorem presheafFiberCostalk_naturality_right
     {F : Cᵒᵖ ⥤ Type w} {E E' : Type w}
     (φ : u.presheafFiber.obj F ⟶ E) (map : E ⟶ E') :
     presheafFiberCostalkTo u (φ ≫ map) =
-      presheafFiberCostalkTo u φ ≫ u.presheafCostalk.map map := sorry
+      presheafFiberCostalkTo u φ ≫ u.presheafCostalk.map map := by
+  ext X value
+  rfl
 
 end
 
@@ -241,6 +301,7 @@ noncomputable def presheafFiberCostalkAdj
 
 /-- The presheaf-valued costalk of `u` is right adjoint to its presheaf fiber functor. -/
 instance presheafCostalk_isRightAdjoint
-    [HasColimitsOfShape u.Elementsᵒᵖ (Type w)] : u.presheafCostalk.IsRightAdjoint := sorry
+    [HasColimitsOfShape u.Elementsᵒᵖ (Type w)] : u.presheafCostalk.IsRightAdjoint :=
+  u.presheafFiberCostalkAdj.isRightAdjoint
 
 end CategoryTheory.Functor

@@ -7,6 +7,7 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.Basic
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.Perfect
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.StructureModule
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.Quasicoherent.StructureSheaf
 
@@ -30,5 +31,13 @@ abbrev structureSheafDerived {S : Scheme.{u}} (X : AlgebraicSpace S) : ModuleDer
 /-- The structure sheaf placed in degree zero has quasi-coherent cohomology. -/
 theorem structureSheafDerived_mem {S : Scheme.{u}} (X : AlgebraicSpace S) :
     derivedQuasiCoherentModuleProperty X (structureSheafDerived X) := sorry
+
+namespace ModuleDerived
+
+/-- The structure sheaf concentrated in degree zero is a perfect derived module. -/
+theorem isPerfect_structureSheafDerived {S : Scheme.{u}} {X : AlgebraicSpace S} :
+    IsPerfect (structureSheafDerived X) := sorry
+
+end ModuleDerived
 
 end AlgebraicGeometry.AlgebraicSpace

@@ -6,6 +6,9 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 public import ReasLib.AlgebraicGeometry.FormalDeformation.RimSchlessinger
+public import ReasLib.AlgebraicGeometry.FormalDeformation.Lifts
+public import ReasLib.AlgebraicGeometry.FormalDeformation.ArtinianLocal.Coimage
+public import ReasLib.AlgebraicGeometry.FormalDeformation.ArtinianLocal.CospanPullback
 public import ReasLib.CategoryTheory.Fibered.Lifts.Pushforward
 
 public import Mathlib.Algebra.Algebra.Prod
@@ -18,6 +21,8 @@ public import ReasLib.AlgebraicGeometry.FormalDeformation.ArtinianLocal
 
 The fibre product `A' ×_A A'` of a morphism `f : A' ⟶ A` with itself is the algebra
 pullback of `f.hom` along itself, bundled as an object of `C_Λ`.
+It specializes the cospan pullback using the identity of `A'`: the diagonal splits
+the first projection, so no surjectivity assumption on `f` is needed.
 -/
 
 @[expose] public section
@@ -40,35 +45,14 @@ abbrev selfPullbackSubalgebra (f : A' ⟶ A) :
   @AlgHom.pullback Λ A'.carrier A'.carrier A.carrier
     _ _ A'.algebra _ A'.algebra _ A.algebra f.hom f.hom
 
-/-- The fibre product `A' ×_A A'` is a local ring. -/
-instance instIsLocalRing_selfPullback (f : A' ⟶ A) :
-    IsLocalRing (@AlgHom.pullback Λ A'.carrier A'.carrier A.carrier
-      _ _ A'.algebra _ A'.algebra _ A.algebra f.hom f.hom) :=
-  sorry
-
 /-- The residue-field algebra structure on the self fibre product. -/
 abbrev selfPullbackResidueFieldAlgebra (f : A' ⟶ A) :
     Algebra Λ (ResidueField (selfPullbackSubalgebra f)) :=
   @ResidueField.algebra (selfPullbackSubalgebra f)
-    _ (instIsLocalRing_selfPullback f) Λ inferInstance
+    _ (instIsLocalRing_cospanPullback f f) Λ inferInstance
     (@Subalgebra.algebra Λ (A'.carrier × A'.carrier) _ _
       (@Prod.algebra Λ A'.carrier A'.carrier _ _ A'.algebra _ A'.algebra)
       (selfPullbackSubalgebra f))
-
-/-- The fibre product `A' ×_A A'` is Artinian. -/
-instance instIsArtinianRing_selfPullback (f : A' ⟶ A) :
-    IsArtinianRing (@AlgHom.pullback Λ A'.carrier A'.carrier A.carrier
-      _ _ A'.algebra _ A'.algebra _ A.algebra f.hom f.hom) := sorry
-
-/-- The first algebra projection of `A' ×_A A'` is local. -/
-instance instIsLocalHom_selfPullbackFst (f : A' ⟶ A) :
-    IsLocalHom (@AlgHom.pullbackFst Λ A'.carrier A'.carrier A.carrier
-      _ _ A'.algebra _ A'.algebra _ A.algebra f.hom f.hom) := sorry
-
-/-- The second algebra projection of `A' ×_A A'` is local. -/
-instance instIsLocalHom_selfPullbackSnd (f : A' ⟶ A) :
-    IsLocalHom (@AlgHom.pullbackSnd Λ A'.carrier A'.carrier A.carrier
-      _ _ A'.algebra _ A'.algebra _ A.algebra f.hom f.hom) := sorry
 
 /-- The diagonal algebra map `A' → A' ×_A A'`, sending `a` to `(a, a)`. -/
 noncomputable def selfPullbackDiagonalHom (f : A' ⟶ A) :
@@ -95,48 +79,16 @@ instance instIsLocalHom_selfPullbackDiagonalHom (f : A' ⟶ A) :
     IsLocalHom (selfPullbackDiagonalHom f) := sorry
 
 /-- Residue-field identification of `A' ×_A A'` with `k`, via the first projection
-and the residue identification of `A'`. -/
+and the residue identification of `A'`. This is the cospan identification for the
+identity comparison `A' ⟶ A'`, whose section is the diagonal. -/
 noncomputable def selfPullbackResidueFieldIso (f : A' ⟶ A) :
     @AlgEquiv Λ (ResidueField (selfPullbackSubalgebra f)) k _ _ _
-      (selfPullbackResidueFieldAlgebra f) inferInstance := by
-  let m₁ := @ResidueField.mapAlgHom Λ
-    (selfPullbackSubalgebra f) A'.carrier
-    _ _ (instIsLocalRing_selfPullback f) _ A'.isLocalRing
-    (@Subalgebra.algebra Λ (A'.carrier × A'.carrier) _ _
-      (@Prod.algebra Λ A'.carrier A'.carrier _ _ A'.algebra _ A'.algebra)
-      (selfPullbackSubalgebra f)) A'.algebra
-    (@AlgHom.pullbackFst Λ A'.carrier A'.carrier A.carrier
-      _ _ A'.algebra _ A'.algebra _ A.algebra f.hom f.hom) inferInstance
-  let m₂ := @ResidueField.mapAlgHom Λ A'.carrier
-    (selfPullbackSubalgebra f)
-    _ _ A'.isLocalRing _ (instIsLocalRing_selfPullback f)
-    A'.algebra
-    (@Subalgebra.algebra Λ (A'.carrier × A'.carrier) _ _
-      (@Prod.algebra Λ A'.carrier A'.carrier _ _ A'.algebra _ A'.algebra)
-      (selfPullbackSubalgebra f))
-    (selfPullbackDiagonalHom f) (instIsLocalHom_selfPullbackDiagonalHom f)
-  exact AlgEquiv.ofAlgHom
-    (@AlgHom.comp Λ (ResidueField (selfPullbackSubalgebra f))
-      (@ResidueField A'.carrier _ A'.isLocalRing) k
-      _ _ _ _ (selfPullbackResidueFieldAlgebra f)
-      (@ResidueField.algebra A'.carrier _ A'.isLocalRing Λ _ A'.algebra)
-      inferInstance (ArtinianLocalAlgCat.residueIsoHom A') m₁)
-    (@AlgHom.comp Λ k (@ResidueField A'.carrier _ A'.isLocalRing)
-      (ResidueField (selfPullbackSubalgebra f))
-      _ _ _ _ inferInstance
-      (@ResidueField.algebra A'.carrier _ A'.isLocalRing Λ _ A'.algebra)
-      (selfPullbackResidueFieldAlgebra f) m₂
-      (@AlgEquiv.toAlgHom Λ k (@ResidueField A'.carrier _ A'.isLocalRing) _ _ _
-        inferInstance (@ResidueField.algebra A'.carrier _ A'.isLocalRing Λ _ A'.algebra)
-        (@AlgEquiv.symm Λ (@ResidueField A'.carrier _ A'.isLocalRing) k _ _ _
-          (@ResidueField.algebra A'.carrier _ A'.isLocalRing Λ _ A'.algebra)
-          inferInstance A'.residueFieldIso)))
-    sorry sorry
+      (selfPullbackResidueFieldAlgebra f) inferInstance :=
+  cospanPullbackResidueFieldIso f f (𝟙 A') (Category.id_comp f)
 
 /-- The fibre product `A' ×_A A'`, viewed as an object of `ArtinianLocalAlgCat`. -/
 noncomputable def selfPullback (f : A' ⟶ A) : ArtinianLocalAlgCat Λ k :=
-  of (@AlgHom.pullback Λ A'.carrier A'.carrier A.carrier
-    _ _ A'.algebra _ A'.algebra _ A.algebra f.hom f.hom) (selfPullbackResidueFieldIso f)
+  cospanPullback f f (𝟙 A') (Category.id_comp f)
 
 /-- The bundled self fibre product has the algebra-pullback carrier. -/
 theorem selfPullback_carrier (f : A' ⟶ A) :
@@ -176,7 +128,9 @@ noncomputable def selfPullbackLift {B : ArtinianLocalAlgCat Λ k} (f : A' ⟶ A)
       (@AlgHom.prod Λ B.carrier A'.carrier A'.carrier
         _ _ B.algebra _ A'.algebra _ A'.algebra g₁.hom g₂.hom)
       (@AlgHom.pullback Λ A'.carrier A'.carrier A.carrier
-        _ _ A'.algebra _ A'.algebra _ A.algebra f.hom f.hom) sorry)
+        _ _ A'.algebra _ A'.algebra _ A.algebra f.hom f.hom) (by
+          intro b
+          exact congrArg (fun q : B ⟶ A ↦ q.hom b) h))
     sorry sorry
 
 /-- The underlying algebra map of `selfPullbackFst` is the first algebra projection. -/
@@ -214,12 +168,20 @@ theorem selfPullbackDiagonal_comp_snd (f : A' ⟶ A) :
 /-- The induced lift projects to the first given map. -/
 theorem selfPullbackLift_comp_fst {B : ArtinianLocalAlgCat Λ k} (f : A' ⟶ A)
     (g₁ g₂ : B ⟶ A') (h : g₁ ≫ f = g₂ ≫ f) :
-    selfPullbackLift f g₁ g₂ h ≫ selfPullbackFst f = g₁ := sorry
+    selfPullbackLift f g₁ g₂ h ≫ selfPullbackFst f = g₁ := by
+  apply hom_ext
+  apply AlgHom.ext
+  intro b
+  rfl
 
 /-- The induced lift projects to the second given map. -/
 theorem selfPullbackLift_comp_snd {B : ArtinianLocalAlgCat Λ k} (f : A' ⟶ A)
     (g₁ g₂ : B ⟶ A') (h : g₁ ≫ f = g₂ ≫ f) :
-    selfPullbackLift f g₁ g₂ h ≫ selfPullbackSnd f = g₂ := sorry
+    selfPullbackLift f g₁ g₂ h ≫ selfPullbackSnd f = g₂ := by
+  apply hom_ext
+  apply AlgHom.ext
+  intro b
+  rfl
 
 /-- The self-cospan square is a pullback in `ArtinianLocalAlgCat`. -/
 theorem isPullback_selfPullback (f : A' ⟶ A) :
@@ -275,7 +237,13 @@ theorem liftsSelfPullbackToProd_mk [IsFibered.InGroupoids p.op]
 /-- A lift along a surjection in `ArtinianLocalAlgCat` has surjective image under `p`. -/
 theorem ObjectLift.map_hom_surjective {f : A' ⟶ A} (hf : Function.Surjective f.hom)
     {x : p.Fiber A} (a : ObjectLift p f x) :
-    Function.Surjective (p.map a.hom).hom := sorry
+    Function.Surjective (p.map a.hom).hom := by
+  have aux {A B : ArtinianLocalAlgCat Λ k} {a b : F}
+      (f : A ⟶ B) (φ : a ⟶ b) (hφ : p.IsHomLift f φ)
+      (hf : Function.Surjective f.hom) : Function.Surjective (p.map φ).hom := by
+    cases hφ
+    exact hf
+  exact aux f a.hom a.property hf
 
 /-- The Rim-Schlessinger pairing of two lifts of `x` along `f` to a lift along
 `A' ×_A A' ⟶ A`. -/
@@ -287,10 +255,19 @@ noncomputable def liftsSelfPullbackPair [HasRimSchlessinger p]
   let w := Classical.choose h
   let π1 := Classical.choose (Classical.choose_spec h)
   let π2 := Classical.choose (Classical.choose_spec (Classical.choose_spec h))
+  let hPB := (Classical.choose_spec (Classical.choose_spec (Classical.choose_spec h))).1
   let g1 : p.obj w ⟶ A' := p.map π1 ≫ eqToHom (IsHomLift.domain_eq p f a.hom)
   let g2 : p.obj w ⟶ A' := p.map π2 ≫ eqToHom (IsHomLift.domain_eq p f b.hom)
-  ObjectLift.pushforwardAlong (selfPullbackLift f g1 g2 sorry) (selfPullbackToBase f)
-    ⟨Over.mk (π1 ≫ a.hom), sorry⟩
+  ObjectLift.pushforwardAlong
+    (selfPullbackLift f g1 g2 (liftsPullback_lift_comp_eq a b π1 π2 hPB.w))
+    (selfPullbackToBase f) ⟨Over.mk (π1 ≫ a.hom), by
+      let s := selfPullbackLift f g1 g2 (liftsPullback_lift_comp_eq a b π1 π2 hPB.w)
+      letI : p.IsHomLift (s ≫ selfPullbackFst f) π1 := by
+        apply IsHomLift.of_fac' p _ π1 rfl (IsHomLift.domain_eq p f a.hom)
+        simp only [eqToHom_refl, Category.id_comp, s, selfPullbackLift_comp_fst,
+          g1, Category.assoc, eqToHom_trans, Category.comp_id]
+      exact (Category.assoc s (selfPullbackFst f) f) ▸
+        (inferInstance : p.IsHomLift ((s ≫ selfPullbackFst f) ≫ f) (π1 ≫ a.hom))⟩
 
 /-- The two projection classes of the Rim-Schlessinger pairing are the original
 classes of the paired lifts. -/

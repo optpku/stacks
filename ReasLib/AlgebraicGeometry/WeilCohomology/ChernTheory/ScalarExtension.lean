@@ -120,32 +120,63 @@ structure ScalarExtension
   cohomologyGradeEquiv_coe : ∀ X p (a : T.Hgrade X p) (s : F'),
     (cohomologyGradeEquiv X p (s ⊗ₜ[F] a) : H' (baseChange.obj X)) =
       cohomologyEquiv X (s ⊗ₜ[F] (a : H X))
-  /-- The graded comparison commutes with the Tate-shift equivalences. -/
-  tateShift_compatible : ∀ X i j (a : T.Hgrade X (i, j))
-      (t : TateLine) (s r : F'),
-    cohomologyGradeEquiv X (i, j + 1)
-        ((s * r) ⊗ₜ[F] T.tateTwist X i j (a ⊗ₜ[F] t)) =
-      T'.tateTwist (baseChange.obj X) i j
-        (cohomologyGradeEquiv X (i, j) (s ⊗ₜ[F] a) ⊗ₜ[F']
-          tateEquiv (r ⊗ₜ[F] t))
   /-- The first-Chern square uses the canonical Picard pullback along
   `X_k' ⟶ X`. -/
   firstChernClass_commutes : ∀ X
       (L : (geometry.scheme.obj X).left.PicardGroup),
-    cohomologyGradeEquiv X (2, 1) ((1 : F') ⊗ₜ[F] T.firstChernClass X L) =
-      T'.firstChernClass (baseChange.obj X)
+    Tate.twistBaseChangeEquiv T.tateLine_rank tateEquiv (cohomologyGradeEquiv X 2) 1
+        ((1 : F') ⊗ₜ[F] T.twistedFirstChernClass X L) =
+      T'.twistedFirstChernClass (baseChange.obj X)
         (Scheme.Hom.picardPullback
           ((baseChangeIso.app X).inv.left ≫ FieldExtension.Over.toSource k k'
             (geometry.scheme.obj X)) L)
-  /-- The cohomology comparison carries the canonical cycle-class map to the
-  cycle-class map after Chow base change, once the first four axioms make both
-  cycle-class systems canonical. -/
+  /-- Canonical cycle classes commute with the induced external comparison,
+  with the codimension-i Tate power supplied by the given Tate-line map. -/
   cycleClass_commutes : T.InitialAxioms → T'.InitialAxioms →
-    ∀ (gamma : T.CycleClass) (gamma' : T'.CycleClass) X (z : CH X),
-      cohomologyEquiv X ((1 : F') ⊗ₜ[F] gamma.map X z) =
-        gamma'.map (baseChange.obj X) (chowBaseChange X z)
+    ∀ (gamma : T.CycleClass) (gamma' : T'.CycleClass) X i (z : CHgrade X i),
+      Tate.twistBaseChangeEquiv T.tateLine_rank tateEquiv
+          (cohomologyGradeEquiv X (2 * i)) i
+          ((1 : F') ⊗ₜ[F] gamma.twistedMap X i z) =
+        gamma'.twistedMap (baseChange.obj X) i
+          ⟨chowBaseChange X z, (chowBaseChange X).map_mem z.property⟩
 
 namespace ScalarExtension
+
+/-- External comparison induced by the actual graded cohomology comparison
+and the supplied Tate-line equivalence, including dual powers for negative twists. -/
+def cohomologyTwistedEquiv
+    {k : Type u} [Field k] {k' : Type u} [Field k'] [Algebra k k']
+    {F : Type v} [Field F] [CharZero F]
+    {F' : Type v} [Field F'] [CharZero F'] [Algebra F F']
+    {TateLine : Type x} [AddCommGroup TateLine] [Module F TateLine]
+    {TateLine' : Type x'} [AddCommGroup TateLine'] [Module F' TateLine']
+    {V : Type w} [Category.{z} V]
+    {dimension : V → ℕ} {product : V → V → V}
+    {fst : ∀ X Y, product X Y ⟶ X} {snd : ∀ X Y, product X Y ⟶ Y}
+    {point : V} {CH : V → Type y} [∀ X, CommRing (CH X)]
+    {CHgrade : ∀ X, ℤ → Submodule ℤ (CH X)} [∀ X, GradedAlgebra (CHgrade X)]
+    {cyclePullback : ∀ {X Y : V}, (X ⟶ Y) → CHgrade Y →ₐᵍ[ℤ] CHgrade X}
+    {cyclePushforward : ∀ {X Y : V}, (X ⟶ Y) → CH X →+ CH Y}
+    {pointCycle : CHgrade point 0}
+    {geometry : SmoothProjectiveContext k V dimension product fst snd point CH CHgrade
+      cyclePullback cyclePushforward pointCycle}
+    {H : V → Type q} [∀ X, Ring (H X)] [∀ X, Algebra F (H X)]
+    {V' : Type w'} [Category.{z'} V']
+    {dimension' : V' → ℕ} {product' : V' → V' → V'}
+    {fst' : ∀ X Y, product' X Y ⟶ X} {snd' : ∀ X Y, product' X Y ⟶ Y}
+    {point' : V'} {CH' : V' → Type y'} [∀ X, CommRing (CH' X)]
+    {CHgrade' : ∀ X, ℤ → Submodule ℤ (CH' X)} [∀ X, GradedAlgebra (CHgrade' X)]
+    {cyclePullback' : ∀ {X Y : V'}, (X ⟶ Y) → CHgrade' Y →ₐᵍ[ℤ] CHgrade' X}
+    {cyclePushforward' : ∀ {X Y : V'}, (X ⟶ Y) → CH' X →+ CH' Y}
+    {pointCycle' : CHgrade' point' 0}
+    {geometry' : SmoothProjectiveContext k' V' dimension' product' fst' snd' point'
+      CH' CHgrade' cyclePullback' cyclePushforward' pointCycle'}
+    {H' : V' → Type q'} [∀ X, Ring (H' X)] [∀ X, Algebra F' (H' X)]
+    {T : ChernTheory F TateLine geometry H}
+    {T' : ChernTheory F' TateLine' geometry' H'} {baseChange : V ⥤ V'}
+    (e : T.ScalarExtension T' baseChange) (X : V) (i n : ℤ) :
+    F' ⊗[F] T.twistedGrade X i n ≃ₗ[F'] T'.twistedGrade (baseChange.obj X) i n :=
+  Tate.twistBaseChangeEquiv T.tateLine_rank e.tateEquiv (e.cohomologyGradeEquiv X i) n
 
 /-- The identity scalar-extension comparison, once the canonical identity-base-change
 isomorphism of the geometric presentation is supplied. -/
@@ -181,7 +212,6 @@ noncomputable def refl
     cohomologyGradeEquiv := fun X p ↦ TensorProduct.lid F (T.Hgrade X p)
     naturality := sorry
     cohomologyGradeEquiv_coe := sorry
-    tateShift_compatible := sorry
     firstChernClass_commutes := sorry
     cycleClass_commutes := sorry }
 
@@ -255,11 +285,12 @@ theorem firstChernClass_commutes_apply
     {T' : ChernTheory F' TateLine' geometry' H'} {baseChange : V ⥤ V'}
     (e : T.ScalarExtension T' baseChange) (X : V)
     (L : (geometry.scheme.obj X).left.PicardGroup) :
-    e.cohomologyGradeEquiv X (2, 1) ((1 : F') ⊗ₜ[F] T.firstChernClass X L) =
-      T'.firstChernClass (baseChange.obj X)
+    e.cohomologyTwistedEquiv X 2 1 ((1 : F') ⊗ₜ[F] T.twistedFirstChernClass X L) =
+      T'.twistedFirstChernClass (baseChange.obj X)
         (Scheme.Hom.picardPullback
           ((e.baseChangeIso.app X).inv.left ≫ FieldExtension.Over.toSource k k'
-            (geometry.scheme.obj X)) L) := sorry
+            (geometry.scheme.obj X)) L) :=
+  e.firstChernClass_commutes X L
 
 /-- The cycle-class comparison evaluated on a Chow class. -/
 theorem cycleClass_commutes_apply
@@ -294,9 +325,11 @@ theorem cycleClass_commutes_apply
     {T' : ChernTheory F' TateLine' geometry' H'} {baseChange : V ⥤ V'}
     (e : T.ScalarExtension T' baseChange) (h : T.InitialAxioms)
     (h' : T'.InitialAxioms) (gamma : T.CycleClass)
-    (gamma' : T'.CycleClass) (X : V) (z : CH X) :
-    e.cohomologyEquiv X ((1 : F') ⊗ₜ[F] gamma.map X z) =
-      gamma'.map (baseChange.obj X) (e.chowBaseChange X z) := sorry
+    (gamma' : T'.CycleClass) (X : V) (i : ℤ) (z : CHgrade X i) :
+    e.cohomologyTwistedEquiv X (2 * i) i ((1 : F') ⊗ₜ[F] gamma.twistedMap X i z) =
+      gamma'.twistedMap (baseChange.obj X) i
+        ⟨e.chowBaseChange X z, (e.chowBaseChange X).map_mem z.property⟩ :=
+  e.cycleClass_commutes h h' gamma gamma' X i z
 
 end ScalarExtension
 

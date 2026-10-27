@@ -62,7 +62,7 @@ noncomputable def toStackObj
 @[simp, stacks 0430 "stack-in-sets direct-to-nested object readout"]
 theorem toStackObj_toSets
     (X : (IsStack.OnSite.Sets.objectProperty J).FullSubbicategory) :
-    (toStackObj X).toSets = X.1 := sorry
+    (toStackObj X).toSets = X.1 := rfl
 
 /-- Lift a morphism between direct stack objects to the nested stack-in-sets owner. -/
 @[stacks 0430 "stack-in-sets direct-to-nested morphism"]
@@ -75,14 +75,14 @@ noncomputable def toStackMap
 @[stacks 0430 "stack-in-sets direct-to-nested identity"]
 theorem toStackMap_id
     (X : (IsStack.OnSite.Sets.objectProperty J).FullSubbicategory) :
-    toStackMap (𝟙 X) = 𝟙 (toStackObj X) := sorry
+    toStackMap (𝟙 X) = 𝟙 (toStackObj X) := rfl
 
 /-- The direct-to-nested morphism map preserves composition. -/
 @[stacks 0430 "stack-in-sets direct-to-nested composition"]
 theorem toStackMap_comp
     {X Y Z : (IsStack.OnSite.Sets.objectProperty J).FullSubbicategory}
     (f : X ⟶ Y) (g : Y ⟶ Z) :
-    toStackMap (f ≫ g) = toStackMap f ≫ toStackMap g := sorry
+    toStackMap (f ≫ g) = toStackMap f ≫ toStackMap g := rfl
 
 /-- Functor from the direct full-subbicategory presentation to the established stack-in-sets
 owner. -/
@@ -98,7 +98,7 @@ noncomputable def toStack :
 /-- The underlying category fibred in sets of a stack in sets satisfies the stack condition. -/
 @[stacks 0430 "stack-in-sets nested-to-direct membership"]
 theorem fromStackObj_mem (X : StackOver.Sets.{u, v, max w u, v} J) :
-    IsStack.OnSite.Sets.objectProperty J X.toSets := sorry
+    IsStack.OnSite.Sets.objectProperty J X.toSets := X.toSetoids.isStackOnSite
 
 /-- View a nested stack in sets as a directly selected category fibred in sets. -/
 @[stacks 0430 "stack-in-sets nested-to-direct object"]
@@ -115,13 +115,13 @@ def fromStackMap {X Y : StackOver.Sets.{u, v, max w u, v} J} (f : X ⟶ Y) :
 /-- The nested-to-direct morphism map preserves identities. -/
 @[stacks 0430 "stack-in-sets nested-to-direct identity"]
 theorem fromStackMap_id (X : StackOver.Sets.{u, v, max w u, v} J) :
-    fromStackMap (𝟙 X) = 𝟙 (fromStackObj X) := sorry
+    fromStackMap (𝟙 X) = 𝟙 (fromStackObj X) := rfl
 
 /-- The nested-to-direct morphism map preserves composition. -/
 @[stacks 0430 "stack-in-sets nested-to-direct composition"]
 theorem fromStackMap_comp {X Y Z : StackOver.Sets.{u, v, max w u, v} J}
     (f : X ⟶ Y) (g : Y ⟶ Z) :
-    fromStackMap (f ≫ g) = fromStackMap f ≫ fromStackMap g := sorry
+    fromStackMap (f ≫ g) = fromStackMap f ≫ fromStackMap g := rfl
 
 /-- Functor from the established stack-in-sets owner to its direct full-subbicategory
 presentation. -/
@@ -148,7 +148,7 @@ noncomputable def unitApp
 theorem unitApp_naturality
     {X Y : (IsStack.OnSite.Sets.objectProperty J).FullSubbicategory}
     (f : X ⟶ Y) :
-    f ≫ (unitApp Y).hom = (unitApp X).hom ≫ (toStack ⋙ fromStack).map f := sorry
+    f ≫ (unitApp Y).hom = (unitApp X).hom ≫ (toStack ⋙ fromStack).map f := rfl
 
 /-- Unit isomorphism comparing the direct presentation with its round trip through the nested
 owner. -/
@@ -175,7 +175,7 @@ noncomputable def counitApp (X : StackOver.Sets.{u, v, max w u, v} J) :
 theorem counitApp_naturality {X Y : StackOver.Sets.{u, v, max w u, v} J}
     (f : X ⟶ Y) :
     (fromStack ⋙ toStack).map f ≫ (counitApp Y).hom =
-      (counitApp X).hom ≫ f := sorry
+      (counitApp X).hom ≫ f := rfl
 
 /-- Counit isomorphism comparing the nested stack-in-sets owner with its direct round trip. -/
 @[stacks 0430 "stack-in-sets restriction counit"]
@@ -188,7 +188,7 @@ noncomputable def counitIso :
 @[stacks 0430 "stack-in-sets restriction triangle"]
 theorem functor_unitIso_comp
     (X : (IsStack.OnSite.Sets.objectProperty J).FullSubbicategory) :
-    toStack.map (unitIso.hom.app X) ≫ counitIso.hom.app (toStack.obj X) = 𝟙 _ := sorry
+    toStack.map (unitIso.hom.app X) ≫ counitIso.hom.app (toStack.obj X) = 𝟙 _ := rfl
 
 /-- The direct full-subbicategory presentation of stacks in sets is equivalent to the established
 nested owner.  Both functors and both comparison isomorphisms are explicit. -/

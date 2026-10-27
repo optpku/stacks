@@ -42,7 +42,7 @@ def hom_relativelyRepresentable (f : ofOver U ⟶ X) :
 theorem hom_relativelyRepresentable_eq (f : ofOver U ⟶ X) :
     hom_relativelyRepresentable f =
       Functor.relativelyRepresentable.of_diag X.representableDiagonal f :=
-  sorry
+  rfl
 
 /-- The chosen scheme `Spec(k) ×_X U` over `S`, as the represented pullback of `f` along a
 field-valued point of `X`. -/
@@ -74,20 +74,20 @@ abbrev fieldValuedPointPullbackDegree (f : ofOver U ⟶ X) (p : FieldValuedPoint
 theorem fieldValuedPointPullback_isPullback (f : ofOver U ⟶ X) (p : FieldValuedPoint X) :
     IsPullback ((hom_relativelyRepresentable f).fst p.hom)
       (yoneda.map ((hom_relativelyRepresentable f).snd p.hom)) f p.hom :=
-  sorry
+  (hom_relativelyRepresentable f).isPullback p.hom
 
 /-- The fibre structure morphism is the underlying scheme map of the represented pullback
 projection. -/
 theorem fieldValuedPointPullbackSnd_eq (f : ofOver U ⟶ X) (p : FieldValuedPoint X) :
     fieldValuedPointPullbackSnd f p =
       ((hom_relativelyRepresentable f).snd p.hom).left :=
-  sorry
+  rfl
 
 /-- The fibre degree is the finite rank of the global-sections algebra over the source field. -/
 theorem fieldValuedPointPullbackDegree_eq (f : ofOver U ⟶ X) (p : FieldValuedPoint X) :
     fieldValuedPointPullbackDegree f p =
       Module.finrank p.K (fieldValuedPointPullbackGlobalSections f p) :=
-  sorry
+  rfl
 
 /-- A number bounds the fibres of `f` when every field-valued fibre is finite of degree at most
 that number. -/
@@ -100,19 +100,19 @@ theorem degreesOfFibresBoundedBy_iff (f : ofOver U ⟶ X) (n : ℕ) :
     degreesOfFibresBoundedBy f n ↔
       ∀ p : FieldValuedPoint X,
         IsFinite (fieldValuedPointPullbackSnd f p) ∧ fieldValuedPointPullbackDegree f p ≤ n :=
-  sorry
+  Iff.rfl
 
 /-- A fixed fibre bound implies finiteness over each field-valued point. -/
 theorem degreesOfFibresBoundedBy.isFinite {f : ofOver U ⟶ X} {n : ℕ}
     (h : degreesOfFibresBoundedBy f n) (p : FieldValuedPoint X) :
     IsFinite (fieldValuedPointPullbackSnd f p) :=
-  sorry
+  (h p).1
 
 /-- A fixed fibre bound bounds the degree over each field-valued point. -/
 theorem degreesOfFibresBoundedBy.fiberDegree_le {f : ofOver U ⟶ X} {n : ℕ}
     (h : degreesOfFibresBoundedBy f n) (p : FieldValuedPoint X) :
     fieldValuedPointPullbackDegree f p ≤ n :=
-  sorry
+  (h p).2
 
 /-- A numerical fibre bound is equivalent to the same condition on raw fields and morphisms
 `Spec(k) ⟶ X` over `S`. -/
@@ -120,8 +120,12 @@ theorem degreesOfFibresBoundedBy_iff_forall_fields (f : ofOver U ⟶ X) (n : ℕ
     degreesOfFibresBoundedBy f n ↔
       ∀ (k : Type u) [Field k] (σ : Spec (.of k) ⟶ S) (ξ : ofOver (Over.mk σ) ⟶ X),
         IsFinite (fieldValuedPointPullbackSnd f (FieldValuedPoint.of k σ ξ)) ∧
-          fieldValuedPointPullbackDegree f (FieldValuedPoint.of k σ ξ) ≤ n :=
-  sorry
+          fieldValuedPointPullbackDegree f (FieldValuedPoint.of k σ ξ) ≤ n := by
+  constructor
+  · intro h k _ σ ξ
+    exact h (FieldValuedPoint.of k σ ξ)
+  · intro h p
+    exact h p.K p.structureHom p.hom
 
 /-- The fibres of a morphism from a scheme to an algebraic space are universally bounded when
 one natural number bounds the degree of every field-valued fibre. -/
@@ -134,7 +138,7 @@ theorem universallyBoundedFibres_iff (f : ofOver U ⟶ X) :
     universallyBoundedFibres f ↔
       ∃ n : ℕ, ∀ p : FieldValuedPoint X,
         IsFinite (fieldValuedPointPullbackSnd f p) ∧ fieldValuedPointPullbackDegree f p ≤ n :=
-  sorry
+  Iff.rfl
 
 /-- When the target is a scheme, universal fibre boundedness recovers the scheme-morphism
 predicate. -/

@@ -9,6 +9,7 @@ module
 public import ReasLib.Topology.KrullDimension.Stratum
 public import ReasLib.Topology.KrullDimension.Equidimensional
 public import ReasLib.RingTheory.CohenMacaulay.Ring
+public import ReasLib.RingTheory.Ideal.Quotient.PrimeSpectrum
 public import Mathlib.RingTheory.Ideal.Quotient.Operations
 public import Mathlib.LinearAlgebra.FiniteDimensional.Defs
 public import Mathlib.Tactic.CrossRefAttribute
@@ -23,7 +24,7 @@ public import Mathlib.Tactic.CrossRefAttribute
 This leaf owns the finite clopen stratification, its equidimensionality, and
 the resulting product decomposition for finite-type Cohen--Macaulay algebras
 over fields. The underlying topological stratum is owned by
-`PrimeSpectrum.dimensionStratum`.
+`topologicalKrullDimStratum`, applied to `PrimeSpectrum S`.
 -/
 
 universe u v
@@ -43,18 +44,18 @@ a finite clopen cover of the prime spectrum. -/
 @[stacks 00OV "(1), finite clopen dimension-stratum cover"]
 theorem existsFiniteClopenDimensionStrataCover :
     ∃ D : Finset ℕ,
-      (⋃ d : D, PrimeSpectrum.dimensionStratum S (d : ℕ)) = Set.univ ∧
+      (⋃ d : D, topologicalKrullDimStratum (PrimeSpectrum S) (d : ℕ)) = Set.univ ∧
         ∀ d : D,
-          (PrimeSpectrum.dimensionStratum S (d : ℕ)).Nonempty ∧
-            IsClopen (PrimeSpectrum.dimensionStratum S (d : ℕ)) := sorry
+          (topologicalKrullDimStratum (PrimeSpectrum S) (d : ℕ)).Nonempty ∧
+            IsClopen (topologicalKrullDimStratum (PrimeSpectrum S) (d : ℕ)) := sorry
 
 /-- Lemma 10.114.7 (3), tag `00OV`: every nonempty dimension-`d` stratum is
 equidimensional of dimension `d`. -/
 @[stacks 00OV "(3), equidimensional dimension strata"]
 theorem dimensionStratum_equidimensional_and_dimension_eq (d : ℕ)
-    (hd : (PrimeSpectrum.dimensionStratum S d).Nonempty) :
-    TopologicalSpace.EquidimensionalSpace (PrimeSpectrum.dimensionStratum S d) ∧
-      topologicalKrullDim (PrimeSpectrum.dimensionStratum S d) = d := sorry
+    (hd : (topologicalKrullDimStratum (PrimeSpectrum S) d).Nonempty) :
+    TopologicalSpace.EquidimensionalSpace (topologicalKrullDimStratum (PrimeSpectrum S) d) ∧
+      topologicalKrullDim (topologicalKrullDimStratum (PrimeSpectrum S) d) = d := sorry
 
 /-- Lemma 10.114.7, tag 00OV: a finite-type Cohen--Macaulay algebra over a
 field admits a finite product decomposition indexed by its nonempty local
@@ -63,11 +64,11 @@ maximal-ideal height. -/
 @[stacks 00OV "product decomposition by dimension strata"]
 theorem existsDimensionStrataProduct :
     ∃ (D : Finset ℕ)
-      (_ : ∀ d : ℕ, d ∈ D ↔ (PrimeSpectrum.dimensionStratum S d).Nonempty)
+      (_ : ∀ d : ℕ, d ∈ D ↔ (topologicalKrullDimStratum (PrimeSpectrum S) d).Nonempty)
       (I : D → Ideal S)
       (_e : S ≃ₐ[k] ((d : D) → S ⧸ I d)),
       (∀ d : D,
-        PrimeSpectrum.dimensionStratum S (d : ℕ) =
+        topologicalKrullDimStratum (PrimeSpectrum S) (d : ℕ) =
           PrimeSpectrum.zeroLocus (I d : Set S)) ∧
         ∀ d : D,
           ∀ m : MaximalSpectrum (S ⧸ I d), m.asIdeal.height = (d : ℕ) := sorry

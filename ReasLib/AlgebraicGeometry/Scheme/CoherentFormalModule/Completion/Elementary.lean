@@ -32,14 +32,14 @@ def HasAlgebraizationSituationAtDistance (S : AffineAlgebraizationSetup A)
     [hmon : ∀ y : S.Y, ∀ hy : S.y y ∈ S.U,
       MonoidalCategory (DerivedCategory.{u + 1} (ModuleCat.{u}
         (completedLocalRing S (closedFiberOpenPoint S y hy))))]
-    (H : ∀ y : S.Y, ∀ hy : S.y y ∈ S.U,
-      MonoidalClosed (DerivedCategory.{u + 1} (ModuleCat.{u}
-        (completedLocalRing S (closedFiberOpenPoint S y hy)))))
+    (C : ∀ y : S.Y, ∀ hy : S.y y ∈ S.U,
+      CategoryTheory.DerivedCategory.CanonicalClosedPresentation
+        (A := completedLocalRing S (closedFiberOpenPoint S y hy)))
     (s d : ℤ) : Prop :=
   ∀ y : S.Y, (hy : S.y y ∈ S.U) →
     ∀ n : ℕ, algebraizationDistance S y = n →
       @Ideal.LocalCohomology.AlgebraizationSituation
-        (completedLocalRing S (closedFiberOpenPoint S y hy)) _ _ (hmon y hy) (H y hy)
+        (completedLocalRing S (closedFiberOpenPoint S y hy)) _ _ (hmon y hy) (C y hy)
         (completedIdeal S (closedFiberOpenPoint S y hy))
         (completedStalk S F (closedFiberOpenPoint S y hy)).carrier _ _
         (completedStalk_finite S F (closedFiberOpenPoint S y hy))
@@ -67,19 +67,19 @@ theorem inequalities_iff_algebraizationSituation (S : AffineAlgebraizationSetup 
     (F : CoherentFormalModules S.U.toScheme
       ((Scheme.idealSheafDataOfIdealOnSpec S.I).comap S.U.ι))
     [hmonA : MonoidalCategory (DerivedCategory.{u + 1} (ModuleCat.{u} A))]
-    (HA : MonoidalClosed (DerivedCategory.{u + 1} (ModuleCat.{u} A)))
+    (CA : CategoryTheory.DerivedCategory.CanonicalClosedPresentation (A := A))
     [hmon : ∀ y : S.Y, ∀ hy : S.y y ∈ S.U,
       MonoidalCategory (DerivedCategory.{u + 1} (ModuleCat.{u}
         (completedLocalRing S (closedFiberOpenPoint S y hy))))]
-    (Hlocal : ∀ y : S.Y, ∀ hy : S.y y ∈ S.U,
-      MonoidalClosed (DerivedCategory.{u + 1} (ModuleCat.{u}
-        (completedLocalRing S (closedFiberOpenPoint S y hy)))))
+    (Clocal : ∀ y : S.Y, ∀ hy : S.y y ∈ S.U,
+      CategoryTheory.DerivedCategory.CanonicalClosedPresentation
+        (A := completedLocalRing S (closedFiberOpenPoint S y hy)))
     (s d : ℤ)
     (h_cd : Ideal.LocalCohomology.HasDimensionLE S.I d)
     (h_dualizing : ∃ K : DerivedCategory.{u + 1} (ModuleCat.{u} A),
-      K.IsDualizingComplex HA) :
+      K.IsCanonicalDualizingComplex CA) :
     SatisfiesInequalities S F s (s + d) ↔
-      HasAlgebraizationSituationAtDistance S F Hlocal s d := sorry
+      HasAlgebraizationSituationAtDistance S F Clocal s d := sorry
 
 /-- Under the cohomological-dimension and dualizing hypotheses, strict `(s, s + d)`
 inequalities imply ordinary `(s, s + d)` inequalities. -/
@@ -87,10 +87,10 @@ theorem inequalities_of_strict (S : AffineAlgebraizationSetup A)
     (F : CoherentFormalModules S.U.toScheme
       ((Scheme.idealSheafDataOfIdealOnSpec S.I).comap S.U.ι))
     [hmonA : MonoidalCategory (DerivedCategory.{u + 1} (ModuleCat.{u} A))]
-    (HA : MonoidalClosed (DerivedCategory.{u + 1} (ModuleCat.{u} A))) (s d : ℤ)
+    (CA : CategoryTheory.DerivedCategory.CanonicalClosedPresentation (A := A)) (s d : ℤ)
     (h_cd : Ideal.LocalCohomology.HasDimensionLE S.I d)
     (h_dualizing : ∃ K : DerivedCategory.{u + 1} (ModuleCat.{u} A),
-      K.IsDualizingComplex HA)
+      K.IsCanonicalDualizingComplex CA)
     (hF : SatisfiesStrictInequalities S F s (s + d)) :
     SatisfiesInequalities S F s (s + d) := sorry
 

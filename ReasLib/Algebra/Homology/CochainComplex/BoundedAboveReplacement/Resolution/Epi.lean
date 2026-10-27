@@ -68,21 +68,29 @@ instance : CoeOut (QuasiIsoFrom.Epi P a K) (CochainComplex A ℤ) where
   coe R := R.complex
 
 /-- The model retains the specified strict upper bound. -/
-instance complex_isStrictlyLE (R : QuasiIsoFrom.Epi P a K) : R.complex.IsStrictlyLE a := sorry
+instance complex_isStrictlyLE (R : QuasiIsoFrom.Epi P a K) : R.complex.IsStrictlyLE a :=
+  R.model.property.1
 
 /-- Every term of the model satisfies the chosen object property. -/
-theorem term_mem (R : QuasiIsoFrom.Epi P a K) (i : ℤ) : P (R.complex.X i) := sorry
+theorem term_mem (R : QuasiIsoFrom.Epi P a K) (i : ℤ) : P (R.complex.X i) :=
+  R.model.property.2 i
 
 /-- The comparison from the model is a quasi-isomorphism. -/
-instance comparison_quasiIso (R : QuasiIsoFrom.Epi P a K) : QuasiIso R.comparison := sorry
+instance comparison_quasiIso (R : QuasiIsoFrom.Epi P a K) : QuasiIso R.comparison :=
+  R.hw.1
 
 /-- The comparison from the model is an epimorphism of complexes. -/
 instance comparison_epi (R : QuasiIsoFrom.Epi P a K) :
-    _root_.CategoryTheory.Epi R.comparison := sorry
+    _root_.CategoryTheory.Epi R.comparison :=
+  R.hw.2
 
 /-- With pushouts, every component of the comparison is epimorphic. -/
 theorem comparison_epi_f [HasPushouts A] (R : QuasiIsoFrom.Epi P a K) (i : ℤ) :
-    _root_.CategoryTheory.Epi (R.comparison.f i) := sorry
+    _root_.CategoryTheory.Epi (R.comparison.f i) := by
+  change _root_.CategoryTheory.Epi
+    ((HomologicalComplex.eval A (ComplexShape.up ℤ) i).map R.comparison)
+  exact preserves_epi_of_preservesColimit
+    (HomologicalComplex.eval A (ComplexShape.up ℤ) i) R.comparison
 
 /-- The bundled model map underlying a morphism of epimorphic fixed-bound left resolutions. -/
 abbrev modelHom {R S : QuasiIsoFrom.Epi P a K} (f : R ⟶ S) : R.model ⟶ S.model :=
@@ -92,7 +100,8 @@ abbrev modelHom {R S : QuasiIsoFrom.Epi P a K} (f : R ⟶ S) : R.model ⟶ S.mod
 morphisms. -/
 @[ext]
 theorem hom_ext {R S : QuasiIsoFrom.Epi P a K} {f g : R ⟶ S}
-    (h : modelHom f = modelHom g) : f = g := sorry
+    (h : modelHom f = modelHom g) : f = g :=
+  LocalizerMorphism.LeftResolution.hom_ext h
 
 /-- The cochain map underlying a morphism of epimorphic fixed-bound left resolutions. -/
 abbrev hom {R S : QuasiIsoFrom.Epi P a K} (f : R ⟶ S) : R.complex ⟶ S.complex :=
@@ -102,30 +111,31 @@ abbrev hom {R S : QuasiIsoFrom.Epi P a K} (f : R ⟶ S) : R.complex ⟶ S.comple
 model morphism. -/
 @[simp]
 theorem hom_eq_map_modelHom {R S : QuasiIsoFrom.Epi P a K} (f : R ⟶ S) :
-    hom f = (StrictlyLE.TermsIn.ι P a).map (modelHom f) := sorry
+    hom f = (StrictlyLE.TermsIn.ι P a).map (modelHom f) := rfl
 
 /-- The identity epimorphic fixed-bound morphism has identity bundled model morphism. -/
 @[simp]
-theorem id_modelHom (R : QuasiIsoFrom.Epi P a K) : modelHom (𝟙 R) = 𝟙 R.model := sorry
+theorem id_modelHom (R : QuasiIsoFrom.Epi P a K) : modelHom (𝟙 R) = 𝟙 R.model := rfl
 
 /-- Bundled model morphisms preserve composition of epimorphic fixed-bound morphisms. -/
 @[simp]
 theorem comp_modelHom {R S T : QuasiIsoFrom.Epi P a K} (f : R ⟶ S) (g : S ⟶ T) :
-    modelHom (f ≫ g) = modelHom f ≫ modelHom g := sorry
+    modelHom (f ≫ g) = modelHom f ≫ modelHom g := rfl
 
 /-- The identity morphism of epimorphic left resolutions induces the identity cochain map. -/
 @[simp]
-theorem id_hom (R : QuasiIsoFrom.Epi P a K) : hom (𝟙 R) = 𝟙 R.complex := sorry
+theorem id_hom (R : QuasiIsoFrom.Epi P a K) : hom (𝟙 R) = 𝟙 R.complex := rfl
 
 /-- Composition of epimorphic left-resolution morphisms induces composition of cochain maps. -/
 @[simp]
 theorem comp_hom {R S T : QuasiIsoFrom.Epi P a K} (f : R ⟶ S) (g : S ⟶ T) :
-    hom (f ≫ g) = hom f ≫ hom g := sorry
+    hom (f ≫ g) = hom f ≫ hom g := rfl
 
 /-- A morphism of epimorphic left resolutions commutes with the comparisons. -/
 @[reassoc]
 theorem comparison_naturality {R S : QuasiIsoFrom.Epi P a K} (f : R ⟶ S) :
-    hom f ≫ S.comparison = R.comparison := sorry
+    hom f ≫ S.comparison = R.comparison :=
+  f.comm
 
 /-- The functor selecting the bundled model of an epimorphic fixed-bound left resolution. -/
 abbrev modelFunctor (P : ObjectProperty A) (a : ℤ) (K : CochainComplex A ℤ) :
@@ -136,12 +146,12 @@ abbrev modelFunctor (P : ObjectProperty A) (a : ℤ) (K : CochainComplex A ℤ) 
 /-- The epimorphic fixed-bound model functor returns the bundled model. -/
 @[simp]
 theorem modelFunctor_obj (R : QuasiIsoFrom.Epi P a K) :
-    (modelFunctor P a K).obj R = R.model := sorry
+    (modelFunctor P a K).obj R = R.model := rfl
 
 /-- The epimorphic fixed-bound model functor retains the bundled model map. -/
 @[simp]
 theorem modelFunctor_map {R S : QuasiIsoFrom.Epi P a K} (f : R ⟶ S) :
-    (modelFunctor P a K).map f = modelHom f := sorry
+    (modelFunctor P a K).map f = modelHom f := rfl
 
 /-- The functor selecting the underlying complex of an epimorphic fixed-bound left resolution. -/
 abbrev complexFunctor (P : ObjectProperty A) (a : ℤ) (K : CochainComplex A ℤ) :
@@ -152,17 +162,17 @@ abbrev complexFunctor (P : ObjectProperty A) (a : ℤ) (K : CochainComplex A ℤ
 /-- The underlying-complex functor returns the resolving complex. -/
 @[simp]
 theorem complexFunctor_obj (R : QuasiIsoFrom.Epi P a K) :
-    (complexFunctor P a K).obj R = R.complex := sorry
+    (complexFunctor P a K).obj R = R.complex := rfl
 
 /-- The underlying-complex functor retains the cochain map. -/
 @[simp]
 theorem complexFunctor_map {R S : QuasiIsoFrom.Epi P a K} (f : R ⟶ S) :
-    (complexFunctor P a K).map f = hom f := sorry
+    (complexFunctor P a K).map f = hom f := rfl
 
 /-- Forgetting the bundled fixed-bound models identifies the epimorphic model and complex
 functors. -/
 theorem modelFunctor_comp_ι (P : ObjectProperty A) (a : ℤ) (K : CochainComplex A ℤ) :
-    modelFunctor P a K ⋙ StrictlyLE.TermsIn.ι P a = complexFunctor P a K := sorry
+    modelFunctor P a K ⋙ StrictlyLE.TermsIn.ι P a = complexFunctor P a K := rfl
 
 /-- The comparisons of epimorphic fixed-bound left resolutions form a natural transformation. -/
 abbrev comparisonNatTrans (P : ObjectProperty A) (a : ℤ) (K : CochainComplex A ℤ) :
@@ -173,7 +183,7 @@ abbrev comparisonNatTrans (P : ObjectProperty A) (a : ℤ) (K : CochainComplex A
 /-- Evaluating the epimorphic comparison transformation gives the resolution comparison. -/
 @[simp]
 theorem comparisonNatTrans_app (R : QuasiIsoFrom.Epi P a K) :
-    (comparisonNatTrans P a K).app R = R.comparison := sorry
+    (comparisonNatTrans P a K).app R = R.comparison := rfl
 
 /-- Forget the epimorphism condition while retaining the fixed-upper-bound left model. -/
 def toQuasiIsoFrom (R : QuasiIsoFrom.Epi P a K) : QuasiIsoFrom P a K :=
@@ -197,17 +207,17 @@ abbrev functor (P : ObjectProperty A) (a : ℤ) (K : CochainComplex A ℤ) :
 /-- The forgetful functor acts on objects by `toQuasiIsoFrom`. -/
 @[simp]
 theorem functor_obj (R : QuasiIsoFrom.Epi P a K) :
-    (functor P a K).obj R = R.toQuasiIsoFrom := sorry
+    (functor P a K).obj R = R.toQuasiIsoFrom := rfl
 
 /-- The forgetful functor acts on morphisms by `toQuasiIsoFrom.hom`. -/
 @[simp]
 theorem functor_map {R S : QuasiIsoFrom.Epi P a K} (f : R ⟶ S) :
-    (functor P a K).map f = hom f := sorry
+    (functor P a K).map f = hom f := rfl
 
 /-- Forgetting the epimorphism condition retains the underlying cochain map. -/
 @[simp]
 theorem hom_hom {R S : QuasiIsoFrom.Epi P a K} (f : R ⟶ S) :
-    QuasiIsoFrom.hom (hom f) = Epi.hom f := sorry
+    QuasiIsoFrom.hom (hom f) = Epi.hom f := rfl
 
 end toQuasiIsoFrom
 
@@ -216,29 +226,34 @@ both comparison properties exist. -/
 theorem nonempty_iff :
     Nonempty (QuasiIsoFrom.Epi P a K) ↔
       ∃ (M : CochainComplex.StrictlyLE.TermsIn P a) (f : M.obj ⟶ K),
-        QuasiIso f ∧ _root_.CategoryTheory.Epi f := sorry
+        QuasiIso f ∧ _root_.CategoryTheory.Epi f := by
+  constructor
+  · rintro ⟨R⟩
+    exact ⟨R.model, R.comparison, R.hw.1, R.hw.2⟩
+  · rintro ⟨M, f, hf, he⟩
+    exact ⟨mk M f hf he⟩
 
 /-- The model selected by `mk` is the supplied fixed-upper-bound complex. -/
 @[simp]
 theorem mk_model (M : CochainComplex.StrictlyLE.TermsIn P a) (f : M.obj ⟶ K)
     (hf : QuasiIso f) (he : _root_.CategoryTheory.Epi f) :
-    (mk M f hf he).model = M := sorry
+    (mk M f hf he).model = M := rfl
 
 /-- The comparison selected by `mk` is the supplied epimorphic quasi-isomorphism. -/
 @[simp]
 theorem mk_comparison (M : CochainComplex.StrictlyLE.TermsIn P a) (f : M.obj ⟶ K)
     (hf : QuasiIso f) (he : _root_.CategoryTheory.Epi f) :
-    (mk M f hf he).comparison = f := sorry
+    (mk M f hf he).comparison = f := rfl
 
 /-- Forgetting epimorphism data preserves the model. -/
 @[simp]
 theorem toQuasiIsoFrom_model (R : QuasiIsoFrom.Epi P a K) :
-    R.toQuasiIsoFrom.model = R.model := sorry
+    R.toQuasiIsoFrom.model = R.model := rfl
 
 /-- Forgetting epimorphism data preserves the comparison. -/
 @[simp]
 theorem toQuasiIsoFrom_comparison (R : QuasiIsoFrom.Epi P a K) :
-    R.toQuasiIsoFrom.comparison = R.comparison := sorry
+    R.toQuasiIsoFrom.comparison = R.comparison := rfl
 
 end Epi
 

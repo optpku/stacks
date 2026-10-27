@@ -14,6 +14,7 @@ public import Mathlib.Algebra.Homology.HomologicalComplexAbelian
 public import Mathlib.Algebra.Homology.HomologySequence
 public import Mathlib.RingTheory.FiniteLength
 public import Mathlib.RingTheory.LocalRing.Defs
+import Mathlib.Tactic.FinCases
 
 @[expose] public section
 
@@ -31,7 +32,9 @@ variable {K L : TwoPeriodicEndomorphism C}
 /-- The kernel inclusion followed by the canonical map to the image is zero. -/
 theorem kernelImageRow_zero (f : Hom K L) :
     kernel.ι f.toCochainComplexHom ≫
-      Abelian.factorThruImage f.toCochainComplexHom = 0 := sorry
+      Abelian.factorThruImage f.toCochainComplexHom = 0 := by
+  rw [← cancel_mono (Abelian.image.ι f.toCochainComplexHom), Category.assoc,
+    Abelian.image.fac, kernel.condition, zero_comp]
 
 /-- The canonical short complex `kernel f ⟶ K ⟶ image f`. -/
 noncomputable def kernelImageRow (f : Hom K L) :
@@ -42,7 +45,8 @@ noncomputable def kernelImageRow (f : Hom K L) :
 /-- The canonical map from the image followed by the cokernel projection is zero. -/
 theorem imageCokernelRow_zero (f : Hom K L) :
     Abelian.image.ι f.toCochainComplexHom ≫
-      cokernel.π f.toCochainComplexHom = 0 := sorry
+      cokernel.π f.toCochainComplexHom = 0 := by
+  exact kernel.condition (cokernel.π f.toCochainComplexHom)
 
 /-- The canonical short complex `image f ⟶ L ⟶ cokernel f`. -/
 noncomputable def imageCokernelRow (f : Hom K L) :
@@ -51,10 +55,28 @@ noncomputable def imageCokernelRow (f : Hom K L) :
     (cokernel.π f.toCochainComplexHom) (imageCokernelRow_zero f)
 
 /-- The kernel--source--image row of a periodic morphism is short exact. -/
-theorem kernelImageRow_shortExact (f : Hom K L) : (kernelImageRow f).ShortExact := sorry
+theorem kernelImageRow_shortExact (f : Hom K L) : (kernelImageRow f).ShortExact where
+  exact := (kernelImageRow f).exact_of_f_is_kernel
+    (isKernelOfComp (Abelian.image.ι f.toCochainComplexHom) f.toCochainComplexHom
+      (kernelIsKernel f.toCochainComplexHom) (kernelImageRow_zero f)
+      (Abelian.image.fac f.toCochainComplexHom))
+  mono_f := by
+    change Mono (kernel.ι f.toCochainComplexHom)
+    infer_instance
+  epi_g := by
+    change Epi (Abelian.factorThruImage f.toCochainComplexHom)
+    infer_instance
 
 /-- The image--target--cokernel row of a periodic morphism is short exact. -/
-theorem imageCokernelRow_shortExact (f : Hom K L) : (imageCokernelRow f).ShortExact := sorry
+theorem imageCokernelRow_shortExact (f : Hom K L) : (imageCokernelRow f).ShortExact where
+  exact := (imageCokernelRow f).exact_of_f_is_kernel
+    (kernelIsKernel (cokernel.π f.toCochainComplexHom))
+  mono_f := by
+    change Mono (Abelian.image.ι f.toCochainComplexHom)
+    infer_instance
+  epi_g := by
+    change Epi (cokernel.π f.toCochainComplexHom)
+    infer_instance
 
 /-- The differentials induced on the kernel complex of a periodic morphism vanish. -/
 def KernelDifferentialsVanish (f : Hom K L) : Prop :=
@@ -65,7 +87,16 @@ degrees. -/
 theorem kernelDifferentialsVanish_iff (f : Hom K L) :
     KernelDifferentialsVanish f ↔
       (kernel f.toCochainComplexHom).d 0 1 = 0 ∧
-        (kernel f.toCochainComplexHom).d 1 0 = 0 := sorry
+        (kernel f.toCochainComplexHom).d 1 0 = 0 := by
+  constructor
+  · intro h
+    exact ⟨h 0 1, h 1 0⟩
+  · rintro ⟨h₀, h₁⟩ i j
+    fin_cases i <;> fin_cases j
+    · exact (kernel f.toCochainComplexHom).shape 0 0 (by decide)
+    · exact h₀
+    · exact h₁
+    · exact (kernel f.toCochainComplexHom).shape 1 1 (by decide)
 
 /-- The differentials induced on the cokernel complex of a periodic morphism vanish. -/
 def CokernelDifferentialsVanish (f : Hom K L) : Prop :=
@@ -76,7 +107,16 @@ degrees. -/
 theorem cokernelDifferentialsVanish_iff (f : Hom K L) :
     CokernelDifferentialsVanish f ↔
       (cokernel f.toCochainComplexHom).d 0 1 = 0 ∧
-        (cokernel f.toCochainComplexHom).d 1 0 = 0 := sorry
+        (cokernel f.toCochainComplexHom).d 1 0 = 0 := by
+  constructor
+  · intro h
+    exact ⟨h 0 1, h 1 0⟩
+  · rintro ⟨h₀, h₁⟩ i j
+    fin_cases i <;> fin_cases j
+    · exact (cokernel f.toCochainComplexHom).shape 0 0 (by decide)
+    · exact h₀
+    · exact h₁
+    · exact (cokernel f.toCochainComplexHom).shape 1 1 (by decide)
 
 /-- If every differential of a cochain complex vanishes, its homology in each degree is
 canonically isomorphic to its term in that degree. -/
@@ -151,7 +191,8 @@ theorem boundaryIso_hom (f : Hom K L) (hK : K.toCochainComplex.Acyclic)
           ((HomologicalComplex.acyclic_iff_forall_isZero_homology K.toCochainComplex).mp hK
             ((ComplexShape.up (ZMod 2)).next ((ComplexShape.up (ZMod 2)).next i))) ≪≫
         kernelHomologyIso f hker
-          ((ComplexShape.up (ZMod 2)).next ((ComplexShape.up (ZMod 2)).next i))).hom := sorry
+          ((ComplexShape.up (ZMod 2)).next ((ComplexShape.up (ZMod 2)).next i))).hom := by
+  rfl
 
 /-- The boundary automorphism representing `α₀⁻¹ ∘ α₁`. -/
 noncomputable def boundaryAutomorphism (f : Hom K L) (hK : K.toCochainComplex.Acyclic)
@@ -164,7 +205,8 @@ theorem boundaryAutomorphism_def (f : Hom K L) (hK : K.toCochainComplex.Acyclic)
     (hL : L.toCochainComplex.Acyclic) (hker : KernelDifferentialsVanish f)
     (hcoker : CokernelDifferentialsVanish f) :
     boundaryAutomorphism f hK hL hker hcoker =
-      boundaryIso f hK hL hker hcoker 1 ≪≫ (boundaryIso f hK hL hker hcoker 0).symm := sorry
+      boundaryIso f hK hL hker hcoker 1 ≪≫ (boundaryIso f hK hL hker hcoker 0).symm := by
+  rfl
 
 end CategoryTheory.TwoPeriodicEndomorphism.Hom
 
@@ -175,10 +217,14 @@ variable {K L : TwoPeriodicEndomorphism (ModuleCat.{v} R)}
 
 /-- The kernel of a map out of a finite-length module has finite length. -/
 theorem kernel_isFiniteLength (f : Hom K L) (hK : IsFiniteLength R K.X) :
-    IsFiniteLength R (kernel f.hom : ModuleCat R) := sorry
+    IsFiniteLength R (kernel f.hom : ModuleCat R) := by
+  exact hK.of_injective (f := (kernel.ι f.hom).hom)
+    ((ModuleCat.mono_iff_injective (kernel.ι f.hom)).mp inferInstance)
 
 /-- The cokernel of a map into a finite-length module has finite length. -/
 theorem cokernel_isFiniteLength (f : Hom K L) (hL : IsFiniteLength R L.X) :
-    IsFiniteLength R (cokernel f.hom : ModuleCat R) := sorry
+    IsFiniteLength R (cokernel f.hom : ModuleCat R) := by
+  exact hL.of_surjective (f := (cokernel.π f.hom).hom)
+    ((ModuleCat.epi_iff_surjective (cokernel.π f.hom)).mp inferInstance)
 
 end CategoryTheory.TwoPeriodicEndomorphism.Hom

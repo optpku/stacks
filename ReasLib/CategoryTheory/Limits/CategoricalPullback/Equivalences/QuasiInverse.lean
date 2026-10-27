@@ -58,17 +58,17 @@ def symm (e : QuasiInverse ψ) : QuasiInverse e.inverse where
 /-- Reversing cospan quasi-inverse data selects the original transformation as inverse. -/
 @[simp]
 theorem symm_inverse (e : QuasiInverse ψ) :
-    e.symm.inverse = ψ := sorry
+    e.symm.inverse = ψ := rfl
 
 /-- Reversing cospan quasi-inverse data uses the inverse counit as its unit. -/
 @[simp]
 theorem symm_unitIso (e : QuasiInverse ψ) :
-    e.symm.unitIso = e.counitIso.symm := sorry
+    e.symm.unitIso = e.counitIso.symm := rfl
 
 /-- Reversing cospan quasi-inverse data uses the inverse unit as its counit. -/
 @[simp]
 theorem symm_counitIso (e : QuasiInverse ψ) :
-    e.symm.counitIso = e.unitIso.symm := sorry
+    e.symm.counitIso = e.unitIso.symm := rfl
 
 /-- The unit induced on categorical-pullback maps by explicit inverse cospan data. -/
 def mapUnitIso (e : QuasiInverse ψ) :
@@ -92,7 +92,7 @@ theorem mapUnitIso.hom.app.fst (e : QuasiInverse ψ) (P : H ⊡ I) :
     ((e.mapUnitIso).hom.app P).fst =
       (Functor.rightUnitor (π₁ H I)).inv.app P ≫
         e.unitIso.hom.left.app P.fst ≫
-          (Functor.associator (π₁ H I) ψ.left e.inverse.left).inv.app P := sorry
+          (Functor.associator (π₁ H I) ψ.left e.inverse.left).inv.app P := rfl
 
 /-- The right projection of the forward component of the induced pullback-map unit. -/
 @[simp]
@@ -100,7 +100,7 @@ theorem mapUnitIso.hom.app.snd (e : QuasiInverse ψ) (P : H ⊡ I) :
     ((e.mapUnitIso).hom.app P).snd =
       (Functor.rightUnitor (π₂ H I)).inv.app P ≫
         e.unitIso.hom.right.app P.snd ≫
-          (Functor.associator (π₂ H I) ψ.right e.inverse.right).inv.app P := sorry
+          (Functor.associator (π₂ H I) ψ.right e.inverse.right).inv.app P := rfl
 
 /-- The left projection of the inverse component of the induced pullback-map unit. -/
 @[simp]
@@ -108,7 +108,10 @@ theorem mapUnitIso.inv.app.fst (e : QuasiInverse ψ) (P : H ⊡ I) :
     ((e.mapUnitIso).inv.app P).fst =
       (Functor.associator (π₁ H I) ψ.left e.inverse.left).hom.app P ≫
         e.unitIso.inv.left.app P.fst ≫
-          (Functor.rightUnitor (π₁ H I)).hom.app P := sorry
+          (Functor.rightUnitor (π₁ H I)).hom.app P := by
+  change (𝟙 _ ≫ e.unitIso.inv.left.app P.fst) ≫ 𝟙 _ =
+    𝟙 _ ≫ e.unitIso.inv.left.app P.fst ≫ 𝟙 _
+  exact Category.assoc _ _ _
 
 /-- The right projection of the inverse component of the induced pullback-map unit. -/
 @[simp]
@@ -116,7 +119,10 @@ theorem mapUnitIso.inv.app.snd (e : QuasiInverse ψ) (P : H ⊡ I) :
     ((e.mapUnitIso).inv.app P).snd =
       (Functor.associator (π₂ H I) ψ.right e.inverse.right).hom.app P ≫
         e.unitIso.inv.right.app P.snd ≫
-          (Functor.rightUnitor (π₂ H I)).hom.app P := sorry
+          (Functor.rightUnitor (π₂ H I)).hom.app P := by
+  change (𝟙 _ ≫ e.unitIso.inv.right.app P.snd) ≫ 𝟙 _ =
+    𝟙 _ ≫ e.unitIso.inv.right.app P.snd ≫ 𝟙 _
+  exact Category.assoc _ _ _
 
 /-- The left projection of the forward component of the induced pullback-map counit. -/
 @[simp]
@@ -124,7 +130,7 @@ theorem mapCounitIso.hom.app.fst (e : QuasiInverse ψ) (P : F ⊡ G) :
     ((e.mapCounitIso).hom.app P).fst =
       (Functor.associator (π₁ F G) e.inverse.left ψ.left).hom.app P ≫
         e.counitIso.hom.left.app P.fst ≫
-          (Functor.rightUnitor (π₁ F G)).hom.app P := sorry
+          (Functor.rightUnitor (π₁ F G)).hom.app P := rfl
 
 /-- The right projection of the forward component of the induced pullback-map counit. -/
 @[simp]
@@ -132,7 +138,7 @@ theorem mapCounitIso.hom.app.snd (e : QuasiInverse ψ) (P : F ⊡ G) :
     ((e.mapCounitIso).hom.app P).snd =
       (Functor.associator (π₂ F G) e.inverse.right ψ.right).hom.app P ≫
         e.counitIso.hom.right.app P.snd ≫
-          (Functor.rightUnitor (π₂ F G)).hom.app P := sorry
+          (Functor.rightUnitor (π₂ F G)).hom.app P := rfl
 
 /-- The left projection of the inverse component of the induced pullback-map counit. -/
 @[simp]
@@ -140,7 +146,10 @@ theorem mapCounitIso.inv.app.fst (e : QuasiInverse ψ) (P : F ⊡ G) :
     ((e.mapCounitIso).inv.app P).fst =
       (Functor.rightUnitor (π₁ F G)).inv.app P ≫
         e.counitIso.inv.left.app P.fst ≫
-          (Functor.associator (π₁ F G) e.inverse.left ψ.left).inv.app P := sorry
+          (Functor.associator (π₁ F G) e.inverse.left ψ.left).inv.app P := by
+  change (𝟙 _ ≫ e.counitIso.inv.left.app P.fst) ≫ 𝟙 _ =
+    𝟙 _ ≫ e.counitIso.inv.left.app P.fst ≫ 𝟙 _
+  exact Category.assoc _ _ _
 
 /-- The right projection of the inverse component of the induced pullback-map counit. -/
 @[simp]
@@ -148,7 +157,10 @@ theorem mapCounitIso.inv.app.snd (e : QuasiInverse ψ) (P : F ⊡ G) :
     ((e.mapCounitIso).inv.app P).snd =
       (Functor.rightUnitor (π₂ F G)).inv.app P ≫
         e.counitIso.inv.right.app P.snd ≫
-          (Functor.associator (π₂ F G) e.inverse.right ψ.right).inv.app P := sorry
+          (Functor.associator (π₂ F G) e.inverse.right ψ.right).inv.app P := by
+  change (𝟙 _ ≫ e.counitIso.inv.right.app P.snd) ≫ 𝟙 _ =
+    𝟙 _ ≫ e.counitIso.inv.right.app P.snd ≫ 𝟙 _
+  exact Category.assoc _ _ _
 
 /-- Explicit inverse data for a cospan transformation induce explicit quasi-inverse data for its
 map between categorical pullbacks. -/
@@ -162,22 +174,24 @@ def toMapQuasiInverse (e : QuasiInverse ψ) :
 transformation. -/
 @[simp]
 theorem toMapQuasiInverse.inverse (e : QuasiInverse ψ) :
-    e.toMapQuasiInverse.inverse = CategoricalPullback.map e.inverse := sorry
+    e.toMapQuasiInverse.inverse = CategoricalPullback.map e.inverse := rfl
 
 /-- `toMapQuasiInverse` retains the induced pullback-map unit. -/
 @[simp]
 theorem toMapQuasiInverse.unitIso (e : QuasiInverse ψ) :
-    e.toMapQuasiInverse.unitIso = e.mapUnitIso := sorry
+    e.toMapQuasiInverse.unitIso = e.mapUnitIso := rfl
 
 /-- `toMapQuasiInverse` retains the induced pullback-map counit. -/
 @[simp]
 theorem toMapQuasiInverse.counitIso (e : QuasiInverse ψ) :
-    e.toMapQuasiInverse.counitIso = e.mapCounitIso := sorry
+    e.toMapQuasiInverse.counitIso = e.mapCounitIso := rfl
 
 /-- A cospan transformation with explicit quasi-inverse data induces an equivalence functor on
 categorical pullbacks. -/
 theorem mapIsEquivalence (e : QuasiInverse ψ) :
-    (CategoricalPullback.map ψ).IsEquivalence := sorry
+    (CategoricalPullback.map ψ).IsEquivalence := by
+  exact Functor.IsEquivalence.mk' (CategoricalPullback.map e.inverse)
+    e.mapUnitIso e.mapCounitIso
 
 /-- A cospan transformation with explicit inverse data induces an equivalence between the
 corresponding categorical pullbacks. -/
@@ -188,24 +202,24 @@ def mapEquivalence (e : QuasiInverse ψ) : H ⊡ I ≌ F ⊡ G :=
 transformation. -/
 @[simp]
 theorem mapEquivalence.functor (e : QuasiInverse ψ) :
-    e.mapEquivalence.functor = CategoricalPullback.map ψ := sorry
+    e.mapEquivalence.functor = CategoricalPullback.map ψ := rfl
 
 /-- The inverse functor of the induced pullback equivalence is the map of the inverse cospan
 transformation. -/
 @[simp]
 theorem mapEquivalence.inverse (e : QuasiInverse ψ) :
-    e.mapEquivalence.inverse = CategoricalPullback.map e.inverse := sorry
+    e.mapEquivalence.inverse = CategoricalPullback.map e.inverse := rfl
 
 /-- The induced pullback equivalence retains the explicit pullback-map counit. -/
 @[simp]
 theorem mapEquivalence.counitIso (e : QuasiInverse ψ) :
-    e.mapEquivalence.counitIso = e.mapCounitIso := sorry
+    e.mapEquivalence.counitIso = e.mapCounitIso := rfl
 
 /-- The unit of the induced pullback equivalence is the canonical adjointification of the
 explicit pullback-map unit against its counit. -/
 theorem mapEquivalence.unitIso (e : QuasiInverse ψ) :
     e.mapEquivalence.unitIso =
-      Equivalence.adjointifyη e.mapUnitIso e.mapCounitIso := sorry
+      Equivalence.adjointifyη e.mapUnitIso e.mapCounitIso := rfl
 
 end QuasiInverse
 

@@ -37,7 +37,7 @@ zero. -/
 theorem isIdealOfDefinition_iff (I : Ideal R) :
     IsIdealOfDefinition I ↔
       IsOpen (I : Set R) ∧
-        ∀ U ∈ 𝓝 (0 : R), ∃ n : ℕ, ((I ^ n : Ideal R) : Set R) ⊆ U := sorry
+        ∀ U ∈ 𝓝 (0 : R), ∃ n : ℕ, ((I ^ n : Ideal R) : Set R) ⊆ U := Iff.rfl
 
 /-- An ideal inducing the ambient adic topology is an ideal of definition. -/
 theorem isIdealOfDefinition_of_isAdic [IsTopologicalRing R] {I : Ideal R} (hI : IsAdic I) :

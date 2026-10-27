@@ -120,9 +120,8 @@ def restrictAlong_hom_iso (x : Obj f) {T T' : Over S} (h : T' ⟶ (p f).obj x)
 /-- The cartesian morphism `restrictAlong x (φ ≫ h) ⟶ restrictAlong x h` in `Obj f`. -/
 def restrictAlong_hom (x : Obj f) {T T' : Over S} (h : T' ⟶ (p f).obj x)
     (φ : T ⟶ T') :
-    restrictAlong f x (φ ≫ h) ⟶ restrictAlong f x h where
-  base := restrictAlong_hom_base f x h φ
-  iso := restrictAlong_hom_iso f x h φ
+    restrictAlong f x (φ ≫ h) ⟶ restrictAlong f x h :=
+  homMk (restrictAlong_hom_base f x h φ) (restrictAlong_hom_iso f x h φ)
 
 /-- Transport of cartesian restrictions along an equality of test-scheme morphisms. -/
 def restrictAlong_congr (x : Obj f) {T : Over S} {h₁ h₂ : T ⟶ (p f).obj x}

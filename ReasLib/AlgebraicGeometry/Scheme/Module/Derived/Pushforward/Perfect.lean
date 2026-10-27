@@ -28,8 +28,6 @@ noncomputable section
 
 universe u
 
-attribute [local instance] SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor
-
 namespace AlgebraicGeometry.Scheme.ModuleDerived
 
 /-- Derived pushforward along a locally finite type morphism to a Noetherian scheme is perfect
@@ -80,10 +78,8 @@ theorem pushforward_baseChange_isIso_of_isPerfectRelativeTo
       DerivedCategory.DerivedTensor.Right.Has
         (C := RingedSpace.Modules
           ((RingedSpace.Hom.inverseImageBase f.toShHom).restrict U.isOpenEmbedding))]
-    [RingedSite.Hom.DerivedAdjunction.HasPair
-      (RingedSpace.opensRingedSiteHom f.toShHom)]
-    [RingedSite.Hom.DerivedAdjunction.HasPair
-      (RingedSpace.opensRingedSiteHom f'.toShHom)]
+    [RingedSpace.DerivedAdjunction.HasPair f.toShHom]
+    [RingedSpace.DerivedAdjunction.HasPair f'.toShHom]
     [IsIso (RingedSpace.modulePullbackDerived.compComparison f'.toShHom g.toShHom)]
     [IsIso (RingedSpace.modulePullbackDerived.compComparison g'.toShHom f.toShHom)]
     (sq : IsPullback g' f' f g)

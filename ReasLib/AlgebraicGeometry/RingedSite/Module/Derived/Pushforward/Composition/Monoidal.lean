@@ -31,10 +31,6 @@ universe z uX vX uY vY uZ vZ w
 
 namespace RingedSite.Hom.modulePushforwardDerived
 
--- The coherence premise concerns the same canonical tensorators as cupProduct.
--- Local instance justification (defeq pin): NatTrans.IsMonoidal must use the same adjunction-induced tensorators as cupProduct for f, g and their composite; select the existing laxMonoidal structure locally instead of introducing an independent structure.
-attribute [local instance] laxMonoidal
-
 variable {X : RingedSite.{uX, vX, w}} {Y : RingedSite.{uY, vY, w}}
   {Z : RingedSite.{uZ, vZ, w}}
 variable (f : RingedSite.Hom X Y) (g : RingedSite.Hom Y Z)
@@ -53,25 +49,44 @@ variable [Functor.HasLeftDerivedFunctor
 variable [Functor.HasLeftDerivedFunctor
   (modulePullbackToDerived.{z} g) (ModuleQis.{z} Z)]
 variable [Functor.HasLeftDerivedFunctor
-  (modulePullbackToDerived.{z} (f.comp g)) (ModuleQis.{z} Z)]
+  (compositePullbackToDerived.{z} f g) (ModuleQis.{z} Z)]
 variable [DerivedAdjunction.HasPair.{z} f]
 variable [DerivedAdjunction.HasPair.{z} g]
-variable [DerivedAdjunction.HasPair.{z} (f.comp g)]
+variable [compositeDerivedPair.{z} f g]
 variable [MonoidalCategory (ModuleDerived.{z} X)]
 variable [MonoidalCategory (ModuleDerived.{z} Y)]
 variable [MonoidalCategory (ModuleDerived.{z} Z)]
 variable [(modulePullbackDerived.{z} f).OplaxMonoidal]
 variable [(modulePullbackDerived.{z} g).OplaxMonoidal]
-variable [(modulePullbackDerived.{z} (f.comp g)).OplaxMonoidal]
+variable [(compositePullbackDerived.{z} f g).OplaxMonoidal]
 
-/-- Lemma 21.33.4 (0FPN), reusable form: a monoidal derived-pushforward composition comparison
-intertwines the relative cup product for the composite with the iterated relative cup product. -/
+/-- The canonical lax monoidal structure on derived pushforward along a composite. -/
+@[implicit_reducible]
+def compositeLaxMonoidal : (modulePushforwardDerived.{z} (f.comp g)).LaxMonoidal :=
+  @laxMonoidal.{z} _ _ (f.comp g) inferInstance inferInstance
+    (modulePushforwardComp_isRightAdjoint f g) inferInstance inferInstance inferInstance
+    inferInstance inferInstance inferInstance
+
+/-- The canonical derived-pushforward composition comparison is monoidal relative to the
+adjunction-induced lax structures and their composite. -/
+def compComparisonIsMonoidal
+    (h_comparison : IsIso (modulePullbackDerived.compComparison f g)) : Prop :=
+  @NatTrans.IsMonoidal _ _ _ _ _ _ _ _ (compComparison f g h_comparison)
+    (compositeLaxMonoidal f g)
+    (@Functor.LaxMonoidal.comp _ _ _ _ _ _ _ _ _
+      (modulePushforwardDerived.{z} f) (modulePushforwardDerived.{z} g)
+      (laxMonoidal f) (laxMonoidal g))
+
+/-- A monoidal derived-pushforward composition comparison intertwines the relative cup product
+for the composite with the iterated relative cup product. -/
 @[stacks 0FPN]
 theorem cupProduct_compComparison
     (h_comparison : IsIso (modulePullbackDerived.compComparison f g))
-    [NatTrans.IsMonoidal (compComparison f g h_comparison)]
+    (h_monoidal : compComparisonIsMonoidal f g h_comparison)
     (K L : ModuleDerived.{z} X) :
-    cupProduct (f.comp g) K L ≫
+    (@cupProduct.{z} _ _ (f.comp g) inferInstance inferInstance
+      (modulePushforwardComp_isRightAdjoint f g) inferInstance inferInstance inferInstance
+      inferInstance inferInstance inferInstance K L) ≫
         (compComparison f g h_comparison).app (K ⊗ L) =
       ((compComparison f g h_comparison).app K ⊗ₘ
           (compComparison f g h_comparison).app L) ≫

@@ -38,7 +38,8 @@ abbrev bigAffineZariskiSite : Type (u + 1) :=
 
 /-- Every object of the big affine Zariski site has affine source scheme. -/
 theorem bigAffineZariskiSite_obj_isAffine (U : S.bigAffineZariskiSite) :
-    IsAffine (AffineOver.obj U).left := sorry
+    IsAffine (AffineOver.obj U).left := by
+  infer_instance
 
 /-- The inclusion of the big affine Zariski site into the big Zariski slice
 site. -/
@@ -52,32 +53,32 @@ abbrev bigAffineZariskiToScheme : S.bigAffineZariskiSite ⥤ Scheme :=
 /-- The source-scheme functor factors through the big affine inclusion and the
 ordinary source functor on `Over S`. -/
 theorem bigAffineZariskiToScheme_eq :
-    bigAffineZariskiToScheme S = bigAffineZariskiInclusion S ⋙ Over.forget S := sorry
+    bigAffineZariskiToScheme S = bigAffineZariskiInclusion S ⋙ Over.forget S := rfl
 
 /-- The big affine inclusion sends an affine-slice object to its underlying
 object of `Over S`. -/
 @[simp] theorem bigAffineZariskiInclusion_obj (U : S.bigAffineZariskiSite) :
-    (bigAffineZariskiInclusion S).obj U = AffineOver.obj U := sorry
+    (bigAffineZariskiInclusion S).obj U = AffineOver.obj U := rfl
 
 /-- The structure morphism of a big affine Zariski object is unchanged by its
 inclusion into the big Zariski slice. -/
 @[simp] theorem bigAffineZariskiInclusion_obj_hom (U : S.bigAffineZariskiSite) :
-    ((bigAffineZariskiInclusion S).obj U).hom = (AffineOver.obj U).hom := sorry
+    ((bigAffineZariskiInclusion S).obj U).hom = (AffineOver.obj U).hom := rfl
 
 /-- The source-scheme functor sends an affine-slice object to its source
 scheme. -/
 @[simp] theorem bigAffineZariskiToScheme_obj (U : S.bigAffineZariskiSite) :
-    (bigAffineZariskiToScheme S).obj U = (AffineOver.obj U).left := sorry
+    (bigAffineZariskiToScheme S).obj U = (AffineOver.obj U).left := rfl
 
 /-- The big affine inclusion forgets only the affine-object property of a
 morphism. -/
 @[simp] theorem bigAffineZariskiInclusion_map {U V : S.bigAffineZariskiSite} (f : U ⟶ V) :
-    (bigAffineZariskiInclusion S).map f = AffineOver.hom f := sorry
+    (bigAffineZariskiInclusion S).map f = AffineOver.hom f := rfl
 
 /-- The source-scheme functor takes an affine-slice morphism to its underlying
 scheme morphism. -/
 @[simp] theorem bigAffineZariskiToScheme_map {U V : S.bigAffineZariskiSite} (f : U ⟶ V) :
-    (bigAffineZariskiToScheme S).map f = (AffineOver.hom f).left := sorry
+    (bigAffineZariskiToScheme S).map f = (AffineOver.hom f).left := rfl
 
 /-- The ambient big-Zariski precoverage restricted to affine schemes over
 `S`. This is a comparison object, distinct from the standard-cover
@@ -91,7 +92,7 @@ exactly when its image in `Over S` is covering. -/
     {U : S.bigAffineZariskiSite} {R : Presieve U} :
     R ∈ bigAffineZariskiRestrictedPrecoverage S U ↔
       R.map (bigAffineZariskiInclusion S) ∈
-        (bigZariskiTopology S).toPrecoverage (AffineOver.obj U) := sorry
+        (bigZariskiTopology S).toPrecoverage (AffineOver.obj U) := Iff.rfl
 
 /-- An indexed affine family is covering for the ambient restricted big
 Zariski precoverage exactly when its underlying family covers in `Over S`. -/
@@ -101,7 +102,9 @@ Zariski precoverage exactly when its underlying family covers in `Over S`. -/
     Presieve.ofArrows Y π ∈ bigAffineZariskiRestrictedPrecoverage S U ↔
       Presieve.ofArrows (fun i ↦ AffineOver.obj (Y i))
         (fun i ↦ AffineOver.hom (π i)) ∈
-          (bigZariskiTopology S).toPrecoverage (AffineOver.obj U) := sorry
+          (bigZariskiTopology S).toPrecoverage (AffineOver.obj U) := by
+  rw [mem_bigAffineZariskiRestrictedPrecoverage_iff, Presieve.map_ofArrows]
+  rfl
 
 /-- The Grothendieck topology on the big affine carrier obtained by restricting
 the ambient big Zariski topology. -/
@@ -112,6 +115,6 @@ abbrev bigAffineZariskiRestrictedTopology : GrothendieckTopology S.bigAffineZari
 restricted precoverage. -/
 theorem bigAffineZariskiRestrictedTopology_def :
     bigAffineZariskiRestrictedTopology S =
-      (bigAffineZariskiRestrictedPrecoverage S).toGrothendieck := sorry
+      (bigAffineZariskiRestrictedPrecoverage S).toGrothendieck := rfl
 
 end AlgebraicGeometry.Scheme

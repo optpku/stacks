@@ -6,20 +6,9 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap104.Proposition_104_6_1_Plus
-public import stacks_project.Chap104.Proposition_104_6_1_Pushforward
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Derived.QuasiCoherent.Pushforward
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Derived.QuasiCoherent.Adjunction
 import StacksCheckRecall
-
-/-!
-# Proposition 104.6.1
-
-A quasi-compact quasi-separated morphism of algebraic stacks has a derived
-direct image inducing a commutative diagram on `D⁺_{Parasitic ∩ LQCoh^{fbc}}`,
-`D⁺_{LQCoh^{fbc}}`, and unbounded `D(𝒪)`, hence a functor
-`Rf_{QCoh,*} : D⁺_QCoh(𝒪_X) ⥤ D⁺_QCoh(𝒪_Y)`. The higher direct images
-`R^i f_QCoh` of Proposition 103.11.1 agree with `H^i ∘ Rf_{QCoh,*}` after
-placing a quasi-coherent module in degree zero.
--/
 
 @[expose] public section
 
@@ -35,35 +24,35 @@ namespace AlgebraicGeometry.AlgebraicStack
 
 variable {S : Scheme.{u}} {X Y : GroupoidsOver S}
 variable [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y)
+
 variable [AlgebraicStack.QuasiCompact f] [AlgebraicStack.QuasiSeparated f]
 
-/- Proposition 104.6.1 (1): let `f : X ⟶ Y` be a quasi-compact and
-quasi-separated morphism of algebraic stacks. The functor `Rf_*` induces a
-commutative diagram relating `D⁺_{Parasitic ∩ LQCoh^{fbc}}`,
-`D⁺_{LQCoh^{fbc}}`, and unbounded `D(𝒪)`, with vertical arrows the local
-unbounded derived pushforward, via the canonical squares
-`derivedPushforwardPlusParasitic f ⋙ derivedParasiticLQCohFbcPlus.inclusion Y ≅
-derivedParasiticLQCohFbcPlus.inclusion X ⋙ derivedPushforwardPlusLQCohFbc f`
-and
-`derivedPushforwardPlusLQCohFbc f ⋙ DerivedLQCohFbc.Plus.ambient Y ≅
-DerivedLQCohFbc.Plus.ambient X ⋙ fppfModuleDerivedPushforward f`. -/
-@[stacks 07BC]
-#check (derivedPushforwardPlusParasitic_comp_inclusion f)
-@[stacks 07BC]
-#check (derivedPushforwardPlusLQCohFbc_comp_ambient f)
+/- Proposition 104.6.1 (1): derived direct image commutes with the inclusion
+of bounded-below parasitic coefficient objects into bounded-below coefficient objects. -/
+@[stacks 07BC] #check
+  (AlgebraicGeometry.AlgebraicStack.derivedPushforwardPlusParasitic_comp_inclusion f :
+    derivedPushforwardPlusParasitic f ⋙ derivedParasiticLQCohFbcPlus.inclusion Y ≅
+      derivedParasiticLQCohFbcPlus.inclusion X ⋙ derivedPushforwardPlusLQCohFbc f)
 
-/- Proposition 104.6.1 (2): the commutative diagram therefore induces a
-functor `Rf_{QCoh,*} : D⁺_QCoh(𝒪_X) ⥤ D⁺_QCoh(𝒪_Y)` on quotient
-categories. -/
-@[stacks 07BC]
-#check (DerivedQCoh.pushforward f)
+/- Proposition 104.6.1 (2): derived direct image commutes with inclusion of
+bounded-below coefficient objects into the unbounded module-derived category. -/
+@[stacks 07BC] #check
+  (AlgebraicGeometry.AlgebraicStack.derivedPushforwardPlusLQCohFbc_comp_ambient f :
+    derivedPushforwardPlusLQCohFbc f ⋙ DerivedLQCohFbc.Plus.ambient Y ≅
+      DerivedLQCohFbc.Plus.ambient X ⋙ moduleDerivedPushforward f)
 
-/- Proposition 104.6.1 (3): the functors `R^i f_QCoh` of Proposition 103.11.1
-agree with `H^i ∘ Rf_{QCoh,*}` for `H^i` as in 104.5.1.1, after placing a
-quasi-coherent module in degree zero, via the specified isomorphism
-`singlePlus X ⋙ pushforward f ⋙ Plus.inclusion Y ⋙ homologyFunctor Y (i : ℤ) ≅
-QCoh.higherDirectImageFunctor f i ⋙ QCoh.toFppfQuotient Y`. -/
-@[stacks 07BC]
-#check (DerivedQCoh.homology_pushforward_single_iso f)
+/- Proposition 104.6.1 (3): derived direct image descends to the bounded-below
+quasi-coherent Verdier quotient. -/
+@[stacks 07BC] #check
+  (AlgebraicGeometry.AlgebraicStack.DerivedQCoh.pushforward f :
+    DerivedQCoh.Plus X ⥤ DerivedQCoh.Plus Y)
+
+/- Proposition 104.6.1 (4): on quasi-coherent modules placed in degree zero,
+the degree-i cohomology of derived direct image is quasi-coherent higher direct image. -/
+@[stacks 07BC] #check
+  (AlgebraicGeometry.AlgebraicStack.DerivedQCoh.cohomology_pushforward_single_iso f :
+    ∀ i : ℕ, DerivedQCoh.singlePlus X ⋙ DerivedQCoh.pushforward f ⋙
+      DerivedQCoh.Plus.inclusion Y ⋙ DerivedQCoh.cohomologyFunctor Y (i : ℤ) ≅
+        QCoh.higherDirectImageFunctor f i)
 
 end AlgebraicGeometry.AlgebraicStack

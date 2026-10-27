@@ -14,6 +14,8 @@ open scoped AlgebraicGeometry
 
 universe u
 
+attribute [local instance] SheafOfModules.RingedSite.ExteriorPower.top_rankOne
+
 /- Lemma 33.44.8 (1): the degree of a finite locally free module on a proper scheme of
 dimension at most one equals the degree of its top exterior power. -/
 @[stacks 0DJ5] #check

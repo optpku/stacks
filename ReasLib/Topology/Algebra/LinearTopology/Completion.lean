@@ -34,12 +34,12 @@ variable {R : Type u} {M : Type v}
 variable [Ring R] [AddCommGroup M] [Module R M] [TopologicalSpace M] [IsLinearTopology R M]
 
 /-- The induced topology on a submodule of a linearly topologized module is linear. -/
-instance instIsLinearTopology_subtype (N : Submodule R M) : IsLinearTopology R N where
+instance instIsLinearTopology_subtype (N : Submodule R M) [IsLinearTopology R M] : IsLinearTopology R N where
   hasBasis_submodule' := sorry
 
 /-- The quotient topology on a module by a submodule is linearly topologized when the
    quotient map is open. -/
-instance instIsLinearTopology_quotient (N : Submodule R M) [ContinuousAdd M] :
+instance instIsLinearTopology_quotient (N : Submodule R M) [ContinuousAdd M] [IsLinearTopology R M] :
     IsLinearTopology R (M ⧸ N) where
   hasBasis_submodule' := sorry
 

@@ -388,7 +388,8 @@ surjective. -/
 theorem algebraMap_source_surjective (𝒟 : DualObstruction X)
     {σ : DeformationSituation X} (hσ : σ.IsOver 𝒟.toObjectOverSpec) :
     Function.Surjective (@algebraMap σ.source 𝒟.carrier _ _ (𝒟.sourceAlgebra hσ)) :=
-  sorry
+  letI := 𝒟.sourceAlgebra hσ
+  (DeformationSituation.toCarrierOverMap hσ).property.surjective
 
 /-- The empty-generator presentation of the stored square-zero surjection `A' → A`. -/
 def surjectiveGenerators (𝒟 : DualObstruction X) {σ : DeformationSituation X}
@@ -560,6 +561,18 @@ theorem conormalToKernelLinear_apply (𝒟 : DualObstruction X)
           ((@Algebra.Extension.NaiveCotangent.liftEquiv σ.source 𝒟.carrier _ _
       (𝒟.sourceAlgebra hσ)
               (@Algebra.Generators.toExtension σ.source 𝒟.carrier PEmpty.{u + 1} _ _ (𝒟.sourceAlgebra hσ) (𝒟.surjectiveGenerators hσ))) l)).1 :=
+  sorry
+
+/-- The square-zero comparison sends the class of every kernel representative
+to its constant coefficient, independently of the representative selected by `surjInv`. -/
+theorem conormalToKernelLinear_mk (𝒟 : DualObstruction X)
+    {σ : DeformationSituation X} (hσ : σ.IsOver 𝒟.toObjectOverSpec) :
+    letI := 𝒟.sourceAlgebra hσ
+    ∀ p : (𝒟.surjectiveGenerators hσ).toExtension.ker,
+      (𝒟.conormalToKernelLinear hσ
+        ((Algebra.Extension.NaiveCotangent.liftEquiv
+          (𝒟.surjectiveGenerators hσ).toExtension).symm
+            (Algebra.Extension.Cotangent.mk p))).1 = constantCoeff p.1 :=
   sorry
 
 private theorem conormalToKernel_laws (𝒟 : DualObstruction X) {σ : DeformationSituation X}

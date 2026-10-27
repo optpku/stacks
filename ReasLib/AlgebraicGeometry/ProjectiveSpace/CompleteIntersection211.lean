@@ -69,7 +69,7 @@ def homogeneousIdeal (k : Type u) [Field k] :
 and the degree-11 Fermat form. -/
 theorem homogeneousIdeal_toIdeal (k : Type u) [Field k] :
     (homogeneousIdeal k).toIdeal = Ideal.span {segreQuadric k, fermatEleven k} :=
-  sorry
+  rfl
 
 /-- The quotient grading on `k[X_0, X_1, X_2, X_3] ⧸ (segreQuadric, fermatEleven)`. -/
 abbrev quotientGrading (k : Type u) [Field k] :
@@ -101,7 +101,7 @@ homogeneous quotient by `homogeneousIdeal k`. -/
 theorem closedImmersion_def (k : Type u) [Field k] :
     closedImmersion k =
       projQuotientMap (ProjectiveSpace.grading k 3) (homogeneousIdeal k) :=
-  sorry
+  rfl
 
 /-- The morphism `closedImmersion k` is a closed immersion. -/
 instance instIsClosedImmersion (k : Type u) [Field k] :
@@ -117,7 +117,7 @@ abbrev hom (k : Type u) [Field k] : scheme k ⟶ Spec (.of k) :=
 /-- The structure morphism is the closed immersion into `P^3_k` followed by
 `ProjectiveSpace.toSpec k 3`. -/
 theorem hom_def (k : Type u) [Field k] :
-    hom k = closedImmersion k ≫ ProjectiveSpace.toSpec k 3 := sorry
+    hom k = closedImmersion k ≫ ProjectiveSpace.toSpec k 3 := rfl
 
 /-- The type (2, 11) complete-intersection curve, bundled as a scheme over `k`. -/
 abbrev schemeOver (k : Type u) [Field k] : SchemeOverField k :=

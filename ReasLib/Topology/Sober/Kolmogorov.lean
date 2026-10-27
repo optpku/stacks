@@ -30,17 +30,13 @@ def toIrreducibleClosedsRange :
   ⟨Set.rangeFactorization toIrreducibleCloseds,
     toIrreducibleCloseds.continuous.rangeFactorization⟩
 
-/-- Inseparability is exactly the kernel relation of the soberification map. -/
-theorem inseparable_iff_toIrreducibleCloseds_eq (x y : X) :
-    Inseparable x y ↔ toIrreducibleCloseds x = toIrreducibleCloseds y := sorry
-
 /-- The canonical equivalence from the Kolmogorov reflection to the range of the soberification
 map. -/
 noncomputable def separationQuotientEquivRange :
     SeparationQuotient X ≃ Set.range (toIrreducibleCloseds : X → IrreducibleCloseds X) :=
   (Quotient.congrRight (r := inseparableSetoid X)
       (r' := Setoid.ker (toIrreducibleCloseds : X → IrreducibleCloseds X))
-      (inseparable_iff_toIrreducibleCloseds_eq (X := X))).trans
+      (fun x y ↦ (toIrreducibleCloseds_eq_iff_inseparable (x := x) (y := y)).symm)).trans
     (Setoid.quotientKerEquivRange (toIrreducibleCloseds : X → IrreducibleCloseds X))
 
 /-- The canonical equivalence from the Kolmogorov reflection to the soberification range is

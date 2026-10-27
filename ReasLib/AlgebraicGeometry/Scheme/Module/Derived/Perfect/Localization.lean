@@ -51,7 +51,7 @@ namespace BoundedFiniteLocallyFreeHomotopy
 /-- An object of `BoundedFiniteLocallyFreeHomotopy X` has a bounded finite locally free
 underlying complex. -/
 theorem property (X : Scheme.{u}) (K : BoundedFiniteLocallyFreeHomotopy X) :
-    SheafOfModules.CochainComplex.IsBoundedFiniteLocallyFree K.obj.as := sorry
+    SheafOfModules.CochainComplex.IsBoundedFiniteLocallyFree.{u, u, u} K.obj.as := sorry
 
 /-- Bounded finite locally free homotopy objects form a triangulated subcategory. -/
 instance isTriangulated (X : Scheme.{u}) :

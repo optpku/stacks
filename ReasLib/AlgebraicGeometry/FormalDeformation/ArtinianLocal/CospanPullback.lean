@@ -14,6 +14,9 @@ public import ReasLib.AlgebraicGeometry.FormalDeformation.ArtinianLocal.Instance
 public import ReasLib.AlgebraicGeometry.FormalDeformation.SmallExtension
 public import ReasLib.RingTheory.LocalRing.Length.ResidueImage
 public import ReasLib.RingTheory.LocalRing.ResidueField.Surjective
+import Mathlib.Algebra.Polynomial.Lifts
+import Mathlib.RingTheory.AdicCompletion.Noetherian
+import Mathlib.RingTheory.Henselian
 
 /-!
 # Fibre products of cospans in `ArtinianLocalAlgCat`
@@ -259,18 +262,45 @@ noncomputable def pullbackResidueFieldHom (f1 : A1 ⟶ A) (f2 : A2 ⟶ A) :
 theorem pullbackResidueFieldHom_apply (f1 : A1 ⟶ A) (f2 : A2 ⟶ A)
     (x : AlgHom.pullback f1.hom f2.hom) :
     pullbackResidueFieldHom f1 f2 (residue _ x) =
-      A1.residueFieldIso (residue _ (AlgHom.pullbackFst f1.hom f2.hom x)) := sorry
+      A1.residueFieldIso (residue _ (AlgHom.pullbackFst f1.hom f2.hom x)) := rfl
+
+private theorem residueFieldIso_hom_apply (f : A1 ⟶ A) (x : A1.carrier) :
+    A.residueFieldIso (residue _ (f.hom x)) = A1.residueFieldIso (residue _ x) :=
+  DFunLike.congr_fun (Hom.residue_compat f) (residue _ x)
 
 /-- The residue comparisons through the two projections agree. -/
 theorem pullbackResidueFieldHom_eq_snd (f1 : A1 ⟶ A) (f2 : A2 ⟶ A) :
     pullbackResidueFieldHom f1 f2 =
       A2.residueFieldIso.toAlgHom.comp
-        (ResidueField.mapAlgHom (AlgHom.pullbackSnd f1.hom f2.hom)) := sorry
+        (ResidueField.mapAlgHom (AlgHom.pullbackSnd f1.hom f2.hom)) := by
+  ext x
+  obtain ⟨x, rfl⟩ := residue_surjective x
+  change A1.residueFieldIso (residue _ x.1.1) = A2.residueFieldIso (residue _ x.1.2)
+  calc
+    _ = A.residueFieldIso (residue _ (f1.hom x.1.1)) :=
+      (residueFieldIso_hom_apply f1 _).symm
+    _ = A.residueFieldIso (residue _ (f2.hom x.1.2)) :=
+      congrArg (fun a => A.residueFieldIso (residue _ a)) x.2
+    _ = _ := residueFieldIso_hom_apply f2 _
 
 /-- A surjective leg makes the canonical pullback residue comparison surjective. -/
 theorem surjective_pullbackResidueFieldHom_of_surjective (f1 : A1 ⟶ A) (f2 : A2 ⟶ A)
     (h : Function.Surjective f1.hom ∨ Function.Surjective f2.hom) :
-    Function.Surjective (pullbackResidueFieldHom f1 f2) := sorry
+    Function.Surjective (pullbackResidueFieldHom f1 f2) := by
+  rcases h with h | h
+  · letI : IsLocalHom (AlgHom.pullbackSnd f1.hom f2.hom).toRingHom :=
+      ⟨fun x hx => (instIsLocalHom_cospanPullbackSnd f1 f2).map_nonunit x hx⟩
+    rw [pullbackResidueFieldHom_eq_snd]
+    exact A2.residueFieldIso.surjective.comp
+      (RingHom.ResidueField.map_bijective_of_surjective
+        (AlgHom.pullbackSnd f1.hom f2.hom).toRingHom
+        (AlgHom.surjective_pullbackSnd_of_surjective f1.hom f2.hom h)).2
+  · letI : IsLocalHom (AlgHom.pullbackFst f1.hom f2.hom).toRingHom :=
+      ⟨fun x hx => (instIsLocalHom_cospanPullbackFst f1 f2).map_nonunit x hx⟩
+    exact A1.residueFieldIso.surjective.comp
+      (RingHom.ResidueField.map_bijective_of_surjective
+        (AlgHom.pullbackFst f1.hom f2.hom).toRingHom
+        (AlgHom.surjective_pullbackFst_of_surjective f1.hom f2.hom h)).2
 
 /-- A pullback with a surjective leg has its residue field canonically identified with `k`. -/
 noncomputable def pullbackResidueFieldIso (f1 : A1 ⟶ A) (f2 : A2 ⟶ A)
@@ -283,7 +313,7 @@ noncomputable def pullbackResidueFieldIso (f1 : A1 ⟶ A) (f2 : A2 ⟶ A)
 /-- The residue equivalence for a surjective leg has the canonical comparison as forward map. -/
 theorem pullbackResidueFieldIso_toAlgHom (f1 : A1 ⟶ A) (f2 : A2 ⟶ A)
     (h : Function.Surjective f1.hom ∨ Function.Surjective f2.hom) :
-    (pullbackResidueFieldIso f1 f2 h).toAlgHom = pullbackResidueFieldHom f1 f2 := sorry
+    (pullbackResidueFieldIso f1 f2 h).toAlgHom = pullbackResidueFieldHom f1 f2 := rfl
 
 /-- The algebra pullback with a surjective leg is a residue-identified Artinian local algebra. -/
 noncomputable def pullback (f1 : A1 ⟶ A) (f2 : A2 ⟶ A)
@@ -356,10 +386,74 @@ instance instIsSmallExtension_pullbackFst (f1 : A1 ⟶ A) (f2 : A2 ⟶ A)
     [IsSmallExtension f2] :
     IsSmallExtension (pullbackFst f1 f2 (Or.inr IsSmallExtension.surjective)) := sorry
 
+private theorem exists_root_with_residue (B : ArtinianLocalAlgCat Λ k)
+    (p : Polynomial Λ) (hp : p.Monic) (x : k)
+    (hx : Polynomial.aeval x p = 0) (hx' : Polynomial.aeval x p.derivative ≠ 0) :
+    ∃ b : B.carrier, Polynomial.aeval b p = 0 ∧
+      B.residueFieldIso (residue _ b) = x := by
+  letI : HenselianLocalRing B.carrier :=
+    { toIsLocalRing := inferInstance
+      is_henselian := fun f hf a₀ h₀ h' =>
+        HenselianRing.is_henselian f hf a₀ h₀ (h'.map (residue B.carrier)) }
+  let r : B.carrier →ₐ[Λ] k :=
+    B.residueFieldIso.toAlgHom.comp (Ideal.Quotient.mkₐ Λ (IsLocalRing.maximalIdeal B.carrier))
+  have hr : Function.Surjective r := B.residueFieldIso.surjective.comp residue_surjective
+  obtain ⟨b, hb, hbx⟩ := ((HenselianLocalRing.TFAE B.carrier).out 0 2 rfl rfl).mp
+    (inferInstance : HenselianLocalRing B.carrier)
+    r.toRingHom hr (p.map (algebraMap Λ B.carrier)) (hp.map _) x
+    (by simpa [Polynomial.eval₂_map, Polynomial.aeval_def] using hx)
+    (by simpa [Polynomial.derivative_map, Polynomial.eval₂_map, Polynomial.aeval_def] using hx')
+  exact ⟨b, by simpa [Polynomial.IsRoot, Polynomial.eval_map_algebraMap] using hb, hbx⟩
+
 /-- Separability over the base image makes the canonical pullback residue comparison surjective. -/
 theorem surjective_pullbackResidueFieldHom_of_separable (f1 : A1 ⟶ A) (f2 : A2 ⟶ A)
     [Algebra.IsSeparable (Algebra.residueImage Λ k) k] :
-    Function.Surjective (pullbackResidueFieldHom f1 f2) := sorry
+    Function.Surjective (pullbackResidueFieldHom f1 f2) := by
+  intro x
+  have hs := Algebra.IsSeparable.isSeparable (Algebra.residueImage Λ k) x
+  obtain ⟨p, hp, -, hpm⟩ := Polynomial.lifts_and_natDegree_eq_and_monic
+    (Polynomial.mem_lifts_of_surjective
+      (f := algebraMap Λ (Algebra.residueImage Λ k))
+      Ideal.Quotient.mk_surjective (minpoly (Algebra.residueImage Λ k) x))
+    (minpoly.monic hs.isIntegral)
+  have heval (q : Polynomial Λ) : Polynomial.aeval x q =
+      Polynomial.aeval x (q.map (algebraMap Λ (Algebra.residueImage Λ k))) :=
+    Polynomial.aeval_eq_aeval_map (IsScalarTower.algebraMap_eq Λ (Algebra.residueImage Λ k) k)
+      q x
+  have hx : Polynomial.aeval x p = 0 := by
+    rw [heval, hp, minpoly.aeval]
+  have hx' : Polynomial.aeval x p.derivative ≠ 0 := by
+    rw [heval, ← Polynomial.derivative_map, hp]
+    exact hs.aeval_derivative_ne_zero (minpoly.aeval _ _)
+  obtain ⟨b₁, hb₁, hx₁⟩ := exists_root_with_residue A1 p hpm x hx hx'
+  obtain ⟨b₂, hb₂, hx₂⟩ := exists_root_with_residue A2 p hpm x hx hx'
+  have hres₁ : A.residueFieldIso (residue _ (f1.hom b₁)) = x :=
+    (residueFieldIso_hom_apply f1 b₁).trans hx₁
+  have hres₂ : A.residueFieldIso (residue _ (f2.hom b₂)) = x :=
+    (residueFieldIso_hom_apply f2 b₂).trans hx₂
+  have hroot₁ : Polynomial.aeval (f1.hom b₁) p = 0 := by
+    rw [Polynomial.aeval_algHom_apply, hb₁, map_zero]
+  have hroot₂ : Polynomial.aeval (f2.hom b₂) p = 0 := by
+    rw [Polynomial.aeval_algHom_apply, hb₂, map_zero]
+  have heq : f1.hom b₁ = f2.hom b₂ := by
+    apply IsLocalRing.eq_of_eval_eq_zero_of_not_isUnit_sub
+      (f := p.map (algebraMap Λ A.carrier))
+    · simpa [Polynomial.eval_map_algebraMap] using hroot₁
+    · simpa [Polynomial.eval_map_algebraMap] using hroot₂
+    · change (f1.hom b₁ - f2.hom b₂) ∈ IsLocalRing.maximalIdeal A.carrier
+      rw [← residue_eq_zero_iff, map_sub, sub_eq_zero]
+      exact A.residueFieldIso.injective (hres₁.trans hres₂.symm)
+    · rw [Polynomial.derivative_map, Polynomial.eval_map_algebraMap,
+        ← residue_ne_zero_iff_isUnit]
+      intro hzero
+      let r : A.carrier →ₐ[Λ] k :=
+        A.residueFieldIso.toAlgHom.comp (Ideal.Quotient.mkₐ Λ (IsLocalRing.maximalIdeal A.carrier))
+      have hz : r (Polynomial.aeval (f1.hom b₁) p.derivative) = 0 := by
+        change A.residueFieldIso (residue _ (Polynomial.aeval (f1.hom b₁) p.derivative)) = 0
+        exact (congrArg A.residueFieldIso hzero).trans (map_zero _)
+      rw [← Polynomial.aeval_algHom_apply, show r (f1.hom b₁) = x from hres₁] at hz
+      exact hx' hz
+  exact ⟨residue _ (⟨(b₁, b₂), heq⟩ : AlgHom.pullback f1.hom f2.hom), hx₁⟩
 
 /-- The pullback over a separable residue extension is a residue-identified Artinian local algebra. -/
 noncomputable def pullbackOfSeparable (f1 : A1 ⟶ A) (f2 : A2 ⟶ A)

@@ -29,7 +29,7 @@ quasi-coherent `𝒪_X`-module `ℱ`, and a morphism `g : Y' ⟶ Y`, the fibre p
 `X' = Y' ×_Y X` with projections `g' : X' ⟶ X` and `f' : X' ⟶ Y'` is cartesian,
 and the diagram records `ℱ' = (g')^* ℱ` together with the derived pushforwards
 `Rf'_* ℱ'` and `Rf_* ℱ`. -/
-@[stacks 073J] #check (AlgebraicGeometry.AlgebraicSpace.IsCartesianSquare f' g' g f : Prop)
+@[stacks 073J] #check (CategoryTheory.IsPullback g' f' f g : Prop)
 
 #check (Modules.pullback :
   ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S}, (X ⟶ Y) → Y.Modules ⥤ X.Modules)

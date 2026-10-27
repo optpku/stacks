@@ -28,10 +28,10 @@ namespace RingedSite.ToposHom
 
 variable (A : RingedSite.{u₀, v₀, w}) (B : RingedSite.{u₁, v₁, w})
 variable (C : RingedSite.{u₂, v₂, w}) (D : RingedSite.{u₃, v₃, w})
-variable [A.siteTopology.HasSheafCompose (forget RingCat.{w})]
-variable [B.siteTopology.HasSheafCompose (forget RingCat.{w})]
-variable [C.siteTopology.HasSheafCompose (forget RingCat.{w})]
-variable [D.siteTopology.HasSheafCompose (forget RingCat.{w})]
+variable [@GrothendieckTopology.HasSheafCompose A.carrier A.carrier.str RingCat.{w} inferInstance (Type w) inferInstance A.siteTopology (forget RingCat.{w})]
+variable [@GrothendieckTopology.HasSheafCompose B.carrier B.carrier.str RingCat.{w} inferInstance (Type w) inferInstance B.siteTopology (forget RingCat.{w})]
+variable [@GrothendieckTopology.HasSheafCompose C.carrier C.carrier.str RingCat.{w} inferInstance (Type w) inferInstance C.siteTopology (forget RingCat.{w})]
+variable [@GrothendieckTopology.HasSheafCompose D.carrier D.carrier.str RingCat.{w} inferInstance (Type w) inferInstance D.siteTopology (forget RingCat.{w})]
 
 /-- A lax square of morphisms of ringed topoi.  The `2`-cell is stored in direct-image
 orientation, from the upper-right composite to the left-lower composite. -/
@@ -59,14 +59,15 @@ noncomputable abbrev LaxCommSquare.leftLower
 
 /-- A lax ringed-topos square is invertible when its stored forward `2`-cell has invertible
 underlying natural transformation.  This records only a proposition, not inverse data. -/
-class LaxCommSquare.IsInvertible (sq : LaxCommSquare A B C D) : Prop where
-  /-- The underlying natural transformation of the square cell is invertible. -/
-  cell_isIso : IsIso sq.cell.hom
+abbrev LaxCommSquare.IsInvertible (sq : LaxCommSquare A B C D) : Prop :=
+  IsIso sq.cell.hom
 
-attribute [instance] LaxCommSquare.IsInvertible.cell_isIso
+/-- The underlying natural transformation of an invertible square cell is invertible. -/
+theorem LaxCommSquare.IsInvertible.cell_isIso {sq : LaxCommSquare A B C D}
+    (h : sq.IsInvertible) : IsIso sq.cell.hom := h
 
-/-- Lemma 18.22.3 (04J8): a commutative square of arbitrary morphisms of ringed topoi,
-carrying the chosen invertible `2`-cell as reusable data. -/
+/-- A commutative square of morphisms of ringed topoi with a chosen invertible `2`-cell
+from the upper-right composite to the left-lower composite. -/
 @[stacks 04J8 "commutative square"]
 structure CommSquare where
   /-- The upper edge. -/

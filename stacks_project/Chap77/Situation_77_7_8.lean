@@ -6,7 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap77.«77_7_8_1_Flattening»
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.FlatOver.Flattening
 import StacksCheckRecall
 
 @[expose] public section
@@ -21,7 +21,7 @@ variable (ℱ : X.Modules) [ℱ.IsQuasicoherent] (T : SchemeOver Y)
 /- Situation 77.7.8: the base changes of `ℱ` that are flat over a scheme `T` over `Y`
 define a subterminal contravariant functor on schemes over `Y`. -/
 @[stacks 0CWX] #check
-  (Modules.Flattening.functor f ℱ : (SchemeOver Y)ᵒᵖ ⥤ Type u)
+  (AlgebraicGeometry.AlgebraicSpace.Modules.Flattening.functor f ℱ : (SchemeOver Y)ᵒᵖ ⥤ Type u)
 
 #check
   (Modules.baseChangeSpace f T.hom : AlgebraicSpace S)

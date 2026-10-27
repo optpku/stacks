@@ -25,8 +25,8 @@ universe u
     [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
     [MonoidalCategory (DerivedCategory (ModuleCat.{u} B))],
     (f : A →+* B) → Function.Surjective f →
-    (HA : MonoidalClosed (DerivedCategory (ModuleCat.{u} A))) →
-    (HB : MonoidalClosed (DerivedCategory (ModuleCat.{u} B))) →
+    (CA : DerivedCategory.CanonicalClosedPresentation (A := A)) →
+    (CB : DerivedCategory.CanonicalClosedPresentation (A := B)) →
     (ω : DerivedCategory (ModuleCat.{u} A)) →
-    ω.IsDualizingComplex HA →
-    ((ModuleCat.derivedCoextensionOfScalars f).obj ω).IsDualizingComplex HB)
+    ω.IsCanonicalDualizingComplex CA →
+    ((ModuleCat.derivedCoextensionOfScalars f).obj ω).IsCanonicalDualizingComplex CB)

@@ -7,6 +7,7 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.InternalHom
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.Perfect
 
 /-! # Derived structure-sheaf duals on algebraic spaces -/
 
@@ -33,5 +34,9 @@ theorem dual_model (P : ModuleDerived X) (F I : CochainComplex (Modules X) ℤ)
     (targetIso : DerivedCategory.Q.obj I ≅
       (DerivedCategory.singleFunctor (Modules X) 0).obj (𝟙_ (Modules X))) :
     IsIsomorphic (dual P) (DerivedCategory.Q.obj (InternalHom.complex F I)) := sorry
+
+/-- The derived structure-sheaf dual of a perfect derived module is perfect. -/
+theorem isPerfect_dual (E : ModuleDerived X) (hE : IsPerfect E) :
+    IsPerfect (dual E) := sorry
 
 end AlgebraicGeometry.AlgebraicSpace.ModuleDerived

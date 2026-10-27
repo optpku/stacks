@@ -45,19 +45,31 @@ def auxFamily (n : ℕ) :
   obj P := Discrete.functor (fun i => P.system i)
   map {P Q} f :=
     { app := fun i => f.systemMap.yMap i.as
-      naturality := sorry }
-  map_id P := sorry
-  map_comp f g := sorry
+      naturality := by
+        intro i j φ
+        cases i
+        cases j
+        rcases φ with ⟨⟨h⟩⟩
+        cases h
+        simp [Discrete.functor] }
+  map_id P := by
+    apply NatTrans.ext
+    funext i
+    rfl
+  map_comp f g := by
+    apply NatTrans.ext
+    funext i
+    rfl
 
 /-- The auxiliary-family evaluation computes to the stored `Y` object. -/
 @[simp, stacks 0D7Z "auxiliary-family object computation"]
 theorem auxFamily_obj (P : Total D n) (i : Fin (n + 1)) :
-    ((auxFamily D n).obj P).obj (Discrete.mk i) = P.system i := sorry
+    ((auxFamily D n).obj P).obj (Discrete.mk i) = P.system i := rfl
 
 /-- The auxiliary-family evaluation computes to the stored `yMap` component. -/
 @[simp, stacks 0D7Z "auxiliary-family morphism computation"]
 theorem auxFamily_map_app {P Q : Total D n} (f : P ⟶ Q) (i : Fin (n + 1)) :
-    ((auxFamily D n).map f).app (Discrete.mk i) = f.systemMap.yMap i := sorry
+    ((auxFamily D n).map f).app (Discrete.mk i) = f.systemMap.yMap i := rfl
 
 variable (D) in
 /-- Joint evaluation of the underlying finite row and all auxiliary `Y` objects. -/
@@ -69,38 +81,60 @@ def joint (n : ℕ) :
 /-- The first component of a jointly evaluated object is its underlying finite row. -/
 @[simp, stacks 0D7Z "joint evaluation row computation"]
 theorem joint_obj_fst (P : Total D n) :
-    ((joint D n).obj P).1 = P.base := sorry
+    ((joint D n).obj P).1 = P.base := rfl
 
 /-- The second component of a jointly evaluated object is its discrete auxiliary family. -/
 @[simp, stacks 0D7Z "joint evaluation auxiliary-family computation"]
 theorem joint_obj_snd (P : Total D n) :
-    ((joint D n).obj P).2 = Discrete.functor (fun i => P.system i) := sorry
+    ((joint D n).obj P).2 = Discrete.functor (fun i => P.system i) := rfl
 
 /-- The first component of a jointly evaluated morphism is its base map. -/
 @[simp, stacks 0D7Z "joint evaluation base-map computation"]
 theorem joint_map_fst {P Q : Total D n} (f : P ⟶ Q) :
-    ((joint D n).map f).1 = f.base := sorry
+    ((joint D n).map f).1 = f.base := rfl
 
 /-- The `i`th component of the auxiliary part of a jointly evaluated morphism is `yMap i`. -/
 @[simp, stacks 0D7Z "joint evaluation auxiliary-map computation"]
 theorem joint_map_snd_app {P Q : Total D n} (f : P ⟶ Q) (i : Fin (n + 1)) :
-    (((joint D n).map f).2).app (Discrete.mk i) = f.systemMap.yMap i := sorry
+    (((joint D n).map f).2).app (Discrete.mk i) = f.systemMap.yMap i := rfl
 
 /-- Joint evaluation is faithful: the base map and every auxiliary-object map determine a total
 morphism. -/
 @[stacks 0D7Z "faithfulness of joint row and auxiliary evaluation"]
-instance joint_faithful (n : ℕ) : (joint D n).Faithful := sorry
+instance joint_faithful (n : ℕ) : (joint D n).Faithful where
+  map_injective := by
+    intro P Q f g h
+    have hbase : f.base = g.base := congrArg _root_.Prod.fst h
+    have hsystem : f.systemMap.yMap = g.systemMap.yMap := by
+      funext i
+      exact congrArg (fun k => k.2.app (Discrete.mk i)) h
+    rcases f with ⟨fbase, ⟨fy, _, _, _⟩⟩
+    rcases g with ⟨gbase, ⟨gy, _, _, _⟩⟩
+    cases hbase
+    cases hsystem
+    rfl
 
 /-- A direct `Hom.ext` bridge through the jointly evaluated morphism. -/
 @[ext (iff := false), stacks 0D7Z "joint evaluation hom extensionality"]
 theorem hom_ext_of_joint {P Q : Total D n} {f g : P ⟶ Q}
-    (h : (joint D n).map f = (joint D n).map g) : f = g := sorry
+    (h : (joint D n).map f = (joint D n).map g) : f = g :=
+  (joint D n).map_injective h
 
 /-- The joint evaluation equality criterion in component form. -/
 @[simp, stacks 0D7Z "joint evaluation equality criterion"]
 theorem joint_map_eq_iff {P Q : Total D n} {f g : P ⟶ Q} :
     (joint D n).map f = (joint D n).map g ↔
-      f.base = g.base ∧ ∀ i, f.systemMap.yMap i = g.systemMap.yMap i := sorry
+      f.base = g.base ∧ ∀ i, f.systemMap.yMap i = g.systemMap.yMap i := by
+  constructor
+  · intro h
+    refine ⟨congrArg _root_.Prod.fst h, ?_⟩
+    intro i
+    exact congrArg (fun k => k.2.app (Discrete.mk i)) h
+  · rintro ⟨hbase, hsystem⟩
+    apply Prod.ext hbase
+    apply NatTrans.ext
+    funext i
+    exact hsystem i.as
 
 end CategoryTheory.PostnikovSystem.Total
 

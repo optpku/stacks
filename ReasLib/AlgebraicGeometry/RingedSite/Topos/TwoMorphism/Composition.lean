@@ -35,7 +35,7 @@ condition. -/
 theorem TwoMorphism.id_comm (f : Hom X Y) :
     (sheafCompose Y.siteTopology (forget RingCat.{w})).map f.structureSheafMap ≫
       structureSheafComponent
-        (𝟙 (f.base.sheafPushforwardContinuous (Type w) Y.siteTopology X.siteTopology)) =
+        (𝟙 (f.sheafPushforwardContinuous (A := Type w))) =
       (sheafCompose Y.siteTopology (forget RingCat.{w})).map f.structureSheafMap := sorry
 
 /-- The identity `2`-morphism of a ringed-site morphism. -/
@@ -46,7 +46,7 @@ def TwoMorphism.id (f : Hom X Y) : TwoMorphism f f where
 /-- The underlying natural transformation of the identity ringed-site `2`-morphism. -/
 @[simp] theorem TwoMorphism.id_hom (f : Hom X Y) :
     (TwoMorphism.id f).hom =
-      𝟙 (f.base.sheafPushforwardContinuous (Type w) Y.siteTopology X.siteTopology) := sorry
+      𝟙 (f.sheafPushforwardContinuous (A := Type w)) := sorry
 
 /-- The composite direct-image transformation satisfies the structure-sheaf compatibility
 condition. -/

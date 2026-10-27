@@ -46,7 +46,7 @@ theorem self_mem_irreducibleComponentNeighborhood (x : X) :
 
 /-- If a space has only finitely many irreducible components, every component neighbourhood is
 open. -/
-theorem Set.Finite.isOpen_irreducibleComponentNeighborhood
+theorem _root_.Set.Finite.isOpen_irreducibleComponentNeighborhood
     (hfin : (irreducibleComponents X).Finite) (x : X) :
     IsOpen (irreducibleComponentNeighborhood x) := sorry
 

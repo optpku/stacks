@@ -54,7 +54,7 @@ theorem idIsoApp.hom.fst
     (χX : X.p.Cleavage) (χY : Y.p.Cleavage) (χS : S.p.Cleavage)
     (U : C) (P : (F.fiberFunctor U) ⊡ (G.fiberFunctor U)) :
     (idIsoApp F G χX χY χS U P).hom.fst =
-      (Functor.Cleavage.Reindex.idIsoApp χX U P.fst).hom := sorry
+      (Functor.Cleavage.Reindex.idIsoApp χX U P.fst).hom := rfl
 
 /-- The right component of the forward objectwise unit comparison. -/
 @[simp]
@@ -63,7 +63,7 @@ theorem idIsoApp.hom.snd
     (χX : X.p.Cleavage) (χY : Y.p.Cleavage) (χS : S.p.Cleavage)
     (U : C) (P : (F.fiberFunctor U) ⊡ (G.fiberFunctor U)) :
     (idIsoApp F G χX χY χS U P).hom.snd =
-      (Functor.Cleavage.Reindex.idIsoApp χY U P.snd).hom := sorry
+      (Functor.Cleavage.Reindex.idIsoApp χY U P.snd).hom := rfl
 
 /-- The left component of the inverse objectwise unit comparison. -/
 @[simp]
@@ -72,7 +72,7 @@ theorem idIsoApp.inv.fst
     (χX : X.p.Cleavage) (χY : Y.p.Cleavage) (χS : S.p.Cleavage)
     (U : C) (P : (F.fiberFunctor U) ⊡ (G.fiberFunctor U)) :
     (idIsoApp F G χX χY χS U P).inv.fst =
-      (Functor.Cleavage.Reindex.idIsoApp χX U P.fst).inv := sorry
+      (Functor.Cleavage.Reindex.idIsoApp χX U P.fst).inv := rfl
 
 /-- The right component of the inverse objectwise unit comparison. -/
 @[simp]
@@ -81,7 +81,7 @@ theorem idIsoApp.inv.snd
     (χX : X.p.Cleavage) (χY : Y.p.Cleavage) (χS : S.p.Cleavage)
     (U : C) (P : (F.fiberFunctor U) ⊡ (G.fiberFunctor U)) :
     (idIsoApp F G χX χY χS U P).inv.snd =
-      (Functor.Cleavage.Reindex.idIsoApp χY U P.snd).inv := sorry
+      (Functor.Cleavage.Reindex.idIsoApp χY U P.snd).inv := rfl
 
 /-- The objectwise unit comparisons for fiber-pullback reindexing are natural. -/
 theorem idIsoApp.naturality.hom
@@ -90,7 +90,10 @@ theorem idIsoApp.naturality.hom
     (U : C) {P Q : (F.fiberFunctor U) ⊡ (G.fiberFunctor U)} (φ : P ⟶ Q) :
     φ ≫ (idIsoApp F G χX χY χS U Q).hom =
       (idIsoApp F G χX χY χS U P).hom ≫
-        (functor F G χX χY χS (𝟙 U)).map φ := sorry
+        (functor F G χX χY χS (𝟙 U)).map φ := by
+  apply CategoricalPullback.hom_ext
+  · exact (Functor.Cleavage.Reindex.idIso χX U).hom.naturality φ.fst
+  · exact (Functor.Cleavage.Reindex.idIso χY U).hom.naturality φ.snd
 
 /-- Inverse naturality of the objectwise unit comparison for fiber-pullback reindexing. -/
 theorem idIsoApp.naturality.inv
@@ -99,7 +102,10 @@ theorem idIsoApp.naturality.inv
     (U : C) {P Q : (F.fiberFunctor U) ⊡ (G.fiberFunctor U)} (φ : P ⟶ Q) :
     (functor F G χX χY χS (𝟙 U)).map φ ≫
         (idIsoApp F G χX χY χS U Q).inv =
-      (idIsoApp F G χX χY χS U P).inv ≫ φ := sorry
+      (idIsoApp F G χX χY χS U P).inv ≫ φ := by
+  apply CategoricalPullback.hom_ext
+  · exact (Functor.Cleavage.Reindex.idIso χX U).inv.naturality φ.fst
+  · exact (Functor.Cleavage.Reindex.idIso χY U).inv.naturality φ.snd
 
 /-- Identity reindexing of a categorical pullback of fibers is naturally isomorphic to the
 identity functor. -/
@@ -122,7 +128,7 @@ theorem idIso.hom.app.fst
     (χX : X.p.Cleavage) (χY : Y.p.Cleavage) (χS : S.p.Cleavage)
     (U : C) (P : (F.fiberFunctor U) ⊡ (G.fiberFunctor U)) :
     ((idIso F G χX χY χS U).hom.app P).fst =
-      (Functor.Cleavage.Reindex.idIsoApp χX U P.fst).hom := sorry
+      (Functor.Cleavage.Reindex.idIsoApp χX U P.fst).hom := rfl
 
 /-- The second component of the forward natural unit comparison is the cleavage unit comparison
 in the right fiber. -/
@@ -132,7 +138,7 @@ theorem idIso.hom.app.snd
     (χX : X.p.Cleavage) (χY : Y.p.Cleavage) (χS : S.p.Cleavage)
     (U : C) (P : (F.fiberFunctor U) ⊡ (G.fiberFunctor U)) :
     ((idIso F G χX χY χS U).hom.app P).snd =
-      (Functor.Cleavage.Reindex.idIsoApp χY U P.snd).hom := sorry
+      (Functor.Cleavage.Reindex.idIsoApp χY U P.snd).hom := rfl
 
 /-- The first component of the inverse natural unit comparison is the inverse cleavage unit
 comparison in the left fiber. -/
@@ -142,7 +148,7 @@ theorem idIso.inv.app.fst
     (χX : X.p.Cleavage) (χY : Y.p.Cleavage) (χS : S.p.Cleavage)
     (U : C) (P : (F.fiberFunctor U) ⊡ (G.fiberFunctor U)) :
     ((idIso F G χX χY χS U).inv.app P).fst =
-      (Functor.Cleavage.Reindex.idIsoApp χX U P.fst).inv := sorry
+      (Functor.Cleavage.Reindex.idIsoApp χX U P.fst).inv := rfl
 
 /-- The second component of the inverse natural unit comparison is the inverse cleavage unit
 comparison in the right fiber. -/
@@ -152,7 +158,7 @@ theorem idIso.inv.app.snd
     (χX : X.p.Cleavage) (χY : Y.p.Cleavage) (χS : S.p.Cleavage)
     (U : C) (P : (F.fiberFunctor U) ⊡ (G.fiberFunctor U)) :
     ((idIso F G χX χY χS U).inv.app P).snd =
-      (Functor.Cleavage.Reindex.idIsoApp χY U P.snd).inv := sorry
+      (Functor.Cleavage.Reindex.idIsoApp χY U P.snd).inv := rfl
 
 end BasedCategory.PseudoPullback.reindex.explicit
 

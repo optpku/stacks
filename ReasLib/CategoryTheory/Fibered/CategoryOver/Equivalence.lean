@@ -48,13 +48,15 @@ def toBasedFunctorIso {F G : X ⟶ Y} (e : F ≅ G) :
 transformation of the forward owner `2`-cell. -/
 @[simp]
 theorem toBasedFunctorIso.hom {F G : X ⟶ Y} (e : F ≅ G) :
-    (toBasedFunctorIso e).hom = e.hom.hom := sorry
+    (toBasedFunctorIso e).hom = e.hom.hom := by
+  rfl
 
 /-- The inverse component of `toBasedFunctorIso` is the underlying based natural
 transformation of the inverse owner `2`-cell. -/
 @[simp]
 theorem toBasedFunctorIso.inv {F G : X ⟶ Y} (e : F ≅ G) :
-    (toBasedFunctorIso e).inv = e.inv.hom := sorry
+    (toBasedFunctorIso e).inv = e.inv.hom := by
+  rfl
 
 /-- Forget an isomorphism of morphisms of fibred categories to the corresponding natural
 isomorphism between their total-category functors. -/
@@ -67,39 +69,46 @@ def toFunctorIso {F G : X ⟶ Y} (e : F ≅ G) :
 the forward owner `2`-cell. -/
 @[simp]
 theorem toFunctorIso.hom {F G : X ⟶ Y} (e : F ≅ G) :
-    (toFunctorIso e).hom = e.hom.hom.toNatTrans := sorry
+    (toFunctorIso e).hom = e.hom.hom.toNatTrans := by
+  rfl
 
 /-- The inverse transformation of `toFunctorIso` is the underlying natural transformation of
 the inverse owner `2`-cell. -/
 @[simp]
 theorem toFunctorIso.inv {F G : X ⟶ Y} (e : F ≅ G) :
-    (toFunctorIso e).inv = e.inv.hom.toNatTrans := sorry
+    (toFunctorIso e).inv = e.inv.hom.toNatTrans := by
+  rfl
 
 /-- The forward component of `toFunctorIso` is the total-category component of the forward
 owner `2`-cell. -/
 @[simp]
 theorem toFunctorIso.hom.app {F G : X ⟶ Y} (e : F ≅ G) (x : X.total) :
-    (toFunctorIso e).hom.app x = e.hom.hom.toNatTrans.app x := sorry
+    (toFunctorIso e).hom.app x = e.hom.hom.toNatTrans.app x := by
+  rfl
 
 /-- The inverse component of `toFunctorIso` is the total-category component of the inverse
 owner `2`-cell. -/
 @[simp]
 theorem toFunctorIso.inv.app {F G : X ⟶ Y} (e : F ≅ G) (x : X.total) :
-    (toFunctorIso e).inv.app x = e.inv.hom.toNatTrans.app x := sorry
+    (toFunctorIso e).inv.app x = e.inv.hom.toNatTrans.app x := by
+  rfl
 
 /-- Forgetting the identity owner isomorphism gives the identity total-functor isomorphism. -/
 @[simp]
 theorem toFunctorIso.refl (F : X ⟶ Y) :
-    toFunctorIso (Iso.refl F) = Iso.refl (toFunctor F) := sorry
+    toFunctorIso (Iso.refl F) = Iso.refl (toFunctor F) := by
+  rfl
 
 /-- Forgetting owner isomorphisms to total functors commutes with symmetry. -/
 @[simp]
 theorem toFunctorIso.symm {F G : X ⟶ Y} (e : F ≅ G) :
-    toFunctorIso e.symm = (toFunctorIso e).symm := sorry
+    toFunctorIso e.symm = (toFunctorIso e).symm := by
+  rfl
 
 /-- Forgetting owner isomorphisms to total functors preserves composition. -/
 theorem toFunctorIso.trans {F G H : X ⟶ Y} (e : F ≅ G) (d : G ≅ H) :
-    toFunctorIso (e ≪≫ d) = toFunctorIso e ≪≫ toFunctorIso d := sorry
+    toFunctorIso (e ≪≫ d) = toFunctorIso e ≪≫ toFunctorIso d := by
+  rfl
 
 /-- An isomorphism of morphisms of fibred categories restricts canonically to a natural
 isomorphism on every standard fiber. -/
@@ -112,31 +121,36 @@ def fiberFunctorIso {F G : X ⟶ Y} (e : F ≅ G) (U : C) :
 owner `2`-morphism. -/
 @[simp]
 theorem fiberFunctorIso.hom {F G : X ⟶ Y} (e : F ≅ G) (U : C) :
-    (fiberFunctorIso e U).hom = fiberNatTrans e.hom U := sorry
+    (fiberFunctorIso e U).hom = fiberNatTrans e.hom U := by
+  rfl
 
 /-- The inverse transformation of a restricted owner isomorphism is the restricted inverse
 owner `2`-morphism. -/
 @[simp]
 theorem fiberFunctorIso.inv {F G : X ⟶ Y} (e : F ≅ G) (U : C) :
-    (fiberFunctorIso e U).inv = fiberNatTrans e.inv U := sorry
+    (fiberFunctorIso e U).inv = fiberNatTrans e.inv U := by
+  rfl
 
 /-- The identity owner isomorphism restricts to the identity natural isomorphism on every
 standard fiber. -/
 @[simp]
 theorem fiberFunctorIso.refl (F : X ⟶ Y) (U : C) :
     fiberFunctorIso (Iso.refl F) U =
-      Iso.refl (fiberFunctor F U) := sorry
+      Iso.refl (fiberFunctor F U) := by
+  rfl
 
 /-- Restriction of owner isomorphisms to a fiber commutes with symmetry. -/
 @[simp]
 theorem fiberFunctorIso.symm {F G : X ⟶ Y} (e : F ≅ G) (U : C) :
-    fiberFunctorIso e.symm U = (fiberFunctorIso e U).symm := sorry
+    fiberFunctorIso e.symm U = (fiberFunctorIso e U).symm := by
+  rfl
 
 /-- Restriction of owner isomorphisms to a fiber preserves composition. -/
 theorem fiberFunctorIso.trans
     {F G H : X ⟶ Y} (e : F ≅ G) (d : G ≅ H) (U : C) :
     fiberFunctorIso (e ≪≫ d) U =
-      fiberFunctorIso e U ≪≫ fiberFunctorIso d U := sorry
+      fiberFunctorIso e U ≪≫ fiberFunctorIso d U := by
+  rfl
 
 /-- The forward fiber component of an owner isomorphism is represented by the original
 total-category component. -/
@@ -144,7 +158,8 @@ total-category component. -/
 theorem fiberFunctorIso.hom.app.val {F G : X ⟶ Y} (e : F ≅ G)
     (U : C) (x : X.p.Fiber U) :
     ((fiberFunctorIso e U).hom.app x).1 =
-      e.hom.hom.toNatTrans.app x.1 := sorry
+      e.hom.hom.toNatTrans.app x.1 := by
+  rfl
 
 /-- The inverse fiber component of an owner isomorphism is represented by the original
 total-category component. -/
@@ -152,7 +167,8 @@ total-category component. -/
 theorem fiberFunctorIso.inv.app.val {F G : X ⟶ Y} (e : F ≅ G)
     (U : C) (x : X.p.Fiber U) :
     ((fiberFunctorIso e U).inv.app x).1 =
-      e.inv.hom.toNatTrans.app x.1 := sorry
+      e.inv.hom.toNatTrans.app x.1 := by
+  rfl
 
 /-- Naturality of the forward component of an owner isomorphism after restriction to a
 fiber. -/
@@ -160,7 +176,8 @@ fiber. -/
 theorem fiberFunctorIso.hom.naturality {F G : X ⟶ Y} (e : F ≅ G)
     (U : C) {x y : X.p.Fiber U} (φ : x ⟶ y) :
     (fiberFunctor F U).map φ ≫ (fiberFunctorIso e U).hom.app y =
-      (fiberFunctorIso e U).hom.app x ≫ (fiberFunctor G U).map φ := sorry
+      (fiberFunctorIso e U).hom.app x ≫ (fiberFunctor G U).map φ := by
+  exact (fiberFunctorIso e U).hom.naturality φ
 
 /-- Naturality of the inverse component of an owner isomorphism after restriction to a
 fiber. -/
@@ -168,7 +185,8 @@ fiber. -/
 theorem fiberFunctorIso.inv.naturality {F G : X ⟶ Y} (e : F ≅ G)
     (U : C) {x y : X.p.Fiber U} (φ : x ⟶ y) :
     (fiberFunctor G U).map φ ≫ (fiberFunctorIso e U).inv.app y =
-      (fiberFunctorIso e U).inv.app x ≫ (fiberFunctor F U).map φ := sorry
+      (fiberFunctorIso e U).inv.app x ≫ (fiberFunctor F U).map φ := by
+  exact (fiberFunctorIso e U).inv.naturality φ
 
 /-- Transport formula for the forward fiber component of an owner isomorphism along an
 isomorphism in the source fiber. -/
@@ -177,7 +195,9 @@ theorem fiberFunctorIso.hom.app.transport {F G : X ⟶ Y} (e : F ≅ G)
     (fiberFunctorIso e U).hom.app y =
       (fiberFunctor F U).map c.inv ≫
         (fiberFunctorIso e U).hom.app x ≫
-        (fiberFunctor G U).map c.hom := sorry
+        (fiberFunctor G U).map c.hom := by
+  rw [← (fiberFunctorIso e U).hom.naturality c.hom]
+  rw [← Functor.map_comp_assoc, c.inv_hom_id, Functor.map_id, Category.id_comp]
 
 /-- Transport formula for the inverse fiber component of an owner isomorphism along an
 isomorphism in the source fiber. -/
@@ -186,7 +206,9 @@ theorem fiberFunctorIso.inv.app.transport {F G : X ⟶ Y} (e : F ≅ G)
     (fiberFunctorIso e U).inv.app y =
       (fiberFunctor G U).map c.inv ≫
         (fiberFunctorIso e U).inv.app x ≫
-        (fiberFunctor F U).map c.hom := sorry
+        (fiberFunctor F U).map c.hom := by
+  rw [← (fiberFunctorIso e U).inv.naturality c.hom]
+  rw [← Functor.map_comp_assoc, c.inv_hom_id, Functor.map_id, Category.id_comp]
 
 /-- Lift an isomorphism of the underlying based functors to an isomorphism of morphisms of fibred
 categories. The cartesian-preservation witnesses and the unrestricted `2`-morphism membership are
@@ -200,13 +222,15 @@ def BasedFunctorIso.lift {F G : X ⟶ Y}
 @[simp]
 theorem BasedFunctorIso.lift.hom {F G : X ⟶ Y}
     (e : toBasedFunctor F ≅ toBasedFunctor G) :
-    (BasedFunctorIso.lift e).hom.hom = e.hom := sorry
+    (BasedFunctorIso.lift e).hom.hom = e.hom := by
+  rfl
 
 /-- The inverse cell of a lifted based-functor isomorphism is the supplied inverse cell. -/
 @[simp]
 theorem BasedFunctorIso.lift.inv {F G : X ⟶ Y}
     (e : toBasedFunctor F ≅ toBasedFunctor G) :
-    (BasedFunctorIso.lift e).inv.hom = e.inv := sorry
+    (BasedFunctorIso.lift e).inv.hom = e.inv := by
+  rfl
 
 end FiberedCategoryOver
 

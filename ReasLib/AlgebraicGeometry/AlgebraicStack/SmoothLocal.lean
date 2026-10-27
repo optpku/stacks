@@ -9,6 +9,12 @@ module
 public import ReasLib.AlgebraicGeometry.AlgebraicStack.Basic
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleLocal
 public import ReasLib.AlgebraicGeometry.Scheme.Sites.Smooth.Basic
+import ReasLib.AlgebraicGeometry.AlgebraicSpace.Cover.Fpqc.Comparison
+import ReasLib.AlgebraicGeometry.AlgebraicSpace.Smooth.Fpqc
+import ReasLib.AlgebraicGeometry.AlgebraicSpace.Smooth.BaseChange
+import ReasLib.AlgebraicGeometry.AlgebraicSpace.Surjective.Fpqc
+import ReasLib.AlgebraicGeometry.GroupoidsOver.Representable.Equivalence
+import ReasLib.AlgebraicGeometry.GroupoidsOver.Representable.Property
 
 /-!
 # Smooth-local transfer for algebraic stacks
@@ -183,8 +189,13 @@ smooth morphism `U ⟶ X` from a scheme has `P U.left`. -/
 theorem existsSurjectiveSmooth_iff_forallSmooth {S : Scheme.{u}}
     (P : ObjectProperty Scheme.{u}) [P.IsLocal Scheme.bigSmoothPrecoverage]
     (X : GroupoidsOver S) [AlgebraicStack X] :
-    existsSurjectiveSmooth P X ↔ forallSmooth P X :=
-  sorry
+    existsSurjectiveSmooth P X ↔ forallSmooth P X := by
+  constructor
+  · sorry
+  · intro h
+    obtain ⟨U, p, hp, hsurj⟩ :=
+      (inferInstance : AlgebraicStack X).existsSmoothSurjectiveAtlas
+    exact ⟨U, p, hp, hsurj, h U p hp⟩
 
 /-- Let `P` be a property of schemes which is local in the
 smooth topology, and let `X` be an algebraic stack. There exists a surjective
@@ -211,8 +222,13 @@ theorem existsSurjectiveSmoothSpace_iff_forallSmoothSpace {S : Scheme.{u}}
 `existsSurjectiveSmooth P (GroupoidsOver.slice U)` is equivalent to `P U.left`. -/
 theorem existsSurjectiveSmooth_slice {S : Scheme.{u}}
     (P : ObjectProperty Scheme.{u}) [P.IsLocal Scheme.bigSmoothPrecoverage]
-    (U : Over S) : existsSurjectiveSmooth P (GroupoidsOver.slice U) ↔ P U.left :=
-  sorry
+    (U : Over S) : existsSurjectiveSmooth P (GroupoidsOver.slice U) ↔ P U.left := by
+  constructor
+  · intro h
+    exact (existsSurjectiveSmooth_iff_forallSmooth P (GroupoidsOver.slice U)).mp h
+      U (𝟙 _) inferInstance
+  · intro h
+    exact existsSurjectiveSmooth.of (𝟙 _) h
 
 /-- If `X` is an algebraic space `F` over `S`, then
 `existsSurjectiveSmooth P F.toGroupoids` is equivalent to `F` having property
@@ -221,8 +237,16 @@ theorem existsSurjectiveSmooth_toGroupoids {S : Scheme.{u}}
     (P : ObjectProperty Scheme.{u}) [P.IsLocal Scheme.bigSmoothPrecoverage]
     (F : AlgebraicSpace S) :
     existsSurjectiveSmooth P F.toGroupoids ↔
-      AlgebraicSpace.existsSurjectiveEtale P F :=
-  sorry
+      AlgebraicSpace.existsSurjectiveEtale P F := by
+  constructor
+  · intro h
+    have hSpace :=
+      (existsSurjectiveSmooth_iff_existsSurjectiveSmoothSpace P F.toGroupoids).mp h
+    exact (existsSurjectiveSmoothSpace_iff_forallSmoothSpace P F.toGroupoids).mp hSpace
+      F (𝟙 _) inferInstance
+  · intro h
+    exact (existsSurjectiveSmooth_iff_existsSurjectiveSmoothSpace P F.toGroupoids).mpr
+      (existsSurjectiveSmoothSpace.of (𝟙 _) h)
 
 /-- If `U` is a scheme over `S`, then every smooth morphism from a scheme to
 `GroupoidsOver.slice U` has property `P` if and only if `U.left` has property
@@ -230,7 +254,8 @@ theorem existsSurjectiveSmooth_toGroupoids {S : Scheme.{u}}
 theorem forallSmooth_slice {S : Scheme.{u}} (P : ObjectProperty Scheme.{u})
     [P.IsLocal Scheme.bigSmoothPrecoverage] (U : Over S) :
     forallSmooth P (GroupoidsOver.slice U) ↔ P U.left :=
-  sorry
+  (existsSurjectiveSmooth_iff_forallSmooth P (GroupoidsOver.slice U)).symm.trans
+    (existsSurjectiveSmooth_slice P U)
 
 /-- The smooth-local atlas criterion transports along an equivalence to a
 scheme slice. -/
@@ -238,8 +263,41 @@ theorem existsSurjectiveSmooth_equivalence {S : Scheme.{u}}
     (P : ObjectProperty Scheme.{u}) [P.IsLocal Scheme.bigSmoothPrecoverage]
     {X : GroupoidsOver S} [AlgebraicStack X] {U : Over S}
     (e : X ≌ GroupoidsOver.slice U) :
-    existsSurjectiveSmooth P X ↔ P U.left :=
-  sorry
+    existsSurjectiveSmooth P X ↔ P U.left := by
+  have hle : AlgebraicSpace.fppfPrecoverage S ≤ AlgebraicSpace.fpqcPrecoverage S := by
+    intro F R hR
+    obtain ⟨ι, Fᵢ, f, rfl⟩ := R.exists_eq_ofArrows
+    exact (AlgebraicSpace.ofArrows_mem_fpqcPrecoverage_iff f).mpr
+      (AlgebraicSpace.fpqcCovering_of_fppfCovering
+        ((AlgebraicSpace.fppfCovering_iff_mem_precoverage Fᵢ f).mpr hR))
+  letI : MorphismProperty.IsLocalAtTarget (@AlgebraicSpace.Smooth S)
+      (AlgebraicSpace.fppfPrecoverage S) :=
+    MorphismProperty.IsLocalAtTarget.of_le hle
+  letI : MorphismProperty.IsLocalAtTarget (@AlgebraicSpace.Surjective S)
+      (AlgebraicSpace.fppfPrecoverage S) :=
+    MorphismProperty.IsLocalAtTarget.of_le hle
+  have htransport : ∀ {Y Z : GroupoidsOver S} (e : Y ≌ Z) {V : Over S}
+      (p : GroupoidsOver.slice V ⟶ Y), Groupoids.Hom.Smooth p →
+      Groupoids.Hom.Surjective p →
+      Groupoids.Hom.Smooth (p ≫ e.hom) ∧ Groupoids.Hom.Surjective (p ≫ e.hom) := by
+    intro Y Z e V p hp hsurj
+    have hrep : relativelyRepresentableByAlgebraicSpaces (p ≫ e.hom) :=
+      (relativelyRepresentableByAlgebraicSpaces.iff_of_equivalence
+        (Bicategory.Equivalence.id _) e (p ≫ e.hom) p (λ_ _)).mpr hp.representable
+    have hsm := (Groupoids.Hom.has.iff_of_equivalence (@AlgebraicSpace.Smooth S)
+      (Bicategory.Equivalence.id _) e (p ≫ e.hom) p (λ_ _) hrep).mpr hp.of_represents
+    have hsur := (Groupoids.Hom.has.iff_of_equivalence (@AlgebraicSpace.Surjective S)
+      (Bicategory.Equivalence.id _) e (p ≫ e.hom) p (λ_ _) hrep).mpr hsurj.of_represents
+    exact ⟨⟨hrep, hsm⟩, ⟨hrep, hsur⟩⟩
+  constructor
+  · rintro ⟨V, p, hp, hsurj, hP⟩
+    obtain ⟨hp', hsurj'⟩ := htransport e p hp hsurj
+    exact (existsSurjectiveSmooth_slice P U).mp
+      ⟨V, p ≫ e.hom, hp', hsurj', hP⟩
+  · intro hP
+    obtain ⟨hp, hsurj⟩ := htransport e.symm (𝟙 (GroupoidsOver.slice U))
+      inferInstance inferInstance
+    exact ⟨U, (𝟙 (GroupoidsOver.slice U)) ≫ e.inv, hp, hsurj, hP⟩
 
 /-- If `P` is also étale-local, the algebraic-space specialization of
 `existsSurjectiveSmooth` is `AlgebraicSpace.hasEtaleLocal`. -/
@@ -248,7 +306,7 @@ theorem existsSurjectiveSmooth_hasEtaleLocal {S : Scheme.{u}}
     [P.IsLocal Scheme.etalePrecoverage] (F : AlgebraicSpace S) :
     existsSurjectiveSmooth P F.toGroupoids ↔
       AlgebraicSpace.hasEtaleLocal P F :=
-  sorry
+  existsSurjectiveSmooth_toGroupoids P F
 
 /-- An algebraic stack `X` has a smooth-local scheme property `P` when some
 surjective smooth scheme atlas has property `P`. -/
@@ -309,7 +367,8 @@ theorem hasSmoothLocal_iff_forallSmoothSpace {S : Scheme.{u}}
     (P : ObjectProperty Scheme.{u}) [P.IsLocal Scheme.bigSmoothPrecoverage]
     (X : GroupoidsOver S) [AlgebraicStack X] :
     hasSmoothLocal P X ↔ forallSmoothSpace P X :=
-  sorry
+  (existsSurjectiveSmooth_iff_existsSurjectiveSmoothSpace P X).trans
+    (existsSurjectiveSmoothSpace_iff_forallSmoothSpace P X)
 
 /-- If `X` is a scheme `U` over `S`, then `hasSmoothLocal P` on the slice of
 `U` is equivalent to `P U.left`. -/

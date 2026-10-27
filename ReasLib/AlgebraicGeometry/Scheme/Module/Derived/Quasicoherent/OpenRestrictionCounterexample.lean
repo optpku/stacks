@@ -21,6 +21,9 @@ import Mathlib.Algebra.Category.ModuleCat.AB
 open AlgebraicGeometry CategoryTheory CategoryTheory.Limits
 open scoped DualNumber
 
+-- Use the available coproducts before searching for colimits via the indexing category.
+attribute [local instance 2000] hasColimitOfHasColimitsOfShape
+
 noncomputable section
 
 universe u

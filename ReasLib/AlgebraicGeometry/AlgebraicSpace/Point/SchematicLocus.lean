@@ -31,7 +31,13 @@ theorem schematicLocusPoints_of {S : Scheme.{u}} {X : AlgebraicSpace S}
 
 /-- The union of open scheme images is open. -/
 theorem isOpen_schematicLocusPoints {S : Scheme.{u}} (X : AlgebraicSpace S) :
-    IsOpen (schematicLocusPoints X) := sorry
+    IsOpen (schematicLocusPoints X) := by
+  apply isOpen_iff_mem_nhds.mpr
+  rintro x ⟨U, ι, hι, hx⟩
+  letI : IsOpenImmersion ι := hι
+  exact Filter.mem_of_superset
+    ((OpenSubspace.isOpen_pointsSet (OpenSubspace.ofι ι)).mem_nhds hx)
+    (schematicLocusPoints_of (ι := ι))
 
 /-- The schematic locus as an open set of points. -/
 def schematicLocusOpens {S : Scheme.{u}} (X : AlgebraicSpace S) : Opens (Points X) :=
@@ -67,7 +73,20 @@ instance instIsScheme_schematicLocus {S : Scheme.{u}} (X : AlgebraicSpace S) :
 /-- An open representable subspace has image contained in the schematic locus. -/
 theorem schematicLocusPoints_range {S : Scheme.{u}} {X : AlgebraicSpace S}
     (V : OpenSubspace X) [IsScheme V.X] :
-    Set.range (Points.map V.ι) ⊆ schematicLocusPoints X := sorry
+    Set.range (Points.map V.ι) ⊆ schematicLocusPoints X := by
+  obtain ⟨U, ⟨e⟩⟩ := IsScheme.spec V.X
+  let e' : V.X.functorOfPoints ≅ (ofOver U).functorOfPoints :=
+    { hom := e.hom
+      inv := e.inv
+      hom_inv_id := e.hom_inv_id
+      inv_hom_id := e.inv_hom_id }
+  have hι : IsOpenImmersion (e.inv ≫ V.ι) := by
+    exact ⟨MorphismProperty.RespectsIso.precomp
+      (MorphismProperty.over (@AlgebraicGeometry.IsOpenImmersion)).presheaf
+      e'.inv V.ι V.isOpenImmersion.presheaf⟩
+  rintro x ⟨y, rfl⟩
+  refine ⟨U, e.inv ≫ V.ι, hι, Points.map e.hom y, ?_⟩
+  rw [Points.map_comp, ← Points.map_comp e.hom e.inv, e.hom_inv_id, Points.map_id]
 
 /-- Factor through the actual open subtype by retaining every scheme-valued section. -/
 def schematicLocusLift {S : Scheme.{u}} {X : AlgebraicSpace S}
@@ -100,11 +119,19 @@ theorem existsUnique_le_schematicLocus {S : Scheme.{u}} {X : AlgebraicSpace S}
     ∃! f : V.X ⟶ (schematicLocus X).X, f ≫ (schematicLocus X).ι = V.ι := by
   refine ⟨schematicLocusLift V, schematicLocusLift_ι V, ?_⟩
   intro f hf
-  sorry
+  apply NatTrans.ext
+  funext T
+  apply ConcreteCategory.hom_ext
+  intro s
+  apply Subtype.ext
+  exact congrArg (fun k : V.X ⟶ X ↦ k.app T s) hf
 
 /-- A point lies in the image of the schematic locus exactly when it lies in an open scheme subspace. -/
 theorem mem_schematicLocus_iff {S : Scheme.{u}} {X : AlgebraicSpace S} (x : Points X) :
-    x ∈ Set.range (Points.map (schematicLocus X).ι) ↔ x ∈ schematicLocusPoints X := sorry
+    x ∈ Set.range (Points.map (schematicLocus X).ι) ↔ x ∈ schematicLocusPoints X := by
+  change x ∈ (OpenSubspace.fromOpens (schematicLocusOpens X)).pointsSet ↔ _
+  rw [OpenSubspace.fromOpens_pointsSet]
+  rfl
 
 /-- The schematic locus is the open representable subfunctor of sections with schematic image. -/
 theorem schematicLocus_spec {S : Scheme.{u}} (X : AlgebraicSpace S) :
@@ -112,11 +139,18 @@ theorem schematicLocus_spec {S : Scheme.{u}} (X : AlgebraicSpace S) :
       schematicLocusι X = (schematicLocusSubfunctor X).ι ∧
       IsOpenImmersion (schematicLocusι X) ∧ IsScheme (schematicLocus X).X ∧
       ∀ x : Points X, x ∈ Set.range (Points.map (schematicLocus X).ι) ↔
-        x ∈ schematicLocusPoints X := sorry
+        x ∈ schematicLocusPoints X :=
+  ⟨rfl, rfl, inferInstance, inferInstance, fun x ↦ mem_schematicLocus_iff x⟩
 
 /-- Every point of a representable algebraic space lies in its schematic locus. -/
 theorem schematicLocusPoints_eq_univ {S : Scheme.{u}} (X : AlgebraicSpace S) [IsScheme X] :
-    schematicLocusPoints X = Set.univ := sorry
+    schematicLocusPoints X = Set.univ := by
+  apply Set.eq_univ_of_forall
+  intro x
+  haveI : IsScheme (OpenSubspace.id X).X := by
+    change IsScheme X
+    infer_instance
+  exact schematicLocusPoints_range (OpenSubspace.id X) ⟨x, Points.map_id x⟩
 
 /-- A representable algebraic space maps to its schematic locus by the identity on sections. -/
 def schematicLocusInverse {S : Scheme.{u}} (X : AlgebraicSpace S) [IsScheme X] :
@@ -128,11 +162,15 @@ def schematicLocusInverse {S : Scheme.{u}} (X : AlgebraicSpace S) [IsScheme X] :
 
 /-- The inclusion of the schematic locus followed by its inverse is the identity. -/
 theorem schematicLocus_hom_inv_id {S : Scheme.{u}} (X : AlgebraicSpace S) [IsScheme X] :
-    (schematicLocus X).ι ≫ schematicLocusInverse X = 𝟙 (schematicLocus X).X := sorry
+    (schematicLocus X).ι ≫ schematicLocusInverse X = 𝟙 (schematicLocus X).X := by
+  change (schematicLocusSubfunctor X).ι ≫
+    (schematicLocusInverse X : X.functorOfPoints ⟶ (schematicLocusSubfunctor X).toFunctor) =
+      𝟙 (schematicLocusSubfunctor X).toFunctor
+  rfl
 
 /-- The inverse to the schematic-locus inclusion followed by the inclusion is the identity. -/
 theorem schematicLocus_inv_hom_id {S : Scheme.{u}} (X : AlgebraicSpace S) [IsScheme X] :
-    schematicLocusInverse X ≫ (schematicLocus X).ι = 𝟙 X := sorry
+    schematicLocusInverse X ≫ (schematicLocus X).ι = 𝟙 X := rfl
 
 /-- A representable algebraic space is isomorphic to its schematic locus. -/
 def schematicLocusIso {S : Scheme.{u}} (X : AlgebraicSpace S) [IsScheme X] :

@@ -83,11 +83,9 @@ def openRestrictionIso :
       -- compactification constructors; callers use the comparison with inferred instances.
       @etaleDerivedLowerShriek Y (Over.mk (W.ι ≫ X.hom)) Λ inferInstance
         (Compactification.Of.restrictOpen P W hW)
-        (inferInstanceAs (HasSheafify W.toScheme.smallEtaleTopology (ModuleCat.{u} Λ)))
         (inferInstanceAs (HasDerivedCategory (Sheaf W.toScheme.smallEtaleTopology (ModuleCat.{u} Λ))))
         (inferInstanceAs (HasSheafify P.obj.right.left.smallEtaleTopology (ModuleCat.{u} Λ)))
         (inferInstanceAs (HasDerivedCategory (Sheaf P.obj.right.left.smallEtaleTopology (ModuleCat.{u} Λ))))
-        (inferInstanceAs (HasSheafify Y.smallEtaleTopology (ModuleCat.{u} Λ)))
         (inferInstanceAs (HasDerivedCategory (Sheaf Y.smallEtaleTopology (ModuleCat.{u} Λ))))
         (inferInstanceAs (∀ F : W.toScheme.Etaleᵒᵖ ⥤ ModuleCat.{u} Λ,
             (etaleRestriction (W.ι ≫ Compactification.Of.ι P)).op.HasLeftKanExtension F))

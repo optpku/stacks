@@ -41,11 +41,6 @@ abbrev origin : base :=
 abbrev punctured : base.Opens :=
   PrimeSpectrum.basicOpen (Polynomial.X : Polynomial ℂ)
 
-/-- `punctured` is the standard basic open of the coordinate `T`. -/
-theorem punctured_eq :
-    punctured = PrimeSpectrum.basicOpen (Polynomial.X : Polynomial ℂ) :=
-  sorry
-
 /-- The total space `ℙ¹_{D(T)} ⨿ ℙ²_C`. -/
 abbrev total : Scheme :=
   ProjectiveSpace 1 punctured.toScheme ⨿ ProjectiveSpace.scheme ℂ 2
@@ -56,21 +51,9 @@ def hom : total ⟶ base :=
   coprod.desc (ProjectiveSpace.toBase 1 punctured.toScheme ≫ punctured.ι)
     (ProjectiveSpace.toSpec ℂ 2 ≫ SplitConicOverLine.originHom)
 
-/-- `hom` is the coproduct of the relative `ℙ¹` structure map and the origin-supported `ℙ²`. -/
-theorem hom_spec :
-    hom =
-      coprod.desc (ProjectiveSpace.toBase 1 punctured.toScheme ≫ punctured.ι)
-        (ProjectiveSpace.toSpec ℂ 2 ≫ SplitConicOverLine.originHom) :=
-  sorry
-
 /-- The scheme-theoretic special fibre of `hom` over the origin. -/
 abbrev specialFiber : Scheme :=
   hom.fiber origin
-
-/-- `specialFiber` is the scheme-theoretic fibre of `hom` at `origin`. -/
-theorem specialFiber_eq :
-    specialFiber = hom.fiber origin :=
-  sorry
 
 /-- The fibre of `hom` over a closed point other than the origin is the projective line. -/
 theorem fiber_iso_projectiveLine (t : base) (ht : t ∈ closedPoints base) (ht0 : t ≠ origin) :

@@ -43,8 +43,9 @@ noncomputable def comp (K L M : C) :
 /-- The source-order composition map is the braided transport of closed composition. -/
 theorem comp_spec (K L M : C) :
     comp K L M =
-      (β_ ((ihom L).obj M) ((ihom K).obj L)).hom ≫ MonoidalClosed.comp K L M := sorry
+      (β_ ((ihom L).obj M) ((ihom K).obj L)).hom ≫ MonoidalClosed.comp K L M := rfl
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Source-order internal-Hom composition is covariantly natural in its target. -/
 @[stacks 0A8V "source-order composition target naturality"]
 theorem comp_natural_target
@@ -53,15 +54,29 @@ theorem comp_natural_target
       (((ihom L).map f) ⊗ₘ 𝟙 ((ihom K).obj L))
       (comp K L M₁)
       (comp K L M₂)
-      ((ihom K).map f) := sorry
+      ((ihom K).map f) := by
+  have h :
+      (𝟙 ((ihom K).obj L) ⊗ₘ (ihom L).map f) ≫ MonoidalClosed.comp K L M₂ =
+        MonoidalClosed.comp K L M₁ ≫ (ihom K).map f := by
+    apply uncurry_injective
+    rw [uncurry_natural_left, uncurry_natural_right]
+    simp only [MonoidalClosed.comp_eq, uncurry_curry, compTranspose_eq]
+    simp only [id_tensorHom, Functor.id_obj, Category.assoc]
+    rw [associator_inv_naturality_right_assoc, whisker_exchange_assoc,
+      ihom.ev_naturality]
+  exact ⟨by
+    simpa only [comp, Category.assoc, BraidedCategory.braiding_naturality_assoc] using
+      congrArg (fun t => (β_ ((ihom L).obj M₁) ((ihom K).obj L)).hom ≫ t) h⟩
 
 /-- Equality form of `comp_natural_target`. -/
 @[stacks 0A8V "source-order composition target naturality equation"]
 theorem comp_natural_target_assoc
     (K L : C) {M₁ M₂ : C} (f : M₁ ⟶ M₂) :
     (((ihom L).map f) ⊗ₘ 𝟙 ((ihom K).obj L)) ≫ comp K L M₂ =
-      comp K L M₁ ≫ (ihom K).map f := sorry
+      comp K L M₁ ≫ (ihom K).map f :=
+  (comp_natural_target K L f).w
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Source-order internal-Hom composition is contravariantly natural in its source. -/
 @[stacks 0A8V "source-order composition source naturality"]
 theorem comp_natural_source
@@ -70,22 +85,54 @@ theorem comp_natural_source
       (𝟙 ((ihom L).obj M) ⊗ₘ (pre f).app L)
       (comp K' L M)
       (comp K L M)
-      ((pre f).app M) := sorry
+      ((pre f).app M) := by
+  have h :
+      ((pre f).app L ⊗ₘ 𝟙 ((ihom L).obj M)) ≫ MonoidalClosed.comp K L M =
+        MonoidalClosed.comp K' L M ≫ (pre f).app M := by
+    apply uncurry_injective
+    rw [uncurry_natural_left, uncurry_pre_app]
+    simp only [MonoidalClosed.comp_eq]
+    rw [uncurry_curry, uncurry_curry]
+    simp only [compTranspose_eq]
+    rw [tensorHom_id, associator_inv_naturality_middle_assoc,
+      ← comp_whiskerRight_assoc, id_tensor_pre_app_comp_ev,
+      comp_whiskerRight_assoc, associator_inv_naturality_left_assoc]
+  exact ⟨by
+    simpa only [comp, Category.assoc, BraidedCategory.braiding_naturality_assoc] using
+      congrArg (fun t => (β_ ((ihom L).obj M) ((ihom K').obj L)).hom ≫ t) h⟩
 
 /-- Equality form of `comp_natural_source`. -/
 @[stacks 0A8V "source-order composition source naturality equation"]
 theorem comp_natural_source_assoc
     {K K' L M : C} (f : K ⟶ K') :
     (𝟙 ((ihom L).obj M) ⊗ₘ (pre f).app L) ≫ comp K L M =
-      comp K' L M ≫ (pre f).app M := sorry
+      comp K' L M ≫ (pre f).app M :=
+  (comp_natural_source f).w
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The middle variable has opposite variance on the two internal-Hom factors, so its canonical
 statement is the equality of the two source-order composites rather than a single square. -/
 @[stacks 0A8V "source-order composition middle naturality"]
 theorem comp_natural_middle
     (K : C) {L L' M : C} (g : L ⟶ L') :
     ((pre g).app M ⊗ₘ 𝟙 ((ihom K).obj L)) ≫ comp K L M =
-      (𝟙 ((ihom L').obj M) ⊗ₘ (ihom K).map g) ≫ comp K L' M := sorry
+      (𝟙 ((ihom L').obj M) ⊗ₘ (ihom K).map g) ≫ comp K L' M := by
+  have h :
+      (𝟙 ((ihom K).obj L) ⊗ₘ (pre g).app M) ≫ MonoidalClosed.comp K L M =
+        ((ihom K).map g ⊗ₘ 𝟙 ((ihom L').obj M)) ≫ MonoidalClosed.comp K L' M := by
+    apply uncurry_injective
+    rw [uncurry_natural_left, uncurry_natural_left]
+    simp only [MonoidalClosed.comp_eq]
+    rw [uncurry_curry, uncurry_curry]
+    simp only [compTranspose_eq]
+    rw [id_tensorHom, tensorHom_id,
+      associator_inv_naturality_right_assoc,
+      associator_inv_naturality_middle_assoc, whisker_exchange_assoc]
+    simp only [Functor.id_obj]
+    rw [id_tensor_pre_app_comp_ev,
+      ← comp_whiskerRight_assoc, ← ihom.ev_naturality, comp_whiskerRight_assoc]
+  simpa only [comp, Category.assoc, BraidedCategory.braiding_naturality_assoc] using
+    congrArg (fun t => (β_ ((ihom L').obj M) ((ihom K).obj L)).hom ≫ t) h
 
 /-- The tensor/internal-Hom comparison in source order. -/
 @[stacks 0BYT "source-order tensor/internal-Hom comparison"]
@@ -98,7 +145,8 @@ theorem tensor_spec (K L M : C) :
     uncurry (tensor K L M) =
       (α_ M K ((ihom M).obj L)).inv ≫
         (β_ M K).hom ▷ (ihom M).obj L ≫
-          (α_ K M ((ihom M).obj L)).hom ≫ K ◁ (ihom.ev M).app L := sorry
+          (α_ K M ((ihom M).obj L)).hom ≫ K ◁ (ihom.ev M).app L :=
+  uncurry_curry _
 
 namespace Iterated
 
@@ -121,7 +169,8 @@ noncomputable def map (K L M : C) :
 /-- The iterated internal-Hom map is characterized by its tensor-side transpose. -/
 theorem map_spec (K L M : C) :
     (braidedHomEquiv ((ihom L).obj M ⊗ K) ((ihom K).obj L) M).symm
-        (map K L M) = side K L M := sorry
+        (map K L M) = side K L M :=
+  (braidedHomEquiv ((ihom L).obj M ⊗ K) ((ihom K).obj L) M).symm_apply_apply _
 
 /-- Uncurrying the iterated internal-Hom map gives its evaluation composite. -/
 theorem map_uncurry (K L M : C) :
@@ -130,7 +179,10 @@ theorem map_uncurry (K L M : C) :
         ((β_ ((ihom K).obj L) ((ihom L).obj M)).hom ▷ K) ≫
           comp K L M ▷ K ≫
             (β_ ((ihom K).obj M) K).hom ≫
-              uncurry (𝟙 ((ihom K).obj M)) := sorry
+              uncurry (𝟙 ((ihom K).obj M)) := by
+  apply (cancel_epi (β_ ((ihom L).obj M ⊗ K) ((ihom K).obj L)).hom).mp
+  rw [← braidedHomEquiv_symm_apply, map_spec]
+  rfl
 
 end Iterated
 
@@ -144,7 +196,7 @@ noncomputable def map
 /-- The internal-Hom map unfolds to postcomposition followed by precomposition. -/
 theorem map_spec
     {L' L I' I : C} (f : L' ⟶ L) (g : I' ⟶ I) :
-    map f g = (ihom L).map g ≫ (MonoidalClosed.pre f).app I := sorry
+    map f g = (ihom L).map g ≫ (MonoidalClosed.pre f).app I := rfl
 
 end CategoryTheory.MonoidalClosed.Source
 

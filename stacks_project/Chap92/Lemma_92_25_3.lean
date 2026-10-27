@@ -6,9 +6,10 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap92.Lemma_92_25_3_Comparison
-public import stacks_project.Chap92.Lemma_92_25_3_Omega
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.Scheme.CotangentSite.Comparison
+public import ReasLib.AlgebraicGeometry.Scheme.CotangentSite.DerivedPullback
+public import ReasLib.AlgebraicGeometry.Scheme.CotangentSite.NaiveDifferentials
+import StacksCheckRecall
 
 /-!
 # The cotangent complex of a scheme over a ring via `Lπ_!`
@@ -29,8 +30,9 @@ noncomputable section
 
 universe u
 
-/-- Lemma 92.25.3. In the situation above there is a canonical isomorphism
-`Hom.cotangentComplex (X ↘ Spec Λ) ≅ lowerShriekOmega Λ X` in `D(O_X)`.
+/- Lemma 92.25.3. In the situation above there is a canonical isomorphism
+`L_{X / Λ} ≅ Lπ_!(Li^* Ω) ≅ Lπ_!(i^* Ω) ≅ Lπ_!(Ω ⊗_O underline{O}_X)`
+in `D(O_X)`, represented by `cotangentLowerShriekIso` and `lowerShriekOmega`.
 The source chain `Li^* omegaSheaf = i^* omegaSheaf = omegaPullback` is
 recorded by `derivedPullbackIso`, the flatness isomorphism
 `derivedInverseImage.obj (singleFunctor.obj omegaSheaf) ≅
@@ -39,17 +41,36 @@ singleFunctor.obj omegaPullback` in `D(underline{O}_X)`. `O` is polynomial
 `lowerShriekOmega` is the sheafification of `U ↦ L_{O_X(U) / Λ}`, which is
 `L_{O_X / underline{Λ}}` by Remark 92.18.5 and equals `L_{X / Λ}` by
 Lemma 92.24.3. -/
-@[stacks 08T9]
-abbrev cotangentLowerShriekIso (Λ : CommRingCat.{u}) (X : Scheme.{u}) [X.Over (Spec Λ)] :
+@[stacks 08T9] #check (AlgebraicGeometry.Scheme.CotangentSite.cotangentLowerShriekIso :
+  ∀ (Λ : CommRingCat.{u}) (X : Scheme.{u}) [X.Over (Spec Λ)],
     DerivedCategory.Q.obj (Hom.cotangentComplex (X ↘ Spec Λ)) ≅
-      CotangentSite.lowerShriekOmega Λ X :=
-  CotangentSite.cotangentLowerShriekIso Λ X
+      AlgebraicGeometry.Scheme.CotangentSite.lowerShriekOmega Λ X)
 
-/-- The forward map of `cotangentLowerShriekIso` is `overRingIso` followed by the inverse
+/- The forward map of `cotangentLowerShriekIso` is `overRingIso` followed by the inverse
 of the derived evaluation comparison. -/
-theorem cotangentLowerShriekIso_hom (Λ : CommRingCat.{u}) (X : Scheme.{u})
-    [X.Over (Spec Λ)] :
-    (cotangentLowerShriekIso Λ X).hom =
+#check (AlgebraicGeometry.Scheme.CotangentSite.cotangentLowerShriekIso_hom :
+  ∀ (Λ : CommRingCat.{u}) (X : Scheme.{u}) [X.Over (Spec Λ)],
+    (AlgebraicGeometry.Scheme.CotangentSite.cotangentLowerShriekIso Λ X).hom =
       (Cotangent.overRingIso Λ X).hom ≫
-        inv (CotangentSite.omegaEvalToConstCotangentDerived Λ X) :=
-  sorry
+        inv (AlgebraicGeometry.Scheme.CotangentSite.omegaEvalToConstCotangentDerived Λ X))
+
+#check (AlgebraicGeometry.Scheme.CotangentSite.derivedPullbackIso :
+  ∀ (Λ : CommRingCat.{u}) (X : Scheme.{u}) [X.Over (Spec Λ)],
+    (AlgebraicGeometry.Scheme.CotangentSite.derivedInverseImage Λ X).obj
+      ((DerivedCategory.singleFunctor
+          (SheafOfModules.{u + 1}
+            (AlgebraicGeometry.Scheme.CotangentSite.structureSheaf Λ X)) (0 : ℤ)).obj
+        (AlgebraicGeometry.Scheme.CotangentSite.omegaSheaf Λ X)) ≅
+    (DerivedCategory.singleFunctor
+        (SheafOfModules.{u + 1}
+          (AlgebraicGeometry.Scheme.CotangentSite.inverseImageStructureSheaf Λ X)) (0 : ℤ)).obj
+      (AlgebraicGeometry.Scheme.CotangentSite.omegaPullback Λ X))
+
+#check (AlgebraicGeometry.Scheme.CotangentSite.omegaSheaf :
+  ∀ (Λ : CommRingCat.{u}) (X : Scheme.{u}) [X.Over (Spec Λ)],
+    SheafOfModules.{u + 1} (AlgebraicGeometry.Scheme.CotangentSite.structureSheaf Λ X))
+
+#check (AlgebraicGeometry.Scheme.CotangentSite.omegaPullback :
+  ∀ (Λ : CommRingCat.{u}) (X : Scheme.{u}) [X.Over (Spec Λ)],
+    SheafOfModules.{u + 1}
+      (AlgebraicGeometry.Scheme.CotangentSite.inverseImageStructureSheaf Λ X))

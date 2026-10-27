@@ -6,13 +6,8 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import Mathlib.Topology.LocallyFinite
-public import Mathlib.Topology.LocallyFinsupp
-public import ReasLib.AlgebraicGeometry.AlgebraicCycle.LocallyFiniteSum
-public import stacks_project.Chap67.Lemma_67_23_5
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.CycleGroup.WeilDivisor
 public import stacks_project.Chap72.Lemma_72_7_3_Quotient
-public import stacks_project.Chap82.Definition_82_3_1_CycleGroup
-public import stacks_project.Chap82.Lemma_82_12_1
 
 /-!
 # Weil divisors as δ-dimension cycles
@@ -40,64 +35,12 @@ namespace WeilDivisor
 
 variable {S : Scheme.{u}} {X : AlgebraicSpace S} [IsDecent X]
 
-/-- The singleton cycles at the generic points of the prime divisors occurring
-in a Weil divisor form a locally finite family on `|X|`. -/
-theorem genericPointTermsLocallyFinite (D : WeilDivisor X) :
-    LocallyFinite fun Z : PrimeDivisor X ↦
-      (@Function.locallyFinsuppWithin.single (Points X) _ ℤ (Classical.decEq _) _
-        Z.genericPoint (D.coeff Z)).support :=
-  sorry
-
-/-- Regard a Weil divisor as the locally finite cycle carrying its coefficient
-at the generic point of each prime divisor. -/
-noncomputable def toCycle (D : WeilDivisor X) :
-    Function.locallyFinsupp (Points X) ℤ :=
-  AlgebraicCycle.locallyFiniteSum
-    (fun Z : PrimeDivisor X ↦
-      @Function.locallyFinsuppWithin.single (Points X) _ ℤ (Classical.decEq _) _
-        Z.genericPoint (D.coeff Z))
-    (genericPointTermsLocallyFinite D)
-
-/-- The coefficient of the cycle of a Weil divisor is the locally finite sum of
-its prime-divisor singleton cycles at the given point. -/
-theorem toCycle_apply (D : WeilDivisor X) (x : Points X) :
+#check (AlgebraicGeometry.AlgebraicSpace.WeilDivisor.toCycle_apply :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} [IsDecent X] (D : WeilDivisor X) (x : Points X),
     toCycle D x =
       ∑ᶠ Z : PrimeDivisor X,
         (@Function.locallyFinsuppWithin.single (Points X) _ ℤ (Classical.decEq _) _
-          Z.genericPoint (D.coeff Z)) x :=
-  sorry
-
-/-- The cycle of a Weil divisor is the locally finite sum of its prime-divisor
-singleton cycles. -/
-theorem toCycle_eq_finsum_single (D : WeilDivisor X) :
-    toCycle D =
-      AlgebraicCycle.locallyFiniteSum
-        (fun Z : PrimeDivisor X ↦
-          @Function.locallyFinsuppWithin.single (Points X) _ ℤ (Classical.decEq _) _
-            Z.genericPoint (D.coeff Z))
-        (genericPointTermsLocallyFinite D) :=
-  sorry
-
-/-- Conversion of Weil divisors to cycles is additive. -/
-theorem toCycle_add (D E : WeilDivisor X) :
-    toCycle (D + E) = toCycle D + toCycle E :=
-  sorry
-
-end WeilDivisor
-
-namespace WeilDivisor
-
-variable {S : Scheme.{u}} {X : AlgebraicSpace S}
-variable [IsLocallyNoetherian X] [IsIntegral X]
-
-/-- The cycle of a principal Weil divisor is the locally finite sum of the
-orders of its rational unit at generic points of prime divisors. -/
-theorem toCycle_ofRationalUnit (φ : (RationalFunction X)ˣ) (x : Points X) :
-    toCycle (ofRationalUnit φ) x =
-      ∑ᶠ Z : PrimeDivisor X,
-        (@Function.locallyFinsuppWithin.single (Points X) _ ℤ (Classical.decEq _) _
-          Z.genericPoint (Z.ord φ)) x :=
-  sorry
+          Z.genericPoint (D.coeff Z)) x)
 
 end WeilDivisor
 
@@ -109,60 +52,15 @@ variable (f : X ⟶ B) [QuasiSeparated f] [LocallyOfFiniteType f]
 variable (δ : Points B → ℤ) [IsDimensionFunction δ]
 variable [IsIntegral X]
 
-/-- On a good integral algebraic space, the cycle of a Weil divisor is an
-`(n-1)`-cycle, where `n = dim_δ(X)`. -/
-theorem toCycle_mem_cycleGroup (D : WeilDivisor X) :
-    WeilDivisor.toCycle D ∈
-      cycleGroup f δ (deltaDimension f δ (univIrreducibleClosed X) - 1) :=
-  sorry
-
-/-- The `(n-1)`-cycle `div_L(s)` associated to a nonzero meromorphic section of
-an invertible module, obtained by converting the Weil divisor of Definition
-72.7.4 along Lemma 82.12.1. The dimension function `δ` records the ambient
-grading `Z_{n-1}(X)`. -/
-noncomputable def meromorphicSectionDivisorCycle {L : X.Modules}
+#check (AlgebraicGeometry.AlgebraicSpace.Hom.meromorphicSectionDivisorCycle_mem :
+  ∀ {S : Scheme.{u}} {B X : AlgebraicSpace S}
+    [UniversallyCatenary B] [IsQuasiSeparated B] (f : X ⟶ B)
+    [QuasiSeparated f] [LocallyOfFiniteType f] (δ : Points B → ℤ)
+    [IsDimensionFunction δ] [IsIntegral X] {L : X.Modules}
     [isInvertibleObject L] (s : meromorphicSections X L)
-    (hs : IsRegularMeromorphicSection X L s) :
-    Function.locallyFinsupp (Points X) ℤ :=
-  let _ := δ
-  let _ := ‹IsQuasiSeparated B›
-  let _ := ‹QuasiSeparated f›
-  let _ := ‹IsDimensionFunction δ›
-  WeilDivisor.toCycle
-    (@nonzeroMeromorphicSectionWeilDivisor S X
-      (LocallyOfFiniteType.isLocallyNoetherian f) inferInstance L inferInstance s hs)
-
-/-- The meromorphic-section divisor cycle is the Weil-divisor conversion of
-`nonzeroMeromorphicSectionWeilDivisor`. -/
-theorem meromorphicSectionDivisorCycle_def {L : X.Modules}
-    [isInvertibleObject L] (s : meromorphicSections X L)
-    (hs : IsRegularMeromorphicSection X L s) :
-    meromorphicSectionDivisorCycle f δ s hs =
-      WeilDivisor.toCycle
-        (@nonzeroMeromorphicSectionWeilDivisor S X
-          (LocallyOfFiniteType.isLocallyNoetherian f) inferInstance L inferInstance
-          s hs) :=
-  sorry
-
-/-- Coefficients of `div_L(s)` are the locally finite sum of `ord_{Z, L}(s)` at
-generic points of prime divisors. -/
-theorem meromorphicSectionDivisorCycle_apply {L : X.Modules}
-    [isInvertibleObject L] (s : meromorphicSections X L)
-    (hs : IsRegularMeromorphicSection X L s) (x : Points X) :
-    meromorphicSectionDivisorCycle f δ s hs x =
-      ∑ᶠ Z : PrimeDivisor X,
-        (@Function.locallyFinsuppWithin.single (Points X) _ ℤ (Classical.decEq _) _
-          Z.genericPoint
-          (MeromorphicSection.ord s hs Z)) x :=
-  sorry
-
-/-- The divisor cycle of a nonzero meromorphic section is an `(n-1)`-cycle. -/
-theorem meromorphicSectionDivisorCycle_mem {L : X.Modules}
-    [isInvertibleObject L] (s : meromorphicSections X L)
-    (hs : IsRegularMeromorphicSection X L s) :
+    (hs : IsRegularMeromorphicSection X L s),
     meromorphicSectionDivisorCycle f δ s hs ∈
-      cycleGroup f δ (deltaDimension f δ (univIrreducibleClosed X) - 1) :=
-  sorry
+      cycleGroup f δ (deltaDimension f δ (univIrreducibleClosed X) - 1))
 
 end Hom
 

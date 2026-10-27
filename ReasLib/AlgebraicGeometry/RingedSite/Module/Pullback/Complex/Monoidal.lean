@@ -52,12 +52,18 @@ as a left adjoint, preserves the coproducts used by totalization. -/
 @[stacks 07A4 "complex pullback tensor comparison", instance]
 theorem tensorComparisonIsIso (K L : CochainComplex
     (RingedSite.ModuleCat.{w} (RingedSite.ofCommRingSheaf JY OY)) ℤ) :
-    IsIso (Functor.Cochain.tensorComparison f.modulePullback.{w} K L) := sorry
+    IsIso ((@Functor.Cochain.tensorComparison _ _ _ _ _ _ _ _ _ _ _ _
+      f.modulePullback.{w} _
+      (@commRingModulePullbackMonoidal _ _ _ _ _ _ _ _ _ _ _ _ _ _ f
+        (commRingBase_representablyFlat f) _)) K L) := sorry
 
 /-- Degreewise pullback of unbounded cochain complexes is canonically strong monoidal. -/
 @[stacks 07A4 "monoidal complex pullback", implicit_reducible]
 noncomputable instance monoidal : f.modulePullbackComplex.{w}.Monoidal :=
-  (Functor.Cochain.coreMonoidal f.modulePullback.{w}).toMonoidal
+  (@Functor.Cochain.coreMonoidal _ _ _ _ _ _ _ _ _ _ _ _
+    f.modulePullback.{w} _
+    (@commRingModulePullbackMonoidal _ _ _ _ _ _ _ _ _ _ _ _ _ _ f
+      (commRingBase_representablyFlat f) _) _ _ _ _ _ _ _ _ _ _).toMonoidal
 
 /-- The canonical unit isomorphism for pullback of unbounded cochain complexes. -/
 @[stacks 07A4 "complex pullback unit"]

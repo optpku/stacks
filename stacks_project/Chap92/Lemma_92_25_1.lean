@@ -13,6 +13,11 @@ import StacksCheckRecall
 
 open AlgebraicGeometry.Scheme.CotangentSite
 
+universe u
+
 /- Lemma 92.25.1: in the situation above the category `Obj Λ X` is fibred over
 `X.smallZariskiSite` via the forgetful functor `forgetZariski`. -/
-@[stacks 08V9] #check forgetZariski_isFibered
+@[stacks 08V9] #check (AlgebraicGeometry.Scheme.CotangentSite.forgetZariski_isFibered :
+  ∀ (Λ : CommRingCat.{u}) (X : AlgebraicGeometry.Scheme.{u})
+    [X.Over (AlgebraicGeometry.Spec Λ)],
+    (AlgebraicGeometry.Scheme.CotangentSite.forgetZariski Λ X).IsFibered)

@@ -6,6 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
+public import Mathlib.CategoryTheory.MorphismProperty.Retract
 public import Mathlib.CategoryTheory.ObjectProperty.ColimitsOfShape
 public import Mathlib.CategoryTheory.ObjectProperty.Retract
 public import Mathlib.CategoryTheory.Triangulated.Subcategory
@@ -23,7 +24,7 @@ makes it closed under the corresponding colimits.
 
 noncomputable section
 
-open CategoryTheory Limits ObjectProperty Opposite Pretriangulated
+open CategoryTheory Limits ObjectProperty Opposite Pretriangulated ZeroObject
 
 universe w uJ vJ uC vC uD vD uE vE
 
@@ -45,13 +46,17 @@ variable
 /-- A comparison-isomorphism locus is invariant under isomorphisms of ambient objects. -/
 @[stacks 0GYW "comparison locus is strictly full", stacks 0GZA "comparison locus is strictly full"]
 instance isClosedUnderIsomorphisms :
-    IsClosedUnderIsomorphisms (property RΓ restrict comparison) := sorry
+    IsClosedUnderIsomorphisms (property RΓ restrict comparison) where
+  of_iso e h _ _ f := (NatTrans.isIso_app_iff_of_iso (comparison f) e).mp (h f)
 
 /-- A comparison-isomorphism locus is stable under retracts. -/
 @[stacks 0GYW "comparison locus is stable under retracts",
   stacks 0GZA "comparison locus is stable under retracts"]
 instance isStableUnderRetracts :
-    IsStableUnderRetracts (property RΓ restrict comparison) := sorry
+    IsStableUnderRetracts (property RΓ restrict comparison) where
+  of_retract h hY U _ f :=
+    MorphismProperty.of_retract (P := MorphismProperty.isomorphisms (E U))
+      ((comparison f).retractArrowApp h) (hY f)
 
 end Basic
 
@@ -80,7 +85,55 @@ instance isTriangulated
     [∀ {U V : C} (f : U ⟶ V), (restrict f).CommShift ℤ]
     [∀ {U V : C} (f : U ⟶ V), (restrict f).IsTriangulated]
     [∀ {U V : C} (f : U ⟶ V), NatTrans.CommShift (comparison f) ℤ] :
-    ObjectProperty.IsTriangulated (property RΓ restrict comparison) := sorry
+    ObjectProperty.IsTriangulated (property RΓ restrict comparison) where
+  exists_zero := ⟨0, isZero_zero D, by
+    intro U V f
+    exact ((RΓ V ⋙ restrict f).map_isZero (isZero_zero D)).isIso
+      ((RΓ U).map_isZero (isZero_zero D)) _⟩
+  isStableUnderShiftBy n := ⟨by
+    intro X hX U V f
+    haveI : IsIso ((comparison f).app X) := hX f
+    change IsIso ((comparison f).app (X⟦n⟧))
+    rw [NatTrans.app_shift (comparison f) n]
+    refine IsIso.comp_isIso' ?_ (IsIso.comp_isIso' ?_ ?_)
+    · exact (((RΓ V ⋙ restrict f).commShiftIso n).app X).isIso_hom
+    · exact (shiftFunctor (E U) n).map_isIso ((comparison f).app X)
+    · exact (((RΓ U).commShiftIso n).app X).isIso_inv⟩
+  ext₂' T hT h₁ h₃ := by
+    refine ⟨T.obj₂, ?_, ⟨Iso.refl _⟩⟩
+    intro U V f
+    let φ : (RΓ V ⋙ restrict f).mapTriangle.obj T ⟶ (RΓ U).mapTriangle.obj T :=
+      { hom₁ := (comparison f).app T.obj₁
+        hom₂ := (comparison f).app T.obj₂
+        hom₃ := (comparison f).app T.obj₃
+        comm₁ := (comparison f).naturality T.mor₁
+        comm₂ := (comparison f).naturality T.mor₂
+        comm₃ := by
+          change ((RΓ V ⋙ restrict f).map T.mor₃ ≫
+              ((RΓ V ⋙ restrict f).commShiftIso (1 : ℤ)).hom.app T.obj₁) ≫
+                ((comparison f).app T.obj₁)⟦(1 : ℤ)⟧' =
+            (comparison f).app T.obj₃ ≫ ((RΓ U).map T.mor₃ ≫
+              ((RΓ U).commShiftIso (1 : ℤ)).hom.app T.obj₁)
+          calc
+            _ = (RΓ V ⋙ restrict f).map T.mor₃ ≫
+                (((RΓ V ⋙ restrict f).commShiftIso (1 : ℤ)).hom.app T.obj₁ ≫
+                  ((comparison f).app T.obj₁)⟦(1 : ℤ)⟧') := Category.assoc _ _ _
+            _ = (RΓ V ⋙ restrict f).map T.mor₃ ≫
+                ((comparison f).app (T.obj₁⟦(1 : ℤ)⟧) ≫
+                  ((RΓ U).commShiftIso (1 : ℤ)).hom.app T.obj₁) :=
+              congrArg (fun k ↦ (RΓ V ⋙ restrict f).map T.mor₃ ≫ k)
+                (NatTrans.shift_app_comm (comparison f) (1 : ℤ) T.obj₁)
+            _ = ((RΓ V ⋙ restrict f).map T.mor₃ ≫
+                (comparison f).app (T.obj₁⟦(1 : ℤ)⟧)) ≫
+                  ((RΓ U).commShiftIso (1 : ℤ)).hom.app T.obj₁ :=
+              (Category.assoc _ _ _).symm
+            _ = ((comparison f).app T.obj₃ ≫ (RΓ U).map T.mor₃) ≫
+                ((RΓ U).commShiftIso (1 : ℤ)).hom.app T.obj₁ :=
+              congrArg (fun k ↦ k ≫ ((RΓ U).commShiftIso (1 : ℤ)).hom.app T.obj₁)
+                ((comparison f).naturality T.mor₃)
+            _ = _ := Category.assoc _ _ _ }
+    exact isIso₂_of_isIso₁₃ φ ((RΓ V ⋙ restrict f).map_distinguished T hT)
+      ((RΓ U).map_distinguished T hT) (h₁ f) (h₃ f)
 
 end Triangulated
 
@@ -101,7 +154,13 @@ and restriction functors. -/
 instance isClosedUnderColimitsOfShape (J : Type uJ) [Category.{vJ} J]
     [∀ U : C, PreservesColimitsOfShape J (RΓ U)]
     [∀ {U V : C} (f : U ⟶ V), PreservesColimitsOfShape J (restrict f)] :
-    IsClosedUnderColimitsOfShape (property RΓ restrict comparison) J := sorry
+    IsClosedUnderColimitsOfShape (property RΓ restrict comparison) J where
+  colimitsOfShape_le := by
+    rintro X ⟨h⟩ U V f
+    haveI : ∀ j, IsIso ((Functor.whiskerLeft h.diag (comparison f)).app j) :=
+      fun j ↦ h.prop_diag_obj j f
+    haveI : IsIso (Functor.whiskerLeft h.diag (comparison f)) := NatIso.isIso_of_isIso_app _
+    exact isIso_app_coconePt_of_preservesColimit h.diag (comparison f) _ h.isColimit
 
 /-- If all section and restriction functors preserve `ι`-indexed coproducts, then so does the
 comparison-isomorphism locus. -/
@@ -110,7 +169,8 @@ comparison-isomorphism locus. -/
 theorem isClosedUnderDirectSums (ι : Type w)
     [∀ U : C, PreservesColimitsOfShape (Discrete ι) (RΓ U)]
     [∀ {U V : C} (f : U ⟶ V), PreservesColimitsOfShape (Discrete ι) (restrict f)] :
-    IsClosedUnderColimitsOfShape (property RΓ restrict comparison) (Discrete ι) := sorry
+    IsClosedUnderColimitsOfShape (property RΓ restrict comparison) (Discrete ι) :=
+  isClosedUnderColimitsOfShape RΓ restrict comparison (Discrete ι)
 
 end Colimits
 
@@ -134,13 +194,15 @@ variable
 strictly full. -/
 @[stacks 0GYW, stacks 0GZA]
 instance qc_isClosedUnderIsomorphisms :
-    IsClosedUnderIsomorphisms (isQuasiCoherent 𝒪 RΓ restrict comparison) := sorry
+    IsClosedUnderIsomorphisms (isQuasiCoherent 𝒪 RΓ restrict comparison) :=
+  QuasiCoherent.isClosedUnderIsomorphisms RΓ restrict comparison
 
 /-- Lemma 21.43.2 (2) and Lemma 24.33.2 (2): the comparison-defined subcategory `QC` is stable
 under retracts. -/
 @[stacks 0GYW, stacks 0GZA]
 instance qc_isStableUnderRetracts :
-    IsStableUnderRetracts (isQuasiCoherent 𝒪 RΓ restrict comparison) := sorry
+    IsStableUnderRetracts (isQuasiCoherent 𝒪 RΓ restrict comparison) :=
+  QuasiCoherent.isStableUnderRetracts RΓ restrict comparison
 
 end Basic
 
@@ -168,7 +230,8 @@ instance qc_isTriangulated
     [∀ {U V : C} (f : U ⟶ V), (restrict f).CommShift ℤ]
     [∀ {U V : C} (f : U ⟶ V), (restrict f).IsTriangulated]
     [∀ {U V : C} (f : U ⟶ V), NatTrans.CommShift (comparison f) ℤ] :
-    ObjectProperty.IsTriangulated (isQuasiCoherent 𝒪 RΓ restrict comparison) := sorry
+    ObjectProperty.IsTriangulated (isQuasiCoherent 𝒪 RΓ restrict comparison) :=
+  QuasiCoherent.isTriangulated RΓ restrict comparison
 
 end Triangulated
 
@@ -192,7 +255,8 @@ section and restriction functors. -/
 instance qc_isClosedUnderColimitsOfShape (J : Type uJ) [Category.{vJ} J]
     [∀ U : C, PreservesColimitsOfShape J (RΓ U)]
     [∀ {U V : C} (f : U ⟶ V), PreservesColimitsOfShape J (restrict f)] :
-    IsClosedUnderColimitsOfShape (isQuasiCoherent 𝒪 RΓ restrict comparison) J := sorry
+    IsClosedUnderColimitsOfShape (isQuasiCoherent 𝒪 RΓ restrict comparison) J :=
+  QuasiCoherent.isClosedUnderColimitsOfShape RΓ restrict comparison J
 
 /-- Lemma 21.43.2 (4) and Lemma 24.33.2 (4): if the section and restriction functors preserve
 `ι`-indexed coproducts, then `QC` is closed under those coproducts. -/
@@ -201,7 +265,8 @@ theorem qc_isClosedUnderDirectSums (ι : Type w)
     [∀ U : C, PreservesColimitsOfShape (Discrete ι) (RΓ U)]
     [∀ {U V : C} (f : U ⟶ V), PreservesColimitsOfShape (Discrete ι) (restrict f)] :
     IsClosedUnderColimitsOfShape
-      (isQuasiCoherent 𝒪 RΓ restrict comparison) (Discrete ι) := sorry
+      (isQuasiCoherent 𝒪 RΓ restrict comparison) (Discrete ι) :=
+  QuasiCoherent.isClosedUnderDirectSums RΓ restrict comparison ι
 
 end Colimits
 

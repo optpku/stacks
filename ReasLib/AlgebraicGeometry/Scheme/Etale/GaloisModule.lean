@@ -32,12 +32,18 @@ def geometricPoint : Spec (.of Ksep) ⟶ Spec (.of K) :=
 /-- The scheme map of a Galois automorphism lies over the base field. -/
 theorem geometricPointIso_hom_comm (sigma : Gal(Ksep / K)) :
     Spec.map (CommRingCat.ofHom sigma.toRingHom) ≫ geometricPoint K Ksep =
-      geometricPoint K Ksep := sorry
+      geometricPoint K Ksep := by
+  unfold geometricPoint
+  rw [← Spec.map_comp]
+  congr 1
+  ext x
+  exact sigma.commutes x
 
 /-- The scheme map of an inverse Galois automorphism lies over the base field. -/
 theorem geometricPointIso_inv_comm (sigma : Gal(Ksep / K)) :
     Spec.map (CommRingCat.ofHom sigma⁻¹.toRingHom) ≫ geometricPoint K Ksep =
-      geometricPoint K Ksep := sorry
+      geometricPoint K Ksep :=
+  geometricPointIso_hom_comm K Ksep sigma⁻¹
 
 /-- The scheme maps of a Galois automorphism and its inverse compose to the identity over
 the base field. -/
@@ -48,7 +54,13 @@ theorem geometricPointIso_hom_inv_id (sigma : Gal(Ksep / K)) :
       (Over.homMk (Spec.map (CommRingCat.ofHom sigma⁻¹.toRingHom))
         (geometricPointIso_inv_comm K Ksep sigma) :
         Over.mk (geometricPoint K Ksep) ⟶ Over.mk (geometricPoint K Ksep)) =
-      𝟙 (Over.mk (geometricPoint K Ksep)) := sorry
+      𝟙 (Over.mk (geometricPoint K Ksep)) := by
+  apply Over.OverMorphism.ext
+  change Spec.map _ ≫ Spec.map _ = 𝟙 _
+  rw [← Spec.map_comp, ← Spec.map_id]
+  congr 1
+  ext x
+  simp
 
 /-- The scheme maps of an inverse Galois automorphism and the automorphism compose to the
 identity over the base field. -/
@@ -59,7 +71,13 @@ theorem geometricPointIso_inv_hom_id (sigma : Gal(Ksep / K)) :
       (Over.homMk (Spec.map (CommRingCat.ofHom sigma.toRingHom))
         (geometricPointIso_hom_comm K Ksep sigma) :
         Over.mk (geometricPoint K Ksep) ⟶ Over.mk (geometricPoint K Ksep)) =
-      𝟙 (Over.mk (geometricPoint K Ksep)) := sorry
+      𝟙 (Over.mk (geometricPoint K Ksep)) := by
+  apply Over.OverMorphism.ext
+  change Spec.map _ ≫ Spec.map _ = 𝟙 _
+  rw [← Spec.map_comp, ← Spec.map_id]
+  congr 1
+  ext x
+  simp
 
 /-- A Galois automorphism induces an automorphism of the geometric point over the base field. -/
 def geometricPointIso (sigma : Gal(Ksep / K)) :
@@ -101,7 +119,26 @@ def etaleStalkAction
 theorem etaleStalkAction_map_one
     (F : Sheaf (Spec (.of K)).smallEtaleTopology AddCommGrpCat.{u}) :
     ModuleCat.ofHom (etaleStalkAction K Ksep F 1).hom.toIntLinearMap =
-      (1 : End (ModuleCat.of ℤ (etaleFiber K Ksep F))) := sorry
+      (1 : End (ModuleCat.of ℤ (etaleFiber K Ksep F))) := by
+  have h : (geometricPointIso K Ksep 1).hom =
+      𝟙 (Over.mk (geometricPoint K Ksep)) := by
+    apply Over.OverMorphism.ext
+    change Spec.map (CommRingCat.ofHom (1 : Gal(Ksep / K)).toRingHom) = 𝟙 _
+    rw [← Spec.map_id]
+    rfl
+  have hp : (⟨etaleFiberAction K Ksep 1⟩ : etalePoint K Ksep ⟶ etalePoint K Ksep) =
+      𝟙 (etalePoint K Ksep) := by
+    apply GrothendieckTopology.Point.hom_ext
+    dsimp only [etaleFiberAction, Scheme.Etale.geometricPointFiberMap]
+    rw [h]
+    simp only [op_id, Functor.map_id, Functor.whiskerLeft_id]
+    rfl
+  have ha : etaleStalkAction K Ksep F 1 = 𝟙 (etaleFiber K Ksep F) := by
+    unfold etaleStalkAction
+    rw [hp, GrothendieckTopology.Point.Hom.sheafFiber_id]
+    rfl
+  rw [ha]
+  rfl
 
 /-- Composition of Galois automorphisms agrees with composition of their additive stalk maps. -/
 theorem etaleStalkAction_map_mul
@@ -109,7 +146,32 @@ theorem etaleStalkAction_map_mul
     (sigma tau : Gal(Ksep / K)) :
     ModuleCat.ofHom (etaleStalkAction K Ksep F (sigma * tau)).hom.toIntLinearMap =
       ModuleCat.ofHom (etaleStalkAction K Ksep F tau).hom.toIntLinearMap ≫
-        ModuleCat.ofHom (etaleStalkAction K Ksep F sigma).hom.toIntLinearMap := sorry
+        ModuleCat.ofHom (etaleStalkAction K Ksep F sigma).hom.toIntLinearMap := by
+  have h : (geometricPointIso K Ksep (sigma * tau)).hom =
+      (geometricPointIso K Ksep sigma).hom ≫ (geometricPointIso K Ksep tau).hom := by
+    apply Over.OverMorphism.ext
+    change Spec.map (CommRingCat.ofHom (sigma * tau).toRingHom) =
+      Spec.map (CommRingCat.ofHom sigma.toRingHom) ≫
+        Spec.map (CommRingCat.ofHom tau.toRingHom)
+    rw [← Spec.map_comp]
+    rfl
+  let p (g : Gal(Ksep/K)) : End (etalePoint K Ksep) := ⟨etaleFiberAction K Ksep g⟩
+  have hp : p (sigma * tau) = p sigma ≫ p tau := by
+    apply GrothendieckTopology.Point.hom_ext
+    change etaleFiberAction K Ksep (sigma * tau) =
+      etaleFiberAction K Ksep tau ≫ etaleFiberAction K Ksep sigma
+    dsimp only [etaleFiberAction, Scheme.Etale.geometricPointFiberMap]
+    rw [h, op_comp, Functor.map_comp, Functor.whiskerLeft_comp]
+    rfl
+  have ha : etaleStalkAction K Ksep F (sigma * tau) =
+      etaleStalkAction K Ksep F tau ≫ etaleStalkAction K Ksep F sigma := by
+    change ((p (sigma * tau)).sheafFiber (A := AddCommGrpCat.{u})).app F =
+      ((p tau).sheafFiber (A := AddCommGrpCat.{u})).app F ≫
+        ((p sigma).sheafFiber (A := AddCommGrpCat.{u})).app F
+    rw [hp, GrothendieckTopology.Point.Hom.sheafFiber_comp]
+    rfl
+  rw [ha]
+  rfl
 
 /-- The Galois action on an additive geometric stalk has open stabilizers. -/
 theorem etaleStalkAction_openStabilizer
@@ -135,14 +197,14 @@ def etaleStalk
 /-- The underlying module of the discrete Galois stalk is the additive geometric stalk. -/
 theorem etaleStalk_obj
     (F : Sheaf (Spec (.of K)).smallEtaleTopology AddCommGrpCat.{u}) :
-    (etaleStalk K Ksep F).obj.V = ModuleCat.of ℤ (etaleFiber K Ksep F) := sorry
+    (etaleStalk K Ksep F).obj.V = ModuleCat.of ℤ (etaleFiber K Ksep F) := rfl
 
 /-- The Galois action on the discrete stalk is induced by geometric-point automorphisms. -/
 theorem etaleStalk_action
     (F : Sheaf (Spec (.of K)).smallEtaleTopology AddCommGrpCat.{u})
     (sigma : Gal(Ksep / K)) :
     (etaleStalk K Ksep F).obj.ρ sigma = ModuleCat.ofHom
-      (etaleStalkAction K Ksep F sigma).hom.toIntLinearMap := sorry
+      (etaleStalkAction K Ksep F sigma).hom.toIntLinearMap := rfl
 
 end GaloisCohomology
 

@@ -6,9 +6,8 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import Mathlib.CategoryTheory.Limits.Preserves.Filtered
-public import Mathlib.CategoryTheory.Limits.Preserves.Shapes.Products
-public import stacks_project.Chap103.Proposition_103_11_7_Pushforward
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.Module.Quasicoherent.HigherDirectImage.Colimits
+import StacksCheckRecall
 
 /-!
 # Lemma 103.13.3
@@ -31,29 +30,29 @@ namespace AlgebraicGeometry.GroupoidsOver
 
 namespace qCohHigherDirectImageFunctor
 
-/-- Lemma 103.13.3 (1): Let `f : X ⟶ Y` be a quasi-compact and quasi-separated
+/- Lemma 103.13.3 (1): Let `f : X ⟶ Y` be a quasi-compact and quasi-separated
 morphism of algebraic stacks. Then `qCohHigherDirectImageFunctor f i`
 (`f_{QCoh,*}` when `i = 0`, and `R^i f_{QCoh,*}` in general) preserves
 coproducts indexed by a type in the ambient universe. -/
 @[stacks 0GQX]
-instance preservesCoproducts {S : Scheme.{u}} {X Y : GroupoidsOver S}
+#check (AlgebraicGeometry.GroupoidsOver.qCohHigherDirectImageFunctor.preservesCoproducts :
+    ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y)
     [AlgebraicStack.QuasiCompact f] [AlgebraicStack.QuasiSeparated f]
-    (i : ℕ) (I : Type u) :
-    PreservesColimitsOfShape (Discrete I) (qCohHigherDirectImageFunctor f i) :=
-  sorry
+    (i : ℕ) (I : Type u),
+    PreservesColimitsOfShape (Discrete I) (qCohHigherDirectImageFunctor f i))
 
-/-- Lemma 103.13.3 (2): Let `f : X ⟶ Y` be a quasi-compact and quasi-separated
+/- Lemma 103.13.3 (2): Let `f : X ⟶ Y` be a quasi-compact and quasi-separated
 morphism of algebraic stacks. Then `qCohHigherDirectImageFunctor f i`
 (`f_{QCoh,*}` when `i = 0`, and `R^i f_{QCoh,*}` in general) preserves
 filtered colimits of shape `J : Type u` with `[Category.{u} J]`. -/
 @[stacks 0GQX]
-instance preservesFilteredColimits {S : Scheme.{u}} {X Y : GroupoidsOver S}
+#check (AlgebraicGeometry.GroupoidsOver.qCohHigherDirectImageFunctor.preservesFilteredColimits :
+    ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y)
     [AlgebraicStack.QuasiCompact f] [AlgebraicStack.QuasiSeparated f]
-    (i : ℕ) :
-    PreservesFilteredColimitsOfSize.{u, u} (qCohHigherDirectImageFunctor f i) :=
-  sorry
+    (i : ℕ),
+    PreservesFilteredColimitsOfSize.{u, u} (qCohHigherDirectImageFunctor f i))
 
 end qCohHigherDirectImageFunctor
 

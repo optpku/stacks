@@ -10,6 +10,7 @@ public import Mathlib.CategoryTheory.Comma.Over.Pullback
 public import ReasLib.Algebra.Category.CommRing.Sheaf.Internal
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Algebra.Quasicoherent
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.RingedSite.CommRingHom
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.CommRingSheafification
 
 /-!
 # Pullback of quasi-coherent algebras on algebraic spaces
@@ -81,7 +82,10 @@ theorem pullbackSheafFunctor_forgetRing {S : Scheme.{u}} {X Y : AlgebraicSpace S
 /-- Pushouts of commutative-ring sheaves exist on the small étale site of an algebraic space. -/
 instance hasPushouts_smallEtale_commRingCat {S : Scheme.{u}} (X : AlgebraicSpace S) :
     HasPushouts (Sheaf (smallEtaleTopology X) CommRingCat.{u}) :=
-  sorry
+  by
+    letI : HasSheafify (smallEtaleTopology X) CommRingCat.{u} :=
+      CommRingSheafification.ofSpace X
+    infer_instance
 
 /-- Inverse image of `𝒪_X`-algebras along `f : Y ⟶ X`, as a functor on under-categories. -/
 def inverseImageUnder {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : Y ⟶ X) :

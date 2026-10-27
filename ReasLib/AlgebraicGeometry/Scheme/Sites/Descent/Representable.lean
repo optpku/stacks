@@ -83,7 +83,7 @@ theorem representable_iff_effective {S : 𝒮.carrier} {I : Type (max u v)}
     ((𝒮.toGrothendieck.over S).uliftYoneda.{max u v}).essImage
         ((CategoryTheory.GrothendieckTopology.RepresentableDescent.glue
           𝒮.toGrothendieck p hcover).obj D).obj ↔
-      Over.DescentData.IsEffective D := sorry
+      Over.DescentData.IsEffective Sᵢ p D := sorry
 
 end RepresentableDescent
 

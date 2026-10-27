@@ -39,28 +39,42 @@ temporary instance. -/
 @[stacks 00S2 "Kahler source-change injectivity"]
 theorem map_injective_of_subsingleton
     (hΩ : Subsingleton Ω[S⁄R]) :
-    Function.Injective (map R S T T) := sorry
+    Function.Injective (map R S T T) := by
+  rw [injective_iff_map_eq_zero]
+  intro x hx
+  obtain ⟨y, rfl⟩ := (exact_mapBaseChange_map R S T x).mp hx
+  clear hx
+  induction y with
+  | zero => exact map_zero _
+  | tmul t s =>
+      rw [mapBaseChange_tmul, hΩ.elim s 0, map_zero, smul_zero]
+  | add y z hy hz => rw [map_add, hy, hz, zero_add]
 
 /-- Tag `00S2`: if the source Kähler differentials are subsingleton, then the
 terminal Kähler map in the transitivity sequence is bijective. -/
 @[stacks 00S2 "Kahler source-change bijectivity"]
 theorem map_bijective_of_subsingleton
     (hΩ : Subsingleton Ω[S⁄R]) :
-    Function.Bijective (map R S T T) := sorry
+    Function.Bijective (map R S T T) := by
+  exact ⟨map_injective_of_subsingleton hΩ, map_surjective R S T⟩
 
 /-- Tag `00S2`: a formally unramified source map makes the terminal Kähler
 map in the transitivity sequence bijective. -/
 @[stacks 00S2 "Kahler source-change bijectivity for formally unramified maps"]
 theorem map_bijective_of_formallyUnramified
     [Algebra.FormallyUnramified R S] :
-    Function.Bijective (map R S T T) := sorry
+    Function.Bijective (map R S T T) := by
+  exact map_bijective_of_subsingleton
+    (inferInstance : Subsingleton Ω[S⁄R])
 
 /-- Tag `00S2`: a formally etale source map makes the terminal Kähler map in
 the transitivity sequence bijective. -/
 @[stacks 00S2 "Kahler source-change bijectivity for formally etale maps"]
 theorem map_bijective_of_formallyEtale
     [Algebra.FormallyEtale R S] :
-    Function.Bijective (map R S T T) := sorry
+    Function.Bijective (map R S T T) := by
+  exact map_bijective_of_subsingleton
+    (inferInstance : Subsingleton Ω[S⁄R])
 
 /-- Lemma 10.131.8 (1), tag `00RT`: localizing the source algebra induces a
 bijective canonical map on Kähler differentials. -/

@@ -41,18 +41,25 @@ namespace DerivedCategory.CohomologyIn
 property is. -/
 @[stacks 06UQ "isomorphism invariance of cohomology-in objects"]
 instance closedUnderIso (P : ObjectProperty A) [P.IsClosedUnderIsomorphisms] :
-    (DerivedCategory.cohomologyIn P).IsClosedUnderIsomorphisms := sorry
+    (DerivedCategory.cohomologyIn P).IsClosedUnderIsomorphisms where
+  of_iso e hK n := P.prop_of_iso ((DerivedCategory.homologyFunctor A n).mapIso e) (hK n)
 
 /-- The cohomology-in property contains a zero object whenever the coefficient property does. -/
 @[stacks 06UQ "zero object in a cohomology-in subcategory"]
 instance containsZero (P : ObjectProperty A) [P.ContainsZero]
     [P.IsClosedUnderIsomorphisms] :
-    (DerivedCategory.cohomologyIn P).ContainsZero := sorry
+    (DerivedCategory.cohomologyIn P).ContainsZero where
+  exists_zero := ⟨0, isZero_zero _, fun n ↦
+    P.prop_of_isZero ((DerivedCategory.homologyFunctor A n).map_isZero (isZero_zero _))⟩
 
 /-- The cohomology-in property is stable under every integral shift. -/
 @[stacks 06UQ "shift stability of cohomology-in objects"]
 instance stableUnderShift (P : ObjectProperty A) [P.IsClosedUnderIsomorphisms] :
-    (DerivedCategory.cohomologyIn P).IsStableUnderShift ℤ := sorry
+    (DerivedCategory.cohomologyIn P).IsStableUnderShift ℤ where
+  isStableUnderShiftBy n :=
+    { le_shift K hK i := P.prop_of_iso
+        (((DerivedCategory.homologyFunctor A 0).shiftIso n i (n + i) rfl).symm.app K)
+        (hK (n + i)) }
 
 /-- The zero derived object has cohomology in `P` whenever `P` contains zero. -/
 @[stacks 06UQ "zero cohomology-in object"]

@@ -6,19 +6,16 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import Mathlib.Tactic.CrossRefAttribute
-public import ReasLib.CategoryTheory.Filtration.Complex.Realization.Abutment
-public import stacks_project.Chap85.Lemma_85_9_3_Bicomplex
-public import stacks_project.Chap85.Lemma_85_9_3_Fiberwise
+import StacksCheckRecall
+public import ReasLib.CategoryTheory.Sites.Simplicial.AugmentationSpectralSequence
+public import ReasLib.CategoryTheory.Sites.Grothendieck.AugmentationSpectralSequence
+public import ReasLib.CategoryTheory.Sites.AbelianSheaf.Grothendieck
 
 /-!
-# Lemma 85.9.3
+# Augmentation spectral sequences
 
-In Situation 85.3.3 let `a0` be an augmentation towards a site `D` as in
-Remark 85.4.1. For any `K` in `D⁺(C_total)` there is a spectral sequence
-`(E_r, d_r)_{r ≥ 0}` with `E₁^{p,q} = R^q a_{p,*} K_p` and
-`d₁^{p,q} : E₁^{p,q} ⟶ E₁^{p+1,q}`, converging to `R^{p+q} a_* K`.
-This spectral sequence is functorial in `K`.
+The augmentation spectral sequence has first page `R^q a_{p,*} K_p`, the canonical
+Čech differential, and abutment `R^{p+q} a_* K`, functorially in `K`.
 -/
 
 @[expose] public section
@@ -29,51 +26,41 @@ open scoped Simplicial
 
 noncomputable section
 
-universe u v w
+universe u v
 
 namespace CategoryTheory.SimplicialSites
 
 variable (C : SimplexCategory ⥤ Cat.{v, u}) (J : ∀ n, Precoverage (C.obj n))
 variable {D : Type u} [Category.{v} D] (K : Precoverage D)
 variable (u0 : D ⥤ C.obj ⦋0⦌)
-variable [HasWeakSheafify K.toGrothendieck (Type w)]
-variable [∀ n, HasWeakSheafify (J n).toGrothendieck (Type w)]
-variable [HasWeakSheafify (topology C J) (Type w)]
-variable [∀ P : Dᵒᵖ ⥤ Type w, u0.op.HasLeftKanExtension P]
-variable [∀ (m n : SimplexCategory) (φ : m ⟶ n) (P : (C.obj m)ᵒᵖ ⥤ Type w),
+variable [HasWeakSheafify K.toGrothendieck (Type (max u v))]
+variable [∀ n, HasWeakSheafify (J n).toGrothendieck (Type (max u v))]
+variable [HasWeakSheafify (topology C J) (Type (max u v))]
+variable [∀ P : Dᵒᵖ ⥤ Type (max u v), u0.op.HasLeftKanExtension P]
+variable [∀ (m n : SimplexCategory) (φ : m ⟶ n) (P : (C.obj m)ᵒᵖ ⥤ Type (max u v)),
     ((C.map φ).toFunctor).op.HasLeftKanExtension P]
 variable [h_morphism : IsMorphismDiagram C J]
 variable [h_aug : IsAugmentation C J K u0]
-variable [∀ (n : SimplexCategory) (P : Dᵒᵖ ⥤ Type w),
+variable [∀ (n : SimplexCategory) (P : Dᵒᵖ ⥤ Type (max u v)),
     (IsAugmentation.stageFunctor C u0 n).op.HasLeftKanExtension P]
 variable [∀ n, (ofStage C n).IsContinuous (J n).toGrothendieck (topology C J)]
-variable [∀ n, ∀ P : (C.obj n)ᵒᵖ ⥤ Type w, (ofStage C n).op.HasLeftKanExtension P]
-variable [∀ n, HasWeakSheafify (J n).toGrothendieck AddCommGrpCat.{w}]
-variable [∀ (n : SimplexCategory) (P : Dᵒᵖ ⥤ AddCommGrpCat.{w}),
+variable [∀ n, ∀ P : (C.obj n)ᵒᵖ ⥤ Type (max u v), (ofStage C n).op.HasLeftKanExtension P]
+variable [∀ n, HasWeakSheafify (J n).toGrothendieck AddCommGrpCat.{max u v}]
+variable [∀ (n : SimplexCategory) (P : Dᵒᵖ ⥤ AddCommGrpCat.{max u v}),
     (IsAugmentation.stageFunctor C u0 n).op.HasLeftKanExtension P]
-variable [∀ (m n : SimplexCategory) (φ : m ⟶ n) (P : (C.obj m)ᵒᵖ ⥤ AddCommGrpCat.{w}),
+variable [∀ (m n : SimplexCategory) (φ : m ⟶ n) (P : (C.obj m)ᵒᵖ ⥤ AddCommGrpCat.{max u v}),
     ((C.map φ).toFunctor).op.HasLeftKanExtension P]
-variable [HasWeakSheafify (topology C J) AddCommGrpCat.{w}]
-variable [HasSheafify (topology C J) AddCommGrpCat.{w}]
-variable [HasSheafify K.toGrothendieck AddCommGrpCat.{w}]
-variable [∀ n, ∀ P : (C.obj n)ᵒᵖ ⥤ AddCommGrpCat.{w},
+variable [HasWeakSheafify (topology C J) AddCommGrpCat.{max u v}]
+variable [HasSheafify (topology C J) AddCommGrpCat.{max u v}]
+variable [HasSheafify K.toGrothendieck AddCommGrpCat.{max u v}]
+variable [∀ n, ∀ P : (C.obj n)ᵒᵖ ⥤ AddCommGrpCat.{max u v},
     (ofStage C n).op.HasLeftKanExtension P]
-variable [HasEqualizers (Sheaf K.toGrothendieck AddCommGrpCat.{w})]
-variable [∀ n : ℕ,
-    (augmentationStageGamma C J K u0 n).toBoundedBelowDerived.HasRightDerivedFunctor
-      (HomotopyCategory.Plus.quasiIso (Sheaf (topology C J) AddCommGrpCat.{w}))]
-variable [(IsAugmentation.abelianPushforward C J K u0).toBoundedBelowDerived.HasRightDerivedFunctor
-    (HomotopyCategory.Plus.quasiIso (Sheaf (topology C J) AddCommGrpCat.{w}))]
-include h_morphism
-include h_aug
+variable [HasEqualizers (Sheaf K.toGrothendieck AddCommGrpCat.{max u v})]
 
-/-- Lemma 85.9.3 (1): in Situation 85.3.3 case A, with an augmentation towards a
-site `D` as in Remark 85.4.1, for `K` in `D⁺(C_total)` there is a cohomological
-spectral sequence `(E_r)_{r ≥ 0}` with `E₁^{p,q} = R^q a_{p,*} K_p` and
-`d₁^{p,q} : E₁^{p,q} ⟶ E₁^{p+1,q}`, converging to `R^{p+q} a_* K`. -/
-@[stacks 0D7A]
-theorem exists_augmentationSpectralSequence
-    (X : DerivedCategory.Plus (Sheaf (topology C J) AddCommGrpCat.{w})) :
+/- Lemma 85.9.3 (1): Existence of the augmentation spectral sequence
+for morphism diagrams of sites. -/
+@[stacks 0D7A] #check (CategoryTheory.SimplicialSites.exists_augmentationSpectralSequence C J K u0 :
+    ∀ X : DerivedCategory.Plus (Sheaf (topology C J) AddCommGrpCat.{max u v}),
     ∃ (S : WithAbutment (fun n ↦ augmentationAbutmentFunctor C J K u0 n) X)
       (pageOneIso : ∀ p q : ℤ,
         (S.sequence.page 1).X (p, q) ≅
@@ -81,36 +68,29 @@ theorem exists_augmentationSpectralSequence
       ∀ p q : ℤ,
         (pageOneIso p q).hom ≫ (augmentationPageOneDifferential C J K u0 p q).app X =
           (S.sequence.page 1).d (p, q) (p + 1, q) ≫
-            (pageOneIso (p + 1) q).hom :=
-  sorry
+            (pageOneIso (p + 1) q).hom)
 
-/-- Lemma 85.9.3 (2): in Situation 85.3.3 case A, the spectral sequence of
-`exists_augmentationSpectralSequence` is functorial in `K`. -/
-@[stacks 0D7A]
-theorem augmentationSpectralSequence_functorial
-    {X Y : DerivedCategory.Plus (Sheaf (topology C J) AddCommGrpCat.{w})}
-    (f : X ⟶ Y) :
-    ∃ (SX : WithAbutment (fun n ↦ augmentationAbutmentFunctor C J K u0 n) X)
-      (SY : WithAbutment (fun n ↦ augmentationAbutmentFunctor C J K u0 n) Y)
-      (pageOneIsoX : ∀ p q : ℤ,
-        (SX.sequence.page 1).X (p, q) ≅
+/- Lemma 85.9.3 (2): Functoriality of the augmentation spectral sequence
+for morphism diagrams of sites. -/
+@[stacks 0D7A] #check (CategoryTheory.SimplicialSites.augmentationSpectralSequence_functorial C J K u0 :
+    ∃ (S : ∀ X : DerivedCategory.Plus (Sheaf (topology C J) AddCommGrpCat.{max u v}),
+        WithAbutment (fun n ↦ augmentationAbutmentFunctor C J K u0 n) X)
+      (pageOneIso : ∀ (X : DerivedCategory.Plus (Sheaf (topology C J) AddCommGrpCat.{max u v})) (p q : ℤ),
+        ((S X).sequence.page 1).X (p, q) ≅
           (augmentationPageOneFunctor C J K u0 p q).obj X)
-      (pageOneIsoY : ∀ p q : ℤ,
-        (SY.sequence.page 1).X (p, q) ≅
-          (augmentationPageOneFunctor C J K u0 p q).obj Y)
-      (φ : WithAbutment.Map (fun n ↦ augmentationAbutmentFunctor C J K u0 n) f SX SY),
-      (∀ p q : ℤ,
-        (pageOneIsoX p q).hom ≫ (augmentationPageOneDifferential C J K u0 p q).app X =
-          (SX.sequence.page 1).d (p, q) (p + 1, q) ≫
-            (pageOneIsoX (p + 1) q).hom) ∧
-      (∀ p q : ℤ,
-        (pageOneIsoY p q).hom ≫ (augmentationPageOneDifferential C J K u0 p q).app Y =
-          (SY.sequence.page 1).d (p, q) (p + 1, q) ≫
-            (pageOneIsoY (p + 1) q).hom) ∧
-      ∀ p q : ℤ,
-        ((φ.sequenceMap.hom 1).f (p, q)) ≫ (pageOneIsoY p q).hom =
-          (pageOneIsoX p q).hom ≫ (augmentationPageOneFunctor C J K u0 p q).map f :=
-  sorry
+      (m : ∀ {X Y : DerivedCategory.Plus (Sheaf (topology C J) AddCommGrpCat.{max u v})} (f : X ⟶ Y),
+        WithAbutment.Map (fun n ↦ augmentationAbutmentFunctor C J K u0 n) f (S X) (S Y)),
+      (∀ (X : DerivedCategory.Plus (Sheaf (topology C J) AddCommGrpCat.{max u v})) (p q : ℤ),
+        (pageOneIso X p q).hom ≫ (augmentationPageOneDifferential C J K u0 p q).app X =
+          ((S X).sequence.page 1).d (p, q) (p + 1, q) ≫
+            (pageOneIso X (p + 1) q).hom) ∧
+      (∀ {X Y : DerivedCategory.Plus (Sheaf (topology C J) AddCommGrpCat.{max u v})} (f : X ⟶ Y) (p q : ℤ),
+        ((m f).sequenceMap.hom 1).f (p, q) ≫ (pageOneIso Y p q).hom =
+          (pageOneIso X p q).hom ≫ (augmentationPageOneFunctor C J K u0 p q).map f) ∧
+      (∀ X : DerivedCategory.Plus (Sheaf (topology C J) AddCommGrpCat.{max u v}),
+        (m (𝟙 X)).sequenceMap = 𝟙 (S X).sequence) ∧
+      (∀ {X Y Z : DerivedCategory.Plus (Sheaf (topology C J) AddCommGrpCat.{max u v})} (f : X ⟶ Y) (g : Y ⟶ Z),
+        (m (f ≫ g)).sequenceMap = (m f).sequenceMap ≫ (m g).sequenceMap))
 
 end CategoryTheory.SimplicialSites
 
@@ -122,30 +102,22 @@ variable (u0 : F.obj (op ⦋0⦌) ⥤ D)
 variable [IsFiberwiseSite F J]
 variable [IsAugmentation F J K u0]
 variable [∀ n, (ι F (op n)).IsContinuous (J (op n)).toGrothendieck (topology F J)]
-variable [∀ n, HasWeakSheafify (J n).toGrothendieck AddCommGrpCat.{w}]
-variable [HasWeakSheafify (topology F J) AddCommGrpCat.{w}]
-variable [HasSheafify (topology F J) AddCommGrpCat.{w}]
-variable [HasSheafify K.toGrothendieck AddCommGrpCat.{w}]
-variable [∀ n, ∀ P : (F.obj (op n))ᵒᵖ ⥤ AddCommGrpCat.{w},
+variable [∀ n, HasWeakSheafify (J n).toGrothendieck AddCommGrpCat.{max u v}]
+variable [HasWeakSheafify (topology F J) AddCommGrpCat.{max u v}]
+variable [HasSheafify (topology F J) AddCommGrpCat.{max u v}]
+variable [HasSheafify K.toGrothendieck AddCommGrpCat.{max u v}]
+variable [∀ n, ∀ P : (F.obj (op n))ᵒᵖ ⥤ AddCommGrpCat.{max u v},
     (ι F (op n)).op.HasLeftKanExtension P]
-variable [∀ (n : SimplexCategory) (P : (F.obj (op n))ᵒᵖ ⥤ AddCommGrpCat.{w}),
+variable [∀ (n : SimplexCategory) (P : (F.obj (op n))ᵒᵖ ⥤ AddCommGrpCat.{max u v}),
     (IsAugmentation.stageFunctor F u0 n).op.HasPointwiseRightKanExtension P]
-variable [∀ (m n : SimplexCategory) (φ : m ⟶ n) (P : (F.obj (op n))ᵒᵖ ⥤ AddCommGrpCat.{w}),
+variable [∀ (m n : SimplexCategory) (φ : m ⟶ n) (P : (F.obj (op n))ᵒᵖ ⥤ AddCommGrpCat.{max u v}),
     ((F.map φ.op).toFunctor).op.HasPointwiseRightKanExtension P]
-variable [HasEqualizers (Sheaf K.toGrothendieck AddCommGrpCat.{w})]
-variable [∀ n : ℕ,
-    (fiberAugmentationStageGamma F J K u0 n).toBoundedBelowDerived.HasRightDerivedFunctor
-      (HomotopyCategory.Plus.quasiIso (Sheaf (topology F J) AddCommGrpCat.{w}))]
-variable [(IsAugmentation.abelianPushforward F J K u0).toBoundedBelowDerived.HasRightDerivedFunctor
-    (HomotopyCategory.Plus.quasiIso (Sheaf (topology F J) AddCommGrpCat.{w}))]
+variable [HasEqualizers (Sheaf K.toGrothendieck AddCommGrpCat.{max u v})]
 
-/-- Lemma 85.9.3 (3): in Situation 85.3.3 case B, with an augmentation towards a
-site `D` as in Remark 85.4.1, for `K` in `D⁺(C_total)` there is a cohomological
-spectral sequence `(E_r)_{r ≥ 0}` with `E₁^{p,q} = R^q a_{p,*} K_p` and
-`d₁^{p,q} : E₁^{p,q} ⟶ E₁^{p+1,q}`, converging to `R^{p+q} a_* K`. -/
-@[stacks 0D7A]
-theorem exists_fiberAugmentationSpectralSequence
-    (X : DerivedCategory.Plus (Sheaf (topology F J) AddCommGrpCat.{w})) :
+/- Lemma 85.9.3 (3): Existence of the augmentation spectral sequence
+for fiberwise simplicial sites. -/
+@[stacks 0D7A] #check (CategoryTheory.Grothendieck.exists_fiberAugmentationSpectralSequence F J K u0 :
+    ∀ X : DerivedCategory.Plus (Sheaf (topology F J) AddCommGrpCat.{max u v}),
     ∃ (S : WithAbutment (fun n ↦ fiberAugmentationAbutmentFunctor F J K u0 n) X)
       (pageOneIso : ∀ p q : ℤ,
         (S.sequence.page 1).X (p, q) ≅
@@ -154,39 +126,28 @@ theorem exists_fiberAugmentationSpectralSequence
         (pageOneIso p q).hom ≫
             (fiberAugmentationPageOneDifferential F J K u0 p q).app X =
           (S.sequence.page 1).d (p, q) (p + 1, q) ≫
-            (pageOneIso (p + 1) q).hom :=
-  sorry
+            (pageOneIso (p + 1) q).hom)
 
-/-- Lemma 85.9.3 (4): in Situation 85.3.3 case B, the spectral sequence of
-`exists_fiberAugmentationSpectralSequence` is functorial in `K`. -/
-@[stacks 0D7A]
-theorem fiberAugmentationSpectralSequence_functorial
-    {X Y : DerivedCategory.Plus (Sheaf (topology F J) AddCommGrpCat.{w})}
-    (f : X ⟶ Y) :
-    ∃ (SX : WithAbutment (fun n ↦ fiberAugmentationAbutmentFunctor F J K u0 n) X)
-      (SY : WithAbutment (fun n ↦ fiberAugmentationAbutmentFunctor F J K u0 n) Y)
-      (pageOneIsoX : ∀ p q : ℤ,
-        (SX.sequence.page 1).X (p, q) ≅
+/- Lemma 85.9.3 (4): Functoriality of the augmentation spectral sequence
+for fiberwise simplicial sites. -/
+@[stacks 0D7A] #check (CategoryTheory.Grothendieck.fiberAugmentationSpectralSequence_functorial F J K u0 :
+    ∃ (S : ∀ X : DerivedCategory.Plus (Sheaf (topology F J) AddCommGrpCat.{max u v}),
+        WithAbutment (fun n ↦ fiberAugmentationAbutmentFunctor F J K u0 n) X)
+      (pageOneIso : ∀ (X : DerivedCategory.Plus (Sheaf (topology F J) AddCommGrpCat.{max u v})) (p q : ℤ),
+        ((S X).sequence.page 1).X (p, q) ≅
           (fiberAugmentationPageOneFunctor F J K u0 p q).obj X)
-      (pageOneIsoY : ∀ p q : ℤ,
-        (SY.sequence.page 1).X (p, q) ≅
-          (fiberAugmentationPageOneFunctor F J K u0 p q).obj Y)
-      (φ : WithAbutment.Map
-        (fun n ↦ fiberAugmentationAbutmentFunctor F J K u0 n) f SX SY),
-      (∀ p q : ℤ,
-        (pageOneIsoX p q).hom ≫
-            (fiberAugmentationPageOneDifferential F J K u0 p q).app X =
-          (SX.sequence.page 1).d (p, q) (p + 1, q) ≫
-            (pageOneIsoX (p + 1) q).hom) ∧
-      (∀ p q : ℤ,
-        (pageOneIsoY p q).hom ≫
-            (fiberAugmentationPageOneDifferential F J K u0 p q).app Y =
-          (SY.sequence.page 1).d (p, q) (p + 1, q) ≫
-            (pageOneIsoY (p + 1) q).hom) ∧
-      ∀ p q : ℤ,
-        ((φ.sequenceMap.hom 1).f (p, q)) ≫ (pageOneIsoY p q).hom =
-          (pageOneIsoX p q).hom ≫
-            (fiberAugmentationPageOneFunctor F J K u0 p q).map f :=
-  sorry
+      (m : ∀ {X Y : DerivedCategory.Plus (Sheaf (topology F J) AddCommGrpCat.{max u v})} (f : X ⟶ Y),
+        WithAbutment.Map (fun n ↦ fiberAugmentationAbutmentFunctor F J K u0 n) f (S X) (S Y)),
+      (∀ (X : DerivedCategory.Plus (Sheaf (topology F J) AddCommGrpCat.{max u v})) (p q : ℤ),
+        (pageOneIso X p q).hom ≫ (fiberAugmentationPageOneDifferential F J K u0 p q).app X =
+          ((S X).sequence.page 1).d (p, q) (p + 1, q) ≫
+            (pageOneIso X (p + 1) q).hom) ∧
+      (∀ {X Y : DerivedCategory.Plus (Sheaf (topology F J) AddCommGrpCat.{max u v})} (f : X ⟶ Y) (p q : ℤ),
+        ((m f).sequenceMap.hom 1).f (p, q) ≫ (pageOneIso Y p q).hom =
+          (pageOneIso X p q).hom ≫ (fiberAugmentationPageOneFunctor F J K u0 p q).map f) ∧
+      (∀ X : DerivedCategory.Plus (Sheaf (topology F J) AddCommGrpCat.{max u v}),
+        (m (𝟙 X)).sequenceMap = 𝟙 (S X).sequence) ∧
+      (∀ {X Y Z : DerivedCategory.Plus (Sheaf (topology F J) AddCommGrpCat.{max u v})} (f : X ⟶ Y) (g : Y ⟶ Z),
+        (m (f ≫ g)).sequenceMap = (m f).sequenceMap ≫ (m g).sequenceMap))
 
 end CategoryTheory.Grothendieck

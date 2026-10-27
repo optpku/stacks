@@ -49,16 +49,35 @@ natural transformation. -/
 theorem map_app_hom {F G : A ⥤ₑ B} (α : F ⟶ G)
     (X : DerivedCategory.Plus A) :
     ((map α).app X).hom =
-      (ExactFunctor.MapDerivedCategory.map α).app X.obj := sorry
+      (ExactFunctor.MapDerivedCategory.map α).app X.obj := rfl
 
 /-- The bounded-below derived action preserves identity transformations. -/
 @[simp]
-theorem map_id (F : A ⥤ₑ B) : map (𝟙 F) = 𝟙 (functor F) := sorry
+theorem map_id (F : A ⥤ₑ B) : map (𝟙 F) = 𝟙 (functor F) := by
+  apply NatTrans.ext
+  funext X
+  apply ObjectProperty.hom_ext
+  change (ExactFunctor.MapDerivedCategory.map (𝟙 F)).app X.obj = 𝟙 _
+  simp only [ExactFunctor.MapDerivedCategory.map, ObjectProperty.FullSubcategory.id_hom,
+    NatTrans.mapHomologicalComplex_id, Functor.whiskerRight_id',
+    Localization.liftNatTrans_id, NatTrans.id_app]
 
 /-- The bounded-below derived action preserves vertical composition. -/
 @[simp]
 theorem map_comp {F G H : A ⥤ₑ B} (α : F ⟶ G) (β : G ⟶ H) :
-    map (α ≫ β) = map α ≫ map β := sorry
+    map (α ≫ β) = map α ≫ map β := by
+  apply NatTrans.ext
+  funext X
+  apply ObjectProperty.hom_ext
+  change (ExactFunctor.MapDerivedCategory.map (α ≫ β)).app X.obj =
+    (ExactFunctor.MapDerivedCategory.map α).app X.obj ≫
+      (ExactFunctor.MapDerivedCategory.map β).app X.obj
+  simp only [ExactFunctor.MapDerivedCategory.map, ObjectProperty.FullSubcategory.comp_hom,
+    NatTrans.mapHomologicalComplex_comp, Functor.whiskerRight_comp]
+  exact (congr_app (Localization.comp_liftNatTrans
+    (DerivedCategory.Q : CochainComplex A ℤ ⥤ DerivedCategory A)
+    (HomologicalComplex.quasiIso A (ComplexShape.up ℤ)) _ _ _
+    F.mapDerivedCategory G.mapDerivedCategory H.mapDerivedCategory _ _) X.obj).symm
 
 variable (A B) in
 /-- Functorial passage from exact functors to their bounded-below derived
@@ -95,16 +114,35 @@ natural transformation. -/
 theorem map_app_hom {F G : A ⥤ₑ B} (α : F ⟶ G)
     (X : DerivedCategory.Minus A) :
     ((map α).app X).hom =
-      (ExactFunctor.MapDerivedCategory.map α).app X.obj := sorry
+      (ExactFunctor.MapDerivedCategory.map α).app X.obj := rfl
 
 /-- The bounded-above derived action preserves identity transformations. -/
 @[simp]
-theorem map_id (F : A ⥤ₑ B) : map (𝟙 F) = 𝟙 (functor F) := sorry
+theorem map_id (F : A ⥤ₑ B) : map (𝟙 F) = 𝟙 (functor F) := by
+  apply NatTrans.ext
+  funext X
+  apply ObjectProperty.hom_ext
+  change (ExactFunctor.MapDerivedCategory.map (𝟙 F)).app X.obj = 𝟙 _
+  simp only [ExactFunctor.MapDerivedCategory.map, ObjectProperty.FullSubcategory.id_hom,
+    NatTrans.mapHomologicalComplex_id, Functor.whiskerRight_id',
+    Localization.liftNatTrans_id, NatTrans.id_app]
 
 /-- The bounded-above derived action preserves vertical composition. -/
 @[simp]
 theorem map_comp {F G H : A ⥤ₑ B} (α : F ⟶ G) (β : G ⟶ H) :
-    map (α ≫ β) = map α ≫ map β := sorry
+    map (α ≫ β) = map α ≫ map β := by
+  apply NatTrans.ext
+  funext X
+  apply ObjectProperty.hom_ext
+  change (ExactFunctor.MapDerivedCategory.map (α ≫ β)).app X.obj =
+    (ExactFunctor.MapDerivedCategory.map α).app X.obj ≫
+      (ExactFunctor.MapDerivedCategory.map β).app X.obj
+  simp only [ExactFunctor.MapDerivedCategory.map, ObjectProperty.FullSubcategory.comp_hom,
+    NatTrans.mapHomologicalComplex_comp, Functor.whiskerRight_comp]
+  exact (congr_app (Localization.comp_liftNatTrans
+    (DerivedCategory.Q : CochainComplex A ℤ ⥤ DerivedCategory A)
+    (HomologicalComplex.quasiIso A (ComplexShape.up ℤ)) _ _ _
+    F.mapDerivedCategory G.mapDerivedCategory H.mapDerivedCategory _ _) X.obj).symm
 
 variable (A B) in
 /-- Functorial passage from exact functors to their bounded-above derived
@@ -141,16 +179,35 @@ natural transformation. -/
 theorem map_app_hom {F G : A ⥤ₑ B} (α : F ⟶ G)
     (X : DerivedCategory.Bounded A) :
     ((map α).app X).hom =
-      (ExactFunctor.MapDerivedCategory.map α).app X.obj := sorry
+      (ExactFunctor.MapDerivedCategory.map α).app X.obj := rfl
 
 /-- The bounded derived action preserves identity transformations. -/
 @[simp]
-theorem map_id (F : A ⥤ₑ B) : map (𝟙 F) = 𝟙 (functor F) := sorry
+theorem map_id (F : A ⥤ₑ B) : map (𝟙 F) = 𝟙 (functor F) := by
+  apply NatTrans.ext
+  funext X
+  apply ObjectProperty.hom_ext
+  change (ExactFunctor.MapDerivedCategory.map (𝟙 F)).app X.obj = 𝟙 _
+  simp only [ExactFunctor.MapDerivedCategory.map, ObjectProperty.FullSubcategory.id_hom,
+    NatTrans.mapHomologicalComplex_id, Functor.whiskerRight_id',
+    Localization.liftNatTrans_id, NatTrans.id_app]
 
 /-- The bounded derived action preserves vertical composition. -/
 @[simp]
 theorem map_comp {F G H : A ⥤ₑ B} (α : F ⟶ G) (β : G ⟶ H) :
-    map (α ≫ β) = map α ≫ map β := sorry
+    map (α ≫ β) = map α ≫ map β := by
+  apply NatTrans.ext
+  funext X
+  apply ObjectProperty.hom_ext
+  change (ExactFunctor.MapDerivedCategory.map (α ≫ β)).app X.obj =
+    (ExactFunctor.MapDerivedCategory.map α).app X.obj ≫
+      (ExactFunctor.MapDerivedCategory.map β).app X.obj
+  simp only [ExactFunctor.MapDerivedCategory.map, ObjectProperty.FullSubcategory.comp_hom,
+    NatTrans.mapHomologicalComplex_comp, Functor.whiskerRight_comp]
+  exact (congr_app (Localization.comp_liftNatTrans
+    (DerivedCategory.Q : CochainComplex A ℤ ⥤ DerivedCategory A)
+    (HomologicalComplex.quasiIso A (ComplexShape.up ℤ)) _ _ _
+    F.mapDerivedCategory G.mapDerivedCategory H.mapDerivedCategory _ _) X.obj).symm
 
 variable (A B) in
 /-- Functorial passage from exact functors to their bounded derived

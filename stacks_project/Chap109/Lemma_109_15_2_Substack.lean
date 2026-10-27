@@ -6,9 +6,8 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap76.Definition_76_48_1_LocalCompleteIntersection
-public import stacks_project.Chap109.Lemma_109_7_3_Substack
-public import stacks_project.Chap109.Lemma_109_14_1_Substack
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Curve.LocalCompleteIntersection.IsolatedSingularities
+public import stacks_project.Chap108.Lemma_108_4_5_OpenImmersion
 
 /-!
 # The object property of lci families of curves with isolated singularities
@@ -19,63 +18,39 @@ source-facing packaging of a classifying morphism factoring through that open
 substack.
 -/
 
-@[expose] public section
-
 open CategoryTheory AlgebraicGeometry CategoryTheory.ObjectProperty
 open AlgebraicGeometry.AlgebraicSpace
 open scoped Bicategory
 
-noncomputable section
-
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
-namespace Spaces
-namespace Curves
+namespace AlgebraicGeometry.AlgebraicSpace.Spaces.Curves
 
-/-- The object property of local complete intersection families of curves with
-isolated singularities, corresponding to the open substack `𝒞urves^{lci+}`. -/
-def lciPlus (S : Scheme.{u}) : ObjectProperty (Obj S) :=
-  fun P ↦ AlgebraicSpace.IsLocalCompleteIntersection (hom P) ∧
-    IsolatedSingularities (hom P)
+#check (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.lciPlus :
+  ∀ (S : Scheme.{u}), ObjectProperty (Obj S))
 
-/-- Membership in `lciPlus` is local complete intersection of the structure
-morphism together with isolated singularities. -/
-theorem lciPlus_iff {S : Scheme.{u}} (P : Obj S) :
+#check (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.lciPlus_iff :
+  ∀ {S : Scheme.{u}} (P : Obj S),
     lciPlus S P ↔
       AlgebraicSpace.IsLocalCompleteIntersection (hom P) ∧
-        IsolatedSingularities (hom P) :=
-  sorry
+        IsolatedSingularities (hom P))
 
-/-- The `lciPlus` property of families of curves is closed under
-isomorphisms. -/
-instance instIsClosedUnderIsomorphisms_lciPlus (S : Scheme.{u}) :
-    (lciPlus S).IsClosedUnderIsomorphisms :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.instIsClosedUnderIsomorphisms_lciPlus :
+  ∀ (S : Scheme.{u}), (lciPlus S).IsClosedUnderIsomorphisms)
 
-/-- Membership in `𝒞urves^{lci+}` implies that the structure morphism is a
-local complete intersection. -/
-theorem lciPlus_isLocalCompleteIntersection {S : Scheme.{u}} {P : Obj S}
-    (h : lciPlus S P) : AlgebraicSpace.IsLocalCompleteIntersection (hom P) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.lciPlus_isLocalCompleteIntersection :
+  ∀ {S : Scheme.{u}} {P : Obj S},
+    lciPlus S P → AlgebraicSpace.IsLocalCompleteIntersection (hom P))
 
-/-- Membership in `𝒞urves^{lci+}` implies isolated singularities of the
-structure morphism. -/
-theorem lciPlus_isolatedSingularities {S : Scheme.{u}} {P : Obj S}
-    (h : lciPlus S P) : IsolatedSingularities (hom P) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.lciPlus_isolatedSingularities :
+  ∀ {S : Scheme.{u}} {P : Obj S},
+    lciPlus S P → IsolatedSingularities (hom P))
 
-/-- The full subcategory of `𝒞urves` cut out by `lciPlus` is fibred in
-groupoids over `Over S`. -/
-instance instIsFiberedInGroupoids_lciPlus (S : Scheme.{u}) :
-    Functor.IsFibered.InGroupoids ((lciPlus S).ι ⋙ p S) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.instIsFiberedInGroupoids_lciPlus :
+  ∀ (S : Scheme.{u}),
+    Functor.IsFibered.InGroupoids ((lciPlus S).ι ⋙ p S))
 
-/-- The inclusion of `𝒞urves^{lci+}` into `𝒞urves` is an open immersion. -/
-instance instOpenImmersion_inclusionOf_lciPlus (S : Scheme.{u}) :
-    CohStack.Hom.OpenImmersion (inclusionOf (lciPlus S)) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.instOpenImmersion_inclusionOf_lciPlus :
+  ∀ (S : Scheme.{u}), CohStack.OpenImmersion (inclusionOf (lciPlus S)))
 
-end Curves
-end Spaces
-end AlgebraicGeometry.AlgebraicSpace
+end AlgebraicGeometry.AlgebraicSpace.Spaces.Curves

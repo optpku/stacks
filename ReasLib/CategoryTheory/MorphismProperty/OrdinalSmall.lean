@@ -7,6 +7,7 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import Mathlib.CategoryTheory.MorphismProperty.Composition
+public import Mathlib.CategoryTheory.Limits.Preserves.Limits
 public import Mathlib.Combinatorics.Quiver.ReflQuiver
 public import Mathlib.SetTheory.Ordinal.Basic
 public import Mathlib.Tactic.CrossRefAttribute
@@ -54,40 +55,55 @@ def IsStrictOrdinalDiagram (I : MorphismProperty C) {α : Ordinal.{w}}
 theorem IsOrdinalDiagram.map_mem
     {I : MorphismProperty C} {α : Ordinal.{w}} {B : α.ToType ⥤ C}
     (hB : I.IsOrdinalDiagram B) {j j' : α.ToType} (f : j ⟶ j') :
-    I (B.map f) := sorry
+    I (B.map f) := hB f
 
 /-- Enlarging a morphism property preserves the property of being an ordinal diagram. -/
 @[stacks 05NS "enlarging the transition property"]
 theorem IsOrdinalDiagram.ofLE
     {I J : MorphismProperty C} {α : Ordinal.{w}} {B : α.ToType ⥤ C}
-    (hB : I.IsOrdinalDiagram B) (hIJ : I ≤ J) : J.IsOrdinalDiagram B := sorry
+    (hB : I.IsOrdinalDiagram B) (hIJ : I ≤ J) : J.IsOrdinalDiagram B := by
+  intro j j' f
+  exact hIJ _ (hB f)
 
 /-- Every strict transition of a strict ordinal diagram belongs to its morphism property. -/
 @[stacks 05NS "strict ordinal diagram transition"]
 theorem IsStrictOrdinalDiagram.map_mem
     {I : MorphismProperty C} {α : Ordinal.{w}} {B : α.ToType ⥤ C}
     (hB : I.IsStrictOrdinalDiagram B) {j j' : α.ToType} (h : j < j') :
-    I (B.map (homOfLE h.le)) := sorry
+    I (B.map (homOfLE h.le)) := hB h
 
 /-- Enlarging a morphism property preserves the property of being a strict ordinal diagram. -/
 @[stacks 05NS "enlarging the strict transition property"]
 theorem IsStrictOrdinalDiagram.ofLE
     {I J : MorphismProperty C} {α : Ordinal.{w}} {B : α.ToType ⥤ C}
     (hB : I.IsStrictOrdinalDiagram B) (hIJ : I ≤ J) :
-    J.IsStrictOrdinalDiagram B := sorry
+    J.IsStrictOrdinalDiagram B := by
+  intro j j' h
+  exact hIJ _ (hB h)
 
 /-- Forgetting identity transitions sends an ordinal diagram to a strict ordinal diagram. -/
 @[stacks 05NS "forgetting identity transitions"]
 theorem IsOrdinalDiagram.toStrict
     {I : MorphismProperty C} {α : Ordinal.{w}} {B : α.ToType ⥤ C}
-    (hB : I.IsOrdinalDiagram B) : I.IsStrictOrdinalDiagram B := sorry
+    (hB : I.IsOrdinalDiagram B) : I.IsStrictOrdinalDiagram B := by
+  intro j j' h
+  exact hB (homOfLE h.le)
 
 /-- If `I` contains identities, a strict ordinal diagram is an ordinal diagram. -/
 @[stacks 05NS "adjoining identity transitions"]
 theorem IsStrictOrdinalDiagram.toOrdinal
     {I : MorphismProperty C} [I.ContainsIdentities]
     {α : Ordinal.{w}} {B : α.ToType ⥤ C} (hB : I.IsStrictOrdinalDiagram B) :
-    I.IsOrdinalDiagram B := sorry
+    I.IsOrdinalDiagram B := by
+  intro j j' f
+  rcases eq_or_lt_of_le (leOfHom f) with h | h
+  · subst j'
+    have hf : f = 𝟙 j := Subsingleton.elim _ _
+    rw [hf, B.map_id]
+    exact I.id_mem (B.obj j)
+  · have hf : f = homOfLE h.le := Subsingleton.elim _ _
+    rw [hf]
+    exact hB h
 
 /-- For a morphism property containing identities, the ordinary and strict notions of ordinal
 diagram agree. -/
@@ -95,7 +111,8 @@ diagram agree. -/
 theorem isOrdinalDiagram_iff_isStrictOrdinalDiagram
     {I : MorphismProperty C} [I.ContainsIdentities]
     {α : Ordinal.{w}} {B : α.ToType ⥤ C} :
-    I.IsOrdinalDiagram B ↔ I.IsStrictOrdinalDiagram B := sorry
+    I.IsOrdinalDiagram B ↔ I.IsStrictOrdinalDiagram B :=
+  ⟨IsOrdinalDiagram.toStrict, IsStrictOrdinalDiagram.toOrdinal⟩
 
 /-- An object `A` is `α`-small relative to `I` when `Hom(A, -)` preserves the colimit of every
 `α`-indexed diagram whose structure morphisms belong to `I`.
@@ -121,34 +138,43 @@ def IsStrictOrdinalSmall (I : MorphismProperty C) (A : C) (α : Ordinal.{w}) : P
 @[stacks 05NS "strict-to-ordinary smallness"]
 theorem IsStrictOrdinalSmall.toOrdinal
     {I : MorphismProperty C} {A : C} {α : Ordinal.{w}}
-    (hA : I.IsStrictOrdinalSmall A α) : I.IsOrdinalSmall A α := sorry
+    (hA : I.IsStrictOrdinalSmall A α) : I.IsOrdinalSmall A α := by
+  intro B hB
+  exact hA B hB.toStrict
 
 /-- If `I` contains identities, ordinal smallness also controls diagrams specified only by their
 strict transitions. -/
 @[stacks 05NS "ordinary-to-strict smallness"]
 theorem IsOrdinalSmall.toStrict
     {I : MorphismProperty C} [I.ContainsIdentities] {A : C} {α : Ordinal.{w}}
-    (hA : I.IsOrdinalSmall A α) : I.IsStrictOrdinalSmall A α := sorry
+    (hA : I.IsOrdinalSmall A α) : I.IsStrictOrdinalSmall A α := by
+  intro B hB
+  exact hA B hB.toOrdinal
 
 /-- For a morphism property containing identities, ordinary and strict ordinal smallness agree. -/
 @[stacks 05NS "ordinary and strict ordinal smallness"]
 theorem isOrdinalSmall_iff_isStrictOrdinalSmall
     {I : MorphismProperty C} [I.ContainsIdentities] {A : C} {α : Ordinal.{w}} :
-    I.IsOrdinalSmall A α ↔ I.IsStrictOrdinalSmall A α := sorry
+    I.IsOrdinalSmall A α ↔ I.IsStrictOrdinalSmall A α :=
+  ⟨IsOrdinalSmall.toStrict, IsStrictOrdinalSmall.toOrdinal⟩
 
 /-- Ordinal smallness is contravariant in the morphism property: an object small relative to
 `J` is small relative to every subproperty `I ≤ J`. -/
 @[stacks 05NS "restricting the transition property"]
 theorem IsOrdinalSmall.ofLE
     {I J : MorphismProperty C} {A : C} {α : Ordinal.{w}}
-    (hA : J.IsOrdinalSmall A α) (hIJ : I ≤ J) : I.IsOrdinalSmall A α := sorry
+    (hA : J.IsOrdinalSmall A α) (hIJ : I ≤ J) : I.IsOrdinalSmall A α := by
+  intro B hB
+  exact hA B (hB.ofLE hIJ)
 
 /-- Strict ordinal smallness is contravariant in the morphism property. -/
 @[stacks 05NS "restricting the strict transition property"]
 theorem IsStrictOrdinalSmall.ofLE
     {I J : MorphismProperty C} {A : C} {α : Ordinal.{w}}
     (hA : J.IsStrictOrdinalSmall A α) (hIJ : I ≤ J) :
-    I.IsStrictOrdinalSmall A α := sorry
+    I.IsStrictOrdinalSmall A α := by
+  intro B hB
+  exact hA B (hB.ofLE hIJ)
 
 /-- The corepresentable functor preserves any ordinal colimit covered by an ordinal-smallness
 hypothesis. This cone-level API does not require chosen colimit instances. -/
@@ -157,7 +183,7 @@ theorem IsOrdinalSmall.preservesColimit
     {I : MorphismProperty C} {A : C} {α : Ordinal.{w}}
     (hA : I.IsOrdinalSmall A α) (B : α.ToType ⥤ C)
     (hB : I.IsOrdinalDiagram B) :
-    PreservesColimit B (coyoneda.obj (Opposite.op A)) := sorry
+    PreservesColimit B (coyoneda.obj (Opposite.op A)) := hA B hB
 
 /-- The corepresentable functor preserves any strict ordinal colimit covered by a strict
 ordinal-smallness hypothesis. -/
@@ -166,7 +192,7 @@ theorem IsStrictOrdinalSmall.preservesColimit
     {I : MorphismProperty C} {A : C} {α : Ordinal.{w}}
     (hA : I.IsStrictOrdinalSmall A α) (B : α.ToType ⥤ C)
     (hB : I.IsStrictOrdinalDiagram B) :
-    PreservesColimit B (coyoneda.obj (Opposite.op A)) := sorry
+    PreservesColimit B (coyoneda.obj (Opposite.op A)) := hA B hB
 
 /-- The canonical Hom-colimit comparison is bijective for every ordinal diagram covered by an
 ordinal-smallness hypothesis. -/
@@ -176,7 +202,9 @@ theorem IsOrdinalSmall.colimitPost_bijective
     (hA : I.IsOrdinalSmall A α) (B : α.ToType ⥤ C)
     (hB : I.IsOrdinalDiagram B) [HasColimit B]
     [HasColimit (B ⋙ coyoneda.obj (Opposite.op A))] :
-    Function.Bijective (colimit.post B (coyoneda.obj (Opposite.op A))) := sorry
+    Function.Bijective (colimit.post B (coyoneda.obj (Opposite.op A))) := by
+  letI := hA B hB
+  exact (isIso_iff_bijective _).mp inferInstance
 
 /-- The canonical Hom-colimit comparison is bijective for every strict ordinal diagram covered
 by a strict ordinal-smallness hypothesis. -/
@@ -186,7 +214,9 @@ theorem IsStrictOrdinalSmall.colimitPost_bijective
     (hA : I.IsStrictOrdinalSmall A α) (B : α.ToType ⥤ C)
     (hB : I.IsStrictOrdinalDiagram B) [HasColimit B]
     [HasColimit (B ⋙ coyoneda.obj (Opposite.op A))] :
-    Function.Bijective (colimit.post B (coyoneda.obj (Opposite.op A))) := sorry
+    Function.Bijective (colimit.post B (coyoneda.obj (Opposite.op A))) := by
+  letI := hA B hB
+  exact (isIso_iff_bijective _).mp inferInstance
 
 end MorphismProperty
 

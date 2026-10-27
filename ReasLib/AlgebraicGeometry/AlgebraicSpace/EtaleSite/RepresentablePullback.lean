@@ -109,7 +109,7 @@ theorem smallEtalePullback_map {X Y : AlgebraicSpace S} (f : X ⟶ Y)
 instance smallEtalePullback_op_hasLeftKanExtension {X Y : AlgebraicSpace S} {f : X ⟶ Y}
     (hf : yoneda.relativelyRepresentable f) (P : (smallEtaleSite Y)ᵒᵖ ⥤ Type (u + 1)) :
     (smallEtalePullback f hf).op.HasLeftKanExtension P :=
-  sorry
+  inferInstance
 
 /-- Base change along a representable morphism is continuous for the small étale topologies. -/
 instance smallEtalePullback_isContinuous {X Y : AlgebraicSpace S} (f : X ⟶ Y)

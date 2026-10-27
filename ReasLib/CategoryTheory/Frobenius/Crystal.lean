@@ -25,11 +25,6 @@ structure FrobeniusCrystal {C : Type u} [Category.{v} C] (F : C ⥤ C) where
 
 namespace FrobeniusCrystal
 
-/-- Construct a Frobenius crystal from an object and its Frobenius morphism. -/
-def of {C : Type u} [Category.{v} C] (F : C ⥤ C)
-    (object : C) (frobenius : F.obj object ⟶ object) : FrobeniusCrystal F :=
-  { obj := object, frobenius := frobenius }
-
 /-- A Frobenius crystal is nondegenerate at a prime `p` when a morphism back to
 its endofunctor image composes with Frobenius to a nonnegative power of `p`
 times the identity of that image. -/

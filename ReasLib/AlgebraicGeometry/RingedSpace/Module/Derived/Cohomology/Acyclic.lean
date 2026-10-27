@@ -82,23 +82,23 @@ theorem acyclic_iff_sheafAcyclic (K : ModuleDerived X) (𝓑 : Set (Opens X.carr
     [HasExt (Sheaf (Opens.grothendieckTopology X.carrier) AddCommGrpCat.{u})] :
     Acyclic K 𝓑 ↔ SheafAcyclic K 𝓑 := sorry
 
-/-- On a member of a basis where the degree-`q` cohomology module of `K` is
-acyclic, hypercohomology is its degree-zero open cohomology. -/
-@[stacks 0BKT "hypercohomology from basiswise acyclicity in one degree"]
+/-- On a member of a basis where every cohomology module of `K` is acyclic,
+hypercohomology in degree `q` is its degree-zero open cohomology. -/
+@[stacks 0BKT "hypercohomology from basiswise acyclicity in all degrees"]
 theorem zeroDegreeIso (K : ModuleDerived X) {𝓑 : Set (Opens X.carrier)}
-    (h𝓑 : Opens.IsBasis 𝓑) (q : ℤ) (hK : AcyclicIn K 𝓑 q)
+    (h𝓑 : Opens.IsBasis 𝓑) (q : ℤ) (hK : Acyclic K 𝓑)
     {U : Opens X.carrier} (hU : U ∈ 𝓑) :
     IsIsomorphic (moduleOpenHypercohomology X U K q)
       ((forget₂ (ModuleCat (sectionsRingOnOpen X U)) AddCommGrpCat.{u}).obj
         (openCohomology K U 0 q)) := sorry
 
-/-- If the degree-`q` additive cohomology sheaf is acyclic on a basis, degree-`q`
+/-- If every additive cohomology sheaf is acyclic on a basis, degree-`q`
 hypercohomology on a basis member is its degree-zero sheaf cohomology. -/
-@[stacks 0BKT "hypercohomology from one acyclic underlying cohomology sheaf"]
+@[stacks 0BKT "hypercohomology from acyclic underlying cohomology sheaves in all degrees"]
 theorem zeroDegreeIsoOfSheaf (K : ModuleDerived X) {𝓑 : Set (Opens X.carrier)}
     (h𝓑 : Opens.IsBasis 𝓑) (q : ℤ)
     [HasExt (Sheaf (Opens.grothendieckTopology X.carrier) AddCommGrpCat.{u})]
-    (hK : SheafAcyclicIn K 𝓑 q) {U : Opens X.carrier} (hU : U ∈ 𝓑) :
+    (hK : SheafAcyclic K 𝓑) {U : Opens X.carrier} (hU : U ∈ 𝓑) :
     IsIsomorphic (moduleOpenHypercohomology X U K q) ((sheaf X K q).H' 0 U) := sorry
 
 /-- If every additive cohomology sheaf is acyclic on a basis, hypercohomology in every degree

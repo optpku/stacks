@@ -51,8 +51,8 @@ noncomputable def linearFormHom {k : Type u} [Field k]
     (L : Fin (2 + 1) → MvPolynomial (Fin (2 + 1)) k)
     (hL : ∀ i, L i ∈ grading k 2 1) :
     (SheafOfModules.unit (scheme k 2).ringCatSheaf : (scheme k 2).Modules) ⟶
-      biproduct (fun _ : Fin (2 + 1) ↦ twistingSheaf k 2 1) :=
-  biproduct.lift fun i ↦
+      biproduct (C := (scheme k 2).Modules) (fun _ : Fin (2 + 1) ↦ twistingSheaf k 2 1) :=
+  biproduct.lift (C := (scheme k 2).Modules) fun i ↦
     (twistingSheaf k 2 1).unitHomEquiv.symm (sectionOfLinearForm (L i) (hL i))
 
 /-- `linearFormHom` is the biproduct-lift of the unit maps associated to `sectionOfLinearForm`. -/
@@ -60,7 +60,7 @@ theorem linearFormHom_spec {k : Type u} [Field k]
     (L : Fin (2 + 1) → MvPolynomial (Fin (2 + 1)) k)
     (hL : ∀ i, L i ∈ grading k 2 1) :
     linearFormHom L hL =
-      biproduct.lift fun i ↦
+      biproduct.lift (C := (scheme k 2).Modules) fun i ↦
         (twistingSheaf k 2 1).unitHomEquiv.symm
           (sectionOfLinearForm (L i) (hL i)) := sorry
 
@@ -69,7 +69,7 @@ theorem linearFormHom_π {k : Type u} [Field k]
     (L : Fin (2 + 1) → MvPolynomial (Fin (2 + 1)) k)
     (hL : ∀ i, L i ∈ grading k 2 1) (i : Fin (2 + 1)) :
     linearFormHom L hL ≫
-        biproduct.π (fun _ : Fin (2 + 1) ↦ twistingSheaf k 2 1) i =
+        biproduct.π (C := (scheme k 2).Modules) (fun _ : Fin (2 + 1) ↦ twistingSheaf k 2 1) i =
       (twistingSheaf k 2 1).unitHomEquiv.symm
         (sectionOfLinearForm (L i) (hL i)) := sorry
 
@@ -77,8 +77,8 @@ theorem linearFormHom_π {k : Type u} [Field k]
 coordinates `T i`. -/
 noncomputable def coordinateLinearFormHom (k : Type u) [Field k] :
     (SheafOfModules.unit (scheme k 2).ringCatSheaf : (scheme k 2).Modules) ⟶
-      biproduct (fun _ : Fin (2 + 1) ↦ twistingSheaf k 2 1) :=
-  biproduct.lift fun i ↦
+      biproduct (C := (scheme k 2).Modules) (fun _ : Fin (2 + 1) ↦ twistingSheaf k 2 1) :=
+  biproduct.lift (C := (scheme k 2).Modules) fun i ↦
     (twistingSheaf k 2 1).unitHomEquiv.symm (coordinateTwistSection k 2 i)
 
 /-- `coordinateLinearFormHom` is `linearFormHom` of the homogeneous coordinates. -/

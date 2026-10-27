@@ -35,7 +35,8 @@ variable (F : C ⥤ D) [F.Braided]
 /-- The multiplicative monoid transported by a braided functor remains commutative. -/
 theorem mapCommRing_isCommMonObj (R : CommRingObjCat C) :
     @IsCommMonObj D _ _ _ (F.obj R.X)
-      (mapRingMonObj F ((CommRingObjCat.forget₂RingObjCat C).obj R)) := sorry
+      (mapRingMonObj F ((CommRingObjCat.forget₂RingObjCat C).obj R)) := by
+  exact isCommMonObj_obj (F := F) (M := R.X)
 
 /-- The internal commutative-ring structure transported by a braided functor. -/
 @[implicit_reducible]
@@ -56,11 +57,15 @@ noncomputable def mapCommRingMap {R S : CommRingObjCat C} (f : R ⟶ S) :
 
 /-- Mapping internal commutative rings preserves identity morphisms. -/
 theorem mapCommRing_map_id (R : CommRingObjCat C) :
-    mapCommRingMap F (𝟙 R) = 𝟙 (mapCommRingObject F R) := sorry
+    mapCommRingMap F (𝟙 R) = 𝟙 (mapCommRingObject F R) := by
+  apply CommRingObjCat.hom_ext
+  exact F.map_id R.X
 
 /-- Mapping internal commutative rings preserves composition of morphisms. -/
 theorem mapCommRing_map_comp {R S T : CommRingObjCat C} (f : R ⟶ S) (g : S ⟶ T) :
-    mapCommRingMap F (f ≫ g) = mapCommRingMap F f ≫ mapCommRingMap F g := sorry
+    mapCommRingMap F (f ≫ g) = mapCommRingMap F f ≫ mapCommRingMap F g := by
+  apply CommRingObjCat.hom_ext
+  exact F.map_comp f.hom g.hom
 
 /-- The functor on internal commutative rings induced by a braided monoidal functor. -/
 noncomputable def mapCommRing : CommRingObjCat C ⥤ CommRingObjCat D where
@@ -95,7 +100,9 @@ noncomputable def natApp (alpha : F ⟶ G) (R : CommRingObjCat C) :
 /-- Lifted components are natural on internal commutative rings. -/
 theorem natNaturality (alpha : F ⟶ G) {R S : CommRingObjCat C} (f : R ⟶ S) :
     (mapCommRing F).map f ≫ natApp alpha S =
-      natApp alpha R ≫ (mapCommRing G).map f := sorry
+      natApp alpha R ≫ (mapCommRing G).map f := by
+  apply CommRingObjCat.hom_ext
+  exact alpha.naturality f.hom
 
 end MapCommRing
 
@@ -111,11 +118,19 @@ variable {F G : C ⥤ D} [F.Braided] [G.Braided]
 
 /-- The two lifted directions of a natural isomorphism compose to the source identity. -/
 theorem natIsoHomInvId (e : F ≅ G) :
-    mapCommRingNatTrans e.hom ≫ mapCommRingNatTrans e.inv = 𝟙 (mapCommRing F) := sorry
+    mapCommRingNatTrans e.hom ≫ mapCommRingNatTrans e.inv = 𝟙 (mapCommRing F) := by
+  apply NatTrans.ext
+  funext R
+  apply CommRingObjCat.hom_ext
+  exact e.hom_inv_id_app R.X
 
 /-- The two lifted directions of a natural isomorphism compose to the target identity. -/
 theorem natIsoInvHomId (e : F ≅ G) :
-    mapCommRingNatTrans e.inv ≫ mapCommRingNatTrans e.hom = 𝟙 (mapCommRing G) := sorry
+    mapCommRingNatTrans e.inv ≫ mapCommRingNatTrans e.hom = 𝟙 (mapCommRing G) := by
+  apply NatTrans.ext
+  funext R
+  apply CommRingObjCat.hom_ext
+  exact e.inv_hom_id_app R.X
 
 end MapCommRing
 
@@ -138,7 +153,10 @@ noncomputable def idAppIso (R : CommRingObjCat C) : mapCommRingObject (𝟭 C) R
 /-- The identity comparison is natural in the internal commutative ring. -/
 theorem idNaturality {R S : CommRingObjCat C} (f : R ⟶ S) :
     (mapCommRing (𝟭 C)).map f ≫ (idAppIso S).hom =
-      (idAppIso R).hom ≫ (𝟭 (CommRingObjCat C)).map f := sorry
+      (idAppIso R).hom ≫ (𝟭 (CommRingObjCat C)).map f := by
+  apply CommRingObjCat.hom_ext
+  change f.hom ≫ 𝟙 S.X = 𝟙 R.X ≫ f.hom
+  simp
 
 end MapCommRing
 
@@ -162,7 +180,10 @@ noncomputable def compAppIso (R : CommRingObjCat C) :
 /-- The composition comparison is natural in the internal commutative ring. -/
 theorem compNaturality {R S : CommRingObjCat C} (f : R ⟶ S) :
     (mapCommRing (F ⋙ G)).map f ≫ (compAppIso F G S).hom =
-      (compAppIso F G R).hom ≫ (mapCommRing F ⋙ mapCommRing G).map f := sorry
+      (compAppIso F G R).hom ≫ (mapCommRing F ⋙ mapCommRing G).map f := by
+  apply CommRingObjCat.hom_ext
+  change G.map (F.map f.hom) ≫ 𝟙 _ = 𝟙 _ ≫ G.map (F.map f.hom)
+  simp
 
 end MapCommRing
 
@@ -191,12 +212,24 @@ noncomputable def counit (adj : F ⊣ G) :
 /-- The left triangle identity for the induced unit and counit on internal commutative rings. -/
 theorem leftTriangleComponents (adj : F ⊣ G) (R : CommRingObjCat C) :
     (mapCommRing F).map ((unit adj).app R) ≫
-      (counit adj).app ((mapCommRing F).obj R) = 𝟙 ((mapCommRing F).obj R) := sorry
+      (counit adj).app ((mapCommRing F).obj R) = 𝟙 ((mapCommRing F).obj R) := by
+  apply CommRingObjCat.hom_ext
+  change F.map (𝟙 _ ≫ adj.unit.app R.X ≫ 𝟙 _) ≫
+    (𝟙 _ ≫ adj.counit.app (F.obj R.X) ≫ 𝟙 _) = 𝟙 _
+  simp only [Category.id_comp, Category.comp_id]
+  change F.map (adj.unit.app R.X) ≫ adj.counit.app (F.obj R.X) = 𝟙 (F.obj R.X)
+  exact adj.left_triangle_components R.X
 
 /-- The right triangle identity for the induced unit and counit on internal commutative rings. -/
 theorem rightTriangleComponents (adj : F ⊣ G) (S : CommRingObjCat D) :
     (unit adj).app ((mapCommRing G).obj S) ≫
-      (mapCommRing G).map ((counit adj).app S) = 𝟙 ((mapCommRing G).obj S) := sorry
+      (mapCommRing G).map ((counit adj).app S) = 𝟙 ((mapCommRing G).obj S) := by
+  apply CommRingObjCat.hom_ext
+  change (𝟙 _ ≫ adj.unit.app (G.obj S.X) ≫ 𝟙 _) ≫
+    G.map (𝟙 _ ≫ adj.counit.app S.X ≫ 𝟙 _) = 𝟙 _
+  simp only [Category.id_comp, Category.comp_id]
+  change adj.unit.app (G.obj S.X) ≫ G.map (adj.counit.app S.X) = 𝟙 (G.obj S.X)
+  exact adj.right_triangle_components S.X
 
 end MapCommRingAdjunction
 
@@ -286,8 +319,7 @@ noncomputable def mapCommRingOfFiniteProductsCompIso {E : Type uE} [Category.{vE
     @mapCommRingCompIso C _ _ _ D _ _ _ E _ _ _ F
       (Braided.ofChosenFiniteProducts F) G (Braided.ofChosenFiniteProducts G)
 
-/- The `sorryAx` in these data owners is confined to commutativity, naturality, and adjunction-law
-proof fields; their carriers, operations, functors, transformations, and isomorphism maps are
-explicitly inherited from `mapRing`. -/
+/- These data owners inherit their carriers, operations, functors, transformations, and
+isomorphism maps explicitly from `mapRing`; its remaining proof debt lies in proof fields. -/
 
 end CategoryTheory.Functor

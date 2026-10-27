@@ -114,7 +114,8 @@ theorem ringUnitSquare
     CommSq (ringUnit (J := J) (K := K) F O) f
       ((F.sheafPushforwardContinuous CommRingCat.{max u v} J K).map
         ((ringPullback (J := J) (K := K) F).map f))
-      (ringUnit (J := J) (K := K) F O') := sorry
+      (ringUnit (J := J) (K := K) F O') := by
+  exact ⟨((F.sheafAdjunctionContinuous CommRingCat.{max u v} J K).unit.naturality f).symm⟩
 
 /-- Transposing the inverse-image unit gives the identity of the pulled-back ring sheaf. -/
 @[simp]
@@ -125,7 +126,8 @@ theorem adjointMap_ringUnit
     [HasWeakSheafify K CommRingCat.{max u v}]
     [∀ P : Cᵒᵖ ⥤ CommRingCat.{max u v}, F.op.HasLeftKanExtension P]
     (O : Sheaf J CommRingCat.{max u v}) :
-    adjointMap (J := J) (K := K) F (ringUnit (J := J) (K := K) F O) = 𝟙 _ := sorry
+    adjointMap (J := J) (K := K) F (ringUnit (J := J) (K := K) F O) = 𝟙 _ := by
+  exact (F.sheafAdjunctionContinuous CommRingCat.{max u v} J K).homEquiv_symm_unit O
 
 /-- The transpose of the inverse-image unit is canonically invertible. -/
 instance adjointMap_ringUnit_isIso
@@ -136,7 +138,9 @@ instance adjointMap_ringUnit_isIso
     [∀ P : Cᵒᵖ ⥤ CommRingCat.{max u v}, F.op.HasLeftKanExtension P]
     (O : Sheaf J CommRingCat.{max u v}) :
     IsIso (adjointMap (J := J) (K := K) F
-      (ringUnit (J := J) (K := K) F O)) := sorry
+      (ringUnit (J := J) (K := K) F O)) := by
+  rw [adjointMap_ringUnit]
+  infer_instance
 
 /-- The structure map defining inverse image of modules over the underlying ring sheaf. -/
 abbrev structureMap
@@ -205,6 +209,34 @@ noncomputable def ringSheafPullbackIso
   (Functor.sheafPullback.compSheafComposeIso F
     (forget₂ CommRingCat RingCat.{max u v}) J K).app O
 
+/-- Inverse image of module sheaves preserves zero morphisms and hence acts degreewise on
+homological complexes. -/
+instance pullbackPreservesZeroMorphisms
+    {C : Type u} [Category.{v} C] {D : Type u} [Category.{v} D]
+    {J : GrothendieckTopology C} {K : GrothendieckTopology D}
+    (F : C ⥤ D) [F.IsContinuous J K]
+    [J.HasSheafCompose (forget₂ CommRingCat RingCat.{max u v})]
+    [K.HasSheafCompose (forget₂ CommRingCat RingCat.{max u v})]
+    [HasWeakSheafify K CommRingCat.{max u v}]
+    [∀ P : Cᵒᵖ ⥤ CommRingCat.{max u v}, F.op.HasLeftKanExtension P]
+    (O : Sheaf J CommRingCat.{max u v})
+    [(SheafOfModules.pushforward (structureMap (J := J) (K := K) F O)).IsRightAdjoint] :
+    (modulePullback (J := J) (K := K) F O).PreservesZeroMorphisms := by infer_instance
+
+/-- The direct inverse image presentation over the pulled-back underlying ring sheaf also
+preserves zero morphisms. -/
+instance underlyingPullbackPreservesZeroMorphisms
+    {C : Type u} [Category.{v} C] {D : Type u} [Category.{v} D]
+    {J : GrothendieckTopology C} {K : GrothendieckTopology D}
+    (F : C ⥤ D) [F.IsContinuous J K]
+    [J.HasSheafCompose (forget₂ CommRingCat RingCat.{max u v})]
+    [HasWeakSheafify K RingCat.{max u v}]
+    [∀ P : Cᵒᵖ ⥤ RingCat.{max u v}, F.op.HasLeftKanExtension P]
+    (O : Sheaf J CommRingCat.{max u v})
+    [(SheafOfModules.pushforward
+      (underlyingRingUnit (J := J) (K := K) F O)).IsRightAdjoint] :
+    (underlyingModulePullback (J := J) (K := K) F O).PreservesZeroMorphisms := by infer_instance
+
 /-- The canonical comparison of pulled-back underlying ring sheaves intertwines the
 commutative-ring structure map with the unit formed directly in `RingCat`. -/
 @[reassoc]
@@ -225,34 +257,6 @@ theorem structureMap_comp_ringSheafPullbackIso_hom
         (F.sheafPushforwardContinuous RingCat.{max u v} J K).map
           (ringSheafPullbackIso (J := J) (K := K) F O).hom =
       underlyingRingUnit (J := J) (K := K) F O := sorry
-
-/-- Inverse image of module sheaves preserves zero morphisms and hence acts degreewise on
-homological complexes. -/
-instance pullbackPreservesZeroMorphisms
-    {C : Type u} [Category.{v} C] {D : Type u} [Category.{v} D]
-    {J : GrothendieckTopology C} {K : GrothendieckTopology D}
-    (F : C ⥤ D) [F.IsContinuous J K]
-    [J.HasSheafCompose (forget₂ CommRingCat RingCat.{max u v})]
-    [K.HasSheafCompose (forget₂ CommRingCat RingCat.{max u v})]
-    [HasWeakSheafify K CommRingCat.{max u v}]
-    [∀ P : Cᵒᵖ ⥤ CommRingCat.{max u v}, F.op.HasLeftKanExtension P]
-    (O : Sheaf J CommRingCat.{max u v})
-    [(SheafOfModules.pushforward (structureMap (J := J) (K := K) F O)).IsRightAdjoint] :
-    (modulePullback (J := J) (K := K) F O).PreservesZeroMorphisms := sorry
-
-/-- The direct inverse image presentation over the pulled-back underlying ring sheaf also
-preserves zero morphisms. -/
-instance underlyingPullbackPreservesZeroMorphisms
-    {C : Type u} [Category.{v} C] {D : Type u} [Category.{v} D]
-    {J : GrothendieckTopology C} {K : GrothendieckTopology D}
-    (F : C ⥤ D) [F.IsContinuous J K]
-    [J.HasSheafCompose (forget₂ CommRingCat RingCat.{max u v})]
-    [HasWeakSheafify K RingCat.{max u v}]
-    [∀ P : Cᵒᵖ ⥤ RingCat.{max u v}, F.op.HasLeftKanExtension P]
-    (O : Sheaf J CommRingCat.{max u v})
-    [(SheafOfModules.pushforward
-      (underlyingRingUnit (J := J) (K := K) F O)).IsRightAdjoint] :
-    (underlyingModulePullback (J := J) (K := K) F O).PreservesZeroMorphisms := sorry
 
 namespace Factorization
 
@@ -280,7 +284,8 @@ theorem adjointMap_factorization
     ringUnit (J := J) (K := K) F O ≫
         (F.sheafPushforwardContinuous CommRingCat.{max u v} J K).map
           (adjointMap (J := J) (K := K) F g) =
-      g := sorry
+      g := by
+  exact ((F.sheafAdjunctionContinuous CommRingCat.{max u v} J K).homEquiv _ _).apply_symm_apply g
 
 /-- After forgetting commutativity, the full coefficient map factors through the inverse-image
 unit followed by the underlying adjoint-side map. -/
@@ -289,7 +294,9 @@ theorem underlyingMap_factorization
     structureMap (J := J) (K := K) F O ≫
         (F.sheafPushforwardContinuous RingCat.{max u v} J K).map
           (underlyingAdjointMap (J := J) (K := K) F g) =
-      underlyingMap (J := J) (K := K) F g := sorry
+      underlyingMap (J := J) (K := K) F g := by
+  exact congrArg ((sheafCompose J (forget₂ CommRingCat RingCat.{max u v})).map)
+    (adjointMap_factorization F g)
 
 /-- Pullback factored as inverse image followed by extension of scalars is left adjoint to the
 full module pushforward. -/
@@ -398,7 +405,7 @@ module-pullback factorization. -/
 theorem complexObjIso_hom_f
     (L : HomologicalComplex (ringedSiteModuleCategory J O) c) (i : ι) :
     (complexObjIso (J := J) (K := K) F c g L).hom.f i =
-      (pullbackIso (J := J) (K := K) F g).hom.app (L.X i) := sorry
+      (pullbackIso (J := J) (K := K) F g).hom.app (L.X i) := by rfl
 
 /-- In each degree, the inverse complex factorization is the corresponding inverse component
 of the module-pullback factorization. -/
@@ -406,7 +413,7 @@ of the module-pullback factorization. -/
 theorem complexObjIso_inv_f
     (L : HomologicalComplex (ringedSiteModuleCategory J O) c) (i : ι) :
     (complexObjIso (J := J) (K := K) F c g L).inv.f i =
-      (pullbackIso (J := J) (K := K) F g).inv.app (L.X i) := sorry
+      (pullbackIso (J := J) (K := K) F g).inv.app (L.X i) := by rfl
 
 end ComplexAPI
 
@@ -429,8 +436,7 @@ variable [(SheafOfModules.pushforward
 variable [(SheafOfModules.pushforward
   (underlyingRingUnit (J := J) (K := K) F O)).IsRightAdjoint]
 
-/-- An identification of the two pulled-back underlying ring sheaves that intertwines their
-structure maps induces the corresponding comparison of module pullback functors. -/
+/-- An isomorphism between the two pulled-back underlying ring sheaves, compatible with their coefficient morphisms, induces a comparison of module pullback functors. -/
 noncomputable def pullbackIsoOfIso
     (e : ringSheaf K ((ringPullback (J := J) (K := K) F).obj O) ≅
       underlyingRingPullback (J := J) (K := K) F O)
@@ -486,7 +492,7 @@ theorem objIsoOfIso_hom_f
         underlyingRingUnit (J := J) (K := K) F O)
     (L : HomologicalComplex (ringedSiteModuleCategory J O) c) (i : ι) :
     (objIsoOfIso F O c e he L).hom.f i =
-      (pullbackIsoOfIso F O e he).hom.app (L.X i) := sorry
+      (pullbackIsoOfIso F O e he).hom.app (L.X i) := by rfl
 
 /-- In each degree, the inverse complex comparison is the inverse component of the
 module-pullback comparison on that term. -/
@@ -500,7 +506,7 @@ theorem objIsoOfIso_inv_f
         underlyingRingUnit (J := J) (K := K) F O)
     (L : HomologicalComplex (ringedSiteModuleCategory J O) c) (i : ι) :
     (objIsoOfIso F O c e he L).inv.f i =
-      (pullbackIsoOfIso F O e he).inv.app (L.X i) := sorry
+      (pullbackIsoOfIso F O e he).inv.app (L.X i) := by rfl
 
 end Complex
 
@@ -549,7 +555,7 @@ theorem objIso_hom_f
     {ι : Type*} (c : ComplexShape ι)
     (L : HomologicalComplex (ringedSiteModuleCategory J O) c) (i : ι) :
     (objIso (J := J) (K := K) F O c L).hom.f i =
-      (pullbackIso (J := J) (K := K) F O).hom.app (L.X i) := sorry
+      (pullbackIso (J := J) (K := K) F O).hom.app (L.X i) := by rfl
 
 /-- In each degree, the canonical inverse complex comparison is the inverse component of the
 canonical module-pullback comparison. -/
@@ -558,7 +564,7 @@ theorem objIso_inv_f
     {ι : Type*} (c : ComplexShape ι)
     (L : HomologicalComplex (ringedSiteModuleCategory J O) c) (i : ι) :
     (objIso (J := J) (K := K) F O c L).inv.f i =
-      (pullbackIso (J := J) (K := K) F O).inv.app (L.X i) := sorry
+      (pullbackIso (J := J) (K := K) F O).inv.app (L.X i) := by rfl
 
 end Complex
 

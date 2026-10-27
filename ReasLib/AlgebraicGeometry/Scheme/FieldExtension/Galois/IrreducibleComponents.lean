@@ -51,7 +51,7 @@ theorem coe_equiv_apply
     ((equiv k K f σ Z :
         irreducibleComponents (FieldExtension.baseChange k K f)) : Set
           (FieldExtension.baseChange k K f)) =
-      (Scheme.homeoOfIso (FieldExtension.Galois.aut k K f σ)) '' (Z : Set _) := sorry
+      (Scheme.homeoOfIso (FieldExtension.Galois.aut k K f σ)) '' (Z : Set _) := rfl
 
 /-- The equivalence on irreducible components indexed directly by an element of the opposite
 Galois group. -/
@@ -72,7 +72,7 @@ theorem coe_opEquiv_apply
     ((opEquiv k K f σ Z :
         irreducibleComponents (FieldExtension.baseChange k K f)) : Set
           (FieldExtension.baseChange k K f)) =
-      (Scheme.homeoOfIso (FieldExtension.Galois.aut k K f σ.unop)) '' (Z : Set _) := sorry
+      (Scheme.homeoOfIso (FieldExtension.Galois.aut k K f σ.unop)) '' (Z : Set _) := rfl
 
 /-- The canonical left `Gal(K / k)` action on irreducible components of a field-extension
 base change. -/
@@ -81,15 +81,26 @@ noncomputable instance instMulAction
     {X : Scheme.{u}} (f : X ⟶ Spec (CommRingCat.of k)) :
     MulAction Gal(K/k) (irreducibleComponents (FieldExtension.baseChange k K f)) where
   smul σ := equiv k K f σ.symm
-  one_smul := sorry
-  mul_smul := sorry
+  one_smul Z := by
+    apply Subtype.ext
+    change (FieldExtension.Galois.map k K f (1 : Gal(K/k))) '' (Z : Set _) = (Z : Set _)
+    rw [FieldExtension.Galois.map_one]
+    exact Set.image_id _
+  mul_smul σ τ Z := by
+    apply Subtype.ext
+    change (FieldExtension.Galois.map k K f (σ * τ).symm) '' (Z : Set _) =
+      (FieldExtension.Galois.map k K f σ.symm) ''
+        ((FieldExtension.Galois.map k K f τ.symm) '' (Z : Set _))
+    rw [show (σ * τ).symm = τ.symm * σ.symm from rfl, FieldExtension.Galois.map_mul]
+    rw [Set.image_image]
+    rfl
 
 /-- Computation rule for the canonical `Gal(K / k)` action on irreducible components. -/
 theorem smul_def
     (k K : Type u) [Field k] [Field K] [Algebra k K]
     {X : Scheme.{u}} (f : X ⟶ Spec (CommRingCat.of k))
     (σ : Gal(K/k)) (Z : irreducibleComponents (FieldExtension.baseChange k K f)) :
-    σ • Z = equiv k K f σ.symm Z := sorry
+    σ • Z = equiv k K f σ.symm Z := rfl
 
 /-- The canonical left action of the opposite Galois group on irreducible components, with no
 inverse hidden in the input element. -/
@@ -98,15 +109,25 @@ noncomputable instance instOppositeMulAction
     {X : Scheme.{u}} (f : X ⟶ Spec (CommRingCat.of k)) :
     MulAction (Gal(K/k))ᵐᵒᵖ (irreducibleComponents (FieldExtension.baseChange k K f)) where
   smul σ := opEquiv k K f σ
-  one_smul := sorry
-  mul_smul := sorry
+  one_smul Z := by
+    apply Subtype.ext
+    change (FieldExtension.Galois.map k K f (1 : Gal(K/k))) '' (Z : Set _) = (Z : Set _)
+    rw [FieldExtension.Galois.map_one]
+    exact Set.image_id _
+  mul_smul σ τ Z := by
+    apply Subtype.ext
+    change (FieldExtension.Galois.map k K f (τ.unop * σ.unop)) '' (Z : Set _) =
+      (FieldExtension.Galois.map k K f σ.unop) ''
+        ((FieldExtension.Galois.map k K f τ.unop) '' (Z : Set _))
+    rw [FieldExtension.Galois.map_mul, Set.image_image]
+    rfl
 
 /-- Computation rule for the opposite-Galois action on irreducible components. -/
 theorem op_smul_def
     (k K : Type u) [Field k] [Field K] [Algebra k K]
     {X : Scheme.{u}} (f : X ⟶ Spec (CommRingCat.of k))
     (σ : (Gal(K/k))ᵐᵒᵖ) (Z : irreducibleComponents (FieldExtension.baseChange k K f)) :
-    σ • Z = opEquiv k K f σ Z := sorry
+    σ • Z = opEquiv k K f σ Z := rfl
 
 /-- Fibers of the field-extension component map are exactly opposite-Galois orbits. -/
 @[stacks 04KY]

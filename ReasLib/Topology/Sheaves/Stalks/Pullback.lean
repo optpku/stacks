@@ -43,6 +43,7 @@ section PullbackComparison
 
 variable {A : Type u} [Category.{w} A] [HasColimits A]
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The presheaf pullback stalk comparison is natural in the presheaf on the target space. -/
 @[reassoc, stacks 008H "inverse-image presheaf stalk comparison naturality"]
 theorem stalkPullbackIso_hom_naturality
@@ -50,8 +51,27 @@ theorem stalkPullbackIso_hom_naturality
     (φ : F ⟶ G) (x : X) :
     (stalkFunctor A (f x)).map φ ≫ (stalkPullbackIso A f G x).hom =
       (stalkPullbackIso A f F x).hom ≫
-        (stalkFunctor A x).map ((pullback A f).map φ) := sorry
+        (stalkFunctor A x).map ((pullback A f).map φ) := by
+  apply F.stalk_hom_ext
+  intro U hU
+  change F.germ U (f x) hU ≫
+      ((stalkFunctor A (f x)).map φ ≫ stalkPullbackHom A f G x) =
+    F.germ U (f x) hU ≫
+      (stalkPullbackHom A f F x ≫ (stalkFunctor A x).map ((pullback A f).map φ))
+  simp only [stalkFunctor_map_germ_assoc, germ_stalkPullbackHom,
+    germ_stalkPullbackHom_assoc, stalkFunctor_map_germ]
+  have h := NatTrans.congr_app ((pullbackPushforwardAdjunction A f).unit.naturality φ)
+    (Opposite.op U)
+  change φ.app (Opposite.op U) ≫
+      ((pullbackPushforwardAdjunction A f).unit.app G).app (Opposite.op U) =
+    ((pullbackPushforwardAdjunction A f).unit.app F).app (Opposite.op U) ≫
+      ((pullback A f).map φ).app
+        (Opposite.op ((TopologicalSpace.Opens.map f).obj U)) at h
+  simpa only [Category.assoc] using
+    congrArg (fun α => α ≫
+      ((pullback A f).obj G).germ ((TopologicalSpace.Opens.map f).obj U) x hU) h
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The inverse presheaf pullback stalk comparison is natural in the target presheaf. -/
 @[reassoc, stacks 008H "inverse of inverse-image presheaf stalk comparison naturality"]
 theorem stalkPullbackIso_inv_naturality
@@ -59,7 +79,10 @@ theorem stalkPullbackIso_inv_naturality
     (φ : F ⟶ G) (x : X) :
     (stalkFunctor A x).map ((pullback A f).map φ) ≫
         (stalkPullbackIso A f G x).inv =
-      (stalkPullbackIso A f F x).inv ≫ (stalkFunctor A (f x)).map φ := sorry
+      (stalkPullbackIso A f F x).inv ≫ (stalkFunctor A (f x)).map φ := by
+  apply (cancel_mono (stalkPullbackIso A f G x).hom).1
+  simp only [Category.assoc, Iso.inv_hom_id, Category.comp_id]
+  rw [stalkPullbackIso_hom_naturality, Iso.inv_hom_id_assoc]
 
 end PullbackComparison
 
@@ -87,13 +110,19 @@ noncomputable def stalkPullbackInvNatTrans
 @[simp, stacks 008H "presheaf inverse-image stalk natural forward-inverse law"]
 theorem stalkPullbackNatTrans_hom_inv_id
     {X Y : TopCat.{w}} (f : X ⟶ Y) (x : X) :
-    stalkPullbackNatTrans A f x ≫ stalkPullbackInvNatTrans A f x = 𝟙 _ := sorry
+    stalkPullbackNatTrans A f x ≫ stalkPullbackInvNatTrans A f x = 𝟙 _ := by
+  apply NatTrans.ext
+  funext F
+  exact (stalkPullbackIso A f F x).hom_inv_id
 
 /-- The inverse and forward presheaf pullback stalk transformations compose to the identity. -/
 @[simp, stacks 008H "presheaf inverse-image stalk natural inverse-forward law"]
 theorem stalkPullbackNatTrans_inv_hom_id
     {X Y : TopCat.{w}} (f : X ⟶ Y) (x : X) :
-    stalkPullbackInvNatTrans A f x ≫ stalkPullbackNatTrans A f x = 𝟙 _ := sorry
+    stalkPullbackInvNatTrans A f x ≫ stalkPullbackNatTrans A f x = 𝟙 _ := by
+  apply NatTrans.ext
+  funext F
+  exact (stalkPullbackIso A f F x).inv_hom_id
 
 /-- Taking a stalk commutes naturally with presheaf pullback. -/
 @[stacks 008H "stalks of inverse-image presheaves"]
@@ -110,33 +139,33 @@ stalk isomorphisms. -/
 @[simp, stacks 008H "inverse-image presheaf stalk natural isomorphism component"]
 theorem stalkPullbackNatIso_app
     {X Y : TopCat.{w}} (f : X ⟶ Y) (F : Y.Presheaf A) (x : X) :
-    (stalkPullbackNatIso A f x).app F = stalkPullbackIso A f F x := sorry
+    (stalkPullbackNatIso A f x).app F = stalkPullbackIso A f F x := rfl
 
 /-- The forward natural transformation of the presheaf pullback stalk natural isomorphism. -/
 @[simp, stacks 008H "presheaf inverse-image stalk natural isomorphism hom"]
 theorem stalkPullbackNatIso_hom
     {X Y : TopCat.{w}} (f : X ⟶ Y) (x : X) :
-    (stalkPullbackNatIso A f x).hom = stalkPullbackNatTrans A f x := sorry
+    (stalkPullbackNatIso A f x).hom = stalkPullbackNatTrans A f x := rfl
 
 /-- The inverse natural transformation of the presheaf pullback stalk natural isomorphism. -/
 @[simp, stacks 008H "presheaf inverse-image stalk natural isomorphism inverse"]
 theorem stalkPullbackNatIso_inv
     {X Y : TopCat.{w}} (f : X ⟶ Y) (x : X) :
-    (stalkPullbackNatIso A f x).inv = stalkPullbackInvNatTrans A f x := sorry
+    (stalkPullbackNatIso A f x).inv = stalkPullbackInvNatTrans A f x := rfl
 
 /-- Forward components of the presheaf pullback stalk natural isomorphism are the canonical
 stalk comparisons. -/
 @[simp, stacks 008H "inverse-image presheaf stalk natural isomorphism hom component"]
 theorem stalkPullbackNatIso_hom_app
     {X Y : TopCat.{w}} (f : X ⟶ Y) (F : Y.Presheaf A) (x : X) :
-    (stalkPullbackNatIso A f x).hom.app F = (stalkPullbackIso A f F x).hom := sorry
+    (stalkPullbackNatIso A f x).hom.app F = (stalkPullbackIso A f F x).hom := rfl
 
 /-- Inverse components of the presheaf pullback stalk natural isomorphism are the canonical
 inverse comparisons. -/
 @[simp, stacks 008H "inverse-image presheaf stalk natural isomorphism inverse component"]
 theorem stalkPullbackNatIso_inv_app
     {X Y : TopCat.{w}} (f : X ⟶ Y) (F : Y.Presheaf A) (x : X) :
-    (stalkPullbackNatIso A f x).inv.app F = (stalkPullbackIso A f F x).inv := sorry
+    (stalkPullbackNatIso A f x).inv.app F = (stalkPullbackIso A f F x).inv := rfl
 
 end PullbackNatIso
 
@@ -182,14 +211,41 @@ noncomputable def pullbackSheafifyStalkComparisonInv
   (stalkFunctor A x).map ((forget A X).map ((pullbackIso A f).app 𝒢).hom) ≫
     TopCat.Presheaf.SheafificationStalk.comparisonInv (pullbackPresheaf f 𝒢) x
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The presheaf-to-sheaf pullback stalk comparison followed by its inverse is the identity. -/
 @[simp, stacks 008H "presheaf-to-sheaf pullback stalk forward-inverse law",
   stacks 008O "abelian presheaf-to-sheaf pullback stalk forward-inverse law"]
 theorem pullbackSheafifyStalkComparison_hom_inv_id
     {X Y : TopCat.{w}} (f : X ⟶ Y) (𝒢 : Y.Sheaf A) (x : X) :
     pullbackSheafifyStalkComparison f 𝒢 x ≫
-      pullbackSheafifyStalkComparisonInv f 𝒢 x = 𝟙 _ := sorry
+      pullbackSheafifyStalkComparisonInv f 𝒢 x = 𝟙 _ := by
+  let F := pullbackPresheaf f 𝒢
+  have hunit : CategoryTheory.toSheafify (Opens.grothendieckTopology X) F ≫
+      (TopCat.Presheaf.SheafificationStalk.toSkyscraper F x).hom =
+        (TopCat.Sheaf.Skyscraper.presheafStalkAdjunction x).unit.app F := by
+    have h := ((sheafificationAdjunction (Opens.grothendieckTopology X) A).homEquiv F
+      (TopCat.Sheaf.Skyscraper.atPoint x (F.stalk x))).apply_symm_apply
+        ((TopCat.Sheaf.Skyscraper.presheafStalkAdjunction x).unit.app F)
+    rw [Adjunction.homEquiv_apply] at h
+    exact h
+  have hs : TopCat.Presheaf.SheafificationStalk.comparison F x ≫
+      TopCat.Presheaf.SheafificationStalk.comparisonInv F x = 𝟙 _ := by
+    dsimp only [TopCat.Presheaf.SheafificationStalk.comparison,
+      TopCat.Presheaf.SheafificationStalk.comparisonInv]
+    rw [Adjunction.homEquiv_symm_apply]
+    change (stalkFunctor A x).map
+        (CategoryTheory.toSheafify (Opens.grothendieckTopology X) F) ≫
+      ((stalkFunctor A x).map (TopCat.Presheaf.SheafificationStalk.toSkyscraper F x).hom ≫
+        (TopCat.Sheaf.Skyscraper.presheafStalkAdjunction x).counit.app (F.stalk x)) = 𝟙 _
+    rw [← Functor.map_comp_assoc, hunit]
+    exact (TopCat.Sheaf.Skyscraper.presheafStalkAdjunction x).left_triangle_components F
+  let e := (forget A X ⋙ stalkFunctor A x).mapIso (((pullbackIso A f).app 𝒢).symm)
+  change (TopCat.Presheaf.SheafificationStalk.comparison F x ≫ e.hom) ≫
+    (e.inv ≫ TopCat.Presheaf.SheafificationStalk.comparisonInv F x) = 𝟙 _
+  rw [Category.assoc, Iso.hom_inv_id_assoc]
+  exact hs
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The inverse presheaf-to-sheaf pullback stalk comparison followed by the comparison is the
 identity. -/
 @[simp, stacks 008H "presheaf-to-sheaf pullback stalk inverse-forward law",
@@ -197,7 +253,13 @@ identity. -/
 theorem pullbackSheafifyStalkComparison_inv_hom_id
     {X Y : TopCat.{w}} (f : X ⟶ Y) (𝒢 : Y.Sheaf A) (x : X) :
     pullbackSheafifyStalkComparisonInv f 𝒢 x ≫
-      pullbackSheafifyStalkComparison f 𝒢 x = 𝟙 _ := sorry
+      pullbackSheafifyStalkComparison f 𝒢 x = 𝟙 _ := by
+  haveI : IsIso (pullbackSheafifyStalkComparison f 𝒢 x) := by
+    dsimp only [pullbackSheafifyStalkComparison]
+    infer_instance
+  apply (cancel_epi (pullbackSheafifyStalkComparison f 𝒢 x)).1
+  rw [← Category.assoc, pullbackSheafifyStalkComparison_hom_inv_id,
+    Category.id_comp, Category.comp_id]
 
 /-- The stalkwise isomorphism from presheaf pullback to sheaf pullback, with an explicitly owned
 inverse. -/
@@ -217,14 +279,14 @@ noncomputable def pullbackSheafifyStalkIso
   stacks 008O "abelian presheaf-to-sheaf pullback stalk isomorphism hom"]
 theorem pullbackSheafifyStalkIso_hom
     {X Y : TopCat.{w}} (f : X ⟶ Y) (𝒢 : Y.Sheaf A) (x : X) :
-    (pullbackSheafifyStalkIso f 𝒢 x).hom = pullbackSheafifyStalkComparison f 𝒢 x := sorry
+    (pullbackSheafifyStalkIso f 𝒢 x).hom = pullbackSheafifyStalkComparison f 𝒢 x := rfl
 
 /-- The inverse map of `pullbackSheafifyStalkIso` is the named explicit inverse. -/
 @[simp, stacks 008H "presheaf-to-sheaf pullback stalk isomorphism inverse",
   stacks 008O "abelian presheaf-to-sheaf pullback stalk isomorphism inverse"]
 theorem pullbackSheafifyStalkIso_inv
     {X Y : TopCat.{w}} (f : X ⟶ Y) (𝒢 : Y.Sheaf A) (x : X) :
-    (pullbackSheafifyStalkIso f 𝒢 x).inv = pullbackSheafifyStalkComparisonInv f 𝒢 x := sorry
+    (pullbackSheafifyStalkIso f 𝒢 x).inv = pullbackSheafifyStalkComparisonInv f 𝒢 x := rfl
 
 /-- The canonical comparison from the original sheaf stalk to the pullback sheaf stalk. -/
 @[stacks 008H "stalk comparison for inverse-image sheaves",
@@ -249,14 +311,18 @@ noncomputable def stalkPullbackComparisonInv
   stacks 008O "inverse-image abelian sheaf stalk forward-inverse law"]
 theorem stalkPullbackComparison_hom_inv_id
     {X Y : TopCat.{w}} (f : X ⟶ Y) (𝒢 : Y.Sheaf A) (x : X) :
-    stalkPullbackComparison f 𝒢 x ≫ stalkPullbackComparisonInv f 𝒢 x = 𝟙 _ := sorry
+    stalkPullbackComparison f 𝒢 x ≫ stalkPullbackComparisonInv f 𝒢 x = 𝟙 _ := by
+  exact (TopCat.Presheaf.stalkPullbackIso A f 𝒢.presheaf x ≪≫
+    pullbackSheafifyStalkIso f 𝒢 x).hom_inv_id
 
 /-- The explicit inverse followed by the sheaf pullback stalk comparison is the identity. -/
 @[simp, stacks 008H "inverse-image sheaf stalk inverse-forward law",
   stacks 008O "inverse-image abelian sheaf stalk inverse-forward law"]
 theorem stalkPullbackComparison_inv_hom_id
     {X Y : TopCat.{w}} (f : X ⟶ Y) (𝒢 : Y.Sheaf A) (x : X) :
-    stalkPullbackComparisonInv f 𝒢 x ≫ stalkPullbackComparison f 𝒢 x = 𝟙 _ := sorry
+    stalkPullbackComparisonInv f 𝒢 x ≫ stalkPullbackComparison f 𝒢 x = 𝟙 _ := by
+  exact (TopCat.Presheaf.stalkPullbackIso A f 𝒢.presheaf x ≪≫
+    pullbackSheafifyStalkIso f 𝒢 x).inv_hom_id
 
 /-- The canonical stalk isomorphism for inverse image of a sheaf, with both directions explicitly
 owned. -/
@@ -275,15 +341,16 @@ noncomputable def stalkPullbackIso
   stacks 008O "inverse-image abelian sheaf stalk isomorphism hom"]
 theorem stalkPullbackIso_hom
     {X Y : TopCat.{w}} (f : X ⟶ Y) (𝒢 : Y.Sheaf A) (x : X) :
-    (stalkPullbackIso f 𝒢 x).hom = stalkPullbackComparison f 𝒢 x := sorry
+    (stalkPullbackIso f 𝒢 x).hom = stalkPullbackComparison f 𝒢 x := rfl
 
 /-- The inverse map of `stalkPullbackIso` is the named explicit inverse comparison. -/
 @[simp, stacks 008H "inverse-image sheaf stalk isomorphism inverse",
   stacks 008O "inverse-image abelian sheaf stalk isomorphism inverse"]
 theorem stalkPullbackIso_inv
     {X Y : TopCat.{w}} (f : X ⟶ Y) (𝒢 : Y.Sheaf A) (x : X) :
-    (stalkPullbackIso f 𝒢 x).inv = stalkPullbackComparisonInv f 𝒢 x := sorry
+    (stalkPullbackIso f 𝒢 x).inv = stalkPullbackComparisonInv f 𝒢 x := rfl
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The sheaf pullback stalk comparison is natural in the sheaf on the target space. -/
 @[reassoc, stacks 008H "inverse-image sheaf stalk comparison naturality",
   stacks 008O "inverse-image abelian sheaf stalk comparison naturality"]
@@ -292,8 +359,34 @@ theorem stalkPullbackComparison_naturality
     (φ : 𝒢 ⟶ ℋ) (x : X) :
     (stalkFunctor A (f x)).map φ.hom ≫ stalkPullbackComparison f ℋ x =
       stalkPullbackComparison f 𝒢 x ≫
-        (stalkFunctor A x).map ((pullback A f).map φ).hom := sorry
+        (stalkFunctor A x).map ((pullback A f).map φ).hom := by
+  have h :
+      (TopCat.Presheaf.pullback A f).map φ.hom ≫
+          CategoryTheory.toSheafify (Opens.grothendieckTopology X) (pullbackPresheaf f ℋ) ≫
+            (forget A X).map ((pullbackIso A f).app ℋ).inv =
+        CategoryTheory.toSheafify (Opens.grothendieckTopology X) (pullbackPresheaf f 𝒢) ≫
+          (forget A X).map ((pullbackIso A f).app 𝒢).inv ≫
+            ((pullback A f).map φ).hom := by
+    rw [← Category.assoc, CategoryTheory.toSheafify_naturality, Category.assoc]
+    congr 1
+    exact ((forget A X).map_comp _ _).symm.trans
+      ((congrArg ((forget A X).map) ((pullbackIso A f).inv.naturality φ)).trans
+        ((forget A X).map_comp _ _))
+  have hs := congrArg ((stalkFunctor A x).map) h
+  simp only [Functor.map_comp] at hs
+  change (stalkFunctor A (f x)).map φ.hom ≫
+      ((TopCat.Presheaf.stalkPullbackIso A f ℋ.presheaf x).hom ≫
+        pullbackSheafifyStalkComparison f ℋ x) =
+    ((TopCat.Presheaf.stalkPullbackIso A f 𝒢.presheaf x).hom ≫
+      pullbackSheafifyStalkComparison f 𝒢 x) ≫
+        (stalkFunctor A x).map ((pullback A f).map φ).hom
+  rw [← Category.assoc, TopCat.Presheaf.stalkPullbackIso_hom_naturality,
+    Category.assoc, Category.assoc]
+  congr 1
+  simpa only [pullbackSheafifyStalkComparison,
+    TopCat.Presheaf.SheafificationStalk.comparison, Category.assoc] using hs
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The explicit inverse sheaf pullback stalk comparison is natural in the target sheaf. -/
 @[reassoc, stacks 008H "inverse of the sheaf pullback stalk comparison naturality",
   stacks 008O "inverse of the abelian sheaf pullback stalk comparison naturality"]
@@ -303,7 +396,13 @@ theorem stalkPullbackComparisonInv_naturality
     (stalkFunctor A x).map ((pullback A f).map φ).hom ≫
         stalkPullbackComparisonInv f ℋ x =
       stalkPullbackComparisonInv f 𝒢 x ≫
-        (stalkFunctor A (f x)).map φ.hom := sorry
+        (stalkFunctor A (f x)).map φ.hom := by
+  apply (Iso.comp_inv_eq (stalkPullbackIso f ℋ x)).2
+  change (stalkFunctor A x).map ((pullback A f).map φ).hom =
+    (stalkPullbackComparisonInv f 𝒢 x ≫ (stalkFunctor A (f x)).map φ.hom) ≫
+      stalkPullbackComparison f ℋ x
+  rw [Category.assoc, stalkPullbackComparison_naturality, ← Category.assoc,
+    stalkPullbackComparison_inv_hom_id, Category.id_comp]
 
 /-- The sheaf pullback stalk comparison is natural in the sheaf on the target space. -/
 @[reassoc, stacks 008H "inverse-image sheaf stalk comparison naturality",
@@ -313,7 +412,8 @@ theorem stalkPullbackIso_hom_naturality
     (φ : 𝒢 ⟶ ℋ) (x : X) :
     (stalkFunctor A (f x)).map φ.hom ≫ (stalkPullbackIso f ℋ x).hom =
       (stalkPullbackIso f 𝒢 x).hom ≫
-        (stalkFunctor A x).map ((pullback A f).map φ).hom := sorry
+        (stalkFunctor A x).map ((pullback A f).map φ).hom := by
+  exact stalkPullbackComparison_naturality f φ x
 
 /-- The sheaf pullback stalk inverse is natural in the sheaf on the target space. -/
 @[reassoc, stacks 008H "inverse of inverse-image sheaf stalk comparison naturality",
@@ -324,7 +424,8 @@ theorem stalkPullbackIso_inv_naturality
     (stalkFunctor A x).map ((pullback A f).map φ).hom ≫
         (stalkPullbackIso f ℋ x).inv =
       (stalkPullbackIso f 𝒢 x).inv ≫
-        (stalkFunctor A (f x)).map φ.hom := sorry
+        (stalkFunctor A (f x)).map φ.hom := by
+  exact stalkPullbackComparisonInv_naturality f φ x
 
 end PullbackComparison
 
@@ -363,7 +464,10 @@ noncomputable def stalkPullbackInvNatTrans
 theorem stalkPullbackNatTrans_hom_inv_id
     {X Y : TopCat.{w}} (f : X ⟶ Y) (x : X) :
     TopCat.Sheaf.stalkPullbackNatTrans A f x ≫
-        TopCat.Sheaf.stalkPullbackInvNatTrans A f x = 𝟙 _ := sorry
+        TopCat.Sheaf.stalkPullbackInvNatTrans A f x = 𝟙 _ := by
+  apply NatTrans.ext
+  funext 𝒢
+  exact stalkPullbackComparison_hom_inv_id f 𝒢 x
 
 /-- The inverse and forward sheaf pullback stalk transformations compose to the identity. -/
 @[simp, stacks 008H "sheaf inverse-image stalk natural inverse-forward law",
@@ -371,7 +475,10 @@ theorem stalkPullbackNatTrans_hom_inv_id
 theorem stalkPullbackNatTrans_inv_hom_id
     {X Y : TopCat.{w}} (f : X ⟶ Y) (x : X) :
     TopCat.Sheaf.stalkPullbackInvNatTrans A f x ≫
-        TopCat.Sheaf.stalkPullbackNatTrans A f x = 𝟙 _ := sorry
+        TopCat.Sheaf.stalkPullbackNatTrans A f x = 𝟙 _ := by
+  apply NatTrans.ext
+  funext 𝒢
+  exact stalkPullbackComparison_inv_hom_id f 𝒢 x
 
 /-- Taking a stalk commutes naturally with pullback of sheaves. -/
 @[stacks 008H "stalks of inverse-image sheaves, natural form",
@@ -391,21 +498,21 @@ stalk isomorphisms. -/
   stacks 008O "inverse-image abelian sheaf stalk natural isomorphism component"]
 theorem stalkPullbackNatIso_app
     {X Y : TopCat.{w}} (f : X ⟶ Y) (𝒢 : Y.Sheaf A) (x : X) :
-    (stalkPullbackNatIso A f x).app 𝒢 = stalkPullbackIso f 𝒢 x := sorry
+    (stalkPullbackNatIso A f x).app 𝒢 = stalkPullbackIso f 𝒢 x := rfl
 
 /-- The forward natural transformation of the sheaf pullback stalk natural isomorphism. -/
 @[simp, stacks 008H "inverse-image sheaf stalk natural isomorphism hom",
   stacks 008O "inverse-image abelian sheaf stalk natural isomorphism hom"]
 theorem stalkPullbackNatIso_hom
     {X Y : TopCat.{w}} (f : X ⟶ Y) (x : X) :
-    (stalkPullbackNatIso A f x).hom = TopCat.Sheaf.stalkPullbackNatTrans A f x := sorry
+    (stalkPullbackNatIso A f x).hom = TopCat.Sheaf.stalkPullbackNatTrans A f x := rfl
 
 /-- The inverse natural transformation of the sheaf pullback stalk natural isomorphism. -/
 @[simp, stacks 008H "inverse-image sheaf stalk natural isomorphism inverse",
   stacks 008O "inverse-image abelian sheaf stalk natural isomorphism inverse"]
 theorem stalkPullbackNatIso_inv
     {X Y : TopCat.{w}} (f : X ⟶ Y) (x : X) :
-    (stalkPullbackNatIso A f x).inv = TopCat.Sheaf.stalkPullbackInvNatTrans A f x := sorry
+    (stalkPullbackNatIso A f x).inv = TopCat.Sheaf.stalkPullbackInvNatTrans A f x := rfl
 
 /-- Forward components of the sheaf pullback stalk natural isomorphism are the named stalk
 comparisons. -/
@@ -413,7 +520,7 @@ comparisons. -/
   stacks 008O "inverse-image abelian sheaf stalk natural isomorphism hom component"]
 theorem stalkPullbackNatIso_hom_app
     {X Y : TopCat.{w}} (f : X ⟶ Y) (𝒢 : Y.Sheaf A) (x : X) :
-    (stalkPullbackNatIso A f x).hom.app 𝒢 = stalkPullbackComparison f 𝒢 x := sorry
+    (stalkPullbackNatIso A f x).hom.app 𝒢 = stalkPullbackComparison f 𝒢 x := rfl
 
 /-- Inverse components of the sheaf pullback stalk natural isomorphism are the named explicit
 inverse comparisons. -/
@@ -421,7 +528,7 @@ inverse comparisons. -/
   stacks 008O "inverse-image abelian sheaf stalk natural isomorphism inverse component"]
 theorem stalkPullbackNatIso_inv_app
     {X Y : TopCat.{w}} (f : X ⟶ Y) (𝒢 : Y.Sheaf A) (x : X) :
-    (stalkPullbackNatIso A f x).inv.app 𝒢 = stalkPullbackComparisonInv f 𝒢 x := sorry
+    (stalkPullbackNatIso A f x).inv.app 𝒢 = stalkPullbackComparisonInv f 𝒢 x := rfl
 
 end PullbackNatIso
 
@@ -437,6 +544,8 @@ def stalkMap {X Y : TopCat.{v}} (f : X ⟶ Y) {ℱ : X.Sheaf A} {𝒢 : Y.Sheaf 
   (TopCat.Presheaf.stalkFunctor A (f x)).map φ.1 ≫
     ℱ.presheaf.stalkPushforward A f x
 
+set_option backward.defeqAttrib.useBackward true in
+set_option backward.isDefEq.respectTransparency false in
 /-- The stalk map induced by a composite morphism into iterated pushforwards is the composite of
 the two induced stalk maps. -/
 @[stacks 008H "composition of stalk maps from pushforward comparisons"]
@@ -444,7 +553,17 @@ theorem stalkMap_comp {X Y Z : TopCat.{v}}
     (f : X ⟶ Y) (g : Y ⟶ Z) {ℱ : X.Sheaf A} {𝒢 : Y.Sheaf A} {ℋ : Z.Sheaf A}
     (φ : 𝒢 ⟶ (pushforward A f).obj ℱ) (ψ : ℋ ⟶ (pushforward A g).obj 𝒢) (x : X) :
     stalkMap (f ≫ g) (ψ ≫ (pushforward A g).map φ) x =
-      stalkMap g ψ (f x) ≫ stalkMap f φ x := sorry
+      stalkMap g ψ (f x) ≫ stalkMap f φ x := by
+  change (stalkFunctor A (g (f x))).map
+      (ψ.hom ≫ (TopCat.Presheaf.pushforward A g).map φ.hom) ≫
+        ℱ.presheaf.stalkPushforward A (f ≫ g) x =
+    ((stalkFunctor A (g (f x))).map ψ.hom ≫
+      𝒢.presheaf.stalkPushforward A g (f x)) ≫
+        ((stalkFunctor A (f x)).map φ.hom ≫ ℱ.presheaf.stalkPushforward A f x)
+  dsimp [stalkFunctor, stalkPushforward]
+  apply colimit.hom_ext
+  rintro ⟨U, hU⟩
+  simp
 
 end StalkMap
 

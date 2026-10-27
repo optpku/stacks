@@ -44,7 +44,7 @@ theorem isSmoothSurjectivePresentation_iff {S : Scheme.{u}}
       Groupoids.Hom.Smooth a ∧ Groupoids.Hom.Surjective a ∧
         Groupoids.Hom.Smooth b ∧
           Nonempty (a ≫ f ≅ AlgebraicSpace.toGroupoids.map h ≫ b) :=
-  sorry
+  Iff.rfl
 
 /-- A 2-commutative square presenting a morphism of algebraic stacks by algebraic
 spaces, with smooth vertical arrows. -/
@@ -63,7 +63,7 @@ theorem IsSmoothSpaceSquare.iff {S : Scheme.{u}} {X Y : GroupoidsOver S}
     IsSmoothSpaceSquare f a b h ↔
       Groupoids.Hom.Smooth a ∧ Groupoids.Hom.Smooth b ∧
         Nonempty (a ≫ f ≅ AlgebraicSpace.toGroupoids.map h ≫ b) :=
-  sorry
+  Iff.rfl
 
 /-- Smooth vertical arrows and a 2-isomorphism of paths yield a smooth
 algebraic-space presentation square. -/
@@ -73,7 +73,7 @@ theorem IsSmoothSpaceSquare.of {S : Scheme.{u}} {X Y : GroupoidsOver S}
     (hb : Groupoids.Hom.Smooth b)
     (hsq : Nonempty (a ≫ f ≅ AlgebraicSpace.toGroupoids.map h ≫ b)) :
     IsSmoothSpaceSquare f a b h :=
-  sorry
+  ⟨ha, hb, hsq⟩
 
 /-- A smooth algebraic-space presentation square has smooth vertical arrows and
 a 2-isomorphism of the two paths `U.toGroupoids ⟶ Y`. -/
@@ -82,7 +82,7 @@ theorem IsSmoothSpaceSquare.spec {S : Scheme.{u}} {X Y : GroupoidsOver S}
     {b : V.toGroupoids ⟶ Y} {h : U ⟶ V} (hsq : IsSmoothSpaceSquare f a b h) :
     Groupoids.Hom.Smooth a ∧ Groupoids.Hom.Smooth b ∧
       Nonempty (a ≫ f ≅ AlgebraicSpace.toGroupoids.map h ≫ b) :=
-  sorry
+  hsq
 
 /-- The comparison `U ⟶ X ×_Y V` is smooth: some 1-morphism to the chosen
 2-fibre product `TwoFibreProduct.apex f b` is smooth and 2-isomorphic to the
@@ -109,7 +109,7 @@ theorem HasSmoothComparison.iff {S : Scheme.{u}} {X Y : GroupoidsOver S}
             Nonempty
               (φ ≫ TwoFibreProduct.snd.{u + 1, u, u + 1, u} f b ≅
                 AlgebraicSpace.toGroupoids.map h) :=
-  sorry
+  Iff.rfl
 
 /-- A smooth comparison 1-morphism into `TwoFibreProduct.apex f b` witnesses
 `HasSmoothComparison`. -/
@@ -123,7 +123,7 @@ theorem HasSmoothComparison.of {S : Scheme.{u}} {X Y : GroupoidsOver S}
       (φ ≫ TwoFibreProduct.snd.{u + 1, u, u + 1, u} f b ≅
         AlgebraicSpace.toGroupoids.map h)) :
     HasSmoothComparison f a b h :=
-  sorry
+  ⟨φ, hφ, hfst, hsnd⟩
 
 /-- A smooth comparison supplies a 1-morphism `φ` to `TwoFibreProduct.apex f b`
 that is smooth and 2-isomorphic to the given legs. -/
@@ -136,7 +136,7 @@ theorem HasSmoothComparison.spec {S : Scheme.{u}} {X Y : GroupoidsOver S}
           Nonempty
             (φ ≫ TwoFibreProduct.snd.{u + 1, u, u + 1, u} f b ≅
               AlgebraicSpace.toGroupoids.map h) :=
-  sorry
+  hφ
 
 /-- A square is a smooth surjective presentation if and only if it is a smooth
 algebraic-space square whose source atlas is surjective. -/
@@ -145,7 +145,8 @@ theorem IsSmoothSurjectivePresentation.iff {S : Scheme.{u}}
     (a : U.toGroupoids ⟶ X) (b : V.toGroupoids ⟶ Y) (h : U ⟶ V) :
     IsSmoothSurjectivePresentation f a b h ↔
       IsSmoothSpaceSquare f a b h ∧ Groupoids.Hom.Surjective a :=
-  sorry
+  ⟨fun ⟨ha, hsurj, hb, hsq⟩ ↦ ⟨⟨ha, hb, hsq⟩, hsurj⟩,
+    fun ⟨⟨ha, hb, hsq⟩, hsurj⟩ ↦ ⟨ha, hsurj, hb, hsq⟩⟩
 
 /-- A smooth algebraic-space square with surjective source atlas is a smooth
 surjective presentation. -/
@@ -154,7 +155,7 @@ theorem IsSmoothSurjectivePresentation.of {S : Scheme.{u}}
     {a : U.toGroupoids ⟶ X} {b : V.toGroupoids ⟶ Y} {h : U ⟶ V}
     (hsq : IsSmoothSpaceSquare f a b h) (ha : Groupoids.Hom.Surjective a) :
     IsSmoothSurjectivePresentation f a b h :=
-  sorry
+  (IsSmoothSurjectivePresentation.iff f a b h).mpr ⟨hsq, ha⟩
 
 /-- A smooth surjective presentation is a smooth algebraic-space square with
 surjective source atlas. -/
@@ -163,6 +164,6 @@ theorem IsSmoothSurjectivePresentation.spec {S : Scheme.{u}}
     {a : U.toGroupoids ⟶ X} {b : V.toGroupoids ⟶ Y} {h : U ⟶ V}
     (hpres : IsSmoothSurjectivePresentation f a b h) :
     IsSmoothSpaceSquare f a b h ∧ Groupoids.Hom.Surjective a :=
-  sorry
+  (IsSmoothSurjectivePresentation.iff f a b h).mp hpres
 
 end AlgebraicGeometry.AlgebraicStack

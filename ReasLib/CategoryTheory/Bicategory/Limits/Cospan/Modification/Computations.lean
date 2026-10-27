@@ -39,7 +39,7 @@ theorem mk_left
       left ▷ f' ≫ φ.leftIso.hom = ψ.leftIso.hom ≫ f ◁ base)
     (rightNaturality :
       right ▷ g' ≫ φ.rightIso.hom = ψ.rightIso.hom ≫ g ◁ base) :
-    Hom.left (mk left right base leftNaturality rightNaturality) = left := sorry
+    Hom.left (mk left right base leftNaturality rightNaturality) = left := rfl
 
 /-- The right component of `mk` is the supplied cell. -/
 @[simp]
@@ -50,7 +50,7 @@ theorem mk_right
       left ▷ f' ≫ φ.leftIso.hom = ψ.leftIso.hom ≫ f ◁ base)
     (rightNaturality :
       right ▷ g' ≫ φ.rightIso.hom = ψ.rightIso.hom ≫ g ◁ base) :
-    Hom.right (mk left right base leftNaturality rightNaturality) = right := sorry
+    Hom.right (mk left right base leftNaturality rightNaturality) = right := rfl
 
 /-- The base component of `mk` is the supplied cell. -/
 @[simp]
@@ -61,22 +61,22 @@ theorem mk_base
       left ▷ f' ≫ φ.leftIso.hom = ψ.leftIso.hom ≫ f ◁ base)
     (rightNaturality :
       right ▷ g' ≫ φ.rightIso.hom = ψ.rightIso.hom ≫ g ◁ base) :
-    Hom.base (mk left right base leftNaturality rightNaturality) = base := sorry
+    Hom.base (mk left right base leftNaturality rightNaturality) = base := rfl
 
 /-- The left component of an identity modification is an identity cell. -/
 @[simp]
 theorem id_left (ψ : CospanTransform f g f' g') :
-    left (id ψ) = 𝟙 ψ.left := sorry
+    left (id ψ) = 𝟙 ψ.left := rfl
 
 /-- The right component of an identity modification is an identity cell. -/
 @[simp]
 theorem id_right (ψ : CospanTransform f g f' g') :
-    right (id ψ) = 𝟙 ψ.right := sorry
+    right (id ψ) = 𝟙 ψ.right := rfl
 
 /-- The base component of an identity modification is an identity cell. -/
 @[simp]
 theorem id_base (ψ : CospanTransform f g f' g') :
-    base (id ψ) = 𝟙 ψ.base := sorry
+    base (id ψ) = 𝟙 ψ.base := rfl
 
 /-- The left component of a vertical composite is the vertical composite of left components. -/
 @[simp]
@@ -84,7 +84,7 @@ theorem comp_left
     {χ : CospanTransform f g f' g'}
     (Γ : Pseudofunctor.StrongTrans.Hom ψ φ)
     (Δ : Pseudofunctor.StrongTrans.Hom φ χ) :
-    left (comp Γ Δ) = left Γ ≫ left Δ := sorry
+    left (comp Γ Δ) = left Γ ≫ left Δ := rfl
 
 /-- The right component of a vertical composite is the vertical composite of right
 components. -/
@@ -93,7 +93,7 @@ theorem comp_right
     {χ : CospanTransform f g f' g'}
     (Γ : Pseudofunctor.StrongTrans.Hom ψ φ)
     (Δ : Pseudofunctor.StrongTrans.Hom φ χ) :
-    right (comp Γ Δ) = right Γ ≫ right Δ := sorry
+    right (comp Γ Δ) = right Γ ≫ right Δ := rfl
 
 /-- The base component of a vertical composite is the vertical composite of base components. -/
 @[simp]
@@ -101,14 +101,19 @@ theorem comp_base
     {χ : CospanTransform f g f' g'}
     (Γ : Pseudofunctor.StrongTrans.Hom ψ φ)
     (Δ : Pseudofunctor.StrongTrans.Hom φ χ) :
-    base (comp Γ Δ) = base Γ ≫ base Δ := sorry
+    base (comp Γ Δ) = base Γ ≫ base Δ := rfl
 
 /-- Reconstructing a cospan modification from its components and canonical naturality squares
 recovers the original modification. -/
 @[simp]
 theorem mk_components (Γ : Pseudofunctor.StrongTrans.Hom ψ φ) :
     mk (left Γ) (right Γ) (base Γ)
-      (left_naturality Γ) (right_naturality Γ) = Γ := sorry
+      (left_naturality Γ) (right_naturality Γ) = Γ := by
+  apply Pseudofunctor.StrongTrans.homCategory.ext
+  rintro ⟨a⟩
+  cases a with
+  | none => rfl
+  | some a => cases a <;> rfl
 
 /- Data audit (mathlib 4.32): the readout theorems are proposition-valued interfaces and add no
 computational data. The canonical `mk`, `id`, and `comp` owners remain in the preceding leaves. -/

@@ -22,16 +22,29 @@ are owned by `ReasLib.RingTheory.ReesAlgebra`; this chapter entry is a
 source-facing recall facade.
 -/
 
+universe u
+
 /- Definition 10.70.1 (1): the Rees algebra of `I` is graded by the powers
 `I ^ n`. -/
 @[stacks 052Q "(1), Rees algebra"]
-#check @reesAlgebra
+#check (reesAlgebra :
+  {R : Type u} → [CommRing R] → (I : Ideal R) → Subalgebra R (Polynomial R))
+
+/- Definition 10.70.1 (1): the degree-`n` piece is the image of `I ^ n`
+under the degree-`n` monomial inclusion. -/
 @[stacks 052Q "(1), Rees grading"]
-#check @ReesAlgebra.Grading.grade
+#check (ReesAlgebra.Grading.grade :
+  {R : Type u} → [CommRing R] → (I : Ideal R) → (n : ℕ) →
+    Submodule R (reesAlgebra I))
+
+/- Definition 10.70.1 (1): an element `a : I` determines the degree-one
+Rees element `a t`. -/
 @[stacks 052Q "(1), degree-one piece"]
-#check @ReesAlgebra.Grading.degreeOne
+#check (ReesAlgebra.Grading.degreeOne :
+  {R : Type u} → [CommRing R] → (I : Ideal R) → (a : I) → reesAlgebra I)
 
 /- Definition 10.70.1 (2): `R[I / a]` is the degree-zero homogeneous
 localization of the Rees algebra at the degree-one element determined by `a`. -/
 @[stacks 052Q "(2), affine blowup algebra"]
-#check @affineBlowupChart
+#check (affineBlowupChart :
+  {R : Type u} → [CommRing R] → (I : Ideal R) → (a : I) → Type u)

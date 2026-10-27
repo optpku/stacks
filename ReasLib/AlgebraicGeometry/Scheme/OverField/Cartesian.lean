@@ -31,7 +31,10 @@ terminal scheme over that field. -/
 theorem productIsPullback (X : SchemeOverField k) {Y : SchemeOverField k}
     (g : Y ⟶ ⊤_ (SchemeOverField k)) :
     IsPullback ((Limits.prod.fst : X ⨯ Y ⟶ X).left)
-      ((Limits.prod.snd : X ⨯ Y ⟶ Y).left) (terminal.from X).left g.left := sorry
+      ((Limits.prod.snd : X ⨯ Y ⟶ Y).left) (terminal.from X).left g.left := by
+  have hg : terminal.from Y = g := Subsingleton.elim _ _
+  simpa only [Over.forget_obj, Over.forget_map, hg] using
+    (IsPullback.of_hasBinaryProduct' X Y).map (Over.forget _)
 
 /-- The canonical isomorphism from a cartesian representative over a field to its product
 representative has maps determined by the product and pullback universal properties. -/

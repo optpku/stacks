@@ -38,9 +38,8 @@ variable (P : CatCommSqOver (G₁.prod' G₂) (Functor.diag S) C')
 
 namespace CategoricalPullback.CatCommSqOver.iteratedDiagonalComparison
 
-/-- Lemma 4.31.12 (Stacks 02XF): the specified comparison from a bilimit square over
-`G₁.prod' G₂` and
-`Functor.diag S` to
+/-- If `P` is a bilimit square over `G₁.prod' G₂` and `Functor.diag S`, its specified comparison
+to the iterated diagonal categorical-pullback model
 `((π₁ G₁ G₂).prod' (π₂ G₁ G₂)) ⊡ Functor.diag C` is an equivalence.
 
 An explicit inverse is intentionally not a second public owner here: an inverse to

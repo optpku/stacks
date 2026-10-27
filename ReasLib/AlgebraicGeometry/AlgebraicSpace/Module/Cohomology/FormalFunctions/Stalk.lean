@@ -85,7 +85,7 @@ theorem cohomology_eq [IsLocallyNoetherian Y] (p n : ℕ)
 theorem sheaf_spaceStep_comp [IsLocallyNoetherian Y] (n : ℕ) :
     (Modules.pullback (spaceStep f ybar n ≫ toX f ybar (n + 1))).obj F =
       sheaf f F ybar n :=
-  sorry
+  congrArg (fun i ↦ (Modules.pullback i).obj F) (pullback.lift_fst _ _ _)
 
 /-- Identification `F_n ≅ spaceStep^* F_{n+1}` from `i_n = spaceStep ≫ i_{n+1}`. -/
 private def sheafStepPullback [IsLocallyNoetherian Y] (n : ℕ) :
@@ -107,15 +107,23 @@ private def sheafUnit [IsLocallyNoetherian Y] (n : ℕ) :
 instance instPreservesHomology_pushforward_spaceStep [IsLocallyNoetherian Y] (n : ℕ)
     [Abelian (space f ybar n).Modules]
     [Abelian (space f ybar (n + 1)).Modules] :
-    (pushforward (spaceStep f ybar n)).PreservesHomology :=
-  sorry
+    (pushforward (spaceStep f ybar n)).PreservesHomology := by
+  letI : PreservesFiniteLimits (pushforward (spaceStep f ybar n)) :=
+    (Modules.pushforward_exact (spaceStep f ybar n)).1
+  letI : PreservesFiniteColimits (pushforward (spaceStep f ybar n)) :=
+    (Modules.pushforward_exact (spaceStep f ybar n)).2
+  infer_instance
 
 /-- Pushforward along a thickening transition preserves homology. -/
 instance instPreservesHomology_pushforward_thickeningStep [IsLocallyNoetherian Y] (n : ℕ)
     [Abelian (thickening ybar n).Modules]
     [Abelian (thickening ybar (n + 1)).Modules] :
-    (pushforward (thickeningStep ybar n)).PreservesHomology :=
-  sorry
+    (pushforward (thickeningStep ybar n)).PreservesHomology := by
+  letI : PreservesFiniteLimits (pushforward (thickeningStep ybar n)) :=
+    (Modules.pushforward_exact (thickeningStep ybar n)).1
+  letI : PreservesFiniteColimits (pushforward (thickeningStep ybar n)) :=
+    (Modules.pushforward_exact (thickeningStep ybar n)).2
+  infer_instance
 
 /-- Leray comparison of higher direct images along `spaceStep` and `thickeningStep`. -/
 private def higherDirectImagePushforward [IsLocallyNoetherian Y] (p n : ℕ)
@@ -213,8 +221,15 @@ theorem evalₐ_comp_quotientFactor [IsLocallyNoetherian Y] (n : ℕ) :
     (AdicCompletion.evalₐ (IsLocalRing.maximalIdeal (etaleLocalRing Y ybar)) n).toRingHom =
       (quotientFactor ybar n).comp
         (AdicCompletion.evalₐ (IsLocalRing.maximalIdeal (etaleLocalRing Y ybar))
-          (n + 1)).toRingHom :=
-  sorry
+          (n + 1)).toRingHom := by
+  ext x
+  induction x using AdicCompletion.induction_on with
+  | _ x =>
+    change AdicCompletion.evalₐ _ n (AdicCompletion.mk _ _ x) =
+      quotientFactor ybar n (AdicCompletion.evalₐ _ (n + 1) (AdicCompletion.mk _ _ x))
+    simpa [AdicCompletion.evalₐ_mk, quotientFactor] using
+      (AdicCompletion.Ideal.mk_eq_mk
+        (IsLocalRing.maximalIdeal (etaleLocalRing Y ybar)) (Nat.le_succ n) x).symm
 
 /-- The successor restriction `H^p(X_{n+1}, F_{n+1}) ⟶ H^p(X_n, F_n)` of
 `O_{Y,ȳ}^∧`-modules. -/
@@ -281,7 +296,7 @@ theorem system_obj [IsLocallyNoetherian Y]
     [∀ n, Abelian (thickening ybar n).Modules]
     [∀ n, HasInjectiveResolutions (space f ybar n).Modules] (p n : ℕ) :
     (system f F ybar p).obj (op n) = completedCohomology f F ybar p n :=
-  sorry
+  rfl
 
 /-- The successor map of `system` is `cohomologyStep`. -/
 theorem system_stepMap [IsLocallyNoetherian Y]
@@ -289,8 +304,8 @@ theorem system_stepMap [IsLocallyNoetherian Y]
     [∀ n, Abelian (space f ybar n).Modules]
     [∀ n, Abelian (thickening ybar n).Modules]
     [∀ n, HasInjectiveResolutions (space f ybar n).Modules] (p n : ℕ) :
-    (system f F ybar p).stepMap n = cohomologyStep f F ybar p n :=
-  sorry
+    (system f F ybar p).stepMap n = cohomologyStep f F ybar p n := by
+  exact Functor.ofOpSequence_map_homOfLE_succ _ n
 
 /-- Affine-base cohomology `H^p(X_∞, F_∞)` as an `O_{Y,ȳ}`-module. -/
 def infCohomology [IsLocallyNoetherian Y] (p : ℕ)
@@ -306,7 +321,7 @@ def infCohomology [IsLocallyNoetherian Y] (p : ℕ)
 theorem sheaf_toInf_comp [IsLocallyNoetherian Y] (n : ℕ) :
     (Modules.pullback (toInf f ybar n ≫ toXInf f ybar)).obj F =
       sheaf f F ybar n :=
-  sorry
+  congrArg (fun i ↦ (Modules.pullback i).obj F) (pullback.lift_fst _ _ _)
 
 /-- Identification `F_n ≅ toInf^* F_∞` from `i_n = toInf ≫ i_∞`. -/
 private def sheafInfPullback [IsLocallyNoetherian Y] (n : ℕ) :
@@ -327,15 +342,23 @@ private def sheafInfUnit [IsLocallyNoetherian Y] (n : ℕ) :
 instance instPreservesHomology_pushforward_toInf [IsLocallyNoetherian Y] (n : ℕ)
     [Abelian (space f ybar n).Modules]
     [Abelian (spaceInf f ybar).Modules] :
-    (pushforward (toInf f ybar n)).PreservesHomology :=
-  sorry
+    (pushforward (toInf f ybar n)).PreservesHomology := by
+  letI : PreservesFiniteLimits (pushforward (toInf f ybar n)) :=
+    (Modules.pushforward_exact (toInf f ybar n)).1
+  letI : PreservesFiniteColimits (pushforward (toInf f ybar n)) :=
+    (Modules.pushforward_exact (toInf f ybar n)).2
+  infer_instance
 
 /-- Pushforward along `Spec(O/m^n) ⟶ Spec(O)` preserves homology. -/
 instance instPreservesHomology_pushforward_toSpecSpace [IsLocallyNoetherian Y] (n : ℕ)
     [Abelian (thickening ybar n).Modules]
     [Abelian (specSpace ybar).Modules] :
-    (pushforward (toSpecSpace ybar n)).PreservesHomology :=
-  sorry
+    (pushforward (toSpecSpace ybar n)).PreservesHomology := by
+  letI : PreservesFiniteLimits (pushforward (toSpecSpace ybar n)) :=
+    (Modules.pushforward_exact (toSpecSpace ybar n)).1
+  letI : PreservesFiniteColimits (pushforward (toSpecSpace ybar n)) :=
+    (Modules.pushforward_exact (toSpecSpace ybar n)).2
+  infer_instance
 
 /-- Leray comparison of higher direct images along `toInf` and `toSpecSpace`. -/
 private def higherDirectImageInfPushforward [IsLocallyNoetherian Y] (p n : ℕ)
@@ -590,8 +613,14 @@ theorem pow_smul_le_ker_toCohomology [IsLocallyNoetherian Y] [QuasiCompact f] [Q
     IsLocalRing.maximalIdeal (etaleLocalRing Y ybar) ^ n •
         (⊤ : Submodule (etaleLocalRing Y ybar)
           (stalkModuleCat ybar (Modules.higherDirectImage f F p))) ≤
-      LinearMap.ker (toCohomology f F ybar p n).hom :=
-  sorry
+      LinearMap.ker (toCohomology f F ybar p n).hom := by
+  apply Submodule.smul_le.mpr
+  intro r hr x _
+  rw [LinearMap.mem_ker, map_smul]
+  change (Ideal.Quotient.mk
+    (IsLocalRing.maximalIdeal (etaleLocalRing Y ybar) ^ n) r) •
+      (toCohomology f F ybar p n).hom x = 0
+  rw [Ideal.Quotient.eq_zero_iff_mem.mpr hr, zero_smul]
 
 /-- The descended comparison
 `(R^p f_* F)_ȳ / m^n (R^p f_* F)_ȳ ⟶ H^p(X_n, F_n)`. -/
@@ -652,8 +681,23 @@ private theorem isLinearMap_toCompletedCohomologyFun [IsLocallyNoetherian Y] [Qu
     IsLinearMap
       (AdicCompletion (IsLocalRing.maximalIdeal (etaleLocalRing Y ybar))
         (etaleLocalRing Y ybar))
-      (toCompletedCohomologyFun f F ybar p n) :=
-  sorry
+      (toCompletedCohomologyFun f F ybar p n) := by
+  constructor
+  · intro x z
+    exact map_add (toCohomologyModPow f F ybar p n).hom (x.val n) (z.val n)
+  · intro r x
+    let I := IsLocalRing.maximalIdeal (etaleLocalRing Y ybar)
+    obtain ⟨a, ha⟩ := Ideal.Quotient.mk_surjective (AdicCompletion.evalₐ I n r)
+    have hr : r.val n = Ideal.Quotient.mk (I ^ n • ⊤ : Ideal _) a := by
+      rw [← AdicCompletion.eval_apply,
+        ← AdicCompletion.factor_evalₐ_eq_eval I r (by simp), ← ha]
+      rfl
+    change (toCohomologyModPow f F ybar p n).hom ((r • x).val n) =
+      AdicCompletion.evalₐ I n r • (toCohomologyModPow f F ybar p n).hom (x.val n)
+    rw [AdicCompletion.smul_eval, hr, ← ha]
+    change (toCohomologyModPow f F ybar p n).hom (a • x.val n) =
+      a • (toCohomologyModPow f F ybar p n).hom (x.val n)
+    exact map_smul _ a _
 
 /-- Evaluation of the completed stalk, followed by the stage comparison, as an
 `O_{Y,ȳ}^∧`-linear map. -/
@@ -677,9 +721,21 @@ def toCompletedCohomology [IsLocallyNoetherian Y] [QuasiCompact f] [QuasiSeparat
     (IsLinearMap.mk' (toCompletedCohomologyFun f F ybar p n)
       (isLinearMap_toCompletedCohomologyFun f F ybar p n))
 
+private theorem toCompletedCohomology_naturality [IsLocallyNoetherian Y] [QuasiCompact f] [QuasiSeparated f] [F.IsQuasicoherent]
+    [Abelian X.Modules] [Abelian Y.Modules]
+    [∀ n, Abelian (space f ybar n).Modules]
+    [∀ n, Abelian (thickening ybar n).Modules]
+    [Abelian (spaceInf f ybar).Modules]
+    [Abelian (specSpace ybar).Modules]
+    [HasInjectiveResolutions X.Modules]
+    [∀ n, HasInjectiveResolutions (space f ybar n).Modules]
+    [HasInjectiveResolutions (spaceInf f ybar).Modules] (p : ℕ) {m n : ℕᵒᵖ} (g : m ⟶ n) :
+    𝟙 _ ≫ toCompletedCohomology f F ybar p n.unop =
+      toCompletedCohomology f F ybar p m.unop ≫ (system f F ybar p).map g := sorry
+
 /-- The induced map from the `m_ȳ`-adic completion of `(R^p f_* F)_ȳ` to the inverse
 limit of `H^p(X_n, F_n)`, as `O_{Y,ȳ}^∧`-modules. -/
-def limitComparison [IsLocallyNoetherian Y] [QuasiCompact f] [QuasiSeparated f] [F.IsQuasicoherent]
+@[no_expose] def limitComparison [IsLocallyNoetherian Y] [QuasiCompact f] [QuasiSeparated f] [F.IsQuasicoherent]
     [Abelian X.Modules] [Abelian Y.Modules]
     [∀ n, Abelian (space f ybar n).Modules]
     [∀ n, Abelian (thickening ybar n).Modules]
@@ -703,7 +759,7 @@ def limitComparison [IsLocallyNoetherian Y] [QuasiCompact f] [QuasiSeparated f] 
             (stalkModuleCat ybar (Modules.higherDirectImage f F p)))
       π :=
         { app := fun n ↦ toCompletedCohomology f F ybar p n.unop
-          naturality := fun _ _ _ ↦ sorry } }
+          naturality := fun _ _ g ↦ toCompletedCohomology_naturality f F ybar p g } }
 
 /-- Projecting `limitComparison` to stage `n` is evaluation on the completion
 followed by the stage comparison. -/
@@ -717,8 +773,8 @@ theorem limitComparison_comp_π [IsLocallyNoetherian Y] [QuasiCompact f] [QuasiS
     [∀ n, HasInjectiveResolutions (space f ybar n).Modules]
     [HasInjectiveResolutions (spaceInf f ybar).Modules] (p n : ℕ) :
     limitComparison f F ybar p ≫ limit.π (system f F ybar p) (op n) =
-      toCompletedCohomology f F ybar p n :=
-  sorry
+      toCompletedCohomology f F ybar p n := by
+  apply limit.lift_π
 
 /-- For a proper morphism with locally Noetherian target and a coherent
 quasi-coherent module, the canonical completed geometric-stalk comparison

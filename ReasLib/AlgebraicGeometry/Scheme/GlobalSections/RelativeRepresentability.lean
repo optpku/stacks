@@ -34,7 +34,7 @@ def functor (S : Scheme.{u}) : (CategoryTheory.Over S)ᵒᵖ ⥤ Type u :=
 
 /-- Evaluation of the relative global-sections functor at `U` is `Γ(U.left, ⊤)`. -/
 theorem functor_obj (S : Scheme.{u}) (U : CategoryTheory.Over S) :
-    (functor S).obj (op U) = Γ(U.left, ⊤) := sorry
+    (functor S).obj (op U) = Γ(U.left, ⊤) := rfl
 
 /-- The relative affine line, regarded as a scheme over `S`. -/
 abbrev affineLine (S : Scheme.{u}) : CategoryTheory.Over S :=
@@ -42,11 +42,11 @@ abbrev affineLine (S : Scheme.{u}) : CategoryTheory.Over S :=
 
 /-- The underlying scheme of the relative affine line is `𝔸¹_S`. -/
 theorem affineLine_left (S : Scheme.{u}) :
-    (affineLine S).left = 𝔸(ULift.{u} (Fin 1); S) := sorry
+    (affineLine S).left = 𝔸(ULift.{u} (Fin 1); S) := rfl
 
 /-- The structure morphism of the relative affine line is the canonical projection to `S`. -/
 theorem affineLine_hom (S : Scheme.{u}) :
-    (affineLine S).hom = 𝔸(ULift.{u} (Fin 1); S) ↘ S := sorry
+    (affineLine S).hom = 𝔸(ULift.{u} (Fin 1); S) ↘ S := rfl
 
 /-- A morphism over `S` to the relative affine line determines its unique coordinate section. -/
 def toSection {S : Scheme.{u}} {U : CategoryTheory.Over S}
@@ -56,7 +56,8 @@ def toSection {S : Scheme.{u}} {U : CategoryTheory.Over S}
 /-- The affine-space morphism associated to a section commutes with the maps to `S`. -/
 theorem ofSection_over {S : Scheme.{u}} (U : CategoryTheory.Over S)
     (a : (functor S).obj (op U)) :
-    AffineSpace.homOfVector U.hom (fun _ ↦ a) ≫ (affineLine S).hom = U.hom := sorry
+    AffineSpace.homOfVector U.hom (fun _ ↦ a) ≫ (affineLine S).hom = U.hom :=
+  AffineSpace.homOfVector_over U.hom (fun _ ↦ a)
 
 /-- A global section on `U` determines a morphism over `S` to the relative affine line. -/
 def ofSection {S : Scheme.{u}} (U : CategoryTheory.Over S)
@@ -67,12 +68,23 @@ def ofSection {S : Scheme.{u}} (U : CategoryTheory.Over S)
 /-- Passing from a section to its affine-line morphism and back recovers the section. -/
 theorem toSection_ofSection {S : Scheme.{u}} (U : CategoryTheory.Over S)
     (a : (functor S).obj (op U)) :
-    toSection (ofSection U a) = a := sorry
+    toSection (ofSection U a) = a :=
+  AffineSpace.homOfVector_appTop_coord U.hom (fun _ ↦ a) (ULift.up (0 : Fin 1))
 
 /-- Passing from an affine-line morphism to its section and back recovers the morphism. -/
 theorem ofSection_toSection {S : Scheme.{u}} (U : CategoryTheory.Over S)
     (f : U ⟶ affineLine S) :
-    ofSection U (toSection f) = f := sorry
+    ofSection U (toSection f) = f := by
+  apply CategoryTheory.Over.OverMorphism.ext
+  change AffineSpace.homOfVector U.hom (fun _ ↦ toSection f) = f.left
+  apply AffineSpace.hom_ext
+  · change _ ≫ 𝔸(ULift.{u} (Fin 1); S) ↘ S = f.left ≫ 𝔸(ULift.{u} (Fin 1); S) ↘ S
+    exact (AffineSpace.homOfVector_over U.hom _).trans (CategoryTheory.Over.w f).symm
+  · intro i
+    change _ = f.left.appTop (AffineSpace.coord S i)
+    rw [AffineSpace.homOfVector_appTop_coord]
+    exact congrArg (fun j ↦ f.left.appTop (AffineSpace.coord S j))
+      (Subsingleton.elim _ _)
 
 /-- Morphisms over `S` to the relative affine line are equivalent to global sections. -/
 def homEquiv {S : Scheme.{u}} (U : CategoryTheory.Over S) :
@@ -85,7 +97,7 @@ def homEquiv {S : Scheme.{u}} (U : CategoryTheory.Over S) :
 /-- The relative affine-line equivalence sends a slice morphism to its coordinate section. -/
 theorem homEquiv_apply {S : Scheme.{u}} (U : CategoryTheory.Over S)
     (f : U ⟶ affineLine S) :
-    homEquiv U f = toSection f := sorry
+    homEquiv U f = toSection f := rfl
 
 /-- The objectwise isomorphism identifying the Yoneda presheaf of `𝔸¹_S` with global sections. -/
 def componentIso {S : Scheme.{u}} (U : (CategoryTheory.Over S)ᵒᵖ) :
@@ -96,7 +108,9 @@ def componentIso {S : Scheme.{u}} (U : (CategoryTheory.Over S)ᵒᵖ) :
 theorem componentIso_naturality {S : Scheme.{u}}
     {U V : (CategoryTheory.Over S)ᵒᵖ} (f : U ⟶ V) :
     (yoneda.obj (affineLine S)).map f ≫ (componentIso V).hom =
-      (componentIso U).hom ≫ (functor S).map f := sorry
+      (componentIso U).hom ≫ (functor S).map f := by
+  ext g
+  rfl
 
 /-- The natural isomorphism representing relative global sections by `𝔸¹_S`. -/
 def representingIso (S : Scheme.{u}) :
@@ -106,7 +120,7 @@ def representingIso (S : Scheme.{u}) :
 /-- The representing isomorphism has the expected objectwise forward map. -/
 theorem representingIso_hom_app (S : Scheme.{u})
     (U : (CategoryTheory.Over S)ᵒᵖ) :
-    (representingIso S).hom.app U = (componentIso U).hom := sorry
+    (representingIso S).hom.app U = (componentIso U).hom := rfl
 
 /-- The relative global-sections functor is representable. -/
 theorem functor_isRepresentable (S : Scheme.{u}) :

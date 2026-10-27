@@ -21,9 +21,9 @@ universe u v
     {A : Type u} → [CommRing A] → [IsNoetherianRing A] →
       {M : Type v} → [AddCommGroup M] → [Module A M] → [Module.Finite A M] →
       [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))] →
-      (H : MonoidalClosed (DerivedCategory (ModuleCat.{u} A))) →
+      (C : CategoryTheory.DerivedCategory.CanonicalClosedPresentation (A := A)) →
       {I : Ideal A} → {T : Set (PrimeSpectrum A)} → {s d : ℤ} →
-      Ideal.LocalCohomology.AlgebraizationSituation H I M T s d →
+      Ideal.LocalCohomology.AlgebraizationSituation C I M T s d →
       (p q : PrimeSpectrum A) → p.asIdeal ≤ q.asIdeal →
       p ∉ PrimeSpectrum.zeroLocus (I : Set A) → q ∈ T →
       (¬ ∃ r : PrimeSpectrum A,

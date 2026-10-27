@@ -22,7 +22,8 @@ module on a good algebraic space is `(-1)^i` times its degree-`i` Chern class. -
     (δ : Points B → ℤ) [IsDimensionFunction δ]
     (f : X ⟶ B) [QuasiSeparated f] [LocallyOfFiniteType f]
     (E : X.Modules) [SheafOfModules.IsFiniteLocallyFree E] (i : ℕ),
-    chernClass δ f (Modules.dual E) i = ((-1 : ℤ) ^ i) • chernClass δ f E i)
+    OperationalChow.Graded.ofOperational δ f (chernClass δ f (Modules.dual E) i) =
+      ((-1 : ℤ) ^ i) • OperationalChow.Graded.ofOperational δ f (chernClass δ f E i))
 
 #check (AlgebraicGeometry.AlgebraicSpace.ChernClass.chernClass_dual_cap :
   ∀ {S : Scheme.{u}} {B X : AlgebraicSpace S}

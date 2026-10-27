@@ -7,20 +7,18 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 import StacksCheckRecall
-public import stacks_project.Chap96.Proposition_96_26_4_Comparison
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.Derived.Representable
 
 universe u
 
 /- Remark 75.30.2: for a scheme `S` and an algebraic space `X` over `S`,
-`QC((Aff/X), 𝒪) := GroupoidsOver.QC X.toGroupoids` is canonically equivalent
-to `D_QCoh(𝒪_X)`. This is the identity-representable case of Sheaves on
-Stacks, Proposition 96.26.4. -/
+`QC((Aff/X), 𝒪)` is canonically equivalent to `D_QCoh(𝒪_X)`.
+The enlarged affine presentation uses `GroupoidsOver.SmallQC X.toGroupoids`,
+whose sectionwise `u`-small cohomology matches the effective module universe `u`
+of the native derived quasi-coherent category. -/
 @[stacks 0H07]
-#check
-  (fun {S : AlgebraicGeometry.Scheme.{u}} (X : AlgebraicGeometry.AlgebraicSpace S) ↦
-      @AlgebraicGeometry.GroupoidsOver.qcEquivalence S X X.toGroupoids
-        (CategoryTheory.Bicategory.Equivalence.id X.toGroupoids) sorry sorry sorry :
-    ∀ {S : AlgebraicGeometry.Scheme.{u}} (X : AlgebraicGeometry.AlgebraicSpace S),
-      CategoryTheory.RLinear.TriangulatedEquivalence ℤ
-        (AlgebraicGeometry.GroupoidsOver.QC X.toGroupoids)
-        (AlgebraicGeometry.AlgebraicSpace.DerivedQCoh X))
+#check (AlgebraicGeometry.AlgebraicSpace.DerivedQCoh.affineGroupoidsEquivalence :
+  ∀ {S : AlgebraicGeometry.Scheme.{u}} (X : AlgebraicGeometry.AlgebraicSpace S),
+    CategoryTheory.RLinear.TriangulatedEquivalence ℤ
+      (AlgebraicGeometry.GroupoidsOver.SmallQC X.toGroupoids)
+      (AlgebraicGeometry.AlgebraicSpace.DerivedQCoh X))

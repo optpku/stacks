@@ -8,6 +8,7 @@ module
 
 public import Mathlib.Algebra.Category.ModuleCat.Ulift
 public import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.Algebra.Homology.CochainComplex.DifferentialGraded.HomComplex.Derived
 public import ReasLib.Algebra.Homology.CochainComplex.DifferentialGraded.HomComplex.Derived.Cohomology.Over
 
 /-!

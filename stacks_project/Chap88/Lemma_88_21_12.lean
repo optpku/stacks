@@ -27,6 +27,6 @@ has base change induced by a surjection of adic Noetherian rings whose kernel
     [IsLocallyNoetherian X] [IsLocallyNoetherian Y] (f : X ⟶ Y)
     [ClosedImmersion f],
       RigSurjective f ↔
-      ∀ {V : (Over S)ᵒᵖ ⥤ Type u} [IsFormalAlgebraicSpace V] [IsAffine V]
+      ∀ {V : (Over S)ᵒᵖ ⥤ Type u} [IsFormalAlgebraicSpace V] [FormalAlgebraicSpace.IsAffine V]
         (v : V ⟶ Y) [Etale v],
         KernelKilledByPowIdealOfDefinition (pullback.snd f v))

@@ -40,10 +40,29 @@ abbrev localIso : MorphismProperty CommRingCat.{u} :=
 /-- A morphism of commutative rings is a local isomorphism precisely when the
 induced algebra structure satisfies `Algebra.IsLocalIso`. -/
 theorem localIso_iff {R S : CommRingCat.{u}} (f : R ⟶ S) :
-    localIso f ↔ @Algebra.IsLocalIso R S _ _ f.hom.toAlgebra := sorry
+    localIso f ↔ @Algebra.IsLocalIso R S _ _ f.hom.toAlgebra := Iff.rfl
 
 /-- Local isomorphisms of commutative rings are invariant under isomorphisms. -/
-instance localIso_respectsIso : CommRingCat.localIso.RespectsIso := sorry
+instance localIso_respectsIso : CommRingCat.localIso.RespectsIso := by
+  refine RespectsIso.mk _ ?_ ?_
+  · intro R S T e f hf
+    letI := e.hom.hom.toAlgebra
+    letI := f.hom.toAlgebra
+    letI := (f.hom.comp e.hom.hom).toAlgebra
+    haveI : IsScalarTower R S T := .of_algebraMap_eq' rfl
+    haveI : Algebra.IsStandardOpenImmersion R S :=
+      .of_bijective e.commRingCatIsoToRingEquiv.bijective
+    haveI : Algebra.IsLocalIso S T := hf
+    exact Algebra.IsLocalIso.trans R S T
+  · intro R S T e f hf
+    letI := f.hom.toAlgebra
+    letI := e.hom.hom.toAlgebra
+    letI := (e.hom.hom.comp f.hom).toAlgebra
+    haveI : IsScalarTower R S T := .of_algebraMap_eq' rfl
+    haveI : Algebra.IsStandardOpenImmersion S T :=
+      .of_bijective e.commRingCatIsoToRingEquiv.bijective
+    haveI : Algebra.IsLocalIso R S := hf
+    exact Algebra.IsLocalIso.trans R S T
 
 end CommRingCat
 
@@ -83,9 +102,31 @@ section
 
 variable {R : Type u} {A : Type v} [CommRing R] [CommRing A] [Algebra R A]
 
+private theorem isLocalIso_ulift [Algebra.IsLocalIso R A] :
+    @Algebra.IsLocalIso (ULift.{v} R) (ULift.{u} A) _ _
+      ((algebraMap R A).ulift.{v, u}).toAlgebra := by
+  letI : Algebra (ULift.{v} R) R := ULift.ringEquiv.toRingHom.toAlgebra
+  letI : Algebra A (ULift.{u} A) := ULift.ringEquiv.symm.toRingHom.toAlgebra
+  letI : Algebra (ULift.{v} R) A :=
+    ((algebraMap R A).comp ULift.ringEquiv.toRingHom).toAlgebra
+  letI : Algebra (ULift.{v} R) (ULift.{u} A) :=
+    ((algebraMap R A).ulift.{v, u}).toAlgebra
+  haveI := IsScalarTower.of_algebraMap_eq'
+    (R := ULift.{v} R) (S := R) (A := A) (by rfl)
+  haveI := IsScalarTower.of_algebraMap_eq'
+    (R := ULift.{v} R) (S := A) (A := ULift.{u} A) (by rfl)
+  haveI : Algebra.IsStandardOpenImmersion (ULift.{v} R) R :=
+    .of_bijective ULift.ringEquiv.bijective
+  haveI : Algebra.IsStandardOpenImmersion A (ULift.{u} A) :=
+    .of_bijective ULift.ringEquiv.symm.bijective
+  haveI : Algebra.IsLocalIso (ULift.{v} R) A :=
+    .trans (ULift.{v} R) R A
+  exact Algebra.IsLocalIso.trans (ULift.{v} R) A (ULift.{u} A)
+
 /-- A local isomorphism is ind-Zariski. -/
 theorem ofIsLocalIso [Algebra.IsLocalIso R A] :
-    (algebraMap R A).IndZariski := sorry
+    (algebraMap R A).IndZariski :=
+  le_ind CommRingCat.localIso _ (isLocalIso_ulift (R := R) (A := A))
 
 end
 
@@ -99,7 +140,8 @@ variable {R : Type u} {A : Type v} [CommRing R] [CommRing A] [Algebra R A]
 
 /-- A local isomorphism has an arbitrary-size ind-Zariski presentation. -/
 theorem ofIsLocalIso [Algebra.IsLocalIso R A] :
-    RingHom.IndZariski.Raw (algebraMap R A) := sorry
+    RingHom.IndZariski.Raw (algebraMap R A) :=
+  le_ind CommRingCat.localIso _ (IndZariski.isLocalIso_ulift (R := R) (A := A))
 
 end
 
@@ -115,14 +157,20 @@ variable {R A : Type u} [CommRing R] [CommRing A] [Algebra R A]
 equivalent to `RingHom.IndZariski.Raw`. -/
 theorem algebraMap_iff :
     ind.{v, u, u + 1} CommRingCat.localIso (CommRingCat.ofHom (algebraMap R A)) ↔
-      RingHom.IndZariski.Raw.{u, u, v} (algebraMap R A) := sorry
+      RingHom.IndZariski.Raw.{u, u, v} (algebraMap R A) := by
+  apply (ind.{v} CommRingCat.localIso).arrow_mk_iso_iff
+  exact Arrow.isoMk
+    (ULift.ringEquiv : ULift.{u} R ≃+* R).symm.toCommRingCatIso
+    (ULift.ringEquiv : ULift.{u} A ≃+* A).symm.toCommRingCatIso
+    (by rfl)
 
 /-- An unlifted categorical ind-Zariski presentation of an algebra map induces
 the arbitrary-size ring-map presentation. -/
 theorem of_ind
     (h : ind.{v, u, u + 1} CommRingCat.localIso
       (CommRingCat.ofHom (algebraMap R A))) :
-    RingHom.IndZariski.Raw.{u, u, v} (algebraMap R A) := sorry
+    RingHom.IndZariski.Raw.{u, u, v} (algebraMap R A) :=
+  algebraMap_iff.mp h
 
 end
 
@@ -151,13 +199,22 @@ theorem algebraMap_of_isColimit
     (F : J ⥤ Under (CommRingCat.of R)) (c : Cocone F) (hc : IsColimit c)
     (e : c.pt ≅ Under.mk (CommRingCat.ofHom (algebraMap R A)))
     (hF : ∀ j, ind.{v, u, u + 1} CommRingCat.localIso (F.obj j).hom) :
-    RingHom.IndZariski.Raw.{u, u, v} (algebraMap R A) := sorry
+    RingHom.IndZariski.Raw.{u, u, v} (algebraMap R A) :=
+  of_ind (((ind.{v} CommRingCat.localIso).under_iso_iff e).mp
+    (of_isColimit F c hc hF))
 
 end
 
 end IndZariski.Raw
 
 namespace IndZariski
+
+private theorem ind_universeLift {R A : CommRingCat.{u}} (f : R ⟶ A)
+    (h : ind.{v} CommRingCat.localIso f) :
+    ind.{max v w} CommRingCat.localIso f := by
+  rw [ind_iff_ind_underMk] at h ⊢
+  obtain ⟨J, _, _, pres, hpres⟩ := h
+  exact ObjectProperty.of_essentiallySmall_index pres hpres
 
 section
 
@@ -171,7 +228,15 @@ theorem of_isColimit
     (F : J ⥤ Under (CommRingCat.of R)) (c : Cocone F) (hc : IsColimit c)
     (e : c.pt ≅ Under.mk (CommRingCat.ofHom (algebraMap R A)))
     (hF : ∀ j, (hom (F.obj j).hom).IndZariski) :
-    (algebraMap R A).IndZariski := sorry
+    (algebraMap R A).IndZariski := by
+  let d : AsSmall.{u} J ≌ J := AsSmall.equiv.symm
+  haveI : IsFiltered (AsSmall.{u} J) := .of_equivalence d.symm
+  apply ofRaw.{u, u, max u v} (algebraMap R A)
+  apply Raw.algebraMap_of_isColimit (d.functor ⋙ F) (c.whisker d.functor)
+    (hc.whiskerEquivalence d) e
+  intro j
+  letI := (F.obj (d.functor.obj j)).hom.hom.toAlgebra
+  exact ind_universeLift _ (Raw.algebraMap_iff.mpr (hF (d.functor.obj j)))
 
 end
 

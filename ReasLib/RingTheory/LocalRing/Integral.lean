@@ -46,7 +46,7 @@ theorem IsMaximal.under_eq_maximalIdeal
 the base maximal ideal. -/
 @[stacks 09EA "lying-over maximal ideals in an integral local algebra"]
 instance IsMaximal.instLiesOverMaximalIdeal
-    (m : Ideal S) [m.IsMaximal] :
+    [Algebra.IsIntegral R S] (m : Ideal S) [m.IsMaximal] :
     m.LiesOver (IsLocalRing.maximalIdeal R) := sorry
 
 -- Proof strategy: construct `Ideal.LiesOver` from `IsMaximal.under_eq_maximalIdeal m`; the

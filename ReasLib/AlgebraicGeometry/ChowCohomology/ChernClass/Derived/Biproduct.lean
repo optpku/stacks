@@ -9,6 +9,7 @@ module
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Derived.Perfect.Biproduct
 public import ReasLib.AlgebraicGeometry.ChowCohomology.ChernClass.Derived.EnvelopeDescent
 public import ReasLib.AlgebraicGeometry.BivariantClass.Additive
+public import ReasLib.AlgebraicGeometry.ChowCohomology.Completion.Integral
 
 @[expose] public section
 
@@ -43,5 +44,20 @@ theorem newtonClass_biprod
       BivariantClass.pointwiseAdd delta (𝟙 (Over.mk pi)) (p : ℤ)
         (newtonClass delta pi classes E perfectE definedE p)
         (newtonClass delta pi classes F perfectF definedF p) := sorry
+
+/-- Total Chern classes of perfect derived modules are multiplicative under binary
+biproducts. -/
+theorem totalClass_biprod
+    {S X : Scheme.{u}} [UniversallyCatenary S]
+    (δ : S → ℤ) [IsDimensionFunction δ]
+    (π : X ⟶ S) [LocallyOfFiniteType π] (classes : Theory δ π)
+    {E F : RingedSpace.ModuleDerived X.toRingedSpace}
+    (perfectE : RingedSpace.ModuleDerived.IsPerfect E)
+    (perfectF : RingedSpace.ModuleDerived.IsPerfect F)
+    (definedE : IsDefined E) (definedF : IsDefined F) :
+    totalClass δ π classes (E ⊞ F) (perfectE.biprod perfectF) (definedE.biprod definedF) =
+      ChowCohomology.Nonnegative.Completion.mul δ π
+        (totalClass δ π classes E perfectE definedE)
+        (totalClass δ π classes F perfectF definedF) := sorry
 
 end AlgebraicGeometry.ChernClass.Derived

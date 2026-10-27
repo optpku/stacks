@@ -8,6 +8,7 @@ module
 
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.FiniteType
 public import ReasLib.AlgebraicGeometry.AlgebraicStack.SmoothPresentation
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.LocallyOfFiniteType
 
 /-!
 # Locally of finite type for morphisms of algebraic stacks
@@ -55,6 +56,35 @@ theorem locallyOfFiniteType_iff {S : Scheme.{u}} {X Y : GroupoidsOver S}
   sorry
 
 namespace LocallyOfFiniteType
+
+/-- Representable local finite type implies local finite type as a morphism of
+algebraic stacks.
+
+Stacks, Tag 06FS and the preceding compatibility paragraph:
+`source/stacks-official-a04446e57ec1/additional-sources-2.md:30104-30134`. -/
+instance of_groupoidsHom {S : Scheme.{u}} {X Y : GroupoidsOver S}
+    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y)
+    [Groupoids.Hom.LocallyOfFiniteType f] : LocallyOfFiniteType f where
+  exists_surjective_smooth_presentation := by
+    sorry
+
+/-- For a morphism of algebraic stacks representable by algebraic spaces,
+local finite type agrees with representable local finite type.
+
+Stacks, Tags 06FS and 06FM:
+`source/stacks-official-a04446e57ec1/additional-sources-2.md:30104-30134`
+and `additional-sources-2.md:29887-29917` in the same source directory. -/
+theorem iff_groupoidsHom {S : Scheme.{u}} {X Y : GroupoidsOver S}
+    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y)
+    (hf : relativelyRepresentableByAlgebraicSpaces f) :
+    LocallyOfFiniteType f ↔ Groupoids.Hom.LocallyOfFiniteType f := by
+  constructor
+  · intro h
+    apply (Groupoids.Hom.LocallyOfFiniteType.iff_has f hf).mpr
+    sorry
+  · intro h
+    letI := h
+    exact of_groupoidsHom f
 
 /-- The identity morphism of an algebraic stack is locally of finite type. -/
 instance id {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X] :

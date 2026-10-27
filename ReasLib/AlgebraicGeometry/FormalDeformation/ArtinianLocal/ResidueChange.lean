@@ -33,8 +33,9 @@ variable (B : ArtinianLocalAlgCat Λ l)
 
 /-- The structure map `k → l` is local. -/
 instance instIsLocalHom_toAlgHom :
-    IsLocalHom (IsScalarTower.toAlgHom Λ k l) :=
-  sorry
+    IsLocalHom (IsScalarTower.toAlgHom Λ k l) := by
+  let h : IsLocalHom (IsScalarTower.toAlgHom Λ k l).toRingHom := inferInstance
+  exact ⟨fun x hx => h.map_nonunit x hx⟩
 
 /-- The fibre product `B ×_l k` is a local ring. -/
 instance instIsLocalRing_residueChange :
@@ -60,7 +61,8 @@ instance instIsLocalHom_residueChangeSnd :
 theorem residueChangeSnd_surjective :
     Function.Surjective (AlgHom.pullbackSnd (toResidue B).hom
       (IsScalarTower.toAlgHom Λ k l)) :=
-  sorry
+  AlgHom.surjective_pullbackSnd_of_surjective _ _
+    (B.residueFieldIso.surjective.comp IsLocalRing.residue_surjective)
 
 /-- The residue field of `B ×_l k` is identified with `k` by its second projection. -/
 noncomputable def residueChangeResidueFieldIso :

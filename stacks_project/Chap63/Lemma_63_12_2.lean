@@ -6,7 +6,8 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap63.Lemma_63_12_2_Comparison
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Derived.LowerShriek.Stalk
+import StacksCheckRecall
 
 /-!
 # Stalks of derived étale lower shriek as compactly supported fibre cohomology
@@ -224,8 +225,8 @@ variable [HasSheafify X.smallEtaleTopology (ModuleCat.{u} Λ)]
     (ComplexShape.up ℤ))]
 
   [(etaleModulePushforward P.obj.right.hom Λ ⋙
-    etaleModuleSheafPullback ybar.hom Λ).Additive]
-  [(etaleModuleSheafPullback (ambientToSource f ybar.hom (geometricFiberToPoint f ybar) (geometricFiberToX f ybar) (geometricFiber_isPullback f ybar) P) Λ ⋙
+    smallEtaleInverseImage ybar.hom (ModuleCat.{u} Λ)).Additive]
+  [(smallEtaleInverseImage (ambientToSource f ybar.hom (geometricFiberToPoint f ybar) (geometricFiberToX f ybar) (geometricFiber_isPullback f ybar) P) (ModuleCat.{u} Λ) ⋙
     etaleModulePushforward (ambientToBase f ybar.hom (geometricFiberToPoint f ybar) (geometricFiberToX f ybar) (geometricFiber_isPullback f ybar) P) Λ).Additive]
   [(etaleModulePushforward (ambientToBase f ybar.hom (geometricFiberToPoint f ybar) (geometricFiberToX f ybar) (geometricFiber_isPullback f ybar) P) Λ).Additive]
   [(etaleModulePushforward P.obj.right.hom Λ).Additive]
@@ -242,61 +243,43 @@ variable [HasSheafify X.smallEtaleTopology (ModuleCat.{u} Λ)]
     (Sheaf (Spec (CommRingCat.of ybar.K)).smallEtaleTopology (ModuleCat.{u} Λ))
     (ComplexShape.up ℤ))]
 
-/-- Lemma 63.12.2 (1): Let `f : X ⟶ Y` be a finite type separated morphism of
-schemes with `Y` quasi-compact and quasi-separated. Let `K` be an object of
-`D⁺_tors(X_étale, Λ)`. Then there is a canonical isomorphism
-`(Rf_! K)_ȳ ⟶ RΓ_c(X_ȳ, K|_{X_ȳ})` in `D(Λ)` for any geometric point
-`ȳ : Spec k ⟶ Y`. -/
-@[stacks 0GK0]
-def etaleDerivedLowerShriekStalkCompactSupportIso
-    (K : EtaleDerived X Λ) (h_tors : etaleDerivedIsTorsion K)
-    (n : ℤ) [DerivedCategory.IsGE K n] :
+section BoundedBelow
+
+variable (K : DerivedCategory (Sheaf X.smallEtaleTopology (ModuleCat.{u} Λ)))
+  (h_tors : etaleDerivedIsTorsion K) (n : ℤ) [hGE : DerivedCategory.IsGE K n]
+
+/- Lemma 63.12.2: the canonical geometric-stalk isomorphism for bounded-below
+complexes with torsion cohomology. -/
+@[stacks 0GK0] #check
+  (AlgebraicGeometry.Scheme.Etale.etaleDerivedLowerShriekStalkCompactSupportIso
+    f ybar P Λ K h_tors n :
     etaleDerivedGammaStalk ybar
-        ((etaleDerivedLowerShriek (Over.mk f) P).obj K) ≅
-      (etaleDerivedGammaCompactSupport
-          (geometricFiberCompactification f ybar P)).obj
-        ((etaleModuleDerivedInverseImage (geometricFiberToX f ybar) Λ).obj K) :=
-  @asIso _ _ _ _
-    (etaleDerivedLowerShriekStalkCompactSupport_app f ybar P Λ K)
-    (isIso_etaleDerivedLowerShriekStalkCompactSupport_of_isGE_isTorsion
-      f ybar P Λ K h_tors n)
+        ((etaleDerivedLowerShriek (Λ := Λ)
+          { left := X, right := ⟨⟨⟩⟩, hom := f } P).obj K) ≅
+      (etaleDerivedGammaCompactSupport (Λ := Λ) (X := geometricFiberOverField f ybar)
+          (Compactification.geometricFiber f ybar P)).obj
+        ((etaleModuleDerivedInverseImage (geometricFiberToX f ybar) Λ).obj K))
 
-/-- The forward map of `etaleDerivedLowerShriekStalkCompactSupportIso` is the
-stalk comparison `(Rf_! K)_ȳ ⟶ RΓ_c(X_ȳ, K|_{X_ȳ})`. -/
-theorem etaleDerivedLowerShriekStalkCompactSupportIso_hom
-    (K : EtaleDerived X Λ) (h_tors : etaleDerivedIsTorsion K)
-    (n : ℤ) [DerivedCategory.IsGE K n] :
-    (etaleDerivedLowerShriekStalkCompactSupportIso f ybar P Λ K h_tors n).hom =
-      etaleDerivedLowerShriekStalkCompactSupport_app f ybar P Λ K :=
-  sorry
+end BoundedBelow
 
-/-- Lemma 63.12.2 (2): Let `f : X ⟶ Y` be a finite type separated morphism of
-schemes with `Y` quasi-compact and quasi-separated. If `Λ` is torsion and `K`
-is an object of `D(X_étale, Λ)`, then there is a canonical isomorphism
-`(Rf_! K)_ȳ ⟶ RΓ_c(X_ȳ, K|_{X_ȳ})` in `D(Λ)` for any geometric point
-`ȳ : Spec k ⟶ Y`. -/
-@[stacks 0GK0]
-def etaleDerivedLowerShriekStalkCompactSupportIso_of_isTorsion
-    (hΛ : AddMonoid.IsTorsion Λ) (K : EtaleDerived X Λ) :
+section TorsionCoefficients
+
+variable (hΛ : AddMonoid.IsTorsion Λ)
+  (K : DerivedCategory (Sheaf X.smallEtaleTopology (ModuleCat.{u} Λ)))
+
+/- Lemma 63.12.2: the canonical geometric-stalk isomorphism for all complexes
+over a torsion coefficient ring. -/
+@[stacks 0GK0] #check
+  (AlgebraicGeometry.Scheme.Etale.etaleDerivedLowerShriekStalkCompactSupportIso_of_isTorsion
+    f ybar P Λ hΛ K :
     etaleDerivedGammaStalk ybar
-        ((etaleDerivedLowerShriek (Over.mk f) P).obj K) ≅
-      (etaleDerivedGammaCompactSupport
-          (geometricFiberCompactification f ybar P)).obj
-        ((etaleModuleDerivedInverseImage (geometricFiberToX f ybar) Λ).obj K) :=
-  @asIso _ _ _ _
-    (etaleDerivedLowerShriekStalkCompactSupport_app f ybar P Λ K)
-    (isIso_etaleDerivedLowerShriekStalkCompactSupport_of_isTorsion
-      f ybar P Λ hΛ K)
+        ((etaleDerivedLowerShriek (Λ := Λ)
+          { left := X, right := ⟨⟨⟩⟩, hom := f } P).obj K) ≅
+      (etaleDerivedGammaCompactSupport (Λ := Λ) (X := geometricFiberOverField f ybar)
+          (Compactification.geometricFiber f ybar P)).obj
+        ((etaleModuleDerivedInverseImage (geometricFiberToX f ybar) Λ).obj K))
 
-/-- The forward map of
-`etaleDerivedLowerShriekStalkCompactSupportIso_of_isTorsion` is the stalk
-comparison `(Rf_! K)_ȳ ⟶ RΓ_c(X_ȳ, K|_{X_ȳ})`. -/
-theorem etaleDerivedLowerShriekStalkCompactSupportIso_of_isTorsion_hom
-    (hΛ : AddMonoid.IsTorsion Λ) (K : EtaleDerived X Λ) :
-    (etaleDerivedLowerShriekStalkCompactSupportIso_of_isTorsion f ybar P Λ hΛ
-        K).hom =
-      etaleDerivedLowerShriekStalkCompactSupport_app f ybar P Λ K :=
-  sorry
+end TorsionCoefficients
 
 end AlgebraicGeometry.Scheme.Etale
 

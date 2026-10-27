@@ -40,14 +40,3 @@ instance (priority := 100) Map.preservesFiniteConnectedColimits
     PreservesFiniteConnectedColimits (Under.map f) := sorry
 
 end CategoryTheory.Under
-
-section AggregateSynthesis
-
-variable {C : Type u} [CategoryTheory.Category.{v} C] [HasFiniteConnectedColimits C]
-variable {X Y : C} (f : X ⟶ Y)
-
-#synth HasFiniteConnectedColimits (CategoryTheory.Under X)
-#synth PreservesFiniteConnectedColimits (CategoryTheory.Under.forget X)
-#synth PreservesFiniteConnectedColimits (CategoryTheory.Under.map f)
-
-end AggregateSynthesis

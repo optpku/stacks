@@ -39,12 +39,12 @@ def id (p : S₁ ⥤ C) : CartesianBasedFunctor p p where
 @[simp]
 theorem id.toBasedFunctor (p : S₁ ⥤ C) :
     (id p).toBasedFunctor =
-      BasedFunctor.id (BasedCategory.ofFunctor p) := sorry
+      BasedFunctor.id (BasedCategory.ofFunctor p) := rfl
 
 /-- The total functor underlying the identity cartesian based functor is the identity. -/
 @[simp]
 theorem id.toFunctor (p : S₁ ⥤ C) :
-    (id p).toFunctor = 𝟭 S₁ := sorry
+    (id p).toFunctor = 𝟭 S₁ := rfl
 
 /-- Composition of universe-polymorphic cartesian based functors. -/
 def comp {S₃ : Type uS₃} [Category.{vS₃} S₃] {p₃ : S₃ ⥤ C}
@@ -61,30 +61,30 @@ theorem comp.toBasedFunctor
     {S₃ : Type uS₃} [Category.{vS₃} S₃] {p₃ : S₃ ⥤ C}
     (F : CartesianBasedFunctor p₁ p₂) (G : CartesianBasedFunctor p₂ p₃) :
     (F.comp G).toBasedFunctor =
-      BasedFunctor.comp F.toBasedFunctor G.toBasedFunctor := sorry
+      BasedFunctor.comp F.toBasedFunctor G.toBasedFunctor := rfl
 
 /-- The total functor underlying a composite is the composite of the total functors. -/
 @[simp]
 theorem comp.toFunctor
     {S₃ : Type uS₃} [Category.{vS₃} S₃] {p₃ : S₃ ⥤ C}
     (F : CartesianBasedFunctor p₁ p₂) (G : CartesianBasedFunctor p₂ p₃) :
-    (F.comp G).toFunctor = F.toFunctor ⋙ G.toFunctor := sorry
+    (F.comp G).toFunctor = F.toFunctor ⋙ G.toFunctor := rfl
 
 /-- The identity cartesian based functor acts identically on total-category objects. -/
 @[simp]
 theorem id.obj (p : S₁ ⥤ C) (x : S₁) :
-    (id p).toFunctor.obj x = x := sorry
+    (id p).toFunctor.obj x = x := rfl
 
 /-- The identity cartesian based functor acts identically on total-category morphisms. -/
 @[simp]
 theorem id.map (p : S₁ ⥤ C) {x y : S₁} (f : x ⟶ y) :
-    (id p).toFunctor.map f = f := sorry
+    (id p).toFunctor.map f = f := rfl
 
 /-- Composition of cartesian based functors is computed by successive application on objects. -/
 @[simp]
 theorem comp.obj {S₃ : Type uS₃} [Category.{vS₃} S₃] {p₃ : S₃ ⥤ C}
     (F : CartesianBasedFunctor p₁ p₂) (G : CartesianBasedFunctor p₂ p₃) (x : S₁) :
-    (F.comp G).toFunctor.obj x = G.toFunctor.obj (F.toFunctor.obj x) := sorry
+    (F.comp G).toFunctor.obj x = G.toFunctor.obj (F.toFunctor.obj x) := rfl
 
 /-- Composition of cartesian based functors is computed by successive application on
 morphisms. -/
@@ -93,12 +93,12 @@ theorem comp.map {S₃ : Type uS₃} [Category.{vS₃} S₃] {p₃ : S₃ ⥤ C}
     (F : CartesianBasedFunctor p₁ p₂) (G : CartesianBasedFunctor p₂ p₃)
     {x y : S₁} (f : x ⟶ y) :
     (F.comp G).toFunctor.map f =
-      G.toFunctor.map (F.toFunctor.map f) := sorry
+      G.toFunctor.map (F.toFunctor.map f) := rfl
 
 /-- The fiber functor induced by the identity cartesian based functor is the identity. -/
 @[simp]
 theorem fiberFunctor.id (p : S₁ ⥤ C) (U : C) :
-    (id p).fiberFunctor U = 𝟭 (p.Fiber U) := sorry
+    (id p).fiberFunctor U = 𝟭 (p.Fiber U) := rfl
 
 /-- The fiber functor induced by a composite is the composite of the induced fiber functors. -/
 @[simp]
@@ -106,7 +106,7 @@ theorem fiberFunctor.comp
     {S₃ : Type uS₃} [Category.{vS₃} S₃] {p₃ : S₃ ⥤ C}
     (F : CartesianBasedFunctor p₁ p₂) (G : CartesianBasedFunctor p₂ p₃) (U : C) :
     (F.comp G).fiberFunctor U =
-      F.fiberFunctor U ⋙ G.fiberFunctor U := sorry
+      F.fiberFunctor U ⋙ G.fiberFunctor U := rfl
 
 end CartesianBasedFunctor
 

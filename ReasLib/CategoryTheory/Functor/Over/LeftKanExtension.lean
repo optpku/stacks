@@ -11,6 +11,7 @@ public import Mathlib.CategoryTheory.Functor.KanExtension.Adjunction
 public import Mathlib.CategoryTheory.Limits.Final
 public import Mathlib.CategoryTheory.Limits.Types.Coproducts
 public import Mathlib.Tactic.CrossRefAttribute
+import Mathlib.CategoryTheory.Limits.IsConnected
 
 @[expose] public section
 
@@ -35,9 +36,43 @@ abbrev functor (U V : C) :
     CostructuredArrow.mk
       (𝟙 ((Over.forget U).op.obj (op (Over.mk φ))))
 
+set_option backward.defeqAttrib.useBackward true in
+set_option backward.isDefEq.respectTransparency false in
 /-- The discrete family of arrows `V ⟶ U` is final in the Kan-extension indexing category. -/
 @[instance]
-theorem final (U V : C) : Functor.Final (functor U V) := sorry
+theorem final (U V : C) : Functor.Final (functor U V) where
+  out d := by
+    let φ : V ⟶ U := d.hom.unop ≫ d.left.unop.hom
+    let g : d ⟶ (functor U V).obj ⟨φ⟩ :=
+      CostructuredArrow.homMk
+        ((Over.homMk d.hom.unop : Over.mk φ ⟶ d.left.unop).op)
+        (by
+          apply Quiver.Hom.unop_inj
+          change 𝟙 V ≫ d.hom.unop = d.hom.unop
+          exact Category.id_comp _)
+    let t : StructuredArrow d (functor U V) := StructuredArrow.mk g
+    apply isConnected_of_isTerminal _ (x := t)
+    refine IsTerminal.ofUniqueHom (fun s => ?_) (fun s m => ?_)
+    · rcases s with ⟨⟨⟨⟩⟩, ⟨ψ⟩, f⟩
+      have hf : f.left.unop.left = d.hom.unop := by
+        have h := congrArg Quiver.Hom.unop (CostructuredArrow.w f)
+        change 𝟙 V ≫ f.left.unop.left = d.hom.unop at h
+        change (f.left.unop.left : V ⟶ d.left.unop.left) = d.hom.unop
+        simpa only [Category.id_comp] using h
+      have hψ : ψ = φ := by
+        have h := Over.w f.left.unop
+        change f.left.unop.left ≫ d.left.unop.hom = ψ at h
+        rw [hf] at h
+        exact h.symm
+      subst ψ
+      refine StructuredArrow.homMk (𝟙 _) ?_
+      rw [Functor.map_id, Category.comp_id]
+      apply CostructuredArrow.hom_ext
+      apply Quiver.Hom.unop_inj
+      apply Over.OverMorphism.ext
+      exact hf
+    · apply StructuredArrow.hom_ext
+      exact Subsingleton.elim _ _
 
 /-- The restriction of the Kan-extension indexing diagram to `Index.functor U V` is the discrete
 family of values of `G` on maps `V ⟶ U`. -/

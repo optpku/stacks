@@ -55,7 +55,9 @@ variable (K : DerivedCategory (Sheaf S.smallEtaleTopology AddCommGrpCat.{u + 1})
 specialization with genuine derived sections pullback for every unbounded K, without
 boundedness, supplied comparison isomorphisms, or injective-preservation assumptions. -/
 @[stacks 0GJ4]
-#check (AlgebraicGeometry.Scheme.derivedEtaleSpecialization_eq_strictHenselianPullback
+#check (letI : ∀ X : Scheme.{u}, HasWeakSheafify X.smallEtaleTopology AddCommGrpCat.{u + 1} :=
+    fun _ ↦ HasSheafify.isRightAdjoint
+  (AlgebraicGeometry.Scheme.derivedEtaleSpecialization_eq_strictHenselianPullback
   s t point point_over K :
   (strictHenselianDerivedGlobalToStalk s).app K ≫
       (ExactFunctor.MapDerivedCategory.map (ObjectProperty.homMk
@@ -66,6 +68,6 @@ boundedness, supplied comparison isomorphisms, or injective-preservation assumpt
         (StrictHenselization.comparison s t point point_over)
         (StrictHenselization.comparison_over s t point point_over)) :
       strictHenselianGlobalSectionsExact s ⟶ strictHenselianGlobalSectionsExact t)).app K ≫
-      (strictHenselianDerivedGlobalToStalk t).app K)
+      (strictHenselianDerivedGlobalToStalk t).app K))
 
 end

@@ -27,12 +27,18 @@ variable {dimension : V → ℕ} {product : V → V → V}
 variable {fst : ∀ X Y, product X Y ⟶ X} {snd : ∀ X Y, product X Y ⟶ Y}
 variable {point : V} {H : V → Type x} {CH : V → Type y}
 variable [∀ X, Ring (H X)] [∀ X, Algebra F (H X)] [∀ X, CommRing (CH X)]
-variable {Hgrade : ∀ X, ℤ × ℤ → Submodule F (H X)}
+variable {Hgrade : ∀ X, ℤ → Submodule F (H X)}
 variable {CHgrade : ∀ X, ℤ → Submodule ℤ (CH X)}
 variable [∀ X, GradedAlgebra (Hgrade X)] [∀ X, GradedAlgebra (CHgrade X)]
 variable {cyclePullback : ∀ {X Y : V},
   (X ⟶ Y) → CHgrade Y →ₐᵍ[ℤ] CHgrade X}
 variable {cyclePushforward : ∀ {X Y : V}, (X ⟶ Y) → CH X →+ CH Y}
+
+/-- The theory supplies the smooth structure used in relative dimension functions. -/
+local instance facadeDegreeRepresentedSmooth
+    (T : SchemeClassicalTheory k F TateLine V dimension product fst snd point
+      H CH Hgrade CHgrade cyclePullback cyclePushforward) (X : V) :
+    Smooth (T.scheme.obj X).hom := T.smooth X
 
 /- Lemma 45.10.3: for a nonempty equidimensional smooth projective scheme,
 integration after the top-degree cycle-class map is the degree of the corresponding

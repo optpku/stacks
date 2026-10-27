@@ -48,13 +48,41 @@ abbrev Homwise.IsLocalEquivalence
   CartesianBasedFunctor.Homwise.IsLocalEquivalence J
     (FiberedCategoryOver.toCartesianBasedFunctor F)
 
+/-- The cartesian-functor Hom map is the fixed-universe Hom map with its values lifted.
+Both constructions use the same chosen cleavages and reindexing comparisons. -/
+theorem presheafHomMap.whiskerRight_ulift
+    (F : X ⟶ Y) {U : C} (x y : X.p.Fiber U) :
+    Functor.whiskerRight (presheafHomMap F x y) uliftFunctor.{vS, vS} =
+      CartesianBasedFunctor.HomPresheaf.Chosen.map
+        (FiberedCategoryOver.toCartesianBasedFunctor F) x y := by
+  rfl
+
+/-- Removing the valuewise `ULift` identifies the cartesian-functor Hom map with the
+Hom map of the associated strong transformation, as arrows of presheaves. -/
+noncomputable def presheafHomMap.chosenArrowIso
+    (F : X ⟶ Y) {U : C} (x y : X.p.Fiber U) :
+    Arrow.mk (CartesianBasedFunctor.HomPresheaf.Chosen.map
+        (FiberedCategoryOver.toCartesianBasedFunctor F) x y) ≅
+      Arrow.mk (presheafHomMap F x y) :=
+  Arrow.isoMk
+    (Functor.isoWhiskerLeft _ uliftFunctorTrivial ≪≫ Functor.rightUnitor _)
+    (Functor.isoWhiskerLeft _ uliftFunctorTrivial ≪≫ Functor.rightUnitor _)
+    (by
+      rw [← presheafHomMap.whiskerRight_ulift]
+      ext W δ
+      rfl)
+
 /-- A Homwise local equivalence of fibered categories is a Homwise local equivalence of the
 associated strong transformation of fiber pseudofunctors.  This bridges the cartesian-functor
 owner to the generic strong-transformation extension API. -/
 theorem Homwise.IsLocalEquivalence.toStrongTrans
     {F : X ⟶ Y} (hF : Homwise.IsLocalEquivalence J F) :
     Pseudofunctor.StrongTrans.Homwise.IsLocalEquivalence
-      (FiberedCategoryOver.strongTrans F) J := sorry
+      (FiberedCategoryOver.strongTrans F) J := by
+  intro U x y
+  exact ((J.over U).W.arrow_mk_iso_iff
+    (presheafHomMap.chosenArrowIso F x y)).1
+      (Presheaf.LocallyBijective.mem_W _ _ (hF x y).1 (hF x y).2)
 
 /-- When slice localizing classes coincide with locally bijective maps at the value universe,
 Homwise local equivalence is equivalent to membership of every Hom map in those classes. -/
@@ -63,7 +91,24 @@ theorem Homwise.isLocalEquivalence_iff
     [∀ U : C, (J.over U).WEqualsLocallyBijective (Type vS)] :
     Homwise.IsLocalEquivalence J F ↔
       ∀ {U : C} (x y : X.p.Fiber U),
-        (J.over U).W (presheafHomMap F x y) := sorry
+        (J.over U).W (presheafHomMap F x y) := by
+  constructor
+  · intro hF
+    exact hF.toStrongTrans
+  · intro hF U x y
+    exact ((J.over U).W_iff_isLocallyBijective _).1
+      (((J.over U).W.arrow_mk_iso_iff
+        (presheafHomMap.chosenArrowIso F x y)).2 (hF x y))
+
+/-- The strong-transformation condition reflects to the cartesian-functor owner whenever
+the slice localizing classes are locally bijective maps at the value universe. -/
+theorem Homwise.IsLocalEquivalence.ofStrongTrans
+    {F : X ⟶ Y}
+    [∀ U : C, (J.over U).WEqualsLocallyBijective (Type vS)]
+    (hF : Pseudofunctor.StrongTrans.Homwise.IsLocalEquivalence
+      (FiberedCategoryOver.strongTrans F) J) :
+    Homwise.IsLocalEquivalence J F :=
+  (Homwise.isLocalEquivalence_iff J F).2 hF
 
 /-- A Homwise local equivalence is Homwise locally surjective. -/
 theorem Homwise.IsLocalEquivalence.isLocallySurjective

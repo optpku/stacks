@@ -32,7 +32,7 @@ variable [AddCommGroup P] [Module R P] [AddCommGroup Q] [Module R Q]
 No surjectivity or finiteness condition on the codomain is needed: the kernel is a submodule of
 the finite domain. -/
 @[stacks 00LX "finite kernel of a linear map with finite domain"]
-instance ker_finite_of_finite [Module.Finite R P] (f : P →ₗ[R] Q) :
+instance ker_finite_of_finite [IsNoetherianRing R] [Module.Finite R P] (f : P →ₗ[R] Q) :
     Module.Finite R (ker f) := sorry
 
 end LinearMap

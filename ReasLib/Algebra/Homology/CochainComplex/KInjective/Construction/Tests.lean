@@ -6,7 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import ReasLib.Algebra.Homology.CochainComplex.KInjective.Construction
+public import ReasLib.Algebra.Homology.CochainComplex.KInjective.Construction.Core
 
 /-! # Nullhomotopies for the coded K-injective tests
 
@@ -26,6 +26,7 @@ namespace CochainComplex.KInjectiveResolution.Construction
 
 variable (C : Type u) [Category.{v} C] [Abelian C] [IsGrothendieckAbelian.{w} C]
 
+-- Local instance justification (instance diamond): Mathlib deliberately leaves Abelian.hasFiniteBiproducts unregistered globally because of inference conflicts; local registration computes cone contractions with the same native biproducts as Core.
 attribute [local instance] Abelian.hasFiniteBiproducts
 
 /-- The actual second arrow from the same small-object factorization. -/

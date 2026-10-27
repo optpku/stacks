@@ -62,3 +62,32 @@ noncomputable abbrev modulePullbackDerived (f : ToposHom X Y)
     (RingedSite.Hom.moduleLocalization Y) (RingedSite.Hom.ModuleQis Y)
 
 end RingedSite.ToposHom
+
+
+namespace RingedSite.ToposHom.NativeDerived
+
+variable {X : RingedSite.{uX, vX, w}} {Y : RingedSite.{uY, vY, w}}
+variable [X.siteTopology.HasSheafCompose (forget RingCat.{w})]
+  [Y.siteTopology.HasSheafCompose (forget RingCat.{w})]
+variable (f : ToposHom X Y)
+variable [Abelian (ModuleCat.{w} X)] [Abelian (ModuleCat.{w} Y)]
+
+variable [(SheafOfModules.restrictScalars.{w} f.structureMap).IsRightAdjoint]
+
+/-- Degreewise module pullback followed by native derived localization. -/
+abbrev pullbackToDerived :
+    Hom.ModuleHomotopy.{w} Y ⥤ RingedSite.NativeDerived.category.{w} X :=
+  f.modulePullbackHomotopy ⋙ RingedSite.NativeDerived.localization.{w} X
+
+/-- Existence of the total left derived functor of native module pullback. -/
+abbrev HasPullback : Prop :=
+  Functor.HasLeftDerivedFunctor (pullbackToDerived f) (RingedSite.NativeDerived.quasiIso.{w} Y)
+
+/-- The unbounded derived inverse image of module sheaves. -/
+abbrev pullback [HasPullback f] :
+    RingedSite.NativeDerived.category.{w} Y ⥤ RingedSite.NativeDerived.category.{w} X :=
+  @Functor.totalLeftDerived _ _ _ _ _ _ (pullbackToDerived f)
+    (RingedSite.NativeDerived.localization.{w} Y) (RingedSite.NativeDerived.quasiIso.{w} Y)
+    (RingedSite.NativeDerived.localizationIsLocalization.{w} Y) inferInstance
+
+end RingedSite.ToposHom.NativeDerived

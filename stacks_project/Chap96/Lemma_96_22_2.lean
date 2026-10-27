@@ -6,7 +6,9 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap96.Lemma_96_22_2_Comparison
+import StacksCheckRecall
+
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.Etale.DerivedComparison
 
 /-!
 # Lemma 96.22.2
@@ -34,8 +36,6 @@ namespace AlgebraicGeometry.GroupoidsOver
 variable {S : Scheme.{u}}
 variable {X Y : GroupoidsOver S} {F G : AlgebraicSpace S}
 variable (eX : F.toGroupoids ≌ X) (eY : G.toGroupoids ≌ Y) (f : X ⟶ Y)
-variable (α : (f ≫ eY.symm.hom) ≅
-    (eX.symm.hom ≫ AlgebraicSpace.toGroupoids.map (inducedHom eX eY f)))
 variable [AlgebraicStack X] [AlgebraicStack Y]
 variable [HasSheafify X.etaleTopology AddCommGrpCat.{u}]
 variable [HasSheafify Y.etaleTopology AddCommGrpCat.{u}]
@@ -62,17 +62,17 @@ variable [∀ P : X.totalᵒᵖ ⥤ Type u,
     (toCartesianBasedFunctor f).toFunctor.op.HasPointwiseRightKanExtension P]
 variable [∀ P : F.toGroupoids.totalᵒᵖ ⥤ Type u,
     (toCartesianBasedFunctor
-        (AlgebraicSpace.toGroupoids.map (inducedHom eX eY f))).toFunctor.op.HasPointwiseRightKanExtension P]
+        (AlgebraicSpace.toGroupoids.map (moduleComparisonSpaceMorphism f eX eY))).toFunctor.op.HasPointwiseRightKanExtension P]
 variable [∀ P : X.totalᵒᵖ ⥤ AddCommGrpCat.{u},
     (toCartesianBasedFunctor f).toFunctor.op.HasPointwiseRightKanExtension P]
 variable [∀ P : F.toGroupoids.totalᵒᵖ ⥤ AddCommGrpCat.{u},
     (toCartesianBasedFunctor
-        (AlgebraicSpace.toGroupoids.map (inducedHom eX eY f))).toFunctor.op.HasPointwiseRightKanExtension P]
+        (AlgebraicSpace.toGroupoids.map (moduleComparisonSpaceMorphism f eX eY))).toFunctor.op.HasPointwiseRightKanExtension P]
 variable [(forget AddCommGrpCat.{u}).PreservesRightKanExtensions
     (toCartesianBasedFunctor f).toFunctor.op]
 variable [(forget AddCommGrpCat.{u}).PreservesRightKanExtensions
     (toCartesianBasedFunctor
-        (AlgebraicSpace.toGroupoids.map (inducedHom eX eY f))).toFunctor.op]
+        (AlgebraicSpace.toGroupoids.map (moduleComparisonSpaceMorphism f eX eY))).toFunctor.op]
 variable [IsGrothendieckAbelian.{u + 1, u + 1, u + 1}
     (Sheaf X.etaleTopology AddCommGrpCat.{u})]
 variable [IsGrothendieckAbelian.{u + 1, u + 1, u + 1}
@@ -89,7 +89,7 @@ variable [HasRightDerivedFunctor
     (RightDerived.Cochain.toDerived (etaleAbelianPushforward f))
     (HomologicalComplex.quasiIso (Sheaf X.etaleTopology AddCommGrpCat.{u}) (up ℤ))]
 variable [HasRightDerivedFunctor
-    (RightDerived.Cochain.toDerived (smallAbelianPushforward (inducedHom eX eY f)))
+    (RightDerived.Cochain.toDerived (AlgebraicSpace.EtaleAdditive.directImage (moduleComparisonSpaceMorphism f eX eY)))
     (HomologicalComplex.quasiIso
       (Sheaf (AlgebraicSpace.smallEtaleTopology F) AddCommGrpCat.{u}) (up ℤ))]
 variable [HasRightDerivedFunctor
@@ -98,7 +98,7 @@ variable [HasRightDerivedFunctor
     (HomologicalComplex.quasiIso (Sheaf X.etaleTopology AddCommGrpCat.{u}) (up ℤ))]
 variable [HasRightDerivedFunctor
     (RightDerived.Cochain.toDerived
-      (restrictAbelian eX ⋙ smallAbelianPushforward (inducedHom eX eY f)))
+      (restrictAbelian eX ⋙ AlgebraicSpace.EtaleAdditive.directImage (moduleComparisonSpaceMorphism f eX eY)))
     (HomologicalComplex.quasiIso (Sheaf X.etaleTopology AddCommGrpCat.{u}) (up ℤ))]
 variable [X.etaleTopology.WEqualsLocallyBijective AddCommGrpCat.{u}]
 variable [Y.etaleTopology.WEqualsLocallyBijective AddCommGrpCat.{u}]
@@ -116,6 +116,7 @@ variable [HasDerivedCategory (SheafOfModules.{u} (etaleRingedSite X).structureSh
 variable [HasDerivedCategory (SheafOfModules.{u} (etaleRingedSite Y).structureSheaf)]
 variable [HasDerivedCategory (SheafOfModules.{u} (AlgebraicSpace.ringedSite F).structureSheaf)]
 variable [HasDerivedCategory (SheafOfModules.{u} (AlgebraicSpace.ringedSite G).structureSheaf)]
+-- Local instance justification (defeq pin): the explicit representing equivalences eX and eY select the small-section certificate used by etaleModuleDirectImage f and this derived-existence assumption; f alone cannot infer it.
 variable [letI := hasSmallCFGTypeSections_ofRepresented f eX eY
     HasRightDerivedFunctor
     (RightDerived.Cochain.toDerived (etaleModuleDirectImage f))
@@ -123,9 +124,10 @@ variable [letI := hasSmallCFGTypeSections_ofRepresented f eX eY
       (SheafOfModules.{u} (etaleRingedSite X).structureSheaf) (up ℤ))]
 variable [HasRightDerivedFunctor
     (RightDerived.Cochain.toDerived
-      (AlgebraicSpace.ringedToposHom (inducedHom eX eY f)).modulePushforward)
+      (AlgebraicSpace.ringedToposHom (moduleComparisonSpaceMorphism f eX eY)).modulePushforward)
     (HomologicalComplex.quasiIso
       (SheafOfModules.{u} (AlgebraicSpace.ringedSite F).structureSheaf) (up ℤ))]
+-- Local instance justification (defeq pin): the explicit representing equivalences eX and eY select the small-section certificate used by the composite module direct image and this derived-existence assumption; f alone cannot infer it.
 variable [letI := hasSmallCFGTypeSections_ofRepresented f eX eY
     HasRightDerivedFunctor
     (RightDerived.Cochain.toDerived
@@ -135,65 +137,38 @@ variable [letI := hasSmallCFGTypeSections_ofRepresented f eX eY
 variable [HasRightDerivedFunctor
     (RightDerived.Cochain.toDerived
       ((piToposHom F X eX).modulePushforward ⋙
-        (AlgebraicSpace.ringedToposHom (inducedHom eX eY f)).modulePushforward))
+        (AlgebraicSpace.ringedToposHom (moduleComparisonSpaceMorphism f eX eY)).modulePushforward))
     (HomologicalComplex.quasiIso
       (SheafOfModules.{u} (etaleRingedSite X).structureSheaf) (up ℤ))]
 
-/-- Lemma 96.22.2 (1): for an abelian étale sheaf ℱ on X,
-(Rf_* ℱ)|_{G_étale} ≅ Rf_small,* (ℱ|_{F_étale}) in D(G_étale). -/
-@[stacks 075N]
-def compareMorphismCohomology (ℱ : Sheaf X.etaleTopology AddCommGrpCat.{u}) :
+/- Lemma 96.22.2 (1): derived pushforward commutes with small étale restriction. -/
+@[stacks 075N] #check (AlgebraicGeometry.GroupoidsOver.compareMorphismCohomology eX eY f :
+    ∀ (ℱ : Sheaf X.etaleTopology AddCommGrpCat.{u}),
+    -- Local instance justification (defeq pin): the explicit representing equivalences eX and eY select the small-section certificate needed to instantiate the abelian comparison; f alone cannot infer it.
     letI := hasSmallCFGTypeSections_ofRepresented f eX eY
     ((restrictAbelian eY).mapDerivedCategory).obj
         ((RightDerived.Cochain.functor (etaleAbelianPushforward f)).obj
           ((DerivedCategory.singleFunctor
               (Sheaf X.etaleTopology AddCommGrpCat.{u}) 0).obj ℱ)) ≅
       (RightDerived.Cochain.functor
-          (smallAbelianPushforward (inducedHom eX eY f))).obj
+          (AlgebraicSpace.EtaleAdditive.directImage (moduleComparisonSpaceMorphism f eX eY))).obj
         ((restrictAbelian eX).mapDerivedCategory.obj
           ((DerivedCategory.singleFunctor
-              (Sheaf X.etaleTopology AddCommGrpCat.{u}) 0).obj ℱ)) :=
-  letI := hasSmallCFGTypeSections_ofRepresented f eX eY
-  (compareMorphismCohomologyIso eX eY f α).app
-    ((DerivedCategory.singleFunctor (Sheaf X.etaleTopology AddCommGrpCat.{u}) 0).obj ℱ)
+              (Sheaf X.etaleTopology AddCommGrpCat.{u}) 0).obj ℱ)))
 
-/-- Object-level form of the functorial abelian derived comparison. -/
-theorem compareMorphismCohomology_eq (ℱ : Sheaf X.etaleTopology AddCommGrpCat.{u}) :
-    letI := hasSmallCFGTypeSections_ofRepresented f eX eY
-    compareMorphismCohomology eX eY f α ℱ =
-      (compareMorphismCohomologyIso eX eY f α).app
-        ((DerivedCategory.singleFunctor
-            (Sheaf X.etaleTopology AddCommGrpCat.{u}) 0).obj ℱ) :=
-  sorry
-
-/-- Lemma 96.22.2 (2): for an étale module ℳ on X,
-(Rf_* ℳ)|_{G_étale} ≅ Rf_small,* (ℳ|_{F_étale}) in D(𝒪_G). -/
-@[stacks 075N]
-def compareMorphismCohomology_modules
-    (ℳ : SheafOfModules.{u} (etaleRingedSite X).structureSheaf) :
+/- Lemma 96.22.2 (2): derived pushforward commutes with small étale restriction. -/
+@[stacks 075N] #check (AlgebraicGeometry.GroupoidsOver.compareMorphismCohomology_modules eX eY f :
+    ∀ (ℳ : SheafOfModules.{u} (etaleRingedSite X).structureSheaf),
+    -- Local instance justification (defeq pin): the explicit representing equivalences eX and eY select the small-section certificate fixing etaleModuleDirectImage f in this conclusion and its derived-existence assumptions; f alone cannot infer it.
     letI := hasSmallCFGTypeSections_ofRepresented f eX eY
     (((piToposHom G Y eY).modulePushforward).mapDerivedCategory).obj
         ((RightDerived.Cochain.functor (etaleModuleDirectImage f)).obj
           ((DerivedCategory.singleFunctor
               (SheafOfModules.{u} (etaleRingedSite X).structureSheaf) 0).obj ℳ)) ≅
       (RightDerived.Cochain.functor
-          (AlgebraicSpace.ringedToposHom (inducedHom eX eY f)).modulePushforward).obj
+          (AlgebraicSpace.ringedToposHom (moduleComparisonSpaceMorphism f eX eY)).modulePushforward).obj
         ((((piToposHom F X eX).modulePushforward).mapDerivedCategory).obj
           ((DerivedCategory.singleFunctor
-              (SheafOfModules.{u} (etaleRingedSite X).structureSheaf) 0).obj ℳ)) :=
-  letI := hasSmallCFGTypeSections_ofRepresented f eX eY
-  (compareMorphismCohomology_modulesIso eX eY f α).app
-    ((DerivedCategory.singleFunctor
-        (SheafOfModules.{u} (etaleRingedSite X).structureSheaf) 0).obj ℳ)
-
-/-- Object-level form of the functorial module derived comparison. -/
-theorem compareMorphismCohomology_modules_eq
-    (ℳ : SheafOfModules.{u} (etaleRingedSite X).structureSheaf) :
-    letI := hasSmallCFGTypeSections_ofRepresented f eX eY
-    compareMorphismCohomology_modules eX eY f α ℳ =
-      (compareMorphismCohomology_modulesIso eX eY f α).app
-        ((DerivedCategory.singleFunctor
-            (SheafOfModules.{u} (etaleRingedSite X).structureSheaf) 0).obj ℳ) :=
-  sorry
+              (SheafOfModules.{u} (etaleRingedSite X).structureSheaf) 0).obj ℳ)))
 
 end AlgebraicGeometry.GroupoidsOver

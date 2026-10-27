@@ -17,10 +17,8 @@ import Mathlib.Tactic.CrossRefAttribute
 /-!
 # Complex section towers
 
-This leaf owns the objectwise degree, cohomology, and cohomology-sheaf towers attached to a
-sequential inverse system of complexes of modules on a ringed site.  The short names under
-`RingedSite.Hom.ModuleSections.Underlying` are the reusable interface; the names in
-`RingedSite.Hom` below are transparent compatibility aliases for older chapter files.
+Degree sections, cohomology of sections, and underlying cohomology sheaves of complexes of
+modules on a ringed site give sequential inverse systems by stagewise application.
 -/
 
 open CategoryTheory ComplexShape Opposite
@@ -40,7 +38,7 @@ namespace Underlying
 
 /-- The degree-`i` additive sections functor of a cochain complex over `U`. -/
 @[stacks 08CT "degree sections of a complex"]
-abbrev complexDegree (U : X) (i : ℤ) :
+abbrev complexDegree (U : X.carrier) (i : ℤ) :
     CochainComplex (RingedSite.ModuleCat.{z} X) ℤ ⥤ AddCommGrpCat.{z} :=
   (sections.{z} X U).mapHomologicalComplex (up ℤ) ⋙
     HomologicalComplex.eval AddCommGrpCat.{z} (up ℤ) i
@@ -49,12 +47,12 @@ abbrev complexDegree (U : X) (i : ℤ) :
 @[stacks 08CT "degree section tower of a complex system"]
 abbrev complexDegreeTower
     (F : SequentialInverseSystem (CochainComplex (RingedSite.ModuleCat.{z} X) ℤ))
-    (U : X) (i : ℤ) : SequentialInverseSystem AddCommGrpCat.{z} :=
+    (U : X.carrier) (i : ℤ) : SequentialInverseSystem AddCommGrpCat.{z} :=
   F ⋙ complexDegree X U i
 
 /-- The degree-`i` cohomology functor of sections of a cochain complex over `U`. -/
 @[stacks 08CT "cohomology of sections of a complex"]
-abbrev complexCohomology (U : X) (i : ℤ) :
+abbrev complexCohomology (U : X.carrier) (i : ℤ) :
     CochainComplex (RingedSite.ModuleCat.{z} X) ℤ ⥤ AddCommGrpCat.{z} :=
   (sections.{z} X U).mapHomologicalComplex (up ℤ) ⋙
     HomologicalComplex.homologyFunctor AddCommGrpCat.{z} (up ℤ) i
@@ -63,7 +61,7 @@ abbrev complexCohomology (U : X) (i : ℤ) :
 @[stacks 08CT "cohomology section tower of a complex system"]
 abbrev complexCohomologyTower
     (F : SequentialInverseSystem (CochainComplex (RingedSite.ModuleCat.{z} X) ℤ))
-    (U : X) (i : ℤ) : SequentialInverseSystem AddCommGrpCat.{z} :=
+    (U : X.carrier) (i : ℤ) : SequentialInverseSystem AddCommGrpCat.{z} :=
   F ⋙ complexCohomology X U i
 
 /-- The underlying additive cohomology-sheaf functor in degree `i`. -/
@@ -90,36 +88,35 @@ namespace RingedSite.Hom
 
 variable (X : RingedSite.{u, v, w})
 
-/- These aliases are intentionally transparent.  They let existing chapter proofs migrate one
-  import at a time while all new code can use the shorter `ModuleSections.Underlying` API. -/
+/- The following functors and inverse systems use coefficient universe `max u v`. -/
 
-/-- Compatibility alias for `ModuleSections.Underlying.complexDegree`. -/
+/-- The degree-`i` additive sections functor of a cochain complex over `U`. -/
 @[stacks 08CT "compatibility degree sections of a complex"]
-abbrev complexSectionDegreeFunctor (U : X) (i : ℤ) :
+abbrev complexSectionDegreeFunctor (U : X.carrier) (i : ℤ) :
     CochainComplex (ModuleCat X) ℤ ⥤ AddCommGrpCat.{max u v} :=
   ModuleSections.Underlying.complexDegree.{max u v} X U i
 
-/-- Compatibility alias for `ModuleSections.Underlying.complexDegreeTower`. -/
+/-- The inverse system of degree-`i` additive sections over `U` of a system of cochain complexes. -/
 @[stacks 08CT "compatibility degree section tower"]
 abbrev complexSectionDegreeInverseSystem
     (F : SequentialInverseSystem (CochainComplex (ModuleCat X) ℤ))
-    (U : X) (i : ℤ) : SequentialInverseSystem AddCommGrpCat.{max u v} :=
+    (U : X.carrier) (i : ℤ) : SequentialInverseSystem AddCommGrpCat.{max u v} :=
   ModuleSections.Underlying.complexDegreeTower.{max u v} X F U i
 
-/-- Compatibility alias for `ModuleSections.Underlying.complexCohomology`. -/
+/-- The degree-`i` cohomology functor of additive sections of a cochain complex over `U`. -/
 @[stacks 08CT "compatibility cohomology of sections"]
-abbrev complexSectionCohomologyFunctor (U : X) (i : ℤ) :
+abbrev complexSectionCohomologyFunctor (U : X.carrier) (i : ℤ) :
     CochainComplex (ModuleCat X) ℤ ⥤ AddCommGrpCat.{max u v} :=
   ModuleSections.Underlying.complexCohomology.{max u v} X U i
 
-/-- Compatibility alias for `ModuleSections.Underlying.complexCohomologyTower`. -/
+/-- The inverse system of degree-`i` cohomology of sections over `U` of a system of cochain complexes. -/
 @[stacks 08CT "compatibility cohomology section tower"]
 abbrev complexSectionCohomologyInverseSystem
     (F : SequentialInverseSystem (CochainComplex (ModuleCat X) ℤ))
-    (U : X) (i : ℤ) : SequentialInverseSystem AddCommGrpCat.{max u v} :=
+    (U : X.carrier) (i : ℤ) : SequentialInverseSystem AddCommGrpCat.{max u v} :=
   ModuleSections.Underlying.complexCohomologyTower.{max u v} X F U i
 
-/-- Compatibility alias for `ModuleSections.Underlying.cohomologySheaf`. -/
+/-- The underlying additive cohomology-sheaf functor in degree `i`. -/
 @[stacks 08CT "compatibility underlying cohomology sheaf"]
 abbrev underlyingAbelianCohomologySheafFunctor (i : ℤ)
     [CategoryWithHomology (ModuleCat X)] :
@@ -127,7 +124,7 @@ abbrev underlyingAbelianCohomologySheafFunctor (i : ℤ)
       Sheaf X.siteTopology AddCommGrpCat.{max u v} :=
   ModuleSections.Underlying.cohomologySheaf.{max u v} X i
 
-/-- Compatibility alias for `ModuleSections.Underlying.cohomologySheafTower`. -/
+/-- The inverse system of underlying additive cohomology sheaves in degree `i`. -/
 @[stacks 08CT "compatibility underlying cohomology-sheaf tower"]
 abbrev underlyingAbelianCohomologySheafInverseSystem
     (F : SequentialInverseSystem (CochainComplex (ModuleCat X) ℤ))

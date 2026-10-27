@@ -112,12 +112,9 @@ def GeneratesAndInducesImmersion
   ∃ hψ : ProjectiveSpace.VectorSpace.LinearSystem.Generates
       (Over.mk (openComplementToSpec Z f))
       (tensorPowerOnOpenComplement Z L n) (toOpenComplement f Z L n),
-    ∃ hP : Scheme.ProjectiveBundle.Representation
-      (ProjectiveSpace.VectorSpace.toSpec k (subspace f Z L n))
-      (ProjectiveSpace.VectorSpace.moduleSheaf k (subspace f Z L n)),
       IsImmersion
         (@ProjectiveSpace.VectorSpace.LinearSystem.morphism
-          k _ (subspace f Z L n) _ _ hP
+          k _ (subspace f Z L n) _ _
           (Over.mk (openComplementToSpec Z f))
           (tensorPowerOnOpenComplement Z L n)
           (inferInstanceAs (Invertible

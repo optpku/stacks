@@ -7,6 +7,15 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.IntersectionTheory.FirstChernChow
+import ReasLib.AlgebraicGeometry.AlgebraicSpace.IntersectionTheory.ProjectiveFormulaMap
+import ReasLib.AlgebraicGeometry.AlgebraicSpace.ChowCohomology.Operational
+import ReasLib.AlgebraicGeometry.AlgebraicSpace.IntersectionTheory.OperationalFirstChern.Commutation
+import ReasLib.AlgebraicGeometry.AlgebraicSpace.IntersectionTheory.FirstChernComparison
+import ReasLib.AlgebraicGeometry.AlgebraicSpace.IntersectionTheory.ChernInvertibleSequence
+import ReasLib.AlgebraicGeometry.AlgebraicSpace.IntersectionTheory.IteratedFirstChern
+import ReasLib.AlgebraicGeometry.AlgebraicSpace.ChowGroup.Degree
+import ReasLib.AlgebraicGeometry.AlgebraicSpace.IntersectionTheory.ProjectivePushforward
+import ReasLib.AlgebraicGeometry.AlgebraicSpace.IntersectionTheory.ConstantRankChern
 import StacksCheckRecall
 
 @[expose] public section
@@ -26,7 +35,7 @@ the additive operation
 On cycle representatives, `FirstChernChow.cap_mk` recovers `c1(L) ∩ -`. -/
 @[stacks 0EQY]
 #check
-  (FirstChernChow.cap :
+  (AlgebraicGeometry.AlgebraicSpace.IntersectionTheory.FirstChernChow.cap :
     ∀ {S : Scheme.{u}} {B X : AlgebraicSpace S}
       [UniversallyCatenary B] [IsQuasiSeparated B] (f : X ⟶ B)
       [QuasiSeparated f] [LocallyOfFiniteType f] (δ : Points B → ℤ)

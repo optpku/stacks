@@ -6,6 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Simplicial.RingedSite
 public import Mathlib.CategoryTheory.ObjectProperty.FullSubcategory
 public import Mathlib.CategoryTheory.Sites.CoverLifting
 public import Mathlib.CategoryTheory.Sites.Pullback
@@ -33,13 +34,6 @@ noncomputable section
 namespace AlgebraicGeometry.AlgebraicSpace.Simplicial
 
 variable {S : Scheme.{u}} (U : SimplicialObject (AlgebraicSpace S))
-
-/-- Identity-degree inclusion of the degree-`n` spaces-étale site is continuous for the
-total spaces-étale topology. -/
-instance includeStage_isContinuous (n : SimplexCategoryᵒᵖ) :
-    (SpacesEtale.includeStage n).IsContinuous
-      (spacesEtaleTopology (U.obj n)) (spacesEtaleTotalTopology U) :=
-  sorry
 
 /-- The composite of pullback along `U.map φ.op` with inclusion at degree `n` is continuous. -/
 instance includeStage_comp_isContinuous {m n : SimplexCategory} (φ : m ⟶ n) :

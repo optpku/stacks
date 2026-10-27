@@ -19,6 +19,15 @@ universe u v
 
 namespace AlgebraicGeometry.Scheme
 
+/-- Extension by zero along an étale morphism is additive for the native
+preadditive structures on sheaves of modules. -/
+instance moduleExtensionByZero_additive_native {U X : Scheme.{u}}
+    (j : U ⟶ X) [Etale j] (Λ : Type u) [CommRing Λ]
+    [HasWeakSheafify X.smallEtaleTopology (ModuleCat.{u} Λ)]
+    [∀ F : U.Etaleᵒᵖ ⥤ ModuleCat.{u} Λ,
+      (etaleRestriction j).op.HasLeftKanExtension F] :
+    (etaleExtensionByZero j (ModuleCat.{u} Λ)).Additive := sorry
+
 variable {U X : Scheme.{u}} {Λ : Type v} [CommRing Λ]
 variable (j : U ⟶ X) [Etale j]
 variable [Abelian (Sheaf X.smallEtaleTopology (ModuleCat.{v} Λ))]

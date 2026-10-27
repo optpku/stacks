@@ -60,15 +60,23 @@ def mapCocycle (K : Complex (J := J) (O := O)) {M N : Modules K} {k : ℤ}
   Cocycle.mk (map K f.1) (k + 1) rfl sorry
 
 /-- The map from the shift of `M ⊗_(endDGA K) K` to `(M[k]) ⊗_(endDGA K) K`, obtained
-by applying the tensor DG functor to the homogeneous identity `M ⟶ M[k]`. -/
+by applying the tensor DG functor to the homogeneous identity `M ⟶ M[k]`.
+
+`Cocycle.equivHomShift'` uses the cochain `leftShift` conversion.  Its component
+contains the unit `(-1)^(k * (k - 1) / 2)`, whereas the categorical shift
+associator is the unsigned structural transport.  Multiplying by the same unit
+normalizes that conversion, so this comparison has the canonical component map.
+-/
 @[stacks 09LW "tensor-shift map"]
 def shiftHom (K : Complex (J := J) (O := O)) (M : Modules K) (k : ℤ) :
     (obj K M)⟦k⟧ ⟶ obj K (M[k]) :=
-  (Cocycle.equivHomShift' k (-k) (neg_add_cancel k)).symm
-    (mapCocycle K (DifferentialGradedModule.Shift.toGradedHom M k))
+  (k * (k - 1) / 2).negOnePow •
+    ((Cocycle.equivHomShift' k (-k) (neg_add_cancel k)).symm
+      (mapCocycle K (DifferentialGradedModule.Shift.toGradedHom M k)))
 
 /-- The inverse map from `(M[k]) ⊗_(endDGA K) K` to the shift of
-`M ⊗_(endDGA K) K`, obtained from the reverse homogeneous identity. -/
+`M ⊗_(endDGA K) K`, obtained from the reverse homogeneous identity.  `Cocycle.equivHomShift`
+is the unsigned right-shift conversion, so no additional sign is inserted here. -/
 @[stacks 09LW "inverse tensor-shift map"]
 def shiftInv (K : Complex (J := J) (O := O)) (M : Modules K) (k : ℤ) :
     obj K (M[k]) ⟶ (obj K M)⟦k⟧ :=

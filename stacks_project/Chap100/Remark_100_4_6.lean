@@ -6,7 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap100.Remark_100_4_6_Quotient
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.KernelPair.Points
 import StacksCheckRecall
 
 @[expose] public section
@@ -22,7 +22,7 @@ Section 100.3. Let `R = U ×_X U` and let `(U, R, s, t, c)` be the associated
 groupoid in algebraic spaces. Then the image of `|R| → |U| × |U|` is an
 equivalence relation on `|U|`. -/
 @[stacks 04XK] #check
-  (pointsRel_equivalence :
+  (AlgebraicGeometry.AlgebraicStack.pointsRel_equivalence :
     ∀ {S : Scheme.{u}} {X U : GroupoidsOver S} (f : U ⟶ X)
       [AlgebraicStack X] (hU : IsRepresentableByAlgebraicSpace U)
       [Groupoids.Hom.Surjective f],
@@ -33,7 +33,7 @@ canonical morphism of Algebraic Stacks, Lemma 94.16.1, one has
 `|X| = |U| / |R|`. In general `[U / R]` need not be an algebraic stack, and
 `fCan` need not be an isomorphism. -/
 @[stacks 04XK] #check
-  (isPointsQuotient :
+  (AlgebraicGeometry.AlgebraicStack.isPointsQuotient :
     ∀ {S : Scheme.{u}} {X U : GroupoidsOver S} (f : U ⟶ X)
       [AlgebraicStack X] (hU : IsRepresentableByAlgebraicSpace U)
       [Groupoids.Hom.Surjective f],

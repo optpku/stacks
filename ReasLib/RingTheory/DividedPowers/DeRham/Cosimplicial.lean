@@ -66,14 +66,65 @@ theorem reindex_base {n m : SimplexCategory} (σ : n ⟶ m) :
     DividedPowers.IsDPMorphism γ (E m.len).D.dividedPowers
       (((E m.len).toD.comp
         (MvPolynomial.TensorPower.reindex A ι n.len m.len (SimplexCategory.Hom.toOrderHom σ)).toRingHom).comp
-          (algebraMap A (MvPolynomial.TensorPower.carrier A ι n.len))) := sorry
+          (algebraMap A (MvPolynomial.TensorPower.carrier A ι n.len))) := by
+  have hbase :
+      (((E m.len).toD.comp
+        (MvPolynomial.TensorPower.reindex A ι n.len m.len
+          (SimplexCategory.Hom.toOrderHom σ)).toRingHom).comp
+        (algebraMap A (MvPolynomial.TensorPower.carrier A ι n.len))) =
+      (E m.len).base.toRingHom := by
+    ext a
+    exact (congrArg (E m.len).toD
+      ((MvPolynomial.TensorPower.reindex A ι n.len m.len
+        (SimplexCategory.Hom.toOrderHom σ)).commutes a)).trans
+      (RingHom.congr_fun (E m.len).base_toD a).symm
+  rw [hbase]
+  exact (E m.len).base.isDPMorphism
 
 include hJ in
 /-- Tensor reindexing sends the presentation kernel into the target envelope ideal. -/
 theorem reindex_ideal {n m : SimplexCategory} (σ : n ⟶ m) :
     Ideal.map ((E m.len).toD.comp
       (MvPolynomial.TensorPower.reindex A ι n.len m.len (SimplexCategory.Hom.toOrderHom σ)).toRingHom)
-      (J n.len) ≤ (E m.len).D.ideal := sorry
+      (J n.len) ≤ (E m.len).D.ideal := by
+  classical
+  have hslot {R : Type u} [CommRing R] [Algebra A R] (r : ℕ)
+      (f : Fin (r + 1) → MvPolynomial ι A →ₐ[A] R)
+      (j : Fin (r + 1)) (x : MvPolynomial ι A) :
+      MvPolynomial.TensorPower.liftSlots A ι r f
+        (MvPolynomial.TensorPower.slot A ι r j x) = f j x := by
+    change PiTensorProduct.lift (MvPolynomial.TensorPower.liftMap A ι r f)
+      (PiTensorProduct.tprod A (Pi.mulSingle j x)) = f j x
+    rw [PiTensorProduct.lift.tprod]
+    change (∏ k, f k ((Pi.mulSingle j x : Fin (r + 1) → MvPolynomial ι A) k)) = f j x
+    rw [Finset.prod_eq_single j]
+    · simp
+    · intro k _ hkj
+      simp [Pi.mulSingle, hkj]
+    · simp
+  have hdiagonal :
+      (MvPolynomial.TensorPower.diagonal A ι π m.len).comp
+          (MvPolynomial.TensorPower.reindex A ι n.len m.len
+            (SimplexCategory.Hom.toOrderHom σ)) =
+        MvPolynomial.TensorPower.diagonal A ι π n.len := by
+    apply PiTensorProduct.algHom_ext
+    intro j
+    apply AlgHom.ext
+    intro x
+    change MvPolynomial.TensorPower.diagonal A ι π m.len
+        (MvPolynomial.TensorPower.reindex A ι n.len m.len
+          (SimplexCategory.Hom.toOrderHom σ) (MvPolynomial.TensorPower.slot A ι n.len j x)) =
+      MvPolynomial.TensorPower.diagonal A ι π n.len (MvPolynomial.TensorPower.slot A ι n.len j x)
+    simp only [MvPolynomial.TensorPower.diagonal, MvPolynomial.TensorPower.reindex, hslot]
+  apply Ideal.map_le_iff_le_comap.mpr
+  intro x hx
+  have hx0 : MvPolynomial.TensorPower.diagonal A ι π n.len x = 0 := by
+    simpa [hJ n.len] using hx
+  have hreindex : MvPolynomial.TensorPower.reindex A ι n.len m.len
+      (SimplexCategory.Hom.toOrderHom σ) x ∈ J m.len := by
+    rw [hJ m.len, RingHom.mem_ker]
+    exact (DFunLike.congr_fun hdiagonal x).trans hx0
+  exact (E m.len).ideal_map (Ideal.mem_map_of_mem (E m.len).toD hreindex)
 
 /-- The unique divided-power lift of tensor reindexing through the universal envelope. -/
 def envelopeHom {n m : SimplexCategory} (σ : n ⟶ m) :
@@ -88,7 +139,12 @@ def envelopeHom {n m : SimplexCategory} (σ : n ⟶ m) :
 theorem envelopeHom_comp_toD {n m : SimplexCategory} (σ : n ⟶ m) :
     (envelopeHom I γ π J hJ hIJ E hE σ).toRingHom.comp (E n.len).toD =
       (E m.len).toD.comp
-        (MvPolynomial.TensorPower.reindex A ι n.len m.len (SimplexCategory.Hom.toOrderHom σ)).toRingHom := sorry
+        (MvPolynomial.TensorPower.reindex A ι n.len m.len (SimplexCategory.Hom.toOrderHom σ)).toRingHom := by
+  exact (hE n.len
+    ((E m.len).toD.comp
+      (MvPolynomial.TensorPower.reindex A ι n.len m.len (SimplexCategory.Hom.toOrderHom σ)).toRingHom)
+    (reindex_base I γ J hIJ E σ)
+    (reindex_ideal I γ π J hJ hIJ E σ)).choose_spec.1
 
 /-- Every power of the principal ideal is preserved by the envelope lift. -/
 theorem dnHom_ideal {n m : SimplexCategory} (σ : n ⟶ m) (degree : ℕ) :

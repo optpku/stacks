@@ -7,7 +7,7 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 import StacksCheckRecall
-public import stacks_project.Chap75.Lemma_75_26_2_FiberFinrank
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Cohomology.FiberFinrank
 
 @[expose] public section
 
@@ -20,7 +20,7 @@ universe u
 /- Lemma 75.26.2 (1): formation of the fiber cohomology finrank function commutes
 with arbitrary cartesian base change. -/
 @[stacks 0E0R] #check
-  (fiberCohomologyFinrank_baseChange :
+  (AlgebraicGeometry.AlgebraicSpace.fiberCohomologyFinrank_baseChange :
     {Y : Scheme.{u}} → {X X' : AlgebraicSpace Y} → {T : Over Y} →
       (g' : X' ⟶ X) → (f' : X' ⟶ ofOver T) →
       (f : X ⟶ ofOver (Over.mk (𝟙 Y))) → (g : ofOver T ⟶ ofOver (Over.mk (𝟙 Y))) →
@@ -33,7 +33,7 @@ with arbitrary cartesian base change. -/
 /- Lemma 75.26.2 (2): every fiber cohomology finrank function is upper
 semicontinuous. -/
 @[stacks 0E0R] #check
-  (fiberCohomologyFinrank_upperSemicontinuous :
+  (AlgebraicGeometry.AlgebraicSpace.fiberCohomologyFinrank_upperSemicontinuous :
     {Y : Scheme.{u}} → {X : AlgebraicSpace Y} →
       (f : X ⟶ ofOver (Over.mk (𝟙 Y))) →
       [Flat f] → [Proper f] → [FinitePresentation f] →
@@ -44,7 +44,7 @@ semicontinuous. -/
 /- Lemma 75.26.2 (3): every level set of a fiber cohomology finrank function is
 locally constructible in `Y`. -/
 @[stacks 0E0R] #check
-  (fiberCohomologyFinrank_levelSet_isLocallyConstructible :
+  (AlgebraicGeometry.AlgebraicSpace.fiberCohomologyFinrank_levelSet_isLocallyConstructible :
     {Y : Scheme.{u}} → {X : AlgebraicSpace Y} →
       (f : X ⟶ ofOver (Over.mk (𝟙 Y))) →
       [Flat f] → [Proper f] → [FinitePresentation f] →

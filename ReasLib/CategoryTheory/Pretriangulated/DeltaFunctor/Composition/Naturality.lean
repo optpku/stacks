@@ -47,7 +47,9 @@ theorem map_comm {G G' : DeltaFunctor A D} (τ : G ⟶ G')
     CommSq ((Functor.whiskerRight τ.app F).app S.X₃)
       ((G.postcomposeExactFunctor F).δ hS)
       ((G'.postcomposeExactFunctor F).δ hS)
-      (((Functor.whiskerRight τ.app F).app S.X₁)⟦(1 : ℤ)⟧') := sorry
+      (((Functor.whiskerRight τ.app F).app S.X₁)⟦(1 : ℤ)⟧') := by
+  exact CommSq.vert_comp ((τ.comm hS).map F)
+    (CommSq.mk (F.commShiftIso_hom_naturality (τ.app.app S.X₁) (1 : ℤ)))
 
 /-- A morphism of delta functors can be postcomposed with an exact
 triangulated functor. -/
@@ -60,12 +62,20 @@ noncomputable def map {G G' : DeltaFunctor A D} (τ : G ⟶ G') :
 /-- Exact postcomposition sends identity delta-functor morphisms to identities. -/
 @[simp]
 theorem map_id (G : DeltaFunctor A D) :
-    map F (𝟙 G) = 𝟙 (G.postcomposeExactFunctor F) := sorry
+    map F (𝟙 G) = 𝟙 (G.postcomposeExactFunctor F) := by
+  apply Hom.ext
+  apply NatTrans.ext
+  funext X
+  exact F.map_id (G.obj X)
 
 /-- Exact postcomposition preserves composition of delta-functor morphisms. -/
 @[simp]
 theorem map_comp {G G' G'' : DeltaFunctor A D} (τ : G ⟶ G') (σ : G' ⟶ G'') :
-    map F (τ ≫ σ) = map F τ ≫ map F σ := sorry
+    map F (τ ≫ σ) = map F τ ≫ map F σ := by
+  apply Hom.ext
+  apply NatTrans.ext
+  funext X
+  exact F.map_comp (τ.app.app X) (σ.app.app X)
 
 /-- Exact postcomposition is a functor between categories of delta functors. -/
 @[stacks 0151 "functorial exact postcomposition of delta functors"]
@@ -79,13 +89,13 @@ noncomputable def functor : DeltaFunctor A D ⥤ DeltaFunctor A D' where
 constructor `postcomposeExactFunctor`. -/
 @[simp]
 theorem functor_obj (G : DeltaFunctor A D) :
-    (functor F).obj G = G.postcomposeExactFunctor F := sorry
+    (functor F).obj G = G.postcomposeExactFunctor F := rfl
 
 /-- The component of a postcomposed delta-functor morphism is obtained by
 applying the exact functor. -/
 @[simp]
 theorem map_app {G G' : DeltaFunctor A D} (τ : G ⟶ G') (X : A) :
-    (map F τ).app.app X = F.map (τ.app.app X) := sorry
+    (map F τ).app.app X = F.map (τ.app.app X) := rfl
 
 end postcomposeExactFunctor
 
@@ -109,7 +119,8 @@ theorem map_comm {G G' : DeltaFunctor A D} (τ : G ⟶ G')
     CommSq ((Functor.whiskerLeft H.obj τ.app).app S.X₃)
       ((G.precomposeExactFunctor H).δ hS)
       ((G'.precomposeExactFunctor H).δ hS)
-      (((Functor.whiskerLeft H.obj τ.app).app S.X₁)⟦(1 : ℤ)⟧') := sorry
+      (((Functor.whiskerLeft H.obj τ.app).app S.X₁)⟦(1 : ℤ)⟧') := by
+  exact τ.comm (hS.map_of_exact H.obj)
 
 /-- A morphism of delta functors can be precomposed with an exact functor. -/
 @[stacks 0151 "map under exact precomposition of delta functors"]
@@ -121,12 +132,12 @@ noncomputable def map {G G' : DeltaFunctor A D} (τ : G ⟶ G') :
 /-- Exact precomposition sends identity delta-functor morphisms to identities. -/
 @[simp]
 theorem map_id (G : DeltaFunctor A D) :
-    map H (𝟙 G) = 𝟙 (G.precomposeExactFunctor H) := sorry
+    map H (𝟙 G) = 𝟙 (G.precomposeExactFunctor H) := rfl
 
 /-- Exact precomposition preserves composition of delta-functor morphisms. -/
 @[simp]
 theorem map_comp {G G' G'' : DeltaFunctor A D} (τ : G ⟶ G') (σ : G' ⟶ G'') :
-    map H (τ ≫ σ) = map H τ ≫ map H σ := sorry
+    map H (τ ≫ σ) = map H τ ≫ map H σ := rfl
 
 /-- Exact precomposition is a functor between categories of delta functors. -/
 @[stacks 0151 "functorial exact precomposition of delta functors"]
@@ -140,13 +151,13 @@ noncomputable def functor : DeltaFunctor A D ⥤ DeltaFunctor A' D where
 `precomposeExactFunctor`. -/
 @[simp]
 theorem functor_obj (G : DeltaFunctor A D) :
-    (functor H).obj G = G.precomposeExactFunctor H := sorry
+    (functor H).obj G = G.precomposeExactFunctor H := rfl
 
 /-- The component of a precomposed delta-functor morphism is evaluated after
 the exact source functor. -/
 @[simp]
 theorem map_app {G G' : DeltaFunctor A D} (τ : G ⟶ G') (X : A') :
-    (map H τ).app.app X = τ.app.app (H.obj.obj X) := sorry
+    (map H τ).app.app X = τ.app.app (H.obj.obj X) := rfl
 
 end precomposeExactFunctor
 

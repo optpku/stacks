@@ -19,7 +19,9 @@ import Mathlib.Tactic.CrossRefAttribute
 @stack 05EB
 @stack 0A6K
 
-Ideal-power torsion is closed under extensions, and defines a Serre class of modules.
+For a finitely generated ideal, ideal-power torsion is closed under extensions and defines
+a Serre class of modules. Finite generation is a sufficient hypothesis; it need not be
+necessary for a particular ideal.
 -/
 
 noncomputable section
@@ -47,15 +49,17 @@ namespace Module
 variable {R : Type u} [CommRing R]
 variable {M : Type v} [AddCommGroup M] [Module R M]
 
-/-- An extension of two `I`-power torsion modules is `I`-power torsion. -/
+/-- For a finitely generated ideal `I`, an extension of two `I`-power torsion modules
+is `I`-power torsion. -/
 @[stacks 05EB "extension closure"]
 theorem isIdealPowerTorsion_of_submodule_quotient
-    (I : Ideal R) (N : Submodule R M)
+    (I : Ideal R) (hI : I.FG) (N : Submodule R M)
     (hN : IsIdealPowerTorsion I N)
     (hQ : IsIdealPowerTorsion I (M ⧸ N)) :
     IsIdealPowerTorsion I M := sorry
 -- Proof strategy: for each `x : M`, annihilate its quotient class by one power of `I`,
--- then annihilate the resulting element of `N` by a second power and multiply the exponents.
+-- choose finite generators `a_j` of that power of `I`, then choose a common exponent
+-- `m` killing all `a_j * x` in `N`; consequently `I ^ (m + n) * x = 0`.
 
 end Module
 
@@ -68,9 +72,9 @@ variable {R : Type u} [CommRing R]
 abbrev isIdealPowerTorsion (I : Ideal R) : ObjectProperty (ModuleCat.{v} R) :=
   fun M ↦ Module.IsIdealPowerTorsion I M
 
-/-- The `I`-power torsion modules form a Serre class. -/
+/-- For a finitely generated ideal `I`, the `I`-power torsion modules form a Serre class. -/
 @[stacks 0A6K]
-instance isIdealPowerTorsion_isSerreClass (I : Ideal R) :
+instance isIdealPowerTorsion_isSerreClass (I : Ideal R) [Fact I.FG] :
     (isIdealPowerTorsion I : ObjectProperty (ModuleCat.{v} R)).IsSerreClass := sorry
 -- Proof strategy: supply the subobject and quotient closure from the elementwise criterion,
 -- and use `Module.isIdealPowerTorsion_of_submodule_quotient` for extension closure.

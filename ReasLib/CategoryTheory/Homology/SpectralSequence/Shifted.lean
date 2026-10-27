@@ -250,12 +250,13 @@ noncomputable def homologyPageTower (S : ShiftedSpectralSequence T) : HomologyPa
 
 namespace HomologyTower
 
-/-- The complete lattice on the first object of the homology-page tower, transported from the
-first shifted page. -/
+/-- The canonical subobject lattice on the first object of the homology-page tower. -/
 @[stacks 0AMI "shifted homology-page tower first-page lattice bridge"]
 noncomputable abbrev pageOneCompleteLattice (S : ShiftedSpectralSequence T)
-    [h : CompleteLattice (Subobject (S.page 1).obj)] :
-    CompleteLattice (Subobject (S.homologyPageTower.page 1)) := h
+    [LocallySmall.{v} A] [WellPowered.{v} A]
+    [HasWidePullbacks.{v} A] [HasCoproducts.{v} A] :
+    CompleteLattice (Subobject (S.homologyPageTower.page 1)) :=
+  inferInstanceAs (CompleteLattice (Subobject (S.page 1).obj))
 
 /-- The `r`-th object of the homology page tower is the object of the corresponding shifted
 page. -/
@@ -615,77 +616,70 @@ end InfinityPage
 /-- Complete shifted first-page subobject lattices provide canonical shifted limit stages. -/
 @[stacks 0AMI "canonical shifted spectral-sequence limit stages"]
 noncomputable def canonical (S : ShiftedSpectralSequence T)
-    [CompleteLattice (Subobject (S.page 1).obj)] : LimitStages S :=
-  @HomologyPageTower.LimitStages.canonical _ _ _ S.homologyPageTower
-    (HomologyTower.pageOneCompleteLattice S)
+    [LocallySmall.{v} A] [WellPowered.{v} A]
+    [HasWidePullbacks.{v} A] [HasCoproducts.{v} A] : LimitStages S :=
+  HomologyPageTower.LimitStages.canonical S.homologyPageTower
 
 /-- The boundary component of canonical shifted limit stages is the existing eventual boundary. -/
 @[simp, stacks 0AMI "canonical shifted limit boundary"]
 theorem canonical_boundary (S : ShiftedSpectralSequence T)
-    [CompleteLattice (Subobject (S.page 1).obj)] :
+    [LocallySmall.{v} A] [WellPowered.{v} A]
+    [HasWidePullbacks.{v} A] [HasCoproducts.{v} A] :
     (canonical S).boundary =
-      @HomologyPageTower.boundaryInfinity _ _ _ S.homologyPageTower
-        (HomologyTower.pageOneCompleteLattice S) := sorry
+      HomologyPageTower.boundaryInfinity S.homologyPageTower := sorry
 
 /-- The cycle component of canonical shifted limit stages is the existing eventual cycle. -/
 @[simp, stacks 0AMI "canonical shifted limit cycle"]
 theorem canonical_cycle (S : ShiftedSpectralSequence T)
-    [CompleteLattice (Subobject (S.page 1).obj)] :
+    [LocallySmall.{v} A] [WellPowered.{v} A]
+    [HasWidePullbacks.{v} A] [HasCoproducts.{v} A] :
     (canonical S).cycle =
-      @HomologyPageTower.cycleInfinity _ _ _ S.homologyPageTower
-        (HomologyTower.pageOneCompleteLattice S) := sorry
+      HomologyPageTower.cycleInfinity S.homologyPageTower := sorry
 
 end LimitStages
 
 section Infinity
 
+variable [LocallySmall.{v} A] [WellPowered.{v} A]
+  [HasWidePullbacks.{v} A] [HasCoproducts.{v} A]
+
 /-- The eventual cycle subobject `Z_infinity`. -/
 @[stacks 0AMI "shifted eventual cycle subobject"]
 noncomputable abbrev cycleInfinity (S : ShiftedSpectralSequence T)
-    [CompleteLattice (Subobject (S.page 1).obj)] :
-    Subobject (S.page 1).obj :=
-  @HomologyPageTower.cycleInfinity _ _ _ S.homologyPageTower
-    (HomologyTower.pageOneCompleteLattice S)
+    : Subobject (S.page 1).obj :=
+  HomologyPageTower.cycleInfinity S.homologyPageTower
 
 /-- The eventual boundary subobject `B_infinity`. -/
 @[stacks 0AMI "shifted eventual boundary subobject"]
 noncomputable abbrev boundaryInfinity (S : ShiftedSpectralSequence T)
-    [CompleteLattice (Subobject (S.page 1).obj)] :
-    Subobject (S.page 1).obj :=
-  @HomologyPageTower.boundaryInfinity _ _ _ S.homologyPageTower
-    (HomologyTower.pageOneCompleteLattice S)
+    : Subobject (S.page 1).obj :=
+  HomologyPageTower.boundaryInfinity S.homologyPageTower
 
 namespace InfinityPage
 
 /-- Eventual boundaries are contained in eventual cycles. -/
-theorem boundary_le_cycle (S : ShiftedSpectralSequence T)
-    [CompleteLattice (Subobject (S.page 1).obj)] :
+theorem boundary_le_cycle (S : ShiftedSpectralSequence T) :
     S.boundaryInfinity ≤ S.cycleInfinity := sorry
 
 end InfinityPage
 
 /-- The infinity-page object `Z_infinity / B_infinity`. -/
 @[stacks 0AMI]
-noncomputable abbrev infinityPage (S : ShiftedSpectralSequence T)
-    [CompleteLattice (Subobject (S.page 1).obj)] : A :=
-  @HomologyPageTower.infinityPage _ _ _ S.homologyPageTower
-    (HomologyTower.pageOneCompleteLattice S)
+noncomputable abbrev infinityPage (S : ShiftedSpectralSequence T) : A :=
+  HomologyPageTower.infinityPage S.homologyPageTower
 
 namespace InfinityPage
 
 /-- The canonical projection from eventual cycles to the proof-free infinity-page entry. -/
 @[stacks 0AMI]
-noncomputable abbrev π (S : ShiftedSpectralSequence T)
-    [CompleteLattice (Subobject (S.page 1).obj)] :
+noncomputable abbrev π (S : ShiftedSpectralSequence T) :
     (S.cycleInfinity : A) ⟶ S.infinityPage :=
-  @HomologyPageTower.InfinityPage.π _ _ _ S.homologyPageTower
-    (HomologyTower.pageOneCompleteLattice S)
+  HomologyPageTower.InfinityPage.π S.homologyPageTower
 
 /-- The proof-free infinity-page entry is isomorphic to the textbook quotient once eventual
 boundary containment is available. -/
 @[stacks 0AMI]
-theorem isIsomorphic (S : ShiftedSpectralSequence T)
-    [CompleteLattice (Subobject (S.page 1).obj)] :
+theorem isIsomorphic (S : ShiftedSpectralSequence T) :
     IsIsomorphic S.infinityPage
       (cokernel
         (Subobject.ofLE S.boundaryInfinity S.cycleInfinity

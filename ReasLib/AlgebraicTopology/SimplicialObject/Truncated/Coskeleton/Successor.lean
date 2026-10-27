@@ -186,15 +186,3 @@ noncomputable def succ.extension (n : ℕ)
 end trunc.cosk
 
 end CategoryTheory.SimplicialObject.Truncated
-
-section
-
-variable {C : Type u} [Category.{v} C] (n : ℕ)
-variable [CategoryTheory.SimplicialObject.Truncated.HasMatchingObjects C n]
-
-#synth CategoryTheory.SimplicialObject.Truncated.Between.HasPointwiseCoskeletons
-  C n (n + 1) (Nat.le_succ n)
-#synth CategoryTheory.SimplicialObject.Truncated.Between.HasCoskeletons
-  C n (n + 1) (Nat.le_succ n)
-
-end

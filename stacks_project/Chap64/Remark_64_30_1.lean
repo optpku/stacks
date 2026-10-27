@@ -6,271 +6,91 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import Mathlib.AlgebraicGeometry.Geometrically.Irreducible
-public import Mathlib.AlgebraicGeometry.Morphisms.Smooth
-public import Mathlib.Tactic.CrossRefAttribute
-public import ReasLib.AlgebraicGeometry.ProjectiveSpace.Basic
-public import ReasLib.AlgebraicGeometry.Scheme.Morphism.Projective.Basic
-public import ReasLib.AlgebraicGeometry.Scheme.Variety.Curve
-public import stacks_project.Chap64.Remark_64_30_1_Comparison
-public import stacks_project.Chap64.Remark_64_30_1_Coinvariants
-public import stacks_project.Chap64.Remark_64_30_1_Extension
-public import stacks_project.Chap64.Remark_64_30_1_Formula
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.Scheme.Etale.AbstractTrace
 
-/-!
-# Observations on the abstract trace formula
--/
+/-! # Observations on abstract trace formulas -/
 
-@[expose] public section
+public section
+open AlgebraicGeometry AlgebraicGeometry.Scheme AlgebraicGeometry.SchemeOverField
+open CategoryTheory CategoryTheory.Limits CategoryTheory.Action.ModuleCat
+open ProfiniteGrp ProfiniteGrp.ContinuousTrace
+open scoped Ring
+universe u v
 
-open AlgebraicGeometry CategoryTheory CategoryTheory.Action.ModuleCat
-open AlgebraicGeometry.Scheme AlgebraicGeometry.SchemeOverField
-open CategoryTheory.Functor
-open ProfiniteGrp
-open scoped AlgebraicGeometry Ring
-
-universe u
-
-noncomputable section
-
-namespace AlgebraicGeometry.SchemeOverField
-
-variable {k : Type u} [Field k] [Fintype k]
-variable {p : ℕ} [Fact p.Prime] [CharP k p] [Algebra (ZMod p) k]
-variable (X : SchemeOverField k)
-variable [ConnectedSpace X.left] [ConnectedSpace (Spec (CommRingCat.of k))]
-variable [ConnectedSpace (geometricBaseChange X)]
-variable (etaBar : GeometricPoint X.left)
-
-/-- Small étale Grothendieck topology of the underlying scheme of `X`. -/
-abbrev smallEtale (X : SchemeOverField k) := X.left.smallEtaleTopology
-
-/-- An étale `K(π, 1)` identification in dimension `d`: lisse étale cohomology of
-`X` agrees with continuous group cohomology of geometric `π₁` as a
-Frobenius-equivariant derived isomorphism `RΓ ≅ RH^0(π₁, M)`. The compactly
-supported curve formula `RΓ_c ≅ LH_0(π₁, M(-1))[-2]` is the dimension-one
-specialization from Proposition 64.29.3, not the definition at arbitrary
-dimension. -/
-class IsEtaleKPi1 : Prop where
-  /-- Frobenius-equivariant derived identification `RΓ(X_k̄, F_ρ) ≅ RH^0(π₁, M)`. -/
-  cohomology_eq :
-    ∀ {Λ : Type (u + 1)} [CommRing Λ] [Finite Λ]
-      [HasWeakSheafify (smallEtale X) (ModuleCat.{u + 1} Λ)]
-      [HasWeakSheafify (geometricBaseChange X).smallEtaleTopology (ModuleCat.{u + 1} Λ)]
-      [Abelian (Sheaf (smallEtale X) (ModuleCat.{u + 1} Λ))]
-      [Abelian (Sheaf (geometricBaseChange X).smallEtaleTopology (ModuleCat.{u + 1} Λ))]
-      [HasDerivedCategory.{u + 2}
-        (Sheaf (smallEtale X) (ModuleCat.{u + 1} Λ))]
-      [HasDerivedCategory.{u + 2}
-        (Sheaf (geometricBaseChange X).smallEtaleTopology (ModuleCat.{u + 1} Λ))]
-      [∀ U : X.left.Etale,
-        HasWeakSheafify ((smallEtale X).over U) (ModuleCat.{u + 1} Λ)]
-      [∀ P : X.left.Etaleᵒᵖ ⥤ ModuleCat.{u + 1} Λ,
-        (smallEtalePullback (geometricFrobenius_ofFiniteField X)).op.HasLeftKanExtension P]
-      [∀ P : X.left.Etaleᵒᵖ ⥤ ModuleCat.{u + 1} Λ,
-        (smallEtalePullback
-            (FieldExtension.toSource k (AlgebraicClosure k) X.hom)).op.HasLeftKanExtension P]
-      [∀ P : (geometricBaseChange X).Etaleᵒᵖ ⥤ ModuleCat.{u + 1} Λ,
-        (smallEtalePullback (geometricFrobeniusBaseChange X)).op.HasLeftKanExtension P]
-      [∀ P : X.left.Etaleᵒᵖ ⥤ ModuleCat.{u + 1} Λ,
-        (smallEtalePullback
-            (geometricFrobeniusBaseChange X ≫
-              FieldExtension.toSource k (AlgebraicClosure k) X.hom)).op.HasLeftKanExtension P]
-      [∀ P : X.left.Etaleᵒᵖ ⥤ ModuleCat.{u + 1} Λ,
-        (smallEtalePullback
-            (FieldExtension.toSource k (AlgebraicClosure k) X.hom ≫
-              geometricFrobenius_ofFiniteField X)).op.HasLeftKanExtension P]
-      [HasRightDerivedFunctor
-        (RightDerived.Cochain.toDerived
-          (actionInvariantsFunctor Λ (DegreeExtension.ofEtaleFundamentalGroup X etaBar).G))
-        (HomologicalComplex.quasiIso
-          (Action (ModuleCat.{u + 1} Λ) (DegreeExtension.ofEtaleFundamentalGroup X etaBar).G)
-          (ComplexShape.up ℤ))]
-      (M : DiscreteModuleCat Λ (DegreeExtension.ofEtaleFundamentalGroup X etaBar).middle)
-      (hM : Module.Finite Λ M.obj.V),
-        ∃ e :
-          geometricRGamma X (pi1ModuleDerived X etaBar M hM) ≅
-            derivedInvariants (DegreeExtension.ofEtaleFundamentalGroup X etaBar) M,
-          e.hom ≫
-              frobeniusEndInvariants (DegreeExtension.ofEtaleFundamentalGroup X etaBar) M =
-            geometricFrobeniusRGamma X (pi1ModuleDerived X etaBar M hM) ≫ e.hom
-
-/-- Constructor packaging the étale `K(π, 1)` cohomology identification. -/
-theorem IsEtaleKPi1.mk'
-    (hcoh :
-      ∀ {Λ : Type (u + 1)} [CommRing Λ] [Finite Λ]
-        [HasWeakSheafify (smallEtale X) (ModuleCat.{u + 1} Λ)]
-        [HasWeakSheafify (geometricBaseChange X).smallEtaleTopology (ModuleCat.{u + 1} Λ)]
-        [Abelian (Sheaf (smallEtale X) (ModuleCat.{u + 1} Λ))]
-        [Abelian (Sheaf (geometricBaseChange X).smallEtaleTopology (ModuleCat.{u + 1} Λ))]
-        [HasDerivedCategory.{u + 2}
-          (Sheaf (smallEtale X) (ModuleCat.{u + 1} Λ))]
-        [HasDerivedCategory.{u + 2}
-          (Sheaf (geometricBaseChange X).smallEtaleTopology (ModuleCat.{u + 1} Λ))]
-          [∀ U : X.left.Etale,
-          HasWeakSheafify ((smallEtale X).over U) (ModuleCat.{u + 1} Λ)]
-        [∀ P : X.left.Etaleᵒᵖ ⥤ ModuleCat.{u + 1} Λ,
-          (smallEtalePullback (geometricFrobenius_ofFiniteField X)).op.HasLeftKanExtension P]
-        [∀ P : X.left.Etaleᵒᵖ ⥤ ModuleCat.{u + 1} Λ,
-          (smallEtalePullback
-              (FieldExtension.toSource k (AlgebraicClosure k) X.hom)).op.HasLeftKanExtension P]
-        [∀ P : (geometricBaseChange X).Etaleᵒᵖ ⥤ ModuleCat.{u + 1} Λ,
-          (smallEtalePullback (geometricFrobeniusBaseChange X)).op.HasLeftKanExtension P]
-        [∀ P : X.left.Etaleᵒᵖ ⥤ ModuleCat.{u + 1} Λ,
-          (smallEtalePullback
-              (geometricFrobeniusBaseChange X ≫
-                FieldExtension.toSource k (AlgebraicClosure k) X.hom)).op.HasLeftKanExtension P]
-        [∀ P : X.left.Etaleᵒᵖ ⥤ ModuleCat.{u + 1} Λ,
-          (smallEtalePullback
-              (FieldExtension.toSource k (AlgebraicClosure k) X.hom ≫
-                geometricFrobenius_ofFiniteField X)).op.HasLeftKanExtension P]
-        [HasRightDerivedFunctor
-          (RightDerived.Cochain.toDerived
-            (actionInvariantsFunctor Λ (DegreeExtension.ofEtaleFundamentalGroup X etaBar).G))
-          (HomologicalComplex.quasiIso
-            (Action (ModuleCat.{u + 1} Λ) (DegreeExtension.ofEtaleFundamentalGroup X etaBar).G)
-            (ComplexShape.up ℤ))]
-        (M : DiscreteModuleCat Λ (DegreeExtension.ofEtaleFundamentalGroup X etaBar).middle)
-        (hM : Module.Finite Λ M.obj.V),
-          ∃ e :
-            geometricRGamma X (pi1ModuleDerived X etaBar M hM) ≅
-              derivedInvariants (DegreeExtension.ofEtaleFundamentalGroup X etaBar) M,
-            e.hom ≫
-                frobeniusEndInvariants (DegreeExtension.ofEtaleFundamentalGroup X etaBar) M =
-              geometricFrobeniusRGamma X (pi1ModuleDerived X etaBar M hM) ≫ e.hom) :
-    IsEtaleKPi1 X etaBar :=
-  sorry
-
-/-- The étale `K(π, 1)` property unfolds as the Frobenius-equivariant derived
-identification of geometric cohomology with derived geometric `π₁`-invariants. -/
-theorem IsEtaleKPi1.spec :
-    IsEtaleKPi1 X etaBar ↔
-      ∀ {Λ : Type (u + 1)} [CommRing Λ] [Finite Λ]
-        [HasWeakSheafify (smallEtale X) (ModuleCat.{u + 1} Λ)]
-        [HasWeakSheafify (geometricBaseChange X).smallEtaleTopology (ModuleCat.{u + 1} Λ)]
-        [Abelian (Sheaf (smallEtale X) (ModuleCat.{u + 1} Λ))]
-        [Abelian (Sheaf (geometricBaseChange X).smallEtaleTopology (ModuleCat.{u + 1} Λ))]
-        [HasDerivedCategory.{u + 2}
-          (Sheaf (smallEtale X) (ModuleCat.{u + 1} Λ))]
-        [HasDerivedCategory.{u + 2}
-          (Sheaf (geometricBaseChange X).smallEtaleTopology (ModuleCat.{u + 1} Λ))]
-          [∀ U : X.left.Etale,
-          HasWeakSheafify ((smallEtale X).over U) (ModuleCat.{u + 1} Λ)]
-        [∀ P : X.left.Etaleᵒᵖ ⥤ ModuleCat.{u + 1} Λ,
-          (smallEtalePullback (geometricFrobenius_ofFiniteField X)).op.HasLeftKanExtension P]
-        [∀ P : X.left.Etaleᵒᵖ ⥤ ModuleCat.{u + 1} Λ,
-          (smallEtalePullback
-              (FieldExtension.toSource k (AlgebraicClosure k) X.hom)).op.HasLeftKanExtension P]
-        [∀ P : (geometricBaseChange X).Etaleᵒᵖ ⥤ ModuleCat.{u + 1} Λ,
-          (smallEtalePullback (geometricFrobeniusBaseChange X)).op.HasLeftKanExtension P]
-        [∀ P : X.left.Etaleᵒᵖ ⥤ ModuleCat.{u + 1} Λ,
-          (smallEtalePullback
-              (geometricFrobeniusBaseChange X ≫
-                FieldExtension.toSource k (AlgebraicClosure k) X.hom)).op.HasLeftKanExtension P]
-        [∀ P : X.left.Etaleᵒᵖ ⥤ ModuleCat.{u + 1} Λ,
-          (smallEtalePullback
-              (FieldExtension.toSource k (AlgebraicClosure k) X.hom ≫
-                geometricFrobenius_ofFiniteField X)).op.HasLeftKanExtension P]
-        [HasRightDerivedFunctor
-          (RightDerived.Cochain.toDerived
-            (actionInvariantsFunctor Λ (DegreeExtension.ofEtaleFundamentalGroup X etaBar).G))
-          (HomologicalComplex.quasiIso
-            (Action (ModuleCat.{u + 1} Λ) (DegreeExtension.ofEtaleFundamentalGroup X etaBar).G)
-            (ComplexShape.up ℤ))]
-        (M : DiscreteModuleCat Λ (DegreeExtension.ofEtaleFundamentalGroup X etaBar).middle)
-        (hM : Module.Finite Λ M.obj.V),
-          ∃ e :
-            geometricRGamma X (pi1ModuleDerived X etaBar M hM) ≅
-              derivedInvariants (DegreeExtension.ofEtaleFundamentalGroup X etaBar) M,
-            e.hom ≫
-                frobeniusEndInvariants (DegreeExtension.ofEtaleFundamentalGroup X etaBar) M =
-              geometricFrobeniusRGamma X (pi1ModuleDerived X etaBar M hM) ≫ e.hom :=
-  sorry
-
-/-- Smooth geometrically irreducible curves that are not `P¹` are étale `K(π, 1)`, by
-Proposition 64.29.3. -/
-instance isEtaleKPi1_curve [Curve X] [Smooth X.hom] [GeometricallyIrreducible X.hom]
-    [IsEmpty (geometricBaseChange X ≅ ProjectiveSpace.scheme (AlgebraicClosure k) 1)] :
-    IsEtaleKPi1 X etaBar :=
-  sorry
-
-/-- Remark 64.30.1 (1). If modeling projective curves then we can use cohomology
-and we don't need the factor `q^n`: the conjugacy-class side equals
-`Tr(π^{*n} | RΓ(X_k̄, F_ρ))`, with no extra `q^n`. -/
-@[stacks 03VP]
-theorem trace_eq_geometricRGamma [Curve X] [Projective X.hom]
-    [Smooth X.hom] [GeometricallyIrreducible X.hom]
-    (h_ne_P1 :
-      IsEmpty (geometricBaseChange X ≅ ProjectiveSpace.scheme (AlgebraicClosure k) 1))
-    (T : AbstractTraceData (DegreeExtension.ofEtaleFundamentalGroup X etaBar))
-    (hT : IsAbstractTraceFormula (DegreeExtension.ofEtaleFundamentalGroup X etaBar) T)
-    (hq : T.q = Fintype.card k)
-    {Λ : Type (u + 1)} [CommRing Λ] [Finite Λ]
-    [HasWeakSheafify (smallEtale X) (ModuleCat.{u + 1} Λ)]
-    [HasWeakSheafify (geometricBaseChange X).smallEtaleTopology (ModuleCat.{u + 1} Λ)]
-    [Abelian (Sheaf (smallEtale X) (ModuleCat.{u + 1} Λ))]
-    [Abelian (Sheaf (geometricBaseChange X).smallEtaleTopology (ModuleCat.{u + 1} Λ))]
-    [HasDerivedCategory.{u + 2}
-      (Sheaf (smallEtale X) (ModuleCat.{u + 1} Λ))]
-    [HasDerivedCategory.{u + 2}
-      (Sheaf (geometricBaseChange X).smallEtaleTopology (ModuleCat.{u + 1} Λ))]
+/- Remark 64.30.1 (1). Projective curves admit the cohomological trace formula
+without an additional q^n factor. -/
+@[stacks 03VP] #check (AlgebraicGeometry.SchemeOverField.EtaleTrace.trace_eq_cohomology :
+  ∀ {k : Type u} [Field k] [Fintype k] (X : SchemeOverField k)
+    [ConnectedSpace X.left] [ConnectedSpace (geometricBaseChange X)]
+    [ConnectedSpace (Spec (CommRingCat.of k))]
+    [CompactSpace X.left] [QuasiSeparatedSpace X.left]
+    (η : GeometricPoint (geometricBaseChange X)),
+    ∀ {Λ : Type (u + 1)} [Ring Λ] [Finite Λ]
+    [∀ Y : Scheme.{u}, HasWeakSheafify Y.smallEtaleTopology (ModuleCat.{u + 1} Λ)]
+    [∀ {Y Z : Scheme.{u}} (f : Y ⟶ Z) (F : Z.Etaleᵒᵖ ⥤ ModuleCat.{u + 1} Λ),
+      (smallEtalePullback f).op.HasLeftKanExtension F]
     [∀ U : X.left.Etale,
-      HasWeakSheafify ((smallEtale X).over U) (ModuleCat.{u + 1} Λ)]
-    [∀ P : X.left.Etaleᵒᵖ ⥤ ModuleCat.{u + 1} Λ,
-      (smallEtalePullback (geometricFrobenius_ofFiniteField X)).op.HasLeftKanExtension P]
-    [∀ P : X.left.Etaleᵒᵖ ⥤ ModuleCat.{u + 1} Λ,
-      (smallEtalePullback
-          (FieldExtension.toSource k (AlgebraicClosure k) X.hom)).op.HasLeftKanExtension P]
-    [∀ P : (geometricBaseChange X).Etaleᵒᵖ ⥤ ModuleCat.{u + 1} Λ,
-      (smallEtalePullback (geometricFrobeniusBaseChange X)).op.HasLeftKanExtension P]
-    [∀ P : X.left.Etaleᵒᵖ ⥤ ModuleCat.{u + 1} Λ,
-      (smallEtalePullback
-          (geometricFrobeniusBaseChange X ≫
-            FieldExtension.toSource k (AlgebraicClosure k) X.hom)).op.HasLeftKanExtension P]
-    [∀ P : X.left.Etaleᵒᵖ ⥤ ModuleCat.{u + 1} Λ,
-      (smallEtalePullback
-          (FieldExtension.toSource k (AlgebraicClosure k) X.hom ≫
-            geometricFrobenius_ofFiniteField X)).op.HasLeftKanExtension P]
-    (hunit : IsUnit (T.q : Λ))
-    (M : DiscreteModuleCat Λ (DegreeExtension.ofEtaleFundamentalGroup X etaBar).middle)
-    (hM : Module.Finite Λ M.obj.V) [Module.Projective Λ M.obj.V]
-    (n : ℕ) (hn : 0 < n) :
-    T.leftHandSum M n =
-      (isPerfect_geometricRGamma X etaBar M hM).traceNatural
-        (geometricFrobeniusRGamma X (pi1ModuleDerived X etaBar M hM) ^ n) :=
-  sorry
+      HasWeakSheafify (X.left.smallEtaleTopology.over U) (ModuleCat.{u + 1} Λ)]
+    [EnoughInjectives (Sheaf X.left.smallEtaleTopology (ModuleCat.{u + 1} Λ))]
+    (M : DiscreteModuleCat Λ
+      (GeometricPoint.etaleFundamentalGroup X.left (arithmeticPoint X η)))
+    [Module.Finite Λ M.obj.V],
+    ∀ {p : ℕ} [Fact p.Prime] [CharP k p] [Algebra (ZMod p) k]
+      [Curve X] [Projective X.hom] [Smooth X.hom] [GeometricallyIrreducible X.hom]
+      (h_ne_P1 : IsEmpty (geometricBaseChange X ≅ ProjectiveSpace.scheme (AlgebraicClosure k) 1))
+      (T : AbstractTraceData (DegreeExtension.ofEtaleFundamentalGroup X η))
+      (hT : IsAbstractTraceFormula (DegreeExtension.ofEtaleFundamentalGroup X η) T)
+      (hq : T.q = Fintype.card k) (hunit : IsUnit (T.q : Λ))
+      [Module.Projective Λ M.obj.V] (hcoeff : IsUnit (Nat.card Λ : k)) (n : ℕ) (hn : 0 < n),
+      T.leftHandSum M n = (EtaleTrace.isPerfect_cohomology X η M hcoeff).traceNatural
+        (EtaleTrace.frobenius X η M ^ n))
 
-/-- Remark 64.30.1 (2). The known examples are `Γ = π₁(X, η̄)` for `X` smooth,
-geometrically irreducible, and an étale `K(π, 1)` over a finite field, with
-`q = (#k)^{dim X}`. -/
-@[stacks 03VP]
-theorem hasAbstractTraceFormula_etaleFundamentalGroup
-    [Smooth X.hom] [GeometricallyIrreducible X.hom] [IsEtaleKPi1 X etaBar] :
-    ∃ (d : ℕ) (T : AbstractTraceData (DegreeExtension.ofEtaleFundamentalGroup X etaBar)),
-      topologicalKrullDim X.left = (d : WithBot ℕ∞) ∧
-        T.q = Fintype.card k ^ d ∧
-          IsAbstractTraceFormula (DegreeExtension.ofEtaleFundamentalGroup X etaBar) T :=
-  sorry
+/- Remark 64.30.1 (2). Smooth geometrically irreducible étale K(π, 1) schemes
+in the separated finite-type setting have q = card(k)^dim(X). -/
+@[stacks 03VP] #check (AlgebraicGeometry.SchemeOverField.hasAbstractTraceFormula_etaleFundamentalGroup :
+  ∀ {k : Type u} [Field k] [Fintype k] (X : SchemeOverField k)
+    [ConnectedSpace X.left] [ConnectedSpace (geometricBaseChange X)]
+    [ConnectedSpace (Spec (CommRingCat.of k))]
+    [CompactSpace X.left] [QuasiSeparatedSpace X.left]
+    (η : GeometricPoint (geometricBaseChange X)),
+    ∀ {p : ℕ} [Fact p.Prime] [CharP k p] [Algebra (ZMod p) k]
+      [Scheme.Hom.FiniteType X.hom] [IsSeparated X.hom]
+      [Smooth X.hom] [GeometricallyIrreducible X.hom] [IsEtaleKPi1 X η],
+      ∃ (d : ℕ) (T : AbstractTraceData (DegreeExtension.ofEtaleFundamentalGroup X η)),
+        topologicalKrullDim X.left = (d : WithBot ℕ∞) ∧ T.q = Fintype.card k ^ d ∧
+          IsAbstractTraceFormula (DegreeExtension.ofEtaleFundamentalGroup X η) T)
 
-/-- On a smooth geometrically irreducible curve that is not `P¹`, the abstract
-trace formula holds with `q = #k`, using the curve `K(π, 1)` identifications of
-Proposition 64.29.3. -/
-theorem hasAbstractTraceFormula_etaleFundamentalGroup_curve
-    [Curve X] [Smooth X.hom] [GeometricallyIrreducible X.hom]
-    (h_ne_P1 :
-      IsEmpty (geometricBaseChange X ≅ ProjectiveSpace.scheme (AlgebraicClosure k) 1)) :
-    ∃ T : AbstractTraceData (DegreeExtension.ofEtaleFundamentalGroup X etaBar),
-      T.q = Fintype.card k ∧
-        IsAbstractTraceFormula (DegreeExtension.ofEtaleFundamentalGroup X etaBar) T :=
-  sorry
+/- The curve specialization retains the geometric non-P¹ condition. -/
+#check (AlgebraicGeometry.SchemeOverField.hasAbstractTraceFormula_etaleFundamentalGroup_curve :
+  ∀ {k : Type u} [Field k] [Fintype k] (X : SchemeOverField k)
+    [ConnectedSpace X.left] [ConnectedSpace (geometricBaseChange X)]
+    [ConnectedSpace (Spec (CommRingCat.of k))]
+    [CompactSpace X.left] [QuasiSeparatedSpace X.left]
+    (η : GeometricPoint (geometricBaseChange X)),
+    ∀ {p : ℕ} [Fact p.Prime] [CharP k p] [Algebra (ZMod p) k]
+      [Curve X] [Smooth X.hom] [GeometricallyIrreducible X.hom]
+      (h_ne_P1 : IsEmpty (geometricBaseChange X ≅ ProjectiveSpace.scheme (AlgebraicClosure k) 1)),
+      ∃ T : AbstractTraceData (DegreeExtension.ofEtaleFundamentalGroup X η),
+        T.q = Fintype.card k ∧ IsAbstractTraceFormula (DegreeExtension.ofEtaleFundamentalGroup X η) T)
 
-end AlgebraicGeometry.SchemeOverField
+/- Remark 64.30.1 (3). At fixed q the conjugacy-class multiplicities are unique. -/
+@[stacks 03VP] #check (ProfiniteGrp.ContinuousTrace.AbstractTraceData.multiplicity_unique :
+  ∀ (S : DegreeExtension.{u}) {T₁ T₂ : AbstractTraceData S},
+    IsAbstractTraceFormula S T₁ → IsAbstractTraceFormula S T₂ →
+      T₁.q = T₂.q → T₁.multiplicity = T₂.multiplicity)
 
-/-- Remark 64.30.1 (3). Given the integer `q` then the sets `S_d` are uniquely
-determined. -/
-@[stacks 03VP]
-theorem ProfiniteGrp.multiplicity_unique
-    {S : DegreeExtension.{u}} {T₁ T₂ : AbstractTraceData S}
-    (h₁ : IsAbstractTraceFormula S T₁) (h₂ : IsAbstractTraceFormula S T₂)
-    (hq : T₁.q = T₂.q) : T₁.multiplicity = T₂.multiplicity :=
-  sorry
+/- Remark 64.30.1 (4). The numerical operation replaces q by m*q and each
+degree-d multiplicity by m^d times itself. The printed invariance assertion is
+false: for Γ = hatZ with trivial kernel, q = 1, one degree-one class and no
+higher classes, scaling by 2 gives left side 2 and right side 4 at n = 2
+with trivial ZMod 5 coefficients. The true law has divisor-dependent weights. -/
+@[stacks 03VP] #check (ProfiniteGrp.ContinuousTrace.AbstractTraceData.leftHandSum_scale :
+  ∀ {S : DegreeExtension.{u}} {Λ : Type v} [Ring Λ] (T : AbstractTraceData S)
+    (m : ℕ) (hm : 1 ≤ m) (M : DiscreteModuleCat Λ S.middle)
+    [Module.Finite Λ M.obj.V] [Module.Projective Λ M.obj.V] (n : ℕ),
+    (T.scale m hm).leftHandSum M n =
+      ∑ d ∈ n.divisors, if h : 0 < d then
+        d • (m ^ d • (T.multiplicity ⟨d, h⟩).sum
+          (fun c a ↦ a • conjClassTrace S M (powClass S c (n / d))))
+      else 0)

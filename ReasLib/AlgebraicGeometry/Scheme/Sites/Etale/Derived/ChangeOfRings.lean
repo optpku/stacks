@@ -25,6 +25,7 @@ public import ReasLib.CategoryTheory.DerivedCategory.Functor.TotalRightDerived.H
 public import ReasLib.CategoryTheory.Sites.Pullback.SheafCompose
 public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.ExtensionByZero
 public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Derived.Coefficients
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Module.Pushforward.Additive
 
 /-!
 # Change of coefficients on étale derived categories
@@ -84,16 +85,6 @@ instance etaleModuleRestrictScalars_preservesFiniteColimits (X : Scheme.{u})
     [X.smallEtaleTopology.HasSheafCompose (ModuleCat.restrictScalars φ)] :
     PreservesFiniteColimits (etaleModuleRestrictScalars φ X) :=
   sorry
-
-/-- Small-étale module pushforward is additive whenever the underlying continuous
-sheaf pushforward is. -/
-instance etaleModulePushforward_additive {X Y : Scheme.{u}} (f : X ⟶ Y)
-    {Λ : Type u} [CommRing Λ]
-    [((smallEtalePullback f).sheafPushforwardContinuous
-        (ModuleCat.{u} Λ) Y.smallEtaleTopology X.smallEtaleTopology).Additive] :
-    (etaleModulePushforward f Λ).Additive :=
-  inferInstanceAs (((smallEtalePullback f).sheafPushforwardContinuous
-    (ModuleCat.{u} Λ) Y.smallEtaleTopology X.smallEtaleTopology).Additive)
 
 /-- Restriction of scalars on `D(X_étale, -)` along `φ`. -/
 def etaleDerivedRestrictScalars (X : Scheme.{u})

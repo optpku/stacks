@@ -14,7 +14,7 @@ open AlgebraicGeometry.ChernClass
 
 /-! Compatibility checks for the projective-bundle Chern API. -/
 #check @AlgebraicGeometry.ChernClass.ProjectiveBundleContext
-#check @AlgebraicGeometry.ChernClass.ProjectiveBundleContext.ofProjectiveBundleFormula
+#check @AlgebraicGeometry.ChernClass.ProjectiveBundleContext.mk
 #check @AlgebraicGeometry.ChernClass.ProjectiveBundleContext.tautologicalFirstChernClass
 #check @AlgebraicGeometry.ChernClass.ProjectiveBundleContext.tautologicalFirstChernClass_def
 #check @AlgebraicGeometry.ChernClass.ProjectiveBundleContext.signedChernCoordinates

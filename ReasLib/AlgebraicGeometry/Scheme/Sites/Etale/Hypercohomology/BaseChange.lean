@@ -107,7 +107,8 @@ def conePullbackInverseImageIso (i : I) :
     (AbelianSheafComplexSystem.conePullbackComplex (D := D) c i).obj
         (inverseImageComplex (structureMap D σ i) K) ≅
       inverseImageComplex (c.π.app (OrderDual.toDual i) ≫ structureMap D σ i) K :=
-  inverseImageComplexCompIso (c.π.app (OrderDual.toDual i)) (structureMap D σ i) K
+  inverseImageComplexCompIso (U := c.pt)
+    (c.π.app (OrderDual.toDual i)) (structureMap D σ i) K
 
 /-- The colimit of the pulled-back stage complexes is the pullback from the limiting cone point. -/
 def colimitInverseImage_pullback_iso

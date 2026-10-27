@@ -217,7 +217,7 @@ def restrictRingFunctor₁ :
   let P : CommAlgCat k := hX.sectionsAlgOverSpec c.U₁
   (specFunctor₁ Λ k c hX).comp
     ((@FlatSchemeCat.restrictFunctor Λ k _ _ _ _ _ (Spec (CommRingCat.of P))
-        (specStructureHom₁ Λ k c hX) (FlatSchemeCat.instFlat_specStructureHom Λ k P)
+        (specStructureHom₁ Λ k c hX)
         (overlapOpenSpec₁ c)).comp
       (overlapSectionsFunctor₁ Λ k c hX))
 
@@ -309,7 +309,7 @@ def restrictRingFunctor₂ :
   let P : CommAlgCat k := hX.sectionsAlgOverSpec c.U₂
   (specFunctor₂ Λ k c hX).comp
     ((@FlatSchemeCat.restrictFunctor Λ k _ _ _ _ _ (Spec (CommRingCat.of P))
-        (specStructureHom₂ Λ k c hX) (FlatSchemeCat.instFlat_specStructureHom Λ k P)
+        (specStructureHom₂ Λ k c hX)
         (overlapOpenSpec₂ c)).comp
       (overlapSectionsFunctor₂ Λ k c hX))
 

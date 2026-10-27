@@ -38,7 +38,7 @@ filtered derived quotient image. -/
 @[simp, stacks 05S6 "bounded-below filtered quotient object computation"]
 theorem obj_obj (X : HomotopyCategory.Plus (FilteredObject.Finite.category C)) :
     ((Plus.Quotient.functor C h_inverts).obj X).obj =
-      (FilteredObject.FiniteDerived.Quotient.functor C).obj X.obj := sorry
+      (FilteredObject.FiniteDerived.Quotient.functor C).obj X.obj := rfl
 
 /-- The underlying morphism of the bounded-below quotient is its ambient
 finite filtered derived quotient map. -/
@@ -46,7 +46,7 @@ finite filtered derived quotient map. -/
 theorem map_hom {X Y : HomotopyCategory.Plus (FilteredObject.Finite.category C)}
     (f : X ⟶ Y) :
     ((Plus.Quotient.functor C h_inverts).map f).hom =
-      (FilteredObject.FiniteDerived.Quotient.functor C).map f.hom := sorry
+      (FilteredObject.FiniteDerived.Quotient.functor C).map f.hom := rfl
 
 end Plus.Quotient.functor
 
@@ -55,12 +55,12 @@ namespace Plus.Quotient.compInclusionIso
 /-- The forward bounded-below inclusion comparison has identity components. -/
 @[simp, stacks 05S6 "bounded-below filtered quotient inclusion computation"]
 theorem hom_app (X : HomotopyCategory.Plus (FilteredObject.Finite.category C)) :
-    (Plus.Quotient.compInclusionIso C h_inverts).hom.app X = 𝟙 _ := sorry
+    (Plus.Quotient.compInclusionIso C h_inverts).hom.app X = 𝟙 _ := rfl
 
 /-- The inverse bounded-below inclusion comparison has identity components. -/
 @[simp, stacks 05S6 "bounded-below filtered quotient inclusion computation"]
 theorem inv_app (X : HomotopyCategory.Plus (FilteredObject.Finite.category C)) :
-    (Plus.Quotient.compInclusionIso C h_inverts).inv.app X = 𝟙 _ := sorry
+    (Plus.Quotient.compInclusionIso C h_inverts).inv.app X = 𝟙 _ := rfl
 
 end Plus.Quotient.compInclusionIso
 
@@ -71,7 +71,7 @@ filtered derived quotient image. -/
 @[simp, stacks 05S6 "canonical bounded-below filtered quotient object computation"]
 theorem obj_obj (X : HomotopyCategory.Plus (FilteredObject.Finite.category C)) :
     ((Plus.Quotient.canonicalFunctor C).obj X).obj =
-      (FilteredObject.FiniteDerived.Quotient.functor C).obj X.obj := sorry
+      (FilteredObject.FiniteDerived.Quotient.functor C).obj X.obj := rfl
 
 /-- The underlying morphism of the canonical bounded-below quotient is its ambient finite
 filtered derived quotient map. -/
@@ -79,7 +79,7 @@ filtered derived quotient map. -/
 theorem map_hom {X Y : HomotopyCategory.Plus (FilteredObject.Finite.category C)}
     (f : X ⟶ Y) :
     ((Plus.Quotient.canonicalFunctor C).map f).hom =
-      (FilteredObject.FiniteDerived.Quotient.functor C).map f.hom := sorry
+      (FilteredObject.FiniteDerived.Quotient.functor C).map f.hom := rfl
 
 end Plus.Quotient.canonicalFunctor
 
@@ -88,12 +88,12 @@ namespace Plus.Quotient.canonicalCompInclusionIso
 /-- The forward canonical bounded-below inclusion comparison has identity components. -/
 @[simp, stacks 05S6 "canonical bounded-below filtered quotient inclusion computation"]
 theorem hom_app (X : HomotopyCategory.Plus (FilteredObject.Finite.category C)) :
-    (Plus.Quotient.canonicalCompInclusionIso C).hom.app X = 𝟙 _ := sorry
+    (Plus.Quotient.canonicalCompInclusionIso C).hom.app X = 𝟙 _ := rfl
 
 /-- The inverse canonical bounded-below inclusion comparison has identity components. -/
 @[simp, stacks 05S6 "canonical bounded-below filtered quotient inclusion computation"]
 theorem inv_app (X : HomotopyCategory.Plus (FilteredObject.Finite.category C)) :
-    (Plus.Quotient.canonicalCompInclusionIso C).inv.app X = 𝟙 _ := sorry
+    (Plus.Quotient.canonicalCompInclusionIso C).inv.app X = 𝟙 _ := rfl
 
 end Plus.Quotient.canonicalCompInclusionIso
 
@@ -104,7 +104,7 @@ filtered derived quotient image. -/
 @[simp, stacks 05S6 "bounded-above filtered quotient object computation"]
 theorem obj_obj (X : HomotopyCategory.Minus (FilteredObject.Finite.category C)) :
     ((Minus.Quotient.functor C h_inverts).obj X).obj =
-      (FilteredObject.FiniteDerived.Quotient.functor C).obj X.obj := sorry
+      (FilteredObject.FiniteDerived.Quotient.functor C).obj X.obj := rfl
 
 /-- The underlying morphism of the bounded-above quotient is its ambient
 finite filtered derived quotient map. -/
@@ -112,7 +112,7 @@ finite filtered derived quotient map. -/
 theorem map_hom {X Y : HomotopyCategory.Minus (FilteredObject.Finite.category C)}
     (f : X ⟶ Y) :
     ((Minus.Quotient.functor C h_inverts).map f).hom =
-      (FilteredObject.FiniteDerived.Quotient.functor C).map f.hom := sorry
+      (FilteredObject.FiniteDerived.Quotient.functor C).map f.hom := rfl
 
 end Minus.Quotient.functor
 
@@ -121,12 +121,12 @@ namespace Minus.Quotient.compInclusionIso
 /-- The forward bounded-above inclusion comparison has identity components. -/
 @[simp, stacks 05S6 "bounded-above filtered quotient inclusion computation"]
 theorem hom_app (X : HomotopyCategory.Minus (FilteredObject.Finite.category C)) :
-    (Minus.Quotient.compInclusionIso C h_inverts).hom.app X = 𝟙 _ := sorry
+    (Minus.Quotient.compInclusionIso C h_inverts).hom.app X = 𝟙 _ := rfl
 
 /-- The inverse bounded-above inclusion comparison has identity components. -/
 @[simp, stacks 05S6 "bounded-above filtered quotient inclusion computation"]
 theorem inv_app (X : HomotopyCategory.Minus (FilteredObject.Finite.category C)) :
-    (Minus.Quotient.compInclusionIso C h_inverts).inv.app X = 𝟙 _ := sorry
+    (Minus.Quotient.compInclusionIso C h_inverts).inv.app X = 𝟙 _ := rfl
 
 end Minus.Quotient.compInclusionIso
 
@@ -137,7 +137,7 @@ filtered derived quotient image. -/
 @[simp, stacks 05S6 "canonical bounded-above filtered quotient object computation"]
 theorem obj_obj (X : HomotopyCategory.Minus (FilteredObject.Finite.category C)) :
     ((Minus.Quotient.canonicalFunctor C).obj X).obj =
-      (FilteredObject.FiniteDerived.Quotient.functor C).obj X.obj := sorry
+      (FilteredObject.FiniteDerived.Quotient.functor C).obj X.obj := rfl
 
 /-- The underlying morphism of the canonical bounded-above quotient is its ambient finite
 filtered derived quotient map. -/
@@ -145,7 +145,7 @@ filtered derived quotient map. -/
 theorem map_hom {X Y : HomotopyCategory.Minus (FilteredObject.Finite.category C)}
     (f : X ⟶ Y) :
     ((Minus.Quotient.canonicalFunctor C).map f).hom =
-      (FilteredObject.FiniteDerived.Quotient.functor C).map f.hom := sorry
+      (FilteredObject.FiniteDerived.Quotient.functor C).map f.hom := rfl
 
 end Minus.Quotient.canonicalFunctor
 
@@ -154,12 +154,12 @@ namespace Minus.Quotient.canonicalCompInclusionIso
 /-- The forward canonical bounded-above inclusion comparison has identity components. -/
 @[simp, stacks 05S6 "canonical bounded-above filtered quotient inclusion computation"]
 theorem hom_app (X : HomotopyCategory.Minus (FilteredObject.Finite.category C)) :
-    (Minus.Quotient.canonicalCompInclusionIso C).hom.app X = 𝟙 _ := sorry
+    (Minus.Quotient.canonicalCompInclusionIso C).hom.app X = 𝟙 _ := rfl
 
 /-- The inverse canonical bounded-above inclusion comparison has identity components. -/
 @[simp, stacks 05S6 "canonical bounded-above filtered quotient inclusion computation"]
 theorem inv_app (X : HomotopyCategory.Minus (FilteredObject.Finite.category C)) :
-    (Minus.Quotient.canonicalCompInclusionIso C).inv.app X = 𝟙 _ := sorry
+    (Minus.Quotient.canonicalCompInclusionIso C).inv.app X = 𝟙 _ := rfl
 
 end Minus.Quotient.canonicalCompInclusionIso
 
@@ -170,7 +170,7 @@ filtered derived quotient image. -/
 @[simp, stacks 05S6 "bounded filtered quotient object computation"]
 theorem obj_obj (X : HomotopyCategory.Bounded (FilteredObject.Finite.category C)) :
     ((Bounded.Quotient.functor C h_inverts).obj X).obj =
-      (FilteredObject.FiniteDerived.Quotient.functor C).obj X.obj := sorry
+      (FilteredObject.FiniteDerived.Quotient.functor C).obj X.obj := rfl
 
 /-- The underlying morphism of the bounded quotient is its ambient finite
 filtered derived quotient map. -/
@@ -178,7 +178,7 @@ filtered derived quotient map. -/
 theorem map_hom {X Y : HomotopyCategory.Bounded (FilteredObject.Finite.category C)}
     (f : X ⟶ Y) :
     ((Bounded.Quotient.functor C h_inverts).map f).hom =
-      (FilteredObject.FiniteDerived.Quotient.functor C).map f.hom := sorry
+      (FilteredObject.FiniteDerived.Quotient.functor C).map f.hom := rfl
 
 end Bounded.Quotient.functor
 
@@ -187,12 +187,12 @@ namespace Bounded.Quotient.compInclusionIso
 /-- The forward bounded inclusion comparison has identity components. -/
 @[simp, stacks 05S6 "bounded filtered quotient inclusion computation"]
 theorem hom_app (X : HomotopyCategory.Bounded (FilteredObject.Finite.category C)) :
-    (Bounded.Quotient.compInclusionIso C h_inverts).hom.app X = 𝟙 _ := sorry
+    (Bounded.Quotient.compInclusionIso C h_inverts).hom.app X = 𝟙 _ := rfl
 
 /-- The inverse bounded inclusion comparison has identity components. -/
 @[simp, stacks 05S6 "bounded filtered quotient inclusion computation"]
 theorem inv_app (X : HomotopyCategory.Bounded (FilteredObject.Finite.category C)) :
-    (Bounded.Quotient.compInclusionIso C h_inverts).inv.app X = 𝟙 _ := sorry
+    (Bounded.Quotient.compInclusionIso C h_inverts).inv.app X = 𝟙 _ := rfl
 
 end Bounded.Quotient.compInclusionIso
 
@@ -203,7 +203,7 @@ derived quotient image. -/
 @[simp, stacks 05S6 "canonical bounded filtered quotient object computation"]
 theorem obj_obj (X : HomotopyCategory.Bounded (FilteredObject.Finite.category C)) :
     ((Bounded.Quotient.canonicalFunctor C).obj X).obj =
-      (FilteredObject.FiniteDerived.Quotient.functor C).obj X.obj := sorry
+      (FilteredObject.FiniteDerived.Quotient.functor C).obj X.obj := rfl
 
 /-- The underlying morphism of the canonical bounded quotient is its ambient finite filtered
 derived quotient map. -/
@@ -211,7 +211,7 @@ derived quotient map. -/
 theorem map_hom {X Y : HomotopyCategory.Bounded (FilteredObject.Finite.category C)}
     (f : X ⟶ Y) :
     ((Bounded.Quotient.canonicalFunctor C).map f).hom =
-      (FilteredObject.FiniteDerived.Quotient.functor C).map f.hom := sorry
+      (FilteredObject.FiniteDerived.Quotient.functor C).map f.hom := rfl
 
 end Bounded.Quotient.canonicalFunctor
 
@@ -220,12 +220,12 @@ namespace Bounded.Quotient.canonicalCompInclusionIso
 /-- The forward canonical bounded inclusion comparison has identity components. -/
 @[simp, stacks 05S6 "canonical bounded filtered quotient inclusion computation"]
 theorem hom_app (X : HomotopyCategory.Bounded (FilteredObject.Finite.category C)) :
-    (Bounded.Quotient.canonicalCompInclusionIso C).hom.app X = 𝟙 _ := sorry
+    (Bounded.Quotient.canonicalCompInclusionIso C).hom.app X = 𝟙 _ := rfl
 
 /-- The inverse canonical bounded inclusion comparison has identity components. -/
 @[simp, stacks 05S6 "canonical bounded filtered quotient inclusion computation"]
 theorem inv_app (X : HomotopyCategory.Bounded (FilteredObject.Finite.category C)) :
-    (Bounded.Quotient.canonicalCompInclusionIso C).inv.app X = 𝟙 _ := sorry
+    (Bounded.Quotient.canonicalCompInclusionIso C).inv.app X = 𝟙 _ := rfl
 
 end Bounded.Quotient.canonicalCompInclusionIso
 

@@ -6,10 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Trace
-public import stacks_project.Chap59.Proposition_59_70_3
-public import stacks_project.Chap63.Example_63_5_5_Trace_for_flat_quasi_finite_Trace
-public import stacks_project.Chap63.Lemma_63_4_3
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Trace.Etale
 import StacksCheckRecall
 
 /-!
@@ -32,34 +29,40 @@ universe u
 
 namespace AlgebraicGeometry.Scheme.Etale
 
-variable {U X : Scheme.{u}} (j : U ⟶ X) [Etale j] [LocallyQuasiFinite j]
+variable {U X : Scheme.{u}} (j : U ⟶ X) [Etale j]
 variable [∀ F : U.Etaleᵒᵖ ⥤ AddCommGrpCat.{u},
   (etaleRestriction j).op.HasLeftKanExtension F]
 variable [HasSheafify X.smallEtaleTopology AddCommGrpCat.{u}]
 variable [∀ P : X.Etaleᵒᵖ ⥤ AddCommGrpCat.{u},
   (smallEtalePullback j).op.HasLeftKanExtension P]
 
-/-- Remark 63.5.6 (1): Let `j : U ⟶ X` be an étale morphism of schemes. Then
-the trace map `Tr : j_! j⁻¹ K ⟶ K` of Example 63.5.5 equals the counit of
-the adjunction `j_! ⊣ j⁻¹`, after the identification
-`extensionByZeroIsoLowerShriek` of Lemma 63.4.3. -/
-@[stacks 0GL4]
-theorem fiberWeightTraceHom_eq_abelianEtaleTrace
-    (F : Sheaf X.smallEtaleTopology AddCommGrpCat.{u}) :
-    (extensionByZeroIsoLowerShriek j).inv.app
-        ((etaleAbelianSheafPullback j).obj F) ≫
-      (abelianExtensionByZero j).map
-        ((etaleRestrictionSheafIso_smallEtalePullback j F).inv) ≫
-      (abelianEtaleTrace j).app F =
-      fiberWeightTraceHom j F :=
-  sorry
+variable (Λ : Type u) [CommRing Λ]
+variable [U.smallEtaleTopology.HasSheafCompose
+  (forget₂ (ModuleCat.{u} Λ) AddCommGrpCat.{u})]
+variable [X.smallEtaleTopology.HasSheafCompose
+  (forget₂ (ModuleCat.{u} Λ) AddCommGrpCat.{u})]
+variable [HasSheafify X.smallEtaleTopology (ModuleCat.{u} Λ)]
+variable [HasWeakSheafify U.smallEtaleTopology (ModuleCat.{u} Λ)]
+variable [HasWeakSheafify U.smallEtaleTopology AddCommGrpCat.{u}]
+variable [(forget₂ (ModuleCat.{u} Λ) AddCommGrpCat.{u}).PreservesLeftKanExtensions
+  (smallEtalePullback j).op]
+variable [(forget₂ (ModuleCat.{u} Λ) AddCommGrpCat.{u}).PreservesLeftKanExtensions
+  (etaleRestriction j).op]
+variable [∀ V : U.Etale,
+  HasWeakSheafify (U.smallEtaleTopology.over V) (ModuleCat.{u} Λ)]
+variable [∀ V : X.Etale,
+  HasWeakSheafify (X.smallEtaleTopology.over V) (ModuleCat.{u} Λ)]
+variable [HasDerivedCategory (Sheaf U.smallEtaleTopology (ModuleCat.{u} Λ))]
+variable [HasDerivedCategory (Sheaf X.smallEtaleTopology (ModuleCat.{u} Λ))]
 
-/- Remark 63.5.6 (2): Section 59.66 already used the terminology "trace" for
-this counit of `j_! ⊣ j⁻¹` on abelian étale sheaves. -/
+/- Remark 63.5.6: For an étale morphism `j : U ⟶ X`, the trace of
+Example 63.5.5 on derived étale `Λ`-module sheaves equals the counit of
+`j_! ⊣ j⁻¹`. Section 59.66 already used the terminology "trace" for this counit. -/
 @[stacks 0GL4] #check
-  (abelianEtaleTrace j :
-    etaleRestrictionSheaf j AddCommGrpCat.{u} ⋙ abelianExtensionByZero j ⟶
-      𝟭 (Sheaf X.smallEtaleTopology AddCommGrpCat.{u}))
+  (AlgebraicGeometry.Scheme.Etale.fiberWeightTraceDerivedHom_eq_counit j Λ :
+    ∀ K : DerivedCategory (Sheaf X.smallEtaleTopology (ModuleCat.{u} Λ)),
+      fiberWeightTraceDerivedHom j Λ K =
+        (lowerShriekModuleDerivedEtaleAdjunction j Λ).counit.app K)
 
 end AlgebraicGeometry.Scheme.Etale
 

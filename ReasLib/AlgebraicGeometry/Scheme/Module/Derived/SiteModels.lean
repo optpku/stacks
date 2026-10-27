@@ -78,6 +78,9 @@ theorem liftedSmallZariskiRingedSiteHom_base (X : Scheme.{u}) :
 /-- The quasi-coherent cohomology property on the lifted opens presentation. -/
 abbrev opensProperty (X : Scheme.{u}) : ObjectProperty
     (RingedSite.Hom.ModuleDerived.{u + 1} (liftedOpensRingedSite X)) :=
+  -- Select the sliced-opens instances at the lifted coefficient universe.
+  letI := TopCat.addCommGrpHasWeakSheafifyOver.{u, u + 1} (X : TopCat)
+  letI := TopCat.addCommGrpWEqualsLocallyBijectiveOver.{u, u + 1} (X : TopCat)
   @DerivedCategory.cohomologyIn _ _ _
     (RingedSite.Hom.moduleCat_hasDerivedCategory.{u + 1} (liftedOpensRingedSite X))
     (SheafOfModules.isQuasicoherent.{u + 1, u, u} (liftedOpensRingSheaf X))

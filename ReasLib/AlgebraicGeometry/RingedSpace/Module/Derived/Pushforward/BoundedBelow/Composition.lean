@@ -46,19 +46,20 @@ noncomputable def compComparison (f : X ⟶ Y) (g : Y ⟶ Z) :
 /-- Lemma 20.13.7: the canonical bounded-below derived pushforward comparison for composable
 morphisms of ringed spaces is an isomorphism. -/
 @[stacks 01F5]
-noncomputable instance compComparison_isIso (f : X ⟶ Y) (g : Y ⟶ Z) :
+theorem compComparison_isIso (f : X ⟶ Y) (g : Y ⟶ Z) :
     IsIso (compComparison f g) := sorry
 
-/-- Bounded-below derived pushforward on ringed spaces is pseudofunctorial under composition. -/
+/-- The bounded-below derived pushforward composition isomorphism, formed from a
+caller-supplied invertibility witness for the canonical comparison. -/
 @[stacks 01F5 "bounded-below derived pushforward composition isomorphism"]
-noncomputable def compIso (f : X ⟶ Y) (g : Y ⟶ Z) :
+noncomputable def compIso (f : X ⟶ Y) (g : Y ⟶ Z) [IsIso (compComparison f g)] :
     moduleDerivedPushforwardPlus (f ≫ g) ≅
       moduleDerivedPushforwardPlus f ⋙ moduleDerivedPushforwardPlus g :=
   asIso (compComparison f g)
 
 /-- The forward map of `compIso` is the canonical bounded-below composition comparison. -/
 @[simp, stacks 01F5 "bounded-below derived pushforward composition map"]
-theorem compIso_hom (f : X ⟶ Y) (g : Y ⟶ Z) :
-    (compIso f g).hom = compComparison f g := sorry
+theorem compIso_hom (f : X ⟶ Y) (g : Y ⟶ Z) [IsIso (compComparison f g)] :
+    (compIso f g).hom = compComparison f g := rfl
 
 end AlgebraicGeometry.RingedSpace.moduleDerivedPushforwardPlus

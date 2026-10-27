@@ -51,19 +51,27 @@ class RightDerived.DefinedAt (F : D ⥤ D') (S : MorphismProperty D) (X : D) : P
   isEssentiallyConstant :
     IsFiltered.IsEssentiallyConstant (CostructuredArrow.proj S.Q (S.Q.obj X) ⋙ F)
 
-/-- the right derived functor of `F` is source-defined everywhere when its
-localization-indexed diagram is essentially constant at every object. -/
-@[stacks 05S9 "everywhere-defined right derived functor"]
-class RightDerived.EverywhereDefined (F : D ⥤ D') (S : MorphismProperty D) : Prop where
+namespace RightDerived
+
+/-- The right derived functor of `F` is defined everywhere when its localization-indexed
+ind-diagram is essentially constant at every object. -/
+@[stacks 05SV "everywhere-defined right derived functor"]
+class EverywhereDefined (F : D ⥤ D') (S : MorphismProperty D) : Prop where
   /-- Source-definedness at each object. -/
   definedAt : ∀ X : D, RightDerived.DefinedAt F S X
 
-/-- the left derived functor of `F` is source-defined everywhere when its
-localization-indexed diagram is essentially constant at every object. -/
-@[stacks 05S9 "everywhere-defined left derived functor"]
-class LeftDerived.EverywhereDefined (F : D ⥤ D') (S : MorphismProperty D) : Prop where
+end RightDerived
+
+namespace LeftDerived
+
+/-- The left derived functor of `F` is defined everywhere when its localization-indexed
+pro-diagram is essentially constant at every object. -/
+@[stacks 05SV "everywhere-defined left derived functor"]
+class EverywhereDefined (F : D ⥤ D') (S : MorphismProperty D) : Prop where
   /-- Source-definedness at each object. -/
   definedAt : ∀ X : D, LeftDerived.DefinedAt F S X
+
+end LeftDerived
 
 /-- An everywhere-defined right derived functor supplies source-definedness at every object to
 typeclass search. -/

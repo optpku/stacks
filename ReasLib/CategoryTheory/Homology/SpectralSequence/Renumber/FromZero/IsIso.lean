@@ -47,11 +47,4 @@ noncomputable instance map_f_isIso
     (r : ℤ) (hr : 2 ≤ r) (ij : ℤ × ℤ) [IsIso f] :
     IsIso (((map f).hom r hr).f ij) := sorry
 
-variable {E E' : CohomologicalSpectralSequence C 0}
-variable (f : E ⟶ E') [IsIso f]
-
-#synth IsIso (map f)
-#synth IsIso ((map f).hom 2 le_rfl)
-#synth IsIso (((map f).hom 2 le_rfl).f (0, 0))
-
 end CategoryTheory.CohomologicalSpectralSequence.Renumber.FromZero

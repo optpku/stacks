@@ -73,4 +73,4 @@ with all covering representables are representable. -/
         ((𝒮.toGrothendieck.over S).uliftYoneda.{max u v}).essImage
             ((CategoryTheory.GrothendieckTopology.RepresentableDescent.glue
               𝒮.toGrothendieck p hcover).obj D).obj ↔
-          Over.DescentData.IsEffective D)
+          Over.DescentData.IsEffective Sᵢ p D)

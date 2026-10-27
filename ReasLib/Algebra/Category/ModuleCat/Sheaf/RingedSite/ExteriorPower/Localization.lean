@@ -46,6 +46,8 @@ noncomputable def overIso (F : ringedSiteModuleCategory J O) (n : ℕ) :
     (moduleSheafification (O.over U)).mapIso
       (PresheafOfModules.ExteriorPower.overIso O.obj U F.val n)
 
+set_option maxHeartbeats 800000 in
+set_option backward.isDefEq.respectTransparency false in
 /-- The exterior-power localization comparison is natural in the module sheaf. -/
 @[stacks 01CG "exterior-power localization comparison naturality"]
 theorem overIso_naturality
@@ -53,8 +55,29 @@ theorem overIso_naturality
     (functor O n ⋙ Localization.restriction O U).map f ≫
         (overIso O U G n).hom =
       (overIso O U F n).hom ≫
-        (Localization.restriction O U ⋙ functor (O.over U) n).map f := sorry
+        (Localization.restriction O U ⋙ functor (O.over U) n).map f := by
+  have hSheafification :
+      (functor O n ⋙ Localization.restriction O U).map f ≫
+          (ModuleSheafification.overIso O U (presheaf O G n)).hom =
+        (ModuleSheafification.overIso O U (presheaf O F n)).hom ≫
+          (moduleSheafification (O.over U)).map ((presheafMap O f n).over U) :=
+    _root_.SheafOfModules.Localization.ModuleSheafification.overIso_naturality
+      (ringSheaf J O) U (presheafMap O f n)
+  have hPresheaf :
+      (presheafMap O f n).over U ≫
+          (PresheafOfModules.ExteriorPower.overIso O.obj U G.val n).hom =
+        (PresheafOfModules.ExteriorPower.overIso O.obj U F.val n).hom ≫
+          presheafMap (O.over U) ((Localization.restriction O U).map f) n :=
+    PresheafOfModules.ExteriorPower.overIso_naturality O.obj U n f.val
+  have hMap :
+      (Localization.restriction O U ⋙ functor (O.over U) n).map f =
+        (moduleSheafification (O.over U)).map
+          (presheafMap (O.over U) ((Localization.restriction O U).map f) n) := rfl
+  simp only [overIso, Iso.trans_hom, Functor.mapIso_hom]
+  rw [hMap, ← Category.assoc, hSheafification, Category.assoc, ← Functor.map_comp,
+    hPresheaf, Functor.map_comp, ← Category.assoc]
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The inverse exterior-power localization comparison is natural in the module sheaf. -/
 @[stacks 01CG "inverse exterior-power localization comparison naturality"]
 theorem overIso_inv_naturality
@@ -62,7 +85,10 @@ theorem overIso_inv_naturality
     (Localization.restriction O U ⋙ functor (O.over U) n).map f ≫
         (overIso O U G n).inv =
       (overIso O U F n).inv ≫
-        (functor O n ⋙ Localization.restriction O U).map f := sorry
+        (functor O n ⋙ Localization.restriction O U).map f := by
+  apply (Iso.cancel_iso_hom_left (overIso O U F n) _ _).mp
+  rw [← Category.assoc, ← overIso_naturality O U n f]
+  simp [Category.assoc]
 
 /-- The forward degree-`n` exterior-power localization comparisons form a natural
 transformation. -/
@@ -86,25 +112,31 @@ noncomputable def overInvNatTrans (n : ℕ) :
 forward map of `overIso`. -/
 @[simp, stacks 01CG "forward exterior-power localization comparison component"]
 theorem overNatTrans_app (n : ℕ) (F : ringedSiteModuleCategory J O) :
-    (overNatTrans O U n).app F = (overIso O U F n).hom := sorry
+    (overNatTrans O U n).app F = (overIso O U F n).hom := rfl
 
 /-- A component of the inverse degree-`n` exterior-power localization comparison is the
 inverse map of `overIso`. -/
 @[simp, stacks 01CG "inverse exterior-power localization comparison component"]
 theorem overInvNatTrans_app (n : ℕ) (F : ringedSiteModuleCategory J O) :
-    (overInvNatTrans O U n).app F = (overIso O U F n).inv := sorry
+    (overInvNatTrans O U n).app F = (overIso O U F n).inv := rfl
 
 /-- The forward exterior-power localization comparison followed by its inverse is the
 identity. -/
 @[simp, stacks 01CG "exterior-power localization comparison forward-inverse law"]
 theorem overNatTrans_hom_inv_id (n : ℕ) :
-    overNatTrans O U n ≫ overInvNatTrans O U n = 𝟙 _ := sorry
+    overNatTrans O U n ≫ overInvNatTrans O U n = 𝟙 _ := by
+  apply NatTrans.ext
+  funext F
+  exact (overIso O U F n).hom_inv_id
 
 /-- The inverse exterior-power localization comparison followed by the forward comparison is
 the identity. -/
 @[simp, stacks 01CG "exterior-power localization comparison inverse-forward law"]
 theorem overNatTrans_inv_hom_id (n : ℕ) :
-    overInvNatTrans O U n ≫ overNatTrans O U n = 𝟙 _ := sorry
+    overInvNatTrans O U n ≫ overNatTrans O U n = 𝟙 _ := by
+  apply NatTrans.ext
+  funext F
+  exact (overIso O U F n).inv_hom_id
 
 /-- Degree-`n` exterior-power sheaf formation commutes naturally with restriction to a slice. -/
 @[stacks 01CG "natural exterior-power localization comparison"]
@@ -120,27 +152,29 @@ noncomputable def overNatIso (n : ℕ) :
 comparison. -/
 @[simp, stacks 01CG "exterior-power localization natural isomorphism hom"]
 theorem overNatIso_hom (n : ℕ) :
-    (overNatIso O U n).hom = overNatTrans O U n := sorry
+    (overNatIso O U n).hom = overNatTrans O U n := rfl
 
 /-- The inverse natural transformation of `overNatIso` is the explicit inverse localization
 comparison. -/
 @[simp, stacks 01CG "exterior-power localization natural isomorphism inverse"]
 theorem overNatIso_inv (n : ℕ) :
-    (overNatIso O U n).inv = overInvNatTrans O U n := sorry
+    (overNatIso O U n).inv = overInvNatTrans O U n := rfl
 
 /-- A component of `overNatIso` is the objectwise exterior-power localization isomorphism. -/
 @[simp, stacks 01CG "exterior-power localization natural isomorphism component"]
 theorem overNatIso_app (n : ℕ) (F : ringedSiteModuleCategory J O) :
-    (overNatIso O U n).app F = overIso O U F n := sorry
+    (overNatIso O U n).app F = overIso O U F n := by
+  apply Iso.ext
+  rfl
 
 /-- A forward component of `overNatIso` is the forward objectwise localization comparison. -/
 @[simp, stacks 01CG "exterior-power localization natural isomorphism hom component"]
 theorem overNatIso_hom_app (n : ℕ) (F : ringedSiteModuleCategory J O) :
-    (overNatIso O U n).hom.app F = (overIso O U F n).hom := sorry
+    (overNatIso O U n).hom.app F = (overIso O U F n).hom := rfl
 
 /-- An inverse component of `overNatIso` is the inverse objectwise localization comparison. -/
 @[simp, stacks 01CG "exterior-power localization natural isomorphism inverse component"]
 theorem overNatIso_inv_app (n : ℕ) (F : ringedSiteModuleCategory J O) :
-    (overNatIso O U n).inv.app F = (overIso O U F n).inv := sorry
+    (overNatIso O U n).inv.app F = (overIso O U F n).inv := rfl
 
 end SheafOfModules.RingedSite.ExteriorPower

@@ -6,6 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
+public import Mathlib.CategoryTheory.Shift.Adjunction
 public import ReasLib.Algebra.Homology.DerivedCategory.ModuleCat.Coextension
 public import ReasLib.Algebra.Homology.DerivedCategory.ScalarExtension.Adjunction
 

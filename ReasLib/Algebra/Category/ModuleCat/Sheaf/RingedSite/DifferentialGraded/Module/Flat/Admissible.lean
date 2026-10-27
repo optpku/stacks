@@ -32,27 +32,33 @@ universe u v w
 namespace SheafOfModules.RingedSite.DifferentialGradedModule
 
 variable {C : Type u} [Category.{v} C] {J : GrothendieckTopology C}
-variable [J.HasSheafCompose (forget₂ CommRingCat.{w} RingCat.{w})]
-variable [HasWeakSheafify J AddCommGrpCat.{w}]
-variable [J.WEqualsLocallyBijective AddCommGrpCat.{w}]
-variable {O : Sheaf J CommRingCat.{w}} {A : DGA(O)}
+variable [J.HasSheafCompose (forget₂ CommRingCat.{max u v w} RingCat.{max u v w})]
+variable [HasWeakSheafify J AddCommGrpCat.{max u v w}]
+variable [J.WEqualsLocallyBijective AddCommGrpCat.{max u v w}]
+variable {O : Sheaf J CommRingCat.{max u v w}} {A : DGA(O)}
 
 namespace IsGradedFlat
 
 /-- Graded flatness passes to the quotient in an admissible short exact sequence of DG modules. -/
 @[stacks 0FSC "graded-flat admissible quotient"]
 theorem of_left_middle (S : ShortComplex Mod(A, d)) (hS : IsAdmissibleShortExact S)
-    (h₁ : IsGradedFlat S.X₁) (h₂ : IsGradedFlat S.X₂) : IsGradedFlat S.X₃ := sorry
+    (h₁ : IsGradedFlat.{u, v, max u v w} S.X₁)
+    (h₂ : IsGradedFlat.{u, v, max u v w} S.X₂) :
+    IsGradedFlat.{u, v, max u v w} S.X₃ := sorry
 
 /-- Graded flatness is closed under admissible extensions of DG modules. -/
 @[stacks 0FSC "graded-flat admissible extension"]
 theorem of_left_right (S : ShortComplex Mod(A, d)) (hS : IsAdmissibleShortExact S)
-    (h₁ : IsGradedFlat S.X₁) (h₃ : IsGradedFlat S.X₃) : IsGradedFlat S.X₂ := sorry
+    (h₁ : IsGradedFlat.{u, v, max u v w} S.X₁)
+    (h₃ : IsGradedFlat.{u, v, max u v w} S.X₃) :
+    IsGradedFlat.{u, v, max u v w} S.X₂ := sorry
 
 /-- Graded flatness passes to the kernel in an admissible short exact sequence of DG modules. -/
 @[stacks 0FSC "graded-flat admissible kernel"]
 theorem of_middle_right (S : ShortComplex Mod(A, d)) (hS : IsAdmissibleShortExact S)
-    (h₂ : IsGradedFlat S.X₂) (h₃ : IsGradedFlat S.X₃) : IsGradedFlat S.X₁ := sorry
+    (h₂ : IsGradedFlat.{u, v, max u v w} S.X₂)
+    (h₃ : IsGradedFlat.{u, v, max u v w} S.X₃) :
+    IsGradedFlat.{u, v, max u v w} S.X₁ := sorry
 
 end IsGradedFlat
 
@@ -62,18 +68,24 @@ namespace IsKFlat
 modules. -/
 @[stacks 0FSC "K-flat admissible quotient"]
 theorem of_left_middle (S : ShortComplex Mod(A, d)) (hS : IsAdmissibleShortExact S)
-    (h₁ : IsKFlat S.X₁) (h₂ : IsKFlat S.X₂) : IsKFlat S.X₃ := sorry
+    (h₁ : IsKFlat.{u, v, max u v w} S.X₁)
+    (h₂ : IsKFlat.{u, v, max u v w} S.X₂) :
+    IsKFlat.{u, v, max u v w} S.X₃ := sorry
 
 /-- Relative K-flatness is closed under admissible extensions of DG modules. -/
 @[stacks 0FSC "K-flat admissible extension"]
 theorem of_left_right (S : ShortComplex Mod(A, d)) (hS : IsAdmissibleShortExact S)
-    (h₁ : IsKFlat S.X₁) (h₃ : IsKFlat S.X₃) : IsKFlat S.X₂ := sorry
+    (h₁ : IsKFlat.{u, v, max u v w} S.X₁)
+    (h₃ : IsKFlat.{u, v, max u v w} S.X₃) :
+    IsKFlat.{u, v, max u v w} S.X₂ := sorry
 
 /-- Relative K-flatness passes to the kernel in an admissible short exact sequence of DG
 modules. -/
 @[stacks 0FSC "K-flat admissible kernel"]
 theorem of_middle_right (S : ShortComplex Mod(A, d)) (hS : IsAdmissibleShortExact S)
-    (h₂ : IsKFlat S.X₂) (h₃ : IsKFlat S.X₃) : IsKFlat S.X₁ := sorry
+    (h₂ : IsKFlat.{u, v, max u v w} S.X₂)
+    (h₃ : IsKFlat.{u, v, max u v w} S.X₃) :
+    IsKFlat.{u, v, max u v w} S.X₁ := sorry
 
 end IsKFlat
 
@@ -83,17 +95,23 @@ namespace IsGoodAtBase
 modules. -/
 @[stacks 0FSC "fixed-base good admissible quotient"]
 theorem of_left_middle (S : ShortComplex Mod(A, d)) (hS : IsAdmissibleShortExact S)
-    (h₁ : IsGoodAtBase S.X₁) (h₂ : IsGoodAtBase S.X₂) : IsGoodAtBase S.X₃ := sorry
+    (h₁ : IsGoodAtBase.{u, v, max u v w} S.X₁)
+    (h₂ : IsGoodAtBase.{u, v, max u v w} S.X₂) :
+    IsGoodAtBase.{u, v, max u v w} S.X₃ := sorry
 
 /-- Fixed-base goodness is closed under admissible extensions of DG modules. -/
 @[stacks 0FSC "fixed-base good admissible extension"]
 theorem of_left_right (S : ShortComplex Mod(A, d)) (hS : IsAdmissibleShortExact S)
-    (h₁ : IsGoodAtBase S.X₁) (h₃ : IsGoodAtBase S.X₃) : IsGoodAtBase S.X₂ := sorry
+    (h₁ : IsGoodAtBase.{u, v, max u v w} S.X₁)
+    (h₃ : IsGoodAtBase.{u, v, max u v w} S.X₃) :
+    IsGoodAtBase.{u, v, max u v w} S.X₂ := sorry
 
 /-- Fixed-base goodness passes to the kernel in an admissible short exact sequence of DG modules. -/
 @[stacks 0FSC "fixed-base good admissible kernel"]
 theorem of_middle_right (S : ShortComplex Mod(A, d)) (hS : IsAdmissibleShortExact S)
-    (h₂ : IsGoodAtBase S.X₂) (h₃ : IsGoodAtBase S.X₃) : IsGoodAtBase S.X₁ := sorry
+    (h₂ : IsGoodAtBase.{u, v, max u v w} S.X₂)
+    (h₃ : IsGoodAtBase.{u, v, max u v w} S.X₃) :
+    IsGoodAtBase.{u, v, max u v w} S.X₁ := sorry
 
 end IsGoodAtBase
 

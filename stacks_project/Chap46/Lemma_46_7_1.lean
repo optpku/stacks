@@ -8,7 +8,7 @@ module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Sites.Module.Parasitic.Adequate
 public import ReasLib.CategoryTheory.DerivedCategory.SerreQuotient.Equivalence
-public import stacks_project.Chap46.Lemma_46_6_2_Quotient
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Module.Parasitic.SerreQuotient
 import StacksCheckRecall
 
 @[expose] public section
@@ -21,6 +21,10 @@ open Equivalence.MapDerivedCategory
 noncomputable section
 
 universe u
+
+attribute [local instance] SheafOfModules.Adeq.instAbelian
+  SheafOfModules.Adeq.Parasitic.isSerreClass
+  SheafOfModules.Adeq.Parasitic.isEquivalence
 
 variable (S : Scheme.{u}) (τ : StandardTopology)
 variable [HasDerivedCategory.{u}

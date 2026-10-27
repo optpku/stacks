@@ -6,6 +6,9 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.FormalSystem.Pushforward
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Quasicoherent.Pushforward
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.Quasicoherent.HomotopyLimit
 public import Mathlib.Algebra.Homology.DerivedCategory.Basic
 public import ReasLib.CategoryTheory.DerivedCategory.Bounded
 public import ReasLib.CategoryTheory.InverseSystem.Sequential
@@ -20,100 +23,39 @@ public import stacks_project.Chap77.Situation_77_12_1_FormalSystem
 /-!
 # Homotopy limits of pushed stage sheaves
 
-The stage modules of a proper flat formal system are viewed on the limit space by
-pushforward along the closed immersions `X_n ⟶ X`. An ambient homotopy limit of
-those pushforwards has quasi-coherent coreflection in `Dᵇ_QCoh(𝒪_X)` with vanishing
-cohomology in negative degrees.
+Typed checks of stage pushforward and the general quasi-coherent homotopy-limit API.
 -/
 
 @[expose] public section
 
 open CategoryTheory CategoryTheory.Limits CategoryTheory.ObjectProperty
 open AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
+open AlgebraicGeometry.AlgebraicSpace.Modules
 
 noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.Modules.ProperFlatFormalSystem
+#check (AlgebraicGeometry.AlgebraicSpace.Modules.ProperFlatFormalSystem.pushforwardModule : ∀ (S : ProperFlatFormalSystem) (n : ℕ),
+    S.space.Modules)
 
-/-- The stage module sheaf `ℱ n`, viewed as a sheaf on `X` by pushforward along the
-closed immersion `stageToSpace n : X_n ⟶ X`. -/
-def pushforwardModule (S : ProperFlatFormalSystem) (n : ℕ) : S.space.Modules :=
-  (Modules.pushforward (S.stageToSpace n)).obj (S.moduleSheaf n)
+#check (AlgebraicGeometry.AlgebraicSpace.Modules.ProperFlatFormalSystem.pushforwardModule_spec : ∀ (S : ProperFlatFormalSystem) (n : ℕ),
+    S.pushforwardModule n = (Modules.pushforward (S.stageToSpace n)).obj (S.moduleSheaf n))
 
-/-- `pushforwardModule` is the underived pushforward of the stage module sheaf along
-the closed immersion to the limit space. -/
-theorem pushforwardModule_spec (S : ProperFlatFormalSystem) (n : ℕ) :
-    S.pushforwardModule n = (Modules.pushforward (S.stageToSpace n)).obj (S.moduleSheaf n) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.DerivedQCoh.rightAdjoint_homotopyLimit_isBounded : ∀ {S : Scheme.{u}} (X : AlgebraicSpace S)
+    [IsQuasiCompact X] [IsAbsolutelyQuasiSeparated X]
+    (F : SequentialInverseSystem (QCoh X)) (K : ModuleDerived X)
+    (hK : HomotopyLimit.IsOf
+      (F ⋙ QCoh.inclusion X ⋙ DerivedCategory.singleFunctor (Modules X) (0 : ℤ)) K),
+    ((DerivedQCoh.inclusion X).rightAdjoint.obj K).obj.IsGE 0 ∧
+      DerivedCategory.IsBoundedAbove ((DerivedQCoh.inclusion X).rightAdjoint.obj K).obj)
 
-/-- Pushforward of a finitely presented stage module along the closed immersion
-`X_n ⟶ X` is quasi-coherent on `X`. -/
-instance pushforwardModule_isQuasicoherent (S : ProperFlatFormalSystem) (n : ℕ) :
-    (S.pushforwardModule n).IsQuasicoherent :=
-  sorry
-
-/-- The quasi-coherent coreflection of an ambient homotopy limit of the pushed stage
-sheaves is bounded above and has vanishing cohomology sheaves in negative degrees. -/
-theorem coheratorHomotopyLimit_isBounded (S : ProperFlatFormalSystem)
-    [IsQuasiCompact S.space] [IsAbsolutelyQuasiSeparated S.space]
-    (F : SequentialInverseSystem (QCoh S.space))
-    (stageIso : ∀ n, (QCoh.inclusion S.space).obj (F.obj (Opposite.op n)) ≅
-      S.pushforwardModule n)
-    (Klim : ModuleDerived S.space)
-    (hKlim : HomotopyLimit.IsOf
-      (F ⋙ QCoh.inclusion S.space ⋙
-        DerivedCategory.singleFunctor S.space.Modules (0 : ℤ)) Klim) :
-    ((DerivedQCoh.inclusion S.space).rightAdjoint.obj Klim).obj.IsGE 0 ∧
-      DerivedCategory.IsBoundedAbove
-        ((DerivedQCoh.inclusion S.space).rightAdjoint.obj Klim).obj :=
-  sorry
-
-/-- The cohomology-in property of quasi-coherent modules on the limit space is a
-triangulated subcategory of `D(𝒪_X)`. -/
-instance derivedQuasiCoherent_isTriangulated (S : ProperFlatFormalSystem) :
-    (derivedQuasiCoherentModuleProperty S.space).IsTriangulated :=
-  sorry
-
-/-- The cohomology-in property of quasi-coherent modules on the limit space is
-stable under integral shifts. -/
-instance derivedQuasiCoherent_isStableUnderShift (S : ProperFlatFormalSystem) :
-    (derivedQuasiCoherentModuleProperty S.space).IsStableUnderShift ℤ :=
-  sorry
-
-/-- The derived category of quasi-coherent cohomology on the limit space has a
-zero object. -/
-instance derivedQCoh_hasZeroObject (S : ProperFlatFormalSystem) :
-    HasZeroObject (DerivedQCoh S.space) :=
-  sorry
-
-/-- The integral shift on `DerivedQCoh` of the limit space. -/
-noncomputable instance derivedQCoh_hasShift (S : ProperFlatFormalSystem) :
-    HasShift (DerivedQCoh S.space) ℤ :=
-  ObjectProperty.hasShift (derivedQuasiCoherentModuleProperty S.space)
-
-/-- Each integral shift functor on `DerivedQCoh` of the limit space is additive. -/
-instance derivedQCoh_shiftFunctor_additive (S : ProperFlatFormalSystem) (n : ℤ) :
-    (shiftFunctor (DerivedQCoh S.space) n).Additive :=
-  sorry
-
-/-- The coherator of an ambient homotopy limit of the pushed stage sheaves is a
-homotopy limit in `DerivedQCoh` of the coreflected degree-zero system. -/
-theorem coheratorHomotopyLimit_isHomotopyLimit (S : ProperFlatFormalSystem)
-    [IsQuasiCompact S.space] [IsAbsolutelyQuasiSeparated S.space]
-    (F : SequentialInverseSystem (QCoh S.space))
-    (stageIso : ∀ n, (QCoh.inclusion S.space).obj (F.obj (Opposite.op n)) ≅
-      S.pushforwardModule n)
-    (Klim : ModuleDerived S.space)
-    (hKlim : HomotopyLimit.IsOf
-      (F ⋙ QCoh.inclusion S.space ⋙
-        DerivedCategory.singleFunctor S.space.Modules (0 : ℤ)) Klim) :
+#check (AlgebraicGeometry.AlgebraicSpace.DerivedQCoh.rightAdjoint_isHomotopyLimit : ∀ {S : Scheme.{u}} (X : AlgebraicSpace S)
+    [IsQuasiCompact X] [IsAbsolutelyQuasiSeparated X]
+    (F : SequentialInverseSystem (QCoh X)) (K : ModuleDerived X)
+    (hK : HomotopyLimit.IsOf
+      (F ⋙ QCoh.inclusion X ⋙ DerivedCategory.singleFunctor (Modules X) (0 : ℤ)) K),
     HomotopyLimit.IsOf
-      (F ⋙ QCoh.inclusion S.space ⋙
-        DerivedCategory.singleFunctor S.space.Modules (0 : ℤ) ⋙
-        (DerivedQCoh.inclusion S.space).rightAdjoint)
-      ((DerivedQCoh.inclusion S.space).rightAdjoint.obj Klim) :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace.Modules.ProperFlatFormalSystem
+      (F ⋙ QCoh.inclusion X ⋙ DerivedCategory.singleFunctor (Modules X) (0 : ℤ) ⋙
+        (DerivedQCoh.inclusion X).rightAdjoint)
+      ((DerivedQCoh.inclusion X).rightAdjoint.obj K))

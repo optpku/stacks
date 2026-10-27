@@ -185,7 +185,7 @@ variable [RepresentablyFlat F]
 /-- For a representably flat continuous functor, the degreewise inverse-image comparison is an
 isomorphism. -/
 @[stacks 0FKP "degreewise comparison invertibility gate"]
-instance comparisonApp_isIso (φ : O₁ ⟶ O₂) (p : ℕ) :
+instance comparisonApp_isIso [RepresentablyFlat F] (φ : O₁ ⟶ O₂) (p : ℕ) :
     IsIso (comparisonApp (J := J) (K := K) F φ p) := sorry
 
 /-- The named inverse of the degreewise inverse-image comparison.  Downstream constructions should
@@ -270,7 +270,7 @@ theorem comparisonIso_hom (φ : O₁ ⟶ O₂) :
 
 /-- The canonical comparison along a representably flat continuous functor is invertible. -/
 @[stacks 0FKP "comparison is an isomorphism"]
-instance comparison_isIso (φ : O₁ ⟶ O₂) :
+instance comparison_isIso [RepresentablyFlat F] (φ : O₁ ⟶ O₂) :
     IsIso (comparison (J := J) (K := K) F φ) := sorry
 
 /-- The inverse morphism owned by the relative de Rham inverse-image comparison. -/

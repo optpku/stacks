@@ -6,17 +6,8 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import Mathlib.Tactic.CrossRefAttribute
-public import stacks_project.Chap85.Lemma_85_20_4_Equivalence
-
-/-!
-# Lemma 85.20.4
-
-Let `C` be a site with fibre products and `X` an object of `C`. Let `O_C` be a
-sheaf of rings. Let `K` be a hypercovering of `X`. If `A` is the weak Serre
-subcategory of cartesian `O`-modules on `((C / K)_total, O)`, then `La^*`
-defines an equivalence `D⁺(O_X) ≌ D_A⁺(O)` with quasi-inverse `Ra_*`.
--/
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.RingedSite.Hypercovering.CartesianDerivedEquivalence
 
 @[expose] public section
 
@@ -88,30 +79,20 @@ variable [ToposHom.HasModuleDerivedAdjunction
       (toSliceTerminal X.siteTopology U K).simplicial :
       ToposHom _ (X.localization U))]
 
-/-- Lemma 85.20.4
-Let `C` be a site with fibre products and `X` an object of `C`. Let `O_C` be a sheaf of
-rings. Let `K` be a hypercovering of `X`. Let `A ⊂ Mod(O)` denote the weak Serre subcategory
-of cartesian `O`-modules. Then the functor `La^*` defines an equivalence
-`D⁺(O_X) ≌ D_A⁺(O)` with quasi-inverse `Ra_*`.
+/- Lemma 85.20.4
+Derived augmentation pullback is an equivalence from bounded-below modules on
+`X.localization U` to bounded-below total-site modules with cartesian cohomology,
+with quasi-inverse given by derived augmentation pushforward. -/
+@[stacks 0DA7] #check (RingedSite.Hypercovering.modulePlusCartesianEquivalence U K :
+  DerivedCategory.Plus (ModuleCat.{w} (X.localization U)) ≌
+    RingedSite.Hypercovering.CartesianPlus U K)
 
-Here `O_X` is the structure sheaf of `X.localization U`, `O` is the structure sheaf of
-`site_terminal (X.localization U) (toSliceTerminal X.siteTopology U K)`, `A` is the
-object property `cartesianProperty` of cartesian `O`-modules, `La^*` is
-`plusCartesianFunctor`, and `Ra_*` is `plusCartesianInverse`. -/
-@[stacks 0DA7]
-def modulePlusCartesianEquivalence :=
-  plusCartesianEquivalence U K
+#check (RingedSite.Hypercovering.modulePlusCartesianEquivalence_functor U K :
+  (RingedSite.Hypercovering.modulePlusCartesianEquivalence U K).functor =
+    RingedSite.Hypercovering.plusCartesianFunctor U K)
 
-/-- The forward functor of `modulePlusCartesianEquivalence` is `La^*` corestricted to
-`D_A⁺(O)`. -/
-theorem modulePlusCartesianEquivalence_functor :
-    (modulePlusCartesianEquivalence U K).functor = plusCartesianFunctor U K :=
-  sorry
-
-/-- The inverse functor of `modulePlusCartesianEquivalence` is `Ra_*` restricted from
-`D_A⁺(O)`. -/
-theorem modulePlusCartesianEquivalence_inverse :
-    (modulePlusCartesianEquivalence U K).inverse = plusCartesianInverse U K :=
-  sorry
+#check (RingedSite.Hypercovering.modulePlusCartesianEquivalence_inverse U K :
+  (RingedSite.Hypercovering.modulePlusCartesianEquivalence U K).inverse =
+    RingedSite.Hypercovering.plusCartesianInverse U K)
 
 end RingedSite.Hypercovering

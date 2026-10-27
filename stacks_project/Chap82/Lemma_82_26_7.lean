@@ -7,7 +7,7 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 import StacksCheckRecall
-public import stacks_project.Chap82.Lemma_82_26_7_ProperPushforward
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.BivariantClass.ProperPushforward
 
 open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
 open CategoryTheory.Limits
@@ -50,10 +50,13 @@ of degree `p` of `Y ⟶ Z`. -/
       (square : IsPullback i g' g h) (k : ℤ),
       (AlgebraicGeometry.AlgebraicSpace.BivariantClass.properPushforward
           δ pZ f g p c).cap i g' h square k =
-        (Hom.properPushforward δ (pullback.fst f i ≫ (f ≫ g) ≫ pZ)
-            (i ≫ g ≫ pZ) (pullback.snd f i)
-            (AlgebraicGeometry.AlgebraicSpace.BivariantClass.pullbackSnd_comp_structure
-              pZ f g i) (k - p)).comp
+        (AlgebraicGeometry.AlgebraicSpace.ChowGroup.properPushforward
+            (pullback.fst f i ≫ (f ≫ g) ≫ pZ)
+            (i ≫ g ≫ pZ) δ (pullback.snd f i)
+            (by
+              simpa only [Category.assoc] using
+                congrArg (fun q => q ≫ g ≫ pZ)
+                  (pullback.condition (f := f) (g := i)).symm)
+            (k - p)).comp
           (c.cap (pullback.fst f i) (pullback.snd f i ≫ g') h
-            (AlgebraicGeometry.AlgebraicSpace.BivariantClass.properPushforwardSquare
-              f g i g' h square) k))
+            ((IsPullback.of_hasPullback f i).paste_vert square) k))

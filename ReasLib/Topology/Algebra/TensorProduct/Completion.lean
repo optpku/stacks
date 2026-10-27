@@ -339,10 +339,12 @@ instance instCompleteSpace : CompleteSpace (Completed R M N) := sorry
 theorem isUniformInducing_of :
     IsUniformInducing (of R M N : Linear R M N → Completed R M N) := sorry
 
-variable [TopologicalSpace R] [ContinuousSMul R M] [ContinuousSMul R N]
-
-/-- Scalar multiplication on the completed tensor product is continuous under continuous factor actions. -/
-instance instContinuousSMul : ContinuousSMul R (Completed R M N) := sorry
+/-- Scalar multiplication on the completed tensor product is continuous for topological additive
+group factors with continuous scalar actions. No linearity assumption on the factor topologies is
+needed. -/
+instance instContinuousSMul [TopologicalSpace R]
+    [IsTopologicalAddGroup M] [IsTopologicalAddGroup N]
+    [ContinuousSMul R M] [ContinuousSMul R N] : ContinuousSMul R (Completed R M N) := sorry
 
 /-- Linear continuous maps out of the completed tensor product are determined by composition
 with `Completed.of`. -/

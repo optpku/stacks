@@ -33,10 +33,10 @@ stage-one `I`-power torsion. -/
 
 /- Lemma 15.89.4 (2) (Stacks 05EB): ideal-power torsion is closed under extensions. -/
 @[stacks 05EB]
-#check fun (I : Ideal R) (N : Submodule R M)
+#check fun (I : Ideal R) (hI : I.FG) (N : Submodule R M)
     (hN : Module.IsIdealPowerTorsion I N)
     (hQ : Module.IsIdealPowerTorsion I (M ⧸ N)) ↦
-  (Module.isIdealPowerTorsion_of_submodule_quotient I N hN hQ :
+  (Module.isIdealPowerTorsion_of_submodule_quotient I hI N hN hQ :
     Module.IsIdealPowerTorsion I M)
 
 end

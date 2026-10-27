@@ -63,51 +63,71 @@ abbrev IsLE (X : DerivedCategory.Minus C) (n : ℤ) : Prop :=
 inclusion into `DerivedCategory C`. -/
 @[stacks 05RU]
 theorem isGE_ι_obj_iff (X : DerivedCategory.Minus C) (n : ℤ) :
-    (DerivedCategory.Minus.ι.obj X).IsGE n ↔ X.IsGE n := sorry
+    (DerivedCategory.Minus.ι.obj X).IsGE n ↔ X.IsGE n := by
+  constructor
+  all_goals exact fun h ↦ ⟨h.1⟩
 
 /-- An upper bound in `D⁻(C)` is equivalent to the same upper bound after
 inclusion into `DerivedCategory C`. -/
 @[stacks 05RU]
 theorem isLE_ι_obj_iff (X : DerivedCategory.Minus C) (n : ℤ) :
-    (DerivedCategory.Minus.ι.obj X).IsLE n ↔ X.IsLE n := sorry
+    (DerivedCategory.Minus.ι.obj X).IsLE n ↔ X.IsLE n := by
+  constructor
+  all_goals exact fun h ↦ ⟨h.1⟩
 
 /-- Lower bounds on bounded-above derived objects are inherited by their
 ambient derived objects. -/
 instance ι_obj_isGE (X : DerivedCategory.Minus C) (n : ℤ) [X.IsGE n] :
-    (DerivedCategory.Minus.ι.obj X).IsGE n := sorry
+    (DerivedCategory.Minus.ι.obj X).IsGE n := by
+  rw [isGE_ι_obj_iff]
+  infer_instance
 
 /-- Upper bounds on bounded-above derived objects are inherited by their
 ambient derived objects. -/
 instance ι_obj_isLE (X : DerivedCategory.Minus C) (n : ℤ) [X.IsLE n] :
-    (DerivedCategory.Minus.ι.obj X).IsLE n := sorry
+    (DerivedCategory.Minus.ι.obj X).IsLE n := by
+  rw [isLE_ι_obj_iff]
+  infer_instance
 
 /-- An object concentrated in degree `n` is bounded below by `n` in
 `D⁻(C)`. -/
 instance singleFunctor.isGE (X : C) (n : ℤ) :
-    ((singleFunctor C n).obj X).IsGE n := sorry
+    ((singleFunctor C n).obj X).IsGE n := by
+  rw [← isGE_ι_obj_iff]
+  change DerivedCategory.TStructure.t.IsGE ((DerivedCategory.singleFunctor C n).obj X) n
+  infer_instance
 
 /-- An object concentrated in degree `n` is bounded above by `n` in
 `D⁻(C)`. -/
 instance singleFunctor.isLE (X : C) (n : ℤ) :
-    ((singleFunctor C n).obj X).IsLE n := sorry
+    ((singleFunctor C n).obj X).IsLE n := by
+  rw [← isLE_ι_obj_iff]
+  change DerivedCategory.TStructure.t.IsLE ((DerivedCategory.singleFunctor C n).obj X) n
+  infer_instance
 
 /-- Cohomology below a lower bound vanishes in `D⁻(C)`. -/
 @[stacks 05RU]
 theorem isZero_homology_of_isGE (X : DerivedCategory.Minus C) (n : ℤ)
     [X.IsGE n] (i : ℤ) (hi : i < n) :
-    IsZero ((homologyFunctor C i).obj X) := sorry
+    IsZero ((homologyFunctor C i).obj X) :=
+  (DerivedCategory.Minus.ι.obj X).isZero_of_isGE n i hi
 
 /-- Cohomology above an upper bound vanishes in `D⁻(C)`. -/
 @[stacks 05RU]
 theorem isZero_homology_of_isLE (X : DerivedCategory.Minus C) (n : ℤ)
     [X.IsLE n] (i : ℤ) (hi : n < i) :
-    IsZero ((homologyFunctor C i).obj X) := sorry
+    IsZero ((homologyFunctor C i).obj X) :=
+  (DerivedCategory.Minus.ι.obj X).isZero_of_isLE n i hi
 
 /-- A morphism in `D⁻(C)` is an isomorphism exactly when it induces
 isomorphisms on cohomology in every degree. -/
 @[stacks 05RR]
 theorem isIso_iff {X Y : DerivedCategory.Minus C} (f : X ⟶ Y) :
-    IsIso f ↔ ∀ n : ℤ, IsIso ((homologyFunctor C n).map f) := sorry
+    IsIso f ↔ ∀ n : ℤ, IsIso ((homologyFunctor C n).map f) := by
+  refine ⟨fun _ _ ↦ inferInstance, fun _ ↦ ?_⟩
+  have : IsIso (DerivedCategory.Minus.ι.map f) := by
+    rwa [DerivedCategory.isIso_iff]
+  exact isIso_of_fully_faithful DerivedCategory.Minus.ι _
 
 end DerivedCategory.Minus
 
@@ -135,51 +155,71 @@ abbrev IsLE (X : DerivedCategory.Bounded C) (n : ℤ) : Prop :=
 inclusion into `DerivedCategory C`. -/
 @[stacks 05RU]
 theorem isGE_ι_obj_iff (X : DerivedCategory.Bounded C) (n : ℤ) :
-    (DerivedCategory.Bounded.ι.obj X).IsGE n ↔ X.IsGE n := sorry
+    (DerivedCategory.Bounded.ι.obj X).IsGE n ↔ X.IsGE n := by
+  constructor
+  all_goals exact fun h ↦ ⟨h.1⟩
 
 /-- An upper bound in `Dᵇ(C)` is equivalent to the same upper bound after
 inclusion into `DerivedCategory C`. -/
 @[stacks 05RU]
 theorem isLE_ι_obj_iff (X : DerivedCategory.Bounded C) (n : ℤ) :
-    (DerivedCategory.Bounded.ι.obj X).IsLE n ↔ X.IsLE n := sorry
+    (DerivedCategory.Bounded.ι.obj X).IsLE n ↔ X.IsLE n := by
+  constructor
+  all_goals exact fun h ↦ ⟨h.1⟩
 
 /-- Lower bounds on bounded derived objects are inherited by their ambient
 derived objects. -/
 instance ι_obj_isGE (X : DerivedCategory.Bounded C) (n : ℤ) [X.IsGE n] :
-    (DerivedCategory.Bounded.ι.obj X).IsGE n := sorry
+    (DerivedCategory.Bounded.ι.obj X).IsGE n := by
+  rw [isGE_ι_obj_iff]
+  infer_instance
 
 /-- Upper bounds on bounded derived objects are inherited by their ambient
 derived objects. -/
 instance ι_obj_isLE (X : DerivedCategory.Bounded C) (n : ℤ) [X.IsLE n] :
-    (DerivedCategory.Bounded.ι.obj X).IsLE n := sorry
+    (DerivedCategory.Bounded.ι.obj X).IsLE n := by
+  rw [isLE_ι_obj_iff]
+  infer_instance
 
 /-- An object concentrated in degree `n` is bounded below by `n` in
 `Dᵇ(C)`. -/
 instance singleFunctor.isGE (X : C) (n : ℤ) :
-    ((singleFunctor C n).obj X).IsGE n := sorry
+    ((singleFunctor C n).obj X).IsGE n := by
+  rw [← isGE_ι_obj_iff]
+  change DerivedCategory.TStructure.t.IsGE ((DerivedCategory.singleFunctor C n).obj X) n
+  infer_instance
 
 /-- An object concentrated in degree `n` is bounded above by `n` in
 `Dᵇ(C)`. -/
 instance singleFunctor.isLE (X : C) (n : ℤ) :
-    ((singleFunctor C n).obj X).IsLE n := sorry
+    ((singleFunctor C n).obj X).IsLE n := by
+  rw [← isLE_ι_obj_iff]
+  change DerivedCategory.TStructure.t.IsLE ((DerivedCategory.singleFunctor C n).obj X) n
+  infer_instance
 
 /-- Cohomology below a lower bound vanishes in `Dᵇ(C)`. -/
 @[stacks 05RU]
 theorem isZero_homology_of_isGE (X : DerivedCategory.Bounded C) (n : ℤ)
     [X.IsGE n] (i : ℤ) (hi : i < n) :
-    IsZero ((homologyFunctor C i).obj X) := sorry
+    IsZero ((homologyFunctor C i).obj X) :=
+  (DerivedCategory.Bounded.ι.obj X).isZero_of_isGE n i hi
 
 /-- Cohomology above an upper bound vanishes in `Dᵇ(C)`. -/
 @[stacks 05RU]
 theorem isZero_homology_of_isLE (X : DerivedCategory.Bounded C) (n : ℤ)
     [X.IsLE n] (i : ℤ) (hi : n < i) :
-    IsZero ((homologyFunctor C i).obj X) := sorry
+    IsZero ((homologyFunctor C i).obj X) :=
+  (DerivedCategory.Bounded.ι.obj X).isZero_of_isLE n i hi
 
 /-- A morphism in `Dᵇ(C)` is an isomorphism exactly when it induces
 isomorphisms on cohomology in every degree. -/
 @[stacks 05RR]
 theorem isIso_iff {X Y : DerivedCategory.Bounded C} (f : X ⟶ Y) :
-    IsIso f ↔ ∀ n : ℤ, IsIso ((homologyFunctor C n).map f) := sorry
+    IsIso f ↔ ∀ n : ℤ, IsIso ((homologyFunctor C n).map f) := by
+  refine ⟨fun _ _ ↦ inferInstance, fun _ ↦ ?_⟩
+  have : IsIso (DerivedCategory.Bounded.ι.map f) := by
+    rwa [DerivedCategory.isIso_iff]
+  exact isIso_of_fully_faithful DerivedCategory.Bounded.ι _
 
 end DerivedCategory.Bounded
 

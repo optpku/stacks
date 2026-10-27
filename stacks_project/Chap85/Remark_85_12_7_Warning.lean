@@ -6,8 +6,8 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import Mathlib.Tactic.CrossRefAttribute
-public import stacks_project.Chap85.Remark_85_12_7_Warning_Abelian
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.RingedSite.Simplicial.CartesianAbelian
 
 /-!
 # Remark 85.12.7 (Warning)
@@ -34,10 +34,10 @@ namespace CategoryTheory.SimplicialSites.Module
 section OfIsFlatDelta01
 
 variable (C : SimplexCategory ⥤ Cat.{v, u}) (J : ∀ n, Precoverage (C.obj n))
-variable [IsMorphismDiagram C J]
 variable [∀ n, HasWeakSheafify (J n).toGrothendieck (Type w)]
 variable [∀ (m n : SimplexCategory) (φ : m ⟶ n) (P : (C.obj m)ᵒᵖ ⥤ Type w),
     ((C.map φ).toFunctor).op.HasLeftKanExtension P]
+variable [IsMorphismDiagram.{u, v, w} C J]
 variable (O : Sheaf (topology C J) RingCat.{w})
 variable [(topology C J).HasSheafCompose (forget RingCat.{w})]
 variable [∀ n, ((J n).toGrothendieck).HasSheafCompose (forget RingCat.{w})]
@@ -56,35 +56,25 @@ variable [∀ {m n : SimplexCategory} (φ : m ⟶ n),
 variable [HasSheafify ((J ⦋0⦌).toGrothendieck) AddCommGrpCat.{w}]
 variable [((J ⦋0⦌).toGrothendieck).WEqualsLocallyBijective AddCommGrpCat.{w}]
 
-/-- Remark 85.12.7 (Warning) (1)
-In Situation 85.3.3, if only `f_{δ 1}` and `f_{δ 0}` are flat, then the category of
-cartesian `O`-modules is abelian. This follows from Lemma 85.12.5: cartesian
-`O`-modules are equivalent to face-descent pairs, whose kernels are `O_0`-module
-kernels together with the kernel comparison of the two exact pullbacks. -/
-@[stacks 0D7K]
-instance instAbelian_of_isFlat_delta01
-    [ToposHom.IsFlat (ringedToposMap C J O (SimplexCategory.δ (0 : Fin 2)))]
-    [ToposHom.IsFlat (ringedToposMap C J O (SimplexCategory.δ (1 : Fin 2)))] :
-    Abelian (Cartesian C J O) :=
-  abelianOfEquivalence (cartesianEquivalence C J O).functor
+variable [ToposHom.IsFlat (ringedToposMap C J O (SimplexCategory.δ (0 : Fin 2)))]
+variable [ToposHom.IsFlat (ringedToposMap C J O (SimplexCategory.δ (1 : Fin 2)))]
+
+#check (CategoryTheory.SimplicialSites.Module.instAbelian_of_isFlat_delta01 C J O :
+  Abelian (Cartesian C J O))
 
 end OfIsFlatDelta01
 
-/-- Remark 85.12.7 (Warning) (2)
-Lemma 85.12.6 notwithstanding, it can happen that the category of cartesian `O`-modules
-is abelian without being a Serre subcategory of `Mod(O)`. Namely, in Situation 85.3.3,
-if only `f_{δ 1}` and `f_{δ 0}` are flat, cartesian `O`-modules are abelian by
-Lemma 85.12.5, but the inclusion into all `O`-modules need not be exact. This is
-strictly weaker than the all-coface flatness used for a weak Serre class; non-flatness
-of `ringedToposMap C J O (SimplexCategory.δ (0 : Fin 3))` is a typical obstruction,
-not a hypothesis. -/
-@[stacks 0D7K]
-theorem not_forall_exactInclusion_of_isFlat_delta01 [UnivLE.{max u v, w}] :
+/- Remark 85.12.7 (Warning)
+The two flat degree-one cofaces do not ensure exactness of the inclusion of cartesian
+modules, even though cartesian modules form an abelian category. -/
+@[stacks 0D7K] #check
+  (CategoryTheory.SimplicialSites.Module.not_forall_exactInclusion_of_isFlat_delta01 :
+    ∀ [UnivLE.{max u v, w}],
     ¬ ∀ (C : SimplexCategory ⥤ Cat.{v, u}) (J : ∀ n, Precoverage (C.obj n))
-      [IsMorphismDiagram C J]
       [∀ n, HasWeakSheafify (J n).toGrothendieck (Type w)]
       [∀ (m n : SimplexCategory) (φ : m ⟶ n) (P : (C.obj m)ᵒᵖ ⥤ Type w),
         ((C.map φ).toFunctor).op.HasLeftKanExtension P]
+      [IsMorphismDiagram.{u, v, w} C J]
       (O : Sheaf (topology C J) RingCat.{w})
       [(topology C J).HasSheafCompose (forget RingCat.{w})]
       [∀ n, ((J n).toGrothendieck).HasSheafCompose (forget RingCat.{w})]
@@ -103,7 +93,6 @@ theorem not_forall_exactInclusion_of_isFlat_delta01 [UnivLE.{max u v, w}] :
       [ToposHom.IsFlat (ringedToposMap C J O (SimplexCategory.δ (1 : Fin 2)))],
       exactFunctor (Cartesian C J O)
         (SheafOfModules.{w} (totalRingedSite C J O).structureSheaf)
-        (cartesianProperty C J O).ι :=
-  sorry
+        (cartesianProperty C J O).ι)
 
 end CategoryTheory.SimplicialSites.Module

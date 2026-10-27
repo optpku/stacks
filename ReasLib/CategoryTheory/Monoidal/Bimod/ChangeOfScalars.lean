@@ -41,26 +41,38 @@ def restrictLeftObj (f : A' ⟶ A) (M : Bimod A B) : Bimod A' B where
   X := M.X
   actLeft := (f.hom ▷ M.X) ≫ M.actLeft
   actRight := M.actRight
-  one_actLeft := sorry
-  left_assoc := sorry
-  actRight_one := sorry
-  right_assoc := sorry
-  middle_assoc := sorry
+  one_actLeft := by
+    rw [← comp_whiskerRight_assoc, IsMonHom.one_hom]
+    exact M.one_actLeft
+  left_assoc := by
+    rw [← comp_whiskerRight_assoc, IsMonHom.mul_hom, comp_whiskerRight_assoc,
+      M.left_assoc]
+    simp only [tensorHom_def, comp_whiskerRight, whiskerLeft_comp, Category.assoc]
+    rw [associator_naturality_middle_assoc, associator_naturality_left_assoc,
+      ← whisker_exchange_assoc, ← whisker_exchange_assoc]
+  actRight_one := M.actRight_one
+  right_assoc := M.right_assoc
+  middle_assoc := by
+    simp only [comp_whiskerRight_assoc]
+    rw [M.middle_assoc]
+    rw [associator_naturality_left_assoc, whisker_exchange_assoc]
 
 /-- A bimodule morphism remains a morphism after restriction of its left action. -/
 def restrictLeftMap (f : A' ⟶ A) {M N : Bimod A B} (g : M ⟶ N) :
     restrictLeftObj f M ⟶ restrictLeftObj f N where
   hom := g.hom
-  left_act_hom := sorry
-  right_act_hom := sorry
+  left_act_hom := by
+    dsimp [restrictLeftObj]
+    rw [Category.assoc, g.left_act_hom, ← whisker_exchange_assoc]
+  right_act_hom := g.right_act_hom
 
 /-- Restriction of the left action along a monoid morphism, as a functor. -/
 @[stacks 0FSA "left restriction-of-scalars functor"]
 def restrictLeft (f : A' ⟶ A) (B : Mon C) : Bimod A B ⥤ Bimod A' B where
   obj := restrictLeftObj f
   map := restrictLeftMap f
-  map_id := sorry
-  map_comp := sorry
+  map_id := by intros; rfl
+  map_comp := by intros; rfl
 
 /-- Restrict the right action of an `(A,B)`-bimodule along `f : B' ⟶ B`. -/
 @[stacks 0FSA "restriction of a right monoid action"]
@@ -68,46 +80,57 @@ def restrictRightObj (f : B' ⟶ B) (M : Bimod A B) : Bimod A B' where
   X := M.X
   actLeft := M.actLeft
   actRight := (M.X ◁ f.hom) ≫ M.actRight
-  one_actLeft := sorry
-  left_assoc := sorry
-  actRight_one := sorry
-  right_assoc := sorry
-  middle_assoc := sorry
+  one_actLeft := M.one_actLeft
+  left_assoc := M.left_assoc
+  actRight_one := by
+    rw [← whiskerLeft_comp_assoc, IsMonHom.one_hom]
+    exact M.actRight_one
+  right_assoc := by
+    rw [← whiskerLeft_comp_assoc, IsMonHom.mul_hom, whiskerLeft_comp_assoc,
+      M.right_assoc]
+    simp only [tensorHom_def, comp_whiskerRight, whiskerLeft_comp, Category.assoc]
+    rw [← associator_inv_naturality_middle_assoc, associator_inv_naturality_right_assoc,
+      whisker_exchange_assoc]
+  middle_assoc := by
+    rw [← whisker_exchange_assoc, M.middle_assoc, associator_naturality_right_assoc]
+    simp only [whiskerLeft_comp, Category.assoc]
 
 /-- A bimodule morphism remains a morphism after restriction of its right action. -/
 def restrictRightMap (f : B' ⟶ B) {M N : Bimod A B} (g : M ⟶ N) :
     restrictRightObj f M ⟶ restrictRightObj f N where
   hom := g.hom
-  left_act_hom := sorry
-  right_act_hom := sorry
+  left_act_hom := g.left_act_hom
+  right_act_hom := by
+    dsimp [restrictRightObj]
+    rw [Category.assoc, g.right_act_hom, whisker_exchange_assoc]
 
 /-- Restriction of the right action along a monoid morphism, as a functor. -/
 @[stacks 0FSA "right restriction-of-scalars functor"]
 def restrictRight (A : Mon C) (f : B' ⟶ B) : Bimod A B ⥤ Bimod A B' where
   obj := restrictRightObj f
   map := restrictRightMap f
-  map_id := sorry
-  map_comp := sorry
+  map_id := by intros; rfl
+  map_comp := by intros; rfl
 
 /-- Left restriction of scalars does not change the underlying carrier. -/
 @[simp]
 theorem restrictLeftObj_X (f : A' ⟶ A) (M : Bimod A B) :
-    (restrictLeftObj f M).X = M.X := sorry
+    (restrictLeftObj f M).X = M.X := rfl
 
 /-- Right restriction of scalars does not change the underlying carrier. -/
 @[simp]
 theorem restrictRightObj_X (f : B' ⟶ B) (M : Bimod A B) :
-    (restrictRightObj f M).X = M.X := sorry
+    (restrictRightObj f M).X = M.X := rfl
 
 /-- Left restriction of scalars does not change the underlying map. -/
 @[simp]
 theorem restrictLeftMap_hom (f : A' ⟶ A) {M N : Bimod A B} (g : M ⟶ N) :
-    (restrictLeftMap f g).hom = g.hom := sorry
+    (restrictLeftMap f g).hom = g.hom := rfl
 
 /-- Right restriction of scalars does not change the underlying map. -/
 @[simp]
 theorem restrictRightMap_hom (f : B' ⟶ B) {M N : Bimod A B} (g : M ⟶ N) :
-    (restrictRightMap f g).hom = g.hom := sorry
+    (restrictRightMap f g).hom = g.hom := rfl
 
 end CategoryTheory.Bimod
 
@@ -120,7 +143,16 @@ variable (F : C ⥤ D) [F.LaxMonoidal]
 /-- The lax unit morphism, regarded as a morphism from the target tensor-unit monoid to the
 image of the source tensor-unit monoid. -/
 def unitMonHom : Mon.trivial D ⟶ F.mapMon.obj (Mon.trivial C) :=
-  Mon.Hom.mk' (LaxMonoidal.ε F) (one_f := sorry) (mul_f := sorry)
+  Mon.Hom.mk' (LaxMonoidal.ε F)
+    (one_f := by
+      change 𝟙 _ ≫ LaxMonoidal.ε F = LaxMonoidal.ε F ≫ F.map (𝟙 _)
+      simp)
+    (mul_f := by
+      change (λ_ (𝟙_ D)).hom ≫ LaxMonoidal.ε F =
+        (LaxMonoidal.ε F ⊗ₘ LaxMonoidal.ε F) ≫ LaxMonoidal.μ F _ _ ≫
+          F.map (λ_ (𝟙_ C)).hom
+      rw [← LaxMonoidal.tensorUnit_whiskerLeft_comp_leftUnitor_hom F]
+      exact (leftUnitor_naturality (LaxMonoidal.ε F)).symm)
 
 /-- A lax monoidal functor transports right modules, with the left unit action normalized by its
 lax unit morphism. -/
@@ -141,12 +173,12 @@ def mapLeftModule (A : Mon C) :
 /-- Transporting a right module applies the underlying functor to its carrier. -/
 @[simp]
 theorem mapRightModule_obj_X (A : Mon C) (M : Bimod.RightModule A) :
-    ((mapRightModule F A).obj M).X = F.obj M.X := sorry
+    ((mapRightModule F A).obj M).X = F.obj M.X := rfl
 
 /-- Transporting a left module applies the underlying functor to its carrier. -/
 @[simp]
 theorem mapLeftModule_obj_X (A : Mon C) (M : Bimod.LeftModule A) :
-    ((mapLeftModule F A).obj M).X = F.obj M.X := sorry
+    ((mapLeftModule F A).obj M).X = F.obj M.X := rfl
 
 end CategoryTheory.Functor
 
@@ -161,11 +193,11 @@ def rightExtensionBimod (f : A ⟶ B) : Bimod A B where
   X := B.X
   actLeft := (f.hom ▷ B.X) ≫ μ
   actRight := μ
-  one_actLeft := sorry
-  left_assoc := sorry
-  actRight_one := sorry
-  right_assoc := sorry
-  middle_assoc := sorry
+  one_actLeft := (Bimod.restrictLeftObj f (Bimod.regular B)).one_actLeft
+  left_assoc := (Bimod.restrictLeftObj f (Bimod.regular B)).left_assoc
+  actRight_one := (Bimod.regular B).actRight_one
+  right_assoc := (Bimod.regular B).right_assoc
+  middle_assoc := (Bimod.restrictLeftObj f (Bimod.regular B)).middle_assoc
 
 /-- The target monoid `B` as the canonical `(B,A)`-bimodule associated to `f : A ⟶ B`. -/
 @[stacks 0FSA "left extension-of-scalars bimodule"]
@@ -173,19 +205,19 @@ def leftExtensionBimod (f : A ⟶ B) : Bimod B A where
   X := B.X
   actLeft := μ
   actRight := (B.X ◁ f.hom) ≫ μ
-  one_actLeft := sorry
-  left_assoc := sorry
-  actRight_one := sorry
-  right_assoc := sorry
-  middle_assoc := sorry
+  one_actLeft := (Bimod.regular B).one_actLeft
+  left_assoc := (Bimod.regular B).left_assoc
+  actRight_one := (Bimod.restrictRightObj f (Bimod.regular B)).actRight_one
+  right_assoc := (Bimod.restrictRightObj f (Bimod.regular B)).right_assoc
+  middle_assoc := (Bimod.restrictRightObj f (Bimod.regular B)).middle_assoc
 
 /-- The carrier of the right extension bimodule is the target monoid carrier. -/
 @[simp]
-theorem rightExtensionBimod_X (f : A ⟶ B) : f.rightExtensionBimod.X = B.X := sorry
+theorem rightExtensionBimod_X (f : A ⟶ B) : f.rightExtensionBimod.X = B.X := rfl
 
 /-- The carrier of the left extension bimodule is the target monoid carrier. -/
 @[simp]
-theorem leftExtensionBimod_X (f : A ⟶ B) : f.leftExtensionBimod.X = B.X := sorry
+theorem leftExtensionBimod_X (f : A ⟶ B) : f.leftExtensionBimod.X = B.X := rfl
 
 end CategoryTheory.Mon.Hom
 
@@ -211,13 +243,13 @@ noncomputable def extendLeft (f : A ⟶ B) : LeftModule A ⥤ LeftModule B :=
 bimodule. -/
 @[simp]
 theorem extendRight_obj (f : A ⟶ B) (M : RightModule A) :
-    (extendRight f).obj M = M.tensorBimod f.rightExtensionBimod := sorry
+    (extendRight f).obj M = M.tensorBimod f.rightExtensionBimod := rfl
 
 /-- Left extension of scalars is the balanced tensor product with the canonical `(B,A)`-
 bimodule. -/
 @[simp]
 theorem extendLeft_obj (f : A ⟶ B) (M : LeftModule A) :
-    (extendLeft f).obj M = f.leftExtensionBimod.tensorBimod M := sorry
+    (extendLeft f).obj M = f.leftExtensionBimod.tensorBimod M := rfl
 
 -- All carriers and actions are explicit; `sorryAx` occurs only in action/coherence laws.
 
@@ -253,14 +285,14 @@ noncomputable def baseChangeLeft (A : Mon C) {B : Mon D}
 theorem baseChangeRight_obj (A : Mon C) {B : Mon D}
     (f : F.mapMon.obj A ⟶ B) (M : Bimod.RightModule A) :
     (baseChangeRight F A f).obj M =
-      (Bimod.extendRight f).obj ((F.mapRightModule A).obj M) := sorry
+      (Bimod.extendRight f).obj ((F.mapRightModule A).obj M) := rfl
 
 /-- Evaluating left-module base change is transport followed by extension of scalars. -/
 @[simp]
 theorem baseChangeLeft_obj (A : Mon C) {B : Mon D}
     (f : F.mapMon.obj A ⟶ B) (M : Bimod.LeftModule A) :
     (baseChangeLeft F A f).obj M =
-      (Bimod.extendLeft f).obj ((F.mapLeftModule A).obj M) := sorry
+      (Bimod.extendLeft f).obj ((F.mapLeftModule A).obj M) := rfl
 
 -- Base change is the explicit composite of monoidal transport and balanced extension of scalars;
 -- all `sorryAx` dependencies are confined to the coherence fields of those two owners.

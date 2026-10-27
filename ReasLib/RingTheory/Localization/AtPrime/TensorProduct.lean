@@ -145,7 +145,7 @@ installing the contraction supplied by the square. -/
 theorem sourceTarget_eq_sourceTargetOf :
     letI : pD.LiesOver pA := targetLiesOverSource pA pB pD
     sourceTarget (pA := pA) (pB := pB) (pD := pD) =
-      sourceTargetOf pA pD := sorry
+      sourceTargetOf pA pD := rfl
 
 /-- The named source-target edge is the left route in the tensor-prime
 localization square. -/
@@ -153,14 +153,20 @@ localization square. -/
 theorem sourceTarget_eq_left :
     sourceTarget (pA := pA) (pB := pB) (pD := pD) =
       (leftTarget (pB := pB) (pD := pD)).comp
-        (sourceLeft (pA := pA) (pB := pB)) := sorry
+        (sourceLeft (pA := pA) (pB := pB)) := by
+  apply Localization.localRingHom_unique
+  intro a
+  simp [sourceLeft, leftTarget]
 
 /-- The named source-target edge is also the right route in the tensor-prime
 localization square. -/
 theorem sourceTarget_eq_right :
     sourceTarget (pA := pA) (pB := pB) (pD := pD) =
       (rightTarget (pC := pC) (pD := pD)).comp
-        (sourceRight (pA := pA) (pB := pB) (pC := pC) (pD := pD)) := sorry
+        (sourceRight (pA := pA) (pB := pB) (pC := pC) (pD := pD)) := by
+  apply Localization.localRingHom_unique
+  intro a
+  simp [sourceRight, sourceRightOf, rightTarget]
 
 /-- The two localization routes from the source prime to the tensor prime
 agree. -/
@@ -168,7 +174,8 @@ theorem comm :
     (leftTarget (pB := pB) (pD := pD)).comp
         (sourceLeft (pA := pA) (pB := pB)) =
       (rightTarget (pC := pC) (pD := pD)).comp
-        (sourceRight (pA := pA) (pB := pB) (pC := pC) (pD := pD)) := sorry
+        (sourceRight (pA := pA) (pB := pB) (pC := pC) (pD := pD)) := by
+  rw [← sourceTarget_eq_left, ← sourceTarget_eq_right]
 
 end Edge
 
@@ -185,7 +192,7 @@ map at the corresponding pair of prime ideals. -/
 @[simp]
 theorem sourceLeft_eq_idealMap :
     sourceLeft (pA := pA) (pB := pB) =
-      Ideal.ResidueField.map pA pB (algebraMap A B) (pB.over_def pA) := sorry
+      Ideal.ResidueField.map pA pB (algebraMap A B) (pB.over_def pA) := rfl
 
 /-- The residue-field map on the source-to-right edge of a tensor-prime
 diagram. -/
@@ -201,7 +208,7 @@ theorem sourceRight_eq_idealMap :
     sourceRight (pA := pA) (pB := pB) (pC := pC) (pD := pD) =
       letI : pD.LiesOver pA := targetLiesOverSource pA pB pD
       letI : pC.LiesOver pA := rightLiesOverSource pA pB pC pD
-      Ideal.ResidueField.map pA pC (algebraMap A C) (pC.over_def pA) := sorry
+      Ideal.ResidueField.map pA pC (algebraMap A C) (pC.over_def pA) := rfl
 
 /-- The residue-field map on the left-to-target edge of a tensor-prime
 diagram. -/
@@ -217,7 +224,7 @@ theorem leftTarget_eq_idealMap :
     leftTarget (pB := pB) (pD := pD) =
       Ideal.ResidueField.map pB pD
         (Algebra.TensorProduct.includeLeft : B →ₐ[A] B ⊗[A] C).toRingHom
-        (pD.over_def pB) := sorry
+        (pD.over_def pB) := rfl
 
 /-- The residue-field map on the right-to-target edge of a tensor-prime
 diagram. -/
@@ -233,7 +240,7 @@ theorem rightTarget_eq_idealMap :
     rightTarget (pC := pC) (pD := pD) =
       Ideal.ResidueField.map pC pD
         (Algebra.TensorProduct.includeRight : C →ₐ[A] B ⊗[A] C).toRingHom
-        (pD.over_def pC) := sorry
+        (pD.over_def pC) := rfl
 
 /-- The direct residue-field map induced by a tensor-prime ideal lying over a
 source prime. -/
@@ -250,7 +257,7 @@ theorem sourceTargetOf_eq_idealMap
     (pA : Ideal A) (pD : Ideal (B ⊗[A] C)) [pA.IsPrime] [pD.IsPrime]
     [pD.LiesOver pA] :
     sourceTargetOf pA pD =
-      Ideal.ResidueField.map pA pD (algebraMap A (B ⊗[A] C)) (pD.over_def pA) := sorry
+      Ideal.ResidueField.map pA pD (algebraMap A (B ⊗[A] C)) (pD.over_def pA) := rfl
 
 /-- The residue-field map on the named source-to-target edge of a tensor-prime
 diagram. -/
@@ -264,7 +271,7 @@ installing the contraction supplied by the square. -/
 theorem sourceTarget_eq_sourceTargetOf :
     letI : pD.LiesOver pA := targetLiesOverSource pA pB pD
     sourceTarget (pA := pA) (pB := pB) (pD := pD) =
-      sourceTargetOf pA pD := sorry
+      sourceTargetOf pA pD := rfl
 
 /-- The named source-target residue map is the left route in the residue-field
 square. -/
@@ -272,14 +279,27 @@ square. -/
 theorem sourceTarget_eq_left :
     sourceTarget (pA := pA) (pB := pB) (pD := pD) =
       (leftTarget (pB := pB) (pD := pD)).comp
-        (sourceLeft (pA := pA) (pB := pB)) := sorry
+        (sourceLeft (pA := pA) (pB := pB)) := by
+  change IsLocalRing.ResidueField.map
+    (Localization.AtPrime.TensorProduct.Edge.sourceTarget
+      (pA := pA) (pB := pB) (pD := pD)) = _
+  simp only [Localization.AtPrime.TensorProduct.Edge.sourceTarget_eq_left,
+    IsLocalRing.ResidueField.map_comp]
+  rfl
 
 /-- The named source-target residue map is also the right route in the
 residue-field square. -/
 theorem sourceTarget_eq_right :
     sourceTarget (pA := pA) (pB := pB) (pD := pD) =
       (rightTarget (pC := pC) (pD := pD)).comp
-        (sourceRight (pA := pA) (pB := pB) (pC := pC) (pD := pD)) := sorry
+        (sourceRight (pA := pA) (pB := pB) (pC := pC) (pD := pD)) := by
+  change IsLocalRing.ResidueField.map
+    (Localization.AtPrime.TensorProduct.Edge.sourceTarget
+      (pA := pA) (pB := pB) (pD := pD)) = _
+  simp only [Localization.AtPrime.TensorProduct.Edge.sourceTarget_eq_right
+      (pA := pA) (pB := pB) (pC := pC) (pD := pD),
+    IsLocalRing.ResidueField.map_comp]
+  rfl
 
 /-- The two induced residue-field routes from the source prime to the tensor
 prime agree. -/
@@ -287,7 +307,8 @@ theorem comm :
     (leftTarget (pB := pB) (pD := pD)).comp
         (sourceLeft (pA := pA) (pB := pB)) =
       (rightTarget (pC := pC) (pD := pD)).comp
-        (sourceRight (pA := pA) (pB := pB) (pC := pC) (pD := pD)) := sorry
+        (sourceRight (pA := pA) (pB := pB) (pC := pC) (pD := pD)) := by
+  rw [← sourceTarget_eq_left, ← sourceTarget_eq_right]
 
 end ResidueField
 
@@ -323,7 +344,7 @@ theorem sourceRightOf_eq
     letI : Algebra (Localization.AtPrime pA) (Localization.AtPrime pC) :=
       sourceRightOf pA pC
     algebraMap (Localization.AtPrime pA) (Localization.AtPrime pC) =
-      Localization.AtPrime.TensorProduct.Edge.sourceRightOf pA pC := sorry
+      Localization.AtPrime.TensorProduct.Edge.sourceRightOf pA pC := rfl
 
 /-- The algebra structure on the right localization induced by the named
 source-right edge of a tensor-prime diagram. -/
@@ -352,7 +373,7 @@ theorem sourceTargetOf_eq
     letI : Algebra (Localization.AtPrime pA) (Localization.AtPrime pD) :=
       sourceTargetOf pA pD
     algebraMap (Localization.AtPrime pA) (Localization.AtPrime pD) =
-      Localization.AtPrime.TensorProduct.Edge.sourceTargetOf pA pD := sorry
+      Localization.AtPrime.TensorProduct.Edge.sourceTargetOf pA pD := rfl
 
 /-- The algebra structure on the tensor-prime localization induced by the
 named source-target edge. -/
@@ -386,7 +407,7 @@ theorem sourceLeft_eq :
       sourceLeft (pA := pA) (pB := pB)
     algebraMap (Localization.AtPrime pA) (Localization.AtPrime pB) =
       Localization.AtPrime.TensorProduct.Edge.sourceLeft
-        (pA := pA) (pB := pB) := sorry
+        (pA := pA) (pB := pB) := rfl
 
 /-- The algebra map of the named source-right scalar structure is the
 source-right localization edge. -/
@@ -396,7 +417,7 @@ theorem sourceRight_eq :
       sourceRight (pA := pA) (pB := pB) (pC := pC) (pD := pD)
     algebraMap (Localization.AtPrime pA) (Localization.AtPrime pC) =
       Localization.AtPrime.TensorProduct.Edge.sourceRight
-        (pA := pA) (pB := pB) (pC := pC) (pD := pD) := sorry
+        (pA := pA) (pB := pB) (pC := pC) (pD := pD) := rfl
 
 /-- The algebra map of the named source-target scalar structure is the
 source-target localization edge. -/
@@ -406,7 +427,7 @@ theorem sourceTarget_eq :
       sourceTarget (pA := pA) (pB := pB) (pD := pD)
     algebraMap (Localization.AtPrime pA) (Localization.AtPrime pD) =
       Localization.AtPrime.TensorProduct.Edge.sourceTarget
-        (pA := pA) (pB := pB) (pD := pD) := sorry
+        (pA := pA) (pB := pB) (pD := pD) := rfl
 
 /-- The algebra map of the named left-target scalar structure is the
 left-target localization edge. -/
@@ -416,7 +437,7 @@ theorem leftTarget_eq :
       leftTarget (pB := pB) (pD := pD)
     algebraMap (Localization.AtPrime pB) (Localization.AtPrime pD) =
       Localization.AtPrime.TensorProduct.Edge.leftTarget
-        (pB := pB) (pD := pD) := sorry
+        (pB := pB) (pD := pD) := rfl
 
 /-- The algebra map of the named right-target scalar structure is the
 right-target localization edge. -/
@@ -426,37 +447,47 @@ theorem rightTarget_eq :
       rightTarget (pC := pC) (pD := pD)
     algebraMap (Localization.AtPrime pC) (Localization.AtPrime pD) =
       Localization.AtPrime.TensorProduct.Edge.rightTarget
-        (pC := pC) (pD := pD) := sorry
+        (pC := pC) (pD := pD) := rfl
 
 /-- The source-left scalar map between prime localizations is local. -/
 theorem sourceLeft_isLocalHom :
     letI : Algebra (Localization.AtPrime pA) (Localization.AtPrime pB) :=
       sourceLeft (pA := pA) (pB := pB)
-    IsLocalHom (algebraMap (Localization.AtPrime pA) (Localization.AtPrime pB)) := sorry
+    IsLocalHom (algebraMap (Localization.AtPrime pA) (Localization.AtPrime pB)) := by
+  dsimp
+  infer_instance
 
 /-- The source-right scalar map between prime localizations is local. -/
 theorem sourceRight_isLocalHom :
     letI : Algebra (Localization.AtPrime pA) (Localization.AtPrime pC) :=
       sourceRight (pA := pA) (pB := pB) (pC := pC) (pD := pD)
-    IsLocalHom (algebraMap (Localization.AtPrime pA) (Localization.AtPrime pC)) := sorry
+    IsLocalHom (algebraMap (Localization.AtPrime pA) (Localization.AtPrime pC)) := by
+  dsimp
+  infer_instance
 
 /-- The source-target scalar map between prime localizations is local. -/
 theorem sourceTarget_isLocalHom :
     letI : Algebra (Localization.AtPrime pA) (Localization.AtPrime pD) :=
       sourceTarget (pA := pA) (pB := pB) (pD := pD)
-    IsLocalHom (algebraMap (Localization.AtPrime pA) (Localization.AtPrime pD)) := sorry
+    IsLocalHom (algebraMap (Localization.AtPrime pA) (Localization.AtPrime pD)) := by
+  dsimp
+  infer_instance
 
 /-- The left-target scalar map between prime localizations is local. -/
 theorem leftTarget_isLocalHom :
     letI : Algebra (Localization.AtPrime pB) (Localization.AtPrime pD) :=
       leftTarget (pB := pB) (pD := pD)
-    IsLocalHom (algebraMap (Localization.AtPrime pB) (Localization.AtPrime pD)) := sorry
+    IsLocalHom (algebraMap (Localization.AtPrime pB) (Localization.AtPrime pD)) := by
+  dsimp
+  infer_instance
 
 /-- The right-target scalar map between prime localizations is local. -/
 theorem rightTarget_isLocalHom :
     letI : Algebra (Localization.AtPrime pC) (Localization.AtPrime pD) :=
       rightTarget (pC := pC) (pD := pD)
-    IsLocalHom (algebraMap (Localization.AtPrime pC) (Localization.AtPrime pD)) := sorry
+    IsLocalHom (algebraMap (Localization.AtPrime pC) (Localization.AtPrime pD)) := by
+  dsimp
+  infer_instance
 
 end Edge
 
@@ -498,7 +529,7 @@ theorem sourceRightOf_eq
     letI : Algebra (Localization.AtPrime pA) C' := sourceRightOf (C' := C') pA pC
     algebraMap (Localization.AtPrime pA) C' =
       (algebraMap (Localization.AtPrime pC) C').comp
-        (Localization.AtPrime.TensorProduct.Edge.sourceRightOf pA pC) := sorry
+        (Localization.AtPrime.TensorProduct.Edge.sourceRightOf pA pC) := rfl
 
 /-- The source-localization scalar structure on a right target, constructed
 from its given right-localization algebra structure and the source-right edge. -/
@@ -528,7 +559,7 @@ theorem sourceTargetOf_eq
     letI : Algebra (Localization.AtPrime pA) D' := sourceTargetOf (D' := D') pA pD
     algebraMap (Localization.AtPrime pA) D' =
       (algebraMap (Localization.AtPrime pD) D').comp
-        (Localization.AtPrime.TensorProduct.Edge.sourceTargetOf pA pD) := sorry
+        (Localization.AtPrime.TensorProduct.Edge.sourceTargetOf pA pD) := rfl
 
 /-- The source-localization scalar structure on a tensor-prime target,
 constructed from its given target-localization algebra structure and the
@@ -566,7 +597,7 @@ theorem sourceLeft_eq :
     algebraMap (Localization.AtPrime pA) B' =
       (algebraMap (Localization.AtPrime pB) B').comp
         (Localization.AtPrime.TensorProduct.Edge.sourceLeft
-          (pA := pA) (pB := pB)) := sorry
+          (pA := pA) (pB := pB)) := rfl
 
 /-- The source-right target scalar map is the displayed composite through the
 named source-right edge. -/
@@ -577,7 +608,7 @@ theorem sourceRight_eq :
     algebraMap (Localization.AtPrime pA) C' =
       (algebraMap (Localization.AtPrime pC) C').comp
         (Localization.AtPrime.TensorProduct.Edge.sourceRight
-          (pA := pA) (pB := pB) (pC := pC) (pD := pD)) := sorry
+          (pA := pA) (pB := pB) (pC := pC) (pD := pD)) := rfl
 
 /-- The source-target scalar map is the displayed composite through the named
 source-target edge. -/
@@ -588,7 +619,7 @@ theorem sourceTarget_eq :
     algebraMap (Localization.AtPrime pA) D' =
       (algebraMap (Localization.AtPrime pD) D').comp
         (Localization.AtPrime.TensorProduct.Edge.sourceTarget
-          (pA := pA) (pB := pB) (pD := pD)) := sorry
+          (pA := pA) (pB := pB) (pD := pD)) := rfl
 
 /-- The left-target scalar map is the displayed composite through the named
 left-target edge. -/
@@ -599,7 +630,7 @@ theorem leftTarget_eq :
     algebraMap (Localization.AtPrime pB) D' =
       (algebraMap (Localization.AtPrime pD) D').comp
         (Localization.AtPrime.TensorProduct.Edge.leftTarget
-          (pB := pB) (pD := pD)) := sorry
+          (pB := pB) (pD := pD)) := rfl
 
 /-- The right-target scalar map is the displayed composite through the named
 right-target edge. -/
@@ -610,7 +641,7 @@ theorem rightTarget_eq :
     algebraMap (Localization.AtPrime pC) D' =
       (algebraMap (Localization.AtPrime pD) D').comp
         (Localization.AtPrime.TensorProduct.Edge.rightTarget
-          (pC := pC) (pD := pD)) := sorry
+          (pC := pC) (pD := pD)) := rfl
 
 /-- The named source-left scalar structures form a tower on a left target. -/
 theorem sourceLeftTower :
@@ -618,7 +649,10 @@ theorem sourceLeftTower :
       Scalars.Edge.sourceLeft (pA := pA) (pB := pB)
     letI : Algebra (Localization.AtPrime pA) B' :=
       sourceLeft (pA := pA) (pB := pB)
-    IsScalarTower (Localization.AtPrime pA) (Localization.AtPrime pB) B' := sorry
+    IsScalarTower (Localization.AtPrime pA) (Localization.AtPrime pB) B' := by
+  letI := Scalars.Edge.sourceLeft (pA := pA) (pB := pB)
+  letI := sourceLeft (B' := B') (pA := pA) (pB := pB)
+  exact IsScalarTower.of_algebraMap_eq' rfl
 
 /-- The named source-right scalar structures form a tower on a right target. -/
 theorem sourceRightTower :
@@ -626,7 +660,10 @@ theorem sourceRightTower :
       Scalars.Edge.sourceRight (pA := pA) (pB := pB) (pC := pC) (pD := pD)
     letI : Algebra (Localization.AtPrime pA) C' :=
       sourceRight (pA := pA) (pB := pB) (pC := pC) (pD := pD)
-    IsScalarTower (Localization.AtPrime pA) (Localization.AtPrime pC) C' := sorry
+    IsScalarTower (Localization.AtPrime pA) (Localization.AtPrime pC) C' := by
+  letI := Scalars.Edge.sourceRight (pA := pA) (pB := pB) (pC := pC) (pD := pD)
+  letI := sourceRight (C' := C') (pA := pA) (pB := pB) (pC := pC) (pD := pD)
+  exact IsScalarTower.of_algebraMap_eq' rfl
 
 /-- The named source-left and left-target scalar structures form a tower on a
 tensor-prime target. -/
@@ -637,7 +674,16 @@ theorem sourceLeftTargetTower :
       sourceTarget (pA := pA) (pB := pB) (pD := pD)
     letI : Algebra (Localization.AtPrime pB) D' :=
       leftTarget (pB := pB) (pD := pD)
-    IsScalarTower (Localization.AtPrime pA) (Localization.AtPrime pB) D' := sorry
+    IsScalarTower (Localization.AtPrime pA) (Localization.AtPrime pB) D' := by
+  letI := Scalars.Edge.sourceLeft (pA := pA) (pB := pB)
+  letI := sourceTarget (D' := D') (pA := pA) (pB := pB) (pD := pD)
+  letI := leftTarget (D' := D') (pB := pB) (pD := pD)
+  apply IsScalarTower.of_algebraMap_eq'
+  change (algebraMap (Localization.AtPrime pD) D').comp
+      (Localization.AtPrime.TensorProduct.Edge.sourceTarget
+        (pA := pA) (pB := pB) (pD := pD)) = _
+  rw [Localization.AtPrime.TensorProduct.Edge.sourceTarget_eq_left]
+  rfl
 
 /-- The named source-right and right-target scalar structures form a tower on
 a tensor-prime target. -/
@@ -648,7 +694,17 @@ theorem sourceRightTargetTower :
       sourceTarget (pA := pA) (pB := pB) (pD := pD)
     letI : Algebra (Localization.AtPrime pC) D' :=
       rightTarget (pC := pC) (pD := pD)
-    IsScalarTower (Localization.AtPrime pA) (Localization.AtPrime pC) D' := sorry
+    IsScalarTower (Localization.AtPrime pA) (Localization.AtPrime pC) D' := by
+  letI := Scalars.Edge.sourceRight (pA := pA) (pB := pB) (pC := pC) (pD := pD)
+  letI := sourceTarget (D' := D') (pA := pA) (pB := pB) (pD := pD)
+  letI := rightTarget (D' := D') (pC := pC) (pD := pD)
+  apply IsScalarTower.of_algebraMap_eq'
+  change (algebraMap (Localization.AtPrime pD) D').comp
+      (Localization.AtPrime.TensorProduct.Edge.sourceTarget
+        (pA := pA) (pB := pB) (pD := pD)) = _
+  rw [Localization.AtPrime.TensorProduct.Edge.sourceTarget_eq_right
+      (pA := pA) (pB := pB) (pC := pC) (pD := pD)]
+  rfl
 
 /-- The named left-target scalar structures form a tower from the left
 localization to a tensor-prime target. -/
@@ -657,7 +713,10 @@ theorem leftTargetTower :
       Scalars.Edge.leftTarget (pB := pB) (pD := pD)
     letI : Algebra (Localization.AtPrime pB) D' :=
       leftTarget (pB := pB) (pD := pD)
-    IsScalarTower (Localization.AtPrime pB) (Localization.AtPrime pD) D' := sorry
+    IsScalarTower (Localization.AtPrime pB) (Localization.AtPrime pD) D' := by
+  letI := Scalars.Edge.leftTarget (pB := pB) (pD := pD)
+  letI := leftTarget (D' := D') (pB := pB) (pD := pD)
+  exact IsScalarTower.of_algebraMap_eq' rfl
 
 /-- The named right-target scalar structures form a tower from the right
 localization to a tensor-prime target. -/
@@ -666,7 +725,10 @@ theorem rightTargetTower :
       Scalars.Edge.rightTarget (pC := pC) (pD := pD)
     letI : Algebra (Localization.AtPrime pC) D' :=
       rightTarget (pC := pC) (pD := pD)
-    IsScalarTower (Localization.AtPrime pC) (Localization.AtPrime pD) D' := sorry
+    IsScalarTower (Localization.AtPrime pC) (Localization.AtPrime pD) D' := by
+  letI := Scalars.Edge.rightTarget (pC := pC) (pD := pD)
+  letI := rightTarget (D' := D') (pC := pC) (pD := pD)
+  exact IsScalarTower.of_algebraMap_eq' rfl
 
 end
 

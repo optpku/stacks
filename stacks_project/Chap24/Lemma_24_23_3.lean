@@ -34,6 +34,7 @@ variable {C : Type u} [Category.{v} C] {J : GrothendieckTopology C}
 variable [J.HasSheafCompose (forget₂ CommRingCat.{w} RingCat.{w})]
 variable [HasWeakSheafify J AddCommGrpCat.{w}]
 variable [J.WEqualsLocallyBijective AddCommGrpCat.{w}]
+variable [UnivLE.{max u v, w}]
 variable {O : Sheaf J CommRingCat.{w}} {A : DGA(O)}
 
 section Coproduct

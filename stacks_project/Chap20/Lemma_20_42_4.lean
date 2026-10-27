@@ -27,12 +27,12 @@ variable {X : RingedSpace.{u}} (K L : ModuleDerived X)
 /- Lemma 20.42.4 (08I0): the actual derived sheaf internal-Hom bifunctor transforms
  distinguished triangles into distinguished triangles in its covariant target variable. -/
 @[stacks 08I0 "actual target-variable distinguished triangles"]
-#check (inferInstance : (ModuleDerived.InternalHom.targetFunctor X K).IsTriangulated)
+#check (AlgebraicGeometry.RingedSpace.ModuleDerived.InternalHom.targetFunctor_isTriangulated X K : (ModuleDerived.InternalHom.targetFunctor X K).IsTriangulated)
 
 /- Lemma 20.42.4 (08I0): the actual derived sheaf internal-Hom bifunctor transforms
  distinguished triangles into distinguished triangles in its contravariant source variable. -/
 @[stacks 08I0 "actual source-variable distinguished triangles"]
-#check (inferInstance : (ModuleDerived.InternalHom.sourceFunctor X L).IsTriangulated)
+#check (AlgebraicGeometry.RingedSpace.ModuleDerived.InternalHom.sourceFunctor_isTriangulated X L : (ModuleDerived.InternalHom.sourceFunctor X L).IsTriangulated)
 
 /- Canonical generic infrastructure remains available to the chapter's import clients. -/
 #check @MonoidalClosed.ihom_commShift_of_tensorLeft

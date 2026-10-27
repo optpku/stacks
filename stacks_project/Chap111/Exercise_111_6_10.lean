@@ -15,7 +15,7 @@ universe u
 
 /- Exercise 111.6.10 (1): `Spec(A)` is irreducible if and only if `Nil(A)` is a prime
 ideal. -/
-@[stacks 02D4] #check (PrimeSpectrum.UniqueMinimalPrime.irreducibleSpace_iff_isPrime_nilradical :
+@[stacks 02D4] #check (PrimeSpectrum.irreducibleSpace_iff_isPrime_nilradical :
   ∀ {R : Type u} [CommSemiring R],
     IrreducibleSpace (PrimeSpectrum R) ↔ (nilradical R).IsPrime)
 

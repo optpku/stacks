@@ -40,7 +40,7 @@ abbrev schemeLiftFunctor (xbar : GeometricPoint X) : smallEtaleSite X ⥤ Type (
 /-- `schemeLiftFunctor` is precomposition of `etaleLiftFunctor` with `smallEtaleToSpaces`. -/
 theorem schemeLiftFunctor_eq (xbar : GeometricPoint X) :
     schemeLiftFunctor xbar = smallEtaleToSpaces X ⋙ etaleLiftFunctor xbar :=
-  sorry
+  rfl
 
 /-- Étale neighborhoods of a geometric point whose underlying object lies in `smallEtaleSite X`,
 as the category of elements of `schemeLiftFunctor`. -/
@@ -51,7 +51,7 @@ abbrev SchemeEtaleNeighborhood (xbar : GeometricPoint X) :=
 `schemeLiftFunctor`. -/
 theorem schemeEtaleNeighborhood_eq (xbar : GeometricPoint X) :
     SchemeEtaleNeighborhood xbar = (schemeLiftFunctor xbar).Elements :=
-  sorry
+  rfl
 
 /-- The inclusion of scheme étale neighborhoods into all étale neighborhoods. -/
 abbrev SchemeEtaleNeighborhood.toEtaleNeighborhood (xbar : GeometricPoint X) :
@@ -64,7 +64,7 @@ theorem SchemeEtaleNeighborhood.toEtaleNeighborhood_obj (xbar : GeometricPoint X
     (U : SchemeEtaleNeighborhood xbar) :
     (SchemeEtaleNeighborhood.toEtaleNeighborhood xbar).obj U =
       Functor.elementsMk (etaleLiftFunctor xbar) ((smallEtaleToSpaces X).obj U.fst) U.snd :=
-  sorry
+  rfl
 
 /-- On morphisms, `SchemeEtaleNeighborhood.toEtaleNeighborhood` applies `smallEtaleToSpaces` to
 the underlying site morphism. -/
@@ -72,7 +72,7 @@ theorem SchemeEtaleNeighborhood.toEtaleNeighborhood_map (xbar : GeometricPoint X
     {U V : SchemeEtaleNeighborhood xbar} (f : U ⟶ V) :
     ((SchemeEtaleNeighborhood.toEtaleNeighborhood xbar).map f).val =
       (smallEtaleToSpaces X).map f.val :=
-  sorry
+  rfl
 
 /-- The `Over X` morphism associated to the chosen lift of a small étale neighborhood. -/
 def SmallEtaleNeighborhood.toSchemeLift {xbar : GeometricPoint X}
@@ -85,7 +85,7 @@ def SmallEtaleNeighborhood.toSchemeLift {xbar : GeometricPoint X}
 theorem SmallEtaleNeighborhood.toSchemeLift_left {xbar : GeometricPoint X}
     (N : SmallEtaleNeighborhood xbar) :
     (SmallEtaleNeighborhood.toSchemeLift N).left = N.lift :=
-  sorry
+  rfl
 
 /-- View a small étale neighborhood as a scheme étale neighborhood of `etaleLiftFunctor`. -/
 def SmallEtaleNeighborhood.toSchemeEtaleNeighborhood {xbar : GeometricPoint X}
@@ -97,14 +97,21 @@ object. -/
 theorem SmallEtaleNeighborhood.toSchemeEtaleNeighborhood_toSite {xbar : GeometricPoint X}
     (N : SmallEtaleNeighborhood xbar) :
     (SmallEtaleNeighborhood.toSchemeEtaleNeighborhood N).fst = N.toSite :=
-  sorry
+  rfl
 
 /-- A morphism of small étale neighborhoods induces a morphism of scheme étale neighborhoods. -/
 theorem SmallEtaleNeighborhood.toSchemeEtaleNeighborhood_map_snd {xbar : GeometricPoint X}
     {N N' : SmallEtaleNeighborhood xbar} (f : N ⟶ N') :
     (schemeLiftFunctor xbar).map f.val (SmallEtaleNeighborhood.toSchemeLift N) =
-      SmallEtaleNeighborhood.toSchemeLift N' :=
-  sorry
+      SmallEtaleNeighborhood.toSchemeLift N' := by
+  apply Over.OverMorphism.ext
+  change ofOverMap N.overHom ≫ ofOverMap f.val.left = ofOverMap N'.overHom
+  calc
+    ofOverMap N.overHom ≫ ofOverMap f.val.left =
+        ofOverMap (N.overHom ≫ f.val.left) :=
+      ((ofOverFunctor S).map_comp N.overHom f.val.left).symm
+    _ = ofOverMap N'.overHom :=
+      congrArg ofOverMap (congrArg CommaMorphism.left f.property)
 
 /-- The functor from small étale neighborhoods to scheme étale neighborhoods of
 `etaleLiftFunctor`. -/
@@ -133,7 +140,7 @@ theorem SmallEtaleNeighborhood.toEtaleNeighborhood_obj (xbar : GeometricPoint X)
     (N : SmallEtaleNeighborhood xbar) :
     (SmallEtaleNeighborhood.toEtaleNeighborhood xbar).obj N =
       EtaleNeighborhood.of ((smallEtaleToSpaces X).obj N.toSite) N.lift N.lift_fac :=
-  sorry
+  rfl
 
 /-- The underlying spaces-étale object of `SmallEtaleNeighborhood.toEtaleNeighborhood` is the
 image under `smallEtaleToSpaces`. -/
@@ -141,12 +148,12 @@ theorem SmallEtaleNeighborhood.toEtaleNeighborhood_toSpacesEtale (xbar : Geometr
     (N : SmallEtaleNeighborhood xbar) :
     ((SmallEtaleNeighborhood.toEtaleNeighborhood xbar).obj N).toSpacesEtale =
       (smallEtaleToSpaces X).obj N.toSite :=
-  sorry
+  rfl
 
 /-- The chosen lift is preserved by `SmallEtaleNeighborhood.toEtaleNeighborhood`. -/
 theorem SmallEtaleNeighborhood.toEtaleNeighborhood_lift (xbar : GeometricPoint X)
     (N : SmallEtaleNeighborhood xbar) :
     ((SmallEtaleNeighborhood.toEtaleNeighborhood xbar).obj N).lift = N.lift :=
-  sorry
+  rfl
 
 end AlgebraicGeometry.AlgebraicSpace.GeometricPoint

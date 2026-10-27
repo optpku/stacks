@@ -87,7 +87,12 @@ theorem of_comp_eq_of_fppf {S : Scheme.{u}} {X Y B : AlgebraicSpace S}
     (f : X ⟶ Y) (p : X ⟶ B) (q : Y ⟶ B)
     [Surjective f] [Flat f] [LocallyOfFinitePresentation f]
     [LocallyOfFinitePresentation p] (hcomm : f ≫ q = p) :
-    LocallyOfFinitePresentation q := sorry
+    LocallyOfFinitePresentation q := by
+  apply MorphismProperty.of_precomp (@LocallyOfFinitePresentation S)
+    (W' := @Surjective S ⊓ @Flat S ⊓ @LocallyOfFinitePresentation S)
+    f q ⟨⟨inferInstance, inferInstance⟩, inferInstance⟩
+  show LocallyOfFinitePresentation (f ≫ q)
+  simpa only [hcomm] using (inferInstance : LocallyOfFinitePresentation p)
 
 end LocallyOfFinitePresentation
 
@@ -109,7 +114,12 @@ theorem of_comp_eq_of_fppf {S : Scheme.{u}} {X Y B : AlgebraicSpace S}
     (f : X ⟶ Y) (p : X ⟶ B) (q : Y ⟶ B)
     [Surjective f] [Flat f] [LocallyOfFinitePresentation f]
     [LocallyOfFiniteType p] (hcomm : f ≫ q = p) :
-    LocallyOfFiniteType q := sorry
+    LocallyOfFiniteType q := by
+  apply MorphismProperty.of_precomp (@LocallyOfFiniteType S)
+    (W' := @Surjective S ⊓ @Flat S ⊓ @LocallyOfFinitePresentation S)
+    f q ⟨⟨inferInstance, inferInstance⟩, inferInstance⟩
+  show LocallyOfFiniteType (f ≫ q)
+  simpa only [hcomm] using (inferInstance : LocallyOfFiniteType p)
 
 end LocallyOfFiniteType
 
@@ -129,7 +139,12 @@ finite presentation. -/
 theorem of_comp_eq_of_fppf {S : Scheme.{u}} {X Y B : AlgebraicSpace S}
     (f : X ⟶ Y) (p : X ⟶ B) (q : Y ⟶ B)
     [Surjective f] [Flat f] [LocallyOfFinitePresentation f] [Smooth p]
-    (hcomm : f ≫ q = p) : Smooth q := sorry
+    (hcomm : f ≫ q = p) : Smooth q := by
+  apply MorphismProperty.of_precomp (@Smooth S)
+    (W' := @Surjective S ⊓ @Flat S ⊓ @LocallyOfFinitePresentation S)
+    f q ⟨⟨inferInstance, inferInstance⟩, inferInstance⟩
+  show Smooth (f ≫ q)
+  simpa only [hcomm] using (inferInstance : Smooth p)
 
 end Smooth
 
@@ -149,7 +164,12 @@ finite presentation. -/
 theorem of_comp_eq_of_fppf {S : Scheme.{u}} {X Y B : AlgebraicSpace S}
     (f : X ⟶ Y) (p : X ⟶ B) (q : Y ⟶ B)
     [Surjective f] [Flat f] [LocallyOfFinitePresentation f] [Etale p]
-    (hcomm : f ≫ q = p) : Etale q := sorry
+    (hcomm : f ≫ q = p) : Etale q := by
+  apply MorphismProperty.of_precomp (@Etale S)
+    (W' := @Surjective S ⊓ @Flat S ⊓ @LocallyOfFinitePresentation S)
+    f q ⟨⟨inferInstance, inferInstance⟩, inferInstance⟩
+  show Etale (f ≫ q)
+  simpa only [hcomm] using (inferInstance : Etale p)
 
 end Etale
 

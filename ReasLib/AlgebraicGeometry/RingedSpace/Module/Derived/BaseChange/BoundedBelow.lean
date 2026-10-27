@@ -36,6 +36,10 @@ universe u
 
 namespace AlgebraicGeometry.RingedSpace.Hom.BoundedBaseChange
 
+-- Use the proved injective derivability structure for the module categories, including the
+-- exact pullback functors, rather than the deferred generic exact-functor existence instance.
+attribute [local instance 2000] Functor.hasRightDerivedFunctor_of_hasPointwiseRightDerivedFunctor
+
 variable {X X' S S' : RingedSpace.{u}}
 
 /-- The source functor `pullback g Rf_*` of bounded-below flat base change. -/
@@ -66,8 +70,7 @@ noncomputable abbrev targetComparison
   Exact.targetComparison
     (I := RingedSpace.Hom.IsFlat.exactPullback g') (H := pushforward f')
 
-/-- Flatness supplies the invertibility certificate used by the canonical source comparison.
-This named instance keeps downstream constructions from rebuilding local `letI` blocks. -/
+/-- Flatness makes the canonical source comparison invertible. -/
 @[stacks 02N7 "bounded-below flat base-change source comparison is invertible"]
 noncomputable instance sourceComparison_isIso
     (f : X ⟶ S) (g : S' ⟶ S) [RingedSpace.Hom.IsFlat g] :
@@ -79,11 +82,10 @@ noncomputable instance sourceComparison_isIso
 source.  Its construction is centralized in the generic exact-horizontal square API. -/
 @[stacks 02N7 "bounded-below flat base-change source isomorphism"]
 noncomputable def sourceIso
-    (f : X ⟶ S) (g : S' ⟶ S) [RingedSpace.Hom.IsFlat g]
-    [h : IsIso (sourceComparison f g)] :
+    (f : X ⟶ S) (g : S' ⟶ S) [RingedSpace.Hom.IsFlat g] :
     Functor.RightDerived.Bounded.functor (pushforward f ⋙ pullback g) ≅ source f g :=
-  @asIso _ _ _ _ (sourceComparison f g)
-    h
+  Exact.sourceIso
+    (F := pushforward f) (G := RingedSpace.Hom.IsFlat.exactPullback g)
 
 /-- The bounded-below flat base-change map built from an explicit source comparison
 isomorphism. -/

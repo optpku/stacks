@@ -28,15 +28,15 @@ universe u v w z
 
 namespace RingedSite
 
-variable (X : RingedSite.{u, v, w}) (U : X)
+variable (X : RingedSite.{u, v, w}) (U : X.carrier)
 
 /- Definition 18.19.1 (1): the localization at `U` is the ringed slice site with the exact
 universe level forced by `Over U`. -/
 @[stacks 04IX "(1), localized ringed site"]
-#check (X.localization U : RingedSite.{max u v, v, w})
+#check (RingedSite.localization X U : RingedSite.{max u v, v, w})
 
 /- Definition 18.19.1 (1): the carrier of the localized ringed site is `C / U`. -/
-#check (rfl : (RingedSite.localization X U).carrier = Over U)
+#check (rfl : (RingedSite.localization X U).carrier = Cat.of (Over U))
 
 /- Definition 18.19.1 (1): its topology is the slice topology. -/
 #check (rfl : (RingedSite.localization X U).siteTopology = X.siteTopology.over U)
@@ -47,7 +47,7 @@ universe level forced by `Over U`. -/
 /- Definition 18.19.1 (2): the localization morphism is presented on sites by the forgetful
 functor `X / U ⥤ X`. -/
 @[stacks 04IX "(2), site functor"]
-#check (Over.forget U : Over U ⥤ X)
+#check (Over.forget U : Over U ⥤ X.carrier)
 
 section ToposMorphism
 

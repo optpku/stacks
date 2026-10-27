@@ -16,6 +16,9 @@ public import Mathlib.GroupTheory.QuotientGroup.Defs
 public import ReasLib.AlgebraicGeometry.Scheme.Divisor.ClassGroup
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.CoordinateAxesQuotient.Space
 public import Mathlib.RingTheory.OrderOfVanishing.Basic
+import Mathlib.Algebra.MvPolynomial.Division
+import Mathlib.RingTheory.Ideal.Maximal
+import Mathlib.RingTheory.Ideal.KrullsHeightTheorem
 
 /-!
 # Class group of the coordinate-axes quotient
@@ -45,13 +48,59 @@ def originIdeal (k : Type u) [Field k] : Ideal Γ((affineLine k).left, ⊤) :=
 def originIdealSheaf (k : Type u) [Field k] : (affineLine k).left.IdealSheafData :=
   IdealSheafData.ofIdealTop (originIdeal k)
 
+/-- The affine-line coordinate is a prime element of the global section ring. -/
+private theorem prime_affineLineCoord (k : Type u) [Field k] :
+    Prime (affineLineCoord k) := by
+  letI : IsAffine (affineLine k).left :=
+    inferInstanceAs (IsAffine 𝔸(ULift.{u} (Fin 1); base k))
+  let P := MvPolynomial (ULift.{u} (Fin 1)) k
+  let j := AffineSpace.SpecIso (ULift.{u} (Fin 1)) (CommRingCat.of k)
+  letI : IsIso j.inv.appTop := inferInstanceAs (IsIso (j.inv.app ⊤))
+  let e : Γ((affineLine k).left, ⊤) ≃+* P :=
+    ((asIso j.inv.appTop) ≪≫ Scheme.ΓSpecIso (CommRingCat.of P)).commRingCatIsoToRingEquiv
+  have he : e (affineLineCoord k) = MvPolynomial.X (ULift.up (0 : Fin 1)) := by
+    change (Scheme.ΓSpecIso (CommRingCat.of P)).hom (j.inv.appTop (affineLineCoord k)) = _
+    have hjcoord : j.inv.appTop (affineLineCoord k) =
+        (Scheme.ΓSpecIso (CommRingCat.of P)).inv (MvPolynomial.X (ULift.up (0 : Fin 1))) :=
+      AffineSpace.SpecIso_inv_appTop_coord (CommRingCat.of k) (ULift.up (0 : Fin 1))
+    exact (congrArg (Scheme.ΓSpecIso (CommRingCat.of P)).hom hjcoord).trans
+      (ConcreteCategory.congr_hom (Scheme.ΓSpecIso (CommRingCat.of P)).inv_hom_id _)
+  have hprime : Prime (affineLineCoord k) := by
+    apply (MulEquiv.prime_iff e).mp
+    rw [he]
+    exact MvPolynomial.X_prime
+  exact hprime
+
 /-- The closed subscheme cut out by the origin ideal is integral. -/
 private theorem isIntegral_originIdealSheaf_subscheme (k : Type u) [Field k] :
-    AlgebraicGeometry.IsIntegral (originIdealSheaf k).subscheme := sorry
+    AlgebraicGeometry.IsIntegral (originIdealSheaf k).subscheme := by
+  letI : IsAffine (affineLine k).left :=
+    inferInstanceAs (IsAffine 𝔸(ULift.{u} (Fin 1); base k))
+  haveI : (originIdeal k).IsPrime := Ideal.isPrime_span_singleton_of_prime (prime_affineLineCoord k)
+  let U : (affineLine k).left.affineOpens := ⟨⊤, isAffineOpen_top _⟩
+  have hI : (originIdealSheaf k).ideal U = originIdeal k := by
+    simp [originIdealSheaf, U]
+  haveI : ((originIdealSheaf k).ideal U).IsPrime := hI.symm ▸ inferInstance
+  letI : IsDomain (Γ((affineLine k).left, ⊤) ⧸ (originIdealSheaf k).ideal U) := inferInstance
+  have q : Γ((originIdealSheaf k).subscheme, ⊤) ≅
+      CommRingCat.of (Γ((affineLine k).left, ⊤) ⧸ (originIdealSheaf k).ideal U) := by
+    simpa [U] using (originIdealSheaf k).subschemeObjIso U
+  letI : IsDomain Γ((originIdealSheaf k).subscheme, ⊤) :=
+    q.commRingCatIsoToRingEquiv.toMulEquiv.isDomain _
+  letI : IsAffine (originIdealSheaf k).subscheme :=
+    isAffine_of_isAffineHom (originIdealSheaf k).subschemeι
+  letI : Nonempty (originIdealSheaf k).subscheme :=
+    Nonempty.map (originIdealSheaf k).subscheme.isoSpec.inv inferInstance
+  exact isIntegral_of_isAffine_of_isDomain _
+
 
 /-- The support of the origin ideal sheaf is irreducible. -/
 private theorem isIrreducible_originIdealSheaf_support (k : Type u) [Field k] :
-    IsIrreducible ((originIdealSheaf k).support : Set (affineLine k).left) := sorry
+    IsIrreducible ((originIdealSheaf k).support : Set (affineLine k).left) := by
+  letI := isIntegral_originIdealSheaf_subscheme k
+  rw [← (originIdealSheaf k).range_subschemeι, ← Set.image_univ]
+  exact (IrreducibleSpace.isIrreducible_univ _).image _
+    (originIdealSheaf k).subschemeι.continuous.continuousOn
 
 /-- The support of the origin ideal sheaf has coheight one. -/
 private theorem coheight_originIdealSheaf_support (k : Type u) [Field k] :
@@ -59,7 +108,50 @@ private theorem coheight_originIdealSheaf_support (k : Type u) [Field k] :
       (⟨((originIdealSheaf k).support : Set (affineLine k).left),
           isIrreducible_originIdealSheaf_support k,
           (originIdealSheaf k).support.isClosed⟩ :
-        TopologicalSpace.IrreducibleCloseds (affineLine k).left) = 1 := sorry
+        TopologicalSpace.IrreducibleCloseds (affineLine k).left) = 1 := by
+  letI : IsAffine (affineLine k).left :=
+    inferInstanceAs (IsAffine 𝔸(ULift.{u} (Fin 1); base k))
+  let j := AffineSpace.SpecIso (ULift.{u} (Fin 1)) (CommRingCat.of k)
+  letI : IsIso j.inv.appTop := inferInstanceAs (IsIso (j.inv.app ⊤))
+  let e := ((asIso j.inv.appTop) ≪≫ Scheme.ΓSpecIso
+    (CommRingCat.of (MvPolynomial (ULift.{u} (Fin 1)) k))).commRingCatIsoToRingEquiv
+  letI : IsNoetherianRing Γ((affineLine k).left, ⊤) :=
+    isNoetherianRing_of_ringEquiv (MvPolynomial (ULift.{u} (Fin 1)) k) e.symm
+  have ht := prime_affineLineCoord k
+  letI : (originIdeal k).IsPrime := Ideal.isPrime_span_singleton_of_prime ht
+  let p : Spec Γ((affineLine k).left, ⊤) := ⟨originIdeal k, inferInstance⟩
+  have hp : Order.coheight p = 1 := by
+    rw [← idealHeight_eq_coheight]
+    exact Ideal.height_span_singleton_eq_one_of_mem_nonZeroDivisors
+      (mem_nonZeroDivisors_iff_ne_zero.mpr ht.ne_zero) ht.2.1
+  let z := (irreducibleSetEquivPoints
+    (α := Spec Γ((affineLine k).left, ⊤))).symm p
+  have hz : Order.coheight z = 1 :=
+    (Order.coheight_orderIso (irreducibleSetEquivPoints
+      (α := Spec Γ((affineLine k).left, ⊤))).symm p).trans hp
+  have hsupport : TopologicalSpace.IrreducibleCloseds.map
+      (affineLine k).left.isoSpec.inv (affineLine k).left.isoSpec.inv.continuous z =
+      (⟨((originIdealSheaf k).support : Set (affineLine k).left),
+          isIrreducible_originIdealSheaf_support k,
+          (originIdealSheaf k).support.isClosed⟩ :
+        TopologicalSpace.IrreducibleCloseds (affineLine k).left) := by
+    apply TopologicalSpace.IrreducibleCloseds.ext
+    change closure ((affineLine k).left.isoSpec.inv ''
+      closure ({p} : Set (Spec Γ((affineLine k).left, ⊤)))) =
+      ((originIdealSheaf k).support : Set (affineLine k).left)
+    have hcl : closure ({p} : Set (Spec Γ((affineLine k).left, ⊤))) =
+        PrimeSpectrum.zeroLocus (originIdeal k : Set Γ((affineLine k).left, ⊤)) :=
+      PrimeSpectrum.closure_singleton p
+    have himage : (affineLine k).left.isoSpec.inv ''
+        closure ({p} : Set (Spec Γ((affineLine k).left, ⊤))) =
+        (affineLine k).left.zeroLocus (originIdeal k : Set Γ((affineLine k).left, ⊤)) :=
+      (congrArg (fun t : Set (Spec Γ((affineLine k).left, ⊤)) ↦
+        (affineLine k).left.isoSpec.inv '' t) hcl).trans
+          ((affineLine k).left.isoSpec_inv_image_zeroLocus _)
+    exact (congrArg closure himage).trans (Scheme.zeroLocus_isClosed _ _).closure_eq
+  rw [← hsupport]
+  exact ((affineLine k).left.isoSpec.inv.isOpenEmbedding.coheight_map z).trans hz
+
 
 /-- The prime divisor of `𝔸¹_k` cut out by the origin, identified with the unique
 closed point of `X` lying over `0`. -/
@@ -112,7 +204,12 @@ private theorem locallyFinite_doubleOriginCoeff (k : Type u) [Field k]
     (D : AlgebraicGeometry.WeilDivisor (affineLine k).left) :
     LocallyFinite fun Z : AlgebraicGeometry.PrimeDivisor (affineLine k).left ↦
       if doubleOriginCoeff k D Z = 0 then (∅ : Set (affineLine k).left)
-      else (Z.support : Set (affineLine k).left) := sorry
+      else (Z.support : Set (affineLine k).left) := by
+  classical
+  convert D.locallyFinite_supportFamily using 1
+  funext Z
+  by_cases hZ : Z = originPrimeDivisor k <;>
+    simp [doubleOriginCoeff, WeilDivisor.supportFamily, hZ, mul_eq_zero]
 
 /-- The ramification map on `Div(𝔸¹_k)` which doubles the coefficient of the origin. -/
 def doubleOrigin (k : Type u) [Field k]
@@ -128,12 +225,20 @@ theorem doubleOrigin_coeff (k : Type u) [Field k]
     (doubleOrigin k D).coeff Z = doubleOriginCoeff k D Z := rfl
 
 /-- Doubling the origin coefficient preserves the zero divisor. -/
-theorem doubleOrigin_zero (k : Type u) [Field k] : doubleOrigin k 0 = 0 := sorry
+theorem doubleOrigin_zero (k : Type u) [Field k] : doubleOrigin k 0 = 0 := by
+  apply WeilDivisor.ext
+  intro Z
+  simp [doubleOrigin_coeff, doubleOriginCoeff]
 
 /-- Doubling the origin coefficient preserves addition of divisors. -/
 theorem doubleOrigin_add (k : Type u) [Field k]
     (D E : AlgebraicGeometry.WeilDivisor (affineLine k).left) :
-    doubleOrigin k (D + E) = doubleOrigin k D + doubleOrigin k E := sorry
+    doubleOrigin k (D + E) = doubleOrigin k D + doubleOrigin k E := by
+  classical
+  apply WeilDivisor.ext
+  intro Z
+  by_cases hZ : Z = originPrimeDivisor k <;>
+    simp [doubleOrigin_coeff, doubleOriginCoeff, hZ, mul_add]
 
 /-- The additive homomorphism which doubles the origin coefficient. -/
 def doubleOriginHom (k : Type u) [Field k] :
@@ -145,7 +250,12 @@ def doubleOriginHom (k : Type u) [Field k] :
 
 /-- The image of the affine-line coordinate in the function field is nonzero. -/
 theorem affineLineCoord_ne_zero (k : Type u) [Field k] :
-    (affineLine k).left.germToFunctionField ⊤ (affineLineCoord k) ≠ 0 := sorry
+    (affineLine k).left.germToFunctionField ⊤ (affineLineCoord k) ≠ 0 := by
+  intro h
+  apply (prime_affineLineCoord k).ne_zero
+  exact (Scheme.germToFunctionField_injective (affineLine k).left ⊤)
+    (h.trans ((affineLine k).left.germToFunctionField ⊤).hom.map_zero.symm)
+
 
 /-- The rational function `t` on `𝔸¹_k`. -/
 def coordinate (k : Type u) [Field k] : (affineLine k).left.functionFieldˣ :=
@@ -165,7 +275,85 @@ def principalWeilDivisor (k : Type u) [Field k] (f : (affineLine k).left.functio
 /-- Every target prime divisor has a point above its generic point in the nodal cover. -/
 theorem primeDivisor_exists_above (k : Type u) [Field k]
     (W : AlgebraicGeometry.PrimeDivisor (affineLine k).left) :
-    ∃ u : (cover k).left, (sumOver k).left u = W.genericPoint := sorry
+    ∃ u : (cover k).left, (sumOver k).left u = W.genericPoint := by
+  classical
+  let P := MvPolynomial (ULift.{u} (Fin 1)) k
+  let e : MvPolynomial (ULift.{u} (Fin 2)) k →+* P :=
+    MvPolynomial.eval₂Hom MvPolynomial.C
+      (fun i ↦ if i.down = 0 then MvPolynomial.X (ULift.up (0 : Fin 1)) else 0)
+  have he : relationIdeal k ≤ RingHom.ker e := by
+    apply Ideal.span_le.mpr
+    intro a ha
+    obtain rfl := Set.mem_singleton_iff.mp ha
+    change e (relationPoly k) = 0
+    simp [e, relationPoly]
+  let r : coordinateRing k →+* P := Ideal.Quotient.lift (relationIdeal k) e he
+  let j := AffineSpace.SpecIso (ULift.{u} (Fin 1)) (CommRingCat.of k)
+  let s : 𝔸(ULift.{u} (Fin 1); base k) ⟶ Spec (CommRingCat.of (coordinateRing k)) :=
+    j.hom ≫ Spec.map (CommRingCat.ofHom r)
+  have hrC : CommRingCat.ofHom (algebraMap k (coordinateRing k)) ≫
+      CommRingCat.ofHom r = CommRingCat.ofHom (MvPolynomial.C : k →+* P) := by
+    ext a : 2
+    change r (Ideal.Quotient.mk (relationIdeal k) (MvPolynomial.C a)) = MvPolynomial.C a
+    change e (MvPolynomial.C a) = MvPolynomial.C a
+    exact MvPolynomial.eval₂Hom_C _ _ _
+  have hs : s ≫ (sumOver k).left = 𝟙 (affineLine k).left := by
+    change s ≫ AffineSpace.homOfVector (cover k).hom
+      (fun _ : ULift.{u} (Fin 1) ↦ sumSection k) = 𝟙 𝔸(ULift.{u} (Fin 1); base k)
+    apply AffineSpace.hom_ext
+    · simp only [Category.assoc, AffineSpace.homOfVector_over, Category.id_comp]
+      change (j.hom ≫ Spec.map (CommRingCat.ofHom r)) ≫
+        Spec.map (CommRingCat.ofHom (algebraMap k (coordinateRing k))) = _
+      rw [Category.assoc, ← Spec.map_comp, hrC]
+      have hj : j.inv ≫ (𝔸(ULift.{u} (Fin 1); base k) ↘ base k) =
+          Spec.map (CommRingCat.ofHom (MvPolynomial.C : k →+* P)) :=
+        AffineSpace.SpecIso_inv_over (CommRingCat.of k)
+      rw [← hj, ← Category.assoc, j.hom_inv_id, Category.id_comp]
+    · intro i
+      have hi : i = ULift.up (0 : Fin 1) := Subsingleton.elim _ _
+      subst i
+      simp only [Scheme.Hom.comp_appTop, CommRingCat.comp_apply,
+        AffineSpace.homOfVector_appTop_coord, Scheme.Hom.id_appTop,
+        CommRingCat.id_apply]
+      change s.appTop (sumSection k) = affineLineCoord k
+      simp only [s, Scheme.Hom.comp_appTop, CommRingCat.comp_apply, sumSection, coord]
+      have happ (a : coordinateRing k) :
+          (Spec.map (CommRingCat.ofHom r)).appTop
+            ((Scheme.ΓSpecIso (CommRingCat.of (coordinateRing k))).inv a) =
+          (Scheme.ΓSpecIso (CommRingCat.of P)).inv (r a) := by
+        exact congrArg
+          (fun f : CommRingCat.of (coordinateRing k) ⟶ Γ(Spec (CommRingCat.of P), ⊤) ↦ f a)
+          (Scheme.ΓSpecIso_inv_naturality (CommRingCat.ofHom r)).symm
+      change j.hom.appTop.hom ((Spec.map (CommRingCat.ofHom r)).appTop.hom
+        ((Scheme.ΓSpecIso (CommRingCat.of (coordinateRing k))).inv
+          (Ideal.Quotient.mk (relationIdeal k) (MvPolynomial.X (ULift.up (0 : Fin 2)))) +
+         (Scheme.ΓSpecIso (CommRingCat.of (coordinateRing k))).inv
+          (Ideal.Quotient.mk (relationIdeal k) (MvPolynomial.X (ULift.up (1 : Fin 2)))))) = _
+      rw [map_add, happ, happ]
+      have hrX0 : r (Ideal.Quotient.mk (relationIdeal k)
+          (MvPolynomial.X (ULift.up (0 : Fin 2)))) =
+          MvPolynomial.X (ULift.up (0 : Fin 1)) := by
+        change e (MvPolynomial.X (ULift.up (0 : Fin 2))) = _
+        dsimp only [e]
+        rw [MvPolynomial.eval₂Hom_X']
+        rfl
+      have hrX1 : r (Ideal.Quotient.mk (relationIdeal k)
+          (MvPolynomial.X (ULift.up (1 : Fin 2)))) = 0 := by
+        change e (MvPolynomial.X (ULift.up (1 : Fin 2))) = 0
+        dsimp only [e]
+        rw [MvPolynomial.eval₂Hom_X']
+        exact if_neg (by decide)
+      rw [hrX0, hrX1, (Scheme.ΓSpecIso (CommRingCat.of P)).inv.hom.map_zero, add_zero]
+      have hjcoord : j.inv.appTop (affineLineCoord k) =
+          (Scheme.ΓSpecIso (CommRingCat.of P)).inv (MvPolynomial.X (ULift.up (0 : Fin 1))) :=
+        AffineSpace.SpecIso_inv_appTop_coord (CommRingCat.of k) (ULift.up (0 : Fin 1))
+      rw [← hjcoord]
+      change (j.inv.appTop ≫ j.hom.appTop) (affineLineCoord k) = _
+      rw [← Scheme.Hom.comp_appTop, j.hom_inv_id]
+      rfl
+  refine ⟨s W.genericPoint, ?_⟩
+  exact congrArg (fun f : (affineLine k).left ⟶ (affineLine k).left ↦ f W.genericPoint) hs
+
 
 /-- Principal-divisor coefficients are differences of quotient lengths in atlas stalks. -/
 theorem principalWeilDivisor_atlas_coeff (k : Type u) [Field k]
@@ -222,7 +410,43 @@ theorem principalDivisors_atlas_iff (k : Type u) [Field k]
                   ((sumOver k).left.appTop p))).toNat : ℤ) -
               ((Ring.ord ((cover k).left.presheaf.stalk u)
                 ((cover k).left.presheaf.germ ⊤ u (Set.mem_univ u)
-                  ((sumOver k).left.appTop q))).toNat : ℤ) := sorry
+                  ((sumOver k).left.appTop q))).toNat : ℤ) := by
+  constructor
+  · intro hD
+    obtain ⟨E, ⟨f, hf⟩, rfl⟩ := (mem_principalDivisors_iff k D).mp hD
+    have hE : E = Scheme.principalWeilDivisor (affineLine k).left f := by
+      apply WeilDivisor.ext
+      intro W
+      exact hf W
+    letI : IsAffine (affineLine k).left :=
+      inferInstanceAs (IsAffine 𝔸(ULift.{u} (Fin 1); base k))
+    letI := functionField_isFractionRing_of_isAffineOpen (affineLine k).left ⊤
+      (isAffineOpen_top _)
+    obtain ⟨p, q, hq, hpq⟩ :=
+      IsFractionRing.div_surjective Γ((affineLine k).left, ⊤)
+        (f : (affineLine k).left.functionField)
+    have hq' : (affineLine k).left.germToFunctionField ⊤ q ≠ 0 :=
+      IsFractionRing.to_map_ne_zero_of_mem_nonZeroDivisors hq
+    have hp' : (affineLine k).left.germToFunctionField ⊤ p ≠ 0 := by
+      intro hp
+      apply f.ne_zero
+      rw [← hpq]
+      change (affineLine k).left.germToFunctionField ⊤ p /
+        (affineLine k).left.germToFunctionField ⊤ q = 0
+      rw [hp, zero_div]
+    refine ⟨f, p, q, hp', hq', hpq.symm, ?_⟩
+    intro u W huW
+    rw [hE]
+    exact principalWeilDivisor_atlas_coeff k f p q hp' hq' hpq.symm u W huW
+  · rintro ⟨f, p, q, hp, hq, hf, hcoeff⟩
+    apply (mem_principalDivisors_iff k D).mpr
+    refine ⟨Scheme.principalWeilDivisor (affineLine k).left f,
+      principalWeilDivisor_mem_principalWeilDivisors _ f, ?_⟩
+    apply WeilDivisor.ext
+    intro W
+    obtain ⟨u, huW⟩ := primeDivisor_exists_above k W
+    exact (principalWeilDivisor_atlas_coeff k f p q hp hq hf u W huW).trans
+      (hcoeff u W huW).symm
 
 /-- The Weil divisor class group of the coordinate-axes quotient space. -/
 abbrev classGroup (k : Type u) [Field k] : Type u :=
@@ -247,7 +471,12 @@ def originCoeffModTwoHom (k : Type u) [Field k] :
 
 /-- Principal divisors of `X` lie in the kernel of the origin-coefficient map modulo `2`. -/
 theorem originCoeffModTwoHom_ker (k : Type u) [Field k] :
-    principalDivisors k ≤ (originCoeffModTwoHom k).ker := sorry
+    principalDivisors k ≤ (originCoeffModTwoHom k).ker := by
+  classical
+  intro D hD
+  obtain ⟨E, _, rfl⟩ := (mem_principalDivisors_iff k D).mp hD
+  change ((doubleOriginCoeff k E (originPrimeDivisor k) : ℤ) : ZMod 2) = 0
+  simp [doubleOriginCoeff, Int.cast_mul, show (2 : ZMod 2) = 0 from rfl]
 
 /-- The descended origin-coefficient map on the class group of `X`. -/
 def classGroupHomZMod (k : Type u) [Field k] : classGroup k →+ ZMod 2 :=
@@ -264,7 +493,15 @@ theorem classGroupHomZMod_leftInverse (k : Type u) [Field k] :
 theorem classGroupHomZMod_rightInverse (k : Type u) [Field k] :
     Function.RightInverse
       (fun n : ZMod 2 ↦ classGroupMk k (n.val • originWeilDivisor k))
-      (classGroupHomZMod k) := sorry
+      (classGroupHomZMod k) := by
+  classical
+  intro n
+  change (((n.val • originWeilDivisor k).coeff (originPrimeDivisor k) : ℤ) : ZMod 2) = n
+  rw [WeilDivisor.coeff_nsmul]
+  have hcoeff : (originWeilDivisor k).coeff (originPrimeDivisor k) = 1 := by
+    change (if originPrimeDivisor k = originPrimeDivisor k then (1 : ℤ) else 0) = 1
+    simp
+  simp [hcoeff]
 
 /-- The identification `Cl(X) ≃ ℤ/2ℤ` sending the class of `[x]` to `1`. -/
 def classGroupEquivZMod (k : Type u) [Field k] :
@@ -282,6 +519,13 @@ theorem classGroupEquivZMod_apply (k : Type u) [Field k]
 
 /-- The class of the origin prime divisor is the generator `1` of `ℤ/2ℤ`. -/
 theorem classGroupEquivZMod_origin (k : Type u) [Field k] :
-    classGroupEquivZMod k (classGroupMk k (originWeilDivisor k)) = 1 := sorry
+    classGroupEquivZMod k (classGroupMk k (originWeilDivisor k)) = 1 := by
+  classical
+  rw [classGroupEquivZMod_apply]
+  change (((originWeilDivisor k).coeff (originPrimeDivisor k) : ℤ) : ZMod 2) = 1
+  have hcoeff : (originWeilDivisor k).coeff (originPrimeDivisor k) = 1 := by
+    change (if originPrimeDivisor k = originPrimeDivisor k then (1 : ℤ) else 0) = 1
+    simp
+  rw [hcoeff, Int.cast_one]
 
 end AlgebraicGeometry.AlgebraicSpace.CoordinateAxesQuotient

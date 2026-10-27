@@ -180,6 +180,9 @@ theorem opensRingedSiteHom_restrictedSquare_comm :
       (opensRingedSiteHom
           (X.ofRestrict (preimageOpen f V).isOpenEmbedding)).base := sorry
 
+-- `RingedSite.Hom` now exposes explicit maps; use their public composition API.
+local infixr:80 " ≫ " => RingedSiteMap.comp
+
 /-- Helper for Lemma 20.32.4: the restricted-open square also commutes as a strict equality of
 opens-site ringed-space morphisms, so the transported structure-sheaf map disappears after
 normalization. -/

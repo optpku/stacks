@@ -26,37 +26,53 @@ variable {δ : Points B → ℤ} [IsDimensionFunction δ]
 variable {f : X ⟶ B} [QuasiSeparated f] [LocallyOfFiniteType f]
 
 /-- Zero-fold iteration is the identity cap family, reindexed along `k - 0 = k`. -/
-def powCapZero : CapFamily δ f 0 :=
+def powCapZero :
+    ∀ {Y : AlgebraicSpace S} (g : Y ⟶ X)
+      [QuasiSeparated (g ≫ f)] [LocallyOfFiniteType (g ≫ f)] (k : ℤ),
+      Hom.chowGroup (g ≫ f) δ k →+ Hom.chowGroup (g ≫ f) δ (k - 0) :=
   fun {Y : AlgebraicSpace S} (g : Y ⟶ X)
       [QuasiSeparated (g ≫ f)] [LocallyOfFiniteType (g ≫ f)] (k : ℤ) ↦
-    castChowGroup δ (g ≫ f) (sub_zero k).symm
+    (AddEquiv.cast (M := Hom.chowGroup (g ≫ f) δ) (sub_zero k).symm).toAddMonoidHom
+
+variable (c : ∀ {Y : AlgebraicSpace S} (g : Y ⟶ X)
+  [QuasiSeparated (g ≫ f)] [LocallyOfFiniteType (g ≫ f)] (k : ℤ),
+  Hom.chowGroup (g ≫ f) δ k →+ Hom.chowGroup (g ≫ f) δ (k - 1))
 
 /-- The successor stage composes a degree-one cap with a degree-`j` cap family. -/
-def powCapSucc (c : CapFamily δ f 1) (j : ℕ)
-    (ih : CapFamily δ f j) : CapFamily δ f (j + 1) :=
+def powCapSucc (j : ℕ)
+    (ih : ∀ {Y : AlgebraicSpace S} (g : Y ⟶ X)
+      [QuasiSeparated (g ≫ f)] [LocallyOfFiniteType (g ≫ f)] (k : ℤ),
+      Hom.chowGroup (g ≫ f) δ k →+ Hom.chowGroup (g ≫ f) δ (k - j)) :
+    ∀ {Y : AlgebraicSpace S} (g : Y ⟶ X)
+      [QuasiSeparated (g ≫ f)] [LocallyOfFiniteType (g ≫ f)] (k : ℤ),
+      Hom.chowGroup (g ≫ f) δ k →+ Hom.chowGroup (g ≫ f) δ (k - (j + 1 : ℕ)) :=
   fun {Y : AlgebraicSpace S} (g : Y ⟶ X)
       [QuasiSeparated (g ≫ f)] [LocallyOfFiniteType (g ≫ f)] (k : ℤ) ↦
-    (castChowGroup δ (g ≫ f)
-      (show (k - (j : ℤ)) - 1 = k - ((j + 1 : ℕ) : ℤ) by omega)).comp
+    ((AddEquiv.cast (M := Hom.chowGroup (g ≫ f) δ)
+      (show (k - (j : ℤ)) - 1 = k - ((j + 1 : ℕ) : ℤ) by omega)).toAddMonoidHom).comp
       ((c g (k - (j : ℤ))).comp (ih g k))
 
 /-- The natural-number powers of a degree-one additive cap family. -/
-def powCap (c : CapFamily δ f 1) : (j : ℕ) → CapFamily δ f j :=
+def powCap : (j : ℕ) →
+    ∀ {Y : AlgebraicSpace S} (g : Y ⟶ X)
+      [QuasiSeparated (g ≫ f)] [LocallyOfFiniteType (g ≫ f)] (k : ℤ),
+      Hom.chowGroup (g ≫ f) δ k →+ Hom.chowGroup (g ≫ f) δ (k - j) :=
   Nat.rec powCapZero (fun j ih ↦ powCapSucc c j ih)
 
 /-- The zeroth power is the identity with its degree reindexing. -/
-theorem powCap_zero (c : CapFamily δ f 1) {Y : AlgebraicSpace S}
+theorem powCap_zero {Y : AlgebraicSpace S}
     (g : Y ⟶ X) [QuasiSeparated (g ≫ f)] [LocallyOfFiniteType (g ≫ f)] (k : ℤ) :
-    powCap c 0 g k = castChowGroup δ (g ≫ f) (sub_zero k).symm :=
+    powCap c 0 g k =
+      (AddEquiv.cast (M := Hom.chowGroup (g ≫ f) δ) (sub_zero k).symm).toAddMonoidHom :=
   rfl
 
 /-- The successor power applies the degree-one cap after the preceding power. -/
-theorem powCap_succ (c : CapFamily δ f 1) (j : ℕ)
+theorem powCap_succ (j : ℕ)
     {Y : AlgebraicSpace S} (g : Y ⟶ X)
     [QuasiSeparated (g ≫ f)] [LocallyOfFiniteType (g ≫ f)] (k : ℤ) :
     powCap c (j + 1) g k =
-      (castChowGroup δ (g ≫ f)
-        (show (k - (j : ℤ)) - 1 = k - ((j + 1 : ℕ) : ℤ) by omega)).comp
+      ((AddEquiv.cast (M := Hom.chowGroup (g ≫ f) δ)
+        (show (k - (j : ℤ)) - 1 = k - ((j + 1 : ℕ) : ℤ) by omega)).toAddMonoidHom).comp
         ((c g (k - (j : ℤ))).comp (powCap c j g k)) :=
   rfl
 

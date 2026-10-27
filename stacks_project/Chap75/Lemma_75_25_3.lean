@@ -6,80 +6,55 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import ReasLib.Algebra.Homology.CochainComplex.Bounded
-public import stacks_project.Chap67.Lemma_67_28_8_FinitePresentation
-public import stacks_project.Chap67.Lemma_67_31_6_ModuleSupport
-public import stacks_project.Chap75.Definition_75_5_1_DerivedQCoh
-public import stacks_project.Chap75.Lemma_75_13_6_PseudoCoherent
-public import stacks_project.Chap75.Lemma_75_3_1_Pushforward
-public import stacks_project.Chap75.Lemma_75_7_3_ProperOver
-public import stacks_project.Chap75.Lemma_75_21_4_Comparison
-public import stacks_project.Chap77.Theorem_77_4_7_FlatOver
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.PseudoCoherent.TensorPushforward
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.CohomologyBaseChange.TensorPushforward
 
 /-!
-# Pseudo-coherent derived pushforward of a tensor with a bounded-above relatively flat finitely presented complex
+# Pseudo-coherent tensor pushforward and arbitrary base change
 
-Along a morphism of finite presentation of algebraic spaces, the derived pushforward of the
-derived tensor of a pseudo-coherent object with a bounded-above complex of finitely presented
-modules that are flat over the target with support proper over the target is pseudo-coherent,
-and its formation commutes with arbitrary base change.
+Along a finite-presentation morphism of algebraic spaces, the derived pushforward of a
+pseudo-coherent object tensored with a bounded-above, degreewise finitely presented,
+relatively flat complex with degreewise proper support is pseudo-coherent. Its formation
+commutes with arbitrary base change.
 -/
 
 @[expose] public section
 
 open AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace CategoryTheory Limits
-open CategoryTheory.DerivedCategory CategoryTheory.DerivedCategory.DerivedTensor
-open CategoryTheory.MonoidalCategory TopologicalSpace
-
-noncomputable section
+open CategoryTheory.DerivedCategory TopologicalSpace
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.ModuleDerived
-
-variable {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-
-/-- Lemma 75.25.3 (1): let `S` be a scheme. Let `f : X ⟶ Y` be a morphism of finite
-presentation between algebraic spaces over `S`. Let `E` be a pseudo-coherent object of
-`D(𝒪_X)`, and let `G` be a bounded-above complex of finitely presented `𝒪_X`-modules,
-flat over `Y`, with support proper over `Y`. Then
-`K = (Modules.pushforwardDerived f).obj (DerivedTensor.Right.obj E (DerivedCategory.Q.obj G))`
-is a pseudo-coherent object of `D(𝒪_Y)`. -/
-@[stacks 0CTL]
-theorem pushforwardDerived_tensor_isPseudoCoherent_of_finitePresentation
+/- Lemma 75.25.3: the tensor pushforward is pseudo-coherent under the finite-presentation,
+relative-flatness, boundedness-above, and degreewise proper-support hypotheses. -/
+@[stacks 0CTL] #check
+  (AlgebraicGeometry.AlgebraicSpace.ModuleDerived.pushforwardDerived_tensor_isPseudoCoherent_of_finitePresentation :
+    ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S}
     (f : X ⟶ Y) [FinitePresentation f] (E : ModuleDerived X)
     (hE : IsPseudoCoherent X E) (G : CochainComplex (Modules X) ℤ)
     (hG_minus : CochainComplex.minus (Modules X) G)
     (hG_fp : ∀ i : ℤ, (G.X i).IsFinitePresentation)
     (hG_flat : ∀ i : ℤ, ∀ x, Modules.flatOverAt (G.X i) f x)
-    (hG_support : ∀ i : ℤ, ClosedSubset.IsProperOver f
-      (Closeds.closure (Modules.moduleSupport (G.X i)))) :
-    IsPseudoCoherent Y ((Modules.pushforwardDerived f).obj
-      (DerivedTensor.Right.obj E (DerivedCategory.Q.obj G))) := sorry
+    (hG_support : ∀ i : ℤ, ClosedSubset.ProperOver f
+      (Closeds.closure (Modules.moduleSupport (G.X i)))),
+    IsPseudoCoherent Y ((Modules.moduleDerivedPushforward f).obj
+      (DerivedTensor.Right.obj E (DerivedCategory.Q.obj G))))
 
-/-- Lemma 75.25.3 (2): under the same hypotheses, formation of
-`K = Rf_*(E ⊗^L Q(G))` commutes with arbitrary base change: for every cartesian square,
-the comparison `Lg^* Rf_*(E ⊗^L Q(G)) ⟶ Rf'_*(L(g')^* E ⊗^L Q((g')^* G))` is an
-isomorphism, using ordinary termwise pullback of `G` on the right. -/
-@[stacks 0CTL]
-theorem pushforwardDerived_tensor_baseChange_isIso_of_pseudoCoherent
-    (f : X ⟶ Y) [FinitePresentation f] (E : ModuleDerived X)
-    (hE : IsPseudoCoherent X E) (G : CochainComplex (Modules X) ℤ)
-    (hG_minus : CochainComplex.minus (Modules X) G)
-    (hG_fp : ∀ i : ℤ, (G.X i).IsFinitePresentation)
-    (hG_flat : ∀ i : ℤ, ∀ x, Modules.flatOverAt (G.X i) f x)
-    (hG_support : ∀ i : ℤ, ClosedSubset.IsProperOver f
-      (Closeds.closure (Modules.moduleSupport (G.X i))))
-    {X' Y' : AlgebraicSpace S}
-    [MonoidalCategory (ModuleDerived X)] [MonoidalCategory (ModuleDerived X')]
-    (g' : X' ⟶ X) (f' : X' ⟶ Y') (g : Y' ⟶ Y)
-    [(ModuleDerived.pullback g').Monoidal]
-    [IsIso (ModuleDerived.pullbackCompComparison f' g)]
-    [IsIso (ModuleDerived.pullbackCompComparison g' f)]
+/- Finite presentation gives quasi-compactness and quasi-separatedness of the morphism.
+Pseudo-coherence gives quasi-coherent cohomology, and degreewise finite presentation gives
+degreewise quasi-coherence. Thus the following general theorem supplies the arbitrary
+base-change assertion under the hypotheses above, with derived pullback of E and ordinary
+termwise pullback of G. -/
+#check
+  (AlgebraicGeometry.AlgebraicSpace.DerivedQCoh.pushforwardTensorBaseChange_isIso :
+    ∀ {S : Scheme.{u}} {X' X Y' Y : AlgebraicSpace S}
+    (g' : X' ⟶ X) (f' : X' ⟶ Y') (f : X ⟶ Y) (g : Y' ⟶ Y)
+    [QuasiCompact f] [QuasiSeparated f]
     (sq : IsPullback g' f' f g)
-    (T_X : @Right.Monoidal.Model (Modules X) _ _ _ _ _ _ _)
-    (T_X' : @Right.Monoidal.Model (Modules X') _ _ _ _ _ _ _) :
-    IsIso (DerivedQCoh.tensorPushforwardBaseChangeMap g' f' f g sq T_X T_X'
-      ⟨E, PseudoCoherent.derivedQuasiCoherentModuleProperty hE⟩ G) := sorry
-
-end AlgebraicGeometry.AlgebraicSpace.ModuleDerived
+    (E : DerivedQCoh X) (G : CochainComplex (Modules X) ℤ)
+    (hG_minus : CochainComplex.minus (Modules X) G)
+    (hG_qcoh : ∀ n : ℤ, (G.X n).IsQuasicoherent)
+    (hG_flat : ∀ n : ℤ, ∀ x, Modules.flatOverAt (G.X n) f x),
+    IsIso (AlgebraicGeometry.AlgebraicSpace.DerivedQCoh.tensorPushforwardBaseChange
+      g' f' f g sq E G))

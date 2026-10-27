@@ -31,7 +31,9 @@ namespace Arrow
 /-- The postcomposed arrow belongs to the pullback cover above the target of a slice morphism. -/
 theorem mapOver_mem (T : J.Cover U) {V W : Over U} (g : V ⟶ W)
     (I : (T.pullback V.hom).Arrow) :
-    (T.pullback W.hom) (I.f ≫ g.left) := sorry
+    (T.pullback W.hom) (I.f ≫ g.left) := by
+  change T ((I.f ≫ g.left) ≫ W.hom)
+  simpa only [Category.assoc, Over.w] using (coe_pullback V.hom I.f T).mp I.hf
 
 /-- Transport an arrow of a pullback cover along a morphism in the slice over the original
 cover target. -/
@@ -45,25 +47,31 @@ morphism. -/
 @[simp]
 theorem mapOver_f (T : J.Cover U) {V W : Over U} (g : V ⟶ W)
     (I : (T.pullback V.hom).Arrow) :
-    (mapOver T g I).f = I.f ≫ g.left := sorry
+    (mapOver T g I).f = I.f ≫ g.left := rfl
 
 /-- Transporting a pullback-cover arrow preserves its underlying arrow in the original cover. -/
 @[simp]
 theorem mapOver_base (T : J.Cover U) {V W : Over U} (g : V ⟶ W)
     (I : (T.pullback V.hom).Arrow) :
-    (mapOver T g I).base = I.base := sorry
+    (mapOver T g I).base = I.base := by
+  cases I
+  simp [mapOver, base, Category.assoc]
 
 /-- Transport along an identity slice morphism does not change a pullback-cover arrow. -/
 @[simp]
 theorem mapOver_id (T : J.Cover U) (V : Over U)
     (I : (T.pullback V.hom).Arrow) :
-    mapOver T (𝟙 V) I = I := sorry
+    mapOver T (𝟙 V) I = I := by
+  cases I
+  simp [mapOver]
 
 /-- Transport of pullback-cover arrows respects composition in the slice. -/
 @[simp]
 theorem mapOver_comp (T : J.Cover U) {V W X : Over U} (g : V ⟶ W) (h : W ⟶ X)
     (I : (T.pullback V.hom).Arrow) :
-    mapOver T h (mapOver T g I) = mapOver T (g ≫ h) I := sorry
+    mapOver T h (mapOver T g I) = mapOver T (g ≫ h) I := by
+  cases I
+  simp [mapOver, Category.assoc]
 
 end Arrow
 
@@ -74,7 +82,8 @@ morphism. -/
 theorem mapOver_w (T : J.Cover U) {V W : Over U} (g : V ⟶ W)
     (R : (T.pullback V.hom).Relation) :
     R.r.g₁ ≫ (Arrow.mapOver T g R.fst).f =
-      R.r.g₂ ≫ (Arrow.mapOver T g R.snd).f := sorry
+      R.r.g₂ ≫ (Arrow.mapOver T g R.snd).f := by
+  simpa only [Arrow.mapOver_f] using R.r.w_assoc g.left
 
 /-- Transport a relation of a pullback cover along a morphism in the slice. -/
 def mapOver (T : J.Cover U) {V W : Over U} (g : V ⟶ W)
@@ -92,25 +101,39 @@ def mapOver (T : J.Cover U) {V W : Over U} (g : V ⟶ W)
 @[simp]
 theorem mapOver_fst (T : J.Cover U) {V W : Over U} (g : V ⟶ W)
     (R : (T.pullback V.hom).Relation) :
-    (mapOver T g R).fst = Arrow.mapOver T g R.fst := sorry
+    (mapOver T g R).fst = Arrow.mapOver T g R.fst := rfl
 
 /-- The second endpoint of a transported relation is the transport of its second endpoint. -/
 @[simp]
 theorem mapOver_snd (T : J.Cover U) {V W : Over U} (g : V ⟶ W)
     (R : (T.pullback V.hom).Relation) :
-    (mapOver T g R).snd = Arrow.mapOver T g R.snd := sorry
+    (mapOver T g R).snd = Arrow.mapOver T g R.snd := rfl
 
 /-- Transport along an identity slice morphism does not change a pullback-cover relation. -/
 @[simp]
 theorem mapOver_id (T : J.Cover U) (V : Over U)
     (R : (T.pullback V.hom).Relation) :
-    mapOver T (𝟙 V) R = R := sorry
+    mapOver T (𝟙 V) R = R := by
+  rcases R with @⟨⟨Y₁, f₁, hf₁⟩, ⟨Y₂, f₂, hf₂⟩, ⟨Z, g₁, g₂, w⟩⟩
+  simp only [mapOver, mk', Arrow.mapOver, Over.id_left, mk.injEq, Category.comp_id,
+    true_and]
+  congr 1
+  · simp
+  · simp
+  · exact proof_irrel_heq _ _
 
 /-- Transport of pullback-cover relations respects composition in the slice. -/
 @[simp]
 theorem mapOver_comp (T : J.Cover U) {V W X : Over U} (g : V ⟶ W) (h : W ⟶ X)
     (R : (T.pullback V.hom).Relation) :
-    mapOver T h (mapOver T g R) = mapOver T (g ≫ h) R := sorry
+    mapOver T h (mapOver T g R) = mapOver T (g ≫ h) R := by
+  rcases R with @⟨⟨Y₁, f₁, hf₁⟩, ⟨Y₂, f₂, hf₂⟩, ⟨Z, g₁, g₂, w⟩⟩
+  simp only [mapOver, mk', Arrow.mapOver, Over.comp_left, mk.injEq, Category.assoc,
+    true_and]
+  congr 1
+  · simp [Category.assoc]
+  · simp [Category.assoc]
+  · exact proof_irrel_heq _ _
 
 end Relation
 

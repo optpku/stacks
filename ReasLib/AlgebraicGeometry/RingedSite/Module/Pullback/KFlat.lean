@@ -70,7 +70,8 @@ theorem isKFlat_and_isTermwiseFlat
     (K : CochainComplex (ModuleCat.{w} (RingedSite.ofCommRingSheaf JY OY)) ℤ)
     (hKFlat : K.IsKFlat) (hK : HomologicalComplex.IsTermwiseFlat K) :
     ((modulePullbackComplex f).obj K).IsKFlat ∧
-      HomologicalComplex.IsTermwiseFlat ((modulePullbackComplex f).obj K) := sorry
+      HomologicalComplex.IsTermwiseFlat ((modulePullbackComplex f).obj K) :=
+  ⟨isKFlat_of_isTermwiseFlat f K hKFlat hK, isTermwiseFlat f K hK⟩
 
 /-- Module pullback preserves the canonical object property of K-flat cochain complexes with
 flat terms. This is the reusable universal-pullback interface for underlying complexes; it does
@@ -80,7 +81,8 @@ theorem termwiseFlat
     (K : CochainComplex (ModuleCat.{w} (RingedSite.ofCommRingSheaf JY OY)) ℤ)
     (hK : HomologicalComplex.KFlat.termwiseFlat (ComplexShape.up ℤ) K) :
     HomologicalComplex.KFlat.termwiseFlat (ComplexShape.up ℤ)
-      ((modulePullbackComplex f).obj K) := sorry
+      ((modulePullbackComplex f).obj K) :=
+  isKFlat_and_isTermwiseFlat f K hK.1 hK.2
 
 variable [CategoryWithHomology (ModuleCat.{w} (RingedSite.ofCommRingSheaf JX OX))]
 variable [CategoryWithHomology (ModuleCat.{w} (RingedSite.ofCommRingSheaf JY OY))]
@@ -108,7 +110,8 @@ theorem termwiseFlat
       (ModuleCat.{w} (RingedSite.ofCommRingSheaf JY OY)) K) :
     HomotopyCategory.KFlat.termwiseFlat
       (ModuleCat.{w} (RingedSite.ofCommRingSheaf JX OX))
-      ((modulePullbackHomotopy f).obj K) := sorry
+      ((modulePullbackHomotopy f).obj K) :=
+  modulePullbackComplex.termwiseFlat f K.as hK
 
 /-- Module pullback restricted to the reusable full subcategories of K-flat homotopy objects
 with flat terms. Its underlying objects and morphisms are ordinary homotopy-level pullback. -/
@@ -145,14 +148,14 @@ def compιIso :
 theorem obj_obj
     (K : HomotopyCategory.KFlat.TermwiseFlat
       (ModuleCat.{w} (RingedSite.ofCommRingSheaf JY OY))) :
-    ((goodModels f).obj K).obj = (modulePullbackHomotopy f).obj K.obj := sorry
+    ((goodModels f).obj K).obj = (modulePullbackHomotopy f).obj K.obj := rfl
 
 /-- The underlying morphism of good-model pullback is ordinary homotopy-level pullback. -/
 @[simp]
 theorem map_hom
     {K L : HomotopyCategory.KFlat.TermwiseFlat
       (ModuleCat.{w} (RingedSite.ofCommRingSheaf JY OY))} (α : K ⟶ L) :
-    ((goodModels f).map α).hom = (modulePullbackHomotopy f).map α.hom := sorry
+    ((goodModels f).map α).hom = (modulePullbackHomotopy f).map α.hom := rfl
 
 variable [CategoryWithHomology
   (ModuleCat.{w} (RingedSite.ofCommRingSheaf JX OX))]
@@ -167,7 +170,19 @@ theorem map_quasiIso :
         (ModuleCat.{w} (RingedSite.ofCommRingSheaf JY OY))).IsMappedBy
       (goodModels f)
       (HomotopyCategory.KFlat.TermwiseFlat.quasiIso
-        (ModuleCat.{w} (RingedSite.ofCommRingSheaf JX OX))) := sorry
+        (ModuleCat.{w} (RingedSite.ofCommRingSheaf JX OX))) := by
+  constructor
+  rintro ⟨⟨K⟩, hK⟩ ⟨⟨L⟩, hL⟩ α hα
+  change HomotopyCategory.quasiIso _ _ α.hom at hα
+  change HomotopyCategory.quasiIso _ _ ((modulePullbackHomotopy f).map α.hom)
+  have hα' : QuasiIso α.hom.out := by
+    apply (HomotopyCategory.quotient_map_mem_quasiIso_iff α.hom.out).mp
+    rw [HomotopyCategory.quotient_map_out α.hom]
+    exact hα
+  have hmap : QuasiIso ((modulePullbackComplex f).map α.hom.out) :=
+    modulePullbackComplex.map_quasiIso f hK.1 hK.2 hL.1 hL.2 _ hα'
+  rw [← HomotopyCategory.quotient_map_out α.hom]
+  exact (HomotopyCategory.quotient_map_mem_quasiIso_iff _).mpr hmap
 
 end goodModels
 

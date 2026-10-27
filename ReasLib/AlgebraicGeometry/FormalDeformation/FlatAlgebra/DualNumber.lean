@@ -9,7 +9,7 @@ module
 public import Mathlib.Algebra.DualNumber
 public import Mathlib.CategoryTheory.FiberedCategory.Cocartesian
 public import ReasLib.AlgebraicGeometry.FormalDeformation.DualNumber
-public import ReasLib.AlgebraicGeometry.FormalDeformation.Predeformation
+public import ReasLib.AlgebraicGeometry.FormalDeformation.Predeformation.Over
 public import ReasLib.AlgebraicGeometry.FormalDeformation.FlatAlgebra.AdicCompletion
 
 /-!
@@ -42,7 +42,9 @@ theorem deformationForget_eq (P : Type u) [CommRing P] [Algebra k P] :
 /-- The slice projection of `Def_P` is a predeformation category. -/
 instance instIsPredeformationCategory_deformationForget
     (P : Type u) [CommRing P] [Algebra k P] :
-    IsPredeformationCategory (deformationForget Λ k P) := sorry
+    IsPredeformationCategory (deformationForget Λ k P) :=
+  CategoryTheory.Functor.instIsPredeformationCategory_overForget
+    (forget : FlatAlgebraCat Λ k ⥤ ArtinianLocalAlgCat Λ k) (residueObj Λ k P)
 
 /-- Predeformation categories are cofibered in groupoids. -/
 instance instIsFiberedInGroupoids_deformationForget_op

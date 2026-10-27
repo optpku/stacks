@@ -40,7 +40,8 @@ theorem diagonalComparisonEquivalence.unit.hom (F : X ⟶ Y) :
         (BasedFunctor.RelativeInertia.diagonalComparison.unitIso
           (FiberedCategoryOver.toBasedFunctor F))
         (BasedFunctor.RelativeInertia.diagonalComparison.counitIso
-          (FiberedCategoryOver.toBasedFunctor F))).hom := sorry
+          (FiberedCategoryOver.toBasedFunctor F))).hom := by
+  rfl
 
 /-- The based projection of the inverse unit cell of the canonical relative-inertia equivalence is
 the inverse of the canonical adjusted unit. -/
@@ -52,7 +53,8 @@ theorem diagonalComparisonEquivalence.unit.inv (F : X ⟶ Y) :
         (BasedFunctor.RelativeInertia.diagonalComparison.unitIso
           (FiberedCategoryOver.toBasedFunctor F))
         (BasedFunctor.RelativeInertia.diagonalComparison.counitIso
-          (FiberedCategoryOver.toBasedFunctor F))).inv := sorry
+          (FiberedCategoryOver.toBasedFunctor F))).inv := by
+  rfl
 
 /-- The forward total-category component of the fibred comparison unit is the component of the
 canonical adjusted based unit. -/
@@ -66,7 +68,8 @@ theorem diagonalComparisonEquivalence.unit.app.hom
           (BasedFunctor.RelativeInertia.diagonalComparison.unitIso
             (FiberedCategoryOver.toBasedFunctor F))
           (BasedFunctor.RelativeInertia.diagonalComparison.counitIso
-            (FiberedCategoryOver.toBasedFunctor F)))).hom.app A := sorry
+            (FiberedCategoryOver.toBasedFunctor F)))).hom.app A := by
+  rfl
 
 /-- The inverse total-category component of the fibred comparison unit is the component of the
 inverse canonical adjusted based unit. -/
@@ -80,7 +83,8 @@ theorem diagonalComparisonEquivalence.unit.app.inv
           (BasedFunctor.RelativeInertia.diagonalComparison.unitIso
             (FiberedCategoryOver.toBasedFunctor F))
           (BasedFunctor.RelativeInertia.diagonalComparison.counitIso
-            (FiberedCategoryOver.toBasedFunctor F)))).inv.app A := sorry
+            (FiberedCategoryOver.toBasedFunctor F)))).inv.app A := by
+  rfl
 
 /-- The forward fibred comparison-unit components are natural in morphisms of the fixed
 relative-inertia category. -/
@@ -92,7 +96,13 @@ theorem diagonalComparisonEquivalence.unit.naturality
       ((RelativeInertia.diagonalComparisonEquivalence F).hom ≫ (RelativeInertia.diagonalComparisonEquivalence F).inv)
     let η : 𝟭 (FiberedCategoryOver.total (relativeInertia F)) ⟶ H :=
       FiberedCategoryOver.toNatTrans ((RelativeInertia.diagonalComparisonEquivalence F).unit.hom)
-    φ ≫ η.app B = η.app A ≫ H.map φ := sorry
+    φ ≫ η.app B = η.app A ≫ H.map φ := by
+  let η : 𝟭 (FiberedCategoryOver.total (relativeInertia F)) ⟶
+      FiberedCategoryOver.toFunctor
+        ((RelativeInertia.diagonalComparisonEquivalence F).hom ≫
+          (RelativeInertia.diagonalComparisonEquivalence F).inv) :=
+    FiberedCategoryOver.toNatTrans ((RelativeInertia.diagonalComparisonEquivalence F).unit.hom)
+  simpa only [η, Functor.id_obj, Functor.id_map] using η.naturality φ
 
 /-- The forward unit naturality equation after postcomposition, with the original public
 parenthesization retained. -/
@@ -120,7 +130,13 @@ theorem diagonalComparisonEquivalence.unit.invNaturality
       ((RelativeInertia.diagonalComparisonEquivalence F).hom ≫ (RelativeInertia.diagonalComparisonEquivalence F).inv)
     let η : H ⟶ 𝟭 (FiberedCategoryOver.total (relativeInertia F)) :=
       FiberedCategoryOver.toNatTrans ((RelativeInertia.diagonalComparisonEquivalence F).unit.inv)
-    η.app A ≫ φ = H.map φ ≫ η.app B := sorry
+    η.app A ≫ φ = H.map φ ≫ η.app B := by
+  let η : FiberedCategoryOver.toFunctor
+        ((RelativeInertia.diagonalComparisonEquivalence F).hom ≫
+          (RelativeInertia.diagonalComparisonEquivalence F).inv) ⟶
+      𝟭 (FiberedCategoryOver.total (relativeInertia F)) :=
+    FiberedCategoryOver.toNatTrans ((RelativeInertia.diagonalComparisonEquivalence F).unit.inv)
+  simpa only [η, Functor.id_obj, Functor.id_map] using (η.naturality φ).symm
 
 /-- The inverse unit naturality equation after postcomposition, with the original public
 parenthesization retained. -/
@@ -143,7 +159,9 @@ theorem diagonalComparisonEquivalence.unit.app.hom.isHomLift
     (relativeInertia F).p.IsHomLift
       (𝟙 ((relativeInertia F).p.obj A))
       ((FiberedCategoryOver.toNatTrans
-        ((RelativeInertia.diagonalComparisonEquivalence F).unit.hom)).app A) := sorry
+        ((RelativeInertia.diagonalComparisonEquivalence F).unit.hom)).app A) := by
+  exact (FiberedCategoryOver.toBasedNatTrans
+    ((RelativeInertia.diagonalComparisonEquivalence F).unit.hom)).isHomLift' A
 
 /-- Every inverse fibred comparison-unit component is vertical over its base object. -/
 theorem diagonalComparisonEquivalence.unit.app.inv.isHomLift
@@ -151,7 +169,9 @@ theorem diagonalComparisonEquivalence.unit.app.inv.isHomLift
     (relativeInertia F).p.IsHomLift
       (𝟙 ((relativeInertia F).p.obj A))
       ((FiberedCategoryOver.toNatTrans
-        ((RelativeInertia.diagonalComparisonEquivalence F).unit.inv)).app A) := sorry
+        ((RelativeInertia.diagonalComparisonEquivalence F).unit.inv)).app A) := by
+  exact (FiberedCategoryOver.toBasedNatTrans
+    ((RelativeInertia.diagonalComparisonEquivalence F).unit.inv)).isHomLift' A
 
 /-- The underlying arrow of a forward fibred comparison-unit component is an identity. -/
 @[simp]
@@ -160,7 +180,15 @@ theorem diagonalComparisonEquivalence.unit.app.underlying.hom
     CategoryTheory.RelativeInertia.hom
         ((FiberedCategoryOver.toNatTrans
           ((RelativeInertia.diagonalComparisonEquivalence F).unit.hom)).app A) =
-      𝟙 A.obj := sorry
+      𝟙 A.obj := by
+  -- The explicit unit, counit first projection, and coherence cells all have identity
+  -- underlying arrows; expose each composite before applying the category identity laws.
+  repeat' first
+    | rfl
+    | (change (show A.obj ⟶ A.obj from 𝟙 A.obj ≫ _) = 𝟙 A.obj
+       rw [Category.id_comp])
+    | (change (show A.obj ⟶ A.obj from _ ≫ 𝟙 A.obj) = 𝟙 A.obj
+       rw [Category.comp_id])
 
 /-- The underlying arrow of an inverse fibred comparison-unit component is an identity. -/
 @[simp]
@@ -169,7 +197,15 @@ theorem diagonalComparisonEquivalence.unit.app.underlying.inv
     CategoryTheory.RelativeInertia.hom
         ((FiberedCategoryOver.toNatTrans
           ((RelativeInertia.diagonalComparisonEquivalence F).unit.inv)).app A) =
-      𝟙 A.obj := sorry
+      𝟙 A.obj := by
+  -- The explicit unit, counit first projection, and coherence cells all have identity
+  -- underlying arrows; expose each composite before applying the category identity laws.
+  repeat' first
+    | rfl
+    | (change (show A.obj ⟶ A.obj from 𝟙 A.obj ≫ _) = 𝟙 A.obj
+       rw [Category.id_comp])
+    | (change (show A.obj ⟶ A.obj from _ ≫ 𝟙 A.obj) = 𝟙 A.obj
+       rw [Category.comp_id])
 
 end FiberedCategoryOver.RelativeInertia
 end CategoryTheory

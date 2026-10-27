@@ -6,241 +6,321 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import Mathlib.Algebra.Category.ModuleCat.Abelian
-public import Mathlib.Algebra.Category.ModuleCat.Sheaf
-public import Mathlib.Algebra.Ring.ULift
-public import Mathlib.CategoryTheory.IsomorphismClasses
-public import Mathlib.CategoryTheory.Sites.SheafCohomology.Basic
-public import Mathlib.Data.Finite.Defs
-public import Mathlib.GroupTheory.Torsion
-public import Mathlib.NumberTheory.Padics.PadicNumbers
-public import Mathlib.Tactic.CrossRefAttribute
-public import stacks_project.Chap60.Definition_60_9_1
-public import stacks_project.Chap60.Example_60_22_2_DeRham
-public import stacks_project.Chap60.Example_60_22_2_Presentation
-public import stacks_project.Chap60.Proposition_60_21_1
-public import stacks_project.Chap60.«60_10_0_1_CrystallineSheaf»
-
-@[expose] public section
-
-noncomputable section
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.Crystalline.AffineSpace
 
 open CategoryTheory AlgebraicGeometry
 open AlgebraicGeometry.Scheme.Crystalline
+open Crystalline.AffineSpace PadicPolynomial
+open KaehlerDifferential.DeRham
 
-namespace Crystalline.AffineSpace
-
-/-- `S = Spec(ℤ_[p])`. -/
-abbrev baseScheme (p : ℕ) [Fact p.Prime] : Scheme.{0} :=
-  Spec (CommRingCat.of ℤ_[p])
-
-/-- `baseScheme` is affine. -/
-theorem baseScheme_isAffine (p : ℕ) [Fact p.Prime] : IsAffine (baseScheme p) := sorry
-
-/-- `X = 𝔸^r_{𝔽_p} = Spec(C)`. -/
-abbrev affineScheme (p r : ℕ) [Fact p.Prime] : Scheme.{0} :=
-  Spec (CommRingCat.of (coordinateRing p r))
-
-/-- `affineScheme` is affine. -/
-theorem affineScheme_isAffine (p r : ℕ) [Fact p.Prime] : IsAffine (affineScheme p r) := sorry
-
-/-- The ideal `(p)` of global functions on `Spec(ℤ_[p])`. -/
-def basePrimeIdeal (p : ℕ) [Fact p.Prime] : Ideal Γ(baseScheme p, ⊤) :=
-  Ideal.comap (Scheme.ΓSpecIso (CommRingCat.of ℤ_[p])).hom.hom (padicIdeal p)
-
-/-- `basePrimeIdeal` is the comap of `(p)` along `ΓSpecIso`. -/
-theorem basePrimeIdeal_eq (p : ℕ) [Fact p.Prime] :
-    basePrimeIdeal p =
-      Ideal.comap (Scheme.ΓSpecIso (CommRingCat.of ℤ_[p])).hom.hom (padicIdeal p) := sorry
-
-/-- The quasi-coherent ideal sheaf of `(p)` on `Spec(ℤ_[p])`. -/
-def baseIdealSheaf (p : ℕ) [Fact p.Prime] : (baseScheme p).IdealSheafData :=
-  Scheme.IdealSheafData.ofIdealTop (basePrimeIdeal p)
-
-/-- `baseIdealSheaf` is the ideal sheaf of the global ideal `(p)`. -/
-theorem baseIdealSheaf_eq (p : ℕ) [Fact p.Prime] :
-    baseIdealSheaf p = Scheme.IdealSheafData.ofIdealTop (basePrimeIdeal p) := sorry
-
-/-- The structure map `Spec(ℤ_[p]) → Spec(ℤ_(p))` induced by `ℤ_(p) → ℤ_[p]`. -/
-def baseStructure (p : ℕ) [Fact p.Prime] :
-    baseScheme p ⟶ Spec (CommRingCat.of (ULift.{0} (Int.LocalizationAtPrime p))) :=
-  let e : ULift.{0} (Int.LocalizationAtPrime p) ≃+* Int.LocalizationAtPrime p :=
-    ULift.ringEquiv
-  Spec.map (CommRingCat.ofHom ((fromLocalization p).comp e.toRingHom))
-
-/-- `baseStructure` is `Spec` of `ℤ_(p) → ℤ_[p]`. -/
-theorem baseStructure_eq (p : ℕ) [Fact p.Prime] :
-    baseStructure p =
-      let e : ULift.{0} (Int.LocalizationAtPrime p) ≃+* Int.LocalizationAtPrime p :=
-        ULift.ringEquiv
-      Spec.map (CommRingCat.ofHom ((fromLocalization p).comp e.toRingHom)) := sorry
-
-/-- The prime `p` is nilpotent on every affine open of `𝔸^r_{𝔽_p}`. -/
-theorem affine_p_nilpotent (p r : ℕ) [Fact p.Prime] (U : (affineScheme p r).affineOpens) :
-    IsNilpotent (p : Γ(affineScheme p r, U)) := sorry
-
-/-- The small crystalline topology of `𝔸^r_{𝔽_p}` over `Spec(ℤ_[p])`. -/
-def crisTopology (p r : ℕ) [Fact p.Prime]
+/- Example 60.22.2. Crystalline cohomology of affine space over the prime field is
+represented by the completed polynomial de Rham complex. -/
+@[stacks 07LK] #check (Crystalline.AffineSpace.representedByCompletedDeRham :
+  ∀ {p : ℕ} [Fact p.Prime] (r : ℕ)
     (γS : ∀ V : (baseScheme p).affineOpens, DividedPowers ((baseIdealSheaf p).ideal V))
     (h_compatible : ∀ (V : (baseScheme p).affineOpens) (f : Γ(baseScheme p, V)),
       (γS V).IsDPMorphism (γS ((baseScheme p).affineBasicOpen f))
         ((baseScheme p).presheaf.map (homOfLE ((baseScheme p).basicOpen_le f)).op).hom)
-    (x₀ : affineScheme p r ⟶ (baseIdealSheaf p).subscheme) :
-    GrothendieckTopology
-      (smallCrystallineSite (baseScheme p) (baseIdealSheaf p) γS h_compatible
-        (affineScheme p r) x₀) :=
-  smallCrystallineTopology p (baseScheme p) (baseIdealSheaf p) γS h_compatible
-    (baseStructure p) (affineScheme p r) x₀ (affine_p_nilpotent p r)
-
-/-- `crisTopology` is the small crystalline Zariski topology of this affine pair. -/
-theorem crisTopology_eq (p r : ℕ) [Fact p.Prime]
-    (γS : ∀ V : (baseScheme p).affineOpens, DividedPowers ((baseIdealSheaf p).ideal V))
-    (h_compatible : ∀ (V : (baseScheme p).affineOpens) (f : Γ(baseScheme p, V)),
-      (γS V).IsDPMorphism (γS ((baseScheme p).affineBasicOpen f))
-        ((baseScheme p).presheaf.map (homOfLE ((baseScheme p).basicOpen_le f)).op).hom)
-    (x₀ : affineScheme p r ⟶ (baseIdealSheaf p).subscheme) :
-    crisTopology p r γS h_compatible x₀ =
-      smallCrystallineTopology p (baseScheme p) (baseIdealSheaf p) γS h_compatible
-        (baseStructure p) (affineScheme p r) x₀ (affine_p_nilpotent p r) := sorry
-
-section Cohomology
-
-variable {p : ℕ} [Fact p.Prime] (r : ℕ)
-variable (γS : ∀ V : (baseScheme p).affineOpens, DividedPowers ((baseIdealSheaf p).ideal V))
-variable (h_compatible : ∀ (V : (baseScheme p).affineOpens) (f : Γ(baseScheme p, V)),
-  (γS V).IsDPMorphism (γS ((baseScheme p).affineBasicOpen f))
-    ((baseScheme p).presheaf.map (homOfLE ((baseScheme p).basicOpen_le f)).op).hom)
-variable (x₀ : affineScheme p r ⟶ (baseIdealSheaf p).subscheme)
-variable [HasSheafify (crisTopology p r γS h_compatible x₀) AddCommGrpCat.{0}]
-variable [HasExt.{0} (Sheaf (crisTopology p r γS h_compatible x₀) AddCommGrpCat.{0})]
-
-/-- Global sections of the thickening scheme, as a presheaf of rings on `Cris(X/S)`. -/
-def structureRingPresheaf :
-    (smallCrystallineSite (baseScheme p) (baseIdealSheaf p) γS h_compatible
-      (affineScheme p r) x₀)ᵒᵖ ⥤ RingCat.{0} :=
-  (smallThickeningFunctor (baseScheme p) (baseIdealSheaf p) γS h_compatible
-    (affineScheme p r) x₀).op ⋙ Scheme.Γ ⋙ forget₂ CommRingCat RingCat
-
-/-- `structureRingPresheaf` is global sections along `smallThickeningFunctor`. -/
-theorem structureRingPresheaf_eq :
-    structureRingPresheaf r γS h_compatible x₀ =
-      (smallThickeningFunctor (baseScheme p) (baseIdealSheaf p) γS h_compatible
-        (affineScheme p r) x₀).op ⋙ Scheme.Γ ⋙ forget₂ CommRingCat RingCat := sorry
-
-/-- The structure sheaf `𝒪_{X/S}` on the small crystalline site. -/
-def structureRingSheaf :
-    Sheaf (crisTopology p r γS h_compatible x₀) RingCat.{0} where
-  obj := structureRingPresheaf r γS h_compatible x₀
-  property := sorry
-
-/-- `structureRingSheaf` is the global-sections presheaf of the thickening functor. -/
-theorem structureRingSheaf_obj :
-    (structureRingSheaf r γS h_compatible x₀).obj =
-      structureRingPresheaf r γS h_compatible x₀ := sorry
-
-/-- The structure sheaf `𝒪_{X/S}` as the free sheaf of modules of rank one. -/
-def structureModuleSheaf :
-    SheafOfModules (structureRingSheaf r γS h_compatible x₀) :=
-  SheafOfModules.unit (structureRingSheaf r γS h_compatible x₀)
-
-/-- `structureModuleSheaf` is the unit sheaf of modules on `𝒪_{X/S}`. -/
-theorem structureModuleSheaf_eq :
-    structureModuleSheaf r γS h_compatible x₀ =
-      SheafOfModules.unit (structureRingSheaf r γS h_compatible x₀) := sorry
-
-/-- The crystalline structure sheaf viewed as a sheaf of abelian groups. -/
-def structureAbelianSheaf :
-    Sheaf (crisTopology p r γS h_compatible x₀) AddCommGrpCat.{0} :=
-  (SheafOfModules.toSheaf _).obj (structureModuleSheaf r γS h_compatible x₀)
-
-/-- `structureAbelianSheaf` forgets the module structure on `𝒪_{X/S}`. -/
-theorem structureAbelianSheaf_eq :
-    structureAbelianSheaf r γS h_compatible x₀ =
-      (SheafOfModules.toSheaf _).obj (structureModuleSheaf r γS h_compatible x₀) := sorry
-
-/-- `H^i(Cris(X/S), 𝒪_{X/S})` for `X = 𝔸^r_{𝔽_p}` and `S = Spec(ℤ_[p])`. -/
-abbrev cohomology (i : ℕ) : AddCommGrpCat.{0} :=
-  (Sheaf.functorH (crisTopology p r γS h_compatible x₀) i).obj
-    (structureAbelianSheaf r γS h_compatible x₀)
-
-/-- Crystalline cohomology is sheaf cohomology of the crystalline structure sheaf. -/
-theorem cohomology_eq (i : ℕ) :
-    cohomology r γS h_compatible x₀ i =
-      (Sheaf.functorH (crisTopology p r γS h_compatible x₀) i).obj
-        (structureAbelianSheaf r γS h_compatible x₀) := sorry
-
-/-- Example 60.22.2 (1): `RΓ(Cris(X/S), 𝒪_{X/S})` is represented by the completed de Rham
-complex of `P = ℤ_[p][x₁,…,x_r]`. -/
-@[stacks 07LK]
-theorem representedByCompletedDeRham
-    (hI : specIdealEqOfIdealTop (padicIdeal p) (baseIdealSheaf p))
-    (hγ : specDividedPowersEq (padicIdeal p) (PadicInt.dividedPowers p)
+    (x₀ : affineScheme p r ⟶ (baseIdealSheaf p).subscheme)
+    [HasSheafify (crisTopology p r γS h_compatible x₀) AddCommGrpCat.{0}]
+    [HasExt.{0} (Sheaf (crisTopology p r γS h_compatible x₀) AddCommGrpCat.{0})]
+    [HasGlobalSectionsFunctor (crisTopology p r γS h_compatible x₀) AddCommGrpCat.{0}]
+    [IsGrothendieckAbelian (Sheaf (crisTopology p r γS h_compatible x₀) AddCommGrpCat.{0})]
+    (hI : Affine.idealCompatible (Ideal.span {(p : ℤ_[p])}) (baseIdealSheaf p))
+    (hγ : Affine.dividedPowersCompatible (Ideal.span {(p : ℤ_[p])}) (PadicInt.dividedPowers p)
       (baseIdealSheaf p) γS)
-    (hx₀ : IsCanonicalCrisStructureMap (baseIdealSheaf p) x₀) (i : ℕ) :
+    (hx₀ : Affine.structureMapCompatible (baseIdealSheaf p) x₀),
+    IsIsomorphic (derivedGlobalSections r γS h_compatible x₀)
+      (DerivedCategory.Q.obj
+        ((ComplexShape.embeddingUpNat.extendFunctor AddCommGrpCat.{0}).obj
+          (((forget₂ (ModuleCat.{0} ℤ_[p]) AddCommGrpCat.{0}).mapHomologicalComplex
+            (ComplexShape.up ℕ)).obj (completedDeRham p r)))))
+
+#check (Crystalline.AffineSpace.cohomologyIsoCompletedDeRham :
+  ∀ {p : ℕ} [Fact p.Prime] (r : ℕ)
+    (γS : ∀ V : (baseScheme p).affineOpens, DividedPowers ((baseIdealSheaf p).ideal V))
+    (h_compatible : ∀ (V : (baseScheme p).affineOpens) (f : Γ(baseScheme p, V)),
+      (γS V).IsDPMorphism (γS ((baseScheme p).affineBasicOpen f))
+        ((baseScheme p).presheaf.map (homOfLE ((baseScheme p).basicOpen_le f)).op).hom)
+    (x₀ : affineScheme p r ⟶ (baseIdealSheaf p).subscheme)
+    [HasSheafify (crisTopology p r γS h_compatible x₀) AddCommGrpCat.{0}]
+    [HasExt.{0} (Sheaf (crisTopology p r γS h_compatible x₀) AddCommGrpCat.{0})]
+    (hI : Affine.idealCompatible (Ideal.span {(p : ℤ_[p])}) (baseIdealSheaf p))
+    (hγ : Affine.dividedPowersCompatible (Ideal.span {(p : ℤ_[p])}) (PadicInt.dividedPowers p)
+      (baseIdealSheaf p) γS)
+    (hx₀ : Affine.structureMapCompatible (baseIdealSheaf p) x₀) (i : ℕ),
     IsIsomorphic (cohomology r γS h_compatible x₀ i)
       ((forget₂ (ModuleCat.{0} ℤ_[p]) AddCommGrpCat.{0}).obj
-        ((completedDeRham p r).homology i)) := sorry
+        ((completedDeRham p r).homology i)))
 
-/-- Example 60.22.2 (2): for `r > 0`, crystalline cohomology of `𝒪_{X/S}` vanishes
-outside degrees `0, …, r`. -/
-@[stacks 07LK]
-theorem vanishesAbove
-    (hI : specIdealEqOfIdealTop (padicIdeal p) (baseIdealSheaf p))
-    (hγ : specDividedPowersEq (padicIdeal p) (PadicInt.dividedPowers p)
+#check (Crystalline.AffineSpace.vanishesAbove :
+  ∀ {p : ℕ} [Fact p.Prime] (r : ℕ)
+    (γS : ∀ V : (baseScheme p).affineOpens, DividedPowers ((baseIdealSheaf p).ideal V))
+    (h_compatible : ∀ (V : (baseScheme p).affineOpens) (f : Γ(baseScheme p, V)),
+      (γS V).IsDPMorphism (γS ((baseScheme p).affineBasicOpen f))
+        ((baseScheme p).presheaf.map (homOfLE ((baseScheme p).basicOpen_le f)).op).hom)
+    (x₀ : affineScheme p r ⟶ (baseIdealSheaf p).subscheme)
+    [HasSheafify (crisTopology p r γS h_compatible x₀) AddCommGrpCat.{0}]
+    [HasExt.{0} (Sheaf (crisTopology p r γS h_compatible x₀) AddCommGrpCat.{0})]
+    (hI : Affine.idealCompatible (Ideal.span {(p : ℤ_[p])}) (baseIdealSheaf p))
+    (hγ : Affine.dividedPowersCompatible (Ideal.span {(p : ℤ_[p])}) (PadicInt.dividedPowers p)
       (baseIdealSheaf p) γS)
-    (hx₀ : IsCanonicalCrisStructureMap (baseIdealSheaf p) x₀)
-    (hr : 0 < r) (i : ℕ) (hi : r < i) :
-    Limits.IsZero (cohomology r γS h_compatible x₀ i) := sorry
+    (hx₀ : Affine.structureMapCompatible (baseIdealSheaf p) x₀)
+    (hr : 0 < r) (i : ℕ) (hi : r < i),
+    Limits.IsZero (cohomology r γS h_compatible x₀ i))
 
-/-- Example 60.22.2 (3): for `r > 0`, `H^0(Cris(X/S), 𝒪_{X/S})` is `ℤ_[p]`. -/
-@[stacks 07LK]
-theorem cohomologyZero
-    (hI : specIdealEqOfIdealTop (padicIdeal p) (baseIdealSheaf p))
-    (hγ : specDividedPowersEq (padicIdeal p) (PadicInt.dividedPowers p)
+#check (Crystalline.AffineSpace.cohomologyZero :
+  ∀ {p : ℕ} [Fact p.Prime] (r : ℕ)
+    (γS : ∀ V : (baseScheme p).affineOpens, DividedPowers ((baseIdealSheaf p).ideal V))
+    (h_compatible : ∀ (V : (baseScheme p).affineOpens) (f : Γ(baseScheme p, V)),
+      (γS V).IsDPMorphism (γS ((baseScheme p).affineBasicOpen f))
+        ((baseScheme p).presheaf.map (homOfLE ((baseScheme p).basicOpen_le f)).op).hom)
+    (x₀ : affineScheme p r ⟶ (baseIdealSheaf p).subscheme)
+    [HasSheafify (crisTopology p r γS h_compatible x₀) AddCommGrpCat.{0}]
+    [HasExt.{0} (Sheaf (crisTopology p r γS h_compatible x₀) AddCommGrpCat.{0})]
+    (hI : Affine.idealCompatible (Ideal.span {(p : ℤ_[p])}) (baseIdealSheaf p))
+    (hγ : Affine.dividedPowersCompatible (Ideal.span {(p : ℤ_[p])}) (PadicInt.dividedPowers p)
       (baseIdealSheaf p) γS)
-    (hx₀ : IsCanonicalCrisStructureMap (baseIdealSheaf p) x₀) (hr : 0 < r) :
-    IsIsomorphic (cohomology r γS h_compatible x₀ 0) (AddCommGrpCat.of ℤ_[p]) := sorry
+    (hx₀ : Affine.structureMapCompatible (baseIdealSheaf p) x₀) (hr : 0 < r),
+    IsIsomorphic (cohomology r γS h_compatible x₀ 0) (AddCommGrpCat.of ℤ_[p]))
 
-/-- Example 60.22.2 (4): for `r > 0`, `H^r(Cris(X/S), 𝒪_{X/S})` is infinite. -/
-@[stacks 07LK]
-theorem topInfinite
-    (hI : specIdealEqOfIdealTop (padicIdeal p) (baseIdealSheaf p))
-    (hγ : specDividedPowersEq (padicIdeal p) (PadicInt.dividedPowers p)
+#check (Crystalline.AffineSpace.topInfinite :
+  ∀ {p : ℕ} [Fact p.Prime] (r : ℕ)
+    (γS : ∀ V : (baseScheme p).affineOpens, DividedPowers ((baseIdealSheaf p).ideal V))
+    (h_compatible : ∀ (V : (baseScheme p).affineOpens) (f : Γ(baseScheme p, V)),
+      (γS V).IsDPMorphism (γS ((baseScheme p).affineBasicOpen f))
+        ((baseScheme p).presheaf.map (homOfLE ((baseScheme p).basicOpen_le f)).op).hom)
+    (x₀ : affineScheme p r ⟶ (baseIdealSheaf p).subscheme)
+    [HasSheafify (crisTopology p r γS h_compatible x₀) AddCommGrpCat.{0}]
+    [HasExt.{0} (Sheaf (crisTopology p r γS h_compatible x₀) AddCommGrpCat.{0})]
+    (hI : Affine.idealCompatible (Ideal.span {(p : ℤ_[p])}) (baseIdealSheaf p))
+    (hγ : Affine.dividedPowersCompatible (Ideal.span {(p : ℤ_[p])}) (PadicInt.dividedPowers p)
       (baseIdealSheaf p) γS)
-    (hx₀ : IsCanonicalCrisStructureMap (baseIdealSheaf p) x₀) (hr : 0 < r) :
-    Infinite (cohomology r γS h_compatible x₀ r : Type) := sorry
+    (hx₀ : Affine.structureMapCompatible (baseIdealSheaf p) x₀) (hr : 0 < r),
+    Infinite (cohomology r γS h_compatible x₀ r : Type))
 
-/-- Example 60.22.2 (5): for `r > 0`, `H^r(Cris(X/S), 𝒪_{X/S})` is not a torsion
-abelian group. -/
-@[stacks 07LK]
-theorem topNotTorsion
-    (hI : specIdealEqOfIdealTop (padicIdeal p) (baseIdealSheaf p))
-    (hγ : specDividedPowersEq (padicIdeal p) (PadicInt.dividedPowers p)
+#check (Crystalline.AffineSpace.topNotTorsion :
+  ∀ {p : ℕ} [Fact p.Prime] (r : ℕ)
+    (γS : ∀ V : (baseScheme p).affineOpens, DividedPowers ((baseIdealSheaf p).ideal V))
+    (h_compatible : ∀ (V : (baseScheme p).affineOpens) (f : Γ(baseScheme p, V)),
+      (γS V).IsDPMorphism (γS ((baseScheme p).affineBasicOpen f))
+        ((baseScheme p).presheaf.map (homOfLE ((baseScheme p).basicOpen_le f)).op).hom)
+    (x₀ : affineScheme p r ⟶ (baseIdealSheaf p).subscheme)
+    [HasSheafify (crisTopology p r γS h_compatible x₀) AddCommGrpCat.{0}]
+    [HasExt.{0} (Sheaf (crisTopology p r γS h_compatible x₀) AddCommGrpCat.{0})]
+    (hI : Affine.idealCompatible (Ideal.span {(p : ℤ_[p])}) (baseIdealSheaf p))
+    (hγ : Affine.dividedPowersCompatible (Ideal.span {(p : ℤ_[p])}) (PadicInt.dividedPowers p)
       (baseIdealSheaf p) γS)
-    (hx₀ : IsCanonicalCrisStructureMap (baseIdealSheaf p) x₀) (hr : 0 < r) :
-    ¬ AddMonoid.IsTorsion (cohomology r γS h_compatible x₀ r : Type) := sorry
+    (hx₀ : Affine.structureMapCompatible (baseIdealSheaf p) x₀) (hr : 0 < r),
+    ¬ AddMonoid.IsTorsion (cohomology r γS h_compatible x₀ r : Type))
 
-/-- Example 60.22.2 (6): for `r > 0`, `H^r(Cris(X/S), 𝒪_{X/S})` is not separated for
-the p-adic topology. -/
-@[stacks 07LK]
-theorem topNotHausdorff
-    (hI : specIdealEqOfIdealTop (padicIdeal p) (baseIdealSheaf p))
-    (hγ : specDividedPowersEq (padicIdeal p) (PadicInt.dividedPowers p)
+#check (Crystalline.AffineSpace.topNotHausdorff :
+  ∀ {p : ℕ} [Fact p.Prime] (r : ℕ)
+    (γS : ∀ V : (baseScheme p).affineOpens, DividedPowers ((baseIdealSheaf p).ideal V))
+    (h_compatible : ∀ (V : (baseScheme p).affineOpens) (f : Γ(baseScheme p, V)),
+      (γS V).IsDPMorphism (γS ((baseScheme p).affineBasicOpen f))
+        ((baseScheme p).presheaf.map (homOfLE ((baseScheme p).basicOpen_le f)).op).hom)
+    (x₀ : affineScheme p r ⟶ (baseIdealSheaf p).subscheme)
+    [HasSheafify (crisTopology p r γS h_compatible x₀) AddCommGrpCat.{0}]
+    [HasExt.{0} (Sheaf (crisTopology p r γS h_compatible x₀) AddCommGrpCat.{0})]
+    (hI : Affine.idealCompatible (Ideal.span {(p : ℤ_[p])}) (baseIdealSheaf p))
+    (hγ : Affine.dividedPowersCompatible (Ideal.span {(p : ℤ_[p])}) (PadicInt.dividedPowers p)
       (baseIdealSheaf p) γS)
-    (hx₀ : IsCanonicalCrisStructureMap (baseIdealSheaf p) x₀) (hr : 0 < r) :
+    (hx₀ : Affine.structureMapCompatible (baseIdealSheaf p) x₀) (hr : 0 < r),
     ¬ IsHausdorff (Ideal.span ({(p : ℤ)} : Set ℤ))
-        (cohomology r γS h_compatible x₀ r : Type) := sorry
+        (cohomology r γS h_compatible x₀ r : Type))
 
-/-- The representing top homology module is not Hausdorff for the `(p)`-adic topology. -/
-theorem homology_top_not_hausdorff (hr : 0 < r) :
-    ¬ IsHausdorff (padicIdeal p) ((completedDeRham p r).homology r : Type) := sorry
+/- The class of η yields a copy of the p-adic field in crystalline H¹. -/
+#check (Crystalline.AffineSpace.existsInjectivePadicRatCohomology :
+  ∀ {p : ℕ} [Fact p.Prime]
+    (γS : ∀ V : (baseScheme p).affineOpens, DividedPowers ((baseIdealSheaf p).ideal V))
+    (h_compatible : ∀ (V : (baseScheme p).affineOpens) (f : Γ(baseScheme p, V)),
+      (γS V).IsDPMorphism (γS ((baseScheme p).affineBasicOpen f))
+        ((baseScheme p).presheaf.map (homOfLE ((baseScheme p).basicOpen_le f)).op).hom)
+    (x₀ : affineScheme p 1 ⟶ (baseIdealSheaf p).subscheme)
+    [HasSheafify (crisTopology p 1 γS h_compatible x₀) AddCommGrpCat.{0}]
+    [HasExt.{0} (Sheaf (crisTopology p 1 γS h_compatible x₀) AddCommGrpCat.{0})]
+    (hI : Affine.idealCompatible (Ideal.span {(p : ℤ_[p])}) (baseIdealSheaf p))
+    (hγ : Affine.dividedPowersCompatible (Ideal.span {(p : ℤ_[p])}) (PadicInt.dividedPowers p)
+      (baseIdealSheaf p) γS)
+    (hx₀ : Affine.structureMapCompatible (baseIdealSheaf p) x₀),
+    ∃ f : ℚ_[p] →+ (cohomology 1 γS h_compatible x₀ 1 : Type),
+      Function.Injective f)
 
-end Cohomology
+/- Polynomial presentation, canonical divided powers, and the completed envelope. -/
 
-/-- Example 60.22.2 (7): the class of `η` generates an injective copy of `ℚ_[p]` in the
-cokernel of the completed line differential. -/
-@[stacks 07LK]
-theorem existsInjectivePadicRat (p : ℕ) [Fact p.Prime] :
-    ∃ f : ℚ_[p] →+ lineCoker p, Function.Injective f := sorry
+#check (PadicPolynomial.modP :
+  ∀ (p r : ℕ) [Fact p.Prime],
+    polynomialRing p r →ₐ[ℤ_[p]] coordinateRing p r)
 
-end Crystalline.AffineSpace
+#check (PadicPolynomial.ker_modP_eq_span_p :
+  ∀ (p r : ℕ) [Fact p.Prime],
+    RingHom.ker (modP p r).toRingHom = Ideal.span {(p : polynomialRing p r)})
+
+#check (PadicPolynomial.dividedPowersPrime :
+  ∀ (p r : ℕ) [Fact p.Prime],
+    DividedPowers (Ideal.span {(p : polynomialRing p r)}))
+
+#check (PadicPolynomial.dividedPowersPrime_dpow :
+  ∀ (p r n : ℕ) [Fact p.Prime] (a : polynomialRing p r),
+    (dividedPowersPrime p r).dpow n ((p : polynomialRing p r) * a) =
+      algebraMap ℤ_[p] (polynomialRing p r)
+          ((PadicInt.dividedPowers p).dpow n (p : ℤ_[p])) * a ^ n)
+
+#check (PadicPolynomial.envelope_isUniversal :
+  ∀ (p r : ℕ) [Fact p.Prime],
+    DividedPowerEnvelope.IsUniversal (PadicInt.dividedPowers p)
+      (algebraMap ℤ_[p] (polynomialRing p r)) (primeMap_le p r) (envelope p r))
+
+#check (PadicPolynomial.envelope_completion_eq :
+  ∀ (p r : ℕ) [Fact p.Prime],
+    principalAdicCompletion (p : (envelope p r).D) =
+      AdicCompletion (Ideal.span {(p : polynomialRing p r)}) (polynomialRing p r))
+
+/- The diagonal differential and the explicit completed forms on the affine line. -/
+
+#check (PadicPolynomial.completedDeRham :
+  ∀ (p r : ℕ) [Fact p.Prime],
+    CochainComplex (ModuleCat.{0} ℤ_[p]) ℕ)
+
+#check (PadicPolynomial.completedDeRham_X :
+  ∀ (p r n : ℕ) [Fact p.Prime],
+    (completedDeRham p r).X n = completedTerm p r n)
+
+#check (PadicPolynomial.completedDeRham_d :
+  ∀ (p r n : ℕ) [Fact p.Prime],
+    (completedDeRham p r).d n (n + 1) = completedDeRhamDifferential p r n)
+
+#check (PadicPolynomial.lineDifferential_one :
+  ∀ (p : ℕ) [Fact p.Prime],
+    completedDifferential p 1 0
+        (AdicCompletion.of (Ideal.span {(p : ℤ_[p])}) (term ℤ_[p] (polynomialRing p 1) 0 : Type) (powerZeroForm p 0)) = 0)
+
+#check (PadicPolynomial.lineDifferential_monomial :
+  ∀ (p n : ℕ) [Fact p.Prime],
+    completedDifferential p 1 0
+        (AdicCompletion.of (Ideal.span {(p : ℤ_[p])}) (term ℤ_[p] (polynomialRing p 1) 0 : Type) (powerZeroForm p (n + 1))) =
+      (n + 1 : ℤ_[p]) •
+        AdicCompletion.of (Ideal.span {(p : ℤ_[p])}) (term ℤ_[p] (polynomialRing p 1) 1 : Type) (monomialOneForm p n))
+
+#check (PadicPolynomial.lineHomology_equiv_coker :
+  ∀ (p : ℕ) [Fact p.Prime],
+    IsIsomorphic ((completedDeRham p 1).homology 1) (ModuleCat.of ℤ_[p] (lineCoker p)))
+
+#check (PadicPolynomial.exists_injective_torsionSummand :
+  ∀ (p : ℕ) [Fact p.Prime],
+    ∃ f : torsionSummand p →ₗ[ℤ_[p]] lineCoker p, Function.Injective f)
+
+#check (PadicPolynomial.omegaCoeff_apply :
+  ∀ (p e : ℕ) [Fact p.Prime] (he : 0 < e),
+    omegaCoeff p (p ^ (2 * e) - 1) = (p : ℤ_[p]) ^ e)
+
+#check (PadicPolynomial.omegaPartial :
+  ∀ (p : ℕ) [Fact p.Prime] (N : ℕ),
+    term ℤ_[p] (polynomialRing p 1) 1)
+
+#check (PadicPolynomial.omega :
+  ∀ (p : ℕ) [Fact p.Prime],
+    completedForm p 1 1)
+
+#check (PadicPolynomial.omegaClass :
+  ∀ (p : ℕ) [Fact p.Prime],
+    lineCoker p)
+
+#check (PadicPolynomial.omega_not_isOfFinAddOrder :
+  ∀ (p : ℕ) [Fact p.Prime],
+    ¬ IsOfFinAddOrder (omegaClass p))
+
+#check (PadicPolynomial.etaCoeff_apply :
+  ∀ (p e : ℕ) [Fact p.Prime] (he : 0 < e),
+    etaCoeff p (p ^ e - 1) = (p : ℤ_[p]) ^ e)
+
+#check (PadicPolynomial.etaPartial :
+  ∀ (p : ℕ) [Fact p.Prime] (N : ℕ),
+    term ℤ_[p] (polynomialRing p 1) 1)
+
+#check (PadicPolynomial.eta :
+  ∀ (p : ℕ) [Fact p.Prime],
+    completedForm p 1 1)
+
+#check (PadicPolynomial.etaClass :
+  ∀ (p : ℕ) [Fact p.Prime],
+    lineCoker p)
+
+#check (PadicPolynomial.etaRootPartial :
+  ∀ (p : ℕ) [Fact p.Prime] (t N : ℕ),
+    term ℤ_[p] (polynomialRing p 1) 1)
+
+#check (PadicPolynomial.etaRoot :
+  ∀ (p t : ℕ) [Fact p.Prime],
+    completedForm p 1 1)
+
+#check (PadicPolynomial.eta_class_mem_smul :
+  ∀ (p t N : ℕ) [Fact p.Prime] (ht : 0 < t) (hN : t ≤ N),
+    AdicCompletion.of (Ideal.span {(p : ℤ_[p])}) (term ℤ_[p] (polynomialRing p 1) 1 : Type) (etaPartial p N) -
+        (p : ℤ_[p]) ^ t • AdicCompletion.of (Ideal.span {(p : ℤ_[p])}) (term ℤ_[p] (polynomialRing p 1) 1 : Type) (etaRootPartial p t N) ∈
+      LinearMap.range (completedDifferential p 1 0))
+
+#check (PadicPolynomial.etaClass_eq_smul :
+  ∀ (p t : ℕ) [Fact p.Prime],
+    etaClass p = (p : ℤ_[p]) ^ t •
+      (Submodule.Quotient.mk (etaRoot p t) : lineCoker p))
+
+#check (PadicPolynomial.eta_not_mem_range :
+  ∀ (p : ℕ) [Fact p.Prime],
+    eta p ∉ LinearMap.range (completedDifferential p 1 0))
+
+#check (PadicPolynomial.etaClass_nsmul_ne_zero :
+  ∀ (p m : ℕ) [Fact p.Prime] (hm : 0 < m),
+    m • etaClass p ≠ 0)
+
+#check (PadicPolynomial.etaPrimitivePartial :
+  ∀ (p : ℕ) [Fact p.Prime] (a : ℤ_[p]) (N : ℕ),
+    polynomialRing p 1)
+
+#check (PadicPolynomial.etaPrimitive_not_adicCauchy :
+  ∀ (p : ℕ) [Fact p.Prime] (a : ℤ_[p]),
+    ¬ AdicCompletion.IsAdicCauchy (Ideal.span {(p : ℤ_[p])}) (polynomialRing p 1)
+        (fun N ↦ etaPrimitivePartial p a N))
+
+#check (PadicPolynomial.existsInjectivePadicRat :
+  ∀ (p : ℕ) [Fact p.Prime],
+    ∃ f : ℚ_[p] →ₗ[ℤ_[p]] lineCoker p, Function.Injective f ∧ f 1 = etaClass p)
+
+/- Canonical APIs for surjectivity, uniqueness of divided powers, and completion of maps. -/
+section CanonicalReuse
+
+variable (p r : ℕ) [Fact p.Prime]
+
+#check (MvPolynomial.map_surjective
+    (PadicInt.toZMod : ℤ_[p] →+* ZMod p) (ZMod.ringHom_surjective PadicInt.toZMod) :
+  Function.Surjective (PadicPolynomial.modP p r))
+
+#check (PadicInt.dividedPowers_eq_of_dpow_mul :
+  ∀ {gamma delta : DividedPowers (Ideal.span {(p : polynomialRing p r)})},
+    (∀ (n : ℕ) (a : polynomialRing p r),
+      gamma.dpow n ((p : polynomialRing p r) * a) =
+        algebraMap ℤ_[p] (polynomialRing p r)
+          ((PadicInt.dividedPowers p).dpow n (p : ℤ_[p])) * a ^ n) →
+    (∀ (n : ℕ) (a : polynomialRing p r),
+      delta.dpow n ((p : polynomialRing p r) * a) =
+        algebraMap ℤ_[p] (polynomialRing p r)
+          ((PadicInt.dividedPowers p).dpow n (p : ℤ_[p])) * a ^ n) →
+    gamma = delta)
+
+variable (n : ℕ)
+
+#check (AdicCompletion.map_mk (Ideal.span {(p : ℤ_[p])})
+    (d ℤ_[p] (polynomialRing p r) n).hom :
+  ∀ a : AdicCompletion.AdicCauchySequence (Ideal.span {(p : ℤ_[p])})
+      (term ℤ_[p] (polynomialRing p r) n : Type),
+    completedDifferential p r n
+        (AdicCompletion.mk (Ideal.span {(p : ℤ_[p])})
+          (term ℤ_[p] (polynomialRing p r) n : Type) a) =
+      AdicCompletion.mk (Ideal.span {(p : ℤ_[p])})
+        (term ℤ_[p] (polynomialRing p r) (n + 1) : Type)
+        (AdicCompletion.AdicCauchySequence.map (Ideal.span {(p : ℤ_[p])})
+          (d ℤ_[p] (polynomialRing p r) n).hom a))
+
+end CanonicalReuse

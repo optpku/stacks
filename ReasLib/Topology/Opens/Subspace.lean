@@ -65,7 +65,8 @@ def subspaceOpenHom {A B U : Opens X}
 
 /-- The morphism induced by a reflexive inclusion is the identity. -/
 @[simp] theorem subspaceOpenHom_refl {W U : Opens X} (hWU : W ≤ U) :
-    subspaceOpenHom hWU hWU (le_refl W) = 𝟙 _ := sorry
+    subspaceOpenHom hWU hWU (le_refl W) = 𝟙 _ :=
+  Subsingleton.elim _ _
 
 /-- The inclusion functor from opens of the subspace to ambient opens. -/
 abbrev subspaceInclusionFunctor (U : Opens X) : Opens (space U) ⥤ Opens X :=
@@ -73,11 +74,18 @@ abbrev subspaceInclusionFunctor (U : Opens X) : Opens (space U) ⥤ Opens X :=
 
 /-- The `Over`-equivalence for `U` remembers the ambient open that produced a subspace open. -/
 theorem overEquivalenceFunctorObjEq (U : Opens X) (V : Over U) :
-    (subspaceInclusionFunctor U).obj (U.overEquivalence.functor.obj V) = V.left := sorry
+    (subspaceInclusionFunctor U).obj (U.overEquivalence.functor.obj V) = V.left := by
+  ext x
+  constructor
+  · rintro ⟨y, hy, rfl⟩
+    exact hy
+  · intro hx
+    exact ⟨⟨x, V.hom.le hx⟩, hx, rfl⟩
 
 /-- Including the subspace open represented by `W ≤ U` back into `X` recovers `W`. -/
 theorem subspaceOpenOfLE_image_eq {W U : Opens X} (h : W ≤ U) :
-    (subspaceInclusionFunctor U).obj (subspaceOpenOfLE h) = W := sorry
+    (subspaceInclusionFunctor U).obj (subspaceOpenOfLE h) = W :=
+  overEquivalenceFunctorObjEq U (Over.mk (CategoryTheory.homOfLE h))
 
 /-- After identifying represented subspace opens with ambient opens, the inclusion functor sends
 `subspaceOpenHom` to the ambient inclusion. -/
@@ -85,34 +93,51 @@ theorem subspaceInclusionFunctor_map_subspaceOpenHom
     {W V U : Opens X} (hWU : W ≤ U) (hVU : V ≤ U) (hWV : W ≤ V) :
     eqToHom (subspaceOpenOfLE_image_eq hWU).symm ≫
         (subspaceInclusionFunctor U).map (subspaceOpenHom hWU hVU hWV) =
-      CategoryTheory.homOfLE hWV ≫ eqToHom (subspaceOpenOfLE_image_eq hVU).symm := sorry
+      CategoryTheory.homOfLE hWV ≫ eqToHom (subspaceOpenOfLE_image_eq hVU).symm :=
+  Subsingleton.elim _ _
 
 /-- Every open of an open subspace is represented by an ambient open contained in `U`. -/
 theorem exists_subspaceOpenOfLE_eq {U : Opens X} (V : Opens (space U)) :
-    ∃ W : Opens X, ∃ hW : W ≤ U, subspaceOpenOfLE hW = V := sorry
+    ∃ W : Opens X, ∃ hW : W ≤ U, subspaceOpenOfLE hW = V :=
+  ⟨ambientOpenOfSubspaceOpen V, ambientOpenOfSubspaceOpen_le V,
+    le_antisymm (subspaceOpenOfAmbientOpenIso V).hom.le
+      (subspaceOpenOfAmbientOpenIso V).inv.le⟩
 
 /-- Membership in a subspace open is membership of the underlying point in its ambient image. -/
 theorem mem_subspaceOpen_iff {U : Opens X} (A : Opens (space U)) (x : space U) :
-    x ∈ A ↔ x.1 ∈ (subspaceInclusionFunctor U).obj A := sorry
+    x ∈ A ↔ x.1 ∈ (subspaceInclusionFunctor U).obj A := by
+  constructor
+  · intro hx
+    exact ⟨x, hx, rfl⟩
+  · rintro ⟨y, hy, hxy⟩
+    exact (Subtype.ext hxy : y = x) ▸ hy
 
 /-- Membership in `subspaceOpenOfLE h` is membership in the ambient open. -/
 theorem mem_subspaceOpenOfLE_iff {W U : Opens X} (h : W ≤ U) (x : space U) :
-    x ∈ subspaceOpenOfLE h ↔ x.1 ∈ W := sorry
+    x ∈ subspaceOpenOfLE h ↔ x.1 ∈ W :=
+  Iff.rfl
 
 /-- The represented open of `A ⊓ B` is the intersection of the represented opens. -/
 @[simp] theorem subspaceOpenOfLE_inf {A B D : Opens X} (hAD : A ≤ D) (hBD : B ≤ D) :
     subspaceOpenOfLE (inf_le_left.trans hAD : A ⊓ B ≤ D) =
-      subspaceOpenOfLE hAD ⊓ subspaceOpenOfLE hBD := sorry
+      subspaceOpenOfLE hAD ⊓ subspaceOpenOfLE hBD := rfl
 
 /-- Points of `W` land in the represented open `W ⊆ U` under the inclusion `W ↪ U`. -/
 theorem homOfLE_mem_subspaceOpenOfLE {W U : Opens X} (h : W ≤ U) (x : space W) :
-    homOfLE h x ∈ subspaceOpenOfLE h := sorry
+    homOfLE h x ∈ subspaceOpenOfLE h :=
+  x.2
 
 /-- Pulling a represented open back along an inclusion preserves its ambient representative. -/
 theorem homOfLE_functor_obj_subspaceOpenOfLE
     {A B C : Opens X} (hAB : A ≤ B) (hBC : B ≤ C) :
     (homOfLE_isOpenEmbedding hBC).functor.obj (subspaceOpenOfLE hAB) =
-      subspaceOpenOfLE (hAB.trans hBC) := sorry
+      subspaceOpenOfLE (hAB.trans hBC) := by
+  ext x
+  constructor
+  · rintro ⟨y, hy, rfl⟩
+    exact hy
+  · intro hx
+    exact ⟨⟨x.1, hAB hx⟩, hx, Subtype.ext rfl⟩
 
 end TopCat.Opens.Subspace
 

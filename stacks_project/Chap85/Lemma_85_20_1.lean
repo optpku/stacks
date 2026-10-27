@@ -6,16 +6,14 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import Mathlib.Tactic.CrossRefAttribute
-public import stacks_project.Chap85.Lemma_85_20_1_Equivalence
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.RingedSite.Hypercovering.ModuleDescent
 
 /-!
 # Lemma 85.20.1
 
-Let `C` be a site with fibre products and `X` an object of `C`. Let `O_C` be a
-sheaf of rings. Let `K` be a hypercovering of `X`. Then
-`a^* : Mod(O_X) ⥤ Mod(O)` is fully faithful with essential image the cartesian
-`O`-modules, and `a_*` provides the quasi-inverse.
+Pullback along a hypercovering of an object is fully faithful, with essential
+image the cartesian modules and quasi-inverse the augmentation direct image.
 -/
 
 @[expose] public section
@@ -28,9 +26,8 @@ noncomputable section
 
 universe ι u v w
 
-namespace RingedSite.Hypercovering
-
 open CategoryTheory.Hypercovering (toSliceTerminal)
+open RingedSite.Hypercovering
 open SemiRepresentableFamily
   (OverSite overTopology overSiteDiagram overSiteTotalTopology totalForget overMap)
 
@@ -72,37 +69,32 @@ variable [stageInclRestrictScalarsAdjoint (X.localization U)
 variable [stageMapRestrictScalarsAdjoint (X.localization U)
     (toSliceTerminal X.siteTopology U K)]
 
-/-- Lemma 85.20.1
-Let `C` be a site with fibre products and `X` an object of `C`. Let `O_C` be a sheaf of
-rings. Let `K` be a hypercovering of `X`. With notation as above,
-`a^* : Mod(O_X) ⥤ Mod(O)` is fully faithful with essential image the cartesian
-`O`-modules. The functor `a_*` provides the quasi-inverse. -/
-@[stacks 0DA4]
-def moduleCartesianEquivalence :=
-  cartesianEquivalence U K
+/- Lemma 85.20.1
+Pullback identifies modules over the restricted structure sheaf with cartesian
+modules on the total site; direct image is the quasi-inverse. -/
+@[stacks 0DA4] #check (RingedSite.Hypercovering.moduleCartesianEquivalence U K :
+  SheafOfModules.{w} (X.localization U).structureSheaf ≌
+    RingedSite.Localization.AtSimplicialSR.Cartesian (X := X.localization U) K.toSimplicialObject)
 
-/-- The forward functor of `moduleCartesianEquivalence` is `a^*` corestricted to cartesian
-`O`-modules. -/
-theorem moduleCartesianEquivalence_functor :
-    (moduleCartesianEquivalence U K).functor =
-      cartesianFunctor_terminal (X.localization U) (toSliceTerminal X.siteTopology U K) :=
-  sorry
+#check (RingedSite.Hypercovering.moduleCartesianEquivalence_functor U K :
+  (RingedSite.Hypercovering.moduleCartesianEquivalence U K).functor =
+    RingedSite.Hypercovering.cartesianFunctor_terminal (X.localization U)
+      (toSliceTerminal X.siteTopology U K))
 
-/-- The inverse functor of `moduleCartesianEquivalence` is `a_*` on cartesian `O`-modules. -/
-theorem moduleCartesianEquivalence_inverse :
-    (moduleCartesianEquivalence U K).inverse =
-      cartesianInverse_terminal (X.localization U) (toSliceTerminal X.siteTopology U K) :=
-  sorry
+#check (RingedSite.Hypercovering.moduleCartesianEquivalence_inverse U K :
+  (RingedSite.Hypercovering.moduleCartesianEquivalence U K).inverse =
+    RingedSite.Hypercovering.cartesianInverse_terminal (X.localization U)
+      (toSliceTerminal X.siteTopology U K))
 
-/-- An `O`-module on `((C / K)_total, O)` lies in the essential image of `a^*` if and only
-if it is cartesian. -/
-theorem module_mem_essImage_iff_isCartesian
-    (G : SheafOfModules.{w}
-      (ringSheaf_terminal (X.localization U) (toSliceTerminal X.siteTopology U K))) :
-    (modulePullback_terminal (X.localization U)
+#check (RingedSite.Hypercovering.module_mem_essImage_iff_isCartesian U K :
+  ∀ G : SheafOfModules.{w}
+      (RingedSite.Hypercovering.ringSheaf_terminal (X.localization U)
+        (toSliceTerminal X.siteTopology U K)),
+    (RingedSite.Hypercovering.modulePullback_terminal (X.localization U)
       (toSliceTerminal X.siteTopology U K)).essImage G ↔
-      IsCartesian_terminal (X.localization U)
-        (toSliceTerminal X.siteTopology U K) G :=
-  sorry
+    RingedSite.Hypercovering.IsCartesian_terminal (X.localization U)
+      (toSliceTerminal X.siteTopology U K) G)
 
-end RingedSite.Hypercovering
+#check (RingedSite.Hypercovering.modulePullback_fullyFaithful U K :
+  (RingedSite.Hypercovering.modulePullback_terminal (X.localization U)
+    (toSliceTerminal X.siteTopology U K)).FullyFaithful)

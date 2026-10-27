@@ -34,7 +34,6 @@ namespace RightDerived.Value
 
 /-- The colimit over target denominators is canonically isomorphic to the pointwise
 right-derived value. -/
-@[stacks 05T5 "pointwise right-derived value on target denominators"]
 noncomputable def denominatorIso (F : C ⥤ D) (S : MorphismProperty C)
     [S.HasLeftCalculusOfFractions] (X : C) [RightDerived.DefinedAt F S X] :
     colimit (RightDerived.Denominator.diagram F S X) ≅ obj F S X :=
@@ -85,7 +84,6 @@ namespace LeftDerived.Value
 
 /-- The limit over source denominators is canonically isomorphic to the pointwise left-derived
 value. -/
-@[stacks 05T5 "pointwise left-derived value on source denominators"]
 noncomputable def denominatorIso (F : C ⥤ D) (S : MorphismProperty C)
     [S.HasRightCalculusOfFractions] (X : C) [LeftDerived.DefinedAt F S X] :
     limit (LeftDerived.Denominator.diagram F S X) ≅ obj F S X :=

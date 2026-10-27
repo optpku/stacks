@@ -26,7 +26,7 @@ inverse-image structure map `f⁻¹𝒪_Y ⟶ 𝒪_X`.
 open CategoryTheory AlgebraicGeometry Opposite
 open Algebra Algebra.Extension Algebra.Generators
 open MvPolynomial
-open scoped ZeroObject
+open scoped ZeroObject TensorProduct
 
 noncomputable section
 
@@ -87,14 +87,42 @@ def presentationRingHom {X Y : AlgebraicSpace S} (f : X ⟶ Y)
     Algebra ((commStructureSheaf X).obj.obj U) ((commStructureSheaf X).obj.obj V) :=
   ((commStructureSheaf X).obj.map i).hom.toAlgebra
 
+private theorem presentationRingHom_eval {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    {U V : (smallEtaleSite X)ᵒᵖ} (i : U ⟶ V) :
+    (eval₂Hom ((commInverseImageStructureSheafMap f).hom.app V).hom id).comp
+        (presentationRingHom f i) =
+      ((commStructureSheaf X).obj.map i).hom.comp
+        (eval₂Hom ((commInverseImageStructureSheafMap f).hom.app U).hom id) := by
+  apply MvPolynomial.ringHom_ext
+  · intro r
+    simpa [presentationRingHom] using
+      DFunLike.congr_fun
+        (congrArg CommRingCat.Hom.hom
+          ((commInverseImageStructureSheafMap f).hom.naturality i)) r
+  · intro r
+    simp [presentationRingHom]
+
+private theorem presentationRingHom_id {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    (U : (smallEtaleSite X)ᵒᵖ) :
+    presentationRingHom f (𝟙 U) = RingHom.id _ := by
+  apply MvPolynomial.ringHom_ext <;> intro r <;> simp [presentationRingHom]
+
+private theorem presentationRingHom_comp {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    {U V W : (smallEtaleSite X)ᵒᵖ} (i : U ⟶ V) (j : V ⟶ W) :
+    presentationRingHom f (i ≫ j) =
+      (presentationRingHom f j).comp (presentationRingHom f i) := by
+  apply MvPolynomial.ringHom_ext <;> intro r <;> simp [presentationRingHom]
+
 /-- Polynomial restriction carries constant coefficients to their restricted values. -/
 theorem presentationRingHom_commutes {X Y : AlgebraicSpace S} (f : X ⟶ Y)
     {U V : (smallEtaleSite X)ᵒᵖ} (i : U ⟶ V) (r : ((commInverseImageStructureSheaf f).obj.obj U)) :
     -- Local instance justification (noncanonical choice): restriction along i fixes the target coefficient algebra over the source ring for the polynomial algebraMap in this statement.
     letI := inverseImageRestrictionAlgebra f i
     presentationRingHom f i (algebraMap ((commInverseImageStructureSheaf f).obj.obj U) (MvPolynomial ((commStructureSheaf X).obj.obj U) ((commInverseImageStructureSheaf f).obj.obj U)) r) =
-      algebraMap ((commInverseImageStructureSheaf f).obj.obj U) (MvPolynomial ((commStructureSheaf X).obj.obj V) ((commInverseImageStructureSheaf f).obj.obj V)) r :=
-  sorry
+      algebraMap ((commInverseImageStructureSheaf f).obj.obj U) (MvPolynomial ((commStructureSheaf X).obj.obj V) ((commInverseImageStructureSheaf f).obj.obj V)) r := by
+  change presentationRingHom f i (C r) =
+    C (((commInverseImageStructureSheaf f).obj.map i).hom r)
+  simp [presentationRingHom]
 
 /-- The algebra homomorphism of canonical presentations induced by restriction along `i`. -/
 def presentationAlgHom {X Y : AlgebraicSpace S} (f : X ⟶ Y)
@@ -118,9 +146,18 @@ theorem presentationAlgHom_ker_le_comap {X Y : AlgebraicSpace S} (f : X ⟶ Y)
   letI := inverseImageAlgebra f V
   -- Local instance justification (noncanonical choice): restriction of f⁻¹𝒪_Y along i for presentationAlgHom.
   letI := inverseImageRestrictionAlgebra f i
-  (presentation f U).ker ≤ (presentation f V).ker.comap (presentationAlgHom f i) :=
-  sorry
+  (presentation f U).ker ≤ (presentation f V).ker.comap (presentationAlgHom f i) := by
+  intro p hp
+  change eval₂Hom ((commInverseImageStructureSheafMap f).hom.app V).hom id
+    (presentationRingHom f i p) = 0
+  change eval₂Hom ((commInverseImageStructureSheafMap f).hom.app U).hom id p = 0 at hp
+  calc
+    _ = ((commStructureSheaf X).obj.map i).hom
+        (eval₂Hom ((commInverseImageStructureSheafMap f).hom.app U).hom id p) :=
+      RingHom.congr_fun (presentationRingHom_eval f i) p
+    _ = 0 := by rw [hp, map_zero]
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Restriction on conormal modules preserves addition. -/
 theorem cotangentObj_mapFun_add {X Y : AlgebraicSpace S} (f : X ⟶ Y)
     {U V : (smallEtaleSite X)ᵒᵖ} (i : U ⟶ V) (x y : cotangentObj f U) :
@@ -135,9 +172,16 @@ theorem cotangentObj_mapFun_add {X Y : AlgebraicSpace S} (f : X ⟶ Y)
         (Ideal.mapCotangent (presentation f U).ker (presentation f V).ker
           (presentationAlgHom f i) (presentationAlgHom_ker_le_comap f i)
           (Cotangent.val (P := (presentation f U).toExtension) x))
-  mapFun (x + y) = mapFun x + mapFun y :=
-  sorry
+  mapFun (x + y) = mapFun x + mapFun y := by
+  letI := inverseImageAlgebra f U
+  letI := inverseImageAlgebra f V
+  letI := inverseImageRestrictionAlgebra f i
+  exact congrArg (Cotangent.of (P := (presentation f V).toExtension))
+    ((Ideal.mapCotangent (presentation f U).ker (presentation f V).ker
+      (presentationAlgHom f i) (presentationAlgHom_ker_le_comap f i)).map_add
+      (Cotangent.val x) (Cotangent.val y))
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Restriction on conormal modules is semilinear for restriction of scalars. -/
 theorem cotangentObj_mapFun_smul {X Y : AlgebraicSpace S} (f : X ⟶ Y)
     {U V : (smallEtaleSite X)ᵒᵖ} (i : U ⟶ V)
@@ -153,8 +197,26 @@ theorem cotangentObj_mapFun_smul {X Y : AlgebraicSpace S} (f : X ⟶ Y)
         (Ideal.mapCotangent (presentation f U).ker (presentation f V).ker
           (presentationAlgHom f i) (presentationAlgHom_ker_le_comap f i)
           (Cotangent.val (P := (presentation f U).toExtension) x))
-  mapFun (r • x) = ((commStructureSheaf X).obj.map i).hom r • mapFun x :=
-  sorry
+  mapFun (r • x) = ((commStructureSheaf X).obj.map i).hom r • mapFun x := by
+  letI := inverseImageAlgebra f U
+  letI := inverseImageAlgebra f V
+  letI := inverseImageRestrictionAlgebra f i
+  letI := structureRestrictionAlgebra i
+  letI : Algebra ((commInverseImageStructureSheaf f).obj.obj U)
+      ((commStructureSheaf X).obj.obj V) :=
+    RingHom.toAlgebra
+      (((commInverseImageStructureSheafMap f).hom.app V).hom.comp
+        ((commInverseImageStructureSheaf f).obj.map i).hom)
+  letI : IsScalarTower
+      ((commInverseImageStructureSheaf f).obj.obj U)
+      ((commInverseImageStructureSheaf f).obj.obj V)
+      ((commStructureSheaf X).obj.obj V) :=
+    IsScalarTower.of_algebraMap_eq (fun _ ↦ rfl)
+  let h : (presentation f U).toExtension.Hom (presentation f V).toExtension :=
+    { toRingHom := presentationRingHom f i
+      toRingHom_algebraMap := presentationRingHom_commutes f i
+      algebraMap_toRingHom := fun p ↦ RingHom.congr_fun (presentationRingHom_eval f i) p }
+  exact (Cotangent.map h).map_smul r x
 
 /-- Restriction of the objectwise conormal module of the canonical presentation. -/
 def cotangentObj_map {X Y : AlgebraicSpace S} (f : X ⟶ Y)
@@ -196,8 +258,8 @@ theorem inverseImageRestriction_algebraMap_eq {X Y : AlgebraicSpace S} (f : X �
       (((commInverseImageStructureSheafMap f).hom.app V).hom.comp
         ((commInverseImageStructureSheaf f).obj.map i).hom)
   algebraMap ((commInverseImageStructureSheaf f).obj.obj U) ((commStructureSheaf X).obj.obj V) r =
-    algebraMap ((commInverseImageStructureSheaf f).obj.obj V) ((commStructureSheaf X).obj.obj V) (algebraMap ((commInverseImageStructureSheaf f).obj.obj U) ((commInverseImageStructureSheaf f).obj.obj V) r) :=
-  sorry
+    algebraMap ((commInverseImageStructureSheaf f).obj.obj V) ((commStructureSheaf X).obj.obj V) (algebraMap ((commInverseImageStructureSheaf f).obj.obj U) ((commInverseImageStructureSheaf f).obj.obj V) r) := by
+  rfl
 
 /-- The composite coefficient algebra map factors through structure-sheaf restriction. -/
 theorem structureRestriction_algebraMap_eq {X Y : AlgebraicSpace S} (f : X ⟶ Y)
@@ -218,8 +280,10 @@ theorem structureRestriction_algebraMap_eq {X Y : AlgebraicSpace S} (f : X ⟶ Y
       (((commInverseImageStructureSheafMap f).hom.app V).hom.comp
         ((commInverseImageStructureSheaf f).obj.map i).hom)
   algebraMap ((commInverseImageStructureSheaf f).obj.obj U) ((commStructureSheaf X).obj.obj V) r =
-    algebraMap ((commStructureSheaf X).obj.obj U) ((commStructureSheaf X).obj.obj V) (algebraMap ((commInverseImageStructureSheaf f).obj.obj U) ((commStructureSheaf X).obj.obj U) r) :=
-  sorry
+    algebraMap ((commStructureSheaf X).obj.obj U) ((commStructureSheaf X).obj.obj V) (algebraMap ((commInverseImageStructureSheaf f).obj.obj U) ((commStructureSheaf X).obj.obj U) r) := by
+  exact DFunLike.congr_fun
+    (congrArg CommRingCat.Hom.hom
+      ((commInverseImageStructureSheafMap f).hom.naturality i)) r
 
 /-- Polynomial restriction commutes with the coefficient maps of the presentations. -/
 theorem presentationRestrictHom_toRingHom_algebraMap {X Y : AlgebraicSpace S} (f : X ⟶ Y)
@@ -242,8 +306,8 @@ theorem presentationRestrictHom_toRingHom_algebraMap {X Y : AlgebraicSpace S} (f
   presentationRingHom f i
       (algebraMap ((commInverseImageStructureSheaf f).obj.obj U) (presentation f U).toExtension.Ring r) =
     algebraMap ((commInverseImageStructureSheaf f).obj.obj V) (presentation f V).toExtension.Ring
-      (algebraMap ((commInverseImageStructureSheaf f).obj.obj U) ((commInverseImageStructureSheaf f).obj.obj V) r) :=
-  sorry
+      (algebraMap ((commInverseImageStructureSheaf f).obj.obj U) ((commInverseImageStructureSheaf f).obj.obj V) r) := by
+  exact presentationRingHom_commutes f i r
 
 /-- Polynomial restriction commutes with evaluation in the structure sheaf. -/
 theorem presentationRestrictHom_algebraMap_toRingHom {X Y : AlgebraicSpace S} (f : X ⟶ Y)
@@ -266,8 +330,8 @@ theorem presentationRestrictHom_algebraMap_toRingHom {X Y : AlgebraicSpace S} (f
         ((commInverseImageStructureSheaf f).obj.map i).hom)
   algebraMap (presentation f V).toExtension.Ring ((commStructureSheaf X).obj.obj V) (presentationRingHom f i p) =
     algebraMap ((commStructureSheaf X).obj.obj U) ((commStructureSheaf X).obj.obj V)
-      (algebraMap (presentation f U).toExtension.Ring ((commStructureSheaf X).obj.obj U) p) :=
-  sorry
+      (algebraMap (presentation f U).toExtension.Ring ((commStructureSheaf X).obj.obj U) p) := by
+  exact RingHom.congr_fun (presentationRingHom_eval f i) p
 
 /-- The morphism of canonical presentations induced by restriction along `i`. -/
 def presentationRestrictHom {X Y : AlgebraicSpace S} (f : X ⟶ Y)
@@ -339,6 +403,55 @@ def cotangentSpaceObj_map {X Y : AlgebraicSpace S} (f : X ⟶ Y)
   ConcreteCategory.ofHom (C := ModuleCat ((commStructureSheaf X).obj.obj U))
     (CotangentSpace.map (presentationRestrictHom f i))
 
+private theorem cotangentObj_map_mk {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    {U V : (smallEtaleSite X)ᵒᵖ} (i : U ⟶ V) :
+    letI := inverseImageAlgebra f U
+    letI := inverseImageAlgebra f V
+    letI := inverseImageRestrictionAlgebra f i
+    ∀ x : (presentation f U).ker,
+      cotangentObj_map f i (Cotangent.mk x) =
+        Cotangent.mk ⟨presentationRingHom f i x, presentationAlgHom_ker_le_comap f i x.2⟩ := by
+  dsimp only
+  intro x
+  rfl
+
+set_option backward.isDefEq.respectTransparency false in
+private theorem cotangentSpaceObj_map_tmul {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    {U V : (smallEtaleSite X)ᵒᵖ} (i : U ⟶ V) :
+    letI := inverseImageAlgebra f U
+    letI := inverseImageAlgebra f V
+    ∀ (r : ((commStructureSheaf X).obj.obj U))
+      (p : MvPolynomial ((commStructureSheaf X).obj.obj U)
+        ((commInverseImageStructureSheaf f).obj.obj U)),
+      cotangentSpaceObj_map f i
+          (r ⊗ₜ KaehlerDifferential.D
+            ((commInverseImageStructureSheaf f).obj.obj U) (presentation f U).toExtension.Ring p) =
+        ((commStructureSheaf X).obj.map i).hom r ⊗ₜ
+          KaehlerDifferential.D ((commInverseImageStructureSheaf f).obj.obj V)
+            (presentation f V).toExtension.Ring (presentationRingHom f i p) := by
+  letI := inverseImageAlgebra f U
+  letI := inverseImageAlgebra f V
+  letI := inverseImageRestrictionAlgebra f i
+  letI := structureRestrictionAlgebra i
+  letI : Algebra ((commInverseImageStructureSheaf f).obj.obj U)
+      ((commStructureSheaf X).obj.obj V) :=
+    RingHom.toAlgebra
+      (((commInverseImageStructureSheafMap f).hom.app V).hom.comp
+        ((commInverseImageStructureSheaf f).obj.map i).hom)
+  letI : IsScalarTower
+      ((commInverseImageStructureSheaf f).obj.obj U)
+      ((commInverseImageStructureSheaf f).obj.obj V)
+      ((commStructureSheaf X).obj.obj V) :=
+    IsScalarTower.of_algebraMap_eq (inverseImageRestriction_algebraMap_eq f i)
+  letI : IsScalarTower
+      ((commInverseImageStructureSheaf f).obj.obj U)
+      ((commStructureSheaf X).obj.obj U)
+      ((commStructureSheaf X).obj.obj V) :=
+    IsScalarTower.of_algebraMap_eq (structureRestriction_algebraMap_eq f i)
+  dsimp only
+  intro r p
+  exact CotangentSpace.map_tmul (presentationRestrictHom f i) r p
+
 /-- Restriction of the conormal module along an identity is the scalar restriction identity. -/
 theorem cotangentObj_map_id {X Y : AlgebraicSpace S} (f : X ⟶ Y)
     (U : (smallEtaleSite X)ᵒᵖ) :
@@ -347,8 +460,14 @@ theorem cotangentObj_map_id {X Y : AlgebraicSpace S} (f : X ⟶ Y)
         ((((commStructureSheaf X).obj ⋙ forget₂ CommRingCat RingCat).map (𝟙 U)).hom)
         (congrArg RingCat.Hom.hom
           (((commStructureSheaf X).obj ⋙ forget₂ CommRingCat RingCat).map_id U))).inv.app
-        (cotangentObj f U) :=
-  sorry
+        (cotangentObj f U) := by
+  letI := inverseImageAlgebra f U
+  ext x
+  obtain ⟨x, rfl⟩ := Cotangent.mk_surjective (P := (presentation f U).toExtension) x
+  change cotangentObj_map f (𝟙 U) (Cotangent.mk x) = Cotangent.mk x
+  rw [cotangentObj_map_mk]
+  congr 1
+  exact Subtype.ext (RingHom.congr_fun (presentationRingHom_id f U) x.val)
 
 /-- Restriction of the conormal module respects composition with the scalar restriction comparison. -/
 theorem cotangentObj_map_comp {X Y : AlgebraicSpace S} (f : X ⟶ Y)
@@ -361,8 +480,17 @@ theorem cotangentObj_map_comp {X Y : AlgebraicSpace S} (f : X ⟶ Y)
           ((((commStructureSheaf X).obj ⋙ forget₂ CommRingCat RingCat).map (i ≫ j)).hom)
           (congrArg RingCat.Hom.hom
             (((commStructureSheaf X).obj ⋙ forget₂ CommRingCat RingCat).map_comp i j))).inv.app
-          (cotangentObj f W) :=
-  sorry
+          (cotangentObj f W) := by
+  letI := inverseImageAlgebra f U
+  letI := inverseImageAlgebra f V
+  letI := inverseImageAlgebra f W
+  ext x
+  obtain ⟨x, rfl⟩ := Cotangent.mk_surjective (P := (presentation f U).toExtension) x
+  change cotangentObj_map f (i ≫ j) (Cotangent.mk x) =
+    cotangentObj_map f j (cotangentObj_map f i (Cotangent.mk x))
+  rw [cotangentObj_map_mk, cotangentObj_map_mk, cotangentObj_map_mk]
+  congr 1
+  exact Subtype.ext (RingHom.congr_fun (presentationRingHom_comp f i j) x.val)
 
 /-- The presheaf of conormal modules of the canonical presentations of `f^♯`. -/
 def cotangentPresheaf {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
@@ -373,6 +501,7 @@ def cotangentPresheaf {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
   map_id := cotangentObj_map_id f
   map_comp := cotangentObj_map_comp f
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Restriction of the cotangent-space module along an identity is the scalar restriction identity. -/
 theorem cotangentSpaceObj_map_id {X Y : AlgebraicSpace S} (f : X ⟶ Y)
     (U : (smallEtaleSite X)ᵒᵖ) :
@@ -381,9 +510,21 @@ theorem cotangentSpaceObj_map_id {X Y : AlgebraicSpace S} (f : X ⟶ Y)
         ((((commStructureSheaf X).obj ⋙ forget₂ CommRingCat RingCat).map (𝟙 U)).hom)
         (congrArg RingCat.Hom.hom
           (((commStructureSheaf X).obj ⋙ forget₂ CommRingCat RingCat).map_id U))).inv.app
-        (cotangentSpaceObj f U) :=
-  sorry
+        (cotangentSpaceObj f U) := by
+  letI := inverseImageAlgebra f U
+  apply ModuleCat.hom_ext
+  apply (presentation f U).cotangentSpaceBasis.ext
+  intro r
+  rw [Generators.cotangentSpaceBasis_apply]
+  change cotangentSpaceObj_map f (𝟙 U)
+      (1 ⊗ₜ KaehlerDifferential.D ((commInverseImageStructureSheaf f).obj.obj U)
+        (presentation f U).toExtension.Ring (MvPolynomial.X r)) =
+    1 ⊗ₜ KaehlerDifferential.D ((commInverseImageStructureSheaf f).obj.obj U)
+        (presentation f U).toExtension.Ring (MvPolynomial.X r)
+  rw [cotangentSpaceObj_map_tmul]
+  simp [presentationRingHom_id]
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Restriction of the cotangent-space module respects composition with the scalar restriction comparison. -/
 theorem cotangentSpaceObj_map_comp {X Y : AlgebraicSpace S} (f : X ⟶ Y)
     {U V W : (smallEtaleSite X)ᵒᵖ} (i : U ⟶ V) (j : V ⟶ W) :
@@ -395,8 +536,22 @@ theorem cotangentSpaceObj_map_comp {X Y : AlgebraicSpace S} (f : X ⟶ Y)
           ((((commStructureSheaf X).obj ⋙ forget₂ CommRingCat RingCat).map (i ≫ j)).hom)
           (congrArg RingCat.Hom.hom
             (((commStructureSheaf X).obj ⋙ forget₂ CommRingCat RingCat).map_comp i j))).inv.app
-          (cotangentSpaceObj f W) :=
-  sorry
+          (cotangentSpaceObj f W) := by
+  letI := inverseImageAlgebra f U
+  letI := inverseImageAlgebra f V
+  letI := inverseImageAlgebra f W
+  apply ModuleCat.hom_ext
+  apply (presentation f U).cotangentSpaceBasis.ext
+  intro r
+  rw [Generators.cotangentSpaceBasis_apply]
+  change cotangentSpaceObj_map f (i ≫ j)
+      (1 ⊗ₜ KaehlerDifferential.D ((commInverseImageStructureSheaf f).obj.obj U)
+        (presentation f U).toExtension.Ring (MvPolynomial.X r)) =
+    cotangentSpaceObj_map f j
+      (cotangentSpaceObj_map f i (1 ⊗ₜ KaehlerDifferential.D ((commInverseImageStructureSheaf f).obj.obj U)
+        (presentation f U).toExtension.Ring (MvPolynomial.X r)))
+  rw [cotangentSpaceObj_map_tmul, cotangentSpaceObj_map_tmul, cotangentSpaceObj_map_tmul]
+  simp [presentationRingHom_comp]
 
 /-- The presheaf of base-changed presentation differentials of `f^♯`. -/
 def cotangentSpacePresheaf {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
@@ -415,6 +570,7 @@ def cotangentComplex_app {X Y : AlgebraicSpace S} (f : X ⟶ Y)
   letI := inverseImageAlgebra f U
   ModuleCat.ofHom (Extension.cotangentComplex (presentation f U).toExtension)
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The objectwise conormal differential commutes with restriction. -/
 theorem cotangentComplex_app_naturality {X Y : AlgebraicSpace S} (f : X ⟶ Y)
     {U V : (smallEtaleSite X)ᵒᵖ} (i : U ⟶ V) :
@@ -422,8 +578,17 @@ theorem cotangentComplex_app_naturality {X Y : AlgebraicSpace S} (f : X ⟶ Y)
         (ModuleCat.restrictScalars
           ((((commStructureSheaf X).obj ⋙ forget₂ CommRingCat RingCat).map i).hom)).map
           (cotangentComplex_app f V) =
-      cotangentComplex_app f U ≫ (cotangentSpacePresheaf f).map i :=
-  sorry
+      cotangentComplex_app f U ≫ (cotangentSpacePresheaf f).map i := by
+  letI := inverseImageAlgebra f U
+  letI := inverseImageAlgebra f V
+  ext x
+  obtain ⟨x, rfl⟩ := Cotangent.mk_surjective (P := (presentation f U).toExtension) x
+  change (presentation f V).toExtension.cotangentComplex
+      (cotangentObj_map f i (Cotangent.mk x)) =
+    cotangentSpaceObj_map f i
+      ((presentation f U).toExtension.cotangentComplex (Cotangent.mk x))
+  simp only [cotangentObj_map_mk, Extension.cotangentComplex_mk,
+    cotangentSpaceObj_map_tmul, map_one]
 
 /-- The presheaf morphism `I / I ^ 2 ⟶ 𝒪_X ⊗ Ω(P / f⁻¹𝒪_Y)` of canonical presentations. -/
 def cotangentDifferentialPresheaf {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
@@ -469,8 +634,15 @@ def naiveCotangentDifferential {X Y : AlgebraicSpace S} (f : X ⟶ Y) (n : ℤ) 
 /-- Consecutive differentials of the naive cotangent complex square to zero. -/
 theorem naiveCotangentDifferential_sq_zero {X Y : AlgebraicSpace S} (f : X ⟶ Y)
     (n : ℤ) :
-    naiveCotangentDifferential f n ≫ naiveCotangentDifferential f (n + 1) = 0 :=
-  sorry
+    naiveCotangentDifferential f n ≫ naiveCotangentDifferential f (n + 1) = 0 := by
+  cases n with
+  | ofNat n => simp [naiveCotangentDifferential]
+  | negSucc n =>
+    cases n with
+    | zero =>
+      change cotangentDifferential f ≫ 0 = 0
+      exact CategoryTheory.Limits.comp_zero
+    | succ n => simp [naiveCotangentDifferential]
 
 /-- The naive cotangent complex `NL_f` of a morphism of algebraic spaces, as an
 `𝒪_X`-module complex on `X_étale`. -/
@@ -488,18 +660,20 @@ theorem naiveCotangent_eq {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
 
 /-- The degree `-1` term of `NL_f` is the sheafification of `I / I ^ 2`. -/
 theorem naiveCotangent_X_negOne {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
-    (naiveCotangent f).X (-1) = cotangentSheaf f :=
-  sorry
+    (naiveCotangent f).X (-1) = cotangentSheaf f := by
+  rfl
 
 /-- The degree `0` term of `NL_f` is the sheafification of `𝒪_X ⊗ Ω(P / f⁻¹𝒪_Y)`. -/
 theorem naiveCotangent_X_zero {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
-    (naiveCotangent f).X 0 = cotangentSpaceSheaf f :=
-  sorry
+    (naiveCotangent f).X 0 = cotangentSpaceSheaf f := by
+  rfl
 
 /-- The only nonzero differential of `NL_f` is the sheafified conormal map. -/
 theorem naiveCotangent_d_negOne_zero {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
-    (naiveCotangent f).d (-1) 0 = cotangentDifferential f :=
-  sorry
+    (naiveCotangent f).d (-1) 0 = cotangentDifferential f := by
+  change CochainComplex.of.d (naiveCotangentTerm f) (naiveCotangentDifferential f)
+      (Int.negSucc 0) (Int.negSucc 0 + 1) = naiveCotangentDifferential f (Int.negSucc 0)
+  exact CochainComplex.of_d (naiveCotangentTerm f) (naiveCotangentDifferential f) (Int.negSucc 0)
 
 end AlgebraicGeometry.AlgebraicSpace.Hom
 

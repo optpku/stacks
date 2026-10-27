@@ -14,6 +14,7 @@ public import ReasLib.Algebra.Category.ModuleCat.Sheaf.ChangeOfRings
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.SquareZeroExtension.Module
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.Tensor.Exact
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Derived.Adjunction
+public import ReasLib.AlgebraicGeometry.RingedSite.Module.Derived.CanonicalClass
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Derived.ChangeOfRings
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Derived.Tensor
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Derived.Tensor.Bifunctor
@@ -101,16 +102,6 @@ noncomputable abbrev tensorO0 :
     ModuleDerived.{w, u, v, w} (RingedSite.ofCommRingSheaf.{u, v, w} J 𝒪) ⥤
       ModuleDerived.{w, u, v, w} (RingedSite.ofCommRingSheaf.{u, v, w} J 𝒪₀) :=
   SheafOfModules.RingedSite.SameSite.pullbackDerived π
-
-/-- The kernel ideal of `π`, regarded as an `𝒪₀`-module via the square-zero descent. -/
-noncomputable abbrev kernelIdeal0 : ModuleCat.{w} (RingedSite.ofCommRingSheaf.{u, v, w} J 𝒪₀) :=
-  KernelIdeal.IsSquareZero.targetModule h_sq inferInstance
-
-/-- The degree-zero single of the descended kernel ideal. -/
-noncomputable abbrev kernelIdeal0Single :
-    ModuleDerived.{w, u, v, w} (RingedSite.ofCommRingSheaf.{u, v, w} J 𝒪₀) :=
-  (singleFunctor (ModuleCat.{w} (RingedSite.ofCommRingSheaf.{u, v, w} J 𝒪₀)) (0 : ℤ)).obj
-    (kernelIdeal0 π h_sq)
 
 /-- Restriction of scalars along `π` as a functor of unbounded derived categories. -/
 noncomputable abbrev pushforwardO0 :

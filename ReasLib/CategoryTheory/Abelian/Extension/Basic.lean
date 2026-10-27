@@ -70,11 +70,13 @@ def Hom.id (S : Extension A B) : Hom S S where
 
 /-- Compatibility of composition with the left endpoint map. -/
 theorem Hom.comp_comm_f {S T U : Extension A B} (f : Hom S T) (g : Hom T U) :
-    S.f ≫ (f.hom ≫ g.hom) = U.f := sorry
+    S.f ≫ (f.hom ≫ g.hom) = U.f := by
+  rw [← Category.assoc, f.comm_f, g.comm_f]
 
 /-- Compatibility of composition with the right endpoint map. -/
 theorem Hom.comp_comm_g {S T U : Extension A B} (f : Hom S T) (g : Hom T U) :
-    (f.hom ≫ g.hom) ≫ U.g = S.g := sorry
+    (f.hom ≫ g.hom) ≫ U.g = S.g := by
+  rw [Category.assoc, g.comm_g, f.comm_g]
 
 /-- Composition of morphisms of fixed-endpoint extensions. -/
 def Hom.comp {S T U : Extension A B} (f : Hom S T) (g : Hom T U) : Hom S U where
@@ -85,15 +87,18 @@ def Hom.comp {S T U : Extension A B} (f : Hom S T) (g : Hom T U) : Hom S U where
 /-- Composition of extension morphisms is associative. -/
 theorem Hom.assoc {S T U V : Extension A B}
     (f : Hom S T) (g : Hom T U) (h : Hom U V) :
-    Hom.comp (Hom.comp f g) h = Hom.comp f (Hom.comp g h) := sorry
+    Hom.comp (Hom.comp f g) h = Hom.comp f (Hom.comp g h) :=
+  Hom.ext (Category.assoc f.hom g.hom h.hom)
 
 /-- Identity is a left unit for extension morphisms. -/
 theorem Hom.id_comp {S T : Extension A B} (f : Hom S T) :
-    Hom.comp (Hom.id S) f = f := sorry
+    Hom.comp (Hom.id S) f = f :=
+  Hom.ext (Category.id_comp f.hom)
 
 /-- Identity is a right unit for extension morphisms. -/
 theorem Hom.comp_id {S T : Extension A B} (f : Hom S T) :
-    Hom.comp f (Hom.id T) = f := sorry
+    Hom.comp f (Hom.id T) = f :=
+  Hom.ext (Category.comp_id f.hom)
 
 /-- Fixed-endpoint extensions and their endpoint-preserving morphisms form a
 category. -/
@@ -107,11 +112,13 @@ instance : Category.{v} (Extension A B) where
 
 /-- The left square of the underlying short-complex morphism commutes. -/
 theorem Hom.toShortComplex_comm₁₂ {S T : Extension A B} (f : S ⟶ T) :
-    𝟙 A ≫ T.toShortComplex.f = S.toShortComplex.f ≫ f.hom := sorry
+    𝟙 A ≫ T.toShortComplex.f = S.toShortComplex.f ≫ f.hom := by
+  simpa only [Category.id_comp] using f.comm_f.symm
 
 /-- The right square of the underlying short-complex morphism commutes. -/
 theorem Hom.toShortComplex_comm₂₃ {S T : Extension A B} (f : S ⟶ T) :
-    f.hom ≫ T.toShortComplex.g = S.toShortComplex.g ≫ 𝟙 B := sorry
+    f.hom ≫ T.toShortComplex.g = S.toShortComplex.g ≫ 𝟙 B := by
+  simpa only [Category.comp_id] using f.comm_g
 
 /-- An extension morphism determines the canonical morphism of underlying
 short complexes. -/
@@ -125,11 +132,15 @@ def Hom.toShortComplex {S T : Extension A B} (f : S ⟶ T) :
 
 /-- The underlying-short-complex map preserves identity morphisms. -/
 theorem Hom.toShortComplex_id (S : Extension A B) :
-    (Hom.id S).toShortComplex = 𝟙 S.toShortComplex := sorry
+    (Hom.id S).toShortComplex = 𝟙 S.toShortComplex := rfl
 
 /-- The underlying-short-complex map preserves composition. -/
 theorem Hom.toShortComplex_comp {S T U : Extension A B} (f : S ⟶ T) (g : T ⟶ U) :
-    (Hom.comp f g).toShortComplex = f.toShortComplex ≫ g.toShortComplex := sorry
+    (Hom.comp f g).toShortComplex = f.toShortComplex ≫ g.toShortComplex := by
+  apply ShortComplex.hom_ext
+  · exact (Category.id_comp (𝟙 A)).symm
+  · rfl
+  · exact (Category.id_comp (𝟙 B)).symm
 
 /-- The canonical functor from fixed-endpoint extensions to short complexes. -/
 def toShortComplexFunctor : Extension A B ⥤ ShortComplex C where
@@ -140,7 +151,10 @@ def toShortComplexFunctor : Extension A B ⥤ ShortComplex C where
 
 /-- The underlying-short-complex functor remembers every extension morphism. -/
 instance toShortComplexFunctor_faithful : (toShortComplexFunctor (A := A) (B := B)).Faithful where
-  map_injective := sorry
+  map_injective := by
+    intro S T f g h
+    apply Hom.ext
+    exact congrArg ShortComplex.Hom.τ₂ h
 
 /-- An extension can be used as its underlying short complex. -/
 instance : CoeOut (Extension A B) (ShortComplex C) where

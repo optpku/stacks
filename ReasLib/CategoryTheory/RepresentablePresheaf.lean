@@ -48,14 +48,16 @@ element of the first representation to that of the second. -/
 @[simp, stacks 001Q "canonical comparison of explicit representing objects"]
 theorem uniqueUpToIso.hom_apply (R₁ : F.RepresentableBy X)
     (R₂ : F.RepresentableBy Y) :
-    R₂.homEquiv (R₁.uniqueUpToIso R₂).hom = R₁.homEquiv (𝟙 X) := sorry
+    R₂.homEquiv (R₁.uniqueUpToIso R₂).hom = R₁.homEquiv (𝟙 X) := by
+  exact R₂.homEquiv.apply_symm_apply _
 
 /-- The inverse canonical isomorphism between two explicit representations carries the
 universal element of the second representation back to that of the first. -/
 @[simp, stacks 001Q "canonical comparison of explicit representing objects"]
 theorem uniqueUpToIso.inv_apply (R₁ : F.RepresentableBy X)
     (R₂ : F.RepresentableBy Y) :
-    R₁.homEquiv (R₁.uniqueUpToIso R₂).inv = R₂.homEquiv (𝟙 Y) := sorry
+    R₁.homEquiv (R₁.uniqueUpToIso R₂).inv = R₂.homEquiv (𝟙 Y) := by
+  exact R₁.homEquiv.apply_symm_apply _
 
 /-- A natural transformation between explicitly represented presheaves induces a morphism
 between their representing objects.  Keeping the representations explicit avoids installing
@@ -69,7 +71,9 @@ two representing equivalences. -/
 @[stacks 001Q "map between explicit representing objects"]
 theorem homEquiv_map (RF : F.RepresentableBy X) (RG : G.RepresentableBy Y)
     (α : F ⟶ G) {A : C} (f : A ⟶ X) :
-    RG.homEquiv (f ≫ RF.map RG α) = α.app (Opposite.op A) (RF.homEquiv f) := sorry
+    RG.homEquiv (f ≫ RF.map RG α) = α.app (Opposite.op A) (RF.homEquiv f) := by
+  rw [RG.homEquiv_comp, map, Equiv.apply_symm_apply, ← α.naturality_apply,
+    ← RF.homEquiv_comp, Category.comp_id]
 
 /-- Changing both explicit representations conjugates the map induced by a natural
 transformation by the canonical comparison isomorphisms. -/
@@ -77,21 +81,31 @@ transformation by the canonical comparison isomorphisms. -/
 theorem map_naturality (RF : F.RepresentableBy X) (RF' : F.RepresentableBy X')
     (RG : G.RepresentableBy Y) (RG' : G.RepresentableBy Y') (α : F ⟶ G) :
     (RF.uniqueUpToIso RF').hom ≫ RF'.map RG' α =
-      RF.map RG α ≫ (RG.uniqueUpToIso RG').hom := sorry
+      RF.map RG α ≫ (RG.uniqueUpToIso RG').hom := by
+  apply RG'.homEquiv.injective
+  rw [homEquiv_map, uniqueUpToIso.hom_apply, RG'.homEquiv_comp,
+    uniqueUpToIso.hom_apply, ← RG.homEquiv_eq]
+  simp [map]
 
 /-- The map induced by a natural transformation is contravariantly compatible with changing
 only its source representation. -/
 @[reassoc (attr := simp)]
 theorem map_naturality_source (RF : F.RepresentableBy X) (RF' : F.RepresentableBy X')
     (RG : G.RepresentableBy Y) (α : F ⟶ G) :
-    (RF.uniqueUpToIso RF').hom ≫ RF'.map RG α = RF.map RG α := sorry
+    (RF.uniqueUpToIso RF').hom ≫ RF'.map RG α = RF.map RG α := by
+  apply RG.homEquiv.injective
+  rw [homEquiv_map, uniqueUpToIso.hom_apply]
+  simp [map]
 
 /-- The map induced by a natural transformation is covariantly compatible with changing only
 its target representation. -/
 @[reassoc (attr := simp)]
 theorem map_naturality_target (RF : F.RepresentableBy X) (RG : G.RepresentableBy Y)
     (RG' : G.RepresentableBy Y') (α : F ⟶ G) :
-    RF.map RG α ≫ (RG.uniqueUpToIso RG').hom = RF.map RG' α := sorry
+    RF.map RG α ≫ (RG.uniqueUpToIso RG').hom = RF.map RG' α := by
+  apply RG'.homEquiv.injective
+  rw [RG'.homEquiv_comp, uniqueUpToIso.hom_apply, ← RG.homEquiv_eq]
+  simp [map]
 
 /-- The inverse canonical comparisons give the reverse orientation of change-of-representation
 naturality for an induced map. -/
@@ -99,18 +113,27 @@ naturality for an induced map. -/
 theorem map_naturality_inv (RF : F.RepresentableBy X) (RF' : F.RepresentableBy X')
     (RG : G.RepresentableBy Y) (RG' : G.RepresentableBy Y') (α : F ⟶ G) :
     (RF.uniqueUpToIso RF').inv ≫ RF.map RG α =
-      RF'.map RG' α ≫ (RG.uniqueUpToIso RG').inv := sorry
+      RF'.map RG' α ≫ (RG.uniqueUpToIso RG').inv := by
+  apply RG.homEquiv.injective
+  rw [homEquiv_map, uniqueUpToIso.inv_apply, RG.homEquiv_comp,
+    uniqueUpToIso.inv_apply, ← RG'.homEquiv_eq]
+  simp [map]
 
 /-- The identity natural transformation induces the identity of a representing object. -/
 @[simp, stacks 001Q "identity map between explicit representing objects"]
-theorem map_id (RF : F.RepresentableBy X) : RF.map RF (𝟙 F) = 𝟙 X := sorry
+theorem map_id (RF : F.RepresentableBy X) : RF.map RF (𝟙 F) = 𝟙 X := by
+  apply RF.homEquiv.injective
+  simp [map]
 
 /-- Composition of natural transformations induces composition of the corresponding maps
 between explicit representing objects. -/
 @[simp, stacks 001Q "composition of maps between explicit representing objects"]
 theorem map_comp (RF : F.RepresentableBy X) (RG : G.RepresentableBy Y)
     (RH : H.RepresentableBy Z) (α : F ⟶ G) (β : G ⟶ H) :
-    RF.map RH (α ≫ β) = RF.map RG α ≫ RG.map RH β := sorry
+    RF.map RH (α ≫ β) = RF.map RG α ≫ RG.map RH β := by
+  apply RH.homEquiv.injective
+  rw [homEquiv_map]
+  simp [map]
 
 end Functor.RepresentableBy
 

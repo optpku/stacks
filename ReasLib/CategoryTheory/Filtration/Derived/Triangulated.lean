@@ -280,10 +280,4 @@ end FacIso
 
 end GradedPiece
 
-variable [HasDerivedCategory C] [HasDerivedCategory (GradedObject ℤ C)]
-variable (h_inverts : AssociatedGraded.Inverts C) (p : ℤ)
-
-#synth NatTrans.CommShift (AssociatedGraded.facIso C h_inverts).hom ℤ
-#synth NatTrans.CommShift (GradedPiece.facIso C h_inverts p).hom ℤ
-
 end CategoryTheory.FilteredObject.FiniteDerived

@@ -34,14 +34,9 @@ open AlgebraicGeometry.AlgebraicSpace
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
-
-/-- The open subspace determined by an open set of points. -/
-noncomputable abbrev OpenSubspace.ofOpens {S : Scheme.{u}} {X : AlgebraicSpace S}
-    (W : TopologicalSpace.Opens (Points X)) : OpenSubspace X :=
-  OpenSubspace.fromOpens W
-
-end AlgebraicGeometry.AlgebraicSpace
+#check (AlgebraicGeometry.AlgebraicSpace.OpenSubspace.fromOpens :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S},
+    TopologicalSpace.Opens (Points X) → OpenSubspace X)
 
 #check (AlgebraicGeometry.AlgebraicSpace.IsAdmissibleBlowup :
   ∀ {S : Scheme.{u}} {X X' : AlgebraicSpace S},

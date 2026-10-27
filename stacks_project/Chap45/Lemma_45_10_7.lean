@@ -27,7 +27,7 @@ smooth projective `k'`-scheme `X` of dimension `d`, the top-degree cycle-class m
     {fst : ∀ X Y, product X Y ⟶ X} {snd : ∀ X Y, product X Y ⟶ Y}
     {point : V} {H : V → Type x} {CH : V → Type y}
     [∀ X, Ring (H X)] [∀ X, Algebra F (H X)] [∀ X, CommRing (CH X)]
-    {Hgrade : ∀ X, ℤ × ℤ → Submodule F (H X)}
+    {Hgrade : ∀ X, ℤ → Submodule F (H X)}
     {CHgrade : ∀ X, ℤ → Submodule ℤ (CH X)}
     [∀ X, GradedAlgebra (Hgrade X)] [∀ X, GradedAlgebra (CHgrade X)]
     {cyclePullback : ∀ {X Y : V}, (X ⟶ Y) → CHgrade Y →ₐᵍ[ℤ] CHgrade X}
@@ -60,7 +60,7 @@ smooth projective `k'`-scheme `X` of dimension `d`, the top-degree cycle-class m
                   (fun _ : Spec (CommRingCat.of k') ↦ 0)) 0 x
                 (SchemeOverField.closedPoint_relativeDimensionFunction_eq_zero
                   (T.overExtension s eK) x))),
-    ∃ factor : ℤ →+ Hgrade X (2 * (d : ℤ), (d : ℤ)),
+    ∃ factor : ℤ →+ Hgrade X (2 * (d : ℤ)),
       (T.gradedCycleClass X (d : ℤ)).comp
           chowTopEquiv.symm.toAddMonoidHom =
         factor.comp (ChowGroup.degree (T.overExtension s eK)))

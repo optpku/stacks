@@ -15,9 +15,10 @@ public import ReasLib.Topology.Sheaf.Support.ClosedSubset.Functor
 /-!
 # The closed-support adjunction
 
-Pushforward from a closed subspace is left adjoint to the additive sheaf of sections supported on
-that subspace. The unit and counit components are explicit; naturality and triangle identities
-are kept as the proof layer.
+For algebraic coefficient categories with colimits and zero morphisms, pushforward from a closed
+subspace is left adjoint to sections supported on that subspace. This is the canonical owner of
+the adjunction and its explicit inverses; the pointed API specializes this construction.
+Naturality and triangle identities are kept as the proof layer.
 -/
 
 @[expose] public section
@@ -26,32 +27,38 @@ open CategoryTheory CategoryTheory.Limits Opposite TopCat TopologicalSpace
 
 noncomputable section
 
-universe u
+universe w u
 
 namespace TopCat.Sheaf.ClosedSubset.SectionsWithSupport
 
-variable {X : TopCat.{u}} {Z : Set X}
-variable [HasSheafify (Opens.grothendieckTopology X) AddCommGrpCat.{u}]
+section Generic
+
+variable {X : TopCat.{w}} {Z : Set X}
+variable {C : Type u} [Category.{w} C]
+variable {FC : C → C → Type w} {CC : C → Type w}
+variable [∀ A B, FunLike (FC A B) (CC A) (CC B)] [ConcreteCategory.{w} C FC]
+variable [IsAlgebraicStructure C (CategoryTheory.forget C)]
+variable [HasColimits C] [HasZeroMorphisms C]
 
 /-- The closed-support subobject of a sheaf pushed forward from `Z` is the whole sheaf. -/
 theorem subsheafPushforwardEqTop
-    (hZ : IsClosed Z) (F : (TopCat.of Z).Sheaf AddCommGrpCat.{u}) :
+    (hZ : IsClosed Z) (F : (TopCat.of Z).Sheaf C) :
     subsheaf hZ
-      ((Sheaf.pushforward AddCommGrpCat.{u} (TopCat.subsetInclusion Z)).obj F) = ⊤ := sorry
+      ((Sheaf.pushforward C (TopCat.subsetInclusion Z)).obj F) = ⊤ := sorry
 
 /-- The ambient closed-support sheaf belongs to the essential image of pushforward from `Z`. -/
 theorem objectMemEssImage
-    (hZ : IsClosed Z) (F : X.Sheaf AddCommGrpCat.{u}) :
-    (Sheaf.pushforward AddCommGrpCat.{u} (TopCat.subsetInclusion Z)).essImage
+    (hZ : IsClosed Z) (F : X.Sheaf C) :
+    (Sheaf.pushforward C (TopCat.subsetInclusion Z)).essImage
       (object hZ F) :=
   ⟨supportedRestriction hZ F, ⟨(supportedRestrictionPushforwardIso hZ F).symm⟩⟩
 
 /-- The pullback-pushforward unit is invertible on the ambient closed-support object. -/
 @[stacks 01AZ "ambient closed-support unit invertibility"]
 theorem objectUnitIsIso
-    (hZ : IsClosed Z) (F : X.Sheaf AddCommGrpCat.{u}) :
+    (hZ : IsClosed Z) (F : X.Sheaf C) :
     IsIso
-      ((Sheaf.pullbackPushforwardAdjunction AddCommGrpCat.{u}
+      ((Sheaf.pullbackPushforwardAdjunction C
         (TopCat.subsetInclusion Z)).unit.app (object hZ F)) :=
   ⟨⟨supportedUnitInv hZ F, unit_supportedUnitInv hZ F,
     supportedUnitInv_unit hZ F⟩⟩
@@ -61,9 +68,9 @@ attribute [instance] objectUnitIsIso
 /-- The pullback-pushforward counit is invertible on every sheaf over a subset. -/
 @[stacks 01AZ "closed-subspace counit invertibility"]
 noncomputable instance counitAppIsIso (Z : Set X)
-    (F : (TopCat.of Z).Sheaf AddCommGrpCat.{u}) :
+    (F : (TopCat.of Z).Sheaf C) :
     IsIso
-      ((Sheaf.pullbackPushforwardAdjunction AddCommGrpCat.{u}
+      ((Sheaf.pullbackPushforwardAdjunction C
         (TopCat.subsetInclusion Z)).counit.app F) :=
   ⟨⟨Subset.counitInv Z F, Subset.counit_app_counitInv Z F,
     Subset.counitInv_counit_app Z F⟩⟩
@@ -71,10 +78,10 @@ noncomputable instance counitAppIsIso (Z : Set X)
 /-- The explicit inverse of the closed-support inclusion on a direct image. -/
 @[stacks 01AZ "inverse closed-support inclusion on a direct image"]
 noncomputable def inclusionPushforwardInv
-    (hZ : IsClosed Z) (F : (TopCat.of Z).Sheaf AddCommGrpCat.{u}) :
-    (Sheaf.pushforward AddCommGrpCat.{u} (TopCat.subsetInclusion Z)).obj F ⟶
+    (hZ : IsClosed Z) (F : (TopCat.of Z).Sheaf C) :
+    (Sheaf.pushforward C (TopCat.subsetInclusion Z)).obj F ⟶
       object hZ
-        ((Sheaf.pushforward AddCommGrpCat.{u} (TopCat.subsetInclusion Z)).obj F) :=
+        ((Sheaf.pushforward C (TopCat.subsetInclusion Z)).obj F) :=
   liftToObject hZ (𝟙 _) (by
     simpa only [Category.id_comp] using restrictionPushforward_eq_zero hZ F)
 
@@ -82,40 +89,40 @@ noncomputable def inclusionPushforwardInv
 object. -/
 @[simp, stacks 01AZ "closed-support inclusion forward-inverse law"]
 theorem inclusionPushforward_hom_inv_id
-    (hZ : IsClosed Z) (F : (TopCat.of Z).Sheaf AddCommGrpCat.{u}) :
+    (hZ : IsClosed Z) (F : (TopCat.of Z).Sheaf C) :
     inclusion hZ
-        ((Sheaf.pushforward AddCommGrpCat.{u} (TopCat.subsetInclusion Z)).obj F) ≫
+        ((Sheaf.pushforward C (TopCat.subsetInclusion Z)).obj F) ≫
       inclusionPushforwardInv hZ F = 𝟙 _ := sorry
 
 /-- The explicit inverse of the closed-support inclusion followed by the inclusion is the
 identity on a direct image. -/
 @[simp, stacks 01AZ "closed-support inclusion inverse-forward law"]
 theorem inclusionPushforward_inv_hom_id
-    (hZ : IsClosed Z) (F : (TopCat.of Z).Sheaf AddCommGrpCat.{u}) :
+    (hZ : IsClosed Z) (F : (TopCat.of Z).Sheaf C) :
     inclusionPushforwardInv hZ F ≫
         inclusion hZ
-          ((Sheaf.pushforward AddCommGrpCat.{u} (TopCat.subsetInclusion Z)).obj F) =
+          ((Sheaf.pushforward C (TopCat.subsetInclusion Z)).obj F) =
       𝟙 _ := sorry
 
 /-- The ambient support inclusion is invertible on a sheaf pushed forward from `Z`. -/
 @[stacks 01AZ "closed-support inclusion invertibility"]
 noncomputable instance inclusionPushforwardIsIso
-    (hZ : IsClosed Z) (F : (TopCat.of Z).Sheaf AddCommGrpCat.{u}) :
+    (hZ : IsClosed Z) (F : (TopCat.of Z).Sheaf C) :
     IsIso
       (inclusion hZ
-        ((Sheaf.pushforward AddCommGrpCat.{u} (TopCat.subsetInclusion Z)).obj F)) :=
+        ((Sheaf.pushforward C (TopCat.subsetInclusion Z)).obj F)) :=
   ⟨⟨inclusionPushforwardInv hZ F,
     inclusionPushforward_hom_inv_id hZ F, inclusionPushforward_inv_hom_id hZ F⟩⟩
 
 /-- The closed-support inclusion on a direct image is a literal isomorphism. -/
 @[stacks 01AZ "closed-support inclusion isomorphism on a direct image"]
 noncomputable def inclusionPushforwardIso
-    (hZ : IsClosed Z) (F : (TopCat.of Z).Sheaf AddCommGrpCat.{u}) :
+    (hZ : IsClosed Z) (F : (TopCat.of Z).Sheaf C) :
     object hZ
-        ((Sheaf.pushforward AddCommGrpCat.{u} (TopCat.subsetInclusion Z)).obj F) ≅
-      (Sheaf.pushforward AddCommGrpCat.{u} (TopCat.subsetInclusion Z)).obj F where
+        ((Sheaf.pushforward C (TopCat.subsetInclusion Z)).obj F) ≅
+      (Sheaf.pushforward C (TopCat.subsetInclusion Z)).obj F where
   hom := inclusion hZ
-    ((Sheaf.pushforward AddCommGrpCat.{u} (TopCat.subsetInclusion Z)).obj F)
+    ((Sheaf.pushforward C (TopCat.subsetInclusion Z)).obj F)
   inv := inclusionPushforwardInv hZ F
   hom_inv_id := inclusionPushforward_hom_inv_id hZ F
   inv_hom_id := inclusionPushforward_inv_hom_id hZ F
@@ -123,31 +130,31 @@ noncomputable def inclusionPushforwardIso
 /-- The forward map of `inclusionPushforwardIso` is the closed-support inclusion. -/
 @[simp, stacks 01AZ "closed-support inclusion isomorphism hom"]
 theorem inclusionPushforwardIso_hom
-    (hZ : IsClosed Z) (F : (TopCat.of Z).Sheaf AddCommGrpCat.{u}) :
+    (hZ : IsClosed Z) (F : (TopCat.of Z).Sheaf C) :
     (inclusionPushforwardIso hZ F).hom =
       inclusion hZ
-        ((Sheaf.pushforward AddCommGrpCat.{u} (TopCat.subsetInclusion Z)).obj F) := sorry
+        ((Sheaf.pushforward C (TopCat.subsetInclusion Z)).obj F) := sorry
 
 /-- The inverse map of `inclusionPushforwardIso` is the explicit closed-support inverse. -/
 @[simp, stacks 01AZ "closed-support inclusion isomorphism inverse"]
 theorem inclusionPushforwardIso_inv
-    (hZ : IsClosed Z) (F : (TopCat.of Z).Sheaf AddCommGrpCat.{u}) :
+    (hZ : IsClosed Z) (F : (TopCat.of Z).Sheaf C) :
     (inclusionPushforwardIso hZ F).inv = inclusionPushforwardInv hZ F := sorry
 
 /-- The explicit inverse of the pullback-pushforward counit on a sheaf over the closed subspace. -/
 @[stacks 01AZ "inverse closed-subspace pullback-pushforward counit"]
 noncomputable def pullbackPushforwardCounitAppInv (Z : Set X)
-    (F : (TopCat.of Z).Sheaf AddCommGrpCat.{u}) :
+    (F : (TopCat.of Z).Sheaf C) :
     F ⟶
-      (Sheaf.pullback AddCommGrpCat.{u} (TopCat.subsetInclusion Z)).obj
-        ((Sheaf.pushforward AddCommGrpCat.{u} (TopCat.subsetInclusion Z)).obj F) :=
+      (Sheaf.pullback C (TopCat.subsetInclusion Z)).obj
+        ((Sheaf.pushforward C (TopCat.subsetInclusion Z)).obj F) :=
   Subset.counitInv Z F
 
 /-- The pullback-pushforward counit followed by its explicit inverse is the identity. -/
 @[simp, stacks 01AZ "closed-subspace counit forward-inverse law"]
 theorem pullbackPushforwardCounitApp_hom_inv_id (Z : Set X)
-    (F : (TopCat.of Z).Sheaf AddCommGrpCat.{u}) :
-    (Sheaf.pullbackPushforwardAdjunction AddCommGrpCat.{u}
+    (F : (TopCat.of Z).Sheaf C) :
+    (Sheaf.pullbackPushforwardAdjunction C
       (TopCat.subsetInclusion Z)).counit.app F ≫
         pullbackPushforwardCounitAppInv Z F = 𝟙 _ := sorry
 
@@ -155,19 +162,19 @@ theorem pullbackPushforwardCounitApp_hom_inv_id (Z : Set X)
 identity. -/
 @[simp, stacks 01AZ "closed-subspace counit inverse-forward law"]
 theorem pullbackPushforwardCounitApp_inv_hom_id (Z : Set X)
-    (F : (TopCat.of Z).Sheaf AddCommGrpCat.{u}) :
+    (F : (TopCat.of Z).Sheaf C) :
     pullbackPushforwardCounitAppInv Z F ≫
-        (Sheaf.pullbackPushforwardAdjunction AddCommGrpCat.{u}
+        (Sheaf.pullbackPushforwardAdjunction C
           (TopCat.subsetInclusion Z)).counit.app F = 𝟙 _ := sorry
 
 /-- The pullback-pushforward counit on a sheaf over the closed subspace is a literal isomorphism.
 -/
 @[stacks 01AZ "closed-subspace pullback-pushforward counit isomorphism"]
 noncomputable def pullbackPushforwardCounitAppIso (Z : Set X)
-    (F : (TopCat.of Z).Sheaf AddCommGrpCat.{u}) :
-    (Sheaf.pullback AddCommGrpCat.{u} (TopCat.subsetInclusion Z)).obj
-        ((Sheaf.pushforward AddCommGrpCat.{u} (TopCat.subsetInclusion Z)).obj F) ≅ F where
-  hom := (Sheaf.pullbackPushforwardAdjunction AddCommGrpCat.{u}
+    (F : (TopCat.of Z).Sheaf C) :
+    (Sheaf.pullback C (TopCat.subsetInclusion Z)).obj
+        ((Sheaf.pushforward C (TopCat.subsetInclusion Z)).obj F) ≅ F where
+  hom := (Sheaf.pullbackPushforwardAdjunction C
     (TopCat.subsetInclusion Z)).counit.app F
   inv := pullbackPushforwardCounitAppInv Z F
   hom_inv_id := pullbackPushforwardCounitApp_hom_inv_id Z F
@@ -176,15 +183,15 @@ noncomputable def pullbackPushforwardCounitAppIso (Z : Set X)
 /-- The forward map of `pullbackPushforwardCounitAppIso` is the adjunction counit. -/
 @[simp, stacks 01AZ "closed-subspace counit isomorphism hom"]
 theorem pullbackPushforwardCounitAppIso_hom (Z : Set X)
-    (F : (TopCat.of Z).Sheaf AddCommGrpCat.{u}) :
+    (F : (TopCat.of Z).Sheaf C) :
     (pullbackPushforwardCounitAppIso Z F).hom =
-      (Sheaf.pullbackPushforwardAdjunction AddCommGrpCat.{u}
+      (Sheaf.pullbackPushforwardAdjunction C
         (TopCat.subsetInclusion Z)).counit.app F := sorry
 
 /-- The inverse map of `pullbackPushforwardCounitAppIso` is explicit. -/
 @[simp, stacks 01AZ "closed-subspace counit isomorphism inverse"]
 theorem pullbackPushforwardCounitAppIso_inv (Z : Set X)
-    (F : (TopCat.of Z).Sheaf AddCommGrpCat.{u}) :
+    (F : (TopCat.of Z).Sheaf C) :
     (pullbackPushforwardCounitAppIso Z F).inv =
       pullbackPushforwardCounitAppInv Z F := sorry
 
@@ -192,17 +199,17 @@ theorem pullbackPushforwardCounitAppIso_inv (Z : Set X)
 -/
 @[stacks 01AZ "inverse ambient closed-support pullback-pushforward unit"]
 noncomputable def objectPullbackPushforwardUnitAppInv
-    (hZ : IsClosed Z) (F : X.Sheaf AddCommGrpCat.{u}) :
-    (Sheaf.pushforward AddCommGrpCat.{u} (TopCat.subsetInclusion Z)).obj
-        ((Sheaf.pullback AddCommGrpCat.{u} (TopCat.subsetInclusion Z)).obj
+    (hZ : IsClosed Z) (F : X.Sheaf C) :
+    (Sheaf.pushforward C (TopCat.subsetInclusion Z)).obj
+        ((Sheaf.pullback C (TopCat.subsetInclusion Z)).obj
           (object hZ F)) ⟶ object hZ F :=
   supportedUnitInv hZ F
 
 /-- The pullback-pushforward unit followed by its explicit inverse is the identity. -/
 @[simp, stacks 01AZ "ambient closed-support unit forward-inverse law"]
 theorem objectPullbackPushforwardUnitApp_hom_inv_id
-    (hZ : IsClosed Z) (F : X.Sheaf AddCommGrpCat.{u}) :
-    (Sheaf.pullbackPushforwardAdjunction AddCommGrpCat.{u}
+    (hZ : IsClosed Z) (F : X.Sheaf C) :
+    (Sheaf.pullbackPushforwardAdjunction C
       (TopCat.subsetInclusion Z)).unit.app (object hZ F) ≫
         objectPullbackPushforwardUnitAppInv hZ F = 𝟙 _ := sorry
 
@@ -210,21 +217,21 @@ theorem objectPullbackPushforwardUnitApp_hom_inv_id
 -/
 @[simp, stacks 01AZ "ambient closed-support unit inverse-forward law"]
 theorem objectPullbackPushforwardUnitApp_inv_hom_id
-    (hZ : IsClosed Z) (F : X.Sheaf AddCommGrpCat.{u}) :
+    (hZ : IsClosed Z) (F : X.Sheaf C) :
     objectPullbackPushforwardUnitAppInv hZ F ≫
-        (Sheaf.pullbackPushforwardAdjunction AddCommGrpCat.{u}
+        (Sheaf.pullbackPushforwardAdjunction C
           (TopCat.subsetInclusion Z)).unit.app (object hZ F) = 𝟙 _ := sorry
 
 /-- The pullback-pushforward unit on the ambient closed-support object is a literal isomorphism.
 -/
 @[stacks 01AZ "ambient closed-support pullback-pushforward unit isomorphism"]
 noncomputable def objectPullbackPushforwardUnitAppIso
-    (hZ : IsClosed Z) (F : X.Sheaf AddCommGrpCat.{u}) :
+    (hZ : IsClosed Z) (F : X.Sheaf C) :
     object hZ F ≅
-      (Sheaf.pushforward AddCommGrpCat.{u} (TopCat.subsetInclusion Z)).obj
-        ((Sheaf.pullback AddCommGrpCat.{u} (TopCat.subsetInclusion Z)).obj
+      (Sheaf.pushforward C (TopCat.subsetInclusion Z)).obj
+        ((Sheaf.pullback C (TopCat.subsetInclusion Z)).obj
           (object hZ F)) where
-  hom := (Sheaf.pullbackPushforwardAdjunction AddCommGrpCat.{u}
+  hom := (Sheaf.pullbackPushforwardAdjunction C
     (TopCat.subsetInclusion Z)).unit.app (object hZ F)
   inv := objectPullbackPushforwardUnitAppInv hZ F
   hom_inv_id := objectPullbackPushforwardUnitApp_hom_inv_id hZ F
@@ -233,44 +240,44 @@ noncomputable def objectPullbackPushforwardUnitAppIso
 /-- The forward map of `objectPullbackPushforwardUnitAppIso` is the adjunction unit. -/
 @[simp, stacks 01AZ "ambient closed-support unit isomorphism hom"]
 theorem objectPullbackPushforwardUnitAppIso_hom
-    (hZ : IsClosed Z) (F : X.Sheaf AddCommGrpCat.{u}) :
+    (hZ : IsClosed Z) (F : X.Sheaf C) :
     (objectPullbackPushforwardUnitAppIso hZ F).hom =
-      (Sheaf.pullbackPushforwardAdjunction AddCommGrpCat.{u}
+      (Sheaf.pullbackPushforwardAdjunction C
         (TopCat.subsetInclusion Z)).unit.app (object hZ F) := sorry
 
 /-- The inverse map of `objectPullbackPushforwardUnitAppIso` is explicit. -/
 @[simp, stacks 01AZ "ambient closed-support unit isomorphism inverse"]
 theorem objectPullbackPushforwardUnitAppIso_inv
-    (hZ : IsClosed Z) (F : X.Sheaf AddCommGrpCat.{u}) :
+    (hZ : IsClosed Z) (F : X.Sheaf C) :
     (objectPullbackPushforwardUnitAppIso hZ F).inv =
       objectPullbackPushforwardUnitAppInv hZ F := sorry
 
 /-- The unit component for the closed-subset pushforward/closed-support adjunction. -/
 @[stacks 01AZ "closed-support adjunction unit component"]
 noncomputable def unitApp
-    (hZ : IsClosed Z) (F : (TopCat.of Z).Sheaf AddCommGrpCat.{u}) :
+    (hZ : IsClosed Z) (F : (TopCat.of Z).Sheaf C) :
     F ⟶
       (functor hZ).obj
-        ((Sheaf.pushforward AddCommGrpCat.{u} (TopCat.subsetInclusion Z)).obj F) :=
+        ((Sheaf.pushforward C (TopCat.subsetInclusion Z)).obj F) :=
   pullbackPushforwardCounitAppInv Z F ≫
-    (Sheaf.pullback AddCommGrpCat.{u} (TopCat.subsetInclusion Z)).map
+    (Sheaf.pullback C (TopCat.subsetInclusion Z)).map
       (inclusionPushforwardInv hZ F)
 
 /-- The counit component for the closed-subset pushforward/closed-support adjunction. -/
 @[stacks 01AZ "closed-support adjunction counit component"]
 noncomputable def counitApp
-    (hZ : IsClosed Z) (F : X.Sheaf AddCommGrpCat.{u}) :
-    (Sheaf.pushforward AddCommGrpCat.{u} (TopCat.subsetInclusion Z)).obj
+    (hZ : IsClosed Z) (F : X.Sheaf C) :
+    (Sheaf.pushforward C (TopCat.subsetInclusion Z)).obj
         ((functor hZ).obj F) ⟶ F :=
   objectPullbackPushforwardUnitAppInv hZ F ≫
     inclusion hZ F
 
-/-- Lemma 17.6.3 (01AZ) (1): pushforward from a closed subset is left adjoint to the additive
-sheaf of sections supported on that subset. -/
+/-- Lemma 17.6.3 (01AZ) (1): pushforward from a closed subset is left adjoint to the
+sheaf of sections supported on that subset, for any coefficients satisfying the kernel hypotheses. -/
 @[stacks 01AZ "(1)"]
 noncomputable def adjunction
     (hZ : IsClosed Z) :
-    Sheaf.pushforward AddCommGrpCat.{u} (TopCat.subsetInclusion Z) ⊣ functor hZ where
+    Sheaf.pushforward C (TopCat.subsetInclusion Z) ⊣ functor hZ where
   unit :=
     { app := unitApp hZ
       naturality := sorry }
@@ -283,25 +290,36 @@ noncomputable def adjunction
 /-- The unit of the closed-support adjunction is the explicit unit component. -/
 @[simp, stacks 01AZ "closed-support adjunction unit app"]
 theorem adjunction_unit_app
-    (hZ : IsClosed Z) (F : (TopCat.of Z).Sheaf AddCommGrpCat.{u}) :
+    (hZ : IsClosed Z) (F : (TopCat.of Z).Sheaf C) :
     (adjunction hZ).unit.app F = unitApp hZ F := sorry
 
 /-- The counit of the closed-support adjunction is the explicit counit component. -/
 @[simp, stacks 01AZ "closed-support adjunction counit app"]
 theorem adjunction_counit_app
-    (hZ : IsClosed Z) (F : X.Sheaf AddCommGrpCat.{u}) :
+    (hZ : IsClosed Z) (F : X.Sheaf C) :
     (adjunction hZ).counit.app F = counitApp hZ F := sorry
-
-/-- Closed-subset pushforward is a left adjoint. -/
-theorem pushforwardIsLeftAdjointOfIsClosed (hZ : IsClosed Z) :
-    (Sheaf.pushforward AddCommGrpCat.{u}
-      (TopCat.subsetInclusion Z)).IsLeftAdjoint :=
-  (adjunction hZ).isLeftAdjoint
 
 /-- The closed-support functor is a right adjoint. -/
 noncomputable instance functorIsRightAdjoint (hZ : IsClosed Z) :
-    (functor (C := AddCommGrpCat.{u}) hZ).IsRightAdjoint :=
+    (functor (C := C) hZ).IsRightAdjoint :=
   (adjunction hZ).isRightAdjoint
+
+end Generic
+
+/-- Closed-subset pushforward is a left adjoint. -/
+theorem pushforwardIsLeftAdjointOfIsClosed
+    {X : TopCat.{w}} {Z : Set X} {C : Type u} [Category.{w} C]
+    {FC : C → C → Type w} {CC : C → Type w}
+    [∀ A B, FunLike (FC A B) (CC A) (CC B)] [ConcreteCategory.{w} C FC]
+    [IsAlgebraicStructure C (CategoryTheory.forget C)]
+    [HasColimits C] [HasZeroMorphisms C] (hZ : IsClosed Z) :
+    (Sheaf.pushforward C (TopCat.subsetInclusion Z)).IsLeftAdjoint :=
+  (adjunction (C := C) hZ).isLeftAdjoint
+
+section AddCommGrp
+
+variable {X : TopCat.{u}} {Z : Set X}
+variable [HasSheafify (Opens.grothendieckTopology X) AddCommGrpCat.{u}]
 
 /-- The closed-support functor is additive. -/
 noncomputable instance functorAdditive (hZ : IsClosed Z)
@@ -321,6 +339,8 @@ noncomputable instance pushforwardPreservesColimits (Z : Closeds X) :
     PreservesColimits
       (Sheaf.pushforward AddCommGrpCat.{u}
         (TopCat.subsetInclusion (Z : Set X))) := sorry
+
+end AddCommGrp
 
 end TopCat.Sheaf.ClosedSubset.SectionsWithSupport
 

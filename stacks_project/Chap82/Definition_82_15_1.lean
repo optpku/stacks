@@ -6,9 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap82.Definition_82_15_1_Chow
-public import stacks_project.Chap82.Definition_82_15_1_ClosedPushforward
-public import stacks_project.Chap82.Definition_82_15_1_RationalEquivalence
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.ChowGroup.Quotient
 import StacksCheckRecall
 
 /-!
@@ -42,8 +40,7 @@ in `Z_k(X)`, where `i_j` is the inclusion of `W_j`. This is well-defined because
 the coproduct of the inclusions is proper. -/
 @[stacks 0EQ6]
 #check
-  (@RationalEquivalence.boundary S B X inferInstance inferInstance f inferInstance
-      inferInstance δ inferInstance k :
+  (AlgebraicGeometry.AlgebraicSpace.RationalEquivalence.boundary f δ k :
     {J : Type v} → (W : J → ClosedSubspace X) →
       (hWint : ∀ j, IsIntegral (W j).X) →
       (hWdim : ∀ j, AlgebraicGeometry.AlgebraicSpace.Hom.deltaDimension f δ
@@ -57,8 +54,7 @@ rationally equivalent to zero when it is a cycle of the form displayed in
 (1). -/
 @[stacks 0EQ6]
 #check
-  (@RationalEquivalence.IsRationallyTrivial S B X inferInstance inferInstance f
-      inferInstance inferInstance δ inferInstance k :
+  (AlgebraicGeometry.AlgebraicSpace.RationalEquivalence.IsRationallyTrivial f δ k :
     AlgebraicGeometry.AlgebraicSpace.Hom.cycleGroup f δ k → Prop)
 
 /- Definition 82.15.1 (3): In Situation 82.2.1, cycles `α, β ∈ Z_k(X)` are
@@ -66,15 +62,14 @@ rationally equivalent, written `α ∼_rat β`, when `α - β` is rationally
 equivalent to zero. -/
 @[stacks 0EQ6]
 #check
-  (@RationalEquivalence.RationallyEquivalent S B X inferInstance inferInstance f
-      inferInstance inferInstance δ inferInstance k :
+  (AlgebraicGeometry.AlgebraicSpace.RationalEquivalence.RationallyEquivalent f δ k :
     AlgebraicGeometry.AlgebraicSpace.Hom.cycleGroup f δ k → AlgebraicGeometry.AlgebraicSpace.Hom.cycleGroup f δ k → Prop)
 
 /- Definition 82.15.1 (4): In Situation 82.2.1, the Chow group of `k`-cycles on
 `X` is `CH_k(X) = Z_k(X) / ∼_rat = Hom.chowGroup f δ k`. This is sometimes
 called the Chow group of `k`-cycles modulo rational equivalence on `X`. -/
 @[stacks 0EQ6]
-#check (AlgebraicGeometry.AlgebraicSpace.Hom.chowGroup f δ k)
+#check (AlgebraicGeometry.AlgebraicSpace.Hom.chowGroup f δ k : Type (u + 1))
 
 end
 

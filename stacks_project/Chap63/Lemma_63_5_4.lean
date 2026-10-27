@@ -6,8 +6,8 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap63.Lemma_63_5_3
-public import stacks_project.Chap63.Lemma_63_5_4_Comparison
+import StacksCheckRecall
+import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Trace.Weighting.Composition
 
 /-!
 # Composition of derived weighting traces
@@ -36,7 +36,7 @@ variable [LocallyQuasiFinite g] [LocallyOfFiniteType g]
 variable [HasSheafify Y.smallEtaleTopology AddCommGrpCat.{u}]
 variable [HasSheafify Z.smallEtaleTopology AddCommGrpCat.{u}]
 variable [HasCoproducts.{u} (Sheaf Z.smallEtaleTopology AddCommGrpCat.{u})]
-variable (Λ : Type u) [CommRing Λ]
+variable (Λ : Type u) [Ring Λ]
 variable [X.smallEtaleTopology.HasSheafCompose
   (forget₂ (ModuleCat.{u} Λ) AddCommGrpCat.{u})]
 variable [Y.smallEtaleTopology.HasSheafCompose
@@ -84,37 +84,20 @@ variable [HasDerivedCategory (Sheaf X.smallEtaleTopology (ModuleCat.{u} Λ))]
 variable [HasDerivedCategory (Sheaf Y.smallEtaleTopology (ModuleCat.{u} Λ))]
 variable [HasDerivedCategory (Sheaf Z.smallEtaleTopology (ModuleCat.{u} Λ))]
 
-/-- `weightingTraceDerived` of `f ≫ g` with an explicit weighting function. -/
-abbrev weightingTraceDerived_ofWeight (w : X → ℤ) (hw : (f ≫ g).IsWeighting w)
-    (K : EtaleDerived Z Λ) :
-    (lowerShriekModuleDerived (f ≫ g) Λ).obj
-        ((etaleModuleDerivedInverseImage (f ≫ g) Λ).obj K) ⟶ K :=
-  weightingTraceDerived (f ≫ g) Λ hw K
-
-/-- `weightingTraceDerived_ofWeight` is `weightingTraceDerived` of `f ≫ g`. -/
-theorem weightingTraceDerived_ofWeight_eq (w : X → ℤ)
-    (hw : (f ≫ g).IsWeighting w) (K : EtaleDerived Z Λ) :
-    weightingTraceDerived_ofWeight f g Λ w hw K =
-      weightingTraceDerived (f ≫ g) Λ hw K :=
-  sorry
-
-/-- Lemma 63.5.4: Let `f : X ⟶ Y` and `g : Y ⟶ Z` be locally quasi-finite.
-Let `w_f` be a weighting of `f` and `w_g` a weighting of `g`. For `K` in
-`D(Z_étale, Λ)`, the composition
-`g_! (Tr_{f, w_f, g⁻¹ K}) ≫ Tr_{g, w_g, K}` equals
-`Tr_{f ≫ g, w_{f ≫ g}, K}` after `weightingTraceDerivedCompIso`, where
-`w_{f ≫ g}(x) = w_f(x) * w_g(f x)` is `IsWeighting.comp hw_f hw_g`. -/
-@[stacks 0GL3]
-theorem weightingTraceDerived_comp {w_f : X → ℤ} (hw_f : f.IsWeighting w_f)
-    {w_g : Y → ℤ} (hw_g : g.IsWeighting w_g) (K : EtaleDerived Z Λ) :
-    (weightingTraceDerivedCompIso f g Λ K).hom ≫
-      (lowerShriekModuleDerived g Λ).map
-        (weightingTraceDerived f Λ hw_f
-          ((etaleModuleDerivedInverseImage g Λ).obj K)) ≫
-      weightingTraceDerived g Λ hw_g K =
-      weightingTraceDerived_ofWeight f g Λ (fun x ↦ w_f x * w_g (f x))
-        (IsWeighting.comp hw_f hw_g) K :=
-  sorry
+/- Lemma 63.5.4: derived weighting traces compose under the canonical
+comparison, with composite weighting `fun x ↦ w_f x * w_g (f x)`. -/
+@[stacks 0GL3] #check
+  (AlgebraicGeometry.Scheme.Etale.weightingTraceDerived_comp f g Λ :
+    ∀ {w_f : X → ℤ} (hw_f : f.IsWeighting w_f)
+      {w_g : Y → ℤ} (hw_g : g.IsWeighting w_g)
+      (K : DerivedCategory (Sheaf Z.smallEtaleTopology (ModuleCat.{u} Λ))),
+      (weightingTraceDerivedCompIso f g Λ K).hom ≫
+        (lowerShriekModuleDerived g Λ).map
+          (weightingTraceDerived f Λ hw_f
+            ((etaleModuleDerivedInverseImage g Λ).obj K)) ≫
+        weightingTraceDerived g Λ hw_g K =
+        weightingTraceDerived (f ≫ g) Λ (w := fun x ↦ w_f x * w_g (f x))
+          (IsWeighting.comp hw_f hw_g) K)
 
 end AlgebraicGeometry.Scheme.Etale
 

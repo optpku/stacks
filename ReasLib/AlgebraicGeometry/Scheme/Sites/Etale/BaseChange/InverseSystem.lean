@@ -63,12 +63,16 @@ theorem etaleHigherDirectImageBaseChange_of_inverseSystem
     [∀ {i j : I} (hij : i ≤ j),
       IsAffineHom (OrderDualInverseSystem.transitionMap C.DT hij)]
     [∀ i : I, QuasiCompact (C.g i)] [∀ i : I, QuasiSeparated (C.g i)]
-    (Fsys : AbelianSheafSystem.{u, u + 1} C.DT)
-    [HasColimit (inverseImageDiagram.{u, u + 1} C.DT C.cT Fsys)] (q : ℕ)
+    (Fsys : AbelianSheafSystem.{u, u + 1}
+      (hAdj := fun f ↦ (Abelian.adjunction f).isRightAdjoint) C.DT)
+    [HasColimit (inverseImageDiagram.{u, u + 1}
+      (hAdj := fun f ↦ (Abelian.adjunction f).isRightAdjoint) C.DT C.cT Fsys)] (q : ℕ)
     (h_stage : ∀ i : I,
       IsIso (higherMap (C.f i) (C.h i) (C.e i) (C.g i)
-        (C.stage_isPullback i) q (Fsys.obj i))) :
+        (C.stage_isPullback i) q
+        (Fsys.obj (hAdj := fun f ↦ (Abelian.adjunction f).isRightAdjoint) i))) :
     IsIso (higherMap C.fLim C.hLim C.eLim C.gLim C.limit_isPullback q
-      (colimitInverseImage.{u, u + 1} C.DT C.cT Fsys)) := sorry
+      (colimitInverseImage.{u, u + 1}
+        (hAdj := fun f ↦ (Abelian.adjunction f).isRightAdjoint) C.DT C.cT Fsys)) := sorry
 
 end AlgebraicGeometry.Scheme.Etale.BaseChange

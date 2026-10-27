@@ -6,15 +6,25 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-import Mathlib.CategoryTheory.Preadditive.Projective.Resolution
-import ReasLib.Algebra.Homology.CochainComplex.ProjectiveResolution
+import ReasLib.Algebra.Homology.CochainComplex.BoundedAboveReplacement.Resolution
+import ReasLib.Algebra.Homology.CochainComplex.ProjectiveResolution.Basic
 import StacksCheckRecall
 
 @[expose] public section
 
-/- Definition 13.19.1: `CochainComplex.ProjectiveResolution K` is the shared owner for a
-quasi-isomorphism from a bounded-above cochain complex of projective objects to the cochain
-complex `K`.  This is distinct from mathlib's object-level
-`CategoryTheory.ProjectiveResolution`. -/
-@[stacks 0643] #check @CochainComplex.ProjectiveResolution
-@[stacks 0643] #check @CategoryTheory.ProjectiveResolution
+universe u v
+
+variable {𝒜 : Type u} [CategoryTheory.Category.{v} 𝒜] [CategoryTheory.Abelian 𝒜]
+variable (A : 𝒜) (K : CochainComplex 𝒜 ℤ)
+
+/- Definition 13.19.1 (1): a projective resolution of an object A is a
+nonpositive cochain complex of projective objects with a quasi-isomorphism to A[0].
+These conditions express the four object-resolution conditions: the degree-zero
+augmentation identifies the cokernel of d⁻¹ with A, and negative cohomology vanishes. -/
+@[stacks 0644] #check
+  (CochainComplex.StrictlyLE.TermsIn.QuasiIsoFrom (CategoryTheory.isProjective 𝒜) 0
+    ((CochainComplex.singleFunctor 𝒜 0).obj A) : Type (max u v))
+
+/- Definition 13.19.1 (2): a projective resolution of a complex K is a
+bounded-above complex of projective objects with a quasi-isomorphism to K. -/
+@[stacks 0644] #check (CochainComplex.ProjectiveResolution K : Type (max u v))

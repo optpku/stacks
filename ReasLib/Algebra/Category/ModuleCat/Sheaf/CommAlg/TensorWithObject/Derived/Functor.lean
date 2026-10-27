@@ -15,6 +15,8 @@ public import ReasLib.Algebra.Homology.DifferentialGradedModule.PropertyP.KProje
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Derived.Enriched
 public import ReasLib.CategoryTheory.Functor.Derived.ComputesAt.Total
 public import ReasLib.CategoryTheory.Functor.Derived.Total.Triangulated
+public import ReasLib.Algebra.Category.ModuleCat.Sheaf.CommAlg.TensorWithObject.Derived.PropertyPModel
+public import ReasLib.Algebra.Homology.DifferentialGradedModule.PropertyP.StandardDerivedShift
 
 /-!
 # Derived tensoring with a complex over an algebra sheaf
@@ -86,9 +88,7 @@ noncomputable def tensorFunctor (K : Complex.{r, u, v, w, max u z} O) :
     DifferentialGradedModule.Derived.Category (endDGA K) ⥤
       DerivedCategory
         (SheafOfModules.CommAlg.Modules.{r, u, v, w, max u z} O) :=
-  (tensorSourceFunctor K).totalLeftDerived
-    (DifferentialGradedModule.Derived.Q (endDGA K))
-    (DifferentialGradedModule.quasiIso (endDGA K))
+  PropertyPModel.tensorFunctor K
 
 /-- The total derived tensor functor is linear over the coefficient ring. -/
 @[stacks 09LX "linearity of derived tensor over the coefficient ring"]
@@ -100,9 +100,7 @@ noncomputable instance tensorFunctor_linear
 noncomputable def tensorCounit (K : Complex.{r, u, v, w, max u z} O) :
     DifferentialGradedModule.Derived.Q (endDGA K) ⋙ tensorFunctor K ⟶
       tensorSourceFunctor K :=
-  (tensorSourceFunctor K).totalLeftDerivedCounit
-    (DifferentialGradedModule.Derived.Q (endDGA K))
-    (DifferentialGradedModule.quasiIso (endDGA K))
+  PropertyPModel.tensorCounit K
 
 /-- A property-(P) module computes derived tensor without replacing the source module. -/
 @[stacks 09LX "property-P objects compute derived tensor"]
@@ -130,9 +128,7 @@ noncomputable def tensorCounitAppIso (K : Complex.{r, u, v, w, max u z} O)
         ((DifferentialGradedModule.Derived.fromModules (endDGA K)).obj M) ≅
       (tensorSourceFunctor K).obj
         ((DifferentialGradedModule.toK (endDGA K)).obj M) :=
-  @asIso _ _ _ _
-    ((tensorCounit K).app ((DifferentialGradedModule.toK (endDGA K)).obj M))
-    (tensorCounitApp_isIso K M hM)
+  PropertyPModel.tensorCounitAppIso K M hM
 
 /-- The forward map of `tensorCounitAppIso` is the derived tensor counit component. -/
 @[reassoc (attr := simp), stacks 09LX "forward property-P derived tensor comparison"]
@@ -141,7 +137,7 @@ theorem tensorCounitAppIso_hom (K : Complex.{r, u, v, w, max u z} O)
     (hM : DifferentialGradedModule.HasPropertyP (endDGA K) M) :
     (tensorCounitAppIso K M hM).hom =
       (tensorCounit K).app
-        ((DifferentialGradedModule.toK (endDGA K)).obj M) := sorry
+        ((DifferentialGradedModule.toK (endDGA K)).obj M) := rfl
 
 /-- The inverse map of `tensorCounitAppIso` is the inverse of the derived tensor counit component. -/
 @[reassoc (attr := simp), stacks 09LX "inverse property-P derived tensor comparison"]
@@ -149,9 +145,7 @@ theorem tensorCounitAppIso_inv (K : Complex.{r, u, v, w, max u z} O)
     (M : TensorWithObject.Modules K)
     (hM : DifferentialGradedModule.HasPropertyP (endDGA K) M) :
     (tensorCounitAppIso K M hM).inv =
-      (@asIso _ _ _ _
-        ((tensorCounit K).app ((DifferentialGradedModule.toK (endDGA K)).obj M))
-        (tensorCounitApp_isIso K M hM)).inv := sorry
+      (PropertyPModel.tensorCounitAppIso K M hM).inv := rfl
 
 /-- On a property-(P) module, derived tensor is represented by the strict tensor complex. -/
 @[stacks 09LX "property-P strict model of derived tensor"]
@@ -173,7 +167,7 @@ theorem tensorModelIso_hom (K : Complex.{r, u, v, w, max u z} O)
     (tensorModelIso K M hM).hom =
       (tensorCounitAppIso K M hM).hom ≫
         (SheafOfModules.CommAlg.Derived.objIso O
-          ((TensorWithObject.tensorFunctor K).obj M)).hom := sorry
+          ((TensorWithObject.tensorFunctor K).obj M)).hom := rfl
 
 /-- The inverse map of `tensorModelIso` reverses the derived image and counit comparisons. -/
 @[reassoc (attr := simp), stacks 09LX "inverse property-P derived tensor model comparison"]
@@ -183,13 +177,14 @@ theorem tensorModelIso_inv (K : Complex.{r, u, v, w, max u z} O)
     (tensorModelIso K M hM).inv =
       (SheafOfModules.CommAlg.Derived.objIso O
           ((TensorWithObject.tensorFunctor K).obj M)).inv ≫
-        (tensorCounitAppIso K M hM).inv := sorry
+        (tensorCounitAppIso K M hM).inv := rfl
 
 /-- The concrete functor and its counit form a total left-derived functor model. -/
 @[stacks 09LX "derived tensor universal property over a coefficient ring"]
 instance tensorFunctor_isLeftDerived (K : Complex.{r, u, v, w, max u z} O) :
     (tensorFunctor K).IsLeftDerivedFunctor (tensorCounit K)
-      (DifferentialGradedModule.quasiIso (endDGA K)) := sorry
+      (DifferentialGradedModule.quasiIso (endDGA K)) :=
+  PropertyPModel.tensorFunctor_isLeftDerived K
 
 /-- The standard homotopy presentation of the derived tensor source. -/
 @[stacks 09LX "homotopy presentation of the derived tensor source"]
@@ -220,9 +215,8 @@ noncomputable instance tensorSourceFunctor_commShift
 @[stacks 09LX "derived tensor commutes with shifts"]
 noncomputable instance tensorFunctor_commShift
     (K : Complex.{r, u, v, w, max u z} O) : (tensorFunctor K).CommShift ℤ :=
-  Functor.totalLeftDerived_commShift (tensorSourceFunctor K)
-    (DifferentialGradedModule.quasiIso (endDGA K))
-    (DifferentialGradedModule.Derived.Q (endDGA K))
+  DifferentialGradedModule.PropertyP.StandardDerivedShift.commShift
+    (TensorWithObject.homotopyFunctor K)
 
 /-- The total derived tensor functor is triangulated. -/
 @[stacks 09LX "derived tensor is triangulated"]

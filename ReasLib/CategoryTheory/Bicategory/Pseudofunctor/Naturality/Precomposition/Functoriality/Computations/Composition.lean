@@ -45,7 +45,8 @@ theorem Precomp.Composition.strongTrans.app
     (H : Pseudofunctor A B) (K : Pseudofunctor B C)
     (F : Pseudofunctor C D) :
     (Precomp.Composition.strongTrans D H K).app F =
-      (Pseudofunctor.compAssoc H K F).hom := sorry
+      (Pseudofunctor.compAssoc H K F).hom := by
+  rfl
 
 /-- The factor naturality of `Precomp.Composition.strongTrans` is the canonical
 comparison assembled from the component associators. -/
@@ -54,7 +55,8 @@ theorem Precomp.Composition.strongTrans.naturality
     (H : Pseudofunctor A B) (K : Pseudofunctor B C)
     {F G : Pseudofunctor C D} (η : F ⟶ G) :
     (Precomp.Composition.strongTrans D H K).naturality η =
-      Precomp.Composition.naturality H K η := sorry
+      Precomp.Composition.naturality H K η := by
+  rfl
 
 /-- The forward component of the factor naturality comparison is the
 right-unitor followed by the inverse left-unitor. -/
@@ -64,7 +66,8 @@ theorem Precomp.Composition.naturality.hom_app
     {F G : Pseudofunctor C D} (η : F ⟶ G) (a : A) :
     (Precomp.Composition.naturality H K η).hom.as.app a =
       ((ρ_ (η.app ((H.comp K).obj a))) ≪≫
-        (λ_ (η.app ((H.comp K).obj a))).symm).hom := sorry
+        (λ_ (η.app ((H.comp K).obj a))).symm).hom := by
+  rfl
 
 /-- The inverse component of the factor naturality comparison is the inverse
 of the right-unitor/inverse-left-unitor composite. -/
@@ -74,7 +77,8 @@ theorem Precomp.Composition.naturality.inv_app
     {F G : Pseudofunctor C D} (η : F ⟶ G) (a : A) :
     (Precomp.Composition.naturality H K η).inv.as.app a =
       ((ρ_ (η.app ((H.comp K).obj a))) ≪≫
-        (λ_ (η.app ((H.comp K).obj a))).symm).inv := sorry
+        (λ_ (η.app ((H.comp K).obj a))).symm).inv := by
+  rfl
 
 variable (D) in
 /-- The pointwise equivalence of `Precomp.Composition.equivalence` is exactly
@@ -83,7 +87,30 @@ variable (D) in
 theorem Precomp.Composition.equivalence.app
     (H : Pseudofunctor A B) (K : Pseudofunctor B C)
     (F : Pseudofunctor C D) :
-    (Precomp.Composition.equivalence D H K).app F = Pseudofunctor.compAssoc H K F := sorry
+    (Precomp.Composition.equivalence D H K).app F = Pseudofunctor.compAssoc H K F := by
+  change
+    Bicategory.Equivalence.mk (Pseudofunctor.compAssoc H K F).hom
+        (Pseudofunctor.compAssoc H K F).inv _ _ _ =
+      Bicategory.Equivalence.mk (Pseudofunctor.compAssoc H K F).hom
+        (Pseudofunctor.compAssoc H K F).inv _ _ _
+  congr 1
+  · apply Iso.ext
+    apply StrongTrans.homCategory.ext
+    intro a
+    change
+      𝟙 _ ≫ ((Pseudofunctor.compAssoc H K F).unit.hom.as.app a ≫
+        𝟙 _ ▷ (Pseudofunctor.compAssoc H K F).inv.app a) ≫ 𝟙 _ =
+        (Pseudofunctor.compAssoc H K F).unit.hom.as.app a
+    simp only [Bicategory.id_whiskerRight, Category.comp_id, Category.id_comp]
+    exact Category.comp_id _
+  · apply Iso.ext
+    apply StrongTrans.homCategory.ext
+    intro a
+    change
+      𝟙 _ ≫ ((Pseudofunctor.compAssoc H K F).inv.app a ◁ 𝟙 _ ≫
+        (Pseudofunctor.compAssoc H K F).counit.hom.as.app a) ≫ 𝟙 _ =
+        (Pseudofunctor.compAssoc H K F).counit.hom.as.app a
+    simp only [Bicategory.whiskerLeft_id, Category.id_comp, Category.comp_id]
 
 variable (D) in
 /-- The forward strong transformation of `Precomp.Composition.equivalence` is its explicit
@@ -91,7 +118,8 @@ direct-to-successive factor comparison. -/
 @[simp]
 theorem Precomp.Composition.equivalence.hom
     (H : Pseudofunctor A B) (K : Pseudofunctor B C) :
-    (Precomp.Composition.equivalence D H K).hom = Precomp.Composition.strongTrans D H K := sorry
+    (Precomp.Composition.equivalence D H K).hom = Precomp.Composition.strongTrans D H K := by
+  rfl
 
 variable (D) in
 /-- The forward component of `Precomp.Composition.equivalence` at a diagram is the forward
@@ -101,7 +129,8 @@ theorem Precomp.Composition.equivalence.hom.app
     (H : Pseudofunctor A B) (K : Pseudofunctor B C)
     (F : Pseudofunctor C D) :
     (Precomp.Composition.equivalence D H K).hom.app F =
-      (Pseudofunctor.compAssoc H K F).hom := sorry
+      (Pseudofunctor.compAssoc H K F).hom := by
+  rfl
 
 variable (D) in
 /-- The forward naturality isomorphism of `Precomp.Composition.equivalence` is the exposed
@@ -111,7 +140,8 @@ theorem Precomp.Composition.equivalence.hom.naturality
     (H : Pseudofunctor A B) (K : Pseudofunctor B C)
     {F G : Pseudofunctor C D} (η : F ⟶ G) :
     (Precomp.Composition.equivalence D H K).hom.naturality η =
-      Precomp.Composition.naturality H K η := sorry
+      Precomp.Composition.naturality H K η := by
+  rfl
 
 variable (D) in
 /-- The inverse component of `Precomp.Composition.equivalence` at a diagram is the inverse
@@ -121,7 +151,8 @@ theorem Precomp.Composition.equivalence.inv.app
     (H : Pseudofunctor A B) (K : Pseudofunctor B C)
     (F : Pseudofunctor C D) :
     (Precomp.Composition.equivalence D H K).inv.app F =
-      (Pseudofunctor.compAssoc H K F).inv := sorry
+      (Pseudofunctor.compAssoc H K F).inv := by
+  rfl
 
 variable (D) in
 /-- The inverse factor of `Precomp.Composition.equivalence` has identity object components. -/
@@ -130,7 +161,8 @@ theorem Precomp.Composition.equivalence.inv.app_app
     (H : Pseudofunctor A B) (K : Pseudofunctor B C)
     (F : Pseudofunctor C D) (a : A) :
     ((Precomp.Composition.equivalence D H K).inv.app F).app a =
-      𝟙 (((H.comp K).comp F).obj a) := sorry
+      𝟙 (((H.comp K).comp F).obj a) := by
+  rfl
 
 end PrecompositionFunctoriality
 

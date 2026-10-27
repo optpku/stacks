@@ -64,42 +64,46 @@ instance tensorRightPreservesBinaryBiproducts
     (G : ringedSiteModuleCategory.{u, v, w, w} J O) :
     PreservesBinaryBiproducts (tensorRight G) := sorry
 
-/-- Tensoring module sheaves on the left preserves colimits of every specified diagram shape. -/
+/-- Tensoring module sheaves on the left preserves colimits of shapes with `w`-small object types.
+The size bound ensures that the underlying module-presheaf colimits exist pointwise; no size
+bound on the base site or on the morphisms of the diagram shape is required. -/
 @[stacks 03EP "left tensor preserves shaped colimits", instance]
 theorem tensorLeftPreservesColimitsOfShape
-    {K : Type*} [Category K]
+    {K : Type*} [Category K] [Small.{w} K]
     (G : ringedSiteModuleCategory.{u, v, w, w} J O) :
     PreservesColimitsOfShape K (tensorLeft G) := sorry
 
-/-- Tensoring module sheaves on the right preserves colimits of every specified diagram shape. -/
+/-- Tensoring module sheaves on the right preserves colimits of shapes with `w`-small object types. -/
 @[stacks 03EP "right tensor preserves shaped colimits", instance]
 theorem tensorRightPreservesColimitsOfShape
-    {K : Type*} [Category K]
+    {K : Type*} [Category K] [Small.{w} K]
     (G : ringedSiteModuleCategory.{u, v, w, w} J O) :
     PreservesColimitsOfShape K (tensorRight G) := sorry
 
-/-- Tensoring module sheaves on the left preserves all colimits in every universe range. -/
+/-- Tensoring module sheaves on the left preserves colimits whose object universe is at most `w`. -/
 @[stacks 03EP "left tensor preserves sized colimits", instance]
 theorem tensorLeftPreservesColimitsOfSize
+    [UnivLE.{w', w}]
     (G : ringedSiteModuleCategory.{u, v, w, w} J O) :
     PreservesColimitsOfSize.{v', w'} (tensorLeft G) := sorry
 
-/-- Tensoring module sheaves on the right preserves all colimits in every universe range. -/
+/-- Tensoring module sheaves on the right preserves colimits whose object universe is at most `w`. -/
 @[stacks 03EP "right tensor preserves sized colimits", instance]
 theorem tensorRightPreservesColimitsOfSize
+    [UnivLE.{w', w}]
     (G : ringedSiteModuleCategory.{u, v, w, w} J O) :
     PreservesColimitsOfSize.{v', w'} (tensorRight G) := sorry
 
-/-- Tensoring module sheaves on the left preserves all small colimits. -/
+/-- Tensoring module sheaves on the left preserves all colimits small in the section universe. -/
 @[stacks 03EP "(2)"]
 instance tensorLeftPreservesColimits
     (G : ringedSiteModuleCategory.{u, v, w, w} J O) :
-    PreservesColimits (tensorLeft G) := sorry
+    PreservesColimitsOfSize.{w, w} (tensorLeft G) := sorry
 
-/-- Tensoring module sheaves on the right preserves all small colimits. -/
+/-- Tensoring module sheaves on the right preserves all colimits small in the section universe. -/
 @[stacks 03EP "right tensor preserves colimits"]
 instance tensorRightPreservesColimits
     (G : ringedSiteModuleCategory.{u, v, w, w} J O) :
-    PreservesColimits (tensorRight G) := sorry
+    PreservesColimitsOfSize.{w, w} (tensorRight G) := sorry
 
 end SheafOfModules.RingedSite

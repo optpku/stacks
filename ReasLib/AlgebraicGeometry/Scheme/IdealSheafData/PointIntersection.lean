@@ -26,7 +26,7 @@ closed-immersion kernel ideal. -/
 noncomputable abbrev pointIntersectionStalkIdeal
     (Y : X.IdealSheafData) (p : X) : Ideal (X.presheaf.stalk p) :=
   RingedSpace.idealSheafStalkIdeal
-    (LocallyRingedSpace.closedImmersionIdealSubobject Y.subschemeι.toLRSHom) p
+    (LocallyRingedSpace.Hom.kernelIdealSubobject Y.subschemeι.toLRSHom) p
 
 /-- The pointwise intersection multiplicity of two closed subschemes is the `ℕ∞`-valued length
 of the ambient local ring modulo the sum of their stalk ideals. -/

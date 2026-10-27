@@ -30,7 +30,8 @@ namespace AlgebraicGeometry
 namespace Scheme.Over
 
 /-- A presheaf on `Over S` preserves directed limits of affine schemes over
-`S`. -/
+`S`.  This is the canonical base-relative predicate; the absolute and
+full-subcategory variants are linked to it by restriction bridges. -/
 def PreservesDirectedAffineLimits (S : Scheme.{u})
     (F : (Over S)ᵒᵖ ⥤ Type v) : Prop :=
   ∀ {I : Type u} [Preorder I] [Nonempty I] [IsDirected I (· ≤ ·)]
@@ -105,7 +106,9 @@ end Scheme.Over
 namespace Scheme
 
 /-- A set-valued presheaf on schemes preserves directed inverse limits of
-affine schemes. -/
+affine schemes.  This is the absolute specialization of the base-relative
+condition: `PreservesDirectedAffineLimits.over` restricts it to `Over S` for
+any base `S`. -/
 def PreservesDirectedAffineLimits (F : Scheme.{u}ᵒᵖ ⥤ Type v) : Prop :=
   ∀ {I : Type u} [Preorder I] [Nonempty I] [IsDirected I (· ≤ ·)]
     (D : OrderDual I ⥤ Scheme.{u}) (c : Cone D),

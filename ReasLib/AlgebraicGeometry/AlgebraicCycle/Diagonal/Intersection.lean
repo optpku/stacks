@@ -83,7 +83,7 @@ theorem map_intersection_eq_diagonalIntersection
             (X.hom.relativeDimensionFunction (fun _ ↦ 0)) r alpha)
           (CycleGroup.toAlgebraicCycle
             (X.hom.relativeDimensionFunction (fun _ ↦ 0)) s beta) hproper) =
-      intersection (diagonal X)
+      @intersection _ (SchemeOverField.regularProdOfRegular X X) (diagonal X)
         (CycleGroup.toAlgebraicCycle
           ((X ⨯ X).hom.relativeDimensionFunction (fun _ ↦ 0)) (r + s)
           (CycleGroup.exteriorProductPairing X X r s alpha beta))
@@ -106,7 +106,7 @@ noncomputable def mapFstDiagonalIntersection
   exact AlgebraicCycle.map (Over.Hom.left (prod.fst : X ⨯ X ⟶ X))
     ((X ⨯ X).hom.relativeDimensionFunction (fun _ ↦ 0))
     (X.hom.relativeDimensionFunction (fun _ ↦ 0))
-    (intersection (diagonal X)
+    (@intersection _ (SchemeOverField.regularProdOfRegular X X) (diagonal X)
       (CycleGroup.toAlgebraicCycle
         ((X ⨯ X).hom.relativeDimensionFunction (fun _ ↦ 0)) (r + s)
         (CycleGroup.exteriorProductPairing X X r s alpha beta))

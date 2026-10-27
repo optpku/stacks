@@ -44,7 +44,8 @@ namespace HasCopowers.OfIndex
 indexing functor. -/
 @[stacks 017E "indexed simplicial copowers from coproducts"]
 instance ofCoproducts {D : Type d} [Category.{e} D] [HasCoproducts.{w} C]
-    (K : D ⥤ SSet.{w}) : HasCopowers.OfIndex K C := sorry
+    (K : D ⥤ SSet.{w}) : HasCopowers.OfIndex K C :=
+  ⟨fun d ↦ HasCopowers.ofCoproducts (K.obj d)⟩
 
 end HasCopowers.OfIndex
 
@@ -58,14 +59,36 @@ variable [HasCopowers.OfIndex K C]
 @[stacks 017E "indexed copower functor identity"]
 theorem copower.ofIndex.map.id (d : D) :
     copower.indexHom.natTrans (C := C) (K.map (𝟙 d)) =
-      𝟙 (copower.functor (C := C) (K.obj d)) := sorry
+      𝟙 (copower.functor (C := C) (K.obj d)) := by
+  rw [K.map_id]
+  apply NatTrans.ext
+  funext X
+  apply NatTrans.ext
+  funext Δ
+  dsimp only [copower.indexHom.natTrans, Functor.indexedCoprod.indexHom.natTrans,
+    Functor.indexedCoprod.indexHom, Functor.indexedCoprod.indexHomApp, copower.functor,
+    Functor.indexedCoprod.functor, Functor.indexedCoprod, NatTrans.id_app]
+  apply Sigma.hom_ext
+  intro u
+  simp
 
 /-- Composition law for the index-variable natural transformations along an indexing functor. -/
 @[stacks 017E "indexed copower functor composition"]
 theorem copower.ofIndex.map.comp {d₁ d₂ d₃ : D} (f : d₁ ⟶ d₂) (g : d₂ ⟶ d₃) :
     copower.indexHom.natTrans (C := C) (K.map (f ≫ g)) =
       copower.indexHom.natTrans (C := C) (K.map f) ≫
-        copower.indexHom.natTrans (C := C) (K.map g) := sorry
+        copower.indexHom.natTrans (C := C) (K.map g) := by
+  rw [K.map_comp]
+  apply NatTrans.ext
+  funext X
+  apply NatTrans.ext
+  funext Δ
+  dsimp only [copower.indexHom.natTrans, Functor.indexedCoprod.indexHom.natTrans,
+    Functor.indexedCoprod.indexHom, Functor.indexedCoprod.indexHomApp, copower.functor,
+    Functor.indexedCoprod.functor, Functor.indexedCoprod, NatTrans.comp_app]
+  apply Sigma.hom_ext
+  intro u
+  simp
 
 /-- Copower is a curried bifunctor after restricting the indexing simplicial sets along a
 functor `K` for which the required coproducts exist. -/
@@ -76,18 +99,18 @@ abbrev copower.ofIndex : D ⥤ SimplicialObject C ⥤ SimplicialObject C :=
 /-- Evaluating `copower.ofIndex K` on both variables gives the corresponding copower. -/
 @[simp, stacks 017E "indexed copower object formula"]
 theorem copower.ofIndex.obj (d : D) (X : SimplicialObject C) :
-    ((copower.ofIndex K).obj d).obj X = copower (K.obj d) X := sorry
+    ((copower.ofIndex K).obj d).obj X = copower (K.obj d) X := rfl
 
 /-- The action of `copower.ofIndex K` on a morphism in the simplicial-object variable. -/
 @[simp, stacks 017E "indexed copower object-variable map formula"]
 theorem copower.ofIndex.obj.map (d : D) {X Y : SimplicialObject C} (f : X ⟶ Y) :
-    ((copower.ofIndex K).obj d).map f = copower.hom (K.obj d) f := sorry
+    ((copower.ofIndex K).obj d).map f = copower.hom (K.obj d) f := rfl
 
 /-- The component of `copower.ofIndex K` on a morphism in its indexing variable. -/
 @[simp, stacks 017E "indexed copower map formula"]
 theorem copower.ofIndex.map.app {d d' : D} (f : d ⟶ d')
     (X : SimplicialObject C) :
-    ((copower.ofIndex K).map f).app X = copower.indexHom X (K.map f) := sorry
+    ((copower.ofIndex K).map f).app X = copower.indexHom X (K.map f) := rfl
 
 end Bifunctor
 
@@ -104,19 +127,19 @@ abbrev copower.bifunctor :
 /-- Evaluating the copower bifunctor on both variables gives the corresponding copower. -/
 @[simp, stacks 017E "copower bifunctor object formula"]
 theorem copower.bifunctor.obj (U : SSet.{w}) (X : SimplicialObject C) :
-    ((copower.bifunctor (C := C)).obj U).obj X = copower U X := sorry
+    ((copower.bifunctor (C := C)).obj U).obj X = copower U X := rfl
 
 /-- The action of the copower bifunctor on a morphism in the simplicial-object variable. -/
 @[simp, stacks 017E "copower bifunctor object-variable map formula"]
 theorem copower.bifunctor.obj.map (U : SSet.{w})
     {X Y : SimplicialObject C} (f : X ⟶ Y) :
-    ((copower.bifunctor (C := C)).obj U).map f = copower.hom U f := sorry
+    ((copower.bifunctor (C := C)).obj U).map f = copower.hom U f := rfl
 
 /-- The component of the copower bifunctor on a morphism in its simplicial-set variable. -/
 @[simp, stacks 017E "copower bifunctor index-map formula"]
 theorem copower.bifunctor.map.app {U V : SSet.{w}} (a : U ⟶ V)
     (X : SimplicialObject C) :
-    ((copower.bifunctor (C := C)).map a).app X = copower.indexHom X a := sorry
+    ((copower.bifunctor (C := C)).map a).app X = copower.indexHom X a := rfl
 
 end GlobalBifunctor
 

@@ -6,16 +6,26 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap91.Remark_91_7_5_Presentation
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.RingedSpace.FirstOrderThickening.Solution.Presentation
+import StacksCheckRecall
 
 /-!
-# Presentation chart of square-zero f⁻¹𝒪_S-algebra extensions of 𝒪_X by 𝒢
+# Polynomial presentations of square-zero relative ringed-space extensions
 
-For an extension 0 ⟶ 𝒢 ⟶ 𝒪_{X'} ⟶ 𝒪_X ⟶ 0 as in Lemma 91.7.4, a sheaf of sets E
-with a commutative triangle E ⟶ 𝒪_{X'} ⟶ 𝒪_X making f⁻¹𝒪_S[E] ⟶ 𝒪_X locally
-surjective presents NL[f] by the two-term complex NL(α), and the induced map
-J / J² ⟶ 𝒢 is the Ext¹ class of 𝒪_{X'} under the inverse of `extensionEquiv`.
+For f : X ⟶ S and an 𝒪_X-module 𝒢 as in Lemma 91.7.4, consider an extension
+0 ⟶ 𝒢 ⟶ 𝒪_{X'} ⟶ 𝒪_X ⟶ 0 of f⁻¹𝒪_S-algebras. Choose a sheaf of sets 𝓔 and
+a lift α' : 𝓔 ⟶ 𝒪_{X'} whose reduction is α : 𝓔 ⟶ 𝒪_X, such that polynomial
+evaluation f⁻¹𝒪_S[𝓔] ⟶ 𝒪_X is surjective, with kernel 𝒥. Any sheaf of sets
+surjecting onto 𝒪_{X'} suffices; its underlying sheaf with the identity lift
+gives an explicit choice.
+
+Then NL_{X/S} ≅ NL(α), where NL(α) is the two-term complex
+𝒥/𝒥² ⟶ Ω_{f⁻¹𝒪_S[𝓔]/f⁻¹𝒪_S} ⊗_{f⁻¹𝒪_S[𝓔]} 𝒪_X, by Modules, Section 17.31
+and Lemma 17.31.2. The canonical comparison goes from this presentation model
+to NL_{X/S}; its inverse gives the displayed direction. The lift α' determines
+f⁻¹𝒪_S[𝓔] ⟶ 𝒪_{X'}, hence a map 𝒥/𝒥² ⟶ 𝒢. Its class in
+Ext¹_{𝒪_X}(NL(α), 𝒢) = Ext¹_{𝒪_X}(NL_{X/S}, 𝒢) is precisely the element
+corresponding to the extension under the bijection of Lemma 91.7.4.
 -/
 
 @[expose] public section
@@ -41,50 +51,65 @@ namespace Solution
 
 variable {S X : RingedSpace.{u}} {f : X ⟶ S} {G : X.Modules}
 
-/-- Remark 91.7.5 (1) For a square-zero extension 0 ⟶ 𝒢 ⟶ 𝒪_{X'} ⟶ 𝒪_X ⟶ 0 as in
-Lemma 91.7.4, a sheaf of sets `E` and a lift `α' : E ⟶ i⁻¹𝒪_{X'}` yield a
-commutative triangle `E ⟶ i⁻¹𝒪_{X'} ⟶ 𝒪_X`. If `α'` is locally surjective, then
-the induced evaluation `f⁻¹𝒪_S[E] ⟶ 𝒪_X` is locally surjective. The source
-example takes `E` to be the underlying sheaf of sets of `i⁻¹𝒪_{X'}` with
-`α' = 𝟙`. -/
-@[stacks 0GQ0, instance]
-instance eval_assignOf_isLocallySurjective
-    (sol : Solution (𝟙 S) f G (zeroKernelMap f G))
-    (E : Sheaf (Opens.grothendieckTopology X) (Type u))
-    (α' : E ⟶ (sheafForget (Opens.grothendieckTopology X)).obj (inverseImageX' sol))
-    [Sheaf.IsLocallySurjective α'] :
-    Sheaf.IsLocallySurjective (eval E (assignOf sol E α')) := sorry
-
-/-- Remark 91.7.5 (2) If `f⁻¹𝒪_S[E] ⟶ 𝒪_X` is locally surjective with kernel `J`,
-then `NL[f] ≅ NL(α)` in the derived category, where `NL(α)` is the two-term
-complex `J / J² ⟶ Ω_{f⁻¹𝒪_S[E] / f⁻¹𝒪_S} ⊗_{f⁻¹𝒪_S[E]} 𝒪_X`. -/
-@[stacks 0GQ0]
-def naiveCotangentIso (E : Sheaf (Opens.grothendieckTopology X) (Type u))
-    (α : E ⟶ FreeAlgebra.Presentation.generators (inverseImageStructureSheafUnder f))
-    [Sheaf.IsLocallySurjective
-      (FreeAlgebra.evaluation (inverseImageStructureSheafUnder f) E α).right] :=
-  Presentation.derivedComparisonIso E α
-
-/-- The forward map of `naiveCotangentIso` is the canonical derived comparison. -/
-theorem naiveCotangentIso_hom (E : Sheaf (Opens.grothendieckTopology X) (Type u))
-    (α : E ⟶ FreeAlgebra.Presentation.generators (inverseImageStructureSheafUnder f))
-    [Sheaf.IsLocallySurjective
-      (FreeAlgebra.evaluation (inverseImageStructureSheafUnder f) E α).right] :
-    (naiveCotangentIso E α).hom = Presentation.derivedComparison E α := sorry
-
-/-- Remark 91.7.5 (3) The lift `α'` determines `f⁻¹𝒪_S[E] ⟶ i⁻¹𝒪_{X'}` and hence
-`J / J² ⟶ 𝒢`, and the resulting `Ext¹` class of `NL(α) ≅ NL[f]` is the class of
-`𝒪_{X'}` under the inverse of `extensionEquiv`. -/
-@[stacks 0GQ0]
-theorem extClass_eq_extensionEquiv_symm
-    (sol : Solution (𝟙 S) f G (zeroKernelMap f G))
+/- Remark 91.7.5 The conormal map induced by a lifted polynomial presentation
+represents the square-zero extension under the canonical Ext¹ classification. -/
+@[stacks 0GQ0] #check (AlgebraicGeometry.RingedSpace.Thickening.Solution.extClass_eq_extensionEquiv_symm :
+    ∀ (sol : Solution (𝟙 S) f G (zeroKernelMap f G))
     (E : Sheaf (Opens.grothendieckTopology X) (Type u))
     (α' : E ⟶ (sheafForget (Opens.grothendieckTopology X)).obj (inverseImageX' sol))
     (α : E ⟶ FreeAlgebra.Presentation.generators (inverseImageStructureSheafUnder f))
     [Sheaf.IsLocallySurjective
       (FreeAlgebra.evaluation (inverseImageStructureSheafUnder f) E α).right]
-    (hα : assignOf sol E α' = α) :
-    extClass sol E α' α hα = (extensionEquiv f G).symm (isoClassMk sol) := sorry
+    (hα : assignOf sol E α' = α),
+      extClass sol E α' α hα = (extensionEquiv f G).symm (isoClassMk sol))
+
+#check (AlgebraicGeometry.RingedSpace.Thickening.Solution.underlyingSets :
+    (sol : Solution (𝟙 S) f G (zeroKernelMap f G)) →
+      Sheaf (Opens.grothendieckTopology X) (Type u))
+
+#check (AlgebraicGeometry.RingedSpace.Thickening.Solution.underlyingAssign' :
+    (sol : Solution (𝟙 S) f G (zeroKernelMap f G)) →
+      underlyingSets sol ⟶
+        (sheafForget (Opens.grothendieckTopology X)).obj (inverseImageX' sol))
+
+#check (AlgebraicGeometry.RingedSpace.Thickening.Solution.underlying_eval_isLocallySurjective :
+    ∀ (sol : Solution (𝟙 S) f G (zeroKernelMap f G)),
+      Sheaf.IsLocallySurjective
+        (eval (underlyingSets sol)
+          (assignOf sol (underlyingSets sol) (underlyingAssign' sol))))
+
+#check (AlgebraicGeometry.RingedSpace.Thickening.Solution.eval_assignOf_isLocallySurjective :
+    ∀ (sol : Solution (𝟙 S) f G (zeroKernelMap f G))
+      (E : Sheaf (Opens.grothendieckTopology X) (Type u))
+      (α' : E ⟶ (sheafForget (Opens.grothendieckTopology X)).obj (inverseImageX' sol))
+      [Sheaf.IsLocallySurjective α'],
+      Sheaf.IsLocallySurjective (eval E (assignOf sol E α')))
+
+#check (SheafOfModules.RingedSite.NaiveCotangent.Presentation.derivedComparisonIso
+    (B := inverseImageStructureSheafUnder f) :
+    ∀ (E : Sheaf (Opens.grothendieckTopology X) (Type u))
+      (α : E ⟶ FreeAlgebra.Presentation.generators (inverseImageStructureSheafUnder f))
+      [Sheaf.IsLocallySurjective
+        (FreeAlgebra.evaluation (inverseImageStructureSheafUnder f) E α).right],
+      (DerivedCategory.Q (C := X.Modules)).obj (Presentation.ofGenerators (B := inverseImageStructureSheafUnder f) E α) ≅
+        (DerivedCategory.Q (C := X.Modules)).obj NL[f])
+
+#check (SheafOfModules.RingedSite.NaiveCotangent.Presentation.derivedComparisonIso_hom
+    (B := inverseImageStructureSheafUnder f) :
+    ∀ (E : Sheaf (Opens.grothendieckTopology X) (Type u))
+      (α : E ⟶ FreeAlgebra.Presentation.generators (inverseImageStructureSheafUnder f))
+      [Sheaf.IsLocallySurjective
+        (FreeAlgebra.evaluation (inverseImageStructureSheafUnder f) E α).right],
+      (Presentation.derivedComparisonIso (B := inverseImageStructureSheafUnder f) E α).hom =
+        Presentation.derivedComparison (B := inverseImageStructureSheafUnder f) E α)
+
+#check (AlgebraicGeometry.RingedSpace.Thickening.Solution.conormalHom :
+    ∀ (sol : Solution (𝟙 S) f G (zeroKernelMap f G))
+    (E : Sheaf (Opens.grothendieckTopology X) (Type u))
+    (α' : E ⟶ (sheafForget (Opens.grothendieckTopology X)).obj (inverseImageX' sol))
+    (α : E ⟶ FreeAlgebra.Presentation.generators (inverseImageStructureSheafUnder f))
+    (hα : assignOf sol E α' = α),
+      (Presentation.ofGenerators (B := inverseImageStructureSheafUnder f) E α).X (-1) ⟶ G)
 
 end Solution
 end AlgebraicGeometry.RingedSpace.Thickening

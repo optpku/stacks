@@ -84,8 +84,7 @@ theorem residue_bijective (h : IsTotallyRamified A K L)
     (P : Ideal (integralClosure A L)) [P.IsMaximal] [P.LiesOver (maximalIdeal A)] :
     Function.Bijective
       (Ideal.ResidueField.map (maximalIdeal A) P (algebraMap A (integralClosure A L))
-            (P.over_def (maximalIdeal A))) := sorry
--- Proof strategy: project `IsTotallyRamified.residueField_bijective` from `h` at `P`.
+            (P.over_def (maximalIdeal A))) := h.residueField_bijective P
 
 /-- The canonical residue-field algebra map of a totally ramified branch is bijective. -/
 @[stacks 09E9 "totally ramified residue-field algebra map bijective"]
@@ -95,9 +94,8 @@ theorem residue_algebraMap_bijective (h : IsTotallyRamified A K L)
     -- lying-over branch and must remain scoped to this statement.
     letI : Algebra (Ideal.ResidueField (maximalIdeal A)) (Ideal.ResidueField P) :=
       Ideal.ResidueField.algebraOfLiesOver (maximalIdeal A) P
-    Function.Bijective (algebraMap (Ideal.ResidueField (maximalIdeal A)) (Ideal.ResidueField P)) := sorry
--- Proof strategy: install the displayed branch-dependent residue algebra, rewrite its algebra map
--- with `Ideal.ResidueField.algebraMap_algebraOfLiesOver`, and apply `h.residue_bijective P`.
+    Function.Bijective (algebraMap (Ideal.ResidueField (maximalIdeal A)) (Ideal.ResidueField P)) := by
+  exact h.residue_bijective P
 
 /-- The residue-field algebra equivalence supplied by a totally ramified branch. -/
 @[stacks 09E9 "totally ramified residue-field algebra equivalence"]
@@ -132,10 +130,7 @@ theorem residueFieldEquiv_apply (h : IsTotallyRamified A K L)
     (x : Ideal.ResidueField (maximalIdeal A)) :
     h.residueFieldEquiv P x =
       Ideal.ResidueField.map (maximalIdeal A) P (algebraMap A (integralClosure A L))
-        (P.over_def (maximalIdeal A)) x := sorry
--- Proof strategy: unfold `residueFieldEquiv` and `residueFieldAlgEquiv`; simplify the forward map
--- of `AlgEquiv.ofBijective` and rewrite the selected algebra map with
--- `Ideal.ResidueField.algebraMap_algebraOfLiesOver`.
+        (P.over_def (maximalIdeal A)) x := rfl
 
 /-- The unique-branch and residue-bijection clauses bundled by total ramification. -/
 @[stacks 09E9 "totally ramified branch specification"]

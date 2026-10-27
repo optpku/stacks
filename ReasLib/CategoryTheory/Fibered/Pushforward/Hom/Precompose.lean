@@ -74,7 +74,8 @@ theorem functor.compProjection
     {hX : ProjectionChoice u X}
     {Y : FiberedCategoryOver.{uD, vD, uY, vY} D}
     (G : (FiberedCategoryOver.pushforward u X hX).toBasedCategory ⥤ᵇ Y.toBasedCategory) :
-    functor u G ⋙ (FiberedCategoryOver.pullback u Y).p = X.p := sorry
+    functor u G ⋙ (FiberedCategoryOver.pullback u Y).p = X.p := by
+  rfl
 
 /-- Lemma 8.12.8 (tag 04WI): the based functor obtained by precomposing a based functor out
 of `u ₚ X` with the pushforward unit and then using the categorical-pullback comparison. -/
@@ -98,7 +99,37 @@ theorem mapApp.compatibility
     (τ : G ⟶ H) (x : X.total) :
     u.map (𝟙 (X.p.obj x)) ≫ ((obj u H).obj x).iso.hom =
       ((obj u G).obj x).iso.hom ≫
-        Y.p.map (τ.toNatTrans.app ((Functor.Pushforward.Unit.functor u X.p).obj x)) := sorry
+        Y.p.map (τ.toNatTrans.app ((Functor.Pushforward.Unit.functor u X.p).obj x)) := by
+  let z : (FiberedCategoryOver.pushforward u X hX).total :=
+    (Functor.Pushforward.Unit.functor u X.p).obj x
+  have hτ : H.projectionIso.inv.app z =
+      G.projectionIso.inv.app z ≫ Y.p.map (τ.toNatTrans.app z) := by
+    change (eqToHom H.w.symm).app z =
+      (eqToHom G.w.symm).app z ≫ Y.p.map (τ.toNatTrans.app z)
+    rw [IsHomLift.fac' Y.p
+      (𝟙 ((FiberedCategoryOver.pushforward u X hX).p.obj z)) (τ.toNatTrans.app z)]
+    simp only [eqToHom_app, Category.id_comp]
+    erw [eqToHom_trans, eqToHom_trans]
+    rfl
+  change u.map (𝟙 (X.p.obj x)) ≫
+      (((Functor.Pushforward.Unit.over u X.p hX.raw).comp H.toOverIso).iso.inv.app x) =
+    (((Functor.Pushforward.Unit.over u X.p hX.raw).comp G.toOverIso).iso.inv.app x) ≫
+      Y.p.map (τ.toNatTrans.app z)
+  dsimp only [Functor.OverIso.comp, Functor.Pushforward.Unit.over, BasedFunctor.toOverIso]
+  simp only [Iso.trans_inv, NatTrans.comp_app, Functor.isoWhiskerLeft_inv,
+    Functor.whiskerLeft_app, Functor.associator_inv_app, Functor.map_id, Category.id_comp]
+  let e := (Functor.Pushforward.Unit.projectionIso u X.p hX.raw).inv.app x
+  change (e ≫ H.projectionIso.inv.app z) ≫ 𝟙 (Y.p.obj (H.obj z)) =
+    ((e ≫ G.projectionIso.inv.app z) ≫ 𝟙 (Y.p.obj (G.obj z))) ≫ Y.p.map (τ.toNatTrans.app z)
+  calc
+    (e ≫ H.projectionIso.inv.app z) ≫ 𝟙 _ = e ≫ H.projectionIso.inv.app z :=
+      Category.comp_id _
+    _ = e ≫ (G.projectionIso.inv.app z ≫ Y.p.map (τ.toNatTrans.app z)) :=
+      congrArg (e ≫ ·) hτ
+    _ = (e ≫ G.projectionIso.inv.app z) ≫ Y.p.map (τ.toNatTrans.app z) :=
+      (Category.assoc _ _ _).symm
+    _ = ((e ≫ G.projectionIso.inv.app z) ≫ 𝟙 _) ≫ Y.p.map (τ.toNatTrans.app z) :=
+      congrArg (· ≫ Y.p.map (τ.toNatTrans.app z)) (Category.comp_id _).symm
 
 /-- The component in the categorical pullback induced by a vertical transformation between
 based functors out of the pushforward. -/
@@ -124,7 +155,11 @@ theorem mapApp.naturality
     {G H : (FiberedCategoryOver.pushforward u X hX).toBasedCategory ⥤ᵇ Y.toBasedCategory}
     (τ : G ⟶ H) {x y : X.total} (f : x ⟶ y) :
     (obj u G).toFunctor.map f ≫ mapApp u τ y =
-      mapApp u τ x ≫ (obj u H).toFunctor.map f := sorry
+      mapApp u τ x ≫ (obj u H).toFunctor.map f := by
+  apply CategoricalPullback.hom_ext
+  · change X.p.map f ≫ 𝟙 _ = 𝟙 _ ≫ X.p.map f
+    simp only [Category.comp_id, Category.id_comp]
+  · exact τ.toNatTrans.naturality ((Functor.Pushforward.Unit.functor u X.p).map f)
 
 /-- Every component of the induced pullback transformation lies over the identity of its
 source base object. -/
@@ -136,7 +171,8 @@ theorem mapApp.isHomLift
     {G H : (FiberedCategoryOver.pushforward u X hX).toBasedCategory ⥤ᵇ Y.toBasedCategory}
     (τ : G ⟶ H) (x : X.total) :
     (FiberedCategoryOver.pullback u Y).p.IsHomLift (𝟙 (X.p.obj x))
-      (mapApp u τ x) := sorry
+      (mapApp u τ x) := by
+  exact IsHomLift.map _ (mapApp u τ x)
 
 /-- Lemma 8.12.8 (tag 04WI): the vertical transformation between pullback comparison based
 functors induced by a vertical transformation between the original based functors. -/
@@ -162,7 +198,8 @@ theorem map.app
     {Y : FiberedCategoryOver.{uD, vD, uY, vY} D}
     {G H : (FiberedCategoryOver.pushforward u X hX).toBasedCategory ⥤ᵇ Y.toBasedCategory}
     (τ : G ⟶ H) (x : X.total) :
-    (map u τ).toNatTrans.app x = mapApp u τ x := sorry
+    (map u τ).toNatTrans.app x = mapApp u τ x := by
+  rfl
 
 /-- The pullback comparison map preserves identities. -/
 @[simp, stacks 04WI "pushforward unit Hom map identity"]
@@ -171,7 +208,13 @@ theorem map.id
     {hX : ProjectionChoice u X}
     {Y : FiberedCategoryOver.{uD, vD, uY, vY} D}
     (G : (FiberedCategoryOver.pushforward u X hX).toBasedCategory ⥤ᵇ Y.toBasedCategory) :
-    map u (𝟙 G) = 𝟙 (obj u G) := sorry
+    map u (𝟙 G) = 𝟙 (obj u G) := by
+  apply BasedNatTrans.ext
+  apply NatTrans.ext
+  funext x
+  apply CategoricalPullback.hom_ext
+  · rfl
+  · rfl
 
 /-- The pullback comparison map preserves vertical composition. -/
 @[simp, stacks 04WI "pushforward unit Hom map composition"]
@@ -181,7 +224,14 @@ theorem map.comp
     {Y : FiberedCategoryOver.{uD, vD, uY, vY} D}
     {G H K : (FiberedCategoryOver.pushforward u X hX).toBasedCategory ⥤ᵇ Y.toBasedCategory}
     (τ : G ⟶ H) (σ : H ⟶ K) :
-    map u (τ ≫ σ) = map u τ ≫ map u σ := sorry
+    map u (τ ≫ σ) = map u τ ≫ map u σ := by
+  apply BasedNatTrans.ext
+  apply NatTrans.ext
+  funext x
+  apply CategoricalPullback.hom_ext
+  · change 𝟙 _ = 𝟙 _ ≫ 𝟙 _
+    simp only [Category.id_comp]
+  · rfl
 
 /-- Lemma 8.12.8 (tag 04WI): precomposition with the pushforward unit on the category of
 based functors, with codomain changed to the categorical pullback. -/
@@ -205,7 +255,8 @@ theorem basedFunctor.obj
     {hX : ProjectionChoice u X}
     {Y : FiberedCategoryOver.{uD, vD, uY, vY} D}
     (G : (FiberedCategoryOver.pushforward u X hX).toBasedCategory ⥤ᵇ Y.toBasedCategory) :
-    (basedFunctor u hX Y).obj G = obj u G := sorry
+    (basedFunctor u hX Y).obj G = obj u G := by
+  rfl
 
 /-- The morphism action of the based precomposition functor is `Precompose.map`. -/
 @[simp, stacks 04WI "pushforward unit Hom based functor map"]
@@ -215,7 +266,8 @@ theorem basedFunctor.map
     {Y : FiberedCategoryOver.{uD, vD, uY, vY} D}
     {G H : (FiberedCategoryOver.pushforward u X hX).toBasedCategory ⥤ᵇ Y.toBasedCategory}
     (τ : G ⟶ H) :
-    (basedFunctor u hX Y).map τ = map u τ := sorry
+    (basedFunctor u hX Y).map τ = map u τ := by
+  rfl
 
 end Precompose
 

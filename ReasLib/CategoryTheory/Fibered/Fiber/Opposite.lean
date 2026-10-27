@@ -32,7 +32,7 @@ namespace CategoryTheory.Functor.Fiber
 def ofObj (p : F ⥤ C) (x : F) : p.Fiber (p.obj x) := ⟨x, rfl⟩
 
 /-- The underlying total-category object of `ofObj p x` is `x`. -/
-theorem ofObj_coe (p : F ⥤ C) (x : F) : (ofObj p x).1 = x := sorry
+theorem ofObj_coe (p : F ⥤ C) (x : F) : (ofObj p x).1 = x := rfl
 
 /-- The object of `p.op.Fiber (op U)` corresponding to an object of `p.Fiber U`. -/
 def toOp {p : F ⥤ C} {U : C} (x : p.Fiber U) : p.op.Fiber (op U) :=
@@ -43,10 +43,10 @@ def fromOp {p : F ⥤ C} {U : C} (x : p.op.Fiber (op U)) : p.Fiber U :=
   ⟨x.1.unop, Opposite.op_injective x.2⟩
 
 /-- Converting a fibre object to the opposite fibre and back recovers the object. -/
-theorem fromOp_toOp {p : F ⥤ C} {U : C} (x : p.Fiber U) : fromOp (toOp x) = x := sorry
+theorem fromOp_toOp {p : F ⥤ C} {U : C} (x : p.Fiber U) : fromOp (toOp x) = x := rfl
 
 /-- Converting an opposite fibre object to the original fibre and back recovers the object. -/
-theorem toOp_fromOp {p : F ⥤ C} {U : C} (x : p.op.Fiber (op U)) : toOp (fromOp x) = x := sorry
+theorem toOp_fromOp {p : F ⥤ C} {U : C} (x : p.op.Fiber (op U)) : toOp (fromOp x) = x := rfl
 
 /-- The identity comparison `toOp (fromOp y) ≅ y` on the common total-category object. -/
 def toOpFromOpIso {p : F ⥤ C} {U : C} (y : p.op.Fiber (op U)) : toOp (fromOp y) ≅ y :=
@@ -58,19 +58,29 @@ def fromOpToOpIso {p : F ⥤ C} {U : C} (x : p.Fiber U) : fromOp (toOp x) ≅ x 
 
 /-- The forward map of `toOpFromOpIso` is the identity on the underlying total-category object. -/
 theorem toOpFromOpIso_hom {p : F ⥤ C} {U : C} (y : p.op.Fiber (op U)) :
-    (toOpFromOpIso y).hom.1 = 𝟙 y.1 := sorry
+    (toOpFromOpIso y).hom.1 = 𝟙 y.1 := rfl
 
 /-- The forward map of `fromOpToOpIso` is the identity on the underlying total-category object. -/
 theorem fromOpToOpIso_hom {p : F ⥤ C} {U : C} (x : p.Fiber U) :
-    (fromOpToOpIso x).hom.1 = 𝟙 x.1 := sorry
+    (fromOpToOpIso x).hom.1 = 𝟙 x.1 := rfl
 
 /-- The opposite of the underlying isomorphism of a fibre automorphism is vertical. -/
 theorem toOpAut_isHomLift {p : F ⥤ C} {U : C} {x : p.Fiber U} (α : Aut x) :
-    p.op.IsHomLift (𝟙 (op U)) (Iso.op (fiberInclusion.mapIso α)).hom := sorry
+    p.op.IsHomLift (𝟙 (op U)) (Iso.op (fiberInclusion.mapIso α)).hom := by
+  have opLift {V W : C} {a b : F} {f : V ⟶ W} {φ : a ⟶ b}
+      (h : p.IsHomLift f φ) : p.op.IsHomLift f.op φ.op := by
+    cases h
+    exact IsHomLift.map _
+  exact opLift α.hom.2
 
 /-- The unopposite of the underlying isomorphism of an opposite-fibre automorphism is vertical. -/
 theorem fromOpAut_isHomLift {p : F ⥤ C} {U : C} {y : p.op.Fiber (op U)} (α : Aut y) :
-    p.IsHomLift (𝟙 U) (Iso.unop (fiberInclusion.mapIso α)).hom := sorry
+    p.IsHomLift (𝟙 U) (Iso.unop (fiberInclusion.mapIso α)).hom := by
+  have unopLift {V W : Cᵒᵖ} {a b : Fᵒᵖ} {f : V ⟶ W} {φ : a ⟶ b}
+      (h : p.op.IsHomLift f φ) : p.IsHomLift f.unop φ.unop := by
+    cases h
+    exact IsHomLift.map _
+  exact unopLift α.hom.2
 
 /-- Opposite of a fibre automorphism, as an automorphism of the opposite fibre object. -/
 def toOpAut {p : F ⥤ C} {U : C} {x : p.Fiber U} (α : Aut x) : Aut (toOp x) :=
@@ -82,10 +92,10 @@ def fromOpAut {p : F ⥤ C} {U : C} {y : p.op.Fiber (op U)} (α : Aut y) : Aut (
 
 /-- The underlying total arrow of `toOpAut α` is the opposite of the underlying arrow of `α`. -/
 theorem toOpAut_hom {p : F ⥤ C} {U : C} {x : p.Fiber U} (α : Aut x) :
-    (toOpAut α).hom.1 = α.hom.1.op := sorry
+    (toOpAut α).hom.1 = α.hom.1.op := rfl
 
 /-- The underlying total arrow of `fromOpAut α` is the unopposite of the underlying arrow of `α`. -/
 theorem fromOpAut_hom {p : F ⥤ C} {U : C} {y : p.op.Fiber (op U)} (α : Aut y) :
-    (fromOpAut α).hom.1 = α.hom.1.unop := sorry
+    (fromOpAut α).hom.1 = α.hom.1.unop := rfl
 
 end CategoryTheory.Functor.Fiber

@@ -35,6 +35,7 @@ variable [J.HasSheafCompose (forget₂ CommRingCat.{w} RingCat.{w})]
 variable [HasWeakSheafify J AddCommGrpCat.{w}]
 variable [J.WEqualsLocallyBijective AddCommGrpCat.{w}]
 variable [HasWeakSheafify J (Type w)]
+variable [UnivLE.{max u v, w}]
 variable {O : Sheaf J CommRingCat.{w}}
 variable (A : DGA(O)) (S : IntGradedSheaf.{u, v, w} J)
 

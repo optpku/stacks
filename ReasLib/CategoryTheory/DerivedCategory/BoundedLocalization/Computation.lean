@@ -37,7 +37,8 @@ theorem hom_naturality {X Y : CochainComplex.Plus A} (f : X ⟶ Y) :
     DerivedCategory.Plus.ι.map (DerivedCategory.Plus.Q.map f) ≫
         (DerivedCategory.Plus.Qh.compInclusionIso A).hom.app Y =
       (DerivedCategory.Plus.Qh.compInclusionIso A).hom.app X ≫
-        DerivedCategory.Q.map ((CochainComplex.Plus.ι A).map f) := sorry
+        DerivedCategory.Q.map ((CochainComplex.Plus.ι A).map f) := by
+  exact (DerivedCategory.Plus.Qh.compInclusionIso A).hom.naturality f
 
 /-- Naturality of the inverse bounded-below localization comparison. -/
 @[reassoc (attr := simp), stacks 0159 "bounded-below localization comparison"]
@@ -45,7 +46,8 @@ theorem inv_naturality {X Y : CochainComplex.Plus A} (f : X ⟶ Y) :
     DerivedCategory.Q.map ((CochainComplex.Plus.ι A).map f) ≫
         (DerivedCategory.Plus.Qh.compInclusionIso A).inv.app Y =
       (DerivedCategory.Plus.Qh.compInclusionIso A).inv.app X ≫
-        DerivedCategory.Plus.ι.map (DerivedCategory.Plus.Q.map f) := sorry
+        DerivedCategory.Plus.ι.map (DerivedCategory.Plus.Q.map f) := by
+  exact (DerivedCategory.Plus.Qh.compInclusionIso A).inv.naturality f
 
 end DerivedCategory.Plus.Qh.compInclusionIso
 
@@ -54,12 +56,14 @@ namespace DerivedCategory.Minus.Qh.compInclusionIso
 /-- The forward bounded-above localization comparison has identity components. -/
 @[simp, stacks 05RW "bounded-above localization comparison"]
 theorem hom_app (X : HomotopyCategory.Minus A) :
-    (DerivedCategory.Minus.Qh.compInclusionIso A).hom.app X = 𝟙 _ := sorry
+    (DerivedCategory.Minus.Qh.compInclusionIso A).hom.app X = 𝟙 _ := by
+  rfl
 
 /-- The inverse bounded-above localization comparison has identity components. -/
 @[simp, stacks 05RW "bounded-above localization comparison"]
 theorem inv_app (X : HomotopyCategory.Minus A) :
-    (DerivedCategory.Minus.Qh.compInclusionIso A).inv.app X = 𝟙 _ := sorry
+    (DerivedCategory.Minus.Qh.compInclusionIso A).inv.app X = 𝟙 _ := by
+  rfl
 
 /-- Naturality of the forward bounded-above localization comparison. -/
 @[reassoc (attr := simp), stacks 05RW "bounded-above localization comparison"]
@@ -67,7 +71,8 @@ theorem hom_naturality {X Y : HomotopyCategory.Minus A} (f : X ⟶ Y) :
     DerivedCategory.Minus.ι.map ((DerivedCategory.Minus.Qh A).map f) ≫
         (DerivedCategory.Minus.Qh.compInclusionIso A).hom.app Y =
       (DerivedCategory.Minus.Qh.compInclusionIso A).hom.app X ≫
-        DerivedCategory.Qh.map ((HomotopyCategory.minus A).ι.map f) := sorry
+        DerivedCategory.Qh.map ((HomotopyCategory.minus A).ι.map f) := by
+  exact (DerivedCategory.Minus.Qh.compInclusionIso A).hom.naturality f
 
 /-- Naturality of the inverse bounded-above localization comparison. -/
 @[reassoc (attr := simp), stacks 05RW "bounded-above localization comparison"]
@@ -75,7 +80,8 @@ theorem inv_naturality {X Y : HomotopyCategory.Minus A} (f : X ⟶ Y) :
     DerivedCategory.Qh.map ((HomotopyCategory.minus A).ι.map f) ≫
         (DerivedCategory.Minus.Qh.compInclusionIso A).inv.app Y =
       (DerivedCategory.Minus.Qh.compInclusionIso A).inv.app X ≫
-        DerivedCategory.Minus.ι.map ((DerivedCategory.Minus.Qh A).map f) := sorry
+        DerivedCategory.Minus.ι.map ((DerivedCategory.Minus.Qh A).map f) := by
+  exact (DerivedCategory.Minus.Qh.compInclusionIso A).inv.naturality f
 
 end DerivedCategory.Minus.Qh.compInclusionIso
 
@@ -84,12 +90,14 @@ namespace DerivedCategory.Bounded.Qh.compInclusionIso
 /-- The forward bounded localization comparison has identity components. -/
 @[simp, stacks 05RW "bounded localization comparison"]
 theorem hom_app (X : HomotopyCategory.Bounded A) :
-    (DerivedCategory.Bounded.Qh.compInclusionIso A).hom.app X = 𝟙 _ := sorry
+    (DerivedCategory.Bounded.Qh.compInclusionIso A).hom.app X = 𝟙 _ := by
+  rfl
 
 /-- The inverse bounded localization comparison has identity components. -/
 @[simp, stacks 05RW "bounded localization comparison"]
 theorem inv_app (X : HomotopyCategory.Bounded A) :
-    (DerivedCategory.Bounded.Qh.compInclusionIso A).inv.app X = 𝟙 _ := sorry
+    (DerivedCategory.Bounded.Qh.compInclusionIso A).inv.app X = 𝟙 _ := by
+  rfl
 
 /-- Naturality of the forward bounded localization comparison. -/
 @[reassoc (attr := simp), stacks 05RW "bounded localization comparison"]
@@ -97,7 +105,8 @@ theorem hom_naturality {X Y : HomotopyCategory.Bounded A} (f : X ⟶ Y) :
     DerivedCategory.Bounded.ι.map ((DerivedCategory.Bounded.Qh A).map f) ≫
         (DerivedCategory.Bounded.Qh.compInclusionIso A).hom.app Y =
       (DerivedCategory.Bounded.Qh.compInclusionIso A).hom.app X ≫
-        DerivedCategory.Qh.map ((HomotopyCategory.bounded A).ι.map f) := sorry
+        DerivedCategory.Qh.map ((HomotopyCategory.bounded A).ι.map f) := by
+  exact (DerivedCategory.Bounded.Qh.compInclusionIso A).hom.naturality f
 
 /-- Naturality of the inverse bounded localization comparison. -/
 @[reassoc (attr := simp), stacks 05RW "bounded localization comparison"]
@@ -105,7 +114,8 @@ theorem inv_naturality {X Y : HomotopyCategory.Bounded A} (f : X ⟶ Y) :
     DerivedCategory.Qh.map ((HomotopyCategory.bounded A).ι.map f) ≫
         (DerivedCategory.Bounded.Qh.compInclusionIso A).inv.app Y =
       (DerivedCategory.Bounded.Qh.compInclusionIso A).inv.app X ≫
-        DerivedCategory.Bounded.ι.map ((DerivedCategory.Bounded.Qh A).map f) := sorry
+        DerivedCategory.Bounded.ι.map ((DerivedCategory.Bounded.Qh A).map f) := by
+  exact (DerivedCategory.Bounded.Qh.compInclusionIso A).inv.naturality f
 
 end DerivedCategory.Bounded.Qh.compInclusionIso
 

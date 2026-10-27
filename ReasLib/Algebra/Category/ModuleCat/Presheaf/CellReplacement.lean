@@ -48,14 +48,25 @@ structure Cell (n : ℤ) (U : Cᵒᵖ) : Type u where
 def restrictCell (n : ℤ) {U V : Cᵒᵖ} (f : U ⟶ V) (c : Cell φ n U) : Cell φ n V where
   x := (K.X n).map f c.x
   y := (F.X (n + 1)).map f c.y
-  dx := by sorry
-  dy := by sorry
+  dx := by
+    simp only [naturality_apply, c.dx]
+  dy := by
+    rw [naturality_apply, c.dy]
+    exact ((F.X ((n + 1) + 1)).map f).hom.map_zero
 
 def cells (n : ℤ) : Cᵒᵖ ⥤ Type u where
   obj U := Cell φ n U
   map f := ↾restrictCell φ n f
-  map_id := by sorry
-  map_comp := by sorry
+  map_id U := by
+    ext c
+    change restrictCell φ n (𝟙 U) c = c
+    cases c
+    simp [restrictCell]
+  map_comp f g := by
+    ext c
+    change restrictCell φ n (f ≫ g) c = restrictCell φ n g (restrictCell φ n f c)
+    dsimp only [restrictCell]
+    congr 1 <;> simp only [map_comp_apply]
 
 def freeCells (n : ℤ) : PresheafOfModules.{u} R := freeObj (R := R) (cells φ n)
 
@@ -63,13 +74,37 @@ def freeCells (n : ℤ) : PresheafOfModules.{u} R := freeObj (R := R) (cells φ 
 def evaluateX (n : ℤ) : freeCells φ n ⟶ K.X n :=
   freeObjDesc {
     app U := ↾fun c : Cell φ n U => c.x
-    naturality := by sorry }
+    naturality := by
+      intro U V f
+      rfl }
 
 /-- Send each actual free generator to its boundary coordinate y. -/
 def evaluateY (n : ℤ) : freeCells φ n ⟶ F.X (n + 1) :=
   freeObjDesc {
     app U := ↾fun c : Cell φ n U => c.y
-    naturality := by sorry }
+    naturality := by
+      intro U V f
+      rfl }
+
+theorem evaluateX_d (n : ℤ) :
+    evaluateX φ n ≫ K.d n (n + 1) = evaluateY φ n ≫ φ.f (n + 1) := by
+  ext U : 1
+  apply ModuleCat.free_hom_ext
+  intro c
+  change (K.d n (n + 1)).app U (ModuleCat.freeDesc _ (ModuleCat.freeMk c)) =
+    (φ.f (n + 1)).app U (ModuleCat.freeDesc _ (ModuleCat.freeMk c))
+  rw [ModuleCat.freeDesc_apply, ModuleCat.freeDesc_apply]
+  exact c.dx
+
+theorem evaluateY_d (n : ℤ) :
+    evaluateY φ n ≫ F.d (n + 1) ((n + 1) + 1) = 0 := by
+  ext U : 1
+  apply ModuleCat.free_hom_ext
+  intro c
+  change (F.d (n + 1) ((n + 1) + 1)).app U
+    (ModuleCat.freeDesc _ (ModuleCat.freeMk c)) = 0
+  rw [ModuleCat.freeDesc_apply]
+  exact c.dy
 
 def nextTerm (n : ℤ) : PresheafOfModules.{u} R := F.X n ⊞ freeCells φ n
 
@@ -80,18 +115,42 @@ def nextDifferential (n : ℤ) : nextTerm φ n ⟶ nextTerm φ (n + 1) :=
 
 theorem nextDifferential_sq (n : ℤ) :
     nextDifferential φ n ≫ nextDifferential φ (n + 1) = 0 := by
-  sorry
+  dsimp only [nextDifferential, nextTerm]
+  apply biprod.hom_ext'
+  · rw [← Category.assoc, biprod.inl_desc, Category.assoc, biprod.inl_desc,
+      ← Category.assoc, F.d_comp_d, zero_comp]
+    exact comp_zero.symm
+  · rw [← Category.assoc, biprod.inr_desc, Category.assoc, biprod.inl_desc,
+      ← Category.assoc, evaluateY_d, zero_comp]
+    exact comp_zero.symm
 
 def nextComplex : Complex R :=
   CochainComplex.of (nextTerm φ) (nextDifferential φ) (nextDifferential_sq φ)
 
 def nextAugmentation : nextComplex φ ⟶ K where
   f n := biprod.desc (φ.f n) (evaluateX φ n)
-  comm' := by sorry
+  comm' := by
+    intro i j hij
+    obtain rfl : i + 1 = j := hij
+    dsimp only [nextComplex]
+    rw [CochainComplex.of_d]
+    dsimp only [nextDifferential, nextTerm]
+    apply biprod.hom_ext'
+    · rw [← Category.assoc, biprod.inl_desc, ← Category.assoc, biprod.inl_desc,
+        Category.assoc, biprod.inl_desc]
+      exact φ.comm i (i + 1)
+    · rw [← Category.assoc, biprod.inr_desc, ← Category.assoc, biprod.inr_desc,
+        Category.assoc, biprod.inl_desc]
+      exact evaluateX_d φ i
 
 def inclusion : F ⟶ nextComplex φ where
   f _ := biprod.inl
-  comm' := by sorry
+  comm' := by
+    intro i j hij
+    obtain rfl : i + 1 = j := hij
+    dsimp only [nextComplex]
+    rw [CochainComplex.of_d]
+    exact biprod.inl_desc _ _
 
 theorem inclusion_augmentation : inclusion φ ≫ nextAugmentation φ = φ := by
   ext n : 1

@@ -87,26 +87,6 @@ theorem colimitMap.eq_pointwise [L.HasPointwiseLeftKanExtension F]
     {X Y : D} (f : X ⟶ Y) :
     colimitMap L F f = (L.pointwiseLeftKanExtension F).map f := sorry
 
-/-- A colimit injection followed by the inverse colimit coordinate is the leg determined by the
-left-Kan-extension unit and the indexing arrow. -/
-@[reassoc (attr := simp), stacks 002K "inverse left Kan extension colimit coordinate"]
-theorem objIsoColimit.ι_inv [L.HasPointwiseLeftKanExtension F]
-    {X : D} (g : CostructuredArrow L X) :
-    colimit.ι (CostructuredArrow.proj L X ⋙ F) g ≫
-        (L.leftKanExtensionObjIsoColimit F X).inv =
-      (L.leftKanExtensionUnit F).app g.left ≫
-        (L.leftKanExtension F).map g.hom := sorry
-
-/-- The forward colimit coordinate sends the leg determined by the left-Kan-extension unit and
-an indexing arrow to the corresponding colimit injection. -/
-@[reassoc (attr := simp), stacks 002K "forward left Kan extension colimit coordinate"]
-theorem objIsoColimit.ι_hom [L.HasPointwiseLeftKanExtension F]
-    {X : D} (g : CostructuredArrow L X) :
-    (L.leftKanExtensionUnit F).app g.left ≫
-          (L.leftKanExtension F).map g.hom ≫
-        (L.leftKanExtensionObjIsoColimit F X).hom =
-      colimit.ι (CostructuredArrow.proj L X ⋙ F) g := sorry
-
 /-- In the canonical colimit coordinates, the structure map of Mathlib's chosen left Kan
 extension is the map induced by `CostructuredArrow.map f`. -/
 @[stacks 002K "left Kan extension structure map in colimit coordinates"]

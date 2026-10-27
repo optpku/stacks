@@ -145,19 +145,26 @@ def homOfDualNumberCoords {k : Type u} [Field k] (n : ℕ) (a v : Fin n → k) :
   homOfVector (Spec.map (CommRingCat.ofHom (algebraMap k (k[ε])))) fun j ↦
     (Scheme.ΓSpecIso (.of (k[ε]))).inv (a j.down, v j.down)
 
-/-- The ring homomorphism `k[ε] →+* κ(x)[ε]` induced by `residueFieldIsoBase` at a closed
+/-- The ring equivalence `k[ε] ≃+* κ(x)[ε]` induced by `residueFieldIsoBase` at a closed
 point of affine space. -/
 def dualNumberResidueFieldIso {k : Type u} [Field k] [IsAlgClosed k] {n : ℕ}
     {x : 𝔸(ULift.{u} (Fin n); Spec (.of k))} (hx : IsClosed {x}) :
-    k[ε] →+* ((𝔸(ULift.{u} (Fin n); Spec (.of k))).residueField x)[ε] where
-  toFun z :=
-    let φ :=
-      (residueFieldIsoBase (𝔸(ULift.{u} (Fin n); Spec (.of k)) ↘ Spec (.of k)) x hx).inv.hom
-    (φ z.1, φ z.2)
-  map_one' := sorry
-  map_mul' := sorry
-  map_zero' := sorry
-  map_add' := sorry
+    k[ε] ≃+* ((𝔸(ULift.{u} (Fin n); Spec (.of k))).residueField x)[ε] :=
+  let φ := residueFieldIsoBase (𝔸(ULift.{u} (Fin n); Spec (.of k)) ↘ Spec (.of k)) x hx
+  { toFun := fun z ↦ (φ.inv.hom z.1, φ.inv.hom z.2)
+    invFun := fun z ↦ (φ.hom.hom z.1, φ.hom.hom z.2)
+    left_inv := fun z ↦
+      Prod.ext (CommRingCat.hom_inv_apply φ z.1) (CommRingCat.hom_inv_apply φ z.2)
+    right_inv := fun z ↦
+      Prod.ext (CommRingCat.inv_hom_apply φ z.1) (CommRingCat.inv_hom_apply φ z.2)
+    map_mul' := fun z w ↦ by
+      apply Prod.ext
+      · exact map_mul φ.inv.hom z.1 w.1
+      · change φ.inv.hom (z.1 * w.2 + z.2 * w.1) =
+          φ.inv.hom z.1 * φ.inv.hom w.2 + φ.inv.hom z.2 * φ.inv.hom w.1
+        simp only [map_add, map_mul]
+    map_add' := fun z w ↦
+      Prod.ext (map_add φ.inv.hom z.1 w.1) (map_add φ.inv.hom z.2 w.2) }
 
 /-- Applying `dualNumberResidueFieldIso` acts coefficientwise by `residueFieldIsoBase.inv`. -/
 theorem dualNumberResidueFieldIso_apply {k : Type u} [Field k] [IsAlgClosed k] {n : ℕ}
@@ -166,7 +173,18 @@ theorem dualNumberResidueFieldIso_apply {k : Type u} [Field k] [IsAlgClosed k] {
       ((residueFieldIsoBase
           (𝔸(ULift.{u} (Fin n); Spec (.of k)) ↘ Spec (.of k)) x hx).inv.hom z.1,
         (residueFieldIsoBase
-          (𝔸(ULift.{u} (Fin n); Spec (.of k)) ↘ Spec (.of k)) x hx).inv.hom z.2) := sorry
+          (𝔸(ULift.{u} (Fin n); Spec (.of k)) ↘ Spec (.of k)) x hx).inv.hom z.2) := rfl
+
+/-- The inverse of `dualNumberResidueFieldIso` acts coefficientwise by
+`residueFieldIsoBase.hom`. -/
+theorem dualNumberResidueFieldIso_symm_apply {k : Type u} [Field k] [IsAlgClosed k] {n : ℕ}
+    {x : 𝔸(ULift.{u} (Fin n); Spec (.of k))} (hx : IsClosed {x})
+    (z : ((𝔸(ULift.{u} (Fin n); Spec (.of k))).residueField x)[ε]) :
+    (dualNumberResidueFieldIso hx).symm z =
+      ((residueFieldIsoBase
+          (𝔸(ULift.{u} (Fin n); Spec (.of k)) ↘ Spec (.of k)) x hx).hom.hom z.1,
+        (residueFieldIsoBase
+          (𝔸(ULift.{u} (Fin n); Spec (.of k)) ↘ Spec (.of k)) x hx).hom.hom z.2) := rfl
 
 /-- The dual-number lift of a closed point of affine space in the direction of a coordinate
 tangent vector. -/
@@ -174,7 +192,7 @@ def tangentDualNumberHom {k : Type u} [Field k] [IsAlgClosed k] {n : ℕ}
     {x : 𝔸(ULift.{u} (Fin n); Spec (.of k))} (hx : IsClosed {x}) (v : Fin n → k) :
     Spec (CommRingCat.of (((𝔸(ULift.{u} (Fin n); Spec (.of k))).residueField x)[ε])) ⟶
       𝔸(ULift.{u} (Fin n); Spec (.of k)) :=
-  Spec.map (CommRingCat.ofHom (dualNumberResidueFieldIso hx)) ≫
+  Spec.map (CommRingCat.ofHom (dualNumberResidueFieldIso hx).toRingHom) ≫
     homOfDualNumberCoords n (coordsOfClosedPoint hx) v
 
 /-- The dual-number lift of a closed point recovers the residue-field point inclusion. -/

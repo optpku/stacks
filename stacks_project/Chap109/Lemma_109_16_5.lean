@@ -6,91 +6,61 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import Mathlib.AlgebraicGeometry.Geometrically.Connected
-public import Mathlib.AlgebraicGeometry.Geometrically.Integral
-public import Mathlib.AlgebraicGeometry.Morphisms.Smooth
-public import Mathlib.Data.List.TFAE
-public import Mathlib.FieldTheory.IsAlgClosed.AlgebraicClosure
-public import Mathlib.Topology.Clopen
-public import ReasLib.AlgebraicGeometry.Scheme.FieldExtension.Over
-public import ReasLib.AlgebraicGeometry.Scheme.FieldExtension.Over.Proper
-public import ReasLib.AlgebraicGeometry.Scheme.GlobalSections
-public import ReasLib.AlgebraicGeometry.Scheme.Variety.Curve
-public import ReasLib.AlgebraicGeometry.Scheme.Variety.Curve.ArithmeticGenus
-public import stacks_project.Chap109.Lemma_109_11_3_Substack
-public import stacks_project.Chap109.Lemma_109_16_5_Substack
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Curve.SmoothH0.Genus
 
 /-!
 # Smooth curves of a given genus
 
-There is a decomposition of `𝒞urves^{smooth, h0}` into open-and-closed
-substacks `𝒞urves^{smooth, h0}_g` for `g ≥ 0`, witnessed on families by a
-pairwise-disjoint clopen cover of the base, classifying smooth families
-of curves with universally trivial `𝒪_S ⟶ f_* 𝒪_X` for which
-`R¹ f_* 𝒪_X` is locally free of rank `g`, equivalently proper smooth
-schemes of dimension one over a field with `k = H⁰(X, 𝒪_X)` and genus `g`,
-equivalently geometrically connected, equivalently geometrically integral,
-equivalently becoming a smooth curve of genus `g` after base change to an
-algebraic closure.
+The smooth proper curve locus decomposes into clopen loci of fixed genus.
+The relative-dimension-one condition is inherited from the preceding definition
+of `ℳ = 𝒞urves^{smooth, h0}` and is retained in the family criterion.
 -/
 
 @[expose] public section
 
 open CategoryTheory AlgebraicGeometry CategoryTheory.Limits
+open CategoryTheory.ObjectProperty
 open AlgebraicGeometry.AlgebraicSpace
 
 noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
-namespace Spaces
-namespace Curves
+namespace AlgebraicGeometry.AlgebraicSpace.Spaces.Curves
 
-/-- Lemma 109.16.5 (1): the moduli stack `ℳ = 𝒞urves^{smooth, h0}`
-decomposes as the coproduct of open-and-closed substacks `ℳ_g` for
-`g ≥ 0`: a family lies in `ℳ` if and only if its base admits a
-pairwise-disjoint clopen cover `(U_g)_{g : ℕ}`, with pieces possibly
-empty, such that the base change to each `U_g` lies in `ℳ_g`. -/
-@[stacks 0E83]
-theorem smoothH0_iff_clopenCover {S : Scheme.{u}} (P : Obj S) :
-    smoothH0 S P ↔
-      ∃ U : ℕ → (base P).left.Opens,
-        iSup U = ⊤ ∧
-          Pairwise (fun g g' ↦
-              Disjoint (U g : Set (base P).left) (U g')) ∧
-            (∀ g, IsClopen (U g : Set (base P).left)) ∧
-              ∀ g, smoothH0OfGenus g S (baseChangeToOpen P (U g)) :=
-  sorry
+/- Lemma 109.16.5 (1): the smooth proper curve locus decomposes into
+pairwise disjoint clopen genus loci, with membership characterized under every
+cartesian morphism of families. -/
+@[stacks 0E83] #check (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.exists_smoothH0OfGenus_clopen_decomposition :
+  ∀ {S : Scheme.{u}} (P : Obj S)
+    (h : smoothH0 S P),
+    ∃ U : ℕ → (base P).left.Opens,
+      iSup U = ⊤ ∧
+        Pairwise (fun g g' ↦ Disjoint (U g : Set (base P).left) (U g')) ∧
+          (∀ g, IsClopen (U g : Set (base P).left)) ∧
+            ∀ g, ∀ {Q : Obj S} (φ : Q ⟶ P),
+              smoothH0OfGenus g S Q ↔ Set.range (baseMap φ).left ⊆ U g)
 
-/-- Lemma 109.16.5 (2): given a family of curves `X ⟶ S`, the classifying
-morphism `S ⟶ 𝒞urves` factors through `ℳ_g` if and only if `𝒪_S ⟶ f_* 𝒪_X`
-is an isomorphism after every base change (including the identity),
-`X ⟶ S` is smooth of relative dimension `1`, and `R¹ f_* 𝒪_X` is a locally
-free `𝒪_S`-module of rank `g`. -/
-@[stacks 0E83]
-theorem classifying_factorsThrough_smoothH0OfGenus_iff
-    {S : Scheme.{u}} (P : Obj S) (g : ℕ) :
+/- Lemma 109.16.5 (2): a family belongs to the smooth genus-`g` locus
+precisely when it has universally trivial structure-sheaf pushforward, is
+smooth of relative dimension one, and has first higher direct image of rank `g`. -/
+@[stacks 0E83] #check (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.classifying_factorsThrough_smoothH0OfGenus_iff :
+  ∀ {S : Scheme.{u}} (P : Obj S) (g : ℕ),
     smoothH0OfGenus g S P ↔
       (∀ {Z : AlgebraicSpace S} (φ : Z ⟶ ofOver (base P)),
           IsIso (Modules.unitToPushforwardObjUnit (pullback.snd (hom P) φ))) ∧
         AlgebraicSpace.Smooth (hom P) ∧ RelativeDimension (hom P) 1 ∧
           SheafOfModules.IsFiniteLocallyFreeOfRank g
-            (higherDirectImageOne (hom P)) :=
-  sorry
+            (higherDirectImageOne (hom P)))
 
-/-- Lemma 109.16.5 (3): given a scheme `X` proper over a field `k` with
-dimension at most one, the classifying morphism `Spec k ⟶ 𝒞urves` factors
-through `ℳ_g` if and only if `X` is smooth of dimension `1` with
-`k = H⁰(X, 𝒪_X)` and genus `g`, if and only if `X` is smooth of dimension
-`1`, geometrically connected, and of genus `g`, if and only if `X` is
-smooth of dimension `1`, geometrically integral, and of genus `g`, if and
-only if `X` base-changed to an algebraic closure of `k` is a smooth curve
-of genus `g`. -/
-@[stacks 0E83]
-theorem classifying_factorsThrough_smoothH0OfGenus_tfae_scheme
-    {k : Type u} [Field k] (X : SchemeOverField k) [IsProper X.hom]
-    (hdim : topologicalKrullDim X.left ≤ 1) (g : ℕ) :
+/- Lemma 109.16.5 (3): for a proper scheme of dimension at most one over a
+field, membership in the smooth genus-`g` locus is equivalent to the four
+smoothness, dimension, global-functions, geometric-connectedness,
+geometric-integrality, and algebraic-closure characterizations of genus `g`. -/
+@[stacks 0E83] #check (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.classifying_factorsThrough_smoothH0OfGenus_tfae_scheme :
+  ∀ {k : Type u} [Field k] (X : SchemeOverField k) [IsProper X.hom]
+    (hdim : topologicalKrullDim X.left ≤ 1) (g : ℕ),
     List.TFAE
       [smoothH0OfGenus g (Spec (CommRingCat.of k)) (mkOfSchemeOverField X hdim),
         AlgebraicGeometry.Smooth X.hom ∧
@@ -114,9 +84,6 @@ theorem classifying_factorsThrough_smoothH0OfGenus_tfae_scheme
                 (FieldExtension.Over.baseChange k (AlgebraicClosure k) X).hom)),
             SchemeOverField.genus
               (FieldExtension.Over.baseChange k (AlgebraicClosure k) X)
-              hdim1 hΓ = g] :=
-  sorry
+              hdim1 hΓ = g])
 
-end Curves
-end Spaces
-end AlgebraicGeometry.AlgebraicSpace
+end AlgebraicGeometry.AlgebraicSpace.Spaces.Curves

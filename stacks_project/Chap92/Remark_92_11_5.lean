@@ -6,12 +6,8 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import Mathlib.CategoryTheory.Abelian.FunctorCategory
-public import stacks_project.Chap92.Lemma_92_4_3
-public import stacks_project.Chap92.Lemma_92_11_3
-public import stacks_project.Chap92.Remark_92_11_1
-public import stacks_project.Chap92.Remark_92_11_5_Tor
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.RingedSite.Cotangent.PolynomialSiteHomology
+import StacksCheckRecall
 
 /-!
 # Spectral-sequence comparison of `𝒥/𝒥²` with the cotangent complex
@@ -37,27 +33,6 @@ noncomputable section
 
 universe u q q'
 
-namespace Algebra
-
-/-- The object property on polynomial arrows `P ⟶ B` of having a surjective structure map. -/
-abbrev isSurjectiveOver (A B : Type u) [CommRing A] [CommRing B] [Algebra A B] :
-    ObjectProperty (PolynomialOver A B) :=
-  fun X ↦ Function.Surjective (algebraToBase X).algebraMap
-
-/-- Membership in `isSurjectiveOver` is surjectivity of the structure map `P ⟶ B`. -/
-theorem isSurjectiveOver_iff {A B : Type u} [CommRing A] [CommRing B] [Algebra A B]
-    (X : PolynomialOver A B) :
-    isSurjectiveOver A B X ↔ Function.Surjective (algebraToBase X).algebraMap :=
-  sorry
-
-/-- The full subcategory of polynomial arrows `P ⟶ B` with surjective structure map. -/
-abbrev PolynomialOverSurjective (A B : Type u) [CommRing A] [CommRing B] [Algebra A B] :=
-  (isSurjectiveOver A B).FullSubcategory
-
-end Algebra
-
-namespace Algebra.PolynomialSite
-
 variable (A B : Type u) [CommRing A] [CommRing B] [Algebra A B]
 variable [HasColimitsOfShape (PolynomialSite A B)ᵒᵖ (ModuleCat.{u} B)]
 variable [HasDerivedCategory.{q'} (ModuleCat.{u} B)]
@@ -67,127 +42,47 @@ variable [Functor.HasLeftDerivedFunctor
   (HomotopyCategory.quasiIso ((PolynomialSite A B)ᵒᵖ ⥤ ModuleCat.{u} B)
     (ComplexShape.up ℤ))]
 
-/-- Derived lower-shriek homology of a sheaf of `B`-modules on `C_{B/A}` in cohomological
-degree `k`. -/
-def lowerShriekHomology (F : (PolynomialSite A B)ᵒᵖ ⥤ ModuleCat.{u} B) (k : ℤ) :
-    ModuleCat.{u} B :=
-  (DerivedCategory.homologyFunctor (ModuleCat.{u} B) k).obj
-    (((DerivedCategory.singleFunctor ((PolynomialSite A B)ᵒᵖ ⥤ ModuleCat.{u} B) (0 : ℤ)) ⋙
-        Lπ![(PolynomialSite A B), (ModuleCat.{u} B)]).obj F)
-
-/-- Unfolding `lowerShriekHomology` recovers homology of `Lπ!` of the degree-zero single
-complex. -/
-theorem lowerShriekHomology_eq (F : (PolynomialSite A B)ᵒᵖ ⥤ ModuleCat.{u} B) (k : ℤ) :
-    lowerShriekHomology A B F k =
-      (DerivedCategory.homologyFunctor (ModuleCat.{u} B) k).obj
-        (((DerivedCategory.singleFunctor
-            ((PolynomialSite A B)ᵒᵖ ⥤ ModuleCat.{u} B) (0 : ℤ)) ⋙
-          Lπ![(PolynomialSite A B), (ModuleCat.{u} B)]).obj F) :=
-  sorry
-
-/-- Restriction of a sheaf on `C_{B/A}` along the inclusion of the surjective subcategory
-`C'_{B/A}`. -/
-def restrictSurjective (F : (PolynomialSite A B)ᵒᵖ ⥤ ModuleCat.{u} B) :
-    ((PolynomialOverSurjective A B)ᵒᵖ)ᵒᵖ ⥤ ModuleCat.{u} B :=
-  (isSurjectiveOver A B).ι.op.op ⋙ F
-
-/-- Unfolding `restrictSurjective` recovers precomposition with the double-opposite inclusion. -/
-theorem restrictSurjective_eq (F : (PolynomialSite A B)ᵒᵖ ⥤ ModuleCat.{u} B) :
-    restrictSurjective A B F = (isSurjectiveOver A B).ι.op.op ⋙ F :=
-  sorry
-
-/-- Remark 92.11.5 (1). The spectral-sequence differential
-`H_2(C_{B/A}, 𝒥/𝒥²) ⟶ H_0(C_{B/A}, Tor_1^O(𝒥, underline{B}))` is an isomorphism. -/
-@[stacks 09D5]
-theorem conormalHomology_two_isIsomorphic_kernelTorHomology_zero :
+/- Remark 92.11.5 (1). The degree-two spectral-sequence differential is an isomorphism. -/
+@[stacks 09D5] #check (Algebra.PolynomialSite.conormalHomology_two_isIsomorphic_kernelTorHomology_zero A B :
     IsIsomorphic (lowerShriekHomology A B (conormalSheaf A B) (-2))
-      (lowerShriekHomology A B (kernelTorSheaf A B 1) 0) :=
-  sorry
+      (lowerShriekHomology A B (kernelTorSheaf A B 1) 0))
 
-/-- Remark 92.11.5 (2). On the full subcategory `C'_{B/A}` of surjective polynomial arrows
-`P ⟶ B`, the kernel of `d : 𝒥/𝒥² ⟶ Ω` is the constant sheaf on `H^{-1}(L_{B/A})`. -/
-@[stacks 09D5]
-theorem kernel_conormalToOmega_restrict_isIsomorphic_const :
+/- Remark 92.11.5 (2). On the surjective subcategory, the kernel is constant on
+`H^{-1}(L_{B/A})`. -/
+@[stacks 09D5] #check (Algebra.PolynomialSite.kernel_conormalToOmega_restrict_isIsomorphic_const A B :
     IsIsomorphic (restrictSurjective A B (kernel (conormalToOmega A B)))
-      ((Functor.const _).obj ((cotangentComplex A B).homology (-1))) :=
-  sorry
+      ((Functor.const _).obj ((cotangentComplex A B).homology (-1))))
 
-/-- Remark 92.11.5 (3). On the full subcategory `C'_{B/A}` of surjective polynomial arrows
-`P ⟶ B`, the cokernel of `d : 𝒥/𝒥² ⟶ Ω` is the constant sheaf on `H^0(L_{B/A})`. -/
-@[stacks 09D5]
-theorem coker_conormalToOmega_restrict_isIsomorphic_const :
+/- Remark 92.11.5 (3). On the surjective subcategory, the cokernel is constant on
+`H^{-2}(L_{B/A})`. -/
+@[stacks 09D5] #check (Algebra.PolynomialSite.coker_conormalToOmega_restrict_isIsomorphic_const A B :
     IsIsomorphic (restrictSurjective A B (cokernel (conormalToOmega A B)))
-      ((Functor.const _).obj ((cotangentComplex A B).homology 0)) :=
-  sorry
+      ((Functor.const _).obj ((cotangentComplex A B).homology (-2 : ℤ))))
 
-/-- Remark 92.11.5 (4). The kernel of `d : 𝒥/𝒥² ⟶ Ω` on the whole site `C_{B/A}` has vanishing
-higher homology. -/
-@[stacks 09D5]
-theorem kernel_conormalToOmega_higherHomology_isZero {n : ℕ} (hn : 0 < n) :
-    IsZero (lowerShriekHomology A B (kernel (conormalToOmega A B)) (-n : ℤ)) :=
-  sorry
+/- Remark 92.11.5 (4). The kernel has vanishing higher homology. -/
+@[stacks 09D5] #check (Algebra.PolynomialSite.kernel_conormalToOmega_higherHomology_isZero A B :
+    ∀ {n : ℕ}, 0 < n →
+      IsZero (lowerShriekHomology A B (kernel (conormalToOmega A B)) (-n : ℤ)))
 
-/-- Remark 92.11.5 (5). The cokernel of `d : 𝒥/𝒥² ⟶ Ω` on the whole site `C_{B/A}` has vanishing
-higher homology. -/
-@[stacks 09D5]
-theorem coker_conormalToOmega_higherHomology_isZero {n : ℕ} (hn : 0 < n) :
-    IsZero (lowerShriekHomology A B (cokernel (conormalToOmega A B)) (-n : ℤ)) :=
-  sorry
+/- Remark 92.11.5 (5). The cokernel has vanishing higher homology. -/
+@[stacks 09D5] #check (Algebra.PolynomialSite.coker_conormalToOmega_higherHomology_isZero A B :
+    ∀ {n : ℕ}, 0 < n →
+      IsZero (lowerShriekHomology A B (cokernel (conormalToOmega A B)) (-n : ℤ)))
 
-end Algebra.PolynomialSite
+/- Remark 92.11.5 (6). For `n ≥ 2`, the conormal-to-differentials homology map is an
+isomorphism. -/
+@[stacks 09D5] #check (Algebra.CotangentComplex.conormalToOmega_lowerShriekHomology_isIso A B :
+    ∀ {n : ℕ}, 2 ≤ n → IsIso (conormalToOmega_lowerShriekHomology A B n))
 
-namespace Algebra.CotangentComplex
+/- Remark 92.11.5. For `n ≥ 2`, conormal homology identifies with cotangent homology. -/
+@[stacks 09D5] #check (Algebra.CotangentComplex.conormalHomology_isIsomorphic_cotangentHomology A B :
+    ∀ {n : ℕ}, 2 ≤ n →
+      IsIsomorphic (lowerShriekHomology A B (conormalSheaf A B) (-n : ℤ))
+        ((cotangentComplex A B).homology (-n : ℤ)))
 
-variable (A B : Type u) [CommRing A] [CommRing B] [Algebra A B]
-variable [HasColimitsOfShape (PolynomialSite A B)ᵒᵖ (ModuleCat.{u} B)]
-variable [HasDerivedCategory.{q'} (ModuleCat.{u} B)]
-variable [HasDerivedCategory.{q} ((PolynomialSite A B)ᵒᵖ ⥤ ModuleCat.{u} B)]
-variable [Functor.HasLeftDerivedFunctor
-  (categoryOverPointColimitToDerived (PolynomialSite A B) (ModuleCat.{u} B))
-  (HomotopyCategory.quasiIso ((PolynomialSite A B)ᵒᵖ ⥤ ModuleCat.{u} B)
-    (ComplexShape.up ℤ))]
-
-open Algebra.PolynomialSite
-
-/-- The canonical map `H_n(C_{B/A}, 𝒥/𝒥²) ⟶ H_n(C_{B/A}, Ω)` induced by `conormalToOmega`. -/
-def conormalToOmega_lowerShriekHomology (n : ℕ) :
-    lowerShriekHomology A B (conormalSheaf A B) (-n : ℤ) ⟶
-      lowerShriekHomology A B (omegaSheaf A B) (-n : ℤ) :=
-  (DerivedCategory.homologyFunctor (ModuleCat.{u} B) (-n : ℤ)).map
-    ((Lπ![(PolynomialSite A B), (ModuleCat.{u} B)]).map
-      ((DerivedCategory.singleFunctor
-          ((PolynomialSite A B)ᵒᵖ ⥤ ModuleCat.{u} B) (0 : ℤ)).map (conormalToOmega A B)))
-
-/-- The canonical map `conormalToOmega_lowerShriekHomology` is homology of `Lπ!` of the
-degree-zero single complex on `conormalToOmega`. -/
-theorem conormalToOmega_lowerShriekHomology_fac (n : ℕ) :
-    conormalToOmega_lowerShriekHomology A B n =
-      (DerivedCategory.homologyFunctor (ModuleCat.{u} B) (-n : ℤ)).map
-        ((Lπ![(PolynomialSite A B), (ModuleCat.{u} B)]).map
-          ((DerivedCategory.singleFunctor
-              ((PolynomialSite A B)ᵒᵖ ⥤ ModuleCat.{u} B) (0 : ℤ)).map
-            (conormalToOmega A B))) :=
-  sorry
-
-/-- Remark 92.11.5 (6). For `n ≥ 2`, the canonical map
-`H_n(C_{B/A}, 𝒥/𝒥²) ⟶ H_n(C_{B/A}, Ω)` is an isomorphism. -/
-@[stacks 09D5]
-theorem conormalToOmega_lowerShriekHomology_isIso {n : ℕ} (hn : 2 ≤ n) :
-    IsIso (conormalToOmega_lowerShriekHomology A B n) :=
-  sorry
-
-/-- For `n ≥ 2`, the homology `H_n(C_{B/A}, 𝒥/𝒥²)` identifies with `H^{-n}(L_{B/A})`. -/
-theorem conormalHomology_isIsomorphic_cotangentHomology {n : ℕ} (hn : 2 ≤ n) :
-    IsIsomorphic (lowerShriekHomology A B (conormalSheaf A B) (-n : ℤ))
-      ((cotangentComplex A B).homology (-n : ℤ)) :=
-  sorry
-
-/-- Remark 92.11.5 (7). Combined with the degree-two spectral-sequence isomorphism, one obtains
-`H^{-2}(L_{B/A}) ≅ H_0(C_{B/A}, Tor_1^O(𝒥, underline{B}))`. -/
-@[stacks 09D5]
-theorem cotangentHomology_negTwo_isIsomorphic_kernelTorHomology_zero :
+/- Remark 92.11.5 (7). The degree-minus-two cotangent homology is degree-zero homology
+of the first kernel Tor sheaf. -/
+@[stacks 09D5] #check
+  (Algebra.CotangentComplex.cotangentHomology_negTwo_isIsomorphic_kernelTorHomology_zero A B :
     IsIsomorphic ((cotangentComplex A B).homology (-2))
-      (lowerShriekHomology A B (kernelTorSheaf A B 1) 0) :=
-  sorry
-
-end Algebra.CotangentComplex
+      (lowerShriekHomology A B (kernelTorSheaf A B 1) 0))

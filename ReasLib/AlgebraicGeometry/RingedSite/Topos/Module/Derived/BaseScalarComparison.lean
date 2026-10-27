@@ -17,10 +17,8 @@ universe uX vX uY vY w
 
 namespace RingedSite.ToposHom
 
--- Local instance justification: the scalar comparison retains the canonical module
--- localization and the actual direct-image availability from its existing Grothendieck input.
+-- Local instance justification (defeq pin): scalar comparisons must retain the canonical Hom.ModuleDerived localization used by the derived adjunction.
 attribute [local instance] Hom.moduleCat_hasDerivedCategory
-attribute [local instance] modulePushforwardToDerived.hasRightDerived
 
 variable {X : RingedSite.{uX, vX, w}} {Y : RingedSite.{uY, vY, w}}
 variable [X.siteTopology.HasSheafCompose (forget RingCat.{w})]
@@ -33,7 +31,8 @@ variable [Fact (∀ a b : Hom.globalSectionsRing X, a * b = b * a)]
 variable [Fact (∀ a b : Hom.globalSectionsRing Y, a * b = b * a)]
 variable (f : ToposHom X Y)
 variable [(SheafOfModules.restrictScalars.{w} f.structureMap).IsRightAdjoint]
-variable [HasModulePullbackDerived f] [HasModuleDerivedAdjunction f]
+variable [HasModulePullbackDerived f] [@HasModuleDerivedAdjunction _ _ _ _ f _ _ _ _
+  (modulePushforwardToDerived.hasRightDerived f)]
 variable {R S : Type w} [CommRing R] [CommRing S]
 variable (α : R →+* Hom.globalSectionsRing Y) (β : S →+* Hom.globalSectionsRing X)
 variable (σ : R →+* S) (h : f.globalSectionsMap.hom.comp α = β.comp σ)
@@ -57,7 +56,8 @@ noncomputable def baseSectionsPullback (K : Hom.ModuleDerived.{w} Y) :
       ((CategoryTheory.ModuleCat.derivedRestrictionOfScalars β).obj
         ((Hom.moduleDerivedGlobalSections.{w} X).obj (f.modulePullbackDerived.obj K))) :=
   (CategoryTheory.ModuleCat.derivedRestrictionOfScalars α).map
-    ((Hom.moduleDerivedGlobalSections.{w} Y).map (f.moduleDerivedAdjunction.unit.app K) ≫
+    ((Hom.moduleDerivedGlobalSections.{w} Y).map ((@moduleDerivedAdjunction _ _ _ _ f _ _ _ _
+        (modulePushforwardToDerived.hasRightDerived f) inferInstance).unit.app K) ≫
       f.derivedGlobalSectionsPushforwardIso.inv.app (f.modulePullbackDerived.obj K)) ≫
     (f.baseRestrictionIso α β σ h).hom.app
       ((Hom.moduleDerivedGlobalSections.{w} X).obj (f.modulePullbackDerived.obj K))

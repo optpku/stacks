@@ -58,4 +58,4 @@ universe u v w
         Function.Bijective
           (T.pullbackGrade
             (ULiftHom.up.map
-              (AlgebraicGeometry.SchemeOverField.toGlobalSectionsSpec Y)) (0, 0)))
+              (AlgebraicGeometry.SchemeOverField.toGlobalSectionsSpec Y)) 0))

@@ -78,24 +78,22 @@ variable [JC.WEqualsLocallyBijective AddCommGrpCat.{u}]
 variable [HasColimitsOfShape (Discrete WalkingPair) CommRingCat.{u}]
 variable {OC : Sheaf JC CommRingCat.{u}} {OD : Sheaf JD CommRingCat.{u}}
 
-/-- The commutative structure-sheaf map of a ringed-topos morphism is the fully faithful
-lift of its ring-valued inverse-image structure map. -/
+/-- The commutative structure-sheaf map is the fully faithful lift of the ring-valued
+structure map composed with the canonical inverse-image ring comparison. -/
 def commRingStructureMap
     (f : ToposHom (RingedSite.ofCommRingSheaf JC OC)
       (RingedSite.ofCommRingSheaf JD OD)) :
     f.toTopos.commRingInverseImage.obj OD ⟶ OC :=
   InternalCommRing.CommRingSheaves.fullyFaithfulForgetRing.preimage
-    ((Iso.refl _ : ringSheafOfComm (f.toTopos.commRingInverseImage.obj OD) ≅
-      f.toTopos.ringInverseImage.obj (ringSheafOfComm OD)).hom ≫ f.structureMap)
+    ((f.toTopos.commRingInverseImageForgetRingIso).hom.app OD ≫ f.structureMap)
 
-/-- Forgetting commutativity of the lifted structure map recovers the ring-valued structure
-map, through the identity comparison of inverse-image ring sheaves. -/
+/-- Forgetting commutativity recovers the ring-valued structure map composed with the
+canonical comparison between commutative-ring and ring inverse image. -/
 theorem commRingStructureMap_forget
     (f : ToposHom (RingedSite.ofCommRingSheaf JC OC)
       (RingedSite.ofCommRingSheaf JD OD)) :
     ringSheafOfCommMap (commRingStructureMap f) =
-      (Iso.refl _ : ringSheafOfComm (f.toTopos.commRingInverseImage.obj OD) ≅
-        f.toTopos.ringInverseImage.obj (ringSheafOfComm OD)).hom ≫ f.structureMap := by
+      (f.toTopos.commRingInverseImageForgetRingIso).hom.app OD ≫ f.structureMap := by
   exact InternalCommRing.CommRingSheaves.fullyFaithfulForgetRing.map_preimage _
 
 /-- The cotangent complex of a ringed-topos morphism is the relative cotangent complex of

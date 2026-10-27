@@ -26,6 +26,8 @@ open CategoryTheory CategoryTheory.Limits
 
 noncomputable section
 
+set_option backward.isDefEq.respectTransparency false
+
 universe w v u
 
 namespace CochainComplex.KInjectiveResolution.Construction
@@ -42,8 +44,7 @@ def detectingMap (X : C) (S : Subobject X) : generator C ⟶ X :=
       have hz : cokernel.π S.arrow = 0 :=
         (show IsSeparator (generator C) from isSeparator_separator C).def _ _
           (fun f ↦ by simpa only [Limits.comp_zero] using h f)
-      -- Local instance justification (proof-local temporary data): cancellation for this
-      -- subobject uses the epimorphism just proved from its zero cokernel.
+      -- Local instance justification (proof-local temporary data): Cancellation for this subobject uses the epimorphism just proved from its zero cokernel.
       haveI : Epi S.arrow := Abelian.epi_of_cokernel_π_eq_zero _ hz
       have hi : IsIso S.arrow := isIso_of_mono_of_epi S.arrow
       exact hS ((Subobject.isIso_arrow_iff_eq_top S).mp hi)
@@ -94,8 +95,7 @@ instance presentation_epi (X : C) (hX : Subobject.smallCardinal.{w} X ≤ bound 
       rw [← hcomponent, Category.assoc]
       exact (congrArg (fun a ↦ Sigma.ι (fun _ : (bound C).out ↦ generator C)
         (subobjectIndex C X hX (equivShrink (Subobject X) S)) ≫ a) hz).trans Limits.comp_zero)
-  -- Local instance justification (proof-local temporary data): the image inclusion of this
-  -- presentation is an isomorphism because its image was proved to be the top subobject.
+  -- Local instance justification (proof-local temporary data): The image inclusion of this presentation is invertible because its image was proved to be the top subobject.
   haveI : IsIso S.arrow := (Subobject.isIso_arrow_iff_eq_top S).mpr htop
   rw [← imageSubobject_arrow_comp (presentation C X hX)]
   exact epi_comp _ _
@@ -124,15 +124,26 @@ def encodedTermInv (X : C) (hX : Subobject.smallCardinal.{w} X ≤ bound C) :
     X ⟶ term C (encodeTerm C X hX) :=
   Abelian.epiDesc (presentation C X hX)
     (cokernel.π (termSubobject C (encodeTerm C X hX)).arrow) (by
-      sorry)
+      have hk : kernel.ι (presentation C X hX) =
+          (kernelSubobjectIso (presentation C X hX)).inv ≫
+            (Subobject.isoOfEq _ _ (termSubobject_encodeTerm C X hX)).inv ≫
+            (termSubobject C (encodeTerm C X hX)).arrow := by
+        simp only [Subobject.isoOfEq_inv, Subobject.ofLE_arrow,
+          kernelSubobject_arrow']
+      rw [hk, Category.assoc, Category.assoc, cokernel.condition, comp_zero, comp_zero])
 
 /-- Both directions of the presentation quotient isomorphism are the specified descents. -/
 def encodedTermIso (X : C) (hX : Subobject.smallCardinal.{w} X ≤ bound C) :
     term C (encodeTerm C X hX) ≅ X where
   hom := encodedTermHom C X hX
   inv := encodedTermInv C X hX
-  hom_inv_id := by sorry
-  inv_hom_id := by sorry
+  hom_inv_id := by
+    apply (cancel_epi (cokernel.π (termSubobject C (encodeTerm C X hX)).arrow)).mp
+    simp [encodedTermHom, encodedTermInv, Category.assoc, Abelian.comp_epiDesc]
+    exact (Category.comp_id _).symm
+  inv_hom_id := by
+    apply (cancel_epi (presentation C X hX)).mp
+    simp [encodedTermHom, encodedTermInv, ← Category.assoc, Abelian.comp_epiDesc]
 
 /-- The lifted termwise cardinal bound is the native small-universe inequality. -/
 lemma smallCardinal_le_of_boundedBy (N : CochainComplex C ℤ)
@@ -149,21 +160,27 @@ def encodeComplex (N : CochainComplex C ℤ) (hN : SmallAcyclic.BoundedBy (bound
     ((encodedTermIso C (N.X n) (smallCardinal_le_of_boundedBy C N hN n)).hom ≫
       N.d n (n + 1) ≫
       (encodedTermIso C (N.X (n + 1)) (smallCardinal_le_of_boundedBy C N hN (n + 1))).inv)
-  squareZero n := by sorry
+  squareZero n := by
+    simp only [decodeHom, Equiv.symm_apply_apply, Category.assoc,
+      Iso.inv_hom_id_assoc, HomologicalComplex.d_comp_d_assoc, zero_comp, comp_zero]
 
 /-- The degreewise quotient isomorphisms identify the encoded complex with the given one. -/
 def encodedComplexIso (N : CochainComplex C ℤ)
     (hN : SmallAcyclic.BoundedBy (bound C) N) : (encodeComplex C N hN).complex ≅ N :=
   HomologicalComplex.Hom.isoOfComponents
     (fun n ↦ encodedTermIso C (N.X n) (smallCardinal_le_of_boundedBy C N hN n))
-    (by sorry)
+    (by
+      intro i j hij
+      change i + 1 = j at hij
+      subst j
+      simp [encodeComplex, ComplexCode.complex, decodeHom])
 
 /-- The encoded complex is a member of the explicit small acyclic test family. -/
 def encodeTest (N : CochainComplex C ℤ)
     (hN : SmallAcyclic.BoundedBy (bound C) N) : TestCode C :=
   ⟨encodeComplex C N hN, by
     constructor
-    · exact hN.2.1.of_iso (encodedComplexIso C N hN).symm
+    · exact fun i ↦ (hN.2.1 i).of_iso (encodedComplexIso C N hN).symm
     · obtain ⟨n, hn⟩ := hN.1
       exact ⟨n, isStrictlyLE_of_iso (encodedComplexIso C N hN).symm n⟩⟩
 

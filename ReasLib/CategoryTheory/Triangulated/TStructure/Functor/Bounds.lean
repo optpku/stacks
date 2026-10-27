@@ -44,17 +44,25 @@ variable {p : ℤ}
 
 /-- Apply a lower-bound preservation statement to one object and one degree. -/
 theorem obj (h : MapsGE F tC tD p) (X : C) (a : ℤ) (hX : tC.IsGE X a) :
-    tD.IsGE (F.obj X) (a + p) := sorry
+    tD.IsGE (F.obj X) (a + p) := h X a hX
 
 /-- Preservation of lower bounds is invariant under a natural isomorphism of functors. -/
-theorem ofIso (h : MapsGE F tC tD p) (e : F ≅ G) : MapsGE G tC tD p := sorry
+theorem ofIso (h : MapsGE F tC tD p) (e : F ≅ G) : MapsGE G tC tD p := by
+  intro X a hX
+  haveI := h X a hX
+  exact tD.isGE_of_iso (e.app X) (a + p)
 
 /-- A lower-bound displacement may be decreased. -/
 theorem mono {p' : ℤ} (h : MapsGE F tC tD p) (hp : p' ≤ p) :
-    MapsGE F tC tD p' := sorry
+    MapsGE F tC tD p' := by
+  intro X a hX
+  haveI := h X a hX
+  exact tD.isGE_of_ge (F.obj X) (a + p') (a + p) (add_le_add_right hp a)
 
 /-- The identity functor preserves lower bounds without displacement. -/
-theorem id : MapsGE (𝟭 C) tC tC 0 := sorry
+theorem id : MapsGE (𝟭 C) tC tC 0 := by
+  intro X a hX
+  simpa only [Functor.id_obj, add_zero] using hX
 
 variable {E : Type uE} [Category.{vE} E] [Preadditive E] [HasZeroObject E] [HasShift E ℤ]
   [∀ n : ℤ, (shiftFunctor E n).Additive] [Pretriangulated E]
@@ -62,7 +70,9 @@ variable {H : D ⥤ E} {tE : Triangulated.TStructure E} {r : ℤ}
 
 /-- Lower-bound displacements add under composition. -/
 theorem comp (hF : MapsGE F tC tD p) (hH : MapsGE H tD tE r) :
-    MapsGE (F ⋙ H) tC tE (p + r) := sorry
+    MapsGE (F ⋙ H) tC tE (p + r) := by
+  intro X a hX
+  simpa only [Functor.comp_obj, add_assoc] using hH (F.obj X) (a + p) (hF X a hX)
 
 end MapsGE
 
@@ -79,17 +89,25 @@ variable {q : ℤ}
 
 /-- Apply an upper-bound preservation statement to one object and one degree. -/
 theorem obj (h : MapsLE F tC tD q) (X : C) (b : ℤ) (hX : tC.IsLE X b) :
-    tD.IsLE (F.obj X) (b + q) := sorry
+    tD.IsLE (F.obj X) (b + q) := h X b hX
 
 /-- Preservation of upper bounds is invariant under a natural isomorphism of functors. -/
-theorem ofIso (h : MapsLE F tC tD q) (e : F ≅ G) : MapsLE G tC tD q := sorry
+theorem ofIso (h : MapsLE F tC tD q) (e : F ≅ G) : MapsLE G tC tD q := by
+  intro X b hX
+  haveI := h X b hX
+  exact tD.isLE_of_iso (e.app X) (b + q)
 
 /-- An upper-bound displacement may be increased. -/
 theorem mono {q' : ℤ} (h : MapsLE F tC tD q) (hq : q ≤ q') :
-    MapsLE F tC tD q' := sorry
+    MapsLE F tC tD q' := by
+  intro X b hX
+  haveI := h X b hX
+  exact tD.isLE_of_le (F.obj X) (b + q) (b + q') (add_le_add_right hq b)
 
 /-- The identity functor preserves upper bounds without displacement. -/
-theorem id : MapsLE (𝟭 C) tC tC 0 := sorry
+theorem id : MapsLE (𝟭 C) tC tC 0 := by
+  intro X b hX
+  simpa only [Functor.id_obj, add_zero] using hX
 
 variable {E : Type uE} [Category.{vE} E] [Preadditive E] [HasZeroObject E] [HasShift E ℤ]
   [∀ n : ℤ, (shiftFunctor E n).Additive] [Pretriangulated E]
@@ -97,7 +115,9 @@ variable {H : D ⥤ E} {tE : Triangulated.TStructure E} {s : ℤ}
 
 /-- Upper-bound displacements add under composition. -/
 theorem comp (hF : MapsLE F tC tD q) (hH : MapsLE H tD tE s) :
-    MapsLE (F ⋙ H) tC tE (q + s) := sorry
+    MapsLE (F ⋙ H) tC tE (q + s) := by
+  intro X b hX
+  simpa only [Functor.comp_obj, add_assoc] using hH (F.obj X) (b + q) (hF X b hX)
 
 end MapsLE
 

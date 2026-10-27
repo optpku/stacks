@@ -6,18 +6,15 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap82.Definition_82_17_1_Cycle
-public import stacks_project.Chap82.Definition_82_17_1_Chow
-public import stacks_project.Chap82.Lemma_82_6_3_AssociatedCycle
-public import stacks_project.Chap71.Definition_71_7_6_ZeroScheme
-public import stacks_project.Chap82.Lemma_82_17_2_MeromorphicSection
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.CycleGroup.SectionDivisor
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.ChowGroup.SectionDivisor
 
 /-!
 # Divisor and first Chern class of a nonzero section
 
-The divisor cycle and its Chow class use the canonical operators of Definition
-82.17.1. The zero scheme retains its scheme-theoretic multiplicities through
-the existing associated-cycle construction.
+Both comparisons retain the scheme-theoretic multiplicities of the zero
+subspace and the grading by the given dimension function.
 -/
 
 @[expose] public section
@@ -25,49 +22,36 @@ the existing associated-cycle construction.
 open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
 open CategoryTheory.MonoidalCategory
 
-noncomputable section
-
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.Hom
+/- Lemma 82.17.2: For a good integral algebraic space and a nonzero global
+section of an invertible module, the divisor cycle equals the associated
+cycle of the zero subspace in degree `dim_δ(X) - 1`. -/
+@[stacks 0EQF] #check
+  (AlgebraicGeometry.AlgebraicSpace.Hom.meromorphicSectionDivisorCycle_eq_zeroSchemeCycle :
+    ∀ {S : Scheme.{u}} {B X : AlgebraicSpace S}
+      [UniversallyCatenary B] [IsAbsolutelyQuasiSeparated B]
+      (f : X ⟶ B) [QuasiSeparated f] [LocallyOfFiniteType f]
+      (δ : Points B → ℤ) [IsDimensionFunction δ] [IsIntegral X]
+      {L : X.Modules} [isInvertibleObject L] (s : L.sections) (hs : s ≠ 0),
+      Hom.meromorphicSectionDivisorCycle f δ (toMeromorphicSection s)
+          (@toMeromorphicSection_isRegular S X
+            (LocallyOfFiniteType.isLocallyNoetherian f) inferInstance L inferInstance s hs) =
+        @ClosedSubspace.associatedCycle S X (LocallyOfFiniteType.isLocallyNoetherian f)
+          (zeroScheme L s) (Hom.relativeDimensionFunction f δ)
+          (Hom.deltaDimension f δ (univIrreducibleClosed X) - 1))
 
-variable {S : Scheme.{u}} {B X : AlgebraicSpace S}
-  [UniversallyCatenary B] [IsQuasiSeparated B]
-variable (f : X ⟶ B) [QuasiSeparated f] [LocallyOfFiniteType f]
-variable (δ : Points B → ℤ) [IsDimensionFunction δ]
-variable [IsIntegral X]
-
-/-- The zero-scheme cycle of a nonzero section has degree `dim_δ(X) - 1`. -/
-theorem zeroSchemeCycle_mem {L : X.Modules} [isInvertibleObject L]
-    (s : L.sections) (hs : s ≠ 0) :
-    @ClosedSubspace.cycle S X (LocallyOfFiniteType.isLocallyNoetherian f)
-        (zeroScheme L s) (relativeDimensionFunction f δ)
-        (deltaDimension f δ (univIrreducibleClosed X) - 1) ∈
-      codimOneCycleGroup f δ := sorry
-
-/-- Lemma 82.17.2 (1): In Situation 82.2.1 let `X / B` be good and integral,
-with `n = dim_δ(X)`. For an invertible module `L` and nonzero global section
-`s`, its divisor is `[Z(s)]_{n-1}` in `Z_{n-1}(X)`. -/
-@[stacks 0EQF]
-theorem meromorphicSectionDivisorCycle_eq_zeroSchemeCycle
-    {L : X.Modules} [isInvertibleObject L] (s : L.sections) (hs : s ≠ 0) :
-    meromorphicSectionDivisorCycle f δ (toMeromorphicSection s)
-        (@toMeromorphicSection_isRegular S X
-          (LocallyOfFiniteType.isLocallyNoetherian f) inferInstance L inferInstance s hs) =
-      @ClosedSubspace.cycle S X (LocallyOfFiniteType.isLocallyNoetherian f)
-        (zeroScheme L s) (relativeDimensionFunction f δ)
-        (deltaDimension f δ (univIrreducibleClosed X) - 1) := sorry
-
-/-- Lemma 82.17.2 (2): In Situation 82.2.1 let `X / B` be good and integral,
-with `n = dim_δ(X)`. For an invertible module `L` and nonzero global section
-`s`, `c1(L) ∩ [X]` is `[Z(s)]_{n-1}` in `CH_{n-1}(X)`. -/
-@[stacks 0EQF]
-theorem firstChernCapFundamental_eq_zeroSchemeCycle
-    {L : X.Modules} [isInvertibleObject L] (s : L.sections) (hs : s ≠ 0) :
-    firstChernCapFundamental f δ L =
-      chowClass f δ
-        (@ClosedSubspace.cycle S X (LocallyOfFiniteType.isLocallyNoetherian f)
-          (zeroScheme L s) (relativeDimensionFunction f δ)
-          (deltaDimension f δ (univIrreducibleClosed X) - 1)) := sorry
-
-end AlgebraicGeometry.AlgebraicSpace.Hom
+/- The first Chern class capped with the fundamental cycle is the same
+zero-subspace cycle's class in the Chow group. -/
+#check
+  (AlgebraicGeometry.AlgebraicSpace.Hom.firstChernCapFundamental_eq_zeroSchemeCycle :
+    ∀ {S : Scheme.{u}} {B X : AlgebraicSpace S}
+      [UniversallyCatenary B] [IsAbsolutelyQuasiSeparated B]
+      (f : X ⟶ B) [QuasiSeparated f] [LocallyOfFiniteType f]
+      (δ : Points B → ℤ) [IsDimensionFunction δ] [IsIntegral X]
+      {L : X.Modules} [isInvertibleObject L] (s : L.sections) (hs : s ≠ 0),
+      Hom.firstChernCapFundamental f δ L =
+        Hom.chowClass f δ
+          (@ClosedSubspace.associatedCycle S X (LocallyOfFiniteType.isLocallyNoetherian f)
+            (zeroScheme L s) (Hom.relativeDimensionFunction f δ)
+            (Hom.deltaDimension f δ (univIrreducibleClosed X) - 1)))

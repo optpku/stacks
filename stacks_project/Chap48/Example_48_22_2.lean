@@ -73,28 +73,37 @@ dualizing complex agrees with upper shriek of the base complex `k[0]`. -/
           ((AlgebraicGeometry.Scheme.DerivedQCoh.coherentPlusInclusion S).obj
             (D.omega (AlgebraicGeometry.Scheme.FiniteTypeOver.base S)))).obj.obj)
 
-/- Example 48.22.2 (3): for a proper scheme over `k`, the dualizing-module assertion is
-the proper specialization of Example 48.22.1. -/
-@[stacks 0AWJ] #check
+/- Example 48.22.2 (3): for a proper scheme over a local Noetherian base, the canonical
+quasicoherent right-adjoint value is the proper specialization of Example 48.22.1. -/
+@[stacks 0AWI] #check
   (AlgebraicGeometry.Scheme.isDualizingModule_of_proper :
     ∀ {A : Type u} [CommRing A] [IsLocalRing A] [IsNoetherianRing A]
       {X : AlgebraicGeometry.Scheme.{u}}
-      [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
-      [MonoidalCategory
-        (AlgebraicGeometry.RingedSpace.ModuleDerived X.toRingedSpace)]
-      (HA : MonoidalClosed (DerivedCategory (ModuleCat.{u} A)))
-      (HX : MonoidalClosed
-        (AlgebraicGeometry.RingedSpace.ModuleDerived X.toRingedSpace))
+      [hA₀ : HomotopyCategory.Koszul.TensorDescends (C := ModuleCat.{u} A)]
+      [hA₁ : HomotopyCategory.KFlat.TensorDescends (C := ModuleCat.{u} A)]
+      [hA₂ : DerivedCategory.KFlat.IsLocalization (C := ModuleCat.{u} A)]
+      (HA : @MonoidalClosed (DerivedCategory (ModuleCat.{u} A)) _
+        (DerivedCategory.KFlat.monoidalCategory (C := ModuleCat.{u} A)))
+      [hX₀ : AlgebraicGeometry.RingedSpace.ModuleDerived.KFlat.HomotopyTensorDescends
+        X.toRingedSpace]
+      [hX₁ : AlgebraicGeometry.RingedSpace.ModuleDerived.KFlat.TensorDescends
+        X.toRingedSpace]
+      [hX₂ : AlgebraicGeometry.RingedSpace.ModuleDerived.KFlat.IsLocalization
+        X.toRingedSpace]
+      (HX : @MonoidalClosed
+        (AlgebraicGeometry.RingedSpace.ModuleDerived X.toRingedSpace) _
+        (AlgebraicGeometry.RingedSpace.ModuleDerived.monoidalCategory
+          X.toRingedSpace))
       (ωA : DerivedCategory (ModuleCat.{u} A))
       (hωA : ωA.IsNormalizedDualizingComplex HA)
-      (ωS : AlgebraicGeometry.RingedSpace.ModuleDerived
-        (AlgebraicGeometry.Spec (CommRingCat.of A)).toRingedSpace)
-      (hωS : IsIsomorphic ωS
-        ((AlgebraicGeometry.Scheme.ModuleDerived.InternalHom.affineTildeDerived A).obj ωA))
       (f : X ⟶ AlgebraicGeometry.Spec (CommRingCat.of A)) [IsProper f]
-      (fShriek : AlgebraicGeometry.Scheme.ExceptionalInverseImage f)
+      (a : AlgebraicGeometry.Scheme.DerivedQCoh
+        (AlgebraicGeometry.Spec (CommRingCat.of A)) ⥤ AlgebraicGeometry.Scheme.DerivedQCoh X)
+      (aAdj : AlgebraicGeometry.Scheme.DerivedQCoh.pushforwardCohomologyIn f ⊣ a)
       (d : ℕ) (h_dimension : topologicalKrullDim X = d),
       AlgebraicGeometry.RingedSpace.ModuleDerived.IsDualizingModule
-        (fShriek.functor.obj ωS) HX (-(d : ℤ))
+        ((a.obj ((AlgebraicGeometry.Scheme.DerivedQCoh.affineTilde
+          (CommRingCat.of A)).obj ωA)).obj) HX (-(d : ℤ))
         (AlgebraicGeometry.RingedSpace.ModuleDerived.cohomologySheaf
-          (fShriek.functor.obj ωS) (-(d : ℤ))))
+          ((a.obj ((AlgebraicGeometry.Scheme.DerivedQCoh.affineTilde
+            (CommRingCat.of A)).obj ωA)).obj) (-(d : ℤ))))

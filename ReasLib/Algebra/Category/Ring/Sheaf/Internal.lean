@@ -103,7 +103,10 @@ def zeroApp (R : Sheaf J RingCat.{w}) (U : Cᵒᵖ) :
 /-- Naturality of the zero sections of a ring-valued sheaf. -/
 theorem zeroApp_naturality (R : Sheaf J RingCat.{w}) {U V : Cᵒᵖ} (f : U ⟶ V) :
     (MonoidalCategory.tensorUnit (Sheaf J (Type w))).obj.map f ≫ zeroApp R V =
-      zeroApp R U ≫ (underlying R).obj.map f := sorry
+      zeroApp R U ≫ (underlying R).obj.map f := by
+  ext x
+  change (0 : R.obj.obj V) = (R.obj.map f).hom 0
+  exact (map_zero (R.obj.map f).hom).symm
 
 /-- The zero operation of the internal ring underlying a ring-valued sheaf. -/
 def zero (R : Sheaf J RingCat.{w}) :
@@ -121,7 +124,10 @@ def oneApp (R : Sheaf J RingCat.{w}) (U : Cᵒᵖ) :
 /-- Naturality of the unit sections of a ring-valued sheaf. -/
 theorem oneApp_naturality (R : Sheaf J RingCat.{w}) {U V : Cᵒᵖ} (f : U ⟶ V) :
     (MonoidalCategory.tensorUnit (Sheaf J (Type w))).obj.map f ≫ oneApp R V =
-      oneApp R U ≫ (underlying R).obj.map f := sorry
+      oneApp R U ≫ (underlying R).obj.map f := by
+  ext x
+  change (1 : R.obj.obj V) = (R.obj.map f).hom 1
+  exact (map_one (R.obj.map f).hom).symm
 
 /-- The multiplicative unit of the internal ring underlying a ring-valued sheaf. -/
 def one (R : Sheaf J RingCat.{w}) : 𝟙_ (Sheaf J (Type w)) ⟶ underlying R :=
@@ -142,7 +148,11 @@ def addApp (R : Sheaf J RingCat.{w}) (U : Cᵒᵖ) :
 /-- Naturality of sectionwise addition. -/
 theorem addApp_naturality (R : Sheaf J RingCat.{w}) {U V : Cᵒᵖ} (f : U ⟶ V) :
     ((underlying R) ⊗ (underlying R)).obj.map f ≫ addApp R V =
-      addApp R U ≫ (underlying R).obj.map f := sorry
+      addApp R U ≫ (underlying R).obj.map f := by
+  ext x
+  letI : Ring ((underlying R).obj.obj U) := RingCat.ring (R.obj.obj U)
+  change (R.obj.map f).hom x.1 + (R.obj.map f).hom x.2 = (R.obj.map f).hom (x.1 + x.2)
+  exact (map_add (R.obj.map f).hom x.1 x.2).symm
 
 /-- The addition of the internal ring underlying a ring-valued sheaf. -/
 def add (R : Sheaf J RingCat.{w}) : underlying R ⊗ underlying R ⟶ underlying R :=
@@ -163,7 +173,11 @@ def mulApp (R : Sheaf J RingCat.{w}) (U : Cᵒᵖ) :
 /-- Naturality of sectionwise multiplication. -/
 theorem mulApp_naturality (R : Sheaf J RingCat.{w}) {U V : Cᵒᵖ} (f : U ⟶ V) :
     ((underlying R) ⊗ (underlying R)).obj.map f ≫ mulApp R V =
-      mulApp R U ≫ (underlying R).obj.map f := sorry
+      mulApp R U ≫ (underlying R).obj.map f := by
+  ext x
+  letI : Ring ((underlying R).obj.obj U) := RingCat.ring (R.obj.obj U)
+  change (R.obj.map f).hom x.1 * (R.obj.map f).hom x.2 = (R.obj.map f).hom (x.1 * x.2)
+  exact (map_mul (R.obj.map f).hom x.1 x.2).symm
 
 /-- The multiplication of the internal ring underlying a ring-valued sheaf. -/
 def mul (R : Sheaf J RingCat.{w}) : underlying R ⊗ underlying R ⟶ underlying R :=
@@ -184,7 +198,11 @@ def negApp (R : Sheaf J RingCat.{w}) (U : Cᵒᵖ) :
 /-- Naturality of sectionwise negation. -/
 theorem negApp_naturality (R : Sheaf J RingCat.{w}) {U V : Cᵒᵖ} (f : U ⟶ V) :
     (underlying R).obj.map f ≫ negApp R V =
-      negApp R U ≫ (underlying R).obj.map f := sorry
+      negApp R U ≫ (underlying R).obj.map f := by
+  ext x
+  letI : Ring ((underlying R).obj.obj U) := RingCat.ring (R.obj.obj U)
+  change -(R.obj.map f).hom x = (R.obj.map f).hom (-x)
+  exact (map_neg (R.obj.map f).hom x).symm
 
 /-- The negation of the internal ring underlying a ring-valued sheaf. -/
 def neg (R : Sheaf J RingCat.{w}) : underlying R ⟶ underlying R :=
@@ -194,17 +212,29 @@ def neg (R : Sheaf J RingCat.{w}) : underlying R ⟶ underlying R :=
 
 /-- Sectionwise zero is a left identity for sectionwise addition. -/
 theorem zero_add (R : Sheaf J RingCat.{w}) :
-    zero R ▷ underlying R ≫ add R = (λ_ (underlying R)).hom := sorry
+    zero R ▷ underlying R ≫ add R = (λ_ (underlying R)).hom := by
+  ext U x
+  letI : Ring ((underlying R).obj.obj U) := RingCat.ring (R.obj.obj U)
+  change 0 + x.2 = x.2
+  exact _root_.zero_add x.2
 
 /-- Sectionwise zero is a right identity for sectionwise addition. -/
 theorem add_zero (R : Sheaf J RingCat.{w}) :
-    underlying R ◁ zero R ≫ add R = (ρ_ (underlying R)).hom := sorry
+    underlying R ◁ zero R ≫ add R = (ρ_ (underlying R)).hom := by
+  ext U x
+  letI : Ring ((underlying R).obj.obj U) := RingCat.ring (R.obj.obj U)
+  change x.1 + 0 = x.1
+  exact _root_.add_zero x.1
 
 /-- Sectionwise addition is associative. -/
 theorem add_assoc (R : Sheaf J RingCat.{w}) :
     (add R ▷ underlying R) ≫ add R =
       (α_ (underlying R) (underlying R) (underlying R)).hom ≫
-        (underlying R ◁ add R) ≫ add R := sorry
+        (underlying R ◁ add R) ≫ add R := by
+  ext U x
+  letI : Ring ((underlying R).obj.obj U) := RingCat.ring (R.obj.obj U)
+  change (x.1.1 + x.1.2) + x.2 = x.1.1 + (x.1.2 + x.2)
+  exact _root_.add_assoc x.1.1 x.1.2 x.2
 
 /-- The additive-monoid structure on the underlying sheaf of a ring-valued sheaf. -/
 @[implicit_reducible]
@@ -218,12 +248,20 @@ def addMonObj (R : Sheaf J RingCat.{w}) : AddMonObj (underlying R) where
 /-- Sectionwise negation is a left additive inverse. -/
 theorem neg_add (R : Sheaf J RingCat.{w}) :
     lift (neg R) (𝟙 (underlying R)) ≫ add R =
-      toUnit (underlying R) ≫ zero R := sorry
+      toUnit (underlying R) ≫ zero R := by
+  ext U x
+  letI : Ring ((underlying R).obj.obj U) := RingCat.ring (R.obj.obj U)
+  change -x + x = (0 : R.obj.obj U)
+  exact neg_add_cancel x
 
 /-- Sectionwise negation is a right additive inverse. -/
 theorem add_neg (R : Sheaf J RingCat.{w}) :
     lift (𝟙 (underlying R)) (neg R) ≫ add R =
-      toUnit (underlying R) ≫ zero R := sorry
+      toUnit (underlying R) ≫ zero R := by
+  ext U x
+  letI : Ring ((underlying R).obj.obj U) := RingCat.ring (R.obj.obj U)
+  change x + -x = (0 : R.obj.obj U)
+  exact add_neg_cancel x
 
 /-- The additive-group structure on the underlying sheaf of a ring-valued sheaf. -/
 @[implicit_reducible]
@@ -235,25 +273,43 @@ def addGrpObj (R : Sheaf J RingCat.{w}) : AddGrpObj (underlying R) where
 
 /-- Sectionwise addition is commutative. -/
 theorem add_comm (R : Sheaf J RingCat.{w}) :
-    (β_ (underlying R) (underlying R)).hom ≫ add R = add R := sorry
+    (β_ (underlying R) (underlying R)).hom ≫ add R = add R := by
+  ext U x
+  letI : Ring ((underlying R).obj.obj U) := RingCat.ring (R.obj.obj U)
+  change x.2 + x.1 = (x.1 + x.2 : R.obj.obj U)
+  exact _root_.add_comm x.2 x.1
 
 /-- The commutativity witness for the additive structure of a ring-valued sheaf. -/
 theorem isCommAddMonObj (R : Sheaf J RingCat.{w}) :
-    @IsCommAddMonObj (Sheaf J (Type w)) _ _ _ (underlying R) (addMonObj R) := sorry
+    @IsCommAddMonObj (Sheaf J (Type w)) _ _ _ (underlying R) (addMonObj R) := by
+  letI := addMonObj R
+  exact ⟨add_comm R⟩
 
 /-- The unit section is a left identity for sectionwise multiplication. -/
 theorem one_mul (R : Sheaf J RingCat.{w}) :
-    one R ▷ underlying R ≫ mul R = (λ_ (underlying R)).hom := sorry
+    one R ▷ underlying R ≫ mul R = (λ_ (underlying R)).hom := by
+  ext U x
+  letI : Ring ((underlying R).obj.obj U) := RingCat.ring (R.obj.obj U)
+  change 1 * x.2 = x.2
+  exact _root_.one_mul x.2
 
 /-- The unit section is a right identity for sectionwise multiplication. -/
 theorem mul_one (R : Sheaf J RingCat.{w}) :
-    underlying R ◁ one R ≫ mul R = (ρ_ (underlying R)).hom := sorry
+    underlying R ◁ one R ≫ mul R = (ρ_ (underlying R)).hom := by
+  ext U x
+  letI : Ring ((underlying R).obj.obj U) := RingCat.ring (R.obj.obj U)
+  change x.1 * 1 = x.1
+  exact _root_.mul_one x.1
 
 /-- Sectionwise multiplication is associative. -/
 theorem mul_assoc (R : Sheaf J RingCat.{w}) :
     (mul R ▷ underlying R) ≫ mul R =
       (α_ (underlying R) (underlying R) (underlying R)).hom ≫
-        (underlying R ◁ mul R) ≫ mul R := sorry
+        (underlying R ◁ mul R) ≫ mul R := by
+  ext U x
+  letI : Ring ((underlying R).obj.obj U) := RingCat.ring (R.obj.obj U)
+  change (x.1.1 * x.1.2) * x.2 = x.1.1 * (x.1.2 * x.2)
+  exact _root_.mul_assoc x.1.1 x.1.2 x.2
 
 /-- The multiplicative-monoid structure on the underlying sheaf of a ring-valued sheaf. -/
 @[implicit_reducible]
@@ -268,13 +324,21 @@ def monObj (R : Sheaf J RingCat.{w}) : MonObj (underlying R) where
 theorem mul_add (R : Sheaf J RingCat.{w}) :
     underlying R ◁ add R ≫ mul R =
       lift ((underlying R ◁ fst _ _) ≫ mul R)
-          ((underlying R ◁ snd _ _) ≫ mul R) ≫ add R := sorry
+          ((underlying R ◁ snd _ _) ≫ mul R) ≫ add R := by
+  ext U x
+  letI : Ring ((underlying R).obj.obj U) := RingCat.ring (R.obj.obj U)
+  change x.1 * (x.2.1 + x.2.2) = x.1 * x.2.1 + x.1 * x.2.2
+  exact _root_.mul_add x.1 x.2.1 x.2.2
 
 /-- Sectionwise multiplication distributes over addition on the right. -/
 theorem add_mul (R : Sheaf J RingCat.{w}) :
     add R ▷ underlying R ≫ mul R =
       lift (fst _ _ ▷ underlying R ≫ mul R)
-          (snd _ _ ▷ underlying R ≫ mul R) ≫ add R := sorry
+          (snd _ _ ▷ underlying R ≫ mul R) ≫ add R := by
+  ext U x
+  letI : Ring ((underlying R).obj.obj U) := RingCat.ring (R.obj.obj U)
+  change (x.1.1 + x.1.2) * x.2 = x.1.1 * x.2 + x.1.2 * x.2
+  exact _root_.add_mul x.1.1 x.1.2 x.2
 
 /-- The internal ring carried by the type-valued sheaf underlying a ring-valued sheaf. -/
 @[implicit_reducible]
@@ -288,7 +352,23 @@ coefficients. -/
 theorem toInternal_isRingHom {R S : Sheaf J RingCat.{w}} (f : R ⟶ S) :
     @IsRingHom (Sheaf J (Type w)) _ _ (underlying R) (underlying S)
       (addMonObj R) (addMonObj S) (monObj R) (monObj S)
-      ((sheafCompose J (forget RingCat.{w})).map f) := sorry
+      ((sheafCompose J (forget RingCat.{w})).map f) := by
+  refine @IsRingHom.mk (Sheaf J (Type w)) _ _ (underlying R) (underlying S)
+    (addMonObj R) (addMonObj S) (monObj R) (monObj S) _
+    (@IsAddMonHom.mk (Sheaf J (Type w)) _ _ (underlying R) (underlying S)
+      (addMonObj R) (addMonObj S) _ ?_ ?_)
+    (@IsMonHom.mk (Sheaf J (Type w)) _ _ (underlying R) (underlying S)
+      (monObj R) (monObj S) _ ?_ ?_)
+  · ext U x
+    exact map_zero (f.hom.app U).hom
+  · ext U x
+    letI : Ring ((underlying R).obj.obj U) := RingCat.ring (R.obj.obj U)
+    exact map_add (f.hom.app U).hom x.1 x.2
+  · ext U x
+    exact map_one (f.hom.app U).hom
+  · ext U x
+    letI : Ring ((underlying R).obj.obj U) := RingCat.ring (R.obj.obj U)
+    exact map_mul (f.hom.app U).hom x.1 x.2
 
 /-- Forget a ring-valued sheaf to its canonically associated internal ring object. -/
 def toInternalObj (R : Sheaf J RingCat.{w}) : RingObjects J :=
@@ -304,13 +384,17 @@ def toInternalMap {R S : Sheaf J RingCat.{w}} (f : R ⟶ S) :
 
 /-- The internal-ring conversion preserves identity morphisms. -/
 theorem toInternalMap_id (R : Sheaf J RingCat.{w}) :
-    toInternalMap (𝟙 R) = 𝟙 (toInternalObj R) := sorry
+    toInternalMap (𝟙 R) = 𝟙 (toInternalObj R) := by
+  apply RingObjCat.Hom.ext
+  exact (sheafCompose J (forget RingCat.{w})).map_id R
 
 /-- The internal-ring conversion preserves composition. -/
 theorem toInternalMap_comp {R S T : Sheaf J RingCat.{w}}
     (f : R ⟶ S) (g : S ⟶ T) :
     toInternalMap (f ≫ g) =
-      RingObjects.comp J (toInternalMap f) (toInternalMap g) := sorry
+      RingObjects.comp J (toInternalMap f) (toInternalMap g) := by
+  apply RingObjCat.Hom.ext
+  exact (sheafCompose J (forget RingCat.{w})).map_comp f g
 
 /-- The functor from ring-valued sheaves to internal ring objects in type-valued sheaves. -/
 def toInternal : Sheaf J RingCat.{w} ⥤ RingObjects J where
@@ -383,32 +467,42 @@ def oneData : One ((sheaf R).obj.obj U) := ⟨one R U⟩
 
 /-- Sectionwise addition reconstructed from an internal ring is associative. -/
 theorem addAssoc (a b c : (sheaf R).obj.obj U) :
-    add R U (add R U a b) c = add R U a (add R U b c) := sorry
+    add R U (add R U a b) c = add R U a (add R U b c) := by
+  exact congrArg (fun f ↦ f.hom.app U ((a, b), c))
+    ((data R).toAddGrpObj.toAddMonObj.add_assoc)
 
 /-- Sectionwise zero reconstructed from an internal ring is a left additive identity. -/
-theorem zeroAdd (a : (sheaf R).obj.obj U) : add R U (zero R U) a = a := sorry
+theorem zeroAdd (a : (sheaf R).obj.obj U) : add R U (zero R U) a = a := by
+  exact congrArg (fun f ↦ f.hom.app U (PUnit.unit, a))
+    ((data R).toAddGrpObj.toAddMonObj.zero_add)
 
 /-- Sectionwise negation reconstructed from an internal ring is a left additive inverse. -/
 theorem negAddCancel (a : (sheaf R).obj.obj U) :
-    add R U (neg R U a) a = zero R U := sorry
+    add R U (neg R U a) a = zero R U := by
+  exact congrArg (fun f ↦ f.hom.app U a) ((data R).toAddGrpObj.left_neg)
 
 /-- Sectionwise multiplication reconstructed from an internal ring is associative. -/
 theorem mulAssoc (a b c : (sheaf R).obj.obj U) :
-    mul R U (mul R U a b) c = mul R U a (mul R U b c) := sorry
+    mul R U (mul R U a b) c = mul R U a (mul R U b c) := by
+  exact congrArg (fun f ↦ f.hom.app U ((a, b), c)) ((data R).toMonObj.mul_assoc)
 
 /-- Sectionwise one reconstructed from an internal ring is a left multiplicative identity. -/
-theorem oneMul (a : (sheaf R).obj.obj U) : mul R U (one R U) a = a := sorry
+theorem oneMul (a : (sheaf R).obj.obj U) : mul R U (one R U) a = a := by
+  exact congrArg (fun f ↦ f.hom.app U (PUnit.unit, a)) ((data R).toMonObj.one_mul)
 
 /-- Sectionwise one reconstructed from an internal ring is a right multiplicative identity. -/
-theorem mulOne (a : (sheaf R).obj.obj U) : mul R U a (one R U) = a := sorry
+theorem mulOne (a : (sheaf R).obj.obj U) : mul R U a (one R U) = a := by
+  exact congrArg (fun f ↦ f.hom.app U (a, PUnit.unit)) ((data R).toMonObj.mul_one)
 
 /-- Sectionwise multiplication reconstructed from an internal ring distributes on the left. -/
 theorem mulAdd (a b c : (sheaf R).obj.obj U) :
-    mul R U a (add R U b c) = add R U (mul R U a b) (mul R U a c) := sorry
+    mul R U a (add R U b c) = add R U (mul R U a b) (mul R U a c) := by
+  exact congrArg (fun f ↦ f.hom.app U (a, (b, c))) ((data R).mul_add)
 
 /-- Sectionwise multiplication reconstructed from an internal ring distributes on the right. -/
 theorem addMul (a b c : (sheaf R).obj.obj U) :
-    mul R U (add R U a b) c = add R U (mul R U a c) (mul R U b c) := sorry
+    mul R U (add R U a b) c = add R U (mul R U a c) (mul R U b c) := by
+  exact congrArg (fun f ↦ f.hom.app U ((a, b), c)) ((data R).add_mul)
 
 /-- The ring of sections reconstructed explicitly from an internal ring sheaf. -/
 @[implicit_reducible]
@@ -424,20 +518,27 @@ noncomputable def obj : RingCat.{w} :=
 variable {U} {V : Cᵒᵖ}
 
 /-- Restriction maps preserve the reconstructed zero section. -/
-theorem mapZero (f : U ⟶ V) : (sheaf R).obj.map f (zero R U) = zero R V := sorry
+theorem mapZero (f : U ⟶ V) : (sheaf R).obj.map f (zero R U) = zero R V := by
+  exact (congrArg (fun f ↦ f PUnit.unit)
+    ((data R).toAddGrpObj.toAddMonObj.zero.hom.naturality f)).symm
 
 /-- Restriction maps preserve the reconstructed multiplicative unit. -/
-theorem mapOne (f : U ⟶ V) : (sheaf R).obj.map f (one R U) = one R V := sorry
+theorem mapOne (f : U ⟶ V) : (sheaf R).obj.map f (one R U) = one R V := by
+  exact (congrArg (fun f ↦ f PUnit.unit)
+    ((data R).toMonObj.one.hom.naturality f)).symm
 
 /-- Restriction maps preserve reconstructed sectionwise addition. -/
 theorem mapAdd (f : U ⟶ V) (x y : (sheaf R).obj.obj U) :
     (sheaf R).obj.map f (add R U x y) =
-      add R V ((sheaf R).obj.map f x) ((sheaf R).obj.map f y) := sorry
+      add R V ((sheaf R).obj.map f x) ((sheaf R).obj.map f y) := by
+  exact (congrArg (fun f ↦ f (x, y))
+    ((data R).toAddGrpObj.toAddMonObj.add.hom.naturality f)).symm
 
 /-- Restriction maps preserve reconstructed sectionwise multiplication. -/
 theorem mapMul (f : U ⟶ V) (x y : (sheaf R).obj.obj U) :
     (sheaf R).obj.map f (mul R U x y) =
-      mul R V ((sheaf R).obj.map f x) ((sheaf R).obj.map f y) := sorry
+      mul R V ((sheaf R).obj.map f x) ((sheaf R).obj.map f y) := by
+  exact (congrArg (fun f ↦ f (x, y)) ((data R).toMonObj.mul.hom.naturality f)).symm
 
 /-- The ring homomorphism on sections induced by one restriction map. -/
 noncomputable def mapRingHom (f : U ⟶ V) : obj R U →+* obj R V where
@@ -453,11 +554,15 @@ noncomputable def map (f : U ⟶ V) : obj R U ⟶ obj R V :=
     (ring R U) (ring R V) (mapRingHom R f)
 
 /-- Reconstructed restriction maps preserve identities. -/
-theorem mapId (U : Cᵒᵖ) : map R (𝟙 U) = 𝟙 (obj R U) := sorry
+theorem mapId (U : Cᵒᵖ) : map R (𝟙 U) = 𝟙 (obj R U) := by
+  ext x
+  exact congrArg (fun f ↦ f x) ((sheaf R).obj.map_id U)
 
 /-- Reconstructed restriction maps preserve composition. -/
 theorem mapComp {U V W : Cᵒᵖ} (f : U ⟶ V) (g : V ⟶ W) :
-    map R (f ≫ g) = map R f ≫ map R g := sorry
+    map R (f ≫ g) = map R f ≫ map R g := by
+  ext x
+  exact congrArg (fun h ↦ h x) ((sheaf R).obj.map_comp f g)
 
 /-- The ring-valued presheaf reconstructed from an internal ring sheaf. -/
 noncomputable def presheaf : Cᵒᵖ ⥤ RingCat.{w} where
@@ -467,7 +572,64 @@ noncomputable def presheaf : Cᵒᵖ ⥤ RingCat.{w} where
   map_comp := mapComp R
 
 /-- The reconstructed ring-valued presheaf satisfies the sheaf condition. -/
-theorem isSheaf : Presheaf.IsSheaf J (presheaf R) := sorry
+theorem isSheaf : Presheaf.IsSheaf J (presheaf R) := by
+  -- Glue each element of the test ring in the underlying sheaf, then use separatedness.
+  intro E X T hT x hx
+  have h := ((isSheaf_iff_isSheaf_of_type J (sheaf R).obj).mp (sheaf R).property) T hT
+  let y (e : E) : Presieve.FamilyOfElements (sheaf R).obj T.arrows :=
+    fun _ f hf ↦ (x f hf).hom e
+  have hy (e : E) : (y e).Compatible := by
+    intro Y₁ Y₂ Z g₁ g₂ f₁ f₂ hf₁ hf₂ heq
+    exact congrArg (fun g : E ⟶ obj R (.op Z) ↦ g.hom e) (hx g₁ g₂ hf₁ hf₂ heq)
+  let a (e : E) : (sheaf R).obj.obj (.op X) := h.amalgamate (y e) (hy e)
+  have ha (e : E) : (y e).IsAmalgamation (a e) := h.isAmalgamation (hy e)
+  let g : E →+* obj R (.op X) :=
+    { toFun := a
+      map_one' := by
+        apply h.isSeparatedFor.ext
+        intro Y f hf
+        change (sheaf R).obj.map f.op (a 1) = (sheaf R).obj.map f.op (one R (.op X))
+        rw [ha 1 f hf, mapOne]
+        exact (x f hf).hom.map_one
+      map_mul' := by
+        intro e₁ e₂
+        apply h.isSeparatedFor.ext
+        intro Y f hf
+        change (sheaf R).obj.map f.op (a (e₁ * e₂)) =
+          (sheaf R).obj.map f.op (mul R (.op X) (a e₁) (a e₂))
+        rw [ha (e₁ * e₂) f hf, mapMul, ha e₁ f hf, ha e₂ f hf]
+        exact (x f hf).hom.map_mul e₁ e₂
+      map_zero' := by
+        apply h.isSeparatedFor.ext
+        intro Y f hf
+        change (sheaf R).obj.map f.op (a 0) = (sheaf R).obj.map f.op (zero R (.op X))
+        rw [ha 0 f hf, mapZero]
+        exact (x f hf).hom.map_zero
+      map_add' := by
+        intro e₁ e₂
+        apply h.isSeparatedFor.ext
+        intro Y f hf
+        change (sheaf R).obj.map f.op (a (e₁ + e₂)) =
+          (sheaf R).obj.map f.op (add R (.op X) (a e₁) (a e₂))
+        rw [ha (e₁ + e₂) f hf, mapAdd, ha e₁ f hf, ha e₂ f hf]
+        exact (x f hf).hom.map_add e₁ e₂ }
+  let gHom : E ⟶ obj R (.op X) :=
+    @RingCat.ofHom E ((sheaf R).obj.obj (.op X)) (RingCat.ring E) (ring R (.op X)) g
+  refine ⟨gHom, ?_, ?_⟩
+  · intro Y f hf
+    change gHom ≫ map R f.op = x f hf
+    apply RingCat.hom_ext
+    apply RingHom.ext
+    intro e
+    exact ha e f hf
+  · intro g' hg'
+    apply RingCat.hom_ext
+    apply RingHom.ext
+    intro e
+    apply h.isSeparatedFor.ext
+    intro Y f hf
+    exact (congrArg (fun g : E ⟶ obj R (.op Y) ↦ g.hom e) (hg' f hf)).trans
+      (ha e f hf).symm
 
 end FromInternal
 
@@ -481,21 +643,33 @@ variable {R S : RingObjects J} (f : RingObjects.Hom J R S)
 
 /-- A morphism of internal rings preserves zero on every section type. -/
 theorem homMapZero (U : Cᵒᵖ) :
-    (RingObjects.hom J f).hom.app U (zero R U) = zero S U := sorry
+    (RingObjects.hom J f).hom.app U (zero R U) = zero S U := by
+  rcases f with ⟨φ⟩
+  exact congrArg (fun g ↦ g.hom.app U PUnit.unit) (@IsAddMonHom.zero_hom _ _ _ _ _
+    (data R).toAddGrpObj.toAddMonObj (data S).toAddGrpObj.toAddMonObj φ inferInstance)
 
 /-- A morphism of internal rings preserves one on every section type. -/
 theorem homMapOne (U : Cᵒᵖ) :
-    (RingObjects.hom J f).hom.app U (one R U) = one S U := sorry
+    (RingObjects.hom J f).hom.app U (one R U) = one S U := by
+  rcases f with ⟨φ⟩
+  exact congrArg (fun g ↦ g.hom.app U PUnit.unit) (@IsMonHom.one_hom _ _ _ _ _
+    (data R).toMonObj (data S).toMonObj φ inferInstance)
 
 /-- A morphism of internal rings preserves addition on every section type. -/
 theorem homMapAdd (U : Cᵒᵖ) (x y : (sheaf R).obj.obj U) :
     (RingObjects.hom J f).hom.app U (add R U x y) =
-      add S U ((RingObjects.hom J f).hom.app U x) ((RingObjects.hom J f).hom.app U y) := sorry
+      add S U ((RingObjects.hom J f).hom.app U x) ((RingObjects.hom J f).hom.app U y) := by
+  rcases f with ⟨φ⟩
+  exact congrArg (fun g ↦ g.hom.app U (x, y)) (@IsAddMonHom.add_hom _ _ _ _ _
+    (data R).toAddGrpObj.toAddMonObj (data S).toAddGrpObj.toAddMonObj φ inferInstance)
 
 /-- A morphism of internal rings preserves multiplication on every section type. -/
 theorem homMapMul (U : Cᵒᵖ) (x y : (sheaf R).obj.obj U) :
     (RingObjects.hom J f).hom.app U (mul R U x y) =
-      mul S U ((RingObjects.hom J f).hom.app U x) ((RingObjects.hom J f).hom.app U y) := sorry
+      mul S U ((RingObjects.hom J f).hom.app U x) ((RingObjects.hom J f).hom.app U y) := by
+  rcases f with ⟨φ⟩
+  exact congrArg (fun g ↦ g.hom.app U (x, y)) (@IsMonHom.mul_hom _ _ _ _ _
+    (data R).toMonObj (data S).toMonObj φ inferInstance)
 
 /-- The ring homomorphism on sections induced by an internal-ring morphism. -/
 noncomputable def homRingHom (U : Cᵒᵖ) : obj R U →+* obj S U where
@@ -512,7 +686,9 @@ noncomputable def homApp (U : Cᵒᵖ) : obj R U ⟶ obj S U :=
 
 /-- The reconstructed components of an internal-ring morphism are natural in the site object. -/
 theorem homNaturality {U V : Cᵒᵖ} (g : U ⟶ V) :
-    map R g ≫ homApp f V = homApp f U ≫ map S g := sorry
+    map R g ≫ homApp f V = homApp f U ≫ map S g := by
+  ext x
+  exact congrArg (fun h ↦ h x) ((RingObjects.hom J f).hom.naturality g)
 
 /-- The morphism of ring-valued presheaves reconstructed from an internal-ring morphism. -/
 noncomputable def presheafMap : presheaf R ⟶ presheaf S where
@@ -528,12 +704,16 @@ noncomputable def fromInternalMap {R S : RingObjects J} (f : RingObjects.Hom J R
 
 /-- Reconstruction from internal rings preserves identity morphisms. -/
 theorem fromInternalMap_id (R : RingObjects J) :
-    fromInternalMap (𝟙 R) = 𝟙 (fromInternalObj R) := sorry
+    fromInternalMap (𝟙 R) = 𝟙 (fromInternalObj R) := by
+  ext U x
+  rfl
 
 /-- Reconstruction from internal rings preserves composition. -/
 theorem fromInternalMap_comp {R S T : RingObjects J}
     (f : RingObjects.Hom J R S) (g : RingObjects.Hom J S T) :
-    fromInternalMap (RingObjects.comp J f g) = fromInternalMap f ≫ fromInternalMap g := sorry
+    fromInternalMap (RingObjects.comp J f g) = fromInternalMap f ≫ fromInternalMap g := by
+  ext U x
+  rfl
 
 /-- The functor reconstructing ring-valued sheaves from internal ring objects. -/
 noncomputable def fromInternal : RingObjects J ⥤ Sheaf J RingCat.{w} where
@@ -560,7 +740,24 @@ theorem fromToHomIsRingHom (R : RingObjects J) :
     @IsRingHom (Sheaf J (Type w)) _ _ (underlying (fromInternalObj R)) (FromInternal.sheaf R)
       (addMonObj (fromInternalObj R)) (FromInternal.data R).toAddGrpObj.toAddMonObj
       (monObj (fromInternalObj R)) (FromInternal.data R).toMonObj
-      (𝟙 (FromInternal.sheaf R)) := sorry
+      (𝟙 (FromInternal.sheaf R)) := by
+  refine @IsRingHom.mk (Sheaf J (Type w)) _ _ (underlying (fromInternalObj R)) (FromInternal.sheaf R)
+    (addMonObj (fromInternalObj R)) (FromInternal.data R).toAddGrpObj.toAddMonObj
+    (monObj (fromInternalObj R)) (FromInternal.data R).toMonObj _
+    (@IsAddMonHom.mk (Sheaf J (Type w)) _ _ (underlying (fromInternalObj R)) (FromInternal.sheaf R)
+      (addMonObj (fromInternalObj R)) (FromInternal.data R).toAddGrpObj.toAddMonObj _ ?_ ?_)
+    (@IsMonHom.mk (Sheaf J (Type w)) _ _ (underlying (fromInternalObj R)) (FromInternal.sheaf R)
+      (monObj (fromInternalObj R)) (FromInternal.data R).toMonObj _ ?_ ?_)
+  · ext U x
+    cases x
+    rfl
+  · ext U x
+    rfl
+  · ext U x
+    cases x
+    rfl
+  · ext U x
+    rfl
 
 /-- The forward component of the comparison from reconstructed internal rings to the original
 internal ring. -/
@@ -576,7 +773,24 @@ theorem fromToInvIsRingHom (R : RingObjects J) :
     @IsRingHom (Sheaf J (Type w)) _ _ (FromInternal.sheaf R) (underlying (fromInternalObj R))
       (FromInternal.data R).toAddGrpObj.toAddMonObj (addMonObj (fromInternalObj R))
       (FromInternal.data R).toMonObj (monObj (fromInternalObj R))
-      (𝟙 (FromInternal.sheaf R)) := sorry
+      (𝟙 (FromInternal.sheaf R)) := by
+  refine @IsRingHom.mk (Sheaf J (Type w)) _ _ (FromInternal.sheaf R) (underlying (fromInternalObj R))
+    (FromInternal.data R).toAddGrpObj.toAddMonObj (addMonObj (fromInternalObj R))
+    (FromInternal.data R).toMonObj (monObj (fromInternalObj R)) _
+    (@IsAddMonHom.mk (Sheaf J (Type w)) _ _ (FromInternal.sheaf R) (underlying (fromInternalObj R))
+      (FromInternal.data R).toAddGrpObj.toAddMonObj (addMonObj (fromInternalObj R)) _ ?_ ?_)
+    (@IsMonHom.mk (Sheaf J (Type w)) _ _ (FromInternal.sheaf R) (underlying (fromInternalObj R))
+      (FromInternal.data R).toMonObj (monObj (fromInternalObj R)) _ ?_ ?_)
+  · ext U x
+    cases x
+    rfl
+  · ext U x
+    rfl
+  · ext U x
+    cases x
+    rfl
+  · ext U x
+    rfl
 
 /-- The inverse component of the comparison from reconstructed internal rings to the original
 internal ring. -/
@@ -589,12 +803,16 @@ noncomputable def fromToInv (R : RingObjects J) :
 /-- The two directions of the internal-ring reconstruction comparison compose to the source
 identity. -/
 theorem fromToHomInvId (R : RingObjects J) :
-    RingObjects.comp J (fromToHom R) (fromToInv R) = 𝟙 (toInternalObj (fromInternalObj R)) := sorry
+    RingObjects.comp J (fromToHom R) (fromToInv R) = 𝟙 (toInternalObj (fromInternalObj R)) := by
+  apply RingObjCat.Hom.ext
+  exact Category.id_comp _
 
 /-- The two directions of the internal-ring reconstruction comparison compose to the target
 identity. -/
 theorem fromToInvHomId (R : RingObjects J) :
-    RingObjects.comp J (fromToInv R) (fromToHom R) = 𝟙 R := sorry
+    RingObjects.comp J (fromToInv R) (fromToHom R) = 𝟙 R := by
+  apply RingObjCat.Hom.ext
+  exact Category.id_comp _
 
 /-- The component comparing an internal ring with reconstruction through ring-valued sheaves. -/
 noncomputable def fromToAppIso (R : RingObjects J) :
@@ -607,7 +825,10 @@ noncomputable def fromToAppIso (R : RingObjects J) :
 /-- The internal-ring reconstruction comparison is natural. -/
 theorem fromToNaturality {R S : RingObjects J} (f : RingObjects.Hom J R S) :
     (fromInternal ⋙ toInternal).map f ≫ (fromToAppIso S).hom =
-      (fromToAppIso R).hom ≫ (𝟭 (RingObjects J)).map f := sorry
+      (fromToAppIso R).hom ≫ (𝟭 (RingObjects J)).map f := by
+  apply RingObjCat.Hom.ext
+  ext U x
+  rfl
 
 end Comparison
 
@@ -621,20 +842,20 @@ variable (A : Sheaf J RingCat.{w}) (U : Cᵒᵖ)
 
 /-- Reconstructing sections after passing to an internal ring preserves the original zero. -/
 theorem toFromHomMapZero :
-    FromInternal.zero (toInternalObj A) U = (0 : A.obj.obj U) := sorry
+    FromInternal.zero (toInternalObj A) U = (0 : A.obj.obj U) := rfl
 
 /-- Reconstructing sections after passing to an internal ring preserves the original one. -/
 theorem toFromHomMapOne :
-    FromInternal.one (toInternalObj A) U = (1 : A.obj.obj U) := sorry
+    FromInternal.one (toInternalObj A) U = (1 : A.obj.obj U) := rfl
 
 /-- Reconstructing sections after passing to an internal ring preserves the original addition. -/
 theorem toFromHomMapAdd (x y : A.obj.obj U) :
-    FromInternal.add (toInternalObj A) U x y = x + y := sorry
+    FromInternal.add (toInternalObj A) U x y = x + y := rfl
 
 /-- Reconstructing sections after passing to an internal ring preserves the original
 multiplication. -/
 theorem toFromHomMapMul (x y : A.obj.obj U) :
-    FromInternal.mul (toInternalObj A) U x y = x * y := sorry
+    FromInternal.mul (toInternalObj A) U x y = x * y := rfl
 
 /-- The identity function from reconstructed sections to the original section ring. -/
 noncomputable def toFromHomRingHom :
@@ -648,22 +869,22 @@ noncomputable def toFromHomRingHom :
 /-- The identity function from the original section ring to reconstructed sections preserves
 zero. -/
 theorem toFromInvMapZero :
-    (0 : A.obj.obj U) = FromInternal.zero (toInternalObj A) U := sorry
+    (0 : A.obj.obj U) = FromInternal.zero (toInternalObj A) U := rfl
 
 /-- The identity function from the original section ring to reconstructed sections preserves
 one. -/
 theorem toFromInvMapOne :
-    (1 : A.obj.obj U) = FromInternal.one (toInternalObj A) U := sorry
+    (1 : A.obj.obj U) = FromInternal.one (toInternalObj A) U := rfl
 
 /-- The identity function from the original section ring to reconstructed sections preserves
 addition. -/
 theorem toFromInvMapAdd (x y : A.obj.obj U) :
-    x + y = FromInternal.add (toInternalObj A) U x y := sorry
+    x + y = FromInternal.add (toInternalObj A) U x y := rfl
 
 /-- The identity function from the original section ring to reconstructed sections preserves
 multiplication. -/
 theorem toFromInvMapMul (x y : A.obj.obj U) :
-    x * y = FromInternal.mul (toInternalObj A) U x y := sorry
+    x * y = FromInternal.mul (toInternalObj A) U x y := rfl
 
 /-- The identity ring homomorphism from the original section ring to reconstructed sections. -/
 noncomputable def toFromInvRingHom :
@@ -691,12 +912,16 @@ noncomputable def toFromInvApp :
 /-- The forward sectionwise components of the ring-sheaf reconstruction comparison are natural. -/
 theorem toFromHomNaturality {U V : Cᵒᵖ} (f : U ⟶ V) :
     FromInternal.map (toInternalObj A) f ≫ toFromHomApp A V =
-      toFromHomApp A U ≫ A.obj.map f := sorry
+      toFromHomApp A U ≫ A.obj.map f := by
+  ext x
+  rfl
 
 /-- The inverse sectionwise components of the ring-sheaf reconstruction comparison are natural. -/
 theorem toFromInvNaturality {U V : Cᵒᵖ} (f : U ⟶ V) :
     A.obj.map f ≫ toFromInvApp A V =
-      toFromInvApp A U ≫ FromInternal.map (toInternalObj A) f := sorry
+      toFromInvApp A U ≫ FromInternal.map (toInternalObj A) f := by
+  ext x
+  rfl
 
 /-- The forward morphism of ring-valued presheaves in the reconstruction comparison. -/
 noncomputable def toFromHomPresheaf :
@@ -721,11 +946,15 @@ noncomputable def toFromInv : A ⟶ fromInternalObj (toInternalObj A) :=
 /-- The two directions of the ring-sheaf reconstruction comparison compose to the source
 identity. -/
 theorem toFromHomInvId :
-    toFromHom A ≫ toFromInv A = 𝟙 (fromInternalObj (toInternalObj A)) := sorry
+    toFromHom A ≫ toFromInv A = 𝟙 (fromInternalObj (toInternalObj A)) := by
+  ext U x
+  rfl
 
 /-- The two directions of the ring-sheaf reconstruction comparison compose to the target
 identity. -/
-theorem toFromInvHomId : toFromInv A ≫ toFromHom A = 𝟙 A := sorry
+theorem toFromInvHomId : toFromInv A ≫ toFromHom A = 𝟙 A := by
+  ext U x
+  rfl
 
 /-- The component comparing a ring-valued sheaf with reconstruction through internal rings. -/
 noncomputable def toFromAppIso : fromInternalObj (toInternalObj A) ≅ A where
@@ -737,7 +966,9 @@ noncomputable def toFromAppIso : fromInternalObj (toInternalObj A) ≅ A where
 /-- The ring-valued-sheaf reconstruction comparison is natural. -/
 theorem toFromNaturality {A B : Sheaf J RingCat.{w}} (f : A ⟶ B) :
     (toInternal ⋙ fromInternal).map f ≫ (toFromAppIso B).hom =
-      (toFromAppIso A).hom ≫ (𝟭 (Sheaf J RingCat.{w})).map f := sorry
+      (toFromAppIso A).hom ≫ (𝟭 (Sheaf J RingCat.{w})).map f := by
+  ext U x
+  rfl
 
 end Comparison
 
@@ -748,7 +979,10 @@ noncomputable def toFromIso : toInternal ⋙ fromInternal ≅ 𝟭 (Sheaf J Ring
 /-- The two reconstruction comparisons satisfy the triangle identity on internal rings. -/
 theorem equivalence_triangle (A : Sheaf J RingCat.{w}) :
     toInternal.map (toFromIso.inv.app A) ≫ fromToIso.hom.app (toInternal.obj A) =
-      𝟙 (toInternal.obj A) := sorry
+      𝟙 (toInternal.obj A) := by
+  apply RingObjCat.Hom.ext
+  ext U x
+  rfl
 
 /-- Ring-valued sheaves are equivalent to internal ring objects in type-valued sheaves. -/
 noncomputable def equivalence : Sheaf J RingCat.{w} ≌ RingObjects J where
@@ -761,8 +995,6 @@ noncomputable def equivalence : Sheaf J RingCat.{w} ≌ RingObjects J where
 end Comparison
 
 -- Every carrier, operation, restriction map, functor component, and inverse component above is
--- explicit.  The reported `sorryAx` is confined to ring laws, naturality, sheaf conditions, and
--- functor/iso/equivalence coherence fields; no non-Prop payload is selected from an existence or
--- `IsIso` proof.
+-- explicit; no non-Prop payload is selected from an existence or `IsIso` proof.
 
 end CategoryTheory.Sheaf.InternalRing

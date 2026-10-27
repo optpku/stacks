@@ -57,7 +57,7 @@ theorem eval.apply {X : C} {V : Eᵒᵖ ⥤ C}
     (F : indexedCoprod.HomFamily.Compatible
       (CategoryTheory.uliftYoneda.{w}.obj e)
       ((Functor.const Eᵒᵖ).obj X) V) :
-    eval e F = F.1 (op e) (ULift.up (𝟙 e)) := sorry
+    eval e F = F.1 (op e) (ULift.up (𝟙 e)) := rfl
 
 /-- A map from the constant factor into `V.obj (op e)` induces a Yoneda-indexed family by
 postcomposing with the structure maps of `V`. -/
@@ -73,13 +73,17 @@ def ofMap (V : Eᵒᵖ ⥤ C) {X : C} (f : X ⟶ V.obj (op e)) :
 theorem ofMap.apply (V : Eᵒᵖ ⥤ C) {X : C} (f : X ⟶ V.obj (op e))
     (Delta : Eᵒᵖ)
     (g : (CategoryTheory.uliftYoneda.{w}.obj e).obj Delta) :
-    ofMap e V f Delta g = f ≫ V.map g.down.op := sorry
+    ofMap e V f Delta g = f ≫ V.map g.down.op := rfl
 
 /-- The family induced by a map at the representing object is compatible. -/
 @[stacks 017F "compatibility of an induced Yoneda-indexed family"]
 theorem ofMap.isCompatible (V : Eᵒᵖ ⥤ C) {X : C}
     (f : X ⟶ V.obj (op e)) :
-    (ofMap e V f).IsCompatible := sorry
+    (ofMap e V f).IsCompatible := by
+  intro Delta Delta' h g
+  change 𝟙 X ≫ (f ≫ V.map (g.down.op ≫ h)) =
+    (f ≫ V.map g.down.op) ≫ V.map h
+  rw [Category.id_comp, V.map_comp, Category.assoc]
 
 /-- Package the family induced by a representing-object map with its compatibility. -/
 @[stacks 017F "compatible family induced at the representing object"]
@@ -95,7 +99,7 @@ def ofMap.compatible (V : Eᵒᵖ ⥤ C) {X : C}
 theorem ofMap.compatible.apply (V : Eᵒᵖ ⥤ C) {X : C}
     (f : X ⟶ V.obj (op e)) (Delta : Eᵒᵖ)
     (g : (CategoryTheory.uliftYoneda.{w}.obj e).obj Delta) :
-    (ofMap.compatible e V f).1 Delta g = f ≫ V.map g.down.op := sorry
+    (ofMap.compatible e V f).1 Delta g = f ≫ V.map g.down.op := rfl
 
 /-- Reconstructing a compatible Yoneda-indexed family from its identity value returns the
 original family. -/
@@ -104,13 +108,24 @@ theorem ofMap.compatible_eval {X : C} (V : Eᵒᵖ ⥤ C)
     (F : indexedCoprod.HomFamily.Compatible
       (CategoryTheory.uliftYoneda.{w}.obj e)
       ((Functor.const Eᵒᵖ).obj X) V) :
-    ofMap.compatible e V (eval e F) = F := sorry
+    ofMap.compatible e V (eval e F) = F := by
+  apply Subtype.ext
+  funext Delta g
+  obtain ⟨g⟩ := g
+  change F.1 (op e) (ULift.up (𝟙 e)) ≫ V.map g.op =
+    F.1 Delta (ULift.up g)
+  have h := (F.2 g.op (ULift.up (𝟙 e))).symm
+  change F.1 (op e) (ULift.up (𝟙 e)) ≫ V.map g.op =
+    𝟙 X ≫ F.1 Delta (ULift.up (g ≫ 𝟙 e)) at h
+  simpa using h
 
 /-- Evaluating the family induced by a representing-object map returns that map. -/
 @[stacks 017F "Yoneda-indexed family evaluation law"]
 theorem eval_ofMap {X : C} (V : Eᵒᵖ ⥤ C)
     (f : X ⟶ V.obj (op e)) :
-    eval e (ofMap.compatible e V f) = f := sorry
+    eval e (ofMap.compatible e V f) = f := by
+  change f ≫ V.map (𝟙 (op e)) = f
+  simp
 
 /-- Compatible families indexed by `uliftYoneda.obj e` are canonically maps from the constant
 factor into the value at `op e`. -/
@@ -131,13 +146,13 @@ theorem evalEquiv.apply {X : C} {V : Eᵒᵖ ⥤ C}
     (F : indexedCoprod.HomFamily.Compatible
       (CategoryTheory.uliftYoneda.{w}.obj e)
       ((Functor.const Eᵒᵖ).obj X) V) :
-    evalEquiv e X V F = eval e F := sorry
+    evalEquiv e X V F = eval e F := rfl
 
 /-- The inverse of `evalEquiv` is the family induced by the chosen map. -/
 @[simp, stacks 017F "Yoneda-indexed family equivalence inverse formula"]
 theorem evalEquiv.symm_apply (X : C) (V : Eᵒᵖ ⥤ C)
     (f : X ⟶ V.obj (op e)) :
-    (evalEquiv e X V).symm f = ofMap.compatible e V f := sorry
+    (evalEquiv e X V).symm f = ofMap.compatible e V f := rfl
 
 end HomFamily
 
@@ -183,7 +198,7 @@ theorem homEquiv.ofIso.apply {U : Eᵒᵖ ⥤ Type (max w d)}
     homEquiv.ofIso e a X V f =
       Sigma.ι (fun _ : U.obj (op e) ↦ X)
           (a.inv.app (op e) (ULift.up (𝟙 e))) ≫
-        f.app (op e) := sorry
+        f.app (op e) := rfl
 
 /-- The inverse equivalence for an index presheaf isomorphic to a representable is assembled
 degreewise after sending each index through the forward isomorphism. -/
@@ -194,7 +209,7 @@ theorem homEquiv.ofIso.symm_apply {U : Eᵒᵖ ⥤ Type (max w d)}
     (V : Eᵒᵖ ⥤ C) (f : X ⟶ V.obj (op e)) (Delta : Eᵒᵖ) :
     ((homEquiv.ofIso e a X V).symm f).app Delta =
       Sigma.desc (fun u : U.obj Delta ↦
-        f ≫ V.map ((a.hom.app Delta u).down).op) := sorry
+        f ≫ V.map ((a.hom.app Delta u).down).op) := rfl
 
 /-- Restricting the inverse equivalence to one summand gives the structure map determined by
 the corresponding representable index. -/
@@ -206,7 +221,9 @@ theorem homEquiv.ofIso.symm_apply_ι {U : Eᵒᵖ ⥤ Type (max w d)}
     (Delta : Eᵒᵖ) (u : U.obj Delta) :
     Sigma.ι (fun _ : U.obj Delta ↦ X) u ≫
         ((homEquiv.ofIso e a X V).symm f).app Delta =
-      f ≫ V.map ((a.hom.app Delta u).down).op := sorry
+      f ≫ V.map ((a.hom.app Delta u).down).op := by
+  rw [homEquiv.ofIso.symm_apply]
+  exact Sigma.ι_desc _ u
 
 /-- The equivalence up to index isomorphism is natural under postcomposition in the target
 presheaf. -/
@@ -218,7 +235,9 @@ theorem homEquiv.ofIso.postcomp {U : Eᵒᵖ ⥤ Type (max w d)}
     (f : indexedCoprod U ((Functor.const Eᵒᵖ).obj X) ⟶ V)
     (g : V ⟶ W) :
     homEquiv.ofIso e a X W (f ≫ g) =
-      homEquiv.ofIso e a X V f ≫ g.app (op e) := sorry
+      homEquiv.ofIso e a X V f ≫ g.app (op e) := by
+  rw [homEquiv.ofIso.apply, homEquiv.ofIso.apply]
+  exact (Category.assoc _ _ _).symm
 
 /-- The equivalence up to index isomorphism is natural under precomposition in the constant
 factor. -/
@@ -232,7 +251,13 @@ theorem homEquiv.ofIso.precomp {U : Eᵒᵖ ⥤ Type (max w d)}
     (g : indexedCoprod U ((Functor.const Eᵒᵖ).obj Y) ⟶ V) :
     homEquiv.ofIso e a X V
         (indexedCoprod.hom U ((Functor.const Eᵒᵖ).map f) ≫ g) =
-      f ≫ homEquiv.ofIso e a Y V g := sorry
+      f ≫ homEquiv.ofIso e a Y V g := by
+  exact congrArg
+    (fun F : indexedCoprod.HomFamily.Compatible U
+        ((Functor.const Eᵒᵖ).obj X) V ↦
+      F.1 (op e) (a.inv.app (op e) (ULift.up (𝟙 e))))
+    (indexedCoprod.HomFamily.homEquiv.precompose
+      ((Functor.const Eᵒᵖ).map f) g)
 
 /-- The Yoneda-indexed coproduct equivalence evaluates the component at `op e` after the
 coproduct injection indexed by the lifted identity of `e`. -/
@@ -244,7 +269,7 @@ theorem homEquiv.apply {X : C} {V : Eᵒᵖ ⥤ C}
       ((Functor.const Eᵒᵖ).obj X) ⟶ V) :
     homEquiv e X V f =
       Sigma.ι (fun _ : (CategoryTheory.uliftYoneda.{w}.obj e).obj (op e) ↦ X)
-        (ULift.up (𝟙 e)) ≫ f.app (op e) := sorry
+        (ULift.up (𝟙 e)) ≫ f.app (op e) := rfl
 
 /-- The inverse Yoneda-indexed coproduct equivalence is assembled degreewise from the maps
 `f ≫ V.map g.down.op`. -/
@@ -255,7 +280,7 @@ theorem homEquiv.symm_apply (X : C) (V : Eᵒᵖ ⥤ C)
     (f : X ⟶ V.obj (op e)) (Delta : Eᵒᵖ) :
     ((homEquiv e X V).symm f).app Delta =
       Sigma.desc (fun g : (CategoryTheory.uliftYoneda.{w}.obj e).obj Delta ↦
-        f ≫ V.map g.down.op) := sorry
+        f ≫ V.map g.down.op) := rfl
 
 /-- Restricting the inverse Yoneda-indexed coproduct equivalence to the summand indexed by `g`
 recovers `f` followed by the corresponding structure map of the target presheaf. -/
@@ -267,7 +292,9 @@ theorem homEquiv.symm_apply_ι (X : C) (V : Eᵒᵖ ⥤ C)
     (g : (CategoryTheory.uliftYoneda.{w}.obj e).obj Delta) :
     Sigma.ι (fun _ : (CategoryTheory.uliftYoneda.{w}.obj e).obj Delta ↦ X) g ≫
         ((homEquiv e X V).symm f).app Delta =
-      f ≫ V.map g.down.op := sorry
+      f ≫ V.map g.down.op := by
+  rw [homEquiv.symm_apply]
+  exact Sigma.ι_desc _ g
 
 /-- The Yoneda-indexed coproduct equivalence is natural under postcomposition in the target
 presheaf. -/
@@ -279,7 +306,9 @@ theorem homEquiv.postcomp {X : C} {V W : Eᵒᵖ ⥤ C}
       ((Functor.const Eᵒᵖ).obj X) ⟶ V)
     (g : V ⟶ W) :
     homEquiv e X W (f ≫ g) =
-      homEquiv e X V f ≫ g.app (op e) := sorry
+      homEquiv e X V f ≫ g.app (op e) := by
+  rw [homEquiv.apply, homEquiv.apply]
+  exact (Category.assoc _ _ _).symm
 
 /-- The Yoneda-indexed coproduct equivalence is natural under precomposition in the constant
 factor. -/
@@ -295,7 +324,10 @@ theorem homEquiv.precomp {X Y : C} {V : Eᵒᵖ ⥤ C}
     homEquiv e X V
         (indexedCoprod.hom (CategoryTheory.uliftYoneda.{w}.obj e)
           ((Functor.const Eᵒᵖ).map f) ≫ g) =
-      f ≫ homEquiv e Y V g := sorry
+      f ≫ homEquiv e Y V g := by
+  exact congrArg (HomFamily.eval e)
+    (indexedCoprod.HomFamily.homEquiv.precompose
+      ((Functor.const Eᵒᵖ).map f) g)
 
 /-- The universe-lifted Yoneda-indexed Hom equivalence is natural by postcomposition.  This is
 the coherence field for the canonical corepresentation. -/
@@ -309,7 +341,10 @@ theorem homEquiv.ulift_comp {X : C}
     ((homEquiv e X W).trans Equiv.ulift.symm) (f ≫ g) =
       ((((evaluation Eᵒᵖ C).obj (op e) ⋙ coyoneda.obj (op X)) ⋙
           CategoryTheory.uliftFunctor.{i, v}).map g)
-        (((homEquiv e X V).trans Equiv.ulift.symm) f) := sorry
+        (((homEquiv e X V).trans Equiv.ulift.symm) f) := by
+  change ULift.up (homEquiv e X W (f ≫ g)) =
+    ULift.up (homEquiv e X V f ≫ g.app (op e))
+  exact congrArg ULift.up (homEquiv.postcomp e f g)
 
 /-- The Yoneda-indexed coproduct corepresents the universe-lifted functor of maps from the
 constant factor into evaluation at the representing object. -/
@@ -334,7 +369,7 @@ theorem corepresentableBy.homEquiv.apply {X : C}
     (f : indexedCoprod (CategoryTheory.uliftYoneda.{w}.obj e)
       ((Functor.const Eᵒᵖ).obj X) ⟶ V) :
     (corepresentableBy e X).homEquiv f =
-      ULift.up (homEquiv e X V f) := sorry
+      ULift.up (homEquiv e X V f) := rfl
 
 end indexedCoprod.uliftYoneda
 

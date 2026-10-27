@@ -42,8 +42,8 @@ noncomputable abbrev coefficientSheafedSquare :
   sq.map (Scheme.forgetToLocallyRingedSpace ⋙
     LocallyRingedSpace.forgetToSheafedSpace)
 
-variable [((RingedSpace.DeRham.baseChangeHom
-  (coefficientSheafedSquare f p q h sq)).modulePushforward.{u}).IsRightAdjoint]
+variable [(modulePushforward.{u} (RingedSpace.DeRham.baseChangeHom
+  (coefficientSheafedSquare f p q h sq))).IsRightAdjoint]
 variable [h_derived : Functor.HasRightDerivedFunctor
   (modulePushforwardToDerived.{u, u, u, u, u, u}
     (RingedSpace.DeRham.baseChangeHom (coefficientSheafedSquare f p q h sq)))
@@ -215,8 +215,8 @@ noncomputable abbrev pushedComparisonTarget
         (RingedSpace.DeRham.coefficientSite p.toLRSHom.toShHom) ⥤
       ModuleSections.Derived.{u}
         (RingedSpace.DeRham.coefficientSite q.toLRSHom.toShHom) :=
-  (RingedSpace.DeRham.baseChangeHom
-      (coefficientSheafedSquare f p q h sq)).modulePushforward.{u}.mapHomotopyCategory (up ℤ) ⋙
+  (modulePushforward.{u} (RingedSpace.DeRham.baseChangeHom
+      (coefficientSheafedSquare f p q h sq))).mapHomotopyCategory (up ℤ) ⋙
     moduleGlobalSectionsToModuleDerived.{u}
       (RingedSpace.DeRham.coefficientSite q.toLRSHom.toShHom)
 
@@ -283,8 +283,8 @@ noncomputable def pushedComparisonTargetUnit
           (RingedSpace.DeRham.coefficientSite p.toLRSHom.toShHom) ⋙
         pushedComparisonTargetDerived f p q h sq :=
   Functor.whiskerLeft
-      ((RingedSpace.DeRham.baseChangeHom
-        (coefficientSheafedSquare f p q h sq)).modulePushforward.{u}.mapHomotopyCategory (up ℤ))
+      ((modulePushforward.{u} (RingedSpace.DeRham.baseChangeHom
+        (coefficientSheafedSquare f p q h sq))).mapHomotopyCategory (up ℤ))
       (Functor.totalRightDerivedUnit
         (moduleGlobalSectionsToModuleDerived.{u}
           (RingedSpace.DeRham.coefficientSite q.toLRSHom.toShHom))
@@ -293,8 +293,8 @@ noncomputable def pushedComparisonTargetUnit
         (ModuleQis.{u}
           (RingedSpace.DeRham.coefficientSite q.toLRSHom.toShHom))) ≫
     (Functor.associator
-      ((RingedSpace.DeRham.baseChangeHom
-        (coefficientSheafedSquare f p q h sq)).modulePushforward.{u}.mapHomotopyCategory (up ℤ))
+      ((modulePushforward.{u} (RingedSpace.DeRham.baseChangeHom
+        (coefficientSheafedSquare f p q h sq))).mapHomotopyCategory (up ℤ))
       (moduleLocalization.{u}
         (RingedSpace.DeRham.coefficientSite q.toLRSHom.toShHom))
       (moduleDerivedGlobalSections.{u}
@@ -373,8 +373,8 @@ noncomputable def pushedComparisonHomotopyIso
     Functor.isoWhiskerRight
       (Functor.mapHomotopyCategoryCompIso
         (Iso.refl
-          ((RingedSpace.DeRham.baseChangeHom
-              (coefficientSheafedSquare f p q h sq)).modulePushforward.{u} ⋙
+          ((modulePushforward.{u} (RingedSpace.DeRham.baseChangeHom
+              (coefficientSheafedSquare f p q h sq))) ⋙
             moduleGlobalSectionsFunctor.{u}
               (RingedSpace.DeRham.coefficientSite q.toLRSHom.toShHom)))
         (up ℤ)).symm
@@ -383,8 +383,8 @@ noncomputable def pushedComparisonHomotopyIso
           ModuleSections.Derived.{u}
             (RingedSpace.DeRham.coefficientSite q.toLRSHom.toShHom)) ≪≫
     (Functor.associator
-      ((RingedSpace.DeRham.baseChangeHom
-        (coefficientSheafedSquare f p q h sq)).modulePushforward.{u}.mapHomotopyCategory (up ℤ))
+      ((modulePushforward.{u} (RingedSpace.DeRham.baseChangeHom
+        (coefficientSheafedSquare f p q h sq))).mapHomotopyCategory (up ℤ))
       ((moduleGlobalSectionsFunctor.{u}
         (RingedSpace.DeRham.coefficientSite q.toLRSHom.toShHom)).mapHomotopyCategory (up ℤ))
       (DerivedCategory.Qh :

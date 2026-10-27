@@ -35,11 +35,12 @@ variable [∀ X, Ring (H X)] [∀ X, Algebra F (H X)] [∀ X, AddCommGroup (Pica
 open SchemePreWeilTheory
 
 /- Lemma 45.14.12: the cycle-class map commutes with pushforward along the
+/- 抽象层对角类 mixin：待 RL-2194 完成锚定后移除。 -/
 projection `X × G(l, n) ⟶ X`. -/
 @[stacks 0FIQ] #check
   (WeilCohomology.SchemePreWeilTheory.cycleClass_pushforward_grassmannianProjection :
     ∀ (T : SchemePreWeilTheory k F TateLine V dimension product fst snd point CH CHgrade
-      cyclePullback cyclePushforward pointCycle H Picard)
+      cyclePullback cyclePushforward pointCycle H Picard) [T.HasDiagonalClassRelation]
       {l n : ℕ} {hl : 0 < l} {hln : l < n}
       (P : Grassmannian.Model.{u} l n hl hln) {G X : V}
       (eG : T.scheme.obj G ≅ Over.mk (Grassmannian.toBase P (Spec (.of k))))

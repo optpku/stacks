@@ -37,13 +37,13 @@ def forget (X : StackOver.Groupoids.{u, v, max w vS, vS} J) : inertia X ⟶ X :=
 /-- The underlying groupoid-fibred morphism is neutral inertia forgetting. -/
 @[simp, stacks 042H "underlying groupoid-stack inertia forgetful morphism"]
 theorem forget.hom (X : StackOver.Groupoids.{u, v, max w vS, vS} J) :
-    (forget X).hom = FiberedCategoryOver.Groupoids.Inertia.forget X.toGroupoids := sorry
+    (forget X).hom = FiberedCategoryOver.Groupoids.Inertia.forget X.toGroupoids := rfl
 
 /-- The underlying based functor is the neutral inertia-forgetful map. -/
 @[simp]
 theorem forget.toBasedFunctor (X : StackOver.Groupoids.{u, v, max w vS, vS} J) :
     Hom.toBasedFunctor (forget X) =
-      BasedCategory.Inertia.forget X.toBasedCategory := sorry
+      BasedCategory.Inertia.forget X.toBasedCategory := rfl
 
 /-- Equip every object of a groupoid stack with its identity automorphism. -/
 @[stacks 04Z3 "groupoid-stack inertia neutral section"]
@@ -56,7 +56,7 @@ def identitySection
 theorem identitySection.hom
     (X : StackOver.Groupoids.{u, v, max w vS, vS} J) :
     (identitySection X).hom =
-      FiberedCategoryOver.Groupoids.Inertia.identitySection X.toGroupoids := sorry
+      FiberedCategoryOver.Groupoids.Inertia.identitySection X.toGroupoids := rfl
 
 /-- The based functor underlying the stack-level identity section is the neutral based
 identity section. -/
@@ -64,13 +64,13 @@ identity section. -/
 theorem identitySection.toBasedFunctor
     (X : StackOver.Groupoids.{u, v, max w vS, vS} J) :
     Hom.toBasedFunctor (identitySection X) =
-      BasedCategory.Inertia.identitySection X.toBasedCategory := sorry
+      BasedCategory.Inertia.identitySection X.toBasedCategory := rfl
 
 /-- The groupoid-stack inertia identity section is a right inverse to inertia forgetting. -/
 @[simp, stacks 04Z3 "groupoid-stack inertia identity-section round trip"]
 theorem identitySection.comp_forget
     (X : StackOver.Groupoids.{u, v, max w vS, vS} J) :
-    identitySection X ≫ forget X = 𝟙 X := sorry
+    identitySection X ≫ forget X = 𝟙 X := rfl
 
 /-- The neutral based inertia-forgetful map is an equivalence exactly when the stack is fibred
 in setoids. -/
@@ -78,13 +78,72 @@ in setoids. -/
 theorem basedForget.isEquivalence_iff
     (X : StackOver.Groupoids.{u, v, w, vS} J) :
     (BasedCategory.Inertia.forget X.toBasedCategory).IsEquivalence ↔
-      IsStack.InSetoids J X.p := sorry
+      IsStack.InSetoids J X.p := by
+  letI : Functor.IsFibered.InGroupoids X.p := X.toGroupoids.property
+  constructor
+  · rintro ⟨⟨e⟩⟩
+    letI : (RelativeInertia.forget X.p).Full :=
+      (Equivalence.mk _ e.inverse.toFunctor
+        ((BasedNatTrans.forgetful _ _).mapIso e.unitIso)
+        ((BasedNatTrans.forgetful _ _).mapIso e.counitIso)).fullyFaithfulFunctor.full
+    have aut_eq_one (x : X.total) (a : Aut x) (ha : X.p.mapAut x a = 1) : a = 1 := by
+      let A : RelativeInertia X.p := RelativeInertia.mk (Inertia.mk x a) ha
+      let B := (RelativeInertia.identitySection X.p).obj x
+      obtain ⟨f, hf⟩ := (RelativeInertia.forget X.p).map_surjective (X := A) (Y := B) (𝟙 x)
+      have hn := f.hom.property
+      change a.hom ≫ RelativeInertia.hom f = RelativeInertia.hom f ≫ 𝟙 x at hn
+      change RelativeInertia.hom f = 𝟙 x at hf
+      apply Iso.ext
+      change a.hom = 𝟙 x
+      rw [hf] at hn
+      exact (Category.comp_id a.hom).symm.trans (hn.trans (Category.id_comp (𝟙 x)))
+    have hp : X.p.Faithful := by
+      refine ⟨?_⟩
+      intro x y f g hfg
+      letI : X.p.IsCartesian (X.p.map g) f := by
+        rw [← hfg]
+        infer_instance
+      let a : Aut x := Functor.IsCartesian.domainUniqueUpToIso X.p (X.p.map g) g f
+      have ha : a = 1 := aut_eq_one x a (by
+        apply Iso.ext
+        exact (IsHomLift.eq_of_isHomLift X.p (𝟙 (X.p.obj x)) a.hom).symm)
+      have hfac : a.hom ≫ g = f := Functor.IsCartesian.fac X.p (X.p.map g) g f
+      have ha' : a.hom = 𝟙 x := congrArg Iso.hom ha
+      rw [ha', Category.id_comp] at hfac
+      exact hfac.symm
+    exact
+      { toInSetoids := { toInGroupoids := inferInstance, toFaithful := hp }
+        toIsStack := X.property.toIsStack }
+  · intro h
+    letI : X.p.Faithful := h.toInSetoids.toFaithful
+    refine ⟨⟨{ inverse := BasedCategory.Inertia.identitySection X.toBasedCategory
+               unitIso := BasedNatIso.mkNatIso
+                 (NatIso.ofComponents (fun A ↦
+                   RelativeInertia.isoMk X.p (Iso.refl A.obj) (by
+                     have ha : A.aut.hom = 𝟙 A.obj := X.p.map_injective (by
+                       have hm := congrArg Iso.hom A.property
+                       change X.p.map A.aut.hom = 𝟙 (X.p.obj A.obj) at hm
+                       simpa only [X.p.map_id] using hm)
+                     change A.aut.hom ≫ 𝟙 A.obj = 𝟙 A.obj ≫ 𝟙 A.obj
+                     simp only [ha, Category.id_comp])) (by
+                   intro A B f
+                   apply InducedCategory.hom_ext
+                   apply Inertia.Hom.ext
+                   change RelativeInertia.hom f ≫ 𝟙 B.obj = 𝟙 A.obj ≫ RelativeInertia.hom f
+                   simp only [Category.comp_id, Category.id_comp])) (by
+                   intro A
+                   apply IsHomLift.of_fac' _ _ _ rfl rfl
+                   change X.p.map (𝟙 A.obj) =
+                     𝟙 (X.p.obj A.obj) ≫ 𝟙 (X.p.obj A.obj) ≫ 𝟙 (X.p.obj A.obj)
+                   simp only [X.p.map_id, Category.id_comp])
+               counitIso := Iso.refl _ }⟩⟩
 
 /-- The inertia-forgetful morphism is an equivalence exactly for stacks in setoids. -/
 @[stacks 04ZM "absolute inertia criterion for stacks in setoids"]
 theorem forget.isEquivalence_iff
     (X : StackOver.Groupoids.{u, v, max w vS, vS} J) :
-    Hom.IsEquivalence (forget X) ↔ IsStack.InSetoids J X.p := sorry
+    Hom.IsEquivalence (forget X) ↔ IsStack.InSetoids J X.p :=
+  basedForget.isEquivalence_iff X
 
 end StackOver.Groupoids.inertia
 
@@ -95,12 +154,12 @@ variable {X Y : StackOver.Groupoids.{u, v, max w vS, vS} J}
 /-- Retaining and then forgetting a relative automorphism agrees with direct forgetting. -/
 @[simp, stacks 04Z5 "groupoid-stack relative-to-absolute inertia forgetful compatibility"]
 theorem toInertia.comp_forget (F : X ⟶ Y) :
-    toInertia F ≫ inertia.forget X = forget F := sorry
+    toInertia F ≫ inertia.forget X = forget F := rfl
 
 /-- The relative identity section followed by retention is the absolute identity section. -/
 @[simp, stacks 04Z5 "groupoid-stack relative-to-absolute inertia identity compatibility"]
 theorem identitySection.comp_toInertia (F : X ⟶ Y) :
-    identitySection F ≫ toInertia F = inertia.identitySection X := sorry
+    identitySection F ≫ toInertia F = inertia.identitySection X := rfl
 
 end StackOver.Groupoids.relativeInertia
 

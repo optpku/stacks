@@ -6,16 +6,14 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap91.Remark_91_13_5_Presentation
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.RingedSite.FirstOrderThickening.AlgebraExtension.Presentation
+import StacksCheckRecall
 
 /-!
-# Presentation chart of square-zero f⁻¹O_B-algebra extensions of O by G
+# Polynomial presentations and classes of square-zero algebra extensions
 
-For an extension 0 ⟶ G ⟶ O' ⟶ O ⟶ 0 as in Lemma 91.13.4, a sheaf of sets E with a
-commutative triangle E ⟶ O' ⟶ O making O_B[E] ⟶ O locally surjective presents
-NL_{O / O_B} by the two-term complex NL(α), and the induced map J / J² ⟶ G is the
-Ext¹ class of O' under the inverse of `extensionEquiv`.
+The base ring sheaf represents f⁻¹O_B. A lift of generators to a square-zero extension
+induces a conormal map whose derived class classifies that extension.
 -/
 
 @[expose] public section
@@ -31,9 +29,6 @@ open scoped CategoryTheory.Sheaf.FreeAlgebra
 noncomputable section
 
 universe u
-
-namespace SheafOfModules.RingedSite.FirstOrderThickening
-namespace Solution
 
 -- Local instance justification (defeq pin): `moduleCat_hasDerivedCategory` is reducible to `HasDerivedCategory.standard` and is not global; `ModuleDerived`, `singleFunctor`, and Ext must share that same derived-category instance.
 attribute [local instance] RingedSite.Hom.moduleCat_hasDerivedCategory
@@ -51,44 +46,41 @@ variable {O_B O : Sheaf J CommRingCat.{u}}
 variable {fSharp : O_B ⟶ O}
 variable {G : SheafOfModules (ringSheaf J O)}
 
-/-- Remark 91.13.5 (1) For a square-zero extension 0 ⟶ G ⟶ O' ⟶ O ⟶ 0 as in
-Lemma 91.13.4, a sheaf of sets `E` and a lift `α' : E ⟶ O'` yield a commutative
-triangle `E ⟶ O' ⟶ O`. If `α'` is locally surjective, then the induced evaluation
-`O_B[E] ⟶ O` is locally surjective. The source example takes `E` to be the
-underlying sheaf of sets of `O'` with `α' = 𝟙`. -/
-@[stacks 0GQ6, instance]
-instance eval_assignOf_isLocallySurjective
-    (S : Solution (𝟙 O_B) (isSquareZero_id O_B) fSharp G (zeroKernelMap fSharp G))
-    (E : Sheaf J (Type u)) (α' : E ⟶ (sheafForget J).obj S.middle)
-    [Sheaf.IsLocallySurjective α'] :
-    Sheaf.IsLocallySurjective (eval E (assignOf S E α')) := sorry
-
-/-- Remark 91.13.5 (2) If `O_B[E] ⟶ O` is locally surjective with kernel `J`, then
-`NL_{O / O_B} ≅ NL(α)` in the derived category, where `NL(α)` is the two-term complex
-`J / J² ⟶ Ω_{O_B[E] / O_B} ⊗_{O_B[E]} O`. -/
+/- Remark 91.13.5 (1) A locally surjective lift gives a polynomial presentation.
+The underlying set sheaf of the middle ring sheaf with its identity lift is an example. -/
 @[stacks 0GQ6]
-def naiveCotangentIso (E : Sheaf J (Type u))
-    (α : E ⟶ FreeAlgebra.Presentation.generators (Under.mk fSharp))
-    [Sheaf.IsLocallySurjective (FreeAlgebra.evaluation (Under.mk fSharp) E α).right] :=
-  Presentation.derivedComparisonIso E α
+#check (SheafOfModules.RingedSite.FirstOrderThickening.Solution.eval_assignOf_isLocallySurjective :
+  (S : Solution (𝟙 O_B) (isSquareZero_id O_B) fSharp G (zeroKernelMap fSharp G)) →
+  (E : Sheaf J (Type u)) → (α' : E ⟶ (sheafForget J).obj S.middle) →
+  [Sheaf.IsLocallySurjective α'] →
+  Sheaf.IsLocallySurjective (eval E (assignOf S E α')))
 
-/-- The forward map of `naiveCotangentIso` is the canonical derived comparison. -/
-theorem naiveCotangentIso_hom (E : Sheaf J (Type u))
-    (α : E ⟶ FreeAlgebra.Presentation.generators (Under.mk fSharp))
-    [Sheaf.IsLocallySurjective (FreeAlgebra.evaluation (Under.mk fSharp) E α).right] :
-    (naiveCotangentIso E α).hom = Presentation.derivedComparison E α := sorry
-
-/-- Remark 91.13.5 (3) The lift `α'` determines `O_B[E] ⟶ O'` and hence
-`J / J² ⟶ G`, and the resulting `Ext¹` class of `NL(α) ≅ NL_{O / O_B}` is the class
-of `O'` under the inverse of `extensionEquiv`. -/
+/- Remark 91.13.5 (2) A locally surjective polynomial evaluation presents the canonical
+naive cotangent complex by the two-term complex J / J² ⟶ Ω ⊗ O. -/
 @[stacks 0GQ6]
-theorem extClass_eq_extensionEquiv_symm
-    (S : Solution (𝟙 O_B) (isSquareZero_id O_B) fSharp G (zeroKernelMap fSharp G))
-    (E : Sheaf J (Type u)) (α' : E ⟶ (sheafForget J).obj S.middle)
-    (α : E ⟶ FreeAlgebra.Presentation.generators (Under.mk fSharp))
-    [Sheaf.IsLocallySurjective (FreeAlgebra.evaluation (Under.mk fSharp) E α).right]
-    (hα : assignOf S E α' = α) :
-    extClass S E α' α hα = (extensionEquiv fSharp G).symm (isoClassMk S) := sorry
+#check (SheafOfModules.RingedSite.NaiveCotangent.Presentation.derivedComparisonIso.{u, u, u, u + 1}
+  (B := Under.mk fSharp) :
+  (E : Sheaf J (Type u)) →
+  (α : E ⟶ FreeAlgebra.Presentation.generators (Under.mk fSharp)) →
+  [Sheaf.IsLocallySurjective (FreeAlgebra.evaluation (Under.mk fSharp) E α).right] →
+  CategoryTheory.Iso.{u + 1, u + 1}
+    (DerivedCategory.Q.{u + 1}.obj (Presentation.ofGenerators (B := Under.mk fSharp) E α))
+    (DerivedCategory.Q.{u + 1}.obj (NaiveCotangent.obj O_B (Under.mk fSharp))))
 
-end Solution
-end SheafOfModules.RingedSite.FirstOrderThickening
+#check (SheafOfModules.RingedSite.NaiveCotangent.Presentation.derivedComparisonIso_hom
+  (B := Under.mk fSharp) :
+  (E : Sheaf J (Type u)) →
+  (α : E ⟶ FreeAlgebra.Presentation.generators (Under.mk fSharp)) →
+  [Sheaf.IsLocallySurjective (FreeAlgebra.evaluation (Under.mk fSharp) E α).right] →
+  (Presentation.derivedComparisonIso E α).hom = Presentation.derivedComparison E α)
+
+/- Remark 91.13.5 (3) The induced conormal map J / J² ⟶ G determines precisely the
+class of the extension under the inverse of the classification equivalence. -/
+@[stacks 0GQ6]
+#check (SheafOfModules.RingedSite.FirstOrderThickening.Solution.extClass_eq_extensionEquiv_symm :
+  (S : Solution (𝟙 O_B) (isSquareZero_id O_B) fSharp G (zeroKernelMap fSharp G)) →
+  (E : Sheaf J (Type u)) → (α' : E ⟶ (sheafForget J).obj S.middle) →
+  (α : E ⟶ FreeAlgebra.Presentation.generators (Under.mk fSharp)) →
+  [Sheaf.IsLocallySurjective (FreeAlgebra.evaluation (Under.mk fSharp) E α).right] →
+  (hα : assignOf S E α' = α) →
+  extClass S E α' α hα = (extensionEquiv fSharp G).symm (isoClassMk S))

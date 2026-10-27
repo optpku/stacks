@@ -17,6 +17,7 @@ open AlgebraicGeometry
 universe u
 
 attribute [local instance] SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor
+attribute [local instance 2000] CategoryTheory.instHasWeakSheafifyOfHasSheafify
 
 /- Lemma 36.35.9: In Situation 36.35.7 the category of `S`-perfect objects of
 `D(𝒪_X)` is the colimit of the categories of `Sᵢ`-perfect objects of `D(𝒪_{Xᵢ})`. -/

@@ -31,6 +31,9 @@ namespace Functor.Cleavage
 
 variable {p : S ⥤ C} (χ : p.Cleavage)
 
+private theorem fiber_comp_val {U : C} {x y z : Fiber p U}
+    (φ : x ⟶ y) (ψ : y ⟶ z) : (φ ≫ ψ).1 = φ.1 ≫ ψ.1 := rfl
+
 /-- Reindexing along an endomorphism identified with the identity is canonically isomorphic to
 the identity action on the fiber. -/
 @[stacks 02XN]
@@ -44,13 +47,21 @@ theorem Reindex.eqId.isoApp.hom.naturality
     {U : C} (f : U ⟶ U) (hf : f = 𝟙 U)
     {x y : Fiber p U} (φ : x ⟶ y) :
     (χ.reindex f).map φ ≫ (Reindex.eqId.isoApp χ f hf y).hom =
-      (Reindex.eqId.isoApp χ f hf x).hom ≫ φ := sorry
+      (Reindex.eqId.isoApp χ f hf x).hom ≫ φ := by
+  subst f
+  simpa only [Reindex.eqId.isoApp, Reindex.congrIsoApp, Iso.trans_hom,
+    eqToIso.hom, eqToHom_refl, Category.id_comp, Iso.symm_hom, reindex] using
+    Reindex.idIsoApp.inv.naturality χ U φ
 
 /-- The underlying arrow of the identity-specialized comparison is the cleavage's cartesian
 arrow over the given endomorphism. -/
 theorem Reindex.eqId.isoApp.hom.eq_cartesianHom
     {U : C} (f : U ⟶ U) (hf : f = 𝟙 U) (x : Fiber p U) :
-    (Reindex.eqId.isoApp χ f hf x).hom.1 = χ.cartesianHom f x := sorry
+    (Reindex.eqId.isoApp χ f hf x).hom.1 = χ.cartesianHom f x := by
+  subst f
+  simpa only [Reindex.eqId.isoApp, Reindex.congrIsoApp, Iso.trans_hom,
+    eqToIso.hom, eqToHom_refl, Category.id_comp, Iso.symm_hom, reindex] using
+    Reindex.idIsoApp.inv.eq_cartesianHom χ U x
 
 /-- Reindexing along an endomorphism equal to the identity is naturally isomorphic to the
 identity functor of the fiber. -/
@@ -75,21 +86,45 @@ theorem Reindex.eqId.compIsoApp.hom.cancellation
     {U V : C} (q : U ⟶ U) (hq : q = 𝟙 U) (f : V ⟶ U) (x : Fiber p U) :
     (Reindex.eqId.compIsoApp χ q hq f x).hom ≫
         (χ.reindex f).map (Reindex.eqId.isoApp χ q hq x).hom =
-      𝟙 ((χ.reindex f).obj x) := sorry
+      𝟙 ((χ.reindex f).obj x) := by
+  apply cartesianHom.ext χ f
+  change Fiber.fiberInclusion.map
+      ((Reindex.eqId.compIsoApp χ q hq f x).hom ≫
+        (χ.reindex f).map (Reindex.eqId.isoApp χ q hq x).hom) ≫
+      χ.cartesianHom f x =
+    Fiber.fiberInclusion.map (𝟙 ((χ.reindex f).obj x)) ≫ χ.cartesianHom f x
+  simp only [Reindex.eqId.compIsoApp, Iso.trans_hom, Functor.map_comp,
+    Functor.map_id, Fiber.fiberInclusion, fiber_comp_val, reindex, Category.assoc,
+    reindexMap.fac,
+    Reindex.eqId.isoApp.hom.eq_cartesianHom, Reindex.compIsoApp.hom.fac,
+    Category.id_comp]
+  exact Reindex.congrIsoApp.hom.fac χ
+    ((congrArg (fun e ↦ f ≫ e) hq).trans (Category.comp_id f)).symm x
 
 /-- Inverse form of cancellation between composition with an identity-like arrow and its
 identity-specialized comparison. -/
 theorem Reindex.eqId.compIsoApp.inv.cancellation
     {U V : C} (q : U ⟶ U) (hq : q = 𝟙 U) (f : V ⟶ U) (x : Fiber p U) :
     (Reindex.eqId.compIsoApp χ q hq f x).inv =
-      (χ.reindex f).map (Reindex.eqId.isoApp χ q hq x).hom := sorry
+      (χ.reindex f).map (Reindex.eqId.isoApp χ q hq x).hom := by
+  simpa only [← Category.assoc, Iso.inv_hom_id, Category.id_comp,
+    Category.comp_id] using
+    (congrArg (fun k ↦ (Reindex.eqId.compIsoApp χ q hq f x).inv ≫ k)
+      (Reindex.eqId.compIsoApp.hom.cancellation χ q hq f x)).symm
 
 /-- The vertical factor of an identity is the inverse identity-reindexing comparison. -/
 @[stacks 02XN]
 theorem verticalFactor.id (x : S) :
     χ.verticalFactor (𝟙 x) =
       (Reindex.eqId.isoApp χ (p.map (𝟙 x)) (p.map_id x)
-        (Fiber.mk (p := p) (a := x) rfl : Fiber p (p.obj x))).inv := sorry
+        (Fiber.mk (p := p) (a := x) rfl : Fiber p (p.obj x))).inv := by
+  symm
+  apply verticalFactor.unique χ (𝟙 x)
+  simpa only [Functor.map_comp, Functor.map_id, Fiber.fiberInclusion, fiber_comp_val,
+    Reindex.eqId.isoApp.hom.eq_cartesianHom, Fiber.mk, reindex, reindexTarget] using
+    congrArg Fiber.fiberInclusion.map
+      (Reindex.eqId.isoApp χ (p.map (𝟙 x)) (p.map_id x)
+        (Fiber.mk (p := p) (a := x) rfl)).inv_hom_id
 
 /-- The vertical factor of a composite is obtained by composing the first vertical factor,
 the reindexing of the second, and the inverse composition comparison. -/
@@ -101,7 +136,38 @@ theorem verticalFactor.comp {x y z : S} (φ : x ⟶ y) (ψ : y ⟶ z) :
         (Reindex.specifiedCompIsoApp χ
           (p.map ψ) (p.map φ) (p.map (φ ≫ ψ))
           (p.map_comp φ ψ).symm
-          (Fiber.mk (p := p) (a := z) rfl : Fiber p (p.obj z))).inv := sorry
+          (Fiber.mk (p := p) (a := z) rfl : Fiber p (p.obj z))).inv := by
+  symm
+  apply verticalFactor.unique χ (φ ≫ ψ)
+  change Fiber.fiberInclusion.map
+      (χ.verticalFactor φ ≫ (χ.reindex (p.map φ)).map (χ.verticalFactor ψ) ≫
+        (Reindex.specifiedCompIsoApp χ (p.map ψ) (p.map φ) (p.map (φ ≫ ψ))
+          (p.map_comp φ ψ).symm (Fiber.mk (p := p) (a := z) rfl)).inv) ≫
+      χ.cartesianHom (p.map (φ ≫ ψ)) (Fiber.mk (p := p) (a := z) rfl) = φ ≫ ψ
+  simp only [Functor.map_comp, Fiber.fiberInclusion, fiber_comp_val, reindex, Category.assoc]
+  calc
+    _ = (χ.verticalFactor φ).1 ≫
+        (χ.reindexMap (p.map φ) (χ.verticalFactor ψ)).1 ≫
+          χ.cartesianHom (p.map φ) (χ.reindexTarget ψ) ≫
+          χ.cartesianHom (p.map ψ) (Fiber.mk (p := p) (a := z) rfl) := by
+      simpa only [reindex, reindexTarget, Category.assoc] using
+        congrArg
+          (fun k ↦ (χ.verticalFactor φ).1 ≫
+            (χ.reindexMap (p.map φ) (χ.verticalFactor ψ)).1 ≫ k)
+          (Reindex.specifiedCompIsoApp.inv.fac χ (p.map ψ) (p.map φ) (p.map (φ ≫ ψ))
+            (p.map_comp φ ψ).symm (Fiber.mk (p := p) (a := z) rfl))
+    _ = ((χ.verticalFactor φ).1 ≫
+          χ.cartesianHom (p.map φ) (Fiber.mk (p := p) (a := y) rfl)) ≫
+        ((χ.verticalFactor ψ).1 ≫
+          χ.cartesianHom (p.map ψ) (Fiber.mk (p := p) (a := z) rfl)) := by
+      simpa only [Fiber.mk, reindex, reindexTarget, Category.assoc] using
+        congrArg (fun k ↦ (χ.verticalFactor φ).1 ≫ k ≫
+          χ.cartesianHom (p.map ψ) (Fiber.mk (p := p) (a := z) rfl))
+          (reindexMap.fac χ (p.map φ) (χ.verticalFactor ψ))
+    _ = φ ≫ ψ := by
+      rw [verticalFactor.fac, verticalFactor.fac]
+      rfl
+
 
 /-- Pulling a composition comparison back along a third base arrow satisfies the objectwise
 pentagon, with the unique explicit transport recording associativity of base composition.
@@ -117,7 +183,39 @@ theorem Reindex.compIsoApp.pentagon.hom
         eqToHom
           (congrArg (fun r ↦ χ.reindexObj r x) (Category.assoc h g f).symm) ≫
         (Reindex.compIsoApp χ f (h ≫ g) x).hom ≫
-        (Reindex.compIsoApp χ g h ((χ.reindex f).obj x)).hom := sorry
+        (Reindex.compIsoApp χ g h ((χ.reindex f).obj x)).hom := by
+  have hcart : p.IsStronglyCartesian (h ≫ g ≫ f)
+      (χ.cartesianHom h ((χ.reindex g).obj ((χ.reindex f).obj x)) ≫
+        χ.cartesianHom g ((χ.reindex f).obj x) ≫ χ.cartesianHom f x) :=
+    @IsStronglyCartesian.comp C S _ _ p Z W T _ _ _ h (g ≫ f) _ _
+      (cartesianHom.isStronglyCartesian χ h ((χ.reindex g).obj ((χ.reindex f).obj x)))
+      (@IsStronglyCartesian.comp C S _ _ p W V T _ _ _ g f _ _
+        (cartesianHom.isStronglyCartesian χ g ((χ.reindex f).obj x))
+        (cartesianHom.isStronglyCartesian χ f x))
+  apply (Reindex.compIsoApp χ (g ≫ f) h x).eq_inv_comp.mpr
+  have coherence :
+      (Reindex.compIsoApp χ (g ≫ f) h x).hom ≫
+          (χ.reindex h).map (Reindex.compIsoApp χ f g x).hom =
+        eqToHom (congrArg (fun r ↦ χ.reindexObj r x) (Category.assoc h g f).symm) ≫
+          (Reindex.compIsoApp χ f (h ≫ g) x).hom ≫
+          (Reindex.compIsoApp χ g h ((χ.reindex f).obj x)).hom := by
+    apply IsStronglyCartesian.ext_fiber.explicit hcart
+    change Fiber.fiberInclusion.map
+          ((Reindex.compIsoApp χ (g ≫ f) h x).hom ≫
+            (χ.reindex h).map (Reindex.compIsoApp χ f g x).hom) ≫
+          (χ.cartesianHom h ((χ.reindex g).obj ((χ.reindex f).obj x)) ≫
+            χ.cartesianHom g ((χ.reindex f).obj x) ≫ χ.cartesianHom f x) =
+        Fiber.fiberInclusion.map
+          (eqToHom (congrArg (fun r ↦ χ.reindexObj r x) (Category.assoc h g f).symm) ≫
+            (Reindex.compIsoApp χ f (h ≫ g) x).hom ≫
+            (Reindex.compIsoApp χ g h ((χ.reindex f).obj x)).hom) ≫
+          (χ.cartesianHom h ((χ.reindex g).obj ((χ.reindex f).obj x)) ≫
+            χ.cartesianHom g ((χ.reindex f).obj x) ≫ χ.cartesianHom f x)
+    simp only [Functor.map_comp, Fiber.fiberInclusion, fiber_comp_val, reindex,
+      Category.assoc, reindexMap.fac_assoc, Reindex.compIsoApp.hom.fac,
+      Reindex.compIsoApp.hom.fac_assoc]
+    exact (Reindex.congrIsoApp.cartesian.eqToHom χ (Category.assoc h g f).symm x).symm
+  exact coherence
 
 /-- Inverse form of the objectwise reindexing pentagon. It rewrites the pullback of an inverse
 composition comparison without requiring downstream cancellation of four comparison maps. -/
@@ -129,7 +227,16 @@ theorem Reindex.compIsoApp.pentagon.inv
         (Reindex.compIsoApp χ f (h ≫ g) x).inv ≫
         eqToHom
           (congrArg (fun r ↦ χ.reindexObj r x) (Category.assoc h g f)) ≫
-        (Reindex.compIsoApp χ (g ≫ f) h x).hom := sorry
+        (Reindex.compIsoApp χ (g ≫ f) h x).hom := by
+  have coherence :
+      (χ.reindex h).mapIso (Reindex.compIsoApp χ f g x) =
+        (Reindex.compIsoApp χ (g ≫ f) h x).symm ≪≫
+          eqToIso (congrArg (fun r ↦ χ.reindexObj r x) (Category.assoc h g f).symm) ≪≫
+          Reindex.compIsoApp χ f (h ≫ g) x ≪≫
+          Reindex.compIsoApp χ g h ((χ.reindex f).obj x) :=
+    Iso.ext (Reindex.compIsoApp.pentagon.hom χ f g h x)
+  simpa only [Functor.mapIso_inv, Iso.trans_inv, Iso.symm_inv, eqToIso.inv,
+    Category.assoc, reindex] using congrArg Iso.inv coherence
 
 /-- The forward composition comparison is natural under equality of its second base arrow.
 Both dependent object transports are displayed explicitly, so users can rewrite without
@@ -143,7 +250,9 @@ theorem Reindex.compIsoApp.baseCongr.hom
       eqToHom
           (congrArg (fun r ↦ χ.reindexObj r x)
             (congrArg (fun r ↦ r ≫ f) h)) ≫
-        (Reindex.compIsoApp χ f g' x).hom := sorry
+        (Reindex.compIsoApp χ f g' x).hom := by
+  cases h
+  simp only [reindex, eqToHom_refl, Category.comp_id, Category.id_comp]
 
 /-- The inverse composition comparison is natural under equality of its second base arrow. -/
 theorem Reindex.compIsoApp.baseCongr.inv
@@ -155,7 +264,9 @@ theorem Reindex.compIsoApp.baseCongr.inv
             (congrArg (fun r ↦ r ≫ f) h)).symm =
       eqToHom
           (congrArg (fun r ↦ χ.reindexObj r ((χ.reindex f).obj x)) h).symm ≫
-        (Reindex.compIsoApp χ f g x).inv := sorry
+        (Reindex.compIsoApp χ f g x).inv := by
+  cases h
+  simp only [reindex, eqToHom_refl, Category.comp_id, Category.id_comp]
 
 end Functor.Cleavage
 

@@ -41,6 +41,29 @@ variable {B : Type u₂} [Category.{v₂} B]
 variable {C : Type u₃} [Category.{v₃} C]
 variable (L : A ⥤ B)
 
+-- Use the proved mathlib universal-property equations, independently of the unfinished
+-- convenience lemmas in `RightKanExtension.Map`.
+private theorem map_counit_eq {F G : A ⥤ C}
+    [L.HasRightKanExtension F] [L.HasRightKanExtension G] (f : F ⟶ G) :
+    L.whiskerLeft (map L f) ≫ L.rightKanExtensionCounit G =
+      L.rightKanExtensionCounit F ≫ f :=
+  (L.rightKanExtension G).liftOfIsRightKanExtension_fac
+    (L.rightKanExtensionCounit G) _ _
+
+private theorem comp_map_counit_eq {F G : A ⥤ C}
+    [L.HasRightKanExtension F] [L.HasRightKanExtension G]
+    {T : B ⥤ C} (a : T ⟶ L.rightKanExtension F) (f : F ⟶ G) :
+    L.whiskerLeft (a ≫ map L f) ≫ L.rightKanExtensionCounit G =
+      (L.whiskerLeft a ≫ L.rightKanExtensionCounit F) ≫ f := by
+  simp only [Functor.whiskerLeft_comp, Category.assoc, map_counit_eq]
+
+private theorem map_comp_eq {F G H : A ⥤ C}
+    [L.HasRightKanExtension F] [L.HasRightKanExtension G]
+    [L.HasRightKanExtension H] (f : F ⟶ G) (g : G ⟶ H) :
+    map L (f ≫ g) = map L f ≫ map L g := by
+  apply Functor.hom_ext_of_isRightKanExtension _ (L.rightKanExtensionCounit H)
+  simp only [comp_map_counit_eq, map_counit_eq, Category.assoc]
+
 namespace diagram
 
 variable (K : J ⥤ (A ⥤ C)) [∀ j, L.HasRightKanExtension (K.obj j)]
@@ -48,12 +71,16 @@ variable (K : J ⥤ (A ⥤ C)) [∀ j, L.HasRightKanExtension (K.obj j)]
 /-- The objectwise chosen right Kan extension assignment preserves identity maps. -/
 @[stacks 018C "identity law for the diagram of chosen right Kan extensions"]
 theorem map_id (j : J) :
-    map L (K.map (𝟙 j)) = 𝟙 (L.rightKanExtension (K.obj j)) := sorry
+    map L (K.map (𝟙 j)) = 𝟙 (L.rightKanExtension (K.obj j)) := by
+  rw [K.map_id]
+  apply Functor.hom_ext_of_isRightKanExtension _ (L.rightKanExtensionCounit (K.obj j))
+  simp only [map_counit_eq, Functor.whiskerLeft_id', Category.id_comp, Category.comp_id]
 
 /-- The objectwise chosen right Kan extension assignment preserves composition. -/
 @[stacks 018C "composition law for the diagram of chosen right Kan extensions"]
 theorem map_comp {i j k : J} (f : i ⟶ j) (g : j ⟶ k) :
-    map L (K.map (f ≫ g)) = map L (K.map f) ≫ map L (K.map g) := sorry
+    map L (K.map (f ≫ g)) = map L (K.map f) ≫ map L (K.map g) := by
+  rw [K.map_comp, map_comp_eq]
 
 end diagram
 
@@ -79,7 +106,11 @@ index. -/
   stacks 018D "naturality of a map of chosen-right-Kan-extension pullback diagrams"]
 theorem map_naturality (η : K ⟶ K') {i j : J} (f : i ⟶ j) :
     (diagram L K).map f ≫ Functor.RightKanExtension.map L (η.app j) =
-      Functor.RightKanExtension.map L (η.app i) ≫ (diagram L K').map f := sorry
+      Functor.RightKanExtension.map L (η.app i) ≫ (diagram L K').map f := by
+  change Functor.RightKanExtension.map L (K.map f) ≫
+      Functor.RightKanExtension.map L (η.app j) =
+    Functor.RightKanExtension.map L (η.app i) ≫ Functor.RightKanExtension.map L (K'.map f)
+  rw [← map_comp_eq, ← map_comp_eq, η.naturality f]
 
 /-- A natural transformation of source diagrams induces the componentwise natural
 transformation between their diagrams of chosen right Kan extensions. -/
@@ -94,7 +125,7 @@ Kan extension map of the corresponding source component. -/
 @[simp, stacks 018C "components of a map of chosen-right-Kan-extension diagrams",
   stacks 018D "components of a map of chosen-right-Kan-extension pullback diagrams"]
 theorem map_app (η : K ⟶ K') (j : J) :
-    (map L η).app j = Functor.RightKanExtension.map L (η.app j) := sorry
+    (map L η).app j = Functor.RightKanExtension.map L (η.app j) := rfl
 
 namespace map
 
@@ -127,7 +158,10 @@ namespace cone
 theorem naturality {j j' : J} (f : j ⟶ j') :
     ((Functor.const J).obj (L.rightKanExtension (Limits.limit K))).map f ≫
         map L (Limits.limit.π K j') =
-      map L (Limits.limit.π K j) ≫ (diagram L K).map f := sorry
+      map L (Limits.limit.π K j) ≫ (diagram L K).map f := by
+  change 𝟙 _ ≫ map L (Limits.limit.π K j') =
+    map L (Limits.limit.π K j) ≫ map L (K.map f)
+  rw [Category.id_comp, ← map_comp_eq, Limits.limit.w]
 
 end cone
 
@@ -153,7 +187,15 @@ theorem naturality {j j' : J} (f : j ⟶ j') :
     ((Functor.const J).obj (L ⋙ s.pt)).map f ≫
         (L.whiskerLeft (s.π.app j') ≫ L.rightKanExtensionCounit (K.obj j')) =
       (L.whiskerLeft (s.π.app j) ≫ L.rightKanExtensionCounit (K.obj j)) ≫
-        K.map f := sorry
+        K.map f := by
+  calc
+    _ = L.whiskerLeft (s.π.app j') ≫ L.rightKanExtensionCounit (K.obj j') :=
+      Category.id_comp _
+    _ = L.whiskerLeft (s.π.app j ≫ map L (K.map f)) ≫
+        L.rightKanExtensionCounit (K.obj j') :=
+      congrArg (fun a ↦ L.whiskerLeft a ≫ L.rightKanExtensionCounit (K.obj j'))
+        (s.w f).symm
+    _ = _ := comp_map_counit_eq L _ _
 
 end sourceCone
 
@@ -183,7 +225,12 @@ noncomputable def lift (s : Cone (diagram L K)) :
 @[stacks 018C "right Kan extension limit lift on projections",
   stacks 018D "right Kan extension pullback lift on projections"]
 theorem lift_fac (s : Cone (diagram L K)) (j : J) :
-    lift L K s ≫ (cone L K).π.app j = s.π.app j := sorry
+    lift L K s ≫ (cone L K).π.app j = s.π.app j := by
+  apply Functor.hom_ext_of_isRightKanExtension _ (L.rightKanExtensionCounit (K.obj j))
+  change L.whiskerLeft (lift L K s ≫ map L (Limits.limit.π K j)) ≫
+    L.rightKanExtensionCounit (K.obj j) = _
+  rw [comp_map_counit_eq, lift, Functor.liftOfIsRightKanExtension_fac]
+  exact Limits.limit.lift_π (sourceCone L K s) j
 
 /-- A morphism into the right Kan extension limit cone is determined by its components. -/
 @[stacks 018C "uniqueness for the right Kan extension limit cone",
@@ -191,7 +238,19 @@ theorem lift_fac (s : Cone (diagram L K)) (j : J) :
 theorem lift_uniq (s : Cone (diagram L K))
     (m : s.pt ⟶ (cone L K).pt)
     (h : ∀ j, m ≫ (cone L K).π.app j = s.π.app j) :
-    m = lift L K s := sorry
+    m = lift L K s := by
+  change s.pt ⟶ L.rightKanExtension (Limits.limit K) at m
+  apply Functor.hom_ext_of_isRightKanExtension _
+    (L.rightKanExtensionCounit (Limits.limit K))
+  rw [lift, Functor.liftOfIsRightKanExtension_fac]
+  apply Limits.limit.hom_ext
+  intro j
+  calc
+    _ = L.whiskerLeft (m ≫ map L (Limits.limit.π K j)) ≫
+        L.rightKanExtensionCounit (K.obj j) := (comp_map_counit_eq L m _).symm
+    _ = L.whiskerLeft (s.π.app j) ≫ L.rightKanExtensionCounit (K.obj j) :=
+      congrArg (fun a ↦ L.whiskerLeft a ≫ L.rightKanExtensionCounit (K.obj j)) (h j)
+    _ = _ := by exact (Limits.limit.lift_π (sourceCone L K s) j).symm
 
 /-- An individually chosen right Kan extension of a source limit is a limit of the individually
 chosen right Kan extensions.  The universal lift is the explicit map `limit.lift`. -/
@@ -223,14 +282,14 @@ noncomputable def iso :
 limit projection. -/
 @[reassoc (attr := simp), stacks 018C "right Kan extension limit comparison on projections",
   stacks 018D "right Kan extension pullback comparison on projections"]
-theorem iso_hom_π [HasLimit (diagram L K)] (j : J) :
+theorem iso_hom_π (j : J) :
     (iso L K).hom ≫ Limits.limit.π (diagram L K) j =
       map L (Limits.limit.π K j) := sorry
 
 /-- The inverse limit comparison recovers each chosen target-limit projection. -/
 @[reassoc (attr := simp), stacks 018C "inverse right Kan extension limit comparison on projections",
   stacks 018D "inverse right Kan extension pullback comparison on projections"]
-theorem iso_inv_π [HasLimit (diagram L K)] (j : J) :
+theorem iso_inv_π (j : J) :
     (iso L K).inv ≫ map L (Limits.limit.π K j) =
       Limits.limit.π (diagram L K) j := sorry
 
@@ -241,7 +300,6 @@ variable [∀ j, L.HasRightKanExtension (K₁.obj j)]
 variable [∀ j, L.HasRightKanExtension (K₂.obj j)]
 variable [L.HasRightKanExtension (Limits.limit K₁)]
 variable [L.HasRightKanExtension (Limits.limit K₂)]
-variable [HasLimit (diagram L K₁)] [HasLimit (diagram L K₂)]
 
 /-- The forward right Kan extension limit comparison is natural in the source diagram. -/
 @[reassoc, stacks 018C "naturality of the right Kan extension limit comparison",
@@ -299,13 +357,23 @@ noncomputable def lift {T : B ⥤ C}
 @[stacks 018C "right Kan extension product lift on the first projection"]
 theorem lift_fst {T : B ⥤ C}
     (f : T ⟶ L.rightKanExtension F) (g : T ⟶ L.rightKanExtension G) :
-    lift L F G f g ≫ (cone L F G).fst = f := sorry
+    lift L F G f g ≫ (cone L F G).fst = f := by
+  apply Functor.hom_ext_of_isRightKanExtension _ (L.rightKanExtensionCounit F)
+  change L.whiskerLeft (lift L F G f g ≫ map L (Limits.prod.fst : F ⨯ G ⟶ F)) ≫
+    L.rightKanExtensionCounit F = _
+  rw [comp_map_counit_eq, lift, Functor.liftOfIsRightKanExtension_fac]
+  exact Limits.prod.lift_fst _ _
 
 /-- The product lift followed by the second projection is its second prescribed component. -/
 @[stacks 018C "right Kan extension product lift on the second projection"]
 theorem lift_snd {T : B ⥤ C}
     (f : T ⟶ L.rightKanExtension F) (g : T ⟶ L.rightKanExtension G) :
-    lift L F G f g ≫ (cone L F G).snd = g := sorry
+    lift L F G f g ≫ (cone L F G).snd = g := by
+  apply Functor.hom_ext_of_isRightKanExtension _ (L.rightKanExtensionCounit G)
+  change L.whiskerLeft (lift L F G f g ≫ map L (Limits.prod.snd : F ⨯ G ⟶ G)) ≫
+    L.rightKanExtensionCounit G = _
+  rw [comp_map_counit_eq, lift, Functor.liftOfIsRightKanExtension_fac]
+  exact Limits.prod.lift_snd _ _
 
 /-- A morphism to the right Kan extension of a product is determined by its two components. -/
 @[stacks 018C "uniqueness of the right Kan extension product lift"]
@@ -314,7 +382,25 @@ theorem lift_uniq {T : B ⥤ C}
     (m : T ⟶ (cone L F G).pt)
     (h_fst : m ≫ (cone L F G).fst = f)
     (h_snd : m ≫ (cone L F G).snd = g) :
-    m = lift L F G f g := sorry
+    m = lift L F G f g := by
+  change T ⟶ L.rightKanExtension (F ⨯ G) at m
+  change m ≫ map L (Limits.prod.fst : F ⨯ G ⟶ F) = f at h_fst
+  change m ≫ map L (Limits.prod.snd : F ⨯ G ⟶ G) = g at h_snd
+  apply Functor.hom_ext_of_isRightKanExtension _ (L.rightKanExtensionCounit (F ⨯ G))
+  rw [lift, Functor.liftOfIsRightKanExtension_fac]
+  apply Limits.prod.hom_ext
+  · calc
+      _ = L.whiskerLeft (m ≫ map L (Limits.prod.fst : F ⨯ G ⟶ F)) ≫
+          L.rightKanExtensionCounit F := (comp_map_counit_eq L m _).symm
+      _ = L.whiskerLeft f ≫ L.rightKanExtensionCounit F :=
+        congrArg (fun a ↦ L.whiskerLeft a ≫ L.rightKanExtensionCounit F) h_fst
+      _ = _ := (Limits.prod.lift_fst _ _).symm
+  · calc
+      _ = L.whiskerLeft (m ≫ map L (Limits.prod.snd : F ⨯ G ⟶ G)) ≫
+          L.rightKanExtensionCounit G := (comp_map_counit_eq L m _).symm
+      _ = L.whiskerLeft g ≫ L.rightKanExtensionCounit G :=
+        congrArg (fun a ↦ L.whiskerLeft a ≫ L.rightKanExtensionCounit G) h_snd
+      _ = _ := (Limits.prod.lift_snd _ _).symm
 
 /-- The right Kan extension of a source product is a product of the individually chosen right
 Kan extensions.  Its lift is the explicit map `prod.lift`. -/
@@ -342,32 +428,28 @@ noncomputable def iso :
 /-- The hom of the product comparison followed by the first projection is the right Kan
 extension map induced by the source first projection. -/
 @[reassoc (attr := simp), stacks 018C "product comparison on the first projection"]
-theorem iso_hom_fst
-    [HasBinaryProduct (L.rightKanExtension F) (L.rightKanExtension G)] :
+theorem iso_hom_fst :
     (iso L F G).hom ≫ Limits.prod.fst =
       map L (Limits.prod.fst : F ⨯ G ⟶ F) := sorry
 
 /-- The hom of the product comparison followed by the second projection is the right Kan
 extension map induced by the source second projection. -/
 @[reassoc (attr := simp), stacks 018C "product comparison on the second projection"]
-theorem iso_hom_snd
-    [HasBinaryProduct (L.rightKanExtension F) (L.rightKanExtension G)] :
+theorem iso_hom_snd :
     (iso L F G).hom ≫ Limits.prod.snd =
       map L (Limits.prod.snd : F ⨯ G ⟶ G) := sorry
 
 /-- The inverse product comparison followed by the map induced by the source first projection
 recovers the chosen target first projection. -/
 @[reassoc (attr := simp), stacks 018C "inverse product comparison on the first projection"]
-theorem iso_inv_fst
-    [HasBinaryProduct (L.rightKanExtension F) (L.rightKanExtension G)] :
+theorem iso_inv_fst :
     (iso L F G).inv ≫ map L (Limits.prod.fst : F ⨯ G ⟶ F) =
       Limits.prod.fst := sorry
 
 /-- The inverse product comparison followed by the map induced by the source second projection
 recovers the chosen target second projection. -/
 @[reassoc (attr := simp), stacks 018C "inverse product comparison on the second projection"]
-theorem iso_inv_snd
-    [HasBinaryProduct (L.rightKanExtension F) (L.rightKanExtension G)] :
+theorem iso_inv_snd :
     (iso L F G).inv ≫ map L (Limits.prod.snd : F ⨯ G ⟶ G) =
       Limits.prod.snd := sorry
 
@@ -386,7 +468,8 @@ condition. -/
 @[stacks 018D "pullback condition for chosen right Kan extension maps"]
 theorem condition :
     map L (Limits.pullback.fst f g) ≫ map L f =
-      map L (Limits.pullback.snd f g) ≫ map L g := sorry
+      map L (Limits.pullback.snd f g) ≫ map L g := by
+  rw [← map_comp_eq, ← map_comp_eq, Limits.pullback.condition]
 
 /-- The pullback cone whose point is the chosen right Kan extension of the source pullback. -/
 @[stacks 018D "pullback cone for individually chosen right Kan extensions"]
@@ -402,7 +485,8 @@ a compatible pair of maps to the source cospan. -/
 @[stacks 018D "source pullback condition for a chosen-right-Kan-extension cone"]
 theorem condition (s : PullbackCone (map L f) (map L g)) :
     (L.whiskerLeft s.fst ≫ L.rightKanExtensionCounit X) ≫ f =
-      (L.whiskerLeft s.snd ≫ L.rightKanExtensionCounit Y) ≫ g := sorry
+      (L.whiskerLeft s.snd ≫ L.rightKanExtensionCounit Y) ≫ g := by
+  rw [← comp_map_counit_eq, ← comp_map_counit_eq, s.condition]
 
 end sourceLift
 
@@ -428,12 +512,22 @@ noncomputable def lift (s : PullbackCone (map L f) (map L g)) :
 /-- The pullback lift followed by the first projection is its first prescribed component. -/
 @[stacks 018D "right Kan extension pullback lift on the first projection"]
 theorem lift_fst (s : PullbackCone (map L f) (map L g)) :
-    lift L f g s ≫ (cone L f g).fst = s.fst := sorry
+    lift L f g s ≫ (cone L f g).fst = s.fst := by
+  apply Functor.hom_ext_of_isRightKanExtension _ (L.rightKanExtensionCounit X)
+  change L.whiskerLeft (lift L f g s ≫ map L (Limits.pullback.fst f g)) ≫
+    L.rightKanExtensionCounit X = _
+  rw [comp_map_counit_eq, lift, Functor.liftOfIsRightKanExtension_fac]
+  exact Limits.pullback.lift_fst _ _ _
 
 /-- The pullback lift followed by the second projection is its second prescribed component. -/
 @[stacks 018D "right Kan extension pullback lift on the second projection"]
 theorem lift_snd (s : PullbackCone (map L f) (map L g)) :
-    lift L f g s ≫ (cone L f g).snd = s.snd := sorry
+    lift L f g s ≫ (cone L f g).snd = s.snd := by
+  apply Functor.hom_ext_of_isRightKanExtension _ (L.rightKanExtensionCounit Y)
+  change L.whiskerLeft (lift L f g s ≫ map L (Limits.pullback.snd f g)) ≫
+    L.rightKanExtensionCounit Y = _
+  rw [comp_map_counit_eq, lift, Functor.liftOfIsRightKanExtension_fac]
+  exact Limits.pullback.lift_snd _ _ _
 
 /-- A morphism to the right Kan extension of a pullback is determined by its two components. -/
 @[stacks 018D "uniqueness of the right Kan extension pullback lift"]
@@ -441,7 +535,26 @@ theorem lift_uniq (s : PullbackCone (map L f) (map L g))
     (m : s.pt ⟶ (cone L f g).pt)
     (h_fst : m ≫ (cone L f g).fst = s.fst)
     (h_snd : m ≫ (cone L f g).snd = s.snd) :
-    m = lift L f g s := sorry
+    m = lift L f g s := by
+  change s.pt ⟶ L.rightKanExtension (Limits.pullback f g) at m
+  change m ≫ map L (Limits.pullback.fst f g) = s.fst at h_fst
+  change m ≫ map L (Limits.pullback.snd f g) = s.snd at h_snd
+  apply Functor.hom_ext_of_isRightKanExtension _
+    (L.rightKanExtensionCounit (Limits.pullback f g))
+  rw [lift, Functor.liftOfIsRightKanExtension_fac]
+  apply Limits.pullback.hom_ext
+  · calc
+      _ = L.whiskerLeft (m ≫ map L (Limits.pullback.fst f g)) ≫
+          L.rightKanExtensionCounit X := (comp_map_counit_eq L m _).symm
+      _ = L.whiskerLeft s.fst ≫ L.rightKanExtensionCounit X :=
+        congrArg (fun a ↦ L.whiskerLeft a ≫ L.rightKanExtensionCounit X) h_fst
+      _ = _ := (Limits.pullback.lift_fst _ _ _).symm
+  · calc
+      _ = L.whiskerLeft (m ≫ map L (Limits.pullback.snd f g)) ≫
+          L.rightKanExtensionCounit Y := (comp_map_counit_eq L m _).symm
+      _ = L.whiskerLeft s.snd ≫ L.rightKanExtensionCounit Y :=
+        congrArg (fun a ↦ L.whiskerLeft a ≫ L.rightKanExtensionCounit Y) h_snd
+      _ = _ := (Limits.pullback.lift_snd _ _ _).symm
 
 /-- The right Kan extension of a source pullback is a pullback of the individually chosen right
 Kan extensions.  Its lift is the explicit map `pullback.lift`. -/
@@ -468,28 +581,28 @@ noncomputable def iso :
 /-- The hom of the pullback comparison followed by the first projection is the right Kan
 extension map induced by the source first projection. -/
 @[reassoc (attr := simp), stacks 018D "pullback comparison on the first projection"]
-theorem iso_hom_fst [HasPullback (map L f) (map L g)] :
+theorem iso_hom_fst :
     (iso L f g).hom ≫ Limits.pullback.fst (map L f) (map L g) =
       map L (Limits.pullback.fst f g) := sorry
 
 /-- The hom of the pullback comparison followed by the second projection is the right Kan
 extension map induced by the source second projection. -/
 @[reassoc (attr := simp), stacks 018D "pullback comparison on the second projection"]
-theorem iso_hom_snd [HasPullback (map L f) (map L g)] :
+theorem iso_hom_snd :
     (iso L f g).hom ≫ Limits.pullback.snd (map L f) (map L g) =
       map L (Limits.pullback.snd f g) := sorry
 
 /-- The inverse pullback comparison followed by the map induced by the source first projection
 recovers the chosen target first projection. -/
 @[reassoc (attr := simp), stacks 018D "inverse pullback comparison on the first projection"]
-theorem iso_inv_fst [HasPullback (map L f) (map L g)] :
+theorem iso_inv_fst :
     (iso L f g).inv ≫ map L (Limits.pullback.fst f g) =
       Limits.pullback.fst (map L f) (map L g) := sorry
 
 /-- The inverse pullback comparison followed by the map induced by the source second projection
 recovers the chosen target second projection. -/
 @[reassoc (attr := simp), stacks 018D "inverse pullback comparison on the second projection"]
-theorem iso_inv_snd [HasPullback (map L f) (map L g)] :
+theorem iso_inv_snd :
     (iso L f g).inv ≫ map L (Limits.pullback.snd f g) =
       Limits.pullback.snd (map L f) (map L g) := sorry
 

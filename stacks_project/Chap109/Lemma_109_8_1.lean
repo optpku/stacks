@@ -6,7 +6,8 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap109.Lemma_109_8_1_Substack
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Curve.CohenMacaulay
+import StacksCheckRecall
 
 /-!
 # Cohen–Macaulay curves
@@ -16,38 +17,27 @@ families of curves, equivalently proper Cohen–Macaulay schemes of dimension
 at most one over a field.
 -/
 
-@[expose] public section
-
 open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
-
-noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
-namespace Spaces
-namespace Curves
+namespace AlgebraicGeometry.AlgebraicSpace.Spaces.Curves
 
-/-- Lemma 109.8.1 (1): given a family of curves `X ⟶ S`, the classifying
-morphism `S ⟶ 𝒞urves` factors through `𝒞urves^{CM}` if and only if `X ⟶ S`
-is Cohen–Macaulay. -/
-@[stacks 0E0I]
-theorem classifying_factorsThrough_cohenMacaulay_iff
-    {S : Scheme.{u}} (P : Obj S) :
-    cohenMacaulay S P ↔ AlgebraicSpace.CohenMacaulay (hom P) :=
-  sorry
+/- Lemma 109.8.1: the Cohen–Macaulay substack is represented by an open of
+any family's base, compatibly with every cartesian morphism of families. -/
+@[stacks 0E0I] #check (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.exists_cohenMacaulay_open :
+  ∀ {S : Scheme.{u}} (P : Obj S), ∃ U : (base P).left.Opens,
+    ∀ {Q : Obj S} (φ : Q ⟶ P),
+      cohenMacaulay S Q ↔ Set.range (baseMap φ).left ⊆ U)
 
-/-- Lemma 109.8.1 (2): given a scheme `X` proper over a field `k` with
-dimension at most one, the classifying morphism `Spec k ⟶ 𝒞urves` factors
-through `𝒞urves^{CM}` if and only if `X` is Cohen–Macaulay. -/
-@[stacks 0E0I]
-theorem classifying_factorsThrough_cohenMacaulay_iff_scheme
-    {k : Type u} [Field k] (X : SchemeOverField k) [IsProper X.hom]
-    (hdim : topologicalKrullDim X.left ≤ 1) :
+#check (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.cohenMacaulay_iff :
+  ∀ {S : Scheme.{u}} (P : Obj S),
+    cohenMacaulay S P ↔ AlgebraicSpace.CohenMacaulay (hom P))
+
+#check (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.classifying_factorsThrough_cohenMacaulay_iff_scheme :
+  ∀ {k : Type u} [Field k] (X : SchemeOverField k) [IsProper X.hom]
+    (hdim : topologicalKrullDim X.left ≤ 1),
     cohenMacaulay (Spec (CommRingCat.of k)) (mkOfSchemeOverField X hdim) ↔
-      Scheme.CohenMacaulay X.left :=
-  sorry
+      Scheme.CohenMacaulay X.left)
 
-end Curves
-end Spaces
-end AlgebraicGeometry.AlgebraicSpace
+end AlgebraicGeometry.AlgebraicSpace.Spaces.Curves

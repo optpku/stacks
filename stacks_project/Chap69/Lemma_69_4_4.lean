@@ -6,90 +6,23 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import ReasLib.AlgebraicGeometry.RingedSite.Module.Derived.Monoidal
-public import ReasLib.AlgebraicGeometry.RingedSite.Topos.Module.Derived.Adjunction
-public import ReasLib.CategoryTheory.Monoidal.Adjunction.ProjectionFormula
-public import stacks_project.Chap69.Lemma_69_4_3
+import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.ProjectionFormula.Finite
+import StacksCheckRecall
 
-/-!
-# Lemma 69.4.4
+open CategoryTheory CategoryTheory.Limits CategoryTheory.MonoidalCategory AlgebraicGeometry
+open AlgebraicGeometry.AlgebraicSpace
 
-For a finite morphism of algebraic spaces, the canonical derived projection-formula
-mate of the associated morphism of ringed topoi is an isomorphism for arbitrary
-objects of the derived categories of modules.
--/
+universe u
 
-@[expose] public section
-
-open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
-open CategoryTheory.MonoidalCategory
-open CategoryTheory.Adjunction
-open ComplexShape
-open RingedSite.Hom RingedSite.ToposHom
-
-noncomputable section
-
-universe u uSite v w
-
-namespace RingedSite.ToposHom
-
-variable {X Y : RingedSite.{uSite, v, w}}
-variable [X.siteTopology.HasSheafCompose (forget RingCat.{w})]
-  [Y.siteTopology.HasSheafCompose (forget RingCat.{w})]
-
-/-- Module direct image along a morphism of ringed topoi is additive as a typeclass. -/
-noncomputable instance modulePushforward.instAdditive (f : ToposHom X Y) :
-    f.modulePushforward.Additive :=
-  modulePushforward_additive f
-
-variable [UnivLE.{max uSite v, w}]
-
-/-- Derived inverse image is a left adjoint whenever `HasModuleDerivedAdjunction f` holds. -/
-theorem hasModuleDerivedAdjunction_isLeftAdjoint (f : ToposHom X Y)
-    [(SheafOfModules.restrictScalars.{w} f.structureMap).IsRightAdjoint]
-    [HasModulePullbackDerived f] [HasModulePushforwardDerived f]
-    [HasModuleDerivedAdjunction f] :
-    f.modulePullbackDerived.IsLeftAdjoint :=
-  (f.moduleDerivedAdjunction).isLeftAdjoint
-
-/-- Transposing a morphism across `moduleDerivedAdjunction f` and back is the identity. -/
-theorem moduleDerivedAdjunction_homEquiv_left_inv (f : ToposHom X Y)
-    [(SheafOfModules.restrictScalars.{w} f.structureMap).IsRightAdjoint]
-    [HasModulePullbackDerived f] [HasModulePushforwardDerived f]
-    [HasModuleDerivedAdjunction f]
-    {K : ModuleDerived Y} {M : ModuleDerived X}
-    (g : f.modulePullbackDerived.obj K ⟶ M) :
-    ((moduleDerivedAdjunction f).homEquiv K M).symm
-        ((moduleDerivedAdjunction f).homEquiv K M g) = g :=
-  sorry
-
-end RingedSite.ToposHom
-
-namespace AlgebraicGeometry.AlgebraicSpace
-
-/-- Lemma 69.4.4: let `S` be a scheme. Let `π : X ⟶ Y` be a finite morphism of algebraic
-spaces over `S`. Let `A` be a sheaf of rings on `X_étale`. Let `B` be a sheaf of rings on
-`Y_étale`. Let `φ : B ⟶ π_* A` be a homomorphism of sheaves of rings, so that we obtain a
-morphism of ringed topoi `f = toRingedToposHom π φ`. For `K` in the derived category of
-`B`-modules and `M` in the derived category of `A`-modules, the canonical map
-`K ⊗ Rf_* M ⟶ Rf_*(Lf^* K ⊗ M)` is an isomorphism in `D(B)`. The smallness hypothesis
-`UnivLE.{u + 1, u}` records that the étale sites are treated as small relative to the
-coefficient universe, matching the Stacks Project's single-universe convention. -/
-@[stacks 0DK5, instance]
-instance IsFinite.derivedProjectionFormula
+/- Lemma 69.4.4. For a finite morphism, the canonical projection formula holds for arbitrary
+unbounded derived modules over arbitrary commutative étale coefficient sheaves. -/
+@[stacks 0DK5] #check
+  (AlgebraicGeometry.AlgebraicSpace.IsFinite.derivedProjectionFormula :
+    ∀
     {S : Scheme.{u}} {X Y : AlgebraicSpace S} (π : X ⟶ Y) [IsFinite π]
     (A : Sheaf (smallEtaleTopology X) CommRingCat.{u})
     (B : Sheaf (smallEtaleTopology Y) CommRingCat.{u})
     (φ : (etaleRingedSite Y B).structureSheaf ⟶
       (ringPushforward π).obj (etaleRingedSite X A).structureSheaf)
-    [UnivLE.{u + 1, u}]
-    [HasModulePullbackDerived (toRingedToposHom π φ)]
-    [HasModulePushforwardDerived (toRingedToposHom π φ)]
-    [HasModuleDerivedAdjunction (toRingedToposHom π φ)]
-    [MonoidalCategory (ModuleDerived (etaleRingedSite Y B))]
-    [MonoidalCategory (ModuleDerived (etaleRingedSite X A))]
-    [Functor.Monoidal (toRingedToposHom π φ).modulePullbackDerived] :
-    ((toRingedToposHom π φ).moduleDerivedAdjunction).ProjectionFormula :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace
+    (K : EtaleDerived.category Y B) (M : EtaleDerived.category X A),
+      IsIso (EtaleDerived.projectionFormula π φ K M))

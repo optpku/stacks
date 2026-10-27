@@ -49,16 +49,12 @@ variable [Functor.HasLeftDerivedFunctor
     (modulePullbackToDerived.{w} (PullbackFactorization.inverseImage f))
     (ModuleQis.{w} (RingedSite.ofCommRingSheaf JY OY))]
 variable [Functor.HasLeftDerivedFunctor
-    (modulePullbackToDerived.{w} (PullbackFactorization.hom f))
+    (compositePullbackToDerived.{w}
+      (PullbackFactorization.scalarExtension f) (PullbackFactorization.inverseImage f))
     (ModuleQis.{w} (RingedSite.ofCommRingSheaf JY OY))]
 variable [@ModuleDerived.KFlat.HomotopyTensorDescends C _ JX _ _ _ hX OX]
 variable [@ModuleDerived.KFlat.TensorDescends C _ JX _ _ _ hX OX _]
 variable [@ModuleDerived.KFlat.IsLocalization C _ JX _ _ _ hX OX]
-
--- Local instance justification (defeq pin): match the canonical K-flat tensor of the shared owner.
-local instance : MonoidalCategory
-    (@ModuleDerived.{w, uX, vX, w} (RingedSite.ofCommRingSheaf JX OX) hX) :=
-  @ModuleDerived.monoidalCategory C _ JX _ _ _ hX OX _ _ _
 
 #check (modulePullbackDerived.MixedTensor.compComparison_isIso (hX := hX) (hY := hY) f :
   IsIso (modulePullbackDerived.compComparison
@@ -70,16 +66,18 @@ variable [IsIso (modulePullbackDerived.compComparison
 /- Lemma 21.18.5 (08I6): the canonical bifunctorial comparison identifies tensor with factorized
 derived pullback and the mixed tensor over the inverse-image structure sheaf. -/
 @[stacks 08I6 "canonical mixed derived tensor comparison"]
-#check (modulePullbackDerived.MixedTensor.natIso (hX := hX) (hY := hY) f :
-  Functor.tensorRightAction (modulePullbackDerived.MixedTensor.pullback (hX := hX) (hY := hY) f) ≅
-    Functor.tensorRightAction
+#check (RingedSite.Hom.modulePullbackDerived.MixedTensor.natIso (hX := hX) (hY := hY) f :
+  modulePullbackDerived.MixedTensor.tensorAction
+      (modulePullbackDerived.MixedTensor.pullback (hX := hX) (hY := hY) f) ≅
+    modulePullbackDerived.MixedTensor.tensorAction
       (modulePullbackDerived.MixedTensor.inverseImage (hX := hX) (hY := hY) f ⋙
         modulePullbackDerived.MixedTensor.scalarExtension (hX := hX) f))
 
 #check (modulePullbackDerived.MixedTensor.iso (hX := hX) (hY := hY) f :
   ∀ (F : @ModuleDerived.{w, uX, vX, w} (RingedSite.ofCommRingSheaf JX OX) hX)
     (G : @ModuleDerived.{w, uY, vY, w} (RingedSite.ofCommRingSheaf JY OY) hY),
-    F ⊗ (modulePullbackDerived.MixedTensor.pullback (hX := hX) (hY := hY) f).obj G ≅
+    (modulePullbackDerived.MixedTensor.tensorAction
+      (modulePullbackDerived.MixedTensor.pullback (hX := hX) (hY := hY) f)).obj (F, G) ≅
       modulePullbackDerived.MixedTensor.obj (hX := hX) f F
         ((modulePullbackDerived.MixedTensor.inverseImage (hX := hX) (hY := hY) f).obj G))
 

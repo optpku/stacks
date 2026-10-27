@@ -6,19 +6,13 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import ReasLib.AlgebraicGeometry.BivariantClass.Restriction
-public import ReasLib.AlgebraicGeometry.ChowGroup.ExteriorProduct
-public import ReasLib.AlgebraicGeometry.ChowGroup.Relative
-public import ReasLib.AlgebraicGeometry.Scheme.Morphism.FiniteType.Over
-public import ReasLib.AlgebraicGeometry.Scheme.Morphism.FiniteType.Product
-public import stacks_project.Chap42.Lemma_42_62_5_IntersectionProduct
+public import ReasLib.AlgebraicGeometry.ChowGroup.Intersection.Over
 
 /-!
-# Intersection products of Chow classes over a smooth base
+# Compatibility API for intersection products over a field
 
-This file packages the section 42.62 product `α · β = Δ!(α × β)` for schemes
-locally of finite type over a base `X`, using the comparison square of
-`Y ×_X Z` against `Y ×_k Z` over the diagonal of `X`.
+The cap action and diagonal comparison square specialize the canonical general-base
+constructions. Intersection products are provided by their mathematical owner.
 -/
 
 @[expose] public section
@@ -33,11 +27,13 @@ universe u
 
 namespace AlgebraicGeometry
 
-/-- The fiber product of two objects of `Over S` is locally of finite type over `S` when
-both factors are. -/
-instance locallyOfFiniteType_overPullback {S : Scheme.{u}} {X Y Z : Over S}
-    (f : Y ⟶ X) (g : Z ⟶ X) [LocallyOfFiniteType Y.hom] [LocallyOfFiniteType Z.hom] :
-    LocallyOfFiniteType (pullback f g).hom := sorry
+/-- The fiber product of two schemes locally of finite type over a field is locally of
+finite type over that field. -/
+instance locallyOfFiniteType_overPullback {k : Type u} [Field k]
+    {X Y Z : SchemeOverField k} (fY : Y ⟶ X) (fZ : Z ⟶ X)
+    [LocallyOfFiniteType Y.hom] [LocallyOfFiniteType Z.hom] :
+    LocallyOfFiniteType (pullback fY fZ).hom :=
+  ChowGroup.Dedekind.pullback_locallyOfFiniteType fY fZ
 
 namespace BivariantClass
 
@@ -51,9 +47,7 @@ noncomputable def totalCap
     (i : X' ⟶ X) (f' : X' ⟶ Y') (g : Y' ⟶ Y) [LocallyOfFiniteType g.left]
     (square : IsPullback i.left f'.left f.left g.left) :
     ChowGroup.Total delta Y' →+ ChowGroup.Total delta X' :=
-  DirectSum.toAddMonoid fun k ↦
-    (DirectSum.of (fun d : ℤ ↦ RelativeChow delta X' d) (k - p)).comp
-      (c.cap i f' g square k)
+  ChowGroup.Dedekind.Total.cap delta c i f' g square
 
 /-- Evaluation of `totalCap` on a homogeneous class is the corresponding cap in shifted
 degree. -/
@@ -68,7 +62,8 @@ theorem totalCap_of
     (alpha : RelativeChow delta Y' k) :
     totalCap delta c i f' g square (DirectSum.of _ k alpha) =
       DirectSum.of (fun d : ℤ ↦ RelativeChow delta X' d) (k - p)
-        (c.cap i f' g square k alpha) := sorry
+        (c.cap i f' g square k alpha) :=
+  ChowGroup.Dedekind.Total.cap_of delta c i f' g square k alpha
 
 end BivariantClass
 
@@ -80,104 +75,30 @@ variable {k : Type u} [Field k]
 noncomputable def intersectionSquare_fst {X Y Z : SchemeOverField k}
     (fY : Y ⟶ X) (fZ : Z ⟶ X) :
     pullback fY fZ ⟶ X :=
-  pullback.fst fY fZ ≫ fY
+  Dedekind.fiberProductToBase fY fZ
 
 /-- The comparison morphism `Y ×_X Z ⟶ Y ×_k Z`. -/
 noncomputable def intersectionSquare_toProduct {X Y Z : SchemeOverField k}
     (fY : Y ⟶ X) (fZ : Z ⟶ X) :
     pullback fY fZ ⟶ Y ⨯ Z :=
-  prod.lift (pullback.fst fY fZ) (pullback.snd fY fZ)
+  Dedekind.fiberProductToProduct fY fZ
 
 /-- The comparison square identifying `Y ×_X Z` with the pullback of `Y ×_k Z` along
 the diagonal of `X`. -/
 theorem intersectionSquare_isPullback {X Y Z : SchemeOverField k}
     (fY : Y ⟶ X) (fZ : Z ⟶ X) :
     IsPullback (intersectionSquare_fst fY fZ).left
-      (intersectionSquare_toProduct fY fZ).left (diagonal X).left (prod.map fY fZ).left := sorry
+      (intersectionSquare_toProduct fY fZ).left (diagonal X).left (prod.map fY fZ).left :=
+  Dedekind.intersectionSquare_isPullback fY fZ
 
-/-- The intersection product of homogeneous Chow classes of schemes locally of finite type
-over `X`, obtained by capping the exterior product with the canonical Gysin class of the
-diagonal. -/
-noncomputable def intersectionProductOver (X : SchemeOverField k)
-    [LocallyOfFiniteType X.hom] {Y Z : SchemeOverField k} (fY : Y ⟶ X) (fZ : Z ⟶ X)
-    [LocallyOfFiniteType Y.hom] [LocallyOfFiniteType Z.hom]
-    [LocallyOfFiniteType fY.left] [LocallyOfFiniteType fZ.left]
-    {n m : ℤ} (r : ℕ)
-    [IsFiniteLocallyFreeOfRank r (conormalSheaf (diagonal X).left)]
-    (D : DiagonalSpecialization X r)
-    (alpha : RelativeChow (fun _ ↦ 0) Y n)
-    (beta : RelativeChow (fun _ ↦ 0) Z m) :
-    RelativeChow (fun _ ↦ 0) (pullback fY fZ) (n + m - r) :=
-  (diagonalGysinClass X r D).cap (intersectionSquare_fst fY fZ)
-    (intersectionSquare_toProduct fY fZ) (prod.map fY fZ)
-    (intersectionSquare_isPullback fY fZ) (n + m)
-    (exteriorProductPairing Y Z n m alpha beta)
-
-/-- The over-`X` intersection product is the comparison-square cap of the Chow exterior
-product by the canonical diagonal Gysin class. -/
-theorem intersectionProductOver_def (X : SchemeOverField k)
-    [LocallyOfFiniteType X.hom] {Y Z : SchemeOverField k} (fY : Y ⟶ X) (fZ : Z ⟶ X)
-    [LocallyOfFiniteType Y.hom] [LocallyOfFiniteType Z.hom]
-    [LocallyOfFiniteType fY.left] [LocallyOfFiniteType fZ.left]
-    {n m : ℤ} (r : ℕ)
-    [IsFiniteLocallyFreeOfRank r (conormalSheaf (diagonal X).left)]
-    (D : DiagonalSpecialization X r)
-    (alpha : RelativeChow (fun _ ↦ 0) Y n)
-    (beta : RelativeChow (fun _ ↦ 0) Z m) :
-    intersectionProductOver X fY fZ r D alpha beta =
-      (diagonalGysinClass X r D).cap (intersectionSquare_fst fY fZ)
-        (intersectionSquare_toProduct fY fZ) (prod.map fY fZ)
-        (intersectionSquare_isPullback fY fZ) (n + m)
-        (exteriorProductPairing Y Z n m alpha beta) := sorry
-
-namespace Total
-
-/-- The intersection product of total Chow classes of schemes locally of finite type over
-`X`, obtained by capping the total exterior product with the canonical Gysin class of the
-diagonal. -/
-noncomputable def intersectionProductOver (X : SchemeOverField k)
+#check (AlgebraicGeometry.ChowGroup.Total.intersectionProductOver :
+  ∀ (X : SchemeOverField k)
     [LocallyOfFiniteType X.hom] {Y Z : SchemeOverField k} (fY : Y ⟶ X) (fZ : Z ⟶ X)
     [LocallyOfFiniteType Y.hom] [LocallyOfFiniteType Z.hom]
     [LocallyOfFiniteType fY.left] [LocallyOfFiniteType fZ.left] (r : ℕ)
     [IsFiniteLocallyFreeOfRank r (conormalSheaf (diagonal X).left)]
-    (D : DiagonalSpecialization X r) :
-    Total (fun _ ↦ 0) Y →+ Total (fun _ ↦ 0) Z →+ Total (fun _ ↦ 0) (pullback fY fZ) :=
-  (BivariantClass.totalCap (fun _ ↦ 0) (diagonalGysinClass X r D)
-      (intersectionSquare_fst fY fZ) (intersectionSquare_toProduct fY fZ)
-      (prod.map fY fZ) (intersectionSquare_isPullback fY fZ)).compHom.comp
-    (exteriorProduct Y Z)
-
-/-- The total over-`X` intersection product is the total cap of the exterior product by the
-canonical diagonal Gysin class. -/
-theorem intersectionProductOver_def (X : SchemeOverField k)
-    [LocallyOfFiniteType X.hom] {Y Z : SchemeOverField k} (fY : Y ⟶ X) (fZ : Z ⟶ X)
-    [LocallyOfFiniteType Y.hom] [LocallyOfFiniteType Z.hom]
-    [LocallyOfFiniteType fY.left] [LocallyOfFiniteType fZ.left] (r : ℕ)
-    [IsFiniteLocallyFreeOfRank r (conormalSheaf (diagonal X).left)]
-    (D : DiagonalSpecialization X r)
-    (alpha : Total (fun _ ↦ 0) Y) (beta : Total (fun _ ↦ 0) Z) :
-    intersectionProductOver X fY fZ r D alpha beta =
-      BivariantClass.totalCap (fun _ ↦ 0) (diagonalGysinClass X r D)
-        (intersectionSquare_fst fY fZ) (intersectionSquare_toProduct fY fZ)
-        (prod.map fY fZ) (intersectionSquare_isPullback fY fZ)
-        (exteriorProduct Y Z alpha beta) := sorry
-
-/-- The total over-`X` intersection product of homogeneous classes is the homogeneous
-degreewise product in degree `n + m - r`. -/
-theorem intersectionProductOver_of (X : SchemeOverField k)
-    [LocallyOfFiniteType X.hom] {Y Z : SchemeOverField k} (fY : Y ⟶ X) (fZ : Z ⟶ X)
-    [LocallyOfFiniteType Y.hom] [LocallyOfFiniteType Z.hom]
-    [LocallyOfFiniteType fY.left] [LocallyOfFiniteType fZ.left]
-    {n m : ℤ} (r : ℕ)
-    [IsFiniteLocallyFreeOfRank r (conormalSheaf (diagonal X).left)]
-    (D : DiagonalSpecialization X r)
-    (alpha : RelativeChow (fun _ ↦ 0) Y n)
-    (beta : RelativeChow (fun _ ↦ 0) Z m) :
-    intersectionProductOver X fY fZ r D (DirectSum.of _ n alpha) (DirectSum.of _ m beta) =
-      DirectSum.of (fun d : ℤ ↦ RelativeChow (fun _ ↦ 0) (pullback fY fZ) d) (n + m - r)
-        (ChowGroup.intersectionProductOver X fY fZ r D alpha beta) := sorry
-
-end Total
+    (D : DiagonalSpecialization X r),
+    Total (fun _ ↦ 0) Y →+ Total (fun _ ↦ 0) Z →+ Total (fun _ ↦ 0) (pullback fY fZ))
 
 end ChowGroup
 

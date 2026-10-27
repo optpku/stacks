@@ -16,6 +16,7 @@ public import ReasLib.CategoryTheory.Fibered.Groupoids.UnderlyingFunctorIso
 public import ReasLib.CategoryTheory.Fibered.PseudoPullback.Comparison.Equivalence
 public import ReasLib.CategoryTheory.Fibered.Representable.Slice.Map
 public import ReasLib.CategoryTheory.Fibered.TwoFibreProduct.FullSubbicategory.Bilimit
+public import ReasLib.CategoryTheory.Fibered.TwoFibreProduct.FullSubbicategory.Lift
 public import ReasLib.CategoryTheory.Limits.CategoricalPullback.ProductSlice.RightVertical
 
 /-!
@@ -236,18 +237,44 @@ theorem sourceSquare.iso
     (G' : slice V ⟶ X) :
     (sourceSquare (X := X) G G').iso = baseIso (X := X) G G' := sorry
 
+/-- The literal cone lift carries the identity comparisons on its two projections and
+on their common target. -/
+private noncomputable def sourceSquare.Implementation.coneComparisonIso
+    {X : FiberedCategoryOver.Groupoids C}
+    (G : slice U ⟶ X) (G' : slice V ⟶ X) :
+    ((CategoryTheory.TwoFibreProduct.cone X.baseProjection X.baseProjection).toPseudoCone.comparison
+      (sourceSquare (X := X) G G').pt).obj
+        (CategoryTheory.TwoFibreProduct.lift (sourceSquare (X := X) G G')) ≅
+      (sourceSquare (X := X) G G').toPseudoCone.π :=
+  Pseudofunctor.StrongTrans.isoMk
+    (fun a => match a with
+      | ⟨none⟩ => InducedBicategory.isoMk
+          (BasedNatIso.ofComponents (fun _ => Iso.refl _) (by intros; sorry) (by intros; sorry))
+      | ⟨some Limits.WalkingPair.left⟩ =>
+          CategoryTheory.TwoFibreProduct.lift.fstIso (sourceSquare (X := X) G G')
+      | ⟨some Limits.WalkingPair.right⟩ =>
+          CategoryTheory.TwoFibreProduct.lift.sndIso (sourceSquare (X := X) G G'))
+    (by intros; sorry)
+
 /-- The canonical morphism from the product-slice source square to the chosen self-
-two-fibre-product cone. It is the universal readable cone morphism, so its apex map and
-comparison modification are governed by `PseudoPullbackCone.lift.hom`. -/
+two-fibre-product cone, retaining the supplied square's literal componentwise lift. -/
 @[stacks 04SF "canonical product-slice cone comparison"]
 noncomputable def sourceSquare.coneComparison
     {X : FiberedCategoryOver.Groupoids C}
     (G : slice U ⟶ X) (G' : slice V ⟶ X) :
     sourceSquare (X := X) G G' ⟶
       CategoryTheory.TwoFibreProduct.cone X.baseProjection X.baseProjection :=
-  PseudoPullbackCone.lift.hom
-    (sourceSquare (X := X) G G')
-    (CategoryTheory.TwoFibreProduct.cone X.baseProjection X.baseProjection)
+  PseudoPullbackCone.homMk
+    (CategoryTheory.TwoFibreProduct.lift (sourceSquare (X := X) G G'))
+    (sourceSquare.Implementation.coneComparisonIso G G').hom
+
+/-- The cone comparison's apex map is the explicit componentwise lift of its source square. -/
+@[simp]
+theorem sourceSquare.coneComparison.map
+    {X : FiberedCategoryOver.Groupoids C}
+    (G : slice U ⟶ X) (G' : slice V ⟶ X) :
+    PseudoPullbackCone.map (sourceSquare.coneComparison G G') =
+      CategoryTheory.TwoFibreProduct.lift (sourceSquare (X := X) G G') := rfl
 
 /-- The apex projection of `sourceSquare` is the product-slice forgetful functor. -/
 @[simp] theorem sourceSquare.pt.p

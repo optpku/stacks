@@ -24,6 +24,12 @@ formulas.  They deliberately do not manufacture a `NonnegGradedAlgebra` owner: t
 also needs the full Koszul-signed heterogeneous multiplication on the shifted pieces.  Once that
 construction is available, the definitions here are the concrete coefficient data its even and
 positive-even parts must realize.
+
+The Stacks snapshot `a04446e57ec1`, Tag 09PI, omits the composition coefficient both in
+`gamma_n(T ^ (i))` and in each exponent-distribution factor.  We use
+`Nat.uniformBell n i = (n * i)! / ((i!) ^ n * n!)` for `i > 0`, as required by Tag 09PG (7) and the
+calculation in Tag 07H5.  In particular `gamma_n(T) = T ^ (n)`, whereas
+`gamma_2(T ^ (2)) = 3 • T ^ (4)`.
 -/
 
 @[expose] public section
@@ -83,20 +89,25 @@ def gamma (gammaA : NonnegGradedAlgebra.DividedPowers A) :
 /-- The zeroth odd-variable divided power is the coefficient-level unit. -/
 theorem gamma_zero (gammaA : NonnegGradedAlgebra.DividedPowers A)
     (z : PositiveCoeffs A) :
-    gamma A gammaA 0 z = ofEven A A.oneEven := sorry
+    gamma A gammaA 0 z = ofEven A A.oneEven := by
+  rfl
 
 /-- The successor odd-variable divided powers satisfy
 `gamma (n + 1) (x + yT) = gammaA (n + 1) x + gammaA n x * yT`. -/
 theorem gamma_succ (gammaA : NonnegGradedAlgebra.DividedPowers A)
     (n : ℕ) (x : A.evenPositivePart) (y : A.oddPart) :
     gamma A gammaA (n + 1) (x, y) =
-      (gammaA (n + 1) x, A.evenMulOdd (gammaA n x) y) := sorry
+      (gammaA (n + 1) x, A.evenMulOdd (gammaA n x) y) := by
+  rfl
 
 /-- The odd-variable coefficient formula restricts to the given divided powers on `A`. -/
 theorem gamma_ofPositive (gammaA : NonnegGradedAlgebra.DividedPowers A)
     (n : ℕ) (x : A.evenPositivePart) :
     gamma A gammaA (n + 1) (ofPositive A x) =
-      ofEven A (gammaA (n + 1) x) := sorry
+      ofEven A (gammaA (n + 1) x) := by
+  change (gammaA (n + 1) x, A.evenMulOddDirect (gammaA n x) 0) = _
+  rw [map_zero]
+  rfl
 
 /-- The two defining equations characterizing the odd-variable coefficient family. -/
 structure IsGamma (gammaA : NonnegGradedAlgebra.DividedPowers A)
@@ -110,24 +121,42 @@ structure IsGamma (gammaA : NonnegGradedAlgebra.DividedPowers A)
 
 /-- The explicit odd-variable family satisfies its coefficient specification. -/
 theorem gamma_isGamma (gammaA : NonnegGradedAlgebra.DividedPowers A) :
-    IsGamma A gammaA (gamma A gammaA) := sorry
+    IsGamma A gammaA (gamma A gammaA) := by
+  constructor
+  · intro z
+    rfl
+  · intro n x y
+    rfl
 
 /-- A family satisfying the odd-variable coefficient specification is the explicit family. -/
 theorem IsGamma.eq_gamma {gammaA : NonnegGradedAlgebra.DividedPowers A}
     {delta : ℕ → PositiveCoeffs A → Coeffs A}
     (hdelta : IsGamma A gammaA delta) :
-    delta = gamma A gammaA := sorry
+    delta = gamma A gammaA := by
+  funext n z
+  cases n with
+  | zero => exact hdelta.zero z
+  | succ n => exact hdelta.succ n z.1 z.2
 
 /-- The odd-variable coefficient specification is equivalent to equality with `gamma`. -/
 theorem isGamma_iff (gammaA : NonnegGradedAlgebra.DividedPowers A)
     (delta : ℕ → PositiveCoeffs A → Coeffs A) :
-    IsGamma A gammaA delta ↔ delta = gamma A gammaA := sorry
+    IsGamma A gammaA delta ↔ delta = gamma A gammaA := by
+  constructor
+  · intro hdelta
+    exact hdelta.eq_gamma
+  · intro hdelta
+    rw [hdelta]
+    exact gamma_isGamma A gammaA
 
 /-- The odd-variable recursion determines a unique coefficient family. -/
 @[stacks 09PH]
 theorem existsUnique_gamma (gammaA : NonnegGradedAlgebra.DividedPowers A) :
     ∃! delta : ℕ → PositiveCoeffs A → Coeffs A,
-      IsGamma A gammaA delta := sorry
+      IsGamma A gammaA delta := by
+  refine ⟨gamma A gammaA, gamma_isGamma A gammaA, ?_⟩
+  intro delta hdelta
+  exact hdelta.eq_gamma
 
 end Odd
 
@@ -192,11 +221,18 @@ def PositiveCoeffs.toCoeffs (x : PositiveCoeffs A) : Coeffs A :=
 
 /-- Forgetting positivity preserves addition. -/
 theorem PositiveCoeffs.toCoeffs_add (x y : PositiveCoeffs A) :
-    (x + y).toCoeffs A = x.toCoeffs A + y.toCoeffs A := sorry
+    (x + y).toCoeffs A = x.toCoeffs A + y.toCoeffs A := by
+  simp [PositiveCoeffs.toCoeffs, PositiveCoeffs.constant, PositiveCoeffs.tail,
+    monomial, Finsupp.single_add, Finsupp.embDomain_add, add_add_add_comm]
 
 /-- Forgetting positivity preserves the `R`-module action. -/
 theorem PositiveCoeffs.toCoeffs_smul (r : R) (x : PositiveCoeffs A) :
-    (r • x).toCoeffs A = r • x.toCoeffs A := sorry
+    (r • x).toCoeffs A = r • x.toCoeffs A := by
+  have htail : Finsupp.embDomain posEmbedding (r • x.2) =
+      r • Finsupp.embDomain posEmbedding x.2 :=
+    Finsupp.embDomain_mapRange posEmbedding (fun a : A.evenPart ↦ r • a) x.2 (smul_zero r)
+  simp [PositiveCoeffs.toCoeffs, PositiveCoeffs.constant, PositiveCoeffs.tail,
+    monomial, Finsupp.single_smul, smul_add, htail]
 
 /-- Multiplication of divided-monomial coefficients, using the canonical binomial coefficient. -/
 @[stacks 09PI]
@@ -209,17 +245,24 @@ def mul (x y : Coeffs A) : Coeffs A :=
 `(x T ^ (i)) * (y T ^ (j)) = choose (i + j) i * (xy) T ^ (i + j)`. -/
 theorem monomial_mul (i j : ℕ) (x y : A.evenPart) :
     mul A (monomial A i x) (monomial A j y) =
-      monomial A (i + j) (Nat.choose (i + j) i • A.evenMul x y) := sorry
+      monomial A (i + j) (Nat.choose (i + j) i • A.evenMul x y) := by
+  classical
+  simp [mul, monomial, Finsupp.sum_single_index]
 
 /-- Ordered multiplication of a finite list of divided-monomial coefficient families. -/
 def listMul : List (Coeffs A) → Coeffs A
   | [] => one A
   | x :: xs => mul A x (listMul xs)
 
-/-- The monomial product indexed by an exponent distribution `e`. -/
+/-- The monomial product indexed by an exponent distribution `e`.
+
+Each block of `e i` copies of the divided monomial `T ^ (i)` contributes
+`Nat.uniformBell (e i) i` when taking its divided power.  The subsequent
+`listMul` retains the binomial factors between distinct exponents. -/
 def distributionTerm (x : ℕ+ →₀ A.evenPart) (e : ℕ+ →₀ ℕ) : Coeffs A :=
   listMul (A := A) <| (e.support.sort (· ≤ ·)).map fun i : ℕ+ =>
-    monomial A ((i : ℕ) * e i) (A.evenPow (x i) (e i))
+    Nat.uniformBell (e i) (i : ℕ) •
+      monomial A ((i : ℕ) * e i) (A.evenPow (x i) (e i))
 
 /-- The divided power of a coefficient family supported on positive divided monomials. -/
 def tailGamma (n : ℕ) (x : ℕ+ →₀ A.evenPart) : Coeffs A :=
@@ -236,7 +279,8 @@ def gamma (gammaA : NonnegGradedAlgebra.DividedPowers A)
 /-- The positive-tail divided power is the sum over exponent distributions of total weight `n`. -/
 theorem tailGamma_apply (n : ℕ) (x : ℕ+ →₀ A.evenPart) :
     tailGamma A n x =
-      (Finset.finsuppAntidiag x.support n).sum fun e => distributionTerm A x e := sorry
+      (Finset.finsuppAntidiag x.support n).sum fun e => distributionTerm A x e := by
+  rfl
 
 /-- The full coefficient formula is the antidiagonal convolution of the constant and tail
 divided powers. -/
@@ -244,17 +288,25 @@ theorem gamma_apply (gammaA : NonnegGradedAlgebra.DividedPowers A)
     (n : ℕ) (x : PositiveCoeffs A) :
     gamma A gammaA n x =
       (Finset.antidiagonal n).sum fun ab =>
-        mul A (monomial A 0 (gammaA ab.1 x.constant)) (tailGamma A ab.2 x.tail) := sorry
+        mul A (monomial A 0 (gammaA ab.1 x.constant)) (tailGamma A ab.2 x.tail) := by
+  rfl
 
 /-- The even-variable coefficient formula extends the given divided powers on `A`. -/
 theorem gamma_ofPositive (gammaA : NonnegGradedAlgebra.DividedPowers A)
     (n : ℕ) (x : A.evenPositivePart) :
     gamma A gammaA n (ofPositive A x) = monomial A 0 (gammaA n x) := sorry
 
-/-- The even-variable coefficient formula sends `T ^ (i)` to `T ^ (n * i)`. -/
+/-- The even-variable coefficient formula sends `T ^ (i)` to
+`Nat.uniformBell n i • T ^ (n * i)`. -/
 theorem gamma_tPower (gammaA : NonnegGradedAlgebra.DividedPowers A)
     (n : ℕ) (i : ℕ+) :
-    gamma A gammaA n (tPower A i) = monomial A (n * (i : ℕ)) A.oneEven := sorry
+    gamma A gammaA n (tPower A i) =
+      Nat.uniformBell n (i : ℕ) • monomial A (n * (i : ℕ)) A.oneEven := sorry
+
+/-- The first divided monomial has the standard normalization `gamma_n(T) = T ^ (n)`. -/
+theorem gamma_tPower_one (gammaA : NonnegGradedAlgebra.DividedPowers A) (n : ℕ) :
+    gamma A gammaA n (tPower A 1) = monomial A n A.oneEven := by
+  simpa [Nat.uniformBell_one_right] using gamma_tPower A gammaA n 1
 
 /-- A family has the even-variable coefficient specification when it agrees pointwise with the
 explicit formula `gamma`. -/
@@ -264,19 +316,25 @@ def IsGamma (gammaA : NonnegGradedAlgebra.DividedPowers A)
 
 /-- The explicit even-variable coefficient family satisfies its specification. -/
 theorem gamma_isGamma (gammaA : NonnegGradedAlgebra.DividedPowers A) :
-    IsGamma A gammaA (gamma A gammaA) := sorry
+    IsGamma A gammaA (gamma A gammaA) := by
+  intro n x
+  rfl
 
 /-- A family with the even-variable coefficient specification is the explicit family. -/
 theorem IsGamma.eq_gamma {gammaA : NonnegGradedAlgebra.DividedPowers A}
     {delta : ℕ → PositiveCoeffs A → Coeffs A}
     (hdelta : IsGamma A gammaA delta) :
-    delta = gamma A gammaA := sorry
+    delta = gamma A gammaA := by
+  exact funext fun n ↦ funext fun x ↦ hdelta n x
 
 /-- The explicit formula determines a unique even-variable coefficient family. -/
 @[stacks 09PI]
 theorem existsUnique_gamma (gammaA : NonnegGradedAlgebra.DividedPowers A) :
     ∃! delta : ℕ → PositiveCoeffs A → Coeffs A,
-      IsGamma A gammaA delta := sorry
+      IsGamma A gammaA delta := by
+  refine ⟨gamma A gammaA, gamma_isGamma A gammaA, ?_⟩
+  intro delta hdelta
+  exact hdelta.eq_gamma
 
 end Even
 

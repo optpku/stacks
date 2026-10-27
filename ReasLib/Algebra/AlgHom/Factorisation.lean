@@ -74,7 +74,12 @@ theorem ofMaps_comp {M : Type (max u v w)} [CommRing M] [Algebra R M]
     (factor : toTarget.comp fromSource = f) :
     CommAlgCat.ofHom (fromSource.comp ULift.algEquiv.toAlgHom) ≫
         CommAlgCat.ofHom (ULift.algEquiv.symm.toAlgHom.comp toTarget) =
-      CommAlgCat.ofHom f.uliftMap := sorry
+      CommAlgCat.ofHom f.uliftMap := by
+  apply CommAlgCat.hom_ext
+  apply AlgHom.ext
+  intro a
+  change ULift.up (toTarget (fromSource a.down)) = ULift.up (f a.down)
+  exact congrArg ULift.up (DFunLike.congr_fun factor a.down)
 
 /-- Build a bundled algebra-homomorphism factorisation from its midpoint,
 two maps, and their factorisation equation. -/
@@ -98,7 +103,11 @@ noncomputable def toTarget (F : f.Factorisation) : F.mid →ₐ[R] B :=
 /-- The two map-facing projections of an algebra-homomorphism factorisation
 compose to the original map. -/
 theorem factor (F : f.Factorisation) :
-    F.toTarget.comp F.fromSource = f := sorry
+    F.toTarget.comp F.fromSource = f := by
+  apply AlgHom.ext
+  intro a
+  exact congrArg ULift.down
+    (DFunLike.congr_fun (congrArg CommAlgCat.Hom.hom F.ι_π) (ULift.up a))
 
 /-! A finite-presentation wrapper keeps the midpoint instance attached to the
 factorisation witness.  This is the reusable form used by prime-local
@@ -130,12 +139,12 @@ noncomputable abbrev toTarget (F : Finite f) : F.mid →ₐ[R] B :=
 
 /-- The factorisation equation carried by a finite-presentation factorisation. -/
 theorem factor (F : Finite f) :
-    F.toTarget.comp F.fromSource = f := sorry
+    F.toTarget.comp F.fromSource = f := F.base.factor
 
 /-- The finite-presentation and triangle laws carried by a finite factorisation. -/
 theorem spec (F : Finite f) :
     Algebra.FinitePresentation R F.mid ∧
-      F.toTarget.comp F.fromSource = f := sorry
+      F.toTarget.comp F.fromSource = f := ⟨inferInstance, F.factor⟩
 
 /-- Attach a finite-presentation instance to an existing factorisation. -/
 def of (F : AlgHom.Factorisation f) [Algebra.FinitePresentation R F.mid] :
@@ -164,7 +173,8 @@ noncomputable def initial (f : A →ₐ[R] B) [Algebra.FinitePresentation R A] :
 triangle law. -/
 theorem precomp_factor {C : Type (max u v w)} [CommRing C] [Algebra R C]
     (F : Finite f) (h : C →ₐ[R] A) :
-    F.toTarget.comp (F.fromSource.comp h) = f.comp h := sorry
+    F.toTarget.comp (F.fromSource.comp h) = f.comp h := by
+  rw [← AlgHom.comp_assoc, F.factor]
 
 /-- Precompose a finite factorisation while retaining its finitely presented
 midpoint and target map. -/
@@ -176,7 +186,7 @@ noncomputable def precomp {C : Type (max u v w)} [CommRing C] [Algebra R C]
 categorical factorisation. -/
 @[simp]
 theorem base_of (F : AlgHom.Factorisation f) [Algebra.FinitePresentation R F.mid] :
-    (Finite.of F).base = F := sorry
+    (Finite.of F).base = F := rfl
 
 /-- The source map supplied to `Finite.ofMaps` is recovered by projection. -/
 @[simp]
@@ -184,7 +194,7 @@ theorem fromSource_ofMaps {M : Type (max u v w)} [CommRing M] [Algebra R M]
     [Algebra.FinitePresentation R M]
     (fromSource : A →ₐ[R] M) (toTarget : M →ₐ[R] B)
     (factor : toTarget.comp fromSource = f) :
-    (Finite.ofMaps fromSource toTarget factor).fromSource = fromSource := sorry
+    (Finite.ofMaps fromSource toTarget factor).fromSource = fromSource := rfl
 
 /-- The target map supplied to `Finite.ofMaps` is recovered by projection. -/
 @[simp]
@@ -192,33 +202,33 @@ theorem toTarget_ofMaps {M : Type (max u v w)} [CommRing M] [Algebra R M]
     [Algebra.FinitePresentation R M]
     (fromSource : A →ₐ[R] M) (toTarget : M →ₐ[R] B)
     (factor : toTarget.comp fromSource = f) :
-    (Finite.ofMaps fromSource toTarget factor).toTarget = toTarget := sorry
+    (Finite.ofMaps fromSource toTarget factor).toTarget = toTarget := rfl
 
 /-- The canonical finite factorisation uses the universe-lift equivalence as
 its source map. -/
 @[simp]
 theorem fromSource_initial (f : A →ₐ[R] B) [Algebra.FinitePresentation R A] :
     (Finite.initial f).fromSource =
-      (ULift.algEquiv.symm : A ≃ₐ[R] ULift.{max u w} A).toAlgHom := sorry
+      (ULift.algEquiv.symm : A ≃ₐ[R] ULift.{max u w} A).toAlgHom := rfl
 
 /-- The target map of the canonical finite factorisation lowers its midpoint
 before applying the original map. -/
 @[simp]
 theorem toTarget_initial (f : A →ₐ[R] B) [Algebra.FinitePresentation R A] :
     (Finite.initial f).toTarget =
-      f.comp (ULift.algEquiv : ULift.{max u w} A ≃ₐ[R] A).toAlgHom := sorry
+      f.comp (ULift.algEquiv : ULift.{max u w} A ≃ₐ[R] A).toAlgHom := rfl
 
 /-- Precomposition composes the supplied map onto the source projection. -/
 @[simp]
 theorem fromSource_precomp {C : Type (max u v w)} [CommRing C] [Algebra R C]
     (F : Finite f) (h : C →ₐ[R] A) :
-    (F.precomp h).fromSource = F.fromSource.comp h := sorry
+    (F.precomp h).fromSource = F.fromSource.comp h := rfl
 
 /-- Precomposition leaves the target projection unchanged. -/
 @[simp]
 theorem toTarget_precomp {C : Type (max u v w)} [CommRing C] [Algebra R C]
     (F : Finite f) (h : C →ₐ[R] A) :
-    (F.precomp h).toTarget = F.toTarget := sorry
+    (F.precomp h).toTarget = F.toTarget := rfl
 
 end Finite
 
@@ -251,11 +261,11 @@ noncomputable abbrev toTarget (F : Smooth f) : F.mid →ₐ[R] B :=
 
 /-- The triangle law carried by a smooth factorisation. -/
 theorem factor (F : Smooth f) :
-    F.toTarget.comp F.fromSource = f := sorry
+    F.toTarget.comp F.fromSource = f := F.base.factor
 
 /-- The smoothness and triangle law carried by a smooth factorisation. -/
 theorem spec (F : Smooth f) :
-    Algebra.Smooth R F.mid ∧ F.toTarget.comp F.fromSource = f := sorry
+    Algebra.Smooth R F.mid ∧ F.toTarget.comp F.fromSource = f := ⟨inferInstance, F.factor⟩
 
 /-- Attach midpoint smoothness to an existing factorisation. -/
 def of (F : AlgHom.Factorisation f) [Algebra.Smooth R F.mid] : Smooth f :=
@@ -280,7 +290,7 @@ theorem fromSource_ofMaps {M : Type (max u v w)} [CommRing M] [Algebra R M]
     [Algebra.Smooth R M]
     (fromSource : A →ₐ[R] M) (toTarget : M →ₐ[R] B)
     (factor : toTarget.comp fromSource = f) :
-    (Smooth.ofMaps fromSource toTarget factor).fromSource = fromSource := sorry
+    (Smooth.ofMaps fromSource toTarget factor).fromSource = fromSource := rfl
 
 /-- The target map supplied to `Smooth.ofMaps` is recovered by projection. -/
 @[simp]
@@ -288,17 +298,17 @@ theorem toTarget_ofMaps {M : Type (max u v w)} [CommRing M] [Algebra R M]
     [Algebra.Smooth R M]
     (fromSource : A →ₐ[R] M) (toTarget : M →ₐ[R] B)
     (factor : toTarget.comp fromSource = f) :
-    (Smooth.ofMaps fromSource toTarget factor).toTarget = toTarget := sorry
+    (Smooth.ofMaps fromSource toTarget factor).toTarget = toTarget := rfl
 
 /-- Forgetting smoothness preserves the source map. -/
 @[simp]
 theorem fromSource_toFinite (F : Smooth f) :
-    F.toFinite.fromSource = F.fromSource := sorry
+    F.toFinite.fromSource = F.fromSource := rfl
 
 /-- Forgetting smoothness preserves the target map. -/
 @[simp]
 theorem toTarget_toFinite (F : Smooth f) :
-    F.toFinite.toTarget = F.toTarget := sorry
+    F.toFinite.toTarget = F.toTarget := rfl
 
 end Smooth
 
@@ -307,14 +317,14 @@ end Smooth
 theorem fromSource_ofMaps {M : Type (max u v w)} [CommRing M] [Algebra R M]
     (fromSource : A →ₐ[R] M) (toTarget : M →ₐ[R] B)
     (factor : toTarget.comp fromSource = f) :
-    (ofMaps fromSource toTarget factor).fromSource = fromSource := sorry
+    (ofMaps fromSource toTarget factor).fromSource = fromSource := rfl
 
 /-- The target map of a factorisation built by `ofMaps`. -/
 @[simp]
 theorem toTarget_ofMaps {M : Type (max u v w)} [CommRing M] [Algebra R M]
     (fromSource : A →ₐ[R] M) (toTarget : M →ₐ[R] B)
     (factor : toTarget.comp fromSource = f) :
-    (ofMaps fromSource toTarget factor).toTarget = toTarget := sorry
+    (ofMaps fromSource toTarget factor).toTarget = toTarget := rfl
 
 end Factorisation
 
@@ -359,12 +369,12 @@ noncomputable def toFactorisation (F : QuotientFactorisation f) : f.Factorisatio
 /-- The source map is preserved by `toFactorisation`. -/
 @[simp]
 theorem fromSource_toFactorisation (F : QuotientFactorisation f) :
-    F.toFactorisation.fromSource = F.fromSource := sorry
+    F.toFactorisation.fromSource = F.fromSource := rfl
 
 /-- The target map is preserved by `toFactorisation`. -/
 @[simp]
 theorem toTarget_toFactorisation (F : QuotientFactorisation f) :
-    F.toFactorisation.toTarget = F.toTarget := sorry
+    F.toFactorisation.toTarget = F.toTarget := rfl
 
 /-- Build a quotient factorisation from its prequotient algebra, ideal, and
 two algebra maps. -/
@@ -386,7 +396,7 @@ ideal. -/
 theorem ideal_ofMaps {P : Type (max u v w)} [CommRing P] [Algebra R P]
     (J : Ideal P) (fromSource : A →ₐ[R] P ⧸ J)
     (toTarget : P ⧸ J →ₐ[R] B) (factor : toTarget.comp fromSource = f) :
-    (ofMaps J fromSource toTarget factor).ideal = J := sorry
+    (ofMaps J fromSource toTarget factor).ideal = J := rfl
 
 /-- The source map of a quotient factorisation built by `ofMaps` is the
 supplied map. -/
@@ -395,7 +405,7 @@ theorem fromSource_ofMaps
     {P : Type (max u v w)} [CommRing P] [Algebra R P]
     (J : Ideal P) (fromSource : A →ₐ[R] P ⧸ J)
     (toTarget : P ⧸ J →ₐ[R] B) (factor : toTarget.comp fromSource = f) :
-    (ofMaps J fromSource toTarget factor).fromSource = fromSource := sorry
+    (ofMaps J fromSource toTarget factor).fromSource = fromSource := rfl
 
 /-- The target map of a quotient factorisation built by `ofMaps` is the
 supplied map. -/
@@ -404,7 +414,7 @@ theorem toTarget_ofMaps
     {P : Type (max u v w)} [CommRing P] [Algebra R P]
     (J : Ideal P) (fromSource : A →ₐ[R] P ⧸ J)
     (toTarget : P ⧸ J →ₐ[R] B) (factor : toTarget.comp fromSource = f) :
-    (ofMaps J fromSource toTarget factor).toTarget = toTarget := sorry
+    (ofMaps J fromSource toTarget factor).toTarget = toTarget := rfl
 
 end QuotientFactorisation
 
@@ -448,7 +458,7 @@ variable {fLeft : A →ₐ[R] B} {fRight : D →ₐ[R] B}
 /-- The two triangle laws carried by a common factorisation. -/
 theorem spec (F : CommonFactorisation fLeft fRight) :
     F.toTarget.comp F.fromLeft = fLeft ∧
-      F.toTarget.comp F.fromRight = fRight := sorry
+      F.toTarget.comp F.fromRight = fRight := ⟨F.factorLeft, F.factorRight⟩
 
 /-- Exchange the two sources of a common factorisation. -/
 def swap (F : CommonFactorisation fLeft fRight) :
@@ -465,21 +475,21 @@ def swap (F : CommonFactorisation fLeft fRight) :
 /-- Swapping a common factorisation exchanges its left source map. -/
 @[simp]
 theorem fromLeft_swap (F : CommonFactorisation fLeft fRight) :
-    F.swap.fromLeft = F.fromRight := sorry
+    F.swap.fromLeft = F.fromRight := rfl
 
 /-- Swapping a common factorisation exchanges its right source map. -/
 @[simp]
 theorem fromRight_swap (F : CommonFactorisation fLeft fRight) :
-    F.swap.fromRight = F.fromLeft := sorry
+    F.swap.fromRight = F.fromLeft := rfl
 
 /-- Swapping a common factorisation preserves its target map. -/
 @[simp]
 theorem toTarget_swap (F : CommonFactorisation fLeft fRight) :
-    F.swap.toTarget = F.toTarget := sorry
+    F.swap.toTarget = F.toTarget := rfl
 
 /-- Exchanging the sources of a common factorisation twice is the identity. -/
 @[simp]
-theorem swap_swap (F : CommonFactorisation fLeft fRight) : F.swap.swap = F := sorry
+theorem swap_swap (F : CommonFactorisation fLeft fRight) : F.swap.swap = F := rfl
 
 /-- Build a common factorisation from its three algebra maps and two triangle
 equations. -/
@@ -508,7 +518,7 @@ theorem fromLeft_ofMaps
     (factorLeft : toTarget.comp fromLeft = fLeft)
     (factorRight : toTarget.comp fromRight = fRight) :
     (ofMaps fromLeft fromRight toTarget factorLeft factorRight).fromLeft =
-      fromLeft := sorry
+      fromLeft := rfl
 
 /-- The right source map of `CommonFactorisation.ofMaps` is the supplied map. -/
 @[simp]
@@ -519,7 +529,7 @@ theorem fromRight_ofMaps
     (factorLeft : toTarget.comp fromLeft = fLeft)
     (factorRight : toTarget.comp fromRight = fRight) :
     (ofMaps fromLeft fromRight toTarget factorLeft factorRight).fromRight =
-      fromRight := sorry
+      fromRight := rfl
 
 /-- The target map of `CommonFactorisation.ofMaps` is the supplied map. -/
 @[simp]
@@ -530,7 +540,7 @@ theorem toTarget_ofMaps
     (factorLeft : toTarget.comp fromLeft = fLeft)
     (factorRight : toTarget.comp fromRight = fRight) :
     (ofMaps fromLeft fromRight toTarget factorLeft factorRight).toTarget =
-      toTarget := sorry
+      toTarget := rfl
 
 /-- A common factorisation whose midpoint is finitely presented over the
 base ring. -/
@@ -562,18 +572,18 @@ abbrev toTarget (F : Finite fLeft fRight) : F.mid →ₐ[R] B :=
 
 /-- The left triangle of a finite-presentation common factorisation. -/
 theorem factorLeft (F : Finite fLeft fRight) :
-    F.toTarget.comp F.fromLeft = fLeft := sorry
+    F.toTarget.comp F.fromLeft = fLeft := F.base.factorLeft
 
 /-- The right triangle of a finite-presentation common factorisation. -/
 theorem factorRight (F : Finite fLeft fRight) :
-    F.toTarget.comp F.fromRight = fRight := sorry
+    F.toTarget.comp F.fromRight = fRight := F.base.factorRight
 
 /-- The finite-presentation and triangle laws carried by a finite common
 factorisation. -/
 theorem spec (F : Finite fLeft fRight) :
     Algebra.FinitePresentation R F.mid ∧
       F.toTarget.comp F.fromLeft = fLeft ∧
-      F.toTarget.comp F.fromRight = fRight := sorry
+      F.toTarget.comp F.fromRight = fRight := ⟨inferInstance, F.factorLeft, F.factorRight⟩
 
 /-- Exchange the two sources of a finite common factorisation. -/
 def swap (F : Finite fLeft fRight) : Finite fRight fLeft :=
@@ -583,22 +593,22 @@ def swap (F : Finite fLeft fRight) : Finite fRight fLeft :=
 /-- Swapping a finite common factorisation exchanges its left source map. -/
 @[simp]
 theorem fromLeft_swap (F : Finite fLeft fRight) :
-    F.swap.fromLeft = F.fromRight := sorry
+    F.swap.fromLeft = F.fromRight := rfl
 
 /-- Swapping a finite common factorisation exchanges its right source map. -/
 @[simp]
 theorem fromRight_swap (F : Finite fLeft fRight) :
-    F.swap.fromRight = F.fromLeft := sorry
+    F.swap.fromRight = F.fromLeft := rfl
 
 /-- Swapping a finite common factorisation preserves its target map. -/
 @[simp]
 theorem toTarget_swap (F : Finite fLeft fRight) :
-    F.swap.toTarget = F.toTarget := sorry
+    F.swap.toTarget = F.toTarget := rfl
 
 /-- Exchanging the sources of a finite common factorisation twice is the
 identity. -/
 @[simp]
-theorem swap_swap (F : Finite fLeft fRight) : F.swap.swap = F := sorry
+theorem swap_swap (F : Finite fLeft fRight) : F.swap.swap = F := rfl
 
 /-- Attach a finite-presentation instance to a common factorisation. -/
 def of (F : CommonFactorisation fLeft fRight)
@@ -628,7 +638,7 @@ theorem fromLeft_ofMaps
     (factorLeft : toTarget.comp fromLeft = fLeft)
     (factorRight : toTarget.comp fromRight = fRight) :
     (Finite.ofMaps fromLeft fromRight toTarget factorLeft factorRight).fromLeft =
-      fromLeft := sorry
+      fromLeft := rfl
 
 /-- The right source map supplied to `Finite.ofMaps` is recovered by projection. -/
 @[simp]
@@ -640,7 +650,7 @@ theorem fromRight_ofMaps
     (factorLeft : toTarget.comp fromLeft = fLeft)
     (factorRight : toTarget.comp fromRight = fRight) :
     (Finite.ofMaps fromLeft fromRight toTarget factorLeft factorRight).fromRight =
-      fromRight := sorry
+      fromRight := rfl
 
 /-- The target map supplied to `Finite.ofMaps` is recovered by projection. -/
 @[simp]
@@ -652,7 +662,7 @@ theorem toTarget_ofMaps
     (factorLeft : toTarget.comp fromLeft = fLeft)
     (factorRight : toTarget.comp fromRight = fRight) :
     (Finite.ofMaps fromLeft fromRight toTarget factorLeft factorRight).toTarget =
-      toTarget := sorry
+      toTarget := rfl
 
 end Finite
 

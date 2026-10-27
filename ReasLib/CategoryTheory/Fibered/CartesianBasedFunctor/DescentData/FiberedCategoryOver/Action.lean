@@ -46,7 +46,7 @@ theorem functor.obj
     (F : A ⟶ B)
     (D : (Functor.fiberPseudofunctor A.p).DescentData a) (i : ι) :
     ((functor a F).obj D).obj i =
-      (fiberFunctor F (X i)).obj (D.obj i) := sorry
+      (fiberFunctor F (X i)).obj (D.obj i) := rfl
 
 /-- A fibred-category morphism transports descent overlap morphisms by its selected reindexing
 comparisons. -/
@@ -60,7 +60,7 @@ theorem functor.obj.hom
     ((functor a F).obj D).hom q f₁ f₂ hf₁ hf₂ =
       (Reindex.mapIso F f₁ (D.obj i₁)).hom ≫
         (fiberFunctor F Y).map (D.hom q f₁ f₂ hf₁ hf₂) ≫
-      (Reindex.mapIso F f₂ (D.obj i₂)).inv := sorry
+      (Reindex.mapIso F f₂ (D.obj i₂)).inv := rfl
 
 /-- Total-category readout of the direct overlap-morphism computation. -/
 @[simp]
@@ -74,7 +74,7 @@ theorem functor.obj.hom.val
         q f₁ f₂ hf₁ hf₂).1 =
       (Reindex.mapIso F f₁ (D.obj i₁)).hom.1 ≫
         ((fiberFunctor F Y).map (D.hom q f₁ f₂ hf₁ hf₂)).1 ≫
-      (Reindex.mapIso F f₂ (D.obj i₂)).inv.1 := sorry
+      (Reindex.mapIso F f₂ (D.obj i₂)).inv.1 := rfl
 
 /-- A fibred-category morphism acts on descent-data morphisms componentwise through its fiber
 functors. -/
@@ -84,7 +84,7 @@ theorem functor.map.hom
     {D₁ D₂ : (Functor.fiberPseudofunctor A.p).DescentData a}
     (φ : D₁ ⟶ D₂) (i : ι) :
     ((functor a F).map φ).hom i =
-      (fiberFunctor F (X i)).map (φ.hom i) := sorry
+      (fiberFunctor F (X i)).map (φ.hom i) := rfl
 
 /-- Total-category readout of the direct descent-morphism computation. -/
 @[simp]
@@ -93,7 +93,7 @@ theorem functor.map.hom.val
     {D₁ D₂ : (Functor.fiberPseudofunctor A.p).DescentData a}
     (φ : D₁ ⟶ D₂) (i : ι) :
     (((functor a F).map φ).hom i).1 =
-      ((fiberFunctor F (X i)).map (φ.hom i)).1 := sorry
+      ((fiberFunctor F (X i)).map (φ.hom i)).1 := rfl
 
 /-- The direct descent-data functor of the identity fibred-category morphism is the identity
 functor. -/
@@ -101,7 +101,9 @@ functor. -/
 theorem functor.id
     (A : FiberedCategoryOver.{uC, vC, uS₁, vS₁} C) :
     functor a (𝟙 A) =
-      𝟭 ((Functor.fiberPseudofunctor A.p).DescentData a) := sorry
+      𝟭 ((Functor.fiberPseudofunctor A.p).DescentData a) := by
+  simp only [functor, Indexed.functor.id,
+    Pseudofunctor.LocallyDiscreteOpToCat.IndexedFunctor.mapDescentData.id]
 
 /-- The direct descent-data functor of a composite fibred-category morphism is successive
 transport through its factors. -/
@@ -110,7 +112,9 @@ theorem functor.comp
     {D : FiberedCategoryOver.{uC, vC, uS₁, vS₁} C}
     (F : A ⟶ B) (G : B ⟶ D) :
     functor a (F ≫ G) =
-      functor a F ⋙ functor a G := sorry
+      functor a F ⋙ functor a G := by
+  simp only [functor, Indexed.functor.comp,
+    Pseudofunctor.LocallyDiscreteOpToCat.IndexedFunctor.mapDescentData.comp]
 
 /-- A `2`-morphism of fibred-category morphisms induces a natural transformation between their
 direct descent-data functors. -/
@@ -127,7 +131,7 @@ theorem cell.component
     {F G : A ⟶ B} (τ : F ⟶ G)
     (D : (Functor.fiberPseudofunctor A.p).DescentData a) (i : ι) :
     ((cell a τ).app D).hom i =
-      (fiberNatTrans τ (X i)).app (D.obj i) := sorry
+      (fiberNatTrans τ (X i)).app (D.obj i) := rfl
 
 /-- Forgetting a component of the natural transformation on direct descent data recovers the
 underlying total-category component. -/
@@ -136,7 +140,7 @@ theorem cell.component.val
     {F G : A ⟶ B} (τ : F ⟶ G)
     (D : (Functor.fiberPseudofunctor A.p).DescentData a) (i : ι) :
     (((cell a τ).app D).hom i).1 =
-      τ.hom.toNatTrans.app (D.obj i).1 := sorry
+      τ.hom.toNatTrans.app (D.obj i).1 := rfl
 
 /-- Passage from a `2`-identity to direct descent data is the identity natural
 transformation. -/
@@ -144,14 +148,20 @@ transformation. -/
 theorem cell.id
     (F : A ⟶ B) :
     cell a (𝟙 F) =
-      𝟙 (functor a F) := sorry
+      𝟙 (functor a F) := by
+  apply NatTrans.ext
+  funext D
+  exact Pseudofunctor.DescentData.hom_ext (fun i ↦ rfl)
 
 /-- Passage to direct descent data preserves vertical composition of `2`-morphisms. -/
 @[simp]
 theorem cell.comp
     {F G H : A ⟶ B} (τ : F ⟶ G) (σ : G ⟶ H) :
     cell a (τ ≫ σ) =
-      cell a τ ≫ cell a σ := sorry
+      cell a τ ≫ cell a σ := by
+  apply NatTrans.ext
+  funext D
+  exact Pseudofunctor.DescentData.hom_ext (fun i ↦ rfl)
 
 /-- The direct descent-data action of a `2`-morphism is natural in descent-data morphisms. -/
 theorem cell.naturality
@@ -159,7 +169,11 @@ theorem cell.naturality
     {D₁ D₂ : (Functor.fiberPseudofunctor A.p).DescentData a}
     (φ : D₁ ⟶ D₂) :
     (functor a F).map φ ≫ (cell a τ).app D₂ =
-      (cell a τ).app D₁ ≫ (functor a G).map φ := sorry
+      (cell a τ).app D₁ ≫ (functor a G).map φ := by
+  apply Pseudofunctor.DescentData.hom_ext
+  intro i
+  apply Subtype.ext
+  exact τ.hom.toNatTrans.naturality (φ.hom i).1
 
 variable (A B) in
 /-- For fixed fibred source and target, passage to direct descent-data functors is functorial on
@@ -179,14 +193,14 @@ noncomputable def homFunctor :
 theorem homFunctor.obj
     (F : A ⟶ B) :
     (homFunctor A B a).obj F =
-      FiberedCategoryOver.Descent.functor a F := sorry
+      FiberedCategoryOver.Descent.functor a F := rfl
 
 /-- The morphism action of the descent-data hom-functor is `Descent.cell`. -/
 @[simp]
 theorem homFunctor.map
     {F G : A ⟶ B} (τ : F ⟶ G) :
     (homFunctor A B a).map τ =
-      cell a τ := sorry
+      cell a τ := rfl
 
 /-- Canonical descent commutes with the direct descent-data functor of a fibred-category
 morphism. -/
@@ -205,14 +219,14 @@ comparisons. -/
 theorem comparisonIso.hom.component
     (F : A ⟶ B) (x : A.p.Fiber S) (i : ι) :
     ((comparisonIso a F).hom.app x).hom i =
-      (Reindex.mapIso F (a i) x).inv := sorry
+      (Reindex.mapIso F (a i) x).inv := rfl
 
 /-- Total-category readout of a forward direct canonical-descent comparison component. -/
 @[simp]
 theorem comparisonIso.hom.component.val
     (F : A ⟶ B) (x : A.p.Fiber S) (i : ι) :
     (((comparisonIso a F).hom.app x).hom i).1 =
-      (Reindex.mapIso F (a i) x).inv.1 := sorry
+      (Reindex.mapIso F (a i) x).inv.1 := rfl
 
 /-- Inverse components of the direct canonical-descent comparison are forward selected
 reindexing comparisons. -/
@@ -220,14 +234,14 @@ reindexing comparisons. -/
 theorem comparisonIso.inv.component
     (F : A ⟶ B) (x : A.p.Fiber S) (i : ι) :
     ((comparisonIso a F).inv.app x).hom i =
-      (Reindex.mapIso F (a i) x).hom := sorry
+      (Reindex.mapIso F (a i) x).hom := rfl
 
 /-- Total-category readout of an inverse direct canonical-descent comparison component. -/
 @[simp]
 theorem comparisonIso.inv.component.val
     (F : A ⟶ B) (x : A.p.Fiber S) (i : ι) :
     (((comparisonIso a F).inv.app x).hom i).1 =
-      (Reindex.mapIso F (a i) x).hom.1 := sorry
+      (Reindex.mapIso F (a i) x).hom.1 := rfl
 
 /-- The direct canonical-descent comparison is natural in `2`-morphisms of fibred-category
 morphisms. -/
@@ -238,7 +252,10 @@ theorem comparisonIso.hom.naturality
           ((fiberNatTrans τ S).app x) =
       (cell a τ).app
           (((Functor.fiberPseudofunctor A.p).toDescentData a).obj x) ≫
-        (comparisonIso a G).hom.app x := sorry
+        (comparisonIso a G).hom.app x := by
+  apply Pseudofunctor.DescentData.hom_ext
+  intro i
+  exact (Indexed.cell τ).naturality (a i) x
 
 /-- Inverse form of naturality of the direct canonical-descent comparison in a
 fibred-category `2`-morphism. -/
@@ -249,7 +266,11 @@ theorem comparisonIso.inv.naturality
         (comparisonIso a G).inv.app x =
       (comparisonIso a F).inv.app x ≫
         (cell a τ).app
-          (((Functor.fiberPseudofunctor A.p).toDescentData a).obj x) := sorry
+          (((Functor.fiberPseudofunctor A.p).toDescentData a).obj x) := by
+  apply (Iso.comp_inv_eq ((comparisonIso a G).app x)).2
+  have h := (Iso.inv_comp_eq ((comparisonIso a F).app x)).2
+    (comparisonIso.hom.naturality a τ x).symm
+  exact h.symm.trans (Category.assoc _ _ _).symm
 
 end FiberedCategoryOver.Descent
 

@@ -101,18 +101,18 @@ theorem homEquiv_natural_source {𝒜 𝒝 : DGA(𝒪)} {M' M : Mod(𝒜, d)}
     (g : tensor M N ⟶ L.toBimod) :
     homEquiv M' N L
         ((Bimod.tensorWith N.toBimod).map
-          (DifferentialGradedModule.toBimodMap f) ≫ g) =
-      DifferentialGradedModule.toBimodMap f ≫ homEquiv M N L g := sorry
+          (DifferentialGradedModule.toBimodMap (𝒪 := 𝒪) f) ≫ g) =
+      DifferentialGradedModule.toBimodMap (𝒪 := 𝒪) f ≫ homEquiv M N L g := sorry
 
 /-- The DG tensor-Hom equivalence is natural covariantly in the right `B`-module target. -/
 @[stacks 0FRS "differential graded tensor-Hom target naturality"]
 theorem homEquiv_natural_target {𝒜 𝒝 : DGA(𝒪)}
     (M : Mod(𝒜, d)) (N : Mod(𝒜, 𝒝, d)) {L L' : Mod(𝒝, d)}
     (f : tensor M N ⟶ L.toBimod) (g : L ⟶ L') :
-    homEquiv M N L' (f ≫ DifferentialGradedModule.toBimodMap g) =
+    homEquiv M N L' (f ≫ DifferentialGradedModule.toBimodMap (𝒪 := 𝒪) g) =
       homEquiv M N L f ≫
         (Bimod.InternalHom.functor Cochain.rightInternalHom N.toBimod).map
-          (DifferentialGradedModule.toBimodMap g) := sorry
+          (DifferentialGradedModule.toBimodMap (𝒪 := 𝒪) g) := sorry
 
 /-- The DG tensor-Hom equivalence is natural contravariantly in the bimodule. -/
 @[stacks 0FRS "differential graded tensor-Hom bimodule naturality"]
@@ -133,9 +133,9 @@ theorem internalHomIso_natural_source {𝒜 𝒝 : DGA(𝒪)} {M M' : Mod(𝒜, 
     (f : M ⟶ M') (N : Mod(𝒜, 𝒝, d)) (L : Mod(𝒝, d)) :
     (internalHomIso M' N L).hom ≫
         ((Bimod.InternalHom.pre Cochain.rightInternalHom
-          (DifferentialGradedModule.toBimodMap f)).app (internalHom N L)).hom =
+          (DifferentialGradedModule.toBimodMap (𝒪 := 𝒪) f)).app (internalHom N L)).hom =
       ((Bimod.InternalHom.pre Cochain.rightInternalHom
-        (Bimod.whiskerRight (DifferentialGradedModule.toBimodMap f) N.toBimod)).app
+        (Bimod.whiskerRight (DifferentialGradedModule.toBimodMap (𝒪 := 𝒪) f) N.toBimod)).app
           L.toBimod).hom ≫ (internalHomIso M N L).hom := sorry
 
 /-- Internal-Hom currying is natural contravariantly in the DG bimodule, as an equality of
@@ -160,11 +160,11 @@ theorem internalHomIso_natural_target {𝒜 𝒝 : DGA(𝒪)}
     (M : Mod(𝒜, d)) (N : Mod(𝒜, 𝒝, d)) {L L' : Mod(𝒝, d)}
     (f : L ⟶ L') :
     ((Bimod.InternalHom.functor Cochain.rightInternalHom (tensor M N)).map
-      (DifferentialGradedModule.toBimodMap f)).hom ≫ (internalHomIso M N L').hom =
+      (DifferentialGradedModule.toBimodMap (𝒪 := 𝒪) f)).hom ≫ (internalHomIso M N L').hom =
       (internalHomIso M N L).hom ≫
         ((Bimod.InternalHom.functor Cochain.rightInternalHom M.toBimod).map
           ((Bimod.InternalHom.functor Cochain.rightInternalHom N.toBimod).map
-            (DifferentialGradedModule.toBimodMap f))).hom := sorry
+            (DifferentialGradedModule.toBimodMap (𝒪 := 𝒪) f))).hom := sorry
 
 end
 

@@ -79,7 +79,21 @@ theorem mapsMaximalIdeal_iff {m : ℕ}
       Ideal.map
           ((algebraMap A (TargetLocalRing q)).comp f.toRingHom)
           (Ideal.comap f.toRingHom q.asIdeal) =
-        Ideal.map (algebraMap A (TargetLocalRing q)) q.asIdeal := sorry
+        Ideal.map (algebraMap A (TargetLocalRing q)) q.asIdeal := by
+  change Ideal.map (localRingHom f q) (maximalIdeal (SourceLocalRing f q)) =
+    maximalIdeal (TargetLocalRing q) ↔ _
+  rw [← IsLocalization.AtPrime.map_eq_maximalIdeal
+      (PrimeSpectrum.comap f.toRingHom q).asIdeal (SourceLocalRing f q),
+    ← IsLocalization.AtPrime.map_eq_maximalIdeal q.asIdeal (TargetLocalRing q),
+    Ideal.map_map]
+  have hmap : (localRingHom f q).comp
+      (algebraMap (MvPolynomial (Fin m) k) (SourceLocalRing f q)) =
+      (algebraMap A (TargetLocalRing q)).comp f.toRingHom := by
+    apply RingHom.ext
+    intro x
+    exact Localization.localRingHom_to_map
+      (PrimeSpectrum.comap f.toRingHom q).asIdeal q.asIdeal f.toRingHom rfl x
+  rw [hmap, PrimeSpectrum.comap_asIdeal]
 
 end localRingHom
 
@@ -101,7 +115,7 @@ theorem quotientMap_mk {m n : ℕ}
     quotientMap f q (n := n)
         (Ideal.Quotient.mk (maximalIdeal (SourceLocalRing f q) ^ n) x) =
       Ideal.Quotient.mk (maximalIdeal (TargetLocalRing q) ^ n)
-        (localRingHom f q x) := sorry
+        (localRingHom f q x) := rfl
 
 /-- A presentation-specific view of the generic Artinian local factorisation
 of the truncated localization map. -/
@@ -145,7 +159,8 @@ theorem spec {m : ℕ}
     IsArtinianRing F.mid ∧
       IsLocalRing F.mid ∧
       F.toTarget.comp F.fromSource = quotientMap f q (n := n) ∧
-      F.fromSource.toRingHom.EssSmooth ∧ F.toTarget.toRingHom.Flat := sorry
+      F.fromSource.toRingHom.EssSmooth ∧ F.toTarget.toRingHom.Flat :=
+  ⟨inferInstance, inferInstance, F.base.factor, F.smooth, F.flat⟩
 
 end
 
@@ -165,7 +180,8 @@ def targetClass (q : PrimeSpectrum A) (n : ℕ) (a : A) : TargetQuotient q n :=
 target. -/
 @[stacks 07FI "truncated target class powers", simp]
 theorem targetClass_pow (q : PrimeSpectrum A) (n e : ℕ) (a : A) :
-    targetClass q n (a ^ e) = targetClass q n a ^ e := sorry
+    targetClass q n (a ^ e) = targetClass q n a ^ e := by
+  simp [targetClass]
 
 end
 
@@ -196,7 +212,11 @@ factorisation from the polynomial source to the target. -/
 @[stacks 07FI "source factorisation refinement specification"]
 theorem sourceFactor (P : PowerRefinement F a) :
     P.toTarget.comp (P.fromSource.comp F.fromSource) =
-      quotientMap f q (n := n) := sorry
+      quotientMap f q (n := n) := by
+  apply AlgHom.ext
+  intro x
+  exact (DFunLike.congr_fun P.toRingHom.factor (F.fromSource x)).trans
+    (DFunLike.congr_fun F.base.factor x)
 
 /-- The defining and derived properties of an algebra-level power refinement. -/
 @[stacks 07FI "source factorisation refinement specification"]
@@ -211,7 +231,17 @@ theorem spec (P : PowerRefinement F a) :
       P.fromSource.toRingHom.EssSmooth ∧
       P.toTarget.toRingHom.Flat ∧
       RingHom.PowerImage.InRange P.toTarget.toRingHom
-        (targetClass q n a) P.exponent := sorry
+        (targetClass q n a) P.exponent := by
+  have hsource : IsLocalHom P.fromSource.toRingHom := by
+    apply ((IsLocalRing.local_hom_TFAE _).out 4 0).mp
+    exact IsLocalRing.eq_maximalIdeal (IsArtinianRing.isMaximal_of_isPrime _)
+  have htarget : IsLocalHom P.toTarget.toRingHom := by
+    apply ((IsLocalRing.local_hom_TFAE _).out 4 0).mp
+    exact IsLocalRing.eq_maximalIdeal (IsArtinianRing.isMaximal_of_isPrime _)
+  have hfactor : P.toTarget.comp P.fromSource = F.toTarget :=
+    AlgHom.ext fun x => DFunLike.congr_fun P.toRingHom.factor x
+  exact ⟨inferInstance, inferInstance, hsource, htarget, hfactor, P.sourceFactor,
+    P.toRingHom.smooth, P.toRingHom.flat, P.toRingHom.power_mem⟩
 
 end PowerRefinement
 
@@ -231,7 +261,11 @@ algebra-level power refinement for every ambient element. -/
 theorem nonempty [IsNoetherianRing A]
     {p : ℕ} [Fact p.Prime] [CharP k p]
     (F : Factorisation f q n) (a : A) :
-    Nonempty (PowerRefinement F a) := sorry
+    Nonempty (PowerRefinement F a) := by
+  letI : CharP F.mid p :=
+    CharP.of_ringHom_of_ne_zero (algebraMap k F.mid) p (Fact.out : p.Prime).ne_zero
+  exact AlgHom.Artinian.PowerRefinement.nonempty (p := p)
+    F.toTarget F.flat (targetClass q n a)
 
 end
 
@@ -338,7 +372,11 @@ theorem spec {q : PrimeSpectrum A} {n : ℕ+}
         quotientMap C.factorisation.map q (n := n) ∧
       C.factorisation.fromSource.toRingHom.EssSmooth ∧
       C.factorisation.toTarget.toRingHom.Flat ∧
-      C.factorisation.Captures E := sorry
+      C.factorisation.Captures E :=
+  ⟨C.factorisation.flat, C.factorisation.mapsMaximalIdeal,
+    inferInstance, inferInstance, C.factorisation.factorisation.base.factor,
+    C.factorisation.factorisation.smooth, C.factorisation.factorisation.flat,
+    C.captures⟩
 
 end Capture
 
@@ -353,7 +391,9 @@ theorem spec {q : PrimeSpectrum A} {n : ℕ+}
       IsLocalRing P.mid ∧
       P.toTarget.comp P.fromSource = quotientMap P.map q (n := n) ∧
       P.fromSource.toRingHom.EssSmooth ∧
-      P.toTarget.toRingHom.Flat := sorry
+      P.toTarget.toRingHom.Flat :=
+  ⟨P.flat, P.mapsMaximalIdeal, inferInstance, inferInstance,
+    P.factorisation.base.factor, P.factorisation.smooth, P.factorisation.flat⟩
 
 end PolynomialFactorisation
 

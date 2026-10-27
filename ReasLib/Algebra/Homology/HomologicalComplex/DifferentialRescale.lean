@@ -40,13 +40,16 @@ section Core
 @[stacks 0194 "source-degree differential rescaling shape law"]
 theorem rescale_shape (K : HomologicalComplex C c) (s : ι → CatCenter C)
     (i j : ι) (hij : ¬ c.Rel i j) :
-    s i • K.d i j = 0 := sorry
+    s i • K.d i j = 0 := by
+  rw [K.shape i j hij, CatCenter.smul_eq, Limits.zero_comp]
 
 /-- Source-degree scalar rescaling preserves the square-zero equations of a homological complex. -/
 @[stacks 0194 "source-degree differential rescaling square-zero law"]
 theorem rescale_d_comp_d (K : HomologicalComplex C c) (s : ι → CatCenter C)
     (i j k : ι) (hij : c.Rel i j) (hjk : c.Rel j k) :
-    (s i • K.d i j) ≫ (s j • K.d j k) = 0 := sorry
+    (s i • K.d i j) ≫ (s j • K.d j k) = 0 := by
+  rw [CatCenter.smul_eq' (s i), CatCenter.smul_eq (s j), Category.assoc,
+    K.d_comp_d_assoc, Limits.zero_comp, Limits.comp_zero]
 
 /-- The homological complex obtained by multiplying the differential out of degree `i` by
 `s i`. -/
@@ -61,12 +64,12 @@ def rescale (K : HomologicalComplex C c) (s : ι → CatCenter C) :
 /-- Source-degree differential rescaling leaves every object unchanged. -/
 @[simp, stacks 0194 "source-degree differential rescaling object formula"]
 theorem rescale_X (K : HomologicalComplex C c) (s : ι → CatCenter C) (i : ι) :
-    (rescale K s).X i = K.X i := sorry
+    (rescale K s).X i = K.X i := rfl
 
 /-- The rescaled differential is the prescribed source-degree scalar multiple. -/
 @[simp, stacks 0194 "source-degree differential rescaling formula"]
 theorem rescale_d (K : HomologicalComplex C c) (s : ι → CatCenter C) (i j : ι) :
-    (rescale K s).d i j = s i • K.d i j := sorry
+    (rescale K s).d i j = s i • K.d i j := rfl
 
 namespace Rescale
 
@@ -75,7 +78,10 @@ namespace Rescale
 theorem map_comm {K L : HomologicalComplex C c} (s : ι → CatCenter C)
     (f : K ⟶ L) (i j : ι) :
     f.f i ≫ (rescale L s).d i j =
-      (rescale K s).d i j ≫ f.f j := sorry
+      (rescale K s).d i j ≫ f.f j := by
+  change f.f i ≫ (L.d i j ≫ (s i).app (L.X j)) =
+    (K.d i j ≫ (s i).app (K.X j)) ≫ f.f j
+  rw [← Category.assoc, f.comm, Category.assoc, CatCenter.naturality, Category.assoc]
 
 /-- A homological map regarded as a map between equally rescaled complexes. -/
 @[stacks 0194 "source-degree rescaled homological map"]
@@ -88,18 +94,24 @@ def map {K L : HomologicalComplex C c} (s : ι → CatCenter C) (f : K ⟶ L) :
 @[simp, stacks 0194 "source-degree rescaled homological map component"]
 theorem map_f {K L : HomologicalComplex C c} (s : ι → CatCenter C)
     (f : K ⟶ L) (i : ι) :
-    (map s f).f i = f.f i := sorry
+    (map s f).f i = f.f i := rfl
 
 /-- Rescaling preserves identity homological maps. -/
 @[simp, stacks 0194 "source-degree rescaling identity map"]
 theorem map_id (s : ι → CatCenter C) (K : HomologicalComplex C c) :
-    map s (𝟙 K) = 𝟙 (rescale K s) := sorry
+    map s (𝟙 K) = 𝟙 (rescale K s) := by
+  apply HomologicalComplex.hom_ext
+  intro i
+  rfl
 
 /-- Rescaling preserves composition of homological maps. -/
 @[stacks 0194 "source-degree rescaling composition"]
 theorem map_comp (s : ι → CatCenter C) {K L M : HomologicalComplex C c}
     (f : K ⟶ L) (g : L ⟶ M) :
-    map s (f ≫ g) = map s f ≫ map s g := sorry
+    map s (f ≫ g) = map s f ≫ map s g := by
+  apply HomologicalComplex.hom_ext
+  intro i
+  rfl
 
 /-- Rescaling homological differentials by a fixed source-degree scalar family. -/
 @[stacks 0194 "source-degree differential rescaling functor"]
@@ -113,19 +125,19 @@ def functor (s : ι → CatCenter C) :
 /-- The object formula for the source-degree differential rescaling functor. -/
 @[simp, stacks 0194 "source-degree rescaling functor object"]
 theorem functor_obj (s : ι → CatCenter C) (K : HomologicalComplex C c) :
-    (functor (C := C) (c := c) s).obj K = rescale K s := sorry
+    (functor (C := C) (c := c) s).obj K = rescale K s := rfl
 
 /-- The map formula for the source-degree differential rescaling functor. -/
 @[simp, stacks 0194 "source-degree rescaling functor map"]
 theorem functor_map (s : ι → CatCenter C)
     {K L : HomologicalComplex C c} (f : K ⟶ L) :
-    (functor (C := C) (c := c) s).map f = map s f := sorry
+    (functor (C := C) (c := c) s).map f = map s f := rfl
 
 /-- The rescaling functor preserves the component formula for every homological map. -/
 @[simp, stacks 0194 "source-degree rescaling functor component"]
 theorem functor_map_f (s : ι → CatCenter C)
     {K L : HomologicalComplex C c} (f : K ⟶ L) (i : ι) :
-    ((functor (C := C) (c := c) s).map f).f i = f.f i := sorry
+    ((functor (C := C) (c := c) s).map f).f i = f.f i := rfl
 
 end Rescale
 
@@ -143,7 +155,7 @@ omit [Limits.HasZeroMorphisms C] in
 /-- Evaluation of the central scalar family is the underlying central unit. -/
 @[simp, stacks 0194 "central scalar family evaluation"]
 theorem scalar_apply (s : ι → (CatCenter C)ˣ) (i : ι) :
-    scalar s i = (s i : CatCenter C) := sorry
+    scalar s i = (s i : CatCenter C) := rfl
 
 /-- The pointwise scalar family of the inverse unit family. -/
 @[stacks 0194 "inverse central scalar family"]
@@ -154,7 +166,7 @@ omit [Limits.HasZeroMorphisms C] in
 /-- Evaluation of the inverse central scalar family. -/
 @[simp, stacks 0194 "inverse central scalar family evaluation"]
 theorem invScalar_apply (s : ι → (CatCenter C)ˣ) (i : ι) :
-    invScalar s i = ((s i)⁻¹).val := sorry
+    invScalar s i = ((s i)⁻¹).val := rfl
 
 /-- Rescaling a homological complex by a family of central units. -/
 @[stacks 0194 "unit-family source-degree rescaling"]
@@ -177,52 +189,55 @@ def map {K L : HomologicalComplex C c} (s : ι → (CatCenter C)ˣ) (f : K ⟶ L
 /-- Unit-family rescaling leaves every graded object unchanged. -/
 @[simp, stacks 0194 "unit-family rescaling object formula"]
 theorem obj_X (K : HomologicalComplex C c) (s : ι → (CatCenter C)ˣ) (i : ι) :
-    (obj K s).X i = K.X i := sorry
+    (obj K s).X i = K.X i := rfl
 
 /-- Unit-family rescaling multiplies the differential by the source-degree unit. -/
 @[simp, stacks 0194 "unit-family rescaling differential formula"]
 theorem obj_d (K : HomologicalComplex C c) (s : ι → (CatCenter C)ˣ) (i j : ι) :
-    (obj K s).d i j = scalar s i • K.d i j := sorry
+    (obj K s).d i j = scalar s i • K.d i j := rfl
 
 /-- The object formula for the unit-family rescaling functor. -/
 @[simp, stacks 0194 "unit-family rescaling functor object formula"]
 theorem functor_obj (s : ι → (CatCenter C)ˣ) (K : HomologicalComplex C c) :
-    (functor (C := C) (c := c) s).obj K = obj K s := sorry
+    (functor (C := C) (c := c) s).obj K = obj K s := rfl
 
 /-- A map is unchanged componentwise by unit-family rescaling. -/
 @[simp, stacks 0194 "unit-family rescaling functor map formula"]
 theorem functor_map (s : ι → (CatCenter C)ˣ)
     {K L : HomologicalComplex C c} (f : K ⟶ L) :
-    (functor (C := C) (c := c) s).map f = map s f := sorry
+    (functor (C := C) (c := c) s).map f = map s f := rfl
 
 /-- The unit-family rescaling functor preserves map components degreewise. -/
 @[simp, stacks 0194 "unit-family rescaling functor component"]
 theorem functor_map_f (s : ι → (CatCenter C)ˣ)
     {K L : HomologicalComplex C c} (f : K ⟶ L) (i : ι) :
-    ((functor (C := C) (c := c) s).map f).f i = f.f i := sorry
+    ((functor (C := C) (c := c) s).map f).f i = f.f i := rfl
 
 /-- The component formula for a unit-family rescaled map. -/
 @[simp, stacks 0194 "unit-family rescaled homological map component"]
 theorem map_f {K L : HomologicalComplex C c} (s : ι → (CatCenter C)ˣ)
     (f : K ⟶ L) (i : ι) :
-    (map s f).f i = f.f i := sorry
+    (map s f).f i = f.f i := rfl
 
 /-- A unit-family rescaled map commutes with the rescaled differentials. -/
 @[reassoc, stacks 0194 "unit-family rescaled map compatibility"]
 theorem map_comm {K L : HomologicalComplex C c} (s : ι → (CatCenter C)ˣ)
     (f : K ⟶ L) (i j : ι) :
-    f.f i ≫ (obj L s).d i j = (obj K s).d i j ≫ f.f j := sorry
+    f.f i ≫ (obj L s).d i j = (obj K s).d i j ≫ f.f j := by
+  exact Rescale.map_comm (scalar s) f i j
 
 /-- The identity formula for unit-family rescaled maps. -/
 @[simp, stacks 0194 "unit-family rescaled homological map identity"]
 theorem map_id (s : ι → (CatCenter C)ˣ) (K : HomologicalComplex C c) :
-    map s (𝟙 K) = 𝟙 (obj K s) := sorry
+    map s (𝟙 K) = 𝟙 (obj K s) := by
+  exact Rescale.map_id (scalar s) K
 
 /-- The composition formula for unit-family rescaled maps. -/
 @[stacks 0194 "unit-family rescaled homological map composition"]
 theorem map_comp (s : ι → (CatCenter C)ˣ)
     {K L M : HomologicalComplex C c} (f : K ⟶ L) (g : L ⟶ M) :
-    map s (f ≫ g) = map s f ≫ map s g := sorry
+    map s (f ≫ g) = map s f ≫ map s g := by
+  exact Rescale.map_comp (scalar s) f g
 
 namespace one
 
@@ -230,7 +245,9 @@ namespace one
 @[stacks 0194 "unit-family rescaling unit compatibility"]
 theorem iso_comm (K : HomologicalComplex C c) (i j : ι) :
     (Iso.refl _).hom ≫ K.d i j =
-      (obj K (fun _ : ι ↦ 1)).d i j ≫ (Iso.refl _).hom := sorry
+      (obj K (fun _ : ι ↦ 1)).d i j ≫ (Iso.refl _).hom := by
+  change 𝟙 _ ≫ K.d i j = (K.d i j ≫ 𝟙 _) ≫ 𝟙 _
+  simp
 
 /-- Rescaling by the constant unit family is canonically isomorphic to the original complex. -/
 @[stacks 0194 "unit-family rescaling unit object comparison"]
@@ -242,18 +259,22 @@ noncomputable def iso (K : HomologicalComplex C c) :
 /-- The forward map of the constant-one comparison is the identity in every degree. -/
 @[simp, stacks 0194 "unit-family rescaling unit forward component"]
 theorem iso_hom_f (K : HomologicalComplex C c) (i : ι) :
-    (iso K).hom.f i = 𝟙 _ := sorry
+    (iso K).hom.f i = 𝟙 _ := rfl
 
 /-- The inverse map of the constant-one comparison is the identity in every degree. -/
 @[simp, stacks 0194 "unit-family rescaling unit inverse component"]
 theorem iso_inv_f (K : HomologicalComplex C c) (i : ι) :
-    (iso K).inv.f i = 𝟙 _ := sorry
+    (iso K).inv.f i = 𝟙 _ := rfl
 
 /-- The constant-one comparison is natural in the homological complex. -/
 @[reassoc, stacks 0194 "unit-family rescaling unit naturality"]
 theorem iso_naturality {K L : HomologicalComplex C c} (f : K ⟶ L) :
     (functor (C := C) (c := c) (fun _ : ι ↦ 1)).map f ≫ (iso L).hom =
-      (iso K).hom ≫ f := sorry
+      (iso K).hom ≫ f := by
+  apply HomologicalComplex.hom_ext
+  intro i
+  change f.f i ≫ 𝟙 (L.X i) = 𝟙 (K.X i) ≫ f.f i
+  simp
 
 /-- Rescaling by the constant unit family is naturally isomorphic to the identity functor. -/
 @[stacks 0194 "unit-family rescaling unit comparison"]
@@ -265,7 +286,7 @@ noncomputable def natIso :
 /-- The object component of the constant-one comparison. -/
 @[simp, stacks 0194 "unit-family rescaling unit component"]
 theorem natIso_app (K : HomologicalComplex C c) :
-    (natIso (C := C) (c := c)).app K = iso K := sorry
+    (natIso (C := C) (c := c)).app K = iso K := rfl
 
 end one
 
@@ -276,7 +297,12 @@ namespace mul
 theorem iso_comm (K : HomologicalComplex C c) (s t : ι → (CatCenter C)ˣ)
     (i j : ι) :
     (Iso.refl _).hom ≫ (obj K (fun k ↦ t k * s k)).d i j =
-      (obj (obj K s) t).d i j ≫ (Iso.refl _).hom := sorry
+      (obj (obj K s) t).d i j ≫ (Iso.refl _).hom := by
+  change 𝟙 (K.X i) ≫
+      (((t i : CatCenter C) * (s i : CatCenter C)) • K.d i j) =
+    ((t i : CatCenter C) • ((s i : CatCenter C) • K.d i j)) ≫ 𝟙 (K.X j)
+  simp only [CatCenter.smul_eq, CatCenter.mul_app', Category.id_comp,
+    Category.comp_id, Category.assoc]
 
 /-- Two successive unit-family rescalings combine by pointwise multiplication, with the outer
 family multiplying the inner family. -/
@@ -289,12 +315,12 @@ noncomputable def iso (K : HomologicalComplex C c) (s t : ι → (CatCenter C)ˣ
 /-- The forward multiplication comparison is the identity in every degree. -/
 @[simp, stacks 0194 "unit-family rescaling multiplication forward component"]
 theorem iso_hom_f (K : HomologicalComplex C c) (s t : ι → (CatCenter C)ˣ) (i : ι) :
-    (iso K s t).hom.f i = 𝟙 _ := sorry
+    (iso K s t).hom.f i = 𝟙 _ := rfl
 
 /-- The inverse multiplication comparison is the identity in every degree. -/
 @[simp, stacks 0194 "unit-family rescaling multiplication inverse component"]
 theorem iso_inv_f (K : HomologicalComplex C c) (s t : ι → (CatCenter C)ˣ) (i : ι) :
-    (iso K s t).inv.f i = 𝟙 _ := sorry
+    (iso K s t).inv.f i = 𝟙 _ := rfl
 
 /-- The pointwise multiplication comparison is natural in the homological complex. -/
 @[reassoc, stacks 0194 "unit-family rescaling multiplication naturality"]
@@ -303,7 +329,11 @@ theorem iso_naturality (s t : ι → (CatCenter C)ˣ)
     (functor (C := C) (c := c) s ⋙ functor (C := C) (c := c) t).map f ≫
         (iso L s t).hom =
       (iso K s t).hom ≫
-        (functor (C := C) (c := c) (fun i ↦ t i * s i)).map f := sorry
+        (functor (C := C) (c := c) (fun i ↦ t i * s i)).map f := by
+  apply HomologicalComplex.hom_ext
+  intro i
+  change f.f i ≫ 𝟙 (L.X i) = 𝟙 (K.X i) ≫ f.f i
+  simp
 
 /-- Pointwise multiplication is the composition law for unit-family rescaling functors. -/
 @[stacks 0194 "unit-family rescaling multiplication comparison"]
@@ -315,7 +345,7 @@ noncomputable def natIso (s t : ι → (CatCenter C)ˣ) :
 /-- The object component of the pointwise multiplication comparison. -/
 @[simp, stacks 0194 "unit-family rescaling multiplication component"]
 theorem natIso_app (s t : ι → (CatCenter C)ˣ) (K : HomologicalComplex C c) :
-    (natIso (C := C) (c := c) s t).app K = iso K s t := sorry
+    (natIso (C := C) (c := c) s t).app K = iso K s t := rfl
 
 end mul
 
@@ -326,7 +356,13 @@ namespace compInv
 theorem iso_comm (K : HomologicalComplex C c) (s : ι → (CatCenter C)ˣ)
     (i j : ι) :
     (Iso.refl _).hom ≫ K.d i j =
-      (obj (obj K s) (fun k ↦ (s k)⁻¹)).d i j ≫ (Iso.refl _).hom := sorry
+      (obj (obj K s) (fun k ↦ (s k)⁻¹)).d i j ≫ (Iso.refl _).hom := by
+  change 𝟙 (K.X i) ≫ K.d i j =
+    ((((s i)⁻¹ : (CatCenter C)ˣ) : CatCenter C) •
+      ((s i : CatCenter C) • K.d i j)) ≫ 𝟙 (K.X j)
+  simp only [CatCenter.smul_eq, Category.id_comp, Category.comp_id,
+    Category.assoc, ← CatCenter.mul_app]
+  simp
 
 /-- A unit rescaling followed by its pointwise inverse is isomorphic to the identity. -/
 @[stacks 0194 "inverse unit-family rescaling object comparison"]
@@ -338,12 +374,12 @@ noncomputable def iso (K : HomologicalComplex C c) (s : ι → (CatCenter C)ˣ) 
 /-- The forward unit-then-inverse comparison is the identity in every degree. -/
 @[simp, stacks 0194 "inverse unit-family rescaling forward component"]
 theorem iso_hom_f (K : HomologicalComplex C c) (s : ι → (CatCenter C)ˣ) (i : ι) :
-    (iso K s).hom.f i = 𝟙 _ := sorry
+    (iso K s).hom.f i = 𝟙 _ := rfl
 
 /-- The inverse unit-then-inverse comparison is the identity in every degree. -/
 @[simp, stacks 0194 "inverse unit-family rescaling inverse component"]
 theorem iso_inv_f (K : HomologicalComplex C c) (s : ι → (CatCenter C)ˣ) (i : ι) :
-    (iso K s).inv.f i = 𝟙 _ := sorry
+    (iso K s).inv.f i = 𝟙 _ := rfl
 
 /-- The unit-then-inverse comparison is natural in the homological complex. -/
 @[reassoc, stacks 0194 "inverse unit-family rescaling naturality"]
@@ -351,7 +387,11 @@ theorem iso_naturality (s : ι → (CatCenter C)ˣ)
     {K L : HomologicalComplex C c} (f : K ⟶ L) :
     (functor (C := C) (c := c) s ⋙
         functor (C := C) (c := c) (fun i ↦ (s i)⁻¹)).map f ≫ (iso L s).hom =
-      (iso K s).hom ≫ f := sorry
+      (iso K s).hom ≫ f := by
+  apply HomologicalComplex.hom_ext
+  intro i
+  change f.f i ≫ 𝟙 (L.X i) = 𝟙 (K.X i) ≫ f.f i
+  simp
 
 /-- The unit-then-inverse comparison is natural in the complex. -/
 @[stacks 0194 "inverse unit-family rescaling comparison"]
@@ -364,7 +404,7 @@ noncomputable def natIso (s : ι → (CatCenter C)ˣ) :
 /-- The object component of the unit-then-inverse comparison. -/
 @[simp, stacks 0194 "inverse unit-family comparison component"]
 theorem natIso_app (s : ι → (CatCenter C)ˣ) (K : HomologicalComplex C c) :
-    (natIso (C := C) (c := c) s).app K = iso K s := sorry
+    (natIso (C := C) (c := c) s).app K = iso K s := rfl
 
 end compInv
 
@@ -375,7 +415,13 @@ namespace invComp
 theorem iso_comm (K : HomologicalComplex C c) (s : ι → (CatCenter C)ˣ)
     (i j : ι) :
     (Iso.refl _).hom ≫ K.d i j =
-      (obj (obj K (fun k ↦ (s k)⁻¹)) s).d i j ≫ (Iso.refl _).hom := sorry
+      (obj (obj K (fun k ↦ (s k)⁻¹)) s).d i j ≫ (Iso.refl _).hom := by
+  change 𝟙 (K.X i) ≫ K.d i j =
+    ((s i : CatCenter C) •
+      ((((s i)⁻¹ : (CatCenter C)ˣ) : CatCenter C) • K.d i j)) ≫ 𝟙 (K.X j)
+  simp only [CatCenter.smul_eq, Category.id_comp, Category.comp_id,
+    Category.assoc, ← CatCenter.mul_app]
+  simp
 
 /-- An inverse-unit rescaling followed by the original family is isomorphic to the identity. -/
 @[stacks 0194 "inverse-first unit-family rescaling object comparison"]
@@ -387,12 +433,12 @@ noncomputable def iso (K : HomologicalComplex C c) (s : ι → (CatCenter C)ˣ) 
 /-- The forward inverse-then-unit comparison is the identity in every degree. -/
 @[simp, stacks 0194 "inverse-first unit-family rescaling forward component"]
 theorem iso_hom_f (K : HomologicalComplex C c) (s : ι → (CatCenter C)ˣ) (i : ι) :
-    (iso K s).hom.f i = 𝟙 _ := sorry
+    (iso K s).hom.f i = 𝟙 _ := rfl
 
 /-- The inverse inverse-then-unit comparison is the identity in every degree. -/
 @[simp, stacks 0194 "inverse-first unit-family rescaling inverse component"]
 theorem iso_inv_f (K : HomologicalComplex C c) (s : ι → (CatCenter C)ˣ) (i : ι) :
-    (iso K s).inv.f i = 𝟙 _ := sorry
+    (iso K s).inv.f i = 𝟙 _ := rfl
 
 /-- The inverse-then-unit comparison is natural in the homological complex. -/
 @[reassoc, stacks 0194 "inverse-first unit-family rescaling naturality"]
@@ -400,7 +446,11 @@ theorem iso_naturality (s : ι → (CatCenter C)ˣ)
     {K L : HomologicalComplex C c} (f : K ⟶ L) :
     (functor (C := C) (c := c) (fun i ↦ (s i)⁻¹) ⋙
         functor (C := C) (c := c) s).map f ≫ (iso L s).hom =
-      (iso K s).hom ≫ f := sorry
+      (iso K s).hom ≫ f := by
+  apply HomologicalComplex.hom_ext
+  intro i
+  change f.f i ≫ 𝟙 (L.X i) = 𝟙 (K.X i) ≫ f.f i
+  simp
 
 /-- The inverse-then-unit comparison is natural in the complex. -/
 @[stacks 0194 "inverse-first unit-family rescaling comparison"]
@@ -413,14 +463,17 @@ noncomputable def natIso (s : ι → (CatCenter C)ˣ) :
 /-- The object component of the inverse-then-unit comparison. -/
 @[simp, stacks 0194 "inverse-first unit-family comparison component"]
 theorem natIso_app (s : ι → (CatCenter C)ˣ) (K : HomologicalComplex C c) :
-    (natIso (C := C) (c := c) s).app K = iso K s := sorry
+    (natIso (C := C) (c := c) s).app K = iso K s := rfl
 
 end invComp
 
 /-- Every unit-family rescaling is an equivalence, with pointwise inverse family as quasi-inverse. -/
 @[stacks 0194 "unit-family rescaling equivalence instance"]
 instance isEquivalence (s : ι → (CatCenter C)ˣ) :
-    (functor (C := C) (c := c) s).IsEquivalence := sorry
+    (functor (C := C) (c := c) s).IsEquivalence := by
+  exact Functor.IsEquivalence.mk'
+    (functor (C := C) (c := c) (fun i ↦ (s i)⁻¹))
+    (compInv.natIso s).symm (invComp.natIso s)
 
 end Units
 
@@ -442,20 +495,32 @@ omit [Limits.HasZeroMorphisms C] in
 theorem one :
     IsPotential (c := c)
       (fun _ : ι ↦ (1 : (CatCenter C)ˣ))
-      (fun _ : ι ↦ (1 : (CatCenter C)ˣ)) := sorry
+      (fun _ : ι ↦ (1 : (CatCenter C)ˣ)) := by
+  intro i j hij
+  exact (one_mul _).symm
 
 omit [Limits.HasZeroMorphisms C] in
 /-- Potentials multiply pointwise, compatibly with composition of rescaling families. -/
 @[stacks 0194 "unit potential multiplication"]
 theorem mul {s t a b : ι → (CatCenter C)ˣ}
     (ha : IsPotential (c := c) s a) (hb : IsPotential (c := c) t b) :
-    IsPotential (c := c) (fun i ↦ t i * s i) (fun i ↦ b i * a i) := sorry
+    IsPotential (c := c) (fun i ↦ t i * s i) (fun i ↦ b i * a i) := by
+  intro i j hij
+  change b i * a i = (t i * s i) * (b j * a j)
+  rw [hb i j hij, ha i j hij]
+  have hcomm : b j * s i = s i * b j := Units.ext (mul_comm' _ _)
+  rw [mul_assoc, ← mul_assoc (b j), hcomm]
+  simp only [mul_assoc]
 
 omit [Limits.HasZeroMorphisms C] in
 /-- A pointwise inverse potential trivializes the pointwise inverse rescaling family. -/
 @[stacks 0194 "unit potential inversion"]
 theorem inv {s a : ι → (CatCenter C)ˣ} (ha : IsPotential (c := c) s a) :
-    IsPotential (c := c) (fun i ↦ (s i)⁻¹) (fun i ↦ (a i)⁻¹) := sorry
+    IsPotential (c := c) (fun i ↦ (s i)⁻¹) (fun i ↦ (a i)⁻¹) := by
+  intro i j hij
+  change (a i)⁻¹ = (s i)⁻¹ * (a j)⁻¹
+  rw [ha i j hij, mul_inv_rev]
+  exact Units.ext (mul_comm' _ _)
 
 end IsPotential
 
@@ -472,19 +537,28 @@ theorem component_comm (K : HomologicalComplex C c)
     (s a : ι → (CatCenter C)ˣ)
     (ha : IsPotential (c := c) s a) (i j : ι) :
     (component K s a i).hom ≫ K.d i j =
-      (Units.obj K s).d i j ≫ (component K s a j).hom := sorry
+      (Units.obj K s).d i j ≫ (component K s a j).hom := by
+  change ((a i : CatCenter C) • 𝟙 (K.X i)) ≫ K.d i j =
+    ((s i : CatCenter C) • K.d i j) ≫ ((a j : CatCenter C) • 𝟙 (K.X j))
+  by_cases hij : c.Rel i j
+  · have h : (a i : CatCenter C) = (s i : CatCenter C) * (a j : CatCenter C) :=
+      congrArg (fun u : (CatCenter C)ˣ ↦ (u : CatCenter C)) (ha i j hij)
+    simp only [CatCenter.smul_eq, Category.id_comp]
+    rw [← (a i : CatCenter C).naturality (K.d i j), h, CatCenter.mul_app,
+      Category.assoc]
+  · simp [K.shape i j hij, CatCenter.smul_eq]
 
 /-- The forward component of a gauge is the central-unit action. -/
 @[simp, stacks 0194 "source-degree gauge component forward action"]
 theorem component_hom (K : HomologicalComplex C c)
     (s a : ι → (CatCenter C)ˣ) (i : ι) :
-    (component K s a i).hom = scalar a i • 𝟙 _ := sorry
+    (component K s a i).hom = scalar a i • 𝟙 _ := rfl
 
 /-- The inverse component of a gauge is the inverse central-unit action. -/
 @[simp, stacks 0194 "source-degree gauge component inverse action"]
 theorem component_inv (K : HomologicalComplex C c)
     (s a : ι → (CatCenter C)ˣ) (i : ι) :
-    (component K s a i).inv = invScalar a i • 𝟙 _ := sorry
+    (component K s a i).inv = invScalar a i • 𝟙 _ := rfl
 
 /-- A compatible unit potential identifies a source-rescaled complex with the original one. -/
 @[stacks 0194 "source-degree differential rescaling gauge isomorphism"]
@@ -500,14 +574,14 @@ noncomputable def iso (K : HomologicalComplex C c)
 theorem iso_hom_f (K : HomologicalComplex C c)
     (s a : ι → (CatCenter C)ˣ)
     (ha : IsPotential (c := c) s a) (i : ι) :
-    (iso K s a ha).hom.f i = (component K s a i).hom := sorry
+    (iso K s a ha).hom.f i = (component K s a i).hom := rfl
 
 /-- The inverse component of the gauge isomorphism is the inverse central-unit action. -/
 @[simp, stacks 0194 "source-degree gauge inverse component"]
 theorem iso_inv_f (K : HomologicalComplex C c)
     (s a : ι → (CatCenter C)ˣ)
     (ha : IsPotential (c := c) s a) (i : ι) :
-    (iso K s a ha).inv.f i = (component K s a i).inv := sorry
+    (iso K s a ha).inv.f i = (component K s a i).inv := rfl
 
 /-- Gauge isomorphisms are natural in the underlying homological complex. -/
 @[reassoc, stacks 0194 "source-degree gauge naturality"]
@@ -515,7 +589,13 @@ theorem iso_hom_naturality {K L : HomologicalComplex C c}
     (s a : ι → (CatCenter C)ˣ)
     (ha : IsPotential (c := c) s a) (f : K ⟶ L) :
     Units.map s f ≫ (iso L s a ha).hom =
-      (iso K s a ha).hom ≫ f := sorry
+      (iso K s a ha).hom ≫ f := by
+  apply HomologicalComplex.hom_ext
+  intro i
+  change f.f i ≫ ((a i : CatCenter C) • 𝟙 (L.X i)) =
+    ((a i : CatCenter C) • 𝟙 (K.X i)) ≫ f.f i
+  simp only [CatCenter.smul_eq, Category.id_comp]
+  exact (a i : CatCenter C).naturality (f.f i)
 
 /-- Gauge isomorphisms satisfy the inverse naturality equation as well. -/
 @[reassoc, stacks 0194 "source-degree inverse gauge naturality"]
@@ -523,7 +603,13 @@ theorem iso_inv_naturality {K L : HomologicalComplex C c}
     (s a : ι → (CatCenter C)ˣ)
     (ha : IsPotential (c := c) s a) (f : K ⟶ L) :
     f ≫ (iso L s a ha).inv =
-      (iso K s a ha).inv ≫ Units.map s f := sorry
+      (iso K s a ha).inv ≫ Units.map s f := by
+  apply HomologicalComplex.hom_ext
+  intro i
+  change f.f i ≫ ((((a i)⁻¹ : (CatCenter C)ˣ) : CatCenter C) • 𝟙 (L.X i)) =
+    ((((a i)⁻¹ : (CatCenter C)ˣ) : CatCenter C) • 𝟙 (K.X i)) ≫ f.f i
+  simp only [CatCenter.smul_eq, Category.id_comp]
+  exact (((a i)⁻¹ : (CatCenter C)ˣ) : CatCenter C).naturality (f.f i)
 
 /-- A compatible source-degree unit rescaling is naturally isomorphic to the identity functor. -/
 @[stacks 0194 "source-degree differential rescaling natural isomorphism"]
@@ -538,7 +624,7 @@ noncomputable def natIso (s a : ι → (CatCenter C)ˣ)
 @[simp, stacks 0194 "source-degree gauge natural component"]
 theorem natIso_app (s a : ι → (CatCenter C)ˣ)
     (ha : IsPotential (c := c) s a) (K : HomologicalComplex C c) :
-    (natIso (C := C) (c := c) s a ha).app K = iso K s a ha := sorry
+    (natIso (C := C) (c := c) s a ha).app K = iso K s a ha := rfl
 
 end Gauge
 

@@ -32,27 +32,42 @@ variable {S : Scheme.{u}} {X' : GroupoidsOver S}
 /-- Diagram data between `(V, V', b, j, y')` and `(U, U', a, i, x')`
 consists of a map `f : V ⟶ U` over `W`, a map `f' : V' ⟶ U'` restricting
 to `f`, and a 2-isomorphism in the right triangle over `X'`. -/
-structure Hom [AlgebraicStack X'] {W U U' V V' : AlgebraicSpace S}
+def Hom [AlgebraicStack X'] {W U U' V V' : AlgebraicSpace S}
     (a : U ⟶ W) (i : U ⟶ U') (x' : U'.toGroupoids ⟶ X')
-    (b : V ⟶ W) (j : V ⟶ V') (y' : V'.toGroupoids ⟶ X') where
-  /-- Package the space maps, commutativity equalities, and right-triangle 2-isomorphism. -/
-  of ::
-  /-- The morphism of algebraic spaces `f : V ⟶ U` over `W`. -/
-  f : V ⟶ U
-  /-- The morphism of algebraic spaces `f' : V' ⟶ U'` restricting to `f`. -/
-  f' : V' ⟶ U'
-  /-- `f` is a morphism over `W`. -/
-  overW : f ≫ a = b
-  /-- The restriction of `f'` along `j` is `f` along `i`. -/
-  restrict : j ≫ f' = f ≫ i
-  /-- The 2-cell `γ : AlgebraicSpace.toGroupoids.map f' ≫ x' ≅ y'` of the right triangle. -/
-  triangle : AlgebraicSpace.toGroupoids.map f' ≫ x' ≅ y'
+    (b : V ⟶ W) (j : V ⟶ V') (y' : V'.toGroupoids ⟶ X') : Type (u + 1) :=
+  Σ (f : V ⟶ U) (f' : V' ⟶ U'),
+    {triangle : AlgebraicSpace.toGroupoids.map f' ≫ x' ≅ y' //
+      f ≫ a = b ∧ j ≫ f' = f ≫ i}
 
 namespace Hom
 
 variable [AlgebraicStack X'] {W U U' V V' : AlgebraicSpace S}
 variable {a : U ⟶ W} {i : U ⟶ U'} {x' : U'.toGroupoids ⟶ X'}
 variable {b : V ⟶ W} {j : V ⟶ V'} {y' : V'.toGroupoids ⟶ X'}
+
+/-- The morphism of algebraic spaces over the fixed space. -/
+def f (h : Hom a i x' b j y') : V ⟶ U := h.1
+
+/-- The morphism between the thickened algebraic spaces. -/
+def f' (h : Hom a i x' b j y') : V' ⟶ U' := h.2.1
+
+/-- The first space map is a morphism over the fixed space. -/
+theorem overW (h : Hom a i x' b j y') : h.f ≫ a = b := h.2.2.2.1
+
+/-- The second space map restricts to the first space map. -/
+theorem restrict (h : Hom a i x' b j y') : j ≫ h.f' = h.f ≫ i := h.2.2.2.2
+
+/-- The right-triangle isomorphism over the target stack. -/
+def triangle (h : Hom a i x' b j y') :
+    AlgebraicSpace.toGroupoids.map h.f' ≫ x' ≅ y' := h.2.2.1
+
+/-- Two space maps, their face equalities, and a triangle isomorphism determine
+raw diagram data over the fixed space. -/
+def of (f : V ⟶ U) (f' : V' ⟶ U')
+    (overW : f ≫ a = b) (restrict : j ≫ f' = f ≫ i)
+    (triangle : AlgebraicSpace.toGroupoids.map f' ≫ x' ≅ y') :
+    Hom a i x' b j y' :=
+  ⟨f, f', triangle, overW, restrict⟩
 
 /-- Package space maps `f`, `f'`, their commutativity equalities, and the right-triangle
 2-isomorphism as diagram data. -/

@@ -79,9 +79,6 @@ theorem fromChainCommMon_map_toChainMap
     ((fromChainCommMon R).map f).toChainMap =
       (natEmbedding.extendFunctor (ModuleCat.{u} R)).map f.hom.hom := sorry
 
-#synth ComplexShape.Embedding.IsAdditive ComplexShape.embeddingDownNatInt
-#synth ComplexShape.Embedding.PreservesTensorSigns ComplexShape.embeddingDownNatInt
-
 -- Both functors are explicit compositions. Any `sorryAx` dependency is confined to the
 -- proposition-valued monoidal coherence, DGA-law, and functoriality fields.
 

@@ -133,3 +133,25 @@ theorem existsDividedPowerFamily
 end KaehlerDifferential.DeRham
 
 end
+
+namespace CrystallinePDDeRham
+
+variable (A B : Type u) [CommRing A] [CommRing B] [Algebra A B]
+variable {J : Ideal B} (δ : DividedPowers J)
+
+/-- PD relations with the ambient algebra instance retained, avoiding a
+second definitionally different algebra structure from a ring-hom wrapper. -/
+noncomputable def relations : Submodule B Ω[B⁄A] :=
+  by
+    have h : (algebraMap A B).toAlgebra = (inferInstance : Algebra A B) := toAlgebra_algebraMap
+    let carrier := fun a : Algebra A B ↦
+      -- Local instance justification (defeq pin): dependent transport indexes the algebra structure a.
+      letI : Algebra A B := a
+      Submodule B (KaehlerDifferential A B)
+    exact cast (congrArg carrier h) (KaehlerDifferential.DeRham.dividedPowerRelations (algebraMap A B) δ)
+
+/-- The Kähler derivation followed by the quotient by the transported PD relations. -/
+noncomputable def derivation : Derivation A B (Ω[B⁄A] ⧸ relations A B δ) :=
+  (relations A B δ).mkQ.compDer (KaehlerDifferential.D A B)
+
+end CrystallinePDDeRham

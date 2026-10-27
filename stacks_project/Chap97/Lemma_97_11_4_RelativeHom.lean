@@ -60,11 +60,6 @@ def Point.of {S : Scheme.{u}} {Z X B : AlgebraicSpace S}
     (w : b ≫ h = Limits.pullback.fst a g ≫ a) : Point g h T :=
   mk a (BaseChangeMorphism.ofMap b w)
 
-/-- The presheaf of relative morphisms from `Z` to `X` over `B`. -/
-abbrev functor {S : Scheme.{u}} {Z X B : AlgebraicSpace S}
-    (g : Z ⟶ B) (h : X ⟶ B) : (Over S)ᵒᵖ ⥤ Type (u + 1) :=
-  presheaf g h
-
 end RelativeHom
 
 end AlgebraicGeometry.AlgebraicSpace

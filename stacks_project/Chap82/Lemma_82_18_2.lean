@@ -6,7 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap82.Lemma_82_18_2_Tensor
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.IntersectionTheory.FirstChernCycle.Tensor
 import StacksCheckRecall
 
 open CategoryTheory CategoryTheory.MonoidalCategory
@@ -19,10 +19,11 @@ universe u
 `𝒪_X`-modules `L`, `N`, first-Chern cap is additive in the sheaf:
 `firstChernClassCap f δ L k α + firstChernClassCap f δ N k α =
 firstChernClassCap f δ (L ⊗ N) k α` in `chowGroup f δ k` for every
-`α : cycleGroup f δ (k + 1)`. -/
+`α : cycleGroup f δ (k + 1)`. The degree follows the preceding definition
+`Z_(k + 1) → CH_k`, resolving the printed lemma’s `k - 1` typo. -/
 @[stacks 0EQK]
 #check
-  (Hom.firstChernClassCap_tensor :
+  (AlgebraicGeometry.AlgebraicSpace.Hom.firstChernClassCap_tensor :
     ∀ {S : Scheme.{u}} {B X : AlgebraicSpace S}
       [UniversallyCatenary B] [IsQuasiSeparated B] (f : X ⟶ B)
       [QuasiSeparated f] [LocallyOfFiniteType f] (δ : Points B → ℤ)
@@ -37,7 +38,7 @@ against the structure sheaf vanishes:
 `α : cycleGroup f δ (k + 1)`. -/
 @[stacks 0EQK]
 #check
-  (Hom.firstChernClassCap_tensorUnit :
+  (AlgebraicGeometry.AlgebraicSpace.Hom.firstChernClassCap_tensorUnit :
     ∀ {S : Scheme.{u}} {B X : AlgebraicSpace S}
       [UniversallyCatenary B] [IsQuasiSeparated B] (f : X ⟶ B)
       [QuasiSeparated f] [LocallyOfFiniteType f] (δ : Points B → ℤ)

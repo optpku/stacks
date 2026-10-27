@@ -32,17 +32,17 @@ isomorphism when the source schemes are quasi-compact with affine diagonal, `F` 
   (AlgebraicGeometry.Scheme.Modules.Kunneth.canonicalGlobalCupProductIsIso :
   ∀ {S X Y : Scheme.{u}} (a : X ⟶ S) (b : Y ⟶ S)
     [leftPushforwardIsRightAdjoint :
-      (leftCoefficientHom a b).modulePushforward.IsRightAdjoint]
+      (RingedSite.Hom.modulePushforward (leftCoefficientHom a b)).IsRightAdjoint]
     [rightPushforwardIsRightAdjoint :
-      (rightCoefficientHom a b).modulePushforward.IsRightAdjoint]
+      (RingedSite.Hom.modulePushforward (rightCoefficientHom a b)).IsRightAdjoint]
     [aPushforwardIsRightAdjoint :
-      (coefficientPushforwardHom a).modulePushforward.IsRightAdjoint]
+      (RingedSite.Hom.modulePushforward (coefficientPushforwardHom a)).IsRightAdjoint]
     [bPushforwardIsRightAdjoint :
-      (coefficientPushforwardHom b).modulePushforward.IsRightAdjoint]
+      (RingedSite.Hom.modulePushforward (coefficientPushforwardHom b)).IsRightAdjoint]
     [fiberPushforwardIsRightAdjoint :
-      (fiberCoefficientHom a b).modulePushforward.IsRightAdjoint]
+      (RingedSite.Hom.modulePushforward (fiberCoefficientHom a b)).IsRightAdjoint]
     [rightFiberPushforwardIsRightAdjoint :
-      (rightFiberCoefficientHom a b).modulePushforward.IsRightAdjoint]
+      (RingedSite.Hom.modulePushforward (rightFiberCoefficientHom a b)).IsRightAdjoint]
     [leftPullbackHasLeftDerived : Functor.HasLeftDerivedFunctor
       (RingedSite.Hom.modulePullbackToDerived (leftCoefficientHom a b))
       (RingedSite.Hom.ModuleQis (coefficientSite a))]
@@ -89,10 +89,14 @@ isomorphism when the source schemes are quasi-compact with affine diagonal, `F` 
     [bDerivedAdjunctionPair : HasPair (coefficientPushforwardHom b)]
     [fiberDerivedAdjunctionPair : HasPair (fiberCoefficientHom a b)]
     [rightFiberDerivedAdjunctionPair : HasPair (rightFiberCoefficientHom a b)]
-    [leftCompComparisonIsIso : IsIso (compComparison
-      (leftCoefficientHom a b) (coefficientPushforwardHom a))]
-    [rightCompComparisonIsIso : IsIso (compComparison
-      (rightCoefficientHom a b) (coefficientPushforwardHom b))]
+    [leftCompComparisonIsIso : IsIso (@compComparison.{u}
+      _ _ _ (leftCoefficientHom a b) (coefficientPushforwardHom a)
+      inferInstance inferInstance inferInstance inferInstance inferInstance
+      inferInstance inferInstance fiberPullbackHasLeftDerived)]
+    [rightCompComparisonIsIso : IsIso (@compComparison.{u}
+      _ _ _ (rightCoefficientHom a b) (coefficientPushforwardHom b)
+      inferInstance inferInstance inferInstance inferInstance inferInstance
+      inferInstance inferInstance rightFiberPullbackHasLeftDerived)]
     [∀ K L : GradedObject ℤ
       (RingedSite.ModuleCat.{u} (coefficientSite (𝟙 S))), GradedObject.HasTensor K L]
     [∀ K L M : GradedObject ℤ

@@ -31,29 +31,32 @@ universe u v w
 namespace SheafOfModules.RingedSite.DifferentialGradedModule
 
 variable {C : Type u} [Category.{v} C] {J : GrothendieckTopology C}
-variable [J.HasSheafCompose (forget₂ CommRingCat.{w} RingCat.{w})]
-variable [HasWeakSheafify J AddCommGrpCat.{w}]
-variable [J.WEqualsLocallyBijective AddCommGrpCat.{w}]
-variable {O : Sheaf J CommRingCat.{w}} {A : DGA(O)}
+variable [J.HasSheafCompose (forget₂ CommRingCat.{max u v w} RingCat.{max u v w})]
+variable [HasWeakSheafify J AddCommGrpCat.{max u v w}]
+variable [J.WEqualsLocallyBijective AddCommGrpCat.{max u v w}]
+variable {O : Sheaf J CommRingCat.{max u v w}} {A : DGA(O)}
 variable (S : ShortComplex Mod(A, d)) (hS : IsAdmissibleShortExact S)
 
 /- Lemma 24.23.2 (1), fixed-base component: goodness passes to an admissible quotient. -/
 @[stacks 0FSC "(1), fixed-base admissible quotient"]
 #check
   (IsGoodAtBase.of_left_middle S hS :
-    IsGoodAtBase S.X₁ → IsGoodAtBase S.X₂ → IsGoodAtBase S.X₃)
+    IsGoodAtBase.{u, v, max u v w} S.X₁ →
+      IsGoodAtBase.{u, v, max u v w} S.X₂ → IsGoodAtBase.{u, v, max u v w} S.X₃)
 
 /- Lemma 24.23.2 (2), fixed-base component: goodness is closed under admissible extensions. -/
 @[stacks 0FSC "(2), fixed-base admissible extension"]
 #check
   (IsGoodAtBase.of_left_right S hS :
-    IsGoodAtBase S.X₁ → IsGoodAtBase S.X₃ → IsGoodAtBase S.X₂)
+    IsGoodAtBase.{u, v, max u v w} S.X₁ →
+      IsGoodAtBase.{u, v, max u v w} S.X₃ → IsGoodAtBase.{u, v, max u v w} S.X₂)
 
 /- Lemma 24.23.2 (3), fixed-base component: goodness passes to an admissible kernel. -/
 @[stacks 0FSC "(3), fixed-base admissible kernel"]
 #check
   (IsGoodAtBase.of_middle_right S hS :
-    IsGoodAtBase S.X₂ → IsGoodAtBase S.X₃ → IsGoodAtBase S.X₁)
+    IsGoodAtBase.{u, v, max u v w} S.X₂ →
+      IsGoodAtBase.{u, v, max u v w} S.X₃ → IsGoodAtBase.{u, v, max u v w} S.X₁)
 
 /- The source-faithful admissibility predicate and its split-map characterization. -/
 #check (IsAdmissibleShortExact S : Prop)

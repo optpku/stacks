@@ -23,7 +23,6 @@ target-only Zariski locality companions for effectiveness of relative
 @[expose] public section
 
 open AlgebraicGeometry CategoryTheory
-open AlgebraicGeometry.Scheme.Hom.CyclesOnFibers (restrict)
 open scoped AlgebraicGeometry
 
 noncomputable section
@@ -51,7 +50,7 @@ namespace AlgebraicGeometry.RelativeCycle
     {r : ℕ} (α : Family f r) (hα : IsRelative α) {ι : Type u}
     (U : ι → X.Opens) (hU : iSup U = ⊤),
     IsEffective α ↔
-      ∀ i, IsEffective (restrict α (U i) ⊤ le_top))
+      ∀ i, IsEffective (Scheme.Hom.FiberCycleFamily.restrict (U i) ⊤ le_top α))
 
 #check (AlgebraicGeometry.RelativeCycle.isEffective_iff_of_target_iSup_eq_top :
   ∀
@@ -59,6 +58,6 @@ namespace AlgebraicGeometry.RelativeCycle
     {r : ℕ} (α : Family f r) (hα : IsRelative α) {κ : Type u}
     (V : κ → S.Opens) (hV : iSup V = ⊤),
     IsEffective α ↔
-      ∀ j, IsEffective (restrict α (f ⁻¹ᵁ V j) (V j) le_rfl))
+      ∀ j, IsEffective (Scheme.Hom.FiberCycleFamily.restrict (f ⁻¹ᵁ V j) (V j) le_rfl α))
 
 end AlgebraicGeometry.RelativeCycle

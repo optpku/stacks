@@ -23,11 +23,12 @@ universe u
 
 namespace ModuleCat
 
-/-- A finite module over a finite-type ring map acquires a complete dévissage at the
-lifted prime after a suitable elementary étale localization. -/
+/-- A finite module over a finite-type ring map acquires a complete dévissage at a prime
+in its support after a suitable elementary étale localization. -/
 theorem exists_completeDevissageAt_after_elementaryEtaleLocalization
     {R S : Type u} [CommRing R] [CommRing S] (f : R →+* S) (hf : f.FiniteType)
-    (N : ModuleCat.{u} S) [Module.Finite S N] (q : PrimeSpectrum S) :
+    (N : ModuleCat.{u} S) [Module.Finite S N] (q : PrimeSpectrum S)
+    (hq : q ∈ Module.support S N) :
     let p : PrimeSpectrum R := PrimeSpectrum.comap f q
     ∃ L : RingHom.ElementaryEtaleLocalization.{u, u, u, u} f p q rfl,
       let Sfg : FGAlgCat.{u} L.R' :=

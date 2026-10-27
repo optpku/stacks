@@ -84,7 +84,9 @@ variable [HasSheafify K AddCommGrpCat.{z}]
 
 namespace moduleInverseImage.derived
 
-/-- The bundled exact square before passage to derived categories. -/
+/-- Inverse image of module sheaves followed by forgetting to additive sheaves is naturally
+isomorphic to forgetting to additive sheaves followed by inverse image, as bundled exact
+functors. -/
 @[stacks 0798 "exact inverse-image underlying square"]
 noncomputable def underivedIso :
     (moduleInverseImage.exactFunctor (J := J) (K := K) f R).comp
@@ -96,7 +98,8 @@ noncomputable def underivedIso :
   ObjectProperty.isoMk (CategoryTheory.exactFunctor _ _)
     (moduleInverseImage.underlyingIso (J := J) (K := K) f R)
 
-/-- The derived inverse-image square obtained functorially from the exact underived square. -/
+/-- On derived categories, inverse image of module sheaves followed by forgetting to additive
+sheaves is naturally isomorphic to forgetting to additive sheaves followed by inverse image. -/
 @[stacks 0798 "derived inverse-image underlying square"]
 noncomputable def underlyingIso :
     (moduleInverseImage.derived (J := J) (K := K) f R) ⋙

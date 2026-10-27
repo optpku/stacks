@@ -48,25 +48,29 @@ variable {D : Stage.Diagram (J := J) A {i : WithTop (WithBot M) // i < cut}}
 @[ext]
 theorem ext {extension extension' : OpenPrefix.CutExtension (request := request) D}
     (hcocone : extension.cocone = extension'.cocone) :
-    extension = extension' := sorry
+    extension = extension' := by
+  cases extension
+  cases extension'
+  cases hcocone
+  rfl
 
 namespace cocone
 
 /-- The named extension stage is the object underlying its based cocone point. -/
 @[simp]
 theorem stage (extension : OpenPrefix.CutExtension (request := request) D) :
-    extension.stage = extension.cocone.pt.right := sorry
+    extension.stage = extension.cocone.pt.right := rfl
 
 /-- The named extension base leg is the structure map of its based cocone point. -/
 @[simp]
 theorem fromBase (extension : OpenPrefix.CutExtension (request := request) D) :
-    extension.fromBase = extension.cocone.pt.hom := sorry
+    extension.fromBase = extension.cocone.pt.hom := rfl
 
 /-- A named predecessor leg underlies the corresponding based cocone map. -/
 @[simp]
 theorem leg (extension : OpenPrefix.CutExtension (request := request) D)
     (i : {i : WithTop (WithBot M) // i < cut}) :
-    extension.leg i = (extension.cocone.ι.app i).right := sorry
+    extension.leg i = (extension.cocone.ι.app i).right := rfl
 
 end cocone
 
@@ -74,45 +78,56 @@ end cocone
 @[reassoc (attr := simp)]
 theorem leg.naturality (extension : OpenPrefix.CutExtension (request := request) D)
     {i j : {k : WithTop (WithBot M) // k < cut}} (hij : i ≤ j) :
-    D.hom hij ≫ extension.leg j = extension.leg i := sorry
+    D.hom hij ≫ extension.leg j = extension.leg i := by
+  exact congrArg Under.Hom.right (extension.cocone.w (homOfLE hij))
 
 /-- The extension base leg factors through every strict predecessor. -/
 theorem fromBase.fac (extension : OpenPrefix.CutExtension (request := request) D)
     (i : {i : WithTop (WithBot M) // i < cut}) :
-    extension.fromBase = D.fromBase i ≫ extension.leg i := sorry
+    extension.fromBase = D.fromBase i ≫ extension.leg i := by
+  exact (Under.w (extension.cocone.ι.app i)).symm
 
 /-- Request transport along a predecessor leg is natural in the predecessor index. -/
 theorem leg.mapRequest (extension : OpenPrefix.CutExtension (request := request) D)
     {i j : {k : WithTop (WithBot M) // k < cut}} (hij : i ≤ j)
     (r : (D.stage i).target.Request J) :
     (extension.leg i).mapRequest r =
-      (extension.leg j).mapRequest ((D.hom hij).mapRequest r) := sorry
+      (extension.leg j).mapRequest ((D.hom hij).mapRequest r) := by
+  rw [← leg.naturality extension hij]
+  exact Stage.Hom.comp.mapRequest (D.hom hij) (extension.leg j) r
 
 /-- Transporting a base request directly to the extension agrees with transport
 through any strict predecessor. -/
 theorem fromBase.mapRequest (extension : OpenPrefix.CutExtension (request := request) D)
     (i : {i : WithTop (WithBot M) // i < cut}) (r : A.target.Request J) :
     extension.fromBase.mapRequest r =
-      (extension.leg i).mapRequest ((D.fromBase i).mapRequest r) := sorry
+      (extension.leg i).mapRequest ((D.fromBase i).mapRequest r) := by
+  rw [fromBase.fac extension i]
+  exact Stage.Hom.comp.mapRequest (D.fromBase i) (extension.leg i) r
 
 /-- The extension realizes every request scheduled strictly before its cut. -/
 theorem realizes (extension : OpenPrefix.CutExtension (request := request) D)
     (m : M) (hm : ((m : WithBot M) : WithTop (WithBot M)) < cut) :
-    (extension.fromBase.mapRequest (request m)).is_realized := sorry
+    (extension.fromBase.mapRequest (request m)).is_realized := by
+  exact extension.realizesBefore m hm
 
 /-- A request realized at a strict predecessor remains realized at the extension stage. -/
 theorem realizes.ofPredecessor
     (extension : OpenPrefix.CutExtension (request := request) D)
     (i : {i : WithTop (WithBot M) // i < cut}) (m : M)
     (hreal : ((D.fromBase i).mapRequest (request m)).is_realized) :
-    (extension.fromBase.mapRequest (request m)).is_realized := sorry
+    (extension.fromBase.mapRequest (request m)).is_realized := by
+  rw [fromBase.mapRequest extension i]
+  exact Stage.Hom.mapRequest.isRealized (extension.leg i) _ hreal
 
 /-- Realization after a predecessor transition propagates through the extension leg. -/
 theorem realizes.ofHom (extension : OpenPrefix.CutExtension (request := request) D)
     {i j : {k : WithTop (WithBot M) // k < cut}} (hij : i ≤ j)
     {r : (D.stage i).target.Request J}
     (hreal : ((D.hom hij).mapRequest r).is_realized) :
-    ((extension.leg i).mapRequest r).is_realized := sorry
+    ((extension.leg i).mapRequest r).is_realized := by
+  rw [leg.mapRequest extension hij]
+  exact Stage.Hom.mapRequest.isRealized (extension.leg j) _ hreal
 
 namespace constantPrefix
 
@@ -122,26 +137,26 @@ constant diagram at its new stage and base leg. -/
 theorem toDiagram (extension : OpenPrefix.CutExtension (request := request) D) :
     extension.constantPrefix.toDiagram =
       OpenPrefix.constantDiagram (J := J) (A := A) (cut := cut)
-        extension.stage extension.fromBase := sorry
+        extension.stage extension.fromBase := rfl
 
 /-- Every stage of an extension's constant-prefix adapter is its new stage. -/
 @[simp]
 theorem stage (extension : OpenPrefix.CutExtension (request := request) D)
     (i : {j : WithTop (WithBot M) // j ≤ cut}) :
-    extension.constantPrefix.toDiagram.stage i = extension.stage := sorry
+    extension.constantPrefix.toDiagram.stage i = extension.stage := rfl
 
 /-- Every transition of an extension's constant-prefix adapter is an identity. -/
 @[simp]
 theorem hom (extension : OpenPrefix.CutExtension (request := request) D)
     {i j : {k : WithTop (WithBot M) // k ≤ cut}} (hij : i ≤ j) :
-    extension.constantPrefix.toDiagram.hom hij = 𝟙 extension.stage := sorry
+    extension.constantPrefix.toDiagram.hom hij = 𝟙 extension.stage := rfl
 
 /-- Every base leg of an extension's constant-prefix adapter is the extension's
 base leg. -/
 @[simp]
 theorem fromBase (extension : OpenPrefix.CutExtension (request := request) D)
     (i : {j : WithTop (WithBot M) // j ≤ cut}) :
-    extension.constantPrefix.toDiagram.fromBase i = extension.fromBase := sorry
+    extension.constantPrefix.toDiagram.fromBase i = extension.fromBase := rfl
 
 end constantPrefix
 
@@ -153,17 +168,18 @@ namespace toTerminal
 /-- The stage of the terminal adapter is the extension stage. -/
 @[simp]
 theorem stage (extension : OpenPrefix.CutExtension (request := request) D) :
-    extension.toTerminal.stage = extension.stage := sorry
+    extension.toTerminal.stage = extension.stage := rfl
 
 /-- The morphism of the terminal adapter is the extension base leg. -/
 @[simp]
 theorem hom (extension : OpenPrefix.CutExtension (request := request) D) :
-    extension.toTerminal.hom = extension.fromBase := sorry
+    extension.toTerminal.hom = extension.fromBase := rfl
 
 /-- The terminal adapter retains the extension's realization invariant. -/
 theorem realizes
     (extension : OpenPrefix.CutExtension (request := request) D) (m : M) :
-    (extension.toTerminal.hom.mapRequest (request m)).is_realized := sorry
+    (extension.toTerminal.hom.mapRequest (request m)).is_realized := by
+  exact extension.realizesBefore m (by simp)
 
 end toTerminal
 

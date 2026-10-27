@@ -101,16 +101,14 @@ theorem separatesTangentVectors_iff
   Iff.rfl
 
 /-- A linear system induces a closed immersion when it generates the invertible module and its
-canonical projective morphism is a closed immersion for every representation and generation
-proof. -/
+available canonical projective morphism is a closed immersion for every generation proof. -/
 def InducesClosedImmersion
     (X : Over (Spec (CommRingCat.of k))) (L : X.left.Modules)
     [Scheme.Modules.Invertible L]
     (ψ : ModuleCat.of k V ⟶ Scheme.Hom.globalSectionsMod X.hom L) : Prop :=
   Generates X L ψ ∧
-    ∀ (hP : Scheme.ProjectiveBundle.Representation (toSpec k V) (moduleSheaf k V))
-      (hψ : Generates X L ψ),
-      IsClosedImmersion (morphism hP X L ψ hψ)
+    ∀ (hψ : Generates X L ψ),
+      IsClosedImmersion (morphism X L ψ hψ)
 
 /-- Inducing a closed immersion is equivalent to generation together with closed immersion of
 every canonical projective morphism obtained from the linear system. -/
@@ -120,9 +118,8 @@ theorem inducesClosedImmersion_iff
     (ψ : ModuleCat.of k V ⟶ Scheme.Hom.globalSectionsMod X.hom L) :
     InducesClosedImmersion X L ψ ↔
       Generates X L ψ ∧
-        ∀ (hP : Scheme.ProjectiveBundle.Representation (toSpec k V) (moduleSheaf k V))
-          (hψ : Generates X L ψ),
-          IsClosedImmersion (morphism hP X L ψ hψ) :=
+        ∀ (hψ : Generates X L ψ),
+          IsClosedImmersion (morphism X L ψ hψ) :=
   Iff.rfl
 
 /-- If a linear system separates closed points of a scheme locally of finite type over a field

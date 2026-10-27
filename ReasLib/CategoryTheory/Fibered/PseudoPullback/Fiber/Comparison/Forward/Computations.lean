@@ -46,13 +46,17 @@ namespace Fiber
 @[simp] theorem comparison.obj.fst
     {U : C} (P : Functor.Fiber (PseudoPullback F G).p U) :
     ((Fiber.comparison F G U).obj P).fst.1 =
-      PseudoPullback.fstObj (Functor.Fiber.fiberInclusion.obj P) := sorry
+      PseudoPullback.fstObj (Functor.Fiber.fiberInclusion.obj P) := by
+  rcases P with ⟨P, rfl⟩
+  rfl
 
 /-- The fibre comparison preserves the second object component. -/
 @[simp] theorem comparison.obj.snd
     {U : C} (P : Functor.Fiber (PseudoPullback F G).p U) :
     ((Fiber.comparison F G U).obj P).snd.1 =
-      PseudoPullback.sndObj (Functor.Fiber.fiberInclusion.obj P) := sorry
+      PseudoPullback.sndObj (Functor.Fiber.fiberInclusion.obj P) := by
+  rcases P with ⟨P, rfl⟩
+  rfl
 
 /-- The fibre comparison transports the stored comparison morphism along its two endpoint
 equalities. -/
@@ -61,7 +65,11 @@ equalities. -/
     ((Fiber.comparison F G U).obj P).iso.hom.1 =
       F.toFunctor.map (eqToHom (comparison.obj.fst F G P)) ≫
         PseudoPullback.comparison (Functor.Fiber.fiberInclusion.obj P) ≫
-          G.toFunctor.map (eqToHom (comparison.obj.snd F G P).symm) := sorry
+          G.toFunctor.map (eqToHom (comparison.obj.snd F G P).symm) := by
+  rcases P with ⟨P, rfl⟩
+  change PseudoPullback.comparison P =
+    F.toFunctor.map (𝟙 _) ≫ PseudoPullback.comparison P ≫ G.toFunctor.map (𝟙 _)
+  simp
 
 /-- The full comparison isomorphism in the pullback model is obtained from the ambient
 pseudo-pullback comparison by transporting both endpoints. This is the isomorphism-level
@@ -73,7 +81,9 @@ theorem comparison.obj.comparisonIso
         (((Fiber.comparison F G U).obj P).iso) =
       F.toFunctor.mapIso (eqToIso (comparison.obj.fst F G P)) ≪≫
         PseudoPullback.comparisonIsoApp (Functor.Fiber.fiberInclusion.obj P) ≪≫
-          G.toFunctor.mapIso (eqToIso (comparison.obj.snd F G P).symm) := sorry
+          G.toFunctor.mapIso (eqToIso (comparison.obj.snd F G P).symm) := by
+  apply Iso.ext
+  exact comparison.obj.comparisonHom F G P
 
 /-- The fibre comparison transports the first morphism component along its endpoint equalities. -/
 @[simp] theorem comparison.map.fst
@@ -81,7 +91,8 @@ theorem comparison.obj.comparisonIso
     ((Fiber.comparison F G U).map φ).fst.1 =
       eqToHom (comparison.obj.fst F G P) ≫
         PseudoPullback.fstMap (Functor.Fiber.fiberInclusion.map φ) ≫
-          eqToHom (comparison.obj.fst F G Q).symm := sorry
+          eqToHom (comparison.obj.fst F G Q).symm := by
+  rfl
 
 /-- The fibre comparison transports the second morphism component along its endpoint equalities. -/
 @[simp] theorem comparison.map.snd
@@ -89,26 +100,33 @@ theorem comparison.obj.comparisonIso
     ((Fiber.comparison F G U).map φ).snd.1 =
       eqToHom (comparison.obj.snd F G P) ≫
         PseudoPullback.sndMap (Functor.Fiber.fiberInclusion.map φ) ≫
-          eqToHom (comparison.obj.snd F G Q).symm := sorry
+          eqToHom (comparison.obj.snd F G Q).symm := by
+  rfl
 
 /-- The transported comparison morphism is heterogeneously equal to the original ambient
 comparison morphism. -/
 theorem comparison.obj.comparisonHom_heq
     {U : C} (P : Functor.Fiber (PseudoPullback F G).p U) :
     HEq (((Fiber.comparison F G U).obj P).iso.hom.1)
-      (PseudoPullback.comparison (Functor.Fiber.fiberInclusion.obj P)) := sorry
+      (PseudoPullback.comparison (Functor.Fiber.fiberInclusion.obj P)) := by
+  rcases P with ⟨P, rfl⟩
+  rfl
 
 /-- The transported first map component is heterogeneously equal to the original ambient map. -/
 theorem comparison.map.fst_heq
     {U : C} {P Q : Functor.Fiber (PseudoPullback F G).p U} (φ : P ⟶ Q) :
     HEq (((Fiber.comparison F G U).map φ).fst.1)
-      (PseudoPullback.fstMap (Functor.Fiber.fiberInclusion.map φ)) := sorry
+      (PseudoPullback.fstMap (Functor.Fiber.fiberInclusion.map φ)) := by
+  exact (conj_eqToHom_iff_heq _ _ (comparison.obj.fst F G P)
+    (comparison.obj.fst F G Q)).mp (comparison.map.fst F G φ)
 
 /-- The transported second map component is heterogeneously equal to the original ambient map. -/
 theorem comparison.map.snd_heq
     {U : C} {P Q : Functor.Fiber (PseudoPullback F G).p U} (φ : P ⟶ Q) :
     HEq (((Fiber.comparison F G U).map φ).snd.1)
-      (PseudoPullback.sndMap (Functor.Fiber.fiberInclusion.map φ)) := sorry
+      (PseudoPullback.sndMap (Functor.Fiber.fiberInclusion.map φ)) := by
+  exact (conj_eqToHom_iff_heq _ _ (comparison.obj.snd F G P)
+    (comparison.obj.snd F G Q)).mp (comparison.map.snd F G φ)
 
 end Fiber
 end PseudoPullback

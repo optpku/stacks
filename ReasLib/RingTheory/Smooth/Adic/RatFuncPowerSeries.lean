@@ -142,12 +142,30 @@ noncomputable def polynomialMap (K : Type u) [Field K]
         (algebraMap (ZMod p) (RatFunc (ZMod p)))))
     (PowerSeries.C (algebraMap (RatFunc (ZMod p)) K RatFunc.X) + PowerSeries.X)
 
+/-- The constant coefficient of the shifted substitution is evaluation in the coefficient field. -/
+@[simp]
+theorem constantCoeff_polynomialMap (K : Type u) [Field K]
+    [Algebra (RatFunc (ZMod p)) K] (q : Polynomial (ZMod p)) :
+    PowerSeries.constantCoeff (polynomialMap (p := p) K q) =
+      algebraMap (RatFunc (ZMod p)) K
+        (algebraMap (Polynomial (ZMod p)) (RatFunc (ZMod p)) q) := by
+  induction q using Polynomial.induction_on' with
+  | add q r hq hr => simp only [map_add, hq, hr]
+  | monomial n a => simp [polynomialMap, RingHom.comp_apply]
+
 /-- Every nonzero polynomial denominator maps to a unit under the shifted substitution. -/
 @[stacks 07EM "power-series shift denominators are units"]
 theorem polynomialMap_isUnit (K : Type u) [Field K]
     [Algebra (RatFunc (ZMod p)) K]
     (q : nonZeroDivisors (Polynomial (ZMod p))) :
-    IsUnit (polynomialMap (p := p) K (q : Polynomial (ZMod p))) := sorry
+    IsUnit (polynomialMap (p := p) K (q : Polynomial (ZMod p))) := by
+  have hq : PowerSeries.constantCoeff (polynomialMap (p := p) K q) ≠ 0 := by
+    rw [constantCoeff_polynomialMap]
+    exact (map_ne_zero (algebraMap (RatFunc (ZMod p)) K)).2
+      (RatFunc.algebraMap_ne_zero (nonZeroDivisors.ne_zero q.property))
+  refine ⟨⟨_, (polynomialMap (p := p) K q)⁻¹, ?_, ?_⟩, rfl⟩
+  · exact PowerSeries.mul_inv_cancel _ hq
+  · exact PowerSeries.inv_mul_cancel _ hq
 
 /-- The localization lift `RatFunc (ZMod p) →+* PowerSeries K` which sends the
 rational-function variable to its coefficient-field image plus the power-series variable. -/
@@ -163,7 +181,32 @@ noncomputable def map (K : Type u) [Field K]
 @[simp, stacks 07EM "power-series shift on the generator"]
 theorem map_X (K : Type u) [Field K] [Algebra (RatFunc (ZMod p)) K] :
     map (p := p) K RatFunc.X =
-      PowerSeries.C (algebraMap (RatFunc (ZMod p)) K RatFunc.X) + PowerSeries.X := sorry
+      PowerSeries.C (algebraMap (RatFunc (ZMod p)) K RatFunc.X) + PowerSeries.X := by
+  change map (p := p) K
+    (algebraMap (Polynomial (ZMod p)) (RatFunc (ZMod p)) Polynomial.X) = _
+  rw [map, IsLocalization.lift_eq]
+  simp [polynomialMap]
+
+/-- Evaluation of an arbitrary localization fraction uses the canonical power-series inverse. -/
+theorem map_mk' (K : Type u) [Field K] [Algebra (RatFunc (ZMod p)) K]
+    (r : Polynomial (ZMod p)) (q : nonZeroDivisors (Polynomial (ZMod p))) :
+    map (p := p) K (IsLocalization.mk' (RatFunc (ZMod p)) r q) =
+      polynomialMap (p := p) K r * (polynomialMap (p := p) K q)⁻¹ := by
+  rw [map, IsLocalization.lift_mk']
+  congr 1
+  apply (PowerSeries.eq_inv_iff_mul_eq_one
+    (PowerSeries.isUnit_iff_constantCoeff.mp (polynomialMap_isUnit (p := p) K q)).ne_zero).2
+  exact (polynomialMap_isUnit (p := p) K q).unit.inv_val
+
+/-- On polynomial fractions, the shift is `r(t + x) * q(t + x)⁻¹`. -/
+theorem map_div (K : Type u) [Field K] [Algebra (RatFunc (ZMod p)) K]
+    (r q : Polynomial (ZMod p)) (hq : q ≠ 0) :
+    map (p := p) K
+      (algebraMap (Polynomial (ZMod p)) (RatFunc (ZMod p)) r /
+        algebraMap (Polynomial (ZMod p)) (RatFunc (ZMod p)) q) =
+      polynomialMap (p := p) K r * (polynomialMap (p := p) K q)⁻¹ := by
+  simpa only [IsFractionRing.mk'_eq_div] using
+    map_mk' (p := p) K r ⟨q, mem_nonZeroDivisors_iff_ne_zero.mpr hq⟩
 
 /-- Example 15.40.2 (6): if `K` is a perfect closure of `RatFunc (ZMod p)`, the shifted map
 `RatFunc (ZMod p) →+* PowerSeries K` sending `s` to `t + x` is formally smooth for the

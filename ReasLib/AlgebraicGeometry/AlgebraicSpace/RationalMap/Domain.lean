@@ -29,6 +29,23 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
+private theorem points_map_comp {S : Scheme.{u}} {X Y Z : AlgebraicSpace S}
+    (f : X ⟶ Y) (g : Y ⟶ Z) (x : Points X) :
+    Points.map (f ≫ g) x = Points.map g (Points.map f x) := by
+  refine Quotient.inductionOn x ?_
+  intro p
+  rfl
+
+set_option backward.isDefEq.respectTransparency false in
+private theorem range_points_section_comp {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+    (f : X ⟶ Y) {T : (Over S)ᵒᵖ} (α : X.functorOfPoints.obj T) :
+    Set.range (Points.map (X := ofOver T.unop) (Y := Y)
+      (yonedaEquiv.symm (f.app T α))) ⊆ Set.range (Points.map f) := by
+  rintro x ⟨p, rfl⟩
+  rw [← yonedaEquiv_symm_naturality_right T.unop f α]
+  exact ⟨_, (points_map_comp (X := ofOver T.unop) (Y := X) (Z := Y)
+    (yonedaEquiv.symm α) f p).symm⟩
+
 namespace PartialMap
 
 /-- The set of points of `|X|` lying in the domain of a partial map. -/
@@ -88,12 +105,20 @@ end PartialMap
 
 namespace RationalMap
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The subfunctor of maps into `X` whose image of points lands in the domain of
 definition of `φ`. -/
 def domainSubfunctor {S : Scheme.{u}} {X Y : AlgebraicSpace S} (φ : RationalMap X Y) :
     Subfunctor X.functorOfPoints where
   obj T := {α | Set.range (Points.map (X := ofOver T.unop) (Y := X) (yonedaEquiv.symm α)) ⊆ φ.domain}
-  map := sorry
+  map := by
+    intro T U f α hα x hx
+    obtain ⟨p, rfl⟩ := hx
+    rw [yonedaEquiv_symm_map]
+    apply hα
+    exact ⟨Points.map (ofOverMap f.unop) p,
+      (points_map_comp (X := ofOver U.unop) (Y := ofOver T.unop) (Z := X)
+        (ofOverMap f.unop) (yonedaEquiv.symm α) p).symm⟩
 
 /-- A section of `X` lies in `domainSubfunctor φ` if and only if its image of
 points is contained in the domain of definition of `φ`. -/
@@ -109,11 +134,47 @@ theorem domainSubfunctor_isSheaf {S : Scheme.{u}} {X Y : AlgebraicSpace S}
     Presheaf.IsSheaf (Scheme.fppfTopology.over S) (domainSubfunctor φ).toFunctor :=
   sorry
 
+set_option backward.isDefEq.respectTransparency false in
+private theorem representableDiagonal_of_mono {C D : Type*} [Category C] [Category D]
+    (F : C ⥤ D) {U X : D} [HasBinaryProduct U U] [HasBinaryProduct X X]
+    (i : U ⟶ X) [Mono i]
+    (hX : F.relativelyRepresentable (Limits.diag X)) :
+    F.relativelyRepresentable (Limits.diag U) := by
+  intro T a
+  let b := a ≫ prod.map i i
+  obtain ⟨Q, q, p, h⟩ := hX b
+  let j := F.map q ≫ a ≫ prod.fst
+  have hj : j ≫ i = p := by
+    simpa [j, b] using (congrArg (fun k ↦ k ≫ prod.fst) h.w).symm
+  have hk : (F.map q ≫ a ≫ prod.snd) ≫ i = p := by
+    simpa [b] using (congrArg (fun k ↦ k ≫ prod.snd) h.w).symm
+  have w : j ≫ Limits.diag U = F.map q ≫ a := by
+    apply prod.hom_ext
+    · simp [j]
+    · simpa using (cancel_mono i).mp (hj.trans hk.symm)
+  refine ⟨Q, q, j, IsPullback.of_isLimit (PullbackCone.IsLimit.mk w
+    (fun c ↦ h.lift (c.fst ≫ i) c.snd ?_) ?_ ?_ ?_)⟩
+  · calc
+      (c.fst ≫ i) ≫ Limits.diag X =
+          (c.fst ≫ Limits.diag U) ≫ prod.map i i := by
+        simp only [Category.assoc, prod.diag_map]
+      _ = c.snd ≫ b := by rw [c.condition, Category.assoc]
+  · intro c
+    apply (cancel_mono i).mp
+    simp only [Category.assoc, hj, IsPullback.lift_fst]
+  · intro c
+    exact h.lift_snd _ _ _
+  · intro c m hm hn
+    apply h.hom_ext
+    · simpa only [Category.assoc, hj, IsPullback.lift_fst] using
+        congrArg (fun k ↦ k ≫ i) hm
+    · simpa only [IsPullback.lift_snd] using hn
+
 /-- The diagonal of the domain subfunctor of a rational map is representable. -/
 theorem domainSubfunctor_representableDiagonal {S : Scheme.{u}} {X Y : AlgebraicSpace S}
     (φ : RationalMap X Y) :
     yoneda.relativelyRepresentable (Limits.diag (domainSubfunctor φ).toFunctor) :=
-  sorry
+  representableDiagonal_of_mono yoneda (domainSubfunctor φ).ι X.representableDiagonal
 
 /-- The domain subfunctor admits a representable étale locally-surjective atlas. -/
 theorem domainSubfunctor_hasEtaleAtlas {S : Scheme.{u}} {X Y : AlgebraicSpace S}
@@ -165,17 +226,67 @@ theorem domainSite_left {S : Scheme.{u}} {X Y : AlgebraicSpace S} (φ : Rational
     φ.domainSite.left = φ.domainSpace :=
   rfl
 
+set_option backward.isDefEq.respectTransparency false in
+private theorem exists_domain_factorization {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+    (g : PartialMap X Y) :
+    ∃ t : g.domain.left ⟶ g.toRationalMap.domainSpace,
+      t ≫ g.toRationalMap.domainι = g.domain.hom := by
+  have h (T : (Over S)ᵒᵖ) (α : g.domain.left.functorOfPoints.obj T) :
+      g.domain.hom.app T α ∈ (g.toRationalMap.domainSubfunctor).obj T :=
+    Set.Subset.trans (range_points_section_comp g.domain.hom α) g.points_subset_domain
+  refine ⟨{
+    app T := ↾fun α ↦ ⟨g.domain.hom.app T α, h T α⟩
+    naturality := ?_ }, rfl⟩
+  intro T U f
+  ext α
+  apply Subtype.ext
+  exact NatTrans.naturality_apply g.domain.hom f α
+
+set_option backward.isDefEq.respectTransparency false in
 /-- A point of `X` lies in the domain of definition if and only if it lies in the
 image of the domain inclusion. -/
 theorem mem_domainSite_iff {S : Scheme.{u}} {X Y : AlgebraicSpace S}
     (φ : RationalMap X Y) (x : Points X) :
-    x ∈ Set.range (Points.map φ.domainι) ↔ x ∈ φ.domain :=
-  sorry
+    x ∈ Set.range (Points.map φ.domainι) ↔ x ∈ φ.domain := by
+  constructor
+  · rintro ⟨q, rfl⟩
+    refine Quotient.inductionOn q ?_
+    intro p
+    apply p.elem.property
+    refine ⟨Points.mk (FieldValuedPoint.of p.K p.structureHom (𝟙 _)), ?_⟩
+    change Points.mk (FieldValuedPoint.of p.K p.structureHom
+      ((𝟙 _) ≫ yonedaEquiv.symm p.elem.val)) = Points.mk (p.map φ.domainι)
+    have he : yonedaEquiv.symm p.elem.val = p.hom ≫ φ.domainι := by
+      change yonedaEquiv.symm (φ.domainι.app _ (yonedaEquiv p.hom)) = _
+      rw [← yonedaEquiv_symm_naturality_right p.overObj φ.domainι,
+        Equiv.symm_apply_apply]
+      rfl
+    rw [he, Category.id_comp]
+    rfl
+  · rintro ⟨g, hx, hg⟩
+    subst φ
+    obtain ⟨p, rfl⟩ := hx
+    obtain ⟨t, ht⟩ := exists_domain_factorization g
+    refine ⟨Points.map t p, ?_⟩
+    calc
+      Points.map g.toRationalMap.domainι (Points.map t p) =
+          Points.map (t ≫ g.toRationalMap.domainι) p :=
+        (points_map_comp t g.toRationalMap.domainι p).symm
+      _ = Points.map g.domain.hom p := congrArg (fun f ↦ Points.map f p) ht
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The domain of definition of a rational map is dense in `X`. -/
 theorem dense_domainSite {S : Scheme.{u}} {X Y : AlgebraicSpace S} (φ : RationalMap X Y) :
-    IsDense φ.domainι :=
-  sorry
+    IsDense φ.domainι := by
+  obtain ⟨g, rfl⟩ := φ.exists_rep
+  obtain ⟨t, ht⟩ := exists_domain_factorization g
+  intro V hV
+  apply (g.dense_domain V hV).map
+  apply Points.map
+  refine ReasLibPullback.pullbackLift g.toRationalMap.domainι V.hom
+    (domainInfFst g.domain.hom V.hom ≫ t) (domainInfSnd g.domain.hom V.hom) ?_
+  rw [Category.assoc, ht]
+  exact domainInf_condition g.domain.hom V.hom
 
 end RationalMap
 
@@ -186,14 +297,18 @@ the associated rational map. -/
 theorem hom_app_mem_domainSubfunctor {S : Scheme.{u}} {X Y : AlgebraicSpace S}
     (g : PartialMap X Y) {T : (Over S)ᵒᵖ} (α : g.domain.left.functorOfPoints.obj T) :
     g.domain.hom.app T α ∈ (g.toRationalMap.domainSubfunctor).obj T :=
-  sorry
+  Set.Subset.trans (range_points_section_comp g.domain.hom α) g.points_subset_domain
 
 /-- The canonical factorization of a representative domain through the domain of
 definition of the associated rational map. -/
 def factorDomain {S : Scheme.{u}} {X Y : AlgebraicSpace S} (g : PartialMap X Y) :
     g.domain.left ⟶ g.toRationalMap.domainSpace where
   app T := ↾fun α ↦ ⟨g.domain.hom.app T α, hom_app_mem_domainSubfunctor g α⟩
-  naturality := sorry
+  naturality := by
+    intro T U f
+    ext α
+    apply Subtype.ext
+    exact NatTrans.naturality_apply g.domain.hom f α
 
 /-- The factorization of a representative domain through the domain of definition
 recovers the structure morphism of that domain. -/

@@ -33,7 +33,7 @@ namespace ArtinianLocalAlgCat.FiniteProjective
 /- Lemma 93.4.3 -/
 @[stacks 0DVQ] #check
   (ArtinianLocalAlgCat.FiniteProjective.eq_trivialTangent Λ k V :
-    ∀ x : tangentSpace Λ k V, x = trivialTangent Λ k V)
+    ∀ x : CategoryTheory.Functor.tangentSpace (Λ := Λ) (k := k) (deformation V).p, x = trivialTangent Λ k V)
 
 #check
   (ArtinianLocalAlgCat.FiniteProjective.infAutOfEnd_bijective Λ k V :

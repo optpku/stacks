@@ -24,12 +24,13 @@ derived universal properties of module pullback and pushforward. These are the
 composite-derived conditions for the canonical derived unit and counit, not the
 mere existence of some adjunction between the two functors. -/
 theorem moduleDerivedAdjunctionHasPair {X Y : RingedSpace.{u}} (f : X ⟶ Y) :
-    RingedSite.Hom.DerivedAdjunction.HasPair (opensRingedSiteHom f) := sorry
+    DerivedAdjunction.HasPair f := sorry
 
 /-- The canonical total-derived pullback--pushforward adjunction for opens ringed sites. -/
 noncomputable def moduleDerivedAdjunctionOfOpens {X Y : RingedSpace.{u}} (f : X ⟶ Y) :
     L(f)^* ⊣ R(f)_* :=
   @RingedSite.Hom.moduleDerivedAdjunction _ _ (opensRingedSiteHom f)
-    _ _ _ _ _ (moduleDerivedAdjunctionHasPair f)
+    _ _ _ (opensRingedSiteHom.DerivedPushforward.hasDerived f) _
+    (moduleDerivedAdjunctionHasPair f)
 
 end AlgebraicGeometry.RingedSpace

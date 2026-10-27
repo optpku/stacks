@@ -42,21 +42,6 @@ instance instIsSmoothId {U : ArtinianLocalAlgCat Λ k ⥤ Type v} :
 maps. -/
 theorem isSmooth_iff {U R : ArtinianLocalAlgCat Λ k ⥤ Type v} (s t : R ⟶ U) :
     IsSmooth s t ↔ NatTrans.IsSmooth s ∧ NatTrans.IsSmooth t :=
-  sorry
-
-/-- A smooth groupoid in functors has smooth source and target maps. -/
-theorem isSmooth_spec {U R : ArtinianLocalAlgCat Λ k ⥤ Type v} (s t : R ⟶ U)
-    [IsSmooth s t] : NatTrans.IsSmooth s ∧ NatTrans.IsSmooth t :=
-  sorry
-
-/-- Smoothness of a groupoid in functors implies smoothness of the source map. -/
-theorem isSmooth_s {U R : ArtinianLocalAlgCat Λ k ⥤ Type v} (s t : R ⟶ U)
-    [IsSmooth s t] : NatTrans.IsSmooth s :=
-  sorry
-
-/-- Smoothness of a groupoid in functors implies smoothness of the target map. -/
-theorem isSmooth_t {U R : ArtinianLocalAlgCat Λ k ⥤ Type v} (s t : R ⟶ U)
-    [IsSmooth s t] : NatTrans.IsSmooth t :=
-  sorry
+  ⟨fun h ↦ ⟨h.isSmooth_s, h.isSmooth_t⟩, fun h ↦ ⟨h.1, h.2⟩⟩
 
 end CategoryTheory.GroupoidInFunctors

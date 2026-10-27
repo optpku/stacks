@@ -721,7 +721,7 @@ theorem simplicialCotangent_obj (n : SimplexCategoryᵒᵖ) :
   rfl
 
 /-- The cochain complex of `B`-modules obtained from `simplicialCotangent`. -/
-def tensorCochain : CochainComplex (ringedSiteModuleCategory.{u, u, u, u} J B) ℤ :=
+def tensorModuleCochain : CochainComplex (ringedSiteModuleCategory.{u, u, u, u} J B) ℤ :=
   (mooreExtend (B := B)).obj (simplicialCotangent φ F)
 
 private def evalAtDegreeToRestrictedComponent (n : SimplexCategoryᵒᵖ) (U : Cᵒᵖ) :
@@ -1027,18 +1027,18 @@ def derivedPrincipalParts :
         (SimplicialSite.ModuleCat.{u, u, u, u} (standardSimplicial φ)) 0).obj
       (principalPartsModule φ F))
 
-/-- The cohomological degree `-n` term of `tensorCochain` is the `n`-th simplicial cotangent
+/-- The cohomological degree `-n` term of `tensorModuleCochain` is the `n`-th simplicial cotangent
 term. -/
 private def tensorCochain_X (n : ℕ) :
-    (tensorCochain φ F).X (-n) ≅ (simplicialCotangent φ F).obj (op (SimplexCategory.mk n)) :=
+    (tensorModuleCochain φ F).X (-n) ≅ (simplicialCotangent φ F).obj (op (SimplexCategory.mk n)) :=
   extendXIso
     ((alternatingFaceMapComplex (ringedSiteModuleCategory.{u, u, u, u} J B)).obj
       (simplicialCotangent φ F))
     ComplexShape.embeddingDownNat (rfl : ComplexShape.embeddingDownNat.f n = -n)
 
-/-- `tensorCochain` vanishes in strictly positive cohomological degrees. -/
+/-- `tensorModuleCochain` vanishes in strictly positive cohomological degrees. -/
 private theorem isZero_tensorCochain_X_of_pos {n : ℤ} (hn : 0 < n) :
-    IsZero ((tensorCochain φ F).X n) :=
+    IsZero ((tensorModuleCochain φ F).X n) :=
   sorry
 
 /-- The ordinary tensor of `L(φ)` with the degree-zero single of `F` vanishes in strictly
@@ -1116,9 +1116,9 @@ instance ιTensorCotangentSingle_isIso (n : ℤ) (hn : n = -n.natAbs) :
      hom_inv_id := (tensorCochainXIsoTensorSingle_laws φ F n hn).1
      inv_hom_id := (tensorCochainXIsoTensorSingle_laws φ F n hn).2 } : _ ≅ _).isIso_hom
 
-/-- Degreewise identification of `tensorCochain` with `L(φ) ⊗ single F`. -/
+/-- Degreewise identification of `tensorModuleCochain` with `L(φ) ⊗ single F`. -/
 private def tensorCochainXIsoTensorSingle (n : ℤ) :
-    (tensorCochain φ F).X n ≅
+    (tensorModuleCochain φ F).X n ≅
       (HomologicalComplex.tensorObj (L(φ))
         ((HomologicalComplex.single (ringedSiteModuleCategory.{u, u, u, u} J B)
           (ComplexShape.up ℤ) 0).obj F)).X n :=
@@ -1130,7 +1130,7 @@ private def tensorCochainXIsoTensorSingle (n : ℤ) :
         inv_hom_id := (isZero_cotangentTensorSingle_X_of_pos φ F hn).eq_of_src _ _ })
     (fun hn =>
       let hn' := eq_neg_natAbs_of_not_pos hn
-      HomologicalComplex.XIsoOfEq (tensorCochain φ F) hn' ≪≫
+      HomologicalComplex.XIsoOfEq (tensorModuleCochain φ F) hn' ≪≫
         tensorCochain_X φ F n.natAbs ≪≫
         (tensorRight F).mapIso
           (objXIso A (Under.mk φ) n.natAbs).symm ≪≫
@@ -1152,15 +1152,15 @@ private theorem tensorCochainXIsoTensorSingle_of_pos {n : ℤ} (hn : 0 < n) :
 
 /-- The degreewise cotangent-tensor identifications commute with differentials. -/
 private theorem tensorCochainIsoTensorSingle_comm (n m : ℤ) :
-    (tensorCochain φ F).d n m ≫ (tensorCochainXIsoTensorSingle φ F m).hom =
+    (tensorModuleCochain φ F).d n m ≫ (tensorCochainXIsoTensorSingle φ F m).hom =
       (tensorCochainXIsoTensorSingle φ F n).hom ≫
         (HomologicalComplex.tensorObj (L(φ))
           ((HomologicalComplex.single (ringedSiteModuleCategory.{u, u, u, u} J B)
             (ComplexShape.up ℤ) 0).obj F)).d n m := sorry
 
-/-- Cochain-level identification `Moore((Ω_{P_•/A} ⊗ B) ⊗ F) ≅ L(φ) ⊗ single F`. -/
+/-- Cochain-level identification `tensorModuleCochain ≅ L(φ) ⊗ single F`. -/
 def tensorCochainIsoTensorSingle :
-    tensorCochain φ F ≅
+    tensorModuleCochain φ F ≅
       HomologicalComplex.tensorObj (L(φ))
         ((HomologicalComplex.single (ringedSiteModuleCategory.{u, u, u, u} J B)
           (ComplexShape.up ℤ) 0).obj F) :=
@@ -1393,8 +1393,8 @@ def principalPartsToModule :
       (DerivedCategory.singleFunctor (ringedSiteModuleCategory.{u, u, u, u} J B) 0).obj F :=
   (atiyahTriangle_ofSES φ F).mor₂ ≫ (moduleIso φ F).hom
 
-/-- The connecting map `F ⟶ (L(φ) ⊗^L F)⟦1⟧` of the displayed triangle. -/
-def connectingMap :
+/-- The Atiyah class `F ⟶ (L(φ) ⊗^L F)⟦1⟧`, the connecting map of the displayed triangle. -/
+def atiyahClass :
     (DerivedCategory.singleFunctor (ringedSiteModuleCategory.{u, u, u, u} J B) 0).obj F ⟶
       (tensorModule φ F)⟦(1 : ℤ)⟧ :=
   (moduleIso φ F).inv ≫
@@ -1407,7 +1407,7 @@ def connectingMap :
 def atiyahTriangle :
     Triangle (RingedSite.Hom.ModuleDerived (RingedSite.ofCommRingSheaf J B)) :=
   Triangle.mk (tensorToPrincipalParts φ F) (principalPartsToModule φ F)
-    (connectingMap φ F)
+    (atiyahClass φ F)
 
 /-- The first vertex of `atiyahTriangle` is `tensorModule`. -/
 theorem atiyahTriangle_obj₁ :
@@ -1436,9 +1436,9 @@ theorem atiyahTriangle_mor₂ :
     (atiyahTriangle φ F).mor₂ = principalPartsToModule φ F :=
   rfl
 
-/-- The third morphism of `atiyahTriangle` is `connectingMap`. -/
+/-- The third morphism of `atiyahTriangle` is `atiyahClass`. -/
 theorem atiyahTriangle_mor₃ :
-    (atiyahTriangle φ F).mor₃ = connectingMap φ F :=
+    (atiyahTriangle φ F).mor₃ = atiyahClass φ F :=
   rfl
 
 /-- The Atiyah triangle of `F` along `φ` is distinguished in `D(B)`. -/

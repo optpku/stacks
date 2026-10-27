@@ -36,7 +36,7 @@ instance instIsReducedTensorUnit :
     IsReduced ((𝟙_ (Over (Spec (.of k)))).left) := sorry
 
 /-- The tensor square of the reduction of a group scheme over a perfect field is reduced. -/
-instance instIsReducedReductionTensor :
+instance instIsReducedReductionTensor [PerfectField k] :
     IsReduced ((reduction G ⊗ reduction G).left) := sorry
 
 /-- The unit of the group structure induced on the reduction. -/

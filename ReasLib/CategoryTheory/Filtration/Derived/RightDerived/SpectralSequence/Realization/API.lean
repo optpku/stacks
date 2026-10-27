@@ -32,24 +32,3 @@ This facade is the recommended downstream import for a realization together with
 composition, reindexing, naturality, isomorphism, convergence, and existence interfaces.  The
 individual leaves remain available for users that need a smaller import boundary.
 -/
-
-@[expose] public section
-
-namespace CategoryTheory.FilteredComplex.RightDerived.SpectralSequence.Realization
-
-open CategoryTheory
-
-noncomputable section
-
-universe w wA wB vA vB uA uB
-
-variable {A : Type uA} [Category.{vA} A] [Abelian A] [HasDerivedCategory.{wA} A]
-variable {B : Type uB} [Category.{vB} B] [Abelian B] [HasDerivedCategory.{wB} B]
-variable (F : A ⥤ B) [F.Additive] [F.PreservesMonomorphisms]
-  [Functor.RightDerived.KInjective.HasDerived F]
-
-#synth (Realization.Total.resolutionFunctor F).Faithful
-
-end
-
-end CategoryTheory.FilteredComplex.RightDerived.SpectralSequence.Realization

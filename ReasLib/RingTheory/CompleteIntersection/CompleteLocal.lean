@@ -30,10 +30,10 @@ section
 
 variable (A : Type u) [CommRing A]
 
-/-- A regular-local presentation of `A` is a surjective local map from a regular local ring onto
-`A`. -/
+/-- A regular-local presentation of a nontrivial ring `A` is a surjective local map from a regular
+local ring onto `A`. -/
 @[stacks 09Q3 "regular-local presentation"]
-structure RegularLocalPresentation where
+structure RegularLocalPresentation [Nontrivial A] where
   /-- The regular local source ring. -/
   ring : Type v
   /-- The commutative-ring structure on the source. -/
@@ -42,7 +42,8 @@ structure RegularLocalPresentation where
   instIsRegularLocalRing : IsRegularLocalRing ring
   /-- The map presenting the target. -/
   hom : ring →+* A
-  /-- The presentation map is surjective. Its locality follows from the regular-local source. -/
+  /-- The presentation map is surjective. Its locality follows from the regular-local source and
+  the nontrivial target. -/
   surjective : Function.Surjective hom
 
 attribute [instance] RegularLocalPresentation.instCommRing
@@ -50,7 +51,7 @@ attribute [instance] RegularLocalPresentation.instIsRegularLocalRing
 
 namespace RegularLocalPresentation
 
-variable {A : Type u} [CommRing A]
+variable {A : Type u} [CommRing A] [Nontrivial A]
 
 /-- Build a regular-local presentation from a regular local source ring and a presentation map. -/
 def ofHom {R : Type v} [CommRing R] [IsRegularLocalRing R] (hom : R →+* A)
@@ -64,24 +65,28 @@ def ofHom {R : Type v} [CommRing R] [IsRegularLocalRing R] (hom : R →+* A)
 /-- The structure map of `ofHom hom hhom` is `hom`. -/
 @[simp] theorem ofHom_hom {R : Type v} [CommRing R] [IsRegularLocalRing R] (hom : R →+* A)
     (hhom : Function.Surjective hom) :
-    (ofHom hom hhom).hom = hom := sorry
+    (ofHom hom hhom).hom = hom := rfl
 
 /-- The structure map of a regular-local presentation is the canonical local surjection induced
 by its surjectivity from a regular local ring. -/
-theorem isLocalSurjection (P : RegularLocalPresentation A) : P.hom.IsLocalSurjection := sorry
+theorem isLocalSurjection (P : RegularLocalPresentation A) : P.hom.IsLocalSurjection :=
+  IsLocalSurjection.of_surjective P.surjective
 
 /-- The target of a regular-local presentation is a local ring. -/
 @[stacks 09Q3 "local target of a regular-local presentation"]
-theorem target_isLocalRing (P : RegularLocalPresentation A) : IsLocalRing A := sorry
+theorem target_isLocalRing (P : RegularLocalPresentation A) : IsLocalRing A :=
+  P.isLocalSurjection.isLocalRing
 
 /-- The structure map of a regular-local presentation is a local ring homomorphism. -/
-instance instIsLocalHom (P : RegularLocalPresentation A) : IsLocalHom P.hom := sorry
+instance instIsLocalHom (P : RegularLocalPresentation A) : IsLocalHom P.hom :=
+  P.isLocalSurjection.1
 
 /-- The source and structure map of a regular-local presentation satisfy its complete defining
 specification. -/
 @[stacks 09Q3 "regular-local presentation specification"]
 theorem spec (P : RegularLocalPresentation A) :
-    IsRegularLocalRing P.ring ∧ IsLocalHom P.hom ∧ Function.Surjective P.hom := sorry
+    IsRegularLocalRing P.ring ∧ IsLocalHom P.hom ∧ Function.Surjective P.hom :=
+  ⟨inferInstance, inferInstance, P.surjective⟩
 
 /-- The kernel condition for a fixed regular-local presentation. -/
 @[stacks 09Q3 "complete-intersection regular-local presentation"]
@@ -107,12 +112,22 @@ class IsCompleteIntersectionCompleteLocalRing (R : Type u) [CommRing R] : Prop e
   exists_presentation :
     ∃ P : RingHom.RegularLocalPresentation.{u, u} R, P.IsCompleteIntersection
 
-/-- The complete-intersection complete-local condition as its three defining components. -/
+/-- The complete-intersection complete-local condition as its three defining components. The
+complete-local witness supplies the nontriviality needed by the presentation. -/
 @[stacks 09Q3 "complete-local presentation criterion"]
 theorem isCompleteIntersectionCompleteLocalRing_iff (R : Type u) [CommRing R] :
     IsCompleteIntersectionCompleteLocalRing R ↔
-      IsCompleteLocalRing R ∧ IsNoetherianRing R ∧
-        ∃ P : RingHom.RegularLocalPresentation.{u, u} R, P.IsCompleteIntersection := sorry
+      ∃ hcomplete : IsCompleteLocalRing R,
+        letI := hcomplete
+        IsNoetherianRing R ∧
+          ∃ P : RingHom.RegularLocalPresentation.{u, u} R, P.IsCompleteIntersection := by
+  constructor
+  · intro h
+    exact ⟨h.toIsCompleteLocalRing, h.toIsNoetherian, h.exists_presentation⟩
+  · rintro ⟨hcomplete, hnoetherian, hP⟩
+    exact { toIsCompleteLocalRing := hcomplete
+            toIsNoetherian := hnoetherian
+            exists_presentation := hP }
 
 namespace IsCompleteIntersectionCompleteLocalRing
 
@@ -135,20 +150,20 @@ end IsCompleteIntersectionCompleteLocalRing
 
 namespace RingHom.RegularLocalPresentation
 
-variable {A : Type u} [CommRing A] [IsCompleteLocalRing A] [IsNoetherianRing A]
+variable {A : Type u} [CommRing A]
 
 /-- A Noetherian complete local ring admits a presentation by a regular local ring. -/
 @[stacks 09PZ "regular-local presentation existence"]
-theorem nonempty : Nonempty (RingHom.RegularLocalPresentation.{u, u} A) := sorry
+theorem nonempty [IsCompleteLocalRing A] [IsNoetherianRing A] :
+    Nonempty (RingHom.RegularLocalPresentation.{u, u} A) := sorry
 
 /-- The kernel of a fixed regular-local presentation is generated by a regular sequence exactly
 when the complete local target is a complete intersection. -/
 @[stacks 09Q3 "regular-local presentation criterion"]
-theorem regularSequenceKernel_iff_completeIntersection
+theorem regularSequenceKernel_iff_completeIntersection [IsCompleteLocalRing A]
     (P : RingHom.RegularLocalPresentation.{u, u} A) :
     P.IsCompleteIntersection ↔ IsCompleteIntersectionCompleteLocalRing A := sorry
 
-omit [IsCompleteLocalRing A] [IsNoetherianRing A] in
 /-- Every regular-local presentation of a complete-intersection complete local ring has
 regular-sequence kernel. -/
 @[stacks 09Q3 "regular-sequence kernel extraction"]
@@ -159,7 +174,7 @@ theorem regularSequenceKernel [IsCompleteIntersectionCompleteLocalRing A]
 /-- The regular-sequence kernel condition is independent of the chosen regular-local
 presentation of a Noetherian complete local ring. -/
 @[stacks 09PZ "regular-local presentation independence"]
-theorem regularSequenceKernel_iff
+theorem regularSequenceKernel_iff [IsCompleteLocalRing A]
     (P : RingHom.RegularLocalPresentation.{u, v} A)
     (Q : RingHom.RegularLocalPresentation.{u, w} A) :
     P.IsCompleteIntersection ↔ Q.IsCompleteIntersection := sorry
@@ -167,7 +182,7 @@ theorem regularSequenceKernel_iff
 /-- Lemma 23.8.1 (09PZ): for a Noetherian complete local ring, one regular-local presentation has
 regular-sequence kernel if and only if every regular-local presentation does. -/
 @[stacks 09PZ]
-theorem exists_regularSequenceKernel_iff_forall :
+theorem exists_regularSequenceKernel_iff_forall [IsCompleteLocalRing A] [IsNoetherianRing A] :
     (∃ P : RingHom.RegularLocalPresentation.{u, u} A, P.IsCompleteIntersection) ↔
       ∀ P : RingHom.RegularLocalPresentation.{u, u} A, P.IsCompleteIntersection := sorry
 

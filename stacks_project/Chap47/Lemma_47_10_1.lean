@@ -25,12 +25,15 @@ with `I`-power-torsion cohomology. -/
   (CategoryTheory.DerivedCategory.LocalCohomology.idealTorsionCounitAppIsIso :
     ∀ {A : Type u} [CommRing A] [IsNoetherianRing A] (I : Ideal A)
       (K : IdealPowerTorsion I),
-      IsIso ((CategoryTheory.DerivedCategory.LocalCohomology.idealTorsionCounit I).app K.obj))
+      letI : Fact I.FG := ⟨Ideal.fg_of_isNoetherianRing I⟩
+      IsIso ((CategoryTheory.DerivedCategory.LocalCohomology.idealTorsionCounit I
+        (Ideal.fg_of_isNoetherianRing I)).app K.obj))
 
 /- Lemma 47.10.1 (2): the canonical comparison functor is an equivalence. -/
 @[stacks 0955] #check
   (CategoryTheory.DerivedCategory.LocalCohomology.idealPowerTorsionDerivedComparisonIsEquivalence :
     ∀ {A : Type u} [CommRing A] [IsNoetherianRing A] (I : Ideal A),
+      letI : Fact I.FG := ⟨Ideal.fg_of_isNoetherianRing I⟩
       (CohomologyIn.Comparison.functor
         (ModuleCat.isIdealPowerTorsion I : ObjectProperty (ModuleCat A))).IsEquivalence)
 
@@ -41,6 +44,7 @@ adjoint is an isomorphism. -/
     ∀ {A : Type u} [CommRing A] [IsNoetherianRing A] (I : Ideal A)
       (RΓZ : DerivedCategory (ModuleCat A) ⥤ IdealPowerTorsion I)
       (hRΓZ : IdealPowerTorsion.inclusion I ⊣ RΓZ),
+      letI : Fact I.FG := ⟨Ideal.fg_of_isNoetherianRing I⟩
       IsIso (CategoryTheory.DerivedCategory.LocalCohomology.idealToClosedSupport I
         (Ideal.fg_of_isNoetherianRing I) RΓZ hRΓZ))
 

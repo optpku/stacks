@@ -274,6 +274,23 @@ def toBase {I : Type u} [Preorder I] {S : Scheme.{u}}
     Xsys ⟶ tailBaseDiagram D i :=
   sys.toImage ≫ baseChangeOverToTail D i sys.approximation.toBi
 
+/-- The cone projections commute with the canonical structural map of the
+scheme-theoretic-image system to the base. -/
+theorem cone_toBase {I : Type u} [Preorder I] {S : Scheme.{u}}
+    {D : OrderDual I ⥤ AlgebraicSpace S} {c : Cone D} {i : I}
+    {Xsys : Over (OrderDual.toDual i) ⥤ AlgebraicSpace S} {xCone : Cone Xsys}
+    {toS : xCone.pt ⟶ c.pt}
+    (sys : FiniteTypeApproximationLimitSystem D c i Xsys xCone toS)
+    (j : Over (OrderDual.toDual i)) :
+    xCone.π.app j ≫ sys.toBase.app j = toS ≫ c.π.app j.left := by
+  change xCone.π.app j ≫
+    (sys.toImage.app j ≫ pullback.fst (D.map j.hom) sys.approximation.toBi) = _
+  rw [← Category.assoc]
+  erw [(sys.image j).fac]
+  simp [FiniteTypeApproximationDiagram.baseChangeCone, baseChangeOverCone, Over.conePost]
+  erw [pullback.lift_fst, ← Category.assoc, pullback.lift_fst]
+  rfl
+
 /-- A morphism between two limiting finite-type approximation systems descends to a
 morphism over the base after restricting both systems to a common tail. -/
 theorem exists_morphism
@@ -285,12 +302,7 @@ theorem exists_morphism
     {Xsys : Over (OrderDual.toDual i₁) ⥤ AlgebraicSpace S}
     {Ysys : Over (OrderDual.toDual i₂) ⥤ AlgebraicSpace S}
     (xCone : Cone Xsys) (yCone : Cone Ysys)
-    (xToBase : Xsys ⟶ tailBaseDiagram D i₁) (yToBase : Ysys ⟶ tailBaseDiagram D i₂)
     (xToS : xCone.pt ⟶ c.pt) (yToS : yCone.pt ⟶ c.pt)
-    (xCone_toBase : ∀ j : Over (OrderDual.toDual i₁),
-      xCone.π.app j ≫ xToBase.app j = xToS ≫ c.π.app j.left)
-    (yCone_toBase : ∀ j : Over (OrderDual.toDual i₂),
-      yCone.π.app j ≫ yToBase.app j = yToS ≫ c.π.app j.left)
     [QuasiSeparated xToS] [FiniteType xToS]
     [QuasiSeparated yToS] [FiniteType yToS]
     (Xapprox : FiniteTypeApproximationLimitSystem D c i₁ Xsys xCone xToS)
@@ -299,7 +311,8 @@ theorem exists_morphism
     ∃ (i₀ : I) (hi₁ : i₁ ≤ i₀) (hi₂ : i₂ ≤ i₀),
       ∃ φ : InverseSystemMorphismOverBase D i₀
         (restrictTail hi₁ Xsys) (restrictTail hi₂ Ysys)
-        (restrictTailToBase D hi₁ xToBase) (restrictTailToBase D hi₂ yToBase),
+        (restrictTailToBase D hi₁ Xapprox.toBase)
+        (restrictTailToBase D hi₂ Yapprox.toBase),
         φ.IsLimitMorphism
           (Cone.whisker (Over.map (homOfLE hi₁ : OrderDual.toDual i₀ ⟶ OrderDual.toDual i₁)) xCone)
           (Cone.whisker (Over.map (homOfLE hi₂ : OrderDual.toDual i₀ ⟶ OrderDual.toDual i₂)) yCone) f :=
@@ -321,12 +334,7 @@ theorem eventually_eq_of_isLimitMorphism
     {Xsys : Over (OrderDual.toDual i₁) ⥤ AlgebraicSpace S}
     {Ysys : Over (OrderDual.toDual i₂) ⥤ AlgebraicSpace S}
     (xCone : Cone Xsys) (yCone : Cone Ysys)
-    (xToBase : Xsys ⟶ tailBaseDiagram D i₁) (yToBase : Ysys ⟶ tailBaseDiagram D i₂)
     (xToS : xCone.pt ⟶ c.pt) (yToS : yCone.pt ⟶ c.pt)
-    (xCone_toBase : ∀ j : Over (OrderDual.toDual i₁),
-      xCone.π.app j ≫ xToBase.app j = xToS ≫ c.π.app j.left)
-    (yCone_toBase : ∀ j : Over (OrderDual.toDual i₂),
-      yCone.π.app j ≫ yToBase.app j = yToS ≫ c.π.app j.left)
     [QuasiSeparated xToS] [FiniteType xToS]
     [QuasiSeparated yToS] [FiniteType yToS]
     (Xapprox : FiniteTypeApproximationLimitSystem D c i₁ Xsys xCone xToS)
@@ -335,7 +343,8 @@ theorem eventually_eq_of_isLimitMorphism
     {i₀ : I} (hi₁ : i₁ ≤ i₀) (hi₂ : i₂ ≤ i₀)
     (φ ψ : InverseSystemMorphismOverBase D i₀
       (restrictTail hi₁ Xsys) (restrictTail hi₂ Ysys)
-      (restrictTailToBase D hi₁ xToBase) (restrictTailToBase D hi₂ yToBase))
+      (restrictTailToBase D hi₁ Xapprox.toBase)
+      (restrictTailToBase D hi₂ Yapprox.toBase))
     (hφ : φ.IsLimitMorphism
       (Cone.whisker (Over.map (homOfLE hi₁ : OrderDual.toDual i₀ ⟶ OrderDual.toDual i₁)) xCone)
       (Cone.whisker (Over.map (homOfLE hi₂ : OrderDual.toDual i₀ ⟶ OrderDual.toDual i₂)) yCone) f)

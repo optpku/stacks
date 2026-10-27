@@ -39,22 +39,22 @@ variable (K L : RingedSiteDerived.max J 𝒪)
 
 /- Lemma 21.35.4 (08JC), target variable: the actual RSheafHom(K,-) commutes with shifts. -/
 @[stacks 08JC "actual sheaf-valued target-variable shifts"]
-#check (inferInstance :
+#check (_root_.RingedSite.Hom.ModuleDerived.InternalHom.targetFunctor_commShift K :
   (_root_.RingedSite.Hom.ModuleDerived.InternalHom.targetFunctor K).CommShift ℤ)
 
 /- Lemma 21.35.4 (08JC), target variable: the actual RSheafHom(K,-) preserves triangles. -/
 @[stacks 08JC "actual sheaf-valued target-variable distinguished triangles"]
-#check (inferInstance :
+#check (_root_.RingedSite.Hom.ModuleDerived.InternalHom.targetFunctor_isTriangulated K :
   (_root_.RingedSite.Hom.ModuleDerived.InternalHom.targetFunctor K).IsTriangulated)
 
 /- Lemma 21.35.4 (08JC), source variable: the actual RSheafHom(-,L) has negative-source shifts. -/
 @[stacks 08JC "actual sheaf-valued source-variable shifts"]
-#check (inferInstance :
+#check (_root_.RingedSite.Hom.ModuleDerived.InternalHom.sourceFunctor_commShift L :
   (_root_.RingedSite.Hom.ModuleDerived.InternalHom.sourceFunctor L).CommShift ℤ)
 
 /- Lemma 21.35.4 (08JC), source variable: the actual RSheafHom(-,L) preserves triangles. -/
 @[stacks 08JC "actual sheaf-valued source-variable distinguished triangles"]
-#check (inferInstance :
+#check (_root_.RingedSite.Hom.ModuleDerived.InternalHom.sourceFunctor_isTriangulated L :
   (_root_.RingedSite.Hom.ModuleDerived.InternalHom.sourceFunctor L).IsTriangulated)
 
 /- Retain the generic canonical-reuse entry points for chapter clients. -/

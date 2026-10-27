@@ -14,6 +14,8 @@ public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Groupoid.OfScheme
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Groupoid.Quotient.Small
 public import ReasLib.AlgebraicGeometry.AlgebraicStack.AutomorphismGroup
 public import ReasLib.AlgebraicGeometry.AlgebraicStack.Points
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Points.QuasiCompact
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.ResidualGerbe.Isomorphism
 public import ReasLib.AlgebraicGeometry.GroupoidsOver.Etale
 public import ReasLib.AlgebraicGeometry.AlgebraicStack.Separation.Object
 
@@ -238,5 +240,103 @@ theorem existsEtaleLocalAffineFiniteGroupoidIsoAutAt_of_isQuasiDM
     {x : Points X} (h_finite : automorphismGroup.IsFinite x) :
     existsEtaleLocalAffineFiniteGroupoidIsoAutAt X x :=
   sorry
+
+/-- There exists an étale morphism of algebraic stacks, representable by
+algebraic spaces, from a quotient stack `(SmallQuotient.quotientStack (ofScheme G))`
+onto a given point of `X`, inducing an isomorphism of residual gerbes at that
+point, where `G` is a groupoid scheme with affine object and arrow schemes and
+with finite, flat, locally of finite presentation source and target. -/
+def existsEtaleLocalAffineFiniteGroupoidIsoResidualGerbeAt {S : Scheme.{u}}
+    (X : GroupoidsOver S) [AlgebraicStack X] (x : Points X) : Prop :=
+  ∃ (G : GroupoidScheme S)
+      (_ : AlgebraicStack (SmallQuotient.quotientStack (ofScheme G)))
+      (f : (SmallQuotient.quotientStack (ofScheme G)) ⟶ X)
+      (u : Points (SmallQuotient.quotientStack (ofScheme G))),
+    relativelyRepresentableByAlgebraicSpaces f ∧ Groupoids.Hom.Etale f ∧
+      IsAffine G.U.left ∧ IsAffine G.R.left ∧ IsFinite G.s.left ∧
+        IsFinite G.t.left ∧ AlgebraicGeometry.Flat G.s.left ∧
+        AlgebraicGeometry.Flat G.t.left ∧
+        AlgebraicGeometry.LocallyOfFinitePresentation G.s.left ∧
+        AlgebraicGeometry.LocallyOfFinitePresentation G.t.left ∧
+        inducesIsoOnResidualGerbes f u x
+
+namespace FiniteGroupoidChart
+
+/-- `existsEtaleLocalAffineFiniteGroupoidIsoResidualGerbeAt X x` unpacks to an
+étale, space-representable chart through an affine finite flat locally finitely
+presented groupoid scheme, hitting `x` and inducing an isomorphism of residual
+gerbes there. -/
+theorem residualGerbe_iff
+    {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X] {x : Points X} :
+    existsEtaleLocalAffineFiniteGroupoidIsoResidualGerbeAt X x ↔
+      ∃ (G : GroupoidScheme S)
+          (_ : AlgebraicStack (SmallQuotient.quotientStack (ofScheme G)))
+          (f : (SmallQuotient.quotientStack (ofScheme G)) ⟶ X)
+          (u : Points (SmallQuotient.quotientStack (ofScheme G))),
+        relativelyRepresentableByAlgebraicSpaces f ∧ Groupoids.Hom.Etale f ∧
+          IsAffine G.U.left ∧ IsAffine G.R.left ∧ IsFinite G.s.left ∧
+            IsFinite G.t.left ∧ AlgebraicGeometry.Flat G.s.left ∧
+            AlgebraicGeometry.Flat G.t.left ∧
+            AlgebraicGeometry.LocallyOfFinitePresentation G.s.left ∧
+            AlgebraicGeometry.LocallyOfFinitePresentation G.t.left ∧
+            inducesIsoOnResidualGerbes f u x :=
+  Iff.rfl
+
+/-- An étale, space-representable morphism from the quotient of an affine
+finite flat locally finitely presented groupoid scheme, sending `u` to `x`
+and inducing an isomorphism of residual gerbes there, witnesses
+`existsEtaleLocalAffineFiniteGroupoidIsoResidualGerbeAt X x`. -/
+theorem residualGerbe_of
+    {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X]
+    {x : Points X} (G : GroupoidScheme S)
+    [AlgebraicStack (SmallQuotient.quotientStack (ofScheme G))]
+    (f : (SmallQuotient.quotientStack (ofScheme G)) ⟶ X)
+    (h_repr : relativelyRepresentableByAlgebraicSpaces f)
+    [Groupoids.Hom.Etale f] [IsAffine G.U.left] [IsAffine G.R.left]
+    [IsFinite G.s.left] [IsFinite G.t.left]
+    [AlgebraicGeometry.Flat G.s.left] [AlgebraicGeometry.Flat G.t.left]
+    [AlgebraicGeometry.LocallyOfFinitePresentation G.s.left]
+    [AlgebraicGeometry.LocallyOfFinitePresentation G.t.left]
+    (u : Points (SmallQuotient.quotientStack (ofScheme G)))
+    (h_iso : inducesIsoOnResidualGerbes f u x) :
+    existsEtaleLocalAffineFiniteGroupoidIsoResidualGerbeAt X x :=
+  ⟨G, inferInstance, f, u, h_repr, inferInstance, inferInstance, inferInstance,
+    inferInstance, inferInstance, inferInstance, inferInstance, inferInstance,
+    inferInstance, h_iso⟩
+
+/-- `existsEtaleLocalAffineFiniteGroupoidIsoResidualGerbeAt X x` supplies an
+étale, space-representable chart through an affine finite flat locally finitely
+presented groupoid scheme, hitting `x` and inducing an isomorphism of residual
+gerbes there. -/
+theorem residualGerbe_spec
+    {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X] {x : Points X}
+    (h : existsEtaleLocalAffineFiniteGroupoidIsoResidualGerbeAt X x) :
+    ∃ (G : GroupoidScheme S)
+        (_ : AlgebraicStack (SmallQuotient.quotientStack (ofScheme G)))
+        (f : (SmallQuotient.quotientStack (ofScheme G)) ⟶ X)
+        (u : Points (SmallQuotient.quotientStack (ofScheme G))),
+      relativelyRepresentableByAlgebraicSpaces f ∧ Groupoids.Hom.Etale f ∧
+        IsAffine G.U.left ∧ IsAffine G.R.left ∧ IsFinite G.s.left ∧
+          IsFinite G.t.left ∧ AlgebraicGeometry.Flat G.s.left ∧
+          AlgebraicGeometry.Flat G.t.left ∧
+          AlgebraicGeometry.LocallyOfFinitePresentation G.s.left ∧
+          AlgebraicGeometry.LocallyOfFinitePresentation G.t.left ∧
+          inducesIsoOnResidualGerbes f u x :=
+  h
+
+end FiniteGroupoidChart
+
+/-- A point admitting a quasi-compact field-valued representative on a
+quasi-DM algebraic stack with separated diagonal admits a representable étale
+chart inducing an isomorphism of residual gerbes, presented by a groupoid
+scheme with affine objects and arrows and finite, flat, locally finitely
+presented source and target. -/
+theorem existsEtaleLocalAffineFiniteGroupoidIsoResidualGerbeAt_of_isQuasiDM
+    {S : Scheme.{u}} (X : GroupoidsOver S) [AlgebraicStack X] [IsQuasiDM X]
+    (h_separatedDiagonal :
+      Groupoids.Hom.has (@AlgebraicSpace.Separated S)
+        (diagonal.{u + 1, u, u + 1} X))
+    {x : Points X} (hx : existsQuasiCompactFieldValuedPoint X x) :
+    existsEtaleLocalAffineFiniteGroupoidIsoResidualGerbeAt X x := sorry
 
 end AlgebraicGeometry.AlgebraicStack

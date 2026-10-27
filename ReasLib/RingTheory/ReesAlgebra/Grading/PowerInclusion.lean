@@ -23,12 +23,11 @@ namespace ReesAlgebra.Grading
 
 variable {A : Type u} [CommRing A]
 
-/-- A positive power of an ideal is contained in the ideal. -/
-theorem power_le_self (I : Ideal A) {c : ℕ} (hc : 1 ≤ c) : I ^ c ≤ I := sorry
-
 /-- The inclusion of a positive ideal power is compatible with the identity map of the ring. -/
 theorem powerInclusion_comap (I : Ideal A) {c : ℕ} (hc : 1 ≤ c) :
-    I ^ c ≤ Ideal.comap (RingHom.id A) I := sorry
+    I ^ c ≤ Ideal.comap (RingHom.id A) I := by
+  simpa only [Ideal.comap_id] using
+    (Ideal.pow_le_self (I := I) (n := c) (by omega))
 
 /-- The graded Rees map induced by inclusion of a positive ideal power is `A`-linear. -/
 theorem powerInclusion_smul (I : Ideal A) {c : ℕ} (hc : 1 ≤ c)
@@ -55,7 +54,7 @@ viewed as an element of `I`. -/
 theorem powerInclusion_degreeOne (I : Ideal A) {c : ℕ} (hc : 1 ≤ c)
     (g : (I ^ c : Ideal A)) :
     powerInclusion I hc (degreeOne (I ^ c) g) =
-      degreeOne I ⟨g.1, power_le_self I hc g.2⟩ := sorry
+      degreeOne I ⟨g.1, Ideal.pow_le_self (I := I) (n := c) (by omega) g.2⟩ := sorry
 
 section LocalCohomology
 

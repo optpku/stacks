@@ -6,21 +6,14 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap92.Remark_92_25_2_Cosimplicial
-public import stacks_project.Chap92.Remark_92_25_2_Evaluation
-public import Mathlib.Algebra.Category.Grp.Abelian
-public import Mathlib.CategoryTheory.Abelian.LeftDerived
-public import Mathlib.CategoryTheory.Sites.Pullback
-public import ReasLib.CategoryTheory.DerivedCategory.Functor.TotalLeftDerived
-public import ReasLib.CategoryTheory.Fibered.CategoryHomology
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.Scheme.CotangentSite.DerivedEvaluation
+import StacksCheckRecall
 
 /-!
-# Computing `Lπ_!` by the standard fibrewise polynomial resolution
+# Computing derived projection lower shriek by the standard polynomial resolution
 
-Remark 92.25.2 records that `A_{•,U} = Spec(P_{•,U})` is a pointlike cosimplicial object
-of the fibre of `C_{X/Λ}` over `U`, that `U ↦ F(A_{•,U})` computes fibre homology, and
-that sheafification computes `Lπ_!(F)`.
+Evaluation on the functorial standard affine resolution computes fibre homology.
+Its sheafification in nonpositive degrees represents derived projection lower shriek.
 -/
 
 @[expose] public section
@@ -29,76 +22,143 @@ open CategoryTheory AlgebraicGeometry Opposite CategoryTheory.Limits AlgebraicTo
 open HomologicalComplex FiberedCategoryOver.FiberHomology Functor.LeftDerived
 open scoped AlgebraicGeometry Simplicial
 
-noncomputable section
-
-universe u q
+universe u w qS qT
 
 namespace AlgebraicGeometry.Scheme.CotangentSite
 
-/-- Remark 92.25.2 (1): `A_{•,U}` is a cosimplicial object of the fibre category
-`C_{O_X(U)/Λ}` of `C_{X/Λ}` over `U` as in Lemma 21.39.7. -/
-@[stacks 08VB]
-theorem standardCosimplicial_hasHomSpaces (Λ : CommRingCat.{u}) (X : Scheme.{u})
-    [X.Over (Spec Λ)] (U : X.smallZariskiSite) :
-    CosimplicialObject.Pointlike.HasHomSpaces (standardCosimplicial Λ X U) :=
-  sorry
-
-/-- Remark 92.25.2 (2): for an abelian sheaf `F` on `C_{X/Λ}`, the complex of
-presheaves `U ↦ F(A_{•,U})` computes the homology of `F` on the fibre category. -/
-@[stacks 08VB]
-theorem evalComplex_homology_isomorphic_fiberHomology
-    (Λ : CommRingCat.{u}) (X : Scheme.{u}) [X.Over (Spec Λ)]
-    (F : Sheaf (topology Λ X) AddCommGrpCat.{u + 1})
-    (U : X.smallZariskiSite) (n : ℕ) :
-    IsIsomorphic ((evalChain Λ X F U).homology n)
-      (Bar.homology (fiberedOver Λ X) F.obj U n) :=
-  sorry
-
-/-- Remark 92.25.2 (3): sheafification of `U ↦ F(A_{•,U})` computes
-`L_n π_!(F)` on `X_Zar`. -/
-@[stacks 08VB]
-theorem evalSheaf_homology_isomorphic_lowerShriek
-    (Λ : CommRingCat.{u}) (X : Scheme.{u}) [X.Over (Spec Λ)]
-    [HasSheafify X.smallZariskiTopology AddCommGrpCat.{u + 1}]
-    [HasSheafify (topology Λ X) AddCommGrpCat.{u + 1}]
-    [((forgetZariski Λ X).sheafPushforwardContinuous AddCommGrpCat.{u + 1}
+/- Remark 92.25.2: the sheafified standard-resolution evaluation complex computes
+ the actual total left derived functor of projection lower shriek. -/
+@[stacks 08VB] #check (AlgebraicGeometry.Scheme.CotangentSite.evalSheafComplex_computes :
+  ∀ (Λ : CommRingCat.{u}) (X : Scheme.{u}) [X.Over (Spec Λ)]
+    [HasSheafify X.smallZariskiTopology AddCommGrpCat.{w}]
+    [HasZeroObject (Sheaf X.smallZariskiTopology AddCommGrpCat.{w})]
+    [HasSheafify (topology Λ X) AddCommGrpCat.{w}]
+    [((forgetZariski Λ X).sheafPushforwardContinuous AddCommGrpCat.{w}
         (topology Λ X) X.smallZariskiTopology).IsRightAdjoint]
-    [HasProjectiveResolutions (Sheaf (topology Λ X) AddCommGrpCat.{u + 1})]
-    (F : Sheaf (topology Λ X) AddCommGrpCat.{u + 1}) (n : ℕ) :
-    IsIsomorphic
-      ((presheafToSheaf X.smallZariskiTopology AddCommGrpCat.{u + 1}).obj
-        ((evalComplex Λ X F.obj).homology n))
-      (((forgetZariski Λ X).sheafPullback AddCommGrpCat.{u + 1} (topology Λ X)
-          X.smallZariskiTopology).leftDerived n |>.obj F) :=
-  sorry
-
-/-- Remark 92.25.2 (4): the complex of sheaves whose term in degree `-n` is the
-sheafification of `U ↦ F(A_{n,U})` computes `Lπ_!(F)`. -/
-@[stacks 08VB]
-theorem evalSheafComplex_computes
-    (Λ : CommRingCat.{u}) (X : Scheme.{u}) [X.Over (Spec Λ)]
-    [HasSheafify X.smallZariskiTopology AddCommGrpCat.{u + 1}]
-    [HasWeakSheafify X.smallZariskiTopology AddCommGrpCat.{u + 1}]
-    [HasZeroObject (Sheaf X.smallZariskiTopology AddCommGrpCat.{u + 1})]
-    [HasSheafify (topology Λ X) AddCommGrpCat.{u + 1}]
-    [((forgetZariski Λ X).sheafPushforwardContinuous AddCommGrpCat.{u + 1}
-        (topology Λ X) X.smallZariskiTopology).IsRightAdjoint]
-    [HasDerivedCategory.{q} (Sheaf (topology Λ X) AddCommGrpCat.{u + 1})]
-    [HasDerivedCategory.{q} (Sheaf X.smallZariskiTopology AddCommGrpCat.{u + 1})]
-    [((forgetZariski Λ X).sheafPullback AddCommGrpCat.{u + 1} (topology Λ X)
+    [HasDerivedCategory.{qS} (Sheaf (topology Λ X) AddCommGrpCat.{w})]
+    [HasDerivedCategory.{qT} (Sheaf X.smallZariskiTopology AddCommGrpCat.{w})]
+    [((forgetZariski Λ X).sheafPullback AddCommGrpCat.{w} (topology Λ X)
         X.smallZariskiTopology).Additive]
     [(Functor.Homotopy.toDerived
-        ((forgetZariski Λ X).sheafPullback AddCommGrpCat.{u + 1} (topology Λ X)
+        ((forgetZariski Λ X).sheafPullback AddCommGrpCat.{w} (topology Λ X)
           X.smallZariskiTopology)).HasLeftDerivedFunctor
-      (HomotopyCategory.quasiIso (Sheaf (topology Λ X) AddCommGrpCat.{u + 1})
+      (HomotopyCategory.quasiIso (Sheaf (topology Λ X) AddCommGrpCat.{w})
         (ComplexShape.up ℤ))]
-    (F : Sheaf (topology Λ X) AddCommGrpCat.{u + 1}) :
+    (F : Sheaf (topology Λ X) AddCommGrpCat.{w}),
     IsIsomorphic (DerivedCategory.Q.obj (evalSheafComplex Λ X F))
       ((Homotopy.functor
-          ((forgetZariski Λ X).sheafPullback AddCommGrpCat.{u + 1} (topology Λ X)
+          ((forgetZariski Λ X).sheafPullback AddCommGrpCat.{w} (topology Λ X)
             X.smallZariskiTopology)).obj
         ((DerivedCategory.singleFunctor
-            (Sheaf (topology Λ X) AddCommGrpCat.{u + 1}) (0 : ℤ)).obj F)) :=
-  sorry
+            (Sheaf (topology Λ X) AddCommGrpCat.{w}) (0 : ℤ)).obj F)))
+
+#check (AlgebraicGeometry.Scheme.CotangentSite.standardCosimplicial :
+  ∀ (Λ : CommRingCat.{u}) (X : Scheme.{u}) [X.Over (Spec Λ)]
+    (U : X.smallZariskiSite),
+    CosimplicialObject (Functor.Fiber (forgetZariski Λ X) U))
+
+#check (AlgebraicGeometry.Scheme.CotangentSite.standardFunctor :
+  ∀ (Λ : CommRingCat.{u}) (X : Scheme.{u}) [X.Over (Spec Λ)],
+    X.smallZariskiSite ⥤ CosimplicialObject (category Λ X))
+
+#check (AlgebraicGeometry.Scheme.CotangentSite.evalPresheaf :
+  ∀ (Λ : CommRingCat.{u}) (X : Scheme.{u}) [X.Over (Spec Λ)]
+    (F : (category Λ X)ᵒᵖ ⥤ AddCommGrpCat.{w}) (n : ℕ),
+    X.smallZariskiSiteᵒᵖ ⥤ AddCommGrpCat.{w})
+
+#check (AlgebraicGeometry.Scheme.CotangentSite.evalPresheaf_obj :
+  ∀ (Λ : CommRingCat.{u}) (X : Scheme.{u}) [X.Over (Spec Λ)]
+    (F : (category Λ X)ᵒᵖ ⥤ AddCommGrpCat.{w}) (n : ℕ) (U : X.smallZariskiSite),
+    (evalPresheaf Λ X F n).obj (op U) = F.obj (op (standardAffine Λ X ⦋n⦌ U)))
+
+#check (AlgebraicGeometry.Scheme.CotangentSite.evalComplex :
+  ∀ (Λ : CommRingCat.{u}) (X : Scheme.{u}) [X.Over (Spec Λ)]
+    (F : (category Λ X)ᵒᵖ ⥤ AddCommGrpCat.{w}),
+    ChainComplex (X.smallZariskiSiteᵒᵖ ⥤ AddCommGrpCat.{w}) ℕ)
+
+#check (AlgebraicGeometry.Scheme.CotangentSite.evalComplex_X :
+  ∀ (Λ : CommRingCat.{u}) (X : Scheme.{u}) [X.Over (Spec Λ)]
+    (F : (category Λ X)ᵒᵖ ⥤ AddCommGrpCat.{w}) (n : ℕ),
+    (evalComplex Λ X F).X n = evalPresheaf Λ X F n)
+
+#check (AlgebraicGeometry.Scheme.CotangentSite.evalSheafChain :
+  ∀ (Λ : CommRingCat.{u}) (X : Scheme.{u}) [X.Over (Spec Λ)]
+    [HasSheafify X.smallZariskiTopology AddCommGrpCat.{w}] (F : Sheaf (topology Λ X) AddCommGrpCat.{w}),
+    ChainComplex (Sheaf X.smallZariskiTopology AddCommGrpCat.{w}) ℕ)
+
+#check (AlgebraicGeometry.Scheme.CotangentSite.evalSheafComplex :
+  ∀ (Λ : CommRingCat.{u}) (X : Scheme.{u}) [X.Over (Spec Λ)]
+    [HasSheafify X.smallZariskiTopology AddCommGrpCat.{w}]
+    [HasZeroObject (Sheaf X.smallZariskiTopology AddCommGrpCat.{w})] (F : Sheaf (topology Λ X) AddCommGrpCat.{w}),
+    CochainComplex (Sheaf X.smallZariskiTopology AddCommGrpCat.{w}) ℤ)
+
+#check (AlgebraicGeometry.Scheme.CotangentSite.evalSheafComplex_X :
+  ∀ (Λ : CommRingCat.{u}) (X : Scheme.{u}) [X.Over (Spec Λ)]
+    [HasSheafify X.smallZariskiTopology AddCommGrpCat.{w}]
+    [HasZeroObject (Sheaf X.smallZariskiTopology AddCommGrpCat.{w})]
+    (F : Sheaf (topology Λ X) AddCommGrpCat.{w}) (n : ℕ),
+    (evalSheafComplex Λ X F).X (-(n : ℤ)) =
+      (presheafToSheaf X.smallZariskiTopology AddCommGrpCat.{w}).obj (evalPresheaf Λ X F.obj n))
+
+#check (AlgebraicGeometry.Scheme.CotangentSite.standardCosimplicial_hasHomSpaces :
+  ∀ (Λ : CommRingCat.{u}) (X : Scheme.{u})
+    [X.Over (Spec Λ)] (U : X.smallZariskiSite),
+    CosimplicialObject.Pointlike.HasHomSpaces (standardCosimplicial Λ X U))
+
+#check (AlgebraicGeometry.Scheme.CotangentSite.evalComplex_homology_isomorphic_fiberHomology_presheaf :
+  ∀ (Λ : CommRingCat.{u}) (X : Scheme.{u}) [X.Over (Spec Λ)] [UnivLE.{u + 1, w}]
+    (F : (category Λ X)ᵒᵖ ⥤ AddCommGrpCat.{w}) (n : ℕ),
+    IsIsomorphic ((evalComplex Λ X F).homology n)
+      (Bar.presheaf (fiberedOver Λ X) F n))
+
+#check (AlgebraicGeometry.Scheme.CotangentSite.evalComplex_homology_isomorphic_fiberHomology :
+  ∀ (Λ : CommRingCat.{u}) (X : Scheme.{u}) [X.Over (Spec Λ)] [UnivLE.{u + 1, w}]
+    (F : (category Λ X)ᵒᵖ ⥤ AddCommGrpCat.{w}) (U : X.smallZariskiSite) (n : ℕ),
+    IsIsomorphic
+      (((CosimplicialObject.Evaluation.complex AddCommGrpCat.{w}
+        (standardCosimplicialObj Λ X U)).obj F).homology n)
+      (Bar.homology (fiberedOver Λ X) F U n))
+
+#check (AlgebraicGeometry.Scheme.CotangentSite.evalSheaf_homology_isomorphic_lowerShriek :
+  ∀ (Λ : CommRingCat.{u}) (X : Scheme.{u}) [X.Over (Spec Λ)]
+    [HasSheafify X.smallZariskiTopology AddCommGrpCat.{w}]
+    [HasSheafify (topology Λ X) AddCommGrpCat.{w}]
+    [((forgetZariski Λ X).sheafPushforwardContinuous AddCommGrpCat.{w}
+        (topology Λ X) X.smallZariskiTopology).IsRightAdjoint]
+    [HasProjectiveResolutions (Sheaf (topology Λ X) AddCommGrpCat.{w})]
+    (F : Sheaf (topology Λ X) AddCommGrpCat.{w}) (n : ℕ),
+    IsIsomorphic
+      ((presheafToSheaf X.smallZariskiTopology AddCommGrpCat.{w}).obj
+        ((evalComplex Λ X F.obj).homology n))
+      (((forgetZariski Λ X).sheafPullback AddCommGrpCat.{w} (topology Λ X)
+          X.smallZariskiTopology).leftDerived n |>.obj F))
+
+#check (AlgebraicGeometry.Scheme.CotangentSite.evalSheaf_homology_isomorphic_derivedLowerShriek :
+  ∀ (Λ : CommRingCat.{u}) (X : Scheme.{u}) [X.Over (Spec Λ)]
+    [HasSheafify X.smallZariskiTopology AddCommGrpCat.{w}]
+    [HasZeroObject (Sheaf X.smallZariskiTopology AddCommGrpCat.{w})]
+    [HasSheafify (topology Λ X) AddCommGrpCat.{w}]
+    [((forgetZariski Λ X).sheafPushforwardContinuous AddCommGrpCat.{w}
+        (topology Λ X) X.smallZariskiTopology).IsRightAdjoint]
+    [HasDerivedCategory.{qS} (Sheaf (topology Λ X) AddCommGrpCat.{w})]
+    [HasDerivedCategory.{qT} (Sheaf X.smallZariskiTopology AddCommGrpCat.{w})]
+    [((forgetZariski Λ X).sheafPullback AddCommGrpCat.{w} (topology Λ X)
+        X.smallZariskiTopology).Additive]
+    [(Functor.Homotopy.toDerived
+        ((forgetZariski Λ X).sheafPullback AddCommGrpCat.{w} (topology Λ X)
+          X.smallZariskiTopology)).HasLeftDerivedFunctor
+      (HomotopyCategory.quasiIso (Sheaf (topology Λ X) AddCommGrpCat.{w})
+        (ComplexShape.up ℤ))]
+    (F : Sheaf (topology Λ X) AddCommGrpCat.{w}) (n : ℕ),
+    IsIsomorphic
+      ((presheafToSheaf X.smallZariskiTopology AddCommGrpCat.{w}).obj
+        ((evalComplex Λ X F.obj).homology n))
+      ((DerivedCategory.homologyFunctor
+          (Sheaf X.smallZariskiTopology AddCommGrpCat.{w}) (-(n : ℤ))).obj
+        ((Homotopy.functor
+          ((forgetZariski Λ X).sheafPullback AddCommGrpCat.{w} (topology Λ X)
+            X.smallZariskiTopology)).obj
+        ((DerivedCategory.singleFunctor
+            (Sheaf (topology Λ X) AddCommGrpCat.{w}) (0 : ℤ)).obj F))))
 
 end AlgebraicGeometry.Scheme.CotangentSite

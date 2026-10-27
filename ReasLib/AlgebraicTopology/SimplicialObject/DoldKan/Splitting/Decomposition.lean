@@ -86,19 +86,54 @@ isomorphism. -/
 @[simp, stacks 017U "lower-face splitting reindexing comparison",
   stacks 017V "lower-face splitting reindexing comparison"]
 theorem reindexIso_hom (U : SimplicialObject A) (Δ : SimplexCategoryᵒᵖ) :
-    (reindexIso U Δ).hom = reindex U Δ := sorry
+    (reindexIso U Δ).hom = reindex U Δ := by
+  apply Sigma.hom_ext
+  intro B
+  rw [reindex, Sigma.ι_desc]
+  exact Sigma.ι_reindex_hom (Splitting.IndexSet.revEquiv (Δ := Δ))
+    (normalizedMoore.lowerFace.summand U Δ) B
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The inverse of the lower-face coproduct reindexing isomorphism is the same reversal map. -/
 @[simp, stacks 017U "lower-face splitting reindexing inverse comparison",
   stacks 017V "lower-face splitting reindexing inverse comparison"]
 theorem reindexIso_inv (U : SimplicialObject A) (Δ : SimplexCategoryᵒᵖ) :
-    (reindexIso U Δ).inv = reindex U Δ := sorry
+    (reindexIso U Δ).inv = reindex U Δ := by
+  apply Sigma.hom_ext
+  intro B
+  rw [reindex, Sigma.ι_desc]
+  have h := Sigma.ι_reindex_inv (Splitting.IndexSet.revEquiv (Δ := Δ))
+    (normalizedMoore.lowerFace.summand U Δ) (Splitting.IndexSet.rev B)
+  change Sigma.ι (normalizedMoore.lowerFace.summand U Δ)
+      (Splitting.IndexSet.rev (Splitting.IndexSet.rev B)) ≫ (reindexIso U Δ).inv =
+    Sigma.ι (normalizedMoore.lowerFace.summand U Δ) (Splitting.IndexSet.rev B) at h
+  have hι := colimit.w (Discrete.functor (normalizedMoore.lowerFace.summand U Δ))
+    (Discrete.eqToHom' (Splitting.IndexSet.rev_rev B))
+  change 𝟙 _ ≫ Sigma.ι (normalizedMoore.lowerFace.summand U Δ) B =
+    Sigma.ι (normalizedMoore.lowerFace.summand U Δ)
+      (Splitting.IndexSet.rev (Splitting.IndexSet.rev B)) at hι
+  rw [Category.id_comp] at hι
+  rw [← hι] at h
+  exact h
 
 /-- Reindexing the lower-face degeneracy summands by reversal twice is the identity. -/
 @[stacks 017U "involutivity of lower-face splitting reindexing",
   stacks 017V "involutivity of lower-face splitting reindexing"]
 theorem reindex_comp_self (U : SimplicialObject A) (Δ : SimplexCategoryᵒᵖ) :
-    reindex U Δ ≫ reindex U Δ = 𝟙 _ := sorry
+    reindex U Δ ≫ reindex U Δ = 𝟙 _ := by
+  apply Sigma.hom_ext
+  intro B
+  erw [reindex, Sigma.ι_desc_assoc, Sigma.ι_desc, Category.comp_id]
+  have hB : Splitting.IndexSet.rev (Splitting.IndexSet.rev B) = B := by
+    refine Splitting.IndexSet.ext _ _ rfl ?_
+    change SimplexCategory.rev.map (SimplexCategory.rev.map B.e) ≫ 𝟙 _ = B.e
+    rw [Category.comp_id, SimplexCategory.rev_map_rev_map]
+  have hι := colimit.w (Discrete.functor (normalizedMoore.lowerFace.summand U Δ))
+    (Discrete.eqToHom' hB)
+  change 𝟙 _ ≫ Sigma.ι (normalizedMoore.lowerFace.summand U Δ) B =
+    Sigma.ι (normalizedMoore.lowerFace.summand U Δ)
+      (Splitting.IndexSet.rev (Splitting.IndexSet.rev B)) at hι
+  simpa only [Category.id_comp] using hι.symm
 
 /-- The inverse lower-face decomposition map supplied by the unit of the lower-face Dold--Kan
 equivalence, followed by the reversal reindexing of degeneracy summands. This owns the inverse
@@ -109,27 +144,172 @@ noncomputable def inv (U : SimplicialObject A) (Δ : SimplexCategoryᵒᵖ) :
   ((Abelian.DoldKan.N.lowerFace.equivalence (A := A)).unitIso.hom.app U).app Δ ≫
     reindex U Δ
 
+-- Compare the unit with Mathlib's explicit reconstruction in the Karoubi envelope.
+open Idempotents AlgebraicTopology.DoldKan in
+set_option backward.defeqAttrib.useBackward true in
+set_option backward.isDefEq.respectTransparency false in
+private theorem pseudoabelian_unit_inv (U : SimplicialObject A) :
+    (toKaroubi (SimplicialObject A)).map
+        (Idempotents.DoldKan.equivalence.unitIso.inv.app U) =
+      Idempotents.DoldKan.isoΓ₀.inv.app (Idempotents.DoldKan.N.obj U) ≫
+        Γ₂.map ((toKaroubiEquivalence (ChainComplex A ℕ)).counitIso.hom.app (N₁.obj U)) ≫
+          Γ₂N₁.inv.app U := by
+  change (toKaroubiEquivalence (SimplicialObject A)).functor.map _ = _
+  rw [Idempotents.DoldKan.equivalence_unitIso]
+  simp only [Idempotents.DoldKan.ε, Compatibility.equivalenceUnitIso_inv_app,
+    Functor.map_comp, (toKaroubiEquivalence (SimplicialObject A)).fun_inv_map,
+    Category.assoc, Iso.inv_hom_id_app_assoc,
+    Equivalence.counitInv_functor_comp]
+  have ht := (toKaroubiEquivalence (SimplicialObject A)).functor_unitIso_comp
+    (Idempotents.DoldKan.Γ.obj
+      ((toKaroubiEquivalence (ChainComplex A ℕ)).inverse.obj (N₁.obj U)))
+  change (toKaroubiEquivalence (SimplicialObject A)).functor.map
+      ((toKaroubiEquivalence (SimplicialObject A)).unitIso.hom.app _) ≫
+        (toKaroubiEquivalence (SimplicialObject A)).counit.app _ = _ at ht
+  rw [← Category.assoc, ht]
+  change 𝟙 _ ≫
+    Idempotents.DoldKan.isoΓ₀.inv.app (Idempotents.DoldKan.N.obj U) ≫
+      Γ₂.map ((toKaroubiEquivalence (ChainComplex A ℕ)).counitIso.hom.app (N₁.obj U)) ≫
+        Γ₂N₁.inv.app U ≫ 𝟙 _ = _
+  simp only [Category.id_comp, Category.comp_id]
+
+open Idempotents AlgebraicTopology.DoldKan in
+set_option backward.defeqAttrib.useBackward true in
+set_option backward.isDefEq.respectTransparency false in
+private theorem abelian_unit_inv (U : SimplicialObject A) :
+    (toKaroubi (SimplicialObject A)).map (Abelian.DoldKan.equivalence.unitIso.inv.app U) =
+      Idempotents.DoldKan.isoΓ₀.inv.app (Abelian.DoldKan.N.obj U) ≫
+        Γ₂.map ((N₁_iso_normalizedMooreComplex_comp_toKaroubi A).inv.app U) ≫
+          Γ₂N₁.inv.app U := by
+  change (toKaroubi (SimplicialObject A)).map
+    (((Idempotents.DoldKan.equivalence (C := A)).changeFunctor
+      Abelian.DoldKan.comparisonN.symm).unitIso.inv.app U) = _
+  rw [Equivalence.changeFunctor_unitIso_inv_app]
+  simp only [Iso.symm_inv, Functor.map_comp, pseudoabelian_unit_inv]
+  dsimp only [Idempotents.DoldKan.equivalence_inverse]
+  erw [← Category.assoc, Idempotents.DoldKan.isoΓ₀.inv.naturality]
+  have hc : (toKaroubi (ChainComplex A ℕ)).map (Abelian.DoldKan.comparisonN.hom.app U) ≫
+        (toKaroubiEquivalence (ChainComplex A ℕ)).counitIso.hom.app (N₁.obj U) =
+      (N₁_iso_normalizedMooreComplex_comp_toKaroubi A).inv.app U := by
+    have hcomp : Abelian.DoldKan.comparisonN.hom.app U =
+        (toKaroubiEquivalence (ChainComplex A ℕ)).unitIso.hom.app (Abelian.DoldKan.N.obj U) ≫
+          (toKaroubiEquivalence (ChainComplex A ℕ)).inverse.map
+            ((N₁_iso_normalizedMooreComplex_comp_toKaroubi A).inv.app U) := by
+      ext n
+      exact Abelian.DoldKan.comparisonN_hom_app_f U n
+    change (toKaroubiEquivalence (ChainComplex A ℕ)).functor.map _ ≫ _ = _
+    rw [hcomp]
+    erw [Functor.map_comp, Category.assoc,
+      (toKaroubiEquivalence (ChainComplex A ℕ)).counit_naturality,
+      ← Category.assoc]
+    exact (toKaroubiEquivalence (ChainComplex A ℕ)).functor_unitIso_comp _ ▸
+      Category.id_comp _
+  erw [Category.assoc]
+  change Idempotents.DoldKan.isoΓ₀.inv.app (Abelian.DoldKan.N.obj U) ≫
+    Γ₂.map ((toKaroubi (ChainComplex A ℕ)).map (Abelian.DoldKan.comparisonN.hom.app U)) ≫
+      Γ₂.map ((toKaroubiEquivalence (ChainComplex A ℕ)).counitIso.hom.app (N₁.obj U)) ≫
+        Γ₂N₁.inv.app U = _
+  rw [← Γ₂.map_comp_assoc, hc]
+
+open AlgebraicTopology.DoldKan in
+set_option backward.defeqAttrib.useBackward true in
+set_option backward.isDefEq.respectTransparency false in
+private theorem gamma_cofan_inj (K : ChainComplex A ℕ) (Δ : SimplexCategoryᵒᵖ)
+    (B : Splitting.IndexSet Δ) :
+    ((Γ₀.splitting K).cofan Δ).inj B = Sigma.ι (Γ₀.Obj.summand K Δ) B := by
+  dsimp [Splitting.cofan, Γ₀.splitting]
+  rw [Γ₀.Obj.map_on_summand₀ K (Splitting.IndexSet.id B.1)
+    (show B.e ≫ 𝟙 _ = B.e.op.unop ≫ 𝟙 _ by rfl), Γ₀.Obj.Termwise.mapMono_id]
+  dsimp
+  rw [Category.id_comp]
+  rfl
+
+set_option backward.defeqAttrib.useBackward true in
+set_option backward.isDefEq.respectTransparency false in
+private theorem abelian_unit_inv_summand (U : SimplicialObject A) (Δ : SimplexCategoryᵒᵖ)
+    (B : Splitting.IndexSet Δ) :
+    Sigma.ι (Splitting.summand (fun n ↦ (NormalizedMooreComplex.objX U n : A)) Δ) B ≫
+        (Abelian.DoldKan.equivalence.unitIso.inv.app U).app Δ =
+      (NormalizedMooreComplex.objX U B.1.unop.len).arrow ≫ U.map B.e.op := by
+  have h := congrArg (fun f ↦ f.f.app Δ) (abelian_unit_inv U)
+  dsimp only [Idempotents.toKaroubi, Idempotents.Karoubi.comp_f, NatTrans.comp_app] at h
+  change (Abelian.DoldKan.equivalence.unitIso.inv.app U).app Δ =
+    𝟙 _ ≫
+      (DoldKan.Γ₂.map ((DoldKan.N₁_iso_normalizedMooreComplex_comp_toKaroubi A).inv.app U)).f.app Δ ≫
+        (DoldKan.Γ₂N₁.inv.app U).f.app Δ at h
+  rw [Category.id_comp] at h
+  rw [h]
+  dsimp [DoldKan.Γ₂, DoldKan.Γ₂N₁, DoldKan.Γ₂N₁.natTrans,
+    Idempotents.functorExtension₂, Idempotents.functorExtension₁]
+  erw [← gamma_cofan_inj (NormalizedMooreComplex.obj U) Δ B, Splitting.ι_desc_assoc,
+    Category.assoc, Splitting.ι_desc]
+  rw [← Category.assoc]
+  change ((inclusionOfMooreComplexMap U ≫ DoldKan.PInfty).f B.1.unop.len) ≫
+    U.map B.e.op = _
+  rw [DoldKan.inclusionOfMooreComplexMap_comp_PInfty]
+  rfl
+
+set_option backward.defeqAttrib.useBackward true in
+set_option backward.isDefEq.respectTransparency false in
 /-- After reversing its degeneracy labels, the lower-face coproduct decomposition is the inverse
 component of the unit isomorphism for the lower-face Dold--Kan equivalence. -/
 @[stacks 017U "lower-face splitting unit comparison",
   stacks 017V "lower-face splitting unit comparison"]
 theorem reindex_comp_hom (U : SimplicialObject A) (Δ : SimplexCategoryᵒᵖ) :
     reindex U Δ ≫ normalizedMoore.lowerFace.decomposition U Δ =
-      ((Abelian.DoldKan.N.lowerFace.equivalence (A := A)).unitIso.inv.app U).app Δ := sorry
+      ((Abelian.DoldKan.N.lowerFace.equivalence (A := A)).unitIso.inv.app U).app Δ := by
+  apply Sigma.hom_ext
+  intro B
+  simp only [normalizedMoore.lowerFace.decomposition.reindex,
+    Sigma.ι_desc_assoc, normalizedMoore.lowerFace.decomposition, Sigma.ι_desc]
+  change (normalizedMoore.lowerFace.subobject U B.1.unop.len).arrow ≫
+      U.map (SimplexCategory.rev.map B.e).op =
+    Sigma.ι (normalizedMoore.lowerFace.summand U Δ) B ≫
+      ((Abelian.DoldKan.N.lowerFace.equivalence (A := A)).unitIso.inv.app U).app Δ
+  have hu : ((Abelian.DoldKan.N.lowerFace.equivalence (A := A)).unitIso.inv.app U).app Δ =
+      (Abelian.DoldKan.equivalence.unitIso.inv.app (_root_.SimplicialObject.opFunctor.obj U)).app Δ := by
+    simp [Abelian.DoldKan.N.lowerFace.equivalence, Equivalence.trans,
+      _root_.SimplicialObject.opEquivalence, _root_.SimplicialObject.opObjIso]
+    exact Category.comp_id _
+  rw [hu]
+  have hs := (abelian_unit_inv_summand (_root_.SimplicialObject.opFunctor.obj U) Δ B).symm
+  rw [_root_.SimplicialObject.opFunctor_obj_map] at hs
+  change (normalizedMoore.lowerFace.subobject U B.1.unop.len).arrow ≫
+      (𝟙 _ ≫ U.map (SimplexCategory.rev.map B.e).op ≫ 𝟙 _) =
+    Sigma.ι (normalizedMoore.lowerFace.summand U Δ) B ≫
+      (Abelian.DoldKan.equivalence.unitIso.inv.app (_root_.SimplicialObject.opFunctor.obj U)).app Δ at hs
+  simpa only [Category.id_comp, Category.comp_id] using hs
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Composing the lower-face decomposition with its reconstruction inverse is the identity on
 the coproduct of normalized summands. -/
 @[stacks 017U "lower-face splitting hom-inverse law",
   stacks 017V "lower-face splitting hom-inverse law"]
 theorem hom_inv_id (U : SimplicialObject A) (Δ : SimplexCategoryᵒᵖ) :
-    normalizedMoore.lowerFace.decomposition U Δ ≫ inv U Δ = 𝟙 _ := sorry
+    normalizedMoore.lowerFace.decomposition U Δ ≫ inv U Δ = 𝟙 _ := by
+  have h : reindex U Δ ≫ (normalizedMoore.lowerFace.decomposition U Δ ≫ inv U Δ) =
+      reindex U Δ := by
+    rw [← Category.assoc, reindex_comp_hom]
+    simp only [inv, ← Category.assoc, Iso.inv_hom_id_app_app]
+    exact Category.id_comp _
+  calc
+    normalizedMoore.lowerFace.decomposition U Δ ≫ inv U Δ =
+        (reindex U Δ ≫ reindex U Δ) ≫
+          (normalizedMoore.lowerFace.decomposition U Δ ≫ inv U Δ) := by
+      rw [reindex_comp_self, Category.id_comp]
+    _ = reindex U Δ ≫ reindex U Δ := by rw [Category.assoc, h]
+    _ = 𝟙 _ := reindex_comp_self U Δ
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Composing the reconstruction inverse with the lower-face decomposition is the identity on
 the simplices in degree `Δ`. -/
 @[stacks 017U "lower-face splitting inverse-hom law",
   stacks 017V "lower-face splitting inverse-hom law"]
 theorem inv_hom_id (U : SimplicialObject A) (Δ : SimplexCategoryᵒᵖ) :
-    inv U Δ ≫ normalizedMoore.lowerFace.decomposition U Δ = 𝟙 _ := sorry
+    inv U Δ ≫ normalizedMoore.lowerFace.decomposition U Δ = 𝟙 _ := by
+  dsimp only [inv]
+  rw [Category.assoc, reindex_comp_hom]
+  exact (Abelian.DoldKan.N.lowerFace.equivalence (A := A)).unitIso.hom_inv_id_app_app U Δ
 
 /-- The degreewise lower-face decomposition packaged as an isomorphism. -/
 @[stacks 017U "lower-face splitting isomorphism",
@@ -145,18 +325,19 @@ noncomputable def iso (U : SimplicialObject A) (Δ : SimplexCategoryᵒᵖ) :
 @[simp, stacks 017U "lower-face splitting forward map",
   stacks 017V "lower-face splitting forward map"]
 theorem iso_hom (U : SimplicialObject A) (Δ : SimplexCategoryᵒᵖ) :
-    (iso U Δ).hom = normalizedMoore.lowerFace.decomposition U Δ := sorry
+    (iso U Δ).hom = normalizedMoore.lowerFace.decomposition U Δ := rfl
 
 /-- The inverse map of the lower-face splitting is the named reconstruction map. -/
 @[simp, stacks 017U "lower-face splitting inverse map",
   stacks 017V "lower-face splitting inverse map"]
 theorem iso_inv (U : SimplicialObject A) (Δ : SimplexCategoryᵒᵖ) :
-    (iso U Δ).inv = inv U Δ := sorry
+    (iso U Δ).inv = inv U Δ := rfl
 
 /-- The lower-face decomposition morphism is an isomorphism in every simplicial degree. -/
 @[stacks 017U "lower-face splitting", stacks 017V "lower-face splitting"]
 instance isIso (U : SimplicialObject A) (Δ : SimplexCategoryᵒᵖ) :
-    IsIso (normalizedMoore.lowerFace.decomposition U Δ) := sorry
+    IsIso (normalizedMoore.lowerFace.decomposition U Δ) :=
+  (iso U Δ).isIso_hom
 
 end normalizedMoore.lowerFace.decomposition
 

@@ -57,7 +57,13 @@ theorem fiberwiseColimitCocone_naturality
     ∀ {x y : (X.p.Fiber U)ᵒᵖ} (g : x ⟶ y),
       (restrict X A F U).map g ≫
           fiberwiseColimitCoconeApp X A F f y =
-        fiberwiseColimitCoconeApp X A F f x ≫ 𝟙 _ := sorry
+        fiberwiseColimitCoconeApp X A F f x ≫ 𝟙 _ := by
+  intro x y g
+  rw [Category.comp_id, fiberwiseColimitCoconeApp, fiberwiseColimitCoconeApp,
+    ← Category.assoc, cartesianRestriction_naturality X A F f g, Category.assoc]
+  exact congrArg (fun k => cartesianRestrictionApp X A F f x ≫ k)
+    (colimit.w (restrict X A F V)
+      (((Functor.Cleavage.ofIsFibered X.p).reindex f).op.map g))
 
 /-- The simplified form of fiberwise-colimit cocone naturality. -/
 @[stacks 08PI "fiberwise colimit cocone naturality simplified"]
@@ -67,7 +73,9 @@ theorem fiberwiseColimitCocone_naturality_eq
     ∀ {x y : (X.p.Fiber U)ᵒᵖ} (g : x ⟶ y),
       (restrict X A F U).map g ≫
           fiberwiseColimitCoconeApp X A F f y =
-        fiberwiseColimitCoconeApp X A F f x := sorry
+        fiberwiseColimitCoconeApp X A F f x := by
+  intro x y g
+  simpa only [Category.comp_id] using fiberwiseColimitCocone_naturality X A F f g
 
 /-- The cocone over the source-fiber restriction with vertex the target-fiber colimit. -/
 @[stacks 08PI "fiberwise colimit restriction cocone"]
@@ -96,8 +104,20 @@ theorem fiberwiseColimitMap_id
     (F : X.totalᵒᵖ ⥤ A) (U : Cᵒᵖ)
     [HasColimitsOfShape (X.p.Fiber U.unop)ᵒᵖ A] :
     fiberwiseColimitMap X A F (𝟙 U) =
-      𝟙 (fiberwiseColimitObj X A F U) := sorry
+      𝟙 (fiberwiseColimitObj X A F U) := by
+  dsimp only [fiberwiseColimitMap, fiberwiseColimitCocone,
+    fiberwiseColimitCoconeApp, fiberwiseColimitObj]
+  apply colimit.hom_ext
+  intro x
+  simp only [colimit.ι_desc, Category.comp_id]
+  change F.map ((Functor.Cleavage.ofIsFibered X.p).cartesianHom
+      (𝟙 U.unop) x.unop).op ≫ _ = _
+  rw [← Functor.Cleavage.Reindex.idIsoApp.inv.eq_cartesianHom]
+  exact colimit.w (restrict X A F U.unop)
+    (Functor.Cleavage.Reindex.idIsoApp
+      (Functor.Cleavage.ofIsFibered X.p) U.unop x.unop).inv.op
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Composition law for the fiberwise-colimit restriction maps. -/
 @[simp, stacks 08PI "fiberwise colimit composition map"]
 theorem fiberwiseColimitMap_comp
@@ -106,7 +126,29 @@ theorem fiberwiseColimitMap_comp
     [HasColimitsOfShape (X.p.Fiber V.unop)ᵒᵖ A]
     [HasColimitsOfShape (X.p.Fiber W.unop)ᵒᵖ A] :
     fiberwiseColimitMap X A F (f ≫ g) =
-      fiberwiseColimitMap X A F f ≫ fiberwiseColimitMap X A F g := sorry
+      fiberwiseColimitMap X A F f ≫ fiberwiseColimitMap X A F g := by
+  dsimp only [fiberwiseColimitMap, fiberwiseColimitCocone,
+    fiberwiseColimitCoconeApp, fiberwiseColimitObj]
+  apply colimit.hom_ext
+  intro x
+  simp only [colimit.ι_desc_assoc, colimit.ι_desc, Category.assoc]
+  let χ := Functor.Cleavage.ofIsFibered X.p
+  let e := Functor.Cleavage.Reindex.compIsoApp χ f.unop g.unop x.unop
+  have h := colimit.w (restrict X A F W.unop) e.inv.op
+  change F.map e.inv.1.op ≫ colimit.ι (restrict X A F W.unop)
+      (op (χ.reindexObj g.unop (χ.reindexObj f.unop x.unop))) =
+    colimit.ι (restrict X A F W.unop)
+      (op (χ.reindexObj (g.unop ≫ f.unop) x.unop)) at h
+  change F.map (χ.cartesianHom (g.unop ≫ f.unop) x.unop).op ≫
+      colimit.ι (restrict X A F W.unop)
+        (op (χ.reindexObj (g.unop ≫ f.unop) x.unop)) =
+    F.map (χ.cartesianHom f.unop x.unop).op ≫
+      F.map (χ.cartesianHom g.unop (χ.reindexObj f.unop x.unop)).op ≫
+        colimit.ι (restrict X A F W.unop)
+          (op (χ.reindexObj g.unop (χ.reindexObj f.unop x.unop)))
+  rw [← h, ← Category.assoc, ← F.map_comp, ← op_comp,
+    Functor.Cleavage.Reindex.compIsoApp.inv.fac, op_comp, F.map_comp,
+    Category.assoc]
 
 /-- The presheaf on the base obtained by taking colimits over all fibers. -/
 @[stacks 08PI "fiberwise colimit presheaf"]
@@ -136,7 +178,8 @@ theorem fiberwiseColimit_ι_map
         (fiberwiseColimit X A F).map f =
       cartesianRestrictionApp X A F f.unop x ≫
         colimit.ι (restrict X A F V.unop)
-          (((Functor.Cleavage.ofIsFibered X.p).reindex f.unop).op.obj x) := sorry
+          (((Functor.Cleavage.ofIsFibered X.p).reindex f.unop).op.obj x) := by
+  exact colimit.ι_desc (fiberwiseColimitCocone X A F f.unop) x
 
 namespace fiberwiseColimit
 
@@ -148,6 +191,7 @@ noncomputable def mapApp
     fiberwiseColimitObj X A F V ⟶ fiberwiseColimitObj X A G V :=
   colimMap (restrictMap X A τ V.unop)
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Naturality of the fiberwise-colimit coefficient map in the base category. -/
 @[stacks 08PI "fiberwise colimit coefficient map naturality"]
 theorem map_naturality
@@ -155,7 +199,18 @@ theorem map_naturality
     [∀ V : C, HasColimitsOfShape (X.p.Fiber V)ᵒᵖ A]
     {U V : Cᵒᵖ} (f : U ⟶ V) :
     (fiberwiseColimit X A F).map f ≫ mapApp X A τ V =
-      mapApp X A τ U ≫ (fiberwiseColimit X A G).map f := sorry
+      mapApp X A τ U ≫ (fiberwiseColimit X A G).map f := by
+  dsimp only [fiberwiseColimit, fiberwiseColimitMap, mapApp,
+    fiberwiseColimitCocone, fiberwiseColimitCoconeApp, fiberwiseColimitObj]
+  apply colimit.hom_ext
+  intro x
+  simp only [Category.assoc, colimit.ι_desc_assoc, colimit.ι_desc,
+    ι_colimMap_assoc, ι_colimMap]
+  change F.map ((Functor.Cleavage.ofIsFibered X.p).cartesianHom
+      f.unop x.unop).op ≫ τ.app _ ≫ _ =
+    τ.app _ ≫ G.map ((Functor.Cleavage.ofIsFibered X.p).cartesianHom
+      f.unop x.unop).op ≫ _
+  rw [← Category.assoc, τ.naturality, Category.assoc]
 
 /-- The map of fiberwise-colimit presheaves induced by a coefficient morphism. -/
 @[stacks 08PI "fiberwise colimit coefficient map"]
@@ -171,14 +226,22 @@ noncomputable def map
 theorem map_id
     (F : X.totalᵒᵖ ⥤ A)
     [∀ V : C, HasColimitsOfShape (X.p.Fiber V)ᵒᵖ A] :
-    map X A (𝟙 F) = 𝟙 (fiberwiseColimit X A F) := sorry
+    map X A (𝟙 F) = 𝟙 (fiberwiseColimit X A F) := by
+  ext V
+  change colim.map (𝟙 (restrict X A F V.unop)) =
+    𝟙 (colim.obj (restrict X A F V.unop))
+  exact Functor.map_id colim (restrict X A F V.unop)
 
 /-- Fiberwise-colimit coefficient maps preserve composition. -/
 @[simp, stacks 08PI "fiberwise colimit coefficient composition"]
 theorem map_comp
     {F G H : X.totalᵒᵖ ⥤ A} (τ : F ⟶ G) (σ : G ⟶ H)
     [∀ V : C, HasColimitsOfShape (X.p.Fiber V)ᵒᵖ A] :
-    map X A (τ ≫ σ) = map X A τ ≫ map X A σ := sorry
+    map X A (τ ≫ σ) = map X A τ ≫ map X A σ := by
+  ext V
+  change colim.map (restrictMap X A (τ ≫ σ) V.unop) =
+    colim.map (restrictMap X A τ V.unop) ≫ colim.map (restrictMap X A σ V.unop)
+  simp only [restrictMap, Functor.whiskerLeft_comp, Functor.map_comp]
 
 /-- Fiberwise colimit as a functor from total presheaves to base presheaves. -/
 @[stacks 08PI "fiberwise colimit coefficient functor"]
@@ -195,14 +258,14 @@ noncomputable def functor
 theorem functor_obj
     [∀ V : C, HasColimitsOfShape (X.p.Fiber V)ᵒᵖ A]
     (F : X.totalᵒᵖ ⥤ A) :
-    (functor X A).obj F = fiberwiseColimit X A F := sorry
+    (functor X A).obj F = fiberwiseColimit X A F := rfl
 
 /-- Evaluation of the fiberwise-colimit coefficient functor on morphisms. -/
 @[simp, stacks 08PI "fiberwise colimit coefficient functor map formula"]
 theorem functor_map
     [∀ V : C, HasColimitsOfShape (X.p.Fiber V)ᵒᵖ A]
     {F G : X.totalᵒᵖ ⥤ A} (τ : F ⟶ G) :
-    (functor X A).map τ = map X A τ := sorry
+    (functor X A).map τ = map X A τ := rfl
 
 end fiberwiseColimit
 

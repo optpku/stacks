@@ -50,7 +50,9 @@ theorem projection_isStackOnSite
 @[stacks 03YI]
 theorem projection_isStackInGroupoids
     (J : GrothendieckTopology C) (p : S ⥤ C) [IsStack.OnSite J p] :
-    IsStack.InGroupoids J (projection p) := sorry
+    IsStack.InGroupoids J (projection p) where
+  toInGroupoids := projectionInGroupoids p
+  toIsStack := (projection_isStackOnSite J p).toIsStack
 
 end Functor.IsStronglyCartesian
 
@@ -73,13 +75,13 @@ wide subcategory. -/
 @[simp, stacks 03YI "stack associated-groupoid underlying groupoid-fibred category"]
 theorem toGroupoids (X : StackOver.{uC, vC, uS, vS} J) :
     X.associatedGroupoid.toGroupoids =
-      X.toFiberedCategoryOver.associatedGroupoid := sorry
+      X.toFiberedCategoryOver.associatedGroupoid := rfl
 
 /-- The projection of the associated groupoid is the restriction of the original projection to
 strongly cartesian morphisms. -/
 @[simp, stacks 03YI "stack associated-groupoid projection"]
 theorem p (X : StackOver.{uC, vC, uS, vS} J) :
-    X.associatedGroupoid.p = Functor.IsStronglyCartesian.projection X.p := sorry
+    X.associatedGroupoid.p = Functor.IsStronglyCartesian.projection X.p := rfl
 
 /-- The canonical inclusion of the associated groupoid into the original stack. -/
 @[stacks 03YI "stack associated-groupoid inclusion"]
@@ -95,7 +97,7 @@ fibred-category inclusion. -/
 theorem inclusion.toMor (X : StackOver.{uC, vC, uS, vS} J) :
     StackOver.Hom.toMor (inclusion X) =
       FiberedCategoryOver.associatedGroupoid.inclusion
-        X.toFiberedCategoryOver := sorry
+        X.toFiberedCategoryOver := rfl
 
 variable {X Y : StackOver.{uC, vC, uS, vS} J}
 
@@ -111,18 +113,18 @@ groupoid-fibred categories. -/
 @[simp, stacks 03YI "stack associated-groupoid map underlying morphism"]
 theorem map.toGroupoidsMor (F : X ⟶ Y) :
     StackOver.Groupoids.Hom.toGroupoidsMor (map F) =
-      FiberedCategoryOver.associatedGroupoid.map (StackOver.Hom.toMor F) := sorry
+      FiberedCategoryOver.associatedGroupoid.map (StackOver.Hom.toMor F) := rfl
 
 /-- The associated-groupoid map of an identity stack morphism is the identity. -/
 @[simp, stacks 03YI "stack associated-groupoid identity"]
 theorem map_id (X : StackOver.{uC, vC, uS, vS} J) :
-    map (𝟙 X) = 𝟙 X.associatedGroupoid := sorry
+    map (𝟙 X) = 𝟙 X.associatedGroupoid := rfl
 
 /-- Associated-groupoid maps of stack morphisms preserve composition. -/
 @[simp, stacks 03YI "stack associated-groupoid composition"]
 theorem map_comp
     {Z : StackOver.{uC, vC, uS, vS} J} (F : X ⟶ Y) (G : Y ⟶ Z) :
-    map (F ≫ G) = map F ≫ map G := sorry
+    map (F ≫ G) = map F ≫ map G := rfl
 
 /-- Regard the associated-groupoid map as a morphism of the underlying ordinary stacks. -/
 @[stacks 03YI "ordinary stack bridge for associated-groupoid maps"]
@@ -137,13 +139,13 @@ noncomputable def map.toStackOver (F : X ⟶ Y) :
 theorem map.toStackOver.toMor (F : X ⟶ Y) :
     StackOver.Hom.toMor (map.toStackOver F) =
       (FiberedCategoryOver.Groupoids.toFibered C).map
-        (StackOver.Groupoids.Hom.toGroupoidsMor (map F)) := sorry
+        (StackOver.Groupoids.Hom.toGroupoidsMor (map F)) := rfl
 
 /-- Associated-groupoid inclusions are natural for morphisms of stacks, after viewing the
 associated-groupoid map in the ordinary stack bicategory. -/
 @[stacks 03YI "stack associated-groupoid inclusion naturality"]
 theorem inclusion_naturality (F : X ⟶ Y) :
-    map.toStackOver F ≫ inclusion Y = inclusion X ≫ F := sorry
+    map.toStackOver F ≫ inclusion Y = inclusion X ≫ F := rfl
 
 end associatedGroupoid
 

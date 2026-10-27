@@ -57,12 +57,6 @@ theorem pullback_hom (f : X ⟶ Y) {E : Y.Modules}
     (q : CategoryTheory.InvertibleQuotient E) :
     (pullback f q).hom = (Modules.pullback f).map q.hom := rfl
 
-/-- The target of the pulled-back quotient remains tensor-invertible. -/
-instance instIsInvertible_pullback (f : X ⟶ Y)
-    {E : Y.Modules} (q : CategoryTheory.InvertibleQuotient E) :
-    isInvertibleObject ((Modules.pullback f).obj q.object) :=
-  (pullback f q).isInvertible
-
 /-- Pullback preserves compatible target isomorphisms between invertible quotients. -/
 theorem pullback_rel (f : X ⟶ Y) {E : Y.Modules}
     {q q' : CategoryTheory.InvertibleQuotient E} (h : Rel q q') :

@@ -149,4 +149,20 @@ theorem existsUnique_comparison
     ∃! tau : (RingedSpace.Hom.pullback f).obj Ω[h] ⟶ Ω[h'],
       IsComparison tau := sorry
 
+/-- Package an explicitly supplied inverse of the comparison morphism.
+
+This constructor keeps the inverse as data supplied by a concrete geometric construction;
+the two inverse laws are propositions.  In particular, it does not manufacture an inverse
+from an `IsIso` proof or from choice. -/
+def comparisonIsoOfInverse
+    (sq : CommSq f h' h g)
+    (inv : Ω[h'] ⟶ (RingedSpace.Hom.pullback f).obj Ω[h])
+    (hom_inv_id : comparison sq ≫ inv = 𝟙 _) 
+    (inv_hom_id : inv ≫ comparison sq = 𝟙 _) :
+    (RingedSpace.Hom.pullback f).obj Ω[h] ≅ Ω[h'] :=
+  { hom := comparison sq
+    inv := inv
+    hom_inv_id := hom_inv_id
+    inv_hom_id := inv_hom_id }
+
 end AlgebraicGeometry.RingedSpace.Hom.Differentials

@@ -56,8 +56,8 @@ private theorem objwiseIsoLift_map_comp
 /- Proof strategy: apply injectivity of `F.map`, rewrite each `F.map_preimage`, reassociate, and
 cancel `(i Y).hom ≫ (i Y).inv`. -/
 
-/-- Lemma 4.2.18 (1) (Stacks 05SG): the functor determined by prescribed objectwise preimages and
-their isomorphisms under a fully faithful functor. -/
+/-- The functor determined by prescribed objectwise preimages and their isomorphisms under a
+fully faithful functor. -/
 @[stacks 05SG "functor extending a chosen object assignment"]
 noncomputable def objwiseIsoLift
     [F.Full] [F.Faithful]

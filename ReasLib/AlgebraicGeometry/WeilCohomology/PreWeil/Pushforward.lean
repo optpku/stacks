@@ -96,4 +96,19 @@ theorem pushforward_apply
     T.pushforward hX hY f a =
       T.diagonalContraction hY (T.pushforwardFunctional hX f a) := sorry
 
+
+/-- Pushforward on external dimension twists, in the supplied Tate coordinates. Coordinate adapter using the chosen Tate coordinates; canonical external
+compatibility and coherence are tracked by RL-2195. -/
+def twistedPushforward
+    {F : Type u} [Field F] [CharZero F]
+    {TateLine : Type w} [AddCommGroup TateLine] [Module F TateLine]
+    {V : Type v} [Category.{v} V] {H Picard Cycle : V → Type w}
+    [∀ X, Ring (H X)] [∀ X, Algebra F (H X)]
+    [∀ X, AddCommGroup (Picard X)] [∀ X, Ring (Cycle X)]
+    (T : PreWeilTheory F TateLine V H Picard Cycle)
+    {X Y : V} {d e : ℕ} (hX : T.IsNonemptyEquidimensional X d)
+    (hY : T.IsNonemptyEquidimensional Y e) (f : X ⟶ Y) :
+    T.twistedCohomology X d →ₗ[F] T.twistedCohomology Y e :=
+  Tate.map T.tateLine_rank (T.pushforward hX hY f) d e
+
 end WeilCohomology.PreWeilTheory

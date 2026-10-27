@@ -19,6 +19,7 @@ public import Mathlib.CategoryTheory.Limits.Types.Limits
 public import Mathlib.CategoryTheory.MorphismProperty.Comma
 public import Mathlib.CategoryTheory.MorphismProperty.Representable
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism
+public import ReasLib.AlgebraicGeometry.FormalAlgebraicSpace.Separation
 
 /-!
 # Separation conditions on algebraic spaces and their morphisms
@@ -120,13 +121,10 @@ covering. -/
 instance (priority := 900) instIsZariskiLocallyQuasiSeparated {S : Scheme.{u}}
     (F : AlgebraicSpace S) [IsQuasiSeparated F] : IsZariskiLocallyQuasiSeparated F := sorry
 
-/-- A morphism of algebraic spaces is separated if the relative diagonal is a closed immersion. -/
-@[mk_iff]
-class Separated {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) : Prop where
-  /-- The relative diagonal is a representable closed immersion. -/
-  isClosedImmersion_diagonal :
-    (over (@AlgebraicGeometry.IsClosedImmersion : MorphismProperty Scheme.{u})).presheaf
-      (pullback.diagonal (C := (Over S)ᵒᵖ ⥤ Type u) f)
+/-- Separatedness of an algebraic-space morphism is the corresponding
+separatedness predicate on its functor-of-points transformation. -/
+abbrev Separated {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) : Prop :=
+  FormalAlgebraicSpace.Separated (f : X.functorOfPoints ⟶ Y.functorOfPoints)
 
 /-- A morphism of algebraic spaces is locally separated if the relative diagonal is an immersion.
 This does not include quasi-separatedness. -/
@@ -137,13 +135,9 @@ class LocallySeparated {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     (over (@AlgebraicGeometry.IsImmersion : MorphismProperty Scheme.{u})).presheaf
       (pullback.diagonal (C := (Over S)ᵒᵖ ⥤ Type u) f)
 
-/-- A morphism of algebraic spaces is quasi-separated if the relative diagonal is quasi-compact. -/
-@[mk_iff]
-class QuasiSeparated {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) : Prop where
-  /-- The relative diagonal is a representable quasi-compact morphism. -/
-  quasiCompact_diagonal :
-    (over (@AlgebraicGeometry.QuasiCompact : MorphismProperty Scheme.{u})).presheaf
-      (pullback.diagonal (C := (Over S)ᵒᵖ ⥤ Type u) f)
+/-- Quasi-separatedness is the corresponding predicate on functorial points. -/
+abbrev QuasiSeparated {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) : Prop :=
+  FormalAlgebraicSpace.QuasiSeparated (f : X.functorOfPoints ⟶ Y.functorOfPoints)
 
 namespace Separated
 

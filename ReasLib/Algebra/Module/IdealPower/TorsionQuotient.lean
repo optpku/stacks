@@ -32,7 +32,7 @@ theorem primaryComponent_quotient_eq_bot :
 /-- Over a Noetherian ring, the quotient map by `I`-power torsion induces an
 isomorphism on the sequential colimits of the modules `Hom_A(I^n, M)`. -/
 @[instance]
-instance instIsIso_colimMap_powerHomModuleDiagramMap_mkQ :
+instance instIsIso_colimMap_powerHomModuleDiagramMap_mkQ [IsNoetherianRing A] :
     IsIso (colim.map (I.powerHomModuleDiagramMap (Submodule.mkQ (I.primaryComponent M)))) := sorry
 
 end Ideal

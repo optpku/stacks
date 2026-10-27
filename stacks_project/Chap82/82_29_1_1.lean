@@ -34,10 +34,10 @@ holds in Chow cohomology `A^*(X)` of `X` relative to `f` and `δ`. -/
       ∑ j ∈ Finset.range (i + 1),
         Nat.choose (r + j - i) j •
           (if hj : j ≤ i then
-            ChowCohomology.castChowGroup δ (g ≫ f)
+            (AddEquiv.cast (M := Hom.chowGroup (g ≫ f) δ)
               (show (k - (j : ℤ)) - ((i - j : ℕ) : ℤ) = k - (i : ℤ) by
                 rw [Nat.cast_sub hj]
-                omega)
+                omega)).toAddMonoidHom
               ((ChernClass.chernClass δ f E (i - j)).cap g (k - (j : ℤ))
                 (ChowCohomology.powCap (ChernClass.chernClass δ f L 1).cap j g k α))
           else 0))

@@ -7,11 +7,7 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import ReasLib.CategoryTheory.DerivedCategory.Functor.KInjectiveModel
-public import ReasLib.Algebra.Category.ModuleCat.Presheaf.PullbackSmallSource
-public import ReasLib.Algebra.Category.ModuleCat.Sheaf.ChangeOfRings.Equivalence
-public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.RestrictToScheme.PresentationComparison
-public import ReasLib.AlgebraicGeometry.RingedSite.Module.Pushforward.Composition
-public import Mathlib.Algebra.Category.ModuleCat.Sheaf.PullbackContinuous
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.RestrictToScheme.Extension
 public import Mathlib.Algebra.Homology.DerivedCategory.ExactFunctor
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Grothendieck
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.Basic
@@ -24,7 +20,7 @@ public import ReasLib.CategoryTheory.DerivedCategory.CohomologyIn.Structure
 
 Restriction is the direct image from the étale ringed topos to the Zariski ringed topos.
 It is computed on an actual unbounded K-injective replacement in the original module universe.
-The source-facing functor is restricted to complexes with quasi-coherent cohomology.
+The functor is restricted to complexes with quasi-coherent cohomology.
 -/
 
 @[expose] public section
@@ -46,110 +42,22 @@ instance instAdditive_restrictToScheme_toRingedSpace (U : Over S) :
 
 namespace SchemeRestriction
 
-/-- The actual underived direct image, retaining the canonical module restriction. -/
-def ordinary (U : Over S) :
-    (ofOver U).Modules ⥤ U.left.toRingedSpace.Modules :=
-  Modules.restrictToScheme U ⋙ Scheme.Modules.toRingedSpace U.left
-
 /-- Additivity uses the same actual composite functor under its local canonical spelling. -/
 instance ordinary_additive (U : Over S) : (ordinary U).Additive :=
   instAdditive_restrictToScheme_toRingedSpace U
 
-/-- The actual full étale-to-open ringed-site morphism; its source object universe is large
-but its base starts at the original small open site. -/
-def epsilon (U : Over S) :=
-  RingedSite.Hom.comp (schemeEtaleRingedHom U) (smallEtaleToOpensRingedHom U.left)
-
-/-- Continuity is retained from the stored ringed-site morphism. -/
-instance epsilon_isContinuous (U : Over S) :
-    (epsilon U).base.IsContinuous
-      (Opens.grothendieckTopology U.left) (smallEtaleTopology (ofOver U)) :=
-  RingedSite.Hom.base_isContinuous (epsilon U)
-
-/-- The underlying presheaf pushforward has an actual left adjoint by the small-source
-free represented construction, retaining the original coefficient universe. -/
-instance epsilonPresheaf_isRightAdjoint (U : Over S) :
-    (PresheafOfModules.pushforward.{u} (epsilon U).structureSheafMap.hom).IsRightAdjoint :=
-  PresheafOfModules.SmallSourcePullback.isRightAdjoint (epsilon U).structureSheafMap.hom
-
-/-- The sheaf inverse image is the actual presheaf pullback followed by sheafification. -/
-def epsilonPullback (U : Over S) :
-    RingedSite.ModuleCat.{u}
-        (RingedSite.ofRingSheaf (Opens.grothendieckTopology U.left)
-          ⟨Scheme.Site.structurePresheaf (U.left.restrictFunctor ⋙ Over.forget U.left),
-            opensStructurePresheaf_isSheaf U.left⟩) ⥤ (ofOver U).Modules := by
-  letI : Presheaf.IsLocallyInjective (smallEtaleTopology (ofOver U))
-      (𝟙 (structureSheaf (ofOver U)).obj) :=
-    Presheaf.isLocallyInjective_of_injective _ _ (fun _ ↦ Function.injective_id)
-  letI : Presheaf.IsLocallySurjective (smallEtaleTopology (ofOver U))
-      (𝟙 (structureSheaf (ofOver U)).obj) :=
-    Presheaf.isLocallySurjective_of_surjective _ _ (fun _ ↦ Function.surjective_id)
-  exact SheafOfModules.forget _ ⋙
-    PresheafOfModules.pullback.{u} (epsilon U).structureSheafMap.hom ⋙
-    PresheafOfModules.sheafification (R := structureSheaf (ofOver U))
-      (R₀ := (structureSheaf (ofOver U)).obj) (𝟙 (structureSheaf (ofOver U)).obj)
-
-/-- The adjunction stores the native free presentation/sheafification Hom maps. -/
-def epsilonAdjunction (U : Over S) :
-    epsilonPullback U ⊣ (epsilon U).modulePushforward.{u} :=
-  SheafOfModules.PullbackConstruction.adjunction (epsilon U).structureSheafMap
-
-/-- The two open coefficient presentations have the native restriction-global-sections maps
-in both directions. -/
-def opensCoefficientIso (U : Over S) :
-    U.left.ringCatSheaf ≅
-      ⟨Scheme.Site.structurePresheaf (U.left.restrictFunctor ⋙ Over.forget U.left),
-        opensStructurePresheaf_isSheaf U.left⟩ where
-  hom := opensStructureToRingCatSheaf U.left
-  inv := ⟨Functor.whiskerRight (@Scheme.restrictFunctorΓ U.left).hom (forget₂ CommRingCat RingCat)⟩
-  hom_inv_id := sorry
-  inv_hom_id := sorry
-
-/-- The open-coefficient presentation is an equivalence with actual inverse scalar restriction. -/
-def opensModuleEquivalence (U : Over S) :=
-  SheafOfModules.ChangeOfRings.restrictScalarsEquivalence (opensCoefficientIso U)
-
-/-- Ordinary restriction agrees with the actual ringed-site direct image and coefficient
-presentation. Every comparison has both section maps specified by the canonical owners. -/
-def ordinaryIso (U : Over S) :
-    ordinary U ≅ (epsilon U).modulePushforward.{u} ⋙
-      (opensModuleEquivalence U).inverse ⋙ Scheme.Modules.toRingedSpace U.left :=
-  Functor.isoWhiskerRight (Modules.RestrictToScheme.restrictionIsoBare U)
-      (Scheme.Modules.toRingedSpace U.left) ≪≫
-    Functor.isoWhiskerRight
-      ((Functor.associator (schemeEtaleRingedHom U).modulePushforward
-        (smallEtaleToOpensRingedHom U.left).modulePushforward (opensToSchemeModules U.left)).symm ≪≫
-        Functor.isoWhiskerRight
-          (RingedSite.Hom.modulePushforwardCompIso (schemeEtaleRingedHom U)
-            (smallEtaleToOpensRingedHom U.left)) (opensToSchemeModules U.left))
-      (Scheme.Modules.toRingedSpace U.left) ≪≫
-    Functor.associator _ _ _
-
-/-- Exact étale inverse image, transported through the actual open and ringed-space
-presentation equivalences. -/
-def epsilonStar (U : Over S) : U.left.toRingedSpace.Modules ⥤ (ofOver U).Modules :=
-  (Scheme.Modules.ringedSpaceEquivalence U.left).inverse ⋙
-    (opensModuleEquivalence U).functor ⋙ epsilonPullback U
-
-/-- The actual underived adjunction uses native free-presentation inverse image and the given
-presentation equivalences, then the specified comparison with canonical restriction. -/
-def adjunction (U : Over S) : epsilonStar U ⊣ ordinary U :=
-  (((Scheme.Modules.ringedSpaceEquivalence U.left).symm.toAdjunction).comp
-    (((opensModuleEquivalence U).toAdjunction).comp (epsilonAdjunction U))).ofNatIsoRight
-      (ordinaryIso U).symm
-
 /-- The inverse image is additive through its actual module adjunction. -/
 instance epsilonStar_additive (U : Over S) : (epsilonStar U).Additive := sorry
 
-/-- Étale-to-Zariski inverse image is exact. This is the source's flat topology-change morphism. -/
+/-- Étale-to-Zariski inverse image is exact. This topology-change morphism is flat. -/
 instance epsilonStar_preservesFiniteLimits (U : Over S) :
     PreservesFiniteLimits (epsilonStar U) := sorry
 
 /-- The specified inverse image is a left adjoint and preserves finite colimits. -/
 instance epsilonStar_preservesFiniteColimits (U : Over S) :
-    PreservesFiniteColimits (epsilonStar U) := by
-  letI : PreservesColimits (epsilonStar U) := (adjunction U).leftAdjoint_preservesColimits
-  infer_instance
+    PreservesFiniteColimits (epsilonStar U) :=
+  @PreservesColimits.preservesFiniteColimits _ _ _ _ (epsilonStar U)
+    ((adjunction U).leftAdjoint_preservesColimits)
 
 /-- Exact inverse image descends by the native exact-functor localization construction. -/
 def epsilonStarDerived (U : Over S) :
@@ -177,8 +85,7 @@ def unitOnCochains (U : Over S) (A : CochainComplex U.left.toRingedSpace.Modules
         (ofOver U).Modules).app
           (((epsilonStar U).mapHomologicalComplex (ComplexShape.up ℤ)).obj A))
 
-/-- The adjunction unit is a quasi-isomorphism for complexes with quasi-coherent cohomology,
-as in `lemma-derived-quasi-coherent-small-etale-site`. -/
+/-- The adjunction unit is a quasi-isomorphism for complexes with quasi-coherent cohomology. -/
 theorem unitOnCochains_quasiIso (U : Over S)
     (A : CochainComplex U.left.toRingedSpace.Modules ℤ)
     (hA : Scheme.derivedQuasiCoherentModuleProperty U.left (DerivedCategory.Q.obj A)) :
@@ -250,7 +157,8 @@ theorem derived_mapsTo (U : Over S) :
 
 end SchemeRestriction
 
-/-- The source-facing represented-scheme restriction is `Rε_*` on `D_QCoh`. -/
+/-- Right-derived restriction from the small étale site to the Zariski site on
+complexes with quasi-coherent cohomology. -/
 def spaceToSchemeDerived (U : Over S) : DerivedQCoh (ofOver U) ⥤ Scheme.DerivedQCoh U.left :=
   ObjectProperty.FullSubcategory.restrict (SchemeRestriction.derived U)
     (SchemeRestriction.derived_mapsTo U)
@@ -262,7 +170,8 @@ def spaceToSchemeDerivedInclusionIso (U : Over S) :
   ObjectProperty.FullSubcategory.restrict.compιIso (SchemeRestriction.derived U)
     (SchemeRestriction.derived_mapsTo U)
 
-/-- The source's exact inverse image on complexes with quasi-coherent cohomology. -/
+/-- Exact inverse image from the Zariski site to the small étale site on complexes
+with quasi-coherent cohomology. -/
 def schemeToSpaceDerived (U : Over S) : Scheme.DerivedQCoh U.left ⥤ DerivedQCoh (ofOver U) :=
   ObjectProperty.FullSubcategory.restrict (SchemeRestriction.epsilonStarDerived U)
     (SchemeRestriction.epsilonStarDerived_mapsTo U)

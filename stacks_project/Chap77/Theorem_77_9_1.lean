@@ -6,8 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap77.Theorem_77_9_1_ClosedImmersion
-public import stacks_project.Chap77.Theorem_77_9_1_IsomorphismFunctor
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.IsomorphismLocus
 import StacksCheckRecall
 
 @[expose] public section
@@ -28,7 +27,7 @@ variable (h_pure : ℱ.IsPureOver f)
 `ℱ` is of finite presentation, flat over `B`, and pure relative to `B`, and `u`
 is surjective, then `F_iso` is an algebraic space. -/
 @[stacks 0CWD] #check
-  (isomorphismOverSFunctor.isAlgebraicSpace f h_flat h_pure u :
+  (AlgebraicGeometry.AlgebraicSpace.Modules.isomorphismOverSFunctor.isAlgebraicSpace f h_flat h_pure u :
     IsAlgebraicSpace (isomorphismOverSFunctor f u))
 
 section
@@ -39,7 +38,7 @@ variable [IsAlgebraicSpace (isomorphismOverSFunctor f u)]
 `ℱ` is of finite presentation, flat over `B`, and pure relative to `B`, and `u`
 is surjective, then `F_iso ⟶ B` is a closed immersion. -/
 @[stacks 0CWD] #check
-  (isomorphismOverSFunctor.isClosedImmersion_toB f h_flat h_pure u :
+  (AlgebraicGeometry.AlgebraicSpace.Modules.isomorphismOverSFunctor.isClosedImmersion_toB f h_flat h_pure u :
     IsClosedImmersion (isomorphismOverSFunctor.toB f u))
 
 section
@@ -47,9 +46,11 @@ section
 variable [𝒢.IsFinitePresentation]
 
 /- Theorem 77.9.1 (3): In Situation 77.7.1, if in addition `𝒢` is of finite
-presentation, then `F_iso ⟶ B` is of finite presentation. -/
+presentation, then `F_iso ⟶ B` is of finite presentation. This uses the authorized
+correction of the original source: finite presentation is over `B`, replacing
+the printed conclusion over `S`. -/
 @[stacks 0CWD] #check
-  (isomorphismOverSFunctor.finitePresentation_toB f h_flat h_pure u :
+  (AlgebraicGeometry.AlgebraicSpace.Modules.isomorphismOverSFunctor.finitePresentation_toB f h_flat h_pure u :
     FinitePresentation (isomorphismOverSFunctor.toB f u))
 
 end

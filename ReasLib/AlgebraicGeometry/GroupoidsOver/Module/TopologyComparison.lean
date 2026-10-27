@@ -57,6 +57,32 @@ instance associatedTopology_over_wEqualsLocallyBijective (X : GroupoidsOver S)
       AddCommGrpCat.{u} :=
   sorry
 
+/-- Weak sheafification of abelian groups exists on every slice of the associated
+Zariski topology. -/
+instance associatedTopology_zariski_over_hasWeakSheafify (X : GroupoidsOver S) :
+    ∀ U, HasWeakSheafify ((X.associatedTopology .zariski).over U) AddCommGrpCat.{u} :=
+  associatedTopology_over_hasWeakSheafify X .zariski
+
+/-- Weak sheafification of abelian groups exists on every slice of the associated
+étale topology. -/
+instance associatedTopology_etale_over_hasWeakSheafify (X : GroupoidsOver S) :
+    ∀ U, HasWeakSheafify ((X.associatedTopology .etale).over U) AddCommGrpCat.{u} :=
+  associatedTopology_over_hasWeakSheafify X .etale
+
+/-- Sheafification equivalences of abelian groups on slices of the associated
+Zariski topology are exactly the locally bijective morphisms. -/
+instance associatedTopology_zariski_over_wEqualsLocallyBijective (X : GroupoidsOver S) :
+    ∀ U, ((X.associatedTopology .zariski).over U).WEqualsLocallyBijective
+      AddCommGrpCat.{u} :=
+  associatedTopology_over_wEqualsLocallyBijective X .zariski
+
+/-- Sheafification equivalences of abelian groups on slices of the associated
+étale topology are exactly the locally bijective morphisms. -/
+instance associatedTopology_etale_over_wEqualsLocallyBijective (X : GroupoidsOver S) :
+    ∀ U, ((X.associatedTopology .etale).over U).WEqualsLocallyBijective
+      AddCommGrpCat.{u} :=
+  associatedTopology_over_wEqualsLocallyBijective X .etale
+
 /-- Identity-on-Γ comparison of the fppf structure presheaf `𝒪_𝒳` with the
 associated `τ`-structure presheaf. -/
 def associatedStructurePresheafIso (X : GroupoidsOver S) (τ : StandardTopology) :

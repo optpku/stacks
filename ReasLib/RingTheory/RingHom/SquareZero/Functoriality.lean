@@ -144,16 +144,16 @@ section AlgebraMap
 
 variable {A B C M N : Type u}
 variable [CommRing A] [CommRing B] [CommRing C]
-variable [Algebra A B] [Algebra B C] [Algebra A C] [IsScalarTower A B C]
+variable [Algebra A B] [Algebra B C] [Algebra A C]
 variable [AddCommGroup M] [Module B M] [Module A M] [IsScalarTower A B M]
 variable [AddCommGroup N] [Module C N] [Module B N] [Module A N]
-variable [IsScalarTower B C N] [IsScalarTower A C N] [IsScalarTower A B N]
+variable [IsScalarTower A C N] [IsScalarTower A B N]
 
 namespace RelativeDiagram
 
 /-- The identity-base connecting diagram of two square-zero A-algebra extensions,
 with g = algebraMap B C and ν the additive map underlying c. -/
-def ofAlgebraMap (c : M →ₗ[B] N)
+def ofAlgebraMap [IsScalarTower A B C] [IsScalarTower B C N] (c : M →ₗ[B] N)
     (SB : @Solution A A _ _ B _ _ (RingHom.id A) _ M _ _ _ (zeroKernelMap A B M) _)
     (SC : @Solution A A _ _ C _ _ (RingHom.id A) _ N _ _ _ (zeroKernelMap A C N) _) :
     RelativeDiagram SB SC where
@@ -166,6 +166,8 @@ def ofAlgebraMap (c : M →ₗ[B] N)
   comm_alg := sorry
   comm_kernel := sorry
 
+variable [IsScalarTower A B C] [IsScalarTower B C N]
+
 /-- The identity-base diagram has identity maps on A, the algebra map B → C,
 and the additive map underlying c on kernels. -/
 theorem ofAlgebraMap_spec (c : M →ₗ[B] N)
@@ -177,6 +179,8 @@ theorem ofAlgebraMap_spec (c : M →ₗ[B] N)
       (ofAlgebraMap c SB SC).ν = c.toAddMonoidHom := sorry
 
 end RelativeDiagram
+
+variable [IsScalarTower A B C] [IsScalarTower B C N]
 
 /-- A compatible map between square-zero A-algebra extensions exists if and only
 if coefficient change and restriction transport their classes to the same

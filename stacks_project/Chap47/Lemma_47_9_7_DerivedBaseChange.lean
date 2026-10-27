@@ -12,6 +12,8 @@ open CategoryTheory
 
 universe u
 
+attribute [local irreducible] CategoryTheory.ModuleCat.IdealPower.DerivedBaseChange.adjunction
+
 #check
   (CategoryTheory.ModuleCat.IdealPower.DerivedBaseChange.unitCounit_isIso :
     ∀ {A B : Type u} [CommRing A] [CommRing B]

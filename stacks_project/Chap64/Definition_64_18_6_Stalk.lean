@@ -6,6 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.EllAdicSheaf.Stalk
 public import Mathlib.Algebra.Category.Grp.Limits
 public import Mathlib.Algebra.Category.ModuleCat.ChangeOfRings
 public import Mathlib.CategoryTheory.Sites.Point.Basic
@@ -39,99 +40,81 @@ variable [HasSheafify X.smallEtaleTopology AddCommGrpCat.{u}]
 variable [∀ (Y : Scheme.{u}) (V : Y.Etale),
     HasWeakSheafify (Y.smallEtaleTopology.over V) AddCommGrpCat.{u}]
 
-/-- The geometric stalk of a stage at a geometric point, as an abelian group. -/
-def componentStalk (F : ZEllSheaf X ℓ) (x : GeometricPoint X) (n : ℕ) :
-    AddCommGrpCat.{u} :=
-  (GeometricPoint.toSmallEtalePoint x).sheafFiber.obj (F.stage n)
+/- The canonical owner exports the integral and rational sheaf API. -/
+#check (AlgebraicGeometry.Scheme.Etale.ZEllSheaf.componentStalk :
+    ∀ (F : ZEllSheaf X ℓ) (x : GeometricPoint X) (n : ℕ),
+    AddCommGrpCat.{u})
 
-/-- Stage stalks are the fibre functor of the geometric point applied to the stage. -/
-theorem componentStalk_eq (F : ZEllSheaf X ℓ) (x : GeometricPoint X) (n : ℕ) :
+#check (AlgebraicGeometry.Scheme.Etale.ZEllSheaf.componentStalk_eq :
+    ∀ (F : ZEllSheaf X ℓ) (x : GeometricPoint X) (n : ℕ),
     F.componentStalk x n =
-      (GeometricPoint.toSmallEtalePoint x).sheafFiber.obj (F.stage n) := sorry
+      (GeometricPoint.toSmallEtalePoint x).sheafFiber.obj (F.stage n))
 
-/-- The inverse system of geometric component stalks at a geometric point. -/
-def componentStalkSystem (F : ZEllSheaf X ℓ) (x : GeometricPoint X) :
-    SequentialInverseSystem AddCommGrpCat.{u} :=
-  F.system ⋙ (GeometricPoint.toSmallEtalePoint x).sheafFiber
+#check (AlgebraicGeometry.Scheme.Etale.ZEllSheaf.componentStalkSystem :
+    ∀ (F : ZEllSheaf X ℓ) (x : GeometricPoint X),
+    SequentialInverseSystem AddCommGrpCat.{u})
 
-/-- The component-stalk system is the fibre functor applied to the inverse system. -/
-theorem componentStalkSystem_eq (F : ZEllSheaf X ℓ) (x : GeometricPoint X) :
+#check (AlgebraicGeometry.Scheme.Etale.ZEllSheaf.componentStalkSystem_eq :
+    ∀ (F : ZEllSheaf X ℓ) (x : GeometricPoint X),
     F.componentStalkSystem x =
-      F.system ⋙ (GeometricPoint.toSmallEtalePoint x).sheafFiber := sorry
+      F.system ⋙ (GeometricPoint.toSmallEtalePoint x).sheafFiber)
 
-/-- The geometric stalk of a `ℤ_[ℓ]`-sheaf, as the inverse limit of its component stalks. -/
-def stalk (F : ZEllSheaf X ℓ) (x : GeometricPoint X) : AddCommGrpCat.{u} :=
-  limit (F.componentStalkSystem x)
+#check (AlgebraicGeometry.Scheme.Etale.ZEllSheaf.stalk :
+    ∀ (F : ZEllSheaf X ℓ) (x : GeometricPoint X),
+    AddCommGrpCat.{u})
 
-/-- Unfolding of the geometric `ℤ_[ℓ]`-stalk as an inverse limit. -/
-theorem stalk_eq (F : ZEllSheaf X ℓ) (x : GeometricPoint X) :
-    F.stalk x = limit (F.componentStalkSystem x) := sorry
+#check (AlgebraicGeometry.Scheme.Etale.ZEllSheaf.stalk_eq :
+    ∀ (F : ZEllSheaf X ℓ) (x : GeometricPoint X),
+    F.stalk x = limit (F.componentStalkSystem x))
 
-/-- The cone projection from the geometric stalk onto a component stalk. -/
-def stalk_π (F : ZEllSheaf X ℓ) (x : GeometricPoint X) (n : ℕ) :
-    F.stalk x ⟶ F.componentStalk x n :=
-  limit.π (F.componentStalkSystem x) (op n)
+#check (AlgebraicGeometry.Scheme.Etale.ZEllSheaf.stalk_π :
+    ∀ (F : ZEllSheaf X ℓ) (x : GeometricPoint X) (n : ℕ),
+    F.stalk x ⟶ F.componentStalk x n)
 
-/-- The stalk projection is the inverse-limit projection of `componentStalkSystem`. -/
-theorem stalk_π_eq (F : ZEllSheaf X ℓ) (x : GeometricPoint X) (n : ℕ) :
-    F.stalk_π x n = limit.π (F.componentStalkSystem x) (op n) := sorry
+#check (AlgebraicGeometry.Scheme.Etale.ZEllSheaf.stalk_π_eq :
+    ∀ (F : ZEllSheaf X ℓ) (x : GeometricPoint X) (n : ℕ),
+    F.stalk_π x n = limit.π (F.componentStalkSystem x) (op n))
 
-/-- The components of scalar multiplication by a `ℤ_[ℓ]`-integer on a geometric stalk. -/
-def stalkSMulπ (F : ZEllSheaf X ℓ) (x : GeometricPoint X) (a : ℤ_[ℓ]) :
-    (Functor.const ℕᵒᵖ).obj (F.stalk x) ⟶ F.componentStalkSystem x where
-  app n := (PadicInt.toZModPow (n.unop + 1) a).val • limit.π (F.componentStalkSystem x) n
-  naturality := sorry
+#check (AlgebraicGeometry.Scheme.Etale.ZEllSheaf.stalkSMulπ :
+    ∀ (F : ZEllSheaf X ℓ) (x : GeometricPoint X) (a : ℤ_[ℓ]),
+    (Functor.const ℕᵒᵖ).obj (F.stalk x) ⟶ F.componentStalkSystem x)
 
-/-- Components of padic scalar multiplication on a stalk are residue nsmul of the projections. -/
-theorem stalkSMulπ_app (F : ZEllSheaf X ℓ) (x : GeometricPoint X) (a : ℤ_[ℓ]) (n : ℕᵒᵖ) :
+#check (AlgebraicGeometry.Scheme.Etale.ZEllSheaf.stalkSMulπ_app :
+    ∀ (F : ZEllSheaf X ℓ) (x : GeometricPoint X) (a : ℤ_[ℓ]) (n : ℕᵒᵖ),
     (F.stalkSMulπ x a).app n =
-      (PadicInt.toZModPow (n.unop + 1) a).val • limit.π (F.componentStalkSystem x) n := sorry
+      (PadicInt.toZModPow (n.unop + 1) a).val • limit.π (F.componentStalkSystem x) n)
 
-/-- The cone presenting scalar multiplication by a `ℤ_[ℓ]`-integer on a geometric stalk. -/
-def stalkSMulCone (F : ZEllSheaf X ℓ) (x : GeometricPoint X) (a : ℤ_[ℓ]) :
-    Cone (F.componentStalkSystem x) where
-  pt := F.stalk x
-  π := F.stalkSMulπ x a
+#check (AlgebraicGeometry.Scheme.Etale.ZEllSheaf.stalkSMulCone :
+    ∀ (F : ZEllSheaf X ℓ) (x : GeometricPoint X) (a : ℤ_[ℓ]),
+    Cone (F.componentStalkSystem x))
 
-/-- The padic scalar-multiplication cone has apex the stalk and legs `stalkSMulπ`. -/
-theorem stalkSMulCone_eq (F : ZEllSheaf X ℓ) (x : GeometricPoint X) (a : ℤ_[ℓ]) :
+#check (AlgebraicGeometry.Scheme.Etale.ZEllSheaf.stalkSMulCone_eq :
+    ∀ (F : ZEllSheaf X ℓ) (x : GeometricPoint X) (a : ℤ_[ℓ]),
     F.stalkSMulCone x a =
-      { pt := F.stalk x, π := F.stalkSMulπ x a } := sorry
+      { pt := F.stalk x, π := F.stalkSMulπ x a })
 
-/-- The endomorphism of a geometric stalk given by scalar multiplication by a
-`ℤ_[ℓ]`-integer. -/
-def stalkSMulHom (F : ZEllSheaf X ℓ) (x : GeometricPoint X) (a : ℤ_[ℓ]) :
-    F.stalk x ⟶ F.stalk x :=
-  limit.lift (F.componentStalkSystem x) (F.stalkSMulCone x a)
+#check (AlgebraicGeometry.Scheme.Etale.ZEllSheaf.stalkSMulHom :
+    ∀ (F : ZEllSheaf X ℓ) (x : GeometricPoint X) (a : ℤ_[ℓ]),
+    F.stalk x ⟶ F.stalk x)
 
-/-- Unfolding of padic scalar multiplication on a geometric stalk as a limit lift. -/
-theorem stalkSMulHom_eq (F : ZEllSheaf X ℓ) (x : GeometricPoint X) (a : ℤ_[ℓ]) :
+#check (AlgebraicGeometry.Scheme.Etale.ZEllSheaf.stalkSMulHom_eq :
+    ∀ (F : ZEllSheaf X ℓ) (x : GeometricPoint X) (a : ℤ_[ℓ]),
     F.stalkSMulHom x a =
-      limit.lift (F.componentStalkSystem x) (F.stalkSMulCone x a) := sorry
+      limit.lift (F.componentStalkSystem x) (F.stalkSMulCone x a))
 
-/-- The `ℤ_[ℓ]`-module structure on a geometric stalk, via compatible residue actions. -/
-instance instModuleStalk (F : ZEllSheaf X ℓ) (x : GeometricPoint X) :
-    Module ℤ_[ℓ] (F.stalk x) where
-  smul a y := F.stalkSMulHom x a y
-  one_smul := sorry
-  mul_smul := sorry
-  smul_zero := sorry
-  smul_add := sorry
-  add_smul := sorry
-  zero_smul := sorry
+#check (AlgebraicGeometry.Scheme.Etale.ZEllSheaf.instModuleStalk :
+    ∀ (F : ZEllSheaf X ℓ) (x : GeometricPoint X),
+    Module ℤ_[ℓ] (F.stalk x))
 
-/-- The geometric stalk of `F' ⊗ ℚ_[ℓ]` at a geometric point, as
-`F'_x̄ ⊗[ℤ_[ℓ]] ℚ_[ℓ]`. -/
-def qellStalk (F : ZEllSheaf X ℓ) (x : GeometricPoint X) : ModuleCat.{u} ℚ_[ℓ] :=
-  (ModuleCat.extendScalars (algebraMap ℤ_[ℓ] ℚ_[ℓ])).obj
-    (ModuleCat.of ℤ_[ℓ] (F.stalk x))
+#check (AlgebraicGeometry.Scheme.Etale.ZEllSheaf.qellStalk :
+    ∀ (F : ZEllSheaf X ℓ) (x : GeometricPoint X),
+    ModuleCat.{u} ℚ_[ℓ])
 
-/-- Unfolding of `qellStalk` as extension of scalars of the geometric inverse-limit
-`ℤ_[ℓ]`-module. -/
-theorem qellStalk_eq (F : ZEllSheaf X ℓ) (x : GeometricPoint X) :
+#check (AlgebraicGeometry.Scheme.Etale.ZEllSheaf.qellStalk_eq :
+    ∀ (F : ZEllSheaf X ℓ) (x : GeometricPoint X),
     F.qellStalk x =
       (ModuleCat.extendScalars (algebraMap ℤ_[ℓ] ℚ_[ℓ])).obj
-        (ModuleCat.of ℤ_[ℓ] (F.stalk x)) := sorry
+        (ModuleCat.of ℤ_[ℓ] (F.stalk x)))
 
 end ZEllSheaf
 end AlgebraicGeometry.Scheme.Etale

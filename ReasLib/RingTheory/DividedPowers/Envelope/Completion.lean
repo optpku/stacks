@@ -134,7 +134,8 @@ noncomputable abbrev envelopeCompletionRing
       (AdicCompletion.toQuotient (Ideal.span {(p : E.D)}) E.D.ideal N hN))) :
     DividedPowerRing :=
   completionRing p A P I γ J hIJ E N hN γhat
-/-- The uniquely specified compatible divided powers on the principal-adic completion. -/
+/-- The compatible divided powers on the principal-adic completion, computed on stable
+quotients at exponent `e + 2 * N` and then reduced to exponent `e`. -/
 noncomputable def envelopeCompletionDividedPowers
     {p : ℕ} [Fact (Nat.Prime p)]
     {A P : Type u} [CommRing A] [CommRing P]
@@ -145,13 +146,53 @@ noncomputable def envelopeCompletionDividedPowers
     (E : DividedPowerEnvelope I γ (algebraMap A P) J hIJ)
     (N : ℕ) (hN : Ideal.span {(p : E.D)} ^ N ≤ E.D.ideal) :
     DividedPowers (RingHom.ker
-      (AdicCompletion.toQuotient (Ideal.span {(p : E.D)}) E.D.ideal N hN)) :=
-  Classical.choose
-    (ExistsUnique.exists
-      (DividedPowers.existsUnique_principalCompletionExtension
-        E.D.dividedPowers (p : E.D) N hN))
+      (AdicCompletion.toQuotient (Ideal.span {(p : E.D)}) E.D.ideal N hN)) where
+  dpow k x := by
+    classical
+    exact if x ∈ RingHom.ker
+        (AdicCompletion.toQuotient (Ideal.span {(p : E.D)}) E.D.ideal N hN) then
+      ⟨fun e ↦
+        Ideal.Quotient.factor (le_of_eq (Ideal.mul_top _).symm)
+          (Ideal.Quotient.factorPow (Ideal.span {(p : E.D)}) (Nat.le_add_right e (2 * N))
+            (DividedPowers.Quotient.dpow E.D.dividedPowers
+              (Ideal.span {(p : E.D)} ^ (e + 2 * N)) k
+              (AdicCompletion.evalₐ (Ideal.span {(p : E.D)}) (e + 2 * N) x))),
+        by sorry⟩
+    else 0
+  dpow_null := sorry
+  dpow_zero := sorry
+  dpow_one := sorry
+  dpow_mem := sorry
+  dpow_add := sorry
+  dpow_mul := sorry
+  mul_dpow := sorry
+  dpow_comp := sorry
 
-/-- The chosen extension is a divided-power morphism from the envelope. -/
+/-- Evaluation of the completed divided powers is obtained from the explicit stable
+quotient operation. The offset `2 * N` is the principal-power stability bound. -/
+theorem envelopeCompletionDividedPowers_dpow_eval
+    {p : ℕ} [Fact (Nat.Prime p)]
+    {A P : Type u} [CommRing A] [CommRing P]
+    {I : Ideal A} {γ : DividedPowers I}
+    [Algebra (Localization.AtPrime (Ideal.span ({(p : ℤ)} : Set ℤ))) A]
+    [Algebra A P] {J : Ideal P}
+    {hIJ : Ideal.map (algebraMap A P) I ≤ J}
+    (E : DividedPowerEnvelope I γ (algebraMap A P) J hIJ)
+    (N : ℕ) (hN : Ideal.span {(p : E.D)} ^ N ≤ E.D.ideal)
+    (k e : ℕ) (x : AdicCompletion (Ideal.span {(p : E.D)}) E.D)
+    (hx : x ∈ RingHom.ker
+      (AdicCompletion.toQuotient (Ideal.span {(p : E.D)}) E.D.ideal N hN)) :
+    AdicCompletion.evalₐ (Ideal.span {(p : E.D)}) e
+        ((envelopeCompletionDividedPowers E N hN).dpow k x) =
+      Ideal.Quotient.factorPow (Ideal.span {(p : E.D)}) (Nat.le_add_right e (2 * N))
+        (DividedPowers.Quotient.dpow E.D.dividedPowers
+          (Ideal.span {(p : E.D)} ^ (e + 2 * N)) k
+          (AdicCompletion.evalₐ (Ideal.span {(p : E.D)}) (e + 2 * N) x)) := by
+  classical
+  simp [envelopeCompletionDividedPowers, RingHom.mem_ker.mp hx,
+    AdicCompletion.evalₐ, AdicCompletion.eval]
+
+/-- The completed divided powers extend those on the envelope. -/
 theorem envelopeCompletionDividedPowers_isDPMorphism
     {p : ℕ} [Fact (Nat.Prime p)]
     {A P : Type u} [CommRing A] [CommRing P]

@@ -37,22 +37,19 @@ structure PreWeilTheory
     [∀ X, AddCommGroup (Picard X)] [∀ X, Ring (Cycle X)] where
   /-- Data (D0): the chosen Tate line is one-dimensional. -/
   tateLine_rank : Module.finrank F TateLine = 1
-  /-- The cohomological degree and Tate-twist summands of total cohomology. -/
-  Hgrade : ∀ X, ℤ × ℤ → Submodule F (H X)
-  /-- The bidegree summands form an exhaustive internal direct-sum decomposition of
+  /-- The single cohomological-degree summands of total cohomology. -/
+  Hgrade : ∀ X, ℤ → Submodule F (H X)
+  /-- The cohomological-degree summands form an exhaustive internal direct-sum decomposition of
   total cohomology. -/
   Hgrade_isInternal : ∀ X, DirectSum.IsInternal (Hgrade X)
-  /-- Tensoring with the Tate line raises the twist index by one. -/
-  tateTwist : ∀ X i j,
-    Hgrade X (i, j) ⊗[F] TateLine ≃ₗ[F] Hgrade X (i, j + 1)
-  /-- The unit has bidegree `(0, 0)`. -/
-  one_mem : ∀ X, (1 : H X) ∈ Hgrade X (0, 0)
-  /-- Cup product adds cohomological degrees and Tate twists. -/
-  mul_mem : ∀ X {p q : ℤ × ℤ} (a : Hgrade X p) (b : Hgrade X q),
+  /-- The unit has cohomological degree zero. -/
+  one_mem : ∀ X, (1 : H X) ∈ Hgrade X (0)
+  /-- Cup product adds cohomological degrees; external twists are handled by Tate.tensorMap. -/
+  mul_mem : ∀ X {p q : ℤ} (a : Hgrade X p) (b : Hgrade X q),
     (a : H X) * b ∈ Hgrade X (p + q)
   /-- Homogeneous cup products satisfy graded commutativity. -/
-  gradedComm : ∀ X {i i' j j' : ℤ} (a : Hgrade X (i, j))
-      (b : Hgrade X (i', j')),
+  gradedComm : ∀ X {i i' : ℤ} (a : Hgrade X (i))
+      (b : Hgrade X (i')),
     (a : H X) * b = (-1 : H X) ^ (i * i').natAbs * ((b : H X) * a)
   /-- The objects in the smooth-projective domain. -/
   IsSmoothProjective : V → Prop
@@ -73,8 +70,8 @@ structure PreWeilTheory
       IsNonemptyEquidimensional (product X Y) (d + e)
   /-- Data (D1): pullback on total cohomology. -/
   pullback : ∀ {X Y : V}, (X ⟶ Y) → H Y →ₐ[F] H X
-  /-- Pullback preserves both the cohomological degree and Tate twist. -/
-  pullback_mem : ∀ {X Y : V} (f : X ⟶ Y) (p : ℤ × ℤ)
+  /-- Pullback preserves the cohomological degree. -/
+  pullback_mem : ∀ {X Y : V} (f : X ⟶ Y) (p : ℤ)
       (a : Hgrade Y p),
     pullback f a ∈ Hgrade X p
   /-- Pullback by an identity is the identity. -/
@@ -99,8 +96,8 @@ structure PreWeilTheory
       (pullback (inl X Y) a, pullback (inr X Y) a))
   /-- Pullback of Picard classes. -/
   picardPullback : ∀ {X Y : V}, (X ⟶ Y) → Picard Y →+ Picard X
-  /-- Data (D2'): the first Chern class has bidegree `(2, 1)`. -/
-  firstChernClass : ∀ X, Picard X →+ Hgrade X (2, 1)
+  /-- Data (D2'): the first Chern class has bidegree `2`. -/
+  firstChernClass : ∀ X, Picard X →+ Hgrade X (2)
   /-- Axiom (A2): first Chern classes commute with pullback. -/
   axiomA2 : ∀ {X Y : V} (f : X ⟶ Y) (L : Picard Y),
     pullback f (firstChernClass Y L) = firstChernClass X (picardPullback f L)
@@ -112,20 +109,20 @@ structure PreWeilTheory
   /-- The graded map occurring in the projective bundle formula. -/
   projectiveBundleMap : ∀ {P X : V} (p : P ⟶ X) (n : ℕ),
     IsProjectiveBundle p n → (i j : ℤ) →
-      (∀ r : Fin n, Hgrade X (i - 2 * ((r : ℕ) : ℤ), j - ((r : ℕ) : ℤ))) →ₗ[F]
-        Hgrade P (i, j)
+      (∀ r : Fin n, Hgrade X (i - 2 * ((r : ℕ) : ℤ))) →ₗ[F]
+        Hgrade P (i)
   /-- The projective-bundle map is the sum of pullbacks multiplied by powers of the
   first Chern class of the tautological invertible sheaf. -/
   projectiveBundleMap_apply : ∀ {P X : V} (p : P ⟶ X) (n : ℕ)
       (hp : IsProjectiveBundle p n) (i j : ℤ)
       (a : ∀ r : Fin n,
-        Hgrade X (i - 2 * ((r : ℕ) : ℤ), j - ((r : ℕ) : ℤ))),
+        Hgrade X (i - 2 * ((r : ℕ) : ℤ))),
     (projectiveBundleMap p n hp i j a : H P) =
       ∑ r : Fin n, pullback p (a r) *
         (firstChernClass P (projectiveBundleLineBundle p n hp) : H P) ^ (r : ℕ)
   /-- Axiom (A3): the projective bundle map is an isomorphism in every bidegree. -/
   axiomA3 : ∀ {P X : V} (p : P ⟶ X) (n : ℕ)
-      (hp : IsProjectiveBundle p n) (i j : ℤ),
+      (hp : IsProjectiveBundle p n) (_hn : 0 < n) (i j : ℤ),
     Function.Bijective (projectiveBundleMap p n hp i j)
   /-- The assertion that a morphism includes an effective Cartier divisor. -/
   IsEffectiveCartierDivisor : ∀ {Y X : V}, (Y ⟶ X) → Prop
@@ -141,19 +138,20 @@ structure PreWeilTheory
   /-- The Künneth map is pullback to the two factors followed by cup product. -/
   kunnethMap_tmul : ∀ {X Y : V} (a : H X) (b : H Y),
     kunnethMap X Y (a ⊗ₜ[F] b) = pullback (fst X Y) a * pullback (snd X Y) b
-  /-- The Künneth map adds both grading indices. -/
-  kunnethMap_mem : ∀ {X Y : V} {p q : ℤ × ℤ}
+  /-- The Künneth map adds cohomological degrees. -/
+  kunnethMap_mem : ∀ {X Y : V} {p q : ℤ}
       (a : Hgrade X p) (b : Hgrade Y q),
     kunnethMap X Y (a ⊗ₜ[F] b) ∈ Hgrade (product X Y) (p + q)
   /-- The assertion that an object is the spectrum of the base field. -/
   IsBasePoint : V → Prop
-  /-- The scalar map from `F` to bidegree `(0, 0)` cohomology of the base point. -/
-  pointH0Map : ∀ {X}, IsBasePoint X → F →ₗ[F] Hgrade X (0, 0)
+  /-- The scalar map from `F` to bidegree `0` cohomology of the base point. -/
+  pointH0Map : ∀ {X}, IsBasePoint X → F →ₗ[F] Hgrade X (0)
   /-- The scalar map to base-point cohomology agrees with the algebra structure. -/
   pointH0Map_apply : ∀ {X} (hX : IsBasePoint X) (a : F),
     (pointH0Map hX a : H X) = algebraMap F (H X) a
   /-- Axiom (A5), base-point clause: `H⁰(Spec F) = F`. -/
   axiomA5_point : ∀ {X} (hX : IsBasePoint X), Function.Bijective (pointH0Map hX)
+  axiomA5_point_total : ∀ {X}, IsBasePoint X → Function.Bijective (algebraMap F (H X))
   /-- Axiom (A5), Künneth clause: the exterior-product map is an isomorphism on
   smooth-projective objects. -/
   axiomA5 : ∀ {X Y}, IsSmoothProjective X → IsSmoothProjective Y →
@@ -172,12 +170,13 @@ structure PreWeilTheory
   /-- The cycle associated to an effective Cartier divisor. -/
   cartierCycle : ∀ {Y X : V} (i : Y ⟶ X),
     IsEffectiveCartierDivisor i → cycleGrade X 1
-  /-- The cycle-class homomorphism canonically induced by the first Chern class
-  under (A1)–(A4). -/
+  /-- Tate-coordinate form of the cycle-class homomorphism induced by the first
+  Chern class. `twistedCycleClass` reconstructs γ : CH^i → H^{2i} ⊗ F(i). -/
   cycleClass : ∀ X, Cycle X →+* H X
-  /-- A codimension-`i` cycle has bidegree `(2 * i, i)`. -/
+  /-- A codimension-i cycle has cohomological degree 2i in Tate coordinates.
+  Its externally twisted class is exposed by twistedCycleClass. -/
   cycleClass_mem : ∀ X (i : ℤ) (z : cycleGrade X i),
-    cycleClass X z ∈ Hgrade X (2 * i, i)
+    cycleClass X z ∈ Hgrade X (2 * i)
   /-- Cycle classes commute with pullback. -/
   cycleClass_pullback : ∀ {X Y : V} (f : X ⟶ Y) (z : Cycle Y),
     cycleClass X (cyclePullback f z) = pullback f (cycleClass Y z)
@@ -199,7 +198,8 @@ structure PreWeilTheory
         (diagonalCycle (product_isNonemptyEquidimensional hX hY)) =
       kunnethMap (product X Y) (product X Y)
         (TensorProduct.map (kunnethMap X Y) (kunnethMap X Y)
-          ((tensorInterchange F (H X) (H Y)).symm
+          ((tensorInterchange F (Hgrade X) (Hgrade Y)
+              (Hgrade_isInternal X) (Hgrade_isInternal Y)).symm
             ((LinearEquiv.ofBijective (kunnethMap X X)
                 (axiomA5 (nonemptyEquidimensional_isSmoothProjective hX)
                   (nonemptyEquidimensional_isSmoothProjective hX))).symm
@@ -208,28 +208,32 @@ structure PreWeilTheory
                 (axiomA5 (nonemptyEquidimensional_isSmoothProjective hY)
                   (nonemptyEquidimensional_isSmoothProjective hY))).symm
                 (cycleClass (product Y Y) (diagonalCycle hY)))))
-  /-- The canonical diagonal tensor is a coevaluation: contraction by it gives
-  a perfect identification of linear functionals with cohomology classes. -/
-  diagonalTensor_perfect : ∀ {X d} (hX : IsNonemptyEquidimensional X d),
-    Function.Bijective (fun trace : H X →ₗ[F] F ↦
-      contractRight trace
-        ((LinearEquiv.ofBijective (kunnethMap X X)
-          (axiomA5 (nonemptyEquidimensional_isSmoothProjective hX)
-            (nonemptyEquidimensional_isSmoothProjective hX))).symm
-          (cycleClass (product X X) (diagonalCycle hX))))
-  /-- The trace on total cohomology, extended by zero from bidegree `(2 * d, d)`. -/
+  /-- Chosen normalized trace witness in Tate coordinates, zero outside degree
+  2d. This is supplied data, never chosen from an unproved existence theorem. -/
   integral : ∀ {X d}, IsNonemptyEquidimensional X d → H X →ₗ[F] F
-  /-- The total trace vanishes outside bidegree `(2 * d, d)`. -/
+  /-- The total trace vanishes outside cohomological degree `2 * d` (Tate coordinates). -/
   integral_vanishes : ∀ {X d} (hX : IsNonemptyEquidimensional X d)
-      (p : ℤ × ℤ), p ≠ (2 * (d : ℤ), (d : ℤ)) →
+      (p : ℤ), p ≠ (2 * (d : ℤ)) →
     ∀ a : Hgrade X p, integral hX a = 0
   /-- Axiom (A6): contraction of the diagonal tensor by the trace is the unit. -/
-  axiomA6 : ∀ {X d} (hX : IsNonemptyEquidimensional X d),
+  integral_normalized : ∀ {X d} (hX : IsNonemptyEquidimensional X d),
     contractRight (integral hX)
         ((LinearEquiv.ofBijective (kunnethMap X X)
           (axiomA5 (nonemptyEquidimensional_isSmoothProjective hX)
             (nonemptyEquidimensional_isSmoothProjective hX))).symm
           (cycleClass (product X X) (diagonalCycle hX))) = 1
+  /-- Source (A6): existence of a linear functional on the externally twisted
+  top degree. Its zero extension contracts the canonical twisted diagonal to 1.
+  The supplied coordinate trace above is chosen normalized witness data. -/
+  axiomA6 : ∀ {X d} (hX : IsNonemptyEquidimensional X d),
+    ∃ ell : Tate.Twist F TateLine (Hgrade X (2 * (d : ℤ))) d →ₗ[F] F,
+      contractTwistedRight (extendTopTrace (Hgrade X) (Hgrade_isInternal X) d ell)
+        (TensorProduct.map LinearMap.id
+          (Tate.trivialization tateLine_rank (H X) (d : ℤ)).symm.toLinearMap
+          ((LinearEquiv.ofBijective (kunnethMap X X)
+            (axiomA5 (nonemptyEquidimensional_isSmoothProjective hX)
+              (nonemptyEquidimensional_isSmoothProjective hX))).symm
+            (cycleClass (product X X) (diagonalCycle hX)))) = 1
   /-- The assertion that a morphism is the blowup of a smooth center. -/
   IsBlowupOfSmoothCenter : ∀ {X' X : V}, (X' ⟶ X) → Prop
   /-- Axiom (A7): pullback by the blowup of a smooth center is injective. -/
@@ -237,6 +241,27 @@ structure PreWeilTheory
     Function.Injective (pullback b)
 
 namespace PreWeilTheory
+
+/-- The source diagonal-class relation (Stacks, lines 55516-55533).
+It records the balanced class identity and the canonical point diagonal.
+This explicit Prop mixin is an axiom of the abstract layer. Stacks derives
+it geometrically from the diagonal in Section 45.14; scheme-level anchoring
+is tracked by RL-2194. -/
+class HasDiagonalClassRelation
+    {F : Type u} [Field F] [CharZero F]
+    {TateLine : Type w} [AddCommGroup TateLine] [Module F TateLine]
+    {V : Type v} [Category.{v} V] {H Picard Cycle : V → Type w}
+    [∀ X, Ring (H X)] [∀ X, Algebra F (H X)]
+    [∀ X, AddCommGroup (Picard X)] [∀ X, Ring (Cycle X)]
+    (T : PreWeilTheory F TateLine V H Picard Cycle) : Prop where
+  balanced : ∀ {X : V} {d : ℕ} (hX : T.IsNonemptyEquidimensional X d) (a : H X),
+    T.cycleClass (T.product X X) (T.diagonalCycle hX) * T.pullback (T.fst X X) a =
+      T.cycleClass (T.product X X) (T.diagonalCycle hX) * T.pullback (T.snd X X) a
+  point : ∀ {X : V} (_hpoint : T.IsBasePoint X) (hX : T.IsNonemptyEquidimensional X 0),
+    T.cycleClass (T.product X X) (T.diagonalCycle hX) =
+      T.kunnethMap X X ((1 : H X) ⊗ₜ[F] (1 : H X))
+
+
 
 /-- The canonical Künneth preimage of the cycle class of the diagonal. -/
 noncomputable def diagonalTensor
@@ -275,7 +300,8 @@ theorem diagonalTensor_product
     (T : PreWeilTheory F TateLine V H Picard Cycle) {X Y : V} {d e : ℕ}
     (hX : T.IsNonemptyEquidimensional X d)
     (hY : T.IsNonemptyEquidimensional Y e) :
-    tensorInterchange F (H X) (H Y)
+    tensorInterchange F (T.Hgrade X) (T.Hgrade Y)
+        (T.Hgrade_isInternal X) (T.Hgrade_isInternal Y)
         (TensorProduct.map
           (LinearEquiv.ofBijective (T.kunnethMap X Y)
             (T.axiomA5 (T.nonemptyEquidimensional_isSmoothProjective hX)
@@ -294,26 +320,14 @@ theorem axiomA6_unique
     {V : Type v} [Category.{v} V] {H Picard Cycle : V → Type w}
     [∀ X, Ring (H X)] [∀ X, Algebra F (H X)]
     [∀ X, AddCommGroup (Picard X)] [∀ X, Ring (Cycle X)]
-    (T : PreWeilTheory F TateLine V H Picard Cycle) {X : V} {d : ℕ}
+    (T : PreWeilTheory F TateLine V H Picard Cycle) [T.HasDiagonalClassRelation]
+     {X : V} {d : ℕ}
     (hX : T.IsNonemptyEquidimensional X d) (trace : H X →ₗ[F] F) :
-    contractRight trace (T.diagonalTensor hX) = 1 → trace = T.integral hX := sorry
+    contractRight trace (T.diagonalTensor hX) = 1 → trace = T.integral hX := by
+  have hdiagonal : T.HasDiagonalClassRelation := inferInstance
+  sorry
 
-/-- Replace the chosen Tate-shift identifications while retaining the same graded
-cohomology data and axioms. -/
-def withTateTwist
-    {F : Type u} [Field F] [CharZero F]
-    {TateLine : Type w} [AddCommGroup TateLine] [Module F TateLine]
-    {V : Type v} [Category.{v} V] {H Picard Cycle : V → Type w}
-    [∀ X, Ring (H X)] [∀ X, Algebra F (H X)]
-    [∀ X, AddCommGroup (Picard X)] [∀ X, Ring (Cycle X)]
-    (T : PreWeilTheory F TateLine V H Picard Cycle)
-    (tateTwist : ∀ X i j,
-      T.Hgrade X (i, j) ⊗[F] TateLine ≃ₗ[F] T.Hgrade X (i, j + 1)) :
-    PreWeilTheory F TateLine V H Picard Cycle :=
-  { T with tateTwist := tateTwist }
-
-/-- The restriction of the total trace to the top cohomological degree and matching
-Tate twist. -/
+/-- The top-degree coordinate trace. Use twistedTopIntegral for the external tensor-valued domain. -/
 noncomputable def topIntegral
     {F : Type u} [Field F] [CharZero F]
     {TateLine : Type w} [AddCommGroup TateLine] [Module F TateLine]
@@ -322,8 +336,103 @@ noncomputable def topIntegral
     [∀ X, AddCommGroup (Picard X)] [∀ X, Ring (Cycle X)]
     (T : PreWeilTheory F TateLine V H Picard Cycle) {X : V} {d : ℕ}
     (hX : T.IsNonemptyEquidimensional X d) :
-    T.Hgrade X (2 * (d : ℤ), (d : ℤ)) →ₗ[F] F :=
-  (T.integral hX).comp (T.Hgrade X (2 * (d : ℤ), (d : ℤ))).subtype
+    T.Hgrade X (2 * (d : ℤ)) →ₗ[F] F :=
+  (T.integral hX).comp (T.Hgrade X (2 * (d : ℤ))).subtype
+
+
+variable {F : Type u} [Field F] [CharZero F]
+variable {TateLine : Type w} [AddCommGroup TateLine] [Module F TateLine]
+variable {V : Type v} [Category.{v} V] {H Picard Cycle : V → Type w}
+variable [∀ X, Ring (H X)] [∀ X, Algebra F (H X)]
+variable [∀ X, AddCommGroup (Picard X)] [∀ X, Ring (Cycle X)]
+variable (T : PreWeilTheory F TateLine V H Picard Cycle)
+
+/-- External Tate twists of the singly graded total cohomology. -/
+abbrev twistedCohomology (_T : PreWeilTheory F TateLine V H Picard Cycle) (X : V) (n : ℤ) := Tate.Twist F TateLine (H X) n
+
+/-- A homogeneous degree with an external Tate twist. There is no inclusion of
+all twists as independent summands of H X. -/
+abbrev twistedGrade (X : V) (i n : ℤ) := Tate.Twist F TateLine (T.Hgrade X i) n
+
+/-- The Tate shift is derived from genuine tensor powers, not stored as an
+identification between subspaces of H X. Coordinate adapter using the chosen Tate coordinates; canonical external
+compatibility and coherence are tracked by RL-2195. -/
+def tateTwist (X : V) (i n : ℤ) :
+    T.twistedGrade X i n ⊗[F] TateLine ≃ₗ[F] T.twistedGrade X i (n + 1) :=
+  Tate.shift T.tateLine_rank (T.Hgrade X i) n
+
+/-- Source D2' reconstructed from its coordinates on the chosen genuine Tate line. Coordinate adapter using the chosen Tate coordinates; canonical external
+compatibility and coherence are tracked by RL-2195. -/
+def twistedFirstChernClass (X : V) : Picard X →+ T.twistedGrade X 2 1 :=
+  (Tate.trivialization T.tateLine_rank (T.Hgrade X 2) 1).symm.toLinearMap.toAddMonoidHom.comp
+    (T.firstChernClass X)
+
+/-- The degreewise cycle class with its source-prescribed external Tate twist. Coordinate adapter using the chosen Tate coordinates; canonical external
+compatibility and coherence are tracked by RL-2195. -/
+def twistedCycleClass (X : V) (i : ℤ) : T.cycleGrade X i →+ T.twistedGrade X (2 * i) i :=
+  (Tate.trivialization T.tateLine_rank (T.Hgrade X (2 * i)) i).symm.toLinearMap.toAddMonoidHom.comp
+    { toFun := fun z ↦ ⟨T.cycleClass X z, T.cycleClass_mem X i z⟩
+      map_zero' := Subtype.ext (map_zero _)
+      map_add' := fun a b ↦ Subtype.ext ((T.cycleClass X).map_add a b) }
+
+/-- Pullback acts on a fixed external twist. -/
+def twistedPullback {X Y : V} (f : X ⟶ Y) (n : ℤ) :
+    T.twistedCohomology Y n →ₗ[F] T.twistedCohomology X n :=
+  TensorProduct.map (T.pullback f).toLinearMap LinearMap.id
+
+/-- The chosen normalized trace as a functional on externally twisted cohomology.
+The stored integral is its coordinate functional, not a functional on a sum of twists. Coordinate adapter using the chosen Tate coordinates; canonical external
+compatibility and coherence are tracked by RL-2195. -/
+def twistedIntegral {X : V} {d : ℕ} (hX : T.IsNonemptyEquidimensional X d) :
+    T.twistedCohomology X d →ₗ[F] F :=
+  (T.integral hX).comp (Tate.trivialization T.tateLine_rank (H X) d).toLinearMap
+
+/-- The top-degree restriction of the chosen twisted trace. Coordinate adapter using the chosen Tate coordinates; canonical external
+compatibility and coherence are tracked by RL-2195. -/
+def twistedTopIntegral {X : V} {d : ℕ} (hX : T.IsNonemptyEquidimensional X d) :
+    T.twistedGrade X (2 * (d : ℤ)) d →ₗ[F] F :=
+  (T.twistedIntegral hX).comp (twistedInclusion (T.Hgrade X) (2 * (d : ℤ)) d)
+
+/-- The Künneth map on any two specified external twists. Coordinate adapter using the chosen Tate coordinates; canonical external
+compatibility and coherence are tracked by RL-2195. -/
+def twistedKunnethMap (X Y : V) (r s : ℤ) :
+    T.twistedCohomology X r ⊗[F] T.twistedCohomology Y s →ₗ[F]
+      T.twistedCohomology (T.product X Y) (r + s) :=
+  Tate.tensorMap T.tateLine_rank (T.kunnethMap X Y) r s
+
+/-- The diagonal class lives in H(X) ⊗ H(X)(d), with an external twist on the
+right factor, rather than in an algebra containing all twists. Coordinate adapter using the chosen Tate coordinates; canonical external
+compatibility and coherence are tracked by RL-2195. -/
+def twistedDiagonalTensor {X : V} {d : ℕ} (hX : T.IsNonemptyEquidimensional X d) :
+    H X ⊗[F] T.twistedCohomology X d :=
+  TensorProduct.map LinearMap.id
+    (Tate.trivialization T.tateLine_rank (H X) d).symm.toLinearMap (T.diagonalTensor hX)
+
+/-- Twisted Künneth sends the derived diagonal tensor to the external
+cycle class of the geometric diagonal. -/
+theorem twistedDiagonalTensor_spec {X : V} {d : ℕ}
+    (hX : T.IsNonemptyEquidimensional X d) :
+    TensorProduct.map (T.kunnethMap X X) LinearMap.id
+      ((TensorProduct.assoc F (H X) (H X) (Tate.Power F TateLine (d : ℤ))).symm
+        (T.twistedDiagonalTensor hX)) =
+      twistedInclusion (T.Hgrade (T.product X X)) (2 * (d : ℤ)) d
+        (T.twistedCycleClass (T.product X X) d (T.diagonalCycle hX)) := sorry
+
+/-- The supplied trace coordinates give normalized chosen witness data for A6. -/
+theorem twistedIntegral_normalized {X : V} {d : ℕ}
+    (hX : T.IsNonemptyEquidimensional X d) :
+    contractTwistedRight (T.twistedIntegral hX) (T.twistedDiagonalTensor hX) = 1 := sorry
+
+/-- The source's uniqueness assertion compares functionals on the twisted top
+cohomological degree, after their canonical zero extension. -/
+theorem sourceAxiomA6_unique [T.HasDiagonalClassRelation]
+     {X : V} {d : ℕ}
+    (hX : T.IsNonemptyEquidimensional X d)
+    (ell : T.twistedGrade X (2 * (d : ℤ)) d →ₗ[F] F) :
+    contractTwistedRight (extendTopTrace (T.Hgrade X) (T.Hgrade_isInternal X) d ell)
+      (T.twistedDiagonalTensor hX) = 1 → ell = T.twistedTopIntegral hX := by
+  have hdiagonal : T.HasDiagonalClassRelation := inferInstance
+  sorry
 
 end PreWeilTheory
 
@@ -353,7 +462,7 @@ structure SchemePreWeilTheory
   /-- Every represented scheme is projective over `k`. -/
   projective : ∀ X, Projective (scheme.obj X).hom
   /-- The specified dimension is the geometric Krull dimension. -/
-  dimension_eq : ∀ X,
+  dimension_eq : ∀ X, Nonempty (scheme.obj X).left →
     topologicalKrullDim (scheme.obj X).left = (dimension X : WithBot ℕ∞)
   /-- The specified binary product represents the fibre product over `Spec(k)`. -/
   schemeProduct : ∀ X Y, scheme.obj (product X Y) ≅ scheme.obj X ⨯ scheme.obj Y
@@ -396,25 +505,22 @@ structure SchemePreWeilTheory
   /-- Data (D0): the chosen Tate line is one-dimensional. -/
   tateLine_rank : Module.finrank F TateLine = 1
   /-- Data (D0): the cohomological-degree and Tate-twist summands. -/
-  Hgrade : ∀ X, ℤ × ℤ → Submodule F (H X)
-  /-- The bidegree summands exhaust total cohomology as an internal direct sum. -/
+  Hgrade : ∀ X, ℤ → Submodule F (H X)
+  /-- The cohomological-degree summands exhaust total cohomology as an internal direct sum. -/
   Hgrade_isInternal : ∀ X, DirectSum.IsInternal (Hgrade X)
-  /-- Tensoring with the Tate line raises the twist index by one. -/
-  tateTwist : ∀ X i j,
-    Hgrade X (i, j) ⊗[F] TateLine ≃ₗ[F] Hgrade X (i, j + 1)
-  /-- The unit has bidegree `(0, 0)`. -/
-  one_mem : ∀ X, (1 : H X) ∈ Hgrade X (0, 0)
-  /-- Cup product adds cohomological degrees and Tate twists. -/
-  mul_mem : ∀ X {p q : ℤ × ℤ} (a : Hgrade X p) (b : Hgrade X q),
+  /-- The unit has cohomological degree zero. -/
+  one_mem : ∀ X, (1 : H X) ∈ Hgrade X (0)
+  /-- Cup product adds cohomological degrees; external twists are handled by Tate.tensorMap. -/
+  mul_mem : ∀ X {p q : ℤ} (a : Hgrade X p) (b : Hgrade X q),
     (a : H X) * b ∈ Hgrade X (p + q)
   /-- Homogeneous cup products satisfy graded commutativity. -/
-  gradedComm : ∀ X {i i' j j' : ℤ} (a : Hgrade X (i, j))
-      (b : Hgrade X (i', j')),
+  gradedComm : ∀ X {i i' : ℤ} (a : Hgrade X (i))
+      (b : Hgrade X (i')),
     (a : H X) * b = (-1 : H X) ^ (i * i').natAbs * ((b : H X) * a)
   /-- Data (D1): pullback on total cohomology. -/
   pullback : ∀ {X Y : V}, (X ⟶ Y) → H Y →ₐ[F] H X
   /-- Pullback preserves cohomological degree and Tate twist. -/
-  pullback_mem : ∀ {X Y : V} (f : X ⟶ Y) (p : ℤ × ℤ)
+  pullback_mem : ∀ {X Y : V} (f : X ⟶ Y) (p : ℤ)
       (a : Hgrade Y p),
     pullback f a ∈ Hgrade X p
   /-- Pullback by an identity is the identity. -/
@@ -430,6 +536,8 @@ structure SchemePreWeilTheory
   inr : ∀ X Y, Y ⟶ coproduct X Y
   /-- The assertion that an object is empty. -/
   IsEmpty : V → Prop
+  /-- Emptiness is the actual emptiness of the represented scheme. -/
+  isEmpty_iff : ∀ X, IsEmpty X ↔ _root_.IsEmpty (scheme.obj X).left
   /-- Axiom (A1), empty clause: an empty object has zero cohomology. -/
   axiomA1_empty : ∀ {X}, IsEmpty X → ∀ a : H X, a = 0
   /-- Axiom (A1), disjoint-union clause: cohomology carries binary disjoint
@@ -438,8 +546,8 @@ structure SchemePreWeilTheory
     (pullback (inl X Y) a, pullback (inr X Y) a))
   /-- Pullback of Picard classes. -/
   picardPullback : ∀ {X Y : V}, (X ⟶ Y) → Picard Y →+ Picard X
-  /-- Data (D2'): the first Chern class has bidegree `(2, 1)`. -/
-  firstChernClass : ∀ X, Picard X →+ Hgrade X (2, 1)
+  /-- Data (D2'): the first Chern class has bidegree `2`. -/
+  firstChernClass : ∀ X, Picard X →+ Hgrade X (2)
   /-- Axiom (A2): first Chern classes commute with pullback. -/
   axiomA2 : ∀ {X Y : V} (f : X ⟶ Y) (L : Picard Y),
     pullback f (firstChernClass Y L) = firstChernClass X (picardPullback f L)
@@ -451,20 +559,20 @@ structure SchemePreWeilTheory
   /-- The graded map in the projective-bundle formula. -/
   projectiveBundleMap : ∀ {P X : V} (p : P ⟶ X) (n : ℕ),
     IsProjectiveBundle p n → (i j : ℤ) →
-      (∀ r : Fin n, Hgrade X (i - 2 * ((r : ℕ) : ℤ), j - ((r : ℕ) : ℤ))) →ₗ[F]
-        Hgrade P (i, j)
+      (∀ r : Fin n, Hgrade X (i - 2 * ((r : ℕ) : ℤ))) →ₗ[F]
+        Hgrade P (i)
   /-- The projective-bundle map is the sum of pullbacks multiplied by powers of
   the tautological first Chern class. -/
   projectiveBundleMap_apply : ∀ {P X : V} (p : P ⟶ X) (n : ℕ)
       (hp : IsProjectiveBundle p n) (i j : ℤ)
       (a : ∀ r : Fin n,
-        Hgrade X (i - 2 * ((r : ℕ) : ℤ), j - ((r : ℕ) : ℤ))),
+        Hgrade X (i - 2 * ((r : ℕ) : ℤ))),
     (projectiveBundleMap p n hp i j a : H P) =
       ∑ r : Fin n, pullback p (a r) *
         (firstChernClass P (projectiveBundleLineBundle p n hp) : H P) ^ (r : ℕ)
   /-- Axiom (A3): the projective-bundle map is an isomorphism in every bidegree. -/
   axiomA3 : ∀ {P X : V} (p : P ⟶ X) (n : ℕ)
-      (hp : IsProjectiveBundle p n) (i j : ℤ),
+      (hp : IsProjectiveBundle p n) (_hn : 0 < n) (i j : ℤ),
     Function.Bijective (projectiveBundleMap p n hp i j)
   /-- The assertion that a morphism includes an effective Cartier divisor. -/
   IsEffectiveCartierDivisor : ∀ {Y X : V}, (Y ⟶ X) → Prop
@@ -475,8 +583,8 @@ structure SchemePreWeilTheory
   axiomA4 : ∀ {Y X : V} (i : Y ⟶ X) (hi : IsEffectiveCartierDivisor i)
       (a : H X),
     pullback i a = 0 → a * firstChernClass X (cartierLineBundle i hi) = 0
-  /-- The scalar map to bidegree `(0, 0)` cohomology of the point. -/
-  pointH0Map : F →ₗ[F] Hgrade point (0, 0)
+  /-- The scalar map to bidegree `0` cohomology of the point. -/
+  pointH0Map : F →ₗ[F] Hgrade point (0)
   /-- The scalar map to point cohomology agrees with the algebra structure. -/
   pointH0Map_apply : ∀ a : F,
     (pointH0Map a : H point) = algebraMap F (H point) a
@@ -486,20 +594,23 @@ structure SchemePreWeilTheory
   kunnethMap_tmul : ∀ {X Y : V} (a : H X) (b : H Y),
     kunnethMap X Y (a ⊗ₜ[F] b) =
       pullback (fst X Y) a * pullback (snd X Y) b
-  /-- The Künneth map adds both grading indices. -/
-  kunnethMap_mem : ∀ {X Y : V} {p q : ℤ × ℤ}
+  /-- The Künneth map adds cohomological degrees. -/
+  kunnethMap_mem : ∀ {X Y : V} {p q : ℤ}
       (a : Hgrade X p) (b : Hgrade Y q),
     kunnethMap X Y (a ⊗ₜ[F] b) ∈ Hgrade (product X Y) (p + q)
   /-- Axiom (A5), point clause: `H⁰(point) = F`. -/
   axiomA5_point : Function.Bijective pointH0Map
+  axiomA5_point_total : Function.Bijective (algebraMap F (H point))
   /-- Axiom (A5), Künneth clause: exterior product is an isomorphism for every
   pair of smooth projective schemes. -/
   axiomA5 : ∀ X Y, Function.Bijective (kunnethMap X Y)
-  /-- The cycle-class homomorphism canonically induced by the first Chern class. -/
+  /-- Tate-coordinate cycle-class homomorphism; `twistedCycleClass` is the
+  source-prescribed external tensor-valued map in each codimension. -/
   cycleClass : ∀ X, CH X →+ H X
-  /-- A codimension-`i` cycle has bidegree `(2 * i, i)`. -/
+  /-- A codimension-i cycle has cohomological degree 2i in Tate coordinates.
+  Its externally twisted class is exposed by twistedCycleClass. -/
   cycleClass_mem : ∀ X (i : ℤ) (z : CHgrade X i),
-    cycleClass X z ∈ Hgrade X (2 * i, i)
+    cycleClass X z ∈ Hgrade X (2 * i)
   /-- Cycle classes commute with pullback. -/
   cycleClass_pullback : ∀ {X Y : V} (f : X ⟶ Y) (z : CH Y),
     cycleClass X (cyclePullback f z) = pullback f (cycleClass Y z)
@@ -519,23 +630,36 @@ structure SchemePreWeilTheory
         (diagonalCycle (product_isNonemptyEquidimensional hX hY)) =
       kunnethMap (product X Y) (product X Y)
         (TensorProduct.map (kunnethMap X Y) (kunnethMap X Y)
-          ((tensorInterchange F (H X) (H Y)).symm
+          ((tensorInterchange F (Hgrade X) (Hgrade Y)
+              (Hgrade_isInternal X) (Hgrade_isInternal Y)).symm
             ((LinearEquiv.ofBijective (kunnethMap X X) (axiomA5 X X)).symm
                 (cycleClass (product X X) (diagonalCycle hX)) ⊗ₜ[F]
               (LinearEquiv.ofBijective (kunnethMap Y Y) (axiomA5 Y Y)).symm
                 (cycleClass (product Y Y) (diagonalCycle hY)))))
-  /-- The trace on total cohomology, extended by zero from bidegree `(2 * d, d)`. -/
+  /-- Chosen normalized trace witness in Tate coordinates, zero outside degree
+  2d. This is supplied data, never chosen from an unproved existence theorem. -/
   integral : ∀ {X d}, IsNonemptyEquidimensional X d → H X →ₗ[F] F
-  /-- The total trace vanishes outside bidegree `(2 * d, d)`. -/
+  /-- The total trace vanishes outside cohomological degree `2 * d` (Tate coordinates). -/
   integral_vanishes : ∀ {X d} (hX : IsNonemptyEquidimensional X d)
-      (p : ℤ × ℤ), p ≠ (2 * (d : ℤ), (d : ℤ)) →
+      (p : ℤ), p ≠ (2 * (d : ℤ)) →
     ∀ a : Hgrade X p, integral hX a = 0
   /-- Axiom (A6): contracting the diagonal class by the normalized trace gives the
   cohomological unit. -/
-  axiomA6 : ∀ {X d} (hX : IsNonemptyEquidimensional X d),
+  integral_normalized : ∀ {X d} (hX : IsNonemptyEquidimensional X d),
     contractRight (integral hX)
         ((LinearEquiv.ofBijective (kunnethMap X X) (axiomA5 X X)).symm
           (cycleClass (product X X) (diagonalCycle hX))) = 1
+  /-- Source (A6): existence of a linear functional on the externally twisted
+  top degree. Its zero extension contracts the canonical twisted diagonal to 1.
+  The supplied coordinate trace above is chosen normalized witness data. -/
+  axiomA6 : ∀ {X d} (hX : IsNonemptyEquidimensional X d),
+    ∃ ell : Tate.Twist F TateLine (Hgrade X (2 * (d : ℤ))) d →ₗ[F] F,
+      contractTwistedRight (extendTopTrace (Hgrade X) (Hgrade_isInternal X) d ell)
+        (TensorProduct.map LinearMap.id
+          (Tate.trivialization tateLine_rank (H X) (d : ℤ)).symm.toLinearMap
+          ((LinearEquiv.ofBijective (kunnethMap X X)
+            (axiomA5 X X)).symm
+            (cycleClass (product X X) (diagonalCycle hX)))) = 1
   /-- The assertion that a morphism is the blowup of a smooth center. -/
   IsBlowupOfSmoothCenter : ∀ {X' X : V}, (X' ⟶ X) → Prop
   /-- Axiom (A7): pullback by the blowup of a smooth center is injective. -/
@@ -543,6 +667,34 @@ structure SchemePreWeilTheory
     IsBlowupOfSmoothCenter b → Function.Injective (pullback b)
 
 namespace SchemePreWeilTheory
+
+/-- The source diagonal-class relation (Stacks, lines 55516-55533).
+It records the balanced class identity and the canonical point diagonal.
+This explicit Prop mixin is an axiom of the abstract layer. Stacks derives
+it geometrically from the diagonal in Section 45.14; scheme-level anchoring
+is tracked by RL-2194. -/
+class HasDiagonalClassRelation
+    {k : Type u} [Field k] {F : Type v} [Field F] [CharZero F]
+    {TateLine : Type x} [AddCommGroup TateLine] [Module F TateLine]
+    {V : Type w} [Category.{z} V]
+    {dimension : V → ℕ} {product : V → V → V}
+    {fst : ∀ X Y, product X Y ⟶ X} {snd : ∀ X Y, product X Y ⟶ Y}
+    {point : V} {CH : V → Type y} [∀ X, CommRing (CH X)]
+    {CHgrade : ∀ X, ℤ → Submodule ℤ (CH X)} [∀ X, GradedAlgebra (CHgrade X)]
+    {cyclePullback : ∀ {X Y : V}, (X ⟶ Y) → CHgrade Y →ₐᵍ[ℤ] CHgrade X}
+    {cyclePushforward : ∀ {X Y : V}, (X ⟶ Y) → CH X →+ CH Y}
+    {pointCycle : CHgrade point 0} {H Picard : V → Type x}
+    [∀ X, Ring (H X)] [∀ X, Algebra F (H X)] [∀ X, AddCommGroup (Picard X)]
+    (T : SchemePreWeilTheory k F TateLine V dimension product fst snd point CH CHgrade
+      cyclePullback cyclePushforward pointCycle H Picard) : Prop where
+  balanced : ∀ {X : V} {d : ℕ} (hX : T.IsNonemptyEquidimensional X d) (a : H X),
+    T.cycleClass (product X X) (T.diagonalCycle hX) * T.pullback (fst X X) a =
+      T.cycleClass (product X X) (T.diagonalCycle hX) * T.pullback (snd X X) a
+  point : ∀ hpoint : T.IsNonemptyEquidimensional point 0,
+    T.cycleClass (product point point) (T.diagonalCycle hpoint) =
+      T.kunnethMap point point ((1 : H point) ⊗ₜ[F] (1 : H point))
+
+
 
 /-- The canonical Künneth preimage of the cycle class of the diagonal. -/
 noncomputable def diagonalTensor
@@ -600,7 +752,8 @@ theorem diagonalTensor_product
       cyclePullback cyclePushforward pointCycle H Picard)
     {X Y : V} {d e : ℕ} (hX : T.IsNonemptyEquidimensional X d)
     (hY : T.IsNonemptyEquidimensional Y e) :
-    tensorInterchange F (H X) (H Y)
+    tensorInterchange F (T.Hgrade X) (T.Hgrade Y)
+        (T.Hgrade_isInternal X) (T.Hgrade_isInternal Y)
         (TensorProduct.map
           (LinearEquiv.ofBijective (T.kunnethMap X Y)
             (T.axiomA5 X Y)).symm.toLinearMap
@@ -623,32 +776,119 @@ theorem axiomA6_unique
     {pointCycle : CHgrade point 0} {H Picard : V → Type x}
     [∀ X, Ring (H X)] [∀ X, Algebra F (H X)] [∀ X, AddCommGroup (Picard X)]
     (T : SchemePreWeilTheory k F TateLine V dimension product fst snd point CH CHgrade
-      cyclePullback cyclePushforward pointCycle H Picard)
+      cyclePullback cyclePushforward pointCycle H Picard) [T.HasDiagonalClassRelation]
     {X : V} {d : ℕ} (hX : T.IsNonemptyEquidimensional X d)
     (trace : H X →ₗ[F] F) :
-    contractRight trace (T.diagonalTensor hX) = 1 → trace = T.integral hX := sorry
+    contractRight trace (T.diagonalTensor hX) = 1 → trace = T.integral hX := by
+  have hdiagonal : T.HasDiagonalClassRelation := inferInstance
+  sorry
 
-/-- Replace the chosen Tate-shift identifications while retaining the same underlying
-data and axioms. -/
-def withTateTwist
-    {k : Type u} [Field k] {F : Type v} [Field F] [CharZero F]
-    {TateLine : Type x} [AddCommGroup TateLine] [Module F TateLine]
-    {V : Type w} [Category.{z} V]
-    {dimension : V → ℕ} {product : V → V → V}
-    {fst : ∀ X Y, product X Y ⟶ X} {snd : ∀ X Y, product X Y ⟶ Y}
-    {point : V} {CH : V → Type y} [∀ X, CommRing (CH X)]
-    {CHgrade : ∀ X, ℤ → Submodule ℤ (CH X)} [∀ X, GradedAlgebra (CHgrade X)]
-    {cyclePullback : ∀ {X Y : V}, (X ⟶ Y) → CHgrade Y →ₐᵍ[ℤ] CHgrade X}
-    {cyclePushforward : ∀ {X Y : V}, (X ⟶ Y) → CH X →+ CH Y}
-    {pointCycle : CHgrade point 0} {H Picard : V → Type x}
-    [∀ X, Ring (H X)] [∀ X, Algebra F (H X)] [∀ X, AddCommGroup (Picard X)]
-    (T : SchemePreWeilTheory k F TateLine V dimension product fst snd point CH CHgrade
-      cyclePullback cyclePushforward pointCycle H Picard)
-    (tateTwist : ∀ X i j,
-      T.Hgrade X (i, j) ⊗[F] TateLine ≃ₗ[F] T.Hgrade X (i, j + 1)) :
-    SchemePreWeilTheory k F TateLine V dimension product fst snd point CH CHgrade
-      cyclePullback cyclePushforward pointCycle H Picard :=
-  { T with tateTwist := tateTwist }
+
+variable {k : Type u} [Field k]
+variable {F : Type v} [Field F] [CharZero F]
+variable {TateLine : Type x} [AddCommGroup TateLine] [Module F TateLine]
+variable {V : Type w} [Category.{z} V]
+variable {dimension : V → ℕ} {product : V → V → V}
+variable {fst : ∀ X Y, product X Y ⟶ X} {snd : ∀ X Y, product X Y ⟶ Y}
+variable {point : V} {CH : V → Type y} [∀ X, CommRing (CH X)]
+variable {CHgrade : ∀ X, ℤ → Submodule ℤ (CH X)} [∀ X, GradedAlgebra (CHgrade X)]
+variable {cyclePullback : ∀ {X Y : V}, (X ⟶ Y) → CHgrade Y →ₐᵍ[ℤ] CHgrade X}
+variable {cyclePushforward : ∀ {X Y : V}, (X ⟶ Y) → CH X →+ CH Y}
+variable {pointCycle : CHgrade point 0} {H Picard : V → Type x}
+variable [∀ X, Ring (H X)] [∀ X, Algebra F (H X)] [∀ X, AddCommGroup (Picard X)]
+
+
+variable (T : SchemePreWeilTheory k F TateLine V dimension product fst snd point CH CHgrade
+  cyclePullback cyclePushforward pointCycle H Picard)
+
+/-- External Tate twists of the singly graded total cohomology. -/
+abbrev twistedCohomology
+    (_T : SchemePreWeilTheory k F TateLine V dimension product fst snd point CH CHgrade
+      cyclePullback cyclePushforward pointCycle H Picard) (X : V) (n : ℤ) := Tate.Twist F TateLine (H X) n
+
+/-- A homogeneous degree with an external Tate twist. There is no inclusion of
+all twists as independent summands of H X. -/
+abbrev twistedGrade (X : V) (i n : ℤ) := Tate.Twist F TateLine (T.Hgrade X i) n
+
+/-- The Tate shift is derived from genuine tensor powers, not stored as an
+identification between subspaces of H X. Coordinate adapter using the chosen Tate coordinates; canonical external
+compatibility and coherence are tracked by RL-2195. -/
+def tateTwist (X : V) (i n : ℤ) :
+    T.twistedGrade X i n ⊗[F] TateLine ≃ₗ[F] T.twistedGrade X i (n + 1) :=
+  Tate.shift T.tateLine_rank (T.Hgrade X i) n
+
+/-- Source D2' reconstructed from its coordinates on the chosen genuine Tate line. Coordinate adapter using the chosen Tate coordinates; canonical external
+compatibility and coherence are tracked by RL-2195. -/
+def twistedFirstChernClass (X : V) : Picard X →+ T.twistedGrade X 2 1 :=
+  (Tate.trivialization T.tateLine_rank (T.Hgrade X 2) 1).symm.toLinearMap.toAddMonoidHom.comp
+    (T.firstChernClass X)
+
+/-- The degreewise cycle class with its source-prescribed external Tate twist. Coordinate adapter using the chosen Tate coordinates; canonical external
+compatibility and coherence are tracked by RL-2195. -/
+def twistedCycleClass (X : V) (i : ℤ) : CHgrade X i →+ T.twistedGrade X (2 * i) i :=
+  (Tate.trivialization T.tateLine_rank (T.Hgrade X (2 * i)) i).symm.toLinearMap.toAddMonoidHom.comp
+    { toFun := fun z ↦ ⟨T.cycleClass X z, T.cycleClass_mem X i z⟩
+      map_zero' := Subtype.ext (map_zero _)
+      map_add' := fun a b ↦ Subtype.ext ((T.cycleClass X).map_add a b) }
+
+/-- Pullback acts on a fixed external twist. -/
+def twistedPullback {X Y : V} (f : X ⟶ Y) (n : ℤ) :
+    T.twistedCohomology Y n →ₗ[F] T.twistedCohomology X n :=
+  TensorProduct.map (T.pullback f).toLinearMap LinearMap.id
+
+/-- The chosen normalized trace as a functional on externally twisted cohomology.
+The stored integral is its coordinate functional, not a functional on a sum of twists. Coordinate adapter using the chosen Tate coordinates; canonical external
+compatibility and coherence are tracked by RL-2195. -/
+def twistedIntegral {X : V} {d : ℕ} (hX : T.IsNonemptyEquidimensional X d) :
+    T.twistedCohomology X d →ₗ[F] F :=
+  (T.integral hX).comp (Tate.trivialization T.tateLine_rank (H X) d).toLinearMap
+
+/-- The top-degree restriction of the chosen twisted trace. Coordinate adapter using the chosen Tate coordinates; canonical external
+compatibility and coherence are tracked by RL-2195. -/
+def twistedTopIntegral {X : V} {d : ℕ} (hX : T.IsNonemptyEquidimensional X d) :
+    T.twistedGrade X (2 * (d : ℤ)) d →ₗ[F] F :=
+  (T.twistedIntegral hX).comp (twistedInclusion (T.Hgrade X) (2 * (d : ℤ)) d)
+
+/-- The Künneth map on any two specified external twists. Coordinate adapter using the chosen Tate coordinates; canonical external
+compatibility and coherence are tracked by RL-2195. -/
+def twistedKunnethMap (X Y : V) (r s : ℤ) :
+    T.twistedCohomology X r ⊗[F] T.twistedCohomology Y s →ₗ[F]
+      T.twistedCohomology (product X Y) (r + s) :=
+  Tate.tensorMap T.tateLine_rank (T.kunnethMap X Y) r s
+
+/-- The diagonal class lives in H(X) ⊗ H(X)(d), with an external twist on the
+right factor, rather than in an algebra containing all twists. Coordinate adapter using the chosen Tate coordinates; canonical external
+compatibility and coherence are tracked by RL-2195. -/
+def twistedDiagonalTensor {X : V} {d : ℕ} (hX : T.IsNonemptyEquidimensional X d) :
+    H X ⊗[F] T.twistedCohomology X d :=
+  TensorProduct.map LinearMap.id
+    (Tate.trivialization T.tateLine_rank (H X) d).symm.toLinearMap (T.diagonalTensor hX)
+
+/-- Twisted Künneth sends the derived diagonal tensor to the external
+cycle class of the geometric diagonal. -/
+theorem twistedDiagonalTensor_spec {X : V} {d : ℕ}
+    (hX : T.IsNonemptyEquidimensional X d) :
+    TensorProduct.map (T.kunnethMap X X) LinearMap.id
+      ((TensorProduct.assoc F (H X) (H X) (Tate.Power F TateLine (d : ℤ))).symm
+        (T.twistedDiagonalTensor hX)) =
+      twistedInclusion (T.Hgrade (product X X)) (2 * (d : ℤ)) d
+        (T.twistedCycleClass (product X X) d (T.diagonalCycle hX)) := sorry
+
+/-- The supplied trace coordinates give normalized chosen witness data for A6. -/
+theorem twistedIntegral_normalized {X : V} {d : ℕ}
+    (hX : T.IsNonemptyEquidimensional X d) :
+    contractTwistedRight (T.twistedIntegral hX) (T.twistedDiagonalTensor hX) = 1 := sorry
+
+/-- The source's uniqueness assertion compares functionals on the twisted top
+cohomological degree, after their canonical zero extension. -/
+theorem sourceAxiomA6_unique [T.HasDiagonalClassRelation]
+     {X : V} {d : ℕ}
+    (hX : T.IsNonemptyEquidimensional X d)
+    (ell : T.twistedGrade X (2 * (d : ℤ)) d →ₗ[F] F) :
+    contractTwistedRight (extendTopTrace (T.Hgrade X) (T.Hgrade_isInternal X) d ell)
+      (T.twistedDiagonalTensor hX) = 1 → ell = T.twistedTopIntegral hX := by
+  have hdiagonal : T.HasDiagonalClassRelation := inferInstance
+  sorry
 
 end SchemePreWeilTheory
 
@@ -670,28 +910,45 @@ theorem kunnethMap_bijective_of_axiomsA1ToA7
     (T : SchemePreWeilTheory k F TateLine V dimension product fst snd point CH CHgrade
       cyclePullback cyclePushforward pointCycle H Picard)
     (X Y : V) :
-    Function.Bijective (T.kunnethMap X Y) := sorry
+    Function.Bijective (T.kunnethMap X Y) := T.axiomA5 X Y
 
 /-- Integration on a product is the tensor-product trace transported across the
 Künneth isomorphism. -/
 theorem integral_eq_tensorProductTrace_of_axiomsA1ToA7
     (T : SchemePreWeilTheory k F TateLine V dimension product fst snd point CH CHgrade
-      cyclePullback cyclePushforward pointCycle H Picard)
+      cyclePullback cyclePushforward pointCycle H Picard) [T.HasDiagonalClassRelation]
     (X Y : V) {d e : ℕ} (hX : T.IsNonemptyEquidimensional X d)
     (hY : T.IsNonemptyEquidimensional Y e) :
     T.integral (T.product_isNonemptyEquidimensional hX hY) =
       tensorProductTrace (T.kunnethMap X Y)
         (kunnethMap_bijective_of_axiomsA1ToA7 T X Y)
-        (T.integral hX) (T.integral hY) := sorry
+        (T.integral hX) (T.integral hY) := by
+  have hdiagonal : T.HasDiagonalClassRelation := inferInstance
+  sorry
 
 /-- The integral of an exterior product is the product of the two integrals. -/
 theorem integral_kunnethMap_tmul_of_axiomsA1ToA7
     (T : SchemePreWeilTheory k F TateLine V dimension product fst snd point CH CHgrade
-      cyclePullback cyclePushforward pointCycle H Picard)
+      cyclePullback cyclePushforward pointCycle H Picard) [T.HasDiagonalClassRelation]
     (X Y : V) {d e : ℕ} (hX : T.IsNonemptyEquidimensional X d)
     (hY : T.IsNonemptyEquidimensional Y e) (a : H X) (b : H Y) :
     T.integral (T.product_isNonemptyEquidimensional hX hY)
         (T.kunnethMap X Y (a ⊗ₜ[F] b)) =
-      T.integral hX a * T.integral hY b := sorry
+      T.integral hX a * T.integral hY b := by
+  have hdiagonal : T.HasDiagonalClassRelation := inferInstance
+  sorry
+
+/-- The product-trace identity on the actual external dimension twists. -/
+theorem twistedIntegral_kunnethMap_tmul_of_axiomsA1ToA7
+    (T : SchemePreWeilTheory k F TateLine V dimension product fst snd point CH CHgrade
+      cyclePullback cyclePushforward pointCycle H Picard) [T.HasDiagonalClassRelation]
+    {X Y : V} {d e : ℕ} (hX : T.IsNonemptyEquidimensional X d)
+    (hY : T.IsNonemptyEquidimensional Y e)
+    (a : T.twistedCohomology X d) (b : T.twistedCohomology Y e) :
+    T.twistedIntegral (T.product_isNonemptyEquidimensional hX hY)
+        (T.twistedKunnethMap X Y d e (a ⊗ₜ[F] b)) =
+      T.twistedIntegral hX a * T.twistedIntegral hY b := by
+  have hdiagonal : T.HasDiagonalClassRelation := inferInstance
+  sorry
 
 end WeilCohomology

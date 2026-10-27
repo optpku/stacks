@@ -185,13 +185,14 @@ def projectiveLineIso : ProjectiveLine.scheme ℂ ≅ scheme where
   inv_hom_id := projection_comp_parametrization
 
 /-- The forward arrow of `projectiveLineIso` is the glued parametrization. -/
-theorem projectiveLineIso_hom : projectiveLineIso.hom = parametrization := sorry
+theorem projectiveLineIso_hom : projectiveLineIso.hom = parametrization := rfl
 
 /-- The inverse arrow of `projectiveLineIso` is the glued linear projection. -/
-theorem projectiveLineIso_inv : projectiveLineIso.inv = projection := sorry
+theorem projectiveLineIso_inv : projectiveLineIso.inv = projection := rfl
 
 /-- The parametrization `ℙ¹_ℂ ⟶` Fermat conic is an isomorphism. -/
-instance instIsIso_parametrization : IsIso parametrization := sorry
+instance instIsIso_parametrization : IsIso parametrization :=
+  projectiveLineIso.isIso_hom
 
 /-- The parametrization commutes with the structure morphisms to `Spec ℂ`. -/
 theorem parametrization_comp_toSpec :

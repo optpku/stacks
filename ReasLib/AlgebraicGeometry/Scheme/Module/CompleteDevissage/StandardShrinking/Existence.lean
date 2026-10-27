@@ -14,7 +14,9 @@ public import ReasLib.AlgebraicGeometry.Scheme.Module.OneStepDevissage.StandardS
 # Existence of standard shrinkings of complete dévissages
 
 This module provides complete standard shrinkings with prescribed control over the
-base, terminal model, or source open.
+base, terminal model, or source open. The output `StandardShrinking` records rank
+preservation and the canonical restriction formula for every comparison map,
+including the terminal one.
 -/
 
 @[expose] public section

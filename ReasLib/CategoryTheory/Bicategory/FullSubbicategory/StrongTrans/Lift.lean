@@ -62,7 +62,10 @@ theorem naturality_naturality :
       (FullSubbicategory.lift F hF).map₂ τ ▷ app F G hF hG η Y ≫
           (naturality F G hF hG η g).hom =
         (naturality F G hF hG η f).hom ≫
-          app F G hF hG η X ◁ (FullSubbicategory.lift G hG).map₂ τ := sorry
+          app F G hF hG η X ◁ (FullSubbicategory.lift G hG).map₂ τ := by
+  intro X Y f g τ
+  apply Bicategory.InducedBicategory.hom₂_ext
+  exact η.naturality_naturality τ
 
 /-- Identity coherence for a lifted strong transformation. -/
 theorem naturality_id :
@@ -71,7 +74,16 @@ theorem naturality_id :
           app F G hF hG η X ◁ ((FullSubbicategory.lift G hG).mapId X).hom =
         ((FullSubbicategory.lift F hF).mapId X).hom ▷ app F G hF hG η X ≫
           (λ_ (app F G hF hG η X)).hom ≫
-          (ρ_ (app F G hF hG η X)).inv := sorry
+          (ρ_ (app F G hF hG η X)).inv := by
+  intro X
+  apply Bicategory.InducedBicategory.hom₂_ext
+  change (η.naturality (𝟙 X)).hom ≫
+      η.app X ◁ ((FullSubbicategory.lift G hG).mapId X).hom.hom =
+    ((FullSubbicategory.lift F hF).mapId X).hom.hom ▷ η.app X ≫
+      (λ_ (η.app X)).hom ≫ (ρ_ (η.app X)).inv
+  set_option backward.isDefEq.respectTransparency false in
+    simpa only [StrictlyUnitaryPseudofunctor.mapId_eq_eqToIso, eqToIso.hom,
+      Bicategory.InducedBicategory.eqToHom_hom] using η.naturality_id X
 
 /-- Composition coherence for a lifted strong transformation. -/
 theorem naturality_comp :
@@ -86,7 +98,19 @@ theorem naturality_comp :
           (α_ _ _ _).inv ≫
           (naturality F G hF hG η f).hom ▷
             (FullSubbicategory.lift G hG).map g ≫
-          (α_ _ _ _).hom := sorry
+          (α_ _ _ _).hom := by
+  intro X Y Z f g
+  apply Bicategory.InducedBicategory.hom₂_ext
+  change (η.naturality (f ≫ g)).hom ≫
+      η.app X ◁ ((FullSubbicategory.lift G hG).mapComp f g).hom.hom =
+    ((FullSubbicategory.lift F hF).mapComp f g).hom.hom ▷ η.app Z ≫
+      (α_ _ _ _).hom ≫ F.map f ◁ (η.naturality g).hom ≫
+      (α_ _ _ _).inv ≫ (η.naturality f).hom ▷ G.map g ≫ (α_ _ _ _).hom
+  have h := η.naturality_comp f g
+  simp only [StrictPseudofunctor.mapComp_eq_eqToIso, eqToIso.hom] at h
+  simp only [StrictPseudofunctor.mapComp_eq_eqToIso, eqToIso.hom,
+    Bicategory.InducedBicategory.eqToHom_hom]
+  convert h using 1 <;> rfl
 
 end Lift
 
@@ -109,7 +133,7 @@ theorem lift.app (F G : StrictPseudofunctor A D)
     (hF : ∀ X : A, P (F.obj X)) (hG : ∀ X : A, P (G.obj X))
     (η : Pseudofunctor.StrongTrans F.toPseudofunctor G.toPseudofunctor) (X : A) :
     (lift F G hF hG η).app X =
-      Bicategory.InducedBicategory.mkHom (η.app X) := sorry
+      Bicategory.InducedBicategory.mkHom (η.app X) := rfl
 
 /-- Naturality of `lift` is the ambient naturality isomorphism with object-membership
 witnesses added. -/
@@ -119,7 +143,7 @@ theorem lift.naturality (F G : StrictPseudofunctor A D)
     (η : Pseudofunctor.StrongTrans F.toPseudofunctor G.toPseudofunctor)
     {X Y : A} (f : X ⟶ Y) :
     (lift F G hF hG η).naturality f =
-      Bicategory.InducedBicategory.isoMk (η.naturality f) := sorry
+      Bicategory.InducedBicategory.isoMk (η.naturality f) := rfl
 
 /-- The ambient component of a lifted strict-pseudofunctor transformation is the original
 component. -/
@@ -127,7 +151,7 @@ component. -/
 theorem lift.app.toAmbient (F G : StrictPseudofunctor A D)
     (hF : ∀ X : A, P (F.obj X)) (hG : ∀ X : A, P (G.obj X))
     (η : Pseudofunctor.StrongTrans F.toPseudofunctor G.toPseudofunctor) (X : A) :
-    ((lift F G hF hG η).app X).hom = η.app X := sorry
+    ((lift F G hF hG η).app X).hom = η.app X := rfl
 
 /-- The forward ambient naturality cell of a lifted strict-pseudofunctor transformation is the
 original forward cell. -/
@@ -137,7 +161,7 @@ theorem lift.naturality.hom.toAmbient (F G : StrictPseudofunctor A D)
     (η : Pseudofunctor.StrongTrans F.toPseudofunctor G.toPseudofunctor)
     {X Y : A} (f : X ⟶ Y) :
     (Bicategory.InducedBicategory.Iso.toAmbient
-      ((lift F G hF hG η).naturality f)).hom = (η.naturality f).hom := sorry
+      ((lift F G hF hG η).naturality f)).hom = (η.naturality f).hom := rfl
 
 /-- The inverse ambient naturality cell of a lifted strict-pseudofunctor transformation is the
 original inverse cell. -/
@@ -147,7 +171,7 @@ theorem lift.naturality.inv.toAmbient (F G : StrictPseudofunctor A D)
     (η : Pseudofunctor.StrongTrans F.toPseudofunctor G.toPseudofunctor)
     {X Y : A} (f : X ⟶ Y) :
     (Bicategory.InducedBicategory.Iso.toAmbient
-      ((lift F G hF hG η).naturality f)).inv = (η.naturality f).inv := sorry
+      ((lift F G hF hG η).naturality f)).inv = (η.naturality f).inv := rfl
 
 end Lift
 
@@ -174,7 +198,7 @@ theorem liftToId.app
       (FullSubbicategory.ι P).toPseudofunctor)
     (X : P.FullSubbicategory) :
     (liftToId G obj_mem η).app X =
-      Bicategory.InducedBicategory.mkHom (η.app X) := sorry
+      Bicategory.InducedBicategory.mkHom (η.app X) := rfl
 
 /-- Naturality of `liftToId` is the ambient naturality isomorphism regarded in the selected
 full subbicategory. -/
@@ -186,7 +210,7 @@ theorem liftToId.naturality
       (FullSubbicategory.ι P).toPseudofunctor)
     {X Y : P.FullSubbicategory} (f : X ⟶ Y) :
     (liftToId G obj_mem η).naturality f =
-      Bicategory.InducedBicategory.isoMk (η.naturality f) := sorry
+      Bicategory.InducedBicategory.isoMk (η.naturality f) := rfl
 
 /-- The ambient component of `liftToId` is the original component. -/
 @[simp]
@@ -196,7 +220,7 @@ theorem liftToId.app.toAmbient
     (η : Pseudofunctor.StrongTrans G.toPseudofunctor
       (FullSubbicategory.ι P).toPseudofunctor)
     (X : P.FullSubbicategory) :
-    ((liftToId G obj_mem η).app X).hom = η.app X := sorry
+    ((liftToId G obj_mem η).app X).hom = η.app X := rfl
 
 /-- The forward ambient naturality cell of `liftToId` is the original forward cell. -/
 @[simp]
@@ -207,7 +231,7 @@ theorem liftToId.naturality.hom.toAmbient
       (FullSubbicategory.ι P).toPseudofunctor)
     {X Y : P.FullSubbicategory} (f : X ⟶ Y) :
     (Bicategory.InducedBicategory.Iso.toAmbient
-      ((liftToId G obj_mem η).naturality f)).hom = (η.naturality f).hom := sorry
+      ((liftToId G obj_mem η).naturality f)).hom = (η.naturality f).hom := rfl
 
 /-- The inverse ambient naturality cell of `liftToId` is the original inverse cell. -/
 @[simp]
@@ -218,7 +242,7 @@ theorem liftToId.naturality.inv.toAmbient
       (FullSubbicategory.ι P).toPseudofunctor)
     {X Y : P.FullSubbicategory} (f : X ⟶ Y) :
     (Bicategory.InducedBicategory.Iso.toAmbient
-      ((liftToId G obj_mem η).naturality f)).inv = (η.naturality f).inv := sorry
+      ((liftToId G obj_mem η).naturality f)).inv = (η.naturality f).inv := rfl
 
 /-- Lift an ambient strong transformation from the canonical inclusion of a selected full
 subbicategory to a strict pseudofunctor whose values satisfy the object property. -/
@@ -242,7 +266,7 @@ theorem liftFromId.app
       G.toPseudofunctor)
     (X : P.FullSubbicategory) :
     (liftFromId G obj_mem η).app X =
-      Bicategory.InducedBicategory.mkHom (η.app X) := sorry
+      Bicategory.InducedBicategory.mkHom (η.app X) := rfl
 
 /-- Naturality of `liftFromId` is the ambient naturality isomorphism regarded in the selected
 full subbicategory. -/
@@ -254,7 +278,7 @@ theorem liftFromId.naturality
       G.toPseudofunctor)
     {X Y : P.FullSubbicategory} (f : X ⟶ Y) :
     (liftFromId G obj_mem η).naturality f =
-      Bicategory.InducedBicategory.isoMk (η.naturality f) := sorry
+      Bicategory.InducedBicategory.isoMk (η.naturality f) := rfl
 
 /-- The ambient component of `liftFromId` is the original component. -/
 @[simp]
@@ -264,7 +288,7 @@ theorem liftFromId.app.toAmbient
     (η : Pseudofunctor.StrongTrans (FullSubbicategory.ι P).toPseudofunctor
       G.toPseudofunctor)
     (X : P.FullSubbicategory) :
-    ((liftFromId G obj_mem η).app X).hom = η.app X := sorry
+    ((liftFromId G obj_mem η).app X).hom = η.app X := rfl
 
 /-- The forward ambient naturality cell of `liftFromId` is the original forward cell. -/
 @[simp]
@@ -275,7 +299,7 @@ theorem liftFromId.naturality.hom.toAmbient
       G.toPseudofunctor)
     {X Y : P.FullSubbicategory} (f : X ⟶ Y) :
     (Bicategory.InducedBicategory.Iso.toAmbient
-      ((liftFromId G obj_mem η).naturality f)).hom = (η.naturality f).hom := sorry
+      ((liftFromId G obj_mem η).naturality f)).hom = (η.naturality f).hom := rfl
 
 /-- The inverse ambient naturality cell of `liftFromId` is the original inverse cell. -/
 @[simp]
@@ -286,7 +310,7 @@ theorem liftFromId.naturality.inv.toAmbient
       G.toPseudofunctor)
     {X Y : P.FullSubbicategory} (f : X ⟶ Y) :
     (Bicategory.InducedBicategory.Iso.toAmbient
-      ((liftFromId G obj_mem η).naturality f)).inv = (η.naturality f).inv := sorry
+      ((liftFromId G obj_mem η).naturality f)).inv = (η.naturality f).inv := rfl
 
 end StrongTrans
 

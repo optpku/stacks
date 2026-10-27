@@ -57,7 +57,8 @@ universe u v
     CategoryTheory.GrothendieckTopology X.carrier)
 
 /- Definition 34.3.5: a big Zariski site is a chosen small category of schemes
-with selected seed schemes and Zariski coverings, equipped with a pretopology
-whose covering families are represented by Zariski covers. -/
-@[stacks 020S] #check (AlgebraicGeometry.ChosenBigZariskiSite.{u, v} :
+identified with a category `Sch_α` supplied by Tag 000J, with selected seed
+schemes and coverings as in Tag 000X. -/
+@[stacks 020S] #check
+  (AlgebraicGeometry.SchAlphaBigSite.{u, v} AlgebraicGeometry.Scheme.zariskiPrecoverage :
   Type (max (u + 1) (v + 1)))

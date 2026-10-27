@@ -29,21 +29,23 @@ namespace AlgebraicGeometry.Scheme.Over
 
 variable {I : Type u} (S : Scheme.{u})
 variable (T : I → CategoryTheory.Over S)
-variable [∀ i, IsAffineHom (T i).hom]
 
 /-- Every transition morphism between finite subproducts of affine morphisms
 over a fixed base scheme is affine. -/
 instance instIsAffineHomFiniteSubproductsMap
+    [∀ i, IsAffineHom (T i).hom]
     {s t : (Finset (Discrete I))ᵒᵖ} (f : s ⟶ t) :
     IsAffineHom ((liftToFinsetObj (Discrete.functor T)).map f).left := sorry
 
 /-- An arbitrary indexed family of affine morphisms into a fixed base scheme
 admits a product in the slice category over that scheme. -/
-instance instHasProductOfIsAffineHom : HasProduct T := sorry
+instance instHasProductOfIsAffineHom
+    [h_affine : ∀ i, IsAffineHom (T i).hom] : HasProduct T := sorry
 
 /-- The projection from the product of affine morphisms to every finite
 subproduct is an affine morphism of schemes. -/
 theorem isAffineHom_finiteSubproductsCone_π_app
+    [∀ i, IsAffineHom (T i).hom]
     (s : (Finset (Discrete I))ᵒᵖ) :
     IsAffineHom ((finiteSubproductsCone T).π.app s).left := sorry
 

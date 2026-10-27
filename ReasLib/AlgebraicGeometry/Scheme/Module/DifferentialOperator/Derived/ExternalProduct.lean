@@ -107,8 +107,8 @@ theorem coefficientTensorComparison_def {Z S : Scheme.{u}} (f : Z ⟶ S)
 realization of the ordinary external product. -/
 noncomputable def externalComparisonBidegree {S X Y : Scheme.{u}}
     (a : X ⟶ S) (b : Y ⟶ S)
-    [(leftCoefficientHom a b).modulePushforward.IsRightAdjoint]
-    [(rightCoefficientHom a b).modulePushforward.IsRightAdjoint]
+    [(RingedSite.Hom.modulePushforward.{u} (leftCoefficientHom a b)).IsRightAdjoint]
+    [(RingedSite.Hom.modulePushforward.{u} (rightCoefficientHom a b)).IsRightAdjoint]
     (T : Hom.FiniteOrderDifferentialOperatorCat a ⥤
       Hom.FiniteOrderDifferentialOperatorCat b ⥤
         Hom.FiniteOrderDifferentialOperatorCat (pullback.fst a b ≫ a))
@@ -139,8 +139,8 @@ noncomputable def externalComparisonBidegree {S X Y : Scheme.{u}}
 ordinary external-product total. -/
 noncomputable def externalComparisonComponent {S X Y : Scheme.{u}}
     (a : X ⟶ S) (b : Y ⟶ S)
-    [(leftCoefficientHom a b).modulePushforward.IsRightAdjoint]
-    [(rightCoefficientHom a b).modulePushforward.IsRightAdjoint]
+    [(RingedSite.Hom.modulePushforward.{u} (leftCoefficientHom a b)).IsRightAdjoint]
+    [(RingedSite.Hom.modulePushforward.{u} (rightCoefficientHom a b)).IsRightAdjoint]
     (T : Hom.FiniteOrderDifferentialOperatorCat a ⥤
       Hom.FiniteOrderDifferentialOperatorCat b ⥤
         Hom.FiniteOrderDifferentialOperatorCat (pullback.fst a b ≫ a))
@@ -162,8 +162,8 @@ noncomputable def externalComparisonComponent {S X Y : Scheme.{u}}
 /-- The degreewise external-product comparisons commute with the total differentials. -/
 theorem externalComparisonComponent_comm {S X Y : Scheme.{u}}
     (a : X ⟶ S) (b : Y ⟶ S)
-    [(leftCoefficientHom a b).modulePushforward.IsRightAdjoint]
-    [(rightCoefficientHom a b).modulePushforward.IsRightAdjoint]
+    [(RingedSite.Hom.modulePushforward.{u} (leftCoefficientHom a b)).IsRightAdjoint]
+    [(RingedSite.Hom.modulePushforward.{u} (rightCoefficientHom a b)).IsRightAdjoint]
     (T : Hom.FiniteOrderDifferentialOperatorCat a ⥤
       Hom.FiniteOrderDifferentialOperatorCat b ⥤
         Hom.FiniteOrderDifferentialOperatorCat (pullback.fst a b ≫ a))
@@ -184,8 +184,8 @@ theorem externalComparisonComponent_comm {S X Y : Scheme.{u}}
 /-- The canonical chain map from the coefficient tensor total to `Tot(F ⊠ G)`. -/
 noncomputable def externalComparison {S X Y : Scheme.{u}}
     (a : X ⟶ S) (b : Y ⟶ S)
-    [(leftCoefficientHom a b).modulePushforward.IsRightAdjoint]
-    [(rightCoefficientHom a b).modulePushforward.IsRightAdjoint]
+    [(RingedSite.Hom.modulePushforward.{u} (leftCoefficientHom a b)).IsRightAdjoint]
+    [(RingedSite.Hom.modulePushforward.{u} (rightCoefficientHom a b)).IsRightAdjoint]
     (T : Hom.FiniteOrderDifferentialOperatorCat a ⥤
       Hom.FiniteOrderDifferentialOperatorCat b ⥤
         Hom.FiniteOrderDifferentialOperatorCat (pullback.fst a b ≫ a))
@@ -204,8 +204,8 @@ noncomputable def externalComparison {S X Y : Scheme.{u}}
 /-- The chain comparison has the prescribed degreewise component. -/
 theorem externalComparison_f {S X Y : Scheme.{u}}
     (a : X ⟶ S) (b : Y ⟶ S)
-    [(leftCoefficientHom a b).modulePushforward.IsRightAdjoint]
-    [(rightCoefficientHom a b).modulePushforward.IsRightAdjoint]
+    [(RingedSite.Hom.modulePushforward.{u} (leftCoefficientHom a b)).IsRightAdjoint]
+    [(RingedSite.Hom.modulePushforward.{u} (rightCoefficientHom a b)).IsRightAdjoint]
     (T : Hom.FiniteOrderDifferentialOperatorCat a ⥤
       Hom.FiniteOrderDifferentialOperatorCat b ⥤
         Hom.FiniteOrderDifferentialOperatorCat (pullback.fst a b ≫ a))

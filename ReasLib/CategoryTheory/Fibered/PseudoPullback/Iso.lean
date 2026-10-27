@@ -44,7 +44,8 @@ theorem mkIso.inv.comm
     (w : CommSq (F.toFunctor.map fst.hom) (comparison P)
       (comparison Q) (G.toFunctor.map snd.hom)) :
     CommSq (F.toFunctor.map fst.inv) (comparison Q)
-      (comparison P) (G.toFunctor.map snd.inv) := sorry
+      (comparison P) (G.toFunctor.map snd.inv) := by
+  exact CommSq.horiz_inv (f := F.toFunctor.mapIso fst) (i := G.toFunctor.mapIso snd) w
 
 /-- The morphisms assembled from mutually inverse base and component isomorphisms compose to the
 identity on the source pseudo-pullback object. -/
@@ -62,7 +63,12 @@ theorem mkIso.hom.inv_id
           (Functor.IsHomLift.inv_lift_inv_of (p := X.p) base fst hom_fst)
           snd.inv (Functor.IsHomLift.inv_lift_inv_of (p := Y.p) base snd hom_snd)
           (mkIso.inv.comm fst snd w) =
-      𝟙 P := sorry
+      𝟙 P := by
+  apply PseudoPullback.hom_ext
+  · change fst.hom ≫ fst.inv = 𝟙 (fstObj P)
+    exact fst.hom_inv_id
+  · change snd.hom ≫ snd.inv = 𝟙 (sndObj P)
+    exact snd.hom_inv_id
 
 /-- The morphisms assembled from mutually inverse base and component isomorphisms compose to the
 identity on the target pseudo-pullback object. -/
@@ -80,7 +86,12 @@ theorem mkIso.inv.hom_id
           snd.inv (Functor.IsHomLift.inv_lift_inv_of (p := Y.p) base snd hom_snd)
           (mkIso.inv.comm fst snd w) ≫
         PseudoPullback.Hom.mk base.hom fst.hom hom_fst snd.hom hom_snd w =
-      𝟙 Q := sorry
+      𝟙 Q := by
+  apply PseudoPullback.hom_ext
+  · change fst.inv ≫ fst.hom = 𝟙 (fstObj Q)
+    exact fst.inv_hom_id
+  · change snd.inv ≫ snd.hom = 𝟙 (sndObj Q)
+    exact snd.inv_hom_id
 
 /-- Construct an isomorphism of pseudo-pullback objects from compatible isomorphisms of their
 base, first, and second components. Only compatibility of the forward components must be
@@ -116,7 +127,7 @@ theorem mkIso.hom.baseMap
     (w : CommSq (F.toFunctor.map fst.hom) (comparison P)
       (comparison Q) (G.toFunctor.map snd.hom)) :
     baseMap (mkIso base fst snd hom_fst hom_snd w).hom =
-      base.hom := sorry
+      base.hom := rfl
 
 /-- The first component of the forward morphism of `mkIso` is the supplied first-component
 isomorphism. -/
@@ -131,7 +142,7 @@ theorem mkIso.hom.fstMap
     (w : CommSq (F.toFunctor.map fst.hom) (comparison P)
       (comparison Q) (G.toFunctor.map snd.hom)) :
     fstMap (mkIso base fst snd hom_fst hom_snd w).hom =
-      fst.hom := sorry
+      fst.hom := rfl
 
 /-- The second component of the forward morphism of `mkIso` is the supplied second-component
 isomorphism. -/
@@ -146,7 +157,7 @@ theorem mkIso.hom.sndMap
     (w : CommSq (F.toFunctor.map fst.hom) (comparison P)
       (comparison Q) (G.toFunctor.map snd.hom)) :
     sndMap (mkIso base fst snd hom_fst hom_snd w).hom =
-      snd.hom := sorry
+      snd.hom := rfl
 
 /-- The base component of the inverse morphism of `mkIso` is the inverse supplied base
 isomorphism. -/
@@ -161,7 +172,7 @@ theorem mkIso.inv.baseMap
     (w : CommSq (F.toFunctor.map fst.hom) (comparison P)
       (comparison Q) (G.toFunctor.map snd.hom)) :
     baseMap (mkIso base fst snd hom_fst hom_snd w).inv =
-      base.inv := sorry
+      base.inv := rfl
 
 /-- The first component of the inverse morphism of `mkIso` is the inverse supplied
 first-component isomorphism. -/
@@ -176,7 +187,7 @@ theorem mkIso.inv.fstMap
     (w : CommSq (F.toFunctor.map fst.hom) (comparison P)
       (comparison Q) (G.toFunctor.map snd.hom)) :
     fstMap (mkIso base fst snd hom_fst hom_snd w).inv =
-      fst.inv := sorry
+      fst.inv := rfl
 
 /-- The second component of the inverse morphism of `mkIso` is the inverse supplied
 second-component isomorphism. -/
@@ -191,7 +202,7 @@ theorem mkIso.inv.sndMap
     (w : CommSq (F.toFunctor.map fst.hom) (comparison P)
       (comparison Q) (G.toFunctor.map snd.hom)) :
     sndMap (mkIso base fst snd hom_fst hom_snd w).inv =
-      snd.inv := sorry
+      snd.inv := rfl
 
 end PseudoPullback
 end BasedCategory

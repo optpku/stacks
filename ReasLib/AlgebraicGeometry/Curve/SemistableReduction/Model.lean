@@ -12,6 +12,7 @@ public import ReasLib.RingTheory.DiscreteValuationRing.Extension.Basic
 public import ReasLib.AlgebraicGeometry.Curve.RationalCycle
 public import ReasLib.AlgebraicGeometry.Scheme.Variety.Curve.ArithmeticGenus
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.AtWorstNodal
+public import ReasLib.AlgebraicGeometry.Scheme.Morphism.Fiber.Specialization
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.MinimalModel
 public import ReasLib.AlgebraicGeometry.Scheme.Model.Regular.Basic
 
@@ -158,20 +159,13 @@ theorem hasSemistableReductionAtMaximal_iff {R K K' : Type u} [CommRing R] [IsDo
       ∀ m : MaximalSpectrum (integralClosure R K'),
         Nonempty (SemistableReductionBranch R K K' C m) := sorry
 
-/-- The scheme-theoretic special fibre of a semistable model over a local base. -/
-noncomputable def specialFiber (R K : Type u) [CommRing R] [IsDomain R]
-    [IsDiscreteValuationRing R] [Field K] [Algebra R K] [IsFractionRing R K]
-    {C : SchemeOverField K} [Curve C] [Smooth C.hom] [Projective C.hom]
-    (M : SemistableModel R K C) : Scheme :=
-  M.regularModel.base.fiber (IsLocalRing.closedPoint R)
-
 /-- The named special fibre is the fibre over the closed point of the local base. -/
 theorem specialFiber_def {R K : Type u} [CommRing R] [IsDomain R]
     [IsDiscreteValuationRing R] [Field K] [Algebra R K] [IsFractionRing R K]
     {C : SchemeOverField K} [Curve C] [Smooth C.hom] [Projective C.hom]
     (M : SemistableModel R K C) :
-    specialFiber R K M =
-      M.regularModel.base.fiber (IsLocalRing.closedPoint R) := sorry
+    M.regularModel.base.specialFiber =
+      M.regularModel.base.fiber (IsLocalRing.closedPoint R) := rfl
 
 /-- The special fibre with its canonical structure over the residue field of the local base. -/
 noncomputable def specialFiberOverResidueField (R K : Type u) [CommRing R] [IsDomain R]

@@ -133,10 +133,11 @@ theorem hasBasis_nhds_zero_of_hasBasis {ι κ : Type*}
         (Linear.equiv R M N) ⁻¹'
           (fundamentalSubmodule R M N (U ij.1) (V ij.2) : Set (M ⊗[R] N))) := sorry
 
-variable [TopologicalSpace R] [ContinuousSMul R M] [ContinuousSMul R N]
-
-/-- Scalar multiplication on the tensor product is continuous when both factor actions are. -/
-instance instContinuousSMul : ContinuousSMul R (Linear R M N) := sorry
+/-- Scalar multiplication on the tensor product is continuous for topological additive group
+factors with continuous scalar actions. No linearity assumption on the factor topologies is needed. -/
+instance instContinuousSMul [TopologicalSpace R]
+    [IsTopologicalAddGroup M] [IsTopologicalAddGroup N]
+    [ContinuousSMul R M] [ContinuousSMul R N] : ContinuousSMul R (Linear R M N) := sorry
 
 end Linear
 

@@ -60,17 +60,40 @@ theorem powerDegreeOneMap_epi (q : RelativeProjDegreeQuadruple 𝒜 d T)
 
 /-- The canonical degree multiplication `(d,f,L,ψ) ↦ (a*d,f,L^a,ψ|)`. -/
 def power (q : RelativeProjDegreeQuadruple 𝒜 d T) (a : ℕ) (ha : 1 ≤ a) :
-    RelativeProjDegreeQuadruple 𝒜 (a * d) T where
-  morphism := q.morphism
-  lineBundle := RingedSpace.TensorPower.sheaf q.lineBundle a
-  lineBundle_invertible :=
-    Scheme.Modules.Invertible.tensorPower_isInvertible q.lineBundle_invertible a
-  psi := powerPsi q a
-  psi_map_one := sorry
-  psi_map_mul := sorry
-  degreeOneMap := powerDegreeOneMap q a
-  degreeOneMap_spec := sorry
-  degreeOne_surjective := powerDegreeOneMap_epi q a ha
+    RelativeProjDegreeQuadruple 𝒜 (a * d) T := by
+  let L := RingedSpace.TensorPower.sheaf q.lineBundle a
+  let psi := powerPsi q a
+  let degreeOneMap := powerDegreeOneMap q a
+  have laws :
+      (∀ U : S.Opens,
+        (((psi 0).val.app (op U)).hom)
+            (Eq.mp (RelativeProjDegreeQuadruple.sourceZeroSectionEq 𝒜 U (a * d))
+              (𝒜.one (op U))) =
+          TensorPower.oneSection T.sheaf L (op (q.morphism ⁻¹ᵁ U))) ∧
+      (∀ (U : S.Opens) (i j : ℕ)
+        (x : Γ(𝒜 (Int.ofNat (i * (a * d))), U))
+        (y : Γ(𝒜 (Int.ofNat (j * (a * d))), U)),
+        (((psi (i + j)).val.app (op U)).hom
+            (Eq.mp (RelativeProjDegreeQuadruple.sourceMulSectionEq 𝒜 U i j (a * d))
+              (𝒜.mul (op U) (Int.ofNat (i * (a * d)))
+                (Int.ofNat (j * (a * d))) x y))) =
+          TensorPower.mulSection T.sheaf L (op (q.morphism ⁻¹ᵁ U)) i j
+            (((psi i).val.app (op U)).hom x)
+            (((psi j).val.app (op U)).hom y)) ∧
+      (((Scheme.Modules.pullbackPushforwardAdjunction q.morphism).homEquiv
+          (𝒜 (Int.ofNat (1 * (a * d))))
+          (RingedSpace.TensorPower.sheaf L 1)).toFun degreeOneMap = psi 1) := by sorry
+  exact {
+    morphism := q.morphism
+    lineBundle := L
+    lineBundle_invertible :=
+      Scheme.Modules.Invertible.tensorPower_isInvertible q.lineBundle_invertible a
+    psi := psi
+    psi_map_one := laws.1
+    psi_map_mul := laws.2.1
+    degreeOneMap := degreeOneMap
+    degreeOneMap_spec := laws.2.2
+    degreeOne_surjective := powerDegreeOneMap_epi q a ha }
 
 /-- The degree change does not change the structure morphism. -/
 theorem power_morphism (q : RelativeProjDegreeQuadruple 𝒜 d T)

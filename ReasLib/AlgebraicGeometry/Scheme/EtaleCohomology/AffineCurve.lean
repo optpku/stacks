@@ -56,8 +56,11 @@ noncomputable def rootsH0GlobalUnit
     (ULift.ringEquiv : ULift.{u + 1, u} Γ(X.left, ⊤) ≃+* Γ(X.left, ⊤)).toMonoidHom
     unitSection
 
-/-- The scalar whose global section is the unit read out from a degree-zero Kummer class. -/
+/-- For positive `n`, the scalar whose global section is the unit read out from a degree-zero
+Kummer class. Positivity is needed on an affine curve, whose global units need not be constant. -/
 noncomputable def rootsH0BaseValue
+    [IsAlgClosed k] [IsReduced X.left] [ConnectedSpace X.left]
+    (h_pos : 0 < n)
     (x : (CategoryTheory.Sheaf.rootsOfUnityAddSheaf
       (smallCommStructureSheaf .etale X.left) n).H 0) : k :=
   Function.invFun (Scheme.Hom.globalSectionsMap X.hom)
@@ -69,21 +72,21 @@ theorem rootsH0BaseValue_spec
     (x : (CategoryTheory.Sheaf.rootsOfUnityAddSheaf
       (smallCommStructureSheaf .etale X.left) n).H 0) (a : k) :
     Scheme.Hom.globalSectionsMap X.hom a = (rootsH0GlobalUnit X n x).1 ↔
-      a = rootsH0BaseValue X n x := sorry
+      a = rootsH0BaseValue X n h_pos x := sorry
 
 /-- The scalar descended from a degree-zero Kummer class is a unit in the base field. -/
 theorem rootsH0BaseValue_isUnit
     (h_pos : 0 < n) (h_n : IsUnit (n : k))
     (x : (CategoryTheory.Sheaf.rootsOfUnityAddSheaf
       (smallCommStructureSheaf .etale X.left) n).H 0) :
-    IsUnit (rootsH0BaseValue X n x) := sorry
+    IsUnit (rootsH0BaseValue X n h_pos x) := sorry
 
 /-- The deterministically constructed base-field unit satisfies the defining `n`th-root equation. -/
 theorem rootsH0BaseUnit_pow
     (h_pos : 0 < n) (h_n : IsUnit (n : k))
     (x : (CategoryTheory.Sheaf.rootsOfUnityAddSheaf
       (smallCommStructureSheaf .etale X.left) n).H 0) :
-    Units.mk0 (rootsH0BaseValue X n x)
+    Units.mk0 (rootsH0BaseValue X n h_pos x)
       (rootsH0BaseValue_isUnit X n h_pos h_n x).ne_zero ∈ rootsOfUnity n k := sorry
 
 /-- The forward comparison from degree-zero Kummer cohomology to base-field roots of unity. -/
@@ -93,7 +96,7 @@ noncomputable def rootsH0ComparisonFunction
       (smallCommStructureSheaf .etale X.left) n).H 0) :
     Additive (rootsOfUnity n k) :=
   Additive.ofMul
-    ⟨Units.mk0 (rootsH0BaseValue X n x)
+    ⟨Units.mk0 (rootsH0BaseValue X n h_pos x)
         (rootsH0BaseValue_isUnit X n h_pos h_n x).ne_zero,
       rootsH0BaseUnit_pow X n h_pos h_n x⟩
 

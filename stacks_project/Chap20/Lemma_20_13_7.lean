@@ -11,11 +11,17 @@ import StacksCheckRecall
 
 @[expose] public section
 
+universe u
+
+open CategoryTheory
+
 /- Lemma 20.13.7: for composable morphisms of ringed spaces, the canonical map from
 bounded-below derived pushforward along the composite to the composite of the two derived
 pushforwards is an isomorphism. -/
 @[stacks 01F5]
-#check @AlgebraicGeometry.RingedSpace.moduleDerivedPushforwardPlus.compIso
+#check (AlgebraicGeometry.RingedSpace.moduleDerivedPushforwardPlus.compComparison_isIso :
+  ∀ {X Y Z : AlgebraicGeometry.RingedSpace.{u}} (f : X ⟶ Y) (g : Y ⟶ Z),
+    IsIso (AlgebraicGeometry.RingedSpace.moduleDerivedPushforwardPlus.compComparison f g))
 
 #check @AlgebraicGeometry.RingedSpace.moduleDerivedPushforwardPlus.compComparison
-#check @AlgebraicGeometry.RingedSpace.moduleDerivedPushforwardPlus.compComparison_isIso
+#check @AlgebraicGeometry.RingedSpace.moduleDerivedPushforwardPlus.compIso

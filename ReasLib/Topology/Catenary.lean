@@ -49,7 +49,7 @@ theorem codimBetween_orderIso {Y : Type v} [TopologicalSpace Y]
       codimBetween T T' hTT' := sorry
 
 /-- A closed embedding preserves relative codimension of comparable irreducible closed subsets. -/
-theorem Topology.IsClosedEmbedding.codimBetween_map_eq
+theorem _root_.Topology.IsClosedEmbedding.codimBetween_map_eq
     {Y : Type v} [TopologicalSpace Y] {f : X → Y} (hf : Topology.IsClosedEmbedding f)
     {T T' : IrreducibleCloseds X} (hTT' : T ≤ T') :
     codimBetween (IrreducibleCloseds.map f hf.continuous T)
@@ -96,12 +96,12 @@ theorem CatenarySpace.of_irreducibleClosedsOrderIso
     CatenarySpace Y := sorry
 
 /-- Catenarity transports across a homeomorphism. -/
-theorem Homeomorph.catenarySpace
+theorem _root_.Homeomorph.catenarySpace
     {Y : Type v} [TopologicalSpace Y] (e : X ≃ₜ Y) [CatenarySpace X] :
     CatenarySpace Y := sorry
 
 /-- Homeomorphic spaces are catenary simultaneously. -/
-theorem Homeomorph.catenarySpace_iff
+theorem _root_.Homeomorph.catenarySpace_iff
     {Y : Type v} [TopologicalSpace Y] (e : X ≃ₜ Y) :
     CatenarySpace X ↔ CatenarySpace Y := sorry
 

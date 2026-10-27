@@ -7,13 +7,13 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import ReasLib.AlgebraicGeometry.FormalAlgebraicSpace.Types
-public import stacks_project.Chap87.Lemma_87_38_4_Completion
+public import ReasLib.AlgebraicGeometry.FormalAlgebraicSpace.LocalWeaklyAdic
+public import ReasLib.AlgebraicGeometry.FormalSpectrum.AdicCompletion
 
 /-!
-# Types of the formal completion
+# Local weak adicity
 
-Formal-space atlas data and compatible adic/Noetherian presentations use their canonical
-public owners. The source-specific weakly adic property uses its presheaf formal-spectrum API.
+Typed compatibility checks for the canonical local weak-adicity API.
 -/
 
 @[expose] public section
@@ -25,43 +25,11 @@ universe u
 
 namespace AlgebraicGeometry.FormalAlgebraicSpace
 
-/-- A formal algebraic space over `S` is locally weakly adic when it admits an
-étale atlas by weakly adic affine formal algebraic spaces. -/
-@[mk_iff]
-class IsLocallyWeaklyAdic {S : Scheme.{u}} (X : (Over S)ᵒᵖ ⥤ Type u)
-    [IsFormalAlgebraicSpace X] : Prop where
-  /-- There is an étale atlas by weakly adic affine formal algebraic spaces,
-  representable by algebraic spaces and jointly fppf-locally surjective. -/
-  exists_atlas :
-    ∃ (ι : Type u) (cover : ι → ((Over S)ᵒᵖ ⥤ Type u)) (π : (i : ι) → cover i ⟶ X),
-      (∀ i, AffineFormalAlgebraicSpace.IsWeaklyAdic (cover i)) ∧
-        (∀ i, representableByAlgebraicSpaces (π i)) ∧
-          (∀ i (ha : representableByAlgebraicSpaces (π i))
-            {U : Over S} (ξ : yoneda.obj U ⟶ X),
-            AlgebraicSpace.Etale
-              (representableByAlgebraicSpaces.pullbackHom ha ξ)) ∧
-            Presheaf.IsLocallySurjective (Scheme.fppfTopology.over S) (sigmaDesc π)
+variable {S : Scheme.{u}} (X : (Over S)ᵒᵖ ⥤ Type u) [IsFormalAlgebraicSpace X]
 
-namespace IsLocallyWeaklyAdic
+#check (IsLocallyWeaklyAdic X : Prop)
 
-/-- A locally weakly adic formal algebraic space admits an étale atlas by
-weakly adic affine formal algebraic spaces. -/
-theorem spec {S : Scheme.{u}} (X : (Over S)ᵒᵖ ⥤ Type u)
-    [IsFormalAlgebraicSpace X] [IsLocallyWeaklyAdic X] :
-    ∃ (ι : Type u) (cover : ι → ((Over S)ᵒᵖ ⥤ Type u)) (π : (i : ι) → cover i ⟶ X),
-      (∀ i, AffineFormalAlgebraicSpace.IsWeaklyAdic (cover i)) ∧
-        (∀ i, representableByAlgebraicSpaces (π i)) ∧
-          (∀ i (ha : representableByAlgebraicSpaces (π i))
-            {U : Over S} (ξ : yoneda.obj U ⟶ X),
-            AlgebraicSpace.Etale
-              (representableByAlgebraicSpaces.pullbackHom ha ξ)) ∧
-            Presheaf.IsLocallySurjective (Scheme.fppfTopology.over S) (sigmaDesc π) :=
-  sorry
-
-/-- Locally weakly adic formal algebraic spaces are exactly formal algebraic
-spaces with an étale atlas by weakly adic affine charts. -/
-theorem iff {S : Scheme.{u}} (X : (Over S)ᵒᵖ ⥤ Type u)
-    [IsFormalAlgebraicSpace X] :
+#check (IsLocallyWeaklyAdic.iff X :
     IsLocallyWeaklyAdic X ↔
       ∃ (ι : Type u) (cover : ι → ((Over S)ᵒᵖ ⥤ Type u)) (π : (i : ι) → cover i ⟶ X),
         (∀ i, AffineFormalAlgebraicSpace.IsWeaklyAdic (cover i)) ∧
@@ -70,16 +38,22 @@ theorem iff {S : Scheme.{u}} (X : (Over S)ᵒᵖ ⥤ Type u)
               {U : Over S} (ξ : yoneda.obj U ⟶ X),
               AlgebraicSpace.Etale
                 (representableByAlgebraicSpaces.pullbackHom ha ξ)) ∧
-              Presheaf.IsLocallySurjective (Scheme.fppfTopology.over S) (sigmaDesc π) :=
-  sorry
+              Presheaf.IsLocallySurjective (Scheme.fppfTopology.over S) (sigmaDesc π))
 
-/-- A weakly adic affine formal algebraic space that is a formal algebraic space
-is locally weakly adic. -/
-instance ofAffine {S : Scheme.{u}} (X : (Over S)ᵒᵖ ⥤ Type u)
-    [IsFormalAlgebraicSpace X] [AffineFormalAlgebraicSpace.IsWeaklyAdic X] :
-    IsLocallyWeaklyAdic X :=
-  sorry
+variable [IsLocallyWeaklyAdic X]
 
-end IsLocallyWeaklyAdic
+#check (IsLocallyWeaklyAdic.spec X :
+    ∃ (ι : Type u) (cover : ι → ((Over S)ᵒᵖ ⥤ Type u)) (π : (i : ι) → cover i ⟶ X),
+      (∀ i, AffineFormalAlgebraicSpace.IsWeaklyAdic (cover i)) ∧
+        (∀ i, representableByAlgebraicSpaces (π i)) ∧
+          (∀ i (ha : representableByAlgebraicSpaces (π i))
+            {U : Over S} (ξ : yoneda.obj U ⟶ X),
+            AlgebraicSpace.Etale
+              (representableByAlgebraicSpaces.pullbackHom ha ξ)) ∧
+            Presheaf.IsLocallySurjective (Scheme.fppfTopology.over S) (sigmaDesc π))
+
+variable [AffineFormalAlgebraicSpace.IsWeaklyAdic X]
+
+#check (IsLocallyWeaklyAdic.ofAffine X : IsLocallyWeaklyAdic X)
 
 end AlgebraicGeometry.FormalAlgebraicSpace

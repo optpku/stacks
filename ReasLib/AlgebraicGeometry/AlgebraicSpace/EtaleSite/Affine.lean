@@ -9,6 +9,7 @@ module
 public import Mathlib.CategoryTheory.ObjectProperty.FullSubcategory
 public import Mathlib.CategoryTheory.Sites.CoverLifting
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.Presentation
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.PresentationInclusion
 public import ReasLib.CategoryTheory.Sites.SpecialCocontinuous
 
 /-!
@@ -162,6 +163,23 @@ instance affineEtaleInclusion_isSpecialCocontinuous {S : Scheme.{u}}
 /-- The opposite of the affine étale inclusion admits pointwise right Kan extensions. -/
 instance affineEtaleInclusion_op_hasPointwiseRightKanExtension {S : Scheme.{u}}
     (X : AlgebraicSpace S) (P : (affineEtaleSite X)ᵒᵖ ⥤ Type (u + 1)) :
-    (affineEtaleInclusion X).op.HasPointwiseRightKanExtension P := sorry
+    (affineEtaleInclusion X).op.HasPointwiseRightKanExtension P :=
+  fun _ ↦ inferInstance
+
+/-- The inclusion of affine étale scheme charts into the spaces étale site. -/
+def affineEtaleToSpaces {S : Scheme.{u}} (X : AlgebraicSpace S) :
+    affineEtaleSite X ⥤ spacesEtaleSite X :=
+  affineEtaleInclusion X ⋙ smallEtaleToSpaces X
+
+/-- The inclusion of an affine chart preserves its structural morphism. -/
+@[simp]
+theorem affineEtaleToSpaces_obj_hom {S : Scheme.{u}} (X : AlgebraicSpace S)
+    (U : affineEtaleSite X) : ((affineEtaleToSpaces X).obj U).hom = U.obj.hom := rfl
+
+/-- The inclusion of an affine chart represents its source scheme as an algebraic space. -/
+@[simp]
+theorem affineEtaleToSpaces_obj_left {S : Scheme.{u}} (X : AlgebraicSpace S)
+    (U : affineEtaleSite X) :
+    ((affineEtaleToSpaces X).obj U).left = ofOver U.obj.left := rfl
 
 end AlgebraicGeometry.AlgebraicSpace

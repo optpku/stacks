@@ -7,6 +7,7 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.IntersectionTheory.HigherChern
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.ChowGroup.ProperPushforward
 
 /-! Chern-power pushforward along the projectivization of a finite locally free module. -/
 
@@ -35,7 +36,7 @@ def pushforwardC1PowerCap (k : ℤ) (s : ℕ) :
     Hom.chowGroup f δ k →+ Hom.chowGroup f δ (k + q - s) :=
   let π := ProjectiveAtlas.projection E
   let H := TautologicalDescent.O1 E
-  (properPushforward δ (π ≫ f) f π rfl (k + q - s)).comp
+  (ChowGroup.properPushforward (π ≫ f) f δ π rfl (k + q - s)).comp
     ((FirstChernChow.power (π ≫ f) δ H s (k + q)).comp
       (ProjectiveFormulaMap.pullback f δ π q k))
 
@@ -44,7 +45,7 @@ pullback, the tautological Chern power, and proper pushforward. -/
 theorem pushforwardC1PowerCap_apply (k : ℤ) (s : ℕ)
     (α : Hom.chowGroup f δ k) :
     pushforwardC1PowerCap f δ E q k s α =
-      properPushforward δ (ProjectiveAtlas.projection E ≫ f) f
+      ChowGroup.properPushforward (ProjectiveAtlas.projection E ≫ f) f δ
         (ProjectiveAtlas.projection E) rfl (k + q - s)
         (FirstChernChow.power (ProjectiveAtlas.projection E ≫ f) δ
           (TautologicalDescent.O1 E) s (k + q)

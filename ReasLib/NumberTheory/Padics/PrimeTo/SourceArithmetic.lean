@@ -11,6 +11,8 @@ import Mathlib.Tactic
 
 @[expose] public section
 
+universe u
+
 namespace PadicInt.PrimeTo.SourceArithmetic
 
 open PadicInt
@@ -49,10 +51,10 @@ theorem ext_of_reductions (q : ℕ) (x y : PrimeTo q)
       rw [hf] at heq
       exact heq
 
-/-- The degree-one congruences give the explicit integral representative
-`q - #S₁`, with no arbitrary integer witness. -/
+/-- The degree-one congruences identify the product of the distinguished integer and unit
+with that integer minus the degree-one cardinality. -/
 theorem integral_value_of_first_count (q : ℕ) (u : (PrimeTo q)ˣ)
-    (S : ℕ → Type) [∀ d, Finite (S d)]
+    (S : ℕ → Type u) [∀ d, Finite (S d)]
     (h : ∀ (m : ℕ) [NeZero m] (hm : m.Coprime q),
       PrimeTo.trivialModuleCongruence q 1 m hm u S) :
     (q : PrimeTo q) * u.val = ((q : ℤ) - Nat.card (S 1) : ℤ) := by
@@ -63,8 +65,32 @@ theorem integral_value_of_first_count (q : ℕ) (u : (PrimeTo q)ˣ)
   simp only [Int.cast_sub, Int.cast_natCast, map_sub, map_mul, map_natCast]
   linear_combination -hfirst
 
-
-
-
-
 end PadicInt.PrimeTo.SourceArithmetic
+
+namespace PadicInt.PrimeTo
+
+/-- Extend a positive-degree family by the empty family in degree zero. -/
+def natFamily (ι : ℕ+ → Type u) : ℕ → Type u
+  | 0 => PEmpty
+  | n + 1 => ι ⟨n + 1, Nat.succ_pos n⟩
+
+/-- Extending finite positive-degree families by an empty zero degree preserves finiteness. -/
+instance natFamily_finite (ι : ℕ+ → Type u) [∀ d, Finite (ι d)] (n : ℕ) :
+    Finite (natFamily ι n) := by
+  cases n <;> dsimp [natFamily] <;> infer_instance
+
+/-- The extension of a positive-degree family agrees with that family in degree one. -/
+@[simp] theorem natFamily_one (ι : ℕ+ → Type u) : natFamily ι 1 = ι 1 := rfl
+
+/-- Reduction modulo every positive modulus coprime to a positive integer separates integers. -/
+theorem int_eq_of_primeTo_reductions (q : ℕ) (hq : 1 ≤ q) (x y : ℤ)
+    (h : ∀ (m : ℕ) [NeZero m], m.Coprime q → (x : ZMod m) = (y : ZMod m)) : x = y := by
+  sorry
+
+/-- Zero weighted counts in every positive degree mean all positive-degree families are empty. -/
+theorem all_empty_of_zero_counts (ι : ℕ+ → Type u) [∀ d, Finite (ι d)]
+    (h : ∀ n : ℕ, 0 < n → ∑ d ∈ n.divisors, d * Nat.card (natFamily ι d) = 0) :
+    ∀ d : ℕ+, IsEmpty (ι d) := by
+  sorry
+
+end PadicInt.PrimeTo

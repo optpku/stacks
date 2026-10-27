@@ -48,7 +48,10 @@ theorem existsUnique_lift_ofIdeal
         Ideal.ResidueField.map (q.under R) (maximalIdeal S) (algebraMap R S) hq) :
     ∃! f : A →ₐ[R] S,
       ((Algebra.ofId S (maximalIdeal S).ResidueField).restrictScalars R).comp f =
-        RingHom.ResiduePoint.of (R := R) q (maximalIdeal S) hq τ hτ := sorry
+        RingHom.ResiduePoint.of (R := R) q (maximalIdeal S) hq τ hτ := by
+  refine (existsUnique_congr (fun f => ?_)).mp
+    (RingHom.IndEtale.existsUnique_lift hA ⟨q, inferInstance⟩ hq τ hτ)
+  exact RingHom.ResiduePoint.isResidueLift_iff_eq f q (maximalIdeal S) hq τ hτ
 
 /-- The arbitrary-presentation-universe companion to
 `existsUnique_lift_ofIdeal`. -/
@@ -62,7 +65,10 @@ theorem existsUnique_lift_ofIdeal_ofRaw
         Ideal.ResidueField.map (q.under R) (maximalIdeal S) (algebraMap R S) hq) :
     ∃! f : A →ₐ[R] S,
       ((Algebra.ofId S (maximalIdeal S).ResidueField).restrictScalars R).comp f =
-        RingHom.ResiduePoint.of (R := R) q (maximalIdeal S) hq τ hτ := sorry
+        RingHom.ResiduePoint.of (R := R) q (maximalIdeal S) hq τ hτ := by
+  refine (existsUnique_congr (fun f => ?_)).mp
+    (RingHom.IndEtale.existsUnique_lift_ofRaw hA ⟨q, inferInstance⟩ hq τ hτ)
+  exact RingHom.ResiduePoint.isResidueLift_iff_eq f q (maximalIdeal S) hq τ hτ
 
 /-- The same ideal lift with the residue-map equality unpacked into the
 contracted-prime and induced-map clauses. -/
@@ -76,7 +82,8 @@ theorem existsUnique_lift_ofIdeal_residueMap
         Ideal.ResidueField.map (q.under R) (maximalIdeal S) (algebraMap R S) hq) :
     ∃! f : A →ₐ[R] S,
       ∃ hfq : q = Ideal.comap (f : A →+* S) (maximalIdeal S),
-        Ideal.ResidueField.map q (maximalIdeal S) (f : A →+* S) hfq = τ := sorry
+        Ideal.ResidueField.map q (maximalIdeal S) (f : A →+* S) hfq = τ := by
+  exact RingHom.IndEtale.existsUnique_lift hA ⟨q, inferInstance⟩ hq τ hτ
 
 /-- The arbitrary-presentation-universe companion to
 `existsUnique_lift_ofIdeal_residueMap`. -/
@@ -90,7 +97,8 @@ theorem existsUnique_lift_ofIdeal_residueMap_ofRaw
         Ideal.ResidueField.map (q.under R) (maximalIdeal S) (algebraMap R S) hq) :
     ∃! f : A →ₐ[R] S,
       ∃ hfq : q = Ideal.comap (f : A →+* S) (maximalIdeal S),
-        Ideal.ResidueField.map q (maximalIdeal S) (f : A →+* S) hfq = τ := sorry
+        Ideal.ResidueField.map q (maximalIdeal S) (f : A →+* S) hfq = τ := by
+  exact RingHom.IndEtale.existsUnique_lift_ofRaw hA ⟨q, inferInstance⟩ hq τ hτ
 
 /-- A bijective canonical map from the residue field of `q.under R` to the
 residue field of `q` determines the target residue map and hence a unique
@@ -108,7 +116,14 @@ theorem existsUnique_lift_ofIdeal_ofBijective
           (Ideal.ResidueField.map (q.under R) (maximalIdeal S)
             (algebraMap R S) hq).comp
             (RingEquiv.ofBijective
-              (Ideal.ResidueField.map (q.under R) q (algebraMap R A) rfl) hκ).symm.toRingHom := sorry
+              (Ideal.ResidueField.map (q.under R) q (algebraMap R A) rfl) hκ).symm.toRingHom := by
+  apply existsUnique_lift_ofIdeal_residueMap hA q hq
+  apply RingHom.ext
+  intro z
+  exact congrArg
+    (Ideal.ResidueField.map (q.under R) (maximalIdeal S) (algebraMap R S) hq)
+    ((RingEquiv.ofBijective
+      (Ideal.ResidueField.map (q.under R) q (algebraMap R A) rfl) hκ).symm_apply_apply z)
 
 /-- The arbitrary-presentation-universe companion to
 `existsUnique_lift_ofIdeal_ofBijective`. -/
@@ -124,7 +139,43 @@ theorem existsUnique_lift_ofIdeal_ofBijective_ofRaw
           (Ideal.ResidueField.map (q.under R) (maximalIdeal S)
             (algebraMap R S) hq).comp
             (RingEquiv.ofBijective
-              (Ideal.ResidueField.map (q.under R) q (algebraMap R A) rfl) hκ).symm.toRingHom := sorry
+              (Ideal.ResidueField.map (q.under R) q (algebraMap R A) rfl) hκ).symm.toRingHom := by
+  apply existsUnique_lift_ofIdeal_residueMap_ofRaw hA q hq
+  apply RingHom.ext
+  intro z
+  exact congrArg
+    (Ideal.ResidueField.map (q.under R) (maximalIdeal S) (algebraMap R S) hq)
+    ((RingEquiv.ofBijective
+      (Ideal.ResidueField.map (q.under R) q (algebraMap R A) rfl) hκ).symm_apply_apply z)
+
+private theorem residueMap_eq_ofBijective
+    (q : Ideal A) [q.IsPrime]
+    (hq : q.under R = (maximalIdeal S).under R)
+    (hκ : Function.Bijective
+      (Ideal.ResidueField.map (q.under R) q (algebraMap R A) rfl))
+    (f : A →ₐ[R] S) (hfq : q = Ideal.comap (f : A →+* S) (maximalIdeal S)) :
+    Ideal.ResidueField.map q (maximalIdeal S) (f : A →+* S) hfq =
+      (Ideal.ResidueField.map (q.under R) (maximalIdeal S) (algebraMap R S) hq).comp
+        (RingEquiv.ofBijective
+          (Ideal.ResidueField.map (q.under R) q (algebraMap R A) rfl) hκ).symm.toRingHom := by
+  have hcomp :
+      (Ideal.ResidueField.map q (maximalIdeal S) (f : A →+* S) hfq).comp
+          (Ideal.ResidueField.map (q.under R) q (algebraMap R A) rfl) =
+        Ideal.ResidueField.map (q.under R) (maximalIdeal S) (algebraMap R S) hq := by
+    apply Ideal.ResidueField.ringHom_ext
+    apply RingHom.ext
+    intro r
+    simp
+  let e := RingEquiv.ofBijective
+    (Ideal.ResidueField.map (q.under R) q (algebraMap R A) rfl) hκ
+  apply RingHom.ext
+  intro z
+  obtain ⟨y, rfl⟩ := e.surjective z
+  change Ideal.ResidueField.map q (maximalIdeal S) (f : A →+* S) hfq (e y) =
+    Ideal.ResidueField.map (q.under R) (maximalIdeal S) (algebraMap R S) hq
+      (e.symm (e y))
+  rw [e.symm_apply_apply]
+  exact RingHom.congr_fun hcomp y
 
 /-- If the source residue map is bijective, the residue-coordinate condition in the ind-etale
 lifting theorem is forced.  Thus the lift is uniquely characterized by the inverse image of the
@@ -136,7 +187,10 @@ theorem existsUnique_lift_ofIdeal_comap_ofBijective
     (hκ : Function.Bijective
       (Ideal.ResidueField.map (q.under R) q (algebraMap R A) rfl)) :
     ∃! f : A →ₐ[R] S,
-      q = Ideal.comap (f : A →+* S) (maximalIdeal S) := sorry
+      q = Ideal.comap (f : A →+* S) (maximalIdeal S) := by
+  obtain ⟨f, ⟨hfq, hfτ⟩, hunique⟩ := existsUnique_lift_ofIdeal_ofBijective hA q hq hκ
+  refine ⟨f, hfq, fun g hgq => hunique g ⟨hgq, ?_⟩⟩
+  exact residueMap_eq_ofBijective q hq hκ g hgq
 
 /-- The arbitrary-presentation-universe companion to
 `existsUnique_lift_ofIdeal_comap_ofBijective`. -/
@@ -147,7 +201,10 @@ theorem existsUnique_lift_ofIdeal_comap_ofBijective_ofRaw
     (hκ : Function.Bijective
       (Ideal.ResidueField.map (q.under R) q (algebraMap R A) rfl)) :
     ∃! f : A →ₐ[R] S,
-      q = Ideal.comap (f : A →+* S) (maximalIdeal S) := sorry
+      q = Ideal.comap (f : A →+* S) (maximalIdeal S) := by
+  obtain ⟨f, ⟨hfq, hfτ⟩, hunique⟩ := existsUnique_lift_ofIdeal_ofBijective_ofRaw hA q hq hκ
+  refine ⟨f, hfq, fun g hgq => hunique g ⟨hgq, ?_⟩⟩
+  exact residueMap_eq_ofBijective q hq hκ g hgq
 
 /-- An external residue-field coordinate can be used directly in the ideal lifting API.  The
 equivalence `e` transports the target ideal residue field to `K`; the compatibility hypothesis is
@@ -167,7 +224,28 @@ theorem existsUnique_lift_ofIdeal_residueEquiv
     ∃! f : A →ₐ[R] S,
       ∃ hfq : q = Ideal.comap (f : A →+* S) (maximalIdeal S),
         e.toRingHom.comp (Ideal.ResidueField.map q (maximalIdeal S)
-          (f : A →+* S) hfq) = τ := sorry
+          (f : A →+* S) hfq) = τ := by
+  have hτ' :
+      (e.symm.toRingHom.comp τ).comp
+          (Ideal.ResidueField.map (q.under R) q (algebraMap R A) rfl) =
+        Ideal.ResidueField.map (q.under R) (maximalIdeal S) (algebraMap R S) hq := by
+    apply RingHom.ext
+    intro z
+    exact (congrArg e.symm (RingHom.congr_fun hτ z)).trans (e.symm_apply_apply _)
+  obtain ⟨f, ⟨hfq, hfτ⟩, hunique⟩ :=
+    existsUnique_lift_ofIdeal_residueMap hA q hq (e.symm.toRingHom.comp τ) hτ'
+  refine ⟨f, ⟨hfq, ?_⟩, ?_⟩
+  · show e.toRingHom.comp (Ideal.ResidueField.map q (maximalIdeal S) f hfq) = τ
+    apply RingHom.ext
+    intro z
+    exact (congrArg e (RingHom.congr_fun hfτ z)).trans (e.apply_symm_apply _)
+  · intro g hg
+    rcases hg with ⟨hgq, hgτ⟩
+    apply hunique g
+    refine ⟨hgq, ?_⟩
+    apply RingHom.ext
+    intro z
+    exact (e.symm_apply_apply _).symm.trans (congrArg e.symm (RingHom.congr_fun hgτ z))
 
 /-- The arbitrary-presentation-universe companion to
 `existsUnique_lift_ofIdeal_residueEquiv`. -/
@@ -185,6 +263,27 @@ theorem existsUnique_lift_ofIdeal_residueEquiv_ofRaw
     ∃! f : A →ₐ[R] S,
       ∃ hfq : q = Ideal.comap (f : A →+* S) (maximalIdeal S),
         e.toRingHom.comp (Ideal.ResidueField.map q (maximalIdeal S)
-          (f : A →+* S) hfq) = τ := sorry
+          (f : A →+* S) hfq) = τ := by
+  have hτ' :
+      (e.symm.toRingHom.comp τ).comp
+          (Ideal.ResidueField.map (q.under R) q (algebraMap R A) rfl) =
+        Ideal.ResidueField.map (q.under R) (maximalIdeal S) (algebraMap R S) hq := by
+    apply RingHom.ext
+    intro z
+    exact (congrArg e.symm (RingHom.congr_fun hτ z)).trans (e.symm_apply_apply _)
+  obtain ⟨f, ⟨hfq, hfτ⟩, hunique⟩ :=
+    existsUnique_lift_ofIdeal_residueMap_ofRaw hA q hq (e.symm.toRingHom.comp τ) hτ'
+  refine ⟨f, ⟨hfq, ?_⟩, ?_⟩
+  · show e.toRingHom.comp (Ideal.ResidueField.map q (maximalIdeal S) f hfq) = τ
+    apply RingHom.ext
+    intro z
+    exact (congrArg e (RingHom.congr_fun hfτ z)).trans (e.apply_symm_apply _)
+  · intro g hg
+    rcases hg with ⟨hgq, hgτ⟩
+    apply hunique g
+    refine ⟨hgq, ?_⟩
+    apply RingHom.ext
+    intro z
+    exact (e.symm_apply_apply _).symm.trans (congrArg e.symm (RingHom.congr_fun hgτ z))
 
 end RingHom.IndEtale.ResiduePoint

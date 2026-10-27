@@ -169,7 +169,3 @@ end GLTwo
 end
 end AlgebraicGeometry
 
-#synth AlgebraicGeometry.IsAffine (AlgebraicGeometry.GLTwo.scheme ℤ)
-
-#synth AlgebraicGeometry.Surjective (AlgebraicGeometry.GLTwo.toPuncturedAffinePlane ℤ)
-#synth AlgebraicGeometry.Surjective (AlgebraicGeometry.GLTwo.toProjectiveLine ℤ)

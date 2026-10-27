@@ -6,9 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap94.Remark_94_16_3_Flat
-public import stacks_project.Chap94.Remark_94_16_3_LocallyOfFinitePresentation
-public import stacks_project.Chap94.Remark_94_16_3_Quotient
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.KernelPair.Fppf
 import StacksCheckRecall
 
 /-!
@@ -22,19 +20,38 @@ flat and locally of finite presentation, though not smooth in general.
 
 @[expose] public section
 
-open AlgebraicGeometry AlgebraicGeometry.AlgebraicStack
+open CategoryTheory AlgebraicGeometry
+open FiberedCategoryOver.Groupoids
+open scoped Bicategory
+
+universe u
 
 /- Remark 94.16.3 (1): if `f : U ⟶ X` is only surjective, flat, and locally of
 finite presentation, then `fCan : [U / R] ⟶ X` is still an equivalence. -/
 @[stacks 04WY]
-#check fCan_isEquivalence_of_flat
+#check (AlgebraicGeometry.AlgebraicStack.fCan_isEquivalence_of_flat :
+  ∀ {S : Scheme.{u}} {X U : GroupoidsOver S} (f : U ⟶ X)
+    [AlgebraicStack X] (hU : IsRepresentableByAlgebraicSpace U)
+    [Groupoids.Hom.Surjective f] [Groupoids.Hom.Flat f]
+    [Groupoids.Hom.LocallyOfFinitePresentation f],
+    (toBasedFunctor (AlgebraicStack.fCan f hU)).IsEquivalence)
 
 /- Remark 94.16.3 (2): in this case the morphisms `s`, `t` of the kernel-pair
 groupoid are flat. -/
 @[stacks 04WY]
-#check groupoid_flat
+#check (AlgebraicGeometry.AlgebraicStack.groupoid_flat :
+  ∀ {S : Scheme.{u}} {X U : GroupoidsOver S} (f : U ⟶ X)
+    [AlgebraicStack X] (hU : IsRepresentableByAlgebraicSpace U)
+    [Groupoids.Hom.Surjective f] [Groupoids.Hom.Flat f]
+    [Groupoids.Hom.LocallyOfFinitePresentation f],
+    GroupoidAlgebraicSpace.Flat (AlgebraicStack.groupoid f hU))
 
 /- Remark 94.16.3 (3): in this case the morphisms `s`, `t` of the kernel-pair
 groupoid are locally of finite presentation, but not smooth in general. -/
 @[stacks 04WY]
-#check groupoid_locallyOfFinitePresentation
+#check (AlgebraicGeometry.AlgebraicStack.groupoid_locallyOfFinitePresentation :
+  ∀ {S : Scheme.{u}} {X U : GroupoidsOver S} (f : U ⟶ X)
+    [AlgebraicStack X] (hU : IsRepresentableByAlgebraicSpace U)
+    [Groupoids.Hom.Surjective f] [Groupoids.Hom.Flat f]
+    [Groupoids.Hom.LocallyOfFinitePresentation f],
+    GroupoidAlgebraicSpace.LocallyOfFinitePresentation (AlgebraicStack.groupoid f hU))

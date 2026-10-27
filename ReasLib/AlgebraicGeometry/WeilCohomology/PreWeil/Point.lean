@@ -44,13 +44,19 @@ theorem pointFundamentalCycleClass_eq_one :
 
 /-- Integration on the distinguished point sends the cohomological unit to the
 coefficient-field unit. -/
-theorem pointIntegral_one :
-    T.integral T.point_isNonemptyEquidimensional 1 = 1 := sorry
+theorem pointIntegral_one [T.HasDiagonalClassRelation]
+     :
+    T.integral T.point_isNonemptyEquidimensional 1 = 1 := by
+  have hdiagonal : T.HasDiagonalClassRelation := inferInstance
+  sorry
 
 /-- The cycle class of the fundamental degree-zero cycle on the distinguished point
 has normalized integral. -/
-theorem point_normalization :
+theorem point_normalization [T.HasDiagonalClassRelation]
+     :
     T.integral T.point_isNonemptyEquidimensional
-      (T.cycleClass point (1 : CHgrade point 0)) = 1 := sorry
+      (T.cycleClass point (1 : CHgrade point 0)) = 1 := by
+  have hdiagonal : T.HasDiagonalClassRelation := inferInstance
+  sorry
 
 end WeilCohomology.SchemePreWeilTheory

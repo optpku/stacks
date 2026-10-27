@@ -8,6 +8,7 @@ module
 
 public import Mathlib.CategoryTheory.Adjunction.Unique
 public import ReasLib.CategoryTheory.Monoidal.Bimod.Module
+public import ReasLib.CategoryTheory.Monoidal.Bimod.Tensor.Associator
 public import ReasLib.CategoryTheory.Monoidal.RightInternalHom.Basic
 import Mathlib.Tactic.CrossRefAttribute
 
@@ -254,23 +255,11 @@ namespace InternalHom
 
 variable (H : RightInternalHom C) (M : RightModule A) (N : Bimod A B)
 
-/-- The balanced associator is natural in the right module tensored on the left. -/
-theorem tensorAssocNatIso_naturality
-    {P Q : RightModule (Mon.trivial C)} (f : P ⟶ Q) :
-    (tensorWith M ⋙ tensorWith N).map f ≫ (Bimod.associatorBimod Q M N).hom =
-      (Bimod.associatorBimod P M N).hom ≫
-        (tensorWith (M.tensorBimod N)).map f := sorry
-
-/-- Associativity of balanced tensor product, promoted to a natural isomorphism of functors. -/
-noncomputable def tensorAssocNatIso :
-    tensorWith M ⋙ tensorWith N ≅ tensorWith (M.tensorBimod N) :=
-  NatIso.ofComponents (fun P ↦ Bimod.associatorBimod P M N)
-    (fun f ↦ tensorAssocNatIso_naturality M N f)
-
 /-- The composite tensor/internal-Hom adjunction, transported across the balanced associator. -/
 noncomputable def compositeAdjunction :
     tensorWith (M.tensorBimod N) ⊣ functor H N ⋙ functor H M :=
-  ((adjunction H M).comp (adjunction H N)).ofNatIsoLeft (tensorAssocNatIso M N)
+  ((adjunction H M).comp (adjunction H N)).ofNatIsoLeft
+    (tensorRightCompIso M N)
 
 /-- Lemma 24.8.2 (0FR6), generic internal-Hom form: internal Hom out of a balanced tensor
 product is naturally the iterated relative internal Hom. -/

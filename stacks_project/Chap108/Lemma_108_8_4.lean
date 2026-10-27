@@ -6,39 +6,23 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap108.Lemma_108_8_4_Product
-public import stacks_project.Chap108.Lemma_108_8_4_Stack
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Picard.InertiaProduct
 
-/-!
-# Lemma 108.8.4
-
-The inertia stack of the Picard stack of a morphism of algebraic spaces with the
-base-change structure-sheaf isomorphism hypothesis is `𝔾ₘ[S] ×_S Pic_{X/B}`.
--/
+/-! # The inertia of the Picard stack -/
 
 @[expose] public section
 
-open CategoryTheory
-open AlgebraicGeometry
-open AlgebraicGeometry.AlgebraicSpace
+open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
 open scoped Bicategory
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
-
-open StackOver.Groupoids
-open StackOver.Groupoids.Hom
-
-/-- Lemma 108.8.4: if `f : X ⟶ B` is a morphism of algebraic spaces over `S` such that
-`f_{T,*} O_{X_T} ≅ O_T` for every scheme `T` over `B`, then the inertia stack of
-`picardStack f` is equal to `𝔾ₘ[S] ×_S picardStack f` as a stack in groupoids over
-`(Sch/S)_fppf`. -/
-@[stacks 0DNH]
-theorem inertia_mulGroupProduct {S : Scheme.{u}} {X B : AlgebraicSpace S} (f : X ⟶ B)
-    [Hom.IsIsoBaseChangeStructurePushforward f] :
-    IsEquivalence (Picard.inertiaMulGroupHom f :
-      inertia (picardStack f) ⟶ Picard.mulGroupProduct f) :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace
+/- Lemma 108.8.4: for a flat, proper, finitely presented morphism with universally
+isomorphic canonical structure-sheaf map, Picard inertia is the multiplicative-group
+product with the Picard stack. -/
+@[stacks 0DNH] #check (AlgebraicGeometry.AlgebraicSpace.inertia_mulGroupProduct :
+  ∀ {S : Scheme.{u}} {X B : AlgebraicSpace S} (f : X ⟶ B)
+    [Flat f] [Proper f] [FinitePresentation f] [Hom.IsIsoBaseChangeStructurePushforward f],
+    StackOver.Groupoids.Hom.IsEquivalence (Picard.inertiaMulGroupHom f :
+      StackOver.Groupoids.inertia (picardStack f) ⟶ Picard.mulGroupProduct f))

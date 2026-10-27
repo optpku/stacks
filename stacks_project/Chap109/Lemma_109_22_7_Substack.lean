@@ -8,6 +8,8 @@ module
 
 public import Mathlib.CategoryTheory.ObjectProperty.ClosedUnderIsomorphisms
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.FiniteLocallyFree.Rank
+public import ReasLib.AlgebraicGeometry.Curve.StableCurves
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Curve.StableDeligneMumford
 public import stacks_project.Chap109.Definition_109_22_2_Spaces
 public import stacks_project.Chap109.Lemma_109_7_3_Substack
 public import stacks_project.Chap109.Lemma_109_9_3_HigherDirectImage
@@ -34,33 +36,22 @@ namespace AlgebraicGeometry.AlgebraicSpace
 namespace Spaces
 namespace Curves
 
-/-- The genus-`g` stable locus is contained in the stable locus. -/
-theorem stableOfGenus_le_stable (g : ℕ) (S : Scheme.{u}) :
-    stableOfGenus g S ≤ stable S :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.stableOfGenus_le_stable :
+  ∀ (g : ℕ) (S : Scheme.{u}), stableOfGenus g S ≤ stable S)
 
-/-- Over a nonempty base, the genus of a stable family of curves is unique. -/
-theorem eq_of_mem_stableOfGenus {S : Scheme.{u}} {P : Obj S}
+#check (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.eq_of_mem_stableOfGenus :
+  ∀ {S : Scheme.{u}} {P : Obj S}
     [Nonempty (base P).left] {g g' : ℕ}
-    (hg : stableOfGenus g S P) (hg' : stableOfGenus g' S P) : g = g' :=
-  sorry
+    (hg : stableOfGenus g S P) (hg' : stableOfGenus g' S P), g = g')
 
-/-- The `stableOfGenus` property of families of curves is closed under
-isomorphisms. -/
-instance instIsClosedUnderIsomorphisms_stableOfGenus
-    (g : ℕ) (S : Scheme.{u}) :
-    (stableOfGenus g S).IsClosedUnderIsomorphisms :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.instIsClosedUnderIsomorphisms_stableOfGenus :
+  ∀ (g : ℕ) (S : Scheme.{u}), (stableOfGenus g S).IsClosedUnderIsomorphisms)
 
-/-- `ℳ̄` is an open DM substack of `𝒞urves`. -/
-instance instIsOpenDMSubstack_stable (S : Scheme.{u}) :
-    IsOpenDMSubstack (stable S) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.instIsOpenDMSubstack_stable :
+  ∀ (S : Scheme.{u}), IsOpenDMSubstack (stable S))
 
-/-- The locus `ℳ̄_g` is an open DM substack of `𝒞urves`. -/
-instance instIsOpenDMSubstack_stableOfGenus (g : ℕ) (S : Scheme.{u}) :
-    IsOpenDMSubstack (stableOfGenus g S) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.instIsOpenDMSubstack_stableOfGenus :
+  ∀ (g : ℕ) (S : Scheme.{u}), IsOpenDMSubstack (stableOfGenus g S))
 
 end Curves
 end Spaces

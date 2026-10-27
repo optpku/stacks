@@ -206,9 +206,25 @@ theorem pushoutResidueFieldHom_comp_includeRight {R S1 S2 : CompleteLocalAlgCat 
     (pushoutResidueFieldHom f g).toRingHom.comp (pushoutIncludeRightRingHom f g) =
       (residueFieldHom S2).toRingHom := sorry
 
+/-- A right inverse obtained by lifting the given residue class in `S1` and including it
+in the tensor. `Quotient.out` selects a representative of this existing quotient class. -/
+theorem pushoutResidueFieldHom_rightInverse {R S1 S2 : CompleteLocalAlgCat Λ k}
+    (f : R ⟶ S1) (g : R ⟶ S2) :
+    Function.RightInverse
+      (fun x : k ↦ pushoutIncludeLeftRingHom f g (Quotient.out (S1.residueFieldIso.symm x)))
+      (pushoutResidueFieldHom f g) := by
+  intro x
+  change residueFieldHom S1 (Quotient.out (S1.residueFieldIso.symm x)) *
+    residueFieldHom S2 1 = x
+  change S1.residueFieldIso
+      (Ideal.Quotient.mk S1.maximalIdeal (Quotient.out (S1.residueFieldIso.symm x))) *
+    residueFieldHom S2 1 = x
+  simp only [Ideal.Quotient.mk_out, AlgEquiv.apply_symm_apply, map_one, mul_one]
+
 /-- The canonical map `C → k` is surjective. -/
 theorem pushoutResidueFieldHom_surjective {R S1 S2 : CompleteLocalAlgCat Λ k}
-    (f : R ⟶ S1) (g : R ⟶ S2) : Function.Surjective (pushoutResidueFieldHom f g) := sorry
+    (f : R ⟶ S1) (g : R ⟶ S2) : Function.Surjective (pushoutResidueFieldHom f g) :=
+  (pushoutResidueFieldHom_rightInverse f g).surjective
 
 /-- The source ideal `m` is the kernel of the canonical map to `k`. -/
 theorem pushoutAdicIdeal_eq_ker {R S1 S2 : CompleteLocalAlgCat Λ k} (f : R ⟶ S1) (g : R ⟶ S2) :
@@ -264,7 +280,7 @@ def pushoutAdicCompletionResidueFieldIso {R S1 S2 : CompleteLocalAlgCat Λ k}
     (((AdicCompletion.quotientExtensionEquiv (pushoutAdicIdeal f g)
           (pushoutAdicIdeal_fg f g)).restrictScalars Λ).trans
       ((Ideal.quotientEquivAlgOfEq Λ (pushoutAdicIdeal_eq_ker f g)).trans
-        (Ideal.quotientKerAlgEquivOfSurjective (pushoutResidueFieldHom_surjective f g))))
+        (Ideal.quotientKerAlgEquivOfRightInverse (pushoutResidueFieldHom_rightInverse f g))))
 
 /-- The `m`-adic completion of `S1.carrier ⊗[R.carrier] S2.carrier`, as an object of `Ĉ_Λ`. -/
 def pushoutAdicCompletion {R S1 S2 : CompleteLocalAlgCat Λ k} (f : R ⟶ S1) (g : R ⟶ S2) :

@@ -50,7 +50,12 @@ include detected in
 property whenever that property is detected by the two projections. -/
 @[stacks 02XQ "membership of the graph into a locally induced two-fibre product"]
 theorem graph.mem (F : X ⟶ Y) :
-    Q X (apex F (𝟙 Y)) (BasedCategory.PseudoPullback.graph F.obj) := sorry
+    Q X (apex F (𝟙 Y)) (BasedCategory.PseudoPullback.graph F.obj) := by
+  apply Projections.IsDetected.mem F (𝟙 Y)
+  · change Q X X (𝟙 X.1)
+    exact Bicategory.HomProperty.IsMultiplicative.id_mem (Q := Q) X
+  · change Q X Y F.obj
+    exact F.property
 
 /-- The graph of a selected morphism into its explicit two-fibre product with the identity. -/
 @[stacks 02XQ "graph into a locally induced two-fibre product with an identity leg"]
@@ -61,7 +66,7 @@ def graph (F : X ⟶ Y) : X ⟶ apex F (𝟙 Y) :=
 /-- Forgetting the selected graph recovers the explicit based pseudo-pullback graph. -/
 @[simp]
 theorem graph.obj (F : X ⟶ Y) :
-    (graph F).obj = BasedCategory.PseudoPullback.graph F.obj := sorry
+    (graph F).obj = BasedCategory.PseudoPullback.graph F.obj := rfl
 
 section ProjectionReadout
 
@@ -70,12 +75,12 @@ variable [Projections.Has (P := P) (Q := Q)]
 /-- The first projection of the locally induced graph is the identity. -/
 @[simp]
 theorem graph.fst (F : X ⟶ Y) :
-    graph F ≫ fst F (𝟙 Y) = 𝟙 X := sorry
+    graph F ≫ fst F (𝟙 Y) = 𝟙 X := rfl
 
 /-- The second projection of the locally induced graph is the original selected morphism. -/
 @[simp]
 theorem graph.snd (F : X ⟶ Y) :
-    graph F ≫ snd F (𝟙 Y) = F := sorry
+    graph F ≫ snd F (𝟙 Y) = F := rfl
 
 end ProjectionReadout
 
@@ -84,7 +89,8 @@ include detected in
 property. -/
 theorem graph.equivalence.hom.mem (F : X ⟶ Y) :
     Q X (apex F (𝟙 Y))
-      (BasedCategory.PseudoPullback.graph.equivalence F.obj).hom := sorry
+      (BasedCategory.PseudoPullback.graph.equivalence F.obj).hom :=
+  graph.mem F
 
 end Graph
 
@@ -97,7 +103,8 @@ include projections in
 because it is the first pseudo-pullback projection. -/
 theorem graph.equivalence.inv.mem (F : X ⟶ Y) :
     Q (apex F (𝟙 Y)) X
-      (BasedCategory.PseudoPullback.graph.equivalence F.obj).inv := sorry
+      (BasedCategory.PseudoPullback.graph.equivalence F.obj).inv :=
+  Projections.Has.fst_mem F (𝟙 Y)
 
 end InverseMembership
 
@@ -118,14 +125,14 @@ noncomputable def graph.equivalence (F : X ⟶ Y) : X ≌ apex F (𝟙 Y) :=
 /-- The forward `1`-morphism of the locally induced graph equivalence is the selected graph. -/
 @[simp]
 theorem graph.equivalence.hom (F : X ⟶ Y) :
-    (graph.equivalence F).hom = graph F := sorry
+    (graph.equivalence F).hom = graph F := rfl
 
 /-- The inverse `1`-morphism of the locally induced graph equivalence is the selected first
 projection. -/
 @[simp]
 theorem graph.equivalence.inv (F : X ⟶ Y) :
     (graph.equivalence F).inv =
-      CategoryTheory.LocallyInduced.TwoFibreProduct.fst F (𝟙 Y) := sorry
+      CategoryTheory.LocallyInduced.TwoFibreProduct.fst F (𝟙 Y) := rfl
 
 /-- The unit of the locally induced graph equivalence is the ambient graph unit regarded in the
 selected hom category. -/
@@ -133,7 +140,7 @@ selected hom category. -/
 theorem graph.equivalence.unit (F : X ⟶ Y) :
     (graph.equivalence F).unit =
       (Q X X).isoMk
-        (BasedCategory.PseudoPullback.graph.equivalence F.obj).unit := sorry
+        (BasedCategory.PseudoPullback.graph.equivalence F.obj).unit := rfl
 
 /-- The counit of the locally induced graph equivalence is the ambient graph counit regarded in
 the selected hom category. -/
@@ -141,7 +148,7 @@ the selected hom category. -/
 theorem graph.equivalence.counit (F : X ⟶ Y) :
     (graph.equivalence F).counit =
       (Q (apex F (𝟙 Y)) (apex F (𝟙 Y))).isoMk
-        (BasedCategory.PseudoPullback.graph.equivalence F.obj).counit := sorry
+        (BasedCategory.PseudoPullback.graph.equivalence F.obj).counit := rfl
 
 end Equivalence
 

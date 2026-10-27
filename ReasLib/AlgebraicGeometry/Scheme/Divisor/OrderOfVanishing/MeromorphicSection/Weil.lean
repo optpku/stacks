@@ -6,15 +6,15 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import ReasLib.AlgebraicGeometry.Scheme.Divisor.ClassGroup
-public import ReasLib.AlgebraicGeometry.Scheme.Divisor.OrderOfVanishing.MeromorphicSection
+public import ReasLib.AlgebraicGeometry.Scheme.Divisor.MeromorphicSection
 import Mathlib.Tactic.CrossRefAttribute
 
 /-!
 # Weil divisors of meromorphic sections
 
-A regular meromorphic section of an invertible module determines a Weil divisor from its orders
-along prime divisors, and hence a well-defined class in the Weil divisor class group.
+A nonzero meromorphic section of an invertible module determines a Weil divisor from its intrinsic
+orders along prime divisors, and hence a well-defined class in the Weil divisor class group.
+This file provides compatibility names for the intrinsic API in `Divisor.MeromorphicSection`.
 -/
 
 @[expose] public section
@@ -32,118 +32,101 @@ universe u
 namespace AlgebraicGeometry.Scheme
 
 variable {X : Scheme.{u}} [IsLocallyNoetherian X] [IsIntegral X]
-variable [PrimeDivisorDiscreteValuationRings X]
 
-local notation "JX" => Opens.grothendieckTopology X.toTopCat
-local notation "ModX" => ringedSiteModuleCategory JX X.𝒪
-local notation "IsInvertibleX" =>
-  (fun ℒ : ModX ↦ Functor.IsEquivalence (tensorRight ℒ))
-
-/-- The coefficient of the Weil divisor of a meromorphic section at a prime divisor. -/
+/-- The intrinsic coefficient of the Weil divisor of a nonzero meromorphic section. -/
 @[stacks 0BE6 "coefficient"]
-def meromorphicSectionWeilDivisorCoeff
-    [MonoidalCategory ModX]
-    (ℒ : ModX) [IsInvertibleX ℒ]
+abbrev meromorphicSectionWeilDivisorCoeff
+    (ℒ : X.Modules) [Modules.Invertible ℒ]
     (s : X.toLocallyRingedSpace.meromorphicSections ℒ)
-    (data : ∀ Z : PrimeDivisor X, PrimeDivisorOrderPresentation ℒ s Z)
+    (hs : s ≠ 0)
     (Z : PrimeDivisor X) : ℤ :=
-  primeDivisorOrderOfVanishing s Z (data Z)
+  nonzeroMeromorphicSectionWeilDivisorCoeff ℒ s hs Z
 
-/-- The coefficient is the order of vanishing supplied by the local presentation. -/
+/-- The coefficient is the intrinsic order of vanishing of the nonzero section. -/
 theorem meromorphicSectionWeilDivisorCoeff_def
-    [MonoidalCategory ModX]
-    (ℒ : ModX) [IsInvertibleX ℒ]
+    (ℒ : X.Modules) [Modules.Invertible ℒ]
     (s : X.toLocallyRingedSpace.meromorphicSections ℒ)
-    (data : ∀ Z : PrimeDivisor X, PrimeDivisorOrderPresentation ℒ s Z)
+    (hs : s ≠ 0)
     (Z : PrimeDivisor X) :
-    meromorphicSectionWeilDivisorCoeff ℒ s data Z =
-      primeDivisorOrderOfVanishing s Z (data Z) :=
+    meromorphicSectionWeilDivisorCoeff ℒ s hs Z =
+      regularMeromorphicSectionOrderAlongPrimeDivisor s
+        ((AlgebraicGeometry.isRegularMeromorphicSection_iff_ne_zero ℒ s).2 hs) Z :=
   rfl
 
-/-- The nonzero coefficients of the Weil divisor of a meromorphic section are locally finite. -/
+/-- The nonzero coefficients of the Weil divisor of a nonzero meromorphic section are locally
+finite. -/
 theorem locallyFinite_meromorphicSectionWeilDivisorCoeff_ne_zero
-    [MonoidalCategory ModX]
-    (ℒ : ModX) [IsInvertibleX ℒ]
+    (ℒ : X.Modules) [Modules.Invertible ℒ]
     (s : X.toLocallyRingedSpace.meromorphicSections ℒ)
-    (data : ∀ Z : PrimeDivisor X, PrimeDivisorOrderPresentation ℒ s Z) :
+    (hs : s ≠ 0) :
     LocallyFinite fun Z : PrimeDivisor X ↦
-      if meromorphicSectionWeilDivisorCoeff ℒ s data Z = 0 then
+      if meromorphicSectionWeilDivisorCoeff ℒ s hs Z = 0 then
         (∅ : Set X)
       else
-        (Z.support : Set X) := sorry
+        (Z.support : Set X) :=
+  locallyFinite_nonzeroMeromorphicSectionWeilDivisorCoeff_ne_zero ℒ s hs
 
-/-- Two meromorphic-section coefficient functions differ by the principal-divisor coefficients of
-a function-field unit. -/
+/-- The intrinsic coefficient functions of two nonzero meromorphic sections of the same invertible
+module differ by the orders of a function-field unit. -/
 @[stacks 0BE6 "well-definedness"]
 theorem exists_functionFieldUnit_sub_of_meromorphicSectionWeilDivisorCoeff
-    [MonoidalCategory ModX]
-    (ℒ : ModX) [IsInvertibleX ℒ]
+    (ℒ : X.Modules) [Modules.Invertible ℒ]
     (s s' : X.toLocallyRingedSpace.meromorphicSections ℒ)
-    (data : ∀ Z : PrimeDivisor X, PrimeDivisorOrderPresentation ℒ s Z)
-    (data' : ∀ Z : PrimeDivisor X, PrimeDivisorOrderPresentation ℒ s' Z) :
+    (hs : s ≠ 0) (hs' : s' ≠ 0) :
     ∃ f : X.functionFieldˣ,
       ∀ Z : PrimeDivisor X,
-        meromorphicSectionWeilDivisorCoeff ℒ s data Z =
-          meromorphicSectionWeilDivisorCoeff ℒ s' data' Z +
-            principalWeilDivisorCoeff X (primeDivisorDiscreteValuationRing X) f Z :=
-  sorry
+        meromorphicSectionWeilDivisorCoeff ℒ s hs Z =
+          meromorphicSectionWeilDivisorCoeff ℒ s' hs' Z +
+            X.ord (f : X.functionField) Z.genericPoint :=
+  nonzeroMeromorphicSectionWeilDivisorCoeff.exists_functionFieldUnit_sub X ℒ s s' hs hs'
 
 variable (X)
 
-/-- The Weil divisor associated to a meromorphic section. -/
+/-- The Weil divisor associated to a nonzero meromorphic section. -/
 @[stacks 0BE6 "Weil divisor"]
-noncomputable def meromorphicSectionWeilDivisor
-    [MonoidalCategory ModX]
-    (ℒ : ModX) [IsInvertibleX ℒ]
+noncomputable abbrev meromorphicSectionWeilDivisor
+    (ℒ : X.Modules) [Modules.Invertible ℒ]
     (s : X.toLocallyRingedSpace.meromorphicSections ℒ)
-    (data : ∀ Z : PrimeDivisor X, PrimeDivisorOrderPresentation ℒ s Z) : Div(X) :=
-  WeilDivisor.ofCoeff X
-    (fun Z ↦ meromorphicSectionWeilDivisorCoeff ℒ s data Z)
-    (locallyFinite_meromorphicSectionWeilDivisorCoeff_ne_zero ℒ s data)
+    (hs : s ≠ 0) : Div(X) :=
+  nonzeroMeromorphicSectionWeilDivisor X ℒ s hs
 
 @[simp] theorem meromorphicSectionWeilDivisor_coeff
-    [MonoidalCategory ModX]
-    (ℒ : ModX) [IsInvertibleX ℒ]
+    (ℒ : X.Modules) [Modules.Invertible ℒ]
     (s : X.toLocallyRingedSpace.meromorphicSections ℒ)
-    (data : ∀ Z : PrimeDivisor X, PrimeDivisorOrderPresentation ℒ s Z)
+    (hs : s ≠ 0)
     (Z : PrimeDivisor X) :
-    (meromorphicSectionWeilDivisor X ℒ s data).coeff Z =
-      meromorphicSectionWeilDivisorCoeff ℒ s data Z :=
+    (meromorphicSectionWeilDivisor X ℒ s hs).coeff Z =
+      meromorphicSectionWeilDivisorCoeff ℒ s hs Z :=
   rfl
 
-/-- The Weil divisor class associated to a meromorphic section. -/
+/-- The Weil divisor class associated to a nonzero meromorphic section. -/
 @[stacks 0BE6 "divisor class"]
-noncomputable def meromorphicSectionWeilDivisorClass
-    [MonoidalCategory ModX]
-    (ℒ : ModX) [IsInvertibleX ℒ]
+noncomputable abbrev meromorphicSectionWeilDivisorClass
+    (ℒ : X.Modules) [Modules.Invertible ℒ]
     (s : X.toLocallyRingedSpace.meromorphicSections ℒ)
-    (data : ∀ Z : PrimeDivisor X, PrimeDivisorOrderPresentation ℒ s Z) : Cl(X) :=
-  weilDivisorClassGroupMk X <| meromorphicSectionWeilDivisor X ℒ s data
+    (hs : s ≠ 0) : Cl(X) :=
+  nonzeroMeromorphicSectionWeilDivisorClass X ℒ s hs
 
 @[simp] theorem meromorphicSectionWeilDivisorClass_def
-    [MonoidalCategory ModX]
-    (ℒ : ModX) [IsInvertibleX ℒ]
+    (ℒ : X.Modules) [Modules.Invertible ℒ]
     (s : X.toLocallyRingedSpace.meromorphicSections ℒ)
-    (data : ∀ Z : PrimeDivisor X, PrimeDivisorOrderPresentation ℒ s Z) :
-    meromorphicSectionWeilDivisorClass X ℒ s data =
-      weilDivisorClassGroupMk X (meromorphicSectionWeilDivisor X ℒ s data) :=
+    (hs : s ≠ 0) :
+    meromorphicSectionWeilDivisorClass X ℒ s hs =
+      weilDivisorClassGroupMk X (meromorphicSectionWeilDivisor X ℒ s hs) :=
   rfl
 
-/-- The divisor class is independent of the meromorphic section and local presentations used to
-compute it. -/
+/-- The divisor class is independent of the nonzero meromorphic section used to compute it. -/
 theorem meromorphicSectionWeilDivisorClass_eq
-    [MonoidalCategory ModX]
-    (ℒ : ModX) [IsInvertibleX ℒ]
+    (ℒ : X.Modules) [Modules.Invertible ℒ]
     (s s' : X.toLocallyRingedSpace.meromorphicSections ℒ)
-    (data : ∀ Z : PrimeDivisor X, PrimeDivisorOrderPresentation ℒ s Z)
-    (data' : ∀ Z : PrimeDivisor X, PrimeDivisorOrderPresentation ℒ s' Z) :
-    meromorphicSectionWeilDivisorClass X ℒ s data =
-      meromorphicSectionWeilDivisorClass X ℒ s' data' := by
+    (hs : s ≠ 0) (hs' : s' ≠ 0) :
+    meromorphicSectionWeilDivisorClass X ℒ s hs =
+      meromorphicSectionWeilDivisorClass X ℒ s' hs' := by
   rcases exists_functionFieldUnit_sub_of_meromorphicSectionWeilDivisorCoeff
-      (X := X) ℒ s s' data data' with ⟨f, hf⟩
+      (X := X) ℒ s s' hs hs' with ⟨f, hf⟩
   have hdiv :
-      meromorphicSectionWeilDivisor X ℒ s data =
-        meromorphicSectionWeilDivisor X ℒ s' data' + principalWeilDivisor X f := by
+      meromorphicSectionWeilDivisor X ℒ s hs =
+        meromorphicSectionWeilDivisor X ℒ s' hs' + principalWeilDivisor X f := by
     ext Z
     simpa using hf Z
   have hprincipal :
@@ -151,18 +134,18 @@ theorem meromorphicSectionWeilDivisorClass_eq
     exact (QuotientAddGroup.eq_zero_iff (principalWeilDivisor X f)).2
       (principalWeilDivisor_mem_principalWeilDivisors X f)
   calc
-    meromorphicSectionWeilDivisorClass X ℒ s data
-        = weilDivisorClassGroupMk X (meromorphicSectionWeilDivisor X ℒ s data) := rfl
+    meromorphicSectionWeilDivisorClass X ℒ s hs
+        = weilDivisorClassGroupMk X (meromorphicSectionWeilDivisor X ℒ s hs) := rfl
     _ = weilDivisorClassGroupMk X
-          (meromorphicSectionWeilDivisor X ℒ s' data' + principalWeilDivisor X f) := by
+          (meromorphicSectionWeilDivisor X ℒ s' hs' + principalWeilDivisor X f) := by
       rw [hdiv]
-    _ = weilDivisorClassGroupMk X (meromorphicSectionWeilDivisor X ℒ s' data') +
+    _ = weilDivisorClassGroupMk X (meromorphicSectionWeilDivisor X ℒ s' hs') +
           weilDivisorClassGroupMk X (principalWeilDivisor X f) := by
       simpa using
         (weilDivisorClassGroupMk X).map_add
-          (meromorphicSectionWeilDivisor X ℒ s' data') (principalWeilDivisor X f)
-    _ = weilDivisorClassGroupMk X (meromorphicSectionWeilDivisor X ℒ s' data') := by
+          (meromorphicSectionWeilDivisor X ℒ s' hs') (principalWeilDivisor X f)
+    _ = weilDivisorClassGroupMk X (meromorphicSectionWeilDivisor X ℒ s' hs') := by
       rw [hprincipal, add_zero]
-    _ = meromorphicSectionWeilDivisorClass X ℒ s' data' := rfl
+    _ = meromorphicSectionWeilDivisorClass X ℒ s' hs' := rfl
 
 end AlgebraicGeometry.Scheme

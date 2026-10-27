@@ -52,20 +52,29 @@ noncomputable abbrev previous (T : A ⥤ A) [Functor.IsEquivalence T]
 theorem naturality (T : A ⥤ A) [Functor.IsEquivalence T]
     {E₁ E₂ : A} {d₁ : E₁ ⟶ T.obj E₁} {d₂ : E₂ ⟶ T.obj E₂}
     (f : E₁ ⟶ E₂) (h : f ≫ d₂ = d₁ ≫ T.map f) :
-    T.inv.map f ≫ previous T d₂ = previous T d₁ ≫ f := sorry
+    T.inv.map f ≫ previous T d₂ = previous T d₁ ≫ f := by
+  dsimp only [previous]
+  rw [← Category.assoc, ← T.inv.map_comp, h, T.inv.map_comp]
+  simp only [Category.assoc]
+  erw [T.asEquivalence.unitInv.naturality f]
+  rfl
 
 /-- The translated previous differential composes with `d` to zero. -/
 @[stacks 0AMI "shifted differential zero composite"]
 theorem comp (T : A ⥤ A) [Functor.IsEquivalence T]
     [Abelian A]
     {E : A} (d : E ⟶ T.obj E) (hd : d ≫ T.map d = 0) :
-    previous T d ≫ d = 0 := sorry
+    previous T d ≫ d = 0 := by
+  erw [previous, Category.assoc, ← T.asEquivalence.unitInv.naturality d,
+    ← Category.assoc, ← T.inv.map_comp, hd, T.inv.map_zero, zero_comp]
 
 /-- Mapping the translated previous differential through the equivalence collapses to the
 original differential after the counit comparison. -/
 theorem map (T : A ⥤ A) [Functor.IsEquivalence T]
     {E : A} (d : E ⟶ T.obj E) :
-    T.map (previous T d) = T.asEquivalence.counit.app E ≫ d := sorry
+    T.map (previous T d) = T.asEquivalence.counit.app E ≫ d := by
+  erw [previous, T.map_comp, ← T.asEquivalence.counit_app_functor]
+  exact T.asEquivalence.counit_naturality d
 
 /-- The short complex `T⁻¹E ⟶ E ⟶ TE` attached to a differential and an explicitly supplied
 zero-composite witness. -/
@@ -119,7 +128,8 @@ namespace Hom
 
 /-- The identity underlying map commutes with the shifted differential. -/
 theorem id_comm (X : ShiftedDifferentialObject T) :
-    𝟙 X.obj ≫ X.d = X.d ≫ T.map (𝟙 X.obj) := sorry
+    𝟙 X.obj ≫ X.d = X.d ≫ T.map (𝟙 X.obj) := by
+  simp
 
 /-- The identity morphism of a shifted differential object. -/
 def id (X : ShiftedDifferentialObject T) : Hom X X where
@@ -128,7 +138,8 @@ def id (X : ShiftedDifferentialObject T) : Hom X X where
 
 /-- Composites of underlying maps commute with the shifted differential. -/
 theorem comp_comm {X Y Z : ShiftedDifferentialObject T} (f : Hom X Y) (g : Hom Y Z) :
-    (f.hom ≫ g.hom) ≫ Z.d = X.d ≫ T.map (f.hom ≫ g.hom) := sorry
+    (f.hom ≫ g.hom) ≫ Z.d = X.d ≫ T.map (f.hom ≫ g.hom) := by
+  rw [Category.assoc, g.comm, ← Category.assoc, f.comm, Category.assoc, T.map_comp]
 
 /-- The composite of two morphisms of shifted differential objects. -/
 def comp {X Y Z : ShiftedDifferentialObject T} (f : Hom X Y) (g : Hom Y Z) : Hom X Z where
@@ -137,16 +148,22 @@ def comp {X Y Z : ShiftedDifferentialObject T} (f : Hom X Y) (g : Hom Y Z) : Hom
 
 /-- Left identity for shifted-differential-object morphisms. -/
 theorem id_comp {X Y : ShiftedDifferentialObject T} (f : Hom X Y) :
-    comp (id X) f = f := sorry
+    comp (id X) f = f := by
+  apply Hom.ext
+  exact Category.id_comp f.hom
 
 /-- Right identity for shifted-differential-object morphisms. -/
 theorem comp_id {X Y : ShiftedDifferentialObject T} (f : Hom X Y) :
-    comp f (id Y) = f := sorry
+    comp f (id Y) = f := by
+  apply Hom.ext
+  exact Category.comp_id f.hom
 
 /-- Associativity of shifted-differential-object morphism composition. -/
 theorem assoc {W X Y Z : ShiftedDifferentialObject T}
     (f : Hom W X) (g : Hom X Y) (h : Hom Y Z) :
-    comp (comp f g) h = comp f (comp g h) := sorry
+    comp (comp f g) h = comp f (comp g h) := by
+  apply Hom.ext
+  exact Category.assoc f.hom g.hom h.hom
 
 end Hom
 
@@ -162,12 +179,12 @@ instance : Category (ShiftedDifferentialObject T) where
 /-- The underlying morphism of an identity shifted differential object morphism is the identity. -/
 @[simp]
 theorem id_hom (X : ShiftedDifferentialObject T) :
-    (𝟙 X : X ⟶ X).hom = 𝟙 X.obj := sorry
+    (𝟙 X : X ⟶ X).hom = 𝟙 X.obj := rfl
 
 /-- The underlying morphism of a composite is the composite of the underlying morphisms. -/
 @[simp]
 theorem comp_hom {X Y Z : ShiftedDifferentialObject T} (f : X ⟶ Y) (g : Y ⟶ Z) :
-    (f ≫ g).hom = f.hom ≫ g.hom := sorry
+    (f ≫ g).hom = f.hom ≫ g.hom := rfl
 
 /-- The functor forgetting a shifted differential and retaining its underlying object. -/
 noncomputable def objFunctor : ShiftedDifferentialObject T ⥤ A where
@@ -202,7 +219,12 @@ noncomputable abbrev homology (X : ShiftedDifferentialObject T) : A :=
  squares to zero after transporting back along the counit inverse. -/
 theorem PreviousPage.d_squared (X : ShiftedDifferentialObject T) :
     (Differential.previous T X.d ≫ T.asEquivalence.counitInv.app X.obj) ≫
-      T.map (Differential.previous T X.d ≫ T.asEquivalence.counitInv.app X.obj) = 0 := sorry
+      T.map (Differential.previous T X.d ≫ T.asEquivalence.counitInv.app X.obj) = 0 := by
+  erw [T.map_comp, Differential.map, Category.assoc (Differential.previous T X.d),
+    Category.assoc (T.asEquivalence.counit.app X.obj),
+    T.asEquivalence.counitIso_inv_hom_id_app_assoc,
+    ← Category.assoc (Differential.previous T X.d),
+    Differential.comp T X.d X.d_squared, zero_comp]
 
 /-- The translated previous page `T⁻¹X`, whose differential is the translated previous
 differential `T⁻¹ d`. -/
@@ -220,14 +242,27 @@ namespace Map
 complex matches the original first differential through the counit comparisons. -/
 theorem comm₁₂ (X : ShiftedDifferentialObject T) :
     (T.asEquivalence.counitIso.app (T.inv.obj X.obj)).hom ≫ X.shortComplex.f =
-      (X.previousPage.shortComplex.map T).f ≫ (T.asEquivalence.counitIso.app X.obj).hom := sorry
+      (X.previousPage.shortComplex.map T).f ≫ (T.asEquivalence.counitIso.app X.obj).hom := by
+  change T.asEquivalence.counit.app (T.inv.obj X.obj) ≫ Differential.previous T X.d =
+    T.map (Differential.previous T
+      (Differential.previous T X.d ≫ T.asEquivalence.counitInv.app X.obj)) ≫
+        T.asEquivalence.counit.app X.obj
+  erw [Differential.map, Category.assoc, Category.assoc,
+    T.asEquivalence.counitIso_inv_hom_id_app, Category.comp_id]
+  rfl
 
 /-- The second differential in the mapped previous-page short
 complex matches the original differential through the counit comparisons. -/
 theorem comm₂₃ (X : ShiftedDifferentialObject T) :
     (T.asEquivalence.counitIso.app X.obj).hom ≫ X.shortComplex.g =
       (X.previousPage.shortComplex.map T).g ≫
-        (T.mapIso (T.asEquivalence.counitIso.app X.obj)).hom := sorry
+        (T.mapIso (T.asEquivalence.counitIso.app X.obj)).hom := by
+  change T.asEquivalence.counit.app X.obj ≫ X.d =
+    T.map (Differential.previous T X.d ≫ T.asEquivalence.counitInv.app X.obj) ≫
+      T.map (T.asEquivalence.counit.app X.obj)
+  erw [T.map_comp, Differential.map, Category.assoc, Category.assoc, ← T.map_comp,
+    T.asEquivalence.counitIso_inv_hom_id_app, T.map_id, Category.comp_id]
+  rfl
 
 end Map
 
@@ -255,11 +290,13 @@ namespace Map
 
 /-- The translated previous differentials commute with a morphism of shifted differential objects. -/
 theorem comm₁₂ {X Y : ShiftedDifferentialObject T} (f : X ⟶ Y) :
-    T.inv.map f.hom ≫ Y.shortComplex.f = X.shortComplex.f ≫ f.hom := sorry
+    T.inv.map f.hom ≫ Y.shortComplex.f = X.shortComplex.f ≫ f.hom := by
+  exact Differential.naturality T f.hom f.comm
 
 /-- The outgoing shifted differentials commute with a morphism of shifted differential objects. -/
 theorem comm₂₃ {X Y : ShiftedDifferentialObject T} (f : X ⟶ Y) :
-    f.hom ≫ Y.shortComplex.g = X.shortComplex.g ≫ T.map f.hom := sorry
+    f.hom ≫ Y.shortComplex.g = X.shortComplex.g ≫ T.map f.hom := by
+  exact f.comm
 
 /-- The induced map of short complexes attached to a morphism of shifted differential objects. -/
 noncomputable abbrev shortComplex {X Y : ShiftedDifferentialObject T} (φ : X ⟶ Y) :
@@ -283,12 +320,20 @@ namespace HomologyMap
 /-- The map induced on shifted homology by an identity is the identity. -/
 @[simp]
 theorem id (X : ShiftedDifferentialObject T) :
-    homologyMap (𝟙 X) = 𝟙 X.homology := sorry
+    homologyMap (𝟙 X) = 𝟙 X.homology := by
+  have h : Map.shortComplex (𝟙 X) = 𝟙 X.shortComplex := by
+    ext <;> simp [Map.shortComplex]
+  change ShortComplex.homologyMap (Map.shortComplex (𝟙 X)) = _
+  rw [h, ShortComplex.homologyMap_id]
 
 /-- Shifted homology maps preserve composition. -/
 @[simp]
 theorem comp {X Y Z : ShiftedDifferentialObject T} (f : X ⟶ Y) (g : Y ⟶ Z) :
-    homologyMap (f ≫ g) = homologyMap f ≫ homologyMap g := sorry
+    homologyMap (f ≫ g) = homologyMap f ≫ homologyMap g := by
+  have h : Map.shortComplex (f ≫ g) = Map.shortComplex f ≫ Map.shortComplex g := by
+    ext <;> simp [Map.shortComplex]
+  change ShortComplex.homologyMap (Map.shortComplex (f ≫ g)) = _
+  rw [h, ShortComplex.homologyMap_comp]
 
 end HomologyMap
 

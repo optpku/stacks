@@ -20,6 +20,12 @@ open AlgebraicGeometry.RingedSpace.Hom
 
 This module constructs the direct-image composition comparison from the composite derived
 pullback-pushforward adjunction and uniqueness of right adjoints.
+
+The constructions take an explicit certificate that the canonical derived-pullback composition
+comparison is invertible. This supplies the inverse data at the current library boundary,
+without using the unfinished invertibility theorem to construct them.
+
+Follow-up: prove modulePullbackDerived.compComparison_isIso, then add certificate-free wrappers.
 -/
 
 open CategoryTheory
@@ -59,7 +65,7 @@ noncomputable abbrev compositeAdjunction
     (modulePullbackDerivedPushforwardAdjunction f)).ofNatIsoLeft
       (modulePullbackDerived.compIso f g h_pullback)
 
-/-- Lemma 20.28.2: the canonical pullback-composition isomorphism induces an isomorphism from
+/-- The canonical pullback-composition isomorphism induces an isomorphism from
 the composite derived pushforward `R(f)_* ⋙ R(g)_*` to `R((f ≫ g))_*`. -/
 @[stacks 0D5T]
 noncomputable def iso
@@ -68,8 +74,8 @@ noncomputable def iso
   (compositeAdjunction f g h_pullback).rightAdjointUniq
     (modulePullbackDerivedPushforwardAdjunction (f ≫ g))
 
-/-- Lemma 20.28.2: the source-facing comparison from the derived pushforward of a composite to
-the composite derived pushforward. -/
+/-- The inverse of the derived-pushforward composition isomorphism maps the derived pushforward
+of a composite to the composite derived pushforward. -/
 @[stacks 0D5T]
 noncomputable def comparison
     (h_pullback : IsIso (modulePullbackDerived.compComparison f g)) :
@@ -107,7 +113,7 @@ theorem iso_hom_counit_app
           (modulePullbackDerivedPushforwardAdjunction f)).ofNatIsoLeft
         (modulePullbackDerived.compIso f g h_pullback)).counit.app K := sorry
 
-/-- Lemma 20.28.2, source-facing form: the comparison
+/-- The canonical derived-pushforward composition comparison
 `R((f ≫ g))_* ⟶ R(f)_* ⋙ R(g)_*` is an isomorphism. -/
 @[stacks 0D5T]
 theorem comparison_isIso

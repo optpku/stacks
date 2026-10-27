@@ -10,8 +10,7 @@ public import Mathlib.AlgebraicGeometry.AffineScheme
 public import Mathlib.CategoryTheory.ObjectProperty.FullSubcategory
 public import ReasLib.AlgebraicGeometry.Scheme.Sites.AssociatedModule.CommRing
 public import ReasLib.CategoryTheory.Sites.Chaotic
-public import ReasLib.AlgebraicGeometry.GroupoidsOver.Basic
-public import ReasLib.AlgebraicGeometry.Scheme.Sites.AffineOver
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.Affine
 
 /-!
 # Affine objects of a category fibred in groupoids
@@ -34,11 +33,6 @@ namespace AlgebraicGeometry.GroupoidsOver
 
 variable {S : Scheme.{u}} (X : GroupoidsOver S)
 
-/-- The property of objects of a category fibred in groupoids that lie over an
-affine scheme. -/
-def affineObjects : ObjectProperty X.total :=
-  fun x ↦ IsAffine (X.p.obj x).left
-
 /-- An object lies in `affineObjects X` if and only if its image scheme is
 affine. -/
 theorem affineObjects_iff (x : X.total) :
@@ -47,10 +41,6 @@ theorem affineObjects_iff (x : X.total) :
 
 /-- The full subcategory `𝒳_affine` of objects lying over affine schemes. -/
 abbrev affineSite := (affineObjects X).FullSubcategory
-
-/-- The inclusion of `𝒳_affine` into the total category of `X`. -/
-abbrev affineInclusion : affineSite X ⥤ X.total :=
-  (affineObjects X).ι
 
 /-- The inclusion of an affine object is the underlying object of `X`. -/
 theorem affineInclusion_obj (x : affineSite X) :
@@ -65,10 +55,6 @@ abbrev affineToOver : affineSite X ⥤ Over S :=
 inclusion. -/
 theorem affineToOver_eq : affineToOver X = affineInclusion X ⋙ X.p :=
   sorry
-
-/-- Every object of `affineSite X` lies over an affine scheme. -/
-instance instIsAffine (x : affineSite X) : IsAffine (X.p.obj x.obj).left :=
-  x.property
 
 /-- The projection from affine objects to affine schemes over the base. -/
 def affineSiteToAffineOver : affineSite X ⥤ S.AffineOver where

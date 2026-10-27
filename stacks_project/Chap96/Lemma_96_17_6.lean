@@ -10,7 +10,8 @@ public import Mathlib.CategoryTheory.Functor.KanExtension.Pointwise
 public import Mathlib.CategoryTheory.Limits.ExactFunctor
 public import Mathlib.CategoryTheory.Limits.Shapes.Equalizers
 public import Mathlib.CategoryTheory.Preadditive.Injective.Preserves
-public import stacks_project.Chap96.Lemma_96_17_6_LowerShriek
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.Module.LowerShriek
+import StacksCheckRecall
 
 /-!
 # Lower shriek of modules on categories fibred in groupoids
@@ -34,64 +35,58 @@ namespace AlgebraicGeometry.GroupoidsOver
 
 variable {S : Scheme.{u}}
 
-/-- Lemma 96.17.6 (1): the inverse image `f^*` of modules along a 1-morphism of
-categories fibred in groupoids over `(Sch/S)_fppf` has a left adjoint `f_!` for
-every standard topology `τ`. -/
-@[stacks 06X2, instance]
-instance associatedModuleInverseImage_isRightAdjoint
-    {X Y : GroupoidsOver S} (f : X ⟶ Y) (τ : StandardTopology) :
-    (associatedModuleInverseImage f τ).IsRightAdjoint :=
-  sorry
+variable {X Y : GroupoidsOver S} (f : X ⟶ Y) (τ : StandardTopology)
 
-/-- Lemma 96.17.6 (2): the module lower shriek `f_!` agrees with the abelian
-lower shriek of Lemma 96.17.5 on underlying abelian sheaves. -/
-@[stacks 06X2, instance]
-instance associatedModuleLowerShriek_underlyingComparison_isIso
-    {X Y : GroupoidsOver S} (f : X ⟶ Y) (τ : StandardTopology)
-    [∀ P : X.totalᵒᵖ ⥤ AddCommGrpCat.{u + 1},
-      (toCartesianBasedFunctor f).toFunctor.op.HasLeftKanExtension P]
-    [HasWeakSheafify (Y.associatedTopology τ) AddCommGrpCat.{u + 1}] :
-    IsIso (associatedModuleLowerShriek_underlyingComparison f τ) :=
-  sorry
+/- Lemma 96.17.6 (1): module lower shriek is left adjoint to module inverse image. -/
+@[stacks 06X2] #check
+  (AlgebraicGeometry.GroupoidsOver.associatedModuleLowerShriek_adjunction f τ :
+    AlgebraicGeometry.GroupoidsOver.associatedModuleLowerShriek f τ ⊣
+      AlgebraicGeometry.GroupoidsOver.associatedModuleInverseImage f τ)
 
-/-- Lemma 96.17.6 (3): if a 1-morphism `f : X ⟶ Y` of categories fibred in
-groupoids over `(Sch/S)_fppf` is faithful and `X` has equalizers, then the
-associated module lower shriek `f_!` is exact for every standard topology `τ`. -/
-@[stacks 06X2]
-theorem associatedModuleLowerShriek_exact
-    {X Y : GroupoidsOver S} (f : X ⟶ Y) (τ : StandardTopology)
-    [Functor.Faithful (toFunctor f)] [HasEqualizers X.total]
-    [∀ P : X.totalᵒᵖ ⥤ AddCommGrpCat.{u + 1},
-      (toCartesianBasedFunctor f).toFunctor.op.HasPointwiseLeftKanExtension P]
-    [HasSheafify (Y.associatedTopology τ) AddCommGrpCat.{u + 1}] :
+section Comparison
+
+variable [∀ P : X.totalᵒᵖ ⥤ AddCommGrpCat.{u + 1},
+    (toCartesianBasedFunctor f).toFunctor.op.HasLeftKanExtension P]
+variable [HasWeakSheafify (Y.associatedTopology τ) AddCommGrpCat.{u + 1}]
+
+/- Lemma 96.17.6 (2): the canonical comparison with lower shriek on abelian sheaves
+is invertible. -/
+@[stacks 06X2] #check
+  (AlgebraicGeometry.GroupoidsOver.associatedModuleLowerShriek_underlyingComparison_isIso f τ :
+    IsIso (AlgebraicGeometry.GroupoidsOver.associatedModuleLowerShriek_underlyingComparison f τ))
+
+end Comparison
+
+section Exactness
+
+variable [Functor.Faithful (toFunctor f)] [HasEqualizers X.total]
+variable [∀ P : X.totalᵒᵖ ⥤ AddCommGrpCat.{u + 1},
+    (toCartesianBasedFunctor f).toFunctor.op.HasPointwiseLeftKanExtension P]
+variable [HasSheafify (Y.associatedTopology τ) AddCommGrpCat.{u + 1}]
+
+/- Lemma 96.17.6 (3): for a faithful morphism with source equalizers, module lower
+shriek is exact. -/
+@[stacks 06X2] #check
+  (AlgebraicGeometry.GroupoidsOver.associatedModuleLowerShriek_exact f τ :
     exactFunctor
-      (SheafOfModules.{u + 1} (associatedStructureSheaf X τ))
-      (SheafOfModules.{u + 1} (associatedStructureSheaf Y τ))
-      (associatedModuleLowerShriek f τ) :=
-  sorry
+      (SheafOfModules.{u + 1} (AlgebraicGeometry.GroupoidsOver.associatedStructureSheaf X τ))
+      (SheafOfModules.{u + 1} (AlgebraicGeometry.GroupoidsOver.associatedStructureSheaf Y τ))
+      (AlgebraicGeometry.GroupoidsOver.associatedModuleLowerShriek f τ))
 
-/-- Lemma 96.17.6 (4): if a 1-morphism `f : X ⟶ Y` of categories fibred in
-groupoids over `(Sch/S)_fppf` is faithful and `X` has equalizers, then inverse
-image of modules preserves injective objects for every standard topology `τ`. -/
-@[stacks 06X2, instance]
-instance associatedModuleInverseImage_preservesInjectiveObjects
-    {X Y : GroupoidsOver S} (f : X ⟶ Y) (τ : StandardTopology)
-    [Functor.Faithful (toFunctor f)] [HasEqualizers X.total]
-    [∀ P : X.totalᵒᵖ ⥤ AddCommGrpCat.{u + 1},
-      (toCartesianBasedFunctor f).toFunctor.op.HasPointwiseLeftKanExtension P]
-    [HasSheafify (Y.associatedTopology τ) AddCommGrpCat.{u + 1}] :
-    (associatedModuleInverseImage f τ).PreservesInjectiveObjects :=
-  sorry
+/- Lemma 96.17.6 (4): for a faithful morphism with source equalizers, module inverse
+image preserves injective objects. -/
+@[stacks 06X2] #check
+  (AlgebraicGeometry.GroupoidsOver.associatedModuleInverseImage_preservesInjectiveObjects f τ :
+    (AlgebraicGeometry.GroupoidsOver.associatedModuleInverseImage f τ).PreservesInjectiveObjects)
 
-/-- Objectwise form of module inverse image preserving injectives. -/
-theorem injective_associatedModuleInverseImage
-    {X Y : GroupoidsOver S} (f : X ⟶ Y) (τ : StandardTopology)
-    [Functor.Faithful (toFunctor f)] [HasEqualizers X.total]
-    [∀ P : X.totalᵒᵖ ⥤ AddCommGrpCat.{u + 1},
-      (toCartesianBasedFunctor f).toFunctor.op.HasPointwiseLeftKanExtension P]
-    [HasSheafify (Y.associatedTopology τ) AddCommGrpCat.{u + 1}]
-    (I : SheafOfModules.{u + 1} (associatedStructureSheaf Y τ)) [Injective I] :
-    Injective ((associatedModuleInverseImage f τ).obj I) :=
-  sorry
+variable (I : SheafOfModules.{u + 1}
+  (AlgebraicGeometry.GroupoidsOver.associatedStructureSheaf Y τ)) [Injective I]
+
+-- The canonical objectwise consequence of preservation of injective objects.
+#check (CategoryTheory.Functor.injective_obj
+  (AlgebraicGeometry.GroupoidsOver.associatedModuleInverseImage f τ) I :
+  Injective ((AlgebraicGeometry.GroupoidsOver.associatedModuleInverseImage f τ).obj I))
+
+end Exactness
 
 end AlgebraicGeometry.GroupoidsOver

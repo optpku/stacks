@@ -53,12 +53,24 @@ noncomputable abbrev Reindex.compAmbientIso
 /-- The forward ambient composition comparison lies over `𝟙 W`. -/
 theorem Reindex.compAmbientIso.hom.isHomLift
     {U V W : C} (f : V ⟶ U) (g : W ⟶ V) (x : Fiber p U) :
-    p.IsHomLift (𝟙 W) (Reindex.compAmbientIso χ f g x).hom := sorry
+    p.IsHomLift (𝟙 W) (Reindex.compAmbientIso χ f g x).hom := by
+  letI : p.IsStronglyCartesian f (χ.cartesianHom f x) :=
+    (χ.reindexLift f x).isStronglyCartesian
+  letI : p.IsStronglyCartesian g (χ.cartesianHom g (f⁎[χ] x)) :=
+    (χ.reindexLift g (f⁎[χ] x)).isStronglyCartesian
+  letI : p.IsStronglyCartesian (g ≫ f) (χ.cartesianHom (g ≫ f) x) :=
+    (χ.reindexLift (g ≫ f) x).isStronglyCartesian
+  exact IsStronglyCartesian.domainUniqueUpToIso_inv_isHomLift p
+    (g := Iso.refl W) (Category.id_comp (g ≫ f)).symm
+    (χ.cartesianHom g (f⁎[χ] x) ≫ χ.cartesianHom f x)
+    (χ.cartesianHom (g ≫ f) x)
 
 /-- The inverse ambient composition comparison lies over `𝟙 W`. -/
 theorem Reindex.compAmbientIso.inv.isHomLift
     {U V W : C} (f : V ⟶ U) (g : W ⟶ V) (x : Fiber p U) :
-    p.IsHomLift (𝟙 W) (Reindex.compAmbientIso χ f g x).inv := sorry
+    p.IsHomLift (𝟙 W) (Reindex.compAmbientIso χ f g x).inv := by
+  letI := Reindex.compAmbientIso.hom.isHomLift χ f g x
+  exact IsHomLift.lift_id_inv p W (Reindex.compAmbientIso χ f g x)
 
 /-- The component at `x` of the composition comparison
 `(g ≫ f)⁎[χ] x ≅ g⁎[χ] (f⁎[χ] x)`. -/
@@ -81,9 +93,18 @@ theorem Reindex.compIsoApp.hom.fac
     {U V W : C} (f : V ⟶ U) (g : W ⟶ V) (x : Fiber p U) :
     (Reindex.compIsoApp χ f g x).hom.1 ≫
         χ.cartesianHom g (f⁎[χ] x) ≫ χ.cartesianHom f x =
-      χ.cartesianHom (g ≫ f) x := sorry
-/- Proof strategy: unfold `Reindex.compIsoApp`; the statement is exactly
-`IsCartesian.fac` for `IsCartesian.domainUniqueUpToIso`. -/
+      χ.cartesianHom (g ≫ f) x := by
+  letI : p.IsStronglyCartesian f (χ.cartesianHom f x) :=
+    (χ.reindexLift f x).isStronglyCartesian
+  letI : p.IsStronglyCartesian g (χ.cartesianHom g (f⁎[χ] x)) :=
+    (χ.reindexLift g (f⁎[χ] x)).isStronglyCartesian
+  letI : p.IsStronglyCartesian (g ≫ f) (χ.cartesianHom (g ≫ f) x) :=
+    (χ.reindexLift (g ≫ f) x).isStronglyCartesian
+  change IsStronglyCartesian.map p (g ≫ f)
+      (χ.cartesianHom g (f⁎[χ] x) ≫ χ.cartesianHom f x)
+      (Category.id_comp (g ≫ f)).symm (χ.cartesianHom (g ≫ f) x) ≫
+        (χ.cartesianHom g (f⁎[χ] x) ≫ χ.cartesianHom f x) = _
+  exact IsStronglyCartesian.fac p _ _ _ _
 
 /-- The inverse composition-comparison component factors the chosen composite pullback map
 through the iterated pullback maps. -/
@@ -91,9 +112,43 @@ through the iterated pullback maps. -/
 theorem Reindex.compIsoApp.inv.fac
     {U V W : C} (f : V ⟶ U) (g : W ⟶ V) (x : Fiber p U) :
     (Reindex.compIsoApp χ f g x).inv.1 ≫ χ.cartesianHom (g ≫ f) x =
-      χ.cartesianHom g (f⁎[χ] x) ≫ χ.cartesianHom f x := sorry
-/- Proof strategy: insert `Reindex.compIsoApp.hom.fac`, reassociate, and cancel the
-inverse-hom pair of `Reindex.compIsoApp`. -/
+      χ.cartesianHom g (f⁎[χ] x) ≫ χ.cartesianHom f x := by
+  rw [← Reindex.compIsoApp.hom.fac χ f g x]
+  change (Reindex.compAmbientIso χ f g x).inv ≫
+      (Reindex.compAmbientIso χ f g x).hom ≫
+        χ.cartesianHom g (f⁎[χ] x) ≫ χ.cartesianHom f x = _
+  simp only [Iso.inv_hom_id_assoc]
+
+/-- Recover the reindexing factorization directly from its mathlib data owner. -/
+@[reassoc]
+private theorem reindex_map_fac
+    {U V : C} (f : V ⟶ U) {x y : Fiber p U} (φ : x ⟶ y) :
+    ((f⁎[χ]).map φ).1 ≫ χ.cartesianHom f y = χ.cartesianHom f x ≫ φ.1 := by
+  letI : p.IsStronglyCartesian f (χ.cartesianHom f y) :=
+    (χ.reindexLift f y).isStronglyCartesian
+  letI : p.IsStronglyCartesian f (χ.cartesianHom f x) :=
+    (χ.reindexLift f x).isStronglyCartesian
+  letI := φ.2
+  change IsStronglyCartesian.map p f (χ.cartesianHom f y)
+      (Category.id_comp f).symm (χ.cartesianHom f x ≫ φ.1) ≫
+        χ.cartesianHom f y = _
+  exact IsStronglyCartesian.fac p _ _ _ _
+
+/-- Cancel the iterated cartesian arrow among morphisms in its source fiber. -/
+private theorem comp_hom_ext
+    {U V W : C} (f : V ⟶ U) (g : W ⟶ V) (x : Fiber p U)
+    {z : Fiber p W} {φ ψ : z ⟶ g⁎[χ] (f⁎[χ] x)}
+    (h : φ.1 ≫ χ.cartesianHom g (f⁎[χ] x) ≫ χ.cartesianHom f x =
+      ψ.1 ≫ χ.cartesianHom g (f⁎[χ] x) ≫ χ.cartesianHom f x) : φ = ψ := by
+  letI : p.IsStronglyCartesian f (χ.cartesianHom f x) :=
+    (χ.reindexLift f x).isStronglyCartesian
+  letI : p.IsStronglyCartesian g (χ.cartesianHom g (f⁎[χ] x)) :=
+    (χ.reindexLift g (f⁎[χ] x)).isStronglyCartesian
+  letI := φ.2
+  letI := ψ.2
+  apply Fiber.hom_ext
+  exact IsCartesian.ext p (g ≫ f)
+    (χ.cartesianHom g (f⁎[χ] x) ≫ χ.cartesianHom f x) φ.1 ψ.1 h
 
 /-- Naturality of the componentwise composition comparison. -/
 theorem Reindex.compIsoApp.hom.naturality
@@ -101,10 +156,33 @@ theorem Reindex.compIsoApp.hom.naturality
     {x y : Fiber p U} (φ : x ⟶ y) :
     ((g ≫ f)⁎[χ]).map φ ≫ (Reindex.compIsoApp χ f g y).hom =
       (Reindex.compIsoApp χ f g x).hom ≫
-        (f⁎[χ] ⋙ g⁎[χ]).map φ := sorry
-/- Proof strategy: forget both morphisms to `S`, postcompose with the iterated cartesian
-arrow, and use `reindexMap.fac` and `Reindex.compIsoApp.hom.fac`; cartesian uniqueness
-then proves equality in the fiber. -/
+        (f⁎[χ] ⋙ g⁎[χ]).map φ := by
+  apply comp_hom_ext χ f g y
+  change
+    ((((g ≫ f)⁎[χ]).map φ).1 ≫ (Reindex.compIsoApp χ f g y).hom.1) ≫
+        χ.cartesianHom g (f⁎[χ] y) ≫ χ.cartesianHom f y =
+      ((Reindex.compIsoApp χ f g x).hom.1 ≫
+        ((g⁎[χ]).map ((f⁎[χ]).map φ)).1) ≫
+        χ.cartesianHom g (f⁎[χ] y) ≫ χ.cartesianHom f y
+  simp only [Category.assoc]
+  calc
+    (((g ≫ f)⁎[χ]).map φ).1 ≫ (Reindex.compIsoApp χ f g y).hom.1 ≫
+        χ.cartesianHom g (f⁎[χ] y) ≫ χ.cartesianHom f y =
+        (((g ≫ f)⁎[χ]).map φ).1 ≫ χ.cartesianHom (g ≫ f) y :=
+      congrArg ((((g ≫ f)⁎[χ]).map φ).1 ≫ ·) (Reindex.compIsoApp.hom.fac χ f g y)
+    _ = χ.cartesianHom (g ≫ f) x ≫ φ.1 := reindex_map_fac χ (g ≫ f) φ
+    _ = (Reindex.compIsoApp χ f g x).hom.1 ≫ χ.cartesianHom g (f⁎[χ] x) ≫
+        χ.cartesianHom f x ≫ φ.1 :=
+      (Reindex.compIsoApp.hom.fac_assoc χ f g x φ.1).symm
+    _ = (Reindex.compIsoApp χ f g x).hom.1 ≫ χ.cartesianHom g (f⁎[χ] x) ≫
+        ((f⁎[χ]).map φ).1 ≫ χ.cartesianHom f y :=
+      congrArg (fun k ↦ (Reindex.compIsoApp χ f g x).hom.1 ≫
+        χ.cartesianHom g (f⁎[χ] x) ≫ k) (reindex_map_fac χ f φ).symm
+    _ = (Reindex.compIsoApp χ f g x).hom.1 ≫ ((g⁎[χ]).map ((f⁎[χ]).map φ)).1 ≫
+        χ.cartesianHom g (f⁎[χ] y) ≫ χ.cartesianHom f y :=
+      congrArg ((Reindex.compIsoApp χ f g x).hom.1 ≫ ·)
+        ((Category.assoc _ _ _).symm.trans
+          (reindex_map_fac_assoc χ g ((f⁎[χ]).map φ) (χ.cartesianHom f y)).symm)
 
 /-- Inverse naturality of the componentwise composition comparison. This is the rewrite
 orientation used when a morphism has already been reindexed successively. -/
@@ -113,7 +191,10 @@ theorem Reindex.compIsoApp.inv.naturality
     {x y : Fiber p U} (φ : x ⟶ y) :
     (f⁎[χ] ⋙ g⁎[χ]).map φ ≫ (Reindex.compIsoApp χ f g y).inv =
       (Reindex.compIsoApp χ f g x).inv ≫
-        ((g ≫ f)⁎[χ]).map φ := sorry
+        ((g ≫ f)⁎[χ]).map φ := by
+  exact (NatIso.ofComponents (F := (g ≫ f)⁎[χ]) (G := f⁎[χ] ⋙ g⁎[χ])
+    (Reindex.compIsoApp χ f g)
+    (fun ψ ↦ Reindex.compIsoApp.hom.naturality χ f g ψ)).inv.naturality φ
 
 /-- For composable `f : V ⟶ U` and `g : W ⟶ V`, a cleavage provides the canonical comparison
 `(g ≫ f)⁎[χ] ≅ f⁎[χ] ⋙ g⁎[χ]`. -/
@@ -129,14 +210,14 @@ objectwise comparison. -/
 @[simp]
 theorem Reindex.compIso.hom.app
     {U V W : C} (f : V ⟶ U) (g : W ⟶ V) (x : Fiber p U) :
-    (Reindex.compIso χ f g).hom.app x = (Reindex.compIsoApp χ f g x).hom := sorry
+    (Reindex.compIso χ f g).hom.app x = (Reindex.compIsoApp χ f g x).hom := rfl
 
 /-- The inverse component of the bundled composition comparison is its named
 objectwise comparison. -/
 @[simp]
 theorem Reindex.compIso.inv.app
     {U V W : C} (f : V ⟶ U) (g : W ⟶ V) (x : Fiber p U) :
-    (Reindex.compIso χ f g).inv.app x = (Reindex.compIsoApp χ f g x).inv := sorry
+    (Reindex.compIso χ f g).inv.app x = (Reindex.compIsoApp χ f g x).inv := rfl
 
 /-- The composition comparison is uniquely characterized by its cartesian factorization. -/
 theorem Reindex.compIso.unique
@@ -145,9 +226,13 @@ theorem Reindex.compIso.unique
     (hα : ∀ x : Fiber p U,
       (α.hom.app x).1 ≫ χ.cartesianHom g (f⁎[χ] x) ≫ χ.cartesianHom f x =
         χ.cartesianHom (g ≫ f) x) :
-    α = Reindex.compIso χ f g := sorry
-/- Proof strategy: ext objectwise, forget to `S`, and apply cartesian uniqueness after
-postcomposing both candidates with the iterated cartesian arrow. -/
+    α = Reindex.compIso χ f g := by
+  apply Iso.ext
+  apply NatTrans.ext
+  apply funext
+  intro x
+  apply comp_hom_ext χ f g x
+  exact (hα x).trans (Reindex.compIsoApp.hom.fac χ f g x).symm
 
 end Functor.Cleavage
 

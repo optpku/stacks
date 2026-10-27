@@ -35,7 +35,7 @@ theorem liftConormal_isIsomorphic
     {T : Scheme.{u}} [HasZeroMorphisms T.Modules] [HasKernels T.Modules]
     (π : P ⟶ X) (hπ : Representation π ℰ) (f : T ⟶ X) (σ : Lift π f) :
     IsIsomorphic
-      (CategoryTheory.InvertibleQuotient.conormalObject (hπ.liftEquiv f σ))
+      (CategoryTheory.InvertibleQuotient.conormalObject (hπ.liftSourceQuotient f σ))
       (Scheme.Hom.conormalSheaf σ.baseChangeSection) := sorry
 
 /-- The kernel of the quotient classified by a projective-bundle section, tensored with the

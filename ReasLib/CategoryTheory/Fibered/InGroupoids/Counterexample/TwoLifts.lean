@@ -48,14 +48,17 @@ def comp : {X Y Z : Obj} → Hom X Y → Hom Y Z → Hom X Z
   | _, _, _, f₂, g => h
 
 /-- Left identity for the explicit source composition. -/
-theorem id_comp {X Y : Obj} (k : Hom X Y) : comp (id X) k = k := sorry
+theorem id_comp {X Y : Obj} (k : Hom X Y) : comp (id X) k = k := by
+  rfl
 
 /-- Right identity for the explicit source composition. -/
-theorem comp_id {X Y : Obj} (k : Hom X Y) : comp k (id Y) = k := sorry
+theorem comp_id {X Y : Obj} (k : Hom X Y) : comp k (id Y) = k := by
+  cases k <;> rfl
 
 /-- Associativity for the explicit source composition. -/
 theorem assoc {W X Y Z : Obj} (k : Hom W X) (l : Hom X Y) (m : Hom Y Z) :
-    comp (comp k l) m = comp k (comp l m) := sorry
+    comp (comp k l) m = comp k (comp l m) := by
+  cases k <;> cases l <;> cases m <;> rfl
 
 end Hom
 
@@ -83,11 +86,13 @@ def homMap : {X Y : Obj} → Hom X Y → (objMap X ⟶ objMap Y)
   | _, _, Hom.h => WalkingComposablePair.Hom.h
 
 /-- The competing-lifts projection preserves identities. -/
-theorem projectionMapId (X : Obj) : homMap (𝟙 X) = 𝟙 (objMap X) := sorry
+theorem projectionMapId (X : Obj) : homMap (𝟙 X) = 𝟙 (objMap X) := by
+  rfl
 
 /-- The competing-lifts projection preserves composition. -/
 theorem projectionMapComp {X Y Z : Obj} (k : X ⟶ Y) (l : Y ⟶ Z) :
-    homMap (k ≫ l) = homMap k ≫ homMap l := sorry
+    homMap (k ≫ l) = homMap k ≫ homMap l := by
+  cases k <;> cases l <;> rfl
 
 /-- The explicit projection with two competing lifts of `WalkingComposablePair.Hom.f`. -/
 def projection : Obj ⥤ WalkingComposablePair where
@@ -101,19 +106,46 @@ def projection : Obj ⥤ WalkingComposablePair where
 data are the displayed finite pattern matches, with no chosen witness. -/
 
 /-- Every standard fibre of the competing-lifts projection is a groupoid. -/
-instance fiberIsGroupoid (U : WalkingComposablePair) : IsGroupoid (projection.Fiber U) := sorry
+instance fiberIsGroupoid (U : WalkingComposablePair) : IsGroupoid (projection.Fiber U) where
+  all_isIso := by
+    intro X Y k
+    have hinj : Function.Injective objMap := by
+      intro X Y h
+      cases X <;> cases Y <;> cases h <;> rfl
+    have hXY : X = Y := by
+      exact Subtype.ext (hinj (X.property.trans Y.property.symm))
+    subst Y
+    have h : ∀ {Z : Obj} (l : Hom Z Z), l = Hom.id Z := by
+      intro Z l
+      cases Z <;> cases l <;> rfl
+    have hk : k = 𝟙 X := Subtype.ext (h (Z := X.val) k.val)
+    rw [hk]
+    infer_instance
 
 /-- The first named arrow is a lift of `WalkingComposablePair.Hom.f`. -/
-theorem f₁IsHomLift : projection.IsHomLift WalkingComposablePair.Hom.f Hom.f₁ := sorry
+theorem f₁IsHomLift : projection.IsHomLift WalkingComposablePair.Hom.f Hom.f₁ := by
+  exact Functor.IsHomLift.map (p := projection) (a := Obj.A') (b := Obj.B') Hom.f₁
 
 /-- The second named arrow is a lift of `WalkingComposablePair.Hom.f`. -/
-theorem f₂IsHomLift : projection.IsHomLift WalkingComposablePair.Hom.f Hom.f₂ := sorry
+theorem f₂IsHomLift : projection.IsHomLift WalkingComposablePair.Hom.f Hom.f₂ := by
+  exact Functor.IsHomLift.map (p := projection) (a := Obj.A') (b := Obj.B') Hom.f₂
 
 /-- The two named lifts of `WalkingComposablePair.Hom.f` are distinct. -/
-theorem f₁_ne_f₂ : (Hom.f₁ : Hom .A' .B') ≠ Hom.f₂ := sorry
+theorem f₁_ne_f₂ : (Hom.f₁ : Hom .A' .B') ≠ Hom.f₂ := by
+  intro h
+  cases h
 
 /-- The competing-lifts projection is not fibred in groupoids. -/
-theorem notInGroupoids : ¬ Functor.IsFibered.InGroupoids projection := sorry
+theorem notInGroupoids : ¬ Functor.IsFibered.InGroupoids projection := by
+  intro hp
+  letI : projection.IsHomLift WalkingComposablePair.Hom.f Hom.f₂ := f₂IsHomLift
+  letI : projection.IsCartesian WalkingComposablePair.Hom.f Hom.f₁ :=
+    hp.all_isCartesian Hom.f₁
+  obtain ⟨χ, ⟨_, hχ⟩, _⟩ :=
+    IsCartesian.universal_property (p := projection)
+      (f := WalkingComposablePair.Hom.f) (φ := Hom.f₁) Hom.f₂
+  cases χ
+  exact f₁_ne_f₂ hχ
 
 end TwoLifts
 

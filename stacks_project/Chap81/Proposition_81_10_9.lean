@@ -6,9 +6,8 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import ReasLib.CategoryTheory.Functor.Equivalence.QuasiInverse.Basic
-public import stacks_project.Chap81.Lemma_81_10_7_Reverse
-public import stacks_project.Chap81.Situation_81_10_6_FormalGlueing
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Quasicoherent.FormalGlueing.Equivalence
+import StacksCheckRecall
 
 /-!
 # Proposition 81.10.9
@@ -29,43 +28,39 @@ universe u
 namespace AlgebraicGeometry.AlgebraicSpace.QCoh
 namespace FormalGlueing
 
-/-- Proposition 81.10.9 (1): In Situation 81.10.6 the functor sending `F` to
+/- Proposition 81.10.9 (1): In Situation 81.10.6 the functor sending `F` to
 `(F|_U, f^* F, can)` is an equivalence `QCoh X ⥤ category f i`. -/
-@[stacks 0AF0, instance]
-instance functor_isEquivalence {S : Scheme.{u}} {X Y Z : AlgebraicSpace S}
+@[stacks 0AF0]
+#check (AlgebraicGeometry.AlgebraicSpace.QCoh.FormalGlueing.functor_isEquivalence :
+  ∀ {S : Scheme.{u}} {X Y Z : AlgebraicSpace S}
     (f : Y ⟶ X) (i : Z ⟶ X)
     [QuasiCompact f] [QuasiSeparated f] [IsClosedImmersion i] [FinitePresentation i]
-    [IsFormalGlueing f i] :
-    (functor f i).IsEquivalence :=
-  sorry
+    [IsFormalGlueing f i], (functor f i).IsEquivalence)
 
-/-- Proposition 81.10.9 (2): In Situation 81.10.6 the quasi-inverse of this
+/- Proposition 81.10.9 (2): In Situation 81.10.6 the quasi-inverse of this
 glueing functor is the reverse functor sending `(H, G, φ)` to
 `kernel (j_* H ⊞ f_* G ⟶ (f ∘ j')_* (G|_V))`. -/
 @[stacks 0AF0]
-theorem reverse_isQuasiInverse {S : Scheme.{u}} {X Y Z : AlgebraicSpace S}
+#check (AlgebraicGeometry.AlgebraicSpace.QCoh.FormalGlueing.reverse_isQuasiInverse :
+  ∀ {S : Scheme.{u}} {X Y Z : AlgebraicSpace S}
     (f : Y ⟶ X) (i : Z ⟶ X)
     [QuasiCompact f] [QuasiSeparated f] [IsClosedImmersion i] [FinitePresentation i]
-    [IsFormalGlueing f i] :
-    (functor f i).IsQuasiInverse (reverse f i) :=
-  sorry
+    [IsFormalGlueing f i], (functor f i).IsQuasiInverse (reverse f i))
 
-/-- The unit of `functor ⊣ reverse` is an isomorphism (the source map `α`). -/
-instance unit_isIso {S : Scheme.{u}} {X Y Z : AlgebraicSpace S}
+/- The unit of `functor ⊣ reverse` is an isomorphism (the source map `α`). -/
+#check (AlgebraicGeometry.AlgebraicSpace.QCoh.FormalGlueing.unit_isIso :
+  ∀ {S : Scheme.{u}} {X Y Z : AlgebraicSpace S}
     (f : Y ⟶ X) (i : Z ⟶ X)
     [QuasiCompact f] [QuasiSeparated f] [IsClosedImmersion i] [FinitePresentation i]
-    [IsFormalGlueing f i] :
-    IsIso (unit f i) :=
-  sorry
+    [IsFormalGlueing f i], IsIso (unit f i))
 
-/-- The counit of `functor ⊣ reverse` is an isomorphism (the source maps `β`
+/- The counit of `functor ⊣ reverse` is an isomorphism (the source maps `β`
 and `γ`). -/
-instance counit_isIso {S : Scheme.{u}} {X Y Z : AlgebraicSpace S}
+#check (AlgebraicGeometry.AlgebraicSpace.QCoh.FormalGlueing.counit_isIso :
+  ∀ {S : Scheme.{u}} {X Y Z : AlgebraicSpace S}
     (f : Y ⟶ X) (i : Z ⟶ X)
     [QuasiCompact f] [QuasiSeparated f] [IsClosedImmersion i] [FinitePresentation i]
-    [IsFormalGlueing f i] :
-    IsIso (counit f i) :=
-  sorry
+    [IsFormalGlueing f i], IsIso (counit f i))
 
 end FormalGlueing
 end AlgebraicGeometry.AlgebraicSpace.QCoh

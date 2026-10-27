@@ -55,8 +55,11 @@ theorem restrict_mem_compactSupportSections
     (g : W ⟶ V) (σ : compactSupportSections f F V) :
     (F.obj.map ((smallEtalePullback f).map g).op)
         ((compactSupportSections f F V).subtype σ) ∈
-      compactSupportSections f F W :=
-  sorry
+      compactSupportSections f F W := by
+  apply (mem_properSupportSections_iff f F W _).mpr
+  exact properSupportSubfunctor_map f F g.op
+    ((compactSupportSections f F V).subtype σ)
+    ((mem_properSupportSections_iff f F V _).mp σ.property)
 
 /-- Restriction of compactly supported sections along a morphism of étale
 `Y`-schemes. -/
@@ -76,8 +79,21 @@ theorem sheafHom_mem_compactSupportSections
     (V : Y.Etale) (σ : compactSupportSections f F V) :
     (α.hom.app (op ((smallEtalePullback f).obj V)))
         ((compactSupportSections f F V).subtype σ) ∈
-      compactSupportSections f G V :=
-  sorry
+      compactSupportSections f G V := by
+  letI : LocallyOfFiniteType (pullback.fst V.hom f) :=
+    MorphismProperty.pullback_fst V.hom f (inferInstance : LocallyOfFiniteType f)
+  change ClosedSubset.IsProperOver (pullback.fst V.hom f)
+    (abelianSheafSectionSupport G ((smallEtalePullback f).obj V)
+      ((α.hom.app (op ((smallEtalePullback f).obj V))).hom
+        ((compactSupportSections f F V).subtype σ)))
+  letI : ClosedSubset.IsProperOver (pullback.fst V.hom f)
+      (abelianSheafSectionSupport F ((smallEtalePullback f).obj V)
+        ((compactSupportSections f F V).subtype σ)) :=
+    (mem_properSupportSections_iff f F V
+      ((compactSupportSections f F V).subtype σ)).mp σ.property
+  exact ClosedSubset.IsProperOver.mono
+    (abelianSheafSectionSupport_map_subset α ((smallEtalePullback f).obj V)
+      ((compactSupportSections f F V).subtype σ))
 
 /-- The map on compactly supported sections induced by a morphism of abelian
 étale sheaves. -/
@@ -94,7 +110,12 @@ def compactSupportSectionsSheafHom
 theorem compactSupportSectionsRestrict_id
     (F : Sheaf X.smallEtaleTopology AddCommGrpCat.{u}) (V : Y.Etaleᵒᵖ) :
     AddCommGrpCat.ofHom (compactSupportSectionsRestrict f F (𝟙 V).unop) =
-      𝟙 (AddCommGrpCat.of (compactSupportSections f F V.unop)) := sorry
+      𝟙 (AddCommGrpCat.of (compactSupportSections f F V.unop)) := by
+  apply ConcreteCategory.hom_ext
+  intro σ
+  apply Subtype.ext
+  change (F.obj.map ((smallEtalePullback f).map (𝟙 V).unop).op) σ.val = σ.val
+  simp
 
 /-- Restriction of compactly supported sections respects composition. -/
 theorem compactSupportSectionsRestrict_comp
@@ -102,7 +123,14 @@ theorem compactSupportSectionsRestrict_comp
     (g : U ⟶ V) (h : V ⟶ W) :
     AddCommGrpCat.ofHom (compactSupportSectionsRestrict f F (g ≫ h).unop) =
       AddCommGrpCat.ofHom (compactSupportSectionsRestrict f F g.unop) ≫
-        AddCommGrpCat.ofHom (compactSupportSectionsRestrict f F h.unop) := sorry
+        AddCommGrpCat.ofHom (compactSupportSectionsRestrict f F h.unop) := by
+  apply ConcreteCategory.hom_ext
+  intro σ
+  apply Subtype.ext
+  change (F.obj.map ((smallEtalePullback f).map (g ≫ h).unop).op) σ.val =
+    (F.obj.map ((smallEtalePullback f).map h.unop).op)
+      ((F.obj.map ((smallEtalePullback f).map g.unop).op) σ.val)
+  simp
 
 /-- The maps on compactly supported sections induced by a sheaf morphism commute
 with restriction. -/
@@ -112,7 +140,12 @@ theorem compactSupportSectionsSheafHom_restrict
     AddCommGrpCat.ofHom (compactSupportSectionsRestrict f F g.unop) ≫
         AddCommGrpCat.ofHom (compactSupportSectionsSheafHom f α W.unop) =
       AddCommGrpCat.ofHom (compactSupportSectionsSheafHom f α V.unop) ≫
-        AddCommGrpCat.ofHom (compactSupportSectionsRestrict f G g.unop) := sorry
+        AddCommGrpCat.ofHom (compactSupportSectionsRestrict f G g.unop) := by
+  apply ConcreteCategory.hom_ext
+  intro σ
+  apply Subtype.ext
+  exact ConcreteCategory.congr_hom
+    (α.hom.naturality ((smallEtalePullback f).map g.unop).op) σ.val
 
 /-- The compact-support presheaf of an abelian étale sheaf, sending `V` to the
 group of sections of `F` on `X_V` with support proper over `V`. -/
@@ -150,13 +183,25 @@ def etaleLowerShriekMap
 
 /-- The map on compact-support sheaves induced by an identity is the identity. -/
 theorem etaleLowerShriekMap_id (F : Sheaf X.smallEtaleTopology AddCommGrpCat.{u}) :
-    etaleLowerShriekMap f (𝟙 F) = 𝟙 (etaleLowerShriekObj f F) := sorry
+    etaleLowerShriekMap f (𝟙 F) = 𝟙 (etaleLowerShriekObj f F) := by
+  apply Sheaf.hom_ext
+  apply NatTrans.ext
+  funext V
+  apply ConcreteCategory.hom_ext
+  intro σ
+  rfl
 
 /-- The maps on compact-support sheaves respect composition of coefficient morphisms. -/
 theorem etaleLowerShriekMap_comp
     {F G H : Sheaf X.smallEtaleTopology AddCommGrpCat.{u}} (α : F ⟶ G) (β : G ⟶ H) :
     etaleLowerShriekMap f (α ≫ β) =
-      etaleLowerShriekMap f α ≫ etaleLowerShriekMap f β := sorry
+      etaleLowerShriekMap f α ≫ etaleLowerShriekMap f β := by
+  apply Sheaf.hom_ext
+  apply NatTrans.ext
+  funext V
+  apply ConcreteCategory.hom_ext
+  intro σ
+  rfl
 
 /-- Direct image with compact support `f_!` on abelian sheaves on the small étale
 site, for a separated locally finite-type morphism. -/
@@ -173,8 +218,7 @@ compactly supported sections. -/
 theorem etaleLowerShriek_obj (F : Sheaf X.smallEtaleTopology AddCommGrpCat.{u})
     (V : Y.Etale) :
     ((etaleLowerShriek f).obj F).obj.obj (op V) =
-      AddCommGrpCat.of (compactSupportSections f F V) :=
-  sorry
+      AddCommGrpCat.of (compactSupportSections f F V) := rfl
 
 /-- Inclusion of compactly supported sections into all sections commutes with restriction. -/
 theorem compactSupportSectionsSubtype_restrict
@@ -183,7 +227,10 @@ theorem compactSupportSectionsSubtype_restrict
     AddCommGrpCat.ofHom (compactSupportSectionsRestrict f F g.unop) ≫
         AddCommGrpCat.ofHom (compactSupportSections f F W.unop).subtype =
       AddCommGrpCat.ofHom (compactSupportSections f F V.unop).subtype ≫
-        F.obj.map ((smallEtalePullback f).map g.unop).op := sorry
+        F.obj.map ((smallEtalePullback f).map g.unop).op := by
+  apply ConcreteCategory.hom_ext
+  intro σ
+  rfl
 
 /-- The inclusion of the compact-support sheaf into the ordinary étale direct image. -/
 def etaleLowerShriekιApp (F : Sheaf X.smallEtaleTopology AddCommGrpCat.{u}) :
@@ -200,7 +247,13 @@ theorem etaleLowerShriekιApp_naturality
     etaleLowerShriekMap f α ≫ etaleLowerShriekιApp f G =
       etaleLowerShriekιApp f F ≫
         ((smallEtalePullback f).sheafPushforwardContinuous AddCommGrpCat.{u}
-          Y.smallEtaleTopology X.smallEtaleTopology).map α := sorry
+          Y.smallEtaleTopology X.smallEtaleTopology).map α := by
+  apply Sheaf.hom_ext
+  apply NatTrans.ext
+  funext V
+  apply ConcreteCategory.hom_ext
+  intro σ
+  rfl
 
 /-- The canonical inclusion `f_! ⟶ f_*` of the compact-support subfunctor into
 ordinary small-étale pushforward. -/
@@ -216,8 +269,7 @@ theorem etaleLowerShriekι_app_apply
     (F : Sheaf X.smallEtaleTopology AddCommGrpCat.{u}) (V : Y.Etale)
     (σ : compactSupportSections f F V) :
     ((etaleLowerShriekι f).app F).hom.app (op V) σ =
-      (compactSupportSections f F V).subtype σ :=
-  sorry
+      (compactSupportSections f F V).subtype σ := rfl
 
 /-- A pushforward section lies in the image of `etaleLowerShriekι` if and only
 if it has proper support over the base. -/
@@ -226,11 +278,29 @@ theorem mem_range_etaleLowerShriekι_app_iff
     (σ : F.obj.obj (op ((smallEtalePullback f).obj V))) :
     (∃ τ : compactSupportSections f F V,
         ((etaleLowerShriekι f).app F).hom.app (op V) τ = σ) ↔
-      HasProperSupport f F V σ :=
-  sorry
+      HasProperSupport f F V σ := by
+  constructor
+  · rintro ⟨τ, hτ⟩
+    rw [etaleLowerShriekι_app_apply f F V τ] at hτ
+    rw [← hτ]
+    exact (mem_properSupportSections_iff f F V _).mp τ.property
+  · intro hσ
+    let τ : compactSupportSections f F V :=
+      ⟨σ, (mem_properSupportSections_iff f F V σ).mpr hσ⟩
+    refine ⟨τ, ?_⟩
+    exact etaleLowerShriekι_app_apply f F V τ
 
 /-- The compact-support inclusion `f_! ⟶ f_*` is a monomorphism. -/
-instance etaleLowerShriekι_mono : Mono (etaleLowerShriekι f) := sorry
+instance etaleLowerShriekι_mono : Mono (etaleLowerShriekι f) := by
+  haveI : ∀ F, Mono ((etaleLowerShriekι f).app F) := by
+    intro F
+    haveI : ∀ V, Mono (((etaleLowerShriekι f).app F).hom.app V) := by
+      intro V
+      exact ConcreteCategory.mono_of_injective _ Subtype.val_injective
+    haveI : Mono ((etaleLowerShriekι f).app F).hom :=
+      NatTrans.mono_of_mono_app _
+    exact Sheaf.Hom.mono_of_presheaf_mono _ _ _
+  exact NatTrans.mono_of_mono_app _
 
 end AlgebraicGeometry.Scheme.Etale
 

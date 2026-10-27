@@ -20,11 +20,14 @@ namespace AlgebraicGeometry.Scheme.Modules
 
 /- Lemma 38.4.3: a finite-type quasicoherent module on a locally finite-type scheme
 morphism admits, after elementary étale refinement of the source and base at the chosen
-point, a one-step dévissage of its pullback at the refined ambient point. -/
+point, a one-step dévissage of its pullback at the refined ambient point, provided the
+local fibre-support dimension is a natural number. This boundary condition excludes empty
+support, for which the dimension is `⊥` and no such dévissage exists. -/
 @[stacks 05H6] #check
   (AlgebraicGeometry.Scheme.Modules.exists_oneStepDevissageAtAmbientPoint :
     ∀ {X S : Scheme.{u}} (f : X ⟶ S) [LocallyOfFiniteType f] (ℱ : X.Modules)
-      [h_quasicoherent : ℱ.IsQuasicoherent] [h_finiteType : ℱ.IsFiniteType] (x : X),
+      [h_quasicoherent : ℱ.IsQuasicoherent] [h_finiteType : ℱ.IsFiniteType] (x : X)
+      (h_dim : ∃ n : ℕ, ambientFiberSupportDimensionAt f ℱ x = (n : WithBot ℕ∞)),
       ∃ U : EtaleNeighborhood.Elementary X x,
         let X' := U.obj
         let ℱ' := (Scheme.Modules.pullback X'.toEtale.hom).obj ℱ

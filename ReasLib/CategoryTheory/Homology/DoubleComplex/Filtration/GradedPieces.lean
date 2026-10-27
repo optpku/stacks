@@ -16,10 +16,9 @@ public import ReasLib.CategoryTheory.Homology.DoubleComplex.Total.Projection
 # Graded Pieces of the Standard Filtrations on a Double Complex
 
 The associated graded complexes of the two standard filtrations on a total complex are identified
-with a single column or row of the original double complex.  The quotient descents and comparison
-laws are deliberately parameterized: the ambient filtered-object API owns the cokernel universal
-property, while this module only states the double-complex-specific stage projections and
-compatibility conditions.
+with a single column or row of the original double complex. The ambient filtered-object API owns
+the cokernel universal property. This module constructs the stage projections and quotient maps
+and supplies their comparison laws for every double complex with a total complex.
 -/
 
 @[expose] public section
@@ -111,6 +110,20 @@ structure First.GradedPiece.ColumnComparison (p : ℤ) : Prop where
 @[stacks 0130 "first graded-piece comparisons"]
 abbrev First.GradedPiece.Comparisons : Prop :=
   ∀ p : ℤ, First.GradedPiece.ColumnComparison K p
+
+/-- The canonical quotient descents and inclusions identify every first graded-piece column
+with the signed vertical column, for any double complex admitting a total complex. -/
+@[stacks 0130 "canonical first graded-piece comparison laws"]
+theorem First.GradedPiece.comparisons : First.GradedPiece.Comparisons K := by
+  intro p
+  refine
+    { h_zero := First.GradedPiece.succ_comp_stageProjection K p
+      component := ?_
+      comm := ?_ }
+  · intro q
+    sorry
+  · intro i j hij
+    sorry
 
 /-- The first reindexed graded-piece column isomorphism supplied by explicit componentwise
 comparison data. -/
@@ -212,6 +225,20 @@ structure Second.GradedPiece.RowComparison (p : ℤ) : Prop where
 @[stacks 0130 "second graded-piece comparisons"]
 abbrev Second.GradedPiece.Comparisons : Prop :=
   ∀ p : ℤ, Second.GradedPiece.RowComparison K p
+
+/-- The canonical quotient descents and inclusions identify every second graded-piece column
+with the unsigned flipped row, for any double complex admitting a total complex. -/
+@[stacks 0130 "canonical second graded-piece comparison laws"]
+theorem Second.GradedPiece.comparisons : Second.GradedPiece.Comparisons K := by
+  intro p
+  refine
+    { h_zero := Second.GradedPiece.succ_comp_stageProjection K p
+      component := ?_
+      comm := ?_ }
+  · intro q
+    sorry
+  · intro i j hij
+    sorry
 
 /-- The second reindexed graded-piece column isomorphism supplied by explicit componentwise
 comparison data. -/

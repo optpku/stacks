@@ -39,7 +39,7 @@ variable [IsFirstOrderThickening π]
 variable [(SheafOfModules.restrictScalars (ringSheafMap π)).IsRightAdjoint]
 variable [HasExt (ringedSiteModuleCategory.{u, v, max u v, max u v} J 𝒪)]
 
-#check (SheafOfModules.RingedSite.FirstOrderThickening.mapObstruction :
+#check (SheafOfModules.RingedSite.FirstOrderThickening.Extension.mapObstruction :
   (E E' : Extension π) → (φ : E.quot ⟶ E'.quot) → (ψ : E.kernel ⟶ E'.kernel) →
     infMapCommSq E E' φ ψ → Ext E.quot E'.kernel 1)
 

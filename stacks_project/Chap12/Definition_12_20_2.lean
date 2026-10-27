@@ -64,7 +64,8 @@ degeneration predicate. -/
 
 section InfinityPage
 
-variable [CompleteLattice (Subobject E⟦1,pq⟧)]
+variable [LocallySmall.{v} C] [WellPowered.{v} C]
+  [HasWidePullbacks.{v} C] [HasCoproducts.{v} C]
 
 #check (E.cycleInfinity pq : Subobject (E⟦1, pq⟧))
 #check (E.boundaryInfinity pq : Subobject (E⟦1, pq⟧))

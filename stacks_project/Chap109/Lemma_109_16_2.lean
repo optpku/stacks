@@ -6,9 +6,8 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap108.Lemma_108_8_5_Smooth
-public import stacks_project.Chap109.Lemma_109_7_3_Substack
-public import stacks_project.Chap109.Lemma_109_16_1_Substack
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Curve.Smooth.StructureMorphism
+import StacksCheckRecall
 
 /-!
 # Smooth curves as a stack
@@ -30,20 +29,14 @@ namespace AlgebraicGeometry.AlgebraicSpace
 namespace Spaces
 namespace Curves
 
-/-- The full subcategory of `𝒞urves` cut out by `smooth` is fibred in
-groupoids over `Over S`. -/
-instance instIsFiberedInGroupoids_smooth (S : Scheme.{u}) :
-    Functor.IsFibered.InGroupoids ((smooth S).ι ⋙ p S) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.instIsFiberedInGroupoids_smooth :
+  ∀ (S : Scheme.{u}), Functor.IsFibered.InGroupoids ((smooth S).ι ⋙ p S))
 
-/-- Lemma 109.16.2: the morphism `𝒞urves^{smooth} ⟶ Spec(Z)`, namely
-`inclusionOf (smooth S) ≫ CohStack.toIdentitySlice (toGroupoids S)`, is
-smooth. -/
-@[stacks 0E1N]
-instance instSmooth_smooth (S : Scheme.{u}) :
-    CohStack.Hom.Smooth
-      (inclusionOf (smooth S) ≫ CohStack.toIdentitySlice (toGroupoids S)) :=
-  sorry
+/- Lemma 109.16.2: the morphism `𝒞urves^{smooth} ⟶ Spec(Z)` is smooth;
+after base change, the smooth-curve stack over `S` is smooth over `S`. -/
+@[stacks 0E1N] #check (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.instSmooth_smooth :
+  ∀ (S : Scheme.{u}), CohStack.Hom.Smooth
+    (inclusionOf (smooth S) ≫ CohStack.toIdentitySlice (toGroupoids S)))
 
 end Curves
 end Spaces

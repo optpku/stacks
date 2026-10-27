@@ -87,7 +87,7 @@ theorem singleton_tensor_degree_one_D1_postcompose_normalize {A : Type u} [CommR
       ((koszulComplexOn (R := A) (Fin.cons r (Fin.elim0 : Fin 0 → A))).d 1 0))
   rw [hsmul, one_smul]
   simpa [f, HomologicalComplex.tensorObj, HomologicalComplex.ιTensorObj,
-    ChainComplex.single₀_obj_zero] using
+    ChainComplex.single₀_obj_zero] using!
     congrArg
       (fun f =>
         (((curriedTensor (ModuleCat A)).map
@@ -115,7 +115,7 @@ theorem singleton_tensor_degree_one_D1_component_eq_mapped_base_d {A : Type u} [
   dsimp
   -- Proof comment: unfold `ιTensorObj` back to `ιMapBifunctor`, then apply the reassociated
   -- `ι_D₁` rewrite and finish with the raw normalization lemma.
-  simpa [HomologicalComplex.ιTensorObj, Category.assoc] using
+  simpa [HomologicalComplex.ιTensorObj, Category.assoc] using!
     (show
       HomologicalComplex.ιMapBifunctor
           (koszulComplexOn (R := A) (Fin.cons r (Fin.elim0 : Fin 0 → A)))
@@ -165,7 +165,7 @@ theorem singleton_tensor_degree_one_D2_component_eq_zero {A : Type u} [CommRing 
           ((ChainComplex.single₀ (ModuleCat A)).obj (ModuleCat.of A M))
           (curriedTensor (ModuleCat A)) (ComplexShape.down ℕ) 1 0 0 ≫
         (koszul_singleton_tensor_X_iso_tensorRight (A := A) (M := M) (r := r) 0).hom := by
-            simpa [HomologicalComplex.ιTensorObj, Category.assoc] using
+            simpa [HomologicalComplex.ιTensorObj, Category.assoc] using!
               congrArg
                 (fun f =>
                   f ≫
@@ -253,7 +253,7 @@ theorem singleton_tensor_degree_one_surviving_summand_transport {A : Type u} [Co
               (A := A) (M := M) (r := r)]
             rw [singleton_tensor_degree_one_D2_component_eq_zero
               (A := A) (M := M) (r := r)]
-            simpa using add_zero
+            exact add_zero
               ((((tensoringRight (ModuleCat A)).obj (ModuleCat.of A M)).map
                 ((koszulComplexOn (R := A) (Fin.cons r (Fin.elim0 : Fin 0 → A))).d 1 0)))
 
@@ -310,7 +310,7 @@ theorem koszul_singleton_tensor_collapse_commutes_with_differential {A : Type u}
             HomologicalComplex.mapBifunctor.d₁ K S (curriedTensor (ModuleCat A))
               (ComplexShape.down ℕ) 0 1 0 ≫
             (koszul_singleton_tensor_X_iso_tensorRight (A := A) (M := M) (r := r) 0).hom := by
-              simpa [HomologicalComplex.ιTensorObj, Category.assoc] using
+              simpa only [HomologicalComplex.ιTensorObj, Category.assoc] using!
                 congrArg
                   (fun f =>
                     f ≫
@@ -341,7 +341,7 @@ theorem koszul_singleton_tensor_collapse_commutes_with_differential {A : Type u}
             HomologicalComplex.mapBifunctor.d₂ K S (curriedTensor (ModuleCat A))
               (ComplexShape.down ℕ) 0 1 0 ≫
             (koszul_singleton_tensor_X_iso_tensorRight (A := A) (M := M) (r := r) 0).hom := by
-              simpa [HomologicalComplex.ιTensorObj, Category.assoc] using
+              simpa only [HomologicalComplex.ιTensorObj, Category.assoc] using!
                 congrArg
                   (fun f =>
                     f ≫
@@ -409,7 +409,7 @@ theorem koszul_singleton_tensor_collapse_commutes_with_differential {A : Type u}
             (koszul_singleton_tensor_X_iso_tensorRight (A := A) (M := M) (r := r) 1).hom ≫
             (((tensoringRight (ModuleCat A)).obj (ModuleCat.of A M)).map (K.d 1 0)) =
           (((tensoringRight (ModuleCat A)).obj (ModuleCat.of A M)).map (K.d 1 0)) := by
-      simpa using
+      simpa using!
         congrArg
           (fun f =>
             f ≫ (((tensoringRight (ModuleCat A)).obj (ModuleCat.of A M)).map (K.d 1 0)))
@@ -417,7 +417,7 @@ theorem koszul_singleton_tensor_collapse_commutes_with_differential {A : Type u}
             (A := A) (M := M) (r := r) 1)
     exact hleft_survive.trans <|
       by
-        simpa [K, S, T] using
+        simpa [K, S, T] using!
           (singleton_tensor_degree_one_surviving_summand_transport
             (A := A) (M := M) (r := r)).symm
 
@@ -455,7 +455,7 @@ theorem singleton_tensor_mapped_base_differential_eq_smul_shortComplex {A : Type
             (ModuleCat.exteriorPower.iso₀ (ModuleCat.of A (Fin 1 → A)))).hom := by
     -- Proof comment: tensor the base-ring differential normalization and rewrite the mapped
     -- degree isomorphisms as the components of `mapIso`.
-    simpa using
+    simpa using!
       congrArg (((tensoringRight (ModuleCat A)).obj (ModuleCat.of A M)).map)
         (koszul_singleton_degree_one_differential_eq_smul_base (A := A) (r := r))
   -- Proof comment: the left unitor identifies tensoring the scalar map on `A` with scalar
@@ -473,7 +473,7 @@ theorem singleton_tensor_mapped_base_differential_eq_smul_shortComplex {A : Type
             (((tensoringRight (ModuleCat A)).obj (ModuleCat.of A M)).map
               (ModuleCat.ofHom (r • LinearMap.id) : ModuleCat.of A A ⟶ ModuleCat.of A A)) ≫
             (λ_ (ModuleCat.of A M)).hom := by
-    simpa [ModuleCat.smulShortComplex, Category.assoc] using
+    simpa [ModuleCat.smulShortComplex, Category.assoc] using!
       congrArg
         (fun f =>
           (((tensoringRight (ModuleCat A)).obj (ModuleCat.of A M)).mapIso
@@ -494,7 +494,7 @@ theorem singleton_tensor_mapped_base_differential_eq_smul_shortComplex {A : Type
               (ModuleCat.exteriorPower.iso₀ (ModuleCat.of A (Fin 1 → A)))).hom ≫
             (λ_ (ModuleCat.of A M)).hom := by
     rw [hbase]
-    simp [Category.assoc]
+    simp only [Category.assoc, Iso.hom_inv_id_assoc]
   exact hunit.trans hrewrite
 
 theorem singleton_tensor_sc1_right_square {A : Type u} [CommRing A]
@@ -537,7 +537,7 @@ theorem singleton_tensor_sc1_right_square {A : Type u} [CommRing A]
             (((tensoringRight (ModuleCat A)).obj (ModuleCat.of A M)).mapIso
               (ModuleCat.exteriorPower.iso₀ (ModuleCat.of A (Fin 1 → A)))).hom ≫
             (λ_ (ModuleCat.of A M)).hom := by
-    simpa [Category.assoc, K] using
+    simpa only [Category.assoc, K] using!
       congrArg
         (fun f =>
           (koszul_singleton_tensor_X_iso_tensorRight (A := A) (M := M) (r := r) 1).hom ≫ f)
@@ -581,7 +581,7 @@ theorem singleton_tensor_sc1_right_square {A : Type u} [CommRing A]
               (((tensoringRight (ModuleCat A)).obj (ModuleCat.of A M)).mapIso
                 (ModuleCat.exteriorPower.iso₀ (ModuleCat.of A (Fin 1 → A)))).hom ≫
               (λ_ (ModuleCat.of A M)).hom) := by
-    simp [T, Category.assoc]
+    rfl
   exact hnormalize.trans (hcollapse.trans hwindow)
 
 /-- Helper for Remark 10.69.7 (Other types of regular sequences): the degree-`1` window of the
@@ -670,8 +670,8 @@ theorem koszul_singleton_tensor_sc1_iso_smulShortComplex {A : Type u} [CommRing 
   -- Proof comment: the right component was chosen to include the degree-`0` transport, so the
   -- `sc 1` square is exactly the original `d 1 0` compatibility.
   change (T.sc 1).g ≫ e₀'.hom = T.d 1 0 ≫ e₀.hom
-  simpa [e₀'] using
-    (HomologicalComplex.d_comp_XIsoOfEq_hom T (by simp : (ComplexShape.down ℕ).next 1 = 0) 1)
+  change T.d 1 _ ≫ _ ≫ e₀.hom = _
+  rw [← Category.assoc, HomologicalComplex.d_comp_XIsoOfEq_hom]
 
 /-- Helper for Remark 10.69.7 (Other types of regular sequences): after transporting the degree-`1`
 term of the singleton coefficient Koszul complex back to `M`, the differential `d 1 0` becomes
@@ -713,7 +713,7 @@ theorem koszul_singleton_tensor_degree_one_differential_eq_smul {A : Type u} [Co
           (λ_ (ModuleCat.of A M)).hom ≫
           (ModuleCat.smulShortComplex (ModuleCat.of A M) r).f
           = (T.sc 1).g ≫ e.hom.τ₃ := by
-        simpa [hτ₂] using e.hom.comm₂₃
+        simpa [hτ₂] using! e.hom.comm₂₃
   have hright :
       (T.sc 1).g ≫ e.hom.τ₃ =
         T.d 1 0 ≫
@@ -766,7 +766,7 @@ theorem koszul_singleton_tensor_homology_isZero_of_isSMulRegular {A : Type u} [C
       ⟨e, _, _⟩
     have hmono : Mono S.g := by
       -- Proof comment: the normalized right map is multiplication by `r`, hence monic by `hr`.
-      simpa [S, ModuleCat.smulShortComplex, ModuleCat.mono_iff_injective] using hr
+      simpa [S, ModuleCat.smulShortComplex, ModuleCat.mono_iff_injective] using! hr
     have hExact : S.Exact := by
       -- Proof comment: for a short complex `0 → M --r→ M`, exactness is equivalent to
       -- injectivity of the right map.

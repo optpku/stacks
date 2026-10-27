@@ -23,7 +23,7 @@ variable {dimension : V → ℕ} {product : V → V → V}
 variable {fst : ∀ X Y, product X Y ⟶ X} {snd : ∀ X Y, product X Y ⟶ Y}
 variable {point : V} {H : V → Type x} {CH : V → Type y}
 variable [∀ X, Ring (H X)] [∀ X, Algebra F (H X)] [∀ X, CommRing (CH X)]
-variable {Hgrade : ∀ X, ℤ × ℤ → Submodule F (H X)}
+variable {Hgrade : ∀ X, ℤ → Submodule F (H X)}
 variable {CHgrade : ∀ X, ℤ → Submodule ℤ (CH X)}
 variable [∀ X, GradedAlgebra (Hgrade X)] [∀ X, GradedAlgebra (CHgrade X)]
 variable {cyclePullback : ∀ {X Y : V},
@@ -44,13 +44,13 @@ closed points do not detect degree-zero cohomology. -/
       {fst : ∀ X Y, product X Y ⟶ X} {snd : ∀ X Y, product X Y ⟶ Y}
       {point : V} {H : V → Type x} {CH : V → Type y}
       [∀ X, Ring (H X)] [∀ X, Algebra F (H X)] [∀ X, CommRing (CH X)]
-      {Hgrade : ∀ X, ℤ × ℤ → Submodule F (H X)}
+      {Hgrade : ∀ X, ℤ → Submodule F (H X)}
       {CHgrade : ∀ X, ℤ → Submodule ℤ (CH X)}
       [∀ X, GradedAlgebra (Hgrade X)] [∀ X, GradedAlgebra (CHgrade X)]
       {cyclePullback : ∀ {X Y : V}, (X ⟶ Y) → CHgrade Y →ₐᵍ[ℤ] CHgrade X}
       {cyclePushforward : ∀ {X Y : V}, (X ⟶ Y) → CH X →+ CH Y}
       (T : WeilCohomology.SchemeClassicalTheory k F TateLine V dimension product
         fst snd point H CH Hgrade CHgrade cyclePullback cyclePushforward),
-      (∃ (Y : V) (i j : ℤ), i < 0 ∧ Hgrade Y (i, j) ≠ ⊥) →
+      (∃ (Y : V) (i j : ℤ), i < 0 ∧ Hgrade Y (i) ≠ ⊥) →
         ∃ (X : V) (d : ℕ),
           T.IsNonemptyEquidimensional X d ∧ ¬ T.HasSeparatingClosedPoints X)

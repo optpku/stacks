@@ -41,6 +41,15 @@ namespace PseudoPullback
 
 noncomputable section
 
+/-- Equality transport of based functors evaluates to equality transport of objects. -/
+private theorem projection_eqToHom_app
+    {X Y : BasedCategory.{vB, w} C}
+    {F G : X ⥤ᵇ Y} (h : F = G) (P : X.obj) :
+    (eqToHom h : F ⟶ G).toNatTrans.app P =
+      eqToHom (congrArg (fun H : X ⥤ᵇ Y => H.obj P) h) := by
+  cases h
+  rfl
+
 /-- The first-projection comparisons are `2`-natural in bundled cospan `2`-morphisms. -/
 @[reassoc]
 theorem pseudofunctor.fstIso.naturality.hom
@@ -51,7 +60,13 @@ theorem pseudofunctor.fstIso.naturality.hom
         (pseudofunctor.fstIso φ).hom =
       (pseudofunctor.fstIso ψ).hom ≫
         BasedCategory.whiskerLeft (fst S.fst S.snd)
-          (Bicategory.Cospan.Hom₂.left Γ) := sorry
+          (Bicategory.Cospan.Hom₂.left Γ) := by
+  apply BasedNatTrans.ext
+  apply NatTrans.ext
+  funext P
+  change (Bicategory.Cospan.Hom₂.left Γ).toNatTrans.app (fstObj P) ≫ 𝟙 _ =
+    𝟙 _ ≫ (Bicategory.Cospan.Hom₂.left Γ).toNatTrans.app (fstObj P)
+  simp only [Category.comp_id, Category.id_comp]
 
 /-- The inverse first-projection comparisons are `2`-natural in bundled cospan
 `2`-morphisms. -/
@@ -64,7 +79,13 @@ theorem pseudofunctor.fstIso.naturality.inv
         (pseudofunctor.fstIso φ).inv =
       (pseudofunctor.fstIso ψ).inv ≫
         BasedCategory.whiskerRight
-          ((pseudofunctor C).map₂ Γ) (fst T.fst T.snd) := sorry
+          ((pseudofunctor C).map₂ Γ) (fst T.fst T.snd) := by
+  apply BasedNatTrans.ext
+  apply NatTrans.ext
+  funext P
+  change (Bicategory.Cospan.Hom₂.left Γ).toNatTrans.app (fstObj P) ≫ 𝟙 _ =
+    𝟙 _ ≫ (Bicategory.Cospan.Hom₂.left Γ).toNatTrans.app (fstObj P)
+  simp only [Category.comp_id, Category.id_comp]
 
 /-- The second-projection comparisons are `2`-natural in bundled cospan `2`-morphisms. -/
 @[reassoc]
@@ -76,7 +97,13 @@ theorem pseudofunctor.sndIso.naturality.hom
         (pseudofunctor.sndIso φ).hom =
       (pseudofunctor.sndIso ψ).hom ≫
         BasedCategory.whiskerLeft (snd S.fst S.snd)
-          (Bicategory.Cospan.Hom₂.right Γ) := sorry
+          (Bicategory.Cospan.Hom₂.right Γ) := by
+  apply BasedNatTrans.ext
+  apply NatTrans.ext
+  funext P
+  change (Bicategory.Cospan.Hom₂.right Γ).toNatTrans.app (sndObj P) ≫ 𝟙 _ =
+    𝟙 _ ≫ (Bicategory.Cospan.Hom₂.right Γ).toNatTrans.app (sndObj P)
+  simp only [Category.comp_id, Category.id_comp]
 
 /-- The inverse second-projection comparisons are `2`-natural in bundled cospan
 `2`-morphisms. -/
@@ -89,7 +116,13 @@ theorem pseudofunctor.sndIso.naturality.inv
         (pseudofunctor.sndIso φ).inv =
       (pseudofunctor.sndIso ψ).inv ≫
         BasedCategory.whiskerRight
-          ((pseudofunctor C).map₂ Γ) (snd T.fst T.snd) := sorry
+          ((pseudofunctor C).map₂ Γ) (snd T.fst T.snd) := by
+  apply BasedNatTrans.ext
+  apply NatTrans.ext
+  funext P
+  change (Bicategory.Cospan.Hom₂.right Γ).toNatTrans.app (sndObj P) ≫ 𝟙 _ =
+    𝟙 _ ≫ (Bicategory.Cospan.Hom₂.right Γ).toNatTrans.app (sndObj P)
+  simp only [Category.comp_id, Category.id_comp]
 
 /-- The first-projection comparisons are natural for the `2`-morphism action of the
 left-endpoint projection pseudofunctor. -/
@@ -101,7 +134,8 @@ theorem pseudofunctor.fstIso.naturality.map₂
       (pseudofunctor.fstIso ψ).hom ≫
         fst S.fst S.snd ◁
           (Bicategory.Cospan.leftProjection
-            (BasedCategory.{max v vB, max w (max u (max v vB))} C)).map₂ Γ := sorry
+            (BasedCategory.{max v vB, max w (max u (max v vB))} C)).map₂ Γ := by
+  exact pseudofunctor.fstIso.naturality.hom Γ
 
 /-- The second-projection comparisons are natural for the `2`-morphism action of the
 right-endpoint projection pseudofunctor. -/
@@ -113,7 +147,8 @@ theorem pseudofunctor.sndIso.naturality.map₂
       (pseudofunctor.sndIso ψ).hom ≫
         snd S.fst S.snd ◁
           (Bicategory.Cospan.rightProjection
-            (BasedCategory.{max v vB, max w (max u (max v vB))} C)).map₂ Γ := sorry
+            (BasedCategory.{max v vB, max w (max u (max v vB))} C)).map₂ Γ := by
+  exact pseudofunctor.sndIso.naturality.hom Γ
 
 /-- The first-projection comparisons respect the identity comparison cells of the
 pseudo-pullback and left-endpoint pseudofunctors. -/
@@ -127,8 +162,21 @@ theorem pseudofunctor.fstIso.id
         (Bicategory.leftUnitor (a := (pseudofunctor C).obj S) (b := S.left)
           (fst S.fst S.snd)).hom ≫
           (Bicategory.rightUnitor (a := (pseudofunctor C).obj S) (b := S.left)
-            (fst S.fst S.snd)).inv := sorry
+            (fst S.fst S.snd)).inv := by
+  apply BasedNatTrans.ext
+  apply NatTrans.ext
+  funext P
+  change 𝟙 _ ≫ (𝟙 _ ≫ 𝟙 _) =
+    ((fst S.fst S.snd).toFunctor.map
+      ((eqToHom (congrArg
+      (fun θ : BasedCospanTransform S.fst S.snd S.fst S.snd =>
+        _root_.CategoryTheory.BasedCategory.PseudoPullback.map θ)
+      (Bicategory.Cospan.Hom.toBasedTransform.id S))).toNatTrans.app P) ≫ 𝟙 _) ≫ 𝟙 _ ≫ 𝟙 _
+  erw [projection_eqToHom_app, eqToHom_map]
+  simp only [Category.comp_id]
+  rfl
 
+set_option maxHeartbeats 1000000 in
 /-- The first-projection comparisons respect the composition comparison cells of the
 pseudo-pullback and left-endpoint pseudofunctors. -/
 theorem pseudofunctor.fstIso.comp
@@ -146,7 +194,22 @@ theorem pseudofunctor.fstIso.comp
               (pseudofunctor.fstIso ψ).hom ▷
                 (Bicategory.Cospan.leftProjection
                   (BasedCategory.{max v vB, max w (max u (max v vB))} C)).map φ ≫
-                (α_ _ _ _).hom := sorry
+                (α_ _ _ _).hom := by
+  apply BasedNatTrans.ext
+  apply NatTrans.ext
+  funext P
+  change 𝟙 _ ≫ (𝟙 _ ≫ 𝟙 _) =
+    ((fst T.fst T.snd).toFunctor.map
+      ((eqToHom (congrArg
+      (fun θ : BasedCospanTransform R.fst R.snd T.fst T.snd =>
+        _root_.CategoryTheory.BasedCategory.PseudoPullback.map θ)
+      (Bicategory.Cospan.Hom.toBasedTransform.comp ψ φ))).toNatTrans.app P) ≫ 𝟙 _) ≫
+      𝟙 _ ≫ 𝟙 _ ≫ 𝟙 _ ≫
+      (Bicategory.Cospan.Hom.left φ).map (𝟙 _) ≫ 𝟙 _
+  erw [projection_eqToHom_app, eqToHom_map]
+  simp only [Category.id_comp, Category.comp_id, Functor.map_id]
+  erw [Category.comp_id]
+  rfl
 
 /-- The second-projection comparisons respect the identity comparison cells of the
 pseudo-pullback and right-endpoint pseudofunctors. -/
@@ -160,8 +223,21 @@ theorem pseudofunctor.sndIso.id
         (Bicategory.leftUnitor (a := (pseudofunctor C).obj S) (b := S.right)
           (snd S.fst S.snd)).hom ≫
           (Bicategory.rightUnitor (a := (pseudofunctor C).obj S) (b := S.right)
-            (snd S.fst S.snd)).inv := sorry
+            (snd S.fst S.snd)).inv := by
+  apply BasedNatTrans.ext
+  apply NatTrans.ext
+  funext P
+  change 𝟙 _ ≫ (𝟙 _ ≫ 𝟙 _) =
+    ((snd S.fst S.snd).toFunctor.map
+      ((eqToHom (congrArg
+      (fun θ : BasedCospanTransform S.fst S.snd S.fst S.snd =>
+        _root_.CategoryTheory.BasedCategory.PseudoPullback.map θ)
+      (Bicategory.Cospan.Hom.toBasedTransform.id S))).toNatTrans.app P) ≫ 𝟙 _) ≫ 𝟙 _ ≫ 𝟙 _
+  erw [projection_eqToHom_app, eqToHom_map]
+  simp only [Category.comp_id]
+  rfl
 
+set_option maxHeartbeats 1000000 in
 /-- The second-projection comparisons respect the composition comparison cells of the
 pseudo-pullback and right-endpoint pseudofunctors. -/
 theorem pseudofunctor.sndIso.comp
@@ -179,7 +255,22 @@ theorem pseudofunctor.sndIso.comp
               (pseudofunctor.sndIso ψ).hom ▷
                 (Bicategory.Cospan.rightProjection
                   (BasedCategory.{max v vB, max w (max u (max v vB))} C)).map φ ≫
-                (α_ _ _ _).hom := sorry
+                (α_ _ _ _).hom := by
+  apply BasedNatTrans.ext
+  apply NatTrans.ext
+  funext P
+  change 𝟙 _ ≫ (𝟙 _ ≫ 𝟙 _) =
+    ((snd T.fst T.snd).toFunctor.map
+      ((eqToHom (congrArg
+      (fun θ : BasedCospanTransform R.fst R.snd T.fst T.snd =>
+        _root_.CategoryTheory.BasedCategory.PseudoPullback.map θ)
+      (Bicategory.Cospan.Hom.toBasedTransform.comp ψ φ))).toNatTrans.app P) ≫ 𝟙 _) ≫
+      𝟙 _ ≫ 𝟙 _ ≫ 𝟙 _ ≫
+      (Bicategory.Cospan.Hom.right φ).map (𝟙 _) ≫ 𝟙 _
+  erw [projection_eqToHom_app, eqToHom_map]
+  simp only [Category.id_comp, Category.comp_id, Functor.map_id]
+  erw [Category.comp_id]
+  rfl
 
 end
 

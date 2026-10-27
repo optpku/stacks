@@ -194,7 +194,10 @@ theorem pushforwardSection_add (phi : O₁ ⟶ O₂)
     (x y : O₂.obj.obj U) :
     pushforwardSection (J := J) (K := K) F phi derivation (x + y) =
       pushforwardSection (J := J) (K := K) F phi derivation x +
-        pushforwardSection (J := J) (K := K) F phi derivation y := sorry
+        pushforwardSection (J := J) (K := K) F phi derivation y := by
+  unfold pushforwardSection
+  rw [map_add]
+  exact map_add derivation.d _ _
 
 /-- Pushing a relative derivation forward preserves the Leibniz rule. -/
 theorem pushforwardSection_mul (phi : O₁ ⟶ O₂)
@@ -203,7 +206,10 @@ theorem pushforwardSection_mul (phi : O₁ ⟶ O₂)
     (x y : O₂.obj.obj U) :
     pushforwardSection (J := J) (K := K) F phi derivation (x * y) =
       x • pushforwardSection (J := J) (K := K) F phi derivation y +
-        y • pushforwardSection (J := J) (K := K) F phi derivation x := sorry
+        y • pushforwardSection (J := J) (K := K) F phi derivation x := by
+  unfold pushforwardSection
+  rw [map_mul]
+  exact derivation.d_mul _ _
 
 /-- Pushing a relative derivation forward is natural in the site object. -/
 theorem pushforwardSection_naturality (phi : O₁ ⟶ O₂)
@@ -215,7 +221,22 @@ theorem pushforwardSection_naturality (phi : O₁ ⟶ O₂)
       (((SheafOfModules.pushforward
         (RingedSite.InverseImage.structureMap
           (J := J) (K := K) F O₂)).obj M).val.map rho)
-        (pushforwardSection (J := J) (K := K) F phi derivation x) := sorry
+        (pushforwardSection (J := J) (K := K) F phi derivation x) := by
+  change derivation.d
+      ((RingedSite.InverseImage.ringUnit (J := J) (K := K) F O₂).hom.app V
+        (O₂.obj.map rho x)) =
+    M.val.map (F.op.map rho)
+      (derivation.d
+        ((RingedSite.InverseImage.ringUnit (J := J) (K := K) F O₂).hom.app U x))
+  have h := congrArg (fun f ↦ f x)
+    ((RingedSite.InverseImage.ringUnit (J := J) (K := K) F O₂).hom.naturality rho)
+  rw [show (RingedSite.InverseImage.ringUnit (J := J) (K := K) F O₂).hom.app V
+      (O₂.obj.map rho x) =
+    ((RingedSite.InverseImage.ringPullback (J := J) (K := K) F).obj O₂).obj.map
+      (F.op.map rho)
+      ((RingedSite.InverseImage.ringUnit (J := J) (K := K) F O₂).hom.app U x) from
+    h]
+  exact derivation.d_map _ _
 
 /-- Pushing a relative derivation forward makes it vanish on the base ring. -/
 theorem pushforwardSection_base (phi : O₁ ⟶ O₂)
@@ -223,7 +244,19 @@ theorem pushforwardSection_base (phi : O₁ ⟶ O₂)
       (J := J) (K := K) F).map phi ; M]) {U : Cᵒᵖ}
     (x : O₁.obj.obj U) :
     pushforwardSection (J := J) (K := K) F phi derivation
-      (phi.hom.app U x) = 0 := sorry
+      (phi.hom.app U x) = 0 := by
+  unfold pushforwardSection
+  have h := congrArg (fun f ↦ f.hom.app U x)
+    ((F.sheafAdjunctionContinuous CommRingCat.{max u v} J K).unit.naturality phi)
+  change derivation.d
+      ((RingedSite.InverseImage.ringUnit (J := J) (K := K) F O₂).hom.app U
+        (phi.hom.app U x)) = 0
+  rw [show (RingedSite.InverseImage.ringUnit (J := J) (K := K) F O₂).hom.app U
+      (phi.hom.app U x) =
+    ((RingedSite.InverseImage.ringPullback (J := J) (K := K) F).map phi).hom.app
+      (F.op.obj U)
+      ((RingedSite.InverseImage.ringUnit (J := J) (K := K) F O₁).hom.app U x) from h]
+  exact derivation.d_app _
 
 /-- Pushforward transport of a relative derivation along an inverse-image
 unit. -/
@@ -332,6 +365,42 @@ a relative derivation. -/
   ((F.sheafAdjunctionContinuous CommRingCat.{max u v} J K).homEquiv _ _).symm
     (adjointSquareZeroMap (J := J) (K := K) F phi derivation)
 
+/-- The transpose remains a section of the square-zero projection. -/
+private theorem squareZeroLift_fst (phi : O₁ ⟶ O₂)
+    (derivation : Der[phi ; (SheafOfModules.pushforward
+      (RingedSite.InverseImage.structureMap
+        (J := J) (K := K) F O₂)).obj M]) {U : Dᵒᵖ}
+    (x : ((RingedSite.InverseImage.ringPullback
+      (J := J) (K := K) F).obj O₂).obj.obj U) :
+    ((squareZeroLift (J := J) (K := K) F phi derivation).hom.app U x).1 = x := by
+  let R := (RingedSite.InverseImage.ringPullback (J := J) (K := K) F).obj O₂
+  let projection : squareZeroSheaf R M ⟶ R := ObjectProperty.homMk
+    { app V :=
+        letI : Module (R.obj.obj V)ᵐᵒᵖ (M.val.obj V) := oppositeModule _ _
+        letI : IsCentralScalar (R.obj.obj V) (M.val.obj V) := ⟨fun _ _ ↦ rfl⟩
+        CommRingCat.ofHom
+          { toFun := fun z ↦ z.1
+            map_zero' := rfl
+            map_one' := rfl
+            map_add' := fun _ _ ↦ rfl
+            map_mul' := fun _ _ ↦ rfl }
+      naturality := by
+        intro V W rho
+        ext z
+        rfl }
+  have h : squareZeroLift (J := J) (K := K) F phi derivation ≫ projection = 𝟙 R := by
+    apply ((F.sheafAdjunctionContinuous CommRingCat.{max u v} J K).homEquiv O₂ R).injective
+    rw [Adjunction.homEquiv_naturality_right, Equiv.apply_symm_apply,
+      Adjunction.homEquiv_id]
+    apply ObjectProperty.hom_ext
+    apply NatTrans.ext
+    funext V
+    apply CommRingCat.hom_ext
+    apply RingHom.ext
+    intro z
+    rfl
+  exact congrArg (fun f ↦ f.hom.app U x) h
+
 /-- The section map underlying pullback transport of a relative derivation. -/
 def pullbackSection (phi : O₁ ⟶ O₂)
     (derivation : Der[phi ; (SheafOfModules.pushforward
@@ -353,7 +422,9 @@ theorem pullbackSection_add (phi : O₁ ⟶ O₂)
       (J := J) (K := K) F).obj O₂).obj.obj U) :
     pullbackSection (J := J) (K := K) F phi derivation (x + y) =
       pullbackSection (J := J) (K := K) F phi derivation x +
-        pullbackSection (J := J) (K := K) F phi derivation y := sorry
+        pullbackSection (J := J) (K := K) F phi derivation y := by
+  exact congrArg Prod.snd
+    (map_add ((squareZeroLift (J := J) (K := K) F phi derivation).hom.app U).hom x y)
 
 /-- Pullback transport satisfies the Leibniz rule. -/
 theorem pullbackSection_mul (phi : O₁ ⟶ O₂)
@@ -364,7 +435,16 @@ theorem pullbackSection_mul (phi : O₁ ⟶ O₂)
       (J := J) (K := K) F).obj O₂).obj.obj U) :
     pullbackSection (J := J) (K := K) F phi derivation (x * y) =
       x • pullbackSection (J := J) (K := K) F phi derivation y +
-        y • pullbackSection (J := J) (K := K) F phi derivation x := sorry
+        y • pullbackSection (J := J) (K := K) F phi derivation x := by
+  have h := congrArg Prod.snd
+    (map_mul ((squareZeroLift (J := J) (K := K) F phi derivation).hom.app U).hom x y)
+  change ((squareZeroLift (J := J) (K := K) F phi derivation).hom.app U (x * y)).2 =
+    ((squareZeroLift (J := J) (K := K) F phi derivation).hom.app U x).1 •
+      ((squareZeroLift (J := J) (K := K) F phi derivation).hom.app U y).2 +
+    ((squareZeroLift (J := J) (K := K) F phi derivation).hom.app U y).1 •
+      ((squareZeroLift (J := J) (K := K) F phi derivation).hom.app U x).2 at h
+  rw [squareZeroLift_fst, squareZeroLift_fst] at h
+  exact h
 
 /-- Pullback transport is natural in the target-site object. -/
 theorem pullbackSection_naturality (phi : O₁ ⟶ O₂)
@@ -378,7 +458,9 @@ theorem pullbackSection_naturality (phi : O₁ ⟶ O₂)
         (((RingedSite.InverseImage.ringPullback
           (J := J) (K := K) F).obj O₂).obj.map rho x) =
       M.val.map rho
-        (pullbackSection (J := J) (K := K) F phi derivation x) := sorry
+        (pullbackSection (J := J) (K := K) F phi derivation x) := by
+  exact congrArg Prod.snd (congrArg (fun f ↦ f x)
+    ((squareZeroLift (J := J) (K := K) F phi derivation).hom.naturality rho))
 
 /-- Pullback transport vanishes on the pulled-back base ring. -/
 theorem pullbackSection_base (phi : O₁ ⟶ O₂)
@@ -389,7 +471,37 @@ theorem pullbackSection_base (phi : O₁ ⟶ O₂)
       (J := J) (K := K) F).obj O₁).obj.obj U) :
     pullbackSection (J := J) (K := K) F phi derivation
       (((RingedSite.InverseImage.ringPullback
-        (J := J) (K := K) F).map phi).hom.app U x) = 0 := sorry
+        (J := J) (K := K) F).map phi).hom.app U x) = 0 := by
+  let R := (RingedSite.InverseImage.ringPullback (J := J) (K := K) F).obj O₂
+  let zeroSection : R ⟶ squareZeroSheaf R M := ObjectProperty.homMk
+    { app V :=
+        letI : Module (R.obj.obj V)ᵐᵒᵖ (M.val.obj V) := oppositeModule _ _
+        letI : IsCentralScalar (R.obj.obj V) (M.val.obj V) := ⟨fun _ _ ↦ rfl⟩
+        CommRingCat.ofHom (TrivSqZeroExt.inlHom _ _)
+      naturality := by
+        intro V W rho
+        ext z
+        apply Prod.ext
+        · rfl
+        · exact (map_zero (M.val.map rho).hom).symm }
+  have h :
+      (RingedSite.InverseImage.ringPullback (J := J) (K := K) F).map phi ≫
+        squareZeroLift (J := J) (K := K) F phi derivation =
+      (RingedSite.InverseImage.ringPullback (J := J) (K := K) F).map phi ≫
+        zeroSection := by
+    apply ((F.sheafAdjunctionContinuous CommRingCat.{max u v} J K).homEquiv _ _).injective
+    rw [Adjunction.homEquiv_naturality_left, Adjunction.homEquiv_naturality_left,
+      Equiv.apply_symm_apply, Adjunction.homEquiv_apply]
+    apply ObjectProperty.hom_ext
+    apply NatTrans.ext
+    funext V
+    apply CommRingCat.hom_ext
+    apply RingHom.ext
+    intro z
+    apply Prod.ext
+    · rfl
+    · exact derivation.d_app z
+  exact congrArg (fun f ↦ (f.hom.app U x).2) h
 
 /-- Pullback transport of a relative derivation along inverse image. -/
 def pullback (phi : O₁ ⟶ O₂)
@@ -411,14 +523,67 @@ theorem pushforward_pullback (phi : O₁ ⟶ O₂)
       (RingedSite.InverseImage.structureMap
         (J := J) (K := K) F O₂)).obj M]) :
     pushforward (J := J) (K := K) F phi
-      (pullback (J := J) (K := K) F phi derivation) = derivation := sorry
+      (pullback (J := J) (K := K) F phi derivation) = derivation := by
+  have h :
+      (RingedSite.InverseImage.ringUnit (J := J) (K := K) F O₂) ≫
+        (F.sheafPushforwardContinuous CommRingCat.{max u v} J K).map
+          (squareZeroLift (J := J) (K := K) F phi derivation) =
+      adjointSquareZeroMap (J := J) (K := K) F phi derivation :=
+    ((F.sheafAdjunctionContinuous CommRingCat.{max u v} J K).homEquiv _ _).apply_symm_apply _
+  ext U x
+  exact congrArg (fun f ↦ (f.hom.app U x).2) h
 
 /-- Pulling back after pushing forward a relative derivation is the identity. -/
 theorem pullback_pushforward (phi : O₁ ⟶ O₂)
     (derivation : Der[(RingedSite.InverseImage.ringPullback
       (J := J) (K := K) F).map phi ; M]) :
     pullback (J := J) (K := K) F phi
-      (pushforward (J := J) (K := K) F phi derivation) = derivation := sorry
+      (pushforward (J := J) (K := K) F phi derivation) = derivation := by
+  let R := (RingedSite.InverseImage.ringPullback (J := J) (K := K) F).obj O₂
+  let lift : R ⟶ squareZeroSheaf R M := ObjectProperty.homMk
+    { app V :=
+        letI : Module (R.obj.obj V)ᵐᵒᵖ (M.val.obj V) := oppositeModule _ _
+        letI : IsCentralScalar (R.obj.obj V) (M.val.obj V) := ⟨fun _ _ ↦ rfl⟩
+        CommRingCat.ofHom
+          { toFun := fun z ↦ (z, derivation.d z)
+            map_zero' := by
+              apply Prod.ext
+              · rfl
+              · exact map_zero _
+            map_one' := by
+              apply Prod.ext
+              · rfl
+              · exact PresheafOfModules.Derivation.d_one derivation V
+            map_add' := by
+              intro z z'
+              apply Prod.ext
+              · rfl
+              · exact map_add _ _ _
+            map_mul' := by
+              intro z z'
+              apply Prod.ext
+              · rfl
+              · change derivation.d (z * z') = z • derivation.d z' + z' • derivation.d z
+                exact derivation.d_mul _ _ }
+      naturality := by
+        intro V W rho
+        ext z
+        apply Prod.ext
+        · rfl
+        · exact derivation.d_map rho z }
+  have h : squareZeroLift (J := J) (K := K) F phi
+      (pushforward (J := J) (K := K) F phi derivation) = lift := by
+    apply ((F.sheafAdjunctionContinuous CommRingCat.{max u v} J K).homEquiv _ _).injective
+    rw [Equiv.apply_symm_apply, Adjunction.homEquiv_apply]
+    apply ObjectProperty.hom_ext
+    apply NatTrans.ext
+    funext V
+    apply CommRingCat.hom_ext
+    apply RingHom.ext
+    intro z
+    rfl
+  ext U x
+  exact congrArg (fun f ↦ (f.hom.app U x).2) h
 
 /-- Inverse-image transport gives an equivalence between pulled relative
 derivations and derivations valued in the corresponding pushforward module. -/

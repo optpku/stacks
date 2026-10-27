@@ -21,4 +21,4 @@ The reusable open-restriction API for irreducible closed subsets is owned by
 /- Lemma 5.11.2: codimension is unchanged by restricting an irreducible closed subset to an
 open subspace which it meets. -/
 @[stacks 02I4]
-#check @coheight_eq_restrictOpen
+#check @TopologicalSpace.IrreducibleCloseds.coheight_restrictOpen

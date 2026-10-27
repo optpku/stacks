@@ -6,20 +6,15 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import Mathlib.CategoryTheory.Limits.ExactFunctor
-public import Mathlib.CategoryTheory.Limits.Preserves.Basic
-public import Mathlib.CategoryTheory.Limits.Preserves.Shapes.Products
-public import stacks_project.Chap96.Lemma_96_15_1_Abelian
-public import stacks_project.Chap101.Definition_101_9_1_Affine
-public import stacks_project.Chap103.Lemma_103_8_4
-public import stacks_project.Chap103.Proposition_103_11_1_DirectImage
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.Module.Quasicoherent.Affine
+import StacksCheckRecall
 
 /-!
 # Quasi-coherent direct images along affine morphisms
 
 Along an affine morphism of algebraic stacks, `f_{QCoh,*}` is exact and
-preserves direct sums and all colimits, while `R^i f_{QCoh,*}` vanishes for
-every `i > 0`.
+preserves direct sums and all coefficient-universe-small colimits, while
+`R^i f_{QCoh,*}` vanishes for every `i > 0`.
 -/
 
 @[expose] public section
@@ -31,47 +26,37 @@ noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.GroupoidsOver.QCoh
-
 variable {S : Scheme.{u}} {X Y : GroupoidsOver S}
-  [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [Groupoids.Hom.Affine f]
+  [AlgebraicStack X] [AlgebraicStack Y]
 
-/-- Lemma 103.13.4 (1): if `f : X ⟶ Y` is an affine morphism of algebraic stacks,
-then `R^i f_{QCoh,*}` vanishes for every `i > 0`. -/
-@[stacks 0GQY]
-theorem higherDirectImage_isZero (F : QCoh X) (i : ℕ) (hi : 0 < i) :
-    IsZero ((higherDirectImageFunctor f i).obj F) :=
-  sorry
+/- Lemma 103.13.4 (1): positive-degree quasi-coherent higher direct images vanish. -/
+@[stacks 0GQY] #check
+  (AlgebraicGeometry.GroupoidsOver.QCoh.higherDirectImage_isZero :
+    ∀ (f : X ⟶ Y) [Groupoids.Hom.Affine f] (F : QCoh X) (i : ℕ),
+      0 < i → IsZero ((QCoh.higherDirectImageFunctor f i).obj F))
 
-/-- Lemma 103.13.4 (2): if `f : X ⟶ Y` is an affine morphism of algebraic stacks,
-then `f_{QCoh,*} : QCoh X ⥤ QCoh Y` is an exact functor. -/
-@[stacks 0GQY]
-theorem directImage_exact : exactFunctor (QCoh X) (QCoh Y) (directImage f) :=
-  sorry
+/- Lemma 103.13.4 (2): quasi-coherent direct image is exact. -/
+@[stacks 0GQY] #check
+  (AlgebraicGeometry.GroupoidsOver.QCoh.directImage_exact :
+    ∀ (f : X ⟶ Y) [Groupoids.Hom.Affine f],
+      exactFunctor (QCoh X) (QCoh Y) (QCoh.directImage f))
 
-/-- Quasi-coherent direct image along an affine morphism of algebraic stacks
-preserves finite limits. -/
-instance directImage_preservesFiniteLimits :
-    PreservesFiniteLimits (directImage f) :=
-  sorry
+#check (AlgebraicGeometry.GroupoidsOver.QCoh.directImage_preservesFiniteLimits :
+  ∀ (f : X ⟶ Y) [Groupoids.Hom.Affine f],
+    PreservesFiniteLimits (QCoh.directImage f))
 
-/-- Quasi-coherent direct image along an affine morphism of algebraic stacks
-preserves finite colimits. -/
-instance directImage_preservesFiniteColimits :
-    PreservesFiniteColimits (directImage f) :=
-  sorry
+#check (AlgebraicGeometry.GroupoidsOver.QCoh.directImage_preservesFiniteColimits :
+  ∀ (f : X ⟶ Y) [Groupoids.Hom.Affine f],
+    PreservesFiniteColimits (QCoh.directImage f))
 
-/-- Lemma 103.13.4 (3): if `f : X ⟶ Y` is an affine morphism of algebraic stacks,
-then `f_{QCoh,*}` commutes with direct sums. -/
-@[stacks 0GQY]
-instance directImage_preservesCoproducts (I : Type u) :
-    PreservesColimitsOfShape (Discrete I) (directImage f) :=
-  sorry
+/- Lemma 103.13.4 (3): quasi-coherent direct image preserves direct sums. -/
+@[stacks 0GQY] #check
+  (AlgebraicGeometry.GroupoidsOver.QCoh.directImage_preservesCoproducts :
+    ∀ (f : X ⟶ Y) [Groupoids.Hom.Affine f] (I : Type u),
+      PreservesColimitsOfShape (Discrete I) (QCoh.directImage f))
 
-/-- Lemma 103.13.4 (4): if `f : X ⟶ Y` is an affine morphism of algebraic stacks,
-then `f_{QCoh,*}` commutes with all colimits. -/
-@[stacks 0GQY]
-instance directImage_preservesColimits : PreservesColimits (directImage f) :=
-  sorry
-
-end AlgebraicGeometry.GroupoidsOver.QCoh
+/- Lemma 103.13.4 (4): quasi-coherent direct image preserves all small colimits. -/
+@[stacks 0GQY] #check
+  (AlgebraicGeometry.GroupoidsOver.QCoh.directImage_preservesColimits :
+    ∀ (f : X ⟶ Y) [Groupoids.Hom.Affine f],
+      PreservesColimitsOfSize.{u, u} (QCoh.directImage f))

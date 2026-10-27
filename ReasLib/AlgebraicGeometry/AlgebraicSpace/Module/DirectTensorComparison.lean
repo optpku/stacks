@@ -13,9 +13,11 @@ public import Mathlib.CategoryTheory.Monoidal.Braided.Transport
 public import Mathlib.CategoryTheory.Monoidal.Preadditive
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.Tensor.Exact
 
-/-! Compare the two specified structure-ring presentations before transporting
-their tensor comparisons. The maps are actual underlying direct-image maps;
-only their scalar compatibility and naturality laws are deferred. -/
+/-! # Tensor comparisons for algebraic-space modules
+
+The commutative and underlying-ring structure sheaves give naturally isomorphic direct images.
+These presentations determine a direct-image tensor comparison and its pullback adjunction
+transpose. -/
 
 @[expose] public section
 open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
@@ -28,46 +30,78 @@ namespace AlgebraicGeometry.AlgebraicSpace.Modules.DirectTensorComparison
 
 variable {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
 
-/-- Transport the existing symmetry with the same specified module equivalence. -/
+/-- The symmetry on modules induced by the commutative module equivalence. -/
 @[implicit_reducible]
 def symmetric (Z : AlgebraicSpace S) : SymmetricCategory Z.Modules :=
   inferInstanceAs (SymmetricCategory (CategoryTheory.Monoidal.Transported (commModulesEquivalence Z)))
 
-/-- The specified restriction equivalence is additive and strong monoidal. -/
-theorem preadditive (Z : AlgebraicSpace S) : MonoidalPreadditive Z.Modules := by
-  -- Local instance justification (proof-local temporary data): restriction of scalars preserves addition on the unchanged section maps, supplying a law for the faithful-functor proof.
-  letI : (toCommModules Z).Additive := { map_add := by intros; rfl }
-  -- Local instance justification (defeq pin): use the inverse strong-monoidal structure of this exact restriction equivalence, matching the public transported tensor data.
-  letI : (toCommModules Z).Monoidal :=
-    inferInstanceAs ((CategoryTheory.Monoidal.equivalenceTransported
-      (commModulesEquivalence Z)).inverse.Monoidal)
-  exact monoidalPreadditive_of_faithful (toCommModules Z)
-
+/-- The ringed-topos morphism on the commutative structure-ring presentations. -/
 abbrev legacy := toRingedToposHom f (A := commStructureSheaf Y)
   (B := commStructureSheaf X) (structureSheafMap f)
 
+/-- Direct image transported through the commutative module presentations. -/
 def transported : X.Modules ⥤ Y.Modules :=
   toCommModules X ⋙ (legacy f).modulePushforward ⋙ ofCommModules Y
 
-/-- Both coefficient actions are induced by the same scheme pullback of
-functions on each actual étale square. Hence the displayed identity of
-underlying direct-image sections is scalar compatible. -/
+/-- The underlying direct-image comparison from the commutative presentation. -/
+def forwardUnderlying (M : X.Modules) :
+    (Sheaf.InternalModule.ToInternal.underlying (structureSheaf Y)).obj ((transported f).obj M) ⟶
+      (Sheaf.InternalModule.ToInternal.underlying (structureSheaf Y)).obj ((pushforward f).obj M) :=
+  (ModulePushforward.forgetIso (legacy f)).hom.app ((toCommModules X).obj M) ≫
+    (ModulePushforward.forgetIso (ringedToposHom f)).inv.app M
+
+/-- The underlying direct-image comparison to the commutative presentation. -/
+def backwardUnderlying (M : X.Modules) :
+    (Sheaf.InternalModule.ToInternal.underlying (structureSheaf Y)).obj ((pushforward f).obj M) ⟶
+      (Sheaf.InternalModule.ToInternal.underlying (structureSheaf Y)).obj ((transported f).obj M) :=
+  (ModulePushforward.forgetIso (ringedToposHom f)).hom.app M ≫
+    (ModulePushforward.forgetIso (legacy f)).inv.app ((toCommModules X).obj M)
+
+/-- The forward comparison preserves addition and multiplication by scalars. -/
+theorem forward_laws (M : X.Modules) :
+    (∀ U (x y : ((transported f).obj M).val.obj U),
+      Sheaf.InternalModule.underlyingApp (structureSheaf Y) (forwardUnderlying f M) U (x + y) =
+        Sheaf.InternalModule.underlyingApp (structureSheaf Y) (forwardUnderlying f M) U x +
+          Sheaf.InternalModule.underlyingApp (structureSheaf Y) (forwardUnderlying f M) U y) ∧
+    (∀ U (r : (structureSheaf Y).obj.obj U) (x : ((transported f).obj M).val.obj U),
+      Sheaf.InternalModule.underlyingApp (structureSheaf Y) (forwardUnderlying f M) U (r • x) =
+        r • Sheaf.InternalModule.underlyingApp (structureSheaf Y) (forwardUnderlying f M) U x) := sorry
+
+/-- The backward comparison preserves addition and multiplication by scalars. -/
+theorem backward_laws (M : X.Modules) :
+    (∀ U (x y : ((pushforward f).obj M).val.obj U),
+      Sheaf.InternalModule.underlyingApp (structureSheaf Y) (backwardUnderlying f M) U (x + y) =
+        Sheaf.InternalModule.underlyingApp (structureSheaf Y) (backwardUnderlying f M) U x +
+          Sheaf.InternalModule.underlyingApp (structureSheaf Y) (backwardUnderlying f M) U y) ∧
+    (∀ U (r : (structureSheaf Y).obj.obj U) (x : ((pushforward f).obj M).val.obj U),
+      Sheaf.InternalModule.underlyingApp (structureSheaf Y) (backwardUnderlying f M) U (r • x) =
+        r • Sheaf.InternalModule.underlyingApp (structureSheaf Y) (backwardUnderlying f M) U x) := sorry
+
+/-- The module direct-image comparison from the commutative presentation. -/
 def forward (M : X.Modules) : (transported f).obj M ⟶ (pushforward f).obj M :=
-  Sheaf.InternalModule.homOfUnderlying (structureSheaf Y)
-    ((ModulePushforward.forgetIso (legacy f)).hom.app ((toCommModules X).obj M) ≫
-      (ModulePushforward.forgetIso (ringedToposHom f)).inv.app M) (by sorry) (by sorry)
+  Sheaf.InternalModule.homOfUnderlying (structureSheaf Y) (forwardUnderlying f M)
+    (forward_laws f M).1 (forward_laws f M).2
 
+/-- The module direct-image comparison to the commutative presentation. -/
 def backward (M : X.Modules) : (pushforward f).obj M ⟶ (transported f).obj M :=
-  Sheaf.InternalModule.homOfUnderlying (structureSheaf Y)
-    ((ModulePushforward.forgetIso (ringedToposHom f)).hom.app M ≫
-      (ModulePushforward.forgetIso (legacy f)).inv.app ((toCommModules X).obj M)) (by sorry) (by sorry)
+  Sheaf.InternalModule.homOfUnderlying (structureSheaf Y) (backwardUnderlying f M)
+    (backward_laws f M).1 (backward_laws f M).2
 
+/-- The direct-image comparisons are inverse to each other and natural in the module. -/
+theorem pushforwardIso_laws :
+    (∀ M, forward f M ≫ backward f M = 𝟙 _) ∧
+    (∀ M, backward f M ≫ forward f M = 𝟙 _) ∧
+    (∀ {M N : X.Modules} (g : M ⟶ N),
+      (transported f).map g ≫ forward f N = forward f M ≫ (pushforward f).map g) := sorry
+
+/-- The commutative and underlying-ring presentations give naturally isomorphic direct images. -/
 def pushforwardIso : transported f ≅ pushforward f :=
   NatIso.ofComponents (fun M ↦
     { hom := forward f M
       inv := backward f M
-      hom_inv_id := by sorry
-      inv_hom_id := by sorry }) (by sorry)
+      hom_inv_id := (pushforwardIso_laws f).1 M
+      inv_hom_id := (pushforwardIso_laws f).2.1 M })
+    (fun g ↦ (pushforwardIso_laws f).2.2 g)
 
 /-- The tensor maps of the explicit equivalence insert its actual units;
 the two monoidal presentations are not identified by definitional equality. -/
@@ -85,12 +119,14 @@ def transportedTensor (P Q : X.Modules) :
         ((commModulesEquivalence X).unitIso.hom.app
           (((toCommModules X).obj P) ⊗ ((toCommModules X).obj Q))))
 
+/-- The canonical tensor comparison for direct image on the actual module categories. -/
 def pushforwardTensor (P Q : X.Modules) :
     (pushforward f).obj P ⊗ (pushforward f).obj Q ⟶ (pushforward f).obj (P ⊗ Q) :=
   ((pushforwardIso f).inv.app P ⊗ₘ (pushforwardIso f).inv.app Q) ≫
     transportedTensor f P Q ≫
       (pushforwardIso f).hom.app (P ⊗ Q)
 
+/-- The pullback tensor comparison is the adjunction transpose of the tensor of the units. -/
 def pullbackTensor (M N : Y.Modules) :
     (pullback f).obj (M ⊗ N) ⟶ (pullback f).obj M ⊗ (pullback f).obj N :=
   ((pullbackPushforwardAdjunction f).homEquiv _ _).symm

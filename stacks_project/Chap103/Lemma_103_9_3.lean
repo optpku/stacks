@@ -8,7 +8,7 @@ module
 
 public import ReasLib.AlgebraicGeometry.GroupoidsOver.Module.ParasiticCohomology
 public import ReasLib.AlgebraicGeometry.GroupoidsOver.Etale.Module
-public import stacks_project.Chap103.Lemma_103_5_1_SmallSections
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Etale.SmallSections
 import StacksCheckRecall
 
 /-!
@@ -41,6 +41,20 @@ theorem hasSmallAssociatedTypeSections_of_etale_or_fppf
   · exact ⟨fun F Z ↦ AlgebraicStack.EtaleSmallSections.sectionsSmall f F Z.unop⟩
   · exact ⟨fun F Z ↦ AlgebraicStack.EtaleSmallSections.sectionsSmall f
       ⟨F.obj, Presheaf.IsSheaf.of_le (etaleTopology_le_fppfTopology X) F.property⟩ Z.unop⟩
+
+/-- Morphisms of algebraic stacks have small associated type-valued sections
+in the étale topology. -/
+instance hasSmallAssociatedTypeSections_etale_of_algebraicStack
+    {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y]
+    (f : X ⟶ Y) : HasSmallAssociatedTypeSections f .etale :=
+  hasSmallAssociatedTypeSections_of_etale_or_fppf f (Or.inl rfl)
+
+/-- Morphisms of algebraic stacks have small associated type-valued sections
+in the fppf topology. -/
+instance hasSmallAssociatedTypeSections_fppf_of_algebraicStack
+    {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y]
+    (f : X ⟶ Y) : HasSmallAssociatedTypeSections f .fppf :=
+  hasSmallAssociatedTypeSections_of_etale_or_fppf f (Or.inr rfl)
 
 section Cohomology
 
@@ -83,41 +97,5 @@ morphism of algebraic stacks is parasitic in the étale or fppf topology. -/
           (hsize := hasSmallAssociatedTypeSections_of_etale_or_fppf f hτ) F i).val))
 
 end HigherDirectImage
-
-/-- Parasitic higher direct images remain parasitic in the étale topology. -/
-instance associatedModules.instParasitic_higherDirectImage_etale
-    {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y]
-    (f : X ⟶ Y) (F : RingedSite.ModuleCat.{u} (associatedRingedSite X .etale))
-    [IsParasitic ((PresheafOfModules.restrictScalars
-      (associatedStructurePresheafIso X .etale).hom).obj F.val)] (i : ℕ)
-    [HasInjectiveResolutions (RingedSite.ModuleCat.{u} (associatedRingedSite X .etale))] :
-    IsParasitic ((PresheafOfModules.restrictScalars
-      (associatedStructurePresheafIso Y .etale).hom).obj
-        (associatedModules.higherDirectImage f .etale
-          (hsize := hasSmallAssociatedTypeSections_of_etale_or_fppf f (Or.inl rfl))
-          (aX := etaleModulesAbelian X) (aY := etaleModulesAbelian Y) F i).val) :=
-  associatedModules.isParasitic_higherDirectImage
-    (hsize := hasSmallAssociatedTypeSections_of_etale_or_fppf f (Or.inl rfl))
-          (aX := etaleModulesAbelian X) (aY := etaleModulesAbelian Y)
-    (Or.inl rfl) f F i
-
-/-- Parasitic higher direct images remain parasitic in the fppf topology. -/
-instance associatedModules.instParasitic_higherDirectImage_fppf
-    {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y]
-    (f : X ⟶ Y) (F : RingedSite.ModuleCat.{u} (associatedRingedSite X .fppf))
-    [IsParasitic ((PresheafOfModules.restrictScalars
-      (associatedStructurePresheafIso X .fppf).hom).obj F.val)] (i : ℕ)
-    [HasInjectiveResolutions (RingedSite.ModuleCat.{u} (associatedRingedSite X .fppf))] :
-    IsParasitic ((PresheafOfModules.restrictScalars
-      (associatedStructurePresheafIso Y .fppf).hom).obj
-        (associatedModules.higherDirectImage f .fppf
-          (hsize := hasSmallAssociatedTypeSections_of_etale_or_fppf f (Or.inr rfl))
-          (aX := AlgebraicStack.fppfModules_abelian X)
-          (aY := AlgebraicStack.fppfModules_abelian Y) F i).val) :=
-  associatedModules.isParasitic_higherDirectImage
-    (hsize := hasSmallAssociatedTypeSections_of_etale_or_fppf f (Or.inr rfl))
-          (aX := AlgebraicStack.fppfModules_abelian X)
-          (aY := AlgebraicStack.fppfModules_abelian Y)
-    (Or.inr rfl) f F i
 
 end AlgebraicGeometry.GroupoidsOver

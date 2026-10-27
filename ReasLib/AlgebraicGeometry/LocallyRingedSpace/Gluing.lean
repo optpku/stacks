@@ -82,7 +82,9 @@ theorem chartPreimage_range_subset {Y : LocallyRingedSpace.{u}}
     (h : Y ⟶ D.glued) (i : D.J) :
     Set.range
         ((Y.ofRestrict (D.chartPreimage h i).isOpenEmbedding ≫ h).base) ⊆
-      Set.range (D.ι i).base := sorry
+      Set.range (D.ι i).base := by
+  rintro _ ⟨x, rfl⟩
+  exact x.property
 
 /-- The canonical restriction of a morphism into a glued space to the inverse image of one
 target chart. -/

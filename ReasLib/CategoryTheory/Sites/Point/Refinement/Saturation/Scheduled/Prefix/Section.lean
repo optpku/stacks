@@ -63,7 +63,7 @@ the later prefix to the earlier cut. -/
 theorem map_apply {c d : (Set.Iio cut)ᵒᵖ} (f : c ⟶ d)
     (D : Stage.Scheduled.OpenPrefix (J := J) A request c.unop.1) :
     (belowFunctor (J := J) A request cut).map f D =
-      D.restrict (leOfHom f.unop) := sorry
+      D.restrict (leOfHom f.unop) := rfl
 
 end belowFunctor
 
@@ -74,7 +74,8 @@ variable (s : (belowFunctor (J := J) A request cut).sections)
 /-- Section compatibility says that the prefix at an earlier predecessor is
 the restriction of the prefix at a later predecessor. -/
 theorem restrict {c d : Set.Iio cut} (hcd : c ≤ d) :
-    (s.val (op d)).restrict hcd = s.val (op c) := sorry
+    (s.val (op d)).restrict hcd = s.val (op c) :=
+  s.property ((homOfLE hcd).op)
 
 /-- The greatest stage of the prefix selected by a section at a strict
 predecessor of the cut. -/
@@ -88,7 +89,9 @@ namespace topStage
 is the top stage of the earlier section value. -/
 theorem eqOfLE {c d : Set.Iio cut} (hcd : c ≤ d) :
     (s.val (op d)).toDiagram.stage ⟨c.1, hcd⟩ =
-      topStage s c := sorry
+      topStage s c :=
+  congrArg (fun E : OpenPrefix (J := J) A request c.1 =>
+    E.toDiagram.stage ⟨c.1, le_rfl⟩) (Section.restrict s hcd)
 
 end topStage
 
@@ -109,11 +112,65 @@ namespace topHom
 /-- The top-stage transition at a reflexive comparison is the identity. -/
 theorem refl (c : Set.Iio cut) :
     topHom s (le_rfl : c ≤ c) =
-      𝟙 (topStage s c) := sorry
+      𝟙 (topStage s c) := by
+  change (𝟙 _) ≫ (s.val (op c)).toDiagram.functor.map (𝟙 _) = _
+  rw [Functor.map_id, Category.id_comp]
+  rfl
 
 /-- Top-stage transitions compose along chains of predecessors. -/
 theorem comp {c d e : Set.Iio cut} (hcd : c ≤ d) (hde : d ≤ e) :
-    topHom s (le_trans hcd hde) = topHom s hcd ≫ topHom s hde := sorry
+    topHom s (le_trans hcd hde) = topHom s hcd ≫ topHom s hde := by
+  have hce : c ≤ e := le_trans hcd hde
+  let cd : {i : WithTop (WithBot M) // i ≤ d.1} := ⟨c.1, hcd⟩
+  let dd : {i : WithTop (WithBot M) // i ≤ d.1} := ⟨d.1, le_rfl⟩
+  let ce : {i : WithTop (WithBot M) // i ≤ e.1} := ⟨c.1, hce⟩
+  let de : {i : WithTop (WithBot M) // i ≤ e.1} := ⟨d.1, hde⟩
+  let ee : {i : WithTop (WithBot M) // i ≤ e.1} := ⟨e.1, le_rfl⟩
+  let hc := congrArg (fun E : OpenPrefix (J := J) A request d.1 =>
+    E.toDiagram.stage cd) (Section.restrict s hde).symm
+  have hcompat :
+      (s.val (op d)).toDiagram.hom (show cd ≤ dd from hcd) ≫
+          eqToHom (topStage.eqOfLE s hde).symm =
+        eqToHom hc ≫ (s.val (op e)).toDiagram.hom (show ce ≤ de from hcd) :=
+    eqToHom_naturality (fun E : OpenPrefix (J := J) A request d.1 =>
+      E.toDiagram.hom (show cd ≤ dd from hcd)) (Section.restrict s hde).symm
+  have hcomp : (s.val (op e)).toDiagram.hom (show ce ≤ ee from hce) =
+      (s.val (op e)).toDiagram.hom (show ce ≤ de from hcd) ≫
+        (s.val (op e)).toDiagram.hom (show de ≤ ee from hde) :=
+    (s.val (op e)).toDiagram.functor.map_comp
+      (homOfLE (show ce ≤ de from hcd)) (homOfLE (show de ≤ ee from hde))
+  have h : topHom s hce =
+      eqToHom (topStage.eqOfLE s hcd).symm ≫
+        ((s.val (op d)).toDiagram.hom (show cd ≤ dd from hcd) ≫
+          eqToHom (topStage.eqOfLE s hde).symm) ≫
+        (s.val (op e)).toDiagram.hom (show de ≤ ee from hde) := by
+    calc
+      topHom s hce =
+          eqToHom (topStage.eqOfLE s hce).symm ≫
+            (s.val (op e)).toDiagram.hom (show ce ≤ ee from hce) := rfl
+      _ = (eqToHom (topStage.eqOfLE s hcd).symm ≫ eqToHom hc) ≫
+          ((s.val (op e)).toDiagram.hom (show ce ≤ de from hcd) ≫
+            (s.val (op e)).toDiagram.hom (show de ≤ ee from hde)) := by
+        rw [eqToHom_trans]
+        exact congrArg (fun f =>
+          eqToHom (topStage.eqOfLE s hce).symm ≫ f) hcomp
+      _ = eqToHom (topStage.eqOfLE s hcd).symm ≫
+          ((s.val (op d)).toDiagram.hom (show cd ≤ dd from hcd) ≫
+            eqToHom (topStage.eqOfLE s hde).symm) ≫
+          (s.val (op e)).toDiagram.hom (show de ≤ ee from hde) := by
+        have hh := congrArg (fun f => eqToHom (topStage.eqOfLE s hcd).symm ≫
+          f ≫ (s.val (op e)).toDiagram.hom (show de ≤ ee from hde)) hcompat.symm
+        have hleft := congrArg (fun f => eqToHom (topStage.eqOfLE s hcd).symm ≫ f)
+          (Category.assoc (eqToHom hc)
+            ((s.val (op e)).toDiagram.hom (show ce ≤ de from hcd))
+            ((s.val (op e)).toDiagram.hom (show de ≤ ee from hde)))
+        exact (Category.assoc (eqToHom (topStage.eqOfLE s hcd).symm) (eqToHom hc)
+          ((s.val (op e)).toDiagram.hom (show ce ≤ de from hcd) ≫
+            (s.val (op e)).toDiagram.hom (show de ≤ ee from hde))).trans
+              (hleft.symm.trans hh)
+  apply h.trans
+  simp only [topHom, Category.assoc]
+  rfl
 
 end topHom
 
@@ -137,7 +194,21 @@ namespace topBase
 canonical top-stage transitions. -/
 theorem naturality {c d : Set.Iio cut} (f : c ⟶ d) :
     ((Functor.const (Set.Iio cut)).obj A).map f ≫
-        topBase s d = topBase s c ≫ topHom s (leOfHom f) := sorry
+        topBase s d = topBase s c ≫ topHom s (leOfHom f) := by
+  have hbase : topBase s c ≫ eqToHom (topStage.eqOfLE s (leOfHom f)).symm =
+      (s.val (op d)).toDiagram.fromBase ⟨c.1, leOfHom f⟩ := by
+    have h := eqToHom_naturality (fun E : OpenPrefix (J := J) A request c.1 =>
+        E.toDiagram.fromBase ⟨c.1, le_rfl⟩) (Section.restrict s (leOfHom f)).symm
+    change topBase s c ≫ eqToHom (topStage.eqOfLE s (leOfHom f)).symm =
+      (𝟙 A) ≫ (s.val (op d)).toDiagram.fromBase ⟨c.1, leOfHom f⟩ at h
+    exact h.trans (Category.id_comp _)
+  change (𝟙 A) ≫ topBase s d =
+    topBase s c ≫ (eqToHom (topStage.eqOfLE s (leOfHom f)).symm ≫
+      (s.val (op d)).toDiagram.hom (show
+        (⟨c.1, leOfHom f⟩ : {i : WithTop (WithBot M) // i ≤ d.1}) ≤
+          ⟨d.1, le_rfl⟩ from leOfHom f))
+  rw [← Category.assoc, hbase]
+  exact (s.val (op d)).toDiagram.base.naturality (homOfLE (leOfHom f))
 
 end topBase
 
@@ -157,30 +228,32 @@ namespace topDiagram
 corresponding section prefix. -/
 @[simp]
 theorem stage (c : Set.Iio cut) :
-    (topDiagram s).stage c = topStage s c := sorry
+    (topDiagram s).stage c = topStage s c := rfl
 
 /-- A transition of the extracted top diagram is the canonical top-stage
 transition. -/
 @[simp]
 theorem hom {c d : Set.Iio cut} (hcd : c ≤ d) :
-    (topDiagram s).hom hcd = topHom s hcd := sorry
+    (topDiagram s).hom hcd = topHom s hcd := rfl
 
 /-- A base leg of the extracted top diagram is the top base leg of the
 corresponding section prefix. -/
 @[simp]
 theorem fromBase (c : Set.Iio cut) :
-    (topDiagram s).fromBase c = topBase s c := sorry
+    (topDiagram s).fromBase c = topBase s c := rfl
 
 /-- The top-stage diagram extracted from a prefix section realizes every
 request required before each predecessor. -/
 theorem realizes :
-    PredecessorRealizes (request := request) (topDiagram s) := sorry
+    PredecessorRealizes (request := request) (topDiagram s) := by
+  intro i m hm
+  exact (s.val (op i)).realizesBefore ⟨i.1, le_rfl⟩ m hm
 
 end topDiagram
 
 /- The top transition consumes the compatibility proof already stored by the
-section. The remaining `sorryAx` is confined to equality and functor/naturality
-law fields. -/
+section. Its coherence follows from restriction compatibility and the laws of
+the prefix diagrams. -/
 
 end Section
 end Stage.Scheduled.OpenPrefix

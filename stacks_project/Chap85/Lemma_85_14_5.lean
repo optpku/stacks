@@ -6,23 +6,16 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import Mathlib.Tactic.CrossRefAttribute
-public import stacks_project.Chap85.Definition_85_12_1_Cartesian
-public import stacks_project.Chap85.Lemma_85_11_1_Flat
-
-/-!
-# Lemma 85.14.5
-
-In Situation 85.3.3, a map of objects of `D(O)` out of a cartesian object
-is zero once it vanishes in degree `0` and the indicated stage Hom-groups vanish,
-provided every simplex-operator structure map `f_φ⁻¹ O_n ⟶ O_m` is flat.
--/
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.RingedSite.Simplicial.DerivedHom
+public import ReasLib.AlgebraicGeometry.RingedSite.Simplicial.FiberDerivedHom
 
 @[expose] public section
 
 open CategoryTheory
 open scoped Simplicial
 open RingedSite
+open Opposite
 
 noncomputable section
 
@@ -31,10 +24,10 @@ universe u v w
 namespace CategoryTheory.SimplicialSites
 
 variable (C : SimplexCategory ⥤ Cat.{v, u}) (J : ∀ n, Precoverage (C.obj n))
-variable [instMorphismDiagram : IsMorphismDiagram C J]
 variable [instWeakSheafify : ∀ n, HasWeakSheafify (J n).toGrothendieck (Type w)]
 variable [instLeftKan : ∀ (m n : SimplexCategory) (φ : m ⟶ n) (P : (C.obj m)ᵒᵖ ⥤ Type w),
     ((C.map φ).toFunctor).op.HasLeftKanExtension P]
+variable [instMorphismDiagram : IsMorphismDiagram C J]
 include instMorphismDiagram instWeakSheafify instLeftKan
 variable (O : Sheaf (topology C J) RingCat.{w})
 variable [(topology C J).HasSheafCompose (forget RingCat.{w})]
@@ -52,15 +45,9 @@ variable [∀ n, ToposHom.HasModulePullbackDerived (stageMorphism C J O n)]
 variable [∀ {m n : SimplexCategory} (φ : m ⟶ n),
     ToposHom.HasModulePullbackDerived (ringedToposMap C J O φ)]
 
-/-- Lemma 85.14.5
-In Situation 85.3.3, let `O` be a sheaf of rings on `C_total` and let
-`K, K'` be objects of `D(O)` with `K` cartesian. If `f_φ⁻¹ O_n ⟶ O_m` is
-flat for every simplex operator `φ`, `Hom(K_i⟦i⟧, K'_i) = 0` for `i > 0`
-and `Hom(K_i⟦i + 1⟧, K'_i) = 0` for `i ≥ 0`, then any map `K ⟶ K'`
-inducing the zero map `K_0 ⟶ K'_0` is zero. -/
-@[stacks 0D9R]
-theorem cartesianModuleDerived_hom_eq_zero
-    (K K' : Hom.ModuleDerived.{w} (totalRingedSite C J O))
+/- Lemma 85.14.5 (1). The nullity criterion for the continuous site presentation. -/
+@[stacks 0D9R] #check (CategoryTheory.SimplicialSites.ModuleDerived.hom_eq_zero C J O :
+    ∀ (K K' : Hom.ModuleDerived.{w} (totalRingedSite C J O))
     [ModuleDerived.IsCartesian C J O K]
     (h_flat : ∀ {m n : SimplexCategory} (φ : m ⟶ n),
       ToposHom.IsFlat (ringedToposMap C J O φ))
@@ -70,15 +57,12 @@ theorem cartesianModuleDerived_hom_eq_zero
     (h_hom_succ : ∀ n : SimplexCategory,
       Subsingleton (((moduleDerivedComponent C J O n).obj K)⟦(n.len + 1 : ℤ)⟧ ⟶
         (moduleDerivedComponent C J O n).obj K'))
-    (f : K ⟶ K') (hf0 : (moduleDerivedComponent C J O ⦋0⦌).map f = 0) :
-    f = 0 :=
-  sorry
+    (f : K ⟶ K') (hf0 : (moduleDerivedComponent C J O ⦋0⦌).map f = 0),
+    f = 0)
 
-/-- Maps `K ⟶ K'` out of a cartesian object of `D(O)` that agree on the
-degree-`0` component are equal, under the flatness and stage Hom-vanishing
-hypotheses of `cartesianModuleDerived_hom_eq_zero`. -/
-theorem cartesianModuleDerived_hom_eq_of_eq_component
-    (K K' : Hom.ModuleDerived.{w} (totalRingedSite C J O))
+/- Morphisms agreeing on the degree-zero component are equal under the same hypotheses. -/
+#check (CategoryTheory.SimplicialSites.ModuleDerived.hom_ext C J O :
+    ∀ (K K' : Hom.ModuleDerived.{w} (totalRingedSite C J O))
     [ModuleDerived.IsCartesian C J O K]
     (h_flat : ∀ {m n : SimplexCategory} (φ : m ⟶ n),
       ToposHom.IsFlat (ringedToposMap C J O φ))
@@ -90,8 +74,49 @@ theorem cartesianModuleDerived_hom_eq_of_eq_component
         (moduleDerivedComponent C J O n).obj K'))
     (f g : K ⟶ K')
     (hfg : (moduleDerivedComponent C J O ⦋0⦌).map f =
-      (moduleDerivedComponent C J O ⦋0⦌).map g) :
-    f = g :=
-  sorry
+      (moduleDerivedComponent C J O ⦋0⦌).map g),
+    f = g)
 
 end CategoryTheory.SimplicialSites
+
+namespace CategoryTheory.Grothendieck
+
+variable (F : SimplicialObject Cat.{v, u}) (J : ∀ n, Precoverage (F.obj n))
+variable [IsFiberwiseSite F J]
+variable (O : Sheaf (topology F J) RingCat.{w})
+
+variable [UnivLE.{max u v, w}]
+variable [(topology F J).HasSheafCompose (CategoryTheory.forget RingCat.{w})]
+variable [∀ n, ((J n).toGrothendieck).HasSheafCompose (CategoryTheory.forget RingCat.{w})]
+variable [∀ n, HasSheafify (J n).toGrothendieck (Type w)]
+variable [HasSheafify (topology F J) (Type w)]
+variable [∀ n, ∀ P : (F.obj (op n))ᵒᵖ ⥤ Type w,
+    (ι F (op n)).op.HasPointwiseRightKanExtension P]
+variable [∀ (m n : SimplexCategory) (φ : m ⟶ n) (P : (F.obj (op n))ᵒᵖ ⥤ Type w),
+    ((F.map φ.op).toFunctor).op.HasPointwiseRightKanExtension P]
+
+variable [∀ n, (SheafOfModules.restrictScalars.{w}
+    (fiberStageMorphism F J O n).structureMap).IsRightAdjoint]
+variable [∀ {m n : SimplexCategory} (φ : m ⟶ n),
+    (SheafOfModules.restrictScalars.{w}
+      (fiberRingedToposMap F J O φ).structureMap).IsRightAdjoint]
+variable [∀ n, ToposHom.HasModulePullbackDerived (fiberStageMorphism F J O n)]
+variable [∀ {m n : SimplexCategory} (φ : m ⟶ n),
+    ToposHom.HasModulePullbackDerived (fiberRingedToposMap F J O φ)]
+
+/- Lemma 85.14.5 (2). The nullity criterion for the fiberwise site presentation. -/
+@[stacks 0D9R] #check (CategoryTheory.Grothendieck.ModuleDerived.hom_eq_zero F J O :
+    ∀ (K K' : Hom.ModuleDerived.{w} (fiberTotalRingedSite F J O))
+    [ModuleDerived.IsCartesian F J O K]
+    (h_flat : ∀ {m n : SimplexCategory} (φ : m ⟶ n),
+      ToposHom.IsFlat (fiberRingedToposMap F J O φ))
+    (h_hom : ∀ n : SimplexCategory, 0 < n.len →
+      Subsingleton (((moduleDerivedComponent F J O n).obj K)⟦(n.len : ℤ)⟧ ⟶
+        (moduleDerivedComponent F J O n).obj K'))
+    (h_hom_succ : ∀ n : SimplexCategory,
+      Subsingleton (((moduleDerivedComponent F J O n).obj K)⟦(n.len + 1 : ℤ)⟧ ⟶
+        (moduleDerivedComponent F J O n).obj K'))
+    (f : K ⟶ K') (hf0 : (moduleDerivedComponent F J O ⦋0⦌).map f = 0),
+    f = 0)
+
+end CategoryTheory.Grothendieck

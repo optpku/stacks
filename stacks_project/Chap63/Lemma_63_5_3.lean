@@ -6,7 +6,11 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap63.Lemma_63_5_3_Trace
+import StacksCheckRecall
+public import stacks_project.Chap59.Definition_59_77_1
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Trace.Weighting.Properties
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Trace.Weighting.Derived
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Trace.Weighting.Composition
 
 /-!
 # Properties of weighting traces
@@ -33,16 +37,13 @@ namespace AlgebraicGeometry.Scheme.Etale
 variable {X Y : Scheme.{u}} (f : X ⟶ Y) [LocallyQuasiFinite f] [LocallyOfFiniteType f]
 variable [HasSheafify Y.smallEtaleTopology AddCommGrpCat.{u}]
 
-/-- Lemma 63.5.3 (1): Let `f : X ⟶ Y` be a locally quasi-finite morphism of
-schemes. Let `w : X → ℤ` be a weighting of `f`. The trace maps
-`Tr_{f, w, F} : f_! f⁻¹ F ⟶ F` are functorial in the abelian étale sheaf `F`. -/
-@[stacks 0GKH]
-theorem weightingTrace_natural {w : X → ℤ} (hw : f.IsWeighting w)
-    {F G : Sheaf Y.smallEtaleTopology AddCommGrpCat.{u}} (φ : F ⟶ G) :
+/- Lemma 63.5.3 (1): weighting traces are functorial in the abelian étale sheaf. -/
+@[stacks 0GKH] #check (AlgebraicGeometry.Scheme.Etale.weightingTrace_natural f :
+  ∀ {w : X → ℤ} (hw : f.IsWeighting w)
+    {F G : Sheaf Y.smallEtaleTopology AddCommGrpCat.{u}} (φ : F ⟶ G),
     (lowerShriek f).map ((etaleAbelianSheafPullback f).map φ) ≫
         weightingTrace f hw G =
-      weightingTrace f hw F ≫ φ :=
-  sorry
+      weightingTrace f hw F ≫ φ)
 
 section BaseChange
 
@@ -51,26 +52,20 @@ variable (h_cart : IsPullback g' f' f g)
 variable [LocallyQuasiFinite f'] [LocallyOfFiniteType f']
 variable [HasSheafify Y'.smallEtaleTopology AddCommGrpCat.{u}]
 
-/-- Lemma 63.5.3 (2): Let `f : X ⟶ Y` be a locally quasi-finite morphism of
-schemes. Let `w : X → ℤ` be a weighting of `f`. The trace maps
-`Tr_{f, w, F}` are compatible with arbitrary base change: for a cartesian
-square with `w' = w ∘ g'`, one has
-`g⁻¹ Tr_{f, w, F} = Tr_{f', w', g⁻¹ F}` after the identification
-`g⁻¹ f_! f⁻¹ F ≅ f'_! (f')⁻¹ g⁻¹ F`. -/
-@[stacks 0GKH]
-theorem weightingTrace_baseChange {w : X → ℤ} (hw : f.IsWeighting w)
-    (F : Sheaf Y.smallEtaleTopology AddCommGrpCat.{u}) :
+/- Lemma 63.5.3 (2): weighting traces commute with arbitrary base change. -/
+@[stacks 0GKH] #check (AlgebraicGeometry.Scheme.Etale.weightingTrace_baseChange f g f' g' h_cart :
+  ∀ {w : X → ℤ} (hw : f.IsWeighting w)
+    (F : Sheaf Y.smallEtaleTopology AddCommGrpCat.{u}),
     (etaleAbelianSheafPullback g).map (weightingTrace f hw F) =
       (weightingTraceBaseChangeIso f g f' g' h_cart F).hom ≫
         weightingTrace_isPullback f g f' g' h_cart hw
-          ((etaleAbelianSheafPullback g).obj F) :=
-  sorry
+          ((etaleAbelianSheafPullback g).obj F))
 
 end BaseChange
 
 section Derived
 
-variable (Λ : Type u) [CommRing Λ]
+variable (Λ : Type u) [Ring Λ]
 variable [X.smallEtaleTopology.HasSheafCompose
   (forget₂ (ModuleCat.{u} Λ) AddCommGrpCat.{u})]
 variable [Y.smallEtaleTopology.HasSheafCompose
@@ -96,24 +91,75 @@ variable [∀ U : Y.Etale,
 variable [HasDerivedCategory (Sheaf X.smallEtaleTopology (ModuleCat.{u} Λ))]
 variable [HasDerivedCategory (Sheaf Y.smallEtaleTopology (ModuleCat.{u} Λ))]
 
-/-- Lemma 63.5.3 (3): Let `f : X ⟶ Y` be a locally quasi-finite morphism of
-schemes. Let `w : X → ℤ` be a weighting of `f`. Given a ring `Λ` and
-`K` in `D(Y_étale, Λ)`, the sheaf traces induce a derived trace
-`Tr_{f, w, K} : f_! f⁻¹ K ⟶ K`, functorial in `K` and compatible with
-arbitrary base change. -/
-@[stacks 0GKH]
-def weightingTraceDerived {w : X → ℤ} (hw : f.IsWeighting w)
-    (K : EtaleDerived Y Λ) :
+/- Lemma 63.5.3 (3): the induced derived trace exists over any ring. -/
+@[stacks 0GKH] #check (AlgebraicGeometry.Scheme.Etale.weightingTraceDerived f Λ :
+  ∀ {w : X → ℤ} (hw : f.IsWeighting w)
+    (K : DerivedCategory (Sheaf Y.smallEtaleTopology (ModuleCat.{u} Λ))),
     (lowerShriekModuleDerived f Λ).obj
-        ((etaleModuleDerivedInverseImage f Λ).obj K) ⟶ K :=
-  weightingTraceDerivedHom f Λ hw K
+        ((etaleModuleDerivedInverseImage f Λ).obj K) ⟶ K)
 
-/-- The source-facing derived trace is the objectwise map of
-`weightingTraceDerivedNatTrans`. -/
-theorem weightingTraceDerived_eq {w : X → ℤ} (hw : f.IsWeighting w)
-    (K : EtaleDerived Y Λ) :
-    weightingTraceDerived f Λ hw K = weightingTraceDerivedHom f Λ hw K :=
-  sorry
+#check (AlgebraicGeometry.Scheme.Etale.weightingTraceDerived_natural f Λ :
+  ∀ {w : X → ℤ} (hw : f.IsWeighting w)
+    {K L : DerivedCategory (Sheaf Y.smallEtaleTopology (ModuleCat.{u} Λ))} (φ : K ⟶ L),
+    (lowerShriekModuleDerived f Λ).map
+          ((etaleModuleDerivedInverseImage f Λ).map φ) ≫
+        weightingTraceDerived f Λ hw L =
+      weightingTraceDerived f Λ hw K ≫ φ)
+
+variable {X' Y' : Scheme.{u}} (g : Y' ⟶ Y) (f' : X' ⟶ Y') (g' : X' ⟶ X)
+variable (h_cart : IsPullback g' f' f g)
+variable [LocallyQuasiFinite f'] [LocallyOfFiniteType f']
+variable [HasSheafify Y'.smallEtaleTopology AddCommGrpCat.{u}]
+variable [HasSheafify Y'.smallEtaleTopology (ModuleCat.{u} Λ)]
+variable [X'.smallEtaleTopology.HasSheafCompose
+  (forget₂ (ModuleCat.{u} Λ) AddCommGrpCat.{u})]
+variable [Y'.smallEtaleTopology.HasSheafCompose
+  (forget₂ (ModuleCat.{u} Λ) AddCommGrpCat.{u})]
+variable [HasWeakSheafify X'.smallEtaleTopology (ModuleCat.{u} Λ)]
+variable [HasWeakSheafify Y'.smallEtaleTopology (ModuleCat.{u} Λ)]
+variable [HasWeakSheafify Y'.smallEtaleTopology AddCommGrpCat.{u}]
+variable [HasWeakSheafify X'.smallEtaleTopology AddCommGrpCat.{u}]
+variable [Y'.smallEtaleTopology.PreservesSheafification
+  (forget₂ (ModuleCat.{u} Λ) AddCommGrpCat.{u})]
+variable [X'.smallEtaleTopology.PreservesSheafification
+  (forget₂ (ModuleCat.{u} Λ) AddCommGrpCat.{u})]
+variable [∀ P : Y.Etaleᵒᵖ ⥤ ModuleCat.{u} Λ,
+  (smallEtalePullback g).op.HasLeftKanExtension P]
+variable [∀ P : Y'.Etaleᵒᵖ ⥤ ModuleCat.{u} Λ,
+  (smallEtalePullback f').op.HasLeftKanExtension P]
+variable [∀ P : X.Etaleᵒᵖ ⥤ ModuleCat.{u} Λ,
+  (smallEtalePullback g').op.HasLeftKanExtension P]
+variable [∀ P : Y.Etaleᵒᵖ ⥤ ModuleCat.{u} Λ,
+  (smallEtalePullback (f' ≫ g)).op.HasLeftKanExtension P]
+variable [∀ P : Y.Etaleᵒᵖ ⥤ ModuleCat.{u} Λ,
+  (smallEtalePullback (g' ≫ f)).op.HasLeftKanExtension P]
+variable [∀ P : Y.Etaleᵒᵖ ⥤ AddCommGrpCat.{u},
+  (smallEtalePullback g).op.HasLeftKanExtension P]
+variable [∀ P : X.Etaleᵒᵖ ⥤ AddCommGrpCat.{u},
+  (smallEtalePullback g').op.HasLeftKanExtension P]
+variable [∀ P : Y'.Etaleᵒᵖ ⥤ AddCommGrpCat.{u},
+  (smallEtalePullback f').op.HasLeftKanExtension P]
+variable [(forget₂ (ModuleCat.{u} Λ) AddCommGrpCat.{u}).PreservesLeftKanExtensions
+  (smallEtalePullback g).op]
+variable [(forget₂ (ModuleCat.{u} Λ) AddCommGrpCat.{u}).PreservesLeftKanExtensions
+  (smallEtalePullback g').op]
+variable [(forget₂ (ModuleCat.{u} Λ) AddCommGrpCat.{u}).PreservesLeftKanExtensions
+  (smallEtalePullback f').op]
+variable [∀ U : X'.Etale,
+  HasWeakSheafify (X'.smallEtaleTopology.over U) (ModuleCat.{u} Λ)]
+variable [∀ U : Y'.Etale,
+  HasWeakSheafify (Y'.smallEtaleTopology.over U) (ModuleCat.{u} Λ)]
+variable [HasDerivedCategory (Sheaf X'.smallEtaleTopology (ModuleCat.{u} Λ))]
+variable [HasDerivedCategory (Sheaf Y'.smallEtaleTopology (ModuleCat.{u} Λ))]
+
+#check (AlgebraicGeometry.Scheme.Etale.weightingTraceDerived_baseChange f Λ g f' g' h_cart :
+  ∀ {w : X → ℤ} (hw : f.IsWeighting w)
+    (K : DerivedCategory (Sheaf Y.smallEtaleTopology (ModuleCat.{u} Λ))),
+    (etaleModuleDerivedInverseImage g Λ).map
+        (weightingTraceDerived f Λ hw K) =
+      (weightingTraceDerivedBaseChangeIso f Λ g f' g' h_cart K).hom ≫
+        weightingTraceDerived_isPullback f Λ g f' g' h_cart hw
+          ((etaleModuleDerivedInverseImage g Λ).obj K))
 
 end Derived
 

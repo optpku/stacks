@@ -48,27 +48,39 @@ theorem associatedGradedMap_bijective {d : ℕ}
     {x : Fin d → maximalIdeal R} (hx : IsRegularSystemOfParameters x) :
     Function.Bijective
       (Ideal.AssociatedGraded.Presentation.map x) := by
-  refine ⟨associatedGradedMap_injective hx,
-    Ideal.AssociatedGraded.Presentation.map_surjective x ?_⟩
-  calc
-    maximalIdeal R = parameterIdeal x := hx.2.symm
-    _ = Ideal.span (Set.range fun i ↦ (x i : R)) := parameterIdeal_eq_span x
-    _ ≤ Ideal.span (Set.range fun i ↦ (x i : R)) := le_rfl
+  exact ⟨associatedGradedMap_injective hx,
+    Ideal.AssociatedGraded.Presentation.map_surjective x hx.2.ge⟩
 
 /-- The canonical associated-graded equivalence determined by a regular system
-of parameters. -/
+of parameters. Its inverse selects a polynomial only from the fully proved
+surjectivity of the presentation. Injectivity is used solely for the
+proposition-valued left inverse law. -/
 @[stacks 00NO "regular-parameter associated-graded equivalence"]
 noncomputable def associatedGradedEquiv {d : ℕ}
     {x : Fin d → maximalIdeal R} (hx : IsRegularSystemOfParameters x) :
     MvPolynomial (Fin d) (ResidueField R) ≃ₐ[ResidueField R]
       Ideal.AssociatedGraded.ring (maximalIdeal R) :=
-  AlgEquiv.ofBijective _ (associatedGradedMap_bijective hx)
+  { Ideal.AssociatedGraded.Presentation.map x with
+    invFun := Ideal.AssociatedGraded.Presentation.preimage x hx.2.ge
+    left_inv := fun p ↦ associatedGradedMap_injective hx
+      (Ideal.AssociatedGraded.Presentation.map_preimage x hx.2.ge
+        (Ideal.AssociatedGraded.Presentation.map x p))
+    right_inv := Ideal.AssociatedGraded.Presentation.map_preimage x hx.2.ge }
 
 @[simp]
 theorem associatedGradedEquiv_toAlgHom {d : ℕ}
     {x : Fin d → maximalIdeal R} (hx : IsRegularSystemOfParameters x) :
     (associatedGradedEquiv hx).toAlgHom =
       Ideal.AssociatedGraded.Presentation.map x :=
+  rfl
+
+/-- The reverse equivalence is the preimage selected from the proved
+surjectivity of the canonical presentation. -/
+theorem associatedGradedEquiv_symm_apply {d : ℕ}
+    {x : Fin d → maximalIdeal R} (hx : IsRegularSystemOfParameters x)
+    (y : Ideal.AssociatedGraded.ring (maximalIdeal R)) :
+    (associatedGradedEquiv hx).symm y =
+      Ideal.AssociatedGraded.Presentation.preimage x hx.2.ge y :=
   rfl
 
 @[simp, stacks 00NO "regular-parameter associated-graded variable"]
@@ -78,6 +90,15 @@ theorem associatedGradedEquiv_X {d : ℕ}
       Ideal.AssociatedGraded.degreeOne (x i) := by
   change Ideal.AssociatedGraded.Presentation.map x (MvPolynomial.X i) = _
   simp
+
+/-- The inverse recovers the variable from the class of its regular parameter. -/
+@[simp]
+theorem associatedGradedEquiv_symm_degreeOne {d : ℕ}
+    {x : Fin d → maximalIdeal R} (hx : IsRegularSystemOfParameters x) (i : Fin d) :
+    (associatedGradedEquiv hx).symm (Ideal.AssociatedGraded.degreeOne (x i)) =
+      MvPolynomial.X i := by
+  rw [← associatedGradedEquiv_X hx i]
+  exact (associatedGradedEquiv hx).symm_apply_apply _
 
 /-- A regular system of parameters presents the associated graded ring as a
 polynomial algebra. The equation identifies the equivalence with the

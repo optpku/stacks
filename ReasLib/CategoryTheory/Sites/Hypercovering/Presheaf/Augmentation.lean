@@ -34,6 +34,22 @@ variable {J : GrothendieckTopology C} {X : C}
 
 namespace Hypercovering
 
+omit [Limits.HasPullbacks C] in
+private theorem formalCoproduct_augmentation_naturality
+    {A B : Limits.FormalCoproduct.{w} (Over X)} (f : A ⟶ B) :
+    Limits.FormalCoproduct.toPresheaf.map
+        ((Limits.FormalCoproduct.forgetOver X).map f) ≫
+        Limits.FormalCoproduct.augmentation B =
+      Limits.FormalCoproduct.augmentation A := by
+  apply Limits.Sigma.hom_ext
+  intro i
+  dsimp only [Limits.FormalCoproduct.toPresheaf, Limits.FormalCoproduct.eval,
+    Limits.FormalCoproduct.forgetOver, Limits.FormalCoproduct.map,
+    Limits.FormalCoproduct.mapHom, Limits.FormalCoproduct.mapObj,
+    Limits.FormalCoproduct.augmentation, Over.forget, Comma.fst, Function.comp_def]
+  simp only [Category.assoc, Limits.Sigma.ι_desc_assoc, Limits.Sigma.ι_desc,
+    ← Functor.map_comp, Over.w]
+
 /-- The simplicial semi-representable family obtained by forgetting the fixed target in every
 degree of a hypercovering. -/
 abbrev simplicialFamily (K : Hypercovering.{w} J X) :
@@ -74,7 +90,10 @@ theorem augmentationApp_naturality (K : Hypercovering.{w} J X)
     K.simplicialPresheaf.map f ≫ K.augmentationApp Delta' =
       K.augmentationApp Delta ≫
         ((SimplicialObject.const (Cᵒᵖ ⥤ Type (max w v))).obj
-          (uliftYoneda.{w}.obj X)).map f := sorry
+          (uliftYoneda.{w}.obj X)).map f := by
+  change _ = _ ≫ 𝟙 _
+  rw [Category.comp_id]
+  exact formalCoproduct_augmentation_naturality (K.toSimplicialObject.map f)
 
 /-- The canonical augmentation of the simplicial presheaf of a hypercovering to the
 representable presheaf of its fixed target. -/
@@ -106,13 +125,15 @@ noncomputable def toPresheafTarget
 @[simp]
 theorem toPresheafTarget_simplicial
     (K : Hypercovering.{w} J X) :
-    K.toPresheafTarget.simplicial = K.simplicialFamily := sorry
+    K.toPresheafTarget.simplicial = K.simplicialFamily := by
+  rfl
 
 /-- The augmentation of `toPresheafTarget` is the canonical fixed-target augmentation. -/
 @[simp]
 theorem toPresheafTarget_augmentation
     (K : Hypercovering.{w} J X) :
-    K.toPresheafTarget.augmentation = K.augmentation := sorry
+    K.toPresheafTarget.augmentation = K.augmentation := by
+  rfl
 
 namespace Hom
 
@@ -127,7 +148,10 @@ abbrev toSimplicialFamily {K L : Hypercovering.{w} J X} (f : K ⟶ L) :
 theorem toPresheafTarget_naturality {K L : Hypercovering.{w} J X} (f : K ⟶ L) :
     HypercoveringOf.simplicialPresheafFunctor.map (toSimplicialFamily f) ≫
         L.toPresheafTarget.augmentation =
-      K.toPresheafTarget.augmentation := sorry
+      K.toPresheafTarget.augmentation := by
+  apply NatTrans.ext
+  funext Delta
+  exact formalCoproduct_augmentation_naturality ((Hom.toSimplicial f).app Delta)
 
 /-- A fixed-target hypercovering morphism induces the corresponding augmentation-preserving
 morphism of presheaf-target hypercoverings. -/
@@ -139,16 +163,19 @@ def toPresheafTarget {K L : Hypercovering.{w} J X} (f : K ⟶ L) :
 @[simp]
 theorem toPresheafTarget_toSimplicial {K L : Hypercovering.{w} J X} (f : K ⟶ L) :
     HypercoveringOf.Hom.toSimplicial (toPresheafTarget f) =
-      toSimplicialFamily f := sorry
+      toSimplicialFamily f := by
+  rfl
 
 /-- The induced presheaf-target morphism preserves identity morphisms. -/
 theorem toPresheafTarget_id (K : Hypercovering.{w} J X) :
-    toPresheafTarget (𝟙 K) = 𝟙 K.toPresheafTarget := sorry
+    toPresheafTarget (𝟙 K) = 𝟙 K.toPresheafTarget := by
+  rfl
 
 /-- The induced presheaf-target morphism preserves composition. -/
 theorem toPresheafTarget_comp {K L M : Hypercovering.{w} J X}
     (f : K ⟶ L) (g : L ⟶ M) :
-    toPresheafTarget (f ≫ g) = toPresheafTarget f ≫ toPresheafTarget g := sorry
+    toPresheafTarget (f ≫ g) = toPresheafTarget f ≫ toPresheafTarget g := by
+  rfl
 
 end Hom
 
@@ -165,13 +192,15 @@ def toPresheafTargetFunctor :
 /-- The presheaf-target functor acts on objects by the canonical augmentation construction. -/
 @[simp]
 theorem toPresheafTargetFunctor_obj (K : Hypercovering.{w} J X) :
-    (toPresheafTargetFunctor (J := J) (X := X)).obj K = K.toPresheafTarget := sorry
+    (toPresheafTargetFunctor (J := J) (X := X)).obj K = K.toPresheafTarget := by
+  rfl
 
 /-- The presheaf-target functor acts on morphisms by forgetting the fixed target degreewise. -/
 @[simp]
 theorem toPresheafTargetFunctor_map {K L : Hypercovering.{w} J X} (f : K ⟶ L) :
     (toPresheafTargetFunctor (J := J) (X := X)).map f =
-      Hom.toPresheafTarget f := sorry
+      Hom.toPresheafTarget f := by
+  rfl
 
 end Hypercovering
 

@@ -27,7 +27,8 @@ theorem profiniteTopRep_map_one (G : Type u) [Group G] [TopologicalSpace G]
     [IsTopologicalGroup G] (M : Type u) [AddCommGroup M] [TopologicalSpace M]
     [IsTopologicalAddGroup M] [CompactSpace M] [T2Space M]
     [TotallyDisconnectedSpace M] [DistribMulAction G M] [ContinuousSMul G M]
-    (x : M) : (DistribSMul.toAddMonoidHom M 1).toIntLinearMap x = x := sorry
+    (x : M) : (DistribSMul.toAddMonoidHom M 1).toIntLinearMap x = x := by
+  simp [DistribSMul.toAddMonoidHom]
 
 /-- The continuous action maps of a profinite module satisfy multiplication. -/
 theorem profiniteTopRep_map_mul (G : Type u) [Group G] [TopologicalSpace G]
@@ -37,17 +38,23 @@ theorem profiniteTopRep_map_mul (G : Type u) [Group G] [TopologicalSpace G]
     (g h : G) (x : M) :
     (DistribSMul.toAddMonoidHom M (g * h)).toIntLinearMap x =
       (DistribSMul.toAddMonoidHom M g).toIntLinearMap
-        ((DistribSMul.toAddMonoidHom M h).toIntLinearMap x) := sorry
+        ((DistribSMul.toAddMonoidHom M h).toIntLinearMap x) := by
+  change (g * h) • x = g • h • x
+  exact mul_smul g h x
 
 /-- The `I`-adic topology makes a module a topological additive group. -/
 theorem adicModule_isTopologicalAddGroup {Λ : Type u} [CommRing Λ] (I : Ideal Λ)
     (M : Type u) [AddCommGroup M] [Module Λ M] :
-    @IsTopologicalAddGroup M (Ideal.adicModuleTopology I M) _ := sorry
+    @IsTopologicalAddGroup M (Ideal.adicModuleTopology I M) _ := by
+  infer_instance
 
 /-- Integer scalars act continuously in the `I`-adic topology. -/
 theorem adicModule_continuousSMul_int {Λ : Type u} [CommRing Λ] (I : Ideal Λ)
     (M : Type u) [AddCommGroup M] [Module Λ M] :
-    @ContinuousSMul ℤ M _ _ (Ideal.adicModuleTopology I M) := sorry
+    @ContinuousSMul ℤ M _ _ (Ideal.adicModuleTopology I M) := by
+  letI : TopologicalSpace M := Ideal.adicModuleTopology I M
+  letI : IsTopologicalAddGroup M := adicModule_isTopologicalAddGroup I M
+  infer_instance
 
 /-- The topological representation associated to a profinite continuous module. -/
 public def profiniteTopRep (G : Type u) [Group G] [TopologicalSpace G]
@@ -76,7 +83,10 @@ theorem adicAction_continuous (G : Type u) [Group G] [TopologicalSpace G]
     [Module Λ M] [DistribMulAction G M]
     [hcont : @ContinuousSMul G M _ _ (Ideal.adicModuleTopology I M)] (g : G) :
     @Continuous M M (Ideal.adicModuleTopology I M) (Ideal.adicModuleTopology I M)
-      (DistribSMul.toAddMonoidHom M g) := sorry
+      (DistribSMul.toAddMonoidHom M g) := by
+  letI : TopologicalSpace M := Ideal.adicModuleTopology I M
+  change Continuous (fun x : M ↦ g • x)
+  exact continuous_const_smul g
 
 /-- The continuous integral-linear action map of a group element on an adic module. -/
 public def adicActionCLM (G : Type u) [Group G] [TopologicalSpace G]
@@ -94,7 +104,9 @@ theorem adicContRepresentation_map_one (G : Type u) [Group G] [TopologicalSpace 
     {Λ : Type u} [CommRing Λ] (I : Ideal Λ) (M : Type u) [AddCommGroup M]
     [Module Λ M] [DistribMulAction G M]
     [hcont : @ContinuousSMul G M _ _ (Ideal.adicModuleTopology I M)] (x : M) :
-    adicActionCLM G I M 1 x = x := sorry
+    adicActionCLM G I M 1 x = x := by
+  change (1 : G) • x = x
+  exact one_smul G x
 
 /-- The adic action map preserves multiplication in the group. -/
 theorem adicContRepresentation_map_mul (G : Type u) [Group G] [TopologicalSpace G]
@@ -102,7 +114,9 @@ theorem adicContRepresentation_map_mul (G : Type u) [Group G] [TopologicalSpace 
     [Module Λ M] [DistribMulAction G M]
     [hcont : @ContinuousSMul G M _ _ (Ideal.adicModuleTopology I M)] (g h : G) (x : M) :
     adicActionCLM G I M (g * h) x =
-      adicActionCLM G I M g (adicActionCLM G I M h x) := sorry
+      adicActionCLM G I M g (adicActionCLM G I M h x) := by
+  change (g * h) • x = g • h • x
+  exact mul_smul g h x
 
 /-- The continuous integral representation of a group on an adic module. -/
 public def adicContRepresentation (G : Type u) [Group G] [TopologicalSpace G]
@@ -142,14 +156,16 @@ theorem profiniteTopRep_V (G : Type u) [Group G] [TopologicalSpace G]
     [IsTopologicalGroup G] (M : Type u) [AddCommGroup M] [TopologicalSpace M]
     [IsTopologicalAddGroup M] [CompactSpace M] [T2Space M]
     [TotallyDisconnectedSpace M] [DistribMulAction G M] [ContinuousSMul G M] :
-    (profiniteTopRep G M).V = M := sorry
+    (profiniteTopRep G M).V = M := by
+  rfl
 
 /-- The carrier of `adicTopRep` is the original coefficient module. -/
 theorem adicTopRep_V (G : Type u) [Group G] [TopologicalSpace G]
     [IsTopologicalGroup G] {Λ : Type u} [CommRing Λ] (I : Ideal Λ) (M : Type u)
     [AddCommGroup M] [Module Λ M] [IsAdicComplete I M] [DistribMulAction G M]
     [hcont : @ContinuousSMul G M _ _ (Ideal.adicModuleTopology I M)] :
-    (adicTopRep G I M).V = M := sorry
+    (adicTopRep G I M).V = M := by
+  rfl
 
 /-- Scalar multiplication is continuous for the adic topology. -/
 theorem adicScalar_continuous (G : Type u) [Group G] [TopologicalSpace G]
@@ -158,7 +174,11 @@ theorem adicScalar_continuous (G : Type u) [Group G] [TopologicalSpace G]
     [SMulCommClass G Λ M]
     [hcont : @ContinuousSMul G M _ _ (Ideal.adicModuleTopology I M)] (r : Λ) :
     @Continuous M M (Ideal.adicModuleTopology I M) (Ideal.adicModuleTopology I M)
-      (DistribSMul.toAddMonoidHom M r) := sorry
+      (DistribSMul.toAddMonoidHom M r) := by
+  letI : TopologicalSpace Λ := I.adicTopology
+  letI : TopologicalSpace M := Ideal.adicModuleTopology I M
+  change Continuous (fun x : M ↦ r • x)
+  exact continuous_const_smul r
 
 /-- Scalar multiplication intertwines the adic group representation. -/
 theorem adicScalar_isIntertwining (G : Type u) [Group G] [TopologicalSpace G]
@@ -166,7 +186,9 @@ theorem adicScalar_isIntertwining (G : Type u) [Group G] [TopologicalSpace G]
     [AddCommGroup M] [Module Λ M] [IsAdicComplete I M] [DistribMulAction G M]
     [SMulCommClass G Λ M]
     [hcont : @ContinuousSMul G M _ _ (Ideal.adicModuleTopology I M)] (r : Λ) :
-    ∀ g : G, ∀ x : M, r • g • x = g • r • x := sorry
+    ∀ g : G, ∀ x : M, r • g • x = g • r • x := by
+  intro g x
+  exact (smul_comm g r x).symm
 
 /-- Scalar multiplication on an adic coefficient representation. -/
 public def adicTopRep_smul (G : Type u) [Group G] [TopologicalSpace G]

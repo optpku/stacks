@@ -50,6 +50,3 @@ theorem epsilon_apply (n : ℤ) :
     (ComplexShape.down ℤ).ε n = n.negOnePow := sorry
 
 end ComplexShape.downInt
-
-#synth (ComplexShape.down ℤ).TensorSigns
-

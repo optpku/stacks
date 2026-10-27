@@ -24,7 +24,7 @@ universe u
 
 namespace AlgebraicGeometry.Scheme.Etale
 
-variable {Y : Scheme.{u}} (X : Over Y) (Λ : Type u) [CommRing Λ]
+variable {Y : Scheme.{u}} (X : Over Y) (Λ : Type u) [Ring Λ]
 variable [IsSeparated X.hom] [Scheme.Hom.QuasiFinite X.hom]
 variable [CompactSpace Y] [QuasiSeparatedSpace Y]
 variable [CompactSpace X.left] [QuasiSeparatedSpace X.left]

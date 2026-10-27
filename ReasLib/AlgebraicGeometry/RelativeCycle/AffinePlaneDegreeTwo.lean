@@ -10,6 +10,7 @@ public import Mathlib.Algebra.Algebra.Subalgebra.Lattice
 public import Mathlib.Algebra.CharP.Basic
 public import Mathlib.AlgebraicGeometry.AffineSpace
 public import Mathlib.AlgebraicGeometry.Morphisms.Smooth
+public import Mathlib.RingTheory.AlgebraicIndependent.Transcendental
 public import ReasLib.AlgebraicGeometry.CycleGroup.Point
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.Fiber.SectionComponent
 public import ReasLib.AlgebraicGeometry.Scheme.Normal
@@ -132,15 +133,55 @@ def secondSectionFiberPoint (k : Type u) [Field k] (w : square k) :
   Scheme.Hom.Section.fiberPoint (totalOnSquareHom k) (secondSection k)
     (secondSection_comp k) w
 
+private theorem section_fiberPoint_dimension {X S : Scheme.{u}} (f : X ⟶ S)
+    [LocallyOfFiniteType f] (s : S ⟶ X) (hs : s ≫ f = 𝟙 S) (y : S) :
+    f.fiberDimensionFunction y (Scheme.Hom.Section.fiberPoint f s hs y) = 0 := by
+  let t : Spec (S.residueField y) ⟶ f.fiber y :=
+    pullback.lift (S.fromSpecResidueField y ≫ s) (𝟙 _)
+      (by simp [Category.assoc, hs])
+  let q := f.fiberToSpecResidueField y
+  let p : Spec (S.residueField y) := IsLocalRing.closedPoint (S.residueField y)
+  have ht : t ≫ q = 𝟙 _ := pullback.lift_snd _ _ _
+  have heq : t p = Scheme.Hom.Section.fiberPoint f s hs y := by
+    apply (f.fiberι y).isEmbedding.injective
+    calc
+      f.fiberι y (t p) = (S.fromSpecResidueField y ≫ s) p := by
+        change (t ≫ f.fiberι y) p = _
+        rw [show t ≫ f.fiberι y = S.fromSpecResidueField y ≫ s from
+          pullback.lift_fst _ _ _]
+      _ = s y := by simp
+      _ = f.fiberι y (Scheme.Hom.Section.fiberPoint f s hs y) := by
+        simp [Scheme.Hom.Section.fiberPoint]
+  have hsurcomp : Function.Surjective ((t ≫ q).residueFieldMap p).hom := by
+    rw [Scheme.Hom.residueFieldMap_congr ht p]
+    exact (ConcreteCategory.bijective_of_isIso _).2
+  have hsur : Function.Surjective (q.residueFieldMap (t p)).hom := by
+    intro a
+    obtain ⟨r, hr⟩ := hsurcomp ((t.residueFieldMap p).hom a)
+    refine ⟨r, (t.residueFieldMap p).hom.injective ?_⟩
+    rw [Scheme.residueFieldMap_comp] at hr
+    exact hr
+  haveI : Algebra.IsAlgebraic
+      ((Spec (S.residueField y)).residueField (q (t p)))
+      ((f.fiber y).residueField (t p)) := ⟨fun a ↦ by
+    obtain ⟨r, hr⟩ := hsur a
+    rw [← hr]
+    exact isAlgebraic_algebraMap r⟩
+  rw [← heq]
+  simp [Scheme.Hom.fiberDimensionFunction, Scheme.Hom.relativeDimensionFunction,
+    Scheme.Hom.residueFieldTranscendenceDegreeAt, trdeg_eq_zero]
+
 /-- The first section point is 0-dimensional on the fibre. -/
 theorem firstSectionFiberPoint_dimension (k : Type u) [Field k] (w : square k) :
-    (totalOnSquareHom k).fiberDimensionFunction w (firstSectionFiberPoint k w) = 0 :=
-  sorry
+    (totalOnSquareHom k).fiberDimensionFunction w (firstSectionFiberPoint k w) = 0 := by
+  exact section_fiberPoint_dimension (totalOnSquareHom k) (firstSection k)
+    (firstSection_comp k) w
 
 /-- The second section point is 0-dimensional on the fibre. -/
 theorem secondSectionFiberPoint_dimension (k : Type u) [Field k] (w : square k) :
-    (totalOnSquareHom k).fiberDimensionFunction w (secondSectionFiberPoint k w) = 0 :=
-  sorry
+    (totalOnSquareHom k).fiberDimensionFunction w (secondSectionFiberPoint k w) = 0 := by
+  exact section_fiberPoint_dimension (totalOnSquareHom k) (secondSection k)
+    (secondSection_comp k) w
 
 /-- The canonical relative 0-cycle `α` on `X_W / W`, with `α_w = [x₁] + [x₂]`. -/
 def canonicalPairCycle (k : Type u) [Field k] :
@@ -167,8 +208,16 @@ theorem canonicalPairCycle_isRelative (k : Type u) [Field k] :
 
 /-- The canonical pair cycle is fibrewise effective. -/
 theorem canonicalPairCycle_isEffective (k : Type u) [Field k] :
-    RelativeCycle.IsEffective (canonicalPairCycle k) :=
-  sorry
+    RelativeCycle.IsEffective (canonicalPairCycle k) := by
+  classical
+  intro w
+  change 0 ≤ CycleGroup.toAlgebraicCycle _ _ (canonicalPairCycle k w)
+  intro x
+  change 0 ≤
+    Function.locallyFinsuppWithin.single (firstSectionFiberPoint k w) (1 : ℤ) x +
+      Function.locallyFinsuppWithin.single (secondSectionFiberPoint k w) (1 : ℤ) x
+  simp only [Function.locallyFinsuppWithin.single_apply]
+  split_ifs <;> simp
 
 /-- The polynomial ring `k[u₁, u₂, v₁, v₂]`. -/
 abbrev coordRing (k : Type u) [CommRing k] : Type u :=
@@ -241,25 +290,49 @@ def symmetricSquareToBase (k : Type u) [Field k] :
     symmetricSquare k ⟶ Spec (.of k) :=
   Spec.map (CommRingCat.ofHom (algebraMap k (invariantSubalgebra k)))
 
+private theorem toSymmetricSquare_comp_base (k : Type u) [Field k] :
+    toSymmetricSquare k ≫ symmetricSquareToBase k = squareToBase k := by
+  change (squareToSpecCoordRing k ≫ Spec.map (CommRingCat.ofHom
+    (algebraMap (invariantSubalgebra k) (coordRing k)))) ≫
+      Spec.map (CommRingCat.ofHom (algebraMap k (invariantSubalgebra k))) = squareToBase k
+  rw [Category.assoc, ← Spec.map_comp]
+  change squareToSpecCoordRing k ≫
+    Spec.map (CommRingCat.ofHom (MvPolynomial.C : k →+* coordRing k)) = squareToBase k
+  rw [squareToSpecCoordRing, Category.assoc,
+    ← AffineSpace.SpecIso_inv_over (n := ULift.{u} (Fin 4)) (.of k),
+    Iso.hom_inv_id_assoc]
+  exact AffineSpace.homOfVector_over _ _
+
+private theorem finiteType_invariantSubalgebra (k : Type u) [CommRing k] :
+    Algebra.FiniteType k (invariantSubalgebra k) := by
+  apply Algebra.FiniteType.adjoin_of_finite
+  simp
+
 /-- The symmetric square is locally Noetherian. -/
 instance instIsLocallyNoetherian_symmetricSquare (k : Type u) [Field k] :
-    IsLocallyNoetherian (symmetricSquare k) :=
-  sorry
+    IsLocallyNoetherian (symmetricSquare k) := by
+  letI := finiteType_invariantSubalgebra k
+  letI := Algebra.FiniteType.isNoetherianRing k (invariantSubalgebra k)
+  exact inferInstanceAs (IsLocallyNoetherian (Spec (.of (invariantSubalgebra k))))
 
 /-- The structure morphism of the symmetric square is locally of finite type. -/
 instance instLocallyOfFiniteType_symmetricSquareToBase (k : Type u) [Field k] :
-    LocallyOfFiniteType (symmetricSquareToBase k) :=
-  sorry
+    LocallyOfFiniteType (symmetricSquareToBase k) := by
+  apply (HasRingHomProperty.Spec_iff (P := @LocallyOfFiniteType)).mpr
+  exact RingHom.finiteType_algebraMap.mpr (finiteType_invariantSubalgebra k)
 
 /-- The quotient morphism `W ⟶ Sym²_S(X)` is locally of finite type. -/
 instance instLocallyOfFiniteType_toSymmetricSquare (k : Type u) [Field k] :
-    LocallyOfFiniteType (toSymmetricSquare k) :=
-  sorry
+    LocallyOfFiniteType (toSymmetricSquare k) := by
+  have : LocallyOfFiniteType (toSymmetricSquare k ≫ symmetricSquareToBase k) := by
+    rw [toSymmetricSquare_comp_base]
+    infer_instance
+  exact locallyOfFiniteType_of_comp (toSymmetricSquare k) (symmetricSquareToBase k)
 
 /-- The morphism `W ⟶ Sym²_S(X)` lies over `Spec k`. -/
 theorem toSymmetricSquare_comp (k : Type u) [Field k] :
-    toSymmetricSquare k ≫ symmetricSquareToBase k = squareToBase k :=
-  sorry
+    toSymmetricSquare k ≫ symmetricSquareToBase k = squareToBase k := by
+  exact toSymmetricSquare_comp_base k
 
 /-- The closed subscheme `V = Spec(k[u₁², v₁²])`, the image of the diagonal in
 `Sym²_S(X)` in characteristic 2. -/
@@ -279,7 +352,35 @@ def diagonalSubstitution (k : Type u) [CommRing k] : coordRing k →ₐ[k] coord
 by the squares of the two diagonal coordinates in characteristic two. -/
 theorem invariantToDiagonal_mem (k : Type u) [Field k] [CharP k 2]
     (x : invariantSubalgebra k) :
-    diagonalSubstitution k (x : coordRing k) ∈ diagonalSubalgebra k := sorry
+    diagonalSubstitution k (x : coordRing k) ∈ diagonalSubalgebra k := by
+  have h : invariantSubalgebra k ≤
+      (diagonalSubalgebra k).comap (diagonalSubstitution k) := by
+    apply Algebra.adjoin_le
+    intro y hy
+    simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at hy
+    have htwo : (2 : coordRing k) = 0 := CharP.cast_eq_zero _ 2
+    have hadd (z : coordRing k) : z + z = 0 := by
+      rw [← two_mul, htwo, zero_mul]
+    rcases hy with rfl | rfl | rfl | rfl | rfl
+    · change diagonalSubstitution k (genU1 k + genU2 k) ∈ diagonalSubalgebra k
+      simpa [diagonalSubstitution, genU1, genU2, hadd] using
+        (diagonalSubalgebra k).zero_mem
+    · change diagonalSubstitution k (genU1 k * genU2 k) ∈ diagonalSubalgebra k
+      simpa [diagonalSubstitution, diagonalSubalgebra, genU1, genU2, genV1, pow_two] using
+        (Algebra.subset_adjoin (R := k)
+          (by simp : genU1 k ^ 2 ∈ ({genU1 k ^ 2, genV1 k ^ 2} : Set (coordRing k))))
+    · change diagonalSubstitution k (genV1 k + genV2 k) ∈ diagonalSubalgebra k
+      simpa [diagonalSubstitution, genV1, genV2, hadd] using
+        (diagonalSubalgebra k).zero_mem
+    · change diagonalSubstitution k (genV1 k * genV2 k) ∈ diagonalSubalgebra k
+      simpa [diagonalSubstitution, diagonalSubalgebra, genU1, genV1, genV2, pow_two] using
+        (Algebra.subset_adjoin (R := k)
+          (by simp : genV1 k ^ 2 ∈ ({genU1 k ^ 2, genV1 k ^ 2} : Set (coordRing k))))
+    · change diagonalSubstitution k
+          (genU1 k * genV1 k + genU2 k * genV2 k) ∈ diagonalSubalgebra k
+      simpa [diagonalSubstitution, genU1, genU2, genV1, genV2, hadd] using
+        (diagonalSubalgebra k).zero_mem
+  exact h x.property
 
 /-- Restriction of the invariant subalgebra along the diagonal substitution. -/
 def invariantToDiagonal (k : Type u) [Field k] [CharP k 2] :
@@ -295,7 +396,15 @@ def diagonalImageToSymmetricSquare (k : Type u) [Field k] [CharP k 2] :
 
 /-- The structure morphism of `W` is smooth. -/
 instance instSmooth_squareToBase (k : Type u) [Field k] : Smooth (squareToBase k) :=
-  sorry
+  by
+  have : Smooth (planeHom k) := by
+    rw [← MorphismProperty.cancel_left_of_respectsIso (P := @Smooth)
+      (AffineSpace.SpecIso (ULift.{u} (Fin 2)) (.of k)).inv,
+      AffineSpace.SpecIso_inv_over, HasRingHomProperty.Spec_iff (P := @Smooth)]
+    change RingHom.Smooth (algebraMap k (MvPolynomial (ULift.{u} (Fin 2)) k))
+    rw [RingHom.smooth_algebraMap]
+    exact ⟨inferInstance, inferInstance⟩
+  exact inferInstanceAs (Smooth (snd k ≫ planeHom k))
 
 /-- The affine square is a normal scheme. -/
 theorem isNormal_square (k : Type u) [Field k] : (square k).isNormal :=
@@ -329,7 +438,17 @@ theorem descentIso_hom_over (k : Type u) [Field k] :
     (descentIso k).hom ≫ totalOnSquareHom k =
       pullback.snd (pullback.snd (planeHom k) (symmetricSquareToBase k))
         (toSymmetricSquare k) :=
-  sorry
+  by
+  change ((pullbackLeftPullbackSndIso (planeHom k) (symmetricSquareToBase k)
+    (toSymmetricSquare k)).hom ≫
+      (pullback.congrHom rfl (toSymmetricSquare_comp k)).hom) ≫
+        pullback.snd (planeHom k) (squareToBase k) = _
+  have h : (pullback.congrHom (f₁ := planeHom k) rfl (toSymmetricSquare_comp k)).hom ≫
+      pullback.snd (planeHom k) (squareToBase k) =
+        pullback.snd (planeHom k) (toSymmetricSquare k ≫ symmetricSquareToBase k) :=
+    pullback.lift_snd _ _ _
+  rw [Category.assoc, h]
+  exact pullbackLeftPullbackSndIso_hom_snd _ _ _
 
 /-- Over a characteristic-two field, the canonical pair zero-cycle on the product of two
 affine planes does not descend to an effective relative zero-cycle on the symmetric square. -/

@@ -44,15 +44,23 @@ agree definitionally with the canonical pointwise zero morphisms of `GradedObjec
 noncomputable instance preadditive [Preadditive C] : Preadditive (GradedObject β C) where
   homGroup := fun X Y ↦
     inferInstanceAs (AddCommGroup (∀ b : β, X b ⟶ Y b))
-  add_comp := sorry
-  comp_add := sorry
+  add_comp _ _ _ f f' g := by
+    funext p
+    exact Preadditive.add_comp _ _ _ (f p) (f' p) (g p)
+  comp_add _ _ _ f g g' := by
+    funext p
+    exact Preadditive.comp_add _ _ _ (f p) (g p) (g' p)
 
 /-- Graded objects inherit an `R`-linear structure componentwise. -/
 noncomputable instance linear {R : Type w'} [Semiring R] [Preadditive C] [Linear R C] :
     Linear R (GradedObject β C) where
   homModule X Y := inferInstanceAs (Module R (∀ b : β, X b ⟶ Y b))
-  smul_comp := sorry
-  comp_smul := sorry
+  smul_comp _ _ _ r f g := by
+    funext p
+    exact Linear.smul_comp _ _ _ r (f p) (g p)
+  comp_smul _ _ _ f r g := by
+    funext p
+    exact Linear.comp_smul _ _ _ (f p) r (g p)
 
 namespace Preadditive
 
@@ -98,27 +106,46 @@ noncomputable instance hasFiniteColimits [HasFiniteColimits C] :
     (piEquivalenceFunctorDiscrete β C).functor⟩
 
 /-- Evaluation at a degree is additive. -/
-instance evalAdditive [Preadditive C] (p : β) : (eval p : GradedObject β C ⥤ C).Additive := sorry
+instance evalAdditive [Preadditive C] (p : β) : (eval p : GradedObject β C ⥤ C).Additive where
+  map_add := rfl
+
+/-- Evaluation at a degree preserves zero morphisms. -/
+instance evalPreservesZeroMorphisms [HasZeroMorphisms C] (p : β) :
+    (eval p : GradedObject β C ⥤ C).PreservesZeroMorphisms where
+  map_zero _ _ := rfl
 
 /-- Evaluation at a degree is linear for the componentwise linear structure. -/
 instance evalLinear {R : Type w'} [Semiring R] [Preadditive C] [Linear R C] (p : β) :
-    Functor.Linear R (eval p : GradedObject β C ⥤ C) := sorry
+    Functor.Linear R (eval p : GradedObject β C ⥤ C) where
+  map_smul _ _ := rfl
 
 /-- Evaluation at a degree preserves finite limits. -/
 noncomputable instance evalPreservesFiniteLimits [HasFiniteLimits C] (p : β) :
-    PreservesFiniteLimits (eval p : GradedObject β C ⥤ C) := sorry
+    PreservesFiniteLimits (eval p : GradedObject β C ⥤ C) := by
+  refine @preservesFiniteLimits_of_natIso _ _ _ _ _ _
+    (piEquivalenceFunctorDiscreteCompEvaluationIso C p) ?_
+  exact comp_preservesFiniteLimits _ _
 
 /-- Evaluation at a degree preserves finite colimits. -/
 noncomputable instance evalPreservesFiniteColimits [HasFiniteColimits C] (p : β) :
-    PreservesFiniteColimits (eval p : GradedObject β C ⥤ C) := sorry
+    PreservesFiniteColimits (eval p : GradedObject β C ⥤ C) := by
+  refine @preservesFiniteColimits_of_natIso _ _ _ _ _ _
+    (piEquivalenceFunctorDiscreteCompEvaluationIso C p) ?_
+  exact comp_preservesFiniteColimits _ _
 
 /-- A morphism of graded objects is monic when every homogeneous component is monic. -/
 theorem mono_of_mono_apply {X Y : GradedObject β C} (f : X ⟶ Y)
-    [∀ p : β, Mono (f p)] : Mono f := sorry
+    [∀ p : β, Mono (f p)] : Mono f where
+  right_cancellation g h w := by
+    funext p
+    exact (cancel_mono (f p)).1 (congrFun w p)
 
 /-- A morphism of graded objects is epic when every homogeneous component is epic. -/
 theorem epi_of_epi_apply {X Y : GradedObject β C} (f : X ⟶ Y)
-    [∀ p : β, Epi (f p)] : Epi f := sorry
+    [∀ p : β, Epi (f p)] : Epi f where
+  left_cancellation g h w := by
+    funext p
+    exact (cancel_epi (f p)).1 (congrFun w p)
 
 /-- Graded objects in an abelian category form an abelian category. -/
 @[stacks 0126]

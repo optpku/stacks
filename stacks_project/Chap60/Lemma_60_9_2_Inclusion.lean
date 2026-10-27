@@ -6,19 +6,14 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-import Mathlib.Tactic.CrossRefAttribute
-public import stacks_project.Chap60.Definition_60_9_1
-public import stacks_project.Chap60.Definition_60_8_4
-public import stacks_project.Chap60.Lemma_60_8_2
-public import ReasLib.CategoryTheory.Limits.FiniteNonempty.Preserves
+public import ReasLib.AlgebraicGeometry.Crystalline.Inclusion
 
 @[expose] public section
 
 open AlgebraicGeometry CategoryTheory CategoryTheory.Limits
+open AlgebraicGeometry.Scheme.Crystalline
 
 universe u
-
-namespace AlgebraicGeometry.Scheme.Crystalline
 
 variable (S : Scheme.{u}) (I : S.IdealSheafData)
 variable (γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V))
@@ -28,47 +23,37 @@ variable (h_compatible :
       (S.presheaf.map (homOfLE (S.basicOpen_le f)).op).hom)
 variable (X : Scheme.{u}) (x₀ : X ⟶ I.subscheme)
 
-/-- The inclusion functor `Cris(X/S) ⥤ CRIS(X/S)`. -/
-abbrev smallCrystallineInclusion :
-    smallCrystallineSite S I γ h_compatible X x₀ ⥤
-      RelativeCRIS S I γ h_compatible X x₀ :=
-  (smallCrystallineProperty S I γ h_compatible X x₀).ι
-
-/-- The inclusion of the small crystalline site is the object-property inclusion. -/
-theorem smallCrystallineInclusion_def :
-    smallCrystallineInclusion S I γ h_compatible X x₀ =
-      (smallCrystallineProperty S I γ h_compatible X x₀).ι := sorry
-
-/-- The small crystalline site has all finite nonempty limits. -/
-instance smallCrystallineSite_hasFiniteNonemptyLimits :
-    HasFiniteNonemptyLimits (smallCrystallineSite S I γ h_compatible X x₀) := sorry
-
-/-- The inclusion `Cris(X/S) ⥤ CRIS(X/S)` preserves finite nonempty limits. -/
-instance smallCrystallineInclusion_preservesFiniteNonemptyLimits :
-    PreservesFiniteNonemptyLimits
-      (smallCrystallineInclusion S I γ h_compatible X x₀) := sorry
-
-/-- The inclusion `Cris(X/S) ⥤ CRIS(X/S)` is fully faithful. -/
-def smallCrystallineInclusion_fullyFaithful :
-    (smallCrystallineInclusion S I γ h_compatible X x₀).FullyFaithful :=
-  (smallCrystallineProperty S I γ h_compatible X x₀).fullyFaithfulι
-
 variable (p : ℕ) [Fact (Nat.Prime p)]
 variable (s : S ⟶ Spec (.of (ULift.{u} (Int.LocalizationAtPrime p))))
 variable (h_p : ∀ U : X.affineOpens, IsNilpotent (p : Γ(X, U)))
 
-/-- The inclusion is continuous for the Zariski crystalline topologies. -/
-instance smallCrystallineInclusion_isContinuous :
-    Functor.IsContinuous
-      (smallCrystallineInclusion S I γ h_compatible X x₀)
-      (smallCrystallineTopology p S I γ h_compatible s X x₀ h_p)
-      (crystallineZariskiTopology S I γ h_compatible X x₀) := sorry
+/- The raw-parameter crystalline API remains available through its mathematical owner. -/
+#check (AlgebraicGeometry.Scheme.Crystalline.smallCrystallineInclusion
+  S I γ h_compatible X x₀ :
+  smallCrystallineSite S I γ h_compatible X x₀ ⥤
+    RelativeCRIS S I γ h_compatible X x₀)
 
-/-- The inclusion is cocontinuous for the Zariski crystalline topologies. -/
-instance smallCrystallineInclusion_isCocontinuous :
-    Functor.IsCocontinuous
-      (smallCrystallineInclusion S I γ h_compatible X x₀)
-      (smallCrystallineTopology p S I γ h_compatible s X x₀ h_p)
-      (crystallineZariskiTopology S I γ h_compatible X x₀) := sorry
+#check (AlgebraicGeometry.Scheme.Crystalline.smallCrystallineInclusion_preservesFiniteNonemptyLimits
+  S I γ h_compatible X x₀ :
+  PreservesFiniteNonemptyLimits
+    (smallCrystallineInclusion S I γ h_compatible X x₀))
 
-end AlgebraicGeometry.Scheme.Crystalline
+#check (AlgebraicGeometry.Scheme.Crystalline.smallCrystallineInclusion_fullyFaithful
+  S I γ h_compatible X x₀ :
+  (smallCrystallineInclusion S I γ h_compatible X x₀).FullyFaithful)
+
+#check (AlgebraicGeometry.Scheme.Crystalline.smallCrystallineInclusion_isContinuous
+  S I γ h_compatible X x₀ p s h_p :
+  Functor.IsContinuous (smallCrystallineInclusion S I γ h_compatible X x₀)
+    (smallCrystallineTopology p S I γ h_compatible s X x₀ h_p)
+    (crystallineZariskiTopology S I γ h_compatible X x₀))
+
+#check (AlgebraicGeometry.Scheme.Crystalline.smallCrystallineInclusion_isCocontinuous
+  S I γ h_compatible X x₀ p s h_p :
+  Functor.IsCocontinuous (smallCrystallineInclusion S I γ h_compatible X x₀)
+    (smallCrystallineTopology p S I γ h_compatible s X x₀ h_p)
+    (crystallineZariskiTopology S I γ h_compatible X x₀))
+
+#check (AlgebraicGeometry.Scheme.Crystalline.smallCrystallineSite_hasFiniteNonemptyLimits
+  S I γ h_compatible X x₀ :
+  HasFiniteNonemptyLimits (smallCrystallineSite S I γ h_compatible X x₀))

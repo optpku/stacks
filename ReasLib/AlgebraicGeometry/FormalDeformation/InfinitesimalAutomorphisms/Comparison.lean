@@ -65,7 +65,7 @@ theorem fiberIso_of_pushforward_hom
     [p.IsStronglyCocartesian (residueToDualNumber Λ k) φ]
     [p.IsStronglyCocartesian (residueToDualNumber Λ k) ψ] :
     fiberInclusion.map (fiberIso_of_pushforward p φ ψ).hom =
-      IsCocartesian.map p (residueToDualNumber Λ k) φ ψ := sorry
+      IsCocartesian.map p (residueToDualNumber Λ k) φ ψ := rfl
 
 /-- The canonical vertical isomorphism between pushforward targets induced by a residue-fibre
 isomorphism. -/
@@ -109,7 +109,96 @@ theorem fiberIso_of_fiberIso_hom
     [p.IsStronglyCocartesian (residueToDualNumber Λ k) ψ] :
     fiberInclusion.map (fiberIso_of_fiberIso p α φ ψ).hom =
       IsCocartesian.map p (residueToDualNumber Λ k) φ
-        (fiberInclusion.map α.hom ≫ ψ) := sorry
+        (fiberInclusion.map α.hom ≫ ψ) := rfl
+
+private theorem fiberIso_of_pushforward_fac
+    {x0 : p.Fiber (residue Λ k)} {x0' y0' : p.Fiber (dualNumber Λ k)}
+    (φ : fiberInclusion.obj x0 ⟶ fiberInclusion.obj x0')
+    (ψ : fiberInclusion.obj x0 ⟶ fiberInclusion.obj y0')
+    [p.IsStronglyCocartesian (residueToDualNumber Λ k) φ]
+    [p.IsStronglyCocartesian (residueToDualNumber Λ k) ψ] :
+    φ ≫ fiberInclusion.map (fiberIso_of_pushforward p φ ψ).hom = ψ := by
+  rw [fiberIso_of_pushforward_hom]
+  exact IsCocartesian.fac p (residueToDualNumber Λ k) φ ψ
+
+private theorem fiberIso_of_fiberIso_fac
+    {x0 y0 : p.Fiber (residue Λ k)} {x0' y0' : p.Fiber (dualNumber Λ k)}
+    (α : x0 ≅ y0)
+    (φ : fiberInclusion.obj x0 ⟶ fiberInclusion.obj x0')
+    (ψ : fiberInclusion.obj y0 ⟶ fiberInclusion.obj y0')
+    [p.IsStronglyCocartesian (residueToDualNumber Λ k) φ]
+    [p.IsStronglyCocartesian (residueToDualNumber Λ k) ψ] :
+    φ ≫ fiberInclusion.map (fiberIso_of_fiberIso p α φ ψ).hom =
+      fiberInclusion.map α.hom ≫ ψ := by
+  rw [fiberIso_of_fiberIso_hom]
+  exact IsCocartesian.fac p (residueToDualNumber Λ k) φ
+    (fiberInclusion.map α.hom ≫ ψ)
+
+/-- A square of pushforwards induces the corresponding square of their retractions. -/
+private theorem comparison_retraction
+    {x0 y0 : p.Fiber (residue Λ k)} {x0' y0' : p.Fiber (dualNumber Λ k)}
+    (α : x0 ≅ y0)
+    (φ : fiberInclusion.obj x0 ⟶ fiberInclusion.obj x0')
+    (ψ : fiberInclusion.obj y0 ⟶ fiberInclusion.obj y0')
+    [p.IsStronglyCocartesian (residueToDualNumber Λ k) φ]
+    [p.IsStronglyCocartesian (residueToDualNumber Λ k) ψ]
+    (e : x0' ≅ y0')
+    (he : φ ≫ fiberInclusion.map e.hom = fiberInclusion.map α.hom ≫ ψ) :
+    fiberInclusion.map e.hom ≫ retraction p ψ =
+      retraction p φ ≫ fiberInclusion.map α.hom := by
+  apply IsStronglyCocartesian.ext p (residueToDualNumber Λ k) φ
+    (dualNumberToResidue Λ k)
+  calc
+    φ ≫ (fiberInclusion.map e.hom ≫ retraction p ψ) =
+        (fiberInclusion.map α.hom ≫ ψ) ≫ retraction p ψ := by
+      rw [← Category.assoc, he]
+    _ = fiberInclusion.map α.hom := by
+      rw [Category.assoc, retraction_comp, Category.comp_id]
+    _ = φ ≫ (retraction p φ ≫ fiberInclusion.map α.hom) := by
+      rw [← Category.assoc, retraction_comp, Category.id_comp]
+
+private theorem comparison_conj_mem_iff
+    {x0 y0 : p.Fiber (residue Λ k)} {x0' y0' : p.Fiber (dualNumber Λ k)}
+    (α : x0 ≅ y0)
+    (φ : fiberInclusion.obj x0 ⟶ fiberInclusion.obj x0')
+    (ψ : fiberInclusion.obj y0 ⟶ fiberInclusion.obj y0')
+    [p.IsStronglyCocartesian (residueToDualNumber Λ k) φ]
+    [p.IsStronglyCocartesian (residueToDualNumber Λ k) ψ]
+    (e : x0' ≅ y0')
+    (he : φ ≫ fiberInclusion.map e.hom = fiberInclusion.map α.hom ≫ ψ)
+    (a : Aut x0') :
+    e.conjAut a ∈ infinitesimalAutomorphismsAt p y0 y0' ψ ↔
+      a ∈ infinitesimalAutomorphismsAt p x0 x0' φ := by
+  have hcomp := comparison_retraction p α φ ψ e he
+  rw [mem_infinitesimalAutomorphismsAt_iff, mem_infinitesimalAutomorphismsAt_iff]
+  change
+    ((fiberInclusion.mapIso e).inv ≫ fiberInclusion.map a.hom ≫
+        (fiberInclusion.mapIso e).hom) ≫ retraction p ψ = retraction p ψ ↔ _
+  simp only [Category.assoc]
+  rw [(fiberInclusion.mapIso e).inv_comp_eq]
+  simp only [Functor.mapIso_hom]
+  rw [hcomp, ← Category.assoc, cancel_mono]
+
+private theorem map_infinitesimalAutomorphismsAt_of_comparison
+    {x0 y0 : p.Fiber (residue Λ k)} {x0' y0' : p.Fiber (dualNumber Λ k)}
+    (α : x0 ≅ y0)
+    (φ : fiberInclusion.obj x0 ⟶ fiberInclusion.obj x0')
+    (ψ : fiberInclusion.obj y0 ⟶ fiberInclusion.obj y0')
+    [p.IsStronglyCocartesian (residueToDualNumber Λ k) φ]
+    [p.IsStronglyCocartesian (residueToDualNumber Λ k) ψ]
+    (e : x0' ≅ y0')
+    (he : φ ≫ fiberInclusion.map e.hom = fiberInclusion.map α.hom ≫ ψ) :
+    (infinitesimalAutomorphismsAt p x0 x0' φ).map e.conjAut =
+      infinitesimalAutomorphismsAt p y0 y0' ψ := by
+  apply SetLike.ext
+  intro b
+  constructor
+  · rintro ⟨a, ha, rfl⟩
+    exact (comparison_conj_mem_iff p α φ ψ e he a).mpr ha
+  · intro hb
+    refine ⟨e.conjAut.symm b, ?_, e.conjAut.apply_symm_apply b⟩
+    apply (comparison_conj_mem_iff p α φ ψ e he (e.conjAut.symm b)).mp
+    simpa only [MulEquiv.apply_symm_apply] using hb
 
 /-- Conjugation by the pushforward comparison maps the first infinitesimal automorphism
 subgroup onto the second one. -/
@@ -121,7 +210,11 @@ theorem map_infinitesimalAutomorphismsAt_of_pushforward
     [p.IsStronglyCocartesian (residueToDualNumber Λ k) ψ] :
     (infinitesimalAutomorphismsAt p x0 x0' φ).map
         (fiberIso_of_pushforward p φ ψ).conjAut =
-      infinitesimalAutomorphismsAt p x0 y0' ψ := sorry
+      infinitesimalAutomorphismsAt p x0 y0' ψ := by
+  apply map_infinitesimalAutomorphismsAt_of_comparison p (Iso.refl x0) φ ψ
+    (fiberIso_of_pushforward p φ ψ)
+  simpa only [Iso.refl_hom, Functor.map_id, Category.id_comp] using
+    fiberIso_of_pushforward_fac p φ ψ
 
 /-- Conjugation by the comparison induced by a residue-fibre isomorphism maps the first
 infinitesimal automorphism subgroup onto the second one. -/
@@ -134,7 +227,9 @@ theorem map_infinitesimalAutomorphismsAt_of_fiberIso
     [p.IsStronglyCocartesian (residueToDualNumber Λ k) ψ] :
     (infinitesimalAutomorphismsAt p x0 x0' φ).map
         (fiberIso_of_fiberIso p α φ ψ).conjAut =
-      infinitesimalAutomorphismsAt p y0 y0' ψ := sorry
+      infinitesimalAutomorphismsAt p y0 y0' ψ := by
+  exact map_infinitesimalAutomorphismsAt_of_comparison p α φ ψ
+    (fiberIso_of_fiberIso p α φ ψ) (fiberIso_of_fiberIso_fac p α φ ψ)
 
 /-- Conjugation by the canonical pushforward comparison gives the canonical group equivalence
 between the corresponding infinitesimal automorphism subgroups. -/
@@ -159,7 +254,7 @@ theorem infAutAtIso_of_pushforward_apply
     [p.IsStronglyCocartesian (residueToDualNumber Λ k) ψ]
     (a : infinitesimalAutomorphismsAt p x0 x0' φ) :
     (infAutAtIso_of_pushforward p φ ψ a).val =
-      (fiberIso_of_pushforward p φ ψ).conjAut a.val := sorry
+      (fiberIso_of_pushforward p φ ψ).conjAut a.val := rfl
 
 /-- Conjugation by the comparison induced by a residue-fibre isomorphism gives the canonical
 group equivalence between the corresponding infinitesimal automorphism subgroups. -/
@@ -186,7 +281,7 @@ theorem infAutAtIso_of_fiberIso_apply
     [p.IsStronglyCocartesian (residueToDualNumber Λ k) ψ]
     (a : infinitesimalAutomorphismsAt p x0 x0' φ) :
     (infAutAtIso_of_fiberIso p α φ ψ a).val =
-      (fiberIso_of_fiberIso p α φ ψ).conjAut a.val := sorry
+      (fiberIso_of_fiberIso p α φ ψ).conjAut a.val := rfl
 
 /-- The residue-fibre comparison is compatible with changing both chosen pushforwards. -/
 theorem infAutAtIso_of_fiberIso_independent_of_pushforward
@@ -204,7 +299,40 @@ theorem infAutAtIso_of_fiberIso_independent_of_pushforward
     (infAutAtIso_of_pushforward p φ φ').trans
         (infAutAtIso_of_fiberIso p α φ' ψ') =
       (infAutAtIso_of_fiberIso p α φ ψ).trans
-        (infAutAtIso_of_pushforward p ψ ψ') := sorry
+        (infAutAtIso_of_pushforward p ψ ψ') := by
+  have h :
+      fiberIso_of_pushforward p φ φ' ≪≫ fiberIso_of_fiberIso p α φ' ψ' =
+        fiberIso_of_fiberIso p α φ ψ ≪≫ fiberIso_of_pushforward p ψ ψ' := by
+    apply Iso.ext
+    apply Fiber.hom_ext
+    simp only [Iso.trans_hom, Functor.map_comp]
+    apply IsCocartesian.ext p (residueToDualNumber Λ k) φ
+    calc
+      φ ≫ (fiberInclusion.map (fiberIso_of_pushforward p φ φ').hom ≫
+          fiberInclusion.map (fiberIso_of_fiberIso p α φ' ψ').hom) =
+          fiberInclusion.map α.hom ≫ ψ' := by
+        rw [← Category.assoc, fiberIso_of_pushforward_fac, fiberIso_of_fiberIso_fac]
+      _ = φ ≫ (fiberInclusion.map (fiberIso_of_fiberIso p α φ ψ).hom ≫
+          fiberInclusion.map (fiberIso_of_pushforward p ψ ψ').hom) := by
+        rw [← Category.assoc, fiberIso_of_fiberIso_fac, Category.assoc,
+          fiberIso_of_pushforward_fac]
+  apply MulEquiv.ext
+  intro a
+  apply Subtype.ext
+  simpa only [MulEquiv.trans_apply, infAutAtIso_of_fiberIso_apply,
+    infAutAtIso_of_pushforward_apply, ← Iso.trans_conjAut] using
+    congrArg (fun e => e.conjAut a.val) h
+
+/-- The comparison induced by a residue automorphism is its cocartesian pushforward. -/
+private theorem fiberIso_of_fiberIso_aut
+    {x0 : p.Fiber (residue Λ k)} {x0' : p.Fiber (dualNumber Λ k)}
+    (φ : fiberInclusion.obj x0 ⟶ fiberInclusion.obj x0')
+    [p.IsStronglyCocartesian (residueToDualNumber Λ k) φ]
+    (β : Aut x0) :
+    fiberIso_of_fiberIso p β φ φ = fiberAutHom p (residueToDualNumber Λ k) φ β := by
+  apply Iso.ext
+  apply Fiber.hom_ext
+  rfl
 
 /-- Transport by the identity residue-fibre automorphism fixes every infinitesimal
 automorphism. -/
@@ -213,7 +341,11 @@ theorem infAutAtIso_of_fiberIso_one_apply
     (φ : fiberInclusion.obj x0 ⟶ fiberInclusion.obj x0')
     [p.IsStronglyCocartesian (residueToDualNumber Λ k) φ]
     (a : infinitesimalAutomorphismsAt p x0 x0' φ) :
-    infAutAtIso_of_fiberIso p (1 : Aut x0) φ φ a = a := sorry
+    infAutAtIso_of_fiberIso p (1 : Aut x0) φ φ a = a := by
+  apply Subtype.ext
+  rw [infAutAtIso_of_fiberIso_apply, fiberIso_of_fiberIso_aut, map_one]
+  change (Iso.refl x0').conjAut a.val = a.val
+  simp [Iso.conjAut_apply]
 
 /-- Transport by a product of residue-fibre automorphisms is successive transport by
 the right factor and then the left factor. -/
@@ -224,7 +356,10 @@ theorem infAutAtIso_of_fiberIso_mul_apply
     (β γ : Aut x0) (a : infinitesimalAutomorphismsAt p x0 x0' φ) :
     infAutAtIso_of_fiberIso p (β * γ) φ φ a =
       infAutAtIso_of_fiberIso p β φ φ
-        (infAutAtIso_of_fiberIso p γ φ φ a) := sorry
+        (infAutAtIso_of_fiberIso p γ φ φ a) := by
+  apply Subtype.ext
+  simp only [infAutAtIso_of_fiberIso_apply, fiberIso_of_fiberIso_aut, map_mul]
+  rw [Aut.Aut_mul_def, Iso.trans_conjAut]
 
 /-- The canonical action of residue-fibre automorphisms on infinitesimal automorphisms. -/
 noncomputable instance instMulDistribMulAction_aut_infAutAt
@@ -246,6 +381,9 @@ theorem infAutAt_smul_eq_fiberAutHom_conj
     (β : Aut x0) (a : infinitesimalAutomorphismsAt p x0 x0' φ) :
     (β • a).val =
       fiberAutHom p (residueToDualNumber Λ k) φ β * a.val *
-        (fiberAutHom p (residueToDualNumber Λ k) φ β)⁻¹ := sorry
+        (fiberAutHom p (residueToDualNumber Λ k) φ β)⁻¹ := by
+  change (infAutAtIso_of_fiberIso p β φ φ a).val = _
+  rw [infAutAtIso_of_fiberIso_apply, fiberIso_of_fiberIso_aut]
+  simp [Iso.conjAut_apply, Aut.Aut_mul_def, Aut.Aut_inv_def]
 
 end CategoryTheory.Functor

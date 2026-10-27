@@ -6,122 +6,116 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import Mathlib.Tactic.CrossRefAttribute
-public import stacks_project.Chap87.Remark_87_13_3_Weak_ideals_of_definition_Ideal
-public import stacks_project.Chap87.Remark_87_13_3_Weak_ideals_of_definition_Points
-public import stacks_project.Chap87.Remark_87_13_3_Weak_ideals_of_definition_Quotient
-public import stacks_project.Chap87.Remark_87_13_3_Weak_ideals_of_definition_System
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.FormalScheme.McQuillan.WeakIdealSystem
 
 /-!
 # Remark 87.13.3 (Weak ideals of definition)
 
-Weak ideals of definition on a McQuillan formal scheme, the associated
-thickenings of `h_X`, and the criterion for `h_X` to be a directed colimit of
-schemes along thickenings.
+Weak ideals, their quotient thickenings, and fundamental systems on McQuillan formal schemes.
 -/
 
 @[expose] public section
 
 universe u v
 
-noncomputable section
-
 open CategoryTheory CategoryTheory.Limits Opposite TopologicalSpace Topology
-open AlgebraicGeometry.ChosenBigFppfSite TopologicalRing
+open AlgebraicGeometry AlgebraicGeometry.ChosenBigFppfSite TopologicalRing
 
 namespace AlgebraicGeometry.McQuillan.FormalScheme
 
-/-- Remark 87.13.3 (Weak ideals of definition) (1): an ideal sheaf on a
-McQuillan formal scheme `X` is a weak ideal of definition iff for every
-affine formal open `U` the ideal of sections is a weak ideal of definition of
-the weakly admissible ring `X.presheaf.obj (op U)`. -/
-@[stacks 0AIV]
-theorem isWeakIdealOfDefinition_affineOpens {X : FormalScheme.{u}}
-    (I : IdealSheafData X) :
-    IsWeakIdealOfDefinition I ↔
-      ∀ U : X.affineOpens,
-        TopologicalRing.Ideal.IsWeakIdealOfDefinition (I.ideal U) :=
-  sorry
+/- The ideal of a quotient morphism is its actual structure-sheaf kernel. -/
+#check (AlgebraicGeometry.McQuillan.FormalScheme.Hom.ker_ideal :
+  ∀ {Y X : FormalScheme.{u}} (f : Y ⟶ X) (U : X.affineOpens),
+    (Hom.ker f).ideal U =
+      RingHom.ker ((Hom.toLTRSHom f).toSheafedHom.hom.c.app (op U.1)).val)
 
-/-- Remark 87.13.3 (Weak ideals of definition) (2): the weak-ideal-of-definition
-condition on an ideal sheaf may be checked on the members of an affine open
-covering. -/
-@[stacks 0AIV]
-theorem isWeakIdealOfDefinition_affineCover {X : FormalScheme.{u}}
+#check (AlgebraicGeometry.McQuillan.FormalScheme.IdealSheafData.ker_quotientι_eq :
+  ∀ {X : FormalScheme.{u}} (I : IdealSheafData X) (hI : IsWeakIdealOfDefinition I),
+    Hom.ker (I.quotientι hI) = I)
+
+/- Weakness is the affinewise weak-ideal condition. -/
+#check (AlgebraicGeometry.McQuillan.FormalScheme.isWeakIdealOfDefinition_iff :
+  ∀ {X : FormalScheme.{u}} (I : IdealSheafData X),
+    IsWeakIdealOfDefinition I ↔
+      ∀ U : X.affineOpens, TopologicalRing.Ideal.IsWeakIdealOfDefinition (I.ideal U))
+
+/- Weakness may be checked on an affine open cover. -/
+#check (AlgebraicGeometry.McQuillan.FormalScheme.isWeakIdealOfDefinition_iff_affineCover :
+  ∀ {X : FormalScheme.{u}}
     (I : IdealSheafData X) {ι : Type u} (𝒰 : ι → X.affineOpens)
-    (hcover : ⨆ i, (𝒰 i).1 = ⊤) :
+    (hcover : ⨆ i, (𝒰 i).1 = ⊤),
     IsWeakIdealOfDefinition I ↔
-      ∀ i, TopologicalRing.Ideal.IsWeakIdealOfDefinition (I.ideal (𝒰 i)) :=
-  sorry
+      ∀ i, TopologicalRing.Ideal.IsWeakIdealOfDefinition (I.ideal (𝒰 i)))
 
-/-- Remark 87.13.3 (Weak ideals of definition) (3): weak ideals of definition
-for `X` correspond to thickenings `Z ⟶ h_X` by sending `I` to the scheme
-`Z = (X, O_X / I)` with the obvious morphism, and sending a thickening to its
-kernel; the two constructions are mutually inverse. -/
-@[stacks 0AIV]
-theorem weakIdeal_thickening_correspondence
-    {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
+/- Weak ideals classify bounded scheme-source thickenings through their canonical quotients. -/
+#check (AlgebraicGeometry.McQuillan.FormalScheme.weakIdeal_thickening_correspondence :
+  ∀ {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
     [HasWeakSheafify (𝒮.bigTopology S) (Type (max u v))]
     [HasPullbacks (Sheaf (𝒮.bigTopology S) (Type (max u v)))]
-    {X : FormalScheme.{u}} :
-    (∀ (I : IdealSheafData X) [IsWeakIdealOfDefinition I],
-      (MorphismProperty.inverseImage (@IsThickening) (𝒮.bigToScheme S)).relative
-          (𝒮.bigTopology S).sheafifiedRepresentableFunctor
-          (I.toSchemeThickening 𝒮 S) ∧
-        IdealSheafData.ker I.quotientι = I) ∧
-      ∀ (Z : Scheme.{u}) (i : ofScheme.obj Z ⟶ X),
-        (MorphismProperty.inverseImage (@IsThickening) (𝒮.bigToScheme S)).relative
-            (𝒮.bigTopology S).sheafifiedRepresentableFunctor
-            ((sheafOfPoints 𝒮 S).map i) →
-          ∃ (hI : IsWeakIdealOfDefinition (IdealSheafData.ker i))
-            (e : @IdealSheafData.quotientScheme _ (IdealSheafData.ker i) hI ≅ Z),
-            ofScheme.map e.hom ≫ i =
-              @IdealSheafData.quotientι _ (IdealSheafData.ker i) hI :=
-  sorry
+    (hS : IsTerminal (𝒮.toScheme.obj S))
+    (h𝒮 : Scheme.IsSmallBoundClosed
+      (fun T : Scheme.{u} ↦ ∃ U : 𝒮.carrier, Nonempty (T ≅ 𝒮.toScheme.obj U)))
+    {X : FormalScheme.{u}}
+    (hsize : ∃ T : 𝒮.carrier, X.size ≤ (𝒮.toScheme.obj T).size),
+    (∀ (I : IdealSheafData X) (hI : IsWeakIdealOfDefinition I),
+      IsAffineFormalAlgebraicSpace.isRelativeThickening (I.toSchemeThickening 𝒮 S hI)) ∧
+    ∀ (Z : Scheme.{u})
+      (hZ : ∃ T : 𝒮.carrier, Z.size ≤ (𝒮.toScheme.obj T).size)
+      (i : (sheafOfPoints 𝒮 S).obj (ofScheme.obj Z) ⟶ (sheafOfPoints 𝒮 S).obj X),
+      IsAffineFormalAlgebraicSpace.isRelativeThickening i →
+        ∃! I : IdealSheafData X, ∃ (hI : IsWeakIdealOfDefinition I)
+          (e : I.quotientScheme hI ≅ Z),
+          (sheafOfPoints 𝒮 S).map (ofScheme.map e.hom) ≫ i =
+            I.toSchemeThickening 𝒮 S hI)
 
-/-- Remark 87.13.3 (Weak ideals of definition) (4): a family of ideal sheaves
-is a fundamental system of weak ideals of definition iff on every affine
-formal open the section ideals form a fundamental system of weak ideals of
-definition of the section ring. -/
-@[stacks 0AIV]
-theorem isFundamentalSystem_affineOpens {X : FormalScheme.{u}} {ι : Type u}
-    (I : ι → IdealSheafData X) :
-    (∃ (S : FundamentalSystem X) (h : S.ι = ι), S.ideal = h.symm ▸ I) ↔
-      ∀ U : X.affineOpens,
-        IsFundamentalSystemOfWeakIdeals (fun i ↦ (I i).ideal U) :=
-  sorry
+/- Fundamental systems are affinewise neighbourhood bases of weak ideals. -/
+#check (AlgebraicGeometry.McQuillan.FormalScheme.isFundamentalSystem_iff :
+  ∀ {X : FormalScheme.{u}} {ι : Type u}
+    (I : ι → IdealSheafData X),
+    IsFundamentalSystem I ↔ ∀ U : X.affineOpens,
+      TopologicalRing.IsFundamentalSystemOfWeakIdeals (fun i ↦ (I i).ideal U))
 
-/-- Remark 87.13.3 (Weak ideals of definition) (5): the fundamental-system
-condition may be checked on the members of an affine open covering. -/
-@[stacks 0AIV]
-theorem isFundamentalSystem_affineCover {X : FormalScheme.{u}} {ι : Type u}
-    (I : ι → IdealSheafData X) (hI : ∀ i, IsWeakIdealOfDefinition (I i))
-    {κ : Type u} (𝒰 : κ → X.affineOpens) (hcover : ⨆ j, (𝒰 j).1 = ⊤) :
-    (∀ U : X.affineOpens,
-        IsFundamentalSystemOfWeakIdeals (fun i ↦ (I i).ideal U)) ↔
-      ∀ j, IsFundamentalSystemOfWeakIdeals (fun i ↦ (I i).ideal (𝒰 j)) :=
-  sorry
+/- A nonempty downward-directed family is fundamental if and only if it is
+fundamental on an affine open cover. -/
+#check (AlgebraicGeometry.McQuillan.FormalScheme.isFundamentalSystem_iff_affineCover :
+  ∀ {X : FormalScheme.{u}}
+    {ι : Type u} (I : ι → IdealSheafData X)
+    (hne : Nonempty ι)
+    (hdir : ∀ i j : ι, ∃ k : ι, ∀ U : X.affineOpens,
+      (I k).ideal U ≤ (I i).ideal U ∧ (I k).ideal U ≤ (I j).ideal U)
+    {κ : Type u} (𝒰 : κ → X.affineOpens) (hcover : ⨆ j, (𝒰 j).1 = ⊤),
+    IsFundamentalSystem I ↔
+      ∀ j, IsFundamentalSystemOfWeakIdeals (fun i ↦ (I i).ideal (𝒰 j)))
 
-/-- Remark 87.13.3 (Weak ideals of definition) (6): the formal algebraic space
-`h_X` associated to a McQuillan formal scheme `X` is a colimit of schemes as
-in Lemma 87.13.1 if and only if there exists a fundamental system of weak
-ideals of definition for `X`. -/
-@[stacks 0AIV]
-theorem sheafOfPoints_isDirectedColimit_iff_exists_fundamentalSystem
-    {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
+/- Existence may be checked on an affine open cover without assuming that the
+supplied family is directed: finite-intersection refinement is permitted. -/
+#check (AlgebraicGeometry.McQuillan.FormalScheme.exists_fundamentalSystem_iff_affineCover :
+  ∀ {X : FormalScheme.{u}} {κ : Type u} (𝒰 : κ → X.affineOpens)
+    (hcover : ⨆ j, (𝒰 j).1 = ⊤),
+    Nonempty (FundamentalSystem X) ↔
+      ∃ (ι : Type u) (I : ι → IdealSheafData X), Nonempty ι ∧
+        ∀ j, TopologicalRing.IsFundamentalSystemOfWeakIdeals
+          (fun i ↦ (I i).ideal (𝒰 j)))
+
+/- Remark 87.13.3 (Weak ideals of definition)
+The functor of points is a directed colimit of bounded schemes along thickenings
+if and only if a fundamental system of weak ideals of definition exists. -/
+@[stacks 0AIV] #check (AlgebraicGeometry.McQuillan.FormalScheme.exists_fundamentalSystem_iff_isDirectedColimit :
+  ∀ {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
     [HasWeakSheafify (𝒮.bigTopology S) (Type (max u v))]
     [HasPullbacks (Sheaf (𝒮.bigTopology S) (Type (max u v)))]
     (hS : IsTerminal (𝒮.toScheme.obj S))
     (h𝒮 : Scheme.IsSmallBoundClosed
       (fun T : Scheme.{u} ↦ ∃ U : 𝒮.carrier, Nonempty (T ≅ 𝒮.toScheme.obj U)))
     (X : FormalScheme.{u})
-    (hsize : ∃ T : 𝒮.carrier, X.size ≤ (𝒮.toScheme.obj T).size) :
+    (hsize : ∃ T : 𝒮.carrier, X.size ≤ (𝒮.toScheme.obj T).size),
     Nonempty (FundamentalSystem X) ↔
       ∃ (Λ : Type (max u v)) (_ : Preorder Λ) (_ : IsDirected Λ (· ≤ ·))
         (D : Λ ⥤ Sheaf (𝒮.bigTopology S) (Type (max u v))),
         IsDirectedAlgebraicSpaceThickeningColimit D ((sheafOfPoints 𝒮 S).obj X) ∧
           ∀ i : Λ, ∃ Z : Scheme.{u},
-            Nonempty (D.obj i ≅ (sheafOfPoints 𝒮 S).obj (ofScheme.obj Z)) :=
-  sorry
+            (∃ T : 𝒮.carrier, Z.size ≤ (𝒮.toScheme.obj T).size) ∧
+            Nonempty (D.obj i ≅ (sheafOfPoints 𝒮 S).obj (ofScheme.obj Z)))
 
 end AlgebraicGeometry.McQuillan.FormalScheme

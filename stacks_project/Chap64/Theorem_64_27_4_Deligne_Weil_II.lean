@@ -6,13 +6,8 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import Mathlib.AlgebraicGeometry.Morphisms.Smooth
-public import ReasLib.AlgebraicGeometry.Scheme.Morphism.Projective.Basic
-public import ReasLib.AlgebraicGeometry.Scheme.Variety
-public import stacks_project.Chap64.Theorem_64_20_2_Adic_sheaves_Euler
-public import stacks_project.Chap64.Theorem_64_27_4_Deligne_Weil_II_Cohomology
-public import stacks_project.Chap64.Theorem_64_27_4_Deligne_Weil_II_Weight
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Cohomology.Weights
+import StacksCheckRecall
 
 @[expose] public section
 
@@ -44,25 +39,19 @@ variable [∀ Z : Scheme.{u},
     HasInjectiveResolutions (Sheaf Z.smallEtaleTopology AddCommGrpCat.{u})]
 variable (F : ZEllSheaf X.left ℓ)
 
-/-- Theorem 64.27.4 (Deligne, Weil II) (1): if `F` is a lisse `ℚ_[ℓ]`-sheaf on a
-variety `X` over a finite field `k` with `#k = q` and `ℓ ≠ p`, identified with
-the sheaf `F_ρ` attached to a continuous representation satisfying Deligne's
-conclusions, then every eigenvalue `α` of `π_X^*` on the finite-dimensional
-space `H_c^i(X_k̄, F_ρ)` is algebraic with `|α| = q^{w/2}` for some `w ∈ ℤ`,
-`w ≤ i`. -/
-@[stacks 03VH]
-theorem geometricFrobenius_isMixedOfWeightsLE (hℓp : ℓ ≠ p) (hF_lisse : F.IsLisse)
-    (hF_deligne : F.SatisfiesDeligneConclusions) (i : ℕ) :
-    (geometricFrobenius_cohomologyCompactSupportQEll P F i).IsMixedOfWeightsLE
-      (Fintype.card k) i := sorry
+/- Theorem 64.27.4 (Deligne, Weil II)
+Geometric Frobenius eigenvalues have integer weights at most the cohomological degree. -/
+@[stacks 03VH] #check
+  (AlgebraicGeometry.Scheme.Etale.ZEllSheaf.geometricFrobenius_isMixedOfWeightsLE P F :
+    ℓ ≠ p → F.IsLisse → F.SatisfiesDeligneConclusions (p := p) → ∀ (i : ℕ),
+      (geometricFrobenius_cohomologyCompactSupportQEll P F i).IsMixedOfWeightsLE
+        (Fintype.card k) i)
 
-/-- Theorem 64.27.4 (Deligne, Weil II) (2): in the situation of
-`geometricFrobenius_isMixedOfWeightsLE`, if `X` is moreover smooth and projective over
-`k`, then every eigenvalue of `π_X^*` on the finite-dimensional space
-`H_c^i(X_k̄, F_ρ)` is pure of weight `i`. -/
-@[stacks 03VH]
-theorem geometricFrobenius_isPureOfWeight (hℓp : ℓ ≠ p) (hF_lisse : F.IsLisse)
-    (hF_deligne : F.SatisfiesDeligneConclusions) [Smooth X.hom] [Projective X.hom]
-    (i : ℕ) :
-    (geometricFrobenius_cohomologyCompactSupportQEll P F i).IsPureOfWeight
-      (Fintype.card k) i := sorry
+/- Theorem 64.27.4 (Deligne, Weil II)
+For smooth projective varieties the weight equals the cohomological degree. -/
+@[stacks 03VH] #check
+  (AlgebraicGeometry.Scheme.Etale.ZEllSheaf.geometricFrobenius_isPureOfWeight P F :
+    ℓ ≠ p → F.IsLisse → F.SatisfiesDeligneConclusions (p := p) →
+      ∀ [Smooth X.hom] [Projective X.hom] (i : ℕ),
+      (geometricFrobenius_cohomologyCompactSupportQEll P F i).IsPureOfWeight
+        (Fintype.card k) i)

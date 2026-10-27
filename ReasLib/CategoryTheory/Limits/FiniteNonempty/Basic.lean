@@ -6,6 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
+public import ReasLib.CategoryTheory.Discrete.Basic
 public import ReasLib.CategoryTheory.Limits.FiniteConnected.Basic
 public import Mathlib.Tactic.CrossRefAttribute
 
@@ -20,13 +21,6 @@ separated into `FiniteNonempty.Criteria`.
 @[expose] public section
 
 universe w v' u' v u
-
-namespace CategoryTheory
-
-/-- A discrete category is nonempty whenever its type of objects is nonempty. -/
-instance Discrete.instNonempty {α : Type w} [Nonempty α] : Nonempty (Discrete α) := sorry
-
-end CategoryTheory
 
 namespace CategoryTheory.Limits
 

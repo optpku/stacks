@@ -50,7 +50,21 @@ theorem standardOpens_one : standardOpens R 1 = chartY R := sorry
 /-- The standard two-chart family is an open cover of the projective line. -/
 @[stacks 01JE "standard projective-line cover"]
 theorem standardOpens_isOpenCover :
-    TopologicalSpace.IsOpenCover (standardOpens R) := sorry
+    TopologicalSpace.IsOpenCover (standardOpens R) := by
+  change (⨆ i : Fin 2, Proj.basicOpen (grading R) (MvPolynomial.X i)) = ⊤
+  apply Proj.iSup_basicOpen_eq_top'
+  · intro i
+    exact ⟨1, MvPolynomial.isHomogeneous_X R i⟩
+  · apply top_unique
+    intro p hp
+    clear hp
+    induction p using MvPolynomial.induction_on with
+    | C r =>
+      exact (Algebra.adjoin (grading R 0)
+        (Set.range (MvPolynomial.X : Fin 2 → MvPolynomial (Fin 2) R))).algebraMap_mem
+          (ProjectiveSpace.degreeZeroC R 1 r)
+    | add p q hp hq => exact add_mem hp hq
+    | mul_X p i hp => exact mul_mem hp (Algebra.subset_adjoin ⟨i, rfl⟩)
 
 /- The scheme gluing construction requires its index universe to match the scheme universe. -/
 /-- The standard two-chart family with the universe-lifted index used by `Scheme.GlueData`. -/
@@ -61,7 +75,8 @@ def standardOpensLift : ULift.{u} (Fin 2) → (scheme R).Opens :=
 /-- The universe-lifted standard family is still an open cover. -/
 @[stacks 01JE "universe-lifted standard projective-line cover"]
 theorem standardOpensLift_isOpenCover :
-    TopologicalSpace.IsOpenCover (standardOpensLift R) := sorry
+    TopologicalSpace.IsOpenCover (standardOpensLift R) := by
+  simpa [TopologicalSpace.IsOpenCover, standardOpensLift] using standardOpens_isOpenCover R
 
 /-- The standard two-chart cover of the projective line as a bundled scheme open cover. -/
 @[stacks 01JE "standard projective-line open cover"]

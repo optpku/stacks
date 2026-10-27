@@ -26,8 +26,9 @@ noncomputable section
 
 universe c v w
 
-namespace SheafOfModules.RingedSite.NaiveCotangent
-
+namespace SheafOfModules
+namespace RingedSite
+namespace NaiveCotangent
 variable {C : Type c} [Category.{v} C] {J : GrothendieckTopology C}
 variable [J.HasSheafCompose (forget₂ CommRingCat RingCat.{w})]
 variable [HasSheafify J AddCommGrpCat.{w}]
@@ -52,21 +53,21 @@ theorem ofGenerators_X_negOne
     (E : Sheaf J (Type w))
     (α : E ⟶ FreeAlgebra.Presentation.generators B) :
     (ofGenerators E α).X (-1) =
-      conormalSource (FreeAlgebra.evaluation B E α).right := sorry
+      conormalSource (FreeAlgebra.evaluation B E α).right := rfl
 
 /-- Degree `0` of a presentation model is its base-changed relative-differentials term. -/
 theorem ofGenerators_X_zero
     (E : Sheaf J (Type w))
     (α : E ⟶ FreeAlgebra.Presentation.generators B) :
     (ofGenerators E α).X 0 =
-      conormalTensorTerm (FreeAlgebra.base A E) (FreeAlgebra.evaluation B E α).right := sorry
+      conormalTensorTerm (FreeAlgebra.base A E) (FreeAlgebra.evaluation B E α).right := rfl
 
 /-- The differential from degree `-1` to degree `0` in a presentation model is its conormal map. -/
 theorem ofGenerators_d_negOne_zero
     (E : Sheaf J (Type w))
     (α : E ⟶ FreeAlgebra.Presentation.generators B) :
     (ofGenerators E α).d (-1) 0 =
-      differential (FreeAlgebra.base A E) (FreeAlgebra.evaluation B E α).right (-1) := sorry
+      differential (FreeAlgebra.base A E) (FreeAlgebra.evaluation B E α).right (-1) := rfl
 
 /-- The map from a chosen free presenting algebra to the canonical free presenting algebra,
 obtained by sending each chosen generator to its canonical bracket. -/
@@ -124,7 +125,7 @@ theorem toCanonicalMap_f
     (α : E ⟶ FreeAlgebra.Presentation.generators B) (n : ℤ) :
     (toCanonicalMap E α).f n =
       ((extendComplexIdIso B.right).inv.app (ofGenerators E α)).f n ≫
-        (Hom.map (toCanonicalHom E α)).f n := sorry
+        (Hom.map (toCanonicalHom E α)).f n := rfl
 
 /-- In degree `-1`, `toCanonicalMap` is the identity-extension comparison followed by the
 conormal-term map of the canonical presentation morphism. -/
@@ -134,7 +135,9 @@ theorem toCanonicalMap_f_negOne
     (α : E ⟶ FreeAlgebra.Presentation.generators B) :
     (toCanonicalMap E α).f (-1) =
       ((extendComplexIdIso B.right).inv.app (ofGenerators E α)).f (-1) ≫
-        Hom.Conormal.map (toCanonicalHom E α) := sorry
+        Hom.Conormal.map (toCanonicalHom E α) := by
+  rw [toCanonicalMap_f]
+  rfl
 
 /-- In degree `0`, `toCanonicalMap` is the identity-extension comparison followed by the
 differential-term map of the canonical presentation morphism. -/
@@ -144,7 +147,9 @@ theorem toCanonicalMap_f_zero
     (α : E ⟶ FreeAlgebra.Presentation.generators B) :
     (toCanonicalMap E α).f 0 =
       ((extendComplexIdIso B.right).inv.app (ofGenerators E α)).f 0 ≫
-        Hom.Differentials.map (toCanonicalHom E α) := sorry
+        Hom.Differentials.map (toCanonicalHom E α) := by
+  rw [toCanonicalMap_f]
+  rfl
 
 variable [HasDerivedCategory (SheafOfModules (ringSheaf J B.right))]
 
@@ -163,17 +168,57 @@ noncomputable def derivedComparison
 theorem derivedComparison_spec
     (E : Sheaf J (Type w))
     (α : E ⟶ FreeAlgebra.Presentation.generators B) :
-    derivedComparison E α = DerivedCategory.Q.map (toCanonicalMap E α) := sorry
+    derivedComparison E α = DerivedCategory.Q.map (toCanonicalMap E α) := rfl
+
+/-- The canonical comparison of a locally surjective polynomial presentation is a
+quasi-isomorphism. -/
+instance toCanonicalMap_quasiIso
+    (E : Sheaf J (Type w))
+    (α : E ⟶ FreeAlgebra.Presentation.generators B)
+    [Sheaf.IsLocallySurjective (FreeAlgebra.evaluation B E α).right] :
+    QuasiIso (toCanonicalMap E α) := sorry
 
 /-- A locally surjective polynomial presentation gives an invertible canonical comparison in the
 derived category. -/
-@[stacks 08TL "derived comparison is an isomorphism",
-  stacks 08TY "derived comparison is an isomorphism"]
 instance derivedComparison_isIso
     (E : Sheaf J (Type w))
     (α : E ⟶ FreeAlgebra.Presentation.generators B)
     [Sheaf.IsLocallySurjective (FreeAlgebra.evaluation B E α).right] :
-    IsIso (derivedComparison E α) := sorry
+    IsIso (derivedComparison E α) :=
+  Localization.inverts DerivedCategory.Q
+    (HomologicalComplex.quasiIso _ (ComplexShape.up ℤ))
+    (toCanonicalMap E α) (toCanonicalMap_quasiIso E α)
+
+/-- The inverse of the canonical derived comparison, using a supplied quasi-isomorphism proof. -/
+noncomputable def derivedComparisonInvOf
+    (E : Sheaf J (Type w))
+    (α : E ⟶ FreeAlgebra.Presentation.generators B)
+    (hq : QuasiIso (toCanonicalMap E α)) :
+    DerivedCategory.Q.obj (NaiveCotangent.obj A B) ⟶
+      DerivedCategory.Q.obj (ofGenerators E α) :=
+  (Localization.isoOfHom DerivedCategory.Q
+    (HomologicalComplex.quasiIso _ (ComplexShape.up ℤ))
+    (toCanonicalMap E α) hq).inv
+
+/-- The canonical derived comparison followed by its certified inverse is the identity. -/
+theorem derivedComparison_comp_derivedComparisonInvOf
+    (E : Sheaf J (Type w))
+    (α : E ⟶ FreeAlgebra.Presentation.generators B)
+    (hq : QuasiIso (toCanonicalMap E α)) :
+    derivedComparison E α ≫ derivedComparisonInvOf E α hq = 𝟙 _ := by
+  exact (Localization.isoOfHom DerivedCategory.Q
+    (HomologicalComplex.quasiIso _ (ComplexShape.up ℤ))
+    (toCanonicalMap E α) hq).hom_inv_id
+
+/-- The certified inverse followed by the canonical derived comparison is the identity. -/
+theorem derivedComparisonInvOf_comp_derivedComparison
+    (E : Sheaf J (Type w))
+    (α : E ⟶ FreeAlgebra.Presentation.generators B)
+    (hq : QuasiIso (toCanonicalMap E α)) :
+    derivedComparisonInvOf E α hq ≫ derivedComparison E α = 𝟙 _ := by
+  exact (Localization.isoOfHom DerivedCategory.Q
+    (HomologicalComplex.quasiIso _ (ComplexShape.up ℤ))
+    (toCanonicalMap E α) hq).inv_hom_id
 
 /-- The explicit inverse of the derived presentation comparison. -/
 @[stacks 08TL "derived comparison inverse", stacks 08TY "derived comparison inverse"]
@@ -183,7 +228,7 @@ noncomputable def derivedComparisonInv
     [Sheaf.IsLocallySurjective (FreeAlgebra.evaluation B E α).right] :
     DerivedCategory.Q.obj (NaiveCotangent.obj A B) ⟶
       DerivedCategory.Q.obj (ofGenerators E α) :=
-  inv (derivedComparison E α)
+  derivedComparisonInvOf E α (toCanonicalMap_quasiIso E α)
 
 /-- The derived presentation comparison followed by its explicit inverse is the identity. -/
 @[simp, stacks 08TL "derived comparison forward-inverse law",
@@ -192,7 +237,10 @@ theorem derivedComparison_comp_derivedComparisonInv
     (E : Sheaf J (Type w))
     (α : E ⟶ FreeAlgebra.Presentation.generators B)
     [Sheaf.IsLocallySurjective (FreeAlgebra.evaluation B E α).right] :
-    derivedComparison E α ≫ derivedComparisonInv E α = 𝟙 _ := sorry
+    derivedComparison E α ≫ derivedComparisonInv E α = 𝟙 _ := by
+  exact (Localization.isoOfHom DerivedCategory.Q
+    (HomologicalComplex.quasiIso _ (ComplexShape.up ℤ))
+    (toCanonicalMap E α) (toCanonicalMap_quasiIso E α)).hom_inv_id
 
 /-- The explicit inverse followed by the derived presentation comparison is the identity. -/
 @[simp, stacks 08TL "derived comparison inverse-forward law",
@@ -201,7 +249,10 @@ theorem derivedComparisonInv_comp_derivedComparison
     (E : Sheaf J (Type w))
     (α : E ⟶ FreeAlgebra.Presentation.generators B)
     [Sheaf.IsLocallySurjective (FreeAlgebra.evaluation B E α).right] :
-    derivedComparisonInv E α ≫ derivedComparison E α = 𝟙 _ := sorry
+    derivedComparisonInv E α ≫ derivedComparison E α = 𝟙 _ := by
+  exact (Localization.isoOfHom DerivedCategory.Q
+    (HomologicalComplex.quasiIso _ (ComplexShape.up ℤ))
+    (toCanonicalMap E α) (toCanonicalMap_quasiIso E α)).inv_hom_id
 
 /-- The canonical derived isomorphism from a polynomial presentation whose evaluation map is
 locally surjective to the naive cotangent complex. -/
@@ -224,7 +275,7 @@ theorem derivedComparisonIso_hom
     (E : Sheaf J (Type w))
     (α : E ⟶ FreeAlgebra.Presentation.generators B)
     [Sheaf.IsLocallySurjective (FreeAlgebra.evaluation B E α).right] :
-    (derivedComparisonIso E α).hom = derivedComparison E α := sorry
+    (derivedComparisonIso E α).hom = derivedComparison E α := rfl
 
 /-- The inverse of the derived presentation isomorphism is the named explicit inverse. -/
 @[simp, stacks 08TL "derived comparison isomorphism inverse",
@@ -233,7 +284,7 @@ theorem derivedComparisonIso_inv
     (E : Sheaf J (Type w))
     (α : E ⟶ FreeAlgebra.Presentation.generators B)
     [Sheaf.IsLocallySurjective (FreeAlgebra.evaluation B E α).right] :
-    (derivedComparisonIso E α).inv = derivedComparisonInv E α := sorry
+    (derivedComparisonIso E α).inv = derivedComparisonInv E α := rfl
 
 /-- A locally surjective family of generators gives a canonical derived identification of its
 polynomial presentation model with the naive cotangent complex. -/
@@ -253,7 +304,7 @@ theorem ofGeneratorsIso_hom
     (E : Sheaf J (Type w))
     (α : E ⟶ FreeAlgebra.Presentation.generators B)
     [Sheaf.IsLocallySurjective α] :
-    (ofGeneratorsIso E α).hom = derivedComparison E α := sorry
+    (ofGeneratorsIso E α).hom = derivedComparison E α := rfl
 
 /-- Compatibility corollary: a locally surjective polynomial presentation computes the
 canonical naive cotangent complex in the derived category of `B`-module sheaves. -/
@@ -264,10 +315,11 @@ theorem isIsomorphic
     [Sheaf.IsLocallySurjective (FreeAlgebra.evaluation B E α).right] :
     IsIsomorphic
       (DerivedCategory.Q.obj (ofGenerators E α))
-      (DerivedCategory.Q.obj (NaiveCotangent.obj A B)) := sorry
+      (DerivedCategory.Q.obj (NaiveCotangent.obj A B)) := ⟨derivedComparisonIso E α⟩
 
 end Presentation
 
-end SheafOfModules.RingedSite.NaiveCotangent
-
+end NaiveCotangent
+end RingedSite
+end SheafOfModules
 -- The complex terms and differential are explicit; only their Prop-valued laws may use `sorryAx`.

@@ -73,25 +73,33 @@ noncomputable def quotient (B : ArtinianLocalAlgCat Λ k) (J : Ideal B.carrier)
 /-- The carrier of the categorical quotient is the specified ideal quotient. -/
 theorem quotient_carrier (B : ArtinianLocalAlgCat Λ k) (J : Ideal B.carrier)
     (hJ : J ≤ maximalIdeal B.carrier) :
-    (B.quotient J hJ).carrier = (B.carrier ⧸ J) := sorry
+    (B.quotient J hJ).carrier = (B.carrier ⧸ J) := rfl
 
 /-- The categorical quotient is Artinian local with the induced residue identification. -/
 theorem quotient_spec (B : ArtinianLocalAlgCat Λ k) (J : Ideal B.carrier)
     (hJ : J ≤ maximalIdeal B.carrier) :
     IsArtinianRing (B.quotient J hJ).carrier ∧ IsLocalRing (B.quotient J hJ).carrier ∧
       (B.quotient J hJ).residueFieldIso =
-        quotientResidueFieldIso B J hJ (isLocalRing_quotient B J hJ) := sorry
+        quotientResidueFieldIso B J hJ (isLocalRing_quotient B J hJ) :=
+  ⟨isArtinianRing_quotient B J, isLocalRing_quotient B J hJ, rfl⟩
 
 /-- The canonical algebra quotient map is local. -/
 theorem quotientMk_isLocalHom (B : ArtinianLocalAlgCat Λ k) (J : Ideal B.carrier)
     (hJ : J ≤ maximalIdeal B.carrier) :
-    IsLocalHom (Ideal.Quotient.mkₐ Λ J : algebraHom B (B.quotient J hJ)) := sorry
+    IsLocalHom (Ideal.Quotient.mkₐ Λ J : algebraHom B (B.quotient J hJ)) := by
+  letI := nontrivial_quotient B J hJ
+  haveI := IsLocalHom.of_surjective (Ideal.Quotient.mk J) Ideal.Quotient.mk_surjective
+  exact ⟨fun x hx ↦ isUnit_of_map_unit (Ideal.Quotient.mk J) x hx⟩
 
 /-- The canonical quotient map respects the induced residue identification. -/
 theorem quotientMk_residue_compat (B : ArtinianLocalAlgCat Λ k) (J : Ideal B.carrier)
     (hJ : J ≤ maximalIdeal B.carrier) :
     residueCompat (A := B) (B := B.quotient J hJ)
-      (Ideal.Quotient.mkₐ Λ J) (quotientMk_isLocalHom B J hJ) = residueIsoHom B := sorry
+      (Ideal.Quotient.mkₐ Λ J) (quotientMk_isLocalHom B J hJ) = residueIsoHom B := by
+  apply AlgHom.ext
+  intro x
+  obtain ⟨x, rfl⟩ := residue_surjective x
+  rfl
 
 /-- The canonical projection to the residue-identified categorical quotient. -/
 noncomputable def quotientMk (B : ArtinianLocalAlgCat Λ k) (J : Ideal B.carrier)
@@ -102,14 +110,17 @@ noncomputable def quotientMk (B : ArtinianLocalAlgCat Λ k) (J : Ideal B.carrier
 /-- The underlying algebra map of the categorical projection is the quotient map. -/
 theorem quotientMk_hom (B : ArtinianLocalAlgCat Λ k) (J : Ideal B.carrier)
     (hJ : J ≤ maximalIdeal B.carrier) :
-    (quotientMk B J hJ).hom = Ideal.Quotient.mkₐ Λ J := sorry
+    (quotientMk B J hJ).hom = Ideal.Quotient.mkₐ Λ J := rfl
 
 /-- The induced algebra map through an ideal contained in the kernel is local. -/
 theorem quotientFactor_isLocalHom {B A : ArtinianLocalAlgCat Λ k} (f : B ⟶ A)
     (J : Ideal B.carrier) (hJ : J ≤ RingHom.ker f.hom.toRingHom) :
     IsLocalHom (Ideal.Quotient.liftₐ J f.hom
       fun element hElement ↦ RingHom.mem_ker.mp (hJ hElement) :
-        algebraHom (B.quotient J (hJ.trans (ker_le_maximal f))) A) := sorry
+        algebraHom (B.quotient J (hJ.trans (ker_le_maximal f))) A) := by
+  refine ⟨fun x hx ↦ ?_⟩
+  obtain ⟨x, rfl⟩ := Ideal.Quotient.mk_surjective x
+  exact (isUnit_of_map_unit f.hom x hx).map (Ideal.Quotient.mk J)
 
 /-- The induced quotient factor map respects the chosen residue identifications. -/
 theorem quotientFactor_residue_compat {B A : ArtinianLocalAlgCat Λ k} (f : B ⟶ A)
@@ -117,7 +128,12 @@ theorem quotientFactor_residue_compat {B A : ArtinianLocalAlgCat Λ k} (f : B �
     residueCompat (A := B.quotient J (hJ.trans (ker_le_maximal f))) (B := A)
       (Ideal.Quotient.liftₐ J f.hom fun element hElement ↦ RingHom.mem_ker.mp (hJ hElement))
       (quotientFactor_isLocalHom f J hJ) =
-        residueIsoHom (B.quotient J (hJ.trans (ker_le_maximal f))) := sorry
+        residueIsoHom (B.quotient J (hJ.trans (ker_le_maximal f))) := by
+  apply AlgHom.ext
+  intro x
+  obtain ⟨x, rfl⟩ := residue_surjective x
+  obtain ⟨x, rfl⟩ := Ideal.Quotient.mk_surjective x
+  exact DFunLike.congr_fun (Hom.residue_compat f) (residue B.carrier x)
 
 /-- Factor a morphism through the quotient by an ideal contained in its kernel. -/
 noncomputable def quotientFactor {B A : ArtinianLocalAlgCat Λ k} (f : B ⟶ A)
@@ -131,11 +147,19 @@ noncomputable def quotientFactor {B A : ArtinianLocalAlgCat Λ k} (f : B ⟶ A)
 theorem quotientFactor_hom {B A : ArtinianLocalAlgCat Λ k} (f : B ⟶ A)
     (J : Ideal B.carrier) (hJ : J ≤ RingHom.ker f.hom.toRingHom) :
     (quotientFactor f J hJ).hom =
-      Ideal.Quotient.liftₐ J f.hom fun element hElement ↦ RingHom.mem_ker.mp (hJ hElement) := sorry
+      Ideal.Quotient.liftₐ J f.hom fun element hElement ↦ RingHom.mem_ker.mp (hJ hElement) := rfl
 
 /-- The canonical projection followed by the quotient factor recovers the original morphism. -/
 theorem quotientFactor_comp_mk {B A : ArtinianLocalAlgCat Λ k} (f : B ⟶ A)
     (J : Ideal B.carrier) (hJ : J ≤ RingHom.ker f.hom.toRingHom) :
-    quotientMk B J (hJ.trans (ker_le_maximal f)) ≫ quotientFactor f J hJ = f := sorry
+    quotientMk B J (hJ.trans (ker_le_maximal f)) ≫ quotientFactor f J hJ = f := by
+  have hom_ext {g h : Hom B A} (heq : g.hom = h.hom) : g = h := by
+    rcases g with ⟨g, hg, hresg⟩
+    rcases h with ⟨h, hh, hresh⟩
+    change g = h at heq
+    cases heq
+    rfl
+  apply hom_ext
+  exact Ideal.Quotient.liftₐ_comp J f.hom _
 
 end ArtinianLocalAlgCat

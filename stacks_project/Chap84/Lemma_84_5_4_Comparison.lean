@@ -6,6 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.Derived.CohomologyComparison
 public import Mathlib.CategoryTheory.IsomorphismClasses
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.GlobalSections.Derived
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.GlobalSections.Derived.Underlying
@@ -32,6 +33,8 @@ public import stacks_project.Chap84.Lemma_84_5_5_SmallToBig
 
 open CategoryTheory CategoryTheory.Limits Opposite AlgebraicGeometry
 open AlgebraicGeometry.AlgebraicSpace
+open AlgebraicGeometry.AlgebraicSpace.Etale
+open StacksProject.Chap84.Lemma_84_5_4_Ringed
 open AlgebraicGeometry.AlgebraicSpace.Etale.SmallToBig
 open RingedSite.Hom
 open RingedSite.Hom.ModuleSections.Underlying
@@ -42,7 +45,7 @@ noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.Etale
+namespace StacksProject.Chap84.Lemma_84_5_4_Comparison
 
 variable {S : Scheme.{u}}
 
@@ -82,16 +85,16 @@ theorem etaleModuleCohomology_piPullback {X Y : AlgebraicSpace S} (f : Y ⟶ X) 
     [HasWeakSheafify (smallEtaleTopology X) AddCommGrpCat.{u + 1}]
     [HasGlobalSectionsFunctor (smallEtaleTopology X) AddCommGrpCat.{u + 1}]
     [IsGrothendieckAbelian (RingedSite.ModuleCat.{u + 1} (ringedSite X))]
-    [IsGrothendieckAbelian (RingedSite.ModuleCat.{u + 1} (overEtaleRingedSite X))]
-    [(etalePiRingedHom X).modulePushforward.{u + 1}.IsRightAdjoint]
+    [IsGrothendieckAbelian (RingedSite.ModuleCat.{u + 1} (AlgebraicGeometry.AlgebraicSpace.Etale.overEtaleRingedSite X))]
+    [(AlgebraicGeometry.AlgebraicSpace.Etale.etalePiRingedHom X).modulePushforward.{u + 1}.IsRightAdjoint]
     [Functor.HasLeftDerivedFunctor
-      (modulePullbackToDerived.{u + 1} (etalePiRingedHom X))
+      (modulePullbackToDerived.{u + 1} (AlgebraicGeometry.AlgebraicSpace.Etale.etalePiRingedHom X))
       (ModuleQis.{u + 1} (ringedSite X))]
     (K : ModuleDerived.{u + 1} (ringedSite X)) :
     IsIsomorphic
       ((DerivedCategory.homologyFunctor AddCommGrpCat.{u + 1} n).obj
-        ((sectionsDerived.{u + 1} (overEtaleRingedSite X) (Over.mk (𝟙 X))).obj
-          ((modulePullbackDerived.{u + 1} (etalePiRingedHom X)).obj K)))
+        ((sectionsDerived.{u + 1} (AlgebraicGeometry.AlgebraicSpace.Etale.overEtaleRingedSite X) (Over.mk (𝟙 X))).obj
+          ((modulePullbackDerived.{u + 1} (AlgebraicGeometry.AlgebraicSpace.Etale.etalePiRingedHom X)).obj K)))
       ((DerivedCategory.homologyFunctor AddCommGrpCat.{u + 1} n).obj
         ((moduleGlobalSectionsDerived.{u + 1} (ringedSite X)).obj K)) :=
   sorry
@@ -138,20 +141,20 @@ theorem etaleModuleCohomology_smallPullback {X Y : AlgebraicSpace S} (f : Y ⟶ 
     [HasWeakSheafify (smallEtaleTopology Y) AddCommGrpCat.{u + 1}]
     [HasGlobalSectionsFunctor (smallEtaleTopology Y) AddCommGrpCat.{u + 1}]
     [IsGrothendieckAbelian (RingedSite.ModuleCat.{u + 1} (ringedSite X))]
-    [IsGrothendieckAbelian (RingedSite.ModuleCat.{u + 1} (overEtaleRingedSite X))]
+    [IsGrothendieckAbelian (RingedSite.ModuleCat.{u + 1} (AlgebraicGeometry.AlgebraicSpace.Etale.overEtaleRingedSite X))]
     [IsGrothendieckAbelian (RingedSite.ModuleCat.{u + 1} (ringedSite Y))]
-    [(etalePiRingedHom X).modulePushforward.{u + 1}.IsRightAdjoint]
+    [(AlgebraicGeometry.AlgebraicSpace.Etale.etalePiRingedHom X).modulePushforward.{u + 1}.IsRightAdjoint]
     [Functor.HasLeftDerivedFunctor
-      (modulePullbackToDerived.{u + 1} (etalePiRingedHom X))
+      (modulePullbackToDerived.{u + 1} (AlgebraicGeometry.AlgebraicSpace.Etale.etalePiRingedHom X))
       (ModuleQis.{u + 1} (ringedSite X))]
     (K : ModuleDerived.{u + 1} (ringedSite X)) :
     IsIsomorphic
       ((DerivedCategory.homologyFunctor AddCommGrpCat.{u + 1} n).obj
-        ((sectionsDerived.{u + 1} (overEtaleRingedSite X) (Over.mk f)).obj
-          ((modulePullbackDerived.{u + 1} (etalePiRingedHom X)).obj K)))
+        ((sectionsDerived.{u + 1} (AlgebraicGeometry.AlgebraicSpace.Etale.overEtaleRingedSite X) (Over.mk f)).obj
+          ((modulePullbackDerived.{u + 1} (AlgebraicGeometry.AlgebraicSpace.Etale.etalePiRingedHom X)).obj K)))
       ((DerivedCategory.homologyFunctor AddCommGrpCat.{u + 1} n).obj
         ((moduleGlobalSectionsDerived.{u + 1} (ringedSite Y)).obj
-          ((etaleSmallModulePullbackDerived f).obj K))) :=
+          ((StacksProject.Chap84.Lemma_84_5_4_Ringed.etaleSmallModulePullbackDerived f).obj K))) :=
   sorry
 
 /-- Relocalization from the big étale site to the small étale site identifies derived
@@ -181,16 +184,16 @@ theorem etaleModuleCohomology_relocalization {X Y : AlgebraicSpace S} (f : Y ⟶
     [HasWeakSheafify (smallEtaleTopology Y) AddCommGrpCat.{u + 1}]
     [HasGlobalSectionsFunctor (smallEtaleTopology Y) AddCommGrpCat.{u + 1}]
     [IsGrothendieckAbelian (RingedSite.ModuleCat.{u + 1} (ringedSite Y))]
-    [IsGrothendieckAbelian (RingedSite.ModuleCat.{u + 1} (overEtaleRingedSite X))]
-    (M : ModuleDerived.{u + 1} (overEtaleRingedSite X)) :
+    [IsGrothendieckAbelian (RingedSite.ModuleCat.{u + 1} (AlgebraicGeometry.AlgebraicSpace.Etale.overEtaleRingedSite X))]
+    (M : ModuleDerived.{u + 1} (AlgebraicGeometry.AlgebraicSpace.Etale.overEtaleRingedSite X)) :
     IsIsomorphic
       ((DerivedCategory.homologyFunctor AddCommGrpCat.{u + 1} n).obj
-        ((sectionsDerived.{u + 1} (overEtaleRingedSite X) (Over.mk f)).obj M))
+        ((sectionsDerived.{u + 1} (AlgebraicGeometry.AlgebraicSpace.Etale.overEtaleRingedSite X) (Over.mk f)).obj M))
       ((DerivedCategory.homologyFunctor AddCommGrpCat.{u + 1} n).obj
         ((moduleGlobalSectionsDerived.{u + 1} (ringedSite Y)).obj
-          ((relocalizationModuleDerived f).obj M))) :=
+          ((StacksProject.Chap84.Lemma_84_5_4_Ringed.relocalizationModuleDerived f).obj M))) :=
   sorry
 
 end Derived
 
-end AlgebraicGeometry.AlgebraicSpace.Etale
+end StacksProject.Chap84.Lemma_84_5_4_Comparison

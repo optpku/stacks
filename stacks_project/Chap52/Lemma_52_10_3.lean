@@ -22,12 +22,12 @@ algebraization situation. -/
     ∀ {A : Type u} [CommRing A] [IsNoetherianRing A]
       {M : Type v} [AddCommGroup M] [Module A M] [Module.Finite A M]
       [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
-      (H : MonoidalClosed (DerivedCategory (ModuleCat.{u} A)))
+      (C : CategoryTheory.DerivedCategory.CanonicalClosedPresentation (A := A))
       {I : Ideal A} {T : Set (PrimeSpectrum A)} {s d : ℤ}
-      (h : AlgebraizationSituation H I M T s d)
+      (h : AlgebraizationSituation C I M T s d)
       (T' : Set (PrimeSpectrum A))
       (hT' : StableUnderSpecialization T') (hsub : T' ⊆ T),
-      AlgebraizationSituation H I M T' s d)
+      AlgebraizationSituation C I M T' s d)
 
 /- Lemma 52.10.3 (2): localization carries an algebraization situation to the
 localized ring, mapped ideal, localized module, and inverse-image support. -/
@@ -36,13 +36,14 @@ localized ring, mapped ideal, localized module, and inverse-image support. -/
     ∀ {A : Type u} [CommRing A] [IsNoetherianRing A]
       {M : Type v} [AddCommGroup M] [Module A M] [Module.Finite A M]
       [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
-      (H : MonoidalClosed (DerivedCategory (ModuleCat.{u} A)))
+      (C : CategoryTheory.DerivedCategory.CanonicalClosedPresentation (A := A))
       {I : Ideal A} {T : Set (PrimeSpectrum A)} {s d : ℤ}
-      (h : AlgebraizationSituation H I M T s d)
+      (h : AlgebraizationSituation C I M T s d)
       (S : Submonoid A)
       [MonoidalCategory (DerivedCategory (ModuleCat.{u} (Localization S)))]
-      (Hs : MonoidalClosed (DerivedCategory (ModuleCat.{u} (Localization S)))),
-      AlgebraizationSituation Hs
+      (Cs : CategoryTheory.DerivedCategory.CanonicalClosedPresentation
+        (A := Localization S)),
+      AlgebraizationSituation Cs
         (I.map (algebraMap A (Localization S)))
         (LocalizedModule S M)
         {q : PrimeSpectrum (Localization S) |
@@ -55,14 +56,14 @@ to the completed ring, mapped ideal, completed module, and inverse-image support
     ∀ {A : Type u} [CommRing A] [IsNoetherianRing A]
       {M : Type v} [AddCommGroup M] [Module A M] [Module.Finite A M]
       [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
-      (H : MonoidalClosed (DerivedCategory (ModuleCat.{u} A)))
+      (C : CategoryTheory.DerivedCategory.CanonicalClosedPresentation (A := A))
       {I : Ideal A} {T : Set (PrimeSpectrum A)} {s d : ℤ}
-      (h : AlgebraizationSituation H I M T s d)
+      (h : AlgebraizationSituation C I M T s d)
       [MonoidalCategory
         (DerivedCategory (ModuleCat.{u} (AdicCompletion I A)))]
-      (Hhat : MonoidalClosed
-        (DerivedCategory (ModuleCat.{u} (AdicCompletion I A)))),
-      AlgebraizationSituation Hhat
+      (Chat : CategoryTheory.DerivedCategory.CanonicalClosedPresentation
+        (A := AdicCompletion I A)),
+      AlgebraizationSituation Chat
         (I.map (algebraMap A (AdicCompletion I A)))
         (AdicCompletion I M)
         {q : PrimeSpectrum (AdicCompletion I A) |
@@ -75,9 +76,9 @@ depth assumptions required by Lemma 52.8.2 follow for `I` and `a`. -/
     ∀ {A : Type u} [CommRing A] [IsNoetherianRing A]
       {M : Type v} [AddCommGroup M] [Module A M] [Module.Finite A M]
       [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
-      (H : MonoidalClosed (DerivedCategory (ModuleCat.{u} A)))
+      (C : CategoryTheory.DerivedCategory.CanonicalClosedPresentation (A := A))
       {I : Ideal A} {T : Set (PrimeSpectrum A)} {s d : ℤ}
-      (h : AlgebraizationSituation H I M T s d)
+      (h : AlgebraizationSituation C I M T s d)
       (a : Ideal A) (hIa : I ≤ a)
       (hV : PrimeSpectrum.zeroLocus (a : Set A) ⊆ T)
       (hJac : I ≤ Ring.jacobson A),
@@ -115,9 +116,9 @@ depth condition needed by Lemma 52.8.4 also follows. -/
     ∀ {A : Type u} [CommRing A] [IsNoetherianRing A]
       {M : Type v} [AddCommGroup M] [Module A M] [Module.Finite A M]
       [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
-      (H : MonoidalClosed (DerivedCategory (ModuleCat.{u} A)))
+      (C : CategoryTheory.DerivedCategory.CanonicalClosedPresentation (A := A))
       {I : Ideal A} {T : Set (PrimeSpectrum A)} {s d : ℤ}
-      (h : AlgebraizationSituation H I M T s d)
+      (h : AlgebraizationSituation C I M T s d)
       (a : Ideal A) (hIa : I ≤ a)
       (hV : PrimeSpectrum.zeroLocus (a : Set A) ⊆ T)
       (hJac : I ≤ Ring.jacobson A),
@@ -162,9 +163,9 @@ Lemma 52.8.5 other than its possible condition (5) are available. -/
     ∀ {A : Type u} [CommRing A] [IsNoetherianRing A]
       {M : Type v} [AddCommGroup M] [Module A M] [Module.Finite A M]
       [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
-      (H : MonoidalClosed (DerivedCategory (ModuleCat.{u} A)))
+      (C : CategoryTheory.DerivedCategory.CanonicalClosedPresentation (A := A))
       {I : Ideal A} {T : Set (PrimeSpectrum A)} {s d : ℤ}
-      (h : AlgebraizationSituation H I M T s d)
+      (h : AlgebraizationSituation C I M T s d)
       (a : Ideal A) (hIa : I ≤ a)
       (hV : PrimeSpectrum.zeroLocus (a : Set A) ⊆ T)
       [IsAdicComplete I A],
@@ -195,9 +196,9 @@ of Lemma 52.9.2 are satisfied. -/
       {M : Type v} [AddCommGroup M] [Module A M] [Module.Finite A M]
       [IsLocalRing A]
       [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
-      (H : MonoidalClosed (DerivedCategory (ModuleCat.{u} A)))
+      (C : CategoryTheory.DerivedCategory.CanonicalClosedPresentation (A := A))
       {I : Ideal A} {T : Set (PrimeSpectrum A)} {s d : ℤ}
-      (h : AlgebraizationSituation H I M T s d)
+      (h : AlgebraizationSituation C I M T s d)
       (a : Ideal A) (hIa : I ≤ a)
       (hV : PrimeSpectrum.zeroLocus (a : Set A) ⊆ T)
       (hmax : IsLocalRing.maximalIdeal A = a),
@@ -233,9 +234,9 @@ depth hypotheses of Lemma 52.9.4 are satisfied as well. -/
       {M : Type v} [AddCommGroup M] [Module A M] [Module.Finite A M]
       [IsLocalRing A]
       [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
-      (H : MonoidalClosed (DerivedCategory (ModuleCat.{u} A)))
+      (C : CategoryTheory.DerivedCategory.CanonicalClosedPresentation (A := A))
       {I : Ideal A} {T : Set (PrimeSpectrum A)} {s d : ℤ}
-      (h : AlgebraizationSituation H I M T s d)
+      (h : AlgebraizationSituation C I M T s d)
       (a : Ideal A) (hIa : I ≤ a)
       (hV : PrimeSpectrum.zeroLocus (a : Set A) ⊆ T)
       (hmax : IsLocalRing.maximalIdeal A = a),
@@ -280,9 +281,9 @@ and depth hypotheses of Lemma 52.9.5 are satisfied. -/
       {M : Type v} [AddCommGroup M] [Module A M] [Module.Finite A M]
       [IsLocalRing A]
       [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
-      (H : MonoidalClosed (DerivedCategory (ModuleCat.{u} A)))
+      (C : CategoryTheory.DerivedCategory.CanonicalClosedPresentation (A := A))
       {I : Ideal A} {T : Set (PrimeSpectrum A)} {s d : ℤ}
-      (h : AlgebraizationSituation H I M T s d)
+      (h : AlgebraizationSituation C I M T s d)
       (a : Ideal A) (hIa : I ≤ a)
       (hV : PrimeSpectrum.zeroLocus (a : Set A) ⊆ T)
       (hmax : IsLocalRing.maximalIdeal A = a)

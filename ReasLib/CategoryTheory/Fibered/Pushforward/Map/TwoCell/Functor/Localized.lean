@@ -63,7 +63,8 @@ theorem map₂.compQ
     Functor.whiskerLeft (u.pushforwardFractions p).Q (map₂ u hF hG eta) =
       (map.comparisonIso u F hF).hom ≫
         Functor.whiskerRight (sourceMap₂ u eta) (u.pushforwardFractions q).Q ≫
-          (map.comparisonIso u G hG).inv := sorry
+          (map.comparisonIso u G hG).inv := by
+  exact Localization.Construction.whiskerLeft_natTransExtension _
 
 /-- Component form of `map₂.compQ`, for rewriting a localized pushforward `2`-cell on an object
 coming from the prelocalized source. -/
@@ -75,7 +76,8 @@ theorem map₂.compQ_app
     (map₂ u hF hG eta).app ((u.pushforwardFractions p).Q.obj A) =
       (map.comparisonIso u F hF).hom.app A ≫
         (u.pushforwardFractions q).Q.map ((sourceMap₂ u eta).app A) ≫
-          (map.comparisonIso u G hG).inv.app A := sorry
+          (map.comparisonIso u G hG).inv.app A := by
+  exact NatTrans.congr_app (map₂.compQ u hF hG eta) A
 
 /-- The localization comparison readout for a `2`-cell formed from an inversion family. -/
 @[stacks 04WI "localized pushforward chosen two-cell localization comparison"]
@@ -86,7 +88,8 @@ theorem map₂.ofInversionChoice.compQ
         (map₂.ofInversionChoice u h eta) =
       (map.comparisonIso u F (h.inverts F)).hom ≫
         Functor.whiskerRight (sourceMap₂ u eta) (u.pushforwardFractions q).Q ≫
-          (map.comparisonIso u G (h.inverts G)).inv := sorry
+          (map.comparisonIso u G (h.inverts G)).inv := by
+  exact map₂.compQ u (h.inverts F) (h.inverts G) eta
 
 /-- The object component of the localization comparison readout for a chosen inversion family. -/
 @[simp, stacks 04WI "localized pushforward chosen two-cell component"]
@@ -96,14 +99,46 @@ theorem map₂.ofInversionChoice.compQ_app
     (map₂.ofInversionChoice u h eta).app ((u.pushforwardFractions p).Q.obj A) =
       (map.comparisonIso u F (h.inverts F)).hom.app A ≫
         (u.pushforwardFractions q).Q.map ((sourceMap₂ u eta).app A) ≫
-          (map.comparisonIso u G (h.inverts G)).inv.app A := sorry
+          (map.comparisonIso u G (h.inverts G)).inv.app A := by
+  exact map₂.compQ_app u (h.inverts F) (h.inverts G) eta A
+
+private theorem map₂_id_aux (u : C ⥤ D) (F : CartesianBasedFunctor p q)
+    (hF : sourceMap.inverts u F) :
+    map₂ u hF hF (𝟙 F) = 𝟙 (map u F hF) := by
+  have hsource : sourceMap₂ u (𝟙 F) = 𝟙 (sourceMap u F) := by
+    apply NatTrans.ext
+    funext A
+    apply CategoricalPullback.hom_ext
+    · rfl
+    · rfl
+  apply Localization.Construction.natTrans_hcomp_injective
+  simp [Functor.id_hcomp, map₂.compQ, hsource]
+
+private theorem map₂_comp_aux
+    (u : C ⥤ D) {F G H : CartesianBasedFunctor p q}
+    (hF : sourceMap.inverts u F) (hG : sourceMap.inverts u G)
+    (hH : sourceMap.inverts u H)
+    (eta : F ⟶ G) (theta : G ⟶ H) :
+    map₂ u hF hH (eta ≫ theta) =
+      map₂ u hF hG eta ≫ map₂ u hG hH theta := by
+  have hsource : sourceMap₂ u (eta ≫ theta) =
+      sourceMap₂ u eta ≫ sourceMap₂ u theta := by
+    apply NatTrans.ext
+    funext A
+    apply CategoricalPullback.hom_ext
+    · change (𝟙 A.fst) = (𝟙 A.fst) ≫ 𝟙 A.fst
+      simp
+    · rfl
+  apply Localization.Construction.natTrans_hcomp_injective
+  simp [Functor.id_hcomp, map₂.compQ, hsource, Category.assoc]
 
 /-- The chosen localized pushforward `2`-cell preserves identity transformations. -/
 @[simp, stacks 04WI "localized pushforward chosen two-cell identity"]
 theorem map₂.ofInversionChoice.id
     (u : C ⥤ D) (h : InversionChoice u p q) (F : CartesianBasedFunctor p q) :
     map₂.ofInversionChoice u h (𝟙 F) =
-      𝟙 (map.ofInversionChoice u F h) := sorry
+      𝟙 (map.ofInversionChoice u F h) := by
+  exact map₂_id_aux u F (h.inverts F)
 
 /-- The chosen localized pushforward `2`-cell preserves vertical composition. -/
 @[simp, stacks 04WI "localized pushforward chosen two-cell composition"]
@@ -111,13 +146,15 @@ theorem map₂.ofInversionChoice.comp
     (u : C ⥤ D) (h : InversionChoice u p q)
     {F G H : CartesianBasedFunctor p q} (eta : F ⟶ G) (theta : G ⟶ H) :
     map₂.ofInversionChoice u h (eta ≫ theta) =
-      map₂.ofInversionChoice u h eta ≫ map₂.ofInversionChoice u h theta := sorry
+      map₂.ofInversionChoice u h eta ≫ map₂.ofInversionChoice u h theta := by
+  exact map₂_comp_aux u (h.inverts F) (h.inverts G) (h.inverts H) eta theta
 
 /-- Localized pushforward preserves identity transformations. -/
 @[simp, stacks 04WI "localized pushforward two-cell identity"]
 theorem map₂.id (u : C ⥤ D) (F : CartesianBasedFunctor p q)
     (hF : sourceMap.inverts u F) :
-    map₂ u hF hF (𝟙 F) = 𝟙 (map u F hF) := sorry
+    map₂ u hF hF (𝟙 F) = 𝟙 (map u F hF) := by
+  exact map₂_id_aux u F hF
 
 /-- Localized pushforward preserves vertical composition of transformations. -/
 @[simp, stacks 04WI "localized pushforward two-cell composition"]
@@ -127,7 +164,8 @@ theorem map₂.comp
     (hH : sourceMap.inverts u H)
     (eta : F ⟶ G) (theta : G ⟶ H) :
     map₂ u hF hH (eta ≫ theta) =
-      map₂ u hF hG eta ≫ map₂ u hG hH theta := sorry
+      map₂ u hF hG eta ≫ map₂ u hG hH theta := by
+  exact map₂_comp_aux u hF hG hH eta theta
 
 /-- Localized pushforward acts functorially on cartesian based functors and their vertical
 transformations. -/
@@ -144,7 +182,8 @@ proof. -/
 @[simp, stacks 04WI "localized pushforward Hom functor object"]
 theorem mapFunctor.obj (u : C ⥤ D) (h : InversionChoice u p q)
     (F : CartesianBasedFunctor p q) :
-    (mapFunctor u h).obj F = map u F (h.inverts F) := sorry
+    (mapFunctor u h).obj F = map u F (h.inverts F) := by
+  rfl
 
 /-- The morphism action of the localized pushforward hom functor is `map₂`. -/
 @[simp, stacks 04WI "localized pushforward Hom functor map"]
@@ -152,7 +191,8 @@ theorem mapFunctor.map
     (u : C ⥤ D) (h : InversionChoice u p q)
     {F G : CartesianBasedFunctor p q} (eta : F ⟶ G) :
     (mapFunctor u h).map eta =
-      map₂.ofInversionChoice u h eta := sorry
+      map₂.ofInversionChoice u h eta := by
+  rfl
 
 end CategoryTheory.Functor.Pushforward
 

@@ -67,7 +67,9 @@ abbrev stageGroup (i : Set.Ici i0) :=
 /-- Functoriality of the inverse system on composites of structure maps
 `S_j ⟶ S_i ⟶ S_0`. -/
 theorem transition_base_comp {i j : Set.Ici i0} (hij : i ≤ j) :
-    D.map (homOfLE hij) ≫ D.map (homOfLE i.2) = D.map (homOfLE j.2) := sorry
+    D.map (homOfLE hij) ≫ D.map (homOfLE i.2) = D.map (homOfLE j.2) := by
+  rw [← D.map_comp]
+  rfl
 
 /-- The associator identifying `S_j ×_{S_i} X_i` with `X_j = S_j ×_{S_0} X_0`. -/
 def assocIso {i j : Set.Ici i0} (hij : i ≤ j) :
@@ -79,7 +81,8 @@ def assocIso {i j : Set.Ici i0} (hij : i ≤ j) :
 /-- The stage associator is a morphism over `S_j`. -/
 theorem assocIso_hom_snd {i j : Set.Ici i0} (hij : i ≤ j) :
     (assocIso D i0 f0 hij).hom ≫ stageHom D i0 f0 j =
-      pullback.snd (stageHom D i0 f0 i) (D.map (homOfLE hij)) := sorry
+      pullback.snd (stageHom D i0 f0 i) (D.map (homOfLE hij)) := by
+  simp [assocIso, stageHom, Category.assoc, pullback.map, pullback.lift_snd]
 
 /-- Base change of relative `r`-cycles along `S_j ⟶ S_i`, transported to the
 chosen stage `X_j`. -/
@@ -107,13 +110,15 @@ theorem transition_apply {i j : Set.Ici i0} (hij : i ≤ j)
       familyMapOfIsoOver (assocIso D i0 f0 hij).hom
         (assocIso_hom_snd D i0 f0 hij) r
         (FamilyOfCyclesOnFibres.baseChange (stageHom D i0 f0 i) (D.map (homOfLE hij)) r
-          (α : (stageHom D i0 f0 i).FiberCycleFamily r)) := sorry
+          (α : (stageHom D i0 f0 i).FiberCycleFamily r)) := rfl
 
 /-- Stage groups and base-change transitions form a directed system indexed by
 `i ≥ i0`. -/
 instance instDirectedSystem :
     DirectedSystem (fun i : Set.Ici i0 ↦ stageGroup D i0 f0 r i)
-      (fun i j hij ↦ transition D i0 f0 r hij) := sorry
+      (fun i j hij ↦ transition D i0 f0 r hij) where
+  map_self {i} α := DFunLike.congr_fun (transition_id D i0 f0 r i) α
+  map_map {k j i} hij hjk α := DFunLike.congr_fun (transition_comp D i0 f0 r hij hjk) α
 
 end Stage
 
@@ -149,7 +154,8 @@ abbrev limitGroup :=
 /-- The cone identity `S ⟶ S_i ⟶ S_0` equals the distinguished projection
 `S ⟶ S_0`. -/
 theorem leg_base_comp (i : Set.Ici i0) :
-    c.π.app (i : I) ≫ D.map (homOfLE i.2) = c.π.app i0 := sorry
+    c.π.app (i : I) ≫ D.map (homOfLE i.2) = c.π.app i0 :=
+  c.w (homOfLE i.2)
 
 /-- The associator identifying `S ×_{S_i} X_i` with `X = S ×_{S_0} X_0`. -/
 def legAssocIso (i : Set.Ici i0) :
@@ -160,7 +166,9 @@ def legAssocIso (i : Set.Ici i0) :
 /-- The limit associator is a morphism over `S`. -/
 theorem legAssocIso_hom_snd (i : Set.Ici i0) :
     (legAssocIso D c i0 f0 i).hom ≫ limitHom D c i0 f0 =
-      pullback.snd (stageHom D i0 f0 i) (c.π.app (i : I)) := sorry
+      pullback.snd (stageHom D i0 f0 i) (c.π.app (i : I)) := by
+  set_option backward.isDefEq.respectTransparency false in
+    simp [legAssocIso, limitHom, stageHom, Category.assoc, pullback.map, pullback.lift_snd]
 
 -- Cone projections do not determine the cone during instance synthesis, so the
 -- nested-pullback property certificate is supplied explicitly in the transport maps.
@@ -174,7 +182,15 @@ theorem leg_mem (i : Set.Ici i0) (α : stageGroup D i0 f0 r i) :
         (legAssocIso_hom_snd D c i0 f0 i) r
         (FamilyOfCyclesOnFibres.baseChange (stageHom D i0 f0 i) (c.π.app (i : I)) r
           (α : (stageHom D i0 f0 i).FiberCycleFamily r)) ∈
-      group (limitHom D c i0 f0) r := sorry
+      group (limitHom D c i0 f0) r := by
+  exact @groupPushforward_mem _ _ c.pt
+    (pullback.snd (stageHom D i0 f0 i) (c.π.app (i : I)))
+    (limitHom D c i0 f0) inferInstance
+    (instLocallyOfFiniteType_legDomain D c i0 f0 i) inferInstance
+    (legAssocIso D c i0 f0 i).hom inferInstance
+    (legAssocIso_hom_snd D c i0 f0 i) r
+    (@groupBaseChange _ (D.obj (i : I)) c.pt (stageHom D i0 f0 i)
+      (c.π.app (i : I)) inferInstance inferInstance inferInstance r α)
 
 /-- The cocone leg `z(X_i/S_i, r) → z(X/S, r)` by base change along `S ⟶ S_i`. -/
 def leg (i : Set.Ici i0) :
@@ -203,7 +219,7 @@ theorem leg_apply (i : Set.Ici i0) (α : stageGroup D i0 f0 r i) :
         (legAssocIso D c i0 f0 i).hom inferInstance
         (legAssocIso_hom_snd D c i0 f0 i) r
         (FamilyOfCyclesOnFibres.baseChange (stageHom D i0 f0 i) (c.π.app (i : I)) r
-          (α : (stageHom D i0 f0 i).FiberCycleFamily r)) := sorry
+          (α : (stageHom D i0 f0 i).FiberCycleFamily r)) := rfl
 
 variable [Nonempty I] [IsDirected I (· ≤ ·)]
 variable [∀ {j j' : I} (h : j ≤ j'), IsAffineHom (D.map (homOfLE h))]
@@ -233,12 +249,12 @@ def toLimitGroup :
       (fun i α ↦ leg D c i0 f0 r i α)
       (fun i j hij α ↦
         (DFunLike.congr_fun (leg_naturality D c i0 f0 r hij) α).symm)
-  map_zero' := sorry
-  map_add' := sorry
+  map_zero' := DirectLimit.lift_zero (fun i ↦ leg D c i0 f0 r i) _
+  map_add' := DirectLimit.lift_add (fun i ↦ leg D c i0 f0 r i) _
 
 /-- The comparison sends a stage class to the corresponding cocone leg. -/
 theorem toLimitGroup_of (i : Set.Ici i0) (α : stageGroup D i0 f0 r i) :
-    toLimitGroup D c i0 f0 r ⟦⟨i, α⟩⟧ = leg D c i0 f0 r i α := sorry
+    toLimitGroup D c i0 f0 r ⟦⟨i, α⟩⟧ = leg D c i0 f0 r i α := rfl
 
 end Limit
 
@@ -251,7 +267,16 @@ theorem toLimitGroup_bijective {I : Type u} [Preorder I] [Nonempty I]
     (hc : IsLimit c) [∀ j, IsNoetherian (D.obj j)] [IsNoetherian c.pt]
     [∀ {j j' : I} (h : j ≤ j'), IsAffineHom (D.map (homOfLE h))]
     (i0 : I) {X0 : Scheme.{u}} (f0 : X0 ⟶ D.obj i0) [f0.FiniteType] (r : ℕ) :
-    Function.Bijective (toLimitGroup D c i0 f0 r) := sorry
+    Function.Bijective (toLimitGroup D c i0 f0 r) := by
+  constructor
+  · intro x y h
+    obtain ⟨i, α, β, rfl, rfl⟩ :=
+      DirectLimit.exists_eq_mk₂ (fun i j hij ↦ transition D i0 f0 r hij) x y
+    obtain ⟨j, hij, hj⟩ := exists_eq_of_leg_eq D c i0 f0 r hc α β h
+    exact Quotient.sound ⟨j, hij, hij, hj⟩
+  · intro α
+    obtain ⟨i, αi, h⟩ := exists_of_limitGroup D c i0 f0 r hc α
+    exact ⟨⟦⟨i, αi⟩⟧, h⟩
 
 /-- Mapping-out universal property of `z(X/S, r)` as the directed colimit of
 the stage groups `z(X_i/S_i, r)`. -/
@@ -265,6 +290,41 @@ theorem group_isFilteredColimit {I : Type u} [Preorder I] [Nonempty I]
     (hφ : ∀ {i j : Set.Ici i0} (hij : i ≤ j),
       (φ j).comp (transition D i0 f0 r hij) = φ i) :
     ∃! ψ : limitGroup D c i0 f0 r →+ Y,
-      ∀ i, ψ.comp (leg D c i0 f0 r i) = φ i := sorry
+      ∀ i, ψ.comp (leg D c i0 f0 r i) = φ i := by
+  let t : DirectLimit (fun i : Set.Ici i0 ↦ stageGroup D i0 f0 r i)
+      (fun i j hij ↦ transition D i0 f0 r hij) →+ Y :=
+    { toFun := DirectLimit.lift (fun i j hij ↦ transition D i0 f0 r hij)
+        (fun i α ↦ φ i α)
+        (fun i j hij α ↦ (DFunLike.congr_fun (hφ hij) α).symm)
+      map_zero' := DirectLimit.lift_zero φ _
+      map_add' := DirectLimit.lift_add φ _ }
+  have hbij := toLimitGroup_bijective D c hc i0 f0 r
+  obtain ⟨ψ, hψ⟩ := hbij.1.surjective_comp_right (t : _ → Y)
+  have hψ_apply (x) : ψ (toLimitGroup D c i0 f0 r x) = t x :=
+    congrFun hψ x
+  let ψ' : limitGroup D c i0 f0 r →+ Y :=
+    { toFun := ψ
+      map_zero' := by
+        rw [← map_zero (toLimitGroup D c i0 f0 r), hψ_apply]
+        exact t.map_zero
+      map_add' := by
+        intro a b
+        obtain ⟨x, rfl⟩ := hbij.2 a
+        obtain ⟨y, rfl⟩ := hbij.2 b
+        rw [← (toLimitGroup D c i0 f0 r).map_add x y,
+          hψ_apply, hψ_apply, hψ_apply, t.map_add] }
+  have hcomp (i) : ψ'.comp (leg D c i0 f0 r i) = φ i := by
+    apply AddMonoidHom.ext
+    intro α
+    change ψ (leg D c i0 f0 r i α) = φ i α
+    rw [← toLimitGroup_of D c i0 f0 r i α]
+    exact hψ_apply _
+  refine ⟨ψ', hcomp, ?_⟩
+  intro χ hχ
+  apply AddMonoidHom.ext
+  intro α
+  obtain ⟨i, αi, rfl⟩ := exists_of_limitGroup D c i0 f0 r hc α
+  exact (DFunLike.congr_fun (hχ i) αi).trans
+    (DFunLike.congr_fun (hcomp i) αi).symm
 
 end AlgebraicGeometry.RelativeCycle.InverseLimit

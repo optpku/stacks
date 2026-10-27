@@ -23,6 +23,19 @@ universe u
 
 namespace AlgebraicGeometry.Scheme
 
+private theorem abelianEtaleInverseImage_sheafFiber_comp_eq_id
+    {X : Scheme.{u}} [HasColimitsOfSize.{u, u} AddCommGrpCat.{u}]
+    {p q : X.smallEtaleTopology.Point} (f : p.fiber ⟶ q.fiber)
+    (g : q.fiber ⟶ p.fiber) (h : f ≫ g = 𝟙 p.fiber)
+    (G : Sheaf X.smallEtaleTopology AddCommGrpCat.{u}) :
+    (Hom.sheafFiber ⟨f⟩).app G ≫ (Hom.sheafFiber ⟨g⟩).app G = 𝟙 _ := by
+  have h' : (⟨g⟩ : p ⟶ q) ≫ (⟨f⟩ : q ⟶ p) = 𝟙 p := by
+    apply hom_ext
+    exact h
+  simpa only [Hom.sheafFiber_comp, NatTrans.comp_app,
+    Hom.sheafFiber_id, NatTrans.id_app] using
+    congrArg (fun k : p ⟶ p ↦ (Hom.sheafFiber (A := AddCommGrpCat.{u}) k).app G) h'
+
 variable {U X : Scheme.{u}} (j : U ⟶ X) [Etale j]
 variable [∀ F : U.Etaleᵒᵖ ⥤ AddCommGrpCat.{u},
   (etaleRestriction j).op.HasLeftKanExtension F]
@@ -60,8 +73,40 @@ noncomputable def abelianEtaleInverseImage_comapFiberIso
       (Hom.sheafFiber ⟨smallEtaleInverseImage_comapFiberHom j ubar⟩).app G
     inv :=
       (Hom.sheafFiber ⟨smallEtaleInverseImage_comapFiberInv j ubar⟩).app G
-    hom_inv_id := sorry
-    inv_hom_id := sorry }
+    hom_inv_id := by
+      apply abelianEtaleInverseImage_sheafFiber_comp_eq_id
+      ext V α
+      change Over.mk ubar.hom ⟶
+        (Etale.forget U).obj ((smallEtalePullback j).obj V) at α
+      let comparison : (Etale.forget U).obj ((smallEtalePullback j).obj V) ≅
+          (Over.pullback j).obj ((Etale.forget X).obj V) :=
+        (MorphismProperty.Over.pullbackCompForgetIso (P := @Etale) (Q := ⊤) j).app V
+      let imageComparison :
+          (Over.map j).obj (Over.mk ubar.hom) ≅ Over.mk (ubar.hom ≫ j) :=
+        Over.isoMk (Iso.refl _) (Category.id_comp _)
+      let e := (Over.mapPullbackAdj j).homEquiv
+        (Over.mk ubar.hom) ((Etale.forget X).obj V)
+      change e (imageComparison.hom ≫
+        (imageComparison.inv ≫ e.symm (α ≫ comparison.hom))) ≫ comparison.inv = α
+      rw [← Category.assoc, imageComparison.hom_inv_id, Category.id_comp,
+        Equiv.apply_symm_apply, Category.assoc, comparison.hom_inv_id, Category.comp_id]
+    inv_hom_id := by
+      apply abelianEtaleInverseImage_sheafFiber_comp_eq_id
+      ext V α
+      change Over.mk (ubar.hom ≫ j) ⟶ (Etale.forget X).obj V at α
+      let comparison : (Etale.forget U).obj ((smallEtalePullback j).obj V) ≅
+          (Over.pullback j).obj ((Etale.forget X).obj V) :=
+        (MorphismProperty.Over.pullbackCompForgetIso (P := @Etale) (Q := ⊤) j).app V
+      let imageComparison :
+          (Over.map j).obj (Over.mk ubar.hom) ≅ Over.mk (ubar.hom ≫ j) :=
+        Over.isoMk (Iso.refl _) (Category.id_comp _)
+      let e := (Over.mapPullbackAdj j).homEquiv
+        (Over.mk ubar.hom) ((Etale.forget X).obj V)
+      change imageComparison.inv ≫ e.symm
+        ((e (imageComparison.hom ≫ α) ≫ comparison.inv) ≫ comparison.hom) = α
+      rw [Category.assoc, comparison.inv_hom_id, Category.comp_id,
+        Equiv.symm_apply_apply, ← Category.assoc, imageComparison.inv_hom_id,
+        Category.id_comp] }
 
 /-- The forward map of the comap-to-image stalk comparison is induced by the
 comap fibre map. -/
@@ -73,7 +118,7 @@ theorem abelianEtaleInverseImage_comapFiberIso_hom
     (abelianEtaleInverseImage_comapFiberIso j ubar G).hom =
       (Hom.sheafFiber
         ⟨smallEtaleInverseImage_comapFiberHom j ubar⟩).app G :=
-  sorry
+  rfl
 
 /-- The inverse-image stalk is identified with the stalk at the composite
 geometric point. -/
@@ -108,7 +153,10 @@ noncomputable def abelianEtaleInverseImage_fiberFiberHom
   app V :=
     TypeCat.ofHom fun α ↦
       (abelianEtaleInverseImage_fiberFiberOverIso j xbar u).inv ≫ α
-  naturality := fun _ _ _ ↦ sorry
+  naturality := by
+    intro V W f
+    ext α
+    exact (Category.assoc _ _ _).symm
 
 /-- The inverse fibre map induced by `Fiber.point_comp`. -/
 noncomputable def abelianEtaleInverseImage_fiberFiberInv
@@ -120,7 +168,10 @@ noncomputable def abelianEtaleInverseImage_fiberFiberInv
   app V :=
     TypeCat.ofHom fun α ↦
       (abelianEtaleInverseImage_fiberFiberOverIso j xbar u).hom ≫ α
-  naturality := fun _ _ _ ↦ sorry
+  naturality := by
+    intro V W f
+    ext α
+    exact (Category.assoc _ _ _).symm
 
 /-- The fibre transport induced by the chosen geometric lift. -/
 noncomputable def abelianEtaleInverseImage_fiberFiberIso
@@ -134,8 +185,20 @@ noncomputable def abelianEtaleInverseImage_fiberFiberIso
     (Hom.sheafFiber ⟨abelianEtaleInverseImage_fiberFiberHom j xbar u⟩).app G
   inv :=
     (Hom.sheafFiber ⟨abelianEtaleInverseImage_fiberFiberInv j xbar u⟩).app G
-  hom_inv_id := sorry
-  inv_hom_id := sorry
+  hom_inv_id := by
+    apply abelianEtaleInverseImage_sheafFiber_comp_eq_id
+    ext V α
+    change Over.mk (u.point.hom ≫ j) ⟶ (Etale.forget X).obj V at α
+    change (abelianEtaleInverseImage_fiberFiberOverIso j xbar u).hom ≫
+      (abelianEtaleInverseImage_fiberFiberOverIso j xbar u).inv ≫ α = α
+    exact (abelianEtaleInverseImage_fiberFiberOverIso j xbar u).hom_inv_id_assoc α
+  inv_hom_id := by
+    apply abelianEtaleInverseImage_sheafFiber_comp_eq_id
+    ext V α
+    change Over.mk xbar.hom ⟶ (Etale.forget X).obj V at α
+    change (abelianEtaleInverseImage_fiberFiberOverIso j xbar u).inv ≫
+      (abelianEtaleInverseImage_fiberFiberOverIso j xbar u).hom ≫ α = α
+    exact (abelianEtaleInverseImage_fiberFiberOverIso j xbar u).inv_hom_id_assoc α
 
 /-- The forward map of the fibre transport is induced by the fibre map. -/
 theorem abelianEtaleInverseImage_fiberFiberIso_hom
@@ -144,7 +207,7 @@ theorem abelianEtaleInverseImage_fiberFiberIso_hom
     (abelianEtaleInverseImage_fiberFiberIso j xbar u G).hom =
       (Hom.sheafFiber
         ⟨abelianEtaleInverseImage_fiberFiberHom j xbar u⟩).app G :=
-  sorry
+  rfl
 
 /-- Transport the inverse-image stalk identification along `Fiber.point_comp`,
 so the geometric point of `X` is the given `xbar`. -/
@@ -196,7 +259,7 @@ theorem etaleRestrictionSheafIso_smallEtalePullback_hom
           (MorphismProperty.Over.mapPullbackAdj @Etale ⊤ j
             (inferInstance : Etale j) trivial)
           AddCommGrpCat.{u}).symm.app G).hom :=
-  sorry
+  rfl
 
 /-- The cocone leg from the stalk of `F` at a lift `u` of `xbar` to the
 extension-by-zero stalk. -/

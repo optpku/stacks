@@ -6,11 +6,9 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import Mathlib.Algebra.Homology.ShortComplex.HomologicalComplex
-public import Mathlib.CategoryTheory.Preadditive.Injective.Basic
-public import Mathlib.Tactic.CrossRefAttribute
-public import stacks_project.Chap85.Lemma_85_9_2_Complex
-public import stacks_project.Chap85.Lemma_85_9_2_Fiberwise
+import StacksCheckRecall
+public import ReasLib.CategoryTheory.Sites.Simplicial.AugmentationCech
+public import ReasLib.CategoryTheory.Sites.Grothendieck.AugmentationCech
 
 /-!
 # Lemma 85.9.2
@@ -61,25 +59,23 @@ variable [HasEqualizers (Sheaf K.toGrothendieck AddCommGrpCat.{w})]
 include h_morphism
 include h_aug
 
-/-- Lemma 85.9.2 (1): in Situation 85.3.3 case A, with an augmentation towards a
+/- Lemma 85.9.2 (1): in Situation 85.3.3 case A, with an augmentation towards a
 site `D` as in Remark 85.4.1, let `F` be an abelian sheaf on `C_total`. The
 canonical complex `0 → a_* F → a_{0,*} F_0 → a_{1,*} F_1 → ⋯` of abelian sheaves
 on `D` is exact in degrees `-1` and `0`. -/
-@[stacks 0D79]
-theorem augmentationCechCochain_exactAt_negOne_zero
-    (F : Sheaf (topology C J) AddCommGrpCat.{w})
-    (n : ℤ) (hn : n = (-1 : ℤ) ∨ n = (0 : ℤ)) :
-    (augmentationCechCochain C J K u0 F).ExactAt n :=
-  sorry
+@[stacks 0D79] #check
+  (CategoryTheory.SimplicialSites.augmentationCechCochain_exactAt_negOne_zero C J K u0 :
+    ∀ (F : Sheaf (topology C J) AddCommGrpCat.{w}) (n : ℤ),
+      n = (-1 : ℤ) ∨ n = (0 : ℤ) →
+        (CategoryTheory.SimplicialSites.augmentationCechCochain C J K u0 F).ExactAt n)
 
-/-- Lemma 85.9.2 (2): in Situation 85.3.3 case A, if `F` is injective then the
+/- Lemma 85.9.2 (2): in Situation 85.3.3 case A, if `F` is injective then the
 canonical complex `0 → a_* F → a_{0,*} F_0 → a_{1,*} F_1 → ⋯` is exact in every
 degree. -/
-@[stacks 0D79]
-theorem augmentationCechCochain_acyclic_of_injective
-    (F : Sheaf (topology C J) AddCommGrpCat.{w}) [Injective F] :
-    (augmentationCechCochain C J K u0 F).Acyclic :=
-  sorry
+@[stacks 0D79] #check
+  (CategoryTheory.SimplicialSites.augmentationCechCochain_acyclic_of_injective C J K u0 :
+    ∀ (F : Sheaf (topology C J) AddCommGrpCat.{w}), Injective F →
+      (CategoryTheory.SimplicialSites.augmentationCechCochain C J K u0 F).Acyclic)
 
 end CategoryTheory.SimplicialSites
 
@@ -103,24 +99,22 @@ variable [∀ (m n : SimplexCategory) (φ : m ⟶ n) (P : (F.obj (op n))ᵒᵖ �
     ((F.map φ.op).toFunctor).op.HasPointwiseRightKanExtension P]
 variable [HasEqualizers (Sheaf K.toGrothendieck AddCommGrpCat.{w})]
 
-/-- Lemma 85.9.2 (3): in Situation 85.3.3 case B, with an augmentation towards a
+/- Lemma 85.9.2 (3): in Situation 85.3.3 case B, with an augmentation towards a
 site `D` as in Remark 85.4.1, let `G` be an abelian sheaf on `C_total`. The
 canonical complex `0 → a_* G → a_{0,*} G_0 → a_{1,*} G_1 → ⋯` of abelian sheaves
 on `D` is exact in degrees `-1` and `0`. -/
-@[stacks 0D79]
-theorem fiberAugmentationCechCochain_exactAt_negOne_zero
-    (G : Sheaf (topology F J) AddCommGrpCat.{w})
-    (n : ℤ) (hn : n = (-1 : ℤ) ∨ n = (0 : ℤ)) :
-    (fiberAugmentationCechCochain F J K u0 G).ExactAt n :=
-  sorry
+@[stacks 0D79] #check
+  (CategoryTheory.Grothendieck.fiberAugmentationCechCochain_exactAt_negOne_zero F J K u0 :
+    ∀ (G : Sheaf (topology F J) AddCommGrpCat.{w}) (n : ℤ),
+      n = (-1 : ℤ) ∨ n = (0 : ℤ) →
+        (CategoryTheory.Grothendieck.fiberAugmentationCechCochain F J K u0 G).ExactAt n)
 
-/-- Lemma 85.9.2 (4): in Situation 85.3.3 case B, if `G` is injective then the
+/- Lemma 85.9.2 (4): in Situation 85.3.3 case B, if `G` is injective then the
 canonical complex `0 → a_* G → a_{0,*} G_0 → a_{1,*} G_1 → ⋯` is exact in every
 degree. -/
-@[stacks 0D79]
-theorem fiberAugmentationCechCochain_acyclic_of_injective
-    (G : Sheaf (topology F J) AddCommGrpCat.{w}) [Injective G] :
-    (fiberAugmentationCechCochain F J K u0 G).Acyclic :=
-  sorry
+@[stacks 0D79] #check
+  (CategoryTheory.Grothendieck.fiberAugmentationCechCochain_acyclic_of_injective F J K u0 :
+    ∀ (G : Sheaf (topology F J) AddCommGrpCat.{w}), Injective G →
+      (CategoryTheory.Grothendieck.fiberAugmentationCechCochain F J K u0 G).Acyclic)
 
 end CategoryTheory.Grothendieck

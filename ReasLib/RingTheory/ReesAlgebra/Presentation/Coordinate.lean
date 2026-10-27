@@ -87,7 +87,7 @@ theorem map_bijective (n : ℕ) : Function.Bijective (map (R := R) n) := sorry
 /-! ## Explicit inverse by monomial straightening -/
 
 /-- Select up to `e` factors from a monomial, in increasing coordinate order. -/
-@[expose] private def splitExponent {n : ℕ} (e : ℕ) (d : Fin n →₀ ℕ) : Fin n →₀ ℕ :=
+@[expose] def splitExponent {n : ℕ} (e : ℕ) (d : Fin n →₀ ℕ) : Fin n →₀ ℕ :=
   Finsupp.onFinset Finset.univ
     (fun i ↦ min (d i) (e - ∑ j ∈ Finset.univ.filter (fun j ↦ j < i), d j))
     (by simp)
@@ -102,7 +102,7 @@ private theorem splitExponent_sum {n : ℕ} (e : ℕ) (d : Fin n →₀ ℕ) :
 
 /-- Lift a coefficient of Rees degree `e` by splitting each coordinate monomial into
 base and presentation variables. -/
-@[expose] private def coefficientLift (n e : ℕ) (p : MvPolynomial.Coordinate.base (R := R) n) :
+@[expose] def coefficientLift (n e : ℕ) (p : MvPolynomial.Coordinate.base (R := R) n) :
     ambient (R := R) n :=
   ∑ d ∈ p.support,
     monomial (splitExponent e d) (monomial (d - splitExponent e d) (coeff d p))

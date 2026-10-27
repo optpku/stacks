@@ -29,14 +29,14 @@ variable {C : Type u₁} {D : Type u₂} {E : Type u₃}
   [Category.{v₁} C] [Category.{v₂} D] [Category.{v₃} E] [Preadditive E]
 
 /-- Total right-derived maps preserve zero natural transformations. -/
-@[stacks 05T2, simp]
+@[simp]
 theorem mapNatTrans.zero
     (L : C ⥤ D) (S : MorphismProperty C) {F G : C ⥤ E}
     [L.IsLocalization S] [F.HasRightDerivedFunctor S] [G.HasRightDerivedFunctor S] :
     mapNatTrans L S (0 : F ⟶ G) = 0 := sorry
 
 /-- Total right-derived maps preserve addition of source natural transformations. -/
-@[stacks 05T2, simp]
+@[simp]
 theorem mapNatTrans.add
     (L : C ⥤ D) (S : MorphismProperty C) {F G : C ⥤ E}
     (τ σ : F ⟶ G) [L.IsLocalization S]

@@ -28,9 +28,6 @@ theorem evaluation_jointlyReflectsIsomorphisms
     JointlyReflectIsomorphisms ((evaluation J C).obj : J → (J ⥤ C) ⥤ C) := by
   refine ⟨fun f ↦ ?_⟩
   intro h
-  letI : ∀ j, IsIso (f.app j) := fun j ↦ by
-    change IsIso (((evaluation J C).obj j).map f)
-    exact h j
-  exact NatIso.isIso_of_isIso_app f
+  exact @NatIso.isIso_of_isIso_app J _ C _ _ _ f h
 
 end CategoryTheory.FunctorCategory

@@ -31,11 +31,12 @@ variable {pointCycle : CHgrade point 0} {H Picard : V → Type x}
 variable [∀ X, Ring (H X)] [∀ X, Algebra F (H X)] [∀ X, AddCommGroup (Picard X)]
 
 /- Lemma 45.14.8: data (D0), (D1), and (D2') satisfying axioms (A1)–(A7)
+/- 抽象层对角类 mixin：待 RL-2194 完成锚定后移除。 -/
 satisfy axiom (C)(d). -/
 @[stacks 0FIM] #check
   (WeilCohomology.SchemePreWeilTheory.point_normalization :
     ∀ (T : SchemePreWeilTheory k F TateLine V dimension product fst snd point CH CHgrade
-      cyclePullback cyclePushforward pointCycle H Picard),
+      cyclePullback cyclePushforward pointCycle H Picard) [T.HasDiagonalClassRelation],
       T.integral T.point_isNonemptyEquidimensional
         (T.cycleClass point (1 : CHgrade point 0)) = 1)
 

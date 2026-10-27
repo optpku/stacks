@@ -28,19 +28,16 @@ namespace PrimeSpectrum.UniqueMinimalPrime
 variable {R : Type u} [CommRing R]
 
 /-- A commutative ring has a unique minimal prime exactly when its nilradical is prime. -/
-@[stacks 00I7 "unique minimal prime and prime nilradical"]
 theorem iff_isPrime_nilradical :
     (∃! p : Ideal R, p ∈ minimalPrimes R) ↔ (nilradical R).IsPrime := sorry
 
 /-- A commutative ring has a unique minimal prime exactly when its reduction is a domain. -/
-@[stacks 00I7 "unique minimal prime and domain reduction"]
 theorem iff_isDomain_quotient_nilradical :
     (∃! p : Ideal R, p ∈ minimalPrimes R) ↔
       IsDomain (R ⧸ nilradical R) := sorry
 
 /-- A commutative ring has a unique minimal prime exactly when the nilradical is its only
 minimal prime. -/
-@[stacks 00I7 "unique minimal prime and singleton minimal-prime set"]
 theorem iff_minimalPrimes_eq_singleton_nilradical :
     (∃! p : Ideal R, p ∈ minimalPrimes R) ↔
       minimalPrimes R = {nilradical R} := sorry
@@ -50,12 +47,6 @@ end PrimeSpectrum.UniqueMinimalPrime
 namespace PrimeSpectrum.UniqueMinimalPrime
 
 variable {R : Type u} [CommSemiring R]
-
-/-- The prime spectrum of a commutative semiring is irreducible exactly when its nilradical
-is prime. -/
-theorem irreducibleSpace_iff_isPrime_nilradical :
-    IrreducibleSpace (PrimeSpectrum R) ↔ (nilradical R).IsPrime :=
-  PrimeSpectrum.irreducibleSpace_iff_isPrime_nilradical
 
 /-- A prime nilradical is the only minimal prime of a commutative semiring. -/
 theorem minimalPrimes_eq_singleton_nilradical_of_isPrime

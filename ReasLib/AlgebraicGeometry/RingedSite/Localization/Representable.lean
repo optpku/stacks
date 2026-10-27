@@ -40,7 +40,7 @@ namespace RingedSite.Localization.Representable
 
 section StructureObject
 
-variable (Z : RingedSite.{u, v}) (W : Z)
+variable (Z : RingedSite.{u, v}) (W : Z.carrier)
 variable [Z.siteTopology.HasSheafCompose (forget RingCat.{max u v})]
 variable [∀ P : Functor (Over W)ᵒᵖ (Type (max u v)),
   (Over.forget W).op.HasLeftKanExtension P]
@@ -58,48 +58,54 @@ end StructureObject
 
 variable {X Y : RingedSite.{u, v}}
 variable (f : X.Hom Y)
-variable {V : Y} {U : X} (c : U ⟶ f.base.obj V)
+variable {V : Y.carrier} {U : X.carrier} (c : U ⟶ f.base.obj V)
 
 /-- The map `h_U^# ⟶ f⁻¹(h_V^#)` induced by `c : U ⟶ f.base.obj V`. -/
 @[stacks 04J9 "representable parameter"]
 noncomputable abbrev parameter :
     X.siteTopology.sheafifiedRepresentable U ⟶
-      (f.base.sheafPullback (Type (max u v))
-        Y.siteTopology X.siteTopology).obj
+      (f.sheafPullback (A := Type (max u v))).obj
         (Y.siteTopology.sheafifiedRepresentable V) :=
-  GrothendieckTopology.RepresentableLocalization.baseChangeMap f.base c
+  @GrothendieckTopology.RepresentableLocalization.baseChangeMap
+    X.carrier Y.carrier _ _ X.siteTopology Y.siteTopology f.base
+    f.base_isContinuous _ _ _ V U c
 
 /-- The explicit inverse-image `2`-cell of the slice-topos ambient square for the representable
 parameter induced by `c`. -/
 @[stacks 04J9 "slice-topos square"]
 noncomputable def ambientIso :
     Over.star (Y.siteTopology.sheafifiedRepresentable V) ⋙
-        ((RingedSite.Hom.toMorphismOfTopoi.{u, v, u, v, max u v, max u v} f).localization
+        ((@RingedSite.Hom.toMorphismOfTopoi.{u, v, u, v, max u v, max u v}
+          X Y inferInstance inferInstance f (f.baseSheafPullbackPreservesFiniteLimits)).localization
           (Y.siteTopology.sheafifiedRepresentable V)).inverseImage ⋙
         Over.pullback (C := Sheaf X.siteTopology (Type (max u v))) (parameter f c) ≅
-      (RingedSite.Hom.toMorphismOfTopoi.{u, v, u, v, max u v, max u v} f).inverseImage ⋙
+      (@RingedSite.Hom.toMorphismOfTopoi.{u, v, u, v, max u v, max u v}
+          X Y inferInstance inferInstance f (f.baseSheafPullbackPreservesFiniteLimits)).inverseImage ⋙
         Over.star (X.siteTopology.sheafifiedRepresentable U) :=
-  f.localizedAmbientIso (parameter f c)
+  @RingedSite.Hom.localizedAmbientIso X Y inferInstance inferInstance f f.baseSheafPullbackPreservesFiniteLimits _ _ (parameter f c)
 
 section StructureCompatibility
 
 variable [X.siteTopology.HasSheafCompose (forget RingCat.{max u v})]
 variable [Y.siteTopology.HasSheafCompose (forget RingCat.{max u v})]
 
-/-- Lemma 18.22.4 (04J9), structure layer: the explicit slice-topos square comparison carries
+/-- The explicit slice-topos square comparison carries
 the ambient structure map to the localized structure map at the representable parameter. -/
 @[stacks 04J9 "structure compatibility"]
 theorem ambientIso_structure :
     (ambientIso f c).hom.app (RingedSite.Hom.underlyingStructureSheaf Y) ≫
         (Over.star (X.siteTopology.sheafifiedRepresentable U)).map
-          f.underlyingInverseImageMap =
-      f.localizedUnderlyingInverseImageMap (parameter f c) := sorry
+          (@RingedSite.Hom.underlyingInverseImageMap X Y inferInstance inferInstance
+            inferInstance inferInstance f f.baseSheafPullbackPreservesFiniteLimits) =
+      (@RingedSite.Hom.localizedUnderlyingInverseImageMap X Y inferInstance inferInstance
+          inferInstance inferInstance f f.baseSheafPullbackPreservesFiniteLimits _ _
+          (parameter f c)) := sorry
 
 end StructureCompatibility
 
 section Functoriality
 
-variable {V' : Y} {U' : X}
+variable {V' : Y.carrier} {U' : X.carrier}
 variable (b : V' ⟶ V) (a : U' ⟶ U)
 variable (c' : U' ⟶ f.base.obj V')
 variable (h : c' ≫ f.base.map b = a ≫ c)
@@ -111,8 +117,7 @@ commuting square required to localize the inverse-image adjunction. -/
 @[stacks 04J9 "representable parameter square"]
 theorem parameter_naturality :
     parameter f c' ≫
-        (f.base.sheafPullback (Type (max u v))
-          Y.siteTopology X.siteTopology).map
+        (f.sheafPullback (A := Type (max u v))).map
             (Y.siteTopology.sheafifiedRepresentableMap b) =
       X.siteTopology.sheafifiedRepresentableMap a ≫ parameter f c := sorry
 
@@ -121,28 +126,34 @@ section StructureCompatibility
 variable [X.siteTopology.HasSheafCompose (forget RingCat.{max u v})]
 variable [Y.siteTopology.HasSheafCompose (forget RingCat.{max u v})]
 
-/-- Lemma 18.22.4 (04J9), functorial structure layer: the canonical base-change isomorphism
+/-- The canonical base-change isomorphism
 for the representable parameter square respects the two localized underlying structure maps. -/
 @[stacks 04J9 "base-change structure compatibility"]
 theorem structureMap_commSq :
     CommSq
       ((LeftExactAdjunction.Localization.inverseImageBaseChangeIso
-          (RingedSite.Hom.toMorphismOfTopoi.{u, v, u, v, max u v, max u v} f)
+          (@RingedSite.Hom.toMorphismOfTopoi.{u, v, u, v, max u v, max u v}
+          X Y inferInstance inferInstance f (f.baseSheafPullbackPreservesFiniteLimits))
           (Y.siteTopology.sheafifiedRepresentableMap b)
           (X.siteTopology.sheafifiedRepresentableMap a)
           (parameter f c) (parameter f c')
           (parameter_naturality f c b a c' h)).hom.app
         ((Over.star (Y.siteTopology.sheafifiedRepresentable V)).obj
           (RingedSite.Hom.underlyingStructureSheaf Y)))
-      ((((RingedSite.Hom.toMorphismOfTopoi.{u, v, u, v, max u v, max u v} f).localization
+      ((((@RingedSite.Hom.toMorphismOfTopoi.{u, v, u, v, max u v, max u v}
+          X Y inferInstance inferInstance f (f.baseSheafPullbackPreservesFiniteLimits)).localization
           (Y.siteTopology.sheafifiedRepresentable V')).inverseImage ⋙
             Over.pullback (C := Sheaf X.siteTopology (Type (max u v))) (parameter f c')).map
           (((Over.starPullbackIsoStar
             (Y.siteTopology.sheafifiedRepresentableMap b)).app
               (RingedSite.Hom.underlyingStructureSheaf Y)).hom) ≫
-        f.localizedUnderlyingInverseImageMap (parameter f c'))
+        (@RingedSite.Hom.localizedUnderlyingInverseImageMap X Y inferInstance inferInstance
+          inferInstance inferInstance f f.baseSheafPullbackPreservesFiniteLimits _ _
+          (parameter f c')))
       ((Over.pullback (X.siteTopology.sheafifiedRepresentableMap a)).map
-          (f.localizedUnderlyingInverseImageMap (parameter f c)) ≫
+          ((@RingedSite.Hom.localizedUnderlyingInverseImageMap X Y inferInstance inferInstance
+          inferInstance inferInstance f f.baseSheafPullbackPreservesFiniteLimits _ _
+          (parameter f c))) ≫
         ((Over.starPullbackIsoStar
           (X.siteTopology.sheafifiedRepresentableMap a)).app
             (RingedSite.Hom.underlyingStructureSheaf X)).hom)
@@ -155,7 +166,7 @@ end Functoriality
 
 section SiteComparison
 
-variable [∀ P : Functor Yᵒᵖ (Type (max u v)), f.base.op.HasLeftKanExtension P]
+variable [∀ P : Functor Y.carrierᵒᵖ (Type (max u v)), f.base.op.HasLeftKanExtension P]
 variable [∀ P : Functor (Over V)ᵒᵖ (Type (max u v)),
   (Over.forget V).op.HasLeftKanExtension P]
 variable [∀ P : Functor (Over U)ᵒᵖ (Type (max u v)),
@@ -166,7 +177,7 @@ section LocalizedMorphism
 variable [X.siteTopology.HasSheafCompose (forget RingCat.{max u v})]
 variable [Y.siteTopology.HasSheafCompose (forget RingCat.{max u v})]
 
-/-- Lemma 18.22.4 (04J9), localized-morphism layer: under the two representable-localization
+/-- Under the two representable-localization
 comparisons, the inverse image of the site-localized morphism is the inverse image localized at
 `h_V^#`, followed by pullback along `parameter f c`. -/
 @[stacks 04J9 "localized morphism"]
@@ -175,25 +186,28 @@ theorem localizedInverseImage :
       ((f.localizationAt V c).toTopos.inverseImage ⋙
         comparison X.siteTopology U)
       (comparison Y.siteTopology V ⋙
-        ((RingedSite.Hom.toMorphismOfTopoi.{u, v, u, v, max u v, max u v} f).localization
+        ((@RingedSite.Hom.toMorphismOfTopoi.{u, v, u, v, max u v, max u v}
+          X Y inferInstance inferInstance f (f.baseSheafPullbackPreservesFiniteLimits)).localization
           (Y.siteTopology.sheafifiedRepresentable V)).inverseImage ⋙
         @Over.pullback (Sheaf X.siteTopology (Type (max u v))) _ _ _
           (parameter f c) (by intro W h; infer_instance)) := sorry
 
 end LocalizedMorphism
 
-/-- Lemma 18.22.4 (04J9), ambient-square layer: after the representable-localization
+/-- After the representable-localization
 comparisons, the upper-right path of the slice-site square agrees with the left-lower path of
 the slice-topos square at `parameter f c`. -/
 @[stacks 04J9 "ambient square comparison"]
 theorem ambientSquare :
     IsIsomorphic
-      ((RingedSite.Hom.toMorphismOfTopoi.{u, v, u, v, max u v, max u v} f).inverseImage ⋙
+      ((@RingedSite.Hom.toMorphismOfTopoi.{u, v, u, v, max u v, max u v}
+          X Y inferInstance inferInstance f (f.baseSheafPullbackPreservesFiniteLimits)).inverseImage ⋙
         X.siteTopology.overPullback (Type (max u v)) U ⋙
         comparison X.siteTopology U)
       (Y.siteTopology.overPullback (Type (max u v)) V ⋙
         comparison Y.siteTopology V ⋙
-        ((RingedSite.Hom.toMorphismOfTopoi.{u, v, u, v, max u v, max u v} f).localization
+        ((@RingedSite.Hom.toMorphismOfTopoi.{u, v, u, v, max u v, max u v}
+          X Y inferInstance inferInstance f (f.baseSheafPullbackPreservesFiniteLimits)).localization
           (Y.siteTopology.sheafifiedRepresentable V)).inverseImage ⋙
         Over.pullback (C := Sheaf X.siteTopology (Type (max u v))) (parameter f c)) := sorry
 
@@ -204,11 +218,11 @@ section SiteFunctoriality
 variable [X.siteTopology.HasSheafCompose (forget RingCat.{max u v})]
 variable [Y.siteTopology.HasSheafCompose (forget RingCat.{max u v})]
 
-variable {V' : Y} {U' : X}
+variable {V' : Y.carrier} {U' : X.carrier}
 variable (b : V' ⟶ V) (a : U' ⟶ U)
 variable (c' : U' ⟶ f.base.obj V')
 variable (h : c' ≫ f.base.map b = a ≫ c)
-variable [∀ P : Functor Yᵒᵖ (Type (max u v)), f.base.op.HasLeftKanExtension P]
+variable [∀ P : Functor Y.carrierᵒᵖ (Type (max u v)), f.base.op.HasLeftKanExtension P]
 variable [∀ P : Functor (Over V')ᵒᵖ (Type (max u v)),
   (Over.forget V').op.HasLeftKanExtension P]
 variable [∀ P : Functor (Over U')ᵒᵖ (Type (max u v)),
@@ -216,7 +230,7 @@ variable [∀ P : Functor (Over U')ᵒᵖ (Type (max u v)),
 
 include h
 
-/-- Lemma 18.22.4 (04J9), relocalization-square layer: for a commuting square
+/-- For a commuting square
 `c' ≫ f.base.map b = a ≫ c`, the upper-right path of the slice-site square agrees, under
 representable localization, with the left-lower path of the slice-topos base-change square. -/
 @[stacks 04J9 "relocalization square comparison"]
@@ -227,7 +241,8 @@ theorem relocalizationSquare :
         comparison X.siteTopology U')
       (Y.siteTopology.overMapPullback (Type (max u v)) b ⋙
         comparison Y.siteTopology V' ⋙
-        ((RingedSite.Hom.toMorphismOfTopoi.{u, v, u, v, max u v, max u v} f).localization
+        ((@RingedSite.Hom.toMorphismOfTopoi.{u, v, u, v, max u v, max u v}
+          X Y inferInstance inferInstance f (f.baseSheafPullbackPreservesFiniteLimits)).localization
           (Y.siteTopology.sheafifiedRepresentable V')).inverseImage ⋙
         @Over.pullback (Sheaf X.siteTopology (Type (max u v))) _ _ _
           (parameter f c') (by intro W h; infer_instance)) := sorry

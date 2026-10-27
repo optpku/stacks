@@ -57,14 +57,14 @@ namespace toSeparatingDiagram
 corresponding scheduled stage. -/
 @[simp]
 theorem obj (D : Diagram (J := J) A κ) (i : κ) :
-    D.toSeparatingDiagram.obj i = (D.stage i).toSeparatingStage := sorry
+    D.toSeparatingDiagram.obj i = (D.stage i).toSeparatingStage := rfl
 
 /-- A transition of the scheduling-forgetful diagram is the separating-stage morphism underlying
 the corresponding scheduled-stage transition. -/
 @[simp]
 theorem map (D : Diagram (J := J) A κ)
     {i j : κ} (hij : i ≤ j) :
-    D.toSeparatingDiagram.map (homOfLE hij) = (D.hom hij).toSeparatingStage := sorry
+    D.toSeparatingDiagram.map (homOfLE hij) = (D.hom hij).toSeparatingStage := rfl
 
 end toSeparatingDiagram
 
@@ -80,20 +80,20 @@ namespace toRefinementDiagram
 stage. -/
 @[simp]
 theorem obj (D : Diagram (J := J) A κ) (i : κ) :
-    D.toRefinementDiagram.obj i = (D.stage i).toRefinementStage := sorry
+    D.toRefinementDiagram.obj i = (D.stage i).toRefinementStage := rfl
 
 /-- The generic transition of a forgotten saturation-stage diagram is the forgotten transition
 morphism. -/
 @[simp]
 theorem map (D : Diagram (J := J) A κ)
     {i j : κ} (hij : i ≤ j) :
-    D.toRefinementDiagram.map (homOfLE hij) = (D.hom hij).toRefinementStage := sorry
+    D.toRefinementDiagram.map (homOfLE hij) = (D.hom hij).toRefinementStage := rfl
 
 /-- Forgetting a scheduled diagram to refinement stages factors through the intermediate diagram
 of separating stages. -/
 theorem factorization (D : Diagram (J := J) A κ) :
     D.toRefinementDiagram =
-      SeparatingStage.Diagram.toRefinementDiagram D.toSeparatingDiagram := sorry
+      SeparatingStage.Diagram.toRefinementDiagram D.toSeparatingDiagram := rfl
 
 end toRefinementDiagram
 
@@ -110,7 +110,7 @@ namespace toTargetDiagram
 stage. -/
 @[simp]
 theorem obj (D : Diagram (J := J) A κ) (i : κ) :
-    D.toTargetDiagram.obj i = (D.stage i).target := sorry
+    D.toTargetDiagram.obj i = (D.stage i).target := rfl
 
 /-- A transition in the neutral target diagram is the fully forgotten saturation-stage
 transition. -/
@@ -118,24 +118,24 @@ transition. -/
 theorem map (D : Diagram (J := J) A κ)
     {i j : κ} (hij : i ≤ j) :
     D.toTargetDiagram.map (homOfLE hij) =
-      (D.hom hij).toRefinementStage.toTarget := sorry
+      (D.hom hij).toRefinementStage.toTarget := rfl
 
 /-- Forgetting a saturation-stage transition to the neutral target diagram retains its ordered
 refinement. -/
 @[simp]
 theorem map.toRefinement (D : Diagram (J := J) A κ)
     {i j : κ} (hij : i ≤ j) :
-    (D.toTargetDiagram.map (homOfLE hij)).toRefinement = (D.hom hij).toRefinement := sorry
+    (D.toTargetDiagram.map (homOfLE hij)).toRefinement = (D.hom hij).toRefinement := rfl
 
 /-- Forgetting a scheduled diagram to targets factors through its diagram of separating stages. -/
 theorem factorization (D : Diagram (J := J) A κ) :
     D.toTargetDiagram =
-      SeparatingStage.Diagram.toTargetDiagram D.toSeparatingDiagram := sorry
+      SeparatingStage.Diagram.toTargetDiagram D.toSeparatingDiagram := rfl
 
 /-- Forgetting a scheduled diagram to targets also factors through its neutral
 refinement-stage diagram. -/
 theorem throughRefinement (D : Diagram (J := J) A κ) :
-    D.toTargetDiagram = D.toRefinementDiagram ⋙ RefinementStage.forget := sorry
+    D.toTargetDiagram = D.toRefinementDiagram ⋙ RefinementStage.forget := rfl
 
 end toTargetDiagram
 

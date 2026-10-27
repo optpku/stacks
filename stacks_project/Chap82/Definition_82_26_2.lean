@@ -7,7 +7,7 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 import StacksCheckRecall
-public import stacks_project.Chap82.Definition_82_26_2_ChowCohomology
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.ChowCohomology.GradedRing
 
 open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
 
@@ -17,7 +17,7 @@ universe u
 cohomology of `X` is the graded `ℤ`-algebra `ring δ f` whose degree-`p`
 component is `degree δ f p`, i.e. `A^p(X ⟶ X)`, the bivariant classes of
 `𝟙 X` on Chow groups. No commutativity is asserted. -/
-@[stacks 0ERK] #check (AlgebraicGeometry.AlgebraicSpace.ChowCohomology.ring :
+@[stacks 0ERK] #check (AlgebraicGeometry.AlgebraicSpace.OperationalChow.ring :
   ∀ {S : Scheme.{u}} {B X : AlgebraicSpace S}
     [UniversallyCatenary B] [IsQuasiSeparated B]
     (δ : Points B → ℤ) [IsDimensionFunction δ]

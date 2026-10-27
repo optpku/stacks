@@ -44,44 +44,79 @@ namespace MonoidalCategoryMax
 
 /-- Tensoring morphisms factors as right and left whiskering. -/
 theorem tensorHom_def {X₁ Y₁ X₂ Y₂ : ModuleCat.{max uR uM} R} (f : X₁ ⟶ Y₁) (g : X₂ ⟶ Y₂) :
-    f ⊗ₘ g = (f ▷ X₂) ≫ (Y₁ ◁ g) := sorry
+    f ⊗ₘ g = (f ▷ X₂) ≫ (Y₁ ◁ g) := by
+  apply hom_ext
+  exact TensorProduct.ext (LinearMap.ext fun x => LinearMap.ext fun y => rfl)
 
 /-- Tensor products preserve identities. -/
-theorem id_tensorHom_id : ∀ X₁ X₂ : ModuleCat.{max uR uM} R, 𝟙 X₁ ⊗ₘ 𝟙 X₂ = 𝟙 (X₁ ⊗ X₂) := sorry
+theorem id_tensorHom_id : ∀ X₁ X₂ : ModuleCat.{max uR uM} R, 𝟙 X₁ ⊗ₘ 𝟙 X₂ = 𝟙 (X₁ ⊗ X₂) := by
+  intro X₁ X₂
+  apply hom_ext
+  exact TensorProduct.ext (LinearMap.ext fun x => LinearMap.ext fun y => rfl)
 
 /-- Tensor products preserve composition in both variables. -/
 theorem tensorHom_comp_tensorHom :
     ∀ {X₁ Y₁ Z₁ X₂ Y₂ Z₂ : ModuleCat.{max uR uM} R} (f₁ : X₁ ⟶ Y₁) (f₂ : X₂ ⟶ Y₂) (g₁ : Y₁ ⟶ Z₁) (g₂ : Y₂ ⟶ Z₂),
-      (f₁ ⊗ₘ f₂) ≫ (g₁ ⊗ₘ g₂) = (f₁ ≫ g₁) ⊗ₘ (f₂ ≫ g₂) := sorry
+      (f₁ ⊗ₘ f₂) ≫ (g₁ ⊗ₘ g₂) = (f₁ ≫ g₁) ⊗ₘ (f₂ ≫ g₂) := by
+  intro X₁ Y₁ Z₁ X₂ Y₂ Z₂ f₁ f₂ g₁ g₂
+  apply hom_ext
+  exact TensorProduct.ext (LinearMap.ext fun x => LinearMap.ext fun y => rfl)
 
 /-- Left whiskering preserves identities. -/
-theorem whiskerLeft_id : ∀ (X Y : ModuleCat.{max uR uM} R), X ◁ 𝟙 Y = 𝟙 (X ⊗ Y) := sorry
+theorem whiskerLeft_id : ∀ (X Y : ModuleCat.{max uR uM} R), X ◁ 𝟙 Y = 𝟙 (X ⊗ Y) := by
+  intro X Y
+  apply hom_ext
+  exact TensorProduct.ext (LinearMap.ext fun x => LinearMap.ext fun y => rfl)
 
 /-- Right whiskering preserves identities. -/
-theorem id_whiskerRight : ∀ (X Y : ModuleCat.{max uR uM} R), 𝟙 X ▷ Y = 𝟙 (X ⊗ Y) := sorry
+theorem id_whiskerRight : ∀ (X Y : ModuleCat.{max uR uM} R), 𝟙 X ▷ Y = 𝟙 (X ⊗ Y) := by
+  intro X Y
+  apply hom_ext
+  exact TensorProduct.ext (LinearMap.ext fun x => LinearMap.ext fun y => rfl)
 
 /-- Tensor associators are natural in all three variables. -/
 theorem associator_naturality :
     ∀ {X₁ X₂ X₃ Y₁ Y₂ Y₃ : ModuleCat.{max uR uM} R} (f₁ : X₁ ⟶ Y₁) (f₂ : X₂ ⟶ Y₂) (f₃ : X₃ ⟶ Y₃),
-      ((f₁ ⊗ₘ f₂) ⊗ₘ f₃) ≫ (α_ Y₁ Y₂ Y₃).hom = (α_ X₁ X₂ X₃).hom ≫ (f₁ ⊗ₘ (f₂ ⊗ₘ f₃)) := sorry
+      ((f₁ ⊗ₘ f₂) ⊗ₘ f₃) ≫ (α_ Y₁ Y₂ Y₃).hom = (α_ X₁ X₂ X₃).hom ≫ (f₁ ⊗ₘ (f₂ ⊗ₘ f₃)) := by
+  intro X₁ X₂ X₃ Y₁ Y₂ Y₃ f₁ f₂ f₃
+  apply hom_ext
+  exact TensorProduct.ext_threefold fun x y z => rfl
 
 /-- The left tensor unitor is natural. -/
 theorem leftUnitor_naturality :
-    ∀ {X Y : ModuleCat.{max uR uM} R} (f : X ⟶ Y), 𝟙_ _ ◁ f ≫ (λ_ Y).hom = (λ_ X).hom ≫ f := sorry
+    ∀ {X Y : ModuleCat.{max uR uM} R} (f : X ⟶ Y), 𝟙_ _ ◁ f ≫ (λ_ Y).hom = (λ_ X).hom ≫ f := by
+  intro X Y f
+  apply hom_ext
+  refine TensorProduct.ext (LinearMap.ext fun r => LinearMap.ext fun x => ?_)
+  change r.down • f.hom x = f.hom (r.down • x)
+  exact (f.hom.map_smul r.down x).symm
 
 /-- The right tensor unitor is natural. -/
 theorem rightUnitor_naturality :
-    ∀ {X Y : ModuleCat.{max uR uM} R} (f : X ⟶ Y), f ▷ 𝟙_ _ ≫ (ρ_ Y).hom = (ρ_ X).hom ≫ f := sorry
+    ∀ {X Y : ModuleCat.{max uR uM} R} (f : X ⟶ Y), f ▷ 𝟙_ _ ≫ (ρ_ Y).hom = (ρ_ X).hom ≫ f := by
+  intro X Y f
+  apply hom_ext
+  refine TensorProduct.ext (LinearMap.ext fun x => LinearMap.ext fun r => ?_)
+  change r.down • f.hom x = f.hom (r.down • x)
+  exact (f.hom.map_smul r.down x).symm
 
 /-- Tensor associators satisfy the pentagon identity. -/
 theorem pentagon :
     ∀ W X Y Z : ModuleCat.{max uR uM} R,
       (α_ W X Y).hom ▷ Z ≫ (α_ W (X ⊗ Y) Z).hom ≫ W ◁ (α_ X Y Z).hom =
-        (α_ (W ⊗ X) Y Z).hom ≫ (α_ W X (Y ⊗ Z)).hom := sorry
+        (α_ (W ⊗ X) Y Z).hom ≫ (α_ W X (Y ⊗ Z)).hom := by
+  intro W X Y Z
+  apply hom_ext
+  exact TensorProduct.ext_fourfold fun w x y z => rfl
 
 /-- Tensor unitors and associators satisfy the triangle identity. -/
 theorem triangle :
-    ∀ X Y : ModuleCat.{max uR uM} R, (α_ X (𝟙_ _) Y).hom ≫ X ◁ (λ_ Y).hom = (ρ_ X).hom ▷ Y := sorry
+    ∀ X Y : ModuleCat.{max uR uM} R, (α_ X (𝟙_ _) Y).hom ≫ X ◁ (λ_ Y).hom = (ρ_ X).hom ▷ Y := by
+  intro X Y
+  apply hom_ext
+  refine TensorProduct.ext_threefold fun x r y => ?_
+  change TensorProduct.tmul R x (r.down • y) = TensorProduct.tmul R (r.down • x) y
+  exact TensorProduct.tmul_smul r.down x y
 
 end MonoidalCategoryMax
 

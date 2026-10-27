@@ -37,12 +37,6 @@ variable [∀ i : I, HasWeakSheafify (DX.obj (OrderDual.toDual i)).smallEtaleTop
 variable [∀ i : I, HasSheafify (DS.obj (OrderDual.toDual i)).smallEtaleTopology AddCommGrpCat.{u}]
 variable [∀ i : I, HasWeakSheafify (DS.obj (OrderDual.toDual i)).smallEtaleTopology AddCommGrpCat.{u}]
 variable [∀ i : I,
-    IsGrothendieckAbelian.{u + 1, u + 1, u + 1}
-      (Sheaf (DX.obj (OrderDual.toDual i)).smallEtaleTopology AddCommGrpCat.{u})]
-variable [∀ i : I,
-    IsGrothendieckAbelian.{u + 1, u + 1, u + 1}
-      (Sheaf (DS.obj (OrderDual.toDual i)).smallEtaleTopology AddCommGrpCat.{u})]
-variable [∀ i : I,
     HasDerivedCategory (Sheaf (DX.obj (OrderDual.toDual i)).smallEtaleTopology AddCommGrpCat.{u})]
 variable [∀ i : I,
     HasDerivedCategory (Sheaf (DS.obj (OrderDual.toDual i)).smallEtaleTopology AddCommGrpCat.{u})]
@@ -69,10 +63,6 @@ variable [HasSheafify cX.pt.smallEtaleTopology AddCommGrpCat.{u}]
 variable [HasWeakSheafify cX.pt.smallEtaleTopology AddCommGrpCat.{u}]
 variable [HasSheafify cS.pt.smallEtaleTopology AddCommGrpCat.{u}]
 variable [HasWeakSheafify cS.pt.smallEtaleTopology AddCommGrpCat.{u}]
-variable [IsGrothendieckAbelian.{u + 1, u + 1, u + 1}
-    (Sheaf cX.pt.smallEtaleTopology AddCommGrpCat.{u})]
-variable [IsGrothendieckAbelian.{u + 1, u + 1, u + 1}
-    (Sheaf cS.pt.smallEtaleTopology AddCommGrpCat.{u})]
 variable [HasDerivedCategory (Sheaf cX.pt.smallEtaleTopology AddCommGrpCat.{u})]
 variable [HasDerivedCategory (Sheaf cS.pt.smallEtaleTopology AddCommGrpCat.{u})]
 variable [((smallEtalePullback gX).sheafPushforwardContinuous AddCommGrpCat.{u}

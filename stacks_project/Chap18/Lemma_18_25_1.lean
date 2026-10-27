@@ -29,6 +29,8 @@ universe uX vX uY vY w z
 
 namespace RingedSite.Hom.ModulePushforward
 
+attribute [local instance] RingedSite.Hom.base_isContinuous
+
 variable {X : RingedSite.{uX, vX, w}} {Y : RingedSite.{uY, vY, w}}
 variable [UnivLE.{max uX vX, z}] [UnivLE.{max uY vX, z}]
 variable (f : X.Hom Y)

@@ -58,6 +58,16 @@ noncomputable def pushforwardAlong [IsFibered.InGroupoids p.op]
       (Quiver.Hom.op u' : Opposite.op S ⟶ Opposite.op (p.obj a.left)) φ :=
     IsFibered.isStronglyCartesian_of_isCartesian p.op
       (Quiver.Hom.op u' : Opposite.op S ⟶ Opposite.op (p.obj a.left)) φ
+  have hlift : p.IsHomLift (u' ≫ f) a.hom := by
+    simpa only [u', Category.assoc] using
+      (inferInstance : p.IsHomLift
+        (eqToHom (IsHomLift.domain_eq p (u ≫ f) a.hom) ≫ (u ≫ f)) a.hom)
+  have op_lift {R S : 𝒮} {a b : 𝒳} (g : R ⟶ S) (φ : a ⟶ b)
+      (h : p.IsHomLift g φ) : p.op.IsHomLift g.op φ.op := by
+    cases h
+    exact IsHomLift.map (p := p.op) _
+  letI : p.op.IsHomLift (u' ≫ f).op a.hom.op := op_lift _ _ hlift
+  letI : p.op.IsStronglyCartesian u'.op φ := hφ'
   let m := @IsStronglyCartesian.map _ _ _ _ p.op
       (Opposite.op S) (Opposite.op (p.obj a.left))
       (IsPreFibered.pullbackObj
@@ -67,9 +77,13 @@ noncomputable def pushforwardAlong [IsFibered.InGroupoids p.op]
       (Opposite.op a.left)
       (Quiver.Hom.op u') φ hφ'
       (Opposite.op T) (Opposite.op (Fiber.fiberInclusion.obj x))
-      (Quiver.Hom.op f) (Quiver.Hom.op (u' ≫ f)) sorry
-      (Quiver.Hom.op a.hom) sorry
-  exact ⟨Over.mk (Quiver.Hom.unop m), sorry⟩
+      (Quiver.Hom.op f) (Quiver.Hom.op (u' ≫ f)) rfl
+      (Quiver.Hom.op a.hom) inferInstance
+  have unop_lift {R S : 𝒮ᵒᵖ} {a b : 𝒳ᵒᵖ} (g : R ⟶ S) (φ : a ⟶ b)
+      (h : p.op.IsHomLift g φ) : p.IsHomLift g.unop φ.unop := by
+    cases h
+    exact IsHomLift.map (p := p) _
+  exact ⟨Over.mk (Quiver.Hom.unop m), unop_lift f.op m (by dsimp [m]; infer_instance)⟩
 
 /-- The transported lift lies over the second base morphism and has its expected
 domain object. -/
@@ -77,7 +91,9 @@ theorem pushforwardAlong_spec [IsFibered.InGroupoids p.op]
     {R S T : 𝒮} (u : R ⟶ S) (f : S ⟶ T) {x : p.Fiber T}
     (a : ObjectLift p (u ≫ f) x) :
     p.IsHomLift f (pushforwardAlong u f a).hom ∧
-      p.obj (pushforwardAlong u f a).left = S := sorry
+      p.obj (pushforwardAlong u f a).left = S :=
+  ⟨(pushforwardAlong u f a).property,
+    IsHomLift.domain_eq p f (pushforwardAlong u f a).hom⟩
 
 end ObjectLift
 

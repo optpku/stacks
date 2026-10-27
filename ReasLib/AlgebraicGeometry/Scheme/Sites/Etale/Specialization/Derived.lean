@@ -262,7 +262,8 @@ theorem derivedSpecializationMap_eq_sectionsPullback
           (((@Sheaf.smallEtaleInverseImage _ _ (strictHenselizationMap S sbar RshS) AddCommGrpCat.{u} inferInstance
       (HasSheafify.isRightAdjoint (J := (strictHenselizationScheme S sbar RshS).smallEtaleTopology) (A := AddCommGrpCat.{u}))
       inferInstance)).mapDerivedCategory.obj K) ≫
-        ePull.hom := sorry
+        ePull.hom := by
+  rfl
 
 section ExactSections
 
@@ -284,12 +285,22 @@ def etaleStalkExact (s : GeometricPoint S) :
 /-- Kan-model sections on a normalized strict-henselian neighborhood preserve finite limits. -/
 theorem strictHenselianSections_preservesFiniteLimits {X : Scheme.{u}}
     {s : GeometricPoint S} {p : X ⟶ S} (neighborhood : StrictHenselianNeighborhood s p) :
-    PreservesFiniteLimits (strictHenselianSections AddCommGrpCat.{u + 1} p) := sorry
+    PreservesFiniteLimits (strictHenselianSections AddCommGrpCat.{u + 1} p) := by
+  letI : PreservesFiniteLimits
+      (s.toSmallEtalePoint.sheafFiber (A := AddCommGrpCat.{u + 1})) :=
+    (etaleStalkExact s).property.1
+  exact preservesFiniteLimits_of_natIso
+    (neighborhood.stalkSectionsIso AddCommGrpCat.{u + 1})
 
 /-- Kan-model sections on a normalized strict-henselian neighborhood preserve finite colimits. -/
 theorem strictHenselianSections_preservesFiniteColimits {X : Scheme.{u}}
     {s : GeometricPoint S} {p : X ⟶ S} (neighborhood : StrictHenselianNeighborhood s p) :
-    PreservesFiniteColimits (strictHenselianSections AddCommGrpCat.{u + 1} p) := sorry
+    PreservesFiniteColimits (strictHenselianSections AddCommGrpCat.{u + 1} p) := by
+  letI : PreservesFiniteColimits
+      (s.toSmallEtalePoint.sheafFiber (A := AddCommGrpCat.{u + 1})) :=
+    (etaleStalkExact s).property.2
+  exact preservesFiniteColimits_of_natIso
+    (neighborhood.stalkSectionsIso AddCommGrpCat.{u + 1})
 
 /-- Kan-model sections bundled with the exactness supplied by normalized neighborhood lifts. -/
 def strictHenselianSectionsExact {X : Scheme.{u}} {s : GeometricPoint S} {p : X ⟶ S}
@@ -326,7 +337,9 @@ theorem StrictHenselianNeighborhood.derivedStalkSectionsIso_Q {X : Scheme.{u}}
             (ObjectProperty.homMk (neighborhood.stalkSectionsIso AddCommGrpCat.{u + 1}).hom :
               etaleStalkExact s ⟶ strictHenselianSectionsExact neighborhood).hom
             (ComplexShape.up ℤ)).app K) ≫
-        (strictHenselianSectionsExact neighborhood).obj.mapDerivedCategoryFactors.inv.app K := sorry
+        (strictHenselianSectionsExact neighborhood).obj.mapDerivedCategoryFactors.inv.app K := by
+  dsimp only [strictHenselianDerivedSections]
+  exact Localization.liftNatTrans_app _ _ _ _ _ _ _ K
 
 /-- Genuine strict-henselian global sections preserve finite limits of abelian étale sheaves. -/
 theorem strictHenselianGlobalSections_preservesFiniteLimits (s : GeometricPoint S) :
@@ -342,7 +355,15 @@ theorem strictHenselianGlobalSections_preservesFiniteLimits (s : GeometricPoint 
             (T.smallEtaleTopology.Cover U)ᵒᵖ inferInstance
             (@isFiltered_op_of_isCofiltered (T.smallEtaleTopology.Cover U) inferInstance
               (isCofiltered_of_semilatticeInf_nonempty (T.smallEtaleTopology.Cover U)))) inferInstance
-          (fun {U} cover ↦ inferInstance) inferInstance inferInstance (fun U ↦ inferInstance))) _ s)) := sorry
+          (fun {U} cover ↦ inferInstance) inferInstance inferInstance (fun U ↦ inferInstance))) _ s)) := by
+  letI : ∀ T : Scheme.{u}, HasWeakSheafify T.smallEtaleTopology AddCommGrpCat.{u + 1} :=
+    fun _ ↦ HasSheafify.isRightAdjoint
+  letI : PreservesFiniteLimits
+      (s.toSmallEtalePoint.sheafFiber (A := AddCommGrpCat.{u + 1})) :=
+    (etaleStalkExact s).property.1
+  letI := strictHenselianGlobalToStalk_isIso AddCommGrpCat.{u + 1} s
+  exact preservesFiniteLimits_of_natIso
+    (asIso (strictHenselianGlobalToStalk AddCommGrpCat.{u + 1} s)).symm
 
 /-- Genuine strict-henselian global sections preserve finite colimits of abelian étale sheaves. -/
 theorem strictHenselianGlobalSections_preservesFiniteColimits (s : GeometricPoint S) :
@@ -358,7 +379,15 @@ theorem strictHenselianGlobalSections_preservesFiniteColimits (s : GeometricPoin
             (T.smallEtaleTopology.Cover U)ᵒᵖ inferInstance
             (@isFiltered_op_of_isCofiltered (T.smallEtaleTopology.Cover U) inferInstance
               (isCofiltered_of_semilatticeInf_nonempty (T.smallEtaleTopology.Cover U)))) inferInstance
-          (fun {U} cover ↦ inferInstance) inferInstance inferInstance (fun U ↦ inferInstance))) _ s)) := sorry
+          (fun {U} cover ↦ inferInstance) inferInstance inferInstance (fun U ↦ inferInstance))) _ s)) := by
+  letI : ∀ T : Scheme.{u}, HasWeakSheafify T.smallEtaleTopology AddCommGrpCat.{u + 1} :=
+    fun _ ↦ HasSheafify.isRightAdjoint
+  letI : PreservesFiniteColimits
+      (s.toSmallEtalePoint.sheafFiber (A := AddCommGrpCat.{u + 1})) :=
+    (etaleStalkExact s).property.2
+  letI := strictHenselianGlobalToStalk_isIso AddCommGrpCat.{u + 1} s
+  exact preservesFiniteColimits_of_natIso
+    (asIso (strictHenselianGlobalToStalk AddCommGrpCat.{u + 1} s)).symm
 
 /-- Genuine inverse-image global sections, bundled with their exactness. -/
 def strictHenselianGlobalSectionsExact (s : GeometricPoint S) :
@@ -426,11 +455,29 @@ theorem strictHenselianDerivedGlobalToStalk_Q (s : GeometricPoint S)
           (fun {U} cover ↦ inferInstance) inferInstance inferInstance (fun U ↦ inferInstance))) _ s)) :
             strictHenselianGlobalSectionsExact s ⟶ etaleStalkExact s).hom
           (ComplexShape.up ℤ)).app K) ≫
-        (etaleStalkExact s).obj.mapDerivedCategoryFactors.inv.app K := sorry
+        (etaleStalkExact s).obj.mapDerivedCategoryFactors.inv.app K := by
+  dsimp only [strictHenselianDerivedGlobalSections]
+  exact Localization.liftNatTrans_app _ _ _ _ _ _ _ K
 
 /-- Derived closed-point germs identify genuine derived global sections with derived stalks. -/
 theorem strictHenselianDerivedGlobalToStalk_isIso (s : GeometricPoint S) :
-    IsIso (strictHenselianDerivedGlobalToStalk s) := sorry
+    IsIso (strictHenselianDerivedGlobalToStalk s) := by
+  letI : ∀ T : Scheme.{u}, HasWeakSheafify T.smallEtaleTopology AddCommGrpCat.{u + 1} :=
+    fun _ ↦ HasSheafify.isRightAdjoint
+  letI : (strictHenselianGlobalSections AddCommGrpCat.{u + 1} s).PreservesZeroMorphisms :=
+    inferInstanceAs (strictHenselianGlobalSectionsExact s).obj.PreservesZeroMorphisms
+  letI : (s.toSmallEtalePoint.sheafFiber (A := AddCommGrpCat.{u + 1})).PreservesZeroMorphisms :=
+    inferInstanceAs (etaleStalkExact s).obj.PreservesZeroMorphisms
+  letI := strictHenselianGlobalToStalk_isIso AddCommGrpCat.{u + 1} s
+  exact (Localization.liftNatIso
+    (DerivedCategory.Q : CochainComplex (Sheaf S.smallEtaleTopology AddCommGrpCat.{u + 1}) ℤ ⥤ _)
+    (HomologicalComplex.quasiIso (Sheaf S.smallEtaleTopology AddCommGrpCat.{u + 1}) (ComplexShape.up ℤ))
+    ((strictHenselianGlobalSectionsExact s).obj.mapHomologicalComplex (ComplexShape.up ℤ) ⋙ DerivedCategory.Q)
+    ((etaleStalkExact s).obj.mapHomologicalComplex (ComplexShape.up ℤ) ⋙ DerivedCategory.Q)
+    (strictHenselianGlobalSectionsExact s).mapDerivedCategory (etaleStalkExact s).mapDerivedCategory
+    (isoWhiskerRight (NatIso.mapHomologicalComplex
+      (asIso (strictHenselianGlobalToStalk AddCommGrpCat.{u + 1} s)) (ComplexShape.up ℤ))
+      DerivedCategory.Q)).isIso_hom
 
 /-- For every unbounded derived étale object, geometric specialization agrees with
 the localized genuine sections pullback along the canonical strict-henselization comparison. -/
@@ -459,7 +506,50 @@ theorem derivedEtaleSpecialization_eq_strictHenselianPullback (s t : GeometricPo
           (StrictHenselization.comparison s t point point_over)
           (StrictHenselization.comparison_over s t point point_over)) :
         strictHenselianGlobalSectionsExact s ⟶ strictHenselianGlobalSectionsExact t)).app K ≫
-        (strictHenselianDerivedGlobalToStalk t).app K := sorry
+        (strictHenselianDerivedGlobalToStalk t).app K := by
+  letI : ∀ T : Scheme.{u}, HasWeakSheafify T.smallEtaleTopology AddCommGrpCat.{u + 1} :=
+    fun _ ↦ HasSheafify.isRightAdjoint
+  let α : strictHenselianGlobalSectionsExact s ⟶ etaleStalkExact s :=
+    ObjectProperty.homMk (strictHenselianGlobalToStalk AddCommGrpCat.{u + 1} s)
+  let β : etaleStalkExact s ⟶ etaleStalkExact t :=
+    ObjectProperty.homMk
+      ((StrictHenselianNeighborhood.canonical s).specializationPoint point point_over).sheafFiber
+  let γ : strictHenselianGlobalSectionsExact s ⟶ strictHenselianGlobalSectionsExact t :=
+    ObjectProperty.homMk (strictHenselianGlobalSectionsPullback AddCommGrpCat.{u + 1} s t
+      (StrictHenselization.comparison s t point point_over)
+      (StrictHenselization.comparison_over s t point point_over))
+  let δ : strictHenselianGlobalSectionsExact t ⟶ etaleStalkExact t :=
+    ObjectProperty.homMk (strictHenselianGlobalToStalk AddCommGrpCat.{u + 1} t)
+  have h : α ≫ β = γ ≫ δ := by
+    apply ObjectProperty.hom_ext
+    apply NatTrans.ext
+    funext F
+    change (strictHenselianGlobalToStalk AddCommGrpCat.{u + 1} s).app F ≫
+        (((StrictHenselianNeighborhood.canonical s).specializationPoint point point_over).sheafFiber).app F =
+      (strictHenselianGlobalSectionsPullback AddCommGrpCat.{u + 1} s t
+        (StrictHenselization.comparison s t point point_over)
+        (StrictHenselization.comparison_over s t point point_over)).app F ≫
+          (strictHenselianGlobalToStalk AddCommGrpCat.{u + 1} t).app F
+    apply (cancel_mono
+      (((StrictHenselianNeighborhood.canonical t).stalkSectionsIso AddCommGrpCat.{u + 1}).hom.app F)).mp
+    have hspec := (StrictHenselianNeighborhood.canonical s).specialization_eq_sectionsPullback
+      AddCommGrpCat.{u + 1} (StrictHenselianNeighborhood.canonical t) point point_over
+      (StrictHenselization.comparison s t point point_over)
+      (StrictHenselization.comparison_over s t point point_over)
+      (StrictHenselization.comparison_closedPoint s t point point_over) F
+    have hpull := congr_app (strictHenselianGlobalToSections_pullback AddCommGrpCat.{u + 1} s t
+      (StrictHenselization.comparison s t point point_over)
+      (StrictHenselization.comparison_over s t point point_over)) F
+    simpa only [strictHenselianGlobalToSections, NatTrans.comp_app, Category.assoc, ← hspec] using hpull
+  have map_comp (F G H : Sheaf S.smallEtaleTopology AddCommGrpCat.{u + 1} ⥤ₑ AddCommGrpCat.{u + 1})
+      (f : F ⟶ G) (g : G ⟶ H) :
+      ExactFunctor.MapDerivedCategory.map (f ≫ g) =
+        ExactFunctor.MapDerivedCategory.map f ≫ ExactFunctor.MapDerivedCategory.map g := by
+    simp only [ExactFunctor.MapDerivedCategory.map, ObjectProperty.FullSubcategory.comp_hom,
+      NatTrans.mapHomologicalComplex_comp, Functor.whiskerRight_comp, Localization.comp_liftNatTrans]
+  have hderived := congrArg (ExactFunctor.MapDerivedCategory.map) h
+  rw [map_comp, map_comp] at hderived
+  exact congr_app hderived K
 
 end ExactSections
 

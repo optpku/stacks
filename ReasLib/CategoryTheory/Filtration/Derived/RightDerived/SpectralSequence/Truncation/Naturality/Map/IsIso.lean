@@ -107,14 +107,6 @@ theorem isIsoFromTwo
     (m : Map F (𝟙 K) S T) :
     SpectralSequence.Hom.IsIsoFrom m.sequenceMap 2 le_rfl := sorry
 
-variable {K L : DerivedCategory A} {f : K ⟶ L}
-variable {S : Realization F K} {T : Realization F L}
-variable (m : Map F f S T) [IsIso m.filteredMap]
-
-#synth IsIso (CohomologicalSpectralSequence.Renumber.FromZero.map m.original.sequenceMap)
-#synth IsIso m.sequenceMap
-#synth IsIso ((m.sequenceMap.hom 2 le_rfl).f (0, 0))
-
 end Realization.Map
 
 end CategoryTheory.FilteredComplex.RightDerived.SpectralSequence.Truncation

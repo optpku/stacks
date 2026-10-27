@@ -51,7 +51,8 @@ def evalRestrict (φ : A ⟶ B) {X Y : Cᵒᵖ} (f : X ⟶ Y) :
             (ComplexShape.up ℤ)).obj
           (CotangentComplex.obj A (Under.mk φ))) where
   f i := ((CotangentComplex.obj A (Under.mk φ)).X i).val.map f
-  comm' := sorry
+  comm' i j _ := by
+    exact ((CotangentComplex.obj A (Under.mk φ)).d i j).val.naturality f
 
 private theorem complex_map_id (φ : A ⟶ B) (i : ℤ) (X : Cᵒᵖ) :
     (Homology.complexMap φ (𝟙 X)).f i =
@@ -79,12 +80,12 @@ private theorem complex_d_naturality (φ : A ⟶ B) (i j : ℤ) {X Y : Cᵒᵖ}
           ((RingHom.cotangentComplex (φ.hom.app Y).hom).d i j) =
       (RingHom.cotangentComplex (φ.hom.app X).hom).d i j ≫
         (Homology.complexMap φ f).f j :=
-  sorry
+  (Homology.complexMap φ f).comm i j
 
 private theorem complex_shape (φ : A ⟶ B) (i j : ℤ)
     (h : ¬ (ComplexShape.up ℤ).Rel i j) (U : Cᵒᵖ) :
     (RingHom.cotangentComplex (φ.hom.app U).hom).d i j = 0 :=
-  sorry
+  (RingHom.cotangentComplex (φ.hom.app U).hom).shape i j h
 
 /-- The cochain complex of `B`-module presheaves with value `U ↦ L(B(U)/A(U))`. -/
 def complex (φ : A ⟶ B) :
@@ -100,7 +101,9 @@ def complex (φ : A ⟶ B) :
   shape i j h := by
     ext1 U
     exact complex_shape φ i j h U
-  d_comp_d' := sorry
+  d_comp_d' i j k _ _ := by
+    ext1 U
+    exact (RingHom.cotangentComplex (φ.hom.app U).hom).d_comp_d i j k
 
 /-- The terms of the presheaf complex are the terms of the section-ring cotangent complexes. -/
 theorem complex_X (φ : A ⟶ B) (i : ℤ) (U : Cᵒᵖ) :
@@ -131,7 +134,9 @@ def presheafComparison (φ : A ⟶ B) :
         ext x
         exact (CategoryTheory.congr_fun
           (congrArg (fun k => k.f i) (sectionsComplexMap_naturality φ f)) x).symm }
-  comm' := sorry
+  comm' i j _ := by
+    ext1 U
+    exact (Homology.sectionsComplexMap φ U).comm i j
 
 /-- The components of the presheaf comparison are the canonical section maps. -/
 theorem presheafComparison_f_app (φ : A ⟶ B) (i : ℤ) (U : Cᵒᵖ) :
@@ -142,7 +147,7 @@ private theorem sheafify_shape (φ : A ⟶ B) (i j : ℤ)
     (h : ¬ (ComplexShape.up ℤ).Rel i j) :
     (PresheafOfModules.sheafification (𝟙 (ringSheaf J B).obj)).map
         ((complex φ).d i j) = 0 :=
-  sorry
+  by rw [(complex φ).shape i j h, Functor.map_zero]
 
 /-- The degreewise sheafification of the objectwise section-ring cotangent complex. -/
 def sheafify (φ : A ⟶ B) :
@@ -152,7 +157,8 @@ def sheafify (φ : A ⟶ B) :
   d i j :=
     (PresheafOfModules.sheafification (𝟙 (ringSheaf J B).obj)).map ((complex φ).d i j)
   shape i j h := by exact sheafify_shape φ i j h
-  d_comp_d' := sorry
+  d_comp_d' i j k _ _ := by
+    rw [← Functor.map_comp, (complex φ).d_comp_d, Functor.map_zero]
 
 /-- Each term of the sheafified complex is the associated sheaf of the corresponding
 term of the objectwise complex. -/
@@ -167,7 +173,19 @@ def comparison (φ : A ⟶ B) : sheafify φ ⟶ CotangentComplex.obj A (Under.mk
   f i :=
     (PresheafOfModules.sheafificationHomEquiv (𝟙 (ringSheaf J B).obj)).symm
       ((presheafComparison φ).f i)
-  comm' := sorry
+  comm' i j _ := by
+    dsimp only [sheafify]
+    apply (PresheafOfModules.sheafificationHomEquiv
+      (𝟙 (ringSheaf J B).obj)).injective
+    change (PresheafOfModules.sheafificationAdjunction
+      (𝟙 (ringSheaf J B).obj)).homEquiv _ _ (_ ≫ _) =
+        (PresheafOfModules.sheafificationAdjunction
+          (𝟙 (ringSheaf J B).obj)).homEquiv _ _ (_ ≫ _)
+    rw [Adjunction.homEquiv_naturality_right, Adjunction.homEquiv_naturality_left,
+      PresheafOfModules.sheafificationAdjunction_homEquiv_apply,
+      PresheafOfModules.sheafificationAdjunction_homEquiv_apply,
+      Equiv.apply_symm_apply, Equiv.apply_symm_apply]
+    exact (presheafComparison φ).comm i j
 
 /-- The comparison morphism is the sheafification adjunct of the presheaf comparison. -/
 theorem comparison_spec (φ : A ⟶ B) (i : ℤ) :

@@ -24,9 +24,10 @@ variable (k : Type u) [Field k]
 
 local notation "R" => Polynomial.equalEndpoint k
 
-/-- Helper for Chap10 Example 10 55 5: determinant-coordinate data for the projective
-rank kernel, inverse to residual Milnor-line classes. -/
-structure EqualEndpointRankKernelCoordinateData where
+/-- Private inverse-coordinate packaging for an already established normalized residual-line
+classification.  Public source theorems below use generator normal form and residual injectivity
+instead of assuming this classification as structure fields. -/
+private structure EqualEndpointRankKernelCoordinateData where
   coord : (equalEndpointProjectiveRankMap.{u, u} k).ker →+ Additive kˣ
   coord_line : ∀ unitRatio : kˣ,
     coord (equalEndpointLineResidualClass k unitRatio) = Additive.ofMul unitRatio
@@ -44,7 +45,7 @@ noncomputable def equalEndpointRankKernelDetCoord
 
 /-- Helper for Chap10 Example 10 55 5: a determinant coordinate that computes on residual
 Milnor lines and is jointly injective with rank supplies the rank-kernel coordinate data. -/
-theorem equalEndpointRankKernelCoordinateData_nonempty_of_detRank
+private theorem equalEndpointRankKernelCoordinateData_nonempty_of_detRank
     (det : ModuleCat.K0.projective.{u, u} R →+ Additive kˣ)
     (hline : ∀ unitRatio : kˣ,
       det (equalEndpointLineResidualClass k unitRatio :
@@ -93,7 +94,7 @@ theorem equalEndpointRankKernelCoordinateData_nonempty_of_detRank
 
 /-- Helper for Chap10 Example 10 55 5: an existential determinant-rank package supplies
 coordinate data on the projective-rank kernel. -/
-theorem equalEndpointRankKernelCoordinateData_nonempty_of_detRankExists
+private theorem equalEndpointRankKernelCoordinateData_nonempty_of_detRankExists
     (hdetRank :
       ∃ det : ModuleCat.K0.projective.{u, u} R →+ Additive kˣ,
         (∀ unitRatio : kˣ,
@@ -324,7 +325,7 @@ theorem equalEndpointProjectiveRankProductData_exists_of_detRank
 
 /-- Helper for Chap10 Example 10 55 5: the determinant coordinate is injective on the
 projective rank kernel. -/
-theorem equalEndpointRankKernelCoordinateData_coord_injective
+private theorem equalEndpointRankKernelCoordinateData_coord_injective
     (data : EqualEndpointRankKernelCoordinateData k) :
     Function.Injective data.coord := by
   intro x y hxy
@@ -339,7 +340,7 @@ theorem equalEndpointRankKernelCoordinateData_coord_injective
 
 /-- Helper for Chap10 Example 10 55 5: coordinate inverse data makes residual Milnor-line
 classes multiplicative. -/
-theorem equalEndpointLineResidualClass_mul_of_coordinateData
+private theorem equalEndpointLineResidualClass_mul_of_coordinateData
     (data : EqualEndpointRankKernelCoordinateData k) (u v : kˣ) :
     equalEndpointLineResidualClass k (u * v) =
       equalEndpointLineResidualClass k u + equalEndpointLineResidualClass k v := by
@@ -350,7 +351,7 @@ theorem equalEndpointLineResidualClass_mul_of_coordinateData
 
 /-- Helper for Chap10 Example 10 55 5: coordinate inverse data makes the residual Milnor-line
 homomorphism bijective. -/
-theorem equalEndpointLineResidualHom_bijective_of_coordinateData
+private theorem equalEndpointLineResidualHom_bijective_of_coordinateData
     (data : EqualEndpointRankKernelCoordinateData k) :
     Function.Bijective
       (equalEndpointLineResidualHom (k := k)
@@ -375,7 +376,7 @@ theorem equalEndpointLineResidualHom_bijective_of_coordinateData
 
 /-- Helper for Chap10 Example 10 55 5: two-sided inverse homomorphisms whose boundary map is
 the residual Milnor-line class package determinant-coordinate data. -/
-theorem equalEndpointRankKernelCoordinateData_nonempty_of_inverseBoundary
+private theorem equalEndpointRankKernelCoordinateData_nonempty_of_inverseBoundary
     (boundary : Additive kˣ →+ (equalEndpointProjectiveRankMap.{u, u} k).ker)
     (coord : (equalEndpointProjectiveRankMap.{u, u} k).ker →+ Additive kˣ)
     (hboundary : ∀ unitRatio : Additive kˣ,
@@ -415,7 +416,7 @@ theorem equalEndpointRankKernelCoordinateData_nonempty_of_inverseBoundary
 
 /-- Helper for Chap10 Example 10 55 5: a residual-line equivalence from endpoint-unit ratios
 to the rank kernel supplies determinant-coordinate data by taking its inverse. -/
-theorem equalEndpointRankKernelCoordinateData_nonempty_of_lineResidualEquiv
+private theorem equalEndpointRankKernelCoordinateData_nonempty_of_lineResidualEquiv
     (e : Additive kˣ ≃+ (equalEndpointProjectiveRankMap.{u, u} k).ker)
     (he : ∀ unitRatio : Additive kˣ,
       e unitRatio = equalEndpointLineResidualClass k unitRatio.toMul) :
@@ -466,7 +467,7 @@ theorem equalEndpointLineResidualEquiv_exists_of_picardCartanClauses
 
 /-- Helper for Chap10 Example 10 55 5: determinant-coordinate data also recovers the
 residual-line equivalence with the prescribed forward map. -/
-theorem equalEndpointLineResidualEquiv_exists_of_coordinateData
+private theorem equalEndpointLineResidualEquiv_exists_of_coordinateData
     (data : EqualEndpointRankKernelCoordinateData k) :
     ∃ e : Additive kˣ ≃+ (equalEndpointProjectiveRankMap.{u, u} k).ker,
       ∀ unitRatio : Additive kˣ,
@@ -556,7 +557,7 @@ theorem equalEndpointLineResidualEquiv_exists_of_picHom_surjective_and_picRankKe
 
 /-- Helper for Chap10 Example 10 55 5: the two Cartan/Picard normal-form clauses already give
 the determinant-coordinate data for residual Milnor-line classes. -/
-theorem equalEndpointRankKernelCoordinateData_nonempty_of_picardCartanClauses
+private theorem equalEndpointRankKernelCoordinateData_nonempty_of_picardCartanClauses
     (hzero_pic : ∀ unitRatio : kˣ,
       equalEndpointLineResidualClass k unitRatio = 0 →
         equalEndpointLinePicClass k unitRatio = 1)
@@ -571,7 +572,7 @@ theorem equalEndpointRankKernelCoordinateData_nonempty_of_picardCartanClauses
 
 /-- Helper for Chap10 Example 10 55 5: the Picard/Cartan exactness package supplies the
 determinant-coordinate data for residual Milnor-line classes. -/
-theorem equalEndpointRankKernelCoordinateData_nonempty_of_picardCartanExact
+private theorem equalEndpointRankKernelCoordinateData_nonempty_of_picardCartanExact
     (hexact :
       (∀ unitRatio : kˣ,
         equalEndpointLineResidualClass k unitRatio = 0 →
@@ -604,7 +605,7 @@ theorem equalEndpointProjectiveDetRankData_exists_of_lineRankClassMap_bijective
 
 /-- Helper for Chap10 Example 10 55 5: bijectivity of the explicit line-plus-rank class map
 supplies the determinant-coordinate data for residual Milnor-line classes. -/
-theorem equalEndpointRankKernelCoordinateData_nonempty_of_lineRankClassMap_bijective
+private theorem equalEndpointRankKernelCoordinateData_nonempty_of_lineRankClassMap_bijective
     (hbijective : Function.Bijective (equalEndpointLineRankClassMap k)) :
     Nonempty (EqualEndpointRankKernelCoordinateData k) := by
   -- Invert the explicit line-rank class map to get the normalized product equivalence, then
@@ -619,5 +620,76 @@ theorem equalEndpointRankKernelCoordinateData_nonempty_of_lineRankClassMap_bijec
               (det x, equalEndpointProjectiveRankMap.{u, u} k x)) := by
     exact equalEndpointProjectiveDetRankData_exists_of_lineRankClassMap_bijective k hbijective
   exact equalEndpointRankKernelCoordinateData_nonempty_of_detRankExists k hdetRank
+
+/-- Generator normal form and residual-line injectivity classify the generic-rank kernel by
+endpoint-unit ratios, with the forward map given by the actual Milnor-line residual classes.
+The inverse-coordinate packaging is not an input to this source-level theorem. -/
+theorem equalEndpointLineResidualEquiv_exists_of_sourceClauses
+    (hsource :
+      (∀ M : ModuleCat.FiniteProjective.{u, u} R,
+        ∃ unitRatio : kˣ,
+          ModuleCat.K0.projectiveOf R M =
+            equalEndpointLineRankClassMap k
+              (Additive.ofMul unitRatio, equalEndpointProjectiveRank k M)) ∧
+      (∀ u v : kˣ,
+        equalEndpointLineResidualClass k u = equalEndpointLineResidualClass k v → u = v)) :
+    ∃ e : Additive kˣ ≃+ (equalEndpointProjectiveRankMap.{u, u} k).ker,
+      ∀ a : Additive kˣ, e a = equalEndpointLineResidualClass k a.toMul := by
+  -- Extend generator normal form through the Grothendieck-group presentation, then restrict
+  -- surjectivity to the rank kernel using the rank computation of the line-plus-rank map.
+  have hsurj : ∀ z : (equalEndpointProjectiveRankMap.{u, u} k).ker,
+      ∃ unitRatio : kˣ, equalEndpointLineResidualClass k unitRatio = z :=
+    (equalEndpointLineRankClassMap_surjective_iff_residual_surjective (k := k)).mp
+      (equalEndpointLineRankClassMap_surjective_of_generator_normalForm (k := k) hsource.1)
+  -- Reuse the existing Picard/Cartan equivalence theorem in Prop; do not select a global
+  -- inverse coordinate from the resulting existence statement.
+  exact equalEndpointLineResidualEquiv_exists_of_picardCartanClauses k
+    (equalEndpointLineResidualClass_zero_picClass_one_of_injective (k := k) hsource.2) hsurj
+
+/-- The source classification computes addition by multiplying endpoint-unit ratios. -/
+theorem equalEndpointLineResidualClass_mul_of_sourceClauses
+    (hsource :
+      (∀ M : ModuleCat.FiniteProjective.{u, u} R,
+        ∃ unitRatio : kˣ,
+          ModuleCat.K0.projectiveOf R M =
+            equalEndpointLineRankClassMap k
+              (Additive.ofMul unitRatio, equalEndpointProjectiveRank k M)) ∧
+      (∀ u v : kˣ,
+        equalEndpointLineResidualClass k u = equalEndpointLineResidualClass k v → u = v))
+    (a b : kˣ) :
+    equalEndpointLineResidualClass k (a * b) =
+      equalEndpointLineResidualClass k a + equalEndpointLineResidualClass k b := by
+  rcases equalEndpointLineResidualEquiv_exists_of_sourceClauses k hsource with ⟨e, he⟩
+  calc
+    equalEndpointLineResidualClass k (a * b) = e (Additive.ofMul a + Additive.ofMul b) :=
+      (he (Additive.ofMul (a * b))).symm
+    _ = e (Additive.ofMul a) + e (Additive.ofMul b) := e.map_add _ _
+    _ = equalEndpointLineResidualClass k a + equalEndpointLineResidualClass k b := by
+      simpa only [toMul_ofMul] using
+        congrArg₂ (fun x y : (equalEndpointProjectiveRankMap.{u, u} k).ker => x + y)
+          (he (Additive.ofMul a)) (he (Additive.ofMul b))
+
+/-- The normalized residual-line classification derived from the source clauses makes the
+explicit residual homomorphism bijective. -/
+theorem equalEndpointLineResidualHom_bijective_of_sourceClauses
+    (hsource :
+      (∀ M : ModuleCat.FiniteProjective.{u, u} R,
+        ∃ unitRatio : kˣ,
+          ModuleCat.K0.projectiveOf R M =
+            equalEndpointLineRankClassMap k
+              (Additive.ofMul unitRatio, equalEndpointProjectiveRank k M)) ∧
+      (∀ u v : kˣ,
+        equalEndpointLineResidualClass k u = equalEndpointLineResidualClass k v → u = v)) :
+    Function.Bijective
+      (equalEndpointLineResidualHom (k := k)
+        (hmul := equalEndpointLineResidualClass_mul k)) := by
+  rcases equalEndpointLineResidualEquiv_exists_of_sourceClauses k hsource with ⟨e, he⟩
+  have hhom : equalEndpointLineResidualHom (k := k)
+      (hmul := equalEndpointLineResidualClass_mul k) = e.toAddMonoidHom := by
+    apply AddMonoidHom.ext
+    intro a
+    exact (he a).symm
+  rw [hhom]
+  exact e.bijective
 
 end

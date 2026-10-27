@@ -35,12 +35,12 @@ variable {B : Type u'} {D : Type u} [Bicategory.{w, v} D] {F : B → D}
 
 /-- Lifting preserves identity `2`-morphisms. -/
 private theorem liftMapFunctor.map_id (X Y : InducedBicategory D F) (f : F X ⟶ F Y) :
-    mkHom₂ (𝟙 f) = 𝟙 (mkHom f) := sorry
+    mkHom₂ (𝟙 f) = 𝟙 (mkHom f) := rfl
 
 /-- Lifting preserves composition of `2`-morphisms. -/
 private theorem liftMapFunctor.map_comp (X Y : InducedBicategory D F)
     {f g h : F X ⟶ F Y} (η : f ⟶ g) (θ : g ⟶ h) :
-    mkHom₂ (η ≫ θ) = mkHom₂ η ≫ mkHom₂ θ := sorry
+    mkHom₂ (η ≫ θ) = mkHom₂ η ≫ mkHom₂ θ := rfl
 
 /-- Lift ambient `1`- and `2`-morphisms to the hom-category of an induced bicategory. This is
 the data-preserving inverse to `forget.mapFunctor X Y`: both object and morphism maps are the
@@ -57,7 +57,10 @@ def liftMapFunctor (X Y : InducedBicategory D F) :
 private theorem liftForgetIso.naturality (X Y : InducedBicategory D F) :
     ∀ {f g : F X ⟶ F Y} (η : f ⟶ g),
       (liftMapFunctor X Y ⋙ forget.mapFunctor X Y).map η ≫ (Iso.refl g).hom =
-        (Iso.refl f).hom ≫ (𝟭 (F X ⟶ F Y)).map η := sorry
+        (Iso.refl f).hom ≫ (𝟭 (F X ⟶ F Y)).map η := by
+  intro f g η
+  change η ≫ 𝟙 g = 𝟙 f ≫ η
+  simp
 
 /-- Lifting and then forgetting is naturally the identity on the ambient hom-category. -/
 private def liftForgetIso (X Y : InducedBicategory D F) :
@@ -68,7 +71,10 @@ private def liftForgetIso (X Y : InducedBicategory D F) :
 private theorem forgetLiftIso.naturality (X Y : InducedBicategory D F) :
     ∀ {f g : X ⟶ Y} (η : f ⟶ g),
       (forget.mapFunctor X Y ⋙ liftMapFunctor X Y).map η ≫ (Iso.refl g).hom =
-        (Iso.refl f).hom ≫ (𝟭 (X ⟶ Y)).map η := sorry
+        (Iso.refl f).hom ≫ (𝟭 (X ⟶ Y)).map η := by
+  intro f g η
+  change η ≫ 𝟙 g = 𝟙 f ≫ η
+  simp
 
 /-- Forgetting and then lifting is naturally the identity on the induced hom-category. -/
 private def forgetLiftIso (X Y : InducedBicategory D F) :
@@ -90,15 +96,14 @@ namespace Implementation
 private theorem forget.mapFunctor.map_preimage (X Y : InducedBicategory D F)
     {f g : X ⟶ Y}
     (η : (forget.mapFunctor X Y).obj f ⟶ (forget.mapFunctor X Y).obj g) :
-    (forget.mapFunctor X Y).map (mkHom₂ η) = η := sorry
-/- Proof strategy: apply `hom₂_ext`; the underlying ambient `2`-morphism of `mkHom₂ η` is
-definitionally `η`. -/
+    (forget.mapFunctor X Y).map (mkHom₂ η) = η := rfl
 
 /-- Lifting the image of an induced `2`-morphism recovers the original induced cell. -/
 private theorem forget.mapFunctor.preimage_map (X Y : InducedBicategory D F)
     {f g : X ⟶ Y} (η : f ⟶ g) :
-    mkHom₂ ((forget.mapFunctor X Y).map η) = η := sorry
-/- Proof strategy: apply `hom₂_ext`; both sides have the same underlying ambient cell `η.hom`. -/
+    mkHom₂ ((forget.mapFunctor X Y).map η) = η := by
+  apply hom₂_ext
+  rfl
 
 /-- The forgetful pseudofunctor from an induced bicategory is fully faithful on every hom
 category. This is the canonical inverse-on-cells data missing from the base mathlib file. -/
@@ -114,35 +119,37 @@ end Implementation
 category. -/
 @[stacks 0040 "induced-bicategory forgetful Hom equivalence"]
 instance forget.mapFunctor.isEquivalence (X Y : InducedBicategory D F) :
-    (forget.mapFunctor X Y).IsEquivalence := sorry
-/- Proof strategy: construct `Functor.IsEquivalence` directly. Fill `faithful` and `full` with
-the corresponding fields of
-`Implementation.forget.mapFunctor.fullyFaithful X Y`; fill `essSurj` by sending an
-ambient `1`-morphism `f : F X ⟶ F Y` to the exact preimage `mkHom f`. The class then supplies
-the derived `Faithful`, `Full`, and `EssSurj` instances without three duplicate owners. -/
+    (forget.mapFunctor X Y).IsEquivalence where
+  faithful := (Implementation.forget.mapFunctor.fullyFaithful X Y).faithful
+  full := (Implementation.forget.mapFunctor.fullyFaithful X Y).full
+  essSurj := { mem_essImage f := ⟨mkHom f, ⟨Iso.refl f⟩⟩ }
 
 /-- The forgetful pseudofunctor from an induced bicategory is locally an equivalence. -/
 @[stacks 0040 "induced-bicategory forgetful local equivalence"]
 instance forget.isLocallyEquivalence :
     (forget : StrictPseudofunctor
-      (InducedBicategory D F) D).toPseudofunctor.IsLocallyEquivalence := sorry
-/- Proof strategy: at each pair of objects, use `forget.mapFunctor.isEquivalence`. -/
+      (InducedBicategory D F) D).toPseudofunctor.IsLocallyEquivalence where
+  mapFunctor_isEquivalence X Y := forget.mapFunctor.isEquivalence X Y
 
 /-- Each hom-category of an induced bicategory inherits groupoidality from the corresponding
 ambient hom-category. This pointwise instance is more reusable than assuming that the whole
 ambient bicategory is locally groupoidal. -/
 @[stacks 0040 "groupoidal Hom categories for induced bicategories"]
 instance homGroupoid (X Y : InducedBicategory D F) [IsGroupoid (F X ⟶ F Y)] :
-    IsGroupoid (X ⟶ Y) := sorry
-/- Proof strategy: lift `asIso η.hom` with `InducedBicategory.isoMk`; its forward cell is `η` by
-`hom₂_ext`, so the canonical `IsIso` instance transports through the hom wrapper. -/
+    IsGroupoid (X ⟶ Y) where
+  all_isIso {f g} η := by
+    let e : f ≅ g := isoMk (asIso η.hom)
+    have he : e.hom = η := hom₂_ext rfl
+    exact he ▸ e.isIso_hom
 
 /-- Each hom-category of an induced bicategory inherits thinness from the corresponding ambient
 hom-category. This pointwise bridge lets nested full subbicategories reuse a single thinness
 owner instead of rebuilding uniqueness of `2`-morphisms at every layer. -/
 @[stacks 0040 "thin Hom categories for induced bicategories"]
 instance homIsThin (X Y : InducedBicategory D F) [Quiver.IsThin (F X ⟶ F Y)] :
-    Quiver.IsThin (X ⟶ Y) := sorry
+    Quiver.IsThin (X ⟶ Y) := by
+  intro f g
+  exact ⟨fun η θ => hom₂_ext (Subsingleton.elim η.hom θ.hom)⟩
 
 end Bicategory.InducedBicategory
 

@@ -9,6 +9,8 @@ module
 public import Mathlib.Algebra.Category.ModuleCat.ChangeOfRings
 public import Mathlib.Algebra.Exact.Basic
 public import Mathlib.Algebra.Homology.HomologySequence
+public import Mathlib.Algebra.Homology.ShortComplex.ModuleCat
+public import Mathlib.LinearAlgebra.TensorProduct.Pi
 public import Mathlib.RingTheory.Noetherian.Defs
 public import Mathlib.RingTheory.TensorProduct.Basic
 public import ReasLib.Algebra.Category.ModuleCat.ChangeOfRings.Homology
@@ -68,6 +70,36 @@ theorem ofCompOnVars_apply (dy : (κ ⊕ ι) → C) (j : κ) :
     ofCompOnVars dy j = dy (Sum.inl j) := rfl
 
 variable [Fintype ι] [Fintype κ]
+
+/-- Retraction to the old differential coordinates, using the explicit finite-product
+tensor equivalence. -/
+def toCompOnVarsRetraction :
+    ((κ ⊕ ι) → C) →ₗ[C] C ⊗[B] (ι → B) := by
+  classical
+  exact (TensorProduct.piScalarRight B C C ι).symm.toLinearMap.comp
+    (LinearMap.funLeft C C Sum.inr)
+
+omit [Fintype κ] in
+/-- Retraction after inclusion recovers the scalar-extended old generators. -/
+theorem toCompOnVarsRetraction_liftBaseChange (w : C ⊗[B] (ι → B)) :
+    toCompOnVarsRetraction
+      (((toCompOnVars (κ := κ) (ι := ι)).liftBaseChange C) w) = w := by
+  classical
+  apply (TensorProduct.piScalarRight B C C ι).injective
+  change (TensorProduct.piScalarRight B C C ι)
+    ((TensorProduct.piScalarRight B C C ι).symm _) = _
+  rw [LinearEquiv.apply_symm_apply]
+  induction w using TensorProduct.induction_on with
+  | zero =>
+      ext i
+      simp
+  | tmul c v =>
+      ext i
+      simp [LinearMap.liftBaseChange_tmul, toCompOnVars_apply, Algebra.smul_def, mul_comm]
+  | add x y hx hy =>
+      ext i
+      simp [map_add, ← hx, ← hy]
+
 variable (P : Presentation A B I ι)
 variable (Q : Presentation B C (I.map (algebraMap A B)) κ)
 
@@ -250,12 +282,64 @@ def homologyZeroπ :
 /-- The conormal map from a composite presentation to the relative presentation is surjective. -/
 theorem ofCompCotangentMap_surjective :
     Function.Surjective (Cotangent.map (Presentation.ofCompHom Q P)) := by
-  sorry
+  intro x
+  obtain ⟨⟨g, hg⟩, rfl⟩ := Cotangent.mk_surjective x
+  obtain ⟨f, hf⟩ := Presentation.ofComp_surjective Q P g
+  have hker : f ∈ (Q.comp P).toExtension.ker := by
+    change (Q.comp P).toAlgHom f = 0
+    rw [← Presentation.ofCompHom_over Q P, hf]
+    exact hg
+  refine ⟨Cotangent.mk ⟨f, hker⟩, ?_⟩
+  rw [Cotangent.map_mk]
+  congr 1
+  exact Subtype.ext hf
 
 /-- After scalar extension, inclusion of the old free differential generators is injective. -/
 theorem toCompOnVars_liftBaseChange_injective :
     Function.Injective ((toCompOnVars (B := B) (C := C) (κ := κ) (ι := ι)).liftBaseChange C) := by
-  sorry
+  exact Function.LeftInverse.injective toCompOnVarsRetraction_liftBaseChange
+
+/-- There are no incoming boundaries in degree one of the two-term complex. -/
+private theorem homologyOneToCotangent_condition :
+    LinearMap.range ((naiveCotangent (I.map (algebraMap A B)) Q).sc 1).moduleCatToCycles ≤
+      LinearMap.ker
+        (LinearMap.ker ((naiveCotangent (I.map (algebraMap A B)) Q).sc 1).g.hom).subtype := by
+  rintro _ ⟨x, rfl⟩
+  have hf : ((naiveCotangent (I.map (algebraMap A B)) Q).sc 1).f = 0 := by
+    change (naiveCotangent (I.map (algebraMap A B)) Q).d _ 1 = 0
+    rw [ChainComplex.prev]
+    change (complex Q).d 2 1 = 0
+    rw [complex, ChainComplex.mk'_d]
+    exact CategoryTheory.Limits.comp_zero
+  change ((naiveCotangent (I.map (algebraMap A B)) Q).sc 1).f.hom x = 0
+  rw [hf]
+  rfl
+
+/-- The degree-one homology class, viewed in the conormal module by descending
+the inclusion of cycles through the zero boundary submodule. -/
+private def homologyOneToCotangent :
+    ((naiveCotangent (I.map (algebraMap A B)) Q).homology 1 : Type u) →ₗ[C]
+      Q.toExtension.Cotangent :=
+  (((naiveCotangent (I.map (algebraMap A B)) Q).sc 1).moduleCatToCycles.range.liftQ
+      (LinearMap.ker ((naiveCotangent (I.map (algebraMap A B)) Q).sc 1).g.hom).subtype
+      (homologyOneToCotangent_condition I Q)).comp
+    ((naiveCotangent (I.map (algebraMap A B)) Q).sc 1).moduleCatHomologyIso.hom.hom
+
+/-- The explicit descent agrees with the inclusion of any representative cycle. -/
+private theorem homologyOneToCotangent_homologyπ
+    (x : (naiveCotangent (I.map (algebraMap A B)) Q).cycles 1) :
+    homologyOneToCotangent I Q
+        (((naiveCotangent (I.map (algebraMap A B)) Q).homologyπ 1).hom x) =
+      ((naiveCotangent (I.map (algebraMap A B)) Q).iCycles 1).hom x := by
+  let S := (naiveCotangent (I.map (algebraMap A B)) Q).sc 1
+  have hπ := congrArg (fun f ↦ f.hom x) S.π_moduleCatCyclesIso_hom
+  change S.moduleCatHomologyIso.hom.hom (S.homologyπ.hom x) =
+    S.moduleCatLeftHomologyData.π.hom (S.moduleCatCyclesIso.hom.hom x) at hπ
+  change (S.moduleCatToCycles.range.liftQ _ (homologyOneToCotangent_condition I Q))
+    (S.moduleCatHomologyIso.hom.hom (S.homologyπ.hom x)) = S.iCycles.hom x
+  rw [hπ]
+  change (LinearMap.ker S.g.hom).subtype (S.moduleCatCyclesIso.hom.hom x) = _
+  exact congrArg (fun f ↦ f.hom x) S.moduleCatCyclesIso_hom_i
 
 /-- Lift a homology class to the composite conormal module, differentiate it,
 retract to the old generators, and take the degree-zero homology class. -/
@@ -263,13 +347,10 @@ private def δValue
     (x : (naiveCotangent (I.map (algebraMap A B)) Q).homology 1) :
     C ⊗[B] ((naiveCotangent I P).homology 0 : Type u) :=
   (homologyZeroπ I P).baseChange C
-    (Function.invFun ⇑((toCompOnVars (κ := κ) (ι := ι)).liftBaseChange C)
+    (toCompOnVarsRetraction
       (jacobian (Q.comp P)
         (Function.invFun ⇑(Cotangent.map (Presentation.ofCompHom Q P))
-          (((naiveCotangent (I.map (algebraMap A B)) Q).iCycles 1).hom
-            (Function.invFun
-              (fun y ↦ ((naiveCotangent (I.map (algebraMap A B)) Q).homologyπ 1).hom y)
-              x)))))
+          (homologyOneToCotangent I Q x))))
 
 /-- Lifting, differentiating, and taking a homology class preserves addition. -/
 private theorem δValue_map_add

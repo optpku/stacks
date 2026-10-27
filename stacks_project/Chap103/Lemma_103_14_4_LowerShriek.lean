@@ -6,6 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Sites.ModuleLowerShriek
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.LowerShriek
 public import stacks_project.Chap103.Lemma_103_14_2_Ringed
 public import stacks_project.Chap103.Lemma_103_14_2_Topos
@@ -32,106 +33,90 @@ namespace AlgebraicGeometry.AlgebraicStack
 
 variable {S : Scheme.{u}}
 
-/-- Restriction of étale modules to the lisse-étale site, i.e. module inverse
-image along the lisse-étale inclusion. -/
-abbrev lisseEtaleModuleInverseImage (X : GroupoidsOver S) [AlgebraicStack X] :
+#check (AlgebraicGeometry.AlgebraicStack.lisseEtaleModuleInverseImage :
+  ∀ (X : GroupoidsOver S) [AlgebraicStack X],
     SheafOfModules.{u} (etaleStructureSheaf X) ⥤
-      SheafOfModules.{u} (lisseEtaleStructureSheaf X) :=
-  moduleInverseImage (lisseEtaleInclusion X) (etaleStructureSheaf X)
+      SheafOfModules.{u} (lisseEtaleStructureSheaf X))
 
-/-- Module lower shriek from the lisse-étale site to the associated étale site. -/
-abbrev lisseEtaleModuleLowerShriek (X : GroupoidsOver S) [AlgebraicStack X] :
+#check (AlgebraicGeometry.AlgebraicStack.lisseEtaleModuleLowerShriek :
+  ∀ (X : GroupoidsOver S) [AlgebraicStack X],
     SheafOfModules.{u} (lisseEtaleStructureSheaf X) ⥤
-      SheafOfModules.{u} (etaleStructureSheaf X) :=
-  moduleLowerShriek (lisseEtaleInclusion X) (etaleStructureSheaf X)
+      SheafOfModules.{u} (etaleStructureSheaf X))
 
-namespace lisseEtaleModuleLowerShriek
+#check (AlgebraicGeometry.AlgebraicStack.lisseEtaleModuleLowerShriek.adjunction :
+  ∀ (X : GroupoidsOver S) [AlgebraicStack X],
+    lisseEtaleModuleLowerShriek X ⊣ lisseEtaleModuleInverseImage X)
 
-/-- Module lower shriek is left adjoint to lisse-étale module inverse image. -/
-def adjunction (X : GroupoidsOver S) [AlgebraicStack X] :
-    lisseEtaleModuleLowerShriek X ⊣ lisseEtaleModuleInverseImage X :=
-  moduleLowerShriek.adjunction (lisseEtaleInclusion X) (etaleStructureSheaf X)
-
-/-- Hom-sets out of lisse-étale module lower shriek are morphisms into restriction. -/
-def homEquiv (X : GroupoidsOver S) [AlgebraicStack X]
+#check (AlgebraicGeometry.AlgebraicStack.lisseEtaleModuleLowerShriek.homEquiv :
+  ∀ (X : GroupoidsOver S) [AlgebraicStack X]
     (F : SheafOfModules.{u} (lisseEtaleStructureSheaf X))
-    (G : SheafOfModules.{u} (etaleStructureSheaf X)) :
+    (G : SheafOfModules.{u} (etaleStructureSheaf X)),
     ((lisseEtaleModuleLowerShriek X).obj F ⟶ G) ≃
-      (F ⟶ (lisseEtaleModuleInverseImage X).obj G) :=
-  (adjunction X).homEquiv F G
+      (F ⟶ (lisseEtaleModuleInverseImage X).obj G))
 
-/-- Canonical mate from abelian lower shriek after forgetting module structure to
-forgetting after module lower shriek, along the lisse-étale inclusion. -/
-def underlyingComparison (X : GroupoidsOver S) [AlgebraicStack X] :
+#check (AlgebraicGeometry.AlgebraicStack.lisseEtaleModuleLowerShriek.underlyingComparison :
+  ∀ (X : GroupoidsOver S) [AlgebraicStack X]
+    [HasSheafify X.etaleTopology AddCommGrpCat.{u}]
+    [∀ P : (lisseEtaleSite X)ᵒᵖ ⥤ AddCommGrpCat.{u},
+      (lisseEtaleInclusion X).op.HasLeftKanExtension P],
     SheafOfModules.toSheaf.{u} (lisseEtaleStructureSheaf X) ⋙
         lisseEtaleAbelianLowerShriek X ⟶
       lisseEtaleModuleLowerShriek X ⋙
-        SheafOfModules.toSheaf.{u} (etaleStructureSheaf X) :=
-  moduleLowerShriek.underlyingComparison.{u, u, u + 1, u + 1, u, u}
-    (lisseEtaleInclusion X) (etaleStructureSheaf X)
+        SheafOfModules.toSheaf.{u} (etaleStructureSheaf X))
 
-/-- Lisse-étale module lower shriek agrees with abelian lower shriek. -/
-instance underlyingComparison_isIso (X : GroupoidsOver S) [AlgebraicStack X] :
-    IsIso (underlyingComparison X) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicStack.lisseEtaleModuleLowerShriek.underlyingComparison_isIso :
+  ∀ (X : GroupoidsOver S) [AlgebraicStack X]
+    [HasSheafify X.etaleTopology AddCommGrpCat.{u}]
+    [∀ P : (lisseEtaleSite X)ᵒᵖ ⥤ AddCommGrpCat.{u},
+      (lisseEtaleInclusion X).op.HasLeftKanExtension P],
+    IsIso (lisseEtaleModuleLowerShriek.underlyingComparison X))
 
-end lisseEtaleModuleLowerShriek
+#check (AlgebraicGeometry.AlgebraicStack.lisseEtaleModuleLowerShriek_unit_app_isIso :
+  ∀ (X : GroupoidsOver S)
+    [AlgebraicStack X] (F : SheafOfModules.{u} (lisseEtaleStructureSheaf X)),
+    IsIso ((lisseEtaleModuleLowerShriek.adjunction X).unit.app F))
 
-/-- The unit `id ⟶ g^* g_!` is an isomorphism on lisse-étale modules. -/
-theorem lisseEtaleModuleLowerShriek_unit_app_isIso (X : GroupoidsOver S)
-    [AlgebraicStack X] (F : SheafOfModules.{u} (lisseEtaleStructureSheaf X)) :
-    IsIso ((lisseEtaleModuleLowerShriek.adjunction X).unit.app F) :=
-  sorry
-
-/-- Restriction of fppf modules to the flat-fppf site, i.e. module inverse image
-along the flat-fppf inclusion. -/
-abbrev flatFppfModuleInverseImage (X : GroupoidsOver S) [AlgebraicStack X] :
+#check (AlgebraicGeometry.AlgebraicStack.flatFppfModuleInverseImage :
+  ∀ (X : GroupoidsOver S) [AlgebraicStack X],
     SheafOfModules.{u} (structureSheaf X) ⥤
-      SheafOfModules.{u} (flatFppfStructureSheaf X) :=
-  moduleInverseImage (flatFppfInclusion X) (structureSheaf X)
+      SheafOfModules.{u} (flatFppfStructureSheaf X))
 
-/-- Module lower shriek from the flat-fppf site to the inherited fppf site. -/
-abbrev flatFppfModuleLowerShriek (X : GroupoidsOver S) [AlgebraicStack X] :
+#check (AlgebraicGeometry.AlgebraicStack.flatFppfModuleLowerShriek :
+  ∀ (X : GroupoidsOver S) [AlgebraicStack X],
     SheafOfModules.{u} (flatFppfStructureSheaf X) ⥤
-      SheafOfModules.{u} (structureSheaf X) :=
-  moduleLowerShriek (flatFppfInclusion X) (structureSheaf X)
+      SheafOfModules.{u} (structureSheaf X))
 
-namespace flatFppfModuleLowerShriek
+#check (AlgebraicGeometry.AlgebraicStack.flatFppfModuleLowerShriek.adjunction :
+  ∀ (X : GroupoidsOver S) [AlgebraicStack X],
+    flatFppfModuleLowerShriek X ⊣ flatFppfModuleInverseImage X)
 
-/-- Module lower shriek is left adjoint to flat-fppf module inverse image. -/
-def adjunction (X : GroupoidsOver S) [AlgebraicStack X] :
-    flatFppfModuleLowerShriek X ⊣ flatFppfModuleInverseImage X :=
-  moduleLowerShriek.adjunction (flatFppfInclusion X) (structureSheaf X)
-
-/-- Hom-sets out of flat-fppf module lower shriek are morphisms into restriction. -/
-def homEquiv (X : GroupoidsOver S) [AlgebraicStack X]
+#check (AlgebraicGeometry.AlgebraicStack.flatFppfModuleLowerShriek.homEquiv :
+  ∀ (X : GroupoidsOver S) [AlgebraicStack X]
     (F : SheafOfModules.{u} (flatFppfStructureSheaf X))
-    (G : SheafOfModules.{u} (structureSheaf X)) :
+    (G : SheafOfModules.{u} (structureSheaf X)),
     ((flatFppfModuleLowerShriek X).obj F ⟶ G) ≃
-      (F ⟶ (flatFppfModuleInverseImage X).obj G) :=
-  (adjunction X).homEquiv F G
+      (F ⟶ (flatFppfModuleInverseImage X).obj G))
 
-/-- Canonical mate from abelian lower shriek after forgetting module structure to
-forgetting after module lower shriek, along the flat-fppf inclusion. -/
-def underlyingComparison (X : GroupoidsOver S) [AlgebraicStack X] :
+#check (AlgebraicGeometry.AlgebraicStack.flatFppfModuleLowerShriek.underlyingComparison :
+  ∀ (X : GroupoidsOver S) [AlgebraicStack X]
+    [HasSheafify (inheritedFppfTopology X) AddCommGrpCat.{u}]
+    [∀ P : (flatFppfSite X)ᵒᵖ ⥤ AddCommGrpCat.{u},
+      (flatFppfInclusion X).op.HasLeftKanExtension P],
     SheafOfModules.toSheaf.{u} (flatFppfStructureSheaf X) ⋙
         flatFppfAbelianLowerShriek X ⟶
       flatFppfModuleLowerShriek X ⋙
-        SheafOfModules.toSheaf.{u} (structureSheaf X) :=
-  moduleLowerShriek.underlyingComparison.{u, u, u + 1, u + 1, u, u}
-    (flatFppfInclusion X) (structureSheaf X)
+        SheafOfModules.toSheaf.{u} (structureSheaf X))
 
-/-- Flat-fppf module lower shriek agrees with abelian lower shriek. -/
-instance underlyingComparison_isIso (X : GroupoidsOver S) [AlgebraicStack X] :
-    IsIso (underlyingComparison X) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicStack.flatFppfModuleLowerShriek.underlyingComparison_isIso :
+  ∀ (X : GroupoidsOver S) [AlgebraicStack X]
+    [HasSheafify (inheritedFppfTopology X) AddCommGrpCat.{u}]
+    [∀ P : (flatFppfSite X)ᵒᵖ ⥤ AddCommGrpCat.{u},
+      (flatFppfInclusion X).op.HasLeftKanExtension P],
+    IsIso (flatFppfModuleLowerShriek.underlyingComparison X))
 
-end flatFppfModuleLowerShriek
-
-/-- The unit `id ⟶ g^* g_!` is an isomorphism on flat-fppf modules. -/
-theorem flatFppfModuleLowerShriek_unit_app_isIso (X : GroupoidsOver S)
-    [AlgebraicStack X] (F : SheafOfModules.{u} (flatFppfStructureSheaf X)) :
-    IsIso ((flatFppfModuleLowerShriek.adjunction X).unit.app F) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicStack.flatFppfModuleLowerShriek_unit_app_isIso :
+  ∀ (X : GroupoidsOver S)
+    [AlgebraicStack X] (F : SheafOfModules.{u} (flatFppfStructureSheaf X)),
+    IsIso ((flatFppfModuleLowerShriek.adjunction X).unit.app F))
 
 end AlgebraicGeometry.AlgebraicStack

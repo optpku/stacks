@@ -18,6 +18,8 @@ public import ReasLib.AlgebraicGeometry.Scheme.Morphism.Projective.Proper
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.Smooth.Regularity
 public import ReasLib.AlgebraicGeometry.Scheme.Variety.Curve
 public import ReasLib.AlgebraicGeometry.Scheme.Variety.Product
+import ReasLib.AlgebraicGeometry.Correspondence.Transpose.Graph
+import ReasLib.AlgebraicGeometry.Scheme.Morphism.DimensionFunction.Jacobson
 
 @[expose] public section
 
@@ -43,17 +45,46 @@ def graphCycle {C : SchemeOverField k} [Curve C] (φ : C ⟶ C) :
 theorem graphCycle_def {C : SchemeOverField k} [Curve C] (φ : C ⟶ C) :
     graphCycle φ =
       AlgebraicCycle.map (Over.prodLeftIsoPullback C C).inv
-        (fun _ ↦ (0 : ℤ)) (fun _ ↦ (0 : ℤ)) (AlgebraicCycle.graph φ) := sorry
+        (fun _ ↦ (0 : ℤ)) (fun _ ↦ (0 : ℤ)) (AlgebraicCycle.graph φ) := rfl
 
 /-- The product of a smooth curve with itself remains smooth over the field. -/
 instance instSmooth_prod [IsAlgClosed k] {C : SchemeOverField k}
     [Curve C] [Smooth C.hom] [Projective C.hom] :
-    Smooth (C ⨯ C).hom := sorry
+    Smooth (C ⨯ C).hom := by
+  haveI : Smooth (prod.fst : C ⨯ C ⟶ C).left :=
+    MorphismProperty.of_isPullback
+      (Over.isPullback_of_binaryFan_isLimit
+        (BinaryFan.mk (prod.fst : C ⨯ C ⟶ C) prod.snd)
+        (prodIsProd C C)).flip ‹Smooth C.hom›
+  rw [← Over.w (prod.fst : C ⨯ C ⟶ C)]
+  infer_instance
 
 /-- The product of a projective curve with itself is proper over the field. -/
 instance instIsProper_prod [IsAlgClosed k] {C : SchemeOverField k}
     [Curve C] [Smooth C.hom] [Projective C.hom] :
-    IsProper (C ⨯ C).hom := sorry
+    IsProper (C ⨯ C).hom := by
+  haveI : IsProper C.hom := Projective.isProper (inferInstance : Projective C.hom)
+  haveI : IsProper (prod.fst : C ⨯ C ⟶ C).left :=
+    MorphismProperty.of_isPullback
+      (Over.isPullback_of_binaryFan_isLimit
+        (BinaryFan.mk (prod.fst : C ⨯ C ⟶ C) prod.snd)
+        (prodIsProd C C)).flip ‹IsProper C.hom›
+  rw [← Over.w (prod.fst : C ⨯ C ⟶ C)]
+  infer_instance
+
+private theorem curve_dimension_eq_one {C : SchemeOverField k} [Curve C] :
+    C.dimension = 1 := by
+  let Z : C.left.IdealSheafData := ⊥
+  haveI : IsIntegral Z.subscheme := IsIntegral.of_isIso (inv Z.subschemeι)
+  have hdim := topologicalKrullDim_eq_relativeDimensionFunction_generic
+    C.hom (fun _ ↦ 0) (by intros; rfl) Z
+    ⟨genericPoint Z.subscheme, by simp [genericPoints_eq_singleton]⟩
+  rw [genericPoint_eq_of_isOpenImmersion Z.subschemeι] at hdim
+  have htop : topologicalKrullDim Z.subscheme = topologicalKrullDim C.left :=
+    IsHomeomorph.topologicalKrullDim_eq _ Z.subschemeι.homeomorph.isHomeomorph
+  rw [htop, AlgebraicGeometry.topologicalKrullDim_eq_one C] at hdim
+  change (1 : WithBot ℕ∞) = (C.dimension : WithBot ℕ∞) at hdim
+  exact_mod_cast hdim.symm
 
 variable [IsAlgClosed k]
 variable {C : SchemeOverField k} [Curve C] [Smooth C.hom] [Projective C.hom]
@@ -70,7 +101,20 @@ theorem graph_intersectProperly_diagonal (φ : C ⟶ C) (hφ : φ ≠ 𝟙 C) :
 theorem intersection_diagonal_graph_mem (φ : C ⟶ C) (hφ : φ ≠ 𝟙 C) :
     intersection (diagonal C) (graphCycle φ)
         (graph_intersectProperly_diagonal φ hφ) ∈
-      dimensionSubgroup ((C ⨯ C).hom.relativeDimensionFunction (fun _ ↦ 0)) 0 := sorry
+      dimensionSubgroup ((C ⨯ C).hom.relativeDimensionFunction (fun _ ↦ 0)) 0 := by
+  have hdim : C.dimension = 1 := curve_dimension_eq_one
+  have hdiagonal : diagonal C ∈ dimensionSubgroup
+      ((C ⨯ C).hom.relativeDimensionFunction (fun _ ↦ 0)) 1 := by
+    simpa only [hdim, Nat.cast_one] using diagonal_mem_dimensionSubgroup C
+  have hgraph : graphCycle φ ∈ dimensionSubgroup
+      ((C ⨯ C).hom.relativeDimensionFunction (fun _ ↦ 0)) 1 := by
+    simpa only [graphCycle, Int.natCast_one, sub_zero] using
+      CycleGroup.graph_mem_dimensionSubgroup 1
+        (AlgebraicGeometry.topologicalKrullDim_eq_one C) φ
+  simpa [CycleGroup.toAlgebraicCycle, SchemeOverField.dimension_prod, hdim] using
+    intersection_mem_dimensionSubgroup (C ⨯ C) 1 1
+      ⟨diagonal C, hdiagonal⟩ ⟨graphCycle φ, hgraph⟩
+      (graph_intersectProperly_diagonal φ hφ)
 
 /-- The zero-cycle given by the diagonal-graph intersection. -/
 def fixedPointCycle (φ : C ⟶ C) (hφ : φ ≠ 𝟙 C) :
@@ -86,7 +130,7 @@ theorem fixedPointCycle_toAlgebraicCycle (φ : C ⟶ C) (hφ : φ ≠ 𝟙 C) :
         ((C ⨯ C).hom.relativeDimensionFunction (fun _ ↦ 0)) 0
         (fixedPointCycle φ hφ) =
       intersection (diagonal C) (graphCycle φ)
-        (graph_intersectProperly_diagonal φ hφ) := sorry
+        (graph_intersectProperly_diagonal φ hφ) := rfl
 
 /-- The fixed-point intersection number, computed as the degree of its zero-cycle. -/
 def fixedPointNumber (φ : C ⟶ C) (hφ : φ ≠ 𝟙 C) : ℤ :=
@@ -94,7 +138,7 @@ def fixedPointNumber (φ : C ⟶ C) (hφ : φ ≠ 𝟙 C) : ℤ :=
 
 /-- The fixed-point number is the canonical degree of the diagonal-graph cycle. -/
 theorem fixedPointNumber_eq_degree (φ : C ⟶ C) (hφ : φ ≠ 𝟙 C) :
-    fixedPointNumber φ hφ = CycleGroup.degree (C ⨯ C) (fixedPointCycle φ hφ) := sorry
+    fixedPointNumber φ hφ = CycleGroup.degree (C ⨯ C) (fixedPointCycle φ hφ) := rfl
 
 end AlgebraicGeometry.AlgebraicCycle
 
@@ -116,12 +160,14 @@ def curveEndomorphismDegree {C : SchemeOverField k} [Curve C] (φ : C ⟶ C) : �
 /-- A nonconstant curve endomorphism has its induced function-field degree. -/
 theorem curveEndomorphismDegree_of_isNonconstant {C : SchemeOverField k}
     [Curve C] (φ : C ⟶ C) (h : φ.left.IsNonconstant) :
-    curveEndomorphismDegree φ = nonconstantEndomorphismDegree φ h := sorry
+    curveEndomorphismDegree φ = nonconstantEndomorphismDegree φ h := by
+  simp [curveEndomorphismDegree, h]
 
 /-- A constant curve endomorphism has degree zero. -/
 theorem curveEndomorphismDegree_eq_zero_of_not_isNonconstant
     {C : SchemeOverField k} [Curve C] (φ : C ⟶ C)
     (h : ¬ φ.left.IsNonconstant) :
-    curveEndomorphismDegree φ = 0 := sorry
+    curveEndomorphismDegree φ = 0 := by
+  simp [curveEndomorphismDegree, h]
 
 end AlgebraicGeometry.Curve

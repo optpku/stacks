@@ -8,7 +8,7 @@ module
 
 public import ReasLib.Algebra.Homology.DerivedCategory.ModuleCat.IdealPower.DerivedTorsion
 public import ReasLib.Algebra.Homology.DerivedCategory.ModuleCat.IdealPower.Quotient
-public import ReasLib.Algebra.Homology.DerivedCategory.InternalHom.Model.RHom
+public import ReasLib.Algebra.Homology.DerivedCategory.ModuleCat.RHom
 public import ReasLib.CategoryTheory.DerivedCategory.Colimit.Sequential
 public import ReasLib.CategoryTheory.Pretriangulated.HomotopyColimit.Homological.IsOf
 

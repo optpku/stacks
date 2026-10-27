@@ -23,7 +23,7 @@ variable {dimension : V → ℕ} {product : V → V → V}
 variable {fst : ∀ X Y, product X Y ⟶ X} {snd : ∀ X Y, product X Y ⟶ Y}
 variable {point : V} {H : V → Type x} {CH : V → Type y}
 variable [∀ X, Ring (H X)] [∀ X, Algebra F (H X)] [∀ X, CommRing (CH X)]
-variable {Hgrade : ∀ X, ℤ × ℤ → Submodule F (H X)}
+variable {Hgrade : ∀ X, ℤ → Submodule F (H X)}
 variable {CHgrade : ∀ X, ℤ → Submodule ℤ (CH X)}
 variable [∀ X, GradedAlgebra (Hgrade X)] [∀ X, GradedAlgebra (CHgrade X)]
 variable {cyclePullback : ∀ {X Y : V},
@@ -43,7 +43,7 @@ equivalent to bijective degree-zero pullback from a representative of Spec Γ(X)
       {fst : ∀ X Y, product X Y ⟶ X} {snd : ∀ X Y, product X Y ⟶ Y}
       {point : V} {H : V → Type x} {CH : V → Type y}
       [∀ X, Ring (H X)] [∀ X, Algebra F (H X)] [∀ X, CommRing (CH X)]
-      {Hgrade : ∀ X, ℤ × ℤ → Submodule F (H X)}
+      {Hgrade : ∀ X, ℤ → Submodule F (H X)}
       {CHgrade : ∀ X, ℤ → Submodule ℤ (CH X)}
       [∀ X, GradedAlgebra (Hgrade X)] [∀ X, GradedAlgebra (CHgrade X)]
       {cyclePullback : ∀ {X Y : V}, (X ⟶ Y) → CHgrade Y →ₐᵍ[ℤ] CHgrade X}
@@ -64,7 +64,7 @@ equivalent to bijective degree-zero pullback from a representative of Spec Γ(X)
       {fst : ∀ X Y, product X Y ⟶ X} {snd : ∀ X Y, product X Y ⟶ Y}
       {point : V} {H : V → Type x} {CH : V → Type y}
       [∀ X, Ring (H X)] [∀ X, Algebra F (H X)] [∀ X, CommRing (CH X)]
-      {Hgrade : ∀ X, ℤ × ℤ → Submodule F (H X)}
+      {Hgrade : ∀ X, ℤ → Submodule F (H X)}
       {CHgrade : ∀ X, ℤ → Submodule ℤ (CH X)}
       [∀ X, GradedAlgebra (Hgrade X)] [∀ X, GradedAlgebra (CHgrade X)]
       {cyclePullback : ∀ {X Y : V}, (X ⟶ Y) → CHgrade Y →ₐᵍ[ℤ] CHgrade X}
@@ -72,8 +72,8 @@ equivalent to bijective degree-zero pullback from a representative of Spec Γ(X)
       (T : WeilCohomology.SchemeClassicalTheory k F TateLine V dimension product
         fst snd point H CH Hgrade CHgrade cyclePullback cyclePushforward)
       {X : V} (_hX : T.HasSeparatingClosedPoints X),
-      Module.Finite F (Hgrade X (0, 0)) ∧
-        @Algebra.IsSeparable F (Hgrade X (0, 0)) inferInstance
+      Module.Finite F (Hgrade X (0)) ∧
+        @Algebra.IsSeparable F (Hgrade X (0)) inferInstance
           (T.degreeZeroCommRing X).toRing inferInstance)
 
 #check
@@ -84,7 +84,7 @@ equivalent to bijective degree-zero pullback from a representative of Spec Γ(X)
       {fst : ∀ X Y, product X Y ⟶ X} {snd : ∀ X Y, product X Y ⟶ Y}
       {point : V} {H : V → Type x} {CH : V → Type y}
       [∀ X, Ring (H X)] [∀ X, Algebra F (H X)] [∀ X, CommRing (CH X)]
-      {Hgrade : ∀ X, ℤ × ℤ → Submodule F (H X)}
+      {Hgrade : ∀ X, ℤ → Submodule F (H X)}
       {CHgrade : ∀ X, ℤ → Submodule ℤ (CH X)}
       [∀ X, GradedAlgebra (Hgrade X)] [∀ X, GradedAlgebra (CHgrade X)]
       {cyclePullback : ∀ {X Y : V}, (X ⟶ Y) → CHgrade Y →ₐᵍ[ℤ] CHgrade X}
@@ -93,9 +93,9 @@ equivalent to bijective degree-zero pullback from a representative of Spec Γ(X)
         fst snd point H CH Hgrade CHgrade cyclePullback cyclePushforward)
       {X : V} {d : ℕ} (hX : T.IsNonemptyEquidimensional X d),
       T.HasSeparatingClosedPoints X ↔
-        @Submodule.span (Hgrade X (0, 0)) (Hgrade X (2 * (d : ℤ), (d : ℤ)))
+        @Submodule.span (Hgrade X (0)) (Hgrade X (2 * (d : ℤ)))
           (T.degreeZeroCommRing X).toSemiring _
           (WeilCohomology.SchemeClassicalTheory.moduleHgrade_of_degreeZero X
-            (2 * (d : ℤ), (d : ℤ)))
+            (2 * (d : ℤ)))
           (Set.range (fun p : closedPoints (T.scheme.obj X).left ↦
             T.gradedCycleClass X (d : ℤ) (T.closedPointClass hX p))) = ⊤)

@@ -40,18 +40,18 @@ theorem specOver_eq (S : Scheme.{u}) (R : CommRingCat.{u}) :
       (Over.pullback (specULiftZIsTerminal.from S)).obj (overSpecZ (Spec R)) :=
   rfl
 
-/-- The algebraic space over `S` representing maps to `Spec R`. -/
-def specSpace (S : Scheme.{u}) (R : CommRingCat.{u}) : AlgebraicSpace S :=
+/-- The algebraic space over `S` represented by `S ×_{Spec ℤ} Spec R`. -/
+def slicedSpecSpace (S : Scheme.{u}) (R : CommRingCat.{u}) : AlgebraicSpace S :=
   ofOver (specOver S R)
 
-/-- `specSpace S R` is the representable algebraic space attached to `specOver S R`. -/
-theorem specSpace_eq (S : Scheme.{u}) (R : CommRingCat.{u}) :
-    specSpace S R = ofOver (specOver S R) :=
+/-- `slicedSpecSpace S R` is the representable algebraic space attached to `specOver S R`. -/
+theorem slicedSpecSpace_eq (S : Scheme.{u}) (R : CommRingCat.{u}) :
+    slicedSpecSpace S R = ofOver (specOver S R) :=
   rfl
 
 /-- The sliced spectrum of `Γ(X, 𝒪_X)` recovers `specGamma X`. -/
 theorem specSpace_globalSectionsRing {S : Scheme.{u}} (X : AlgebraicSpace S) :
-    specSpace S (globalSectionsRing X) = specGamma X :=
+    slicedSpecSpace S (globalSectionsRing X) = specGamma X :=
   rfl
 
 /-- `Spec.map φ` is a morphism over `Spec ℤ`. -/
@@ -75,7 +75,7 @@ theorem specMapOver_eq (S : Scheme.{u}) {R R' : CommRingCat.{u}} (φ : R ⟶ R')
 
 /-- The morphism of algebraic spaces over `S` induced by a ring map `R ⟶ R'`. -/
 def specMap (S : Scheme.{u}) {R R' : CommRingCat.{u}} (φ : R ⟶ R') :
-    specSpace S R' ⟶ specSpace S R :=
+    slicedSpecSpace S R' ⟶ slicedSpecSpace S R :=
   ofOverMap (specMapOver S φ)
 
 /-- `specMap S φ` is `ofOverMap` of `specMapOver S φ`. -/
@@ -113,7 +113,7 @@ theorem baseChangeSpecHom_eq {S : Scheme.{u}} (X : AlgebraicSpace S) {A' : CommR
 
 /-- The projection `X ×_{Spec Γ(X, 𝒪_X)} Spec A' ⟶ Spec A'` over `S`. -/
 def baseChangeSpecToSpec {S : Scheme.{u}} (X : AlgebraicSpace S) {A' : CommRingCat.{u}}
-    (φ : globalSectionsRing X ⟶ A') : baseChangeSpec X φ ⟶ specSpace S A' :=
+    (φ : globalSectionsRing X ⟶ A') : baseChangeSpec X φ ⟶ slicedSpecSpace S A' :=
   pullback.fst (specMap S φ) (toSpecGamma X)
 
 /-- `baseChangeSpecToSpec X φ` is the first projection of the defining pullback. -/
@@ -145,7 +145,7 @@ namespace GlobalSections
 /-- The scheme map to `Spec R` obtained by restricting a morphism into the sliced
 spectrum to the chosen atlas and projecting to `Spec R`. -/
 def specSpaceAtlasMap {S : Scheme.{u}} {Y : AlgebraicSpace S} {R : CommRingCat.{u}}
-    (f : Y ⟶ specSpace S R) : (chosenPresentation Y).U.left ⟶ Spec R :=
+    (f : Y ⟶ slicedSpecSpace S R) : (chosenPresentation Y).U.left ⟶ Spec R :=
   (Yoneda.fullyFaithful.preimage
     ((chosenPresentation Y).atlas ≫ f :
       yoneda.obj (chosenPresentation Y).U ⟶ yoneda.obj (specOver S R))).left ≫
@@ -154,7 +154,7 @@ def specSpaceAtlasMap {S : Scheme.{u}} {Y : AlgebraicSpace S} {R : CommRingCat.{
 /-- Pullback of functions from `Spec R` to the chosen atlas agrees along the two
 relation projections of the presentation. -/
 theorem specSpaceGlobalSectionsMap_equalizes {S : Scheme.{u}} {Y : AlgebraicSpace S}
-    {R : CommRingCat.{u}} (f : Y ⟶ specSpace S R) :
+    {R : CommRingCat.{u}} (f : Y ⟶ slicedSpecSpace S R) :
     ((Scheme.ΓSpecIso R).inv ≫ (specSpaceAtlasMap f).appTop) ≫
         (chosenPresentation Y).tAppTop =
       ((Scheme.ΓSpecIso R).inv ≫ (specSpaceAtlasMap f).appTop) ≫
@@ -164,14 +164,14 @@ theorem specSpaceGlobalSectionsMap_equalizes {S : Scheme.{u}} {Y : AlgebraicSpac
 /-- The canonical ring map on global sections induced by a morphism to the sliced
 spectrum, using its projection to `Spec R`. -/
 def specSpaceGlobalSectionsMap {S : Scheme.{u}} {Y : AlgebraicSpace S}
-    {R : CommRingCat.{u}} (f : Y ⟶ specSpace S R) : R ⟶ globalSectionsRing Y :=
+    {R : CommRingCat.{u}} (f : Y ⟶ slicedSpecSpace S R) : R ⟶ globalSectionsRing Y :=
   equalizer.lift ((Scheme.ΓSpecIso R).inv ≫ (specSpaceAtlasMap f).appTop)
     (specSpaceGlobalSectionsMap_equalizes f)
 
 /-- The canonical map on global sections restricts to pullback of functions on the
 chosen atlas. -/
 theorem specSpaceGlobalSectionsMap_comp_ι {S : Scheme.{u}} {Y : AlgebraicSpace S}
-    {R : CommRingCat.{u}} (f : Y ⟶ specSpace S R) :
+    {R : CommRingCat.{u}} (f : Y ⟶ slicedSpecSpace S R) :
     specSpaceGlobalSectionsMap f ≫ globalSectionsRing_ι Y =
       (Scheme.ΓSpecIso R).inv ≫ (specSpaceAtlasMap f).appTop :=
   equalizer.lift_ι _ _

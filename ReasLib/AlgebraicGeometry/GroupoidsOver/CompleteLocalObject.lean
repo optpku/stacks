@@ -22,20 +22,20 @@ open CategoryTheory AlgebraicGeometry Functor IsLocalRing
 
 noncomputable section
 
-universe u
+universe u v
 
 namespace AlgebraicGeometry.GroupoidsOver
 
 variable {S : Scheme.{u}} [IsLocallyNoetherian S]
 
 /-- An object over a Noetherian complete local algebra with finite-type residue field. -/
-def CompleteLocalObject (X : GroupoidsOver S) :=
+def CompleteLocalObject (X : FiberedCategoryOver.Groupoids.{u + 1, u, u + 1, v} (Over S)) :=
   Σ' base : CompleteLocalSAlgebra S,
     Σ' object : X.total, X.p.obj object = Over.mk base.toS
 
 namespace CompleteLocalObject
 
-variable {X : GroupoidsOver S}
+variable {X : FiberedCategoryOver.Groupoids.{u + 1, u, u + 1, v} (Over S)}
 
 /-- The complete local algebra underlying an object. -/
 def base (x : CompleteLocalObject X) : CompleteLocalSAlgebra S := x.1
@@ -133,7 +133,7 @@ def Hom.comp {x y z : CompleteLocalObject X} (f : Hom x y) (g : Hom y z) : Hom x
       f.2 g.2⟩
 
 /-- The category of complete local objects and arrows inducing local ring maps. -/
-instance category : Category.{u} (CompleteLocalObject X) where
+instance category : Category.{v} (CompleteLocalObject X) where
   toQuiver := ⟨fun x y ↦ {f : x.object ⟶ y.object // IsLocalHom (ringHom f)}⟩
   id x := ⟨𝟙 x.object, by rw [ringHom_id]; exact isLocalHom_id x.base.carrier⟩
   comp f g := ⟨f.1 ≫ g.1, by

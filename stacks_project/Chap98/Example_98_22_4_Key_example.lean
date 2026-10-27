@@ -6,117 +6,88 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import Mathlib.AlgebraicGeometry.Spec
-public import Mathlib.Tactic.CrossRefAttribute
-public import stacks_project.Chap94.Definition_94_12_1_Representable
-public import stacks_project.Chap98.Example_98_22_4_Key_example_Obstruction
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.Deformation.PresentedAlgebra
 
 /-!
 # Example 98.22.4 (Key example)
 
-The slice `𝒳 = (Sch/X)_fppf` of an affine finite-type morphism `X = Spec(R) → Spec(Λ)`
-with `R = Λ[ι]/J` carries the naive cotangent obstruction theory of
-`Algebra.NaiveCotangent.Obstruction`.
-
-@stack 07YI
+The naive-cotangent obstruction theory for a finite polynomial quotient over a
+Noetherian ring, with its presentation, module comparisons, evaluation formula,
+lifting criterion, naturality, and derived-composition description.
 -/
 
 @[expose] public section
-
-open CategoryTheory AlgebraicGeometry
-open Algebra
-open Algebra.Generators
-open Algebra.Extension
+open CategoryTheory AlgebraicGeometry Algebra Algebra.Generators Algebra.Extension
+open MvPolynomial
 open scoped NaiveCotangent
-
 noncomputable section
-
 universe u
 
-namespace Algebra.NaiveCotangent.Obstruction
-
-variable {Λ ι : Type u} [CommRing Λ] [IsNoetherianRing Λ]
+variable {Λ ι : Type u} [CommRing Λ] [IsNoetherianRing Λ] [Finite ι]
 variable (J : Ideal (MvPolynomial ι Λ))
 
-/-- The slice `𝒳 = (Sch/Spec(R))_fppf` of `X = Spec(R)` over `S = Spec(Λ)`. -/
-abbrev presentedSlice {Λ ι : Type u} [CommRing Λ] (J : Ideal (MvPolynomial ι Λ)) :
-    GroupoidsOver (Spec (CommRingCat.of Λ)) :=
-  GroupoidsOver.slice
-    (Over.mk (Spec.map (CommRingCat.ofHom (algebraMap Λ (MvPolynomial ι Λ ⧸ J)))))
+/- Example 98.22.4 (Key example): the affine slice carries the cotangent
+obstruction theory. -/
+@[stacks 07YI] #check (AlgebraicGeometry.Deformation.PresentedAlgebra.theory J :
+  AlgebraicGeometry.GroupoidsOver.ObstructionTheory
+    (AlgebraicGeometry.Deformation.PresentedAlgebra.presentedSlice J))
 
-/-- `presentedSlice` is the canonical slice of `Spec(R) → Spec(Λ)`. -/
-theorem presentedSlice_eq {Λ ι : Type u} [CommRing Λ] (J : Ideal (MvPolynomial ι Λ)) :
-    presentedSlice J =
-      GroupoidsOver.slice
-        (Over.mk (Spec.map (CommRingCat.ofHom (algebraMap Λ (MvPolynomial ι Λ ⧸ J))))) :=
-  sorry
+#check (Algebra.Extension.NaiveCotangent.generatorsHomotopyEquiv
+    (Generators.self Λ (MvPolynomial ι Λ ⧸ J)) (Generators.naive (I := J)) :
+  HomotopyEquiv (NL{(MvPolynomial ι Λ ⧸ J) ⁄ Λ})
+    (Extension.NaiveCotangent.complex (Generators.naive (I := J)).toExtension))
 
-/-- Example 98.22.4 (Key example) (1): the naive cotangent complex `NL{R⁄Λ}` is
-canonically homotopy equivalent to the two-term presentation complex
-`J/J² ⟶ ⊕ R d x_i` of `Generators.naive`. -/
-@[stacks 07YI]
-def homotopyEquiv_presentation :
-    HomotopyEquiv
-      (NL{(MvPolynomial ι Λ ⧸ J) ⁄ Λ})
-      (Extension.NaiveCotangent.complex (presentation J).toExtension) :=
-  homotopyEquiv J
+#check (Algebra.Generators.naive_val _ (Function.surjInv_eq Ideal.Quotient.mk_surjective) :
+  ∀ i : ι, (Generators.naive (I := J)).val i = Ideal.Quotient.mk J (MvPolynomial.X i))
 
-/-- The labeled homotopy equivalence is the canonical generators comparison. -/
-theorem homotopyEquiv_presentation_eq :
-    homotopyEquiv_presentation J =
-      Extension.NaiveCotangent.generatorsHomotopyEquiv
-        (Generators.self Λ (MvPolynomial ι Λ ⧸ J)) (presentation J) :=
-  sorry
+#check (Algebra.Generators.ker_naive _ _ : (Generators.naive (I := J)).ker = J)
+
+#check (Algebra.Generators.cotangentSpaceBasis (Generators.naive (I := J)) :
+  Module.Basis ι (MvPolynomial ι Λ ⧸ J)
+    (Generators.naive (I := J)).toExtension.CotangentSpace)
 
 variable {A' A : Type u} [CommRing A'] [CommRing A]
 variable [Algebra Λ A'] [Algebra Λ A]
 variable (π : A' →ₐ[Λ] A) [π.toRingHom.IsSquareZeroExtension]
 variable (φ : (MvPolynomial ι Λ ⧸ J) →ₐ[Λ] A)
 
-/-- Example 98.22.4 (Key example) (2): the obstruction module of a deformation situation
-`(x, A' → A)` is `Hom_R(J/J², I) / Hom_R(R^{⊕ι}, I)`, equivalently
-`Ext¹_R(NL{R⁄Λ}, I)`, equivalently `Ext¹_A(NL{R⁄Λ} ⊗_R A, I)`. -/
-@[stacks 07YI]
-theorem obstructionModule_spec :
-    Function.Bijective (homCokerEquiv π J φ).toLinearMap ∧
-      Function.Bijective (extEquiv π J φ).toLinearMap ∧
-      Function.Bijective (baseChangeExtEquiv π J φ).toLinearMap :=
-  sorry
+namespace Algebra.NaiveCotangent.Obstruction
 
-/-- Example 98.22.4 (Key example) (3): the obstruction class is the class of
-`f ↦ f(a')` for any lifts of the coordinates, and is independent of those lifts. -/
-@[stacks 07YI]
-theorem obstruction_ofLifts_independent (a' : ι → A')
-    (ha' : ∀ i, π (a' i) = φ ((presentation J).val i)) :
-    obstruction π J φ = ofLifts π J φ a' ha' :=
-  sorry
+#check (Algebra.NaiveCotangent.Obstruction.module_spec π J φ :
+  Function.Bijective (homCokerMap π J φ) ∧
+      Function.Bijective (extMap π J φ) ∧
+      Function.Bijective (baseChangeExtMap π J φ))
 
-/-- Example 98.22.4 (Key example) (4): the class vanishes if and only if `x` lifts through
-`A' → A`, so the slice `(Sch/Spec(R))_fppf` over `Spec(Λ)` obtains an obstruction theory. -/
-@[stacks 07YI]
-theorem obstruction_eq_zero_iff_hasLift :
-    obstruction π J φ = 0 ↔ AlgHom.HasLift π φ :=
-  sorry
+#check (Algebra.NaiveCotangent.Obstruction.relationMap_apply π J φ :
+  ∀ (a' : ι → A') (ha' : ∀ i, π (a' i) = φ ((Generators.naive (I := J)).val i))
+    (f : (Generators.naive (I := J)).ker),
+    (relationMap π J φ a' ha' (Cotangent.mk f)).1 = aeval a' f.1)
 
-/-- Example 98.22.4 (Key example) (5): the obstruction class is functorial in morphisms of
-square-zero deformation situations. -/
-@[stacks 07YI]
-theorem obstruction_map {B' B : Type u} [CommRing B'] [CommRing B]
-    [Algebra Λ B'] [Algebra Λ B]
-    (ρ : B' →ₐ[Λ] B) [ρ.toRingHom.IsSquareZeroExtension]
-    (ψ : (MvPolynomial ι Λ ⧸ J) →ₐ[Λ] B)
-    (τ : A' →ₐ[Λ] B') (σ : A →ₐ[Λ] B)
-    (hcomm : ρ.comp τ = σ.comp π) (hφψ : ψ = σ.comp φ) :
-    map π ρ J φ ψ τ σ hcomm hφψ (obstruction π J φ) = obstruction ρ J ψ :=
-  sorry
+#check (Algebra.NaiveCotangent.Obstruction.obstruction_eq_ofLifts π J φ :
+  ∀ (a' : ι → A') (ha' : ∀ i, π (a' i) = φ ((Generators.naive (I := J)).val i)),
+    obstruction π J φ = ofLifts π J φ a' ha')
 
-/-- Example 98.22.4 (Key example) (6): the obstruction class is the composition
-`NL{R⁄Λ} ⟶ NL{A⁄Λ} ⟶ NL{A⁄A'} ⟶ I[1]` in `D(A)`. -/
-@[stacks 07YI]
-theorem obstruction_eq_composition :
-    baseChangeExtEquiv π J φ (obstruction π J φ) = composition π J φ :=
-  sorry
+#check (Algebra.NaiveCotangent.Obstruction.independent π J φ :
+  ∀ (a₁ a₂ : ι → A')
+    (ha₁ : ∀ i, π (a₁ i) = φ ((Generators.naive (I := J)).val i))
+    (ha₂ : ∀ i, π (a₂ i) = φ ((Generators.naive (I := J)).val i)),
+    ofLifts π J φ a₁ ha₁ = ofLifts π J φ a₂ ha₂)
+
+#check (Algebra.NaiveCotangent.Obstruction.eq_zero_iff_hasLift π J φ :
+  obstruction π J φ = 0 ↔ AlgHom.HasLift π φ)
+
+#check (Algebra.NaiveCotangent.Obstruction.eq_composition π J φ :
+  baseChangeExtMap π J φ (obstruction π J φ) = composition π J φ)
+
+variable {B' B : Type u} [CommRing B'] [CommRing B]
+variable [Algebra Λ B'] [Algebra Λ B]
+variable (ρ : B' →ₐ[Λ] B) [ρ.toRingHom.IsSquareZeroExtension]
+variable (ψ : (MvPolynomial ι Λ ⧸ J) →ₐ[Λ] B)
+variable (τ : A' →ₐ[Λ] B') (σ : A →ₐ[Λ] B)
+variable (hcomm : ρ.comp τ = σ.comp π) (hφψ : ψ = σ.comp φ)
+
+#check (Algebra.NaiveCotangent.Obstruction.map_obstruction π ρ J φ ψ τ σ hcomm hφψ :
+  map π ρ J φ ψ τ σ hcomm hφψ (obstruction π J φ) = obstruction ρ J ψ)
 
 end Algebra.NaiveCotangent.Obstruction
-
-end

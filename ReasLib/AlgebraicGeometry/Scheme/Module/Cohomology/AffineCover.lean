@@ -34,23 +34,45 @@ def HasCard (X : Scheme.{u}) (t : ℕ) : Prop :=
 /-- `HasCard X t` is equivalently an affine-open-cover bundle whose index type is equivalent to
 `Fin t`. -/
 theorem hasCard_iff_nonempty (X : Scheme.{u}) (t : ℕ) :
-    HasCard X t ↔ ∃ 𝒰 : X.AffineOpenCover, Nonempty (𝒰.I₀ ≃ Fin t) := sorry
+    HasCard X t ↔ ∃ 𝒰 : X.AffineOpenCover, Nonempty (𝒰.I₀ ≃ Fin t) := by
+  constructor
+  · rintro ⟨𝒰, h𝒰, hAffine⟩
+    refine ⟨ofIsOpenCover (fun i : ULift (Fin t) ↦ 𝒰 i.down) ?_
+      (fun i ↦ hAffine i.down), ⟨Equiv.ulift⟩⟩
+    change (⨆ i : ULift (Fin t), 𝒰 i.down) = ⊤
+    simpa only [iSup_ulift] using h𝒰.iSup_eq_top
+  · rintro ⟨𝒰, ⟨e⟩⟩
+    refine ⟨fun i ↦ (𝒰.f (e.symm i)).opensRange, ?_,
+      fun i ↦ isAffineOpen_opensRange (𝒰.f (e.symm i))⟩
+    change (⨆ i, (𝒰.f (e.symm i)).opensRange) = ⊤
+    exact (e.symm.iSup_comp (g := fun i ↦ (𝒰.f i).opensRange)).trans
+      𝒰.openCover.iSup_opensRange
 
 /-- A quasi-compact scheme has an affine open cover indexed by some finite type. -/
-theorem exists_hasCard (X : Scheme.{u}) [CompactSpace X] : ∃ t, HasCard X t := sorry
+theorem exists_hasCard (X : Scheme.{u}) [CompactSpace X] : ∃ t, HasCard X t := by
+  classical
+  obtain ⟨s, hs⟩ := X.isBasis_affineOpens.isOpenCover.exists_finite_of_compactSpace
+  let e := Fintype.equivFin s
+  refine ⟨Fintype.card s, (fun i ↦ (e.symm i).1.1), ?_,
+    fun i ↦ (e.symm i).1.2⟩
+  change (⨆ i, (e.symm i).1.1) = ⊤
+  exact (e.symm.iSup_comp (g := fun i : s ↦ i.1.1)).trans hs
 
 /-- Stacks 01XI: the minimal number of affine opens in a cover of `X`. -/
 @[stacks 01XI] def number (X : Scheme.{u}) : ℕ := sInf {t | HasCard X t}
 
 /-- On a quasi-compact scheme, the minimal affine-cover number is attained. -/
-theorem number_hasCard (X : Scheme.{u}) [CompactSpace X] : HasCard X (number X) := sorry
+theorem number_hasCard (X : Scheme.{u}) [CompactSpace X] : HasCard X (number X) := by
+  exact Nat.sInf_mem (exists_hasCard X)
 
 /-- Every affine-open-cover cardinality bounds the minimal affine-cover number. -/
-theorem number_le {X : Scheme.{u}} {t : ℕ} (ht : HasCard X t) : number X ≤ t := sorry
+theorem number_le {X : Scheme.{u}} {t : ℕ} (ht : HasCard X t) : number X ≤ t := by
+  exact Nat.sInf_le ht
 
 /-- The affine-cover number is the least cardinality of an affine open cover. -/
 theorem number_isLeast (X : Scheme.{u}) [CompactSpace X] :
-    IsLeast {t | HasCard X t} (number X) := sorry
+    IsLeast {t | HasCard X t} (number X) := by
+  exact ⟨number_hasCard X, fun _ ht ↦ number_le ht⟩
 
 /-- A finite affine open cover bounds the degree in which global cohomology of a
 quasi-coherent module vanishes when the diagonal is affine. -/
@@ -66,14 +88,17 @@ theorem globalCohomology_isZero_of_hasCard
     [IsAffineHom (prod.lift (𝟙 X) (𝟙 X))]
     {t : ℕ} (ht : HasCard X t)
     (ℱ : X.Modules) [ℱ.IsQuasicoherent] (n : ℕ) (hn : t ≤ n) :
-    IsZero (((SheafOfModules.toSheaf X.ringCatSheaf).obj ℱ).H' n (⊤ : Opens X)) := sorry
+    IsZero (((SheafOfModules.toSheaf X.ringCatSheaf).obj ℱ).H' n (⊤ : Opens X)) := by
+  obtain ⟨𝒰, h𝒰, hAffine⟩ := ht
+  exact globalCohomology_isZero_of_cover t 𝒰 h𝒰 hAffine ℱ n hn
 
 /-- Stacks 01XI: on a quasi-compact scheme with affine diagonal, global cohomology of every
 quasi-coherent module vanishes in degrees at least `number X`. -/
 @[stacks 01XI] theorem globalCohomology_isZero_of_number
     (X : Scheme.{u}) [CompactSpace X] [IsAffineHom (prod.lift (𝟙 X) (𝟙 X))]
     (ℱ : X.Modules) [ℱ.IsQuasicoherent] (n : ℕ) (hn : number X ≤ n) :
-    IsZero (((SheafOfModules.toSheaf X.ringCatSheaf).obj ℱ).H' n (⊤ : Opens X)) := sorry
+    IsZero (((SheafOfModules.toSheaf X.ringCatSheaf).obj ℱ).H' n (⊤ : Opens X)) := by
+  exact globalCohomology_isZero_of_hasCard (number_hasCard X) ℱ n hn
 
 /-- Stacks 071L: the maximal intersection-wise affine-cover bound for a finite open cover. -/
 @[stacks 071L] def cohomologyBound {m : ℕ} (U : Fin m → X.Opens) : ℕ :=

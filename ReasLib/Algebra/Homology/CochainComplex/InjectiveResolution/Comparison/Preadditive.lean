@@ -44,7 +44,7 @@ theorem homotopyExtensionAddHom_apply {K L : CochainComplex 𝒜 ℤ}
     (I : InjectiveResolution K) (J : InjectiveResolution L)
     (g : (HomotopyCategory.quotient 𝒜 (up ℤ)).obj K ⟶
       (HomotopyCategory.quotient 𝒜 (up ℤ)).obj J.complex) :
-    homotopyExtensionAddHom I J g = I.homotopyExtension J g := sorry
+    homotopyExtensionAddHom I J g = I.homotopyExtension J g := rfl
 
 /-- The canonical extension preserves zero. -/
 @[simp]
@@ -52,7 +52,9 @@ theorem homotopyExtension_zero {K L : CochainComplex 𝒜 ℤ}
     (I : InjectiveResolution K) (J : InjectiveResolution L) :
     I.homotopyExtension J (0 :
       (HomotopyCategory.quotient 𝒜 (up ℤ)).obj K ⟶
-        (HomotopyCategory.quotient 𝒜 (up ℤ)).obj J.complex) = 0 := sorry
+        (HomotopyCategory.quotient 𝒜 (up ℤ)).obj J.complex) = 0 := by
+  exact map_zero (AddEquiv.mk (comparisonEquiv I J)
+    (fun a b ↦ Preadditive.comp_add _ _ _ _ a b)).symm
 
 /-- The canonical extension preserves addition. -/
 @[simp]
@@ -61,7 +63,9 @@ theorem homotopyExtension_add {K L : CochainComplex 𝒜 ℤ}
     (g h : (HomotopyCategory.quotient 𝒜 (up ℤ)).obj K ⟶
       (HomotopyCategory.quotient 𝒜 (up ℤ)).obj J.complex) :
     I.homotopyExtension J (g + h) =
-      I.homotopyExtension J g + I.homotopyExtension J h := sorry
+      I.homotopyExtension J g + I.homotopyExtension J h := by
+  exact map_add (AddEquiv.mk (comparisonEquiv I J)
+    (fun a b ↦ Preadditive.comp_add _ _ _ _ a b)).symm g h
 
 /-- The canonical extension preserves negation. -/
 @[simp]
@@ -69,7 +73,9 @@ theorem homotopyExtension_neg {K L : CochainComplex 𝒜 ℤ}
     (I : InjectiveResolution K) (J : InjectiveResolution L)
     (g : (HomotopyCategory.quotient 𝒜 (up ℤ)).obj K ⟶
       (HomotopyCategory.quotient 𝒜 (up ℤ)).obj J.complex) :
-    I.homotopyExtension J (-g) = -I.homotopyExtension J g := sorry
+    I.homotopyExtension J (-g) = -I.homotopyExtension J g := by
+  exact map_neg (AddEquiv.mk (comparisonEquiv I J)
+    (fun a b ↦ Preadditive.comp_add _ _ _ _ a b)).symm g
 
 /-- The canonical extension preserves subtraction. -/
 @[simp]
@@ -78,7 +84,9 @@ theorem homotopyExtension_sub {K L : CochainComplex 𝒜 ℤ}
     (g h : (HomotopyCategory.quotient 𝒜 (up ℤ)).obj K ⟶
       (HomotopyCategory.quotient 𝒜 (up ℤ)).obj J.complex) :
     I.homotopyExtension J (g - h) =
-      I.homotopyExtension J g - I.homotopyExtension J h := sorry
+      I.homotopyExtension J g - I.homotopyExtension J h := by
+  exact map_sub (AddEquiv.mk (comparisonEquiv I J)
+    (fun a b ↦ Preadditive.comp_add _ _ _ _ a b)).symm g h
 
 /-- The canonical comparison construction sends the zero map to zero. -/
 @[simp]
@@ -86,7 +94,8 @@ theorem homotopyMap_zero {K L : CochainComplex 𝒜 ℤ}
     (I : InjectiveResolution K) (J : InjectiveResolution L) :
     I.homotopyMap J
         (0 : (HomotopyCategory.quotient 𝒜 (up ℤ)).obj K ⟶
-          (HomotopyCategory.quotient 𝒜 (up ℤ)).obj L) = 0 := sorry
+          (HomotopyCategory.quotient 𝒜 (up ℤ)).obj L) = 0 := by
+  simp only [homotopyMap, Limits.zero_comp, homotopyExtension_zero]
 
 /-- The canonical comparison construction preserves addition. -/
 @[simp]
@@ -94,7 +103,8 @@ theorem homotopyMap_add {K L : CochainComplex 𝒜 ℤ}
     (I : InjectiveResolution K) (J : InjectiveResolution L)
     (u v : (HomotopyCategory.quotient 𝒜 (up ℤ)).obj K ⟶
       (HomotopyCategory.quotient 𝒜 (up ℤ)).obj L) :
-    I.homotopyMap J (u + v) = I.homotopyMap J u + I.homotopyMap J v := sorry
+    I.homotopyMap J (u + v) = I.homotopyMap J u + I.homotopyMap J v := by
+  simp only [homotopyMap, Preadditive.add_comp, homotopyExtension_add]
 
 /-- `homotopyMapAddHom I J` is the additive comparison-map construction
 between the hom groups of the homotopy category. -/
@@ -116,7 +126,7 @@ theorem homotopyMapAddHom_apply {K L : CochainComplex 𝒜 ℤ}
     (I : InjectiveResolution K) (J : InjectiveResolution L)
     (u : (HomotopyCategory.quotient 𝒜 (up ℤ)).obj K ⟶
       (HomotopyCategory.quotient 𝒜 (up ℤ)).obj L) :
-    homotopyMapAddHom I J u = I.homotopyMap J u := sorry
+    homotopyMapAddHom I J u = I.homotopyMap J u := rfl
 
 /-- The canonical comparison construction preserves additive inverses. -/
 @[simp]
@@ -124,7 +134,8 @@ theorem homotopyMap_neg {K L : CochainComplex 𝒜 ℤ}
     (I : InjectiveResolution K) (J : InjectiveResolution L)
     (u : (HomotopyCategory.quotient 𝒜 (up ℤ)).obj K ⟶
       (HomotopyCategory.quotient 𝒜 (up ℤ)).obj L) :
-    I.homotopyMap J (-u) = -I.homotopyMap J u := sorry
+    I.homotopyMap J (-u) = -I.homotopyMap J u := by
+  simp only [homotopyMap, Preadditive.neg_comp, homotopyExtension_neg]
 
 /-- The canonical comparison construction preserves subtraction. -/
 @[simp]
@@ -132,7 +143,8 @@ theorem homotopyMap_sub {K L : CochainComplex 𝒜 ℤ}
     (I : InjectiveResolution K) (J : InjectiveResolution L)
     (u v : (HomotopyCategory.quotient 𝒜 (up ℤ)).obj K ⟶
       (HomotopyCategory.quotient 𝒜 (up ℤ)).obj L) :
-    I.homotopyMap J (u - v) = I.homotopyMap J u - I.homotopyMap J v := sorry
+    I.homotopyMap J (u - v) = I.homotopyMap J u - I.homotopyMap J v := by
+  simp only [homotopyMap, Preadditive.sub_comp, homotopyExtension_sub]
 
 end CochainComplex.InjectiveResolution
 

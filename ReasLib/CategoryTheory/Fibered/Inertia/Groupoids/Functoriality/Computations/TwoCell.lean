@@ -38,33 +38,34 @@ namespace map₂
 theorem toBasedNatTrans {F G : X ⟶ Y} (τ : F ⟶ G) :
     FiberedCategoryOver.Groupoids.toBasedNatTrans (map₂ τ) =
       BasedCategory.Inertia.map₂
-        (FiberedCategoryOver.Groupoids.toBasedNatTrans τ) := sorry
+        (FiberedCategoryOver.Groupoids.toBasedNatTrans τ) := rfl
 
 /-- The based natural transformation view of a typed inertia `2`-cell. -/
 @[simp]
 theorem toNatTrans {F G : X ⟶ Y} (τ : F ⟶ G) :
     FiberedCategoryOver.Groupoids.toNatTrans (map₂ τ) =
       (BasedCategory.Inertia.map₂
-        (FiberedCategoryOver.Groupoids.toBasedNatTrans τ)).toNatTrans := sorry
+        (FiberedCategoryOver.Groupoids.toBasedNatTrans τ)).toNatTrans := rfl
 
 /-- Evaluating a typed inertia `2`-cell gives the neutral intertwined component. -/
 @[simp]
 theorem app {F G : X ⟶ Y} (τ : F ⟶ G) (A : X.inertia.total) :
     (FiberedCategoryOver.Groupoids.toNatTrans (map₂ τ)).app A =
       BasedCategory.Inertia.map₂.component
-        (FiberedCategoryOver.Groupoids.toBasedNatTrans τ) A := sorry
+        (FiberedCategoryOver.Groupoids.toBasedNatTrans τ) A := rfl
 
 /-- Each typed inertia `2`-cell component is a vertical hom-lift. -/
 theorem app.isHomLift {F G : X ⟶ Y} (τ : F ⟶ G) (A : X.inertia.total) :
     Y.inertia.p.IsHomLift (𝟙 (X.inertia.p.obj A))
-      ((FiberedCategoryOver.Groupoids.toNatTrans (map₂ τ)).app A) := sorry
+      ((FiberedCategoryOver.Groupoids.toNatTrans (map₂ τ)).app A) :=
+  (FiberedCategoryOver.Groupoids.toBasedNatTrans (map₂ τ)).isHomLift' A
 
 /-- The underlying arrow of a typed inertia `2`-cell component is the original component. -/
 @[simp]
 theorem app.underlying {F G : X ⟶ Y} (τ : F ⟶ G) (A : X.inertia.total) :
     RelativeInertia.hom
         ((FiberedCategoryOver.Groupoids.toNatTrans (map₂ τ)).app A) =
-      (FiberedCategoryOver.Groupoids.toNatTrans τ).app A.obj := sorry
+      (FiberedCategoryOver.Groupoids.toNatTrans τ).app A.obj := rfl
 
 /-- Typed inertia `2`-cell components are natural in inertia arrows. -/
 @[reassoc]
@@ -73,14 +74,18 @@ theorem naturality {F G : X ⟶ Y} (τ : F ⟶ G)
     (FiberedCategoryOver.Groupoids.toFunctor (map F)).map f ≫
         (FiberedCategoryOver.Groupoids.toNatTrans (map₂ τ)).app B =
       (FiberedCategoryOver.Groupoids.toNatTrans (map₂ τ)).app A ≫
-        (FiberedCategoryOver.Groupoids.toFunctor (map G)).map f := sorry
+        (FiberedCategoryOver.Groupoids.toFunctor (map G)).map f :=
+  (FiberedCategoryOver.Groupoids.toNatTrans (map₂ τ)).naturality f
 
 /-- Two typed inertia 2-cells agree when all total-category components agree. -/
 theorem ext {F G : X ⟶ Y} {τ σ : F ⟶ G}
     (h : ∀ A : X.inertia.total,
       (FiberedCategoryOver.Groupoids.toNatTrans (map₂ τ)).app A =
         (FiberedCategoryOver.Groupoids.toNatTrans (map₂ σ)).app A) :
-    map₂ τ = map₂ σ := sorry
+    map₂ τ = map₂ σ := by
+  apply Bicategory.InducedBicategory.hom₂_ext
+  apply BasedNatTrans.ext
+  exact NatTrans.ext (funext h)
 
 /-- Typed inertia is compatible with left whiskering. -/
 theorem whiskerLeft
@@ -89,7 +94,18 @@ theorem whiskerLeft
     map₂ (F ◁ τ) =
       eqToHom (map.comp F G) ≫
         map F ◁ map₂ τ ≫
-          eqToHom (map.comp F H).symm := sorry
+          eqToHom (map.comp F H).symm := by
+  apply Bicategory.InducedBicategory.hom₂_ext
+  apply BasedNatTrans.ext
+  apply NatTrans.ext
+  funext A
+  apply InducedCategory.hom_ext
+  apply CategoryTheory.Inertia.Hom.ext
+  change (FiberedCategoryOver.Groupoids.toNatTrans τ).app
+      ((FiberedCategoryOver.Groupoids.toFunctor F).obj A.obj) =
+    𝟙 _ ≫ (FiberedCategoryOver.Groupoids.toNatTrans τ).app
+      ((FiberedCategoryOver.Groupoids.toFunctor F).obj A.obj) ≫ 𝟙 _
+  simp
 
 /-- Typed inertia is compatible with right whiskering. -/
 theorem whiskerRight
@@ -98,7 +114,18 @@ theorem whiskerRight
     map₂ (τ ▷ H) =
       eqToHom (map.comp F H) ≫
         map₂ τ ▷ map H ≫
-          eqToHom (map.comp G H).symm := sorry
+          eqToHom (map.comp G H).symm := by
+  apply Bicategory.InducedBicategory.hom₂_ext
+  apply BasedNatTrans.ext
+  apply NatTrans.ext
+  funext A
+  apply InducedCategory.hom_ext
+  apply CategoryTheory.Inertia.Hom.ext
+  change (FiberedCategoryOver.Groupoids.toFunctor H).map
+      ((FiberedCategoryOver.Groupoids.toNatTrans τ).app A.obj) =
+    𝟙 _ ≫ (FiberedCategoryOver.Groupoids.toFunctor H).map
+      ((FiberedCategoryOver.Groupoids.toNatTrans τ).app A.obj) ≫ 𝟙 _
+  simp
 
 end map₂
 

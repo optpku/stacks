@@ -55,13 +55,12 @@ theorem diagonalSurjectiveOfPointMapInjective {S : Scheme.{u}} {U : Over S} (P :
   let ψ : Spec (.of L) ⟶ pullback P.hom.left P.hom.left :=
     e ≫ φ
   let p : FieldValuedPoint S :=
-    { K := L
-      hom := ψ ≫ pullback.fst P.hom.left P.hom.left ≫ P.left.hom }
+    FieldValuedPoint.of L (ψ ≫ pullback.fst P.hom.left P.hom.left ≫ P.left.hom)
   let r₁ : p.over ⟶ P.left :=
     Over.homMk (ψ ≫ pullback.fst P.hom.left P.hom.left)
   have hBase :
       ψ ≫ pullback.snd P.hom.left P.hom.left ≫ P.left.hom = p.hom := by
-    simpa [p, ψ, Category.assoc] using
+    simpa [p, FieldValuedPoint.of, FieldValuedPoint.hom, ψ, Category.assoc] using
       (congrArg (fun h ↦ ψ ≫ h ≫ (U ⨯ U).hom) (pullback.condition (f := P.hom.left)
         (g := P.hom.left))).symm
   let r₂ : p.over ⟶ P.left :=

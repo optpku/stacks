@@ -70,19 +70,24 @@ theorem map_app_Q {F G : A ⥤ₑ B} (α : F ⟶ G) (K : CochainComplex A ℤ) :
       F.obj.mapDerivedCategoryFactors.hom.app K ≫
         DerivedCategory.Q.map
           ((NatTrans.mapHomologicalComplex α.hom (up ℤ)).app K) ≫
-        G.obj.mapDerivedCategoryFactors.inv.app K := sorry
+        G.obj.mapDerivedCategoryFactors.inv.app K := by
+  exact Localization.liftNatTrans_app _ _ _ _ _ _ _ _
 
 /-- The derived action sends identity transformations to identity
 transformations. -/
 @[simp]
 theorem map_id (F : A ⥤ₑ B) :
-    map (𝟙 F) = 𝟙 F.mapDerivedCategory := sorry
+    map (𝟙 F) = 𝟙 F.mapDerivedCategory := by
+  simp [map]
 
 /-- The derived action preserves vertical composition of natural
 transformations. -/
 @[simp]
 theorem map_comp {F G H : A ⥤ₑ B} (α : F ⟶ G) (β : G ⟶ H) :
-    map (α ≫ β) = map α ≫ map β := sorry
+    map (α ≫ β) = map α ≫ map β := by
+  simp only [map, ObjectProperty.FullSubcategory.comp_hom,
+    NatTrans.mapHomologicalComplex_comp, Functor.whiskerRight_comp,
+    Localization.comp_liftNatTrans]
 
 variable (A B) in
 /-- Passage from bundled exact functors to their functors on derived
@@ -98,12 +103,12 @@ noncomputable def functor :
 /-- Object computation for the functorial derived action. -/
 @[simp]
 theorem functor_obj (F : A ⥤ₑ B) :
-    (functor A B).obj F = F.mapDerivedCategory := sorry
+    (functor A B).obj F = F.mapDerivedCategory := rfl
 
 /-- Morphism computation for the functorial derived action. -/
 @[simp]
 theorem functor_map {F G : A ⥤ₑ B} (α : F ⟶ G) :
-    (functor A B).map α = map α := sorry
+    (functor A B).map α = map α := rfl
 
 /-- A natural isomorphism of bundled exact functors induces a natural
 isomorphism of their functors on derived categories. -/
@@ -117,13 +122,13 @@ namespace mapIso
 isomorphism is the derived image of its forward morphism. -/
 @[simp]
 theorem hom_app {F G : A ⥤ₑ B} (e : F ≅ G) (K : DerivedCategory A) :
-    (mapIso e).hom.app K = (map e.hom).app K := sorry
+    (mapIso e).hom.app K = (map e.hom).app K := rfl
 
 /-- The inverse component of the derived image of an exact-functor
 isomorphism is the derived image of its inverse morphism. -/
 @[simp]
 theorem inv_app {F G : A ⥤ₑ B} (e : F ≅ G) (K : DerivedCategory A) :
-    (mapIso e).inv.app K = (map e.inv).app K := sorry
+    (mapIso e).inv.app K = (map e.inv).app K := rfl
 
 end mapIso
 
@@ -166,7 +171,8 @@ theorem MapDerivedCategory.objIso_hom_naturality
     [PreservesFiniteLimits G] [PreservesFiniteColimits G]
     (e : F ≅ G) {K L : DerivedCategory A} (f : K ⟶ L) :
     F.mapDerivedCategory.map f ≫ (MapDerivedCategory.objIso e L).hom =
-      (MapDerivedCategory.objIso e K).hom ≫ G.mapDerivedCategory.map f := sorry
+      (MapDerivedCategory.objIso e K).hom ≫ G.mapDerivedCategory.map f :=
+  (MapDerivedCategory.functorIso e).hom.naturality f
 
 /-- Inverse naturality of the objectwise comparison induced by a natural
 isomorphism of exact functors. -/
@@ -177,7 +183,8 @@ theorem MapDerivedCategory.objIso_inv_naturality
     [PreservesFiniteLimits G] [PreservesFiniteColimits G]
     (e : F ≅ G) {K L : DerivedCategory A} (f : K ⟶ L) :
     G.mapDerivedCategory.map f ≫ (MapDerivedCategory.objIso e L).inv =
-      (MapDerivedCategory.objIso e K).inv ≫ F.mapDerivedCategory.map f := sorry
+      (MapDerivedCategory.objIso e K).inv ≫ F.mapDerivedCategory.map f :=
+  (MapDerivedCategory.functorIso e).inv.naturality f
 
 namespace MapDerivedCategory.functorIso
 
@@ -190,7 +197,7 @@ theorem app
     [PreservesFiniteLimits G] [PreservesFiniteColimits G]
     (e : F ≅ G) (K : DerivedCategory A) :
     (MapDerivedCategory.functorIso e).app K =
-      MapDerivedCategory.objIso e K := sorry
+      MapDerivedCategory.objIso e K := rfl
 
 end MapDerivedCategory.functorIso
 

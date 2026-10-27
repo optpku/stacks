@@ -21,8 +21,7 @@ variable (Λ k : Type u) [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra 
   [Module.Finite Λ k]
 
 variable (X : Scheme.{u})
-  (hX : X ⟶ Spec (CommRingCat.of (ArtinianLocalAlgCat.residue Λ k).carrier))
-  [AlgebraicGeometry.Flat hX]
+  (hX : X ⟶ Spec (CommRingCat.of k))
   (U : X.Opens)
 
 /- The reusable implementation is owned by

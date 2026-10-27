@@ -6,17 +6,15 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import Mathlib.CategoryTheory.IsomorphismClasses
-public import stacks_project.Chap67.Lemma_67_24_2_FieldPoints
-public import stacks_project.Chap99.Lemma_99_16_8_Groupoids
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Complexes.LimitPreserving
 
 /-!
 # Lemma 99.16.8
 
-If `toBase B` is locally of finite presentation, then the projection
-`p : Complexes f ⥤ Over S` is limit preserving in the sense of Artin's Axioms,
-Definition 98.11.1. The Hom-universe of `Obj f` is `u + 1`, so this cannot be
-stated as `AlgebraicGeometry.Groupoids.LimitPreserving` on `GroupoidsOver S`.
+In Situation 99.16.3, if `B` is locally of finite presentation over `S`, the
+projection of the category of complexes is limit preserving. Its fibre
+Hom-diagrams take values in `Type (u + 1)`.
 -/
 
 @[expose] public section
@@ -26,77 +24,21 @@ open CategoryTheory.Limits
 open CategoryTheory.Functor.Fiber
 open AlgebraicGeometry.AlgebraicSpace.Complexes
 
-noncomputable section
-
 universe u
 
-attribute [local instance] SheafOfModules.RingedSite.moduleCategoryHasMapBifunctor
-
-namespace AlgebraicGeometry.AlgebraicSpace.Complexes
-
-variable {S : Scheme.{u}} {X B : AlgebraicSpace S}
-
-/-- Lemma 99.16.8: in Situation 99.16.3 assume that `toBase B` is locally of finite
-presentation. Then `p : Complexes f ⥤ Over S` is limit preserving in the sense of
-Artin's Axioms, Definition 98.11.1: directed inverse limits of affine schemes
-over `S` induce equivalences of fibre categories. -/
-@[stacks 0DLJ]
-theorem isLimitPreserving (f : X ⟶ B)
-    [∀ σ : SchemeOver B, ∀ sq : EtaleSquare (Limits.pullback.snd f σ.hom),
-      (Functor.Homotopy.toDerived (Modules.restrictToScheme sq.left.left)).HasLeftDerivedFunctor
-        (HomotopyCategory.quasiIso (Modules (ofOver sq.left.left)) (ComplexShape.up ℤ))]
-    [∀ σ : SchemeOver B, ∀ sq : EtaleSquare (Limits.pullback.snd f σ.hom),
-      ∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).carrier,
-      let Z := (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).restrict U.isOpenEmbedding
-      DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Z)]
+/- Lemma 99.16.8: for a proper, flat morphism of finite presentation, if `B`
+is locally of finite presentation over `S`, the projection from relatively
+perfect complexes with vanishing negative fibre self-Ext is limit preserving
+in the sense of Artin's Axioms, Definition 98.11.1. -/
+@[stacks 0DLJ] #check (AlgebraicGeometry.AlgebraicSpace.Complexes.isLimitPreserving :
+  ∀ {S : Scheme.{u}} {X B : AlgebraicSpace S} (f : X ⟶ B)
     [Proper f] [Flat f] [FinitePresentation f]
-    [LocallyOfFinitePresentation (toBase B)]
+    [LocallyOfFinitePresentation (SchemeRealization.toBase B)]
     {I : Type u} [Preorder I] [Nonempty I] [IsDirected I (· ≤ ·)]
     (D : OrderDual I ⥤ Over S) (c : Cone D) (hc : IsLimit c)
-    (hD : ∀ i : I, IsAffine (D.obj i).left) (hpt : IsAffine c.pt.left) :
+    (hD : ∀ i : I, IsAffine (D.obj i).left) (hpt : IsAffine c.pt.left),
     (∀ x : (p f).Fiber c.pt, ∃ (i : I) (xi : (p f).Fiber (D.obj i)),
       IsIsomorphic (restrictObj xi (c.π.app i)) x) ∧
       ∀ (i : I) (x y : (p f).Fiber (D.obj i)),
-        Nonempty (IsColimit (homCocone f c x y)) :=
-  sorry
-
-/-- Object descent for `p f` along directed inverse limits of affine schemes
-over `S`. -/
-theorem exists_stage (f : X ⟶ B)
-    [∀ σ : SchemeOver B, ∀ sq : EtaleSquare (Limits.pullback.snd f σ.hom),
-      (Functor.Homotopy.toDerived (Modules.restrictToScheme sq.left.left)).HasLeftDerivedFunctor
-        (HomotopyCategory.quasiIso (Modules (ofOver sq.left.left)) (ComplexShape.up ℤ))]
-    [∀ σ : SchemeOver B, ∀ sq : EtaleSquare (Limits.pullback.snd f σ.hom),
-      ∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).carrier,
-      let Z := (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).restrict U.isOpenEmbedding
-      DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Z)]
-    [Proper f] [Flat f] [FinitePresentation f]
-    [LocallyOfFinitePresentation (toBase B)]
-    {I : Type u} [Preorder I] [Nonempty I] [IsDirected I (· ≤ ·)]
-    (D : OrderDual I ⥤ Over S) (c : Cone D) (hc : IsLimit c)
-    (hD : ∀ i : I, IsAffine (D.obj i).left) (hpt : IsAffine c.pt.left)
-    (x : (p f).Fiber c.pt) :
-    ∃ (i : I) (xi : (p f).Fiber (D.obj i)),
-      IsIsomorphic (restrictObj xi (c.π.app i)) x :=
-  sorry
-
-/-- Fibre Hom-types of `p f` over a directed inverse limit of affine schemes
-over `S` are the directed colimit of the corresponding stage Hom-types. -/
-theorem hom_isColimit (f : X ⟶ B)
-    [∀ σ : SchemeOver B, ∀ sq : EtaleSquare (Limits.pullback.snd f σ.hom),
-      (Functor.Homotopy.toDerived (Modules.restrictToScheme sq.left.left)).HasLeftDerivedFunctor
-        (HomotopyCategory.quasiIso (Modules (ofOver sq.left.left)) (ComplexShape.up ℤ))]
-    [∀ σ : SchemeOver B, ∀ sq : EtaleSquare (Limits.pullback.snd f σ.hom),
-      ∀ U : TopologicalSpace.Opens (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).carrier,
-      let Z := (RingedSpace.Hom.inverseImageBase sq.map.left.toShHom).restrict U.isOpenEmbedding
-      DerivedCategory.DerivedTensor.Right.Has (C := RingedSpace.Modules Z)]
-    [Proper f] [Flat f] [FinitePresentation f]
-    [LocallyOfFinitePresentation (toBase B)]
-    {I : Type u} [Preorder I] [Nonempty I] [IsDirected I (· ≤ ·)]
-    (D : OrderDual I ⥤ Over S) (c : Cone D) (hc : IsLimit c)
-    (hD : ∀ i : I, IsAffine (D.obj i).left) (hpt : IsAffine c.pt.left)
-    (i : I) (x y : (p f).Fiber (D.obj i)) :
-    Nonempty (IsColimit (homCocone f c x y)) :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace.Complexes
+        Nonempty (IsColimit (CategoryTheory.Functor.Fiber.DirectedSystem.homCocone
+          (p f) c x y)))

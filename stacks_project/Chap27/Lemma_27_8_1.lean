@@ -93,14 +93,17 @@ standard-open refinements, and the degree-zero unit-ideal covering criterion. -/
             (AlgebraicGeometry.homogeneousLocalizationAwayToAwayAlgHom
               𝒜 hf hm hg hn hgf).toRingHom)))
 
+section
+
+variable (𝒜 : ℕ → σ) [GradedRing 𝒜] {f g : A}
+variable (hgf : Proj.basicOpen 𝒜 g ≤ Proj.basicOpen 𝒜 f)
+
 #check
-  (AlgebraicGeometry.basicOpenHomOfLE_isOpenImmersion :
-    ∀ (𝒜 : ℕ → σ) [GradedRing 𝒜] {f g : A} {m n : ℕ},
-      f ∈ 𝒜 m → 0 < m → g ∈ 𝒜 n → 0 < n →
-      ∀ hgf : Proj.basicOpen 𝒜 g ≤ Proj.basicOpen 𝒜 f,
-      IsOpenImmersion
-        ((Proj 𝒜).homOfLE hgf : (Proj.basicOpen 𝒜 g).toScheme ⟶
-          (Proj.basicOpen 𝒜 f).toScheme))
+  (inferInstance : IsOpenImmersion
+    ((Proj 𝒜).homOfLE hgf : (Proj.basicOpen 𝒜 g).toScheme ⟶
+      (Proj.basicOpen 𝒜 f).toScheme))
+
+end
 
 #check
   (AlgebraicGeometry.Proj.basicOpenIsoSpec_homOfLE :

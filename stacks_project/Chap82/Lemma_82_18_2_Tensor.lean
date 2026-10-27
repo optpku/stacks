@@ -7,6 +7,7 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import stacks_project.Chap82.Definition_82_18_1_ChernCap
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.IntersectionTheory.FirstChernCycle.Tensor
 
 /-!
 # Tensor and unit identities for first-Chern cap on algebraic spaces
@@ -19,29 +20,24 @@ group defined by locally finite rational equivalence.
 
 open CategoryTheory CategoryTheory.MonoidalCategory
 open AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
+open AlgebraicGeometry.AlgebraicSpace.Hom
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.Hom
+#check
+  (AlgebraicGeometry.AlgebraicSpace.Hom.firstChernClassCap_tensor :
+    ∀ {S : Scheme.{u}} {B X : AlgebraicSpace S}
+      [UniversallyCatenary B] [IsQuasiSeparated B] (f : X ⟶ B)
+      [QuasiSeparated f] [LocallyOfFiniteType f] (δ : Points B → ℤ)
+      [IsDimensionFunction δ] (L N : X.Modules) [isInvertibleObject L]
+      [isInvertibleObject N] (k : ℤ) (α : cycleGroup f δ (k + 1)),
+      firstChernClassCap f δ L k α + firstChernClassCap f δ N k α =
+        firstChernClassCap f δ (L ⊗ N) k α)
 
-variable {S : Scheme.{u}} {B X : AlgebraicSpace S}
-  [UniversallyCatenary B] [IsQuasiSeparated B]
-variable (f : X ⟶ B) [QuasiSeparated f] [LocallyOfFiniteType f]
-variable (δ : Points B → ℤ) [IsDimensionFunction δ]
-
-/-- First-Chern cap is additive in the invertible sheaf: intersecting a
-`(k + 1)`-cycle with `c1(L ⊗ N)` equals the sum of the intersections with
-`c1(L)` and `c1(N)` in `CH_k(X)`. -/
-theorem firstChernClassCap_tensor (L N : X.Modules) [isInvertibleObject L]
-    [isInvertibleObject N] (k : ℤ) (α : cycleGroup f δ (k + 1)) :
-    firstChernClassCap f δ L k α + firstChernClassCap f δ N k α =
-      firstChernClassCap f δ (L ⊗ N) k α :=
-  sorry
-
-/-- First-Chern cap against the structure sheaf vanishes: intersecting any
-`(k + 1)`-cycle with `c1(𝟙_ X.Modules)` is `0` in `CH_k(X)`. -/
-theorem firstChernClassCap_tensorUnit (k : ℤ) (α : cycleGroup f δ (k + 1)) :
-    firstChernClassCap f δ (𝟙_ X.Modules) k α = 0 :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace.Hom
+#check
+  (AlgebraicGeometry.AlgebraicSpace.Hom.firstChernClassCap_tensorUnit :
+    ∀ {S : Scheme.{u}} {B X : AlgebraicSpace S}
+      [UniversallyCatenary B] [IsQuasiSeparated B] (f : X ⟶ B)
+      [QuasiSeparated f] [LocallyOfFiniteType f] (δ : Points B → ℤ)
+      [IsDimensionFunction δ] (k : ℤ) (α : cycleGroup f δ (k + 1)),
+      firstChernClassCap f δ (𝟙_ X.Modules) k α = 0)

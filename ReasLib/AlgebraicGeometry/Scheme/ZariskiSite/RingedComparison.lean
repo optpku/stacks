@@ -52,6 +52,7 @@ noncomputable def smallZariskiRingedSiteHom (S : Scheme.{u}) :
     RingedSite.Hom (smallZariskiRingedSite S)
       (RingedSpace.opensRingedSite S.toRingedSpace) where
   base := smallZariskiOpenFunctor S
+  isMorphismOfSites := smallZariskiOpenFunctor_isMorphismOfSites S
   structureSheafMap :=
     (smallZariskiSheafEquiv S RingCat.{u}).counitInv.app S.ringCatSheaf
 

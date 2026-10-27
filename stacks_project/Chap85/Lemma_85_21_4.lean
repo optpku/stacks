@@ -6,9 +6,9 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import Mathlib.Tactic.CrossRefAttribute
+import StacksCheckRecall
 public import ReasLib.CategoryTheory.Sites.Hypercovering.Augmented
-public import stacks_project.Chap85.Lemma_85_19_4
+public import ReasLib.CategoryTheory.Sites.Hypercovering.CartesianDerivedEquivalence
 
 /-!
 # Lemma 85.21.4
@@ -70,61 +70,40 @@ variable [(directImage (J.over A.right)
           (Hypercovering.toSliceTerminal J A.right (toHypercovering.{w} A hA)).simplicial)
         AddCommGrpCat.{max w u v}))]
 
-/-- Cartesian abelian sheaves on `(C / U)_total` form a weak Serre subcategory of
-`Ab((C / U)_total)`. -/
-instance cartesianProperty_isWeakSerreClass :
-    IsWeakSerreClass
-      (cartesianProperty (J.over A.right) (toHypercovering.{w} A hA).toSimplicialObject
-        AddCommGrpCat.{max w u v}) :=
-  Hypercovering.cartesianProperty_isWeakSerreClass J A.right (toHypercovering.{w} A hA)
-
-/-- The functor `a⁻¹` corestricted from `D⁺(C / X)` to `D_A⁺((C / U)_total)`, where
-`A` is the object property of cartesian abelian sheaves. -/
-abbrev plusCartesianFunctor :
-    DerivedCategory.Plus (Sheaf (J.over A.right) AddCommGrpCat.{max w u v}) ⥤
-      DerivedCategory.Plus.CohomologyIn
-        (cartesianProperty (J.over A.right) (toHypercovering.{w} A hA).toSimplicialObject
-          AddCommGrpCat.{max w u v}) :=
-  Hypercovering.plusCartesianFunctor J A.right (toHypercovering.{w} A hA)
-
-/-- The functor sending an object of `D_A⁺((C / U)_total)` to `Ra_*` of its
-underlying object of `D⁺((C / U)_total)`. -/
-abbrev plusCartesianInverse :
-    DerivedCategory.Plus.CohomologyIn
-        (cartesianProperty (J.over A.right) (toHypercovering.{w} A hA).toSimplicialObject
-          AddCommGrpCat.{max w u v}) ⥤
-      DerivedCategory.Plus (Sheaf (J.over A.right) AddCommGrpCat.{max w u v}) :=
-  Hypercovering.plusCartesianInverse J A.right (toHypercovering.{w} A hA)
-
-/-- Lemma 85.21.4: Let `C` be a site with fibre products and `X` an object of
+/- Lemma 85.21.4: Let `C` be a site with fibre products and `X` an object of
 `C`. Let `a : U ⟶ X` be a hypercovering of `X` in `C` as defined above. Let `A`
 denote the weak Serre subcategory of cartesian abelian sheaves on
 `(C / U)_total`. Then `a⁻¹` defines an equivalence
 `D⁺(C / X) ≌ D_A⁺((C / U)_total)` with quasi-inverse `Ra_*`. -/
-@[stacks 0DA9]
-def plusCartesianEquivalence :
+@[stacks 0DA9] #check
+  (CategoryTheory.Hypercovering.plusCartesianEquivalence J A.right (toHypercovering.{w} A hA) :
     DerivedCategory.Plus (Sheaf (J.over A.right) AddCommGrpCat.{max w u v}) ≌
       DerivedCategory.Plus.CohomologyIn
         (cartesianProperty (J.over A.right) (toHypercovering.{w} A hA).toSimplicialObject
-          AddCommGrpCat.{max w u v}) :=
-  Hypercovering.plusCartesianEquivalence J A.right (toHypercovering.{w} A hA)
+          AddCommGrpCat.{max w u v}))
 
-/-- The forward functor of `plusCartesianEquivalence` is `a⁻¹` corestricted to
-`D_A⁺((C / U)_total)`. -/
-theorem plusCartesianEquivalence_functor :
-    (plusCartesianEquivalence J A hA).functor = plusCartesianFunctor J A hA :=
-  sorry
+/- Cartesian abelian sheaves on the total site form a weak Serre subcategory. -/
+#check
+  (CategoryTheory.Hypercovering.cartesianProperty_isWeakSerreClass J A.right
+      (toHypercovering.{w} A hA) :
+    IsWeakSerreClass
+      (cartesianProperty (J.over A.right) (toHypercovering.{w} A hA).toSimplicialObject
+        AddCommGrpCat.{max w u v}))
 
-/-- The inverse functor of `plusCartesianEquivalence` is `Ra_*` on
-`D_A⁺((C / U)_total)`. -/
-theorem plusCartesianEquivalence_inverse :
-    (plusCartesianEquivalence J A hA).inverse = plusCartesianInverse J A hA :=
-  sorry
+/- The forward functor is the canonical corestricted inverse image `a⁻¹`. -/
+#check
+  (CategoryTheory.Hypercovering.plusCartesianEquivalence_functor J A.right
+      (toHypercovering.{w} A hA) :
+    (CategoryTheory.Hypercovering.plusCartesianEquivalence J A.right
+      (toHypercovering.{w} A hA)).functor =
+      CategoryTheory.Hypercovering.plusCartesianFunctor J A.right (toHypercovering.{w} A hA))
 
-/-- The corestricted functor `a⁻¹ : D⁺(C / X) ⥤ D_A⁺((C / U)_total)` is an
-equivalence. -/
-instance plusCartesianFunctor_isEquivalence :
-    (plusCartesianFunctor J A hA).IsEquivalence :=
-  Equivalence.isEquivalence_functor (plusCartesianEquivalence J A hA)
+/- The inverse functor is the canonical restricted derived direct image `Ra_*`. -/
+#check
+  (CategoryTheory.Hypercovering.plusCartesianEquivalence_inverse J A.right
+      (toHypercovering.{w} A hA) :
+    (CategoryTheory.Hypercovering.plusCartesianEquivalence J A.right
+      (toHypercovering.{w} A hA)).inverse =
+      CategoryTheory.Hypercovering.plusCartesianInverse J A.right (toHypercovering.{w} A hA))
 
 end CategoryTheory.SimplicialObject.Augmented

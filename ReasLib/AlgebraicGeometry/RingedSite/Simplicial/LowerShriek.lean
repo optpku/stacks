@@ -323,7 +323,8 @@ instance ringedToposMap_modulePushforward_isRightAdjoint {m n : SimplexCategory}
 instance ringedToposMap_pushforward_isRightAdjoint {m n : SimplexCategory}
     (φ : m ⟶ n) :
     (ringedToposMap_pushforward C J O φ).IsRightAdjoint :=
-  Functor.isRightAdjoint_of_iso (ringedToposMap_pushforwardIso C J O φ).symm
+  SheafOfModules.pushforward_isRightAdjoint_of_univLE
+    (ringedToposMapDirectStructure C J O φ)
 
 /-- Continuous-site module pullback along `u_φ` with the direct-image form of `O(φ)`. -/
 abbrev ringedToposMap_pullback {m n : SimplexCategory} (φ : m ⟶ n) :

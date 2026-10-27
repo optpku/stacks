@@ -106,8 +106,6 @@ variable [HomotopyCategory.Koszul.TensorDescends (C := C)]
 variable [HomotopyCategory.KFlat.TensorDescends (C := C)]
 variable [DerivedCategory.KFlat.IsLocalization (C := C)]
 
-#synth (toKFlat (C := C)).Monoidal
-#synth (localizationFunctor (C := C)).Monoidal
 
 end Monoidal
 

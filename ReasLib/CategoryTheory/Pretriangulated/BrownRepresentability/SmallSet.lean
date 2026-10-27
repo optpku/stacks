@@ -346,23 +346,30 @@ variable [HasZeroObject D] [HasShift D ℤ]
   [Preadditive D] [∀ n : ℤ, (shiftFunctor D n).Additive]
   [Pretriangulated D] [IsTriangulated D] [HasCoproducts.{w} D]
 
-/-- A Brown set that is small in the coproduct universe represents every contravariant
-homological functor preserving products indexed in that universe. -/
+/-- A Brown set small in the coproduct universe represents a contravariant homological
+functor preserving products in that universe, provided its values on all integer shifts of
+the generators are small there. Local smallness also makes the kernel-indexed coproducts
+small, including those used to approximate representable functors. -/
 @[stacks 0GYG "small-set representability criterion"]
 theorem existsRepresentation
     (H : Dᵒᵖ ⥤ AddCommGrpCat.{v}) (hH : H.rightOp.IsHomological)
     [∀ J : Type w, PreservesLimitsOfShape (Discrete J) H]
-    (hD : ∃ S : Set D, Small.{w} S ∧ BrownRepresentability.IsSet S) :
+    [LocallySmall.{w} D]
+    (S : Set D) [Small.{w} S] (hS : BrownRepresentability.IsSet S)
+    (hsmall : ∀ (E : S) (n : ℤ), Small.{w} (H.obj (op (E.1⟦n⟧)))) :
     ∃ X : D, Nonempty (preadditiveYoneda.obj X ≅ H) := sorry
 
-/-- Type-valued representability supplied by a Brown set small in the coproduct universe. -/
+/-- Underlying type-valued representability with the same generator-shift value and Hom
+smallness conditions as `existsRepresentation`. -/
 @[stacks 0GYG "small-set underlying representability"]
 theorem isRepresentable
     (H : Dᵒᵖ ⥤ AddCommGrpCat.{v}) (hH : H.rightOp.IsHomological)
     [∀ J : Type w, PreservesLimitsOfShape (Discrete J) H]
-    (hD : ∃ S : Set D, Small.{w} S ∧ BrownRepresentability.IsSet S) :
+    [LocallySmall.{w} D]
+    (S : Set D) [Small.{w} S] (hS : BrownRepresentability.IsSet S)
+    (hsmall : ∀ (E : S) (n : ℤ), Small.{w} (H.obj (op (E.1⟦n⟧)))) :
     (H ⋙ forget AddCommGrpCat).IsRepresentable := by
-  obtain ⟨X, ⟨comparison⟩⟩ := existsRepresentation H hH hD
+  obtain ⟨X, ⟨comparison⟩⟩ := existsRepresentation H hH S hS hsmall
   exact Functor.IsRepresentable.mk'
     (Functor.isoWhiskerRight comparison (forget AddCommGrpCat))
 
@@ -383,21 +390,29 @@ variable {D : Type u₁} {D' : Type u₂}
   [_root_.CategoryTheory.IsTriangulated D'] [HasCoproducts.{w} D]
 
 /-- A triangulated functor preserving coproducts indexed in the universe of a small Brown set
-is a left adjoint. -/
+is a left adjoint when the source is locally small there and morphisms from the images of
+all integer shifts of the generators to each target object are small there. -/
 @[stacks 0GYH "small-set left-adjoint criterion"]
 theorem isLeftAdjoint
     (F : D ⥤ D') [LocallySmall.{v₁} D'] [F.CommShift ℤ] [F.IsTriangulated]
     [∀ J : Type w, PreservesColimitsOfShape (Discrete J) F]
-    (hD : ∃ S : Set D, Small.{w} S ∧ BrownRepresentability.IsSet S) :
+    [LocallySmall.{w} D]
+    (S : Set D) [Small.{w} S] (hS : BrownRepresentability.IsSet S)
+    (hsmall : ∀ (E : S) (n : ℤ) (Y : D'),
+      Small.{w} (F.obj (E.1⟦n⟧) ⟶ Y)) :
     F.IsLeftAdjoint := sorry
 
-/-- A triangulated functor preserving coproducts indexed in the universe of a small Brown set
-has a right adjoint with its canonical triangulated shift comparison. -/
+/-- Under the same generator-image and source Hom smallness conditions as `isLeftAdjoint`,
+a triangulated functor preserving coproducts has a right adjoint with its canonical
+triangulated shift comparison. -/
 @[stacks 0GYH "small-set triangulated-right-adjoint criterion"]
 theorem hasTriangulatedRightAdjoint
     (F : D ⥤ D') [LocallySmall.{v₁} D'] [F.CommShift ℤ] [F.IsTriangulated]
     [∀ J : Type w, PreservesColimitsOfShape (Discrete J) F]
-    (hD : ∃ S : Set D, Small.{w} S ∧ BrownRepresentability.IsSet S) :
+    [LocallySmall.{w} D]
+    (S : Set D) [Small.{w} S] (hS : BrownRepresentability.IsSet S)
+    (hsmall : ∀ (E : S) (n : ℤ) (Y : D'),
+      Small.{w} (F.obj (E.1⟦n⟧) ⟶ Y)) :
     ∃ (G : D' ⥤ D) (adj : F ⊣ G),
       G.IsTriangulatedWith (adj.rightAdjointCommShift ℤ) := sorry
 

@@ -6,8 +6,8 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap104.Proposition_104_7_1_Adjunction
-public import stacks_project.Chap104.Proposition_104_7_1_Pullback
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Derived.QuasiCoherent.Adjunction
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Derived.QuasiCoherent.Pullback
 import StacksCheckRecall
 
 /-!
@@ -40,13 +40,20 @@ variable [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y)
 square relating `D_{LQCoh^{fbc}}(𝒪)` and `D(𝒪)`, with vertical arrows
 `f^*`. -/
 @[stacks 07BE]
-#check (DerivedLQCohFbc.inverseImage_comp_inclusion f)
+#check (AlgebraicGeometry.AlgebraicStack.DerivedLQCohFbc.inverseImage_comp_inclusion f :
+  DerivedLQCohFbc.inverseImage f ⋙ DerivedLQCohFbc.inclusion X ≅
+    DerivedLQCohFbc.inclusion Y ⋙ fppfModuleDerivedInverseImage f)
 
 /- Proposition 104.7.1 (2): the composite
 `D_{LQCoh^{fbc}}(𝒪_Y) ⥤ D_{LQCoh^{fbc}}(𝒪_X) ⥤ D_QCoh(𝒪_X)` is left
 derivable along `q_Y`, and `Lf^*_QCoh` is its left derived functor. -/
 @[stacks 07BE]
-#check (DerivedQCoh.pullback f)
+#check (AlgebraicGeometry.AlgebraicStack.DerivedQCoh.pullbackToQCoh.everywhereDefined f :
+  CategoryTheory.Functor.LeftDerived.EverywhereDefined
+    (DerivedQCoh.pullbackToQCoh f) (derivedParasitic Y).trW)
+
+#check (AlgebraicGeometry.AlgebraicStack.DerivedQCoh.pullback f :
+  DerivedQCoh Y ⥤ DerivedQCoh X)
 
 variable [AlgebraicStack.QuasiCompact f] [AlgebraicStack.QuasiSeparated f]
 variable (A : DerivedQCoh Y) (B : DerivedQCoh.Plus X)
@@ -56,6 +63,8 @@ Hom_{D_QCoh(X)}(Lf^*_QCoh A, B) identifies with
 Hom_{D_QCoh(Y)}(A, Rf_{QCoh,*} B) for `A` in `D_QCoh(𝒪_Y)` and `B` in
 `D⁺_QCoh(𝒪_X)`. -/
 @[stacks 07BE]
-#check (DerivedQCoh.pullback_homEquiv f A B)
+#check (AlgebraicGeometry.AlgebraicStack.DerivedQCoh.pullback_homEquiv f A B :
+  ((DerivedQCoh.pullback f).obj A ⟶ (DerivedQCoh.Plus.inclusion X).obj B) ≃
+    (A ⟶ (DerivedQCoh.Plus.inclusion Y).obj ((DerivedQCoh.pushforward f).obj B)))
 
 end AlgebraicGeometry.AlgebraicStack

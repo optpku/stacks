@@ -6,11 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import Mathlib.Algebra.DualNumber
-public import Mathlib.RingTheory.Artinian.Module
-public import Mathlib.RingTheory.DualNumber
-public import ReasLib.RingTheory.DualNumber.Finiteness
-public import ReasLib.RingTheory.DualNumber.Residue
+public import ReasLib.AlgebraicGeometry.FormalDeformation.DualNumber
 public import stacks_project.Chap90.Definition_90_7_3_ArtinianLocal
 
 /-!
@@ -22,50 +18,29 @@ canonical identification of the residue field with `k`.
 
 @[expose] public section
 
-open CategoryTheory IsLocalRing TrivSqZeroExt
-open scoped DualNumber
+open CategoryTheory IsLocalRing
 
 universe u
-
-namespace DualNumber
-
-/-- Dual numbers over a field are an Artinian ring. -/
-instance instIsArtinianRing {k : Type u} [Field k] : IsArtinianRing (DualNumber k) :=
-  IsArtinianRing.of_finite k (DualNumber k)
-
-end DualNumber
 
 variable (Λ k : Type u) [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra Λ k]
   [Module.Finite Λ k]
 
-namespace ArtinianLocalAlgCat
+#check (ArtinianLocalAlgCat.dualNumberResidueFieldIso Λ k :
+  ResidueField (DualNumber k) ≃ₐ[Λ] k)
 
-/-- The residue-field identification of `DualNumber k` with `k`, obtained by comparing the
-maximal ideal with `DualNumber.epsIdeal` and restricting `DualNumber.residueAlgEquiv` from
-`k` to `Λ`. -/
-def dualNumberResidueFieldIso : ResidueField (DualNumber k) ≃ₐ[Λ] k :=
-  (Ideal.quotientEquivAlgOfEq Λ
-      (DualNumber.maximalIdeal_eq_span_singleton_eps.trans
-        (DualNumber.epsIdeal_eq_span k).symm)).trans
-    ((DualNumber.residueAlgEquiv k).restrictScalars Λ)
+#check (ArtinianLocalAlgCat.dualNumberResidueFieldIso_apply Λ k :
+  ∀ x : DualNumber k,
+    ArtinianLocalAlgCat.dualNumberResidueFieldIso Λ k (residue (DualNumber k) x) = x.fst)
 
-/-- The residue identification of `k[ε]` sends the class of a dual number to its scalar
-coefficient. -/
-theorem dualNumberResidueFieldIso_apply (x : DualNumber k) :
-    dualNumberResidueFieldIso Λ k (residue (DualNumber k) x) = x.fst := sorry
+#check (ArtinianLocalAlgCat.dualNumber Λ k : ArtinianLocalAlgCat Λ k)
 
-/-- The dual numbers `DualNumber k`, viewed as an object of `ArtinianLocalAlgCat Λ k`. -/
-def dualNumber : ArtinianLocalAlgCat Λ k :=
-  of (DualNumber k) (dualNumberResidueFieldIso Λ k)
+#check (ArtinianLocalAlgCat.dualNumber_carrier Λ k :
+  (ArtinianLocalAlgCat.dualNumber Λ k).carrier = DualNumber k)
 
-/-- The bundled dual-number object has carrier `DualNumber k`. -/
-theorem dualNumber_carrier : (dualNumber Λ k).carrier = DualNumber k := sorry
-
-/-- The dual-number object of `C_Λ` is Artinian local with the canonical residue identification
-of `ResidueField (DualNumber k)` with `k`. -/
-theorem dualNumber_spec :
-    IsLocalRing (dualNumber Λ k).carrier ∧
-      IsArtinianRing (dualNumber Λ k).carrier ∧
-      (dualNumber Λ k).residueFieldIso = dualNumberResidueFieldIso Λ k := sorry
-
-end ArtinianLocalAlgCat
+/- The dual-number object is Artinian local with its canonical residue identification. -/
+example :
+    IsLocalRing (ArtinianLocalAlgCat.dualNumber Λ k).carrier ∧
+      IsArtinianRing (ArtinianLocalAlgCat.dualNumber Λ k).carrier ∧
+      (ArtinianLocalAlgCat.dualNumber Λ k).residueFieldIso =
+        ArtinianLocalAlgCat.dualNumberResidueFieldIso Λ k :=
+  ⟨inferInstance, inferInstance, rfl⟩

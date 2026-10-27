@@ -72,6 +72,49 @@ theorem inclusionUnitSchemeIso_hom (k : Type u) [Field k] :
         ((Correspondence.Category.scheme_unit k).symm ▸ SchemeOverField.pointIsTerminal k)
         (𝟙_ (ChowMotive k (fun _ ↦ Correspondence.GradedCategory k))).X.1.scheme := sorry
 
+/-- The unit comparison and its inverse are the graph correspondences of the unit-scheme
+comparison and its inverse. -/
+def inclusionUnitIso (k : Type u) [Field k] :
+    𝟙_ (ChowMotive k (fun _ ↦ Correspondence.GradedCategory k)) ≅
+      (inclusionFunctor k).obj (𝟙_ (Correspondence.Category k)) where
+  hom :=
+    { f := Correspondence.GradedCategory.homOfDegreeZero rfl
+        (Correspondence.rationalGraphIso
+          (𝟙_ (ChowMotive k (fun _ ↦ Correspondence.GradedCategory k))).X.1
+          ((inclusionFunctor k).obj (𝟙_ (Correspondence.Category k))).X.1
+          (inclusionUnitSchemeIso k))
+      comm := sorry }
+  inv :=
+    { f := Correspondence.GradedCategory.homOfDegreeZero rfl
+        (Correspondence.rationalGraphIso
+          ((inclusionFunctor k).obj (𝟙_ (Correspondence.Category k))).X.1
+          (𝟙_ (ChowMotive k (fun _ ↦ Correspondence.GradedCategory k))).X.1
+          (inclusionUnitSchemeIso k).symm)
+      comm := sorry }
+  hom_inv_id := sorry
+  inv_hom_id := sorry
+
+/-- The tensor comparison and its inverse are the graph correspondences of the canonical
+identification of the product schemes in Tate degree zero. -/
+def inclusionTensoratorIso (X Y : Correspondence.Category k) :
+    (inclusionFunctor k).obj X ⊗ (inclusionFunctor k).obj Y ≅
+      (inclusionFunctor k).obj (X ⊗ Y) where
+  hom :=
+    { f := Correspondence.GradedCategory.homOfDegreeZero rfl
+        (Correspondence.rationalGraphIso
+          (((inclusionFunctor k).obj X ⊗ (inclusionFunctor k).obj Y).X.1)
+          ((inclusionFunctor k).obj (X ⊗ Y)).X.1 (Iso.refl _))
+      comm := sorry }
+  inv :=
+    { f := Correspondence.GradedCategory.homOfDegreeZero rfl
+        (Correspondence.rationalGraphIso
+          ((inclusionFunctor k).obj (X ⊗ Y)).X.1
+          (((inclusionFunctor k).obj X ⊗ (inclusionFunctor k).obj Y).X.1)
+          (Iso.refl _).symm)
+      comm := sorry }
+  hom_inv_id := sorry
+  inv_hom_id := sorry
+
 /-- The strong symmetric monoidal inclusion of degree-zero Chow correspondences into
 Chow motives, placing every object in Tate degree zero with identity projector. -/
 def inclusion (k : Type u) [Field k] :
@@ -79,19 +122,8 @@ def inclusion (k : Type u) [Field k] :
       (ChowMotive k (fun _ ↦ Correspondence.GradedCategory k)) where
   toFunctor := inclusionFunctor k
   laxBraided :=
-    { ε :=
-        { f := Correspondence.GradedCategory.homOfDegreeZero rfl
-            (Correspondence.rationalGraphIso
-              (𝟙_ (ChowMotive k (fun _ ↦ Correspondence.GradedCategory k))).X.1
-              ((inclusionFunctor k).obj (𝟙_ (Correspondence.Category k))).X.1
-              (inclusionUnitSchemeIso k))
-          comm := sorry }
-      μ := fun X Y ↦
-        { f := Correspondence.GradedCategory.homOfDegreeZero rfl
-            (Correspondence.rationalGraphIso
-              (((inclusionFunctor k).obj X ⊗ (inclusionFunctor k).obj Y).X.1)
-              ((inclusionFunctor k).obj (X ⊗ Y)).X.1 (Iso.refl _))
-          comm := sorry }
+    { ε := (inclusionUnitIso k).hom
+      μ := fun X Y ↦ (inclusionTensoratorIso X Y).hom
       μ_natural_left := sorry
       μ_natural_right := sorry
       associativity := sorry
@@ -116,11 +148,13 @@ instance inclusionLinear : (inclusion k).toFunctor.Linear ℚ where
   map_smul := sorry
 
 /-- The unit comparison of the degree-zero inclusion is an isomorphism. -/
-instance inclusionUnitIsIso : IsIso (Functor.LaxMonoidal.ε (inclusion k).toFunctor) := sorry
+instance inclusionUnitIsIso : IsIso (Functor.LaxMonoidal.ε (inclusion k).toFunctor) :=
+  (inclusionUnitIso k).isIso_hom
 
 /-- Every tensor comparison of the degree-zero inclusion is an isomorphism. -/
 instance inclusionTensoratorIsIso (X Y : Correspondence.Category k) :
-    IsIso (Functor.LaxMonoidal.μ (inclusion k).toFunctor X Y) := sorry
+    IsIso (Functor.LaxMonoidal.μ (inclusion k).toFunctor X Y) :=
+  (inclusionTensoratorIso X Y).isIso_hom
 
 /-- Restrict a lax braided functor on Chow motives to degree-zero correspondences. -/
 def restriction (k : Type u) [Field k] (C : Type v) [Category.{w} C]
@@ -176,8 +210,8 @@ def of (G : ChowMotive k (fun _ ↦ Correspondence.GradedCategory k) ⥤ C)
     (comparison : (restriction k C).obj (LaxBraidedFunctor.of G) ≅
       LaxBraidedFunctor.of F) : Factorization k F where
   lift := LaxBraidedFunctor.of G
-  unitIsIso := sorry
-  tensoratorIsIso := fun _ _ ↦ sorry
+  unitIsIso := (Functor.Monoidal.εIso G).isIso_hom
+  tensoratorIsIso := fun X Y ↦ (Functor.Monoidal.μIso G X Y).isIso_hom
   linear := { map_smul := Functor.Linear.map_smul (F := G) }
   comparison := comparison
 

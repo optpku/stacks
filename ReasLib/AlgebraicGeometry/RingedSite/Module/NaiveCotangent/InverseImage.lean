@@ -7,6 +7,7 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import Mathlib.Algebra.Homology.Additive
+public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.Derivation.InverseImage
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Differentials.Conormal.InverseImage
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.NaiveCotangent.Presentation.InverseImage
 import Mathlib.Tactic.CrossRefAttribute
@@ -32,8 +33,9 @@ noncomputable section
 
 universe u
 
-namespace SheafOfModules.RingedSite.NaiveCotangent
-
+namespace SheafOfModules
+namespace RingedSite
+namespace NaiveCotangent
 variable {C D : Type u} [Category.{u} C] [Category.{u} D]
 variable {J : GrothendieckTopology C} {K : GrothendieckTopology D}
 variable (F : C ⥤ D) [F.IsContinuous J K]
@@ -145,17 +147,21 @@ theorem map_adj (f : O₁ ⟶ O₂) :
     (SheafOfModules.pullbackPushforwardAdjunction
       (structureMap (J := J) (K := K) F O₂)).homEquiv _ _
         (map (J := J) (K := K) F f) =
-      adjoint (J := J) (K := K) F f := sorry
+      adjoint (J := J) (K := K) F f := by
+  exact ((SheafOfModules.pullbackPushforwardAdjunction
+    (structureMap (J := J) (K := K) F O₂)).homEquiv _ _).apply_symm_apply _
 
-/-- The adjoint-side presentation map is invertible under representable flatness.  This named
-instance lets the generic conormal inverse owner apply to the canonical polynomial presentation. -/
+/-- The adjoint-side canonical polynomial presentation map is invertible under representable
+flatness. -/
 @[stacks 08TM "presentation inverse-image adjoint isomorphism"]
 instance presentationAdjointMap_isIso [RepresentablyFlat F] (f : O₁ ⟶ O₂) :
-    IsIso (SheafOfModules.RingedSite.InverseImage.adjointMap (J := J) (K := K) F
-      (Presentation.InverseImage.adjoint (J := J) (K := K) F f)) := sorry
+    IsIso (adjointMap (J := J) (K := K) F
+      (Presentation.InverseImage.adjoint (J := J) (K := K) F f)) := by
+  change IsIso (((F.sheafAdjunctionContinuous CommRingCat.{u} J K).homEquiv _ _).symm _)
+  rw [← Presentation.InverseImage.comparison_adj, Equiv.symm_apply_apply]
+  exact Presentation.InverseImage.comparison_isIso (J := J) (K := K) F f
 
-/-- The named inverse of the degree `-1` conormal comparison.  This specialization reuses the
-generic conormal inverse owner. -/
+/-- The inverse of the degree `-1` conormal comparison under representable flatness. -/
 @[stacks 08TM "conormal inverse comparison morphism", stacks 08TZ]
 noncomputable abbrev mapInv [RepresentablyFlat F] (f : O₁ ⟶ O₂) :
     conormalSource
@@ -173,15 +179,16 @@ noncomputable abbrev mapInv [RepresentablyFlat F] (f : O₁ ⟶ O₂) :
 /-- The conormal comparison followed by its named inverse is the identity. -/
 @[simp, stacks 08TM "conormal comparison inverse law", stacks 08TZ]
 theorem map_hom_inv_id [RepresentablyFlat F] (f : O₁ ⟶ O₂) :
-    map (J := J) (K := K) F f ≫ mapInv (J := J) (K := K) F f = 𝟙 _ := sorry
+    map (J := J) (K := K) F f ≫ mapInv (J := J) (K := K) F f = 𝟙 _ := by
+  exact SheafOfModules.RingedSite.Conormal.InverseImage.comparison_hom_inv_id _ _ _ _
 
 /-- The named conormal inverse followed by the forward comparison is the identity. -/
 @[simp, stacks 08TM "conormal inverse comparison law", stacks 08TZ]
 theorem map_inv_hom_id [RepresentablyFlat F] (f : O₁ ⟶ O₂) :
-    mapInv (J := J) (K := K) F f ≫ map (J := J) (K := K) F f = 𝟙 _ := sorry
+    mapInv (J := J) (K := K) F f ≫ map (J := J) (K := K) F f = 𝟙 _ := by
+  exact SheafOfModules.RingedSite.Conormal.InverseImage.comparison_inv_hom_id _ _ _ _
 
-/-- The conormal inverse-image comparison as explicit isomorphism data, specialized from the
-generic conormal comparison isomorphism. -/
+/-- Inverse image identifies the conormal modules of the canonical polynomial presentations. -/
 @[stacks 08TM "conormal comparison isomorphism", stacks 08TZ]
 noncomputable abbrev iso [RepresentablyFlat F] (f : O₁ ⟶ O₂) :
     (modulePullback (J := J) (K := K) F O₂).obj
@@ -199,18 +206,18 @@ noncomputable abbrev iso [RepresentablyFlat F] (f : O₁ ⟶ O₂) :
 /-- The forward map of the conormal comparison isomorphism is the canonical comparison. -/
 @[simp, stacks 08TM "conormal comparison isomorphism hom", stacks 08TZ]
 theorem iso_hom [RepresentablyFlat F] (f : O₁ ⟶ O₂) :
-    (iso (J := J) (K := K) F f).hom = map (J := J) (K := K) F f := sorry
+    (iso (J := J) (K := K) F f).hom = map (J := J) (K := K) F f := rfl
 
 /-- The inverse map of the conormal comparison isomorphism is the named comparison inverse. -/
 @[simp, stacks 08TM "conormal comparison isomorphism inverse", stacks 08TZ]
 theorem iso_inv [RepresentablyFlat F] (f : O₁ ⟶ O₂) :
-    (iso (J := J) (K := K) F f).inv = mapInv (J := J) (K := K) F f := sorry
+    (iso (J := J) (K := K) F f).inv = mapInv (J := J) (K := K) F f := rfl
 
-/-- Representable flatness makes the conormal comparison invertible.  The reusable data owner is
-`iso`; this theorem is the proposition-level bridge. -/
+/-- Representable flatness makes the conormal comparison invertible. -/
 @[stacks 08TM "conormal comparison is an isomorphism", stacks 08TZ]
 theorem map_isIso [RepresentablyFlat F] (f : O₁ ⟶ O₂) :
-    IsIso (map (J := J) (K := K) F f) := sorry
+    IsIso (map (J := J) (K := K) F f) :=
+  (iso (J := J) (K := K) F f).isIso_hom
 
 end Conormal
 
@@ -331,30 +338,159 @@ theorem map_adj (f : O₁ ⟶ O₂) :
     (SheafOfModules.pullbackPushforwardAdjunction
       (structureMap (J := J) (K := K) F O₂)).homEquiv _ _
         (map (J := J) (K := K) F f) =
-      adjoint (J := J) (K := K) F f := sorry
+      adjoint (J := J) (K := K) F f := by
+  exact ((SheafOfModules.pullbackPushforwardAdjunction
+    (structureMap (J := J) (K := K) F O₂)).homEquiv _ _).apply_symm_apply _
 
-/-- Representable flatness makes the differential-term component of inverse-image comparison
-invertible.  This is the only local invertibility gate needed to construct a named inverse. -/
-@[stacks 08TM "differential comparison is an isomorphism", stacks 08TZ]
-instance map_isIso [RepresentablyFlat F] (f : O₁ ⟶ O₂) :
-    IsIso (map (J := J) (K := K) F f) := sorry
+section Reverse
 
-/-- The named inverse of the degree `0` differential-term comparison. -/
-@[stacks 08TM "differential inverse comparison morphism", stacks 08TZ]
+open SheafOfModules.RelativeDerivation.InverseImage
+
+private abbrev inverseTerm (f : O₁ ⟶ O₂) :=
+  (modulePullback (J := J) (K := K) F O₂).obj
+    (conormalTensorTerm (FreeAlgebra.Presentation.base O₁ (Under.mk f))
+      (FreeAlgebra.Presentation.map O₁ (Under.mk f)))
+
+private def sourceDerivation (f : O₁ ⟶ O₂) :
+    Der[FreeAlgebra.Presentation.base O₁ (Under.mk f) ;
+      (restrictionAlong (FreeAlgebra.Presentation.map O₁ (Under.mk f))).obj
+        ((SheafOfModules.pushforward (structureMap (J := J) (K := K) F O₂)).obj
+          (inverseTerm (J := J) (K := K) F f))] :=
+  ((relativeDifferential (FreeAlgebra.Presentation.base O₁ (Under.mk f))).postcomp
+    ((extendRestrictAdj (FreeAlgebra.Presentation.map O₁ (Under.mk f))).unit.app
+      (relativeDifferentials (FreeAlgebra.Presentation.base O₁ (Under.mk f)))).val).postcomp
+        (((restrictionAlong (FreeAlgebra.Presentation.map O₁ (Under.mk f))).map
+          ((SheafOfModules.pullbackPushforwardAdjunction
+            (structureMap (J := J) (K := K) F O₂)).unit.app
+              (conormalTensorTerm (FreeAlgebra.Presentation.base O₁ (Under.mk f))
+                (FreeAlgebra.Presentation.map O₁ (Under.mk f))))).val)
+
+private abbrev inversePolynomialModule (f : O₁ ⟶ O₂) :=
+  (restrictionAlong ((ringPullback (J := J) (K := K) F).map
+    (FreeAlgebra.Presentation.map O₁ (Under.mk f)))).obj
+      (inverseTerm (J := J) (K := K) F f)
+
+set_option backward.isDefEq.respectTransparency false in
+private def sourceDerivationForPullback (f : O₁ ⟶ O₂) :
+    Der[FreeAlgebra.Presentation.base O₁ (Under.mk f) ;
+      (SheafOfModules.pushforward (structureMap (J := J) (K := K) F
+        (FreeAlgebra.Presentation.underlying O₁ (Under.mk f)))).obj
+          (inversePolynomialModule (J := J) (K := K) F f)] where
+  d := (sourceDerivation (J := J) (K := K) F f).d
+  d_mul {U} x y := by
+    have h := congrArg (fun k ↦ k.hom.app U)
+      ((F.sheafAdjunctionContinuous CommRingCat.{u} J K).unit.naturality
+        (FreeAlgebra.Presentation.map O₁ (Under.mk f)))
+    have hx := congrArg (fun k ↦ k x) h
+    have hy := congrArg (fun k ↦ k y) h
+    change (ringUnit (J := J) (K := K) F O₂).hom.app U
+        ((FreeAlgebra.Presentation.map O₁ (Under.mk f)).hom.app U x) =
+      ((ringPullback (J := J) (K := K) F).map
+        (FreeAlgebra.Presentation.map O₁ (Under.mk f))).hom.app (F.op.obj U)
+          ((ringUnit (J := J) (K := K) F
+            (FreeAlgebra.Presentation.underlying O₁ (Under.mk f))).hom.app U x) at hx
+    change (ringUnit (J := J) (K := K) F O₂).hom.app U
+        ((FreeAlgebra.Presentation.map O₁ (Under.mk f)).hom.app U y) =
+      ((ringPullback (J := J) (K := K) F).map
+        (FreeAlgebra.Presentation.map O₁ (Under.mk f))).hom.app (F.op.obj U)
+          ((ringUnit (J := J) (K := K) F
+            (FreeAlgebra.Presentation.underlying O₁ (Under.mk f))).hom.app U y) at hy
+    change (sourceDerivation (J := J) (K := K) F f).d (x * y) =
+      @SMul.smul (((ringPullback (J := J) (K := K) F).obj O₂).obj.obj (F.op.obj U))
+        ((inverseTerm (J := J) (K := K) F f).val.obj (F.op.obj U)) inferInstance
+        (((ringPullback (J := J) (K := K) F).map
+          (FreeAlgebra.Presentation.map O₁ (Under.mk f))).hom.app (F.op.obj U)
+            ((ringUnit (J := J) (K := K) F
+              (FreeAlgebra.Presentation.underlying O₁ (Under.mk f))).hom.app U x))
+        ((sourceDerivation (J := J) (K := K) F f).d y) +
+      @SMul.smul (((ringPullback (J := J) (K := K) F).obj O₂).obj.obj (F.op.obj U))
+        ((inverseTerm (J := J) (K := K) F f).val.obj (F.op.obj U)) inferInstance
+        (((ringPullback (J := J) (K := K) F).map
+          (FreeAlgebra.Presentation.map O₁ (Under.mk f))).hom.app (F.op.obj U)
+            ((ringUnit (J := J) (K := K) F
+              (FreeAlgebra.Presentation.underlying O₁ (Under.mk f))).hom.app U y))
+        ((sourceDerivation (J := J) (K := K) F f).d x)
+    rw [← hx, ← hy]
+    exact (sourceDerivation (J := J) (K := K) F f).d_mul x y
+  d_map := (sourceDerivation (J := J) (K := K) F f).d_map
+  d_app := (sourceDerivation (J := J) (K := K) F f).d_app
+
+private def inverseSection [RepresentablyFlat F] (f : O₁ ⟶ O₂) {U : Dᵒᵖ}
+    (x : (FreeAlgebra.Presentation.underlying
+      ((ringPullback (J := J) (K := K) F).obj O₁)
+      (inverseImageUnder (J := J) (K := K) F f)).obj.obj U) :
+    (inverseTerm (J := J) (K := K) F f).val.obj U :=
+  squareZeroSheafSnd
+    ((ringPullback (J := J) (K := K) F).obj
+      (FreeAlgebra.Presentation.underlying O₁ (Under.mk f)))
+    (inversePolynomialModule (J := J) (K := K) F f)
+    ((Presentation.InverseImage.comparisonInv (J := J) (K := K) F f ≫
+      squareZeroLift (J := J) (K := K) F
+        (FreeAlgebra.Presentation.base O₁ (Under.mk f))
+        (sourceDerivationForPullback (J := J) (K := K) F f)).hom.app U x)
+
+private theorem mapInv_laws [RepresentablyFlat F] (f : O₁ ⟶ O₂) :
+    (∀ (U : Dᵒᵖ) (x y : (FreeAlgebra.Presentation.underlying
+      ((ringPullback (J := J) (K := K) F).obj O₁)
+      (inverseImageUnder (J := J) (K := K) F f)).obj.obj U),
+      inverseSection (J := J) (K := K) F f (x + y) =
+        inverseSection (J := J) (K := K) F f x + inverseSection (J := J) (K := K) F f y) ∧
+    (∀ (U : Dᵒᵖ) (x y : (FreeAlgebra.Presentation.underlying
+      ((ringPullback (J := J) (K := K) F).obj O₁)
+      (inverseImageUnder (J := J) (K := K) F f)).obj.obj U),
+      inverseSection (J := J) (K := K) F f (x * y) =
+        (FreeAlgebra.Presentation.map ((ringPullback (J := J) (K := K) F).obj O₁)
+          (inverseImageUnder (J := J) (K := K) F f)).hom.app U x •
+            inverseSection (J := J) (K := K) F f y +
+        (FreeAlgebra.Presentation.map ((ringPullback (J := J) (K := K) F).obj O₁)
+          (inverseImageUnder (J := J) (K := K) F f)).hom.app U y •
+            inverseSection (J := J) (K := K) F f x) ∧
+    (∀ {U V : Dᵒᵖ} (rho : U ⟶ V) (x : (FreeAlgebra.Presentation.underlying
+      ((ringPullback (J := J) (K := K) F).obj O₁)
+      (inverseImageUnder (J := J) (K := K) F f)).obj.obj U),
+      inverseSection (J := J) (K := K) F f
+        ((FreeAlgebra.Presentation.underlying ((ringPullback (J := J) (K := K) F).obj O₁)
+          (inverseImageUnder (J := J) (K := K) F f)).obj.map rho x) =
+        (inverseTerm (J := J) (K := K) F f).val.map rho
+          (inverseSection (J := J) (K := K) F f x)) ∧
+    (∀ (U : Dᵒᵖ) (x : ((ringPullback (J := J) (K := K) F).obj O₁).obj.obj U),
+      inverseSection (J := J) (K := K) F f
+        ((FreeAlgebra.Presentation.base ((ringPullback (J := J) (K := K) F).obj O₁)
+          (inverseImageUnder (J := J) (K := K) F f)).hom.app U x) = 0) := sorry
+
+private def inverseDerivation [RepresentablyFlat F] (f : O₁ ⟶ O₂) :
+    Der[FreeAlgebra.Presentation.base ((ringPullback (J := J) (K := K) F).obj O₁)
+      (inverseImageUnder (J := J) (K := K) F f) ;
+      (restrictionAlong (FreeAlgebra.Presentation.map
+        ((ringPullback (J := J) (K := K) F).obj O₁)
+        (inverseImageUnder (J := J) (K := K) F f))).obj
+          (inverseTerm (J := J) (K := K) F f)] where
+  d {U} := AddMonoidHom.mk' (inverseSection (J := J) (K := K) F f)
+    ((mapInv_laws (J := J) (K := K) F f).1 U)
+  d_mul := (mapInv_laws (J := J) (K := K) F f).2.1 _
+  d_map := (mapInv_laws (J := J) (K := K) F f).2.2.1
+  d_app := (mapInv_laws (J := J) (K := K) F f).2.2.2 _
+
+/-- The inverse differential comparison descends the pulled-back universal derivation. -/
+@[no_expose, stacks 08TM "differential inverse comparison morphism", stacks 08TZ]
 noncomputable def mapInv [RepresentablyFlat F] (f : O₁ ⟶ O₂) :
     conormalTensorTerm
-        (FreeAlgebra.Presentation.base
-          ((ringPullback (J := J) (K := K) F).obj O₁)
-          (inverseImageUnder (J := J) (K := K) F f))
-        (FreeAlgebra.Presentation.map
-          ((ringPullback (J := J) (K := K) F).obj O₁)
-          (inverseImageUnder (J := J) (K := K) F f)) ⟶
+      (FreeAlgebra.Presentation.base ((ringPullback (J := J) (K := K) F).obj O₁)
+        (inverseImageUnder (J := J) (K := K) F f))
+      (FreeAlgebra.Presentation.map ((ringPullback (J := J) (K := K) F).obj O₁)
+        (inverseImageUnder (J := J) (K := K) F f)) ⟶
       (modulePullback (J := J) (K := K) F O₂).obj
-        (conormalTensorTerm
-          (FreeAlgebra.Presentation.base O₁ (Under.mk f))
+        (conormalTensorTerm (FreeAlgebra.Presentation.base O₁ (Under.mk f))
           (FreeAlgebra.Presentation.map O₁ (Under.mk f))) :=
-  @CategoryTheory.inv _ _ _ _ (map (J := J) (K := K) F f)
-    (map_isIso (J := J) (K := K) F f)
+  ((extendRestrictAdj (FreeAlgebra.Presentation.map
+    ((ringPullback (J := J) (K := K) F).obj O₁)
+    (inverseImageUnder (J := J) (K := K) F f))).homEquiv _ _).symm
+      (relativeDifferentialDesc (FreeAlgebra.Presentation.base
+        ((ringPullback (J := J) (K := K) F).obj O₁)
+        (inverseImageUnder (J := J) (K := K) F f))
+          (inverseDerivation (J := J) (K := K) F f))
+
+end Reverse
 
 /-- The differential-term comparison followed by its named inverse is the identity. -/
 @[simp, stacks 08TM "differential comparison inverse law", stacks 08TZ]
@@ -388,12 +524,17 @@ noncomputable def iso [RepresentablyFlat F] (f : O₁ ⟶ O₂) :
 /-- The forward map of the differential-term comparison isomorphism is the canonical comparison. -/
 @[simp, stacks 08TM "differential comparison isomorphism hom", stacks 08TZ]
 theorem iso_hom [RepresentablyFlat F] (f : O₁ ⟶ O₂) :
-    (iso (J := J) (K := K) F f).hom = map (J := J) (K := K) F f := sorry
+    (iso (J := J) (K := K) F f).hom = map (J := J) (K := K) F f := rfl
 
 /-- The inverse map of the differential-term comparison isomorphism is its named inverse. -/
 @[simp, stacks 08TM "differential comparison isomorphism inverse", stacks 08TZ]
 theorem iso_inv [RepresentablyFlat F] (f : O₁ ⟶ O₂) :
-    (iso (J := J) (K := K) F f).inv = mapInv (J := J) (K := K) F f := sorry
+    (iso (J := J) (K := K) F f).inv = mapInv (J := J) (K := K) F f := rfl
+
+/-- The explicit differential comparison is invertible. -/
+instance map_isIso [RepresentablyFlat F] (f : O₁ ⟶ O₂) :
+    IsIso (map (J := J) (K := K) F f) :=
+  (iso (J := J) (K := K) F f).isIso_hom
 
 end Differentials
 
@@ -425,7 +566,16 @@ noncomputable def appIso [RepresentablyFlat F] (f : O₁ ⟶ O₂) :
 /-- The forward map of the degreewise comparison isomorphism is the explicit component. -/
 @[simp, stacks 08TM "degreewise comparison isomorphism hom", stacks 08TZ]
 theorem appIso_hom [RepresentablyFlat F] (f : O₁ ⟶ O₂) (n : ℤ) :
-    (appIso (J := J) (K := K) F f n).hom = app (J := J) (K := K) F f n := sorry
+    (appIso (J := J) (K := K) F f n).hom = app (J := J) (K := K) F f n := by
+  cases n with
+  | ofNat n =>
+    cases n with
+    | zero => rfl
+    | succ n => rfl
+  | negSucc n =>
+    cases n with
+    | zero => rfl
+    | succ n => rfl
 
 /-- The named inverse of the degreewise comparison. -/
 @[stacks 08TM "degreewise inverse comparison morphism", stacks 08TZ]
@@ -437,24 +587,28 @@ noncomputable def appInv [RepresentablyFlat F] (f : O₁ ⟶ O₂) (n : ℤ) :
 /-- The inverse map of the degreewise comparison isomorphism is the named component inverse. -/
 @[simp, stacks 08TM "degreewise comparison isomorphism inverse", stacks 08TZ]
 theorem appIso_inv [RepresentablyFlat F] (f : O₁ ⟶ O₂) (n : ℤ) :
-    (appIso (J := J) (K := K) F f n).inv = appInv (J := J) (K := K) F f n := sorry
+    (appIso (J := J) (K := K) F f n).inv = appInv (J := J) (K := K) F f n := rfl
 
 /-- The degreewise comparison followed by its named inverse is the identity. -/
 @[simp, stacks 08TM "degreewise comparison inverse law", stacks 08TZ]
 theorem app_hom_inv_id [RepresentablyFlat F] (f : O₁ ⟶ O₂) (n : ℤ) :
-    app (J := J) (K := K) F f n ≫ appInv (J := J) (K := K) F f n = 𝟙 _ := sorry
+    app (J := J) (K := K) F f n ≫ appInv (J := J) (K := K) F f n = 𝟙 _ := by
+  rw [← appIso_hom]
+  exact (appIso (J := J) (K := K) F f n).hom_inv_id
 
 /-- The named degreewise inverse followed by the comparison is the identity. -/
 @[simp, stacks 08TM "degreewise inverse comparison law", stacks 08TZ]
 theorem app_inv_hom_id [RepresentablyFlat F] (f : O₁ ⟶ O₂) (n : ℤ) :
-    appInv (J := J) (K := K) F f n ≫ app (J := J) (K := K) F f n = 𝟙 _ := sorry
+    appInv (J := J) (K := K) F f n ≫ app (J := J) (K := K) F f n = 𝟙 _ := by
+  rw [← appIso_hom]
+  exact (appIso (J := J) (K := K) F f n).inv_hom_id
 
-/-- Every degreewise comparison is invertible under representable flatness.  `appIso`/`appInv` are
-the reusable data owners; this instance remains as a compatibility gate for downstream code that
-uses the categorical `inv` projection directly. -/
+/-- Every degreewise comparison is invertible under representable flatness. -/
 @[stacks 08TM "degreewise comparison is an isomorphism", stacks 08TZ]
 instance app_isIso [RepresentablyFlat F] (f : O₁ ⟶ O₂) (n : ℤ) :
-    IsIso (app (J := J) (K := K) F f n) := sorry
+    IsIso (app (J := J) (K := K) F f n) := by
+  rw [← appIso_hom]
+  infer_instance
 
 /-- The degreewise comparison maps commute with the differentials. -/
 theorem app_comm (f : O₁ ⟶ O₂) (i j : ℤ)
@@ -470,7 +624,8 @@ theorem appIso_comm [RepresentablyFlat F] (f : O₁ ⟶ O₂) (i j : ℤ)
     (appIso (J := J) (K := K) F f i).hom ≫
         (target (J := J) (K := K) F f).d i j =
       (source (J := J) (K := K) F f).d i j ≫
-        (appIso (J := J) (K := K) F f j).hom := sorry
+        (appIso (J := J) (K := K) F f j).hom := by
+  simpa only [appIso_hom] using app_comm (J := J) (K := K) F f i j hij
 
 /-- The named degreewise inverses commute with the differentials in the reverse direction. -/
 theorem appInv_comm [RepresentablyFlat F] (f : O₁ ⟶ O₂) (i j : ℤ)
@@ -478,10 +633,14 @@ theorem appInv_comm [RepresentablyFlat F] (f : O₁ ⟶ O₂) (i j : ℤ)
     appInv (J := J) (K := K) F f i ≫
         (source (J := J) (K := K) F f).d i j =
       (target (J := J) (K := K) F f).d i j ≫
-        appInv (J := J) (K := K) F f j := sorry
+        appInv (J := J) (K := K) F f j := by
+  apply (cancel_mono (app (J := J) (K := K) F f j)).mp
+  simp only [Category.assoc, app_inv_hom_id, Category.comp_id]
+  rw [← app_comm (J := J) (K := K) F f i j hij, ← Category.assoc,
+    app_inv_hom_id, Category.id_comp]
 
-/-- Lemma 17.31.3 (08TM), Lemma 18.35.3 (08TZ): the explicit forward comparison from the inverse
-image of a naive cotangent complex to the naive cotangent complex of the pulled-back ring map. -/
+/-- The forward comparison from the inverse image of a naive cotangent complex to the naive
+cotangent complex of the pulled-back ring map. -/
 @[stacks 08TM "comparison morphism", stacks 08TZ]
 noncomputable def map (f : O₁ ⟶ O₂) :
     source (J := J) (K := K) F f ⟶ target (J := J) (K := K) F f where
@@ -491,20 +650,20 @@ noncomputable def map (f : O₁ ⟶ O₂) :
 /-- The degree-`n` component of the inverse-image comparison is `app`. -/
 theorem map_f (f : O₁ ⟶ O₂) (n : ℤ) :
     (map (J := J) (K := K) F f).f n =
-      app (J := J) (K := K) F f n := sorry
+      app (J := J) (K := K) F f n := rfl
 
 /-- The degree `-1` component is the explicit conormal comparison. -/
 theorem map_f_negOne (f : O₁ ⟶ O₂) :
     (map (J := J) (K := K) F f).f (-1) =
-      Conormal.map (J := J) (K := K) F f := sorry
+      Conormal.map (J := J) (K := K) F f := rfl
 
 /-- The degree `0` component is the explicit differential-term comparison. -/
 theorem map_f_zero (f : O₁ ⟶ O₂) :
     (map (J := J) (K := K) F f).f 0 =
-      Differentials.map (J := J) (K := K) F f := sorry
+      Differentials.map (J := J) (K := K) F f := rfl
 
-/-- The named inverse comparison of naive cotangent complexes, assembled from the degreewise
-inverse owners. -/
+/-- The inverse comparison of naive cotangent complexes has the canonical inverse comparison
+in each degree. -/
 @[stacks 08TM "inverse comparison morphism", stacks 08TZ]
 noncomputable def mapInv [RepresentablyFlat F] (f : O₁ ⟶ O₂) :
     target (J := J) (K := K) F f ⟶ source (J := J) (K := K) F f where
@@ -514,31 +673,37 @@ noncomputable def mapInv [RepresentablyFlat F] (f : O₁ ⟶ O₂) :
 /-- The degree-`n` component of the named inverse comparison is `appInv`. -/
 @[simp, stacks 08TM "degreewise inverse comparison", stacks 08TZ]
 theorem mapInv_f [RepresentablyFlat F] (f : O₁ ⟶ O₂) (n : ℤ) :
-    (mapInv (J := J) (K := K) F f).f n = appInv (J := J) (K := K) F f n := sorry
+    (mapInv (J := J) (K := K) F f).f n = appInv (J := J) (K := K) F f n := rfl
 
 /-- In degree `-1`, the named inverse comparison is the conormal inverse. -/
 @[stacks 08TM "degree -1 inverse comparison", stacks 08TZ]
 theorem mapInv_f_negOne [RepresentablyFlat F] (f : O₁ ⟶ O₂) :
     (mapInv (J := J) (K := K) F f).f (-1) =
-      Conormal.mapInv (J := J) (K := K) F f := sorry
+      Conormal.mapInv (J := J) (K := K) F f := rfl
 
 /-- In degree `0`, the named inverse comparison is the differential-term inverse. -/
 @[stacks 08TM "degree 0 inverse comparison", stacks 08TZ]
 theorem mapInv_f_zero [RepresentablyFlat F] (f : O₁ ⟶ O₂) :
     (mapInv (J := J) (K := K) F f).f 0 =
-      Differentials.mapInv (J := J) (K := K) F f := sorry
+      Differentials.mapInv (J := J) (K := K) F f := rfl
 
 /-- The forward comparison followed by its named inverse is the identity. -/
 @[simp, stacks 08TM "comparison inverse law", stacks 08TZ]
 theorem map_hom_inv_id [RepresentablyFlat F] (f : O₁ ⟶ O₂) :
-    map (J := J) (K := K) F f ≫ mapInv (J := J) (K := K) F f = 𝟙 _ := sorry
+    map (J := J) (K := K) F f ≫ mapInv (J := J) (K := K) F f = 𝟙 _ := by
+  apply HomologicalComplex.hom_ext
+  intro n
+  exact app_hom_inv_id (J := J) (K := K) F f n
 
 /-- The named inverse followed by the forward comparison is the identity. -/
 @[simp, stacks 08TM "inverse comparison law", stacks 08TZ]
 theorem map_inv_hom_id [RepresentablyFlat F] (f : O₁ ⟶ O₂) :
-    mapInv (J := J) (K := K) F f ≫ map (J := J) (K := K) F f = 𝟙 _ := sorry
+    mapInv (J := J) (K := K) F f ≫ map (J := J) (K := K) F f = 𝟙 _ := by
+  apply HomologicalComplex.hom_ext
+  intro n
+  exact app_inv_hom_id (J := J) (K := K) F f n
 
-/-- Lemma 17.31.3 (08TM), Lemma 18.35.3 (08TZ): the canonical explicit isomorphism from
+/-- The canonical explicit isomorphism from
 inverse image of the naive cotangent complex to the naive cotangent complex of the pulled-back
 ring map. -/
 @[stacks 08TM "comparison isomorphism", stacks 08TZ]
@@ -549,58 +714,57 @@ noncomputable def iso [RepresentablyFlat F] (f : O₁ ⟶ O₂) :
   hom_inv_id := map_hom_inv_id (J := J) (K := K) F f
   inv_hom_id := map_inv_hom_id (J := J) (K := K) F f
 
-/-- Lemma 17.31.3 (08TM), Lemma 18.35.3 (08TZ): for a representably flat morphism of sites, the
-canonical comparison of naive cotangent complexes is invertible.  The reusable data owner is
-`iso`; this theorem is the proposition-level bridge. -/
+/-- For a representably flat morphism of sites, the
+canonical comparison of naive cotangent complexes is invertible.  Its inverse is the canonical degreewise inverse comparison. -/
 @[stacks 08TM "comparison is an isomorphism", stacks 08TZ]
-theorem map_isIso [RepresentablyFlat F] (f : O₁ ⟶ O₂) :
-    IsIso (map (J := J) (K := K) F f) := sorry
+instance map_isIso [RepresentablyFlat F] (f : O₁ ⟶ O₂) :
+    IsIso (map (J := J) (K := K) F f) := (iso (J := J) (K := K) F f).isIso_hom
 
 /-- The forward map of the inverse-image comparison isomorphism is the explicit comparison. -/
 @[simp, stacks 08TM "comparison isomorphism hom", stacks 08TZ]
 theorem iso_hom [RepresentablyFlat F] (f : O₁ ⟶ O₂) :
-    (iso (J := J) (K := K) F f).hom = map (J := J) (K := K) F f := sorry
+    (iso (J := J) (K := K) F f).hom = map (J := J) (K := K) F f := rfl
 
 /-- In degree `n`, the forward map of the inverse-image comparison isomorphism is `app`. -/
 @[simp, stacks 08TM "degreewise comparison isomorphism hom", stacks 08TZ]
 theorem iso_hom_f [RepresentablyFlat F] (f : O₁ ⟶ O₂) (n : ℤ) :
     (iso (J := J) (K := K) F f).hom.f n =
-      app (J := J) (K := K) F f n := sorry
+      app (J := J) (K := K) F f n := rfl
 
 /-- The inverse map of the inverse-image comparison isomorphism is the named inverse comparison. -/
 @[stacks 08TM "inverse comparison morphism", stacks 08TZ, simp]
 theorem iso_inv [RepresentablyFlat F] (f : O₁ ⟶ O₂) :
-    (iso (J := J) (K := K) F f).inv = mapInv (J := J) (K := K) F f := sorry
+    (iso (J := J) (K := K) F f).inv = mapInv (J := J) (K := K) F f := rfl
 
 /-- In degree `n`, the inverse map of the comparison isomorphism is the named component inverse. -/
 @[stacks 08TM "degreewise inverse comparison", stacks 08TZ, simp]
 theorem iso_inv_f [RepresentablyFlat F] (f : O₁ ⟶ O₂) (n : ℤ) :
     (iso (J := J) (K := K) F f).inv.f n =
-      appInv (J := J) (K := K) F f n := sorry
+      appInv (J := J) (K := K) F f n := rfl
 
 /-- In degree `-1`, the forward inverse-image comparison is the conormal comparison. -/
 @[stacks 08TM "degree -1 comparison", stacks 08TZ]
 theorem iso_hom_f_negOne [RepresentablyFlat F] (f : O₁ ⟶ O₂) :
     (iso (J := J) (K := K) F f).hom.f (-1) =
-      Conormal.map (J := J) (K := K) F f := sorry
+      Conormal.map (J := J) (K := K) F f := rfl
 
 /-- In degree `0`, the forward inverse-image comparison is the differential-term comparison. -/
 @[stacks 08TM "degree 0 comparison", stacks 08TZ]
 theorem iso_hom_f_zero [RepresentablyFlat F] (f : O₁ ⟶ O₂) :
     (iso (J := J) (K := K) F f).hom.f 0 =
-      Differentials.map (J := J) (K := K) F f := sorry
+      Differentials.map (J := J) (K := K) F f := rfl
 
 /-- In degree `-1`, the inverse comparison is the named conormal inverse. -/
 @[stacks 08TM "degree -1 inverse comparison", stacks 08TZ]
 theorem iso_inv_f_negOne [RepresentablyFlat F] (f : O₁ ⟶ O₂) :
     (iso (J := J) (K := K) F f).inv.f (-1) =
-      Conormal.mapInv (J := J) (K := K) F f := sorry
+      Conormal.mapInv (J := J) (K := K) F f := rfl
 
 /-- In degree `0`, the inverse comparison is the named differential-term inverse. -/
 @[stacks 08TM "degree 0 inverse comparison", stacks 08TZ]
 theorem iso_inv_f_zero [RepresentablyFlat F] (f : O₁ ⟶ O₂) :
     (iso (J := J) (K := K) F f).inv.f 0 =
-      Differentials.mapInv (J := J) (K := K) F f := sorry
+      Differentials.mapInv (J := J) (K := K) F f := rfl
 
 end Comparison
 
@@ -643,7 +807,7 @@ noncomputable def mapOfIso
       (F.sheafPushforwardContinuous RingCat.{u} J K).map e.hom =
         underlyingRingUnit (J := J) (K := K) F O₂) :
     source (J := J) (K := K) F f ⟶ targetOfIso (J := J) (K := K) F f e :=
-  (SheafOfModules.RingedSite.InverseImage.UnderlyingRing.Complex.objIsoOfIso
+  (UnderlyingRing.Complex.objIsoOfIso
       F O₂ (up ℤ) e he (NaiveCotangent.obj O₁ (Under.mk f))).hom ≫
     ((SheafOfModules.restrictScalars e.inv).mapHomologicalComplex (up ℤ)).map
       (Comparison.map (J := J) (K := K) F f)
@@ -660,7 +824,11 @@ instance mapOfIso_isIso
     (he : structureMap (J := J) (K := K) F O₂ ≫
       (F.sheafPushforwardContinuous RingCat.{u} J K).map e.hom =
         underlyingRingUnit (J := J) (K := K) F O₂) :
-    IsIso (mapOfIso (J := J) (K := K) F f e he) := sorry
+    IsIso (mapOfIso (J := J) (K := K) F f e he) := by
+  have : IsIso (Comparison.map (J := J) (K := K) F f) :=
+    Comparison.map_isIso (J := J) (K := K) F f
+  unfold mapOfIso
+  infer_instance
 
 /-- In each degree, the forward underlying-ring comparison first changes the pullback
 presentation and then applies the naive cotangent comparison. -/
@@ -676,11 +844,11 @@ theorem mapOfIso_f
         underlyingRingUnit (J := J) (K := K) F O₂)
     (i : ℤ) :
     (mapOfIso (J := J) (K := K) F f e he).f i =
-      (SheafOfModules.RingedSite.InverseImage.UnderlyingRing.pullbackIsoOfIso
+      (UnderlyingRing.pullbackIsoOfIso
           F O₂ e he).hom.app
           ((NaiveCotangent.obj O₁ (Under.mk f)).X i) ≫
         (SheafOfModules.restrictScalars e.inv).map
-          (Comparison.app (J := J) (K := K) F f i) := sorry
+          (Comparison.app (J := J) (K := K) F f i) := rfl
 
 variable [(forget₂ CommRingCat RingCat.{u}).PreservesLeftKanExtensions F.op]
 variable [K.PreservesSheafification (forget₂ CommRingCat RingCat.{u})]
@@ -711,8 +879,10 @@ instance map_isIso
     [RepresentablyFlat F]
     [(SheafOfModules.pushforward
       (underlyingRingUnit (J := J) (K := K) F O₂)).IsRightAdjoint] :
-    IsIso (map (J := J) (K := K) F f) := sorry
+    IsIso (map (J := J) (K := K) F f) :=
+  mapOfIso_isIso (J := J) (K := K) F f _ _
 
+set_option maxRecDepth 2048 in
 /-- The degreewise formula for the canonical forward underlying-ring comparison. -/
 @[simp]
 theorem map_f
@@ -721,12 +891,12 @@ theorem map_f
       (underlyingRingUnit (J := J) (K := K) F O₂)).IsRightAdjoint]
     (i : ℤ) :
     (map (J := J) (K := K) F f).f i =
-      (SheafOfModules.RingedSite.InverseImage.UnderlyingRing.pullbackIso
+      (UnderlyingRing.pullbackIso
           (J := J) (K := K) F O₂).hom.app
           ((NaiveCotangent.obj O₁ (Under.mk f)).X i) ≫
         (SheafOfModules.restrictScalars
           (ringSheafPullbackIso (J := J) (K := K) F O₂).inv).map
-            (Comparison.app (J := J) (K := K) F f i) := sorry
+            (Comparison.app (J := J) (K := K) F f i) := rfl
 
 end UnderlyingRing
 
@@ -736,4 +906,6 @@ end InverseImage
 -- maps, and adjunction transposes. The concrete maps do not use the unfinished invertibility
 -- proofs; any `sorryAx` below is confined to compatibility and invertibility proof debt.
 
-end SheafOfModules.RingedSite.NaiveCotangent
+end NaiveCotangent
+end RingedSite
+end SheafOfModules

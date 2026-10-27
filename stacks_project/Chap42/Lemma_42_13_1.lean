@@ -22,13 +22,37 @@ namespace Scheme
 namespace Hom
 namespace DimensionFormula
 
-/- Lemma 42.13.1 (1): a flat morphism of relative dimension `r` shifts the
-`δ`-dimension of every closed subset with nonempty inverse image by `r`. -/
+/- Lemma 42.13.1 (1), with the authorized correction: a nonempty closed inverse
+image has `δ`-dimension equal to that of the closure of the intersection of the
+closed subset with the morphism's range, plus the relative dimension `r`. -/
 @[stacks 02R8] #check
   (AlgebraicGeometry.Scheme.Hom.DimensionFormula.closedPreimageDeltaDimension :
     ∀ {S : Scheme.{u}} [UniversallyCatenary S] (δ : S → ℤ) [IsDimensionFunction δ]
       (X Y : Over S) [LocallyOfFiniteType X.hom] [LocallyOfFiniteType Y.hom]
       (f : X ⟶ Y) (r : ℕ) [Flat f.left] [RelativeDimension f.left r]
+      (Z : Closeds Y.left) (hZ : Nonempty (Z.preimage f.left.continuous)),
+      X.hom.closedSubschemeDeltaDimension δ
+          (IdealSheafData.vanishingIdeal (Z.preimage f.left.continuous)) =
+        Y.hom.closedSubschemeDeltaDimension δ
+          (IdealSheafData.vanishingIdeal (Closeds.closure ((Z : Set Y.left) ∩ Set.range f.left))) +
+          (r : EInt))
+
+/- Lemma 42.13.1: the upper-bound consequence of the corrected formula. -/
+#check (AlgebraicGeometry.Scheme.Hom.DimensionFormula.closedPreimageDeltaDimension_le :
+    ∀ {S : Scheme.{u}} [UniversallyCatenary S] (δ : S → ℤ) [IsDimensionFunction δ]
+      (X Y : Over S) [LocallyOfFiniteType X.hom] [LocallyOfFiniteType Y.hom]
+      (f : X ⟶ Y) (r : ℕ) [Flat f.left] [RelativeDimension f.left r]
+      (Z : Closeds Y.left) (hZ : Nonempty (Z.preimage f.left.continuous)),
+      X.hom.closedSubschemeDeltaDimension δ
+          (IdealSheafData.vanishingIdeal (Z.preimage f.left.continuous)) ≤
+        Y.hom.closedSubschemeDeltaDimension δ (IdealSheafData.vanishingIdeal Z) +
+          (r : EInt))
+
+/- Lemma 42.13.1: equality with the entire closed subset under surjectivity. -/
+#check (AlgebraicGeometry.Scheme.Hom.DimensionFormula.closedPreimageDeltaDimension_of_surjective :
+    ∀ {S : Scheme.{u}} [UniversallyCatenary S] (δ : S → ℤ) [IsDimensionFunction δ]
+      (X Y : Over S) [LocallyOfFiniteType X.hom] [LocallyOfFiniteType Y.hom]
+      (f : X ⟶ Y) (r : ℕ) [Flat f.left] [RelativeDimension f.left r] [Surjective f.left]
       (Z : Closeds Y.left) (hZ : Nonempty (Z.preimage f.left.continuous)),
       X.hom.closedSubschemeDeltaDimension δ
           (IdealSheafData.vanishingIdeal (Z.preimage f.left.continuous)) =

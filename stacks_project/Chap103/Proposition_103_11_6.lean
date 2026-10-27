@@ -6,10 +6,8 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import ReasLib.AlgebraicGeometry.RingedSite.Module.UniverseLift
-public import stacks_project.Chap96.Definition_96_11_1_QCoh
-public import stacks_project.Chap96.Lemma_96_19_9
-public import stacks_project.Chap96.Proposition_96_20_1
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.CechSpectralSequence
+import StacksCheckRecall
 
 /-!
 # Cohomology of a quasi-coherent module via an fppf Čech nerve
@@ -30,30 +28,16 @@ universe u
 
 namespace AlgebraicGeometry.GroupoidsOver
 
-variable {S : Scheme.{u}} {U X : GroupoidsOver S}
-
-/-- The Čech-cohomology universe of an `𝒪_𝒳`-module on the associated fppf site. -/
-noncomputable abbrev associatedFppfModuleCarrierLift
-    (F : SheafOfModules.{u} (associatedStructureSheaf X StandardTopology.fppf)) :
-    SheafOfModules.{u + 1} (associatedStructureSheaf X StandardTopology.fppf) :=
-  RingedSite.Module.carrierLift (associatedRingedSite X StandardTopology.fppf) F
-
-/-- `associatedFppfModuleCarrierLift` is the canonical ringed-site carrier lift. -/
-theorem associatedFppfModuleCarrierLift_eq
-    (F : SheafOfModules.{u} (associatedStructureSheaf X StandardTopology.fppf)) :
-    associatedFppfModuleCarrierLift F =
-      RingedSite.Module.carrierLift (associatedRingedSite X StandardTopology.fppf) F :=
-  sorry
-
-/-- Proposition 103.11.6: Let `f : 𝒰 ⟶ 𝒳` be a morphism of algebraic stacks.
-Assume `f` is representable by algebraic spaces, surjective, flat, and locally
-of finite presentation. Let `F` be a quasi-coherent `𝒪_𝒳`-module. Then there
-is a spectral sequence `E₂^{p, q} = H^q(𝒰_p, f_p^* F) ⇒ H^{p+q}(𝒳, F)`,
-where `f_p` is the Čech-nerve projection `Cech.proj f ⦋p⦌ : 𝒰 ×_𝒳 ⋯ ×_𝒳 𝒰 ⟶ 𝒳`
-on `p+1` factors. The displayed page is the project's page-1 object
-`relativeCechModulePageOne f StandardTopology.fppf (associatedFppfModuleCarrierLift F) p q`. -/
-@[stacks 0784]
-theorem exists_qcohRelativeCechSpectralSequence [AlgebraicStack U]
+/- Proposition 103.11.6: A representable, surjective, flat morphism of algebraic
+stacks locally of finite presentation gives a Čech spectral sequence for a
+quasi-coherent module. The pinned proposition displays
+`E₂^{p, q} = H^q(𝒰_p, f_p^* F) ⇒ H^{p+q}(𝒳, F)`, but its proof cites
+Proposition 96.20.1, whose fppf formula displays `E₁^{p, q}`. This check uses
+the cited theorem's standard Čech indexing: simplex cohomology is page 1,
+with differential degree `(r, 1-r)`. Here `𝒰_p` has `p + 1` factors over `𝒳`
+and `f_p` is `Cech.proj f ⦋p⦌`. -/
+@[stacks 0784] #check (AlgebraicGeometry.GroupoidsOver.exists_qcohRelativeCechSpectralSequence :
+    ∀ {S : Scheme.{u}} {U X : GroupoidsOver S} [AlgebraicStack U]
     [AlgebraicStack X] (f : U ⟶ X)
     (F : SheafOfModules.{u} (associatedStructureSheaf X StandardTopology.fppf))
     [F.IsQuasicoherent] [Groupoids.Hom.Surjective f] [Groupoids.Hom.Flat f]
@@ -63,17 +47,16 @@ theorem exists_qcohRelativeCechSpectralSequence [AlgebraicStack U]
     [∀ p : ℕ, HasSheafify (relativeCechSite f StandardTopology.fppf p)
       AddCommGrpCat.{u + 1}]
     [∀ p : ℕ, HasExt.{u + 1}
-      (Sheaf (relativeCechSite f StandardTopology.fppf p) AddCommGrpCat.{u + 1})] :
+      (Sheaf (relativeCechSite f StandardTopology.fppf p) AddCommGrpCat.{u + 1})],
     ∃ (E : CohomologicalSpectralSequenceNat AddCommGrpCat.{u + 1} 1)
       (pageOneIso : ∀ p q : ℕ,
         (E.page 1 le_rfl).X (p, q) ≅
           relativeCechModulePageOne f StandardTopology.fppf
-            (associatedFppfModuleCarrierLift F) p q),
+            (RingedSite.Module.carrierLift (associatedRingedSite X StandardTopology.fppf) F) p q),
       CohomologicalSpectralSequenceNat.ConvergesTo E
         (fun n ↦ (Sheaf.functorH (X.associatedTopology StandardTopology.fppf) n).obj
           ((SheafOfModules.toSheaf
               (associatedStructureSheaf X StandardTopology.fppf)).obj
-            (associatedFppfModuleCarrierLift F))) :=
-  sorry
+            (RingedSite.Module.carrierLift (associatedRingedSite X StandardTopology.fppf) F))))
 
 end AlgebraicGeometry.GroupoidsOver

@@ -123,17 +123,25 @@ theorem containedSliceInclusion_extension_eq :
         inferInstance).obj F := rfl
 
 /-- Restricting the canonical extension of an abelian sheaf along a bounded big
-pro-étale slice inclusion recovers that sheaf. -/
+pro-étale slice inclusion recovers that sheaf. The inverse is the limit lift whose
+component at an arrow in the image of the inclusion is the corresponding restriction map. -/
 def containedSliceInclusion_extension_restrict :
     (sliceAbelianRestriction incl e S).obj
-      (containedSliceInclusion_extension incl e S F) ≅ F :=
-  @asIso _ _ _ _ ((sliceAbelianRestrictionExtensionAdjunction incl e S).counit.app F)
-    (@Functor.FullyFaithful.sheafAdjunctionCocontinuous_counit_app_isIso _ _ _ _
-      (X.toGrothendieck.over S) (Y.toGrothendieck.over (incl.obj S))
-      (Over.post (X := S) incl) AddCommGrpCat.{w} _
-      (Functor.FullyFaithful.over S incl (inclusionFullyFaithful incl e))
-      (sliceInclusion_isContinuous incl e S) (sliceInclusion_isCocontinuous incl e S)
-      inferInstance F)
+      (containedSliceInclusion_extension incl e S F) ≅ F where
+  hom := (sliceAbelianRestrictionExtensionAdjunction incl e S).counit.app F
+  inv := ObjectProperty.homMk
+    { app := fun U ↦
+        ((Over.post (X := S) incl).op.isPointwiseRightKanExtensionRanCounit
+          F.obj ((Over.post (X := S) incl).op.obj U)).lift
+          { pt := F.obj.obj U
+            π :=
+              { app := fun j ↦ F.obj.map
+                  ((Functor.FullyFaithful.over S incl (inclusionFullyFaithful incl e)).op.preimage
+                    j.hom)
+                naturality := by sorry } }
+      naturality := by sorry }
+  hom_inv_id := by sorry
+  inv_hom_id := by sorry
 
 /-- The extension-restriction isomorphism is the canonical cocontinuous adjunction counit. -/
 theorem containedSliceInclusion_extension_restrict_eq :
@@ -144,7 +152,9 @@ theorem containedSliceInclusion_extension_restrict_eq :
       (Over.post (X := S) incl) AddCommGrpCat.{w} _
       (Functor.FullyFaithful.over S incl (inclusionFullyFaithful incl e))
       (sliceInclusion_isContinuous incl e S) (sliceInclusion_isCocontinuous incl e S)
-      inferInstance F) := rfl
+      inferInstance F) := by
+  apply Iso.ext
+  rfl
 
 end Extension
 

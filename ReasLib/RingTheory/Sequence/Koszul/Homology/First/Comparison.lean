@@ -157,12 +157,6 @@ noncomputable def comparison :
 instance comparison_isIso :
     IsIso (comparison (R := R) f N) := sorry
 
-#synth Epi (ModuleCat.ofHom (degreeTwoMap (R := R) (n := n) N))
-#synth IsIso (degreeOneMap (R := R) (n := n) N)
-#synth Mono (degreeZeroMap (R := R) (n := n) N)
-#synth IsIso (ShortComplex.homologyMap (modelMap (R := R) f N))
-#synth IsIso (comparison (R := R) f N)
-
 end KoszulComplex.Homology.H1.Comparison
 
 namespace KoszulComplex.Homology.H1

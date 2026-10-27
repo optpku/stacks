@@ -363,13 +363,71 @@ theorem comparison_isIso
     (M : DifferentialGradedModule.{uR, max uA uS} A) :
     IsIso (comparison (S := S) M) := sorry
 
+/-- The map `x ↦ x ⊗ 1` into ordinary base change, in each homogeneous degree. -/
+def comparisonUnit (M : DifferentialGradedModule.{uR, max uA uS} A) (p : ℤ) :
+    M.X p →ₗ[R] (obj (S := S) M).X p :=
+  (summandInclusion (S := S) M p 0 p (add_zero p)).hom.comp
+    ((_root_.TensorProduct.mk R (M.X p)
+      ((coefficients (R := R) (S := S)).X 0)).flip
+        (coefficients (R := R) (S := S)).one)
+
+/-- On an unbalanced homogeneous summand, the inverse comparison is
+`x ⊗ b ↦ (x ⊗ 1) · b`, followed by total-degree reindexing. -/
+def comparisonInvComponent
+    (M : DifferentialGradedModule.{uR, max uA uS} A) (n p q : ℤ)
+    (h : p + q = n) :
+    DifferentialGradedModule.TensorProduct.baseTensor (R := R) (M.X p)
+        ((extension (S := S) A).X q) ⟶ (obj (S := S) M).X n :=
+  ModuleCat.TensorProduct.lift R
+      ((action (S := S) M p q).comp (comparisonUnit (S := S) M p)) ≫
+    eqToHom (congrArg (fun k : ℤ ↦ (obj (S := S) M).X k) h)
+
+/-- The explicit inverse comparison before imposing the homogeneous `A`-balancing relations. -/
+def comparisonInvRawLinear
+    (M : DifferentialGradedModule.{uR, max uA uS} A) (n : ℤ) :
+    DifferentialGradedBimodule.Tensor.rawTerm M (extension (S := S) A) n →ₗ[R]
+      (obj (S := S) M).X n :=
+  (mapBifunctorDesc
+    (K₁ := DifferentialGradedBimodule.Tensor.leftComplex M)
+    (K₂ := DifferentialGradedBimodule.Tensor.rightComplex (extension (S := S) A))
+    (F := DifferentialGradedModule.TensorProduct.baseBifunctor (R := R)) (c := up ℤ)
+    (fun p q h ↦ comparisonInvComponent (S := S) M n p q h)).hom
+
+/-- Descend `x ⊗ b ↦ (x ⊗ 1) · b` through the balancing quotient. -/
+def comparisonInvLinear
+    (M : DifferentialGradedModule.{uR, max uA uS} A) (n : ℤ) :
+    (DifferentialGradedBimodule.Tensor.obj M (extension (S := S) A)).X n →ₗ[R]
+      (obj (S := S) M).X n :=
+  (DifferentialGradedBimodule.Tensor.relations M (extension (S := S) A) n).liftQ
+    (comparisonInvRawLinear (S := S) M n) sorry
+
+/-- The explicit inverse of the ordinary-to-relative base-change comparison. -/
+def comparisonInv (M : DifferentialGradedModule.{uR, max uA uS} A) :
+    DifferentialGradedBimodule.Tensor.obj M (extension (S := S) A) ⟶
+      obj (S := S) M where
+  hom := comparisonInvLinear (S := S) M
+  comm_d := sorry
+  comm_smul := sorry
+
+/-- The inverse comparison on homogeneous relative pure tensors. -/
+@[simp]
+theorem comparisonInv_tmul
+    (M : DifferentialGradedModule.{uR, max uA uS} A) (p q : ℤ)
+    (x : M.X p) (b : (extension (S := S) A).X q) :
+    (comparisonInv (S := S) M).hom (p + q)
+        (DifferentialGradedBimodule.Tensor.tmul M (extension (S := S) A) x b) =
+      action (S := S) M p q (comparisonUnit (S := S) M p x) b := sorry
+
 /-- Ordinary ground-ring base change and relative tensor extension are canonically isomorphic. -/
 @[stacks 0BYZ "ordinary and relative base-change isomorphism"]
 noncomputable def comparisonIso
     (M : DifferentialGradedModule.{uR, max uA uS} A) :
     obj (S := S) M ≅
-      DifferentialGradedBimodule.Tensor.obj M (extension (S := S) A) :=
-  @asIso _ _ _ _ (comparison (S := S) M) (comparison_isIso (S := S) M)
+      DifferentialGradedBimodule.Tensor.obj M (extension (S := S) A) where
+  hom := comparison (S := S) M
+  inv := comparisonInv (S := S) M
+  hom_inv_id := sorry
+  inv_hom_id := sorry
 
 /-- The forward map of `comparisonIso` is the canonical ordinary-to-relative comparison. -/
 @[simp, stacks 0BYZ "forward map of the ordinary base-change comparison isomorphism"]

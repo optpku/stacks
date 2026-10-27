@@ -7,7 +7,9 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import ReasLib.Algebra.Homology.HomotopyCategory.Injective.Localization
-public import ReasLib.CategoryTheory.DerivedCategory.Bounded
+public import Mathlib.Algebra.Homology.DerivedCategory.RightDerivedFunctorPlus
+public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Derived.Basic
+public import ReasLib.Algebra.Category.ModuleCat.Sheaf.EnoughInjectives
 import StacksCheckRecall
 
 @[expose] public section
@@ -22,31 +24,37 @@ contains no chapter-local derived-category instance or resolution notation.
 -/
 
 open CategoryTheory
-open DerivedCategory.TStructure
+open CategoryTheory.Limits
 open scoped CategoryTheory
 
-universe w v u
+section RightDerivedEquation
 
-section
+universe u wB vB uB
 
-variable {X : Type u} [Category.{v} X] [Abelian X] [HasDerivedCategory.{w} X]
+variable {B : Type uB} [Category.{vB} B] [Abelian B]
+variable [HasDerivedCategory.{wB} B]
 
-/- 20.3.0.1 (1): `D⁺(X)` is the full subcategory cut out by `t.plus`; membership
-means vanishing cohomology in all sufficiently low degrees. -/
-@[stacks 013V] #check @DerivedCategory.plus_iff
+variable (X : AlgebraicGeometry.RingedSpace.{u})
+    (F : X.Modules ⥤ B) [F.Additive] [PreservesFiniteLimits F]
+    (J : HomotopyCategory.Plus.InjectiveResolutionFunctor X.Modules)
+    (j' : DerivedCategory.Plus X.Modules ⥤ HomotopyCategory.Plus.Injective X.Modules)
+    (h_lift : Localization.Lifting DerivedCategory.Plus.Qh
+      (HomotopyCategory.Plus.quasiIso X.Modules) J.toFunctor j')
 
-#check (t.plus : ObjectProperty (DerivedCategory X))
-#check (D⁺(X) : Type _)
+/- 20.3.0.1: the bounded-below right derived functor of a left exact functor
+on modules over a ringed space is naturally isomorphic to its evaluation on
+the lifted injective resolution `j′`. The source formula `RF = F ∘ j′` uses
+termwise application of `F` followed by localization in the target. -/
+@[stacks 05U3]
+#check
+  (CategoryTheory.HomotopyCategory.Plus.InjectiveResolutionFunctor.isIsomorphic_rightDerived_lift
+    DerivedCategory.Plus.Qh J j' h_lift
+    (F.mapHomotopyCategoryPlus ⋙ DerivedCategory.Plus.Qh)
+    F.rightDerivedFunctorPlus F.rightDerivedFunctorPlusUnit :
+    IsIsomorphic F.rightDerivedFunctorPlus
+      (j' ⋙ HomotopyCategory.Plus.Injective.ι X.Modules ⋙
+        (F.mapHomotopyCategoryPlus ⋙ DerivedCategory.Plus.Qh)))
 
-end
-
-/- 20.3.0.1 (2): after a functorial injective resolution is lifted through a
-quasi-isomorphism localization, every right derived functor is canonically
-isomorphic to evaluation on the lifted injective representative. -/
-@[stacks 05TN] #check
-  @HomotopyCategory.Plus.InjectiveResolutionFunctor.isIsomorphic_rightDerived_lift
-
-#check @HomotopyCategory.Plus.InjectiveResolutionFunctor.liftComparison
-#check @Functor.rightDerivedUnique
+end RightDerivedEquation
 
 end

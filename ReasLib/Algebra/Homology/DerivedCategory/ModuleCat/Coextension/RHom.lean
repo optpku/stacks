@@ -7,7 +7,7 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import ReasLib.Algebra.Homology.DerivedCategory.ModuleCat.Coextension
-public import ReasLib.Algebra.Homology.DerivedCategory.InternalHom.Model.RHom
+public import ReasLib.Algebra.Homology.DerivedCategory.ModuleCat.RHom
 public import ReasLib.Algebra.Homology.DerivedCategory.ModuleEmbedding
 public import ReasLib.Algebra.Homology.DerivedCategory.ScalarExtension.Homology
 import Mathlib.Tactic.CrossRefAttribute

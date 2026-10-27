@@ -62,3 +62,11 @@ theorem isLocallyGeneratedBySections_iff_isQuasicoherent
       (Subobject.underlying.obj I).IsQuasicoherent := sorry
 
 end AlgebraicGeometry.Scheme.Modules.IdealSubobject
+
+namespace AlgebraicGeometry.Scheme.IdealSheafData
+
+/-- The module sheaf represented by ideal-sheaf data on a scheme is quasi-coherent. -/
+theorem toModule_isQuasicoherent {X : Scheme.{u}} (I : X.IdealSheafData) :
+    I.toModule.IsQuasicoherent := sorry
+
+end AlgebraicGeometry.Scheme.IdealSheafData

@@ -29,7 +29,7 @@ namespace MittagLeffler
 
 /-- An arbitrary power of a Noetherian commutative ring is Mittag-Leffler over the ring. -/
 @[stacks 05D0 "Mittag-Leffler instance for a power of a Noetherian ring"]
-instance piSelf : MittagLeffler R (A → R) := sorry
+instance piSelf [IsNoetherianRing R] : MittagLeffler R (A → R) := sorry
 
 end MittagLeffler
 

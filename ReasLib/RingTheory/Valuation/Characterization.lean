@@ -13,27 +13,16 @@ public import Mathlib.Tactic.CrossRefAttribute
 # Characterizations of Valuation Rings
 
 @stack 052K
-@stack 090Q
 
 This leaf contains source-facing bridges for the canonical `ValuationRing`
-owner.  The primary criterion remains mathlib's `IsBezout` formulation; the
-finitely-generated-ideal formulation is exposed only as a thin reusable view.
+owner.  The local Bezout-domain criterion is mathlib's
+`ValuationRing.iff_local_bezout_domain`; `IsBezout.isPrincipal_of_FG` exposes
+the finitely-generated-ideal condition.
 -/
 
 @[expose] public section
 
 universe u
-
-namespace ValuationRing
-
-/-- Lemma 10.50.15: for a commutative domain, being a valuation ring is equivalent to being local
-and having every finitely generated ideal principal. -/
-@[stacks 090Q]
-theorem iff_local_and_fg_ideals_principal
-    (A : Type u) [CommRing A] [IsDomain A] :
-    ValuationRing A ↔ IsLocalRing A ∧ ∀ I : Ideal A, I.FG → I.IsPrincipal := sorry
-
-end ValuationRing
 
 namespace Subring
 

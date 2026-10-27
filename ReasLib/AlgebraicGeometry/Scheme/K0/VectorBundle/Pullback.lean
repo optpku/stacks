@@ -8,6 +8,8 @@ module
 
 public import ReasLib.AlgebraicGeometry.Scheme.K0.VectorBundle.Ring
 public import ReasLib.AlgebraicGeometry.Scheme.Module.FiniteLocallyFree.Rank
+public import ReasLib.AlgebraicGeometry.LocallyRingedSpace.Module.FiniteFreeRetract
+public import Mathlib.Algebra.Category.ModuleCat.Sheaf.PullbackFree
 
 /-!
 # Pullback on the Grothendieck ring of vector bundles
@@ -41,7 +43,7 @@ noncomputable def pullbackObj (f : X ⟶ Y)
 theorem pullbackObj_obj (f : X ⟶ Y)
     (E : ObjectProperty.FullSubcategory
       (SheafOfModules.IsFiniteLocallyFree : ObjectProperty Y.Modules)) :
-    (pullbackObj f E).obj = (Scheme.Modules.pullback f).obj E.obj := sorry
+    (pullbackObj f E).obj = (Scheme.Modules.pullback f).obj E.obj := rfl
 
 /-- Pullback classes kill the short-exact relations defining vector-bundle `K₀`. -/
 theorem relations_le_ker_pullback (f : X ⟶ Y) :
@@ -68,11 +70,56 @@ theorem pullbackAdd_of (f : X ⟶ Y)
       (SheafOfModules.IsFiniteLocallyFree : ObjectProperty Y.Modules) E) =
       ObjectProperty.GrothendieckGroup.of
         (SheafOfModules.IsFiniteLocallyFree : ObjectProperty X.Modules)
-        (pullbackObj f E) := sorry
+        (pullbackObj f E) := by
+  exact FreeAbelianGroup.lift_apply_of _ E
+
+private theorem class_eq_of_iso
+    {E F : ObjectProperty.FullSubcategory
+      (SheafOfModules.IsFiniteLocallyFree : ObjectProperty X.Modules)}
+    (e : E.obj ≅ F.obj) :
+    ObjectProperty.GrothendieckGroup.of
+        (SheafOfModules.IsFiniteLocallyFree : ObjectProperty X.Modules) E =
+      ObjectProperty.GrothendieckGroup.of
+        (SheafOfModules.IsFiniteLocallyFree : ObjectProperty X.Modules) F := by
+  let M : X.Modules := CategoryTheory.Limits.terminal X.Modules
+  have hM : CategoryTheory.Limits.IsZero M := by
+    apply (CategoryTheory.Limits.IsZero.iff_id_eq_zero _).2
+    exact (CategoryTheory.Limits.terminalIsTerminal (C := X.Modules)).hom_ext _ _
+  letI : SheafOfModules.IsFiniteLocallyFree
+      (SheafOfModules.unit X.ringCatSheaf) := (unitObject X).property
+  let r : Retract M (SheafOfModules.unit X.ringCatSheaf) :=
+    { i := 0, r := 0, retract := hM.eq_of_src _ _ }
+  let Z : ObjectProperty.FullSubcategory
+      (SheafOfModules.IsFiniteLocallyFree : ObjectProperty X.Modules) :=
+    ⟨M, SheafOfModules.IsFiniteLocallyFree.ofRetract
+      (X := X.toLocallyRingedSpace) r⟩
+  exact ObjectProperty.GrothendieckGroup.of_iso Z hM
+    (ObjectProperty.isoMk _ e)
+
+private theorem addHom_ext {M : Type*} [AddCommGroup M]
+    {p q : VectorBundleK0 X →+ M}
+    (h : ∀ E, p (ObjectProperty.GrothendieckGroup.of
+      (SheafOfModules.IsFiniteLocallyFree : ObjectProperty X.Modules) E) =
+        q (ObjectProperty.GrothendieckGroup.of
+          (SheafOfModules.IsFiniteLocallyFree : ObjectProperty X.Modules) E)) : p = q := by
+  apply QuotientAddGroup.addMonoidHom_ext
+  exact FreeAbelianGroup.lift_ext _ _ h
 
 /-- Additive pullback preserves the tensor-unit class. -/
 theorem pullbackAdd_map_one (f : X ⟶ Y) :
-    pullbackAdd f (1 : VectorBundleK0 Y) = 1 := sorry
+    pullbackAdd f (1 : VectorBundleK0 Y) = 1 := by
+  letI : (SheafOfModules.pushforward f.toRingCatSheafHom).IsRightAdjoint :=
+    (Scheme.Modules.pullbackPushforwardAdjunction f).isRightAdjoint
+  letI : (TopologicalSpace.Opens.map f.base).Final :=
+    CategoryTheory.final_of_representablyFlat (TopologicalSpace.Opens.map f.base)
+  change pullbackAdd f (ObjectProperty.GrothendieckGroup.of
+    (SheafOfModules.IsFiniteLocallyFree : ObjectProperty Y.Modules) (unitObject Y)) =
+      ObjectProperty.GrothendieckGroup.of
+        (SheafOfModules.IsFiniteLocallyFree : ObjectProperty X.Modules) (unitObject X)
+  rw [pullbackAdd_of]
+  let e := asIso (SheafOfModules.pullbackObjUnitToUnit
+    (F := TopologicalSpace.Opens.map f.base) f.toRingCatSheafHom)
+  exact class_eq_of_iso e
 
 /-- Additive pullback preserves tensor-induced multiplication. -/
 theorem pullbackAdd_map_mul (f : X ⟶ Y) (a b : VectorBundleK0 Y) :
@@ -86,7 +133,7 @@ noncomputable def pullback (f : X ⟶ Y) : VectorBundleK0 Y →+* VectorBundleK0
 
 /-- The additive part of vector-bundle `K₀` pullback is `pullbackAdd`. -/
 theorem pullback_toAddMonoidHom (f : X ⟶ Y) :
-    (pullback f).toAddMonoidHom = pullbackAdd f := sorry
+    (pullback f).toAddMonoidHom = pullbackAdd f := rfl
 
 /-- Pullback sends a vector-bundle generator to its pulled-back class. -/
 theorem pullback_of (f : X ⟶ Y)
@@ -96,14 +143,33 @@ theorem pullback_of (f : X ⟶ Y)
       (SheafOfModules.IsFiniteLocallyFree : ObjectProperty Y.Modules) E) =
       ObjectProperty.GrothendieckGroup.of
         (SheafOfModules.IsFiniteLocallyFree : ObjectProperty X.Modules)
-        (pullbackObj f E) := sorry
+        (pullbackObj f E) :=
+  pullbackAdd_of f E
 
 /-- Pullback along the identity is the identity on vector-bundle `K₀`. -/
 theorem pullback_id (X : Scheme.{u}) :
-    pullback (𝟙 X) = RingHom.id (VectorBundleK0 X) := sorry
+    pullback (𝟙 X) = RingHom.id (VectorBundleK0 X) := by
+  apply RingHom.coe_addMonoidHom_injective
+  apply addHom_ext
+  intro E
+  change pullback (𝟙 X) (ObjectProperty.GrothendieckGroup.of
+    (SheafOfModules.IsFiniteLocallyFree : ObjectProperty X.Modules) E) =
+      ObjectProperty.GrothendieckGroup.of
+        (SheafOfModules.IsFiniteLocallyFree : ObjectProperty X.Modules) E
+  rw [pullback_of]
+  exact class_eq_of_iso ((Scheme.Modules.pullbackId X).app E.obj)
 
 /-- Vector-bundle `K₀` pullback is contravariantly functorial under composition. -/
 theorem pullback_comp (f : X ⟶ Y) (g : Y ⟶ Z) :
-    pullback (f ≫ g) = (pullback f).comp (pullback g) := sorry
+    pullback (f ≫ g) = (pullback f).comp (pullback g) := by
+  apply RingHom.coe_addMonoidHom_injective
+  apply addHom_ext
+  intro E
+  change pullback (f ≫ g) (ObjectProperty.GrothendieckGroup.of
+    (SheafOfModules.IsFiniteLocallyFree : ObjectProperty Z.Modules) E) =
+      pullback f (pullback g (ObjectProperty.GrothendieckGroup.of
+        (SheafOfModules.IsFiniteLocallyFree : ObjectProperty Z.Modules) E))
+  rw [pullback_of, pullback_of, pullback_of]
+  exact class_eq_of_iso ((Scheme.Modules.pullbackComp f g).app E.obj).symm
 
 end AlgebraicGeometry.Scheme.VectorBundleK0

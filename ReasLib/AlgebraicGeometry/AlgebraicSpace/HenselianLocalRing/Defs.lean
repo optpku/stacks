@@ -44,14 +44,14 @@ neighbourhood. -/
 @[simp]
 theorem toScheme_obj {S : Scheme.{u}} (X : AlgebraicSpace S) (x : Points X)
     (U : Elementary X x) : (toScheme X x).obj U = U.obj.scheme :=
-  sorry
+  rfl
 
 /-- The morphism action of `toScheme` forgets to the underlying scheme morphism. -/
 @[simp]
 theorem toScheme_map {S : Scheme.{u}} (X : AlgebraicSpace S) (x : Points X)
     {U V : Elementary X x} (f : U ⟶ V) :
     (toScheme X x).map f = Hom.schemeHom f :=
-  sorry
+  rfl
 
 /-- The diagram of global-section rings of elementary étale neighbourhoods, with hom
 universes and section rings lifted to a common universe. -/
@@ -66,7 +66,7 @@ theorem sections_obj {S : Scheme.{u}} (X : AlgebraicSpace S) (x : Points X)
     (sections X x).obj (ULiftHom.objUp (op U)) =
       (CommRingCat.universeLift.{u, u + 1}).obj
         (Scheme.Γ.obj (op ((toScheme X x).obj U))) :=
-  sorry
+  rfl
 
 /-- A pointed map `U ⟶ V` induces the contravariant restriction map from the section ring
 of `V` to that of `U`. -/
@@ -74,7 +74,7 @@ theorem sections_map {S : Scheme.{u}} (X : AlgebraicSpace S) (x : Points X)
     {U V : Elementary X x} (f : U ⟶ V) :
     (sections X x).map (ULiftHom.up.map f.op) =
       (CommRingCat.universeLift.{u, u + 1}).map (Scheme.Γ.map (Hom.schemeHom f).op) :=
-  sorry
+  rfl
 
 end AlgebraicGeometry.AlgebraicSpace.EtaleNeighborhood.Elementary
 
@@ -90,7 +90,7 @@ noncomputable def henselianLocalRingCat {S : Scheme.{u}} (X : AlgebraicSpace S)
 theorem henselianLocalRingCat_eq {S : Scheme.{u}} (X : AlgebraicSpace S) [IsDecent X]
     (x : Points X) :
     henselianLocalRingCat X x = colimit (EtaleNeighborhood.Elementary.sections X x) :=
-  sorry
+  rfl
 
 /-- The henselian local ring of a decent algebraic space `X` at a point `x ∈ |X|` is the
 colimit of `Γ(U, 𝒪_U)` over elementary étale neighbourhoods `(U, u) ⟶ (X, x)`. -/
@@ -102,7 +102,7 @@ noncomputable def henselianLocalRing {S : Scheme.{u}} (X : AlgebraicSpace S) [Is
 theorem henselianLocalRing_def {S : Scheme.{u}} (X : AlgebraicSpace S) [IsDecent X]
     (x : Points X) :
     henselianLocalRing X x = (henselianLocalRingCat X x : Type (u + 1)) :=
-  sorry
+  rfl
 
 /-- The colimit of global sections of elementary étale neighbourhoods is a commutative
 ring. -/
@@ -137,7 +137,7 @@ theorem henselianLocalRing.ι_def {S : Scheme.{u}} (X : AlgebraicSpace S) [IsDec
             Γ((EtaleNeighborhood.Elementary.toScheme X x).obj U, ⊤) ≃+*
               ULift.{u + 1}
                 Γ((EtaleNeighborhood.Elementary.toScheme X x).obj U, ⊤)).toRingHom :=
-  sorry
+  rfl
 
 /-- Restricting a section along a pointed neighbourhood morphism does not change its image
 in the henselian local ring. -/
@@ -146,7 +146,13 @@ theorem henselianLocalRing.ι_naturality {S : Scheme.{u}} (X : AlgebraicSpace S)
     (f : U ⟶ V) :
     (henselianLocalRing.ι X x U).comp
         (Scheme.Γ.map (EtaleNeighborhood.Elementary.Hom.schemeHom f).op).hom =
-      henselianLocalRing.ι X x V := sorry
+      henselianLocalRing.ι X x V := by
+  apply RingHom.ext
+  intro s
+  exact RingHom.congr_fun
+    (congrArg CommRingCat.Hom.hom
+      (colimit.w (EtaleNeighborhood.Elementary.sections X x) (ULiftHom.up.map f.op)))
+    (ULift.up s)
 
 /-- Ring homomorphisms out of the henselian local ring are determined by their values on
 sections of every elementary neighbourhood. -/
@@ -156,6 +162,33 @@ theorem henselianLocalRing.hom_ext {S : Scheme.{u}} (X : AlgebraicSpace S)
     {f g : henselianLocalRing X x →+* R}
     (h : ∀ U : EtaleNeighborhood.Elementary X x,
       f.comp (henselianLocalRing.ι X x U) = g.comp (henselianLocalRing.ι X x U)) :
-    f = g := sorry
+    f = g := by
+  -- The equalizer lies in the source universe even when `R` is in a larger universe.
+  let F := EtaleNeighborhood.Elementary.sections X x
+  let E := f.eqLocus g
+  let c : Cocone F :=
+    { pt := CommRingCat.of E
+      ι :=
+        { app := fun j ↦ CommRingCat.ofHom
+            ((colimit.ι F j).hom.codRestrict E (fun a ↦
+              RingHom.congr_fun (h (ULiftHom.objDown j).unop) a.down))
+          naturality := by
+            intro i j k
+            apply CommRingCat.hom_ext
+            apply RingHom.ext
+            intro a
+            apply Subtype.ext
+            exact RingHom.congr_fun
+              (congrArg CommRingCat.Hom.hom (colimit.w F k)) a } }
+  have hsplit : colimit.desc F c ≫ CommRingCat.ofHom E.subtype = 𝟙 (colimit F) := by
+    apply colimit.hom_ext
+    intro j
+    rw [← Category.assoc, colimit.ι_desc]
+    rfl
+  apply RingHom.ext
+  intro a
+  have ha : ((colimit.desc F c).hom a).val = a :=
+    RingHom.congr_fun (congrArg CommRingCat.Hom.hom hsplit) a
+  exact ha ▸ ((colimit.desc F c).hom a).property
 
 end AlgebraicGeometry.AlgebraicSpace

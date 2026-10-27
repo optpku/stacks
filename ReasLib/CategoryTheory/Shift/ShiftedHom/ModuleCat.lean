@@ -40,10 +40,19 @@ noncomputable def sourceShiftLinearEquiv (X Y : C) (n : ℤ)
     ShiftedHom X Y n ≃ₗ[R] (X⟦-n⟧ ⟶ Y) where
   toFun := ShiftedHom.sourceShiftEquiv X Y n
   invFun := (ShiftedHom.sourceShiftEquiv X Y n).symm
-  left_inv := sorry
-  right_inv := sorry
-  map_add' := sorry
-  map_smul' := sorry
+  left_inv := (ShiftedHom.sourceShiftEquiv X Y n).left_inv
+  right_inv := (ShiftedHom.sourceShiftEquiv X Y n).right_inv
+  map_add' := by
+    intro f g
+    change (shiftFunctor C (-n)).map (f + g) ≫ (shiftShiftNeg Y n).hom =
+      (shiftFunctor C (-n)).map f ≫ (shiftShiftNeg Y n).hom +
+        (shiftFunctor C (-n)).map g ≫ (shiftShiftNeg Y n).hom
+    simp only [Functor.map_add, Preadditive.add_comp]
+  map_smul' := by
+    intro r f
+    change (shiftFunctor C (-n)).map (r • f) ≫ (shiftShiftNeg Y n).hom =
+      r • ((shiftFunctor C (-n)).map f ≫ (shiftShiftNeg Y n).hom)
+    simp only [Functor.map_smul, Linear.smul_comp]
 
 /-- Degree-zero shifted morphisms are linearly equivalent to ordinary morphisms. -/
 @[stacks 0G1X "degree-zero shifted Hom linear equivalence"]
@@ -51,23 +60,27 @@ noncomputable def zeroLinearEquiv (X Y : C) :
     ShiftedHom X Y (0 : ℤ) ≃ₗ[R] (X ⟶ Y) where
   toFun := (ShiftedHom.homEquiv (0 : ℤ) rfl).symm
   invFun := ShiftedHom.homEquiv (0 : ℤ) rfl
-  left_inv := sorry
-  right_inv := sorry
-  map_add' := sorry
-  map_smul' := sorry
+  left_inv := (ShiftedHom.homEquiv (0 : ℤ) rfl).symm.left_inv
+  right_inv := (ShiftedHom.homEquiv (0 : ℤ) rfl).symm.right_inv
+  map_add' := by
+    intro f g
+    exact Preadditive.add_comp _ _ _ _ _ _
+  map_smul' := by
+    intro r f
+    exact Linear.smul_comp _ _ _ _ _ _
 
 /-- The forward map of `zeroLinearEquiv` is the inverse of the canonical zero-degree Hom
 equivalence. -/
 @[simp, stacks 0G1X "degree-zero shifted Hom linear equivalence forward map"]
 theorem zeroLinearEquiv_apply (X Y : C) (f : ShiftedHom X Y (0 : ℤ)) :
-    zeroLinearEquiv R X Y f = (ShiftedHom.homEquiv (0 : ℤ) rfl).symm f := sorry
+    zeroLinearEquiv R X Y f = (ShiftedHom.homEquiv (0 : ℤ) rfl).symm f := rfl
 
 /-- The forward function of `sourceShiftLinearEquiv` is the canonical source-shift map. -/
 @[simp]
 theorem sourceShiftLinearEquiv_apply (X Y : C) (n : ℤ)
     [(shiftFunctor C (-n)).Additive] [Functor.Linear R (shiftFunctor C (-n))]
     (f : ShiftedHom X Y n) :
-    sourceShiftLinearEquiv R X Y n f = ShiftedHom.sourceShiftEquiv X Y n f := sorry
+    sourceShiftLinearEquiv R X Y n f = ShiftedHom.sourceShiftEquiv X Y n f := rfl
 
 /-- The inverse function of `sourceShiftLinearEquiv` is the inverse canonical source-shift
 map. -/
@@ -77,7 +90,7 @@ theorem sourceShiftLinearEquiv_symm_apply
     [(shiftFunctor C (-n)).Additive] [Functor.Linear R (shiftFunctor C (-n))]
     (f : X⟦-n⟧ ⟶ Y) :
     (sourceShiftLinearEquiv R X Y n).symm f =
-      (ShiftedHom.sourceShiftEquiv X Y n).symm f := sorry
+      (ShiftedHom.sourceShiftEquiv X Y n).symm f := rfl
 
 /-- Shifted morphisms as a module-valued functor, contravariant in the source and covariant in
 the target. -/
@@ -100,18 +113,26 @@ def targetFunctor (X : C) (n : ℤ) : C ⥤ ModuleCat.{v} R :=
 /-- The module-valued shifted-Hom bifunctor is additive in its source variable. -/
 @[stacks 0G1X "additivity of the linear shifted Hom bifunctor"]
 noncomputable instance linearCoyonedaAdditive (n : ℤ) :
-    (linearCoyoneda R C n).Additive := sorry
+    (linearCoyoneda R C n).Additive where
+  map_add {X Y f g} := by
+    ext Z h
+    change (f + g).unop ≫ h = f.unop ≫ h + g.unop ≫ h
+    simp
 
 /-- Shifted Hom into a fixed target is additive in the source. -/
 @[stacks 0G1X "additivity of shifted Hom in the source"]
 noncomputable instance sourceFunctorAdditive (Y : C) (n : ℤ) :
-    (sourceFunctor R Y n).Additive := sorry
+    (sourceFunctor R Y n).Additive := by
+  dsimp [sourceFunctor]
+  infer_instance
 
 /-- Shifted Hom from a fixed source is additive in the target. -/
 @[stacks 0G1X "additivity of shifted Hom in the target"]
 noncomputable instance targetFunctorAdditive (X : C) (n : ℤ)
     [(shiftFunctor C n).Additive] :
-    (targetFunctor R X n).Additive := sorry
+    (targetFunctor R X n).Additive := by
+  dsimp [targetFunctor]
+  infer_instance
 
 section Linear
 
@@ -122,18 +143,31 @@ variable {D : Type u} [Category.{v} D] [Preadditive D] [CategoryTheory.Linear S 
 /-- The module-valued shifted-Hom bifunctor is `S`-linear in its source variable. -/
 @[stacks 0G1X "linearity of the linear shifted Hom bifunctor"]
 noncomputable instance linearCoyonedaLinear (n : ℤ) :
-    Functor.Linear S (linearCoyoneda S D n) := sorry
+    Functor.Linear S (linearCoyoneda S D n) where
+  map_smul {X Y} f r := by
+    ext Z h
+    change (r • f.unop) ≫ h = r • (f.unop ≫ h)
+    exact Linear.smul_comp _ _ _ _ _ _
 
 /-- Shifted Hom into a fixed target is `S`-linear in the source. -/
 @[stacks 0G1X "linearity of shifted Hom in the source"]
 noncomputable instance sourceFunctorLinear (Y : D) (n : ℤ) :
-    Functor.Linear S (sourceFunctor S Y n) := sorry
+    Functor.Linear S (sourceFunctor S Y n) where
+  map_smul {X X'} f r := by
+    ext h
+    change (r • f.unop) ≫ h = r • (f.unop ≫ h)
+    exact Linear.smul_comp _ _ _ _ _ _
 
 /-- Shifted Hom from a fixed source is `S`-linear in the target. -/
 @[stacks 0G1X "linearity of shifted Hom in the target"]
 noncomputable instance targetFunctorLinear (X : D) (n : ℤ)
     [Functor.Linear S (shiftFunctor D n)] :
-    Functor.Linear S (targetFunctor S X n) := sorry
+    Functor.Linear S (targetFunctor S X n) where
+  map_smul {Y Y'} f r := by
+    ext h
+    change h ≫ (shiftFunctor D n).map (r • f) =
+      r • (h ≫ (shiftFunctor D n).map f)
+    simp
 
 end Linear
 
@@ -147,35 +181,41 @@ def targetMap {X Y : C} (f : X ⟶ Y) (n : ℤ) :
 functors. -/
 @[stacks 0G1X "isomorphism action on fixed-source shifted Hom functors"]
 instance targetMap_isIso {X Y : C} (f : X ⟶ Y) [IsIso f] (n : ℤ) :
-    IsIso (targetMap R f n) := sorry
+    IsIso (targetMap R f n) := by
+  change IsIso ((linearCoyoneda R C n).map f.op)
+  infer_instance
 
 /-- Evaluating the shifted linear co-Yoneda functor at a source gives the fixed-source target
 functor. -/
 @[simp]
 theorem linearCoyoneda_obj (X : Cᵒᵖ) (n : ℤ) :
-    (ShiftedHom.linearCoyoneda R C n).obj X = targetFunctor R X.unop n := sorry
+    (ShiftedHom.linearCoyoneda R C n).obj X = targetFunctor R X.unop n := rfl
 
 /-- The source action of the shifted linear co-Yoneda functor is the canonical precomposition
 transformation. -/
 @[simp]
 theorem linearCoyoneda_map {X Y : Cᵒᵖ} (f : X ⟶ Y) (n : ℤ) :
-    (ShiftedHom.linearCoyoneda R C n).map f = targetMap R f.unop n := sorry
+    (ShiftedHom.linearCoyoneda R C n).map f = targetMap R f.unop n := rfl
 
 /-- The source action on shifted Hom is ordinary precomposition on elements. -/
 @[simp]
 theorem targetMap_app_apply {X Y : C} (f : X ⟶ Y) (Z : C) (n : ℤ)
     (g : ShiftedHom Y Z n) :
-    ModuleCat.Hom.hom ((targetMap R f n).app Z) g = f ≫ g := sorry
+    ModuleCat.Hom.hom ((targetMap R f n).app Z) g = f ≫ g := rfl
 
 /-- The identity source morphism acts by the identity natural transformation. -/
 @[simp]
 theorem targetMap_id (X : C) (n : ℤ) :
-    targetMap R (𝟙 X) n = 𝟙 (targetFunctor R X n) := sorry
+    targetMap R (𝟙 X) n = 𝟙 (targetFunctor R X n) := by
+  ext Z g
+  exact Category.id_comp g
 
 /-- Precomposition reverses composition of source morphisms. -/
 @[simp]
 theorem targetMap_comp {X Y Z : C} (f : X ⟶ Y) (g : Y ⟶ Z) (n : ℤ) :
-    targetMap R (f ≫ g) n = targetMap R g n ≫ targetMap R f n := sorry
+    targetMap R (f ≫ g) n = targetMap R g n ≫ targetMap R f n := by
+  ext W h
+  exact Category.assoc f g h
 
 /-- Isomorphic sources determine isomorphic fixed-source shifted Hom functors. -/
 @[stacks 0G1X "fixed-source shifted Hom isomorphism"]
@@ -183,12 +223,12 @@ def targetIso {X Y : C} (e : X ≅ Y) (n : ℤ) :
     targetFunctor R X n ≅ targetFunctor R Y n where
   hom := targetMap R e.inv n
   inv := targetMap R e.hom n
-  hom_inv_id := sorry
-  inv_hom_id := sorry
+  hom_inv_id := by rw [← targetMap_comp, e.hom_inv_id, targetMap_id]
+  inv_hom_id := by rw [← targetMap_comp, e.inv_hom_id, targetMap_id]
 
 /-- The forward map of `targetIso` is precomposition by the inverse source isomorphism. -/
 @[simp]
 theorem targetIso_hom {X Y : C} (e : X ≅ Y) (n : ℤ) :
-    (targetIso R e n).hom = targetMap R e.inv n := sorry
+    (targetIso R e n).hom = targetMap R e.inv n := rfl
 
 end CategoryTheory.ShiftedHom

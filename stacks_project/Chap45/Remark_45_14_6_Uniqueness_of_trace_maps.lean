@@ -13,14 +13,11 @@ open CategoryTheory
 
 universe u v w x y z
 
-/- Remark 45.14.6 (Uniqueness of trace maps): for a SchemePreWeilTheory
-satisfying data (D0), (D1), and (D2') with axioms (A1)--(A7), Poincare
-duality makes normalized contraction against the diagonal tensor
-nondegenerate. Thus every trace LinearMap `H X →ₗ[F] F` whose contraction
-with that tensor is `1` equals the theory's integral trace, for each
-nonempty equidimensional object `X` of dimension `d`. -/
+/- Remark 45.14.6: axioms (A1)--(A7) uniquely determine the normalized
+/- 抽象层对角类 mixin：待 RL-2194 完成锚定后移除。 -/
+trace on H^{2d}(X)(d). The contraction uses its canonical zero extension. -/
 @[stacks 0FIK] #check
-  (WeilCohomology.SchemePreWeilTheory.axiomA6_unique :
+  (WeilCohomology.SchemePreWeilTheory.sourceAxiomA6_unique :
     ∀ {k : Type u} [Field k]
       {F : Type v} [Field F] [CharZero F]
       {TateLine : Type x} [AddCommGroup TateLine] [Module F TateLine]
@@ -34,7 +31,9 @@ nonempty equidimensional object `X` of dimension `d`. -/
       {pointCycle : CHgrade point 0} {H Picard : V → Type x}
       [∀ X, Ring (H X)] [∀ X, Algebra F (H X)] [∀ X, AddCommGroup (Picard X)]
       (T : WeilCohomology.SchemePreWeilTheory k F TateLine V dimension product fst snd point
-        CH CHgrade cyclePullback cyclePushforward pointCycle H Picard)
+        CH CHgrade cyclePullback cyclePushforward pointCycle H Picard) [T.HasDiagonalClassRelation]
       {X : V} {d : ℕ} (hX : T.IsNonemptyEquidimensional X d)
-      (trace : H X →ₗ[F] F),
-      WeilCohomology.contractRight trace (T.diagonalTensor hX) = 1 → trace = T.integral hX)
+      (trace : T.twistedGrade X (2 * (d : ℤ)) d →ₗ[F] F),
+      WeilCohomology.contractTwistedRight
+          (WeilCohomology.extendTopTrace (T.Hgrade X) (T.Hgrade_isInternal X) d trace)
+          (T.twistedDiagonalTensor hX) = 1 → trace = T.twistedTopIntegral hX)

@@ -6,8 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap96.«96_10_3_1_Comparison»
-public import stacks_project.Chap96.«96_10_3_1_Restriction»
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.Etale.Module.SpacePushforward
 import StacksCheckRecall
 
 /-!
@@ -22,18 +21,22 @@ of the restricted sheaf.
 
 open AlgebraicGeometry CategoryTheory CategoryTheory.Limits
 open AlgebraicGeometry.AlgebraicSpace
-open FiberedCategoryOver.Groupoids
-
+open CategoryTheory.Sheaf.InternalModule
 universe u
-
-variable {S : Scheme.{u}} {F G : AlgebraicSpace S} (f : F ⟶ G)
-variable (ℱ : Sheaf F.toGroupoids.etaleTopology (Type (u + 1)))
 
 /- 96.10.3.1 The identification compareBigSmall f ℱ is the canonical isomorphism
 (f_* ℱ)|_{G_étale} = f_small,* (ℱ|_{F_étale}) of sheaves on G_étale, obtained by
 comparing restriction along smallEtaleToGroupoids with sheafPushforwardType f.
 When ℱ is an 𝒪-module the same identification is an isomorphism of 𝒪_G-modules. -/
 @[stacks 075M]
-#check (compareBigSmall f ℱ :
+#check (AlgebraicGeometry.AlgebraicSpace.compareBigSmall :
+  ∀ {S : Scheme.{u}} {F G : AlgebraicSpace S} (f : F ⟶ G)
+    (ℱ : Sheaf F.toGroupoids.etaleTopology (Type (u + 1))),
     (restrictEtale G).obj ((etalePushforward f).obj ℱ) ≅
       (sheafPushforwardType f).obj ((restrictEtale F).obj ℱ))
+
+#check (AlgebraicGeometry.AlgebraicSpace.compareBigSmall_modules :
+  ∀ {S : Scheme.{u}} {F G : AlgebraicSpace S} (f : F ⟶ G)
+    (ℳ : SheafOfModules.{u} (GroupoidsOver.etaleRingedSite F.toGroupoids).structureSheaf),
+    (restrictEtaleModules G).obj ((etaleModulePushforward f).obj ℳ) ≅
+      (Modules.pushforward f).obj ((restrictEtaleModules F).obj ℳ))

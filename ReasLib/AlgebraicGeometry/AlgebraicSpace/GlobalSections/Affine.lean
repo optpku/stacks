@@ -44,7 +44,9 @@ theorem globalSectionsMap_equalizes
       ((Scheme.ΓSpecIso (CommRingCat.of A)).inv ≫
           (chosenPresentation X).U.hom.appTop) ≫
         (chosenPresentation X).sAppTop :=
-  sorry
+  by
+    simp only [Presentation.tAppTop, Presentation.sAppTop, Category.assoc,
+      ← Scheme.Hom.comp_appTop, Over.w]
 
 /-- The structure morphism of an algebraic space over `Spec A` induces the ring map
 `A →+* Γ(X, 𝒪_X)`. -/
@@ -62,7 +64,12 @@ theorem globalSectionsMap_comp_ι
     (f : X ⟶ ofOver (Over.mk (𝟙 (Spec (CommRingCat.of A))))) :
     (globalSectionsRing_ι X).hom.comp (globalSectionsMap f) =
       Scheme.Hom.globalSectionsMap (chosenPresentation X).U.hom :=
-  sorry
+  by
+    exact congrArg CommRingCat.Hom.hom
+      (equalizer.lift_ι
+        ((Scheme.ΓSpecIso (CommRingCat.of A)).inv ≫
+          (chosenPresentation X).U.hom.appTop)
+        (globalSectionsMap_equalizes f))
 
 end AlgebraicGeometry.AlgebraicSpace.Hom
 
@@ -107,14 +114,23 @@ theorem atlasOverHom_map {X : AlgebraicSpace specZ} {T : Scheme.{u}}
     yoneda.map (atlasOverHom f) =
       ((chosenPresentation X).atlas ≫ f :
         yoneda.obj (chosenPresentation X).U ⟶ yoneda.obj (overSpecZ T)) :=
-  sorry
+  by
+    exact Yoneda.fullyFaithful.map_preimage _
 
 /-- The two presentation restrictions agree on the global-sections map of `atlasOverHom f`. -/
 theorem globalSectionsMap_equalizes {X : AlgebraicSpace specZ} {T : Scheme.{u}}
     (f : X ⟶ ofOver (overSpecZ T)) :
     (atlasOverHom f).left.appTop ≫ (chosenPresentation X).tAppTop =
       (atlasOverHom f).left.appTop ≫ (chosenPresentation X).sAppTop :=
-  sorry
+  by
+    have h : (chosenPresentation X).R.t ≫ atlasOverHom f =
+        (chosenPresentation X).R.s ≫ atlasOverHom f := by
+      apply yoneda.map_injective
+      rw [Functor.map_comp, Functor.map_comp, atlasOverHom_map]
+      exact (chosenPresentation X).isKernelPair.w_assoc
+        (f : X.functorOfPoints ⟶ yoneda.obj (overSpecZ T))
+    simpa only [Over.comp_left, Scheme.Hom.comp_appTop] using
+      congrArg (fun k => k.left.appTop) h
 
 /-- The map on global sections `f ↦ f^♯` associated to a morphism from an algebraic space to a
 scheme. -/
@@ -127,7 +143,8 @@ equalizer inclusion `Γ(X, 𝒪_X) ⟶ Γ(U, 𝒪_U)`. -/
 theorem globalSectionsMap_eq_appTop {X : AlgebraicSpace specZ} {T : Scheme.{u}}
     (f : X ⟶ ofOver (overSpecZ T)) :
     globalSectionsMap f ≫ globalSectionsRing_ι X = (atlasOverHom f).left.appTop :=
-  sorry
+  by
+    exact equalizer.lift_ι _ _
 
 /-- The morphism of schemes `U ⟶ T` classified by a ring map `Γ(T, ⊤) ⟶ Γ(X, 𝒪_X)`. -/
 def schemeHomMk {X : AlgebraicSpace specZ} {T : Scheme.{u}} [IsAffine T]
@@ -137,11 +154,24 @@ def schemeHomMk {X : AlgebraicSpace specZ} {T : Scheme.{u}} [IsAffine T]
     Spec.map (φ ≫ globalSectionsRing_ι X) ≫
       (T.isoSpec.inv : Spec Γ(T, ⊤) ⟶ (overSpecZ T).left)
 
+/-- The atlas morphism constructed from a ring map induces its composite with the
+equalizer inclusion on global sections. -/
+theorem schemeHomMk_appTop {X : AlgebraicSpace specZ} {T : Scheme.{u}} [IsAffine T]
+    (φ : Γ(T, ⊤) ⟶ globalSectionsRing X) :
+    (schemeHomMk φ).appTop = φ ≫ globalSectionsRing_ι X := by
+  change ((chosenPresentation X).U.left.toSpecΓ ≫
+    Spec.map (φ ≫ globalSectionsRing_ι X) ≫ T.isoSpec.inv).appTop = _
+  rw [Scheme.Hom.comp_appTop, Scheme.Hom.comp_appTop, Scheme.toSpecΓ_appTop,
+    Category.assoc, Scheme.ΓSpecIso_naturality, ← Category.assoc,
+    ← Scheme.toSpecΓ_appTop T, ← Scheme.Hom.comp_appTop,
+    Scheme.toSpecΓ_isoSpec_inv, Scheme.Hom.id_appTop, Category.id_comp]
+
 /-- `schemeHomMk φ` is a morphism over `Spec ℤ`. -/
 theorem schemeHomMk_w {X : AlgebraicSpace specZ} {T : Scheme.{u}} [IsAffine T]
     (φ : Γ(T, ⊤) ⟶ globalSectionsRing X) :
     schemeHomMk φ ≫ (overSpecZ T).hom = (chosenPresentation X).U.hom :=
-  sorry
+  by
+    exact specULiftZIsTerminal.hom_ext _ _
 
 /-- The morphism in `Sch / Spec ℤ` classified by a ring map `Γ(T, ⊤) ⟶ Γ(X, 𝒪_X)`. -/
 def overHomMk {X : AlgebraicSpace specZ} {T : Scheme.{u}} [IsAffine T]
@@ -153,29 +183,83 @@ def overHomMk {X : AlgebraicSpace specZ} {T : Scheme.{u}} [IsAffine T]
 theorem overHomMk_left {X : AlgebraicSpace specZ} {T : Scheme.{u}} [IsAffine T]
     (φ : Γ(T, ⊤) ⟶ globalSectionsRing X) :
     (overHomMk φ).left = schemeHomMk φ :=
-  sorry
+  rfl
 
 /-- The two relation projections become equal after composing with `ofOverMap (overHomMk φ)`. -/
 theorem homMk_equalizes {X : AlgebraicSpace specZ} {T : Scheme.{u}} [IsAffine T]
     (φ : Γ(T, ⊤) ⟶ globalSectionsRing X) :
     ofOverMap (chosenPresentation X).R.t ≫ ofOverMap (overHomMk φ) =
       ofOverMap (chosenPresentation X).R.s ≫ ofOverMap (overHomMk φ) :=
-  sorry
+  by
+    change yoneda.map (chosenPresentation X).R.t ≫ yoneda.map (overHomMk φ) =
+      yoneda.map (chosenPresentation X).R.s ≫ yoneda.map (overHomMk φ)
+    rw [← Functor.map_comp, ← Functor.map_comp]
+    apply congrArg yoneda.map
+    apply (Over.forget specZ).map_injective
+    apply ext_of_isAffine (Y := T)
+    change ((chosenPresentation X).R.t.left ≫ schemeHomMk φ).appTop =
+      ((chosenPresentation X).R.s.left ≫ schemeHomMk φ).appTop
+    simp only [Scheme.Hom.comp_appTop, schemeHomMk_appTop]
+    change (φ ≫ globalSectionsRing_ι X) ≫ (chosenPresentation X).tAppTop =
+      (φ ≫ globalSectionsRing_ι X) ≫ (chosenPresentation X).sAppTop
+    rw [Category.assoc, Category.assoc]
+    exact congrArg (fun k => φ ≫ k)
+      (equalizer.condition (chosenPresentation X).tAppTop (chosenPresentation X).sAppTop)
 
 /-- The morphism of algebraic spaces `X ⟶ T` classified by a ring map on global sections. -/
 def homMk {X : AlgebraicSpace specZ} {T : Scheme.{u}} [IsAffine T]
     (φ : Γ(T, ⊤) ⟶ globalSectionsRing X) : X ⟶ ofOver (overSpecZ T) :=
   Presentation.homDesc (chosenPresentation X) (ofOverMap (overHomMk φ)) (homMk_equalizes φ)
 
+private theorem hom_ext_of_atlas {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+    (P : Presentation X) {f g : X ⟶ Y} (h : P.atlas ≫ f = P.atlas ≫ g) : f = g := by
+  let comparison : Scheme.etaleTopology.{u} ≤ Scheme.fppfTopology :=
+    Scheme.grothendieckTopology_monotone (fun _ _ i _ ↦
+      ⟨inferInstanceAs (AlgebraicGeometry.Flat i),
+        inferInstanceAs (AlgebraicGeometry.LocallyOfFinitePresentation i)⟩)
+  apply NatTrans.ext
+  funext V
+  apply ConcreteCategory.hom_ext
+  intro x
+  apply (((isSheaf_iff_isSheaf_of_type _ _).1 Y.isSheaf).isSeparated _
+    (comparison _ (P.atlas_locallySurjective.imageSieve_mem x))).ext
+  rintro W a ⟨s, hs⟩
+  have hf := ConcreteCategory.congr_hom (f.naturality a.op) x
+  have hg := ConcreteCategory.congr_hom (g.naturality a.op) x
+  dsimp at hf hg
+  rw [← hf, ← hg, ← hs]
+  exact ConcreteCategory.congr_hom (congr_app h (op W)) s
+
 /-- Reconstructing a morphism from its pullback on global sections recovers the morphism. -/
 theorem homMk_globalSectionsMap {X : AlgebraicSpace specZ} {T : Scheme.{u}} [IsAffine T]
     (f : X ⟶ ofOver (overSpecZ T)) : homMk (globalSectionsMap f) = f :=
-  sorry
+  by
+    have h : overHomMk (globalSectionsMap f) = atlasOverHom f := by
+      apply (Over.forget specZ).map_injective
+      apply ext_of_isAffine (Y := T)
+      change (schemeHomMk (globalSectionsMap f)).appTop = (atlasOverHom f).left.appTop
+      exact (schemeHomMk_appTop _).trans (globalSectionsMap_eq_appTop f)
+    apply hom_ext_of_atlas (chosenPresentation X)
+    calc
+      _ = yoneda.map (overHomMk (globalSectionsMap f)) :=
+        Presentation.homDesc_comp_atlas (chosenPresentation X) _ _
+      _ = yoneda.map (atlasOverHom f) := congrArg yoneda.map h
+      _ = _ := atlasOverHom_map f
 
 /-- Pullback on global sections of the reconstructed morphism recovers the ring map. -/
 theorem globalSectionsMap_homMk {X : AlgebraicSpace specZ} {T : Scheme.{u}} [IsAffine T]
     (φ : Γ(T, ⊤) ⟶ globalSectionsRing X) : globalSectionsMap (homMk φ) = φ :=
-  sorry
+  by
+    have h : atlasOverHom (homMk φ) = overHomMk φ := by
+      apply yoneda.map_injective
+      rw [atlasOverHom_map]
+      exact Presentation.homDesc_comp_atlas (chosenPresentation X) _ _
+    apply equalizer.hom_ext
+    calc
+      _ = (atlasOverHom (homMk φ)).left.appTop := globalSectionsMap_eq_appTop _
+      _ = (overHomMk φ).left.appTop :=
+        congrArg (fun k : (chosenPresentation X).U ⟶ overSpecZ T => k.left.appTop) h
+      _ = _ := schemeHomMk_appTop φ
 
 /-- Morphisms from an algebraic space over `Spec ℤ` to an affine scheme `T` are equivalent to
 ring maps `Γ(T, ⊤) ⟶ Γ(X, 𝒪_X)`, sending `f` to `f^♯` on global sections. -/

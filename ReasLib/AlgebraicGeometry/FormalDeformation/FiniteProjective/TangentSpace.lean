@@ -5,6 +5,7 @@ Authors: Zichen Wang, Zaiwen Wen
 -/
 
 module
+public import ReasLib.AlgebraicGeometry.FormalDeformation.TangentSpace
 
 public import Mathlib.CategoryTheory.IsomorphismClasses
 public import ReasLib.AlgebraicGeometry.FormalDeformation.FiniteProjective.Deformation
@@ -137,39 +138,17 @@ theorem trivialLift_mk (V : Type u) [AddCommGroup V] [Module k V] [FiniteDimensi
       Over.mk (mkHom (ArtinianLocalAlgCat.dualNumberToResidue Λ k) (trivialRetractIso Λ k V)) :=
   rfl
 
-/-- The tangent space is the type of isomorphism classes in the dual-number fibre. -/
-def tangentSpace (V : Type u) [AddCommGroup V] [Module k V] [FiniteDimensional k V] :
-    Type (u + 1) :=
-  isomorphismClasses.obj (Cat.of ((deformation V).p.Fiber (ArtinianLocalAlgCat.dualNumber Λ k)))
-
-/-- Unfolding of `tangentSpace`. -/
-theorem tangentSpace_def (V : Type u) [AddCommGroup V] [Module k V] [FiniteDimensional k V] :
-    tangentSpace Λ k V =
-      isomorphismClasses.obj
-        (Cat.of ((deformation V).p.Fiber (ArtinianLocalAlgCat.dualNumber Λ k))) := rfl
-
-/-- The isomorphism class of a dual-number lift of `V`. -/
-def tangentSpace.mk (V : Type u) [AddCommGroup V] [Module k V] [FiniteDimensional k V]
-    (x : (deformation V).p.Fiber (ArtinianLocalAlgCat.dualNumber Λ k)) :
-    tangentSpace Λ k V :=
-  Quotient.mk'' x
-
-/-- `tangentSpace.mk` is the class of the given dual-number fibre object. -/
-theorem tangentSpace.mk_eq (V : Type u) [AddCommGroup V] [Module k V] [FiniteDimensional k V]
-    (x : (deformation V).p.Fiber (ArtinianLocalAlgCat.dualNumber Λ k)) :
-    tangentSpace.mk Λ k V x = Quotient.mk'' x := rfl
-
 /-- The zero tangent vector of `Def_V`. -/
 def trivialTangent (V : Type u) [AddCommGroup V] [Module k V] [FiniteDimensional k V] :
-    tangentSpace Λ k V :=
-  tangentSpace.mk Λ k V (trivialLift Λ k V)
+    CategoryTheory.Functor.tangentSpace (Λ := Λ) (k := k) (deformation V).p :=
+  CategoryTheory.Functor.tangentSpace.mk (Λ := Λ) (k := k) (deformation V).p (trivialLift Λ k V)
 
 /-- `trivialTangent` is the class of `trivialLift`. -/
 theorem trivialTangent_spec (V : Type u) [AddCommGroup V] [Module k V] [FiniteDimensional k V] :
-    trivialTangent Λ k V = tangentSpace.mk Λ k V (trivialLift Λ k V) := rfl
+    trivialTangent Λ k V = CategoryTheory.Functor.tangentSpace.mk (Λ := Λ) (k := k) (deformation V).p (trivialLift Λ k V) := rfl
 
 /-- Every tangent class is the canonical trivial class. -/
 theorem eq_trivialTangent (V : Type u) [AddCommGroup V] [Module k V] [FiniteDimensional k V]
-    (x : tangentSpace Λ k V) : x = trivialTangent Λ k V := sorry
+    (x : CategoryTheory.Functor.tangentSpace (Λ := Λ) (k := k) (deformation V).p) : x = trivialTangent Λ k V := sorry
 
 end ArtinianLocalAlgCat.FiniteProjective

@@ -52,19 +52,23 @@ def Object.ofLine {f : X ⟶ B} (σ : CohStack.SchemesOver B)
 
 /-- A morphism of Picard objects is a morphism of schemes over `B` together with
 an isomorphism of the modules pulled back along the induced fibre map. -/
-structure Hom {f : X ⟶ B} (x y : Object f) where
-  /-- The underlying morphism of schemes over `B`. -/
-  base : x.σ ⟶ y.σ
-  /-- The isomorphism `(h')^* y.line ≅ x.line` of modules on the fibre. -/
-  iso : (Modules.pullback (CohStack.fiberMap f base)).obj y.line ≅ x.line
+def Hom {f : X ⟶ B} (x y : Object f) :=
+  Σ (base : x.σ ⟶ y.σ), (Modules.pullback (CohStack.fiberMap f base)).obj y.line ≅ x.line
+
+/-- The underlying morphism of schemes over `B` of a Picard morphism. -/
+def Hom.base {f : X ⟶ B} {x y : Object f} (α : Hom x y) :
+    x.σ ⟶ y.σ := α.1
+
+/-- The line-bundle isomorphism along the fibre map of a Picard morphism. -/
+def Hom.iso {f : X ⟶ B} {x y : Object f} (α : Hom x y) :
+    (Modules.pullback (CohStack.fiberMap f α.base)).obj y.line ≅ x.line := α.2
 
 /-- Build a Picard morphism from a morphism of schemes over `B` and a line
 isomorphism along the induced fibre map. -/
 def homMk {f : X ⟶ B} {x y : Object f} (base : x.σ ⟶ y.σ)
     (iso : (Modules.pullback (CohStack.fiberMap f base)).obj y.line ≅ x.line) :
-    Hom x y where
-  base := base
-  iso := iso
+    Hom x y :=
+  ⟨base, iso⟩
 
 /-- The underlying morphism of schemes of `homMk` is the supplied base map. -/
 theorem homMk_base {f : X ⟶ B} {x y : Object f} (base : x.σ ⟶ y.σ)
@@ -85,9 +89,8 @@ def Hom.idIso {f : X ⟶ B} (x : Object f) :
 
 /-- The identity morphism uses the identity scheme map over `B` and the
 comparison isomorphism along `fiberMap f (𝟙)`. -/
-def Hom.id {f : X ⟶ B} (x : Object f) : Hom x x where
-  base := 𝟙 x.σ
-  iso := Hom.idIso x
+def Hom.id {f : X ⟶ B} (x : Object f) : Hom x x :=
+  homMk (𝟙 x.σ) (Hom.idIso x)
 
 /-- The module isomorphism of a composite morphism, conjugating by
 `Modules.pullbackCompIso` along the fibre maps of the factors. -/
@@ -100,10 +103,9 @@ def Hom.compIso {f : X ⟶ B} {x y z : Object f} (α : Hom x y) (β : Hom y z) :
 
 /-- Composition of morphisms is composition of scheme maps over `B` and of the
 conjugated module isomorphisms along `fiberMap` of the composite. -/
-def Hom.comp {f : X ⟶ B} {x y z : Object f} (α : Hom x y) (β : Hom y z) : Hom x z where
-  base := α.base ≫ β.base
-  iso := (CohStack.pullbackFiberMapCompIso f α.base β.base).app z.line ≪≫
-    Hom.compIso α β
+def Hom.comp {f : X ⟶ B} {x y z : Object f} (α : Hom x y) (β : Hom y z) : Hom x z :=
+  homMk (α.base ≫ β.base)
+    ((CohStack.pullbackFiberMapCompIso f α.base β.base).app z.line ≪≫ Hom.compIso α β)
 
 /-- Composing an identity on the left leaves a Picard morphism unchanged. -/
 theorem Hom.id_comp {f : X ⟶ B} {x y : Object f} (α : Hom x y) :

@@ -27,7 +27,7 @@ variable {dimension : V → ℕ} {product : V → V → V}
 variable {fst : ∀ X Y, product X Y ⟶ X} {snd : ∀ X Y, product X Y ⟶ Y}
 variable {point : V} {H : V → Type x} {CH : V → Type y}
 variable [∀ X, Ring (H X)] [∀ X, Algebra F (H X)] [∀ X, CommRing (CH X)]
-variable {Hgrade : ∀ X, ℤ × ℤ → Submodule F (H X)}
+variable {Hgrade : ∀ X, ℤ → Submodule F (H X)}
 variable {CHgrade : ∀ X, ℤ → Submodule ℤ (CH X)}
 variable [∀ X, GradedAlgebra (Hgrade X)] [∀ X, GradedAlgebra (CHgrade X)]
 variable {cyclePullback : ∀ {X Y : V},
@@ -41,7 +41,7 @@ dimension one in cohomological degree zero. -/
     ∀ (T : SchemeClassicalTheory k F TateLine V dimension product fst snd point
         H CH Hgrade CHgrade cyclePullback cyclePushforward)
       (X : V) (eX : T.scheme.obj X ≅ ProjectiveSpace.schemeOver k 1),
-      Module.finrank F (Hgrade X (0, 0)) = 1)
+      Module.finrank F (Hgrade X (0)) = 1)
 
 /- Lemma 45.9.8 (2): untwisted cohomology of a represented projective line has
 dimension one in cohomological degree two. -/
@@ -50,7 +50,7 @@ dimension one in cohomological degree two. -/
     ∀ (T : SchemeClassicalTheory k F TateLine V dimension product fst snd point
         H CH Hgrade CHgrade cyclePullback cyclePushforward)
       (X : V) (eX : T.scheme.obj X ≅ ProjectiveSpace.schemeOver k 1),
-      Module.finrank F (Hgrade X (2, 0)) = 1)
+      Module.finrank F (Hgrade X (2)) = 1)
 
 /- Lemma 45.9.8 (3): untwisted cohomology of a represented projective line
 vanishes outside cohomological degrees zero and two. -/
@@ -60,7 +60,7 @@ vanishes outside cohomological degrees zero and two. -/
         H CH Hgrade CHgrade cyclePullback cyclePushforward)
       (X : V) (eX : T.scheme.obj X ≅ ProjectiveSpace.schemeOver k 1)
       (i : ℤ) (hi0 : i ≠ 0) (hi2 : i ≠ 2),
-      Hgrade X (i, 0) = ⊥)
+      Hgrade X (i) = ⊥)
 
 /- Lemma 45.9.8 (4): the finrank of untwisted cohomology of a represented
 projective line is one in degrees zero and two and zero otherwise. -/
@@ -69,6 +69,6 @@ projective line is one in degrees zero and two and zero otherwise. -/
     ∀ (T : SchemeClassicalTheory k F TateLine V dimension product fst snd point
         H CH Hgrade CHgrade cyclePullback cyclePushforward)
       (X : V) (eX : T.scheme.obj X ≅ ProjectiveSpace.schemeOver k 1) (i : ℤ),
-      Module.finrank F (Hgrade X (i, 0)) = if i = 0 ∨ i = 2 then 1 else 0)
+      Module.finrank F (Hgrade X (i)) = if i = 0 ∨ i = 2 then 1 else 0)
 
 end WeilCohomology.SchemeClassicalTheory

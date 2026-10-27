@@ -41,17 +41,17 @@ variable [Functor.HasRightDerivedFunctor
   (modulePushforwardToDerived.{z} f) (ModuleQis.{z} X)]
 variable [Functor.HasRightDerivedFunctor
   (modulePushforwardToDerived.{z} g) (ModuleQis.{z} Y)]
-variable [Functor.HasRightDerivedFunctor
+variable [hCompositeRight : Functor.HasRightDerivedFunctor
   (modulePushforwardToDerived.{z} (f.comp g)) (ModuleQis.{z} X)]
 variable [Functor.HasLeftDerivedFunctor
   (modulePullbackToDerived.{z} f) (ModuleQis.{z} Y)]
 variable [Functor.HasLeftDerivedFunctor
   (modulePullbackToDerived.{z} g) (ModuleQis.{z} Z)]
 variable [Functor.HasLeftDerivedFunctor
-  (modulePullbackToDerived.{z} (f.comp g)) (ModuleQis.{z} Z)]
+  (compositePullbackToDerived.{z} f g) (ModuleQis.{z} Z)]
 variable [DerivedAdjunction.HasPair.{z} f]
 variable [DerivedAdjunction.HasPair.{z} g]
-variable [DerivedAdjunction.HasPair.{z} (f.comp g)]
+variable [compositeDerivedPair.{z} f g]
 
 namespace modulePushforwardDerived
 
@@ -66,7 +66,7 @@ noncomputable def compIso
   modulePushforwardDerivedCompIsoOfPullback f g
     (@asIso _ _ _ _ (modulePullbackDerived.compComparison f g) h_comparison)
 
-/-- The source-facing comparison from the derived direct image of a composite to the iterated
+/-- The comparison from the derived direct image of a composite to the iterated
 derived direct image. -/
 @[stacks 05T2 "derived-pushforward composition comparison"]
 noncomputable def compComparison
@@ -82,8 +82,8 @@ theorem compIso_hom_counit
     (h_comparison : IsIso (modulePullbackDerived.compComparison f g)) :
     Functor.whiskerRight
         (compIso f g h_comparison).hom
-        (modulePullbackDerived.{z} (f.comp g)) ≫
-      (moduleDerivedAdjunction.{z} (f.comp g)).counit =
+        (compositePullbackDerived.{z} f g) ≫
+      (compositeDerivedAdjunction.{z} f g).counit =
       (((moduleDerivedAdjunction.{z} g).comp
           (moduleDerivedAdjunction.{z} f)).ofNatIsoLeft
           (@asIso _ _ _ _ (modulePullbackDerived.compComparison f g)
@@ -95,9 +95,9 @@ corresponding counit equation at every derived module. -/
 theorem compIso_hom_counit_app
     (h_comparison : IsIso (modulePullbackDerived.compComparison f g))
     (K : ModuleDerived.{z} X) :
-    (modulePullbackDerived.{z} (f.comp g)).map
+    (compositePullbackDerived.{z} f g).map
         ((compIso f g h_comparison).hom.app K) ≫
-      (moduleDerivedAdjunction.{z} (f.comp g)).counit.app K =
+      (compositeDerivedAdjunction.{z} f g).counit.app K =
       (((moduleDerivedAdjunction.{z} g).comp
           (moduleDerivedAdjunction.{z} f)).ofNatIsoLeft
         (@asIso _ _ _ _ (modulePullbackDerived.compComparison f g)

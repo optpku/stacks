@@ -37,15 +37,15 @@ namespace AlgebraicGeometry.AlgebraicSpace
 /-- The morphism of algebraic spaces over `S` induced by `Spec.map` of a ring
 homomorphism `π : B' →+* B`, relative to a structure morphism
 `σ : Spec (CommRingCat.of B') ⟶ S`. -/
-def specMapOver {S : Scheme.{u}} {B' B : Type u} [CommRing B'] [CommRing B]
+def ofOverSpecMap {S : Scheme.{u}} {B' B : Type u} [CommRing B'] [CommRing B]
     (π : B' →+* B) (σ : Spec (CommRingCat.of B') ⟶ S) :
     ofOver (Over.mk (Spec.map (CommRingCat.ofHom π) ≫ σ)) ⟶ ofOver (Over.mk σ) :=
   ofOverHomMk (Spec.map (CommRingCat.ofHom π)) rfl
 
-/-- `specMapOver π σ` is `ofOverHomMk` of `Spec.map` of `π`. -/
-theorem specMapOver_eq {S : Scheme.{u}} {B' B : Type u} [CommRing B'] [CommRing B]
+/-- `ofOverSpecMap π σ` is `ofOverHomMk` of `Spec.map` of `π`. -/
+theorem ofOverSpecMap_eq {S : Scheme.{u}} {B' B : Type u} [CommRing B'] [CommRing B]
     (π : B' →+* B) (σ : Spec (CommRingCat.of B') ⟶ S) :
-    specMapOver π σ = ofOverHomMk (Spec.map (CommRingCat.ofHom π)) rfl :=
+    ofOverSpecMap π σ = ofOverHomMk (Spec.map (CommRingCat.ofHom π)) rfl :=
   rfl
 
 /-- The infinitesimal lifting property of `f` at `x` against surjections of
@@ -57,10 +57,10 @@ def HasSquareZeroLiftingAt {S : Scheme.{u}} {X Y : AlgebraicSpace S}
     (σ : Spec (CommRingCat.of B') ⟶ S)
     (α : ofOver (Over.mk (Spec.map (CommRingCat.ofHom π) ≫ σ)) ⟶ X)
     (β : ofOver (Over.mk σ) ⟶ Y),
-    α ≫ f = specMapOver π σ ≫ β →
+    α ≫ f = ofOverSpecMap π σ ≫ β →
       Points.mapOfOver α (IsLocalRing.closedPoint B) = x →
         ∃ γ : ofOver (Over.mk σ) ⟶ X,
-          specMapOver π σ ≫ γ = α ∧ γ ≫ f = β
+          ofOverSpecMap π σ ≫ γ = α ∧ γ ≫ f = β
 
 /-- Unfolding of `HasSquareZeroLiftingAt`: every solid square against a
 square-zero surjection of local rings whose top arrow sends the closed point of
@@ -73,10 +73,10 @@ theorem hasSquareZeroLiftingAt_iff {S : Scheme.{u}} {X Y : AlgebraicSpace S}
         (σ : Spec (CommRingCat.of B') ⟶ S)
         (α : ofOver (Over.mk (Spec.map (CommRingCat.ofHom π) ≫ σ)) ⟶ X)
         (β : ofOver (Over.mk σ) ⟶ Y),
-        α ≫ f = specMapOver π σ ≫ β →
+        α ≫ f = ofOverSpecMap π σ ≫ β →
           Points.mapOfOver α (IsLocalRing.closedPoint B) = x →
             ∃ γ : ofOver (Over.mk σ) ⟶ X,
-              specMapOver π σ ≫ γ = α ∧ γ ≫ f = β :=
+              ofOverSpecMap π σ ≫ γ = α ∧ γ ≫ f = β :=
   Iff.rfl
 
 /-- The infinitesimal lifting property of `f` at `x` against small extensions. -/
@@ -87,10 +87,10 @@ def HasSmallExtensionLiftingAt {S : Scheme.{u}} {X Y : AlgebraicSpace S}
     (σ : Spec (CommRingCat.of B') ⟶ S)
     (α : ofOver (Over.mk (Spec.map (CommRingCat.ofHom π) ≫ σ)) ⟶ X)
     (β : ofOver (Over.mk σ) ⟶ Y),
-    α ≫ f = specMapOver π σ ≫ β →
+    α ≫ f = ofOverSpecMap π σ ≫ β →
       Points.mapOfOver α (IsLocalRing.closedPoint B) = x →
         ∃ γ : ofOver (Over.mk σ) ⟶ X,
-          specMapOver π σ ≫ γ = α ∧ γ ≫ f = β
+          ofOverSpecMap π σ ≫ γ = α ∧ γ ≫ f = β
 
 /-- Unfolding of `HasSmallExtensionLiftingAt`: every solid square against a
 small extension whose top arrow sends the closed point of
@@ -103,10 +103,10 @@ theorem hasSmallExtensionLiftingAt_iff {S : Scheme.{u}} {X Y : AlgebraicSpace S}
         (σ : Spec (CommRingCat.of B') ⟶ S)
         (α : ofOver (Over.mk (Spec.map (CommRingCat.ofHom π) ≫ σ)) ⟶ X)
         (β : ofOver (Over.mk σ) ⟶ Y),
-        α ≫ f = specMapOver π σ ≫ β →
+        α ≫ f = ofOverSpecMap π σ ≫ β →
           Points.mapOfOver α (IsLocalRing.closedPoint B) = x →
             ∃ γ : ofOver (Over.mk σ) ⟶ X,
-              specMapOver π σ ≫ γ = α ∧ γ ≫ f = β :=
+              ofOverSpecMap π σ ≫ γ = α ∧ γ ≫ f = β :=
   Iff.rfl
 
 /-- For a locally finite-type morphism of algebraic spaces to a locally
@@ -145,8 +145,8 @@ def HasFiniteTypeSmallExtensionLifting {S : Scheme.{u}} {X Y : AlgebraicSpace S}
     (σ : Spec (CommRingCat.of B') ⟶ S)
     (α : ofOver (Over.mk (Spec.map (CommRingCat.ofHom π) ≫ σ)) ⟶ X)
     (β : ofOver (Over.mk σ) ⟶ Y) [FiniteType β],
-    CommSq α (specMapOver π σ) f β →
-      ∃ γ : ofOver (Over.mk σ) ⟶ X, specMapOver π σ ≫ γ = α ∧ γ ≫ f = β
+    CommSq α (ofOverSpecMap π σ) f β →
+      ∃ γ : ofOver (Over.mk σ) ⟶ X, ofOverSpecMap π σ ≫ γ = α ∧ γ ≫ f = β
 
 /-- Unfolding of `HasFiniteTypeSmallExtensionLifting`: every solid square
 against a small extension whose bottom arrow is of finite type admits a lift. -/
@@ -157,8 +157,8 @@ theorem hasFiniteTypeSmallExtensionLifting_iff {S : Scheme.{u}}
         (σ : Spec (CommRingCat.of B') ⟶ S)
         (α : ofOver (Over.mk (Spec.map (CommRingCat.ofHom π) ≫ σ)) ⟶ X)
         (β : ofOver (Over.mk σ) ⟶ Y) [FiniteType β],
-        CommSq α (specMapOver π σ) f β →
-          ∃ γ : ofOver (Over.mk σ) ⟶ X, specMapOver π σ ≫ γ = α ∧ γ ≫ f = β :=
+        CommSq α (ofOverSpecMap π σ) f β →
+          ∃ γ : ofOver (Over.mk σ) ⟶ X, ofOverSpecMap π σ ≫ γ = α ∧ γ ≫ f = β :=
   Iff.rfl
 
 /-- A locally finite-type morphism of algebraic spaces to a locally Noetherian

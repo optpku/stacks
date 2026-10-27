@@ -39,7 +39,10 @@ namespace DividedPowerScheme
 universe u
 
 /-- Construct a divided power scheme from its underlying scheme, quasi-coherent
-ideal sheaf, divided powers, and restriction compatibility. -/
+ideal sheaf, divided powers, and restriction compatibility.
+
+This named constructor is retained for crystalline base constructions. It
+packages the supplied data and proofs directly. -/
 def of (S : Scheme.{u}) (I : S.IdealSheafData)
     (h_quasiCoherent : I.toModule.IsQuasicoherent)
     (γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V))
@@ -53,16 +56,6 @@ def of (S : Scheme.{u}) (I : S.IdealSheafData)
     quasiCoherent := h_quasiCoherent
     dividedPowers := γ
     compatible := h_compatible }
-
-/-- A divided power scheme has a quasi-coherent ideal sheaf and its
-divided-power operations commute with restriction to basic opens. -/
-theorem spec (X : DividedPowerScheme.{u}) :
-    let S := X.scheme
-    (type_of% X.quasiCoherent) ∧
-      (∀ (V : S.affineOpens) (f : Γ(S, V)),
-        (X.dividedPowers V).IsDPMorphism
-          (X.dividedPowers (S.affineBasicOpen f))
-          (S.presheaf.map (homOfLE (S.basicOpen_le f)).op).hom) := sorry
 
 /-- A morphism of divided power schemes consists of a scheme morphism whose
 pullback ideal is contained in the source ideal and whose affine-section maps
@@ -78,32 +71,5 @@ structure Hom (X Y : DividedPowerScheme.{u}) where
       (hVW : W.1 ≤ base ⁻¹ᵁ V.1),
       (Y.dividedPowers V).IsDPMorphism (X.dividedPowers W)
         (base.appLE V.1 W.1 hVW).hom
-
-namespace Hom
-
-/-- Construct a morphism of divided power schemes from its map of schemes and
-the two compatibility conditions. -/
-def of {X Y : DividedPowerScheme.{u}} (base : X.scheme ⟶ Y.scheme)
-    (h_ideal : Y.ideal.comap base ≤ X.ideal)
-    (h_dividedPowers :
-      ∀ (V : Y.scheme.affineOpens) (W : X.scheme.affineOpens)
-        (hVW : W.1 ≤ base ⁻¹ᵁ V.1),
-        (Y.dividedPowers V).IsDPMorphism (X.dividedPowers W)
-          (base.appLE V.1 W.1 hVW).hom) :
-    Hom X Y :=
-  { base := base
-    ideal_compatible := h_ideal
-    dividedPowers_compatible := h_dividedPowers }
-
-/-- A morphism of divided power schemes preserves the ideal sheaves and
-divided-power operations on affine sections. -/
-theorem spec {X Y : DividedPowerScheme.{u}} (f : Hom X Y) :
-    Y.ideal.comap f.base ≤ X.ideal ∧
-      (∀ (V : Y.scheme.affineOpens) (W : X.scheme.affineOpens)
-        (hVW : W.1 ≤ f.base ⁻¹ᵁ V.1),
-        (Y.dividedPowers V).IsDPMorphism (X.dividedPowers W)
-          (f.base.appLE V.1 W.1 hVW).hom) := sorry
-
-end Hom
 
 end DividedPowerScheme

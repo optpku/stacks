@@ -31,6 +31,11 @@ instance instIsFormalAlgebraicSpace_functorOfPoints (X : AlgebraicSpace S) :
     IsFormalAlgebraicSpace X.functorOfPoints :=
   sorry
 
+/-- Every scheme over `S` is formal through its canonical algebraic space of points. -/
+instance instIsFormalAlgebraicSpace_yonedaOfOver {S : Scheme.{u}} (T : Over S) :
+    IsFormalAlgebraicSpace (yoneda.obj T) :=
+  inferInstanceAs (IsFormalAlgebraicSpace (AlgebraicSpace.ofOver T).functorOfPoints)
+
 /-- The canonical reduction of an algebraic space is reduced. -/
 theorem isReduced_algebraicSpaceReduction (X : AlgebraicSpace S) :
     AlgebraicSpace.existsSurjectiveEtale

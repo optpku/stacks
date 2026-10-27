@@ -54,19 +54,19 @@ variable {A : Type u} [CommRing A] [IsNoetherianRing A]
     (F : CoherentFormalModules S.U.toScheme
       ((Scheme.idealSheafDataOfIdealOnSpec S.I).comap S.U.ι)),
     [hmonA : MonoidalCategory (DerivedCategory.{u + 1} (ModuleCat.{u} A))] →
-    (HA : MonoidalClosed (DerivedCategory.{u + 1} (ModuleCat.{u} A))) →
+    (CA : CategoryTheory.DerivedCategory.CanonicalClosedPresentation (A := A)) →
     [hmon : ∀ y : S.Y, ∀ hy : S.y y ∈ S.U,
       MonoidalCategory (DerivedCategory.{u + 1} (ModuleCat.{u}
         (completedLocalRing S (closedFiberOpenPoint S y hy))))] →
-    (Hlocal : ∀ y : S.Y, ∀ hy : S.y y ∈ S.U,
-      MonoidalClosed (DerivedCategory.{u + 1} (ModuleCat.{u}
-        (completedLocalRing S (closedFiberOpenPoint S y hy))))) →
+    (Clocal : ∀ y : S.Y, ∀ hy : S.y y ∈ S.U,
+      CategoryTheory.DerivedCategory.CanonicalClosedPresentation
+        (A := completedLocalRing S (closedFiberOpenPoint S y hy))) →
     (s d : ℤ) →
     Ideal.LocalCohomology.HasDimensionLE S.I d →
     (∃ K : DerivedCategory.{u + 1} (ModuleCat.{u} A),
-      K.IsDualizingComplex HA) →
+      K.IsCanonicalDualizingComplex CA) →
     (SatisfiesInequalities S F s (s + d) ↔
-      HasAlgebraizationSituationAtDistance S F Hlocal s d))
+      HasAlgebraizationSituationAtDistance S F Clocal s d))
 
 /- Lemma 52.19.2 (4) -/
 @[stacks 0EJ4]
@@ -75,11 +75,11 @@ variable {A : Type u} [CommRing A] [IsNoetherianRing A]
     (F : CoherentFormalModules S.U.toScheme
       ((Scheme.idealSheafDataOfIdealOnSpec S.I).comap S.U.ι)),
     [hmonA : MonoidalCategory (DerivedCategory.{u + 1} (ModuleCat.{u} A))] →
-    (HA : MonoidalClosed (DerivedCategory.{u + 1} (ModuleCat.{u} A))) →
+    (CA : CategoryTheory.DerivedCategory.CanonicalClosedPresentation (A := A)) →
     (s d : ℤ) →
     Ideal.LocalCohomology.HasDimensionLE S.I d →
     (∃ K : DerivedCategory.{u + 1} (ModuleCat.{u} A),
-      K.IsDualizingComplex HA) →
+      K.IsCanonicalDualizingComplex CA) →
     SatisfiesStrictInequalities S F s (s + d) →
     SatisfiesInequalities S F s (s + d))
 

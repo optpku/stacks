@@ -38,7 +38,7 @@ composition comparison of the cleavage. -/
 theorem toPseudofunctor.mapCompOp.toNatIso
     {U V W : C} (f : V ⟶ U) (g : W ⟶ V) :
     Cat.Hom.toNatIso (χ.toPseudofunctor.mapCompOp f g) =
-      Reindex.compIso χ f g := sorry
+      Reindex.compIso χ f g := rfl
 
 /-- At an actual composite `g ≫ f`, the hom component of `mapCompOp` is the canonical
 cleavage comparison component. This is the normalization theorem from the bicategorical
@@ -47,7 +47,7 @@ presentation to the intrinsic reindexing API. -/
 theorem toPseudofunctor.mapCompOp.hom.app
     {U V W : C} (f : V ⟶ U) (g : W ⟶ V) (x : Fiber p U) :
     (χ.toPseudofunctor.mapCompOp f g).hom.toNatTrans.app x =
-      (Reindex.compIsoApp χ f g x).hom := sorry
+      (Reindex.compIsoApp χ f g x).hom := rfl
 /- Proof strategy: unfold `mapCompOp` and `toPseudofunctor`, then normalize
 `Pseudofunctor.mapComp'` at the canonical composite. -/
 
@@ -57,7 +57,7 @@ canonical cleavage comparison component. -/
 theorem toPseudofunctor.mapCompOp.inv.app
     {U V W : C} (f : V ⟶ U) (g : W ⟶ V) (x : Fiber p U) :
     (χ.toPseudofunctor.mapCompOp f g).inv.toNatTrans.app x =
-      (Reindex.compIsoApp χ f g x).inv := sorry
+      (Reindex.compIsoApp χ f g x).inv := rfl
 /- Proof strategy: use the same normalization as the hom component and take the inverse side of
 the resulting natural isomorphism. -/
 
@@ -68,7 +68,7 @@ theorem toPseudofunctor.mapComp.toNatIso
     {U V W : C} (f : V ⟶ U) (g : W ⟶ V) :
     Cat.Hom.toNatIso
         (χ.toPseudofunctor.mapComp f.op.toLoc g.op.toLoc) =
-      Reindex.compIso χ f g := sorry
+      Reindex.compIso χ f g := rfl
 
 /-- The hom component of mathlib's standard composition comparison is the intrinsic cleavage
 composition component. -/
@@ -76,7 +76,7 @@ composition component. -/
 theorem toPseudofunctor.mapComp.hom.app
     {U V W : C} (f : V ⟶ U) (g : W ⟶ V) (x : Fiber p U) :
     (χ.toPseudofunctor.mapComp f.op.toLoc g.op.toLoc).hom.toNatTrans.app x =
-      (Reindex.compIsoApp χ f g x).hom := sorry
+      (Reindex.compIsoApp χ f g x).hom := rfl
 
 /-- The inverse component of mathlib's standard composition comparison is the inverse intrinsic
 cleavage composition component. -/
@@ -84,7 +84,7 @@ cleavage composition component. -/
 theorem toPseudofunctor.mapComp.inv.app
     {U V W : C} (f : V ⟶ U) (g : W ⟶ V) (x : Fiber p U) :
     (χ.toPseudofunctor.mapComp f.op.toLoc g.op.toLoc).inv.toNatTrans.app x =
-      (Reindex.compIsoApp χ f g x).inv := sorry
+      (Reindex.compIsoApp χ f g x).inv := rfl
 
 /-- Over a specified composite, the forward pseudofunctor comparison component is the intrinsic
 specified-composite reindexing comparison. -/
@@ -93,7 +93,13 @@ theorem toPseudofunctor.mapCompOp'.hom.app
     {A B D : C} (f : B ⟶ D) (g : A ⟶ B) (gf : A ⟶ D)
     (hgf : g ≫ f = gf) (x : Fiber p D) :
     (χ.toPseudofunctor.mapCompOp' f g gf hgf).hom.toNatTrans.app x =
-      (Reindex.specifiedCompIsoApp χ f g gf hgf x).hom := sorry
+      (Reindex.specifiedCompIsoApp χ f g gf hgf x).hom := by
+  subst gf
+  calc
+    _ = (Reindex.compIsoApp χ f g x).hom :=
+      congrArg (fun e ↦ e.hom.toNatTrans.app x)
+        (χ.toPseudofunctor.mapComp'_eq_mapComp f.op.toLoc g.op.toLoc)
+    _ = _ := by simp [Reindex.specifiedCompIsoApp, Reindex.congrIsoApp]
 
 /-- Over a specified composite, the inverse pseudofunctor comparison component is the inverse
 intrinsic specified-composite reindexing comparison. -/
@@ -102,7 +108,13 @@ theorem toPseudofunctor.mapCompOp'.inv.app
     {A B D : C} (f : B ⟶ D) (g : A ⟶ B) (gf : A ⟶ D)
     (hgf : g ≫ f = gf) (x : Fiber p D) :
     (χ.toPseudofunctor.mapCompOp' f g gf hgf).inv.toNatTrans.app x =
-      (Reindex.specifiedCompIsoApp χ f g gf hgf x).inv := sorry
+      (Reindex.specifiedCompIsoApp χ f g gf hgf x).inv := by
+  subst gf
+  calc
+    _ = (Reindex.compIsoApp χ f g x).inv :=
+      congrArg (fun e ↦ e.inv.toNatTrans.app x)
+        (χ.toPseudofunctor.mapComp'_eq_mapComp f.op.toLoc g.op.toLoc)
+    _ = _ := by simp [Reindex.specifiedCompIsoApp, Reindex.congrIsoApp]
 
 /-- The hom component of the base-facing composition comparison factors the iterated chosen
 cartesian arrows through the chosen arrow over the specified composite. -/
@@ -113,7 +125,24 @@ theorem toPseudofunctor.mapCompOp'.hom.app.fac
     ((χ.toPseudofunctor.mapCompOp' f g gf hgf).hom.toNatTrans.app x).1 ≫
         χ.cartesianHom g ((χ.reindex f).obj x) ≫
         χ.cartesianHom f x =
-      χ.cartesianHom gf x := sorry
+      χ.cartesianHom gf x := by
+  subst gf
+  calc
+    _ = (Reindex.compAmbientIso χ f g x).hom ≫
+        χ.cartesianHom g (χ.reindexObj f x) ≫ χ.cartesianHom f x :=
+      congrArg (fun e ↦ (e.hom.toNatTrans.app x).1 ≫
+        χ.cartesianHom g (χ.reindexObj f x) ≫ χ.cartesianHom f x)
+        (χ.toPseudofunctor.mapComp'_eq_mapComp f.op.toLoc g.op.toLoc)
+    _ = _ := by
+      letI : p.IsStronglyCartesian f (χ.cartesianHom f x) :=
+        (χ.reindexLift f x).isStronglyCartesian
+      letI : p.IsStronglyCartesian g (χ.cartesianHom g (χ.reindexObj f x)) :=
+        (χ.reindexLift g (χ.reindexObj f x)).isStronglyCartesian
+      letI : p.IsStronglyCartesian (g ≫ f) (χ.cartesianHom (g ≫ f) x) :=
+        (χ.reindexLift (g ≫ f) x).isStronglyCartesian
+      exact IsStronglyCartesian.fac p (g ≫ f)
+        (χ.cartesianHom g (χ.reindexObj f x) ≫ χ.cartesianHom f x)
+        (Category.id_comp (g ≫ f)).symm (χ.cartesianHom (g ≫ f) x)
 /- Proof strategy: eliminate `hgf`, reduce `mapCompOp'` to the cleavage composition comparison,
 and apply `Reindex.specifiedCompIsoApp.hom.fac`. -/
 
@@ -126,7 +155,22 @@ theorem toPseudofunctor.mapCompOp'.inv.app.fac
     ((χ.toPseudofunctor.mapCompOp' f g gf hgf).inv.toNatTrans.app x).1 ≫
         χ.cartesianHom gf x =
       χ.cartesianHom g ((χ.reindex f).obj x) ≫
-        χ.cartesianHom f x := sorry
+        χ.cartesianHom f x := by
+  subst gf
+  have h : (Reindex.compAmbientIso χ f g x).hom ≫
+      χ.cartesianHom g (χ.reindexObj f x) ≫ χ.cartesianHom f x =
+      χ.cartesianHom (g ≫ f) x :=
+    (congrArg (fun e ↦ (e.hom.toNatTrans.app x).1 ≫
+      χ.cartesianHom g (χ.reindexObj f x) ≫ χ.cartesianHom f x)
+      (χ.toPseudofunctor.mapComp'_eq_mapComp f.op.toLoc g.op.toLoc)).symm.trans
+        (toPseudofunctor.mapCompOp'.hom.app.fac χ f g (g ≫ f) rfl x)
+  calc
+    _ = (Reindex.compAmbientIso χ f g x).inv ≫ χ.cartesianHom (g ≫ f) x :=
+      congrArg (fun e ↦ (e.inv.toNatTrans.app x).1 ≫ χ.cartesianHom (g ≫ f) x)
+        (χ.toPseudofunctor.mapComp'_eq_mapComp f.op.toLoc g.op.toLoc)
+    _ = _ := by
+      rw [← h, Iso.inv_hom_id_assoc]
+      rfl
 /- Proof strategy: eliminate `hgf`, reduce `mapCompOp'` to the inverse cleavage comparison,
 and apply `Reindex.specifiedCompIsoApp.inv.fac`. -/
 

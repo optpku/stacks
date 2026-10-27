@@ -166,17 +166,91 @@ variable [∀ n, (SheafOfModules.restrictScalars.{w}
     ((stageMorphism C J O n).comp (IsAugmentation.ringedHom C J K u0 O O_D aSharp)).structureMap).IsRightAdjoint]
 variable (G : SheafOfModules.{w} O_D)
 
-/-- Stage pullback comparisons for a ringed augmentation are invertible. -/
-instance modulePullbackStageComp_isIso {n m : SimplexCategory} (φ : n ⟶ m) :
-    IsIso (modulePullbackStageComp C J O (IsAugmentation.ringedHom C J K u0 O O_D aSharp) G φ) :=
-  sorry
+/-- The augmentation identifies the two composite inverse-image functors. -/
+private def augmentationStageInverseImageCompIso {n m : SimplexCategory} (φ : n ⟶ m) :
+    ((stageMorphism C J O n).comp
+        (IsAugmentation.ringedHom C J K u0 O O_D aSharp)).toTopos.inverseImage ⋙
+        (ringedToposMap C J O φ).toTopos.inverseImage ≅
+      ((stageMorphism C J O m).comp
+        (IsAugmentation.ringedHom C J K u0 O O_D aSharp)).toTopos.inverseImage :=
+  Functor.isoWhiskerRight (IsAugmentation.totalTopos_comp_ofStage C J K u0 n)
+      (toposMap C J φ).inverseImage ≪≫
+    IsAugmentation.stageTopos_comp C J K u0 φ ≪≫
+      (IsAugmentation.totalTopos_comp_ofStage C J K u0 m).symm
 
-/-- Inverse-image form of `a_m ∘ f_φ = a_n` on modules. -/
+/-- The same augmentation identity on underlying direct images, as a mate of the
+explicit inverse-image isomorphism. -/
+private def augmentationStagePushforwardCompIso {n m : SimplexCategory} (φ : n ⟶ m) :
+    (ringedToposMap C J O φ).toTopos.pushforward ⋙
+        ((stageMorphism C J O n).comp
+          (IsAugmentation.ringedHom C J K u0 O O_D aSharp)).toTopos.pushforward ≅
+      ((stageMorphism C J O m).comp
+        (IsAugmentation.ringedHom C J K u0 O O_D aSharp)).toTopos.pushforward :=
+  ((((stageMorphism C J O n).comp
+      (IsAugmentation.ringedHom C J K u0 O O_D aSharp)).toTopos.adjunction.comp
+        (ringedToposMap C J O φ).toTopos.adjunction).ofNatIsoLeft
+      (augmentationStageInverseImageCompIso C J K u0 O O_D aSharp φ)).rightAdjointUniq
+    ((stageMorphism C J O m).comp
+      (IsAugmentation.ringedHom C J K u0 O O_D aSharp)).toTopos.adjunction
+
+/-- Lift the specified direct-image mate to modules, retaining its forward and inverse
+functions. Linearity is the compatibility of `aSharp` with the simplicial transitions. -/
+private def augmentationStageModulePushforwardCompIso {n m : SimplexCategory} (φ : n ⟶ m) :
+    (ringedToposMap C J O φ).modulePushforward ⋙
+        ((stageMorphism C J O n).comp
+          (IsAugmentation.ringedHom C J K u0 O O_D aSharp)).modulePushforward ≅
+      ((stageMorphism C J O m).comp
+        (IsAugmentation.ringedHom C J K u0 O O_D aSharp)).modulePushforward := by
+  let f := ringedToposMap C J O φ
+  let a_n := (stageMorphism C J O n).comp
+    (IsAugmentation.ringedHom C J K u0 O O_D aSharp)
+  let a_m := (stageMorphism C J O m).comp
+    (IsAugmentation.ringedHom C J K u0 O O_D aSharp)
+  let e := Functor.associator f.modulePushforward a_n.modulePushforward
+      (Sheaf.InternalModule.ToInternal.underlying O_D) ≪≫
+    Functor.isoWhiskerLeft f.modulePushforward (ToposHom.ModulePushforward.forgetIso a_n) ≪≫
+    (Functor.associator f.modulePushforward
+      (Sheaf.InternalModule.ToInternal.underlying (componentRingSheaf C J O n))
+      a_n.toTopos.pushforward).symm ≪≫
+    Functor.isoWhiskerRight (ToposHom.ModulePushforward.forgetIso f) a_n.toTopos.pushforward ≪≫
+    Functor.associator
+      (Sheaf.InternalModule.ToInternal.underlying (componentRingSheaf C J O m))
+      f.toTopos.pushforward a_n.toTopos.pushforward ≪≫
+    Functor.isoWhiskerLeft
+      (Sheaf.InternalModule.ToInternal.underlying (componentRingSheaf C J O m))
+      (augmentationStagePushforwardCompIso C J K u0 O O_D aSharp φ) ≪≫
+    (ToposHom.ModulePushforward.forgetIso a_m).symm
+  exact Sheaf.InternalModule.functorIsoOfUnderlying O_D e (by sorry) (by sorry)
+
+/-- Inverse-image form of `a_n ∘ f_φ = a_m` on modules. The reverse map is the original
+simplicial comparison; its inverse is the explicit mate of the augmentation identity. -/
 def modulePullbackStageCompIso {n m : SimplexCategory} (φ : n ⟶ m) :
     ((stageMorphism C J O m).comp (IsAugmentation.ringedHom C J K u0 O O_D aSharp)).modulePullback.obj G ≅
       (ringedToposMap C J O φ).modulePullback.obj
         (((stageMorphism C J O n).comp (IsAugmentation.ringedHom C J K u0 O O_D aSharp)).modulePullback.obj G) :=
-  (asIso (modulePullbackStageComp C J O (IsAugmentation.ringedHom C J K u0 O O_D aSharp) G φ)).symm
+  { hom :=
+      (((((stageMorphism C J O n).comp
+          (IsAugmentation.ringedHom C J K u0 O O_D aSharp)).moduleAdjunction.comp
+            (ringedToposMap C J O φ).moduleAdjunction).ofNatIsoRight
+          (augmentationStageModulePushforwardCompIso C J K u0 O O_D aSharp φ)).leftAdjointUniq
+        ((stageMorphism C J O m).comp
+          (IsAugmentation.ringedHom C J K u0 O O_D aSharp)).moduleAdjunction).inv.app G
+    inv := modulePullbackStageComp C J O
+      (IsAugmentation.ringedHom C J K u0 O O_D aSharp) G φ
+    hom_inv_id := by sorry
+    inv_hom_id := by sorry }
+
+/-- The inverse component of the augmentation isomorphism is the specified stage comparison. -/
+@[simp]
+theorem modulePullbackStageCompIso_inv {n m : SimplexCategory} (φ : n ⟶ m) :
+    (modulePullbackStageCompIso C J K u0 O O_D aSharp G φ).inv =
+      modulePullbackStageComp C J O
+        (IsAugmentation.ringedHom C J K u0 O O_D aSharp) G φ := rfl
+
+/-- Stage pullback comparisons for a ringed augmentation are invertible. -/
+instance modulePullbackStageComp_isIso {n m : SimplexCategory} (φ : n ⟶ m) :
+    IsIso (modulePullbackStageComp C J O (IsAugmentation.ringedHom C J K u0 O O_D aSharp) G φ) :=
+  (modulePullbackStageCompIso C J K u0 O O_D aSharp G φ).isIso_inv
 
 /-- The structure map `g_{m!}(a_m^* G) ⟶ g_{n!}(a_n^* G)` induced by a simplex
 operator `φ : n ⟶ m`. -/

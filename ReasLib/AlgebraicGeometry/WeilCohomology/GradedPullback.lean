@@ -26,7 +26,7 @@ noncomputable def pullbackGrade
     [∀ X, Ring (H X)] [∀ X, Algebra F (H X)]
     [∀ X, AddCommGroup (Picard X)] [∀ X, Ring (Cycle X)]
     (T : PreWeilTheory F TateLine V H Picard Cycle) {X Y : V}
-    (f : X ⟶ Y) (p : ℤ × ℤ) : T.Hgrade Y p →ₗ[F] T.Hgrade X p :=
+    (f : X ⟶ Y) (p : ℤ) : T.Hgrade Y p →ₗ[F] T.Hgrade X p :=
   LinearMap.codRestrict (T.Hgrade X p)
     ((T.pullback f).toLinearMap.domRestrict (T.Hgrade Y p)) (T.pullback_mem f p)
 
@@ -38,7 +38,7 @@ theorem pullbackGrade_apply
     [∀ X, Ring (H X)] [∀ X, Algebra F (H X)]
     [∀ X, AddCommGroup (Picard X)] [∀ X, Ring (Cycle X)]
     (T : PreWeilTheory F TateLine V H Picard Cycle) {X Y : V}
-    (f : X ⟶ Y) (p : ℤ × ℤ) (a : T.Hgrade Y p) :
+    (f : X ⟶ Y) (p : ℤ) (a : T.Hgrade Y p) :
     T.pullback f a = T.pullbackGrade f p a := sorry
 
 end WeilCohomology.PreWeilTheory
@@ -60,7 +60,7 @@ noncomputable def pullbackGrade
     [∀ X, Ring (H X)] [∀ X, Algebra F (H X)] [∀ X, AddCommGroup (Picard X)]
     (T : SchemePreWeilTheory k F TateLine V dimension product fst snd point CH CHgrade
       cyclePullback cyclePushforward pointCycle H Picard) {X Y : V}
-    (f : X ⟶ Y) (p : ℤ × ℤ) : T.Hgrade Y p →ₗ[F] T.Hgrade X p :=
+    (f : X ⟶ Y) (p : ℤ) : T.Hgrade Y p →ₗ[F] T.Hgrade X p :=
   LinearMap.codRestrict (T.Hgrade X p)
     ((T.pullback f).toLinearMap.domRestrict (T.Hgrade Y p)) (T.pullback_mem f p)
 
@@ -79,7 +79,7 @@ theorem pullbackGrade_apply
     [∀ X, Ring (H X)] [∀ X, Algebra F (H X)] [∀ X, AddCommGroup (Picard X)]
     (T : SchemePreWeilTheory k F TateLine V dimension product fst snd point CH CHgrade
       cyclePullback cyclePushforward pointCycle H Picard) {X Y : V}
-    (f : X ⟶ Y) (p : ℤ × ℤ) (a : T.Hgrade Y p) :
+    (f : X ⟶ Y) (p : ℤ) (a : T.Hgrade Y p) :
     T.pullback f a = T.pullbackGrade f p a := sorry
 
 end WeilCohomology.SchemePreWeilTheory

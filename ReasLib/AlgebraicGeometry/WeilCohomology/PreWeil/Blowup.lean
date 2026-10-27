@@ -34,7 +34,7 @@ theorem pushforward_one_of_isBlowupOfSmoothCenter
     [∀ X, Ring (H X)] [∀ X, Algebra F (H X)]
     [∀ X, AddCommGroup (Picard X)] [∀ X, Ring (Cycle X)]
     (T : PreWeilTheory F TateLine
-      (ULiftHom.{u + 1} (SchemeOverField k)) H Picard Cycle)
+      (ULiftHom.{u + 1} (SchemeOverField k)) H Picard Cycle) [T.HasDiagonalClassRelation]
     (hA8 : T.SatisfiesAxiomA8)
     {X' X : SchemeOverField k} {d : ℕ}
     [Nonempty X.left] [EquidimensionalSpace X.left] [Smooth X.hom] [Projective X.hom]
@@ -45,6 +45,8 @@ theorem pushforward_one_of_isBlowupOfSmoothCenter
     [Smooth (I.subschemeι ≫ X.hom)]
     (h_center_nowhereDense : IsNowhereDense (I.support : Set X.left))
     (h_blowup : T.IsBlowupOfSmoothCenter (ULiftHom.up.map b)) :
-    T.pushforward hX' hX (ULiftHom.up.map b) 1 = 1 := sorry
+    T.pushforward hX' hX (ULiftHom.up.map b) 1 = 1 := by
+  have hdiagonal : T.HasDiagonalClassRelation := inferInstance
+  sorry
 
 end WeilCohomology.PreWeilTheory

@@ -11,6 +11,7 @@ public import Mathlib.CategoryTheory.PUnit
 public import Mathlib.CategoryTheory.SingleObj
 public import Mathlib.Data.ZMod.Basic
 public import ReasLib.CategoryTheory.Fibered.PseudoPullback.Basic
+import Mathlib.SetTheory.Cardinal.Finite
 import Mathlib.Tactic.CrossRefAttribute
 
 /-!
@@ -33,10 +34,10 @@ namespace CategoryTheory
 namespace BasedCategory.PseudoPullback
 namespace TwoArrowCounterexample
 
-/- Data audit: `#print axioms` is clean up to `[propext, Classical.choice, Quot.sound]` for
-`pointToBase` and `ordinaryPullbackPoint`. The `sorryAx` reported for `pointLift` and
-`basedPullbackPoint` is confined to the equality-proof fields supplied by `pointToBase_obj` and
-`baseIdentity_obj`; their object, functor, and comparison-isomorphism payloads remain explicit. -/
+/- Data audit: `pointToBase`, `pointLift`, `identityLift`, and `ordinaryPullbackPoint` are
+`sorryAx`-free. The `sorryAx` footprint of `basedPullbackPoint` comes from existing upstream
+Prop fields in `toBase`, the induced fibre functor, and the pseudo-pullback category laws.
+Its object, functor, and identity-comparison payloads remain explicit. -/
 
 /-- The two-element group whose one-object category realizes the comparison groupoid. -/
 abbrev TwoArrowGroup := Multiplicative (ZMod 2)
@@ -66,15 +67,13 @@ def pointObject : OnePointCategory :=
 
 /-- The unique point is sent to the unique base object. -/
 theorem pointToBase_obj :
-    pointOverBase.p.obj pointObject = baseObject := sorry
-/- Proof strategy: unfold `pointOverBase`, `pointToBase`, and `pointObject`; the object map of
-`Functor.fromPUnit` is definitionally constant at `baseObject`. -/
+    pointOverBase.p.obj pointObject = baseObject := by
+  rfl
 
 /-- The identity functor fixes the unique base object. -/
 theorem baseIdentity_obj :
-    (𝟭 TwoArrowGroupoid).obj baseObject = baseObject := sorry
-/- Proof strategy: reduce the object map with `Functor.id_obj`; both sides are then
-`baseObject`. -/
+    (𝟭 TwoArrowGroupoid).obj baseObject = baseObject := by
+  rfl
 
 /-- The canonical lift of the point object to the fibre over `baseObject`. -/
 def pointLift : Functor.Fiber pointOverBase.p baseObject :=
@@ -107,55 +106,92 @@ ordinary categorical pullback. -/
 @[stacks 0H2D "arbitrary comparison arrows in the categorical pullback"]
 theorem ordinaryPullbackPoint_iso_hom
     (g : TwoArrowGroup) :
-    (ordinaryPullbackPoint g).iso.hom = g := sorry
-/- Proof strategy: unfold `ordinaryPullbackPoint` and use `asIso_hom`; the
-`SingleObj` groupoid instance supplies the inverse of the chosen arrow. -/
+    (ordinaryPullbackPoint g).iso.hom = g := by
+  rfl
+
+/-- Objects of the ordinary pullback are determined by their comparison arrows. -/
+private theorem ordinaryPullback_ext {P Q : pointToBase ⊡ pointToBase}
+    (h : P.iso.hom = Q.iso.hom) : P = Q := by
+  rcases P with ⟨x, y, i⟩
+  rcases Q with ⟨x', y', i'⟩
+  obtain rfl : x' = x := Subsingleton.elim _ _
+  obtain rfl : y' = y := Subsingleton.elim _ _
+  have hi : i = i' := Iso.ext h
+  cases hi
+  rfl
 
 /-- The ordinary categorical pullback of the one-point category with itself over the two-arrow
 groupoid is discrete. -/
 @[stacks 0H2D "ordinary categorical pullback is discrete"]
-instance ordinaryPullbackIsDiscrete : IsDiscrete (pointToBase ⊡ pointToBase) := sorry
-/- Proof strategy: use `CategoricalPullback.hom_ext` and the subsingleton hom-types of
-`Discrete PUnit` for morphism uniqueness. For `IsDiscrete.eq_of_hom`, the compatibility field
-`CategoricalPullback.Hom.w` identifies the two comparison arrows; reconstruct both endpoints
-with `ordinaryPullbackPoint` and `ordinaryPullbackPoint_iso_hom`. -/
+instance ordinaryPullbackIsDiscrete : IsDiscrete (pointToBase ⊡ pointToBase) where
+  subsingleton _ _ := ⟨fun f g ↦
+    CategoricalPullback.hom_ext (Subsingleton.elim _ _) (Subsingleton.elim _ _)⟩
+  eq_of_hom f := by
+    apply ordinaryPullback_ext
+    simpa [pointToBase, SingleObj.comp_as_mul, SingleObj.id_as_one] using f.w.symm
 
 /-- The ordinary categorical pullback has exactly two objects. -/
 @[stacks 0H2D "ordinary categorical pullback has two objects"]
 theorem ordinaryPullbackNatCard :
-    Nat.card (pointToBase ⊡ pointToBase) = 2 := sorry
-/- Proof strategy: send a pullback object to its comparison arrow and use
-`ordinaryPullbackPoint` as inverse. Prove the inverse laws with
-`ordinaryPullbackPoint_iso_hom` and extensionality for the unique point components, apply
-`Nat.card_congr`, and finish with `Nat.card_zmod`; `Multiplicative` leaves the carrier unchanged. -/
+    Nat.card (pointToBase ⊡ pointToBase) = 2 := by
+  let e : (pointToBase ⊡ pointToBase) ≃ TwoArrowGroup :=
+    { toFun := fun P ↦ P.iso.hom
+      invFun := ordinaryPullbackPoint
+      left_inv := fun P ↦ ordinaryPullback_ext rfl
+      right_inv := fun _ ↦ rfl }
+  calc
+    Nat.card (pointToBase ⊡ pointToBase) = Nat.card TwoArrowGroup := Nat.card_congr e
+    _ = 2 := Nat.card_zmod 2
 
 /-- Every object of the pseudo-pullback in `Cat/TwoArrowGroupoid` is the
 identity-comparison point. -/
 @[stacks 0H2D "over-base pullback has only the identity comparison point"]
 theorem basedPullback_eq_point
     (P : (PseudoPullback pointOverBase.toBase pointOverBase.toBase).obj) :
-    P = basedPullbackPoint := sorry
-/- Proof strategy: eliminate the unique base and point objects, then apply
-`PseudoPullback.comparison.isHomLift` to the structural comparison. Since the target projection
-is the identity functor, `IsHomLift.eq_of_isHomLift` forces the underlying arrow to be
-`𝟙 baseObject`; use `Functor.Fiber.hom_ext` and isomorphism extensionality to identify the
-remaining comparison with `Iso.refl identityLift`. -/
+    P = basedPullbackPoint := by
+  rcases P with ⟨U, x, y, i⟩
+  obtain rfl : U = baseObject := Subsingleton.elim _ _
+  obtain rfl : x = pointLift := Subtype.ext (Subsingleton.elim (α := OnePointCategory) _ _)
+  obtain rfl : y = pointLift := Subtype.ext (Subsingleton.elim (α := OnePointCategory) _ _)
+  have hi : i = Iso.refl identityLift := by
+    apply Iso.ext
+    apply Functor.Fiber.hom_ext
+    -- Supply endpoints and the lift certificate explicitly in the one-object base category.
+    exact (@IsHomLift.eq_of_isHomLift _ _ _ _ (𝟭 TwoArrowGroupoid)
+      baseObject baseObject (𝟙 baseObject) i.hom.val i.hom.property).symm
+  cases hi
+  rfl
 
 /-- The pseudo-pullback formed in `Cat/TwoArrowGroupoid` is discrete. -/
 @[stacks 0H2D "pullback in the over-category is discrete"]
 instance basedPullbackIsDiscrete :
-    IsDiscrete (PseudoPullback pointOverBase.toBase pointOverBase.toBase).obj := sorry
-/- Proof strategy: identify both endpoints with `basedPullbackPoint` using
-`basedPullback_eq_point`. Morphisms are equal by `PseudoPullback.hom_ext`, since both components
-lie in the subsingleton hom-types of `Discrete PUnit`; the same point identification supplies
-`IsDiscrete.eq_of_hom`. -/
+    IsDiscrete (PseudoPullback pointOverBase.toBase pointOverBase.toBase).obj where
+  subsingleton P Q := ⟨by
+    intro f g
+    obtain rfl := basedPullback_eq_point P
+    obtain rfl := basedPullback_eq_point Q
+    rcases f with ⟨b, f, hf, f', hf', w⟩
+    rcases g with ⟨c, g, hg, g', hg', w'⟩
+    have hfst : f = g := Subsingleton.elim (α := pointObject ⟶ pointObject) _ _
+    have hsnd : f' = g' := Subsingleton.elim (α := pointObject ⟶ pointObject) _ _
+    have hb : b = c := by
+      calc
+        b = pointOverBase.p.map f := @IsHomLift.eq_of_isHomLift _ _ _ _ pointOverBase.p
+          pointObject pointObject b f hf
+        _ = pointOverBase.p.map g := congrArg (fun φ ↦ pointOverBase.p.map φ) hfst
+        _ = c := (@IsHomLift.eq_of_isHomLift _ _ _ _ pointOverBase.p
+          pointObject pointObject c g hg).symm
+    cases hb
+    cases hfst
+    cases hsnd
+    rfl⟩
+  eq_of_hom {P Q} _ := (basedPullback_eq_point P).trans (basedPullback_eq_point Q).symm
 
 /-- The pseudo-pullback formed in `Cat/TwoArrowGroupoid` has exactly one object. -/
 @[stacks 0H2D "pullback in the over-category has one object"]
 theorem basedPullbackNatCard :
-    Nat.card (PseudoPullback pointOverBase.toBase pointOverBase.toBase).obj = 1 := sorry
-/- Proof strategy: apply `Nat.card_eq_one_iff_unique`; nonemptiness is witnessed by
-`basedPullbackPoint`, and subsingleton equality is exactly `basedPullback_eq_point`. -/
+    Nat.card (PseudoPullback pointOverBase.toBase pointOverBase.toBase).obj = 1 := by
+  exact Nat.card_eq_one_iff_exists.mpr ⟨basedPullbackPoint, basedPullback_eq_point⟩
 
 /-- The ordinary categorical pullback and the pseudo-pullback formed in `Cat/TwoArrowGroupoid`
 are not equivalent categories. -/
@@ -163,11 +199,17 @@ are not equivalent categories. -/
 theorem notEquivalent :
     ¬ Nonempty
       (pointToBase ⊡ pointToBase ≌
-        (PseudoPullback pointOverBase.toBase pointOverBase.toBase).obj) := sorry
-/- Proof strategy: from a supposed equivalence, use its functor and inverse object maps to build
-an equivalence of object types; the unit and counit components become equalities by
-`IsDiscrete.eq_of_hom`. Apply `Nat.card_congr`, then rewrite with `ordinaryPullbackNatCard` and
-`basedPullbackNatCard` to obtain `2 = 1`. -/
+        (PseudoPullback pointOverBase.toBase pointOverBase.toBase).obj) := by
+  rintro ⟨e⟩
+  let eObj : (pointToBase ⊡ pointToBase) ≃
+      (PseudoPullback pointOverBase.toBase pointOverBase.toBase).obj :=
+    { toFun := e.functor.obj
+      invFun := e.inverse.obj
+      left_inv := fun P ↦ (IsDiscrete.eq_of_hom (e.unitIso.app P).hom).symm
+      right_inv := fun P ↦ IsDiscrete.eq_of_hom (e.counitIso.app P).hom }
+  have h := Nat.card_congr eObj
+  rw [ordinaryPullbackNatCard, basedPullbackNatCard] at h
+  exact (by decide : (2 : ℕ) ≠ 1) h
 
 end TwoArrowCounterexample
 end BasedCategory.PseudoPullback

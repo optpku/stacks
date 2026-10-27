@@ -80,52 +80,6 @@ namespace FormalObjectSystem
 
 variable {p : C ⥤ Over S} (ξ : FormalObjectSystem p)
 
-/-- Construct a formal object system from its constituent coefficient, diagram,
-object, and compatibility data. -/
-def ofFields
-    (coeffRing : CommRingCat.{u})
-    (openImmersion : Spec coeffRing ⟶ S)
-    (isOpenImmersion : IsOpenImmersion openImmersion)
-    (ringSystem : SequentialInverseSystem CommRingCat.{u})
-    (limitCone : LimitCone ringSystem)
-    (algebra : ∀ n, coeffRing ⟶ ringSystem.family n)
-    (algebra_step : ∀ n, algebra (n + 1) ≫ ringSystem.stepMap n = algebra n)
-    (ringMapsSurjective : ringSystem.Surjective)
-    (kernelsLocallyNilpotent : ringSystem.KernelLocallyNilpotent)
-    (limitAlgebra : coeffRing ⟶ limitCone.cone.pt)
-    (algebra_limit_π : ∀ n, limitAlgebra ≫ limitCone.cone.stageMap n = algebra n)
-    (objects : ℕ → C)
-    (step : ∀ n, objects n ⟶ objects (n + 1))
-    (over_obj : ∀ n, p.obj (objects n) =
-      Over.mk (Spec.map (algebra n) ≫ openImmersion))
-    (step_comp : ∀ n,
-      Spec.map (ringSystem.stepMap n) ≫
-          (Spec.map (algebra (n + 1)) ≫ openImmersion) =
-        Spec.map (algebra n) ≫ openImmersion)
-    (over_step : ∀ n,
-      p.IsHomLift
-        (Over.homMk (Spec.map (ringSystem.stepMap n)) (step_comp n) :
-          Over.mk (Spec.map (algebra n) ≫ openImmersion) ⟶
-            Over.mk (Spec.map (algebra (n + 1)) ≫ openImmersion))
-        (step n)) :
-    FormalObjectSystem p :=
-  { coeffRing
-    openImmersion
-    isOpenImmersion
-    ringSystem
-    limitCone
-    algebra
-    algebra_step
-    ringMapsSurjective
-    kernelsLocallyNilpotent
-    limitAlgebra
-    algebra_limit_π
-    objects
-    step
-    over_obj
-    step_comp
-    over_step }
-
 /-- The spectrum of the ring at stage `n`. -/
 def stageSpec (n : ℕ) : Scheme.{u} :=
   Spec (ξ.ringSystem.family n)

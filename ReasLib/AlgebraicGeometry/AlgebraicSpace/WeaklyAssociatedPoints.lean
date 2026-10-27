@@ -9,6 +9,7 @@ module
 public import ReasLib.AlgebraicGeometry.Scheme.WeaklyAssociatedPoints
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Points.Comparison
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Etale
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.WeaklyAssociatedPoints
 
 /-!
 # Weakly associated points of algebraic spaces
@@ -43,5 +44,20 @@ predicate. -/
 theorem mem_weakAss_iff {S : Scheme.{u}} (X : AlgebraicSpace S) (x : Points X) :
     x ∈ X.weakAss ↔ weaklyAssociatedAt X x :=
   Iff.rfl
+
+/-- The weakly associated locus of an algebraic space equals the weakly associated locus of
+its structure sheaf. -/
+theorem weakAss_eq_weakAss_unit {S : Scheme.{u}} (X : AlgebraicSpace S) :
+    X.weakAss = Modules.weakAss (SheafOfModules.unit (structureSheaf X) : X.Modules) :=
+  sorry
+
+/-- A point is weakly associated to an algebraic space exactly when its structure sheaf
+satisfies the étale-stalk weak-association condition there. -/
+theorem mem_weakAss_iff_etaleStalkWeakAss {S : Scheme.{u}} (X : AlgebraicSpace S)
+    (x : Points X) :
+    x ∈ X.weakAss ↔
+      Modules.etaleStalkWeakAss (SheafOfModules.unit (structureSheaf X) : X.Modules) x := by
+  rw [weakAss_eq_weakAss_unit X]
+  exact Modules.mem_weakAss_iff _ x
 
 end AlgebraicGeometry.AlgebraicSpace

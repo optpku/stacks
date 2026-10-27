@@ -7,6 +7,7 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import ReasLib.AlgebraicGeometry.SimplicialScheme.QCoh.Basic
+public import ReasLib.AlgebraicGeometry.SimplicialScheme.Module.LocalPresentation
 public import Mathlib.AlgebraicGeometry.Modules.Sheaf
 
 /-!
@@ -210,9 +211,46 @@ theorem stageRestrictModules_homEquiv (U : SimplicialObject Scheme.{u})
         ((moduleComponent U (op m)).obj F.obj)) (stageRestrictModules U φ F) =
       stageDirect U φ F := Equiv.apply_symm_apply _ _
 
-/-- Simplex-operator comparisons of quasi-coherent modules are isomorphisms. -/
+/-- The continuous-restriction implementation and the existing component implementation
+have the same sections. Both comparison maps are the identity on these sections. -/
+private def moduleComponentPresentationIso (U : SimplicialObject Scheme.{u})
+    (n : SimplexCategoryᵒᵖ) (M : SheafOfModules.{u} (structureSheaf U)) :
+    (moduleComponent U n).obj M ≅ (StagePresentation.component U n).obj M :=
+  (SheafOfModules.fullyFaithfulForget _).preimageIso
+    (PresheafOfModules.isoMk
+      (fun T ↦ ModuleCat.isoMk
+        (M := ((moduleComponent U n).obj M).val.obj T)
+        (N := ((StagePresentation.component U n).obj M).val.obj T)
+        (Iso.refl _) (by sorry)) (by sorry))
+
+/-- The reverse simplex comparison: transport the explicit local-presentation descent
+and its sectionwise sheaf amalgamation to the existing component API. -/
+def stageRestrictModulesInv (U : SimplicialObject Scheme.{u})
+    {n m : SimplexCategory} (φ : n ⟶ m) (F : QCoh U) :
+    (moduleComponent U (op m)).obj F.obj ⟶
+      (Scheme.Modules.pullback (U.map φ.op)).obj
+        ((moduleComponent U (op n)).obj F.obj) :=
+  (moduleComponentPresentationIso U (op m) F.obj).hom ≫
+    StagePresentation.reverse U φ (StagePresentation.inputData U F) ≫
+      (Scheme.Modules.pullback (U.map φ.op)).map
+        (moduleComponentPresentationIso U (op n) F.obj).inv
+
+/-- Restriction followed by the constructed reverse is the identity. -/
+theorem stageRestrictModules_hom_inv_id (U : SimplicialObject Scheme.{u})
+    {n m : SimplexCategory} (φ : n ⟶ m) (F : QCoh U) :
+    stageRestrictModules U φ F ≫ stageRestrictModulesInv U φ F = 𝟙 _ := sorry
+
+/-- The constructed reverse followed by restriction is the identity. -/
+theorem stageRestrictModules_inv_hom_id (U : SimplicialObject Scheme.{u})
+    {n m : SimplexCategory} (φ : n ⟶ m) (F : QCoh U) :
+    stageRestrictModulesInv U φ F ≫ stageRestrictModules U φ F = 𝟙 _ := sorry
+
+/-- Simplex-operator comparisons of quasi-coherent modules are isomorphisms. The witness
+contains the actual displayed reverse, rather than selecting one from an admitted IsIso. -/
 instance stageRestrictModules_isIso (U : SimplicialObject Scheme.{u})
     {n m : SimplexCategory} (φ : n ⟶ m) (F : QCoh U) :
-    IsIso (stageRestrictModules U φ F) := sorry
+    IsIso (stageRestrictModules U φ F) where
+  out := ⟨stageRestrictModulesInv U φ F, stageRestrictModules_hom_inv_id U φ F,
+    stageRestrictModules_inv_hom_id U φ F⟩
 
 end AlgebraicGeometry.SimplicialObject

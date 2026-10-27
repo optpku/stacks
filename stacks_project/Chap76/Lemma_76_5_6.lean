@@ -6,7 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap76.Lemma_76_44_10_Transitivity
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Conormal.Transitivity
 import StacksCheckRecall
 
 open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
@@ -25,6 +25,6 @@ where the maps are `Hom.Conormal.Transitivity.baseChange` and
 `Hom.Conormal.Transitivity.projection` coming from `Hom.Conormal.map` (Lemma 76.5.3)
 and `i : Z ⟶ Y` is the first morphism. -/
 @[stacks 06BD] #check
-  (Hom.Conormal.Transitivity.exact_and_epi i j :
+  (AlgebraicGeometry.AlgebraicSpace.Hom.Conormal.Transitivity.exact_and_epi i j :
     (Hom.Conormal.Transitivity.complex i j).Exact ∧
       Epi (Hom.Conormal.Transitivity.projection i j))

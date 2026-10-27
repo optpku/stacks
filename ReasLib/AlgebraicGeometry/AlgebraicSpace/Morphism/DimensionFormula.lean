@@ -20,6 +20,11 @@ public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Integral
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Point.GenericPoints
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Proper
 
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Dimension.DeltaDimension
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.ClosedSubspace.Integral
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Separation.Absolute.Relative
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Surjective
+
 /-!
 # Dimension formulas for morphisms of algebraic spaces
 
@@ -119,5 +124,124 @@ theorem dimension_eq_add_residueFieldTrdegAt_of_proper {S : Scheme.{u}}
     (hx : x ∈ genericPoints X) :
     dimension X = dimension Y + (residueFieldTrdegAt f x : WithBot ℕ∞) :=
   sorry
+
+
+namespace Hom
+
+open TopologicalSpace
+
+/-- For a flat morphism of relative dimension `r` over a universally catenary base,
+the `δ`-dimension of a nonempty closed inverse image equals the `δ`-dimension of
+the closure of the intersection of the closed subset with the morphism's range, plus `r`. -/
+theorem closedPreimageDeltaDimension {S : Scheme.{u}}
+    {B X Y : AlgebraicSpace S} [UniversallyCatenary B] [IsAbsolutelyQuasiSeparated B]
+    (pY : Y ⟶ B) [QuasiSeparated pY] [LocallyOfFiniteType pY]
+    (pX : X ⟶ B) [QuasiSeparated pX] [LocallyOfFiniteType pX]
+    (δ : Points B → ℤ) [IsDimensionFunction δ] (f : X ⟶ Y) (r : ℕ)
+    [Flat f] [RelativeDimension f r] (hf : f ≫ pY = pX)
+    (T : Closeds (Points Y)) (hT : Nonempty (T.preimage (Points.continuous_map f))) :
+    closedSetDeltaDimension pX δ (T.preimage (Points.continuous_map f)) =
+      closedSetDeltaDimension pY δ
+        (Closeds.closure ((T : Set (Points Y)) ∩ Set.range (Points.map f))) + (r : EInt) :=
+  sorry
+
+/-- For a flat morphism of relative dimension `r` over a universally catenary base,
+the `δ`-dimension of a nonempty closed inverse image is at most the `δ`-dimension
+of the closed subset plus `r`. -/
+theorem closedPreimageDeltaDimension_le {S : Scheme.{u}}
+    {B X Y : AlgebraicSpace S} [UniversallyCatenary B] [IsAbsolutelyQuasiSeparated B]
+    (pY : Y ⟶ B) [QuasiSeparated pY] [LocallyOfFiniteType pY]
+    (pX : X ⟶ B) [QuasiSeparated pX] [LocallyOfFiniteType pX]
+    (δ : Points B → ℤ) [IsDimensionFunction δ] (f : X ⟶ Y) (r : ℕ)
+    [Flat f] [RelativeDimension f r] (hf : f ≫ pY = pX)
+    (T : Closeds (Points Y)) (hT : Nonempty (T.preimage (Points.continuous_map f))) :
+    closedSetDeltaDimension pX δ (T.preimage (Points.continuous_map f)) ≤
+      closedSetDeltaDimension pY δ T + (r : EInt) :=
+  sorry
+
+/-- A surjective flat morphism of relative dimension `r` over a universally
+catenary base shifts the `δ`-dimension of a closed subset with nonempty inverse
+image by `r`. -/
+theorem closedPreimageDeltaDimension_of_surjective {S : Scheme.{u}}
+    {B X Y : AlgebraicSpace S} [UniversallyCatenary B] [IsAbsolutelyQuasiSeparated B]
+    (pY : Y ⟶ B) [QuasiSeparated pY] [LocallyOfFiniteType pY]
+    (pX : X ⟶ B) [QuasiSeparated pX] [LocallyOfFiniteType pX]
+    (δ : Points B → ℤ) [IsDimensionFunction δ] (f : X ⟶ Y) (r : ℕ)
+    [Flat f] [RelativeDimension f r] [AlgebraicGeometry.AlgebraicSpace.Surjective f] (hf : f ≫ pY = pX)
+    (T : Closeds (Points Y)) (hT : Nonempty (T.preimage (Points.continuous_map f))) :
+    closedSetDeltaDimension pX δ (T.preimage (Points.continuous_map f)) =
+      closedSetDeltaDimension pY δ T + (r : EInt) :=
+  sorry
+
+/-- Every irreducible component of the inverse image of an irreducible closed
+subset under a flat morphism of constant relative dimension between good algebraic
+spaces over a universally catenary base dominates that subset. -/
+theorem componentOfPreimageMapsTo {S : Scheme.{u}}
+    {B X Y : AlgebraicSpace S} [UniversallyCatenary B] [IsAbsolutelyQuasiSeparated B]
+    (pY : Y ⟶ B) [QuasiSeparated pY] [LocallyOfFiniteType pY]
+    (pX : X ⟶ B) [QuasiSeparated pX] [LocallyOfFiniteType pX]
+    (δ : Points B → ℤ) [IsDimensionFunction δ] (f : X ⟶ Y) (r : ℕ)
+    [Flat f] [RelativeDimension f r] (hf : f ≫ pY = pX)
+    (Z : IrreducibleCloseds (Points Y)) (Z' : IrreducibleCloseds (Points X))
+    (hZ' : Z' ∈ closedSetIrreducibleComponents
+      (Closeds.preimage ⟨Z.carrier, Z.isClosed⟩ (Points.continuous_map f))) :
+    IrreducibleCloseds.map (Points.map f) (Points.continuous_map f) Z' = Z :=
+  sorry
+
+/-- Every irreducible component of the inverse image of an irreducible closed
+subset under a flat morphism of relative dimension `r` between good algebraic
+spaces over a universally catenary base has `δ`-dimension shifted by `r`. -/
+theorem componentOfPreimageDeltaDimension {S : Scheme.{u}}
+    {B X Y : AlgebraicSpace S} [UniversallyCatenary B] [IsAbsolutelyQuasiSeparated B]
+    (pY : Y ⟶ B) [QuasiSeparated pY] [LocallyOfFiniteType pY]
+    (pX : X ⟶ B) [QuasiSeparated pX] [LocallyOfFiniteType pX]
+    (δ : Points B → ℤ) [IsDimensionFunction δ] (f : X ⟶ Y) (r : ℕ)
+    [Flat f] [RelativeDimension f r] (hf : f ≫ pY = pX)
+    (Z : IrreducibleCloseds (Points Y)) (Z' : IrreducibleCloseds (Points X))
+    (hZ' : Z' ∈ closedSetIrreducibleComponents
+      (Closeds.preimage ⟨Z.carrier, Z.isClosed⟩ (Points.continuous_map f))) :
+    deltaDimension pX δ Z' = deltaDimension pY δ Z + (r : ℤ) :=
+  sorry
+
+/-- For a flat morphism of constant relative dimension between good algebraic
+spaces over a universally catenary base, an integral closed subspace whose support
+is a component of the inverse image of an integral closed subspace admits a
+dominant morphism to that subspace over the ambient morphism. -/
+theorem componentOfInverseImage_dominant {S : Scheme.{u}}
+    {B X Y : AlgebraicSpace S} [UniversallyCatenary B] [IsAbsolutelyQuasiSeparated B]
+    (pY : Y ⟶ B) [QuasiSeparated pY] [LocallyOfFiniteType pY]
+    (pX : X ⟶ B) [QuasiSeparated pX] [LocallyOfFiniteType pX]
+    (δ : Points B → ℤ) [IsDimensionFunction δ] (f : X ⟶ Y) (r : ℕ)
+    [Flat f] [RelativeDimension f r] (hf : f ≫ pY = pX)
+    (Z : ClosedSubspace Y) [IsIntegral Z.X] (Z' : ClosedSubspace X)
+    [IsIntegral Z'.X]
+    (hZ' : ClosedSubspace.irreducibleClosed Z' ∈
+      closedSetIrreducibleComponents
+        (Closeds.preimage ⟨Z.pointsSet, Z.isClosed_pointsSet⟩
+          (Points.continuous_map f))) :
+    ∃ g : Z'.X ⟶ Z.X, g ≫ Z.ι = Z'.ι ≫ f ∧ Dominant g :=
+  sorry
+
+/-- For a flat morphism of relative dimension `r` between good algebraic spaces
+over a universally catenary base, an integral closed subspace whose support is a
+component of the inverse image of an integral closed subspace has `δ`-dimension
+equal to the target subspace's `δ`-dimension plus `r`. -/
+theorem componentOfInverseImage_deltaDimension {S : Scheme.{u}}
+    {B X Y : AlgebraicSpace S} [UniversallyCatenary B] [IsAbsolutelyQuasiSeparated B]
+    (pY : Y ⟶ B) [QuasiSeparated pY] [LocallyOfFiniteType pY]
+    (pX : X ⟶ B) [QuasiSeparated pX] [LocallyOfFiniteType pX]
+    (δ : Points B → ℤ) [IsDimensionFunction δ] (f : X ⟶ Y) (r : ℕ)
+    [Flat f] [RelativeDimension f r] (hf : f ≫ pY = pX)
+    (Z : ClosedSubspace Y) [IsIntegral Z.X] (Z' : ClosedSubspace X)
+    [IsIntegral Z'.X]
+    (hZ' : ClosedSubspace.irreducibleClosed Z' ∈
+      closedSetIrreducibleComponents
+        (Closeds.preimage ⟨Z.pointsSet, Z.isClosed_pointsSet⟩
+          (Points.continuous_map f))) :
+    deltaDimension pX δ (ClosedSubspace.irreducibleClosed Z') =
+      deltaDimension pY δ (ClosedSubspace.irreducibleClosed Z) + (r : ℤ) :=
+  sorry
+
+end Hom
 
 end AlgebraicGeometry.AlgebraicSpace

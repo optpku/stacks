@@ -114,13 +114,13 @@ theorem splittingCorrection_hom (sigma sigma' : GradedSplitting S) (n : ℤ) :
 /-- The shifted correction satisfies the homotopy equation between the two connecting maps. -/
 theorem connectingHomotopy_condition (sigma sigma' : GradedSplitting S) :
     (homToCompHom sigma'.connectingHom).val - (homToCompHom sigma.connectingHom).val =
-      gradedHomDifferential (-1) (splittingCorrection S sigma sigma').toShiftHomotopy := sorry
+      gradedHomDifferential (-1) (-(splittingCorrection S sigma sigma').toShiftHomotopy) := sorry
 
 /-- The explicit homotopy between the connecting morphisms obtained from two graded
 `A`-linear splittings. -/
 def connectingHomotopy (sigma sigma' : GradedSplitting S) :
     Homotopy sigma'.connectingHom sigma.connectingHom where
-  hom := (splittingCorrection S sigma sigma').toShiftHomotopy
+  hom := -(splittingCorrection S sigma sigma').toShiftHomotopy
   condition := connectingHomotopy_condition S sigma sigma'
 
 /-- The homogeneous map underlying the splitting-change homotopy is the shifted canonical
@@ -128,7 +128,7 @@ correction. -/
 @[simp]
 theorem connectingHomotopy_hom (sigma sigma' : GradedSplitting S) :
     (connectingHomotopy S sigma sigma').hom =
-      (splittingCorrection S sigma sigma').toShiftHomotopy := sorry
+      -(splittingCorrection S sigma sigma').toShiftHomotopy := sorry
 
 /-- Connecting morphisms obtained from two splittings agree in the DG homotopy category. -/
 theorem connectingHom_eq_in_K (sigma sigma' : GradedSplitting S) :

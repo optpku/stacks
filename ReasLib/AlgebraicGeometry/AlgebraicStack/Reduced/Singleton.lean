@@ -49,7 +49,7 @@ theorem iff {S : Scheme.{u}} {Z : GroupoidsOver S} [AlgebraicStack Z] :
       ∃ (k : Type u) (_ : Field k) (σ : Spec (.of k) ⟶ S)
         (f : GroupoidsOver.slice (Over.mk σ) ⟶ Z),
         Groupoids.Hom.Surjective f ∧ Groupoids.Hom.Flat f :=
-  sorry
+  Iff.rfl
 
 /-- A surjective flat morphism from `Spec (.of k)` witnesses
 `existsSurjectiveFlatSpecField`. -/
@@ -57,7 +57,7 @@ theorem of {S : Scheme.{u}} {Z : GroupoidsOver S} [AlgebraicStack Z]
     {k : Type u} [Field k] {σ : Spec (.of k) ⟶ S}
     (f : GroupoidsOver.slice (Over.mk σ) ⟶ Z) [Groupoids.Hom.Surjective f]
     [Groupoids.Hom.Flat f] : existsSurjectiveFlatSpecField Z :=
-  sorry
+  ⟨k, inferInstance, σ, f, inferInstance, inferInstance⟩
 
 /-- `existsSurjectiveFlatSpecField Z` supplies a field `k` and a surjective
 flat morphism from `Spec (.of k)` to `Z`. -/
@@ -66,7 +66,7 @@ theorem spec {S : Scheme.{u}} {Z : GroupoidsOver S} [AlgebraicStack Z]
     ∃ (k : Type u) (_ : Field k) (σ : Spec (.of k) ⟶ S)
       (f : GroupoidsOver.slice (Over.mk σ) ⟶ Z),
       Groupoids.Hom.Surjective f ∧ Groupoids.Hom.Flat f :=
-  sorry
+  h
 
 end existsSurjectiveFlatSpecField
 
@@ -90,7 +90,7 @@ theorem iff {S : Scheme.{u}} {Z : GroupoidsOver S} [AlgebraicStack Z] :
         (f : GroupoidsOver.slice (Over.mk σ) ⟶ Z),
         Groupoids.Hom.LocallyOfFiniteType f ∧ Groupoids.Hom.Surjective f ∧
           Groupoids.Hom.Flat f :=
-  sorry
+  Iff.rfl
 
 /-- A locally of finite type, surjective, flat morphism from `Spec (.of k)`
 witnesses `existsLocallyOfFiniteTypeSurjectiveFlatSpecField`. -/
@@ -100,7 +100,7 @@ theorem of {S : Scheme.{u}} {Z : GroupoidsOver S} [AlgebraicStack Z]
     [Groupoids.Hom.LocallyOfFiniteType f] [Groupoids.Hom.Surjective f]
     [Groupoids.Hom.Flat f] :
     existsLocallyOfFiniteTypeSurjectiveFlatSpecField Z :=
-  sorry
+  ⟨k, inferInstance, σ, f, inferInstance, inferInstance, inferInstance⟩
 
 /-- `existsLocallyOfFiniteTypeSurjectiveFlatSpecField Z` supplies a field `k`
 and a locally of finite type, surjective, flat morphism from `Spec (.of k)` to
@@ -111,7 +111,7 @@ theorem spec {S : Scheme.{u}} {Z : GroupoidsOver S} [AlgebraicStack Z]
       (f : GroupoidsOver.slice (Over.mk σ) ⟶ Z),
       Groupoids.Hom.LocallyOfFiniteType f ∧ Groupoids.Hom.Surjective f ∧
         Groupoids.Hom.Flat f :=
-  sorry
+  h
 
 end existsLocallyOfFiniteTypeSurjectiveFlatSpecField
 
@@ -134,7 +134,7 @@ theorem isReduced_subsingleton_points_iff_existsSurjectiveFlatSpecField
     {S : Scheme.{u}} {Z : GroupoidsOver S} [AlgebraicStack Z] :
     IsReduced Z ∧ Nonempty (Points Z) ∧ Subsingleton (Points Z) ↔
       existsSurjectiveFlatSpecField Z :=
-  sorry
+  (isReduced_subsingleton_points_tfae Z).out 0 1
 
 namespace ReducedSingleton
 
@@ -145,7 +145,7 @@ theorem iff_locallyOfFiniteType_fieldCover
     {S : Scheme.{u}} {Z : GroupoidsOver S} [AlgebraicStack Z] :
     IsReduced Z ∧ Nonempty (Points Z) ∧ Subsingleton (Points Z) ↔
       existsLocallyOfFiniteTypeSurjectiveFlatSpecField Z :=
-  sorry
+  (isReduced_subsingleton_points_tfae Z).out 0 2
 
 /-- An algebraic stack admits a surjective flat morphism from the spectrum of a
 field if and only if it admits one that is moreover locally of finite type. -/
@@ -153,7 +153,7 @@ theorem fieldCover_iff_locallyOfFiniteType
     {S : Scheme.{u}} {Z : GroupoidsOver S} [AlgebraicStack Z] :
     existsSurjectiveFlatSpecField Z ↔
       existsLocallyOfFiniteTypeSurjectiveFlatSpecField Z :=
-  sorry
+  (isReduced_subsingleton_points_tfae Z).out 1 2
 
 end ReducedSingleton
 
@@ -162,28 +162,31 @@ surjective flat morphism from the spectrum of a field. -/
 theorem existsSurjectiveFlatSpecField_of_isReduced_subsingleton {S : Scheme.{u}}
     (Z : GroupoidsOver S) [AlgebraicStack Z] [IsReduced Z] [Nonempty (Points Z)]
     [Subsingleton (Points Z)] : existsSurjectiveFlatSpecField Z :=
-  sorry
+  isReduced_subsingleton_points_iff_existsSurjectiveFlatSpecField.mp
+    ⟨inferInstance, inferInstance, inferInstance⟩
 
 /-- An algebraic stack admitting a surjective flat morphism from the spectrum of
 a field is reduced. -/
 theorem isReduced_of_existsSurjectiveFlatSpecField {S : Scheme.{u}}
     {Z : GroupoidsOver S} [AlgebraicStack Z]
     (h : existsSurjectiveFlatSpecField Z) : IsReduced Z :=
-  sorry
+  (isReduced_subsingleton_points_iff_existsSurjectiveFlatSpecField.mpr h).1
 
 /-- An algebraic stack admitting a surjective flat morphism from the spectrum of
 a field has nonempty `Points`. -/
 theorem nonempty_points_of_existsSurjectiveFlatSpecField {S : Scheme.{u}}
     {Z : GroupoidsOver S} [AlgebraicStack Z]
-    (h : existsSurjectiveFlatSpecField Z) : Nonempty (Points Z) :=
-  sorry
+    (h : existsSurjectiveFlatSpecField Z) : Nonempty (Points Z) := by
+  rcases h with ⟨k, hk, σ, f, _⟩
+  letI := hk
+  exact ⟨Points.mk (FieldValuedPoint.of k σ f)⟩
 
 /-- An algebraic stack admitting a surjective flat morphism from the spectrum of
 a field has subsingleton `Points`. -/
 theorem subsingleton_points_of_existsSurjectiveFlatSpecField {S : Scheme.{u}}
     {Z : GroupoidsOver S} [AlgebraicStack Z]
     (h : existsSurjectiveFlatSpecField Z) : Subsingleton (Points Z) :=
-  sorry
+  (isReduced_subsingleton_points_iff_existsSurjectiveFlatSpecField.mpr h).2.2
 
 /-- `existsSurjectiveFlatSpecField Z` is equivalent to the existence of a
 field-valued point whose morphism is surjective and flat. -/
@@ -191,8 +194,13 @@ theorem existsSurjectiveFlatSpecField_iff_fieldValuedPoint {S : Scheme.{u}}
     (Z : GroupoidsOver S) [AlgebraicStack Z] :
     existsSurjectiveFlatSpecField Z ↔
       ∃ p : FieldValuedPoint Z,
-        Groupoids.Hom.Surjective p.hom ∧ Groupoids.Hom.Flat p.hom :=
-  sorry
+        Groupoids.Hom.Surjective p.hom ∧ Groupoids.Hom.Flat p.hom := by
+  constructor
+  · rintro ⟨k, hk, σ, f, hf⟩
+    letI := hk
+    exact ⟨FieldValuedPoint.of k σ f, hf⟩
+  · rintro ⟨p, hp⟩
+    exact ⟨p.K, p.field, p.structureHom, p.hom, hp⟩
 
 /-- `existsLocallyOfFiniteTypeSurjectiveFlatSpecField Z` is equivalent to the
 existence of a field-valued point whose morphism is locally of finite type,
@@ -202,7 +210,12 @@ theorem existsLocallyOfFiniteTypeSurjectiveFlatSpecField_iff_fieldValuedPoint
     existsLocallyOfFiniteTypeSurjectiveFlatSpecField Z ↔
       ∃ p : FieldValuedPoint Z,
         Groupoids.Hom.LocallyOfFiniteType p.hom ∧ Groupoids.Hom.Surjective p.hom ∧
-          Groupoids.Hom.Flat p.hom :=
-  sorry
+          Groupoids.Hom.Flat p.hom := by
+  constructor
+  · rintro ⟨k, hk, σ, f, hf⟩
+    letI := hk
+    exact ⟨FieldValuedPoint.of k σ f, hf⟩
+  · rintro ⟨p, hp⟩
+    exact ⟨p.K, p.field, p.structureHom, p.hom, hp⟩
 
 end AlgebraicGeometry.AlgebraicStack

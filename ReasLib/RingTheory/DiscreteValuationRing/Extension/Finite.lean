@@ -66,6 +66,22 @@ theorem valuationRing_ramificationIndex_le :
 -- value-group generator maps to the target generator, then compare the resulting cyclic subgroup
 -- index with `IsExtensionOfValuationRings.ramificationIndex`.
 
+/-- For an extension of discrete valuation rings, the ramification-index definition of weak
+unramifiedness (09E4) agrees with the value-group definition (0ASG). The valuation-ring structures
+and extension instance are inferred from the DVR structures and extension. No finiteness of the
+fraction-field extension is required. -/
+@[stacks 09E4 "comparison with valuation-ring weak unramifiedness (0ASG)"]
+theorem weaklyUnramified_iff_valuationRing
+    (A : Type u) (B : Type v)
+    [CommRing A] [IsDomain A] [IsDiscreteValuationRing A]
+    [CommRing B] [IsDomain B] [IsDiscreteValuationRing B]
+    [Algebra A B] [IsExtensionOfDiscreteValuationRings A B] :
+    IsExtensionOfDiscreteValuationRings.WeaklyUnramified A B ↔
+      IsExtensionOfValuationRings.WeaklyUnramified A B := sorry
+-- Proof strategy: with uniformizer generators, the map of value groups is multiplication by the
+-- positive DVR ramification index. It is bijective exactly when this index is one; adjoining zero
+-- preserves this criterion.
+
 /-- Lemma 15.112.2 (09E5; current Stacks Lemma 15.113.2), `e * f` clause: the DVR ramification
 index times the residue degree is bounded by the fraction-field dimension. -/
 @[stacks 09E5 "ramification index times residue degree"]

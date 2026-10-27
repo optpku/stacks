@@ -58,6 +58,23 @@ theorem stableOfGenus_iff (g : ℕ) {S : Scheme.{u}} (P : Obj S) :
       SheafOfModules.IsFiniteLocallyFreeOfRank g (higherDirectImageOne (hom P)) :=
   Iff.rfl
 
+/-- The genus-`g` stable locus is contained in the stable locus. -/
+theorem stableOfGenus_le_stable (g : ℕ) (S : Scheme.{u}) :
+    stableOfGenus g S ≤ stable S :=
+  sorry
+
+/-- Over a nonempty base, the genus of a stable family of curves is unique. -/
+theorem eq_of_mem_stableOfGenus {S : Scheme.{u}} {P : Obj S}
+    [Nonempty (base P).left] {g g' : ℕ}
+    (hg : stableOfGenus g S P) (hg' : stableOfGenus g' S P) : g = g' :=
+  sorry
+
+/-- The genus-`g` stable locus is closed under isomorphisms of curve families. -/
+instance instIsClosedUnderIsomorphisms_stableOfGenus
+    (g : ℕ) (S : Scheme.{u}) :
+    (stableOfGenus g S).IsClosedUnderIsomorphisms :=
+  sorry
+
 end Spaces.Curves
 
 end AlgebraicGeometry.AlgebraicSpace

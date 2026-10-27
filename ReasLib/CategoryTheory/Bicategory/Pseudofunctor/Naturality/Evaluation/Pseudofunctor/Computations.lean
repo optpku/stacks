@@ -35,61 +35,61 @@ pseudofunctor's unit comparison. -/
 @[simp]
 theorem evaluationMapId.hom_app
     (a : B) (F : Pseudofunctor B D) :
-    (evaluationMapId D a).hom.as.app F = (F.mapId a).hom := sorry
+    (evaluationMapId D a).hom.as.app F = (F.mapId a).hom := by rfl
 
 /-- The inverse component of the curried-evaluation unit comparison is the evaluated
 pseudofunctor's inverse unit comparison. -/
 @[simp]
 theorem evaluationMapId.inv_app
     (a : B) (F : Pseudofunctor B D) :
-    (evaluationMapId D a).inv.as.app F = (F.mapId a).inv := sorry
+    (evaluationMapId D a).inv.as.app F = (F.mapId a).inv := by rfl
 
 /-- The forward component of the curried-evaluation composition comparison is the
 evaluated pseudofunctor's forward composition comparison. -/
 @[simp]
 theorem evaluationMapComp.hom_app
     {a b c : B} (f : a ⟶ b) (g : b ⟶ c) (F : Pseudofunctor B D) :
-    (evaluationMapComp D f g).hom.as.app F = (F.mapComp f g).hom := sorry
+    (evaluationMapComp D f g).hom.as.app F = (F.mapComp f g).hom := by rfl
 
 /-- The inverse component of the curried-evaluation composition comparison is the
 evaluated pseudofunctor's inverse composition comparison. -/
 @[simp]
 theorem evaluationMapComp.inv_app
     {a b c : B} (f : a ⟶ b) (g : b ⟶ c) (F : Pseudofunctor B D) :
-    (evaluationMapComp D f g).inv.as.app F = (F.mapComp f g).inv := sorry
+    (evaluationMapComp D f g).inv.as.app F = (F.mapComp f g).inv := by rfl
 
 /-- The object action of curried evaluation is the corresponding point-evaluation
 pseudofunctor. -/
 @[simp]
 theorem evaluation.obj (a : B) :
     (evaluation B D).obj a =
-      (evaluationAt D a).toPseudofunctor := sorry
+      (evaluationAt D a).toPseudofunctor := by rfl
 
 /-- The `1`-morphism action of curried evaluation is the corresponding evaluation strong
 transformation. -/
 @[simp]
 theorem evaluation.map
     {a b : B} (f : a ⟶ b) :
-    (evaluation B D).map f = evaluationMap D f := sorry
+    (evaluation B D).map f = evaluationMap D f := by rfl
 
 /-- The `2`-morphism action of curried evaluation is the corresponding evaluation
 modification. -/
 @[simp]
 theorem evaluation.map₂
     {a b : B} {f g : a ⟶ b} (η : f ⟶ g) :
-    (evaluation B D).map₂ η = evaluationMap₂ D η := sorry
+    (evaluation B D).map₂ η = evaluationMap₂ D η := by rfl
 
 /-- The hom-functor of curried evaluation is the explicit evaluation functor on the source
 hom-category. -/
 @[simp]
 theorem evaluation.mapFunctor (a b : B) :
     (evaluation B D).mapFunctor a b =
-      evaluationMapFunctor D a b := sorry
+      evaluationMapFunctor D a b := by rfl
 
 /-- The unit comparison of curried evaluation is the pointwise unit comparison. -/
 @[simp]
 theorem evaluation.mapId (a : B) :
-    (evaluation B D).mapId a = evaluationMapId D a := sorry
+    (evaluation B D).mapId a = evaluationMapId D a := by rfl
 
 /-- The composition comparison of curried evaluation is the pointwise composition
 comparison. -/
@@ -97,69 +97,69 @@ comparison. -/
 theorem evaluation.mapComp
     {a b c : B} (f : a ⟶ b) (g : b ⟶ c) :
     (evaluation B D).mapComp f g =
-      evaluationMapComp D f g := sorry
+      evaluationMapComp D f g := by rfl
 
 /-- Curried evaluation acts on an object twice by ordinary pseudofunctor evaluation. -/
 @[simp]
 theorem evaluation.at.obj
     (a : B) (F : Pseudofunctor B D) :
-    ((evaluation B D).obj a).obj F = F.obj a := sorry
+    ((evaluation B D).obj a).obj F = F.obj a := by rfl
 
 /-- The map of a point-evaluation object is the corresponding component of a strong
 transformation. -/
 @[simp]
 theorem evaluation.at.map
     (a : B) {F G : Pseudofunctor B D} (η : F ⟶ G) :
-    ((evaluation B D).obj a).map η = η.app a := sorry
+    ((evaluation B D).obj a).map η = η.app a := by rfl
 
 /-- The `2`-morphism map of a point-evaluation object is the corresponding component of a
 modification. -/
 @[simp]
 theorem evaluation.at.map₂
     (a : B) {F G : Pseudofunctor B D} {η θ : F ⟶ G} (Γ : η ⟶ θ) :
-    ((evaluation B D).obj a).map₂ Γ = Γ.as.app a := sorry
+    ((evaluation B D).obj a).map₂ Γ = Γ.as.app a := by rfl
 
 /-- The hom-functor of a point-evaluation object is component evaluation. -/
 @[simp]
 theorem evaluation.at.mapFunctor
     (a : B) (F G : Pseudofunctor B D) :
     ((evaluation B D).obj a).mapFunctor F G =
-      evaluationHom a F G := sorry
+      evaluationHom a F G := by rfl
 
 /-- The unit comparison of a point-evaluation object is an identity isomorphism. -/
 @[simp]
 theorem evaluation.at.mapId
     (a : B) (F : Pseudofunctor B D) :
     ((evaluation B D).obj a).mapId F =
-      Iso.refl (𝟙 (F.obj a)) := sorry
+      Iso.refl (𝟙 (F.obj a)) := by rfl
 
 /-- The composition comparison of a point-evaluation object is an identity isomorphism. -/
 @[simp]
 theorem evaluation.at.mapComp
     (a : B) {F G H : Pseudofunctor B D} (η : F ⟶ G) (θ : G ⟶ H) :
     ((evaluation B D).obj a).mapComp η θ =
-      Iso.refl (η.app a ≫ θ.app a) := sorry
+      Iso.refl (η.app a ≫ θ.app a) := by rfl
 
 /-- A `1`-morphism of the source acts at a pseudofunctor by applying its
 `1`-morphism map. -/
 @[simp]
 theorem evaluation.map.app
     {a b : B} (f : a ⟶ b) (F : Pseudofunctor B D) :
-    ((evaluation B D).map f).app F = F.map f := sorry
+    ((evaluation B D).map f).app F = F.map f := by rfl
 
 /-- The naturality isomorphism of curried evaluation is inverse strong naturality. -/
 @[simp]
 theorem evaluation.map.naturality
     {a b : B} (f : a ⟶ b) {F G : Pseudofunctor B D} (η : F ⟶ G) :
     ((evaluation B D).map f).naturality η =
-      (η.naturality f).symm := sorry
+      (η.naturality f).symm := by rfl
 
 /-- A `2`-morphism of the source acts at a pseudofunctor by applying its
 `2`-morphism map. -/
 @[simp]
 theorem evaluation.map₂.app
     {a b : B} {f g : a ⟶ b} (γ : f ⟶ g) (F : Pseudofunctor B D) :
-    ((evaluation B D).map₂ γ).as.app F = F.map₂ γ := sorry
+    ((evaluation B D).map₂ γ).as.app F = F.map₂ γ := by rfl
 
 /-- The forward component of the unit comparison for curried evaluation is pointwise
 `Pseudofunctor.mapId`. -/
@@ -167,7 +167,7 @@ theorem evaluation.map₂.app
 theorem evaluation.mapId.hom_app
     (a : B) (F : Pseudofunctor B D) :
     ((evaluation B D).mapId a).hom.as.app F =
-      (F.mapId a).hom := sorry
+      (F.mapId a).hom := by rfl
 
 /-- The inverse component of the unit comparison for curried evaluation is pointwise
 `Pseudofunctor.mapId`. -/
@@ -175,7 +175,7 @@ theorem evaluation.mapId.hom_app
 theorem evaluation.mapId.inv_app
     (a : B) (F : Pseudofunctor B D) :
     ((evaluation B D).mapId a).inv.as.app F =
-      (F.mapId a).inv := sorry
+      (F.mapId a).inv := by rfl
 
 /-- The forward component of the composition comparison for curried evaluation is pointwise
 `Pseudofunctor.mapComp`. -/
@@ -183,7 +183,7 @@ theorem evaluation.mapId.inv_app
 theorem evaluation.mapComp.hom_app
     {a b c : B} (f : a ⟶ b) (g : b ⟶ c) (F : Pseudofunctor B D) :
     ((evaluation B D).mapComp f g).hom.as.app F =
-      (F.mapComp f g).hom := sorry
+      (F.mapComp f g).hom := by rfl
 
 /-- The inverse component of the composition comparison for curried evaluation is pointwise
 `Pseudofunctor.mapComp`. -/
@@ -191,7 +191,7 @@ theorem evaluation.mapComp.hom_app
 theorem evaluation.mapComp.inv_app
     {a b c : B} (f : a ⟶ b) (g : b ⟶ c) (F : Pseudofunctor B D) :
     ((evaluation B D).mapComp f g).inv.as.app F =
-      (F.mapComp f g).inv := sorry
+      (F.mapComp f g).inv := by rfl
 
 end Evaluation
 

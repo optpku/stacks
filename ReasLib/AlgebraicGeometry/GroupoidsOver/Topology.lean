@@ -9,6 +9,8 @@ module
 public import ReasLib.AlgebraicGeometry.Scheme.Sites.Extension.Standard.Sheaf
 public import ReasLib.CategoryTheory.Fibered.InheritedTopology.Over
 public import ReasLib.AlgebraicGeometry.GroupoidsOver.Basic
+public import ReasLib.CategoryTheory.Fibered.InheritedTopology.Morphism
+public import ReasLib.CategoryTheory.Fibered.Groupoids.Hom.OneCell
 
 /-!
 # Associated sites of a category fibred in groupoids
@@ -93,5 +95,17 @@ theorem ofArrows_mem_associatedTopology_iff (X : GroupoidsOver S)
 theorem associatedTopology_slice (τ : StandardTopology) (U : Over S) :
     (slice U).associatedTopology τ = (StandardTopology.overTopology τ S).over U :=
   sorry
+
+/-- A 1-morphism is continuous for the inherited fppf topologies. -/
+instance toFunctor_isContinuous_inheritedFppf {X Y : GroupoidsOver S} (φ : X ⟶ Y) :
+    (FiberedCategoryOver.Groupoids.toFunctor φ).IsContinuous (inheritedFppfTopology X) (inheritedFppfTopology Y) :=
+  CartesianBasedFunctor.inheritedTopology.isContinuous (FiberedCategoryOver.Groupoids.toCartesianBasedFunctor φ)
+    (Scheme.fppfTopology.over S)
+
+/-- A 1-morphism is cocontinuous for the inherited fppf topologies. -/
+instance toFunctor_isCocontinuous_inheritedFppf {X Y : GroupoidsOver S} (φ : X ⟶ Y) :
+    (FiberedCategoryOver.Groupoids.toFunctor φ).IsCocontinuous (inheritedFppfTopology X) (inheritedFppfTopology Y) :=
+  CartesianBasedFunctor.inheritedTopology.isCocontinuous (FiberedCategoryOver.Groupoids.toCartesianBasedFunctor φ)
+    (Scheme.fppfTopology.over S)
 
 end AlgebraicGeometry.GroupoidsOver

@@ -55,6 +55,7 @@ theorem exists_derivedInclusion_extTwo_not_surjective :
 category of ideal-power-torsion modules is not an equivalence. -/
 theorem exists_comparison_not_equivalence :
     ∃ (A : Type u) (_ : CommRing A) (I : Ideal A) (hI : I.FG),
+      letI : Fact I.FG := ⟨hI⟩
       ¬ (functor
         (ModuleCat.isIdealPowerTorsion I : ObjectProperty (ModuleCat.{u} A))).IsEquivalence := sorry
 

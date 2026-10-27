@@ -59,18 +59,35 @@ theorem specStage_left (B : Under (quotStages A)) (I : WeakIdealOfDefinition A) 
     (specStage hA B I).left = Spec (B.right.obj (op I)) :=
   rfl
 
+set_option backward.isDefEq.respectTransparency false in
 /-- A spectrum transition commutes with the structure morphisms to the base. -/
 theorem specStages_map_comm (B : Under (quotStages A))
     {I J : WeakIdealOfDefinition A} (f : I ⟶ J) :
     Spec.map (B.right.map f.op) ≫ (specStage hA B J).hom =
-      (specStage hA B I).hom :=
-  sorry
+      (specStage hA B I).hom := by
+  have hquot : CommRingCat.ofHom (Ideal.Quotient.mk J.ideal) ≫
+      (quotStages A).map f.op = CommRingCat.ofHom (Ideal.Quotient.mk I.ideal) := by
+    apply CommRingCat.hom_ext
+    exact Ideal.Quotient.factor_comp_mk (leOfHom f)
+  have hbase : CommRingCat.ofHom (Ideal.Quotient.mk J.ideal) ≫
+      B.hom.app (op J) ≫ B.right.map f.op =
+      CommRingCat.ofHom (Ideal.Quotient.mk I.ideal) ≫ B.hom.app (op I) := by
+    erw [← B.hom.naturality f.op, ← Category.assoc, hquot]
+  change Spec.map (B.right.map f.op) ≫
+      (Spec.map (B.hom.app (op J)) ≫
+        Spec.map (CommRingCat.ofHom (Ideal.Quotient.mk J.ideal)) ≫ hA) =
+    Spec.map (B.hom.app (op I)) ≫
+      Spec.map (CommRingCat.ofHom (Ideal.Quotient.mk I.ideal)) ≫ hA
+  simpa! only [Spec.map_comp, Category.assoc]
+    using congrArg (fun k ↦ Spec.map k ≫ hA) hbase
 
 /-- The spectrum transition associated to an identity is the identity over the base. -/
 theorem specStages_map_id (B : Under (quotStages A)) (I : WeakIdealOfDefinition A) :
     Over.homMk (Spec.map (B.right.map (𝟙 I).op))
-        (specStages_map_comm hA B (𝟙 I)) = 𝟙 (specStage hA B I) :=
-  sorry
+        (specStages_map_comm hA B (𝟙 I)) = 𝟙 (specStage hA B I) := by
+  apply Over.OverMorphism.ext
+  change Spec.map (B.right.map (𝟙 I).op) = 𝟙 _
+  simp
 
 /-- Spectrum transitions preserve composition in the weak-ideal index. -/
 theorem specStages_map_comp (B : Under (quotStages A))
@@ -81,8 +98,11 @@ theorem specStages_map_comp (B : Under (quotStages A))
       Over.homMk (U := specStage hA B I) (V := specStage hA B J)
           (Spec.map (B.right.map f.op)) (specStages_map_comm hA B f) ≫
         Over.homMk (U := specStage hA B J) (V := specStage hA B K)
-          (Spec.map (B.right.map g.op)) (specStages_map_comm hA B g) :=
-  sorry
+          (Spec.map (B.right.map g.op)) (specStages_map_comm hA B g) := by
+  apply Over.OverMorphism.ext
+  change Spec.map (B.right.map (f ≫ g).op) =
+    Spec.map (B.right.map f.op) ≫ Spec.map (B.right.map g.op)
+  simp
 
 /-- The diagram of affine stages `Spec(B_I)` indexed by weak ideals of
 definition. -/
@@ -117,8 +137,8 @@ theorem colimSpec_eq (B : Under (quotStages A)) :
 /-- The stage algebra map induces a spectrum map over the base scheme. -/
 theorem stageToSpfStage_comm (B : Under (quotStages A)) (I : WeakIdealOfDefinition A) :
     Spec.map (B.hom.app (op I)) ≫ (stage A hA I).hom =
-      (specStage hA B I).hom :=
-  sorry
+      (specStage hA B I).hom := by
+  rfl
 
 /-- The morphism `Spec(B_I) ⟶ Spec(A ⧸ I)` over `S` induced by the
 `A ⧸ I`-algebra structure of a stage. -/
@@ -135,8 +155,21 @@ theorem toSpf_naturality (B : Under (quotStages A))
           (yoneda.map (stageToSpfStage hA B J)) ≫ spfι A hA J) =
       ((presheafToSheaf (Scheme.fppfTopology.over S) (Type u)).map
           (yoneda.map (stageToSpfStage hA B I)) ≫ spfι A hA I) ≫
-        𝟙 (spf A hA) :=
-  sorry
+        𝟙 (spf A hA) := by
+  have hw : (specStages hA B).map f ≫ stageToSpfStage hA B J =
+      stageToSpfStage hA B I ≫ (thickenings A hA).map f := by
+    apply Over.OverMorphism.ext
+    change Spec.map (B.right.map f.op) ≫ Spec.map (B.hom.app (op J)) =
+      Spec.map (B.hom.app (op I)) ≫ Spec.map ((quotStages A).map f.op)
+    rw [← Spec.map_comp, ← Spec.map_comp, B.hom.naturality f.op]
+  change (presheafToSheaf (Scheme.fppfTopology.over S) (Type u)).map
+      (yoneda.map ((specStages hA B).map f)) ≫ _ = _
+  erw [Category.comp_id, ← Category.assoc, ← Functor.map_comp, ← yoneda.map_comp, hw,
+    yoneda.map_comp, Functor.map_comp, Category.assoc]
+  congr 1
+  exact colimit.w
+    (thickenings A hA ⋙ yoneda ⋙
+      presheafToSheaf (Scheme.fppfTopology.over S) (Type u)) f
 
 /-- The morphism `colim Spec(B_I) ⟶ Spf(A)` induced by the stage maps
 `Spec(B_I) ⟶ Spec(A ⧸ I)`. -/
@@ -171,8 +204,14 @@ theorem toSpf_w (B : Under (quotStages A)) (I : WeakIdealOfDefinition A) :
 theorem specStageMap_comm {B B' : Under (quotStages A)} (φ : B' ⟶ B)
     (I : WeakIdealOfDefinition A) :
     Spec.map (φ.right.app (op I)) ≫ (specStage hA B' I).hom =
-      (specStage hA B I).hom :=
-  sorry
+      (specStage hA B I).hom := by
+  have hw : B'.hom.app (op I) ≫ φ.right.app (op I) = B.hom.app (op I) :=
+    congrArg (fun α ↦ α.app (op I)) (Under.w φ)
+  change Spec.map (φ.right.app (op I)) ≫
+      (Spec.map (B'.hom.app (op I)) ≫
+        Spec.map (CommRingCat.ofHom (Ideal.Quotient.mk I.ideal)) ≫ hA) = _
+  erw [← Spec.map_comp_assoc, hw]
+  rfl
 
 /-- The morphism `Spec(B_I) ⟶ Spec(B'_I)` over `S` induced by an inverse-system
 homomorphism. -/
@@ -201,8 +240,21 @@ theorem colimSpecMap_naturality {B B' : Under (quotStages A)} (φ : B' ⟶ B)
           (yoneda.map (specStageMap hA φ I)) ≫
         colimit.ι (specStages hA B' ⋙ yoneda ⋙
           presheafToSheaf (Scheme.fppfTopology.over S) (Type u)) I) ≫
-        𝟙 (colimSpec hA B') :=
-  sorry
+        𝟙 (colimSpec hA B') := by
+  have hw : (specStages hA B).map f ≫ specStageMap hA φ J =
+      specStageMap hA φ I ≫ (specStages hA B').map f := by
+    apply Over.OverMorphism.ext
+    change Spec.map (B.right.map f.op) ≫ Spec.map (φ.right.app (op J)) =
+      Spec.map (φ.right.app (op I)) ≫ Spec.map (B'.right.map f.op)
+    rw [← Spec.map_comp, ← Spec.map_comp, φ.right.naturality f.op]
+  change (presheafToSheaf (Scheme.fppfTopology.over S) (Type u)).map
+      (yoneda.map ((specStages hA B).map f)) ≫ _ = _
+  erw [Category.comp_id, ← Category.assoc, ← Functor.map_comp, ← yoneda.map_comp, hw,
+    yoneda.map_comp, Functor.map_comp, Category.assoc]
+  congr 1
+  exact colimit.w
+    (specStages hA B' ⋙ yoneda ⋙
+      presheafToSheaf (Scheme.fppfTopology.over S) (Type u)) f
 
 /-- A morphism of inverse systems induces `colim Spec(B_I) ⟶ colim Spec(B'_I)`
 by applying `Spec` stagewise. -/
@@ -222,10 +274,36 @@ def colimSpecMap {B B' : Under (quotStages A)} (φ : B' ⟶ B) :
                 I
           naturality := fun _ _ f ↦ colimSpecMap_naturality hA φ f } }
 
+set_option backward.isDefEq.respectTransparency false in
+/-- A colimit leg followed by `colimSpecMap` is the induced map at that stage. -/
+@[reassoc]
+theorem colimSpecMap_ι {B B' : Under (quotStages A)} (φ : B' ⟶ B)
+    (I : WeakIdealOfDefinition A) :
+    colimit.ι (specStages hA B ⋙ yoneda ⋙
+        presheafToSheaf (Scheme.fppfTopology.over S) (Type u)) I ≫
+      colimSpecMap hA φ =
+    (presheafToSheaf (Scheme.fppfTopology.over S) (Type u)).map
+        (yoneda.map (specStageMap hA φ I)) ≫
+      colimit.ι (specStages hA B' ⋙ yoneda ⋙
+        presheafToSheaf (Scheme.fppfTopology.over S) (Type u)) I := by
+  unfold colimSpecMap
+  apply colimit.ι_desc
+
+set_option backward.isDefEq.respectTransparency false in
 /-- `colimSpecMap` lies over `Spf(A)`. -/
 theorem colimSpecMap_comp {B B' : Under (quotStages A)} (φ : B' ⟶ B) :
-    colimSpecMap hA φ ≫ toSpf hA B' = toSpf hA B :=
-  sorry
+    colimSpecMap hA φ ≫ toSpf hA B' = toSpf hA B := by
+  have hw (I : WeakIdealOfDefinition A) :
+      specStageMap hA φ I ≫ stageToSpfStage hA B' I = stageToSpfStage hA B I := by
+    apply Over.OverMorphism.ext
+    change Spec.map (φ.right.app (op I)) ≫ Spec.map (B'.hom.app (op I)) =
+      Spec.map (B.hom.app (op I))
+    rw [← Spec.map_comp]
+    exact congrArg Spec.map (congrArg (fun α ↦ α.app (op I)) (Under.w φ))
+  apply colimit.hom_ext
+  intro I
+  rw [colimSpecMap_ι_assoc, ← toSpf_w hA B' I, ← toSpf_w hA B I,
+    ← Category.assoc, ← Functor.map_comp, ← yoneda.map_comp, hw I]
 
 /-- `colim Spec(B_I)` is a directed affine thickening colimit. -/
 theorem exists_isDirectedAffineThickeningColimit_colimSpec
@@ -247,20 +325,45 @@ instance instFiniteType_toSpf (B : FiniteTypeInverseSystem A) :
 
 /-- The induced colimit map commutes with the structural arrows to the formal spectrum. -/
 theorem spfFiniteTypeSystem_map_comm {B B' : FiniteTypeInverseSystem A} (f : B ⟶ B') :
-    (colimSpecMap hA f.hom).hom ≫ (toSpf hA B.obj).hom = (toSpf hA B'.obj).hom :=
-  sorry
+    (colimSpecMap hA f.hom).hom ≫ (toSpf hA B.obj).hom = (toSpf hA B'.obj).hom := by
+  exact congrArg (fun k ↦ k.hom) (colimSpecMap_comp hA f.hom)
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The colimit map induced by an identity inverse-system morphism is the identity. -/
 theorem spfFiniteTypeSystem_map_id (B : FiniteTypeInverseSystem A) :
-    (colimSpecMap hA (𝟙 B.obj)).hom = 𝟙 (colimSpec hA B.obj).obj :=
-  sorry
+    (colimSpecMap hA (𝟙 B.obj)).hom = 𝟙 (colimSpec hA B.obj).obj := by
+  have hw (I : WeakIdealOfDefinition A) :
+      specStageMap hA (𝟙 B.obj) I = 𝟙 (specStage hA B.obj I) := by
+    apply Over.OverMorphism.ext
+    change Spec.map (𝟙 _) = 𝟙 _
+    exact Spec.map_id _
+  have hmap : colimSpecMap hA (𝟙 B.obj) = 𝟙 (colimSpec hA B.obj) := by
+    apply colimit.hom_ext
+    intro I
+    erw [colimSpecMap_ι, hw I, yoneda.map_id, CategoryTheory.Functor.map_id,
+      Category.id_comp]
+  exact congrArg (fun k ↦ k.hom) hmap
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Colimit maps reverse composition of inverse-system morphisms. -/
 theorem spfFiniteTypeSystem_map_comp {B B' B'' : FiniteTypeInverseSystem A}
     (f : B ⟶ B') (g : B' ⟶ B'') :
     (colimSpecMap hA (f ≫ g).hom).hom =
-      (colimSpecMap hA g.hom).hom ≫ (colimSpecMap hA f.hom).hom :=
-  sorry
+      (colimSpecMap hA g.hom).hom ≫ (colimSpecMap hA f.hom).hom := by
+  have hw (I : WeakIdealOfDefinition A) :
+      specStageMap hA (f ≫ g).hom I =
+        specStageMap hA g.hom I ≫ specStageMap hA f.hom I := by
+    apply Over.OverMorphism.ext
+    change Spec.map (f.hom.right.app (op I) ≫ g.hom.right.app (op I)) =
+      Spec.map (g.hom.right.app (op I)) ≫ Spec.map (f.hom.right.app (op I))
+    exact Spec.map_comp _ _
+  have hmap : colimSpecMap hA (f ≫ g).hom =
+      colimSpecMap hA g.hom ≫ colimSpecMap hA f.hom := by
+    apply colimit.hom_ext
+    intro I
+    rw [colimSpecMap_ι, colimSpecMap_ι_assoc, colimSpecMap_ι,
+      hw I, yoneda.map_comp, Functor.map_comp, Category.assoc]
+  exact congrArg (fun k ↦ k.hom) hmap
 
 /-- The functor sending a finite-type inverse system `(B_I)` to
 `colim Spec(B_I)` over `Spf(A)`. It is contravariant on inverse-system
@@ -301,12 +404,31 @@ instance instIsEquivalence_spfFiniteTypeSystem :
     (spfFiniteTypeSystem hA).IsEquivalence :=
   sorry
 
+set_option backward.isDefEq.respectTransparency false in
+/-- Composing a finite-type map with an isomorphism of its target preserves finite type. -/
+private theorem finiteType_comp_iso {X Y Z : (Over S)ᵒᵖ ⥤ Type u}
+    (f : X ⟶ Y) [FormalAlgebraicSpace.FiniteType f] (e : Y ≅ Z) :
+    FormalAlgebraicSpace.FiniteType (f ≫ e.hom) := by
+  have hrep : AlgebraicSpace.representableByAlgebraicSpaces e.hom := by
+    intro U ξ
+    exact AlgebraicSpace.IsAlgebraicSpace.of_iso (asIso (pullback.fst ξ e.hom))
+  have hiso : FormalAlgebraicSpace.FiniteType e.hom := by
+    refine ⟨hrep, ?_⟩
+    intro U ξ
+    let ePullback : pullback ξ e.hom ≅ yoneda.obj U :=
+      asIso (pullback.fst ξ e.hom)
+    letI : IsIso (AlgebraicSpace.representableByAlgebraicSpaces.pullbackHom hrep ξ) :=
+      ⟨⟨ePullback.inv, ePullback.hom_inv_id, ePullback.inv_hom_id⟩⟩
+    exact AlgebraicSpace.FiniteType.of_isIso _
+  letI := hiso
+  exact FormalAlgebraicSpace.finiteType_comp f e.hom
+
 /-- The structural map of a finite-type system remains of finite type after
 identifying the formal spectrum with the base. -/
 instance instFiniteType_toBase {X : (Over S)ᵒᵖ ⥤ Type u}
     (eX : (spf A hA).obj ≅ X) (B : FiniteTypeInverseSystem A) :
-    FormalAlgebraicSpace.FiniteType ((toSpf hA B.obj).hom ≫ eX.hom) :=
-  sorry
+    FormalAlgebraicSpace.FiniteType ((toSpf hA B.obj).hom ≫ eX.hom) := by
+  exact finiteType_comp_iso (toSpf hA B.obj).hom eX
 
 /-- The spectrum-colimit comparison over a base identified with the formal spectrum. -/
 def spfFiniteTypeSystemOver {X : (Over S)ᵒᵖ ⥤ Type u} (eX : (spf A hA).obj ≅ X) :
@@ -330,11 +452,51 @@ def spfFiniteTypeSystemOver {X : (Over S)ᵒᵖ ⥤ Type u} (eX : (spf A hA).obj
     apply MorphismProperty.Over.Hom.ext
     exact spfFiniteTypeSystem_map_comp hA g.unop f.unop
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The spectrum-colimit comparison is an anti-equivalence over any base
 identified with the associated formal spectrum. -/
 instance instIsEquivalence_spfFiniteTypeSystemOver {X : (Over S)ᵒᵖ ⥤ Type u}
     (eX : (spf A hA).obj ≅ X) :
-    (spfFiniteTypeSystemOver hA eX).IsEquivalence :=
-  sorry
+    (spfFiniteTypeSystemOver hA eX).IsEquivalence := by
+  refine ⟨?_, ?_, ?_⟩
+  · constructor
+    intro B B' f g h
+    apply (spfFiniteTypeSystem hA).map_injective
+    apply ObjectProperty.hom_ext
+    apply MorphismProperty.Over.Hom.ext
+    exact congrArg (fun k ↦ k.hom.left) h
+  · constructor
+    intro B B' f
+    let f₀ : (spfFiniteTypeSystem hA).obj B ⟶ (spfFiniteTypeSystem hA).obj B' :=
+      InducedCategory.homMk (MorphismProperty.Over.homMk f.hom.left (by
+        apply (cancel_mono eX.hom).mp
+        have hw : f.hom.left ≫ ((toSpf hA B'.unop.obj).hom ≫ eX.hom) =
+            (toSpf hA B.unop.obj).hom ≫ eX.hom := MorphismProperty.Over.w f.hom
+        exact (Category.assoc _ _ _).trans hw))
+    obtain ⟨g, hg⟩ := (spfFiniteTypeSystem hA).map_surjective f₀
+    refine ⟨g, ?_⟩
+    apply ObjectProperty.hom_ext
+    apply MorphismProperty.Over.Hom.ext
+    exact congrArg (fun k ↦ k.hom.left) hg
+  · constructor
+    intro U
+    letI : FormalAlgebraicSpace.FiniteType (U.obj.hom ≫ eX.inv) :=
+      finiteType_comp_iso U.obj.hom eX.symm
+    let U₀ : AffineFiniteTypeOver (spf A hA).obj :=
+      ⟨MorphismProperty.Over.mk ⊤ (U.obj.hom ≫ eX.inv) inferInstance, U.property⟩
+    obtain ⟨B, ⟨eB⟩⟩ :=
+      CategoryTheory.Functor.EssSurj.mem_essImage (spfFiniteTypeSystem hA) U₀
+    let eLeft : (colimSpec hA B.unop.obj).obj ≅ U.obj.left :=
+      { hom := eB.hom.hom.left
+        inv := eB.inv.hom.left
+        hom_inv_id := congrArg (fun k ↦ k.hom.left) eB.hom_inv_id
+        inv_hom_id := congrArg (fun k ↦ k.hom.left) eB.inv_hom_id }
+    refine ⟨B, ⟨ObjectProperty.isoMk _ (MorphismProperty.Over.isoMk eLeft ?_)⟩⟩
+    have hw := congrArg (fun k ↦ k ≫ eX.hom) (MorphismProperty.Over.w eB.hom.hom)
+    change (eLeft.hom ≫ (U.obj.hom ≫ eX.inv)) ≫ eX.hom =
+      (toSpf hA B.unop.obj).hom ≫ eX.hom at hw
+    change eLeft.hom ≫ U.obj.hom = (toSpf hA B.unop.obj).hom ≫ eX.hom
+    erw [Category.assoc, Category.assoc, eX.inv_hom_id, Category.comp_id] at hw
+    exact hw
 
 end AlgebraicGeometry.AffineFormalAlgebraicSpace

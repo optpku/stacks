@@ -31,6 +31,28 @@ namespace SheafOfModules
 
 variable {C : Type u} [Category.{max u v} C] {J : GrothendieckTopology C}
 
+section LeftExact
+
+variable [J.HasSheafCompose (forget₂ CommRingCat RingCat)]
+
+/- The sheaf-to-presheaf inclusion of module sheaves preserves finite limits.  This
+   is the categorical left-exactness assertion used by the source lemma. -/
+@[stacks 01ER "left exact inclusion of module sheaves into module presheaves"]
+theorem forget_preservesFiniteLimits
+    (𝒪 : Sheaf J RingCat.{max u v}) :
+    PreservesFiniteLimits (forget 𝒪) := by
+  infer_instance
+
+/- Bundled left-exact view of the same inclusion, for clients which need the
+   source functor together with its finite-limit certificate. -/
+@[stacks 01ER "bundled left exact module-sheaf inclusion"]
+noncomputable def forgetLeftExact
+    (𝒪 : Sheaf J RingCat.{max u v}) :
+    SheafOfModules 𝒪 ⥤ₗ PresheafOfModules 𝒪.obj :=
+  LeftExactFunctor.of (forget 𝒪)
+
+end LeftExact
+
 /-- The degree-`p` module-valued cohomology-presheaf functor on a ringed site. -/
 @[stacks 06YK "module-valued cohomology presheaf functor"]
 abbrev cohomologyPresheafFunctor (𝒪 : Sheaf J RingCat.{max u v}) (p : ℕ) :

@@ -6,8 +6,8 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import Mathlib.Tactic.CrossRefAttribute
-public import stacks_project.Chap85.Lemma_85_18_4_Equivalence
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.RingedSite.Localization.Simplicial.CartesianDerivedEquivalence
 
 /-!
 # Lemma 85.18.4
@@ -73,25 +73,16 @@ variable [ToposHom.HasModulePullbackDerived (toAmbient K.simplicial)]
 variable [ToposHom.HasModulePushforwardDerived (toAmbient K.simplicial)]
 variable [ToposHom.HasModuleDerivedAdjunction (toAmbient K.simplicial)]
 
-/-- Lemma 85.18.4
-Let `C` be a site with equalizers and fibre products. Let `O_C` be a sheaf of rings. Let `K`
-be a hypercovering. Let `A ⊂ Mod(O)` denote the weak Serre subcategory of cartesian `O`-modules.
-Then the functor `La^*` defines an equivalence `D⁺(O_C) ≌ D_A⁺(O)` with quasi-inverse `Ra_*`. -/
-@[stacks 0DA2]
-def modulePlusCartesianEquivalence :
-    DerivedCategory.Plus (ModuleCat.{w} X) ≌ CartesianPlus K :=
-  plusCartesianEquivalence K
+/- Lemma 85.18.4
+Canonical derived pullback identifies bounded-below ambient modules with bounded-below
+total-site modules having cartesian cohomology, with derived pushforward as quasi-inverse. -/
+@[stacks 0DA2] #check (RingedSite.Localization.AtSimplicialSR.plusCartesianEquivalence K :
+  DerivedCategory.Plus (ModuleCat.{w} X) ≌ CartesianPlus K)
 
-/-- The forward functor of `modulePlusCartesianEquivalence` is `La^*` corestricted to
-`D_A⁺(O)`. -/
-theorem modulePlusCartesianEquivalence_functor :
-    (modulePlusCartesianEquivalence K).functor = plusCartesianFunctor K :=
-  sorry
+#check (RingedSite.Localization.AtSimplicialSR.plusCartesianEquivalence_functor K :
+  (plusCartesianEquivalence K).functor = plusCartesianFunctor K)
 
-/-- The inverse functor of `modulePlusCartesianEquivalence` is `Ra_*` restricted from
-`D_A⁺(O)`. -/
-theorem modulePlusCartesianEquivalence_inverse :
-    (modulePlusCartesianEquivalence K).inverse = plusCartesianInverse K :=
-  sorry
+#check (RingedSite.Localization.AtSimplicialSR.plusCartesianEquivalence_inverse K :
+  (plusCartesianEquivalence K).inverse = plusCartesianInverse K)
 
 end RingedSite.Localization.AtSimplicialSR

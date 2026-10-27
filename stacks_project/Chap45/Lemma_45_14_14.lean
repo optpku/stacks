@@ -19,6 +19,7 @@ universe u v w x y z
 
 namespace WeilCohomology.SchemePreWeilTheory
 
+/- 抽象层对角类 mixin：待 RL-2194 完成锚定后移除。 -/
 /- Lemma 45.14.14 -/
 @[stacks 0FVS] #check (WeilCohomology.SchemePreWeilTheory.degreeZeroPullback_injective_of_finiteSeparable :
     ∀ {k k' k'' : Type u} [Field k] [Field k'] [Field k'']
@@ -37,9 +38,9 @@ namespace WeilCohomology.SchemePreWeilTheory
       {pointCycle : CHgrade point 0} {H Picard : V → Type x}
       [∀ X, Ring (H X)] [∀ X, Algebra F (H X)] [∀ X, AddCommGroup (Picard X)]
       (T : SchemePreWeilTheory k F TateLine V dimension product fst snd point CH CHgrade
-        cyclePullback cyclePushforward pointCycle H Picard) {X' X'' : V}
+        cyclePullback cyclePushforward pointCycle H Picard) [T.HasDiagonalClassRelation] {X' X'' : V}
       (e' : T.scheme.obj X' ≅ Over.mk (FieldExtension.specMap k k'))
       (e'' : T.scheme.obj X'' ≅ Over.mk (FieldExtension.specMap k k'')),
-      Function.Injective (T.pullbackGrade (T.representedSpecMap e' e'') (0, 0)))
+      Function.Injective (T.pullbackGrade (T.representedSpecMap e' e'') 0))
 
 end WeilCohomology.SchemePreWeilTheory

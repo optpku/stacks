@@ -122,7 +122,7 @@ additivity supplied explicitly. -/
 noncomputable abbrev moduleSectionsBoundedDerived (X : RingedSpace.{u}) :=
   @Functor.RightDerived.Bounded.functor _ _ _ _ _ _ _ _
     (RingedSpace.moduleSectionsEvaluationFunctor X ⊤) (moduleSectionsAdditive X)
-    (@Functor.RightDerived.Bounded.hasDerived _ _ _ _ _ _ _
+    (@Functor.RightDerived.Bounded.hasDerived _ _ _ _ _ _ _ _
       (RingedSpace.moduleSectionsEvaluationFunctor X ⊤) (moduleSectionsAdditive X)
       inferInstance)
 
@@ -138,7 +138,7 @@ noncomputable abbrev coefficientBoundedDerived (f : X ⟶ S) :=
     (RingedSite.Hom.moduleCat_hasDerivedCategory.{u}
       (RingedSpace.DeRham.coefficientSite f.toLRSHom.toShHom)) _
     (coefficientGlobalSections f) (coefficientGlobalSections_additive f)
-    (@Functor.RightDerived.Bounded.hasDerived _ _ _ _ _ _ _
+    (@Functor.RightDerived.Bounded.hasDerived _ _ _ _ _ _ _ _
       (coefficientGlobalSections f) (coefficientGlobalSections_additive f)
       inferInstance)
 
@@ -155,7 +155,7 @@ noncomputable def moduleGlobalSingleCohomologyIso
     (ModuleCat (RingedSpace.globalSectionsRing X)) (q : ℤ)).mapIso
       (@Functor.RightDerived.Homotopy.BoundedBelow.canonicalCochainValueIso _ _ _ _ _ _ _ _
         (RingedSpace.moduleSectionsEvaluationFunctor X ⊤) (moduleSectionsAdditive X)
-        (@Functor.RightDerived.Bounded.hasDerived _ _ _ _ _ _ _
+        (@Functor.RightDerived.Bounded.hasDerived _ _ _ _ _ _ _ _
           (RingedSpace.moduleSectionsEvaluationFunctor X ⊤) (moduleSectionsAdditive X)
           inferInstance)
         (RingedSite.Hom.moduleSectionsToDerived_hasRightDerivedFunctor
@@ -170,7 +170,7 @@ noncomputable def moduleGlobalSingleCohomologyIso
             (moduleSingleDerivedIso X F))) ≪≫
     @Functor.RightDerived.Bounded.degree.degreeIsoRightDerived _ _ _ _ _ _ _ _ _
       (RingedSpace.moduleSectionsEvaluationFunctor X ⊤) (moduleSectionsAdditive X)
-      (@Functor.RightDerived.Bounded.hasDerived _ _ _ _ _ _ _
+      (@Functor.RightDerived.Bounded.hasDerived _ _ _ _ _ _ _ _
         (RingedSpace.moduleSectionsEvaluationFunctor X ⊤) (moduleSectionsAdditive X)
         inferInstance)
       q F
@@ -193,7 +193,7 @@ noncomputable def moduleCohomologyUnderlyingIso
   ((forget₂ (ModuleCat (RingedSpace.globalSectionsRing X)) AddCommGrpCat).mapIso
     (@Functor.RightDerived.Bounded.degree.degreeIsoRightDerived _ _ _ _ _ _ _ _ _
       (RingedSpace.moduleSectionsEvaluationFunctor X ⊤) (moduleSectionsAdditive X)
-      (@Functor.RightDerived.Bounded.hasDerived _ _ _ _ _ _ _
+      (@Functor.RightDerived.Bounded.hasDerived _ _ _ _ _ _ _ _
         (RingedSpace.moduleSectionsEvaluationFunctor X ⊤) (moduleSectionsAdditive X)
         inferInstance)
       q F).symm) ≪≫
@@ -205,7 +205,7 @@ noncomputable def moduleCohomologyUnderlyingIso
   (@Functor.RightDerived.Bounded.degree.degreeIsoRightDerived _ _ _ _ _ _ _ _ _
     (RingedSpace.moduleSectionsAsAbelianFunctor X ⊤)
     (RingedSpace.moduleSectionsAsAbelianFunctor_additive X ⊤)
-    (@Functor.RightDerived.Bounded.hasDerived _ _ _ _ _ _ _
+    (@Functor.RightDerived.Bounded.hasDerived _ _ _ _ _ _ _ _
       (RingedSpace.moduleSectionsAsAbelianFunctor X ⊤)
       (RingedSpace.moduleSectionsAsAbelianFunctor_additive X ⊤)
       inferInstance)
@@ -326,7 +326,7 @@ noncomputable def hodgeCohomologyRightDerivedIso (f : X ⟶ S) (p q : ℕ) :
         (RingedSite.Hom.moduleCat_hasDerivedCategory.{u}
           (RingedSpace.DeRham.coefficientSite f.toLRSHom.toShHom)) _ _ _ _
         (coefficientGlobalSections f) (coefficientGlobalSections_additive f)
-        (@Functor.RightDerived.Bounded.hasDerived _ _ _ _ _ _ _
+        (@Functor.RightDerived.Bounded.hasDerived _ _ _ _ _ _ _ _
           (coefficientGlobalSections f) (coefficientGlobalSections_additive f)
           inferInstance)
         (RingedSite.Hom.moduleGlobalSectionsToModuleDerived_hasRightDerivedFunctor
@@ -341,7 +341,7 @@ noncomputable def hodgeCohomologyRightDerivedIso (f : X ⟶ S) (p q : ℕ) :
       (RingedSite.Hom.moduleCat_hasDerivedCategory.{u}
         (RingedSpace.DeRham.coefficientSite f.toLRSHom.toShHom)) _ _
       (coefficientGlobalSections f) (coefficientGlobalSections_additive f)
-      (@Functor.RightDerived.Bounded.hasDerived _ _ _ _ _ _ _
+      (@Functor.RightDerived.Bounded.hasDerived _ _ _ _ _ _ _ _
         (coefficientGlobalSections f) (coefficientGlobalSections_additive f)
         inferInstance)
       q (hodgeCoefficientForm f p)
@@ -456,7 +456,7 @@ noncomputable def hodgeCohomologyUnderlyingIso (f : X ⟶ S) (p q : ℕ) :
       (RingedSite.Hom.moduleCat_hasDerivedCategory.{u}
         (RingedSpace.DeRham.coefficientSite f.toLRSHom.toShHom)) _ _
       (coefficientGlobalSections f) (coefficientGlobalSections_additive f)
-      (@Functor.RightDerived.Bounded.hasDerived _ _ _ _ _ _ _
+      (@Functor.RightDerived.Bounded.hasDerived _ _ _ _ _ _ _ _
         (coefficientGlobalSections f) (coefficientGlobalSections_additive f)
         inferInstance)
       q (hodgeCoefficientForm f p)).symm) ≪≫
@@ -472,7 +472,7 @@ noncomputable def hodgeCohomologyUnderlyingIso (f : X ⟶ S) (p q : ℕ) :
       (RingedSpace.DeRham.coefficientSite f.toLRSHom.toShHom)) _ _
     (coefficientGlobalSections f ⋙ (hodgeCoefficientForget f).obj)
     (coefficientGlobalSections_compForget_additive f)
-    (@Functor.RightDerived.Bounded.hasDerived _ _ _ _ _ _ _
+    (@Functor.RightDerived.Bounded.hasDerived _ _ _ _ _ _ _ _
       (coefficientGlobalSections f ⋙ (hodgeCoefficientForget f).obj)
       (coefficientGlobalSections_compForget_additive f)
       inferInstance)

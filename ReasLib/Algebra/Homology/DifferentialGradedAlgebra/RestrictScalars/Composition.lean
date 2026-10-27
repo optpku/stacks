@@ -29,6 +29,14 @@ universe uR uS uT uU uB
 
 namespace ChainDGAlgebra.RestrictScalars
 
+private theorem hom_ext_of_toChainMap {R : Type uR} [CommRing R]
+    {A B : ChainDGAlgebra.{uR, uB} R} {phi psi : ChainDGAlgebra.Hom A B}
+    (h : phi.toChainMap = psi.toChainMap) : phi = psi := by
+  cases phi
+  cases psi
+  cases h
+  rfl
+
 section Map
 
 variable {R : Type uR} {S : Type uS} [CommRing R] [CommRing S]
@@ -45,12 +53,14 @@ def mapChainMap (sigma : R →+* S) (phi : ChainDGAlgebra.Hom B C) :
 @[simp]
 theorem mapChainMap_apply (sigma : R →+* S) (phi : ChainDGAlgebra.Hom B C)
     (n : ℤ) (x : (B.restrictScalars sigma).X n) :
-    (mapChainMap sigma phi).f n x = phi n x := sorry
+    (mapChainMap sigma phi).f n x = phi n x := rfl
 
 /-- The restricted chain map preserves the homogeneous unit. -/
 theorem mapChainMap_one (sigma : R →+* S) (phi : ChainDGAlgebra.Hom B C) :
     (mapChainMap sigma phi).f 0 (B.restrictScalars sigma).one =
-      (C.restrictScalars sigma).one := sorry
+      (C.restrictScalars sigma).one := by
+  change phi.toChainMap.f 0 B.one = C.one
+  exact phi.map_one
 
 /-- The restricted chain map preserves homogeneous multiplication. -/
 theorem mapChainMap_mul (sigma : R →+* S) (phi : ChainDGAlgebra.Hom B C)
@@ -58,7 +68,10 @@ theorem mapChainMap_mul (sigma : R →+* S) (phi : ChainDGAlgebra.Hom B C)
     (y : (B.restrictScalars sigma).X m) :
     (mapChainMap sigma phi).f (n + m) ((B.restrictScalars sigma).mul n m x y) =
       (C.restrictScalars sigma).mul n m
-        ((mapChainMap sigma phi).f n x) ((mapChainMap sigma phi).f m y) := sorry
+        ((mapChainMap sigma phi).f n x) ((mapChainMap sigma phi).f m y) := by
+  change phi.toChainMap.f (n + m) (B.mul n m x y) =
+    C.mul n m (phi.toChainMap.f n x) (phi.toChainMap.f m y)
+  exact phi.map_mul n m x y
 
 /-- Restrict both the source and target scalars of a chain-DGA morphism. -/
 @[stacks 09PQ "restriction of scalars on chain-DGA morphisms"]
@@ -72,18 +85,24 @@ def map (sigma : R →+* S) (phi : ChainDGAlgebra.Hom B C) :
 @[simp]
 theorem map_apply (sigma : R →+* S) (phi : ChainDGAlgebra.Hom B C)
     (n : ℤ) (x : (B.restrictScalars sigma).X n) :
-    map sigma phi n x = phi n x := sorry
+    map sigma phi n x = phi n x := rfl
 
 /-- Restriction of scalars preserves identity chain-DGA morphisms. -/
 @[simp]
 theorem map_id (sigma : R →+* S) (B : ChainDGAlgebra.{uS, uB} S) :
-    map sigma (𝟙 B) = 𝟙 (B.restrictScalars sigma) := sorry
+    map sigma (𝟙 B) = 𝟙 (B.restrictScalars sigma) := by
+  apply hom_ext_of_toChainMap
+  ext n x
+  rfl
 
 /-- Restriction of scalars preserves composition of chain-DGA morphisms. -/
 @[simp]
 theorem map_comp (sigma : R →+* S) (phi : B ⟶ C) (psi : C ⟶ D) :
     map sigma (ChainDGAlgebra.Hom.comp psi phi) =
-      ChainDGAlgebra.Hom.comp (map sigma psi) (map sigma phi) := sorry
+      ChainDGAlgebra.Hom.comp (map sigma psi) (map sigma phi) := by
+  apply hom_ext_of_toChainMap
+  ext n x
+  rfl
 
 /-- Restriction of scalars is functorial on chain DGAs with a fixed carrier universe. -/
 @[stacks 09PQ "restriction-of-scalars functor for chain DGAs"]
@@ -114,14 +133,14 @@ def compComponentIso (f : R →+* S) (g : S →+* T)
 theorem compComponentIso_hom_apply (f : R →+* S) (g : S →+* T)
     (B : ChainDGAlgebra.{uT, uB} T) (n : ℤ)
     (x : (B.restrictScalars (g.comp f)).X n) :
-    (compComponentIso f g B n).hom x = x := sorry
+    (compComponentIso f g B n).hom x = x := rfl
 
 /-- The inverse composition comparison acts as the identity in each degree. -/
 @[simp]
 theorem compComponentIso_inv_apply (f : R →+* S) (g : S →+* T)
     (B : ChainDGAlgebra.{uT, uB} T) (n : ℤ)
     (x : ((B.restrictScalars g).restrictScalars f).X n) :
-    (compComponentIso f g B n).inv x = x := sorry
+    (compComponentIso f g B n).inv x = x := rfl
 
 /-- The forward degreewise composition comparisons commute with the differentials. -/
 theorem compComponentIso_hom_comm (f : R →+* S) (g : S →+* T)
@@ -130,7 +149,9 @@ theorem compComponentIso_hom_comm (f : R →+* S) (g : S →+* T)
     (compComponentIso f g B i).hom ≫
         ((B.restrictScalars g).restrictScalars f).toChainComplex.d i j =
       (B.restrictScalars (g.comp f)).toChainComplex.d i j ≫
-        (compComponentIso f g B j).hom := sorry
+        (compComponentIso f g B j).hom := by
+  ext x
+  rfl
 
 /-- The inverse degreewise composition comparisons commute with the differentials. -/
 theorem compComponentIso_inv_comm (f : R →+* S) (g : S →+* T)
@@ -139,7 +160,9 @@ theorem compComponentIso_inv_comm (f : R →+* S) (g : S →+* T)
     (compComponentIso f g B i).inv ≫
         (B.restrictScalars (g.comp f)).toChainComplex.d i j =
       ((B.restrictScalars g).restrictScalars f).toChainComplex.d i j ≫
-        (compComponentIso f g B j).inv := sorry
+        (compComponentIso f g B j).inv := by
+  ext x
+  rfl
 
 /-- The chain map from direct restriction along a composite to successive restriction. -/
 def compHomChainMap (f : R →+* S) (g : S →+* T)
@@ -161,27 +184,31 @@ def compInvChainMap (f : R →+* S) (g : S →+* T)
 @[simp]
 theorem compHomChainMap_f (f : R →+* S) (g : S →+* T)
     (B : ChainDGAlgebra.{uT, uB} T) (n : ℤ) :
-    (compHomChainMap f g B).f n = (compComponentIso f g B n).hom := sorry
+    (compHomChainMap f g B).f n = (compComponentIso f g B n).hom := rfl
 
 /-- The inverse comparison chain map has the inverse Mathlib comparison in every degree. -/
 @[simp]
 theorem compInvChainMap_f (f : R →+* S) (g : S →+* T)
     (B : ChainDGAlgebra.{uT, uB} T) (n : ℤ) :
-    (compInvChainMap f g B).f n = (compComponentIso f g B n).inv := sorry
+    (compInvChainMap f g B).f n = (compComponentIso f g B n).inv := rfl
 
 /-- The forward and inverse comparison chain maps compose to the direct-restriction identity. -/
 @[simp]
 theorem compHomChainMap_compInv (f : R →+* S) (g : S →+* T)
     (B : ChainDGAlgebra.{uT, uB} T) :
     compHomChainMap f g B ≫ compInvChainMap f g B =
-      𝟙 (B.restrictScalars (g.comp f)).toChainComplex := sorry
+      𝟙 (B.restrictScalars (g.comp f)).toChainComplex := by
+  ext n x
+  rfl
 
 /-- The inverse and forward comparison chain maps compose to the iterated-restriction identity. -/
 @[simp]
 theorem compInvChainMap_compHom (f : R →+* S) (g : S →+* T)
     (B : ChainDGAlgebra.{uT, uB} T) :
     compInvChainMap f g B ≫ compHomChainMap f g B =
-      𝟙 ((B.restrictScalars g).restrictScalars f).toChainComplex := sorry
+      𝟙 ((B.restrictScalars g).restrictScalars f).toChainComplex := by
+  ext n x
+  rfl
 
 /-- The canonical underlying-complex comparison between direct and successive restriction. -/
 @[stacks 09PQ "composition of restriction of scalars on chain complexes"]
@@ -198,7 +225,7 @@ def compComplexIso (f : R →+* S) (g : S →+* T)
 theorem compHomChainMap_one (f : R →+* S) (g : S →+* T)
     (B : ChainDGAlgebra.{uT, uB} T) :
     (compHomChainMap f g B).f 0 (B.restrictScalars (g.comp f)).one =
-      ((B.restrictScalars g).restrictScalars f).one := sorry
+      ((B.restrictScalars g).restrictScalars f).one := rfl
 
 /-- The forward comparison chain map preserves homogeneous multiplication. -/
 theorem compHomChainMap_mul (f : R →+* S) (g : S →+* T)
@@ -208,13 +235,13 @@ theorem compHomChainMap_mul (f : R →+* S) (g : S →+* T)
     (compHomChainMap f g B).f (n + m)
         ((B.restrictScalars (g.comp f)).mul n m x y) =
       ((B.restrictScalars g).restrictScalars f).mul n m
-        ((compHomChainMap f g B).f n x) ((compHomChainMap f g B).f m y) := sorry
+        ((compHomChainMap f g B).f n x) ((compHomChainMap f g B).f m y) := rfl
 
 /-- The inverse comparison chain map preserves the homogeneous unit. -/
 theorem compInvChainMap_one (f : R →+* S) (g : S →+* T)
     (B : ChainDGAlgebra.{uT, uB} T) :
     (compInvChainMap f g B).f 0 ((B.restrictScalars g).restrictScalars f).one =
-      (B.restrictScalars (g.comp f)).one := sorry
+      (B.restrictScalars (g.comp f)).one := rfl
 
 /-- The inverse comparison chain map preserves homogeneous multiplication. -/
 theorem compInvChainMap_mul (f : R →+* S) (g : S →+* T)
@@ -224,7 +251,7 @@ theorem compInvChainMap_mul (f : R →+* S) (g : S →+* T)
     (compInvChainMap f g B).f (n + m)
         (((B.restrictScalars g).restrictScalars f).mul n m x y) =
       (B.restrictScalars (g.comp f)).mul n m
-        ((compInvChainMap f g B).f n x) ((compInvChainMap f g B).f m y) := sorry
+        ((compInvChainMap f g B).f n x) ((compInvChainMap f g B).f m y) := rfl
 
 /-- The chain-DGA homomorphism from direct restriction along a composite to successive
 restriction. -/
@@ -251,41 +278,47 @@ comparison. -/
 @[simp]
 theorem compHom_toChainMap (f : R →+* S) (g : S →+* T)
     (B : ChainDGAlgebra.{uT, uB} T) :
-    (compHom f g B).toChainMap = (compComplexIso f g B).hom := sorry
+    (compHom f g B).toChainMap = (compComplexIso f g B).hom := rfl
 
 /-- The underlying chain map of the inverse chain-DGA comparison is the inverse complex
 comparison. -/
 @[simp]
 theorem compInv_toChainMap (f : R →+* S) (g : S →+* T)
     (B : ChainDGAlgebra.{uT, uB} T) :
-    (compInv f g B).toChainMap = (compComplexIso f g B).inv := sorry
+    (compInv f g B).toChainMap = (compComplexIso f g B).inv := rfl
 
 /-- The forward chain-DGA composition comparison acts as the identity in every degree. -/
 @[simp]
 theorem compHom_apply (f : R →+* S) (g : S →+* T)
     (B : ChainDGAlgebra.{uT, uB} T) (n : ℤ)
     (x : (B.restrictScalars (g.comp f)).X n) :
-    compHom f g B n x = x := sorry
+    compHom f g B n x = x := rfl
 
 /-- The inverse chain-DGA composition comparison acts as the identity in every degree. -/
 @[simp]
 theorem compInv_apply (f : R →+* S) (g : S →+* T)
     (B : ChainDGAlgebra.{uT, uB} T) (n : ℤ)
     (x : ((B.restrictScalars g).restrictScalars f).X n) :
-    compInv f g B n x = x := sorry
+    compInv f g B n x = x := rfl
 
 /-- The forward comparison followed by the inverse is the identity. -/
 @[simp]
 theorem compHom_compInv (f : R →+* S) (g : S →+* T)
     (B : ChainDGAlgebra.{uT, uB} T) :
-    compHom f g B ≫ compInv f g B = 𝟙 (B.restrictScalars (g.comp f)) := sorry
+    compHom f g B ≫ compInv f g B = 𝟙 (B.restrictScalars (g.comp f)) := by
+  apply hom_ext_of_toChainMap
+  ext n x
+  rfl
 
 /-- The inverse comparison followed by the forward comparison is the identity. -/
 @[simp]
 theorem compInv_compHom (f : R →+* S) (g : S →+* T)
     (B : ChainDGAlgebra.{uT, uB} T) :
     compInv f g B ≫ compHom f g B =
-      𝟙 ((B.restrictScalars g).restrictScalars f) := sorry
+      𝟙 ((B.restrictScalars g).restrictScalars f) := by
+  apply hom_ext_of_toChainMap
+  ext n x
+  rfl
 
 /-- The canonical chain-DGA isomorphism from direct restriction along `g.comp f` to successive
 restriction along `g` and then `f`. -/
@@ -301,39 +334,45 @@ def compIso (f : R →+* S) (g : S →+* T) (B : ChainDGAlgebra.{uT, uB} T) :
 @[simp]
 theorem compIso_hom (f : R →+* S) (g : S →+* T)
     (B : ChainDGAlgebra.{uT, uB} T) :
-    (compIso f g B).hom = compHom f g B := sorry
+    (compIso f g B).hom = compHom f g B := rfl
 
 /-- The inverse morphism of the composition isomorphism is the explicit inverse comparison. -/
 @[simp]
 theorem compIso_inv (f : R →+* S) (g : S →+* T)
     (B : ChainDGAlgebra.{uT, uB} T) :
-    (compIso f g B).inv = compInv f g B := sorry
+    (compIso f g B).inv = compInv f g B := rfl
 
 /-- The forward morphism of the composition isomorphism acts as the identity in every degree. -/
 @[simp]
 theorem compIso_hom_apply (f : R →+* S) (g : S →+* T)
     (B : ChainDGAlgebra.{uT, uB} T) (n : ℤ)
     (x : (B.restrictScalars (g.comp f)).X n) :
-    (compIso f g B).hom n x = x := sorry
+    (compIso f g B).hom n x = x := rfl
 
 /-- The inverse morphism of the composition isomorphism acts as the identity in every degree. -/
 @[simp]
 theorem compIso_inv_apply (f : R →+* S) (g : S →+* T)
     (B : ChainDGAlgebra.{uT, uB} T) (n : ℤ)
     (x : ((B.restrictScalars g).restrictScalars f).X n) :
-    (compIso f g B).inv n x = x := sorry
+    (compIso f g B).inv n x = x := rfl
 
 /-- The forward composition comparison is natural in chain-DGA morphisms. -/
 theorem compIso_hom_naturality (f : R →+* S) (g : S →+* T)
     {B C : ChainDGAlgebra.{uT, uB} T} (phi : B ⟶ C) :
     map (g.comp f) phi ≫ (compIso f g C).hom =
-      (compIso f g B).hom ≫ map f (map g phi) := sorry
+      (compIso f g B).hom ≫ map f (map g phi) := by
+  apply hom_ext_of_toChainMap
+  ext n x
+  rfl
 
 /-- The inverse composition comparison is natural in chain-DGA morphisms. -/
 theorem compIso_inv_naturality (f : R →+* S) (g : S →+* T)
     {B C : ChainDGAlgebra.{uT, uB} T} (phi : B ⟶ C) :
     map f (map g phi) ≫ (compIso f g C).inv =
-      (compIso f g B).inv ≫ map (g.comp f) phi := sorry
+      (compIso f g B).inv ≫ map (g.comp f) phi := by
+  apply hom_ext_of_toChainMap
+  ext n x
+  rfl
 
 end Composition
 
@@ -347,14 +386,20 @@ theorem compIso_hom_assoc (f : R →+* S) (g : S →+* T) (h : T →+* U)
     (B : ChainDGAlgebra.{uU, uB} U) :
     (compIso f (h.comp g) B).hom ≫ map f (compIso g h B).hom =
       (compIso (g.comp f) h B).hom ≫
-        (compIso f g (B.restrictScalars h)).hom := sorry
+        (compIso f g (B.restrictScalars h)).hom := by
+  apply hom_ext_of_toChainMap
+  ext n x
+  rfl
 
 /-- The two inverse composition comparisons for three successive restrictions agree. -/
 theorem compIso_inv_assoc (f : R →+* S) (g : S →+* T) (h : T →+* U)
     (B : ChainDGAlgebra.{uU, uB} U) :
     map f (compIso g h B).inv ≫ (compIso f (h.comp g) B).inv =
       (compIso f g (B.restrictScalars h)).inv ≫
-        (compIso (g.comp f) h B).inv := sorry
+        (compIso (g.comp f) h B).inv := by
+  apply hom_ext_of_toChainMap
+  ext n x
+  rfl
 
 end Coherence
 

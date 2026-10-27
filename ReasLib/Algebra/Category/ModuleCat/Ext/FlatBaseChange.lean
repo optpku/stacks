@@ -50,7 +50,11 @@ theorem map_naturality_left (f : R →+* S) {M M' : ModuleCat.{u} R}
     (e : Ext M N i) :
     map f M' N hf i ((Ext.mk₀ g).comp e (zero_add i)) =
       (Ext.mk₀ ((ModuleCat.extendScalars f).map g)).comp
-        (map f M N hf i e) (zero_add i) := sorry
+        (map f M N hf i e) (zero_add i) := by
+  let F := ModuleCat.ExtendScalars.exact f hf
+  change ((Ext.mk₀ g).comp e (zero_add i)).mapExactFunctor F.obj =
+    (Ext.mk₀ (F.obj.map g)).comp (e.mapExactFunctor F.obj) (zero_add i)
+  rw [Ext.mapExactFunctor_comp, Ext.mapExactFunctor_mk₀]
 
 /-- The direct flat base-change map is covariantly natural in its target module. -/
 @[simp, stacks 05EG "flat Ext map naturality in the target"]
@@ -59,7 +63,11 @@ theorem map_naturality_right (f : R →+* S) (M : ModuleCat.{u} R)
     (e : Ext M N i) :
     map f M N' hf i (e.comp (Ext.mk₀ g) (add_zero i)) =
       (map f M N hf i e).comp
-        (Ext.mk₀ ((ModuleCat.extendScalars f).map g)) (add_zero i) := sorry
+        (Ext.mk₀ ((ModuleCat.extendScalars f).map g)) (add_zero i) := by
+  let F := ModuleCat.ExtendScalars.exact f hf
+  change (e.comp (Ext.mk₀ g) (add_zero i)).mapExactFunctor F.obj =
+    (e.mapExactFunctor F.obj).comp (Ext.mk₀ (F.obj.map g)) (add_zero i)
+  rw [Ext.mapExactFunctor_comp, Ext.mapExactFunctor_mk₀]
 
 /-- The direct flat-base-change map sends a short exact sequence to the extension class of its
 image under the exact extension-of-scalars functor. -/
@@ -67,7 +75,8 @@ image under the exact extension-of-scalars functor. -/
 theorem map_extClass (f : R →+* S) (hf : f.Flat)
     {E : ShortComplex (ModuleCat.{u} R)} (hE : E.ShortExact) :
     map f E.X₃ E.X₁ hf 1 hE.extClass =
-      (hE.map_of_exact (ModuleCat.ExtendScalars.exact f hf).obj).extClass := sorry
+      (hE.map_of_exact (ModuleCat.ExtendScalars.exact f hf).obj).extClass := by
+  exact Ext.mapExactFunctor_extClass (ModuleCat.ExtendScalars.exact f hf).obj hE
 
 /-- Restrict an Ext class along a ring homomorphism and precompose with the
 extension/restriction unit.  Flatness is not needed for this direction. -/
@@ -97,7 +106,18 @@ theorem adjoint_naturality_right (f : R →+* S) (M : ModuleCat.{u} R)
     (e : Ext M ((ModuleCat.restrictScalars f).obj N) i) (g : N ⟶ N') :
     adjoint f M N' hf i
         (e.comp (Ext.mk₀ ((ModuleCat.restrictScalars f).map g)) (add_zero i)) =
-      (adjoint f M N hf i e).comp (Ext.mk₀ g) (add_zero i) := sorry
+      (adjoint f M N hf i e).comp (Ext.mk₀ g) (add_zero i) := by
+  let F := ModuleCat.ExtendScalars.exact f hf
+  let adj := ModuleCat.extendRestrictScalarsAdj f
+  change ((e.comp (Ext.mk₀ ((ModuleCat.restrictScalars f).map g))
+      (add_zero i)).mapExactFunctor F.obj).comp (Ext.mk₀ (adj.counit.app N'))
+      (add_zero i) =
+    ((e.mapExactFunctor F.obj).comp (Ext.mk₀ (adj.counit.app N))
+      (add_zero i)).comp (Ext.mk₀ g) (add_zero i)
+  rw [Ext.mapExactFunctor_comp, Ext.mapExactFunctor_mk₀]
+  simp only [Ext.comp_assoc_of_second_deg_zero, Ext.mk₀_comp_mk₀]
+  exact congrArg (fun k ↦ (e.mapExactFunctor F.obj).comp (Ext.mk₀ k) (add_zero i))
+    (adj.counit.naturality g)
 
 /-- Postcomposing by the extension/restriction unit identifies the adjoint comparison with the
 direct flat-base-change map. -/
@@ -108,7 +128,19 @@ theorem adjoint_postcomp_unit (f : R →+* S) (M N : ModuleCat.{u} R)
         (e.comp
           (Ext.mk₀ ((ModuleCat.extendRestrictScalarsAdj f).unit.app N))
           (add_zero i)) =
-      map f M N hf i e := sorry
+      map f M N hf i e := by
+  let F := ModuleCat.ExtendScalars.exact f hf
+  let adj := ModuleCat.extendRestrictScalarsAdj f
+  change ((e.comp (Ext.mk₀ (adj.unit.app N)) (add_zero i)).mapExactFunctor
+      F.obj).comp (Ext.mk₀ (adj.counit.app ((ModuleCat.extendScalars f).obj N)))
+      (add_zero i) = e.mapExactFunctor F.obj
+  rw [Ext.mapExactFunctor_comp, Ext.mapExactFunctor_mk₀,
+    Ext.comp_assoc_of_second_deg_zero, Ext.mk₀_comp_mk₀]
+  have h : F.obj.map (adj.unit.app N) ≫
+      adj.counit.app ((ModuleCat.extendScalars f).obj N) = 𝟙 (F.obj.obj N) :=
+    adj.left_triangle_components N
+  exact (congrArg (fun k ↦ (e.mapExactFunctor F.obj).comp (Ext.mk₀ k) (add_zero i))
+    h).trans (Ext.comp_mk₀_id _)
 
 /-- Postcomposing on the restricted target by a scalar endomorphism passes through the adjoint
 flat-base-change map as scalar multiplication. -/
@@ -119,7 +151,8 @@ theorem adjoint_postcomp_smul_id (f : R →+* S) (M : ModuleCat.{u} R)
     adjoint f M N hf i
         (e.comp
           (Ext.mk₀ ((ModuleCat.restrictScalars f).map (a • 𝟙 N))) (add_zero i)) =
-      a • adjoint f M N hf i e := sorry
+      a • adjoint f M N hf i e := by
+  rw [adjoint_naturality_right, ← Ext.smul_eq_comp_mk₀]
 
 /-- The adjoint map is a left inverse to the comparison map. -/
 @[simp, stacks 087N "flat Ext adjunction left inverse"]
@@ -153,13 +186,15 @@ noncomputable def equiv (f : R →+* S) (M : ModuleCat.{u} R)
 theorem equiv_apply (f : R →+* S) (M : ModuleCat.{u} R)
     (N : ModuleCat.{u} S) (hf : f.Flat) (i : ℕ)
     (x : Ext ((ModuleCat.extendScalars f).obj M) N i) :
-    equiv f M N hf i x = comparison f M N i x := sorry
+    equiv f M N hf i x = comparison f M N i x := by
+  rfl
 
 /-- The inverse map of the flat-base-change equivalence is `adjoint`. -/
 @[simp, stacks 087N "flat Ext equivalence inverse map"]
 theorem equiv_symm_apply (f : R →+* S) (M : ModuleCat.{u} R)
     (N : ModuleCat.{u} S) (hf : f.Flat) (i : ℕ)
     (x : Ext M ((ModuleCat.restrictScalars f).obj N) i) :
-    (equiv f M N hf i).symm x = adjoint f M N hf i x := sorry
+    (equiv f M N hf i).symm x = adjoint f M N hf i x := by
+  rfl
 
 end CategoryTheory.ModuleCat.Ext.FlatBaseChange

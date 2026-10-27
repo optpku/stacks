@@ -56,7 +56,8 @@ common residue-field extension. -/
             pullback.fst F'.hom g' (e.hom.left x) = Scheme.Hom.asFiber G.s.left r')
 
 /- Lemma 40.7.1 (3): when the source and target maps are flat, their germs at arrows with a
-common target are flat locally on the base isomorphic. -/
+common target are flat locally on the base isomorphic. The comparison is between selected-point
+germs of Scheme fibre products over a common base germ. -/
 @[stacks 02YF]
 #check
   (AlgebraicGeometry.GroupoidScheme.sourceGermsFlatLocallyIsomorphic :
@@ -71,7 +72,7 @@ common target are flat locally on the base isomorphic. -/
 
 /- Lemma 40.7.1 (4): for any non-Zariski standard topology, source-map germs at arrows with a
 common target are locally on the base isomorphic when both structure maps have the topology's
-defining property. -/
+defining property, with the same selected-point Scheme fibre-product convention. -/
 @[stacks 02YF]
 #check
   (AlgebraicGeometry.GroupoidScheme.sourceGermsLocallyIsomorphic :

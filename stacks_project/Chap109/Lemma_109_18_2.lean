@@ -6,9 +6,8 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import ReasLib.AlgebraicGeometry.AlgebraicSpace.CohStack.Hom.Smooth
-public import stacks_project.Chap109.Lemma_109_7_3_Substack
-public import stacks_project.Chap109.Lemma_109_18_1_Substack
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Curve.Nodal.Smooth
+import StacksCheckRecall
 
 /-!
 # Smoothness of the structure morphism of nodal curves
@@ -27,24 +26,10 @@ noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
-namespace Spaces
-namespace Curves
+open AlgebraicGeometry.AlgebraicSpace.Spaces.Curves
 
-/-- The full subcategory of `𝒞urves` cut out by `nodal` is fibred in
-groupoids over `Over S`. -/
-instance instIsFiberedInGroupoids_nodal (S : Scheme.{u}) :
-    Functor.IsFibered.InGroupoids ((nodal S).ι ⋙ p S) :=
-  sorry
-
-/-- Lemma 109.18.2: the structure morphism `𝒞urves^{nodal} ⟶ Spec(Z)` is
-smooth. -/
-@[stacks 0E00]
-instance instSmooth_nodal (S : Scheme.{u}) :
-    CohStack.Hom.Smooth
-      (inclusionOf (nodal S) ≫ CohStack.toIdentitySlice (toGroupoids S)) :=
-  sorry
-
-end Curves
-end Spaces
-end AlgebraicGeometry.AlgebraicSpace
+/- Lemma 109.18.2: the structure morphism `𝒞urves^{nodal} ⟶ Spec(Z)` is smooth. -/
+@[stacks 0E00] #check
+  (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.instSmooth_nodal :
+    ∀ (S : Scheme.{u}), CohStack.Hom.Smooth
+      (inclusionOf (nodal S) ≫ CohStack.toIdentitySlice (toGroupoids S)))

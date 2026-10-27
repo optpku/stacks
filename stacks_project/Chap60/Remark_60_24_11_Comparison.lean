@@ -5,26 +5,15 @@ Authors: Zichen Wang, Zaiwen Wen
 -/
 
 module
-public import stacks_project.Chap60.Remark_60_24_11_Comparison_Object
-public import stacks_project.Chap60.Remark_60_24_11_Comparison_SmoothLiftGeometry
-public import stacks_project.Chap60.Remark_60_24_11_Comparison_DeRham
-public import stacks_project.Chap60.Remark_60_24_11_Comparison_AffineSections
-public import stacks_project.Chap60.Remark_60_24_11_Comparison_AffineDifferentials
-public import stacks_project.Chap60.Remark_60_24_11_Comparison_AffinePDForms
-public import stacks_project.Chap60.Remark_60_24_11_Comparison_AffineTensorSections
-public import stacks_project.Chap60.Remark_60_24_11_Comparison_AffineSheafExtension
-public import stacks_project.Chap60.Remark_60_24_11_Comparison_AffineGeometry
-public import stacks_project.Chap60.Remark_60_24_11_Comparison_ModuleDerivedSections
-public import stacks_project.Chap60.Remark_60_24_11_Comparison_SheafDegreeBridges
-public import Mathlib.CategoryTheory.IsomorphismClasses
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.Crystalline.SmoothLift.Cohomology
+public import stacks_project.Chap60.Proposition_60_21_1
+import StacksCheckRecall
 
 @[expose] public section
 open AlgebraicGeometry CategoryTheory CategoryTheory.Limits
 open AlgebraicGeometry.Scheme.Crystalline
 open CrystallineModuleSheaf CrystallineCoefficients
 universe u
-namespace CrystallineSmoothLiftComparison
 
 variable {p : ℕ} [Fact p.Prime] {A : Type u} [CommRing A]
 variable [Algebra (Localization.AtPrime (Ideal.span ({(p : ℤ)} : Set ℤ))) A]
@@ -41,71 +30,30 @@ variable (F : CrisModuleSheaf (Spec (.of A)) I γS hc (smoothLift f I) (smoothLi
 variable [SectionsCoherent I γS hc (smoothLift_x₀ f I) F]
 variable [CrisModuleSheaf.IsCrystal F] [CrisModuleSheaf.IsLocallyQuasiCoherent F]
 
-/-- The source connection on F_Y is the actual degree-zero sheaf
-differential, transported only through canonical exterior-degree identifications. -/
-noncomputable def connection :
-    CrystallineSmoothLiftTerms.asBaseSheaf f
-        (CrystallineSmoothLiftRepair.coefficient γA f I γS hc hI hγ hpnil F) ⟶
-      CrystallineSmoothLiftTerms.asBaseSheaf f
-        (CrystallineSmoothLiftTerms.oneFormTensor f
-          (CrystallineSmoothLiftRepair.coefficient γA f I γS hc hI hγ hpnil F)) :=
-  (CrystallineSheafDegreeBridges.baseDegreeZero f
-      (CrystallineSmoothLiftRepair.coefficient γA f I γS hc hI hγ hpnil F)).inv ≫
-    CrystallineSmoothLiftAffine.sheafDifferential γA f I γS hc hI hγ hpnil F 0 ≫
-      (CrystallineSheafDegreeBridges.baseDegreeOne f
-        (CrystallineSmoothLiftRepair.coefficient γA f I γS hc hI hγ hpnil F)).hom
+variable (U : Y.affineOpens)
 
-/-- Remark 60.24.11 (Comparison) (1): the given divided powers extend to
-the actual ideal of the closed fibre X in the smooth lift Y. -/
-@[stacks 07MW]
-theorem dividedPowers_extend (U : Y.affineOpens) :
-    DividedPowers.IsDPMorphism γA (smoothLiftDividedPowers γA f I hI U)
-      (affineSectionMap f U) := sorry
+/- Remark 60.24.11 (Comparison) (1): the base divided powers extend to the closed fibre's ideal. -/
+@[stacks 07MW] #check (AlgebraicGeometry.Scheme.Crystalline.smoothLiftDividedPowers_spec γA f I hI U :
+  DividedPowers.IsDPMorphism γA (smoothLiftDividedPowers γA f I hI U)
+    (Scheme.Hom.sectionsMap f U))
 
-/-- Remark 60.24.11 (Comparison) (2): the actual canonical connection on
-F_Y is integrable; its curvature vanishes in the genuine sheaf de Rham complex. -/
-@[stacks 07MW]
-theorem connection_integrable :
-    connection γA f I γS hc hI hγ hpnil F ≫
-      (CrystallineSheafDegreeBridges.baseDegreeOne f
-        (CrystallineSmoothLiftRepair.coefficient γA f I γS hc hI hγ hpnil F)).inv ≫
-      CrystallineSmoothLiftAffine.sheafDifferential γA f I γS hc hI hγ hpnil F 1 = 0 := sorry
+/- Remark 60.24.11 (Comparison) (2): the canonical ordinary connection is integrable. -/
+@[stacks 07MW] #check (AlgebraicGeometry.Scheme.Crystalline.SmoothLift.connection_integrable
+  γA f I γS hc hI hγ hpnil F :
+    AlgebraicGeometry.Scheme.Crystalline.SmoothLift.connection γA f I γS hc hI hγ hpnil F ≫
+      (AlgebraicGeometry.Scheme.Modules.DeRham.baseDegreeOne f
+        (AlgebraicGeometry.Scheme.Crystalline.SmoothLift.coefficient γA f I γS hc hI hγ hpnil F)).inv ≫
+      AlgebraicGeometry.Scheme.Crystalline.SmoothLift.Affine.sheafDifferential γA f I γS hc hI hγ hpnil F 1 = 0)
 
 variable (s : Spec (.of A) ⟶ Spec (.of (ULift.{u} (Int.LocalizationAtPrime p))))
-
-/-- The crystalline side is derived global sections of the actual
-coherent crystal, with its base action restricted along the canonical map
-A → ULift Γ(Spec A). No terminal crystalline-site object is required. -/
-noncomputable def crystallineSections
-    [IsGrothendieckAbelian (RingedSite.ModuleCat.{u + 1}
-      (liftedRingedSite I γS hc (smoothLift_x₀ f I) p s (smoothLift_p_nilpotent f I hpnil)))] :
-    DerivedCategory (ModuleCat.{u + 1} A) :=
-  (CrystallineModuleDerivedSections.baseRestriction A).obj
-    ((baseDerivedGlobalSections I γS hc (smoothLift_x₀ f I) p s
-      (smoothLift_p_nilpotent f I hpnil)).obj
-      (derivedOfCrystal I γS hc (smoothLift_x₀ f I) p s (smoothLift_p_nilpotent f I hpnil) F))
-
-/-- The smooth-lift side is genuine derived global sections of the
-constructed de Rham complex of A-module sheaves on all of Y. -/
-noncomputable def deRhamSections
-    [HasSheafify (Opens.grothendieckTopology Y.toTopCat) (ModuleCat.{u + 1} A)]
-    [HasGlobalSectionsFunctor (Opens.grothendieckTopology Y.toTopCat) (ModuleCat.{u + 1} A)]
-    [IsGrothendieckAbelian (Sheaf (Opens.grothendieckTopology Y.toTopCat) (ModuleCat.{u + 1} A))] :
-    DerivedCategory (ModuleCat.{u + 1} A) :=
-  CrystallineModuleDerivedSections.ofComplex A Y
-    (CrystallineSmoothLiftAffine.sheafComplex γA f I γS hc hI hγ hpnil F)
-
-/-- Remark 60.24.11 (Comparison) (3): for the smooth lift of X over the
-p-nilpotent divided-power base, crystalline RΓ(F) is isomorphic in D(A) to
-RΓ(Y, F_Y ⊗ Ω^•_{Y/S}) with its actual crystal-induced connection. -/
-@[stacks 07MW]
-theorem crystalline_deRham_comparison
-    [IsGrothendieckAbelian (RingedSite.ModuleCat.{u + 1}
+variable [IsGrothendieckAbelian (RingedSite.ModuleCat.{u + 1}
       (liftedRingedSite I γS hc (smoothLift_x₀ f I) p s (smoothLift_p_nilpotent f I hpnil)))]
     [HasSheafify (Opens.grothendieckTopology Y.toTopCat) (ModuleCat.{u + 1} A)]
     [HasGlobalSectionsFunctor (Opens.grothendieckTopology Y.toTopCat) (ModuleCat.{u + 1} A)]
-    [IsGrothendieckAbelian (Sheaf (Opens.grothendieckTopology Y.toTopCat) (ModuleCat.{u + 1} A))] :
-    IsIsomorphic (crystallineSections f I γS hc hpnil F s)
-      (deRhamSections γA f I γS hc hI hγ hpnil F) := sorry
+    [IsGrothendieckAbelian (Sheaf (Opens.grothendieckTopology Y.toTopCat) (ModuleCat.{u + 1} A))]
 
-end CrystallineSmoothLiftComparison
+/- Remark 60.24.11 (Comparison) (3): crystalline and smooth-lift de Rham derived sections agree in D(A). -/
+@[stacks 07MW] #check (AlgebraicGeometry.Scheme.Crystalline.SmoothLift.crystalline_deRham_comparison
+  γA f I γS hc hI hγ hpnil F s :
+    IsIsomorphic (AlgebraicGeometry.Scheme.Crystalline.SmoothLift.crystallineSections f I γS hc hpnil F s)
+      (AlgebraicGeometry.Scheme.Crystalline.SmoothLift.deRhamSections γA f I γS hc hI hγ hpnil F))

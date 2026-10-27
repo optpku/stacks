@@ -62,7 +62,9 @@ set_option backward.privateInPublic.warn false
 
 namespace Implementation
 
-/-- The explicit pseudo-pullback object associated to a costructured arrow. -/
+/-- The explicit pseudo-pullback object associated to a costructured arrow. Its inverse map is
+the Cartesian factor supplied by the original groupoid-fibration input; only the inverse laws
+use the deferred proofs. -/
 private noncomputable def obj
     [Functor.IsFibered.InGroupoids pY] (f : Over U)
     (A : costructuredArrow F G f) :
@@ -70,8 +72,11 @@ private noncomputable def obj
   PseudoPullback.mk F G f.left
     { fst := A.left
       snd := Fiber.mk rfl
-      iso := @asIso _ _ _ _ A.hom
-        (Functor.IsFibered.InGroupoids.hom_isIso (p := pY) f.left A.hom) }
+      iso :=
+        { hom := A.hom
+          inv := Functor.IsFibered.InGroupoids.fiberInverse (p := pY) f.left A.hom
+          hom_inv_id := Functor.IsFibered.InGroupoids.comp_fiberInverse (p := pY) f.left A.hom
+          inv_hom_id := Functor.IsFibered.InGroupoids.fiberInverse_comp (p := pY) f.left A.hom } }
 
 /-- The comparison square induced by a costructured-arrow morphism. -/
 private theorem mapComm

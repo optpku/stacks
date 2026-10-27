@@ -6,7 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap77.Definition_77_3_1_Purity
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Purity
 import StacksCheckRecall
 
 open CategoryTheory

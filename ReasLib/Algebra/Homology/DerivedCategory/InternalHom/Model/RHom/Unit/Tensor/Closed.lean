@@ -8,6 +8,7 @@ module
 
 public import ReasLib.Algebra.Homology.DerivedCategory.InternalHom.Model.RHom.Unit.Tensor
 public import ReasLib.Algebra.Homology.DerivedCategory.InternalHom.Model.RHom.Closed
+public import ReasLib.Algebra.Homology.DerivedCategory.ModuleCat.RHom
 import Mathlib.Tactic.CrossRefAttribute
 
 /-!

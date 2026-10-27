@@ -35,6 +35,20 @@ theorem isIntegerValued_iff (f : Polynomial ℚ) :
 
 namespace IsIntegerValued
 
+/-- Integer evaluation of an integer-valued rational polynomial is the numerator of
+its rational evaluation. -/
+def evalInt {p : Polynomial ℚ} (hp : p.IsIntegerValued) (n : ℤ) : ℤ :=
+  (p.eval (algebraMap ℤ ℚ n)).num
+
+/-- Integer evaluation agrees with rational evaluation at every integer. -/
+theorem evalInt_spec {p : Polynomial ℚ} (hp : p.IsIntegerValued) (n : ℤ) :
+    (hp.evalInt n : ℚ) = p.eval (algebraMap ℤ ℚ n) := sorry
+
+/-- Integer-valued rational polynomials agreeing at every integer are equal. -/
+theorem evalInt_injective {p q : Polynomial ℚ} (hp : p.IsIntegerValued)
+    (hq : q.IsIntegerValued) (h : ∀ n : ℤ, hp.evalInt n = hq.evalInt n) :
+    p = q := sorry
+
 /-- The image of an integer polynomial under `algebraMap ℤ ℚ` is integer-valued. -/
 theorem map_int (p : Polynomial ℤ) : (p.map (algebraMap ℤ ℚ)).IsIntegerValued :=
   sorry

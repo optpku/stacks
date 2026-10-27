@@ -57,14 +57,28 @@ noncomputable abbrev sequence {X : RingedSpace.{u}} {K : DerivedCategory X.Modul
   CategoryTheory.FilteredComplex.RightDerived.SpectralSequence.Truncation.renumberedSequence
     (moduleGlobalSectionsFunctor X) S.original
 
-/-- The `(-j)`-th graded piece is the cohomology module sheaf `H^j(K)` placed in degree `j`. -/
-noncomputable abbrev gradedPieceIso {X : RingedSpace.{u}} {K : DerivedCategory X.Modules}
+/-- The canonical map from the `(-j)`-th graded piece to the cohomology module sheaf `H^j(K)`
+placed in degree `j`. -/
+noncomputable abbrev gradedPieceMap {X : RingedSpace.{u}} {K : DerivedCategory X.Modules}
     (S : Realization X K) (j : ℤ) :
-    (DerivedCategory.truncationFilteredPreimage K).gradedPiece (-j) ≅
+    (DerivedCategory.truncationFilteredPreimage K).gradedPiece (-j) ⟶
       (CochainComplex.singleFunctor X.Modules j).obj
         ((DerivedCategory.homologyFunctor X.Modules j).obj K) :=
+  CategoryTheory.FilteredComplex.RightDerived.SpectralSequence.Truncation.Realization.gradedPieceMap
+    (F := moduleGlobalSectionsFunctor X) S j
+
+/-- The canonical graded-piece comparison for module sheaves is a quasi-isomorphism. -/
+theorem gradedPieceMap_quasiIso {X : RingedSpace.{u}} {K : DerivedCategory X.Modules}
+    (S : Realization X K) (j : ℤ) : QuasiIso (gradedPieceMap S j) :=
+  CategoryTheory.FilteredComplex.RightDerived.SpectralSequence.Truncation.Realization.gradedPieceMap_quasiIso
+    (F := moduleGlobalSectionsFunctor X) S j
+
+/-- The graded-piece comparison is invertible in the derived category of module sheaves. -/
+theorem gradedPieceIso {X : RingedSpace.{u}} {K : DerivedCategory X.Modules}
+    (S : Realization X K) (j : ℤ) :
+    IsIso (DerivedCategory.Q.map (gradedPieceMap S j)) :=
   CategoryTheory.FilteredComplex.RightDerived.SpectralSequence.Truncation.Realization.gradedPieceIso
-    S j
+    (F := moduleGlobalSectionsFunctor X) S j
 
 /-- The second page is sheaf cohomology of the cohomology module sheaves:
 `E₂^{i,j} = H^i(X, H^j(K))`. -/

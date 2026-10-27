@@ -61,13 +61,15 @@ def objIso {Y : C ⥤ C} {d : 𝟭 C ⟶ Y} {s : Y ⋙ Y ⟶ Y}
 @[simp, stacks 0G5N "forward degree transport of a cosimplicial realization"]
 theorem objIso.hom_eqToHom {Y : C ⥤ C} {d : 𝟭 C ⟶ Y} {s : Y ⋙ Y ⟶ Y}
     {U : CosimplicialObject (C ⥤ C)} (hU : CosimplicialRealization d s U) (n : ℕ) :
-    (objIso hU n).hom = eqToHom (hU.obj_eq n) := sorry
+    (objIso hU n).hom = eqToHom (hU.obj_eq n) := by
+  rfl
 
 /-- The inverse degree map is the reverse transport supplied by the realization witness. -/
 @[simp, stacks 0G5N "inverse degree transport of a cosimplicial realization"]
 theorem objIso.inv_eqToHom {Y : C ⥤ C} {d : 𝟭 C ⟶ Y} {s : Y ⋙ Y ⟶ Y}
     {U : CosimplicialObject (C ⥤ C)} (hU : CosimplicialRealization d s U) (n : ℕ) :
-    (objIso hU n).inv = eqToHom (hU.obj_eq n).symm := sorry
+    (objIso hU n).inv = eqToHom (hU.obj_eq n).symm := by
+  rfl
 
 /-- The degree isomorphisms identify realization cofaces with insertion of the unit-like map. -/
 @[stacks 0G5N "coface formula through a cosimplicial realization"]
@@ -75,7 +77,8 @@ theorem objIso.δ {Y : C ⥤ C} {d : 𝟭 C ⟶ Y} {s : Y ⋙ Y ⟶ Y}
     {U : CosimplicialObject (C ⥤ C)} (hU : CosimplicialRealization d s U)
     {n : ℕ} (i : Fin (n + 2)) :
     (objIso hU n).hom ≫ IteratedEndofunctor.coface d n i =
-      U.δ i ≫ (objIso hU (n + 1)).hom := sorry
+      U.δ i ≫ (objIso hU (n + 1)).hom := by
+  exact hU.δ_eq i
 
 /-- The degree isomorphisms identify realization codegeneracies with multiplication. -/
 @[stacks 0G5N "codegeneracy formula through a cosimplicial realization"]
@@ -83,7 +86,8 @@ theorem objIso.σ {Y : C ⥤ C} {d : 𝟭 C ⟶ Y} {s : Y ⋙ Y ⟶ Y}
     {U : CosimplicialObject (C ⥤ C)} (hU : CosimplicialRealization d s U)
     {n : ℕ} (i : Fin (n + 1)) :
     (objIso hU (n + 1)).hom ≫ IteratedEndofunctor.codegeneracy s n i =
-      U.σ i ≫ (objIso hU n).hom := sorry
+      U.σ i ≫ (objIso hU n).hom := by
+  exact hU.σ_eq i
 
 /-- Split a realization degree into the two consecutive positive-iterate blocks selected by
 `i`. -/
@@ -101,7 +105,15 @@ def splitIso {Y : C ⥤ C} {d : 𝟭 C ⟶ Y} {s : Y ⋙ Y ⟶ Y}
 theorem zero_coface {Y : C ⥤ C} {d : 𝟭 C ⟶ Y} {s : Y ⋙ Y ⟶ Y}
     {U : CosimplicialObject (C ⥤ C)} (hU : CosimplicialRealization d s U) :
     d ≫ (hU.objIso 0).inv ≫ U.δ 0 =
-      d ≫ (hU.objIso 0).inv ≫ U.δ 1 := sorry
+      d ≫ (hU.objIso 0).inv ≫ U.δ 1 := by
+  apply (cancel_mono (hU.objIso 1).hom).mp
+  simp only [Category.assoc, ← objIso.δ]
+  erw [(hU.objIso 0).inv_hom_id_assoc, (hU.objIso 0).inv_hom_id_assoc]
+  ext X
+  change d.app X ≫ (𝟙 _ ≫ Y.map (d.app X)) =
+    d.app X ≫ (𝟙 _ ≫ d.app (Y.obj X))
+  simpa only [Functor.id_obj, Functor.id_map, Category.id_comp] using
+    (d.naturality (d.app X)).symm
 
 /-- The degree-zero coaugmentation map has equal composites along all maps out of the zero
 simplex. -/
@@ -110,7 +122,22 @@ theorem coaugmentation_map_eq {Y : C ⥤ C} {d : 𝟭 C ⟶ Y} {s : Y ⋙ Y ⟶ 
     {U : CosimplicialObject (C ⥤ C)} (hU : CosimplicialRealization d s U)
     (Δ : SimplexCategory) (g₁ g₂ : ⦋0⦌ ⟶ Δ) :
     (d ≫ (hU.objIso 0).inv) ≫ U.map g₁ =
-      (d ≫ (hU.objIso 0).inv) ≫ U.map g₂ := sorry
+      (d ≫ (hU.objIso 0).inv) ≫ U.map g₂ := by
+  have hvertex (g : ⦋0⦌ ⟶ Δ) :
+      (d ≫ (hU.objIso 0).inv) ≫ U.map (SimplexCategory.const _ Δ 0) =
+        (d ≫ (hU.objIso 0).inv) ≫ U.map g := by
+    let edge := SimplexCategory.mkOfLe 0 (g.toOrderHom 0) (Fin.zero_le _)
+    have h₀ : SimplexCategory.δ (0 : Fin 2) ≫ edge = g := by
+      rw [SimplexCategory.δ_zero_eq_const, SimplexCategory.const_comp]
+      exact (SimplexCategory.eq_const_of_zero g).symm
+    have h₁ : SimplexCategory.δ (1 : Fin 2) ≫ edge =
+        SimplexCategory.const _ Δ 0 := by
+      rw [SimplexCategory.δ_one_eq_const, SimplexCategory.const_comp]
+      rfl
+    have h := congrArg (fun f => f ≫ U.map edge) (zero_coface hU)
+    simpa only [CosimplicialObject.δ, Category.assoc, ← U.map_comp, h₀, h₁]
+      using h.symm
+  exact (hvertex g₁).symm.trans (hvertex g₂)
 
 /-- The coaugmentation of a cosimplicial realization induced by its unit-like map. -/
 @[stacks 0G5N "iterated-endofunctor coaugmentation"]
@@ -123,7 +150,8 @@ def coaugmentation {Y : C ⥤ C} {d : 𝟭 C ⟶ Y} {s : Y ⋙ Y ⟶ Y}
 @[simp, stacks 0G5N "cosimplicial realization coaugmentation degree-zero component"]
 theorem coaugmentation.app_zero {Y : C ⥤ C} {d : 𝟭 C ⟶ Y} {s : Y ⋙ Y ⟶ Y}
     {U : CosimplicialObject (C ⥤ C)} (hU : CosimplicialRealization d s U) :
-    (coaugmentation hU).app ⦋0⦌ = d ≫ (hU.objIso 0).inv := sorry
+    (coaugmentation hU).app ⦋0⦌ = d ≫ (hU.objIso 0).inv := by
+  exact CosimplicialObject.augment_hom_zero U _ _ (coaugmentation_map_eq hU)
 
 /-- A realization bundled with its unit-induced coaugmentation. -/
 @[stacks 0G5N "augmented cosimplicial endofunctor realization"]
@@ -138,19 +166,22 @@ def augmented {Y : C ⥤ C} {d : 𝟭 C ⟶ Y} {s : Y ⋙ Y ⟶ Y}
 @[simp, stacks 0G5N "point of an augmented cosimplicial realization"]
 theorem augmented.left {Y : C ⥤ C} {d : 𝟭 C ⟶ Y} {s : Y ⋙ Y ⟶ Y}
     {U : CosimplicialObject (C ⥤ C)} (hU : CosimplicialRealization d s U) :
-    hU.augmented.left = 𝟭 C := sorry
+    hU.augmented.left = 𝟭 C := by
+  rfl
 
 /-- The cosimplicial component of a bundled realization is the realized object. -/
 @[simp, stacks 0G5N "cosimplicial component of an augmented realization"]
 theorem augmented.right {Y : C ⥤ C} {d : 𝟭 C ⟶ Y} {s : Y ⋙ Y ⟶ Y}
     {U : CosimplicialObject (C ⥤ C)} (hU : CosimplicialRealization d s U) :
-    hU.augmented.right = U := sorry
+    hU.augmented.right = U := by
+  rfl
 
 /-- The structure map of a bundled realization is its unit-induced coaugmentation. -/
 @[simp, stacks 0G5N "map of an augmented cosimplicial realization"]
 theorem augmented.hom {Y : C ⥤ C} {d : 𝟭 C ⟶ Y} {s : Y ⋙ Y ⟶ Y}
     {U : CosimplicialObject (C ⥤ C)} (hU : CosimplicialRealization d s U) :
-    hU.augmented.hom = coaugmentation hU := sorry
+    hU.augmented.hom = coaugmentation hU := by
+  rfl
 
 end CosimplicialRealization
 

@@ -44,7 +44,7 @@ structure Object
   /-- The Chow ring of each represented scheme. -/
   CH : V → CommRingCat.{max (u + 1) v}
   /-- The cohomological and Tate bigrading. -/
-  Hgrade : ∀ X, ℤ × ℤ → Submodule F (H X)
+  Hgrade : ∀ X, ℤ → Submodule F (H X)
   /-- The codimension grading on Chow groups. -/
   CHgrade : ∀ X, ℤ → Submodule ℤ (CH X)
   /-- The total cohomology algebra is the direct sum of its bigraded pieces. -/
@@ -72,7 +72,7 @@ def of
     (fst : ∀ X Y, product X Y ⟶ X) (snd : ∀ X Y, product X Y ⟶ Y)
     (point : V) (H : V → AlgCat.{max (u + 1) v} F)
     (CH : V → CommRingCat.{max (u + 1) v})
-    (Hgrade : ∀ X, ℤ × ℤ → Submodule F (H X))
+    (Hgrade : ∀ X, ℤ → Submodule F (H X))
     (CHgrade : ∀ X, ℤ → Submodule ℤ (CH X))
     (hHgrade : ∀ X, GradedAlgebra (Hgrade X))
     (hCHgrade : ∀ X, GradedAlgebra (CHgrade X))
@@ -108,7 +108,7 @@ theorem of_theory
     (fst : ∀ X Y, product X Y ⟶ X) (snd : ∀ X Y, product X Y ⟶ Y)
     (point : V) (H : V → AlgCat.{max (u + 1) v} F)
     (CH : V → CommRingCat.{max (u + 1) v})
-    (Hgrade : ∀ X, ℤ × ℤ → Submodule F (H X))
+    (Hgrade : ∀ X, ℤ → Submodule F (H X))
     (CHgrade : ∀ X, ℤ → Submodule ℤ (CH X))
     (hHgrade : ∀ X, GradedAlgebra (Hgrade X))
     (hCHgrade : ∀ X, GradedAlgebra (CHgrade X))

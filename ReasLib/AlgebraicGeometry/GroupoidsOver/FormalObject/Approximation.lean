@@ -22,7 +22,7 @@ open CategoryTheory AlgebraicGeometry Functor IsLocalRing
 
 noncomputable section
 
-universe u
+universe u v
 
 namespace AlgebraicGeometry.GroupoidsOver
 
@@ -30,7 +30,7 @@ variable {S : Scheme.{u}} [IsLocallyNoetherian S]
 
 namespace FormalObject
 
-variable {X : GroupoidsOver S}
+variable {X : FiberedCategoryOver.Groupoids.{u + 1, u, u + 1, v} (Over S)}
 
 /-- Restriction of an object along `Spec(R ⧸ m^{n+1}) ⟶ Spec(R)`. -/
 def restrictionObj (x : CompleteLocalObject X) (n : ℕ) : X.total :=
@@ -147,19 +147,21 @@ end FormalObject
 
 /-- The functor taking complete local objects and local morphisms to their
 positive maximal-adic restriction systems. -/
-def approximation (X : GroupoidsOver S) : CompleteLocalObject X ⥤ FormalObject X where
+def approximation (X : FiberedCategoryOver.Groupoids.{u + 1, u, u + 1, v} (Over S)) :
+    CompleteLocalObject X ⥤ FormalObject X where
   obj := FormalObject.restriction
   map := FormalObject.approximationMap
   map_id := FormalObject.approximation_map_id
   map_comp := FormalObject.approximation_map_comp
 
 /-- The object map of approximation is the chosen maximal-adic restriction system. -/
-theorem approximation_obj {X : GroupoidsOver S} (x : CompleteLocalObject X) :
+theorem approximation_obj {X : FiberedCategoryOver.Groupoids.{u + 1, u, u + 1, v} (Over S)}
+    (x : CompleteLocalObject X) :
     (approximation X).obj x = FormalObject.restriction x := rfl
 
 namespace FormalObject
 
-variable {X : GroupoidsOver S}
+variable {X : FiberedCategoryOver.Groupoids.{u + 1, u, u + 1, v} (Over S)}
 
 /-- Stages of approximation are chosen cartesian restrictions to quotient spectra. -/
 theorem approximation_family (x : CompleteLocalObject X) (n : ℕ) :

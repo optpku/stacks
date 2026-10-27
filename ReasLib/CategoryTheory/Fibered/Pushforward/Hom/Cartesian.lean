@@ -45,7 +45,12 @@ theorem precomposePreservesStronglyCartesian
     {hX : ProjectionChoice u X}
     {Y : FiberedCategoryOver.{uD, vD, uY, vY} D}
     (G : CartesianBasedFunctor (FiberedCategoryOver.pushforward u X hX).p Y.p) :
-    (Precompose.obj (hX := hX) u G.toBasedFunctor).PreservesStronglyCartesian := sorry
+    (Precompose.obj (hX := hX) u G.toBasedFunctor).PreservesStronglyCartesian := by
+  intro a b f hf
+  apply CategoricalPullback.Left.isStronglyCartesian_of_snd u Y.p
+  exact G.preservesStronglyCartesian ((Functor.Pushforward.Unit.functor u X.p).map f)
+    (Functor.Pushforward.Unit.Explicit.functor.map.isStronglyCartesian
+      u X.p hX.inverts f hf)
 
 /-- The cartesian based functor obtained by precomposing with the pushforward unit. -/
 @[stacks 04WI "cartesian Hom precomposition object"]
@@ -67,7 +72,7 @@ theorem obj.toBasedFunctor
     {Y : FiberedCategoryOver.{uD, vD, uY, vY} D}
     (G : CartesianBasedFunctor (FiberedCategoryOver.pushforward u X hX).p Y.p) :
     (obj (hX := hX) u G).toBasedFunctor =
-      Precompose.obj (hX := hX) u G.toBasedFunctor := sorry
+      Precompose.obj (hX := hX) u G.toBasedFunctor := rfl
 
 /-- Forgetting to total categories from the precomposition object recovers the categorical-
 pullback comparison functor. -/
@@ -78,7 +83,7 @@ theorem obj.toFunctor
     {Y : FiberedCategoryOver.{uD, vD, uY, vY} D}
     (G : CartesianBasedFunctor (FiberedCategoryOver.pushforward u X hX).p Y.p) :
     (obj (hX := hX) u G).toFunctor =
-      Precompose.functor (hX := hX) u G.toBasedFunctor := sorry
+      Precompose.functor (hX := hX) u G.toBasedFunctor := rfl
 
 /-- The vertical transformation obtained by precomposing a morphism of cartesian based functors
 with the pushforward unit. -/
@@ -101,7 +106,7 @@ theorem map.toBasedNatTrans
     {G H : CartesianBasedFunctor (FiberedCategoryOver.pushforward u X hX).p Y.p}
     (τ : G ⟶ H) :
     CartesianBasedFunctor.toBasedNatTrans (map (hX := hX) u τ) =
-      Precompose.map (hX := hX) u τ.hom := sorry
+      Precompose.map (hX := hX) u τ.hom := rfl
 
 /-- The component of a cartesian precomposition map is the component of the underlying based
 comparison transformation. -/
@@ -113,7 +118,7 @@ theorem map.app
     {G H : CartesianBasedFunctor (FiberedCategoryOver.pushforward u X hX).p Y.p}
     (τ : G ⟶ H) (x : X.total) :
     (CartesianBasedFunctor.toBasedNatTrans (map (hX := hX) u τ)).toNatTrans.app x =
-      Precompose.mapApp (hX := hX) u τ.hom x := sorry
+      Precompose.mapApp (hX := hX) u τ.hom x := rfl
 
 /-- Precomposition on cartesian based functors preserves identity transformations. -/
 @[simp, stacks 04WI "cartesian Hom precomposition identity"]
@@ -122,7 +127,14 @@ theorem map.id
     {hX : ProjectionChoice u X}
     {Y : FiberedCategoryOver.{uD, vD, uY, vY} D}
     (G : CartesianBasedFunctor (FiberedCategoryOver.pushforward u X hX).p Y.p) :
-    map (hX := hX) u (𝟙 G) = 𝟙 (obj (hX := hX) u G) := sorry
+    map (hX := hX) u (𝟙 G) = 𝟙 (obj (hX := hX) u G) := by
+  apply ObjectProperty.hom_ext
+  apply BasedNatTrans.ext
+  apply NatTrans.ext
+  funext x
+  apply CategoricalPullback.hom_ext
+  · rfl
+  · rfl
 
 /-- Precomposition on cartesian based functors preserves vertical composition. -/
 @[simp, stacks 04WI "cartesian Hom precomposition composition"]
@@ -133,7 +145,14 @@ theorem map.comp
     {G H K : CartesianBasedFunctor (FiberedCategoryOver.pushforward u X hX).p Y.p}
     (τ : G ⟶ H) (σ : H ⟶ K) :
     map (hX := hX) u (τ ≫ σ) =
-      map (hX := hX) u τ ≫ map (hX := hX) u σ := sorry
+      map (hX := hX) u τ ≫ map (hX := hX) u σ := by
+  apply ObjectProperty.hom_ext
+  apply BasedNatTrans.ext
+  apply NatTrans.ext
+  funext x
+  apply CategoricalPullback.hom_ext
+  · exact (Category.id_comp _).symm
+  · rfl
 
 /-- Lemma 8.12.8 (tag 04WI): the universe-polymorphic Hom functor induced by precomposition
 with the pushforward unit, restricted to cartesian based functors. -/
@@ -159,7 +178,7 @@ theorem obj
     {Y : FiberedCategoryOver.{uD, vD, uY, vY} D}
     (G : CartesianBasedFunctor (FiberedCategoryOver.pushforward u X hX).p Y.p) :
     (CartesianHom.functor u hX Y).obj G =
-      CartesianHom.obj (hX := hX) u G := sorry
+      CartesianHom.obj (hX := hX) u G := rfl
 
 /-- The morphism action of the cartesian Hom functor is `CartesianHom.map`. -/
 @[simp, stacks 04WI "cartesian Hom functor map computation"]
@@ -170,7 +189,7 @@ theorem map
     {G H : CartesianBasedFunctor (FiberedCategoryOver.pushforward u X hX).p Y.p}
     (τ : G ⟶ H) :
     (CartesianHom.functor u hX Y).map τ =
-      CartesianHom.map (hX := hX) u τ := sorry
+      CartesianHom.map (hX := hX) u τ := rfl
 
 /-- Lemma 8.12.8 (tag 04WI): the universe-polymorphic pushforward-pullback Hom functor on
 cartesian based functors is an equivalence. This is the neutral owner of the equivalence; no

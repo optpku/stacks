@@ -22,6 +22,9 @@ module-valued global-sections functor.  Derived global sections are kept in the 
 
 @[expose] public section
 
+-- Exposed concrete functors use private Prop-valued law certificates.
+set_option backward.privateInPublic true
+
 open CategoryTheory
 open CategoryTheory.Limits
 open Opposite
@@ -55,17 +58,39 @@ abbrev moduleGlobalSectionsPresheaf (X : RingedSite.{u, v, w}) [UnivLE.{u, w}] :
   SheafOfModules.forget X.structureSheaf ⋙
     PresheafOfModules.restrictScalars (globalSectionsRingHom X)
 
+/-- Identity restriction acts as the identity on sections over the global-sections ring. -/
+private theorem moduleGlobalSectionsDiagram_map_id
+    (X : RingedSite.{u, v, w}) [UnivLE.{u, w}]
+    (ℱ : ModuleCat.{z} X) (U : X.carrierᵒᵖ) :
+    ((moduleGlobalSectionsPresheaf X).obj ℱ).map (𝟙 U) =
+      𝟙 (((moduleGlobalSectionsPresheaf X).obj ℱ).obj U) := sorry
+
+/-- Restriction of sections over the global-sections ring respects composition. -/
+private theorem moduleGlobalSectionsDiagram_map_comp
+    (X : RingedSite.{u, v, w}) [UnivLE.{u, w}]
+    (ℱ : ModuleCat.{z} X) {U V W : X.carrierᵒᵖ} (f : U ⟶ V) (g : V ⟶ W) :
+    ((moduleGlobalSectionsPresheaf X).obj ℱ).map (f ≫ g) =
+      ((moduleGlobalSectionsPresheaf X).obj ℱ).map f ≫
+        ((moduleGlobalSectionsPresheaf X).obj ℱ).map g := sorry
+
 /-- The diagram of local sections of a module sheaf, regarded as modules over the global-sections
 ring. -/
 abbrev moduleGlobalSectionsDiagram (X : RingedSite.{u, v, w}) [UnivLE.{u, w}]
     (ℱ : ModuleCat.{z} X) :
-    X.carrierᵒᵖ ⥤ _root_.ModuleCat.{z} (globalSectionsRing X) := by
-  refine
-    { obj := fun U ↦ ((moduleGlobalSectionsPresheaf X).obj ℱ).obj U
-      map := fun f ↦ ((moduleGlobalSectionsPresheaf X).obj ℱ).map f
-      map_id := ?_
-      map_comp := ?_ }
-  all_goals sorry
+    X.carrierᵒᵖ ⥤ _root_.ModuleCat.{z} (globalSectionsRing X) where
+  obj := fun U ↦ ((moduleGlobalSectionsPresheaf X).obj ℱ).obj U
+  map := fun f ↦ ((moduleGlobalSectionsPresheaf X).obj ℱ).map f
+  map_id := moduleGlobalSectionsDiagram_map_id X ℱ
+  map_comp := moduleGlobalSectionsDiagram_map_comp X ℱ
+
+/-- Morphisms of module sheaves commute with restriction over the global-sections ring. -/
+private theorem moduleGlobalSectionsDiagramMap_naturality
+    (X : RingedSite.{u, v, w}) [UnivLE.{u, w}]
+    {ℱ 𝒢 : ModuleCat.{z} X} (f : ℱ ⟶ 𝒢) {U V : X.carrierᵒᵖ} (g : U ⟶ V) :
+    (moduleGlobalSectionsDiagram X ℱ).map g ≫
+        ((moduleGlobalSectionsPresheaf X).map f).app V =
+      ((moduleGlobalSectionsPresheaf X).map f).app U ≫
+        (moduleGlobalSectionsDiagram X 𝒢).map g := sorry
 
 /-- A morphism of module sheaves induces the objectwise morphism between their diagrams of
 sections over the global-sections ring. -/
@@ -74,19 +99,29 @@ noncomputable def moduleGlobalSectionsDiagramMap
     {ℱ 𝒢 : ModuleCat.{z} X} (f : ℱ ⟶ 𝒢) :
     moduleGlobalSectionsDiagram X ℱ ⟶ moduleGlobalSectionsDiagram X 𝒢 where
   app U := ((moduleGlobalSectionsPresheaf X).map f).app U
-  naturality := sorry
+  naturality {_ _} g := moduleGlobalSectionsDiagramMap_naturality X f g
+
+/-- The identity module-sheaf morphism induces the identity section-diagram morphism. -/
+private theorem moduleGlobalSectionsDiagramFunctor_map_id
+    (X : RingedSite.{u, v, w}) [UnivLE.{u, w}] (ℱ : ModuleCat.{z} X) :
+    moduleGlobalSectionsDiagramMap X (𝟙 ℱ) = 𝟙 (moduleGlobalSectionsDiagram X ℱ) := sorry
+
+/-- The section-diagram morphism of a composite is the composite of section-diagram morphisms. -/
+private theorem moduleGlobalSectionsDiagramFunctor_map_comp
+    (X : RingedSite.{u, v, w}) [UnivLE.{u, w}]
+    {ℱ 𝒢 ℋ : ModuleCat.{z} X} (f : ℱ ⟶ 𝒢) (g : 𝒢 ⟶ ℋ) :
+    moduleGlobalSectionsDiagramMap X (f ≫ g) =
+      moduleGlobalSectionsDiagramMap X f ≫ moduleGlobalSectionsDiagramMap X g := sorry
 
 /-- Module sheaves map functorially to their diagrams of local sections over the global-sections
 ring. -/
 noncomputable def moduleGlobalSectionsDiagramFunctor
     (X : RingedSite.{u, v, w}) [UnivLE.{u, w}] :
-    ModuleCat.{z} X ⥤ X.carrierᵒᵖ ⥤ _root_.ModuleCat.{z} (globalSectionsRing X) := by
-  refine
-    { obj := moduleGlobalSectionsDiagram X
-      map := moduleGlobalSectionsDiagramMap X
-      map_id := ?_
-      map_comp := ?_ }
-  all_goals sorry
+    ModuleCat.{z} X ⥤ X.carrierᵒᵖ ⥤ _root_.ModuleCat.{z} (globalSectionsRing X) where
+  obj := moduleGlobalSectionsDiagram X
+  map := moduleGlobalSectionsDiagramMap X
+  map_id := moduleGlobalSectionsDiagramFunctor_map_id X
+  map_comp := moduleGlobalSectionsDiagramFunctor_map_comp X
 
 /-- The category of modules over the global-sections ring has limits indexed by the site whenever
 the module universe contains the site-object universe. -/

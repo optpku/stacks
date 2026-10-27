@@ -64,4 +64,19 @@ abbrev inclusion {S : Scheme.{u}} (X : GroupoidsOver S)
 
 end Coh
 
+variable {S : Scheme.{u}} {X : GroupoidsOver S}
+variable [AlgebraicStack X] [IsLocallyNoetherian X]
+
+/-- The inclusion of coherent `𝒪_X`-modules into quasi-coherent `𝒪_X`-modules. -/
+def Coh.toQCoh : AlgebraicStack.Coh X ⥤ GroupoidsOver.QCoh X :=
+  (GroupoidsOver.quasiCoherentModuleProperty X).lift
+    (AlgebraicStack.Coh.inclusion X) (fun F ↦ by
+      rcases F.property.toIsFinitePresentation with ⟨⟨q, _⟩⟩
+      exact q.isQuasicoherent)
+
+/-- The underlying sheaf of `toQCoh` is the inclusion of `Coh(𝒪_X)`. -/
+theorem Coh.toQCoh_obj (F : AlgebraicStack.Coh X) :
+    ((Coh.toQCoh).obj F).obj = F.obj :=
+  rfl
+
 end AlgebraicGeometry.AlgebraicStack

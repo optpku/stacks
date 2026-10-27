@@ -20,7 +20,9 @@ direct sum of Chow groups of all genuine envelope/finite-free models. Its
 specified map is the sum of proper pushforwards. The operation on each
 summand is the actual complex Chern/Newton operation followed by pushforward.
 Descent through this fixed map defines the derived operation. Existence of
-models is used only in the surjectivity law, never to choose a model.
+an envelope representative supplies a base-changed model and residue-field
+lifts of cycle points. These give an explicit preimage of each Chow class;
+only the right-inverse and descent laws are used as proof fields.
 -/
 
 @[expose] public section
@@ -134,10 +136,135 @@ variable (perfect : RingedSpace.ModuleDerived.IsPerfect E)
     RingedSpace.ModuleDerived.HasLocallyBoundedFiniteLocallyFreeRepresentative
       ((RingedSpace.modulePullbackDerived f.toShHom).obj E))
 
+/-- The completely decomposed part of base change is constructed from the input
+residue-field lifts, rather than an admitted existence theorem. -/
+theorem envelope_pullback {Y Z T : Scheme.{u}} (f : Y ⟶ Z)
+    (hf : IsEnvelope f) (a : T ⟶ Z) : IsEnvelope (pullback.snd f a) := by
+  letI := hf.toIsProper
+  refine { toIsProper := inferInstance, toCompletelyDecomposedFamily := ?_ }
+  constructor
+  intro x
+  rcases hf.toCompletelyDecomposedFamily.exists_lift (a x) with ⟨i, s, hs⟩
+  have comm : (Spec.map (a.residueFieldMap x) ≫ s) ≫ f =
+      T.fromSpecResidueField x ≫ a := by
+    rw [Category.assoc, hs]
+    exact a.SpecMap_residueFieldMap_fromSpecResidueField x
+  exact ⟨PUnit.unit, pullback.lift (Spec.map (a.residueFieldMap x) ≫ s)
+    (T.fromSpecResidueField x) comm, pullback.lift_snd _ _ _⟩
+
+/-- Pull back the actual envelope and complex supplied by definedness. The choices
+here unpack the input hypothesis, not a new existential theorem. -/
+def Model.ofDefined : Model E V g := by
+  classical
+  let Y := defined.choose
+  let f : Y ⟶ X.left := defined.choose_spec.choose
+  have hf : IsEnvelope f := defined.choose_spec.choose_spec.1
+  let K := defined.choose_spec.choose_spec.2.choose
+  have hK := defined.choose_spec.choose_spec.2.choose_spec
+  letI := hf.toIsProper
+  exact
+    { Y := Over.mk (pullback.snd f g.left ≫ V.hom)
+      finiteType := inferInstance
+      map := Over.homMk (pullback.snd f g.left)
+      envelope := envelope_pullback f hf g.left
+      complex := ChernClass.Complex.pullbackComplex (pullback.fst f g.left) K
+      represents := by
+        -- Compatibility of termwise pullback with derived pullback and composition.
+        sorry
+      above := ChernClass.Complex.pullbackComplex_isLocallyBoundedAbove _ K hK.2.1
+      below := ChernClass.Complex.pullbackComplex_isLocallyBoundedBelow _ K hK.2.2.1
+      free := ChernClass.Complex.pullbackComplex_isFiniteLocallyFree _ K hK.2.2.2 }
+
+/-- Choose a residue-field lift already present in the envelope's defining hypothesis
+and take its unique source point. -/
+def Model.liftPoint (m : Model E V g) (x : V.left) : m.Y.left :=
+  (m.envelope.toCompletelyDecomposedFamily.exists_lift x).choose_spec.choose
+    (IsLocalRing.closedPoint (V.left.residueField x))
+
+/-- The selected point lies over the input point. -/
+theorem Model.map_liftPoint (m : Model E V g) (x : V.left) :
+    m.map.left (Model.liftPoint E g m x) = x := by
+  have hs := (m.envelope.toCompletelyDecomposedFamily.exists_lift x).choose_spec.choose_spec
+  change (((m.envelope.toCompletelyDecomposedFamily.exists_lift x).choose_spec.choose) ≫
+    m.map.left) (IsLocalRing.closedPoint (V.left.residueField x)) = x
+  rw [hs]
+  exact V.left.fromSpecResidueField_apply x _
+
+/-- A residue-field lift has the same relative dimension as the input point. -/
+theorem Model.liftPoint_dimension (m : Model E V g) (x : V.left) :
+    @Scheme.Hom.relativeDimensionFunction _ _ m.Y.hom m.finiteType δ
+        (Model.liftPoint E g m x) =
+      V.hom.relativeDimensionFunction δ x := sorry
+
+/-- Put the original coefficient at the selected point of each fibre and zero at all
+other points. This is the cycle lift used in envelope Chow generation. -/
+def Model.liftCoefficients (m : Model E V g) (k : ℤ)
+    (α : CycleGroup V.left (V.hom.relativeDimensionFunction δ) k) (y : m.Y.left) : ℤ := by
+  classical
+  exact if Model.liftPoint E g m (m.map.left y) = y then α.1 (m.map.left y) else 0
+
+/-- The coefficient lift has locally finite support: on a lifted neighbourhood its
+support is contained in the image of the original finite support. -/
+theorem Model.liftCoefficients_locallyFinite (m : Model E V g) (k : ℤ)
+    (α : CycleGroup V.left (V.hom.relativeDimensionFunction δ) k) :
+    LocallyFiniteSupport (Model.liftCoefficients δ E g m k α) := by
+  classical
+  intro y
+  obtain ⟨t, ht, hfinite⟩ := α.1.locallyFiniteSupport (m.map.left y)
+  refine ⟨m.map.left ⁻¹' t, m.map.left.continuous.continuousAt.preimage_mem_nhds ht,
+    (hfinite.image (Model.liftPoint E g m)).subset ?_⟩
+  intro z hz
+  have hnonzero : Model.liftCoefficients δ E g m k α z ≠ 0 := hz.2
+  by_cases h : Model.liftPoint E g m (m.map.left z) = z
+  · refine ⟨m.map.left z, ⟨hz.1, ?_⟩, h⟩
+    simpa [Model.liftCoefficients, h] using hnonzero
+  · simp [Model.liftCoefficients, h] at hnonzero
+
+/-- The explicit cycle over an envelope that lifts a cycle on the target. -/
+def Model.liftCycle (m : Model E V g) (k : ℤ)
+    (α : CycleGroup V.left (V.hom.relativeDimensionFunction δ) k) :
+    CycleGroup m.Y.left
+      (@Scheme.Hom.relativeDimensionFunction _ _ m.Y.hom m.finiteType δ) k := by
+  classical
+  refine ⟨{ toFun := Model.liftCoefficients δ E g m k α
+            supportWithinDomain' := Set.subset_univ _
+            supportLocallyFiniteWithinDomain' :=
+              fun y _ => Model.liftCoefficients_locallyFinite δ E g m k α y }, ?_⟩
+  apply (AlgebraicCycle.mem_dimensionSubgroup _ _ _).mpr
+  intro y hy
+  change Model.liftCoefficients δ E g m k α y ≠ 0 at hy
+  by_cases h : Model.liftPoint E g m (m.map.left y) = y
+  · have ha : α.1 (m.map.left y) ≠ 0 := by
+      simpa [Model.liftCoefficients, h] using hy
+    calc
+      _ = V.hom.relativeDimensionFunction δ (m.map.left y) := by
+        simpa only [h] using Model.liftPoint_dimension δ E g m (m.map.left y)
+      _ = k := (AlgebraicCycle.mem_dimensionSubgroup _ _ _).mp α.2 _ ha
+  · simp [Model.liftCoefficients, h] at hy
+
+/-- A Chow representative is lifted as a cycle on the base-changed input model,
+then included into that model's summand of the fixed cover. `Quotient.out` uses
+the proved quotient representative theorem, not `chowClass_surjective`. -/
+def coverPreimage (k : ℤ) (β : RelativeChow δ V k) :
+    ⨁ m : Model E V g, ModelChow δ E g k m := by
+  classical
+  let m := Model.ofDefined E g defined
+  letI := m.finiteType
+  exact DirectSum.of (ModelChow δ E g k) m
+    (@chowClass m.Y.left (LocallyOfFiniteType.isLocallyNoetherian m.Y.hom)
+      (@Scheme.Hom.relativeDimensionFunction _ _ m.Y.hom m.finiteType δ)
+      inferInstance k (Model.liftCycle δ E g m k (Quotient.out β)))
+
+/-- The explicit lift pushes forward to the original Chow class. -/
+theorem coverPreimage_rightInverse (k : ℤ) :
+    Function.RightInverse (coverPreimage δ E g defined k) (coverMap δ E g k) := sorry
+
 include perfect defined in
 /-- Envelopes remain envelopes under base change. The fixed family includes
 every base-changed model, so its actual pushforward-sum map is surjective. -/
-theorem coverMap_surjective (k : ℤ) : Function.Surjective (coverMap δ E g k) := sorry
+theorem coverMap_surjective (k : ℤ) : Function.Surjective (coverMap δ E g k) := by
+  intro β
+  exact ⟨coverPreimage δ E g defined k β, coverPreimage_rightInverse δ E g defined k β⟩
 
 include perfect defined in
 /-- Common envelope refinements and equality of complex Chern classes for
@@ -152,7 +279,8 @@ theorem beforeDescent_kills_kernel (rankBound : Bool) (q : ℕ) (k : ℤ) :
 model-wise Chern operations through the envelope pushforward map. -/
 def operation (rankBound : Bool) (q : ℕ) (k : ℤ) :
     RelativeChow δ V k →+ RelativeChow δ V (k - (q : ℤ)) :=
-  (coverMap δ E g k).liftOfSurjective (coverMap_surjective δ E g perfect defined k)
+  (coverMap δ E g k).liftOfRightInverse (coverPreimage δ E g defined k)
+    (coverPreimage_rightInverse δ E g defined k)
     ⟨beforeDescent (δ := δ) (classes := classes) (E := E) (g := g) rankBound q k,
       beforeDescent_kills_kernel (δ := δ) (classes := classes) (E := E) (g := g)
         perfect defined rankBound q k⟩

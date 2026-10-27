@@ -62,22 +62,25 @@ section Bounded
 variable [HasDerivedCategory.{w} B]
 
 /-- A bounded-above quasi-isomorphism between termwise-P homotopy objects is inverted after
-applying F and passing to the bounded-above derived category. -/
+applying F and passing to the bounded-above derived category when `P` is closed under finite
+coproducts, so that the cone is again termwise-P. -/
 @[stacks 0794 "denominator inversion on a bounded-above acyclic class"]
 theorem map_isIso_of_quasiIso
-    [F.IsBoundedAboveAcyclicClass P]
+    [F.IsBoundedAboveAcyclicClass P] [P.IsClosedUnderFiniteCoproducts]
     {K L : HomotopyCategory.Minus A} (s : K ⟶ L)
     (hK : HomotopyCategory.Minus.termsIn A P K)
     (hL : HomotopyCategory.Minus.termsIn A P L)
     (hs : HomotopyCategory.Minus.quasiIso A s) :
     IsIso (F.toBoundedAboveDerived.map s) := sorry
 
-/-- Stacks 0794: a bounded-above homotopy object whose terms belong to a
-bounded-above acyclic class computes the bounded-above left derived functor.
--/
+/-- Stacks 0794: a bounded-above homotopy object whose terms belong to a bounded-above acyclic
+class computes the bounded-above left derived functor when the class contains zero, is closed
+under finite coproducts, and admits epi covers. -/
 @[stacks 0794]
 theorem computesAt
-    [F.IsBoundedAboveAcyclicClass P] (K : HomotopyCategory.Minus A)
+    [F.IsBoundedAboveAcyclicClass P] [P.ContainsZero]
+    [P.IsClosedUnderFiniteCoproducts] [P.HasEpiCover]
+    (K : HomotopyCategory.Minus A)
     [Functor.LeftDerived.DefinedAt F.toBoundedAboveDerived
       (HomotopyCategory.Minus.quasiIso A) K]
     (hK : HomotopyCategory.Minus.termsIn A P K) :
@@ -103,10 +106,12 @@ theorem computesAt_unbounded
 section Existence
 
 /-- Bounded-above termwise-P replacements make the left-derived functor source-defined
-everywhere. -/
+everywhere when the acyclic class contains zero, is closed under finite coproducts, and admits
+epi covers. -/
 @[stacks 0794 "bounded-above source-definedness"]
 theorem everywhereDefined (P : ObjectProperty A)
-    [F.IsBoundedAboveAcyclicClass P] [P.ContainsZero] [P.HasEpiCover] :
+    [F.IsBoundedAboveAcyclicClass P] [P.ContainsZero]
+    [P.IsClosedUnderFiniteCoproducts] [P.HasEpiCover] :
     Functor.LeftDerived.EverywhereDefined F.toBoundedAboveDerived
       (HomotopyCategory.Minus.quasiIso A) := sorry
 
@@ -115,7 +120,8 @@ replacements defines the pointwise bounded-above left derived functor
 everywhere. -/
 @[stacks 0794]
 theorem hasPointwise (P : ObjectProperty A)
-    [F.IsBoundedAboveAcyclicClass P] [P.ContainsZero] [P.HasEpiCover] :
+    [F.IsBoundedAboveAcyclicClass P] [P.ContainsZero]
+    [P.IsClosedUnderFiniteCoproducts] [P.HasEpiCover] :
     F.toBoundedAboveDerived.HasPointwiseLeftDerivedFunctor
       (HomotopyCategory.Minus.quasiIso A) := sorry
 
@@ -123,7 +129,8 @@ theorem hasPointwise (P : ObjectProperty A)
 replacements defines the total bounded-above left derived functor. -/
 @[stacks 0794]
 theorem hasFunctor (P : ObjectProperty A)
-    [F.IsBoundedAboveAcyclicClass P] [P.ContainsZero] [P.HasEpiCover] :
+    [F.IsBoundedAboveAcyclicClass P] [P.ContainsZero]
+    [P.IsClosedUnderFiniteCoproducts] [P.HasEpiCover] :
     F.toBoundedAboveDerived.HasLeftDerivedFunctor
       (HomotopyCategory.Minus.quasiIso A) := sorry
 

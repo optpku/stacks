@@ -48,7 +48,10 @@ noncomputable def carrierFrom (Z : X.carrier)
 theorem carrierFrom_unique (Z : X.carrier)
     (e : X.toScheme.obj Z ≅ Spec (CommRingCat.of (ULift.{u} ℤ)))
     (Y : X.carrier) (f : Y ⟶ Z) :
-    f = carrierFrom X Z e Y := sorry
+    f = carrierFrom X Z e Y := by
+  apply X.fullyFaithful.map_injective
+  apply (cancel_mono e.hom).1
+  exact specULiftZIsTerminal.hom_ext _ _
 
 /-- A represented `Spec (ULift ℤ)` is terminal in a chosen big-site
 carrier. -/
@@ -109,5 +112,15 @@ of the integers. -/
 noncomputable def WithSpecZ.toSpecZ (X : WithSpecZ.{u, v} P)
     (Y : X.toChosenBigSite.carrier) : Y ⟶ X.specZ :=
   carrierFrom X.toChosenBigSite X.specZ X.specZIso Y
+
+
+/-- Under the represented integer-spectrum isomorphism, `toSpecZ` is the
+canonical scheme morphism to the actual integer spectrum. -/
+@[simp]
+theorem WithSpecZ.toSpecZ_map (X : WithSpecZ.{u, v} P)
+    (Y : X.toChosenBigSite.carrier) :
+    X.toScheme.map (X.toSpecZ Y) ≫ X.specZIso.hom =
+      specULiftZIsTerminal.from (X.toScheme.obj Y) :=
+  specULiftZIsTerminal.hom_ext _ _
 
 end AlgebraicGeometry.ChosenBigSite

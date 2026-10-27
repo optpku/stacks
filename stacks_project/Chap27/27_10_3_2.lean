@@ -6,28 +6,26 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-import ReasLib.AlgebraicGeometry.ProjectiveSpectrum.Twist.GradedSections
+public import ReasLib.AlgebraicGeometry.ProjectiveSpectrum.Module.Associated.EventualSections
 import StacksCheckRecall
 
 @[expose] public section
 
+open AlgebraicGeometry
 open scoped AlgebraicGeometry DirectSum
 
-universe u v
+noncomputable section
 
-variable {A : Type u} {σ : Type v} [CommRing A] [SetLike σ A] [AddSubgroupClass σ A]
-variable (𝒜 : ℕ → σ) [GradedRing 𝒜]
-variable (Mpiece : ℤ → Type u) [∀ n : ℤ, AddCommGroup (Mpiece n)]
-variable (P : AlgebraicGeometry.Proj.AssociatedModule.Presentation 𝒜 Mpiece)
-variable [DirectSum.Gmodule (fun d : ℕ ↦ 𝒜 d) Mpiece]
-variable [DirectSum.Gmodule (fun d : ℕ ↦ 𝒜 d)
-  (fun n : ℤ ↦ Γ(P.associatedTwist n, ⊤))]
-variable (hP : P.IsGraded)
-variable {𝒜}
+universe u
 
-/- 27.10.3.2: The canonical graded-module map
-`M ⟶ ⨁ n : ℤ, Γ(X, ~(M(n)))`. -/
+variable {A M : Type u} [CommRing A] [AddCommGroup M] [Module A M]
+variable (𝒜 : ℕ → Submodule ℤ A) [GradedAlgebra 𝒜]
+variable (ℳ : ℤ → Submodule ℤ M) [SetLike.GradedSMul 𝒜 ℳ]
+
+variable (hcover : Proj.degreeOpen 𝒜 1 = ⊤)
+
+/- 27.10.3.2: the canonical graded map to the actual tensor twists under the degree-one cover. -/
 @[stacks 0AG4] #check
-  (AlgebraicGeometry.Proj.AssociatedModule.Presentation.gradedMap Mpiece P hP :
-    (⨁ n : ℤ, Mpiece n) →ₗ[(⨁ d : ℕ, 𝒜 d)]
-      (⨁ n : ℤ, Γ(P.associatedTwist n, ⊤)))
+  (Proj.AssociatedModule.ShiftedSections.tensorGradedMap 𝒜 ℳ hcover :
+    (⨁ n : ℤ, ℳ n) →ₗ[(⨁ d : ℕ, 𝒜 d)]
+      (⨁ n : ℤ, Proj.AssociatedModule.ShiftedSections.tensorDegree 𝒜 ℳ n))

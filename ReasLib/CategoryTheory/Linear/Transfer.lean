@@ -87,16 +87,16 @@ namespace Functor.FullyFaithful
 /-- The Hom equivalence of a fully faithful additive functor is additive for the existing
 preadditive structures. -/
 @[stacks 09MJ "additive Hom equivalence of a fully faithful additive functor"]
-noncomputable def homAddEquiv (hF : F.FullyFaithful) [F.Additive] {X Y : C} :
+noncomputable def homAddEquivOfAdditive (hF : F.FullyFaithful) [F.Additive] {X Y : C} :
     (X ⟶ Y) ≃+ (F.obj X ⟶ F.obj Y) where
   toEquiv := hF.homEquiv
-  map_add' := sorry
+  map_add' := fun _ _ ↦ F.map_add
 
 /-- The additive Hom equivalence acts by the functor map. -/
 @[simp]
-theorem homAddEquiv_apply (hF : F.FullyFaithful) [F.Additive]
+theorem homAddEquivOfAdditive_apply (hF : F.FullyFaithful) [F.Additive]
     {X Y : C} (f : X ⟶ Y) :
-    hF.homAddEquiv f = F.map f := sorry
+    hF.homAddEquivOfAdditive f = F.map f := rfl
 
 end Functor.FullyFaithful
 
@@ -113,7 +113,7 @@ noncomputable def ofFullyFaithful (hF : F.FullyFaithful) [F.Additive] :
       (@Preadditive.homGroup C _ _ X Y).toAddCommMonoid
       (@Preadditive.homGroup D _ _ (F.obj X) (F.obj Y)).toAddCommMonoid
       (@CategoryTheory.Linear.homModule R _ D _ _ linearD (F.obj X) (F.obj Y))
-      (hF.homAddEquiv (X := X) (Y := Y))
+      (hF.homAddEquivOfAdditive (X := X) (Y := Y))
   smul_comp := sorry
   comp_smul := sorry
 
@@ -131,7 +131,7 @@ theorem linear_ofFullyFaithful (hF : F.FullyFaithful) [F.Additive] :
 noncomputable def homLinearEquiv (hF : F.FullyFaithful)
     [linearC : CategoryTheory.Linear R C] [F.Additive] [F.Linear R] {X Y : C} :
     (X ⟶ Y) ≃ₗ[R] (F.obj X ⟶ F.obj Y) where
-  toAddEquiv := hF.homAddEquiv
+  toAddEquiv := hF.homAddEquivOfAdditive
   map_smul' := sorry
 
 /-- The linear Hom equivalence acts by the functor map. -/

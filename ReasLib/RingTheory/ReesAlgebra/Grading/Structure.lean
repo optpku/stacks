@@ -78,7 +78,7 @@ component. -/
 @[stacks 0BIP "Rees algebra map graded membership"]
 theorem map_mem_grade
     {S : Type*} [CommRing S] (f : R →+* S)
-    (I : Ideal R) (J : Ideal S) {hIJ : I ≤ Ideal.comap f J}
+    (I : Ideal R) (J : Ideal S) (hIJ : I ≤ Ideal.comap f J)
     {n : ℕ} {x : reesAlgebra I} (hx : x ∈ grade I n) :
     map f hIJ x ∈ grade J n := sorry
 
@@ -86,17 +86,17 @@ theorem map_mem_grade
 @[stacks 0BIP "functorial Rees grading map"]
 noncomputable def gradedMap
     {S : Type*} [CommRing S] (f : R →+* S)
-    (I : Ideal R) (J : Ideal S) {hIJ : I ≤ Ideal.comap f J} :
+    (I : Ideal R) (J : Ideal S) (hIJ : I ≤ Ideal.comap f J) :
     grade I →+*ᵍ grade J where
   toRingHom := map f hIJ
-  map_mem := map_mem_grade f I J
+  map_mem := map_mem_grade f I J hIJ
 
 /-- A graded Rees map sends a distinguished degree-one element to a compatible target element. -/
 @[stacks 0BIP "graded Rees map degree-one compatibility"]
 theorem gradedMap_degreeOne
     {S : Type*} [CommRing S] (f : R →+* S)
-    (I : Ideal R) (J : Ideal S) {hIJ : I ≤ Ideal.comap f J}
-    (a : I) (b : J) {hab : f a = b} :
+    (I : Ideal R) (J : Ideal S) (hIJ : I ≤ Ideal.comap f J)
+    (a : I) (b : J) (hab : f a = b) :
     gradedMap f I J (hIJ := hIJ) (degreeOne I a) =
       degreeOne J b := sorry
 
@@ -125,18 +125,8 @@ theorem zeroAlgebraMapToFun_add (x y : R) :
 
 /-- The canonical ring homomorphism from `R` to the degree-zero Rees piece. -/
 @[stacks 052Q "degree-zero Rees algebra map"]
-noncomputable def zeroAlgebraMap : R →+* grade I 0 where
-  toFun := zeroAlgebraMapToFun I
-  map_one' := zeroAlgebraMapToFun_one I
-  map_mul' := zeroAlgebraMapToFun_mul I
-  map_zero' := zeroAlgebraMapToFun_zero I
-  map_add' := zeroAlgebraMapToFun_add I
-
-/-- The degree-zero homogeneous Rees piece has its canonical `R`-algebra
-structure. -/
-@[stacks 052Q "degree-zero Rees algebra"]
-instance algebraZero : Algebra R (grade I 0) :=
-  RingHom.toAlgebra (zeroAlgebraMap I)
+noncomputable def zeroAlgebraMap : R →+* grade I 0 :=
+  algebraMap R (grade I 0)
 
 end
 

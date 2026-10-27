@@ -6,18 +6,14 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import Mathlib.Algebra.Category.Grp.Basic
-public import Mathlib.Tactic.CrossRefAttribute
-public import stacks_project.Chap85.Lemma_85_19_1_Slice
+import StacksCheckRecall
+public import ReasLib.CategoryTheory.Sites.Hypercovering.SheafDescent
 
 /-!
-# Lemma 85.19.1
+# Hypercovering descent on a slice site
 
-Let `C` be a site with fibre products and `X` an object of `C`. Let `K` be a
-hypercovering of `X`. Then `a⁻¹ : Sh(C / X) ⥤ Sh((C / K)_total)` is fully faithful
-with essential image the cartesian sheaves of sets, `a⁻¹ : Ab(C / X) ⥤
-Ab((C / K)_total)` is fully faithful with essential image the cartesian sheaves of
-abelian groups, and in both cases `a_*` is a quasi-inverse.
+Augmentation inverse image identifies sheaves on the slice with cartesian sheaves
+on the total site, with augmentation direct image as quasi-inverse.
 -/
 
 @[expose] public section
@@ -46,40 +42,45 @@ variable [∀ P : (Grothendieck (overSiteDiagram K.toSimplicialObject))ᵒᵖ �
     Type (max w u v),
     (totalForget K.toSimplicialObject).op.HasPointwiseRightKanExtension P]
 
-/-- Lemma 85.19.1 (1): Let `C` be a site with fibre products and `X` an object of
-`C`. Let `K` be a hypercovering of `X`. Then `a⁻¹ : Sh(C / X) ⥤ Sh((C / K)_total)`
-is fully faithful with essential image the cartesian sheaves of sets, and `a_*`
-provides the quasi-inverse functor. -/
-@[stacks 0D8K]
-def sheafCartesianEquivalence :
-    Sheaf (J.over X) (Type (max w u v)) ≌
-      Cartesian (J.over X) K.toSimplicialObject (Type (max w u v)) :=
-  cartesianEquivalence J X K (Type (max w u v))
+/- Lemma 85.19.1 (1): Augmentation inverse image is fully faithful with essential
+image the cartesian sheaves of sets; direct image is its quasi-inverse. -/
+@[stacks 0D8K] #check (CategoryTheory.Hypercovering.sheafCartesianEquivalence J X K :
+  Sheaf (J.over X) (Type (max w u v)) ≌
+    Cartesian (J.over X) K.toSimplicialObject (Type (max w u v)))
 
-/-- The forward functor of `sheafCartesianEquivalence` is `a⁻¹` corestricted to
-cartesian sheaves of sets. -/
-theorem sheafCartesianEquivalence_functor :
-    (sheafCartesianEquivalence J X K).functor =
-      cartesianFunctor.{w, v, max u v} (J.over X) (toSliceTerminal J X K)
-        (Type (max w u v)) :=
-  sorry
+#check (CategoryTheory.SemiRepresentableFamily.cartesianEquivalence_functor.{w, v, max u v}
+    (J.over X) (toSliceTerminal J X K) (Type (max w u v)) :
+  (sheafCartesianEquivalence J X K).functor =
+    CategoryTheory.SemiRepresentableFamily.cartesianFunctor.{w, v, max u v}
+      (J.over X) (toSliceTerminal J X K) (Type (max w u v)))
 
-/-- The inverse functor of `sheafCartesianEquivalence` is `a_*` on cartesian sheaves
-of sets. -/
-theorem sheafCartesianEquivalence_inverse :
-    (sheafCartesianEquivalence J X K).inverse =
-      cartesianInverse.{w, v, max u v} (J.over X) (toSliceTerminal J X K)
-        (Type (max w u v)) :=
-  sorry
+#check (CategoryTheory.SemiRepresentableFamily.cartesianEquivalence_inverse.{w, v, max u v}
+    (J.over X) (toSliceTerminal J X K) (Type (max w u v)) :
+  (sheafCartesianEquivalence J X K).inverse =
+    CategoryTheory.SemiRepresentableFamily.cartesianInverse.{w, v, max u v}
+      (J.over X) (toSliceTerminal J X K) (Type (max w u v)))
 
-/-- A sheaf of sets on `(C / K)_total` lies in the essential image of `a⁻¹` if and
-only if it is cartesian. -/
-theorem sheaf_mem_essImage_iff_isCartesian
-    (G : Sheaf (overSiteTotalTopology (J.over X) K.toSimplicialObject)
-      (Type (max w u v))) :
+#check (CategoryTheory.SemiRepresentableFamily.cartesianFunctor_obj.{w, v, max u v}
+    (J.over X) (toSliceTerminal J X K) (Type (max w u v)) :
+  ∀ F : Sheaf (J.over X) (Type (max w u v)),
+    ((sheafCartesianEquivalence J X K).functor.obj F).obj =
+      (inverseImage (J.over X) K.toSimplicialObject (Type (max w u v))).obj F)
+
+#check (CategoryTheory.SemiRepresentableFamily.cartesianInverse_obj.{w, v, max u v}
+    (J.over X) (toSliceTerminal J X K) (Type (max w u v)) :
+  ∀ G : Cartesian (J.over X) K.toSimplicialObject (Type (max w u v)),
+    (sheafCartesianEquivalence J X K).inverse.obj G =
+      (directImage (J.over X) K.toSimplicialObject (Type (max w u v))).obj G.obj)
+
+#check (CategoryTheory.SemiRepresentableFamily.inverseImage_fullyFaithful.{w, v, max u v}
+    (J.over X) (toSliceTerminal J X K) (Type (max w u v)) :
+  (inverseImage (J.over X) K.toSimplicialObject (Type (max w u v))).FullyFaithful)
+
+#check (CategoryTheory.SemiRepresentableFamily.mem_essImage_iff_isCartesian.{w, v, max u v}
+    (J.over X) (toSliceTerminal J X K) (Type (max w u v)) :
+  ∀ G : Sheaf (overSiteTotalTopology (J.over X) K.toSimplicialObject) (Type (max w u v)),
     (inverseImage (J.over X) K.toSimplicialObject (Type (max w u v))).essImage G ↔
-      IsCartesian (J.over X) K.toSimplicialObject (Type (max w u v)) G :=
-  sorry
+      IsCartesian (J.over X) K.toSimplicialObject (Type (max w u v)) G)
 
 variable [HasWeakSheafify (J.over X) AddCommGrpCat.{max w u v}]
 variable [HasWeakSheafify (overSiteTotalTopology (J.over X) K.toSimplicialObject)
@@ -92,40 +93,44 @@ variable [∀ P : (Grothendieck (overSiteDiagram K.toSimplicialObject))ᵒᵖ �
     AddCommGrpCat.{max w u v},
     (totalForget K.toSimplicialObject).op.HasPointwiseRightKanExtension P]
 
-/-- Lemma 85.19.1 (2): Let `C` be a site with fibre products and `X` an object of
-`C`. Let `K` be a hypercovering of `X`. Then `a⁻¹ : Ab(C / X) ⥤ Ab((C / K)_total)`
-is fully faithful with essential image the cartesian sheaves of abelian groups, and
-`a_*` provides the quasi-inverse functor. -/
-@[stacks 0D8K]
-def abelianCartesianEquivalence :
-    Sheaf (J.over X) AddCommGrpCat.{max w u v} ≌
-      Cartesian (J.over X) K.toSimplicialObject AddCommGrpCat.{max w u v} :=
-  cartesianEquivalence J X K AddCommGrpCat.{max w u v}
+/- Lemma 85.19.1 (2): Augmentation inverse image is fully faithful with essential
+image the cartesian sheaves of abelian groups; direct image is its quasi-inverse. -/
+@[stacks 0D8K] #check (CategoryTheory.Hypercovering.abelianCartesianEquivalence J X K :
+  Sheaf (J.over X) AddCommGrpCat.{max w u v} ≌
+    Cartesian (J.over X) K.toSimplicialObject AddCommGrpCat.{max w u v})
 
-/-- The forward functor of `abelianCartesianEquivalence` is `a⁻¹` corestricted to
-cartesian sheaves of abelian groups. -/
-theorem abelianCartesianEquivalence_functor :
-    (abelianCartesianEquivalence J X K).functor =
-      cartesianFunctor.{w, v, max u v} (J.over X) (toSliceTerminal J X K)
-        AddCommGrpCat.{max w u v} :=
-  sorry
+#check (CategoryTheory.SemiRepresentableFamily.cartesianEquivalence_functor.{w, v, max u v}
+    (J.over X) (toSliceTerminal J X K) AddCommGrpCat.{max w u v} :
+  (abelianCartesianEquivalence J X K).functor =
+    CategoryTheory.SemiRepresentableFamily.cartesianFunctor.{w, v, max u v}
+      (J.over X) (toSliceTerminal J X K) AddCommGrpCat.{max w u v})
 
-/-- The inverse functor of `abelianCartesianEquivalence` is `a_*` on cartesian
-sheaves of abelian groups. -/
-theorem abelianCartesianEquivalence_inverse :
-    (abelianCartesianEquivalence J X K).inverse =
-      cartesianInverse.{w, v, max u v} (J.over X) (toSliceTerminal J X K)
-        AddCommGrpCat.{max w u v} :=
-  sorry
+#check (CategoryTheory.SemiRepresentableFamily.cartesianEquivalence_inverse.{w, v, max u v}
+    (J.over X) (toSliceTerminal J X K) AddCommGrpCat.{max w u v} :
+  (abelianCartesianEquivalence J X K).inverse =
+    CategoryTheory.SemiRepresentableFamily.cartesianInverse.{w, v, max u v}
+      (J.over X) (toSliceTerminal J X K) AddCommGrpCat.{max w u v})
 
-/-- An abelian sheaf on `(C / K)_total` lies in the essential image of `a⁻¹` if and
-only if it is cartesian. -/
-theorem abelian_mem_essImage_iff_isCartesian
-    (G : Sheaf (overSiteTotalTopology (J.over X) K.toSimplicialObject)
-      AddCommGrpCat.{max w u v}) :
-    (inverseImage (J.over X) K.toSimplicialObject AddCommGrpCat.{max w u v}).essImage
-      G ↔
-      IsCartesian (J.over X) K.toSimplicialObject AddCommGrpCat.{max w u v} G :=
-  sorry
+#check (CategoryTheory.SemiRepresentableFamily.cartesianFunctor_obj.{w, v, max u v}
+    (J.over X) (toSliceTerminal J X K) AddCommGrpCat.{max w u v} :
+  ∀ F : Sheaf (J.over X) AddCommGrpCat.{max w u v},
+    ((abelianCartesianEquivalence J X K).functor.obj F).obj =
+      (inverseImage (J.over X) K.toSimplicialObject AddCommGrpCat.{max w u v}).obj F)
+
+#check (CategoryTheory.SemiRepresentableFamily.cartesianInverse_obj.{w, v, max u v}
+    (J.over X) (toSliceTerminal J X K) AddCommGrpCat.{max w u v} :
+  ∀ G : Cartesian (J.over X) K.toSimplicialObject AddCommGrpCat.{max w u v},
+    (abelianCartesianEquivalence J X K).inverse.obj G =
+      (directImage (J.over X) K.toSimplicialObject AddCommGrpCat.{max w u v}).obj G.obj)
+
+#check (CategoryTheory.SemiRepresentableFamily.inverseImage_fullyFaithful.{w, v, max u v}
+    (J.over X) (toSliceTerminal J X K) AddCommGrpCat.{max w u v} :
+  (inverseImage (J.over X) K.toSimplicialObject AddCommGrpCat.{max w u v}).FullyFaithful)
+
+#check (CategoryTheory.SemiRepresentableFamily.mem_essImage_iff_isCartesian.{w, v, max u v}
+    (J.over X) (toSliceTerminal J X K) AddCommGrpCat.{max w u v} :
+  ∀ G : Sheaf (overSiteTotalTopology (J.over X) K.toSimplicialObject) AddCommGrpCat.{max w u v},
+    (inverseImage (J.over X) K.toSimplicialObject AddCommGrpCat.{max w u v}).essImage G ↔
+      IsCartesian (J.over X) K.toSimplicialObject AddCommGrpCat.{max w u v} G)
 
 end CategoryTheory.Hypercovering

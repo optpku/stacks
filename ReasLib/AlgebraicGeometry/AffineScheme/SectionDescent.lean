@@ -30,7 +30,7 @@ open CategoryTheory Scheme.Modules
 
 /-- Quasicoherent modules have section descent for `K` when their pullback-sections presheaves
 satisfy the family sheaf condition along the underlying scheme morphisms over `X`. -/
-def hasQuasicoherentSectionDescent (X : AffineScheme.{u})
+def HasQuasicoherentSectionDescent (X : AffineScheme.{u})
     (K : SemiRepresentableFamily.Over.{v} X) : Prop :=
   ∀ (F : X.obj.Modules) [F.IsQuasicoherent],
     Presheaf.IsSheafForFamily
@@ -44,7 +44,7 @@ def hasQuasicoherentSectionDescent (X : AffineScheme.{u})
 it is universally effective epimorphic. -/
 theorem hasQuasicoherentSectionDescent_iff_universalEffectiveEpi
     (X : AffineScheme.{u}) (K : SemiRepresentableFamily.Over.{v} X) :
-    hasQuasicoherentSectionDescent X K ↔
+    HasQuasicoherentSectionDescent X K ↔
       SemiRepresentableFamily.Over.IsUniversalEffectiveEpiFamily K := sorry
 
 end AlgebraicGeometry.AffineScheme

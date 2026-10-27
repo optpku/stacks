@@ -30,17 +30,27 @@ variable {C₁ : Type u₁} {C₂ : Type u₂}
   {W₁ : MorphismProperty C₁} {W₂ : MorphismProperty C₂}
   {Φ : LocalizerMorphism W₁ W₂}
 
+private theorem reindex_eq_transport {X Y : C₂} {f g : X ⟶ Y}
+    {R : Φ.RightResolution X} {S : Φ.RightResolution Y}
+    (h : f = g) (m : Map f R S) : Map.reindex h m = h ▸ m := by
+  cases h
+  exact Map.reindex_rfl m
+
 namespace displayedCategory
 
 /-- The displayed left-identity law for maps of right resolutions. -/
 theorem id_comp {X Y : C₂} {f : X ⟶ Y}
     {R : Φ.RightResolution X} {S : Φ.RightResolution Y} (m : Map f R S) :
-    (Category.id_comp f) ▸ Map.comp (Map.id R) m = m := sorry
+    (Category.id_comp f) ▸ Map.comp (Map.id R) m = m := by
+  rw [← reindex_eq_transport]
+  exact Map.id_comp m
 
 /-- The displayed right-identity law for maps of right resolutions. -/
 theorem comp_id {X Y : C₂} {f : X ⟶ Y}
     {R : Φ.RightResolution X} {S : Φ.RightResolution Y} (m : Map f R S) :
-    (Category.comp_id f) ▸ Map.comp m (Map.id S) = m := sorry
+    (Category.comp_id f) ▸ Map.comp m (Map.id S) = m := by
+  rw [← reindex_eq_transport]
+  exact Map.comp_id m
 
 /-- The displayed associativity law for maps of right resolutions. -/
 theorem assoc {W X Y Z : C₂} {f : W ⟶ X} {g : X ⟶ Y} {h : Y ⟶ Z}
@@ -48,7 +58,9 @@ theorem assoc {W X Y Z : C₂} {f : W ⟶ X} {g : X ⟶ Y} {h : Y ⟶ Z}
     {T : Φ.RightResolution Y} {U : Φ.RightResolution Z}
     (m : Map f R S) (n : Map g S T) (q : Map h T U) :
     (Category.assoc f g h) ▸ Map.comp (Map.comp m n) q =
-      Map.comp m (Map.comp n q) := sorry
+      Map.comp m (Map.comp n q) := by
+  rw [← reindex_eq_transport]
+  exact Map.assoc m n q
 
 end displayedCategory
 
@@ -68,18 +80,18 @@ namespace displayedCategory
 /-- The displayed objects are right resolutions of the corresponding base object. -/
 @[simp]
 theorem obj (Φ : LocalizerMorphism W₁ W₂) (X : C₂) :
-    (displayedCategory Φ).obj X = Φ.RightResolution X := sorry
+    (displayedCategory Φ).obj X = Φ.RightResolution X := rfl
 
 /-- The displayed morphisms are maps of right resolutions over the corresponding base arrow. -/
 @[simp]
 theorem hom (Φ : LocalizerMorphism W₁ W₂) {X Y : C₂} (f : X ⟶ Y)
     (R : Φ.RightResolution X) (S : Φ.RightResolution Y) :
-    (displayedCategory Φ).Hom f R S = Map f R S := sorry
+    (displayedCategory Φ).Hom f R S = Map f R S := rfl
 
 /-- The displayed identity is the canonical identity map of a right resolution. -/
 @[simp]
 theorem id (Φ : LocalizerMorphism W₁ W₂) {X : C₂} (R : Φ.RightResolution X) :
-    (displayedCategory Φ).id R = Map.id R := sorry
+    (displayedCategory Φ).id R = Map.id R := rfl
 
 /-- Displayed composition is the canonical composition of right-resolution maps. -/
 @[simp]
@@ -87,7 +99,7 @@ theorem comp (Φ : LocalizerMorphism W₁ W₂)
     {X Y Z : C₂} {f : X ⟶ Y} {g : Y ⟶ Z}
     {R : Φ.RightResolution X} {S : Φ.RightResolution Y} {T : Φ.RightResolution Z}
     (m : Map f R S) (n : Map g S T) :
-    (displayedCategory Φ).comp m n = Map.comp m n := sorry
+    (displayedCategory Φ).comp m n = Map.comp m n := rfl
 
 end displayedCategory
 
@@ -98,14 +110,16 @@ namespace Map
 theorem reindex_eq_cast {X Y : C₂} {f g : X ⟶ Y}
     {R : Φ.RightResolution X} {S : Φ.RightResolution Y}
     (h : f = g) (m : Map f R S) :
-    reindex h m = DisplayedCategory.Hom.cast (displayedCategory Φ) h m := sorry
+    reindex h m = DisplayedCategory.Hom.cast (displayedCategory Φ) h m := by
+  exact reindex_eq_transport h m
 
 /-- Generic displayed transport can be converted back to right-resolution map reindexing. -/
 @[stacks 0GSL "owner-level transport of right-resolution maps"]
 theorem cast_eq_reindex {X Y : C₂} {f g : X ⟶ Y}
     {R : Φ.RightResolution X} {S : Φ.RightResolution Y}
     (h : f = g) (m : Map f R S) :
-    DisplayedCategory.Hom.cast (displayedCategory Φ) h m = reindex h m := sorry
+    DisplayedCategory.Hom.cast (displayedCategory Φ) h m = reindex h m := by
+  exact (reindex_eq_cast h m).symm
 
 end Map
 

@@ -14,14 +14,15 @@ public import ReasLib.AlgebraicGeometry.GroupoidsOver.FormalObject.Hom
 
 open CategoryTheory
 
-universe u
+universe u v
 
 namespace AlgebraicGeometry.GroupoidsOver.FormalObject
 
-variable {S : Scheme.{u}} [IsLocallyNoetherian S] {X : GroupoidsOver S}
+variable {S : Scheme.{u}} [IsLocallyNoetherian S]
+  {X : FiberedCategoryOver.Groupoids.{u + 1, u, u + 1, v} (Over S)}
 
 /-- Formal objects form a category with natural stage families as morphisms. -/
-instance category : Category.{u} (FormalObject X) where
+instance category : Category.{v} (FormalObject X) where
   toQuiver := ⟨fun ξ η ↦ NatTrans ξ.toFunctor η.toFunctor⟩
   id ξ := NatTrans.id ξ.toFunctor
   comp f g := NatTrans.vcomp f g

@@ -6,7 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap103.Lemma_103_10_8_Hom
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.Module.Quasicoherent.InternalHom.FinitePresentation
 import StacksCheckRecall
 
 /-!
@@ -19,28 +19,30 @@ quasi-coherent module agrees in `Mod(X_étale, 𝒪_X)` and `Mod(𝒪_X)`, lies 
 
 @[expose] public section
 
-open AlgebraicGeometry AlgebraicGeometry.GroupoidsOver
+open AlgebraicGeometry AlgebraicGeometry.GroupoidsOver CategoryTheory
 
 universe u
 
 variable {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X]
 variable (F : fppfModules X) (G H : QCoh X) [F.IsFinitePresentation]
 
-/- Lemma 103.10.8 (1): the internal homs `SheafHom_{𝒪_X}(F, G)` computed in
-`Mod(X_étale, 𝒪_X)` and in `Mod(𝒪_X)` agree. -/
-@[stacks 0GQN]
-#check moduleSheafHom_restrictionIso F G.obj
+/- Lemma 103.10.8 (1): the internal Homs computed in the fppf and étale module categories agree. -/
+@[stacks 0GQN] #check
+  (AlgebraicGeometry.GroupoidsOver.moduleSheafHom_restrictionIso F G.obj :
+    (restriction X).obj (moduleSheafHomFppf F G.obj) ≅
+      moduleSheafHomEtale ((restriction X).obj F) ((restriction X).obj G.obj))
 
-/- Lemma 103.10.8 (2): the common value is an object of `LQCoh^{fbc}(𝒪_X)`. -/
-@[stacks 0GQN]
-#check moduleSheafHomLQCohFbc F G
+/- Lemma 103.10.8 (2): the common value is locally quasi-coherent with flat base change. -/
+@[stacks 0GQN] #check
+  (AlgebraicGeometry.GroupoidsOver.moduleSheafHomOnEtale_mem_lqcohFbc F G :
+    lqcohFbc X (moduleSheafHomEtale ((restriction X).obj F) ((restriction X).obj G.obj)))
 
-/- Lemma 103.10.8 (3): the quasi-coherent module
-`hom(F, G) = Q(SheafHom_{𝒪_X}(F, G))`. -/
-@[stacks 0GQN]
-#check QCoh.internalHomFP F G
+/- Lemma 103.10.8 (3): the quasi-coherent internal Hom is Q of the common sheaf Hom. -/
+@[stacks 0GQN] #check
+  (AlgebraicGeometry.GroupoidsOver.QCoh.internalHomFP_eq F G :
+    QCoh.internalHomFP F G = (LQCohFbc.toQCoh X).obj (moduleSheafHomLQCohFbc F G))
 
-/- Lemma 103.10.8 (4): `Hom_X(H, hom(F, G)) = Hom_X(H ⊗_{𝒪_X} F, G)` for
-`H` in `QCoh(𝒪_X)`. -/
-@[stacks 0GQN]
-#check QCoh.internalHomFP_homEquiv
+/- Lemma 103.10.8 (4): the quasi-coherent internal Hom represents Hom_X(H ⊗ F, G). -/
+@[stacks 0GQN] #check
+  (AlgebraicGeometry.GroupoidsOver.QCoh.internalHomFP_fppfHomEquiv F G H :
+    (H ⟶ QCoh.internalHomFP F G) ≃ (moduleTensorFppf H.obj F ⟶ G.obj))

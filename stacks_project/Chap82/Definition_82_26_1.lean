@@ -7,7 +7,7 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 import StacksCheckRecall
-public import stacks_project.Chap82.Definition_82_26_1_Bivariant
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.BivariantClass
 
 open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
 

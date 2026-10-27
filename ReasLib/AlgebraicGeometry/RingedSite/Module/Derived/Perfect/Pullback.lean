@@ -32,19 +32,19 @@ section
 
 variable {X : RingedSite.{uX, vX, w}} {Y : RingedSite.{uY, vY, w}}
 variable [UnivLE.{max uX vX, w}] [UnivLE.{max uY vY, w}]
-variable [∀ U : X,
+variable [∀ U : X.carrier,
   HasWeakSheafify (X.localization U).siteTopology AddCommGrpCat.{w}]
-variable [∀ U : X,
+variable [∀ U : X.carrier,
   (X.localization U).siteTopology.WEqualsLocallyBijective AddCommGrpCat.{w}]
-variable [∀ U : Y,
+variable [∀ U : Y.carrier,
   HasWeakSheafify (Y.localization U).siteTopology AddCommGrpCat.{w}]
-variable [∀ U : Y,
+variable [∀ U : Y.carrier,
   (Y.localization U).siteTopology.WEqualsLocallyBijective AddCommGrpCat.{w}]
 variable (f : RingedSite.Hom X Y) [(f.modulePushforward.{w}).IsRightAdjoint]
 variable [Functor.HasLeftDerivedFunctor
   (modulePullbackToDerived.{w} f) (ModuleQis.{w} Y)]
 
-/-- Lemma 21.47.5: derived pullback along a morphism of ringed sites preserves perfect
+/-- Canonical total derived pullback along a morphism of ringed sites preserves perfect
 derived module sheaves. -/
 @[stacks 08H6]
 theorem modulePullbackDerived_isPerfect

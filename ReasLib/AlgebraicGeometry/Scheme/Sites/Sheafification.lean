@@ -38,6 +38,13 @@ instance over_wEqualsLocallyBijective (τ : StandardTopology) (S : Scheme.{u}) :
     ∀ U : Over S,
       ((τ.overTopology S).over U).WEqualsLocallyBijective AddCommGrpCat.{u} := sorry
 
+/-- Ring-to-abelian-group sheaf composition exists on every slice of a standard
+big scheme site. -/
+instance over_hasSheafCompose_ring_addCommGrp (τ : StandardTopology) (S : Scheme.{u}) :
+    ∀ U : Over S, ((τ.overTopology S).over U).HasSheafCompose
+      (forget₂ RingCat.{u} AddCommGrpCat.{u}) :=
+  sorry
+
 end AlgebraicGeometry.StandardTopology.Big
 
 namespace AlgebraicGeometry.Scheme.Zariski.Small

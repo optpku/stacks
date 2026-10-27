@@ -221,7 +221,8 @@ noncomputable def graphIntersectionClass {k : Type u} [Field k]
         ((X ⨯ Y).hom.relativeDimensionFunction (fun _ ↦ (0 : ℤ)))
         (X.hom.relativeDimensionFunction (fun _ ↦ (0 : ℤ)))
         (pullbackCycleDegree X Y p)
-        (CycleGroup.intersection (X ⨯ Y) (X.dimension : ℤ)
+        (@CycleGroup.intersection k _ (X ⨯ Y) _ (SchemeOverField.regularProdOfRegular X Y)
+          (X.dimension : ℤ)
           ((X.dimension : ℤ) + ((Y.dimension : ℤ) - p)) (graphCycle f) gamma
           hgamma.intersectsGraph)))
 
@@ -254,7 +255,8 @@ theorem graphIntersectionClass_spec {k : Type u} [Field k]
             ((X ⨯ Y).hom.relativeDimensionFunction (fun _ ↦ (0 : ℤ)))
             (X.hom.relativeDimensionFunction (fun _ ↦ (0 : ℤ)))
             (pullbackCycleDegree X Y p)
-            (CycleGroup.intersection (X ⨯ Y) (X.dimension : ℤ)
+            (@CycleGroup.intersection k _ (X ⨯ Y) _ (SchemeOverField.regularProdOfRegular X Y)
+              (X.dimension : ℤ)
               ((X.dimension : ℤ) + ((Y.dimension : ℤ) - p)) (graphCycle f) gamma
               hgamma.intersectsGraph))) := sorry
 

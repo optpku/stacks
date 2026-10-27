@@ -6,9 +6,8 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap67.Definition_67_5_2_Surjective
-public import stacks_project.Chap87.Lemma_87_34_3_Reduction
 public import ReasLib.AlgebraicGeometry.FormalAlgebraicSpace.Surjective
+public import ReasLib.AlgebraicGeometry.FormalAlgebraicSpace.Morphism.FiniteType
 
 /-!
 # Surjective morphisms of formal algebraic spaces
@@ -27,112 +26,108 @@ universe u
 
 namespace AlgebraicGeometry.FormalAlgebraicSpace
 
-/-- The induced morphism of algebraic-space reductions along a morphism of
+/- The induced morphism of algebraic-space reductions along a morphism of
 formal algebraic spaces, as the unique factor of `reductionι X ≫ f` through
 `reductionι Y`. -/
-def mapReduction {S : Scheme.{u}} {X Y : (Over S)ᵒᵖ ⥤ Type u}
+#check (AlgebraicGeometry.FormalAlgebraicSpace.mapReduction :
+  ∀ {S : Scheme.{u}} {X Y : (Over S)ᵒᵖ ⥤ Type u}
     [IsFormalAlgebraicSpace X] [IsFormalAlgebraicSpace Y]
-    [RX : Reduction X] [RY : Reduction Y] (f : X ⟶ Y) :
-    reduction X ⟶ reduction Y :=
-  ReductionData.map RX.toReductionData RY.toReductionData f
+    [RX : Reduction X] [RY : Reduction Y] (f : X ⟶ Y),
+    reduction X ⟶ reduction Y)
 
-/-- `mapReduction f` factors `reductionι X ≫ f` through `reductionι Y`. -/
-theorem mapReduction_spec {S : Scheme.{u}} {X Y : (Over S)ᵒᵖ ⥤ Type u}
+/- `mapReduction f` factors `reductionι X ≫ f` through `reductionι Y`. -/
+#check (AlgebraicGeometry.FormalAlgebraicSpace.mapReduction_spec :
+  ∀ {S : Scheme.{u}} {X Y : (Over S)ᵒᵖ ⥤ Type u}
     [IsFormalAlgebraicSpace X] [IsFormalAlgebraicSpace Y]
-    [RX : Reduction X] [RY : Reduction Y] (f : X ⟶ Y) :
+    [RX : Reduction X] [RY : Reduction Y] (f : X ⟶ Y),
     NatTrans.vcomp (mapReduction f) (reductionι Y) =
-      NatTrans.vcomp (reductionι X) f :=
-  ReductionData.map_spec RX.toReductionData RY.toReductionData f
+      NatTrans.vcomp (reductionι X) f)
 
-/-- A morphism of reductions over `f` equals `mapReduction f`. -/
-theorem mapReduction_unique {S : Scheme.{u}} {X Y : (Over S)ᵒᵖ ⥤ Type u}
+/- A morphism of reductions over `f` equals `mapReduction f`. -/
+#check (AlgebraicGeometry.FormalAlgebraicSpace.mapReduction_unique :
+  ∀ {S : Scheme.{u}} {X Y : (Over S)ᵒᵖ ⥤ Type u}
     [IsFormalAlgebraicSpace X] [IsFormalAlgebraicSpace Y]
     [RX : Reduction X] [RY : Reduction Y] (f : X ⟶ Y) {g : reduction X ⟶ reduction Y}
-    (hg : NatTrans.vcomp g (reductionι Y) = NatTrans.vcomp (reductionι X) f) :
-    g = mapReduction f :=
-  ReductionData.map_unique RX.toReductionData RY.toReductionData f hg
+    (hg : NatTrans.vcomp g (reductionι Y) = NatTrans.vcomp (reductionι X) f),
+    g = mapReduction f)
 
-/-- Reduction sends identity morphisms to identity morphisms. -/
-theorem mapReduction_id {S : Scheme.{u}} {X : (Over S)ᵒᵖ ⥤ Type u}
-    [IsFormalAlgebraicSpace X] [RX : Reduction X] :
-    mapReduction (𝟙 X) = 𝟙 (reduction X) :=
-  ReductionData.map_id RX.toReductionData
+/- Reduction sends identity morphisms to identity morphisms. -/
+#check (AlgebraicGeometry.FormalAlgebraicSpace.mapReduction_id :
+  ∀ {S : Scheme.{u}} {X : (Over S)ᵒᵖ ⥤ Type u}
+    [IsFormalAlgebraicSpace X] [RX : Reduction X],
+    mapReduction (𝟙 X) = 𝟙 (reduction X))
 
-/-- Reduction preserves composition. -/
-theorem mapReduction_comp {S : Scheme.{u}} {X Y Z : (Over S)ᵒᵖ ⥤ Type u}
+/- Reduction preserves composition. -/
+#check (AlgebraicGeometry.FormalAlgebraicSpace.mapReduction_comp :
+  ∀ {S : Scheme.{u}} {X Y Z : (Over S)ᵒᵖ ⥤ Type u}
     [IsFormalAlgebraicSpace X] [IsFormalAlgebraicSpace Y]
     [IsFormalAlgebraicSpace Z] [RX : Reduction X] [RY : Reduction Y] [RZ : Reduction Z]
-    (f : X ⟶ Y) (g : Y ⟶ Z) :
-    mapReduction (f ≫ g) = mapReduction f ≫ mapReduction g :=
-  ReductionData.map_comp RX.toReductionData RY.toReductionData RZ.toReductionData f g
+    (f : X ⟶ Y) (g : Y ⟶ Z),
+    mapReduction (f ≫ g) = mapReduction f ≫ mapReduction g)
 
-/-- A morphism of formal algebraic spaces is surjective if the induced map of
+/- A morphism of formal algebraic spaces is surjective if the induced map of
 underlying reduced algebraic spaces is surjective. -/
-@[mk_iff]
-class Surjective {S : Scheme.{u}} {X Y : (Over S)ᵒᵖ ⥤ Type u}
+#check (AlgebraicGeometry.FormalAlgebraicSpace.Surjective :
+  ∀ {S : Scheme.{u}} {X Y : (Over S)ᵒᵖ ⥤ Type u}
     [IsFormalAlgebraicSpace X] [IsFormalAlgebraicSpace Y]
-    [Reduction X] [Reduction Y] (f : X ⟶ Y) : Prop where
-  /-- The induced map of reductions is a surjective morphism of algebraic
-  spaces. -/
-  map_surjective : AlgebraicSpace.Surjective (mapReduction f)
+    [Reduction X] [Reduction Y] (f : X ⟶ Y),
+    Prop)
 
-/-- The legacy surjectivity class is equivalent to the predicate on explicit reductions. -/
-theorem surjective_iff_reductionData {S : Scheme.{u}}
+/- The legacy surjectivity class is equivalent to the predicate on explicit reductions. -/
+#check (AlgebraicGeometry.FormalAlgebraicSpace.surjective_iff_reductionData :
+  ∀ {S : Scheme.{u}}
     {X Y : (Over S)ᵒᵖ ⥤ Type u}
     [IsFormalAlgebraicSpace X] [IsFormalAlgebraicSpace Y]
-    [RX : Reduction X] [RY : Reduction Y] (f : X ⟶ Y) :
-    Surjective f ↔ ReductionData.Surjective RX.toReductionData RY.toReductionData f :=
-  ⟨fun h ↦ h.map_surjective, fun h ↦ ⟨h⟩⟩
+    [RX : Reduction X] [RY : Reduction Y] (f : X ⟶ Y),
+    Surjective f ↔ ReductionData.Surjective RX.toReductionData RY.toReductionData f)
 
-/-- On morphisms of algebraic spaces, viewed as formal algebraic spaces via
+/- On morphisms of algebraic spaces, viewed as formal algebraic spaces via
 `instIsFormalAlgebraicSpace_functorOfPoints`, surjectivity agrees with
 `AlgebraicSpace.Surjective`. -/
-theorem surjective_functorOfPoints {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (f : X.functorOfPoints ⟶ Y.functorOfPoints) :
-    Surjective f ↔ AlgebraicSpace.Surjective f :=
-  (surjective_iff_reductionData f).trans (ReductionData.surjective_functorOfPoints f)
+#check (AlgebraicGeometry.FormalAlgebraicSpace.surjective_functorOfPoints :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+    (f : X.functorOfPoints ⟶ Y.functorOfPoints),
+    Surjective f ↔ AlgebraicSpace.Surjective f)
 
 namespace Surjective
 
-/-- The identity morphism of a formal algebraic space is surjective. -/
-instance id {S : Scheme.{u}} {X : (Over S)ᵒᵖ ⥤ Type u}
-    [IsFormalAlgebraicSpace X] [Reduction X] : Surjective (𝟙 X) := by
-  refine ⟨?_⟩
-  rw [mapReduction_id]
-  exact AlgebraicSpace.Surjective.id
+/- The identity morphism of a formal algebraic space is surjective. -/
+#check (AlgebraicGeometry.FormalAlgebraicSpace.Surjective.id :
+  ∀ {S : Scheme.{u}} {X : (Over S)ᵒᵖ ⥤ Type u}
+    [IsFormalAlgebraicSpace X] [Reduction X],
+    Surjective (𝟙 X))
 
-/-- An isomorphism of formal algebraic spaces is surjective. -/
-instance of_isIso {S : Scheme.{u}} {X Y : (Over S)ᵒᵖ ⥤ Type u}
+/- An isomorphism of formal algebraic spaces is surjective. -/
+#check (AlgebraicGeometry.FormalAlgebraicSpace.Surjective.of_isIso :
+  ∀ {S : Scheme.{u}} {X Y : (Over S)ᵒᵖ ⥤ Type u}
     [IsFormalAlgebraicSpace X] [IsFormalAlgebraicSpace Y]
-    [Reduction X] [Reduction Y] (f : X ⟶ Y) [IsIso f] : Surjective f := by
-  refine ⟨⟨?_⟩⟩
-  intro y
-  refine ⟨AlgebraicSpace.Points.map (mapReduction (inv f)) y, ?_⟩
-  rw [← AlgebraicSpace.Points.map_comp, ← mapReduction_comp, IsIso.inv_hom_id,
-    mapReduction_id, AlgebraicSpace.Points.map_id]
+    [Reduction X] [Reduction Y] (f : X ⟶ Y) [IsIso f],
+    Surjective f)
 
-/-- A surjective morphism of algebraic spaces is surjective as a morphism of
+/- A surjective morphism of algebraic spaces is surjective as a morphism of
 formal algebraic spaces, via the functor-of-points reduction. -/
-instance ofAlgebraicSpace {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+#check (AlgebraicGeometry.FormalAlgebraicSpace.Surjective.ofAlgebraicSpace :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S}
     (f : X.functorOfPoints ⟶ Y.functorOfPoints)
-    [AlgebraicSpace.Surjective f] : Surjective f :=
-  (surjective_functorOfPoints f).mpr inferInstance
+    [AlgebraicSpace.Surjective f],
+    Surjective f)
 
-/-- A surjective morphism of formal algebraic spaces induces a surjective
+/- A surjective morphism of formal algebraic spaces induces a surjective
 morphism of algebraic-space reductions. -/
-theorem spec {S : Scheme.{u}} {X Y : (Over S)ᵒᵖ ⥤ Type u}
+#check (AlgebraicGeometry.FormalAlgebraicSpace.Surjective.spec :
+  ∀ {S : Scheme.{u}} {X Y : (Over S)ᵒᵖ ⥤ Type u}
     [IsFormalAlgebraicSpace X] [IsFormalAlgebraicSpace Y]
-    [Reduction X] [Reduction Y] (f : X ⟶ Y) [Surjective f] :
-    AlgebraicSpace.Surjective (mapReduction f) :=
-  Surjective.map_surjective (f := f)
+    [Reduction X] [Reduction Y] (f : X ⟶ Y) [Surjective f],
+    AlgebraicSpace.Surjective (mapReduction f))
 
-/-- A morphism of formal algebraic spaces is surjective as soon as the induced
+/- A morphism of formal algebraic spaces is surjective as soon as the induced
 map of algebraic-space reductions is surjective. -/
-theorem of {S : Scheme.{u}} {X Y : (Over S)ᵒᵖ ⥤ Type u}
+#check (AlgebraicGeometry.FormalAlgebraicSpace.Surjective.of :
+  ∀ {S : Scheme.{u}} {X Y : (Over S)ᵒᵖ ⥤ Type u}
     [IsFormalAlgebraicSpace X] [IsFormalAlgebraicSpace Y]
     [Reduction X] [Reduction Y] {f : X ⟶ Y}
-    (hf : AlgebraicSpace.Surjective (mapReduction f)) : Surjective f :=
-  ⟨hf⟩
+    (hf : AlgebraicSpace.Surjective (mapReduction f)),
+    Surjective f)
 
 end Surjective
 

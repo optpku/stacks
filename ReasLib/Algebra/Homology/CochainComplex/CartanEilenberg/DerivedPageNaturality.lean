@@ -41,7 +41,21 @@ theorem rightDerivedIso_hom_map_d
     (rightDerivedIso I F p q).hom ≫ (F.rightDerived q).map (K.obj.d p r) =
       HomologicalComplex.homologyMap
           ((F.mapHomologicalComplex (up ℤ)).map (I.bicomplex.d p r)) (Int.ofNat q) ≫
-        (rightDerivedIso I F r q).hom := sorry
+        (rightDerivedIso I F r q).hom := by
+  change
+    ((Column.mapResolutionHomologyIso I F p (Int.ofNat q)).inv ≫
+        (InjectiveResolution.RightDerived.homologyIso (I.columnResolution p) F q).hom) ≫
+      (F.rightDerived q).map (K.obj.d p r) =
+    HomologicalComplex.homologyMap
+        ((F.mapHomologicalComplex (up ℤ)).map (I.bicomplex.d p r)) (Int.ofNat q) ≫
+      ((Column.mapResolutionHomologyIso I F r (Int.ofNat q)).inv ≫
+        (InjectiveResolution.RightDerived.homologyIso (I.columnResolution r) F q).hom)
+  rw [Category.assoc,
+    ← InjectiveResolution.RightDerived.homologyIso_hom_naturality
+      (I.columnResolution p) F (Column.resolutionHom I p r) q,
+    Column.resolutionHom_hom']
+  rw [← Category.assoc, ← Column.mapResolutionHomologyIso.inv_naturality,
+    Category.assoc]
 
 /-- The inverse first page-one right-derived comparison is natural with respect to horizontal
 differentials. -/
@@ -52,7 +66,9 @@ theorem rightDerivedIso_inv_naturality
     (F.rightDerived q).map (K.obj.d p r) ≫ (rightDerivedIso I F r q).inv =
       (rightDerivedIso I F p q).inv ≫
         HomologicalComplex.homologyMap
-          ((F.mapHomologicalComplex (up ℤ)).map (I.bicomplex.d p r)) (Int.ofNat q) := sorry
+          ((F.mapHomologicalComplex (up ℤ)).map (I.bicomplex.d p r)) (Int.ofNat q) := by
+  exact (CommSq.vert_inv (g := rightDerivedIso I F p q) (h := rightDerivedIso I F r q)
+    ⟨(rightDerivedIso_hom_map_d I F p r q).symm⟩).w
 
 /-- The first page-one right-derived comparisons form a commuting square with every
 horizontal differential. -/
@@ -64,7 +80,8 @@ theorem rightDerivedIso_commSq
         (I.mapBicomplex F) (Int.ofNat q)).d p r)
       (g := (rightDerivedIso I F p q).hom)
       (h := (rightDerivedIso I F r q).hom)
-      (i := (F.rightDerived q).map (K.obj.d p r)) := sorry
+      (i := (F.rightDerived q).map (K.obj.d p r)) := by
+  exact ⟨(rightDerivedIso_hom_map_d I F p r q).symm⟩
 
 /-- The componentwise right-derived comparison commutes with the differentials of the two
 cochain complexes. -/
@@ -76,7 +93,8 @@ theorem rightDerivedIso_hom_d
         (((F.rightDerived q).mapHomologicalComplex (up ℤ)).obj K.obj).d p r =
         (HomologicalComplex₂.First.PageOne.complex
         (I.mapBicomplex F) (Int.ofNat q)).d p r ≫
-        (rightDerivedIso I F r q).hom := sorry
+        (rightDerivedIso I F r q).hom := by
+  exact rightDerivedIso_hom_map_d I F p r q
 
 /-- Conjugating the first page differential by the right-derived comparison recovers the
 source-facing page differential. -/
@@ -88,7 +106,12 @@ theorem rightDerivedIso_source_d
         (((F.rightDerived q).mapHomologicalComplex (up ℤ)).obj K.obj).d p r ≫
       (rightDerivedIso I F r q).inv =
     (HomologicalComplex₂.First.PageOne.complex
-      (I.mapBicomplex F) (Int.ofNat q)).d p r := sorry
+      (I.mapBicomplex F) (Int.ofNat q)).d p r := by
+  calc
+    _ = ((rightDerivedIso I F p q).hom ≫
+        (((F.rightDerived q).mapHomologicalComplex (up ℤ)).obj K.obj).d p r) ≫
+        (rightDerivedIso I F r q).inv := (Category.assoc _ _ _).symm
+    _ = _ := ((rightDerivedIso I F r q).comp_inv_eq).2 (rightDerivedIso_hom_d I F p r q)
 
 /-- Conjugating the source-facing first page differential by the inverse comparison recovers the
 termwise right-derived differential. -/
@@ -100,7 +123,8 @@ theorem rightDerivedIso_target_d
         (HomologicalComplex₂.First.PageOne.complex
           (I.mapBicomplex F) (Int.ofNat q)).d p r ≫
       (rightDerivedIso I F r q).hom =
-    (((F.rightDerived q).mapHomologicalComplex (up ℤ)).obj K.obj).d p r := sorry
+    (((F.rightDerived q).mapHomologicalComplex (up ℤ)).obj K.obj).d p r := by
+  exact ((rightDerivedIso I F p q).inv_comp_eq).2 (rightDerivedIso_hom_d I F p r q).symm
 
 /-- For a fixed derived degree, the first page-one complex is canonically the source complex
 after applying the corresponding right derived functor termwise. -/
@@ -120,7 +144,8 @@ theorem complexIso_app
     (I : CartanEilenbergResolution K) (F : A ⥤ B) [F.Additive]
     (p : ℤ) (q : ℕ) :
     HomologicalComplex.Hom.isoApp (complexIso I F q) p =
-      rightDerivedIso I F p q := sorry
+      rightDerivedIso I F p q := by
+  exact HomologicalComplex.Hom.isoOfComponents_app _ _ p
 
 /-- The component of `complexIso` is the objectwise first page-one right-derived
 comparison. -/
@@ -128,7 +153,8 @@ comparison. -/
 theorem complexIso_hom_f
     (I : CartanEilenbergResolution K) (F : A ⥤ B) [F.Additive]
     (p : ℤ) (q : ℕ) :
-    (complexIso I F q).hom.f p = (rightDerivedIso I F p q).hom := sorry
+    (complexIso I F q).hom.f p = (rightDerivedIso I F p q).hom := by
+  rfl
 
 /-- The inverse component of `complexIso` is the inverse objectwise first page-one
 right-derived comparison. -/
@@ -136,7 +162,8 @@ right-derived comparison. -/
 theorem complexIso_inv_f
     (I : CartanEilenbergResolution K) (F : A ⥤ B) [F.Additive]
     (p : ℤ) (q : ℕ) :
-    (complexIso I F q).inv.f p = (rightDerivedIso I F p q).inv := sorry
+    (complexIso I F q).inv.f p = (rightDerivedIso I F p q).inv := by
+  rfl
 
 end First.PageOne
 
@@ -160,7 +187,8 @@ theorem rightDerivedHomologyIso_hom
     (I : CartanEilenbergResolution K) (F : A ⥤ B) [F.Additive]
     (p : ℤ) (q : ℕ) :
     (rightDerivedHomologyIso I F p q).hom =
-      HomologicalComplex.homologyMap (First.PageOne.complexIso I F q).hom p := sorry
+      HomologicalComplex.homologyMap (First.PageOne.complexIso I F q).hom p := by
+  rfl
 
 /-- The inverse map of `rightDerivedHomologyIso` is the map on homology induced by the
 inverse whole-complex comparison. -/
@@ -169,7 +197,8 @@ theorem rightDerivedHomologyIso_inv
     (I : CartanEilenbergResolution K) (F : A ⥤ B) [F.Additive]
     (p : ℤ) (q : ℕ) :
     (rightDerivedHomologyIso I F p q).inv =
-      HomologicalComplex.homologyMap (First.PageOne.complexIso I F q).inv p := sorry
+      HomologicalComplex.homologyMap (First.PageOne.complexIso I F q).inv p := by
+  rfl
 
 end First.PageTwo
 
@@ -185,7 +214,8 @@ theorem resolutionIso_hom_d
         (Row.resolutionComplex I F q).d p r =
         (HomologicalComplex₂.Second.PageOne.complex
           (I.mapBicomplex F) q).d p r ≫
-        (resolutionIso I F q).hom.f r := sorry
+        (resolutionIso I F q).hom.f r := by
+  exact (resolutionIso I F q).hom.comm p r
 
 /-- Conjugating the second page-one differential by the chosen-resolution comparison recovers the
 source-facing row differential. -/
@@ -197,7 +227,9 @@ theorem resolutionIso_source_d
         (Row.resolutionComplex I F q).d p r ≫
       (resolutionIso I F q).inv.f r =
     (HomologicalComplex₂.Second.PageOne.complex
-      (I.mapBicomplex F) q).d p r := sorry
+      (I.mapBicomplex F) q).d p r := by
+  rw [resolutionIso_hom_d_assoc, ← HomologicalComplex.comp_f, Iso.hom_inv_id,
+    HomologicalComplex.id_f, Category.comp_id]
 
 /-- Conjugating the source-facing second page-one differential by the inverse comparison recovers
 the chosen-resolution row differential. -/
@@ -209,7 +241,9 @@ theorem resolutionIso_target_d
         (HomologicalComplex₂.Second.PageOne.complex
           (I.mapBicomplex F) q).d p r ≫
       (resolutionIso I F q).hom.f r =
-    (Row.resolutionComplex I F q).d p r := sorry
+    (Row.resolutionComplex I F q).d p r := by
+  rw [← Category.assoc, (resolutionIso I F q).inv.comm, Category.assoc,
+    ← HomologicalComplex.comp_f, Iso.inv_hom_id, HomologicalComplex.id_f, Category.comp_id]
 
 /-- The inverse chosen-resolution second page-one comparison commutes with every p-direction
 differential. -/
@@ -221,7 +255,8 @@ theorem resolutionIso_inv_d
         (HomologicalComplex₂.Second.PageOne.complex
           (I.mapBicomplex F) q).d p r =
       (Row.resolutionComplex I F q).d p r ≫
-        (resolutionIso I F q).inv.f r := sorry
+        (resolutionIso I F q).inv.f r := by
+  exact (resolutionIso I F q).inv.comm p r
 
 /-- The chosen-resolution second page-one comparisons form a commuting square with every
 p-direction differential. -/
@@ -233,7 +268,8 @@ theorem resolutionIso_commSq
         (I.mapBicomplex F) q).d p r)
       (g := (resolutionIso I F q).hom.f p)
       (h := (resolutionIso I F q).hom.f r)
-      (i := (Row.resolutionComplex I F q).d p r) := sorry
+      (i := (Row.resolutionComplex I F q).d p r) := by
+  exact ⟨(resolutionIso_hom_d I F p r q).symm⟩
 
 end Second.PageOne
 
@@ -247,7 +283,14 @@ theorem resolutionHomologyIso_hom_homologyMap
     [F.Additive] [PreservesFiniteLimits F] (p : ℕ) (q : ℤ) :
     (resolutionHomologyIso I F (Int.ofNat p) q).hom =
       HomologicalComplex.homologyMap
-        (Second.PageOne.resolutionIso I F q).hom (Int.ofNat p) := sorry
+        (Second.PageOne.resolutionIso I F q).hom (Int.ofNat p) := by
+  change HomologicalComplex.homologyMap
+        (HomologicalComplex₂.Map.Second.PageOne.iso I.bicomplex F q).hom (Int.ofNat p) ≫
+      HomologicalComplex.homologyMap (Homology.mapResolutionIso I F q).inv (Int.ofNat p) =
+    HomologicalComplex.homologyMap
+      ((HomologicalComplex₂.Map.Second.PageOne.iso I.bicomplex F q).hom ≫
+        (Homology.mapResolutionIso I F q).inv) (Int.ofNat p)
+  exact (HomologicalComplex.homologyMap_comp _ _ _).symm
 
 /-- The inverse chosen-resolution page-two comparison is the homology map of the inverse
 chosen-resolution page-one comparison. -/
@@ -257,7 +300,14 @@ theorem resolutionHomologyIso_inv_homologyMap
     [F.Additive] [PreservesFiniteLimits F] (p : ℕ) (q : ℤ) :
     (resolutionHomologyIso I F (Int.ofNat p) q).inv =
       HomologicalComplex.homologyMap
-        (Second.PageOne.resolutionIso I F q).inv (Int.ofNat p) := sorry
+        (Second.PageOne.resolutionIso I F q).inv (Int.ofNat p) := by
+  change HomologicalComplex.homologyMap (Homology.mapResolutionIso I F q).hom (Int.ofNat p) ≫
+      HomologicalComplex.homologyMap
+        (HomologicalComplex₂.Map.Second.PageOne.iso I.bicomplex F q).inv (Int.ofNat p) =
+    HomologicalComplex.homologyMap
+      ((Homology.mapResolutionIso I F q).hom ≫
+        (HomologicalComplex₂.Map.Second.PageOne.iso I.bicomplex F q).inv) (Int.ofNat p)
+  exact (HomologicalComplex.homologyMap_comp _ _ _).symm
 
 end Second.PageTwo
 

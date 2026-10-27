@@ -25,4 +25,9 @@ namespace AlgebraicGeometry.Etale
 theorem locallyQuasiFinite {X S : Scheme.{u}} {f : X ⟶ S} (h : Etale f) :
     LocallyQuasiFinite f := sorry
 
+/-- Étale morphisms have the canonical locally quasi-finite structure. -/
+instance instLocallyQuasiFinite {X S : Scheme.{u}} (f : X ⟶ S) [Etale f] :
+    LocallyQuasiFinite f :=
+  locallyQuasiFinite (inferInstance : Etale f)
+
 end AlgebraicGeometry.Etale

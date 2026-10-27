@@ -9,13 +9,15 @@ module
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.CompletionAlong
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.FiniteType
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Noetherian
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.OpenSubspace.Construction
 public import ReasLib.AlgebraicGeometry.FormalAlgebraicSpace.Types
 
 /-!
 # Formal-space types of completions
 
-Completion along a closed subset produces a formal algebraic space and preserves
-local Noetherianity.
+Completion along a closed subset produces a formal algebraic space, is locally
+adic* when the open complement inclusion is quasi-compact, and preserves local
+Noetherianity.
 -/
 
 @[expose] public section
@@ -32,6 +34,14 @@ formal algebraic space. -/
 instance instIsFormalAlgebraicSpace_completionAlong {S : Scheme.{u}}
     (X : AlgebraicSpace S) (T : Closeds (Points X)) :
     FormalAlgebraicSpace.IsFormalAlgebraicSpace (completionAlong X T) :=
+  sorry
+
+/-- The formal completion of an algebraic space along a closed subset is locally
+adic* when the open complement inclusion is quasi-compact. -/
+theorem isLocallyAdicStar_completionAlong {S : Scheme.{u}}
+    (X : AlgebraicSpace S) (T : Closeds (Points X))
+    [QuasiCompact (OpenSubspace.Construction.ι X T.compl)] :
+    FormalAlgebraicSpace.IsLocallyAdicStar (completionAlong X T) :=
   sorry
 
 /-- The formal completion of a locally Noetherian algebraic space along a closed

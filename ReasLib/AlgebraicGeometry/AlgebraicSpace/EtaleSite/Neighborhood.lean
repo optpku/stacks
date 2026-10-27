@@ -42,7 +42,7 @@ theorem smallLiftFunctor_obj (xbar : GeometricPoint X) (U : smallEtaleSite X) :
     (smallLiftFunctor xbar).obj U =
       (CategoryTheory.CostructuredArrow.mk xbar.hom ⟶
         (MorphismProperty.CostructuredArrow.forget (@Etale S) ⊤ (ofOverFunctor S) X).obj U) :=
-  sorry
+  rfl
 
 /-- The category of étale neighborhoods of a geometric point with domain an object of the
 small étale site of `X`. -/
@@ -52,7 +52,7 @@ abbrev SmallEtaleNeighborhood (xbar : GeometricPoint X) :=
 /-- The category of étale neighborhoods is the category of elements of `smallLiftFunctor`. -/
 theorem smallEtaleNeighborhood_eq (xbar : GeometricPoint X) :
     SmallEtaleNeighborhood xbar = (smallLiftFunctor xbar).Elements :=
-  sorry
+  rfl
 
 namespace SmallEtaleNeighborhood
 
@@ -75,7 +75,7 @@ abbrev lift (N : SmallEtaleNeighborhood xbar) :
 /-- The chosen lift of a geometric point commutes with the étale structure morphism. -/
 theorem lift_fac (N : SmallEtaleNeighborhood xbar) :
     N.lift ≫ N.toSite.hom = xbar.hom :=
-  sorry
+  CategoryTheory.CostructuredArrow.w N.2
 
 /-- Construct an étale neighborhood from an object of the small étale site and a lift of the
 geometric point. -/
@@ -88,19 +88,19 @@ def of (U : smallEtaleSite X) (u : Over.mk xbar.structureHom ⟶ U.left)
 theorem of_toSite (U : smallEtaleSite X) (u : Over.mk xbar.structureHom ⟶ U.left)
     (hu : ofOverMap u ≫ U.hom = xbar.hom) :
     (of U u hu).toSite = U :=
-  sorry
+  rfl
 
 /-- The `Over S` morphism of `of U u hu` is the supplied lift. -/
 theorem of_overHom (U : smallEtaleSite X) (u : Over.mk xbar.structureHom ⟶ U.left)
     (hu : ofOverMap u ≫ U.hom = xbar.hom) :
     (of U u hu).overHom = u :=
-  sorry
+  rfl
 
 /-- The algebraic-space lift of `of U u hu` is `ofOverMap` of the supplied morphism. -/
 theorem of_lift (U : smallEtaleSite X) (u : Over.mk xbar.structureHom ⟶ U.left)
     (hu : ofOverMap u ≫ U.hom = xbar.hom) :
     (of U u hu).lift = ofOverMap u :=
-  sorry
+  rfl
 
 /-- A morphism of étale neighborhoods is a morphism in the category of elements. -/
 abbrev Hom (V U : SmallEtaleNeighborhood xbar) :=
@@ -126,12 +126,14 @@ abbrev schemeHom {V U : SmallEtaleNeighborhood xbar} (f : Hom V U) :
 /-- A morphism of étale neighborhoods preserves the selected algebraic-space lifts. -/
 theorem lift_fac {V U : SmallEtaleNeighborhood xbar} (f : Hom V U) :
     V.lift ≫ ofOverMap f.overHom = U.lift :=
-  sorry
+  ((ofOverFunctor S).map_comp V.overHom f.overHom).symm.trans
+    (congrArg (ofOverFunctor S).map
+      (congrArg CategoryTheory.CostructuredArrow.Hom.left f.property))
 
 /-- The `Over S` component of a neighborhood morphism identifies the selected lifts. -/
 theorem overHom_fac {V U : SmallEtaleNeighborhood xbar} (f : Hom V U) :
     V.overHom ≫ f.overHom = U.overHom :=
-  sorry
+  congrArg CategoryTheory.CostructuredArrow.Hom.left f.property
 
 /-- Construct a morphism of étale neighborhoods from a morphism of small étale site objects
 preserving the selected lifts. -/
@@ -144,7 +146,7 @@ map of the supplied site morphism. -/
 theorem of_schemeHom {V U : SmallEtaleNeighborhood xbar} (f : V.toSite ⟶ U.toSite)
     (hf : V.overHom ≫ f.left = U.overHom) :
     (of f hf).schemeHom = f.left.left :=
-  sorry
+  rfl
 
 end Hom
 

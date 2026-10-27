@@ -6,9 +6,9 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap91.Lemma_91_11_7_Lift
-public import stacks_project.Chap91.Lemma_91_11_7_IsoClass
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.FirstOrderThickening.FlatLift.IsoClass
+public import ReasLib.CategoryTheory.Abelian.Extension.Classification
+import StacksCheckRecall
 
 /-!
 # Isomorphism classes of flat lifts across a strict morphism of first-order thickenings
@@ -50,18 +50,31 @@ variable (F : ringedSiteModuleCategory.{u, v, max u v, max u v} J O)
 variable [IsFlat OB ((restrictionAlong f).obj F)]
 variable [HasExt.{w} (ringedSiteModuleCategory.{u, v, max u v, max u v} J O)]
 
-/-- Lemma 91.11.7: Let `(f, f')` be a morphism of first-order thickenings as in
+/- Lemma 91.11.7: Let `(f, f')` be a morphism of first-order thickenings as in
 Situation 91.9.1. Let `F` be an `O`-module. Assume `(f, f')` is a strict morphism of
 thickenings and `F` is flat over `O_B`. If there exists a pair `(F', α)` consisting of
 an `O'`-module `F'` flat over `O_{B'}` and an isomorphism `α : i^* F' ⟶ F`, then the
 set of isomorphism classes of such pairs is principal homogeneous under
-`Ext F (moduleTensor (ideal π) F) 1`. -/
-@[stacks 08MU]
-theorem isoClass_principalHomogeneous (hstrict : IsStrict f f' hcomm)
-    (h_exists : Nonempty (FlatLift π f' F)) (E E' : IsoClass π f' F) :
-    ∃! x : Ext F (moduleTensor (ideal π) F) 1,
-      ∀ ξ : ExtensionClass (moduleTensor (ideal π) F) F,
-        ExtensionClass.toExt ξ = x ↔ vadd hstrict ξ E = E' := sorry
+`Ext F (moduleTensor (ideal π) F) 1`.
+
+The Baer-sum action has unique translation between any two lift classes. Its
+extension-class group is canonically identified with this Ext¹ group by the
+additive bijection `ExtensionClass.toExt`, checked below. Together with
+`vadd_zero` and `vadd_add`, unique translation expresses principal homogeneity. -/
+@[stacks 08MU] #check
+  (SheafOfModules.RingedSite.FirstOrderThickening.FlatLift.existsUnique_vadd :
+    ∀ (hstrict : IsStrict f f' hcomm) (h_exists : Nonempty (FlatLift π f' F))
+      (E E' : IsoClass π f' F),
+      ∃! ξ : ExtensionClass (moduleTensor (ideal π) F) F, vadd hstrict ξ E = E')
+
+/- The canonical comparison with Ext¹ is additive. -/
+#check (CategoryTheory.ExtensionClass.toExtAddHom :
+  ExtensionClass (moduleTensor (ideal π) F) F →+ Ext F (moduleTensor (ideal π) F) 1)
+
+/- The same canonical comparison with Ext¹ is bijective. -/
+#check (CategoryTheory.ExtensionClass.toExt_bijective :
+  Function.Bijective (CategoryTheory.ExtensionClass.toExt :
+    ExtensionClass (moduleTensor (ideal π) F) F → Ext F (moduleTensor (ideal π) F) 1))
 
 end FlatLift
 end SheafOfModules.RingedSite.FirstOrderThickening

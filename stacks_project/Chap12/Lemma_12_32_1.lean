@@ -34,7 +34,7 @@ variable (S : J ⥤ ShortComplex C) (j : J)
   (limit S).homology ≅ limit (S ⋙ ShortComplex.homologyFunctor C))
 
 /- The comparison is usable componentwise without unfolding its concrete construction. -/
-#check (ShortComplex.LimitHomology.iso_hom_π S j :
+#check (ShortComplex.LimitHomology.iso.hom_π S j :
   (ShortComplex.LimitHomology.iso S).hom ≫
       limit.π (S ⋙ ShortComplex.homologyFunctor C) j =
     ShortComplex.homologyMap (limit.π S j))
@@ -48,7 +48,7 @@ variable (P : I → ShortComplex C) (i : I)
 
 #check (ShortComplex.PiHomology.iso P :
   (∏ᶜ P).homology ≅ ∏ᶜ fun i ↦ (P i).homology)
-#check (ShortComplex.PiHomology.iso_hom_π P i :
+#check (ShortComplex.PiHomology.iso.hom_π P i :
   (ShortComplex.PiHomology.iso P).hom ≫ Pi.π (fun j ↦ (P j).homology) i =
     ShortComplex.homologyMap (Pi.π P i))
 

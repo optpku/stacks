@@ -6,7 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap101.Lemma_101_46_2_Normalization
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Normalization
 import StacksCheckRecall
 
 @[expose] public section
@@ -22,14 +22,14 @@ conditions of Lemma 101.46.1, recorded as
 is the morphism `ν = normalizationTo X : normalization X ⟶ X` constructed in
 Lemma 101.46.2. -/
 @[stacks 0GMK] #check
-  (@AlgebraicGeometry.AlgebraicStack.normalizationTo :
+  (AlgebraicGeometry.AlgebraicStack.normalizationTo :
     {S : Scheme.{u}} → (X : GroupoidsOver S) →
       [AlgebraicStack X] → [HasFiniteIrreducibleComponentsOnCompactOpens X] →
       normalization X ⟶ X)
 
 /- The domain `X^ν` of the absolute normalization morphism. -/
 @[stacks 0GMK] #check
-  (@AlgebraicGeometry.AlgebraicStack.normalization :
+  (AlgebraicGeometry.AlgebraicStack.normalization :
     {S : Scheme.{u}} → (X : GroupoidsOver S) →
       [AlgebraicStack X] → [HasFiniteIrreducibleComponentsOnCompactOpens X] →
       GroupoidsOver S)

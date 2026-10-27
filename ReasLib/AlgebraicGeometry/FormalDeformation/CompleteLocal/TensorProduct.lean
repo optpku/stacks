@@ -42,9 +42,24 @@ def tensorAdicIdeal (R S : CompleteLocalAlgCat Λ k) :
     Ideal (R.carrier ⊗[Λ] S.carrier) :=
   RingHom.ker (productMap (residueFieldHom R) (residueFieldHom S)).toRingHom
 
+/-- A right inverse obtained by lifting the given residue class in `R` and including it
+in the tensor. `Quotient.out` selects a representative of this existing quotient class. -/
+theorem residueFieldHom_productMap_rightInverse (R S : CompleteLocalAlgCat Λ k) :
+    Function.RightInverse
+      (fun x : k ↦ (Quotient.out (R.residueFieldIso.symm x)) ⊗ₜ[Λ] (1 : S.carrier))
+      (productMap (residueFieldHom R) (residueFieldHom S)) := by
+  intro x
+  change residueFieldHom R (Quotient.out (R.residueFieldIso.symm x)) *
+    residueFieldHom S 1 = x
+  change R.residueFieldIso
+      (Ideal.Quotient.mk R.maximalIdeal (Quotient.out (R.residueFieldIso.symm x))) *
+    residueFieldHom S 1 = x
+  simp only [Ideal.Quotient.mk_out, AlgEquiv.apply_symm_apply, map_one, mul_one]
+
 /-- The canonical map `R.carrier ⊗[Λ] S.carrier →ₐ[Λ] k` is surjective. -/
 theorem residueFieldHom_productMap_surjective (R S : CompleteLocalAlgCat Λ k) :
-    Function.Surjective (productMap (residueFieldHom R) (residueFieldHom S)) := sorry
+    Function.Surjective (productMap (residueFieldHom R) (residueFieldHom S)) :=
+  (residueFieldHom_productMap_rightInverse R S).surjective
 
 /-- The kernel of the canonical map to `k` is a maximal ideal. -/
 theorem tensorAdicIdeal_isMaximal (R S : CompleteLocalAlgCat Λ k) :
@@ -91,8 +106,8 @@ def tensorAdicCompletionResidueFieldIso (R S : CompleteLocalAlgCat Λ k) :
   (Ideal.quotientEquivAlgOfEq Λ (tensorAdicCompletion_maximalIdeal_eq R S)).trans
     (((AdicCompletion.quotientExtensionEquiv (tensorAdicIdeal R S)
           (tensorAdicIdeal_fg R S)).restrictScalars Λ).trans
-      (Ideal.quotientKerAlgEquivOfSurjective
-        (residueFieldHom_productMap_surjective R S)))
+      (Ideal.quotientKerAlgEquivOfRightInverse
+        (residueFieldHom_productMap_rightInverse R S)))
 
 /-- The `m`-adic completion of `R.carrier ⊗[Λ] S.carrier`, as an object of `Ĉ_Λ`. -/
 def tensorAdicCompletion (R S : CompleteLocalAlgCat Λ k) : CompleteLocalAlgCat Λ k :=

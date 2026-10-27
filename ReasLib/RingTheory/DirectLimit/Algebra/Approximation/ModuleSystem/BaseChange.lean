@@ -76,14 +76,24 @@ noncomputable def finalBaseChangeMap (A : ModuleSystem f M) (i : A.index) :
 @[stacks 00R1 "directed module system base change"]
 theorem transitionBaseChangeMap_surjective
     (A : ModuleSystem f M) {i j : A.index} (h : i ≤ j) :
-    Function.Surjective (A.transitionBaseChangeMap h) := sorry
+    Function.Surjective (A.transitionBaseChangeMap h) := by
+  letI : Algebra (A.target i) (A.target j) := (A.targetMap i j h).toAlgebra
+  letI : _root_.Module (A.target i) (A.moduleStage j) := A.transitionModule h
+  letI : IsScalarTower (A.target i) (A.target j) (A.moduleStage j) :=
+    RestrictScalars.isScalarTower (A.target i) (A.target j) (A.moduleStage j)
+  exact (A.transitionBaseChange_spec h).equiv.surjective
 
 /-- The transition base-change map is injective from the canonical
 `IsBaseChange` specification. -/
 @[stacks 00R1 "directed module system base change"]
 theorem transitionBaseChangeMap_injective
     (A : ModuleSystem f M) {i j : A.index} (h : i ≤ j) :
-    Function.Injective (A.transitionBaseChangeMap h) := sorry
+    Function.Injective (A.transitionBaseChangeMap h) := by
+  letI : Algebra (A.target i) (A.target j) := (A.targetMap i j h).toAlgebra
+  letI : _root_.Module (A.target i) (A.moduleStage j) := A.transitionModule h
+  letI : IsScalarTower (A.target i) (A.target j) (A.moduleStage j) :=
+    RestrictScalars.isScalarTower (A.target i) (A.target j) (A.moduleStage j)
+  exact (A.transitionBaseChange_spec h).equiv.injective
 
 /-- The transition base-change map is bijective, packaged from its two
 component properties.  This is the canonical bridge for `LinearEquiv.ofBijective`.
@@ -91,26 +101,38 @@ component properties.  This is the canonical bridge for `LinearEquiv.ofBijective
 @[stacks 00R1 "directed module system base change"]
 theorem transitionBaseChangeMap_bijective
     (A : ModuleSystem f M) {i j : A.index} (h : i ≤ j) :
-    Function.Bijective (A.transitionBaseChangeMap h) := sorry
+    Function.Bijective (A.transitionBaseChangeMap h) :=
+  ⟨A.transitionBaseChangeMap_injective h, A.transitionBaseChangeMap_surjective h⟩
 
 /-- The final base-change map is surjective from the canonical
 `IsBaseChange` specification. -/
 @[stacks 00R1 "directed module system base change"]
 theorem finalBaseChangeMap_surjective (A : ModuleSystem f M) (i : A.index) :
-    Function.Surjective (A.finalBaseChangeMap i) := sorry
+    Function.Surjective (A.finalBaseChangeMap i) := by
+  letI : Algebra (A.target i) S := (A.targetToLimit i).toAlgebra
+  letI : _root_.Module (A.target i) M := A.targetModule i
+  letI : IsScalarTower (A.target i) S M :=
+    RestrictScalars.isScalarTower (A.target i) S M
+  exact (A.finalBaseChange_spec i).equiv.surjective
 
 /-- The final base-change map is injective from the canonical
 `IsBaseChange` specification. -/
 @[stacks 00R1 "directed module system base change"]
 theorem finalBaseChangeMap_injective (A : ModuleSystem f M) (i : A.index) :
-    Function.Injective (A.finalBaseChangeMap i) := sorry
+    Function.Injective (A.finalBaseChangeMap i) := by
+  letI : Algebra (A.target i) S := (A.targetToLimit i).toAlgebra
+  letI : _root_.Module (A.target i) M := A.targetModule i
+  letI : IsScalarTower (A.target i) S M :=
+    RestrictScalars.isScalarTower (A.target i) S M
+  exact (A.finalBaseChange_spec i).equiv.injective
 
 /-- The final base-change map is bijective, packaged from its two component
 properties.  This is the canonical bridge for `LinearEquiv.ofBijective`.
 -/
 @[stacks 00R1 "directed module system base change"]
 theorem finalBaseChangeMap_bijective (A : ModuleSystem f M) (i : A.index) :
-    Function.Bijective (A.finalBaseChangeMap i) := sorry
+    Function.Bijective (A.finalBaseChangeMap i) :=
+  ⟨A.finalBaseChangeMap_injective i, A.finalBaseChangeMap_surjective i⟩
 
 /-- The transition base-change map sends a pure tensor to the target scalar
 times the transitioned module element. -/
@@ -119,7 +141,8 @@ theorem transitionBaseChangeMap_tmul
     (A : ModuleSystem f M) {i j : A.index} (h : i ≤ j)
     (s : A.target j) (m : A.moduleStage i) :
     let _ : Algebra (A.target i) (A.target j) := (A.targetMap i j h).toAlgebra
-    A.transitionBaseChangeMap h (s ⊗ₜ[A.target i] m) = s • A.moduleMap h m := sorry
+    A.transitionBaseChangeMap h (s ⊗ₜ[A.target i] m) = s • A.moduleMap h m := by
+  rfl
 
 /-- The final base-change map sends a pure tensor to the limiting scalar times
 the image of the stage-module element. -/
@@ -127,7 +150,8 @@ the image of the stage-module element. -/
 theorem finalBaseChangeMap_tmul
     (A : ModuleSystem f M) (i : A.index) (s : S) (m : A.moduleStage i) :
     let _ : Algebra (A.target i) S := (A.targetToLimit i).toAlgebra
-    A.finalBaseChangeMap i (s ⊗ₜ[A.target i] m) = s • A.moduleToLimit i m := sorry
+    A.finalBaseChangeMap i (s ⊗ₜ[A.target i] m) = s • A.moduleToLimit i m := by
+  rfl
 
 /-- The transition base-change map sends the canonical generator tensor to the
 stage-module transition. -/
@@ -135,7 +159,8 @@ stage-module transition. -/
 theorem transitionBaseChangeMap_one_tmul
     (A : ModuleSystem f M) {i j : A.index} (h : i ≤ j) (m : A.moduleStage i) :
     let _ : Algebra (A.target i) (A.target j) := (A.targetMap i j h).toAlgebra
-    A.transitionBaseChangeMap h (1 ⊗ₜ[A.target i] m) = A.moduleMap h m := sorry
+    A.transitionBaseChangeMap h (1 ⊗ₜ[A.target i] m) = A.moduleMap h m := by
+  simpa using A.transitionBaseChangeMap_tmul h 1 m
 
 /-- The final base-change map sends the canonical generator tensor to the
 stage-to-limit module map. -/
@@ -143,7 +168,8 @@ stage-to-limit module map. -/
 theorem finalBaseChangeMap_one_tmul
     (A : ModuleSystem f M) (i : A.index) (m : A.moduleStage i) :
     let _ : Algebra (A.target i) S := (A.targetToLimit i).toAlgebra
-    A.finalBaseChangeMap i (1 ⊗ₜ[A.target i] m) = A.moduleToLimit i m := sorry
+    A.finalBaseChangeMap i (1 ⊗ₜ[A.target i] m) = A.moduleToLimit i m := by
+  simpa using A.finalBaseChangeMap_tmul i 1 m
 
 /-- The transition base-change map is a linear equivalence. -/
 @[stacks 00R1 "directed module system base change"]
@@ -178,14 +204,16 @@ its underlying linear map. -/
 @[simp, stacks 00R1 "directed module system base change"]
 theorem transitionBaseChange_linear
     (A : ModuleSystem f M) {i j : A.index} (h : i ≤ j) :
-    (A.transitionBaseChange h).toLinearMap = A.transitionBaseChangeMap h := sorry
+    (A.transitionBaseChange h).toLinearMap = A.transitionBaseChangeMap h := by
+  rfl
 
 /-- The final base-change equivalence has the canonical limiting map as its
 underlying linear map. -/
 @[simp, stacks 00R1 "directed module system base change"]
 theorem finalBaseChange_linear
     (A : ModuleSystem f M) (i : A.index) :
-    (A.finalBaseChange i).toLinearMap = A.finalBaseChangeMap i := sorry
+    (A.finalBaseChange i).toLinearMap = A.finalBaseChangeMap i := by
+  rfl
 
 /-- The transition base-change equivalence evaluates on a pure tensor. -/
 @[simp, stacks 00R1 "directed module system base change"]
@@ -193,14 +221,16 @@ theorem transitionBaseChange_tmul
     (A : ModuleSystem f M) {i j : A.index} (h : i ≤ j)
     (s : A.target j) (m : A.moduleStage i) :
     let _ : Algebra (A.target i) (A.target j) := (A.targetMap i j h).toAlgebra
-    A.transitionBaseChange h (s ⊗ₜ[A.target i] m) = s • A.moduleMap h m := sorry
+    A.transitionBaseChange h (s ⊗ₜ[A.target i] m) = s • A.moduleMap h m :=
+  A.transitionBaseChangeMap_tmul h s m
 
 /-- The final base-change equivalence evaluates on a pure tensor. -/
 @[simp, stacks 00R1 "directed module system base change"]
 theorem finalBaseChange_tmul
     (A : ModuleSystem f M) (i : A.index) (s : S) (m : A.moduleStage i) :
     let _ : Algebra (A.target i) S := (A.targetToLimit i).toAlgebra
-    A.finalBaseChange i (s ⊗ₜ[A.target i] m) = s • A.moduleToLimit i m := sorry
+    A.finalBaseChange i (s ⊗ₜ[A.target i] m) = s • A.moduleToLimit i m :=
+  A.finalBaseChangeMap_tmul i s m
 
 /-- The transition base-change equivalence sends the canonical generator tensor
 to the stage-module transition. -/
@@ -208,7 +238,8 @@ to the stage-module transition. -/
 theorem transitionBaseChange_one_tmul
     (A : ModuleSystem f M) {i j : A.index} (h : i ≤ j) (m : A.moduleStage i) :
     let _ : Algebra (A.target i) (A.target j) := (A.targetMap i j h).toAlgebra
-    A.transitionBaseChange h (1 ⊗ₜ[A.target i] m) = A.moduleMap h m := sorry
+    A.transitionBaseChange h (1 ⊗ₜ[A.target i] m) = A.moduleMap h m :=
+  A.transitionBaseChangeMap_one_tmul h m
 
 /-- The final base-change equivalence sends the canonical generator tensor to
 the stage-to-limit module map. -/
@@ -216,7 +247,8 @@ the stage-to-limit module map. -/
 theorem finalBaseChange_one_tmul
     (A : ModuleSystem f M) (i : A.index) (m : A.moduleStage i) :
     let _ : Algebra (A.target i) S := (A.targetToLimit i).toAlgebra
-    A.finalBaseChange i (1 ⊗ₜ[A.target i] m) = A.moduleToLimit i m := sorry
+    A.finalBaseChange i (1 ⊗ₜ[A.target i] m) = A.moduleToLimit i m :=
+  A.finalBaseChangeMap_one_tmul i m
 
 end ModuleSystem
 

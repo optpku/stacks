@@ -61,22 +61,22 @@ def of {I Φ : Type u} (j : Φ → I × I) (obj : I → Scheme.{u})
 /-- The source index of `of j obj map` is the second component of `j φ`. -/
 theorem of_src {I Φ : Type u} (j : Φ → I × I) (obj : I → Scheme.{u})
     (map : (φ : Φ) → obj (j φ).2 ⟶ obj (j φ).1) (φ : Φ) :
-    (of j obj map).src φ = (j φ).2 := sorry
+    (of j obj map).src φ = (j φ).2 := rfl
 
 /-- The target index of `of j obj map` is the first component of `j φ`. -/
 theorem of_dst {I Φ : Type u} (j : Φ → I × I) (obj : I → Scheme.{u})
     (map : (φ : Φ) → obj (j φ).2 ⟶ obj (j φ).1) (φ : Φ) :
-    (of j obj map).dst φ = (j φ).1 := sorry
+    (of j obj map).dst φ = (j φ).1 := rfl
 
 /-- The object family of `of j obj map` is the given family of schemes. -/
 theorem of_obj {I Φ : Type u} (j : Φ → I × I) (obj : I → Scheme.{u})
     (map : (φ : Φ) → obj (j φ).2 ⟶ obj (j φ).1) :
-    (of j obj map).obj = obj := sorry
+    (of j obj map).obj = obj := rfl
 
 /-- The morphism attached to `φ` by `of j obj map` is the given map `f_φ`. -/
 theorem of_map {I Φ : Type u} (j : Φ → I × I) (obj : I → Scheme.{u})
     (map : (φ : Φ) → obj (j φ).2 ⟶ obj (j φ).1) (φ : Φ) :
-    (of j obj map).map φ = map φ := sorry
+    (of j obj map).map φ = map φ := rfl
 
 /-- A crystal in quasi-coherent modules on a pre-relation diagram of schemes: a quasi-coherent
 sheaf on each `X_i` and a comparison isomorphism `α_φ : f_φ^* F_{dst φ} ≅ F_{src φ}`. -/
@@ -99,13 +99,13 @@ def of {X : RelDiagram.{u}} (obj : (i : X.index) → QCoh (X.obj i))
 /-- The object family of `Crystal.of obj iso` is the given family of sheaves. -/
 theorem of_obj {X : RelDiagram.{u}} (obj : (i : X.index) → QCoh (X.obj i))
     (iso : (φ : X.arrow) → (QCoh.pullback (X.map φ)).obj (obj (X.dst φ)) ≅ obj (X.src φ)) :
-    (of obj iso).obj = obj := sorry
+    (of obj iso).obj = obj := rfl
 
 /-- The comparison isomorphism of `Crystal.of obj iso` at `φ` is the given isomorphism. -/
 theorem of_iso {X : RelDiagram.{u}} (obj : (i : X.index) → QCoh (X.obj i))
     (iso : (φ : X.arrow) → (QCoh.pullback (X.map φ)).obj (obj (X.dst φ)) ≅ obj (X.src φ))
     (φ : X.arrow) :
-    (of obj iso).iso φ = iso φ := sorry
+    (of obj iso).iso φ = iso φ := rfl
 
 /-- A crystal is `κ`-generated when each component quasi-coherent sheaf is `κ`-generated. -/
 def IsKappaGenerated {X : RelDiagram.{u}} (F : Crystal X) (κ : Cardinal.{u}) : Prop :=
@@ -113,7 +113,7 @@ def IsKappaGenerated {X : RelDiagram.{u}} (F : Crystal X) (κ : Cardinal.{u}) : 
 
 /-- `κ`-generation of a crystal is componentwise `κ`-generation of its quasi-coherent sheaves. -/
 theorem isKappaGenerated_iff {X : RelDiagram.{u}} (F : Crystal X) (κ : Cardinal.{u}) :
-    F.IsKappaGenerated κ ↔ ∀ i : X.index, (F.obj i).obj.IsKappaGenerated κ := sorry
+    F.IsKappaGenerated κ ↔ ∀ i : X.index, (F.obj i).obj.IsKappaGenerated κ := Iff.rfl
 
 /-- A morphism of crystals is a family of quasi-coherent morphisms compatible with the
 comparison isomorphisms. -/
@@ -137,26 +137,35 @@ def of {X : RelDiagram.{u}} {F G : Crystal X} (hom : (i : X.index) → F.obj i �
 
 /-- Crystal morphisms are determined by their underlying families of module morphisms. -/
 theorem ext {X : RelDiagram.{u}} {F G : Crystal X} {f g : Hom F G} (h : f.hom = g.hom) :
-    f = g := sorry
+    f = g := by
+  cases f
+  cases g
+  cases h
+  rfl
 
 /-- The identity crystal morphism. -/
 def id {X : RelDiagram.{u}} (F : Crystal X) : Hom F F where
   hom := fun _ ↦ 𝟙 _
-  compatibility := sorry
+  compatibility := by
+    intro φ
+    constructor
+    simp
 
 /-- The underlying family of the identity crystal morphism is componentwise the identity. -/
 theorem id_hom {X : RelDiagram.{u}} (F : Crystal X) (i : X.index) :
-    (id F).hom i = 𝟙 (F.obj i) := sorry
+    (id F).hom i = 𝟙 (F.obj i) := rfl
 
 /-- Composition of crystal morphisms. -/
 def comp {X : RelDiagram.{u}} {F G H : Crystal X} (f : Hom F G) (g : Hom G H) : Hom F H where
   hom := fun i ↦ f.hom i ≫ g.hom i
-  compatibility := sorry
+  compatibility := by
+    intro φ
+    simpa only [Functor.map_comp] using (f.compatibility φ).horiz_comp (g.compatibility φ)
 
 /-- The underlying family of a composite crystal morphism is the componentwise composite. -/
 theorem comp_hom {X : RelDiagram.{u}} {F G H : Crystal X} (f : Hom F G) (g : Hom G H)
     (i : X.index) :
-    (comp f g).hom i = f.hom i ≫ g.hom i := sorry
+    (comp f g).hom i = f.hom i ≫ g.hom i := rfl
 
 end Hom
 

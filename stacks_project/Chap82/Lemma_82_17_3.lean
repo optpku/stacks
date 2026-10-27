@@ -6,24 +6,21 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap67.Lemma_67_33_3_ResidueFieldTrdeg
-public import stacks_project.Chap82.Definition_82_5_2_AssociatedCycle
-public import stacks_project.Chap82.Lemma_82_10_4_Pullback
-public import stacks_project.Chap82.Lemma_82_17_3_Pullback
-public import stacks_project.Chap82.Lemma_82_17_3_Torsor
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Invertible.Torsor.BaseChange
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Invertible.Torsor.Cycle
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Invertible.Torsor.HenselianLocalRing
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.CycleGroup.FlatPullback.AssociatedCycle
 import StacksCheckRecall
 
-/-!
-# Lemma 82.17.3
+/-! # Lemma 82.17.3
 
-In Situation 82.2.1, for good `X / B` and an invertible `𝒪_X`-module `L`, the
-relative spectrum `q : T = Spec_X(⨁_{n ∈ ℤ} L^{⊗ n}) ⟶ X` is the canonical
-`G_m`-torsor of `L`.
+The Laurent relative spectrum of an invertible module, its tautological frame,
+base change, cycle pullback, and henselian local-ring comparisons.
 -/
 
 @[expose] public section
 
-open CategoryTheory CategoryTheory.Limits CategoryTheory.MonoidalCategory
+open CategoryTheory CategoryTheory.MonoidalCategory
 open AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
 open AlgebraicGeometry.AlgebraicSpace.Modules
 open IsLocalRing TopologicalSpace
@@ -34,86 +31,128 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-variable {S : Scheme.{u}}
+variable {S : Scheme.{u}} {X : AlgebraicSpace S}
+variable (L : X.Modules) [isInvertibleObject L]
 
-/- Lemma 82.17.3 (1): the morphism `q = gmTorsorπ L` is surjective, smooth,
-affine, and of relative dimension `1`. -/
-@[stacks 0EQG] #check instSurjective_gmTorsorπ
-@[stacks 0EQG] #check instSmooth_gmTorsorπ
-@[stacks 0EQG] #check instAffine_gmTorsorπ
-@[stacks 0EQG] #check instRelativeDimension_gmTorsorπ
+/- Lemma 82.17.3 (1): the Laurent relative-spectrum projection is surjective. -/
+@[stacks 0EQG] #check (AlgebraicGeometry.AlgebraicSpace.Modules.instSurjective_gmTorsorπ L :
+  Surjective (gmTorsorπ L))
 
-/- Lemma 82.17.3 (2): there is an isomorphism `α : q^* L ≅ 𝒪_T`. -/
-@[stacks 0EQG] #check gmTorsorTriv
+/- Lemma 82.17.3 (1): the projection is smooth. -/
+@[stacks 0EQG] #check (AlgebraicGeometry.AlgebraicSpace.Modules.instSmooth_gmTorsorπ L :
+  Smooth (gmTorsorπ L))
 
-/- Lemma 82.17.3 (3): formation of `(q : T ⟶ X, α)` commutes with base change. -/
-@[stacks 0EQG] #check gmTorsorPullbackIso
-@[stacks 0EQG] #check gmTorsorTriv_pullback
+/- Lemma 82.17.3 (1): the projection is affine. -/
+@[stacks 0EQG] #check (AlgebraicGeometry.AlgebraicSpace.Modules.instAffine_gmTorsorπ L :
+  Affine (gmTorsorπ L))
 
-/-- Lemma 82.17.3 (4): In Situation 82.2.1, for good `X / B` and invertible `L`,
-the flat pullback `q^* : Z_k(X) → Z_{k+1}(T)` is injective. -/
-@[stacks 0EQG]
-theorem gmTorsorπ_flatPullbackHom_injective {B X : AlgebraicSpace S}
-    [UniversallyCatenary B] [IsQuasiSeparated B]
-    (f : X ⟶ B) [QuasiSeparated f] [LocallyOfFiniteType f]
-    (δ : Points B → ℤ) [IsDimensionFunction δ]
-    (L : X.Modules) [isInvertibleObject L] (k : ℤ) :
-    Function.Injective
-      (Hom.flatPullbackHom f (gmTorsorπ L ≫ f) δ (gmTorsorπ L) 1 rfl k) :=
-  sorry
+/- Lemma 82.17.3 (1): the projection has relative dimension one. -/
+@[stacks 0EQG] #check (AlgebraicGeometry.AlgebraicSpace.Modules.instRelativeDimension_gmTorsorπ L :
+  RelativeDimension (gmTorsorπ L) 1)
 
-/- Lemma 82.17.3 (5): if `Z ⊂ X` is an integral closed subspace, then
-`q⁻¹(Z) ⊂ T` is an integral closed subspace. -/
-@[stacks 0EQG] #check instIsIntegral_inverseImage_gmTorsorπ
+/- Lemma 82.17.3 (2): the pullback of the line has its tautological trivialization. -/
+@[stacks 0EQG] #check (AlgebraicGeometry.AlgebraicSpace.Modules.gmTorsorTriv L :
+  (pullback (gmTorsorπ L)).obj L ≅ 𝟙_ (gmTorsor L).Modules)
 
-/-- Lemma 82.17.3 (6): if `Z ⊂ X` has `δ`-dimension `≤ k`, then `q⁻¹(Z)` has
-`δ`-dimension `≤ k+1`. -/
-@[stacks 0EQG]
-theorem gmTorsorπ_inverseImage_deltaDimension_le {B X : AlgebraicSpace S}
-    [UniversallyCatenary B] [IsQuasiSeparated B]
-    (f : X ⟶ B) [QuasiSeparated f] [LocallyOfFiniteType f]
-    (δ : Points B → ℤ) [IsDimensionFunction δ]
-    (L : X.Modules) [isInvertibleObject L] (Z : ClosedSubspace X) (k : ℤ)
-    (hZ : Hom.closedSubspaceDeltaDimension f δ Z ≤ (k : EInt)) :
-    Hom.closedSubspaceDeltaDimension (gmTorsorπ L ≫ f) δ
-        (Z.inverseImage (gmTorsorπ L)) ≤ (k + 1 : EInt) :=
-  sorry
+section BaseChange
 
-/-- Lemma 82.17.3 (6): if `Z ⊂ X` is a closed subspace of `δ`-dimension `≤ k`,
-then `q^*[Z]_k = [q⁻¹(Z)]_{k+1}`. -/
-@[stacks 0EQG]
-theorem gmTorsorπ_closedSubspaceCycle {B X : AlgebraicSpace S}
-    [UniversallyCatenary B] [IsQuasiSeparated B]
-    (f : X ⟶ B) [QuasiSeparated f] [LocallyOfFiniteType f]
-    (δ : Points B → ℤ) [IsDimensionFunction δ]
-    (L : X.Modules) [isInvertibleObject L] (Z : ClosedSubspace X) (k : ℤ)
-    (hZ : Hom.closedSubspaceDeltaDimension f δ Z ≤ (k : EInt)) :
-    Hom.flatPullback f (gmTorsorπ L ≫ f) δ (gmTorsorπ L) 1 rfl k
-        (Hom.closedSubspaceCycle f δ Z k hZ) =
-      Hom.closedSubspaceCycle (gmTorsorπ L ≫ f) δ
-        (Z.inverseImage (gmTorsorπ L)) (k + 1)
-        (gmTorsorπ_inverseImage_deltaDimension_le f δ L Z k hZ) :=
-  sorry
+variable {Y : AlgebraicSpace S} (g : Y ⟶ X)
 
-/- Lemma 82.17.3 (7): if `ξ' ∈ |T|` is the generic point of the fibre of
-`|T| ⟶ |X|` over `ξ`, then `𝒪_{X,ξ}^h → 𝒪_{T,ξ'}^h` is the named map
-`henselianMap`, which is local, flat, identifies maximal ideals, and has
-purely transcendental residue-field extension. -/
-@[stacks 0EQG] #check henselianMap
-@[stacks 0EQG] #check instIsLocalHom_henselianMap
-@[stacks 0EQG] #check gmTorsorπ_henselianMap_flat
-@[stacks 0EQG] #check gmTorsorπ_henselianMap_maximalIdeal
-@[stacks 0EQG] #check gmTorsorπ_henselianMap_isPurelyTranscendental
+/- Lemma 82.17.3 (3): the relative spectrum commutes with arbitrary base change. -/
+@[stacks 0EQG] #check (AlgebraicGeometry.AlgebraicSpace.Modules.gmTorsorPullbackIso g L :
+  gmTorsor ((pullback g).obj L) ≅ Limits.pullback g (gmTorsorπ L))
 
-/-- Lemma 82.17.3 (7): the residue-field extension along `q` at the generic
-point of the fibre has transcendence degree `1`. -/
-@[stacks 0EQG]
-theorem gmTorsorπ_residueFieldTrdeg {X : AlgebraicSpace S}
-    (L : X.Modules) [isInvertibleObject L] [IsDecent X]
-    (ξ : Points X) (ξ' : Points (gmTorsor L))
-    (hξ' : Points.map (gmTorsorπ L) ξ' = ξ ∧
-      IsGenericPoint ξ' (closure (Points.map (gmTorsorπ L) ⁻¹' {ξ}))) :
-    residueFieldTrdegAt (gmTorsorπ L) ξ' = 1 :=
-  sorry
+/- Lemma 82.17.3 (3): the actual tautological trivialization commutes with base change. -/
+@[stacks 0EQG] #check (AlgebraicGeometry.AlgebraicSpace.Modules.gmTorsorTriv_pullback g L :
+  (gmTorsorTriv ((pullback g).obj L)).hom =
+    (pullbackCompIso (gmTorsorπ ((pullback g).obj L)) g).hom.app L ≫
+      eqToHom (congrArg (fun f ↦ (pullback f).obj L) (gmTorsorMap_comp_π g L)) ≫
+      (pullbackCompIso (gmTorsorMap g L) (gmTorsorπ L)).inv.app L ≫
+      (pullback (gmTorsorMap g L)).map (gmTorsorTriv L).hom ≫
+      (PullbackTensor.unitIso (gmTorsorMap g L)).hom)
+
+end BaseChange
+
+section Cycles
+
+variable {B : AlgebraicSpace S} [UniversallyCatenary B] [IsAbsolutelyQuasiSeparated B]
+variable (f : X ⟶ B) [QuasiSeparated f] [LocallyOfFiniteType f]
+variable (δ : Points B → ℤ) [IsDimensionFunction δ] (k : ℤ)
+
+/- Lemma 82.17.3 (4): flat pullback is injective on the integer-graded cycle groups. -/
+@[stacks 0EQG] #check (AlgebraicGeometry.AlgebraicSpace.gmTorsorπ_flatPullbackHom_injective f δ L k :
+  Function.Injective (Hom.flatPullbackHom f (gmTorsorπ L ≫ f) δ (gmTorsorπ L) 1 rfl k))
+
+variable (Z : ClosedSubspace X)
+variable (hZ : Hom.closedSubspaceDeltaDimension f δ Z ≤ (k : EInt))
+
+/- Lemma 82.17.3 (6): inverse image raises the closed-subspace dimension bound by at most one. -/
+@[stacks 0EQG] #check
+  (AlgebraicGeometry.AlgebraicSpace.Hom.closedSubspaceDeltaDimension_inverseImage_le
+    f (gmTorsorπ L ≫ f) δ (gmTorsorπ L) 1 rfl k Z hZ :
+  Hom.closedSubspaceDeltaDimension (gmTorsorπ L ≫ f) δ
+    (Z.inverseImageSubspace (gmTorsorπ L)) ≤ (k + 1 : EInt))
+
+/- Lemma 82.17.3 (6): the inverse-image associated cycle equals flat pullback of the original cycle. -/
+@[stacks 0EQG] #check
+  (AlgebraicGeometry.AlgebraicSpace.Hom.flatPullback_closedSubspaceCycle
+    f (gmTorsorπ L ≫ f) δ (gmTorsorπ L) 1 rfl k Z hZ :
+  Hom.closedSubspaceCycle (gmTorsorπ L ≫ f) δ
+    (Z.inverseImageSubspace (gmTorsorπ L)) (k + 1)
+    (Hom.closedSubspaceDeltaDimension_inverseImage_le
+      f (gmTorsorπ L ≫ f) δ (gmTorsorπ L) 1 rfl k Z hZ) =
+  Hom.flatPullback f (gmTorsorπ L ≫ f) δ (gmTorsorπ L) 1 rfl k
+    (Hom.closedSubspaceCycle f δ Z k hZ))
+
+end Cycles
+
+section Integral
+
+variable (Z : ClosedSubspace X) [IsIntegral Z.X]
+
+/- Lemma 82.17.3 (5): inverse image of every integral closed subspace remains integral. -/
+@[stacks 0EQG] #check (AlgebraicGeometry.AlgebraicSpace.Modules.isIntegral_inverseImage_gmTorsorπ L Z :
+  IsIntegral (Z.inverseImageSubspace (gmTorsorπ L)).X)
+
+end Integral
+
+section Henselian
+
+variable [IsDecent X] (ξ : Points X) (ξ' : Points (gmTorsor L))
+variable (hξ' : Points.map (gmTorsorπ L) ξ' = ξ ∧
+  IsGenericPoint ξ' (closure (Points.map (gmTorsorπ L) ⁻¹' {ξ})))
+
+/- Lemma 82.17.3 (7): the canonical henselian ring map is flat at a generic fibre point. -/
+@[stacks 0EQG] #check
+  (AlgebraicGeometry.AlgebraicSpace.Modules.gmTorsorπ_henselianMap_flat L ξ ξ' hξ' :
+  RingHom.Flat (HenselianFunctoriality.map (gmTorsorπ L) ξ' ξ hξ'.1))
+
+/- Lemma 82.17.3 (7): the target maximal ideal is the extended source maximal ideal. -/
+@[stacks 0EQG] #check
+  (AlgebraicGeometry.AlgebraicSpace.Modules.gmTorsorπ_henselianMap_maximalIdeal L ξ ξ' hξ' :
+  maximalIdeal (henselianLocalRing (gmTorsor L) ξ') =
+    (maximalIdeal (henselianLocalRing X ξ)).map
+      (HenselianFunctoriality.map (gmTorsorπ L) ξ' ξ hξ'.1))
+
+/- Lemma 82.17.3 (7): the actual henselian residue-field extension is purely transcendental. -/
+@[stacks 0EQG] #check
+  (AlgebraicGeometry.AlgebraicSpace.Modules.gmTorsorπ_henselianMap_isPurelyTranscendental L ξ ξ' hξ' :
+  (ResidueField.map (HenselianFunctoriality.map (gmTorsorπ L) ξ' ξ hξ'.1)).IsPurelyTranscendental)
+
+/- Lemma 82.17.3 (7): the actual residue map identifies the target with a rational function field in one variable over the source. -/
+@[stacks 0EQG] #check
+  (AlgebraicGeometry.AlgebraicSpace.Modules.gmTorsorπ_henselianResidueField_ratFunc L ξ ξ' hξ' :
+  ∃ e : RatFunc (ResidueField (henselianLocalRing X ξ)) ≃+*
+      ResidueField (henselianLocalRing (gmTorsor L) ξ'),
+    e.toRingHom.comp (algebraMap (ResidueField (henselianLocalRing X ξ))
+      (RatFunc (ResidueField (henselianLocalRing X ξ)))) =
+    ResidueField.map (HenselianFunctoriality.map (gmTorsorπ L) ξ' ξ hξ'.1))
+
+/- Lemma 82.17.3 (7): the geometric residue-field transcendence degree is one. -/
+@[stacks 0EQG] #check
+  (AlgebraicGeometry.AlgebraicSpace.gmTorsorπ_residueFieldTrdeg L ξ ξ' hξ' :
+  residueFieldTrdegAt (gmTorsorπ L) ξ' = 1)
+
+end Henselian
 
 end AlgebraicGeometry.AlgebraicSpace

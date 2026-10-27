@@ -66,7 +66,7 @@ theorem existsCoveringLift_iff (τ : StandardTopology) {S : Scheme.{u}}
               slice.pullback
                 (Over.homMk (family i).hom rfl :
                   Over.mk ((family i).hom ≫ U.hom) ⟶ U) y) :=
-  sorry
+  Iff.rfl
 
 namespace existsCoveringLift
 
@@ -85,7 +85,7 @@ theorem of {τ : StandardTopology} {S : Scheme.{u}} {X Y : GroupoidsOver S}
           (Over.homMk (family i).hom rfl :
             Over.mk ((family i).hom ≫ U.hom) ⟶ U) y)) :
     existsCoveringLift τ f y :=
-  sorry
+  ⟨ι, family, x, h_covering, h_iso⟩
 
 /-- `existsCoveringLift τ f y` supplies a `τ`-covering of `U.left` and objects
 of `X` whose images under `f` are `2`-isomorphic to the restrictions of `y`. -/
@@ -101,7 +101,7 @@ theorem spec {τ : StandardTopology} {S : Scheme.{u}} {X Y : GroupoidsOver S}
             slice.pullback
               (Over.homMk (family i).hom rfl :
                 Over.mk ((family i).hom ≫ U.hom) ⟶ U) y) :=
-  sorry
+  h
 
 /-- Membership of an indexed family in the fppf precoverage is the scheme-level
 `FppfCovering` predicate. -/
@@ -110,7 +110,7 @@ theorem fppfCovering {S : Scheme.{u}} {U : Over S} {ι : Type u}
     Presieve.ofArrows (fun i ↦ (family i).left) (fun i ↦ (family i).hom) ∈
         StandardTopology.fppf.precoverage.coverings U.left ↔
       Scheme.FppfCovering family :=
-  sorry
+  Iff.rfl
 
 /-- Membership of an indexed family in the étale precoverage is the scheme-level
 `EtaleCovering` predicate. -/
@@ -119,7 +119,7 @@ theorem etaleCovering {S : Scheme.{u}} {U : Over S} {ι : Type u}
     Presieve.ofArrows (fun i ↦ (family i).left) (fun i ↦ (family i).hom) ∈
         StandardTopology.etale.precoverage.coverings U.left ↔
       Scheme.EtaleCovering family :=
-  sorry
+  Iff.rfl
 
 /-- `existsCoveringLift` for the fppf topology is equivalent to the existence of
 an fppf covering family of `U.left` with `2`-isomorphic lifts. -/
@@ -134,7 +134,7 @@ theorem fppf_iff {S : Scheme.{u}} {X Y : GroupoidsOver S} (f : X ⟶ Y)
               slice.pullback
                 (Over.homMk (family i).hom rfl :
                   Over.mk ((family i).hom ≫ U.hom) ⟶ U) y) :=
-  sorry
+  Iff.rfl
 
 /-- `existsCoveringLift` for the étale topology is equivalent to the existence of
 an étale covering family of `U.left` with `2`-isomorphic lifts. -/
@@ -149,7 +149,7 @@ theorem etale_iff {S : Scheme.{u}} {X Y : GroupoidsOver S} (f : X ⟶ Y)
               slice.pullback
                 (Over.homMk (family i).hom rfl :
                   Over.mk ((family i).hom ≫ U.hom) ⟶ U) y) :=
-  sorry
+  Iff.rfl
 
 /-- A covering lift of `y` supplies a covering sieve on `U` in the base big
 `τ`-site of `S`, together with objects whose images are `2`-isomorphic to
@@ -168,7 +168,19 @@ theorem mem_associatedTopology {τ : StandardTopology} {S : Scheme.{u}}
           slice.pullback
             (Over.homMk (family i).hom rfl :
               Over.mk ((family i).hom ≫ U.hom) ⟶ U) y) :=
-  sorry
+  by
+    obtain ⟨ι, family, x, h_covering, h_iso⟩ := h
+    refine ⟨ι, family, x, ?_, h_iso⟩
+    have h_topology : StandardTopology.overTopology τ S =
+        τ.precoverage.toGrothendieck.over S := by
+      cases τ <;> rfl
+    rw [h_topology, GrothendieckTopology.mem_over_iff]
+    change Sieve.overEquiv U
+      (Sieve.ofArrows (fun i ↦ Over.mk ((family i).hom ≫ U.hom))
+        (fun i ↦ Over.homMk (family i).hom rfl)) ∈
+      τ.precoverage.toGrothendieck U.left
+    rw [Sieve.overEquiv_ofArrows]
+    exact τ.precoverage.generate_mem_toGrothendieck h_covering
 
 end existsCoveringLift
 

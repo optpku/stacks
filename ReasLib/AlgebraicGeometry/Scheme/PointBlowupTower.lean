@@ -75,7 +75,7 @@ theorem fromStages_stage {X : Scheme.{u}} (p : closedPoints X)
     (step_isBlowup : ∀ i, IsBlowup (step i)
       (IdealSheafData.vanishingIdeal (PointClosure.closedSubset (point i).1))) (i : ℕ) :
     (fromStages p stage step point baseIso point_zero point_succ step_isBlowup).stage i =
-      stage i := sorry
+      stage i := rfl
 
 /-- The recursively determined composite from stage `i` to the base scheme. -/
 def toBase {X : Scheme.{u}} {p : closedPoints X} (S : PointBlowupTower X p) :
@@ -85,16 +85,20 @@ def toBase {X : Scheme.{u}} {p : closedPoints X} (S : PointBlowupTower X p) :
 
 /-- The stage-zero composite is the chosen initial isomorphism. -/
 theorem toBase_zero {X : Scheme.{u}} {p : closedPoints X}
-    (S : PointBlowupTower X p) : S.toBase 0 = S.baseIso.hom := sorry
+    (S : PointBlowupTower X p) : S.toBase 0 = S.baseIso.hom := rfl
 
 /-- The composites to the base are compatible with the transition maps. -/
 theorem toBase_succ {X : Scheme.{u}} {p : closedPoints X}
     (S : PointBlowupTower X p) (i : ℕ) :
-    S.step i ≫ S.toBase i = S.toBase (i + 1) := sorry
+    S.step i ≫ S.toBase i = S.toBase (i + 1) := rfl
 
 /-- Every marked point maps to the original marked point. -/
 theorem toBase_point {X : Scheme.{u}} {p : closedPoints X}
-    (S : PointBlowupTower X p) (i : ℕ) : S.toBase i (S.point i).1 = p.1 := sorry
+    (S : PointBlowupTower X p) (i : ℕ) : S.toBase i (S.point i).1 = p.1 := by
+  induction i with
+  | zero => exact S.point_zero
+  | succ i hi =>
+      rw [← S.toBase_succ, Scheme.Hom.comp_apply, S.point_succ, hi]
 
 /-- The reduced closed point center at stage `i`. -/
 noncomputable def center {X : Scheme.{u}} {p : closedPoints X}
@@ -105,7 +109,7 @@ noncomputable def center {X : Scheme.{u}} {p : closedPoints X}
 theorem center_def {X : Scheme.{u}} {p : closedPoints X}
     (S : PointBlowupTower X p) (i : ℕ) :
     S.center i = IdealSheafData.vanishingIdeal
-      (PointClosure.closedSubset (S.point i).1) := sorry
+      (PointClosure.closedSubset (S.point i).1) := rfl
 
 /-- The local homomorphism from the initial marked stalk to the stalk at stage `i`. -/
 noncomputable def stalkMap {X : Scheme.{u}} {p : closedPoints X}
@@ -116,7 +120,9 @@ noncomputable def stalkMap {X : Scheme.{u}} {p : closedPoints X}
 
 /-- The local homomorphism on stalks associated to a stage of a point blowup tower is local. -/
 theorem stalkMap_isLocal {X : Scheme.{u}} {p : closedPoints X}
-    (S : PointBlowupTower X p) (i : ℕ) : IsLocalHom (S.stalkMap i) := sorry
+    (S : PointBlowupTower X p) (i : ℕ) : IsLocalHom (S.stalkMap i) := by
+  dsimp only [stalkMap]
+  infer_instance
 
 /-- The exceptional divisor on stage `i + 1` is the pullback of the preceding point center. -/
 noncomputable def exceptionalDivisor {X : Scheme.{u}} {p : closedPoints X}
@@ -126,7 +132,7 @@ noncomputable def exceptionalDivisor {X : Scheme.{u}} {p : closedPoints X}
 /-- The exceptional divisor is the pullback of the reduced marked-point center. -/
 theorem exceptionalDivisor_def {X : Scheme.{u}} {p : closedPoints X}
     (S : PointBlowupTower X p) (i : ℕ) :
-    S.exceptionalDivisor i = (S.center i).comap (S.step i) := sorry
+    S.exceptionalDivisor i = (S.center i).comap (S.step i) := rfl
 
 /-- The stalk ideal of the `i`th exceptional divisor at the next marked point. -/
 noncomputable def exceptionalStalkIdeal {X : Scheme.{u}} {p : closedPoints X}
@@ -140,7 +146,7 @@ theorem exceptionalStalkIdeal_def {X : Scheme.{u}} {p : closedPoints X}
     (S : PointBlowupTower X p) (i : ℕ) :
     S.exceptionalStalkIdeal i =
       RingedSpace.idealSheafStalkIdeal (S.exceptionalDivisor i).toSubobject
-        (S.point (i + 1)).1 := sorry
+        (S.point (i + 1)).1 := rfl
 
 /-- Every transition of the tower induces a bijection on residue fields at the marked points. -/
 def PreservesResidueFields {X : Scheme.{u}} {p : closedPoints X}
@@ -151,7 +157,7 @@ def PreservesResidueFields {X : Scheme.{u}} {p : closedPoints X}
 theorem preservesResidueFields_iff {X : Scheme.{u}} {p : closedPoints X}
     (S : PointBlowupTower X p) :
     S.PreservesResidueFields ↔
-      ∀ i, Function.Bijective ((S.step i).residueFieldMap (S.point (i + 1)).1) := sorry
+      ∀ i, Function.Bijective ((S.step i).residueFieldMap (S.point (i + 1)).1) := Iff.rfl
 
 /-- One element of the initial maximal ideal generates every exceptional-divisor stalk ideal. -/
 def HasCommonExceptionalGenerator {X : Scheme.{u}} {p : closedPoints X}
@@ -169,14 +175,15 @@ theorem hasCommonExceptionalGenerator_iff {X : Scheme.{u}} {p : closedPoints X}
       ∃ x₁ : IsLocalRing.maximalIdeal (X.presheaf.stalk p.1), ∀ i,
         S.exceptionalStalkIdeal i =
           Ideal.span ({S.stalkMap (i + 1) x₁.1} : Set
-            ((S.stage (i + 1)).presheaf.stalk (S.point (i + 1)).1)) := sorry
+            ((S.stage (i + 1)).presheaf.stalk (S.point (i + 1)).1)) := Iff.rfl
 
 /-- The marked-point and blowup conditions defining a point blowup tower. -/
 theorem spec {X : Scheme.{u}} {p : closedPoints X} (S : PointBlowupTower X p) :
     (S.baseIso.hom (S.point 0).1 = p.1) ∧
       (∀ i, S.step i (S.point (i + 1)).1 = (S.point i).1) ∧
       (∀ i, IsBlowup (S.step i)
-        (IdealSheafData.vanishingIdeal (PointClosure.closedSubset (S.point i).1))) := sorry
+        (IdealSheafData.vanishingIdeal (PointClosure.closedSubset (S.point i).1))) :=
+  ⟨S.point_zero, S.point_succ, S.step_isBlowup⟩
 
 /-- Compatible lifts of a pointed morphism through every stage of a point blowup tower. -/
 structure Lift {X : Scheme.{u}} {p : closedPoints X} (S : PointBlowupTower X p)
@@ -210,14 +217,15 @@ theorem ofArcs_arc {X : Scheme.{u}} {p : closedPoints X} (S : PointBlowupTower X
     (arc_zero : arc 0 ≫ S.baseIso.hom = a)
     (arc_succ : ∀ i, arc (i + 1) ≫ S.step i = arc i)
     (point_eq : ∀ i, arc i t = (S.point i).1) (i : ℕ) :
-    (ofArcs S a t arc arc_zero arc_succ point_eq).arc i = arc i := sorry
+    (ofArcs S a t arc arc_zero arc_succ point_eq).arc i = arc i := rfl
 
 /-- The base, successor, and marked-point conditions defining a compatible lift. -/
 theorem spec {X : Scheme.{u}} {p : closedPoints X} (S : PointBlowupTower X p)
     {T : Scheme.{u}} {a : T ⟶ X} {t : T} (L : S.Lift a t) :
     (L.arc 0 ≫ S.baseIso.hom = a) ∧
       (∀ i, L.arc (i + 1) ≫ S.step i = L.arc i) ∧
-      (∀ i, L.arc i t = (S.point i).1) := sorry
+      (∀ i, L.arc i t = (S.point i).1) :=
+  ⟨L.arc_zero, L.arc_succ, L.point_eq⟩
 
 end Lift
 

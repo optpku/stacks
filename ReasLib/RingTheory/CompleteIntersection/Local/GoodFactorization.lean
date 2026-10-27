@@ -37,9 +37,11 @@ variable {A : Type u} {B : Type v} [CommRing A] [CommRing B] [IsLocalRing A]
 
 /-- A good factorization of `f : A →+* B` consists of local maps
 `A → S → B`, with `S` Noetherian local, such that the first map is flat with
-regular closed fiber, the second is surjective, and their composite is `f`. -/
+regular closed fiber, the second is surjective, and their composite is `f`.
+Only nontriviality is required of the target in the signature; its locality follows from
+the surjective target leg. -/
 @[stacks 09QA "good factorization"]
-structure GoodFactorization (f : A →+* B) where
+structure GoodFactorization (f : A →+* B) [Nontrivial B] where
   /-- The intermediate Noetherian local ring. -/
   middle : Type w
   /-- The commutative-ring structure on the intermediate ring. -/
@@ -54,7 +56,8 @@ structure GoodFactorization (f : A →+* B) where
   right : middle →+* B
   /-- The source leg is a local homomorphism. -/
   left_isLocalHom : IsLocalHom left
-  /-- The target leg is surjective. Its locality follows from the local intermediate ring. -/
+  /-- The target leg is surjective. Together with the nontrivial target and local intermediate
+  ring, this makes the target leg a local homomorphism. -/
   right_surjective : Function.Surjective right
   /-- The source leg is flat. -/
   left_flat : left.Flat
@@ -71,7 +74,7 @@ attribute [instance] GoodFactorization.instCommRing
 
 namespace GoodFactorization
 
-variable {f : A →+* B}
+variable {f : A →+* B} [Nontrivial B]
 
 /-- Build a good factorization from its two maps and the mathematical conditions not already
 carried by the ambient ring instances. -/
@@ -105,19 +108,24 @@ abbrev IsCompleteIntersection (P : GoodFactorization f) : Prop :=
   P.right.KernelIsGeneratedByRegularSequence
 
 /-- The target leg carries its canonical local-hom instance. -/
-instance instIsLocalHomRight (P : GoodFactorization f) : IsLocalHom P.right := sorry
+instance instIsLocalHomRight (P : GoodFactorization f) : IsLocalHom P.right :=
+  IsLocalHom.of_surjective P.right P.right_surjective
 
 /-- The target leg of a good factorization is the canonical local surjection induced by its
 surjectivity from the local intermediate ring. -/
 theorem right_isLocalSurjection (P : GoodFactorization f) :
-    P.right.IsLocalSurjection := sorry
+    P.right.IsLocalSurjection :=
+  ⟨instIsLocalHomRight P, P.right_surjective⟩
 
 /-- The target of a good factorization is a local ring via its local-surjective target leg. -/
 @[stacks 09QA "local target of a good factorization"]
-theorem target_isLocalRing (P : GoodFactorization f) : IsLocalRing B := sorry
+theorem target_isLocalRing (P : GoodFactorization f) : IsLocalRing B :=
+  IsLocalRing.of_surjective' P.right P.right_surjective
 
 /-- A good factorization exhibits its original map as a local homomorphism. -/
-theorem isLocalHom (P : GoodFactorization f) : IsLocalHom f := sorry
+theorem isLocalHom (P : GoodFactorization f) : IsLocalHom f := by
+  rw [← P.factor]
+  exact RingHom.isLocalHom_comp P.right P.left
 
 /-- The complete defining conditions of a good factorization, grouped by the intermediate ring
 and its source and target legs. -/
@@ -125,11 +133,31 @@ and its source and target legs. -/
 theorem spec (P : GoodFactorization f) :
     (IsLocalRing P.middle ∧ IsNoetherianRing P.middle) ∧
       (IsLocalHom P.left ∧ P.left.Flat ∧ IsRegularLocalRing P.ClosedFiber) ∧
-        (P.right.IsLocalSurjection ∧ P.right.comp P.left = f) := sorry
+        (P.right.IsLocalSurjection ∧ P.right.comp P.left = f) :=
+  ⟨⟨inferInstance, inferInstance⟩,
+    ⟨P.left_isLocalHom, P.left_flat, P.closedFiber_regular⟩,
+    P.right_isLocalSurjection, P.factor⟩
 
 end GoodFactorization
 
 end LocalSource
+
+section CompleteEndpoints
+
+variable {A : Type u} {B : Type v} [CommRing A] [CommRing B]
+
+/-- A complete-intersection homomorphism between complete Noetherian local rings is one admitting
+a good factorization whose surjective target leg has regular-sequence-generated kernel.  This is
+the factorization notion of Stacks 09QA; it is intentionally separate from
+`RingHom.IsLocalCompleteIntersection`, whose 07D0 meaning includes a finite polynomial
+presentation. -/
+@[stacks 09QA "complete-intersection homomorphism"]
+def IsCompleteIntersection (f : A →+* B)
+    [IsCompleteLocalRing A] [IsCompleteLocalRing B]
+    [IsNoetherianRing A] [IsNoetherianRing B] : Prop :=
+  ∃ P : GoodFactorization.{u, v, max u v} f, P.IsCompleteIntersection
+
+end CompleteEndpoints
 
 namespace GoodFactorization
 
@@ -152,6 +180,20 @@ good factorization. -/
 theorem nonempty (f : A →+* B) [IsLocalHom f]
     [IsNoetherianRing A] [IsNoetherianRing B] :
     Nonempty (GoodFactorization.{u, v, max u v} f) := sorry
+
+/-- The factorization criterion for `RingHom.IsCompleteIntersection` is independent of the
+chosen good factorization, even when its intermediate ring lives in a different universe. -/
+@[stacks 09QA "complete-intersection homomorphism criterion"]
+theorem isCompleteIntersection_iff (P : GoodFactorization.{u, v, w} f)
+    [IsNoetherianRing A] [IsNoetherianRing B] :
+    f.IsCompleteIntersection ↔ P.IsCompleteIntersection := by
+  constructor
+  · rintro ⟨Q, hQ⟩
+    exact (isCompleteIntersection_iff_of_complete Q P).mp hQ
+  · intro hP
+    letI : IsLocalHom f := P.isLocalHom
+    obtain ⟨Q⟩ := nonempty f
+    exact ⟨Q, (isCompleteIntersection_iff_of_complete P Q).mp hP⟩
 
 /-- Lemma 23.9.1 (Tag 09QA): for a local homomorphism between complete
 Noetherian local rings, one good factorization has regular-sequence kernel if

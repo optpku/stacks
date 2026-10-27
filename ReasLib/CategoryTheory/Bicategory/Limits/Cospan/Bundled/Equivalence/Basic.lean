@@ -61,67 +61,95 @@ def equivalenceOfDiagram (e : S.diagram ≌ T.diagram) : S ≌ T :=
 underlying cospan transformation of its forward morphism. -/
 @[simp]
 theorem diagramEquivalence.hom (e : S ≌ T) :
-    (diagramEquivalence e).hom = Hom.toCospanTransform e.hom := sorry
+    (diagramEquivalence e).hom = Hom.toCospanTransform e.hom := rfl
 
 /-- The inverse strong transformation of a forgotten bundled-cospan equivalence is the
 underlying cospan transformation of its inverse morphism. -/
 @[simp]
 theorem diagramEquivalence.inv (e : S ≌ T) :
-    (diagramEquivalence e).inv = Hom.toCospanTransform e.inv := sorry
+    (diagramEquivalence e).inv = Hom.toCospanTransform e.inv := rfl
 
 /-- Forgetting a lifted diagram equivalence recovers the original diagram equivalence. -/
 @[simp]
 theorem diagramEquivalence.ofDiagram
     (e : S.diagram ≌ T.diagram) :
-    diagramEquivalence (equivalenceOfDiagram e) = e := sorry
+    diagramEquivalence (equivalenceOfDiagram e) = e := by
+  change InducedBicategory.forget.mapEquivalence
+    (InducedBicategory.equivalenceMk e) = e
+  cases e with
+  | mk hom inv unit counit left_triangle =>
+    dsimp only [StrictPseudofunctor.mapEquivalence, Pseudofunctor.mapEquivalence,
+      InducedBicategory.equivalenceMk]
+    congr 1
+    · apply Iso.ext
+      change 𝟙 _ ≫ unit.hom ≫ 𝟙 _ = unit.hom
+      simp only [Category.id_comp, Category.comp_id]
+    · apply Iso.ext
+      change 𝟙 _ ≫ counit.hom ≫ 𝟙 _ = counit.hom
+      simp only [Category.id_comp, Category.comp_id]
 
 /-- Lifting the diagram equivalence underlying a bundled equivalence recovers the bundled
 equivalence. -/
 @[simp]
 theorem equivalenceOfDiagram.diagramEquivalence (e : S ≌ T) :
-    equivalenceOfDiagram (diagramEquivalence e) = e := sorry
+    equivalenceOfDiagram (diagramEquivalence e) = e := by
+  change InducedBicategory.equivalenceMk
+    (InducedBicategory.forget.mapEquivalence e) = e
+  cases e with
+  | mk hom inv unit counit left_triangle =>
+    dsimp only [StrictPseudofunctor.mapEquivalence, Pseudofunctor.mapEquivalence,
+      InducedBicategory.equivalenceMk]
+    congr 1
+    · apply Iso.ext
+      apply InducedBicategory.hom₂_ext
+      change 𝟙 _ ≫ unit.hom.hom ≫ 𝟙 _ = unit.hom.hom
+      simp only [Category.id_comp, Category.comp_id]
+    · apply Iso.ext
+      apply InducedBicategory.hom₂_ext
+      change 𝟙 _ ≫ counit.hom.hom ≫ 𝟙 _ = counit.hom.hom
+      simp only [Category.id_comp, Category.comp_id]
 
 /-- The underlying forward transformation of a lifted diagram equivalence is the supplied
 forward transformation. -/
 @[simp]
 theorem equivalenceOfDiagram.hom.toCospanTransform
     (e : S.diagram ≌ T.diagram) :
-    (equivalenceOfDiagram e).hom.hom = e.hom := sorry
+    (equivalenceOfDiagram e).hom.hom = e.hom := rfl
 
 /-- The underlying inverse transformation of a lifted diagram equivalence is the supplied
 inverse transformation. -/
 @[simp]
 theorem equivalenceOfDiagram.inv.toCospanTransform
     (e : S.diagram ≌ T.diagram) :
-    (equivalenceOfDiagram e).inv.hom = e.inv := sorry
+    (equivalenceOfDiagram e).inv.hom = e.inv := rfl
 
 /-- The underlying forward unit modification of a lifted diagram equivalence is the supplied
 forward unit modification. -/
 @[simp]
 theorem equivalenceOfDiagram.unit.hom.toModification
     (e : S.diagram ≌ T.diagram) :
-    (equivalenceOfDiagram e).unit.hom.hom = e.unit.hom := sorry
+    (equivalenceOfDiagram e).unit.hom.hom = e.unit.hom := rfl
 
 /-- The underlying inverse unit modification of a lifted diagram equivalence is the supplied
 inverse unit modification. -/
 @[simp]
 theorem equivalenceOfDiagram.unit.inv.toModification
     (e : S.diagram ≌ T.diagram) :
-    (equivalenceOfDiagram e).unit.inv.hom = e.unit.inv := sorry
+    (equivalenceOfDiagram e).unit.inv.hom = e.unit.inv := rfl
 
 /-- The underlying forward counit modification of a lifted diagram equivalence is the
 supplied forward counit modification. -/
 @[simp]
 theorem equivalenceOfDiagram.counit.hom.toModification
     (e : S.diagram ≌ T.diagram) :
-    (equivalenceOfDiagram e).counit.hom.hom = e.counit.hom := sorry
+    (equivalenceOfDiagram e).counit.hom.hom = e.counit.hom := rfl
 
 /-- The underlying inverse counit modification of a lifted diagram equivalence is the
 supplied inverse counit modification. -/
 @[simp]
 theorem equivalenceOfDiagram.counit.inv.toModification
     (e : S.diagram ≌ T.diagram) :
-    (equivalenceOfDiagram e).counit.inv.hom = e.counit.inv := sorry
+    (equivalenceOfDiagram e).counit.inv.hom = e.counit.inv := rfl
 
 /- Data and axiom audit (mathlib 4.32):
 

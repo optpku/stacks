@@ -7,8 +7,10 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import Mathlib.CategoryTheory.ObjectProperty.ClosedUnderIsomorphisms
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Curve.CohenMacaulay
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Curve.OverField
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.Fiber.GeometricallyReduced
+public import ReasLib.AlgebraicGeometry.Scheme.CohenMacaulay.Reduced
 public import ReasLib.AlgebraicGeometry.Scheme.Geometrically.Reduced
 
 /-!
@@ -62,6 +64,11 @@ theorem classifying_factorsThrough_geometricallyReduced_iff_scheme
     (hdim : topologicalKrullDim X.left ≤ 1) :
     geometricallyReduced (Spec (CommRingCat.of k)) (mkOfSchemeOverField X hdim) ↔
       SchemeOverField.geometricallyReduced X :=
+  sorry
+
+/-- Every family of curves with geometrically reduced fibres is Cohen–Macaulay. -/
+theorem geometricallyReduced_le_cohenMacaulay (S : Scheme.{u}) :
+    geometricallyReduced S ≤ cohenMacaulay S :=
   sorry
 
 end AlgebraicGeometry.AlgebraicSpace.Spaces.Curves

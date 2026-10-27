@@ -28,6 +28,22 @@ namespace CategoryTheory.SimplicialObject
 
 variable {C : Type uC} [Category.{vC} C]
 
+private theorem variance_homEquiv_map
+    {F G : (SimplicialObject C)ᵒᵖ ⥤ Type vC} {M N X : SimplicialObject C}
+    (RF : F.RepresentableBy M) (RG : G.RepresentableBy N)
+    (α : F ⟶ G) (f : X ⟶ M) :
+    RG.homEquiv (f ≫ RF.map RG α) = α.app (Opposite.op X) (RF.homEquiv f) := by
+  unfold Functor.RepresentableBy.map
+  rw [RG.homEquiv_comp, Equiv.apply_symm_apply, ← α.naturality_apply,
+    ← RF.homEquiv_comp, Category.comp_id]
+
+private theorem variance_homEquiv_comparison
+    {F : (SimplicialObject C)ᵒᵖ ⥤ Type vC} {M N X : SimplicialObject C}
+    (R : F.RepresentableBy M) (R' : F.RepresentableBy N) (f : X ⟶ M) :
+    R'.homEquiv (f ≫ (R.uniqueUpToIso R').hom) = R.homEquiv f := by
+  change R'.homEquiv (f ≫ R'.homEquiv.symm (R.homEquiv (𝟙 M))) = _
+  rw [R'.homEquiv_comp, Equiv.apply_symm_apply, ← R.homEquiv_comp, Category.comp_id]
+
 section Precomp
 
 variable {U V : SSet.{uS}} (a : U ⟶ V) {T : SimplicialObject C}
@@ -50,7 +66,8 @@ theorem internalHom.precompOf.homEquiv
     (RV : (internalHom.presheaf V T).RepresentableBy MV)
     {X : SimplicialObject C} (f : X ⟶ MV) :
     RU.homEquiv (f ≫ internalHom.precompOf a RU RV) =
-      copower.indexHom X a ≫ RV.homEquiv f := sorry
+      copower.indexHom X a ≫ RV.homEquiv f := by
+  exact variance_homEquiv_map RV RU (internalHom.presheaf.precomp a T) f
 
 /-- Explicit precomposition is natural under canonical changes of both representing objects;
 this is the internal-hom specialization of `Functor.RepresentableBy.map_naturality`. -/
@@ -62,14 +79,25 @@ theorem internalHom.precompOf.naturality
     (RV : (internalHom.presheaf V T).RepresentableBy MV)
     (RV' : (internalHom.presheaf V T).RepresentableBy MV') :
     (RV.uniqueUpToIso RV').hom ≫ internalHom.precompOf a RU' RV' =
-      internalHom.precompOf a RU RV ≫ (RU.uniqueUpToIso RU').hom := sorry
+      internalHom.precompOf a RU RV ≫ (RU.uniqueUpToIso RU').hom := by
+  have hV : RV'.homEquiv (RV.uniqueUpToIso RV').hom = RV.homEquiv (𝟙 MV) := by
+    simpa only [Category.id_comp] using variance_homEquiv_comparison RV RV' (𝟙 MV)
+  apply RU'.homEquiv.injective
+  rw [internalHom.precompOf.homEquiv, hV, variance_homEquiv_comparison]
+  simpa only [Category.id_comp] using
+    (internalHom.precompOf.homEquiv a RU RV (𝟙 MV)).symm
 
 /-- Explicit precomposition by an identity map is the identity of the representing object. -/
 @[simp, stacks 017I "identity for explicit internal-hom precomposition"]
 theorem internalHom.precompOf.id {U : SSet.{uS}} {T : SimplicialObject C}
     [HasCopowers U C] {M : SimplicialObject C}
     (R : (internalHom.presheaf U T).RepresentableBy M) :
-    internalHom.precompOf (𝟙 U) R R = 𝟙 M := sorry
+    internalHom.precompOf (𝟙 U) R R = 𝟙 M := by
+  apply R.homEquiv.injective
+  rw [← Category.id_comp (internalHom.precompOf (𝟙 U) R R),
+    internalHom.precompOf.homEquiv]
+  exact (congrArg (fun k : copower U M ⟶ copower U M ↦ k ≫ R.homEquiv (𝟙 M))
+    (Functor.indexedCoprod.indexHom.id M U)).trans (Category.id_comp _)
 
 /-- Explicit precomposition is contravariantly compatible with composition of indexing maps. -/
 @[simp, stacks 017I "composition for explicit internal-hom precomposition"]
@@ -80,7 +108,13 @@ theorem internalHom.precompOf.comp
     (RV : (internalHom.presheaf V T).RepresentableBy MV)
     (RW : (internalHom.presheaf W T).RepresentableBy MW) :
     internalHom.precompOf (a ≫ b) RU RW =
-      internalHom.precompOf b RV RW ≫ internalHom.precompOf a RU RV := sorry
+      internalHom.precompOf b RV RW ≫ internalHom.precompOf a RU RV := by
+  apply RU.homEquiv.injective
+  rw [← Category.id_comp (internalHom.precompOf (a ≫ b) RU RW),
+    internalHom.precompOf.homEquiv, internalHom.precompOf.homEquiv,
+    ← Category.id_comp (internalHom.precompOf b RV RW), internalHom.precompOf.homEquiv]
+  exact (congrArg (fun k : copower U MW ⟶ copower W MW ↦ k ≫ RW.homEquiv (𝟙 MW))
+    (Functor.indexedCoprod.indexHom.comp MW a b)).trans (Category.assoc _ _ _)
 
 end Precomp
 
@@ -104,7 +138,8 @@ theorem internalHom.postcompOf.homEquiv
     (RT : (internalHom.presheaf U T).RepresentableBy M)
     (RT' : (internalHom.presheaf U T').RepresentableBy M')
     {X : SimplicialObject C} (f : X ⟶ M) :
-    RT'.homEquiv (f ≫ internalHom.postcompOf p RT RT') = RT.homEquiv f ≫ p := sorry
+    RT'.homEquiv (f ≫ internalHom.postcompOf p RT RT') = RT.homEquiv f ≫ p := by
+  exact variance_homEquiv_map RT RT' (internalHom.presheaf.postcomp U p) f
 
 /-- Explicit postcomposition is natural under canonical changes of both representing objects;
 this is the internal-hom specialization of `Functor.RepresentableBy.map_naturality`. -/
@@ -116,13 +151,22 @@ theorem internalHom.postcompOf.naturality
     (RT' : (internalHom.presheaf U T').RepresentableBy M')
     (RT₁' : (internalHom.presheaf U T').RepresentableBy N') :
     (RT.uniqueUpToIso RT₁).hom ≫ internalHom.postcompOf p RT₁ RT₁' =
-      internalHom.postcompOf p RT RT' ≫ (RT'.uniqueUpToIso RT₁').hom := sorry
+      internalHom.postcompOf p RT RT' ≫ (RT'.uniqueUpToIso RT₁').hom := by
+  have hT : RT₁.homEquiv (RT.uniqueUpToIso RT₁).hom = RT.homEquiv (𝟙 M) := by
+    simpa only [Category.id_comp] using variance_homEquiv_comparison RT RT₁ (𝟙 M)
+  apply RT₁'.homEquiv.injective
+  rw [internalHom.postcompOf.homEquiv, hT, variance_homEquiv_comparison]
+  simpa only [Category.id_comp] using
+    (internalHom.postcompOf.homEquiv p RT RT' (𝟙 M)).symm
 
 /-- Explicit postcomposition by an identity map is the identity of the representing object. -/
 @[simp, stacks 017I "identity for explicit internal-hom postcomposition"]
 theorem internalHom.postcompOf.id {T : SimplicialObject C} {M : SimplicialObject C}
     (R : (internalHom.presheaf U T).RepresentableBy M) :
-    internalHom.postcompOf (𝟙 T) R R = 𝟙 M := sorry
+    internalHom.postcompOf (𝟙 T) R R = 𝟙 M := by
+  apply R.homEquiv.injective
+  rw [← Category.id_comp (internalHom.postcompOf (𝟙 T) R R),
+    internalHom.postcompOf.homEquiv, Category.comp_id]
 
 /-- Explicit postcomposition is covariantly compatible with composition of target maps. -/
 @[simp, stacks 017I "composition for explicit internal-hom postcomposition"]
@@ -133,7 +177,12 @@ theorem internalHom.postcompOf.comp
     (RT' : (internalHom.presheaf U T').RepresentableBy M')
     (RT'' : (internalHom.presheaf U T'').RepresentableBy M'') :
     internalHom.postcompOf (p ≫ q) RT RT'' =
-      internalHom.postcompOf p RT RT' ≫ internalHom.postcompOf q RT' RT'' := sorry
+      internalHom.postcompOf p RT RT' ≫ internalHom.postcompOf q RT' RT'' := by
+  apply RT''.homEquiv.injective
+  rw [← Category.id_comp (internalHom.postcompOf (p ≫ q) RT RT''),
+    internalHom.postcompOf.homEquiv, internalHom.postcompOf.homEquiv,
+    ← Category.id_comp (internalHom.postcompOf p RT RT'), internalHom.postcompOf.homEquiv,
+    Category.assoc]
 
 end Postcomp
 
@@ -152,7 +201,12 @@ theorem internalHom.interchangeOf
     (RUT' : (internalHom.presheaf U T').RepresentableBy MUT')
     (RVT' : (internalHom.presheaf V T').RepresentableBy MVT') :
     internalHom.precompOf a RUT RVT ≫ internalHom.postcompOf p RUT RUT' =
-      internalHom.postcompOf p RVT RVT' ≫ internalHom.precompOf a RUT' RVT' := sorry
+      internalHom.postcompOf p RVT RVT' ≫ internalHom.precompOf a RUT' RVT' := by
+  apply RUT'.homEquiv.injective
+  rw [internalHom.postcompOf.homEquiv, internalHom.precompOf.homEquiv,
+    ← Category.id_comp (internalHom.precompOf a RUT RVT), internalHom.precompOf.homEquiv,
+    ← Category.id_comp (internalHom.postcompOf p RVT RVT'), internalHom.postcompOf.homEquiv]
+  exact Category.assoc _ _ _
 
 end Interchange
 

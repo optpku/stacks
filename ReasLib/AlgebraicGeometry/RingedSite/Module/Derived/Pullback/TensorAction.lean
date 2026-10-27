@@ -40,8 +40,8 @@ variable [Functor.HasLeftDerivedFunctor
   [Functor.HasLeftDerivedFunctor
     (modulePullbackToDerived.{z} g) (ModuleQis.{z} Z)]
   [Functor.HasLeftDerivedFunctor
-    (modulePullbackToDerived.{z} (f.comp g)) (ModuleQis.{z} Z)]
-variable [MonoidalCategory (@ModuleDerived.{z, uX, vX, w} X hX)]
+    (compositePullbackToDerived.{z} f g) (ModuleQis.{z} Z)]
+variable [monoidalModel : MonoidalCategory (@ModuleDerived.{z, uX, vX, w} X hX)]
 
 /-- The iterated derived pullback functor associated to composable ringed-site morphisms. -/
 abbrev iterated :
@@ -53,7 +53,7 @@ abbrev iterated :
 abbrev composite :
     (@ModuleDerived.{z, uZ, vZ, w} Z hZ) ⥤
       (@ModuleDerived.{z, uX, vX, w} X hX) :=
-  modulePullbackDerived.{z} (f.comp g)
+  compositePullbackDerived.{z} f g
 
 /-- The tensor-action comparison induced by the canonical comparison from iterated derived
 pullback to pullback along a composite. -/

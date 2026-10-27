@@ -57,12 +57,6 @@ noncomputable def derivedPushforwardNat
     moduleGlobalSectionsToDerived.{z} X ⟶
       f.modulePushforward.{z}.mapHomotopyCategory (up ℤ) ⋙
         moduleGlobalSectionsToDerived.{z} Y :=
-  -- Local instance justification (proof-local temporary data): homotopy-category lift consumes the canonical additivity theorem for global sections on `X`.
-  letI : (moduleGlobalSectionsAdditiveFunctor.{z} X).Additive :=
-    moduleGlobalSectionsAdditiveFunctor_additive.{z, uX, vX, w} X
-  -- Local instance justification (proof-local temporary data): comparison and associator consume the canonical additivity theorem for global sections on `Y`.
-  letI : (moduleGlobalSectionsAdditiveFunctor.{z} Y).Additive :=
-    moduleGlobalSectionsAdditiveFunctor_additive.{z, uY, vY, w} Y
   Functor.whiskerRight
       (NatTrans.mapHomotopyCategory
         (pushforwardNat.{z} f) (up ℤ))
@@ -77,6 +71,61 @@ noncomputable def derivedPushforwardNat
       (f.modulePushforward.{z}.mapHomotopyCategory (up ℤ))
       ((moduleGlobalSectionsAdditiveFunctor.{z} Y).mapHomotopyCategory (up ℤ))
       DerivedCategory.Qh).hom
+
+set_option backward.privateInPublic true in
+/-- The inverse global-sections comparison for direct image on homotopy categories,
+with global scalars restricted along the morphism of ringed sites. -/
+private noncomputable def modulePushforwardSectionsComparisonInv
+    {X : RingedSite.{uX, vX, w}} {Y : RingedSite.{uY, vY, w}}
+    [UnivLE.{uX, w}] [UnivLE.{uY, w}]
+    [UnivLE.{max uX vX, w}] [UnivLE.{max uY vY, w}]
+    [UnivLE.{max uY vX, w}]
+    (f : Hom X Y)
+    [UnivLE.{max uX vX, z}] [UnivLE.{max uY vY, z}]
+    [hXz : UnivLE.{uX, z}] [hYz : UnivLE.{uY, z}] :
+    f.modulePushforward.{z}.mapHomotopyCategory (up ℤ) ⋙
+        moduleGlobalSectionsToModuleDerived.{z} Y ⟶
+      moduleGlobalSectionsToModuleDerived.{z} X ⋙ globalSectionsRestrictionDerived.{z, uX, vX, uY, vY, w} f :=
+  (Functor.associator
+      (f.modulePushforward.{z}.mapHomotopyCategory (up ℤ))
+      ((moduleGlobalSectionsFunctor.{z} Y).mapHomotopyCategory (up ℤ))
+      DerivedCategory.Qh).inv ≫
+    Functor.whiskerRight
+      (Functor.mapHomotopyCategoryCompIso
+        (Iso.refl (f.modulePushforward.{z} ⋙ moduleGlobalSectionsFunctor.{z} Y))
+        (up ℤ)).hom DerivedCategory.Qh ≫
+    Functor.whiskerRight
+      (NatTrans.mapHomotopyCategory (moduleGlobalSectionsPushforwardNatIso.{z} f).inv
+        (up ℤ)) DerivedCategory.Qh ≫
+    Functor.whiskerRight
+      (Functor.mapHomotopyCategoryCompIso
+        (Iso.refl (moduleGlobalSectionsFunctor.{z} X ⋙
+          globalSectionsRestriction.{z, uX, vX, uY, vY, w} f)) (up ℤ)).inv
+      DerivedCategory.Qh ≫
+    (Functor.associator
+      ((moduleGlobalSectionsFunctor.{z} X).mapHomotopyCategory (up ℤ))
+      ((globalSectionsRestriction.{z, uX, vX, uY, vY, w} f).mapHomotopyCategory (up ℤ))
+      DerivedCategory.Qh).hom ≫
+    Functor.whiskerLeft
+      ((moduleGlobalSectionsFunctor.{z} X).mapHomotopyCategory (up ℤ))
+      (globalSectionsRestriction.{z, uX, vX, uY, vY, w} f).mapDerivedCategoryFactorsh.inv ≫
+    (Functor.associator
+      ((moduleGlobalSectionsFunctor.{z} X).mapHomotopyCategory (up ℤ))
+      DerivedCategory.Qh (globalSectionsRestrictionDerived.{z, uX, vX, uY, vY, w} f)).inv
+
+set_option backward.privateInPublic true in
+/-- The inverse global-sections comparison for direct image on homotopy categories,
+with global scalars restricted along the morphism of ringed sites. -/
+noncomputable def moduleDerivedPushforwardNatInv
+    {X : RingedSite.{uX, vX, w}} {Y : RingedSite.{uY, vY, w}}
+    [UnivLE.{uX, w}] [UnivLE.{uY, w}]
+    [UnivLE.{max uX vX, w}] [UnivLE.{max uY vY, w}]
+    [UnivLE.{max uY vX, w}]
+    (f : Hom X Y)
+    [UnivLE.{max uX vX, z}] [UnivLE.{max uY vY, z}] :=
+  modulePushforwardSectionsComparisonInv.{z} f
+    (hXz := UnivLE.trans.{uX, max uX vX, z})
+    (hYz := UnivLE.trans.{uY, max uY vY, z})
 
 end ModuleSections
 

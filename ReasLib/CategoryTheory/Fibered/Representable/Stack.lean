@@ -53,7 +53,15 @@ stack condition. -/
 @[stacks 04WU "representable stack-in-sets criterion"]
 theorem StackInSets.iff_isSheaf
     (J : GrothendieckTopology C) (U : C) :
-    IsStack.InSets J (Over.forget U) ↔ Presheaf.IsSheaf J (yoneda.obj U) := sorry
+    IsStack.InSets J (Over.forget U) ↔ Presheaf.IsSheaf J (yoneda.obj U) := by
+  constructor
+  · intro h
+    apply (StackOnSite.iff_isSheaf J U).1
+    exact { toIsFibered := inferInstance, toIsStack := h.toIsStack }
+  · intro h
+    exact {
+      toIsDiscreteFibration := inferInstance
+      toIsStack := ((StackOnSite.iff_isSheaf J U).2 h).toIsStack }
 
 /-- Lemma 8.13.1 (tag 04WU), data owner: the canonical stack represented by a slice object whose
 representable presheaf is a sheaf.
@@ -75,14 +83,14 @@ namespace representableStack
 theorem total
     (J : GrothendieckTopology C) (U : C)
     (hU : Presheaf.IsSheaf J (yoneda.obj U)) :
-    (representableStack J U hU).total = Over U := sorry
+    (representableStack J U hU).total = Over U := rfl
 
 /-- The projection of the canonical representable stack is the ordinary slice-forget functor. -/
 @[simp, stacks 04WU "representable set-stack projection"]
 theorem p
     (J : GrothendieckTopology C) (U : C)
     (hU : Presheaf.IsSheaf J (yoneda.obj U)) :
-    (representableStack J U hU).p = Over.forget U := sorry
+    (representableStack J U hU).p = Over.forget U := rfl
 
 /-- Forgetting the stack condition from the representable stack recovers the canonical set-fibred
 slice. -/
@@ -91,7 +99,7 @@ theorem toSets
     (J : GrothendieckTopology C) (U : C)
     (hU : Presheaf.IsSheaf J (yoneda.obj U)) :
     (representableStack J U hU).toSets =
-      FiberedCategoryOver.Sets.slice U := sorry
+      FiberedCategoryOver.Sets.slice U := rfl
 
 /-- Forgetting to the groupoid-fibred owner recovers the canonical groupoid-fibred slice. -/
 @[simp, stacks 04WU "representable stack groupoid-fibred view"]
@@ -99,7 +107,7 @@ theorem toGroupoids
     (J : GrothendieckTopology C) (U : C)
     (hU : Presheaf.IsSheaf J (yoneda.obj U)) :
     (representableStack J U hU).toGroupoids.toGroupoids =
-      FiberedCategoryOver.Groupoids.slice U := sorry
+      FiberedCategoryOver.Groupoids.slice U := rfl
 
 /-- The ordinary-stack view of the canonical representable stack. -/
 @[stacks 04WU "representable ordinary-stack view"]
@@ -116,14 +124,14 @@ namespace stack
 theorem total
     (J : GrothendieckTopology C) (U : C)
     (hU : Presheaf.IsSheaf J (yoneda.obj U)) :
-    (stack J U hU).total = Over U := sorry
+    (stack J U hU).total = Over U := rfl
 
 /-- The projection of the ordinary representable-stack view is the canonical slice projection. -/
 @[simp, stacks 04WU "representable ordinary-stack projection"]
 theorem p
     (J : GrothendieckTopology C) (U : C)
     (hU : Presheaf.IsSheaf J (yoneda.obj U)) :
-    (stack J U hU).p = Over.forget U := sorry
+    (stack J U hU).p = Over.forget U := rfl
 
 /-- The projection of the representable stack is a discrete fibration. This is the strongest
 canonical fibre property of a representable slice. -/

@@ -25,7 +25,7 @@ noncomputable section
 
 universe u v
 
-namespace SheafOfModules.RingedSite.DifferentialGradedAlgebra
+namespace SheafOfModules.RingedSite
 
 section
 
@@ -36,14 +36,13 @@ variable [HasWeakSheafify J AddCommGrpCat.{max u v}]
 variable [J.WEqualsLocallyBijective AddCommGrpCat.{max u v}]
 variable {𝒪 : Sheaf J CommRingCat.{max u v}}
 
-/-- A differential graded algebra regarded as its canonical regular right DG module. -/
+namespace DifferentialGradedAlgebra
+
+/-- A differential graded algebra sheaf acts on its regular right differential graded module
+by multiplication. -/
 @[reducible]
-def regularModule (𝒜 : DGA(𝒪)) : Mod(𝒜, d) where
-  toComplex := 𝒜.toComplex
-  smul := 𝒜.mul
-  smul_assoc := 𝒜.mul_assoc
-  one_smul := 𝒜.mul_one
-  d_smul := 𝒜.d_mul
+def regularModule (𝒜 : DGA(𝒪)) : Mod(𝒜, d) :=
+  SheafOfModules.RingedSite.DifferentialGradedModule.regular 𝒜
 
 /-- The underlying cochain complex of the regular module is the algebra itself. -/
 theorem regularModule_toComplex (𝒜 : DGA(𝒪)) :
@@ -53,7 +52,8 @@ theorem regularModule_toComplex (𝒜 : DGA(𝒪)) :
 theorem regularModule_smul (𝒜 : DGA(𝒪)) (n m : ℤ) :
     𝒜.regularModule.smul n m = 𝒜.mul n m := sorry
 
+end DifferentialGradedAlgebra
+
 end
 
-
-end SheafOfModules.RingedSite.DifferentialGradedAlgebra
+end SheafOfModules.RingedSite

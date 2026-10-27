@@ -6,8 +6,8 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap77.Lemma_77_11_5_Sheaf
-public import stacks_project.Chap77.Lemma_77_11_5_Limit
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Flattening.InDimensions.Sheaf
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Flattening.InDimensions.Limit
 import StacksCheckRecall
 
 @[expose] public section
@@ -24,7 +24,7 @@ section
 /- Lemma 77.11.5 (1): In Situation 77.11.4, the functor `F_n` satisfies the
 sheaf property for the fpqc topology. -/
 @[stacks 0CWW] #check
-  (Flattening.flatInDimensionsFunctor_isSheaf_fpqc f ℱ n :
+  (AlgebraicGeometry.AlgebraicSpace.Flattening.flatInDimensionsFunctor_isSheaf_fpqc f ℱ n :
     Presheaf.IsSheaf (SchemeOver.fpqcTopology Y)
       (Flattening.flatInDimensionsFunctor f ℱ n))
 
@@ -37,7 +37,7 @@ variable [QuasiCompact f] [LocallyOfFinitePresentation f] [ℱ.IsFinitePresentat
 /- Lemma 77.11.5 (2): if `f` is quasi-compact and locally of finite presentation
 and `ℱ` is of finite presentation, the functor `F_n` is limit preserving. -/
 @[stacks 0CWW] #check
-  (Flattening.flatInDimensionsFunctor_preservesDirectedAffineLimits f ℱ n :
+  (AlgebraicGeometry.AlgebraicSpace.Flattening.flatInDimensionsFunctor_preservesDirectedAffineLimits f ℱ n :
     SchemeOver.PreservesDirectedAffineLimits Y
       (Flattening.flatInDimensionsFunctor f ℱ n))
 

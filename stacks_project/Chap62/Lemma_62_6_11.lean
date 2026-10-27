@@ -34,13 +34,15 @@ fibre-component coefficient function `x ↦ n_x` is locally constant. -/
 relative dimension `r` this is the coefficient `n_x` of the unique irreducible
 component of `X_s` through `x`. -/
 #check (AlgebraicGeometry.Scheme.Hom.CyclesOnFibers.componentCoeff :
-  ∀ {X S : Scheme.{u}} (f : X ⟶ S) {r : ℤ}, CyclesOnFibers f r → X → ℤ)
+  ∀ {X S : Scheme.{u}} (f : X ⟶ S) [LocallyOfFiniteType f] {r : ℤ},
+    CyclesOnFibers f r → X → ℤ)
 
 /- The fibre-component coefficient is the finite sum of coefficients of generic
 points of the fibre specializing to the given point. -/
 open scoped Classical in
 #check (AlgebraicGeometry.Scheme.Hom.CyclesOnFibers.componentCoeff_apply :
-  ∀ {X S : Scheme.{u}} (f : X ⟶ S) {r : ℤ} (α : CyclesOnFibers f r) (x : X),
+  ∀ {X S : Scheme.{u}} (f : X ⟶ S) [LocallyOfFiniteType f] {r : ℤ}
+    (α : CyclesOnFibers f r) (x : X),
     CyclesOnFibers.componentCoeff f α x =
       ∑ᶠ ξ : f.fiber (f x),
         if f.asFiber x ∈ closure {ξ} then (α.toAlgebraicCycle (f x)) ξ else 0)

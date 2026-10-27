@@ -38,7 +38,7 @@ def IsTrivialOn {K : Precoverage (AlgebraicSpace S)} (U : B.Cover K) : Prop :=
 /-- Triviality on a chosen cover is memberwise existence of sections. -/
 theorem isTrivialOn_iff {K : Precoverage (AlgebraicSpace S)} (U : B.Cover K) :
     IsTrivialOn G X U ↔
-      ∀ i : U.I₀, Nonempty ((Over.mk (U.f i) : Over B) ⟶ X.X) := sorry
+      ∀ i : U.I₀, Nonempty ((Over.mk (U.f i) : Over B) ⟶ X.X) := Iff.rfl
 
 /-- A `G`-action is a torsor for `K` when it is a pseudo-torsor and is trivial
 on some `K`-cover. -/
@@ -59,12 +59,19 @@ theorem isTorsorFor_iff (K : Precoverage (AlgebraicSpace S)) :
     IsTorsorFor G X K ↔
       Mod.IsPseudoTorsor X ∧
         ∃ U : B.Cover K,
-          ∀ i : U.I₀, Nonempty ((Over.mk (U.f i) : Over B) ⟶ X.X) := sorry
+          ∀ i : U.I₀, Nonempty ((Over.mk (U.f i) : Over B) ⟶ X.X) :=
+  ⟨fun hX ↦ ⟨hX.isPseudoTorsor, hX.exists_trivializingCover⟩,
+    fun hX ↦ ⟨hX.1, hX.2⟩⟩
 
 /-- A torsor for a precoverage remains a torsor after enlarging the
 precoverage. -/
 theorem IsTorsorFor.mono {K L : Precoverage (AlgebraicSpace S)} (hKL : K ≤ L)
-    (hX : IsTorsorFor G X K) : IsTorsorFor G X L := sorry
+    (hX : IsTorsorFor G X K) : IsTorsorFor G X L := by
+  obtain ⟨U, hU⟩ := hX.exists_trivializingCover
+  let V : B.Cover L :=
+    { toPreZeroHypercover := U.toPreZeroHypercover
+      mem₀ := hKL _ U.mem₀ }
+  exact ⟨hX.isPseudoTorsor, ⟨V, hU⟩⟩
 
 /-- A pseudo `G`-torsor that acquires sections on an fpqc covering. -/
 abbrev IsTorsor : Prop :=
@@ -76,7 +83,8 @@ theorem isTorsor_iff :
     IsTorsor G X ↔
       Mod.IsPseudoTorsor X ∧
         ∃ U : B.Cover (AlgebraicSpace.fpqcPrecoverage S),
-          ∀ i : U.I₀, Nonempty ((Over.mk (U.f i) : Over B) ⟶ X.X) := sorry
+          ∀ i : U.I₀, Nonempty ((Over.mk (U.f i) : Over B) ⟶ X.X) :=
+  isTorsorFor_iff G X _
 
 /-- A pseudo `G`-torsor that acquires sections in the standard topology `τ`. -/
 abbrev IsStandardTorsor (τ : StandardTopology) : Prop :=
@@ -88,7 +96,8 @@ theorem isStandardTorsor_iff (τ : StandardTopology) :
     IsStandardTorsor G X τ ↔
       Mod.IsPseudoTorsor X ∧
         ∃ U : B.Cover (AlgebraicSpace.standardPrecoverage S τ),
-          ∀ i : U.I₀, Nonempty ((Over.mk (U.f i) : Over B) ⟶ X.X) := sorry
+          ∀ i : U.I₀, Nonempty ((Over.mk (U.f i) : Over B) ⟶ X.X) :=
+  isTorsorFor_iff G X _
 
 /-- An étale-locally trivial pseudo `G`-torsor. -/
 abbrev IsQuasiIsotrivial : Prop :=
@@ -99,7 +108,8 @@ theorem isQuasiIsotrivial_iff :
     IsQuasiIsotrivial G X ↔
       Mod.IsPseudoTorsor X ∧
         ∃ U : B.Cover (AlgebraicSpace.standardPrecoverage S .etale),
-          ∀ i : U.I₀, Nonempty ((Over.mk (U.f i) : Over B) ⟶ X.X) := sorry
+          ∀ i : U.I₀, Nonempty ((Over.mk (U.f i) : Over B) ⟶ X.X) :=
+  isStandardTorsor_iff G X .etale
 
 /-- A Zariski-locally trivial pseudo `G`-torsor. -/
 abbrev IsLocallyTrivial : Prop :=
@@ -110,7 +120,8 @@ theorem isLocallyTrivial_iff :
     IsLocallyTrivial G X ↔
       Mod.IsPseudoTorsor X ∧
         ∃ U : B.Cover (AlgebraicSpace.standardPrecoverage S .zariski),
-          ∀ i : U.I₀, Nonempty ((Over.mk (U.f i) : Over B) ⟶ X.X) := sorry
+          ∀ i : U.I₀, Nonempty ((Over.mk (U.f i) : Over B) ⟶ X.X) :=
+  isStandardTorsor_iff G X .zariski
 
 /-- Every torsor for a standard topology is an fpqc torsor. -/
 theorem IsStandardTorsor.isTorsor {τ : StandardTopology}
@@ -118,10 +129,12 @@ theorem IsStandardTorsor.isTorsor {τ : StandardTopology}
 
 /-- Every quasi-isotrivial pseudo torsor is an fpqc torsor. -/
 theorem IsQuasiIsotrivial.isTorsor
-    (hX : IsQuasiIsotrivial G X) : IsTorsor G X := sorry
+    (hX : IsQuasiIsotrivial G X) : IsTorsor G X :=
+  IsStandardTorsor.isTorsor G X hX
 
 /-- Every Zariski-locally trivial pseudo torsor is an fpqc torsor. -/
 theorem IsLocallyTrivial.isTorsor
-    (hX : IsLocallyTrivial G X) : IsTorsor G X := sorry
+    (hX : IsLocallyTrivial G X) : IsTorsor G X :=
+  IsStandardTorsor.isTorsor G X hX
 
 end AlgebraicGeometry.GroupAlgebraicSpace

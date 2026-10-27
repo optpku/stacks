@@ -9,7 +9,8 @@ module
 public import Mathlib.Algebra.Category.Grp.Basic
 public import Mathlib.Tactic.CrossRefAttribute
 public import ReasLib.CategoryTheory.Sites.Hypercovering.Augmented
-public import stacks_project.Chap85.Lemma_85_19_1
+public import ReasLib.CategoryTheory.Sites.Hypercovering.SheafDescent
+import StacksCheckRecall
 
 /-!
 # Lemma 85.21.1
@@ -51,47 +52,45 @@ variable [∀ P : (Grothendieck
       Type (max w u v),
     (totalForget (toHypercovering.{w} A hA).toSimplicialObject).op.HasPointwiseRightKanExtension P]
 
-/-- Lemma 85.21.1 (1): Let `C` be a site with fibre products and `X` an object of
-`C`. Let `a : U ⟶ X` be a hypercovering of `X` in `C`. Then
-`a⁻¹ : Sh(C / X) ⥤ Sh((C / U)_total)` is fully faithful with essential image the
-cartesian sheaves of sets, and `a_*` provides the quasi-inverse functor. -/
-@[stacks 0DA8]
-def sheafCartesianEquivalence :
-    Sheaf (J.over A.right) (Type (max w u v)) ≌
-      Cartesian (J.over A.right) (toHypercovering.{w} A hA).toSimplicialObject
-        (Type (max w u v)) :=
-  Hypercovering.sheafCartesianEquivalence J A.right (toHypercovering.{w} A hA)
+/- Lemma 85.21.1 (1): Augmentation inverse image is fully faithful with essential
+image the cartesian sheaves of sets; direct image is its quasi-inverse. -/
+@[stacks 0DA8] #check (CategoryTheory.Hypercovering.sheafCartesianEquivalence J A.right (toHypercovering.{w} A hA) :
+  Sheaf (J.over A.right) (Type (max w u v)) ≌
+    Cartesian (J.over A.right) (toHypercovering.{w} A hA).toSimplicialObject (Type (max w u v)))
 
-/-- The forward functor of `sheafCartesianEquivalence` is `a⁻¹` corestricted to
-cartesian sheaves of sets. -/
-theorem sheafCartesianEquivalence_functor :
-    (sheafCartesianEquivalence J A hA).functor =
-      cartesianFunctor.{w, v, max u v} (J.over A.right)
-        (Hypercovering.toSliceTerminal J A.right (toHypercovering.{w} A hA))
-        (Type (max w u v)) :=
-  sorry
+#check (CategoryTheory.SemiRepresentableFamily.cartesianEquivalence_functor.{w, v, max u v}
+    (J.over A.right) (CategoryTheory.Hypercovering.toSliceTerminal J A.right (toHypercovering.{w} A hA)) (Type (max w u v)) :
+  (CategoryTheory.Hypercovering.sheafCartesianEquivalence J A.right (toHypercovering.{w} A hA)).functor =
+    CategoryTheory.SemiRepresentableFamily.cartesianFunctor.{w, v, max u v}
+      (J.over A.right) (CategoryTheory.Hypercovering.toSliceTerminal J A.right (toHypercovering.{w} A hA)) (Type (max w u v)))
 
-/-- The inverse functor of `sheafCartesianEquivalence` is `a_*` on cartesian sheaves
-of sets. -/
-theorem sheafCartesianEquivalence_inverse :
-    (sheafCartesianEquivalence J A hA).inverse =
-      cartesianInverse.{w, v, max u v} (J.over A.right)
-        (Hypercovering.toSliceTerminal J A.right (toHypercovering.{w} A hA))
-        (Type (max w u v)) :=
-  sorry
+#check (CategoryTheory.SemiRepresentableFamily.cartesianEquivalence_inverse.{w, v, max u v}
+    (J.over A.right) (CategoryTheory.Hypercovering.toSliceTerminal J A.right (toHypercovering.{w} A hA)) (Type (max w u v)) :
+  (CategoryTheory.Hypercovering.sheafCartesianEquivalence J A.right (toHypercovering.{w} A hA)).inverse =
+    CategoryTheory.SemiRepresentableFamily.cartesianInverse.{w, v, max u v}
+      (J.over A.right) (CategoryTheory.Hypercovering.toSliceTerminal J A.right (toHypercovering.{w} A hA)) (Type (max w u v)))
 
-/-- A sheaf of sets on `(C / U)_total` lies in the essential image of `a⁻¹` if and
-only if it is cartesian. -/
-theorem sheaf_mem_essImage_iff_isCartesian
-    (G : Sheaf
-      (overSiteTotalTopology (J.over A.right)
-        (toHypercovering.{w} A hA).toSimplicialObject)
-      (Type (max w u v))) :
-    (inverseImage (J.over A.right) (toHypercovering.{w} A hA).toSimplicialObject
-      (Type (max w u v))).essImage G ↔
-      IsCartesian (J.over A.right) (toHypercovering.{w} A hA).toSimplicialObject
-        (Type (max w u v)) G :=
-  sorry
+#check (CategoryTheory.SemiRepresentableFamily.cartesianFunctor_obj.{w, v, max u v}
+    (J.over A.right) (CategoryTheory.Hypercovering.toSliceTerminal J A.right (toHypercovering.{w} A hA)) (Type (max w u v)) :
+  ∀ F : Sheaf (J.over A.right) (Type (max w u v)),
+    ((CategoryTheory.Hypercovering.sheafCartesianEquivalence J A.right (toHypercovering.{w} A hA)).functor.obj F).obj =
+      (inverseImage (J.over A.right) (toHypercovering.{w} A hA).toSimplicialObject (Type (max w u v))).obj F)
+
+#check (CategoryTheory.SemiRepresentableFamily.cartesianInverse_obj.{w, v, max u v}
+    (J.over A.right) (CategoryTheory.Hypercovering.toSliceTerminal J A.right (toHypercovering.{w} A hA)) (Type (max w u v)) :
+  ∀ G : Cartesian (J.over A.right) (toHypercovering.{w} A hA).toSimplicialObject (Type (max w u v)),
+    (CategoryTheory.Hypercovering.sheafCartesianEquivalence J A.right (toHypercovering.{w} A hA)).inverse.obj G =
+      (directImage (J.over A.right) (toHypercovering.{w} A hA).toSimplicialObject (Type (max w u v))).obj G.obj)
+
+#check (CategoryTheory.SemiRepresentableFamily.inverseImage_fullyFaithful.{w, v, max u v}
+    (J.over A.right) (CategoryTheory.Hypercovering.toSliceTerminal J A.right (toHypercovering.{w} A hA)) (Type (max w u v)) :
+  (inverseImage (J.over A.right) (toHypercovering.{w} A hA).toSimplicialObject (Type (max w u v))).FullyFaithful)
+
+#check (CategoryTheory.SemiRepresentableFamily.mem_essImage_iff_isCartesian.{w, v, max u v}
+    (J.over A.right) (CategoryTheory.Hypercovering.toSliceTerminal J A.right (toHypercovering.{w} A hA)) (Type (max w u v)) :
+  ∀ G : Sheaf (overSiteTotalTopology (J.over A.right) (toHypercovering.{w} A hA).toSimplicialObject) (Type (max w u v)),
+    (inverseImage (J.over A.right) (toHypercovering.{w} A hA).toSimplicialObject (Type (max w u v))).essImage G ↔
+      IsCartesian (J.over A.right) (toHypercovering.{w} A hA).toSimplicialObject (Type (max w u v)) G)
 
 variable [HasWeakSheafify (J.over A.right) AddCommGrpCat.{max w u v}]
 variable [HasWeakSheafify
@@ -107,46 +106,44 @@ variable [∀ P : (Grothendieck
       AddCommGrpCat.{max w u v},
     (totalForget (toHypercovering.{w} A hA).toSimplicialObject).op.HasPointwiseRightKanExtension P]
 
-/-- Lemma 85.21.1 (2): Let `C` be a site with fibre products and `X` an object of
-`C`. Let `a : U ⟶ X` be a hypercovering of `X` in `C`. Then
-`a⁻¹ : Ab(C / X) ⥤ Ab((C / U)_total)` is fully faithful with essential image the
-cartesian sheaves of abelian groups, and `a_*` provides the quasi-inverse functor. -/
-@[stacks 0DA8]
-def abelianCartesianEquivalence :
-    Sheaf (J.over A.right) AddCommGrpCat.{max w u v} ≌
-      Cartesian (J.over A.right) (toHypercovering.{w} A hA).toSimplicialObject
-        AddCommGrpCat.{max w u v} :=
-  Hypercovering.abelianCartesianEquivalence J A.right (toHypercovering.{w} A hA)
+/- Lemma 85.21.1 (2): Augmentation inverse image is fully faithful with essential
+image the cartesian sheaves of abelian groups; direct image is its quasi-inverse. -/
+@[stacks 0DA8] #check (CategoryTheory.Hypercovering.abelianCartesianEquivalence J A.right (toHypercovering.{w} A hA) :
+  Sheaf (J.over A.right) AddCommGrpCat.{max w u v} ≌
+    Cartesian (J.over A.right) (toHypercovering.{w} A hA).toSimplicialObject AddCommGrpCat.{max w u v})
 
-/-- The forward functor of `abelianCartesianEquivalence` is `a⁻¹` corestricted to
-cartesian sheaves of abelian groups. -/
-theorem abelianCartesianEquivalence_functor :
-    (abelianCartesianEquivalence J A hA).functor =
-      cartesianFunctor.{w, v, max u v} (J.over A.right)
-        (Hypercovering.toSliceTerminal J A.right (toHypercovering.{w} A hA))
-        AddCommGrpCat.{max w u v} :=
-  sorry
+#check (CategoryTheory.SemiRepresentableFamily.cartesianEquivalence_functor.{w, v, max u v}
+    (J.over A.right) (CategoryTheory.Hypercovering.toSliceTerminal J A.right (toHypercovering.{w} A hA)) AddCommGrpCat.{max w u v} :
+  (CategoryTheory.Hypercovering.abelianCartesianEquivalence J A.right (toHypercovering.{w} A hA)).functor =
+    CategoryTheory.SemiRepresentableFamily.cartesianFunctor.{w, v, max u v}
+      (J.over A.right) (CategoryTheory.Hypercovering.toSliceTerminal J A.right (toHypercovering.{w} A hA)) AddCommGrpCat.{max w u v})
 
-/-- The inverse functor of `abelianCartesianEquivalence` is `a_*` on cartesian
-sheaves of abelian groups. -/
-theorem abelianCartesianEquivalence_inverse :
-    (abelianCartesianEquivalence J A hA).inverse =
-      cartesianInverse.{w, v, max u v} (J.over A.right)
-        (Hypercovering.toSliceTerminal J A.right (toHypercovering.{w} A hA))
-        AddCommGrpCat.{max w u v} :=
-  sorry
+#check (CategoryTheory.SemiRepresentableFamily.cartesianEquivalence_inverse.{w, v, max u v}
+    (J.over A.right) (CategoryTheory.Hypercovering.toSliceTerminal J A.right (toHypercovering.{w} A hA)) AddCommGrpCat.{max w u v} :
+  (CategoryTheory.Hypercovering.abelianCartesianEquivalence J A.right (toHypercovering.{w} A hA)).inverse =
+    CategoryTheory.SemiRepresentableFamily.cartesianInverse.{w, v, max u v}
+      (J.over A.right) (CategoryTheory.Hypercovering.toSliceTerminal J A.right (toHypercovering.{w} A hA)) AddCommGrpCat.{max w u v})
 
-/-- An abelian sheaf on `(C / U)_total` lies in the essential image of `a⁻¹` if and
-only if it is cartesian. -/
-theorem abelian_mem_essImage_iff_isCartesian
-    (G : Sheaf
-      (overSiteTotalTopology (J.over A.right)
-        (toHypercovering.{w} A hA).toSimplicialObject)
-      AddCommGrpCat.{max w u v}) :
-    (inverseImage (J.over A.right) (toHypercovering.{w} A hA).toSimplicialObject
-      AddCommGrpCat.{max w u v}).essImage G ↔
-      IsCartesian (J.over A.right) (toHypercovering.{w} A hA).toSimplicialObject
-        AddCommGrpCat.{max w u v} G :=
-  sorry
+#check (CategoryTheory.SemiRepresentableFamily.cartesianFunctor_obj.{w, v, max u v}
+    (J.over A.right) (CategoryTheory.Hypercovering.toSliceTerminal J A.right (toHypercovering.{w} A hA)) AddCommGrpCat.{max w u v} :
+  ∀ F : Sheaf (J.over A.right) AddCommGrpCat.{max w u v},
+    ((CategoryTheory.Hypercovering.abelianCartesianEquivalence J A.right (toHypercovering.{w} A hA)).functor.obj F).obj =
+      (inverseImage (J.over A.right) (toHypercovering.{w} A hA).toSimplicialObject AddCommGrpCat.{max w u v}).obj F)
+
+#check (CategoryTheory.SemiRepresentableFamily.cartesianInverse_obj.{w, v, max u v}
+    (J.over A.right) (CategoryTheory.Hypercovering.toSliceTerminal J A.right (toHypercovering.{w} A hA)) AddCommGrpCat.{max w u v} :
+  ∀ G : Cartesian (J.over A.right) (toHypercovering.{w} A hA).toSimplicialObject AddCommGrpCat.{max w u v},
+    (CategoryTheory.Hypercovering.abelianCartesianEquivalence J A.right (toHypercovering.{w} A hA)).inverse.obj G =
+      (directImage (J.over A.right) (toHypercovering.{w} A hA).toSimplicialObject AddCommGrpCat.{max w u v}).obj G.obj)
+
+#check (CategoryTheory.SemiRepresentableFamily.inverseImage_fullyFaithful.{w, v, max u v}
+    (J.over A.right) (CategoryTheory.Hypercovering.toSliceTerminal J A.right (toHypercovering.{w} A hA)) AddCommGrpCat.{max w u v} :
+  (inverseImage (J.over A.right) (toHypercovering.{w} A hA).toSimplicialObject AddCommGrpCat.{max w u v}).FullyFaithful)
+
+#check (CategoryTheory.SemiRepresentableFamily.mem_essImage_iff_isCartesian.{w, v, max u v}
+    (J.over A.right) (CategoryTheory.Hypercovering.toSliceTerminal J A.right (toHypercovering.{w} A hA)) AddCommGrpCat.{max w u v} :
+  ∀ G : Sheaf (overSiteTotalTopology (J.over A.right) (toHypercovering.{w} A hA).toSimplicialObject) AddCommGrpCat.{max w u v},
+    (inverseImage (J.over A.right) (toHypercovering.{w} A hA).toSimplicialObject AddCommGrpCat.{max w u v}).essImage G ↔
+      IsCartesian (J.over A.right) (toHypercovering.{w} A hA).toSimplicialObject AddCommGrpCat.{max w u v} G)
 
 end CategoryTheory.SimplicialObject.Augmented

@@ -16,7 +16,7 @@ import Mathlib.Tactic.CrossRefAttribute
 /-!
 # Localizing a morphism of ringed sites at an arrow
 
-A morphism of ringed sites `f : X ⟶ Y`, an object `V : Y`, and an arrow
+A morphism of ringed sites `f : X.Hom Y`, an object `V : Y.carrier`, and an arrow
 `c : U ⟶ f.base.obj V` determine a morphism of localized ringed topoi.  The construction is
 kept as the explicit composite of relocalization with the canonical localized site morphism.
 -/
@@ -32,7 +32,7 @@ universe uX vX uY vY w
 namespace RingedSite.Hom
 
 variable {X : RingedSite.{uX, vX, w}} {Y : RingedSite.{uY, vY, w}}
-variable (f : X.Hom Y) (V : Y)
+variable (f : X.Hom Y) (V : Y.carrier)
 variable [UnivLE.{max uX vX, w}] [UnivLE.{max uY vY, w}]
 variable [UnivLE.{max uY vY vX, w}]
 
@@ -44,13 +44,13 @@ noncomputable def localizationToposHom :
 
 section At
 
-variable {U : X} (c : U ⟶ f.base.obj V)
+variable {U : X.carrier} (c : U ⟶ f.base.obj V)
 -- These ambient instances select the slice instances inherited via `J.over`; they do not become
 -- parameters of `localizationAt`, whose public API only needs the universe bounds above.
 variable [X.siteTopology.HasSheafCompose (forget RingCat.{w})]
 variable [Y.siteTopology.HasSheafCompose (forget RingCat.{w})]
 
-/-- Lemma 18.20.2 (04J1): the localized morphism `f_c`, defined as relocalization along `c`
+/-- The localized morphism at an arrow `c` is relocalization along `c`
 followed by the morphism obtained by localizing `f` at `V`. -/
 @[stacks 04J1 "localized morphism"]
 noncomputable def localizationAt :

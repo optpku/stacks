@@ -34,7 +34,21 @@ def Rel {E : C} (q q' : InvertibleQuotient E) : Prop :=
   ∃ e : q.object ≅ q'.object, q.hom ≫ e.hom = q'.hom
 
 /-- Compatible target isomorphism is an equivalence relation on invertible quotients. -/
-theorem rel_isEquivalence (E : C) : _root_.Equivalence (@Rel C _ _ E) := sorry
+theorem rel_isEquivalence (E : C) : _root_.Equivalence (@Rel C _ _ E) := by
+  constructor
+  · intro q
+    exact ⟨Iso.refl _, Category.comp_id _⟩
+  · intro q q' h
+    rcases h with ⟨e, he⟩
+    refine ⟨e.symm, ?_⟩
+    change q'.hom ≫ e.inv = q.hom
+    rw [← he, Category.assoc, e.hom_inv_id, Category.comp_id]
+  · intro q q' q'' h h'
+    rcases h with ⟨e, he⟩
+    rcases h' with ⟨e', he'⟩
+    refine ⟨e ≪≫ e', ?_⟩
+    change q.hom ≫ (e.hom ≫ e'.hom) = q''.hom
+    rw [← Category.assoc, he, he']
 
 /-- The setoid of invertible quotients modulo compatible target isomorphism. -/
 def setoid (E : C) : Setoid (InvertibleQuotient E) :=
@@ -54,7 +68,8 @@ end IsoClass
 /-- Two representatives determine the same quotient class exactly when their targets are
 compatibly isomorphic. -/
 theorem isoClass_eq_iff {E : C} (q q' : InvertibleQuotient E) :
-    IsoClass.mk q = IsoClass.mk q' ↔ Rel q q' := sorry
+    IsoClass.mk q = IsoClass.mk q' ↔ Rel q q' :=
+  ⟨Quotient.exact, fun h ↦ @Quotient.sound _ (setoid E) q q' h⟩
 
 /-- The target isomorphism canonically forced by equality of two quotient classes. -/
 noncomputable def targetIsoOfMkEq {E : C} {q q' : InvertibleQuotient E}
@@ -65,17 +80,22 @@ noncomputable def targetIsoOfMkEq {E : C} {q q' : InvertibleQuotient E}
 quotient morphisms. -/
 theorem targetIsoOfMkEq_spec {E : C} {q q' : InvertibleQuotient E}
     (h : IsoClass.mk q = IsoClass.mk q') :
-    q.hom ≫ (targetIsoOfMkEq h).hom = q'.hom := sorry
+    q.hom ≫ (targetIsoOfMkEq h).hom = q'.hom :=
+  Classical.choose_spec (Quotient.exact h)
 
 /-- A compatible target isomorphism between representatives of one quotient class is unique. -/
 theorem targetIsoOfMkEq_unique {E : C} {q q' : InvertibleQuotient E}
     (h : IsoClass.mk q = IsoClass.mk q') (e : q.object ≅ q'.object)
     (he : q.hom ≫ e.hom = q'.hom) :
-    e = targetIsoOfMkEq h := sorry
+    e = targetIsoOfMkEq h := by
+  letI : Epi q.hom := q.hom_epi
+  apply Iso.ext
+  exact (cancel_epi q.hom).1 (he.trans (targetIsoOfMkEq_spec h).symm)
 
 /-- The canonical target isomorphism attached to reflexive equality is the identity. -/
 theorem targetIsoOfMkEq_refl {E : C} (q : InvertibleQuotient E) :
-    targetIsoOfMkEq (q := q) (q' := q) rfl = Iso.refl q.object := sorry
+    targetIsoOfMkEq (q := q) (q' := q) rfl = Iso.refl q.object :=
+  (targetIsoOfMkEq_unique (q := q) (q' := q) rfl (Iso.refl _) (Category.comp_id _)).symm
 
 /-- Source transport preserves compatible target isomorphism. -/
 theorem precomposeIso_rel {E E' : C} (e : E ≅ E')

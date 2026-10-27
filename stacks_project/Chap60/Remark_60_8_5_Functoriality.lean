@@ -6,96 +6,46 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap60.Remark_60_8_5_Functoriality_Functor
-public import stacks_project.Chap60.Definition_60_8_4
-public import ReasLib.CategoryTheory.Sites.Topos.Continuous
-public import ReasLib.CategoryTheory.Sites.Topos.Cocontinuous
-import Mathlib.Tactic.CrossRefAttribute
-
-@[expose] public section
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.Crystalline.Functoriality
 
 open CategoryTheory CategoryTheory.Limits AlgebraicGeometry
-
-noncomputable section
+open AlgebraicGeometry.Scheme.Crystalline
 
 universe u
 
-namespace AlgebraicGeometry
-
-section Functoriality
-
-variable {p : ℕ} [Fact (Nat.Prime p)]
-variable {S S' : Scheme.{u}} (I : S.IdealSheafData) (I' : S'.IdealSheafData)
-variable (γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V))
-variable (γ' : ∀ V : S'.affineOpens, DividedPowers (I'.ideal V))
-variable (h_compatible :
-  ∀ (V : S.affineOpens) (f : Γ(S, V)),
-    (γ V).IsDPMorphism (γ (S.affineBasicOpen f))
-      (S.presheaf.map (homOfLE (S.basicOpen_le f)).op).hom)
-variable (h'_compatible :
-  ∀ (V : S'.affineOpens) (f : Γ(S', V)),
-    (γ' V).IsDPMorphism (γ' (S'.affineBasicOpen f))
-      (S'.presheaf.map (homOfLE (S'.basicOpen_le f)).op).hom)
-variable (s : S ⟶ Spec (.of (ULift.{u} (Int.LocalizationAtPrime p))))
-variable (s' : S' ⟶ Spec (.of (ULift.{u} (Int.LocalizationAtPrime p))))
-variable {X Y : Scheme.{u}} (x₀ : X ⟶ I.subscheme) (y₀ : Y ⟶ I'.subscheme)
-variable (f : X ⟶ Y)
-variable (g : DividedPowerSchemeHom I I' s s')
-variable (h_comm : f ≫ y₀ = x₀ ≫ g.zeroFiberMap)
+variable {p : ℕ} [Fact (Nat.Prime p)] (B B' : Base.{u} p)
+variable (f : B.source ⟶ B'.source)
+variable (g : DividedPowerSchemeHom B.ideal B'.ideal B.toSpec B'.toSpec)
+variable (h_comm : f ≫ B'.sourceToClosed = B.sourceToClosed ≫ g.zeroFiberMap)
 variable (h_dividedPowers_compatible :
-  ∀ (V : S'.affineOpens) (W : S.affineOpens)
+  ∀ (V : B'.scheme.affineOpens) (W : B.scheme.affineOpens)
     (hVW : W.1 ≤ g.base ⁻¹ᵁ V.1),
-    (γ' V).IsDPMorphism (γ W) (g.base.appLE V W hVW).hom)
+    (B'.dividedPowers V).IsDPMorphism (B.dividedPowers W) (g.base.appLE V W hVW).hom)
 
-/-- Remark 60.8.5 (Functoriality) (1): under the crystalline hypotheses, the
-constructed functor of relative crystalline sites is continuous for the
-canonical crystalline Zariski topologies. -/
-@[stacks 07IC]
-instance crystallineFunctor_isContinuous
-    (pX : ∀ U : X.affineOpens, IsNilpotent (p : Γ(X, U)))
-    (pY : ∀ U : Y.affineOpens, IsNilpotent (p : Γ(Y, U)))
-    : (CrystallineFunctor.of f g h_comm pX pY
+/- Remark 60.8.5 (Functoriality)
+A divided-power base morphism and a commuting source square induce the geometric
+morphism from the crystalline topos of the source to that of the target. -/
+@[stacks 07IC] #check (AlgebraicGeometry.Scheme.Crystalline.functorialToposHom
+    B B' f g h_comm h_dividedPowers_compatible :
+    MorphismOfTopoiIn.{u + 1, u + 1, u, u, u + 1}
+      (crystallineZariskiTopology B'.scheme B'.ideal B'.dividedPowers B'.compatible B'.source B'.sourceToClosed)
+      (crystallineZariskiTopology B.scheme B.ideal B.dividedPowers B.compatible B.source B.sourceToClosed))
+
+#check (AlgebraicGeometry.crystallineFunctor_isContinuous
+    B.ideal B'.ideal B.dividedPowers B'.dividedPowers B.compatible B'.compatible
+    B.toSpec B'.toSpec B.sourceToClosed B'.sourceToClosed f g h_comm
+    h_dividedPowers_compatible B.prime_nilpotent B'.prime_nilpotent :
+    (CrystallineFunctor.of f g h_comm B.prime_nilpotent B'.prime_nilpotent
       h_dividedPowers_compatible).toRelativeFunctor.IsContinuous
-      (Scheme.Crystalline.crystallineZariskiTopology S I γ h_compatible X x₀)
-      (Scheme.Crystalline.crystallineZariskiTopology S' I' γ' h'_compatible Y y₀) := sorry
+      (crystallineZariskiTopology B.scheme B.ideal B.dividedPowers B.compatible B.source B.sourceToClosed)
+      (crystallineZariskiTopology B'.scheme B'.ideal B'.dividedPowers B'.compatible B'.source B'.sourceToClosed))
 
-/-- Remark 60.8.5 (Functoriality) (2): under the crystalline hypotheses, the
-constructed functor of relative crystalline sites is cocontinuous for the
-canonical crystalline Zariski topologies. -/
-@[stacks 07IC]
-instance crystallineFunctor_isCocontinuous
-    (pX : ∀ U : X.affineOpens, IsNilpotent (p : Γ(X, U)))
-    (pY : ∀ U : Y.affineOpens, IsNilpotent (p : Γ(Y, U)))
-    : (CrystallineFunctor.of f g h_comm pX pY
+#check (AlgebraicGeometry.crystallineFunctor_isCocontinuous
+    B.ideal B'.ideal B.dividedPowers B'.dividedPowers B.compatible B'.compatible
+    B.toSpec B'.toSpec B.sourceToClosed B'.sourceToClosed f g h_comm
+    h_dividedPowers_compatible B.prime_nilpotent B'.prime_nilpotent :
+    (CrystallineFunctor.of f g h_comm B.prime_nilpotent B'.prime_nilpotent
       h_dividedPowers_compatible).toRelativeFunctor.IsCocontinuous
-      (Scheme.Crystalline.crystallineZariskiTopology S I γ h_compatible X x₀)
-      (Scheme.Crystalline.crystallineZariskiTopology S' I' γ' h'_compatible Y y₀) := sorry
-
-/-- Remark 60.8.5 (Functoriality) (3): the continuous and cocontinuous
-crystalline-site functor induces `f_CRIS : (X/S)_CRIS ⟶ (Y/S')_CRIS`. -/
-@[stacks 07IC]
-noncomputable def crystallineToposHom
-    (pX : ∀ U : X.affineOpens, IsNilpotent (p : Γ(X, U)))
-    (pY : ∀ U : Y.affineOpens, IsNilpotent (p : Γ(Y, U)))
-    [HasWeakSheafify
-      (Scheme.Crystalline.crystallineZariskiTopology S' I' γ' h'_compatible Y y₀)
-      (Type (u + 1))]
-    [∀ P : (RelativeCRIS S I γ h_compatible X x₀)ᵒᵖ ⥤ Type (u + 1),
-      (Functor.op (CrystallineFunctor.of f g h_comm pX pY
-        h_dividedPowers_compatible).toRelativeFunctor).HasLeftKanExtension P]
-    [PreservesFiniteLimits
-      ((CrystallineFunctor.of f g h_comm pX pY
-        h_dividedPowers_compatible).toRelativeFunctor.sheafPullback (Type (u + 1))
-        (Scheme.Crystalline.crystallineZariskiTopology S I γ h_compatible X x₀)
-        (Scheme.Crystalline.crystallineZariskiTopology S' I' γ' h'_compatible Y y₀))] :
-    MorphismOfTopoiIn
-      (Scheme.Crystalline.crystallineZariskiTopology S I γ h_compatible X x₀)
-      (Scheme.Crystalline.crystallineZariskiTopology S' I' γ' h'_compatible Y y₀) :=
-  (CrystallineFunctor.of f g h_comm pX pY
-    h_dividedPowers_compatible).toRelativeFunctor.morphismOfTopoiInOfContinuous
-    (Scheme.Crystalline.crystallineZariskiTopology S I γ h_compatible X x₀)
-    (Scheme.Crystalline.crystallineZariskiTopology S' I' γ' h'_compatible Y y₀)
-
-end Functoriality
-
-end AlgebraicGeometry
+      (crystallineZariskiTopology B.scheme B.ideal B.dividedPowers B.compatible B.source B.sourceToClosed)
+      (crystallineZariskiTopology B'.scheme B'.ideal B'.dividedPowers B'.compatible B'.source B'.sourceToClosed))

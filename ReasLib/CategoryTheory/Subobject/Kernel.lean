@@ -28,6 +28,13 @@ variable {C : Type u} [Category.{v} C] [HasZeroMorphisms C] [HasKernels C] [HasP
 /-- The kernel subobject of a composite is the pullback of the kernel subobject of its second
 factor along the first factor. -/
 theorem kernelSubobject_comp_eq_pullback {X Y Z : C} (f : X ⟶ Y) (g : Y ⟶ Z) :
-    kernelSubobject (f ≫ g) = (Subobject.pullback f).obj (kernelSubobject g) := sorry
+    kernelSubobject (f ≫ g) = (Subobject.pullback f).obj (kernelSubobject g) := by
+  apply le_antisymm
+  · apply Subobject.le_of_factors
+    rw [pullback_factors_iff, kernelSubobject_factors_iff, Category.assoc]
+    exact kernelSubobject_arrow_comp (f ≫ g)
+  · apply le_kernelSubobject
+    rw [← Category.assoc, ← (Subobject.isPullback f (kernelSubobject g)).w,
+      Category.assoc, kernelSubobject_arrow_comp, comp_zero]
 
 end CategoryTheory.Limits

@@ -33,11 +33,12 @@ variable [∀ X, Ring (H X)] [∀ X, Algebra F (H X)] [∀ X, AddCommGroup (Pica
 /- Lemma 45.14.13: data (D0), (D1), and (D2') satisfying axioms (A1)–(A7),
 compatibility of the cycle-class map with pushforward follows from the identity
 i_*(1) = γ([Z]) for closed immersions of nonempty equidimensional objects whose
+/- 抽象层对角类 mixin：待 RL-2194 完成锚定后移除。 -/
 conormal `K₀`-class extends from the target. -/
 @[stacks 0FIR] #check
   (WeilCohomology.SchemePreWeilTheory.cycleClass_pushforward_of_conormalClass :
     ∀ (T : SchemePreWeilTheory k F TateLine V dimension product fst snd point CH CHgrade
-      cyclePullback cyclePushforward pointCycle H Picard)
+      cyclePullback cyclePushforward pointCycle H Picard) [T.HasDiagonalClassRelation]
       (h_conormal : ∀ {Z X : V} {d e : ℕ}
         (hZ : T.IsNonemptyEquidimensional Z d)
         (hX : T.IsNonemptyEquidimensional X e) (i : Z ⟶ X)

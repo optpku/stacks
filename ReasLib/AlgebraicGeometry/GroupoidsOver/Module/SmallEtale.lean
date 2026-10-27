@@ -58,7 +58,9 @@ def etaleOverHomMap {X : GroupoidsOver S} {x : X.total}
 theorem etaleOverHom_comp {X : GroupoidsOver S} {x : X.total}
     {V' W' : SmallStandardTopology.etale.site (X.p.obj x).left} (f : V' ⟶ W') :
     etaleOverHom x V' = etaleOverHomMap f ≫ etaleOverHom x W' :=
-  sorry
+  by
+    apply Over.OverMorphism.ext
+    exact f.w.symm
 
 /-- The morphism between cartesian lifts induced by a map of étale neighborhoods. -/
 def smallEtaleToTotalMap {X : GroupoidsOver S} {x : X.total}
@@ -75,7 +77,12 @@ theorem smallEtaleToTotalMap_id {X : GroupoidsOver S} {x : X.total}
     (V' : SmallStandardTopology.etale.site (X.p.obj x).left) :
     smallEtaleToTotalMap (𝟙 V') =
       𝟙 (pullbackObj (p := X.p) rfl (etaleOverHom x V')) :=
-  sorry
+  by
+    unfold smallEtaleToTotalMap
+    have h_id : etaleOverHomMap (𝟙 V') = 𝟙 _ := by
+      apply Over.OverMorphism.ext
+      rfl
+    simp only [h_id, Functor.IsStronglyCartesian.map_self]
 
 /-- The maps between cartesian lifts preserve composition of neighborhood maps. -/
 theorem smallEtaleToTotalMap_comp {X : GroupoidsOver S} {x : X.total}
@@ -83,7 +90,14 @@ theorem smallEtaleToTotalMap_comp {X : GroupoidsOver S} {x : X.total}
     (f : V' ⟶ W') (g : W' ⟶ Z') :
     smallEtaleToTotalMap (f ≫ g) =
       smallEtaleToTotalMap f ≫ smallEtaleToTotalMap g :=
-  sorry
+  by
+    have h_comp : etaleOverHomMap (f ≫ g) =
+        etaleOverHomMap f ≫ etaleOverHomMap g := by
+      apply Over.OverMorphism.ext
+      rfl
+    unfold smallEtaleToTotalMap
+    rw [Functor.IsStronglyCartesian.map_comp_map]
+    simp only [h_comp]
 
 /-- The functor from the small étale site of `U = p(x)` to the total category of
 `X`, sending an étale neighborhood of `U` to a chosen cartesian lift of `x`. -/
@@ -100,7 +114,7 @@ theorem smallEtaleToTotal_obj {X : GroupoidsOver S} (x : X.total)
     (V' : SmallStandardTopology.etale.site (X.p.obj x).left) :
     (smallEtaleToTotal x).obj V' =
       pullbackObj (p := X.p) rfl (etaleOverHom x V') :=
-  sorry
+  by rfl
 
 /-- The underlying scheme of the cartesian lift of `x` along an étale
 neighborhood `V'` is the domain of `V'`. -/
@@ -120,7 +134,19 @@ def smallEtaleSchemeProjection {X : GroupoidsOver S} (x : X.total) :
       SmallStandardTopology.toOver .etale (X.p.obj x).left ⋙
         Over.forget (X.p.obj x).left where
   app := smallEtaleSchemeProjectionApp x
-  naturality := sorry
+  naturality V' W' f := by
+    letI : X.p.IsHomLift (etaleOverHomMap (x := x) f)
+        (smallEtaleToTotalMap (x := x) f) := by
+      unfold smallEtaleToTotalMap
+      infer_instance
+    have h := IsHomLift.commSq X.p (etaleOverHomMap (x := x) f)
+      (smallEtaleToTotalMap (x := x) f)
+    change (X.p.map (smallEtaleToTotalMap (x := x) f)).left ≫
+        smallEtaleSchemeProjectionApp x W' =
+      smallEtaleSchemeProjectionApp x V' ≫ f.left
+    have h' := congrArg ((Over.forget S).map) h.w
+    simp only [Functor.map_comp, eqToHom_map] at h'
+    convert h' using 1 <;> rfl
 
 /-- The comparison of structure sheaves from `𝒪_{U_étale}` to the restriction of
 `𝒪_X` along `smallEtaleToTotal x`. -/
@@ -138,7 +164,7 @@ theorem smallEtaleStructureSheafMap_app {X : GroupoidsOver S} (x : X.total)
     (V' : SmallStandardTopology.etale.site (X.p.obj x).left) :
     (smallEtaleStructureSheafMap x).app (op V') =
       RingCat.ofHom (smallEtaleSchemeProjectionApp x V').appTop.hom :=
-  sorry
+  by rfl
 
 /-- Restriction of a presheaf of `𝒪_X`-modules to the small étale site of
 `U = p(x)`, as a presheaf of `𝒪_{U_étale}`-modules. -/
@@ -157,7 +183,7 @@ theorem restrictToSmallEtalePresheaf_obj {X : GroupoidsOver S}
       (ModuleCat.restrictScalars
         ((smallEtaleStructureSheafMap x).app (op V')).hom).obj
         (F.obj (op ((smallEtaleToTotal x).obj V'))) :=
-  sorry
+  by rfl
 
 /-- If `F` is a sheaf for the étale topology on `X`, then its restriction to the
 small étale site of `U = p(x)` is a sheaf. -/
@@ -185,6 +211,6 @@ theorem restrictToSmallEtale_val {X : GroupoidsOver S}
     (F : PresheafOfModules.{u} (structureSheaf X).obj) (x : X.total)
     (hF : Presheaf.IsSheaf X.etaleTopology F.presheaf) :
     (restrictToSmallEtale F x hF).val = restrictToSmallEtalePresheaf F x :=
-  sorry
+  by rfl
 
 end AlgebraicGeometry.GroupoidsOver

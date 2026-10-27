@@ -101,19 +101,19 @@ namespace DerivedCategory.Plus.CohomologyIn
 @[simp, stacks 06UQ "bounded-below cohomology-in membership"]
 theorem mem_iff (P : ObjectProperty A) (K : DerivedCategory.Plus A) :
     DerivedCategory.Plus.cohomologyIn P K ↔
-      ∀ n : ℤ, P ((DerivedCategory.Plus.homologyFunctor A n).obj K) := sorry
+      ∀ n : ℤ, P ((DerivedCategory.Plus.homologyFunctor A n).obj K) := Iff.rfl
 
 /-- Every cohomology object of a bounded-below cohomology-in object belongs to `P`. -/
 @[stacks 06UQ "bounded-below cohomology-in projection"]
 theorem homology_mem (P : ObjectProperty A)
     (X : DerivedCategory.Plus.CohomologyIn P) (n : ℤ) :
-    P ((DerivedCategory.Plus.homologyFunctor A n).obj X.obj) := sorry
+    P ((DerivedCategory.Plus.homologyFunctor A n).obj X.obj) := X.property n
 
 /-- The bounded-below cohomology-in construction is monotone in the coefficient property. -/
 @[stacks 06UQ "bounded-below cohomology-in monotonicity"]
 theorem monotone {P Q : ObjectProperty A} (h : P ≤ Q) :
     DerivedCategory.Plus.cohomologyIn P ≤
-      DerivedCategory.Plus.cohomologyIn Q := sorry
+      DerivedCategory.Plus.cohomologyIn Q := fun _ hK n ↦ h _ (hK n)
 
 end DerivedCategory.Plus.CohomologyIn
 
@@ -123,19 +123,19 @@ namespace DerivedCategory.Minus.CohomologyIn
 @[simp, stacks 06UQ "bounded-above cohomology-in membership"]
 theorem mem_iff (P : ObjectProperty A) (K : DerivedCategory.Minus A) :
     DerivedCategory.Minus.cohomologyIn P K ↔
-      ∀ n : ℤ, P ((DerivedCategory.Minus.homologyFunctor A n).obj K) := sorry
+      ∀ n : ℤ, P ((DerivedCategory.Minus.homologyFunctor A n).obj K) := Iff.rfl
 
 /-- Every cohomology object of a bounded-above cohomology-in object belongs to `P`. -/
 @[stacks 06UQ "bounded-above cohomology-in projection"]
 theorem homology_mem (P : ObjectProperty A)
     (X : DerivedCategory.Minus.CohomologyIn P) (n : ℤ) :
-    P ((DerivedCategory.Minus.homologyFunctor A n).obj X.obj) := sorry
+    P ((DerivedCategory.Minus.homologyFunctor A n).obj X.obj) := X.property n
 
 /-- The bounded-above cohomology-in construction is monotone in the coefficient property. -/
 @[stacks 06UQ "bounded-above cohomology-in monotonicity"]
 theorem monotone {P Q : ObjectProperty A} (h : P ≤ Q) :
     DerivedCategory.Minus.cohomologyIn P ≤
-      DerivedCategory.Minus.cohomologyIn Q := sorry
+      DerivedCategory.Minus.cohomologyIn Q := fun _ hK n ↦ h _ (hK n)
 
 end DerivedCategory.Minus.CohomologyIn
 
@@ -145,19 +145,19 @@ namespace DerivedCategory.Bounded.CohomologyIn
 @[simp, stacks 06UQ "bounded cohomology-in membership"]
 theorem mem_iff (P : ObjectProperty A) (K : DerivedCategory.Bounded A) :
     DerivedCategory.Bounded.cohomologyIn P K ↔
-      ∀ n : ℤ, P ((DerivedCategory.Bounded.homologyFunctor A n).obj K) := sorry
+      ∀ n : ℤ, P ((DerivedCategory.Bounded.homologyFunctor A n).obj K) := Iff.rfl
 
 /-- Every cohomology object of a bounded cohomology-in object belongs to `P`. -/
 @[stacks 06UQ "bounded cohomology-in projection"]
 theorem homology_mem (P : ObjectProperty A)
     (X : DerivedCategory.Bounded.CohomologyIn P) (n : ℤ) :
-    P ((DerivedCategory.Bounded.homologyFunctor A n).obj X.obj) := sorry
+    P ((DerivedCategory.Bounded.homologyFunctor A n).obj X.obj) := X.property n
 
 /-- The bounded cohomology-in construction is monotone in the coefficient property. -/
 @[stacks 06UQ "bounded cohomology-in monotonicity"]
 theorem monotone {P Q : ObjectProperty A} (h : P ≤ Q) :
     DerivedCategory.Bounded.cohomologyIn P ≤
-      DerivedCategory.Bounded.cohomologyIn Q := sorry
+      DerivedCategory.Bounded.cohomologyIn Q := fun _ hK n ↦ h _ (hK n)
 
 end DerivedCategory.Bounded.CohomologyIn
 

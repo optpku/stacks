@@ -46,7 +46,12 @@ noncomputable def toSkyscraper (F : X.Presheaf C) (x : X) :
 /-- The sheafification-to-skyscraper mate extends the canonical presheaf-to-skyscraper map. -/
 private theorem toSkyscraper_unit (F : X.Presheaf C) (x : X) :
     toSheafify (Opens.grothendieckTopology X) F ≫ (toSkyscraper F x).hom =
-      (TopCat.Sheaf.Skyscraper.presheafStalkAdjunction x).unit.app F := sorry
+      (TopCat.Sheaf.Skyscraper.presheafStalkAdjunction x).unit.app F := by
+  have h := ((sheafificationAdjunction (Opens.grothendieckTopology X) C).homEquiv F
+    (TopCat.Sheaf.Skyscraper.atPoint x (F.stalk x))).apply_symm_apply
+      ((TopCat.Sheaf.Skyscraper.presheafStalkAdjunction x).unit.app F)
+  rw [Adjunction.homEquiv_apply] at h
+  exact h
 
 /-- The canonical map from a presheaf stalk to the stalk of its sheafification. -/
 @[stacks 007Z "sheafification stalk comparison"]
@@ -61,7 +66,8 @@ sheafification unit. -/
 theorem germ_comparison (F : X.Presheaf C) (U : Opens X) (x : X) (hx : x ∈ U) :
     F.germ U x hx ≫ comparison F x =
       (toSheafify (Opens.grothendieckTopology X) F).app (op U) ≫
-        TopCat.Presheaf.germ (sheafify (Opens.grothendieckTopology X) F) U x hx := sorry
+        TopCat.Presheaf.germ (sheafify (Opens.grothendieckTopology X) F) U x hx := by
+  exact stalkFunctor_map_germ U x hx (toSheafify (Opens.grothendieckTopology X) F)
 
 /-- The explicit inverse from the stalk of the sheafification of `F` to the stalk of `F`. -/
 @[stacks 007Z "inverse sheafification stalk comparison"]
@@ -71,6 +77,7 @@ noncomputable def comparisonInv (F : X.Presheaf C) (x : X) :
       ((presheafToSheaf (Opens.grothendieckTopology X) C).obj F) (F.stalk x)).symm
     (toSkyscraper F x)
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The inverse comparison sends the germ of a sheafification-unit image back to the original
 germ. -/
 @[reassoc, stacks 007Z "inverse sheafification stalk comparison on germs"]
@@ -79,17 +86,38 @@ theorem toSheafify_germ_comparisonInv
     (toSheafify (Opens.grothendieckTopology X) F).app (op U) ≫
         TopCat.Presheaf.germ (sheafify (Opens.grothendieckTopology X) F) U x hx ≫
           comparisonInv F x =
-      F.germ U x hx := sorry
+      F.germ U x hx := by
+  have h : comparison F x ≫ comparisonInv F x = 𝟙 _ := by
+    dsimp only [comparison, comparisonInv]
+    rw [Adjunction.homEquiv_symm_apply]
+    change (stalkFunctor C x).map (toSheafify (Opens.grothendieckTopology X) F) ≫
+      ((stalkFunctor C x).map (toSkyscraper F x).hom ≫
+        (TopCat.Sheaf.Skyscraper.presheafStalkAdjunction x).counit.app (F.stalk x)) = 𝟙 _
+    rw [← Functor.map_comp_assoc, toSkyscraper_unit]
+    exact (TopCat.Sheaf.Skyscraper.presheafStalkAdjunction x).left_triangle_components F
+  rw [← Category.assoc, ← germ_comparison, Category.assoc, h, Category.comp_id]
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The sheafification-stalk comparison followed by its explicit inverse is the identity. -/
 @[simp, stacks 007Z "sheafification stalk comparison forward-inverse law"]
 theorem comparison_hom_inv_id (F : X.Presheaf C) (x : X) :
-    comparison F x ≫ comparisonInv F x = 𝟙 _ := sorry
+    comparison F x ≫ comparisonInv F x = 𝟙 _ := by
+  apply F.stalk_hom_ext
+  intro U hx
+  rw [← Category.assoc, germ_comparison, Category.assoc, toSheafify_germ_comparisonInv,
+    Category.comp_id]
 
 /-- The explicit inverse followed by the sheafification-stalk comparison is the identity. -/
 @[simp, stacks 007Z "sheafification stalk comparison inverse-forward law"]
 theorem comparison_inv_hom_id (F : X.Presheaf C) (x : X) :
-    comparisonInv F x ≫ comparison F x = 𝟙 _ := sorry
+    comparisonInv F x ≫ comparison F x = 𝟙 _ := by
+  classical
+  letI : IsIso (comparison F x) :=
+    Adjunction.isIso_map_unit_of_isLeftAdjoint_comp
+      (sheafificationAdjunction (Opens.grothendieckTopology X) C)
+      (skyscraperSheafForgetAdjunction x)
+  apply (cancel_epi (comparison F x)).1
+  rw [← Category.assoc, comparison_hom_inv_id, Category.id_comp, Category.comp_id]
 
 /-- Sheafification preserves stalks, with both directions explicitly owned. -/
 @[stacks 007Z "sheafification preserves stalks for arbitrary coefficient categories"]
@@ -117,13 +145,14 @@ noncomputable instance comparison_isIso (F : X.Presheaf C) (x : X) :
 /-- The forward map of `iso` is the sheafification-unit comparison. -/
 @[simp, stacks 007Z "sheafification stalk isomorphism hom"]
 theorem iso_hom (F : X.Presheaf C) (x : X) :
-    (iso F x).hom = comparison F x := sorry
+    (iso F x).hom = comparison F x := rfl
 
 /-- The inverse map of `iso` is the explicit stalk inverse. -/
 @[simp, stacks 007Z "sheafification stalk isomorphism inverse"]
 theorem iso_inv (F : X.Presheaf C) (x : X) :
-    (iso F x).inv = comparisonInv F x := sorry
+    (iso F x).inv = comparisonInv F x := rfl
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The sheafification-stalk comparison is natural in the presheaf. -/
 @[reassoc, stacks 007Z "sheafification stalk comparison naturality"]
 theorem comparison_naturality
@@ -131,8 +160,12 @@ theorem comparison_naturality
     (stalkFunctor C x).map f ≫ comparison G x =
       comparison F x ≫
         (stalkFunctor C x).map
-          (sheafifyMap (Opens.grothendieckTopology X) f) := sorry
+          (sheafifyMap (Opens.grothendieckTopology X) f) := by
+  simpa only [Functor.map_comp] using
+    congrArg ((stalkFunctor C x).map)
+      (toSheafify_naturality (Opens.grothendieckTopology X) f)
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The explicit inverse sheafification-stalk comparison is natural in the presheaf. -/
 @[reassoc, stacks 007Z "inverse sheafification stalk comparison naturality"]
 theorem comparisonInv_naturality
@@ -140,7 +173,10 @@ theorem comparisonInv_naturality
     (stalkFunctor C x).map
           (sheafifyMap (Opens.grothendieckTopology X) f) ≫
         comparisonInv G x =
-      comparisonInv F x ≫ (stalkFunctor C x).map f := sorry
+      comparisonInv F x ≫ (stalkFunctor C x).map f := by
+  apply (cancel_mono (comparison G x)).1
+  simp only [Category.assoc, comparison_inv_hom_id, Category.comp_id]
+  rw [comparison_naturality, ← Category.assoc, comparison_inv_hom_id, Category.id_comp]
 
 /-- The sheafification-stalk comparisons form a natural transformation in the presheaf. -/
 @[stacks 007Z "sheafification stalk comparison natural transformation"]
@@ -158,7 +194,7 @@ theorem natTrans_app (C : Type v) [Category.{u} C]
     [HasTerminal C] [HasColimits C]
     [HasWeakSheafify (Opens.grothendieckTopology X) C]
     (F : X.Presheaf C) (x : X) :
-    (natTrans C x).app F = comparison F x := sorry
+    (natTrans C x).app F = comparison F x := rfl
 
 /-- The named inverse comparisons form a natural transformation in the presheaf. -/
 @[stacks 007Z "inverse sheafification stalk natural transformation"]
@@ -176,21 +212,27 @@ theorem natTransInv_app (C : Type v) [Category.{u} C]
     [HasTerminal C] [HasColimits C]
     [HasWeakSheafify (Opens.grothendieckTopology X) C]
     (F : X.Presheaf C) (x : X) :
-    (natTransInv C x).app F = comparisonInv F x := sorry
+    (natTransInv C x).app F = comparisonInv F x := rfl
 
 /-- The forward and inverse sheafification-stalk transformations compose to the identity. -/
 @[simp, stacks 007Z "sheafification stalk natural forward-inverse law"]
 theorem natTrans_hom_inv_id (C : Type v) [Category.{u} C]
     [HasTerminal C] [HasColimits C]
     [HasWeakSheafify (Opens.grothendieckTopology X) C] (x : X) :
-    natTrans C x ≫ natTransInv C x = 𝟙 _ := sorry
+    natTrans C x ≫ natTransInv C x = 𝟙 _ := by
+  apply NatTrans.ext
+  funext F
+  exact comparison_hom_inv_id F x
 
 /-- The inverse and forward sheafification-stalk transformations compose to the identity. -/
 @[simp, stacks 007Z "sheafification stalk natural inverse-forward law"]
 theorem natTrans_inv_hom_id (C : Type v) [Category.{u} C]
     [HasTerminal C] [HasColimits C]
     [HasWeakSheafify (Opens.grothendieckTopology X) C] (x : X) :
-    natTransInv C x ≫ natTrans C x = 𝟙 _ := sorry
+    natTransInv C x ≫ natTrans C x = 𝟙 _ := by
+  apply NatTrans.ext
+  funext F
+  exact comparison_inv_hom_id F x
 
 /-- Taking a stalk before or after sheafification gives naturally isomorphic functors. -/
 @[stacks 007Z "sheafification stalk natural isomorphism"]
@@ -209,14 +251,14 @@ noncomputable def natIso (C : Type v) [Category.{u} C]
 theorem natIso_hom (C : Type v) [Category.{u} C]
     [HasTerminal C] [HasColimits C]
     [HasWeakSheafify (Opens.grothendieckTopology X) C] (x : X) :
-    (natIso C x).hom = natTrans C x := sorry
+    (natIso C x).hom = natTrans C x := rfl
 
 /-- The inverse natural transformation of `natIso` is the named inverse transformation. -/
 @[simp, stacks 007Z "sheafification stalk natural isomorphism inverse"]
 theorem natIso_inv (C : Type v) [Category.{u} C]
     [HasTerminal C] [HasColimits C]
     [HasWeakSheafify (Opens.grothendieckTopology X) C] (x : X) :
-    (natIso C x).inv = natTransInv C x := sorry
+    (natIso C x).inv = natTransInv C x := rfl
 
 /-- A component of `natIso` is the objectwise sheafification-stalk isomorphism. -/
 @[simp, stacks 007Z "sheafification stalk natural isomorphism component"]
@@ -224,7 +266,7 @@ theorem natIso_app (C : Type v) [Category.{u} C]
     [HasTerminal C] [HasColimits C]
     [HasWeakSheafify (Opens.grothendieckTopology X) C]
     (F : X.Presheaf C) (x : X) :
-    (natIso C x).app F = iso F x := sorry
+    (natIso C x).app F = iso F x := rfl
 
 /-- Forward components of `natIso` are the sheafification-stalk comparisons. -/
 @[simp, stacks 007Z "sheafification stalk natural isomorphism hom component"]
@@ -232,7 +274,7 @@ theorem natIso_hom_app (C : Type v) [Category.{u} C]
     [HasTerminal C] [HasColimits C]
     [HasWeakSheafify (Opens.grothendieckTopology X) C]
     (F : X.Presheaf C) (x : X) :
-    (natIso C x).hom.app F = comparison F x := sorry
+    (natIso C x).hom.app F = comparison F x := rfl
 
 /-- Inverse components of `natIso` are the explicit stalk inverses. -/
 @[simp, stacks 007Z "sheafification stalk natural isomorphism inverse component"]
@@ -240,6 +282,6 @@ theorem natIso_inv_app (C : Type v) [Category.{u} C]
     [HasTerminal C] [HasColimits C]
     [HasWeakSheafify (Opens.grothendieckTopology X) C]
     (F : X.Presheaf C) (x : X) :
-    (natIso C x).inv.app F = comparisonInv F x := sorry
+    (natIso C x).inv.app F = comparisonInv F x := rfl
 
 end TopCat.Presheaf.SheafificationStalk

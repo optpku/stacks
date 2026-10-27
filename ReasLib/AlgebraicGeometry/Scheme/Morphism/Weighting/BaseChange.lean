@@ -30,4 +30,14 @@ theorem IsWeighting.baseChange {X Y Y' : Scheme.{u}} {f : X ⟶ Y} [LocallyQuasi
     {w : X → ℤ} (hw : f.IsWeighting w) (g : Y' ⟶ Y) :
     (pullback.snd f g).IsWeighting (fun x' ↦ w (pullback.fst f g x')) := sorry
 
+variable {X Y X' Y' : Scheme.{u}}
+variable {f : X ⟶ Y} [LocallyQuasiFinite f]
+variable {g : Y' ⟶ Y} {f' : X' ⟶ Y'} {g' : X' ⟶ X}
+
+/-- A weighting of a locally quasi-finite morphism remains a weighting after
+transport along an arbitrary cartesian square, with `w' = w ∘ g'`. -/
+theorem IsWeighting.of_isPullback {w : X → ℤ} (hw : f.IsWeighting w)
+    [LocallyQuasiFinite f'] (h_cart : IsPullback g' f' f g) :
+    f'.IsWeighting (fun x' ↦ w (g' x')) := sorry
+
 end AlgebraicGeometry.Scheme.Hom

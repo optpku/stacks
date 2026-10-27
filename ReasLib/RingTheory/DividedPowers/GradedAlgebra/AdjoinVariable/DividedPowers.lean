@@ -30,6 +30,48 @@ namespace NonnegGradedAlgebra.Adjoin
 
 variable {R : Type u} [CommRing R]
 
+private theorem castPiece_add (A : NonnegGradedAlgebra.{u, v} R)
+    {m n : ℕ} (h : m = n) (x y : A.piece m) :
+    cast (congrArg A.piece h) (x + y) =
+      cast (congrArg A.piece h) x + cast (congrArg A.piece h) y := by
+  cases h
+  rfl
+
+private theorem castPiece_smul (A : NonnegGradedAlgebra.{u, v} R)
+    {m n : ℕ} (h : m = n) (r : R) (x : A.piece m) :
+    cast (congrArg A.piece h) (r • x) = r • cast (congrArg A.piece h) x := by
+  cases h
+  rfl
+
+private theorem castPiece_zero (A : NonnegGradedAlgebra.{u, v} R)
+    {m n : ℕ} (h : m = n) : cast (congrArg A.piece h) 0 = 0 := by
+  cases h
+  rfl
+
+private theorem sum_add_of_add {ι : Type*} {β : ι → Type*}
+    [∀ i, AddCommMonoid (β i)] {M : Type*} [AddCommMonoid M]
+    (f : ∀ i, β i → M) (hzero : ∀ i, f i 0 = 0)
+    (hadd : ∀ i x y, f i (x + y) = f i x + f i y) (x y : Π₀ i, β i) :
+    Implementation.sum (x + y) f = Implementation.sum x f + Implementation.sum y f := by
+  letI : DecidableEq ι := Classical.decEq ι
+  letI : ∀ i (x : β i), Decidable (x ≠ 0) := fun _ x ↦ Classical.propDecidable (x ≠ 0)
+  exact DFinsupp.sum_add_index hzero hadd
+
+private theorem sum_smul_of_linear {ι : Type*} {β : ι → Type*}
+    [∀ i, AddCommMonoid (β i)] [∀ i, Module R (β i)]
+    {M : Type*} [AddCommMonoid M] [Module R M]
+    (f : ∀ i, β i → M) (hzero : ∀ i, f i 0 = 0)
+    (hsmul : ∀ i (r : R) (x : β i), f i (r • x) = r • f i x) (r : R) (x : Π₀ i, β i) :
+    Implementation.sum (r • x) f = r • Implementation.sum x f := by
+  letI : DecidableEq ι := Classical.decEq ι
+  letI : ∀ i (x : β i), Decidable (x ≠ 0) := fun _ x ↦ Classical.propDecidable (x ≠ 0)
+  unfold Implementation.sum
+  change (DFinsupp.mapRange (fun _ xi ↦ r • xi) (fun _ ↦ smul_zero r) x).sum f = _
+  rw [DFinsupp.sum_mapRange_index hzero, DFinsupp.smul_sum]
+  congr 1
+  funext i xi
+  exact hsmul i r xi
+
 namespace Odd
 
 variable (A : NonnegGradedAlgebra.{u, v} R) (d : ℕ)
@@ -57,6 +99,43 @@ def evenCoeffTerm (hd : Odd d) (k : ℕ)
                   Nat.one_mul d) i.property)
             (even_two_mul k) hd).symm) x)
 
+private theorem oddCoeffDegree (hd : Odd d) (k : ℕ)
+    (i : {i : Fin 2 // (i : ℕ) * d ≤ 2 * k}) (hi : (i : ℕ) ≠ 0) :
+    2 * k - (i : ℕ) * d = 2 * ((2 * k - d) / 2) + 1 := by
+  have hiOne : (i : ℕ) = 1 := congrArg Fin.val <|
+    Fin.eq_one_of_ne_zero i.1 (fun h ↦ hi (congrArg Fin.val h))
+  have hdle : d ≤ 2 * k := by simpa only [hiOne, Nat.one_mul] using i.property
+  simpa only [hiOne, Nat.one_mul] using
+    (Nat.two_mul_div_two_add_one_of_odd (Nat.Even.sub_odd hdle (even_two_mul k) hd)).symm
+
+private theorem evenCoeffTerm_zero (hd : Odd d) (k : ℕ)
+    (i : {i : Fin 2 // (i : ℕ) * d ≤ 2 * k}) :
+    evenCoeffTerm A d hd k i 0 = 0 := by
+  unfold evenCoeffTerm
+  split_ifs with hi
+  · have hdeg : 2 * k - (i : ℕ) * d = 2 * k := by simp [hi]
+    simp [castPiece_zero A hdeg, map_zero]
+  · simp [castPiece_zero A (oddCoeffDegree d hd k i hi), map_zero]
+
+private theorem evenCoeffTerm_add (hd : Odd d) (k : ℕ)
+    (i : {i : Fin 2 // (i : ℕ) * d ≤ 2 * k}) (x y : A.piece (2 * k - (i : ℕ) * d)) :
+    evenCoeffTerm A d hd k i (x + y) =
+      evenCoeffTerm A d hd k i x + evenCoeffTerm A d hd k i y := by
+  unfold evenCoeffTerm
+  split_ifs with hi
+  · have hdeg : 2 * k - (i : ℕ) * d = 2 * k := by simp [hi]
+    simp [castPiece_add A hdeg, map_add]
+  · simp [castPiece_add A (oddCoeffDegree d hd k i hi), map_add]
+
+private theorem evenCoeffTerm_smul (hd : Odd d) (k : ℕ)
+    (i : {i : Fin 2 // (i : ℕ) * d ≤ 2 * k}) (r : R) (x : A.piece (2 * k - (i : ℕ) * d)) :
+    evenCoeffTerm A d hd k i (r • x) = r • evenCoeffTerm A d hd k i x := by
+  unfold evenCoeffTerm
+  split_ifs with hi
+  · have hdeg : 2 * k - (i : ℕ) * d = 2 * k := by simp [hi]
+    simp [castPiece_smul A hdeg, map_smul]
+  · simp [castPiece_smul A (oddCoeffDegree d hd k i hi), map_smul]
+
 /-- Reindex an even element of the odd-variable extension into its two parity coefficients. -/
 def evenToCoeffsFun (hd : Odd d) (z : (algebra A d hd).evenPart) : Coeffs A :=
   Implementation.sum z fun k x ↦
@@ -64,11 +143,25 @@ def evenToCoeffsFun (hd : Odd d) (z : (algebra A d hd).evenPart) : Coeffs A :=
 
 /-- Reindexing even odd-variable coefficients preserves addition. -/
 theorem evenToCoeffsFun_add (hd : Odd d) (x y : (algebra A d hd).evenPart) :
-    evenToCoeffsFun A d hd (x + y) = evenToCoeffsFun A d hd x + evenToCoeffsFun A d hd y := sorry
+    evenToCoeffsFun A d hd (x + y) = evenToCoeffsFun A d hd x + evenToCoeffsFun A d hd y := by
+  unfold evenToCoeffsFun
+  apply sum_add_of_add
+  · intro k
+    rfl
+  · intro k x y
+    exact sum_add_of_add (evenCoeffTerm A d hd k)
+      (evenCoeffTerm_zero A d hd k) (evenCoeffTerm_add A d hd k) x y
 
 /-- Reindexing even odd-variable coefficients preserves scalar multiplication. -/
 theorem evenToCoeffsFun_smul (hd : Odd d) (r : R) (x : (algebra A d hd).evenPart) :
-    evenToCoeffsFun A d hd (r • x) = r • evenToCoeffsFun A d hd x := sorry
+    evenToCoeffsFun A d hd (r • x) = r • evenToCoeffsFun A d hd x := by
+  unfold evenToCoeffsFun
+  apply sum_smul_of_linear
+  · intro k
+    rfl
+  · intro k r x
+    exact sum_smul_of_linear (evenCoeffTerm A d hd k)
+      (evenCoeffTerm_zero A d hd k) (evenCoeffTerm_smul A d hd k) r x
 
 /-- The linear parity reindexing from the even part of an odd-variable extension. -/
 def evenToCoeffs (hd : Odd d) : (algebra A d hd).evenPart →ₗ[R] Coeffs A where
@@ -89,12 +182,18 @@ def oddCoeffFun (j : ℕ) (x : A.piece (2 * j + 1)) : Piece A d (2 * j + 1 + d) 
 /-- Insertion of odd coefficients into an odd-variable extension preserves addition. -/
 theorem oddCoeffFun_add (j : ℕ)
     (x y : A.piece (2 * j + 1)) :
-    oddCoeffFun A d j (x + y) = oddCoeffFun A d j x + oddCoeffFun A d j y := sorry
+    oddCoeffFun A d j (x + y) = oddCoeffFun A d j x + oddCoeffFun A d j y := by
+  unfold oddCoeffFun
+  rw [castPiece_add A (by simp)]
+  exact DFinsupp.single_add _ _ _
 
 /-- Insertion of odd coefficients into an odd-variable extension preserves scalar multiplication. -/
 theorem oddCoeffFun_smul (j : ℕ) (r : R)
     (x : A.piece (2 * j + 1)) :
-    oddCoeffFun A d j (r • x) = r • oddCoeffFun A d j x := sorry
+    oddCoeffFun A d j (r • x) = r • oddCoeffFun A d j x := by
+  unfold oddCoeffFun
+  rw [castPiece_smul A (by simp)]
+  exact DFinsupp.single_smul _ _
 
 /-- The linear insertion of an odd base coefficient as the variable coefficient. -/
 def oddCoeffMap (j : ℕ) : A.piece (2 * j + 1) →ₗ[R] Piece A d (2 * j + 1 + d) where
@@ -199,7 +298,8 @@ theorem evenToCoeffs_extensionGamma
     (gammaA : NonnegGradedAlgebra.DividedPowers A) (hd : Odd d)
     (n : ℕ) (x : (algebra A d hd).evenPositivePart) :
     evenToCoeffs A d hd (extensionGamma A d gammaA hd n x) =
-      gamma A gammaA n (positiveToCoeffs A d hd x) := sorry
+      gamma A gammaA n (positiveToCoeffs A d hd x) := by
+  exact evenToCoeffs_evenOfCoeffs A d hd _
 
 /-- Positive coefficient coordinates expose the positive-index odd-variable formula. -/
 @[simp]
@@ -207,7 +307,8 @@ theorem positiveToCoeffs_extensionGammaPos
     (gammaA : NonnegGradedAlgebra.DividedPowers A) (hd : Odd d)
     (n : ℕ+) (x : (algebra A d hd).evenPositivePart) :
     positiveToCoeffs A d hd (extensionGammaPos A d gammaA hd n x) =
-      positiveGammaCoeffs A gammaA n (positiveToCoeffs A d hd x) := sorry
+      positiveGammaCoeffs A gammaA n (positiveToCoeffs A d hd x) := by
+  exact positiveToCoeffs_positiveOfCoeffs A d hd _
 
 /-- The transported total and positive-index odd-variable operations agree after inclusion. -/
 theorem extensionGamma_eq_extensionGammaPos
@@ -231,7 +332,10 @@ theorem extensionGamma_one (gammaA : NonnegGradedAlgebra.DividedPowers A) (hd : 
 /-- The zeroth transported odd-variable divided power is the graded unit. -/
 theorem extensionGamma_zero (gammaA : NonnegGradedAlgebra.DividedPowers A) (hd : Odd d)
     (x : (algebra A d hd).evenPositivePart) :
-    extensionGamma A d gammaA hd 0 x = (algebra A d hd).oneEven := sorry
+    extensionGamma A d gammaA hd 0 x = (algebra A d hd).oneEven := by
+  unfold extensionGamma gamma ofEven evenOfCoeffs
+  simp [NonnegGradedAlgebra.oneEven, baseMap, baseCoeff, zeroIndex]
+  rfl
 
 /-- Transported odd-variable divided powers obey the binomial multiplication law. -/
 theorem extensionGamma_mul (gammaA : NonnegGradedAlgebra.DividedPowers A) (hd : Odd d)
@@ -290,13 +394,15 @@ def dividedPowers (gammaA : NonnegGradedAlgebra.DividedPowers A) (hd : Odd d) :
 @[simp]
 theorem dividedPowers_apply (gammaA : NonnegGradedAlgebra.DividedPowers A) (hd : Odd d)
     (n : ℕ) (x : (algebra A d hd).evenPositivePart) :
-    dividedPowers A d gammaA hd n x = extensionGamma A d gammaA hd n x := sorry
+    dividedPowers A d gammaA hd n x = extensionGamma A d gammaA hd n x := by
+  rfl
 
 /-- The positive component of the canonical odd-variable divided powers is explicit. -/
 @[simp]
 theorem dividedPowers_gammaPos (gammaA : NonnegGradedAlgebra.DividedPowers A) (hd : Odd d)
     (n : ℕ+) (x : (algebra A d hd).evenPositivePart) :
-    (dividedPowers A d gammaA hd).gammaPos n x = extensionGammaPos A d gammaA hd n x := sorry
+    (dividedPowers A d gammaA hd).gammaPos n x = extensionGammaPos A d gammaA hd n x := by
+  rfl
 
 /-- The coefficient coordinates of a candidate divided-power operation on the odd-variable
 extension. -/
@@ -330,7 +436,19 @@ the explicit transported structure. -/
 theorem IsCanonical.eq_dividedPowers (gammaA : NonnegGradedAlgebra.DividedPowers A) (hd : Odd d)
     {delta : NonnegGradedAlgebra.DividedPowers (algebra A d hd)}
     (hdelta : IsCanonical A d gammaA hd delta) :
-    delta = dividedPowers A d gammaA hd := sorry
+    delta = dividedPowers A d gammaA hd := by
+  have hcoords (n : ℕ) (z : PositiveCoeffs A) :
+      gammaCoords A d hd delta n z = gamma A gammaA n z := by
+    cases n with
+    | zero => exact hdelta.zero z
+    | succ n => exact hdelta.succ n z.1 z.2
+  apply NonnegGradedAlgebra.DividedPowers.ext
+  intro n x
+  apply (evenReindex A d hd).injective
+  have h := hcoords n (positiveToCoeffs A d hd x)
+  dsimp only [gammaCoords] at h
+  rw [positiveOfCoeffs_positiveToCoeffs] at h
+  exact h.trans (evenToCoeffs_extensionGamma A d gammaA hd n x).symm
 
 /-- The uniqueness clause of Example 23.6.2 (Adjoining odd variable) (Tag 09PH): the explicit
 transported divided powers are the unique canonical structure on the bundled extension. -/
@@ -338,7 +456,10 @@ transported divided powers are the unique canonical structure on the bundled ext
 theorem existsUnique_dividedPowers
     (gammaA : NonnegGradedAlgebra.DividedPowers A) (hd : Odd d) :
     ∃! delta : NonnegGradedAlgebra.DividedPowers (algebra A d hd),
-      IsCanonical A d gammaA hd delta := sorry
+      IsCanonical A d gammaA hd delta := by
+  refine ⟨dividedPowers A d gammaA hd, dividedPowers_isCanonical A d gammaA hd, ?_⟩
+  intro delta hdelta
+  exact hdelta.eq_dividedPowers A d gammaA hd
 
 /-- The odd-variable extension bundled as a divided-power graded algebra. -/
 @[stacks 09PH "bundled odd-variable divided-power algebra"]
@@ -350,7 +471,8 @@ def dpAlgebra (gammaA : NonnegGradedAlgebra.DividedPowers A) (hd : Odd d) :
 theorem inclusion_map_gamma (gammaA : NonnegGradedAlgebra.DividedPowers A) (hd : Odd d)
     (n : ℕ) (x : A.evenPositivePart) :
     (inclusion A d hd).evenMap (gammaA n x) =
-      dividedPowers A d gammaA hd n ((inclusion A d hd).evenPositiveMap x) := sorry
+      dividedPowers A d gammaA hd n ((inclusion A d hd).evenPositiveMap x) := by
+  exact (dividedPowers_isCanonical A d gammaA hd).base n x |>.symm
 
 /-- The canonical inclusion into an odd-variable extension as a divided-power morphism. -/
 def inclusionDP (gammaA : NonnegGradedAlgebra.DividedPowers A) (hd : Odd d) :
@@ -361,7 +483,8 @@ def inclusionDP (gammaA : NonnegGradedAlgebra.DividedPowers A) (hd : Odd d) :
 /-- Forgetting divided powers from the canonical odd-variable inclusion recovers `inclusion`. -/
 @[simp]
 theorem inclusionDP_toGradedHom (gammaA : NonnegGradedAlgebra.DividedPowers A) (hd : Odd d) :
-    (inclusionDP A d gammaA hd).toGradedHom = inclusion A d hd := sorry
+    (inclusionDP A d gammaA hd).toGradedHom = inclusion A d hd := by
+  rfl
 
 /-- An odd-variable lift from a divided-power base map preserves the canonical transported
 divided powers. -/
@@ -385,7 +508,8 @@ def liftDP (gammaA : NonnegGradedAlgebra.DividedPowers A) (hd : Odd d)
 theorem liftDP_toGradedHom (gammaA : NonnegGradedAlgebra.DividedPowers A) (hd : Odd d)
     {B : NonnegGradedAlgebra.{u, v} R} (gammaB : NonnegGradedAlgebra.DividedPowers B)
     (g : NonnegGradedAlgebra.DividedPowers.Hom gammaA gammaB) (z : B.piece d) :
-    (liftDP A d gammaA hd gammaB g z).toGradedHom = lift A d hd g.toGradedHom z := sorry
+    (liftDP A d gammaA hd gammaB g z).toGradedHom = lift A d hd g.toGradedHom z := by
+  rfl
 
 /-- The odd-variable divided-power lift restricts to its prescribed base morphism. -/
 @[simp]
@@ -393,14 +517,17 @@ theorem inclusionDP_comp_liftDP (gammaA : NonnegGradedAlgebra.DividedPowers A) (
     {B : NonnegGradedAlgebra.{u, v} R} (gammaB : NonnegGradedAlgebra.DividedPowers B)
     (g : NonnegGradedAlgebra.DividedPowers.Hom gammaA gammaB) (z : B.piece d) :
     NonnegGradedAlgebra.DividedPowers.Hom.comp (liftDP A d gammaA hd gammaB g z)
-      (inclusionDP A d gammaA hd) = g := sorry
+      (inclusionDP A d gammaA hd) = g := by
+  apply NonnegGradedAlgebra.DividedPowers.Hom.ext_toGradedHom
+  exact lift_base A d hd g.toGradedHom z
 
 /-- The odd-variable divided-power lift sends the adjoined generator to the prescribed element. -/
 @[simp]
 theorem liftDP_generator (gammaA : NonnegGradedAlgebra.DividedPowers A) (hd : Odd d)
     {B : NonnegGradedAlgebra.{u, v} R} (gammaB : NonnegGradedAlgebra.DividedPowers B)
     (g : NonnegGradedAlgebra.DividedPowers.Hom gammaA gammaB) (z : B.piece d) :
-    (liftDP A d gammaA hd gammaB g z).toGradedHom.map d (generator A d) = z := sorry
+    (liftDP A d gammaA hd gammaB g z).toGradedHom.map d (generator A d) = z := by
+  exact lift_generator A d hd g.toGradedHom z
 
 /-- A divided-power morphism out of the odd-variable extension is determined by its base
 restriction and generator value. -/
@@ -410,7 +537,13 @@ theorem liftDP_unique (gammaA : NonnegGradedAlgebra.DividedPowers A) (hd : Odd d
     (f : NonnegGradedAlgebra.DividedPowers.Hom (dividedPowers A d gammaA hd) gammaB)
     (hbase : NonnegGradedAlgebra.DividedPowers.Hom.comp f (inclusionDP A d gammaA hd) = g)
     (hgenerator : f.toGradedHom.map d (generator A d) = z) :
-    f = liftDP A d gammaA hd gammaB g z := sorry
+    f = liftDP A d gammaA hd gammaB g z := by
+  apply NonnegGradedAlgebra.DividedPowers.Hom.ext_toGradedHom
+  apply lift_unique A d hd g.toGradedHom z f.toGradedHom
+  constructor
+  · show inclusion A d hd ≫ f.toGradedHom = g.toGradedHom
+    exact congrArg NonnegGradedAlgebra.DividedPowers.Hom.toGradedHom hbase
+  · exact hgenerator
 
 end Odd
 
@@ -427,6 +560,31 @@ def evenCoeffTerm (hd : Even d) (k : ℕ)
       (Nat.even_sub i.property).mpr <|
         Iff.intro (fun _ ↦ hd.mul_left i) (fun _ ↦ even_two_mul k)).symm) x
 
+private theorem evenCoeffTerm_zero (hd : Even d) (k : ℕ)
+    (i : {i : ℕ // i * d ≤ 2 * k}) :
+    evenCoeffTerm A d hd k i 0 = 0 := by
+  have hdeg : 2 * k - i * d = 2 * ((2 * k - i * d) / 2) :=
+    (Nat.two_mul_div_two_of_even <| (Nat.even_sub i.property).mpr
+      ⟨fun _ ↦ hd.mul_left i, fun _ ↦ even_two_mul k⟩).symm
+  simp [evenCoeffTerm, castPiece_zero A hdeg, Finsupp.single_zero]
+
+private theorem evenCoeffTerm_add (hd : Even d) (k : ℕ)
+    (i : {i : ℕ // i * d ≤ 2 * k}) (x y : A.piece (2 * k - i * d)) :
+    evenCoeffTerm A d hd k i (x + y) =
+      evenCoeffTerm A d hd k i x + evenCoeffTerm A d hd k i y := by
+  have hdeg : 2 * k - i * d = 2 * ((2 * k - i * d) / 2) :=
+    (Nat.two_mul_div_two_of_even <| (Nat.even_sub i.property).mpr
+      ⟨fun _ ↦ hd.mul_left i, fun _ ↦ even_two_mul k⟩).symm
+  simp [evenCoeffTerm, castPiece_add A hdeg, Finsupp.single_add]
+
+private theorem evenCoeffTerm_smul (hd : Even d) (k : ℕ)
+    (i : {i : ℕ // i * d ≤ 2 * k}) (r : R) (x : A.piece (2 * k - i * d)) :
+    evenCoeffTerm A d hd k i (r • x) = r • evenCoeffTerm A d hd k i x := by
+  have hdeg : 2 * k - i * d = 2 * ((2 * k - i * d) / 2) :=
+    (Nat.two_mul_div_two_of_even <| (Nat.even_sub i.property).mpr
+      ⟨fun _ ↦ hd.mul_left i, fun _ ↦ even_two_mul k⟩).symm
+  simp [evenCoeffTerm, castPiece_smul A hdeg, Finsupp.single_smul]
+
 /-- Reindex an even element of the even-variable extension into divided-monomial coefficients. -/
 def evenToCoeffsFun (hd : Even d) (z : (algebra A d hd).evenPart) : Coeffs A :=
   Implementation.sum z fun k x ↦
@@ -434,11 +592,25 @@ def evenToCoeffsFun (hd : Even d) (z : (algebra A d hd).evenPart) : Coeffs A :=
 
 /-- Reindexing even even-variable coefficients preserves addition. -/
 theorem evenToCoeffsFun_add (hd : Even d) (x y : (algebra A d hd).evenPart) :
-    evenToCoeffsFun A d hd (x + y) = evenToCoeffsFun A d hd x + evenToCoeffsFun A d hd y := sorry
+    evenToCoeffsFun A d hd (x + y) = evenToCoeffsFun A d hd x + evenToCoeffsFun A d hd y := by
+  unfold evenToCoeffsFun
+  apply sum_add_of_add
+  · intro k
+    rfl
+  · intro k x y
+    exact sum_add_of_add (evenCoeffTerm A d hd k)
+      (evenCoeffTerm_zero A d hd k) (evenCoeffTerm_add A d hd k) x y
 
 /-- Reindexing even even-variable coefficients preserves scalar multiplication. -/
 theorem evenToCoeffsFun_smul (hd : Even d) (r : R) (x : (algebra A d hd).evenPart) :
-    evenToCoeffsFun A d hd (r • x) = r • evenToCoeffsFun A d hd x := sorry
+    evenToCoeffsFun A d hd (r • x) = r • evenToCoeffsFun A d hd x := by
+  unfold evenToCoeffsFun
+  apply sum_smul_of_linear
+  · intro k
+    rfl
+  · intro k r x
+    exact sum_smul_of_linear (evenCoeffTerm A d hd k)
+      (evenCoeffTerm_zero A d hd k) (evenCoeffTerm_smul A d hd k) r x
 
 /-- The linear coefficient reindexing from the even part of an even-variable extension. -/
 def evenToCoeffs (hd : Even d) : (algebra A d hd).evenPart →ₗ[R] Coeffs A where
@@ -453,11 +625,13 @@ def evenCoeffFun (i j : ℕ) (x : A.piece (2 * j)) : Piece A d (2 * j + i * d) :
 
 /-- Insertion at a fixed divided-monomial exponent preserves addition. -/
 theorem evenCoeffFun_add (i j : ℕ) (x y : A.piece (2 * j)) :
-    evenCoeffFun A d i j (x + y) = evenCoeffFun A d i j x + evenCoeffFun A d i j y := sorry
+    evenCoeffFun A d i j (x + y) = evenCoeffFun A d i j x + evenCoeffFun A d i j y := by
+  simp [evenCoeffFun, castPiece_add, DFinsupp.single_add]
 
 /-- Insertion at a fixed divided-monomial exponent preserves scalar multiplication. -/
 theorem evenCoeffFun_smul (i j : ℕ) (r : R) (x : A.piece (2 * j)) :
-    evenCoeffFun A d i j (r • x) = r • evenCoeffFun A d i j x := sorry
+    evenCoeffFun A d i j (r • x) = r • evenCoeffFun A d i j x := by
+  simp [evenCoeffFun, castPiece_smul, DFinsupp.single_smul]
 
 /-- The linear insertion at a fixed divided-monomial exponent. -/
 def evenCoeffMap (i j : ℕ) : A.piece (2 * j) →ₗ[R] Piece A d (2 * j + i * d) where
@@ -484,11 +658,13 @@ def evenOfCoeffsFun (hd : Even d) (x : Coeffs A) : (algebra A d hd).evenPart :=
 
 /-- Inserting even-variable coefficient families preserves addition. -/
 theorem evenOfCoeffsFun_add (hd : Even d) (x y : Coeffs A) :
-    evenOfCoeffsFun A d hd (x + y) = evenOfCoeffsFun A d hd x + evenOfCoeffsFun A d hd y := sorry
+    evenOfCoeffsFun A d hd (x + y) = evenOfCoeffsFun A d hd x + evenOfCoeffsFun A d hd y := by
+  exact (Finsupp.lsum R (evenFamilyHom A d hd)).map_add x y
 
 /-- Inserting even-variable coefficient families preserves scalar multiplication. -/
 theorem evenOfCoeffsFun_smul (hd : Even d) (r : R) (x : Coeffs A) :
-    evenOfCoeffsFun A d hd (r • x) = r • evenOfCoeffsFun A d hd x := sorry
+    evenOfCoeffsFun A d hd (r • x) = r • evenOfCoeffsFun A d hd x := by
+  exact (Finsupp.lsum R (evenFamilyHom A d hd)).map_smul r x
 
 /-- The linear insertion of divided-monomial coefficient families. -/
 def evenOfCoeffs (hd : Even d) : Coeffs A →ₗ[R] (algebra A d hd).evenPart where
@@ -526,11 +702,22 @@ def coeffsToPositiveFun (x : Coeffs A) : PositiveCoeffs A :=
 
 /-- Projection to positive even-variable coefficients preserves addition. -/
 theorem coeffsToPositiveFun_add (x y : Coeffs A) :
-    coeffsToPositiveFun A (x + y) = coeffsToPositiveFun A x + coeffsToPositiveFun A y := sorry
+    coeffsToPositiveFun A (x + y) = coeffsToPositiveFun A x + coeffsToPositiveFun A y := by
+  apply Prod.ext
+  · change A.evenToEvenPositive ((x + y) 0) = _
+    simp [coeffsToPositiveFun]
+  · change Finsupp.comapDomain posEmbedding (x + y) posEmbedding.injective.injOn = _
+    exact Finsupp.comapDomain_add_of_injective posEmbedding.injective x y
 
 /-- Projection to positive even-variable coefficients preserves scalar multiplication. -/
 theorem coeffsToPositiveFun_smul (r : R) (x : Coeffs A) :
-    coeffsToPositiveFun A (r • x) = r • coeffsToPositiveFun A x := sorry
+    coeffsToPositiveFun A (r • x) = r • coeffsToPositiveFun A x := by
+  apply Prod.ext
+  · change A.evenToEvenPositive ((r • x) 0) = _
+    simp [coeffsToPositiveFun]
+  · apply Finsupp.ext
+    intro i
+    simp [coeffsToPositiveFun]
 
 /-- The linear projection from full to positive even-variable coefficients. -/
 def coeffsToPositive : Coeffs A →ₗ[R] PositiveCoeffs A where
@@ -590,7 +777,8 @@ theorem evenToCoeffs_extensionGamma
     (gammaA : NonnegGradedAlgebra.DividedPowers A) (hd : Even d)
     (n : ℕ) (x : (algebra A d hd).evenPositivePart) :
     evenToCoeffs A d hd (extensionGamma A d gammaA hd n x) =
-      gamma A gammaA n (positiveToCoeffs A d hd x) := sorry
+      gamma A gammaA n (positiveToCoeffs A d hd x) := by
+  exact evenToCoeffs_evenOfCoeffs A d hd _
 
 /-- Positive coefficient coordinates expose the positive-index even-variable formula. -/
 @[simp]
@@ -598,7 +786,8 @@ theorem positiveToCoeffs_extensionGammaPos
     (gammaA : NonnegGradedAlgebra.DividedPowers A) (hd : Even d) (hpos : 0 < d)
     (n : ℕ+) (x : (algebra A d hd).evenPositivePart) :
     positiveToCoeffs A d hd (extensionGammaPos A d gammaA hd n x) =
-      coeffsToPositive A (gamma A gammaA n (positiveToCoeffs A d hd x)) := sorry
+      coeffsToPositive A (gamma A gammaA n (positiveToCoeffs A d hd x)) := by
+  exact positiveToCoeffs_positiveOfCoeffs A d hd hpos _
 
 /-- The transported total and positive-index even-variable operations agree after inclusion. -/
 theorem extensionGamma_eq_extensionGammaPos
@@ -687,14 +876,16 @@ def dividedPowers (gammaA : NonnegGradedAlgebra.DividedPowers A)
 theorem dividedPowers_apply (gammaA : NonnegGradedAlgebra.DividedPowers A)
     (hd : Even d) (hpos : 0 < d) (n : ℕ)
     (x : (algebra A d hd).evenPositivePart) :
-    dividedPowers A d gammaA hd hpos n x = extensionGamma A d gammaA hd n x := sorry
+    dividedPowers A d gammaA hd hpos n x = extensionGamma A d gammaA hd n x := by
+  rfl
 
 /-- The positive component of the canonical even-variable divided powers is explicit. -/
 @[simp]
 theorem dividedPowers_gammaPos (gammaA : NonnegGradedAlgebra.DividedPowers A)
     (hd : Even d) (hpos : 0 < d) (n : ℕ+)
     (x : (algebra A d hd).evenPositivePart) :
-    (dividedPowers A d gammaA hd hpos).gammaPos n x = extensionGammaPos A d gammaA hd n x := sorry
+    (dividedPowers A d gammaA hd hpos).gammaPos n x = extensionGammaPos A d gammaA hd n x := by
+  rfl
 
 /-- The coefficient coordinates of a candidate divided-power operation on the even-variable
 extension. -/
@@ -714,10 +905,11 @@ structure IsCanonical (gammaA : NonnegGradedAlgebra.DividedPowers A)
     gammaCoords A d hd delta n z =
       (Finset.antidiagonal n).sum fun ab ↦
         mul A (monomial A 0 (gammaA ab.1 z.constant)) (tailGamma A ab.2 z.tail)
-  /-- Divided powers of `T ^ (i)` satisfy `gamma n (T ^ (i)) = T ^ (n * i)`. -/
+  /-- Divided powers of `T ^ (i)` satisfy
+  `gamma n (T ^ (i)) = Nat.uniformBell n i • T ^ (n * i)`. -/
   tPower (n : ℕ) (i : ℕ+) :
     gammaCoords A d hd delta n (Even.tPower A i) =
-      monomial A (n * (i : ℕ)) A.oneEven
+      Nat.uniformBell n (i : ℕ) • monomial A (n * (i : ℕ)) A.oneEven
   /-- The candidate divided powers restrict to the prescribed divided powers on the base. -/
   base (n : ℕ) (x : A.evenPositivePart) :
     delta n ((inclusion A d hd).evenPositiveMap x) =
@@ -735,7 +927,14 @@ theorem IsCanonical.eq_dividedPowers (gammaA : NonnegGradedAlgebra.DividedPowers
     (hd : Even d) (hpos : 0 < d)
     {delta : NonnegGradedAlgebra.DividedPowers (algebra A d hd)}
     (hdelta : IsCanonical A d gammaA hd delta) :
-    delta = dividedPowers A d gammaA hd hpos := sorry
+    delta = dividedPowers A d gammaA hd hpos := by
+  apply NonnegGradedAlgebra.DividedPowers.ext
+  intro n x
+  apply (evenReindex A d hd).injective
+  have h := hdelta.coefficients n (positiveToCoeffs A d hd x)
+  dsimp only [gammaCoords] at h
+  rw [positiveOfCoeffs_positiveToCoeffs A d hd hpos] at h
+  exact h.trans (evenToCoeffs_extensionGamma A d gammaA hd n x).symm
 
 /-- The uniqueness clause of Example 23.6.3 (Adjoining even variable) (Tag 09PI): the explicit
 transported divided powers are the unique canonical structure on the bundled extension. -/
@@ -743,7 +942,10 @@ transported divided powers are the unique canonical structure on the bundled ext
 theorem existsUnique_dividedPowers
     (gammaA : NonnegGradedAlgebra.DividedPowers A) (hd : Even d) (hpos : 0 < d) :
     ∃! delta : NonnegGradedAlgebra.DividedPowers (algebra A d hd),
-      IsCanonical A d gammaA hd delta := sorry
+      IsCanonical A d gammaA hd delta := by
+  refine ⟨dividedPowers A d gammaA hd hpos, dividedPowers_isCanonical A d gammaA hd hpos, ?_⟩
+  intro delta hdelta
+  exact hdelta.eq_dividedPowers A d gammaA hd hpos
 
 /-- The positive even-variable extension bundled as a divided-power graded algebra. -/
 @[stacks 09PI "bundled even-variable divided-power algebra"]
@@ -755,7 +957,8 @@ def dpAlgebra (gammaA : NonnegGradedAlgebra.DividedPowers A)
 theorem inclusion_map_gamma (gammaA : NonnegGradedAlgebra.DividedPowers A)
     (hd : Even d) (hpos : 0 < d) (n : ℕ) (x : A.evenPositivePart) :
     (inclusion A d hd).evenMap (gammaA n x) =
-      dividedPowers A d gammaA hd hpos n ((inclusion A d hd).evenPositiveMap x) := sorry
+      dividedPowers A d gammaA hd hpos n ((inclusion A d hd).evenPositiveMap x) := by
+  exact (dividedPowers_isCanonical A d gammaA hd hpos).base n x |>.symm
 
 /-- The canonical inclusion into an even-variable extension as a divided-power morphism. -/
 def inclusionDP (gammaA : NonnegGradedAlgebra.DividedPowers A)
@@ -768,7 +971,8 @@ def inclusionDP (gammaA : NonnegGradedAlgebra.DividedPowers A)
 @[simp]
 theorem inclusionDP_toGradedHom (gammaA : NonnegGradedAlgebra.DividedPowers A)
     (hd : Even d) (hpos : 0 < d) :
-    (inclusionDP A d gammaA hd hpos).toGradedHom = inclusion A d hd := sorry
+    (inclusionDP A d gammaA hd hpos).toGradedHom = inclusion A d hd := by
+  rfl
 
 /-- The lift determined by the canonical divided monomials of a positive even target element
 preserves divided powers. -/
@@ -806,7 +1010,8 @@ theorem liftDP_toGradedHom (gammaA : NonnegGradedAlgebra.DividedPowers A) (q : �
     (z : B.piece (2 * (q + 1))) :
     (liftDP A gammaA q gammaB g z).toGradedHom =
       lift A (2 * (q + 1)) (even_two_mul (q + 1)) g.toGradedHom
-        (DividedMonomials.ofGamma gammaB q z) := sorry
+        (DividedMonomials.ofGamma gammaB q z) := by
+  rfl
 
 /-- The positive even-variable divided-power lift restricts to its prescribed base morphism. -/
 @[simp]
@@ -816,7 +1021,10 @@ theorem inclusionDP_comp_liftDP (gammaA : NonnegGradedAlgebra.DividedPowers A) (
     (z : B.piece (2 * (q + 1))) :
     NonnegGradedAlgebra.DividedPowers.Hom.comp (liftDP A gammaA q gammaB g z)
       (inclusionDP A (2 * (q + 1)) gammaA (even_two_mul (q + 1))
-        (Nat.mul_pos (Nat.zero_lt_succ 1) (Nat.zero_lt_succ q))) = g := sorry
+        (Nat.mul_pos (Nat.zero_lt_succ 1) (Nat.zero_lt_succ q))) = g := by
+  apply NonnegGradedAlgebra.DividedPowers.Hom.ext_toGradedHom
+  exact lift_base A (2 * (q + 1)) (even_two_mul (q + 1)) g.toGradedHom
+    (DividedMonomials.ofGamma gammaB q z)
 
 /-- The positive even-variable divided-power lift sends the adjoined generator to the prescribed
 element. -/
@@ -826,7 +1034,9 @@ theorem liftDP_generator (gammaA : NonnegGradedAlgebra.DividedPowers A) (q : ℕ
     (g : NonnegGradedAlgebra.DividedPowers.Hom gammaA gammaB)
     (z : B.piece (2 * (q + 1))) :
     (liftDP A gammaA q gammaB g z).toGradedHom.map (2 * (q + 1))
-      (generator A (2 * (q + 1))) = z := sorry
+      (generator A (2 * (q + 1))) = z := by
+  change (lift A _ _ g.toGradedHom (DividedMonomials.ofGamma gammaB q z)).map _ _ = z
+  rw [lift_generator, DividedMonomials.ofGamma_generator]
 
 /-- A divided-power morphism out of the positive even-variable extension is determined by its
 base restriction and generator value. -/
@@ -853,7 +1063,17 @@ def halfIndex (d : ℕ+) : ℕ :=
 
 /-- A positive even degree is twice the successor of its canonical half-degree index. -/
 theorem two_mul_halfIndex_succ (d : ℕ+) (hd : Even (d : ℕ)) :
-    2 * (halfIndex d + 1) = (d : ℕ) := sorry
+    2 * (halfIndex d + 1) = (d : ℕ) := by
+  have hdiv : 2 * ((d : ℕ) / 2) = (d : ℕ) := Nat.two_mul_div_two_of_even hd
+  have hpos := d.property
+  change 2 * ((d : ℕ) / 2 - 1 + 1) = (d : ℕ)
+  have hquot : 1 ≤ (d : ℕ) / 2 := by
+    by_contra h
+    have hz : (d : ℕ) / 2 = 0 := Nat.eq_zero_of_not_pos h
+    rw [hz, Nat.mul_zero] at hdiv
+    exact (Nat.ne_of_gt hpos) hdiv.symm
+  rw [Nat.sub_add_cancel hquot]
+  exact hdiv
 
 /-- The homogeneous coefficient obtained by transporting the canonical divided power from the
 half-degree presentation to an arbitrary positive even degree. -/
@@ -864,13 +1084,47 @@ def ofEvenGammaCoefficient (B : NonnegGradedAlgebra.{u, v} R)
     (ofGamma gamma (halfIndex d)
       (B.pieceCast (two_mul_halfIndex_succ d hd).symm x)).coefficient i
 
+private theorem transportCoefficient_zero (B : NonnegGradedAlgebra.{u, v} R)
+    {e f : ℕ} (h : e = f) (t : DividedMonomials B e) :
+    B.pieceCast (congrArg (fun q : ℕ ↦ 0 * q) h) (t.coefficient 0) =
+      cast (congrArg B.piece (Nat.zero_mul f).symm) GradedMonoid.GOne.one := by
+  cases h
+  exact t.coefficient_zero
+
+private theorem transportCoefficient_mul (B : NonnegGradedAlgebra.{u, v} R)
+    {e f : ℕ} (h : e = f) (t : DividedMonomials B e) (i j : ℕ) :
+    cast (congrArg B.piece (Nat.add_mul i j f).symm)
+        (GradedMonoid.GMul.mul
+          (B.pieceCast (congrArg (fun q : ℕ ↦ i * q) h) (t.coefficient i))
+          (B.pieceCast (congrArg (fun q : ℕ ↦ j * q) h) (t.coefficient j))) =
+      Nat.choose (i + j) i •
+        B.pieceCast (congrArg (fun q : ℕ ↦ (i + j) * q) h) (t.coefficient (i + j)) := by
+  cases h
+  exact t.coefficient_mul i j
+
+private theorem transportCoefficient_generator (B : NonnegGradedAlgebra.{u, v} R)
+    {e f : ℕ} (h : e = f) (t : DividedMonomials B e) :
+    cast (congrArg B.piece (Nat.one_mul f))
+        (B.pieceCast (congrArg (fun q : ℕ ↦ 1 * q) h) (t.coefficient 1)) =
+      B.pieceCast h t.generator := by
+  cases h
+  rfl
+
+private theorem pieceCast_symm_cancel (B : NonnegGradedAlgebra.{u, v} R)
+    {e f : ℕ} (h : e = f) (x : B.piece f) :
+    B.pieceCast h (B.pieceCast h.symm x) = x := by
+  cases h
+  rfl
+
 /-- The zeroth transported even divided-monomial coefficient is the graded unit. -/
 theorem ofEvenGammaCoefficient_zero (B : NonnegGradedAlgebra.{u, v} R)
     (gamma : NonnegGradedAlgebra.DividedPowers B) (d : ℕ+) (hd : Even (d : ℕ))
     (x : B.piece d) :
     ofEvenGammaCoefficient B gamma d hd x 0 =
       cast (congrArg B.piece (Nat.zero_mul (d : ℕ)).symm)
-        GradedMonoid.GOne.one := sorry
+        GradedMonoid.GOne.one := by
+  exact transportCoefficient_zero B (two_mul_halfIndex_succ d hd)
+    (ofGamma gamma (halfIndex d) (B.pieceCast (two_mul_halfIndex_succ d hd).symm x))
 
 /-- Transported even divided-monomial coefficients satisfy the binomial multiplication law. -/
 theorem ofEvenGammaCoefficient_mul (B : NonnegGradedAlgebra.{u, v} R)
@@ -880,7 +1134,9 @@ theorem ofEvenGammaCoefficient_mul (B : NonnegGradedAlgebra.{u, v} R)
         (GradedMonoid.GMul.mul
           (ofEvenGammaCoefficient B gamma d hd x i)
           (ofEvenGammaCoefficient B gamma d hd x j)) =
-      Nat.choose (i + j) i • ofEvenGammaCoefficient B gamma d hd x (i + j) := sorry
+      Nat.choose (i + j) i • ofEvenGammaCoefficient B gamma d hd x (i + j) := by
+  exact transportCoefficient_mul B (two_mul_halfIndex_succ d hd)
+    (ofGamma gamma (halfIndex d) (B.pieceCast (two_mul_halfIndex_succ d hd).symm x)) i j
 
 /-- The divided-monomial family canonically induced by the divided powers of a homogeneous
 element in an arbitrary positive even degree. -/
@@ -899,13 +1155,18 @@ theorem ofEvenGamma_coefficient (B : NonnegGradedAlgebra.{u, v} R)
     (gamma : NonnegGradedAlgebra.DividedPowers B) (d : ℕ+) (hd : Even (d : ℕ))
     (x : B.piece d) (i : ℕ) :
     (ofEvenGamma B gamma d hd x).coefficient i =
-      ofEvenGammaCoefficient B gamma d hd x i := sorry
+      ofEvenGammaCoefficient B gamma d hd x i := by
+  rfl
 
 /-- The generator of `ofEvenGamma` is the chosen positive even homogeneous element. -/
 @[simp]
 theorem ofEvenGamma_generator (B : NonnegGradedAlgebra.{u, v} R)
     (gamma : NonnegGradedAlgebra.DividedPowers B) (d : ℕ+) (hd : Even (d : ℕ))
-    (x : B.piece d) : (ofEvenGamma B gamma d hd x).generator = x := sorry
+    (x : B.piece d) : (ofEvenGamma B gamma d hd x).generator = x := by
+  change cast (congrArg B.piece (Nat.one_mul (d : ℕ)))
+    (ofEvenGammaCoefficient B gamma d hd x 1) = x
+  rw [ofEvenGammaCoefficient, transportCoefficient_generator, ofGamma_generator]
+  exact pieceCast_symm_cancel B (two_mul_halfIndex_succ d hd) x
 
 end DividedMonomials
 
@@ -946,7 +1207,8 @@ theorem liftPositiveDP_toGradedHom (gammaA : NonnegGradedAlgebra.DividedPowers A
     {B : NonnegGradedAlgebra.{u, v} R} (gammaB : NonnegGradedAlgebra.DividedPowers B)
     (g : NonnegGradedAlgebra.DividedPowers.Hom gammaA gammaB) (x : B.piece d) :
     (liftPositiveDP A gammaA d hd gammaB g x).toGradedHom =
-      liftPositiveMap A gammaA d hd gammaB g x := sorry
+      liftPositiveMap A gammaA d hd gammaB g x := by
+  rfl
 
 /-- The arbitrary-positive-even-degree divided-power lift restricts to its prescribed base
 morphism. -/
@@ -957,7 +1219,9 @@ theorem inclusionDP_comp_liftPositiveDP (gammaA : NonnegGradedAlgebra.DividedPow
     (g : NonnegGradedAlgebra.DividedPowers.Hom gammaA gammaB) (x : B.piece d) :
     NonnegGradedAlgebra.DividedPowers.Hom.comp
         (liftPositiveDP A gammaA d hd gammaB g x)
-        (inclusionDP A d gammaA hd d.2) = g := sorry
+        (inclusionDP A d gammaA hd d.2) = g := by
+  apply NonnegGradedAlgebra.DividedPowers.Hom.ext_toGradedHom
+  exact lift_base A d hd g.toGradedHom (DividedMonomials.ofEvenGamma B gammaB d hd x)
 
 /-- The arbitrary-positive-even-degree lift sends each source divided monomial to the
 corresponding canonical divided power of the chosen generator image. -/
@@ -968,7 +1232,9 @@ theorem liftPositiveDP_dividedMonomial (gammaA : NonnegGradedAlgebra.DividedPowe
     (g : NonnegGradedAlgebra.DividedPowers.Hom gammaA gammaB) (x : B.piece d) (i : ℕ) :
     (liftPositiveDP A gammaA d hd gammaB g x).toGradedHom.map (i * (d : ℕ))
         (dividedMonomial A d i) =
-      (DividedMonomials.ofEvenGamma B gammaB d hd x).coefficient i := sorry
+      (DividedMonomials.ofEvenGamma B gammaB d hd x).coefficient i := by
+  exact lift_dividedMonomial A d hd g.toGradedHom
+    (DividedMonomials.ofEvenGamma B gammaB d hd x) i
 
 /-- The arbitrary-positive-even-degree lift sends the adjoined generator to the chosen
 homogeneous element. -/
@@ -977,7 +1243,9 @@ theorem liftPositiveDP_generator (gammaA : NonnegGradedAlgebra.DividedPowers A)
     (d : ℕ+) (hd : Even (d : ℕ))
     {B : NonnegGradedAlgebra.{u, v} R} (gammaB : NonnegGradedAlgebra.DividedPowers B)
     (g : NonnegGradedAlgebra.DividedPowers.Hom gammaA gammaB) (x : B.piece d) :
-    (liftPositiveDP A gammaA d hd gammaB g x).toGradedHom.map d (generator A d) = x := sorry
+    (liftPositiveDP A gammaA d hd gammaB g x).toGradedHom.map d (generator A d) = x := by
+  change (lift A d hd g.toGradedHom (DividedMonomials.ofEvenGamma B gammaB d hd x)).map d _ = x
+  rw [lift_generator, DividedMonomials.ofEvenGamma_generator]
 
 /-- A divided-power morphism out of an arbitrary positive even-variable extension is determined
 by its base restriction and generator value. -/

@@ -42,7 +42,7 @@ theorem residueFiberOver_eq {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶
     residueFiberOver f a v =
       fieldFiber f
         ((FieldValuedPoint.ofScheme (Scheme.FieldValuedPoint.residuePoint v)).map a) :=
-  sorry
+  rfl
 
 /-- The residue-field point of a scheme chart, mapped to `Y`, represents the image
 point `Points.mapOfOver a v`. -/
@@ -51,7 +51,7 @@ theorem residueFiberOver_mk {S : Scheme.{u}} {Y : AlgebraicSpace S} {V : Over S}
     Points.mk
         ((FieldValuedPoint.ofScheme (Scheme.FieldValuedPoint.residuePoint v)).map a) =
       Points.mapOfOver a v :=
-  sorry
+  rfl
 
 namespace LocallyNoetherianFiber
 
@@ -72,7 +72,7 @@ theorem existsEtale_iff {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
       ∃ (V : Over S) (a : ofOver V ⟶ Y) (v : V.left),
         Etale a ∧ Points.mapOfOver a v = y ∧
           IsLocallyNoetherian (residueFiberOver f a v) :=
-  sorry
+  Iff.rfl
 
 namespace existsEtale
 
@@ -83,7 +83,7 @@ theorem of {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y} {y : Points Y
     (hv : Points.mapOfOver a v = y)
     (hN : IsLocallyNoetherian (residueFiberOver f a v)) :
     existsEtale f y :=
-  sorry
+  ⟨V, a, v, ha, hv, hN⟩
 
 /-- `existsEtale f y` supplies an étale scheme chart through `y` whose residue-field
 fibre is locally Noetherian. -/
@@ -92,7 +92,7 @@ theorem spec {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y} {y : Points
     ∃ (V : Over S) (a : ofOver V ⟶ Y) (v : V.left),
       Etale a ∧ Points.mapOfOver a v = y ∧
         IsLocallyNoetherian (residueFiberOver f a v) :=
-  sorry
+  h
 
 end existsEtale
 
@@ -112,7 +112,7 @@ theorem forallEtale_iff {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
       ∀ (V : Over S) (a : ofOver V ⟶ Y) (v : V.left),
         Etale a → Points.mapOfOver a v = y →
           IsLocallyNoetherian (residueFiberOver f a v) :=
-  sorry
+  Iff.rfl
 
 namespace forallEtale
 
@@ -122,7 +122,7 @@ theorem of {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y} {y : Points Y
       Etale a → Points.mapOfOver a v = y →
         IsLocallyNoetherian (residueFiberOver f a v)) :
     forallEtale f y :=
-  sorry
+  h
 
 /-- If `forallEtale f y`, then every étale scheme chart through `y` has locally
 Noetherian residue-field fibre. -/
@@ -130,7 +130,7 @@ theorem apply {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y} {y : Point
     (h : forallEtale f y) {V : Over S} (a : ofOver V ⟶ Y) (v : V.left)
     (ha : Etale a) (hv : Points.mapOfOver a v = y) :
     IsLocallyNoetherian (residueFiberOver f a v) :=
-  sorry
+  h V a v ha hv
 
 end forallEtale
 
@@ -147,7 +147,7 @@ theorem existsField_iff {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
     existsField f y ↔
       ∃ p : FieldValuedPoint Y,
         Points.mk p = y ∧ IsLocallyNoetherian (fieldFiber f p) :=
-  sorry
+  Iff.rfl
 
 namespace existsField
 
@@ -156,14 +156,14 @@ namespace existsField
 theorem of {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y} {y : Points Y}
     (p : FieldValuedPoint Y) (hp : Points.mk p = y)
     (hN : IsLocallyNoetherian (fieldFiber f p)) : existsField f y :=
-  sorry
+  ⟨p, hp, hN⟩
 
 /-- `existsField f y` supplies a field-valued representative of `y` with locally
 Noetherian fibre. -/
 theorem spec {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y} {y : Points Y}
     (h : existsField f y) :
     ∃ p : FieldValuedPoint Y, Points.mk p = y ∧ IsLocallyNoetherian (fieldFiber f p) :=
-  sorry
+  h
 
 /-- A morphism `Spec(k) ⟶ Y` over `S` representing `y` with locally Noetherian
 fibre witnesses `existsField f y`. -/
@@ -172,7 +172,7 @@ theorem of_spec {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y} {y : Poi
     (hp : Points.mk (FieldValuedPoint.of k σ g) = y)
     (hN : IsLocallyNoetherian (fieldFiber f (FieldValuedPoint.of k σ g))) :
     existsField f y :=
-  sorry
+  ⟨FieldValuedPoint.of k σ g, hp, hN⟩
 
 end existsField
 
@@ -185,7 +185,14 @@ theorem existsField_iff_specField {S : Scheme.{u}} {X Y : AlgebraicSpace S}
         (g : ofOver (Over.mk σ) ⟶ Y),
         Points.mk (FieldValuedPoint.of k σ g) = y ∧
           IsLocallyNoetherian (fieldFiber f (FieldValuedPoint.of k σ g)) :=
-  sorry
+  by
+    constructor
+    · show existsField f y → _
+      rintro ⟨p, hp, hN⟩
+      exact ⟨p.K, p.field, p.structureHom, p.hom, hp, hN⟩
+    · show _ → existsField f y
+      rintro ⟨k, hk, σ, g, hp, hN⟩
+      exact ⟨FieldValuedPoint.of k σ g, hp, hN⟩
 
 end LocallyNoetherianFiber
 
@@ -233,28 +240,38 @@ theorem isLocallyNoetherianFiber_spec {S : Scheme.{u}} {X Y : AlgebraicSpace S}
       LocallyNoetherianFiber.existsEtale f y ∧
         LocallyNoetherianFiber.forallEtale f y ∧
           LocallyNoetherianFiber.existsField f y :=
-  sorry
+  by
+    constructor
+    · show IsLocallyNoetherianFiber f y → _
+      intro h
+      exact ⟨((locallyNoetherianFiber_tfae f y).out 0 2).mpr h.existsField,
+        ((locallyNoetherianFiber_tfae f y).out 1 2).mpr h.existsField, h.existsField⟩
+    · show _ → IsLocallyNoetherianFiber f y
+      intro h
+      exact ⟨h.2.2⟩
 
 /-- The fibre of `f` over `y` is locally Noetherian if and only if some étale
 scheme chart through `y` has locally Noetherian residue-field fibre. -/
 theorem isLocallyNoetherianFiber_iff_existsEtale {S : Scheme.{u}}
     {X Y : AlgebraicSpace S} (f : X ⟶ Y) (y : Points Y) :
     IsLocallyNoetherianFiber f y ↔ LocallyNoetherianFiber.existsEtale f y :=
-  sorry
+  ⟨fun h ↦ ((locallyNoetherianFiber_tfae f y).out 0 2).mpr h.existsField,
+    fun h ↦ ⟨((locallyNoetherianFiber_tfae f y).out 0 2).mp h⟩⟩
 
 /-- The fibre of `f` over `y` is locally Noetherian if and only if every étale
 scheme chart through `y` has locally Noetherian residue-field fibre. -/
 theorem isLocallyNoetherianFiber_iff_forallEtale {S : Scheme.{u}}
     {X Y : AlgebraicSpace S} (f : X ⟶ Y) (y : Points Y) :
     IsLocallyNoetherianFiber f y ↔ LocallyNoetherianFiber.forallEtale f y :=
-  sorry
+  ⟨fun h ↦ ((locallyNoetherianFiber_tfae f y).out 1 2).mpr h.existsField,
+    fun h ↦ ⟨((locallyNoetherianFiber_tfae f y).out 1 2).mp h⟩⟩
 
 /-- The fibre of `f` over `y` is locally Noetherian if and only if some
 field-valued representative of `y` has locally Noetherian fibre. -/
 theorem isLocallyNoetherianFiber_iff_existsField {S : Scheme.{u}}
     {X Y : AlgebraicSpace S} (f : X ⟶ Y) (y : Points Y) :
     IsLocallyNoetherianFiber f y ↔ LocallyNoetherianFiber.existsField f y :=
-  sorry
+  ⟨fun h ↦ h.existsField, fun h ↦ ⟨h⟩⟩
 
 namespace IsLocallyNoetherianFiber
 
@@ -263,14 +280,14 @@ the fibre of `f` over `y` is locally Noetherian. -/
 theorem of {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y} {y : Points Y}
     (h : LocallyNoetherianFiber.existsField f y) :
     IsLocallyNoetherianFiber f y :=
-  sorry
+  ⟨h⟩
 
 /-- If the fibre of `f` over `y` is locally Noetherian, then some field-valued
 representative of `y` has locally Noetherian fibre. -/
 theorem spec {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
     (y : Points Y) [IsLocallyNoetherianFiber f y] :
     LocallyNoetherianFiber.existsField f y :=
-  sorry
+  IsLocallyNoetherianFiber.existsField
 
 end IsLocallyNoetherianFiber
 
@@ -292,7 +309,16 @@ theorem locallyNoetherianFibers_spec {S : Scheme.{u}} {X Y : AlgebraicSpace S}
       (∀ y : Points Y, LocallyNoetherianFiber.existsEtale f y) ∧
         (∀ y : Points Y, LocallyNoetherianFiber.forallEtale f y) ∧
           (∀ y : Points Y, LocallyNoetherianFiber.existsField f y) :=
-  sorry
+  by
+    constructor
+    · show LocallyNoetherianFibers f → _
+      intro h
+      exact ⟨fun y ↦ ((isLocallyNoetherianFiber_spec f y).mp (h.fiber y)).1,
+        fun y ↦ ((isLocallyNoetherianFiber_spec f y).mp (h.fiber y)).2.1,
+        fun y ↦ (h.fiber y).existsField⟩
+    · show _ → LocallyNoetherianFibers f
+      intro h
+      exact ⟨fun y ↦ ⟨h.2.2 y⟩⟩
 
 /-- If the fibres of `f` are locally Noetherian, then the fibre over any point
 of the target is locally Noetherian. -/
@@ -310,12 +336,50 @@ theorem spec {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     LocallyNoetherianFibers f ↔
       (∀ y : Points Y, LocallyNoetherianFiber.existsField f y) ∧
         (∀ y : Points Y, LocallyNoetherianFiber.forallEtale f y) :=
-  sorry
+  by
+    constructor
+    · show LocallyNoetherianFibers f → _
+      intro h
+      exact ⟨fun y ↦ (h.fiber y).existsField,
+        fun y ↦ (isLocallyNoetherianFiber_iff_forallEtale f y).mp (h.fiber y)⟩
+    · show _ → LocallyNoetherianFibers f
+      intro h
+      exact ⟨fun y ↦ ⟨h.1 y⟩⟩
 
 /-- The identity morphism of an algebraic space has locally Noetherian fibres. -/
 instance id {S : Scheme.{u}} {X : AlgebraicSpace S} :
     LocallyNoetherianFibers (𝟙 X) :=
-  sorry
+  by
+    constructor
+    intro y
+    refine Quotient.inductionOn y ?_
+    intro p
+    refine ⟨⟨p, rfl, ?_⟩⟩
+    let q := fieldFiberToSpec (𝟙 X) p
+    letI : IsIso q := (fieldFiber_isPullback (𝟙 X) p).isIso_snd_of_isIso
+    let e₀ : fieldFiber (𝟙 X) p ≅ ofOver p.overObj := asIso q
+    let e : (fieldFiber (𝟙 X) p).functorOfPoints ≅ yoneda.obj p.overObj :=
+      { hom := e₀.hom
+        inv := e₀.inv
+        hom_inv_id := e₀.hom_inv_id
+        inv_hom_id := e₀.inv_hom_id }
+    let j := e.inv
+    letI : IsIso j := e.isIso_inv
+    letI : AlgebraicGeometry.IsLocallyNoetherian p.overObj.left := by
+      change AlgebraicGeometry.IsLocallyNoetherian (Spec (.of p.K))
+      have : IsNoetherianRing (CommRingCat.of p.K) := inferInstanceAs (IsNoetherianRing p.K)
+      infer_instance
+    refine ⟨⟨p.overObj, j, ?_, ?_, inferInstance⟩⟩
+    · show (MorphismProperty.over (@AlgebraicGeometry.Etale)).presheaf j
+      refine ⟨Functor.relativelyRepresentable.of_isIso yoneda j, ?_⟩
+      intro A B g fst snd h
+      have : IsIso (yoneda.map snd) := h.isIso_snd_of_isIso
+      have : IsIso snd := isIso_of_reflects_iso snd yoneda
+      have : IsIso snd.left := inferInstanceAs (IsIso ((Over.forget S).map snd))
+      change AlgebraicGeometry.Etale snd.left
+      infer_instance
+    · show Presheaf.IsLocallySurjective (Scheme.etaleTopology.over S) j
+      infer_instance
 
 end LocallyNoetherianFibers
 

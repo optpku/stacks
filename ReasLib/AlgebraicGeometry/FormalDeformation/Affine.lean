@@ -34,6 +34,12 @@ variable {Λ k : Type u} [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra 
 
 variable (Λ k) (P : Type u) [CommRing P] [Algebra k P]
 
+private theorem globalSectionsSpec_comp {R S T : CommRingCat.{u}} (f : R ⟶ S) (g : S ⟶ T) :
+    (Scheme.ΓSpecIso R).inv ≫ ((Spec.map f).appTop ≫ (Spec.map g).appTop) ≫
+      (Scheme.ΓSpecIso T).hom = f ≫ g := by
+  rw [Category.assoc, Scheme.ΓSpecIso_naturality,
+    Scheme.ΓSpecIso_naturality_assoc, Iso.inv_hom_id_assoc]
+
 /-- The structure morphism `Spec(P) ⟶ Spec(k)` of an affine scheme over the residue object. -/
 def specStructureHom :
     Spec (CommRingCat.of P) ⟶
@@ -46,8 +52,10 @@ theorem specStructureHom_spec :
   rfl
 
 /-- The structure morphism of `Spec(P)` over `k` is flat. -/
-instance instFlat_specStructureHom : AlgebraicGeometry.Flat (specStructureHom Λ k P) :=
-  sorry
+instance instFlat_specStructureHom : AlgebraicGeometry.Flat (specStructureHom Λ k P) := by
+  change AlgebraicGeometry.Flat (Spec.map (CommRingCat.ofHom (algebraMap k P)))
+  apply AlgebraicGeometry.Flat.SpecMap_iff.mpr
+  exact (RingHom.flat_algebraMap_iff (R := k) (S := P)).mpr inferInstance
 
 /-- The slice projection of the deformation category of `Spec(P)` to `C_Λ`. -/
 def schemeDeformationForget :
@@ -100,8 +108,18 @@ theorem globalSectionsMap_commutes
         (algebraMap (globalSectionsObj Λ k P src).base.carrier
           (globalSectionsObj Λ k P src).algebra) =
       (algebraMap (globalSectionsObj Λ k P tgt).base.carrier
-        (globalSectionsObj Λ k P tgt).algebra).comp f.left.baseHom.hom.toRingHom :=
-  sorry
+        (globalSectionsObj Λ k P tgt).algebra).comp f.left.baseHom.hom.toRingHom := by
+  have h : (Scheme.ΓSpecIso (CommRingCat.of src.left.base.carrier)).inv ≫
+      src.left.structureHom.appTop ≫ f.left.schemeHom.appTop =
+    CommRingCat.ofHom f.left.baseHom.hom.toRingHom ≫
+      (Scheme.ΓSpecIso (CommRingCat.of tgt.left.base.carrier)).inv ≫
+      tgt.left.structureHom.appTop := by
+    rw [← Scheme.Hom.comp_appTop, f.left.isPullback.w, Scheme.Hom.comp_appTop]
+    simpa only [specMap, Category.assoc] using
+      congrArg (fun g ↦ g ≫ tgt.left.structureHom.appTop)
+        (Scheme.ΓSpecIso_inv_naturality
+          (CommRingCat.ofHom f.left.baseHom.hom.toRingHom)).symm
+  exact congrArg CommRingCat.Hom.hom h
 
 /-- Pullback of global functions along a deformation arrow gives a bijective tensor comparison. -/
 theorem globalSectionsMap_isIso_tensor
@@ -134,8 +152,56 @@ theorem globalSectionsResidueHom_commutes
         (algebraMap (globalSectionsObj Λ k P Y).base.carrier
           (globalSectionsObj Λ k P Y).algebra) =
       (algebraMap (FlatAlgebraCat.ofResidue Λ k P).base.carrier
-        (FlatAlgebraCat.ofResidue Λ k P).algebra).comp Y.hom.baseHom.hom.toRingHom :=
-  sorry
+        (FlatAlgebraCat.ofResidue Λ k P).algebra).comp Y.hom.baseHom.hom.toRingHom := by
+  have h : (Scheme.ΓSpecIso (CommRingCat.of Y.left.base.carrier)).inv ≫
+      Y.left.structureHom.appTop ≫ Y.hom.schemeHom.appTop ≫
+      (Scheme.ΓSpecIso (CommRingCat.of P)).hom =
+    CommRingCat.ofHom Y.hom.baseHom.hom.toRingHom ≫
+      CommRingCat.ofHom (algebraMap k P) := by
+    have hw := Y.hom.isPullback.w
+    change Y.hom.schemeHom ≫ Y.left.structureHom =
+      specStructureHom Λ k P ≫ specMap Y.hom.baseHom at hw
+    rw [← Category.assoc Y.left.structureHom.appTop,
+      ← Scheme.Hom.comp_appTop, hw, Scheme.Hom.comp_appTop]
+    exact globalSectionsSpec_comp (CommRingCat.ofHom Y.hom.baseHom.hom.toRingHom)
+      (CommRingCat.ofHom (algebraMap k P))
+  exact congrArg CommRingCat.Hom.hom h
+
+open scoped TensorProduct in
+private theorem canonicalTensorMap_postcomp
+    {Q R : FlatAlgebraCat Λ k} (b : Q.base ⟶ R.base) (g : Q.algebra →+* R.algebra)
+    (h : g.comp (algebraMap Q.base.carrier Q.algebra) =
+      (algebraMap R.base.carrier R.algebra).comp b.hom.toRingHom)
+    {S : Type u} [CommRing S] [Algebra R.base.carrier S] [Module.Flat R.base.carrier S]
+    (e : R.algebra →+* S)
+    (hlin : e.comp (algebraMap R.base.carrier R.algebra) = algebraMap R.base.carrier S)
+    (he : (e.comp g).comp (algebraMap Q.base.carrier Q.algebra) =
+      (algebraMap R.base.carrier S).comp b.hom.toRingHom) :
+    FlatAlgebraCat.canonicalTensorMap (Q := Q) (P := FlatAlgebraCat.of R.base S)
+        b (e.comp g) he =
+      e ∘ FlatAlgebraCat.canonicalTensorMap b g h := by
+  letI : Algebra Q.base.carrier R.base.carrier := FlatAlgebraCat.algebraAlong b
+  letI : Algebra Q.base.carrier R.algebra := FlatAlgebraCat.compAlgebraAlong b
+  letI : IsScalarTower Q.base.carrier R.base.carrier R.algebra :=
+    IsScalarTower.of_algebraMap_eq' rfl
+  letI : Algebra Q.base.carrier S :=
+    Algebra.compHom S b.hom.toRingHom
+  letI : IsScalarTower Q.base.carrier R.base.carrier S :=
+    IsScalarTower.of_algebraMap_eq' rfl
+  let e' : R.algebra →ₐ[R.base.carrier] S :=
+    { e with commutes' := fun a ↦ RingHom.congr_fun hlin a }
+  let g' : Q.algebra →ₐ[Q.base.carrier] R.algebra :=
+    { g with commutes' := fun a ↦ RingHom.congr_fun h a }
+  let eg : Q.algebra →ₐ[Q.base.carrier] S :=
+    { e.comp g with commutes' := fun a ↦ RingHom.congr_fun he a }
+  have hx : AlgHom.liftEquiv Q.base.carrier R.base.carrier Q.algebra S eg =
+      e'.comp (AlgHom.liftEquiv Q.base.carrier R.base.carrier Q.algebra R.algebra g') := by
+    apply Algebra.TensorProduct.ext'
+    intro a q
+    simp only [AlgHom.comp_apply, AlgHom.liftEquiv_tmul, _root_.map_smul]
+    rfl
+  exact congrArg (fun l : (R.base.carrier ⊗[Q.base.carrier] Q.algebra) →ₐ[R.base.carrier] S ↦
+    (l : _ → S)) hx
 
 /-- The special-fibre map on global functions gives a bijective residue tensor comparison. -/
 theorem globalSectionsResidueHom_isIso_tensor
@@ -143,8 +209,30 @@ theorem globalSectionsResidueHom_isIso_tensor
     Function.Bijective (FlatAlgebraCat.canonicalTensorMap
       (Q := globalSectionsObj Λ k P Y) (P := FlatAlgebraCat.ofResidue Λ k P) Y.hom.baseHom
       ((Y.hom.schemeHom.appTop ≫ (Scheme.ΓSpecIso (CommRingCat.of P)).hom).hom)
-      (globalSectionsResidueHom_commutes Λ k P Y)) :=
-  sorry
+      (globalSectionsResidueHom_commutes Λ k P Y)) := by
+  let Z : deformationCategory Λ k (Spec (CommRingCat.of P)) (specStructureHom Λ k P) :=
+    Over.mk (𝟙 _)
+  let f : Y ⟶ Z := Over.homMk Y.hom (Category.comp_id Y.hom)
+  have hc := globalSectionsResidueHom_commutes Λ k P Z
+  change ((Scheme.Hom.appTop (𝟙 (Spec (CommRingCat.of P))) ≫
+      (Scheme.ΓSpecIso (CommRingCat.of P)).hom).hom).comp
+      (algebraMap
+        (globalSectionsObj Λ k P (Over.mk (𝟙 _))).base.carrier
+        (globalSectionsObj Λ k P (Over.mk (𝟙 _))).algebra) =
+    (algebraMap (FlatAlgebraCat.ofResidue Λ k P).base.carrier
+      (FlatAlgebraCat.ofResidue Λ k P).algebra).comp (RingHom.id k) at hc
+  simp only [Scheme.Hom.id_appTop, Category.id_comp] at hc
+  have heq := @canonicalTensorMap_postcomp Λ k _ _ _ _ _
+    (globalSectionsObj Λ k P Y) (globalSectionsObj Λ k P (Over.mk (𝟙 _)))
+    Y.hom.baseHom Y.hom.schemeHom.appTop.hom (globalSectionsMap_commutes Λ k P f)
+    P (FlatAlgebraCat.commRing (FlatAlgebraCat.ofResidue Λ k P))
+    (FlatAlgebraCat.isAlgebra (FlatAlgebraCat.ofResidue Λ k P))
+    (FlatAlgebraCat.isFlat (FlatAlgebraCat.ofResidue Λ k P))
+    (Scheme.ΓSpecIso (CommRingCat.of P)).hom.hom hc
+    (globalSectionsResidueHom_commutes Λ k P Y)
+  have he : Function.Bijective (Scheme.ΓSpecIso (CommRingCat.of P)).hom.hom :=
+    (Scheme.ΓSpecIso (CommRingCat.of P)).commRingCatIsoToRingEquiv.bijective
+  exact heq.symm ▸ he.comp (globalSectionsMap_isIso_tensor Λ k P f)
 
 /-- The morphism `(A, Γ(Y, ⊤)) ⟶ (k, P)` induced by a deformation of `Spec(P)`. -/
 def globalSectionsResidueHom
@@ -161,27 +249,55 @@ theorem globalSectionsResidueHom_baseHom
     (globalSectionsResidueHom Λ k P Y).baseHom = Y.hom.baseHom :=
   rfl
 
+private theorem flatAlgebraHom_ext {Q R : FlatAlgebraCat Λ k} {f g : Q ⟶ R}
+    (hbase : f.baseHom = g.baseHom) (hring : f.toRingHom = g.toRingHom) : f = g := by
+  rcases f with ⟨fb, fr, fc⟩
+  rcases g with ⟨gb, gr, gc⟩
+  change fb = gb at hbase
+  change fr = gr at hring
+  cases hbase
+  cases hring
+  have hc : fc = gc := Subsingleton.elim _ _
+  cases hc
+  rfl
+
 /-- The global-functions maps commute with the maps to the residue algebra. -/
 theorem globalSectionsResidueHom_naturality
     {src tgt : deformationCategory Λ k (Spec (CommRingCat.of P)) (specStructureHom Λ k P)}
     (f : src ⟶ tgt) :
     globalSectionsMap Λ k P f ≫ globalSectionsResidueHom Λ k P tgt =
-      globalSectionsResidueHom Λ k P src :=
-  sorry
+      globalSectionsResidueHom Λ k P src := by
+  apply flatAlgebraHom_ext
+  · change f.left.baseHom ≫ tgt.hom.baseHom = src.hom.baseHom
+    exact congrArg Hom.baseHom f.w
+  · have h := congrArg Hom.schemeHom f.w
+    change tgt.hom.schemeHom ≫ f.left.schemeHom = src.hom.schemeHom at h
+    change (f.left.schemeHom.appTop ≫ tgt.hom.schemeHom.appTop ≫
+        (Scheme.ΓSpecIso (CommRingCat.of P)).hom).hom =
+      (src.hom.schemeHom.appTop ≫ (Scheme.ΓSpecIso (CommRingCat.of P)).hom).hom
+    rw [← Category.assoc, ← Scheme.Hom.comp_appTop, h]
 
 /-- Pullback on global functions preserves identity deformation arrows. -/
 theorem globalSectionsMap_id
     (Y : deformationCategory Λ k (Spec (CommRingCat.of P)) (specStructureHom Λ k P)) :
-    globalSectionsMap Λ k P (𝟙 Y) = 𝟙 (globalSectionsObj Λ k P Y) :=
-  sorry
+    globalSectionsMap Λ k P (𝟙 Y) = 𝟙 (globalSectionsObj Λ k P Y) := by
+  apply flatAlgebraHom_ext
+  · rfl
+  · change (Scheme.Hom.appTop (𝟙 Y.left.scheme)).hom = RingHom.id _
+    simp
 
 /-- Pullback on global functions preserves composition of deformation arrows. -/
 theorem globalSectionsMap_comp
     {src mid tgt : deformationCategory Λ k (Spec (CommRingCat.of P)) (specStructureHom Λ k P)}
     (f : src ⟶ mid) (g : mid ⟶ tgt) :
     globalSectionsMap Λ k P (f ≫ g) =
-      globalSectionsMap Λ k P f ≫ globalSectionsMap Λ k P g :=
-  sorry
+      globalSectionsMap Λ k P f ≫ globalSectionsMap Λ k P g := by
+  apply flatAlgebraHom_ext
+  · rfl
+  · change (g.left.schemeHom ≫ f.left.schemeHom).appTop.hom =
+      g.left.schemeHom.appTop.hom.comp f.left.schemeHom.appTop.hom
+    rw [Scheme.Hom.comp_appTop]
+    rfl
 
 /-- The functor `Def_X ⥤ Def_P` sending `(A, Y)` to `(A, Γ(Y, ⊤))`. -/
 def globalSectionsFunctor :

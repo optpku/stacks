@@ -52,15 +52,35 @@ noncomputable def arrow (f : X ⟶ Y) {V : Over S} (y : Y.p.Fiber V)
               (YonedaSlice.representative y) f)).obj q)) ≫
     (YonedaSlice.representative.fiberObjIso y).hom.1
 
+/-- A morphism in the opposite Yoneda 2-fibre product induces a morphism between
+the corresponding structured arrows through its projection to `X`. -/
+noncomputable def toStructuredArrowMap (f : X ⟶ Y) {V : Over S} (y : Y.p.Fiber V)
+    {q q' : (yonedaFibreProduct f y).totalᵒᵖ} (ψ : q ⟶ q') :
+    StructuredArrow.mk (S := op y.1) (T := (toFunctor f).op)
+        (Y := op ((toFunctor (pr f y)).obj q.unop)) (arrow f y q.unop).op ⟶
+      StructuredArrow.mk (S := op y.1) (T := (toFunctor f).op)
+        (Y := op ((toFunctor (pr f y)).obj q'.unop)) (arrow f y q'.unop).op :=
+  StructuredArrow.homMk ((toFunctor (pr f y)).op.map ψ) sorry
+
+/-- The induced morphism of structured arrows preserves identities. -/
+theorem toStructuredArrowMap_id (f : X ⟶ Y) {V : Over S} (y : Y.p.Fiber V)
+    (q : (yonedaFibreProduct f y).totalᵒᵖ) :
+    toStructuredArrowMap f y (𝟙 q) = 𝟙 _ := sorry
+
+/-- The induced morphism of structured arrows preserves composition. -/
+theorem toStructuredArrowMap_comp (f : X ⟶ Y) {V : Over S} (y : Y.p.Fiber V)
+    {q q' q'' : (yonedaFibreProduct f y).totalᵒᵖ} (ψ : q ⟶ q') (φ : q' ⟶ q'') :
+    toStructuredArrowMap f y (ψ ≫ φ) =
+      toStructuredArrowMap f y ψ ≫ toStructuredArrowMap f y φ := sorry
+
 /-- The functor sending an object of the Yoneda 2-fibre product to the corresponding
 structured arrow `f(pr(q)) ⟶ y`. -/
 noncomputable def toStructuredArrow (f : X ⟶ Y) {V : Over S} (y : Y.p.Fiber V) :
     (yonedaFibreProduct f y).totalᵒᵖ ⥤ StructuredArrow (op y.1) (toFunctor f).op where
   obj q := StructuredArrow.mk (op (arrow f y q.unop))
-  map {q q'} ψ :=
-    StructuredArrow.homMk ((toFunctor (pr f y)).op.map ψ) sorry
-  map_id := sorry
-  map_comp := sorry
+  map ψ := toStructuredArrowMap f y ψ
+  map_id := toStructuredArrowMap_id f y
+  map_comp := toStructuredArrowMap_comp f y
 
 end yonedaFibreProduct
 

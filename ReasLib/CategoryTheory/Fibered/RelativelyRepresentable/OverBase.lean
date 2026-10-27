@@ -9,6 +9,7 @@ module
 import Mathlib.Tactic.CrossRefAttribute
 public import ReasLib.CategoryTheory.Fibered.RelativelyRepresentable.BaseChange
 public import ReasLib.CategoryTheory.Fibered.Representable.Lifted
+import ReasLib.CategoryTheory.Fibered.Representable.OverBase
 
 /-!
 # Universe-saturated relative representability
@@ -56,7 +57,7 @@ the Prop-valued fibredness and coherence fields of `baseChange` and `fstGroupoid
 theorem relativelyRepresentable.overBase.homProperty_apply
     {X Y : Groupoids.{u, v, max w (max u v), max vS v} C} (F : X ⟶ Y) :
     relativelyRepresentable.overBase.homProperty X Y F ↔
-      relativelyRepresentable.overBase F := sorry
+      relativelyRepresentable.overBase F := Iff.rfl
 
 namespace relativelyRepresentable.overBase
 
@@ -67,7 +68,7 @@ theorem baseChange.isRepresentable
     {F : X ⟶ Y} (hF : relativelyRepresentable.overBase F)
     {U : C} (G : (slice U).toBasedCategory ⥤ᵇ Y.toBasedCategory) :
     IsRepresentable.Lifted.{max u v, v, max w vS, vS}
-      (baseChange.overBase F G) := sorry
+      (baseChange.overBase F G) := hF G
 
 /-- The forward morphism of a bicategorical equivalence in a saturated owner is heterogeneously
 relatively representable.  This is the resizing-boundary companion of
@@ -84,7 +85,8 @@ resulting based equivalence. -/
 /-- Identity morphisms satisfy heterogeneous-boundary relative representability. -/
 theorem id_mem
     (X : Groupoids.{u, v, max w (max u v), max vS v} C) :
-    relativelyRepresentable.overBase (𝟙 X) := sorry
+    relativelyRepresentable.overBase (𝟙 X) :=
+  ofEquivalence (Bicategory.Equivalence.id X)
 
 /-- Heterogeneous-boundary relative representability is stable under composition. -/
 theorem comp_mem
@@ -97,7 +99,9 @@ theorem comp_mem
 /-- Heterogeneous relatively representable morphisms form a multiplicative hom property. -/
 instance homProperty.isMultiplicative :
     (relativelyRepresentable.overBase.homProperty.{u, v, w, vS}
-      (C := C)).IsMultiplicative := sorry
+      (C := C)).IsMultiplicative where
+  id_mem := id_mem
+  comp_mem := comp_mem
 
 /-- Heterogeneous relative representability is stable under bicategorical base change. -/
 instance homProperty.BaseChange.isStable :
@@ -119,7 +123,13 @@ namespace relativelyRepresentable
 theorem iff_overBase
     {X Y : Groupoids C} (F : X ⟶ Y) :
     relativelyRepresentable F ↔
-      relativelyRepresentable.overBase.{u, v, 0, 0} F := sorry
+      relativelyRepresentable.overBase.{u, v, 0, 0} F := by
+  constructor
+  · intro hF U G
+    exact (IsRepresentable.iff_lifted (baseChange F (ofBasedFunctor G))).mp
+      (hF (ofBasedFunctor G))
+  · intro hF U G
+    exact (IsRepresentable.iff_lifted (baseChange F G)).mpr (hF (toBasedFunctor G))
 
 end relativelyRepresentable
 

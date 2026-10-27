@@ -50,7 +50,7 @@ namespace precompPostcomp
 theorem h (H : Homotopy a b) (p : T ⟶ U) (q : V ⟶ W)
     {n : ℕ} (i : Fin (n + 1)) :
     (H.precompPostcomp p q).h i =
-      p.app (op ⦋n⦌) ≫ H.h i ≫ q.app (op ⦋n + 1⦌) := sorry
+      p.app (op ⦋n⦌) ≫ H.h i ≫ q.app (op ⦋n + 1⦌) := rfl
 
 end precompPostcomp
 
@@ -72,7 +72,7 @@ namespace Homotopy.app
 theorem h {D : Type u'} [Category.{v'} D]
     {X Y : SimplicialObject (C ⥤ D)} {f g : X ⟶ Y}
     (H : Homotopy f g) (A : C) {n : ℕ} (i : Fin (n + 1)) :
-    (H.app A).h i = (H.h i).app A := sorry
+    (H.app A).h i = (H.h i).app A := rfl
 
 end Homotopy.app
 
@@ -89,7 +89,9 @@ def Homotopy.ofEq (h : a = b) : Homotopy a b :=
 /-- The components of the equality-transport homotopy are those of the constant homotopy. -/
 @[simp, stacks 07KA "component of an equality-transport simplicial homotopy"]
 theorem Homotopy.ofEq.h (h : a = b) {n : ℕ} (i : Fin (n + 1)) :
-    (Homotopy.ofEq h).h i = U.σ i ≫ a.app (op ⦋n + 1⦌) := sorry
+    (Homotopy.ofEq h).h i = U.σ i ≫ a.app (op ⦋n + 1⦌) := by
+  cases h
+  rfl
 
 /-- Transport a simplicial homotopy along equalities of its source and target morphisms. -/
 @[stacks 019K "endpoint transport for simplicial homotopies"]
@@ -102,7 +104,10 @@ def Homotopy.cast {a b a' b' : U ⟶ V}
 theorem Homotopy.cast.h {a b a' b' : U ⟶ V}
     (ha : a = a') (hb : b = b') (H : Homotopy a b)
     {n : ℕ} (i : Fin (n + 1)) :
-    (Homotopy.cast ha hb H).h i = H.h i := sorry
+    (Homotopy.cast ha hb H).h i = H.h i := by
+  cases ha
+  cases hb
+  rfl
 
 /-- The directed simplicial-homotopy relation: `f` and `g` are related when there exists a
 canonical simplicial-object homotopy from `f` to `g`. This is the generating relation whose
@@ -113,38 +118,48 @@ def DirectedHomotopy {X Y : SimplicialObject C} (f g : X ⟶ Y) : Prop :=
 
 /-- A concrete simplicial homotopy supplies a directed homotopy step. -/
 @[stacks 019K "concrete simplicial homotopy gives a directed step"]
-theorem DirectedHomotopy.of_homotopy (h : Homotopy a b) : DirectedHomotopy a b := sorry
+theorem DirectedHomotopy.of_homotopy (h : Homotopy a b) : DirectedHomotopy a b :=
+  ⟨h⟩
 
 /-- Equality of simplicial morphisms supplies a directed homotopy step. -/
 @[stacks 019K "equal simplicial morphisms give a directed step"]
-theorem DirectedHomotopy.of_eq (h : a = b) : DirectedHomotopy a b := sorry
+theorem DirectedHomotopy.of_eq (h : a = b) : DirectedHomotopy a b :=
+  ⟨Homotopy.ofEq h⟩
 
 /-- Directed simplicial homotopy is reflexive. -/
 @[refl, stacks 019K "directed simplicial homotopy is reflexive"]
-theorem DirectedHomotopy.refl (a : U ⟶ V) : DirectedHomotopy a a := sorry
+theorem DirectedHomotopy.refl (a : U ⟶ V) : DirectedHomotopy a a :=
+  ⟨Homotopy.refl a⟩
 
 /-- Precomposition preserves directed simplicial homotopy. -/
 @[stacks 08RJ "precomposition preserves directed simplicial homotopy"]
 theorem DirectedHomotopy.precomp (h : DirectedHomotopy a b) (p : T ⟶ U) :
-    DirectedHomotopy (p ≫ a) (p ≫ b) := sorry
+    DirectedHomotopy (p ≫ a) (p ≫ b) := by
+  rcases h with ⟨H⟩
+  exact ⟨H.precomp p⟩
 
 /-- Postcomposition preserves directed simplicial homotopy. -/
 @[stacks 08RJ "postcomposition preserves directed simplicial homotopy"]
 theorem DirectedHomotopy.postcomp (h : DirectedHomotopy a b) (p : V ⟶ W) :
-    DirectedHomotopy (a ≫ p) (b ≫ p) := sorry
+    DirectedHomotopy (a ≫ p) (b ≫ p) := by
+  rcases h with ⟨H⟩
+  exact ⟨H.postcomp p⟩
 
 /-- Simultaneous precomposition and postcomposition preserve directed simplicial homotopy. -/
 @[stacks 08RJ "two-sided composition preserves directed simplicial homotopy"]
 theorem DirectedHomotopy.precomp_postcomp
     (h : DirectedHomotopy a b) (p : T ⟶ U) (q : V ⟶ W) :
-    DirectedHomotopy (p ≫ a ≫ q) (p ≫ b ≫ q) := sorry
+    DirectedHomotopy (p ≫ a ≫ q) (p ≫ b ≫ q) :=
+  (h.postcomp q).precomp p
 
 /-- Applying a functor degreewise preserves directed simplicial homotopy. -/
 @[stacks 019Y "functors preserve directed simplicial homotopy"]
 theorem DirectedHomotopy.whiskerRight
     {D : Type u'} [Category.{v'} D]
     (h : DirectedHomotopy a b) (F : C ⥤ D) :
-    DirectedHomotopy (Functor.whiskerRight a F) (Functor.whiskerRight b F) := sorry
+    DirectedHomotopy (Functor.whiskerRight a F) (Functor.whiskerRight b F) := by
+  rcases h with ⟨H⟩
+  exact ⟨H.whiskerRight F⟩
 
 /-- Two morphisms `a, b : U ⟶ V` are homotopic if they are connected by a finite zigzag of
 directed simplicial homotopies in either direction, where a directed homotopy from `a` to `b`
@@ -155,28 +170,34 @@ def Homotopic (a b : U ⟶ V) : Prop :=
 
 /-- Simplicial homotopy is reflexive. -/
 @[refl, stacks 019K "simplicial homotopy is reflexive"]
-lemma Homotopic.refl (a : U ⟶ V) : Homotopic a a := sorry
+lemma Homotopic.refl (a : U ⟶ V) : Homotopic a a :=
+  Relation.EqvGen.refl a
 
 /-- Equal morphisms are related by zigzag simplicial homotopy. -/
 @[stacks 019K "equal morphisms are zigzag simplicially homotopic"]
-lemma Homotopic.of_eq (h : a = b) : Homotopic a b := sorry
+lemma Homotopic.of_eq (h : a = b) : Homotopic a b := by
+  cases h
+  exact Homotopic.refl a
 
 /-- Simplicial homotopy is symmetric. -/
 @[symm, stacks 019K "simplicial homotopy is symmetric"]
-lemma Homotopic.symm (h : Homotopic a b) : Homotopic b a := sorry
+lemma Homotopic.symm (h : Homotopic a b) : Homotopic b a :=
+  Relation.EqvGen.symm _ _ h
 
 /-- Simplicial homotopy is transitive. -/
 @[trans, stacks 019K "simplicial homotopy is transitive"]
 lemma Homotopic.trans (hab : Homotopic a b) (hbc : Homotopic b c) : Homotopic a c :=
-  sorry
+  Relation.EqvGen.trans _ _ _ hab hbc
 
 /-- A concrete simplicial homotopy gives the associated zigzag homotopy relation. -/
 @[stacks 019K "concrete simplicial homotopy belongs to the zigzag relation"]
-lemma Homotopic.of_homotopy (h : Homotopy a b) : Homotopic a b := sorry
+lemma Homotopic.of_homotopy (h : Homotopy a b) : Homotopic a b :=
+  Relation.EqvGen.rel _ _ (DirectedHomotopy.of_homotopy h)
 
 /-- A directed simplicial homotopy step belongs to its generated zigzag relation. -/
 @[stacks 019K "directed simplicial homotopy belongs to the zigzag relation"]
-lemma Homotopic.of_directed (h : DirectedHomotopy a b) : Homotopic a b := sorry
+lemma Homotopic.of_directed (h : DirectedHomotopy a b) : Homotopic a b :=
+  Relation.EqvGen.rel _ _ h
 
 /-- Any map on morphisms that sends directed simplicial homotopies to zigzag homotopies also
 preserves the induced zigzag homotopy relation. -/
@@ -187,30 +208,40 @@ theorem Homotopic.map
     {U' V' : SimplicialObject D}
     (F : (U ⟶ V) → (U' ⟶ V'))
     (hF : ∀ {x y : U ⟶ V}, DirectedHomotopy x y → Homotopic (F x) (F y))
-    : Homotopic (F a) (F b) := sorry
+    : Homotopic (F a) (F b) := by
+  induction h with
+  | rel x y h => exact hF h
+  | refl x => exact Homotopic.refl (F x)
+  | symm x y _ ih => exact ih.symm
+  | trans x y z _ _ hxy hyz => exact hxy.trans hyz
 
 /-- Precomposing preserves the zigzag simplicial homotopy relation. -/
 @[stacks 08RJ "precomposition preserves simplicial homotopy"]
 lemma Homotopic.precomp (h : Homotopic a b) (p : T ⟶ U) :
-    Homotopic (p ≫ a) (p ≫ b) := sorry
+    Homotopic (p ≫ a) (p ≫ b) :=
+  h.map (fun x => p ≫ x) (fun hxy => Homotopic.of_directed (hxy.precomp p))
 
 /-- Postcomposing preserves the zigzag simplicial homotopy relation. -/
 @[stacks 08RJ "postcomposition preserves simplicial homotopy"]
 lemma Homotopic.postcomp (h : Homotopic a b) (p : V ⟶ W) :
-    Homotopic (a ≫ p) (b ≫ p) := sorry
+    Homotopic (a ≫ p) (b ≫ p) :=
+  h.map (fun x => x ≫ p) (fun hxy => Homotopic.of_directed (hxy.postcomp p))
 
 /-- Simultaneous precomposition and postcomposition preserve the zigzag simplicial homotopy
 relation. -/
 @[stacks 08RJ "two-sided composition preserves simplicial homotopy"]
 lemma Homotopic.precomp_postcomp (h : Homotopic a b) (p : T ⟶ U) (q : V ⟶ W) :
-    Homotopic (p ≫ a ≫ q) (p ≫ b ≫ q) := sorry
+    Homotopic (p ≫ a ≫ q) (p ≫ b ≫ q) :=
+  (h.postcomp q).precomp p
 
 /-- Functors preserve the zigzag relation generated by directed simplicial homotopies. -/
 @[stacks 019Y "functors preserve the zigzag simplicial homotopy relation"]
 theorem Homotopic.whiskerRight
     {D : Type*} [Category D]
     (h : Homotopic a b) (F : C ⥤ D) :
-    Homotopic (Functor.whiskerRight a F) (Functor.whiskerRight b F) := sorry
+    Homotopic (Functor.whiskerRight a F) (Functor.whiskerRight b F) :=
+  h.map (fun x => Functor.whiskerRight x F)
+    (fun hxy => Homotopic.of_directed (hxy.whiskerRight F))
 
 end
 

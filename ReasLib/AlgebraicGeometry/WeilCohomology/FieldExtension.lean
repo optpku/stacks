@@ -88,9 +88,12 @@ theorem degreeZeroPullback_injective_of_finiteSeparable
     {pointCycle : CHgrade point 0} {H Picard : V → Type x}
     [∀ X, Ring (H X)] [∀ X, Algebra F (H X)] [∀ X, AddCommGroup (Picard X)]
     (T : SchemePreWeilTheory k F TateLine V dimension product fst snd point CH CHgrade
-      cyclePullback cyclePushforward pointCycle H Picard) {X' X'' : V}
+      cyclePullback cyclePushforward pointCycle H Picard) [T.HasDiagonalClassRelation]
+     {X' X'' : V}
     (e' : T.scheme.obj X' ≅ Over.mk (FieldExtension.specMap k k'))
     (e'' : T.scheme.obj X'' ≅ Over.mk (FieldExtension.specMap k k'')) :
-    Function.Injective (T.pullbackGrade (T.representedSpecMap e' e'') (0, 0)) := sorry
+    Function.Injective (T.pullbackGrade (T.representedSpecMap e' e'') 0) := by
+  have hdiagonal : T.HasDiagonalClassRelation := inferInstance
+  sorry
 
 end WeilCohomology.SchemePreWeilTheory

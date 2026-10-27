@@ -7,6 +7,8 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.FiniteType
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Locality.Criteria
+public import ReasLib.AlgebraicGeometry.Scheme.Morphism.EtaleLocal.FiniteType
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Pullback
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Surjective
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.ZariskiCover.Basic
@@ -51,72 +53,59 @@ theorem finiteTypeAt_iff {S : Scheme.{u}} {X Y : AlgebraicSpace S}
 namespace LocallyOfFiniteType
 
 /-- Every base change of `f` along a morphism from a scheme is locally of
-finite type. -/
-def baseChangeOnSchemes {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
+finite type.
+Stacks, Tag 040Y (3), `tex/spaces-morphisms.tex:4405–4406`. -/
+abbrev baseChangeOnSchemes {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     Prop :=
-  ∀ {Z : Over S} (g : ofOver Z ⟶ Y),
-    LocallyOfFiniteType (pullbackAlongScheme.snd f g)
+  Locality.Criteria.forallScheme (@LocallyOfFiniteType S) f
 
 /-- Every base change of `f` along a morphism from an affine scheme is locally
-of finite type. -/
-def baseChangeOnAffineSchemes {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+of finite type.
+Stacks, Tag 040Y (4), `tex/spaces-morphisms.tex:4407–4408`. -/
+abbrev baseChangeOnAffineSchemes {S : Scheme.{u}} {X Y : AlgebraicSpace S}
     (f : X ⟶ Y) : Prop :=
-  ∀ {Z : Over S} (g : ofOver Z ⟶ Y),
-    IsAffine Z.left → LocallyOfFiniteType (pullbackAlongScheme.snd f g)
+  Locality.Criteria.forallAffine (@LocallyOfFiniteType S) f
 
 /-- There is a surjective étale morphism from a scheme to `Y` along which the
-base change of `f` is locally of finite type. -/
-def existsSurjectiveEtaleTarget {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+base change of `f` is locally of finite type.
+Stacks, Tag 040Y (5), `tex/spaces-morphisms.tex:4409–4410`. -/
+abbrev existsSurjectiveEtaleTarget {S : Scheme.{u}} {X Y : AlgebraicSpace S}
     (f : X ⟶ Y) : Prop :=
-  ∃ (V : Over S) (b : ofOver V ⟶ Y),
-    (over (@AlgebraicGeometry.Etale)).presheaf b ∧
-      Surjective b ∧ LocallyOfFiniteType (pullbackAlongScheme.snd f b)
+  Locality.Criteria.existsSurjectiveEtaleTarget (@LocallyOfFiniteType S) f
 
 /-- There is a surjective étale morphism `φ` from a scheme to `X` such that
-`φ ≫ f` is locally of finite type. -/
-def existsSurjectiveEtaleSource {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+`φ ≫ f` is locally of finite type.
+Stacks, Tag 040Y (6), `tex/spaces-morphisms.tex:4411–4413`. -/
+abbrev existsSurjectiveEtaleSource {S : Scheme.{u}} {X Y : AlgebraicSpace S}
     (f : X ⟶ Y) : Prop :=
-  ∃ (U : Over S) (φ : ofOver U ⟶ X),
-    (over (@AlgebraicGeometry.Etale)).presheaf φ ∧
-      Surjective φ ∧ LocallyOfFiniteType (φ ≫ f)
+  Locality.Criteria.existsSurjectiveEtaleSource (@LocallyOfFiniteType S) f
 
-/-- Every étale scheme square over `f` has locally-of-finite-type top arrow. -/
-def forallEtaleSquare {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
+/-- Every étale scheme square over `f` has locally-of-finite-type top arrow.
+Stacks, Tag 040Y (7), `tex/spaces-morphisms.tex:4414–4422`. -/
+abbrev forallEtaleSquare {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     Prop :=
-  ∀ {U V : Over S} (a : yoneda.obj U ⟶ X.functorOfPoints)
-    (b : yoneda.obj V ⟶ Y.functorOfPoints) (h : U ⟶ V),
-    (over (@AlgebraicGeometry.Etale)).presheaf a →
-      (over (@AlgebraicGeometry.Etale)).presheaf b →
-        a ≫ f = yoneda.map h ≫ b →
-          AlgebraicGeometry.LocallyOfFiniteType h.left
+  Locality.Criteria.forallEtaleSquare (@AlgebraicGeometry.LocallyOfFiniteType) f
 
 /-- There is an étale scheme square over `f` with surjective source cover and
-locally-of-finite-type top arrow. -/
-def existsEtaleSquare {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
+locally-of-finite-type top arrow.
+Stacks, Tag 040Y (8), `tex/spaces-morphisms.tex:4423–4431`. -/
+abbrev existsEtaleSquare {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     Prop :=
-  ∃ (U V : Over S) (a : ofOver U ⟶ X) (b : ofOver V ⟶ Y) (h : U ⟶ V),
-    (over (@AlgebraicGeometry.Etale)).presheaf a ∧
-      (over (@AlgebraicGeometry.Etale)).presheaf b ∧
-        a ≫ f = ofOverMap h ≫ b ∧
-          Surjective a ∧ AlgebraicGeometry.LocallyOfFiniteType h.left
+  Locality.Criteria.existsEtaleSquare (@AlgebraicGeometry.LocallyOfFiniteType) f
 
 /-- There are Zariski coverings of `Y` and of the inverse images in `X` on which
-the pieces of `f` are locally of finite type. -/
-def existsZariskiCover {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
+the pieces of `f` are locally of finite type.
+Stacks, Tag 040Y (9), `tex/spaces-morphisms.tex:4432–4434`. -/
+abbrev existsZariskiCover {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     Prop :=
-  ∃ 𝒱 : ZariskiCover.{u, v} Y, ∀ i : 𝒱.I₀,
-    ∃ (Xi : AlgebraicSpace S) (ι : Xi ⟶ X) (_ : IsOpenImmersion ι)
-      (𝒰 : ZariskiCover.{u, v} Xi) (h : ∀ j, 𝒰.X j ⟶ 𝒱.X i),
-      (∀ j, 𝒰.f j ≫ ι ≫ f = h j ≫ 𝒱.f i) ∧
-        (∀ j, LocallyOfFiniteType (h j)) ∧
-          Set.range (Points.map ι) =
-            (Points.map f) ⁻¹' Set.range (Points.map (𝒱.f i))
+  Locality.Criteria.existsZariskiCover.{u, v} (@LocallyOfFiniteType S) f
 
 end LocallyOfFiniteType
 
 /-- Local finite type of a morphism of algebraic spaces is equivalent to its
 pointwise, scheme base-change, affine base-change, étale atlas, étale square,
-and Zariski-cover criteria. -/
+and Zariski-cover criteria.
+Stacks, Tag 040Y, `tex/spaces-morphisms.tex:4398–4461`. -/
 theorem locallyOfFiniteType_tfae {S : Scheme.{u}}
     {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     List.TFAE
@@ -128,8 +117,31 @@ theorem locallyOfFiniteType_tfae {S : Scheme.{u}}
       , LocallyOfFiniteType.existsSurjectiveEtaleSource f
       , LocallyOfFiniteType.forallEtaleSquare f
       , LocallyOfFiniteType.existsEtaleSquare f
-      , LocallyOfFiniteType.existsZariskiCover.{u, v} f ] :=
-  sorry
+      , LocallyOfFiniteType.existsZariskiCover.{u, v} f ] := by
+  have hP : (@LocallyOfFiniteType S : MorphismProperty (AlgebraicSpace S)) =
+      etaleLocal (@AlgebraicGeometry.LocallyOfFiniteType) := by
+    funext U V g
+    exact propext (locallyOfFiniteType_iff g)
+  have hlocal := Locality.Criteria.etaleLocal_tfae.{u, v}
+    (@AlgebraicGeometry.LocallyOfFiniteType) f
+  have hbase : List.TFAE
+      [ LocallyOfFiniteType f, LocallyOfFiniteType.baseChangeOnSchemes f
+      , LocallyOfFiniteType.baseChangeOnAffineSchemes f
+      , LocallyOfFiniteType.existsSurjectiveEtaleTarget f
+      , LocallyOfFiniteType.existsSurjectiveEtaleSource f
+      , LocallyOfFiniteType.forallEtaleSquare f, LocallyOfFiniteType.existsEtaleSquare f
+      , LocallyOfFiniteType.existsZariskiCover.{u, v} f ] := by
+    simpa only [LocallyOfFiniteType.baseChangeOnSchemes,
+      LocallyOfFiniteType.baseChangeOnAffineSchemes,
+      LocallyOfFiniteType.existsSurjectiveEtaleTarget,
+      LocallyOfFiniteType.existsSurjectiveEtaleSource, LocallyOfFiniteType.forallEtaleSquare,
+      LocallyOfFiniteType.existsEtaleSquare, LocallyOfFiniteType.existsZariskiCover, hP]
+      using hlocal
+  -- Tag 040Y (1) iff (2), tex/spaces-morphisms.tex:4403–4404,4455–4456.
+  have hpoint : LocallyOfFiniteType f ↔ ∀ x : Points X, FiniteTypeAt f x := by sorry
+  exact List.tfae_cons_cons.mpr ⟨hpoint,
+    List.tfae_cons_cons.mpr ⟨hpoint.symm.trans (hbase.out 0 1),
+      (List.tfae_cons_cons.mp hbase).2⟩⟩
 
 namespace LocallyOfFiniteType
 

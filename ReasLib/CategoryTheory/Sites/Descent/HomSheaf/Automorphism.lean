@@ -294,7 +294,11 @@ noncomputable def Automorphism.addComm.sheaf.conjOfHom
     [Pseudofunctor.IsPrestack (Functor.fiberPseudofunctor p) J]
     {U : C} {x y : p.Fiber U} (f : x ⟶ y) :
     Automorphism.addComm.sheaf p J x ≅ Automorphism.addComm.sheaf p J y :=
-  Automorphism.addComm.sheaf.conj p J (asIso f)
+  Automorphism.addComm.sheaf.conj p J
+    { hom := f
+      inv := fiberInverse U f
+      hom_inv_id := comp_fiberInverse U f
+      inv_hom_id := fiberInverse_comp U f }
 
 /-- Additive automorphism-sheaf conjugation is functorial under composition
 of fiber isomorphisms. -/

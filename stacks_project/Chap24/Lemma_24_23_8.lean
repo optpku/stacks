@@ -35,11 +35,14 @@ universe uC vC wC uD vD wD
 
 namespace SheafOfModules.RingedSite.DifferentialGradedModule
 
+-- Keep universe inference from specializing the bimodule API to the small site.
+attribute [-instance] UnivLE.zero
+
 variable {C : Type uC} [Category.{vC} C] {J : GrothendieckTopology C}
-variable [J.HasSheafCompose (forget₂ CommRingCat.{wC} RingCat.{wC})]
-variable [HasWeakSheafify J AddCommGrpCat.{wC}]
-variable [J.WEqualsLocallyBijective AddCommGrpCat.{wC}]
-variable {O : Sheaf J CommRingCat.{wC}}
+variable [J.HasSheafCompose (forget₂ CommRingCat.{max uC vC wC} RingCat.{max uC vC wC})]
+variable [HasWeakSheafify J AddCommGrpCat.{max uC vC wC}]
+variable [J.WEqualsLocallyBijective AddCommGrpCat.{max uC vC wC}]
+variable {O : Sheaf J CommRingCat.{max uC vC wC}}
 variable (A : DGA(O)) (P : Mod(A, d)) (N : LMod(A, d))
 
 /- Lemma 24.23.8 (1): left differential graded modules and their relative tensor product use the
@@ -71,6 +74,7 @@ variable {D : Type uD} [Category.{vD} D] {JD : GrothendieckTopology D}
 variable [JD.HasSheafCompose (forget₂ CommRingCat.{wD} RingCat.{wD})]
 variable [HasWeakSheafify JD AddCommGrpCat.{wD}]
 variable [JD.WEqualsLocallyBijective AddCommGrpCat.{wD}]
+variable [UnivLE.{max uD vD, wD}]
 variable {OD : Sheaf JD CommRingCat.{wD}}
 variable (F : CochainComplex
     (DifferentialGradedAlgebra.moduleCategory (J := J) (𝒪 := O)) ℤ ⥤

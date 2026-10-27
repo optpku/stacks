@@ -92,7 +92,7 @@ variable [F.obj.IsFiniteLocallyFree]
 finite locally free source. -/
 @[stacks 0GNE] #check
   (AlgebraicGeometry.Scheme.AssociatedModule.quasicoherentInternalHom S F G
-    (inferInstance : F.obj.IsFinitePresentation) : Scheme.QCoh S)
+    (SheafOfModules.IsFiniteLocallyFree.isFinitePresentation F.obj) : Scheme.QCoh S)
 
 /- Lemma 35.10.6 (10): the big Zariski and big étale internal-Hom comparisons
 from a finite locally free source are invertible. -/
@@ -100,7 +100,7 @@ from a finite locally free source are invertible. -/
   (AlgebraicGeometry.Scheme.AssociatedModule.bigModuleInternalHomComparisonIsIsoOfFiniteLocallyFree
     S σ.toStandard F G :
       IsIso (bigModuleInternalHomComparison S σ.toStandard F G
-        (inferInstance : F.obj.IsFinitePresentation)))
+        (SheafOfModules.IsFiniteLocallyFree.isFinitePresentation F.obj)))
 
 /- Lemma 35.10.6 (11): the big fppf internal-Hom comparison from a finite
 locally free source is invertible. -/
@@ -108,6 +108,6 @@ locally free source is invertible. -/
   (AlgebraicGeometry.Scheme.AssociatedModule.bigModuleInternalHomComparisonIsIsoOfFiniteLocallyFree
     S .fppf F G :
       IsIso (bigModuleInternalHomComparison S .fppf F G
-        (inferInstance : F.obj.IsFinitePresentation)))
+        (SheafOfModules.IsFiniteLocallyFree.isFinitePresentation F.obj)))
 
 end AlgebraicGeometry.Scheme.AssociatedModule

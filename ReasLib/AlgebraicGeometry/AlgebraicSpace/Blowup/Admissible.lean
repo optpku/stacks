@@ -6,6 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Blowup
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Closed.InverseImage
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.ClosedSubspace.Ideal
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.ClosedSubspace.Support
@@ -30,43 +31,26 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- A morphism is the blowup in a closed subspace when its inverse image is an
-effective Cartier divisor and it is terminal among morphisms with this property. -/
-def IsBlowup {S : Scheme.{u}} {X X' : AlgebraicSpace S}
-    (f : X' ⟶ X) (Z : ClosedSubspace X) : Prop :=
-  IsEffectiveCartierDivisor (Z.inverseImageSubspace f).ι ∧
-    ∀ {Y : AlgebraicSpace S} (g : Y ⟶ X),
-      IsEffectiveCartierDivisor (Z.inverseImageSubspace g).ι →
-        ExistsUnique fun h : Y ⟶ X' ↦ h ≫ f = g
-
-/-- The inverse image of the center of a blowup is an effective Cartier divisor. -/
-theorem IsBlowup.inverseImage_isEffectiveCartier
-    {S : Scheme.{u}} {X X' : AlgebraicSpace S} {f : X' ⟶ X} {Z : ClosedSubspace X}
-    (h : IsBlowup f Z) : IsEffectiveCartierDivisor (Z.inverseImageSubspace f).ι :=
-  h.1
-
 /-- Every morphism making the center effective Cartier factors uniquely through its blowup. -/
 theorem IsBlowup.existsUnique_lift {S : Scheme.{u}} {X X' : AlgebraicSpace S}
     {f : X' ⟶ X} {Z : ClosedSubspace X} (h : IsBlowup f Z) {Y : AlgebraicSpace S}
     (g : Y ⟶ X) (hg : IsEffectiveCartierDivisor (Z.inverseImageSubspace g).ι) :
-    ExistsUnique fun h' : Y ⟶ X' ↦ h' ≫ f = g :=
-  h.2 g hg
-
-/-- Being a blowup is equivalent to the effective-Cartier condition and its universal property. -/
-theorem isBlowup_iff {S : Scheme.{u}} {X X' : AlgebraicSpace S}
-    (f : X' ⟶ X) (Z : ClosedSubspace X) :
-    IsBlowup f Z ↔
-      IsEffectiveCartierDivisor (Z.inverseImageSubspace f).ι ∧
-        ∀ {Y : AlgebraicSpace S} (g : Y ⟶ X),
-          IsEffectiveCartierDivisor (Z.inverseImageSubspace g).ι →
-            ExistsUnique fun h : Y ⟶ X' ↦ h ≫ f = g :=
-  Iff.rfl
-
-/-- The identity is the blowup in an effective Cartier divisor. -/
-theorem isBlowup_id_of_isEffectiveCartierDivisor
-    {S : Scheme.{u}} {X : AlgebraicSpace S} (Z : ClosedSubspace X)
-    [IsEffectiveCartierDivisor Z.ι] : IsBlowup (𝟙 X) Z :=
-  sorry
+    ExistsUnique fun h' : Y ⟶ X' ↦ h' ≫ f = g := by
+  apply h.lift_unique g
+  letI : IsClosedImmersion Z.ι := Z.isClosedImmersion
+  let W : ClosedSubspace Y :=
+    { X := pullback Z.ι g
+      ι := pullback.snd Z.ι g
+      isClosedImmersion :=
+        IsClosedImmersion.of_isPullback (IsPullback.of_hasPullback Z.ι g).flip }
+  have hI : (Z.inverseImageSubspace g).idealSheaf = W.idealSheaf :=
+    (ClosedSubspace.overIso_iff_idealSheaf_eq _ _).mp
+      ⟨Over.isoMk (inverseImage_isPullback g Z.ι).flip.isoPullback
+        (IsPullback.isoPullback_hom_snd _)⟩
+  refine { toIsClosedImmersion := W.isClosedImmersion, invertibleIdealSheaf := ?_ }
+  change MonoidalCategory.isInvertibleObject W.idealSheaf.toModule
+  rw [← hI]
+  exact hg.invertibleIdealSheaf
 
 /-- An admissible blowup center is a finitely presented closed subspace disjoint
 from the specified open subspace, together with the blowup property. -/

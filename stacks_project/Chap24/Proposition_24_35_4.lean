@@ -56,6 +56,6 @@ variable {r : ℕ} (f : Fin r → R)
 @[stacks 0GZK "global QC over the powered Koszul DGA tower"]
 #check
   (DifferentialGradedModule.InverseSystem.Derived.QC
-    (KoszulComplex.powerDGASystem f) : Type (u + 1))
+    (KoszulComplex.powerDGASystem (fun i : ULift.{u} (Fin r) ↦ f i.down)) : Type (u + 1))
 
 end PoweredKoszul

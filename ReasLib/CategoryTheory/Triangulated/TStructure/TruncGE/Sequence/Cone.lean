@@ -38,7 +38,14 @@ theorem πApp_naturality (t : TStructure C) (X : C) (p : ℕ → ℤ)
           (homOfLE (Nat.le_add_right n 1)).op ≫
         (t.truncGEπ (p n)).app X =
       (t.truncGEπ (p (n + 1))).app X ≫
-        (ofAntitone t X p hp).stepMap n := sorry
+        (ofAntitone t X p hp).stepMap n := by
+  change 𝟙 X ≫ (t.truncGEπ (p n)).app X =
+    (t.truncGEπ (p (n + 1))).app X ≫
+      (Functor.ofOpSequence (step t X p hp)).map
+        (homOfLE (Nat.le_add_right n 1)).op
+  rw [Functor.ofOpSequence_map_homOfLE_succ]
+  exact (Category.id_comp _).trans
+    (t.π_natTransTruncGEOfLE_app (p (n + 1)) (p n) (hp (Nat.le_succ n)) X).symm
 
 /-- The canonical natural transformation from the constant inverse system at
 an object to its selected lower-truncation sequence. -/
@@ -54,7 +61,7 @@ truncation projection at `p n`. -/
 @[simp, stacks 0H72]
 theorem πApp_app (t : TStructure C) (X : C) (p : ℕ → ℤ)
     (hp : Antitone p) (n : ℕ) :
-    (πApp t X p hp).app (op n) = (t.truncGEπ (p n)).app X := sorry
+    (πApp t X p hp).app (op n) = (t.truncGEπ (p n)).app X := rfl
 
 /-- The canonical maps from an object to its lower truncations commute with
 every transition, not only successor transitions. -/
@@ -63,7 +70,8 @@ theorem πApp_comp_transitionMap (t : TStructure C) (X : C)
     (p : ℕ → ℤ) (hp : Antitone p) {m n : ℕ} (h : m ≤ n) :
     (πApp t X p hp).app (op n) ≫
         (ofAntitone t X p hp).transitionMap h =
-      (πApp t X p hp).app (op m) := sorry
+      (πApp t X p hp).app (op m) := by
+  exact ((πApp t X p hp).naturality (homOfLE h).op).symm.trans (Category.id_comp _)
 
 /-- The canonical transformations to lower-truncation sequences are natural
 in the original object. -/
@@ -71,7 +79,11 @@ in the original object. -/
 theorem π_naturality (t : TStructure C) {X Y : C} (f : X ⟶ Y)
     (p : ℕ → ℤ) (hp : Antitone p) :
     (Functor.const ℕᵒᵖ).map f ≫ πApp t Y p hp =
-      πApp t X p hp ≫ map t f p hp := sorry
+      πApp t X p hp ≫ map t f p hp := by
+  ext n
+  change f ≫ (t.truncGEπ (p n.unop)).app Y =
+    (t.truncGEπ (p n.unop)).app X ≫ (t.truncGE (p n.unop)).map f
+  exact (t.truncGEπ (p n.unop)).naturality f
 
 /-- The canonical maps to all selected lower truncations, natural in the
 input object. -/
@@ -86,14 +98,14 @@ canonical transformation of inverse systems. -/
 @[simp, stacks 0H72]
 theorem π_app (t : TStructure C) (X : C) (p : ℕ → ℤ)
     (hp : Antitone p) :
-    (π t p hp).app X = πApp t X p hp := sorry
+    (π t p hp).app X = πApp t X p hp := rfl
 
 /-- A component of the global canonical transformation is the corresponding
 lower-truncation projection. -/
 @[simp, stacks 0H72]
 theorem π_app_app (t : TStructure C) (X : C) (p : ℕ → ℤ)
     (hp : Antitone p) (n : ℕ) :
-    ((π t p hp).app X).app (op n) = (t.truncGEπ (p n)).app X := sorry
+    ((π t p hp).app X).app (op n) = (t.truncGEπ (p n)).app X := rfl
 
 /-- The canonical cone from an object to its selected lower-truncation
 inverse system. -/
@@ -106,14 +118,14 @@ def cone (t : TStructure C) (X : C) (p : ℕ → ℤ)
 @[simp, stacks 0H72]
 theorem cone_pt (t : TStructure C) (X : C) (p : ℕ → ℤ)
     (hp : Antitone p) :
-    (cone t X p hp).pt = X := sorry
+    (cone t X p hp).pt = X := rfl
 
 /-- A leg of the canonical cone is the corresponding lower-truncation
 projection. -/
 @[simp, stacks 0H72]
 theorem cone_π_app (t : TStructure C) (X : C) (p : ℕ → ℤ)
     (hp : Antitone p) (n : ℕ) :
-    (cone t X p hp).π.app (op n) = (t.truncGEπ (p n)).app X := sorry
+    (cone t X p hp).π.app (op n) = (t.truncGEπ (p n)).app X := rfl
 
 /-- The compatibility equation defining the canonical morphism between
 lower-truncation cones. -/
@@ -121,7 +133,10 @@ lower-truncation cones. -/
 theorem coneMap_w (t : TStructure C) {X Y : C} (f : X ⟶ Y)
     (p : ℕ → ℤ) (hp : Antitone p) (n : ℕ) :
     f ≫ (cone t Y p hp).π.app (op n) =
-      (cone t X p hp).π.app (op n) ≫ (map t f p hp).app (op n) := sorry
+      (cone t X p hp).π.app (op n) ≫ (map t f p hp).app (op n) := by
+  change f ≫ (t.truncGEπ (p n)).app Y =
+    (t.truncGEπ (p n)).app X ≫ (t.truncGE (p n)).map f
+  exact (t.truncGEπ (p n)).naturality f
 
 /-- A morphism induces the canonical morphism from the postcomposed source
 cone to the target lower-truncation cone. -/
@@ -137,7 +152,7 @@ def coneMap (t : TStructure C) {X Y : C} (f : X ⟶ Y)
 @[simp, stacks 0H72]
 theorem coneMap_hom (t : TStructure C) {X Y : C} (f : X ⟶ Y)
     (p : ℕ → ℤ) (hp : Antitone p) :
-    (coneMap t f p hp).hom = f := sorry
+    (coneMap t f p hp).hom = f := rfl
 
 end
 

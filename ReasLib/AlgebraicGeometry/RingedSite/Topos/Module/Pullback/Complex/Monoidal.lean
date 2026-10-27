@@ -14,8 +14,10 @@ public import ReasLib.Algebra.Homology.CochainComplex.Monoidal.Functor
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.Complex.Monoidal
 public import ReasLib.AlgebraicGeometry.RingedSite.Topos.Module.Pullback.Complex
 public import ReasLib.AlgebraicGeometry.RingedSite.Topos.ModuleAdjunction
+public import ReasLib.AlgebraicGeometry.RingedSite.Topos.Module.Unit
 public import ReasLib.CategoryTheory.Adjunction.HomotopyCategory
 public import ReasLib.CategoryTheory.Adjunction.LeftExact
+public import ReasLib.CategoryTheory.Sites.Topos.ModuleTensor
 import Mathlib.Tactic.CrossRefAttribute
 
 /-!
@@ -247,23 +249,59 @@ noncomputable def modulePullback.oplaxMonoidal : f.modulePullback.OplaxMonoidal 
   oplax_left_unitality _ := sorry
   oplax_right_unitality _ := sorry
 
+/-- The pullback unit isomorphism, with inverse the oplax unit comparison. Its forward
+map comes from the structure-module Hom equivalence, through the tensor-unit identifications. -/
+noncomputable def modulePullback.unitComparisonIso :
+    𝟙_ (ringedSiteModuleCategory JX OX) ≅
+      f.modulePullback.obj (𝟙_ (ringedSiteModuleCategory JY OY)) where
+  hom := (unitIsoTensorUnit (𝒪 := OX)).inv ≫
+    modulePullbackUnitHomEquiv f _ (𝟙 _) ≫
+      f.modulePullback.map (unitIsoTensorUnit (𝒪 := OY)).hom
+  inv := η f.modulePullback (self := modulePullback.oplaxMonoidal f)
+  hom_inv_id := by sorry
+  inv_hom_id := by sorry
+
+/-- The inverse unit comparison is the specified oplax unit map. -/
+@[simp]
+theorem modulePullback.unitComparisonIso_inv :
+    (modulePullback.unitComparisonIso f).inv =
+      η f.modulePullback (self := modulePullback.oplaxMonoidal f) := rfl
+
 /-- The unit comparison for module pullback is invertible. -/
-theorem modulePullback_η_isIso : IsIso (η f.modulePullback (self := modulePullback.oplaxMonoidal f)) := sorry
+theorem modulePullback_η_isIso :
+    IsIso (η f.modulePullback (self := modulePullback.oplaxMonoidal f)) :=
+  (modulePullback.unitComparisonIso f).isIso_inv
+
+/-- The tensor comparison has its explicit bilinear/base-change inverse. The inverse component
+is the original oplax comparison, so the induced monoidal structure retains that map. -/
+noncomputable def modulePullback.tensorComparisonIso
+    (M N : ringedSiteModuleCategory JY OY) :
+    moduleTensor (f.modulePullback.obj M) (f.modulePullback.obj N) ≅
+      f.modulePullback.obj (moduleTensor M N) where
+  hom := (MorphismOfTopoiIn.ModuleTensor.pullbackTensorIso
+    f.toTopos OY OX f.structureMap M N).hom
+  inv := δ f.modulePullback (self := modulePullback.oplaxMonoidal f) M N
+  hom_inv_id := by sorry
+  inv_hom_id := by sorry
+
+/-- The reverse tensor comparison is the specified oplax tensor map. -/
+@[simp]
+theorem modulePullback.tensorComparisonIso_inv
+    (M N : ringedSiteModuleCategory JY OY) :
+    (modulePullback.tensorComparisonIso f M N).inv =
+      δ f.modulePullback (self := modulePullback.oplaxMonoidal f) M N := rfl
 
 /-- The tensor comparison for module pullback is invertible. -/
 theorem modulePullback_δ_isIso
     (M N : ringedSiteModuleCategory JY OY) :
-    IsIso (δ f.modulePullback (self := modulePullback.oplaxMonoidal f) M N) := sorry
+    IsIso (δ f.modulePullback (self := modulePullback.oplaxMonoidal f) M N) :=
+  (modulePullback.tensorComparisonIso f M N).isIso_inv
 
 /-- The strong-monoidal core of module pullback, obtained from invertibility of the oplax
 comparisons. -/
 noncomputable def modulePullback.coreMonoidal : f.modulePullback.CoreMonoidal where
-  εIso := (@asIso _ _ _ _
-    (η f.modulePullback (self := modulePullback.oplaxMonoidal f))
-    (modulePullback_η_isIso f)).symm
-  μIso X Y := (@asIso _ _ _ _
-    (δ f.modulePullback (self := modulePullback.oplaxMonoidal f) X Y)
-    (modulePullback_δ_isIso f X Y)).symm
+  εIso := modulePullback.unitComparisonIso f
+  μIso X Y := modulePullback.tensorComparisonIso f X Y
   μIso_hom_natural_left {_ _} _ _ := sorry
   μIso_hom_natural_right {_ _} _ _ := sorry
   associativity _ _ _ := sorry

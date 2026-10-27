@@ -48,6 +48,32 @@ set_option backward.privateInPublic.warn false
 variable [Limits.HasBinaryProducts C]
 variable {U V : C}
 
+/-- The canonical precomposition lift through a slice projection is strongly Cartesian.
+This proved certificate supplies the source comparison's Cartesian choices directly, without
+using the statement-stage discrete-fibration refinement proofs. -/
+private theorem sliceProjectionIsFibered (U : C) : (Over.forget U).IsFibered := by
+  apply Functor.IsFibered.of_exists_isStronglyCartesian
+  intro a R f
+  let b : Over U := Over.ForgetLift.domain a f
+  let φ : b ⟶ a := Over.ForgetLift.hom a f
+  refine ⟨b, φ, ?_⟩
+  refine
+    { toIsHomLift := CategoryTheory.IsHomLift.map (Over.forget U) φ
+      universal_property' := ?_ }
+  intro a' g φ' hφ'
+  have hm : φ'.left = g ≫ f :=
+    (CategoryTheory.IsHomLift.eq_of_isHomLift (Over.forget U) (g ≫ f) φ').symm
+  let χ : a' ⟶ b := Over.homMk g (by
+    change g ≫ (f ≫ a.hom) = a'.hom
+    rw [← Category.assoc, ← hm]
+    exact Over.w φ')
+  refine ⟨χ, ⟨CategoryTheory.IsHomLift.map (Over.forget U) χ, ?_⟩, ?_⟩
+  · apply Over.OverMorphism.ext
+    exact hm.symm
+  · intro ψ hψ
+    apply Over.OverMorphism.ext
+    exact (@CategoryTheory.IsHomLift.eq_of_isHomLift _ _ _ _ (Over.forget U) _ _ g ψ hψ.1).symm
+
 namespace DiagonalBaseChange.Implementation
 
 /-- The ordinary self-pullback comparison attached to the canonical two-fibre-product cone.
@@ -62,23 +88,52 @@ private noncomputable def baseProjectionComparison
   PseudoPullbackComparison.target
     (CategoryTheory.TwoFibreProduct.cone X.baseProjection X.baseProjection)
 
-/-- The comparison from the canonical two-fibre-product cone to the ordinary self-pullback is
-an equivalence. -/
-private theorem baseProjectionComparison.isEquivalence
+/-- The explicit pseudo-pullback comparison, followed by the canonical universe-lift and
+leg reindexings, compares the two-fibre-product cone with the ordinary self-pullback. -/
+private noncomputable def baseProjectionRawEquivalence
     (X : FiberedCategoryOver.Groupoids C) :
-    (baseProjectionComparison X).IsEquivalence := sorry
+    (CategoryTheory.TwoFibreProduct.cone X.baseProjection X.baseProjection).pt.1.obj ≌
+      X.p ⊡ X.p :=
+  (BasedCategory.PseudoPullback.Comparison.equivalence
+      (FiberedCategoryOver.Groupoids.toBasedFunctor X.baseProjection)
+      (FiberedCategoryOver.Groupoids.toBasedFunctor X.baseProjection)).trans
+    ((CategoricalPullback.BaseChange.equivalence
+        (FiberedCategoryOver.Groupoids.toFunctor X.baseProjection)
+        (FiberedCategoryOver.Groupoids.toFunctor X.baseProjection)
+        (Cat.ObjULift.equiv C).symm).trans
+      (CategoricalPullback.LegChange.equivalence
+        (FiberedCategoryOver.Groupoids.baseProjection.iso X)
+        (FiberedCategoryOver.Groupoids.baseProjection.iso X)))
+
+private theorem baseProjectionComparisonIsoApp_w
+    (X : FiberedCategoryOver.Groupoids C)
+    (P : (CategoryTheory.TwoFibreProduct.cone X.baseProjection X.baseProjection).pt.1.obj) :
+    X.p.map (𝟙 _) ≫ ((baseProjectionComparison X).obj P).iso.hom =
+      ((baseProjectionRawEquivalence X).functor.obj P).iso.hom ≫ X.p.map (𝟙 _) := sorry
+
+private noncomputable def baseProjectionComparisonIsoApp
+    (X : FiberedCategoryOver.Groupoids C)
+    (P : (CategoryTheory.TwoFibreProduct.cone X.baseProjection X.baseProjection).pt.1.obj) :
+    (baseProjectionRawEquivalence X).functor.obj P ≅ (baseProjectionComparison X).obj P :=
+  CategoricalPullback.mkIso (Iso.refl _) (Iso.refl _)
+    (baseProjectionComparisonIsoApp_w X P)
+
+private noncomputable def baseProjectionComparisonIso
+    (X : FiberedCategoryOver.Groupoids C) :
+    (baseProjectionRawEquivalence X).functor ≅ baseProjectionComparison X :=
+  NatIso.ofComponents (baseProjectionComparisonIsoApp X) (by intros; sorry)
 
 /-- The canonical equivalence from the canonical two-fibre-product cone to the self-pullback of
 `X.p`.
 
-The equivalence retains `baseProjectionComparison` as its forward functor and packages only its
-proposition-level equivalence proof; it is private because the public diagonal-base-change
-comparison is its sole consumer. -/
+The equivalence retains `baseProjectionComparison` as its forward functor via the explicit
+identity-component comparison. Its inverse, unit, and counit come from the three step
+equivalences. -/
 private noncomputable def baseProjectionEquivalence
     (X : FiberedCategoryOver.Groupoids C) :
     (CategoryTheory.TwoFibreProduct.cone X.baseProjection X.baseProjection).pt.1.obj ≌
       X.p ⊡ X.p :=
-  (baseProjectionComparison X).asEquivalenceOf (baseProjectionComparison.isEquivalence X)
+  (baseProjectionRawEquivalence X).changeFunctor (baseProjectionComparisonIso X)
 
 /-- The source pseudo-pullback comparison, regarded as a functor over the `U`-slice base.
 
@@ -93,6 +148,7 @@ private noncomputable def sourcePullbackStep
         (CategoryTheory.TwoFibreProduct.apex G' G))
       (π₂ (FiberedCategoryOver.Groupoids.toFunctor G')
         (FiberedCategoryOver.Groupoids.toFunctor G) ⋙ Over.forget U) :=
+  letI : (slice U).p.IsFibered := sliceProjectionIsFibered U
   Functor.OverIso.mk
     (BasedCategory.PseudoPullback.Comparison.equivalence
       (FiberedCategoryOver.Groupoids.toBasedFunctor G')
@@ -228,19 +284,8 @@ noncomputable def DiagonalBaseChange.comparisonOverBase
         ((DiagonalBaseChange.Implementation.baseTransportStep (X := X) G G').comp
           (DiagonalBaseChange.Implementation.targetPullbackStep (X := X) G G'))))
 
-/-- The underlying functor of the diagonal-base-change over-base comparison is an
-equivalence. -/
-instance DiagonalBaseChange.comparisonOverBase.isEquivalence
-    {X : FiberedCategoryOver.Groupoids C}
-    (G : slice U ⟶ X)
-    (G' : slice V ⟶ X) :
-    (DiagonalBaseChange.comparisonOverBase (X := X) G G').functor.IsEquivalence := sorry
-/- Proof strategy: unfold `DiagonalBaseChange.comparisonOverBase`; each of the five over-base
-steps has an equivalence as its underlying functor, and
-`Functor.OverIso.compFunctorIsEquivalence` combines them. -/
-
 /-- The total-category equivalence comparing a product of slice morphisms with diagonal base
-change, derived from the canonical over-base comparison. -/
+change, assembled from the equivalences underlying the five over-base steps. -/
 @[stacks 04SF "diagonal base-change equivalence over the product slice"]
 noncomputable def DiagonalBaseChange.equivalence
     {X : FiberedCategoryOver.Groupoids C}
@@ -252,7 +297,27 @@ noncomputable def DiagonalBaseChange.equivalence
         (CategoryTheory.TwoFibreProduct.apex
           (PseudoPullbackCone.map (sourceSquare.coneComparison G G'))
           (FiberedCategoryOver.Groupoids.diagonal X)) :=
-  (DiagonalBaseChange.comparisonOverBase (X := X) G G').asEquivalence
+  letI : (slice U).p.IsFibered := sliceProjectionIsFibered U
+  (BasedCategory.PseudoPullback.Comparison.equivalence
+      (FiberedCategoryOver.Groupoids.toBasedFunctor G')
+      (FiberedCategoryOver.Groupoids.toBasedFunctor G)).trans
+    ((Diagonal.equivalence
+        (FiberedCategoryOver.Groupoids.commIso G)
+        (FiberedCategoryOver.Groupoids.commIso G')).trans
+      ((CategoricalPullback.LegChange.equivalence
+          (sourceSquare.comparisonIso (X := X) G G')
+          (Diagonal.toCategoricalPullbackIso X)).symm.trans
+        ((CategoricalPullback.BaseChange.equivalence
+            (FiberedCategoryOver.Groupoids.toFunctor
+              (PseudoPullbackCone.map (sourceSquare.coneComparison G G')))
+            (FiberedCategoryOver.Groupoids.toFunctor
+              (FiberedCategoryOver.Groupoids.diagonal X))
+            (DiagonalBaseChange.Implementation.baseProjectionEquivalence X)).symm.trans
+          (BasedCategory.PseudoPullback.Comparison.equivalence
+            (FiberedCategoryOver.Groupoids.toBasedFunctor
+              (PseudoPullbackCone.map (sourceSquare.coneComparison G G')))
+            (FiberedCategoryOver.Groupoids.toBasedFunctor
+              (FiberedCategoryOver.Groupoids.diagonal X))).symm)))
 
 /-- The forward functor of the diagonal-base-change equivalence is the functor retained by its
 over-base owner. -/
@@ -262,7 +327,16 @@ theorem DiagonalBaseChange.equivalence.functor
     (G : slice U ⟶ X)
     (G' : slice V ⟶ X) :
     (DiagonalBaseChange.equivalence (X := X) G G').functor =
-      (DiagonalBaseChange.comparisonOverBase (X := X) G G').functor := sorry
+      (DiagonalBaseChange.comparisonOverBase (X := X) G G').functor := rfl
+
+/-- The underlying functor of the diagonal-base-change over-base comparison is an
+equivalence. -/
+instance DiagonalBaseChange.comparisonOverBase.isEquivalence
+    {X : FiberedCategoryOver.Groupoids C}
+    (G : slice U ⟶ X)
+    (G' : slice V ⟶ X) :
+    (DiagonalBaseChange.comparisonOverBase (X := X) G G').functor.IsEquivalence :=
+  (DiagonalBaseChange.equivalence (X := X) G G').isEquivalence_functor
 
 /-- Representability of a product of slice morphisms is equivalent to representability of the
 corresponding diagonal base change. -/

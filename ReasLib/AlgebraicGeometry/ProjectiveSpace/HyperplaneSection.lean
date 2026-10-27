@@ -76,7 +76,7 @@ theorem hyperplaneSectionTwistMap_def
               P.tautologicalSheaf_isInvertible)).hom ≫
         tensorHom (𝟙 F)
           (RingedSpace.unitIsoTensorUnit P.scheme.toRingedSpace).hom ≫
-        (ρ_ F).hom := sorry
+        (ρ_ F).hom := rfl
 
 namespace ProjectiveSpaceHyperplane
 

@@ -26,6 +26,16 @@ noncomputable section
 
 namespace RingedSite.Hom
 
+/-- Inverse image along a composite ringed-site morphism, with the right-adjoint certificate
+induced by the two constituent direct images. -/
+noncomputable abbrev compositePullback.{z, uX, vX, uY, vY, uZ, vZ, w}
+    {X : RingedSite.{uX, vX, w}} {Y : RingedSite.{uY, vY, w}}
+    {Z : RingedSite.{uZ, vZ, w}} (f : Hom X Y) (g : Hom Y Z)
+    [(f.modulePushforward.{z}).IsRightAdjoint]
+    [(g.modulePushforward.{z}).IsRightAdjoint] :
+    ModuleCat.{z} Z ⥤ ModuleCat.{z} X :=
+  @modulePullback.{z} _ _ (f.comp g) (modulePushforwardComp_isRightAdjoint f g)
+
 /-- The canonical identification of pullback along `f.comp g` with pullback along `g` followed by
 pullback along `f`. This is the standard composition comparison for module pullbacks on ringed
 sites.  Its direction matches the standard total-left-derived composition comparison. -/
@@ -35,7 +45,7 @@ noncomputable abbrev modulePullbackCompIso.{z, uX, vX, uY, vY, uZ, vZ, w}
     {Z : RingedSite.{uZ, vZ, w}} (f : Hom X Y) (g : Hom Y Z)
     [(f.modulePushforward.{z}).IsRightAdjoint]
     [(g.modulePushforward.{z}).IsRightAdjoint] :
-    (Hom.comp f g).modulePullback.{z} ≅
+    compositePullback.{z} f g ≅
       g.modulePullback.{z} ⋙ f.modulePullback.{z} :=
   (@SheafOfModules.pullbackComp.{z} _ _ _ _ _ _
     Z.siteTopology Y.siteTopology g.base Z.structureSheaf Y.structureSheaf

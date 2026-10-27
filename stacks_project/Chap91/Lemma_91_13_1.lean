@@ -6,70 +6,137 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap91.Lemma_91_13_1_Diagram
-public import stacks_project.Chap91.Lemma_91_13_1_Obstruction
-import Mathlib.Tactic.CrossRefAttribute
-
-/-!
-# Obstruction and torsor of fillers of a relative first-order thickening diagram
-
-Given the commutative first-order cube 91.13.1.1 of ringed topoi and a `g⁻¹𝒪₁`-module
-map `ν` making 91.13.1.2, with front and back solutions of 91.13.0.1, there is a canonical
-class in `Ext⁽1⁾(Lg^* NL(f₁), 𝒢₂)` that vanishes iff a morphism of ringed topoi
-`(Sh(C'₂), 𝒪'₂) ⟶ (Sh(C'₁), 𝒪'₁)` fits the cube compatibly with `ν`. When nonempty,
-those morphisms form a principal homogeneous space under `Hom(Ω(f₁), g_* 𝒢₂)`.
--/
+public import ReasLib.AlgebraicGeometry.RingedSite.Topos.Thickening.MapObstruction
+import StacksCheckRecall
 
 @[expose] public section
 
-open CategoryTheory
+open CategoryTheory CategoryTheory.Limits
 open SheafOfModules.RingedSite
-open SheafOfModules.RingedSite.FirstOrderThickening
 open scoped DerivedExt SheafOfModules.RingedSite
 
 noncomputable section
 
-universe u
+universe w
 
-namespace SheafOfModules.RingedSite.FirstOrderThickening
+namespace RingedSite.ToposHom.Thickening
 
--- Local instance justification (defeq pin): `moduleCat_hasDerivedCategory` is reducible to `HasDerivedCategory.standard` and is not global; `ModuleDerived`, `singleFunctor`, and Ext must share that same derived-category instance.
-attribute [local instance] RingedSite.Hom.moduleCat_hasDerivedCategory
--- Local instance justification (defeq pin): the commutative-sheaf presentation uses the same standard derived-category owner, exposed through the site-level spelling.
-attribute [local instance] SheafOfModules.RingedSite.moduleCategoryHasDerivedCategory
+universe uC2 vC2 uC2p vC2p uB2 vB2 uB2p vB2p uC1 vC1 uC1p vC1p uB1 vB1 uB1p vB1p
 
-variable {C : Type u} [Category.{u} C] {J : GrothendieckTopology C}
-variable [J.HasSheafCompose (forget₂ CommRingCat.{u} RingCat.{u})]
-variable [J.HasSheafCompose (forget₂ RingCat.{u} AddCommGrpCat.{u})]
-variable [HasWeakSheafify J CommRingCat.{u}]
-variable [J.WEqualsLocallyBijective CommRingCat.{u}]
-variable [HasWeakSheafify J AddCommGrpCat.{u}]
-variable [J.WEqualsLocallyBijective AddCommGrpCat.{u}]
-variable {O1 O1' OB1 OB1' O2 O2' OB2 OB2' : Sheaf J CommRingCat.{u}}
-variable {πO1 : O1' ⟶ O1} {πB1 : OB1' ⟶ OB1}
-variable {πO2 : O2' ⟶ O2} {πB2 : OB2' ⟶ OB2}
-variable [IsFirstOrderThickening πO1] [IsFirstOrderThickening πB1]
-variable [IsFirstOrderThickening πO2] [IsFirstOrderThickening πB2]
+variable {C2 : Type uC2} [Category.{vC2} C2] {JC2 : GrothendieckTopology C2}
+variable [JC2.HasSheafCompose (forget₂ CommRingCat.{w} RingCat.{w})]
+variable [JC2.HasSheafCompose (forget RingCat.{w})]
+variable [JC2.HasSheafCompose (forget₂ RingCat.{w} AddCommGrpCat.{w})]
+variable [HasSheafify JC2 AddCommGrpCat.{w}] [JC2.WEqualsLocallyBijective AddCommGrpCat.{w}]
+variable [HasWeakSheafify JC2 CommRingCat.{w}] [JC2.WEqualsLocallyBijective CommRingCat.{w}]
+variable {OC2 : Sheaf JC2 CommRingCat.{w}}
 
-/-- Lemma 91.13.1 (1) Given a commutative diagram of morphisms of ringed topoi 91.13.1.1
-whose horizontal arrows are first-order thickenings, and a map of `g⁻¹𝒪₁`-modules
-`ν : g⁻¹𝒢₁ ⟶ 𝒢₂` making 91.13.1.2, with front and back solutions of 91.13.0.1, after
-identifying underlying topoi the canonical class `mapObstruction D` in
-`Ext⁽1⁾(Lg^* NL(f₁), 𝒢₂)` vanishes if and only if there exists a morphism of ringed
-topoi `(Sh(C'₂), 𝒪'₂) ⟶ (Sh(C'₁), 𝒪'₁)` fitting into 91.13.1.1 compatibly with `ν`. -/
-@[stacks 08UG]
-theorem mapObstruction_eq_zero_iff (D : RelativeDiagram πO1 πB1 πO2 πB2) :
-    mapObstruction D = 0 ↔ Nonempty (FittingMap D) := sorry
+variable {C2p : Type uC2p} [Category.{vC2p} C2p] {JC2p : GrothendieckTopology C2p}
+variable [JC2p.HasSheafCompose (forget₂ CommRingCat.{w} RingCat.{w})]
+variable [JC2p.HasSheafCompose (forget RingCat.{w})]
+variable [JC2p.HasSheafCompose (forget₂ RingCat.{w} AddCommGrpCat.{w})]
+variable [HasSheafify JC2p AddCommGrpCat.{w}] [JC2p.WEqualsLocallyBijective AddCommGrpCat.{w}]
+variable [HasWeakSheafify JC2p CommRingCat.{w}] [JC2p.WEqualsLocallyBijective CommRingCat.{w}]
+variable {OC2p : Sheaf JC2p CommRingCat.{w}}
 
-/-- Lemma 91.13.1 (2) If there exists a morphism `(Sh(C'₂), 𝒪'₂) ⟶ (Sh(C'₁), 𝒪'₁)`
-fitting into 91.13.1.1 compatibly with `ν`, the set of all such morphisms is a principal
-homogeneous space under `Hom_{𝒪₁}(Ω(f₁), g_* 𝒢₂)`, equivalently
-`Hom_{𝒪₂}(g^* Ω(f₁), 𝒢₂)` via `homOmegaPushforwardEquiv` and
-`Ext⁽0⁾(Lg^* NL(f₁), 𝒢₂)` via bijective `homOmegaExtZero`. -/
-@[stacks 08UG]
-theorem fittingMap_principalHomogeneous (D : RelativeDiagram πO1 πB1 πO2 πB2)
-    (φ φ' : FittingMap D) :
-    ∃! α : Ω(D.f1) ⟶ (restrictionAlong D.g).obj (ideal πO2),
-      perturb α φ = φ' := sorry
+variable {B2 : Type uB2} [Category.{vB2} B2] {JB2 : GrothendieckTopology B2}
+variable [JB2.HasSheafCompose (forget₂ CommRingCat.{w} RingCat.{w})]
+variable [JB2.HasSheafCompose (forget RingCat.{w})]
+variable [JB2.HasSheafCompose (forget₂ RingCat.{w} AddCommGrpCat.{w})]
+variable [HasSheafify JB2 AddCommGrpCat.{w}] [JB2.WEqualsLocallyBijective AddCommGrpCat.{w}]
+variable [HasWeakSheafify JB2 CommRingCat.{w}] [JB2.WEqualsLocallyBijective CommRingCat.{w}]
+variable {OB2 : Sheaf JB2 CommRingCat.{w}}
 
-end SheafOfModules.RingedSite.FirstOrderThickening
+variable {B2p : Type uB2p} [Category.{vB2p} B2p] {JB2p : GrothendieckTopology B2p}
+variable [JB2p.HasSheafCompose (forget₂ CommRingCat.{w} RingCat.{w})]
+variable [JB2p.HasSheafCompose (forget RingCat.{w})]
+variable [JB2p.HasSheafCompose (forget₂ RingCat.{w} AddCommGrpCat.{w})]
+variable [HasSheafify JB2p AddCommGrpCat.{w}] [JB2p.WEqualsLocallyBijective AddCommGrpCat.{w}]
+variable [HasWeakSheafify JB2p CommRingCat.{w}] [JB2p.WEqualsLocallyBijective CommRingCat.{w}]
+variable {OB2p : Sheaf JB2p CommRingCat.{w}}
+
+variable {C1 : Type uC1} [Category.{vC1} C1] {JC1 : GrothendieckTopology C1}
+variable [JC1.HasSheafCompose (forget₂ CommRingCat.{w} RingCat.{w})]
+variable [JC1.HasSheafCompose (forget RingCat.{w})]
+variable [JC1.HasSheafCompose (forget₂ RingCat.{w} AddCommGrpCat.{w})]
+variable [HasSheafify JC1 AddCommGrpCat.{w}] [JC1.WEqualsLocallyBijective AddCommGrpCat.{w}]
+variable [HasWeakSheafify JC1 CommRingCat.{w}] [JC1.WEqualsLocallyBijective CommRingCat.{w}]
+variable {OC1 : Sheaf JC1 CommRingCat.{w}}
+
+variable {C1p : Type uC1p} [Category.{vC1p} C1p] {JC1p : GrothendieckTopology C1p}
+variable [JC1p.HasSheafCompose (forget₂ CommRingCat.{w} RingCat.{w})]
+variable [JC1p.HasSheafCompose (forget RingCat.{w})]
+variable [JC1p.HasSheafCompose (forget₂ RingCat.{w} AddCommGrpCat.{w})]
+variable [HasSheafify JC1p AddCommGrpCat.{w}] [JC1p.WEqualsLocallyBijective AddCommGrpCat.{w}]
+variable [HasWeakSheafify JC1p CommRingCat.{w}] [JC1p.WEqualsLocallyBijective CommRingCat.{w}]
+variable {OC1p : Sheaf JC1p CommRingCat.{w}}
+
+variable {B1 : Type uB1} [Category.{vB1} B1] {JB1 : GrothendieckTopology B1}
+variable [JB1.HasSheafCompose (forget₂ CommRingCat.{w} RingCat.{w})]
+variable [JB1.HasSheafCompose (forget RingCat.{w})]
+variable [JB1.HasSheafCompose (forget₂ RingCat.{w} AddCommGrpCat.{w})]
+variable [HasSheafify JB1 AddCommGrpCat.{w}] [JB1.WEqualsLocallyBijective AddCommGrpCat.{w}]
+variable [HasWeakSheafify JB1 CommRingCat.{w}] [JB1.WEqualsLocallyBijective CommRingCat.{w}]
+variable {OB1 : Sheaf JB1 CommRingCat.{w}}
+
+variable {B1p : Type uB1p} [Category.{vB1p} B1p] {JB1p : GrothendieckTopology B1p}
+variable [JB1p.HasSheafCompose (forget₂ CommRingCat.{w} RingCat.{w})]
+variable [JB1p.HasSheafCompose (forget RingCat.{w})]
+variable [JB1p.HasSheafCompose (forget₂ RingCat.{w} AddCommGrpCat.{w})]
+variable [HasSheafify JB1p AddCommGrpCat.{w}] [JB1p.WEqualsLocallyBijective AddCommGrpCat.{w}]
+variable [HasWeakSheafify JB1p CommRingCat.{w}] [JB1p.WEqualsLocallyBijective CommRingCat.{w}]
+variable {OB1p : Sheaf JB1p CommRingCat.{w}}
+
+variable {back : CommSquare (ofCommRingSheaf JC2 OC2) (ofCommRingSheaf JC2p OC2p)
+  (ofCommRingSheaf JB2 OB2) (ofCommRingSheaf JB2p OB2p)}
+variable {front : CommSquare (ofCommRingSheaf JC1 OC1) (ofCommRingSheaf JC1p OC1p)
+  (ofCommRingSheaf JB1 OB1) (ofCommRingSheaf JB1p OB1p)}
+variable [IsFirstOrderThickening front.upper] [IsFirstOrderThickening front.lower]
+variable [IsFirstOrderThickening back.upper] [IsFirstOrderThickening back.lower]
+variable (Q : OpenCube back front)
+variable [(SheafOfModules.restrictScalars.{w} front.left.structureMap).IsRightAdjoint]
+variable [(SheafOfModules.restrictScalars.{w} front.right.structureMap).IsRightAdjoint]
+variable [(SheafOfModules.restrictScalars.{w} front.upper.structureMap).IsRightAdjoint]
+variable [(SheafOfModules.restrictScalars.{w} front.lower.structureMap).IsRightAdjoint]
+variable [(SheafOfModules.restrictScalars.{w} back.left.structureMap).IsRightAdjoint]
+variable [(SheafOfModules.restrictScalars.{w} back.right.structureMap).IsRightAdjoint]
+variable [(SheafOfModules.restrictScalars.{w} back.upper.structureMap).IsRightAdjoint]
+variable [(SheafOfModules.restrictScalars.{w} back.lower.structureMap).IsRightAdjoint]
+variable [(SheafOfModules.restrictScalars.{w} (comp front.left front.lower).structureMap).IsRightAdjoint]
+variable [(SheafOfModules.restrictScalars.{w} (comp front.upper front.right).structureMap).IsRightAdjoint]
+variable [(SheafOfModules.restrictScalars.{w} (comp back.left back.lower).structureMap).IsRightAdjoint]
+variable [(SheafOfModules.restrictScalars.{w} (comp back.upper back.right).structureMap).IsRightAdjoint]
+variable [(SheafOfModules.restrictScalars.{w} Q.g.structureMap).IsRightAdjoint]
+variable [(SheafOfModules.restrictScalars.{w} Q.base.structureMap).IsRightAdjoint]
+variable [(SheafOfModules.restrictScalars.{w} Q.base'.structureMap).IsRightAdjoint]
+variable [(SheafOfModules.restrictScalars.{w} (comp Q.base front.lower).structureMap).IsRightAdjoint]
+variable [(SheafOfModules.restrictScalars.{w} (comp back.lower Q.base').structureMap).IsRightAdjoint]
+variable [(SheafOfModules.restrictScalars.{w} (comp Q.g front.left).structureMap).IsRightAdjoint]
+variable [(SheafOfModules.restrictScalars.{w} (comp back.left Q.base).structureMap).IsRightAdjoint]
+
+variable [UnivLE.{max uC2 vC2, w}]
+
+/- Lemma 91.13.1. For the open cube of ringed topoi, the prescribed compatible
+inverse-image-linear kernel map has a canonical Ext¹ obstruction. It vanishes
+exactly when a compatible missing morphism exists. -/
+@[stacks 08UG] #check (RingedSite.ToposHom.Thickening.mapObstruction_eq_zero_iff Q :
+  ∀ D : RelativeDiagram Q, mapObstruction Q D = 0 ↔ Nonempty (FittingMap Q D))
+
+#check (RingedSite.ToposHom.Thickening.mapObstruction Q :
+  RelativeDiagram Q → Ext⁽(1 : ℤ)⁾(pulledNaiveCotangent Q, kernelSingle (back := back)))
+
+#check (RingedSite.ToposHom.Thickening.fittingMap_principalHomogeneous Q :
+  ∀ (D : RelativeDiagram Q) (φ φ' : FittingMap Q D),
+    ∃! α : Ω(normalizedProjection front.left) ⟶
+      Q.g.modulePushforward.obj (idealModule back.upper),
+      FittingMap.perturb α φ = φ')
+
+#check (RingedSite.ToposHom.Thickening.homOmegaPushforwardEquiv Q :
+  (Ω(normalizedProjection front.left) ⟶ Q.g.modulePushforward.obj (idealModule back.upper)) ≃+
+    (Q.g.modulePullback.obj Ω(normalizedProjection front.left) ⟶ idealModule back.upper))
+
+#check (RingedSite.ToposHom.Thickening.homOmegaExtZeroEquiv Q :
+  (Ω(normalizedProjection front.left) ⟶ Q.g.modulePushforward.obj (idealModule back.upper)) ≃+
+    Ext⁽(0 : ℤ)⁾(pulledNaiveCotangent Q, kernelSingle (back := back)))
+
+end RingedSite.ToposHom.Thickening

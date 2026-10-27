@@ -438,7 +438,7 @@ private theorem descendedEvaluation_step
         (SheafOfModules.RingedSite.tensorLeftPreservesColimitsOfShape
           (O := O) (stage I G (n + 1)))) _ _ (projection I H (n + 1)) inferInstance
   exact hLeft.left_cancellation _ _ (hRight.left_cancellation _ _ (by
-    dsimp [H]
+    dsimp only [H]
     simp only [MonoidalCategory.tensorHom_def, Category.assoc]
     rw [MonoidalCategory.whisker_exchange_assoc]
     rw [← MonoidalCategory.comp_whiskerRight_assoc]

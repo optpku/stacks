@@ -68,7 +68,14 @@ theorem compLift_isPullback
     (i : X' ⟶ X) (fg' : X' ⟶ Z') (h : Z' ⟶ Z)
     (square : IsPullback i.left fg'.left (f ≫ g).left h.left) :
     IsPullback i.left (compLift f g i fg' h square).left f.left
-      (ComponentRestriction.baseChangeToSource g h).left := sorry
+      (ComponentRestriction.baseChangeToSource g h).left where
+  w := by
+    sorry
+  isLimit' := ⟨PullbackCone.IsLimit.mk _
+    -- Cancel the canonical base-change square using the lift in the input square.
+    (fun s ↦ square.lift s.fst (s.snd ≫ pullback.fst h.left g.left) (by
+      sorry))
+    (by sorry) (by sorry) (by sorry)⟩
 
 /-- The cap family obtained by first applying a class for `g` and then one for `f`. -/
 def compCap
@@ -137,6 +144,18 @@ theorem comp_cap
     (square : IsPullback i.left fg'.left (f ≫ g).left h.left) (k : ℤ) :
     (comp delta f g c d).cap i fg' h square k =
       compCap delta f g c d i fg' h square k := sorry
+
+/-- Homogeneous bivariant composition is associative. `HEq` accounts for transport
+along `Category.assoc` and `Int.add_assoc` (Stacks Project, Tag 0B76). -/
+theorem comp_assoc
+    {S : Scheme.{u}} [UniversallyCatenary S] (delta : S → ℤ) [IsDimensionFunction delta]
+    {W X Y Z : Over S} [LocallyOfFiniteType W.hom] [LocallyOfFiniteType X.hom]
+    [LocallyOfFiniteType Y.hom] [LocallyOfFiniteType Z.hom]
+    (f : W ⟶ X) (g : X ⟶ Y) (h : Y ⟶ Z) {p q r : ℤ}
+    (c : BivariantClass delta f p) (d : BivariantClass delta g q)
+    (e : BivariantClass delta h r) :
+    HEq (comp delta (f ≫ g) h (comp delta f g c d) e)
+      (comp delta f (g ≫ h) c (comp delta g h d e)) := sorry
 
 /-- Homogeneous composition preserves pointwise addition in its first variable. -/
 theorem add_comp

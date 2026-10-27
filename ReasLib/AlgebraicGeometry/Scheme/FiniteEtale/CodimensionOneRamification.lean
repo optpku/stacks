@@ -39,7 +39,8 @@ theorem HasDVRBoundary.spec {X : Scheme.{u}} {U : X.Opens}
     ∀ (Z : PrimeDivisor X) (hZ : Disjoint (Z.support : Set X) (U : Set X)),
       IsDomain (X.presheaf.stalk Z.genericPoint) ∧
         @IsDiscreteValuationRing (X.presheaf.stalk Z.genericPoint) inferInstance
-          (h.boundaryStalk_domain Z hZ) := sorry
+          (h.boundaryStalk_domain Z hZ) :=
+  fun Z hZ ↦ ⟨h.boundaryStalk_domain Z hZ, h.boundaryStalk_dvr Z hZ⟩
 
 namespace FiniteEtale
 
@@ -57,7 +58,7 @@ theorem genericMap_spec {X : Scheme.{u}} (Z : PrimeDivisor X) :
       Spec.map (CommRingCat.ofHom
           (algebraMap (X.presheaf.stalk Z.genericPoint)
             (FractionRing (X.presheaf.stalk Z.genericPoint)))) ≫
-        X.fromSpecStalk Z.genericPoint := sorry
+        X.fromSpecStalk Z.genericPoint := rfl
 
 /-- The finite-etale cover's generic boundary fiber, bundled as an algebra over the fraction
 field of the boundary stalk. -/
@@ -73,7 +74,7 @@ theorem boundaryFiber_spec {X : Scheme.{u}} {U : X.Opens}
     (Y : Scheme.FiniteEtale U.toScheme) (Z : PrimeDivisor X) :
     boundaryFiber Y Z =
       Scheme.Hom.globalSectionsAlg
-        (pullback.snd (Y.hom ≫ U.ι) (genericMap Z)) := sorry
+        (pullback.snd (Y.hom ≫ U.ι) (genericMap Z)) := rfl
 
 namespace BoundaryFiber
 namespace Branch
@@ -109,7 +110,10 @@ noncomputable abbrev baseAlgebra (m : MaximalSpectrum (boundaryFiber Y Z)) :
 theorem isScalarTower (m : MaximalSpectrum (boundaryFiber Y Z)) :
     @IsScalarTower (X.presheaf.stalk Z.genericPoint)
       (FractionRing (X.presheaf.stalk Z.genericPoint)) (ring Y Z m)
-      inferInstance (fractionAlgebra Y Z m).toSMul (baseAlgebra Y Z m).toSMul := sorry
+      inferInstance (fractionAlgebra Y Z m).toSMul (baseAlgebra Y Z m).toSMul := by
+  letI := fractionAlgebra Y Z m
+  letI := baseAlgebra Y Z m
+  exact IsScalarTower.of_algebraMap_eq (fun _ ↦ rfl)
 
 /-- The named quotient field and algebra maps form a usable boundary branch with scalar tower. -/
 theorem spec (m : MaximalSpectrum (boundaryFiber Y Z)) :
@@ -179,7 +183,7 @@ theorem isUnramifiedInCodimensionOne_iff {X : Scheme.{u}} (U : X.Opens)
     (Y : Scheme.FiniteEtale U.toScheme) :
     IsUnramifiedInCodimensionOne U hU Y ↔
       ∀ (Z : PrimeDivisor X) (hZ : Disjoint (Z.support : Set X) (U : Set X))
-        (m : MaximalSpectrum (boundaryFiber Y Z)), unramifiedBranch h Y Z hZ m := sorry
+        (m : MaximalSpectrum (boundaryFiber Y Z)), unramifiedBranch h Y Z hZ m := Iff.rfl
 
 /-- The branchwise characterization of tame ramification in codimension one. -/
 theorem isTamelyRamifiedInCodimensionOne_iff {X : Scheme.{u}} (U : X.Opens)
@@ -187,14 +191,27 @@ theorem isTamelyRamifiedInCodimensionOne_iff {X : Scheme.{u}} (U : X.Opens)
     (Y : Scheme.FiniteEtale U.toScheme) :
     IsTamelyRamifiedInCodimensionOne U hU Y ↔
       ∀ (Z : PrimeDivisor X) (hZ : Disjoint (Z.support : Set X) (U : Set X))
-        (m : MaximalSpectrum (boundaryFiber Y Z)), tameBranch h Y Z hZ m := sorry
+        (m : MaximalSpectrum (boundaryFiber Y Z)), tameBranch h Y Z hZ m := Iff.rfl
 
 /-- Unramified boundary branches are tamely ramified boundary branches. -/
 theorem IsUnramifiedInCodimensionOne.isTamelyRamified
     {X : Scheme.{u}} (U : X.Opens) (hU : Dense (U : Set X))
     [h : HasDVRBoundary X U] (Y : Scheme.FiniteEtale U.toScheme)
     (hY : IsUnramifiedInCodimensionOne U hU Y) :
-    IsTamelyRamifiedInCodimensionOne U hU Y := sorry
+    IsTamelyRamifiedInCodimensionOne U hU Y := by
+  intro Z hZ m
+  letI := h.boundaryStalk_domain Z hZ
+  letI := h.boundaryStalk_dvr Z hZ
+  letI := BoundaryFiber.Branch.field Y Z m
+  letI := BoundaryFiber.Branch.baseAlgebra Y Z m
+  letI := BoundaryFiber.Branch.fractionAlgebra Y Z m
+  letI := BoundaryFiber.Branch.isScalarTower Y Z m
+  refine ⟨?_, ?_⟩
+  · intro P hP hOver
+    exact (hY Z hZ m).residueField_separable P
+  · intro q hq hChar P hP hOver
+    rw [(hY Z hZ m).ramificationIdx_eq_one P]
+    exact Nat.coprime_one_left q
 
 variable {X X' : Scheme.{u}} [IsLocallyNoetherian X] [IsLocallyNoetherian X']
 variable (f : X' ⟶ X) (U : X.Opens)

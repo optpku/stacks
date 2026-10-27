@@ -6,103 +6,123 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import ReasLib.RingTheory.Polynomial.Numerical
-public import stacks_project.Chap108.Example_108_4_10_Coherent_sheaves_with_fixed_Hilbert_polynomial_Hilbert
-public import stacks_project.Chap108.Lemma_108_4_8
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.CohStack.Hilbert
 
 /-!
 # Example 108.4.10 (Coherent sheaves with fixed Hilbert polynomial)
 
-The open-and-closed algebraic substack `Coh^{P,L}_{X/B}` of families whose
-fibrewise Euler characteristics agree with a numerical polynomial `P`, and the
-disjoint-union decomposition of `Coh_{X/B}` by these loci.
+Integer-valued rational Hilbert polynomials define open-and-closed algebraic
+substacks. Their natural, disjoint clopen point loci cover every test scheme.
 -/
-
-@[expose] public section
 
 open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
 open AlgebraicGeometry.AlgebraicSpace.CohStack
 open CategoryTheory.MonoidalCategory
 open scoped Bicategory
 
-noncomputable section
-
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.CohStack
-
-variable {S : Scheme.{u}} {X B : AlgebraicSpace S}
-
-/-- Example 108.4.10 (Coherent sheaves with fixed Hilbert polynomial) (1): an
-object `(T ⟶ B, F)` of `CohStack f` lies in `hilbert f L P` if and only if
-`P n = x.eulerChar (hilbertFamily L (⟨n⟩ : hilbertIndex.{u})) t` for all `n : ℤ` and all
-points `t` of `T`. -/
-@[stacks 0DNF]
-theorem mem_hilbert_iff (f : X ⟶ B) [FinitePresentation f] [Separated f]
-    (L : X.Modules) [isInvertibleObject L] (P : ℤ → ℤ)
-    (hP : IsNumericalPolynomial P) (x : Obj f) :
-    hilbert f L P x ↔
+/- Example 108.4.10 (Coherent sheaves with fixed Hilbert polynomial): membership is equality at every integer and every point. -/
+@[stacks 0DNF] #check (AlgebraicGeometry.AlgebraicSpace.CohStack.mem_hilbert_iff :
+  ∀ {S : Scheme.{u}} {X B : AlgebraicSpace S}
+    (f : X ⟶ B) [FinitePresentation f] [Separated f]
+    (L : X.Modules) [isInvertibleObject L] (p : Polynomial ℚ)
+    (hp : p.IsIntegerValued) (x : Obj f),
+    hilbert f L hp.evalInt x ↔
       ∀ (n : ℤ) (t : Points (ofOver x.σ.left)),
-        x.eulerChar (hilbertFamily L (⟨n⟩ : hilbertIndex.{u})) t = P n :=
-  sorry
+        p.eval (n : ℚ) = (x.eulerChar (hilbertFamily L ⟨n⟩) t : ℚ))
 
-/-- Example 108.4.10 (Coherent sheaves with fixed Hilbert polynomial) (2): the
-inclusion `Hilbert.ι : Coh^{P,L}_{X/B} ⟶ Coh_{X/B}` is an open immersion. -/
-@[stacks 0DNF]
-instance instOpenImmersion_ι_hilbert (f : X ⟶ B)
+/- The Hilbert inclusion is an open immersion. -/
+#check (AlgebraicGeometry.AlgebraicSpace.CohStack.instOpenImmersion_ι_hilbert :
+  ∀ {S : Scheme.{u}} {X B : AlgebraicSpace S}
+    (f : X ⟶ B)
     [FinitePresentation f] [Separated f] (L : X.Modules) [isInvertibleObject L]
-    (P : ℤ → ℤ) :
-    Hom.OpenImmersion (Hilbert.ι f L P) :=
-  sorry
+    (P : ℤ → ℤ),
+    CohStack.OpenImmersion (Hilbert.ι f L P))
 
-/-- Example 108.4.10 (Coherent sheaves with fixed Hilbert polynomial) (3): the
-inclusion `Hilbert.ι : Coh^{P,L}_{X/B} ⟶ Coh_{X/B}` is a closed immersion. -/
-@[stacks 0DNF]
-instance instClosedImmersion_ι_hilbert (f : X ⟶ B)
-    [FinitePresentation f] [Separated f] (L : X.Modules) [isInvertibleObject L]
-    (P : ℤ → ℤ) :
-    Hom.ClosedImmersion (Hilbert.ι f L P) :=
-  sorry
+section
 
-/-- Example 108.4.10 (Coherent sheaves with fixed Hilbert polynomial) (4): the
-substack `toGroupoidsHilbert f L P` is algebraic. -/
-@[stacks 0DNF]
-instance instAlgebraicStack_toGroupoidsHilbert (f : X ⟶ B)
-    [FinitePresentation f] [Separated f] (L : X.Modules) [isInvertibleObject L]
-    (P : ℤ → ℤ) :
-    AlgebraicStack (toGroupoidsHilbert f L P) :=
-  sorry
+variable {S : Scheme.{u}} {X B : AlgebraicSpace S} (f : X ⟶ B)
+  [FinitePresentation f] [Separated f] (L : X.Modules) [isInvertibleObject L]
+  (P : ℤ → ℤ)
 
-/-- Example 108.4.10 (Coherent sheaves with fixed Hilbert polynomial) (5): for
-every object `(T ⟶ B, F)` of `CohStack f` and every point `t` of `T`, the
-function `n ↦ x.eulerChar (hilbertFamily L (⟨n⟩ : hilbertIndex.{u})) t` is a numerical
-polynomial. -/
-@[stacks 0DNF]
-theorem eulerChar_isNumericalPolynomial (f : X ⟶ B) [FinitePresentation f]
+/- The Hilbert inclusion is a closed immersion. -/
+#check (AlgebraicGeometry.AlgebraicSpace.CohStack.Numerical.instClosedImmersion
+  f (hilbertFamily L) (fun n ↦ P n.down) (isPerfect_hilbertFamily L) :
+  Hom.ClosedImmersion (Hilbert.ι f L P))
+
+/- The Hilbert substack is algebraic. -/
+#check (AlgebraicGeometry.AlgebraicSpace.CohStack.Numerical.instAlgebraicStack
+  f (hilbertFamily L) (fun n ↦ P n.down) (isPerfect_hilbertFamily L) :
+  AlgebraicStack (toGroupoidsHilbert f L P))
+
+end
+
+/- Each point has a unique polynomial agreeing at all integers. -/
+#check (AlgebraicGeometry.AlgebraicSpace.CohStack.existsUnique_hilbertPolynomial :
+  ∀ {S : Scheme.{u}} {X B : AlgebraicSpace S}
+    (f : X ⟶ B) [FinitePresentation f]
     [Separated f] (L : X.Modules) [isInvertibleObject L] (x : Obj f)
-    (t : Points (ofOver x.σ.left)) :
-    IsNumericalPolynomial (fun n ↦ x.eulerChar (hilbertFamily L (⟨n⟩ : hilbertIndex.{u})) t) :=
-  sorry
+    (t : Points (ofOver x.σ.left)),
+    ∃! p : Polynomial ℚ, p.IsIntegerValued ∧
+      ∀ n : ℤ, p.eval (n : ℚ) = (x.eulerChar (hilbertFamily L ⟨n⟩) t : ℚ))
 
-/-- Example 108.4.10 (Coherent sheaves with fixed Hilbert polynomial) (6): if the
-test scheme of `x` is nonempty, then `x` lies in at most one Hilbert locus
-`hilbert f L P` among numerical polynomials `P`. -/
-@[stacks 0DNF]
-theorem eq_of_mem_hilbert (f : X ⟶ B) [FinitePresentation f] [Separated f]
-    (L : X.Modules) [isInvertibleObject L] (P Q : ℤ → ℤ)
-    (hP : IsNumericalPolynomial P) (hQ : IsNumericalPolynomial Q) (x : Obj f)
-    (hT : Nonempty (Points (ofOver x.σ.left))) (hxP : hilbert f L P x)
-    (hxQ : hilbert f L Q x) : P = Q :=
-  sorry
+/- Whole-family uniqueness holds when the test scheme has a point. -/
+#check (AlgebraicGeometry.AlgebraicSpace.CohStack.eq_of_mem_hilbert :
+  ∀ {S : Scheme.{u}} {X B : AlgebraicSpace S}
+    (f : X ⟶ B) [FinitePresentation f] [Separated f]
+    (L : X.Modules) [isInvertibleObject L] (p q : Polynomial ℚ)
+    (hp : p.IsIntegerValued) (hq : q.IsIntegerValued) (x : Obj f)
+    (hT : Nonempty (Points (ofOver x.σ.left))) (hxp : hilbert f L hp.evalInt x)
+    (hxq : hilbert f L hq.evalInt x),
+    p = q)
 
-/-- Example 108.4.10 (Coherent sheaves with fixed Hilbert polynomial) (7): if the
-test scheme of `x` is connected, then `x` lies in `hilbert f L P` for some
-numerical polynomial `P`. -/
-@[stacks 0DNF]
-theorem exists_mem_hilbert_of_isConnected (f : X ⟶ B) [FinitePresentation f]
+/- A connected test scheme has a global Hilbert polynomial. -/
+#check (AlgebraicGeometry.AlgebraicSpace.CohStack.exists_mem_hilbert_of_isConnected :
+  ∀ {S : Scheme.{u}} {X B : AlgebraicSpace S}
+    (f : X ⟶ B) [FinitePresentation f]
     [Separated f] (L : X.Modules) [isInvertibleObject L] (x : Obj f)
-    [ConnectedSpace x.σ.left.left] :
-    ∃ P : ℤ → ℤ, IsNumericalPolynomial P ∧ hilbert f L P x :=
-  sorry
+    [ConnectedSpace x.σ.left.left],
+    ∃ p : Polynomial ℚ, ∃ hp : p.IsIntegerValued, hilbert f L hp.evalInt x)
 
-end AlgebraicGeometry.AlgebraicSpace.CohStack
+/- Whole-space loci characterize substack membership. -/
+#check (AlgebraicGeometry.AlgebraicSpace.CohStack.Obj.hilbertLocus_eq_univ_iff :
+  ∀ {S : Scheme.{u}} {X B : AlgebraicSpace S}
+    {f : X ⟶ B} [FinitePresentation f]
+    (x : Obj f) (L : X.Modules) [isInvertibleObject L] (P : ℤ → ℤ),
+    x.hilbertLocus L P = Set.univ ↔ hilbert f L P x)
+
+/- The point loci are open and closed. -/
+#check (AlgebraicGeometry.AlgebraicSpace.CohStack.Obj.isClopen_hilbertLocus :
+  ∀ {S : Scheme.{u}} {X B : AlgebraicSpace S}
+    {f : X ⟶ B} [FinitePresentation f] [Separated f]
+    (x : Obj f) (L : X.Modules) [isInvertibleObject L] (P : ℤ → ℤ),
+    IsClopen (x.hilbertLocus L P))
+
+/- The point loci are natural under coherent-family morphisms. -/
+#check (AlgebraicGeometry.AlgebraicSpace.CohStack.Obj.hilbertLocus_natural :
+  ∀ {S : Scheme.{u}} {X B : AlgebraicSpace S}
+    {f : X ⟶ B} [FinitePresentation f]
+    {x y : Obj f} (α : Hom x y) (L : X.Modules) [isInvertibleObject L]
+    (P : ℤ → ℤ),
+    x.hilbertLocus L P =
+      Points.map (ofOverMap α.base.left) ⁻¹' y.hilbertLocus L P)
+
+/- Distinct polynomial loci are disjoint. -/
+#check (AlgebraicGeometry.AlgebraicSpace.CohStack.Obj.hilbertLocus_pairwiseDisjoint :
+  ∀ {S : Scheme.{u}} {X B : AlgebraicSpace S}
+    {f : X ⟶ B} [FinitePresentation f]
+    (x : Obj f) (L : X.Modules) [isInvertibleObject L],
+    Pairwise (fun p q : {p : Polynomial ℚ // p.IsIntegerValued} ↦
+      Disjoint (x.hilbertLocus L p.property.evalInt)
+        (x.hilbertLocus L q.property.evalInt)))
+
+/- The polynomial loci cover every test scheme. -/
+#check (AlgebraicGeometry.AlgebraicSpace.CohStack.Obj.iUnion_hilbertLocus :
+  ∀ {S : Scheme.{u}} {X B : AlgebraicSpace S}
+    {f : X ⟶ B} [FinitePresentation f] [Separated f]
+    (x : Obj f) (L : X.Modules) [isInvertibleObject L],
+    (⋃ p : {p : Polynomial ℚ // p.IsIntegerValued},
+      x.hilbertLocus L p.property.evalInt) = Set.univ)
+

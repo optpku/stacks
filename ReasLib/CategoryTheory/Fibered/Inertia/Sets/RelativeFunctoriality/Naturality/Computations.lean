@@ -49,7 +49,7 @@ theorem hom.toBasedNatTrans
       (BasedCategory.RelativeInertia.toInertia.naturalityIso
         (FiberedCategoryOver.Sets.toBasedFunctor G)
         (FiberedCategoryOver.Sets.toBasedFunctor G')
-        (Bicategory.InducedBicategory.Iso.toAmbient comm)).hom := sorry
+        (Bicategory.InducedBicategory.Iso.toAmbient comm)).hom := rfl
 
 /-- The based projection of the inverse set-fibred naturality cell is the inverse neutral based
 naturality cell. -/
@@ -64,7 +64,7 @@ theorem inv.toBasedNatTrans
       (BasedCategory.RelativeInertia.toInertia.naturalityIso
         (FiberedCategoryOver.Sets.toBasedFunctor G)
         (FiberedCategoryOver.Sets.toBasedFunctor G')
-        (Bicategory.InducedBicategory.Iso.toAmbient comm)).inv := sorry
+        (Bicategory.InducedBicategory.Iso.toAmbient comm)).inv := rfl
 
 /-- The forward set-fibred naturality component is the explicit neutral identity-arrow
 component. -/
@@ -80,7 +80,7 @@ theorem hom.app
       (BasedCategory.RelativeInertia.toInertia.naturalityIso.component
         (FiberedCategoryOver.Sets.toBasedFunctor G)
         (FiberedCategoryOver.Sets.toBasedFunctor G')
-        (Bicategory.InducedBicategory.Iso.toAmbient comm) A).hom := sorry
+        (Bicategory.InducedBicategory.Iso.toAmbient comm) A).hom := rfl
 
 /-- The inverse set-fibred naturality component is the explicit neutral reverse identity-arrow
 component. -/
@@ -96,7 +96,7 @@ theorem inv.app
       (BasedCategory.RelativeInertia.toInertia.naturalityIso.component
         (FiberedCategoryOver.Sets.toBasedFunctor G)
         (FiberedCategoryOver.Sets.toBasedFunctor G')
-        (Bicategory.InducedBicategory.Iso.toAmbient comm) A).inv := sorry
+        (Bicategory.InducedBicategory.Iso.toAmbient comm) A).inv := rfl
 
 /-- The forward set-fibred relative-to-absolute comparison is natural on total categories. -/
 @[reassoc]
@@ -113,7 +113,8 @@ theorem naturality
       (FiberedCategoryOver.Sets.toNatTrans
           (naturalityIso G G' comm).hom).app A ≫
         (FiberedCategoryOver.Sets.toFunctor
-            (toInertia F₁ ≫ (Inertia.pseudofunctor C).map G)).map f := sorry
+            (toInertia F₁ ≫ (Inertia.pseudofunctor C).map G)).map f := by
+  exact (FiberedCategoryOver.Sets.toNatTrans (naturalityIso G G' comm).hom).naturality f
 
 /-- The inverse set-fibred relative-to-absolute comparison is natural on total categories. -/
 @[reassoc]
@@ -130,7 +131,8 @@ theorem invNaturality
       (FiberedCategoryOver.Sets.toNatTrans
           (naturalityIso G G' comm).inv).app A ≫
         (FiberedCategoryOver.Sets.toFunctor
-            (RelativeInertia.map G G' comm ≫ toInertia F₂)).map f := sorry
+            (RelativeInertia.map G G' comm ≫ toInertia F₂)).map f := by
+  exact (FiberedCategoryOver.Sets.toNatTrans (naturalityIso G G' comm).inv).naturality f
 
 /-- Every forward set-fibred naturality component lies over the identity of the source base. -/
 theorem hom.app.isHomLift
@@ -142,7 +144,9 @@ theorem hom.app.isHomLift
     (FiberedCategoryOver.Sets.inertia X₂).p.IsHomLift
       (𝟙 ((FiberedCategoryOver.Sets.relativeInertia F₁).p.obj A))
       ((FiberedCategoryOver.Sets.toNatTrans
-        (naturalityIso G G' comm).hom).app A) := sorry
+        (naturalityIso G G' comm).hom).app A) := by
+  exact (FiberedCategoryOver.Sets.toBasedNatTrans
+    (naturalityIso G G' comm).hom).isHomLift' A
 
 /-- Every inverse set-fibred naturality component lies over the identity of the source base. -/
 theorem inv.app.isHomLift
@@ -154,7 +158,9 @@ theorem inv.app.isHomLift
     (FiberedCategoryOver.Sets.inertia X₂).p.IsHomLift
       (𝟙 ((FiberedCategoryOver.Sets.relativeInertia F₁).p.obj A))
       ((FiberedCategoryOver.Sets.toNatTrans
-        (naturalityIso G G' comm).inv).app A) := sorry
+        (naturalityIso G G' comm).inv).app A) := by
+  exact (FiberedCategoryOver.Sets.toBasedNatTrans
+    (naturalityIso G G' comm).inv).isHomLift' A
 
 /-- The arrow underlying every forward set-fibred naturality component is an identity. -/
 @[simp]
@@ -167,7 +173,7 @@ theorem hom.app.underlying
     CategoryTheory.RelativeInertia.hom
         ((FiberedCategoryOver.Sets.toNatTrans
           (naturalityIso G G' comm).hom).app A) =
-      𝟙 ((FiberedCategoryOver.Sets.toFunctor G).obj A.obj) := sorry
+      𝟙 ((FiberedCategoryOver.Sets.toFunctor G).obj A.obj) := rfl
 
 /-- The arrow underlying every inverse set-fibred naturality component is an identity. -/
 @[simp]
@@ -180,7 +186,7 @@ theorem inv.app.underlying
     CategoryTheory.RelativeInertia.hom
         ((FiberedCategoryOver.Sets.toNatTrans
           (naturalityIso G G' comm).inv).app A) =
-      𝟙 ((FiberedCategoryOver.Sets.toFunctor G).obj A.obj) := sorry
+      𝟙 ((FiberedCategoryOver.Sets.toFunctor G).obj A.obj) := rfl
 
 end naturalityIso
 

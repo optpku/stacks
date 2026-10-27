@@ -7,6 +7,7 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Derived.InternalHom
+public import ReasLib.AlgebraicGeometry.RingedSite.Module.Complex.InternalHom
 public import Mathlib.Algebra.Homology.DerivedCategory.KInjective
 public import Mathlib.CategoryTheory.Functor.Currying
 
@@ -36,36 +37,6 @@ variable [HasWeakSheafify J AddCommGrpCat.{max u v}]
 variable [J.WEqualsLocallyBijective AddCommGrpCat.{max u v}]
 variable {O : Sheaf J CommRingCat.{max u v}}
 
-/-- The actual product-valued cochain internal-Hom bifunctor on module sheaves. -/
-def strictInternalHom :
-    (CochainComplex (ringedSiteModuleCategory J O) ℤ)ᵒᵖ ⥤
-      CochainComplex (ringedSiteModuleCategory J O) ℤ ⥤
-        CochainComplex (ringedSiteModuleCategory J O) ℤ := by
-  let tensorExists : ∀ X Y : GradedObject ℤ (ringedSiteModuleCategory J O),
-      GradedObject.HasTensor X Y :=
-    fun _ _ _ ↦ HasColimitsOfShape.has_colimit _
-  let goodLeft : ∀ X Y Z : GradedObject ℤ (ringedSiteModuleCategory J O),
-      GradedObject.HasGoodTensor₁₂Tensor X Y Z :=
-    fun _ _ _ _ _ ↦ PreservesColimitsOfShape.preservesColimit
-  let goodRight : ∀ X Y Z : GradedObject ℤ (ringedSiteModuleCategory J O),
-      GradedObject.HasGoodTensorTensor₂₃ X Y Z :=
-    fun _ _ _ _ _ ↦ PreservesColimitsOfShape.preservesColimit
-  let tensorExt : ∀ X Y Z W : GradedObject ℤ (ringedSiteModuleCategory J O),
-      GradedObject.HasTensor₄ObjExt X Y Z W :=
-    fun _ _ _ _ _ _ ↦ PreservesColimitsOfShape.preservesColimit
-  let preservesLeft : ∀ X, PreservesColimit (Functor.empty.{0} (ringedSiteModuleCategory J O))
-      ((curriedTensor (ringedSiteModuleCategory J O)).obj X) :=
-    fun _ ↦ PreservesColimitsOfShape.preservesColimit
-  let preservesRight : ∀ X, PreservesColimit (Functor.empty.{0} (ringedSiteModuleCategory J O))
-      ((curriedTensor (ringedSiteModuleCategory J O)).flip.obj X) :=
-    fun _ ↦ PreservesColimitsOfShape.preservesColimit
-  let closed := @CochainComplex.InternalHom.monoidalClosed
-    (ringedSiteModuleCategory J O)
-    inferInstance inferInstance inferInstance inferInstance inferInstance
-    inferInstance inferInstance tensorExists goodLeft goodRight tensorExt
-    preservesLeft preservesRight
-  exact @MonoidalClosed.internalHom _ inferInstance _ closed
-
 /-- On two strict complexes, the bifunctor has the existing actual sheaf-Hom model. -/
 theorem strictInternalHom_obj (F I : CochainComplex (ringedSiteModuleCategory J O) ℤ) :
     (DerivedCategory.Q : CochainComplex (ringedSiteModuleCategory J O) ℤ ⥤ max J O).obj
@@ -91,12 +62,30 @@ def liftToInjectiveModel (F : CochainComplex (ringedSiteModuleCategory J O) ℤ)
           (DerivedCategory.quotientCompQhIso (ringedSiteModuleCategory J O)).inv.app
             (injectiveModel N)))
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The chosen cochain representative realizes the specified derived arrow. -/
 @[reassoc]
 theorem liftToInjectiveModel_fac (F : CochainComplex (ringedSiteModuleCategory J O) ℤ)
     (N : max J O)
     (f : (DerivedCategory.Q : CochainComplex (ringedSiteModuleCategory J O) ℤ ⥤ max J O).obj F ⟶ N) :
-    DerivedCategory.Q.map (liftToInjectiveModel F N f) ≫ (injectiveModelIso N).hom = f := sorry
+    DerivedCategory.Q.map (liftToInjectiveModel F N f) ≫ (injectiveModelIso N).hom = f := by
+  apply (cancel_epi
+    ((DerivedCategory.quotientCompQhIso (ringedSiteModuleCategory J O)).hom.app F)).mp
+  rw [← Category.assoc, ← DerivedCategory.quotientCompQhIso_hom_naturality,
+    Category.assoc]
+  dsimp only [liftToInjectiveModel]
+  rw [Functor.map_preimage]
+  let e := Equiv.ofBijective
+    (DerivedCategory.Qh.map :
+      ((HomotopyCategory.quotient (ringedSiteModuleCategory J O) (.up ℤ)).obj F ⟶
+        (HomotopyCategory.quotient (ringedSiteModuleCategory J O) (.up ℤ)).obj
+          (injectiveModel N)) → _)
+    (CochainComplex.IsKInjective.Qh_map_bijective
+      ((HomotopyCategory.quotient (ringedSiteModuleCategory J O) (.up ℤ)).obj F)
+      (injectiveModel N))
+  change e (e.symm _) ≫ _ = _
+  rw [Equiv.apply_symm_apply]
+  simp only [Category.assoc, Iso.inv_hom_id_app_assoc, Iso.inv_hom_id, Category.comp_id]
 
 /-- A representative cochain map between the specified K-injective models of a derived arrow. -/
 def modelMap {M N : max J O} (f : M ⟶ N) :
@@ -107,14 +96,14 @@ def modelMap {M N : max J O} (f : M ⟶ N) :
 def sourceToInjectiveModel (M : max J O) :
     (DerivedCategory.Q : CochainComplex (ringedSiteModuleCategory J O) ℤ ⥤ max J O).objPreimage M ⟶
       injectiveModel M :=
-  liftToInjectiveModel
-    ((DerivedCategory.Q : CochainComplex (ringedSiteModuleCategory J O) ℤ ⥤ max J O).objPreimage M)
-    M (Functor.objObjPreimageIso
-      (DerivedCategory.Q : CochainComplex (ringedSiteModuleCategory J O) ℤ ⥤ max J O) M).hom
+  (CochainComplex.KInjectiveResolution.Construction.augmentation
+    (ringedSiteModuleCategory J O)).app (DerivedCategory.Q.objPreimage M)
 
 /-- The source-model comparison represents an isomorphism in the derived category. -/
-instance sourceToInjectiveModel_quasiIso (M : max J O) :
-    QuasiIso (sourceToInjectiveModel M) := sorry
+theorem sourceToInjectiveModel_quasiIso (M : max J O) :
+    _root_.QuasiIso (sourceToInjectiveModel M) :=
+  CochainComplex.KInjectiveResolution.Construction.augmentation_quasiIso
+    (ringedSiteModuleCategory J O) _
 
 /-- Actual precomposition on the strict sheaf Hom compares the two source presentations. -/
 def modelComparisonMap (M N : max J O) :
@@ -122,15 +111,19 @@ def modelComparisonMap (M N : max J O) :
   DerivedCategory.Q.map
     ((strictInternalHom.map (sourceToInjectiveModel M).op).app (injectiveModel N))
 
-/-- Sheaf internal Hom into a K-injective target sends the actual source comparison
-quasi-isomorphism to a quasi-isomorphism, as in Stacks' well-definedness argument. -/
-instance modelComparisonMap_isIso (M N : max J O) :
-    IsIso (modelComparisonMap M N) := sorry
-
-/-- The canonical comparison fixes its forward map as actual source precomposition. -/
+/-- The canonical comparison localizes actual precomposition by the replacement augmentation. -/
 def modelComparisonIso (M N : max J O) :
-    objOfModels (injectiveModel M) (injectiveModel N) ≅ obj M N :=
-  asIso (modelComparisonMap M N)
+    objOfModels (injectiveModel M) (injectiveModel N) ≅ obj M N := by
+  apply Localization.isoOfHom DerivedCategory.Q
+    (HomologicalComplex.quasiIso (ringedSiteModuleCategory J O) (.up ℤ))
+    ((strictInternalHom.map (sourceToInjectiveModel M).op).app (injectiveModel N))
+  exact strictInternalHom_quasiIso_precomp
+    (sourceToInjectiveModel M) (sourceToInjectiveModel_quasiIso M) (injectiveModel N)
+
+/-- Actual source precomposition becomes invertible in the derived category. -/
+instance modelComparisonMap_isIso (M N : max J O) :
+    IsIso (modelComparisonMap M N) :=
+  inferInstanceAs (IsIso (modelComparisonIso M N).hom)
 
 /-- The comparison's forward morphism is the displayed actual strict precomposition. -/
 @[simp]

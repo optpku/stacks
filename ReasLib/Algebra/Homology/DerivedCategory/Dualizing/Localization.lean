@@ -26,10 +26,11 @@ theorem localization
     {A : Type u} [CommRing A] [IsNoetherianRing A] (S : Submonoid A)
     [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
     [MonoidalCategory (DerivedCategory (ModuleCat.{u} (Localization S)))]
-    (HA : MonoidalClosed (DerivedCategory (ModuleCat.{u} A)))
-    (HB : MonoidalClosed (DerivedCategory (ModuleCat.{u} (Localization S))))
-    (ω : DerivedCategory (ModuleCat.{u} A)) (hω : ω.IsDualizingComplex HA) :
+    (CA : CanonicalClosedPresentation (A := A))
+    (CB : CanonicalClosedPresentation (A := Localization S))
+    (ω : DerivedCategory (ModuleCat.{u} A))
+    (hω : ω.IsCanonicalDualizingComplex CA) :
     ((ModuleCat.derivedExtensionOfScalars
-      (algebraMap A (Localization S))).obj ω).IsDualizingComplex HB := sorry
+      (algebraMap A (Localization S))).obj ω).IsCanonicalDualizingComplex CB := sorry
 
 end CategoryTheory.DerivedCategory.IsDualizingComplex

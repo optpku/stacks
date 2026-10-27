@@ -38,10 +38,3 @@ point exactly when that generic point belongs to the subset. -/
 theorem IsGenericPoint.dense_preimage_iff_mem_of_isFiniteUnionOfLocallyClosed
     {Z E : Set X} {x : X} (hx : IsGenericPoint x Z) (hE : IsFiniteUnionOfLocallyClosed E) :
     Dense (Z ↓∩ E) ↔ x ∈ E := sorry
-
-/-- The explicit irreducible-set presentation of the generic-point dense trace criterion. -/
-@[stacks 005K "generic-point membership criterion"]
-theorem IsIrreducible.dense_preimage_iff_mem_of_isGenericPoint_of_isFiniteUnionOfLocallyClosed
-    {Z E : Set X} {x : X} (hZ : IsIrreducible Z) (hx : IsGenericPoint x Z)
-    (hE : IsFiniteUnionOfLocallyClosed E) :
-    Dense (Z ↓∩ E) ↔ x ∈ E := sorry

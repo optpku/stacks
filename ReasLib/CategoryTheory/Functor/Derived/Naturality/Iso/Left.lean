@@ -31,7 +31,7 @@ variable [L.IsLocalization W]
 
 /-- The hom of an induced left-derived isomorphism satisfies the universal-property
 factorization equation. -/
-@[stacks 05T2, reassoc (attr := simp)]
+@[reassoc (attr := simp)]
 theorem hom_fac
     (LF LG : D ⥤ H) (α : L ⋙ LF ⟶ F) (β : L ⋙ LG ⟶ G)
     [LF.IsLeftDerivedFunctor α W] [LG.IsLeftDerivedFunctor β W] (e : F ≅ G) :
@@ -43,7 +43,7 @@ theorem hom_fac
 
 /-- Objectwise universal-property equation for the hom of an induced left-derived
 isomorphism. -/
-@[stacks 05T2, reassoc (attr := simp)]
+@[reassoc (attr := simp)]
 theorem hom_fac_app
     (LF LG : D ⥤ H) (α : L ⋙ LF ⟶ F) (β : L ⋙ LG ⟶ G)
     [LF.IsLeftDerivedFunctor α W] [LG.IsLeftDerivedFunctor β W]
@@ -56,7 +56,7 @@ theorem hom_fac_app
 
 /-- The inverse of an induced left-derived isomorphism satisfies the reverse
 universal-property factorization equation. -/
-@[stacks 05T2, reassoc (attr := simp)]
+@[reassoc (attr := simp)]
 theorem inv_fac
     (LF LG : D ⥤ H) (α : L ⋙ LF ⟶ F) (β : L ⋙ LG ⟶ G)
     [LF.IsLeftDerivedFunctor α W] [LG.IsLeftDerivedFunctor β W] (e : F ≅ G) :
@@ -68,7 +68,7 @@ theorem inv_fac
 
 /-- Objectwise universal-property equation for the inverse of an induced left-derived
 isomorphism. -/
-@[stacks 05T2, reassoc (attr := simp)]
+@[reassoc (attr := simp)]
 theorem inv_fac_app
     (LF LG : D ⥤ H) (α : L ⋙ LF ⟶ F) (β : L ⋙ LG ⟶ G)
     [LF.IsLeftDerivedFunctor α W] [LG.IsLeftDerivedFunctor β W]

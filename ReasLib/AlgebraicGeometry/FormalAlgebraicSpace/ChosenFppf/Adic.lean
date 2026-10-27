@@ -136,7 +136,7 @@ theorem isColimitMapOf_iff {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
                                 (cU.ι.app n ≫ iU.hom) ≫ g =
                                   (𝒮.bigTopology S).sheafifiedRepresentableMap
                                       ((𝒮.bigAffineInclusion S).map (τ.app n)) ≫
-                                    (cV.ι.app n ≫ iV.hom) := sorry
+                                    (cV.ι.app n ≫ iV.hom) := Iff.rfl
 
 /-- A morphism of locally adic* formal algebraic spaces is adic when it is
 representable by algebraic spaces. -/
@@ -156,7 +156,24 @@ instance id {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
     [HasWeakSheafify (𝒮.bigTopology S) (Type (max u v))]
     [HasPullbacks (Sheaf (𝒮.bigTopology S) (Type (max u v)))]
     {X : Sheaf (𝒮.bigTopology S) (Type (max u v))}
-    [IsLocallyAdicStar X] : Adic (𝟙 X) := sorry
+    [IsLocallyAdicStar X] : Adic (𝟙 X) := by
+  refine ⟨fun {U} ξ ↦ ?_⟩
+  let e := (asIso (pullback.fst ξ (𝟙 X))).symm
+  have hU : IsAlgebraicSpace ((𝒮.bigTopology S).sheafifiedRepresentable U) :=
+    inferInstance
+  refine ⟨?_, ?_⟩
+  · change (𝒮.bigTopology S).sheafifiedRepresentableFunctor.relativelyRepresentable
+      (diag (pullback ξ (𝟙 X)))
+    exact ((𝒮.bigTopology S).sheafifiedRepresentableFunctor.relativelyRepresentable.arrow_mk_iso_iff
+      (Arrow.isoMk e (prod.mapIso e e) (prod.diag_map e.hom).symm)).mp
+        hU.representableDiagonal
+  · obtain ⟨V, p, hp, hsurj⟩ := hU.atlas
+    refine ⟨V, p ≫ e.hom, ?_, ?_⟩
+    · exact MorphismProperty.RespectsIso.postcomp
+        ((MorphismProperty.inverseImage (@Etale) (𝒮.bigToScheme S)).relative
+          (𝒮.bigTopology S).sheafifiedRepresentableFunctor) e.hom p hp
+    · letI := hsurj
+      infer_instance
 
 /-- A morphism of locally adic* formal algebraic spaces that is representable
 by algebraic spaces is adic. -/
@@ -165,7 +182,7 @@ theorem of {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
     [HasPullbacks (Sheaf (𝒮.bigTopology S) (Type (max u v)))]
     {X Y : Sheaf (𝒮.bigTopology S) (Type (max u v))}
     [IsLocallyAdicStar X] [IsLocallyAdicStar Y] {f : X ⟶ Y}
-    (hf : representableByAlgebraicSpaces f) : Adic f := sorry
+    (hf : representableByAlgebraicSpaces f) : Adic f := ⟨hf⟩
 
 /-- A morphism of locally adic* formal algebraic spaces is adic iff it is
 representable by algebraic spaces. -/
@@ -174,7 +191,8 @@ theorem iff {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
     [HasPullbacks (Sheaf (𝒮.bigTopology S) (Type (max u v)))]
     {X Y : Sheaf (𝒮.bigTopology S) (Type (max u v))}
     [IsLocallyAdicStar X] [IsLocallyAdicStar Y] (f : X ⟶ Y) :
-    Adic f ↔ representableByAlgebraicSpaces f := sorry
+    Adic f ↔ representableByAlgebraicSpaces f :=
+  ⟨fun h ↦ h.representable, fun hf ↦ ⟨hf⟩⟩
 
 /-- An adic morphism has algebraic-space base change along every sheafified
 representable. -/
@@ -184,7 +202,8 @@ theorem spec {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
     {X Y : Sheaf (𝒮.bigTopology S) (Type (max u v))}
     [IsLocallyAdicStar X] [IsLocallyAdicStar Y] (f : X ⟶ Y) [Adic f]
     {U : 𝒮.bigSite S} (ξ : (𝒮.bigTopology S).sheafifiedRepresentable U ⟶ Y) :
-    IsAlgebraicSpace (pullback ξ f) := sorry
+    IsAlgebraicSpace (pullback ξ f) :=
+  Adic.representable ξ
 
 /-- A morphism of locally adic* formal algebraic spaces is adic iff every
 commutative square of étale affine charts that are representable by algebraic
@@ -253,6 +272,7 @@ theorem chart_isAdicHom {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
     [IsAdicRing A] [IsAdicRing B]
     (φ : B →+* A) (I : Ideal A) (J : Ideal B)
     (hinduces : IsColimitMapOf φ I J g) :
-    φ.IsAdicHom := sorry
+    φ.IsAdicHom :=
+  (isAdicHom_iff g φ I J hinduces).mpr inferInstance
 
 end AlgebraicGeometry

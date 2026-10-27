@@ -55,7 +55,9 @@ variable {p : S ⥤ C} {x : S} {V : C} {f : V ⟶ p.obj x}
 
 /-- The source of a strongly cartesian lift lies over the domain of its base arrow. -/
 @[simp]
-theorem sourceObj (l : StronglyCartesianLift p f) : p.obj l.source = V := sorry
+theorem sourceObj (l : StronglyCartesianLift p f) : p.obj l.source = V := by
+  letI := l.isStronglyCartesian
+  exact IsHomLift.domain_eq p f l.hom
 /- Proof strategy: use the `IsHomLift` instance inherited from `l.isStronglyCartesian` and apply
 `IsHomLift.domain_eq p f l.hom`. -/
 
@@ -92,7 +94,10 @@ namespace Cleavage
 variable {p : S ⥤ C}
 
 /-- A cleavage exhibits its projection as a fibred category. -/
-theorem isFibered (χ : p.Cleavage) : p.IsFibered := sorry
+theorem isFibered (χ : p.Cleavage) : p.IsFibered := by
+  apply IsFibered.of_exists_isStronglyCartesian
+  intro x V f
+  exact ⟨(χ.lift f).source, (χ.lift f).hom, (χ.lift f).isStronglyCartesian⟩
 /- Proof strategy: apply `IsFibered.of_exists_isStronglyCartesian`; for each requested lift, use
 `χ.lift f` and project its `source`, `hom`, and `isStronglyCartesian` fields. -/
 
@@ -110,7 +115,13 @@ noncomputable def ofIsFibered (p : S ⥤ C) [p.IsFibered] : Cleavage p where
 bridge records both directions without presenting the noncanonical choice `ofIsFibered` as
 canonical data. -/
 theorem nonempty_iff_isFibered (p : S ⥤ C) :
-    Nonempty p.Cleavage ↔ p.IsFibered := sorry
+    Nonempty p.Cleavage ↔ p.IsFibered := by
+  constructor
+  · rintro ⟨χ⟩
+    exact χ.isFibered
+  · intro hp
+    letI := hp
+    exact ⟨ofIsFibered p⟩
 /- Proof strategy: in the forward direction, choose the cleavage and apply `Cleavage.isFibered`;
 in the reverse direction, install the supplied `p.IsFibered` proof and use
 `Nonempty.intro (Cleavage.ofIsFibered p)`. -/

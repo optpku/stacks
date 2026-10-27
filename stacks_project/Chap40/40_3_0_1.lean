@@ -19,7 +19,7 @@ variable {S : AlgebraicGeometry.Scheme.{u}} (G : AlgebraicGeometry.GroupoidSchem
 
 /- 40.3.0.1: composition has the target of the later arrow. -/
 @[stacks 04LF] #check
-  (AlgebraicGeometry.GroupoidScheme.composition_target G :
+  (AlgebraicGeometry.GroupoidScheme.comp_target G :
     G.c ≫ G.t = pullback.fst G.s G.t ≫ G.t)
 
 /- The projections from the composable-arrow pullback have matching source and target. -/

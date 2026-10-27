@@ -56,11 +56,11 @@ theorem map_restrictOpen_eq (Y : IrreducibleCloseds X) (U : Opens X)
     IrreducibleCloseds.map (Subtype.val : U → X) continuous_subtype_val
       (Y.restrictOpen U hYU) = Y := sorry
 
-end TopologicalSpace.IrreducibleCloseds
-
 /-- An irreducible closed subset has the same codimension after restricting to an
 open subspace that it meets. -/
 @[stacks 02I4]
-theorem coheight_eq_restrictOpen (Y : TopologicalSpace.IrreducibleCloseds X) (U : Opens X)
+theorem coheight_restrictOpen (Y : IrreducibleCloseds X) (U : Opens X)
     (hYU : ((Y : Set X) ∩ U).Nonempty) :
-    coheight Y = coheight (Y.restrictOpen U hYU) := sorry
+    coheight (Y.restrictOpen U hYU) = coheight Y := sorry
+
+end TopologicalSpace.IrreducibleCloseds

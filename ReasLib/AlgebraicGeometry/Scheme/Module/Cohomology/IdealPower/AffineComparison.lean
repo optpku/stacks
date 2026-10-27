@@ -7,6 +7,7 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Cohomology.GlobalSections
+public import ReasLib.AlgebraicGeometry.Scheme.Module.Cohomology.IdealPower.Graded
 public import ReasLib.AlgebraicGeometry.Scheme.Module.IdealPower.Product
 public import ReasLib.Algebra.Module.IdealPower.Submodule
 public import ReasLib.CategoryTheory.Pro.Sequential.Isomorphism
@@ -38,15 +39,11 @@ variable {A : Type u} [CommRing A]
 variable {X : Scheme.{u}}
 variable [HasExt (Sheaf (Opens.grothendieckTopology X.carrier) AddCommGrpCat.{u})]
 
-/-- The sheaf `I^n F` obtained by applying the pullback of `I` along `f`. -/
-noncomputable abbrev product (I : Ideal A) (f : X ⟶ Spec (CommRingCat.of A))
-    (F : X.Modules) (n : ℕ) : X.Modules :=
-  (idealPowerProductSubobject ((idealSheafDataOfIdealOnSpec I).comap f) F n : X.Modules)
-
 /-- The inclusion `I^(n+1) F ⟶ I^n F` of consecutive ideal-power products. -/
 noncomputable def productStep (I : Ideal A) (f : X ⟶ Spec (CommRingCat.of A))
     (F : X.Modules) (n : ℕ) :
-    product I f F (n + 1) ⟶ product I f F n :=
+    product (idealSheafDataOfIdealOnSpec I) f F (n + 1) ⟶
+      product (idealSheafDataOfIdealOnSpec I) f F n :=
   Subobject.ofLE
     (idealPowerProductSubobject ((idealSheafDataOfIdealOnSpec I).comap f) F (n + 1))
     (idealPowerProductSubobject ((idealSheafDataOfIdealOnSpec I).comap f) F n)
@@ -62,7 +59,7 @@ theorem productStep_comp_arrow (I : Ideal A) (f : X ⟶ Spec (CommRingCat.of A))
 /-- The cohomology object `H^p(X, I^n F)` as an `A`-module. -/
 noncomputable abbrev stage (I : Ideal A) (f : X ⟶ Spec (CommRingCat.of A))
     (F : X.Modules) (p n : ℕ) : ModuleCat A :=
-  Hom.cohomology f (product I f F n) p
+  Hom.cohomology f (product (idealSheafDataOfIdealOnSpec I) f F n) p
 
 /-- The successor transition on `H^p(X, I^n F)`. -/
 noncomputable def step (I : Ideal A) (f : X ⟶ Spec (CommRingCat.of A))
@@ -152,7 +149,8 @@ noncomputable def mulMapApp (I : Ideal A) (f : X ⟶ Spec (CommRingCat.of A))
     stage I f F p c ⟶ stage I f F p n :=
   (Hom.cohomologyFunctor f p).map
     (IdealPowerProduct.actionMap I f F (m := n - c) (n := c) a ≫
-      eqToHom (congrArg (product I f F) (Nat.sub_add_cancel h)))
+      eqToHom (congrArg (product (idealSheafDataOfIdealOnSpec I) f F)
+        (Nat.sub_add_cancel h)))
 
 /-- The coefficient action on ideal-power cohomology is additive in the coefficient. -/
 theorem mulMapApp_add (I : Ideal A) (f : X ⟶ Spec (CommRingCat.of A))

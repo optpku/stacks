@@ -88,10 +88,6 @@ structure GroupoidScheme (S : Scheme.{u}) where
 
 namespace GroupoidScheme
 
-/-- The target of a composite arrow is the target of its later arrow. -/
-theorem composition_target {S : Scheme.{u}} (G : GroupoidScheme S) :
-    G.c ≫ G.t = pullback.fst G.s G.t ≫ G.t := sorry
-
 /-- The discrete groupoid scheme on a scheme `U` over `S`. -/
 def discrete {S : Scheme.{u}} (U : Over S) : GroupoidScheme S where
   U := U

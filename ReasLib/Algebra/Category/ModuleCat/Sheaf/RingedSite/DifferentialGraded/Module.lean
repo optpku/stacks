@@ -44,7 +44,7 @@ local notation "ModO" => ringedSiteModuleCategory J 𝒪
 -- ambient-module parser boundary and carries no local choice or instance.
 local notation "CpxO" => CochainComplex ModO ℤ
 
-/-- Definition 24.13.1 (1): a differential graded `𝒜`-module sheaf is a cochain complex of
+/-- A differential graded `𝒜`-module sheaf is a cochain complex of
 `𝒪`-modules with a degreewise right `𝒜`-action satisfying associativity, the unit law, and the
 Leibniz rule. -/
 @[stacks 0FRI]
@@ -120,7 +120,7 @@ theorem coe_apply {𝒜 : DGA(𝒪)} (ℳ : Mod(𝒜, d)) (n : ℤ) :
 theorem toComplex_X {𝒜 : DGA(𝒪)} (ℳ : Mod(𝒜, d)) (n : ℤ) :
     ℳ.toComplex.X n = ℳ n := sorry
 
-/-- Definition 24.13.1 (2): a homomorphism of differential graded `𝒜`-module sheaves is a
+/-- A homomorphism of differential graded `𝒜`-module sheaves is a
 cochain map compatible with the right action. -/
 @[stacks 0FRI, ext]
 structure Hom {𝒜 : DGA(𝒪)} (ℳ N : Mod(𝒜, d)) where
@@ -227,7 +227,7 @@ noncomputable instance hasZeroMorphisms (𝒜 : DGA(𝒪)) : HasZeroMorphisms Mo
 theorem zero_toCochainMap {𝒜 : DGA(𝒪)} (ℓ N : Mod(𝒜, d)) :
     (0 : ℓ ⟶ N).toCochainMap = 0 := sorry
 
-/-- Definition 24.13.1 (3): the category of differential graded `𝒜`-module sheaves. -/
+/-- The category of differential graded `𝒜`-module sheaves. -/
 @[stacks 0FRI]
 abbrev moduleCategory (𝒜 : DGA(𝒪)) := Mod(𝒜, d)
 
@@ -261,6 +261,30 @@ theorem forgetToComplex_map_f {𝒜 : DGA(𝒪)} {ℳ N : Mod(𝒜, d)} (f : ℳ
 /-- Forgetting to cochain complexes is faithful. -/
 instance forgetToComplex_faithful (𝒜 : DGA(𝒪)) : Functor.Faithful (forgetToComplex 𝒜) where
   map_injective := sorry
+
+end DifferentialGradedModule
+
+end
+
+section
+
+variable {C : Type u} [Category.{v} C] {J : GrothendieckTopology C}
+variable [J.HasSheafCompose (forget₂ CommRingCat RingCat)]
+variable [HasWeakSheafify J AddCommGrpCat.{max u v}]
+variable [J.WEqualsLocallyBijective AddCommGrpCat.{max u v}]
+variable {𝒪 : Sheaf J CommRingCat.{max u v}}
+
+namespace DifferentialGradedModule
+
+/-- The regular right differential graded module of an algebra sheaf has the algebra's
+underlying cochain complex and multiplication as its right action. -/
+@[reducible]
+def regular (𝒜 : DGA(𝒪)) : DifferentialGradedModule 𝒜 where
+  toComplex := 𝒜.toComplex
+  smul := 𝒜.mul
+  smul_assoc := 𝒜.mul_assoc
+  one_smul := 𝒜.mul_one
+  d_smul := 𝒜.d_mul
 
 end DifferentialGradedModule
 

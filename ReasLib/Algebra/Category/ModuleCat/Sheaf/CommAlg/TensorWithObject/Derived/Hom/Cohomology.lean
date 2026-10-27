@@ -103,6 +103,7 @@ noncomputable abbrev targetLinearEquiv
 
 end TargetCohomology
 
+set_option maxHeartbeats 800000 in
 /-- Naturality of the degree-`n` cohomology comparison in both derived variables. -/
 @[reassoc, stacks 0CS6 "naturality of the arbitrary-ring cohomology comparison"]
 theorem comparison_naturality (K : Complex.{r, u, v, w, max u z} O) (n : ℤ)

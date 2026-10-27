@@ -62,7 +62,7 @@ theorem changeLegs.obj.left
     (α : Pseudofunctor.StrongTrans F' F)
     (β : Pseudofunctor.StrongTrans G G')
     (S : PseudoComma F G) :
-    ColaxComma.left (changeLegs.obj α β S) = ColaxComma.left S := sorry
+    ColaxComma.left (changeLegs.obj α β S) = ColaxComma.left S := rfl
 
 /-- Changing pseudo comma legs retains the right endpoint object. -/
 @[simp]
@@ -70,7 +70,7 @@ theorem changeLegs.obj.right
     (α : Pseudofunctor.StrongTrans F' F)
     (β : Pseudofunctor.StrongTrans G G')
     (S : PseudoComma F G) :
-    ColaxComma.right (changeLegs.obj α β S) = ColaxComma.right S := sorry
+    ColaxComma.right (changeLegs.obj α β S) = ColaxComma.right S := rfl
 
 /-- The structural map after changing pseudo comma legs is the explicit
 left-transformation, original structural-map, right-transformation composite. -/
@@ -81,7 +81,7 @@ theorem changeLegs.obj.hom
     (S : PseudoComma F G) :
     ColaxComma.hom (changeLegs.obj α β S) =
       α.app (ColaxComma.left S) ≫ ColaxComma.hom S ≫
-        β.app (ColaxComma.right S) := sorry
+        β.app (ColaxComma.right S) := rfl
 
 /-- The invertible comparison cell for a pseudo comma morphism after changing
 both legs.
@@ -145,7 +145,7 @@ theorem changeLegs.map.left
     (β : Pseudofunctor.StrongTrans G G')
     {S T : PseudoComma F G} (u : S ⟶ T) :
     left (F := F') (G := G') (changeLegs.map α β u) =
-      left (F := F) (G := G) u := sorry
+      left (F := F) (G := G) u := rfl
 
 /-- Changing pseudo comma legs leaves the right endpoint map unchanged. -/
 @[simp]
@@ -154,7 +154,7 @@ theorem changeLegs.map.right
     (β : Pseudofunctor.StrongTrans G G')
     {S T : PseudoComma F G} (u : S ⟶ T) :
     right (F := F') (G := G') (changeLegs.map α β u) =
-      right (F := F) (G := G) u := sorry
+      right (F := F) (G := G) u := rfl
 
 /-- The selected comparison of a pseudo comma morphism after changing both
 legs is the explicit pasted comparison isomorphism. -/
@@ -164,7 +164,9 @@ theorem changeLegs.map.cellIso
     (β : Pseudofunctor.StrongTrans G G')
     {S T : PseudoComma F G} (u : S ⟶ T) :
     PseudoComma.cellIso (F := F') (G := G') (changeLegs.map α β u) =
-      changeLegs.cellIso α β u := sorry
+      changeLegs.cellIso α β u := by
+  apply Iso.ext
+  rfl
 
 /-- The structural cell of a changed-leg pseudo comma morphism is the forward
 cell of the canonical pasted comparison. -/
@@ -174,10 +176,11 @@ theorem changeLegs.map.cell
     (β : Pseudofunctor.StrongTrans G G')
     {S T : PseudoComma F G} (u : S ⟶ T) :
     cell (F := F') (G := G') (changeLegs.map α β u) =
-      (changeLegs.cellIso α β u).hom := sorry
+      (changeLegs.cellIso α β u).hom := rfl
 
 namespace Implementation
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The unchanged endpoint cells of a pseudo comma cell remain compatible
 after changing both legs. -/
 private theorem map₂_w
@@ -189,7 +192,25 @@ private theorem map₂_w
         cell (F := F') (G := G') (changeLegs.map α β v) =
       cell (F := F') (G := G') (changeLegs.map α β u) ≫
         (ColaxComma.hom (changeLegs.obj α β S) ◁
-          G'.map₂ (right₂ (F := F) (G := G) η)) := sorry
+          G'.map₂ (right₂ (F := F) (G := G) η)) := by
+  have hη :
+      (F.map₂ (left₂ (F := F) (G := G) η) ▷ ColaxComma.hom T) ≫
+          (PseudoComma.cellIso v).hom =
+        (PseudoComma.cellIso u).hom ≫
+          (ColaxComma.hom S ◁ G.map₂ (right₂ (F := F) (G := G) η)) :=
+    η.hom.w
+  simp only [changeLegs.map.cell, changeLegs.obj.hom,
+    changeLegs.cellIso, Iso.trans_hom, Iso.symm_hom,
+    whiskerLeftIso_hom, whiskerRightIso_hom, Category.assoc]
+  simp only [associator_inv_naturality_left_assoc,
+    Pseudofunctor.StrongTrans.whiskerRight_naturality_naturality_assoc,
+    changeLegs.obj.left, Iso.inv_hom_id_assoc]
+  simp only [← whiskerLeft_comp_assoc]
+  simp only [associator_inv_naturality_left_assoc, ← comp_whiskerRight_assoc]
+  rw [hη]
+  simp only [comp_whiskerRight, Category.assoc, associator_naturality_middle_assoc,
+    Pseudofunctor.StrongTrans.whiskerLeft_naturality_naturality_assoc]
+  bicategory
 
 end Implementation
 
@@ -212,7 +233,7 @@ theorem changeLegs.map₂.left
     (β : Pseudofunctor.StrongTrans G G')
     {S T : PseudoComma F G} {u v : S ⟶ T} (η : u ⟶ v) :
     left₂ (F := F') (G := G') (changeLegs.map₂ α β η) =
-      left₂ (F := F) (G := G) η := sorry
+      left₂ (F := F) (G := G) η := rfl
 
 /-- Changing pseudo comma legs leaves the right endpoint cell unchanged. -/
 @[simp]
@@ -221,18 +242,19 @@ theorem changeLegs.map₂.right
     (β : Pseudofunctor.StrongTrans G G')
     {S T : PseudoComma F G} {u v : S ⟶ T} (η : u ⟶ v) :
     right₂ (F := F') (G := G') (changeLegs.map₂ α β η) =
-      right₂ (F := F) (G := G) η := sorry
+      right₂ (F := F) (G := G) η := rfl
 
 /- Data and axiom audit (mathlib 4.32):
 
 `changeLegs.obj` stores the explicit triple structural composite, and
 `changeLegs.cellIso` owns the displayed pasting of the two naturality
 isomorphisms with the selected comma comparison. `changeLegs.map₂` retains its
-two endpoint cells literally. The only new deferred content is compatibility
-of these explicit cells. `#print axioms` also reports `sorryAx` because the
-ambient `PseudoComma` type carries the inherited
-`ColaxComma.pseudoHomProperty.isMultiplicative` proof instance; it does not
-select any of the displayed non-`Prop` data. -/
+two endpoint cells literally. Their compatibility follows from the two strong
+transformation naturality equations and the original comma compatibility.
+`#print axioms` still reports inherited `sorryAx` from the ambient comma and
+locally induced bicategory proof fields, including
+`ColaxComma.pseudoHomProperty.isMultiplicative`; these do not select any of
+the displayed non-`Prop` data. -/
 
 end PseudoComma
 

@@ -46,20 +46,30 @@ variable {kappa lambda : Cardinal.{w}} {K L : HomologicalComplex C c}
 /-- Evaluate a termwise subobject-cardinality bound in one degree. -/
 theorem degree (hK : BoundedBy kappa K) (i : I) :
     Cardinal.lift.{w, max u v} (Cardinal.mk (Subobject (K.X i))) ≤
-      Cardinal.lift.{max u v, w} kappa := sorry
+      Cardinal.lift.{max u v, w} kappa := hK i
 
 /-- A termwise subobject-cardinality bound remains valid after enlarging the cardinal. -/
-theorem mono (hK : BoundedBy kappa K) (hkl : kappa ≤ lambda) : BoundedBy lambda K := sorry
+theorem mono (hK : BoundedBy kappa K) (hkl : kappa ≤ lambda) : BoundedBy lambda K :=
+  fun i ↦ (hK i).trans (Cardinal.lift_le.mpr hkl)
 
 /-- A termwise subobject-cardinality bound transports across an isomorphism of complexes. -/
-theorem of_iso (hK : BoundedBy kappa K) (e : K ≅ L) : BoundedBy kappa L := sorry
+theorem of_iso (hK : BoundedBy kappa K) (e : K ≅ L) : BoundedBy kappa L := by
+  intro i
+  have h := Subobject.cardinalMk_eq_of_iso ((HomologicalComplex.eval C c i).mapIso e)
+  change Cardinal.mk (Subobject (K.X i)) = Cardinal.mk (Subobject (L.X i)) at h
+  rw [← h]
+  exact hK i
 
 /-- Isomorphic complexes satisfy the same termwise subobject-cardinality bounds. -/
-theorem iso_iff (e : K ≅ L) : BoundedBy kappa K ↔ BoundedBy kappa L := sorry
+theorem iso_iff (e : K ≅ L) : BoundedBy kappa K ↔ BoundedBy kappa L :=
+  ⟨fun h ↦ h.of_iso e, fun h ↦ h.of_iso e.symm⟩
 
 /-- The ambient universe cardinal bounds the subobject lattice of every term. -/
 theorem univ (K : HomologicalComplex C c) :
-    BoundedBy (Cardinal.univ.{max u v, max u v + 1}) K := sorry
+    BoundedBy (Cardinal.univ.{max u v, max u v + 1}) K := by
+  intro i
+  simpa using
+    (Cardinal.lift_lt_univ (Cardinal.mk (Subobject (K.X i)))).le
 
 end BoundedBy
 end General
@@ -73,7 +83,10 @@ variable {kappa : Cardinal.{w}} {K : CochainComplex C ℤ}
 
 /-- Shifting a cochain complex preserves a termwise subobject-cardinality bound. -/
 theorem shift (hK : BoundedBy kappa K) (n : ℤ) :
-    BoundedBy kappa ((CochainComplex.shiftFunctor C n).obj K) := sorry
+    BoundedBy kappa ((CochainComplex.shiftFunctor C n).obj K) := by
+  intro i
+  rw [Subobject.cardinalMk_eq_of_iso (K.shiftFunctorObjXIso n i (i + n) rfl)]
+  exact hK (i + n)
 
 end Cochain
 

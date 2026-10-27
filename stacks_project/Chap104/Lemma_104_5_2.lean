@@ -6,7 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap104.Lemma_104_5_2_Comparison
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Derived.EtaleFppf
 import StacksCheckRecall
 
 /-!
@@ -31,36 +31,46 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicStack
 
-variable {S : Scheme.{u}} (X : GroupoidsOver S) [AlgebraicStack X]
-
 /- Lemma 104.5.2 (1): the comparison morphism `ε : X_fppf ⟶ X_étale` induces a
 commutative square relating `D_{LQCoh^{fbc}}(𝒪_X)` and `D(𝒪_X)` to the étale
 counterparts, with vertical arrows `ε^*`. -/
 @[stacks 07B8]
-#check (etaleFppfInverseImageDerivedLQCohFbc_comp_inclusion X)
+#check (AlgebraicGeometry.AlgebraicStack.etaleFppfInverseImageDerivedLQCohFbc_comp_inclusion :
+  ∀ {S : Scheme.{u}} (X : GroupoidsOver S) [AlgebraicStack X],
+    etaleFppfInverseImageDerivedLQCohFbc X ⋙ DerivedLQCohFbc.inclusion X ≅
+      DerivedLQCohFbcEtale.inclusion X ⋙ etaleFppfInverseImageDerived X)
 
 /- Lemma 104.5.2 (2): the comparison morphism `ε : X_fppf ⟶ X_étale` induces a
 commutative square relating `D_{Parasitic ∩ LQCoh^{fbc}}(𝒪_X)` and
 `D_{LQCoh^{fbc}}(𝒪_X)` to `D_{P_X}(X_étale, 𝒪_X)` and
 `D_{LQCoh^{fbc}(𝒪_X)}(X_étale, 𝒪_X)`, with vertical arrows `ε^*`. -/
 @[stacks 07B8]
-#check (etaleFppfInverseImageDerivedParasitic_comp_inclusion X)
+#check (AlgebraicGeometry.AlgebraicStack.etaleFppfInverseImageDerivedParasitic_comp_inclusion :
+  ∀ {S : Scheme.{u}} (X : GroupoidsOver S) [AlgebraicStack X],
+    etaleFppfInverseImageDerivedParasitic X ⋙ (derivedParasitic X).ι ≅
+      (derivedParasiticEtale X).ι ⋙ etaleFppfInverseImageDerivedLQCohFbc X)
 
 /- Lemma 104.5.2 (3): the middle vertical arrow
 `ε^* : D_{LQCoh^{fbc}(𝒪_X)}(X_étale, 𝒪_X) ⥤ D_{LQCoh^{fbc}}(𝒪_X)` is an
 equivalence of triangulated categories. -/
 @[stacks 07B8]
-#check (etaleFppfInverseImageDerivedLQCohFbc.instIsEquivalence X)
+#check (AlgebraicGeometry.AlgebraicStack.etaleFppfInverseImageDerivedLQCohFbc.instIsEquivalence :
+  ∀ {S : Scheme.{u}} (X : GroupoidsOver S) [AlgebraicStack X],
+    (etaleFppfInverseImageDerivedLQCohFbc X).IsEquivalence)
 
 /- Lemma 104.5.2 (4): the left vertical arrow
 `ε^* : D_{P_X}(X_étale, 𝒪_X) ⥤ D_{Parasitic ∩ LQCoh^{fbc}}(𝒪_X)` is an
 equivalence of triangulated categories. -/
 @[stacks 07B8]
-#check (etaleFppfInverseImageDerivedParasitic.instIsEquivalence X)
+#check (AlgebraicGeometry.AlgebraicStack.etaleFppfInverseImageDerivedParasitic.instIsEquivalence :
+  ∀ {S : Scheme.{u}} (X : GroupoidsOver S) [AlgebraicStack X],
+    (etaleFppfInverseImageDerivedParasitic X).IsEquivalence)
 
 /- Lemma 104.5.2 (5): the comparison therefore induces an equivalence
 `D_{LQCoh^{fbc}(𝒪_X)}(X_étale, 𝒪_X) / D_{P_X}(X_étale, 𝒪_X) ⥤ D_QCoh(𝒪_X)`. -/
 @[stacks 07B8]
-#check (etaleFppfInverseImageDerivedQCoh.instIsEquivalence X)
+#check (AlgebraicGeometry.AlgebraicStack.etaleFppfInverseImageDerivedQCoh.instIsEquivalence :
+  ∀ {S : Scheme.{u}} (X : GroupoidsOver S) [AlgebraicStack X],
+    (etaleFppfInverseImageDerivedQCoh X).IsEquivalence)
 
 end AlgebraicGeometry.AlgebraicStack

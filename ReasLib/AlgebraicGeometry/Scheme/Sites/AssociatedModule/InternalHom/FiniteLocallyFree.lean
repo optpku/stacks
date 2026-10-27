@@ -32,6 +32,6 @@ instance bigModuleInternalHomComparisonIsIsoOfFiniteLocallyFree
     (S : Scheme.{u}) (τ : StandardTopology) (F G : Scheme.QCoh S)
     [F.obj.IsFiniteLocallyFree] :
     IsIso (bigModuleInternalHomComparison S τ F G
-      (inferInstance : F.obj.IsFinitePresentation)) := sorry
+      (SheafOfModules.IsFiniteLocallyFree.isFinitePresentation F.obj)) := sorry
 
 end AlgebraicGeometry.Scheme.AssociatedModule

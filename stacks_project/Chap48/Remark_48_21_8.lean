@@ -47,7 +47,9 @@ namespace AlgebraicGeometry.Scheme.NewUpperShriekAssignment
 
 /- Remark 48.21.8 (3): the relative Tor-amplitude bound for flat morphisms. -/
 @[stacks 0BV9] #check
-  (AlgebraicGeometry.Scheme.NewUpperShriekAssignment.dualizingObject_hasTorAmplitudeInOver_of_flat :
+  ((by
+    intro S _ _ H ωS hωS D X Y f _ d _
+    exact D.dualizingObject_hasTorAmplitudeInOver_of_flat f d) :
     ∀ {S : Scheme.{u}} [IsNoetherian S]
       [MonoidalCategory (RingedSpace.ModuleDerived S.toRingedSpace)]
       {H : MonoidalClosed (RingedSpace.ModuleDerived S.toRingedSpace)}

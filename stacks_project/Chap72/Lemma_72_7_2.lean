@@ -6,11 +6,14 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Meromorphic.LocallyFinite
+
 public import Mathlib.Topology.LocallyFinite
 public import stacks_project.Chap66.Definition_66_24_1_Noetherian
 public import stacks_project.Chap66.Lemma_66_4_6_Topology
 public import stacks_project.Chap72.Definition_72_4_1_Integral
 public import stacks_project.Chap72.Lemma_72_7_2_Pullback
+import StacksCheckRecall
 
 /-!
 # Local finiteness of prime divisors of a regular meromorphic section
@@ -35,32 +38,22 @@ namespace AlgebraicGeometry.AlgebraicSpace
 variable {S : Scheme.{u}} (X : AlgebraicSpace S)
 variable [IsLocallyNoetherian X] [IsIntegral X]
 
-/-- Lemma 72.7.2 (1): Let `S` be a scheme. Let `X` be a locally Noetherian
-integral algebraic space over `S`. Let `L` be an invertible `𝒪_X`-module.
-Let `s ∈ Γ(X, 𝒦_X(L))` be a regular (i.e., nonzero) meromorphic section of `L`.
-Then the family of prime divisors `Z` with generic point `ξ` such that `s` is
-not in `L_ξ` is locally finite in `Points X`, where
-`L_ξ = (Modules.pullback (fromHenselization X ξ)).obj L`. -/
+/- Lemma 72.7.2 (1): Local finiteness of the prime divisors of a regular meromorphic section. -/
 @[stacks 0EPS]
-theorem locallyFinite_primeDivisors_regularMeromorphicSection_not_regularAt
-    {L : X.Modules} [isInvertibleObject L]
-    (s : meromorphicSections X L) (hs : IsRegularMeromorphicSection X L s) :
+#check (AlgebraicGeometry.AlgebraicSpace.locallyFinite_primeDivisors_regularMeromorphicSection_not_regularAt :
+  ∀ {S : Scheme.{u}} (X : AlgebraicSpace S)
+    [IsLocallyNoetherian X] [IsIntegral X] {L : X.Modules} [isInvertibleObject L]
+    (s : meromorphicSections X L) (hs : IsRegularMeromorphicSection X L s),
     LocallyFinite fun Z : PrimeDivisor X ↦
-      {x | ¬ MeromorphicSection.IsRegularAt s Z.genericPoint ∧ x ∈ Z.pointsSet} :=
-  sorry
+      {x | ¬ MeromorphicSection.IsRegularAt s Z.genericPoint ∧ x ∈ Z.pointsSet})
 
-/-- Lemma 72.7.2 (2): Let `S` be a scheme. Let `X` be a locally Noetherian
-integral algebraic space over `S`. Let `L` be an invertible `𝒪_X`-module.
-Let `s ∈ Γ(X, 𝒦_X(L))` be a regular (i.e., nonzero) meromorphic section of `L`.
-Then the family of prime divisors `Z` with `ord_{Z, L}(s) ≠ 0` is locally
-finite in `Points X`. Nonzero-order supports are encoded as
-`if ord s hs Z = 0 then ∅ else Z.pointsSet`. -/
+/- Lemma 72.7.2 (2): Local finiteness of the prime divisors of a regular meromorphic section. -/
 @[stacks 0EPS]
-theorem locallyFinite_regularMeromorphicSectionOrder_ne_zero
-    {L : X.Modules} [isInvertibleObject L]
-    (s : meromorphicSections X L) (hs : IsRegularMeromorphicSection X L s) :
+#check (AlgebraicGeometry.AlgebraicSpace.locallyFinite_regularMeromorphicSectionOrder_ne_zero :
+  ∀ {S : Scheme.{u}} (X : AlgebraicSpace S)
+    [IsLocallyNoetherian X] [IsIntegral X] {L : X.Modules} [isInvertibleObject L]
+    (s : meromorphicSections X L) (hs : IsRegularMeromorphicSection X L s),
     LocallyFinite fun Z : PrimeDivisor X ↦
-      if MeromorphicSection.ord s hs Z = 0 then (∅ : Set (Points X)) else Z.pointsSet :=
-  sorry
+      if MeromorphicSection.ord s hs Z = 0 then (∅ : Set (Points X)) else Z.pointsSet)
 
 end AlgebraicGeometry.AlgebraicSpace

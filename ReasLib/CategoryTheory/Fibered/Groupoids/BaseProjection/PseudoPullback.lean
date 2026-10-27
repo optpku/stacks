@@ -70,7 +70,7 @@ functors retain the first object and morphism fields, so functor extensionality 
 @[simp] theorem pullbackDown_fst
     (X : FiberedCategoryOver.Groupoids.{u, v, max w (max u v), v} C) :
     pullbackDown X ⋙ π₁ X.p X.p =
-      π₁ (toFunctor X.baseProjection) (toFunctor X.baseProjection) := sorry
+      π₁ (toFunctor X.baseProjection) (toFunctor X.baseProjection) := rfl
 
 /-- pullbackDown preserves the second projection.
 
@@ -80,20 +80,20 @@ functors retain the second object and morphism fields, so functor extensionality
 @[simp] theorem pullbackDown_snd
     (X : FiberedCategoryOver.Groupoids.{u, v, max w (max u v), v} C) :
     pullbackDown X ⋙ π₂ X.p X.p =
-      π₂ (toFunctor X.baseProjection) (toFunctor X.baseProjection) := sorry
+      π₂ (toFunctor X.baseProjection) (toFunctor X.baseProjection) := rfl
 
 /-- On objects, `pullbackDown` retains the first component of the categorical pullback. -/
 @[simp] theorem pullbackDown_obj_fst
     (X : FiberedCategoryOver.Groupoids.{u, v, max w (max u v), v} C)
     (x : (toFunctor X.baseProjection) ⊡ (toFunctor X.baseProjection)) :
-    ((pullbackDown X).obj x).fst = x.fst := sorry
+    ((pullbackDown X).obj x).fst = x.fst := rfl
 /- Proof strategy: evaluate `pullbackDown_fst X` at `x` and read the object component. -/
 
 /-- On objects, `pullbackDown` retains the second component of the categorical pullback. -/
 @[simp] theorem pullbackDown_obj_snd
     (X : FiberedCategoryOver.Groupoids.{u, v, max w (max u v), v} C)
     (x : (toFunctor X.baseProjection) ⊡ (toFunctor X.baseProjection)) :
-    ((pullbackDown X).obj x).snd = x.snd := sorry
+    ((pullbackDown X).obj x).snd = x.snd := rfl
 /- Proof strategy: evaluate `pullbackDown_snd X` at `x` and read the object component. -/
 
 /-- On objects, `pullbackDown` maps the structural isomorphism through the canonical base
@@ -104,9 +104,24 @@ projection and conjugates it by the two source-facing projection comparisons. -/
     ((pullbackDown X).obj x).iso =
       ((baseProjection.iso X).app x.fst).symm ≪≫
         (base C).p.mapIso x.iso ≪≫
-          (baseProjection.iso X).app x.snd := sorry
-/- Proof strategy: combine `CategoricalPullback.postcompose.obj.iso.hom` and
-`CategoricalPullback.postcompose.obj.iso.inv` with `CategoricalPullback.LegChange.map.obj.iso`. -/
+          (baseProjection.iso X).app x.snd := by
+  have h :
+      ((CategoricalPullback.postcompose
+        (toFunctor X.baseProjection) (toFunctor X.baseProjection) (base C).p).obj x).iso =
+        (base C).p.mapIso x.iso := by
+    apply Iso.ext
+    change 𝟙 _ ≫ 𝟙 _ ≫ 𝟙 _ ≫ (base C).p.map x.iso.hom ≫ 𝟙 _ ≫ 𝟙 _ ≫ 𝟙 _ =
+      (base C).p.map x.iso.hom
+    simp only [Category.id_comp, Category.comp_id]
+  apply Iso.ext
+  change 𝟙 _ ≫ ((𝟙 _ ≫ (baseProjection.iso.{u, v, w, w} X).inv.app x.fst) ≫ 𝟙 _) ≫
+      𝟙 _ ≫ ((CategoricalPullback.postcompose
+        (toFunctor X.baseProjection) (toFunctor X.baseProjection) (base C).p).obj x).iso.hom ≫
+      𝟙 _ ≫ (𝟙 _ ≫ (baseProjection.iso.{u, v, w, w} X).hom.app x.snd ≫ 𝟙 _) ≫ 𝟙 _ = _
+  rw [h]
+  simp only [Functor.mapIso_hom, Category.id_comp, Category.comp_id]
+  rfl
+/- Both structural-map formulas are computed directly from the explicit cospan maps. -/
 
 /-- The forward map of the structural isomorphism carried by `pullbackDown.obj x` is the
 corresponding three-step conjugation. -/
@@ -116,7 +131,9 @@ corresponding three-step conjugation. -/
     ((pullbackDown X).obj x).iso.hom =
       (baseProjection.iso X).inv.app x.fst ≫
         (base C).p.map x.iso.hom ≫
-          (baseProjection.iso X).hom.app x.snd := sorry
+          (baseProjection.iso X).hom.app x.snd := by
+  rw [pullbackDown_obj_iso.{w, v, u, w, w}]
+  rfl
 
 /-- The inverse map of the structural isomorphism carried by `pullbackDown.obj x` is the
 reverse three-step conjugation. -/
@@ -126,30 +143,77 @@ reverse three-step conjugation. -/
     ((pullbackDown X).obj x).iso.inv =
       (baseProjection.iso X).inv.app x.snd ≫
         (base C).p.map x.iso.inv ≫
-          (baseProjection.iso X).hom.app x.fst := sorry
+          (baseProjection.iso X).hom.app x.fst := by
+  rw [pullbackDown_obj_iso.{w, v, u, w, w}]
+  simp only [Iso.trans_inv, Iso.symm_inv, Iso.app_inv, Functor.mapIso_inv, Category.assoc]
+  rfl
 
 /-- On morphisms, `pullbackDown` retains the first component map. -/
 @[simp] theorem pullbackDown_map_fst
     (X : FiberedCategoryOver.Groupoids.{u, v, max w (max u v), v} C)
     {x y : (toFunctor X.baseProjection) ⊡ (toFunctor X.baseProjection)} (f : x ⟶ y) :
-    ((pullbackDown X).map f).fst = f.fst := sorry
+    ((pullbackDown X).map f).fst = f.fst := rfl
 /- Proof strategy: evaluate `pullbackDown_fst X` on `f` and read the map component. -/
 
 /-- On morphisms, `pullbackDown` retains the second component map. -/
 @[simp] theorem pullbackDown_map_snd
     (X : FiberedCategoryOver.Groupoids.{u, v, max w (max u v), v} C)
     {x y : (toFunctor X.baseProjection) ⊡ (toFunctor X.baseProjection)} (f : x ⟶ y) :
-    ((pullbackDown X).map f).snd = f.snd := sorry
+    ((pullbackDown X).map f).snd = f.snd := rfl
 /- Proof strategy: evaluate `pullbackDown_snd X` on `f` and read the map component. -/
 
 /-- Forgetting the universe-resized identity-fibration base induces an equivalence of
 self-pullbacks. -/
 instance pullbackDown.isEquivalence
     (X : FiberedCategoryOver.Groupoids.{u, v, max w (max u v), v} C) :
-    (pullbackDown X).IsEquivalence := sorry
-/- Proof strategy: factor `pullbackDown` into base change along `(base C).p`, the inverse
-functor of mathlib's canonical `ULift.equivalence`, and congruence along
-`baseProjection.iso`; both factors are equivalences. -/
+    (pullbackDown X).IsEquivalence := by
+  let up : X.p ⊡ X.p ⥤ (toFunctor X.baseProjection) ⊡ (toFunctor X.baseProjection) :=
+    CategoricalPullback.postcompose X.p X.p (baseSection.{u, v, w} C)
+  have down_hom (x : (toFunctor X.baseProjection) ⊡ (toFunctor X.baseProjection)) :
+      ((pullbackDown X).obj x).iso.hom = (base C).p.map x.iso.hom := by
+    rw [pullbackDown_obj_iso_hom.{w, v, u, w, w}]
+    change ((𝟙 _ ≫ 𝟙 _) ≫ 𝟙 _) ≫ (base C).p.map x.iso.hom ≫ (𝟙 _ ≫ 𝟙 _ ≫ 𝟙 _) = _
+    simp only [Category.id_comp, Category.comp_id]
+  let unit : 𝟭 _ ≅ pullbackDown X ⋙ up :=
+    NatIso.ofComponents
+      (fun x => CategoricalPullback.mkIso (Iso.refl _) (Iso.refl _) (by
+        change (toFunctor X.baseProjection).map (𝟙 x.fst) ≫ (up.obj ((pullbackDown X).obj x)).iso.hom =
+          x.iso.hom ≫ (toFunctor X.baseProjection).map (𝟙 x.snd)
+        rw [Functor.map_id, Functor.map_id]
+        change 𝟙 _ ≫ (𝟙 _ ≫ 𝟙 _ ≫ 𝟙 _ ≫
+            (baseSection.{u, v, w} C).map (((pullbackDown X).obj x).iso.hom) ≫ 𝟙 _ ≫ 𝟙 _ ≫ 𝟙 _) =
+          x.iso.hom ≫ 𝟙 _
+        rw [down_hom]
+        change 𝟙 _ ≫ (𝟙 _ ≫ 𝟙 _ ≫ 𝟙 _ ≫ x.iso.hom ≫ 𝟙 _ ≫ 𝟙 _ ≫ 𝟙 _) =
+          x.iso.hom ≫ 𝟙 _
+        simp only [Category.id_comp, Category.comp_id]))
+      (by
+        intro x y f
+        apply CategoricalPullback.hom_ext
+        · change f.fst ≫ 𝟙 _ = 𝟙 _ ≫ f.fst
+          simp only [Category.id_comp, Category.comp_id]
+        · change f.snd ≫ 𝟙 _ = 𝟙 _ ≫ f.snd
+          simp only [Category.id_comp, Category.comp_id])
+  let counit : up ⋙ pullbackDown X ≅ 𝟭 _ :=
+    NatIso.ofComponents
+      (fun x => CategoricalPullback.mkIso (Iso.refl _) (Iso.refl _) (by
+        change X.p.map (𝟙 x.fst) ≫ x.iso.hom =
+          ((pullbackDown X).obj (up.obj x)).iso.hom ≫ X.p.map (𝟙 x.snd)
+        rw [down_hom]
+        change X.p.map (𝟙 x.fst) ≫ x.iso.hom =
+          (𝟙 _ ≫ 𝟙 _ ≫ 𝟙 _ ≫ x.iso.hom ≫ 𝟙 _ ≫ 𝟙 _ ≫ 𝟙 _) ≫ X.p.map (𝟙 x.snd)
+        simp only [Functor.map_id, Category.id_comp, Category.comp_id]))
+      (by
+        intro x y f
+        apply CategoricalPullback.hom_ext
+        · change f.fst ≫ 𝟙 _ = 𝟙 _ ≫ f.fst
+          simp only [Category.id_comp, Category.comp_id]
+        · change f.snd ≫ 𝟙 _ = 𝟙 _ ≫ f.snd
+          simp only [Category.id_comp, Category.comp_id])
+  exact Functor.IsEquivalence.mk' up unit counit
+/- The inverse postcomposes the structural isomorphism with the explicit `baseSection`.
+Both composites have identity components on the two legs; the structural-map calculations
+above prove their compatibility without using the deferred base-change property instances. -/
 
 end BaseProjection
 end FiberedCategoryOver.Groupoids

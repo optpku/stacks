@@ -38,18 +38,18 @@ theorem isLimitPreservingSheaf_iff (τ : StandardTopology) (S : Scheme.{u})
     (F : (Over S)ᵒᵖ ⥤ Type (u + 1)) :
     isLimitPreservingSheaf τ S F ↔
       Presheaf.IsSheaf (τ.overTopology S) F ∧
-        PreservesDirectedAffineLimits S F := sorry
+        PreservesDirectedAffineLimits S F := Iff.rfl
 
 /-- A limit-preserving sheaf over `S` is a sheaf for `τ.overTopology S`. -/
 theorem isSheaf_of_isLimitPreservingSheaf {τ : StandardTopology} {S : Scheme.{u}}
     {F : (Over S)ᵒᵖ ⥤ Type (u + 1)} (h : isLimitPreservingSheaf τ S F) :
-    Presheaf.IsSheaf (τ.overTopology S) F := sorry
+    Presheaf.IsSheaf (τ.overTopology S) F := h.1
 
 /-- A limit-preserving sheaf over `S` preserves directed affine limits. -/
 theorem preservesDirectedAffineLimits_of_isLimitPreservingSheaf
     {τ : StandardTopology} {S : Scheme.{u}} {F : (Over S)ᵒᵖ ⥤ Type (u + 1)}
     (h : isLimitPreservingSheaf τ S F) :
-    PreservesDirectedAffineLimits S F := sorry
+    PreservesDirectedAffineLimits S F := h.2
 
 /-- A set-valued presheaf on locally Noetherian schemes over `S` is a sheaf
 and preserves directed affine limits in that subcategory. -/
@@ -64,14 +64,14 @@ theorem isLimitPreservingSheafOnNoetherian_iff (τ : StandardTopology)
     (S : Scheme.{u}) (F : (locallyNoetherian S).FullSubcategoryᵒᵖ ⥤ Type (u + 1)) :
     isLimitPreservingSheafOnNoetherian τ S F ↔
       Presheaf.IsSheaf (locallyNoetherianTopology τ S) F ∧
-        Extension.PreservesDirectedAffineLimits (locallyNoetherian S) F := sorry
+        Extension.PreservesDirectedAffineLimits (locallyNoetherian S) F := Iff.rfl
 
 /-- A limit-preserving sheaf on locally Noetherian schemes is a sheaf for
 `locallyNoetherianTopology τ S`. -/
 theorem isSheaf_of_isLimitPreservingSheafOnNoetherian {τ : StandardTopology}
     {S : Scheme.{u}} {F : (locallyNoetherian S).FullSubcategoryᵒᵖ ⥤ Type (u + 1)}
     (h : isLimitPreservingSheafOnNoetherian τ S F) :
-    Presheaf.IsSheaf (locallyNoetherianTopology τ S) F := sorry
+    Presheaf.IsSheaf (locallyNoetherianTopology τ S) F := h.1
 
 /-- A limit-preserving sheaf on locally Noetherian schemes preserves directed
 affine limits internal to that subcategory. -/
@@ -79,7 +79,7 @@ theorem preservesDirectedAffineLimits_of_isLimitPreservingSheafOnNoetherian
     {τ : StandardTopology} {S : Scheme.{u}}
     {F : (locallyNoetherian S).FullSubcategoryᵒᵖ ⥤ Type (u + 1)}
     (h : isLimitPreservingSheafOnNoetherian τ S F) :
-    Extension.PreservesDirectedAffineLimits (locallyNoetherian S) F := sorry
+    Extension.PreservesDirectedAffineLimits (locallyNoetherian S) F := h.2
 
 /-- The category of limit-preserving sheaves on the standard site over `S`. -/
 abbrev LimitPreservingSheaf (τ : StandardTopology) (S : Scheme.{u}) :=
@@ -109,7 +109,7 @@ restriction of the original presheaf. -/
 theorem restrictLimitPreservingSheaf_obj (τ : StandardTopology) (S : Scheme.{u})
     (F : LimitPreservingSheaf τ S) :
     ((restrictLimitPreservingSheaf τ S).obj F).obj =
-      (restrictPresheaf S).obj F.obj := sorry
+      (restrictPresheaf S).obj F.obj := rfl
 
 /-- For a locally Noetherian base and any of the five standard topologies,
 restriction to locally Noetherian schemes is an equivalence between the

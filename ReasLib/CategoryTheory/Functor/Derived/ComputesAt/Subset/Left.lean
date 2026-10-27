@@ -194,7 +194,7 @@ private theorem goodCone_isEssentiallyConstant
 
 /-- An object in a denominator-cofinal good subset computes the pointwise
 left-derived value when `F` inverts denominators between good objects. -/
-@[stacks 06XN, stacks 0FTF "good objects compute a left-derived functor"]
+@[stacks 06XN]
 theorem LeftDerived.ComputesAt.of_mem_subset
     (P : ObjectProperty D)
     (hP_reaches : ∀ X : D, ∃ (X' : D) (s : X' ⟶ X), P X' ∧ S s)
@@ -233,7 +233,7 @@ theorem LeftDerived.ComputesAt.of_mem_subset
 
 /-- A denominator-cofinal object property on which the functor inverts internal
 denominators makes the left-derived functor source-defined everywhere. -/
-@[stacks 06XN, stacks 0FTF "cofinal good objects define a left-derived functor"]
+@[stacks 06XN]
 theorem LeftDerived.EverywhereDefined.of_subset
     (P : ObjectProperty D)
     (hP_reaches : ∀ X : D, ∃ (X' : D) (s : X' ⟶ X), P X' ∧ S s)

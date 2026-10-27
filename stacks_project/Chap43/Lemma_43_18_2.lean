@@ -20,6 +20,10 @@ universe u
 
 namespace AlgebraicGeometry.CycleGroup
 
+attribute [local instance] SchemeOverField.flatProdFst SchemeOverField.flatProdSnd
+  SchemeOverField.relativeDimensionProdFst SchemeOverField.relativeDimensionProdSnd
+  SchemeOverField.regularProdOfRegular
+
 variable {k : Type u} [Field k] [IsAlgClosed k]
   (X Y : SchemeOverField k) [Variety X] [Variety Y]
   [Scheme.Regular X.left] [Scheme.Regular Y.left]

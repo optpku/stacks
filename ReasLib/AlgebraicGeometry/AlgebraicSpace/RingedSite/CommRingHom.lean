@@ -7,6 +7,8 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import Mathlib.Algebra.Category.Ring.FilteredColimits
+public import Mathlib.Algebra.Category.Ring.Adjunctions
+public import Mathlib.RingTheory.FreeRing
 public import Mathlib.CategoryTheory.Sites.CartesianMonoidal
 public import Mathlib.CategoryTheory.Sites.Point.Basic
 public import Mathlib.CategoryTheory.Sites.Point.Map
@@ -44,12 +46,36 @@ instance morphismOfTopoi_inverseImage_preservesFiniteProducts {X Y : AlgebraicSp
     (f : X ⟶ Y) : PreservesFiniteProducts (morphismOfTopoi f).inverseImage :=
   inferInstance
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Direct image retains commutativity of the input multiplication. -/
 theorem commRingPushforward_mul_comm {X Y : AlgebraicSpace S} (f : X ⟶ Y)
     (R : Sheaf (smallEtaleTopology X) CommRingCat.{u}) (U : (smallEtaleSite Y)ᵒᵖ)
     (a b : ((ringPushforward f).obj
       ((sheafCompose (smallEtaleTopology X) (forget₂ CommRingCat.{u} RingCat.{u})).obj R)).obj.obj U) :
-    a * b = b * a := sorry
+    a * b = b * a := by
+  letI : BraidedCategory (Sheaf (smallEtaleTopology X) (Type u)) :=
+    sheafBraidedCategory.{u + 1, u, u} (smallEtaleTopology X)
+  letI : BraidedCategory (Sheaf (smallEtaleTopology Y) (Type u)) :=
+    sheafBraidedCategory.{u + 1, u, u} (smallEtaleTopology Y)
+  let A : RingObjects.{u + 1, u, u} (smallEtaleTopology X) :=
+    CategoryTheory.Sheaf.InternalCommRing.ToInternal.ringObject.{u + 1, u, u} R
+  let F := (morphismOfTopoi f).pushforward
+  letI : MonObj A.X := A.ringObj.toMonObj
+  letI : IsCommMonObj A.X := by
+    constructor
+    apply Sheaf.hom_ext
+    apply NatTrans.ext
+    funext V
+    apply ConcreteCategory.hom_ext
+    intro p
+    exact @mul_comm (R.obj.obj V) _ p.2 p.1
+  letI : PreservesFiniteProducts F :=
+    LeftExactAdjunction.pushforwardPreservesFiniteProducts (morphismOfTopoi f)
+  letI : F.Braided := Functor.Braided.ofChosenFiniteProducts F
+  letI : MonObj (F.obj A.X) := Functor.mapRingMonObj F A
+  have h := @IsCommMonObj.mul_comm _ _ _ _ (F.obj A.X) _
+    (Functor.isCommMonObj_obj (F := F))
+  exact congrArg (fun k ↦ k.hom.app U (b, a)) h
 
 /-- The commutative view keeps all section carriers and operations of the actual ring direct image. -/
 def commRingPushforwardObj {X Y : AlgebraicSpace S} (f : X ⟶ Y)
@@ -70,8 +96,22 @@ def commRingPushforward {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     ((ringPushforward f).map
       ((sheafCompose (smallEtaleTopology X) (forget₂ CommRingCat.{u} RingCat.{u})).map g)).hom
     (commRingPushforward_mul_comm f R) (commRingPushforward_mul_comm f T)⟩
-  map_id := sorry
-  map_comp := sorry
+  map_id R := by
+    apply Sheaf.hom_ext
+    apply NatTrans.ext
+    funext U
+    apply CommRingCat.hom_ext
+    exact congrArg (fun α ↦ (α.hom.app U).hom)
+      ((sheafCompose (smallEtaleTopology X) (forget₂ CommRingCat.{u} RingCat.{u}) ⋙
+        ringPushforward f).map_id R)
+  map_comp α β := by
+    apply Sheaf.hom_ext
+    apply NatTrans.ext
+    funext U
+    apply CommRingCat.hom_ext
+    exact congrArg (fun γ ↦ (γ.hom.app U).hom)
+      ((sheafCompose (smallEtaleTopology X) (forget₂ CommRingCat.{u} RingCat.{u}) ⋙
+        ringPushforward f).map_comp α β)
 
 /-- The direct-image object is the commutative view of the specified ring direct image. -/
 theorem commRingPushforward_eq {X Y : AlgebraicSpace S} (f : X ⟶ Y)
@@ -84,7 +124,37 @@ the forgetful functor to rings. -/
 instance spacesEtaleTopology_hasSheafCompose_commRing (X : AlgebraicSpace S) :
     (spacesEtaleTopology X).HasSheafCompose
       (forget₂ CommRingCat.{u} RingCat.{u}) :=
-  sorry
+  by
+    let e : coyoneda.obj (op (RingCat.of (FreeRing PUnit.{u + 1}))) ≅
+        forget RingCat.{u} :=
+      NatIso.ofComponents (fun R ↦ Equiv.toIso
+        { toFun := fun α ↦ α.hom (FreeRing.of PUnit.unit)
+          invFun := fun r ↦ RingCat.ofHom (FreeRing.lift (fun _ ↦ r))
+          left_inv := fun α ↦ by
+            apply RingCat.hom_ext
+            apply FreeRing.hom_ext
+            intro x
+            cases x
+            exact FreeRing.lift_of _ _
+          right_inv := fun r ↦ FreeRing.lift_of _ _ })
+        (fun α ↦ by ext g; rfl)
+    letI : PreservesLimitsOfSize.{u + 1, u + 1} (forget RingCat.{u}) :=
+      preservesLimits_of_natIso e
+    letI : ReflectsLimitsOfSize.{u + 1, u + 1} (forget RingCat.{u}) :=
+      { reflectsLimitsOfShape :=
+          { reflectsLimit := fun {D} ↦
+              { reflects := fun {c} hc ↦ by
+                  letI : HasLimit (D ⋙ forget RingCat.{u}) := ⟨_, hc⟩
+                  letI : Small.{u} (D ⋙ forget RingCat.{u}).sections :=
+                    (Types.hasLimit_iff_small_sections _).mp inferInstance
+                  exact (reflectsLimit_of_reflectsIsomorphisms D
+                    (forget RingCat.{u})).reflects hc } } }
+    letI : PreservesLimitsOfSize.{u + 1, u + 1}
+        (forget₂ CommRingCat.{u} RingCat.{u} ⋙ forget RingCat.{u}) :=
+      inferInstanceAs (PreservesLimitsOfSize.{u + 1, u + 1} (forget CommRingCat.{u}))
+    letI : PreservesLimitsOfSize.{u + 1, u + 1} (forget₂ CommRingCat.{u} RingCat.{u}) :=
+      preservesLimits_of_reflects_of_preserves _ (forget RingCat.{u})
+    exact hasSheafCompose_of_preservesLimitsOfSize (spacesEtaleTopology X)
 
 /-- Forgetting commutativity commutes with `commRingPushforward`. -/
 def commRingPushforwardForgetIso {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
@@ -146,7 +216,11 @@ def commRingHomOfUnderlying {X : AlgebraicSpace S}
         map_one' := h1 U
         map_add' := hadd U
         map_mul' := hmul U }
-     naturality := sorry }⟩
+     naturality := fun {U V} g ↦ by
+       apply CommRingCat.hom_ext
+       apply RingHom.ext
+       intro r
+       exact congrArg (fun k ↦ k r) (α.hom.naturality g) }⟩
 
 /-- Both ring-composition arrows have the actual small-chart comparison functions. -/
 def commRingPushforwardComp {X Y Z : AlgebraicSpace S} (f : X ⟶ Y) (g : Y ⟶ Z) :
@@ -157,9 +231,33 @@ def commRingPushforwardComp {X Y Z : AlgebraicSpace S} (f : X ⟶ Y) (g : Y ⟶ 
           sorry sorry sorry sorry
         inv := commRingHomOfUnderlying ((commRingPushforwardCompUnderlying f g).inv.app R)
           sorry sorry sorry sorry
-        hom_inv_id := sorry
-        inv_hom_id := sorry })
-    sorry
+        hom_inv_id := by
+          apply Sheaf.hom_ext
+          apply NatTrans.ext
+          funext U
+          apply CommRingCat.hom_ext
+          apply RingHom.ext
+          intro r
+          exact congrArg (fun k ↦ k.hom.app U r)
+            (((commRingPushforwardCompUnderlying f g).app R).hom_inv_id)
+        inv_hom_id := by
+          apply Sheaf.hom_ext
+          apply NatTrans.ext
+          funext U
+          apply CommRingCat.hom_ext
+          apply RingHom.ext
+          intro r
+          exact congrArg (fun k ↦ k.hom.app U r)
+            (((commRingPushforwardCompUnderlying f g).app R).inv_hom_id) })
+    (fun {R T} α ↦ by
+      apply Sheaf.hom_ext
+      apply NatTrans.ext
+      funext U
+      apply CommRingCat.hom_ext
+      apply RingHom.ext
+      intro r
+      exact congrArg (fun k ↦ k.hom.app U r)
+        ((commRingPushforwardCompUnderlying f g).hom.naturality α))
 
 /-- Evaluate commutative-ring direct image along the specified scheme chart of its fibre product. -/
 def commRingPushforwardEvaluation {X Y : AlgebraicSpace S} (f : X ⟶ Y)
@@ -184,11 +282,24 @@ theorem commRingPushforward_forget {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
         ringPushforward f :=
   rfl
 
+set_option maxHeartbeats 800000 in
 /-- Direct image of commutative-ring sheaves along a morphism of algebraic spaces is a right
 adjoint. -/
 instance commRingPushforward_isRightAdjoint {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     (commRingPushforward f).IsRightAdjoint :=
-  sorry
+  (((CategoryTheory.Sheaf.InternalCommRing.equivalence.{u + 1, u, u}
+      (J := smallEtaleTopology Y)).toAdjunction.comp
+      (@Functor.mapCommRingOfFiniteProductsAdjunction
+        (Sheaf (smallEtaleTopology Y) (Type u)) _ _
+        (sheafBraidedCategory.{u + 1, u, u} (smallEtaleTopology Y))
+        (Sheaf (smallEtaleTopology X) (Type u)) _ _
+        (sheafBraidedCategory.{u + 1, u, u} (smallEtaleTopology X))
+        (morphismOfTopoi f).inverseImage inferInstance
+        (morphismOfTopoi f).pushforward
+        (LeftExactAdjunction.pushforwardPreservesFiniteProducts (morphismOfTopoi f))
+        (morphismOfTopoi f).adjunction)).comp
+    (CategoryTheory.Sheaf.InternalCommRing.equivalence.{u + 1, u, u}
+      (J := smallEtaleTopology X)).symm.toAdjunction).isRightAdjoint
 
 /-- The component of `f^♯` on an étale square, retained as a morphism of commutative rings. -/
 def commStructureFMap_app {X Y : AlgebraicSpace S} {f : X ⟶ Y} (sq : EtaleSquare f) :
@@ -209,7 +320,10 @@ def commStructureSheafMapCone {X Y : AlgebraicSpace S} (f : X ⟶ Y) (V : smallE
   pt := (commStructureSheaf Y).obj.obj (op V)
   π :=
     { app := fun a => commStructureFMap_app (etaleSquareOfArrow f V a)
-      naturality := fun _ _ _ => sorry }
+      naturality := fun {a b} g ↦ by
+        apply CommRingCat.hom_ext
+        exact congrArg (fun α ↦ α.hom)
+          ((structureSheafMapCone f V).π.naturality g) }
 
 /-- The component at `V` of the commutative direct-image structure-sheaf map. -/
 def commStructureSheafMap_app {X Y : AlgebraicSpace S} (f : X ⟶ Y)
@@ -227,7 +341,9 @@ def commStructureSheafMap {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     commStructureSheaf Y ⟶ (commRingPushforward f).obj (commStructureSheaf X) :=
   InducedCategory.homMk
     { app := fun V => commStructureSheafMap_app f V
-      naturality := fun _ _ _ => sorry }
+      naturality := fun {U V} g ↦ by
+        apply CommRingCat.hom_ext
+        exact congrArg (fun α ↦ α.hom) ((structureSheafMap f).hom.naturality g) }
 
 /-- The component of `commStructureSheafMap` at `V` is `commStructureSheafMap_app`. -/
 theorem commStructureSheafMap_app_eq {X Y : AlgebraicSpace S} (f : X ⟶ Y)
@@ -340,6 +456,7 @@ def commInverseImageStructureSheafMap {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     (CategoryTheory.Sheaf.InternalCommRing.toFromIso.{u + 1, u, u}).hom.app
       (commStructureSheaf X)
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Forgetting commutativity of `commInverseImageStructureSheafMap f` recovers the inverse-image
 structure map of `ringedToposHom f`. -/
 theorem commInverseImageStructureSheafMap_forget {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
@@ -349,7 +466,20 @@ theorem commInverseImageStructureSheafMap_forget {X Y : AlgebraicSpace S} (f : X
       eqToHom (commInverseImageStructureSheaf_forget f) ≫
         (ringedToposHom f).structureMap ≫
         eqToHom (commStructureSheaf_forget X).symm :=
-  sorry
+  by
+    apply Sheaf.hom_ext
+    apply NatTrans.ext
+    funext U
+    apply RingCat.hom_ext
+    apply RingHom.ext
+    intro r
+    dsimp only [commInverseImageStructureSheafMap, ringedToposHom,
+      EtaleRingedTopos.ringedHom, RingedSite.ToposHom.ofDirectImage,
+      RingedSite.ToposHom.Direct.inverseStructureMap,
+      RingedSite.ToposHom.Direct.inverseMap, MorphismOfTopoiIn.internalRingAdjunction,
+      Functor.mapRingOfFiniteProductsAdjunction, Functor.mapRingAdjunction]
+    rw [Adjunction.mkOfHomEquiv_homEquiv]
+    rfl
 
 /-- The component of `commInverseImageStructureSheafMap f` forgets to the component of
 `(ringedToposHom f).structureMap`. -/
@@ -360,6 +490,7 @@ theorem commInverseImageStructureSheafMap_app {X Y : AlgebraicSpace S} (f : X �
       (eqToHom (commInverseImageStructureSheaf_forget f)).hom.app U ≫
         (ringedToposHom f).structureMap.hom.app U ≫
         (eqToHom (commStructureSheaf_forget X).symm).hom.app U :=
-  sorry
+  by
+    exact congrArg (fun α ↦ α.hom.app U) (commInverseImageStructureSheafMap_forget f)
 
 end AlgebraicGeometry.AlgebraicSpace

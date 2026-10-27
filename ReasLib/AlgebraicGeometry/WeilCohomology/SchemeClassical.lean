@@ -7,6 +7,7 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import Mathlib.Algebra.DirectSum.Module
+public import ReasLib.AlgebraicGeometry.WeilCohomology.Trace
 public import ReasLib.Topology.KrullDimension.Equidimensional
 public import ReasLib.AlgebraicGeometry.Scheme.OverField.Local
 public import ReasLib.AlgebraicGeometry.WeilCohomology.Classical
@@ -24,30 +25,11 @@ open scoped TensorProduct
 
 namespace SchemeClassicalTheory
 
-/-- The submodule of a bigraded module at a fixed Tate twist, in all cohomological degrees. -/
-def twistSlice {F M : Type*} [Field F] [AddCommGroup M] [Module F M]
-    (G : ℤ × ℤ → Submodule F M) (r : ℤ) : Submodule F M :=
-  ⨆ i : ℤ, G (i, r)
+/-- A fixed external Tate twist of a singly graded total space. -/
+abbrev twistSlice := @Tate.Twist
 
-/-- A tensor-product linear map restricted to a fixed Tate twist in each factor. -/
-def twistSliceTensorMap {F M₁ M₂ M₃ : Type*} [Field F]
-    [AddCommGroup M₁] [Module F M₁] [AddCommGroup M₂] [Module F M₂]
-    [AddCommGroup M₃] [Module F M₃]
-    (G₁ : ℤ × ℤ → Submodule F M₁) (G₂ : ℤ × ℤ → Submodule F M₂)
-    (m : M₁ ⊗[F] M₂ →ₗ[F] M₃) (r s : ℤ) :
-    twistSlice G₁ r ⊗[F] twistSlice G₂ s →ₗ[F] M₃ :=
-  m.comp (TensorProduct.map (twistSlice G₁ r).subtype (twistSlice G₂ s).subtype)
-
-/-- The restricted tensor map sends a pure tensor to the original map of its inclusions. -/
-theorem twistSliceTensorMap_tmul {F M₁ M₂ M₃ : Type*} [Field F]
-    [AddCommGroup M₁] [Module F M₁] [AddCommGroup M₂] [Module F M₂]
-    [AddCommGroup M₃] [Module F M₃]
-    (G₁ : ℤ × ℤ → Submodule F M₁) (G₂ : ℤ × ℤ → Submodule F M₂)
-    (m : M₁ ⊗[F] M₂ →ₗ[F] M₃) (r s : ℤ)
-    (a : twistSlice G₁ r) (b : twistSlice G₂ s) :
-    twistSliceTensorMap G₁ G₂ m r s (a ⊗ₜ[F] b) =
-      m ((a : M₁) ⊗ₜ[F] (b : M₂)) := by
-  simp [twistSliceTensorMap]
+/-- The exterior product on fixed external twists. -/
+abbrev twistSliceTensorMap := @Tate.tensorMap
 
 end SchemeClassicalTheory
 
@@ -61,7 +43,7 @@ structure SchemeClassicalTheory
     (fst : ∀ X Y, product X Y ⟶ X) (snd : ∀ X Y, product X Y ⟶ Y)
     (point : V) (H : V → Type x) (CH : V → Type y)
     [∀ X, Ring (H X)] [∀ X, Algebra F (H X)] [∀ X, CommRing (CH X)]
-    (Hgrade : ∀ X, ℤ × ℤ → Submodule F (H X))
+    (Hgrade : ∀ X, ℤ → Submodule F (H X))
     (CHgrade : ∀ X, ℤ → Submodule ℤ (CH X))
     [∀ X, GradedAlgebra (Hgrade X)] [∀ X, GradedAlgebra (CHgrade X)]
     (cyclePullback : ∀ {X Y : V}, (X ⟶ Y) → CHgrade Y →ₐᵍ[ℤ] CHgrade X)
@@ -134,12 +116,9 @@ structure SchemeClassicalTheory
         (1 : CHgrade point 0)
   /-- The chosen Tate line has dimension one. -/
   tateLine_rank : Module.finrank F TateLine = 1
-  /-- The bigraded cohomology summands exhaust total cohomology. -/
+  /-- The singly graded cohomology summands exhaust total cohomology. -/
   Hgrade_isInternal : ∀ X, DirectSum.IsInternal (Hgrade X)
-  /-- Tensoring with the Tate line raises the twist index by one. -/
-  tateTwist : ∀ X i j,
-    Hgrade X (i, j) ⊗[F] TateLine ≃ₗ[F] Hgrade X (i, j + 1)
-  /-- Contravariant pullback on bigraded cohomology. -/
+  /-- Contravariant pullback on singly graded cohomology. -/
   pullback : ∀ {X Y : V}, (X ⟶ Y) → Hgrade Y →ₐᵍ[F] Hgrade X
   /-- Pullback by an identity morphism is the identity. -/
   pullback_id : ∀ X, pullback (𝟙 X) = GradedAlgHom.id F (Hgrade X)
@@ -147,31 +126,32 @@ structure SchemeClassicalTheory
   pullback_comp : ∀ {X Y Z : V} (f : X ⟶ Y) (g : Y ⟶ Z),
     pullback (f ≫ g) = (pullback f).comp (pullback g)
   /-- Homogeneous cup products satisfy graded commutativity in cohomological degree. -/
-  gradedComm : ∀ X {i i' j j' : ℤ} (a : Hgrade X (i, j))
-      (b : Hgrade X (i', j')),
+  gradedComm : ∀ X {i i' : ℤ} (a : Hgrade X (i))
+      (b : Hgrade X (i')),
     (a : H X) * b = (-1 : H X) ^ (i * i').natAbs * ((b : H X) * a)
   /-- The additive cycle-class map on total Chow and cohomology groups. -/
   cycleClass : ∀ X, CH X →+ H X
-  /-- A codimension-`i` cycle has bidegree `(2 * i, i)`. -/
+  /-- A codimension-i cycle has cohomological degree 2i in Tate coordinates.
+  Its externally twisted class is exposed by twistedCycleClass. -/
   cycleClass_mem : ∀ X (i : ℤ) (alpha : CHgrade X i),
-    cycleClass X alpha ∈ Hgrade X (2 * i, i)
+    cycleClass X alpha ∈ Hgrade X (2 * i)
   /-- The trace on a nonempty equidimensional scheme. -/
   integral : ∀ {X d}, IsNonemptyEquidimensional X d → H X →ₗ[F] F
-  /-- The trace vanishes away from top bidegree. -/
+  /-- The trace vanishes away from top cohomological degree. -/
   integral_vanishes : ∀ {X d} (hX : IsNonemptyEquidimensional X d)
-      (p : ℤ × ℤ), p ≠ (2 * (d : ℤ), (d : ℤ)) →
+      (p : ℤ), p ≠ (2 * (d : ℤ)) →
     ∀ a : Hgrade X p, integral hX a = 0
   /-- Every homogeneous cohomology group is finite-dimensional. -/
   finiteDimensional : ∀ {X d}, IsNonemptyEquidimensional X d →
-    ∀ p : ℤ × ℤ, Module.Finite F (Hgrade X p)
+    ∀ p : ℤ, Module.Finite F (Hgrade X p)
   /-- The linear map associated to the Poincare pairing. -/
   poincarePairing : ∀ {X d} (hX : IsNonemptyEquidimensional X d) (i j : ℤ),
-    Hgrade X (2 * (d : ℤ) - i, (d : ℤ) - j) →ₗ[F]
-      (Hgrade X (i, j) →ₗ[F] F)
+    Hgrade X (2 * (d : ℤ) - i) →ₗ[F]
+      (Hgrade X (i) →ₗ[F] F)
   /-- The Poincare pairing is cup product followed by the trace. -/
   poincarePairing_apply : ∀ {X d} (hX : IsNonemptyEquidimensional X d) (i j : ℤ)
-      (a : Hgrade X (2 * (d : ℤ) - i, (d : ℤ) - j))
-      (b : Hgrade X (i, j)),
+      (a : Hgrade X (2 * (d : ℤ) - i))
+      (b : Hgrade X (i)),
     poincarePairing hX i j a b = integral hX ((b : H X) * a)
   /-- The Poincare pairing is perfect in every bidegree. -/
   poincarePairing_bijective : ∀ {X d} (hX : IsNonemptyEquidimensional X d)
@@ -182,9 +162,9 @@ structure SchemeClassicalTheory
   /-- Pushforward has the bidegree shift prescribed by dimensions. -/
   pushforward_mem : ∀ {X Y d e} (hX : IsNonemptyEquidimensional X d)
       (hY : IsNonemptyEquidimensional Y e) (f : X ⟶ Y) (i j : ℤ)
-      (a : Hgrade X (i, j)),
+      (a : Hgrade X (i)),
     pushforward hX hY f a ∈
-      Hgrade Y (i + 2 * ((e : ℤ) - d), j + ((e : ℤ) - d))
+      Hgrade Y (i + 2 * ((e : ℤ) - d))
   /-- Pushforward is adjoint to pullback for the Poincare pairings. -/
   pushforward_spec : ∀ {X Y d e} (hX : IsNonemptyEquidimensional X d)
       (hY : IsNonemptyEquidimensional Y e) (f : X ⟶ Y) (a : H X) (b : H Y),
@@ -194,21 +174,17 @@ structure SchemeClassicalTheory
   /-- On pure tensors, the Kunneth map is the product of pullbacks. -/
   kunnethMap_tmul : ∀ X Y (a : H X) (b : H Y),
     kunnethMap X Y (a ⊗ₜ[F] b) = pullback (fst X Y) a * pullback (snd X Y) b
-  /-- The Kunneth map adds both grading indices. -/
-  kunnethMap_mem : ∀ X Y (p q : ℤ × ℤ) (a : Hgrade X p) (b : Hgrade Y q),
+  /-- The Kunneth map adds cohomological degrees. -/
+  kunnethMap_mem : ∀ X Y (p q : ℤ) (a : Hgrade X p) (b : Hgrade Y q),
     kunnethMap X Y (a ⊗ₜ[F] b) ∈ Hgrade (product X Y) (p + q)
-  /-- For fixed twists, exterior product is injective with image the sum-twist slice. -/
+  /-- Exterior product is an isomorphism on any specified external twists. -/
   kunnethMap_fixedTwists : ∀ X Y (r s : ℤ),
-    Function.Injective (SchemeClassicalTheory.twistSliceTensorMap
-      (Hgrade X) (Hgrade Y) (kunnethMap X Y) r s) ∧
-    LinearMap.range (SchemeClassicalTheory.twistSliceTensorMap
-      (Hgrade X) (Hgrade Y) (kunnethMap X Y) r s) =
-      SchemeClassicalTheory.twistSlice (Hgrade (product X Y)) (r + s)
+    Function.Bijective (Tate.tensorMap tateLine_rank (kunnethMap X Y) r s)
   /-- Integration of an exterior product of top-bidegree classes is multiplicative. -/
   integral_kunnethMap_tmul : ∀ {X Y d e} (hX : IsNonemptyEquidimensional X d)
       (hY : IsNonemptyEquidimensional Y e)
-      (a : Hgrade X (2 * (d : ℤ), (d : ℤ)))
-      (b : Hgrade Y (2 * (e : ℤ), (e : ℤ))),
+      (a : Hgrade X (2 * (d : ℤ)))
+      (b : Hgrade Y (2 * (e : ℤ))),
     integral (product_isNonemptyEquidimensional hX hY)
         (kunnethMap X Y ((a : H X) ⊗ₜ[F] (b : H Y))) = integral hX a * integral hY b
   /-- Chow pushforward has the codimension shift prescribed by dimensions. -/
@@ -242,29 +218,93 @@ variable {dimension : V → ℕ} {product : V → V → V}
 variable {fst : ∀ X Y, product X Y ⟶ X} {snd : ∀ X Y, product X Y ⟶ Y}
 variable {point : V} {H : V → Type x} {CH : V → Type y}
 variable [∀ X, Ring (H X)] [∀ X, Algebra F (H X)] [∀ X, CommRing (CH X)]
-variable {Hgrade : ∀ X, ℤ × ℤ → Submodule F (H X)}
+variable {Hgrade : ∀ X, ℤ → Submodule F (H X)}
 variable {CHgrade : ∀ X, ℤ → Submodule ℤ (CH X)}
 variable [∀ X, GradedAlgebra (Hgrade X)] [∀ X, GradedAlgebra (CHgrade X)]
 variable {cyclePullback : ∀ {X Y : V}, (X ⟶ Y) → CHgrade Y →ₐᵍ[ℤ] CHgrade X}
 variable {cyclePushforward : ∀ {X Y : V}, (X ⟶ Y) → CH X →+ CH Y}
 
-/-- Construct a scheme-valued theory with a supplied Tate-twist family. -/
-def withTateTwist
-    (T : SchemeClassicalTheory k F TateLine V dimension product fst snd point
-      H CH Hgrade CHgrade cyclePullback cyclePushforward)
-    (tateTwist : ∀ X i j,
-      Hgrade X (i, j) ⊗[F] TateLine ≃ₗ[F] Hgrade X (i, j + 1)) :
-    SchemeClassicalTheory k F TateLine V dimension product fst snd point
-      H CH Hgrade CHgrade cyclePullback cyclePushforward :=
-  { T with tateTwist := tateTwist }
 
-/-- The `withTateTwist` constructor stores exactly its supplied equivalences. -/
-theorem withTateTwist_tateTwist
+section ExternalTwists
+
+variable (T : SchemeClassicalTheory k F TateLine V dimension product fst snd point
+  H CH Hgrade CHgrade cyclePullback cyclePushforward)
+
+/-- External Tate twists of the singly graded total cohomology. -/
+abbrev twistedCohomology (_T : SchemeClassicalTheory k F TateLine V dimension product fst snd point
+      H CH Hgrade CHgrade cyclePullback cyclePushforward) (X : V) (n : ℤ) := Tate.Twist F TateLine (H X) n
+
+/-- A homogeneous degree with an external Tate twist. There is no inclusion of
+all twists as independent summands of H X. -/
+abbrev twistedGrade
+    (_T : SchemeClassicalTheory k F TateLine V dimension product fst snd point
+      H CH Hgrade CHgrade cyclePullback cyclePushforward) (X : V) (i n : ℤ) := Tate.Twist F TateLine (Hgrade X i) n
+
+/-- The Tate shift is derived from genuine tensor powers, not stored as an
+identification between subspaces of H X. Coordinate adapter using the chosen Tate coordinates; canonical external
+compatibility and coherence are tracked by RL-2195. -/
+def tateTwist (X : V) (i n : ℤ) :
+    T.twistedGrade X i n ⊗[F] TateLine ≃ₗ[F] T.twistedGrade X i (n + 1) :=
+  Tate.shift T.tateLine_rank (Hgrade X i) n
+
+/-- The degreewise cycle class with its source-prescribed external Tate twist. Coordinate adapter using the chosen Tate coordinates; canonical external
+compatibility and coherence are tracked by RL-2195. -/
+def twistedCycleClass (X : V) (i : ℤ) : CHgrade X i →+ T.twistedGrade X (2 * i) i :=
+  (Tate.trivialization T.tateLine_rank (Hgrade X (2 * i)) i).symm.toLinearMap.toAddMonoidHom.comp
+    { toFun := fun z ↦ ⟨T.cycleClass X z, T.cycleClass_mem X i z⟩
+      map_zero' := Subtype.ext (map_zero _)
+      map_add' := fun a b ↦ Subtype.ext ((T.cycleClass X).map_add a b) }
+
+/-- Pullback acts on a fixed external twist. -/
+def twistedPullback {X Y : V} (f : X ⟶ Y) (n : ℤ) :
+    T.twistedCohomology Y n →ₗ[F] T.twistedCohomology X n :=
+  TensorProduct.map (T.pullback f).toAlgHom.toLinearMap LinearMap.id
+
+/-- A chosen trace on an external twist; the field `integral` contains its
+coordinate functional with respect to the genuine Tate-line coordinate. Coordinate adapter using the chosen Tate coordinates; canonical external
+compatibility and coherence are tracked by RL-2195. -/
+def twistedIntegral
     (T : SchemeClassicalTheory k F TateLine V dimension product fst snd point
       H CH Hgrade CHgrade cyclePullback cyclePushforward)
-    (tateTwist : ∀ X i j,
-      Hgrade X (i, j) ⊗[F] TateLine ≃ₗ[F] Hgrade X (i, j + 1)) :
-    (withTateTwist T tateTwist).tateTwist = tateTwist := sorry
+    {X : V} {d : ℕ} (hX : T.IsNonemptyEquidimensional X d) :
+    T.twistedCohomology X d →ₗ[F] F :=
+  (T.integral hX).comp (Tate.trivialization T.tateLine_rank (H X) d).toLinearMap
+
+/-- Pushforward on dimension twists, obtained by transporting the actual coordinate map. Coordinate adapter using the chosen Tate coordinates; canonical external
+compatibility and coherence are tracked by RL-2195. -/
+def twistedPushforward
+    (T : SchemeClassicalTheory k F TateLine V dimension product fst snd point
+      H CH Hgrade CHgrade cyclePullback cyclePushforward)
+    {X Y : V} {d e : ℕ} (hX : T.IsNonemptyEquidimensional X d)
+    (hY : T.IsNonemptyEquidimensional Y e) (f : X ⟶ Y) :
+    T.twistedCohomology X d →ₗ[F] T.twistedCohomology Y e :=
+  Tate.map T.tateLine_rank (T.pushforward hX hY f) d e
+
+/-- Exterior product on genuine fixed external twists. Coordinate adapter using the chosen Tate coordinates; canonical external
+compatibility and coherence are tracked by RL-2195. -/
+def twistedKunnethMap
+    (T : SchemeClassicalTheory k F TateLine V dimension product fst snd point
+      H CH Hgrade CHgrade cyclePullback cyclePushforward)
+    (X Y : V) (r s : ℤ) :
+    T.twistedCohomology X r ⊗[F] T.twistedCohomology Y s →ₗ[F]
+      T.twistedCohomology (product X Y) (r + s) :=
+  Tate.tensorMap T.tateLine_rank (T.kunnethMap X Y) r s
+
+/-- Poincare pairing on external twists n and d-n, reconstructed from its
+actual cup-trace coordinate map. Coordinate adapter using the chosen Tate coordinates; canonical external
+compatibility and coherence are tracked by RL-2195. -/
+def twistedPoincarePairing
+    (T : SchemeClassicalTheory k F TateLine V dimension product fst snd point
+      H CH Hgrade CHgrade cyclePullback cyclePushforward)
+    {X : V} {d : ℕ} (hX : T.IsNonemptyEquidimensional X d) (i n : ℤ) :
+    T.twistedGrade X (2 * (d : ℤ) - i) ((d : ℤ) - n) →ₗ[F]
+      (T.twistedGrade X i n →ₗ[F] F) :=
+  (T.poincarePairing hX i n).compl₁₂
+    (Tate.trivialization T.tateLine_rank (Hgrade X (2 * (d : ℤ) - i))
+      ((d : ℤ) - n)).toLinearMap
+    (Tate.trivialization T.tateLine_rank (Hgrade X i) n).toLinearMap
+
+end ExternalTwists
 
 /-- The intrinsic predicate is equivalent to nonemptiness, equidimensionality, and the specified dimension. -/
 theorem nonemptyEquidimensional_spec
@@ -289,10 +329,10 @@ theorem schemePresentation_spec
 theorem poincareDuality_spec
     (T : SchemeClassicalTheory k F TateLine V dimension product fst snd point
       H CH Hgrade CHgrade cyclePullback cyclePushforward) :
-    (∀ {X d}, T.IsNonemptyEquidimensional X d → ∀ p : ℤ × ℤ,
+    (∀ {X d}, T.IsNonemptyEquidimensional X d → ∀ p : ℤ,
       Module.Finite F (Hgrade X p)) ∧
     (∀ {X d} (hX : T.IsNonemptyEquidimensional X d) (i j : ℤ)
-      (a : Hgrade X (2 * (d : ℤ) - i, (d : ℤ) - j)) (b : Hgrade X (i, j)),
+      (a : Hgrade X (2 * (d : ℤ) - i)) (b : Hgrade X (i)),
       T.poincarePairing hX i j a b = T.integral hX ((b : H X) * a)) ∧
     (∀ {X d} (hX : T.IsNonemptyEquidimensional X d) (i j : ℤ),
       Function.Bijective (T.poincarePairing hX i j)) := sorry
@@ -305,17 +345,14 @@ theorem kunnethFormula_spec
     (∀ X Y (a : H X) (b : H Y),
       T.kunnethMap X Y (a ⊗ₜ[F] b) =
         T.pullback (fst X Y) a * T.pullback (snd X Y) b) ∧
-    (∀ X Y (p q : ℤ × ℤ) (a : Hgrade X p) (b : Hgrade Y q),
+    (∀ X Y (p q : ℤ) (a : Hgrade X p) (b : Hgrade Y q),
       T.kunnethMap X Y (a ⊗ₜ[F] b) ∈ Hgrade (product X Y) (p + q)) ∧
     (∀ X Y (r s : ℤ),
-      Function.Injective (twistSliceTensorMap (Hgrade X) (Hgrade Y)
-        (T.kunnethMap X Y) r s) ∧
-      LinearMap.range (twistSliceTensorMap (Hgrade X) (Hgrade Y)
-        (T.kunnethMap X Y) r s) = twistSlice (Hgrade (product X Y)) (r + s)) ∧
+      Function.Bijective (Tate.tensorMap T.tateLine_rank (T.kunnethMap X Y) r s)) ∧
     (∀ {X Y d e} (hX : T.IsNonemptyEquidimensional X d)
       (hY : T.IsNonemptyEquidimensional Y e)
-      (a : Hgrade X (2 * (d : ℤ), (d : ℤ)))
-      (b : Hgrade Y (2 * (e : ℤ), (e : ℤ))),
+      (a : Hgrade X (2 * (d : ℤ)))
+      (b : Hgrade Y (2 * (e : ℤ))),
       T.integral (T.product_isNonemptyEquidimensional hX hY)
           (T.kunnethMap X Y ((a : H X) ⊗ₜ[F] (b : H Y))) =
         T.integral hX a * T.integral hY b) := sorry

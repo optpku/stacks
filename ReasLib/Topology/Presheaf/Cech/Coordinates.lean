@@ -41,7 +41,8 @@ abbrev intersection (𝒰 : ι → Opens X) {n : ℕ} (σ : Fin n → ι) : Open
 /-- The inclusion of a finite Cech intersection into the intersection with one index omitted. -/
 theorem intersection_le_succAbove (𝒰 : ι → Opens X) {n : ℕ}
     (σ : Fin (n + 1) → ι) (j : Fin (n + 1)) :
-    intersection 𝒰 σ ≤ intersection 𝒰 (σ ∘ j.succAboveEmb) := sorry
+    intersection 𝒰 σ ≤ intersection 𝒰 (σ ∘ j.succAboveEmb) := by
+  exact le_iInf fun a ↦ iInf_le (fun b ↦ 𝒰 (σ b)) (j.succAboveEmb a)
 
 /-- The degree-`p` tuplewise group of sections for a family of opens. -/
 @[stacks 01EF "tuplewise Cech term"]

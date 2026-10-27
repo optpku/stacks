@@ -62,6 +62,7 @@ noncomputable def ι (B : A) {k n : ℕ}
     ((SimplexCategory.Truncated.inclusion k).op.leftKanExtensionObjIsoColimit
       (concentrated B k) (op ⦋n⦌)).inv
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The skeleton summand map is the top-degree unit leg followed by the corresponding
 simplicial operator. -/
 @[stacks 0190 "skeleton summand map through the unit"]
@@ -71,8 +72,12 @@ theorem ι.eq_unit_map (B : A) {k n : ℕ}
       topHom B k ≫
         ((SimplexCategory.Truncated.inclusion k).op.leftKanExtensionUnit
           (concentrated B k)).app (op (top k)) ≫
-        (concentrated B k).skeleton.map f.hom.op := sorry
+        (concentrated B k).skeleton.map f.hom.op := by
+  unfold ι
+  rw [Functor.ι_leftKanExtensionObjIsoColimit_inv]
+  rfl
 
+set_option backward.isDefEq.respectTransparency false in
 /-- A skeleton structure map sends a summand to the partially precomposed epic summand, or to
 zero when the composite is not epic. -/
 @[stacks 0190 "skeleton structure map on a summand"]
@@ -80,7 +85,56 @@ theorem map_ι (B : A) {k n n' : ℕ}
     [(concentrated B k).HasPointwiseSkeleton]
     (f : ⦋n⦌ ⟶ ⦋n'⦌) (a : EpiHom ⦋n'⦌ ⦋k⦌) :
     ι B a ≫ (concentrated B k).skeleton.map f.op =
-      (a.precomp f).elim 0 (fun c ↦ ι B c) := sorry
+      (a.precomp f).elim 0 (fun c ↦ ι B c) := by
+  classical
+  by_cases h : Epi (f ≫ a.hom)
+  · show ι B a ≫ (concentrated B k).skeleton.map f.op =
+      (a.precomp f).elim 0 (fun c ↦ ι B c)
+    simp only [EpiHom.precomp, dif_pos h, Option.elim_some]
+    rw [ι.eq_unit_map, ι.eq_unit_map]
+    simp only [EpiHom.hom, Category.assoc, op_comp, Functor.map_comp]
+  · show ι B a ≫ (concentrated B k).skeleton.map f.op =
+      (a.precomp f).elim 0 (fun c ↦ ι B c)
+    simp only [EpiHom.precomp, dif_neg h, Option.elim_none]
+    rw [ι.eq_unit_map]
+    have hcomp :
+        (concentrated B k).skeleton.map a.hom.op ≫
+            (concentrated B k).skeleton.map f.op =
+          (concentrated B k).skeleton.map (f ≫ a.hom).op := by
+      rw [op_comp, Functor.map_comp]
+    simp only [Category.assoc]
+    rw [hcomp]
+    cases k with
+    | zero =>
+      exfalso
+      apply h
+      rw [SimplexCategory.epi_iff_surjective]
+      change Function.Surjective
+        (show Fin (n + 1) → Fin 1 from (f ≫ a.hom).toOrderHom)
+      exact fun i ↦ ⟨0, Subsingleton.elim _ i⟩
+    | succ k =>
+      obtain ⟨i, g, hg⟩ := eq_comp_δ_of_not_surjective (f ≫ a.hom)
+        (by rwa [← SimplexCategory.epi_iff_surjective])
+      let d : op (top (k + 1)) ⟶
+          op (⟨⦋k⦌, Nat.le_succ k⟩ : SimplexCategory.Truncated (k + 1)) :=
+        (ObjectProperty.homMk (SimplexCategory.δ i)).op
+      have hd : (concentrated B (k + 1)).map d = 0 := by
+        dsimp [concentrated, concentrated.raw.map, d]
+        simp only [dif_pos trivial, dif_neg (Nat.ne_add_one k)]
+      have hu := ((SimplexCategory.Truncated.inclusion (k + 1)).op.leftKanExtensionUnit
+        (concentrated B (k + 1))).naturality d
+      have hz :
+          ((SimplexCategory.Truncated.inclusion (k + 1)).op.leftKanExtensionUnit
+            (concentrated B (k + 1))).app (op (top (k + 1))) ≫
+            (concentrated B (k + 1)).skeleton.map (SimplexCategory.δ i).op = 0 := by
+        calc
+          _ = (concentrated B (k + 1)).map d ≫
+              ((SimplexCategory.Truncated.inclusion (k + 1)).op.leftKanExtensionUnit
+                (concentrated B (k + 1))).app
+                (op (⟨⦋k⦌, Nat.le_succ k⟩ : SimplexCategory.Truncated (k + 1))) := hu.symm
+          _ = 0 := by rw [hd, zero_comp]
+      rw [hg, op_comp, Functor.map_comp, ← Category.assoc _ _
+        ((concentrated B (k + 1)).skeleton.map g.op), hz, zero_comp, comp_zero]
 
 /-- A skeleton structure map sends an epic composite to its corresponding summand. -/
 @[stacks 0190 "skeleton structure map on an epic composite"]
@@ -89,7 +143,10 @@ theorem map_ι_of_epi (B : A) {k n n' : ℕ}
     (f : ⦋n⦌ ⟶ ⦋n'⦌) (a : EpiHom ⦋n'⦌ ⦋k⦌)
     [Epi (f ≫ a.hom)] :
     ι B a ≫ (concentrated B k).skeleton.map f.op =
-      ι B ⟨f ≫ a.hom, inferInstance⟩ := sorry
+      ι B ⟨f ≫ a.hom, inferInstance⟩ := by
+  classical
+  simpa only [EpiHom.precomp, dif_pos (inferInstance : Epi (f ≫ a.hom)),
+    Option.elim_some] using map_ι B f a
 
 /-- Explicit-proof bridge for the skeleton structure map on an epic composite. -/
 @[stacks 0190 "skeleton structure map with an explicit epimorphism proof"]
@@ -98,7 +155,9 @@ theorem map_ι_of_epi.explicit (B : A) {k n n' : ℕ}
     (f : ⦋n⦌ ⟶ ⦋n'⦌) (a : EpiHom ⦋n'⦌ ⦋k⦌)
     (h : Epi (f ≫ a.hom)) :
     ι B a ≫ (concentrated B k).skeleton.map f.op =
-      ι B ⟨f ≫ a.hom, h⟩ := sorry
+      ι B ⟨f ≫ a.hom, h⟩ := by
+  letI := h
+  exact map_ι_of_epi B f a
 
 /-- A skeleton structure map vanishes on a summand when the corresponding composite is not
 epic. -/
@@ -107,7 +166,9 @@ theorem map_ι_of_not_epi (B : A) {k n n' : ℕ}
     [(concentrated B k).HasPointwiseSkeleton]
     (f : ⦋n⦌ ⟶ ⦋n'⦌) (a : EpiHom ⦋n'⦌ ⦋k⦌)
     (h : ¬ Epi (f ≫ a.hom)) :
-    ι B a ≫ (concentrated B k).skeleton.map f.op = 0 := sorry
+    ι B a ≫ (concentrated B k).skeleton.map f.op = 0 := by
+  classical
+  simpa only [EpiHom.precomp, dif_neg h, Option.elim_none] using map_ι B f a
 
 namespace degree
 
@@ -124,7 +185,7 @@ noncomputable abbrev functor (k n : ℕ)
 theorem functor_obj (k n : ℕ)
     [SimplicialObject.Truncated.HasPointwiseSkeletons A k] (B : A) :
     (functor (A := A) k n).obj B =
-      ((SimplicialObject.Truncated.sk k).obj (concentrated B k)).obj (op ⦋n⦌) := sorry
+      ((SimplicialObject.Truncated.sk k).obj (concentrated B k)).obj (op ⦋n⦌) := rfl
 
 /-- The degreewise concentrated-skeleton functor evaluates coefficient morphisms in degree
 `n`. -/
@@ -133,15 +194,43 @@ theorem functor_map (k n : ℕ)
     [SimplicialObject.Truncated.HasPointwiseSkeletons A k]
     {B D : A} (f : B ⟶ D) :
     (functor (A := A) k n).map f =
-      ((SimplicialObject.Truncated.sk k).map (concentrated.map k f)).app (op ⦋n⦌) := sorry
+      ((SimplicialObject.Truncated.sk k).map (concentrated.map k f)).app (op ⦋n⦌) := rfl
 
+set_option backward.isDefEq.respectTransparency false in
 /-- A coefficient morphism commutes with the canonical skeleton summand map. -/
 @[stacks 0190 "concentrated skeleton summand naturality"]
 theorem ι_naturality {k n : ℕ}
     [SimplicialObject.Truncated.HasPointwiseSkeletons A k]
     (a : EpiHom ⦋n⦌ ⦋k⦌) {B D : A} (f : B ⟶ D) :
     f ≫ skeleton.ι D a =
-      skeleton.ι B a ≫ (functor (A := A) k n).map f := sorry
+      skeleton.ι B a ≫ (functor (A := A) k n).map f := by
+  have ht : f ≫ topHom D k = topHom B k ≫ (concentrated.map k f).app (op (top k)) := by
+    dsimp [concentrated.map, mapApp, topHom]
+    simp only [dif_pos trivial, ← Category.assoc, eqToHom_trans, eqToHom_refl,
+      Category.id_comp]
+  have hu :
+      ((SimplexCategory.Truncated.inclusion k).op.leftKanExtensionUnit
+        (concentrated B k)).app (op (top k)) ≫
+          ((SimplicialObject.Truncated.sk k).map (concentrated.map k f)).app (op ⦋k⦌) =
+        (concentrated.map k f).app (op (top k)) ≫
+          ((SimplexCategory.Truncated.inclusion k).op.leftKanExtensionUnit
+            (concentrated D k)).app (op (top k)) := by
+    exact (congr_app
+      (((SimplexCategory.Truncated.inclusion k).op.lanUnit).naturality
+        (concentrated.map k f)) (op (top k))).symm
+  rw [skeleton.ι.eq_unit_map, skeleton.ι.eq_unit_map, functor_map]
+  simp only [Category.assoc]
+  rw [← Category.assoc f (topHom D k), ht]
+  simp only [Category.assoc]
+  rw [← Category.assoc ((concentrated.map k f).app (op (top k)))
+    (((SimplexCategory.Truncated.inclusion k).op.leftKanExtensionUnit
+      (concentrated D k)).app (op (top k))), ← hu]
+  simp only [Category.assoc]
+  exact congrArg
+    (fun g ↦ topHom B k ≫
+      ((SimplexCategory.Truncated.inclusion k).op.leftKanExtensionUnit
+        (concentrated B k)).app (op (top k)) ≫ g)
+    (((SimplicialObject.Truncated.sk k).map (concentrated.map k f)).naturality a.hom.op).symm
 
 /-- The canonical skeleton summand map, natural in the coefficient object. -/
 @[stacks 0190 "natural concentrated skeleton summand map"]
@@ -156,7 +245,7 @@ noncomputable def ι {k n : ℕ}
 theorem ι_app {k n : ℕ}
     [SimplicialObject.Truncated.HasPointwiseSkeletons A k]
     (a : EpiHom ⦋n⦌ ⦋k⦌) (B : A) :
-    (ι (A := A) a).app B = skeleton.ι B a := sorry
+    (ι (A := A) a).app B = skeleton.ι B a := rfl
 
 end degree
 

@@ -14,6 +14,7 @@ public import ReasLib.AlgebraicGeometry.Scheme.Morphism.MapsIntoAffineOpen
 public import ReasLib.RingTheory.RingHom.SquareZero.Map
 public import ReasLib.AlgebraicGeometry.GroupoidsOver.Basic
 public import ReasLib.AlgebraicGeometry.Deformation.SquareZero
+public import ReasLib.RingTheory.RingHom.SquareZero.Solution
 
 /-!
 # Objects over spectra and square-zero deformation situations
@@ -218,8 +219,27 @@ def kernelModule (σ : DeformationSituation X) : ModuleCat.{u} σ.carrier :=
 /-- `kernelModule` is the kernel of the stored square-zero extension, as an
 object of `ModuleCat A`. -/
 theorem kernelModule_obj (σ : DeformationSituation X) :
-    σ.kernelModule = ModuleCat.of σ.carrier (RingHom.ker σ.toCarrier) :=
+    σ.kernelModule =
+      ModuleCat.of σ.carrier (RingHom.ker σ.toCarrier) :=
   sorry
+
+/-- The algebraic square-zero kernel module and the geometric kernel module have
+the same underlying kernel. -/
+def kernelModuleComparison (σ : DeformationSituation X) :
+    RingHom.SquareZeroExtension.KernelModule σ.toCarrier ≃ₗ[σ.carrier]
+      σ.kernelModule where
+  toFun x := x
+  invFun x := x
+  left_inv _ := rfl
+  right_inv _ := rfl
+  map_add' _ _ := rfl
+  map_smul' := sorry
+
+/-- The kernel comparison acts as the identity on kernel elements. -/
+theorem kernelModuleComparison_apply (σ : DeformationSituation X)
+    (x : RingHom.SquareZeroExtension.KernelModule σ.toCarrier) :
+    σ.kernelModuleComparison x = x :=
+  rfl
 
 /-- The kernel ideal of a deformation situation has square zero. -/
 theorem ker_sq_eq_bot (σ : DeformationSituation X) :

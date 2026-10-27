@@ -26,7 +26,8 @@ commutative rings sends a dualizing complex over the source to one over the targ
       [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
       [MonoidalCategory (DerivedCategory (ModuleCat.{u} B))]
       (f : A →+* B) (hf : f.Finite)
-      (HA : MonoidalClosed (DerivedCategory (ModuleCat.{u} A)))
-      (HB : MonoidalClosed (DerivedCategory (ModuleCat.{u} B)))
-      (ω : DerivedCategory (ModuleCat.{u} A)) (hω : ω.IsDualizingComplex HA),
-      ((CategoryTheory.ModuleCat.derivedCoextensionOfScalars f).obj ω).IsDualizingComplex HB)
+      (CA : DerivedCategory.CanonicalClosedPresentation (A := A))
+      (CB : DerivedCategory.CanonicalClosedPresentation (A := B))
+      (ω : DerivedCategory (ModuleCat.{u} A))
+      (hω : ω.IsCanonicalDualizingComplex CA),
+      ((CategoryTheory.ModuleCat.derivedCoextensionOfScalars f).obj ω).IsCanonicalDualizingComplex CB)

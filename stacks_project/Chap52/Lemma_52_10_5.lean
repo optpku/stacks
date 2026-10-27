@@ -25,10 +25,10 @@ algebraization situation. -/
   ∀ {A : Type u} [CommRing A] [IsNoetherianRing A]
     {M : Type v} [AddCommGroup M] [Module A M] [Module.Finite A M]
     [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
-    (H : MonoidalClosed (DerivedCategory (ModuleCat.{u} A)))
+    (C : CategoryTheory.DerivedCategory.CanonicalClosedPresentation (A := A))
     (I a : Ideal A) (hIa : I ≤ a) (s d : ℤ)
     (h_dualizing :
-      ∃ K : DerivedCategory (ModuleCat.{u} A), K.IsDualizingComplex H)
+      ∃ K : DerivedCategory (ModuleCat.{u} A), K.IsCanonicalDualizingComplex C)
     (h_cd : HasDimensionLE I d)
     (h_depth : ∀ p q : PrimeSpectrum A,
       p ∉ PrimeSpectrum.zeroLocus (I : Set A) → p.asIdeal ≤ q.asIdeal →
@@ -43,6 +43,6 @@ algebraization situation. -/
                   (LocalizedModule.AtPrime p.asIdeal M)) : WithTop ℤ) : EInt) +
                 WithBot.map (WithTop.map Int.ofNat)
                   (ringKrullDim (p.asIdeal.quotientAtPrime q))),
-    AlgebraizationSituation H I M (PrimeSpectrum.zeroLocus (a : Set A)) s d)
+    AlgebraizationSituation C I M (PrimeSpectrum.zeroLocus (a : Set A)) s d)
 
 end Ideal.LocalCohomology.AlgebraizationSituation

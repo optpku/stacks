@@ -125,6 +125,19 @@ structure CohomologyTheory
     projectiveBundle X'
         (Scheme.VectorBundleK0.pullbackObj (toScheme.map f) E) ⟶
       projectiveBundle X E
+  /-- The chosen base-change arrow classifies the tautological quotient of the pulled-back
+  bundle, transported along the canonical comparison for composite pullback. -/
+  projectiveBundlePullback_map : ∀ {X' X : C} (f : X' ⟶ X)
+      (E : ObjectProperty.FullSubcategory
+        (SheafOfModules.IsFiniteLocallyFree : ObjectProperty (toScheme.obj X).Modules)),
+    let E' := Scheme.VectorBundleK0.pullbackObj (toScheme.map f) E
+    let p' := toScheme.map (projectiveBundleProjection X' E')
+    toScheme.map (projectiveBundlePullback f E) =
+      (((projectiveBundleRepresentation X E).liftEquiv (p' ≫ toScheme.map f)).symm
+        (InvertibleQuotient.IsoClass.mk (InvertibleQuotient.precomposeIso
+          ((Scheme.Modules.pullbackComp p' (toScheme.map f)).app E.obj).symm
+          (Scheme.ProjectiveBundle.tautologicalQuotient p'
+            (projectiveBundleRepresentation X' E'))))).hom
   /-- The projective-bundle base-change morphism lies over the original morphism. -/
   projectiveBundlePullback_comm : ∀ {X' X : C} (f : X' ⟶ X)
       (E : ObjectProperty.FullSubcategory
@@ -146,12 +159,30 @@ structure CohomologyTheory
   projectiveBundleQuotient : ∀ {X : C}
       {E F : ObjectProperty.FullSubcategory
         (SheafOfModules.IsFiniteLocallyFree : ObjectProperty (toScheme.obj X).Modules)}
-      (q : E ⟶ F), Epi q → (projectiveBundle X F ⟶ projectiveBundle X E)
+      (q : E ⟶ F), Epi q.hom → (projectiveBundle X F ⟶ projectiveBundle X E)
+  /-- The chosen quotient arrow classifies the pullback of the supplied surjection followed
+  by the tautological quotient of `F`. Surjectivity is in the category of module sheaves. -/
+  projectiveBundleQuotient_map : ∀ {X : C}
+      {E F : ObjectProperty.FullSubcategory
+        (SheafOfModules.IsFiniteLocallyFree : ObjectProperty (toScheme.obj X).Modules)}
+      (q : E ⟶ F) (h_q : Epi q.hom),
+    let p' := toScheme.map (projectiveBundleProjection X F)
+    let t := Scheme.ProjectiveBundle.tautologicalQuotient p'
+      (projectiveBundleRepresentation X F)
+    toScheme.map (projectiveBundleQuotient q h_q) =
+      (((projectiveBundleRepresentation X E).liftEquiv p').symm
+        (InvertibleQuotient.IsoClass.mk
+          { object := t.object
+            isInvertible := t.isInvertible
+            hom := (Scheme.Modules.pullback p').map q.hom ≫ t.hom
+            hom_epi := epi_comp'
+              (@Functor.map_epi _ _ _ _ (Scheme.Modules.pullback p') inferInstance
+                _ _ q.hom h_q) t.hom_epi })).hom
   /-- The projective-bundle morphism induced by a quotient is a closed immersion. -/
   projectiveBundleQuotient_isClosed : ∀ {X : C}
       {E F : ObjectProperty.FullSubcategory
         (SheafOfModules.IsFiniteLocallyFree : ObjectProperty (toScheme.obj X).Modules)}
-      (q : E ⟶ F) (h_q : Epi q),
+      (q : E ⟶ F) (h_q : Epi q.hom),
     IsClosedImmersion (toScheme.map (projectiveBundleQuotient q h_q))
   /-- The additive first Chern class with values in degree one. -/
   firstChernClass : ∀ X, (toScheme.obj X).PicardGroup →+ Agrade X 1
@@ -195,7 +226,7 @@ structure CohomologyTheory
         (SheafOfModules.IsFiniteLocallyFree : ObjectProperty (toScheme.obj X).Modules))
       (r : ℕ) (h_E : Scheme.Modules.IsFiniteLocallyFreeOfRank (r + 1) E.obj)
       (h_F : Scheme.Modules.IsFiniteLocallyFreeOfRank r F.obj)
-      (q : E ⟶ F), Epi q →
+      (q : E ⟶ F), Epi q.hom →
     (toScheme.obj (projectiveBundle X E)).PicardGroup
   /-- The projective-bundle inclusion induced by a rank-one quotient is an effective Cartier
   divisor. -/
@@ -204,7 +235,7 @@ structure CohomologyTheory
         (SheafOfModules.IsFiniteLocallyFree : ObjectProperty (toScheme.obj X).Modules))
       (r : ℕ) (h_E : Scheme.Modules.IsFiniteLocallyFreeOfRank (r + 1) E.obj)
       (h_F : Scheme.Modules.IsFiniteLocallyFreeOfRank r F.obj)
-      (q : E ⟶ F) (h_q : Epi q),
+      (q : E ⟶ F) (h_q : Epi q.hom),
     IsEffectiveCartierDivisor (toScheme.map (projectiveBundleQuotient q h_q))
   /-- The chosen quotient-divisor class is the Picard class of the associated invertible
   sheaf of the actual projective-bundle divisor. -/
@@ -213,7 +244,7 @@ structure CohomologyTheory
         (SheafOfModules.IsFiniteLocallyFree : ObjectProperty (toScheme.obj X).Modules))
       (r : ℕ) (h_E : Scheme.Modules.IsFiniteLocallyFreeOfRank (r + 1) E.obj)
       (h_F : Scheme.Modules.IsFiniteLocallyFreeOfRank r F.obj)
-      (q : E ⟶ F) (h_q : Epi q),
+      (q : E ⟶ F) (h_q : Epi q.hom),
     quotientDivisorClass X E F r h_E h_F q h_q =
       @Scheme.Modules.picardClass (toScheme.obj (projectiveBundle X E))
         (@Scheme.effectiveCartierDivisorAssociatedSheaf
@@ -234,7 +265,7 @@ structure CohomologyTheory
         (SheafOfModules.IsFiniteLocallyFree : ObjectProperty (toScheme.obj X).Modules))
       (r : ℕ) (h_E : Scheme.Modules.IsFiniteLocallyFreeOfRank (r + 1) E.obj)
       (h_F : Scheme.Modules.IsFiniteLocallyFreeOfRank r F.obj)
-      (q : E ⟶ F) (h_q : Epi q)
+      (q : E ⟶ F) (h_q : Epi q.hom)
       (a : A.obj (Opposite.op (projectiveBundle X E))),
     A.map (projectiveBundleQuotient q h_q).op a = 0 →
       a * (firstChernClass (projectiveBundle X E)
@@ -255,7 +286,7 @@ theorem quotientDivisorClass_eq
       (SheafOfModules.IsFiniteLocallyFree : ObjectProperty (toScheme.obj X).Modules))
     (r : ℕ) (h_E : Scheme.Modules.IsFiniteLocallyFreeOfRank (r + 1) E.obj)
     (h_F : Scheme.Modules.IsFiniteLocallyFreeOfRank r F.obj)
-    (q : E ⟶ F) (h_q : Epi q) :
+    (q : E ⟶ F) (h_q : Epi q.hom) :
     S.quotientDivisorClass X E F r h_E h_F q h_q =
       @Scheme.Modules.picardClass (toScheme.obj (S.projectiveBundle X E))
         (@Scheme.effectiveCartierDivisorAssociatedSheaf

@@ -70,18 +70,27 @@ noncomputable def image (f : A ⟶ B) : ArtinianLocalAlgCat Λ k :=
 
 /-- The carrier of `image f` is the quotient of the domain by `ker f`. -/
 theorem image_carrier (f : A ⟶ B) :
-    (image f).carrier = (A.carrier ⧸ RingHom.ker f.hom.toRingHom) := sorry
+    (image f).carrier = (A.carrier ⧸ RingHom.ker f.hom.toRingHom) := rfl
 
 /-- The quotient algebra map from an algebra to its coimage. -/
 noncomputable def toImageHom (f : A ⟶ B) : algebraHom A (image f) :=
   Ideal.Quotient.mkₐ Λ (RingHom.ker f.hom.toRingHom)
 
 /-- The quotient projection onto the coimage is local. -/
-theorem toImage_isLocalHom (f : A ⟶ B) : IsLocalHom (toImageHom f) := sorry
+theorem toImage_isLocalHom (f : A ⟶ B) : IsLocalHom (toImageHom f) := by
+  have h := IsLocalHom.of_surjective (Ideal.Quotient.mk (RingHom.ker f.hom.toRingHom))
+    Ideal.Quotient.mk_surjective
+  exact ⟨fun a ha => h.map_nonunit a ha⟩
 
 /-- The quotient projection preserves the chosen residue identification. -/
 theorem toImage_residue_compat (f : A ⟶ B) :
-    residueCompat (toImageHom f) (toImage_isLocalHom f) = residueIsoHom A := sorry
+    residueCompat (toImageHom f) (toImage_isLocalHom f) = residueIsoHom A := by
+  apply AlgHom.ext
+  intro x
+  obtain ⟨a, rfl⟩ := residue_surjective (R := A.carrier) x
+  change imageResidueFieldIso f (residue _ (toImageHom f a)) =
+    A.residueFieldIso (residue A.carrier a)
+  rfl
 
 /-- The canonical surjection from the domain of a morphism onto its coimage. -/
 noncomputable def toImage (f : A ⟶ B) : A ⟶ image f :=
@@ -93,11 +102,22 @@ noncomputable def imageιHom (f : A ⟶ B) : algebraHom (image f) B :=
     (fun _ ha => RingHom.mem_ker.mp ha)
 
 /-- The algebra map from a coimage into the codomain is local. -/
-theorem imageι_isLocalHom (f : A ⟶ B) : IsLocalHom (imageιHom f) := sorry
+theorem imageι_isLocalHom (f : A ⟶ B) : IsLocalHom (imageιHom f) := by
+  refine ⟨fun x hx => ?_⟩
+  obtain ⟨a, rfl⟩ := Ideal.Quotient.mk_surjective x
+  exact (isUnit_of_map_unit f.hom a hx).map (toImageHom f)
 
 /-- The inclusion of a coimage preserves the chosen residue identification. -/
 theorem imageι_residue_compat (f : A ⟶ B) :
-    residueCompat (imageιHom f) (imageι_isLocalHom f) = residueIsoHom (image f) := sorry
+    residueCompat (imageιHom f) (imageι_isLocalHom f) = residueIsoHom (image f) := by
+  apply AlgHom.ext
+  intro x
+  obtain ⟨a, rfl⟩ := residue_surjective x
+  obtain ⟨a, rfl⟩ := Ideal.Quotient.mk_surjective a
+  change B.residueFieldIso (residue B.carrier (f.hom a)) =
+    (image f).residueFieldIso (residue (image f).carrier (toImageHom f a))
+  exact (DFunLike.congr_fun (Hom.residue_compat f) (residue A.carrier a)).trans
+    (DFunLike.congr_fun (toImage_residue_compat f) (residue A.carrier a)).symm
 
 /-- The canonical injection of the coimage into the codomain. -/
 noncomputable def imageι (f : A ⟶ B) : image f ⟶ B :=
@@ -110,10 +130,12 @@ theorem image_fac (f : A ⟶ B) : toImage f ≫ imageι f = f :=
       (fun _ ha => RingHom.mem_ker.mp ha))
 
 /-- The coimage projection `toImage f` is surjective. -/
-theorem toImage_surjective (f : A ⟶ B) : Function.Surjective (toImage f).hom := sorry
+theorem toImage_surjective (f : A ⟶ B) : Function.Surjective (toImage f).hom :=
+  Ideal.Quotient.mk_surjective
 
 /-- The coimage inclusion `imageι f` is injective. -/
-theorem imageι_injective (f : A ⟶ B) : Function.Injective (imageι f).hom := sorry
+theorem imageι_injective (f : A ⟶ B) : Function.Injective (imageι f).hom :=
+  RingHom.kerLift_injective f.hom.toRingHom
 
 /-- Commutative squares of `ArtinianLocalAlgCat` induce maps of kernels. -/
 theorem imageMap_le {A₁ B₁ A₂ B₂ : ArtinianLocalAlgCat Λ k}
@@ -137,13 +159,31 @@ noncomputable def imageMapHom {A₁ B₁ A₂ B₂ : ArtinianLocalAlgCat Λ k}
 /-- The map of coimages induced by a commutative square is local. -/
 theorem imageMap_isLocalHom {A₁ B₁ A₂ B₂ : ArtinianLocalAlgCat Λ k}
     (f : A₁ ⟶ B₁) (g : A₂ ⟶ B₂) (α : A₁ ⟶ A₂) (β : B₁ ⟶ B₂) (h : f ≫ β = α ≫ g) :
-    IsLocalHom (imageMapHom f g α β h) := sorry
+    IsLocalHom (imageMapHom f g α β h) := by
+  letI := toImage_isLocalHom g
+  refine ⟨fun x hx => ?_⟩
+  obtain ⟨a, rfl⟩ := Ideal.Quotient.mk_surjective x
+  have hα : IsUnit (α.hom a) := isUnit_of_map_unit (toImageHom g) (α.hom a) hx
+  exact (isUnit_of_map_unit α.hom a hα).map (toImageHom f)
 
 /-- The map of coimages induced by a commutative square preserves residue identifications. -/
 theorem imageMap_residue_compat {A₁ B₁ A₂ B₂ : ArtinianLocalAlgCat Λ k}
     (f : A₁ ⟶ B₁) (g : A₂ ⟶ B₂) (α : A₁ ⟶ A₂) (β : B₁ ⟶ B₂) (h : f ≫ β = α ≫ g) :
     residueCompat (imageMapHom f g α β h) (imageMap_isLocalHom f g α β h) =
-      residueIsoHom (image f) := sorry
+      residueIsoHom (image f) := by
+  apply AlgHom.ext
+  intro x
+  obtain ⟨a, rfl⟩ := residue_surjective x
+  obtain ⟨a, rfl⟩ := Ideal.Quotient.mk_surjective a
+  change (image g).residueFieldIso
+      (residue (image g).carrier (toImageHom g (α.hom a))) =
+    (image f).residueFieldIso (residue (image f).carrier (toImageHom f a))
+  calc
+    _ = A₂.residueFieldIso (residue A₂.carrier (α.hom a)) :=
+      DFunLike.congr_fun (toImage_residue_compat g) (residue A₂.carrier (α.hom a))
+    _ = A₁.residueFieldIso (residue A₁.carrier a) :=
+      DFunLike.congr_fun (Hom.residue_compat α) (residue A₁.carrier a)
+    _ = _ := (DFunLike.congr_fun (toImage_residue_compat f) (residue A₁.carrier a)).symm
 
 /-- The coimage map induced by a commutative square of Artinian local algebras. -/
 noncomputable def imageMap {A₁ B₁ A₂ B₂ : ArtinianLocalAlgCat Λ k}

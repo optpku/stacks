@@ -63,11 +63,30 @@ noncomputable def localizationMap {U V : Cᵒᵖ} (f : U ⟶ V) :
 
 /-- Objectwise localization respects identity restriction maps. -/
 theorem localizationMap_id (U : Cᵒᵖ) :
-    S.localizationMap (𝟙 U) = 𝟙 (S.localizationObj U) := sorry
+    S.localizationMap (𝟙 U) = 𝟙 (S.localizationObj U) := by
+  apply CommRingCat.hom_ext
+  apply IsLocalization.ringHom_ext (S.obj U)
+  change (IsLocalization.map _ (O.map (𝟙 U)).hom (S.map (𝟙 U))).comp
+      (algebraMap _ _) = (RingHom.id _).comp (algebraMap _ _)
+  rw [IsLocalization.map_comp]
+  simp
 
 /-- Objectwise localization respects composition of restriction maps. -/
 theorem localizationMap_comp {U V W : Cᵒᵖ} (f : U ⟶ V) (g : V ⟶ W) :
-    S.localizationMap (f ≫ g) = S.localizationMap f ≫ S.localizationMap g := sorry
+    S.localizationMap (f ≫ g) = S.localizationMap f ≫ S.localizationMap g := by
+  apply CommRingCat.hom_ext
+  apply IsLocalization.ringHom_ext (S.obj U)
+  change (IsLocalization.map _ (O.map (f ≫ g)).hom (S.map (f ≫ g))).comp
+      (algebraMap _ _) =
+    ((IsLocalization.map _ (O.map g).hom (S.map g)).comp
+      (IsLocalization.map _ (O.map f).hom (S.map f))).comp (algebraMap _ _)
+  rw [IsLocalization.map_comp]
+  rw [RingHom.comp_assoc]
+  rw [IsLocalization.map_comp]
+  rw [← RingHom.comp_assoc]
+  rw [IsLocalization.map_comp]
+  simp only [Functor.map_comp, CommRingCat.hom_comp]
+  rw [RingHom.comp_assoc]
 
 /-- The objectwise localization presheaf associated to a compatible family of submonoids. -/
 @[stacks 0EMB "localization presheaf"]
@@ -97,7 +116,12 @@ noncomputable def toLocalizationPresheafApp (U : Cᵒᵖ) :
 /-- The components of the canonical localization map commute with restriction. -/
 theorem toLocalizationPresheafApp_naturality {U V : Cᵒᵖ} (f : U ⟶ V) :
     O.map f ≫ S.toLocalizationPresheafApp V =
-      S.toLocalizationPresheafApp U ≫ S.localizationPresheaf.map f := sorry
+      S.toLocalizationPresheafApp U ≫ S.localizationPresheaf.map f := by
+  apply CommRingCat.hom_ext
+  change (algebraMap (O.obj V) (Localization (S.obj V))).comp (O.map f).hom =
+    (IsLocalization.map (Localization (S.obj V)) (O.map f).hom (S.map f)).comp
+      (algebraMap (O.obj U) (Localization (S.obj U)))
+  rw [IsLocalization.map_comp]
 
 /-- The canonical morphism from a presheaf of rings to its objectwise localization. -/
 @[stacks 0EMB "map to localization presheaf"]

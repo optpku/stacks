@@ -52,4 +52,18 @@ theorem universeLift_obj (R : CommRingCat.{u}) :
 theorem universeLift_map {R S : CommRingCat.{u}} (f : R ⟶ S) :
     (universeLift.{u, w}).map f = CommRingCat.ofHom f.hom.ulift := sorry
 
+/-- Universe lifting of commutative rings commutes with forgetting to abelian
+groups, by the identity on underlying `ULift` additive groups. -/
+def universeLiftForgetAddIso :
+    CommRingCat.universeLift.{u, w} ⋙
+        forget₂ CommRingCat.{max u w} RingCat.{max u w} ⋙
+          forget₂ RingCat.{max u w} AddCommGrpCat.{max u w} ≅
+      forget₂ CommRingCat.{u} RingCat.{u} ⋙
+        forget₂ RingCat.{u} AddCommGrpCat.{u} ⋙
+          AddCommGrpCat.uliftFunctor.{w, u} where
+  hom := { app := fun R => 𝟙 _, naturality := sorry }
+  inv := { app := fun R => 𝟙 _, naturality := sorry }
+  hom_inv_id := sorry
+  inv_hom_id := sorry
+
 end CommRingCat

@@ -6,8 +6,8 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap106.Remark_106_6_1_Category_of_lifts_Category
-public import ReasLib.CategoryTheory.Fibered.Gerbe.Basic
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Lift.Gerbe
+import StacksCheckRecall
 
 /-!
 # The category of lifts is a gerbe
@@ -19,14 +19,11 @@ open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicStack
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicStack.Lift
-
-/-- Lemma 106.6.7: the functor `p iX x : Object iX x ⥤ AlgebraicSpace.spacesEtaleSite W`
-constructed in Remark 106.6.1 is a gerbe on the spaces-étale site of `W`. -/
-@[stacks 0CJX]
-instance instIsGerbe {S : Scheme.{u}} {X X' : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack X'] (iX : X ⟶ X') [IsThickening iX]
-    {W : AlgebraicSpace S} (x : W.toGroupoids ⟶ X) [Groupoids.Hom.Smooth x] :
-    CategoryTheory.IsGerbe (AlgebraicSpace.spacesEtaleTopology W) (p iX x) := sorry
-
-end AlgebraicGeometry.AlgebraicStack.Lift
+/- Lemma 106.6.7: the projection from the category of cartesian smooth lifts is a gerbe
+on the spaces-étale site of `W`. -/
+@[stacks 0CJX] #check (AlgebraicGeometry.AlgebraicStack.Lift.instIsGerbe :
+  ∀ {S : Scheme.{u}} {X X' : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack X']
+    (iX : X ⟶ X') [IsThickening iX] {W : AlgebraicSpace S}
+    (x : W.toGroupoids ⟶ X) [Groupoids.Hom.Smooth x],
+    CategoryTheory.IsGerbe (AlgebraicSpace.spacesEtaleTopology W)
+      (AlgebraicGeometry.AlgebraicStack.Lift.p iX x))

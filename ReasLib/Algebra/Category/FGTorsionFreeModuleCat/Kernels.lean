@@ -27,8 +27,9 @@ variable {N M : FGTorsionFreeModuleCat.{v} R}
 
 /-- The ordinary linear-map kernel is finitely generated and torsion-free. -/
 theorem kernelObj_property (f : N ⟶ M) :
-    ModuleCat.isFGTorsionFree R (ModuleCat.of R (LinearMap.ker f.hom.hom)) :=
-  sorry
+    ModuleCat.isFGTorsionFree R (ModuleCat.of R (LinearMap.ker f.hom.hom)) := by
+  rw [ModuleCat.isFGTorsionFree_iff]
+  exact ⟨inferInstance, inferInstance⟩
 
 /-- The kernel object is the ordinary linear-map kernel. -/
 def kernelObj (f : N ⟶ M) : FGTorsionFreeModuleCat.{v} R where
@@ -41,8 +42,9 @@ def kernelι (f : N ⟶ M) : kernelObj f ⟶ N :=
 
 /-- A linear map annihilated by a morphism takes values in its linear-map kernel. -/
 theorem kernel_lift_mem {W : FGTorsionFreeModuleCat.{v} R} (f : N ⟶ M) (g : W ⟶ N)
-    (hg : g ≫ f = 0) (element : W) : g.hom.hom element ∈ LinearMap.ker f.hom.hom :=
-  sorry
+    (hg : g ≫ f = 0) (element : W) : g.hom.hom element ∈ LinearMap.ker f.hom.hom := by
+  change f.hom.hom (g.hom.hom element) = 0
+  exact congrArg (fun h : W ⟶ M ↦ h.hom.hom element) hg
 
 /-- The lift through the kernel inclusion is codomain restriction to the kernel. -/
 def kernelι_lift {W : FGTorsionFreeModuleCat.{v} R} (f : N ⟶ M) (g : W ⟶ N)
@@ -60,19 +62,28 @@ theorem kernelι_lift_apply {W : FGTorsionFreeModuleCat.{v} R} (f : N ⟶ M) (g 
   rfl
 
 /-- The kernel inclusion composes to zero. -/
-theorem kernel_condition (f : N ⟶ M) : kernelι f ≫ f = 0 :=
-  sorry
+theorem kernel_condition (f : N ⟶ M) : kernelι f ≫ f = 0 := by
+  apply ObjectProperty.hom_ext
+  apply ModuleCat.hom_ext
+  exact LinearMap.ext fun x ↦ x.property
 
 /-- The kernel lift factors the original morphism through the inclusion. -/
 theorem kernelι_lift_fac {W : FGTorsionFreeModuleCat.{v} R} (f : N ⟶ M) (g : W ⟶ N)
-    (hg : g ≫ f = 0) : kernelι_lift f g hg ≫ kernelι f = g :=
-  sorry
+    (hg : g ≫ f = 0) : kernelι_lift f g hg ≫ kernelι f = g := by
+  apply ObjectProperty.hom_ext
+  apply ModuleCat.hom_ext
+  exact LinearMap.ext fun _ ↦ rfl
 
 /-- A morphism into the kernel with the prescribed composite is the kernel lift. -/
 theorem kernelι_lift_unique {W : FGTorsionFreeModuleCat.{v} R} (f : N ⟶ M) (g : W ⟶ N)
     (hg : g ≫ f = 0) (lift : W ⟶ kernelObj f) (hlift : lift ≫ kernelι f = g) :
-    lift = kernelι_lift f g hg :=
-  sorry
+    lift = kernelι_lift f g hg := by
+  apply ObjectProperty.hom_ext
+  apply ModuleCat.hom_ext
+  apply LinearMap.ext
+  intro x
+  apply Subtype.ext
+  exact congrArg (fun h : W ⟶ N ↦ h.hom.hom x) hlift
 
 /-- The kernel inclusion has the categorical kernel universal property. -/
 noncomputable def kernelι_isKernel (f : N ⟶ M) :
@@ -86,8 +97,9 @@ noncomputable def kernelι_isKernel (f : N ⟶ M) :
 theorem cokernelObj_property (f : N ⟶ M) :
     ModuleCat.isFGTorsionFree R (ModuleCat.of R
       ((M.obj ⧸ LinearMap.range f.hom.hom) ⧸
-        Submodule.torsion R (M.obj ⧸ LinearMap.range f.hom.hom))) :=
-  sorry
+        Submodule.torsion R (M.obj ⧸ LinearMap.range f.hom.hom))) := by
+  rw [ModuleCat.isFGTorsionFree_iff]
+  exact ⟨inferInstance, inferInstance⟩
 
 /-- The cokernel object is the quotient of the ordinary module cokernel by its torsion. -/
 def cokernelObj (f : N ⟶ M) : FGTorsionFreeModuleCat.{v} R where
@@ -105,16 +117,23 @@ def cokernelπ (f : N ⟶ M) : M ⟶ cokernelObj f :=
 
 /-- A morphism annihilating a linear map vanishes on its range. -/
 theorem cokernel_desc_range_le_ker {P : FGTorsionFreeModuleCat.{v} R} (f : N ⟶ M)
-    (g : M ⟶ P) (hg : f ≫ g = 0) : LinearMap.range f.hom.hom ≤ LinearMap.ker g.hom.hom :=
-  sorry
+    (g : M ⟶ P) (hg : f ≫ g = 0) : LinearMap.range f.hom.hom ≤ LinearMap.ker g.hom.hom := by
+  apply LinearMap.range_le_ker_iff.mpr
+  exact congrArg (fun h : N ⟶ P ↦ h.hom.hom) hg
 
 /-- The descent to the module cokernel vanishes on torsion when its target is torsion-free. -/
 theorem cokernel_desc_torsion_le_ker {P : FGTorsionFreeModuleCat.{v} R} (f : N ⟶ M)
     (g : M ⟶ P) (hg : f ≫ g = 0) :
     Submodule.torsion R (M.obj ⧸ LinearMap.range f.hom.hom) ≤
       LinearMap.ker ((LinearMap.range f.hom.hom).liftQ g.hom.hom
-        (cokernel_desc_range_le_ker f g hg)) :=
-  sorry
+        (cokernel_desc_range_le_ker f g hg)) := by
+  intro x hx
+  obtain ⟨a, ha⟩ := (Submodule.mem_torsion_iff x).mp hx
+  let desc := (LinearMap.range f.hom.hom).liftQ g.hom.hom
+    (cokernel_desc_range_le_ker f g hg)
+  change desc x = 0
+  apply (smul_eq_zero_iff_right (nonZeroDivisors.coe_ne_zero a)).mp
+  simpa only [Submonoid.smul_def, map_smul, map_zero] using congrArg desc ha
 
 /-- The descent through the cokernel projection is successive descent through the two quotients. -/
 def cokernelπ_desc {P : FGTorsionFreeModuleCat.{v} R} (f : N ⟶ M) (g : M ⟶ P)
@@ -132,19 +151,32 @@ theorem cokernelπ_desc_apply {P : FGTorsionFreeModuleCat.{v} R} (f : N ⟶ M) (
   rfl
 
 /-- The cokernel projection composes to zero. -/
-theorem cokernel_condition (f : N ⟶ M) : f ≫ cokernelπ f = 0 :=
-  sorry
+theorem cokernel_condition (f : N ⟶ M) : f ≫ cokernelπ f = 0 := by
+  apply ObjectProperty.hom_ext
+  apply ModuleCat.hom_ext
+  change (Submodule.torsion R (M.obj ⧸ LinearMap.range f.hom.hom)).mkQ.comp
+    ((LinearMap.range f.hom.hom).mkQ.comp f.hom.hom) = 0
+  rw [LinearMap.range_mkQ_comp, LinearMap.comp_zero]
 
 /-- The cokernel descent factors the original morphism through the projection. -/
 theorem cokernelπ_desc_fac {P : FGTorsionFreeModuleCat.{v} R} (f : N ⟶ M) (g : M ⟶ P)
-    (hg : f ≫ g = 0) : cokernelπ f ≫ cokernelπ_desc f g hg = g :=
-  sorry
+    (hg : f ≫ g = 0) : cokernelπ f ≫ cokernelπ_desc f g hg = g := by
+  apply ObjectProperty.hom_ext
+  apply ModuleCat.hom_ext
+  exact LinearMap.ext (cokernelπ_desc_apply f g hg)
 
 /-- A morphism out of the cokernel with the prescribed composite is the cokernel descent. -/
 theorem cokernelπ_desc_unique {P : FGTorsionFreeModuleCat.{v} R} (f : N ⟶ M) (g : M ⟶ P)
     (hg : f ≫ g = 0) (desc : cokernelObj f ⟶ P) (hdesc : cokernelπ f ≫ desc = g) :
-    desc = cokernelπ_desc f g hg :=
-  sorry
+    desc = cokernelπ_desc f g hg := by
+  apply ObjectProperty.hom_ext
+  apply ModuleCat.hom_ext
+  apply LinearMap.ext
+  intro x
+  obtain ⟨y, rfl⟩ := (Submodule.torsion R
+    (M.obj ⧸ LinearMap.range f.hom.hom)).mkQ_surjective x
+  obtain ⟨z, rfl⟩ := (LinearMap.range f.hom.hom).mkQ_surjective y
+  exact congrArg (fun h : M ⟶ P ↦ h.hom.hom z) hdesc
 
 /-- The cokernel projection has the categorical cokernel universal property. -/
 noncomputable def cokernelπ_isCokernel (f : N ⟶ M) :
@@ -157,9 +189,16 @@ noncomputable def cokernelπ_isCokernel (f : N ⟶ M) :
 variable (R) in
 /-- Kernels of finitely generated torsion-free modules over a Noetherian domain are finitely
  generated and torsion-free. -/
-instance instIsClosedUnderKernels :
-    (ModuleCat.isFGTorsionFree.{v} R).IsClosedUnderKernels :=
-  sorry
+instance instIsClosedUnderKernels [IsDomain R] [IsNoetherianRing R] :
+    (ModuleCat.isFGTorsionFree.{v} R).IsClosedUnderKernels where
+  kernels_le := by
+    rintro _ ⟨f, k, hk, hN, hM⟩
+    letI := Fork.IsLimit.mono hk
+    letI : Module.Finite R _ := hN.1
+    letI : Module.IsTorsionFree R _ := hN.2
+    have hi : Function.Injective k.ι.hom := (ModuleCat.mono_iff_injective k.ι).mp inferInstance
+    exact ⟨Module.Finite.of_injective k.ι.hom hi,
+      hi.moduleIsTorsionFree _ (fun r x ↦ k.ι.hom.map_smul r x)⟩
 
 variable (R) in
 /-- Finitely generated torsion-free modules over a Noetherian domain have kernels given by

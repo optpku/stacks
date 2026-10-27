@@ -6,12 +6,9 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import Mathlib.Algebra.Homology.QuasiIso
-public import Mathlib.Tactic.CrossRefAttribute
-public import stacks_project.Chap85.Lemma_85_3_5
-public import stacks_project.Chap85.Lemma_85_9_1_Complex
-public import stacks_project.Chap85.Lemma_85_9_1_Fiberwise
-public import stacks_project.Chap85.Lemma_85_9_1_Pullback
+import StacksCheckRecall
+public import ReasLib.CategoryTheory.Sites.Simplicial.AugmentationResolution
+public import ReasLib.CategoryTheory.Sites.Grothendieck.AugmentationResolution
 
 /-!
 # Lemma 85.9.1
@@ -60,19 +57,13 @@ variable (G : Sheaf K.toGrothendieck AddCommGrpCat.{w})
 include h_morphism
 include h_aug
 
-/-- Lemma 85.9.1 (1): in Situation 85.3.3 case A, with an augmentation towards a
-site `D` as in Remark 85.4.1, the complex
-`… → g_{2!}(a_2⁻¹ G) → g_{1!}(a_1⁻¹ G) → g_{0!}(a_0⁻¹ G)` of abelian sheaves on
-`C_total`, with differentials the alternating face sums, is a resolution of
-`a⁻¹ G`. -/
-@[stacks 0D78, instance]
-instance inverseImageAugmentation_quasiIso :
+/- Lemma 85.9.1 (1): The canonical augmented alternating-face complex of abelian inverse images is exact. -/
+@[stacks 0D78] #check (CategoryTheory.SimplicialSites.inverseImageAugmentation_quasiIso C J K u0 G :
     QuasiIso
       (inverseImageAugmentation C J K u0 G :
         inverseImageComplex C J K u0 G ⟶
           (ChainComplex.single₀ _).obj
-            ((IsAugmentation.abelianInverseImage C J K u0).obj G)) :=
-  sorry
+            ((IsAugmentation.abelianInverseImage C J K u0).obj G)))
 
 end CategoryTheory.SimplicialSites
 
@@ -92,18 +83,12 @@ variable [∀ (m n : SimplexCategory) (φ : m ⟶ n) (P : (F.obj (op n))ᵒᵖ �
     ((F.map φ.op).toFunctor).op.HasPointwiseRightKanExtension P]
 variable (G : Sheaf K.toGrothendieck AddCommGrpCat.{w})
 
-/-- Lemma 85.9.1 (2): in Situation 85.3.3 case B, with an augmentation towards a
-site `D` as in Remark 85.4.1, the complex
-`… → g_{2!}(a_2⁻¹ G) → g_{1!}(a_1⁻¹ G) → g_{0!}(a_0⁻¹ G)` of abelian sheaves on
-`C_total`, with differentials the alternating face sums, is a resolution of
-`a⁻¹ G`. -/
-@[stacks 0D78, instance]
-instance fiberInverseImageAugmentation_quasiIso :
+/- Lemma 85.9.1 (2): The canonical augmented alternating-face complex of abelian inverse images is exact. -/
+@[stacks 0D78] #check (CategoryTheory.Grothendieck.fiberInverseImageAugmentation_quasiIso F J K u0 G :
     QuasiIso
       (fiberInverseImageAugmentation F J K u0 G :
         fiberInverseImageComplex F J K u0 G ⟶
           (ChainComplex.single₀ _).obj
-            ((IsAugmentation.abelianInverseImage F J K u0).obj G)) :=
-  sorry
+            ((IsAugmentation.abelianInverseImage F J K u0).obj G)))
 
 end CategoryTheory.Grothendieck

@@ -6,6 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.IntersectionTheory.HigherChern
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.ChowCohomology.Operational
 
 /-! Actual Chern caps glued through the genuine Chow rank-product equivalence. -/
 @[expose] public section
@@ -42,22 +43,22 @@ def gluedCap (i : ℕ) (k : ℤ) : Hom.chowGroup f δ k →+ Hom.chowGroup f δ 
       (chowProductEquiv δ f E k).toAddMonoidHom)
 
 /-- The Chern cap family on test spaces is obtained by gluing the constant-rank operations on their rank loci. -/
-def chernClassCap (i : ℕ) : ChowCohomology.CapFamily δ f (i : ℤ) :=
+def chernClassCap (i : ℕ) : OperationalChow.CapFamily δ f (i : ℤ) :=
   fun {Y} g _ _ k ↦ gluedCap δ (g ≫ f) ((Modules.pullback g).obj E) i k
 
 /-- The rank-glued Chern cap family commutes with proper pushforward. -/
 theorem chernClassCap_proper (i : ℕ) :
-    ChowCohomology.CompatibleWithProperPushforward δ f (chernClassCap δ f E i) := by sorry
+    OperationalChow.CompatibleWithProperPushforward δ f (chernClassCap δ f E i) := sorry
 /-- The rank-glued Chern cap family commutes with flat pullback. -/
 theorem chernClassCap_flat (i : ℕ) :
-    ChowCohomology.CompatibleWithFlatPullback δ f (chernClassCap δ f E i) := by sorry
+    OperationalChow.CompatibleWithFlatPullback δ f (chernClassCap δ f E i) := sorry
 /-- The rank-glued Chern cap family commutes with effective Cartier divisor Gysin maps. -/
 theorem chernClassCap_gysin (i : ℕ) :
-    ChowCohomology.CompatibleWithCartierGysin δ f (chernClassCap δ f E i) := by sorry
+    OperationalChow.CompatibleWithCartierGysin δ f (chernClassCap δ f E i) := sorry
 
 /-- The Chern class of a finite locally free module is the operational class acting rankwise by constant-rank Chern caps. -/
-def chernClass (i : ℕ) : ChowCohomology.degree δ f (i : ℤ) :=
-  ChowCohomology.ofCap δ f (chernClassCap δ f E i)
+def chernClass (i : ℕ) : OperationalChow δ f (i : ℤ) :=
+  OperationalChow.ofCap δ f (chernClassCap δ f E i)
     (chernClassCap_proper δ f E i) (chernClassCap_flat δ f E i) (chernClassCap_gysin δ f E i)
 
 /-- The cap action of the Chern class is its rank-glued cap family. -/
@@ -90,7 +91,6 @@ theorem chernClass_not_eventually_zero :
         [QuasiSeparated f] [LocallyOfFiniteType f]
         (E : X.Modules) [SheafOfModules.IsFiniteLocallyFree E],
       ∃ N : ℕ, ∀ i : ℕ, N < i →
-        chernClass δ f E i = ChowCohomology.zeroCap δ f (i : ℤ) :=
-  sorry
+        chernClass δ f E i = OperationalChow.zero δ f (i : ℤ) := sorry
 
 end AlgebraicGeometry.AlgebraicSpace.ChernClass

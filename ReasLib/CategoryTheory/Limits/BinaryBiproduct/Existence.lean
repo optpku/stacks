@@ -31,11 +31,19 @@ theorem hasBinaryProduct_iff_hasBinaryCoproduct (X Y : C) :
     HasBinaryProduct X Y ↔ HasBinaryCoproduct X Y := by
   constructor
   · intro h
-    letI := h
+    -- Local instance justification (proof-local temporary data): the implication premise `h`
+    -- supplies the binary-product instance consumed by the canonical biproduct construction.
+    letI : HasBinaryProduct X Y := h
+    -- Local instance justification (proof-local temporary data): install the canonical biproduct
+    -- supplied by the product-to-biproduct construction for the implication conclusion.
     letI : HasBinaryBiproduct X Y := HasBinaryBiproduct.of_hasBinaryProduct X Y
     infer_instance
   · intro h
-    letI := h
+    -- Local instance justification (proof-local temporary data): the implication premise `h`
+    -- supplies the binary-coproduct instance consumed by the canonical biproduct construction.
+    letI : HasBinaryCoproduct X Y := h
+    -- Local instance justification (proof-local temporary data): install the canonical biproduct
+    -- supplied by the coproduct-to-biproduct construction for the implication conclusion.
     letI : HasBinaryBiproduct X Y := HasBinaryBiproduct.of_hasBinaryCoproduct X Y
     infer_instance
 

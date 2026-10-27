@@ -37,26 +37,26 @@ namespace FiberedCategoryOver.Sets
 @[simp]
 theorem toGroupoids.obj.toBasedCategory
     (X : FiberedCategoryOver.Sets.{u, v, w, vS} C) :
-    ((toGroupoids C).obj X).toBasedCategory = X.toBasedCategory := sorry
+    ((toGroupoids C).obj X).toBasedCategory = X.toBasedCategory := rfl
 
 /-- Forgetting discreteness retains the total category. -/
 @[simp]
 theorem toGroupoids.obj.total
     (X : FiberedCategoryOver.Sets.{u, v, w, vS} C) :
-    ((toGroupoids C).obj X).total = X.total := sorry
+    ((toGroupoids C).obj X).total = X.total := rfl
 
 /-- Forgetting discreteness retains the projection functor. -/
 @[simp]
 theorem toGroupoids.obj.p
     (X : FiberedCategoryOver.Sets.{u, v, w, vS} C) :
-    ((toGroupoids C).obj X).p = X.p := sorry
+    ((toGroupoids C).obj X).p = X.p := rfl
 
 /-- An object obtained by forgetting discreteness still has its original discrete-fibration
 projection.  This named instance keeps the stronger source property available to downstream
 typeclass search. -/
 instance toGroupoids.obj.projectionInSets
     (X : FiberedCategoryOver.Sets.{u, v, w, vS} C) :
-    Functor.IsDiscreteFibration ((toGroupoids C).obj X).p := sorry
+    Functor.IsDiscreteFibration ((toGroupoids C).obj X).p := X.property
 
 variable {X Y : FiberedCategoryOver.Sets.{u, v, w, vS} C}
 
@@ -64,19 +64,19 @@ variable {X Y : FiberedCategoryOver.Sets.{u, v, w, vS} C}
 @[simp]
 theorem toGroupoids.map.toBasedFunctor (F : X ⟶ Y) :
     FiberedCategoryOver.Groupoids.toBasedFunctor ((toGroupoids C).map F) =
-      FiberedCategoryOver.Sets.toBasedFunctor F := sorry
+      FiberedCategoryOver.Sets.toBasedFunctor F := rfl
 
 /-- Forgetting discreteness retains the functor between total categories. -/
 @[simp]
 theorem toGroupoids.map.toFunctor (F : X ⟶ Y) :
     FiberedCategoryOver.Groupoids.toFunctor ((toGroupoids C).map F) =
-      FiberedCategoryOver.Sets.toFunctor F := sorry
+      FiberedCategoryOver.Sets.toFunctor F := rfl
 
 /-- Forgetting discreteness retains the induced functor on every standard fiber. -/
 @[simp]
 theorem toGroupoids.map.fiberFunctor (F : X ⟶ Y) (U : C) :
     FiberedCategoryOver.Groupoids.fiberFunctor ((toGroupoids C).map F) U =
-      FiberedCategoryOver.Sets.fiberFunctor F U := sorry
+      FiberedCategoryOver.Sets.fiberFunctor F U := rfl
 
 variable {F G : X ⟶ Y}
 
@@ -84,20 +84,20 @@ variable {F G : X ⟶ Y}
 `2`-morphism. -/
 @[simp]
 theorem toGroupoids.map₂.hom (eta : F ⟶ G) :
-    ((toGroupoids C).map₂ eta).hom = eta.hom := sorry
+    ((toGroupoids C).map₂ eta).hom = eta.hom := rfl
 
 /-- Forgetting discreteness retains the natural transformation between total-category
 functors. -/
 @[simp]
 theorem toGroupoids.map₂.toNatTrans (eta : F ⟶ G) :
-    ((toGroupoids C).map₂ eta).hom.toNatTrans = eta.hom.toNatTrans := sorry
+    ((toGroupoids C).map₂ eta).hom.toNatTrans = eta.hom.toNatTrans := rfl
 
 /-- Restricting a forgotten `2`-morphism to a standard fiber gives the original fiberwise
 natural transformation. -/
 @[simp]
 theorem toGroupoids.map₂.fiber (eta : F ⟶ G) (U : C) :
     BasedNatTrans.fiber ((toGroupoids C).map₂ eta).hom U =
-      BasedNatTrans.fiber eta.hom U := sorry
+      BasedNatTrans.fiber eta.hom U := rfl
 
 end FiberedCategoryOver.Sets
 

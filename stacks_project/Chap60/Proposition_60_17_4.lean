@@ -8,54 +8,44 @@ module
 
 public import stacks_project.Chap60.Proposition_60_17_4_Categories
 public import stacks_project.Chap60.Proposition_60_17_4_Functor
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.Crystalline.Completed.Equivalence
+import StacksCheckRecall
 
 @[expose] public section
 
+noncomputable section
+
 open AlgebraicGeometry CategoryTheory
-open AlgebraicGeometry.Scheme.Crystalline
-open CrystallineModuleSheaf
-open CrystallineConnectionPair
 
 universe u
 
-variable {A : Type u} [CommRing A] (p : ℕ) [Fact (Nat.Prime p)]
+variable (p : ℕ) [Fact p.Prime]
+variable {A C ι : Type u} [CommRing A] [CommRing C] [Algebra A C]
 variable [Algebra (Localization.AtPrime (Ideal.span ({(p : ℤ)} : Set ℤ))) A]
-variable (I : Ideal A) (γ : DividedPowers I)
-variable {C : Type u} [CommRing C] [Algebra A C]
-variable {ι : Type u} (π : MvPolynomial ι A →ₐ[A] C)
-variable (hπ : Function.Surjective π)
-variable (J : Ideal (MvPolynomial ι A))
-variable (hJ : J = RingHom.ker π.toRingHom)
-variable (hIC : Ideal.map (algebraMap A C) I = (⊥ : Ideal C))
-variable (hpnil : IsNilpotent (p : C))
-variable (hIJ : Ideal.map (algebraMap A (MvPolynomial ι A)) I ≤ J)
+variable {I : Ideal A} (γ : DividedPowers I)
+variable (π : MvPolynomial ι A →ₐ[A] C) (hπ : Function.Surjective π)
+variable {J : Ideal (MvPolynomial ι A)} (hJ : J = RingHom.ker π.toRingHom)
+variable (hIC : Ideal.map (algebraMap A C) I = ⊥) (hpnil : IsNilpotent (p : C))
+variable {hIJ : Ideal.map (algebraMap A (MvPolynomial ι A)) I ≤ J}
 variable (E : DividedPowerEnvelope I γ (algebraMap A (MvPolynomial ι A)) J hIJ)
-variable (hE : DividedPowerEnvelope.IsUniversal γ
-  (algebraMap A (MvPolynomial ι A)) hIJ E)
-variable (γbar : DividedPowers
-  (Ideal.map (algebraMap E.D
-    (crystallineD p I γ π hπ J hJ hIC hpnil hIJ E hE)) E.D.ideal))
-variable {S : Scheme.{u}} {IS : S.IdealSheafData}
-variable {γS : ∀ V : S.affineOpens, DividedPowers (IS.ideal V)}
-variable {h_compatible :
-    ∀ (V : S.affineOpens) (f : Γ(S, V)),
-      (γS V).IsDPMorphism (γS (S.affineBasicOpen f))
-        (S.presheaf.map (homOfLE (S.basicOpen_le f)).op).hom}
-variable {X : Scheme.{u}} {x₀ : X ⟶ IS.subscheme}
+variable (hE : DividedPowerEnvelope.IsUniversal γ (algebraMap A (MvPolynomial ι A)) hIJ E)
 
-/-- Proposition 60.17.4: in the situation of 60.17.0.1–60.17.0.3, the functor of
-Lemma 60.17.3 from crystals in quasi-coherent `𝒪_{X/S}`-modules on `Cris(X/S)`
-to pairs `(M, ∇)` satisfying (07JB), (07JC), (07JD), and (07JE) is an
-equivalence of categories. -/
-@[stacks 07JH, instance]
-instance crystalsToConnectionPairs_isEquivalence
-    (T : smallCrystallineSite S IS γS h_compatible X x₀)
-    (moduleT : ∀ F : QuasiCoherentCrystal S IS γS h_compatible X x₀,
-      Module (crystallineD p I γ π hπ J hJ hIC hpnil hIJ E hE)
-        (CrisModuleSheaf.sectionModule F.obj T)) :
-    (crystalsToConnectionPairs p I γ π hπ J hJ hIC hpnil hIJ E hE γbar T
-        moduleT).IsEquivalence :=
-  sorry
+variable {X : Scheme.{u}} (IS : (Spec (.of A)).IdealSheafData)
+variable (γS : ∀ V : (Spec (.of A)).affineOpens, DividedPowers (IS.ideal V))
+variable (hc : ∀ (V : (Spec (.of A)).affineOpens) (f : Γ(Spec (.of A), V)),
+  (γS V).IsDPMorphism (γS ((Spec (.of A)).affineBasicOpen f))
+    ((Spec (.of A)).presheaf.map (homOfLE ((Spec (.of A)).basicOpen_le f)).op).hom)
+variable (x₀ : X ⟶ IS.subscheme) (eX : Spec (.of C) ≅ X)
+variable (heX : eX.hom ≫ x₀ ≫ IS.subschemeι = Spec.map (CommRingCat.ofHom (algebraMap A C)))
+variable (hI : IS = DividedPowers.affineIdeal (I := I))
+variable (hγ : DividedPowers.IsDPMorphism γ
+  (γS ⟨⊤, isAffineOpen_top (Spec (.of A))⟩) (Scheme.ΓSpecIso (.of A)).inv.hom)
 
-end
+/- Proposition 60.17.4: the functor of Lemma 60.17.3 from quasi-coherent crystals
+to complete integrable topologically quasi-nilpotent connections is an equivalence
+of categories. -/
+@[stacks 07JH] #check
+  (CrystallineModuleSheaf.CrisModuleSheaf.Completed.toConnectionPairs_isEquivalence
+    p γ π hπ hJ hIC hpnil E hE IS γS hc x₀ eX heX hI hγ :
+    (CrystallineModuleSheaf.CrisModuleSheaf.Completed.toConnectionPairs
+      p γ π hπ hJ hIC hpnil E hE IS γS hc x₀ eX heX hI hγ).IsEquivalence)

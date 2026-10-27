@@ -37,7 +37,7 @@ identity comparison. -/
 theorem map.mapId.hom.toModification
     (P : B ⥤ᵖ B') (S : Cospan B) :
     Hom₂.toModification ((map P).mapId S).hom =
-      (CospanTransform.map.idIso S.fst S.snd P).hom := sorry
+      (CospanTransform.map.idIso S.fst S.snd P).hom := rfl
 
 /-- The inverse identity comparison of `Cospan.map` forgets to the inverse canonical
 mapped-cospan identity comparison. -/
@@ -45,7 +45,7 @@ mapped-cospan identity comparison. -/
 theorem map.mapId.inv.toModification
     (P : B ⥤ᵖ B') (S : Cospan B) :
     Hom₂.toModification ((map P).mapId S).inv =
-      (CospanTransform.map.idIso S.fst S.snd P).inv := sorry
+      (CospanTransform.map.idIso S.fst S.snd P).inv := rfl
 
 /-- The left component of the forward identity comparison is the ambient identity
 comparison at the left endpoint. -/
@@ -53,7 +53,7 @@ comparison at the left endpoint. -/
 theorem map.mapId.hom.left
     (P : B ⥤ᵖ B') (S : Cospan B) :
     Hom₂.left ((map P).mapId S).hom =
-      (P.mapId S.left).hom := sorry
+      (P.mapId S.left).hom := rfl
 
 /-- The right component of the forward identity comparison is the ambient identity
 comparison at the right endpoint. -/
@@ -61,7 +61,7 @@ comparison at the right endpoint. -/
 theorem map.mapId.hom.right
     (P : B ⥤ᵖ B') (S : Cospan B) :
     Hom₂.right ((map P).mapId S).hom =
-      (P.mapId S.right).hom := sorry
+      (P.mapId S.right).hom := rfl
 
 /-- The base component of the forward identity comparison is the ambient identity comparison
 at the common target. -/
@@ -69,7 +69,7 @@ at the common target. -/
 theorem map.mapId.hom.base
     (P : B ⥤ᵖ B') (S : Cospan B) :
     Hom₂.base ((map P).mapId S).hom =
-      (P.mapId S.base).hom := sorry
+      (P.mapId S.base).hom := rfl
 
 /-- The left component of the inverse identity comparison is the inverse ambient identity
 comparison at the left endpoint. -/
@@ -77,7 +77,7 @@ comparison at the left endpoint. -/
 theorem map.mapId.inv.left
     (P : B ⥤ᵖ B') (S : Cospan B) :
     Hom₂.left ((map P).mapId S).inv =
-      (P.mapId S.left).inv := sorry
+      (P.mapId S.left).inv := rfl
 
 /-- The right component of the inverse identity comparison is the inverse ambient identity
 comparison at the right endpoint. -/
@@ -85,7 +85,7 @@ comparison at the right endpoint. -/
 theorem map.mapId.inv.right
     (P : B ⥤ᵖ B') (S : Cospan B) :
     Hom₂.right ((map P).mapId S).inv =
-      (P.mapId S.right).inv := sorry
+      (P.mapId S.right).inv := rfl
 
 /-- The base component of the inverse identity comparison is the inverse ambient identity
 comparison at the common target. -/
@@ -93,7 +93,7 @@ comparison at the common target. -/
 theorem map.mapId.inv.base
     (P : B ⥤ᵖ B') (S : Cospan B) :
     Hom₂.base ((map P).mapId S).inv =
-      (P.mapId S.base).inv := sorry
+      (P.mapId S.base).inv := rfl
 
 /-- The forward composition comparison of `Cospan.map` forgets to the canonical mapped-cospan
 composition comparison. -/
@@ -103,7 +103,7 @@ theorem map.mapComp.hom.toModification
     (ψ : R ⟶ S) (φ : S ⟶ T) :
     Hom₂.toModification ((map P).mapComp ψ φ).hom =
       (CospanTransform.map.compIso
-        (Hom.toCospanTransform ψ) (Hom.toCospanTransform φ) P).hom := sorry
+        (Hom.toCospanTransform ψ) (Hom.toCospanTransform φ) P).hom := rfl
 
 /-- The inverse composition comparison of `Cospan.map` forgets to the inverse canonical
 mapped-cospan composition comparison. -/
@@ -113,7 +113,7 @@ theorem map.mapComp.inv.toModification
     (ψ : R ⟶ S) (φ : S ⟶ T) :
     Hom₂.toModification ((map P).mapComp ψ φ).inv =
       (CospanTransform.map.compIso
-        (Hom.toCospanTransform ψ) (Hom.toCospanTransform φ) P).inv := sorry
+        (Hom.toCospanTransform ψ) (Hom.toCospanTransform φ) P).inv := rfl
 
 /-- The left component of the forward composition comparison is the ambient composition
 comparison of the left vertex maps. -/
@@ -122,7 +122,7 @@ theorem map.mapComp.hom.left
     (P : B ⥤ᵖ B') {R S T : Cospan B}
     (ψ : R ⟶ S) (φ : S ⟶ T) :
     Hom₂.left ((map P).mapComp ψ φ).hom =
-      (P.mapComp (Hom.left ψ) (Hom.left φ)).hom := sorry
+      (P.mapComp (Hom.left ψ) (Hom.left φ)).hom := rfl
 
 /-- The right component of the forward composition comparison is the ambient composition
 comparison of the right vertex maps. -/
@@ -131,7 +131,7 @@ theorem map.mapComp.hom.right
     (P : B ⥤ᵖ B') {R S T : Cospan B}
     (ψ : R ⟶ S) (φ : S ⟶ T) :
     Hom₂.right ((map P).mapComp ψ φ).hom =
-      (P.mapComp (Hom.right ψ) (Hom.right φ)).hom := sorry
+      (P.mapComp (Hom.right ψ) (Hom.right φ)).hom := rfl
 
 /-- The base component of the forward composition comparison is the ambient composition
 comparison of the common-target maps. -/
@@ -140,7 +140,7 @@ theorem map.mapComp.hom.base
     (P : B ⥤ᵖ B') {R S T : Cospan B}
     (ψ : R ⟶ S) (φ : S ⟶ T) :
     Hom₂.base ((map P).mapComp ψ φ).hom =
-      (P.mapComp (Hom.base ψ) (Hom.base φ)).hom := sorry
+      (P.mapComp (Hom.base ψ) (Hom.base φ)).hom := rfl
 
 /-- The left component of the inverse composition comparison is the inverse ambient
 composition comparison of the left vertex maps. -/
@@ -149,7 +149,7 @@ theorem map.mapComp.inv.left
     (P : B ⥤ᵖ B') {R S T : Cospan B}
     (ψ : R ⟶ S) (φ : S ⟶ T) :
     Hom₂.left ((map P).mapComp ψ φ).inv =
-      (P.mapComp (Hom.left ψ) (Hom.left φ)).inv := sorry
+      (P.mapComp (Hom.left ψ) (Hom.left φ)).inv := rfl
 
 /-- The right component of the inverse composition comparison is the inverse ambient
 composition comparison of the right vertex maps. -/
@@ -158,7 +158,7 @@ theorem map.mapComp.inv.right
     (P : B ⥤ᵖ B') {R S T : Cospan B}
     (ψ : R ⟶ S) (φ : S ⟶ T) :
     Hom₂.right ((map P).mapComp ψ φ).inv =
-      (P.mapComp (Hom.right ψ) (Hom.right φ)).inv := sorry
+      (P.mapComp (Hom.right ψ) (Hom.right φ)).inv := rfl
 
 /-- The base component of the inverse composition comparison is the inverse ambient
 composition comparison of the common-target maps. -/
@@ -167,6 +167,6 @@ theorem map.mapComp.inv.base
     (P : B ⥤ᵖ B') {R S T : Cospan B}
     (ψ : R ⟶ S) (φ : S ⟶ T) :
     Hom₂.base ((map P).mapComp ψ φ).inv =
-      (P.mapComp (Hom.base ψ) (Hom.base φ)).inv := sorry
+      (P.mapComp (Hom.base ψ) (Hom.base φ)).inv := rfl
 
 end CategoryTheory.Bicategory.Cospan

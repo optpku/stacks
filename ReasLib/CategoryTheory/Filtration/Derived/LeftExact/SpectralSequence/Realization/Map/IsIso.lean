@@ -70,14 +70,6 @@ theorem abutmentMap_isIso_of_filteredMap {T : A ⥤ₗ B} [EnoughInjectives A]
     {S : Realization T K} {R : Realization T L} (m : Map f S R) (n : ℤ)
     [IsIso m.filteredMap] : IsIso (Abutment.map T f n) := sorry
 
-variable {T : A ⥤ₗ B} [EnoughInjectives A]
-variable {K L : CochainComplex.Plus (FilteredObject.Finite.category A)} {f : K ⟶ L}
-variable {S : Realization T K} {R : Realization T L}
-variable (m : Map f S R) [IsIso m.filteredMap]
-
-#synth IsIso m.sequenceMap
-#synth IsIso ((m.sequenceMap.hom 1 zero_le_one).f (0, 0))
-
 /- Axiom audit: the registered instances are proposition-valued transport; all concrete
 resolution, filtered-model, and association data remain owned by `Map.Definition`. -/
 

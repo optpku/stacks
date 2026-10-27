@@ -20,9 +20,10 @@ noncomputable section
 
 universe u
 
-/- Remark 43.25.3 (1): on a nonsingular quasi-projective variety, every `r`-cycle is
-rationally equivalent to an `r`-cycle intersecting a prescribed `s`-cycle properly. -/
-@[stacks 0B61] #check (AlgebraicGeometry.CycleGroup.existsRationallyEquivalentIntersectProperly_of_quasiProjective :
+/- Remark 43.25.3 (1): on a nonsingular quasi-projective variety over an algebraically closed
+field, every `r`-cycle is rationally equivalent to an `r`-cycle intersecting a prescribed
+`s`-cycle properly. -/
+@[stacks 0B61] #check (@AlgebraicGeometry.CycleGroup.existsRationallyEquivalentIntersectProperly_of_quasiProjective :
     ∀ {k : Type u} [Field k] [IsAlgClosed k]
     (X : SchemeOverField k) [QuasiProjectiveVariety X] [Scheme.Regular X.left]
     (r s : ℤ)

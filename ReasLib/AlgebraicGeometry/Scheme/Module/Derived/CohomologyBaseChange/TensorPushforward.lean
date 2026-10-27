@@ -66,10 +66,8 @@ variable [KFlat.IsLocalization X.toRingedSpace]
 variable [KFlat.HomotopyTensorDescends X'.toRingedSpace]
 variable [KFlat.TensorDescends X'.toRingedSpace]
 variable [KFlat.IsLocalization X'.toRingedSpace]
-variable [RingedSite.Hom.DerivedAdjunction.HasPair
-  (RingedSpace.opensRingedSiteHom f.toShHom)]
-variable [RingedSite.Hom.DerivedAdjunction.HasPair
-  (RingedSpace.opensRingedSiteHom f'.toShHom)]
+variable [RingedSpace.DerivedAdjunction.HasPair f.toShHom]
+variable [RingedSpace.DerivedAdjunction.HasPair f'.toShHom]
 variable [IsIso
   (RingedSpace.modulePullbackDerived.compComparison f'.toShHom g.toShHom)]
 variable [IsIso

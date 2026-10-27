@@ -19,9 +19,9 @@ import Mathlib.Tactic.CrossRefAttribute
 /-!
 # Underlying additive derived sections
 
-This module owns the additive-sheaf models used when a module-valued section functor is compared
-with its underlying abelian functor.  The source-facing names are grouped under
-`RingedSite.Hom.ModuleSections`; no chapter implementation is imported.
+Derived sections of module sheaves can be compared with the derived sections of their
+underlying additive sheaves. These comparisons factor through the forgetful functors
+on the categories of section modules.
 -/
 
 open CategoryTheory CategoryTheory.Limits
@@ -39,7 +39,7 @@ namespace Underlying
 
 /-- The homotopy-to-derived additive sections functor over `U`. -/
 @[stacks 0D6J "underlying additive sections on homotopy categories"]
-abbrev sectionsToDerived (U : X) :
+abbrev sectionsToDerived (U : X.carrier) :
     HomotopyCategory (RingedSite.ModuleCat.{z} X) (up ℤ) ⥤
       DerivedCategory AddCommGrpCat.{z} :=
   Functor.Homotopy.toDerived (sections X U)
@@ -49,13 +49,13 @@ end Underlying
 /-- Finite limits are preserved by the section-module forgetful functor at the fixed coefficient
 universe used by the derived section API. -/
 @[stacks 0D6J "section-module forgetful finite limits"]
-noncomputable instance sectionForget_preservesFiniteLimits (U : X) :
+noncomputable instance sectionForget_preservesFiniteLimits (U : X.carrier) :
     PreservesFiniteLimits (sectionForget.{z} X U) := sorry
 
 /-- Finite colimits are preserved by the section-module forgetful functor at the fixed coefficient
 universe used by the derived section API. -/
 @[stacks 0D6J "section-module forgetful finite colimits"]
-noncomputable instance sectionForget_preservesFiniteColimits (U : X) :
+noncomputable instance sectionForget_preservesFiniteColimits (U : X.carrier) :
     PreservesFiniteColimits (sectionForget.{z} X U) := sorry
 
 namespace Underlying
@@ -63,13 +63,13 @@ namespace Underlying
 /-- The additive sections functor admits its canonical right-derived-functor witness. -/
 @[stacks 0D6J "underlying additive sections right-derived model"]
 instance sectionsToDerived_hasRightDerivedFunctor
-    [UnivLE.{max u v, z}] [IsGrothendieckAbelian (RingedSite.ModuleCat.{z} X)] (U : X) :
+    [UnivLE.{max u v, z}] [IsGrothendieckAbelian (RingedSite.ModuleCat.{z} X)] (U : X.carrier) :
     Functor.HasRightDerivedFunctor
       (sectionsToDerived.{z} X U) (ModuleQis.{z} X) := sorry
 
 /-- The total right-derived additive sections functor over `U`. -/
 @[stacks 0D6J "underlying additive derived sections"]
-noncomputable abbrev sectionsDerived (U : X)
+noncomputable abbrev sectionsDerived (U : X.carrier)
     [UnivLE.{max u v, z}]
     [Functor.HasRightDerivedFunctor
       (sectionsToDerived.{z} X U) (ModuleQis.{z} X)] :
@@ -145,14 +145,11 @@ noncomputable def globalCompIso
 /-- The homotopy-to-derived objectwise sections functor is identified with module sections followed
 by the derived forgetful functor on the section module category. -/
 @[stacks 0D6J "objectwise derived sections underlying bridge"]
-noncomputable def sectionsCompIso (U : X)
+noncomputable def sectionsCompIso (U : X.carrier)
     [UnivLE.{max u v, z}] :
     sectionsToDerived X U ≅
       moduleSectionsToDerived.{z} X U ⋙
       (sectionForget.{z} X U).mapDerivedCategory :=
-  letI :
-      (SheafOfModules.evaluation.{z} X.structureSheaf (op U)).Additive :=
-    moduleSectionsEvaluation_additive X U
   Functor.isoWhiskerRight
       ((Functor.mapHomotopyCategoryIso (sectionsForgetIso X U)) ≪≫
         (Functor.mapHomotopyCategoryCompIso

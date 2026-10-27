@@ -73,6 +73,6 @@ theorem isFilteredBySquareCubeOrPrimePowerAdjunctions_iff (A : Subring B) :
                   Subring.closure
                     ((A : Set B) ∪
                       Set.range (fun j : Fin i.val ↦ b ⟨j, Nat.lt_trans j.isLt i.isLt⟩))) ∧
-          ∀ e ∈ E, e ∈ Subring.closure ((A : Set B) ∪ Set.range b) := sorry
+          ∀ e ∈ E, e ∈ Subring.closure ((A : Set B) ∪ Set.range b) := Iff.rfl
 
 end Subring

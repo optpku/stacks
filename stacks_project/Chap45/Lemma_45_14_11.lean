@@ -32,11 +32,12 @@ variable [∀ X, Ring (H X)] [∀ X, Algebra F (H X)] [∀ X, AddCommGroup (Pica
 
 /- Lemma 45.14.11: data (D0), (D1), and (D2') satisfying axioms (A1)–(A7),
 compatibility of the cycle-class map with pushforward follows from the identity
+/- 抽象层对角类 mixin：待 RL-2194 完成锚定后移除。 -/
 i_*(1) = γ([Z]) for every closed immersion of nonempty equidimensional objects. -/
 @[stacks 0FIP] #check
   (WeilCohomology.SchemePreWeilTheory.cycleClass_pushforward_of_closedImmersion :
     ∀ (T : SchemePreWeilTheory k F TateLine V dimension product fst snd point CH CHgrade
-      cyclePullback cyclePushforward pointCycle H Picard)
+      cyclePullback cyclePushforward pointCycle H Picard) [T.HasDiagonalClassRelation]
       (h_closed : ∀ {Z X : V} {d e : ℕ}
         (hZ : T.IsNonemptyEquidimensional Z d)
         (hX : T.IsNonemptyEquidimensional X e) (i : Z ⟶ X)

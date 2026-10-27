@@ -113,8 +113,9 @@ variable [HomologicalComplex.HasMapBifunctor SF.X₂ SG.X₂ T (up ℤ)]
 variable [HomologicalComplex.HasMapBifunctor SF.X₃ SG.X₁ T (up ℤ)]
 
 /-- Lemma 20.25.4 (07MC), heterogeneous core: compatible pairings of two short exact cochain
-sequences satisfy the signed boundary-cup identity.  The displayed `Epi` is the exact descent
-condition needed for the two quotient maps; it is not silently inferred from separate factors. -/
+sequences satisfy the signed boundary-cup identity. The displayed `Epi` hypothesis applies to
+the bifunctor image of the canonical cocycle pullback covers followed by the homology quotients.
+Only this local descent map must be epi; no global additivity or epi-preservation is required. -/
 @[stacks 07MC "heterogeneous boundary-cup compatibility"]
 theorem boundary
     (hF : SF.ShortExact) (hG : SG.ShortExact)
@@ -128,8 +129,10 @@ theorem boundary
       (HomologicalComplex.mapBifunctorMap SF.g (𝟙 SG.X₁) T (up ℤ))
       (HomologicalComplex.mapBifunctorMap (𝟙 SF.X₂) SG.f T (up ℤ)) γ₃ γ₂)
     (n m : ℤ)
-    [Epi ((T.map (SF.X₃.homologyπ n)).app (SG.X₃.cycles m) ≫
-      (T.obj (SF.X₃.homology n)).map (SG.X₃.homologyπ m))]
+    [Epi ((T.map (pullback.snd (SF.g.f n) (SF.X₃.iCycles n) ≫
+        SF.X₃.homologyπ n)).app (pullback (SG.g.f m) (SG.X₃.iCycles m)) ≫
+      (T.obj (SF.X₃.homology n)).map
+        (pullback.snd (SG.g.f m) (SG.X₃.iCycles m) ≫ SG.X₃.homologyπ m))]
     (cup₁ : (T.obj (SF.X₁.homology (n + 1))).obj (SG.X₃.homology m) ⟶
       H.homology (n + m + 1))
     (cup₃ : (T.obj (SF.X₃.homology n)).obj (SG.X₁.homology (m + 1)) ⟶

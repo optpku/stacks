@@ -131,4 +131,24 @@ def rightTensorComparisonIso (f : X ⟶ Y) (A B : ModuleDerived Y) :
   inv_hom_id := rightTensorComparison_inv_hom_id f A B
 
 
+/-- The fixed-right tensor comparison is natural in its left tensor argument. -/
+theorem rightTensorComparison_naturality (f : X ⟶ Y) (B : ModuleDerived Y)
+    {A A' : ModuleDerived Y} (a : A ⟶ A') :
+    (LeftDerived.Homotopy.functor (Modules.pullback f)).map
+        ((DerivedTensor.Right.functor B).map a) ≫ rightTensorComparison f A' B =
+      rightTensorComparison f A B ≫
+        (DerivedTensor.Right.functor
+          ((LeftDerived.Homotopy.functor (Modules.pullback f)).obj B)).map
+            ((LeftDerived.Homotopy.functor (Modules.pullback f)).map a) := sorry
+
+/-- Derived pullback commutes naturally with tensoring by a fixed right factor. -/
+def rightTensorComparisonNatIso (f : X ⟶ Y) (B : ModuleDerived Y) :
+    DerivedTensor.Right.functor B ⋙ LeftDerived.Homotopy.functor (Modules.pullback f) ≅
+      LeftDerived.Homotopy.functor (Modules.pullback f) ⋙
+        DerivedTensor.Right.functor
+          ((LeftDerived.Homotopy.functor (Modules.pullback f)).obj B) :=
+  NatIso.ofComponents (fun A ↦ rightTensorComparisonIso f A B)
+    (fun a ↦ rightTensorComparison_naturality f B a)
+
+
 end AlgebraicGeometry.AlgebraicSpace.DerivedQCoh

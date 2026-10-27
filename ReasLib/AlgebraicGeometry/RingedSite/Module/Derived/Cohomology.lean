@@ -49,7 +49,7 @@ abbrev underlyingSheafFunctor
 @[stacks 0BKV "underlying additive presheaf of a ringed-site module"]
 abbrev underlyingPresheafFunctor
     (X : RingedSite.{u, v, w}) :
-    ModuleCat.{z} X ⥤ (Xᵒᵖ ⥤ AddCommGrpCat.{z}) :=
+    ModuleCat.{z} X ⥤ (X.carrierᵒᵖ ⥤ AddCommGrpCat.{z}) :=
   underlyingSheafFunctor X ⋙
     sheafToPresheaf X.siteTopology AddCommGrpCat.{z}
 
@@ -65,7 +65,7 @@ theorem underlyingPresheafFunctor_hasRightDerived
     [UnivLE.{max u v, z}]
     [IsGrothendieckAbelian (ModuleCat.{z} X)] :
     (@Functor.RightDerived.Cochain.toDerived
-      (ModuleCat.{z} X) (Xᵒᵖ ⥤ AddCommGrpCat.{z})
+      (ModuleCat.{z} X) (X.carrierᵒᵖ ⥤ AddCommGrpCat.{z})
       inferInstance inferInstance inferInstance inferInstance inferInstance
       (underlyingPresheafFunctor X) (underlyingPresheafFunctor_additive X)).HasRightDerivedFunctor
         (HomologicalComplex.quasiIso (ModuleCat.{z} X) (ComplexShape.up ℤ)) := sorry
@@ -76,9 +76,9 @@ noncomputable abbrev underlyingPresheafDerived
     [UnivLE.{max u v, z}]
     [IsGrothendieckAbelian (ModuleCat.{z} X)] :
   RingedSite.Hom.ModuleDerived.{z} X ⥤
-      DerivedCategory (Xᵒᵖ ⥤ AddCommGrpCat.{z}) :=
+      DerivedCategory (X.carrierᵒᵖ ⥤ AddCommGrpCat.{z}) :=
   @Functor.RightDerived.Cochain.functor
-    (ModuleCat.{z} X) (Xᵒᵖ ⥤ AddCommGrpCat.{z})
+    (ModuleCat.{z} X) (X.carrierᵒᵖ ⥤ AddCommGrpCat.{z})
     inferInstance inferInstance (RingedSite.Hom.moduleCat_hasDerivedCategory X)
     inferInstance inferInstance inferInstance
     (underlyingPresheafFunctor X) (underlyingPresheafFunctor_additive X)
@@ -89,8 +89,8 @@ noncomputable abbrev underlyingPresheafDerived
 abbrev cohomologyPresheaf [UnivLE.{max u v, z}]
     [IsGrothendieckAbelian (ModuleCat.{z} X)]
     (K : RingedSite.Hom.ModuleDerived.{z} X) (q : ℤ) :
-    Xᵒᵖ ⥤ AddCommGrpCat.{z} :=
-  (DerivedCategory.homologyFunctor (Xᵒᵖ ⥤ AddCommGrpCat.{z}) q).obj
+    X.carrierᵒᵖ ⥤ AddCommGrpCat.{z} :=
+  (DerivedCategory.homologyFunctor (X.carrierᵒᵖ ⥤ AddCommGrpCat.{z}) q).obj
     ((underlyingPresheafDerived X).obj K)
 
 /-- The degree-`q` cohomology module sheaf of a derived module `K` on `X`. -/
@@ -124,7 +124,7 @@ abbrev underlyingCohomologySheaf
 @[stacks 0BKV "cohomology over an object of a ringed site"]
 abbrev cohomologyOverObject [UnivLE.{max u v, z}]
     [IsGrothendieckAbelian (ModuleCat.{z} X)]
-    (U : X) (K : RingedSite.Hom.ModuleDerived.{z} X) (q : ℤ) : AddCommGrpCat.{z} :=
+    (U : X.carrier) (K : RingedSite.Hom.ModuleDerived.{z} X) (q : ℤ) : AddCommGrpCat.{z} :=
   (cohomologyPresheaf X K q).obj (op U)
 
 /-- Sheafifying `U ↦ H^q(U, K)` gives the underlying additive sheaf of the cohomology

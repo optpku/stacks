@@ -86,13 +86,13 @@ theorem exceptionalCoefficientHom_eq :
         (coefficientHom (centerStructureSquare f I)) := sorry
 
 variable
-  [Functor.HasRightDerivedFunctor
+  [hExceptionalCompositeRight : Functor.HasRightDerivedFunctor
     (modulePushforwardToDerived.{u}
       ((coefficientHom (exceptionalInclusionStructureSquare f I b)).comp
         (coefficientHom (relativeStructureSquare f I b))))
     (ModuleQis.{u} (RingedSpace.DeRham.coefficientSite
       (exceptionalProjection I b ≫ I.subschemeι ≫ f).toLRSHom.toShHom))]
-  [Functor.HasRightDerivedFunctor
+  [hCenterCompositeRight : Functor.HasRightDerivedFunctor
     (modulePushforwardToDerived.{u}
       ((coefficientHom (exceptionalStructureSquare f I b)).comp
         (coefficientHom (centerStructureSquare f I))))
@@ -109,14 +109,14 @@ theorem exceptionalCompositeDerivedPushforward_eq :
           (coefficientHom (centerStructureSquare f I))) := sorry
 
 variable
-  [((coefficientHom
-    (exceptionalInclusionStructureSquare f I b)).modulePushforward.{u}).IsRightAdjoint]
-  [((coefficientHom
-    (relativeStructureSquare f I b)).modulePushforward.{u}).IsRightAdjoint]
-  [((coefficientHom
-    (exceptionalStructureSquare f I b)).modulePushforward.{u}).IsRightAdjoint]
-  [((coefficientHom
-    (centerStructureSquare f I)).modulePushforward.{u}).IsRightAdjoint]
+  [(RingedSite.Hom.modulePushforward.{u}
+    (coefficientHom (exceptionalInclusionStructureSquare f I b))).IsRightAdjoint]
+  [(RingedSite.Hom.modulePushforward.{u}
+    (coefficientHom (relativeStructureSquare f I b))).IsRightAdjoint]
+  [(RingedSite.Hom.modulePushforward.{u}
+    (coefficientHom (exceptionalStructureSquare f I b))).IsRightAdjoint]
+  [(RingedSite.Hom.modulePushforward.{u}
+    (coefficientHom (centerStructureSquare f I))).IsRightAdjoint]
   [Functor.HasLeftDerivedFunctor
     (modulePullbackToDerived.{u}
       (coefficientHom (exceptionalInclusionStructureSquare f I b)))
@@ -126,9 +126,9 @@ variable
       (coefficientHom (relativeStructureSquare f I b)))
     (ModuleQis.{u} (RingedSpace.DeRham.coefficientSite f.toLRSHom.toShHom))]
   [Functor.HasLeftDerivedFunctor
-    (modulePullbackToDerived.{u}
-      ((coefficientHom (exceptionalInclusionStructureSquare f I b)).comp
-        (coefficientHom (relativeStructureSquare f I b))))
+    (compositePullbackToDerived.{u}
+      (coefficientHom (exceptionalInclusionStructureSquare f I b))
+      (coefficientHom (relativeStructureSquare f I b)))
     (ModuleQis.{u} (RingedSpace.DeRham.coefficientSite f.toLRSHom.toShHom))]
   [Functor.HasLeftDerivedFunctor
     (modulePullbackToDerived.{u}
@@ -140,28 +140,30 @@ variable
       (coefficientHom (centerStructureSquare f I)))
     (ModuleQis.{u} (RingedSpace.DeRham.coefficientSite f.toLRSHom.toShHom))]
   [Functor.HasLeftDerivedFunctor
-    (modulePullbackToDerived.{u}
-      ((coefficientHom (exceptionalStructureSquare f I b)).comp
-        (coefficientHom (centerStructureSquare f I))))
+    (compositePullbackToDerived.{u}
+      (coefficientHom (exceptionalStructureSquare f I b))
+      (coefficientHom (centerStructureSquare f I)))
     (ModuleQis.{u} (RingedSpace.DeRham.coefficientSite f.toLRSHom.toShHom))]
   [DerivedAdjunction.HasPair.{u}
     (coefficientHom (exceptionalInclusionStructureSquare f I b))]
   [DerivedAdjunction.HasPair.{u}
     (coefficientHom (relativeStructureSquare f I b))]
-  [DerivedAdjunction.HasPair.{u}
-    ((coefficientHom (exceptionalInclusionStructureSquare f I b)).comp
-      (coefficientHom (relativeStructureSquare f I b)))]
+  [compositeDerivedPair.{u}
+    (coefficientHom (exceptionalInclusionStructureSquare f I b))
+    (coefficientHom (relativeStructureSquare f I b))
+    (hCompositeRight := hExceptionalCompositeRight)]
   [DerivedAdjunction.HasPair.{u}
     (coefficientHom (exceptionalStructureSquare f I b))]
   [DerivedAdjunction.HasPair.{u}
     (coefficientHom (centerStructureSquare f I))]
-  [DerivedAdjunction.HasPair.{u}
-    ((coefficientHom (exceptionalStructureSquare f I b)).comp
-      (coefficientHom (centerStructureSquare f I)))]
-  [IsIso (modulePullbackDerived.compComparison
+  [compositeDerivedPair.{u}
+    (coefficientHom (exceptionalStructureSquare f I b))
+    (coefficientHom (centerStructureSquare f I))
+    (hCompositeRight := hCenterCompositeRight)]
+  [hExceptionalComparison : IsIso (modulePullbackDerived.compComparison.{u}
     (coefficientHom (exceptionalInclusionStructureSquare f I b))
     (coefficientHom (relativeStructureSquare f I b)))]
-  [IsIso (modulePullbackDerived.compComparison
+  [hCenterComparison : IsIso (modulePullbackDerived.compComparison.{u}
     (coefficientHom (exceptionalStructureSquare f I b))
     (coefficientHom (centerStructureSquare f I)))]
 
@@ -182,14 +184,16 @@ noncomputable def exceptionalPushforwardIso :
                 (exceptionalProjection I b ≫ I.subschemeι ≫ f))) :=
   (modulePushforwardDerived.compIso
       (coefficientHom (exceptionalInclusionStructureSquare f I b))
-      (coefficientHom (relativeStructureSquare f I b)) inferInstance).app _ ≪≫
+      (coefficientHom (relativeStructureSquare f I b)) hExceptionalComparison
+        (hCompositeRight := hExceptionalCompositeRight)).app _ ≪≫
     eqToIso (congrArg
       (fun F ↦ F.obj (Scheme.DeRham.DerivedPushforward.derivedComplex
         (exceptionalProjection I b ≫ I.subschemeι ≫ f)))
       (exceptionalCompositeDerivedPushforward_eq f I b)) ≪≫
     ((modulePushforwardDerived.compIso
       (coefficientHom (exceptionalStructureSquare f I b))
-      (coefficientHom (centerStructureSquare f I)) inferInstance).app _).symm
+      (coefficientHom (centerStructureSquare f I)) hCenterComparison
+        (hCompositeRight := hCenterCompositeRight)).app _).symm
 
 /-- The component of `exceptionalPushforwardIso` is the composite of the two canonical
 derived-pushforward composition isomorphisms and coefficient-square transport. -/
@@ -197,14 +201,16 @@ theorem exceptionalPushforwardIso_hom_app :
     (exceptionalPushforwardIso f I b).hom =
       (modulePushforwardDerived.compIso
         (coefficientHom (exceptionalInclusionStructureSquare f I b))
-        (coefficientHom (relativeStructureSquare f I b)) inferInstance).hom.app _ ≫
+        (coefficientHom (relativeStructureSquare f I b)) hExceptionalComparison
+        (hCompositeRight := hExceptionalCompositeRight)).hom.app _ ≫
       eqToHom (congrArg
         (fun F ↦ F.obj (Scheme.DeRham.DerivedPushforward.derivedComplex
           (exceptionalProjection I b ≫ I.subschemeι ≫ f)))
         (exceptionalCompositeDerivedPushforward_eq f I b)) ≫
       (modulePushforwardDerived.compIso
         (coefficientHom (exceptionalStructureSquare f I b))
-        (coefficientHom (centerStructureSquare f I)) inferInstance).inv.app _ := sorry
+        (coefficientHom (centerStructureSquare f I)) hCenterComparison
+        (hCompositeRight := hCenterCompositeRight)).inv.app _ := sorry
 
 /-- The canonical comparison from the blowup term to the iterated exceptional term. -/
 noncomputable def blowupToExceptional :

@@ -39,7 +39,7 @@ theorem RelativeInertia.map.toFunctor
     (comm : F₁ ⋙ G' ≅ G ⋙ F₂) :
     (RelativeInertia.map G G' comm).toFunctor =
       CategoryTheory.RelativeInertia.map G.toFunctor G'.toFunctor
-        (BasedNatIso.toNatIso comm) := sorry
+        (BasedNatIso.toNatIso comm) := rfl
 
 /-- A based relative-inertia map applies the source-side based functor to the underlying
 object. -/
@@ -49,7 +49,7 @@ theorem RelativeInertia.map.obj
     (G : S₁ ⥤ᵇ S₂) (G' : S₁' ⥤ᵇ S₂')
     (comm : F₁ ⋙ G' ≅ G ⋙ F₂) (A : (relativeInertia F₁).obj) :
     ((RelativeInertia.map G G' comm).toFunctor.obj A).obj =
-      G.toFunctor.obj A.obj := sorry
+      G.toFunctor.obj A.obj := rfl
 
 /-- A based relative-inertia map applies the source-side based functor to the chosen
 automorphism. -/
@@ -59,7 +59,7 @@ theorem RelativeInertia.map.aut
     (G : S₁ ⥤ᵇ S₂) (G' : S₁' ⥤ᵇ S₂')
     (comm : F₁ ⋙ G' ≅ G ⋙ F₂) (A : (relativeInertia F₁).obj) :
     ((RelativeInertia.map G G' comm).toFunctor.obj A).aut =
-      G.toFunctor.mapIso A.aut := sorry
+      G.toFunctor.mapIso A.aut := rfl
 
 /-- A based relative-inertia map applies the source-side based functor to the underlying
 arrow. -/
@@ -71,7 +71,7 @@ theorem RelativeInertia.map.hom
     {A B : (relativeInertia F₁).obj} (φ : A ⟶ B) :
     CategoryTheory.RelativeInertia.hom
         ((RelativeInertia.map G G' comm).toFunctor.map φ) =
-      G.toFunctor.map (CategoryTheory.RelativeInertia.hom φ) := sorry
+      G.toFunctor.map (CategoryTheory.RelativeInertia.hom φ) := rfl
 
 namespace Inertia.map.squareIso
 
@@ -80,14 +80,14 @@ inverse strict projection comparison. -/
 @[simp, stacks 04Z4 "absolute-inertia square comparison forward component"]
 theorem hom.app (G : S₁ ⥤ᵇ S₂) (x : S₁.obj) :
     (Inertia.map.squareIso G).hom.app x =
-      (Functor.rightUnitor S₁.p).hom.app x ≫ G.projectionIso.inv.app x := sorry
+      (Functor.rightUnitor S₁.p).hom.app x ≫ G.projectionIso.inv.app x := rfl
 
 /-- The inverse component of the square comparison is the strict projection comparison
 followed by the inverse right unitor. -/
 @[simp, stacks 04Z4 "absolute-inertia square comparison inverse component"]
 theorem inv.app (G : S₁ ⥤ᵇ S₂) (x : S₁.obj) :
     (Inertia.map.squareIso G).inv.app x =
-      G.projectionIso.hom.app x ≫ (Functor.rightUnitor S₁.p).inv.app x := sorry
+      G.projectionIso.hom.app x ≫ (Functor.rightUnitor S₁.p).inv.app x := rfl
 
 end Inertia.map.squareIso
 
@@ -98,19 +98,19 @@ relative-inertia map. -/
 @[simp, stacks 04Z4 "absolute-inertia map total-functor computation"]
 theorem toFunctor (G : S₁ ⥤ᵇ S₂) :
     (Inertia.map G).toFunctor =
-      CategoryTheory.RelativeInertia.map G.toFunctor (𝟭 C) (squareIso G) := sorry
+      CategoryTheory.RelativeInertia.map G.toFunctor (𝟭 C) (squareIso G) := rfl
 
 /-- A based absolute-inertia map applies the original based functor to the underlying
 object. -/
 @[simp, stacks 04Z4 "absolute-inertia map object computation"]
 theorem obj (G : S₁ ⥤ᵇ S₂) (A : (inertia S₁).obj) :
-    ((Inertia.map G).toFunctor.obj A).obj = G.toFunctor.obj A.obj := sorry
+    ((Inertia.map G).toFunctor.obj A).obj = G.toFunctor.obj A.obj := rfl
 
 /-- A based absolute-inertia map applies the original based functor to the chosen
 automorphism. -/
 @[simp, stacks 04Z4 "absolute-inertia map automorphism computation"]
 theorem aut (G : S₁ ⥤ᵇ S₂) (A : (inertia S₁).obj) :
-    ((Inertia.map G).toFunctor.obj A).aut = G.toFunctor.mapIso A.aut := sorry
+    ((Inertia.map G).toFunctor.obj A).aut = G.toFunctor.mapIso A.aut := rfl
 
 /-- A based absolute-inertia map applies the original based functor to the underlying
 arrow. -/
@@ -118,7 +118,7 @@ arrow. -/
 theorem hom
     (G : S₁ ⥤ᵇ S₂) {A B : (inertia S₁).obj} (φ : A ⟶ B) :
     CategoryTheory.RelativeInertia.hom ((Inertia.map G).toFunctor.map φ) =
-      G.toFunctor.map (CategoryTheory.RelativeInertia.hom φ) := sorry
+      G.toFunctor.map (CategoryTheory.RelativeInertia.hom φ) := rfl
 
 end Inertia.map
 

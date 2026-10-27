@@ -7,6 +7,7 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Limit.QcqsAffine.BaseChange.DerivedHom.Colimit
+import ReasLib.CategoryTheory.Sites.Sheafification.Abelian
 import StacksCheckRecall
 
 @[expose] public section

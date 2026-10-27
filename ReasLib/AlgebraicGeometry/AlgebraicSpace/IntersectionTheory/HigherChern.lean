@@ -28,19 +28,19 @@ variable {S : Scheme.{u}} {B X : AlgebraicSpace S}
 
 /-- The projective bundle of a finite locally free module is quasi-separated over the base. -/
 instance projective_qs [SheafOfModules.IsFiniteLocallyFree E] :
-    QuasiSeparated (ProjectiveAtlas.projection E ≫ f) := by sorry
+    QuasiSeparated (ProjectiveAtlas.projection E ≫ f) := sorry
 /-- The projective bundle of a finite locally free module is locally of finite type over the base. -/
 instance projective_lft [SheafOfModules.IsFiniteLocallyFree E] :
-    LocallyOfFiniteType (ProjectiveAtlas.projection E ≫ f) := by sorry
+    LocallyOfFiniteType (ProjectiveAtlas.projection E ≫ f) := sorry
 /-- The projection of a finite locally free projective bundle is proper. -/
 instance projective_proper [SheafOfModules.IsFiniteLocallyFree E] :
-    Proper (ProjectiveAtlas.projection E) := by sorry
+    Proper (ProjectiveAtlas.projection E) := sorry
 /-- The projection of a finite locally free projective bundle is flat. -/
 instance projective_flat [SheafOfModules.IsFiniteLocallyFree E] :
-    Flat (ProjectiveAtlas.projection E) := by sorry
+    Flat (ProjectiveAtlas.projection E) := sorry
 /-- The projective bundle of a module of rank `q + 1` has relative dimension `q`. -/
 instance projective_dimension (q : ℕ) [SheafOfModules.IsFiniteLocallyFreeOfRank (q + 1) E] :
-    RelativeDimension (ProjectiveAtlas.projection E) q := by sorry
+    RelativeDimension (ProjectiveAtlas.projection E) q := sorry
 /-- The tautological quotient module on a projective bundle is invertible. -/
 instance tautological_invertible : isInvertibleObject (TautologicalDescent.O1 E) :=
   TautologicalDescent.O1_invertible E
@@ -54,8 +54,8 @@ def formulaTerm (r : ℕ) [SheafOfModules.IsFiniteLocallyFreeOfRank r E]
   cases r with
   | zero => exact Fin.elim0 i
   | succ q =>
-      exact (ChowCohomology.castChowGroup δ (ProjectiveAtlas.projection E ≫ f)
-        (show k + (q : ℤ) = k + ((q + 1 : ℕ) : ℤ) - 1 by omega)).comp
+      exact ((AddEquiv.cast (M := Hom.chowGroup (ProjectiveAtlas.projection E ≫ f) δ)
+        (show k + (q : ℤ) = k + ((q + 1 : ℕ) : ℤ) - 1 by omega)).toAddMonoidHom).comp
           (ProjectiveFormulaMap.term f δ (ProjectiveAtlas.projection E) q
             (TautologicalDescent.O1 E) k i)
 
@@ -64,8 +64,8 @@ followed by the arithmetic transport of the target degree. -/
 theorem formulaTerm_succ (q : ℕ) [SheafOfModules.IsFiniteLocallyFreeOfRank (q + 1) E]
     (k : ℤ) (i : Fin (q + 1)) :
     formulaTerm f δ E (q + 1) k i =
-      (ChowCohomology.castChowGroup δ (ProjectiveAtlas.projection E ≫ f)
-        (show k + (q : ℤ) = k + ((q + 1 : ℕ) : ℤ) - 1 by omega)).comp
+      ((AddEquiv.cast (M := Hom.chowGroup (ProjectiveAtlas.projection E ≫ f) δ)
+        (show k + (q : ℤ) = k + ((q + 1 : ℕ) : ℤ) - 1 by omega)).toAddMonoidHom).comp
           (ProjectiveFormulaMap.term f δ (ProjectiveAtlas.projection E) q
             (TautologicalDescent.O1 E) k i) := rfl
 
@@ -74,8 +74,8 @@ pullback and tautological Chern-power cap. -/
 theorem formulaTerm_apply (q : ℕ) [SheafOfModules.IsFiniteLocallyFreeOfRank (q + 1) E]
     (k : ℤ) (i : Fin (q + 1)) (a : Hom.chowGroup f δ (k + i.val)) :
     formulaTerm f δ E (q + 1) k i a =
-      ChowCohomology.castChowGroup δ (ProjectiveAtlas.projection E ≫ f)
-        (show k + (q : ℤ) = k + ((q + 1 : ℕ) : ℤ) - 1 by omega)
+      (AddEquiv.cast (M := Hom.chowGroup (ProjectiveAtlas.projection E ≫ f) δ)
+        (show k + (q : ℤ) = k + ((q + 1 : ℕ) : ℤ) - 1 by omega)).toAddMonoidHom
         (ProjectiveFormulaMap.term f δ (ProjectiveAtlas.projection E) q
           (TautologicalDescent.O1 E) k i a) := rfl
 
@@ -95,8 +95,7 @@ theorem formulaMap_apply (r : ℕ) [SheafOfModules.IsFiniteLocallyFreeOfRank r E
 
 /-- The projective-bundle formula map is bijective in every degree and at every finite rank. -/
 theorem formulaMap_bijective (r : ℕ) [SheafOfModules.IsFiniteLocallyFreeOfRank r E]
-    (k : ℤ) : Function.Bijective (formulaMap f δ E r k) := by
-  sorry
+    (k : ℤ) : Function.Bijective (formulaMap f δ E r k) := sorry
 
 variable (q : ℕ) [SheafOfModules.IsFiniteLocallyFreeOfRank (q + 1) E]
 
@@ -106,44 +105,44 @@ def segre (j : ℕ) (k : ℤ) : Hom.chowGroup f δ k →+ Hom.chowGroup f δ (k 
 
 /-- The degree-zero Segre operation is the identity up to degree transport. -/
 theorem segre_zero (k : ℤ) :
-    segre f δ E q 0 k = ChowCohomology.castChowGroup δ f (by omega) := by sorry
+    segre f δ E q 0 k = (AddEquiv.cast (M := Hom.chowGroup f δ) (by omega)).toAddMonoidHom := sorry
 
 /-- The positive-rank projective-bundle formula is bijective in every Chow degree. -/
 theorem formula_bijective (k : ℤ) : Function.Bijective
-    (ProjectiveFormulaMap.formula f δ (ProjectiveAtlas.projection E) q (TautologicalDescent.O1 E) k) := by
-  sorry
+    (ProjectiveFormulaMap.formula f δ (ProjectiveAtlas.projection E) q (TautologicalDescent.O1 E) k) := sorry
 
 /-- The Chern operations are defined by the signed finite recurrence `C(t)S(-t) = 1`
 for the Segre operations with the positive tautological first Chern class convention. -/
 def positive (n : ℕ) (k : ℤ) : Hom.chowGroup f δ k →+ Hom.chowGroup f δ (k - n) :=
   if hn : n = 0 then
-    ChowCohomology.castChowGroup δ f (by rw [hn]; omega)
+    (AddEquiv.cast (M := Hom.chowGroup f δ) (by rw [hn]; omega)).toAddMonoidHom
   else
     ∑ j : Fin n, (-1 : ℤ) ^ (n - j.val + 1) •
-      (ChowCohomology.castChowGroup δ f
-        (show (k - j.val) - (n - j.val : ℕ) = k - n by omega)).comp
+      ((AddEquiv.cast (M := Hom.chowGroup f δ)
+        (show (k - j.val) - (n - j.val : ℕ) = k - n by omega)).toAddMonoidHom).comp
         ((segre f δ E q (n - j.val) (k - j.val)).comp (positive j.val k))
 termination_by n
 
 /-- The degree-zero Chern operation is the identity up to degree transport. -/
 theorem positive_zero (k : ℤ) :
-    positive f δ E q 0 k = ChowCohomology.castChowGroup δ f (show k = k - (0 : ℕ) by omega) := by
+    positive f δ E q 0 k =
+      (AddEquiv.cast (M := Hom.chowGroup f δ) (show k = k - (0 : ℕ) by omega)).toAddMonoidHom := by
   rw [positive]
   simp
 
 /-- Chern operations vanish in degrees above the rank of the module. -/
 theorem positive_above_rank (n : ℕ) (hn : q + 1 < n) (k : ℤ) :
-    positive f δ E q n k = 0 := by sorry
+    positive f δ E q n k = 0 := sorry
 
 /-- A projective-bundle relation term is the complementary Chern operation,
 followed by flat pullback and a tautological Chern-power cap, in degree `k - 1`. -/
 def relationTerm (k : ℤ) (i : Fin (q + 2)) :
     Hom.chowGroup f δ k →+ Hom.chowGroup (ProjectiveAtlas.projection E ≫ f) δ (k - 1) :=
-  (ChowCohomology.castChowGroup δ (ProjectiveAtlas.projection E ≫ f)
+  ((AddEquiv.cast (M := Hom.chowGroup (ProjectiveAtlas.projection E ≫ f) δ)
     (show ((k - i.rev.val) + q) - i.val = k - 1 by
       have hi := i.isLt
       simp only [Fin.val_rev]
-      omega)).comp
+      omega)).toAddMonoidHom).comp
       ((FirstChernChow.power (ProjectiveAtlas.projection E ≫ f) δ (TautologicalDescent.O1 E)
         i.val ((k - i.rev.val) + q)).comp
         ((ProjectiveFormulaMap.pullback f δ (ProjectiveAtlas.projection E) q (k - i.rev.val)).comp
@@ -152,8 +151,7 @@ def relationTerm (k : ℤ) (i : Fin (q + 2)) :
 /-- The alternating sum of the Chern and tautological Chern-power terms vanishes
 on the projective bundle. -/
 theorem source_relation (k : ℤ) (a : Hom.chowGroup f δ k) :
-    ∑ i : Fin (q + 2), (-1 : ℤ) ^ i.val • relationTerm f δ E q k i a = 0 := by
-  sorry
+    ∑ i : Fin (q + 2), (-1 : ℤ) ^ i.val • relationTerm f δ E q k i a = 0 := sorry
 
 end HigherChern
 
@@ -175,7 +173,8 @@ def cap (r : ℕ) [hE : SheafOfModules.IsFiniteLocallyFreeOfRank r E]
     (i : ℕ) (k : ℤ) : Hom.chowGroup f δ k →+ Hom.chowGroup f δ (k - i) := by
   cases r with
   | zero =>
-      exact if hi : i = 0 then ChowCohomology.castChowGroup δ f (by rw [hi]; omega) else 0
+      exact if hi : i = 0 then
+        (AddEquiv.cast (M := Hom.chowGroup f δ) (by rw [hi]; omega)).toAddMonoidHom else 0
   | succ q => exact HigherChern.positive f δ E q i k
 
 end ConstantRankChern

@@ -64,28 +64,49 @@ theorem limitMap.π {X Y : D} (f : X ⟶ Y) (g : StructuredArrow Y L)
     [HasLimit (StructuredArrow.proj Y L ⋙ F)] :
     limitMap L F f ≫ limit.π (StructuredArrow.proj Y L ⋙ F) g =
       limit.π (StructuredArrow.proj X L ⋙ F)
-        ((StructuredArrow.map f).obj g) := sorry
+        ((StructuredArrow.map f).obj g) := by
+  have h :=
+    (limit.isLimit (StructuredArrow.proj Y L ⋙ F)).map_π
+      ((limit.cone (StructuredArrow.proj X L ⋙ F)).whisker (StructuredArrow.map f))
+      (𝟙 _) g
+  change limitMap L F f ≫ limit.π (StructuredArrow.proj Y L ⋙ F) g =
+    limit.π (StructuredArrow.proj X L ⋙ F) ((StructuredArrow.map f).obj g) ≫ 𝟙 _ at h
+  simpa only [Category.comp_id] using h
 
 /-- The pointwise right-Kan-extension limit map associated to an identity is the identity. -/
 @[simp, stacks 002L "identity law for pointwise right-Kan-extension limit maps"]
 theorem limitMap.id (X : D)
     [HasLimit (StructuredArrow.proj X L ⋙ F)] :
-    limitMap L F (𝟙 X) = 𝟙 (limit (StructuredArrow.proj X L ⋙ F)) := sorry
+    limitMap L F (𝟙 X) = 𝟙 (limit (StructuredArrow.proj X L ⋙ F)) := by
+  apply limit.hom_ext
+  intro g
+  simp only [limitMap.π, Category.id_comp]
+  congr
+  apply StructuredArrow.map_id
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Pointwise right-Kan-extension limit maps respect composition. -/
 @[stacks 002L "composition law for pointwise right-Kan-extension limit maps"]
 theorem limitMap.comp {X Y Z : D} (f : X ⟶ Y) (g : Y ⟶ Z)
     [HasLimit (StructuredArrow.proj X L ⋙ F)]
     [HasLimit (StructuredArrow.proj Y L ⋙ F)]
     [HasLimit (StructuredArrow.proj Z L ⋙ F)] :
-    limitMap L F (f ≫ g) = limitMap L F f ≫ limitMap L F g := sorry
+    limitMap L F (f ≫ g) = limitMap L F f ≫ limitMap L F g := by
+  apply limit.hom_ext
+  intro h
+  simp only [Category.assoc, limitMap.π]
+  congr 1
+  apply StructuredArrow.map_comp
 
 /-- When all pointwise limits exist, `limitMap` is the structure map of Mathlib's explicit
 pointwise right Kan extension functor. -/
 @[stacks 002L "comparison with Mathlib's pointwise right Kan extension map"]
 theorem limitMap.eq_pointwise [L.HasPointwiseRightKanExtension F]
     {X Y : D} (f : X ⟶ Y) :
-    limitMap L F f = (L.pointwiseRightKanExtension F).map f := sorry
+    limitMap L F f = (L.pointwiseRightKanExtension F).map f := by
+  apply limit.hom_ext
+  intro g
+  simp only [limitMap.π, pointwiseRightKanExtension_map, limit.lift_π]
 
 /-- Limit coordinates for the chosen right Kan extension when the extension is pointwise. -/
 @[stacks 002L "chosen pointwise right Kan extension in limit coordinates"]
@@ -102,7 +123,10 @@ theorem objIsoLimit.hom_π [L.HasPointwiseRightKanExtension F]
     {X : D} (g : StructuredArrow X L) :
     (objIsoLimit L F X).hom ≫ limit.π (StructuredArrow.proj X L ⋙ F) g =
       (L.rightKanExtension F).map g.hom ≫
-        (rightKanExtensionCounit L F).app g.right := sorry
+        (rightKanExtensionCounit L F).app g.right := by
+  exact RightExtension.IsPointwiseRightKanExtensionAt.isoLimit_hom_π
+    (isPointwiseRightKanExtensionOfIsRightKanExtension (F := F)
+      (L.rightKanExtension F) (rightKanExtensionCounit L F) X) g
 
 /-- The inverse limit coordinate recovers every limit projection from the chosen right Kan
 extension counit. -/
@@ -111,8 +135,12 @@ theorem objIsoLimit.inv_π [L.HasPointwiseRightKanExtension F]
     {X : D} (g : StructuredArrow X L) :
     (objIsoLimit L F X).inv ≫ (L.rightKanExtension F).map g.hom ≫
         (rightKanExtensionCounit L F).app g.right =
-      limit.π (StructuredArrow.proj X L ⋙ F) g := sorry
+      limit.π (StructuredArrow.proj X L ⋙ F) g := by
+  exact RightExtension.IsPointwiseRightKanExtensionAt.isoLimit_inv_π
+    (isPointwiseRightKanExtensionOfIsRightKanExtension (F := F)
+      (L.rightKanExtension F) (rightKanExtensionCounit L F) X) g
 
+set_option backward.isDefEq.respectTransparency false in
 /-- In limit coordinates, the structure map of the chosen pointwise right Kan extension is
 the map induced by `StructuredArrow.map f`. -/
 @[stacks 002L "right Kan extension structure map in limit coordinates"]
@@ -120,7 +148,14 @@ theorem objIsoLimit.map [L.HasPointwiseRightKanExtension F]
     {X Y : D} (f : X ⟶ Y) :
     (objIsoLimit L F X).inv ≫ (L.rightKanExtension F).map f ≫
         (objIsoLimit L F Y).hom =
-      limitMap L F f := sorry
+      limitMap L F f := by
+  apply limit.hom_ext
+  intro g
+  simp only [Category.assoc, objIsoLimit.hom_π, limitMap.π]
+  have h := objIsoLimit.inv_π L F ((StructuredArrow.map f).obj g)
+  change (objIsoLimit L F X).inv ≫ (L.rightKanExtension F).map (f ≫ g.hom) ≫
+    (rightKanExtensionCounit L F).app g.right = _ at h
+  simpa only [Functor.map_comp, Category.assoc] using h
 
 /-- The structure map of the chosen pointwise right Kan extension followed by a limit
 projection is the source projection at the reindexed structured arrow. -/
@@ -132,7 +167,10 @@ theorem objIsoLimit.map_π [L.HasPointwiseRightKanExtension F]
           (objIsoLimit L F Y).hom ≫
         limit.π (StructuredArrow.proj Y L ⋙ F) g =
       limit.π (StructuredArrow.proj X L ⋙ F)
-        ((StructuredArrow.map f).obj g) := sorry
+        ((StructuredArrow.map f).obj g) := by
+  simpa only [Category.assoc, limitMap.π] using
+    congrArg (fun k ↦ k ≫ limit.π (StructuredArrow.proj Y L ⋙ F) g)
+      (objIsoLimit.map L F f)
 
 end CategoryTheory.Functor.RightKanExtension
 
@@ -144,6 +182,7 @@ variable {H : Type u₃} [Category.{v₃} H]
 variable (L : C ⥤ D) (F : C ⥤ H)
 variable [∀ G : C ⥤ H, L.HasRightKanExtension G]
 
+set_option backward.isDefEq.respectTransparency false in
 /-- In Mathlib's canonical `ranObjObjIsoLimit` coordinates, the map of the right Kan extension
 functor is the limit comparison induced by reindexing structured arrows. -/
 @[stacks 002L "canonical right Kan extension map in limit coordinates"]
@@ -151,7 +190,14 @@ theorem ranObjObjIsoLimit_map [L.HasPointwiseRightKanExtension F]
     {X Y : D} (f : X ⟶ Y) :
     (L.ranObjObjIsoLimit F X).inv ≫ (L.ran.obj F).map f ≫
         (L.ranObjObjIsoLimit F Y).hom =
-      RightKanExtension.limitMap L F f := sorry
+      RightKanExtension.limitMap L F f := by
+  apply limit.hom_ext
+  intro g
+  simp only [Category.assoc, ranObjObjIsoLimit_hom_π, RightKanExtension.limitMap.π]
+  have h := ranObjObjIsoLimit_inv_π L F X ((StructuredArrow.map f).obj g)
+  change (L.ranObjObjIsoLimit F X).inv ≫ (L.ran.obj F).map (f ≫ g.hom) ≫
+    (L.ranCounit.app F).app g.right = _ at h
+  simpa only [Functor.map_comp, Category.assoc] using h
 
 /-- In Mathlib's canonical `ranObjObjIsoLimit` coordinates, a right Kan extension map followed
 by a limit projection is the projection at the reindexed structured arrow. -/
@@ -162,6 +208,9 @@ theorem ranObjObjIsoLimit_map_π [L.HasPointwiseRightKanExtension F]
           (L.ranObjObjIsoLimit F Y).hom ≫
         limit.π (StructuredArrow.proj Y L ⋙ F) g =
       limit.π (StructuredArrow.proj X L ⋙ F)
-        ((StructuredArrow.map f).obj g) := sorry
+        ((StructuredArrow.map f).obj g) := by
+  simpa only [Category.assoc, RightKanExtension.limitMap.π] using
+    congrArg (fun k ↦ k ≫ limit.π (StructuredArrow.proj Y L ⋙ F) g)
+      (ranObjObjIsoLimit_map L F f)
 
 end CategoryTheory.Functor

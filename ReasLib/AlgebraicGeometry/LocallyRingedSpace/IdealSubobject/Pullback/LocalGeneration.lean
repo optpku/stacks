@@ -30,15 +30,4 @@ theorem IdealSubobject.pullback_isLocallyGenerated
     (hI : I.IsLocallyGeneratedBySections) :
     (I.pullback f).IsLocallyGeneratedBySections := sorry
 
-section
-
-variable {X Y : LocallyRingedSpace.{u}} (f : Y ⟶ X) (I : IdealSubobject X)
-variable [I.IsLocallyGeneratedBySections]
-
-#synth (I.pullback f).IsLocallyGeneratedBySections
-
-end
-
-/- The theorem and canonical instance are inherited definitionally from the ringed-space owner. -/
-
 end AlgebraicGeometry.LocallyRingedSpace

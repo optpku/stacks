@@ -58,53 +58,70 @@ abbrev diagram {X Y : C} (u : X ⟶ Y) : ℕ ⥤ C :=
 
 /-- The zeroth stage of the stabilizing sequential diagram is the initial object. -/
 @[simp]
-theorem stage_zero (X Y : C) : stage X Y 0 = ⊥_ C := sorry
+theorem stage_zero (X Y : C) : stage X Y 0 = ⊥_ C := rfl
 
 /-- The first noninitial stage of the stabilizing sequential diagram is `X`. -/
 @[simp]
-theorem stage_one (X Y : C) : stage X Y 1 = X := sorry
+theorem stage_one (X Y : C) : stage X Y 1 = X := rfl
 
 /-- Every stage from index `2` onward is `Y`. -/
 @[simp]
-theorem stage_tail (X Y : C) (n : ℕ) : stage X Y (n + 2) = Y := sorry
+theorem stage_tail (X Y : C) (n : ℕ) : stage X Y (n + 2) = Y := rfl
 
 /-- The first successor map of the stabilizing sequential diagram is the unique map from the
 initial object to `X`. -/
 @[simp]
-theorem step_zero {X Y : C} (u : X ⟶ Y) : step u 0 = initial.to X := sorry
+theorem step_zero {X Y : C} (u : X ⟶ Y) : step u 0 = initial.to X := rfl
 
 /-- In a category with zero morphisms, the first successor map of the stabilizing diagram is the
 zero morphism. -/
 @[simp]
 theorem step_zero_eq_zero [HasZeroMorphisms C] {X Y : C} (u : X ⟶ Y) :
-    step u 0 = 0 := sorry
+    step u 0 = 0 :=
+  initial.hom_ext _ _
 
 /-- The second successor map of the stabilizing sequential diagram is the input morphism. -/
 @[simp]
-theorem step_one {X Y : C} (u : X ⟶ Y) : step u 1 = u := sorry
+theorem step_one {X Y : C} (u : X ⟶ Y) : step u 1 = u := rfl
 
 /-- Every successor map from index `2` onward is the identity of `Y`. -/
 @[simp]
-theorem step_tail {X Y : C} (u : X ⟶ Y) (n : ℕ) : step u (n + 2) = 𝟙 Y := sorry
+theorem step_tail {X Y : C} (u : X ⟶ Y) (n : ℕ) : step u (n + 2) = 𝟙 Y := rfl
 
 /-- The successor map in the diagram is its specified sequence step. -/
 @[simp]
 theorem diagram_map_succ {X Y : C} (u : X ⟶ Y) (n : ℕ) :
-    (diagram u).map (homOfLE (Nat.le_succ n)) = step u n := sorry
+    (diagram u).map (homOfLE (Nat.le_succ n)) = step u n :=
+  Functor.ofSequence_map_homOfLE_succ (step u) n
 
 /-- Every transition entirely inside the `Y` tail of the stabilizing diagram is the identity. -/
 theorem diagram_map_tail {X Y : C} (u : X ⟶ Y) {m n : ℕ} (hmn : m ≤ n) :
     (diagram u).map
         (homOfLE (Nat.succ_le_succ (Nat.succ_le_succ hmn))) =
-      𝟙 Y := sorry
+      𝟙 Y := by
+  induction n, hmn using Nat.le_induction with
+  | base => exact (diagram u).map_id (m + 2)
+  | succ n hmn ih =>
+      rw [← homOfLE_comp (Nat.succ_le_succ (Nat.succ_le_succ hmn))
+        (Nat.le_succ (n + 2)), Functor.map_comp, diagram_map_succ, step_tail, ih]
+      exact Category.id_comp (𝟙 Y)
 
 /-- The standard stabilizing diagram is eventually constant from its `Y` stage. -/
 theorem isEventuallyConstantFrom_two {X Y : C} (u : X ⟶ Y) :
-    (diagram u).IsEventuallyConstantFrom 2 := sorry
+    (diagram u).IsEventuallyConstantFrom 2 := by
+  intro n f
+  obtain ⟨k, rfl⟩ : ∃ k, n = k + 2 :=
+    ⟨n - 2, (Nat.sub_add_cancel (leOfHom f)).symm⟩
+  have hf : f = homOfLE (Nat.succ_le_succ (Nat.succ_le_succ (Nat.zero_le k))) :=
+    Subsingleton.elim _ _
+  rw [hf, diagram_map_tail u (Nat.zero_le k)]
+  change IsIso (𝟙 Y)
+  infer_instance
 
 /-- A stabilizing sequential diagram admits a colimit, supplied by its eventually constant
 tail. Use this theorem as a local instance when an explicit colimit object is needed. -/
-theorem hasColimit {X Y : C} (u : X ⟶ Y) : HasColimit (diagram u) := sorry
+theorem hasColimit {X Y : C} (u : X ⟶ Y) : HasColimit (diagram u) :=
+  (isEventuallyConstantFrom_two u).hasColimit
 
 /-- The canonical comparison from `Y` to a chosen colimit of its stabilizing sequential diagram.
 The eventual-constancy certificate is explicit so the data owner is independent of any particular

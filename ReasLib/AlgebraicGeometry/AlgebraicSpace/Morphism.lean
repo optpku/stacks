@@ -27,4 +27,19 @@ points. -/
 abbrev Hom {S : Scheme.{u}} (F F' : AlgebraicSpace S) :=
   F.functorOfPoints ⟶ F'.functorOfPoints
 
+namespace OpenSubspace
+
+noncomputable section
+
+/-- A section of the functor of points over a scheme determines a morphism from
+the algebraic space represented by that scheme. -/
+abbrev homOfPointsSection {S : Scheme.{u}} {X : AlgebraicSpace S}
+    {U : (Over S)ᵒᵖ} (φ : X.functorOfPoints.obj U) :
+    ofOver U.unop ⟶ X :=
+  yonedaEquiv.symm φ
+
+end
+
+end OpenSubspace
+
 end AlgebraicGeometry.AlgebraicSpace

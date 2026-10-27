@@ -229,7 +229,7 @@ theorem matrixOfHom_apply {R : Type u} [CommRing R]
 
 /-- Reconstructing an over-morphism from its evaluated universal matrix is the identity. -/
 @[simp]
-abbrev ofMatrix_matrixOfHom {R : Type u} [CommRing R]
+theorem ofMatrix_matrixOfHom {R : Type u} [CommRing R]
     (ι : Type u) [Fintype ι] [DecidableEq ι]
     {T : Over (Spec (CommRingCat.of R))} (f : T ⟶ schemeOver R ι) :
     ofMatrix ι (matrixOfHom ι f) = f :=
@@ -237,7 +237,7 @@ abbrev ofMatrix_matrixOfHom {R : Type u} [CommRing R]
 
 /-- Evaluating the over-morphism represented by a matrix recovers that matrix. -/
 @[simp]
-abbrev matrixOfHom_ofMatrix {R : Type u} [CommRing R]
+theorem matrixOfHom_ofMatrix {R : Type u} [CommRing R]
     (ι : Type u) [Fintype ι] [DecidableEq ι]
     {T : Over (Spec (CommRingCat.of R))}
     (M : Matrix.GeneralLinearGroup ι Γ(T.left, ⊤)) :
@@ -247,7 +247,7 @@ abbrev matrixOfHom_ofMatrix {R : Type u} [CommRing R]
 /-- Evaluation of the universal matrix bijects morphisms over `Spec(R)` into the general linear
 scheme with invertible matrices over global sections. -/
 @[stacks 01KX "general linear scheme functor of points"]
-abbrev matrixOfHom_bijective {R : Type u} [CommRing R]
+theorem matrixOfHom_bijective {R : Type u} [CommRing R]
     (ι : Type u) [Fintype ι] [DecidableEq ι]
     (T : Over (Spec (CommRingCat.of R))) :
     Function.Bijective (matrixOfHom (T := T) ι) :=

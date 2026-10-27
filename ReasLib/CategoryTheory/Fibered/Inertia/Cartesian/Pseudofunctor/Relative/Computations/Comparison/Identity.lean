@@ -34,7 +34,8 @@ theorem pseudofunctor.mapId
       (Pseudofunctor.id (FiberedCategoryOver.{u, v, w, vS} C))) :
     (pseudofunctor C).mapId S =
       FiberedCategoryOver.BasedFunctorIso.lift
-        ((basedPseudofunctor C).mapId S) := sorry
+        ((basedPseudofunctor C).mapId S) := by
+  rfl
 
 /-- The forward fibred relative-inertia identity comparison forgets to the
 underlying based comparison cell. -/
@@ -45,7 +46,8 @@ theorem pseudofunctor.mapId.hom.toBasedNatTrans
       (Pseudofunctor.id (FiberedCategoryOver.{u, v, w, vS} C))) :
     FiberedCategoryOver.toBasedNatTrans
         ((pseudofunctor C).mapId S).hom =
-      ((basedPseudofunctor C).mapId S).hom := sorry
+      ((basedPseudofunctor C).mapId S).hom := by
+  rfl
 
 /-- The inverse fibred relative-inertia identity comparison forgets to the
 underlying based comparison cell. -/
@@ -56,7 +58,8 @@ theorem pseudofunctor.mapId.inv.toBasedNatTrans
       (Pseudofunctor.id (FiberedCategoryOver.{u, v, w, vS} C))) :
     FiberedCategoryOver.toBasedNatTrans
         ((pseudofunctor C).mapId S).inv =
-      ((basedPseudofunctor C).mapId S).inv := sorry
+      ((basedPseudofunctor C).mapId S).inv := by
+  rfl
 
 /-- The forward identity comparison component is the corresponding component
 of the based relative-inertia pseudofunctor. -/
@@ -68,7 +71,8 @@ theorem pseudofunctor.mapId.hom.app
     (A : ((pseudofunctor C).obj S).total) :
     (FiberedCategoryOver.toNatTrans
         ((pseudofunctor C).mapId S).hom).app A =
-      ((basedPseudofunctor C).mapId S).hom.toNatTrans.app A := sorry
+      ((basedPseudofunctor C).mapId S).hom.toNatTrans.app A := by
+  rfl
 
 /-- The inverse identity comparison component is the corresponding component
 of the based relative-inertia pseudofunctor. -/
@@ -80,7 +84,8 @@ theorem pseudofunctor.mapId.inv.app
     (A : ((pseudofunctor C).obj S).total) :
     (FiberedCategoryOver.toNatTrans
         ((pseudofunctor C).mapId S).inv).app A =
-      ((basedPseudofunctor C).mapId S).inv.toNatTrans.app A := sorry
+      ((basedPseudofunctor C).mapId S).inv.toNatTrans.app A := by
+  rfl
 
 /-- Every forward component of the packaged fibred relative-inertia identity comparison is
 vertical over the identity base arrow. -/
@@ -92,7 +97,9 @@ theorem pseudofunctor.mapId.hom.app.isHomLift
     (FiberedCategoryOver.relativeInertia S.hom).p.IsHomLift
       (𝟙 ((FiberedCategoryOver.relativeInertia S.hom).p.obj A))
       ((FiberedCategoryOver.toNatTrans
-        ((pseudofunctor C).mapId S).hom).app A) := sorry
+        ((pseudofunctor C).mapId S).hom).app A) := by
+  exact (FiberedCategoryOver.toBasedNatTrans
+    ((pseudofunctor C).mapId S).hom).isHomLift rfl
 
 /-- Every inverse component of the packaged fibred relative-inertia identity comparison is
 vertical over the identity base arrow. -/
@@ -104,7 +111,9 @@ theorem pseudofunctor.mapId.inv.app.isHomLift
     (FiberedCategoryOver.relativeInertia S.hom).p.IsHomLift
       (𝟙 ((FiberedCategoryOver.relativeInertia S.hom).p.obj A))
       ((FiberedCategoryOver.toNatTrans
-        ((pseudofunctor C).mapId S).inv).app A) := sorry
+        ((pseudofunctor C).mapId S).inv).app A) := by
+  exact (FiberedCategoryOver.toBasedNatTrans
+    ((pseudofunctor C).mapId S).inv).isHomLift rfl
 
 /-- The ambient arrow underlying a forward identity-comparison component is
 the identity of the underlying relative-inertia object. -/
@@ -117,7 +126,10 @@ theorem pseudofunctor.mapId.hom.app.underlying
     CategoryTheory.RelativeInertia.hom
         ((FiberedCategoryOver.toNatTrans
           ((pseudofunctor C).mapId S).hom).app A) =
-      𝟙 A.obj := sorry
+      𝟙 A.obj := by
+  change (((𝟙 A.obj ≫ 𝟙 A.obj) ≫ 𝟙 A.obj) ≫ (𝟙 A.obj ≫ 𝟙 A.obj)) ≫
+    𝟙 A.obj = 𝟙 A.obj
+  simp only [Category.id_comp]
 
 /-- The ambient arrow underlying an inverse identity-comparison component is
 the identity of the underlying relative-inertia object. -/
@@ -130,7 +142,10 @@ theorem pseudofunctor.mapId.inv.app.underlying
     CategoryTheory.RelativeInertia.hom
         ((FiberedCategoryOver.toNatTrans
           ((pseudofunctor C).mapId S).inv).app A) =
-      𝟙 A.obj := sorry
+      𝟙 A.obj := by
+  change 𝟙 A.obj ≫ ((𝟙 A.obj ≫ 𝟙 A.obj) ≫ (𝟙 A.obj ≫ (𝟙 A.obj ≫ 𝟙 A.obj))) =
+    𝟙 A.obj
+  simp only [Category.id_comp]
 
 end FiberedCategoryOver.RelativeInertia.pseudoComma
 

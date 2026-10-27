@@ -40,12 +40,12 @@ def toRingedSpaceMap (X : Scheme.{u}) {M N : X.Modules} (f : M ⟶ N) :
 
 /-- The identity law for the identity-on-data passage to the ringed-space presentation. -/
 theorem toRingedSpaceMap_id (X : Scheme.{u}) (M : X.Modules) :
-    toRingedSpaceMap X (𝟙 M) = 𝟙 (toRingedSpaceObj X M) := sorry
+    toRingedSpaceMap X (𝟙 M) = 𝟙 (toRingedSpaceObj X M) := rfl
 
 /-- The composition law for the identity-on-data passage to the ringed-space presentation. -/
 theorem toRingedSpaceMap_comp (X : Scheme.{u})
     {M N P : X.Modules} (f : M ⟶ N) (g : N ⟶ P) :
-    toRingedSpaceMap X (f ≫ g) = toRingedSpaceMap X f ≫ toRingedSpaceMap X g := sorry
+    toRingedSpaceMap X (f ≫ g) = toRingedSpaceMap X f ≫ toRingedSpaceMap X g := rfl
 
 /-- The identity-on-data functor from Mathlib's scheme-module presentation to the ringed-space
 module presentation. -/
@@ -69,13 +69,13 @@ def fromRingedSpaceMap (X : Scheme.{u})
 
 /-- The identity law for the identity-on-data passage from the ringed-space presentation. -/
 theorem fromRingedSpaceMap_id (X : Scheme.{u}) (M : X.toRingedSpace.Modules) :
-    fromRingedSpaceMap X (𝟙 M) = 𝟙 (fromRingedSpaceObj X M) := sorry
+    fromRingedSpaceMap X (𝟙 M) = 𝟙 (fromRingedSpaceObj X M) := rfl
 
 /-- The composition law for the identity-on-data passage from the ringed-space presentation. -/
 theorem fromRingedSpaceMap_comp (X : Scheme.{u})
     {M N P : X.toRingedSpace.Modules}
     (f : M ⟶ N) (g : N ⟶ P) :
-    fromRingedSpaceMap X (f ≫ g) = fromRingedSpaceMap X f ≫ fromRingedSpaceMap X g := sorry
+    fromRingedSpaceMap X (f ≫ g) = fromRingedSpaceMap X f ≫ fromRingedSpaceMap X g := rfl
 
 /-- The identity-on-data functor from the ringed-space module presentation back to Mathlib's
 scheme-module presentation. -/
@@ -88,7 +88,7 @@ def fromRingedSpace (X : Scheme.{u}) : X.toRingedSpace.Modules ⥤ X.Modules whe
 /-- The identity-on-data comparison isomorphisms satisfy the triangle identity. -/
 theorem ringedSpaceEquivalence_triangle (X : Scheme.{u}) (M : X.Modules) :
     (toRingedSpace X).map (𝟙 M) ≫ 𝟙 ((toRingedSpace X).obj M) =
-      𝟙 ((toRingedSpace X).obj M) := sorry
+      𝟙 ((toRingedSpace X).obj M) := by simp
 
 /-- The two identity-on-data functors identify Mathlib's scheme-module category with the
 ringed-space module category of the underlying ringed space.  Both comparison isomorphisms are
@@ -104,22 +104,22 @@ def ringedSpaceEquivalence (X : Scheme.{u}) : X.Modules ≌ X.toRingedSpace.Modu
 /-- The forward presentation functor does not change the underlying module sheaf. -/
 @[simp]
 theorem toRingedSpace_obj {X : Scheme.{u}} (M : X.Modules) :
-    (toRingedSpace X).obj M = M := sorry
+    (toRingedSpace X).obj M = M := rfl
 
 /-- The forward presentation functor does not change the underlying module-sheaf morphism. -/
 @[simp]
 theorem toRingedSpace_map {X : Scheme.{u}} {M N : X.Modules} (f : M ⟶ N) :
-    (toRingedSpace X).map f = f := sorry
+    (toRingedSpace X).map f = f := rfl
 
 /-- The inverse presentation functor does not change the underlying module sheaf. -/
 @[simp]
 theorem fromRingedSpace_obj {X : Scheme.{u}} (M : X.toRingedSpace.Modules) :
-    (fromRingedSpace X).obj M = M := sorry
+    (fromRingedSpace X).obj M = M := rfl
 
 /-- The inverse presentation functor does not change the underlying module-sheaf morphism. -/
 @[simp]
 theorem fromRingedSpace_map {X : Scheme.{u}}
     {M N : X.toRingedSpace.Modules} (f : M ⟶ N) :
-    (fromRingedSpace X).map f = f := sorry
+    (fromRingedSpace X).map f = f := rfl
 
 end AlgebraicGeometry.Scheme.Modules

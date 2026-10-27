@@ -7,6 +7,7 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import ReasLib.AlgebraicGeometry.FormalDeformation.Stalk
+public import ReasLib.AlgebraicGeometry.FormalDeformation.Scheme.Projection
 public import ReasLib.AlgebraicGeometry.FormalDeformation.FlatAlgebra.Product
 public import ReasLib.AlgebraicGeometry.FormalDeformation.FlatAlgebra.HenselCompletion
 
@@ -34,15 +35,6 @@ variable (X : Scheme.{u})
   (hX : X ⟶ Spec (CommRingCat.of (ArtinianLocalAlgCat.residue Λ k).carrier))
 variable [AlgebraicGeometry.Flat hX]
 variable {ι : Type u}
-
-/-- The projection from scheme deformations to their Artinian local bases. -/
-abbrev deformationForget : deformationCategory Λ k X hX ⥤ ArtinianLocalAlgCat Λ k :=
-  Over.forget (Fiber.fiberInclusion.obj (residueObj Λ k X hX)) ⋙ forget Λ k
-
-/-- The slice projection of `Def_X` evaluates an object `(A, Y) → (k, X)` to `A`. -/
-theorem deformationForget_obj (ξ : deformationCategory Λ k X hX) :
-    (deformationForget Λ k X hX).obj ξ = ξ.left.base :=
-  rfl
 
 /-- The slice projection of `Def_X` is cofibered in groupoids. -/
 instance instInGroupoids_deformationForget :

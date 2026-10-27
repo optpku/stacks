@@ -29,17 +29,17 @@ namespace Inertia
 /-- The object action of the inertia pseudofunctor is the bundled inertia category. -/
 @[simp, stacks 04Z4 "inertia pseudofunctor object action"]
 theorem pseudofunctor.obj (C : Cat.{v, u}) :
-    pseudofunctor.obj C = Cat.of (Inertia C) := sorry
+    pseudofunctor.obj C = Cat.of (Inertia C) := rfl
 
 /-- The `1`-cell action of the inertia pseudofunctor is the bundled induced inertia functor. -/
 @[simp, stacks 04Z4 "inertia pseudofunctor one-cell action"]
 theorem pseudofunctor.map {C D : Cat.{v, u}} (F : C ⟶ D) :
-    pseudofunctor.map F = (Inertia.map F.toFunctor).toCatHom := sorry
+    pseudofunctor.map F = (Inertia.map F.toFunctor).toCatHom := rfl
 
 /-- Forgetting the Cat wrapper from the `1`-cell action recovers the induced inertia functor. -/
 @[simp, stacks 04Z4 "inertia pseudofunctor one-cell underlying functor"]
 theorem pseudofunctor.map.toFunctor {C D : Cat.{v, u}} (F : C ⟶ D) :
-    ((pseudofunctor).map F).toFunctor = Inertia.map F.toFunctor := sorry
+    ((pseudofunctor).map F).toFunctor = Inertia.map F.toFunctor := rfl
 
 /-- Evaluation of the `1`-cell action on an inertia object is evaluation of the induced inertia
 functor. -/
@@ -47,21 +47,21 @@ functor. -/
 theorem pseudofunctor.map.obj
     {C D : Cat.{v, u}} (F : C ⟶ D) (X : Inertia C) :
     ((pseudofunctor).map F).toFunctor.obj X =
-      (Inertia.map F.toFunctor).obj X := sorry
+      (Inertia.map F.toFunctor).obj X := rfl
 
 /-- The object underlying a pseudofunctor image is the image of the underlying object. -/
 @[simp, stacks 04Z4 "inertia pseudofunctor underlying-object readout"]
 theorem pseudofunctor.map.obj.underlying
     {C D : Cat.{v, u}} (F : C ⟶ D) (X : Inertia C) :
     (((pseudofunctor).map F).toFunctor.obj X).obj =
-      F.toFunctor.obj X.obj := sorry
+      F.toFunctor.obj X.obj := rfl
 
 /-- The automorphism of a pseudofunctor image is the image of the original automorphism. -/
 @[simp, stacks 04Z4 "inertia pseudofunctor automorphism readout"]
 theorem pseudofunctor.map.obj.aut
     {C D : Cat.{v, u}} (F : C ⟶ D) (X : Inertia C) :
     (((pseudofunctor).map F).toFunctor.obj X).aut =
-      F.toFunctor.mapIso X.aut := sorry
+      F.toFunctor.mapIso X.aut := rfl
 
 /-- Evaluation of the `1`-cell action on an inertia morphism is evaluation of the induced inertia
 functor. -/
@@ -69,26 +69,26 @@ functor. -/
 theorem pseudofunctor.map.hom
     {C D : Cat.{v, u}} (F : C ⟶ D) {X Y : Inertia C} (f : X ⟶ Y) :
     ((pseudofunctor).map F).toFunctor.map f =
-      (Inertia.map F.toFunctor).map f := sorry
+      (Inertia.map F.toFunctor).map f := rfl
 
 /-- The arrow underlying a pseudofunctor image morphism is the image of its underlying arrow. -/
 @[simp, stacks 04Z4 "inertia pseudofunctor underlying-arrow readout"]
 theorem pseudofunctor.map.hom.underlying
     {C D : Cat.{v, u}} (F : C ⟶ D) {X Y : Inertia C} (f : X ⟶ Y) :
     Inertia.hom (((pseudofunctor).map F).toFunctor.map f) =
-      F.toFunctor.map (Inertia.hom f) := sorry
+      F.toFunctor.map (Inertia.hom f) := rfl
 
 /-- The ordinary inertia pseudofunctor preserves identity `1`-morphisms on the nose. -/
 @[simp, stacks 04Z4 "inertia pseudofunctor identity action"]
 theorem pseudofunctor.map_id (C : Cat.{v, u}) :
-    (pseudofunctor).map (𝟙 C) = 𝟙 ((pseudofunctor).obj C) := sorry
+    (pseudofunctor).map (𝟙 C) = 𝟙 ((pseudofunctor).obj C) := rfl
 
 /-- The ordinary inertia pseudofunctor preserves composition of `1`-morphisms on the nose. -/
 @[simp, stacks 04Z4 "inertia pseudofunctor composition action"]
 theorem pseudofunctor.map_comp
     {C D E : Cat.{v, u}} (F : C ⟶ D) (G : D ⟶ E) :
     (pseudofunctor).map (F ≫ G) =
-      (pseudofunctor).map F ≫ (pseudofunctor).map G := sorry
+      (pseudofunctor).map F ≫ (pseudofunctor).map G := rfl
 
 end Inertia
 end CategoryTheory

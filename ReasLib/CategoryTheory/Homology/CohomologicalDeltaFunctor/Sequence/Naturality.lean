@@ -34,14 +34,16 @@ complexes. -/
 theorem map_f (F : CohomologicalDeltaFunctor A B) {S T : ShortComplex A}
     (φ : S ⟶ T) (n : ℕ) :
     (F.F n).obj.map S.f ≫ (F.F n).obj.map φ.τ₂ =
-      (F.F n).obj.map φ.τ₁ ≫ (F.F n).obj.map T.f := sorry
+      (F.F n).obj.map φ.τ₁ ≫ (F.F n).obj.map T.f := by
+  simpa only [Functor.map_comp] using congrArg ((F.F n).obj.map) φ.comm₁₂.symm
 
 /-- Naturality of the second arrow of an exact window under a map of short
 complexes. -/
 theorem map_g (F : CohomologicalDeltaFunctor A B) {S T : ShortComplex A}
     (φ : S ⟶ T) (n : ℕ) :
     (F.F n).obj.map S.g ≫ (F.F n).obj.map φ.τ₃ =
-      (F.F n).obj.map φ.τ₂ ≫ (F.F n).obj.map T.g := sorry
+      (F.F n).obj.map φ.τ₂ ≫ (F.F n).obj.map T.g := by
+  simpa only [Functor.map_comp] using congrArg ((F.F n).obj.map) φ.comm₂₃.symm
 
 /-- A map of short exact complexes induces a map between their exact
 windows. -/
@@ -61,49 +63,62 @@ def map (F : CohomologicalDeltaFunctor A B) {S T : ShortComplex A}
 theorem map_app_zero (F : CohomologicalDeltaFunctor A B)
     {S T : ShortComplex A} (hS : S.ShortExact) (hT : T.ShortExact)
     (φ : S ⟶ T) (n : ℕ) :
-    (map F hS hT φ n).app 0 = (F.F n).obj.map φ.τ₁ := sorry
+    (map F hS hT φ n).app 0 = (F.F n).obj.map φ.τ₁ := rfl
 
 /-- The degree-`n` middle component of the induced map of exact windows. -/
 @[simp]
 theorem map_app_one (F : CohomologicalDeltaFunctor A B)
     {S T : ShortComplex A} (hS : S.ShortExact) (hT : T.ShortExact)
     (φ : S ⟶ T) (n : ℕ) :
-    (map F hS hT φ n).app 1 = (F.F n).obj.map φ.τ₂ := sorry
+    (map F hS hT φ n).app 1 = (F.F n).obj.map φ.τ₂ := rfl
 
 /-- The degree-`n` third component of the induced map of exact windows. -/
 @[simp]
 theorem map_app_two (F : CohomologicalDeltaFunctor A B)
     {S T : ShortComplex A} (hS : S.ShortExact) (hT : T.ShortExact)
     (φ : S ⟶ T) (n : ℕ) :
-    (map F hS hT φ n).app 2 = (F.F n).obj.map φ.τ₃ := sorry
+    (map F hS hT φ n).app 2 = (F.F n).obj.map φ.τ₃ := rfl
 
 /-- The degree-`n + 1` first component of the induced map of exact windows. -/
 @[simp]
 theorem map_app_three (F : CohomologicalDeltaFunctor A B)
     {S T : ShortComplex A} (hS : S.ShortExact) (hT : T.ShortExact)
     (φ : S ⟶ T) (n : ℕ) :
-    (map F hS hT φ n).app 3 = (F.F (n + 1)).obj.map φ.τ₁ := sorry
+    (map F hS hT φ n).app 3 = (F.F (n + 1)).obj.map φ.τ₁ := rfl
 
 /-- The degree-`n + 1` middle component of the induced map of exact windows. -/
 @[simp]
 theorem map_app_four (F : CohomologicalDeltaFunctor A B)
     {S T : ShortComplex A} (hS : S.ShortExact) (hT : T.ShortExact)
     (φ : S ⟶ T) (n : ℕ) :
-    (map F hS hT φ n).app 4 = (F.F (n + 1)).obj.map φ.τ₂ := sorry
+    (map F hS hT φ n).app 4 = (F.F (n + 1)).obj.map φ.τ₂ := rfl
 
 /-- The degree-`n + 1` last component of the induced map of exact windows. -/
 @[simp]
 theorem map_app_five (F : CohomologicalDeltaFunctor A B)
     {S T : ShortComplex A} (hS : S.ShortExact) (hT : T.ShortExact)
     (φ : S ⟶ T) (n : ℕ) :
-    (map F hS hT φ n).app 5 = (F.F (n + 1)).obj.map φ.τ₃ := sorry
+    (map F hS hT φ n).app 5 = (F.F (n + 1)).obj.map φ.τ₃ := rfl
 
 /-- Identity maps of short exact complexes induce identity maps of exact
 windows. -/
 @[simp]
 theorem map_id (F : CohomologicalDeltaFunctor A B) {S : ShortComplex A}
     (hS : S.ShortExact) (n : ℕ) :
-    map F hS hS (𝟙 S) n = 𝟙 (F.exactWindow hS n) := sorry
+    map F hS hS (𝟙 S) n = 𝟙 (F.exactWindow hS n) := by
+  apply hom_ext₅
+  · change (F.F n).obj.map (𝟙 S.X₁) = 𝟙 _
+    exact (F.F n).obj.map_id _
+  · change (F.F n).obj.map (𝟙 S.X₂) = 𝟙 _
+    exact (F.F n).obj.map_id _
+  · change (F.F n).obj.map (𝟙 S.X₃) = 𝟙 _
+    exact (F.F n).obj.map_id _
+  · change (F.F (n + 1)).obj.map (𝟙 S.X₁) = 𝟙 _
+    exact (F.F (n + 1)).obj.map_id _
+  · change (F.F (n + 1)).obj.map (𝟙 S.X₂) = 𝟙 _
+    exact (F.F (n + 1)).obj.map_id _
+  · change (F.F (n + 1)).obj.map (𝟙 S.X₃) = 𝟙 _
+    exact (F.F (n + 1)).obj.map_id _
 
 /-- Maps of exact windows preserve composition of maps of short exact
 complexes. -/
@@ -112,6 +127,19 @@ theorem map_comp (F : CohomologicalDeltaFunctor A B)
     {S T U : ShortComplex A} (hS : S.ShortExact) (hT : T.ShortExact)
     (hU : U.ShortExact) (φ : S ⟶ T) (ψ : T ⟶ U) (n : ℕ) :
     map F hS hU (φ ≫ ψ) n =
-      map F hS hT φ n ≫ map F hT hU ψ n := sorry
+      map F hS hT φ n ≫ map F hT hU ψ n := by
+  apply hom_ext₅
+  · change (F.F n).obj.map (φ.τ₁ ≫ ψ.τ₁) = _
+    exact (F.F n).obj.map_comp _ _
+  · change (F.F n).obj.map (φ.τ₂ ≫ ψ.τ₂) = _
+    exact (F.F n).obj.map_comp _ _
+  · change (F.F n).obj.map (φ.τ₃ ≫ ψ.τ₃) = _
+    exact (F.F n).obj.map_comp _ _
+  · change (F.F (n + 1)).obj.map (φ.τ₁ ≫ ψ.τ₁) = _
+    exact (F.F (n + 1)).obj.map_comp _ _
+  · change (F.F (n + 1)).obj.map (φ.τ₂ ≫ ψ.τ₂) = _
+    exact (F.F (n + 1)).obj.map_comp _ _
+  · change (F.F (n + 1)).obj.map (φ.τ₃ ≫ ψ.τ₃) = _
+    exact (F.F (n + 1)).obj.map_comp _ _
 
 end CategoryTheory.CohomologicalDeltaFunctor.exactWindow

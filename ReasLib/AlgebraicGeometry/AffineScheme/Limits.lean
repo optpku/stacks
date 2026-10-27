@@ -27,16 +27,10 @@ namespace AlgebraicGeometry.AffineScheme
 
 /-- Limits of affine schemes are computed by the underlying locally ringed
 spaces. -/
-@[stacks 01I4, instance]
+@[stacks 01I4]
 noncomputable instance forgetToLocallyRingedSpace_preservesLimits :
     PreservesLimits
       (AffineScheme.forgetToScheme ⋙ Scheme.forgetToLocallyRingedSpace) := sorry
-
-#synth HasLimits AffineScheme.{u}
-#synth PreservesLimits
-  (AffineScheme.forgetToScheme ⋙ Scheme.forgetToLocallyRingedSpace)
-#synth PreservesFiniteLimits
-  (AffineScheme.forgetToScheme ⋙ Scheme.forgetToLocallyRingedSpace)
 
 end AlgebraicGeometry.AffineScheme
 

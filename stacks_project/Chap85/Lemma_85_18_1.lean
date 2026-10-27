@@ -6,9 +6,8 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import Mathlib.Tactic.CrossRefAttribute
-public import stacks_project.Chap85.Lemma_85_18_1_Cartesian
-public import stacks_project.Chap85.Lemma_85_18_1_Equivalence
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.RingedSite.Localization.Simplicial.ModuleDescent
 
 /-!
 # Lemma 85.18.1
@@ -65,31 +64,21 @@ variable [∀ {m n : SimplexCategory} (φ : m ⟶ n),
     (SheafOfModules.restrictScalars.{w}
       (stageMap K.simplicial φ).structureMap).IsRightAdjoint]
 
-/-- Lemma 85.18.1
-Let `C` be a site with equalizers and fibre products. Let `O_C` be a sheaf of rings. Let `K`
-be a hypercovering. With notation as above, `a^* : Mod(O_C) ⥤ Mod(O)` is fully faithful with
-essential image the cartesian `O`-modules. The functor `a_*` provides the quasi-inverse. -/
-@[stacks 0D9Z]
-def moduleCartesianEquivalence :
-    SheafOfModules.{w} X.structureSheaf ≌ Cartesian K.simplicial :=
-  cartesianEquivalence K
+/- Lemma 85.18.1
+For a hypercovering of a site with equalizers and pullbacks, augmentation module pullback
+is fully faithful with essential image the cartesian modules; its quasi-inverse is
+augmentation module pushforward. -/
+@[stacks 0D9Z] #check (RingedSite.Localization.AtSimplicialSR.cartesianEquivalence K :
+  SheafOfModules.{w} X.structureSheaf ≌ Cartesian K.simplicial)
 
-/-- The forward functor of `moduleCartesianEquivalence` is `a^*` corestricted to cartesian
-`O`-modules. -/
-theorem moduleCartesianEquivalence_functor :
-    (moduleCartesianEquivalence K).functor = cartesianFunctor K :=
-  sorry
+#check (RingedSite.Localization.AtSimplicialSR.cartesianEquivalence_functor K :
+  (cartesianEquivalence K).functor = cartesianFunctor K)
 
-/-- The inverse functor of `moduleCartesianEquivalence` is `a_*` on cartesian `O`-modules. -/
-theorem moduleCartesianEquivalence_inverse :
-    (moduleCartesianEquivalence K).inverse = cartesianInverse K :=
-  sorry
+#check (RingedSite.Localization.AtSimplicialSR.cartesianEquivalence_inverse K :
+  (cartesianEquivalence K).inverse = cartesianInverse K)
 
-/-- An `O`-module on `((C / K)_total, O)` lies in the essential image of `a^*` if and only
-if it is cartesian. -/
-theorem module_mem_essImage_iff_isCartesian
-    (G : SheafOfModules.{w} (ringSheaf K.simplicial)) :
-    (modulePullback K.simplicial).essImage G ↔ IsCartesian K.simplicial G :=
-  sorry
+#check (RingedSite.Localization.AtSimplicialSR.mem_essImage_iff_isCartesian K :
+  ∀ G : SheafOfModules.{w} (ringSheaf K.simplicial),
+    (modulePullback K.simplicial).essImage G ↔ IsCartesian K.simplicial G)
 
 end RingedSite.Localization.AtSimplicialSR

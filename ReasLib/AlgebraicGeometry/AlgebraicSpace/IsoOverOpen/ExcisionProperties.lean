@@ -72,8 +72,22 @@ base change is of finite presentation. -/
 theorem finitePresentation_hom_iff {S : Scheme.{u}} {V W T : AlgebraicSpace S}
     (f : V ⟶ W) [Etale f] [Separated f] (i : T ⟶ W) [IsClosedImmersion i]
     [IsIso (inverseImageTo f i)] (X : IsoOverOpen (closedImmersionComplementι i)) :
-    FinitePresentation X.obj.hom ↔ FinitePresentation (overPullbackSnd f X.obj) :=
-  sorry
+    FinitePresentation X.obj.hom ↔ FinitePresentation (overPullbackSnd f X.obj) := by
+  constructor
+  · intro h
+    letI := h
+    exact
+      { toLocallyOfFinitePresentation :=
+          (locallyOfFinitePresentation_hom_iff f i X).mp inferInstance
+        toQuasiCompact := (quasiCompact_hom_iff f i X).mp inferInstance
+        toQuasiSeparated := (quasiSeparated_hom_iff f i X).mp inferInstance }
+  · intro h
+    letI := h
+    exact
+      { toLocallyOfFinitePresentation :=
+          (locallyOfFinitePresentation_hom_iff f i X).mpr inferInstance
+        toQuasiCompact := (quasiCompact_hom_iff f i X).mpr inferInstance
+        toQuasiSeparated := (quasiSeparated_hom_iff f i X).mpr inferInstance }
 
 /-- Under separated étale excision along a closed subspace, a morphism that is an
 isomorphism over the complementary open is locally of finite type if and only if its
@@ -92,8 +106,18 @@ base change is of finite type. -/
 theorem finiteType_hom_iff {S : Scheme.{u}} {V W T : AlgebraicSpace S}
     (f : V ⟶ W) [Etale f] [Separated f] (i : T ⟶ W) [IsClosedImmersion i]
     [IsIso (inverseImageTo f i)] (X : IsoOverOpen (closedImmersionComplementι i)) :
-    FiniteType X.obj.hom ↔ FiniteType (overPullbackSnd f X.obj) :=
-  sorry
+    FiniteType X.obj.hom ↔ FiniteType (overPullbackSnd f X.obj) := by
+  constructor
+  · intro h
+    letI := h
+    exact
+      { toQuasiCompact := (quasiCompact_hom_iff f i X).mp inferInstance
+        toLocallyOfFiniteType := (locallyOfFiniteType_hom_iff f i X).mp inferInstance }
+  · intro h
+    letI := h
+    exact
+      { toQuasiCompact := (quasiCompact_hom_iff f i X).mpr inferInstance
+        toLocallyOfFiniteType := (locallyOfFiniteType_hom_iff f i X).mpr inferInstance }
 
 /-- Under separated étale excision along a closed subspace, a morphism that is an
 isomorphism over the complementary open is proper if and only if its

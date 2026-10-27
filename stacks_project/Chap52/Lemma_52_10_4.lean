@@ -21,9 +21,9 @@ universe u
 @[stacks 0EFR] #check (Ideal.LocalCohomology.AlgebraizationSituation.cohomologyToLimit_bijective :
     ∀ {A : Type u} [CommRing A] [IsNoetherianRing A] [IsLocalRing A]
       [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
-      (H : MonoidalClosed (DerivedCategory (ModuleCat.{u} A)))
+      (C : CategoryTheory.DerivedCategory.CanonicalClosedPresentation (A := A))
       (I : Ideal A) (M : ModuleCat.{u} A) [Module.Finite A M] (s d : ℤ)
-      (h : Ideal.LocalCohomology.AlgebraizationSituation H I (M : Type u)
+      (h : Ideal.LocalCohomology.AlgebraizationSituation C I (M : Type u)
         ({IsLocalRing.closedPoint A} : Set (PrimeSpectrum A)) s d)
       (RΓm : DerivedCategory (ModuleCat.{u} A) ⥤
         IdealPowerTorsion (IsLocalRing.maximalIdeal A))
@@ -35,9 +35,9 @@ universe u
 @[stacks 0EFR] #check (Ideal.LocalCohomology.AlgebraizationSituation.cohomology_annihilatedByPower :
     ∀ {A : Type u} [CommRing A] [IsNoetherianRing A] [IsLocalRing A]
       [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
-      (H : MonoidalClosed (DerivedCategory (ModuleCat.{u} A)))
+      (C : CategoryTheory.DerivedCategory.CanonicalClosedPresentation (A := A))
       (I : Ideal A) (M : ModuleCat.{u} A) [Module.Finite A M] (s d : ℤ)
-      (h : Ideal.LocalCohomology.AlgebraizationSituation H I (M : Type u)
+      (h : Ideal.LocalCohomology.AlgebraizationSituation C I (M : Type u)
         ({IsLocalRing.closedPoint A} : Set (PrimeSpectrum A)) s d)
       (RΓm : DerivedCategory (ModuleCat.{u} A) ⥤
         IdealPowerTorsion (IsLocalRing.maximalIdeal A))

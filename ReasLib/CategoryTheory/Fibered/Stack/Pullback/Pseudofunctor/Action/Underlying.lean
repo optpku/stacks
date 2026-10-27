@@ -37,13 +37,13 @@ variable [HasPullbacks C] [PreservesLimitsOfShape WalkingCospan u] [u.IsContinuo
 /-- The object action of the stack pullback pseudofunctor is `StackOver.pullback`. -/
 @[simp, stacks 04WC "pullback pseudofunctor object"]
 theorem pseudofunctor.obj (T : StackOver.{uD, vD, uS, vS} K) :
-    (pseudofunctor J K u).obj T = StackOver.pullback u T := sorry
+    (pseudofunctor J K u).obj T = StackOver.pullback u T := rfl
 
 /-- The `1`-cell action of the stack pullback pseudofunctor is the named pullback map. -/
 @[simp, stacks 04WC "pullback pseudofunctor morphism"]
 theorem pseudofunctor.map
     {X Y : StackOver.{uD, vD, uS, vS} K} (F : X ⟶ Y) :
-    (pseudofunctor J K u).map F = map (J := J) (K := K) u F := sorry
+    (pseudofunctor J K u).map F = map (J := J) (K := K) u F := rfl
 
 /-- The `2`-cell action of the stack pullback pseudofunctor is the named pullback
 transformation. -/
@@ -52,7 +52,7 @@ theorem pseudofunctor.map₂
     {X Y : StackOver.{uD, vD, uS, vS} K}
     {F G : X ⟶ Y} (eta : F ⟶ G) :
     (pseudofunctor J K u).map₂ eta =
-      map₂ (J := J) (K := K) u eta := sorry
+      map₂ (J := J) (K := K) u eta := rfl
 
 /-- Forgetting the stack condition from a pulled-back `1`-cell recovers the neutral canonical
 pullback map. -/
@@ -60,7 +60,7 @@ pullback map. -/
 theorem map.hom
     {X Y : StackOver.{uD, vD, uS, vS} K} (F : X ⟶ Y) :
     (map (J := J) (K := K) u F).hom =
-      FiberedCategoryOver.Pullback.mapCanonical u F.hom := sorry
+      FiberedCategoryOver.Pullback.mapCanonical u F.hom := rfl
 
 /-- Forgetting the stack condition from a pulled-back `2`-cell recovers the neutral canonical
 pullback transformation. -/
@@ -69,14 +69,14 @@ theorem map₂.hom
     {X Y : StackOver.{uD, vD, uS, vS} K}
     {F G : X ⟶ Y} (eta : F ⟶ G) :
     (map₂ (J := J) (K := K) u eta).hom =
-      FiberedCategoryOver.Pullback.map₂ u eta.hom := sorry
+      FiberedCategoryOver.Pullback.map₂ u eta.hom := rfl
 
 /-- The based functor underlying stack pullback on a `1`-cell is the neutral based pullback map. -/
 @[simp, stacks 04WC "pullback morphism based computation"]
 theorem map.toBasedFunctor
     {X Y : StackOver.{uD, vD, uS, vS} K} (F : X ⟶ Y) :
     StackOver.Hom.toBasedFunctor (map (J := J) (K := K) u F) =
-      FiberedCategoryOver.Pullback.basedMap u F.hom := sorry
+      FiberedCategoryOver.Pullback.basedMap u F.hom := rfl
 
 /-- The total functor underlying stack pullback on a `1`-cell is the categorical-pullback
 comparison. -/
@@ -84,7 +84,7 @@ comparison. -/
 theorem map.toFunctor
     {X Y : StackOver.{uD, vD, uS, vS} K} (F : X ⟶ Y) :
     StackOver.Hom.toFunctor (map (J := J) (K := K) u F) =
-      FiberedCategoryOver.Pullback.totalMap u F.hom := sorry
+      FiberedCategoryOver.Pullback.totalMap u F.hom := rfl
 
 /-- The based natural transformation underlying stack pullback on a `2`-cell is the neutral
 based pullback transformation. -/
@@ -93,7 +93,7 @@ theorem map₂.toBasedNatTrans
     {X Y : StackOver.{uD, vD, uS, vS} K}
     {F G : X ⟶ Y} (eta : F ⟶ G) :
     StackOver.Hom₂.toBasedNatTrans (map₂ (J := J) (K := K) u eta) =
-      FiberedCategoryOver.Pullback.basedMap₂ u eta.hom := sorry
+      FiberedCategoryOver.Pullback.basedMap₂ u eta.hom := rfl
 
 /-- The total natural transformation underlying stack pullback on a `2`-cell is the neutral
 total pullback transformation. -/
@@ -102,7 +102,7 @@ theorem map₂.toNatTrans
     {X Y : StackOver.{uD, vD, uS, vS} K}
     {F G : X ⟶ Y} (eta : F ⟶ G) :
     StackOver.Hom₂.toNatTrans (map₂ (J := J) (K := K) u eta) =
-      FiberedCategoryOver.Pullback.totalMap₂ u eta.hom := sorry
+      FiberedCategoryOver.Pullback.totalMap₂ u eta.hom := rfl
 
 end StackOver.Pullback
 

@@ -19,7 +19,7 @@ universe u v w x y z
 
 namespace WeilCohomology.SchemePreWeilTheory
 
-/-- A scheme-valued pre-Weil theory satisfies Axiom A8 when degree-`(0, 0)`
+/-- A scheme-valued pre-Weil theory satisfies Axiom A8 when degree-`0`
 pullback is bijective along every represented canonical morphism to the
 spectrum of global sections. -/
 def SatisfiesAxiomA8
@@ -40,9 +40,9 @@ def SatisfiesAxiomA8
     (eG : T.scheme.obj G ≅ SchemeOverField.globalSectionsSpec (T.scheme.obj X)),
     (T.scheme.map g).left =
         (SchemeOverField.toGlobalSectionsSpec (T.scheme.obj X)).left ≫ eG.inv.left →
-      Function.Bijective (T.pullbackGrade g (0, 0))
+      Function.Bijective (T.pullbackGrade g 0)
 
-/-- Axiom A8 unfolds to bijectivity of degree-`(0, 0)` pullback along every
+/-- Axiom A8 unfolds to bijectivity of degree-`0` pullback along every
 represented global-sections morphism. -/
 theorem satisfiesAxiomA8_iff
     {k : Type u} [Field k] {F : Type v} [Field F] [CharZero F]
@@ -63,6 +63,6 @@ theorem satisfiesAxiomA8_iff
         (eG : T.scheme.obj G ≅ SchemeOverField.globalSectionsSpec (T.scheme.obj X)),
         (T.scheme.map g).left =
             (SchemeOverField.toGlobalSectionsSpec (T.scheme.obj X)).left ≫ eG.inv.left →
-          Function.Bijective (T.pullbackGrade g (0, 0)) := sorry
+          Function.Bijective (T.pullbackGrade g 0) := sorry
 
 end WeilCohomology.SchemePreWeilTheory

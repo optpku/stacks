@@ -26,11 +26,11 @@ namespace Ideal.LocalCohomology.AlgebraizationSituation
 theorem proZero_adicCohomology
     {A : Type u} [CommRing A] [IsNoetherianRing A]
     [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
-    (H : MonoidalClosed (DerivedCategory (ModuleCat.{u} A)))
+    (C : CategoryTheory.DerivedCategory.CanonicalClosedPresentation (A := A))
     (I : Ideal A) (M : Type u)
     [AddCommGroup M] [Module A M] [Module.Finite A M]
     (T : Set (PrimeSpectrum A)) (s d : ℤ)
-    (h : AlgebraizationSituation H I M T s d) :
+    (h : AlgebraizationSituation C I M T s d) :
     ∀ i : ℤ, i ≤ s →
       CategoryTheory.Pro.HasValue
         (supportedCohomologyTower T
@@ -41,11 +41,11 @@ theorem proZero_adicCohomology
 theorem exists_eventually_mono_adicCohomology
     {A : Type u} [CommRing A] [IsNoetherianRing A]
     [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
-    (H : MonoidalClosed (DerivedCategory (ModuleCat.{u} A)))
+    (C : CategoryTheory.DerivedCategory.CanonicalClosedPresentation (A := A))
     (I : Ideal A) (M : Type u)
     [AddCommGroup M] [Module A M] [Module.Finite A M]
     (T : Set (PrimeSpectrum A)) (s d : ℤ)
-    (h : AlgebraizationSituation H I M T s d) :
+    (h : AlgebraizationSituation C I M T s d) :
     ∃ (m₀ : ℕ), ∀ (m : ℕ) (h_m₀m : m₀ ≤ m),
       ∃ (m' : ℕ) (h_mm' : m ≤ m'), ∀ (k : ℕ) (h_m'k : m' ≤ k),
         Mono

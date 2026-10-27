@@ -42,16 +42,19 @@ theorem existsQuotientByFiniteTypeDegreeSubobject_support_disjoint
     [∀ U, GradedRing (sectionGrading U)]
     (P : ∀ U : S.affineOpens, ProjTwistPresentation (sectionGrading U))
     (model : ∀ (U : S.affineOpens) (d : ℕ),
-      (𝒜 (Int.ofNat d)).val.obj (Opposite.op (U : S.Opens)) ≃ sectionGrading U d)
+      (𝒜 (Int.ofNat d)).val.obj (Opposite.op (U : S.Opens)) ≃+ sectionGrading U d)
+    (hModel : ∀ U : S.affineOpens,
+      AffineOpenSectionProj.IsAffineOpenSectionModel
+        (sectionGrading U) 𝒜 U (model U))
     (presentation : RelativeProjTwist.Presentation
-      𝒜 A σ sectionGrading P model p)
+      𝒜 A σ sectionGrading P (fun U d ↦ (model U d).toEquiv) p)
     (i : Z ⟶ X) [IsClosedImmersion i] [QuasiCompact p]
     [Scheme.Hom.FinitePresentation i]
     (hfinite : ∀ n : ℕ, (𝒜 (Int.ofNat n)).IsFiniteType)
     (U : S.Opens) (hU : IsCompact (U : Set S))
     (hdisjoint : Disjoint (U : Set S) (Set.range (i ≫ p).base)) :
     ∃ (d : ℕ) (F : Subobject (𝒜 (Int.ofNat d)))
-      (Q : presentation.ClosedSubschemeQuotient i),
+      (Q : presentation.ClosedSubschemeQuotient hqc hModel i),
       0 < d ∧
         F ∈ Scheme.Modules.finiteTypeQuasiCoherentSubobjects (𝒜 (Int.ofNat d)) ∧
           Q.IsQuotientByDegreeSubobject d F ∧

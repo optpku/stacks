@@ -33,8 +33,4 @@ theorem toSpecZero_base_asIdeal (x : ProjectiveSpectrum 𝒜) :
     ((toSpecZero 𝒜).base x).asIdeal =
       Ideal.comap (algebraMap (𝒜 0) A) x.asHomogeneousIdeal.toIdeal := sorry
 
-/-- The underlying map of the canonical morphism from `Proj` to the spectrum of the
-degree-zero subring is continuous. -/
-theorem toSpecZero_base_continuous : Continuous ((toSpecZero 𝒜).base) := sorry
-
 end AlgebraicGeometry.Proj

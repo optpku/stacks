@@ -77,7 +77,8 @@ theorem projectionFormulaMateOfIso_spec
     (X : C) (Y : D) :
     (adj.homEquiv (X ⊗ R.obj Y) (L.obj X ⊗ Y)).symm
         (adj.projectionFormulaMateOfIso tensorComparison X Y) =
-      adj.projectionFormulaMapOf (fun A B ↦ (tensorComparison A B).hom) X Y := sorry
+      adj.projectionFormulaMapOf (fun A B ↦ (tensorComparison A B).hom) X Y := by
+  exact (adj.homEquiv _ _).symm_apply_apply _
 
 /-- Transposing `projectionFormulaMateOf` back across the adjunction recovers the explicit
 projection-formula map. -/
@@ -88,7 +89,8 @@ theorem projectionFormulaMateOf_spec
     (X : C) (Y : D) :
     (adj.homEquiv (X ⊗ R.obj Y) (L.obj X ⊗ Y)).symm
         (adj.projectionFormulaMateOf tensorComparison X Y) =
-      adj.projectionFormulaMapOf tensorComparison X Y := sorry
+      adj.projectionFormulaMapOf tensorComparison X Y := by
+  exact (adj.homEquiv _ _).symm_apply_apply _
 
 /-- The raw projection-formula mate is natural in its source-category argument whenever the
 supplied tensor comparison is natural there. -/
@@ -103,7 +105,11 @@ theorem projectionFormulaMateOf_natural_left
     (f ⊗ₘ 𝟙 (R.obj Y)) ≫
         adj.projectionFormulaMateOf tensorComparison X' Y =
       adj.projectionFormulaMateOf tensorComparison X Y ≫
-        R.map (L.map f ⊗ₘ 𝟙 Y) := sorry
+        R.map (L.map f ⊗ₘ 𝟙 Y) := by
+  apply adj.homEquiv_naturality_left_square
+  dsimp only [projectionFormulaMapOf]
+  rw [← Category.assoc, hTensor]
+  simp only [Category.assoc, tensorHom_comp_tensorHom, Category.id_comp, Category.comp_id]
 
 /-- The raw projection-formula mate is natural in its target-category argument whenever the
 supplied tensor comparison is natural there. -/
@@ -118,7 +124,15 @@ theorem projectionFormulaMateOf_natural_right
     (𝟙 X ⊗ₘ R.map f) ≫
         adj.projectionFormulaMateOf tensorComparison X Y' =
       adj.projectionFormulaMateOf tensorComparison X Y ≫
-        R.map (𝟙 (L.obj X) ⊗ₘ f) := sorry
+        R.map (𝟙 (L.obj X) ⊗ₘ f) := by
+  apply adj.homEquiv_naturality_left_square
+  have hCounit : L.map (R.map f) ≫ adj.counit.app Y' = adj.counit.app Y ≫ f :=
+    adj.counit.naturality f
+  dsimp only [projectionFormulaMapOf]
+  rw [← Category.assoc, hTensor]
+  simp only [Category.assoc, tensorHom_comp_tensorHom, Category.comp_id]
+  exact congrArg (fun g : L.obj (R.obj Y) ⟶ Y' ↦
+    tensorComparison X (R.obj Y) ≫ (𝟙 (L.obj X) ⊗ₘ g)) hCounit
 
 /-- The raw projection-formula map is natural in its source-category argument whenever the
 supplied tensor comparison is natural there. -/
@@ -133,7 +147,10 @@ theorem projectionFormulaMapOf_natural_left
     L.map (f ⊗ₘ 𝟙 (R.obj Y)) ≫
         adj.projectionFormulaMapOf tensorComparison X' Y =
       adj.projectionFormulaMapOf tensorComparison X Y ≫
-        (L.map f ⊗ₘ 𝟙 Y) := sorry
+        (L.map f ⊗ₘ 𝟙 Y) := by
+  dsimp only [projectionFormulaMapOf]
+  rw [← Category.assoc, hTensor]
+  simp only [Category.assoc, tensorHom_comp_tensorHom, Category.id_comp, Category.comp_id]
 
 /-- The raw projection-formula map is natural in its target-category argument whenever the
 supplied tensor comparison is natural there. -/
@@ -148,7 +165,14 @@ theorem projectionFormulaMapOf_natural_right
     L.map (𝟙 X ⊗ₘ R.map f) ≫
         adj.projectionFormulaMapOf tensorComparison X Y' =
       adj.projectionFormulaMapOf tensorComparison X Y ≫
-        (𝟙 (L.obj X) ⊗ₘ f) := sorry
+        (𝟙 (L.obj X) ⊗ₘ f) := by
+  have hCounit : L.map (R.map f) ≫ adj.counit.app Y' = adj.counit.app Y ≫ f :=
+    adj.counit.naturality f
+  dsimp only [projectionFormulaMapOf]
+  rw [← Category.assoc, hTensor]
+  simp only [Category.assoc, tensorHom_comp_tensorHom, Category.comp_id]
+  exact congrArg (fun g : L.obj (R.obj Y) ⟶ Y' ↦
+    tensorComparison X (R.obj Y) ≫ (𝟙 (L.obj X) ⊗ₘ g)) hCounit
 
 /-- The left projection-formula map built from an explicitly supplied tensor comparison for the
 left adjoint. -/
@@ -190,7 +214,8 @@ theorem leftProjectionFormulaMateOfIso_spec
     (X : D) (A : C) :
     (adj.homEquiv (R.obj X ⊗ A) (X ⊗ L.obj A)).symm
         (adj.leftProjectionFormulaMateOfIso tensorComparison X A) =
-      adj.leftProjectionFormulaMapOf (fun U V ↦ (tensorComparison U V).hom) X A := sorry
+      adj.leftProjectionFormulaMapOf (fun U V ↦ (tensorComparison U V).hom) X A := by
+  exact (adj.homEquiv _ _).symm_apply_apply _
 
 /-- Transposing `leftProjectionFormulaMateOf` back across the adjunction recovers the explicit
 left projection-formula map. -/
@@ -201,7 +226,8 @@ theorem leftProjectionFormulaMateOf_spec
     (X : D) (A : C) :
     (adj.homEquiv (R.obj X ⊗ A) (X ⊗ L.obj A)).symm
         (adj.leftProjectionFormulaMateOf tensorComparison X A) =
-      adj.leftProjectionFormulaMapOf tensorComparison X A := sorry
+      adj.leftProjectionFormulaMapOf tensorComparison X A := by
+  exact (adj.homEquiv _ _).symm_apply_apply _
 
 /-- The raw left projection-formula mate is natural in its target-category argument whenever the
 supplied tensor comparison is natural in its first argument. -/
@@ -216,7 +242,15 @@ theorem leftProjectionFormulaMateOf_natural_left
     (R.map f ⊗ₘ 𝟙 A) ≫
         adj.leftProjectionFormulaMateOf tensorComparison X' A =
       adj.leftProjectionFormulaMateOf tensorComparison X A ≫
-        R.map (f ⊗ₘ 𝟙 (L.obj A)) := sorry
+        R.map (f ⊗ₘ 𝟙 (L.obj A)) := by
+  apply adj.homEquiv_naturality_left_square
+  have hCounit : L.map (R.map f) ≫ adj.counit.app X' = adj.counit.app X ≫ f :=
+    adj.counit.naturality f
+  dsimp only [leftProjectionFormulaMapOf]
+  rw [← Category.assoc, hTensor]
+  simp only [Category.assoc, tensorHom_comp_tensorHom, Category.comp_id]
+  exact congrArg (fun g : L.obj (R.obj X) ⟶ X' ↦
+    tensorComparison (R.obj X) A ≫ (g ⊗ₘ 𝟙 (L.obj A))) hCounit
 
 /-- The raw left projection-formula mate is natural in its source-category argument whenever the
 supplied tensor comparison is natural in its second argument. -/
@@ -231,7 +265,11 @@ theorem leftProjectionFormulaMateOf_natural_right
     (𝟙 (R.obj X) ⊗ₘ f) ≫
         adj.leftProjectionFormulaMateOf tensorComparison X A' =
       adj.leftProjectionFormulaMateOf tensorComparison X A ≫
-        R.map (𝟙 X ⊗ₘ L.map f) := sorry
+        R.map (𝟙 X ⊗ₘ L.map f) := by
+  apply adj.homEquiv_naturality_left_square
+  dsimp only [leftProjectionFormulaMapOf]
+  rw [← Category.assoc, hTensor]
+  simp only [Category.assoc, tensorHom_comp_tensorHom, Category.id_comp, Category.comp_id]
 
 /-- The raw left projection-formula map is natural in its target-category argument whenever the
 supplied tensor comparison is natural in its first argument. -/
@@ -246,7 +284,14 @@ theorem leftProjectionFormulaMapOf_natural_left
     L.map (R.map f ⊗ₘ 𝟙 A) ≫
         adj.leftProjectionFormulaMapOf tensorComparison X' A =
       adj.leftProjectionFormulaMapOf tensorComparison X A ≫
-        (f ⊗ₘ 𝟙 (L.obj A)) := sorry
+        (f ⊗ₘ 𝟙 (L.obj A)) := by
+  have hCounit : L.map (R.map f) ≫ adj.counit.app X' = adj.counit.app X ≫ f :=
+    adj.counit.naturality f
+  dsimp only [leftProjectionFormulaMapOf]
+  rw [← Category.assoc, hTensor]
+  simp only [Category.assoc, tensorHom_comp_tensorHom, Category.comp_id]
+  exact congrArg (fun g : L.obj (R.obj X) ⟶ X' ↦
+    tensorComparison (R.obj X) A ≫ (g ⊗ₘ 𝟙 (L.obj A))) hCounit
 
 /-- The raw left projection-formula map is natural in its source-category argument whenever the
 supplied tensor comparison is natural in its second argument. -/
@@ -261,7 +306,10 @@ theorem leftProjectionFormulaMapOf_natural_right
     L.map (𝟙 (R.obj X) ⊗ₘ f) ≫
         adj.leftProjectionFormulaMapOf tensorComparison X A' =
       adj.leftProjectionFormulaMapOf tensorComparison X A ≫
-        (𝟙 X ⊗ₘ L.map f) := sorry
+        (𝟙 X ⊗ₘ L.map f) := by
+  dsimp only [leftProjectionFormulaMapOf]
+  rw [← Category.assoc, hTensor]
+  simp only [Category.assoc, tensorHom_comp_tensorHom, Category.id_comp, Category.comp_id]
 
 variable [L.OplaxMonoidal]
 
@@ -276,7 +324,8 @@ comparison. -/
 @[simp, stacks 0E8I "right projection formula map oplax bridge"]
 theorem projectionFormulaMapOf_oplax (X : C) (Y : D) :
     adj.projectionFormulaMapOf (fun A B ↦ δ L A B) X Y =
-      adj.projectionFormulaMap X Y := sorry
+      adj.projectionFormulaMap X Y := by
+  rfl
 
 /-- The adjoint mate of the canonical oplax-monoidal projection-formula map. -/
 @[stacks 0E8I "right projection formula mate"]
@@ -289,7 +338,8 @@ comparison. -/
 @[simp, stacks 0E8I "right projection formula mate oplax bridge"]
 theorem projectionFormulaMateOf_oplax (X : C) (Y : D) :
     adj.projectionFormulaMateOf (fun A B ↦ δ L A B) X Y =
-      adj.projectionFormulaMate X Y := sorry
+      adj.projectionFormulaMate X Y := by
+  rfl
 
 /-- Transposing the canonical projection-formula mate recovers the canonical projection-formula
 map. -/
@@ -297,19 +347,26 @@ map. -/
 theorem projectionFormulaMate_spec (X : C) (Y : D) :
     (adj.homEquiv (X ⊗ R.obj Y) (L.obj X ⊗ Y)).symm
         (adj.projectionFormulaMate X Y) =
-      adj.projectionFormulaMap X Y := sorry
+      adj.projectionFormulaMap X Y := by
+  exact (adj.homEquiv _ _).symm_apply_apply _
 
 /-- The projection-formula mate is natural in its source-category argument. -/
 @[reassoc]
 theorem projectionFormulaMate_natural_left {X X' : C} (f : X ⟶ X') (Y : D) :
     (f ⊗ₘ 𝟙 (R.obj Y)) ≫ adj.projectionFormulaMate X' Y =
-      adj.projectionFormulaMate X Y ≫ R.map (L.map f ⊗ₘ 𝟙 Y) := sorry
+      adj.projectionFormulaMate X Y ≫ R.map (L.map f ⊗ₘ 𝟙 Y) := by
+  exact adj.projectionFormulaMateOf_natural_left (fun U V ↦ δ L U V)
+    (fun {X X'} f Y ↦ by
+      simpa only [tensorHom_id] using (δ_natural_left L f Y).symm) f Y
 
 /-- The projection-formula mate is natural in its target-category argument. -/
 @[reassoc]
 theorem projectionFormulaMate_natural_right (X : C) {Y Y' : D} (f : Y ⟶ Y') :
     (𝟙 X ⊗ₘ R.map f) ≫ adj.projectionFormulaMate X Y' =
-      adj.projectionFormulaMate X Y ≫ R.map (𝟙 (L.obj X) ⊗ₘ f) := sorry
+      adj.projectionFormulaMate X Y ≫ R.map (𝟙 (L.obj X) ⊗ₘ f) := by
+  exact adj.projectionFormulaMateOf_natural_right (fun U V ↦ δ L U V)
+    (fun X {Y Y'} f ↦ by
+      simpa only [id_tensorHom] using (δ_natural_right L X f).symm) X f
 
 /-- The projection-formula mate satisfies the naturality equation expressed through the maps of
 the fixed-factor tensor functors. -/
@@ -317,7 +374,10 @@ the fixed-factor tensor functors. -/
 theorem projectionFormulaMateNatTrans_naturality
     (X : C) {Y Y' : D} (f : Y ⟶ Y') :
     (R ⋙ tensorLeft X).map f ≫ adj.projectionFormulaMate X Y' =
-      adj.projectionFormulaMate X Y ≫ (tensorLeft (L.obj X) ⋙ R).map f := sorry
+      adj.projectionFormulaMate X Y ≫ (tensorLeft (L.obj X) ⋙ R).map f := by
+  change (X ◁ R.map f) ≫ adj.projectionFormulaMate X Y' =
+    adj.projectionFormulaMate X Y ≫ R.map (L.obj X ◁ f)
+  simpa only [id_tensorHom] using adj.projectionFormulaMate_natural_right X f
 
 /-- For a fixed source-side tensor factor, the canonical projection-formula mates form a natural
 transformation in the target-category variable. -/
@@ -330,7 +390,8 @@ noncomputable def projectionFormulaMateNatTrans (X : C) :
 /-- The component of `projectionFormulaMateNatTrans` is the canonical projection-formula mate. -/
 @[simp, stacks 0E8I "right projection formula mate natural transformation component"]
 theorem projectionFormulaMateNatTrans_app (X : C) (Y : D) :
-    (adj.projectionFormulaMateNatTrans X).app Y = adj.projectionFormulaMate X Y := sorry
+    (adj.projectionFormulaMateNatTrans X).app Y = adj.projectionFormulaMate X Y := by
+  rfl
 
 /-- The inverse of the fixed-factor projection-formula mate natural transformation.
 
@@ -349,7 +410,8 @@ theorem projectionFormulaMateNatTransInv_naturality (X : C)
     (tensorLeft (L.obj X) ⋙ R).map f ≫
         (adj.projectionFormulaMateNatTransInv X).app Y' =
       (adj.projectionFormulaMateNatTransInv X).app Y ≫
-        (R ⋙ tensorLeft X).map f := sorry
+        (R ⋙ tensorLeft X).map f := by
+  exact (adj.projectionFormulaMateNatTransInv X).naturality f
 
 /-- The forward and inverse projection-formula mate natural transformations compose to the
 identity. -/
@@ -357,7 +419,8 @@ identity. -/
 theorem projectionFormulaMateNatTrans_comp_inv (X : C)
     [IsIso (adj.projectionFormulaMateNatTrans X)] :
     adj.projectionFormulaMateNatTrans X ≫
-        adj.projectionFormulaMateNatTransInv X = 𝟙 _ := sorry
+        adj.projectionFormulaMateNatTransInv X = 𝟙 _ := by
+  exact IsIso.hom_inv_id _
 
 /-- The inverse and forward projection-formula mate natural transformations compose to the
 identity. -/
@@ -365,7 +428,8 @@ identity. -/
 theorem projectionFormulaMateNatTrans_inv_comp (X : C)
     [IsIso (adj.projectionFormulaMateNatTrans X)] :
     adj.projectionFormulaMateNatTransInv X ≫
-        adj.projectionFormulaMateNatTrans X = 𝟙 _ := sorry
+        adj.projectionFormulaMateNatTrans X = 𝟙 _ := by
+  exact IsIso.inv_hom_id _
 
 /-- A component of the inverse projection-formula mate natural transformation is the inverse
 of the corresponding canonical mate. -/
@@ -373,7 +437,8 @@ of the corresponding canonical mate. -/
 theorem projectionFormulaMateNatTransInv_app (X : C) (Y : D)
     [IsIso (adj.projectionFormulaMateNatTrans X)] :
     (adj.projectionFormulaMateNatTransInv X).app Y =
-      CategoryTheory.inv ((adj.projectionFormulaMateNatTrans X).app Y) := sorry
+      CategoryTheory.inv ((adj.projectionFormulaMateNatTrans X).app Y) := by
+  exact NatIso.isIso_inv_app _ _
 
 /-- The natural isomorphism induced by the fixed-factor projection-formula mate when all of its
 components are invertible. -/
@@ -391,39 +456,49 @@ natural transformation. -/
 @[simp, stacks 0E8I "right projection formula natural isomorphism hom"]
 theorem projectionFormulaNatIso_hom (X : C)
     [IsIso (adj.projectionFormulaMateNatTrans X)] :
-    (adj.projectionFormulaNatIso X).hom = adj.projectionFormulaMateNatTrans X := sorry
+    (adj.projectionFormulaNatIso X).hom = adj.projectionFormulaMateNatTrans X := by
+  rfl
 
 /-- The inverse natural transformation of `projectionFormulaNatIso` is explicit. -/
 @[simp, stacks 0E8I "right projection formula natural isomorphism inv"]
 theorem projectionFormulaNatIso_inv (X : C)
     [IsIso (adj.projectionFormulaMateNatTrans X)] :
-    (adj.projectionFormulaNatIso X).inv = adj.projectionFormulaMateNatTransInv X := sorry
+    (adj.projectionFormulaNatIso X).inv = adj.projectionFormulaMateNatTransInv X := by
+  rfl
 
 /-- The forward component of `projectionFormulaNatIso` is the canonical projection-formula mate.
 -/
 @[simp, stacks 0E8I "right projection formula natural isomorphism hom app"]
 theorem projectionFormulaNatIso_hom_app (X : C) (Y : D)
     [IsIso (adj.projectionFormulaMateNatTrans X)] :
-    (adj.projectionFormulaNatIso X).hom.app Y = adj.projectionFormulaMate X Y := sorry
+    (adj.projectionFormulaNatIso X).hom.app Y = adj.projectionFormulaMate X Y := by
+  rfl
 
 /-- The inverse component of `projectionFormulaNatIso` is the named mate inverse. -/
 @[simp, stacks 0E8I "right projection formula natural isomorphism inv app"]
 theorem projectionFormulaNatIso_inv_app (X : C) (Y : D)
     [IsIso (adj.projectionFormulaMateNatTrans X)] :
     (adj.projectionFormulaNatIso X).inv.app Y =
-      (adj.projectionFormulaMateNatTransInv X).app Y := sorry
+      (adj.projectionFormulaMateNatTransInv X).app Y := by
+  rfl
 
 /-- The projection-formula morphism is natural in its source-category argument. -/
 @[reassoc]
 theorem projectionFormulaMap_natural_left {X X' : C} (f : X ⟶ X') (Y : D) :
     L.map (f ⊗ₘ 𝟙 (R.obj Y)) ≫ adj.projectionFormulaMap X' Y =
-      adj.projectionFormulaMap X Y ≫ (L.map f ⊗ₘ 𝟙 Y) := sorry
+      adj.projectionFormulaMap X Y ≫ (L.map f ⊗ₘ 𝟙 Y) := by
+  exact adj.projectionFormulaMapOf_natural_left (fun U V ↦ δ L U V)
+    (fun {X X'} f Y ↦ by
+      simpa only [tensorHom_id] using (δ_natural_left L f Y).symm) f Y
 
 /-- The projection-formula morphism is natural in its target-category argument. -/
 @[reassoc]
 theorem projectionFormulaMap_natural_right (X : C) {Y Y' : D} (g : Y ⟶ Y') :
     L.map (𝟙 X ⊗ₘ R.map g) ≫ adj.projectionFormulaMap X Y' =
-      adj.projectionFormulaMap X Y ≫ (𝟙 (L.obj X) ⊗ₘ g) := sorry
+      adj.projectionFormulaMap X Y ≫ (𝟙 (L.obj X) ⊗ₘ g) := by
+  exact adj.projectionFormulaMapOf_natural_right (fun U V ↦ δ L U V)
+    (fun X {Y Y'} f ↦ by
+      simpa only [id_tensorHom] using (δ_natural_right L X f).symm) X g
 
 /-- Every right-handed projection-formula map of the adjunction is invertible. -/
 @[stacks 0E8I "right projection formula map property"]
@@ -446,13 +521,15 @@ noncomputable def projectionFormulaMapInv (X : C) (Y : D)
 @[simp, stacks 0E8I "right projection formula map forward-inverse law"]
 theorem projectionFormulaMap_comp_inv (X : C) (Y : D)
     [IsIso (adj.projectionFormulaMap X Y)] :
-    adj.projectionFormulaMap X Y ≫ adj.projectionFormulaMapInv X Y = 𝟙 _ := sorry
+    adj.projectionFormulaMap X Y ≫ adj.projectionFormulaMapInv X Y = 𝟙 _ := by
+  exact IsIso.hom_inv_id _
 
 /-- The inverse of a right projection-formula map followed by the map is the identity. -/
 @[simp, stacks 0E8I "right projection formula map inverse-forward law"]
 theorem projectionFormulaMapInv_comp (X : C) (Y : D)
     [IsIso (adj.projectionFormulaMap X Y)] :
-    adj.projectionFormulaMapInv X Y ≫ adj.projectionFormulaMap X Y = 𝟙 _ := sorry
+    adj.projectionFormulaMapInv X Y ≫ adj.projectionFormulaMap X Y = 𝟙 _ := by
+  exact IsIso.inv_hom_id _
 
 /-- The componentwise projection-formula map isomorphism, oriented as
 `L X ⊗ Y ≅ L (X ⊗ R Y)`. -/
@@ -469,13 +546,15 @@ noncomputable def projectionFormulaMapIso (X : C) (Y : D)
 @[simp, stacks 0E8I "right projection formula map isomorphism hom"]
 theorem projectionFormulaMapIso_hom (X : C) (Y : D)
     [IsIso (adj.projectionFormulaMap X Y)] :
-    (adj.projectionFormulaMapIso X Y).hom = adj.projectionFormulaMapInv X Y := sorry
+    (adj.projectionFormulaMapIso X Y).hom = adj.projectionFormulaMapInv X Y := by
+  rfl
 
 /-- The inverse map of `projectionFormulaMapIso` is the canonical projection-formula map. -/
 @[simp, stacks 0E8I "right projection formula map isomorphism inv"]
 theorem projectionFormulaMapIso_inv (X : C) (Y : D)
     [IsIso (adj.projectionFormulaMap X Y)] :
-    (adj.projectionFormulaMapIso X Y).inv = adj.projectionFormulaMap X Y := sorry
+    (adj.projectionFormulaMapIso X Y).inv = adj.projectionFormulaMap X Y := by
+  rfl
 
 /-- The unit specialization of the projection-formula map, oriented as
 `L (R Y) ≅ L (𝟙_ C) ⊗ Y`. -/
@@ -501,7 +580,11 @@ instance [adj.ProjectionFormula] (X : C) (Y : D) :
 invertible, so its natural isomorphism API needs no manually rebuilt instance. -/
 @[stacks 0E8I "right projection formula natural transformation invertibility"]
 noncomputable instance projectionFormulaMateNatTrans_isIso [adj.ProjectionFormula] (X : C) :
-    IsIso (adj.projectionFormulaMateNatTrans X) := sorry
+    IsIso (adj.projectionFormulaMateNatTrans X) := by
+  haveI (Y : D) : IsIso ((adj.projectionFormulaMateNatTrans X).app Y) := by
+    change IsIso (adj.projectionFormulaMate X Y)
+    infer_instance
+  exact NatIso.isIso_of_isIso_app _
 
 /-- The named inverse of a componentwise projection-formula mate. -/
 @[stacks 0E8I "right projection formula mate inverse"]
@@ -514,13 +597,15 @@ noncomputable def projectionFormulaMateInv (X : C) (Y : D)
 @[simp, stacks 0E8I "right projection formula mate forward-inverse law"]
 theorem projectionFormulaMate_comp_inv (X : C) (Y : D)
     [IsIso (adj.projectionFormulaMate X Y)] :
-    adj.projectionFormulaMate X Y ≫ adj.projectionFormulaMateInv X Y = 𝟙 _ := sorry
+    adj.projectionFormulaMate X Y ≫ adj.projectionFormulaMateInv X Y = 𝟙 _ := by
+  exact IsIso.hom_inv_id _
 
 /-- The inverse of a projection-formula mate followed by the mate is the identity. -/
 @[simp, stacks 0E8I "right projection formula mate inverse-forward law"]
 theorem projectionFormulaMateInv_comp (X : C) (Y : D)
     [IsIso (adj.projectionFormulaMate X Y)] :
-    adj.projectionFormulaMateInv X Y ≫ adj.projectionFormulaMate X Y = 𝟙 _ := sorry
+    adj.projectionFormulaMateInv X Y ≫ adj.projectionFormulaMate X Y = 𝟙 _ := by
+  exact IsIso.inv_hom_id _
 
 /-- The inverse component of the mate natural transformation agrees with the named component
 inverse. -/
@@ -529,7 +614,8 @@ theorem projectionFormulaMateNatTransInv_app_eq_mateInv (X : C) (Y : D)
     [IsIso (adj.projectionFormulaMateNatTrans X)]
     [IsIso (adj.projectionFormulaMate X Y)] :
     (adj.projectionFormulaMateNatTransInv X).app Y =
-      adj.projectionFormulaMateInv X Y := sorry
+      adj.projectionFormulaMateInv X Y := by
+  exact NatIso.isIso_inv_app _ _
 
 /-- The componentwise right projection-formula isomorphism. -/
 @[stacks 0E8I "right projection formula isomorphism"]
@@ -545,13 +631,15 @@ noncomputable def projectionFormulaIso (X : C) (Y : D)
 @[simp, stacks 0E8I "right projection formula isomorphism hom"]
 theorem projectionFormulaIso_hom (X : C) (Y : D)
     [IsIso (adj.projectionFormulaMate X Y)] :
-    (adj.projectionFormulaIso X Y).hom = adj.projectionFormulaMate X Y := sorry
+    (adj.projectionFormulaIso X Y).hom = adj.projectionFormulaMate X Y := by
+  rfl
 
 /-- The inverse map of `projectionFormulaIso` is the named mate inverse. -/
 @[simp, stacks 0E8I "right projection formula isomorphism inv"]
 theorem projectionFormulaIso_inv (X : C) (Y : D)
     [IsIso (adj.projectionFormulaMate X Y)] :
-    (adj.projectionFormulaIso X Y).inv = adj.projectionFormulaMateInv X Y := sorry
+    (adj.projectionFormulaIso X Y).inv = adj.projectionFormulaMateInv X Y := by
+  rfl
 
 /-- The left-handed projection-formula morphism associated to a monoidal adjunction. -/
 @[stacks 0E8I "left projection formula"]
@@ -564,7 +652,8 @@ comparison. -/
 @[simp, stacks 0B53 "left projection formula map oplax bridge"]
 theorem leftProjectionFormulaMapOf_oplax (X : D) (A : C) :
     adj.leftProjectionFormulaMapOf (fun U V ↦ δ L U V) X A =
-      adj.leftProjectionFormulaMap X A := sorry
+      adj.leftProjectionFormulaMap X A := by
+  rfl
 
 /-- The adjoint mate of the canonical left projection-formula map. -/
 @[stacks 0B53 "canonical left adjoint mate"]
@@ -577,7 +666,8 @@ tensor comparison. -/
 @[simp, stacks 0B53 "left projection formula mate oplax bridge"]
 theorem leftProjectionFormulaMateOf_oplax (X : D) (A : C) :
     adj.leftProjectionFormulaMateOf (fun U V ↦ δ L U V) X A =
-      adj.leftProjectionFormulaMate X A := sorry
+      adj.leftProjectionFormulaMate X A := by
+  rfl
 
 /-- Transposing the canonical left projection-formula mate recovers the canonical left
 projection-formula map. -/
@@ -585,19 +675,26 @@ projection-formula map. -/
 theorem leftProjectionFormulaMate_spec (X : D) (A : C) :
     (adj.homEquiv (R.obj X ⊗ A) (X ⊗ L.obj A)).symm
         (adj.leftProjectionFormulaMate X A) =
-      adj.leftProjectionFormulaMap X A := sorry
+      adj.leftProjectionFormulaMap X A := by
+  exact (adj.homEquiv _ _).symm_apply_apply _
 
 /-- The left projection-formula mate is natural in its target-category argument. -/
 @[reassoc]
 theorem leftProjectionFormulaMate_natural_left {X X' : D} (f : X ⟶ X') (A : C) :
     (R.map f ⊗ₘ 𝟙 A) ≫ adj.leftProjectionFormulaMate X' A =
-      adj.leftProjectionFormulaMate X A ≫ R.map (f ⊗ₘ 𝟙 (L.obj A)) := sorry
+      adj.leftProjectionFormulaMate X A ≫ R.map (f ⊗ₘ 𝟙 (L.obj A)) := by
+  exact adj.leftProjectionFormulaMateOf_natural_left (fun U V ↦ δ L U V)
+    (fun {X X'} f Y ↦ by
+      simpa only [tensorHom_id] using (δ_natural_left L f Y).symm) f A
 
 /-- The left projection-formula mate is natural in its source-category argument. -/
 @[reassoc]
 theorem leftProjectionFormulaMate_natural_right (X : D) {A A' : C} (f : A ⟶ A') :
     (𝟙 (R.obj X) ⊗ₘ f) ≫ adj.leftProjectionFormulaMate X A' =
-      adj.leftProjectionFormulaMate X A ≫ R.map (𝟙 X ⊗ₘ L.map f) := sorry
+      adj.leftProjectionFormulaMate X A ≫ R.map (𝟙 X ⊗ₘ L.map f) := by
+  exact adj.leftProjectionFormulaMateOf_natural_right (fun U V ↦ δ L U V)
+    (fun X {Y Y'} f ↦ by
+      simpa only [id_tensorHom] using (δ_natural_right L X f).symm) X f
 
 /-- The left projection-formula mate satisfies the naturality equation expressed through the maps
 of the fixed-factor tensor functors. -/
@@ -605,7 +702,10 @@ of the fixed-factor tensor functors. -/
 theorem leftProjectionFormulaMateNatTrans_naturality
     {X X' : D} (f : X ⟶ X') (A : C) :
     (R ⋙ tensorRight A).map f ≫ adj.leftProjectionFormulaMate X' A =
-      adj.leftProjectionFormulaMate X A ≫ (tensorRight (L.obj A) ⋙ R).map f := sorry
+      adj.leftProjectionFormulaMate X A ≫ (tensorRight (L.obj A) ⋙ R).map f := by
+  change (R.map f ▷ A) ≫ adj.leftProjectionFormulaMate X' A =
+    adj.leftProjectionFormulaMate X A ≫ R.map (f ▷ L.obj A)
+  simpa only [tensorHom_id] using adj.leftProjectionFormulaMate_natural_left f A
 
 /-- For a fixed source-category tensor factor, the canonical left projection-formula mates form a
 natural transformation in the target-category variable. -/
@@ -620,7 +720,8 @@ mate. -/
 @[simp, stacks 0B53 "left projection formula mate natural transformation component"]
 theorem leftProjectionFormulaMateNatTrans_app (X : D) (A : C) :
     (adj.leftProjectionFormulaMateNatTrans A).app X =
-      adj.leftProjectionFormulaMate X A := sorry
+      adj.leftProjectionFormulaMate X A := by
+  rfl
 
 /-- The inverse of the fixed-factor left projection-formula mate natural transformation. -/
 @[stacks 0B53 "left projection formula inverse natural transformation"]
@@ -636,7 +737,8 @@ theorem leftProjectionFormulaMateNatTransInv_naturality (A : C)
     (tensorRight (L.obj A) ⋙ R).map f ≫
         (adj.leftProjectionFormulaMateNatTransInv A).app X' =
       (adj.leftProjectionFormulaMateNatTransInv A).app X ≫
-        (R ⋙ tensorRight A).map f := sorry
+        (R ⋙ tensorRight A).map f := by
+  exact (adj.leftProjectionFormulaMateNatTransInv A).naturality f
 
 /-- The forward and inverse left projection-formula mate natural transformations compose to the
 identity. -/
@@ -644,7 +746,8 @@ identity. -/
 theorem leftProjectionFormulaMateNatTrans_comp_inv (A : C)
     [IsIso (adj.leftProjectionFormulaMateNatTrans A)] :
     adj.leftProjectionFormulaMateNatTrans A ≫
-        adj.leftProjectionFormulaMateNatTransInv A = 𝟙 _ := sorry
+        adj.leftProjectionFormulaMateNatTransInv A = 𝟙 _ := by
+  exact IsIso.hom_inv_id _
 
 /-- The inverse and forward left projection-formula mate natural transformations compose to the
 identity. -/
@@ -652,7 +755,8 @@ identity. -/
 theorem leftProjectionFormulaMateNatTrans_inv_comp (A : C)
     [IsIso (adj.leftProjectionFormulaMateNatTrans A)] :
     adj.leftProjectionFormulaMateNatTransInv A ≫
-        adj.leftProjectionFormulaMateNatTrans A = 𝟙 _ := sorry
+        adj.leftProjectionFormulaMateNatTrans A = 𝟙 _ := by
+  exact IsIso.inv_hom_id _
 
 /-- A component of the inverse left projection-formula mate natural transformation is the
 inverse of the corresponding canonical mate. -/
@@ -660,7 +764,8 @@ inverse of the corresponding canonical mate. -/
 theorem leftProjectionFormulaMateNatTransInv_app (X : D) (A : C)
     [IsIso (adj.leftProjectionFormulaMateNatTrans A)] :
     (adj.leftProjectionFormulaMateNatTransInv A).app X =
-      CategoryTheory.inv ((adj.leftProjectionFormulaMateNatTrans A).app X) := sorry
+      CategoryTheory.inv ((adj.leftProjectionFormulaMateNatTrans A).app X) := by
+  exact NatIso.isIso_inv_app _ _
 
 /-- The natural isomorphism induced by the fixed-factor left projection-formula mate when all of
 its components are invertible. -/
@@ -677,38 +782,48 @@ noncomputable def leftProjectionFormulaNatIso (A : C)
 @[simp, stacks 0B53 "left projection formula natural isomorphism hom"]
 theorem leftProjectionFormulaNatIso_hom (A : C)
     [IsIso (adj.leftProjectionFormulaMateNatTrans A)] :
-    (adj.leftProjectionFormulaNatIso A).hom = adj.leftProjectionFormulaMateNatTrans A := sorry
+    (adj.leftProjectionFormulaNatIso A).hom = adj.leftProjectionFormulaMateNatTrans A := by
+  rfl
 
 /-- The inverse natural transformation of `leftProjectionFormulaNatIso` is explicit. -/
 @[simp, stacks 0B53 "left projection formula natural isomorphism inv"]
 theorem leftProjectionFormulaNatIso_inv (A : C)
     [IsIso (adj.leftProjectionFormulaMateNatTrans A)] :
-    (adj.leftProjectionFormulaNatIso A).inv = adj.leftProjectionFormulaMateNatTransInv A := sorry
+    (adj.leftProjectionFormulaNatIso A).inv = adj.leftProjectionFormulaMateNatTransInv A := by
+  rfl
 
 /-- The forward component of `leftProjectionFormulaNatIso` is the canonical left mate. -/
 @[simp, stacks 0B53 "left projection formula natural isomorphism hom app"]
 theorem leftProjectionFormulaNatIso_hom_app (X : D) (A : C)
     [IsIso (adj.leftProjectionFormulaMateNatTrans A)] :
-    (adj.leftProjectionFormulaNatIso A).hom.app X = adj.leftProjectionFormulaMate X A := sorry
+    (adj.leftProjectionFormulaNatIso A).hom.app X = adj.leftProjectionFormulaMate X A := by
+  rfl
 
 /-- The inverse component of `leftProjectionFormulaNatIso` is the named left mate inverse. -/
 @[simp, stacks 0B53 "left projection formula natural isomorphism inv app"]
 theorem leftProjectionFormulaNatIso_inv_app (X : D) (A : C)
     [IsIso (adj.leftProjectionFormulaMateNatTrans A)] :
     (adj.leftProjectionFormulaNatIso A).inv.app X =
-      (adj.leftProjectionFormulaMateNatTransInv A).app X := sorry
+      (adj.leftProjectionFormulaMateNatTransInv A).app X := by
+  rfl
 
 /-- The left projection-formula morphism is natural in its target-category argument. -/
 @[reassoc]
 theorem leftProjectionFormulaMap_natural_left {X X' : D} (f : X ⟶ X') (A : C) :
     L.map (R.map f ⊗ₘ 𝟙 A) ≫ adj.leftProjectionFormulaMap X' A =
-      adj.leftProjectionFormulaMap X A ≫ (f ⊗ₘ 𝟙 (L.obj A)) := sorry
+      adj.leftProjectionFormulaMap X A ≫ (f ⊗ₘ 𝟙 (L.obj A)) := by
+  exact adj.leftProjectionFormulaMapOf_natural_left (fun U V ↦ δ L U V)
+    (fun {X X'} f Y ↦ by
+      simpa only [tensorHom_id] using (δ_natural_left L f Y).symm) f A
 
 /-- The left projection-formula morphism is natural in its source-category argument. -/
 @[reassoc]
 theorem leftProjectionFormulaMap_natural_right (X : D) {A A' : C} (f : A ⟶ A') :
     L.map (𝟙 (R.obj X) ⊗ₘ f) ≫ adj.leftProjectionFormulaMap X A' =
-      adj.leftProjectionFormulaMap X A ≫ (𝟙 X ⊗ₘ L.map f) := sorry
+      adj.leftProjectionFormulaMap X A ≫ (𝟙 X ⊗ₘ L.map f) := by
+  exact adj.leftProjectionFormulaMapOf_natural_right (fun U V ↦ δ L U V)
+    (fun X {Y Y'} f ↦ by
+      simpa only [id_tensorHom] using (δ_natural_right L X f).symm) X f
 
 /-- Every left-handed projection-formula map of the adjunction is invertible. -/
 @[stacks 0E8I "left projection formula map property"]
@@ -731,13 +846,15 @@ noncomputable def leftProjectionFormulaMapInv (X : D) (A : C)
 @[simp, stacks 0B53 "left projection formula map forward-inverse law"]
 theorem leftProjectionFormulaMap_comp_inv (X : D) (A : C)
     [IsIso (adj.leftProjectionFormulaMap X A)] :
-    adj.leftProjectionFormulaMap X A ≫ adj.leftProjectionFormulaMapInv X A = 𝟙 _ := sorry
+    adj.leftProjectionFormulaMap X A ≫ adj.leftProjectionFormulaMapInv X A = 𝟙 _ := by
+  exact IsIso.hom_inv_id _
 
 /-- The inverse of a left projection-formula map followed by the map is the identity. -/
 @[simp, stacks 0B53 "left projection formula map inverse-forward law"]
 theorem leftProjectionFormulaMapInv_comp (X : D) (A : C)
     [IsIso (adj.leftProjectionFormulaMap X A)] :
-    adj.leftProjectionFormulaMapInv X A ≫ adj.leftProjectionFormulaMap X A = 𝟙 _ := sorry
+    adj.leftProjectionFormulaMapInv X A ≫ adj.leftProjectionFormulaMap X A = 𝟙 _ := by
+  exact IsIso.inv_hom_id _
 
 /-- The componentwise left projection-formula map isomorphism, oriented as
 `X ⊗ L A ≅ L (R X ⊗ A)`. -/
@@ -754,13 +871,15 @@ noncomputable def leftProjectionFormulaMapIso (X : D) (A : C)
 @[simp, stacks 0B53 "left projection formula map isomorphism hom"]
 theorem leftProjectionFormulaMapIso_hom (X : D) (A : C)
     [IsIso (adj.leftProjectionFormulaMap X A)] :
-    (adj.leftProjectionFormulaMapIso X A).hom = adj.leftProjectionFormulaMapInv X A := sorry
+    (adj.leftProjectionFormulaMapIso X A).hom = adj.leftProjectionFormulaMapInv X A := by
+  rfl
 
 /-- The inverse map of `leftProjectionFormulaMapIso` is the canonical left map. -/
 @[simp, stacks 0B53 "left projection formula map isomorphism inv"]
 theorem leftProjectionFormulaMapIso_inv (X : D) (A : C)
     [IsIso (adj.leftProjectionFormulaMap X A)] :
-    (adj.leftProjectionFormulaMapIso X A).inv = adj.leftProjectionFormulaMap X A := sorry
+    (adj.leftProjectionFormulaMapIso X A).inv = adj.leftProjectionFormulaMap X A := by
+  rfl
 
 /-- The unit specialization of the left projection-formula map, oriented as
 `L (R X) ≅ X ⊗ L (𝟙_ C)`. -/
@@ -786,7 +905,11 @@ instance [adj.LeftProjectionFormula] (X : D) (A : C) :
 invertible, so its natural isomorphism API needs no manually rebuilt instance. -/
 @[stacks 0B53 "left projection formula natural transformation invertibility"]
 noncomputable instance leftProjectionFormulaMateNatTrans_isIso [adj.LeftProjectionFormula]
-    (A : C) : IsIso (adj.leftProjectionFormulaMateNatTrans A) := sorry
+    (A : C) : IsIso (adj.leftProjectionFormulaMateNatTrans A) := by
+  haveI (X : D) : IsIso ((adj.leftProjectionFormulaMateNatTrans A).app X) := by
+    change IsIso (adj.leftProjectionFormulaMate X A)
+    infer_instance
+  exact NatIso.isIso_of_isIso_app _
 
 /-- The named inverse of a left projection-formula mate. -/
 @[stacks 0B53 "left projection formula mate inverse"]
@@ -799,13 +922,15 @@ noncomputable def leftProjectionFormulaMateInv (X : D) (A : C)
 @[simp, stacks 0B53 "left projection formula mate forward-inverse law"]
 theorem leftProjectionFormulaMate_comp_inv (X : D) (A : C)
     [IsIso (adj.leftProjectionFormulaMate X A)] :
-    adj.leftProjectionFormulaMate X A ≫ adj.leftProjectionFormulaMateInv X A = 𝟙 _ := sorry
+    adj.leftProjectionFormulaMate X A ≫ adj.leftProjectionFormulaMateInv X A = 𝟙 _ := by
+  exact IsIso.hom_inv_id _
 
 /-- The inverse of a left projection-formula mate followed by the mate is the identity. -/
 @[simp, stacks 0B53 "left projection formula mate inverse-forward law"]
 theorem leftProjectionFormulaMateInv_comp (X : D) (A : C)
     [IsIso (adj.leftProjectionFormulaMate X A)] :
-    adj.leftProjectionFormulaMateInv X A ≫ adj.leftProjectionFormulaMate X A = 𝟙 _ := sorry
+    adj.leftProjectionFormulaMateInv X A ≫ adj.leftProjectionFormulaMate X A = 𝟙 _ := by
+  exact IsIso.inv_hom_id _
 
 /-- The inverse component of the left mate natural transformation agrees with the named
 component inverse. -/
@@ -814,7 +939,8 @@ theorem leftProjectionFormulaMateNatTransInv_app_eq_mateInv (X : D) (A : C)
     [IsIso (adj.leftProjectionFormulaMateNatTrans A)]
     [IsIso (adj.leftProjectionFormulaMate X A)] :
     (adj.leftProjectionFormulaMateNatTransInv A).app X =
-      adj.leftProjectionFormulaMateInv X A := sorry
+      adj.leftProjectionFormulaMateInv X A := by
+  exact NatIso.isIso_inv_app _ _
 
 /-- The componentwise left projection-formula isomorphism. -/
 @[stacks 0B53 "left projection formula isomorphism"]
@@ -830,12 +956,14 @@ noncomputable def leftProjectionFormulaIso (X : D) (A : C)
 @[simp, stacks 0B53 "left projection formula isomorphism hom"]
 theorem leftProjectionFormulaIso_hom (X : D) (A : C)
     [IsIso (adj.leftProjectionFormulaMate X A)] :
-    (adj.leftProjectionFormulaIso X A).hom = adj.leftProjectionFormulaMate X A := sorry
+    (adj.leftProjectionFormulaIso X A).hom = adj.leftProjectionFormulaMate X A := by
+  rfl
 
 /-- The inverse map of `leftProjectionFormulaIso` is the named left mate inverse. -/
 @[simp, stacks 0B53 "left projection formula isomorphism inv"]
 theorem leftProjectionFormulaIso_inv (X : D) (A : C)
     [IsIso (adj.leftProjectionFormulaMate X A)] :
-    (adj.leftProjectionFormulaIso X A).inv = adj.leftProjectionFormulaMateInv X A := sorry
+    (adj.leftProjectionFormulaIso X A).inv = adj.leftProjectionFormulaMateInv X A := by
+  rfl
 
 end CategoryTheory.Adjunction

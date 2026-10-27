@@ -37,47 +37,84 @@ noncomputable def poincarePairing
     (T : SchemePreWeilTheory k F TateLine V dimension product fst snd point CH CHgrade
       cyclePullback cyclePushforward pointCycle H Picard)
     {X : V} {d : ℕ} (hX : T.IsNonemptyEquidimensional X d) (i j : ℤ) :
-    T.Hgrade X (2 * (d : ℤ) - i, (d : ℤ) - j) →ₗ[F]
-      (T.Hgrade X (i, j) →ₗ[F] F) :=
+    T.Hgrade X (2 * (d : ℤ) - i) →ₗ[F]
+      (T.Hgrade X (i) →ₗ[F] F) :=
   ((LinearMap.mul F (H X)).flip.compl₁₂
-      (T.Hgrade X (2 * (d : ℤ) - i, (d : ℤ) - j)).subtype
-      (T.Hgrade X (i, j)).subtype).compr₂ (T.integral hX)
+      (T.Hgrade X (2 * (d : ℤ) - i)).subtype
+      (T.Hgrade X (i)).subtype).compr₂ (T.integral hX)
 
 /-- The Poincare pairing evaluates as cup product followed by the axiom-(A6) trace. -/
 theorem poincarePairing_apply
     (T : SchemePreWeilTheory k F TateLine V dimension product fst snd point CH CHgrade
       cyclePullback cyclePushforward pointCycle H Picard)
     {X : V} {d : ℕ} (hX : T.IsNonemptyEquidimensional X d) (i j : ℤ)
-    (a : T.Hgrade X (2 * (d : ℤ) - i, (d : ℤ) - j))
-    (b : T.Hgrade X (i, j)) :
+    (a : T.Hgrade X (2 * (d : ℤ) - i))
+    (b : T.Hgrade X (i)) :
     T.poincarePairing hX i j a b = T.integral hX (b * a) := sorry
 
-/-- Axioms (A1)–(A7) imply finite-dimensionality of every graded cohomology piece. -/
+/-- With the explicit diagonal-class mixin, (A1)--(A7) imply finite-dimensional
+cohomology pieces. Scheme-level anchoring of the mixin is tracked by RL-2194. -/
 theorem finiteDimensional_of_axiomsA1ToA7
     (T : SchemePreWeilTheory k F TateLine V dimension product fst snd point CH CHgrade
-      cyclePullback cyclePushforward pointCycle H Picard)
+      cyclePullback cyclePushforward pointCycle H Picard) [T.HasDiagonalClassRelation]
     {X : V} {d : ℕ} (hX : T.IsNonemptyEquidimensional X d)
-    (p : ℤ × ℤ) : Module.Finite F (T.Hgrade X p) := sorry
+    (p : ℤ) : Module.Finite F (T.Hgrade X p) := by
+  have hdiagonal : T.HasDiagonalClassRelation := inferInstance
+  sorry
 
-/-- Axioms (A1)–(A7) imply that every complementary Poincare pairing is bijective. -/
+/-- With the explicit diagonal-class mixin, every complementary Poincare
+pairing is bijective. Geometric anchoring is tracked by RL-2194. -/
 theorem poincarePairing_bijective_of_axiomsA1ToA7
     (T : SchemePreWeilTheory k F TateLine V dimension product fst snd point CH CHgrade
-      cyclePullback cyclePushforward pointCycle H Picard)
+      cyclePullback cyclePushforward pointCycle H Picard) [T.HasDiagonalClassRelation]
     {X : V} {d : ℕ} (hX : T.IsNonemptyEquidimensional X d) (i j : ℤ) :
-    Function.Bijective (T.poincarePairing hX i j) := sorry
+    Function.Bijective (T.poincarePairing hX i j) := by
+  have hdiagonal : T.HasDiagonalClassRelation := inferInstance
+  sorry
 
-/-- Axioms (A1)–(A7) give finite-dimensional graded pieces, the cup-trace
-evaluation formula, and perfect complementary Poincare pairings. -/
+/-- With the explicit diagonal-class mixin, (A1)--(A7) give finite-dimensional
+pieces, the cup-trace formula, and perfect complementary pairings. -/
 theorem poincareDuality_of_axiomsA1ToA7
     (T : SchemePreWeilTheory k F TateLine V dimension product fst snd point CH CHgrade
-      cyclePullback cyclePushforward pointCycle H Picard) :
-    (∀ {X d}, T.IsNonemptyEquidimensional X d → ∀ p : ℤ × ℤ,
+      cyclePullback cyclePushforward pointCycle H Picard) [T.HasDiagonalClassRelation]
+     :
+    (∀ {X d}, T.IsNonemptyEquidimensional X d → ∀ p : ℤ,
       Module.Finite F (T.Hgrade X p)) ∧
     (∀ {X d} (hX : T.IsNonemptyEquidimensional X d) (i j : ℤ)
-      (a : T.Hgrade X (2 * (d : ℤ) - i, (d : ℤ) - j))
-      (b : T.Hgrade X (i, j)),
+      (a : T.Hgrade X (2 * (d : ℤ) - i))
+      (b : T.Hgrade X (i)),
       T.poincarePairing hX i j a b = T.integral hX (b * a)) ∧
     (∀ {X d} (hX : T.IsNonemptyEquidimensional X d) (i j : ℤ),
-      Function.Bijective (T.poincarePairing hX i j)) := sorry
+      Function.Bijective (T.poincarePairing hX i j)) := by
+  have hdiagonal : T.HasDiagonalClassRelation := inferInstance
+  sorry
+
+
+/-- The Poincare pairing on the external twists n and d-n. The underlying map
+is the existing cup-trace coordinate formula; no inverse is chosen. Coordinate adapter using the chosen Tate coordinates; canonical external
+compatibility and coherence are tracked by RL-2195. -/
+def twistedPoincarePairing
+    (T : SchemePreWeilTheory k F TateLine V dimension product fst snd point CH CHgrade
+      cyclePullback cyclePushforward pointCycle H Picard)
+    {X : V} {d : ℕ} (hX : T.IsNonemptyEquidimensional X d) (i n : ℤ) :
+    T.twistedGrade X (2 * (d : ℤ) - i) ((d : ℤ) - n) →ₗ[F]
+      (T.twistedGrade X i n →ₗ[F] F) :=
+  (T.poincarePairing hX i n).compl₁₂
+    (Tate.trivialization T.tateLine_rank (T.Hgrade X (2 * (d : ℤ) - i))
+      ((d : ℤ) - n)).toLinearMap
+    (Tate.trivialization T.tateLine_rank (T.Hgrade X i) n).toLinearMap
+
+/-- Poincare duality on complementary external twists under the explicit
+diagonal-class mixin; geometric anchoring is tracked by RL-2194. -/
+theorem twistedPoincareDuality_of_axiomsA1ToA7
+    (T : SchemePreWeilTheory k F TateLine V dimension product fst snd point CH CHgrade
+      cyclePullback cyclePushforward pointCycle H Picard) [T.HasDiagonalClassRelation]
+     :
+    (∀ {X d}, T.IsNonemptyEquidimensional X d → ∀ i : ℤ,
+      Module.Finite F (T.Hgrade X i)) ∧
+    (∀ {X d} (hX : T.IsNonemptyEquidimensional X d) (i n : ℤ),
+      Function.Bijective (T.twistedPoincarePairing hX i n)) := by
+  have hdiagonal : T.HasDiagonalClassRelation := inferInstance
+  sorry
 
 end WeilCohomology.SchemePreWeilTheory

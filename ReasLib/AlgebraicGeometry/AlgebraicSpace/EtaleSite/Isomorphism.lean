@@ -31,15 +31,32 @@ namespace AlgebraicGeometry.AlgebraicSpace
 
 variable {S : Scheme.{u}}
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The inverse of an étale isomorphism of algebraic spaces is étale. -/
 instance instEtale_inv_of_isIso {X Y : AlgebraicSpace S} (φ : X ⟶ Y)
-    [IsIso φ] [Etale φ] : Etale (inv φ) :=
-  sorry
+    [IsIso φ] [Etale φ] : Etale (inv φ) := by
+  letI : IsIso (C := (Over S)ᵒᵖ ⥤ Type u)
+      (CategoryTheory.inv (C := AlgebraicSpace S) φ) :=
+    ⟨⟨φ, IsIso.inv_hom_id (C := AlgebraicSpace S) φ,
+      IsIso.hom_inv_id (C := AlgebraicSpace S) φ⟩⟩
+  refine ⟨fun ψ hψ => ?_⟩
+  show (MorphismProperty.over (@AlgebraicGeometry.Etale)).presheaf
+    (ψ ≫ CategoryTheory.inv (C := AlgebraicSpace S) φ)
+  exact (MorphismProperty.cancel_right_of_respectsIso (C := (Over S)ᵒᵖ ⥤ Type u)
+    (MorphismProperty.over (@AlgebraicGeometry.Etale)).presheaf ψ
+      (CategoryTheory.inv (C := AlgebraicSpace S) φ)).mpr hψ
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The identity chart maps respect the structure maps after cancelling inverse restriction. -/
 private lemma etaleRestriction_comp_inv_w {X Y : AlgebraicSpace S} (φ : X ⟶ Y) [IsIso φ] [Etale φ] (U : smallEtaleSite X) :
     (ofOverFunctor S).map (𝟙 U.left) ≫ U.hom = ((etaleRestriction φ ⋙ etaleRestriction (inv φ)).obj U).hom ≫ 𝟙 X :=
-  sorry
+  by
+    change (ofOverFunctor S).map (𝟙 U.left) ≫ U.hom =
+      ((U.hom ≫ φ) ≫ CategoryTheory.inv (C := AlgebraicSpace S) φ) ≫ 𝟙 X
+    simp only [(ofOverFunctor S).map_id, Category.id_comp,
+      Category.comp_id, Category.assoc,
+      IsIso.hom_inv_id (C := AlgebraicSpace S) φ]
+    exact (Category.comp_id (obj := AlgebraicSpace S) U.hom).symm
 
 /-- The identity chart maps identify double restriction with the original chart. -/
 private def etaleRestriction_comp_invComponent {X Y : AlgebraicSpace S} (φ : X ⟶ Y) [IsIso φ] [Etale φ] (U : smallEtaleSite X) :
@@ -51,17 +68,27 @@ private lemma etaleRestriction_comp_inv_naturality {X Y : AlgebraicSpace S} (φ 
     {U V : smallEtaleSite X} (k : U ⟶ V) :
     (etaleRestriction φ ⋙ etaleRestriction (inv φ)).map k ≫ (etaleRestriction_comp_invComponent φ V).hom =
       (etaleRestriction_comp_invComponent φ U).hom ≫ (𝟭 (smallEtaleSite X)).map k :=
-  sorry
+  by
+    apply MorphismProperty.CostructuredArrow.Hom.ext
+    change k.left ≫ 𝟙 V.left = 𝟙 U.left ≫ k.left
+    simp only [Category.comp_id, Category.id_comp]
 
 /-- Restriction along an étale isomorphism and its inverse cancels on the source site. -/
 def etaleRestriction_comp_inv {X Y : AlgebraicSpace S} (φ : X ⟶ Y) [IsIso φ] [Etale φ] :
     etaleRestriction φ ⋙ etaleRestriction (inv φ) ≅ 𝟭 (smallEtaleSite X) :=
   NatIso.ofComponents (etaleRestriction_comp_invComponent φ) (fun k => etaleRestriction_comp_inv_naturality φ k)
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The identity chart maps respect the structure maps after cancelling inverse restriction. -/
 private lemma etaleRestriction_inv_comp_w {X Y : AlgebraicSpace S} (φ : X ⟶ Y) [IsIso φ] [Etale φ] (U : smallEtaleSite Y) :
     (ofOverFunctor S).map (𝟙 U.left) ≫ U.hom = ((etaleRestriction (inv φ) ⋙ etaleRestriction φ).obj U).hom ≫ 𝟙 Y :=
-  sorry
+  by
+    change (ofOverFunctor S).map (𝟙 U.left) ≫ U.hom =
+      ((U.hom ≫ CategoryTheory.inv (C := AlgebraicSpace S) φ) ≫ φ) ≫ 𝟙 Y
+    simp only [(ofOverFunctor S).map_id, Category.id_comp,
+      Category.comp_id, Category.assoc,
+      IsIso.inv_hom_id (C := AlgebraicSpace S) φ]
+    exact (Category.comp_id (obj := AlgebraicSpace S) U.hom).symm
 
 /-- The identity chart maps identify double restriction with the original chart. -/
 private def etaleRestriction_inv_compComponent {X Y : AlgebraicSpace S} (φ : X ⟶ Y) [IsIso φ] [Etale φ] (U : smallEtaleSite Y) :
@@ -73,17 +100,26 @@ private lemma etaleRestriction_inv_comp_naturality {X Y : AlgebraicSpace S} (φ 
     {U V : smallEtaleSite Y} (k : U ⟶ V) :
     (etaleRestriction (inv φ) ⋙ etaleRestriction φ).map k ≫ (etaleRestriction_inv_compComponent φ V).hom =
       (etaleRestriction_inv_compComponent φ U).hom ≫ (𝟭 (smallEtaleSite Y)).map k :=
-  sorry
+  by
+    apply MorphismProperty.CostructuredArrow.Hom.ext
+    change k.left ≫ 𝟙 V.left = 𝟙 U.left ≫ k.left
+    simp only [Category.comp_id, Category.id_comp]
 
 /-- Restriction along an étale isomorphism and its inverse cancels on the target site. -/
 def etaleRestriction_inv_comp {X Y : AlgebraicSpace S} (φ : X ⟶ Y) [IsIso φ] [Etale φ] :
     etaleRestriction (inv φ) ⋙ etaleRestriction φ ≅ 𝟭 (smallEtaleSite Y) :=
   NatIso.ofComponents (etaleRestriction_inv_compComponent φ) (fun k => etaleRestriction_inv_comp_naturality φ k)
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The identity chart maps respect the structure maps after cancelling inverse restriction. -/
 private lemma spacesEtaleRestriction_comp_inv_w {X Y : AlgebraicSpace S} (φ : X ⟶ Y) [IsIso φ] [Etale φ] (U : spacesEtaleSite X) :
     (𝟙 U.left) ≫ U.hom = ((spacesEtaleRestriction φ ⋙ spacesEtaleRestriction (inv φ)).obj U).hom :=
-  sorry
+  by
+    change 𝟙 U.left ≫ U.hom =
+      (U.hom ≫ φ) ≫ CategoryTheory.inv (C := AlgebraicSpace S) φ
+    simp only [Category.id_comp, Category.assoc,
+      IsIso.hom_inv_id (C := AlgebraicSpace S) φ]
+    exact (Category.comp_id (obj := AlgebraicSpace S) U.hom).symm
 
 /-- The identity chart maps identify double restriction with the original chart. -/
 private def spacesEtaleRestriction_comp_invComponent {X Y : AlgebraicSpace S} (φ : X ⟶ Y) [IsIso φ] [Etale φ] (U : spacesEtaleSite X) :
@@ -95,17 +131,26 @@ private lemma spacesEtaleRestriction_comp_inv_naturality {X Y : AlgebraicSpace S
     {U V : spacesEtaleSite X} (k : U ⟶ V) :
     (spacesEtaleRestriction φ ⋙ spacesEtaleRestriction (inv φ)).map k ≫ (spacesEtaleRestriction_comp_invComponent φ V).hom =
       (spacesEtaleRestriction_comp_invComponent φ U).hom ≫ (𝟭 (spacesEtaleSite X)).map k :=
-  sorry
+  by
+    apply MorphismProperty.Over.Hom.ext
+    change k.left ≫ 𝟙 V.left = 𝟙 U.left ≫ k.left
+    simp only [Category.comp_id, Category.id_comp]
 
 /-- Restriction along an étale isomorphism and its inverse cancels on the source site. -/
 def spacesEtaleRestriction_comp_inv {X Y : AlgebraicSpace S} (φ : X ⟶ Y) [IsIso φ] [Etale φ] :
     spacesEtaleRestriction φ ⋙ spacesEtaleRestriction (inv φ) ≅ 𝟭 (spacesEtaleSite X) :=
   NatIso.ofComponents (spacesEtaleRestriction_comp_invComponent φ) (fun k => spacesEtaleRestriction_comp_inv_naturality φ k)
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The identity chart maps respect the structure maps after cancelling inverse restriction. -/
 private lemma spacesEtaleRestriction_inv_comp_w {X Y : AlgebraicSpace S} (φ : X ⟶ Y) [IsIso φ] [Etale φ] (U : spacesEtaleSite Y) :
     (𝟙 U.left) ≫ U.hom = ((spacesEtaleRestriction (inv φ) ⋙ spacesEtaleRestriction φ).obj U).hom :=
-  sorry
+  by
+    change 𝟙 U.left ≫ U.hom =
+      (U.hom ≫ CategoryTheory.inv (C := AlgebraicSpace S) φ) ≫ φ
+    simp only [Category.id_comp, Category.assoc,
+      IsIso.inv_hom_id (C := AlgebraicSpace S) φ]
+    exact (Category.comp_id (obj := AlgebraicSpace S) U.hom).symm
 
 /-- The identity chart maps identify double restriction with the original chart. -/
 private def spacesEtaleRestriction_inv_compComponent {X Y : AlgebraicSpace S} (φ : X ⟶ Y) [IsIso φ] [Etale φ] (U : spacesEtaleSite Y) :
@@ -117,7 +162,10 @@ private lemma spacesEtaleRestriction_inv_comp_naturality {X Y : AlgebraicSpace S
     {U V : spacesEtaleSite Y} (k : U ⟶ V) :
     (spacesEtaleRestriction (inv φ) ⋙ spacesEtaleRestriction φ).map k ≫ (spacesEtaleRestriction_inv_compComponent φ V).hom =
       (spacesEtaleRestriction_inv_compComponent φ U).hom ≫ (𝟭 (spacesEtaleSite Y)).map k :=
-  sorry
+  by
+    apply MorphismProperty.Over.Hom.ext
+    change k.left ≫ 𝟙 V.left = 𝟙 U.left ≫ k.left
+    simp only [Category.comp_id, Category.id_comp]
 
 /-- Restriction along an étale isomorphism and its inverse cancels on the target site. -/
 def spacesEtaleRestriction_inv_comp {X Y : AlgebraicSpace S} (φ : X ⟶ Y) [IsIso φ] [Etale φ] :
@@ -166,6 +214,16 @@ private def etaleRestrictionSheafGlobalSectionsHom {X Y : AlgebraicSpace S}
   (((etaleRestrictionSheaf φ AddCommGrpCat.{u + 1}).obj F).isLimitConeΓ).lift
     (F.coneΓ.whisker (etaleRestriction φ).op)
 
+/-- The restricted global-section cone has the original projection on each chart. -/
+private lemma etaleRestrictionSheafGlobalSectionsHom_ΓRes {X Y : AlgebraicSpace S}
+    (φ : X ⟶ Y) [Etale φ]
+    (F : Sheaf (smallEtaleTopology Y) AddCommGrpCat.{u + 1}) (U : smallEtaleSite X) :
+    etaleRestrictionSheafGlobalSectionsHom φ F ≫
+        ((etaleRestrictionSheaf φ AddCommGrpCat.{u + 1}).obj F).ΓRes (op U) =
+      F.ΓRes (op ((etaleRestriction φ).obj U)) :=
+  (((etaleRestrictionSheaf φ AddCommGrpCat.{u + 1}).obj F).isLimitConeΓ).fac
+    (F.coneΓ.whisker (etaleRestriction φ).op) (op U)
+
 /-- Inverse restriction followed by cancellation recovers global sections on the target. -/
 private def etaleRestrictionSheafGlobalSectionsInv {X Y : AlgebraicSpace S}
     (φ : X ⟶ Y) [IsIso φ] [Etale φ]
@@ -179,6 +237,19 @@ private def etaleRestrictionSheafGlobalSectionsInv {X Y : AlgebraicSpace S}
       ((sheafPushforwardContinuousIso (etaleRestriction_inv_comp φ) AddCommGrpCat.{u + 1}
         (smallEtaleTopology Y) (smallEtaleTopology Y)).hom.app F)
 
+/-- Inverse restriction followed by cancellation restricts along the inverse chart map. -/
+private lemma etaleRestrictionSheafGlobalSectionsInv_ΓRes {X Y : AlgebraicSpace S}
+    (φ : X ⟶ Y) [IsIso φ] [Etale φ]
+    (F : Sheaf (smallEtaleTopology Y) AddCommGrpCat.{u + 1}) (U : smallEtaleSite Y) :
+    etaleRestrictionSheafGlobalSectionsInv φ F ≫ F.ΓRes (op U) =
+      ((etaleRestrictionSheaf φ AddCommGrpCat.{u + 1}).obj F).ΓRes
+          (op ((etaleRestriction (inv φ)).obj U)) ≫
+        F.obj.map ((etaleRestriction_inv_comp φ).inv.app U).op := by
+  rw [etaleRestrictionSheafGlobalSectionsInv, Category.assoc, Sheaf.ΓRes_naturality,
+    ← Category.assoc, etaleRestrictionSheafGlobalSectionsHom_ΓRes]
+  rfl
+
+set_option backward.isDefEq.respectTransparency false in
 /-- Restriction of global sections is natural in the sheaf. -/
 private lemma etaleRestrictionSheafGlobalSectionsIso_naturality {X Y : AlgebraicSpace S}
     (φ : X ⟶ Y) [IsIso φ] [Etale φ]
@@ -188,23 +259,50 @@ private lemma etaleRestrictionSheafGlobalSectionsIso_naturality {X Y : Algebraic
       etaleRestrictionSheafGlobalSectionsHom φ F ≫
         (etaleRestrictionSheaf φ AddCommGrpCat.{u + 1} ⋙
           Sheaf.Γ (smallEtaleTopology X) AddCommGrpCat.{u + 1}).map k :=
-  sorry
+  by
+    apply ((etaleRestrictionSheaf φ AddCommGrpCat.{u + 1}).obj G).isLimitConeΓ.hom_ext
+    intro ⟨U⟩
+    simp only [Sheaf.coneΓ_π_app, Functor.comp_map, Category.assoc,
+      etaleRestrictionSheafGlobalSectionsHom_ΓRes, Sheaf.ΓRes_naturality]
+    rw [← Category.assoc, etaleRestrictionSheafGlobalSectionsHom_ΓRes]
+    rfl
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Restricting global sections and then cancelling inverse restriction is the identity. -/
 private lemma etaleRestrictionSheafGlobalSectionsIso_hom_inv_id {X Y : AlgebraicSpace S}
     (φ : X ⟶ Y) [IsIso φ] [Etale φ]
     (F : Sheaf (smallEtaleTopology Y) AddCommGrpCat.{u + 1}) :
     etaleRestrictionSheafGlobalSectionsHom φ F ≫
       etaleRestrictionSheafGlobalSectionsInv φ F = 𝟙 _ :=
-  sorry
+  by
+    apply F.isLimitConeΓ.hom_ext
+    intro ⟨U⟩
+    simp only [Sheaf.coneΓ_π_app, Category.id_comp, Category.assoc,
+      etaleRestrictionSheafGlobalSectionsInv_ΓRes]
+    rw [← Category.assoc, etaleRestrictionSheafGlobalSectionsHom_ΓRes]
+    exact F.ΓRes_map ((etaleRestriction_inv_comp φ).inv.app U).op
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Cancelling inverse restriction and then restricting global sections is the identity. -/
 private lemma etaleRestrictionSheafGlobalSectionsIso_inv_hom_id {X Y : AlgebraicSpace S}
     (φ : X ⟶ Y) [IsIso φ] [Etale φ]
     (F : Sheaf (smallEtaleTopology Y) AddCommGrpCat.{u + 1}) :
     etaleRestrictionSheafGlobalSectionsInv φ F ≫
       etaleRestrictionSheafGlobalSectionsHom φ F = 𝟙 _ :=
-  sorry
+  by
+    apply ((etaleRestrictionSheaf φ AddCommGrpCat.{u + 1}).obj F).isLimitConeΓ.hom_ext
+    intro ⟨U⟩
+    simp only [Sheaf.coneΓ_π_app, Category.id_comp, Category.assoc,
+      etaleRestrictionSheafGlobalSectionsHom_ΓRes,
+      etaleRestrictionSheafGlobalSectionsInv_ΓRes]
+    have h :
+        (etaleRestriction φ).map ((etaleRestriction_comp_inv φ).inv.app U) =
+          (etaleRestriction_inv_comp φ).inv.app ((etaleRestriction φ).obj U) := by
+      apply MorphismProperty.CostructuredArrow.Hom.ext
+      rfl
+    rw [← h]
+    exact ((etaleRestrictionSheaf φ AddCommGrpCat.{u + 1}).obj F).ΓRes_map
+      ((etaleRestriction_comp_inv φ).inv.app U).op
 
 /-- Global sections are preserved by restriction along an étale isomorphism. -/
 def etaleRestrictionSheafGlobalSectionsIso {X Y : AlgebraicSpace S}

@@ -47,7 +47,8 @@ namespace RealizesViaRenumbering
 theorem realizes {F : FilteredComplex C}
     {E : CohomologicalSpectralSequence C 0}
     {E' : E₂CohomologicalSpectralSequence C} {H : ℤ → C}
-    (h : RealizesViaRenumbering F E E' H) : Realizes F E H := sorry
+    (h : RealizesViaRenumbering F E E' H) : Realizes F E H :=
+  h.1
 
 /-- A realization via renumbering supplies the relation between its original and new
 sequences. -/
@@ -56,7 +57,8 @@ theorem renumbering {F : FilteredComplex C}
     {E : CohomologicalSpectralSequence C 0}
     {E' : E₂CohomologicalSpectralSequence C} {H : ℤ → C}
     (h : RealizesViaRenumbering F E E' H) :
-    CohomologicalSpectralSequence.Renumber.IsFromZero E E' := sorry
+    CohomologicalSpectralSequence.Renumber.IsFromZero E E' :=
+  h.2
 
 /-- Assemble a realization via renumbering from its two independent components. -/
 @[stacks 0G1Y, stacks 0G20]
@@ -64,7 +66,8 @@ theorem of {F : FilteredComplex C} {E : CohomologicalSpectralSequence C 0}
     {E' : E₂CohomologicalSpectralSequence C} {H : ℤ → C}
     (hrealizes : Realizes F E H)
     (hrenumber : CohomologicalSpectralSequence.Renumber.IsFromZero E E') :
-    RealizesViaRenumbering F E E' H := sorry
+    RealizesViaRenumbering F E E' H :=
+  ⟨hrealizes, hrenumber⟩
 
 end RealizesViaRenumbering
 
@@ -89,7 +92,8 @@ namespace ConvergesViaRenumbering
 theorem converges {K : FilteredComplex C}
     {E : CohomologicalSpectralSequence C 0}
     {E' : E₂CohomologicalSpectralSequence C}
-    (h : ConvergesViaRenumbering K E E') : Converges K E := sorry
+    (h : ConvergesViaRenumbering K E E') : Converges K E :=
+  h.1
 
 /-- Convergence via renumbering supplies the relation between its original and new sequences. -/
 @[stacks 0G1Y, stacks 0G20]
@@ -97,14 +101,16 @@ theorem renumbering {K : FilteredComplex C}
     {E : CohomologicalSpectralSequence C 0}
     {E' : E₂CohomologicalSpectralSequence C}
     (h : ConvergesViaRenumbering K E E') :
-    CohomologicalSpectralSequence.Renumber.IsFromZero E E' := sorry
+    CohomologicalSpectralSequence.Renumber.IsFromZero E E' :=
+  h.2
 
 /-- Assemble convergence via renumbering from convergence and the renumbering relation. -/
 @[stacks 0G1Y, stacks 0G20]
 theorem of {K : FilteredComplex C} {E : CohomologicalSpectralSequence C 0}
     {E' : E₂CohomologicalSpectralSequence C} (hE : Converges K E)
     (hrenumber : CohomologicalSpectralSequence.Renumber.IsFromZero E E') :
-    ConvergesViaRenumbering K E E' := sorry
+    ConvergesViaRenumbering K E E' :=
+  ⟨hE, hrenumber⟩
 
 end ConvergesViaRenumbering
 
@@ -124,7 +130,8 @@ relation. -/
 theorem of {K : FilteredComplex C} {E : CohomologicalSpectralSequence C 0}
     {E' : E₂CohomologicalSpectralSequence C} (hE : Converges K E)
     (hrenumber : CohomologicalSpectralSequence.Renumber.IsFromZero E E') :
-    ConvergesAfterRenumbering K E' := sorry
+    ConvergesAfterRenumbering K E' :=
+  ⟨E, ConvergesViaRenumbering.of hE hrenumber⟩
 
 /-- Convergence after renumbering supplies an original sequence while retaining the conjunction
 of convergence and renumbering as a named reusable predicate. -/
@@ -133,7 +140,8 @@ theorem existsViaRenumbering {K : FilteredComplex C}
     {E' : E₂CohomologicalSpectralSequence C}
     (h : ConvergesAfterRenumbering K E') :
     ∃ E : CohomologicalSpectralSequence C 0,
-      ConvergesViaRenumbering K E E' := sorry
+      ConvergesViaRenumbering K E E' :=
+  h
 
 /-- Convergence after renumbering supplies a convergent original sequence together with its
 renumbering relation. -/
@@ -143,7 +151,8 @@ theorem existsOriginal {K : FilteredComplex C}
     (h : ConvergesAfterRenumbering K E') :
     ∃ E : CohomologicalSpectralSequence C 0,
       Converges K E ∧
-        CohomologicalSpectralSequence.Renumber.IsFromZero E E' := sorry
+        CohomologicalSpectralSequence.Renumber.IsFromZero E E' :=
+  h
 
 end ConvergesAfterRenumbering
 

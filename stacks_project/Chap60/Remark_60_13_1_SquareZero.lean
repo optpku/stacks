@@ -35,23 +35,33 @@ universe u
 
 namespace CrystallineObject.FirstOrderThickening
 
-/-- The opposite involution sends one to one in a commutative ring. -/
+/-- The opposite involution sends one to one in a commutative ring.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 theorem unop_one (R : Type u) [CommRing R] :
     MulOpposite.unop (1 : Rᵐᵒᵖ) = 1 := sorry
 
-/-- The opposite involution is multiplicative after commuting factors. -/
+/-- The opposite involution is multiplicative after commuting factors.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 theorem unop_mul (R : Type u) [CommRing R] (x y : Rᵐᵒᵖ) :
     MulOpposite.unop (x * y) = MulOpposite.unop x * MulOpposite.unop y := sorry
 
-/-- The opposite involution sends zero to zero. -/
+/-- The opposite involution sends zero to zero.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 theorem unop_zero (R : Type u) [CommRing R] :
     MulOpposite.unop (0 : Rᵐᵒᵖ) = 0 := sorry
 
-/-- The opposite involution preserves addition. -/
+/-- The opposite involution preserves addition.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 theorem unop_add (R : Type u) [CommRing R] (x y : Rᵐᵒᵖ) :
     MulOpposite.unop (x + y) = MulOpposite.unop x + MulOpposite.unop y := sorry
 
-/-- The opposite action used in the explicit commutative square-zero rings. -/
+/-- The opposite action used in the explicit commutative square-zero rings.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 abbrev oppositeModule (R : Type u) [CommRing R]
     (M : Type u) [AddCommGroup M] [Module R M] : Module Rᵐᵒᵖ M :=
   Module.compHom M
@@ -61,12 +71,16 @@ abbrev oppositeModule (R : Type u) [CommRing R]
       map_zero' := unop_zero R
       map_add' := unop_add R }
 
-/-- The centrality law for the opposite action used in the square-zero model. -/
+/-- The centrality law for the opposite action used in the square-zero model.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 theorem oppositeModule_isCentral (R : Type u) [CommRing R]
     (M : Type u) [AddCommGroup M] [Module R M] [Module Rᵐᵒᵖ M] :
     IsCentralScalar R M := sorry
 
-/-- The ring of square-zero sections over one open set. -/
+/-- The ring of square-zero sections over one open set.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 def ring (R : CommRingCat.{u})
     (M : ModuleCat.{u} R) : CommRingCat.{u} :=
   -- Local instance justification (instance diamond): induced opposite action for multiplication.
@@ -75,7 +89,9 @@ def ring (R : CommRingCat.{u})
   letI : IsCentralScalar R M := oppositeModule_isCentral R M
   CommRingCat.of (TrivSqZeroExt R M)
 
-/-- The function on square-zero sections induced by a restriction map. -/
+/-- The function on square-zero sections induced by a restriction map.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 def mapFun
     {S : Scheme.{u}} {I : S.IdealSheafData}
     {γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V)}
@@ -93,7 +109,9 @@ def mapFun
   fun z ↦ (T.obj.1.thickening.presheaf.map rho z.1,
     (Ω[T.obj.1.thickeningToBase.toShHom]).val.map rho z.2)
 
-/-- The restriction function for the square-zero model preserves zero. -/
+/-- The restriction function for the square-zero model preserves zero.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 theorem mapFun_zero
     {S : Scheme.{u}} {I : S.IdealSheafData}
     {γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V)}
@@ -106,7 +124,9 @@ theorem mapFun_zero
     {U V : (Opens T.obj.1.thickening.toTopCat)ᵒᵖ} (rho : U ⟶ V) :
     mapFun T rho 0 = 0 := sorry
 
-/-- The restriction function for the square-zero model preserves one. -/
+/-- The restriction function for the square-zero model preserves one.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 theorem mapFun_one
     {S : Scheme.{u}} {I : S.IdealSheafData}
     {γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V)}
@@ -119,7 +139,9 @@ theorem mapFun_one
     {U V : (Opens T.obj.1.thickening.toTopCat)ᵒᵖ} (rho : U ⟶ V) :
     mapFun T rho 1 = 1 := sorry
 
-/-- The restriction function for the square-zero model preserves addition. -/
+/-- The restriction function for the square-zero model preserves addition.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 theorem mapFun_add
     {S : Scheme.{u}} {I : S.IdealSheafData}
     {γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V)}
@@ -143,7 +165,9 @@ theorem mapFun_add
     mapFun T rho (x + y) =
       mapFun T rho x + mapFun T rho y := sorry
 
-/-- The restriction function for the square-zero model preserves multiplication. -/
+/-- The restriction function for the square-zero model preserves multiplication.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 theorem mapFun_mul
     {S : Scheme.{u}} {I : S.IdealSheafData}
     {γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V)}
@@ -159,7 +183,9 @@ theorem mapFun_mul
     mapFun T rho (x * y) =
       mapFun T rho x * mapFun T rho y := sorry
 
-/-- The restriction morphism for the explicit square-zero presheaf. -/
+/-- The restriction morphism for the explicit square-zero presheaf.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 def map
     {S : Scheme.{u}} {I : S.IdealSheafData}
     {γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V)}
@@ -195,7 +221,9 @@ def map
       map_add' := mapFun_add T rho
       map_mul' := mapFun_mul T rho }
 
-/-- Identity restrictions act identically on the explicit square-zero presheaf. -/
+/-- Identity restrictions act identically on the explicit square-zero presheaf.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 theorem map_id
     {S : Scheme.{u}} {I : S.IdealSheafData}
     {γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V)}
@@ -208,7 +236,9 @@ theorem map_id
     (U : (Opens T.obj.1.thickening.toTopCat)ᵒᵖ) :
     map T (𝟙 U) = 𝟙 _ := sorry
 
-/-- Composite restrictions act compositionally on the explicit square-zero presheaf. -/
+/-- Composite restrictions act compositionally on the explicit square-zero presheaf.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 theorem map_comp
     {S : Scheme.{u}} {I : S.IdealSheafData}
     {γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V)}
@@ -223,7 +253,9 @@ theorem map_comp
     map T (rho ≫ sigma) =
       map T rho ≫ map T sigma := sorry
 
-/-- The explicit presheaf `𝒪_T ⊕ Ω[T/S]` with square-zero multiplication. -/
+/-- The explicit presheaf `𝒪_T ⊕ Ω[T/S]` with square-zero multiplication.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 def presheaf
     {S : Scheme.{u}} {I : S.IdealSheafData}
     {γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V)}
@@ -240,7 +272,9 @@ def presheaf
   map_id := map_id T
   map_comp := map_comp T
 
-/-- The explicit square-zero presheaf satisfies the sheaf condition. -/
+/-- The explicit square-zero presheaf satisfies the sheaf condition.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 theorem presheaf_isSheaf
     {S : Scheme.{u}} {I : S.IdealSheafData}
     {γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V)}
@@ -253,7 +287,9 @@ theorem presheaf_isSheaf
     Presheaf.IsSheaf (Opens.grothendieckTopology T.obj.1.thickening)
       (presheaf T) := sorry
 
-/-- The concrete square-zero sheaf `𝒪_T ⊕ Ω[T/S]`. -/
+/-- The concrete square-zero sheaf `𝒪_T ⊕ Ω[T/S]`.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 def sheaf
     {S : Scheme.{u}} {I : S.IdealSheafData}
     {γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V)}
@@ -267,7 +303,9 @@ def sheaf
   ⟨presheaf T, presheaf_isSheaf T⟩
 
 set_option backward.isDefEq.respectTransparency false in
-/-- The projection component of the canonical square-zero sheaf. -/
+/-- The projection component of the canonical square-zero sheaf.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 noncomputable def projectionApp
     {S : Scheme.{u}} {I : S.IdealSheafData}
     {γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V)}
@@ -292,7 +330,9 @@ noncomputable def projectionApp
       (T.obj.1.thickening.presheaf.obj V)
       ((Ω[T.obj.1.thickeningToBase.toShHom]).val.obj V)).toRingHom
 
-/-- Naturality of the canonical square-zero projection. -/
+/-- Naturality of the canonical square-zero projection.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 theorem projection_naturality
     {S : Scheme.{u}} {I : S.IdealSheafData}
     {γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V)}
@@ -306,7 +346,9 @@ theorem projection_naturality
     (sheaf T).obj.map f ≫ projectionApp T V =
       projectionApp T U ≫ T.obj.1.thickening.presheaf.map f := sorry
 
-/-- The canonical projection from the square-zero sheaf to the structure sheaf. -/
+/-- The canonical projection from the square-zero sheaf to the structure sheaf.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 noncomputable def projection
     {S : Scheme.{u}} {I : S.IdealSheafData}
     {γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V)}
@@ -321,7 +363,9 @@ noncomputable def projection
     { app := projectionApp T
       naturality := fun {_ _} f ↦ projection_naturality T f }
 
-/-- The canonical square-zero projection is locally surjective. -/
+/-- The canonical square-zero projection is locally surjective.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 instance projection_isLocallySurjective
     {S : Scheme.{u}} {I : S.IdealSheafData}
     {γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V)}
@@ -333,7 +377,9 @@ instance projection_isLocallySurjective
     (T : smallCrystallineSite S I γ h_compatible X x₀) :
     CategoryTheory.Sheaf.IsLocallySurjective (projection T) := sorry
 
-/-- The kernel of the canonical square-zero projection squares to zero. -/
+/-- The kernel of the canonical square-zero projection squares to zero.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 theorem projection_isSquareZero
     {S : Scheme.{u}} {I : S.IdealSheafData}
     {γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V)}
@@ -345,7 +391,9 @@ theorem projection_isSquareZero
     (T : smallCrystallineSite S I γ h_compatible X x₀) :
     KernelIdeal.IsSquareZero (projection T) := sorry
 
-/-- The kernel module of the canonical square-zero projection is quasicoherent. -/
+/-- The kernel module of the canonical square-zero projection is quasicoherent.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 instance projection_kernel_isQuasicoherent
     {S : Scheme.{u}} {I : S.IdealSheafData}
     {γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V)}
@@ -358,7 +406,9 @@ instance projection_kernel_isQuasicoherent
     (Scheme.SquareZeroExtension.kernelModule (sheaf T)
       (projection T) (projection_isSquareZero T)).IsQuasicoherent := sorry
 
-/-- The scheme with structure sheaf `𝒪_T ⊕ Ω[T/S]`. -/
+/-- The scheme with structure sheaf `𝒪_T ⊕ Ω[T/S]`.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 def scheme
     {S : Scheme.{u}} {I : S.IdealSheafData}
     {γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V)}
@@ -371,7 +421,9 @@ def scheme
   Scheme.SquareZeroExtension.scheme (sheaf T)
     (projection T) (projection_isSquareZero T)
 
-/-- The canonical inclusion `T ⟶ T'` for the explicit square-zero scheme. -/
+/-- The canonical inclusion `T ⟶ T'` for the explicit square-zero scheme.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 def schemeInclusion
     {S : Scheme.{u}} {I : S.IdealSheafData}
     {γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V)}
@@ -385,7 +437,9 @@ def schemeInclusion
   Scheme.SquareZeroExtension.ι (sheaf T)
     (projection T) (projection_isSquareZero T)
 
-/-- The zero-section component `f ↦ (f, 0)` of the first lift. -/
+/-- The zero-section component `f ↦ (f, 0)` of the first lift.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 def zeroLiftApp
     {S : Scheme.{u}} {I : S.IdealSheafData}
     {γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V)}
@@ -411,7 +465,9 @@ def zeroLiftApp
       TrivSqZeroExt (T.obj.1.thickening.presheaf.obj V)
         ((Ω[T.obj.1.thickeningToBase.toShHom]).val.obj V))
 
-/-- Naturality of the zero-section lift. -/
+/-- Naturality of the zero-section lift.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 theorem zeroLift_naturality
     {S : Scheme.{u}} {I : S.IdealSheafData}
     {γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V)}
@@ -425,7 +481,9 @@ theorem zeroLift_naturality
     T.obj.1.thickening.presheaf.map f ≫ zeroLiftApp T V =
       zeroLiftApp T U ≫ (sheaf T).obj.map f := sorry
 
-/-- The sheaf morphism `f ↦ (f, 0)`. -/
+/-- The sheaf morphism `f ↦ (f, 0)`.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 def zeroLift
     {S : Scheme.{u}} {I : S.IdealSheafData}
     {γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V)}
@@ -440,7 +498,9 @@ def zeroLift
     { app := zeroLiftApp T
       naturality := fun {_ _} f ↦ zeroLift_naturality T f }
 
-/-- The section function `f ↦ (f, d[T/S](f))` of the second lift. -/
+/-- The section function `f ↦ (f, d[T/S](f))` of the second lift.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 def differentialLiftFun
     {S : Scheme.{u}} {I : S.IdealSheafData}
     {γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V)}
@@ -456,7 +516,9 @@ def differentialLiftFun
         ((Ω[T.obj.1.thickeningToBase.toShHom]).val.obj V) :=
   fun f ↦ (f, (d[T.obj.1.thickeningToBase.toShHom]).d f)
 
-/-- The differential lift preserves zero. -/
+/-- The differential lift preserves zero.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 theorem differentialLiftFun_zero
     {S : Scheme.{u}} {I : S.IdealSheafData}
     {γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V)}
@@ -469,7 +531,9 @@ theorem differentialLiftFun_zero
     (V : (Opens T.obj.1.thickening.toTopCat)ᵒᵖ) :
     differentialLiftFun T V 0 = 0 := sorry
 
-/-- The differential lift preserves one. -/
+/-- The differential lift preserves one.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 theorem differentialLiftFun_one
     {S : Scheme.{u}} {I : S.IdealSheafData}
     {γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V)}
@@ -482,7 +546,9 @@ theorem differentialLiftFun_one
     (V : (Opens T.obj.1.thickening.toTopCat)ᵒᵖ) :
     differentialLiftFun T V 1 = 1 := sorry
 
-/-- The differential lift preserves addition. -/
+/-- The differential lift preserves addition.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 theorem differentialLiftFun_add
     {S : Scheme.{u}} {I : S.IdealSheafData}
     {γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V)}
@@ -497,7 +563,9 @@ theorem differentialLiftFun_add
     differentialLiftFun T V (x + y) =
       differentialLiftFun T V x + differentialLiftFun T V y := sorry
 
-/-- The differential lift preserves multiplication. -/
+/-- The differential lift preserves multiplication.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 theorem differentialLiftFun_mul
     {S : Scheme.{u}} {I : S.IdealSheafData}
     {γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V)}
@@ -516,7 +584,9 @@ theorem differentialLiftFun_mul
     differentialLiftFun T V (x * y) =
       differentialLiftFun T V x * differentialLiftFun T V y := sorry
 
-/-- The component ring homomorphism of the universal-differential lift. -/
+/-- The component ring homomorphism of the universal-differential lift.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 def differentialLiftApp
     {S : Scheme.{u}} {I : S.IdealSheafData}
     {γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V)}
@@ -542,7 +612,9 @@ def differentialLiftApp
       map_add' := differentialLiftFun_add T V
       map_mul' := differentialLiftFun_mul T V }
 
-/-- Naturality of the universal-differential lift. -/
+/-- Naturality of the universal-differential lift.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 theorem differentialLift_naturality
     {S : Scheme.{u}} {I : S.IdealSheafData}
     {γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V)}
@@ -556,7 +628,9 @@ theorem differentialLift_naturality
     T.obj.1.thickening.presheaf.map f ≫ differentialLiftApp T V =
       differentialLiftApp T U ≫ (sheaf T).obj.map f := sorry
 
-/-- The sheaf morphism `f ↦ (f, d[T/S](f))`. -/
+/-- The sheaf morphism `f ↦ (f, d[T/S](f))`.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 def differentialLift
     {S : Scheme.{u}} {I : S.IdealSheafData}
     {γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V)}
@@ -571,7 +645,9 @@ def differentialLift
     { app := differentialLiftApp T
       naturality := fun {_ _} f ↦ differentialLift_naturality T f }
 
-/-- The presheafed-space retraction induced by a lift into the square-zero sheaf. -/
+/-- The presheafed-space retraction induced by a lift into the square-zero sheaf.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 def retractionToHom
     {S : Scheme.{u}} {I : S.IdealSheafData}
     {γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V)}
@@ -587,7 +663,9 @@ def retractionToHom
   base := 𝟙 T.obj.1.thickening.toTopCat
   c := lift.hom
 
-/-- A square-zero lift induces local homomorphisms on stalks. -/
+/-- A square-zero lift induces local homomorphisms on stalks.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 theorem retractionToHom_isLocalHom
     {S : Scheme.{u}} {I : S.IdealSheafData}
     {γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V)}
@@ -598,10 +676,13 @@ theorem retractionToHom_isLocalHom
     {X : Scheme.{u}} {x₀ : X ⟶ I.subscheme}
     (T : smallCrystallineSite S I γ h_compatible X x₀)
     (lift : T.obj.1.thickening.sheaf ⟶ sheaf T)
+    (hsection : lift ≫ projection T = 𝟙 _)
     (x : scheme T) :
     IsLocalHom ((retractionToHom T lift).stalkMap x).hom := sorry
 
-/-- The locally ringed-space retraction induced by a square-zero lift. -/
+/-- The locally ringed-space retraction induced by a square-zero lift.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 def retractionLRSHom
     {S : Scheme.{u}} {I : S.IdealSheafData}
     {γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V)}
@@ -611,13 +692,16 @@ def retractionLRSHom
           (S.presheaf.map (homOfLE (S.basicOpen_le f)).op).hom}
     {X : Scheme.{u}} {x₀ : X ⟶ I.subscheme}
     (T : smallCrystallineSite S I γ h_compatible X x₀)
-    (lift : T.obj.1.thickening.sheaf ⟶ sheaf T) :
+    (lift : T.obj.1.thickening.sheaf ⟶ sheaf T)
+    (hsection : lift ≫ projection T = 𝟙 _) :
     (scheme T).toLocallyRingedSpace ⟶
       T.obj.1.thickening.toLocallyRingedSpace where
   toHom := retractionToHom T lift
-  prop := retractionToHom_isLocalHom T lift
+  prop := retractionToHom_isLocalHom T lift hsection
 
-/-- The scheme retraction induced by a square-zero lift. -/
+/-- The scheme retraction induced by a square-zero lift.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 def retraction
     {S : Scheme.{u}} {I : S.IdealSheafData}
     {γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V)}
@@ -627,11 +711,14 @@ def retraction
           (S.presheaf.map (homOfLE (S.basicOpen_le f)).op).hom}
     {X : Scheme.{u}} {x₀ : X ⟶ I.subscheme}
     (T : smallCrystallineSite S I γ h_compatible X x₀)
-    (lift : T.obj.1.thickening.sheaf ⟶ sheaf T) :
+    (lift : T.obj.1.thickening.sheaf ⟶ sheaf T)
+    (hsection : lift ≫ projection T = 𝟙 _) :
     scheme T ⟶ T.obj.1.thickening :=
-  ⟨retractionLRSHom T lift⟩
+  ⟨retractionLRSHom T lift hsection⟩
 
-/-- The first scheme retraction induced by `f ↦ (f, 0)`. -/
+/-- The first scheme retraction induced by `f ↦ (f, 0)`.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 def p₀Scheme
     {S : Scheme.{u}} {I : S.IdealSheafData}
     {γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V)}
@@ -642,9 +729,18 @@ def p₀Scheme
     {X : Scheme.{u}} {x₀ : X ⟶ I.subscheme}
     (T : smallCrystallineSite S I γ h_compatible X x₀) :
     scheme T ⟶ T.obj.1.thickening :=
-  retraction T (zeroLift T)
+  retraction T (zeroLift T) (by
+    apply ObjectProperty.hom_ext
+    apply NatTrans.ext
+    funext V
+    apply CommRingCat.hom_ext
+    apply RingHom.ext
+    intro a
+    rfl)
 
-/-- The second scheme retraction induced by `f ↦ (f, d[T/S](f))`. -/
+/-- The second scheme retraction induced by `f ↦ (f, d[T/S](f))`.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 def p₁Scheme
     {S : Scheme.{u}} {I : S.IdealSheafData}
     {γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V)}
@@ -655,6 +751,13 @@ def p₁Scheme
     {X : Scheme.{u}} {x₀ : X ⟶ I.subscheme}
     (T : smallCrystallineSite S I γ h_compatible X x₀) :
     scheme T ⟶ T.obj.1.thickening :=
-  retraction T (differentialLift T)
+  retraction T (differentialLift T) (by
+    apply ObjectProperty.hom_ext
+    apply NatTrans.ext
+    funext V
+    apply CommRingCat.hom_ext
+    apply RingHom.ext
+    intro a
+    rfl)
 
 end CrystallineObject.FirstOrderThickening

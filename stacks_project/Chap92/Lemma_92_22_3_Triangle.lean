@@ -62,6 +62,20 @@ variable [UnivLE.{u, u}]
 variable {OC1 : Sheaf JC1 CommRingCat.{u}} {OC2 : Sheaf JC2 CommRingCat.{u}}
 variable {OC3 : Sheaf JC3 CommRingCat.{u}}
 
+private theorem structureSheafMap_eq_commRingStructureMap
+    (f : ToposHom (RingedSite.ofCommRingSheaf JC1 OC1)
+      (RingedSite.ofCommRingSheaf JC2 OC2)) :
+    structureSheafMap f = commRingStructureMap f := by
+  have h : (f.toTopos.commRingInverseImageForgetRingIso).hom.app OC2 = 𝟙 _ := by
+    change (𝟙 _ ≫ 𝟙 _ ≫ 𝟙 _ ≫ InternalRing.fromInternal.map (𝟙 _) ≫ 𝟙 _ ≫
+      InternalRing.fromInternal.map (f.toTopos.internalRingInverseImage.map (𝟙 _)) ≫ 𝟙 _) = 𝟙 _
+    repeat first | erw [Functor.map_id] | erw [Category.id_comp] | erw [Category.comp_id]
+    exact (congrArg InternalRing.fromInternal.map (f.toTopos.internalRingInverseImage.map_id _)).trans
+      (InternalRing.fromInternal.map_id _)
+  unfold structureSheafMap commRingStructureMap
+  rw [h]
+  rfl
+
 /-- The legacy source presentation of the pulled structure map. -/
 def pulledBaseMap
     (f : ToposHom (RingedSite.ofCommRingSheaf JC1 OC1)
@@ -78,7 +92,9 @@ theorem pulledBaseMap_eq
       (RingedSite.ofCommRingSheaf JC2 OC2))
     (g : ToposHom (RingedSite.ofCommRingSheaf JC2 OC2)
       (RingedSite.ofCommRingSheaf JC3 OC3)) :
-    pulledBaseMap f g = (inverseImageCommRing f).map (structureSheafMap g) := by rfl
+    pulledBaseMap f g = (inverseImageCommRing f).map (structureSheafMap g) := by
+  simp only [structureSheafMap_eq_commRingStructureMap]
+  rfl
 
 variable (f : ToposHom (RingedSite.ofCommRingSheaf JC1 OC1)
   (RingedSite.ofCommRingSheaf JC2 OC2))
@@ -168,7 +184,9 @@ variable (g : ToposHom (RingedSite.ofCommRingSheaf JC2 OC2)
     pullbackCotangent f g = (@DerivedCategory.Q _ inferInstance inferInstance
       (moduleCategoryHasDerivedCategory (𝒪 := OC1))).obj (pullbackCotangentCochain f g))
 
-#check (Eq.refl (pullbackCotangent f g) :
+#check (by
+    simp only [structureSheafMap_eq_commRingStructureMap]
+    rfl :
     pullbackCotangent f g =
       CotangentComplex.tensor ((inverseImageCommRing f).map (structureSheafMap g))
         (structureSheafMap f))
@@ -306,10 +324,13 @@ variable (g : ToposHom (RingedSite.ofCommRingSheaf JC2 OC2)
     connectingMap f g =
       CotangentComplex.connectingMap (pulledBaseMap f g) (commRingStructureMap f))
 
-#check (Eq.refl (connectingMap f g) :
-    connectingMap f g =
-      CotangentComplex.connectingMap ((inverseImageCommRing f).map (structureSheafMap g))
-        (structureSheafMap f))
+#check (by
+    erw [structureSheafMap_eq_commRingStructureMap f,
+      structureSheafMap_eq_commRingStructureMap g]
+    rfl :
+    HEq (connectingMap f g)
+      (CotangentComplex.connectingMap ((inverseImageCommRing f).map (structureSheafMap g))
+        (structureSheafMap f)))
 
 #check (RingedSite.ToposHom.transitivityTriangle : ∀
     (f : ToposHom (RingedSite.ofCommRingSheaf JC1 OC1)
@@ -388,10 +409,15 @@ variable (g : ToposHom (RingedSite.ofCommRingSheaf JC2 OC2)
       (RingedSite.ofCommRingSheaf JC3 OC3)),
     transitivityTriangle f g ∈ distTriang (RingedSiteDerived JC1 OC1))
 
-/- The shared lifted structure map agrees definitionally with the source presentation. -/
-#check (Eq.refl (commRingStructureMap f) : structureSheafMap f = commRingStructureMap f)
+/- The shared lifted structure map agrees with the source presentation. -/
+#check (structureSheafMap_eq_commRingStructureMap f :
+    structureSheafMap f = commRingStructureMap f)
 
-/- The shared cotangent complex agrees definitionally with the source presentation. -/
-#check (Eq.refl (commRingCotangentComplex f) : cotangentComplex f = commRingCotangentComplex f)
+/- The shared cotangent complex agrees with the source presentation. -/
+#check (by
+    unfold cotangentComplex
+    erw [structureSheafMap_eq_commRingStructureMap f]
+    rfl :
+    cotangentComplex f = commRingCotangentComplex f)
 
 end RingedSite.ToposHom

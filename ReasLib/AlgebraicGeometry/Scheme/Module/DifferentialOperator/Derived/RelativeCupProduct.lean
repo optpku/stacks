@@ -101,7 +101,7 @@ theorem coefficientTensorCounit_def {Z W : Scheme.{u}} (f : Z ⟶ W)
 
 /-- The universal-property condition selecting the canonical pullback/tensor comparison. -/
 abbrev PullbackTensorTargetIsLeftDerived
-    [(fiberCoefficientHom a b).modulePushforward.IsRightAdjoint]
+    [(RingedSite.Hom.modulePushforward.{u} (fiberCoefficientHom a b)).IsRightAdjoint]
     [hPullback : Functor.HasLeftDerivedFunctor
       (RingedSite.Hom.modulePullbackToDerived.{u} (fiberCoefficientHom a b))
       (RingedSite.Hom.ModuleQis.{u}
@@ -159,7 +159,7 @@ abbrev PullbackTensorTargetIsLeftDerived
 /-- The canonical biderived comparison from pullback of a coefficient tensor to the tensor
 of the two derived coefficient pullbacks. -/
 noncomputable def pullbackTensorComparison
-    [(fiberCoefficientHom a b).modulePushforward.IsRightAdjoint]
+    [(RingedSite.Hom.modulePushforward.{u} (fiberCoefficientHom a b)).IsRightAdjoint]
     [hPullback : Functor.HasLeftDerivedFunctor
       (RingedSite.Hom.modulePullbackToDerived.{u} (fiberCoefficientHom a b))
       (RingedSite.Hom.ModuleQis.{u}
@@ -230,12 +230,65 @@ noncomputable def pullbackTensorComparison
     (Functor.Monoidal.μNatIso
       (RingedSite.Hom.modulePullbackHomotopy.{u} (fiberCoefficientHom a b))) hTarget
 
+-- Local declaration justification (metaprogramming implementation): expose this private
+-- abbreviation's canonical body to the exported coefficient comparison under Lean's module system.
+set_option backward.privateInPublic true in
+/-- The canonical derived inverse-image comparison for the first coefficient
+projection followed by its structure morphism. -/
+private abbrev leftPullbackCompComparison
+    [(RingedSite.Hom.modulePushforward.{u} (leftCoefficientHom a b)).IsRightAdjoint]
+    [(RingedSite.Hom.modulePushforward.{u} (coefficientPushforwardHom a)).IsRightAdjoint]
+    [(RingedSite.Hom.modulePushforward.{u} (fiberCoefficientHom a b)).IsRightAdjoint]
+    [Functor.HasLeftDerivedFunctor
+      (RingedSite.Hom.modulePullbackToDerived.{u} (leftCoefficientHom a b))
+      (RingedSite.Hom.ModuleQis.{u} (coefficientSite a))]
+    [Functor.HasLeftDerivedFunctor
+      (RingedSite.Hom.modulePullbackToDerived.{u} (coefficientPushforwardHom a))
+      (RingedSite.Hom.ModuleQis.{u}
+        (RingedSpace.DeRham.coefficientSite (𝟙 S.toRingedSpace)))]
+    [hComposite : Functor.HasLeftDerivedFunctor
+      (RingedSite.Hom.modulePullbackToDerived.{u} (fiberCoefficientHom a b))
+      (RingedSite.Hom.ModuleQis.{u}
+        (RingedSpace.DeRham.coefficientSite (𝟙 S.toRingedSpace)))] :=
+  @RingedSite.Hom.modulePullbackDerived.compComparison.{u}
+    _ _ _ (leftCoefficientHom a b) (coefficientPushforwardHom a)
+    inferInstance inferInstance inferInstance inferInstance inferInstance
+    inferInstance inferInstance hComposite
+
+-- Local declaration justification (metaprogramming implementation): expose this private
+-- abbreviation's canonical body to the exported coefficient comparison under Lean's module system.
+set_option backward.privateInPublic true in
+/-- The canonical derived inverse-image comparison for the second coefficient
+projection followed by its structure morphism. -/
+private abbrev rightPullbackCompComparison
+    [(RingedSite.Hom.modulePushforward.{u} (rightCoefficientHom a b)).IsRightAdjoint]
+    [(RingedSite.Hom.modulePushforward.{u} (coefficientPushforwardHom b)).IsRightAdjoint]
+    [(RingedSite.Hom.modulePushforward.{u} (rightFiberCoefficientHom a b)).IsRightAdjoint]
+    [Functor.HasLeftDerivedFunctor
+      (RingedSite.Hom.modulePullbackToDerived.{u} (rightCoefficientHom a b))
+      (RingedSite.Hom.ModuleQis.{u} (coefficientSite b))]
+    [Functor.HasLeftDerivedFunctor
+      (RingedSite.Hom.modulePullbackToDerived.{u} (coefficientPushforwardHom b))
+      (RingedSite.Hom.ModuleQis.{u}
+        (RingedSpace.DeRham.coefficientSite (𝟙 S.toRingedSpace)))]
+    [hComposite : Functor.HasLeftDerivedFunctor
+      (RingedSite.Hom.modulePullbackToDerived.{u} (rightFiberCoefficientHom a b))
+      (RingedSite.Hom.ModuleQis.{u}
+        (RingedSpace.DeRham.coefficientSite (𝟙 S.toRingedSpace)))] :=
+  @RingedSite.Hom.modulePullbackDerived.compComparison.{u}
+    _ _ _ (rightCoefficientHom a b) (coefficientPushforwardHom b)
+    inferInstance inferInstance inferInstance inferInstance inferInstance
+    inferInstance inferInstance hComposite
+
+-- Local declaration justification (metaprogramming implementation): the exported construction
+-- uses a private abbreviation for the same canonical comparison, without adding a public map API.
+set_option backward.privateInPublic true in
 /-- The adjunction-unit and pushforward-composition map from `R(a)_*F` to the direct
 image of the canonical coefficient pullback of `F` on `X ×_S Y`. -/
 noncomputable def leftLeg
-    [(leftCoefficientHom a b).modulePushforward.IsRightAdjoint]
-    [(coefficientPushforwardHom a).modulePushforward.IsRightAdjoint]
-    [(fiberCoefficientHom a b).modulePushforward.IsRightAdjoint]
+    [(RingedSite.Hom.modulePushforward.{u} (leftCoefficientHom a b)).IsRightAdjoint]
+    [(RingedSite.Hom.modulePushforward.{u} (coefficientPushforwardHom a)).IsRightAdjoint]
+    [(RingedSite.Hom.modulePushforward.{u} (fiberCoefficientHom a b)).IsRightAdjoint]
     [Functor.HasLeftDerivedFunctor
       (RingedSite.Hom.modulePullbackToDerived.{u} (leftCoefficientHom a b))
       (RingedSite.Hom.ModuleQis.{u} (coefficientSite a))]
@@ -259,8 +312,7 @@ noncomputable def leftLeg
     [RingedSite.Hom.DerivedAdjunction.HasPair.{u} (leftCoefficientHom a b)]
     [RingedSite.Hom.DerivedAdjunction.HasPair.{u} (coefficientPushforwardHom a)]
     [RingedSite.Hom.DerivedAdjunction.HasPair.{u} (fiberCoefficientHom a b)]
-    [IsIso (RingedSite.Hom.modulePullbackDerived.compComparison
-      (leftCoefficientHom a b) (coefficientPushforwardHom a))]
+    [hComparison : IsIso (leftPullbackCompComparison a b)]
     (F : CochainComplex (Hom.FiniteOrderDifferentialOperatorCat a) ℤ) :
     (RingedSite.Hom.modulePushforwardDerived.{u} (coefficientPushforwardHom a)).obj
         (coefficientObject a F) ⟶
@@ -270,8 +322,21 @@ noncomputable def leftLeg
   (RingedSite.Hom.modulePushforwardDerived.{u} (coefficientPushforwardHom a)).map
       ((RingedSite.Hom.moduleDerivedAdjunction.{u} (leftCoefficientHom a b)).unit.app
         (coefficientObject a F)) ≫
-    (RingedSite.Hom.modulePushforwardDerived.compIso
-      (leftCoefficientHom a b) (coefficientPushforwardHom a) inferInstance).hom.app _
+    (@RingedSite.Hom.modulePushforwardDerived.compIso.{u}
+      _ _ _ (leftCoefficientHom a b) (coefficientPushforwardHom a)
+      inferInstance inferInstance inferInstance inferInstance inferInstance
+      inferInstance inferInstance
+      (inferInstanceAs (Functor.HasRightDerivedFunctor
+        (RingedSite.Hom.modulePushforwardToDerived.{u} (fiberCoefficientHom a b))
+        (RingedSite.Hom.ModuleQis.{u} (coefficientSite (pullback.fst a b ≫ a)))))
+      inferInstance inferInstance
+      (inferInstanceAs (Functor.HasLeftDerivedFunctor
+        (RingedSite.Hom.modulePullbackToDerived.{u} (fiberCoefficientHom a b))
+        (RingedSite.Hom.ModuleQis.{u}
+          (RingedSpace.DeRham.coefficientSite (𝟙 S.toRingedSpace)))))
+      inferInstance inferInstance
+      (inferInstanceAs (RingedSite.Hom.DerivedAdjunction.HasPair.{u} (fiberCoefficientHom a b)))
+      hComparison).hom.app _
 
 /-- The two coefficient-site presentations of the derived direct image through the second
 fiber-product projection agree on every object. -/
@@ -286,12 +351,15 @@ theorem rightFiberPushforward_obj_eq
     (RingedSite.Hom.modulePushforwardDerived.{u} (rightFiberCoefficientHom a b)).obj K =
       (RingedSite.Hom.modulePushforwardDerived.{u} (fiberCoefficientHom a b)).obj K := sorry
 
+-- Local declaration justification (metaprogramming implementation): the exported construction
+-- uses a private abbreviation for the same canonical comparison, without adding a public map API.
+set_option backward.privateInPublic true in
 /-- The adjunction-unit and pushforward-composition map from `R(b)_*G` to the direct
 image of the canonical coefficient pullback of `G` on `X ×_S Y`. -/
 noncomputable def rightLeg
-    [(rightCoefficientHom a b).modulePushforward.IsRightAdjoint]
-    [(coefficientPushforwardHom b).modulePushforward.IsRightAdjoint]
-    [(rightFiberCoefficientHom a b).modulePushforward.IsRightAdjoint]
+    [(RingedSite.Hom.modulePushforward.{u} (rightCoefficientHom a b)).IsRightAdjoint]
+    [(RingedSite.Hom.modulePushforward.{u} (coefficientPushforwardHom b)).IsRightAdjoint]
+    [(RingedSite.Hom.modulePushforward.{u} (rightFiberCoefficientHom a b)).IsRightAdjoint]
     [Functor.HasLeftDerivedFunctor
       (RingedSite.Hom.modulePullbackToDerived.{u} (rightCoefficientHom a b))
       (RingedSite.Hom.ModuleQis.{u} (coefficientSite b))]
@@ -318,8 +386,7 @@ noncomputable def rightLeg
     [RingedSite.Hom.DerivedAdjunction.HasPair.{u} (rightCoefficientHom a b)]
     [RingedSite.Hom.DerivedAdjunction.HasPair.{u} (coefficientPushforwardHom b)]
     [RingedSite.Hom.DerivedAdjunction.HasPair.{u} (rightFiberCoefficientHom a b)]
-    [IsIso (RingedSite.Hom.modulePullbackDerived.compComparison
-      (rightCoefficientHom a b) (coefficientPushforwardHom b))]
+    [hComparison : IsIso (rightPullbackCompComparison a b)]
     (G : CochainComplex (Hom.FiniteOrderDifferentialOperatorCat b) ℤ) :
     (RingedSite.Hom.modulePushforwardDerived.{u} (coefficientPushforwardHom b)).obj
         (coefficientObject b G) ⟶
@@ -329,15 +396,28 @@ noncomputable def rightLeg
   (RingedSite.Hom.modulePushforwardDerived.{u} (coefficientPushforwardHom b)).map
       ((RingedSite.Hom.moduleDerivedAdjunction.{u} (rightCoefficientHom a b)).unit.app
         (coefficientObject b G)) ≫
-    (RingedSite.Hom.modulePushforwardDerived.compIso
-      (rightCoefficientHom a b) (coefficientPushforwardHom b) inferInstance).hom.app _ ≫
+    (@RingedSite.Hom.modulePushforwardDerived.compIso.{u}
+      _ _ _ (rightCoefficientHom a b) (coefficientPushforwardHom b)
+      inferInstance inferInstance inferInstance inferInstance inferInstance
+      inferInstance inferInstance
+      (inferInstanceAs (Functor.HasRightDerivedFunctor
+        (RingedSite.Hom.modulePushforwardToDerived.{u} (rightFiberCoefficientHom a b))
+        (RingedSite.Hom.ModuleQis.{u} (coefficientSite (pullback.fst a b ≫ a)))))
+      inferInstance inferInstance
+      (inferInstanceAs (Functor.HasLeftDerivedFunctor
+        (RingedSite.Hom.modulePullbackToDerived.{u} (rightFiberCoefficientHom a b))
+        (RingedSite.Hom.ModuleQis.{u}
+          (RingedSpace.DeRham.coefficientSite (𝟙 S.toRingedSpace)))))
+      inferInstance inferInstance
+      (inferInstanceAs (RingedSite.Hom.DerivedAdjunction.HasPair.{u} (rightFiberCoefficientHom a b)))
+      hComparison).hom.app _ ≫
     eqToHom (rightFiberPushforward_obj_eq a b
       ((RingedSite.Hom.modulePullbackDerived.{u} (rightCoefficientHom a b)).obj
         (coefficientObject b G)))
 
 /-- The canonical relative cup product for coefficient-derived modules on the fiber product. -/
 noncomputable def cupProduct
-    [(fiberCoefficientHom a b).modulePushforward.IsRightAdjoint]
+    [(RingedSite.Hom.modulePushforward.{u} (fiberCoefficientHom a b)).IsRightAdjoint]
     [Functor.HasLeftDerivedFunctor
       (RingedSite.Hom.modulePullbackToDerived.{u} (fiberCoefficientHom a b))
       (RingedSite.Hom.ModuleQis.{u}
@@ -378,8 +458,8 @@ noncomputable def cupProduct
 /-- The canonical derived-to-underived comparison from the tensor of the two derived
 coefficient pullbacks to the explicit coefficient tensor complex. -/
 noncomputable def derivedToCoefficientTensor
-    [(leftCoefficientHom a b).modulePushforward.IsRightAdjoint]
-    [(rightCoefficientHom a b).modulePushforward.IsRightAdjoint]
+    [(RingedSite.Hom.modulePushforward.{u} (leftCoefficientHom a b)).IsRightAdjoint]
+    [(RingedSite.Hom.modulePushforward.{u} (rightCoefficientHom a b)).IsRightAdjoint]
     [Functor.HasLeftDerivedFunctor
       (RingedSite.Hom.modulePullbackToDerived.{u} (leftCoefficientHom a b))
       (RingedSite.Hom.ModuleQis.{u} (coefficientSite a))]
@@ -421,8 +501,8 @@ noncomputable def derivedToCoefficientTensor
 /-- The derived-tensor counit followed by localization of the ordinary
 external-product comparison. -/
 noncomputable def derivedExternalToTotal
-    [(leftCoefficientHom a b).modulePushforward.IsRightAdjoint]
-    [(rightCoefficientHom a b).modulePushforward.IsRightAdjoint]
+    [(RingedSite.Hom.modulePushforward.{u} (leftCoefficientHom a b)).IsRightAdjoint]
+    [(RingedSite.Hom.modulePushforward.{u} (rightCoefficientHom a b)).IsRightAdjoint]
     [Functor.HasLeftDerivedFunctor
       (RingedSite.Hom.modulePullbackToDerived.{u} (leftCoefficientHom a b))
       (RingedSite.Hom.ModuleQis.{u} (coefficientSite a))]
@@ -453,8 +533,8 @@ noncomputable def derivedExternalToTotal
 /-- The comparison to the ordinary external total is the composite of the
 derived-to-coefficient-tensor map and the localized external comparison. -/
 theorem derivedExternalToTotal_eq
-    [(leftCoefficientHom a b).modulePushforward.IsRightAdjoint]
-    [(rightCoefficientHom a b).modulePushforward.IsRightAdjoint]
+    [(RingedSite.Hom.modulePushforward.{u} (leftCoefficientHom a b)).IsRightAdjoint]
+    [(RingedSite.Hom.modulePushforward.{u} (rightCoefficientHom a b)).IsRightAdjoint]
     [Functor.HasLeftDerivedFunctor
       (RingedSite.Hom.modulePullbackToDerived.{u} (leftCoefficientHom a b))
       (RingedSite.Hom.ModuleQis.{u} (coefficientSite a))]
@@ -483,12 +563,12 @@ theorem derivedExternalToTotal_eq
 section
 
 variable
-  [(leftCoefficientHom a b).modulePushforward.IsRightAdjoint]
-  [(rightCoefficientHom a b).modulePushforward.IsRightAdjoint]
-  [(coefficientPushforwardHom a).modulePushforward.IsRightAdjoint]
-  [(coefficientPushforwardHom b).modulePushforward.IsRightAdjoint]
-  [(fiberCoefficientHom a b).modulePushforward.IsRightAdjoint]
-  [(rightFiberCoefficientHom a b).modulePushforward.IsRightAdjoint]
+  [(RingedSite.Hom.modulePushforward.{u} (leftCoefficientHom a b)).IsRightAdjoint]
+  [(RingedSite.Hom.modulePushforward.{u} (rightCoefficientHom a b)).IsRightAdjoint]
+  [(RingedSite.Hom.modulePushforward.{u} (coefficientPushforwardHom a)).IsRightAdjoint]
+  [(RingedSite.Hom.modulePushforward.{u} (coefficientPushforwardHom b)).IsRightAdjoint]
+  [(RingedSite.Hom.modulePushforward.{u} (fiberCoefficientHom a b)).IsRightAdjoint]
+  [(RingedSite.Hom.modulePushforward.{u} (rightFiberCoefficientHom a b)).IsRightAdjoint]
   [Functor.HasLeftDerivedFunctor
     (RingedSite.Hom.modulePullbackToDerived.{u} (leftCoefficientHom a b))
     (RingedSite.Hom.ModuleQis.{u} (coefficientSite a))]
@@ -535,10 +615,8 @@ variable
   [RingedSite.Hom.DerivedAdjunction.HasPair.{u} (coefficientPushforwardHom b)]
   [RingedSite.Hom.DerivedAdjunction.HasPair.{u} (fiberCoefficientHom a b)]
   [RingedSite.Hom.DerivedAdjunction.HasPair.{u} (rightFiberCoefficientHom a b)]
-  [IsIso (RingedSite.Hom.modulePullbackDerived.compComparison
-    (leftCoefficientHom a b) (coefficientPushforwardHom a))]
-  [IsIso (RingedSite.Hom.modulePullbackDerived.compComparison
-    (rightCoefficientHom a b) (coefficientPushforwardHom b))]
+  [hLeftComparison : IsIso (leftPullbackCompComparison a b)]
+  [hRightComparison : IsIso (rightPullbackCompComparison a b)]
   [Functor.Monoidal
     (RingedSite.Hom.modulePullbackHomotopy.{u} (fiberCoefficientHom a b))]
   [HomotopyCategory.Koszul.TensorDescends
@@ -555,6 +633,9 @@ variable
       (coefficientSite (pullback.fst a b ≫ a))) _ _ _ _ _ _ _]
   [PullbackTensorTargetIsLeftDerived a b]
 
+-- Local declaration justification (metaprogramming implementation): retain access to the
+-- private canonical-comparison abbreviations in the exported construction's inherited hypotheses.
+set_option backward.privateInPublic true in
 /-- The canonical relative cup-product map from the derived tensor of the two direct
 images to the direct image of the ordinary external-product total. -/
 noncomputable def map
@@ -577,7 +658,7 @@ noncomputable def map
       (RingedSite.ModuleCat.{u} (coefficientSite (𝟙 S))) _ _
       (RingedSite.Hom.moduleCat_hasDerivedCategory (coefficientSite (𝟙 S)))
       _ _ _ _ _ _ _ _).map
-      (Prod.mkHom (leftLeg a b F) (rightLeg a b G)) ≫
+      (Prod.mkHom (leftLeg a b (hComparison := hLeftComparison) F) (rightLeg a b (hComparison := hRightComparison) G)) ≫
     cupProduct a b
       ((RingedSite.Hom.modulePullbackDerived.{u} (leftCoefficientHom a b)).obj
         (coefficientObject a F))
@@ -586,6 +667,9 @@ noncomputable def map
     (RingedSite.Hom.modulePushforwardDerived.{u} (fiberCoefficientHom a b)).map
       (derivedExternalToTotal a b T hT F G)
 
+-- Local declaration justification (metaprogramming implementation): retain access to the
+-- private canonical-comparison abbreviations in the exported construction's inherited hypotheses.
+set_option backward.privateInPublic true in
 /-- The relative cup-product map is the composite of its two canonical legs, the
 relative derived cup product, and the comparison from the derived external tensor
 to the ordinary external total. -/
@@ -603,7 +687,7 @@ theorem map_eq
         (RingedSite.ModuleCat.{u} (coefficientSite (𝟙 S))) _ _
         (RingedSite.Hom.moduleCat_hasDerivedCategory (coefficientSite (𝟙 S)))
         _ _ _ _ _ _ _ _).map
-        (Prod.mkHom (leftLeg a b F) (rightLeg a b G)) ≫
+        (Prod.mkHom (leftLeg a b (hComparison := hLeftComparison) F) (rightLeg a b (hComparison := hRightComparison) G)) ≫
       cupProduct a b
         ((RingedSite.Hom.modulePullbackDerived.{u} (leftCoefficientHom a b)).obj
           (coefficientObject a F))

@@ -6,7 +6,8 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import Mathlib.CategoryTheory.Grothendieck
+public import ReasLib.CategoryTheory.Sites.Grothendieck.Cartesian
+public import ReasLib.AlgebraicGeometry.RingedSite.Simplicial.FiberCartesian
 public import Mathlib.CategoryTheory.Sites.Pullback
 public import ReasLib.CategoryTheory.Sites.Topos.Cocontinuous
 public import stacks_project.Chap85.Situation_85_3_3_Fiberwise
@@ -15,8 +16,7 @@ public import stacks_project.Chap85.Situation_85_3_3_Fiberwise
 # Stage restriction and simplex-operator inverse image on a fiberwise site
 
 Case B of Situation 85.3.3: restriction along `ι` and inverse image `f_φ⁻¹` along
-`toposMap`. The inverse-image mate `F(φ) : f_φ⁻¹ F_m ⟶ F_n` is not assembled here;
-cartesianness for this item is the Case A owner in `Definition_85_12_1_Cartesian`.
+`toposMap`.
 -/
 
 @[expose] public section
@@ -36,16 +36,6 @@ include h_fiberwise
 variable [∀ n, HasWeakSheafify (J n).toGrothendieck (Type w)]
 variable [HasWeakSheafify (topology F J) (Type w)]
 
-/-- Fiber inclusion `ι F (op n)` is continuous for the fiberwise total topology. -/
-instance ι_isContinuous (n : SimplexCategory) :
-    (ι F (op n)).IsContinuous (J (op n)).toGrothendieck (topology F J) :=
-  h_fiberwise.component_continuous n
-
-/-- Fiber inclusion `ι F (op n)` is cocontinuous for the fiberwise total topology. -/
-instance ι_isCocontinuous (n : SimplexCategory) :
-    (ι F (op n)).IsCocontinuous (J (op n)).toGrothendieck (topology F J) :=
-  h_fiberwise.component_cocontinuous n
-
 /-- Restriction of a sheaf on the Grothendieck total site to the degree-`n` fiber. -/
 def component (A : Type (w + 1)) [Category.{w} A] (n : SimplexCategory) :
     Sheaf (topology F J) A ⥤ Sheaf ((J (op n)).toGrothendieck) A :=
@@ -55,7 +45,7 @@ def component (A : Type (w + 1)) [Category.{w} A] (n : SimplexCategory) :
 theorem component_eq (A : Type (w + 1)) [Category.{w} A] (n : SimplexCategory) :
     component F J A n =
       (ι F (op n)).sheafPushforwardContinuous A (J (op n)).toGrothendieck (topology F J) :=
-  sorry
+  rfl
 
 /-- Inverse image `f_φ⁻¹` of type-valued sheaves along a simplex operator, as cocontinuous
 sheaf pullback. -/
@@ -74,7 +64,7 @@ theorem inverseImage_eq {m n : SimplexCategory} (φ : m ⟶ n)
     inverseImage F J φ =
       (F.map φ.op).toFunctor.sheafPullbackCocontinuous (Type w)
         (J (op n)).toGrothendieck (J (op m)).toGrothendieck :=
-  sorry
+  rfl
 
 /-- Restriction along the total-category arrows `ιNatTrans` gives a map of
 presheaves from the precomposition of the stage-`m` sheaf to the stage-`n` sheaf.

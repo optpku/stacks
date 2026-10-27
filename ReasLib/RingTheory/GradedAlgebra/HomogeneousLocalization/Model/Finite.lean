@@ -33,7 +33,8 @@ theorem exists_of_finiteModule
     [CommRing R] [CommRing R'] [Algebra R R']
     [AddCommGroup M] [Module R' M]
     [Algebra.FiniteType R R'] [Module.Finite R' M] :
-    ∃ model : HomogeneousLocalization.Model (R := R) (R' := R') (M := M)
+    ∃ model : HomogeneousLocalization.Model.{u, u', v, max u (max u' v), 0,
+        max u (max u' v)} (R := R) (R' := R') (M := M)
       (ι := ℕ) (d := 1),
       model.Spec := sorry
 

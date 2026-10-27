@@ -52,7 +52,10 @@ theorem naturality_naturality :
       (FullSubbicategory.map F hF).map₂ τ ▷ app F hF η Y ≫
           (naturality F hF η g).hom =
         (naturality F hF η f).hom ≫
-          app F hF η X ◁ (Pseudofunctor.id P.FullSubbicategory).map₂ τ := sorry
+          app F hF η X ◁ (Pseudofunctor.id P.FullSubbicategory).map₂ τ := by
+  intro X Y f g τ
+  apply Bicategory.InducedBicategory.hom₂_ext
+  exact η.naturality_naturality τ.hom
 
 /-- Identity coherence for the lifted transformation to the identity. -/
 theorem naturality_id :
@@ -60,7 +63,16 @@ theorem naturality_id :
       (naturality F hF η (𝟙 X)).hom ≫
           app F hF η X ◁ ((Pseudofunctor.id P.FullSubbicategory).mapId X).hom =
         ((FullSubbicategory.map F hF).mapId X).hom ▷ app F hF η X ≫
-          (λ_ (app F hF η X)).hom ≫ (ρ_ (app F hF η X)).inv := sorry
+          (λ_ (app F hF η X)).hom ≫ (ρ_ (app F hF η X)).inv := by
+  intro X
+  apply Bicategory.InducedBicategory.hom₂_ext
+  change (η.naturality (𝟙 X.1)).hom ≫
+      η.app X.1 ◁ ((Pseudofunctor.id D).mapId X.1).hom =
+    ((FullSubbicategory.map F hF).mapId X).hom.hom ▷ η.app X.1 ≫
+      (λ_ (η.app X.1)).hom ≫ (ρ_ (η.app X.1)).inv
+  set_option backward.isDefEq.respectTransparency false in
+    simpa only [StrictlyUnitaryPseudofunctor.mapId_eq_eqToIso, eqToIso.hom,
+      Bicategory.InducedBicategory.eqToHom_hom] using η.naturality_id X.1
 
 /-- Composition coherence for the lifted transformation to the identity. -/
 theorem naturality_comp :
@@ -74,7 +86,20 @@ theorem naturality_comp :
           (α_ _ _ _).inv ≫
           (naturality F hF η f).hom ▷
             (Pseudofunctor.id P.FullSubbicategory).map g ≫
-          (α_ _ _ _).hom := sorry
+          (α_ _ _ _).hom := by
+  intro X Y Z f g
+  apply Bicategory.InducedBicategory.hom₂_ext
+  change (η.naturality (f.hom ≫ g.hom)).hom ≫
+      η.app X.1 ◁ ((Pseudofunctor.id D).mapComp f.hom g.hom).hom =
+    ((FullSubbicategory.map F hF).mapComp f g).hom.hom ▷ η.app Z.1 ≫
+      (α_ _ _ _).hom ≫ F.map f.hom ◁ (η.naturality g.hom).hom ≫
+      (α_ _ _ _).inv ≫ (η.naturality f.hom).hom ▷ g.hom ≫ (α_ _ _ _).hom
+  have h := η.naturality_comp f.hom g.hom
+  simp only [StrictPseudofunctor.mapComp_eq_eqToIso, eqToIso.hom] at h
+  simp only [StrictPseudofunctor.mapComp_eq_eqToIso, eqToIso.hom,
+    Bicategory.InducedBicategory.eqToHom_hom]
+  convert h using 1
+  rfl
 
 end ToId
 
@@ -95,7 +120,7 @@ def toId (F : StrictPseudofunctor D D) (hF : ∀ X : D, P X → P (F.obj X))
 theorem toId.app (F : StrictPseudofunctor D D) (hF : ∀ X : D, P X → P (F.obj X))
     (η : Pseudofunctor.StrongTrans F.toPseudofunctor (Pseudofunctor.id D))
     (X : P.FullSubbicategory) :
-    (toId F hF η).app X = Bicategory.InducedBicategory.mkHom (η.app X.1) := sorry
+    (toId F hF η).app X = Bicategory.InducedBicategory.mkHom (η.app X.1) := rfl
 
 /-- The naturality isomorphism of `toId` is the ambient naturality isomorphism. -/
 @[simp]
@@ -104,7 +129,7 @@ theorem toId.naturality (F : StrictPseudofunctor D D)
     (η : Pseudofunctor.StrongTrans F.toPseudofunctor (Pseudofunctor.id D))
     {X Y : P.FullSubbicategory} (f : X ⟶ Y) :
     (toId F hF η).naturality f =
-      Bicategory.InducedBicategory.isoMk (η.naturality f.hom) := sorry
+      Bicategory.InducedBicategory.isoMk (η.naturality f.hom) := rfl
 
 namespace FromId
 
@@ -129,7 +154,10 @@ theorem naturality_naturality :
       (Pseudofunctor.id P.FullSubbicategory).map₂ τ ▷ app F hF η Y ≫
           (naturality F hF η g).hom =
         (naturality F hF η f).hom ≫
-          app F hF η X ◁ (FullSubbicategory.map F hF).map₂ τ := sorry
+          app F hF η X ◁ (FullSubbicategory.map F hF).map₂ τ := by
+  intro X Y f g τ
+  apply Bicategory.InducedBicategory.hom₂_ext
+  exact η.naturality_naturality τ.hom
 
 /-- Identity coherence for the lifted transformation from the identity. -/
 theorem naturality_id :
@@ -137,7 +165,16 @@ theorem naturality_id :
       (naturality F hF η (𝟙 X)).hom ≫
           app F hF η X ◁ ((FullSubbicategory.map F hF).mapId X).hom =
         ((Pseudofunctor.id P.FullSubbicategory).mapId X).hom ▷ app F hF η X ≫
-          (λ_ (app F hF η X)).hom ≫ (ρ_ (app F hF η X)).inv := sorry
+          (λ_ (app F hF η X)).hom ≫ (ρ_ (app F hF η X)).inv := by
+  intro X
+  apply Bicategory.InducedBicategory.hom₂_ext
+  change (η.naturality (𝟙 X.1)).hom ≫
+      η.app X.1 ◁ ((FullSubbicategory.map F hF).mapId X).hom.hom =
+    ((Pseudofunctor.id D).mapId X.1).hom ▷ η.app X.1 ≫
+      (λ_ (η.app X.1)).hom ≫ (ρ_ (η.app X.1)).inv
+  set_option backward.isDefEq.respectTransparency false in
+    simpa only [StrictlyUnitaryPseudofunctor.mapId_eq_eqToIso, eqToIso.hom,
+      Bicategory.InducedBicategory.eqToHom_hom] using η.naturality_id X.1
 
 /-- Composition coherence for the lifted transformation from the identity. -/
 theorem naturality_comp :
@@ -150,7 +187,19 @@ theorem naturality_comp :
             (naturality F hF η g).hom ≫
           (α_ _ _ _).inv ≫
           (naturality F hF η f).hom ▷ (FullSubbicategory.map F hF).map g ≫
-          (α_ _ _ _).hom := sorry
+          (α_ _ _ _).hom := by
+  intro X Y Z f g
+  apply Bicategory.InducedBicategory.hom₂_ext
+  change (η.naturality (f.hom ≫ g.hom)).hom ≫
+      η.app X.1 ◁ ((FullSubbicategory.map F hF).mapComp f g).hom.hom =
+    ((Pseudofunctor.id D).mapComp f.hom g.hom).hom ▷ η.app Z.1 ≫
+      (α_ _ _ _).hom ≫ f.hom ◁ (η.naturality g.hom).hom ≫
+      (α_ _ _ _).inv ≫ (η.naturality f.hom).hom ▷ F.map g.hom ≫ (α_ _ _ _).hom
+  have h := η.naturality_comp f.hom g.hom
+  simp only [StrictPseudofunctor.mapComp_eq_eqToIso, eqToIso.hom] at h
+  simp only [StrictPseudofunctor.mapComp_eq_eqToIso, eqToIso.hom,
+    Bicategory.InducedBicategory.eqToHom_hom]
+  convert h using 1 <;> rfl
 
 end FromId
 
@@ -171,7 +220,7 @@ def fromId (F : StrictPseudofunctor D D) (hF : ∀ X : D, P X → P (F.obj X))
 theorem fromId.app (F : StrictPseudofunctor D D) (hF : ∀ X : D, P X → P (F.obj X))
     (η : Pseudofunctor.StrongTrans (Pseudofunctor.id D) F.toPseudofunctor)
     (X : P.FullSubbicategory) :
-    (fromId F hF η).app X = FromId.app F hF η X := sorry
+    (fromId F hF η).app X = FromId.app F hF η X := rfl
 
 /-- The naturality isomorphism of `fromId` is the ambient naturality isomorphism. -/
 @[simp]
@@ -179,7 +228,7 @@ theorem fromId.naturality (F : StrictPseudofunctor D D)
     (hF : ∀ X : D, P X → P (F.obj X))
     (η : Pseudofunctor.StrongTrans (Pseudofunctor.id D) F.toPseudofunctor)
     {X Y : P.FullSubbicategory} (f : X ⟶ Y) :
-    (fromId F hF η).naturality f = FromId.naturality F hF η f := sorry
+    (fromId F hF η).naturality f = FromId.naturality F hF η f := rfl
 
 end StrongTrans
 

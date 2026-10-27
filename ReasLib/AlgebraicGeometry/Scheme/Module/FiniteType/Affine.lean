@@ -37,7 +37,7 @@ instance restrict_obj_isFiniteType_of_isOpenImmersion {X Y : Scheme.{u}} (f : X 
   -- Local instance justification (proof-local temporary data): finality supplies the finite-type pullback instance used only to compare restriction with pullback.
   letI : g.base.Final := CategoryTheory.final_of_representablyFlat g.base
   have h : ((pullback f).obj M).IsFiniteType := by
-    change (g.modulePullback.obj M).IsFiniteType
+    change ((SheafOfModules.pullback g.structureSheafMap).obj M).IsFiniteType
     infer_instance
   -- Local instance justification (proof-local temporary data): transport the proved pullback property across the canonical restriction-pullback isomorphism.
   letI : ((pullback f).obj M).IsFiniteType := h

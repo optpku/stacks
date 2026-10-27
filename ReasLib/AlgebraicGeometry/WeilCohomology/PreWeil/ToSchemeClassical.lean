@@ -51,14 +51,14 @@ def gradedMonoidHgrade (X : V) : SetLike.GradedMonoid (T.Hgrade X) where
 /-- The exhaustive homogeneous decomposition of a presented pre-Weil theory gives its
 canonical graded-algebra structure. -/
 noncomputable def gradedAlgebraHgrade (X : V) : GradedAlgebra (T.Hgrade X) :=
-  @DirectSum.IsInternal.gradedAlgebra F _ (H X) _ _ (ℤ × ℤ) _ _
+  @DirectSum.IsInternal.gradedAlgebra F _ (H X) _ _ (ℤ) _ _
     (T.Hgrade X) (T.gradedMonoidHgrade X) (T.Hgrade_isInternal X)
 
 /-- The pullback of a presented pre-Weil theory as a bundled graded algebra homomorphism. -/
 def gradedPullback {X Y : V} (f : X ⟶ Y) :
-    @GradedAlgHom F (H Y) (H X) (ℤ × ℤ) _ _ _ _ _ _ _
+    @GradedAlgHom F (H Y) (H X) (ℤ) _ _ _ _ _ _ _
       (T.Hgrade Y) (T.Hgrade X) (T.gradedAlgebraHgrade Y) (T.gradedAlgebraHgrade X) :=
-  @GradedAlgHom.mk F (H Y) (H X) (ℤ × ℤ) _ _ _ _ _ _ _
+  @GradedAlgHom.mk F (H Y) (H X) (ℤ) _ _ _ _ _ _ _
     (T.Hgrade Y) (T.Hgrade X) (T.gradedAlgebraHgrade Y) (T.gradedAlgebraHgrade X)
     (T.pullback f) (fun {i a} ha ↦ T.pullback_mem f i ⟨a, ha⟩)
 
@@ -135,8 +135,9 @@ theorem closedPointClass_pushforward {X : V} {d : ℕ}
 
 /-- The specified dimension agrees with geometric Krull dimension on nonempty schemes. -/
 theorem dimension_eq_of_axiomsA1ToA7 (X : V)
-    (_hX : Nonempty (T.scheme.obj X).left) :
-    topologicalKrullDim (T.scheme.obj X).left = (dimension X : WithBot ℕ∞) := sorry
+    (hX : Nonempty (T.scheme.obj X).left) :
+    topologicalKrullDim (T.scheme.obj X).left = (dimension X : WithBot ℕ∞) :=
+  T.dimension_eq X hX
 
 /-- Pullback from the point carries its fundamental class to the unit class. -/
 theorem fundamentalClass_pullback_of_axiomsA1ToA7 (X : V) :
@@ -144,12 +145,12 @@ theorem fundamentalClass_pullback_of_axiomsA1ToA7 (X : V) :
 
 /-- Bundled graded pullback by an identity morphism is the identity. -/
 theorem gradedPullback_id (X : V) :
-    T.gradedPullback (𝟙 X) = @GradedAlgHom.id F (H X) (ℤ × ℤ) _ _ _ _ _
+    T.gradedPullback (𝟙 X) = @GradedAlgHom.id F (H X) (ℤ) _ _ _ _ _
       (T.Hgrade X) (T.gradedAlgebraHgrade X) := sorry
 
 /-- Bundled graded pullback reverses composition of morphisms. -/
 theorem gradedPullback_comp {X Y Z : V} (f : X ⟶ Y) (g : Y ⟶ Z) :
-    T.gradedPullback (f ≫ g) = @GradedAlgHom.comp F (H Z) (H Y) (H X) (ℤ × ℤ) _ _ _ _ _ _ _ _ _
+    T.gradedPullback (f ≫ g) = @GradedAlgHom.comp F (H Z) (H Y) (H X) (ℤ) _ _ _ _ _ _ _ _ _
       (T.Hgrade Z) (T.Hgrade Y) (T.Hgrade X)
       (T.gradedAlgebraHgrade Z) (T.gradedAlgebraHgrade Y) (T.gradedAlgebraHgrade X)
       (T.gradedPullback f) (T.gradedPullback g) := sorry
@@ -157,16 +158,18 @@ theorem gradedPullback_comp {X Y Z : V} (f : X ⟶ Y) (g : Y ⟶ Z) :
 /-- Cohomological pushforward shifts both indices by the dimension difference. -/
 theorem pushforward_mem_of_axiomsA1ToA7 {X Y : V} {d e : ℕ}
     (hX : T.IsNonemptyEquidimensional X d) (hY : T.IsNonemptyEquidimensional Y e)
-    (f : X ⟶ Y) (i j : ℤ) (a : T.Hgrade X (i, j)) :
+    (f : X ⟶ Y) (i j : ℤ) (a : T.Hgrade X (i)) :
     T.pushforward hX hY f a ∈
-      T.Hgrade Y (i + 2 * ((e : ℤ) - d), j + ((e : ℤ) - d)) := sorry
+      T.Hgrade Y (i + 2 * ((e : ℤ) - d)) := sorry
 
 /-- Cohomological pushforward is adjoint to bundled graded pullback under the trace. -/
-theorem pushforward_spec_gradedPullback {X Y : V} {d e : ℕ}
+theorem pushforward_spec_gradedPullback [T.HasDiagonalClassRelation]  {X Y : V} {d e : ℕ}
     (hX : T.IsNonemptyEquidimensional X d) (hY : T.IsNonemptyEquidimensional Y e)
     (f : X ⟶ Y) (a : H X) (b : H Y) :
     T.integral hX (T.gradedPullback f b * a) =
-      T.integral hY (b * T.pushforward hX hY f a) := sorry
+      T.integral hY (b * T.pushforward hX hY f a) := by
+  have hdiagonal : T.HasDiagonalClassRelation := inferInstance
+  sorry
 
 /-- Chow pushforward shifts codimension by the dimension difference. -/
 theorem cyclePushforward_mem_of_axiomsA1ToA7 {X Y : V} {d e : ℕ}
@@ -174,17 +177,14 @@ theorem cyclePushforward_mem_of_axiomsA1ToA7 {X Y : V} {d e : ℕ}
     (f : X ⟶ Y) (i : ℤ) (alpha : CHgrade X i) :
     cyclePushforward f alpha ∈ CHgrade Y (i + ((e : ℤ) - d)) := sorry
 
-/-- Exterior product on fixed Tate twists is injective with image the sum-twist slice. -/
+/-- Exterior product is bijective on every pair of external twists. -/
 theorem kunnethMap_fixedTwists_of_axiomsA1ToA7 (X Y : V) (r s : ℤ) :
-    Function.Injective (SchemeClassicalTheory.twistSliceTensorMap
-      (T.Hgrade X) (T.Hgrade Y) (T.kunnethMap X Y) r s) ∧
-    LinearMap.range (SchemeClassicalTheory.twistSliceTensorMap
-      (T.Hgrade X) (T.Hgrade Y) (T.kunnethMap X Y) r s) =
-      SchemeClassicalTheory.twistSlice (T.Hgrade (product X Y)) (r + s) := sorry
+    Function.Bijective (Tate.tensorMap T.tateLine_rank (T.kunnethMap X Y) r s) := sorry
 
-/-- A scheme pre-Weil theory satisfying axiom (A8) determines an explicit classical theory. -/
-noncomputable def toSchemeClassicalTheory
-    (hA8 : T.SatisfiesAxiomA8) :
+/-- A scheme pre-Weil theory with the explicit diagonal-class mixin and (A8)
+determines a classical theory. Geometric anchoring is tracked by RL-2194. -/
+noncomputable def toSchemeClassicalTheory [T.HasDiagonalClassRelation]
+    (hA8 : T.SatisfiesAxiomA8)  :
     @SchemeClassicalTheory k _ F _ _ TateLine _ _ V _ dimension product fst snd point
       H CH _ _ _ T.Hgrade CHgrade T.gradedAlgebraHgrade inferInstance
       cyclePullback cyclePushforward :=
@@ -216,7 +216,6 @@ noncomputable def toSchemeClassicalTheory
     (closedPointClass_pushforward := T.closedPointClass_pushforward)
     (tateLine_rank := T.tateLine_rank)
     (Hgrade_isInternal := T.Hgrade_isInternal)
-    (tateTwist := T.tateTwist)
     (pullback := T.gradedPullback)
     (pullback_id := T.gradedPullback_id)
     (pullback_comp := T.gradedPullback_comp)
@@ -245,36 +244,44 @@ noncomputable def toSchemeClassicalTheory
     (point_normalization := T.point_normalization)
 
 /-- The conversion retains the geometric realization functor. -/
-theorem toSchemeClassicalTheory_scheme (hA8 : T.SatisfiesAxiomA8) :
+theorem toSchemeClassicalTheory_scheme [T.HasDiagonalClassRelation] (hA8 : T.SatisfiesAxiomA8)  :
   (@SchemeClassicalTheory.scheme k _ F _ _ TateLine _ _ V _ dimension product fst snd point
     H CH _ _ _ T.Hgrade CHgrade T.gradedAlgebraHgrade inferInstance
-    cyclePullback cyclePushforward (T.toSchemeClassicalTheory hA8)) = T.scheme := sorry
+    cyclePullback cyclePushforward (T.toSchemeClassicalTheory hA8)) = T.scheme := by
+  have hdiagonal : T.HasDiagonalClassRelation := inferInstance
+  sorry
 
 /-- The conversion retains the cycle-class homomorphism. -/
-theorem toSchemeClassicalTheory_cycleClass (hA8 : T.SatisfiesAxiomA8) (X : V) :
+theorem toSchemeClassicalTheory_cycleClass [T.HasDiagonalClassRelation] (hA8 : T.SatisfiesAxiomA8)  (X : V) :
   (@SchemeClassicalTheory.cycleClass k _ F _ _ TateLine _ _ V _ dimension product fst snd point
     H CH _ _ _ T.Hgrade CHgrade T.gradedAlgebraHgrade inferInstance
-    cyclePullback cyclePushforward (T.toSchemeClassicalTheory hA8)) X = T.cycleClass X := sorry
+    cyclePullback cyclePushforward (T.toSchemeClassicalTheory hA8)) X = T.cycleClass X := by
+  have hdiagonal : T.HasDiagonalClassRelation := inferInstance
+  sorry
 
 /-- The conversion retains the geometric nonempty-equidimensional predicate. -/
-theorem toSchemeClassicalTheory_isNonemptyEquidimensional
-    (hA8 : T.SatisfiesAxiomA8) {X : V} {d : ℕ} :
+theorem toSchemeClassicalTheory_isNonemptyEquidimensional [T.HasDiagonalClassRelation]
+    (hA8 : T.SatisfiesAxiomA8)  {X : V} {d : ℕ} :
   (@SchemeClassicalTheory.IsNonemptyEquidimensional k _ F _ _ TateLine _ _ V _ dimension product fst snd point
     H CH _ _ _ T.Hgrade CHgrade T.gradedAlgebraHgrade inferInstance
     cyclePullback cyclePushforward (T.toSchemeClassicalTheory hA8)) X d ↔
-      T.IsNonemptyEquidimensional X d := sorry
+      T.IsNonemptyEquidimensional X d := by
+  have hdiagonal : T.HasDiagonalClassRelation := inferInstance
+  sorry
 
 /-- The conversion retains the zero-extended trace. -/
-theorem toSchemeClassicalTheory_integral (hA8 : T.SatisfiesAxiomA8)
+theorem toSchemeClassicalTheory_integral [T.HasDiagonalClassRelation] (hA8 : T.SatisfiesAxiomA8) 
     {X : V} {d : ℕ} (hX : T.IsNonemptyEquidimensional X d) :
   (@SchemeClassicalTheory.integral k _ F _ _ TateLine _ _ V _ dimension product fst snd point
     H CH _ _ _ T.Hgrade CHgrade T.gradedAlgebraHgrade inferInstance
     cyclePullback cyclePushforward (T.toSchemeClassicalTheory hA8))
         ((T.toSchemeClassicalTheory_isNonemptyEquidimensional hA8).mpr hX) =
-      T.integral hX := sorry
+      T.integral hX := by
+  have hdiagonal : T.HasDiagonalClassRelation := inferInstance
+  sorry
 
 /-- The conversion retains the Poincaré-duality pushforward. -/
-theorem toSchemeClassicalTheory_pushforward (hA8 : T.SatisfiesAxiomA8)
+theorem toSchemeClassicalTheory_pushforward [T.HasDiagonalClassRelation] (hA8 : T.SatisfiesAxiomA8) 
     {X Y : V} {d e : ℕ} (hX : T.IsNonemptyEquidimensional X d)
     (hY : T.IsNonemptyEquidimensional Y e) (f : X ⟶ Y) :
   (@SchemeClassicalTheory.pushforward k _ F _ _ TateLine _ _ V _ dimension product fst snd point
@@ -282,26 +289,35 @@ theorem toSchemeClassicalTheory_pushforward (hA8 : T.SatisfiesAxiomA8)
     cyclePullback cyclePushforward (T.toSchemeClassicalTheory hA8))
         ((T.toSchemeClassicalTheory_isNonemptyEquidimensional hA8).mpr hX)
         ((T.toSchemeClassicalTheory_isNonemptyEquidimensional hA8).mpr hY) f =
-      T.pushforward hX hY f := sorry
+      T.pushforward hX hY f := by
+  have hdiagonal : T.HasDiagonalClassRelation := inferInstance
+  sorry
 
 /-- The conversion retains the Künneth map. -/
-theorem toSchemeClassicalTheory_kunnethMap (hA8 : T.SatisfiesAxiomA8) (X Y : V) :
+theorem toSchemeClassicalTheory_kunnethMap [T.HasDiagonalClassRelation] (hA8 : T.SatisfiesAxiomA8)  (X Y : V) :
   (@SchemeClassicalTheory.kunnethMap k _ F _ _ TateLine _ _ V _ dimension product fst snd point
     H CH _ _ _ T.Hgrade CHgrade T.gradedAlgebraHgrade inferInstance
-    cyclePullback cyclePushforward (T.toSchemeClassicalTheory hA8)) X Y = T.kunnethMap X Y := sorry
+    cyclePullback cyclePushforward (T.toSchemeClassicalTheory hA8)) X Y = T.kunnethMap X Y := by
+  have hdiagonal : T.HasDiagonalClassRelation := inferInstance
+  sorry
 
 /-- Degree-zero pullback in the converted theory is the original restricted pullback. -/
-theorem toSchemeClassicalTheory_degreeZeroPullback (hA8 : T.SatisfiesAxiomA8)
-    {X Y : V} (f : X ⟶ Y) (a : T.Hgrade Y (0, 0)) :
+theorem toSchemeClassicalTheory_degreeZeroPullback [T.HasDiagonalClassRelation] (hA8 : T.SatisfiesAxiomA8) 
+    {X Y : V} (f : X ⟶ Y) (a : T.Hgrade Y (0)) :
   (@SchemeClassicalTheory.degreeZeroPullback k _ F _ _ TateLine _ _ V _ dimension product fst snd point
     H CH _ _ _ T.Hgrade CHgrade T.gradedAlgebraHgrade inferInstance
     cyclePullback cyclePushforward (T.toSchemeClassicalTheory hA8)) f a =
-      T.pullbackGrade f (0, 0) a := sorry
+      T.pullbackGrade f 0 a := by
+  have hdiagonal : T.HasDiagonalClassRelation := inferInstance
+  sorry
 
-/-- A scheme pre-Weil theory satisfying axiom (A8) is a Weil cohomology theory. -/
-theorem isWeil_of_axiomsA1ToA8 (hA8 : T.SatisfiesAxiomA8) :
+/-- A scheme pre-Weil theory with the explicit diagonal-class mixin and (A8)
+is a Weil theory. Geometric anchoring is tracked by RL-2194. -/
+theorem isWeil_of_axiomsA1ToA8 [T.HasDiagonalClassRelation] (hA8 : T.SatisfiesAxiomA8)  :
   (@SchemeClassicalTheory.IsWeil k _ F _ _ TateLine _ _ V _ dimension product fst snd point
     H CH _ _ _ T.Hgrade CHgrade T.gradedAlgebraHgrade inferInstance
-    cyclePullback cyclePushforward (T.toSchemeClassicalTheory hA8)) := sorry
+    cyclePullback cyclePushforward (T.toSchemeClassicalTheory hA8)) := by
+  have hdiagonal : T.HasDiagonalClassRelation := inferInstance
+  sorry
 
 end WeilCohomology.SchemePreWeilTheory

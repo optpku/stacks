@@ -6,6 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
+public import Mathlib.Algebra.Category.ModuleCat.FilteredColimits
 public import Mathlib.Algebra.Category.ModuleCat.Limits
 public import Mathlib.Algebra.Category.ModuleCat.Monoidal.Basic
 public import Mathlib.Algebra.Ring.ULift
@@ -31,7 +32,7 @@ open CategoryTheory.MonoidalCategory
 
 noncomputable section
 
-universe u
+universe u v w
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
@@ -49,10 +50,10 @@ theorem integerModule_eq : integerModule = ULift.{u + 1} ℤ :=
 abbrev IntegerModuleCat := ModuleCat.{u + 1} integerModule
 
 /-- Module-valued sheaves on the small étale topology of an algebraic space admit weak
-sheafification. -/
+sheafification in the universe of the chart category. -/
 instance smallEtaleTopology_hasWeakSheafify_integerModuleCat (X : AlgebraicSpace S) :
-    HasWeakSheafify (smallEtaleTopology X) IntegerModuleCat :=
-  sorry
+    HasWeakSheafify (smallEtaleTopology X) IntegerModuleCat.{u, u} := by
+  infer_instance
 
 /-- Locally bijective morphisms of integer-module presheaves on the small étale site of an
 algebraic space form a monoidal morphism property. -/
@@ -64,23 +65,26 @@ instance smallEtaleTopology_w_isMonoidal_integerModuleCat (X : AlgebraicSpace S)
 /-- Integer-module sheaves on the small étale site of an algebraic space admit binary
 biproducts. -/
 instance smallEtaleTopology_hasBinaryBiproducts_integerModuleCat (X : AlgebraicSpace S) :
-    HasBinaryBiproducts (Sheaf (smallEtaleTopology X) IntegerModuleCat) :=
-  sorry
+    HasBinaryBiproducts (Sheaf (smallEtaleTopology X) IntegerModuleCat.{v, w}) := by
+  letI : HasBinaryProducts IntegerModuleCat.{v, w} := ModuleCat.hasLimitsOfShape
+  letI : HasBinaryProducts (Sheaf (smallEtaleTopology X) IntegerModuleCat.{v, w}) :=
+    Sheaf.instHasLimitsOfShape
+  exact HasBinaryBiproducts.of_hasBinaryProducts
 
 /-- Coefficient change from `integerModule`-modules to abelian groups preserves sheaves on
 the small étale topology of an algebraic space. -/
 instance smallEtaleTopology_hasSheafCompose_integerModuleCat (X : AlgebraicSpace S) :
     (smallEtaleTopology X).HasSheafCompose
-      (forget₂ IntegerModuleCat AddCommGrpCat.{u + 1}) :=
-  sorry
+      (forget₂ IntegerModuleCat AddCommGrpCat.{u + 1}) := by
+  infer_instance
 
 /-- Coefficient change from `integerModule`-modules to abelian groups preserves
 sheafification on the small étale topology of an algebraic space. -/
 instance smallEtaleTopology_preservesSheafification_integerModuleCat
     (X : AlgebraicSpace S) :
     (smallEtaleTopology X).PreservesSheafification
-      (forget₂ IntegerModuleCat AddCommGrpCat.{u + 1}) :=
-  sorry
+      (forget₂ IntegerModuleCat.{u, u} AddCommGrpCat.{u + 1}) := by
+  exact GrothendieckTopology.instPreservesSheafification _ _
 
 /-- Forgetting `integerModule`-modules to abelian groups preserves left Kan extensions
 along the opposite of étale restriction. -/
@@ -88,7 +92,7 @@ instance etaleRestriction_op_preservesLeftKanExtensions_integerModuleCat
     {U X : AlgebraicSpace S} (f : U ⟶ X) [Etale f] :
     (forget₂ IntegerModuleCat AddCommGrpCat.{u + 1}).PreservesLeftKanExtensions
       (etaleRestriction f).op :=
-  fun F => { preserves := by intro F' α h; sorry }
+  fun _ ↦ inferInstance
 
 /-- Extension by zero for sheaves of `integerModule`-modules, the coefficient model for
 `⊗_ℤ`. -/
@@ -157,7 +161,7 @@ noncomputable def moduleExtensionByZeroInteger_toAbelian {U X : AlgebraicSpace S
         (forget₂ IntegerModuleCat AddCommGrpCat.{u + 1})).obj
       (moduleExtensionByZeroInteger f) ≅
       (abelianExtensionByZero f).obj (CategoryTheory.constantIntegerSheaf.{u + 1, u, u + 1} (smallEtaleTopology U)) :=
-  (Functor.sheafPullback.compSheafComposeIso (etaleRestriction f)
+  (Functor.sheafPullbackConstruction.compSheafComposeIso (etaleRestriction f)
       (forget₂ IntegerModuleCat AddCommGrpCat.{u + 1})
       (smallEtaleTopology U) (smallEtaleTopology X)).app
     (constantIntegerModuleSheaf U) ≪≫
@@ -169,7 +173,7 @@ by zero of the constant integer sheaf on `U`. -/
 theorem moduleExtensionByZeroInteger_toAbelian_hom {U X : AlgebraicSpace S}
     (f : U ⟶ X) [Etale f] :
     (moduleExtensionByZeroInteger_toAbelian f).hom =
-      ((Functor.sheafPullback.compSheafComposeIso (etaleRestriction f)
+      ((Functor.sheafPullbackConstruction.compSheafComposeIso (etaleRestriction f)
           (forget₂ IntegerModuleCat AddCommGrpCat.{u + 1})
           (smallEtaleTopology U) (smallEtaleTopology X)).app
         (constantIntegerModuleSheaf U) ≪≫

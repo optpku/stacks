@@ -28,7 +28,8 @@ variable {R : Type u} [CommRing R]
 /- Lemma 15.89.5 (Stacks 0A6K): the object property of `I`-power torsion modules is a
 Serre class in `ModuleCat R`. -/
 @[stacks 0A6K]
-#check fun (I : Ideal R) ↦
+#check fun (I : Ideal R) (hI : I.FG) ↦
+  letI : Fact I.FG := ⟨hI⟩
   (CategoryTheory.ModuleCat.isIdealPowerTorsion_isSerreClass I :
     (CategoryTheory.ModuleCat.isIdealPowerTorsion I :
       ObjectProperty (ModuleCat.{v} R)).IsSerreClass)

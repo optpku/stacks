@@ -9,6 +9,7 @@ module
 public import ReasLib.AlgebraicGeometry.RingedSite.Topos.Module.Derived.SectionsComparison
 public import ReasLib.AlgebraicGeometry.RingedSite.Topos.Module.Derived.Adjunction
 public import ReasLib.Algebra.Homology.DerivedCategory.ScalarExtension.Adjunction
+public import ReasLib.Algebra.Category.Ring.Commutative
 
 @[expose] public section
 
@@ -18,18 +19,8 @@ universe uX vX uY vY w
 
 namespace RingedSite.ToposHom
 
--- Local instance justification: retain the existing derived-category presentation and
--- the actual Grothendieck-source direct-image witness required by the supplied adjunction.
+-- Local instance justification (defeq pin): scalar comparisons must retain the canonical Hom.ModuleDerived localization used by the derived adjunction.
 attribute [local instance] Hom.moduleCat_hasDerivedCategory
-attribute [local instance] modulePushforwardToDerived.hasRightDerived
-
-/-- Commutative global sections retaining the bundled ring's operations. -/
-noncomputable instance globalSectionsCommRing
-    (X : RingedSite.{uX, vX, w}) [UnivLE.{uX, w}]
-    [h : Fact (∀ a b : Hom.globalSectionsRing X, a * b = b * a)] :
-    CommRing (Hom.globalSectionsRing X) where
-  toRing := inferInstance
-  mul_comm := h.elim
 
 variable {X : RingedSite.{uX, vX, w}} {Y : RingedSite.{uY, vY, w}}
 variable [X.siteTopology.HasSheafCompose (forget RingCat.{w})]
@@ -42,7 +33,8 @@ variable [Fact (∀ a b : Hom.globalSectionsRing X, a * b = b * a)]
 variable [Fact (∀ a b : Hom.globalSectionsRing Y, a * b = b * a)]
 variable (f : ToposHom X Y)
 variable [(SheafOfModules.restrictScalars.{w} f.structureMap).IsRightAdjoint]
-variable [HasModulePullbackDerived f] [HasModuleDerivedAdjunction f]
+variable [HasModulePullbackDerived f] [@HasModuleDerivedAdjunction _ _ _ _ f _ _ _ _
+  (modulePushforwardToDerived.hasRightDerived f)]
 
 /-- The canonical scalar-extension/global-sections map for an arbitrary
 ringed-topos morphism. It is the scalar adjoint transpose of the derived
@@ -52,7 +44,8 @@ noncomputable def derivedScalarGlobalSectionsComparison (K : Hom.ModuleDerived.{
       ((Hom.moduleDerivedGlobalSections.{w} Y).obj K) ⟶
         (Hom.moduleDerivedGlobalSections.{w} X).obj (f.modulePullbackDerived.obj K) :=
   ((CategoryTheory.ModuleCat.derivedExtensionRestrictionAdjunction f.globalSectionsMap.hom).homEquiv _ _).symm
-    ((Hom.moduleDerivedGlobalSections.{w} Y).map (f.moduleDerivedAdjunction.unit.app K) ≫
+    ((Hom.moduleDerivedGlobalSections.{w} Y).map ((@moduleDerivedAdjunction _ _ _ _ f _ _ _ _
+        (modulePushforwardToDerived.hasRightDerived f) inferInstance).unit.app K) ≫
       f.derivedGlobalSectionsPushforwardIso.inv.app (f.modulePullbackDerived.obj K))
 
 end RingedSite.ToposHom

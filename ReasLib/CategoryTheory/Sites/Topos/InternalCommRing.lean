@@ -94,90 +94,92 @@ def commRingInverseImageForgetRingIso
 
 end InverseImage
 
-variable {C D : Type u} [Category.{u} C] [Category.{u} D]
+universe uC vC uD vD w
+
+variable {C : Type uC} [Category.{vC} C] {D : Type uD} [Category.{vD} D]
 variable {JC : GrothendieckTopology C} {JD : GrothendieckTopology D}
-variable [JC.HasSheafCompose (forget₂ CommRingCat RingCat.{u})]
-variable [JD.HasSheafCompose (forget₂ CommRingCat RingCat.{u})]
-variable [JC.HasSheafCompose (CategoryTheory.forget RingCat.{u})]
-variable [JD.HasSheafCompose (CategoryTheory.forget RingCat.{u})]
-variable [JC.HasSheafCompose (CategoryTheory.forget CommRingCat.{u})]
-variable [JD.HasSheafCompose (CategoryTheory.forget CommRingCat.{u})]
+variable [JC.HasSheafCompose (forget₂ CommRingCat.{w} RingCat.{w})]
+variable [JD.HasSheafCompose (forget₂ CommRingCat.{w} RingCat.{w})]
+variable [JC.HasSheafCompose (CategoryTheory.forget RingCat.{w})]
+variable [JD.HasSheafCompose (CategoryTheory.forget RingCat.{w})]
+variable [JC.HasSheafCompose (CategoryTheory.forget CommRingCat.{w})]
+variable [JD.HasSheafCompose (CategoryTheory.forget CommRingCat.{w})]
 
 /-- Forgetting to type-valued sheaves after commutative-ring inverse image recovers type-valued
 inverse image. -/
 def commRingInverseImageForgetIso
-    (f : MorphismOfTopoiIn.{u, u, u, u, u} JC JD) :
-    f.commRingInverseImage ⋙ sheafCompose JD (CategoryTheory.forget CommRingCat.{u}) ≅
-      sheafCompose JC (CategoryTheory.forget CommRingCat.{u}) ⋙ f.inverseImage :=
+    (f : MorphismOfTopoiIn.{uC, uD, vC, vD, w} JC JD) :
+    f.commRingInverseImage ⋙ sheafCompose JD (CategoryTheory.forget CommRingCat.{w}) ≅
+      sheafCompose JC (CategoryTheory.forget CommRingCat.{w}) ⋙ f.inverseImage :=
   Functor.associator InternalCommRing.toInternal
       (@Functor.mapCommRingOfFiniteProducts
-        (Sheaf JC (Type u)) _ _ (sheafBraidedCategory JC)
-        (Sheaf JD (Type u)) _ _ (sheafBraidedCategory JD)
+        (Sheaf JC (Type w)) _ _ (sheafBraidedCategory JC)
+        (Sheaf JD (Type w)) _ _ (sheafBraidedCategory JD)
         f.inverseImage inferInstance)
       (InternalCommRing.fromInternal ⋙
-        sheafCompose JD (CategoryTheory.forget CommRingCat.{u})) ≪≫
+        sheafCompose JD (CategoryTheory.forget CommRingCat.{w})) ≪≫
     Functor.isoWhiskerLeft
       (InternalCommRing.toInternal ⋙
         @Functor.mapCommRingOfFiniteProducts
-          (Sheaf JC (Type u)) _ _ (sheafBraidedCategory JC)
-          (Sheaf JD (Type u)) _ _ (sheafBraidedCategory JD)
+          (Sheaf JC (Type w)) _ _ (sheafBraidedCategory JC)
+          (Sheaf JD (Type w)) _ _ (sheafBraidedCategory JD)
           f.inverseImage inferInstance)
       InternalCommRing.fromInternalForgetIso ≪≫
     Functor.associator InternalCommRing.toInternal
       (@Functor.mapCommRingOfFiniteProducts
-        (Sheaf JC (Type u)) _ _ (sheafBraidedCategory JC)
-        (Sheaf JD (Type u)) _ _ (sheafBraidedCategory JD)
+        (Sheaf JC (Type w)) _ _ (sheafBraidedCategory JC)
+        (Sheaf JD (Type w)) _ _ (sheafBraidedCategory JD)
         f.inverseImage inferInstance)
       (CommRingObjects.forget JD) ≪≫
     Functor.isoWhiskerLeft InternalCommRing.toInternal
       (@Functor.mapCommRingOfFiniteProductsForgetIso
-        (Sheaf JC (Type u)) _ _ (sheafBraidedCategory JC)
-        (Sheaf JD (Type u)) _ _ (sheafBraidedCategory JD)
+        (Sheaf JC (Type w)) _ _ (sheafBraidedCategory JC)
+        (Sheaf JD (Type w)) _ _ (sheafBraidedCategory JD)
         f.inverseImage inferInstance) ≪≫
     (Functor.associator InternalCommRing.toInternal (CommRingObjects.forget JC)
       f.inverseImage).symm ≪≫
     Functor.isoWhiskerRight InternalCommRing.toInternalForgetIso f.inverseImage
 
 /-- Direct image of commutative ring sheaves along a morphism of topoi. -/
-def commRingDirectImage (f : MorphismOfTopoiIn.{u, u, u, u, u} JC JD) :
-    Sheaf JD CommRingCat.{u} ⥤ Sheaf JC CommRingCat.{u} :=
+def commRingDirectImage (f : MorphismOfTopoiIn.{uC, uD, vC, vD, w} JC JD) :
+    Sheaf JD CommRingCat.{w} ⥤ Sheaf JC CommRingCat.{w} :=
   InternalCommRing.toInternal ⋙
     (@Functor.mapCommRingOfFiniteProducts
-      (Sheaf JD (Type u)) _ _ (sheafBraidedCategory JD)
-      (Sheaf JC (Type u)) _ _ (sheafBraidedCategory JC)
+      (Sheaf JD (Type w)) _ _ (sheafBraidedCategory JD)
+      (Sheaf JC (Type w)) _ _ (sheafBraidedCategory JC)
       f.pushforward (LeftExactAdjunction.pushforwardPreservesFiniteProducts f)) ⋙
     InternalCommRing.fromInternal
 
 /-- Forgetting to type-valued sheaves after commutative-ring direct image recovers type-valued
 direct image. -/
 def commRingDirectImageForgetIso
-    (f : MorphismOfTopoiIn.{u, u, u, u, u} JC JD) :
-    f.commRingDirectImage ⋙ sheafCompose JC (CategoryTheory.forget CommRingCat.{u}) ≅
-      sheafCompose JD (CategoryTheory.forget CommRingCat.{u}) ⋙ f.pushforward :=
+    (f : MorphismOfTopoiIn.{uC, uD, vC, vD, w} JC JD) :
+    f.commRingDirectImage ⋙ sheafCompose JC (CategoryTheory.forget CommRingCat.{w}) ≅
+      sheafCompose JD (CategoryTheory.forget CommRingCat.{w}) ⋙ f.pushforward :=
   Functor.associator InternalCommRing.toInternal
       (@Functor.mapCommRingOfFiniteProducts
-        (Sheaf JD (Type u)) _ _ (sheafBraidedCategory JD)
-        (Sheaf JC (Type u)) _ _ (sheafBraidedCategory JC)
+        (Sheaf JD (Type w)) _ _ (sheafBraidedCategory JD)
+        (Sheaf JC (Type w)) _ _ (sheafBraidedCategory JC)
         f.pushforward (LeftExactAdjunction.pushforwardPreservesFiniteProducts f))
       (InternalCommRing.fromInternal ⋙
-        sheafCompose JC (CategoryTheory.forget CommRingCat.{u})) ≪≫
+        sheafCompose JC (CategoryTheory.forget CommRingCat.{w})) ≪≫
     Functor.isoWhiskerLeft
       (InternalCommRing.toInternal ⋙
         @Functor.mapCommRingOfFiniteProducts
-          (Sheaf JD (Type u)) _ _ (sheafBraidedCategory JD)
-          (Sheaf JC (Type u)) _ _ (sheafBraidedCategory JC)
+          (Sheaf JD (Type w)) _ _ (sheafBraidedCategory JD)
+          (Sheaf JC (Type w)) _ _ (sheafBraidedCategory JC)
           f.pushforward (LeftExactAdjunction.pushforwardPreservesFiniteProducts f))
       InternalCommRing.fromInternalForgetIso ≪≫
     Functor.associator InternalCommRing.toInternal
       (@Functor.mapCommRingOfFiniteProducts
-        (Sheaf JD (Type u)) _ _ (sheafBraidedCategory JD)
-        (Sheaf JC (Type u)) _ _ (sheafBraidedCategory JC)
+        (Sheaf JD (Type w)) _ _ (sheafBraidedCategory JD)
+        (Sheaf JC (Type w)) _ _ (sheafBraidedCategory JC)
         f.pushforward (LeftExactAdjunction.pushforwardPreservesFiniteProducts f))
       (CommRingObjects.forget JC) ≪≫
     Functor.isoWhiskerLeft InternalCommRing.toInternal
       (@Functor.mapCommRingOfFiniteProductsForgetIso
-        (Sheaf JD (Type u)) _ _ (sheafBraidedCategory JD)
-        (Sheaf JC (Type u)) _ _ (sheafBraidedCategory JC)
+        (Sheaf JD (Type w)) _ _ (sheafBraidedCategory JD)
+        (Sheaf JC (Type w)) _ _ (sheafBraidedCategory JC)
         f.pushforward (LeftExactAdjunction.pushforwardPreservesFiniteProducts f)) ≪≫
     (Functor.associator InternalCommRing.toInternal (CommRingObjects.forget JD)
       f.pushforward).symm ≪≫
@@ -185,21 +187,43 @@ def commRingDirectImageForgetIso
 
 /-- Commutative-ring inverse image is left adjoint to commutative-ring direct image. -/
 def commRingInverseImageAdjunction
-    (f : MorphismOfTopoiIn.{u, u, u, u, u} JC JD) :
+    (f : MorphismOfTopoiIn.{uC, uD, vC, vD, w} JC JD) :
     f.commRingInverseImage ⊣ f.commRingDirectImage :=
   (((InternalCommRing.equivalence (J := JC)).toAdjunction.comp
       (@Functor.mapCommRingOfFiniteProductsAdjunction
-        (Sheaf JC (Type u)) _ _ (sheafBraidedCategory JC)
-        (Sheaf JD (Type u)) _ _ (sheafBraidedCategory JD)
+        (Sheaf JC (Type w)) _ _ (sheafBraidedCategory JC)
+        (Sheaf JD (Type w)) _ _ (sheafBraidedCategory JD)
         f.inverseImage inferInstance f.pushforward
           (LeftExactAdjunction.pushforwardPreservesFiniteProducts f) f.adjunction)).comp
     (InternalCommRing.equivalence (J := JD)).symm.toAdjunction).ofNatIsoLeft
     (Functor.associator InternalCommRing.toInternal
       (@Functor.mapCommRingOfFiniteProducts
-        (Sheaf JC (Type u)) _ _ (sheafBraidedCategory JC)
-        (Sheaf JD (Type u)) _ _ (sheafBraidedCategory JD)
+        (Sheaf JC (Type w)) _ _ (sheafBraidedCategory JC)
+        (Sheaf JD (Type w)) _ _ (sheafBraidedCategory JD)
         f.inverseImage inferInstance)
       InternalCommRing.fromInternal)
+
+section Composition
+
+universe uE vE
+variable {E : Type uE} [Category.{vE} E] {JE : GrothendieckTopology E}
+variable [JE.HasSheafCompose (forget₂ CommRingCat.{w} RingCat.{w})]
+variable [JE.HasSheafCompose (forget RingCat.{w})]
+
+/-- Inverse image of a commutative ring sheaf along a composite is successive inverse image. -/
+def commRingInverseImageCompIso
+    (f : MorphismOfTopoiIn.{uC, uD, vC, vD, w} JC JD)
+    (g : MorphismOfTopoiIn.{uD, uE, vD, vE, w} JD JE)
+    (A : Sheaf JC CommRingCat.{w}) :
+    (MorphismOfTopoiIn.comp f g).commRingInverseImage.obj A ≅
+      g.commRingInverseImage.obj (f.commRingInverseImage.obj A) :=
+  (CommRingSheaves.fullyFaithfulForgetRing (J := JE)).preimageIso
+    ((MorphismOfTopoiIn.comp f g).commRingInverseImageForgetRingIso.app A ≪≫
+      (ringInverseImageCompIso f g).app (CommRingSheaves.forgetRing.obj A) ≪≫
+      g.ringInverseImage.mapIso (f.commRingInverseImageForgetRingIso.app A).symm ≪≫
+      (g.commRingInverseImageForgetRingIso.app (f.commRingInverseImage.obj A)).symm)
+
+end Composition
 
 end CategoryTheory.MorphismOfTopoiIn
 

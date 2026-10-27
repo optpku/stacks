@@ -10,8 +10,9 @@ public import Mathlib.Algebra.BigOperators.Group.Finset.Basic
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.FiniteLocallyFree
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.IntersectionTheory.CapPower
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.IntersectionTheory.RankGluedChern
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.ChowCohomology.GradedRing
 
-/-! # Chern classes after tensoring by an invertible module -/
+/-! # Chern classes of tensor products of finite locally free modules -/
 
 @[expose] public section
 
@@ -44,13 +45,80 @@ theorem chernClass_tensor_invertible {S : Scheme.{u}} {B X : AlgebraicSpace S}
       ∑ j ∈ Finset.range (i + 1),
         Nat.choose (r + j - i) j •
           (if hj : j ≤ i then
-            ChowCohomology.castChowGroup δ (g ≫ f)
+            (AddEquiv.cast (M := Hom.chowGroup (g ≫ f) δ)
               (show (k - (j : ℤ)) - ((i - j : ℕ) : ℤ) = k - (i : ℤ) by
                 rw [Nat.cast_sub hj]
-                omega)
+                omega)).toAddMonoidHom
               ((ChernClass.chernClass δ f E (i - j)).cap g (k - (j : ℤ))
                 (ChowCohomology.powCap (ChernClass.chernClass δ f L 1).cap j g k α))
-          else 0) :=
-  sorry
+          else 0) := sorry
+
+
+namespace ChernClass
+
+/-- The first Chern class of the tensor product of finite locally free modules of
+constant ranks `r` and `s` is the rank-weighted sum in the operational Chow ring. -/
+theorem tensor_one {S : Scheme.{u}} {B X : AlgebraicSpace S}
+    [UniversallyCatenary B] [IsQuasiSeparated B]
+    (δ : Points B → ℤ) [IsDimensionFunction δ]
+    (f : X ⟶ B) [QuasiSeparated f] [LocallyOfFiniteType f]
+    (E F : X.Modules) (r s : ℕ)
+    [SheafOfModules.IsFiniteLocallyFreeOfRank r E]
+    [SheafOfModules.IsFiniteLocallyFreeOfRank s F] :
+    OperationalChow.homogeneous δ f 1 (chernClass δ f (E ⊗ F) 1) =
+      (r : OperationalChow.ring δ f) * OperationalChow.homogeneous δ f 1 (chernClass δ f F 1) +
+        (s : OperationalChow.ring δ f) * OperationalChow.homogeneous δ f 1 (chernClass δ f E 1) := sorry
+
+/-- The second Chern class of the tensor product of finite locally free modules
+of constant ranks `r` and `s` is the integral quadratic expansion in their first
+two Chern classes, with mixed coefficient `(r : ℤ) * (s : ℤ) - 1`. -/
+theorem tensor_two {S : Scheme.{u}} {B X : AlgebraicSpace S}
+    [UniversallyCatenary B] [IsQuasiSeparated B]
+    (δ : Points B → ℤ) [IsDimensionFunction δ]
+    (f : X ⟶ B) [QuasiSeparated f] [LocallyOfFiniteType f]
+    (E F : X.Modules) (r s : ℕ)
+    [SheafOfModules.IsFiniteLocallyFreeOfRank r E]
+    [SheafOfModules.IsFiniteLocallyFreeOfRank s F] :
+    OperationalChow.homogeneous δ f 2 (chernClass δ f (E ⊗ F) 2) =
+      (r : OperationalChow.ring δ f) * OperationalChow.homogeneous δ f 2 (chernClass δ f F 2) +
+        (s : OperationalChow.ring δ f) * OperationalChow.homogeneous δ f 2 (chernClass δ f E 2) +
+        (Nat.choose r 2 : OperationalChow.ring δ f) *
+          OperationalChow.homogeneous δ f 1 (chernClass δ f F 1) ^ 2 +
+        (((r : ℤ) * (s : ℤ) - 1 : ℤ) : OperationalChow.ring δ f) *
+          OperationalChow.homogeneous δ f 1 (chernClass δ f F 1) *
+          OperationalChow.homogeneous δ f 1 (chernClass δ f E 1) +
+        (Nat.choose s 2 : OperationalChow.ring δ f) *
+          OperationalChow.homogeneous δ f 1 (chernClass δ f E 1) ^ 2 := sorry
+
+/-- The first Chern class of a tensor product of finite locally free modules of
+ranks `r` and `s` is the rank-weighted sum of their compatible cap families
+in the degree-one operational Chow subgroup. -/
+theorem tensor_one_degree {S : Scheme.{u}} {B X : AlgebraicSpace S}
+    [UniversallyCatenary B] [IsQuasiSeparated B]
+    (δ : Points B → ℤ) [IsDimensionFunction δ]
+    (f : X ⟶ B) [QuasiSeparated f] [LocallyOfFiniteType f]
+    (E F : X.Modules) (r s : ℕ)
+    [SheafOfModules.IsFiniteLocallyFreeOfRank r E]
+    [SheafOfModules.IsFiniteLocallyFreeOfRank s F] :
+    OperationalChow.Graded.ofOperational δ f (chernClass δ f (E ⊗ F) 1) =
+      r • OperationalChow.Graded.ofOperational δ f (chernClass δ f F 1) +
+        s • OperationalChow.Graded.ofOperational δ f (chernClass δ f E 1) := sorry
+
+/-- Capping with `c₁(E ⊗ F)` is the rank-weighted sum of the first Chern caps of
+`E` and `F` on every good test `Y ⟶ X`. -/
+theorem tensor_one_cap {S : Scheme.{u}} {B X : AlgebraicSpace S}
+    [UniversallyCatenary B] [IsQuasiSeparated B]
+    (δ : Points B → ℤ) [IsDimensionFunction δ]
+    (f : X ⟶ B) [QuasiSeparated f] [LocallyOfFiniteType f]
+    (E F : X.Modules) (r s : ℕ)
+    [SheafOfModules.IsFiniteLocallyFreeOfRank r E]
+    [SheafOfModules.IsFiniteLocallyFreeOfRank s F]
+    {Y : AlgebraicSpace S} (g : Y ⟶ X)
+    [QuasiSeparated (g ≫ f)] [LocallyOfFiniteType (g ≫ f)] (k : ℤ) :
+    (chernClass δ f (E ⊗ F) 1).cap g k =
+      r • (chernClass δ f F 1).cap g k +
+        s • (chernClass δ f E 1).cap g k := sorry
+
+end ChernClass
 
 end AlgebraicGeometry.AlgebraicSpace

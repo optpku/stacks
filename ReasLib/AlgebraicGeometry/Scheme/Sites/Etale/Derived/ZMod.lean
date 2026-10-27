@@ -7,6 +7,8 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import Mathlib.Algebra.Category.ModuleCat.Abelian
+public import Mathlib.Algebra.Category.ModuleCat.AB
+public import Mathlib.AlgebraicGeometry.Sites.AffineEtale
 public import Mathlib.Algebra.Homology.DerivedCategory.Basic
 public import Mathlib.CategoryTheory.Limits.ExactFunctor
 public import Mathlib.CategoryTheory.Sites.Abelian
@@ -119,12 +121,41 @@ end
 /-- Small étale sites of schemes have sheafification of `ZMod n`-modules. -/
 instance instHasSheafify_smallEtaleZMod {X : Scheme.{u}} {n : ℕ} :
     HasSheafify X.smallEtaleTopology (ModuleCat.{u} (ZMod n)) :=
-  sorry
+  letI : PreservesFilteredColimitsOfSize.{u, u}
+      (CategoryTheory.forget (ModuleCat.{u} (ZMod n))) :=
+    Limits.comp_preservesFilteredColimits
+      (forget₂ (ModuleCat.{u} (ZMod n)) AddCommGrpCat.{u})
+      (CategoryTheory.forget AddCommGrpCat.{u})
+  Functor.IsDenseSubsite.hasSheafify_of_isEquivalence
+    (AffineEtale.topology X) X.smallEtaleTopology (AffineEtale.Spec X)
+
+/-- Modules over `ZMod n` are Grothendieck abelian in every carrier universe.
+
+The standard `ModuleCat.AB` instance uses one universe for both the coefficient ring and
+the module carrier.  Here `ZMod n` lives in `Type 0`, while the sheaf category may use
+arbitrary carrier universe `u`, so we transport exact filtered colimits through the
+forgetful functor to additive groups and use the canonical `Shrink (ZMod n)` separator.
+-/
+instance instIsGrothendieckAbelian_moduleCatZMod {n : ℕ} :
+    IsGrothendieckAbelian.{u} (ModuleCat.{u} (ZMod n)) where
+  ab5OfSize :=
+    { ofShape := fun J _ _ =>
+        HasExactColimitsOfShape.domain_of_functor J
+          (forget₂ (ModuleCat.{u} (ZMod n)) AddCommGrpCat.{u}) }
+  hasSeparator :=
+    { hasSeparator :=
+        ⟨ModuleCat.of (ZMod n) (Shrink.{u} (ZMod n)), ModuleCat.isSeparator.{0, u} (ZMod n)⟩ }
 
 /-- Small-étale sheaves of `ZMod n`-modules form a Grothendieck abelian category. -/
 instance instIsGrothendieckAbelian_smallEtaleZMod {X : Scheme.{u}} {n : ℕ} :
-    IsGrothendieckAbelian (Sheaf X.smallEtaleTopology (ModuleCat.{u} (ZMod n))) :=
-  sorry
+    IsGrothendieckAbelian.{u} (Sheaf X.smallEtaleTopology (ModuleCat.{u} (ZMod n))) :=
+  letI : PreservesFilteredColimitsOfSize.{u, u}
+      (CategoryTheory.forget (ModuleCat.{u} (ZMod n))) :=
+    Limits.comp_preservesFilteredColimits
+      (forget₂ (ModuleCat.{u} (ZMod n)) AddCommGrpCat.{u})
+      (CategoryTheory.forget AddCommGrpCat.{u})
+  AlgebraicGeometry.Scheme.isGrothendieckAbelian_sheaf_smallEtaleTopology
+    X (ModuleCat.{u} (ZMod n))
 
 /-- Continuous sheaf pushforward of `ZMod n`-modules along small-étale pullback is a right adjoint. -/
 instance isRightAdjoint_zmodSheafPushforward {A B : Scheme.{u}} {p : A ⟶ B} {n : ℕ} :

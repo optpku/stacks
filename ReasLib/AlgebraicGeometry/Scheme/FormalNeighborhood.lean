@@ -38,11 +38,14 @@ abbrev stage (E : X.IdealSheafData) (n : ℕ) : Scheme.{u} :=
 /-- A positive formal-neighborhood stage is the subscheme cut out by the corresponding positive
 power of its ideal sheaf. -/
 theorem stage_def (E : X.IdealSheafData) (n : ℕ) :
-    stage E n = (E ^ (n + 1)).subscheme := sorry
+    stage E n = (E ^ (n + 1)).subscheme := rfl
 
 /-- The next ideal power is contained in the current power after transport along the identity. -/
 theorem powerSucc_le_mapId (E : X.IdealSheafData) (n : ℕ) :
-    E ^ (n + 1 + 1) ≤ (E ^ (n + 1)).map (𝟙 X) := sorry
+    E ^ (n + 1 + 1) ≤ (E ^ (n + 1)).map (𝟙 X) := by
+  rw [IdealSheafData.map_id]
+  intro U
+  exact Ideal.pow_le_pow_right (Nat.le_succ (n + 1))
 
 /-- The canonical closed immersion from one positive formal-neighborhood stage into the next. -/
 def inclusion (E : X.IdealSheafData) (n : ℕ) : stage E n ⟶ stage E (n + 1) :=
@@ -51,7 +54,8 @@ def inclusion (E : X.IdealSheafData) (n : ℕ) : stage E n ⟶ stage E (n + 1) :
 
 /-- The stage inclusion commutes with both closed immersions into the ambient scheme. -/
 theorem inclusion_subschemeι (E : X.IdealSheafData) (n : ℕ) :
-    inclusion E n ≫ (E ^ (n + 1 + 1)).subschemeι = (E ^ (n + 1)).subschemeι := sorry
+    inclusion E n ≫ (E ^ (n + 1 + 1)).subschemeι = (E ^ (n + 1)).subschemeι := by
+  simp only [inclusion, IdealSheafData.subschemeMap_subschemeι, Category.comp_id]
 
 /-- The global-section ring of positive formal-neighborhood stage `n`. -/
 abbrev sectionRing (E : X.IdealSheafData) (n : ℕ) : CommRingCat.{u} :=
@@ -59,7 +63,7 @@ abbrev sectionRing (E : X.IdealSheafData) (n : ℕ) : CommRingCat.{u} :=
 
 /-- The stage section ring is the ring of global functions on that stage. -/
 theorem sectionRing_def (E : X.IdealSheafData) (n : ℕ) :
-    sectionRing E n = Scheme.globalSectionsRing (stage E n) := sorry
+    sectionRing E n = Scheme.globalSectionsRing (stage E n) := rfl
 
 /-- Restriction of global functions along a successor-stage inclusion. -/
 abbrev sectionStep (E : X.IdealSheafData) (n : ℕ) :
@@ -68,7 +72,7 @@ abbrev sectionStep (E : X.IdealSheafData) (n : ℕ) :
 
 /-- The section transition is pullback along the corresponding stage inclusion. -/
 theorem sectionStep_def (E : X.IdealSheafData) (n : ℕ) :
-    sectionStep E n = (inclusion E n).appTop := sorry
+    sectionStep E n = (inclusion E n).appTop := rfl
 
 /-- The inverse system of global-section rings of the positive formal neighborhoods. -/
 def sectionSystem (E : X.IdealSheafData) : SequentialInverseSystem CommRingCat.{u} :=
@@ -76,12 +80,13 @@ def sectionSystem (E : X.IdealSheafData) : SequentialInverseSystem CommRingCat.{
 
 /-- Stage `n` of the section system is the ring of global functions on `stage E n`. -/
 theorem sectionSystem_obj (E : X.IdealSheafData) (n : ℕ) :
-    (sectionSystem E).obj (op n) = Scheme.globalSectionsRing (stage E n) := sorry
+    (sectionSystem E).obj (op n) = Scheme.globalSectionsRing (stage E n) := rfl
 
 /-- A successor transition in the section system is pullback along the corresponding stage
 inclusion. -/
 theorem sectionSystem_stepMap (E : X.IdealSheafData) (n : ℕ) :
-    (sectionSystem E).stepMap n = (inclusion E n).appTop := sorry
+    (sectionSystem E).stepMap n = (inclusion E n).appTop :=
+  Functor.ofOpSequence_map_homOfLE_succ (sectionStep E) n
 
 /-- The formal-neighborhood ring is the inverse limit of the positive-stage section rings. -/
 noncomputable def ring (E : X.IdealSheafData) : CommRingCat.{u} :=
@@ -89,7 +94,7 @@ noncomputable def ring (E : X.IdealSheafData) : CommRingCat.{u} :=
 
 /-- The formal-neighborhood ring is the selected categorical limit of its section system. -/
 theorem ring_eq_limit (E : X.IdealSheafData) :
-    ring E = limit (sectionSystem E) := sorry
+    ring E = limit (sectionSystem E) := rfl
 
 /-- The canonical projection from the formal-neighborhood ring to positive stage `n`. -/
 noncomputable def projection (E : X.IdealSheafData) (n : ℕ) :
@@ -98,10 +103,11 @@ noncomputable def projection (E : X.IdealSheafData) (n : ℕ) :
 
 /-- The stage projection is the corresponding leg of the selected limit cone. -/
 theorem projection_def (E : X.IdealSheafData) (n : ℕ) :
-    projection E n = limit.π (sectionSystem E) (op n) := sorry
+    projection E n = limit.π (sectionSystem E) (op n) := rfl
 
 /-- Limit projections commute with every successor restriction map. -/
 theorem projection_step (E : X.IdealSheafData) (n : ℕ) :
-    projection E (n + 1) ≫ (sectionSystem E).stepMap n = projection E n := sorry
+    projection E (n + 1) ≫ (sectionSystem E).stepMap n = projection E n :=
+  limit.w (sectionSystem E) (homOfLE (Nat.le_add_right n 1)).op
 
 end AlgebraicGeometry.Scheme.FormalNeighborhood

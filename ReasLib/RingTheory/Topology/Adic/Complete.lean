@@ -51,25 +51,24 @@ class IsAdicRing (R : Type u) [CommRing R] [TopologicalSpace R] : Prop
   /-- An adic ring has a complete defining adic ideal. -/
   exists_ideal_isAdicComplete : ∃ I : Ideal R, IsAdic I ∧ IsAdicComplete I R
 
-/-- Adic completeness supplies completeness and separatedness for the ambient additive
-uniformity. -/
-@[stacks 07E8 "adic completeness gives complete separated topology"]
-theorem complete_space_and_t2_of_is_adic_complete [IsTopologicalRing R] {I : Ideal R}
-    (hI : IsAdic I) (hIComplete : IsAdicComplete I R) :
-    @CompleteSpace R (IsTopologicalAddGroup.rightUniformSpace R) ∧ T2Space R := sorry
-
 /-- An adic ring is pre-adic after forgetting completeness. -/
 @[stacks 07E8 "an adic ring is pre-adic"]
 instance instIsPreadicRing [IsAdicRing R] : IsPreadicRing R := sorry
 
 /-- An adic ring is separated. -/
 @[stacks 07E8 "separatedness of an adic ring"]
-instance instT2SpaceOfIsAdicRing [IsAdicRing R] : T2Space R := sorry
+instance instT2SpaceOfIsAdicRing [IsAdicRing R] : T2Space R := by
+  obtain ⟨I, hI, hcomplete⟩ := IsAdicRing.exists_ideal_isAdicComplete (R := R)
+  exact hI.isHausdorff_iff.mp hcomplete.toIsHausdorff
 
 /-- An adic ring is complete for its ambient additive uniformity. -/
 @[stacks 07E8 "completeness of an adic ring"]
 instance instCompleteSpaceOfIsAdicRing [IsAdicRing R] :
-    @CompleteSpace R (IsTopologicalAddGroup.rightUniformSpace R) := sorry
+    @CompleteSpace R (IsTopologicalAddGroup.rightUniformSpace R) := by
+  obtain ⟨I, hI, hcomplete⟩ := IsAdicRing.exists_ideal_isAdicComplete (R := R)
+  letI : UniformSpace R := IsTopologicalAddGroup.rightUniformSpace R
+  letI : IsUniformAddGroup R := isUniformAddGroup_of_addCommGroup
+  exact hI.isPrecomplete_iff.mp hcomplete.toIsPrecomplete
 
 /-- An adic ring is admissible after forgetting the chosen complete adic ideal. -/
 @[stacks 07E8 "an adic ring is admissible"]

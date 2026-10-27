@@ -16,6 +16,7 @@ public import ReasLib.AlgebraicGeometry.AlgebraicSpace.ClosedSubset.Proper
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Noetherian
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Separation
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.FiniteType
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.FinitePresentation
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.Coherent
 public import ReasLib.Algebra.Homology.CochainComplex.Bounded
 
@@ -57,5 +58,20 @@ theorem pushforwardDerived_internalHom_single_isPerfect
       (Closeds.closure (Modules.moduleSupport G))).ι ≫ f)) :
     IsPerfect ((Modules.moduleDerivedPushforward f).obj
       (InternalHom.obj E ((DerivedCategory.singleFunctor (Modules X) 0).obj G))) := sorry
+
+/-- Along a finite-presentation morphism of algebraic spaces, the derived pushforward
+of derived sheaf Hom from a perfect object to a bounded complex of finitely presented
+modules, flat over the target and with termwise proper support, is perfect. -/
+theorem pushforwardDerived_internalHom_isPerfect_of_finitePresentation
+    (f : X ⟶ B) [FinitePresentation f]
+    (E : ModuleDerived X) (hE : IsPerfect E)
+    (G : CochainComplex (Modules X) ℤ)
+    (hG_bounded : CochainComplex.bounded (Modules X) G)
+    (hG_fp : ∀ i : ℤ, (G.X i).IsFinitePresentation)
+    (hG_flat : ∀ i : ℤ, ∀ x, Modules.flatOverAt (G.X i) f x)
+    (hG_support : ∀ i : ℤ, Proper ((ClosedSubspaceStructure.reduced
+      (Closeds.closure (Modules.moduleSupport (G.X i)))).ι ≫ f)) :
+    IsPerfect ((Modules.moduleDerivedPushforward f).obj
+      (InternalHom.obj E (DerivedCategory.Q.obj G))) := sorry
 
 end AlgebraicGeometry.AlgebraicSpace.ModuleDerived

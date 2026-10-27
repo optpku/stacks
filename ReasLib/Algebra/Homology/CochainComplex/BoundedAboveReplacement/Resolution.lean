@@ -72,13 +72,16 @@ instance : CoeOut (QuasiIsoFrom P a K) (CochainComplex A ℤ) where
   coe R := R.complex
 
 /-- The model retains the specified strict upper bound. -/
-instance complex_isStrictlyLE (R : QuasiIsoFrom P a K) : R.complex.IsStrictlyLE a := sorry
+instance complex_isStrictlyLE (R : QuasiIsoFrom P a K) : R.complex.IsStrictlyLE a :=
+  R.model.property.1
 
 /-- Every term of the model satisfies the chosen object property. -/
-theorem term_mem (R : QuasiIsoFrom P a K) (i : ℤ) : P (R.complex.X i) := sorry
+theorem term_mem (R : QuasiIsoFrom P a K) (i : ℤ) : P (R.complex.X i) :=
+  R.model.property.2 i
 
 /-- The comparison from the model is a quasi-isomorphism. -/
-instance comparison_quasiIso (R : QuasiIsoFrom P a K) : QuasiIso R.comparison := sorry
+instance comparison_quasiIso (R : QuasiIsoFrom P a K) : QuasiIso R.comparison :=
+  R.hw
 
 /-- The bundled model map underlying a morphism of fixed-bound left resolutions. -/
 abbrev modelHom {R S : QuasiIsoFrom P a K} (f : R ⟶ S) : R.model ⟶ S.model :=
@@ -88,7 +91,8 @@ abbrev modelHom {R S : QuasiIsoFrom P a K} (f : R ⟶ S) : R.model ⟶ S.model :
 morphisms. -/
 @[ext]
 theorem hom_ext {R S : QuasiIsoFrom P a K} {f g : R ⟶ S}
-    (h : modelHom f = modelHom g) : f = g := sorry
+    (h : modelHom f = modelHom g) : f = g :=
+  LocalizerMorphism.LeftResolution.hom_ext h
 
 /-- The cochain map underlying a morphism of fixed-bound left resolutions. -/
 abbrev hom {R S : QuasiIsoFrom P a K} (f : R ⟶ S) : R.complex ⟶ S.complex :=
@@ -98,30 +102,30 @@ abbrev hom {R S : QuasiIsoFrom P a K} (f : R ⟶ S) : R.complex ⟶ S.complex :=
 morphism. -/
 @[simp]
 theorem hom_eq_map_modelHom {R S : QuasiIsoFrom P a K} (f : R ⟶ S) :
-    hom f = (StrictlyLE.TermsIn.ι P a).map (modelHom f) := sorry
+    hom f = (StrictlyLE.TermsIn.ι P a).map (modelHom f) := rfl
 
 /-- The identity fixed-bound morphism has identity bundled model morphism. -/
 @[simp]
-theorem id_modelHom (R : QuasiIsoFrom P a K) : modelHom (𝟙 R) = 𝟙 R.model := sorry
+theorem id_modelHom (R : QuasiIsoFrom P a K) : modelHom (𝟙 R) = 𝟙 R.model := rfl
 
 /-- Bundled model morphisms preserve composition of fixed-bound left-resolution morphisms. -/
 @[simp]
 theorem comp_modelHom {R S T : QuasiIsoFrom P a K} (f : R ⟶ S) (g : S ⟶ T) :
-    modelHom (f ≫ g) = modelHom f ≫ modelHom g := sorry
+    modelHom (f ≫ g) = modelHom f ≫ modelHom g := rfl
 
 /-- The identity resolution morphism induces the identity cochain map. -/
 @[simp]
-theorem id_hom (R : QuasiIsoFrom P a K) : hom (𝟙 R) = 𝟙 R.complex := sorry
+theorem id_hom (R : QuasiIsoFrom P a K) : hom (𝟙 R) = 𝟙 R.complex := rfl
 
 /-- Composition of resolution morphisms induces composition of cochain maps. -/
 @[simp]
 theorem comp_hom {R S T : QuasiIsoFrom P a K} (f : R ⟶ S) (g : S ⟶ T) :
-    hom (f ≫ g) = hom f ≫ hom g := sorry
+    hom (f ≫ g) = hom f ≫ hom g := rfl
 
 /-- A morphism of fixed-bound left resolutions commutes with the comparisons. -/
 @[reassoc]
 theorem comparison_naturality {R S : QuasiIsoFrom P a K} (f : R ⟶ S) :
-    hom f ≫ S.comparison = R.comparison := sorry
+    hom f ≫ S.comparison = R.comparison := f.comm
 
 /-- The functor selecting the bundled fixed-upper-bound model. -/
 abbrev modelFunctor (P : ObjectProperty A) (a : ℤ) (K : CochainComplex A ℤ) :
@@ -131,12 +135,12 @@ abbrev modelFunctor (P : ObjectProperty A) (a : ℤ) (K : CochainComplex A ℤ) 
 /-- The fixed-bound model functor returns the bundled model. -/
 @[simp]
 theorem modelFunctor_obj (R : QuasiIsoFrom P a K) :
-    (modelFunctor P a K).obj R = R.model := sorry
+    (modelFunctor P a K).obj R = R.model := rfl
 
 /-- The fixed-bound model functor retains the bundled model map. -/
 @[simp]
 theorem modelFunctor_map {R S : QuasiIsoFrom P a K} (f : R ⟶ S) :
-    (modelFunctor P a K).map f = modelHom f := sorry
+    (modelFunctor P a K).map f = modelHom f := rfl
 
 /-- The functor selecting the underlying cochain complex of a fixed-bound left resolution. -/
 abbrev complexFunctor (P : ObjectProperty A) (a : ℤ) (K : CochainComplex A ℤ) :
@@ -146,16 +150,16 @@ abbrev complexFunctor (P : ObjectProperty A) (a : ℤ) (K : CochainComplex A ℤ
 /-- The underlying-complex functor returns the resolving complex. -/
 @[simp]
 theorem complexFunctor_obj (R : QuasiIsoFrom P a K) :
-    (complexFunctor P a K).obj R = R.complex := sorry
+    (complexFunctor P a K).obj R = R.complex := rfl
 
 /-- The underlying-complex functor retains the cochain map. -/
 @[simp]
 theorem complexFunctor_map {R S : QuasiIsoFrom P a K} (f : R ⟶ S) :
-    (complexFunctor P a K).map f = hom f := sorry
+    (complexFunctor P a K).map f = hom f := rfl
 
 /-- Forgetting the bundled fixed-bound models identifies the model and complex functors. -/
 theorem modelFunctor_comp_ι (P : ObjectProperty A) (a : ℤ) (K : CochainComplex A ℤ) :
-    modelFunctor P a K ⋙ StrictlyLE.TermsIn.ι P a = complexFunctor P a K := sorry
+    modelFunctor P a K ⋙ StrictlyLE.TermsIn.ι P a = complexFunctor P a K := rfl
 
 /-- The fixed-bound comparisons form a natural transformation. -/
 abbrev comparisonNatTrans (P : ObjectProperty A) (a : ℤ) (K : CochainComplex A ℤ) :
@@ -165,24 +169,29 @@ abbrev comparisonNatTrans (P : ObjectProperty A) (a : ℤ) (K : CochainComplex A
 /-- Evaluating the comparison transformation gives the resolution comparison. -/
 @[simp]
 theorem comparisonNatTrans_app (R : QuasiIsoFrom P a K) :
-    (comparisonNatTrans P a K).app R = R.comparison := sorry
+    (comparisonNatTrans P a K).app R = R.comparison := rfl
 
 /-- Fixed-upper-bound left models are nonempty exactly when explicit model data exist. -/
 theorem nonempty_iff :
     Nonempty (QuasiIsoFrom P a K) ↔
-      ∃ (M : CochainComplex.StrictlyLE.TermsIn P a) (f : M.obj ⟶ K), QuasiIso f := sorry
+      ∃ (M : CochainComplex.StrictlyLE.TermsIn P a) (f : M.obj ⟶ K), QuasiIso f := by
+  constructor
+  · rintro ⟨R⟩
+    exact ⟨R.model, R.comparison, R.hw⟩
+  · rintro ⟨M, f, hf⟩
+    exact ⟨mk M f hf⟩
 
 /-- The model selected by `mk` is the supplied fixed-upper-bound complex. -/
 @[simp]
 theorem mk_model (M : CochainComplex.StrictlyLE.TermsIn P a) (f : M.obj ⟶ K)
     (hf : QuasiIso f) :
-    (mk M f hf).model = M := sorry
+    (mk M f hf).model = M := rfl
 
 /-- The comparison selected by `mk` is the supplied quasi-isomorphism. -/
 @[simp]
 theorem mk_comparison (M : CochainComplex.StrictlyLE.TermsIn P a) (f : M.obj ⟶ K)
     (hf : QuasiIso f) :
-    (mk M f hf).comparison = f := sorry
+    (mk M f hf).comparison = f := rfl
 
 end QuasiIsoFrom
 

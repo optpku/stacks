@@ -217,20 +217,8 @@ theorem exists_eventually_pullback_closedImmersion
     {X1sys X2sys X3sys X4sys : Over (OrderDual.toDual i₀) ⥤ AlgebraicSpace S}
     (x1Cone : Cone X1sys) (x2Cone : Cone X2sys)
     (x3Cone : Cone X3sys) (x4Cone : Cone X4sys)
-    (x1ToBase : X1sys ⟶ tailBaseDiagram D i₀)
-    (x2ToBase : X2sys ⟶ tailBaseDiagram D i₀)
-    (x3ToBase : X3sys ⟶ tailBaseDiagram D i₀)
-    (x4ToBase : X4sys ⟶ tailBaseDiagram D i₀)
     (x1ToS : x1Cone.pt ⟶ c.pt) (x2ToS : x2Cone.pt ⟶ c.pt)
     (x3ToS : x3Cone.pt ⟶ c.pt) (x4ToS : x4Cone.pt ⟶ c.pt)
-    (x1Cone_toBase : ∀ j : Over (OrderDual.toDual i₀),
-      x1Cone.π.app j ≫ x1ToBase.app j = x1ToS ≫ c.π.app j.left)
-    (x2Cone_toBase : ∀ j : Over (OrderDual.toDual i₀),
-      x2Cone.π.app j ≫ x2ToBase.app j = x2ToS ≫ c.π.app j.left)
-    (x3Cone_toBase : ∀ j : Over (OrderDual.toDual i₀),
-      x3Cone.π.app j ≫ x3ToBase.app j = x3ToS ≫ c.π.app j.left)
-    (x4Cone_toBase : ∀ j : Over (OrderDual.toDual i₀),
-      x4Cone.π.app j ≫ x4ToBase.app j = x4ToS ≫ c.π.app j.left)
     [QuasiSeparated x1ToS] [FiniteType x1ToS]
     [QuasiSeparated x2ToS] [FiniteType x2ToS]
     [QuasiSeparated x3ToS] [FiniteType x3ToS]
@@ -239,10 +227,10 @@ theorem exists_eventually_pullback_closedImmersion
     (X2approx : FiniteTypeApproximationLimitSystem D c i₀ X2sys x2Cone x2ToS)
     (X3approx : FiniteTypeApproximationLimitSystem D c i₀ X3sys x3Cone x3ToS)
     (X4approx : FiniteTypeApproximationLimitSystem D c i₀ X4sys x4Cone x4ToS)
-    (φp : InverseSystemMorphismOverBase D i₀ X1sys X3sys x1ToBase x3ToBase)
-    (φq : InverseSystemMorphismOverBase D i₀ X1sys X2sys x1ToBase x2ToBase)
-    (φa : InverseSystemMorphismOverBase D i₀ X3sys X4sys x3ToBase x4ToBase)
-    (φb : InverseSystemMorphismOverBase D i₀ X2sys X4sys x2ToBase x4ToBase)
+    (φp : InverseSystemMorphismOverBase D i₀ X1sys X3sys X1approx.toBase X3approx.toBase)
+    (φq : InverseSystemMorphismOverBase D i₀ X1sys X2sys X1approx.toBase X2approx.toBase)
+    (φa : InverseSystemMorphismOverBase D i₀ X3sys X4sys X3approx.toBase X4approx.toBase)
+    (φb : InverseSystemMorphismOverBase D i₀ X2sys X4sys X2approx.toBase X4approx.toBase)
     (p : x1Cone.pt ⟶ x3Cone.pt) (q : x1Cone.pt ⟶ x2Cone.pt)
     (a : x3Cone.pt ⟶ x4Cone.pt) (b : x2Cone.pt ⟶ x4Cone.pt)
     (hp_overS : p ≫ x3ToS = x1ToS) (hq_overS : q ≫ x2ToS = x1ToS)
@@ -270,20 +258,8 @@ theorem exists_eventually_pullback_isIso
     {X1sys X2sys X3sys X4sys : Over (OrderDual.toDual i₀) ⥤ AlgebraicSpace S}
     (x1Cone : Cone X1sys) (x2Cone : Cone X2sys)
     (x3Cone : Cone X3sys) (x4Cone : Cone X4sys)
-    (x1ToBase : X1sys ⟶ tailBaseDiagram D i₀)
-    (x2ToBase : X2sys ⟶ tailBaseDiagram D i₀)
-    (x3ToBase : X3sys ⟶ tailBaseDiagram D i₀)
-    (x4ToBase : X4sys ⟶ tailBaseDiagram D i₀)
     (x1ToS : x1Cone.pt ⟶ c.pt) (x2ToS : x2Cone.pt ⟶ c.pt)
     (x3ToS : x3Cone.pt ⟶ c.pt) (x4ToS : x4Cone.pt ⟶ c.pt)
-    (x1Cone_toBase : ∀ j : Over (OrderDual.toDual i₀),
-      x1Cone.π.app j ≫ x1ToBase.app j = x1ToS ≫ c.π.app j.left)
-    (x2Cone_toBase : ∀ j : Over (OrderDual.toDual i₀),
-      x2Cone.π.app j ≫ x2ToBase.app j = x2ToS ≫ c.π.app j.left)
-    (x3Cone_toBase : ∀ j : Over (OrderDual.toDual i₀),
-      x3Cone.π.app j ≫ x3ToBase.app j = x3ToS ≫ c.π.app j.left)
-    (x4Cone_toBase : ∀ j : Over (OrderDual.toDual i₀),
-      x4Cone.π.app j ≫ x4ToBase.app j = x4ToS ≫ c.π.app j.left)
     [QuasiSeparated x1ToS] [FiniteType x1ToS]
     [QuasiSeparated x2ToS] [FiniteType x2ToS]
     [QuasiSeparated x3ToS] [FiniteType x3ToS]
@@ -292,10 +268,10 @@ theorem exists_eventually_pullback_isIso
     (X2approx : FiniteTypeApproximationLimitSystem D c i₀ X2sys x2Cone x2ToS)
     (X3approx : FiniteTypeApproximationLimitSystem D c i₀ X3sys x3Cone x3ToS)
     (X4approx : FiniteTypeApproximationLimitSystem D c i₀ X4sys x4Cone x4ToS)
-    (φp : InverseSystemMorphismOverBase D i₀ X1sys X3sys x1ToBase x3ToBase)
-    (φq : InverseSystemMorphismOverBase D i₀ X1sys X2sys x1ToBase x2ToBase)
-    (φa : InverseSystemMorphismOverBase D i₀ X3sys X4sys x3ToBase x4ToBase)
-    (φb : InverseSystemMorphismOverBase D i₀ X2sys X4sys x2ToBase x4ToBase)
+    (φp : InverseSystemMorphismOverBase D i₀ X1sys X3sys X1approx.toBase X3approx.toBase)
+    (φq : InverseSystemMorphismOverBase D i₀ X1sys X2sys X1approx.toBase X2approx.toBase)
+    (φa : InverseSystemMorphismOverBase D i₀ X3sys X4sys X3approx.toBase X4approx.toBase)
+    (φb : InverseSystemMorphismOverBase D i₀ X2sys X4sys X2approx.toBase X4approx.toBase)
     (p : x1Cone.pt ⟶ x3Cone.pt) (q : x1Cone.pt ⟶ x2Cone.pt)
     (a : x3Cone.pt ⟶ x4Cone.pt) (b : x2Cone.pt ⟶ x4Cone.pt)
     (hp_overS : p ≫ x3ToS = x1ToS) (hq_overS : q ≫ x2ToS = x1ToS)

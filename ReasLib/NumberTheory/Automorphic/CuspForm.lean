@@ -41,7 +41,7 @@ def IsRightInvariant (f : GL (Fin 2) (adeleRing X) → Λ) : Prop :=
 
 /-- Unfold right `K`-invariance of an adelic function. -/
 theorem isRightInvariant_iff (f : GL (Fin 2) (adeleRing X) → Λ) :
-    IsRightInvariant X f ↔ ∀ x γ, f (x * functionFieldGL X γ) = f x := sorry
+    IsRightInvariant X f ↔ ∀ x γ, f (x * functionFieldGL X γ) = f x := Iff.rfl
 
 /-- Left invariance under `GL (Fin 2) O`. -/
 def IsLeftInvariant (f : GL (Fin 2) (adeleRing X) → Λ) : Prop :=
@@ -49,7 +49,7 @@ def IsLeftInvariant (f : GL (Fin 2) (adeleRing X) → Λ) : Prop :=
 
 /-- Unfold left `O`-invariance of an adelic function. -/
 theorem isLeftInvariant_iff (f : GL (Fin 2) (adeleRing X) → Λ) :
-    IsLeftInvariant X f ↔ ∀ u x, f (integerAdeleGL X u * x) = f x := sorry
+    IsLeftInvariant X f ↔ ∀ u x, f (integerAdeleGL X u * x) = f x := Iff.rfl
 
 /-- A finite set `s` is a complete set of representatives for the quotient `A / U`. -/
 def IsCompleteReps {A : Type u} [AddGroup A] (U : AddSubgroup A) (s : Finset A) : Prop :=
@@ -57,7 +57,7 @@ def IsCompleteReps {A : Type u} [AddGroup A] (U : AddSubgroup A) (s : Finset A) 
 
 /-- Unfold the complete-representatives condition. -/
 theorem isCompleteReps_iff {A : Type u} [AddGroup A] (U : AddSubgroup A) (s : Finset A) :
-    IsCompleteReps U s ↔ ∀ a : A, ∃! b : A, b ∈ s ∧ a - b ∈ U := sorry
+    IsCompleteReps U s ↔ ∀ a : A, ∃! b : A, b ∈ s ∧ a - b ∈ U := Iff.rfl
 
 /-- Cuspidality: the unipotent integrand is locally constant and its finite sums
 over complete representatives of `A / (K + U)` vanish. -/
@@ -77,7 +77,7 @@ theorem isCuspidal_iff (f : GL (Fin 2) (adeleRing X) → Λ) :
           f (x * GeneralLinearGroup.upperRightHom (z + u)) =
             f (x * GeneralLinearGroup.upperRightHom z)) ∧
           IsCompleteReps (principalAdeles X ⊔ U) s ∧
-          ∑ a ∈ s, f (x * GeneralLinearGroup.upperRightHom a) = 0 := sorry
+          ∑ a ∈ s, f (x * GeneralLinearGroup.upperRightHom a) = 0 := Iff.rfl
 
 /-- An unramified cusp form on `GL (Fin 2) A` with values in `Λ`. -/
 structure UnramifiedCuspForm (Λ : Type v) [Ring Λ] [Fintype k]
@@ -107,21 +107,39 @@ def of (f : GL (Fin 2) (adeleRing X) → Λ)
 
 /-- An unramified cusp form is right `K`-invariant, left `O`-invariant, and cuspidal. -/
 theorem spec (f : UnramifiedCuspForm X Λ) :
-    IsRightInvariant X f.toFun ∧ IsLeftInvariant X f.toFun ∧ IsCuspidal X f.toFun := sorry
+    IsRightInvariant X f.toFun ∧ IsLeftInvariant X f.toFun ∧ IsCuspidal X f.toFun :=
+  ⟨f.right_inv, f.left_inv, f.cuspidal⟩
 
 /-- The zero unramified cusp form. -/
 protected def zero : UnramifiedCuspForm X Λ where
   toFun := fun _ ↦ 0
-  right_inv := sorry
-  left_inv := sorry
-  cuspidal := sorry
+  right_inv := fun _ _ ↦ rfl
+  left_inv := fun _ _ ↦ rfl
+  cuspidal := by
+    classical
+    intro x
+    refine ⟨⊤, {0}, ?_, ?_, ?_⟩
+    · change ∀ z : adeleRing X, ∀ u ∈ (⊤ : AddSubgroup (adeleRing X)), (0 : Λ) = 0
+      intro z u hu
+      rfl
+    · change IsCompleteReps (principalAdeles X ⊔ ⊤) {0}
+      intro a
+      refine ⟨0, ⟨by simp, by simp⟩, ?_⟩
+      intro b hb
+      exact Finset.mem_singleton.mp hb.1
+    · change ∑ a ∈ ({0} : Finset (adeleRing X)), (0 : Λ) = 0
+      simp
 
 /-- The underlying function of the zero form is the zero function. -/
 theorem zero_toFun :
-    (UnramifiedCuspForm.zero X : UnramifiedCuspForm X Λ).toFun = fun _ ↦ (0 : Λ) := sorry
+    (UnramifiedCuspForm.zero X : UnramifiedCuspForm X Λ).toFun = fun _ ↦ (0 : Λ) := rfl
 
 /-- Unramified cusp forms are equal if their underlying functions agree. -/
-theorem ext (f g : UnramifiedCuspForm X Λ) (h : f.toFun = g.toFun) : f = g := sorry
+theorem ext (f g : UnramifiedCuspForm X Λ) (h : f.toFun = g.toFun) : f = g := by
+  cases f
+  cases g
+  cases h
+  rfl
 
 end UnramifiedCuspForm
 

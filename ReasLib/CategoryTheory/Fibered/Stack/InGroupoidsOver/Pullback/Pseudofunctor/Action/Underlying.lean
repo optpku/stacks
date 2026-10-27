@@ -35,20 +35,20 @@ variable [HasPullbacks C] [PreservesLimitsOfShape WalkingCospan u] [u.IsContinuo
 @[simp, stacks 04WD "groupoid pullback pseudofunctor object"]
 theorem pseudofunctor.obj (T : StackOver.Groupoids.{uD, vD, uS, vS} K) :
     (pseudofunctor J K u).obj T =
-      StackOver.Groupoids.pullback (J := J) (K := K) u T := sorry
+      StackOver.Groupoids.pullback (J := J) (K := K) u T := rfl
 
 /-- The `1`-cell action of stack-in-groupoids pullback is `map`. -/
 @[simp, stacks 04WD "groupoid pullback pseudofunctor morphism"]
 theorem pseudofunctor.map
     {X Y : StackOver.Groupoids.{uD, vD, uS, vS} K} (F : X ⟶ Y) :
-    (pseudofunctor J K u).map F = map (J := J) (K := K) u F := sorry
+    (pseudofunctor J K u).map F = map (J := J) (K := K) u F := rfl
 
 /-- The `2`-cell action of stack-in-groupoids pullback is `map₂`. -/
 @[simp, stacks 04WD "groupoid pullback pseudofunctor 2-morphism"]
 theorem pseudofunctor.map₂
     {X Y : StackOver.Groupoids.{uD, vD, uS, vS} K}
     {F G : X ⟶ Y} (eta : F ⟶ G) :
-    (pseudofunctor J K u).map₂ eta = map₂ (J := J) (K := K) u eta := sorry
+    (pseudofunctor J K u).map₂ eta = map₂ (J := J) (K := K) u eta := rfl
 
 /-- Forgetting the stack condition from a pulled-back `1`-morphism gives neutral pullback of the
 underlying groupoid-fibred morphism. -/
@@ -56,7 +56,7 @@ underlying groupoid-fibred morphism. -/
 theorem map.hom
     {X Y : StackOver.Groupoids.{uD, vD, uS, vS} K} (F : X ⟶ Y) :
     (map (J := J) (K := K) u F).hom =
-      FiberedCategoryOver.Groupoids.Pullback.map u F.hom := sorry
+      FiberedCategoryOver.Groupoids.Pullback.map u F.hom := rfl
 
 /-- The based functor of a pulled-back stack-in-groupoids morphism is the neutral based pullback
 map. -/
@@ -65,7 +65,7 @@ theorem map.toBasedFunctor
     {X Y : StackOver.Groupoids.{uD, vD, uS, vS} K} (F : X ⟶ Y) :
     StackOver.Groupoids.Hom.toBasedFunctor (map (J := J) (K := K) u F) =
       FiberedCategoryOver.Groupoids.toBasedFunctor
-        (FiberedCategoryOver.Groupoids.Pullback.map u F.hom) := sorry
+        (FiberedCategoryOver.Groupoids.Pullback.map u F.hom) := rfl
 
 /-- The total functor of a pulled-back stack-in-groupoids morphism is the neutral total pullback
 functor. -/
@@ -74,7 +74,7 @@ theorem map.toFunctor
     {X Y : StackOver.Groupoids.{uD, vD, uS, vS} K} (F : X ⟶ Y) :
     StackOver.Groupoids.Hom.toFunctor (map (J := J) (K := K) u F) =
       FiberedCategoryOver.Groupoids.toFunctor
-        (FiberedCategoryOver.Groupoids.Pullback.map u F.hom) := sorry
+        (FiberedCategoryOver.Groupoids.Pullback.map u F.hom) := rfl
 
 /-- Forgetting the stack condition from a pulled-back `2`-morphism gives neutral pullback of the
 underlying groupoid-fibred `2`-morphism. -/
@@ -83,7 +83,7 @@ theorem map₂.hom
     {X Y : StackOver.Groupoids.{uD, vD, uS, vS} K}
     {F G : X ⟶ Y} (eta : F ⟶ G) :
     (map₂ (J := J) (K := K) u eta).hom =
-      FiberedCategoryOver.Groupoids.Pullback.map₂ u eta.hom := sorry
+      FiberedCategoryOver.Groupoids.Pullback.map₂ u eta.hom := rfl
 
 /-- The based natural transformation of a pulled-back stack-in-groupoids `2`-morphism is the
 neutral based pullback transformation. -/
@@ -92,7 +92,7 @@ theorem map₂.toBasedNatTrans
     {X Y : StackOver.Groupoids.{uD, vD, uS, vS} K}
     {F G : X ⟶ Y} (eta : F ⟶ G) :
     (map₂ (J := J) (K := K) u eta).hom.hom =
-      (FiberedCategoryOver.Groupoids.Pullback.map₂ u eta.hom).hom := sorry
+      (FiberedCategoryOver.Groupoids.Pullback.map₂ u eta.hom).hom := rfl
 
 /-- The total natural transformation of a pulled-back stack-in-groupoids `2`-morphism is the
 neutral total pullback transformation. -/
@@ -101,6 +101,6 @@ theorem map₂.toNatTrans
     {X Y : StackOver.Groupoids.{uD, vD, uS, vS} K}
     {F G : X ⟶ Y} (eta : F ⟶ G) :
     (map₂ (J := J) (K := K) u eta).hom.hom.toNatTrans =
-      (FiberedCategoryOver.Groupoids.Pullback.map₂ u eta.hom).hom.toNatTrans := sorry
+      (FiberedCategoryOver.Groupoids.Pullback.map₂ u eta.hom).hom.toNatTrans := rfl
 
 end CategoryTheory.StackOver.Groupoids.Pullback

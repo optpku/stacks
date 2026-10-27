@@ -46,7 +46,7 @@ variable {A B : DGA(𝒪)}
 /-- Ordinary extension of scalars followed by the target derived localization. -/
 abbrev extensionSource (f : A ⟶ B) :
     Mod(A, d) ⥤ DerivedCategory B :=
-  ChangeOfRings.extension f ⋙ DerivedCategory.Q B
+  ChangeOfRings.extension (𝒪 := 𝒪) f ⋙ DerivedCategory.Q B
 
 /-- The source-level assertion that extension of scalars admits a total left derived functor. -/
 abbrev HasExtension (f : A ⟶ B) : Prop :=
@@ -58,7 +58,7 @@ instance hasExtension (f : A ⟶ B) : HasExtension f := sorry
 /-- Restriction of scalars followed by the source derived localization. -/
 abbrev restrictionSource (f : A ⟶ B) :
     Mod(B, d) ⥤ DerivedCategory A :=
-  ChangeOfRings.restriction f ⋙ DerivedCategory.Q A
+  ChangeOfRings.restriction (𝒪 := 𝒪) f ⋙ DerivedCategory.Q A
 
 /-- Restriction of scalars preserves quasi-isomorphisms. -/
 @[stacks 0BYX "restriction of DG module sheaves preserves quasi-isomorphisms"]
@@ -76,7 +76,8 @@ instance hasRestriction (f : A ⟶ B) : HasRestriction f := sorry
 localizations. -/
 instance hasDerivedPair (f : A ⟶ B) :
     Adjunction.TotalDerived.HasPair
-      (G := ChangeOfRings.extension f) (F := ChangeOfRings.restriction f)
+      (G := ChangeOfRings.extension (𝒪 := 𝒪) f)
+      (F := ChangeOfRings.restriction (𝒪 := 𝒪) f)
       (Module.quasiIso A) (Module.quasiIso B)
       (L1 := DerivedCategory.Q A) (L2 := DerivedCategory.Q B) := sorry
 

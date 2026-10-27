@@ -17,7 +17,7 @@ namespace AlgebraicGeometry.AlgebraicSpace
 
 /- Lemma 67.19.6: Universal injectivity is equivalent to its scheme, affine,
 surjective-scheme, and Zariski-local pullback tests. -/
-@[stacks 03MX] #check (AlgebraicGeometry.AlgebraicSpace.UniversallyInjective.tfae :
+@[stacks 03MX] #check (AlgebraicGeometry.AlgebraicSpace.UniversallyInjective.tfae_local :
   ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y),
     List.TFAE [UniversallyInjective f, UniversallyInjective.forallScheme f,
       UniversallyInjective.forallAffine f,

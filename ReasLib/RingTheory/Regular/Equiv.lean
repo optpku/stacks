@@ -59,8 +59,4 @@ universe u v
 instance instRegular {A : Type u} {B : Type v} [CommRing A] [CommRing B]
     (e : A ≃+* B) : e.toRingHom.Regular := sorry
 
-/-- A ring equivalence, viewed as a ring homomorphism, is regular. -/
-theorem regular {A : Type u} {B : Type v} [CommRing A] [CommRing B]
-    (e : A ≃+* B) : e.toRingHom.Regular := sorry
-
 end RingEquiv

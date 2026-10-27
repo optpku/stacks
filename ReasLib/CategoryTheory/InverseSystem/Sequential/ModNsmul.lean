@@ -36,11 +36,6 @@ abbrev nsmulCokernel {C : Type u} [Category.{v} C] [Preadditive C] [HasCokernels
     (X : C) (n : ℕ) : C :=
   cokernel (n • 𝟙 X)
 
-/-- `nsmulCokernel` is the cokernel of `n • 𝟙`. -/
-theorem nsmulCokernel_eq {C : Type u} [Category.{v} C] [Preadditive C] [HasCokernels C]
-    (X : C) (n : ℕ) :
-    nsmulCokernel X n = cokernel (n • 𝟙 X) := sorry
-
 /-- The map of nsmul cokernels induced by a morphism of objects. -/
 def nsmulCokernelMap {C : Type u} [Category.{v} C] [Preadditive C] [HasCokernels C]
     {X Y : C} (n : ℕ) (f : X ⟶ Y) :

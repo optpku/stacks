@@ -7,6 +7,8 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import ReasLib.CategoryTheory.Homology.DoubleComplex.Pages
+public import ReasLib.CategoryTheory.Homology.DoubleComplex.Filtration.InitialPages.First
+public import ReasLib.CategoryTheory.Homology.DoubleComplex.Filtration.InitialPages.Second
 import StacksCheckRecall
 
 /-!
@@ -26,6 +28,8 @@ noncomputable section
 universe v u
 
 namespace CategoryTheory
+
+section RawPages
 
 variable {C : Type u} [Category.{v} C] [Preadditive C]
 variable {K : HomologicalComplex₂ C (up ℤ) (up ℤ)} (p q : ℤ)
@@ -85,5 +89,75 @@ complex. -/
 #check (HomologicalComplex₂.Second.PageTwo.entry K p q : C)
 
 end Homology
+
+end RawPages
+
+section AssociatedPages
+
+open HomologicalComplex₂
+
+variable {C : Type u} [Category.{v} C] [Abelian C]
+variable {K : HomologicalComplex₂ C (up ℤ) (up ℤ)} [K.HasTotal (up ℤ)]
+variable {E₁ E₂ : CohomologicalSpectralSequence C 0}
+variable (A₁ : FilteredComplex.Association (First.Filtration.total K) E₁)
+variable (A₂ : FilteredComplex.Association (Second.Filtration.total K) E₂) (p q : ℤ)
+
+/- The actual zeroth-page columns have the signed vertical and unsigned horizontal
+differentials, respectively. The comparison laws follow from the ambient hypotheses. -/
+@[stacks 0130]
+#check (A₁.columnIso p ≪≫ First.GradedPiece.columnIsoOf K p
+  (First.GradedPiece.comparisons K p) :
+  E₁.pageZeroColumn p ≅ CochainComplex.rescaleDifferential (K.X p) (p.negOnePow : ℤ))
+
+@[stacks 0130]
+#check (A₂.columnIso p ≪≫ Second.GradedPiece.rowIsoOf K p
+  (Second.GradedPiece.comparisons K p) : E₂.pageZeroColumn p ≅ K.flip.X p)
+
+/- The comparisons identify the entries of the associated sequences themselves. -/
+@[stacks 0130]
+#check ((CohomologicalSpectralSequence.PageZeroColumn.xIso E₁ p q).symm ≪≫
+  HomologicalComplex.Hom.isoApp (A₁.columnIso p ≪≫ First.GradedPiece.columnIsoOf K p
+    (First.GradedPiece.comparisons K p)) q :
+  (E₁.page 0).X (p, q) ≅ First.PageZero.entry K p q)
+
+@[stacks 0130]
+#check ((CohomologicalSpectralSequence.PageZeroColumn.xIso E₂ p q).symm ≪≫
+  HomologicalComplex.Hom.isoApp (A₂.columnIso p ≪≫ Second.GradedPiece.rowIsoOf K p
+    (Second.GradedPiece.comparisons K p)) q :
+  (E₂.page 0).X (p, q) ≅ Second.PageZero.entry K p q)
+
+@[stacks 0130]
+#check (First.Association.pageOneIso A₁ (First.GradedPiece.comparisons K) p q :
+  (E₁.page 1).X (p, q) ≅ First.PageOne.entry K p q)
+
+@[stacks 0130]
+#check (Second.Association.pageOneIso A₂ (Second.GradedPiece.comparisons K) p q :
+  (E₂.page 1).X (p, q) ≅ Second.PageOne.entry K p q)
+
+/- The first-page differentials are the induced horizontal map and the signed induced
+vertical map from the source formulas. -/
+@[stacks 0130]
+#check (First.Association.pageOneIso_commSq A₁ (First.GradedPiece.comparisons K) p q :
+  CommSq ((E₁.page 1).d (p, q) (p + 1, q))
+    (First.Association.pageOneIso A₁ (First.GradedPiece.comparisons K) p q).hom
+    (First.Association.pageOneIso A₁ (First.GradedPiece.comparisons K) (p + 1) q).hom
+    (First.PageOne.differential K p q))
+
+@[stacks 0130]
+#check (Second.Association.pageOneIso_commSq A₂ (Second.GradedPiece.comparisons K) p q :
+  CommSq ((E₂.page 1).d (p, q) (p + 1, q))
+    (Second.Association.pageOneIso A₂ (Second.GradedPiece.comparisons K) p q).hom
+    (Second.Association.pageOneIso A₂ (Second.GradedPiece.comparisons K) (p + 1) q).hom
+    (Second.PageOne.differential K p q))
+
+@[stacks 0130]
+#check (First.Association.pageTwoIso A₁ (First.GradedPiece.comparisons K) p q :
+  (E₁.page 2).X (p, q) ≅ First.PageTwo.entry K p q)
+
+@[stacks 0130]
+#check (Second.Association.pageTwoIso A₂ (Second.GradedPiece.comparisons K) p q :
+  (E₂.page 2).X (p, q) ≅ Second.PageTwo.entry K p q)
+
+end AssociatedPages
 
 end CategoryTheory

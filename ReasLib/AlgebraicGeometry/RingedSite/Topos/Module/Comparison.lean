@@ -84,6 +84,7 @@ def modulePushforwardIdUnderlyingIso :
   ToposHom.ModulePushforward.forgetIso (ToposHom.id X) ≪≫
     (Functor.rightUnitor _).symm
 
+set_option maxHeartbeats 1000000 in
 /-- The underlying pushforward comparison preserves addition of sections. -/
 theorem modulePushforwardIdIso_add :
     ∀ M U (x y : (((ToposHom.id X).modulePushforward).obj M).val.obj U),

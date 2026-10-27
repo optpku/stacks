@@ -36,7 +36,7 @@ variable {C : Type u₁} {D : Type u₂}
 namespace RightDerived.Denominator
 
 /-- The target-denominator diagram which computes the pointwise right-derived value at `X`. -/
-@[stacks 05T5 "target-denominator diagram for a pointwise right-derived value"]
+@[stacks 05S9 "target-denominator diagram for a pointwise right-derived value"]
 noncomputable abbrev diagram (F : C ⥤ D) (S : MorphismProperty C) (X : C) :
     MorphismProperty.Under S ⊤ X ⥤ D :=
   MorphismProperty.Under.toCostructuredArrow S X ⋙
@@ -59,7 +59,7 @@ end RightDerived.Denominator
 namespace LeftDerived.Denominator
 
 /-- The source-denominator diagram which computes the pointwise left-derived value at `X`. -/
-@[stacks 05T5 "source-denominator diagram for a pointwise left-derived value"]
+@[stacks 05S9 "source-denominator diagram for a pointwise left-derived value"]
 noncomputable abbrev diagram (F : C ⥤ D) (S : MorphismProperty C) (X : C) :
     MorphismProperty.Over S ⊤ X ⥤ D :=
   MorphismProperty.Over.toStructuredArrow S X ⋙
@@ -81,7 +81,7 @@ end LeftDerived.Denominator
 
 /-- Source-definedness of a pointwise right-derived value is detected on the ordinary
 target-denominator diagram. -/
-@[stacks 05T5 "right-derived definedness on target denominators"]
+@[stacks 05S9 "right-derived definedness on target denominators"]
 theorem RightDerived.DefinedAt.iff_denominator (F : C ⥤ D) (S : MorphismProperty C)
     [S.HasLeftCalculusOfFractions] (X : C) :
     RightDerived.DefinedAt F S X ↔
@@ -95,7 +95,7 @@ theorem RightDerived.DefinedAt.denominator_isEssentiallyConstant
 
 /-- Source-definedness of a pointwise left-derived value is detected on the ordinary
 source-denominator diagram. -/
-@[stacks 05T5 "left-derived definedness on source denominators"]
+@[stacks 05S9 "left-derived definedness on source denominators"]
 theorem LeftDerived.DefinedAt.iff_denominator (F : C ⥤ D) (S : MorphismProperty C)
     [S.HasRightCalculusOfFractions] (X : C) :
     LeftDerived.DefinedAt F S X ↔

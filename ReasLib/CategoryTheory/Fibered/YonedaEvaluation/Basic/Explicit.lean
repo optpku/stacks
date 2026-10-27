@@ -52,20 +52,23 @@ theorem obj (chi : X.p.Cleavage) (U : C) (x : X.p.Fiber U) :
     (sectionOfCleavage X chi U).obj x =
       (FiberedCategoryOver.CartesianHom.toHom
         (FiberedCategoryOver.ofFunctor (Over.forget U)) X).obj
-          ((CartesianBasedFunctor.Yoneda.sectionOfCleavage X.p chi U).obj x) := sorry
+          ((CartesianBasedFunctor.Yoneda.sectionOfCleavage X.p chi U).obj x) := by
+  rfl
 
 /-- Forgetting a fixed-owner section object recovers the neutral cartesian section object. -/
 @[simp]
 theorem obj.toCartesianBasedFunctor (chi : X.p.Cleavage) (U : C) (x : X.p.Fiber U) :
     FiberedCategoryOver.toCartesianBasedFunctor ((sectionOfCleavage X chi U).obj x) =
-      (CartesianBasedFunctor.Yoneda.sectionOfCleavage X.p chi U).obj x := sorry
+      (CartesianBasedFunctor.Yoneda.sectionOfCleavage X.p chi U).obj x := by
+  rfl
 
 /-- The underlying vertical transformation of the fixed-owner section map is the corresponding
 neutral cartesian section map. -/
 @[stacks 0GWI "fixed-owner Yoneda section morphism readout"]
 theorem map.hom (chi : X.p.Cleavage) {U : C} {x y : X.p.Fiber U} (f : x ⟶ y) :
     ((sectionOfCleavage X chi U).map f).hom =
-      ((CartesianBasedFunctor.Yoneda.sectionOfCleavage X.p chi U).map f).hom := sorry
+      ((CartesianBasedFunctor.Yoneda.sectionOfCleavage X.p chi U).map f).hom := by
+  rfl
 
 /-- A morphism from the slice into `X` is canonically isomorphic to the section, for the
 supplied cleavage, of its value at the identity slice object. -/
@@ -92,14 +95,22 @@ theorem hom.naturality (chi : X.p.Cleavage) {U : C}
     {F G : FiberedCategoryOver.ofFunctor (Over.forget U) ⟶ X} (eta : F ⟶ G) :
     eta ≫ (unitIso.app X chi G).hom =
       (unitIso.app X chi F).hom ≫
-        (sectionOfCleavage X chi U).map ((evaluation X U).map eta) := sorry
+        (sectionOfCleavage X chi U).map ((evaluation X U).map eta) := by
+  apply ObjectProperty.hom_ext
+  exact congrArg (fun e ↦ e.hom)
+    (CartesianBasedFunctor.Yoneda.unitIso.hom.naturality X.p chi
+      ((FiberedCategoryOver.CartesianHom.fromHom
+        (FiberedCategoryOver.ofFunctor (Over.forget U)) X).map eta))
 
 /-- Naturality of the inverse explicit-cleavage Yoneda unit comparison. -/
 @[reassoc]
 theorem inv.naturality (chi : X.p.Cleavage) {U : C}
     {F G : FiberedCategoryOver.ofFunctor (Over.forget U) ⟶ X} (eta : F ⟶ G) :
     (sectionOfCleavage X chi U).map ((evaluation X U).map eta) ≫
-        (unitIso.app X chi G).inv = (unitIso.app X chi F).inv ≫ eta := sorry
+        (unitIso.app X chi G).inv = (unitIso.app X chi F).inv ≫ eta := by
+  apply (cancel_mono (unitIso.app X chi G).hom).1
+  simp only [Category.assoc, Iso.inv_hom_id, Category.comp_id]
+  rw [hom.naturality X chi eta, Iso.inv_hom_id_assoc]
 
 end unitIso
 
@@ -110,7 +121,8 @@ namespace counitIso
 theorem hom.naturality (chi : X.p.Cleavage) {U : C}
     {x y : X.p.Fiber U} (f : x ⟶ y) :
     (evaluation X U).map ((sectionOfCleavage X chi U).map f) ≫
-        (counitIso.app X chi y).hom = (counitIso.app X chi x).hom ≫ f := sorry
+        (counitIso.app X chi y).hom = (counitIso.app X chi x).hom ≫ f := by
+  exact Functor.Cleavage.Reindex.idIsoApp.inv.naturality chi U f
 
 /-- Naturality of the inverse explicit-cleavage Yoneda counit comparison. -/
 @[reassoc]
@@ -118,7 +130,8 @@ theorem inv.naturality (chi : X.p.Cleavage) {U : C}
     {x y : X.p.Fiber U} (f : x ⟶ y) :
     f ≫ (counitIso.app X chi y).inv =
       (counitIso.app X chi x).inv ≫
-        (evaluation X U).map ((sectionOfCleavage X chi U).map f) := sorry
+        (evaluation X U).map ((sectionOfCleavage X chi U).map f) := by
+  exact Functor.Cleavage.Reindex.idIsoApp.hom.naturality chi U f
 
 end counitIso
 
@@ -139,23 +152,27 @@ noncomputable def counitIso (chi : X.p.Cleavage) (U : C) :
 @[simp]
 theorem unitIso.hom.app (chi : X.p.Cleavage) (U : C)
     (F : FiberedCategoryOver.ofFunctor (Over.forget U) ⟶ X) :
-    (unitIso X chi U).hom.app F = (unitIso.app X chi F).hom := sorry
+    (unitIso X chi U).hom.app F = (unitIso.app X chi F).hom := by
+  rfl
 
 /-- An inverse component of the packaged explicit-cleavage Yoneda unit is its named comparison. -/
 @[simp]
 theorem unitIso.inv.app (chi : X.p.Cleavage) (U : C)
     (F : FiberedCategoryOver.ofFunctor (Over.forget U) ⟶ X) :
-    (unitIso X chi U).inv.app F = (unitIso.app X chi F).inv := sorry
+    (unitIso X chi U).inv.app F = (unitIso.app X chi F).inv := by
+  rfl
 
 /-- A component of the packaged explicit-cleavage Yoneda counit is its named comparison. -/
 @[simp]
 theorem counitIso.hom.app (chi : X.p.Cleavage) (U : C) (x : X.p.Fiber U) :
-    (counitIso X chi U).hom.app x = (counitIso.app X chi x).hom := sorry
+    (counitIso X chi U).hom.app x = (counitIso.app X chi x).hom := by
+  rfl
 
 /-- An inverse component of the packaged explicit-cleavage Yoneda counit is its named comparison. -/
 @[simp]
 theorem counitIso.inv.app (chi : X.p.Cleavage) (U : C) (x : X.p.Fiber U) :
-    (counitIso X chi U).inv.app x = (counitIso.app X chi x).inv := sorry
+    (counitIso X chi U).inv.app x = (counitIso.app X chi x).inv := by
+  rfl
 
 /-- A supplied cleavage section and its comparisons are explicit quasi-inverse data for
 fixed-owner Yoneda evaluation. -/
@@ -171,17 +188,20 @@ namespace quasiInverse
 /-- The inverse stored by the explicit quasi-inverse is the supplied cleavage section. -/
 @[simp]
 theorem inverse (chi : X.p.Cleavage) (U : C) :
-    (quasiInverse X chi U).inverse = sectionOfCleavage X chi U := sorry
+    (quasiInverse X chi U).inverse = sectionOfCleavage X chi U := by
+  rfl
 
 /-- The unit stored by the explicit quasi-inverse is the named unit. -/
 @[simp]
 theorem unitIso (chi : X.p.Cleavage) (U : C) :
-    (quasiInverse X chi U).unitIso = sectionOfCleavage.unitIso X chi U := sorry
+    (quasiInverse X chi U).unitIso = sectionOfCleavage.unitIso X chi U := by
+  rfl
 
 /-- The counit stored by the explicit quasi-inverse is the named counit. -/
 @[simp]
 theorem counitIso (chi : X.p.Cleavage) (U : C) :
-    (quasiInverse X chi U).counitIso = sectionOfCleavage.counitIso X chi U := sorry
+    (quasiInverse X chi U).counitIso = sectionOfCleavage.counitIso X chi U := by
+  rfl
 
 end quasiInverse
 
@@ -194,17 +214,20 @@ noncomputable def equivalence (chi : X.p.Cleavage) (U : C) :
 /-- The forward functor retained by the explicit equivalence is evaluation. -/
 @[simp]
 theorem equivalence.functor (chi : X.p.Cleavage) (U : C) :
-    (equivalence X chi U).functor = evaluation X U := sorry
+    (equivalence X chi U).functor = evaluation X U := by
+  rfl
 
 /-- The inverse retained by the explicit equivalence is the supplied cleavage section. -/
 @[simp]
 theorem equivalence.inverse (chi : X.p.Cleavage) (U : C) :
-    (equivalence X chi U).inverse = sectionOfCleavage X chi U := sorry
+    (equivalence X chi U).inverse = sectionOfCleavage X chi U := by
+  rfl
 
 /-- The counit retained by the explicit equivalence is the named counit. -/
 @[simp]
 theorem equivalence.counitIso (chi : X.p.Cleavage) (U : C) :
-    (equivalence X chi U).counitIso = counitIso X chi U := sorry
+    (equivalence X chi U).counitIso = counitIso X chi U := by
+  rfl
 
 end sectionOfCleavage
 

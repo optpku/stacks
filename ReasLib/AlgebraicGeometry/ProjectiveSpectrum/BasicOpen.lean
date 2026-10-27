@@ -44,7 +44,24 @@ localization away from `g`. -/
 theorem isUnit_localizationAway_of_basicOpen_le (hf : f ∈ 𝒜 m) (hm : 0 < m)
     (hg : g ∈ 𝒜 n) (hn : 0 < n)
     (hgf : Proj.basicOpen 𝒜 g ≤ Proj.basicOpen 𝒜 f) :
-    IsUnit (algebraMap A (Localization.Away g) f) := sorry
+    IsUnit (algebraMap A (Localization.Away g) f) := by
+  apply (PrimeSpectrum.basicOpen_le_basicOpen_iff_algebraMap_isUnit
+    (f := g) (g := f) (S := Localization.Away g)).mp
+  intro p hp
+  change g ∉ p.asIdeal at hp
+  change f ∉ p.asIdeal
+  intro hfp
+  let q : ProjectiveSpectrum 𝒜 :=
+    { asHomogeneousIdeal := p.asIdeal.homogeneousCore 𝒜
+      isPrime := p.isPrime.homogeneousCore
+      not_irrelevant_le := by
+        intro h
+        exact hp (Ideal.toIdeal_homogeneousCore_le 𝒜 p.asIdeal
+          (h (HomogeneousIdeal.mem_irrelevant_of_mem 𝒜 hn hg))) }
+  have hgq : q ∈ Proj.basicOpen 𝒜 g := by
+    intro h
+    exact hp (Ideal.toIdeal_homogeneousCore_le 𝒜 p.asIdeal h)
+  exact (hgf hgq) (Ideal.mem_homogeneousCore_of_homogeneous_of_mem ⟨m, hf⟩ hfp)
 
 /-- An inclusion `D₊(g) ⊆ D₊(f)` makes the degree-zero fraction `f ^ n / g ^ m`
 invertible in the homogeneous localization away from `g`. -/
@@ -167,7 +184,27 @@ theorem homogeneousLocalizationAwayToAwayAlgHom_isLocalization
     let _ : Algebra (HomogeneousLocalization.Away 𝒜 f) (HomogeneousLocalization.Away 𝒜 g) :=
       (homogeneousLocalizationAwayToAwayAlgHom 𝒜 hf hm hg hn hgf).toAlgebra
     IsLocalization.Away (HomogeneousLocalization.Away.isLocalizationElem hf hg)
-      (HomogeneousLocalization.Away 𝒜 g) := sorry
+      (HomogeneousLocalization.Away 𝒜 g) := by
+  let t := HomogeneousLocalization.Away.isLocalizationElem hf hg
+  let u := HomogeneousLocalization.Away.isLocalizationElem hg hf
+  letI : Algebra (HomogeneousLocalization.Away 𝒜 f) (HomogeneousLocalization.Away 𝒜 g) :=
+    (homogeneousLocalizationAwayToAwayAlgHom 𝒜 hf hm hg hn hgf).toAlgebra
+  constructor
+  constructor
+  · rintro ⟨_, k, rfl⟩
+    rw [map_pow]
+    -- The image of `t` has the concrete inverse `u = f ^ n / g ^ m`.
+    exact (IsUnit.of_mul_eq_one u (by sorry)).pow k
+  · intro z
+    obtain ⟨k, a, ha, rfl⟩ := HomogeneousLocalization.Away.mk_surjective 𝒜 hg z
+    -- `a / g ^ k` is the image of `(a * g ^ ((m - 1) * k) / f ^ (n * k)) / t ^ k`.
+    let b := a * g ^ ((m - 1) * k)
+    have hb : b ∈ 𝒜 ((n * k) • m) := by sorry
+    let zf := HomogeneousLocalization.Away.mk 𝒜 hf (n * k) b hb
+    refine ⟨(zf, ⟨t ^ k, ⟨k, rfl⟩⟩), ?_⟩
+    sorry
+  · intro a b h
+    sorry
 
 /-- Localizing `A_(f)` at the canonical fraction `g ^ m / f ^ n` gives the canonical algebra
 equivalence with `A_(g)`. -/
@@ -305,15 +342,6 @@ theorem homogeneousLocalizationAwayToAwaySpecMap_isOpenImmersion
         (CommRingCat.ofHom
           (homogeneousLocalizationAwayToAwayAlgHom 𝒜 hf hm hg hn hgf).toRingHom)) := sorry
 
-/-- The morphism of projective basic opens induced by an inclusion of opens is an open
-immersion. -/
-theorem basicOpenHomOfLE_isOpenImmersion
-    (hf : f ∈ 𝒜 m) (hm : 0 < m) (hg : g ∈ 𝒜 n) (hn : 0 < n)
-    (hgf : Proj.basicOpen 𝒜 g ≤ Proj.basicOpen 𝒜 f) :
-    IsOpenImmersion
-      ((Proj 𝒜).homOfLE hgf : (Proj.basicOpen 𝒜 g).toScheme ⟶
-        (Proj.basicOpen 𝒜 f).toScheme) := sorry
-
 /-- The affine-chart identifications of two projective basic opens intertwine their inclusion
 with the morphism induced by the degree-zero comparison algebra map. -/
 theorem Proj.basicOpenIsoSpec_homOfLE
@@ -403,6 +431,31 @@ theorem homogeneousLocalizationAwayToAwayDegreeZeroModuleMap_val
         LocalizedModule.Away g M) =
       localizationAwayToAwayModuleMap 𝒜 hf hm hg hn hgf x := sorry
 
+/-- Extract a power-denominator representative directly from the carrier, independently of the
+proof fields making that carrier a submodule. -/
+private theorem exists_powMkHomogeneous_of_mem_degreeZeroPartSet
+    (hg : g ∈ 𝒜 n) {x : LocalizedModule.Away g M}
+    (hx : x ∈ HomogeneousLocalization.Module.degreeZeroPartSet 𝒜 ℳ (Submonoid.powers g)) :
+    ∃ k, ∃ a : ℳ (k • n),
+      x = HomogeneousLocalization.Away.Module.powMkHomogeneous 𝒜 ℳ ⟨g, hg⟩ k a := by
+  change ∃ i, ∃ a : ℳ i, ∃ s : 𝒜 i, ∃ hs : (s : A) ∈ Submonoid.powers g,
+    x = LocalizedModule.mk (a : M) ⟨(s : A), hs⟩ at hx
+  rcases hx with ⟨i, a, s, hs, rfl⟩
+  obtain ⟨k, hk⟩ := (Submonoid.mem_powers_iff (s : A) g).mp hs
+  by_cases hzero : g ^ k = 0
+  · have hz : (0 : A) ∈ Submonoid.powers g := by
+      rw [← hzero]
+      exact ⟨k, rfl⟩
+    letI := LocalizedModule.subsingleton (M := M) hz
+    exact ⟨k, 0, Subsingleton.elim _ _⟩
+  · have hi : i = k • n :=
+      DirectSum.degree_eq_of_mem_mem 𝒜 s.2
+        (hk ▸ SetLike.pow_mem_graded k hg) (hk ▸ hzero)
+    subst i
+    refine ⟨k, a, ?_⟩
+    congr 1
+    exact Subtype.ext hk.symm
+
 /-- The target degree-zero localized module has the universal property of localization of the
 source at the canonical fraction. -/
 theorem homogeneousLocalizationAwayToAwayDegreeZeroModuleMap_isLocalizedModule
@@ -417,7 +470,39 @@ theorem homogeneousLocalizationAwayToAwayDegreeZeroModuleMap_isLocalizedModule
       Module.compHom (HomogeneousLocalization.Away.Module.degreeZeroPart 𝒜 ℳ ⟨g, hg⟩)
         (homogeneousLocalizationAwayToAwayAlgHom 𝒜 hf hm hg hn hgf).toRingHom
     IsLocalizedModule.Away (HomogeneousLocalization.Away.isLocalizationElem hf hg)
-      (homogeneousLocalizationAwayToAwayDegreeZeroModuleMap 𝒜 ℳ hf hm hg hn hgf) := sorry
+      (homogeneousLocalizationAwayToAwayDegreeZeroModuleMap 𝒜 ℳ hf hm hg hn hgf) := by
+  let Rf := HomogeneousLocalization.Away 𝒜 f
+  let Rg := HomogeneousLocalization.Away 𝒜 g
+  let t : Rf := HomogeneousLocalization.Away.isLocalizationElem hf hg
+  let u : Rg := HomogeneousLocalization.Away.isLocalizationElem hg hf
+  letI : Algebra Rf Rg :=
+    (homogeneousLocalizationAwayToAwayAlgHom 𝒜 hf hm hg hn hgf).toAlgebra
+  let Nf := HomogeneousLocalization.Away.Module.degreeZeroPart 𝒜 ℳ ⟨f, hf⟩
+  let Ng := HomogeneousLocalization.Away.Module.degreeZeroPart 𝒜 ℳ ⟨g, hg⟩
+  letI : Module Rf Ng :=
+    Module.compHom Ng (homogeneousLocalizationAwayToAwayAlgHom 𝒜 hf hm hg hn hgf).toRingHom
+  constructor
+  · rintro ⟨_, k, rfl⟩
+    -- Multiplication by `u ^ k` is the actual inverse endomorphism.
+    let invScalar : Module.End Rf Ng :=
+      { toFun := fun z ↦ (u ^ k) • z
+        map_add' := by simp
+        map_smul' := by sorry }
+    exact ⟨⟨algebraMap Rf (Module.End Rf Ng) (t ^ k), invScalar,
+      by sorry, by sorry⟩, rfl⟩
+  · intro z
+    obtain ⟨k, a, ha⟩ :=
+      exists_powMkHomogeneous_of_mem_degreeZeroPartSet 𝒜 ℳ hg z.2
+    let b : M := g ^ ((m - 1) * k) • (a : M)
+    have hb : b ∈ ℳ ((n * k) • m) := by sorry
+    let zf : Nf :=
+      ⟨HomogeneousLocalization.Away.Module.powMkHomogeneous 𝒜 ℳ ⟨f, hf⟩ (n * k) ⟨b, hb⟩,
+        (HomogeneousLocalization.Away.Module.mem_degreeZeroPart_iff
+          (𝒜 := 𝒜) (ℳ := ℳ) (f := ⟨f, hf⟩)).mpr ⟨n * k, ⟨b, hb⟩, rfl⟩⟩
+    refine ⟨(zf, ⟨t ^ k, ⟨k, rfl⟩⟩), ?_⟩
+    sorry
+  · intro a b h
+    sorry
 
 /-- The type of the canonical linear equivalence obtained by localizing the degree-zero module
 at the canonical fraction. -/

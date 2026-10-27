@@ -130,12 +130,16 @@ variable {C : Type u} [Category.{v} C]
 @[stacks 0CS6 "max-universe global derived Hom"]
 noncomputable abbrev maxFunctor (J : GrothendieckTopology C)
     (𝒪 : Sheaf J CommRingCat.{max u v}) :=
+  letI := CategoryTheory.CochainComplex.Enriched.RHom.hasRightDerivedFunctor
+    (C := ModuleCat.{max u v} (RingedSite.ofCommSheafMax J 𝒪))
   functor.{max u v} (RingedSite.ofCommSheafMax J 𝒪)
 
 /-- The global derived-Hom unit for a max-universe commutative ring-sheaf presentation. -/
 @[stacks 0CS6 "max-universe global derived Hom unit"]
 noncomputable abbrev maxUnit (J : GrothendieckTopology C)
     (𝒪 : Sheaf J CommRingCat.{max u v}) :=
+  letI := CategoryTheory.CochainComplex.Enriched.RHom.hasRightDerivedFunctor
+    (C := ModuleCat.{max u v} (RingedSite.ofCommSheafMax J 𝒪))
   unit.{max u v} (RingedSite.ofCommSheafMax J 𝒪)
 
 /-- A K-injective resolution computes global derived Hom for a max-universe commutative
@@ -148,6 +152,8 @@ noncomputable abbrev maxResolutionModelIso
     {N : CochainComplex (RingedSite.ModuleCat.{max u v}
       (RingedSite.ofCommSheafMax J 𝒪)) ℤ}
     (I : CochainComplex.KInjectiveResolution N) :=
+  letI := CategoryTheory.CochainComplex.Enriched.RHom.hasRightDerivedFunctor
+    (C := ModuleCat.{max u v} (RingedSite.ofCommSheafMax J 𝒪))
   resolutionModelIso.{max u v} (RingedSite.ofCommSheafMax J 𝒪) M I
 
 end MaxPresentation

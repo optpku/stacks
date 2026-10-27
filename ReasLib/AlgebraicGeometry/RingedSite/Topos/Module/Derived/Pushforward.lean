@@ -75,3 +75,32 @@ noncomputable abbrev modulePushforwardDerived (f : ToposHom X Y)
     (RingedSite.Hom.moduleLocalization X) (RingedSite.Hom.ModuleQis X)
 
 end RingedSite.ToposHom
+
+
+namespace RingedSite.ToposHom.NativeDerived
+
+variable {X : RingedSite.{uX, vX, w}} {Y : RingedSite.{uY, vY, w}}
+variable [X.siteTopology.HasSheafCompose (forget RingCat.{w})]
+  [Y.siteTopology.HasSheafCompose (forget RingCat.{w})]
+variable (f : ToposHom X Y)
+variable [Abelian (ModuleCat.{w} X)] [Abelian (ModuleCat.{w} Y)]
+
+
+/-- Degreewise module direct image followed by native derived localization. -/
+abbrev pushforwardToDerived :
+    Hom.ModuleHomotopy.{w} X ⥤ RingedSite.NativeDerived.category.{w} Y :=
+  @Functor.mapHomotopyCategory _ _ _ _ _ _ _ f.modulePushforward
+      (modulePushforward_additive f) (up ℤ) ⋙ RingedSite.NativeDerived.localization.{w} Y
+
+/-- Existence of the total right derived functor of native module direct image. -/
+abbrev HasPushforward : Prop :=
+  Functor.HasRightDerivedFunctor (pushforwardToDerived f) (RingedSite.NativeDerived.quasiIso.{w} X)
+
+/-- The unbounded derived direct image of module sheaves. -/
+abbrev pushforward [HasPushforward f] :
+    RingedSite.NativeDerived.category.{w} X ⥤ RingedSite.NativeDerived.category.{w} Y :=
+  @Functor.totalRightDerived _ _ _ _ _ _ (pushforwardToDerived f)
+    (RingedSite.NativeDerived.localization.{w} X) (RingedSite.NativeDerived.quasiIso.{w} X)
+    (RingedSite.NativeDerived.localizationIsLocalization.{w} X) inferInstance
+
+end RingedSite.ToposHom.NativeDerived

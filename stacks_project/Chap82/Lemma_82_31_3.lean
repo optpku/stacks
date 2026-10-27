@@ -6,7 +6,8 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap82.«82_29_1_1_Tensor»
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.IntersectionTheory.ChernTensor
+import StacksCheckRecall
 
 /-!
 # Chern classes of tensor products of finite locally free modules
@@ -28,69 +29,66 @@ proof's final product is the Chern class of `E ⊗ F`, not of `F`.
 open CategoryTheory CategoryTheory.MonoidalCategory
 open AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
 open AlgebraicGeometry.AlgebraicSpace.ChernClass
-open AlgebraicGeometry.AlgebraicSpace.ChowCohomology
 open scoped MonoidalCategory
 
 noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.ChernClass
-
-/-- Lemma 82.31.3 (1): In Situation 82.2.1 let `X / B` be good. Let `E` and `F`
-be finite locally free `𝒪_X`-modules of ranks `r` and `s`. Then
-`c₁(E ⊗ F) = r c₁(F) + s c₁(E)` in `A^*(X)`.
+/- Lemma 82.31.3 (1): For finite locally free modules `E` and `F` of ranks
+`r` and `s` in Situation 82.2.1, `c₁(E ⊗ F) = r c₁(F) + s c₁(E)`.
 This clause is unchanged by the approved local erratum to clause (2). -/
-@[stacks 0ESE]
-theorem tensor_one {S : Scheme.{u}} {B X : AlgebraicSpace S}
+@[stacks 0ESE] #check (AlgebraicGeometry.AlgebraicSpace.ChernClass.tensor_one :
+  ∀ {S : Scheme.{u}} {B X : AlgebraicSpace S}
     [UniversallyCatenary B] [IsQuasiSeparated B]
     (δ : Points B → ℤ) [IsDimensionFunction δ]
     (f : X ⟶ B) [QuasiSeparated f] [LocallyOfFiniteType f]
     (E F : X.Modules) (r s : ℕ)
     [SheafOfModules.IsFiniteLocallyFreeOfRank r E]
-    [SheafOfModules.IsFiniteLocallyFreeOfRank s F] :
-    homogeneous δ f 1 (chernClass δ f (E ⊗ F) 1) =
-      (r : ring δ f) * homogeneous δ f 1 (chernClass δ f F 1) +
-        (s : ring δ f) * homogeneous δ f 1 (chernClass δ f E 1) := sorry
+    [SheafOfModules.IsFiniteLocallyFreeOfRank s F],
+    OperationalChow.homogeneous δ f 1 (chernClass δ f (E ⊗ F) 1) =
+      (r : OperationalChow.ring δ f) * OperationalChow.homogeneous δ f 1 (chernClass δ f F 1) +
+        (s : OperationalChow.ring δ f) * OperationalChow.homogeneous δ f 1 (chernClass δ f E 1))
 
-/-- Lemma 82.31.3 (2): Local erratum for 0ESE, approved under standing operator
-review. This retains the existing corrected 0FA6 expansion, obtained from the
-line-factor roots `xᵢ + yⱼ`; the original printed display is false for rank-one
-bundles. All original hypotheses and binders are retained; clause (1) is unchanged. -/
-@[stacks 0ESE]
-theorem tensor_two {S : Scheme.{u}} {B X : AlgebraicSpace S}
+/- Lemma 82.31.3 (2): The approved local erratum replaces the printed second
+formula by the integral expansion from the roots `xᵢ + yⱼ`, with coefficients
+`r`, `s`, `Nat.choose r 2`, `(r : ℤ) * (s : ℤ) - 1`, and `Nat.choose s 2`.
+The original display is false for rank-one bundles on the projective plane. -/
+@[stacks 0ESE] #check (AlgebraicGeometry.AlgebraicSpace.ChernClass.tensor_two :
+  ∀ {S : Scheme.{u}} {B X : AlgebraicSpace S}
     [UniversallyCatenary B] [IsQuasiSeparated B]
     (δ : Points B → ℤ) [IsDimensionFunction δ]
     (f : X ⟶ B) [QuasiSeparated f] [LocallyOfFiniteType f]
     (E F : X.Modules) (r s : ℕ)
     [SheafOfModules.IsFiniteLocallyFreeOfRank r E]
-    [SheafOfModules.IsFiniteLocallyFreeOfRank s F] :
-    homogeneous δ f 2 (chernClass δ f (E ⊗ F) 2) =
-      (r : ring δ f) * homogeneous δ f 2 (chernClass δ f F 2) +
-        (s : ring δ f) * homogeneous δ f 2 (chernClass δ f E 2) +
-        (Nat.choose r 2 : ring δ f) *
-          homogeneous δ f 1 (chernClass δ f F 1) ^ 2 +
-        (((r : ℤ) * (s : ℤ) - 1 : ℤ) : ring δ f) *
-          homogeneous δ f 1 (chernClass δ f F 1) *
-          homogeneous δ f 1 (chernClass δ f E 1) +
-        (Nat.choose s 2 : ring δ f) *
-          homogeneous δ f 1 (chernClass δ f E 1) ^ 2 := sorry
+    [SheafOfModules.IsFiniteLocallyFreeOfRank s F],
+    OperationalChow.homogeneous δ f 2 (chernClass δ f (E ⊗ F) 2) =
+      (r : OperationalChow.ring δ f) * OperationalChow.homogeneous δ f 2 (chernClass δ f F 2) +
+        (s : OperationalChow.ring δ f) * OperationalChow.homogeneous δ f 2 (chernClass δ f E 2) +
+        (Nat.choose r 2 : OperationalChow.ring δ f) *
+          OperationalChow.homogeneous δ f 1 (chernClass δ f F 1) ^ 2 +
+        (((r : ℤ) * (s : ℤ) - 1 : ℤ) : OperationalChow.ring δ f) *
+          OperationalChow.homogeneous δ f 1 (chernClass δ f F 1) *
+          OperationalChow.homogeneous δ f 1 (chernClass δ f E 1) +
+        (Nat.choose s 2 : OperationalChow.ring δ f) *
+          OperationalChow.homogeneous δ f 1 (chernClass δ f E 1) ^ 2)
 
-/-- The first Chern class of a tensor product of finite locally free modules of
-ranks `r` and `s` is the rank-weighted sum in `A^1(X)`. -/
-theorem tensor_one_degree {S : Scheme.{u}} {B X : AlgebraicSpace S}
+/- The first Chern tensor formula in operational degree one. -/
+#check (AlgebraicGeometry.AlgebraicSpace.ChernClass.tensor_one_degree :
+  ∀ {S : Scheme.{u}} {B X : AlgebraicSpace S}
     [UniversallyCatenary B] [IsQuasiSeparated B]
     (δ : Points B → ℤ) [IsDimensionFunction δ]
     (f : X ⟶ B) [QuasiSeparated f] [LocallyOfFiniteType f]
     (E F : X.Modules) (r s : ℕ)
     [SheafOfModules.IsFiniteLocallyFreeOfRank r E]
-    [SheafOfModules.IsFiniteLocallyFreeOfRank s F] :
-    chernClass δ f (E ⊗ F) 1 =
-      r • chernClass δ f F 1 + s • chernClass δ f E 1 := sorry
+    [SheafOfModules.IsFiniteLocallyFreeOfRank s F],
+    OperationalChow.Graded.ofOperational δ f (chernClass δ f (E ⊗ F) 1) =
+      r • OperationalChow.Graded.ofOperational δ f (chernClass δ f F 1) +
+        s • OperationalChow.Graded.ofOperational δ f (chernClass δ f E 1))
 
-/-- Capping with `c₁(E ⊗ F)` is the rank-weighted sum of the first Chern caps of
-`E` and `F` on every good test `Y ⟶ X`. -/
-theorem tensor_one_cap {S : Scheme.{u}} {B X : AlgebraicSpace S}
+/- The first Chern tensor formula acting on every good test space. -/
+#check (AlgebraicGeometry.AlgebraicSpace.ChernClass.tensor_one_cap :
+  ∀ {S : Scheme.{u}} {B X : AlgebraicSpace S}
     [UniversallyCatenary B] [IsQuasiSeparated B]
     (δ : Points B → ℤ) [IsDimensionFunction δ]
     (f : X ⟶ B) [QuasiSeparated f] [LocallyOfFiniteType f]
@@ -98,9 +96,7 @@ theorem tensor_one_cap {S : Scheme.{u}} {B X : AlgebraicSpace S}
     [SheafOfModules.IsFiniteLocallyFreeOfRank r E]
     [SheafOfModules.IsFiniteLocallyFreeOfRank s F]
     {Y : AlgebraicSpace S} (g : Y ⟶ X)
-    [QuasiSeparated (g ≫ f)] [LocallyOfFiniteType (g ≫ f)] (k : ℤ) :
+    [QuasiSeparated (g ≫ f)] [LocallyOfFiniteType (g ≫ f)] (k : ℤ),
     (chernClass δ f (E ⊗ F) 1).cap g k =
       r • (chernClass δ f F 1).cap g k +
-        s • (chernClass δ f E 1).cap g k := sorry
-
-end AlgebraicGeometry.AlgebraicSpace.ChernClass
+        s • (chernClass δ f E 1).cap g k)

@@ -27,7 +27,7 @@ variable {dimension : V → ℕ} {product : V → V → V}
 variable {fst : ∀ X Y, product X Y ⟶ X} {snd : ∀ X Y, product X Y ⟶ Y}
 variable {point : V} {H : V → Type x} {CH : V → Type y}
 variable [∀ X, Ring (H X)] [∀ X, Algebra F (H X)] [∀ X, CommRing (CH X)]
-variable {Hgrade : ∀ X, ℤ × ℤ → Submodule F (H X)}
+variable {Hgrade : ∀ X, ℤ → Submodule F (H X)}
 variable {CHgrade : ∀ X, ℤ → Submodule ℤ (CH X)}
 variable [∀ X, GradedAlgebra (Hgrade X)] [∀ X, GradedAlgebra (CHgrade X)]
 variable {cyclePullback : ∀ {X Y : V},
@@ -36,6 +36,12 @@ variable {cyclePushforward : ∀ {X Y : V}, (X ⟶ Y) → CH X →+ CH Y}
 
 variable (T : SchemeClassicalTheory k F TateLine V dimension product fst snd point
   H CH Hgrade CHgrade cyclePullback cyclePushforward)
+
+/-- The theory supplies the smooth structure used in relative dimension functions. -/
+local instance facadeEulerRepresentedSmooth
+    (T : SchemeClassicalTheory k F TateLine V dimension product fst snd point
+      H CH Hgrade CHgrade cyclePullback cyclePushforward) (X : V) :
+    Smooth (T.scheme.obj X).hom := T.smooth X
 
 /- Lemma 45.10.4: the alternating cohomological dimension sum is the degree of
 the diagonal self-intersection and of the top Chern class of the tangent sheaf. -/
@@ -82,11 +88,42 @@ the diagonal self-intersection and of the top Chern class of the tangent sheaf. 
                   (T.scheme.obj (product X X))
                   (T.projective (product X X)).isProper.toLocallyOfFiniteType p))) →
       (∑ i : Fin (2 * d + 1), (-1 : ℤ) ^ (i : ℕ) *
-        (Module.finrank F (Hgrade X ((i : ℤ), 0)) : ℤ)) =
+        (Module.finrank F (Hgrade X (i : ℤ)) : ℤ)) =
       @ChowGroup.degree k _ (T.scheme.obj (product X X))
         (T.projective (product X X)).isProper
         (chowTopEquivProduct diagonalSelfIntersection))
 
-#check WeilCohomology.SchemeClassicalTheory.diagonalDegree_eq_topChernDegree
+#check (WeilCohomology.SchemeClassicalTheory.diagonalDegree_eq_topChernDegree :
+  ∀ (T : SchemeClassicalTheory k F TateLine V dimension product fst snd point
+      H CH Hgrade CHgrade cyclePullback cyclePushforward)
+    {X : V} {d : ℕ} (hX : T.IsNonemptyEquidimensional X d)
+    (diagonal : X ⟶ product X X)
+    (diagonal_fst : diagonal ≫ fst X X = 𝟙 X)
+    (diagonal_snd : diagonal ≫ snd X X = 𝟙 X)
+    (diagonalCycle : CHgrade (product X X) (d : ℤ))
+    (diagonalCycle_eq : (diagonalCycle : CH (product X X)) = cyclePushforward diagonal (1 : CHgrade X 0))
+    (diagonalSelfIntersection : CHgrade (product X X) ((d + d : ℕ) : ℤ))
+    (diagonalSelfIntersection_eq_square : (diagonalSelfIntersection : CH (product X X)) = diagonalCycle * diagonalCycle)
+    (tangentTopChernCap : CHgrade X (d : ℤ))
+    (diagonalSelfIntersection_eq_pushforward_topChern :
+      (diagonalSelfIntersection : CH (product X X)) = cyclePushforward diagonal tangentTopChernCap)
+    (chowTopEquivProduct : CHgrade (product X X) ((d + d : ℕ) : ℤ) ≃+
+      @ChowGroup (T.scheme.obj (product X X)).left
+        (@LocallyOfFiniteType.isLocallyNoetherian _ _ (T.scheme.obj (product X X)).hom
+          (T.projective (product X X)).isProper.toLocallyOfFiniteType inferInstance)
+        ((T.scheme.obj (product X X)).hom.relativeDimensionFunction (fun _ : Spec (CommRingCat.of k) ↦ 0))
+        (@Scheme.Hom.instIsDimensionFunctionRelativeDimensionFunction _ _ (T.scheme.obj (product X X)).hom inferInstance
+          (T.projective (product X X)).isProper.toLocallyOfFiniteType (fun _ : Spec (CommRingCat.of k) ↦ 0) inferInstance) 0)
+    (chowTopEquivX : CHgrade X (d : ℤ) ≃+
+      @ChowGroup (T.scheme.obj X).left
+        (@LocallyOfFiniteType.isLocallyNoetherian _ _ (T.scheme.obj X).hom
+          (T.projective X).isProper.toLocallyOfFiniteType inferInstance)
+        ((T.scheme.obj X).hom.relativeDimensionFunction (fun _ : Spec (CommRingCat.of k) ↦ 0))
+        (@Scheme.Hom.instIsDimensionFunctionRelativeDimensionFunction _ _ (T.scheme.obj X).hom inferInstance
+          (T.projective X).isProper.toLocallyOfFiniteType (fun _ : Spec (CommRingCat.of k) ↦ 0) inferInstance) 0),
+    @ChowGroup.degree k _ (T.scheme.obj (product X X)) (T.projective (product X X)).isProper
+        (chowTopEquivProduct diagonalSelfIntersection) =
+      @ChowGroup.degree k _ (T.scheme.obj X) (T.projective X).isProper
+        (chowTopEquivX tangentTopChernCap))
 
 end WeilCohomology.SchemeClassicalTheory

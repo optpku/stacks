@@ -32,6 +32,9 @@ open CategoryTheory.MonObj
 
 noncomputable section
 
+-- Universe-bounded tensor-colimit preservation makes the induced structures larger.
+set_option synthInstance.maxSize 1024
+
 universe u v
 
 namespace SheafOfModules.RingedSite.Koszul

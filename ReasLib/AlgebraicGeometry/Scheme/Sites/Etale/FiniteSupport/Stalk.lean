@@ -587,14 +587,24 @@ private theorem exists_sourceAmbientOpen (x : Fiber f ybar) (U : X.Etale)
         (finiteNeighborhoodBaseEtale f ybar x U u)).Opens,
       IsAffineOpen W' ∧
         finiteNeighborhoodToBaseChange f ybar x U u
-            (finiteNeighborhoodPoint f ybar x U u) ∈ W' :=
-  sorry
+            (finiteNeighborhoodPoint f ybar x U u) ∈ W' := by
+  let Z := baseChangeScheme f (finiteNeighborhoodBaseEtale f ybar x U u)
+  let z : Z := finiteNeighborhoodToBaseChange f ybar x U u
+    (finiteNeighborhoodPoint f ybar x U u)
+  let C := Z.affineOpenCover
+  let j : Spec (C.X (C.idx z)) ⟶ Z := C.f (C.idx z)
+  exact ⟨j.opensRange, isAffineOpen_opensRange j, C.covers z⟩
 
 /-- Affine open `W'` of `X_V` containing the image of the selected pairing. -/
 private def sourceAmbientOpen (x : Fiber f ybar) (U : X.Etale)
     (u : (toSmallEtalePoint x.point).fiber.obj U) :
     (baseChangeScheme f (finiteNeighborhoodBaseEtale f ybar x U u)).Opens :=
-  Classical.choose (exists_sourceAmbientOpen f ybar x U u)
+  let Z := baseChangeScheme f (finiteNeighborhoodBaseEtale f ybar x U u)
+  let z : Z := finiteNeighborhoodToBaseChange f ybar x U u
+    (finiteNeighborhoodPoint f ybar x U u)
+  let C := Z.affineOpenCover
+  let j : Spec (C.X (C.idx z)) ⟶ Z := C.f (C.idx z)
+  j.opensRange
 
 /-- The chosen open of `X_V` is affine and contains the image of the pairing. -/
 private theorem sourceAmbientOpen_spec (x : Fiber f ybar) (U : X.Etale)
@@ -602,8 +612,14 @@ private theorem sourceAmbientOpen_spec (x : Fiber f ybar) (U : X.Etale)
     IsAffineOpen (sourceAmbientOpen f ybar x U u) ∧
       finiteNeighborhoodToBaseChange f ybar x U u
           (finiteNeighborhoodPoint f ybar x U u) ∈
-        sourceAmbientOpen f ybar x U u :=
-  Classical.choose_spec (exists_sourceAmbientOpen f ybar x U u)
+        sourceAmbientOpen f ybar x U u := by
+  let Z := baseChangeScheme f (finiteNeighborhoodBaseEtale f ybar x U u)
+  let z : Z := finiteNeighborhoodToBaseChange f ybar x U u
+    (finiteNeighborhoodPoint f ybar x U u)
+  let C := Z.affineOpenCover
+  let j : Spec (C.X (C.idx z)) ⟶ Z := C.f (C.idx z)
+  change IsAffineOpen j.opensRange ∧ z ∈ j.opensRange
+  exact ⟨isAffineOpen_opensRange j, C.covers z⟩
 
 /-- Points of the étale neighbourhood over which some point of the finite
 open fails to land in `W'`. -/

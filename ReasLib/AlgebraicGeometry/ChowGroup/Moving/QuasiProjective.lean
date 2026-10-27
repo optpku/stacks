@@ -14,11 +14,11 @@ universe u
 
 namespace AlgebraicGeometry.CycleGroup
 
-variable {k : Type u} [Field k] [IsAlgClosed k]
+variable {k : Type u} [Field k]
 
-/-- On a nonsingular quasi-projective variety, every cycle is rationally equivalent to one
-that intersects a given cycle properly. -/
-theorem existsRationallyEquivalentIntersectProperly_of_quasiProjective
+/-- On a nonsingular quasi-projective variety over an algebraically closed field, every cycle
+is rationally equivalent to one that intersects a given cycle properly. -/
+theorem existsRationallyEquivalentIntersectProperly_of_quasiProjective [IsAlgClosed k]
     (X : SchemeOverField k) [QuasiProjectiveVariety X] [Scheme.Regular X.left]
     (r s : ℤ)
     (α : CycleGroup X.left (X.hom.relativeDimensionFunction (fun _ ↦ 0)) r)

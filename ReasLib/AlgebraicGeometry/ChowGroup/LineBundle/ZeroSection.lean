@@ -138,7 +138,8 @@ noncomputable def firstChernClassCapThenPullback (k : ℤ) :
   (@ChowGroup.reindex (totalOver X ℒ P).left
       (@LocallyOfFiniteType.isLocallyNoetherian _ _ (totalOver X ℒ P).hom
         (totalOver_locallyOfFiniteType X ℒ P) inferInstance)
-      ((totalOver X ℒ P).hom.relativeDimensionFunction δ)
+      (@Scheme.Hom.relativeDimensionFunction _ _ (totalOver X ℒ P).hom
+        (totalOver_locallyOfFiniteType X ℒ P) δ)
       (@Scheme.Hom.instIsDimensionFunctionRelativeDimensionFunction _ _
         (totalOver X ℒ P).hom inferInstance (totalOver_locallyOfFiniteType X ℒ P)
         δ inferInstance)
@@ -156,7 +157,8 @@ theorem firstChernClassCapThenPullback_def (k : ℤ) :
       (@ChowGroup.reindex (totalOver X ℒ P).left
         (@LocallyOfFiniteType.isLocallyNoetherian _ _ (totalOver X ℒ P).hom
           (totalOver_locallyOfFiniteType X ℒ P) inferInstance)
-        ((totalOver X ℒ P).hom.relativeDimensionFunction δ)
+        (@Scheme.Hom.relativeDimensionFunction _ _ (totalOver X ℒ P).hom
+          (totalOver_locallyOfFiniteType X ℒ P) δ)
         (@Scheme.Hom.instIsDimensionFunctionRelativeDimensionFunction _ _
           (totalOver X ℒ P).hom inferInstance (totalOver_locallyOfFiniteType X ℒ P)
           δ inferInstance)

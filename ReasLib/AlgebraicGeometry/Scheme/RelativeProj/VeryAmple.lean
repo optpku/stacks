@@ -6,6 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
+public import ReasLib.AlgebraicGeometry.Scheme.RelativeProj.DegreeOneQuotient
 public import ReasLib.AlgebraicGeometry.Scheme.RelativeProj.DegreeOneTwists
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Ample.RelativeVery
 
@@ -27,26 +28,9 @@ universe u
 
 namespace AlgebraicGeometry.Scheme.RelativeProjTwist.Presentation
 
-/-- A relative-projective twist presentation is generated in degree one when every affine
-graded model is generated over degree zero by its degree-one component. -/
-def GeneratedByDegreeOne
-    {S : Scheme.{u}} {𝒜 : GradedAlgebraSheaf.{u, u} S.sheaf}
-    {A σ : S.affineOpens → Type u}
-    [∀ U, CommRing (A U)] [∀ U, SetLike (σ U) (A U)]
-    [∀ U, AddSubgroupClass (σ U) (A U)]
-    {sectionGrading : ∀ U : S.affineOpens, ℕ → σ U}
-    [∀ U, GradedRing (sectionGrading U)]
-    {P : ∀ U : S.affineOpens, ProjTwistPresentation (sectionGrading U)}
-    {model : ∀ (U : S.affineOpens) (d : ℕ),
-      (𝒜 (Int.ofNat d)).val.obj (Opposite.op (U : S.Opens)) ≃ sectionGrading U d}
-    {X : Scheme.{u}} {p : X ⟶ S}
-    (presentation : RelativeProjTwist.Presentation
-      𝒜 A σ sectionGrading P model p) : Prop :=
-  ∀ U : S.affineOpens, GradedAlgebra.GeneratedBy (sectionGrading U) 1
-
 /-- A morphism to the projective bundle of the degree-one piece is induced by the canonical
-degree-one map when its classified quotient is the adjoint of that map, up to the displayed
-target isomorphism. -/
+degree-one map when the pulled-back tautological quotient, with its source transported along
+the lift triangle, is the adjoint of that map up to the displayed target isomorphism. -/
 def IsInducedByDegreeOne
     {S : Scheme.{u}} {𝒜 : GradedAlgebraSheaf.{u, u} S.sheaf}
     {A σ : S.affineOpens → Type u}
@@ -64,8 +48,11 @@ def IsInducedByDegreeOne
     (i : X ⟶ Q) : Prop :=
   ∃ (hi : i ≫ π = p)
       (e : presentation.twistAlgebra 1 ≅
-        (hπ.liftEquiv p ⟨i, hi⟩).object),
-    (hπ.liftEquiv p ⟨i, hi⟩).hom ≫ e.inv =
+        (Scheme.Modules.pullback i).obj (ProjectiveBundle.tautologicalSheaf π hπ)),
+    ((ProjectiveBundle.Lift.pullbackSourceIso
+        (⟨i, hi⟩ : ProjectiveBundle.Lift π p) (𝒜 (Int.ofNat 1))).inv ≫
+      (Scheme.Modules.pullback i).map (ProjectiveBundle.tautologicalQuotient π hπ).hom) ≫
+        e.inv =
       ((Scheme.Modules.pullbackPushforwardAdjunction p).homEquiv
         (𝒜 (Int.ofNat 1)) (presentation.twistAlgebra 1)).symm
           (presentation.psi.hom 1)

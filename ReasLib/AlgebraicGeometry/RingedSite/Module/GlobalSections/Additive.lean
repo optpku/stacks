@@ -26,14 +26,14 @@ universe z u v w
 namespace RingedSite.Hom
 
 /-- The additive global-sections functor on module sheaves is additive. -/
-@[stacks 0D6H "additivity of module global sections"]
+@[stacks 0D6H "additivity of module global sections", instance]
 theorem moduleGlobalSectionsAdditiveFunctor_additive (X : RingedSite.{u, v, w})
     [HasWeakSheafify X.siteTopology AddCommGrpCat.{z}]
     [HasGlobalSectionsFunctor X.siteTopology AddCommGrpCat.{z}] :
     (moduleGlobalSectionsAdditiveFunctor.{z} X).Additive := sorry
 
 /-- The module-valued global-sections functor on a ringed site is additive. -/
-theorem moduleGlobalSectionsFunctor_additive (X : RingedSite.{u, v, w})
+@[instance] theorem moduleGlobalSectionsFunctor_additive (X : RingedSite.{u, v, w})
     [UnivLE.{u, w}] [UnivLE.{u, z}] :
     (moduleGlobalSectionsFunctor.{z} X).Additive := sorry
 

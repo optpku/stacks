@@ -43,13 +43,15 @@ theorem map_bijective_of_isProper (F G : RingedSpace.Coh X.toRingedSpace) :
 
 /-- The coherent-completion functor along `I 𝒪_X` is full when `f` is proper over an
 `I`-adically complete Noetherian ring. -/
-instance functor_full_of_isProper :
+instance functor_full_of_isProper
+    [IsNoetherianRing A] [IsAdicComplete I A] [IsProper f] :
     (functor ((idealSheafDataOfIdealOnSpec I).comap f)).Full :=
   sorry
 
 /-- The coherent-completion functor along `I 𝒪_X` is faithful when `f` is proper over an
 `I`-adically complete Noetherian ring. -/
-instance functor_faithful_of_isProper :
+instance functor_faithful_of_isProper
+    [IsNoetherianRing A] [IsAdicComplete I A] [IsProper f] :
     (functor ((idealSheafDataOfIdealOnSpec I).comap f)).Faithful :=
   sorry
 

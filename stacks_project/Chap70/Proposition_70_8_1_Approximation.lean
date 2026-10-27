@@ -29,9 +29,7 @@ namespace AlgebraicGeometry.AlgebraicSpace
 abbrev specULiftInt : Scheme.{u} :=
   Spec (CommRingCat.of (ULift.{u} ℤ))
 
-/-- The structural morphism of an algebraic space to its base scheme. -/
-abbrev toBase {S : Scheme.{u}} (X : AlgebraicSpace S) : X ⟶ ofOver (Over.mk (𝟙 S)) :=
-  SchemeRealization.toBase X
+export _root_.AlgebraicGeometry.AlgebraicSpace.SchemeRealization (toBase)
 
 #check (AlgebraicGeometry.AlgebraicSpace.AbsoluteNoetherianApproximation :
   AlgebraicSpace specULiftInt → Type (u + 1))

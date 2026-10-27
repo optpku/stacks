@@ -6,6 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.KernelPair.Fppf
 public import stacks_project.Chap94.Definition_94_12_1_MorphismProperty
 public import stacks_project.Chap94.Lemma_94_16_1_QuotientMap
 public import stacks_project.Chap94.Remark_94_16_3_Flat
@@ -28,38 +29,25 @@ open CategoryTheory AlgebraicGeometry
 open FiberedCategoryOver.Groupoids
 open scoped Bicategory
 
-noncomputable section
-
 universe u
 
-namespace AlgebraicGeometry.AlgebraicStack
-
-/-- The kernel-pair groupoid of a surjective flat locally of finite presentation
-1-morphism from a space-representable algebraic stack is a flat groupoid in
-algebraic spaces. -/
-instance groupoid_flat {S : Scheme.{u}} {X U : GroupoidsOver S} (f : U ⟶ X)
+#check (AlgebraicGeometry.AlgebraicStack.fCan_isEquivalence_of_flat :
+  ∀ {S : Scheme.{u}} {X U : GroupoidsOver S} (f : U ⟶ X)
     [AlgebraicStack X] (hU : IsRepresentableByAlgebraicSpace U)
     [Groupoids.Hom.Surjective f] [Groupoids.Hom.Flat f]
-    [Groupoids.Hom.LocallyOfFinitePresentation f] :
-    GroupoidAlgebraicSpace.Flat (groupoid f hU) := sorry
+    [Groupoids.Hom.LocallyOfFinitePresentation f],
+    (toBasedFunctor (AlgebraicStack.fCan f hU)).IsEquivalence)
 
-/-- The kernel-pair groupoid of a surjective flat locally of finite presentation
-1-morphism from a space-representable algebraic stack is locally of finite
-presentation. -/
-instance groupoid_locallyOfFinitePresentation {S : Scheme.{u}}
-    {X U : GroupoidsOver S} (f : U ⟶ X) [AlgebraicStack X]
-    (hU : IsRepresentableByAlgebraicSpace U)
+#check (AlgebraicGeometry.AlgebraicStack.groupoid_flat :
+  ∀ {S : Scheme.{u}} {X U : GroupoidsOver S} (f : U ⟶ X)
+    [AlgebraicStack X] (hU : IsRepresentableByAlgebraicSpace U)
     [Groupoids.Hom.Surjective f] [Groupoids.Hom.Flat f]
-    [Groupoids.Hom.LocallyOfFinitePresentation f] :
-    GroupoidAlgebraicSpace.LocallyOfFinitePresentation (groupoid f hU) := sorry
+    [Groupoids.Hom.LocallyOfFinitePresentation f],
+    GroupoidAlgebraicSpace.Flat (AlgebraicStack.groupoid f hU))
 
-/-- The canonical 1-morphism `fCan f hU : [U / R] ⟶ X` associated to a
-surjective, flat, locally of finite presentation atlas is an equivalence of
-categories fibred in groupoids. The kernel-pair maps need not be smooth. -/
-instance fCan_isEquivalence_of_flat {S : Scheme.{u}} {X U : GroupoidsOver S}
-    (f : U ⟶ X) [AlgebraicStack X] (hU : IsRepresentableByAlgebraicSpace U)
+#check (AlgebraicGeometry.AlgebraicStack.groupoid_locallyOfFinitePresentation :
+  ∀ {S : Scheme.{u}} {X U : GroupoidsOver S} (f : U ⟶ X)
+    [AlgebraicStack X] (hU : IsRepresentableByAlgebraicSpace U)
     [Groupoids.Hom.Surjective f] [Groupoids.Hom.Flat f]
-    [Groupoids.Hom.LocallyOfFinitePresentation f] :
-    (toBasedFunctor (fCan f hU)).IsEquivalence := sorry
-
-end AlgebraicGeometry.AlgebraicStack
+    [Groupoids.Hom.LocallyOfFinitePresentation f],
+    GroupoidAlgebraicSpace.LocallyOfFinitePresentation (AlgebraicStack.groupoid f hU))

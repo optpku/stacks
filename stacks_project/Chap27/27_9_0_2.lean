@@ -6,36 +6,25 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import ReasLib.AlgebraicGeometry.ProjectiveSpectrum.Twist.GradedSections
+public import ReasLib.AlgebraicGeometry.ProjectiveSpectrum.Module.Associated.EventualSections
 import StacksCheckRecall
 
 @[expose] public section
 
--- Declarations for this item will be appended below by the statement pipeline.
-
 open AlgebraicGeometry
-open CategoryTheory
-open scoped AlgebraicGeometry
+open scoped AlgebraicGeometry DirectSum
 
 noncomputable section
 
-universe u v
+universe u
 
-namespace AlgebraicGeometry
+variable {A M : Type u} [CommRing A] [AddCommGroup M] [Module A M]
+variable (𝒜 : ℕ → Submodule ℤ A) [GradedAlgebra 𝒜]
+variable (ℳ : ℤ → Submodule ℤ M) [SetLike.GradedSMul 𝒜 ℳ]
 
-section
+variable (n : ℤ)
 
-variable {A : Type u} {σ : Type v} [CommRing A] [SetLike σ A] [AddSubgroupClass σ A]
-variable (𝒜 : ℕ → σ) [GradedRing 𝒜]
-variable (Mpiece : ℤ → Type u) [∀ n : ℤ, AddCommGroup (Mpiece n)]
-variable (P : AlgebraicGeometry.Proj.AssociatedModule.Presentation 𝒜 Mpiece) (n : ℤ)
-
-/- 27.9.0.2: The canonical map from the degree-`n` piece of a graded module to the global
-sections of its associated `n`th twist on `Proj`. -/
+/- 27.9.0.2: use the actual translated grading and its canonical fraction section map. -/
 @[stacks 0AG2] #check
-  (AlgebraicGeometry.Proj.AssociatedModule.Presentation.sectionMap P n :
-    Mpiece n →+ Γ(P.associatedTwist n, ⊤))
-
-end
-
-end AlgebraicGeometry
+  (Proj.AssociatedModule.ShiftedSections.sectionMap 𝒜 ℳ n :
+    ℳ n →+ Γ(Proj.AssociatedModule.sheaf 𝒜 (GradedModule.shiftGrading ℳ n), ⊤))

@@ -42,14 +42,78 @@ is quasi-compact. -/
 instance instBaseChangeCoproductQuasiCompact
     (X : Over (Spec (CommRingCat.of k))) [LocallyAlgebraic X] :
     QuasiCompact
-      (genericPointSpectrumCoproductTo (FieldExtension.baseChange k K X.hom)) := sorry
+      (genericPointSpectrumCoproductTo (FieldExtension.baseChange k K X.hom)) := by
+  classical
+  let Y := FieldExtension.baseChange k K X.hom
+  let F := fun η : genericPoints Y ↦ Spec (Y.residueField η.1)
+  letI : IsLocallyNoetherian Y :=
+    LocallyOfFiniteType.isLocallyNoetherian (FieldExtension.toBase k K X.hom)
+  rw [quasiCompact_iff_forall_isAffineOpen]
+  intro U hU
+  let I : Set (genericPoints Y) := {η | η.1 ∈ U}
+  have hfinite : I.Finite := by
+    letI : IsAffine (U : Scheme) := hU
+    letI : IsNoetherian (U : Scheme) :=
+      { toIsLocallyNoetherian := inferInstance
+        toCompactSpace := inferInstance }
+    have hfiniteU : Finite (genericPoints (U : Scheme)) :=
+      genericPoints.finite finite_irreducibleComponents_of_isNoetherian
+    let restrictGeneric : I → genericPoints (U : Scheme) := fun η ↦
+      ⟨⟨η.1.1, η.2⟩, by
+        let f : ↥(U : Scheme) → Y := Subtype.val
+        have hf : Topology.IsOpenEmbedding f := U.2.isOpenEmbedding_subtypeVal
+        have hpre := preimage_mem_irreducibleComponents η.1.2 hf
+          ⟨η.1.1, subset_closure (Set.mem_singleton _), ⟨⟨η.1.1, η.2⟩, rfl⟩⟩
+        change closure ({⟨η.1.1, η.2⟩} : Set (U : Scheme)) ∈
+          irreducibleComponents (U : Scheme)
+        convert hpre using 1
+        rw [hf.isOpenMap.preimage_closure_eq_closure_preimage hf.continuous]
+        congr 1
+        ext z
+        change (z = ⟨η.1.1, η.2⟩ ↔ z.1 = η.1.1)
+        exact ⟨fun h ↦ congrArg Subtype.val h, fun h ↦ Subtype.ext h⟩⟩
+    exact @Finite.of_injective _ _ hfiniteU restrictGeneric fun η ξ h ↦
+      Subtype.ext (Subtype.ext (congrArg (fun z ↦ z.1.1) h))
+  have hleg (η : genericPoints Y) (x : F η) :
+      genericPointSpectrumCoproductTo Y (Limits.Sigma.ι F η x) = η.1 := by
+    exact (congrArg (fun f : Spec (Y.residueField η.1) ⟶ Y ↦ f x)
+      (genericPointSpectrumCoproductTo_ι Y η)).trans
+        (Scheme.fromSpecResidueField_apply η.1 x)
+  have hpreimage :
+      genericPointSpectrumCoproductTo Y ⁻¹' (U : Set Y) =
+        ⋃ η ∈ I, Set.range (Limits.Sigma.ι F η) := by
+    apply Set.Subset.antisymm
+    · intro z hz
+      obtain ⟨⟨η, x⟩, rfl⟩ := (sigmaMk F).surjective z
+      have hη : η ∈ I := by
+        change η.1 ∈ (U : Set Y)
+        simpa only [Set.mem_preimage, sigmaMk_mk, hleg] using hz
+      exact Set.mem_iUnion_of_mem η (Set.mem_iUnion_of_mem hη
+        ⟨x, (sigmaMk_mk F η x).symm⟩)
+    · intro z hz
+      obtain ⟨η, hz⟩ := Set.mem_iUnion.mp hz
+      obtain ⟨hη, x, rfl⟩ := Set.mem_iUnion.mp hz
+      change genericPointSpectrumCoproductTo Y (Limits.Sigma.ι F η x) ∈ U
+      rw [hleg]
+      exact hη
+  change IsCompact (genericPointSpectrumCoproductTo Y ⁻¹' (U : Set Y))
+  rw [hpreimage]
+  exact hfinite.isCompact_biUnion fun η _ ↦ isCompact_range (Limits.Sigma.ι F η).continuous
 
 /-- The generic-point residue-field coproduct of a locally algebraic field-extension base change
 is quasi-separated. -/
 instance instBaseChangeCoproductQuasiSeparated
     (X : Over (Spec (CommRingCat.of k))) [LocallyAlgebraic X] :
     QuasiSeparated
-      (genericPointSpectrumCoproductTo (FieldExtension.baseChange k K X.hom)) := sorry
+      (genericPointSpectrumCoproductTo (FieldExtension.baseChange k K X.hom)) := by
+  let Y := FieldExtension.baseChange k K X.hom
+  have : IsLocallyNoetherian (genericPointSpectrumCoproduct Y) := by
+    change IsLocallyNoetherian (∐ fun η : genericPoints Y ↦ Spec (Y.residueField η.1))
+    rw [isLocallyNoetherian_iff_openCover (sigmaOpenCover _)]
+    intro η
+    change IsLocallyNoetherian (Spec (Y.residueField η.1))
+    infer_instance
+  exact QuasiSeparated.of_quasiSeparatedSpace _
 
 set_option backward.isDefEq.respectTransparency false in
 /-- The canonical lift from the normalization after field extension to the source normalization. -/
@@ -103,7 +167,10 @@ theorem lift_spec
     (X : Over (Spec (CommRingCat.of k))) [LocallyAlgebraic X] :
     lift X ≫ X.left.normalizationTo =
       (FieldExtension.baseChange k K X.hom).normalizationTo ≫
-        FieldExtension.Over.toSource k K X := sorry
+        FieldExtension.Over.toSource k K X := by
+  dsimp only [lift]
+  rw [Category.assoc, pullback.condition, ← Category.assoc,
+    Scheme.Hom.normalizationDesc_comp]
 
 /-- A morphism to the source normalization satisfying the lift equation is the canonical lift. -/
 theorem lift_unique
@@ -121,7 +188,8 @@ theorem existsUniqueLift
     ∃! h : (FieldExtension.baseChange k K X.hom).normalization ⟶ X.left.normalization,
       h ≫ X.left.normalizationTo =
         (FieldExtension.baseChange k K X.hom).normalizationTo ≫
-          FieldExtension.Over.toSource k K X := sorry
+          FieldExtension.Over.toSource k K X := by
+  exact ⟨lift X, lift_spec X, fun h hh ↦ lift_unique X h hh⟩
 
 /-- The pullback-model comparison from the normalization after field extension to the pullback
 of the source normalization along the source projection. -/
@@ -143,7 +211,8 @@ theorem pullbackComparison_snd
     pullbackComparison X ≫
         pullback.snd X.left.normalizationTo
           (FieldExtension.Over.toSource k K X) =
-      (FieldExtension.baseChange k K X.hom).normalizationTo := sorry
+      (FieldExtension.baseChange k K X.hom).normalizationTo := by
+  exact pullback.lift_snd ..
 
 /-- The first pullback projection of `pullbackComparison` is compatible with the source
 normalization map. -/
@@ -154,7 +223,9 @@ theorem pullbackComparison_fst_assoc
           (FieldExtension.Over.toSource k K X) ≫
         X.left.normalizationTo =
       (FieldExtension.baseChange k K X.hom).normalizationTo ≫
-        FieldExtension.Over.toSource k K X := sorry
+        FieldExtension.Over.toSource k K X := by
+  rw [pullbackComparison, pullback.lift_fst_assoc]
+  exact lift_spec X
 
 /-- The canonical comparison from the normalization after field extension to the field extension
 of the source normalization. -/
@@ -170,7 +241,15 @@ noncomputable def comparison
 /-- The field-extension source projection of `comparison` is the canonical lift. -/
 theorem comparison_toSource
     (X : Over (Spec (CommRingCat.of k))) [LocallyAlgebraic X] :
-    comparison X ≫ FieldExtension.toSource k K (X.left.normalizationTo ≫ X.hom) = lift X := sorry
+    comparison X ≫ FieldExtension.toSource k K (X.left.normalizationTo ≫ X.hom) = lift X := by
+  calc
+    _ = pullbackComparison X ≫
+        pullback.fst X.left.normalizationTo (FieldExtension.Over.toSource k K X) :=
+      (Category.assoc _ _ _).trans
+        (congrArg (fun f ↦ pullbackComparison X ≫ f)
+          (pullbackRightPullbackFstIso_hom_fst X.hom (FieldExtension.specMap k K)
+            X.left.normalizationTo))
+    _ = lift X := pullback.lift_fst ..
 
 /-- The field-extension base projection of `comparison` factors through the normalization map
 after field extension. -/
@@ -178,7 +257,18 @@ theorem comparison_toBase
     (X : Over (Spec (CommRingCat.of k))) [LocallyAlgebraic X] :
     comparison X ≫ FieldExtension.toBase k K (X.left.normalizationTo ≫ X.hom) =
       (FieldExtension.baseChange k K X.hom).normalizationTo ≫
-        FieldExtension.toBase k K X.hom := sorry
+        FieldExtension.toBase k K X.hom := by
+  calc
+    _ = pullbackComparison X ≫
+        pullback.snd X.left.normalizationTo (FieldExtension.Over.toSource k K X) ≫
+          FieldExtension.toBase k K X.hom :=
+      (Category.assoc _ _ _).trans
+        (congrArg (fun f ↦ pullbackComparison X ≫ f)
+          (pullbackRightPullbackFstIso_hom_snd X.hom (FieldExtension.specMap k K)
+            X.left.normalizationTo))
+    _ = _ := (Category.assoc _ _ _).symm.trans
+      (congrArg (fun f ↦ f ≫ FieldExtension.toBase k K X.hom)
+        (pullbackComparison_snd X))
 
 /-- If the field extension is separable, the normalization comparison is an isomorphism. -/
 @[stacks 0C3N]

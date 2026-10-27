@@ -13,6 +13,9 @@ open CategoryTheory
 
 universe u
 
+attribute [local irreducible]
+  CategoryTheory.ModuleCat.IdealPower.DerivedBaseChange.adjunction
+
 /- Lemma 47.9.7: flat base change and restriction are quasi-inverse on
 derived objects with ideal-power-torsion cohomology. -/
 @[stacks 0AM0]

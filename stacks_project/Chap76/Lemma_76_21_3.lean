@@ -6,27 +6,24 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap76.Lemma_76_21_3_Comparison
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.NaiveCotangent.SchemeComparison
 import StacksCheckRecall
-
-/-!
-# Comparison of the naive cotangent complex of algebraic spaces with schemes
-
-A morphism of algebraic spaces over a scheme `S` that is representable by a morphism
-of schemes has naive cotangent complex identified in `D(𝒪_X)` with the inverse image
-along `ε` of the scheme-level naive cotangent complex.
--/
 
 @[expose] public section
 
-open AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
-open AlgebraicGeometry.AlgebraicSpace.Hom.NaiveCotangent
-open scoped AlgebraicGeometry.AlgebraicSpace
-
+open CategoryTheory
 universe u
 
-/- Lemma 76.21.3: Let `S` be a scheme. Let `f : X ⟶ Y` be a morphism of algebraic spaces
-over `S`. Assume `X` and `Y` representable by schemes `X0` and `Y0`. Then there is a
-canonical identification `NL[X/Y] = ε* NL[X0/Y0]` in `D(𝒪_X)`, where `ε` is as in
-Section 75.4 and `NL[X0/Y0]` is the scheme-level naive cotangent complex. -/
-@[stacks 0D0X] #check ofOverHomIso_derived
+/- Lemma 76.21.3. Let S be a scheme and let f : X ⟶ Y be a morphism of algebraic
+spaces over S, represented by a scheme morphism f0 : X0 ⟶ Y0. There is a canonical
+identification NL_{X/Y} ≅ ε* NL_{X0/Y0} in D(𝒪_X), where ε is the étale-to-Zariski
+morphism and NL_{X0/Y0} is the scheme naive cotangent complex. -/
+@[stacks 0D0X] #check
+  (AlgebraicGeometry.AlgebraicSpace.Hom.NaiveCotangent.ofOverHomIso_derived :
+    ∀ {S : AlgebraicGeometry.Scheme.{u}} {X0 Y0 : CategoryTheory.Over S}
+      (f0 : X0 ⟶ Y0),
+      DerivedCategory.Q.obj
+          (AlgebraicGeometry.AlgebraicSpace.Hom.NaiveCotangent.epsilonStarComplex f0) ≅
+        DerivedCategory.Q.obj
+          (AlgebraicGeometry.AlgebraicSpace.Hom.naiveCotangent
+            (AlgebraicGeometry.AlgebraicSpace.ofOverMap f0)))

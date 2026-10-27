@@ -6,9 +6,8 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import ReasLib.AlgebraicGeometry.AlgebraicSpace.CohStack.Hom.Smooth
-public import ReasLib.AlgebraicGeometry.Scheme.Morphism.Syntomic
-public import stacks_project.Chap109.Lemma_109_15_2_Substack
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Curve.LocalCompleteIntersection.IsolatedSingularities
+import StacksCheckRecall
 
 /-!
 # Local complete intersection curves with isolated singularities
@@ -22,52 +21,37 @@ and only if it is a local complete intersection over that field and smooth
 except at finitely many points.
 -/
 
-@[expose] public section
-
 open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
 open scoped Bicategory
 
-noncomputable section
-
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
-namespace Spaces
-namespace Curves
+namespace AlgebraicGeometry.AlgebraicSpace.Spaces.Curves
 
-/-- Lemma 109.15.2 (1): the structure morphism `𝒞urves^{lci+} ⟶ Spec(Z)` is
-smooth. -/
-@[stacks 0DZX]
-instance instSmooth_lciPlus (S : Scheme.{u}) :
-    CohStack.Hom.Smooth
-      (inclusionOf (lciPlus S) ≫ CohStack.toIdentitySlice (toGroupoids S)) :=
-  sorry
+/- Lemma 109.15.2 (1): the structure morphism of the local complete intersection
+curves with isolated singularities is smooth. -/
+@[stacks 0DZX] #check (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.instSmooth_lciPlus :
+  ∀ (S : Scheme.{u}), CohStack.Hom.Smooth
+    (inclusionOf (lciPlus S) ≫ CohStack.toIdentitySlice (toGroupoids S)))
 
-/-- Lemma 109.15.2 (2): given a family of curves `X ⟶ S`, the classifying
-morphism `S ⟶ 𝒞urves` factors through `𝒞urves^{lci+}` if and only if
-`X ⟶ S` is a local complete intersection morphism and the singular locus of
-`X ⟶ S` endowed with any/some closed subspace structure is finite over `S`. -/
-@[stacks 0DZX]
-theorem classifying_factorsThrough_lciPlus_iff {S : Scheme.{u}} (P : Obj S) :
+/- Lemma 109.15.2 (2): a family is classified by the intersection locus precisely
+when it is a local complete intersection and its singular locus with any/some
+closed subspace structure is finite over the base. -/
+@[stacks 0DZX] #check (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.classifying_factorsThrough_lciPlus_iff :
+  ∀ {S : Scheme.{u}} (P : Obj S),
     lciPlus S P ↔
       AlgebraicSpace.IsLocalCompleteIntersection (hom P) ∧
         ∀ T : ClosedSubspaceStructure (nonsmoothLocusClosed (hom P)),
-          IsFinite (T.ι ≫ hom P) :=
-  sorry
+          IsFinite (T.ι ≫ hom P))
 
-/-- Lemma 109.15.2 (3): given `X` a proper scheme over a field `k` of
-dimension `≤ 1`, the classifying morphism `Spec k ⟶ 𝒞urves` factors through
-`𝒞urves^{lci+}` if and only if `X` is a local complete intersection over `k`
-and `X ⟶ Spec k` is smooth except at finitely many points. -/
-@[stacks 0DZX]
-theorem classifying_factorsThrough_lciPlus_iff_scheme
-    {k : Type u} [Field k] (X : SchemeOverField k) [IsProper X.hom]
-    (hdim : topologicalKrullDim X.left ≤ 1) :
+/- Lemma 109.15.2 (3): a proper scheme of dimension at most one over a field is
+classified by the intersection locus precisely when it is a local complete
+intersection over the field and smooth except at finitely many points. -/
+@[stacks 0DZX] #check (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.classifying_factorsThrough_lciPlus_iff_scheme :
+  ∀ {k : Type u} [Field k] (X : SchemeOverField k) [IsProper X.hom]
+    (hdim : topologicalKrullDim X.left ≤ 1),
     lciPlus (Spec (CommRingCat.of k)) (mkOfSchemeOverField X hdim) ↔
       IsLocalCompleteIntersectionOver k X.hom ∧
-        Set.Finite (setOf fun x : X.left ↦ ¬ X.hom.SmoothAt x) :=
-  sorry
+        Set.Finite (setOf fun x : X.left ↦ ¬ X.hom.SmoothAt x))
 
-end Curves
-end Spaces
-end AlgebraicGeometry.AlgebraicSpace
+end AlgebraicGeometry.AlgebraicSpace.Spaces.Curves

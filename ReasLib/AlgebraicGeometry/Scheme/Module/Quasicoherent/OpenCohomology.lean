@@ -96,21 +96,21 @@ noncomputable def openDerivedSectionsComparison
       (QCoh X) inferInstance inferInstance (instIsGrothendieckAbelian.{u, u} X)
   let hRF : (openSectionsFunctor X U).toBoundedBelowDerived.HasRightDerivedFunctor
       (HomotopyCategory.Plus.quasiIso (QCoh X)) :=
-    @Functor.RightDerived.Bounded.hasDerived _ _ _ _ _ _ _
+    @Functor.RightDerived.Bounded.hasDerived _ _ _ _ _ _ _ _
       (openSectionsFunctor X U) (openSectionsFunctor_additive X U)
       (@Functor.RightAcyclic.Bounded.hasMonoEmbedding _ _ _ _ _ _ _
         (openSectionsFunctor X U) (openSectionsFunctor_additive X U) hEnoughQCoh)
   let hRH : H.toBoundedBelowDerived.HasRightDerivedFunctor
       (HomotopyCategory.Plus.quasiIso (X.carrier.Sheaf AddCommGrpCat.{u})) :=
-    @Functor.RightDerived.Bounded.hasDerived _ _ _ _ _ _ _ H hH inferInstance
+    @Functor.RightDerived.Bounded.hasDerived _ _ _ _ _ _ _ _ H hH inferInstance
   let hRIH : (I.obj ⋙ H).toBoundedBelowDerived.HasRightDerivedFunctor
       (HomotopyCategory.Plus.quasiIso (QCoh X)) :=
-    @Functor.RightDerived.Bounded.hasDerived _ _ _ _ _ _ _ (I.obj ⋙ H) hIH
+    @Functor.RightDerived.Bounded.hasDerived _ _ _ _ _ _ _ _ (I.obj ⋙ H) hIH
       (@Functor.RightAcyclic.Bounded.hasMonoEmbedding _ _ _ _ _ _ _
         (I.obj ⋙ H) hIH hEnoughQCoh)
   let hRI : I.obj.toBoundedBelowDerived.HasRightDerivedFunctor
       (HomotopyCategory.Plus.quasiIso (QCoh X)) :=
-    @Functor.RightDerived.Bounded.hasDerived _ _ _ _ _ _ _ I.obj hI
+    @Functor.RightDerived.Bounded.hasDerived _ _ _ _ _ _ _ _ I.obj hI
       (@Functor.RightAcyclic.Bounded.hasMonoEmbedding _ _ _ _ _ _ _ I.obj hI hEnoughQCoh)
   let RF := @Functor.RightDerived.Bounded.functor _ _ _ _ _ _ _ _
     (openSectionsFunctor X U) (openSectionsFunctor_additive X U) hRF

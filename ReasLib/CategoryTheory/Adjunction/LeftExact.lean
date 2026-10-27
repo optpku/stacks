@@ -86,7 +86,7 @@ def id (C : Type u₁) [Category.{v₁} C] : LeftExactAdjunction C C where
   adjunction := Adjunction.id
 
 /-- Composition of left-exact adjunctions. -/
-def comp (f : LeftExactAdjunction B C) (g : LeftExactAdjunction A B) :
+abbrev comp (f : LeftExactAdjunction B C) (g : LeftExactAdjunction A B) :
     LeftExactAdjunction A C where
   inverseImageFunctor :=
     ⟨f.inverseImageFunctor.obj ⋙ g.inverseImageFunctor.obj,

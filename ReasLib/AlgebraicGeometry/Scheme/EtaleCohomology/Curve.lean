@@ -48,8 +48,10 @@ noncomputable def etaleCohomologyTerminalIsTerminal :
   MorphismProperty.Over.mkIdTerminal @Etale X.left
 
 /-- The base-field element obtained by evaluating a degree-zero Kummer class and
-inverting the global-sections map. -/
+inverting the global-sections map. Properness, reducedness, and connectedness ensure that all global
+sections are scalars, including when `n = 0`. -/
 noncomputable def rootsH0BaseValue
+    [IsAlgClosed k] [IsReduced X.left] [ConnectedSpace X.left] [IsProper X.hom]
     (x : (CategoryTheory.Sheaf.rootsOfUnityAddSheaf
       (smallCommStructureSheaf .etale X.left) n).H 0) : k :=
   let rootSection := Sheaf.H.equiv₀
@@ -76,7 +78,8 @@ theorem rootsH0BaseValue_isUnit
 theorem rootsH0BaseUnit_pow
     (x : (CategoryTheory.Sheaf.rootsOfUnityAddSheaf
       (smallCommStructureSheaf .etale X.left) n).H 0) :
-    (rootsH0BaseValue_isUnit X n x).unit ^ n = 1 := sorry
+    Units.mk0 (rootsH0BaseValue X n x)
+      (rootsH0BaseValue_isUnit X n x).ne_zero ^ n = 1 := sorry
 
 /-- The canonical forward function from degree-zero Kummer cohomology to base-field roots of
 unity. -/
@@ -85,7 +88,8 @@ noncomputable def rootsH0ComparisonFunction
       (smallCommStructureSheaf .etale X.left) n).H 0) :
     Additive (rootsOfUnity n k) :=
   Additive.ofMul
-    ⟨(rootsH0BaseValue_isUnit X n x).unit, rootsH0BaseUnit_pow X n x⟩
+    ⟨Units.mk0 (rootsH0BaseValue X n x) (rootsH0BaseValue_isUnit X n x).ne_zero,
+      rootsH0BaseUnit_pow X n x⟩
 
 /-- The degree-zero Kummer comparison preserves addition. -/
 theorem rootsH0ComparisonFunction_add
@@ -140,16 +144,16 @@ theorem smallEtaleAssociatedModule_isInvertible
 
 
 /-- The canonical function from scheme Picard classes to Picard classes on the small étale
-ringed site. -/
+ringed site. Its inverse component is the associated module of the inverse input class;
+no inverse object is extracted from `smallEtaleAssociatedModule_isInvertible`. -/
 noncomputable def schemePicardToSmallEtalePicardFunction
     (x : X.left.PicardGroup) :
     SheafOfModules.RingedSite.PicardGroup X.left.smallEtaleTopology
       (smallCommStructureSheaf .etale X.left) :=
-  @MonoidalCategory.PicardGroup.mk
-    (SheafOfModules.RingedSite.ringedSiteModuleCategory
-      X.left.smallEtaleTopology (smallCommStructureSheaf .etale X.left)) _ _
-    (smallComm .etale X.left (Scheme.PicardGroup.repr x))
-    (smallEtaleAssociatedModule_isInvertible X (Scheme.PicardGroup.repr x))
+  Additive.ofMul <| Units.mk
+    (toSkeleton (smallComm .etale X.left (Scheme.PicardGroup.repr x)))
+    (toSkeleton (smallComm .etale X.left (Scheme.PicardGroup.repr (-x))))
+    (by sorry) (by sorry)
 
 /-- The small-étale Picard comparison sends the neutral class to the neutral class. -/
 theorem schemePicardToSmallEtalePicardFunction_zero :
@@ -162,6 +166,12 @@ theorem schemePicardToSmallEtalePicardFunction_add
       schemePicardToSmallEtalePicardFunction X x +
         schemePicardToSmallEtalePicardFunction X y := sorry
 
+omit [IsAlgClosed k] [Curve X] [Smooth X.hom] [Projective X.hom]
+  [HasExt.{u + 1} (Sheaf X.left.smallEtaleTopology AddCommGrpCat.{u + 1})] in
+/-- Étale descent for invertible modules makes the canonical Picard comparison bijective. -/
+theorem schemePicardToSmallEtalePicardFunction_bijective :
+    Function.Bijective (schemePicardToSmallEtalePicardFunction X) := sorry
+
 /-- The Picard class underlying a first Kummer cohomology class. -/
 noncomputable def rootsH1PicardClassFunction
     (x : (CategoryTheory.Sheaf.rootsOfUnityAddSheaf
@@ -173,6 +183,22 @@ noncomputable def rootsH1PicardClassFunction
       (Sheaf.H.map
         (kernel.ι (CategoryTheory.Sheaf.unitsNsmul
           (smallCommStructureSheaf .etale X.left) n)) 1 x))
+
+omit [IsAlgClosed k] [Curve X] [Smooth X.hom] [Projective X.hom] in
+/-- The underlying Picard class maps to the image of the Kummer class in `H¹(Gₘ)`. -/
+theorem rootsH1PicardClassFunction_spec
+    (x : (CategoryTheory.Sheaf.rootsOfUnityAddSheaf
+      (smallCommStructureSheaf .etale X.left) n).H 1) :
+    PicardGroup.cohomologyClass (smallCommStructureSheaf .etale X.left)
+        (schemePicardToSmallEtalePicardFunction X (rootsH1PicardClassFunction X n x)) =
+      Sheaf.H.map (kernel.ι (CategoryTheory.Sheaf.unitsNsmul
+        (smallCommStructureSheaf .etale X.left) n)) 1 x := by
+  unfold rootsH1PicardClassFunction
+  rw [Function.rightInverse_invFun
+    (schemePicardToSmallEtalePicardFunction_bijective X).surjective]
+  exact Function.rightInverse_invFun
+    (PicardGroup.cohomologyClass_bijective
+      (smallCommStructureSheaf .etale X.left)).surjective _
 
 /-- The Picard class underlying a first Kummer class has degree zero. -/
 theorem rootsH1PicardClassFunction_mem_degreeZero
@@ -303,6 +329,14 @@ noncomputable def rootsH2ComparisonFunction
       (smallCommStructureSheaf .etale X.left) n).H 2) : ZMod n :=
   (curvePicardDegreeFunction X
     (Function.invFun (kummerPicardBoundaryFunction X n h_pos h_n) x) : ZMod n)
+
+/-- Every Picard lift has the same degree modulo `n`, so the comparison is normalized by
+the Kummer boundary, independently of its chosen preimage. -/
+theorem rootsH2ComparisonFunction_kummerPicardBoundaryFunction
+    (h_pos : 0 < n) (h_n : IsUnit (n : k)) (L : X.left.PicardGroup) :
+    rootsH2ComparisonFunction X n h_pos h_n
+        (kummerPicardBoundaryFunction X n h_pos h_n L) =
+      (curvePicardDegreeFunction X L : ZMod n) := sorry
 
 /-- The second Kummer comparison preserves addition. -/
 theorem rootsH2ComparisonFunction_add

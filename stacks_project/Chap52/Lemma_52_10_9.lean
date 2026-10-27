@@ -24,11 +24,11 @@ adic quotient cohomology system. -/
   (Ideal.LocalCohomology.AlgebraizationSituation.exists_stabilizingIdeal_limitComparison :
     ∀ {A : Type u} [CommRing A] [IsNoetherianRing A]
       [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
-      (H : MonoidalClosed (DerivedCategory (ModuleCat.{u} A)))
+      (C : CategoryTheory.DerivedCategory.CanonicalClosedPresentation (A := A))
       (I a : Ideal A) (hIa : I ≤ a) [IsAdicComplete I A]
       (M : Type u) [AddCommGroup M] [Module A M] [Module.Finite A M]
       (s d : ℤ)
-      (hSituation : Ideal.LocalCohomology.AlgebraizationSituation H I M
+      (hSituation : Ideal.LocalCohomology.AlgebraizationSituation C I M
         (PrimeSpectrum.zeroLocus (a : Set A)) s d)
       (δ : PrimeSpectrum A → ℤ) [IsDimensionFunction δ]
       (δmax δmin : ℤ)

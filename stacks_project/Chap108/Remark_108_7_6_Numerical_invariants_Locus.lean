@@ -6,16 +6,10 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap99.Lemma_99_9_2_Comparison
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Hilbert.Numerical
 public import stacks_project.Chap108.Remark_108_5_9_Numerical_invariants_Locus
 
-/-!
-# Numerical loci of the Grothendieck Hilbert functor
-
-The numerical Hilbert functor `Hilb^P_{X/B}` is `Quot^P_{𝒪_X/X/B}`, and the
-morphism `Hilb^P_{X/B} ⟶ Hilb_{X/B}` is the numerical Quot inclusion transported
-along `quotIso`.
--/
+/-! # Numerical Hilbert loci and their defining formulas -/
 
 @[expose] public section
 
@@ -30,61 +24,50 @@ namespace AlgebraicGeometry.AlgebraicSpace.Hilbert
 
 variable {S : Scheme.{u}} {X B : AlgebraicSpace S}
 
-/-- The numerical Hilbert functor `Hilb^P_{X/B}`, defined as
-`Quot^P_{𝒪_X/X/B}` for a family of perfect objects `E i` in `D(𝒪_X)` and a
-function `P : I → ℤ`. -/
-abbrev hilbertNumerical (f : X ⟶ B) [FinitePresentation f] [Separated f]
+#check (AlgebraicGeometry.AlgebraicSpace.Hilbert.hilbertNumerical :
+  ∀ (f : X ⟶ B) [FinitePresentation f] [Separated f]
     {I : Type u} (E : I → ModuleDerived X) (P : I → ℤ)
-    (hE : ∀ i, ModuleDerived.IsPerfect (E i)) :=
-  Quot.quotNumerical f (SheafOfModules.unit (structureSheaf X)) E P hE
+    (hE : ∀ i, ModuleDerived.IsPerfect (E i)),
+    Subfunctor (Quot.quot f (SheafOfModules.unit (structureSheaf X))))
 
-/-- `hilbertNumerical` is `quotNumerical` of the structure sheaf `𝒪_X`. -/
-theorem hilbertNumerical_eq (f : X ⟶ B) [FinitePresentation f] [Separated f]
+#check (AlgebraicGeometry.AlgebraicSpace.Hilbert.hilbertNumerical_eq :
+  ∀ (f : X ⟶ B) [FinitePresentation f] [Separated f]
     {I : Type u} (E : I → ModuleDerived X) (P : I → ℤ)
-    (hE : ∀ i, ModuleDerived.IsPerfect (E i)) :
+    (hE : ∀ i, ModuleDerived.IsPerfect (E i)),
     hilbertNumerical f E P hE =
-      Quot.quotNumerical f (SheafOfModules.unit (structureSheaf X)) E P hE :=
-  sorry
+      Quot.quotNumerical f (SheafOfModules.unit (structureSheaf X)) E P hE)
 
-/-- The morphism `Hilb^P_{X/B} ⟶ Hilb_{X/B}`, obtained by composing the
-numerical Quot inclusion with the inverse of `quotIso`. -/
-def hilbertNumericalι (f : X ⟶ B) [FinitePresentation f] [Separated f]
+#check (AlgebraicGeometry.AlgebraicSpace.Hilbert.hilbertNumericalι :
+  ∀ (f : X ⟶ B) [FinitePresentation f] [Separated f]
     {I : Type u} (E : I → ModuleDerived X) (P : I → ℤ)
-    (hE : ∀ i, ModuleDerived.IsPerfect (E i)) :
-    (hilbertNumerical f E P hE).toFunctor ⟶ hilbert f :=
-  Quot.quotNumericalι f (SheafOfModules.unit (structureSheaf X)) E P hE ≫
-    (quotIso f).inv
+    (hE : ∀ i, ModuleDerived.IsPerfect (E i)),
+    (hilbertNumerical f E P hE).toFunctor ⟶ hilbert f)
 
-/-- `hilbertNumericalι` is `quotNumericalι` postcomposed with `(quotIso f).inv`. -/
-theorem hilbertNumericalι_eq (f : X ⟶ B) [FinitePresentation f] [Separated f]
+#check (AlgebraicGeometry.AlgebraicSpace.Hilbert.hilbertNumericalι_eq :
+  ∀ (f : X ⟶ B) [FinitePresentation f] [Separated f]
     {I : Type u} (E : I → ModuleDerived X) (P : I → ℤ)
-    (hE : ∀ i, ModuleDerived.IsPerfect (E i)) :
+    (hE : ∀ i, ModuleDerived.IsPerfect (E i)),
     hilbertNumericalι f E P hE =
       Quot.quotNumericalι f (SheafOfModules.unit (structureSheaf X)) E P hE ≫
-        (quotIso f).inv :=
-  sorry
+        (quotIso f).inv)
 
-/-- Composing `hilbertNumericalι` with `quotIso` recovers the numerical Quot
-inclusion `Quot^P_{𝒪_X/X/B} ⟶ Quot_{𝒪_X/X/B}`. -/
-theorem hilbertNumericalι_comp_quotIso (f : X ⟶ B) [FinitePresentation f]
+#check (AlgebraicGeometry.AlgebraicSpace.Hilbert.hilbertNumericalι_comp_quotIso :
+  ∀ (f : X ⟶ B) [FinitePresentation f]
     [Separated f] {I : Type u} (E : I → ModuleDerived X) (P : I → ℤ)
-    (hE : ∀ i, ModuleDerived.IsPerfect (E i)) :
+    (hE : ∀ i, ModuleDerived.IsPerfect (E i)),
     hilbertNumericalι f E P hE ≫ (quotIso f).hom =
-      Quot.quotNumericalι f (SheafOfModules.unit (structureSheaf X)) E P hE :=
-  sorry
+      Quot.quotNumericalι f (SheafOfModules.unit (structureSheaf X)) E P hE)
 
-/-- The Hilbert-polynomial functor `Hilb^{P,L}_{X/B}` associated to an invertible
-`𝒪_X`-module `L`. -/
-abbrev hilbertNumericalHilbert (f : X ⟶ B) [FinitePresentation f] [Separated f]
-    (L : X.Modules) [isInvertibleObject L] (P : ℤ → ℤ) :=
-  Quot.quotNumericalHilbert f (SheafOfModules.unit (structureSheaf X)) L P
+#check (AlgebraicGeometry.AlgebraicSpace.Hilbert.hilbertNumericalHilbert :
+  ∀ (f : X ⟶ B) [FinitePresentation f] [Separated f]
+    (L : X.Modules) [isInvertibleObject L] (P : ℤ → ℤ),
+    Subfunctor (Quot.quot f (SheafOfModules.unit (structureSheaf X))))
 
-/-- `hilbertNumericalHilbert` is `hilbertNumerical` of the family `n ↦ L^{⊗ n}`. -/
-theorem hilbertNumericalHilbert_eq (f : X ⟶ B) [FinitePresentation f]
-    [Separated f] (L : X.Modules) [isInvertibleObject L] (P : ℤ → ℤ) :
+#check (AlgebraicGeometry.AlgebraicSpace.Hilbert.hilbertNumericalHilbert_eq :
+  ∀ (f : X ⟶ B) [FinitePresentation f]
+    [Separated f] (L : X.Modules) [isInvertibleObject L] (P : ℤ → ℤ),
     hilbertNumericalHilbert f L P =
       hilbertNumerical f (Quot.invertiblePowerFamily L)
-        (fun n ↦ P n.down) (Quot.isPerfect_invertiblePowerFamily L) :=
-  sorry
+        (fun n ↦ P n.down) (Quot.isPerfect_invertiblePowerFamily L))
 
 end AlgebraicGeometry.AlgebraicSpace.Hilbert

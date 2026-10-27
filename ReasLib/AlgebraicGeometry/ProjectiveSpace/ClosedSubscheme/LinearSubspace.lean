@@ -30,7 +30,7 @@ theorem isLinearLine_iff {k : Type u} [Field k] (Z : (scheme k 3).IdealSheafData
       ∃ ℓ : Fin 2 → MvPolynomial (Fin (3 + 1)) k,
         (∀ i, ℓ i ∈ grading k 3 1) ∧
           LinearIndependent k ℓ ∧
-            coordinateIdeal 3 Z = Ideal.span (Set.range ℓ) := sorry
+            coordinateIdeal 3 Z = Ideal.span (Set.range ℓ) := Iff.rfl
 
 /-- A closed subscheme of `scheme k 3` is not contained in a plane when its coordinate
 ideal contains no nonzero linear form. -/
@@ -45,6 +45,6 @@ theorem notContainedInPlane_iff {k : Type u} [Field k]
     (Z : (scheme k 3).IdealSheafData) :
     notContainedInPlane Z ↔
       ∀ f : MvPolynomial (Fin (3 + 1)) k,
-        f ∈ grading k 3 1 → f ≠ 0 → f ∉ coordinateIdeal 3 Z := sorry
+        f ∈ grading k 3 1 → f ≠ 0 → f ∉ coordinateIdeal 3 Z := Iff.rfl
 
 end AlgebraicGeometry.ProjectiveSpace.ClosedSubscheme

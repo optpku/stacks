@@ -6,10 +6,8 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-import Mathlib.Tactic.CrossRefAttribute
-public import ReasLib.CategoryTheory.Limits.OverPost
-public import stacks_project.Chap60.Lemma_60_9_5_Functor
-public import stacks_project.Chap60.Lemma_60_9_5_Topos
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.Crystalline.OpenRestriction
 
 @[expose] public section
 
@@ -20,130 +18,78 @@ universe u
 
 noncomputable section
 
-variable {p : ℕ} [Fact (Nat.Prime p)]
-variable {S S' X X' : Scheme.{u}}
-variable (iS : S' ⟶ S) [IsOpenImmersion iS]
-variable (iX : X' ⟶ X) [IsOpenImmersion iX]
-
-variable (I : S.IdealSheafData) (I' : S'.IdealSheafData)
-variable (h_I'_restrict : I' = I.comap iS)
-variable (γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V))
-variable (γ' : ∀ V : S'.affineOpens, DividedPowers (I'.ideal V))
-variable (h_compatible :
-  ∀ (V : S.affineOpens) (g : Γ(S, V)),
-    (γ V).IsDPMorphism (γ (S.affineBasicOpen g))
-      (S.presheaf.map (homOfLE (S.basicOpen_le g)).op).hom)
-variable (h'_compatible :
-  ∀ (V : S'.affineOpens) (g : Γ(S', V)),
-    (γ' V).IsDPMorphism (γ' (S'.affineBasicOpen g))
-      (S'.presheaf.map (homOfLE (S'.basicOpen_le g)).op).hom)
-variable (s : S ⟶ Spec (.of (ULift.{u} (Int.LocalizationAtPrime p))))
-variable (s' : S' ⟶ Spec (.of (ULift.{u} (Int.LocalizationAtPrime p))))
-variable (h_s'_restrict : s' = iS ≫ s)
-variable (x₀ : X ⟶ I.subscheme) (x₀' : X' ⟶ I'.subscheme)
-variable (h_p : ∀ U : X.affineOpens, IsNilpotent (p : Γ(X, U)))
-variable (h_p' : ∀ U : X'.affineOpens, IsNilpotent (p : Γ(X', U)))
-
-variable (g : DividedPowerSchemeHom I' I s' s)
-variable (h_g : g.base = iS)
-variable (h_comm : iX ≫ x₀ = x₀' ≫ g.zeroFiberMap)
+variable {p : ℕ} [Fact (Nat.Prime p)] (B B' : Base.{u} p)
+variable (iX : B'.source ⟶ B.source) [IsOpenImmersion iX]
+variable (g : DividedPowerSchemeHom B'.ideal B.ideal B'.toSpec B.toSpec)
+variable [IsOpenImmersion g.base]
+variable (h_comm : iX ≫ B.sourceToClosed = B'.sourceToClosed ≫ g.zeroFiberMap)
 variable (h_dividedPowers :
-  ∀ (V : S.affineOpens) (W : S'.affineOpens)
+  ∀ (V : B.scheme.affineOpens) (W : B'.scheme.affineOpens)
     (hVW : W.1 ≤ g.base ⁻¹ᵁ V.1),
-    (γ V).IsDPMorphism (γ' W) (g.base.appLE V W hVW).hom)
+    (B.dividedPowers V).IsDPMorphism (B'.dividedPowers W)
+      (g.base.appLE V W hVW).hom)
 
-include h_I'_restrict h_s'_restrict h_g
+variable [∀ P : (smallCrystallineSite B'.scheme B'.ideal B'.dividedPowers B'.compatible
+    B'.source B'.sourceToClosed)ᵒᵖ ⥤ Type (u + 1),
+  (openRestrictionFunctor iX B.ideal B'.ideal B.dividedPowers B'.dividedPowers
+      B.compatible B'.compatible B.toSpec B'.toSpec B.sourceToClosed B'.sourceToClosed
+      B.prime_nilpotent B'.prime_nilpotent g.base g.zeroFiberMap g.zeroFiber_comm
+      g.base_over g.ideal_compatible h_comm h_dividedPowers).op.HasPointwiseRightKanExtension P]
+variable [HasSheafify (smallCrystallineTopology p B'.scheme B'.ideal B'.dividedPowers B'.compatible
+    B'.toSpec B'.source B'.sourceToClosed B'.prime_nilpotent) (Type (u + 1))]
 
-/--
-Lemma 60.9.5 (1): the crystalline functor attached to the open inclusions is fully faithful.
-The source-side setup is `I'` on `S'` and `x₀' : X' ⟶ I'.subscheme`; the target-side setup is
-`I` on `S` and `x₀ : X ⟶ I.subscheme`.
--/
-@[stacks 07KL]
-noncomputable def crystallineOpenSubschemeFullyFaithful :
-    (openCrystallineSmallFunctor iX I I' γ γ' h_compatible h'_compatible s s'
-      x₀ x₀' h_p h_p' g h_comm h_dividedPowers).FullyFaithful where
-  preimage := openCrystallineHomPreimage iX I I' γ γ' h_compatible h'_compatible
-    s s' x₀ x₀' h_p h_p' g h_comm h_dividedPowers
-  map_preimage := openCrystallineSmallFunctor_map_preimage iX I I' γ γ'
-    h_compatible h'_compatible s s' x₀ x₀' h_p h_p' g h_comm h_dividedPowers
-  preimage_map := openCrystallineSmallFunctor_preimage_map iX I I' γ γ'
-    h_compatible h'_compatible s s' x₀ x₀' h_p h_p' g h_comm h_dividedPowers
+#check (AlgebraicGeometry.Scheme.Crystalline.crystallineOpenSubschemeFullyFaithful
+    B B' iX g h_comm h_dividedPowers : (openRestrictionFunctor iX B.ideal B'.ideal B.dividedPowers B'.dividedPowers
+      B.compatible B'.compatible B.toSpec B'.toSpec B.sourceToClosed B'.sourceToClosed
+      B.prime_nilpotent B'.prime_nilpotent g.base g.zeroFiberMap g.zeroFiber_comm
+      g.base_over g.ideal_compatible h_comm h_dividedPowers).FullyFaithful)
 
-/--
-Lemma 60.9.5 (2): the morphism of crystalline topoi induced by the open-restriction functor
-fits with the canonical small-Zariski morphism into the displayed commutative square.
--/
-@[stacks 07KL]
-noncomputable def crystallineOpenSubschemeToposSquare
-    [(openCrystallineSmallFunctor iX I I' γ γ' h_compatible h'_compatible s s'
-      x₀ x₀' h_p h_p' g h_comm h_dividedPowers).IsCocontinuous
-        (smallCrystallineTopology p S' I' γ' h'_compatible s' X' x₀' h_p')
-        (smallCrystallineTopology p S I γ h_compatible s X x₀ h_p)]
-    [∀ P : (smallCrystallineSite S' I' γ' h'_compatible X' x₀')ᵒᵖ ⥤ Type (u + 1),
-      (Functor.op (openCrystallineSmallFunctor iX I I' γ γ' h_compatible h'_compatible
-        s s' x₀ x₀' h_p h_p' g h_comm h_dividedPowers)).HasPointwiseRightKanExtension P]
-    [∀ P : (smallCrystallineSite S' I' γ' h'_compatible X' x₀')ᵒᵖ ⥤ Type (u + 1),
-      (Functor.op (forgetfulFunctor p S' I' γ' h'_compatible s' X' x₀' h_p')).HasPointwiseRightKanExtension P]
-    [∀ P : (smallCrystallineSite S I γ h_compatible X x₀)ᵒᵖ ⥤ Type (u + 1),
-      (Functor.op (forgetfulFunctor p S I γ h_compatible s X x₀ h_p)).HasPointwiseRightKanExtension P]
-    [HasSheafify
-      (smallCrystallineTopology p S' I' γ' h'_compatible s' X' x₀' h_p')
-      (Type (u + 1))]
-    [HasSheafify
-      (smallCrystallineTopology p S I γ h_compatible s X x₀ h_p)
-      (Type (u + 1))] :
-    (Zariski.SmallToBig.smallMorphism iX).inverseImage ⋙
-        (smallCrystallineToposMorphism S' I' γ' h'_compatible s' X' x₀' h_p').inverseImage ≅
-      (smallCrystallineToposMorphism S I γ h_compatible s X x₀ h_p).inverseImage ⋙
-        (openCrystallineToposMorphism iX I I' γ γ' h_compatible h'_compatible s s'
-          x₀ x₀' h_p h_p' g h_comm h_dividedPowers).inverseImage :=
-  eqToIso (openCrystallineToposSquare_comm iX I I' γ γ' h_compatible h'_compatible
-    s s' x₀ x₀' h_p h_p' g h_comm h_dividedPowers)
+variable [∀ P : (smallCrystallineSite B'.scheme B'.ideal B'.dividedPowers B'.compatible
+    B'.source B'.sourceToClosed)ᵒᵖ ⥤ Type (u + 1),
+  (forgetfulFunctor p B'.scheme B'.ideal B'.dividedPowers B'.compatible
+      B'.toSpec B'.source B'.sourceToClosed B'.prime_nilpotent).op.HasPointwiseRightKanExtension P]
+variable [∀ P : (smallCrystallineSite B.scheme B.ideal B.dividedPowers B.compatible
+    B.source B.sourceToClosed)ᵒᵖ ⥤ Type (u + 1),
+  (forgetfulFunctor p B.scheme B.ideal B.dividedPowers B.compatible
+      B.toSpec B.source B.sourceToClosed B.prime_nilpotent).op.HasPointwiseRightKanExtension P]
+variable [HasSheafify (smallCrystallineTopology p B.scheme B.ideal B.dividedPowers B.compatible
+    B.toSpec B.source B.sourceToClosed B.prime_nilpotent) (Type (u + 1))]
+variable [HasSheafify B'.source.smallZariskiTopology (Type (u + 1))]
 
-omit h_I'_restrict h_s'_restrict h_g
+#check (AlgebraicGeometry.Scheme.Crystalline.crystallineOpenSubschemeToposSquare
+    B B' iX g h_comm h_dividedPowers : Nonempty
+      ((Zariski.SmallToBig.smallMorphism iX).inverseImage ⋙ (smallCrystallineToposMorphism B'.scheme B'.ideal B'.dividedPowers
+    B'.compatible B'.toSpec B'.source B'.sourceToClosed B'.prime_nilpotent).inverseImage ≅
+        (smallCrystallineToposMorphism B.scheme B.ideal B.dividedPowers
+    B.compatible B.toSpec B.source B.sourceToClosed B.prime_nilpotent).inverseImage ⋙ (openCrystallineToposMorphism B B' iX g h_comm h_dividedPowers).inverseImage))
 
-/--
-Lemma 60.9.5 (3): the displayed square is the Sites 7.31.1 localization of
-`u_{X/S}` at the sheafified representable `h_{X'}`. Equivalently, the inverse-image
-composites of that localization square are
-`Over.star h_{X'} ⋙ (u_{X/S}.localization h_{X'}).inverseImage` and
-`u_{X/S}^{-1} ⋙ Over.star (u_{X/S}^{-1} h_{X'})`.
--/
-@[stacks 07KL]
-noncomputable def crystallineOpenSubschemeLocalization
-    [∀ P : (smallCrystallineSite S I γ h_compatible X x₀)ᵒᵖ ⥤ Type (u + 1),
-      (Functor.op (forgetfulFunctor p S I γ h_compatible s X x₀ h_p)).HasPointwiseRightKanExtension P]
-    [HasSheafify
-      (smallCrystallineTopology p S I γ h_compatible s X x₀ h_p)
-      (Type (u + 1))]
-    [HasWeakSheafify X.smallZariskiTopology (Type (u + 1))]
-    [HasPullbacks (Sheaf X.smallZariskiTopology (Type (u + 1)))]
-    [HasBinaryProducts (Sheaf X.smallZariskiTopology (Type (u + 1)))]
-    [HasBinaryProducts
-      (Sheaf (smallCrystallineTopology p S I γ h_compatible s X x₀ h_p) (Type (u + 1)))] :
-    Over.star (openSubschemeRepresentable iX) ⋙
-        ((smallCrystallineToposMorphism S I γ h_compatible s X x₀ h_p).localization
-          (openSubschemeRepresentable iX)).inverseImage ≅
-      (smallCrystallineToposMorphism S I γ h_compatible s X x₀ h_p).inverseImage ⋙
-        Over.star
-          ((smallCrystallineToposMorphism S I γ h_compatible s X x₀ h_p).inverseImage.obj
-            (openSubschemeRepresentable iX)) :=
-  TwoSquare.overPost.rightAdjointIso
-    (smallCrystallineToposMorphism S I γ h_compatible s X x₀ h_p).inverseImage
-    (openSubschemeRepresentable iX)
+variable [HasWeakSheafify B.source.smallZariskiTopology (Type (u + 1))]
+variable [HasPullbacks (Sheaf B.source.smallZariskiTopology (Type (u + 1)))]
+variable [HasBinaryProducts (Sheaf B.source.smallZariskiTopology (Type (u + 1)))]
+variable [HasBinaryProducts (Sheaf (smallCrystallineTopology p B.scheme B.ideal B.dividedPowers B.compatible
+    B.toSpec B.source B.sourceToClosed B.prime_nilpotent) (Type (u + 1)))]
 
-/-- The 7.31.1 localization square for `u_{X/S}` at `h_{X'}` is an isomorphism of inverse images. -/
-theorem crystallineOpenSubschemeLocalization_isIso
-    [∀ P : (smallCrystallineSite S I γ h_compatible X x₀)ᵒᵖ ⥤ Type (u + 1),
-      (Functor.op (forgetfulFunctor p S I γ h_compatible s X x₀ h_p)).HasPointwiseRightKanExtension P]
-    [HasSheafify
-      (smallCrystallineTopology p S I γ h_compatible s X x₀ h_p)
-      (Type (u + 1))]
-    [HasWeakSheafify X.smallZariskiTopology (Type (u + 1))]
-    [HasPullbacks (Sheaf X.smallZariskiTopology (Type (u + 1)))]
-    [HasBinaryProducts (Sheaf X.smallZariskiTopology (Type (u + 1)))]
-    [HasBinaryProducts
-      (Sheaf (smallCrystallineTopology p S I γ h_compatible s X x₀ h_p) (Type (u + 1)))] :
-    IsIso (crystallineOpenSubschemeLocalization iX I γ h_compatible s x₀ h_p).hom := sorry
+variable (h_I'_restrict : B'.ideal = B.ideal.comap g.base)
+
+/- Lemma 60.9.5. Compatible open subschemes induce a fully faithful crystalline functor
+and the crystalline/Zariski square is a localization square of topoi. -/
+@[stacks 07KL] #check
+  (AlgebraicGeometry.Scheme.Crystalline.crystallineOpenSubschemeLocalization
+    B B' iX g h_comm h_dividedPowers h_I'_restrict :
+    let h := B.source.smallZariskiTopology.uliftSheafifiedRepresentable.{u + 1}
+      (MorphismProperty.Over.mk (⊤ : MorphismProperty Scheme.{u}) iX
+        (inferInstance : IsOpenImmersion iX))
+    let u := (smallCrystallineToposMorphism B.scheme B.ideal B.dividedPowers
+    B.compatible B.toSpec B.source B.sourceToClosed B.prime_nilpotent)
+    let u' := (smallCrystallineToposMorphism B'.scheme B'.ideal B'.dividedPowers
+    B'.compatible B'.toSpec B'.source B'.sourceToClosed B'.prime_nilpotent)
+    let jZ := (Zariski.SmallToBig.smallMorphism iX)
+    let jC := (openCrystallineToposMorphism B B' iX g h_comm h_dividedPowers)
+    ∃ (eZ : Sheaf B'.source.smallZariskiTopology (Type (u + 1)) ≌ Over h)
+      (eC : Sheaf (smallCrystallineTopology p B'.scheme B'.ideal B'.dividedPowers B'.compatible
+    B'.toSpec B'.source B'.sourceToClosed B'.prime_nilpotent) (Type (u + 1)) ≌ Over (u.inverseImage.obj h)),
+      Nonempty (jZ.inverseImage ⋙ eZ.functor ≅ Over.star h) ∧
+      Nonempty (jC.inverseImage ⋙ eC.functor ≅ Over.star (u.inverseImage.obj h)) ∧
+      Nonempty (u'.inverseImage ⋙ eC.functor ≅ eZ.functor ⋙ Over.post u.inverseImage))
+
 end

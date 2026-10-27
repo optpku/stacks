@@ -80,12 +80,6 @@ theorem of_base (R : CompleteLocalAlgCat Λ k) (ξ : ℕ → F) (f : ∀ n, ξ (
     (over_step : ∀ n, p.IsHomLift (R.truncationMap n) (f n)) :
     (of R ξ f over_obj over_step).base = R := sorry
 
-/-- Projection of a formal object to its complete local base. -/
-def projection (ξ : FormalObject p) : CompleteLocalAlgCat Λ k := ξ.base
-
-/-- The projection of a formal object is its stored complete local base. -/
-theorem projection_eq (ξ : FormalObject p) : ξ.projection = ξ.base := sorry
-
 /-- Stagewise specification of a formal object over the truncations of its base. -/
 theorem spec (ξ : FormalObject p) (n : ℕ) :
     p.obj (ξ.system.family n) = ξ.base.truncation n ∧

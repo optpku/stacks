@@ -42,7 +42,7 @@ variable [∀ {Y Z : Scheme.{u}} (j : Y ⟶ Z) [IsOpenImmersion j]
   (etaleRestriction j).op.HasLeftKanExtension F]
 variable (hR : IsUnit (Nat.card R : k))
 variable (M : (finiteTypeDiscreteModule R
-  (Aut (standardFiniteEtaleFiber (arithmeticPoint X η)))).FullSubcategory)
+  (Aut (AlgebraicGeometry.Scheme.GeometricPoint.finiteFiber (arithmeticPoint X η)))).FullSubcategory)
 variable [∀ {Y Z : Scheme.{u}} (j : Y ⟶ Z) [IsOpenImmersion j]
   (F : Y.Etaleᵒᵖ ⥤ ModuleCat.{u + 1} R), (etaleRestriction j).op.HasLeftKanExtension F]
 variable [∀ Y : Scheme.{u}, Y.smallEtaleTopology.HasSheafCompose

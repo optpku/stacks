@@ -30,7 +30,7 @@ equidimensional of dimension `d`. -/
 #check @Algebra.CohenMacaulay.dimensionStratum_equidimensional_and_dimension_eq
 
 @[stacks 00OV "(2), disjoint dimension strata"]
-#check @PrimeSpectrum.pairwiseDisjoint_dimensionStratum
+#check @pairwiseDisjoint_topologicalKrullDimStratum
 
 /- Lemma 10.114.7 (4) (Stacks tag `00OV`): equivalently, the algebra is a
 finite product of its nonempty dimension-stratum factors, and every maximal

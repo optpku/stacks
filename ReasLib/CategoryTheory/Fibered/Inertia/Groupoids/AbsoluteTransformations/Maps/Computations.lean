@@ -24,59 +24,59 @@ variable {X Y : FiberedCategoryOver.Groupoids.{u, v, max w vS, vS} C}
 theorem forget.toBasedFunctor
     (X : FiberedCategoryOver.Groupoids.{u, v, max w vS, vS} C) :
     FiberedCategoryOver.Groupoids.toBasedFunctor (forget X) =
-      BasedCategory.Inertia.forget X.toBasedCategory := sorry
+      BasedCategory.Inertia.forget X.toBasedCategory := rfl
 /-- The total functor of groupoid-fibred inertia forgetting. -/
 @[simp]
 theorem forget.toFunctor
     (X : FiberedCategoryOver.Groupoids.{u, v, max w vS, vS} C) :
     FiberedCategoryOver.Groupoids.toFunctor (forget X) =
-      RelativeInertia.forget X.toBasedCategory.toBase.toFunctor := sorry
+      RelativeInertia.forget X.toBasedCategory.toBase.toFunctor := rfl
 /-- Forgetting an object returns its underlying object. -/
 @[simp]
 theorem forget.obj
     (X : FiberedCategoryOver.Groupoids.{u, v, max w vS, vS} C)
     (A : (FiberedCategoryOver.Groupoids.inertia X).total) :
-    (FiberedCategoryOver.Groupoids.toFunctor (forget X)).obj A = A.obj := sorry
+    (FiberedCategoryOver.Groupoids.toFunctor (forget X)).obj A = A.obj := rfl
 /-- Forgetting a morphism returns its underlying arrow. -/
 @[simp]
 theorem forget.map
     (X : FiberedCategoryOver.Groupoids.{u, v, max w vS, vS} C)
     {A B : (FiberedCategoryOver.Groupoids.inertia X).total} (φ : A ⟶ B) :
-    (FiberedCategoryOver.Groupoids.toFunctor (forget X)).map φ = RelativeInertia.hom φ := sorry
+    (FiberedCategoryOver.Groupoids.toFunctor (forget X)).map φ = RelativeInertia.hom φ := rfl
 
 /-- The underlying based functor of the identity section. -/
 @[simp]
 theorem identitySection.toBasedFunctor
     (X : FiberedCategoryOver.Groupoids.{u, v, max w vS, vS} C) :
     FiberedCategoryOver.Groupoids.toBasedFunctor (identitySection X) =
-      BasedCategory.Inertia.identitySection X.toBasedCategory := sorry
+      BasedCategory.Inertia.identitySection X.toBasedCategory := rfl
 /-- The total functor of the identity section. -/
 @[simp]
 theorem identitySection.toFunctor
     (X : FiberedCategoryOver.Groupoids.{u, v, max w vS, vS} C) :
     FiberedCategoryOver.Groupoids.toFunctor (identitySection X) =
-      RelativeInertia.identitySection X.toBasedCategory.toBase.toFunctor := sorry
+      RelativeInertia.identitySection X.toBasedCategory.toBase.toFunctor := rfl
 /-- The identity section preserves underlying objects. -/
 @[simp]
 theorem identitySection.obj
     (X : FiberedCategoryOver.Groupoids.{u, v, max w vS, vS} C) (x : X.total) :
-    ((FiberedCategoryOver.Groupoids.toFunctor (identitySection X)).obj x).obj = x := sorry
+    ((FiberedCategoryOver.Groupoids.toFunctor (identitySection X)).obj x).obj = x := rfl
 /-- The identity section selects the identity automorphism. -/
 @[simp]
 theorem identitySection.aut
     (X : FiberedCategoryOver.Groupoids.{u, v, max w vS, vS} C) (x : X.total) :
-    ((FiberedCategoryOver.Groupoids.toFunctor (identitySection X)).obj x).aut = 1 := sorry
+    ((FiberedCategoryOver.Groupoids.toFunctor (identitySection X)).obj x).aut = 1 := rfl
 /-- The identity section retains underlying arrows. -/
 @[simp]
 theorem identitySection.hom
     (X : FiberedCategoryOver.Groupoids.{u, v, max w vS, vS} C)
     {x y : X.total} (f : x ⟶ y) :
-    RelativeInertia.hom ((FiberedCategoryOver.Groupoids.toFunctor (identitySection X)).map f) = f := sorry
+    RelativeInertia.hom ((FiberedCategoryOver.Groupoids.toFunctor (identitySection X)).map f) = f := rfl
 /-- The identity section is a right inverse to forgetting. -/
 @[simp]
 theorem identitySection.comp_forget
     (X : FiberedCategoryOver.Groupoids.{u, v, max w vS, vS} C) :
-    identitySection X ≫ forget X = 𝟙 X := sorry
+    identitySection X ≫ forget X = 𝟙 X := rfl
 
 end Inertia
 end FiberedCategoryOver.Groupoids

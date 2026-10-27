@@ -61,25 +61,69 @@ abbrev sheafModuleStalkFunctor :
 @[stacks 04EQ "(1)"]
 theorem sheafModuleStalk_exact :
     exactFunctor (SheafOfModules 𝒪) (ModuleCat (p.stalkRing 𝒪))
-      (p.sheafModuleStalkFunctor 𝒪) := sorry
+      (p.sheafModuleStalkFunctor 𝒪) := by
+  refine ⟨?_, ?_⟩
+  · let U := forget₂ (ModuleCat (p.stalkRing 𝒪)) AddCommGrpCat
+    letI : PreservesFiniteLimits (p.sheafModuleStalkFunctor 𝒪 ⋙ U) :=
+      inferInstanceAs (PreservesFiniteLimits
+        (SheafOfModules.forget 𝒪 ⋙
+          PresheafOfModules.toPresheaf 𝒪.obj ⋙ p.presheafFiber))
+    exact preservesFiniteLimits_of_reflects_of_preserves _ U
+  · sorry
 
 /-- Lemma 18.36.3 (2): the stalk functor on presheaves of modules over a ringed site is exact. -/
 @[stacks 04EQ "(2)"]
 theorem presheafModuleStalk_exact :
     exactFunctor (PresheafOfModules 𝒪.obj) (ModuleCat (p.stalkRing 𝒪))
-      (p.presheafModuleStalkFunctor 𝒪) := sorry
+      (p.presheafModuleStalkFunctor 𝒪) := by
+  let U := forget₂ (ModuleCat (p.stalkRing 𝒪)) AddCommGrpCat
+  letI : PreservesFiniteLimits (p.presheafModuleStalkFunctor 𝒪 ⋙ U) :=
+    inferInstanceAs (PreservesFiniteLimits
+      (PresheafOfModules.toPresheaf 𝒪.obj ⋙ p.presheafFiber))
+  letI : PreservesFiniteColimits (p.presheafModuleStalkFunctor 𝒪 ⋙ U) :=
+    inferInstanceAs (PreservesFiniteColimits
+      (PresheafOfModules.toPresheaf 𝒪.obj ⋙ p.presheafFiber))
+  exact ⟨preservesFiniteLimits_of_reflects_of_preserves _ U,
+    preservesFiniteColimits_of_reflects_of_preserves _ U⟩
 
 /-- The stalk functor on module sheaves over a ring sheaf is additive. -/
 @[stacks 04EQ "additivity of module-sheaf stalks"]
 instance sheafModuleStalkFunctor_additive :
-    (p.sheafModuleStalkFunctor 𝒪).Additive := sorry
+    (p.sheafModuleStalkFunctor 𝒪).Additive := by
+  let U := forget₂ (ModuleCat (p.stalkRing 𝒪)) AddCommGrpCat
+  letI : (p.presheafFiber (A := AddCommGrpCat.{w})).Additive :=
+    Functor.additive_of_preserves_binary_products _
+  letI : (p.sheafModuleStalkFunctor 𝒪 ⋙ U).Additive :=
+    inferInstanceAs (SheafOfModules.forget 𝒪 ⋙
+      PresheafOfModules.toPresheaf 𝒪.obj ⋙ p.presheafFiber).Additive
+  exact Functor.additive_of_comp_faithful _ U
 
 /-- A site-point stalk functor on module sheaves preserves all colimits whenever additive
 sheafification is available. -/
 noncomputable instance sheafModuleStalkFunctorPreservesColimits
     [HasWeakSheafify J AddCommGrpCat.{w}]
     [J.WEqualsLocallyBijective AddCommGrpCat.{w}] :
-    PreservesColimits (p.sheafModuleStalkFunctor 𝒪) := sorry
+    PreservesColimits (p.sheafModuleStalkFunctor 𝒪) := by
+  let S := PresheafOfModules.sheafification.{w} (𝟙 𝒪.obj)
+  let I := SheafOfModules.forget.{w} 𝒪
+  let T := SheafOfModules.toSheaf.{w} 𝒪
+  letI : PreservesColimitsOfSize.{w, w} (S ⋙ T) :=
+    inferInstanceAs (PreservesColimitsOfSize.{w, w}
+      (PresheafOfModules.toPresheaf 𝒪.obj ⋙ presheafToSheaf J AddCommGrpCat))
+  letI : PreservesColimitsOfSize.{w, w} T := by
+    refine ⟨fun {K} _ ↦ ⟨fun {F} ↦ ?_⟩⟩
+    letI : PreservesColimit ((F ⋙ I) ⋙ S) T :=
+      preservesColimit_of_preserves_colimit_cocone
+        (isColimitOfPreserves S (colimit.isColimit (F ⋙ I)))
+        (isColimitOfPreserves (S ⋙ T) (colimit.isColimit (F ⋙ I)))
+    let e : ((F ⋙ I) ⋙ S) ≅ F :=
+      Functor.isoWhiskerLeft F
+        (asIso (PresheafOfModules.sheafificationAdjunction (𝟙 𝒪.obj)).counit)
+    exact preservesColimit_of_iso_diagram T e
+  let U := forget₂ (ModuleCat (p.stalkRing 𝒪)) AddCommGrpCat
+  letI : PreservesColimits (p.sheafModuleStalkFunctor 𝒪 ⋙ U) :=
+    inferInstanceAs (PreservesColimits (T ⋙ p.sheafFiber))
+  exact ⟨fun {_} _ ↦ preservesColimitsOfShape_of_reflects_of_preserves _ U⟩
 
 section Sheafification
 
@@ -106,7 +150,17 @@ theorem presheafModuleStalkToSheafification_naturality
         p.presheafModuleStalkToSheafification_hom 𝒪 G =
       p.presheafModuleStalkToSheafification_hom 𝒪 F ≫
         (PresheafOfModules.sheafification (𝟙 𝒪.obj) ⋙
-          p.sheafModuleStalkFunctor 𝒪).map f := sorry
+          p.sheafModuleStalkFunctor 𝒪).map f := by
+  apply (forget₂ (ModuleCat (p.stalkRing 𝒪)) AddCommGrpCat).map_injective
+  change p.presheafFiber.map ((PresheafOfModules.toPresheaf 𝒪.obj).map f) ≫
+      p.presheafFiber.map (CategoryTheory.toSheafify J G.presheaf) =
+    p.presheafFiber.map (CategoryTheory.toSheafify J F.presheaf) ≫
+      p.presheafFiber.map
+        ((presheafToSheaf J AddCommGrpCat ⋙ sheafToPresheaf J AddCommGrpCat).map
+          ((PresheafOfModules.toPresheaf 𝒪.obj).map f))
+  dsimp only [PresheafOfModules.toPresheaf]
+  rw [← Functor.map_comp, CategoryTheory.toSheafify_naturality, Functor.map_comp]
+  rfl
 
 /-- The canonical natural transformation from module-presheaf stalks to sheafified stalks. -/
 noncomputable def presheafModuleStalkToSheafification :
@@ -121,7 +175,13 @@ sheafified module stalks is invertible.  Keeping the forward transformation as t
 avoids selecting inverse data from a deferred `IsIso` proof. -/
 @[stacks 04EQ "(3)"]
 noncomputable instance presheafModuleStalkToSheafification_isIso :
-    IsIso (p.presheafModuleStalkToSheafification 𝒪) := sorry
+    IsIso (p.presheafModuleStalkToSheafification 𝒪) := by
+  rw [NatTrans.isIso_iff_isIso_app]
+  intro F
+  rw [← isIso_iff_of_reflects_iso _
+    (forget₂ (ModuleCat (p.stalkRing 𝒪)) AddCommGrpCat)]
+  change IsIso (p.presheafFiber.map (CategoryTheory.toSheafify J F.presheaf))
+  infer_instance
 
 end Sheafification
 
@@ -161,25 +221,39 @@ noncomputable abbrev moduleStalkFunctor
 theorem moduleStalkFunctor_exact
     (p : Point.{w} J) (O : Sheaf J CommRingCat.{w}) :
     exactFunctor (ringedSiteModuleCategory.{uC, vC, w, w} J O)
-      (ModuleCat.{w} (p.stalkCommRing O)) (p.moduleStalkFunctor O) := sorry
+      (ModuleCat.{w} (p.stalkCommRing O)) (p.moduleStalkFunctor O) := by
+  letI : PreservesFiniteLimits (p.sheafModuleStalkFunctor (ringSheaf J O)) :=
+    (p.sheafModuleStalk_exact (ringSheaf J O)).1
+  letI : PreservesFiniteColimits (p.sheafModuleStalkFunctor (ringSheaf J O)) :=
+    (p.sheafModuleStalk_exact (ringSheaf J O)).2
+  exact ⟨comp_preservesFiniteLimits _ _, comp_preservesFiniteColimits _ _⟩
 
 /-- The commutative-ring-valued module stalk functor is additive. -/
 @[stacks 04EQ "additivity of commutative ringed-site module stalks"]
 instance moduleStalkFunctor_additive
     (p : Point.{w} J) (O : Sheaf J CommRingCat.{w}) :
-    (p.moduleStalkFunctor O).Additive := sorry
+    (p.moduleStalkFunctor O).Additive := by
+  dsimp [moduleStalkFunctor]
+  infer_instance
 
 /-- The commutative-ring-valued module stalk functor preserves finite limits. -/
 @[stacks 04EQ "finite-limit preservation by module stalks"]
 instance moduleStalkFunctor_preservesFiniteLimits
     (p : Point.{w} J) (O : Sheaf J CommRingCat.{w}) :
-    PreservesFiniteLimits (p.moduleStalkFunctor O) := sorry
+    PreservesFiniteLimits (p.moduleStalkFunctor O) := by
+  let U := forget₂ (ModuleCat (p.stalkCommRing O)) AddCommGrpCat
+  letI : PreservesFiniteLimits (p.moduleStalkFunctor O ⋙ U) :=
+    inferInstanceAs (PreservesFiniteLimits
+      (SheafOfModules.forget (ringSheaf J O) ⋙
+        PresheafOfModules.toPresheaf (ringSheaf J O).obj ⋙ p.presheafFiber))
+  exact preservesFiniteLimits_of_reflects_of_preserves _ U
 
 /-- The commutative-ring-valued module stalk functor preserves finite colimits. -/
 @[stacks 04EQ "finite-colimit preservation by module stalks"]
 instance moduleStalkFunctor_preservesFiniteColimits
     (p : Point.{w} J) (O : Sheaf J CommRingCat.{w}) :
-    PreservesFiniteColimits (p.moduleStalkFunctor O) := sorry
+    PreservesFiniteColimits (p.moduleStalkFunctor O) :=
+  (p.moduleStalkFunctor_exact O).2
 
 /-- The stalk of a module sheaf, retaining its canonical module structure over the
 commutative-ring-valued stalk. -/
@@ -192,4 +266,3 @@ noncomputable abbrev moduleStalk
 
 end CategoryTheory.GrothendieckTopology.Point
 
--- Any `sorryAx` in the natural transformation itself is confined to its naturality proof field.

@@ -29,7 +29,7 @@ variable {dimension : V → ℕ} {product : V → V → V}
 variable {fst : ∀ X Y, product X Y ⟶ X} {snd : ∀ X Y, product X Y ⟶ Y}
 variable {point : V} {H : V → Type x} {CH : V → Type y}
 variable [∀ X, Ring (H X)] [∀ X, Algebra F (H X)] [∀ X, CommRing (CH X)]
-variable {Hgrade : ∀ X, ℤ × ℤ → Submodule F (H X)}
+variable {Hgrade : ∀ X, ℤ → Submodule F (H X)}
 variable {CHgrade : ∀ X, ℤ → Submodule ℤ (CH X)}
 variable [∀ X, GradedAlgebra (Hgrade X)] [∀ X, GradedAlgebra (CHgrade X)]
 variable {cyclePullback : ∀ {X Y : V},
@@ -48,8 +48,8 @@ variable {cyclePushforward : ∀ {X Y : V}, (X ⟶ Y) → CH X →+ CH Y}
       (diagonal_fst : diagonal ≫ fst X X = 𝟙 X)
       (diagonal_snd : diagonal ≫ snd X X = 𝟙 X)
       (β : Fin (2 * d + 1) → ℕ)
-      (e : ∀ i, Module.Basis (Fin (β i)) F (Hgrade X ((i : ℤ), 0)))
-      (e' : ∀ i, Fin (β i) → Hgrade X (2 * (d : ℤ) - (i : ℤ), d))
+      (e : ∀ i, Module.Basis (Fin (β i)) F (Hgrade X ((i : ℤ))))
+      (e' : ∀ i, Fin (β i) → Hgrade X (2 * (d : ℤ) - (i : ℤ)))
       (decomposition : T.kunnethMap X X
         (∑ i, ∑ j, (e i j : H X) ⊗ₜ[F] (e' i j : H X)) =
           T.cycleClass (product X X)

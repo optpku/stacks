@@ -6,47 +6,34 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import Mathlib.CategoryTheory.Equivalence
-public import Mathlib.CategoryTheory.EssentialImage
-public import stacks_project.Chap67.Definition_67_4_2_Separation
-public import stacks_project.Chap99.Lemma_99_5_10_Approximation
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.CohStack.FormalExistence
+import StacksCheckRecall
 
-/-!
-# Approximation of `Coh_{X/B}` is an equivalence
+/-! # Approximation of coherent sheaves is an equivalence
 
-In Situation 99.5.1, if `S` is locally Noetherian and `f : X ⟶ B` is separated,
-then the Artin approximation functor from complete local objects of
-`Coh_{X/B}` to formal objects is an equivalence of categories.
+For a separated morphism of finite presentation over a locally Noetherian scheme,
+maximal-adic restriction of coherent-sheaf objects is an equivalence.
+
+As authorized in source-issues/registry.json, key 07X6, the source category keeps
+the same objects over Noetherian complete local `S`-algebras with finite-type
+residue fields, but its morphisms must induce local `S`-algebra homomorphisms.
+This corrects the full-subcategory assertion in Equation 98.9.3.1.
 -/
 
 @[expose] public section
 
-open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
-open AlgebraicGeometry.AlgebraicSpace.CohStack
-
-noncomputable section
+open CategoryTheory AlgebraicGeometry
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.CohStack
-
-/-- Lemma 99.5.10: in Situation 99.5.1 assume that `S` is a locally Noetherian
-scheme and that `f : X ⟶ B` is separated. Let `𝒳 = Coh_{X/B}`. Then the functor
-`approximation f` of Artin's Axioms, Equation 98.9.3.1, from complete local
-objects over `Spec(R)` to formal objects, is an equivalence of categories. -/
-@[stacks 08W9, instance]
-instance approximation.instIsEquivalence {S : Scheme.{u}} [AlgebraicGeometry.IsLocallyNoetherian S]
-    {X B : AlgebraicSpace S} (f : X ⟶ B) [FinitePresentation f] [Separated f] :
-    (approximation f).IsEquivalence :=
-  sorry
-
-/-- Every formal object of `Coh_{X/B}` lies in the essential image of
-`approximation f` when `f` is separated. -/
-theorem mem_essImage {S : Scheme.{u}} [AlgebraicGeometry.IsLocallyNoetherian S]
-    {X B : AlgebraicSpace S} (f : X ⟶ B) [FinitePresentation f] [Separated f]
-    (ξ : FormalObject f) :
-    (approximation f).essImage ξ :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace.CohStack
+/- Lemma 99.5.10: in Situation 99.5.1, if `S` is locally Noetherian and
+`f : X ⟶ B` is separated, the approximation functor for coherent sheaves is
+an equivalence. -/
+@[stacks 08W9] #check
+  (AlgebraicGeometry.AlgebraicSpace.CohStack.instApproximationIsEquivalence :
+    ∀ {S : Scheme.{u}} [AlgebraicGeometry.IsLocallyNoetherian S]
+      {X B : AlgebraicGeometry.AlgebraicSpace S} (f : X ⟶ B),
+      [AlgebraicGeometry.AlgebraicSpace.FinitePresentation f] →
+      [AlgebraicGeometry.AlgebraicSpace.Separated f] →
+      (AlgebraicGeometry.GroupoidsOver.approximation
+        (AlgebraicGeometry.AlgebraicSpace.CohStack.toGroupoids f)).IsEquivalence)

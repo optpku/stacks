@@ -6,7 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap72.«72_7_5_1_Picard»
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Divisor.Picard
 import StacksCheckRecall
 
 /-!
@@ -33,4 +33,5 @@ the Weil-divisor-class construction for invertible `𝒪_X`-modules induces a ca
 homomorphism of abelian groups `X.PicardGroup ⟶ WeilDivisorClassGroup X` sending the
 class of an invertible module to its Weil divisor class. -/
 @[stacks 0EPW] #check
-  (picardToWeilDivisorClassGroup X : X.PicardGroup →+ WeilDivisorClassGroup X)
+  (AlgebraicGeometry.AlgebraicSpace.picardToWeilDivisorClassGroup X :
+    X.PicardGroup →+ WeilDivisorClassGroup X)

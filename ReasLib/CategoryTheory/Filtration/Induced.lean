@@ -72,7 +72,12 @@ noncomputable def pushforward : FilteredObject C where
 
 /-- The map `f` preserves the image filtration that it induces on its target. -/
 theorem toPushforward_preserves (i : ℤ) :
-    ((A.pushforward f).filtration i).Factors ((A.filtration i).arrow ≫ f) := sorry
+    ((A.pushforward f).filtration i).Factors ((A.filtration i).arrow ≫ f) := by
+  let F := Subobject.imageFactorisation f (A.filtration i)
+  change ((Subobject.«exists» f).obj (A.filtration i)).Factors
+    ((A.filtration i).arrow ≫ f)
+  rw [← F.F.fac]
+  exact Subobject.factors_comp_arrow F.F.e
 
 /-- The canonical filtered morphism into the target equipped with the image filtration induced
 by `f`. -/
@@ -93,7 +98,12 @@ noncomputable def subobject : FilteredObject C where
 
 /-- The ambient subobject inclusion preserves the induced filtration. -/
 theorem subobjectι_preserves (i : ℤ) :
-    (A.filtration.stage i).Factors (((A.subobject X).filtration i).arrow ≫ X.arrow) := sorry
+    (A.filtration.stage i).Factors (((A.subobject X).filtration i).arrow ≫ X.arrow) := by
+  change (A.filtration.stage i).Factors
+    (((Subobject.pullback X.arrow).obj (A.filtration.stage i)).arrow ≫ X.arrow)
+  exact (Limits.pullback_factors_iff X.arrow (A.filtration.stage i)
+    ((Subobject.pullback X.arrow).obj (A.filtration.stage i)).arrow).mp
+    (Subobject.factors_self _)
 
 /-- The inclusion of a filtered subobject into its ambient filtered object. -/
 noncomputable def subobjectι : A.subobject X ⟶ A where

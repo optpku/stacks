@@ -36,14 +36,22 @@ variable [RingedSite.Hom.DerivedAdjunction.HasPair (opensRingedSiteHom (f ≫ g)
 
 /- Lemma 20.28.2: morphisms of ringed spaces `f : X ⟶ Y` and `g : Y ⟶ Z` satisfy
 `R(f)_* ⋙ R(g)_* = R((f ≫ g))_*` as functors `D(O_X) ⟶ D(O_Z)`, via the specified
-derived-pushforward composition isomorphism. -/
+derived-pushforward composition isomorphism. Stacks states this unconditionally and uses the
+derived-pullback composition isomorphism, which is valid for all morphisms of ringed spaces.
+At the current library boundary, `h_pullback` explicitly supplies the invertibility certificate
+for the canonical derived-pullback composition comparison. -/
 @[stacks 0D5T]
-#check (iso f g h_pullback : R(f)_* ⋙ R(g)_* ≅ R((f ≫ g))_*)
+#check (AlgebraicGeometry.RingedSpace.moduleDerivedPushforward.Composition.iso f g h_pullback :
+  R(f)_* ⋙ R(g)_* ≅ R((f ≫ g))_*)
 
 @[stacks 0D5T]
-#check (comparison f g h_pullback : R((f ≫ g))_* ⟶ R(f)_* ⋙ R(g)_*)
+#check (AlgebraicGeometry.RingedSpace.moduleDerivedPushforward.Composition.comparison
+  f g h_pullback : R((f ≫ g))_* ⟶ R(f)_* ⋙ R(g)_*)
 
 @[stacks 0D5T]
-#check (comparison_isIso f g h_pullback : IsIso (comparison f g h_pullback))
+#check (AlgebraicGeometry.RingedSpace.moduleDerivedPushforward.Composition.comparison_isIso
+  f g h_pullback :
+  IsIso (AlgebraicGeometry.RingedSpace.moduleDerivedPushforward.Composition.comparison
+    f g h_pullback))
 
 end AlgebraicGeometry.RingedSpace

@@ -7,6 +7,7 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import ReasLib.Algebra.Homology.CochainComplex.SmallAcyclic.Grothendieck
+public import ReasLib.Algebra.Homology.CochainComplex.SmallAcyclic.SubcomplexSupply
 import StacksCheckRecall
 
 @[expose] public section
@@ -39,5 +40,17 @@ the coproduct presentations of all acyclic cochain complexes. -/
 #check @SmallAcyclic.BoundedBy.ofTermwise
 #check @SmallAcyclic.IsUniformBound
 #check @SmallAcyclic.isUniformBound_iff
+
+/- Lemma 19.12.2 (1), proof: the specified supply is constructed termwise from the native
+separator, with the source cardinal and descending kernel-preimage recursion. -/
+#check
+  (SmallAcyclic.Grothendieck.subcomplexSupply C :
+    SmallAcyclic.SubcomplexSupply C (SmallAcyclic.Grothendieck.bound C))
+#check @SmallAcyclic.Grothendieck.growth
+#check @SmallAcyclic.Grothendieck.exists_nonzero_generator_map
+#check @SmallAcyclic.Grothendieck.refinement
+#check @SmallAcyclic.Grothendieck.lower
+#check @SmallAcyclic.Grothendieck.descend
+#check @SmallAcyclic.Grothendieck.termwise
 
 end CochainComplex

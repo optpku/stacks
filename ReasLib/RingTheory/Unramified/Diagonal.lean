@@ -52,17 +52,3 @@ theorem isIdempotentLocalization :
     (Algebra.TensorProduct.lmul' R : S ⊗[R] S →ₐ[R] S).toRingHom.IsIdempotentLocalization := sorry
 
 end Algebra.FormallyUnramified.Diagonal
-
-/-- Compatibility bridge for the former source-level existence theorem.
-New code should use `Algebra.FormallyUnramified.Diagonal` and the map-level
-predicate `RingHom.IsIdempotentLocalization`. -/
-@[stacks 02FL "compatibility"]
-theorem exists_idempotent_tensorProduct_self_isLocalization_of_unramified
-    {R : Type u} {S : Type v} [CommRing R] [CommRing S] [Algebra R S]
-    [Algebra.Unramified R S] :
-    ∃ e : S ⊗[R] S, IsIdempotentElem e ∧
-      -- Local instance justification (defeq pin): legacy consumers require
-      -- this exact multiplication-map algebra structure in the result type.
-      letI : Algebra (S ⊗[R] S) S :=
-        (Algebra.TensorProduct.lmul' R).toRingHom.toAlgebra
-      IsLocalization.Away e S := sorry

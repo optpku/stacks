@@ -6,13 +6,9 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap67.Definition_67_4_2_Separation
-public import stacks_project.Chap67.Definition_67_40_1_Proper
-public import stacks_project.Chap67.Lemma_67_28_8_FinitePresentation
-public import stacks_project.Chap67.Lemma_67_30_5_Flat
-public import stacks_project.Chap99.Lemma_99_12_1_Mor
-public import stacks_project.Chap99.Proposition_99_12_3
-public import stacks_project.Chap108.Lemma_108_5_2_Separated
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.RelativeHom.Separation
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.RelativeHom.Representability
+import StacksCheckRecall
 
 /-!
 # Lemma 108.10.2
@@ -31,24 +27,20 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace.RelativeHom
 
-variable {S : Scheme.{u}} {Y B X : AlgebraicSpace S}
-
-/-- Lemma 108.10.2 (1): the structure morphism of Mor_B(Y, X) ⟶ B is
+/- Lemma 108.10.2 (1): the structure morphism of Mor_B(Y, X) ⟶ B is
 separated. -/
-@[stacks 0DPN]
-instance instIsSeparatedOver (y : Y ⟶ B) (x : X ⟶ B)
+@[stacks 0DPN] #check
+  (AlgebraicGeometry.AlgebraicSpace.RelativeHom.instIsSeparatedOver :
+    ∀ {S : Scheme.{u}} {Y B X : AlgebraicSpace S} (y : Y ⟶ B) (x : X ⟶ B)
     [Flat y] [Proper y] [FinitePresentation y]
-    [Separated x] [FinitePresentation x] :
-    Quot.IsSeparatedOver (mor y x) :=
-  sorry
+    [Separated x] [FinitePresentation x], Quot.IsSeparatedOver (mor y x))
 
-/-- Lemma 108.10.2 (2): the structure morphism of Mor_B(Y, X) ⟶ B is
+/- Lemma 108.10.2 (2): the structure morphism of Mor_B(Y, X) ⟶ B is
 locally of finite presentation. -/
-@[stacks 0DPN]
-theorem isLocallyOfFinitePresentationOver (y : Y ⟶ B) (x : X ⟶ B)
-    [Flat y] [Proper y] [FinitePresentation y]
-    [Separated x] [FinitePresentation x] :
-    IsLocallyOfFinitePresentationOver (mor y x) :=
-  sorry
+@[stacks 0DPN] #check
+  (AlgebraicGeometry.AlgebraicSpace.RelativeHom.mor_isLocallyOfFinitePresentationOver :
+    ∀ {S : Scheme.{u}} {Y B X : AlgebraicSpace S} (y : Y ⟶ B) (x : X ⟶ B)
+    [FinitePresentation x] [Separated x] [FinitePresentation y] [Flat y]
+    [Proper y], IsLocallyOfFinitePresentationOver (mor y x))
 
 end AlgebraicGeometry.AlgebraicSpace.RelativeHom

@@ -70,22 +70,4 @@ theorem definedAtOfResolutions
     (X : HomotopyCategory.Plus A) :
     RightDerived.DefinedAt T (HomotopyCategory.Plus.quasiIso A) X := sorry
 
-section Checks
-
-variable [EnoughInjectives A] (T : HomotopyCategory.Plus A ⥤ D)
-  (X : HomotopyCategory.Plus A)
-
-/- Enough injectives canonically supply global source-definedness. -/
-#synth RightDerived.EverywhereDefined T (HomotopyCategory.Plus.quasiIso A)
-
-/- Objectwise source-definedness is inherited from the global instance. -/
-#synth RightDerived.DefinedAt T (HomotopyCategory.Plus.quasiIso A) X
-
-/- Mathlib's injective derivability structure supplies the canonical pointwise instance under
-enough injectives. -/
-
-/- The canonical pointwise instance induces the total right-derived-functor instance. -/
-
-end Checks
-
 end CategoryTheory.Functor.KInjective.Bounded

@@ -7,6 +7,7 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import stacks_project.Chap10.Remark_10_69_7_Other_types_of_regular_sequences.HeadTailExactness
+public import Mathlib.LinearAlgebra.TensorProduct.Prod
 import StacksCheckRecall
 
 /-!

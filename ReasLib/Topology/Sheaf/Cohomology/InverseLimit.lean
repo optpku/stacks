@@ -70,7 +70,7 @@ theorem transition_def
           (system.stageSheaf A.unop.left)).cohomologyPresheaf p).map
             (homOfLE (projectionOpen_le (F := F) i U f.unop)).op) ≫
         cohomologyMap (system.stagePullbackMap f.unop.left) p
-          (projectionOpen i U B.unop) := sorry
+          (projectionOpen i U B.unop) := rfl
 
 /-- The stage cohomology transition attached to an identity arrow is the identity. -/
 theorem transition_id
@@ -104,7 +104,7 @@ theorem diagram_obj
     (system : SheafSystem (C := AddCommGrpCat.{max u v}) F)
     (i : I) (U : Opens (F.obj i)) (p : ℕ) (A : (Over i)ᵒᵖ) :
     (diagram system i U p).obj A =
-      (system.stageSheaf A.unop.left).H' p (projectionOpen i U A.unop) := sorry
+      (system.stageSheaf A.unop.left).H' p (projectionOpen i U A.unop) := rfl
 
 /-- The morphism of the stage cohomology diagram is `transition`. -/
 @[simp]
@@ -112,7 +112,7 @@ theorem diagram_map
     (system : SheafSystem (C := AddCommGrpCat.{max u v}) F)
     (i : I) (U : Opens (F.obj i)) (p : ℕ)
     {A B : (Over i)ᵒᵖ} (f : A ⟶ B) :
-    (diagram system i U p).map f = transition system i U p f := sorry
+    (diagram system i U p).map f = transition system i U p f := rfl
 
 section Limit
 
@@ -150,7 +150,9 @@ theorem stageMap_naturality_const
     (diagram system i U p).map f ≫ stageMap system i U p B =
       stageMap system i U p A ≫
         ((Functor.const (Over i)ᵒᵖ).obj
-          (system.colimitSheaf.H' p (limitProjectionOpen i U))).map f := sorry
+          (system.colimitSheaf.H' p (limitProjectionOpen i U))).map f := by
+  exact (stageMap_naturality system i U p f).trans
+    (Category.comp_id (stageMap system i U p A)).symm
 
 /-- The canonical cocone from stagewise cohomology to cohomology of the colimit sheaf on the
 inverse-limit space. -/
@@ -167,7 +169,7 @@ noncomputable def cocone
 @[simp]
 theorem cocone_ι_app
     (i : I) (U : Opens (F.obj i)) (p : ℕ) (A : (Over i)ᵒᵖ) :
-    (cocone system i U p).ι.app A = stageMap system i U p A := sorry
+    (cocone system i U p).ι.app A = stageMap system i U p A := rfl
 
 /-- The canonical comparison from the colimit of stagewise cohomology to cohomology of the
 canonical colimit sheaf on the inverse-image open of the limit space. -/
@@ -184,7 +186,8 @@ stage-to-limit map. -/
 theorem ι_comp_comparison
     (i : I) (U : Opens (F.obj i)) (p : ℕ) (A : (Over i)ᵒᵖ) :
     colimit.ι (diagram system i U p) A ≫ comparison system i U p =
-      stageMap system i U p A := sorry
+      stageMap system i U p A := by
+  exact colimit.ι_desc (cocone system i U p) A
 
 /-- Lemma 20.19.3 (0A37): for a cofiltered inverse system of spectral spaces with spectral
 transition maps, the canonical comparison from stagewise cohomology over a compact open to

@@ -12,15 +12,10 @@ public import stacks_project.Chap96.Lemma_96_12_3_Pullback
 public import stacks_project.Chap103.Lemma_103_14_2_Ringed
 public import stacks_project.Chap103.«103_15_1_1_Map»
 
-/-!
-# Ringed morphisms induced by restricted lisse-étale and flat-fppf functors
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Sites.RingedMorphism
 
-A smooth (resp. flat) morphism of algebraic stacks induces a morphism of ringed
-topoi on lisse-étale (resp. flat-fppf) sites, by the cocontinuous restricted
-site functor together with the restricted identification of structure sheaves.
-The associated-étale (resp. inherited-fppf) morphism of ringed topoi is the
-unrestricted comparison edge of the functoriality square.
--/
+/-! Compatibility checks for restricted and ambient ringed-site morphisms.
+The explicit existence hypotheses express the bounded-site size convention. -/
 
 @[expose] public section
 
@@ -39,321 +34,236 @@ namespace AlgebraicGeometry.AlgebraicStack
 variable {S : Scheme.{u}} {X Y : GroupoidsOver S}
 variable [AlgebraicStack X] [AlgebraicStack Y]
 
-/-- Pointwise right Kan extensions of type-valued presheaves along
-`(toFunctor f).op`. -/
-instance toFunctor_op_hasPointwiseRightKanExtension_type (f : X ⟶ Y)
-    (P : X.totalᵒᵖ ⥤ Type u) :
-    (toFunctor f).op.HasPointwiseRightKanExtension P :=
-  sorry
-
-/-- Pointwise right Kan extensions of type-valued presheaves along
-`(lisseEtaleMap f).op`. -/
-instance lisseEtaleMap.op_hasPointwiseRightKanExtension_type
-    (f : X ⟶ Y) [Smooth f] (P : (lisseEtaleSite X)ᵒᵖ ⥤ Type u) :
-    (lisseEtaleMap f).op.HasPointwiseRightKanExtension P :=
-  sorry
-
-/-- Pointwise right Kan extensions of type-valued presheaves along
-`(flatFppfMap f).op`. -/
-instance flatFppfMap.op_hasPointwiseRightKanExtension_type
-    (f : X ⟶ Y) [Flat f] (P : (flatFppfSite X)ᵒᵖ ⥤ Type u) :
-    (flatFppfMap f).op.HasPointwiseRightKanExtension P :=
-  sorry
-
-/-- Pointwise right Kan extensions of type-valued presheaves along the composite
-of the lisse-étale inclusion of `X` with `toFunctor f`. -/
-instance lisseEtaleInclusion_comp_toFunctor_op_hasPointwiseRightKanExtension_type
+#check (AlgebraicGeometry.AlgebraicStack.lisseEtaleMap_comp_inclusion_op_hasPointwiseRightKanExtension_type :
+  ∀ {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y]
     (f : X ⟶ Y) [Smooth f]
-    (P : (lisseEtaleSite X)ᵒᵖ ⥤ Type u) :
-    (lisseEtaleInclusion X ⋙ toFunctor f).op.HasPointwiseRightKanExtension P :=
-  sorry
+    (P : (lisseEtaleSite X)ᵒᵖ ⥤ Type u)
+    [(lisseEtaleInclusion X ⋙ toFunctor f).op.HasPointwiseRightKanExtension P],
+    (lisseEtaleMap f ⋙ lisseEtaleInclusion Y).op.HasPointwiseRightKanExtension P)
 
-/-- Pointwise right Kan extensions of type-valued presheaves along
-`lisseEtaleMap f ⋙ lisseEtaleInclusion Y`. -/
-instance lisseEtaleMap_comp_inclusion_op_hasPointwiseRightKanExtension_type
-    (f : X ⟶ Y) [Smooth f]
-    (P : (lisseEtaleSite X)ᵒᵖ ⥤ Type u) :
-    (lisseEtaleMap f ⋙ lisseEtaleInclusion Y).op.HasPointwiseRightKanExtension P :=
-  HasPointwiseRightKanExtension.of_iso (NatIso.op (lisseEtaleMap_comp_ι f))
-    (Iso.refl P)
-
-/-- Pointwise right Kan extensions of type-valued presheaves along the composite
-of the flat-fppf inclusion of `X` with `toFunctor f`. -/
-instance flatFppfInclusion_comp_toFunctor_op_hasPointwiseRightKanExtension_type
+#check (AlgebraicGeometry.AlgebraicStack.flatFppfMap_comp_inclusion_op_hasPointwiseRightKanExtension_type :
+  ∀ {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y]
     (f : X ⟶ Y) [Flat f]
-    (P : (flatFppfSite X)ᵒᵖ ⥤ Type u) :
-    (flatFppfInclusion X ⋙ toFunctor f).op.HasPointwiseRightKanExtension P :=
-  sorry
+    (P : (flatFppfSite X)ᵒᵖ ⥤ Type u)
+    [(flatFppfInclusion X ⋙ toFunctor f).op.HasPointwiseRightKanExtension P],
+    (flatFppfMap f ⋙ flatFppfInclusion Y).op.HasPointwiseRightKanExtension P)
 
-/-- Pointwise right Kan extensions of type-valued presheaves along
-`flatFppfMap f ⋙ flatFppfInclusion Y`. -/
-instance flatFppfMap_comp_inclusion_op_hasPointwiseRightKanExtension_type
-    (f : X ⟶ Y) [Flat f]
-    (P : (flatFppfSite X)ᵒᵖ ⥤ Type u) :
-    (flatFppfMap f ⋙ flatFppfInclusion Y).op.HasPointwiseRightKanExtension P :=
-  HasPointwiseRightKanExtension.of_iso (NatIso.op (flatFppfMap_comp_ι f))
-    (Iso.refl P)
+#check (AlgebraicGeometry.GroupoidsOver.toFunctor_isCocontinuous_etale :
+  ∀ {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y),
+    (toFunctor f).IsCocontinuous X.etaleTopology Y.etaleTopology)
 
-/-- The total functor of a 1-morphism is cocontinuous for associated étale
-topologies. -/
-instance toFunctor_isCocontinuous_etale (f : X ⟶ Y) :
-    (toFunctor f).IsCocontinuous X.etaleTopology Y.etaleTopology :=
-  CartesianBasedFunctor.inheritedTopology.isCocontinuous
-    (toCartesianBasedFunctor f) (StandardTopology.etale.overTopology S)
+#check (AlgebraicGeometry.GroupoidsOver.toFunctor_isCocontinuous_inheritedFppf :
+  ∀ {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y),
+    (toFunctor f).IsCocontinuous (inheritedFppfTopology X) (inheritedFppfTopology Y))
 
-/-- The total functor of a 1-morphism is cocontinuous for inherited fppf
-topologies. -/
-instance toFunctor_isCocontinuous_inheritedFppf (f : X ⟶ Y) :
-    (toFunctor f).IsCocontinuous (inheritedFppfTopology X) (inheritedFppfTopology Y) :=
-  CartesianBasedFunctor.inheritedTopology.isCocontinuous
-    (toCartesianBasedFunctor f) (Scheme.fppfTopology.over S)
-
-/-- The composite of a lisse-étale inclusion with a total functor is cocontinuous. -/
-instance lisseEtaleInclusion_comp_toFunctor_isCocontinuous (f : X ⟶ Y) [Smooth f] :
+#check (AlgebraicGeometry.AlgebraicStack.lisseEtaleInclusion_comp_toFunctor_isCocontinuous :
+  ∀ {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [Smooth f],
     (lisseEtaleInclusion X ⋙ toFunctor f).IsCocontinuous
-      (lisseEtaleTopology X) Y.etaleTopology :=
-  isCocontinuous_comp (lisseEtaleInclusion X) (toFunctor f)
-    (lisseEtaleTopology X) X.etaleTopology
+      (lisseEtaleTopology X) Y.etaleTopology)
 
-/-- The composite `lisseEtaleMap f ⋙ lisseEtaleInclusion Y` is cocontinuous. -/
-instance lisseEtaleMap_comp_inclusion_isCocontinuous (f : X ⟶ Y) [Smooth f] :
+#check (AlgebraicGeometry.AlgebraicStack.lisseEtaleMap_comp_inclusion_isCocontinuous :
+  ∀ {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [Smooth f],
     (lisseEtaleMap f ⋙ lisseEtaleInclusion Y).IsCocontinuous
-      (lisseEtaleTopology X) Y.etaleTopology :=
-  isCocontinuous_comp (lisseEtaleMap f) (lisseEtaleInclusion Y)
-    (lisseEtaleTopology X) (lisseEtaleTopology Y)
+      (lisseEtaleTopology X) Y.etaleTopology)
 
-/-- The composite of a flat-fppf inclusion with a total functor is cocontinuous. -/
-instance flatFppfInclusion_comp_toFunctor_isCocontinuous (f : X ⟶ Y) [Flat f] :
+#check (AlgebraicGeometry.AlgebraicStack.flatFppfInclusion_comp_toFunctor_isCocontinuous :
+  ∀ {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [Flat f],
     (flatFppfInclusion X ⋙ toFunctor f).IsCocontinuous
-      (flatFppfTopology X) (inheritedFppfTopology Y) :=
-  isCocontinuous_comp (flatFppfInclusion X) (toFunctor f)
-    (flatFppfTopology X) (inheritedFppfTopology X)
+      (flatFppfTopology X) (inheritedFppfTopology Y))
 
-/-- The composite `flatFppfMap f ⋙ flatFppfInclusion Y` is cocontinuous. -/
-instance flatFppfMap_comp_inclusion_isCocontinuous (f : X ⟶ Y) [Flat f] :
+#check (AlgebraicGeometry.AlgebraicStack.flatFppfMap_comp_inclusion_isCocontinuous :
+  ∀ {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [Flat f],
     (flatFppfMap f ⋙ flatFppfInclusion Y).IsCocontinuous
-      (flatFppfTopology X) (inheritedFppfTopology Y) :=
-  isCocontinuous_comp (flatFppfMap f) (flatFppfInclusion Y)
-    (flatFppfTopology X) (flatFppfTopology Y)
+      (flatFppfTopology X) (inheritedFppfTopology Y))
 
-/-- The identification `f⁻¹ 𝒪_Y ⟶ 𝒪_X` of étale structure sheaves, as the inverse
-of the coefficient map `𝒪_X ⟶ f⁻¹ 𝒪_Y`. -/
-def etaleStructureSheafInverseImage (f : X ⟶ Y) :
+#check (AlgebraicGeometry.AlgebraicStack.etaleStructureSheafInverseImage :
+  ∀ {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y),
     ((toFunctor f).sheafPushforwardContinuous RingCat.{u}
         X.etaleTopology Y.etaleTopology).obj (etaleStructureSheaf Y) ⟶
-      etaleStructureSheaf X :=
-  (inverseImageEtaleStructureSheafIso f).inv ≫
-    CategoryTheory.Sheaf.ringSheafOfCommMap.{u, u + 1, u} (commEtaleStructureSheafIso f).hom
+      etaleStructureSheaf X)
 
-/-- `etaleStructureSheafInverseImage` is the inverse-image form of
-`commEtaleStructureSheafIso`. -/
-theorem etaleStructureSheafInverseImage_eq (f : X ⟶ Y) :
+#check (AlgebraicGeometry.AlgebraicStack.etaleStructureSheafInverseImage_eq :
+  ∀ {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y),
     etaleStructureSheafInverseImage f =
       (inverseImageEtaleStructureSheafIso f).inv ≫
-        CategoryTheory.Sheaf.ringSheafOfCommMap.{u, u + 1, u} (commEtaleStructureSheafIso f).hom :=
-  sorry
+        CategoryTheory.Sheaf.ringSheafOfCommMap.{u, u + 1, u} (commEtaleStructureSheafIso f).hom)
 
-/-- The structure-presheaf map of `lisseEtaleMap f`, obtained by restricting the
-étale identification `f⁻¹ 𝒪_Y ⟶ 𝒪_X` along the lisse-étale inclusions. -/
-def lisseEtaleMap.structurePresheafHom (f : X ⟶ Y) [Smooth f] :
+#check (AlgebraicGeometry.AlgebraicStack.lisseEtaleMap.structurePresheafHom :
+  ∀ {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [Smooth f],
     (lisseEtaleMap f).op ⋙ (lisseEtaleStructureSheaf Y).obj ⟶
-      (lisseEtaleStructureSheaf X).obj :=
-  whiskerRight (NatTrans.op (lisseEtaleMap_comp_ι f).inv) (etaleStructureSheaf Y).obj ≫
-    whiskerLeft (lisseEtaleInclusion X).op (etaleStructureSheafInverseImage f).hom
+      (lisseEtaleStructureSheaf X).obj)
 
-/-- `lisseEtaleMap.structurePresheafHom` is restriction of
-`etaleStructureSheafInverseImage` along the site square of `lisseEtaleMap`. -/
-theorem lisseEtaleMap.structurePresheafHom_eq (f : X ⟶ Y) [Smooth f] :
+#check (AlgebraicGeometry.AlgebraicStack.lisseEtaleMap.structurePresheafHom_eq :
+  ∀ {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [Smooth f],
     lisseEtaleMap.structurePresheafHom f =
       whiskerRight (NatTrans.op (lisseEtaleMap_comp_ι f).inv)
           (etaleStructureSheaf Y).obj ≫
         whiskerLeft (lisseEtaleInclusion X).op
-          (etaleStructureSheafInverseImage f).hom :=
-  sorry
+          (etaleStructureSheafInverseImage f).hom)
 
-/-- The morphism of topoi induced by the lisse-étale restriction of a smooth
-morphism of algebraic stacks. -/
-def lisseEtaleMap.toposHom (f : X ⟶ Y) [Smooth f] :
+#check (AlgebraicGeometry.AlgebraicStack.lisseEtaleMap.toposHom :
+  ∀ {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [Smooth f]
+    [HasSheafify (lisseEtaleTopology X) (Type u)]
+    [∀ P : (lisseEtaleSite X)ᵒᵖ ⥤ Type u, (lisseEtaleMap f).op.HasPointwiseRightKanExtension P],
     MorphismOfTopoiIn.{u + 1, u + 1, u, u, u}
-      (lisseEtaleTopology Y) (lisseEtaleTopology X) :=
-  (lisseEtaleMap f).morphismOfTopoiInOfCocontinuous
-    (lisseEtaleTopology X) (lisseEtaleTopology Y)
+      (lisseEtaleTopology Y) (lisseEtaleTopology X))
 
-/-- `lisseEtaleMap.toposHom` is the cocontinuous morphism of topoi of
-`lisseEtaleMap f`. -/
-theorem lisseEtaleMap.toposHom_eq (f : X ⟶ Y) [Smooth f] :
+#check (AlgebraicGeometry.AlgebraicStack.lisseEtaleMap.toposHom_eq :
+  ∀ {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [Smooth f]
+    [HasSheafify (lisseEtaleTopology X) (Type u)]
+    [∀ P : (lisseEtaleSite X)ᵒᵖ ⥤ Type u, (lisseEtaleMap f).op.HasPointwiseRightKanExtension P],
     lisseEtaleMap.toposHom f =
       (lisseEtaleMap f).morphismOfTopoiInOfCocontinuous
-        (lisseEtaleTopology X) (lisseEtaleTopology Y) :=
-  sorry
+        (lisseEtaleTopology X) (lisseEtaleTopology Y))
 
-/-- The morphism of ringed topoi
-`f' : Sh(X_lisse,étale) ⟶ Sh(Y_lisse,étale)` induced by a smooth morphism of
-algebraic stacks. -/
-def lisseEtaleMap.ringedToposHom (f : X ⟶ Y) [Smooth f] :
-    RingedSite.ToposHom (lisseEtaleRingedSite X) (lisseEtaleRingedSite Y) :=
-  @toRingedTopos.{u + 1, u, u + 1, u, u}
-    (lisseEtaleRingedSite X) (lisseEtaleRingedSite Y) (lisseEtaleMap f)
-    inferInstance inferInstance inferInstance inferInstance inferInstance
-    (lisseEtaleMap.structurePresheafHom f)
+#check (AlgebraicGeometry.AlgebraicStack.lisseEtaleMap.ringedToposHom :
+  ∀ {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [Smooth f]
+    [HasSheafify (lisseEtaleTopology X) (Type u)]
+    [∀ P : (lisseEtaleSite X)ᵒᵖ ⥤ Type u, (lisseEtaleMap f).op.HasPointwiseRightKanExtension P]
+    [(lisseEtaleTopology X).HasSheafCompose (forget RingCat.{u})]
+    [(lisseEtaleTopology Y).HasSheafCompose (forget RingCat.{u})],
+    RingedSite.ToposHom (lisseEtaleRingedSite X) (lisseEtaleRingedSite Y))
 
-/-- The underlying morphism of topoi of `lisseEtaleMap.ringedToposHom` is
-`lisseEtaleMap.toposHom`. -/
-theorem lisseEtaleMap.ringedToposHom_toTopos (f : X ⟶ Y) [Smooth f] :
-    (lisseEtaleMap.ringedToposHom f).toTopos = lisseEtaleMap.toposHom f :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicStack.lisseEtaleMap.ringedToposHom_toTopos :
+  ∀ {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [Smooth f]
+    [HasSheafify (lisseEtaleTopology X) (Type u)]
+    [∀ P : (lisseEtaleSite X)ᵒᵖ ⥤ Type u, (lisseEtaleMap f).op.HasPointwiseRightKanExtension P]
+    [(lisseEtaleTopology X).HasSheafCompose (forget RingCat.{u})]
+    [(lisseEtaleTopology Y).HasSheafCompose (forget RingCat.{u})],
+    (lisseEtaleMap.ringedToposHom f).toTopos = lisseEtaleMap.toposHom f)
 
-/-- The total functor of a 1-morphism is continuous for inherited fppf
-topologies. -/
-instance toFunctor_isContinuous_inheritedFppf (f : X ⟶ Y) :
-    (toFunctor f).IsContinuous (inheritedFppfTopology X) (inheritedFppfTopology Y) :=
-  CartesianBasedFunctor.inheritedTopology.isContinuous
-    (toCartesianBasedFunctor f) (Scheme.fppfTopology.over S)
+#check (AlgebraicGeometry.GroupoidsOver.toFunctor_isContinuous_inheritedFppf :
+  ∀ {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y),
+    (toFunctor f).IsContinuous (inheritedFppfTopology X) (inheritedFppfTopology Y))
 
-/-- The composite `toFunctor f ⋙ Y.p` is continuous from the inherited fppf
-site of `X` to the big fppf site of `S`. -/
-instance toFunctor_comp_p_isContinuous_inheritedFppf (f : X ⟶ Y) :
+#check (AlgebraicGeometry.GroupoidsOver.toFunctor_comp_p_isContinuous (τ := .fppf) :
+  ∀ {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y),
     (toFunctor f ⋙ Y.p).IsContinuous
-      (inheritedFppfTopology X) (Scheme.fppfTopology.over S) :=
-  Functor.isContinuous_comp (toFunctor f) Y.p
-    (inheritedFppfTopology X) (inheritedFppfTopology Y)
-    (Scheme.fppfTopology.over S)
+      (inheritedFppfTopology X) (Scheme.fppfTopology.over S))
 
-/-- The identification `f⁻¹ 𝒪_Y ≅ 𝒪_X` of inherited-fppf structure sheaves. -/
-def inheritedFppfStructureSheafIso (f : X ⟶ Y) :
+#check (AlgebraicGeometry.GroupoidsOver.associatedStructureSheafInverseImageIso (τ := .fppf) :
+  ∀ {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y),
     ((toFunctor f).sheafPushforwardContinuous RingCat.{u}
         (inheritedFppfTopology X) (inheritedFppfTopology Y)).obj
-      (structureSheaf Y) ≅ structureSheaf X :=
-  (sheafPushforwardContinuousComp' (eqToIso (comm f)) RingCat.{u}
-      (inheritedFppfTopology X) (inheritedFppfTopology Y)
-      (Scheme.fppfTopology.over S)).app
-    (StandardTopology.Big.structureSheaf .fppf S)
+      (structureSheaf Y) ≅ structureSheaf X)
 
-/-- `inheritedFppfStructureSheafIso` is the continuous-pushforward comparison
-along `comm f`. -/
-theorem inheritedFppfStructureSheafIso_eq (f : X ⟶ Y) :
-    inheritedFppfStructureSheafIso f =
+#check (AlgebraicGeometry.GroupoidsOver.associatedStructureSheafInverseImageIso_eq (τ := .fppf) :
+  ∀ {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y),
+    associatedStructureSheafInverseImageIso f .fppf =
       (sheafPushforwardContinuousComp' (eqToIso (comm f)) RingCat.{u}
           (inheritedFppfTopology X) (inheritedFppfTopology Y)
           (Scheme.fppfTopology.over S)).app
-        (StandardTopology.Big.structureSheaf .fppf S) :=
-  sorry
+        (StandardTopology.Big.structureSheaf .fppf S))
 
-/-- The structure-presheaf map of `toFunctor f` on inherited fppf ringed sites. -/
-def inheritedFppfStructurePresheafHom (f : X ⟶ Y) :
-    (toFunctor f).op ⋙ (structureSheaf Y).obj ⟶ (structureSheaf X).obj :=
-  (inheritedFppfStructureSheafIso f).hom.hom
+#check (AlgebraicGeometry.GroupoidsOver.associatedStructureSheafInverseImagePresheafHom (τ := .fppf) :
+  ∀ {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y),
+    (toFunctor f).op ⋙ (structureSheaf Y).obj ⟶ (structureSheaf X).obj)
 
-/-- `inheritedFppfStructurePresheafHom` is the underlying presheaf map of
-`inheritedFppfStructureSheafIso`. -/
-theorem inheritedFppfStructurePresheafHom_eq (f : X ⟶ Y) :
-    inheritedFppfStructurePresheafHom f =
-      (inheritedFppfStructureSheafIso f).hom.hom :=
-  sorry
+#check (AlgebraicGeometry.GroupoidsOver.associatedStructureSheafInverseImagePresheafHom_eq (τ := .fppf) :
+  ∀ {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y),
+    associatedStructureSheafInverseImagePresheafHom f .fppf =
+      (associatedStructureSheafInverseImageIso f .fppf).hom.hom)
 
-/-- The morphism of topoi induced by `toFunctor f` on associated étale sites. -/
-def toFunctor.etaleToposHom (f : X ⟶ Y) :
-    MorphismOfTopoiIn.{u + 1, u + 1, u, u, u} Y.etaleTopology X.etaleTopology :=
-  (toFunctor f).morphismOfTopoiInOfCocontinuous X.etaleTopology Y.etaleTopology
+#check (AlgebraicGeometry.AlgebraicStack.toFunctor.etaleToposHom :
+  ∀ {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y)
+    [HasSheafify X.etaleTopology (Type u)]
+    [∀ P : X.totalᵒᵖ ⥤ Type u, (toFunctor f).op.HasPointwiseRightKanExtension P],
+    MorphismOfTopoiIn.{u + 1, u + 1, u, u, u} Y.etaleTopology X.etaleTopology)
 
-/-- `toFunctor.etaleToposHom` is the cocontinuous morphism of topoi of
-`toFunctor f` on associated étale topologies. -/
-theorem toFunctor.etaleToposHom_eq (f : X ⟶ Y) :
+#check (AlgebraicGeometry.AlgebraicStack.toFunctor.etaleToposHom_eq :
+  ∀ {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y)
+    [HasSheafify X.etaleTopology (Type u)]
+    [∀ P : X.totalᵒᵖ ⥤ Type u, (toFunctor f).op.HasPointwiseRightKanExtension P],
     toFunctor.etaleToposHom f =
-      (toFunctor f).morphismOfTopoiInOfCocontinuous X.etaleTopology Y.etaleTopology :=
-  sorry
+      (toFunctor f).morphismOfTopoiInOfCocontinuous X.etaleTopology Y.etaleTopology)
 
-/-- The morphism of associated-étale ringed topoi induced by a 1-morphism of
-algebraic stacks, via `toFunctor f`. -/
-def toFunctor.etaleRingedToposHom (f : X ⟶ Y) :
-    RingedSite.ToposHom (etaleRingedSite X) (etaleRingedSite Y) :=
-  @toRingedTopos.{u + 1, u, u + 1, u, u}
-    (etaleRingedSite X) (etaleRingedSite Y) (toFunctor f)
-    inferInstance inferInstance inferInstance inferInstance inferInstance
-    (etaleStructureSheafInverseImage f).hom
+#check (AlgebraicGeometry.AlgebraicStack.toFunctor.etaleRingedToposHom :
+  ∀ {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y)
+    [HasSheafify X.etaleTopology (Type u)]
+    [∀ P : X.totalᵒᵖ ⥤ Type u, (toFunctor f).op.HasPointwiseRightKanExtension P]
+    [X.etaleTopology.HasSheafCompose (forget RingCat.{u})]
+    [Y.etaleTopology.HasSheafCompose (forget RingCat.{u})],
+    RingedSite.ToposHom (etaleRingedSite X) (etaleRingedSite Y))
 
-/-- The underlying morphism of topoi of `toFunctor.etaleRingedToposHom` is
-`toFunctor.etaleToposHom`. -/
-theorem toFunctor.etaleRingedToposHom_toTopos (f : X ⟶ Y) :
-    (toFunctor.etaleRingedToposHom f).toTopos = toFunctor.etaleToposHom f :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicStack.toFunctor.etaleRingedToposHom_toTopos :
+  ∀ {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y)
+    [HasSheafify X.etaleTopology (Type u)]
+    [∀ P : X.totalᵒᵖ ⥤ Type u, (toFunctor f).op.HasPointwiseRightKanExtension P]
+    [X.etaleTopology.HasSheafCompose (forget RingCat.{u})]
+    [Y.etaleTopology.HasSheafCompose (forget RingCat.{u})],
+    (toFunctor.etaleRingedToposHom f).toTopos = toFunctor.etaleToposHom f)
 
-/-- The morphism of topoi induced by `toFunctor f` on inherited fppf sites. -/
-def inheritedFppfToposHom (f : X ⟶ Y) :
+#check (AlgebraicGeometry.AlgebraicStack.inheritedFppfToposHom :
+  ∀ {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y)
+    [HasSheafify (inheritedFppfTopology X) (Type u)]
+    [∀ P : X.totalᵒᵖ ⥤ Type u, (toFunctor f).op.HasPointwiseRightKanExtension P],
     MorphismOfTopoiIn.{u + 1, u + 1, u, u, u}
-      (inheritedFppfTopology Y) (inheritedFppfTopology X) :=
-  (toFunctor f).morphismOfTopoiInOfCocontinuous
-    (inheritedFppfTopology X) (inheritedFppfTopology Y)
+      (inheritedFppfTopology Y) (inheritedFppfTopology X))
 
-/-- `inheritedFppfToposHom` is the cocontinuous morphism of topoi of
-`toFunctor f` on inherited fppf topologies. -/
-theorem inheritedFppfToposHom_eq (f : X ⟶ Y) :
+#check (AlgebraicGeometry.AlgebraicStack.inheritedFppfToposHom_eq :
+  ∀ {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y)
+    [HasSheafify (inheritedFppfTopology X) (Type u)]
+    [∀ P : X.totalᵒᵖ ⥤ Type u, (toFunctor f).op.HasPointwiseRightKanExtension P],
     inheritedFppfToposHom f =
       (toFunctor f).morphismOfTopoiInOfCocontinuous
-        (inheritedFppfTopology X) (inheritedFppfTopology Y) :=
-  sorry
+        (inheritedFppfTopology X) (inheritedFppfTopology Y))
 
-/-- The morphism of inherited-fppf ringed topoi induced by a 1-morphism of
-categories fibred in groupoids. -/
-def inheritedFppfRingedToposHom (f : X ⟶ Y) :
-    RingedSite.ToposHom (ringedSite X) (ringedSite Y) :=
-  @toRingedTopos.{u + 1, u, u + 1, u, u}
-    (ringedSite X) (ringedSite Y) (toFunctor f)
-    inferInstance inferInstance inferInstance inferInstance inferInstance
-    (inheritedFppfStructurePresheafHom f)
+#check (AlgebraicGeometry.AlgebraicStack.inheritedFppfRingedToposHom :
+  ∀ {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y)
+    [HasSheafify (inheritedFppfTopology X) (Type u)]
+    [∀ P : X.totalᵒᵖ ⥤ Type u, (toFunctor f).op.HasPointwiseRightKanExtension P]
+    [(inheritedFppfTopology X).HasSheafCompose (forget RingCat.{u})]
+    [(inheritedFppfTopology Y).HasSheafCompose (forget RingCat.{u})],
+    RingedSite.ToposHom (ringedSite X) (ringedSite Y))
 
-/-- The underlying morphism of topoi of `inheritedFppfRingedToposHom` is
-`inheritedFppfToposHom`. -/
-theorem inheritedFppfRingedToposHom_toTopos (f : X ⟶ Y) :
-    (inheritedFppfRingedToposHom f).toTopos = inheritedFppfToposHom f :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicStack.inheritedFppfRingedToposHom_toTopos :
+  ∀ {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y)
+    [HasSheafify (inheritedFppfTopology X) (Type u)]
+    [∀ P : X.totalᵒᵖ ⥤ Type u, (toFunctor f).op.HasPointwiseRightKanExtension P]
+    [(inheritedFppfTopology X).HasSheafCompose (forget RingCat.{u})]
+    [(inheritedFppfTopology Y).HasSheafCompose (forget RingCat.{u})],
+    (inheritedFppfRingedToposHom f).toTopos = inheritedFppfToposHom f)
 
-/-- The structure-presheaf map of `flatFppfMap f`, obtained by restricting the
-inherited-fppf identification `f⁻¹ 𝒪_Y ⟶ 𝒪_X` along the flat-fppf inclusions. -/
-def flatFppfMap.structurePresheafHom (f : X ⟶ Y) [Flat f] :
+#check (AlgebraicGeometry.AlgebraicStack.flatFppfMap.structurePresheafHom :
+  ∀ {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [Flat f],
     (flatFppfMap f).op ⋙ (flatFppfStructureSheaf Y).obj ⟶
-      (flatFppfStructureSheaf X).obj :=
-  whiskerRight (NatTrans.op (flatFppfMap_comp_ι f).inv) (structureSheaf Y).obj ≫
-    whiskerLeft (flatFppfInclusion X).op (inheritedFppfStructurePresheafHom f)
+      (flatFppfStructureSheaf X).obj)
 
-/-- `flatFppfMap.structurePresheafHom` is restriction of
-`inheritedFppfStructurePresheafHom` along the site square of `flatFppfMap`. -/
-theorem flatFppfMap.structurePresheafHom_eq (f : X ⟶ Y) [Flat f] :
+#check (AlgebraicGeometry.AlgebraicStack.flatFppfMap.structurePresheafHom_eq :
+  ∀ {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [Flat f],
     flatFppfMap.structurePresheafHom f =
       whiskerRight (NatTrans.op (flatFppfMap_comp_ι f).inv) (structureSheaf Y).obj ≫
-        whiskerLeft (flatFppfInclusion X).op (inheritedFppfStructurePresheafHom f) :=
-  sorry
+        whiskerLeft (flatFppfInclusion X).op (associatedStructureSheafInverseImagePresheafHom f .fppf))
 
-/-- The morphism of topoi induced by the flat-fppf restriction of a flat morphism
-of algebraic stacks. -/
-def flatFppfMap.toposHom (f : X ⟶ Y) [Flat f] :
+#check (AlgebraicGeometry.AlgebraicStack.flatFppfMap.toposHom :
+  ∀ {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [Flat f]
+    [HasSheafify (flatFppfTopology X) (Type u)]
+    [∀ P : (flatFppfSite X)ᵒᵖ ⥤ Type u, (flatFppfMap f).op.HasPointwiseRightKanExtension P],
     MorphismOfTopoiIn.{u + 1, u + 1, u, u, u}
-      (flatFppfTopology Y) (flatFppfTopology X) :=
-  (flatFppfMap f).morphismOfTopoiInOfCocontinuous
-    (flatFppfTopology X) (flatFppfTopology Y)
+      (flatFppfTopology Y) (flatFppfTopology X))
 
-/-- `flatFppfMap.toposHom` is the cocontinuous morphism of topoi of
-`flatFppfMap f`. -/
-theorem flatFppfMap.toposHom_eq (f : X ⟶ Y) [Flat f] :
+#check (AlgebraicGeometry.AlgebraicStack.flatFppfMap.toposHom_eq :
+  ∀ {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [Flat f]
+    [HasSheafify (flatFppfTopology X) (Type u)]
+    [∀ P : (flatFppfSite X)ᵒᵖ ⥤ Type u, (flatFppfMap f).op.HasPointwiseRightKanExtension P],
     flatFppfMap.toposHom f =
       (flatFppfMap f).morphismOfTopoiInOfCocontinuous
-        (flatFppfTopology X) (flatFppfTopology Y) :=
-  sorry
+        (flatFppfTopology X) (flatFppfTopology Y))
 
-/-- The morphism of ringed topoi
-`f' : Sh(X_flat,fppf) ⟶ Sh(Y_flat,fppf)` induced by a flat morphism of
-algebraic stacks. -/
-def flatFppfMap.ringedToposHom (f : X ⟶ Y) [Flat f] :
-    RingedSite.ToposHom (flatFppfRingedSite X) (flatFppfRingedSite Y) :=
-  @toRingedTopos.{u + 1, u, u + 1, u, u}
-    (flatFppfRingedSite X) (flatFppfRingedSite Y) (flatFppfMap f)
-    inferInstance inferInstance inferInstance inferInstance inferInstance
-    (flatFppfMap.structurePresheafHom f)
+#check (AlgebraicGeometry.AlgebraicStack.flatFppfMap.ringedToposHom :
+  ∀ {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [Flat f]
+    [HasSheafify (flatFppfTopology X) (Type u)]
+    [∀ P : (flatFppfSite X)ᵒᵖ ⥤ Type u, (flatFppfMap f).op.HasPointwiseRightKanExtension P]
+    [(flatFppfTopology X).HasSheafCompose (forget RingCat.{u})]
+    [(flatFppfTopology Y).HasSheafCompose (forget RingCat.{u})],
+    RingedSite.ToposHom (flatFppfRingedSite X) (flatFppfRingedSite Y))
 
-/-- The underlying morphism of topoi of `flatFppfMap.ringedToposHom` is
-`flatFppfMap.toposHom`. -/
-theorem flatFppfMap.ringedToposHom_toTopos (f : X ⟶ Y) [Flat f] :
-    (flatFppfMap.ringedToposHom f).toTopos = flatFppfMap.toposHom f :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicStack.flatFppfMap.ringedToposHom_toTopos :
+  ∀ {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [Flat f]
+    [HasSheafify (flatFppfTopology X) (Type u)]
+    [∀ P : (flatFppfSite X)ᵒᵖ ⥤ Type u, (flatFppfMap f).op.HasPointwiseRightKanExtension P]
+    [(flatFppfTopology X).HasSheafCompose (forget RingCat.{u})]
+    [(flatFppfTopology Y).HasSheafCompose (forget RingCat.{u})],
+    (flatFppfMap.ringedToposHom f).toTopos = flatFppfMap.toposHom f)
 
 end AlgebraicGeometry.AlgebraicStack

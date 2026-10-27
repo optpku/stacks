@@ -10,6 +10,7 @@ public import Mathlib.Algebra.BigOperators.Finprod
 public import ReasLib.AlgebraicGeometry.Scheme.Blowup.Basic
 public import ReasLib.AlgebraicGeometry.Scheme.Divisor.ComplexChart.Pullback
 public import ReasLib.AlgebraicGeometry.Scheme.IdealSheafData.OpenComplement
+import Mathlib.Data.Int.Interval
 
 @[expose] public section
 
@@ -36,16 +37,77 @@ noncomputable def productIdeal {X : Scheme.{u}} {D : X.IdealSheafData}
         (@HomologicalComplex.IsTermwiseFiniteFree.out
           _ _ _ _ C.model C.finiteFree (i + 1)).2
 
+private theorem fittingIdeal_eq_top_of_subsingleton (R N : Type u) [CommRing R]
+    [AddCommGroup N] [Module R N] [Subsingleton N] (k : ℕ) :
+    fittingIdeal R N k = ⊤ := by
+  classical
+  by_cases hR : Subsingleton R
+  · letI := hR
+    exact Subsingleton.elim _ _
+  · letI : Nontrivial R := not_subsingleton_iff_nontrivial.mp hR
+    apply top_unique
+    refine le_sInf ?_
+    rintro J ⟨⟨n, π, hπ⟩, rfl⟩
+    apply ((Ideal.eq_top_iff_one _).mpr ?_).ge
+    change 1 ∈ Matrix.minorIdeal (n - k)
+      (fun a b ↦ b.1 a : Matrix (Fin n) (LinearMap.ker π) R)
+    let e : Fin (n - k) ↪ Fin n := Fin.castLEEmb (Nat.sub_le n k)
+    let v : Fin (n - k) ↪ LinearMap.ker π :=
+      { toFun := fun j ↦ ⟨Pi.single (e j) 1, by exact Subsingleton.elim _ _⟩
+        inj' := by
+          intro a b hab
+          by_contra hne
+          have h := congrArg (fun x : LinearMap.ker π ↦ x.1 (e a)) hab
+          simp [e.injective.eq_iff, hne] at h }
+    have hv : (fun a b : Fin (n - k) ↦ (v b).1 (e a)) =
+        (1 : Matrix (Fin (n - k)) (Fin (n - k)) R) := by
+      ext a b
+      simp [v, Pi.single_apply, e.injective.eq_iff, Matrix.one_apply]
+    have hm :
+        Matrix.det (Matrix.submatrix
+          (fun a b ↦ b.1 a : Matrix (Fin n) (LinearMap.ker π) R) e v) ∈
+          Matrix.minorIdeal (n - k) (fun a b ↦ b.1 a : Matrix (Fin n) (LinearMap.ker π) R) :=
+      Ideal.subset_span ⟨(e, v), rfl⟩
+    change Matrix.det (fun a b : Fin (n - k) ↦ (v b).1 (e a)) ∈ _ at hm
+    simpa only [hv, Matrix.det_one] using hm
+
 /-- Only finitely many degreewise determinantal ideals of an affine divisor-complex chart
 differ from the unit ideal. -/
 theorem ideal_hasFiniteMulSupport {X : Scheme.{u}} {D : X.IdealSheafData}
     {M : RingedSpace.ModuleDerived X.toRingedSpace} (C : DivisorComplexChart D M) :
-    Function.HasFiniteMulSupport fun i : ℤ ↦ C.ideal i := sorry
+    Function.HasFiniteMulSupport fun i : ℤ ↦ C.ideal i := by
+  obtain ⟨a, ha⟩ := C.bounded.1
+  obtain ⟨b, hb⟩ := C.bounded.2
+  letI := ha
+  letI := hb
+  apply (Set.finite_Icc (a - 1) b).subset
+  intro i hi
+  by_contra hmem
+  have hzero : CategoryTheory.Limits.IsZero (C.model.X i) ∧
+      CategoryTheory.Limits.IsZero (C.model.X (i + 1)) := by
+    by_cases hia : i < a - 1
+    · exact ⟨C.model.isZero_of_isStrictlyGE a i (by lia),
+        C.model.isZero_of_isStrictlyGE a (i + 1) (by lia)⟩
+    · have hib : b < i := by
+        by_contra hib
+        exact hmem ⟨by lia, by lia⟩
+      exact ⟨C.model.isZero_of_isStrictlyLE b i hib,
+        C.model.isZero_of_isStrictlyLE b (i + 1) (by lia)⟩
+  letI := ModuleCat.subsingleton_of_isZero hzero.1
+  letI := ModuleCat.subsingleton_of_isZero hzero.2
+  have hone : C.ideal i = 1 := by
+    rw [Ideal.one_eq_top]
+    change fittingIdeal Γ(X, C.U)
+      (HomologicalComplex.ScalarPresentation.quotient C.generator C.model i (i + 1))
+      (Module.finrank Γ(X, C.U) (C.model.X (i + 1))) = ⊤
+    exact fittingIdeal_eq_top_of_subsingleton Γ(X, C.U)
+      (HomologicalComplex.ScalarPresentation.quotient C.generator C.model i (i + 1)) _
+  exact hi hone
 
 /-- The product ideal is the finitary product of all degreewise determinantal ideals. -/
 theorem productIdeal_def {X : Scheme.{u}} {D : X.IdealSheafData}
     {M : RingedSpace.ModuleDerived X.toRingedSpace} (C : DivisorComplexChart D M) :
-    C.productIdeal = ∏ᶠ i : ℤ, C.ideal i := sorry
+    C.productIdeal = ∏ᶠ i : ℤ, C.ideal i := rfl
 
 /-- The ideal-sheaf center on the affine chart obtained by transporting the product ideal to
 the global sections of the restricted scheme. -/
@@ -60,7 +122,8 @@ noncomputable def productCenter {X : Scheme.{u}} {D : X.IdealSheafData}
 theorem productCenter_ideal {X : Scheme.{u}} {D : X.IdealSheafData}
     {M : RingedSpace.ModuleDerived X.toRingedSpace} (C : DivisorComplexChart D M) :
     IdealSheafData.equivOfIsAffine C.productCenter =
-      Ideal.map (C.U : X.Opens).topIso.inv.hom C.productIdeal := sorry
+      Ideal.map (C.U : X.Opens).topIso.inv.hom C.productIdeal := by
+  exact IdealSheafData.equivOfIsAffine.apply_symm_apply _
 
 end DivisorComplexChart
 
@@ -92,7 +155,12 @@ theorem isGoodTripleModification_iff {X X' : Scheme.{u}} (D : X.IdealSheafData)
         ∀ {Y : Scheme.{u}} (h : Y ⟶ X), D.pullbackDefined h →
           IsGoodTriple (D.comap h)
             ((RingedSpace.modulePullbackDerived h.toLRSHom.toShHom).obj M) →
-          ExistsUnique fun c : Y ⟶ X' ↦ c ≫ b = h := sorry
+          ExistsUnique fun c : Y ⟶ X' ↦ c ≫ b = h := by
+  constructor
+  · intro h
+    exact ⟨h.pullbackDefined, h.isGoodTriple, h.lift_unique⟩
+  · rintro ⟨h_pullback, h_good, h_lift⟩
+    exact ⟨h_pullback, h_good, h_lift⟩
 
 namespace IsGoodTripleModification
 
@@ -100,7 +168,8 @@ namespace IsGoodTripleModification
 theorem toIsEffectiveCartierDivisor {X X' : Scheme.{u}} {D : X.IdealSheafData}
     {M : RingedSpace.ModuleDerived X.toRingedSpace} {b : X' ⟶ X}
     [h : IsGoodTripleModification D M b] :
-    AlgebraicGeometry.IsEffectiveCartierDivisor (D.comap b).subschemeι := sorry
+    AlgebraicGeometry.IsEffectiveCartierDivisor (D.comap b).subschemeι :=
+  h.pullbackDefined
 
 /-- The pulled-back divisor of a good-triple modification is canonically effective Cartier. -/
 instance instIsEffectiveCartierDivisor {X X' : Scheme.{u}} {D : X.IdealSheafData}
@@ -125,7 +194,29 @@ modifications. -/
 theorem existsUnique_iso {X X₁ X₂ : Scheme.{u}} {D : X.IdealSheafData}
     {M : RingedSpace.ModuleDerived X.toRingedSpace} {b₁ : X₁ ⟶ X} {b₂ : X₂ ⟶ X}
     [IsGoodTripleModification D M b₁] [IsGoodTripleModification D M b₂] :
-    ExistsUnique fun e : X₁ ≅ X₂ ↦ e.hom ≫ b₂ = b₁ := sorry
+    ExistsUnique fun e : X₁ ≅ X₂ ↦ e.hom ≫ b₂ = b₁ := by
+  obtain ⟨f, hf, hf_unique⟩ := existsUnique_lift (D := D) (M := M) (b := b₂) b₁
+    (IsGoodTripleModification.pullbackDefined (D := D) (M := M) (b := b₁))
+    (IsGoodTripleModification.isGoodTriple (D := D) (M := M) (b := b₁))
+  obtain ⟨g, hg, hg_unique⟩ := existsUnique_lift (D := D) (M := M) (b := b₁) b₂
+    (IsGoodTripleModification.pullbackDefined (D := D) (M := M) (b := b₂))
+    (IsGoodTripleModification.isGoodTriple (D := D) (M := M) (b := b₂))
+  have hfg : f ≫ g = 𝟙 X₁ := by
+    obtain ⟨k, _, hk_unique⟩ := existsUnique_lift (D := D) (M := M) (b := b₁) b₁
+      (IsGoodTripleModification.pullbackDefined (D := D) (M := M) (b := b₁))
+      (IsGoodTripleModification.isGoodTriple (D := D) (M := M) (b := b₁))
+    exact (hk_unique _ (by simp [Category.assoc, hg, hf])).trans
+      (hk_unique _ (Category.id_comp b₁)).symm
+  have hgf : g ≫ f = 𝟙 X₂ := by
+    obtain ⟨k, _, hk_unique⟩ := existsUnique_lift (D := D) (M := M) (b := b₂) b₂
+      (IsGoodTripleModification.pullbackDefined (D := D) (M := M) (b := b₂))
+      (IsGoodTripleModification.isGoodTriple (D := D) (M := M) (b := b₂))
+    exact (hk_unique _ (by simp [Category.assoc, hf, hg])).trans
+      (hk_unique _ (Category.id_comp b₂)).symm
+  refine ⟨⟨f, g, hfg, hgf⟩, hf, ?_⟩
+  intro e he
+  apply Iso.ext
+  exact hf_unique e.hom he
 
 /-- Restricting a good-triple modification to an affine divisor-complex chart is the blowup in
 the chart's product center. -/

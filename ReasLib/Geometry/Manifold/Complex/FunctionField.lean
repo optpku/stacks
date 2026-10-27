@@ -50,8 +50,26 @@ noncomputable def functionFieldFunctor : CompactRiemannSurface.Nonconstant.{u} �
   map {X Y} f :=
     (ObjectProperty.homMk <| ObjectProperty.homMk <| CommAlgCat.ofHom <|
       MeromorphicFunctionField.pullback (X := X.obj) (Y := Y.obj) f.hom f.property).op
-  map_id X := sorry
-  map_comp f g := sorry
+  map_id X := by
+    apply Quiver.Hom.unop_inj
+    apply ObjectProperty.hom_ext
+    apply ObjectProperty.hom_ext
+    apply CommAlgCat.hom_ext
+    apply AlgHom.ext
+    intro a
+    refine Quotient.inductionOn a ?_
+    intro f
+    rfl
+  map_comp f g := by
+    apply Quiver.Hom.unop_inj
+    apply ObjectProperty.hom_ext
+    apply ObjectProperty.hom_ext
+    apply CommAlgCat.hom_ext
+    apply AlgHom.ext
+    intro a
+    refine Quotient.inductionOn a ?_
+    intro h
+    rfl
 
 /-- The underlying complex algebra of the functor's object is the meromorphic function field. -/
 @[simp]
@@ -87,13 +105,50 @@ meromorphic function field of a compact Riemann surface. -/
 theorem existsWithFunctionFieldOfEssFiniteTypeTrdegEqOne
     (K : Type u) [Field K] [Algebra ℂ K] [Algebra.EssFiniteType ℂ K]
     (htrdeg : Algebra.trdeg ℂ K = 1) :
-    ∃ X : CompactRiemannSurface.{u}, Nonempty (K ≃ₐ[ℂ] ℂ(X)) := sorry
+    ∃ X : CompactRiemannSurface.{u}, Nonempty (K ≃ₐ[ℂ] ℂ(X)) := by
+  let K' := AlgebraicGeometry.FinitelyGeneratedFieldExtension.TranscendenceDegreeOne.of ℂ K htrdeg
+  obtain ⟨X, ⟨e⟩⟩ := Functor.EssSurj.mem_essImage functionFieldFunctor (op K')
+  exact ⟨X.obj, ⟨CommAlgCat.algEquivOfIso
+    ((AlgebraicGeometry.FinitelyGeneratedFieldExtension.property ℂ).ι.mapIso
+      ((AlgebraicGeometry.FinitelyGeneratedFieldExtension.trdegOneProperty ℂ).ι.mapIso e.unop))⟩⟩
 
 /-- Isomorphism of compact Riemann surfaces is detected contravariantly by their meromorphic
 function fields. -/
 theorem nonemptyIsoIffNonemptyFunctionFieldAlgEquiv
     (X Y : CompactRiemannSurface.{u}) :
-    Nonempty (X ≅ Y) ↔ Nonempty (ℂ(Y) ≃ₐ[ℂ] ℂ(X)) := sorry
+    Nonempty (X ≅ Y) ↔ Nonempty (ℂ(Y) ≃ₐ[ℂ] ℂ(X)) := by
+  constructor
+  · rintro ⟨e⟩
+    have hnonconstant {A B : CompactRiemannSurface.{u}} (i : A ≅ B) :
+        i.hom.IsNonconstant := by
+      have hleft (z : A) : (i.inv : CompactRiemannSurfaceHom B A).val
+          ((i.hom : CompactRiemannSurfaceHom A B).val z) = z :=
+        congrArg (fun f : CompactRiemannSurfaceHom A A => f.val z) i.hom_inv_id
+      obtain ⟨a, b, hab⟩ := CompactRiemannSurface.exists_pair_ne A
+      refine ⟨a, b, ?_⟩
+      intro h
+      exact hab ((hleft a).symm.trans
+        ((congrArg (i.inv : CompactRiemannSurfaceHom B A).val h).trans (hleft b)))
+    let e' : (⟨X⟩ : CompactRiemannSurface.Nonconstant) ≅ ⟨Y⟩ :=
+      CategoryTheory.isoMk e (hnonconstant e) (hnonconstant e.symm)
+    exact ⟨CommAlgCat.algEquivOfIso
+      ((AlgebraicGeometry.FinitelyGeneratedFieldExtension.property ℂ).ι.mapIso
+        ((AlgebraicGeometry.FinitelyGeneratedFieldExtension.trdegOneProperty ℂ).ι.mapIso
+          (functionFieldFunctor.mapIso e').unop))⟩
+  · rintro ⟨e⟩
+    let e' : functionFieldFunctor.obj (⟨X⟩ : CompactRiemannSurface.Nonconstant) ≅
+        functionFieldFunctor.obj (⟨Y⟩ : CompactRiemannSurface.Nonconstant) :=
+      (ObjectProperty.isoMk _ (ObjectProperty.isoMk _ (CommAlgCat.isoMk e))).op
+    obtain ⟨f, hf⟩ := functionFieldFunctor.map_surjective e'.hom
+    obtain ⟨g, hg⟩ := functionFieldFunctor.map_surjective e'.inv
+    have hfg : f ≫ g = 𝟙 _ := by
+      apply functionFieldFunctor.map_injective
+      rw [CategoryTheory.Functor.map_comp, hf, hg, e'.hom_inv_id, CategoryTheory.Functor.map_id]
+    have hgf : g ≫ f = 𝟙 _ := by
+      apply functionFieldFunctor.map_injective
+      rw [CategoryTheory.Functor.map_comp, hg, hf, e'.inv_hom_id, CategoryTheory.Functor.map_id]
+    exact ⟨(wideSubcategoryInclusion CompactRiemannSurface.nonconstantHom).mapIso
+      ⟨f, g, hfg, hgf⟩⟩
 
 namespace FunctionField
 

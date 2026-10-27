@@ -6,16 +6,8 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import Mathlib.Tactic.CrossRefAttribute
-public import ReasLib.AlgebraicGeometry.Scheme.OverField.LFunction
-public import stacks_project.Chap64.«64_16_1_1_CompactSupport»
-
-/-!
-# Cohomological interpretation of L-functions with finite coefficients
-
-Grothendieck's identification of the Euler product `L(X, F)` with the inverse
-determinant of geometric Frobenius on compactly supported derived sections.
--/
+public import ReasLib.AlgebraicGeometry.Scheme.OverField.LFunction.Cohomology
+import StacksCheckRecall
 
 @[expose] public section
 
@@ -103,99 +95,17 @@ variable [∀ {A B C : Scheme.{u}} (p : B ⟶ A) (q : C ⟶ B),
 variable [∀ {Y : Scheme.{u}},
     (Y.smallEtaleTopology.W (A := ModuleCat.{u} Λ)).IsMonoidal]
 
-/-- An étale sheaf of `Λ`-modules, placed in degree `0` of `D(X_etale, Λ)`. -/
-abbrev etaleSheafAsDerived {X : SchemeOverField k}
-    (F : Sheaf X.left.smallEtaleTopology (ModuleCat.{u} Λ)) :
-    EtaleDerived X.left Λ :=
-  (DerivedCategory.singleFunctor
-      (Sheaf X.left.smallEtaleTopology (ModuleCat.{u} Λ)) (0 : ℤ)).obj F
-
-/-- For a constructible flat sheaf, compactly supported derived sections are a
-perfect object of `D(Λ)`. -/
-theorem isPerfect_geometricRGammaCompactSupport_of_constructibleFlat
-    (X : SchemeOverField k) [Scheme.Hom.FiniteType X.hom]
-    (P : Compactification.Of (Spec (CommRingCat.of k)) X)
-    [Etale (Compactification.Of.ι P)]
-    [∀ F : X.left.Etaleᵒᵖ ⥤ ModuleCat.{u} Λ,
-      (etaleRestriction (Compactification.Of.ι P)).op.HasLeftKanExtension F]
-    [(etaleExtensionByZero (Compactification.Of.ι P)
-        (ModuleCat.{u} Λ)).Additive]
-    [PreservesFiniteLimits
-        (etaleExtensionByZero (Compactification.Of.ι P) (ModuleCat.{u} Λ))]
-    [PreservesFiniteColimits
-        (etaleExtensionByZero (Compactification.Of.ι P) (ModuleCat.{u} Λ))]
+/- Theorem 64.20.1 (Finite Coefficients). The closed-point L-function equals the inverse
+determinant of geometric Frobenius on compactly supported geometric derived cohomology,
+computed multiplicatively over reduced affine strata without a separatedness assumption. -/
+@[stacks 03UZ] #check (AlgebraicGeometry.SchemeOverField.lFunction_eq_inv_det_geometricFrobenius :
+    ∀ (X : SchemeOverField k) [Scheme.Hom.FiniteType X.hom]
     (hΛ : Nat.Coprime (Nat.card Λ) p)
     (F : Sheaf X.left.smallEtaleTopology (ModuleCat.{u} Λ))
     (hF : Sheaf.IsConstructibleEtaleModule
       (fun {Y} f ↦ (Sheaf.smallEtaleInverseImage f (ModuleCat.{u} Λ)).obj)
       (fun {Y} G ↦ Sheaf.IsFiniteTypeLocallyConstantModule G) F)
-    [IsFlat F] :
-    DerivedCategory.IsPerfect
-      (geometricRGammaCompactSupport X P (etaleSheafAsDerived F)) :=
-  sorry
-
-/-- The Euler factor `det(1 - π_X^* T | RΓ_c(X_k̄, F))⁻¹` is independent of the
-choice of compactification. -/
-theorem eulerFactor_geometricFrobeniusCompactSupport_independent
-    (X : SchemeOverField k) [Scheme.Hom.FiniteType X.hom]
-    (P Q : Compactification.Of (Spec (CommRingCat.of k)) X)
-    [Etale (Compactification.Of.ι P)] [Etale (Compactification.Of.ι Q)]
-    [∀ F : X.left.Etaleᵒᵖ ⥤ ModuleCat.{u} Λ,
-      (etaleRestriction (Compactification.Of.ι P)).op.HasLeftKanExtension F]
-    [∀ F : X.left.Etaleᵒᵖ ⥤ ModuleCat.{u} Λ,
-      (etaleRestriction (Compactification.Of.ι Q)).op.HasLeftKanExtension F]
-    [(etaleExtensionByZero (Compactification.Of.ι P)
-        (ModuleCat.{u} Λ)).Additive]
-    [(etaleExtensionByZero (Compactification.Of.ι Q)
-        (ModuleCat.{u} Λ)).Additive]
-    [PreservesFiniteLimits
-        (etaleExtensionByZero (Compactification.Of.ι P) (ModuleCat.{u} Λ))]
-    [PreservesFiniteLimits
-        (etaleExtensionByZero (Compactification.Of.ι Q) (ModuleCat.{u} Λ))]
-    [PreservesFiniteColimits
-        (etaleExtensionByZero (Compactification.Of.ι P) (ModuleCat.{u} Λ))]
-    [PreservesFiniteColimits
-        (etaleExtensionByZero (Compactification.Of.ι Q) (ModuleCat.{u} Λ))]
-    (hΛ : Nat.Coprime (Nat.card Λ) p)
-    (F : Sheaf X.left.smallEtaleTopology (ModuleCat.{u} Λ))
-    (hF : Sheaf.IsConstructibleEtaleModule
-      (fun {Y} f ↦ (Sheaf.smallEtaleInverseImage f (ModuleCat.{u} Λ)).obj)
-      (fun {Y} G ↦ Sheaf.IsFiniteTypeLocallyConstantModule G) F)
-    [IsFlat F] :
-    (isPerfect_geometricRGammaCompactSupport_of_constructibleFlat X P hΛ F hF).eulerFactor
-        (geometricFrobeniusRGammaCompactSupport X P (etaleSheafAsDerived F)) 1 =
-      (isPerfect_geometricRGammaCompactSupport_of_constructibleFlat X Q hΛ F hF).eulerFactor
-        (geometricFrobeniusRGammaCompactSupport X Q (etaleSheafAsDerived F)) 1 :=
-  sorry
-
-/-- Theorem 64.20.1 (Finite Coefficients). Let `X` be a scheme of finite type over a
-finite field `k`. Let `Λ` be a finite ring of order prime to the characteristic of
-`k` and `F` a constructible flat `Λ`-module on `X` étale. Then
-`L(X, F) = det(1 - π_X^* T | RΓ_c(X_k̄, F))⁻¹` in `Λ⟦T⟧`, as the equality of
-`lFunction` with `IsPerfect.eulerFactor` of `geometricFrobeniusRGammaCompactSupport`
-on `geometricRGammaCompactSupport` at exponent `1`. -/
-@[stacks 03UZ]
-theorem lFunction_eq_inv_det_geometricFrobenius
-    (X : SchemeOverField k) [Scheme.Hom.FiniteType X.hom]
-    (P : Compactification.Of (Spec (CommRingCat.of k)) X)
-    [Etale (Compactification.Of.ι P)]
-    [∀ F : X.left.Etaleᵒᵖ ⥤ ModuleCat.{u} Λ,
-      (etaleRestriction (Compactification.Of.ι P)).op.HasLeftKanExtension F]
-    [(etaleExtensionByZero (Compactification.Of.ι P)
-        (ModuleCat.{u} Λ)).Additive]
-    [PreservesFiniteLimits
-        (etaleExtensionByZero (Compactification.Of.ι P) (ModuleCat.{u} Λ))]
-    [PreservesFiniteColimits
-        (etaleExtensionByZero (Compactification.Of.ι P) (ModuleCat.{u} Λ))]
-    (hΛ : Nat.Coprime (Nat.card Λ) p)
-    (F : Sheaf X.left.smallEtaleTopology (ModuleCat.{u} Λ))
-    (hF : Sheaf.IsConstructibleEtaleModule
-      (fun {Y} f ↦ (Sheaf.smallEtaleInverseImage f (ModuleCat.{u} Λ)).obj)
-      (fun {Y} G ↦ Sheaf.IsFiniteTypeLocallyConstantModule G) F)
-    [IsFlat F] :
-    lFunction X hΛ F hF =
-      (isPerfect_geometricRGammaCompactSupport_of_constructibleFlat X P hΛ F hF).eulerFactor
-        (geometricFrobeniusRGammaCompactSupport X P (etaleSheafAsDerived F)) 1 :=
-  sorry
+    [IsFlat F],
+      lFunction X hΛ F hF = CompactSupport.eulerFactor X hΛ F hF)
 
 end AlgebraicGeometry.SchemeOverField

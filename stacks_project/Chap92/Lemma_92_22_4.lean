@@ -56,7 +56,7 @@ with the good truncation of the cotangent complex in degrees at least `-1`. -/
     (f.toTopos.commRingInverseImage.obj OD) (Under.mk (commRingStructureMap f)) :
   QuasiIso (CochainComplex.truncGEMap (RingedSite.ToposHom.toNaive f) (-1)))
 
-#check (RingedSite.ToposHom.toNaive f : L[f] ⟶ NL[f])
+#check (RingedSite.ToposHom.toNaive f : commRingCotangentComplex f ⟶ NL[f])
 
 #check (SheafOfModules.RingedSite.CotangentComplex.toNaive_zero
     (f.toTopos.commRingInverseImage.obj OD) (Under.mk (commRingStructureMap f)) :

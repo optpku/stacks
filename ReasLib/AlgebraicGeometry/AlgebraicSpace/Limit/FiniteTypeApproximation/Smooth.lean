@@ -37,18 +37,12 @@ theorem exists_eventually_smooth
     {i₀ : I}
     {Xsys Ysys : Over (OrderDual.toDual i₀) ⥤ AlgebraicSpace S}
     (xCone : Cone Xsys) (yCone : Cone Ysys)
-    (xToBase : Xsys ⟶ tailBaseDiagram D i₀)
-    (yToBase : Ysys ⟶ tailBaseDiagram D i₀)
     (xToS : xCone.pt ⟶ c.pt) (yToS : yCone.pt ⟶ c.pt)
-    (xCone_toBase : ∀ j : Over (OrderDual.toDual i₀),
-      xCone.π.app j ≫ xToBase.app j = xToS ≫ c.π.app j.left)
-    (yCone_toBase : ∀ j : Over (OrderDual.toDual i₀),
-      yCone.π.app j ≫ yToBase.app j = yToS ≫ c.π.app j.left)
     [QuasiSeparated xToS] [FiniteType xToS]
     [QuasiSeparated yToS] [FiniteType yToS]
     (Xapprox : FiniteTypeApproximationLimitSystem D c i₀ Xsys xCone xToS)
     (Yapprox : FiniteTypeApproximationLimitSystem D c i₀ Ysys yCone yToS)
-    (φ : InverseSystemMorphismOverBase D i₀ Xsys Ysys xToBase yToBase)
+    (φ : InverseSystemMorphismOverBase D i₀ Xsys Ysys Xapprox.toBase Yapprox.toBase)
     (f : xCone.pt ⟶ yCone.pt) (hf_overS : f ≫ yToS = xToS)
     (hf_limit : φ.IsLimitMorphism xCone yCone f)
     [Smooth f] :

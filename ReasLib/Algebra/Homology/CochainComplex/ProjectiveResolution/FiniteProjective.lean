@@ -14,10 +14,11 @@ import Mathlib.Tactic.CrossRefAttribute
 /-!
 # Projective-minus models from termwise finite projectivity
 
-Finite projectivity is the source-facing hypothesis most often used to build a bounded-above
-projective model.  This leaf packages that construction once, so downstream statements do not
-rebuild temporary instances or repeat the `Minus.TermsIn` constructor.
-@stack 0A60
+This leaf packages a supplied bounded-above termwise finite-projective complex as a projective
+model, so downstream statements do not rebuild temporary instances or repeat the `Minus.TermsIn`
+constructor. The citation to Stacks `0643` is contextual: its projective resolutions have a
+bounded-above projective source. A comparison map and its quasi-isomorphism proof are separate data.
+@stack 0643
 -/
 
 @[expose] public section
@@ -30,8 +31,9 @@ namespace CochainComplex.ProjectiveMinus
 
 variable {R : Type u} [CommRing R]
 
-/-- Package a bounded-above termwise finite-projective module complex as a `ProjectiveMinus` object. -/
-@[stacks 0A60 "finite-projective projective-minus model"]
+/-- Package a supplied bounded-above termwise finite-projective module complex as a
+`ProjectiveMinus` model, in the context of Stacks `0643`. -/
+@[stacks 0643 "contextual bounded-above projective source packaging from finite projectivity"]
 noncomputable def ofFiniteProjective
     (P : CochainComplex (ModuleCat R) ℤ)
     (hP : CochainComplex.minus (ModuleCat R) P)
@@ -39,8 +41,9 @@ noncomputable def ofFiniteProjective
     CochainComplex.ProjectiveMinus (ModuleCat R) :=
   ⟨⟨P, hP⟩, hPfp.projectiveObject⟩
 
-/-- The finite-free specialization of `ofFiniteProjective`. -/
-@[stacks 0A60 "finite-free projective-minus model"]
+/-- The finite-free specialization of the contextual bounded-above projective model packaging
+in `ofFiniteProjective` (Stacks `0643`). -/
+@[stacks 0643 "contextual bounded-above projective source packaging from finite freeness"]
 noncomputable def ofFiniteFree
     (P : CochainComplex (ModuleCat R) ℤ)
     (hP : CochainComplex.minus (ModuleCat R) P)

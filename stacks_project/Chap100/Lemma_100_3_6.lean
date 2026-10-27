@@ -6,8 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap100.Lemma_100_3_6_Pullback
-public import stacks_project.Chap100.Lemma_100_3_6_Comparison
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Presentation.Pullback
 import StacksCheckRecall
 
 @[expose] public section
@@ -23,8 +22,8 @@ algebraic spaces, and let `[U / R] ⟶ X` be a presentation. Set `U' = U ×_X X'
 `[U' / R'] ⟶ X'` is a presentation, and the square with left leg `[pr]` induced by the
 groupoid morphism `pr : (U', R', s', t', c') ⟶ (U, R, s, t, c)` is `2`-commutative. -/
 @[stacks 04Y6] #check
-  (Presentation.pullbackSquareIso :
+  (AlgebraicGeometry.AlgebraicStack.Presentation.pullbackSquareIso :
     ∀ {S : Scheme.{u}} {X X' : GroupoidsOver S}
       [AlgebraicStack X] [AlgebraicStack X'] (P : Presentation X) (g : X' ⟶ X)
       (hg : relativelyRepresentableByAlgebraicSpaces g),
-      P.pullbackQuotientMap g hg ≫ P.hom ≅ (P.pullback g hg).hom ≫ g)
+      (P.pullbackPr g hg).quotientStackHom ≫ P.hom ≅ (P.pullback g hg).hom ≫ g)

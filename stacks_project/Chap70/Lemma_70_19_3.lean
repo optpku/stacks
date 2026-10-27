@@ -6,9 +6,9 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap70.Lemma_70_19_3_BaseChange
-public import stacks_project.Chap70.Lemma_70_19_3_FinitePresentationIsoOverOpen
-public import stacks_project.Chap70.Lemma_70_19_3_Henselization
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.FinitePresentation.IsoOverOpen.Henselization
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.CycleGroup.MeromorphicSection
 
 /-!
 # Equivalence of modifications after base change to the henselization
@@ -27,19 +27,16 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- Lemma 70.19.3: let `S` be a scheme and `X` a decent algebraic space over `S`.
-Let `x ∈ |X|` be a closed point such that `U = X \ {x} ⟶ X` is quasi-compact.
-With `V = Spec(𝒪_{X,x}^h) \ {𝔪_x^h}`, the base-change functor
-`puncturedHenselizationBaseChange X hx` from finite-presentation morphisms
-`Y ⟶ X` that are isomorphisms over `U` to finite-presentation morphisms
-`Y ⟶ Spec(𝒪_{X,x}^h)` that are isomorphisms over `V` is an equivalence of
-categories. -/
-@[stacks 0BH0, instance]
-instance puncturedHenselizationBaseChange_isEquivalence {S : Scheme.{u}}
-    (X : AlgebraicSpace S) [IsDecent X] {x : Points X}
-    (hx : x ∈ closedPoints (Points X))
-    [QuasiCompact (closedPointComplementι X hx)] :
-    (puncturedHenselizationBaseChange X hx).IsEquivalence :=
-  sorry
+/- Lemma 70.19.3: Base change to a henselization at a closed point with
+quasi-compact complement gives an equivalence on finite-presentation modifications. -/
+@[stacks 0BH0] #check
+  (AlgebraicGeometry.AlgebraicSpace.puncturedHenselizationBaseChange_isEquivalence :
+  ∀ {S : Scheme.{u}} (X : AlgebraicGeometry.AlgebraicSpace S) [IsDecent X]
+    {x : Points X} (hx : x ∈ closedPoints (Points X))
+    [QuasiCompact (closedPointComplementι X hx)] (N : EtaleNeighborhood X x)
+    (hN : IsAffine N.scheme ∧ Points.mapOfOver N.hom ⁻¹' {x} = {N.point} ∧ N.IsElementary)
+    (R : Type u) [CommRing R] [Algebra (N.scheme.presheaf.stalk N.point) R]
+    [IsHenselizationOf (N.scheme.presheaf.stalk N.point) R],
+    (puncturedHenselizationBaseChange X hx N hN R).IsEquivalence)
 
 end AlgebraicGeometry.AlgebraicSpace

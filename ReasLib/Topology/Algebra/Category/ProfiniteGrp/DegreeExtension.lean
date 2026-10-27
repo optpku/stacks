@@ -50,10 +50,6 @@ noncomputable def kerClosed : ClosedSubgroup S.middle where
 /-- The kernel `G = ker(deg)`, as a topological group. -/
 abbrev G : Type u := S.kerClosed.toSubgroup
 
-/-- The inclusion homomorphism `G →* Γ`. -/
-noncomputable def inlHom : S.G →* S.middle :=
-  S.kerClosed.subtype
-
 /-- The inclusion `G →ₜ* Γ` of the kernel of `deg`. -/
 noncomputable def inl : S.G →ₜ* S.middle :=
   ⟨S.kerClosed.subtype, continuous_subtype_val⟩
@@ -84,10 +80,6 @@ theorem degreeOneLift_spec (γ : S.middle) :
     S.deg γ = hatZOne.{u} ↔ ∃ g : S.G, γ = S.inl g * S.degreeOneLift :=
   sorry
 
-/-- The conjugacy class of a chosen degree-one lift, recording `F = 1` in `Γ/G = hatZ`. -/
-noncomputable def frobenius : ConjClasses S.middle :=
-  ConjClasses.mk S.degreeOneLift
-
 /-- Conjugation by `γ` on the kernel of `deg`. -/
 noncomputable def conjHom (γ : S.middle) : S.G →ₜ* S.G :=
   ⟨{ toFun := fun g => ⟨γ * g.val * γ⁻¹, sorry⟩
@@ -99,13 +91,6 @@ noncomputable def conjHom (γ : S.middle) : S.G →ₜ* S.G :=
 @[simp]
 theorem conjHom_val (γ : S.middle) (g : S.G) :
     (S.conjHom γ g).val = γ * g.val * γ⁻¹ := rfl
-
-/-- Package a surjective degree map as a degree extension. -/
-noncomputable def ofSurjectiveDeg (middle : ProfiniteGrp.{u}) (deg : middle ⟶ hatZ.{u})
-    (h : Function.Surjective deg) : DegreeExtension.{u} where
-  middle := middle
-  deg := deg
-  deg_surjective := h
 
 end DegreeExtension
 

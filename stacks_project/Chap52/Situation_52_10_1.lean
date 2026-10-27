@@ -18,6 +18,6 @@ universe u v
   (@Ideal.LocalCohomology.AlgebraizationSituation :
     {A : Type u} → [CommRing A] → [IsNoetherianRing A] →
       [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))] →
-      MonoidalClosed (DerivedCategory (ModuleCat.{u} A)) →
+      CategoryTheory.DerivedCategory.CanonicalClosedPresentation (A := A) →
       Ideal A → (M : Type v) → [AddCommGroup M] → [Module A M] →
       [Module.Finite A M] → Set (PrimeSpectrum A) → ℤ → ℤ → Prop)

@@ -6,6 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
+public import Mathlib.Algebra.MvPolynomial.Division
 public import Mathlib.AlgebraicGeometry.Noetherian
 public import Mathlib.AlgebraicGeometry.Morphisms.Etale
 public import Mathlib.AlgebraicGeometry.Morphisms.QuasiCompact
@@ -15,6 +16,9 @@ public import Mathlib.CategoryTheory.Limits.Shapes.Pullback.IsPullback.Defs
 public import Mathlib.CategoryTheory.MorphismProperty.Representable
 public import Mathlib.CategoryTheory.Sites.LocallySurjective
 public import Mathlib.CategoryTheory.Sites.SubcanonicalOver
+public import Mathlib.RingTheory.Ideal.Quotient.Nilpotent
+public import Mathlib.RingTheory.Ideal.Quotient.Noetherian
+public import Mathlib.RingTheory.Polynomial.Basic
 public import ReasLib.AlgebraicGeometry.Scheme.PreRelation.QuotientSheaf.Representability
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Sheaf.UniversalHomeomorphism
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.CoordinateAxesQuotient.Relation
@@ -128,7 +132,8 @@ theorem affineLineOriginToAffineLine_left (k : Type u) [Field k] :
 morphisms to `Spec k`. -/
 private theorem sumOver_w (k : Type u) [Field k] :
     AffineSpace.homOfVector (cover k).hom (fun _ : ULift.{u} (Fin 1) ↦ sumSection k) ≫
-        (affineLine k).hom = (cover k).hom := sorry
+        (affineLine k).hom = (cover k).hom :=
+  AffineSpace.homOfVector_over _ _
 
 /-- The morphism `U ⟶ 𝔸¹_k` sending `(x, y)` to `x + y`. -/
 def sumOver (k : Type u) [Field k] : cover k ⟶ affineLine k :=
@@ -143,7 +148,48 @@ theorem sumOver_left (k : Type u) [Field k] :
 
 /-- The sum map equalizes the two projections of the coordinate-axes relation. -/
 theorem sumOver_equalizes (k : Type u) [Field k] :
-    (preRelation k).t ≫ sumOver k = (preRelation k).s ≫ sumOver k := sorry
+    (preRelation k).t ≫ sumOver k = (preRelation k).s ≫ sumOver k := by
+  have hcoord (i : ULift.{u} (Fin 2)) :
+      (flip k).left.appTop (coord k i) =
+        coord k (Equiv.swap (ULift.up (0 : Fin 2)) (ULift.up (1 : Fin 2)) i) := by
+    change (Spec.map (CommRingCat.ofHom (flipRingHom k))).appTop
+      ((Scheme.ΓSpecIso (CommRingCat.of (coordinateRing k))).inv _) = _
+    rw [← CommRingCat.comp_apply, ← Scheme.ΓSpecIso_inv_naturality]
+    change (Scheme.ΓSpecIso (CommRingCat.of (coordinateRing k))).inv
+      (Ideal.Quotient.mk (relationIdeal k) (flipRename k (MvPolynomial.X i))) =
+        (Scheme.ΓSpecIso (CommRingCat.of (coordinateRing k))).inv
+          (Ideal.Quotient.mk (relationIdeal k) (MvPolynomial.X
+            (Equiv.swap (ULift.up (0 : Fin 2)) (ULift.up (1 : Fin 2)) i)))
+    rw [show flipRename k (MvPolynomial.X i) = MvPolynomial.X
+      (Equiv.swap (ULift.up (0 : Fin 2)) (ULift.up (1 : Fin 2)) i) from
+        MvPolynomial.rename_X _ _]
+  have hflip : flip k ≫ sumOver k = sumOver k := by
+    apply Over.OverMorphism.ext
+    change (flip k).left ≫ AffineSpace.homOfVector (cover k).hom
+      (fun _ : ULift.{u} (Fin 1) ↦ sumSection k) =
+        AffineSpace.homOfVector (cover k).hom
+          (fun _ : ULift.{u} (Fin 1) ↦ sumSection k)
+    rw [AffineSpace.comp_homOfVector, Over.w]
+    congr 1
+    funext i
+    simp [sumSection, hcoord, add_comm]
+  apply Sigma.hom_ext
+  intro i
+  have hι : Sigma.ι (relationComponent k) i ≫ relationHom k = relationComponentHom k i :=
+    Sigma.ι_desc (relationComponentHom k) i
+  change Sigma.ι (relationComponent k) i ≫ (relationHom k ≫ prod.fst) ≫ sumOver k =
+    Sigma.ι (relationComponent k) i ≫ (relationHom k ≫ prod.snd) ≫ sumOver k
+  simp only [← Category.assoc, hι]
+  cases i
+  · change (prod.lift (𝟙 (cover k)) (𝟙 (cover k)) ≫ prod.fst) ≫ sumOver k =
+      (prod.lift (𝟙 (cover k)) (𝟙 (cover k)) ≫ prod.snd) ≫ sumOver k
+    rw [prod.lift_fst (𝟙 (cover k)) (𝟙 (cover k)),
+      prod.lift_snd (𝟙 (cover k)) (𝟙 (cover k))]
+  · change ((puncturedι k ≫ prod.lift (𝟙 (cover k)) (flip k)) ≫ prod.fst) ≫ sumOver k =
+      ((puncturedι k ≫ prod.lift (𝟙 (cover k)) (flip k)) ≫ prod.snd) ≫ sumOver k
+    simp only [Category.assoc, prod.lift_fst_assoc (𝟙 (cover k)) (flip k),
+      prod.lift_snd_assoc (𝟙 (cover k)) (flip k), Category.id_comp]
+    exact congrArg (fun f ↦ puncturedι k ≫ f) hflip.symm
 
 /-- The descended morphism `X ⟶ 𝔸¹_k` induced by `(x, y) ↦ x + y` on the atlas. -/
 def toAffineLine (k : Type u) [Field k] :
@@ -180,12 +226,15 @@ instance instIsIntegral_affineLine (k : Type u) [Field k] :
 
 /-- The affine line over `k` is a locally Noetherian scheme. -/
 instance instIsLocallyNoetherian_affineLine (k : Type u) [Field k] :
-    AlgebraicGeometry.IsLocallyNoetherian (affineLine k).left := sorry
+    AlgebraicGeometry.IsLocallyNoetherian (affineLine k).left :=
+  isLocallyNoetherian_of_isOpenImmersion
+    (AffineSpace.SpecIso (ULift.{u} (Fin 1)) (CommRingCat.of k)).hom
 
 
 /-- The affine line over `k` is a Noetherian scheme. -/
 instance instIsNoetherian_affineLine (k : Type u) [Field k] :
-    AlgebraicGeometry.IsNoetherian (affineLine k).left := sorry
+    AlgebraicGeometry.IsNoetherian (affineLine k).left where
+  toCompactSpace := inferInstanceAs (CompactSpace 𝔸(ULift.{u} (Fin 1); base k))
 
 
 /-- The top open of the affine line is nonempty. -/
@@ -201,15 +250,35 @@ theorem isIntegral (k : Type u) [Field k] :
       Sheaf.isUniversalHomeomorphism (toAffineLine k) ∧
       AlgebraicGeometry.IsIntegral (affineLine k).left ∧
       (MorphismProperty.over (@QuasiCompact)).relative uliftYoneda.{u + 1}
-        (diag (sheafOfPoints k).obj) :=
-  sorry
+        (diag (sheafOfPoints k).obj) := by
+  have hradical : (relationIdeal k).IsRadical := by
+    apply isRadical_iff_span_singleton.mp
+    intro n f hf
+    have hx := (MvPolynomial.X_prime (R := k) (i := ULift.up (0 : Fin 2)))
+    have hy := (MvPolynomial.X_prime (R := k) (i := ULift.up (1 : Fin 2)))
+    have hxf : MvPolynomial.X (ULift.up (0 : Fin 2)) ∣ f :=
+      hx.dvd_of_dvd_pow ((dvd_mul_right _ _).trans hf)
+    have hyf : MvPolynomial.X (ULift.up (1 : Fin 2)) ∣ f :=
+      hy.dvd_of_dvd_pow ((dvd_mul_left _ _).trans hf)
+    obtain ⟨g, rfl⟩ := hxf
+    have hyg : MvPolynomial.X (ULift.up (1 : Fin 2)) ∣ g :=
+      (hy.dvd_mul.mp hyf).resolve_left (by simp)
+    obtain ⟨h, rfl⟩ := hyg
+    exact ⟨h, (mul_assoc _ _ _).symm⟩
+  letI : _root_.IsReduced (coordinateRing k) :=
+    (Ideal.isRadical_iff_quotient_reduced (relationIdeal k)).mp hradical
+  exact ⟨inferInstanceAs (AlgebraicGeometry.IsReduced (Spec (CommRingCat.of (coordinateRing k)))),
+    universalHomeomorphism_toAffineLine k, inferInstance, quasiCompact_diag_sheafOfPoints k⟩
 
 
 /-- The quotient has a Noetherian atlas and a quasi-compact diagonal. -/
 theorem isNoetherian (k : Type u) [Field k] :
     AlgebraicGeometry.IsNoetherian (cover k).left ∧
       (MorphismProperty.over (@QuasiCompact)).relative uliftYoneda.{u + 1}
-        (diag (sheafOfPoints k).obj) :=
-  sorry
+        (diag (sheafOfPoints k).obj) := by
+  letI : IsNoetherianRing (coordinateRing k) :=
+    inferInstanceAs (IsNoetherianRing (MvPolynomial (ULift.{u} (Fin 2)) k ⧸ relationIdeal k))
+  exact ⟨inferInstanceAs (AlgebraicGeometry.IsNoetherian
+    (Spec (CommRingCat.of (coordinateRing k)))), quasiCompact_diag_sheafOfPoints k⟩
 
 end AlgebraicGeometry.AlgebraicSpace.CoordinateAxesQuotient

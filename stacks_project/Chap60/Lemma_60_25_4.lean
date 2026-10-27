@@ -6,18 +6,11 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import Mathlib.Algebra.Homology.DerivedCategory.HomologySequence
-public import Mathlib.CategoryTheory.Triangulated.Pretriangulated
-public import stacks_project.Chap60.Definition_60_11_3_Crystal
-public import stacks_project.Chap60.Lemma_60_25_4_AlphaP
-public import stacks_project.Chap60.Lemma_60_25_4_Linearization
-public import stacks_project.Chap60.Proposition_60_23_1_Pushforward
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.Crystalline.Cohomology.AlphaP
+public import ReasLib.AlgebraicGeometry.Crystalline.Functoriality.Abelian
+import StacksCheckRecall
 
-@[expose] public section
-
-open AlgebraicGeometry CategoryTheory CategoryTheory.Limits CategoryTheory.Pretriangulated
-open AlgebraicGeometry.Scheme.Crystalline
+open AlgebraicGeometry CategoryTheory CategoryTheory.Pretriangulated
 open SheafOfModules
 
 noncomputable section
@@ -26,89 +19,50 @@ universe u
 
 namespace AlgebraicGeometry.Scheme.Crystalline
 
-variable {p : ℕ} [Fact (Nat.Prime p)]
-variable {S : Scheme.{u}} (I : S.IdealSheafData)
-variable (γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V))
-variable (h_compatible :
-  ∀ (V : S.affineOpens) (f : Γ(S, V)),
-    (γ V).IsDPMorphism (γ (S.affineBasicOpen f))
-      (S.presheaf.map (homOfLE (S.basicOpen_le f)).op).hom)
-variable (s : S ⟶ Spec (.of (ULift.{u} (Int.LocalizationAtPrime p))))
-variable {X : Scheme.{u}} (x₀ : X ⟶ I.subscheme)
-variable (h_p : ∀ U : X.affineOpens, IsNilpotent (p : Γ(X, U)))
-variable {X' : Scheme.{u}} (x'₀ : X' ⟶ I.subscheme)
-variable (f : X' ⟶ X)
-variable (h_p' : ∀ U : X'.affineOpens, IsNilpotent (p : Γ(X', U)))
+variable {p : ℕ} [Fact p.Prime] (B : Base.{u} p)
+variable (h_p_mem : ∀ V : B.scheme.affineOpens, (p : Γ(B.scheme, V)) ∈ B.ideal.ideal V)
+variable {X' : Scheme.{u}} (f : X' ⟶ B.source) (x'₀ : X' ⟶ B.ideal.subscheme)
+variable (h_over : f ≫ B.sourceToClosed = x'₀)
+variable [Scheme.IsCharP B.source p] [Scheme.IsCharP X' p]
+variable [IsIteratedAlphaPCover p f]
+variable [HasDerivedCategory.{u + 1} (Sheaf B.ringedSite.siteTopology AddCommGrpCat.{u + 1})]
+variable [HasDerivedCategory.{u + 1}
+  (Sheaf (B.withSource X' x'₀ (B.prime_nilpotent_of_mem h_p_mem X' x'₀)).ringedSite.siteTopology
+    AddCommGrpCat.{u + 1})]
+variable [HasDerivedCategory.{u + 1} (Sheaf B.source.smallZariskiTopology AddCommGrpCat.{u + 1})]
+variable [HasDerivedCategory.{u + 1} (Sheaf X'.smallZariskiTopology AddCommGrpCat.{u + 1})]
+variable [IsGrothendieckAbelian.{u + 1} (Sheaf B.ringedSite.siteTopology AddCommGrpCat.{u + 1})]
+variable [IsGrothendieckAbelian.{u + 1}
+  (Sheaf (B.withSource X' x'₀ (B.prime_nilpotent_of_mem h_p_mem X' x'₀)).ringedSite.siteTopology
+    AddCommGrpCat.{u + 1})]
 
-/-- Lemma 60.25.4: let `p` be a prime and `(S, I, γ)` a divided-power scheme over
-`ℤ_(p)` with `p ∈ I`. Set `S₀ = V(I) ⊂ S`, identified with `I.subscheme`. Let
-`f : X' ⟶ X` be an iterated `α_p`-cover of schemes over `S₀` of constant degree
-`q`. Let `F` be a crystal in quasi-coherent sheaves on `Cris(X/S)`, and write
-`F' = f_cris^* F`. In any distinguished triangle
-`Ru_{X/S,*} F ⟶ f_* Ru_{X'/S,*} F' ⟶ E ⟶ Ru_{X/S,*} F[1]` whose first map is
-`linearizationComparison` (the unit-derived map `Ru F ⟶ Ru(f_cris_* F')`,
-identified with `f_* Ru F'` by `linearizationComparison_zariskiPushforward_iso`),
-every cohomology sheaf of the cone object `E` is annihilated by `q`. -/
-@[stacks 07Q9]
-theorem iteratedAlphaPCover_linearization_cone_nsmul
-    (q : ℕ)
-    (h_p_mem : ∀ V : S.affineOpens, (p : Γ(S, V)) ∈ I.ideal V)
-    (h_over : f ≫ x₀ = x'₀)
-    [Scheme.IsCharP X p] [Scheme.IsCharP X' p]
-    [IsIteratedAlphaPCover p f] [IsFiniteLocallyFreeOfRank f q]
-    [HasWeakSheafify
-      (crystallineZariskiTopology S I γ h_compatible X x₀) AddCommGrpCat.{u}]
-    [HasWeakSheafify
-      (crystallineZariskiTopology S I γ h_compatible X' x'₀) AddCommGrpCat.{u}]
-    [HasSheafify
-      (smallCrystallineTopology p S I γ h_compatible s X x₀ h_p) AddCommGrpCat.{u}]
-    [HasSheafify X.smallZariskiTopology AddCommGrpCat.{u}]
-    [HasWeakSheafify
-      (smallCrystallineTopology p S I γ h_compatible s X x₀ h_p) AddCommGrpCat.{u}]
-    [(smallCrystallineTopology p S I γ h_compatible s X x₀ h_p).WEqualsLocallyBijective
-      AddCommGrpCat.{u}]
-    [∀ U : smallCrystallineSite S I γ h_compatible X x₀,
-      HasWeakSheafify
-        ((smallCrystallineTopology p S I γ h_compatible s X x₀ h_p).over U)
-        AddCommGrpCat.{u}]
-    [∀ U : smallCrystallineSite S I γ h_compatible X x₀,
-      ((smallCrystallineTopology p S I γ h_compatible s X x₀ h_p).over U).WEqualsLocallyBijective
-        AddCommGrpCat.{u}]
-    [∀ P : (smallCrystallineSite S I γ h_compatible X x₀)ᵒᵖ ⥤ AddCommGrpCat.{u},
-      (forgetfulFunctor p S I γ h_compatible s X x₀ h_p).op.HasPointwiseRightKanExtension P]
-    [∀ P : (smallCrystallineSite S I γ h_compatible X x₀)ᵒᵖ ⥤ AddCommGrpCat.{u},
-      (smallCrystallineInclusion S I γ h_compatible X x₀).op.HasLeftKanExtension P]
-    [∀ P : (smallCrystallineSite S I γ h_compatible X' x'₀)ᵒᵖ ⥤ AddCommGrpCat.{u},
-      (smallCrystallineInclusion S I γ h_compatible X' x'₀).op.HasPointwiseRightKanExtension P]
-    [∀ P : (RelativeCRIS S I γ h_compatible X' x'₀)ᵒᵖ ⥤ AddCommGrpCat.{u},
-      (relativeCrystallineFunctor I γ h_compatible s x₀ h_p x'₀ f h_over
-          h_p').op.HasPointwiseRightKanExtension P]
-    [HasDerivedCategory
-      (Sheaf (smallCrystallineTopology p S I γ h_compatible s X x₀ h_p) AddCommGrpCat.{u})]
-    [HasDerivedCategory (Sheaf X.smallZariskiTopology AddCommGrpCat.{u})]
-    [IsGrothendieckAbelian
-      (Sheaf (smallCrystallineTopology p S I γ h_compatible s X x₀ h_p) AddCommGrpCat.{u})]
-    (F : SheafOfModules (smallCrystallineStructureSheaf I γ h_compatible s x₀ h_p))
+/- Lemma 60.25.4. For an iterated `α_p`-cover of constant degree `q`, the
+cohomology sheaves of every distinguished cone of the crystalline coefficient
+comparison are annihilated by `q`. -/
+@[stacks 07Q9] #check
+  (AlgebraicGeometry.Scheme.Crystalline.iteratedAlphaPCover_cone_nsmul
+    B h_p_mem f x'₀ h_over :
+    ∀ (q : ℕ) [IsFiniteLocallyFreeOfRank f q]
+    (F : SheafOfModules.{u + 1} B.liftedStructureSheaf)
     [IsCrystalInQuasiCoherentModules F]
-    {E : DerivedCategory (Sheaf X.smallZariskiTopology AddCommGrpCat.{u})}
+    {E : DerivedCategory (Sheaf B.source.smallZariskiTopology AddCommGrpCat.{u + 1})}
     (g :
-      derivedSmallCrystallinePushforward_obj I γ h_compatible s x₀ h_p
-          ((crystallineAbelianCrisPushforward I γ h_compatible s x₀ h_p x'₀ f
-              h_over h_p').obj
-            (crystallinePullback I γ h_compatible s x₀ h_p x'₀ f h_over h_p' F)) ⟶
-        E)
-    (δ :
-      E ⟶
-        (derivedSmallCrystallinePushforward_obj I γ h_compatible s x₀ h_p
-            ((SheafOfModules.toSheaf _).obj F))⟦(1 : ℤ)⟧)
-    (hT :
-      Triangle.mk
-          (linearizationComparison I γ h_compatible s x₀ h_p x'₀ f h_over h_p' F) g δ ∈
-        distTriang (DerivedCategory (Sheaf X.smallZariskiTopology AddCommGrpCat.{u}))) :
-    ∀ i : ℤ,
-      (q : ℤ) • 𝟙
-        ((DerivedCategory.homologyFunctor
-            (Sheaf X.smallZariskiTopology AddCommGrpCat.{u}) i).obj E) = 0 :=
-  sorry
+      (zariskiAbelianPushforwardExact.{u, u + 1} f
+        (IsIteratedAlphaPCover.isHomeomorph p f)).mapDerivedCategory.obj
+          (derivedSmallCrystallinePushforward_obj.{u, u + 1, u + 1, u + 1, u + 1} B.ideal B.dividedPowers B.compatible B.toSpec
+            x'₀ (B.prime_nilpotent_of_mem h_p_mem X' x'₀)
+              ((SheafOfModules.toSheaf _).obj
+                ((crystalPullback B f x'₀ h_over
+                  (B.prime_nilpotent_of_mem h_p_mem X' x'₀)).obj F))) ⟶ E)
+    (δ : E ⟶
+      (derivedSmallCrystallinePushforward_obj.{u, u + 1, u + 1, u + 1, u + 1} B.ideal B.dividedPowers B.compatible B.toSpec
+        B.sourceToClosed B.prime_nilpotent ((SheafOfModules.toSheaf _).obj F))⟦(1 : ℤ)⟧)
+    (hT : Triangle.mk
+      (crystallineComparison B f x'₀ h_over (B.prime_nilpotent_of_mem h_p_mem X' x'₀)
+        (IsIteratedAlphaPCover.isHomeomorph p f) F) g δ ∈
+      distTriang (DerivedCategory (Sheaf B.source.smallZariskiTopology AddCommGrpCat.{u + 1}))),
+    ∀ i : ℤ, (q : ℤ) • 𝟙
+      ((DerivedCategory.homologyFunctor
+        (Sheaf B.source.smallZariskiTopology AddCommGrpCat.{u + 1}) i).obj E) = 0)
 
 end AlgebraicGeometry.Scheme.Crystalline

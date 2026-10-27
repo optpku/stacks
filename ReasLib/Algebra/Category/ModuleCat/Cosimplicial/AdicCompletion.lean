@@ -77,7 +77,22 @@ private theorem completionQuotientMap_wellDefined
     (Submodule.Quotient.mk (p := (I.ideal Y ^ k • ⊤ :
       Submodule ((cosimplicialCommRing A).obj Y) (K.obj Y))) (K.map g left : K.obj Y)) =
       Submodule.Quotient.mk (p := (I.ideal Y ^ k • ⊤ :
-        Submodule ((cosimplicialCommRing A).obj Y) (K.obj Y))) (K.map g right : K.obj Y) := sorry
+        Submodule ((cosimplicialCommRing A).obj Y) (K.obj Y))) (K.map g right : K.obj Y) := by
+  have hI : Ideal.map ((cosimplicialCommRing A).map g).hom (I.ideal X) ≤ I.ideal Y :=
+    Ideal.map_le_iff_le_comap.mpr (fun _ hx ↦ I.map_mem g.unop.unop hx)
+  have hpow : Ideal.map ((cosimplicialCommRing A).map g).hom (I.ideal X ^ k) ≤
+      I.ideal Y ^ k := by
+    rw [Ideal.map_pow]
+    exact Ideal.pow_right_mono hI k
+  apply (Submodule.Quotient.eq _).mpr
+  change K.restrictₛₗ g left - K.restrictₛₗ g right ∈
+    (I.ideal Y ^ k • ⊤ : Submodule ((cosimplicialCommRing A).obj Y) (K.obj Y))
+  rw [← map_sub]
+  refine Submodule.smul_induction_on ((Submodule.quotientRel_def _).mp h)
+    (fun r hr x _ ↦ ?_) (fun x y hx hy ↦ ?_)
+  · rw [map_smulₛₗ]
+    exact Submodule.smul_mem_smul (hpow (Ideal.mem_map_of_mem _ hr)) Submodule.mem_top
+  · simpa only [map_add] using Submodule.add_mem _ hx hy
 
 /-- The map between ideal-power quotient stages induced by a cosimplicial module map. -/
 def completionQuotientMap {X Y : (SimplexCategoryᵒᵖ)ᵒᵖ} (g : X ⟶ Y) (k : ℕ) :
@@ -94,7 +109,12 @@ private theorem completionQuotientMap_map_add
     (left right : K.obj X ⧸ (I.ideal X ^ k • ⊤ :
       Submodule ((cosimplicialCommRing A).obj X) (K.obj X))) :
     completionQuotientMap I K g k (left + right) =
-      completionQuotientMap I K g k left + completionQuotientMap I K g k right := sorry
+      completionQuotientMap I K g k left + completionQuotientMap I K g k right := by
+  refine Quotient.inductionOn₂ left right (fun x y ↦ ?_)
+  change Submodule.Quotient.mk (p := (I.ideal Y ^ k • ⊤ :
+      Submodule ((cosimplicialCommRing A).obj Y) (K.obj Y))) (K.restrictₛₗ g (x + y)) =
+    Submodule.Quotient.mk (K.restrictₛₗ g x) + Submodule.Quotient.mk (K.restrictₛₗ g y)
+  rw [map_add, Submodule.Quotient.mk_add]
 
 /-- The induced map on ideal-power quotients is semilinear along the ring structure map. -/
 private theorem completionQuotientMap_map_smul
@@ -103,7 +123,17 @@ private theorem completionQuotientMap_map_smul
     (value : K.obj X ⧸ (I.ideal X ^ k • ⊤ :
       Submodule ((cosimplicialCommRing A).obj X) (K.obj X))) :
     completionQuotientMap I K g k (scalar • value) =
-      ((cosimplicialCommRing A).map g).hom scalar • completionQuotientMap I K g k value := sorry
+      ((cosimplicialCommRing A).map g).hom scalar • completionQuotientMap I K g k value := by
+  refine Quotient.inductionOn value (fun x ↦ ?_)
+  change Submodule.Quotient.mk (p := (I.ideal Y ^ k • ⊤ :
+      Submodule ((cosimplicialCommRing A).obj Y) (K.obj Y))) (K.restrictₛₗ g (scalar • x)) =
+    ((cosimplicialCommRing A).map g).hom scalar •
+      Submodule.Quotient.mk (K.restrictₛₗ g x)
+  have hsmul : K.restrictₛₗ g (scalar • x) =
+      ((cosimplicialCommRing A).map g).hom scalar • K.restrictₛₗ g x :=
+    K.map_smul g scalar x
+  exact congrArg (Submodule.Quotient.mk (p := (I.ideal Y ^ k • ⊤ :
+    Submodule ((cosimplicialCommRing A).obj Y) (K.obj Y)))) hsmul
 
 /-- The images of the quotient coordinates of a completed element form a compatible family. -/
 private theorem completionMap_compatible {X Y : (SimplexCategoryᵒᵖ)ᵒᵖ} (g : X ⟶ Y)
@@ -111,7 +141,16 @@ private theorem completionMap_compatible {X Y : (SimplexCategoryᵒᵖ)ᵒᵖ} (
     (h : lower ≤ upper) :
     AdicCompletion.transitionMap (I.ideal Y) (K.obj Y) h
         (completionQuotientMap I K g upper (value.val upper)) =
-      completionQuotientMap I K g lower (value.val lower) := sorry
+      completionQuotientMap I K g lower (value.val lower) := by
+  have hcomm (x : K.obj X ⧸ (I.ideal X ^ upper • ⊤ :
+      Submodule ((cosimplicialCommRing A).obj X) (K.obj X))) :
+      AdicCompletion.transitionMap (I.ideal Y) (K.obj Y) h
+          (completionQuotientMap I K g upper x) =
+        completionQuotientMap I K g lower
+          (AdicCompletion.transitionMap (I.ideal X) (K.obj X) h x) := by
+    refine Quotient.inductionOn x (fun x ↦ ?_)
+    rfl
+  rw [hcomm, value.property h]
 
 /-- A structure map acts on completion by mapping each ideal-power quotient coordinate. -/
 def completionMapFun {X Y : (SimplexCategoryᵒᵖ)ᵒᵖ} (g : X ⟶ Y)
@@ -124,14 +163,20 @@ def completionMapFun {X Y : (SimplexCategoryᵒᵖ)ᵒᵖ} (g : X ⟶ Y)
 private theorem completionMap_add {X Y : (SimplexCategoryᵒᵖ)ᵒᵖ} (g : X ⟶ Y)
     (left right : AdicCompletion (I.ideal X) (K.obj X)) :
     completionMapFun I K g (left + right) =
-      completionMapFun I K g left + completionMapFun I K g right := sorry
+      completionMapFun I K g left + completionMapFun I K g right := by
+  apply AdicCompletion.ext
+  intro k
+  exact completionQuotientMap_map_add I K g k (left.val k) (right.val k)
 
 /-- The coordinatewise structure map on completions is semilinear along the ring map. -/
 private theorem completionMap_smul {X Y : (SimplexCategoryᵒᵖ)ᵒᵖ} (g : X ⟶ Y)
     (scalar : (cosimplicialCommRing A).obj X)
     (value : AdicCompletion (I.ideal X) (K.obj X)) :
     completionMapFun I K g (scalar • value) =
-      ((cosimplicialCommRing A).map g).hom scalar • completionMapFun I K g value := sorry
+      ((cosimplicialCommRing A).map g).hom scalar • completionMapFun I K g value := by
+  apply AdicCompletion.ext
+  intro k
+  exact completionQuotientMap_map_smul I K g k scalar (value.val k)
 
 /-- The structure map between completed modules, with the target scalars restricted
 along the cosimplicial ring structure map. -/
@@ -154,7 +199,17 @@ def completionStructureMap {X Y : (SimplexCategoryᵒᵖ)ᵒᵖ} (g : X ⟶ Y) :
 private theorem completionStructureMap_id (X : (SimplexCategoryᵒᵖ)ᵒᵖ) :
     completionStructureMap I K (𝟙 X) =
       (ModuleCat.restrictScalarsId' ((moduleRingPresheaf A).map (𝟙 X)).hom
-        (congrArg RingCat.Hom.hom ((moduleRingPresheaf A).map_id X))).inv.app _ := sorry
+        (congrArg RingCat.Hom.hom ((moduleRingPresheaf A).map_id X))).inv.app _ := by
+  apply ModuleCat.hom_ext
+  apply LinearMap.ext
+  intro value
+  apply AdicCompletion.ext
+  intro k
+  change completionQuotientMap I K (𝟙 X) k (value.val k) = value.val k
+  refine Quotient.inductionOn (value.val k) (fun x ↦ ?_)
+  exact congrArg (Submodule.Quotient.mk (p := (I.ideal X ^ k • ⊤ :
+    Submodule ((cosimplicialCommRing A).obj X) (K.obj X))))
+      (show (K.map (𝟙 X) x : K.obj X) = x by rw [K.map_id]; rfl)
 
 /-- Completion structure maps compose through the canonical scalar-restriction comparison. -/
 private theorem completionStructureMap_comp {X Y Z : (SimplexCategoryᵒᵖ)ᵒᵖ}
@@ -165,7 +220,18 @@ private theorem completionStructureMap_comp {X Y Z : (SimplexCategoryᵒᵖ)ᵒ�
           (completionStructureMap I K second) ≫
         (ModuleCat.restrictScalarsComp' ((moduleRingPresheaf A).map first).hom
           ((moduleRingPresheaf A).map second).hom ((moduleRingPresheaf A).map (first ≫ second)).hom
-          (congrArg RingCat.Hom.hom ((moduleRingPresheaf A).map_comp first second))).inv.app _ := sorry
+          (congrArg RingCat.Hom.hom ((moduleRingPresheaf A).map_comp first second))).inv.app _ := by
+  apply ModuleCat.hom_ext
+  apply LinearMap.ext
+  intro value
+  apply AdicCompletion.ext
+  intro k
+  change completionQuotientMap I K (first ≫ second) k (value.val k) =
+    completionQuotientMap I K second k (completionQuotientMap I K first k (value.val k))
+  refine Quotient.inductionOn (value.val k) (fun x ↦ ?_)
+  exact congrArg (Submodule.Quotient.mk (p := (I.ideal Z ^ k • ⊤ :
+    Submodule ((cosimplicialCommRing A).obj Z) (K.obj Z))))
+      (K.map_comp_apply first second x)
 
 /-- The degreewise ideal-adic completion of a cosimplicial module as a module presheaf. -/
 def adicCompletion : PresheafOfModules.{u} (moduleRingPresheaf A) where
@@ -184,7 +250,20 @@ private theorem adicCompletionMap_naturality (φ : K ⟶ M)
           (ModuleCat.ofHom ((AdicCompletion.map (I.ideal Y) (φ.app Y).hom).restrictScalars
             ((cosimplicialCommRing A).obj Y))) =
       ModuleCat.ofHom ((AdicCompletion.map (I.ideal X) (φ.app X).hom).restrictScalars
-        ((cosimplicialCommRing A).obj X)) ≫ (adicCompletion I M).map g := sorry
+        ((cosimplicialCommRing A).obj X)) ≫ (adicCompletion I M).map g := by
+  apply ModuleCat.hom_ext
+  apply LinearMap.ext
+  intro value
+  apply AdicCompletion.ext
+  intro k
+  change (φ.app Y).hom.reduceModIdeal (I.ideal Y ^ k)
+      (completionQuotientMap I K g k (value.val k)) =
+    completionQuotientMap I M g k
+      ((φ.app X).hom.reduceModIdeal (I.ideal X ^ k) (value.val k))
+  refine Quotient.inductionOn (value.val k) (fun x ↦ ?_)
+  exact congrArg (Submodule.Quotient.mk (p := (I.ideal Y ^ k • ⊤ :
+    Submodule ((cosimplicialCommRing A).obj Y) (M.obj Y))))
+      (PresheafOfModules.naturality_apply φ g x)
 
 /-- A module morphism induces a module morphism on degreewise ideal-adic completions. -/
 def adicCompletionMap (φ : K ⟶ M) : adicCompletion I K ⟶ adicCompletion I M where
@@ -222,4 +301,12 @@ theorem adicCompletionMap_app (I : CosimplicialIdeal A) (φ : K ⟶ M)
 /-- Completion sends the identity module morphism to the identity additive morphism. -/
 theorem adicCompletionMap_id (I : CosimplicialIdeal A)
     (K : PresheafOfModules.{u} (moduleRingPresheaf A)) :
-    adicCompletionMap I (𝟙 K) = 𝟙 (adicCompletion I K) := sorry
+    adicCompletionMap I (𝟙 K) = 𝟙 (adicCompletion I K) := by
+  ext n : 1
+  apply AddCommGrpCat.hom_ext
+  apply AddMonoidHom.ext
+  intro value
+  change AdicCompletion.map (I.ideal (op (op n)))
+    (LinearMap.id (M := K.obj (op (op n)))) value = value
+  rw [AdicCompletion.map_id]
+  rfl

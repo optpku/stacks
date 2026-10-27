@@ -30,8 +30,8 @@ rings whose bottom arrow `β` is of finite type. -/
           (σ : Spec (CommRingCat.of B') ⟶ S)
           (α : ofOver (Over.mk (Spec.map (CommRingCat.ofHom π) ≫ σ)) ⟶ X)
           (β : ofOver (Over.mk σ) ⟶ Y) [FiniteType β],
-          CommSq α (specMapOver π σ) f β →
+          CommSq α (ofOverSpecMap π σ) f β →
             ∃ γ : ofOver (Over.mk σ) ⟶ X,
-              specMapOver π σ ≫ γ = α ∧ γ ≫ f = β)
+              ofOverSpecMap π σ ≫ γ = α ∧ γ ≫ f = β)
 
 end AlgebraicGeometry.AlgebraicSpace

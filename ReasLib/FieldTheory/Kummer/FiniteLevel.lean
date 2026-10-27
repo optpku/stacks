@@ -8,6 +8,7 @@ module
 
 public import ReasLib.RingTheory.RootsOfUnity.KummerArtinSchreier
 public import Mathlib.RingTheory.DiscreteValuationRing.Basic
+public import Mathlib.Algebra.CharP.MixedCharZero
 public import Mathlib.Tactic.CrossRefAttribute
 import ReasLib.FieldTheory.Kummer.Generator
 
@@ -101,14 +102,26 @@ namespace FiniteLevel
 The source condition is the uniformizer-free predicate `RootEquation.IsFiniteLevel`, inherited by
 `RootPresentation.IsFiniteLevel`.
 An `Equation` adds one denominator coordinate system, while a `Presentation` records a coordinate
-system whose rational ratio is globally minimal.  Thus the root-theoretic definition, the
+system whose rational ratio is minimal for a fixed primitive root and polynomial.  Thus the root-theoretic definition, the
 valuation computation, and the exact level invariant remain separate reusable layers.
 
 @stack 09F4
 @stack 09F5
 -/
 
-/-- One generating Kummer--Artin--Schreier equation with explicit denominator data. -/
+/-- The source setting for finite level: a mixed-characteristic `(0, p)` DVR and its fraction
+field.  This proof-only support does not install noncanonical global instances. -/
+structure IsSource
+    (B : Type u) [CommRing B]
+    (L : Type v) [Field L] [Algebra B L]
+    (p : ℕ) [Fact p.Prime] : Prop where
+  domain : IsDomain B
+  dvr : @IsDiscreteValuationRing B _ domain
+  fractionRing : IsFractionRing B L
+  mixedCharacteristic : MixedCharZero B p
+
+/-- One generating Kummer--Artin--Schreier equation with explicit, possibly unnormalized,
+denominator data.  This reusable data layer does not assert the source DVR setting. -/
 @[stacks 09F4 "Kummer--Artin--Schreier finite-level equation"]
 structure Equation
     (B : Type u) [CommRing B]
@@ -160,16 +173,17 @@ def Equation.IsNormalized
     (h : Equation B L M p) : Prop :=
   h.n = 0 ∨ IsUnit h.a
 
-/-- The source finite-level condition: the chosen uniformizer denominator has order strictly smaller
-than the order contributed by the `p`th power of `1 - ζ`. -/
-@[stacks 09F4 "finite-level denominator bound"]
+/-- A uniformizer coordinate equation satisfies finite level exactly when its underlying root
+equation satisfies the source maximal-ideal condition.  No normalization of the numerator is
+imposed here. -/
+@[stacks 09F4 "source finite-level condition in denominator coordinates"]
 def Equation.IsFiniteLevel
-    {B : Type u} [CommRing B]
+    {B : Type u} [CommRing B] [IsLocalRing B]
     {L : Type v} [Field L] [Algebra B L]
     {M : Type w} [Field M] [Algebra L M]
     {p : ℕ}
   (h : Equation B L M p) : Prop :=
-  Irreducible h.π ∧ h.n < p * h.e
+  Irreducible h.π ∧ h.root.IsFiniteLevel
 
 /-- The displayed polynomial is the canonical quotient polynomial attached to `ζ`. -/
 @[stacks 09F4 "canonical polynomial condition on a denominator equation"]
@@ -181,43 +195,48 @@ def Equation.IsCanonical
     (h : Equation B L M p) : Prop :=
   h.P = KummerArtinSchreier.polynomial p h.ζ
 
-/-- A finite-level presentation.  Its denominator satisfies the source bound and its rational level
-is minimal among all finite-level equations generating the same extension. -/
+/-- A source finite-level presentation over a mixed-characteristic DVR.  Its rational ratio is
+minimal among all uniformizer coordinate equations with the same primitive root and polynomial,
+as in the source definition of level. -/
 @[stacks 09F4 "Kummer--Artin--Schreier finite-level presentation"]
 structure Presentation
-    (B : Type u) [CommRing B]
-    (L : Type v) [Field L] [Algebra B L]
+    (B : Type u) [CommRing B] [IsDomain B] [IsDiscreteValuationRing B]
+    (L : Type v) [Field L] [Algebra B L] [IsFractionRing B L]
     (M : Type w) [Field M] [Algebra L M]
-    (p : ℕ) extends Equation B L M p where
-  /-- The chosen denominator presentation satisfies the finite-level bound. -/
+    (p : ℕ) [Fact p.Prime] extends Equation B L M p where
+  /-- The source ring has mixed characteristic `(0, p)`. -/
+  mixedCharacteristic : MixedCharZero B p
+  /-- The chosen uniformizer equation satisfies the source finite-level condition. -/
   finiteLevel : toEquation.IsFiniteLevel
   /-- The displayed polynomial is the canonical quotient polynomial. -/
   canonical : toEquation.IsCanonical
   /-- The displayed root generates a degree-`p` extension. -/
   degreeP : Module.finrank L M = p
-  /-- The chosen denominator ratio is minimal among canonical finite-level equations. -/
+  /-- Only the generating root and denominator coordinates vary; `ζ` and `P` remain fixed.
+  Candidates need not be normalized or separately satisfy finite level. -/
   minimal :
     ∀ Q : Equation B L M p,
-      Q.IsCanonical → Q.IsFiniteLevel → toEquation.level ≤ Q.level
+      Q.ζ = ζ → Q.P = P → Irreducible Q.π → toEquation.level ≤ Q.level
 
 /-- The level of a minimal finite-level presentation. -/
 @[stacks 09F5 "level of a finite-level presentation"]
 abbrev Presentation.level
-    {B : Type u} [CommRing B]
-    {L : Type v} [Field L] [Algebra B L]
+    {B : Type u} [CommRing B] [IsDomain B] [IsDiscreteValuationRing B]
+    {L : Type v} [Field L] [Algebra B L] [IsFractionRing B L]
     {M : Type w} [Field M] [Algebra L M]
-    {p : ℕ}
+    {p : ℕ} [Fact p.Prime]
     (h : Presentation B L M p) : ℚ := h.toEquation.level
 
-/-- A degree-`p` extension is of finite level when it has a generating canonical
-Kummer--Artin--Schreier root equation for which `(1 - ζ) ^ p * ξ` comes from the maximal ideal. -/
+/-- In the source DVR/fraction-field setting, a degree-`p` extension is of finite level when it
+has a generating canonical root equation for which `(1 - ζ) ^ p * ξ` comes from the maximal
+ideal.  The proof-only setting is part of the predicate, preserving the local-ring API. -/
 @[stacks 09F4 "Kummer--Artin--Schreier finite-level extension"]
 def IsExtension
     (B : Type u) [CommRing B] [IsLocalRing B]
     (L : Type v) [Field L] [Algebra B L]
     (M : Type w) [Field M] [Algebra L M]
     (p : ℕ) [Fact p.Prime] : Prop :=
-  ∃ h : RootPresentation B L M p,
+  IsSource B L p ∧ ∃ h : RootPresentation B L M p,
     h.P = KummerArtinSchreier.polynomial p h.ζ ∧
       h.IsFiniteLevel ∧ Module.finrank L M = p
 
@@ -287,35 +306,53 @@ theorem canonical_eval_eq_denominator
 /-- The finite-level condition exposes that `π` is a uniformizer. -/
 @[stacks 09F4 "uniformizer in a finite-level equation"]
 theorem irreducible
-    {B : Type u} [CommRing B]
+    {B : Type u} [CommRing B] [IsLocalRing B]
     {L : Type v} [Field L] [Algebra B L]
     {M : Type w} [Field M] [Algebra L M]
     {p : ℕ}
-    (h : Equation B L M p) (hh : h.IsFiniteLevel) : Irreducible h.π := sorry
--- Proof strategy: unfold `Equation.IsFiniteLevel` and project its first component.
+    (h : Equation B L M p) (hh : h.IsFiniteLevel) : Irreducible h.π := hh.1
 
-/-- The finite-level condition exposes the strict denominator bound. -/
+/-- Only normalized finite-level coordinates satisfy the numerator-independent strict bound. -/
 @[stacks 09F4 "strict finite-level denominator bound"]
 theorem n_lt
-    {B : Type u} [CommRing B]
-    {L : Type v} [Field L] [Algebra B L]
-    {M : Type w} [Field M] [Algebra L M]
-    {p : ℕ}
-    (h : Equation B L M p) (hh : h.IsFiniteLevel) : h.n < p * h.e := sorry
--- Proof strategy: unfold `Equation.IsFiniteLevel` and project its second component.
-
-/-- A finite-level denominator equation satisfies the uniformizer-free source condition. -/
-@[stacks 09F4 "denominator equation to source finite-level condition"]
-theorem root_isFiniteLevel
     {B : Type u} [CommRing B] [IsDomain B] [IsDiscreteValuationRing B]
     {L : Type v} [Field L] [Algebra B L] [IsFractionRing B L]
     {M : Type w} [Field M] [Algebra L M]
     {p : ℕ}
-    (h : Equation B L M p) (hh : h.IsFiniteLevel) : h.root.IsFiniteLevel := sorry
--- Proof strategy: use `h.associated` to write `1 - h.ζ` as a unit times `h.π ^ h.e` and combine
--- this with `h.denominator_eq`.  Since `h.n < p * h.e`, cancellation leaves a positive power of
--- the irreducible uniformizer `h.π`; choose the resulting element of `B` as the source witness and
--- prove its maximal-ideal membership via the DVR principal-maximal-ideal criterion.
+    (h : Equation B L M p) (hh : h.IsFiniteLevel) (hnorm : h.IsNormalized) (hp : 0 < p) :
+    h.n < p * h.e := sorry
+-- Proof strategy: for `n = 0`, use positivity of `p` and `e`.  Otherwise the numerator is a
+-- unit, so the source witness has valuation `p * e - n > 0` in the fraction field.
+
+/-- The strict denominator bound is sufficient even for unnormalized coordinates. -/
+theorem isFiniteLevel_of_n_lt
+    {B : Type u} [CommRing B] [IsDomain B] [IsDiscreteValuationRing B]
+    {L : Type v} [Field L] [Algebra B L] [IsFractionRing B L]
+    {M : Type w} [Field M] [Algebra L M]
+    {p : ℕ}
+    (h : Equation B L M p) (hπ : Irreducible h.π) (hn : h.n < p * h.e) :
+    h.IsFiniteLevel := sorry
+-- Proof strategy: cancellation in the fraction field leaves a positive power of the uniformizer
+-- multiplying the numerator and a unit; this gives an explicit maximal-ideal witness.
+
+/-- In normalized uniformizer coordinates, the source condition is equivalent to the strict bound. -/
+theorem isFiniteLevel_iff_n_lt
+    {B : Type u} [CommRing B] [IsDomain B] [IsDiscreteValuationRing B]
+    {L : Type v} [Field L] [Algebra B L] [IsFractionRing B L]
+    {M : Type w} [Field M] [Algebra L M]
+    {p : ℕ}
+    (h : Equation B L M p) (hπ : Irreducible h.π) (hnorm : h.IsNormalized) (hp : 0 < p) :
+    h.IsFiniteLevel ↔ h.n < p * h.e :=
+  ⟨fun hh => h.n_lt hh hnorm hp, h.isFiniteLevel_of_n_lt hπ⟩
+
+/-- A finite-level denominator equation satisfies the uniformizer-free source condition. -/
+@[stacks 09F4 "denominator equation to source finite-level condition"]
+theorem root_isFiniteLevel
+    {B : Type u} [CommRing B] [IsLocalRing B]
+    {L : Type v} [Field L] [Algebra B L]
+    {M : Type w} [Field M] [Algebra L M]
+    {p : ℕ}
+    (h : Equation B L M p) (hh : h.IsFiniteLevel) : h.root.IsFiniteLevel := hh.2
 
 /-- A finite-level denominator equation gives the source finite-level extension property. -/
 @[stacks 09F4 "denominator equation to finite-level extension"]
@@ -323,12 +360,27 @@ theorem isExtension
     {B : Type u} [CommRing B] [IsDomain B] [IsDiscreteValuationRing B]
     {L : Type v} [Field L] [Algebra B L] [IsFractionRing B L]
     {M : Type w} [Field M] [Algebra L M]
-    {p : ℕ} [Fact p.Prime]
+    {p : ℕ} [Fact p.Prime] [MixedCharZero B p]
     (h : Equation B L M p) (hc : h.IsCanonical) (hh : h.IsFiniteLevel)
     (hdeg : Module.finrank L M = p) :
-    IsExtension B L M p := sorry
--- Proof strategy: choose `h.root` in the existential defining `IsExtension` and supply `hc`,
--- `h.root_isFiniteLevel hh`, and `hdeg`.
+    IsExtension B L M p :=
+  ⟨⟨inferInstance, inferInstance, inferInstance, inferInstance⟩, h.root, hc, hh.2, hdeg⟩
+
+/-- Changing the primitive root transports canonical coordinates without changing the uniformizer
+or either exponent.  This is separate from the fixed-polynomial minimum. -/
+theorem exists_changeRoot
+    {B : Type u} [CommRing B] [IsDomain B]
+    {L : Type v} [Field L] [Algebra B L] [IsFractionRing B L]
+    {M : Type w} [Field M] [Algebra L M]
+    {p : ℕ} [Fact p.Prime]
+    (h : Equation B L M p) (hc : h.IsCanonical)
+    (ζ : B) (hζ : IsPrimitiveRoot ζ p) :
+    ∃ Q : Equation B L M p,
+      Q.ζ = ζ ∧ Q.IsCanonical ∧ Q.π = h.π ∧ Q.e = h.e ∧ Q.n = h.n := sorry
+-- Proof strategy: primitive roots of prime order in a domain are powers of one another, so
+-- `1 - ζ = u * (1 - h.ζ)` for a unit `u` of `B`.  Replace `z` by `u⁻¹ * z`, `ξ` and the
+-- numerator by `u⁻ᵖ` times their old values.  The quotient identity identifies the new canonical
+-- equation.  Scaling by a nonzero base-field scalar preserves the generated extension.
 
 /-- The displayed polynomial of an equation is a quotient polynomial. -/
 @[stacks 09F4 "finite-level equation quotient polynomial"]
@@ -367,15 +419,14 @@ end Equation
 
 namespace Presentation
 
-/-- A finite-level presentation exposes the strict denominator bound defining finite level. -/
-@[stacks 09F4 "finite-level bound of a presentation"]
+/-- A finite-level presentation exposes the source maximal-ideal condition in uniformizer coordinates. -/
+@[stacks 09F4 "finite-level condition of a presentation"]
 theorem isFiniteLevel
-    {B : Type u} [CommRing B]
-    {L : Type v} [Field L] [Algebra B L]
+    {B : Type u} [CommRing B] [IsDomain B] [IsDiscreteValuationRing B]
+    {L : Type v} [Field L] [Algebra B L] [IsFractionRing B L]
     {M : Type w} [Field M] [Algebra L M]
-    {p : ℕ}
-    (h : Presentation B L M p) : h.toEquation.IsFiniteLevel := sorry
--- Proof strategy: return the structure field `h.finiteLevel`.
+    {p : ℕ} [Fact p.Prime]
+    (h : Presentation B L M p) : h.toEquation.IsFiniteLevel := h.finiteLevel
 
 /-- Minimality forces a positive denominator presentation to have unit numerator. -/
 @[stacks 09F5 "normalization of a minimal finite-level presentation"]
@@ -383,12 +434,12 @@ theorem isNormalized
     {B : Type u} [CommRing B] [IsDomain B] [IsDiscreteValuationRing B]
     {L : Type v} [Field L] [Algebra B L] [IsFractionRing B L]
     {M : Type w} [Field M] [Algebra L M]
-    {p : ℕ}
+    {p : ℕ} [Fact p.Prime]
     (h : Presentation B L M p) : h.toEquation.IsNormalized := sorry
 -- Proof strategy: if `h.n = 0`, use the first normalization branch.  Otherwise, assume the
 -- numerator is not a unit.  In the DVR factor it by the uniformizer `h.π`, decrease the denominator
 -- exponent accordingly, and build another canonical finite-level equation with strictly smaller
--- rational level, contradicting `h.minimal`.
+-- rational level and the same `ζ` and `P`, contradicting `h.minimal`.
 
 /-- A presentation canonically gives the corresponding finite-level extension property. -/
 @[stacks 09F4 "presentation to finite-level extension"]
@@ -397,9 +448,9 @@ theorem isExtension
     {L : Type v} [Field L] [Algebra B L] [IsFractionRing B L]
     {M : Type w} [Field M] [Algebra L M]
     {p : ℕ} [Fact p.Prime]
-    (h : Presentation B L M p) : IsExtension B L M p := sorry
--- Proof strategy: apply `Equation.isExtension` to `h.toEquation`, using `h.canonical`,
--- `h.finiteLevel`, and `h.degreeP`.
+    (h : Presentation B L M p) : IsExtension B L M p :=
+  ⟨⟨inferInstance, inferInstance, inferInstance, h.mixedCharacteristic⟩,
+    h.toRootPresentation, h.canonical, h.finiteLevel.2, h.degreeP⟩
 
 /-- A presentation realizes its own exact level. -/
 @[stacks 09F5 "presentation at its rational level"]
@@ -408,17 +459,15 @@ theorem isAtLevel
     {L : Type v} [Field L] [Algebra B L] [IsFractionRing B L]
     {M : Type w} [Field M] [Algebra L M]
     {p : ℕ} [Fact p.Prime]
-    (h : Presentation B L M p) : IsAtLevel B L M p h.level := sorry
--- Proof strategy: choose `h` in the existential defining `IsAtLevel` and use reflexivity for its
--- level equation.
+    (h : Presentation B L M p) : IsAtLevel B L M p h.level := ⟨h, rfl⟩
 
 /-- A presentation exposes the quotient-polynomial property of its displayed polynomial. -/
 @[stacks 09F4 "finite-level presentation quotient polynomial"]
 theorem quotient
-    {B : Type u} [CommRing B]
-    {L : Type v} [Field L] [Algebra B L]
+    {B : Type u} [CommRing B] [IsDomain B] [IsDiscreteValuationRing B]
+    {L : Type v} [Field L] [Algebra B L] [IsFractionRing B L]
     {M : Type w} [Field M] [Algebra L M]
-    {p : ℕ}
+    {p : ℕ} [Fact p.Prime]
     (h : Presentation B L M p) :
     KummerArtinSchreier.IsQuotient p h.ζ h.P := sorry
 -- Proof strategy: apply `Equation.quotient h.toEquation`.
@@ -426,43 +475,54 @@ theorem quotient
 /-- The canonical polynomial attached to a presentation is a quotient polynomial. -/
 @[stacks 09F4 "canonical finite-level presentation quotient polynomial"]
 theorem canonical_quotient
-    {B : Type u} [CommRing B]
-    {L : Type v} [Field L] [Algebra B L]
+    {B : Type u} [CommRing B] [IsDomain B] [IsDiscreteValuationRing B]
+    {L : Type v} [Field L] [Algebra B L] [IsFractionRing B L]
     {M : Type w} [Field M] [Algebra L M]
     {p : ℕ} [Fact p.Prime]
     (h : Presentation B L M p) :
     KummerArtinSchreier.IsQuotient p h.ζ (KummerArtinSchreier.polynomial p h.ζ) := sorry
 -- Proof strategy: apply `Equation.canonical_quotient h.toEquation h.canonical`.
 
-/-- A presentation is minimal among all finite-level equations generating the same extension. -/
+/-- A presentation is minimal among uniformizer equations with the same primitive root and polynomial. -/
 @[stacks 09F5 "minimality of a finite-level presentation"]
 theorem level_le
-    {B : Type u} [CommRing B]
-    {L : Type v} [Field L] [Algebra B L]
+    {B : Type u} [CommRing B] [IsDomain B] [IsDiscreteValuationRing B]
+    {L : Type v} [Field L] [Algebra B L] [IsFractionRing B L]
     {M : Type w} [Field M] [Algebra L M]
-    {p : ℕ}
+    {p : ℕ} [Fact p.Prime]
     (h : Presentation B L M p) (Q : Equation B L M p)
-    (hQ : Q.IsCanonical) (hFinite : Q.IsFiniteLevel) : h.level ≤ Q.level := sorry
--- Proof strategy: apply the structure field `h.minimal Q hQ hFinite`.
+    (hζ : Q.ζ = h.ζ) (hP : Q.P = h.P) (hπ : Irreducible Q.π) : h.level ≤ Q.level :=
+  h.minimal Q hζ hP hπ
 
-/-- Any two minimal finite-level presentations of the same extension have the same level. -/
+/-- Any two minimal presentations have the same level.  Independence of the primitive root uses
+the separate coordinate-transport theorem, rather than enlarging the minimum's candidate set. -/
 @[stacks 09F5 "uniqueness of the finite level"]
 theorem level_eq
-    {B : Type u} [CommRing B]
-    {L : Type v} [Field L] [Algebra B L]
+    {B : Type u} [CommRing B] [IsDomain B] [IsDiscreteValuationRing B]
+    {L : Type v} [Field L] [Algebra B L] [IsFractionRing B L]
     {M : Type w} [Field M] [Algebra L M]
-    {p : ℕ}
-    (P Q : Presentation B L M p) : P.level = Q.level := sorry
--- Proof strategy: apply `P.level_le` to `Q.toEquation` and conversely `Q.level_le` to
--- `P.toEquation`, then use antisymmetry.
+    {p : ℕ} [Fact p.Prime]
+    (P Q : Presentation B L M p) : P.level = Q.level := by
+  have compare (P Q : Presentation B L M p) : P.level ≤ Q.level := by
+    obtain ⟨R, hζ, hc, hπ, he, hn⟩ :=
+      Q.toEquation.exists_changeRoot Q.canonical P.ζ P.isPrimitiveRoot
+    have hRP : R.P = P.P := by
+      calc
+        R.P = KummerArtinSchreier.polynomial p R.ζ := hc
+        _ = KummerArtinSchreier.polynomial p P.ζ := congrArg _ hζ
+        _ = P.P := P.canonical.symm
+    have hRπ : Irreducible R.π := hπ.symm ▸ Q.finiteLevel.1
+    have hle := P.level_le R hζ hRP hRπ
+    simpa only [Presentation.level, Equation.level, he, hn] using hle
+  exact le_antisymm (compare P Q) (compare Q P)
 
 /-- The level of a presentation is nonnegative. -/
 @[stacks 09F5 "nonnegativity of a finite level"]
 theorem level_nonneg
-    {B : Type u} [CommRing B]
-    {L : Type v} [Field L] [Algebra B L]
+    {B : Type u} [CommRing B] [IsDomain B] [IsDiscreteValuationRing B]
+    {L : Type v} [Field L] [Algebra B L] [IsFractionRing B L]
     {M : Type w} [Field M] [Algebra L M]
-    {p : ℕ}
+    {p : ℕ} [Fact p.Prime]
     (h : Presentation B L M p) : 0 ≤ h.level := sorry
 -- Proof strategy: unfold `Presentation.level` and `Equation.level`; the numerator `h.n` is
 -- nonnegative and the denominator `h.e` is positive by `h.e_pos`, so rational division is
@@ -471,19 +531,20 @@ theorem level_nonneg
 /-- A finite level lies strictly below the prime degree. -/
 @[stacks 09F5 "upper bound for a finite level"]
 theorem level_lt
-    {B : Type u} [CommRing B]
-    {L : Type v} [Field L] [Algebra B L]
+    {B : Type u} [CommRing B] [IsDomain B] [IsDiscreteValuationRing B]
+    {L : Type v} [Field L] [Algebra B L] [IsFractionRing B L]
     {M : Type w} [Field M] [Algebra L M]
     {p : ℕ} [Fact p.Prime]
     (h : Presentation B L M p) : h.level < p := sorry
 -- Proof strategy: rewrite the rational inequality as `h.n < p * h.e` using positivity of `h.e`,
--- then apply `h.finiteLevel.2` and cast the natural-number inequality to `ℚ`.
+-- then apply the normalized bound `h.toEquation.n_lt`, using positivity of the prime, and cast
+-- the resulting inequality to `ℚ`.
 
 /-- A degree-`p` presentation supplies finite-dimensionality without requiring it as ambient input. -/
 @[stacks 09F4 "finite-dimensionality from a finite-level presentation"]
 theorem finiteDimensional
-    {B : Type u} [CommRing B]
-    {L : Type v} [Field L] [Algebra B L]
+    {B : Type u} [CommRing B] [IsDomain B] [IsDiscreteValuationRing B]
+    {L : Type v} [Field L] [Algebra B L] [IsFractionRing B L]
     {M : Type w} [Field M] [Algebra L M]
     {p : ℕ} [Fact p.Prime]
     (h : Presentation B L M p) : FiniteDimensional L M := sorry
@@ -493,6 +554,14 @@ end Presentation
 
 namespace IsExtension
 
+/-- A finite-level extension carries the source DVR, fraction-field, and mixed-characteristic setting. -/
+theorem source
+    {B : Type u} [CommRing B] [IsLocalRing B]
+    {L : Type v} [Field L] [Algebra B L]
+    {M : Type w} [Field M] [Algebra L M]
+    {p : ℕ} [Fact p.Prime]
+    (h : IsExtension B L M p) : IsSource B L p := h.1
+
 /-- The generating root presentation chosen from a source finite-level extension. -/
 @[stacks 09F4 "chosen root of a finite-level extension"]
 noncomputable def root
@@ -501,7 +570,7 @@ noncomputable def root
     {M : Type w} [Field M] [Algebra L M]
     {p : ℕ} [Fact p.Prime]
     (h : IsExtension B L M p) : RootPresentation B L M p :=
-  Classical.choose h
+  Classical.choose h.2
 
 /-- The chosen root uses the canonical polynomial attached to its primitive root. -/
 @[stacks 09F4 "canonical polynomial of the chosen finite-level root"]
@@ -511,8 +580,7 @@ theorem root_canonical
     {M : Type w} [Field M] [Algebra L M]
     {p : ℕ} [Fact p.Prime]
     (h : IsExtension B L M p) :
-    h.root.P = KummerArtinSchreier.polynomial p h.root.ζ := sorry
--- Proof strategy: unfold `root` and project the first component of `Classical.choose_spec h`.
+    h.root.P = KummerArtinSchreier.polynomial p h.root.ζ := (Classical.choose_spec h.2).1
 
 /-- The chosen root satisfies the uniformizer-free source finite-level condition. -/
 @[stacks 09F4 "source condition of the chosen finite-level root"]
@@ -521,8 +589,7 @@ theorem root_isFiniteLevel
     {L : Type v} [Field L] [Algebra B L]
     {M : Type w} [Field M] [Algebra L M]
     {p : ℕ} [Fact p.Prime]
-    (h : IsExtension B L M p) : h.root.IsFiniteLevel := sorry
--- Proof strategy: unfold `root` and project the second component of `Classical.choose_spec h`.
+    (h : IsExtension B L M p) : h.root.IsFiniteLevel := (Classical.choose_spec h.2).2.1
 
 /-- The source finite-level owner exposes its complete canonical root specification. -/
 @[stacks 09F4 "finite-level root specification"]
@@ -534,9 +601,7 @@ theorem exists_root
     (h : IsExtension B L M p) :
     ∃ Q : RootPresentation B L M p,
       Q.P = KummerArtinSchreier.polynomial p Q.ζ ∧
-        Q.IsFiniteLevel ∧ Module.finrank L M = p := sorry
--- Proof strategy: this is exactly the existential defining `IsExtension`; return `h` (or choose
--- `h.root` and its three named specification theorems).
+        Q.IsFiniteLevel ∧ Module.finrank L M = p := h.2
 
 /-- A source finite-level extension admits a finite-level denominator coordinate equation. -/
 @[stacks 09F4 "finite-level equation specification"]
@@ -551,7 +616,9 @@ theorem exists_equation
 -- choose an irreducible uniformizer `π`, express both `1 - h.root.ζ` and the witness as unit times
 -- powers of `π`, and cancel in the fraction field to obtain explicit `e`, `n`, and numerator `a`.
 -- The maximal-ideal condition gives positive valuation, while the source equation yields
--- `n < p * e`.  Package these coordinates with `h.root` as `Equation`, retaining
+-- `n < p * e` after normalization.  The mixed-characteristic setting in `h.source` ensures
+-- `1 - h.root.ζ` is nonzero and belongs to the maximal ideal.  Package the coordinates with
+-- `h.root` as `Equation`, retaining
 -- `h.root_canonical`.
 
 /-- A finite-level extension has degree `p`. -/
@@ -561,8 +628,7 @@ theorem finrank_eq
     {L : Type v} [Field L] [Algebra B L]
     {M : Type w} [Field M] [Algebra L M]
     {p : ℕ} [Fact p.Prime]
-    (h : IsExtension B L M p) : Module.finrank L M = p := sorry
--- Proof strategy: project the final component of `Classical.choose_spec h` for `h.root`.
+    (h : IsExtension B L M p) : Module.finrank L M = p := (Classical.choose_spec h.2).2.2
 
 /-- A finite-level extension is finite-dimensional. -/
 @[stacks 09F4 "finite-dimensionality of a finite-level extension"]
@@ -584,8 +650,10 @@ theorem exists_level
     {p : ℕ} [Fact p.Prime]
     (h : IsExtension B L M p) : ∃ l : ℚ, IsAtLevel B L M p l := sorry
 -- Proof strategy: obtain a canonical finite-level equation from `h.exists_equation`.  Normalize its
--- denominator and minimize the discrete valuation ratio `n / e` among all canonical finite-level
--- equations, using well-foundedness of the natural valuation coordinates.  Package the minimizer
+-- denominator and minimize `n` with the primitive root, canonical polynomial, and uniformizer
+-- fixed.  All uniformizers are associated, so any other uniformizer coordinates for the same
+-- primitive root have the same positive exponent `e`.  Natural-number well-ordering therefore
+-- gives the minimum among all such coordinate equations.  Package the minimizer
 -- as `Presentation` and choose its `level`.
 
 /-- Compatible equivalences preserve finite-level extensions. -/

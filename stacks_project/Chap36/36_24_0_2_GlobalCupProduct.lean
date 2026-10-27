@@ -20,8 +20,8 @@ open AlgebraicGeometry.Scheme.Modules.Kunneth
 /- Compatibility check for the generic global cup-product construction. -/
 #check (AlgebraicGeometry.Scheme.Modules.Kunneth.globalCupProduct :
   ∀ {S X Y : Scheme.{u}} (a : X ⟶ S) (b : Y ⟶ S)
-    [(leftCoefficientHom a b).modulePushforward.IsRightAdjoint]
-    [(rightCoefficientHom a b).modulePushforward.IsRightAdjoint]
+    [(RingedSite.Hom.modulePushforward.{u} (leftCoefficientHom a b)).IsRightAdjoint]
+    [(RingedSite.Hom.modulePushforward.{u} (rightCoefficientHom a b)).IsRightAdjoint]
     [Functor.HasRightDerivedFunctor
       (RingedSite.Hom.modulePushforwardToDerived (coefficientPushforwardHom a))
       (RingedSite.Hom.ModuleQis (coefficientSite a))]

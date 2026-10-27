@@ -29,7 +29,7 @@ complexes to dualizing complexes by derived extension of scalars. -/
     (f : A →+* B) (hflat : f.Flat)
     (I : Ideal A) (hquot : Function.Bijective (f.quotientByIdeal I))
     (hIB : I.map f ≤ Ring.jacobson B)
-    (HA : MonoidalClosed (DerivedCategory (ModuleCat.{u} A)))
-    (HB : MonoidalClosed (DerivedCategory (ModuleCat.{u} B)))
-    (ω : DerivedCategory (ModuleCat.{u} A)) (hω : ω.IsDualizingComplex HA),
-    ((ModuleCat.derivedExtensionOfScalars f).obj ω).IsDualizingComplex HB)
+    (CA : CategoryTheory.DerivedCategory.CanonicalClosedPresentation (A := A))
+    (CB : CategoryTheory.DerivedCategory.CanonicalClosedPresentation (A := B))
+    (ω : DerivedCategory (ModuleCat.{u} A)) (hω : ω.IsCanonicalDualizingComplex CA),
+    ((ModuleCat.derivedExtensionOfScalars f).obj ω).IsCanonicalDualizingComplex CB)

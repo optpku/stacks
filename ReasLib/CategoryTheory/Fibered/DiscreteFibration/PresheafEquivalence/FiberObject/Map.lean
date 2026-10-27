@@ -29,6 +29,24 @@ variable {C : Type u} [Category.{v} C]
 
 namespace BasedFunctor
 
+private theorem fiberObjectMap_reindexObj_val
+    {X : BasedCategory.{vX, uX} C} {Y : BasedCategory.{vY, uY} C}
+    (F : X ⥤ᵇ Y) [X.p.IsDiscreteFibration] [Y.p.IsDiscreteFibration]
+    {U V : C} (f : V ⟶ U) (x : X.p.Fiber U) :
+    F.toFunctor.obj (Functor.IsDiscreteFibration.reindexObj X.p f x).1 =
+      (Functor.IsDiscreteFibration.reindexObj Y.p f
+        ⟨F.toFunctor.obj x.1, (F.w_obj x.1).trans x.2⟩).1 := by
+  let l := Functor.IsDiscreteFibration.lift X.p (f ≫ eqToHom x.2.symm)
+  letI : X.p.IsHomLift f l.hom :=
+    (IsHomLift.lift_comp_eqToHom_iff X.p f l.hom x.2.symm).mp l.isHomLift
+  let y : Y.p.Fiber U := ⟨F.toFunctor.obj x.1, (F.w_obj x.1).trans x.2⟩
+  let m : Functor.HomLift Y.p (f ≫ eqToHom y.2.symm) :=
+    ⟨F.toFunctor.obj l.domain, F.toFunctor.map l.hom,
+      IsHomLift.lift_comp_eqToHom Y.p f (F.toFunctor.map l.hom) y.2.symm⟩
+  exact congrArg Functor.HomLift.domain
+    ((Functor.IsDiscreteFibration.homLiftSubsingleton (f ≫ eqToHom y.2.symm)).elim
+      m (Functor.IsDiscreteFibration.lift Y.p (f ≫ eqToHom y.2.symm)))
+
 section SameUniverse
 
 variable {X : BasedCategory.{vX, uX} C}
@@ -42,7 +60,11 @@ theorem fiberObjectMap.naturality
     X.p.fiberObjectPresheaf.map f ≫
         TypeCat.ofHom (F.fiberFunctor (unop V)).obj =
       TypeCat.ofHom (F.fiberFunctor (unop U)).obj ≫
-        Y.p.fiberObjectPresheaf.map f := sorry
+        Y.p.fiberObjectPresheaf.map f := by
+  apply ConcreteCategory.hom_ext
+  intro x
+  apply Subtype.ext
+  exact fiberObjectMap_reindexObj_val F f.unop x
 
 /-- A based functor between discrete fibrations induces a natural transformation between their
 fiber-object presheaves. -/
@@ -54,8 +76,8 @@ noncomputable def fiberObjectMap
   app U := TypeCat.ofHom (F.fiberFunctor (unop U)).obj
   naturality := fun {_ _} f ↦ fiberObjectMap.naturality F f
 
-/- Axiom audit: every component is the explicit object function of `F.fiberFunctor`; only the
-Prop-valued naturality field is deferred. -/
+/- Axiom audit: every component is the explicit object function of `F.fiberFunctor`;
+naturality follows from unique lifting. -/
 
 namespace fiberObjectMap
 
@@ -65,14 +87,16 @@ theorem app
     (F : X ⥤ᵇ Y) [X.p.IsDiscreteFibration] [Y.p.IsDiscreteFibration]
     (U : Cᵒᵖ) :
     (fiberObjectMap F).app U =
-      TypeCat.ofHom (F.fiberFunctor (unop U)).obj := sorry
+      TypeCat.ofHom (F.fiberFunctor (unop U)).obj := by
+  rfl
 
 /-- Pointwise, `fiberObjectMap` applies the induced fiber functor. -/
 @[simp]
 theorem app_apply
     (F : X ⥤ᵇ Y) [X.p.IsDiscreteFibration] [Y.p.IsDiscreteFibration]
     (U : Cᵒᵖ) (x : X.p.Fiber (unop U)) :
-    (fiberObjectMap F).app U x = (F.fiberFunctor (unop U)).obj x := sorry
+    (fiberObjectMap F).app U x = (F.fiberFunctor (unop U)).obj x := by
+  rfl
 
 /-- Mapping an intrinsically reindexed object is intrinsic reindexing of its image. -/
 @[simp]
@@ -82,12 +106,19 @@ theorem reindexObj
     (F.fiberFunctor (unop V)).obj
         (Functor.IsDiscreteFibration.reindexObj X.p f.unop x) =
       Functor.IsDiscreteFibration.reindexObj Y.p f.unop
-        ((F.fiberFunctor (unop U)).obj x) := sorry
+        ((F.fiberFunctor (unop U)).obj x) := by
+  exact ConcreteCategory.congr_hom (naturality F f) x
 
 /-- The identity based functor induces the identity on fiber-object presheaves. -/
 @[simp]
 theorem id (X : BasedCategory.{vX, uX} C) [X.p.IsDiscreteFibration] :
-    fiberObjectMap (BasedFunctor.id X) = 𝟙 X.p.fiberObjectPresheaf := sorry
+    fiberObjectMap (BasedFunctor.id X) = 𝟙 X.p.fiberObjectPresheaf := by
+  apply NatTrans.ext
+  funext U
+  apply ConcreteCategory.hom_ext
+  intro x
+  apply Subtype.ext
+  rfl
 
 /-- The fiber-object map induced by a composite is the composite of the induced maps. -/
 @[simp]
@@ -95,7 +126,13 @@ theorem comp
     (F : X ⥤ᵇ Y) (G : Y ⥤ᵇ Z)
     [X.p.IsDiscreteFibration] [Y.p.IsDiscreteFibration] [Z.p.IsDiscreteFibration] :
     fiberObjectMap (BasedFunctor.comp F G) =
-      fiberObjectMap F ≫ fiberObjectMap G := sorry
+      fiberObjectMap F ≫ fiberObjectMap G := by
+  apply NatTrans.ext
+  funext U
+  apply ConcreteCategory.hom_ext
+  intro x
+  apply Subtype.ext
+  rfl
 
 end fiberObjectMap
 
@@ -121,7 +158,12 @@ theorem fiberObjectMap.ulift.naturality
           (fun x ↦ ULift.up ((F.fiberFunctor (unop U)).obj x.down)) ≫
         (Y.p.fiberObjectPresheaf ⋙
           (uliftFunctor.{max w uX uY, uY} :
-            Type uY ⥤ Type (max w uX uY))).map f := sorry
+            Type uY ⥤ Type (max w uX uY))).map f := by
+  apply ConcreteCategory.hom_ext
+  intro x
+  apply congrArg ULift.up
+  apply Subtype.ext
+  exact fiberObjectMap_reindexObj_val F f.unop x.down
 
 /-- A based functor between discrete fibrations in arbitrary total-category universes induces a
 map of fiber-object presheaves after a common ambient lift. The extra universe parameter can
@@ -141,7 +183,7 @@ noncomputable def fiberObjectMap.ulift
   naturality := fun {_ _} f ↦ fiberObjectMap.ulift.naturality F f
 
 /- Axiom audit: the lifted component functions are explicit compositions of `ULift.up`,
-`ULift.down`, and the object maps of `F.fiberFunctor`; only naturality is deferred. -/
+`ULift.down`, and the object maps of `F.fiberFunctor`; naturality follows from unique lifting. -/
 
 /-- On a lifted fiber object, the lifted map applies the induced fiber functor. -/
 @[simp]
@@ -149,7 +191,8 @@ theorem fiberObjectMap.ulift.app_apply
     (F : X ⥤ᵇ Y) [X.p.IsDiscreteFibration] [Y.p.IsDiscreteFibration]
     (U : Cᵒᵖ) (x : X.p.Fiber (unop U)) :
     (fiberObjectMap.ulift.{w} F).app U (ULift.up x) =
-      ULift.up ((F.fiberFunctor (unop U)).obj x) := sorry
+      ULift.up ((F.fiberFunctor (unop U)).obj x) := by
+  rfl
 
 /-- The identity based functor induces the identity after an ambient universe lift. -/
 @[simp]
@@ -158,7 +201,14 @@ theorem fiberObjectMap.ulift.id
     fiberObjectMap.ulift.{w} (BasedFunctor.id X) =
       𝟙 (X.p.fiberObjectPresheaf ⋙
         (uliftFunctor.{max w uX uX, uX} :
-          Type uX ⥤ Type (max w uX uX))) := sorry
+          Type uX ⥤ Type (max w uX uX))) := by
+  apply NatTrans.ext
+  funext U
+  apply ConcreteCategory.hom_ext
+  intro x
+  apply ULift.ext
+  apply Subtype.ext
+  rfl
 
 /-- Lifted fiber-object maps compose after all three total-category object universes are included
 in the common ambient lift. -/
@@ -168,7 +218,14 @@ theorem fiberObjectMap.ulift.comp
     [X.p.IsDiscreteFibration] [Y.p.IsDiscreteFibration] [Z.p.IsDiscreteFibration] :
     fiberObjectMap.ulift.{max w uY} (BasedFunctor.comp F G) =
       fiberObjectMap.ulift.{max w uZ} F ≫
-        fiberObjectMap.ulift.{max w uX} G := sorry
+        fiberObjectMap.ulift.{max w uX} G := by
+  apply NatTrans.ext
+  funext U
+  apply ConcreteCategory.hom_ext
+  intro x
+  apply ULift.ext
+  apply Subtype.ext
+  rfl
 
 end DifferentUniverses
 

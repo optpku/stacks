@@ -95,7 +95,11 @@ def component (c : SectionRingProjComparison L P f) (n : ℤ) :
 theorem component_map_one (c : SectionRingProjComparison L P f) (U : (X.Opens)ᵒᵖ) :
     (((c.component 0).val.app U).hom) (P.actualOne f U) =
       @RingedSpace.InvertiblePower.oneSection _ L
-        (Invertible.ringedSpaceIsInvertible hL) U := sorry
+        (Invertible.ringedSpaceIsInvertible hL) U := by
+  change (((c.hom.hom 0).val.app U).hom)
+    ((((P.twistAlgebra.pullbackIso f 0).hom.val.app U).hom) (P.actualOne f U)) = _
+  exact (congrArg (((c.hom.hom 0).val.app U).hom)
+    ((P.twistAlgebra.pullbackData f).map_one U)).trans (c.hom.map_one U)
 
 /-- The actual degreewise comparison preserves multiplication of local twist sections. -/
 theorem component_map_mul (c : SectionRingProjComparison L P f) (U : (X.Opens)ᵒᵖ)
@@ -105,7 +109,13 @@ theorem component_map_mul (c : SectionRingProjComparison L P f) (U : (X.Opens)�
       @RingedSpace.InvertiblePower.mulSection _ L
         (Invertible.ringedSpaceIsInvertible hL) U a b
         ((((c.component a).val.app U).hom) x)
-        ((((c.component b).val.app U).hom) y) := sorry
+        ((((c.component b).val.app U).hom) y) := by
+  change (((c.hom.hom (a + b)).val.app U).hom)
+    ((((P.twistAlgebra.pullbackIso f (a + b)).hom.val.app U).hom)
+      (P.actualMul f U a b x y)) = _
+  exact (congrArg (((c.hom.hom (a + b)).val.app U).hom)
+    ((P.twistAlgebra.pullbackData f).map_mul U a b x y)).trans
+      (c.hom.map_mul U a b _ _)
 
 /-- A comparison is canonical when it recovers every nonnegative homogeneous section and is
 locally an isomorphism in all degrees after one positive rescaling. -/
@@ -132,7 +142,8 @@ theorem isCanonical_iff (c : SectionRingProjComparison L P f) :
             ((DirectSum.InternalGrading.summandEquiv
               (RingedSpace.GradedSections.degree L) n).symm s)) ∧
       ∀ x : X, ∃ d : ℕ, 0 < d ∧ ∃ U : X.Opens, x ∈ U ∧
-        ∀ n : ℤ, IsIso ((restrictFunctor U.ι).map (c.component ((d : ℤ) * n)))) := sorry
+        ∀ n : ℤ, IsIso ((restrictFunctor U.ι).map (c.component ((d : ℤ) * n)))) :=
+  Iff.rfl
 
 namespace IsCanonical
 
@@ -144,12 +155,14 @@ theorem section_identity {c : SectionRingProjComparison L P f} (hc : c.IsCanonic
       (((@RingedSpace.InvertiblePower.natIso _ L
         (Invertible.ringedSpaceIsInvertible hL) n).hom.val.app (op ⊤)).hom)
         ((DirectSum.InternalGrading.summandEquiv
-          (RingedSpace.GradedSections.degree L) n).symm s) := sorry
+          (RingedSpace.GradedSections.degree L) n).symm s) :=
+  hc.1 n s
 
 /-- Around every point, a positive rescaling makes all comparison components isomorphisms. -/
 theorem locally_isIso {c : SectionRingProjComparison L P f} (hc : c.IsCanonical) (x : X) :
     ∃ d : ℕ, 0 < d ∧ ∃ U : X.Opens, x ∈ U ∧
-      ∀ n : ℤ, IsIso ((restrictFunctor U.ι).map (c.component ((d : ℤ) * n))) := sorry
+      ∀ n : ℤ, IsIso ((restrictFunctor U.ι).map (c.component ((d : ℤ) * n))) :=
+  hc.2 x
 
 end IsCanonical
 
@@ -178,7 +191,8 @@ theorem isSectionRingProjMap_iff (L : X.Modules) [hL : Invertible L]
               (RingedSpace.GradedSections.degree L) n s) =
           hL.nonvanishingOpen s) ∧
       ∀ P : ProjTwistPresentation (RingedSpace.GradedSections.grading L),
-        ∃ c : SectionRingProjComparison L P f, c.IsCanonical) := sorry
+        ∃ c : SectionRingProjComparison L P f, c.IsCanonical) :=
+  Iff.rfl
 
 namespace IsSectionRingProjMap
 
@@ -190,14 +204,16 @@ theorem preimage_basicOpen {L : X.Modules} [hL : Invertible L]
     f ⁻¹ᵁ Proj.basicOpen (RingedSpace.GradedSections.grading L)
         (DirectSum.InternalGrading.summandEquiv
           (RingedSpace.GradedSections.degree L) n s) =
-      hL.nonvanishingOpen s := sorry
+      hL.nonvanishingOpen s :=
+  hf.1 n hn s
 
 /-- Every explicit twist presentation admits a canonical comparison along the map. -/
 theorem comparison_exists {L : X.Modules} [Invertible L]
     {f : X ⟶ Proj (RingedSpace.GradedSections.grading L)}
     (hf : IsSectionRingProjMap L f)
     (P : ProjTwistPresentation (RingedSpace.GradedSections.grading L)) :
-    ∃ c : SectionRingProjComparison L P f, c.IsCanonical := sorry
+    ∃ c : SectionRingProjComparison L P f, c.IsCanonical :=
+  hf.2 P
 
 end IsSectionRingProjMap
 

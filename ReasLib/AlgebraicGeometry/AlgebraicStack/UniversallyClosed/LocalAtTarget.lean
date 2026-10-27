@@ -51,7 +51,7 @@ theorem forallScheme_iff : forallScheme f ↔
       (g : GroupoidsOver.slice Z ⟶ Y) (fst : P ⟶ X)
       (snd : P ⟶ GroupoidsOver.slice Z) (iso : fst ≫ f ≅ snd ≫ g),
       (CategoryTheory.Bicategory.PseudoPullbackCone.mk f g P fst snd iso).IsBilimit → Closed snd :=
-  sorry
+  Iff.rfl
 
 namespace forallScheme
 
@@ -61,7 +61,7 @@ theorem of (h : ∀ {Z : Over S} {P : GroupoidsOver S} [AlgebraicStack P]
     {g : GroupoidsOver.slice Z ⟶ Y} {fst : P ⟶ X}
     {snd : P ⟶ GroupoidsOver.slice Z} (iso : fst ≫ f ≅ snd ≫ g),
     (CategoryTheory.Bicategory.PseudoPullbackCone.mk f g P fst snd iso).IsBilimit → Closed snd) : forallScheme f :=
-  sorry
+  h
 
 /-- Under `forallScheme f`, the test-leg of any scheme-valued 2-fibre product of
 `f` is closed. -/
@@ -69,7 +69,7 @@ theorem spec (h : forallScheme f) {Z : Over S} {P : GroupoidsOver S}
     [AlgebraicStack P] {g : GroupoidsOver.slice Z ⟶ Y} {fst : P ⟶ X}
     {snd : P ⟶ GroupoidsOver.slice Z} (iso : fst ≫ f ≅ snd ≫ g)
     (hc : (CategoryTheory.Bicategory.PseudoPullbackCone.mk f g P fst snd iso).IsBilimit) : Closed snd :=
-  sorry
+  h iso hc
 
 end forallScheme
 
@@ -95,7 +95,7 @@ theorem forallAffine_iff : forallAffine f ↔
       (g : GroupoidsOver.slice Z ⟶ Y) (fst : P ⟶ X)
       (snd : P ⟶ GroupoidsOver.slice Z) (iso : fst ≫ f ≅ snd ≫ g),
       (CategoryTheory.Bicategory.PseudoPullbackCone.mk f g P fst snd iso).IsBilimit → Closed snd :=
-  sorry
+  Iff.rfl
 
 namespace forallAffine
 
@@ -105,7 +105,7 @@ theorem of (h : ∀ {Z : Over S} [IsAffine Z.left] {P : GroupoidsOver S}
     [AlgebraicStack P] {g : GroupoidsOver.slice Z ⟶ Y} {fst : P ⟶ X}
     {snd : P ⟶ GroupoidsOver.slice Z} (iso : fst ≫ f ≅ snd ≫ g),
     (CategoryTheory.Bicategory.PseudoPullbackCone.mk f g P fst snd iso).IsBilimit → Closed snd) : forallAffine f :=
-  sorry
+  h
 
 /-- Under `forallAffine f`, the test-leg of any affine-scheme-valued 2-fibre
 product of `f` is closed. -/
@@ -114,7 +114,7 @@ theorem spec (h : forallAffine f) {Z : Over S} [IsAffine Z.left]
     {fst : P ⟶ X} {snd : P ⟶ GroupoidsOver.slice Z}
     (iso : fst ≫ f ≅ snd ≫ g) (hc : (CategoryTheory.Bicategory.PseudoPullbackCone.mk f g P fst snd iso).IsBilimit) :
     Closed snd :=
-  sorry
+  h iso hc
 
 end forallAffine
 
@@ -150,7 +150,7 @@ theorem existsSmoothOnTarget_iff : existsSmoothOnTarget f ↔
         ∀ (P : GroupoidsOver S) [AlgebraicStack P] (fst : P ⟶ X)
           (snd : P ⟶ V.toGroupoids) (iso : fst ≫ f ≅ snd ≫ p),
           (CategoryTheory.Bicategory.PseudoPullbackCone.mk f p P fst snd iso).IsBilimit → UniversallyClosed snd :=
-  sorry
+  Iff.rfl
 
 namespace existsSmoothOnTarget
 
@@ -162,7 +162,7 @@ theorem of {V : AlgebraicSpace S} (p : V.toGroupoids ⟶ Y)
       {snd : P ⟶ V.toGroupoids} (iso : fst ≫ f ≅ snd ≫ p),
       (CategoryTheory.Bicategory.PseudoPullbackCone.mk f p P fst snd iso).IsBilimit → UniversallyClosed snd) :
     existsSmoothOnTarget f :=
-  sorry
+  ⟨V, p, hp_smooth, hp_surj, h⟩
 
 /-- `existsSmoothOnTarget f` supplies a surjective smooth algebraic-space atlas
 of `Y` along which 2-fibre-product base changes of `f` are universally closed. -/
@@ -172,7 +172,7 @@ theorem spec (h : existsSmoothOnTarget f) :
         ∀ {P : GroupoidsOver S} [AlgebraicStack P] {fst : P ⟶ X}
           {snd : P ⟶ V.toGroupoids} (iso : fst ≫ f ≅ snd ≫ p),
           (CategoryTheory.Bicategory.PseudoPullbackCone.mk f p P fst snd iso).IsBilimit → UniversallyClosed snd :=
-  sorry
+  h
 
 end existsSmoothOnTarget
 
@@ -190,18 +190,18 @@ theorem tfae :
 /-- A morphism of algebraic stacks is universally closed iff every
 scheme-valued base change has closed projection on points. -/
 theorem iff_forallScheme : UniversallyClosed f ↔ Closed.forallScheme f :=
-  sorry
+  (tfae f).out 0 1
 
 /-- A morphism of algebraic stacks is universally closed iff every
 affine-scheme-valued base change has closed projection on points. -/
 theorem iff_forallAffine : UniversallyClosed f ↔ Closed.forallAffine f :=
-  sorry
+  (tfae f).out 0 2
 
 /-- A morphism of algebraic stacks is universally closed iff some surjective
 smooth algebraic-space atlas of the target has universally closed base change. -/
 theorem iff_existsSmoothOnTarget :
     UniversallyClosed f ↔ existsSmoothOnTarget f :=
-  sorry
+  (tfae f).out 0 3
 
 end UniversallyClosed
 

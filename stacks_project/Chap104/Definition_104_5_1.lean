@@ -6,11 +6,24 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Derived.QuasiCoherent
 public import stacks_project.Chap104.Definition_104_5_1_LQCohFbc
-public import stacks_project.Chap104.Definition_104_5_1_DerivedQCoh
 import StacksCheckRecall
+
+universe u
 
 /- Definition 104.5.1: for an algebraic stack `X`, the derived category of
 `𝒪_X`-modules with quasi-coherent cohomology sheaves is the Verdier quotient
 `D_{LQCoh^{fbc}}(𝒪_X) / D_{Parasitic ∩ LQCoh^{fbc}}(𝒪_X)`. -/
-@[stacks 07B6] #check AlgebraicGeometry.AlgebraicStack.DerivedQCoh
+@[stacks 07B6] #check (AlgebraicGeometry.AlgebraicStack.DerivedQCoh :
+  ∀ {S : AlgebraicGeometry.Scheme.{u}} (X : AlgebraicGeometry.GroupoidsOver S)
+    [AlgebraicGeometry.AlgebraicStack X], Type (u + 1))
+
+#check (AlgebraicGeometry.AlgebraicStack.DerivedQCoh.spec :
+  ∀ {S : AlgebraicGeometry.Scheme.{u}} (X : AlgebraicGeometry.GroupoidsOver S)
+    [AlgebraicGeometry.AlgebraicStack X],
+    AlgebraicGeometry.AlgebraicStack.DerivedQCoh X =
+      CategoryTheory.ObjectProperty.verdierQuotient
+        ((CategoryTheory.DerivedCategory.cohomologyIn
+            (AlgebraicGeometry.GroupoidsOver.FppfModules.parasiticLQCohFbc X)).inverseImage
+          (AlgebraicGeometry.AlgebraicStack.DerivedLQCohFbc.inclusion X)))

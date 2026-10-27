@@ -28,10 +28,6 @@ namespace AlgebraicGeometry.Scheme.Etale
 variable {T U : Scheme.{u}} (f : U ⟶ T)
 variable [HasSheafify U.smallEtaleTopology AddCommGrpCat.{u}]
 variable [HasSheafify T.smallEtaleTopology AddCommGrpCat.{u}]
-variable [IsGrothendieckAbelian.{u + 1, u + 1, u + 1}
-    (Sheaf U.smallEtaleTopology AddCommGrpCat.{u})]
-variable [IsGrothendieckAbelian.{u + 1, u + 1, u + 1}
-    (Sheaf T.smallEtaleTopology AddCommGrpCat.{u})]
 variable [HasDerivedCategory (Sheaf U.smallEtaleTopology AddCommGrpCat.{u})]
 variable [HasDerivedCategory (Sheaf T.smallEtaleTopology AddCommGrpCat.{u})]
 variable [((smallEtalePullback f).sheafPushforwardContinuous AddCommGrpCat.{u}

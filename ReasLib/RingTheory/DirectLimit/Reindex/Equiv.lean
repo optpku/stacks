@@ -36,7 +36,8 @@ theorem toFull_of (e : J ≃o I) (f : ∀ i j, i ≤ j → G i →+* G j)
     toFull e f
         (Ring.DirectLimit.of (fun j : J ↦ G (e j))
           (fun j k h ↦ f (e j) (e k) (e.monotone h)) j x) =
-      Ring.DirectLimit.of G (fun i j h ↦ f i j h) (e j) x := sorry
+      Ring.DirectLimit.of G (fun i j h ↦ f i j h) (e j) x := by
+  simp [toFull]
 
 /-- The inverse reindexing map sends a generator in the `e j` stage back to
 the generator at `j`. -/
@@ -46,7 +47,17 @@ theorem fromFull_of (e : J ≃o I) (f : ∀ i j, i ≤ j → G i →+* G j)
     fromFull e f
         (Ring.DirectLimit.of G (fun i j h ↦ f i j h) (e j) x) =
       Ring.DirectLimit.of (fun j : J ↦ G (e j))
-        (fun j k h ↦ f (e j) (e k) (e.monotone h)) j x := sorry
+        (fun j k h ↦ f (e j) (e k) (e.monotone h)) j x := by
+  simp only [fromFull, Ring.DirectLimit.lift_of, RingHom.comp_apply]
+  have cast_of (k : J) (h : k = j) :
+      Ring.DirectLimit.of (fun j : J ↦ G (e j))
+          (fun j k h ↦ f (e j) (e k) (e.monotone h)) k
+          ((RingEquiv.cast (congrArg e h)).symm x) =
+        Ring.DirectLimit.of (fun j : J ↦ G (e j))
+          (fun j k h ↦ f (e j) (e k) (e.monotone h)) j x := by
+    subst k
+    rfl
+  exact cast_of _ (e.symm_apply_apply j)
 
 /-- Evaluation of the forward reindexing equivalence is its canonical forward
 ring homomorphism. -/
@@ -54,7 +65,7 @@ ring homomorphism. -/
 theorem equiv_apply (e : J ≃o I) (f : ∀ i j, i ≤ j → G i →+* G j)
     (x : Ring.DirectLimit (fun j : J ↦ G (e j))
       (fun j k h ↦ f (e j) (e k) (e.monotone h))) :
-    equiv e f x = toFull e f x := sorry
+    equiv e f x = toFull e f x := rfl
 
 /-- The reindexing equivalence sends a reindexed generator to the corresponding
 generator in the original presentation. -/
@@ -64,24 +75,25 @@ theorem equiv_of (e : J ≃o I) (f : ∀ i j, i ≤ j → G i →+* G j)
     equiv e f
         (Ring.DirectLimit.of (fun j : J ↦ G (e j))
           (fun j k h ↦ f (e j) (e k) (e.monotone h)) j x) =
-      Ring.DirectLimit.of G (fun i j h ↦ f i j h) (e j) x := sorry
+      Ring.DirectLimit.of G (fun i j h ↦ f i j h) (e j) x := by
+  rw [equiv_apply, toFull_of]
 
 /-- The forward reindexing equivalence has `toFull` as its underlying ring
 homomorphism. -/
 theorem equiv_toRingHom (e : J ≃o I) (f : ∀ i j, i ≤ j → G i →+* G j) :
-    (equiv e f).toRingHom = toFull e f := sorry
+    (equiv e f).toRingHom = toFull e f := rfl
 
 /-- The inverse reindexing equivalence has `fromFull` as its underlying ring
 homomorphism. -/
 theorem equiv_symm_toRingHom (e : J ≃o I) (f : ∀ i j, i ≤ j → G i →+* G j) :
-    (equiv e f).symm.toRingHom = fromFull e f := sorry
+    (equiv e f).symm.toRingHom = fromFull e f := rfl
 
 /-- The inverse reindexing equivalence evaluates through `fromFull` on every
 element of the original direct limit. -/
 @[simp]
 theorem equiv_symm_apply (e : J ≃o I) (f : ∀ i j, i ≤ j → G i →+* G j)
     (x : Ring.DirectLimit G (fun i j h ↦ f i j h)) :
-    (equiv e f).symm x = fromFull e f x := sorry
+    (equiv e f).symm x = fromFull e f x := rfl
 
 /-- The inverse reindexing map evaluates on a generator at any original index,
 with the canonical stage cast made explicit. -/
@@ -92,7 +104,8 @@ theorem fromFull_of_index (e : J ≃o I) (f : ∀ i j, i ≤ j → G i →+* G j
         (Ring.DirectLimit.of G (fun i j h ↦ f i j h) i x) =
       Ring.DirectLimit.of (fun j : J ↦ G (e j))
         (fun j k h ↦ f (e j) (e k) (e.monotone h)) (e.symm i)
-        ((stageEquiv e i).toRingHom x) := sorry
+        ((stageEquiv e i).toRingHom x) := by
+  simp [fromFull]
 
 /-- The inverse equivalence sends a generator in the `e j` stage back to the
 corresponding reindexed generator. -/
@@ -102,7 +115,8 @@ theorem equiv_symm_apply_of (e : J ≃o I) (f : ∀ i j, i ≤ j → G i →+* G
     (equiv e f).symm
         (Ring.DirectLimit.of G (fun i j h ↦ f i j h) (e j) x) =
       Ring.DirectLimit.of (fun j : J ↦ G (e j))
-        (fun j k h ↦ f (e j) (e k) (e.monotone h)) j x := sorry
+        (fun j k h ↦ f (e j) (e k) (e.monotone h)) j x := by
+  rw [equiv_symm_apply, fromFull_of]
 
 /-- The inverse equivalence evaluates on a generator at any original index. -/
 @[simp]
@@ -112,6 +126,7 @@ theorem equiv_symm_apply_of_index (e : J ≃o I)
         (Ring.DirectLimit.of G (fun i j h ↦ f i j h) i x) =
       Ring.DirectLimit.of (fun j : J ↦ G (e j))
         (fun j k h ↦ f (e j) (e k) (e.monotone h)) (e.symm i)
-        ((stageEquiv e i).toRingHom x) := sorry
+        ((stageEquiv e i).toRingHom x) := by
+  rw [equiv_symm_apply, fromFull_of_index]
 
 end Ring.DirectLimit.Reindex

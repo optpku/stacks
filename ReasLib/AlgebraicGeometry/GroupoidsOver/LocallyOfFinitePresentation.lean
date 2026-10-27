@@ -45,6 +45,24 @@ class LocallyOfFinitePresentation {S : Scheme.{u}} {X Y : GroupoidsOver S}
 
 namespace LocallyOfFinitePresentation
 
+/-- For a 1-morphism representable by algebraic spaces, the named local finite
+presentation class is equivalent to testing local finite presentation on every
+representing morphism.
+
+Stacks, Tag 03YK:
+`source/stacks-official-a04446e57ec1/additional-sources-1.md:3842-3863`.
+The representability hypothesis is needed because `has` only tests existing
+representations. -/
+theorem iff_has {S : Scheme.{u}} {X Y : GroupoidsOver S} (f : X ⟶ Y)
+    (hf : relativelyRepresentableByAlgebraicSpaces f) :
+    LocallyOfFinitePresentation f ↔
+      has (@AlgebraicSpace.LocallyOfFinitePresentation S) f := by
+  constructor
+  · intro h
+    exact h.of_represents
+  · intro h
+    exact ⟨hf, h⟩
+
 /-- The identity 1-morphism of a category fibred in groupoids is locally of
 finite presentation. -/
 instance id {S : Scheme.{u}} {X : GroupoidsOver S} :

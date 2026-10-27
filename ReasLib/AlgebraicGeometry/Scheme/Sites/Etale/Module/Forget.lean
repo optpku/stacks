@@ -19,6 +19,11 @@ universe u
 
 namespace AlgebraicGeometry.Scheme.Etale
 
+/-- Forgetting module coefficients preserves sheafification on the small-étale site. -/
+instance moduleForgetPreservesSheafification (S : Scheme.{u}) (Λ : Type u) [Ring Λ] :
+    S.smallEtaleTopology.PreservesSheafification
+      (forget₂ (ModuleCat.{u} Λ) AddCommGrpCat.{u}) := sorry
+
 /-- A sectionwise scalar-compatible additive sheaf morphism lifts to a module
 sheaf morphism with the same underlying maps. -/
 def liftModuleSheafHom {S : Scheme.{u}} {Λ : Type u} [Ring Λ]

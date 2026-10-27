@@ -7,9 +7,6 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.IntersectionTheory.RankGluedChern
-public import ReasLib.AlgebraicGeometry.AlgebraicSpace.IntersectionTheory.OperationalFirstChern
-public import ReasLib.AlgebraicGeometry.AlgebraicSpace.IntersectionTheory.ProjSymChart
-public import ReasLib.AlgebraicGeometry.AlgebraicSpace.IntersectionTheory.ProjectiveBaseChange
 
 /-! Canonical rankwise Chern operations on the actual rational-equivalence quotient.
 The implementation is the explicit Proj(Sym) / tautological / Segre construction.
@@ -25,4 +22,4 @@ universe u
     (δ : Points B → ℤ) [IsDimensionFunction δ]
     (f : X ⟶ B) [QuasiSeparated f] [LocallyOfFiniteType f]
     (E : X.Modules) [SheafOfModules.IsFiniteLocallyFree E] (i : ℕ),
-    ChowCohomology.degree δ f (i : ℤ))
+    OperationalChow δ f (i : ℤ))

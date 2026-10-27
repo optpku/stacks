@@ -6,10 +6,8 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import ReasLib.Algebra.Category.ModuleCat.Sheaf.FiniteLocallyFree
-public import stacks_project.Chap109.Lemma_109_11_1_Substack
-public import stacks_project.Chap109.Lemma_109_9_1_Substack
-public import stacks_project.Chap109.Lemma_109_9_3_HigherDirectImage
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Curve.HigherDirectImage
 
 /-!
 # The geometrically reduced connected locus of curves is contained in the h0,1 locus
@@ -34,30 +32,27 @@ namespace AlgebraicGeometry.AlgebraicSpace
 namespace Spaces
 namespace Curves
 
-/-- Lemma 109.11.2 (1): we have 𝒞urves^{grc, 1} ⊂ 𝒞urves^{h0, 1} as open
+/- Lemma 109.11.2 (1): we have 𝒞urves^{grc, 1} ⊂ 𝒞urves^{h0, 1} as open
 substacks of 𝒞urves. -/
-@[stacks 0E6L]
-theorem geometricallyReducedConnectedDim1_le_h0Dim1 (S : Scheme.{u}) :
-    geometricallyReducedConnectedDim1 S ≤ h0Dim1 S :=
-  sorry
+@[stacks 0E6L] #check
+  (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.geometricallyReducedConnectedDim1_le_h0Dim1 :
+    ∀ (S : Scheme.{u}), geometricallyReducedConnectedDim1 S ≤ h0Dim1 S)
 
-/-- Lemma 109.11.2 (2): if a family of curves has classifying morphism factoring
+/- Lemma 109.11.2 (2): if a family of curves has classifying morphism factoring
 through 𝒞urves^{grc, 1}, then R^1 f_* 𝒪_X is a finite locally free 𝒪_S-module. -/
-@[stacks 0E6L]
-theorem higherDirectImageOne_isFiniteLocallyFree_of_geometricallyReducedConnectedDim1
-    {S : Scheme.{u}} (P : Obj S) (h : geometricallyReducedConnectedDim1 S P) :
-    SheafOfModules.IsFiniteLocallyFree (higherDirectImageOne (hom P)) :=
-  sorry
+@[stacks 0E6L] #check
+  (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.HigherDirectImageOne.isFiniteLocallyFree_of_reducedConnected :
+    ∀ {S : Scheme.{u}} (P : Obj S) (h : geometricallyReducedConnectedDim1 S P),
+      SheafOfModules.IsFiniteLocallyFree (higherDirectImageOne (hom P)))
 
-/-- Lemma 109.11.2 (3): if a family of curves has classifying morphism factoring
+/- Lemma 109.11.2 (3): if a family of curves has classifying morphism factoring
 through 𝒞urves^{grc, 1}, then formation of R^1 f_* 𝒪_X commutes with arbitrary
 base change through the canonical comparison. -/
-@[stacks 0E6L]
-theorem higherDirectImageOne_commutesWithBaseChange_of_geometricallyReducedConnectedDim1
-    {S : Scheme.{u}} (P : Obj S) (h : geometricallyReducedConnectedDim1 S P)
-    {Z : AlgebraicSpace S} (g : Z ⟶ ofOver (base P)) :
-    IsIso (higherDirectImageOneBaseChangeHom (hom P) g) :=
-  sorry
+@[stacks 0E6L] #check
+  (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.HigherDirectImageOne.isIso_baseChange_of_reducedConnected :
+    ∀ {S : Scheme.{u}} (P : Obj S) (h : geometricallyReducedConnectedDim1 S P)
+      {Z : AlgebraicSpace S} (g : Z ⟶ ofOver (base P)),
+      IsIso (higherDirectImageOneBaseChangeHom (hom P) g))
 
 end Curves
 end Spaces

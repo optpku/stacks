@@ -101,6 +101,35 @@ instance Over.forgetIsDiscreteFibration (X : C) :
 Cartesian over the object's structure arrow. -/
 @[stacks 0043 "the terminal slice arrow is strongly Cartesian"]
 theorem Over.mkIdTerminal.from.isStronglyCartesian {X : C} (a : Over X) :
-    (Over.forget X).IsStronglyCartesian a.hom (Over.mkIdTerminal.from a) := sorry
+    (Over.forget X).IsStronglyCartesian a.hom (Over.mkIdTerminal.from a) := by
+  refine { toIsHomLift := ?_, universal_property' := ?_ }
+  · apply IsHomLift.of_fac (Over.forget X) a.hom
+      (Over.mkIdTerminal.from a) rfl rfl
+    change a.hom = 𝟙 a.left ≫ (Over.mkIdTerminal.from a).left ≫ 𝟙 X
+    simp only [Over.mkIdTerminal_from_left, Category.id_comp]
+    exact (Category.comp_id a.hom).symm
+  · intro b g phi hphi
+    letI := hphi
+    have hmap : g ≫ a.hom = phi.left := by
+      have h := IsHomLift.fac (Over.forget X) (g ≫ a.hom) phi
+      change g ≫ a.hom = 𝟙 b.left ≫ phi.left ≫ 𝟙 X at h
+      exact h.trans ((Category.id_comp _).trans (Category.comp_id phi.left))
+    have htri : phi.left = b.hom := by
+      have h := Over.w phi
+      change phi.left ≫ 𝟙 X = b.hom at h
+      exact (Category.comp_id phi.left).symm.trans h
+    let psi : b ⟶ a := Over.homMk g (hmap.trans htri)
+    refine ⟨psi, ⟨?_, ?_⟩, ?_⟩
+    · apply IsHomLift.of_fac (Over.forget X) g psi rfl rfl
+      change g = 𝟙 b.left ≫ g ≫ 𝟙 a.left
+      simp only [Category.id_comp, Category.comp_id]
+    · exact Over.mkIdTerminal.hom_ext _ _
+    · intro psi' hpsi'
+      letI := hpsi'.1
+      have h := IsHomLift.fac' (Over.forget X) g psi'
+      change psi'.left = 𝟙 b.left ≫ g ≫ 𝟙 a.left at h
+      apply Over.OverMorphism.ext
+      change psi'.left = g
+      simpa only [Category.id_comp, Category.comp_id] using h
 
 end CategoryTheory

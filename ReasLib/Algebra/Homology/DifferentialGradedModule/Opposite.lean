@@ -30,6 +30,70 @@ namespace LeftDifferentialGradedModule
 variable {R : Type u} [CommRing R]
 variable {A : CochainDGAlgebra R}
 
+/-- Transport along an equality of degrees preserves addition. -/
+private theorem opposite_cast_add (X : ℤ → ModuleCat.{v} R) {p q : ℤ} (h : p = q)
+    (x y : X p) :
+    cast (congrArg (fun n ↦ (X n : Type v)) h) (x + y) =
+      cast (congrArg (fun n ↦ (X n : Type v)) h) x +
+        cast (congrArg (fun n ↦ (X n : Type v)) h) y := by
+  cases h
+  rfl
+
+/-- Transport along an equality of degrees preserves scalar multiplication. -/
+private theorem opposite_cast_smul (X : ℤ → ModuleCat.{v} R) {p q : ℤ} (h : p = q)
+    (r : R) (x : X p) :
+    cast (congrArg (fun n ↦ (X n : Type v)) h) (r • x) =
+      r • cast (congrArg (fun n ↦ (X n : Type v)) h) x := by
+  cases h
+  rfl
+
+/-- Transporting a scalar multiple back along the same equality cancels the transports. -/
+private theorem opposite_cast_smul_cancel (X : ℤ → ModuleCat.{v} R)
+    {p q : ℤ} (h : p = q) (r : R) (x : X p) :
+    cast (congrArg (fun n ↦ (X n : Type v)) h.symm)
+        (r • cast (congrArg (fun n ↦ (X n : Type v)) h) (r • x)) =
+      r • (r • x) := by
+  cases h
+  rfl
+
+/-- Degreewise linear maps commute with transport. -/
+private theorem opposite_map_cast (X Y : ℤ → ModuleCat.{v} R)
+    (f : ∀ n, X n →ₗ[R] Y n) {p q : ℤ} (h : p = q) (x : X p) :
+    f q (cast (congrArg (fun n ↦ (X n : Type v)) h) x) =
+      cast (congrArg (fun n ↦ (Y n : Type v)) h) (f p x) := by
+  cases h
+  rfl
+
+/-- The two Koszul signs in a double handedness change cancel. -/
+private theorem opposite_sign_smul_twice {X : Type v} [AddCommMonoid X] [Module R X]
+    (i p : ℤ) (x : X) :
+    CochainDGAlgebra.oppositeSign R i p •
+      (CochainDGAlgebra.oppositeSign R i p • x) = x := by
+  have h : CochainDGAlgebra.oppositeSign R i p *
+      CochainDGAlgebra.oppositeSign R i p = (1 : R) := by
+    simpa only [CochainDGAlgebra.oppositeSign, Units.val_mul, Int.cast_mul,
+      Units.val_one, Int.cast_one] using
+      congrArg (fun z : ℤˣ ↦ ((z : ℤ) : R)) (Int.units_mul_self (i * p).negOnePow)
+  rw [smul_smul, h, one_smul]
+
+/-- Morphisms with equal linear components are equal, by proof irrelevance. -/
+private theorem opposite_left_hom_ext {M N : LeftDifferentialGradedModule.{u, v} A}
+    {f g : Hom M N} (h : ∀ n, f.hom n = g.hom n) : f = g := by
+  have h' : f.hom = g.hom := funext h
+  cases f
+  cases g
+  cases h'
+  rfl
+
+/-- Morphisms with equal linear components are equal, by proof irrelevance. -/
+private theorem opposite_right_hom_ext {M N : DifferentialGradedModule.{u, v} A.opposite}
+    {f g : DifferentialGradedModule.Hom M N} (h : ∀ n, f.hom n = g.hom n) : f = g := by
+  have h' : f.hom = g.hom := funext h
+  cases f
+  cases g
+  cases h'
+  rfl
+
 /-- The value of the right `A.opposite`-action induced by a left `A`-action. -/
 @[stacks 0FQ0 "Koszul opposite module action"]
 def opSmulValue (M : LeftDifferentialGradedModule.{u, v} A)
@@ -40,12 +104,17 @@ def opSmulValue (M : LeftDifferentialGradedModule.{u, v} A)
 /-- The induced right action is additive in the algebra input. -/
 theorem opSmulValue_add_right (M : LeftDifferentialGradedModule.{u, v} A)
     (p i : ℤ) (x : M.X p) (a b : A.X i) :
-    opSmulValue M p i x (a + b) = opSmulValue M p i x a + opSmulValue M p i x b := sorry
+    opSmulValue M p i x (a + b) = opSmulValue M p i x a + opSmulValue M p i x b := by
+  simp only [opSmulValue, map_add, LinearMap.add_apply, smul_add]
+  exact opposite_cast_add M.X (add_comm i p) _ _
 
 /-- The induced right action is linear in the algebra input. -/
 theorem opSmulValue_smul_right (M : LeftDifferentialGradedModule.{u, v} A)
     (p i : ℤ) (x : M.X p) (r : R) (a : A.X i) :
-    opSmulValue M p i x (r • a) = r • opSmulValue M p i x a := sorry
+    opSmulValue M p i x (r • a) = r • opSmulValue M p i x a := by
+  simp only [opSmulValue, map_smul, LinearMap.smul_apply]
+  rw [smul_comm (CochainDGAlgebra.oppositeSign R i p) r]
+  exact opposite_cast_smul M.X (add_comm i p) r _
 
 /-- The induced right action by a fixed module element as a linear map. -/
 @[stacks 0FQ0 "linear opposite module action"]
@@ -58,12 +127,22 @@ def opSmulRight (M : LeftDifferentialGradedModule.{u, v} A)
 /-- The induced right action is additive in the module input. -/
 theorem opSmulRight_add (M : LeftDifferentialGradedModule.{u, v} A)
     (p i : ℤ) (x y : M.X p) :
-    opSmulRight M p i (x + y) = opSmulRight M p i x + opSmulRight M p i y := sorry
+    opSmulRight M p i (x + y) = opSmulRight M p i x + opSmulRight M p i y := by
+  ext a
+  change opSmulValue M p i (x + y) a =
+    opSmulValue M p i x a + opSmulValue M p i y a
+  simp only [opSmulValue, map_add, smul_add]
+  exact opposite_cast_add M.X (add_comm i p) _ _
 
 /-- The induced right action is linear in the module input. -/
 theorem opSmulRight_smul (M : LeftDifferentialGradedModule.{u, v} A)
     (p i : ℤ) (r : R) (x : M.X p) :
-    opSmulRight M p i (r • x) = r • opSmulRight M p i x := sorry
+    opSmulRight M p i (r • x) = r • opSmulRight M p i x := by
+  ext a
+  change opSmulValue M p i (r • x) a = r • opSmulValue M p i x a
+  simp only [opSmulValue, map_smul]
+  rw [smul_comm (CochainDGAlgebra.oppositeSign R i p) r]
+  exact opposite_cast_smul M.X (add_comm i p) r _
 
 /-- The Koszul-twisted right `A.opposite`-action induced by a left `A`-action. -/
 @[stacks 0FQ0 "opposite module action"]
@@ -78,17 +157,23 @@ def opSmul (M : LeftDifferentialGradedModule.{u, v} A) (p i : ℤ) :
     (p i : ℤ) (x : M.X p) (a : A.X i) :
     opSmul M p i x a =
       cast (congrArg (fun n : ℤ ↦ (M.X n : Type v)) (add_comm i p))
-        (CochainDGAlgebra.oppositeSign R i p • M.smul i p a x) := sorry
+        (CochainDGAlgebra.oppositeSign R i p • M.smul i p a x) := by
+  rfl
 
 /-- The differential of the induced right module squares to zero. -/
 theorem op_d_sq (M : LeftDifferentialGradedModule.{u, v} A)
-    (n : ℤ) (x : M.X n) : M.d (n + 1) (M.d n x) = 0 := sorry
+    (n : ℤ) (x : M.X n) : M.d (n + 1) (M.d n x) = 0 := by
+  exact M.d_sq n x
 
 /-- The induced right action satisfies its unit law. -/
 theorem op_smul_one (M : LeftDifferentialGradedModule.{u, v} A)
     (r : R) (p : ℤ) (x : M.X p) :
     opSmul M p 0 x (r • A.opposite.one) =
-      cast (DifferentialGradedModule.zeroActionTarget p) (r • x) := sorry
+      cast (DifferentialGradedModule.zeroActionTarget p) (r • x) := by
+  simp only [opSmul_apply, CochainDGAlgebra.oppositeSign, zero_mul,
+    Int.negOnePow_zero, Units.val_one, Int.cast_one, one_smul]
+  rw [M.smul_one]
+  simp only [cast_cast]
 
 /-- The induced right action respects multiplication in `A.opposite`. -/
 theorem op_smul_mul (M : LeftDifferentialGradedModule.{u, v} A)
@@ -121,18 +206,21 @@ def op (M : LeftDifferentialGradedModule.{u, v} A) :
 
 /-- Taking the opposite module preserves each homogeneous component. -/
 @[simp] theorem op_X (M : LeftDifferentialGradedModule.{u, v} A) (n : ℤ) :
-    M.op.X n = M.X n := sorry
+    M.op.X n = M.X n := by
+  rfl
 
 /-- Taking the opposite module preserves the differential. -/
 @[simp] theorem op_d (M : LeftDifferentialGradedModule.{u, v} A) (n : ℤ) :
-    M.op.d n = M.d n := sorry
+    M.op.d n = M.d n := by
+  rfl
 
 /-- The right action on the opposite module is the Koszul-twisted left action. -/
 @[simp] theorem op_smul_apply (M : LeftDifferentialGradedModule.{u, v} A)
     (p i : ℤ) (x : M.X p) (a : A.opposite.X i) :
     M.op.smul p i x a =
       cast (congrArg (fun n : ℤ ↦ (M.X n : Type v)) (add_comm i p))
-        (CochainDGAlgebra.oppositeSign R i p • M.smul i p a x) := sorry
+        (CochainDGAlgebra.oppositeSign R i p • M.smul i p a x) := by
+  rfl
 
 /-- The value of the left `A`-action recovered from a right `A.opposite`-action. -/
 @[stacks 0FQ0 "recovered opposite module action"]
@@ -145,12 +233,17 @@ def unopSmulValue (M : DifferentialGradedModule.{u, v} A.opposite)
 theorem unopSmulValue_add_right (M : DifferentialGradedModule.{u, v} A.opposite)
     (i p : ℤ) (a : A.X i) (x y : M.X p) :
     unopSmulValue M i p a (x + y) =
-      unopSmulValue M i p a x + unopSmulValue M i p a y := sorry
+      unopSmulValue M i p a x + unopSmulValue M i p a y := by
+  simp only [unopSmulValue, map_add, LinearMap.add_apply, smul_add]
+  exact opposite_cast_add M.X (add_comm p i) _ _
 
 /-- The recovered left action is linear in the module input. -/
 theorem unopSmulValue_smul_right (M : DifferentialGradedModule.{u, v} A.opposite)
     (i p : ℤ) (a : A.X i) (r : R) (x : M.X p) :
-    unopSmulValue M i p a (r • x) = r • unopSmulValue M i p a x := sorry
+    unopSmulValue M i p a (r • x) = r • unopSmulValue M i p a x := by
+  simp only [unopSmulValue, map_smul, LinearMap.smul_apply]
+  rw [smul_comm (CochainDGAlgebra.oppositeSign R i p) r]
+  exact opposite_cast_smul M.X (add_comm p i) r _
 
 /-- The recovered left action by a fixed algebra element as a linear map. -/
 @[stacks 0FQ0 "linear recovered opposite module action"]
@@ -163,12 +256,22 @@ def unopSmulRight (M : DifferentialGradedModule.{u, v} A.opposite)
 /-- The recovered left action is additive in the algebra input. -/
 theorem unopSmulRight_add (M : DifferentialGradedModule.{u, v} A.opposite)
     (i p : ℤ) (a b : A.X i) :
-    unopSmulRight M i p (a + b) = unopSmulRight M i p a + unopSmulRight M i p b := sorry
+    unopSmulRight M i p (a + b) = unopSmulRight M i p a + unopSmulRight M i p b := by
+  ext x
+  change unopSmulValue M i p (a + b) x =
+    unopSmulValue M i p a x + unopSmulValue M i p b x
+  simp only [unopSmulValue, map_add, smul_add]
+  exact opposite_cast_add M.X (add_comm p i) _ _
 
 /-- The recovered left action is linear in the algebra input. -/
 theorem unopSmulRight_smul (M : DifferentialGradedModule.{u, v} A.opposite)
     (i p : ℤ) (r : R) (a : A.X i) :
-    unopSmulRight M i p (r • a) = r • unopSmulRight M i p a := sorry
+    unopSmulRight M i p (r • a) = r • unopSmulRight M i p a := by
+  ext x
+  change unopSmulValue M i p (r • a) x = r • unopSmulValue M i p a x
+  simp only [unopSmulValue, map_smul]
+  rw [smul_comm (CochainDGAlgebra.oppositeSign R i p) r]
+  exact opposite_cast_smul M.X (add_comm p i) r _
 
 /-- The left `A`-action recovered from a right `A.opposite`-action. -/
 @[stacks 0FQ0 "recovered module action"]
@@ -183,17 +286,23 @@ def unopSmul (M : DifferentialGradedModule.{u, v} A.opposite) (i p : ℤ) :
     (i p : ℤ) (a : A.X i) (x : M.X p) :
     unopSmul M i p a x =
       cast (congrArg (fun n : ℤ ↦ (M.X n : Type v)) (add_comm p i))
-        (CochainDGAlgebra.oppositeSign R i p • M.smul p i x a) := sorry
+        (CochainDGAlgebra.oppositeSign R i p • M.smul p i x a) := by
+  rfl
 
 /-- The differential of the recovered left module squares to zero. -/
 theorem unop_d_sq (M : DifferentialGradedModule.{u, v} A.opposite)
-    (n : ℤ) (x : M.X n) : M.d (n + 1) (M.d n x) = 0 := sorry
+    (n : ℤ) (x : M.X n) : M.d (n + 1) (M.d n x) = 0 := by
+  exact M.d_sq n x
 
 /-- The recovered left action satisfies its unit law. -/
 theorem unop_smul_one (M : DifferentialGradedModule.{u, v} A.opposite)
     (r : R) (p : ℤ) (x : M.X p) :
     unopSmul M 0 p (r • A.one) x =
-      cast (LeftDifferentialGradedModule.zeroActionTarget p) (r • x) := sorry
+      cast (LeftDifferentialGradedModule.zeroActionTarget p) (r • x) := by
+  simp only [unopSmul_apply, CochainDGAlgebra.oppositeSign, zero_mul,
+    Int.negOnePow_zero, Units.val_one, Int.cast_one, one_smul]
+  rw [M.smul_one]
+  simp only [cast_cast]
 
 /-- The recovered left action respects multiplication in `A`. -/
 theorem unop_smul_mul (M : DifferentialGradedModule.{u, v} A.opposite)
@@ -226,31 +335,39 @@ def unop (M : DifferentialGradedModule.{u, v} A.opposite) :
 
 /-- Recovering the left module preserves each homogeneous component. -/
 @[simp] theorem unop_X (M : DifferentialGradedModule.{u, v} A.opposite) (n : ℤ) :
-    (unop M).X n = M.X n := sorry
+    (unop M).X n = M.X n := by
+  rfl
 
 /-- Recovering the left module preserves the differential. -/
 @[simp] theorem unop_d (M : DifferentialGradedModule.{u, v} A.opposite) (n : ℤ) :
-    (unop M).d n = M.d n := sorry
+    (unop M).d n = M.d n := by
+  rfl
 
 /-- The recovered left action is the Koszul-twisted right action. -/
 @[simp] theorem unop_smul_apply (M : DifferentialGradedModule.{u, v} A.opposite)
     (i p : ℤ) (a : A.X i) (x : M.X p) :
     (unop M).smul i p a x =
       cast (congrArg (fun n : ℤ ↦ (M.X n : Type v)) (add_comm p i))
-        (CochainDGAlgebra.oppositeSign R i p • M.smul p i x a) := sorry
+        (CochainDGAlgebra.oppositeSign R i p • M.smul p i x a) := by
+  rfl
 
 namespace Hom
 
 /-- A left-module morphism remains differential-compatible after taking opposites. -/
 theorem op_comm_d {M N : LeftDifferentialGradedModule.{u, v} A}
     (f : Hom M N) (n : ℤ) (x : M.X n) :
-    f.hom (n + 1) (M.op.d n x) = N.op.d n (f.hom n x) := sorry
+    f.hom (n + 1) (M.op.d n x) = N.op.d n (f.hom n x) := by
+  exact f.comm_d n x
 
 /-- A left-module morphism is right-linear for the induced opposite actions. -/
 theorem op_comm_smul {M N : LeftDifferentialGradedModule.{u, v} A}
     (f : Hom M N) (p i : ℤ) (x : M.X p) (a : A.opposite.X i) :
     f.hom (p + i) (M.op.smul p i x a) =
-      N.op.smul p i (f.hom p x) a := sorry
+      N.op.smul p i (f.hom p x) a := by
+  change f.hom (p + i) (opSmul M p i x a) = opSmul N p i (f.hom p x) a
+  simp only [opSmul_apply]
+  rw [opposite_map_cast M.X N.X f.hom (add_comm i p)]
+  simp only [map_smul, f.comm_smul]
 
 /-- Take the opposite of a left differential graded module morphism. -/
 @[stacks 0FQ0 "opposite module morphism"]
@@ -262,25 +379,32 @@ def op {M N : LeftDifferentialGradedModule.{u, v} A} (f : Hom M N) :
 
 /-- Taking the opposite of a morphism preserves every degreewise linear component. -/
 @[simp] theorem op_hom {M N : LeftDifferentialGradedModule.{u, v} A}
-    (f : Hom M N) (n : ℤ) : (op f).hom n = f.hom n := sorry
+    (f : Hom M N) (n : ℤ) : (op f).hom n = f.hom n := by
+  rfl
 
 /-- Taking the opposite of a morphism preserves its action on homogeneous elements. -/
 @[simp] theorem op_apply {M N : LeftDifferentialGradedModule.{u, v} A}
-    (f : Hom M N) (n : ℤ) (x : M.X n) : (op f).hom n x = f.hom n x := sorry
+    (f : Hom M N) (n : ℤ) (x : M.X n) : (op f).hom n x = f.hom n x := by
+  rfl
 
 /-- A right `A.opposite`-module morphism remains differential-compatible after recovering the
 left action. -/
 theorem unop_comm_d {M N : DifferentialGradedModule.{u, v} A.opposite}
     (f : DifferentialGradedModule.Hom M N) (n : ℤ) (x : M.X n) :
     f.hom (n + 1) ((LeftDifferentialGradedModule.unop M).d n x) =
-      (LeftDifferentialGradedModule.unop N).d n (f.hom n x) := sorry
+      (LeftDifferentialGradedModule.unop N).d n (f.hom n x) := by
+  exact f.comm_d n x
 
 /-- A right `A.opposite`-module morphism is linear for the recovered left actions. -/
 theorem unop_comm_smul {M N : DifferentialGradedModule.{u, v} A.opposite}
     (f : DifferentialGradedModule.Hom M N)
     (i p : ℤ) (a : A.X i) (x : M.X p) :
     f.hom (i + p) ((LeftDifferentialGradedModule.unop M).smul i p a x) =
-      (LeftDifferentialGradedModule.unop N).smul i p a (f.hom p x) := sorry
+      (LeftDifferentialGradedModule.unop N).smul i p a (f.hom p x) := by
+  change f.hom (i + p) (unopSmul M i p a x) = unopSmul N i p a (f.hom p x)
+  simp only [unopSmul_apply]
+  rw [opposite_map_cast M.X N.X f.hom (add_comm p i)]
+  simp only [map_smul, f.comm_smul]
 
 /-- Recover a left-module morphism from a right `A.opposite`-module morphism. -/
 @[stacks 0FQ0 "inverse opposite module morphism"]
@@ -294,30 +418,44 @@ def unop {M N : DifferentialGradedModule.{u, v} A.opposite}
 /-- Recovering a left morphism preserves every degreewise linear component. -/
 @[simp] theorem unop_hom {M N : DifferentialGradedModule.{u, v} A.opposite}
     (f : DifferentialGradedModule.Hom M N) (n : ℤ) :
-    (unop f).hom n = f.hom n := sorry
+    (unop f).hom n = f.hom n := by
+  rfl
 
 /-- Recovering a left morphism preserves its action on homogeneous elements. -/
 @[simp] theorem unop_apply {M N : DifferentialGradedModule.{u, v} A.opposite}
     (f : DifferentialGradedModule.Hom M N) (n : ℤ) (x : M.X n) :
-    (unop f).hom n x = f.hom n x := sorry
+    (unop f).hom n x = f.hom n x := by
+  rfl
 
 /-- Taking opposites preserves identity morphisms. -/
 theorem op_id (M : LeftDifferentialGradedModule.{u, v} A) :
-    op (𝟙 M) = 𝟙 M.op := sorry
+    op (𝟙 M) = 𝟙 M.op := by
+  apply opposite_right_hom_ext
+  intro n
+  rfl
 
 /-- Taking opposites preserves composition. -/
 theorem op_comp {L M N : LeftDifferentialGradedModule.{u, v} A}
     (f : L ⟶ M) (g : M ⟶ N) :
-    op (f ≫ g) = DifferentialGradedModule.Hom.comp (op g) (op f) := sorry
+    op (f ≫ g) = DifferentialGradedModule.Hom.comp (op g) (op f) := by
+  apply opposite_right_hom_ext
+  intro n
+  rfl
 
 /-- Recovering left morphisms preserves identity morphisms. -/
 theorem unop_id (M : DifferentialGradedModule.{u, v} A.opposite) :
-    unop (𝟙 M) = 𝟙 (LeftDifferentialGradedModule.unop M) := sorry
+    unop (𝟙 M) = 𝟙 (LeftDifferentialGradedModule.unop M) := by
+  apply opposite_left_hom_ext
+  intro n
+  rfl
 
 /-- Recovering left morphisms preserves composition. -/
 theorem unop_comp {L M N : DifferentialGradedModule.{u, v} A.opposite}
     (f : L ⟶ M) (g : M ⟶ N) :
-    unop (f ≫ g) = LeftDifferentialGradedModule.Hom.comp (unop g) (unop f) := sorry
+    unop (f ≫ g) = LeftDifferentialGradedModule.Hom.comp (unop g) (unop f) := by
+  apply opposite_left_hom_ext
+  intro n
+  rfl
 
 end Hom
 
@@ -332,19 +470,23 @@ def opFunctor (A : CochainDGAlgebra R) :
 
 /-- The opposite-module functor acts on objects by `LeftDifferentialGradedModule.op`. -/
 @[simp] theorem opFunctor_obj (M : LeftDifferentialGradedModule.{u, v} A) :
-    (opFunctor A).obj M = M.op := sorry
+    (opFunctor A).obj M = M.op := by
+  rfl
 
 /-- The opposite-module functor acts on morphisms by `LeftDifferentialGradedModule.Hom.op`. -/
 @[simp] theorem opFunctor_map {M N : LeftDifferentialGradedModule.{u, v} A} (f : M ⟶ N) :
-    (opFunctor A).map f = Hom.op f := sorry
+    (opFunctor A).map f = Hom.op f := by
+  rfl
 
 /-- The opposite-module functor preserves the degreewise map of every morphism. -/
 @[simp] theorem opFunctor_map_hom {M N : LeftDifferentialGradedModule.{u, v} A}
-    (f : M ⟶ N) (n : ℤ) : ((opFunctor A).map f).hom n = f.hom n := sorry
+    (f : M ⟶ N) (n : ℤ) : ((opFunctor A).map f).hom n = f.hom n := by
+  rfl
 
 /-- The opposite-module functor preserves the value of every morphism component. -/
 @[simp] theorem opFunctor_map_apply {M N : LeftDifferentialGradedModule.{u, v} A}
-    (f : M ⟶ N) (n : ℤ) (x : M.X n) : ((opFunctor A).map f).hom n x = f.hom n x := sorry
+    (f : M ⟶ N) (n : ℤ) (x : M.X n) : ((opFunctor A).map f).hom n x = f.hom n x := by
+  rfl
 
 /-- The functor recovering a left `A`-module from a right `A.opposite`-module. -/
 @[stacks 0FQ0 "inverse opposite module functor"]
@@ -358,34 +500,42 @@ def unopFunctor (A : CochainDGAlgebra R) :
 /-- The inverse opposite-module functor acts on objects by
 `LeftDifferentialGradedModule.unop`. -/
 @[simp] theorem unopFunctor_obj (M : DifferentialGradedModule.{u, v} A.opposite) :
-    (unopFunctor A).obj M = unop M := sorry
+    (unopFunctor A).obj M = unop M := by
+  rfl
 
 /-- The inverse opposite-module functor acts on morphisms by
 `LeftDifferentialGradedModule.Hom.unop`. -/
 @[simp] theorem unopFunctor_map {M N : DifferentialGradedModule.{u, v} A.opposite}
-    (f : M ⟶ N) : (unopFunctor A).map f = Hom.unop f := sorry
+    (f : M ⟶ N) : (unopFunctor A).map f = Hom.unop f := by
+  rfl
 
 /-- The inverse opposite-module functor preserves the degreewise map of every morphism. -/
 @[simp] theorem unopFunctor_map_hom {M N : DifferentialGradedModule.{u, v} A.opposite}
-    (f : M ⟶ N) (n : ℤ) : ((unopFunctor A).map f).hom n = f.hom n := sorry
+    (f : M ⟶ N) (n : ℤ) : ((unopFunctor A).map f).hom n = f.hom n := by
+  rfl
 
 /-- The inverse opposite-module functor preserves the value of every morphism component. -/
 @[simp] theorem unopFunctor_map_apply
     {M N : DifferentialGradedModule.{u, v} A.opposite}
     (f : M ⟶ N) (n : ℤ) (x : M.X n) :
-    ((unopFunctor A).map f).hom n x = f.hom n x := sorry
+    ((unopFunctor A).map f).hom n x = f.hom n x := by
+  rfl
 
 /-- The identity-shaped unit morphism commutes with differentials. -/
 theorem unitHom_comm_d (M : LeftDifferentialGradedModule.{u, v} A)
     (n : ℤ) (x : M.X n) :
     (LinearMap.id : M.X (n + 1) →ₗ[R] M.X (n + 1)) (M.d n x) =
-      (unop M.op).d n ((LinearMap.id : M.X n →ₗ[R] M.X n) x) := sorry
+      (unop M.op).d n ((LinearMap.id : M.X n →ₗ[R] M.X n) x) := by
+  rfl
 
 /-- The identity-shaped unit morphism commutes with left actions. -/
 theorem unitHom_comm_smul (M : LeftDifferentialGradedModule.{u, v} A)
     (i p : ℤ) (a : A.X i) (x : M.X p) :
     (LinearMap.id : M.X (i + p) →ₗ[R] M.X (i + p)) (M.smul i p a x) =
-      (unop M.op).smul i p a ((LinearMap.id : M.X p →ₗ[R] M.X p) x) := sorry
+      (unop M.op).smul i p a ((LinearMap.id : M.X p →ₗ[R] M.X p) x) := by
+  exact ((opposite_cast_smul_cancel M.X (add_comm i p)
+    (CochainDGAlgebra.oppositeSign R i p) (M.smul i p a x)).trans
+    (opposite_sign_smul_twice i p (M.smul i p a x))).symm
 
 /-- The unit morphism from a left module to the double handedness change. -/
 def unitHom (M : LeftDifferentialGradedModule.{u, v} A) : M ⟶ unop M.op where
@@ -395,25 +545,29 @@ def unitHom (M : LeftDifferentialGradedModule.{u, v} A) : M ⟶ unop M.op where
 
 /-- The unit morphism is degreewise the identity linear map. -/
 @[simp] theorem unitHom_hom (M : LeftDifferentialGradedModule.{u, v} A) (n : ℤ) :
-    (unitHom M).hom n = LinearMap.id := sorry
+    (unitHom M).hom n = LinearMap.id := by
+  rfl
 
 /-- The unit morphism fixes every homogeneous element. -/
 @[simp] theorem unitHom_apply (M : LeftDifferentialGradedModule.{u, v} A)
-    (n : ℤ) (x : M.X n) : (unitHom M).hom n x = x := sorry
+    (n : ℤ) (x : M.X n) : (unitHom M).hom n x = x := by
+  rfl
 
 /-- The identity-shaped inverse unit morphism commutes with differentials. -/
 theorem unitInv_comm_d (M : LeftDifferentialGradedModule.{u, v} A)
     (n : ℤ) (x : (unop M.op).X n) :
     (LinearMap.id : (unop M.op).X (n + 1) →ₗ[R] M.X (n + 1))
         ((unop M.op).d n x) =
-      M.d n ((LinearMap.id : (unop M.op).X n →ₗ[R] M.X n) x) := sorry
+      M.d n ((LinearMap.id : (unop M.op).X n →ₗ[R] M.X n) x) := by
+  rfl
 
 /-- The identity-shaped inverse unit morphism commutes with left actions. -/
 theorem unitInv_comm_smul (M : LeftDifferentialGradedModule.{u, v} A)
     (i p : ℤ) (a : A.X i) (x : (unop M.op).X p) :
     (LinearMap.id : (unop M.op).X (i + p) →ₗ[R] M.X (i + p))
         ((unop M.op).smul i p a x) =
-      M.smul i p a ((LinearMap.id : (unop M.op).X p →ₗ[R] M.X p) x) := sorry
+      M.smul i p a ((LinearMap.id : (unop M.op).X p →ₗ[R] M.X p) x) := by
+  exact (unitHom_comm_smul M i p a x).symm
 
 /-- The inverse of the unit morphism. -/
 def unitInv (M : LeftDifferentialGradedModule.{u, v} A) : unop M.op ⟶ M where
@@ -423,19 +577,27 @@ def unitInv (M : LeftDifferentialGradedModule.{u, v} A) : unop M.op ⟶ M where
 
 /-- The inverse unit morphism is degreewise the identity linear map. -/
 @[simp] theorem unitInv_hom (M : LeftDifferentialGradedModule.{u, v} A) (n : ℤ) :
-    (unitInv M).hom n = LinearMap.id := sorry
+    (unitInv M).hom n = LinearMap.id := by
+  rfl
 
 /-- The inverse unit morphism fixes every homogeneous element. -/
 @[simp] theorem unitInv_apply (M : LeftDifferentialGradedModule.{u, v} A)
-    (n : ℤ) (x : (unop M.op).X n) : (unitInv M).hom n x = x := sorry
+    (n : ℤ) (x : (unop M.op).X n) : (unitInv M).hom n x = x := by
+  rfl
 
 /-- The unit morphism followed by its inverse is the identity. -/
 theorem unit_hom_inv_id (M : LeftDifferentialGradedModule.{u, v} A) :
-    unitHom M ≫ unitInv M = 𝟙 M := sorry
+    unitHom M ≫ unitInv M = 𝟙 M := by
+  apply opposite_left_hom_ext
+  intro n
+  rfl
 
 /-- The inverse unit morphism followed by the unit is the identity. -/
 theorem unit_inv_hom_id (M : LeftDifferentialGradedModule.{u, v} A) :
-    unitInv M ≫ unitHom M = 𝟙 (unop M.op) := sorry
+    unitInv M ≫ unitHom M = 𝟙 (unop M.op) := by
+  apply opposite_left_hom_ext
+  intro n
+  rfl
 
 /-- The double handedness change is naturally isomorphic to the original left module. -/
 @[stacks 0FQ0 "unit of the opposite module equivalence"]
@@ -450,14 +612,18 @@ theorem counitHom_comm_d (M : DifferentialGradedModule.{u, v} A.opposite)
     (n : ℤ) (x : (unop M).op.X n) :
     (LinearMap.id : (unop M).op.X (n + 1) →ₗ[R] M.X (n + 1))
         ((unop M).op.d n x) =
-      M.d n ((LinearMap.id : (unop M).op.X n →ₗ[R] M.X n) x) := sorry
+      M.d n ((LinearMap.id : (unop M).op.X n →ₗ[R] M.X n) x) := by
+  rfl
 
 /-- The identity-shaped counit morphism commutes with right actions. -/
 theorem counitHom_comm_smul (M : DifferentialGradedModule.{u, v} A.opposite)
     (p i : ℤ) (x : (unop M).op.X p) (a : A.opposite.X i) :
     (LinearMap.id : (unop M).op.X (p + i) →ₗ[R] M.X (p + i))
         ((unop M).op.smul p i x a) =
-      M.smul p i ((LinearMap.id : (unop M).op.X p →ₗ[R] M.X p) x) a := sorry
+      M.smul p i ((LinearMap.id : (unop M).op.X p →ₗ[R] M.X p) x) a := by
+  exact (opposite_cast_smul_cancel M.X (add_comm p i)
+    (CochainDGAlgebra.oppositeSign R i p) (M.smul p i x a)).trans
+    (opposite_sign_smul_twice i p (M.smul p i x a))
 
 /-- The counit morphism from the double handedness change to a right module. -/
 def counitHom (M : DifferentialGradedModule.{u, v} A.opposite) : (unop M).op ⟶ M where
@@ -468,26 +634,30 @@ def counitHom (M : DifferentialGradedModule.{u, v} A.opposite) : (unop M).op ⟶
 /-- The counit morphism is degreewise the identity linear map. -/
 @[simp] theorem counitHom_hom
     (M : DifferentialGradedModule.{u, v} A.opposite) (n : ℤ) :
-    (counitHom M).hom n = LinearMap.id := sorry
+    (counitHom M).hom n = LinearMap.id := by
+  rfl
 
 /-- The counit morphism fixes every homogeneous element. -/
 @[simp] theorem counitHom_apply
     (M : DifferentialGradedModule.{u, v} A.opposite)
-    (n : ℤ) (x : (unop M).op.X n) : (counitHom M).hom n x = x := sorry
+    (n : ℤ) (x : (unop M).op.X n) : (counitHom M).hom n x = x := by
+  rfl
 
 /-- The identity-shaped inverse counit morphism commutes with differentials. -/
 theorem counitInv_comm_d (M : DifferentialGradedModule.{u, v} A.opposite)
     (n : ℤ) (x : M.X n) :
     (LinearMap.id : M.X (n + 1) →ₗ[R] (unop M).op.X (n + 1)) (M.d n x) =
       (unop M).op.d n
-        ((LinearMap.id : M.X n →ₗ[R] (unop M).op.X n) x) := sorry
+        ((LinearMap.id : M.X n →ₗ[R] (unop M).op.X n) x) := by
+  rfl
 
 /-- The identity-shaped inverse counit morphism commutes with right actions. -/
 theorem counitInv_comm_smul (M : DifferentialGradedModule.{u, v} A.opposite)
     (p i : ℤ) (x : M.X p) (a : A.opposite.X i) :
     (LinearMap.id : M.X (p + i) →ₗ[R] (unop M).op.X (p + i)) (M.smul p i x a) =
       (unop M).op.smul p i
-        ((LinearMap.id : M.X p →ₗ[R] (unop M).op.X p) x) a := sorry
+        ((LinearMap.id : M.X p →ₗ[R] (unop M).op.X p) x) a := by
+  exact (counitHom_comm_smul M p i x a).symm
 
 /-- The inverse of the counit morphism. -/
 def counitInv (M : DifferentialGradedModule.{u, v} A.opposite) : M ⟶ (unop M).op where
@@ -498,20 +668,28 @@ def counitInv (M : DifferentialGradedModule.{u, v} A.opposite) : M ⟶ (unop M).
 /-- The inverse counit morphism is degreewise the identity linear map. -/
 @[simp] theorem counitInv_hom
     (M : DifferentialGradedModule.{u, v} A.opposite) (n : ℤ) :
-    (counitInv M).hom n = LinearMap.id := sorry
+    (counitInv M).hom n = LinearMap.id := by
+  rfl
 
 /-- The inverse counit morphism fixes every homogeneous element. -/
 @[simp] theorem counitInv_apply
     (M : DifferentialGradedModule.{u, v} A.opposite)
-    (n : ℤ) (x : M.X n) : (counitInv M).hom n x = x := sorry
+    (n : ℤ) (x : M.X n) : (counitInv M).hom n x = x := by
+  rfl
 
 /-- The counit morphism followed by its inverse is the identity. -/
 theorem counit_hom_inv_id (M : DifferentialGradedModule.{u, v} A.opposite) :
-    counitHom M ≫ counitInv M = 𝟙 ((unop M).op) := sorry
+    counitHom M ≫ counitInv M = 𝟙 ((unop M).op) := by
+  apply opposite_right_hom_ext
+  intro n
+  rfl
 
 /-- The inverse counit morphism followed by the counit is the identity. -/
 theorem counit_inv_hom_id (M : DifferentialGradedModule.{u, v} A.opposite) :
-    counitInv M ≫ counitHom M = 𝟙 M := sorry
+    counitInv M ≫ counitHom M = 𝟙 M := by
+  apply opposite_right_hom_ext
+  intro n
+  rfl
 
 /-- The double handedness change is naturally isomorphic to the original right module. -/
 @[stacks 0FQ0 "counit of the opposite module equivalence"]
@@ -524,13 +702,19 @@ def counitIso (M : DifferentialGradedModule.{u, v} A.opposite) : (unop M).op ≅
 /-- Naturality of the unit isomorphisms. -/
 theorem unitIso_naturality {M N : LeftDifferentialGradedModule.{u, v} A} (f : M ⟶ N) :
     f ≫ (unitIso N).hom =
-      (unitIso M).hom ≫ (opFunctor A ⋙ unopFunctor A).map f := sorry
+      (unitIso M).hom ≫ (opFunctor A ⋙ unopFunctor A).map f := by
+  apply opposite_left_hom_ext
+  intro n
+  rfl
 
 /-- Naturality of the counit isomorphisms. -/
 theorem counitIso_naturality
     {M N : DifferentialGradedModule.{u, v} A.opposite} (f : M ⟶ N) :
     (unopFunctor A ⋙ opFunctor A).map f ≫ (counitIso N).hom =
-      (counitIso M).hom ≫ f := sorry
+      (counitIso M).hom ≫ f := by
+  apply opposite_right_hom_ext
+  intro n
+  rfl
 
 /-- Lemma 22.11.2 (0FQ0): changing handedness with the Koszul sign is an equivalence from left
 differential graded `A`-modules to right differential graded `A.opposite`-modules. -/
@@ -546,23 +730,27 @@ namespace opEquivalence
 
 /-- The forward functor of the handedness-change equivalence. -/
 @[simp] theorem functor_eq (A : CochainDGAlgebra R) :
-    (opEquivalence.{u, v} A).functor = opFunctor A := sorry
+    (opEquivalence.{u, v} A).functor = opFunctor A := by
+  rfl
 
 /-- The inverse functor of the handedness-change equivalence. -/
 @[simp] theorem inverse_eq (A : CochainDGAlgebra R) :
-    (opEquivalence.{u, v} A).inverse = unopFunctor A := sorry
+    (opEquivalence.{u, v} A).inverse = unopFunctor A := by
+  rfl
 
 /-- The unit component of the handedness-change equivalence is the explicit identity-shaped
 isomorphism. -/
 @[simp] theorem unitIso_app (A : CochainDGAlgebra R)
     (M : LeftDifferentialGradedModule.{u, v} A) :
-    (opEquivalence A).unitIso.app M = unitIso M := sorry
+    (opEquivalence A).unitIso.app M = unitIso M := by
+  rfl
 
 /-- The counit component of the handedness-change equivalence is the explicit identity-shaped
 isomorphism. -/
 @[simp] theorem counitIso_app (A : CochainDGAlgebra R)
     (M : DifferentialGradedModule.{u, v} A.opposite) :
-    (opEquivalence A).counitIso.app M = counitIso M := sorry
+    (opEquivalence A).counitIso.app M = counitIso M := by
+  rfl
 
 end opEquivalence
 
@@ -571,7 +759,8 @@ namespace opFunctor
 /-- The change-of-handedness functor is an equivalence. -/
 instance isEquivalence (A : CochainDGAlgebra R) :
     (opFunctor A : LeftDifferentialGradedModule.{u, v} A ⥤
-      DifferentialGradedModule A.opposite).IsEquivalence := sorry
+      DifferentialGradedModule A.opposite).IsEquivalence := by
+  exact (opEquivalence.{u, v} A).isEquivalence_functor
 
 end opFunctor
 
@@ -580,7 +769,8 @@ namespace unopFunctor
 /-- The inverse change-of-handedness functor is an equivalence. -/
 instance isEquivalence (A : CochainDGAlgebra R) :
     (unopFunctor A : DifferentialGradedModule.{u, v} A.opposite ⥤
-      LeftDifferentialGradedModule A).IsEquivalence := sorry
+      LeftDifferentialGradedModule A).IsEquivalence := by
+  exact (opEquivalence.{u, v} A).isEquivalence_inverse
 
 end unopFunctor
 

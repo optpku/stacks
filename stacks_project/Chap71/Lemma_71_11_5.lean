@@ -6,72 +6,67 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap71.Lemma_71_11_5_AffineRestriction
-public import stacks_project.Chap71.Lemma_71_11_5_AffineTwists
-public import stacks_project.Chap71.Lemma_71_11_5_BaseChange
-public import stacks_project.Chap71.Lemma_71_11_5_Pointwise
-public import stacks_project.Chap71.Lemma_71_11_5_TwistAlgebra
-public import stacks_project.Chap71.Lemma_71_11_5_TwistBaseChangeLocal
-public import stacks_project.Chap71.Lemma_71_11_5_TwistDescent
-public import stacks_project.Chap71.Lemma_71_11_5_TwistModel
-public import stacks_project.Chap71.Lemma_71_11_5_TwistPushforward
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.RelativeProj.CanonicalBaseChange
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.RelativeProj.CanonicalTwists.BaseChange
 
-public import stacks_project.Chap71.Lemma_71_11_5_TwistBaseChange
+@[expose] public section
 
-/-!
-# Lemma 71.11.5
-
-Relative `Proj` of algebraic spaces commutes with base change: there is a canonical
-isomorphism `r` with the fibre product over `X`, and a corresponding isomorphism `θ` of
-`ℤ`-graded twist algebras.
--/
-
-@[expose]
-public section
-
-open CategoryTheory AlgebraicGeometry
-open AlgebraicGeometry.AlgebraicSpace Opposite
+open CategoryTheory AlgebraicGeometry Opposite
+open AlgebraicGeometry.AlgebraicSpace
 open AlgebraicGeometry.AlgebraicSpace.RelativeProj
-open CategoryTheory.Limits
 open SheafOfModules.RingedSite
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.RelativeProj
-
-/-- Lemma 71.11.5 (1): for a scheme `S`, a morphism `g : X' ⟶ X` of algebraic spaces over `S`,
-and a quasi-coherent graded `𝒪_X`-algebra `𝒜`, the canonical isomorphism
-`r = canonicalBaseChangeIso : underline{Proj}_{X'}(g^* 𝒜) ≅ X' ×_X underline{Proj}_X(𝒜)`
-of algebraic spaces is over `X'`. -/
-@[stacks 085C]
-theorem baseChangeIso_over {S : Scheme.{u}} {X X' : AlgebraicSpace S} (g : X' ⟶ X)
-    (𝒜 : GradedAlgebraSheaf.{u + 1, u} (commStructureSheafLift X))
-    (deg : DegreePieces 𝒜)
-    (F : ProjFunctor X 𝒜) (hF : F.IsAssociatedToQuadruples deg)
-    (𝒜' : GradedAlgebraSheaf.{u + 1, u} (commStructureSheafLift X'))
-    (deg' : DegreePieces 𝒜')
-    (hAlg : AlgebraPullback g deg deg')
-    (F' : ProjFunctor X' 𝒜') (hF' : F'.IsAssociatedToQuadruples deg') :
+/- Lemma 71.11.5 (1): relative Proj commutes canonically with arbitrary base change over X'. -/
+@[stacks 085C] #check (AlgebraicGeometry.AlgebraicSpace.RelativeProj.canonicalBaseChangeIso_fst :
+    ∀ {S : Scheme.{u}} {X X' : AlgebraicSpace S} (g : X' ⟶ X)
+    {𝒜 : GradedAlgebraSheaf.{u + 1, u} (commStructureSheafLift X)}
+    {𝒜' : GradedAlgebraSheaf.{u + 1, u} (commStructureSheafLift X')}
+    {deg : DegreePieces 𝒜} {deg' : DegreePieces 𝒜'} (hAlg : AlgebraPullback g deg deg')
+    {F : ProjFunctor X 𝒜} (hF : F.IsAssociatedToQuadruples deg)
+    {F' : ProjFunctor X' 𝒜'} (hF' : F'.IsAssociatedToQuadruples deg'),
     (canonicalBaseChangeIso g hAlg hF hF').hom ≫ fibreProduct_fst g hF =
-      toAlgebraicSpace_hom F' hF' :=
-  sorry
+      toAlgebraicSpace_hom F' hF')
 
-/-- Lemma 71.11.5 (2): the corresponding isomorphism
-`θ : r^* pr₂^*(⊕_{d : ℤ} 𝒪_P(d)) ⟶ ⊕_{d : ℤ} 𝒪_{P'}(d)` of `ℤ`-graded
-`𝒪_{P'}`-algebras is `CanonicalTwists.BaseChange.data.theta`, the
-`GradedAlgebraComparison` of `CanonicalTwists.family` along
-`canonicalBaseChangeIso.hom ≫ fibreProduct_snd`, and each degree map is an
-isomorphism. -/
-@[stacks 085C]
-theorem baseChange_theta_isIso {S : Scheme.{u}} {X X' : AlgebraicSpace S} (g : X' ⟶ X)
-    (𝒜 : GradedAlgebraSheaf.{u + 1, u} (commStructureSheafLift X))
-    (deg : DegreePieces 𝒜)
-    (F : ProjFunctor X 𝒜) (hF : F.IsAssociatedToQuadruples deg)
-    (𝒜' : GradedAlgebraSheaf.{u + 1, u} (commStructureSheafLift X'))
-    (deg' : DegreePieces 𝒜')
-    (hAlg : AlgebraPullback g deg deg')
-    (F' : ProjFunctor X' 𝒜') (hF' : F'.IsAssociatedToQuadruples deg') :
-    ∀ n : ℤ, IsIso ((CanonicalTwists.BaseChange.data g hAlg hF hF').theta.degreeMap n) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.RelativeProj.canonicalBaseChangeIso :
+    ∀ {S : Scheme.{u}} {X X' : AlgebraicSpace S} (g : X' ⟶ X)
+    {𝒜 : GradedAlgebraSheaf.{u + 1, u} (commStructureSheafLift X)}
+    {𝒜' : GradedAlgebraSheaf.{u + 1, u} (commStructureSheafLift X')}
+    {deg : DegreePieces 𝒜} {deg' : DegreePieces 𝒜'} (hAlg : AlgebraPullback g deg deg')
+    {F : ProjFunctor X 𝒜} (hF : F.IsAssociatedToQuadruples deg)
+    {F' : ProjFunctor X' 𝒜'} (hF' : F'.IsAssociatedToQuadruples deg'),
+    toAlgebraicSpace F' hF' ≅ fibreProduct g hF)
 
-end AlgebraicGeometry.AlgebraicSpace.RelativeProj
+/- Lemma 71.11.5 (2): the canonical graded-algebra comparison is invertible in every integer degree. -/
+@[stacks 085C] #check (AlgebraicGeometry.AlgebraicSpace.RelativeProj.CanonicalTwists.BaseChange.degreeMap_isIso :
+    ∀ {S : Scheme.{u}} {X X' : AlgebraicSpace S} (g : X' ⟶ X)
+    {𝒜 : GradedAlgebraSheaf.{u + 1, u} (commStructureSheafLift X)}
+    {𝒜' : GradedAlgebraSheaf.{u + 1, u} (commStructureSheafLift X')}
+    {deg : DegreePieces 𝒜} {deg' : DegreePieces 𝒜'} (hAlg : AlgebraPullback g deg deg')
+    {F : ProjFunctor X 𝒜} (hF : F.IsAssociatedToQuadruples deg)
+    {F' : ProjFunctor X' 𝒜'} (hF' : F'.IsAssociatedToQuadruples deg'),
+    ∀ n : ℤ, IsIso (CanonicalTwists.BaseChange.degreeMap g hAlg hF hF' n))
+
+#check (AlgebraicGeometry.AlgebraicSpace.RelativeProj.CanonicalTwists.BaseChange.comparison :
+    ∀ {S : Scheme.{u}} {X X' : AlgebraicSpace S} (g : X' ⟶ X)
+    {𝒜 : GradedAlgebraSheaf.{u + 1, u} (commStructureSheafLift X)}
+    {𝒜' : GradedAlgebraSheaf.{u + 1, u} (commStructureSheafLift X')}
+    {deg : DegreePieces 𝒜} {deg' : DegreePieces 𝒜'} (hAlg : AlgebraPullback g deg deg')
+    {F : ProjFunctor X 𝒜} (hF : F.IsAssociatedToQuadruples deg)
+    {F' : ProjFunctor X' 𝒜'} (hF' : F'.IsAssociatedToQuadruples deg'),
+    GradedAlgebraComparison (CanonicalTwists.BaseChange.map g hAlg hF hF')
+      (CanonicalTwists.family F hF) (CanonicalTwists.family F' hF'))
+
+#check (AlgebraicGeometry.AlgebraicSpace.RelativeProj.CanonicalTwists.BaseChange.degreeIso :
+    ∀ {S : Scheme.{u}} {X X' : AlgebraicSpace S} (g : X' ⟶ X)
+    {𝒜 : GradedAlgebraSheaf.{u + 1, u} (commStructureSheafLift X)}
+    {𝒜' : GradedAlgebraSheaf.{u + 1, u} (commStructureSheafLift X')}
+    {deg : DegreePieces 𝒜} {deg' : DegreePieces 𝒜'} (hAlg : AlgebraPullback g deg deg')
+    {F : ProjFunctor X 𝒜} (hF : F.IsAssociatedToQuadruples deg)
+    {F' : ProjFunctor X' 𝒜'} (hF' : F'.IsAssociatedToQuadruples deg'),
+    ∀ n : ℤ,
+    (Modules.pullback (CanonicalTwists.BaseChange.map g hAlg hF hF')).obj
+      (CanonicalTwists.obj F hF n) ≅ CanonicalTwists.obj F' hF' n)
+

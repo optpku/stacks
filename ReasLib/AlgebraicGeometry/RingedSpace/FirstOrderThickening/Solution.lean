@@ -10,6 +10,7 @@ public import Mathlib.Algebra.Homology.ShortComplex.Basic
 public import Mathlib.Algebra.Homology.ShortComplex.ShortExact
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.PushforwardContinuous.Additive
 public import ReasLib.AlgebraicGeometry.RingedSpace.FirstOrderThickening.KernelMap
+public import ReasLib.AlgebraicGeometry.RingedSpace.FirstOrderThickening.KernelComparison
 
 /-!
 # Solutions of first-order deformation diagrams on ringed spaces
@@ -53,7 +54,7 @@ structure Solution where
   /-- The first-order thickening inclusion. -/
   i : X ⟶ space
   /-- The inclusion is a first-order thickening. -/
-  [i_isFirstOrder : IsFirstOrderThickening i]
+  i_isFirstOrder : IsFirstOrderThickening i
   /-- The ambient map to `S'`. -/
   f' : space ⟶ S'
   /-- The square with `f` and `t` commutes. -/
@@ -65,6 +66,8 @@ structure Solution where
     kernelMapOf t f i i_isFirstOrder f' commutes ≫ (f _*).map kernelIso.hom = c
 
 namespace Solution
+
+open RingedSpace.Hom
 
 /-- Construct a solution from its thickening, ambient map, kernel identification, and induced
 kernel-map condition. -/
@@ -165,6 +168,37 @@ theorem spec (sol : Solution t f G c) :
 /-- The kernel identification of a solution induces the prescribed map `c`. -/
 theorem induces_c_eq (sol : Solution t f G c) :
     kernelMap sol ≫ (f _*).map sol.kernelIso.hom = c := sorry
+
+/-- Inverse image of `𝒪_{X'}` along the thickening of a solution. -/
+def inverseImageX' (sol : Solution t f G c) :
+    Sheaf (Opens.grothendieckTopology X) CommRingCat.{u} :=
+  (TopCat.Sheaf.pullback CommRingCat.{u} sol.i.hom.base).obj sol.space.sheaf
+
+/-- Inverse image of `𝒪_{S'}` along `sol.i ≫ sol.f'`. -/
+def inverseImageS' (sol : Solution t f G c) :
+    Sheaf (Opens.grothendieckTopology X) CommRingCat.{u} :=
+  (TopCat.Sheaf.pullback CommRingCat.{u} (sol.i ≫ sol.f').hom.base).obj S'.sheaf
+
+/-- The structure map `(sol.i ≫ sol.f')⁻¹ 𝒪_{S'} ⟶ sol.i⁻¹ 𝒪_{X'}`. -/
+def inverseImageS'ToX' (sol : Solution t f G c) :
+    inverseImageS' sol ⟶ inverseImageX' sol :=
+  (Hom.StructureSheaf.compIso sol.i sol.f').inv ≫
+    (TopCat.Sheaf.pullback CommRingCat.{u} sol.i.hom.base).map
+      (inverseImageStructureSheafHomComm sol.f')
+
+/-- Inverse image of `𝒪_{S'}` along `sol.i ≫ sol.f'` is the inverse image along `f ≫ t`. -/
+def inverseImageS'IsoComposite (sol : Solution t f G c) :
+    inverseImageS' sol ≅
+      (TopCat.Sheaf.pullback CommRingCat.{u} (f ≫ t).hom.base).obj S'.sheaf :=
+  (TopCat.Sheaf.pullbackCongr (A := CommRingCat.{u})
+    (congrArg (fun k : X ⟶ S' ↦ k.hom.base) sol.commutes)).app S'.sheaf
+
+/-- The conormal sheaf maps to the pulled-back kernel ideal through its square-zero target
+module. -/
+def conormalToIdeal (sol : Solution t f G c) :
+    Hom.conormalSheaf sol.i ⟶ Hom.idealModule sol.i :=
+  @conormalToTargetModule _ _ sol.i sol.i_isFirstOrder ≫
+    @targetModuleToIdealModule _ _ sol.i sol.i_isFirstOrder
 
 end Solution
 

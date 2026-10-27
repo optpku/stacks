@@ -131,6 +131,7 @@ noncomputable def comparisonApp (K : Complex.{r, u, v, w, max u z} O)
 noncomputable abbrev component (K : Complex.{r, u, v, w, max u z} O) (X : Domain K) :=
   comparisonApp K X.1.unop.obj.obj X.2.obj.obj X.1.unop.property X.2.property
 
+set_option maxHeartbeats 800000 in
 /-- Naturality of the strict property-(P) comparison. -/
 @[reassoc, stacks 0CS6 "naturality of the property-P arbitrary-ring comparison"]
 theorem comparison_naturality (K : Complex.{r, u, v, w, max u z} O)
@@ -167,6 +168,7 @@ noncomputable def comparison (K : Complex.{r, u, v, w, max u z} O) :
     (PropertyP.localization K ⋙ Target.functor K)
     (Source.functor K) (Target.functor K) (PropertyP.comparison K)
 
+set_option maxHeartbeats 800000 in
 /-- Restricting the descended comparison to property-(P) models recovers its strict component. -/
 @[reassoc, stacks 0CS6 "property-P restriction of the arbitrary-ring comparison"]
 theorem comparison_fac (K : Complex.{r, u, v, w, max u z} O) :

@@ -244,16 +244,16 @@ structure Solution where
   /-- The square-zero locally surjective projection `O' ⟶ O`. -/
   π : middle ⟶ O
   /-- The projection `O' ⟶ O` is a first-order thickening. -/
-  [isFirstOrder : IsFirstOrderThickening π]
+  isFirstOrder : IsFirstOrderThickening π
   /-- The inverse-image structure map `(f')♯ : f⁻¹O_{B'} ⟶ O'`. -/
   fromInverseImage : inverseImageRing f OB' ⟶ ringSheaf JC middle
   /-- The right-hand square of ring sheaves commutes. -/
   comm : fromInverseImage ≫ ringSheafMap π = inverseImageRingMap f t ≫ f.structureMap
   /-- Identification of `Ker(π)` with `G` as `O`-modules. -/
-  kernelIso : SheafOfModules.RingedSite.FirstOrderThickening.ideal π ≅ G
+  kernelIso : SheafOfModules.RingedSite.FirstOrderThickening.ideal π (hπ := isFirstOrder) ≅ G
   /-- The induced map on kernels equals `c`. -/
   induces :
-    kerMapOf f t π fromInverseImage comm ≫
+    kerMapOf f t π (hπ := isFirstOrder) fromInverseImage comm ≫
       (SheafOfModules.restrictScalars f.structureMap).map kernelIso.hom = c
 
 namespace Solution
@@ -266,7 +266,7 @@ def of (middle : Sheaf JC CommRingCat.{max u v}) (π : middle ⟶ O)
     (comm : fromInverseImage ≫ ringSheafMap π = inverseImageRingMap f t ≫ f.structureMap)
     (kernelIso : SheafOfModules.RingedSite.FirstOrderThickening.ideal π ≅ G)
     (induces :
-      kerMapOf f t π fromInverseImage comm ≫
+      kerMapOf f t π (hπ := isFirstOrder) fromInverseImage comm ≫
         (SheafOfModules.restrictScalars f.structureMap).map kernelIso.hom = c) :
     Solution t f G c where
   middle := middle

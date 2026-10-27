@@ -92,7 +92,8 @@ abbrev HasTorDimensionLE (M : C) (d : ℕ) : Prop :=
 /-- Tor-amplitude in `[a, b]` is equivalently the pair of its lower and upper bounds. -/
 @[stacks 08FZ "Tor-amplitude as lower and upper bounds"]
 theorem hasTorAmplitudeIn_iff (K : DerivedCategory C) (a b : ℤ) :
-    HasTorAmplitudeIn K a b ↔ HasTorAmplitudeGE K a ∧ HasTorAmplitudeLE K b := sorry
+    HasTorAmplitudeIn K a b ↔ HasTorAmplitudeGE K a ∧ HasTorAmplitudeLE K b :=
+  Iff.rfl
 /- Proof strategy: unfold `HasTorAmplitudeIn`, `torAmplitudeIn`, and membership in the infimum of
 two object properties. -/
 
@@ -103,7 +104,28 @@ theorem hasTorAmplitudeIn_iff_homology (K : DerivedCategory C) (a b : ℤ) :
     HasTorAmplitudeIn K a b ↔
       ∀ (M : C) (i : ℤ), i ∉ Set.Icc a b →
         IsZero ((DerivedCategory.homologyFunctor C i).obj
-          (K ⊗ᴸ (DerivedCategory.singleFunctor C 0).obj M)) := sorry
+          (K ⊗ᴸ (DerivedCategory.singleFunctor C 0).obj M)) := by
+  constructor
+  · rintro ⟨hGE, hLE⟩ M i hi
+    show IsZero ((DerivedCategory.homologyFunctor C i).obj
+      (K ⊗ᴸ (DerivedCategory.singleFunctor C 0).obj M))
+    by_cases hai : a ≤ i
+    · exact (DerivedCategory.isLE_iff _ _).mp (hLE M) i
+        (lt_of_not_ge (fun hib ↦ hi ⟨hai, hib⟩))
+    · exact (DerivedCategory.isGE_iff _ _).mp (hGE M) i (lt_of_not_ge hai)
+  · intro h
+    show HasTorAmplitudeIn K a b
+    constructor
+    · change HasTorAmplitudeGE K a
+      intro M
+      apply (DerivedCategory.isGE_iff _ _).mpr
+      intro i hi
+      exact h M i (fun hmem ↦ (not_le_of_gt hi) hmem.1)
+    · change HasTorAmplitudeLE K b
+      intro M
+      apply (DerivedCategory.isLE_iff _ _).mpr
+      intro i hi
+      exact h M i (fun hmem ↦ (not_le_of_gt hi) hmem.2)
 /- Proof strategy: combine `hasTorAmplitudeIn_iff` with the t-structure characterizations of
 `IsGE` and `IsLE`; outside `Set.Icc a b`, one of the two homology-vanishing conditions applies. -/
 
@@ -111,7 +133,8 @@ theorem hasTorAmplitudeIn_iff_homology (K : DerivedCategory C) (a b : ℤ) :
 @[stacks 08FZ "Tor-amplitude lower-bound projection"]
 theorem HasTorAmplitudeIn.hasTorAmplitudeGE
     {K : DerivedCategory C} {a b : ℤ} (hK : HasTorAmplitudeIn K a b) :
-    HasTorAmplitudeGE K a := sorry
+    HasTorAmplitudeGE K a :=
+  hK.1
 /- Proof strategy: apply the forward implication of `hasTorAmplitudeIn_iff` and take its first
 component. -/
 
@@ -119,7 +142,8 @@ component. -/
 @[stacks 08FZ "Tor-amplitude upper-bound projection"]
 theorem HasTorAmplitudeIn.hasTorAmplitudeLE
     {K : DerivedCategory C} {a b : ℤ} (hK : HasTorAmplitudeIn K a b) :
-    HasTorAmplitudeLE K b := sorry
+    HasTorAmplitudeLE K b :=
+  hK.2
 /- Proof strategy: apply the forward implication of `hasTorAmplitudeIn_iff` and take its second
 component. -/
 
@@ -127,21 +151,26 @@ component. -/
 @[stacks 08FZ "lower bound on a Tor-amplitude test object"]
 theorem HasTorAmplitudeIn.tensorSingle_isGE
     {K : DerivedCategory C} {a b : ℤ} (hK : HasTorAmplitudeIn K a b) (M : C) :
-    (K ⊗ᴸ (DerivedCategory.singleFunctor C 0).obj M).IsGE a := sorry
+    (K ⊗ᴸ (DerivedCategory.singleFunctor C 0).obj M).IsGE a :=
+  hK.hasTorAmplitudeGE M
 /- Proof strategy: evaluate `hK.hasTorAmplitudeGE` at the test object `M`. -/
 
 /-- Apply the upper bound of a Tor-amplitude interval to one test object. -/
 @[stacks 08FZ "upper bound on a Tor-amplitude test object"]
 theorem HasTorAmplitudeIn.tensorSingle_isLE
     {K : DerivedCategory C} {a b : ℤ} (hK : HasTorAmplitudeIn K a b) (M : C) :
-    (K ⊗ᴸ (DerivedCategory.singleFunctor C 0).obj M).IsLE b := sorry
+    (K ⊗ᴸ (DerivedCategory.singleFunctor C 0).obj M).IsLE b :=
+  hK.hasTorAmplitudeLE M
 /- Proof strategy: evaluate `hK.hasTorAmplitudeLE` at the test object `M`. -/
 
 /-- A lower Tor-amplitude bound remains valid after lowering the bound. -/
 @[stacks 08FZ "lower Tor-amplitude monotonicity"]
 theorem HasTorAmplitudeGE.mono
     {K : DerivedCategory C} {a a' : ℤ} (hK : HasTorAmplitudeGE K a) (ha : a' ≤ a) :
-    HasTorAmplitudeGE K a' := sorry
+    HasTorAmplitudeGE K a' := by
+  intro M
+  haveI := hK M
+  exact DerivedCategory.TStructure.t.isGE_of_ge _ a' a ha
 /- Proof strategy: evaluate `hK` on every test object and use monotonicity of the t-structure
 lower bound along `ha`. -/
 
@@ -149,7 +178,10 @@ lower bound along `ha`. -/
 @[stacks 08FZ "upper Tor-amplitude monotonicity"]
 theorem HasTorAmplitudeLE.mono
     {K : DerivedCategory C} {b b' : ℤ} (hK : HasTorAmplitudeLE K b) (hb : b ≤ b') :
-    HasTorAmplitudeLE K b' := sorry
+    HasTorAmplitudeLE K b' := by
+  intro M
+  haveI := hK M
+  exact DerivedCategory.TStructure.t.isLE_of_le _ b b' hb
 /- Proof strategy: evaluate `hK` on every test object and use monotonicity of the t-structure
 upper bound along `hb`. -/
 
@@ -158,7 +190,8 @@ upper bound along `hb`. -/
 theorem HasTorAmplitudeIn.mono
     {K : DerivedCategory C} {a b a' b' : ℤ} (hK : HasTorAmplitudeIn K a b)
     (ha : a' ≤ a) (hb : b ≤ b') :
-    HasTorAmplitudeIn K a' b' := sorry
+    HasTorAmplitudeIn K a' b' :=
+  ⟨hK.hasTorAmplitudeGE.mono ha, hK.hasTorAmplitudeLE.mono hb⟩
 /- Proof strategy: project the lower and upper bounds, apply their two monotonicity theorems,
 and recombine them through `hasTorAmplitudeIn_iff`. -/
 
@@ -166,7 +199,11 @@ and recombine them through `hasTorAmplitudeIn_iff`. -/
 @[stacks 08FZ "lower Tor-amplitude under isomorphism"]
 theorem HasTorAmplitudeGE.ofIso
     {K L : DerivedCategory C} {a : ℤ} (hK : HasTorAmplitudeGE K a) (e : K ≅ L) :
-    HasTorAmplitudeGE L a := sorry
+    HasTorAmplitudeGE L a := by
+  intro M
+  haveI := hK M
+  exact DerivedCategory.TStructure.t.isGE_of_iso
+    ((Right.functor ((DerivedCategory.singleFunctor C 0).obj M)).mapIso e) a
 /- Proof strategy: map `e` through every fixed-right derived tensor functor and transport `IsGE`
 across the resulting isomorphism. -/
 
@@ -174,7 +211,11 @@ across the resulting isomorphism. -/
 @[stacks 08FZ "upper Tor-amplitude under isomorphism"]
 theorem HasTorAmplitudeLE.ofIso
     {K L : DerivedCategory C} {b : ℤ} (hK : HasTorAmplitudeLE K b) (e : K ≅ L) :
-    HasTorAmplitudeLE L b := sorry
+    HasTorAmplitudeLE L b := by
+  intro M
+  haveI := hK M
+  exact DerivedCategory.TStructure.t.isLE_of_iso
+    ((Right.functor ((DerivedCategory.singleFunctor C 0).obj M)).mapIso e) b
 /- Proof strategy: map `e` through every fixed-right derived tensor functor and transport `IsLE`
 across the resulting isomorphism. -/
 
@@ -182,14 +223,17 @@ across the resulting isomorphism. -/
 @[stacks 08FZ "Tor-amplitude interval under isomorphism"]
 theorem HasTorAmplitudeIn.ofIso
     {K L : DerivedCategory C} {a b : ℤ} (hK : HasTorAmplitudeIn K a b) (e : K ≅ L) :
-    HasTorAmplitudeIn L a b := sorry
+    HasTorAmplitudeIn L a b :=
+  ⟨hK.hasTorAmplitudeGE.ofIso e, hK.hasTorAmplitudeLE.ofIso e⟩
 /- Proof strategy: transport the lower and upper projections of `hK` with
 `HasTorAmplitudeGE.ofIso` and `HasTorAmplitudeLE.ofIso`, then recombine them. -/
 
 /-- Finite Tor dimension unfolds to the existence of a finite Tor-amplitude interval. -/
 @[stacks 08FZ "finite Tor dimension as an interval"]
 theorem hasFiniteTorDimension_iff (K : DerivedCategory C) :
-    HasFiniteTorDimension K ↔ ∃ a b : ℤ, HasTorAmplitudeIn K a b := sorry
+    HasFiniteTorDimension K ↔ ∃ a b : ℤ, HasTorAmplitudeIn K a b := by
+  simp only [HasFiniteTorDimension, finiteTorDimension, ObjectProperty.prop_iSup_iff,
+    HasTorAmplitudeIn]
 /- Proof strategy: unfold `HasFiniteTorDimension` and `finiteTorDimension`, then rewrite
 membership in the two indexed suprema as existence of the two endpoints. -/
 
@@ -197,7 +241,8 @@ membership in the two indexed suprema as existence of the two endpoints. -/
 @[stacks 08FZ "Tor-amplitude implies finite Tor dimension"]
 theorem HasTorAmplitudeIn.hasFiniteTorDimension
     {K : DerivedCategory C} {a b : ℤ} (hK : HasTorAmplitudeIn K a b) :
-    HasFiniteTorDimension K := sorry
+    HasFiniteTorDimension K :=
+  (hasFiniteTorDimension_iff K).mpr ⟨a, b, hK⟩
 /- Proof strategy: apply `hasFiniteTorDimension_iff` and use `a`, `b`, and `hK` as the
 witnesses. -/
 
@@ -205,7 +250,9 @@ witnesses. -/
 @[stacks 08FZ "finite Tor dimension under isomorphism"]
 theorem HasFiniteTorDimension.ofIso
     {K L : DerivedCategory C} (hK : HasFiniteTorDimension K) (e : K ≅ L) :
-    HasFiniteTorDimension L := sorry
+    HasFiniteTorDimension L := by
+  obtain ⟨a, b, h⟩ := (hasFiniteTorDimension_iff K).mp hK
+  exact (h.ofIso e).hasFiniteTorDimension
 /- Proof strategy: extract an interval witnessing `hK`, transport it with
 `HasTorAmplitudeIn.ofIso`, and repackage the interval for `L`. -/
 
@@ -214,14 +261,17 @@ degree-zero derived object. -/
 @[stacks 08FZ "Tor dimension as a degree-zero Tor-amplitude interval"]
 theorem hasTorDimensionLE_iff (M : C) (d : ℕ) :
     HasTorDimensionLE M d ↔
-      HasTorAmplitudeIn ((DerivedCategory.singleFunctor C 0).obj M) (-(d : ℤ)) 0 := sorry
+      HasTorAmplitudeIn ((DerivedCategory.singleFunctor C 0).obj M) (-(d : ℤ)) 0 :=
+  Iff.rfl
 /- Proof strategy: unfold `HasTorDimensionLE` and `torDimensionLE`. -/
 
 /-- A Tor-dimension bound remains valid after increasing the bound. -/
 @[stacks 08FZ "Tor-dimension monotonicity"]
 theorem HasTorDimensionLE.mono
     {M : C} {d e : ℕ} (hM : HasTorDimensionLE M d) (hde : d ≤ e) :
-    HasTorDimensionLE M e := sorry
+    HasTorDimensionLE M e := by
+  apply HasTorAmplitudeIn.mono hM _ (le_refl 0)
+  exact neg_le_neg (Int.ofNat_le.mpr hde)
 /- Proof strategy: rewrite both predicates with `hasTorDimensionLE_iff`, enlarge the lower
 endpoint from `-d` to `-e` using `HasTorAmplitudeIn.mono`, and keep the upper endpoint zero. -/
 
@@ -229,26 +279,30 @@ endpoint from `-d` to `-e` using `HasTorAmplitudeIn.mono`, and keep the upper en
 @[stacks 08FZ "Tor dimension under isomorphism"]
 theorem HasTorDimensionLE.ofIso
     {M N : C} {d : ℕ} (hM : HasTorDimensionLE M d) (e : M ≅ N) :
-    HasTorDimensionLE N d := sorry
+    HasTorDimensionLE N d :=
+  HasTorAmplitudeIn.ofIso hM ((DerivedCategory.singleFunctor C 0).mapIso e)
 /- Proof strategy: map `e` with the degree-zero single functor, transport the resulting interval
 using `HasTorAmplitudeIn.ofIso`, and rewrite with `hasTorDimensionLE_iff`. -/
 
 /-- A fixed Tor-dimension bound is an isomorphism-closed object property. -/
 @[stacks 08FZ "isomorphism stability of a Tor-dimension bound"]
 instance torDimensionLE_isClosedUnderIsomorphisms (d : ℕ) :
-    (torDimensionLE (C := C) d).IsClosedUnderIsomorphisms := sorry
+    (torDimensionLE (C := C) d).IsClosedUnderIsomorphisms where
+  of_iso e hM := HasTorDimensionLE.ofIso hM e
 /- Proof strategy: package `HasTorDimensionLE.ofIso` as the object property's `of_iso` field. -/
 
 /-- Lower Tor-amplitude is an isomorphism-closed object property. -/
 @[stacks 08FZ "isomorphism stability of lower Tor-amplitude"]
 instance torAmplitudeGE_isClosedUnderIsomorphisms (a : ℤ) :
-    (torAmplitudeGE (C := C) a).IsClosedUnderIsomorphisms := sorry
+    (torAmplitudeGE (C := C) a).IsClosedUnderIsomorphisms where
+  of_iso e hK := HasTorAmplitudeGE.ofIso hK e
 /- Proof strategy: package `HasTorAmplitudeGE.ofIso` as the object property's `of_iso` field. -/
 
 /-- Upper Tor-amplitude is an isomorphism-closed object property. -/
 @[stacks 08FZ "isomorphism stability of upper Tor-amplitude"]
 instance torAmplitudeLE_isClosedUnderIsomorphisms (b : ℤ) :
-    (torAmplitudeLE (C := C) b).IsClosedUnderIsomorphisms := sorry
+    (torAmplitudeLE (C := C) b).IsClosedUnderIsomorphisms where
+  of_iso e hK := HasTorAmplitudeLE.ofIso hK e
 /- Proof strategy: package `HasTorAmplitudeLE.ofIso` as the object property's `of_iso` field. -/
 
 /-- A fixed Tor-amplitude interval is closed under isomorphisms. -/

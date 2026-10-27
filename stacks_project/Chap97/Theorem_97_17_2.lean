@@ -6,6 +6,10 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Groupoid.Quotient.Algebraic
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Groupoid.Quotient.SmallAction
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Groupoid.Quotient.SmallModuli
+import StacksCheckRecall
 public import stacks_project.Chap94.Definition_94_12_1_AlgebraicStack
 public import stacks_project.Chap94.Definition_94_16_5_Quotient
 public import stacks_project.Chap94.Remark_94_16_3_Flat
@@ -30,17 +34,12 @@ universe u
 
 namespace AlgebraicGeometry.GroupoidAlgebraicSpace
 
-/-- Theorem 97.17.2: let `S` be a scheme contained in `Sch_fppf`. Let
-`(U, R, s, t, c)` be a groupoid in algebraic spaces over `S`. Assume `s, t`
-are flat and locally of finite presentation. Then the quotient stack
-`[U / R]` is an algebraic stack over `S`. Formalized for a groupoid `G` in
-algebraic spaces over an algebraic space `B` over `S`, with `[U / R]` as
-`G.quotientStack`, source and target flat as `[Flat G]`, and source and
-target locally of finite presentation as `[LocallyOfFinitePresentation G]`. -/
-@[stacks 06FI, instance]
-instance instAlgebraicStack_quotientStack_of_flat {S : Scheme.{u}} {B : AlgebraicSpace S}
-    (G : GroupoidAlgebraicSpace B) [Flat G] [LocallyOfFinitePresentation G] :
-    AlgebraicStack G.quotientStack :=
-  sorry
+/- Theorem 97.17.2: the quotient stack of a flat, locally finitely presented
+groupoid in algebraic spaces over the base is an algebraic stack. -/
+@[stacks 06FI] #check
+  (AlgebraicGeometry.GroupoidAlgebraicSpace.isAlgebraicStack_quotientStack_of_flat :
+    ∀ {S : Scheme.{u}} {B : AlgebraicSpace S} (G : GroupoidAlgebraicSpace B)
+      (h_flat : Flat G) (h_lfp : LocallyOfFinitePresentation G),
+      AlgebraicStack (SmallQuotient.quotientStack G))
 
 end AlgebraicGeometry.GroupoidAlgebraicSpace

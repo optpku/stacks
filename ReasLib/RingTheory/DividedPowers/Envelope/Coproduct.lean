@@ -76,7 +76,15 @@ private theorem slot_toEnvelope_isDPMorphism
     (j : Fin (n + 1)) :
     DividedPowers.IsDPMorphism γ En.D.dividedPowers
       ((En.toD.comp (MvPolynomial.TensorPower.slot A ι n j).toRingHom).comp
-        (algebraMap A (MvPolynomial ι A))) := sorry
+        (algebraMap A (MvPolynomial ι A))) := by
+  have hbase :
+      ((En.toD.comp (MvPolynomial.TensorPower.slot A ι n j).toRingHom).comp
+        (algebraMap A (MvPolynomial ι A))) = En.base.toRingHom := by
+    ext a
+    exact (congrArg En.toD ((MvPolynomial.TensorPower.slot A ι n j).commutes a)).trans
+      (RingHom.congr_fun En.base_toD a).symm
+  rw [hbase]
+  exact En.base.isDPMorphism
 
 /-- The slot map sends the kernel of the polynomial presentation into the envelope ideal of `D(n)`. -/
 private theorem slot_toEnvelope_ideal
@@ -94,7 +102,19 @@ private theorem slot_toEnvelope_ideal
     simpa [hJ] using hpolynomial
   have hslot : MvPolynomial.TensorPower.slot A ι n j polynomial ∈ Jn := by
     rw [hJn, RingHom.mem_ker]
-    exact (MvPolynomial.TensorPower.diagonal_slot A ι π n j polynomial).trans hpolynomial_kernel
+    have hdiagonal : MvPolynomial.TensorPower.diagonal A ι π n
+        (MvPolynomial.TensorPower.slot A ι n j polynomial) = π polynomial := by
+      classical
+      change PiTensorProduct.lift (MvPolynomial.TensorPower.liftMap A ι n (fun _ ↦ π))
+        (PiTensorProduct.tprod A (Pi.mulSingle j polynomial)) = π polynomial
+      rw [PiTensorProduct.lift.tprod]
+      change (∏ k, π ((Pi.mulSingle j polynomial : Fin (n + 1) → MvPolynomial ι A) k)) = π polynomial
+      rw [Finset.prod_eq_single j]
+      · simp
+      · intro k _ hkj
+        simp [Pi.mulSingle, hkj]
+      · simp
+    exact hdiagonal.trans hpolynomial_kernel
   exact En.ideal_map (Ideal.mem_map_of_mem En.toD hslot)
 
 /-- The unique envelope lift of a tensor-power slot `P → D(n)`. -/
@@ -130,7 +150,10 @@ private theorem slotLift_spec
     (En : DividedPowerEnvelope I γ (algebraMap A (MvPolynomial.TensorPower.carrier A ι n)) Jn hIJn)
     (j : Fin (n + 1)) :
     (slotLift γ π hJ E hE hJn En j).toRingHom.comp E.toD =
-      En.toD.comp (MvPolynomial.TensorPower.slot A ι n j).toRingHom := sorry
+      En.toD.comp (MvPolynomial.TensorPower.slot A ι n j).toRingHom := by
+  exact (hE (En.toD.comp (MvPolynomial.TensorPower.slot A ι n j).toRingHom)
+    (slot_toEnvelope_isDPMorphism γ En j)
+    (slot_toEnvelope_ideal γ π hJn En hJ j)).choose_spec.1
 
 /-- The scalar-adic completion of a universal envelope slot lift. -/
 private noncomputable def completedSlotRingHom

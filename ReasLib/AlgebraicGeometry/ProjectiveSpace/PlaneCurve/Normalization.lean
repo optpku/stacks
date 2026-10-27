@@ -282,18 +282,201 @@ theorem standardChartCoordinateHom_injective {k : Type u} [Field k] (d : ℕ)
     [IsDomain (affineCoordinateRing F)] [Curve (planeCurveOver d F hF)] :
     Function.Injective (standardChartCoordinateHom d F hF) := sorry
 
-/-- The standard coordinate homomorphism extends to the fraction field by its
-universal property. -/
+/-- Dehomogenize a homogeneous-coordinate residue class and include it in `K`. -/
+def standardChartHomogeneousEval {k : Type u} [Field k] (d : ℕ)
+    (F : MvPolynomial (Fin 3) k) (hF : F ∈ ProjectiveSpace.grading k 2 d)
+    [IsDomain (affineCoordinateRing F)] :
+    (MvPolynomial (Fin 3) k ⧸ (Hypersurface.homogeneousIdeal 2 d F hF).toIdeal) →+*
+      fractionField F :=
+  Ideal.Quotient.lift (Hypersurface.homogeneousIdeal 2 d F hF).toIdeal
+    (((algebraMap (affineCoordinateRing F) (fractionField F)).comp
+      (Ideal.Quotient.mk (Ideal.span {affineEquation F}))).comp
+        (ProjectiveSpace.dehomogenizeAt 2 0 (Equiv.refl (Fin 2)))) (by
+      sorry)
+
+/-- Evaluate a homogeneous fraction at the generic point of `D` by
+`a / b ↦ a(1,x,y) / b(1,x,y)`. This is quotient descent, without selecting a
+representative or an inverse of the standard coordinate map. -/
+def standardChartGenericStalkEval {k : Type u} [Field k] (d : ℕ)
+    (F : MvPolynomial (Fin 3) k) (hF : F ∈ ProjectiveSpace.grading k 2 d)
+    [IsDomain (affineCoordinateRing F)] [Curve (planeCurveOver d F hF)] :
+    (planeCurveOver d F hF).left.functionField →+* fractionField F := by
+  let η := genericPoint (planeCurveOver d F hF).left
+  let E := standardChartHomogeneousEval d F hF
+  let L : HomogeneousLocalization.AtPrime (Hypersurface.quotientGrading 2 d F hF)
+      η.asHomogeneousIdeal.toIdeal →+* fractionField F :=
+    { toFun := fun z => Quotient.liftOn' z (fun a => E a.num / E a.den) (by sorry)
+      map_one' := by sorry
+      map_mul' := by sorry
+      map_zero' := by sorry
+      map_add' := by sorry }
+  exact L.comp (Proj.stalkIso' (Hypersurface.quotientGrading 2 d F hF) η).toRingHom
+
+/-- The generic residue-field leg in the construction of the absolute normalization. -/
+def standardChartGenericPointLift {k : Type u} [Field k] (d : ℕ)
+    (F : MvPolynomial (Fin 3) k) (hF : F ∈ ProjectiveSpace.grading k 2 d)
+    [Curve (planeCurveOver d F hF)] :
+    Spec ((planeCurveOver d F hF).left.residueField
+      (genericPoint (planeCurveOver d F hF).left)) ⟶ (abstractCurve d F hF).left :=
+  Limits.Sigma.ι
+    (fun η : genericPoints (planeCurveOver d F hF).left =>
+      Spec ((planeCurveOver d F hF).left.residueField η.1))
+    ⟨genericPoint (planeCurveOver d F hF).left, by
+      rw [genericPoints_eq_singleton]
+      exact Set.mem_singleton _⟩ ≫
+    (genericPointSpectrumCoproductTo (planeCurveOver d F hF).left).toNormalization
+
+/-- The generic residue-field leg meets the generic point of the normalization. -/
+theorem standardChartGenericPointLift_closedPoint {k : Type u} [Field k] (d : ℕ)
+    (F : MvPolynomial (Fin 3) k) (hF : F ∈ ProjectiveSpace.grading k 2 d)
+    [Curve (planeCurveOver d F hF)] :
+    standardChartGenericPointLift d F hF
+        (IsLocalRing.closedPoint ((planeCurveOver d F hF).left.residueField
+          (genericPoint (planeCurveOver d F hF).left))) =
+      genericPoint (abstractCurve d F hF).left := sorry
+
+set_option backward.isDefEq.respectTransparency false in
+/-- The generic residue-field leg lies over the original generic point. -/
+@[reassoc] theorem standardChartGenericPointLift_toVanishing {k : Type u} [Field k] (d : ℕ)
+    (F : MvPolynomial (Fin 3) k) (hF : F ∈ ProjectiveSpace.grading k 2 d)
+    [Curve (planeCurveOver d F hF)] :
+    standardChartGenericPointLift d F hF ≫ toVanishing d F hF =
+      (planeCurveOver d F hF).left.fromSpecResidueField
+        (genericPoint (planeCurveOver d F hF).left) := by
+  dsimp only [standardChartGenericPointLift, toVanishing, Scheme.normalizationTo]
+  rw [Category.assoc, Scheme.Hom.toNormalization_fromNormalization]
+  exact genericPointSpectrumCoproductTo_ι _ _
+
+/-- Restrict a generic germ on the normalization to its generic residue-field leg,
+and descend the identity of the original generic stalk through its residue quotient.
+This uses only the original curve's field structure. -/
+def standardChartNormalizationRestriction {k : Type u} [Field k] (d : ℕ)
+    (F : MvPolynomial (Fin 3) k) (hF : F ∈ ProjectiveSpace.grading k 2 d)
+    [Curve (planeCurveOver d F hF)] :
+    (abstractCurve d F hF).left.functionField →+* (planeCurveOver d F hF).left.functionField := by
+  let D := (planeCurveOver d F hF).left
+  let C := (abstractCurve d F hF).left
+  let h := standardChartGenericPointLift_closedPoint d F hF
+  let r : C.functionField →+* D.residueField (genericPoint D) :=
+    ((C.presheaf.stalkCongr (.of_eq h.symm)).hom ≫
+      Scheme.stalkClosedPointTo (standardChartGenericPointLift d F hF)).hom
+  exact (D.descResidueField (𝟙 D.functionField)).hom.comp r
+
+/-- The map of generic stalks induced by the canonical normalization morphism. -/
+def standardChartNormalizationPullback {k : Type u} [Field k] (d : ℕ)
+    (F : MvPolynomial (Fin 3) k) (hF : F ∈ ProjectiveSpace.grading k 2 d)
+    [Curve (planeCurveOver d F hF)] :
+    (planeCurveOver d F hF).left.functionField →+* (abstractCurve d F hF).left.functionField := by
+  let D := (planeCurveOver d F hF).left
+  let C := (abstractCurve d F hF).left
+  have h : toVanishing d F hF (genericPoint C) = genericPoint D := by
+    rw [← standardChartGenericPointLift_closedPoint d F hF]
+    change (standardChartGenericPointLift d F hF ≫ toVanishing d F hF) _ = _
+    rw [standardChartGenericPointLift_toVanishing]
+    exact D.fromSpecResidueField_apply _ _
+  exact ((D.presheaf.stalkCongr (.of_eq h.symm)).hom ≫
+    (toVanishing d F hF).stalkMap (genericPoint C)).hom
+
+/-- Evaluate fractions in the original curve's function field by quotient descent.
+Its field structure follows from the supplied `Curve` hypothesis. No units or
+inverses are selected from an admitted injectivity assertion. -/
+def standardChartFractionToPlaneField {k : Type u} [Field k] (d : ℕ)
+    (F : MvPolynomial (Fin 3) k) (hF : F ∈ ProjectiveSpace.grading k 2 d)
+    [IsDomain (affineCoordinateRing F)] [Curve (planeCurveOver d F hF)] :
+    fractionField F →+* (planeCurveOver d F hF).left.functionField := by
+  let g := (standardChartNormalizationRestriction d F hF).comp
+    (standardChartCoordinateHom d F hF).toRingHom
+  have hg : Function.Injective g :=
+    (standardChartNormalizationRestriction d F hF).injective.comp
+      (standardChartCoordinateHom_injective d F hF)
+  have hden (b : nonZeroDivisors (affineCoordinateRing F)) : g b ≠ 0 :=
+    (map_ne_zero_iff _ hg).mpr (nonZeroDivisors.ne_zero b.2)
+  have hrep : ∀ {a c : affineCoordinateRing F}
+      {b e : nonZeroDivisors (affineCoordinateRing F)},
+      Localization.r (nonZeroDivisors (affineCoordinateRing F)) (a, b) (c, e) →
+        g a / g b = g c / g e := by
+    intro a c b e h
+    obtain ⟨t, ht⟩ := Localization.r_iff_exists.mp h
+    have heq : (e : affineCoordinateRing F) * a = b * c :=
+      mul_left_cancel₀ (nonZeroDivisors.ne_zero t.2) ht
+    apply (div_eq_div_iff (hden b) (hden e)).mpr
+    calc
+      g a * g e = g ((e : affineCoordinateRing F) * a) := by rw [map_mul, mul_comm]
+      _ = g ((b : affineCoordinateRing F) * c) := congrArg g heq
+      _ = g c * g b := by rw [map_mul, mul_comm]
+  let f : fractionField F → (planeCurveOver d F hF).left.functionField :=
+    fun z => Localization.liftOn z (fun a b => g a / g b) hrep
+  let H : fractionField F →+* (planeCurveOver d F hF).left.functionField :=
+    { toFun := f
+      map_one' := by
+        calc
+          f 1 = f (Localization.mk 1 1) := congrArg f Localization.mk_one.symm
+          _ = 1 := by
+            simp only [f, Localization.liftOn_mk, Submonoid.coe_one, map_one, div_one]
+      map_mul' := by
+        intro x y
+        refine Localization.induction_on x fun ⟨a, b⟩ => ?_
+        refine Localization.induction_on y fun ⟨c, e⟩ => ?_
+        simp only [Localization.mk_mul, f, Localization.liftOn_mk,
+          map_mul, Submonoid.coe_mul, mul_div_mul_comm]
+      map_zero' := by
+        calc
+          f 0 = f (Localization.mk 0 1) :=
+            congrArg f (Localization.mk_zero (1 : nonZeroDivisors (affineCoordinateRing F))).symm
+          _ = 0 := by simp only [f, Localization.liftOn_mk, map_zero, zero_div]
+      map_add' := by
+        intro x y
+        refine Localization.induction_on x fun ⟨a, b⟩ => ?_
+        refine Localization.induction_on y fun ⟨c, e⟩ => ?_
+        simp only [Localization.add_mk, f, Localization.liftOn_mk,
+          map_add, map_mul, Submonoid.coe_mul]
+        calc
+          (g b * g c + g e * g a) / (g b * g e) =
+              (g a * g e + g b * g c) / (g b * g e) := by
+            congr 1
+            rw [add_comm, mul_comm (g e) (g a)]
+          _ = g a / g b + g c / g e :=
+            (div_add_div (g a) (g c) (hden b) (hden e)).symm }
+  exact H
+
+/-- The standard fraction-field map is explicit fraction evaluation in the
+original function field followed by the normalization map on generic stalks. -/
 def standardChartFractionHom {k : Type u} [Field k] (d : ℕ)
     (F : MvPolynomial (Fin 3) k) (hF : F ∈ ProjectiveSpace.grading k 2 d)
     [IsDomain (affineCoordinateRing F)] [Curve (planeCurveOver d F hF)] :
     fractionField F →ₐ[k] SchemeOverField.functionFieldCommAlg (abstractCurve d F hF) :=
-  @IsFractionRing.liftAlgHom k _ (affineCoordinateRing F) _ (fractionField F) _
-    (SchemeOverField.functionFieldCommAlg (abstractCurve d F hF))
-    (inferInstanceAs (Field (abstractCurve d F hF).left.functionField))
-    _ _ _ _ _ (SchemeOverField.functionFieldAlgebra (abstractCurve d F hF))
-    (standardChartCoordinateHom d F hF)
-    (standardChartCoordinateHom_injective d F hF)
+  { (standardChartNormalizationPullback d F hF).comp
+      (standardChartFractionToPlaneField d F hF) with
+    commutes' := by sorry }
+
+/-- The quotient construction evaluates a fraction by its numerator and denominator,
+then applies the canonical normalization map on generic stalks. -/
+@[simp] theorem standardChartFractionHom_mk {k : Type u} [Field k] (d : ℕ)
+    (F : MvPolynomial (Fin 3) k) (hF : F ∈ ProjectiveSpace.grading k 2 d)
+    [IsDomain (affineCoordinateRing F)] [Curve (planeCurveOver d F hF)]
+    (a : affineCoordinateRing F) (b : nonZeroDivisors (affineCoordinateRing F)) :
+    standardChartFractionHom d F hF (Localization.mk a b) =
+      standardChartNormalizationPullback d F hF
+        (standardChartNormalizationRestriction d F hF (standardChartCoordinateHom d F hF a) /
+          standardChartNormalizationRestriction d F hF (standardChartCoordinateHom d F hF b)) := rfl
+
+/-- The inverse standard-chart map: restrict a generic germ on the normalization
+to the generic residue-field leg, then evaluate its homogeneous fractions at `(1,x,y)`.
+Both maps are explicit; no inverse is chosen from a bijectivity assertion. -/
+def standardChartFractionInv {k : Type u} [Field k] (d : ℕ)
+    (F : MvPolynomial (Fin 3) k) (hF : F ∈ ProjectiveSpace.grading k 2 d)
+    [IsDomain (affineCoordinateRing F)] [Curve (planeCurveOver d F hF)] :
+    SchemeOverField.functionFieldCommAlg (abstractCurve d F hF) →ₐ[k] fractionField F := by
+  let D := (planeCurveOver d F hF).left
+  let C := (abstractCurve d F hF).left
+  let g := standardChartGenericPointLift d F hF
+  let E := standardChartGenericStalkEval d F hF
+  let h := standardChartGenericPointLift_closedPoint d F hF
+  let r : C.functionField →+* D.residueField (genericPoint D) :=
+    ((C.presheaf.stalkCongr (.of_eq h.symm)).hom ≫ Scheme.stalkClosedPointTo g).hom
+  let e : D.residueField (genericPoint D) →+* fractionField F :=
+    (D.descResidueField (CommRingCat.ofHom E)).hom
+  exact { e.comp r with commutes' := by sorry }
 
 /-- The standard coordinate fraction-field homomorphism is bijective. -/
 theorem standardChartFractionHom_bijective {k : Type u} [Field k] (d : ℕ)
@@ -307,8 +490,22 @@ def standardChartIdent {k : Type u} [Field k] (d : ℕ)
     (F : MvPolynomial (Fin 3) k) (hF : F ∈ ProjectiveSpace.grading k 2 d)
     [IsDomain (affineCoordinateRing F)] [Curve (planeCurveOver d F hF)] :
     fractionFieldAbstractCurveIdent d F hF :=
-  AlgEquiv.ofBijective (standardChartFractionHom d F hF)
-    (standardChartFractionHom_bijective d F hF)
+  { standardChartFractionHom d F hF with
+    invFun := standardChartFractionInv d F hF
+    left_inv := by sorry
+    right_inv := by sorry }
+
+/-- The forward map of the standard identification is the standard coordinate map. -/
+@[simp] theorem standardChartIdent_toAlgHom {k : Type u} [Field k] (d : ℕ)
+    (F : MvPolynomial (Fin 3) k) (hF : F ∈ ProjectiveSpace.grading k 2 d)
+    [IsDomain (affineCoordinateRing F)] [Curve (planeCurveOver d F hF)] :
+    (standardChartIdent d F hF).toAlgHom = standardChartFractionHom d F hF := rfl
+
+/-- The inverse map of the standard identification is restriction and homogeneous evaluation. -/
+@[simp] theorem standardChartIdent_symm_toAlgHom {k : Type u} [Field k] (d : ℕ)
+    (F : MvPolynomial (Fin 3) k) (hF : F ∈ ProjectiveSpace.grading k 2 d)
+    [IsDomain (affineCoordinateRing F)] [Curve (planeCurveOver d F hF)] :
+    (standardChartIdent d F hF).symm.toAlgHom = standardChartFractionInv d F hF := rfl
 
 /-- The standard field identification sends the affine coordinates to the
 corresponding pulled-back coordinate germs. -/

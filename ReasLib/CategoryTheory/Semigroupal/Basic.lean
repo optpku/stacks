@@ -128,6 +128,12 @@ def whiskerRightIso {X Y : C} (iso : X ≅ Y) (Z : C) : tensorObj X Z ≅ tensor
 theorem whiskerRightIso_hom {X Y : C} (iso : X ≅ Y) (Z : C) :
     (whiskerRightIso iso Z).hom = whiskerRight iso.hom Z := rfl
 
+/-- The three-arrow and two-arrow composites of inverse associators around the pentagon agree. -/
+theorem pentagon_inv (X Y Z W : C) :
+    whiskerLeft X (associator Y Z W).inv ≫
+        (associator X (tensorObj Y Z) W).inv ≫ whiskerRight (associator X Y Z).inv W =
+      (associator X Y (tensorObj Z W)).inv ≫ (associator (tensorObj X Y) Z W).inv := sorry
+
 end SemigroupalCategory
 
 end CategoryTheory

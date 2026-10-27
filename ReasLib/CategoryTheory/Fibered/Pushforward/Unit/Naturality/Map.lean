@@ -39,7 +39,10 @@ theorem mapObjFstIso.w (u : C ⥤ D) {p : S ⥤ C} {q : T ⥤ C}
     (F : CartesianBasedFunctor p q) (x : S) :
     (𝟭 D).map (u.map (F.toBasedFunctor.projectionIso.app x).inv) ≫
         (obj u q (F.toFunctor.obj x)).fst.hom =
-      (obj u p x).fst.hom ≫ u.map (F.toBasedFunctor.projectionIso.app x).inv := sorry
+      (obj u p x).fst.hom ≫ u.map (F.toBasedFunctor.projectionIso.app x).inv := by
+  change u.map (F.toBasedFunctor.projectionIso.app x).inv ≫ 𝟙 _ =
+    𝟙 _ ≫ u.map (F.toBasedFunctor.projectionIso.app x).inv
+  simp
 
 /-- The explicit comma-object comparison underlying source naturality of the prelocalized
 pushforward unit. -/
@@ -59,7 +62,13 @@ theorem mapObjIso.w (u : C ⥤ D) {p : S ⥤ C} {q : T ⥤ C}
     (Comma.snd (𝟭 D) u).map (mapObjFstIso u F x).hom ≫
         (obj u q (F.toFunctor.obj x)).iso.hom =
       ((Functor.Pushforward.sourceMap u F).obj (obj u p x)).iso.hom ≫
-        q.map (𝟙 (F.toFunctor.obj x)) := sorry
+        q.map (𝟙 (F.toFunctor.obj x)) := by
+  change (F.toBasedFunctor.projectionIso.app x).inv ≫ 𝟙 _ =
+    (𝟙 _ ≫ (𝟙 _ ≫ 𝟙 _) ≫ 𝟙 _ ≫ 𝟙 _ ≫ 𝟙 _ ≫
+      (𝟙 _ ≫ (F.toBasedFunctor.projectionIso.app x).inv) ≫ 𝟙 _) ≫
+      q.map (𝟙 (F.toFunctor.obj x))
+  simp only [Category.id_comp, Category.comp_id, Functor.map_id]
+  exact (Category.comp_id _).symm
 
 /-- The explicit source comparison between the image of a prelocalized unit object and the
 corresponding target prelocalized unit object. -/
@@ -74,25 +83,29 @@ noncomputable def mapObjIso (u : C ⥤ D) {p : S ⥤ C} {q : T ⥤ C}
 @[simp, stacks 04WI "prelocalized source comparison forward comma component"]
 theorem mapObjIso.hom.fst (u : C ⥤ D) {p : S ⥤ C} {q : T ⥤ C}
     (F : CartesianBasedFunctor p q) (x : S) :
-    (mapObjIso u F x).hom.fst = (mapObjFstIso u F x).hom := sorry
+    (mapObjIso u F x).hom.fst = (mapObjFstIso u F x).hom := by
+  rfl
 
 /-- The second forward component of the prelocalized source comparison is the identity. -/
 @[simp, stacks 04WI "prelocalized source comparison forward base component"]
 theorem mapObjIso.hom.snd (u : C ⥤ D) {p : S ⥤ C} {q : T ⥤ C}
     (F : CartesianBasedFunctor p q) (x : S) :
-    (mapObjIso u F x).hom.snd = 𝟙 (F.toFunctor.obj x) := sorry
+    (mapObjIso u F x).hom.snd = 𝟙 (F.toFunctor.obj x) := by
+  rfl
 
 /-- The first inverse component of the prelocalized source comparison. -/
 @[simp, stacks 04WI "prelocalized source comparison inverse comma component"]
 theorem mapObjIso.inv.fst (u : C ⥤ D) {p : S ⥤ C} {q : T ⥤ C}
     (F : CartesianBasedFunctor p q) (x : S) :
-    (mapObjIso u F x).inv.fst = (mapObjFstIso u F x).inv := sorry
+    (mapObjIso u F x).inv.fst = (mapObjFstIso u F x).inv := by
+  rfl
 
 /-- The second inverse component of the prelocalized source comparison is the identity. -/
 @[simp, stacks 04WI "prelocalized source comparison inverse base component"]
 theorem mapObjIso.inv.snd (u : C ⥤ D) {p : S ⥤ C} {q : T ⥤ C}
     (F : CartesianBasedFunctor p q) (x : S) :
-    (mapObjIso u F x).inv.snd = 𝟙 (F.toFunctor.obj x) := sorry
+    (mapObjIso u F x).inv.snd = 𝟙 (F.toFunctor.obj x) := by
+  rfl
 
 end Functor.Pushforward.Prelocalized
 
@@ -124,7 +137,70 @@ theorem mapIsoApp.naturality (u : C ⥤ D) {p : S ⥤ C} {q : T ⥤ C}
     {x y : S} (f : x ⟶ y) :
     (functor u p ⋙ Functor.Pushforward.map u F hF).map f ≫
         (mapIsoApp u F hF y).hom =
-      (mapIsoApp u F hF x).hom ≫ (F.toFunctor ⋙ functor u q).map f := sorry
+      (mapIsoApp u F hF x).hom ≫ (F.toFunctor ⋙ functor u q).map f := by
+  have h :
+      (Functor.Pushforward.sourceMap u F).map (Prelocalized.map u p f) ≫
+          (Prelocalized.mapObjIso u F y).hom =
+        (Prelocalized.mapObjIso u F x).hom ≫
+          Prelocalized.map u q (F.toFunctor.map f) := by
+    apply CategoricalPullback.hom_ext
+    · apply Comma.hom_ext
+      · change u.map (p.map f) ≫ u.map (F.toBasedFunctor.projectionIso.app y).inv =
+          u.map (F.toBasedFunctor.projectionIso.app x).inv ≫
+            u.map (q.map (F.toFunctor.map f))
+        calc
+          _ = u.map (p.map f ≫ (F.toBasedFunctor.projectionIso.app y).inv) :=
+            (u.map_comp _ _).symm
+          _ = u.map ((F.toBasedFunctor.projectionIso.app x).inv ≫
+              q.map (F.toFunctor.map f)) :=
+            congrArg (fun g ↦ u.map g) (F.toBasedFunctor.projectionIso.inv.naturality f)
+          _ = _ := u.map_comp _ _
+      · change p.map f ≫ (F.toBasedFunctor.projectionIso.app y).inv =
+          (F.toBasedFunctor.projectionIso.app x).inv ≫ q.map (F.toFunctor.map f)
+        exact F.toBasedFunctor.projectionIso.inv.naturality f
+    · change F.toFunctor.map f ≫ 𝟙 _ = 𝟙 _ ≫ F.toFunctor.map f
+      simp
+  change (Functor.Pushforward.map u F hF).map
+      ((u.pushforwardFractions p).Q.map (Prelocalized.map u p f)) ≫
+        ((Functor.Pushforward.map.comparisonIso u F hF).hom.app (Prelocalized.obj u p y) ≫
+          (u.pushforwardFractions q).Q.map (Prelocalized.mapObjIso u F y).hom) =
+    ((Functor.Pushforward.map.comparisonIso u F hF).hom.app (Prelocalized.obj u p x) ≫
+        (u.pushforwardFractions q).Q.map (Prelocalized.mapObjIso u F x).hom) ≫
+      (u.pushforwardFractions q).Q.map (Prelocalized.map u q (F.toFunctor.map f))
+  have hc :=
+    (Functor.Pushforward.map.comparisonIso u F hF).hom.naturality (Prelocalized.map u p f)
+  dsimp only [Functor.comp_map] at hc
+  calc
+    _ = ((Functor.Pushforward.map u F hF).map
+          ((u.pushforwardFractions p).Q.map (Prelocalized.map u p f)) ≫
+        (Functor.Pushforward.map.comparisonIso u F hF).hom.app (Prelocalized.obj u p y)) ≫
+        (u.pushforwardFractions q).Q.map (Prelocalized.mapObjIso u F y).hom :=
+      (Category.assoc _ _ _).symm
+    _ = ((Functor.Pushforward.map.comparisonIso u F hF).hom.app (Prelocalized.obj u p x) ≫
+        (u.pushforwardFractions q).Q.map
+          ((Functor.Pushforward.sourceMap u F).map (Prelocalized.map u p f))) ≫
+        (u.pushforwardFractions q).Q.map (Prelocalized.mapObjIso u F y).hom :=
+      congrArg (fun g ↦ g ≫
+        (u.pushforwardFractions q).Q.map (Prelocalized.mapObjIso u F y).hom) hc
+    _ = (Functor.Pushforward.map.comparisonIso u F hF).hom.app (Prelocalized.obj u p x) ≫
+        (u.pushforwardFractions q).Q.map
+          ((Functor.Pushforward.sourceMap u F).map (Prelocalized.map u p f) ≫
+            (Prelocalized.mapObjIso u F y).hom) :=
+      (Category.assoc _ _ _).trans
+        (congrArg (fun g ↦
+          (Functor.Pushforward.map.comparisonIso u F hF).hom.app (Prelocalized.obj u p x) ≫ g)
+          ((u.pushforwardFractions q).Q.map_comp _ _).symm)
+    _ = (Functor.Pushforward.map.comparisonIso u F hF).hom.app (Prelocalized.obj u p x) ≫
+        (u.pushforwardFractions q).Q.map
+          ((Prelocalized.mapObjIso u F x).hom ≫
+            Prelocalized.map u q (F.toFunctor.map f)) :=
+      congrArg (fun g ↦
+        (Functor.Pushforward.map.comparisonIso u F hF).hom.app (Prelocalized.obj u p x) ≫
+          (u.pushforwardFractions q).Q.map g) h
+    _ = _ :=
+      (congrArg (fun g ↦
+        (Functor.Pushforward.map.comparisonIso u F hF).hom.app (Prelocalized.obj u p x) ≫ g)
+        ((u.pushforwardFractions q).Q.map_comp _ _)).trans (Category.assoc _ _ _).symm
 
 /-- The pushforward-unit comparison isomorphism for a cartesian based functor with an explicit
 source-fraction inversion proof. -/
@@ -146,7 +222,8 @@ theorem mapIso.hom.app (u : C ⥤ D) {p : S ⥤ C} {q : T ⥤ C}
       (Functor.Pushforward.map.comparisonIso u F hF).hom.app
           (Functor.Pushforward.Prelocalized.obj u p x) ≫
         (u.pushforwardFractions q).Q.map
-          (Functor.Pushforward.Prelocalized.mapObjIso u F x).hom := sorry
+          (Functor.Pushforward.Prelocalized.mapObjIso u F x).hom := by
+  rfl
 
 /-- The inverse component of the pushforward-unit comparison is the inverse localized
 prelocalized-object comparison followed by the inverse localization comparison. -/
@@ -158,11 +235,13 @@ theorem mapIso.inv.app (u : C ⥤ D) {p : S ⥤ C} {q : T ⥤ C}
       (u.pushforwardFractions q).Q.map
           (Functor.Pushforward.Prelocalized.mapObjIso u F x).inv ≫
         (Functor.Pushforward.map.comparisonIso u F hF).inv.app
-          (Functor.Pushforward.Prelocalized.obj u p x) := sorry
+          (Functor.Pushforward.Prelocalized.obj u p x) := by
+  rfl
 
 end Functor.Pushforward.Unit
 
 end CategoryTheory
 
--- Data audit: both comparison isomorphisms own explicit hom and inverse data. Their `sorryAx`
--- dependencies are confined to compatibility and naturality laws.
+-- Data audit: both comparison isomorphisms own explicit hom and inverse data. The prelocalized
+-- comparisons have proved laws; localized comparisons inherit only the compatibility and functor
+-- laws of the prelocalized unit from `Unit.lean`.

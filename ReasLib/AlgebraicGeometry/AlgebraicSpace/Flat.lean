@@ -9,11 +9,13 @@ module
 public import Mathlib.Data.List.TFAE
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.Flat
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Locality.Criteria
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Points.Comparison
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Pullback
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Surjective
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.ZariskiCover.Basic
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.Flat
+public import ReasLib.AlgebraicGeometry.Scheme.Morphism.EtaleLocal.Flat
 
 /-!
 # Flat morphisms of algebraic spaces
@@ -68,61 +70,51 @@ theorem flat_ofOverMap_iff {S : Scheme.{u}} {U V : Over S} (h : U ⟶ V) :
 
 namespace Flat
 
-/-- Every base change of `f` along a morphism from a scheme is flat. -/
-def baseChangeOnSchemes {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
+/-- Every base change of `f` along a morphism from a scheme is flat.
+Stacks, Tag 03MM (3), `tex/spaces-morphisms.tex:5841–5842`. -/
+abbrev baseChangeOnSchemes {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     Prop :=
-  ∀ {Z : Over S} (g : ofOver Z ⟶ Y), Flat (pullbackAlongScheme.snd f g)
+  Locality.Criteria.forallScheme (@Flat S) f
 
-/-- Every base change of `f` along a morphism from an affine scheme is flat. -/
-def baseChangeOnAffineSchemes {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+/-- Every base change of `f` along a morphism from an affine scheme is flat.
+Stacks, Tag 03MM (4), `tex/spaces-morphisms.tex:5843–5844`. -/
+abbrev baseChangeOnAffineSchemes {S : Scheme.{u}} {X Y : AlgebraicSpace S}
     (f : X ⟶ Y) : Prop :=
-  ∀ {Z : Over S} (g : ofOver Z ⟶ Y),
-    IsAffine Z.left → Flat (pullbackAlongScheme.snd f g)
+  Locality.Criteria.forallAffine (@Flat S) f
 
 /-- There is a surjective étale morphism from a scheme to `Y` along which the
-base change of `f` is flat. -/
-def existsSurjectiveEtaleTarget {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+base change of `f` is flat.
+Stacks, Tag 03MM (5), `tex/spaces-morphisms.tex:5845–5846`. -/
+abbrev existsSurjectiveEtaleTarget {S : Scheme.{u}} {X Y : AlgebraicSpace S}
     (f : X ⟶ Y) : Prop :=
-  ∃ (V : Over S) (b : ofOver V ⟶ Y),
-    (over (@AlgebraicGeometry.Etale)).presheaf b ∧
-      Surjective b ∧ Flat (pullbackAlongScheme.snd f b)
+  Locality.Criteria.existsSurjectiveEtaleTarget (@Flat S) f
 
 /-- There is a surjective étale morphism `φ` from a scheme to `X` such that
-`φ ≫ f` is flat. -/
-def existsSurjectiveEtaleSource {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+`φ ≫ f` is flat.
+Stacks, Tag 03MM (6), `tex/spaces-morphisms.tex:5847–5849`. -/
+abbrev existsSurjectiveEtaleSource {S : Scheme.{u}} {X Y : AlgebraicSpace S}
     (f : X ⟶ Y) : Prop :=
-  ∃ (U : Over S) (φ : ofOver U ⟶ X),
-    (over (@AlgebraicGeometry.Etale)).presheaf φ ∧ Surjective φ ∧ Flat (φ ≫ f)
+  Locality.Criteria.existsSurjectiveEtaleSource (@Flat S) f
 
-/-- Every étale scheme square over `f` has flat top arrow. -/
-def forallEtaleSquare {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
+/-- Every étale scheme square over `f` has flat top arrow.
+Stacks, Tag 03MM (7), `tex/spaces-morphisms.tex:5850–5858`. -/
+abbrev forallEtaleSquare {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     Prop :=
-  ∀ {U V : Over S} (a : yoneda.obj U ⟶ X.functorOfPoints)
-    (b : yoneda.obj V ⟶ Y.functorOfPoints) (h : U ⟶ V),
-    (over (@AlgebraicGeometry.Etale)).presheaf a →
-      (over (@AlgebraicGeometry.Etale)).presheaf b →
-        a ≫ f = yoneda.map h ≫ b → AlgebraicGeometry.Flat h.left
+  Locality.Criteria.forallEtaleSquare (@AlgebraicGeometry.Flat) f
 
 /-- There is an étale scheme square over `f` with surjective source cover and
-flat top arrow. -/
-def existsEtaleSquare {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
+flat top arrow.
+Stacks, Tag 03MM (8), `tex/spaces-morphisms.tex:5859–5867`. -/
+abbrev existsEtaleSquare {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     Prop :=
-  ∃ (U V : Over S) (a : ofOver U ⟶ X) (b : ofOver V ⟶ Y) (h : U ⟶ V),
-    (over (@AlgebraicGeometry.Etale)).presheaf a ∧
-      (over (@AlgebraicGeometry.Etale)).presheaf b ∧
-        a ≫ f = ofOverMap h ≫ b ∧
-          Surjective a ∧ AlgebraicGeometry.Flat h.left
+  Locality.Criteria.existsEtaleSquare (@AlgebraicGeometry.Flat) f
 
 /-- There are Zariski coverings of `Y` and of the inverse images in `X` on which
-the pieces of `f` are flat. -/
-def existsZariskiCover {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
+the pieces of `f` are flat.
+Stacks, Tag 03MM (9), `tex/spaces-morphisms.tex:5868–5870`. -/
+abbrev existsZariskiCover {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     Prop :=
-  ∃ 𝒱 : ZariskiCover.{u, v} Y, ∀ i : 𝒱.I₀,
-    ∃ (Xi : AlgebraicSpace S) (ι : Xi ⟶ X) (_ : IsOpenImmersion ι)
-      (𝒰 : ZariskiCover.{u, v} Xi) (h : ∀ j, 𝒰.X j ⟶ 𝒱.X i),
-      (∀ j, 𝒰.f j ≫ ι ≫ f = h j ≫ 𝒱.f i) ∧
-        (∀ j, Flat (h j)) ∧
-          Set.range (Points.map ι) = (Points.map f) ⁻¹' Set.range (Points.map (𝒱.f i))
+  Locality.Criteria.existsZariskiCover.{u, v} (@Flat S) f
 
 end Flat
 
@@ -130,7 +122,8 @@ end Flat
 flatness, flatness after every scheme or affine-scheme base change, flatness
 on a surjective étale target or source presentation, the universal or
 existential étale scheme-square condition, and flatness on Zariski coverings
-of the target and its inverse images. -/
+of the target and its inverse images.
+Stacks, Tag 03MM, `tex/spaces-morphisms.tex:5834–5876`. -/
 theorem flat_tfae {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     List.TFAE
       [ Flat f
@@ -141,8 +134,26 @@ theorem flat_tfae {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
       , Flat.existsSurjectiveEtaleSource f
       , Flat.forallEtaleSquare f
       , Flat.existsEtaleSquare f
-      , Flat.existsZariskiCover.{u, v} f ] :=
-  sorry
+      , Flat.existsZariskiCover.{u, v} f ] := by
+  have hP : (@Flat S : MorphismProperty (AlgebraicSpace S)) =
+      etaleLocal (@AlgebraicGeometry.Flat) := by
+    funext U V g
+    exact propext (flat_iff g)
+  have hlocal := Locality.Criteria.etaleLocal_tfae.{u, v} (@AlgebraicGeometry.Flat) f
+  have hbase : List.TFAE
+      [ Flat f, Flat.baseChangeOnSchemes f, Flat.baseChangeOnAffineSchemes f
+      , Flat.existsSurjectiveEtaleTarget f, Flat.existsSurjectiveEtaleSource f
+      , Flat.forallEtaleSquare f, Flat.existsEtaleSquare f
+      , Flat.existsZariskiCover.{u, v} f ] := by
+    simpa only [Flat.baseChangeOnSchemes, Flat.baseChangeOnAffineSchemes,
+      Flat.existsSurjectiveEtaleTarget, Flat.existsSurjectiveEtaleSource,
+      Flat.forallEtaleSquare, Flat.existsEtaleSquare, Flat.existsZariskiCover, hP]
+      using hlocal
+  -- Tag 08EW, tex/spaces-morphisms.tex:5789–5810: the property-specific pointwise test.
+  have hpoint : Flat f ↔ ∀ x : Points X, FlatAt f x := by sorry
+  exact List.tfae_cons_cons.mpr ⟨hpoint,
+    List.tfae_cons_cons.mpr ⟨hpoint.symm.trans (hbase.out 0 1),
+      (List.tfae_cons_cons.mp hbase).2⟩⟩
 
 /-- A morphism of algebraic spaces is flat if and only if it is flat at every
 point of its source. -/

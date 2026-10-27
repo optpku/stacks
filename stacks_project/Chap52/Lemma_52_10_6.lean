@@ -23,11 +23,11 @@ cohomology modules of the adic stages are pro-zero in every degree `i ≤ s`. -/
 @[stacks 0EFX] #check (Ideal.LocalCohomology.AlgebraizationSituation.proZero_adicCohomology :
     ∀ {A : Type u} [CommRing A] [IsNoetherianRing A]
     [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
-    (H : MonoidalClosed (DerivedCategory (ModuleCat.{u} A)))
+    (C : CategoryTheory.DerivedCategory.CanonicalClosedPresentation (A := A))
     (I : Ideal A) (M : Type u)
     [AddCommGroup M] [Module A M] [Module.Finite A M]
     (T : Set (PrimeSpectrum A)) (s d : ℤ)
-    (h : Ideal.LocalCohomology.AlgebraizationSituation H I M T s d),
+    (h : Ideal.LocalCohomology.AlgebraizationSituation C I M T s d),
     ∀ i : ℤ, i ≤ s →
       CategoryTheory.Pro.HasValue
         (supportedCohomologyTower T
@@ -39,11 +39,11 @@ map injectively into one fixed stage of the supported local-cohomology tower. -/
 @[stacks 0EFX] #check (Ideal.LocalCohomology.AlgebraizationSituation.exists_eventually_mono_adicCohomology :
     ∀ {A : Type u} [CommRing A] [IsNoetherianRing A]
     [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
-    (H : MonoidalClosed (DerivedCategory (ModuleCat.{u} A)))
+    (C : CategoryTheory.DerivedCategory.CanonicalClosedPresentation (A := A))
     (I : Ideal A) (M : Type u)
     [AddCommGroup M] [Module A M] [Module.Finite A M]
     (T : Set (PrimeSpectrum A)) (s d : ℤ)
-    (h : Ideal.LocalCohomology.AlgebraizationSituation H I M T s d),
+    (h : Ideal.LocalCohomology.AlgebraizationSituation C I M T s d),
     ∃ (m₀ : ℕ), ∀ (m : ℕ) (h_m₀m : m₀ ≤ m),
       ∃ (m' : ℕ) (h_mm' : m ≤ m'), ∀ (k : ℕ) (h_m'k : m' ≤ k),
         Mono

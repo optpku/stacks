@@ -25,14 +25,7 @@ open CategoryTheory AlgebraicGeometry Opposite CategoryTheory.Limits
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- The structural morphism of an algebraic space to its base scheme. -/
-abbrev toBase {S : Scheme.{u}} (X : AlgebraicSpace S) : X ⟶ ofOver (Over.mk (𝟙 S)) :=
-  SchemeRealization.toBase X
-
-/-- Every morphism to the base scheme equals the structural morphism. -/
-theorem eq_toBase {S : Scheme.{u}} {X : AlgebraicSpace S}
-    (f : X ⟶ ofOver (Over.mk (𝟙 S))) : f = toBase X :=
-  SchemeRealization.eq_toBase f
+export SchemeRealization (toBase eq_toBase)
 
 #check (AlgebraicGeometry.AlgebraicSpace.toBase_app :
   ∀ {S : Scheme.{u}} (X : AlgebraicSpace S) (T : (Over S)ᵒᵖ)

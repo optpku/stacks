@@ -126,16 +126,15 @@ def homMk {S T : ColaxCostructuredArrow K X} (map : S.left ⟶ T.left)
 @[simp]
 theorem homMk_map {S T : ColaxCostructuredArrow K X}
     (map : S.left ⟶ T.left) (fac : K.map map ≫ T.hom ⟶ S.hom) :
-    ColaxCostructuredArrow.map (homMk map fac) = map := sorry
-/- Proof strategy: unfold `map` and `homMk`; the left comma component is definitionally `map`. -/
+    ColaxCostructuredArrow.map (homMk map fac) = map := rfl
 
 /-- The normalized comparison of a constructed `1`-morphism is the supplied comparison cell. -/
 @[simp]
 theorem homMk_fac {S T : ColaxCostructuredArrow K X}
     (map : S.left ⟶ T.left) (fac : K.map map ≫ T.hom ⟶ S.hom) :
-    ColaxCostructuredArrow.fac (homMk map fac) = fac := sorry
-/- Proof strategy: unfold `fac` and `homMk`, reassociate, and cancel the inserted inverse right
-unitor with its forward right unitor. -/
+    ColaxCostructuredArrow.fac (homMk map fac) = fac := by
+  change (fac ≫ (ρ_ S.hom).inv) ≫ (ρ_ S.hom).hom = fac
+  simp
 
 /-- Costructured-arrow `1`-morphisms are determined by their source map and normalized
 comparison cell. -/
@@ -143,16 +142,30 @@ comparison cell. -/
 theorem hom_ext {S T : ColaxCostructuredArrow K X} (f g : S ⟶ T)
     (hmap : map f = map g)
     (hfac : (T.comparison S.left).map (eqToHom hmap) ≫ fac g = fac f) :
-    f = g := sorry
-/- Proof strategy: convert the functorial transport in `hfac` to equality transport, then apply
-ambient comma hom extensionality; the terminal right endpoint is unique. -/
+    f = g := by
+  rcases f with ⟨fl, fr, fc⟩
+  rcases g with ⟨gl, gr, gc⟩
+  change fl = gl at hmap
+  cases hmap
+  have hright : fr = gr := Discrete.ext
+    ((Discrete.instSubsingletonDiscreteHom S.right.as T.right.as).elim _ _)
+  cases hright
+  change (T.comparison S.left).map (𝟙 fl) ≫ (gc ≫ (ρ_ S.hom).hom) =
+    fc ≫ (ρ_ S.hom).hom at hfac
+  rw [Functor.map_id, Category.id_comp] at hfac
+  have hcell : fc = gc := ((cancel_mono (ρ_ S.hom).hom).1 hfac).symm
+  cases hcell
+  rfl
 
 /-- Reconstructing a costructured-arrow morphism from its normalized projections is identity. -/
 @[simp]
 theorem homMk_map_fac {S T : ColaxCostructuredArrow K X} (f : S ⟶ T) :
-    homMk (map f) (fac f) = f := sorry
-/- Proof strategy: apply `hom_ext`; the map projection is reflexive and the comparison projection
-reduces using `homMk_fac`. -/
+    homMk (map f) (fac f) = f := by
+  refine hom_ext (homMk (map f) (fac f)) f rfl ?_
+  change (T.comparison S.left).map (𝟙 (map f)) ≫ fac f =
+    fac (homMk (map f) (fac f))
+  exact (congrArg (fun ξ => ξ ≫ fac f) ((T.comparison S.left).map_id (map f))).trans
+    ((Category.id_comp (fac f)).trans (homMk_fac (map f) (fac f)).symm)
 
 /-- The source `2`-morphism underlying a colax costructured-arrow `2`-morphism. -/
 abbrev map₂ {S T : ColaxCostructuredArrow K X} {f g : S ⟶ T}
@@ -161,9 +174,12 @@ abbrev map₂ {S T : ColaxCostructuredArrow K X} {f g : S ⟶ T}
 
 /-- Every costructured-arrow `2`-morphism satisfies the normalized comparison equation. -/
 theorem map₂_fac {S T : ColaxCostructuredArrow K X} {f g : S ⟶ T} (η : f ⟶ g) :
-    (T.comparison S.left).map (map₂ η) ≫ fac g = fac f := sorry
-/- Proof strategy: start from the ambient comma compatibility equation, use terminal discreteness
-on the right endpoint, and cancel the right unitors used to define `fac`. -/
+    (T.comparison S.left).map (map₂ η) ≫ fac g = fac f := by
+  have h : (K.map₂ η.left ▷ T.hom) ≫ g.cell = f.cell :=
+    η.w.trans ((congrArg (fun ξ => f.cell ≫ ξ)
+      (Bicategory.whiskerLeft_id S.hom (𝟙 X))).trans (Category.comp_id f.cell))
+  exact (Category.assoc (K.map₂ η.left ▷ T.hom) g.cell (ρ_ S.hom).hom).symm.trans
+    (congrArg (fun ξ => ξ ≫ (ρ_ S.hom).hom) h)
 
 namespace Implementation
 
@@ -179,9 +195,13 @@ private theorem hom₂Mk_w {S T : ColaxCostructuredArrow K X} {f g : S ⟶ T}
     (comm : (T.comparison S.left).map η ≫ fac g = fac f) :
     (K.map₂ η ▷ T.hom) ≫ g.cell =
       f.cell ≫ (S.hom ◁ (Pseudofunctor.const (LocallyDiscrete (Discrete PUnit.{1})) X).map₂
-        (terminalMap₂ (f := f) (g := g))) := sorry
-/- Proof strategy: unfold `comparison` and both normalized comparison cells, cancel the right
-unitors, and use `Pseudofunctor.const.map₂` to reduce the terminal endpoint cell to an identity. -/
+        (terminalMap₂ (f := f) (g := g))) := by
+  have h : f.cell ≫ (S.hom ◁ 𝟙 (𝟙 X)) = f.cell :=
+    (congrArg (fun ξ => f.cell ≫ ξ)
+      (Bicategory.whiskerLeft_id S.hom (𝟙 X))).trans (Category.comp_id f.cell)
+  exact (cancel_mono (ρ_ S.hom).hom).1
+    ((Category.assoc (K.map₂ η ▷ T.hom) g.cell (ρ_ S.hom).hom).trans
+      (comm.trans (congrArg (fun ξ => ξ ≫ (ρ_ S.hom).hom) h.symm)))
 
 end Implementation
 
@@ -199,22 +219,19 @@ def hom₂Mk {S T : ColaxCostructuredArrow K X} {f g : S ⟶ T}
 theorem hom₂Mk_map₂ {S T : ColaxCostructuredArrow K X} {f g : S ⟶ T}
     (η : map f ⟶ map g)
     (comm : (T.comparison S.left).map η ≫ fac g = fac f) :
-    map₂ (hom₂Mk η comm) = η := sorry
-/- Proof strategy: unfold `map₂` and `hom₂Mk`; the left comma component is definitionally `η`. -/
+    map₂ (hom₂Mk η comm) = η := rfl
 
 /-- Costructured-arrow `2`-morphisms are determined by their source cells. -/
 @[ext]
 theorem hom₂_ext {S T : ColaxCostructuredArrow K X} {f g : S ⟶ T} {η θ : f ⟶ g}
-    (h : map₂ η = map₂ θ) : η = θ := sorry
-/- Proof strategy: apply ambient comma `Hom₂.ext`; use `h` on the left component and
-subsingleton elimination in the terminal right hom-category. -/
+    (h : map₂ η = map₂ θ) : η = θ := by
+  exact ColaxComma.Hom₂.ext h (Subsingleton.elim _ _)
 
 /-- Reconstructing a costructured-arrow `2`-morphism from its source cell is identity. -/
 @[simp]
 theorem hom₂Mk_map₂_fac {S T : ColaxCostructuredArrow K X} {f g : S ⟶ T}
-    (η : f ⟶ g) : hom₂Mk (map₂ η) (map₂_fac η) = η := sorry
-/- Proof strategy: apply `hom₂_ext` and simplify the source-cell projection with
-`hom₂Mk_map₂`. -/
+    (η : f ⟶ g) : hom₂Mk (map₂ η) (map₂_fac η) = η := by
+  exact hom₂_ext rfl
 
 /- Data audit (mathlib 4.32): the generic `Pseudofunctor.const` owns explicit object,
 `1`-morphism, and `2`-morphism data; its `sorryAx` is confined to coherence fields. The objects,
@@ -285,9 +302,9 @@ def fac {S T : PseudoCostructuredArrow K X} (f : S ⟶ T) :
 /-- The normalized comparison cell is invertible because both its raw comma
 comparison and the right unitor are invertible. -/
 theorem fac_isIso {S T : PseudoCostructuredArrow K X} (f : S ⟶ T) :
-    IsIso (fac f) := sorry
-/- Proof strategy: unfold `fac`; its first factor is the selected invertible pseudo-comma
-comparison and its second is a right unitor, so the composite is invertible. -/
+    IsIso (fac f) := by
+  unfold fac
+  exact IsIso.comp_isIso' (PseudoComma.cellIsIso f) (ρ_ S.hom).isIso_hom
 
 /-- The normalized comparison cell of a pseudo costructured-arrow morphism is invertible. -/
 instance facIsIso {S T : PseudoCostructuredArrow K X} (f : S ⟶ T) :

@@ -10,6 +10,7 @@ public import Mathlib.CategoryTheory.Limits.Shapes.Pullback.IsPullback.Defs
 public import Mathlib.Logic.Equiv.Basic
 public import ReasLib.AlgebraicGeometry.FormalDeformation.RimSchlessinger
 public import ReasLib.CategoryTheory.Fibered.Lifts
+public import ReasLib.CategoryTheory.Fibered.Lifts.Pushforward
 public import ReasLib.CategoryTheory.Fibered.StronglyCocartesian.Chosen
 
 /-!
@@ -66,7 +67,13 @@ theorem liftsReindex_apply {R S : ArtinianLocalAlgCat Λ k} {f g : R ⟶ S} (h :
 /-- A lift along a surjection in `ArtinianLocalAlgCat` has surjective image under `p`. -/
 theorem objectLift_image_surjective {A B : ArtinianLocalAlgCat Λ k} {f : A ⟶ B}
     (hf : Function.Surjective f.hom) {x : p.Fiber B} (a : ObjectLift p f x) :
-    Function.Surjective (p.map a.hom).hom := sorry
+    Function.Surjective (p.map a.hom).hom := by
+  have aux {A B : ArtinianLocalAlgCat Λ k} {a b : F}
+      (f : A ⟶ B) (φ : a ⟶ b) (hφ : p.IsHomLift f φ)
+      (hf : Function.Surjective f.hom) : Function.Surjective (p.map φ).hom := by
+    cases hφ
+    exact hf
+  exact aux f a.hom a.property hf
 
 
 /-- Reindexing the domain of `u` by `eqToHom` preserves the hom-lift of a lift along
@@ -80,13 +87,7 @@ instance instIsHomLift_pushDomain {P B A : ArtinianLocalAlgCat Λ k}
 noncomputable def objectLiftPushforward [IsFibered.InGroupoids p.op]
     {P B A : ArtinianLocalAlgCat Λ k} (u : P ⟶ B) (f : B ⟶ A) {x : p.Fiber A}
     (a : ObjectLift p (u ≫ f) x) : ObjectLift p f x :=
-  let u' : p.obj a.left ⟶ B :=
-    eqToHom (IsHomLift.domain_eq p (u ≫ f) a.hom) ≫ u
-  let l := IsPreFibered.pullbackMap (p := p.op) (a := Opposite.op a.left) rfl u'.op
-  ⟨Over.mk
-      (@IsStronglyCocartesian.map _ _ _ _ p _ _ _ _ u' l.unop
-        (inferInstance : p.IsStronglyCocartesian u' l.unop)
-        _ _ _ _ (rfl : u' ≫ f = u' ≫ f) a.hom inferInstance), sorry⟩
+  ObjectLift.pushforwardAlong u f a
 
 /-- Pushing a lift forward along `u` yields a lift of the same fibre object along `f`. -/
 theorem objectLiftPushforward_spec [IsFibered.InGroupoids p.op]
@@ -103,7 +104,15 @@ theorem liftsPullback_lift_comp_eq {A A1 A2 : ArtinianLocalAlgCat Λ k}
     {w : F} (ρ1 : w ⟶ a1.left) (ρ2 : w ⟶ a2.left)
     (h_comm : ρ1 ≫ a1.hom = ρ2 ≫ a2.hom) :
     (p.map ρ1 ≫ eqToHom (IsHomLift.domain_eq p f1 a1.hom)) ≫ f1 =
-      (p.map ρ2 ≫ eqToHom (IsHomLift.domain_eq p f2 a2.hom)) ≫ f2 := sorry
+      (p.map ρ2 ≫ eqToHom (IsHomLift.domain_eq p f2 a2.hom)) ≫ f2 := by
+  calc
+    _ = p.map (ρ1 ≫ a1.hom) ≫ eqToHom x.2 := by
+      rw [p.map_comp, IsHomLift.fac' p f1 a1.hom]
+      simp only [Category.assoc, eqToHom_trans, eqToHom_refl, Category.comp_id]
+    _ = p.map (ρ2 ≫ a2.hom) ≫ eqToHom x.2 := by rw [h_comm]
+    _ = _ := by
+      rw [p.map_comp, IsHomLift.fac' p f2 a2.hom]
+      simp only [Category.assoc, eqToHom_trans, eqToHom_refl, Category.comp_id]
 
 /-- Compose a lift of `a1.domain` along `π1` with the lift `a1` of `x`. -/
 def objectLiftComp {A A1 P : ArtinianLocalAlgCat Λ k} {f1 : A1 ⟶ A} {π1 : P ⟶ A1}
@@ -255,7 +264,10 @@ noncomputable def liftsPullbackSlicePair [HasRimSchlessinger p]
       let g1 : p.obj w ⟶ A1 := p.map ρ1 ≫ eqToHom (IsHomLift.domain_eq p f1 a1.hom)
       let g2 : p.obj w ⟶ A2 := p.map ρ2 ≫ eqToHom (IsHomLift.domain_eq p f2 a2.hom)
       objectLiftPushforward (hP.lift g1 g2 (liftsPullback_lift_comp_eq a1 a2 ρ1 ρ2 hPB.w))
-        π1 ⟨Over.mk ρ1, sorry⟩)
+        π1 ⟨Over.mk ρ1, by
+          apply IsHomLift.of_fac' p _ ρ1 rfl (IsHomLift.domain_eq p f1 a1.hom)
+          simp only [eqToHom_refl, Category.id_comp, IsPullback.lift_fst,
+            g1, Category.assoc, eqToHom_trans, Category.comp_id]⟩)
     (fun hnot ↦
       let hf1 := Or.resolve_right hsurj hnot
       let h := (inferInstance : HasRimSchlessinger p).exists_pullback a2.hom a1.hom
@@ -268,7 +280,10 @@ noncomputable def liftsPullbackSlicePair [HasRimSchlessinger p]
       let g2 : p.obj w ⟶ A2 := p.map ρ2 ≫ eqToHom (IsHomLift.domain_eq p f2 a2.hom)
       objectLiftPushforward
         (hP.lift g1 g2 (liftsPullback_lift_comp_eq a1 a2 ρ1 ρ2 hPB.w.symm))
-        π1 ⟨Over.mk ρ1, sorry⟩)
+        π1 ⟨Over.mk ρ1, by
+          apply IsHomLift.of_fac' p _ ρ1 rfl (IsHomLift.domain_eq p f1 a1.hom)
+          simp only [eqToHom_refl, Category.id_comp, IsPullback.lift_fst,
+            g1, Category.assoc, eqToHom_trans, Category.comp_id]⟩)
 
 /-- The bijection `Lift(x1, A1 ×_A A2) ≃ Lift(x, A2)` on isomorphism classes of
 lifts, for a fixed lift `a1` of `x` along `A1 ⟶ A`. -/

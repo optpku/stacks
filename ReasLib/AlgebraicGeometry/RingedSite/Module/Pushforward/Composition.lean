@@ -40,7 +40,7 @@ noncomputable def modulePushforwardCompIso.{z, uX, vX, uY, vY, uZ, vZ, w}
 /-- A composite module pushforward is automatically a right adjoint when both constituent
 pushforwards are right adjoints. -/
 @[stacks 03D8 "right adjoint composition"]
-instance modulePushforwardComp_isRightAdjoint.{z, uX, vX, uY, vY, uZ, vZ, w}
+theorem modulePushforwardComp_isRightAdjoint.{z, uX, vX, uY, vY, uZ, vZ, w}
     {X : RingedSite.{uX, vX, w}} {Y : RingedSite.{uY, vY, w}}
     {Z : RingedSite.{uZ, vZ, w}} (f : Hom X Y) (g : Hom Y Z)
     [(f.modulePushforward.{z}).IsRightAdjoint]
@@ -50,11 +50,10 @@ instance modulePushforwardComp_isRightAdjoint.{z, uX, vX, uY, vY, uZ, vZ, w}
 
 namespace CommRingPresentation
 
-/-- The right-adjoint instance for a composite module pushforward remains visible when all
-three ringed sites are presented by commutative ring sheaves.  This anchors the generic
-composition instance across the reducible `ofCommRingSheaf` presentation. -/
+/-- A composite module pushforward between sites presented by commutative ring sheaves is
+a right adjoint whenever both constituent pushforwards are right adjoints. -/
 @[stacks 03D8 "commutative presentation right adjoint composition"]
-instance modulePushforwardCompIsRightAdjoint.{z, uX, vX, uY, vY, uZ, vZ, w}
+theorem modulePushforwardCompIsRightAdjoint.{z, uX, vX, uY, vY, uZ, vZ, w}
     {C : Type uX} [Category.{vX} C]
     {D : Type uY} [Category.{vY} D]
     {E : Type uZ} [Category.{vZ} E]

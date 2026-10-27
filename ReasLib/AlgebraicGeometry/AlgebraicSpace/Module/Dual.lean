@@ -73,17 +73,34 @@ def DualCompatible (E : X.Modules) (U : smallEtaleSite X) (s : dualFamilies E U)
 
 /-- Zero functionals are compatible with chart restriction. -/
 theorem dualCompatible_zero (E : X.Modules) (U : smallEtaleSite X) :
-    DualCompatible E U 0 := sorry
+    DualCompatible E U 0 := by
+  intro V W h f x
+  change (commStructureSheaf X).obj.map ((dualInclusion X).map h).op 0 = 0
+  exact map_zero _
 
 /-- Compatible families are closed under pointwise addition. -/
 theorem dualCompatible_add (E : X.Modules) (U : smallEtaleSite X)
     (s t : dualFamilies E U) (hs : DualCompatible E U s) (ht : DualCompatible E U t) :
-    DualCompatible E U (s + t) := sorry
+    DualCompatible E U (s + t) := by
+  intro V W h f x
+  change (commStructureSheaf X).obj.map ((dualInclusion X).map h).op
+    (dualComponentMap E U W f (s W f) x + dualComponentMap E U W f (t W f) x) = _
+  rw [map_add, hs V W h f x, ht V W h f x]
+  rfl
 
 /-- Scalar restriction from `U` preserves compatibility of linear functionals. -/
 theorem dualCompatible_smul (E : X.Modules) (U : smallEtaleSite X)
     (r : (commStructureSheaf X).obj.obj (op U)) (s : dualFamilies E U)
-    (hs : DualCompatible E U s) : DualCompatible E U (r • s) := sorry
+    (hs : DualCompatible E U s) : DualCompatible E U (r • s) := by
+  intro V W h f x
+  change (commStructureSheaf X).obj.map ((dualInclusion X).map h).op
+    ((commStructureSheaf X).obj.map f.op r * dualComponentMap E U W f (s W f) x) =
+      (commStructureSheaf X).obj.map (((dualInclusion X).map h) ≫ f).op r *
+        dualComponentMap E U V ((dualInclusion X).map h ≫ f)
+          (s V ((dualInclusion X).map h ≫ f))
+          (((toCommModules X).obj E).val.map ((dualInclusion X).map h).op x)
+  rw [map_mul, hs V W h f x, op_comp, Functor.map_comp]
+  rfl
 
 /-- The submodule of compatible chartwise linear functionals. -/
 def dualSections (E : X.Modules) (U : smallEtaleSite X) :
@@ -105,7 +122,11 @@ def dualFromSliceFamily (E : X.Modules) (U : smallEtaleSite X)
 
 /-- Naturality of a slice morphism gives the displayed compatibility equations. -/
 theorem dualFromSliceFamily_compatible (E : X.Modules) (U : smallEtaleSite X)
-    (s : dualSliceHom E U) : DualCompatible E U (dualFromSliceFamily E U s) := sorry
+    (s : dualSliceHom E U) : DualCompatible E U (dualFromSliceFamily E U s) := by
+  intro V W h f x
+  exact (PresheafOfModules.naturality_apply s.val
+    (Over.homMk ((dualInclusion X).map h) (by rfl) :
+      Over.mk ((dualInclusion X).map h ≫ f) ⟶ Over.mk f).op x).symm
 
 /-- The fixed restriction map from actual internal-Hom sections to the small carrier. -/
 def dualFromSliceHom (E : X.Modules) (U : smallEtaleSite X)
@@ -120,7 +141,15 @@ theorem dualFromSliceHom_bijective (E : X.Modules) (U : smallEtaleSite X) :
 /-- Precomposing chart arrows restricts a compatible family to the source chart. -/
 theorem dualRestrict_compatible (E : X.Modules) {U V : smallEtaleSite X}
     (i : V ⟶ U) (s : dualSections E U) :
-    DualCompatible E V (fun W f => s.val W (f ≫ i)) := sorry
+    DualCompatible E V (fun W f => s.val W (f ≫ i)) := by
+  intro W W' h f x
+  change (commStructureSheaf X).obj.map ((dualInclusion X).map h).op
+      (dualComponentMap E U W' (f ≫ i) (s.val W' (f ≫ i)) x) =
+    dualComponentMap E U W (((dualInclusion X).map h ≫ f) ≫ i)
+      (s.val W (((dualInclusion X).map h ≫ f) ≫ i))
+      (((toCommModules X).obj E).val.map ((dualInclusion X).map h).op x)
+  rw [Category.assoc]
+  exact s.property W W' h (f ≫ i) x
 
 /-- Restriction retains each specified functional and only composes the chart arrow. -/
 def dualRestrictFun (E : X.Modules) {U V : smallEtaleSite X} (i : V ⟶ U)
@@ -130,13 +159,25 @@ def dualRestrictFun (E : X.Modules) {U V : smallEtaleSite X} (i : V ⟶ U)
 /-- Restriction of compatible families preserves addition. -/
 theorem dualRestrictFun_add (E : X.Modules) {U V : smallEtaleSite X} (i : V ⟶ U)
     (s t : dualSections E U) :
-    dualRestrictFun E i (s + t) = dualRestrictFun E i s + dualRestrictFun E i t := sorry
+    dualRestrictFun E i (s + t) = dualRestrictFun E i s + dualRestrictFun E i t := by
+  apply Subtype.ext
+  rfl
 
 /-- Restriction of compatible families is semilinear over restriction of sections. -/
 theorem dualRestrictFun_smul (E : X.Modules) {U V : smallEtaleSite X} (i : V ⟶ U)
     (r : (commStructureSheaf X).obj.obj (op U)) (s : dualSections E U) :
     dualRestrictFun E i (r • s) =
-      (commStructureSheaf X).obj.map i.op r • dualRestrictFun E i s := sorry
+      (commStructureSheaf X).obj.map i.op r • dualRestrictFun E i s := by
+  apply Subtype.ext
+  funext W f
+  apply LinearMap.ext
+  intro x
+  change (commStructureSheaf X).obj.map (f ≫ i).op r *
+      dualComponentMap E U W (f ≫ i) (s.val W (f ≫ i)) x =
+    (commStructureSheaf X).obj.map f.op ((commStructureSheaf X).obj.map i.op r) *
+      dualComponentMap E U W (f ≫ i) (s.val W (f ≫ i)) x
+  rw [op_comp, Functor.map_comp]
+  rfl
 
 /-- The original-universe module of dual sections over an étale chart. -/
 def dualObj (E : X.Modules) (U : (smallEtaleSite X)ᵒᵖ) :
@@ -158,7 +199,14 @@ def dualRestrict (E : X.Modules) {U V : (smallEtaleSite X)ᵒᵖ} (i : U ⟶ V) 
 theorem dualRestrict_id (E : X.Modules) (U : (smallEtaleSite X)ᵒᵖ) :
     dualRestrict E (𝟙 U) =
       (ModuleCat.restrictScalarsId' ((commStructureSheaf X).obj.map (𝟙 U)).hom
-        (congrArg CommRingCat.Hom.hom ((commStructureSheaf X).obj.map_id U))).inv.app _ := sorry
+        (congrArg CommRingCat.Hom.hom ((commStructureSheaf X).obj.map_id U))).inv.app _ := by
+  apply ModuleCat.hom_ext
+  apply LinearMap.ext
+  intro s
+  apply Subtype.ext
+  funext W f
+  change s.val W (f ≫ 𝟙 U.unop) = s.val W f
+  rw [Category.comp_id]
 
 /-- Dual restriction is functorial for composition of chart arrows. -/
 theorem dualRestrict_comp (E : X.Modules) {U V W : (smallEtaleSite X)ᵒᵖ}
@@ -167,7 +215,14 @@ theorem dualRestrict_comp (E : X.Modules) {U V W : (smallEtaleSite X)ᵒᵖ}
       (ModuleCat.restrictScalars ((commStructureSheaf X).obj.map i).hom).map (dualRestrict E j) ≫
         (ModuleCat.restrictScalarsComp' ((commStructureSheaf X).obj.map i).hom
           ((commStructureSheaf X).obj.map j).hom ((commStructureSheaf X).obj.map (i ≫ j)).hom
-          (congrArg CommRingCat.Hom.hom ((commStructureSheaf X).obj.map_comp i j))).inv.app _ := sorry
+          (congrArg CommRingCat.Hom.hom ((commStructureSheaf X).obj.map_comp i j))).inv.app _ := by
+  apply ModuleCat.hom_ext
+  apply LinearMap.ext
+  intro s
+  apply Subtype.ext
+  funext T f
+  change s.val T (f ≫ (j.unop ≫ i.unop)) = s.val T ((f ≫ j.unop) ≫ i.unop)
+  rw [Category.assoc]
 
 /-- The dual presheaf uses the actual compatible families and precomposition maps. -/
 def dualPresheaf (E : X.Modules) : PresheafOfModules.{u} (commRingSheaf X).obj where

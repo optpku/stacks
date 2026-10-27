@@ -38,15 +38,21 @@ variable {C : Type u} [Category.{v} C] [Limits.HasPullbacks C]
 theorem pullbackAssocFunctorEq
     {X₀ X₁ X₂ X₃ : Cᵒᵖ} (f : X₀ ⟶ X₁) (g : X₁ ⟶ X₂) (h : X₂ ⟶ X₃) :
     (pullback (h.unop ≫ (f ≫ g).unop)).toCatHom =
-      (pullback ((g ≫ h).unop ≫ f.unop)).toCatHom := sorry
+      (pullback ((g ≫ h).unop ≫ f.unop)).toCatHom := by
+  ext
+  simp
 
 /-- Pullback along the composite with an identity on the source agrees with pullback. -/
 theorem pullbackLeftUnitFunctorEq {X Y : Cᵒᵖ} (f : X ⟶ Y) :
-    (pullback (f.unop ≫ (𝟙 X).unop)).toCatHom = (pullback f.unop).toCatHom := sorry
+    (pullback (f.unop ≫ (𝟙 X).unop)).toCatHom = (pullback f.unop).toCatHom := by
+  ext
+  simp
 
 /-- Pullback along the composite with an identity on the target agrees with pullback. -/
 theorem pullbackRightUnitFunctorEq {X Y : Cᵒᵖ} (f : X ⟶ Y) :
-    (pullback ((𝟙 Y).unop ≫ f.unop)).toCatHom = (pullback f.unop).toCatHom := sorry
+    (pullback ((𝟙 Y).unop ≫ f.unop)).toCatHom = (pullback f.unop).toCatHom := by
+  ext
+  simp
 
 /-- The associativity coherence for repeated pullback between slice categories. -/
 theorem pseudofunctorMap₂Associator
@@ -195,15 +201,35 @@ theorem ofIso_hom
           (sq₃ i j k).p (sq₃ i j k).p₁ (sq₃ i j k).p₃)
     (i j : I) : (ofIso X p sq sq₃ V φ hφ).hom i j = (φ i j).hom := sorry
 
-/-- The pairwise comparison morphism of chosen descent data, as an isomorphism. -/
+/-- The pairwise comparison morphism of chosen descent data, with inverse obtained by
+pulling the reverse comparison back along the swapped projections of the chosen overlap. -/
 noncomputable def iso (D : Chosen X p sq sq₃) (i j : I) :
     (pseudofunctor.map (sq i j).p₁.op.toLoc).toFunctor.obj (D.obj i) ≅
-      (pseudofunctor.map (sq i j).p₂.op.toLoc).toFunctor.obj (D.obj j) :=
-  asIso (D.hom i j)
+      (pseudofunctor.map (sq i j).p₂.op.toLoc).toFunctor.obj (D.obj j) where
+  hom := D.hom i j
+  inv := Pseudofunctor.DescentData'.pullHom' D.hom
+    (sq i j).p (sq i j).p₂ (sq i j).p₁
+  hom_inv_id := by
+    rw [← D.pullHom'_eq_hom i j]
+    simpa using
+      (Pseudofunctor.DescentData'.comp_pullHom' D (sq i j).p
+        (sq i j).p₁ (sq i j).p₂ (sq i j).p₁)
+  inv_hom_id := by
+    rw [← D.pullHom'_eq_hom i j]
+    simpa using
+      (Pseudofunctor.DescentData'.comp_pullHom' D (sq i j).p
+        (sq i j).p₂ (sq i j).p₁ (sq i j).p₂)
 
 /-- The forward map of `iso D i j` is the pairwise comparison map of `D`. -/
 theorem iso_hom (D : Chosen X p sq sq₃) (i j : I) :
-    (iso X p sq sq₃ D i j).hom = D.hom i j := sorry
+    (iso X p sq sq₃ D i j).hom = D.hom i j := rfl
+
+/-- The inverse comparison uses the reverse descent map on the same overlap, with its two
+projections exchanged. -/
+theorem iso_inv (D : Chosen X p sq sq₃) (i j : I) :
+    (iso X p sq sq₃ D i j).inv =
+      Pseudofunctor.DescentData'.pullHom' D.hom
+        (sq i j).p (sq i j).p₂ (sq i j).p₁ := rfl
 
 /-- The pairwise comparison isomorphisms satisfy the triple-overlap cocycle condition. -/
 theorem cocycle (D : Chosen X p sq sq₃) (i j k : I) :
@@ -215,14 +241,16 @@ theorem cocycle (D : Chosen X p sq sq₃) (i j k : I) :
         (sq₃ i j k).p (sq₃ i j k).p₂ (sq₃ i j k).p₃ =
       Pseudofunctor.DescentData'.pullHom'
         (fun a b ↦ (iso X p sq sq₃ D a b).hom)
-        (sq₃ i j k).p (sq₃ i j k).p₁ (sq₃ i j k).p₃ := sorry
+        (sq₃ i j k).p (sq₃ i j k).p₁ (sq₃ i j k).p₃ :=
+  D.pullHom'_hom_comp i j k
 
 /-- A morphism of chosen descent data commutes with every pairwise comparison isomorphism. -/
 theorem hom_comm {D E : Chosen X p sq sq₃} (ψ : D ⟶ E) (i j : I) :
     (pseudofunctor.map (sq i j).p₁.op.toLoc).toFunctor.map (ψ.hom i) ≫
         (iso X p sq sq₃ E i j).hom =
       (iso X p sq sq₃ D i j).hom ≫
-        (pseudofunctor.map (sq i j).p₂.op.toLoc).toFunctor.map (ψ.hom j) := sorry
+        (pseudofunctor.map (sq i j).p₂.op.toLoc).toFunctor.map (ψ.hom j) :=
+  ψ.comm i j
 
 /-- The canonical equivalence from the chosen-overlap presentation to canonical descent data. -/
 noncomputable abbrev equivalence : Chosen X p sq sq₃ ≌ DescentData X p :=

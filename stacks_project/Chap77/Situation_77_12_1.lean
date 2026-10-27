@@ -7,6 +7,8 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 import StacksCheckRecall
+import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.FormalSystem
+import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.FormalSystem.Pushforward
 import stacks_project.Chap77.Situation_77_12_1_FormalSystem
 
 open CategoryTheory CategoryTheory.Limits AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace

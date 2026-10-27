@@ -30,7 +30,7 @@ variable {C : Type u₁} {D : Type u₂} {E : Type u₃}
 variable {R : Type w} [Semiring R] [Preadditive E] [CategoryTheory.Linear R E]
 
 /-- Total right-derived maps preserve scalar multiplication of source natural transformations. -/
-@[stacks 05T2, simp]
+@[simp]
 theorem mapNatTrans.smul
     (L : C ⥤ D) (S : MorphismProperty C) {F G : C ⥤ E}
     (r : R) (τ : F ⟶ G) [L.IsLocalization S]

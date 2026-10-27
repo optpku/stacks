@@ -29,7 +29,7 @@ and recovering untwisted cohomology on every represented smooth projective schem
     {fst : ∀ X Y, product X Y ⟶ X} {snd : ∀ X Y, product X Y ⟶ Y}
     {point : V} {H : V → Type v} {CH : V → Type y}
     [∀ X, Ring (H X)] [∀ X, Algebra F (H X)] [∀ X, CommRing (CH X)]
-    {Hgrade : ∀ X, ℤ × ℤ → Submodule F (H X)}
+    {Hgrade : ∀ X, ℤ → Submodule F (H X)}
     {CHgrade : ∀ X, ℤ → Submodule ℤ (CH X)}
     [∀ X, GradedAlgebra (Hgrade X)] [∀ X, GradedAlgebra (CHgrade X)]
     {cyclePullback : ∀ {X Y : V}, (X ⟶ Y) → CHgrade Y →ₐᵍ[ℤ] CHgrade X}
@@ -40,7 +40,7 @@ and recovering untwisted cohomology on every represented smooth projective schem
         GradedObject ℤ (ModuleCat F))
       (monoidal : G.Monoidal)
       (comparison : ∀ X : V,
-        ((fun i : ℤ ↦ ModuleCat.of F (Hgrade X (i, 0))) :
+        ((fun i : ℤ ↦ ModuleCat.of F (Hgrade X (i))) :
             GradedObject ℤ (ModuleCat F)) ≅ G.obj (T.motive X)),
       G.Linear ℚ ∧
         ∀ X Y,

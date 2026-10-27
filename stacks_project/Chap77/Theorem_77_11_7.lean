@@ -6,8 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap77.Theorem_77_11_7_Functor
-public import stacks_project.Chap77.Theorem_77_11_7_Space
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Flattening.InDimensions.Representation
 import StacksCheckRecall
 
 @[expose] public section
@@ -25,7 +24,8 @@ variable (n : ℕ) (h_pure : ℱ.IsPureOver f)
 `ℱ` is an `𝒪_X`-module of finite presentation, and `ℱ` is pure relative to `Y`,
 then `F_n` is an algebraic space. -/
 @[stacks 0CX1] #check
-  (Flattening.flatInDimensionsOverSFunctor.isAlgebraicSpace f ℱ n h_pure :
+  (AlgebraicGeometry.AlgebraicSpace.Flattening.flatInDimensionsOverSFunctor.isAlgebraicSpace
+    f ℱ n h_pure :
     IsAlgebraicSpace (Flattening.flatInDimensionsOverSFunctor f ℱ n))
 
 section
@@ -36,14 +36,15 @@ variable [IsAlgebraicSpace (Flattening.flatInDimensionsOverSFunctor f ℱ n)]
 `ℱ` is an `𝒪_X`-module of finite presentation, and `ℱ` is pure relative to `Y`,
 then `F_n ⟶ Y` is a monomorphism. -/
 @[stacks 0CX1] #check
-  (Flattening.flatInDimensionsOverSFunctor.instMono_toY f ℱ n :
+  (AlgebraicGeometry.AlgebraicSpace.Flattening.flatInDimensionsOverSFunctor.instMono_toY f ℱ n :
     Mono (Flattening.flatInDimensionsOverSFunctor.toY f ℱ n))
 
 /- Theorem 77.11.7 (3): In Situation 77.11.4, if `f` is of finite presentation,
 `ℱ` is an `𝒪_X`-module of finite presentation, and `ℱ` is pure relative to `Y`,
 then `F_n ⟶ Y` is of finite presentation. -/
 @[stacks 0CX1] #check
-  (Flattening.flatInDimensionsOverSFunctor.finitePresentation_toY f ℱ n h_pure :
+  (AlgebraicGeometry.AlgebraicSpace.Flattening.flatInDimensionsOverSFunctor.finitePresentation_toY
+    f ℱ n h_pure :
     FinitePresentation (Flattening.flatInDimensionsOverSFunctor.toY f ℱ n))
 
 end

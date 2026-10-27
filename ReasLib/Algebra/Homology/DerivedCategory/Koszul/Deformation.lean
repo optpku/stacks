@@ -39,7 +39,7 @@ theorem exists_koszul_lift_of_closedFiber
     (K : DerivedCategory (ModuleCat A))
     (hK_perfect : K.IsPerfect)
     (hK_fiber : IsIsomorphic
-      ((ModuleCat.derivedExtensionOfScalars
+      ((ModuleCat.derivedExtensionOfScalars.{v, max u v, v}
         (algebraMap A (Ideal.Fiber (maximalIdeal R) A))).obj K)
       (KoszulComplex.derivedFamily fbar)) :
     ∃ f : Fin r → A,

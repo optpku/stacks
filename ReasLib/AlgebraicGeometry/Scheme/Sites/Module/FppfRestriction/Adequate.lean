@@ -42,7 +42,7 @@ def toFppf
 theorem toFppf_val
     (hℱ : SheafOfModules.IsAdequate ModuleValuedFunctor.tensorExtensionUnderlying
       affineEvaluationUnderlying ℱ) :
-    hℱ.toFppf.val = ℱ.val := sorry
+    hℱ.toFppf.val = ℱ.val := rfl
 
 /-- An adequate module sheaf can be restricted uniformly to the small Zariski or etale site. -/
 noncomputable def smallRestriction
@@ -58,14 +58,15 @@ theorem smallRestriction_def
       affineEvaluationUnderlying ℱ)
     (σ : SmallStandardTopology) :
     hℱ.smallRestriction σ =
-      (SmallStandardTopology.FppfRestriction.restrict σ S).obj hℱ.toFppf := sorry
+      (SmallStandardTopology.FppfRestriction.restrict σ S).obj hℱ.toFppf := rfl
 
 /-- Restriction through the fppf realization agrees with direct restriction to the small Zariski site. -/
 theorem smallRestriction_zariski
     (hℱ : SheafOfModules.IsAdequate ModuleValuedFunctor.tensorExtensionUnderlying
       affineEvaluationUnderlying ℱ) :
     IsIsomorphic (hℱ.smallRestriction .zariski)
-      ((Scheme.SiteRestriction.bigToZariski τ S).modulePushforward.obj ℱ) := sorry
+      ((Scheme.SiteRestriction.bigToZariski τ S).modulePushforward.obj ℱ) :=
+  ⟨Iso.refl _⟩
 
 /-- Restriction through the fppf realization agrees with direct restriction to the small etale site. -/
 theorem smallRestriction_etale
@@ -73,7 +74,8 @@ theorem smallRestriction_etale
       affineEvaluationUnderlying ℱ)
     (hτ : τ ≠ .zariski) :
     IsIsomorphic (hℱ.smallRestriction .etale)
-      ((Scheme.SiteRestriction.bigToEtale τ S hτ).modulePushforward.obj ℱ) := sorry
+      ((Scheme.SiteRestriction.bigToEtale τ S hτ).modulePushforward.obj ℱ) :=
+  ⟨Iso.refl _⟩
 
 /-- The small Zariski restriction of an adequate module sheaf is quasi-coherent. -/
 theorem zariskiRestriction_isQuasicoherent

@@ -72,12 +72,6 @@ namespace ProjectiveSpaceHyperplane
 variable {P : ProjectiveSpaceOver (Spec (CommRingCat.of k)) n}
 variable {H : Scheme.{u}} {i : H ⟶ P.scheme}
 
-/-- A projective-space hyperplane is canonically a closed immersion into the ambient projective
-space. -/
-instance instIsClosedImmersion [h : ProjectiveSpaceHyperplane P i] :
-    IsClosedImmersion i :=
-  h.toIsClosedImmersion
-
 /-- A morphism is a hyperplane inclusion exactly when it is a closed immersion identified with
 the zero scheme of a nonzero tautological section. -/
 theorem iff :
@@ -86,7 +80,9 @@ theorem iff :
         ∃ s : P.tautologicalSheaf.sections,
           P.tautologicalSheaf.unitHomEquiv.symm s ≠ 0 ∧
             ∃ e : H ≅ P.tautologicalZeroScheme s,
-              i = e.hom ≫ P.tautologicalZeroSchemeι s := sorry
+              i = e.hom ≫ P.tautologicalZeroSchemeι s :=
+  ⟨fun h ↦ ⟨h.toIsClosedImmersion, h.exists_zeroScheme_presentation⟩,
+    fun h ↦ { toIsClosedImmersion := h.1, exists_zeroScheme_presentation := h.2 }⟩
 
 end ProjectiveSpaceHyperplane
 

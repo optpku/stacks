@@ -10,6 +10,7 @@ public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.InternalHom
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.Tensor.Exact
 public import ReasLib.Algebra.Homology.CochainComplex.Monoidal.Closed
 public import ReasLib.Algebra.Homology.CochainComplex.KInjective.Over
+public import ReasLib.Algebra.Homology.CochainComplex.KInjective.Construction
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Derived.Localization
 
 @[expose] public section
@@ -32,32 +33,28 @@ variable [HasWeakSheafify J AddCommGrpCat.{max u v}]
 variable [J.WEqualsLocallyBijective AddCommGrpCat.{max u v}]
 variable {O : Sheaf J CommRingCat.{max u v}}
 
-/-- A K-injective cochain representative selected by the integral K-injective localization. -/
+/-- The explicit K-injective replacement of an ordinary derived representative. -/
 def injectiveModel (K : max J O) : CochainComplex (ringedSiteModuleCategory J O) ℤ :=
-  let localization : _ ⥤ max J O :=
-    CochainComplex.Enriched.Over.KInjective.localization
-      (R := ℤ) (C := ringedSiteModuleCategory J O)
-  (@Functor.objPreimage _ _ _ _ localization
-    (Localization.essSurj localization
-      (CochainComplex.Enriched.Over.KInjective.qis
-        (R := ℤ) (C := ringedSiteModuleCategory J O))) K).obj.obj
+  (CochainComplex.KInjectiveResolution.Construction.replacement
+    (ringedSiteModuleCategory J O)).obj
+      ((DerivedCategory.Q : CochainComplex (ringedSiteModuleCategory J O) ℤ ⥤ max J O).objPreimage K)
 
 /-- The selected K-injective representative has derived image isomorphic to the given object. -/
 def injectiveModelIso (K : max J O) :
     (DerivedCategory.Q : CochainComplex (ringedSiteModuleCategory J O) ℤ ⥤ max J O).obj
       (injectiveModel K) ≅ K :=
-  let localization : _ ⥤ max J O :=
-    CochainComplex.Enriched.Over.KInjective.localization
-      (R := ℤ) (C := ringedSiteModuleCategory J O)
-  (CochainComplex.Enriched.Over.derivedQObjIso
-    (R := ℤ) (A := ringedSiteModuleCategory J O) (injectiveModel K)).symm ≪≫
-    @Functor.objObjPreimageIso _ _ _ _ localization
-      (Localization.essSurj localization
-        (CochainComplex.Enriched.Over.KInjective.qis
-          (R := ℤ) (C := ringedSiteModuleCategory J O))) K
+  (Localization.isoOfHom DerivedCategory.Q
+    (HomologicalComplex.quasiIso (ringedSiteModuleCategory J O) (.up ℤ))
+    ((CochainComplex.KInjectiveResolution.Construction.augmentation
+      (ringedSiteModuleCategory J O)).app (DerivedCategory.Q.objPreimage K))
+    (CochainComplex.KInjectiveResolution.Construction.augmentation_quasiIso
+      (ringedSiteModuleCategory J O) _)).symm ≪≫
+    DerivedCategory.Q.objObjPreimageIso K
 
-/-- The representative selected by K-injective localization is K-injective. -/
-instance injectiveModel_isKInjective (K : max J O) : (injectiveModel K).IsKInjective := sorry
+/-- The explicit replacement representative is K-injective. -/
+instance injectiveModel_isKInjective (K : max J O) : (injectiveModel K).IsKInjective :=
+  CochainComplex.KInjectiveResolution.Construction.replacement_isKInjective
+    (ringedSiteModuleCategory J O) _
 
 /-- The derived image of the product-valued sheaf internal-Hom complex of two models. -/
 def objOfModels (F I : CochainComplex (ringedSiteModuleCategory J O) ℤ) : max J O :=

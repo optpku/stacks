@@ -33,7 +33,7 @@ variable {dimension : V → ℕ} {product : V → V → V}
 variable {fst : ∀ X Y, product X Y ⟶ X} {snd : ∀ X Y, product X Y ⟶ Y}
 variable {point : V} {H : V → Type x} {CH : V → Type y}
 variable [∀ X, Ring (H X)] [∀ X, Algebra F (H X)] [∀ X, CommRing (CH X)]
-variable {Hgrade : ∀ X, ℤ × ℤ → Submodule F (H X)}
+variable {Hgrade : ∀ X, ℤ → Submodule F (H X)}
 variable {CHgrade : ∀ X, ℤ → Submodule ℤ (CH X)}
 variable [∀ X, GradedAlgebra (Hgrade X)] [∀ X, GradedAlgebra (CHgrade X)]
 variable {cyclePullback : ∀ {X Y : V},
@@ -44,12 +44,13 @@ variable (T : SchemeClassicalTheory k F TateLine V dimension product fst snd poi
   H CH Hgrade CHgrade cyclePullback cyclePushforward)
 
 /-- The cycle-class homomorphism restricted to codimension `i` cycles and its
-prescribed cohomological bidegree `(2 * i, i)`. -/
+prescribed cohomological degree 2i in Tate coordinates. The source-valued
+external version is twistedCycleClass. -/
 def gradedCycleClass (X : V) (i : ℤ) :
-    CHgrade X i →+ Hgrade X (2 * i, i) :=
+    CHgrade X i →+ Hgrade X (2 * i) :=
   AddMonoidHom.codRestrict
     ((T.cycleClass X).comp (CHgrade X i).subtype.toAddMonoidHom)
-    (Hgrade X (2 * i, i)) (T.cycleClass_mem X i)
+    (Hgrade X (2 * i)) (T.cycleClass_mem X i)
 
 /-- The graded cycle-class homomorphism agrees with the total cycle-class map
 after coercion to total cohomology. -/

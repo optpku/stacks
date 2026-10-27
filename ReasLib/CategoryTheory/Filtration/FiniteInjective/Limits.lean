@@ -55,10 +55,6 @@ noncomputable instance hasBinaryBiproducts :
 
 end category
 
-#synth HasZeroObject (category C)
-#synth HasBinaryProducts (category C)
-#synth HasBinaryBiproducts (category C)
-
 end FilteredObject.Finite.FilteredInjective
 
 end CategoryTheory

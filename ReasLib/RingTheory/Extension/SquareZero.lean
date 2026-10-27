@@ -421,11 +421,20 @@ private def ofHomKernelValue (f : (Generators.self A B).toExtension.Cotangent �
     rw [← mul_smul, mul_comm, mul_smul]⟩
   -- Local instance justification (proof-local temporary data): the graph projection is square-zero.
   letI := ofHom_toB_isSquareZero f
-  fun x ↦
-    let y := (RingHom.SquareZeroExtension.toCotangentEquiv_source
-      (ofHomProjection f).toRingHom).symm x
-    Quotient.hrecOn y.1 (fun z (hz : ofHomProjection f (Quotient.mk _ z) = 0) ↦
-    TrivSqZeroExt.snd z + f (Cotangent.mk ⟨TrivSqZeroExt.fst z, ofHom_kernelValue_mem f z hz⟩)) (ofHom_kernelValue_wellDefined f) y.2
+  fun x ↦ Quotient.liftOn x
+    (fun y : RingHom.ker (ofHomProjection f).toRingHom ↦
+      Quotient.hrecOn y.1 (fun z (hz : ofHomProjection f (Quotient.mk _ z) = 0) ↦
+        TrivSqZeroExt.snd z + f (Cotangent.mk
+          ⟨TrivSqZeroExt.fst z, ofHom_kernelValue_mem f z hz⟩))
+        (ofHom_kernelValue_wellDefined f) y.2)
+    (by
+      intro y z hyz
+      have hmem : (y.1 - z.1) ∈ RingHom.ker (ofHomProjection f).toRingHom ^ 2 :=
+        (Ideal.toCotangent_eq _).mp (Quotient.sound hyz)
+      rw [RingHom.IsSquareZeroExtension.ker_sq_eq_bot] at hmem
+      have heq : y = z := Subtype.ext (sub_eq_zero.mp ((Submodule.mem_bot _).mp hmem))
+      cases heq
+      rfl)
 
 private theorem ofHom_kernelValue_add (f : (Generators.self A B).toExtension.Cotangent →ₗ[B] N) :
   let P := (Generators.self A B).toExtension
@@ -481,34 +490,10 @@ private theorem ofHom_kernelValue_smul (f : (Generators.self A B).toExtension.Co
   letI := ofHom_toB_isSquareZero f
   ∀ (r : B) x, ofHomKernelValue f (r • x) = r • ofHomKernelValue f x := sorry
 
-private theorem ofHom_kernelValue_bijective (f : (Generators.self A B).toExtension.Cotangent →ₗ[B] N) :
-  let P := (Generators.self A B).toExtension
-  -- Local instance justification (noncanonical choice): the presentation map selects the action on N.
-  letI : Module P.Ring N := Module.compHom N (algebraMap P.Ring B)
-  -- Local instance justification (instance diamond): choose the opposite action only for this graph quotient.
-  letI : Module P.Ringᵐᵒᵖ N :=
-    Module.compHom N ((RingHom.id P.Ring).fromOpposite fun x y ↦ mul_comm x y)
-  -- Local instance justification (instance diamond): centrality belongs to the selected opposite action.
-  letI : IsCentralScalar P.Ring N := ⟨fun _ _ ↦ rfl⟩
-  -- Local instance justification (noncanonical choice): restrict the chosen presentation action to the base.
-  letI : Module A N := Module.compHom N (algebraMap A P.Ring)
-  -- Local instance justification (proof-local temporary data): the graph algebra uses this scalar tower.
-  letI : IsScalarTower A P.Ring N := ⟨fun a r n ↦ by
-    change (a • r) • n = (algebraMap A P.Ring a) • (r • n)
-    rw [Algebra.smul_def, mul_smul]⟩
-  -- Local instance justification (proof-local temporary data): the graph algebra also uses the opposite scalar tower.
-  letI : IsScalarTower A P.Ringᵐᵒᵖ N := ⟨fun a r n ↦ by
-    change (a • r.unop) • n = (algebraMap A P.Ring a) • (r.unop • n)
-    rw [Algebra.smul_def, mul_smul]⟩
-  -- Local instance justification (instance diamond): the two selected presentation actions commute.
-  letI : SMulCommClass P.Ring P.Ringᵐᵒᵖ N := ⟨fun r t n ↦ by
-    change r • (t.unop • n) = t.unop • (r • n)
-    rw [← mul_smul, mul_comm, mul_smul]⟩
-  -- Local instance justification (proof-local temporary data): the graph projection is square-zero.
-  letI := ofHom_toB_isSquareZero f
-  Function.Bijective (ofHomKernelValue f) := sorry
-
-/-- The graph-ideal quotient realizes a conormal map as a square-zero algebra extension. -/
+/-- The graph-ideal quotient realizes a conormal map as a square-zero algebra extension.
+The kernel identification sends `[(p, n)]` to `n + f [p]`; its inverse sends `n`
+to the cotangent class of `[(0, n)]`. Both maps are defined by quotient recursion
+and the coefficient inclusion, rather than by selecting an inverse. -/
 def ofHom (f : (Generators.self A B).toExtension.Cotangent →ₗ[B] N) : SquareZeroAlgExtension A B N :=
   let P := (Generators.self A B).toExtension
   -- Local instance justification (noncanonical choice): the presentation map selects the action on N.
@@ -539,18 +524,81 @@ def ofHom (f : (Generators.self A B).toExtension.Cotangent →ₗ[B] N) : Square
       Ideal.Quotient.lift I ((IsScalarTower.toAlgHom A P.Ring B).comp (fstHom A P.Ring N)).toRingHom (by exact ofHom_toB_kills f)
       commutes' := by exact ofHom_toB_commutes f }
   -- Local instance justification (proof-local temporary data): the graph projection is square-zero.
-  letI : toB.toRingHom.IsSquareZeroExtension := by exact ofHom_toB_isSquareZero f
-  of toB (LinearEquiv.ofBijective
-    { toFun := fun x ↦
-        let y := (RingHom.SquareZeroExtension.toCotangentEquiv_source toB.toRingHom).symm x
-        Quotient.hrecOn y.1
-          (fun z (hz : toB (Quotient.mk _ z) = 0) ↦
-            TrivSqZeroExt.snd z + f (Cotangent.mk
-              ⟨TrivSqZeroExt.fst z, by exact ofHom_kernelValue_mem f z hz⟩))
-          (by exact ofHom_kernelValue_wellDefined f) y.2
+  letI : toB.toRingHom.IsSquareZeroExtension :=
+    { surjective := by
+        intro b
+        refine ⟨Ideal.Quotient.mk I (inl (P.σ b)), ?_⟩
+        change algebraMap P.Ring B (P.σ b) = b
+        exact P.algebraMap_σ b
+      ker_sq_eq_bot := by exact (ofHom_toB_isSquareZero f).ker_sq_eq_bot }
+  of toB
+    { toFun := fun x ↦ Quotient.liftOn x
+        (fun y : RingHom.ker toB.toRingHom ↦
+          Quotient.hrecOn y.1
+            (fun z (hz : toB (Quotient.mk _ z) = 0) ↦
+              TrivSqZeroExt.snd z + f (Cotangent.mk
+                ⟨TrivSqZeroExt.fst z, by exact ofHom_kernelValue_mem f z hz⟩))
+            (by exact ofHom_kernelValue_wellDefined f) y.2)
+        (by
+          intro y z hyz
+          have hmem : (y.1 - z.1) ∈ RingHom.ker toB.toRingHom ^ 2 :=
+            (Ideal.toCotangent_eq _).mp (Quotient.sound hyz)
+          rw [RingHom.IsSquareZeroExtension.ker_sq_eq_bot] at hmem
+          have heq : y = z := Subtype.ext (sub_eq_zero.mp ((Submodule.mem_bot _).mp hmem))
+          cases heq
+          rfl)
+      invFun := fun n ↦ Ideal.toCotangent _
+        ⟨Ideal.Quotient.mk I (inr n), by
+          change algebraMap P.Ring B (0 : P.Ring) = 0
+          exact map_zero _⟩
+      left_inv := by
+        intro x
+        sorry
+      right_inv := by
+        intro n
+        change n + f (Cotangent.mk (0 : P.ker)) = n
+        simp
       map_add' := by exact ofHom_kernelValue_add f
       map_smul' := by exact ofHom_kernelValue_smul f }
-    (by exact ofHom_kernelValue_bijective f))
+
+/-- The inverse kernel identification of `ofHom` is the coefficient inclusion. -/
+theorem ofHom_kernelEquiv_symm_apply
+    (f : (Generators.self A B).toExtension.Cotangent →ₗ[B] N) (n : N) :
+  let P := (Generators.self A B).toExtension
+  -- Local instance justification (noncanonical choice): the presentation map selects the action on N.
+  letI : Module P.Ring N := Module.compHom N (algebraMap P.Ring B)
+  -- Local instance justification (instance diamond): choose the opposite action only for this graph quotient.
+  letI : Module P.Ringᵐᵒᵖ N :=
+    Module.compHom N ((RingHom.id P.Ring).fromOpposite fun x y ↦ mul_comm x y)
+  -- Local instance justification (instance diamond): centrality belongs to the selected opposite action.
+  letI : IsCentralScalar P.Ring N := ⟨fun _ _ ↦ rfl⟩
+  -- Local instance justification (noncanonical choice): restrict the chosen presentation action to the base.
+  letI : Module A N := Module.compHom N (algebraMap A P.Ring)
+  -- Local instance justification (proof-local temporary data): the graph algebra uses this scalar tower.
+  letI : IsScalarTower A P.Ring N := ⟨fun a r n ↦ by
+    change (a • r) • n = (algebraMap A P.Ring a) • (r • n)
+    rw [Algebra.smul_def, mul_smul]⟩
+  -- Local instance justification (proof-local temporary data): the graph algebra also uses the opposite scalar tower.
+  letI : IsScalarTower A P.Ringᵐᵒᵖ N := ⟨fun a r n ↦ by
+    change (a • r.unop) • n = (algebraMap A P.Ring a) • (r.unop • n)
+    rw [Algebra.smul_def, mul_smul]⟩
+  -- Local instance justification (instance diamond): the two selected presentation actions commute.
+  letI : SMulCommClass P.Ring P.Ringᵐᵒᵖ N := ⟨fun r t n ↦ by
+    change r • (t.unop • n) = t.unop • (r • n)
+    rw [← mul_smul, mul_comm, mul_smul]⟩
+  let I := Ideal.span (Set.range fun x : P.ker ↦
+    (inl x.1 : TrivSqZeroExt P.Ring N) - inr (f (Cotangent.mk x)))
+  let e := ofHom f
+  -- Local instance justification (proof-local temporary data): unpack the graph quotient ring.
+  letI := e.commRing
+  -- Local instance justification (proof-local temporary data): unpack the graph quotient algebra.
+  letI := e.algebra
+  -- Local instance justification (proof-local temporary data): unpack the explicit square-zero projection.
+  letI := e.isSquareZero
+  e.kernelEquiv.symm n = Ideal.toCotangent _
+    ⟨Ideal.Quotient.mk I (inr n), by
+      change algebraMap P.Ring B (0 : P.Ring) = 0
+      exact map_zero _⟩ := by rfl
 
 /-- The graph-ideal realization has the extension class of its defining conormal map. -/
 theorem toClass_ofHom (f : (Generators.self A B).toExtension.Cotangent →ₗ[B] N) :

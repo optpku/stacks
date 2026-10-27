@@ -34,7 +34,7 @@ variable [X.siteTopology.HasSheafCompose (forget RingCat.{w})]
 variable [Y.siteTopology.HasSheafCompose (forget RingCat.{w})]
 variable [UnivLE.{max uX vX, w}] [UnivLE.{max uY vY, w}]
 variable [UnivLE.{max uY vX, w}] [UnivLE.{max uY vY vX, w}]
-variable (f : X.Hom Y) {V : Y} {U : X} (c : U ⟶ f.base.obj V)
+variable (f : X.Hom Y) {V : Y.carrier} {U : X.carrier} (c : U ⟶ f.base.obj V)
 
 /- Lemma 18.20.2 (1) (04J1): the localized morphism from the localization at `U` to the
 localization at `V`. -/
@@ -52,7 +52,7 @@ the localization at `U` to the ambient ringed topos of `Y`. -/
 /- Lemma 18.20.2 (1) (04J1): the comparison in the ambient localization square is
 invertible on its underlying direct-image natural transformation. -/
 @[stacks 04J1 "(1), invertible comparison"]
-#check (inferInstance :
+#check (RingedSite.Localization.AmbientSquare.comparison_hom_isIso f c :
   IsIso (Localization.AmbientSquare.comparison f c).hom)
 
 /- Lemma 18.20.2 (1) (04J1): the reusable square contains all four morphisms of ringed
@@ -61,10 +61,9 @@ topoi and their forward `2`-cell. -/
 #check (Localization.AmbientSquare.square f c :
   ToposHom.LaxCommSquare (X.localization U) X (Y.localization V) Y)
 
-/- Lemma 18.20.2 (1) (04J1): invertibility of the ambient square is available to typeclass
-search without choosing inverse `2`-cell data. -/
+/- Lemma 18.20.2 (1) (04J1): the ambient square is invertible. -/
 @[stacks 04J1 "(1), invertible square"]
-#check (inferInstance :
+#check (RingedSite.Localization.AmbientSquare.square_isInvertible f c :
   (Localization.AmbientSquare.square f c).IsInvertible)
 
 end Ambient
@@ -76,7 +75,7 @@ variable [Y.siteTopology.HasSheafCompose (forget RingCat.{w})]
 variable [UnivLE.{max uX vX, w}] [UnivLE.{max uY vY, w}]
 variable [UnivLE.{max uY vY vX, w}]
 variable (f : X.Hom Y)
-variable {V V' : Y} {U U' : X}
+variable {V V' : Y.carrier} {U U' : X.carrier}
 variable (c : U ⟶ f.base.obj V) (b : V' ⟶ V) (a : U' ⟶ U)
 variable (c' : U' ⟶ f.base.obj V') (hcomm : c' ≫ f.base.map b = a ≫ c)
 
@@ -96,10 +95,9 @@ topoi and their forward `2`-cell. -/
     (X.localization U') (X.localization U)
     (Y.localization V') (Y.localization V))
 
-/- Lemma 18.20.2 (2) (04J1): invertibility of the relocalization square is available to
-typeclass search without choosing inverse `2`-cell data. -/
+/- Lemma 18.20.2 (2) (04J1): the relocalization square is invertible. -/
 @[stacks 04J1 "(2), invertible square"]
-#check (inferInstance :
+#check (RingedSite.Localization.RelocalizationSquare.square_isInvertible f c b a c' hcomm :
   (Localization.RelocalizationSquare.square f c b a c' hcomm).IsInvertible)
 
 /- The functor-level inverse-image square is the fine-grained site-theoretic core of the

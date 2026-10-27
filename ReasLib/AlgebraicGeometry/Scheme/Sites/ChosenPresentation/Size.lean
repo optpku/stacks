@@ -31,7 +31,10 @@ variable {P : Precoverage Scheme.{u}}
 
 /-- A chosen big site is size closed if it represents every scheme within the
 countable-successor size bound of any represented scheme and represents the
-scheme coproduct of every countable family of carrier objects. -/
+scheme coproduct of every countable family of carrier objects. This is only
+the bounded-object and coproduct part of Tag 000J; it does not express closure
+under all countable limits and colimits. `SchAlphaBigSite` supplies the full
+object anchor and implies this property. -/
 def IsSizeClosed (𝒮 : ChosenBigSite.{u, v} P) : Prop :=
   (∀ (A : 𝒮.carrier) (T : Scheme.{u}),
     T.size ≤ Cardinal.countableSuccBound (𝒮.toScheme.obj A).size →
@@ -74,3 +77,13 @@ theorem exists_countable_coproduct {𝒮 : ChosenBigSite.{u, v} P}
 end IsSizeClosed
 
 end AlgebraicGeometry.ChosenBigSite
+
+namespace AlgebraicGeometry.SchAlphaBigSite
+
+/-- The actual `Sch_α` construction implies the existing size-closure
+interface, including its empty coproduct condition. -/
+theorem isSizeClosed {P : Precoverage Scheme.{u}} (𝒮 : SchAlphaBigSite.{u, v} P) :
+    ChosenBigSite.IsSizeClosed 𝒮.toChosenBigSite := by
+  sorry
+
+end AlgebraicGeometry.SchAlphaBigSite

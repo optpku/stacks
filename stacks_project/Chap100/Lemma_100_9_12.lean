@@ -6,14 +6,27 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap100.Lemma_100_9_12_Opens
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Substack.Opens
 import StacksCheckRecall
 
 @[expose] public section
 
 open AlgebraicGeometry AlgebraicGeometry.AlgebraicStack
 
-/- Lemma 100.9.12: the rule `U ↦ |U|` is an inclusion-preserving bijection between
-open substacks of an algebraic stack `X` and opens of the topological space `|X|`. -/
-@[stacks 06FJ] #check OpenSubstack.exists_of_isOpen
-@[stacks 06FJ] #check OpenSubstack.pointsSet_subset_iff
+universe u
+
+/- Lemma 100.9.12 (1): taking the point image bijects open substacks of an
+algebraic stack with open subsets of its point space. -/
+@[stacks 06FJ] #check
+  (AlgebraicGeometry.AlgebraicStack.Substack.Open.pointsOpens_bijective :
+    ∀ {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X],
+      Function.Bijective (Substack.Open.pointsOpens (X := X)))
+
+/- Lemma 100.9.12 (2): taking the point image preserves and reflects inclusion
+of open substacks. -/
+@[stacks 06FJ] #check
+  (AlgebraicGeometry.AlgebraicStack.Substack.Open.pointsSet_subset_iff :
+    ∀ {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X]
+      (U V : Substack.Open X),
+      Substack.Open.pointsSet U ⊆ Substack.Open.pointsSet V ↔ U.val ≤ V.val)
+

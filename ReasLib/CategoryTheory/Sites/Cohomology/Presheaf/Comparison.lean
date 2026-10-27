@@ -37,6 +37,32 @@ variable [HasSheafify J AddCommGrpCat.{max u v}]
 
 namespace CohomologyPresheaf
 
+private theorem homSectionsEquiv_postcomp
+    {D : Type u} [Category.{v} D] (K : GrothendieckTopology D)
+    [HasSheafify K AddCommGrpCat.{v}]
+    (U : D) {F G : Sheaf K AddCommGrpCat.{v}}
+    (a : GrothendieckTopology.FreeAbelianYoneda.obj K U ⟶ F) (f : F ⟶ G) :
+    GrothendieckTopology.FreeAbelianYoneda.homSectionsEquiv K U G (a ≫ f) =
+      (siteAbelianSectionsFunctor K U).map f
+        (GrothendieckTopology.FreeAbelianYoneda.homSectionsEquiv K U F a) := by
+  let e := sheafSectionsNatIsoEvaluation
+    (J := K) (A := AddCommGrpCat.{v}) (X := U)
+  have h : GrothendieckTopology.FreeAbelianYoneda.homAddEquiv K U G (a ≫ f) =
+      f.hom.app (op U)
+        (GrothendieckTopology.FreeAbelianYoneda.homAddEquiv K U F a) := by
+    change CategoryTheory.FreeAbelianYoneda.homAddEquiv U G.obj
+        ((sheafificationAdjunction K AddCommGrpCat.{v}).homEquiv _ G (a ≫ f)) = _
+    rw [Adjunction.homEquiv_naturality_right]
+    rfl
+  change (e.app G).inv
+      (GrothendieckTopology.FreeAbelianYoneda.homAddEquiv K U G (a ≫ f)) =
+    (siteAbelianSectionsFunctor K U).map f ((e.app F).inv
+      (GrothendieckTopology.FreeAbelianYoneda.homAddEquiv K U F a))
+  rw [h]
+  exact congrArg
+    (fun k ↦ k (GrothendieckTopology.FreeAbelianYoneda.homAddEquiv K U F a))
+    (e.inv.naturality f)
+
 /-- The sheafified free abelian representable whose Hom functor computes sections over `U`. -/
 abbrev generator (U : C) : Sheaf J AddCommGrpCat.{max u v} :=
   GrothendieckTopology.FreeAbelianYoneda.obj J U
@@ -56,7 +82,9 @@ noncomputable def homSectionsObjIso
 /-- Morphisms from the sheafified free abelian representable form the sections functor. -/
 noncomputable def homSectionsIso (U : C) :
     homFunctor J U ≅ siteAbelianSectionsFunctor J U :=
-  NatIso.ofComponents (fun F ↦ homSectionsObjIso J U F) sorry
+  NatIso.ofComponents (fun F ↦ homSectionsObjIso J U F) (fun f ↦ by
+    ext a
+    exact homSectionsEquiv_postcomp J U a f)
 
 /-- The integer-indexed complex obtained by applying the corepresented Hom functor to an
 injective resolution. -/
@@ -94,7 +122,10 @@ noncomputable def homComplexIso
     (U : C) {F : Sheaf J AddCommGrpCat.{max u v}} (I : InjectiveResolution F) :
     mappedHomComplex J U I ≅ standardHomComplex J U I :=
   HomologicalComplex.Hom.isoOfComponents
-    (homComplexObjIso J U I) sorry
+    (homComplexObjIso J U I) (fun i j _ ↦ by
+      ext f
+      exact CochainComplex.HomComplex.Cochain.δ_fromSingleMk f (zero_add i)
+        j j (zero_add j))
 
 /-- Standard Hom-complex homology is canonically its group of cohomology classes. -/
 noncomputable def homologyClassIso
@@ -200,7 +231,8 @@ noncomputable def objIso
 @[simp]
 theorem objIso_app
     (F : Sheaf J AddCommGrpCat.{max u v}) (U : C) (p : ℕ) :
-    (objIso J F p).app (op U) = appIso J F U p := sorry
+    (objIso J F p).app (op U) = appIso J F U p := by
+  rfl
 
 end CohomologyPresheaf
 
@@ -220,20 +252,23 @@ noncomputable def cohomologyPresheafIso (p : ℕ) :
 theorem cohomologyPresheafIso_hom_app_app
     (p : ℕ) (F : Sheaf J AddCommGrpCat.{max u v}) (U : C) :
     ((cohomologyPresheafIso J p).hom.app F).app (op U) =
-      (CohomologyPresheaf.appIso J F U p).hom := sorry
+      (CohomologyPresheaf.appIso J F U p).hom := by
+  rfl
 
 /-- Evaluating the inverse comparison gives the inverse canonical objectwise comparison. -/
 theorem cohomologyPresheafIso_inv_app_app
     (p : ℕ) (F : Sheaf J AddCommGrpCat.{max u v}) (U : C) :
     ((cohomologyPresheafIso J p).inv.app F).app (op U) =
-      (CohomologyPresheaf.appIso J F U p).inv := sorry
+      (CohomologyPresheaf.appIso J F U p).inv := by
+  rfl
 
 /-- Compatibility view of `cohomologyPresheafIso`. -/
 theorem cohomologyPresheafComparison (p : ℕ) :
     IsIsomorphic
       ((sheafToPresheaf J AddCommGrpCat.{max u v}).rightDerived p)
       (cohomologyPresheafFunctor J p :
-        Sheaf J AddCommGrpCat.{max u v} ⥤ Cᵒᵖ ⥤ AddCommGrpCat.{max u v}) := sorry
+        Sheaf J AddCommGrpCat.{max u v} ⥤ Cᵒᵖ ⥤ AddCommGrpCat.{max u v}) := by
+  exact ⟨cohomologyPresheafIso J p⟩
 
 namespace CohomologyPresheaf.Heterogeneous
 
@@ -258,7 +293,26 @@ noncomputable def sectionsComplexIso
           (CochainComplex.HomComplex.Cochain.fromSingleEquiv
             (X := GrothendieckTopology.FreeAbelianYoneda.obj K U)
             (K := I.cochainComplex) (zero_add degree)).symm)).toAddCommGrpIso)
-    sorry
+    (by
+      intro i j _
+      ext s
+      change ULift.{u} ((siteAbelianSectionsFunctor K U).obj
+        (I.cochainComplex.X i)) at s
+      change CochainComplex.HomComplex.δ i j
+          (CochainComplex.HomComplex.Cochain.fromSingleMk
+            (GrothendieckTopology.FreeAbelianYoneda.sectionsHomEquiv K U
+              (I.cochainComplex.X i) s.down) (zero_add i)) =
+        CochainComplex.HomComplex.Cochain.fromSingleMk
+          (GrothendieckTopology.FreeAbelianYoneda.sectionsHomEquiv K U
+            (I.cochainComplex.X j)
+            ((siteAbelianSectionsFunctor K U).map (I.cochainComplex.d i j) s.down))
+          (zero_add j)
+      rw [CochainComplex.HomComplex.Cochain.δ_fromSingleMk _ (zero_add i) j j (zero_add j)]
+      congr 1
+      apply (GrothendieckTopology.FreeAbelianYoneda.homSectionsEquiv K U
+        (I.cochainComplex.X j)).injective
+      rw [homSectionsEquiv_postcomp]
+      simp [GrothendieckTopology.FreeAbelianYoneda.sectionsHomEquiv])
 
 variable [HasInjectiveResolutions (Sheaf K AddCommGrpCat.{v})]
 variable [HasExt.{v} (Sheaf K AddCommGrpCat.{v})]

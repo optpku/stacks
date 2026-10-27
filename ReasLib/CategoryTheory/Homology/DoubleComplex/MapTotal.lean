@@ -94,6 +94,34 @@ theorem ι_hom
         (hom F K c₁₂).f n =
       F.map (K.ιTotal c₁₂ i₁ i₂ n h) := sorry
 
+/-- The canonical projection from a total degree onto a bidegree summand. -/
+noncomputable def projection (n : I₁₂) (i₁ : I₁) (i₂ : I₂) :
+    (K.total c₁₂).X n ⟶ (K.X i₁).X i₂ := by
+  classical
+  exact K.totalDesc (fun j₁ j₂ _ ↦
+    if h : (j₁, j₂) = (i₁, i₂) then
+      eqToHom (congrArg (fun ij : I₁ × I₂ ↦ (K.X ij.1).X ij.2) h)
+    else 0)
+
+/-- A total projection is the identity on its own summand. -/
+@[reassoc (attr := simp)]
+theorem ι_projection
+    (i₁ : I₁) (i₂ : I₂) (n : I₁₂)
+    (h : ComplexShape.π c₁ c₂ c₁₂ (i₁, i₂) = n) :
+    K.ιTotal c₁₂ i₁ i₂ n h ≫ projection K c₁₂ n i₁ i₂ = 𝟙 _ := by
+  classical
+  simp [projection]
+
+/-- A total projection vanishes on every other summand. -/
+@[reassoc (attr := simp)]
+theorem ι_projection_ne
+    (i₁ : I₁) (i₂ : I₂) (j₁ : I₁) (j₂ : I₂) (n : I₁₂)
+    (h : ComplexShape.π c₁ c₂ c₁₂ (j₁, j₂) = n)
+    (hne : (j₁, j₂) ≠ (i₁, i₂)) :
+    K.ιTotal c₁₂ j₁ j₂ n h ≫ projection K c₁₂ n i₁ i₂ = 0 := by
+  classical
+  simp only [projection, ι_totalDesc, dif_neg hne]
+
 end Comparison
 
 section Naturality
@@ -131,19 +159,81 @@ variable (K : HomologicalComplex₂ C c₁ c₂) {c₁₂ : ComplexShape I₁₂
 variable [TotalComplexShape c₁ c₂ c₁₂] [DecidableEq I₁₂] [K.HasTotal c₁₂]
 variable [((F.mapHomologicalComplex₂ c₁ c₂).obj K).HasTotal c₁₂]
 
-/-- For finite support on each total-degree fibre, the canonical comparison between applying an
-additive functor before and after totalization is invertible. -/
-@[stacks 0132 "additive functor total comparison for finite fibre support"]
-theorem isIso (hfin : Total.Support.Finite (c := c₁₂) K) :
-    IsIso (hom F K c₁₂) := sorry
+/-- The reverse degreewise comparison is the finite sum of the mapped projections followed by
+the corresponding inclusions. This is the explicit finite biproduct comparison formula. -/
+noncomputable def invComponent (hfin : Total.Support.Finite (c := c₁₂) K) (n : I₁₂) :
+    ((F.mapHomologicalComplex c₁₂).obj (K.total c₁₂)).X n ⟶
+      (((F.mapHomologicalComplex₂ c₁ c₂).obj K).total c₁₂).X n :=
+  ∑ ij ∈ (hfin n).toFinset,
+    F.map (projection K c₁₂ n ij.1 ij.2) ≫
+      ((F.mapHomologicalComplex₂ c₁ c₂).obj K).ιTotalOrZero c₁₂ ij.1 ij.2 n
+
+set_option backward.isDefEq.respectTransparency false in
+/-- On a mapped bidegree inclusion, the reverse comparison is the corresponding inclusion into
+the total of the mapped double complex. -/
+@[reassoc (attr := simp)]
+theorem map_ι_invComponent
+    (hfin : Total.Support.Finite (c := c₁₂) K)
+    (i₁ : I₁) (i₂ : I₂) (n : I₁₂)
+    (h : ComplexShape.π c₁ c₂ c₁₂ (i₁, i₂) = n) :
+    F.map (K.ιTotal c₁₂ i₁ i₂ n h) ≫ invComponent F K hfin n =
+      ((F.mapHomologicalComplex₂ c₁ c₂).obj K).ιTotal c₁₂ i₁ i₂ n h := by
+  classical
+  dsimp only [Total.Support.Finite] at hfin
+  by_cases hz : IsZero ((K.X i₁).X i₂)
+  · exact (F.map_isZero hz).eq_of_src _ _
+  · rw [invComponent, Preadditive.comp_sum, Finset.sum_eq_single (i₁, i₂)]
+    · rw [← Category.assoc, ← F.map_comp, ι_projection, F.map_id, Category.id_comp,
+        HomologicalComplex₂.ιTotalOrZero_eq _ _ _ _ _ h]
+    · intro ij _ hne
+      rw [← Category.assoc, ← F.map_comp,
+        ι_projection_ne K c₁₂ ij.1 ij.2 i₁ i₂ n h (Ne.symm hne), F.map_zero, zero_comp]
+    · intro hnot
+      exact (hnot ((hfin n).mem_toFinset.mpr ⟨h, hz⟩)).elim
+
+/-- The reverse degreewise comparison commutes with the total differentials. -/
+theorem invComponent_comm
+    (hfin : Total.Support.Finite (c := c₁₂) K)
+    (n n' : I₁₂) (hnn' : c₁₂.Rel n n') :
+    invComponent F K hfin n ≫
+        (((F.mapHomologicalComplex₂ c₁ c₂).obj K).total c₁₂).d n n' =
+      ((F.mapHomologicalComplex c₁₂).obj (K.total c₁₂)).d n n' ≫
+        invComponent F K hfin n' := sorry
+
+/-- The reverse total comparison assembled from its explicit finite-sum components. -/
+noncomputable def inv (hfin : Total.Support.Finite (c := c₁₂) K) :
+    (F.mapHomologicalComplex c₁₂).obj (K.total c₁₂) ⟶
+      ((F.mapHomologicalComplex₂ c₁ c₂).obj K).total c₁₂ where
+  f := invComponent F K hfin
+  comm' := invComponent_comm F K hfin
+
+/-- The reverse total comparison has the specified finite-sum components. -/
+@[simp]
+theorem inv_f (hfin : Total.Support.Finite (c := c₁₂) K) (n : I₁₂) :
+    (inv F K hfin).f n = invComponent F K hfin n := rfl
 
 /-- An additive functor commutes canonically with a total complex having finite support on each
 total-degree fibre. -/
 @[stacks 0132 "additive functors commute with finite fibre-support totals"]
 noncomputable def iso (hfin : Total.Support.Finite (c := c₁₂) K) :
     ((F.mapHomologicalComplex₂ c₁ c₂).obj K).total c₁₂ ≅
-      (F.mapHomologicalComplex c₁₂).obj (K.total c₁₂) :=
-  @asIso _ _ _ _ (hom F K c₁₂) (isIso F K hfin)
+      (F.mapHomologicalComplex c₁₂).obj (K.total c₁₂) where
+  hom := hom F K c₁₂
+  inv := inv F K hfin
+  hom_inv_id := sorry
+  inv_hom_id := sorry
+
+/-- For finite support on each total-degree fibre, the canonical comparison between applying an
+additive functor before and after totalization is invertible. -/
+@[stacks 0132 "additive functor total comparison for finite fibre support"]
+theorem isIso (hfin : Total.Support.Finite (c := c₁₂) K) :
+    IsIso (hom F K c₁₂) :=
+  (iso F K hfin).isIso_hom
+
+/-- The inverse map of `iso` is the comparison constructed from the finite-sum formula. -/
+@[simp]
+theorem iso_inv (hfin : Total.Support.Finite (c := c₁₂) K) :
+    (iso F K hfin).inv = inv F K hfin := rfl
 
 /-- The forward map of `iso` is the canonical total comparison. -/
 @[simp]
@@ -160,6 +250,17 @@ theorem ι_iso_hom
     ((F.mapHomologicalComplex₂ c₁ c₂).obj K).ιTotal c₁₂ i₁ i₂ n h ≫
         (iso F K hfin).hom.f n =
       F.map (K.ιTotal c₁₂ i₁ i₂ n h) := sorry
+
+/-- The inverse comparison sends the image of each original total inclusion to the inclusion
+of the corresponding mapped bidegree. -/
+@[reassoc (attr := simp)]
+theorem map_ι_iso_inv
+    (hfin : Total.Support.Finite (c := c₁₂) K)
+    (i₁ : I₁) (i₂ : I₂) (n : I₁₂)
+    (h : ComplexShape.π c₁ c₂ c₁₂ (i₁, i₂) = n) :
+    F.map (K.ιTotal c₁₂ i₁ i₂ n h) ≫ (iso F K hfin).inv.f n =
+      ((F.mapHomologicalComplex₂ c₁ c₂).obj K).ιTotal c₁₂ i₁ i₂ n h :=
+  map_ι_invComponent F K hfin i₁ i₂ n h
 
 end FiniteSupport
 

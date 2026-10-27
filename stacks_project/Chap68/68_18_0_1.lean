@@ -20,4 +20,4 @@ variable (p : W ⟶ X) (q : W ⟶ Z) (f : X ⟶ Y) (g : Z ⟶ Y)
 
 /- 68.18.0.1: the displayed square `W -q-> Z` over `X -f-> Y` of algebraic spaces over `S`
 is cartesian. -/
-@[stacks 0AC1] #check (AlgebraicGeometry.AlgebraicSpace.IsCartesianSquare p q f g : Prop)
+@[stacks 0AC1] #check (CategoryTheory.IsPullback q p g f : Prop)

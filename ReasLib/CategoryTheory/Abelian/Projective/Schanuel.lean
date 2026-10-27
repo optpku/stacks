@@ -55,8 +55,8 @@ instance kernelSequence_epi (P : ProjectivePresentation X) : Epi P.kernelSequenc
 /-- The kernel sequence of a projective presentation is short exact. -/
 @[stacks 00O3 "exact kernel sequence of a projective presentation"]
 theorem kernelSequence_shortExact (P : ProjectivePresentation X) :
-    P.kernelSequence.ShortExact :=
-  ShortComplex.kernelSequence_shortExact_of_epi P.f
+    P.kernelSequence.ShortExact where
+  exact := ShortComplex.kernelSequence_exact P.f
 
 end CategoryTheory.ProjectivePresentation
 
@@ -106,29 +106,93 @@ noncomputable def rightSequence (S₁ S₂ : ShortComplex C) : ShortComplex C :=
 /-- Stabilizing a short exact sequence by an identity summand remains short exact. -/
 @[stacks 00O3 "first stabilized Schanuel row is exact"]
 theorem leftSequence_shortExact (h₁ : S₁.ShortExact) :
-    (leftSequence S₁ S₂).ShortExact := sorry
+    (leftSequence S₁ S₂).ShortExact := by
+  letI := h₁.mono_f
+  letI := h₁.epi_g
+  refine { exact := ?_, mono_f := ?_, epi_g := ?_ }
+  · apply (leftSequence S₁ S₂).exact_of_f_is_kernel
+    refine KernelFork.IsLimit.ofι _ _
+      (fun {W} (k : W ⟶ S₁.X₂ ⊞ S₂.X₂) hk => biprod.lift
+        (h₁.exact.lift (k ≫ biprod.fst) (by
+          change k ≫ biprod.desc S₁.g (0 : S₂.X₂ ⟶ S₁.X₃) = 0 at hk
+          rw [biprod.desc_eq, comp_zero, add_zero, ← Category.assoc] at hk
+          exact hk))
+        (k ≫ biprod.snd)) ?_ ?_
+    · intro W k hk
+      apply biprod.hom_ext <;> simp [leftSequence, leftInclusion, Category.assoc]
+    · intro W k hk m hm
+      apply biprod.hom_ext
+      · apply (cancel_mono S₁.f).1
+        simpa [leftSequence, leftInclusion, Category.assoc] using
+          congrArg (fun t => t ≫ biprod.fst) hm
+      · simpa [leftSequence, leftInclusion, Category.assoc] using
+          congrArg (fun t => t ≫ biprod.snd) hm
+  · change Mono (biprod.map S₁.f (𝟙 S₂.X₂))
+    infer_instance
+  · change Epi (biprod.desc S₁.g (0 : S₂.X₂ ⟶ S₁.X₃))
+    rw [biprod.desc_eq, comp_zero, add_zero]
+    infer_instance
 
 /-- Stabilizing a short exact sequence by an identity summand remains short exact. -/
 @[stacks 00O3 "second stabilized Schanuel row is exact"]
 theorem rightSequence_shortExact (h₂ : S₂.ShortExact) :
-    (rightSequence S₁ S₂).ShortExact := sorry
+    (rightSequence S₁ S₂).ShortExact := by
+  letI := h₂.mono_f
+  letI := h₂.epi_g
+  refine { exact := ?_, mono_f := ?_, epi_g := ?_ }
+  · apply (rightSequence S₁ S₂).exact_of_f_is_kernel
+    refine KernelFork.IsLimit.ofι _ _
+      (fun {W} (k : W ⟶ S₁.X₂ ⊞ S₂.X₂) hk => biprod.lift
+        (k ≫ biprod.fst)
+        (h₂.exact.lift (k ≫ biprod.snd) (by
+          change k ≫ biprod.desc (0 : S₁.X₂ ⟶ S₂.X₃) S₂.g = 0 at hk
+          rw [biprod.desc_eq, comp_zero, zero_add, ← Category.assoc] at hk
+          exact hk)))
+      ?_ ?_
+    · intro W k hk
+      apply biprod.hom_ext <;> simp [rightSequence, rightInclusion, Category.assoc]
+    · intro W k hk m hm
+      apply biprod.hom_ext
+      · simpa [rightSequence, rightInclusion, Category.assoc] using
+          congrArg (fun t => t ≫ biprod.fst) hm
+      · apply (cancel_mono S₂.f).1
+        simpa [rightSequence, rightInclusion, Category.assoc] using
+          congrArg (fun t => t ≫ biprod.snd) hm
+  · change Mono (biprod.map (𝟙 S₁.X₂) S₂.f)
+    infer_instance
+  · change Epi (biprod.desc (0 : S₁.X₂ ⟶ S₂.X₃) S₂.g)
+    rw [biprod.desc_eq, comp_zero, zero_add]
+    infer_instance
 
 /-- A map killed by the first stabilized quotient has first component in the original kernel. -/
 theorem leftProjection_comp_eq_zero {W : C} (k : W ⟶ S₁.X₂ ⊞ S₂.X₂)
     (hk : k ≫ (leftSequence S₁ S₂).g = 0) :
-    (k ≫ biprod.fst) ≫ S₁.g = 0 := sorry
+    (k ≫ biprod.fst) ≫ S₁.g = 0 := by
+  change k ≫ biprod.desc S₁.g (0 : S₂.X₂ ⟶ S₁.X₃) = 0 at hk
+  rw [biprod.desc_eq, comp_zero, add_zero, ← Category.assoc] at hk
+  exact hk
 
 /-- A map killed by the second stabilized quotient has second component in the original kernel. -/
 theorem rightProjection_comp_eq_zero {W : C} (k : W ⟶ S₁.X₂ ⊞ S₂.X₂)
     (hk : k ≫ (rightSequence S₁ S₂).g = 0) :
-    (k ≫ biprod.snd) ≫ S₂.g = 0 := sorry
+    (k ≫ biprod.snd) ≫ S₂.g = 0 := by
+  change k ≫ biprod.desc (0 : S₁.X₂ ⟶ S₂.X₃) S₂.g = 0 at hk
+  rw [biprod.desc_eq, comp_zero, zero_add, ← Category.assoc] at hk
+  exact hk
 
 /-- The two factorization laws identify the quotient map after the chosen shears. -/
 theorem shear_comp_rightProjection
     (e₃ : S₁.X₃ ≅ S₂.X₃) (a : S₁.X₂ ⟶ S₂.X₂) (b : S₂.X₂ ⟶ S₁.X₂)
     (ha : a ≫ S₂.g = S₁.g ≫ e₃.hom) (hb : b ≫ S₁.g = S₂.g ≫ e₃.inv) :
     (Biprod.unipotentLower (-b) ≪≫ Biprod.unipotentUpper a).hom ≫
-      (rightSequence S₁ S₂).g = (leftSequence S₁ S₂).g ≫ e₃.hom := sorry
+      (rightSequence S₁ S₂).g = (leftSequence S₁ S₂).g ≫ e₃.hom := by
+  have hb' : b ≫ S₁.g ≫ e₃.hom = S₂.g := by
+    rw [← Category.assoc, hb]
+    simp
+  apply biprod.hom_ext' <;>
+    simp [leftSequence, rightSequence, leftProjection, rightProjection,
+      Biprod.unipotentLower, Biprod.unipotentUpper, Biprod.ofComponents,
+      Category.assoc, ha, hb']
 
 /-- The Schanuel diagram determined by explicit lifts between the middle objects.  The two
 elementary shear isomorphisms supply the middle component; their restriction to the kernels
@@ -148,16 +212,34 @@ noncomputable def diagramOfLifts
       (fun {W} (k : W ⟶ S₁.X₂ ⊞ S₂.X₂) hk => biprod.lift
         (h₁.lift (k ≫ biprod.fst) (leftProjection_comp_eq_zero k hk))
         (k ≫ biprod.snd))
-      (by sorry)
-      (by sorry)
+      (by
+        intro W k hk
+        apply biprod.hom_ext <;> simp [leftSequence, leftInclusion, Category.assoc])
+      (by
+        intro W k hk m hm
+        apply biprod.hom_ext
+        · apply (cancel_mono S₁.f).1
+          simpa [leftSequence, leftInclusion, Category.assoc] using
+            congrArg (fun t => t ≫ biprod.fst) hm
+        · simpa [leftSequence, leftInclusion, Category.assoc] using
+            congrArg (fun t => t ≫ biprod.snd) hm)
   let rightIsKernel : IsLimit
       (KernelFork.ofι (rightSequence S₁ S₂).f (rightSequence S₁ S₂).zero) :=
     KernelFork.IsLimit.ofι _ _
       (fun {W} (k : W ⟶ S₁.X₂ ⊞ S₂.X₂) hk => biprod.lift
         (k ≫ biprod.fst)
         (h₂.lift (k ≫ biprod.snd) (rightProjection_comp_eq_zero k hk)))
-      (by sorry)
-      (by sorry)
+      (by
+        intro W k hk
+        apply biprod.hom_ext <;> simp [rightSequence, rightInclusion, Category.assoc])
+      (by
+        intro W k hk m hm
+        apply biprod.hom_ext
+        · simpa [rightSequence, rightInclusion, Category.assoc] using
+            congrArg (fun t => t ≫ biprod.fst) hm
+        · apply (cancel_mono S₂.f).1
+          simpa [rightSequence, rightInclusion, Category.assoc] using
+            congrArg (fun t => t ≫ biprod.snd) hm)
   have w : e₂.hom ≫ (rightSequence S₁ S₂).g =
       (leftSequence S₁ S₂).g ≫ e₃.hom := shear_comp_rightProjection e₃ a b ha hb
   let e₁ := KernelFork.mapIsoOfIsLimit leftIsKernel rightIsKernel (Arrow.isoMk e₂ e₃ w)
@@ -260,7 +342,7 @@ noncomputable def schanuelDiagram (P Q : ProjectivePresentation X) :
 /-- The comparison diagram is the identity on the presented object. -/
 @[stacks 00O3 "right component of the projective-presentation Schanuel diagram"]
 theorem schanuelDiagram_τ₃ (P Q : ProjectivePresentation X) :
-    (schanuelDiagram P Q).hom.τ₃ = 𝟙 X := sorry
+    (schanuelDiagram P Q).hom.τ₃ = 𝟙 X := rfl
 
 /-- Schanuel's stable isomorphism for two projective presentations of the same object.  This is
 the low-parameter owner form: projectivity and epimorphicity are already bundled. -/

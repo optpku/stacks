@@ -56,8 +56,8 @@ def puncturedOpen (m : MaximalSpectrum Λ) :
 point `m`. -/
 theorem mem_puncturedOpen_iff_ne_closedPoint (m : MaximalSpectrum Λ)
     (p : PrimeSpectrum Λ) :
-    p ∈ puncturedOpen m ↔ p ≠ m.toPrimeSpectrum :=
-  sorry
+    p ∈ puncturedOpen m ↔ p ≠ m.toPrimeSpectrum := by
+  rfl
 
 /-- The coproduct scheme `S' = U ⨿ Spec(C)`. -/
 def coproduct (m : MaximalSpectrum Λ) (C : Type u) [CommRing C] :
@@ -76,16 +76,16 @@ def coproductToS (m : MaximalSpectrum Λ) (C : Type u) [CommRing C]
 `puncturedOpen m`. -/
 theorem coproductToS_inl (m : MaximalSpectrum Λ) (C : Type u) [CommRing C]
     [Algebra Λ C] :
-    coprod.inl ≫ coproductToS m C = (puncturedOpen m).ι :=
-  sorry
+    coprod.inl ≫ coproductToS m C = (puncturedOpen m).ι := by
+  exact coprod.inl_desc _ _
 
 /-- The right summand of `coproductToS` is `Spec` of the structure map
 `Λ → C`. -/
 theorem coproductToS_inr (m : MaximalSpectrum Λ) (C : Type u) [CommRing C]
     [Algebra Λ C] :
     coprod.inr ≫ coproductToS m C =
-      Spec.map (CommRingCat.ofHom (algebraMap Λ C)) :=
-  sorry
+      Spec.map (CommRingCat.ofHom (algebraMap Λ C)) := by
+  exact coprod.inr_desc _ _
 
 /-- The category fibred in groupoids associated to factoring through
 `U ⨿ Spec(C) ⟶ Spec(Λ)`. -/
@@ -100,8 +100,8 @@ theorem groupoids_p (m : MaximalSpectrum Λ) (C : Type u) [CommRing C]
     [Algebra Λ C] :
     (groupoids m C).p =
       ((Sets.ofPresheaf (Over (Spec (CommRingCat.of Λ)))).obj
-        (factorsThroughFunctor (coproductToS m C))).p :=
-  sorry
+        (factorsThroughFunctor (coproductToS m C))).p := by
+  rfl
 
 /-- The residue morphism `Spec(κ(Λ_m^∧)) ⟶ Spec(Λ)` is locally of finite type. -/
 theorem completedLocalRing_residue_locallyOfFiniteType (m : MaximalSpectrum Λ) :
@@ -110,8 +110,26 @@ theorem completedLocalRing_residue_locallyOfFiniteType (m : MaximalSpectrum Λ) 
           (Ideal.Quotient.mk
             (maximalIdeal (CompletedLocalRing m.toPrimeSpectrum)))) ≫
         Spec.map (CommRingCat.ofHom
-          (algebraMap Λ (CompletedLocalRing m.toPrimeSpectrum)))) :=
-  sorry
+          (algebraMap Λ (CompletedLocalRing m.toPrimeSpectrum)))) := by
+  letI : m.toPrimeSpectrum.asIdeal.IsMaximal := m.isMaximal
+  let A := Localization.AtPrime m.toPrimeSpectrum.asIdeal
+  let R := CompletedLocalRing m.toPrimeSpectrum
+  have hA : Function.Surjective (algebraMap Λ (ResidueField A)) :=
+    Ideal.algebraMap_residueField_surjective m.toPrimeSpectrum.asIdeal
+  have hR : Function.Surjective (ResidueField.map (algebraMap A R)) :=
+    (AdicCompletion.residueField_map_bijective A).2
+  have hcomp : (ResidueField.map (algebraMap A R)).comp
+      (algebraMap Λ (ResidueField A)) = (residue R).comp (algebraMap Λ R) := by
+    ext a
+    change ResidueField.map (algebraMap A R) (residue A (algebraMap Λ A a)) =
+      residue R (algebraMap Λ R a)
+    rw [ResidueField.map_residue, IsScalarTower.algebraMap_apply Λ A R]
+  have hsurj : Function.Surjective ((residue R).comp (algebraMap Λ R)) := by
+    rw [← hcomp]
+    exact hR.comp hA
+  rw [← Spec.map_comp]
+  apply (HasRingHomProperty.Spec_iff (P := @LocallyOfFiniteType)).2
+  exact RingHom.FiniteType.of_surjective _ hsurj
 
 /-- The completed local ring `Λ_m^∧` as a complete local `Spec(Λ)`-algebra. -/
 def completeLocalSAlgebra (m : MaximalSpectrum Λ) :
@@ -128,8 +146,8 @@ theorem completeLocalSAlgebra_spec (m : MaximalSpectrum Λ) :
       CompletedLocalRing m.toPrimeSpectrum ∧
       (completeLocalSAlgebra m).toS =
         Spec.map (CommRingCat.ofHom
-          (algebraMap Λ (CompletedLocalRing m.toPrimeSpectrum))) :=
-  sorry
+          (algebraMap Λ (CompletedLocalRing m.toPrimeSpectrum))) := by
+  exact ⟨rfl, rfl⟩
 
 variable {C : Type u} [CommRing C] [Algebra Λ C] [Algebra.FiniteType Λ C]
 
@@ -166,8 +184,8 @@ def truncationOverHom (m : MaximalSpectrum Λ)
 /-- `truncationOverHom` is `Over.homMk` of `truncationToCoproduct`. -/
 theorem truncationOverHom_left (m : MaximalSpectrum Λ)
     (φ : C →ₐ[Λ] CompletedLocalRing m.toPrimeSpectrum) (n : ℕ) :
-    (truncationOverHom m φ n).left = truncationToCoproduct m φ n :=
-  sorry
+    (truncationOverHom m φ n).left = truncationToCoproduct m φ n := by
+  rfl
 
 /-- The characteristic-functor value of a truncation, given by the `Spec(C)`
 factorization. -/
@@ -189,14 +207,39 @@ def truncationObject (m : MaximalSpectrum Λ)
     (groupoids m C).total :=
   Opposite.op (truncationElement m φ n)
 
+private theorem truncationToCoproduct_comp_coproductToS (m : MaximalSpectrum Λ)
+    (φ : C →ₐ[Λ] CompletedLocalRing m.toPrimeSpectrum) (n : ℕ) :
+    truncationToCoproduct m φ n ≫ coproductToS m C =
+      (completeLocalSAlgebra m).truncationToS n := by
+  have hφ : Spec.map (CommRingCat.ofHom φ.toRingHom) ≫
+      Spec.map (CommRingCat.ofHom (algebraMap Λ C)) =
+      Spec.map (CommRingCat.ofHom
+        (algebraMap Λ (CompletedLocalRing m.toPrimeSpectrum))) := by
+    rw [← Spec.map_comp]
+    congr 1
+    apply CommRingCat.hom_ext
+    exact φ.comp_algebraMap
+  change (Spec.map (CommRingCat.ofHom
+      (Ideal.Quotient.mk (maximalIdeal (CompletedLocalRing m.toPrimeSpectrum) ^ (n + 1)))) ≫
+      Spec.map (CommRingCat.ofHom φ.toRingHom) ≫ coprod.inr) ≫ coproductToS m C =
+    Spec.map (CommRingCat.ofHom
+      (Ideal.Quotient.mk (maximalIdeal (CompletedLocalRing m.toPrimeSpectrum) ^ (n + 1)))) ≫
+      Spec.map (CommRingCat.ofHom
+        (algebraMap Λ (CompletedLocalRing m.toPrimeSpectrum)))
+  rw [Category.assoc, Category.assoc, coproductToS_inr, hφ]
+
 /-- Successive truncations remain compatible with the fold to `Spec(Λ)` after
 composing with `truncationToCoproduct`. -/
 theorem truncationStage_triangle (m : MaximalSpectrum Λ)
     (φ : C →ₐ[Λ] CompletedLocalRing m.toPrimeSpectrum) (n : ℕ) :
     (completeLocalSAlgebra m).truncationMap n ≫
         (truncationOver m φ (n + 1)).hom =
-      (truncationOver m φ n).hom :=
-  sorry
+      (truncationOver m φ n).hom := by
+  change (completeLocalSAlgebra m).truncationMap n ≫
+      (truncationToCoproduct m φ (n + 1) ≫ coproductToS m C) =
+    truncationToCoproduct m φ n ≫ coproductToS m C
+  rw [truncationToCoproduct_comp_coproductToS, truncationToCoproduct_comp_coproductToS]
+  exact (completeLocalSAlgebra m).stageToS_comp n
 
 /-- The Over morphism of successive truncations over `Spec(Λ)`. -/
 def truncationStageHom (m : MaximalSpectrum Λ)
@@ -210,8 +253,8 @@ thickening. -/
 theorem truncationStageHom_left (m : MaximalSpectrum Λ)
     (φ : C →ₐ[Λ] CompletedLocalRing m.toPrimeSpectrum) (n : ℕ) :
     (truncationStageHom m φ n).left =
-      (completeLocalSAlgebra m).truncationMap n :=
-  sorry
+      (completeLocalSAlgebra m).truncationMap n := by
+  rfl
 
 /-- Characteristic-functor values of successive truncations are compatible with
 the truncation thickening. -/
@@ -220,8 +263,8 @@ theorem truncationValue_natural (m : MaximalSpectrum Λ)
     (factorsThroughFunctor (coproductToS m C)).map
         (Opposite.op (truncationStageHom m φ n))
         (truncationValue m φ (n + 1)) =
-      truncationValue m φ n :=
-  sorry
+      truncationValue m φ n := by
+  rfl
 
 /-- The transition morphism of truncation objects in the characteristic
 groupoid. -/
@@ -238,16 +281,24 @@ complete-local truncations. -/
 theorem truncationObject_over (m : MaximalSpectrum Λ)
     (φ : C →ₐ[Λ] CompletedLocalRing m.toPrimeSpectrum) (n : ℕ) :
     (groupoids m C).p.obj (truncationObject m φ n) =
-      (completeLocalSAlgebra m).stageOver n :=
-  sorry
+      (completeLocalSAlgebra m).stageOver n := by
+  change Over.mk (truncationToCoproduct m φ n ≫ coproductToS m C) =
+    Over.mk ((completeLocalSAlgebra m).truncationToS n)
+  rw [truncationToCoproduct_comp_coproductToS]
 
 /-- Truncation steps of the characteristic groupoid lift the truncation
 thickenings in `Over Spec(Λ)`. -/
 theorem truncationStep_over (m : MaximalSpectrum Λ)
     (φ : C →ₐ[Λ] CompletedLocalRing m.toPrimeSpectrum) (n : ℕ) :
     (groupoids m C).p.IsHomLift ((completeLocalSAlgebra m).stageHom n)
-      (truncationStep m φ n) :=
-  sorry
+      (truncationStep m φ n) := by
+  apply IsHomLift.of_fac (groupoids m C).p _ _
+    (truncationObject_over m φ n) (truncationObject_over m φ (n + 1))
+  apply Over.OverMorphism.ext
+  simp only [Over.comp_left, Over.eqToHom_left]
+  change (completeLocalSAlgebra m).truncationMap n =
+    𝟙 _ ≫ (completeLocalSAlgebra m).truncationMap n ≫ 𝟙 _
+  simp
 
 /-- The canonical formal object of `groupoids m C` over `Λ_m^∧`, with truncation
 objects given by the `Spec(C)` summand factorization. -/
@@ -260,8 +311,8 @@ def formalObject (m : MaximalSpectrum Λ)
 /-- The complete local algebra of `formalObject m φ` is `Λ_m^∧`. -/
 theorem formalObject_base (m : MaximalSpectrum Λ)
     (φ : C →ₐ[Λ] CompletedLocalRing m.toPrimeSpectrum) :
-    (formalObject m φ).base = completeLocalSAlgebra m :=
-  sorry
+    (formalObject m φ).base = completeLocalSAlgebra m := by
+  rfl
 
 /-- Stagewise, `formalObject m φ` lies over the truncations of `Λ_m^∧` with
 transition maps lifting the truncation thickenings. -/
@@ -270,7 +321,7 @@ theorem formalObject_spec (m : MaximalSpectrum Λ)
     (groupoids m C).p.obj ((formalObject m φ).objects n) =
         (formalObject m φ).base.stageOver n ∧
       (groupoids m C).p.IsHomLift ((formalObject m φ).base.stageHom n)
-        ((formalObject m φ).step n) :=
-  sorry
+        ((formalObject m φ).step n) := by
+  exact FormalObject.spec (formalObject m φ) n
 
 end AlgebraicGeometry.GroupoidsOver.ApproximateVersalNecessity

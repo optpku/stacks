@@ -63,6 +63,6 @@ theorem flat_locus_eq_cohenMacaulay_inter_dimensionStratum_of_quasiFinite_polyno
       { q : PrimeSpectrum S |
           Module.CohenMacaulay (Localization.AtPrime q.asIdeal)
             (Localization.AtPrime q.asIdeal) } ∩
-        PrimeSpectrum.dimensionStratum S d := sorry
+        topologicalKrullDimStratum (PrimeSpectrum S) d := sorry
 
 end

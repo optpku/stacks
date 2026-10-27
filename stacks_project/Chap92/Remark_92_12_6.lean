@@ -6,146 +6,141 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import Mathlib.Algebra.Category.ModuleCat.Abelian
-public import Mathlib.Algebra.Exact.Basic
-public import Mathlib.CategoryTheory.IsomorphismClasses
-public import stacks_project.Chap110.Lemma_110_43_1_Cotangent
-public import stacks_project.Chap92.Lemma_92_4_1_Evaluation
-public import stacks_project.Chap92.Remark_92_5_5_Resolutions_Resolution
-public import stacks_project.Chap92.Remark_92_11_5_Tor
-public import stacks_project.Chap92.Remark_92_12_6_LengthTwo
-public import stacks_project.Chap92.Remark_92_12_6_MulKer
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.RingTheory.Ideal.Tensor.MultiplicationKernel
+public import ReasLib.Algebra.Category.ModuleCat.Tor.Surjective
+public import ReasLib.RingTheory.Extension.Presentation.LengthTwo.Tor
+public import ReasLib.RingTheory.CotangentComplex.DegreeTwo
+import StacksCheckRecall
 
 /-!
 # Degree-two identifications of the cotangent complex
 
-Remark 92.12.6 records that `Tor_2^{P_n}(B, B) = Tor_1^{P_n}(J_n, B) = Ker(J_n ⊗ J_n → J_n²)`,
-that `H^{-2}(L_{B/A})` is the cokernel of `d0 - d1` on a resolution, the length-two `B`-linear
-splitting of `Tor_2^{P_1}(B, B)` with middle summand `⊕_t (J_0/J_0²)`, and the exact sequence
-`∧²_B(J_0/J_0²) → Tor_2^{P_0}(B, B) → H^{-2}(L_{B/A}) → 0`.
+The mixed tensor in Remark 92.12.6 factors through `J₀/J₀²`: tensor balancing
+annihilates the representatives in `J₀²`. The displayed middle summand is
+therefore interpreted as the conormal module with its natural `B`-scalars.
+
+The faces of Example 92.5.9 satisfy `d₀(xₜ) = 0` and `d₁(xₜ) = fₜ`.
+With the ordered wedge tensor `xₜ ⊗ xₜ′ - xₜ′ ⊗ xₜ`, their difference
+`d₀ - d₁` gives `fₜ′ ⊗ fₜ - fₜ ⊗ fₜ′`. This is the negative of the exterior
+face formula printed in the remark. The mixed face formula and the final
+right-exact sequence agree with these face conventions.
 -/
 
-@[expose] public section
+public section
 
-open CategoryTheory
-open CategoryTheory.Limits
-open CategoryTheory.SimplicialObject
-open Algebra
-open Algebra.CotangentComplex
-open Algebra.PolynomialSite
-open Algebra.Presentation.LengthTwo
-open CommAlgCat.Over.Polynomial.Site
+open CategoryTheory CategoryTheory.Limits CategoryTheory.SimplicialObject
+open Algebra Algebra.CotangentComplex Algebra.PolynomialSite
+open Algebra.Presentation.LengthTwo Ideal
 open scoped Simplicial TensorProduct
-
-noncomputable section
 
 universe u
 
-namespace Algebra.CotangentComplex
-
-variable {A B : Type u} [CommRing A] [CommRing B] [Algebra A B]
-
-/-- Tor_2^P(B, B) as left-derived extension of scalars of `B` along `P ⟶ B`. -/
-noncomputable def torTwoObjWith (X : Algebra.PolynomialOver A B) [Algebra X.obj.left B] :
-    ModuleCat.{u} B :=
-  ((ModuleCat.extendScalars (algebraMap X.obj.left B)).leftDerived 2).obj
-    (ModuleCat.of X.obj.left B)
-
-/-- Tor_2^P(B, B) of a polynomial arrow `P ⟶ B`. -/
-noncomputable def torTwoObj (X : Algebra.PolynomialOver A B) : ModuleCat.{u} B :=
-  @torTwoObjWith A B _ _ _ X (algebraToBase X)
-
-/-- Unfolding `torTwoObj` recovers the unbundled left-derived extension of scalars. -/
-theorem torTwoObj_eq (X : Algebra.PolynomialOver A B) :
-    torTwoObj X = @torTwoObjWith A B _ _ _ X (algebraToBase X) :=
-  sorry
-
-/-- Remark 92.12.6 (1). For a surjective polynomial arrow `P ⟶ B` one has
-`Tor_2^P(B, B) = Tor_1^P(Ker(P ⟶ B), B)`. -/
-@[stacks 09D6]
-theorem torTwo_isIsomorphic_kernelTor (X : Algebra.PolynomialOver A B)
-    (h : Function.Surjective X.obj.hom.hom.toRingHom) :
-    IsIsomorphic (torTwoObj X) (kernelTorObj 1 X) :=
-  sorry
-
-/-- Remark 92.12.6 (2). For a surjective polynomial arrow `P ⟶ B` one has
-`Tor_1^P(Ker(P ⟶ B), B) = Ker(J ⊗_P J → J²)` with `J = Ker(P ⟶ B)`. -/
-@[stacks 09D6]
-theorem kernelTor_isIsomorphic_mulKer (X : Algebra.PolynomialOver A B)
-    (h : Function.Surjective X.obj.hom.hom.toRingHom) :
-    IsIsomorphic (kernelTorObj 1 X) (mulKerModuleCat X.obj.hom.hom.toRingHom h) :=
-  sorry
-
-/-- Degreewise polynomiality of a resolution of `B` over `A`. -/
-theorem resolution_isPolynomial
-    {P : SimplicialObject (CommAlgCat.{u} A)}
-    (ε : P ⟶ (const (CommAlgCat.{u} A)).obj (CommAlgCat.of A B))
-    [IsResolution ε] (n : SimplexCategoryᵒᵖ) :
-    IsPolynomial A (P.obj n) :=
-  sorry
-
-/-- The polynomial simplicial object of a resolution of `B` over `A`. -/
-noncomputable def resolutionPolynomialSimplicial
-    {P : SimplicialObject (CommAlgCat.{u} A)}
-    (ε : P ⟶ (const (CommAlgCat.{u} A)).obj (CommAlgCat.of A B))
-    [IsResolution ε] :
-    SimplicialObject (PolynomialOver A B) :=
-  asPolynomialSimplicial ε (resolution_isPolynomial ε)
-
-/-- The map `d0 - d1` on objectwise `Tor_1^P(J, B)` of a resolution. -/
-noncomputable def kernelTorFaceSub
-    {P : SimplicialObject (CommAlgCat.{u} A)}
-    (ε : P ⟶ (const (CommAlgCat.{u} A)).obj (CommAlgCat.of A B))
-    [IsResolution ε] :
-    kernelTorObj 1 ((resolutionPolynomialSimplicial ε) _⦋1⦌) ⟶
-      kernelTorObj 1 ((resolutionPolynomialSimplicial ε) _⦋0⦌) :=
-  kernelTorMap 1 ((resolutionPolynomialSimplicial ε).δ (0 : Fin 2)) -
-    kernelTorMap 1 ((resolutionPolynomialSimplicial ε).δ (1 : Fin 2))
-
-/-- Remark 92.12.6 (3). For a resolution `P_•` of `B` over `A`, `H^{-2}(L_{B/A})` is
-canonically the cokernel of `Tor_2^{P_1}(B, B) → Tor_2^{P_0}(B, B)` induced by `d0 - d1`. -/
-@[stacks 09D6]
-theorem cotangentHomology_negTwo_isIsomorphic_coker_faceSub
-    {P : SimplicialObject (CommAlgCat.{u} A)}
-    (ε : P ⟶ (const (CommAlgCat.{u} A)).obj (CommAlgCat.of A B))
-    [IsResolution ε] :
-    IsIsomorphic ((Algebra.cotangentComplex A B).homology (-2))
-      (cokernel (kernelTorFaceSub ε)) :=
-  sorry
-
-end Algebra.CotangentComplex
-
-namespace Algebra.Presentation.LengthTwo
-
 variable {A B ι σ : Type u} [CommRing A] [CommRing B] [Algebra A B]
 
-/-- Remark 92.12.6 (4). For the length-two presentation of Example 92.5.9,
-`Tor_2^{P_1}(B, B)` splits as the `B`-module coproduct of `∧²(⊕_t B)`,
-`⊕_t (J_0/J_0²)`, and `Tor_2^{P_0}(B, B)`. -/
-@[stacks 09D6]
-noncomputable def torTwoTerm1Coprod_linearEquiv (P : Presentation A B ι σ) :
-    ((⋀[B]^2 (σ →₀ B)) × (σ →₀ P.ker.Cotangent) × mulKer P.ker) ≃ₗ[B]
-      mulKer (term1Ker P) :=
-  torTwoTerm1LinearEquiv P
+/- Remark 92.12.6. The explicit tensor face cokernel computes the actual
+degree-minus-two homology of the cotangent complex. The comparisons, concrete
+summand maps, and right-exact sequence are checked below. -/
+@[stacks 09D6] #check
+  (Algebra.Presentation.LengthTwo.cokerFaceSub_isIsomorphic_cotangentHomology_negTwo :
+    ∀ P : Presentation A B ι σ,
+      IsIsomorphic (cokerFaceSub P) ((Algebra.cotangentComplex A B).homology (-2)))
 
-/-- The `B`-linear equivalence of Remark 92.12.6 (4) has forward map `torTwoTerm1CoprodLM`. -/
-theorem torTwoTerm1Coprod_linearEquiv_toLinearMap (P : Presentation A B ι σ) :
-    (torTwoTerm1Coprod_linearEquiv P).toLinearMap = torTwoTerm1CoprodLM P :=
-  sorry
+section PolynomialArrow
 
-/-- Remark 92.12.6 (5). There is an exact sequence
-`∧²_{P_0/J_0}(J_0/J_0²) → Tor_2^{P_0}(B, B) → Coker(d0 - d1) → 0`. -/
-@[stacks 09D6]
-theorem exact_conormalExteriorSquare_cokerFaceSub (P : Presentation A B ι σ) :
-    Function.Exact (conormalExteriorSquareToMulKer P.ker) (cokerFaceSubMkQ P) :=
-  sorry
+variable (X : Algebra.PolynomialOver A B)
+variable (h : Function.Surjective X.obj.hom.hom.toRingHom)
 
-/-- Remark 92.12.6 (6). The cokernel of `d0 - d1` on `Tor_2^{P_0}(B, B)` identifies with
-`H^{-2}(L_{B/A})`. -/
-@[stacks 09D6]
-theorem cokerFaceSub_isIsomorphic_cotangentHomology_negTwo (P : Presentation A B ι σ) :
-    IsIsomorphic (cokerFaceSubModuleCat P) ((Algebra.cotangentComplex A B).homology (-2)) :=
-  sorry
+#check (ModuleCat.ExtendScalars.selfTorTwo_isIsomorphic_kernelTorOne
+    X.obj.hom.hom.toRingHom h :
+  IsIsomorphic (ModuleCat.ExtendScalars.selfTorObj X.obj.hom.hom.toRingHom 2)
+    (CommAlgCat.Over.Polynomial.Site.kernelTorObj 1 X))
 
-end Algebra.Presentation.LengthTwo
+#check (ModuleCat.ExtendScalars.kernelTorOne_isIsomorphic_mulKer
+    X.obj.hom.hom.toRingHom h :
+  IsIsomorphic (CommAlgCat.Over.Polynomial.Site.kernelTorObj 1 X)
+    (Ideal.mulKerModuleCat X.obj.hom.hom.toRingHom h))
+
+end PolynomialArrow
+
+section Resolution
+
+variable {P : SimplicialObject (CommAlgCat.{u} A)}
+variable (ε : P ⟶ (const (CommAlgCat.{u} A)).obj (CommAlgCat.of A B)) [IsResolution ε]
+
+#check (Algebra.CotangentComplex.cotangentHomology_negTwo_isIsomorphic_coker_faceSub ε :
+  IsIsomorphic ((Algebra.cotangentComplex A B).homology (-2))
+    (cokernel (kernelTorFaceSub ε)))
+
+end Resolution
+
+section Presentation
+
+variable (P : Presentation A B ι σ)
+
+#check (Algebra.Presentation.LengthTwo.torTwoTerm1SourceModuleCat P : ModuleCat.{u} B)
+
+#check (Algebra.Presentation.LengthTwo.wedgeIncl P :
+  ⋀[B]^2 (σ →₀ B) →ₗ[B] term1MulKerModuleCat P)
+
+#check (Algebra.Presentation.LengthTwo.mixedIncl P :
+  (σ →₀ kerCotangentModuleCat P) →+ term1MulKerModuleCat P)
+
+#check (Algebra.Presentation.LengthTwo.degeneracyIncl P :
+  term0MulKerModuleCat P →+ term1MulKerModuleCat P)
+
+#check (Algebra.Presentation.LengthTwo.torTwoTerm1CoprodLM P :
+  torTwoTerm1SourceModuleCat P →ₗ[B] term1MulKerModuleCat P)
+
+#check (Algebra.Presentation.LengthTwo.torTwoTerm1Coprod_bijective P :
+  Function.Bijective (torTwoTerm1CoprodLM P))
+
+#check (Algebra.Presentation.LengthTwo.wedgeIncl_apply P : ∀ t t' : σ,
+  wedgeIncl P (exteriorPower.ιMulti B 2 fun i =>
+    Finsupp.single (if i = 0 then t else t') (1 : B)) =
+    alternTmul (xKer P t) (xKer P t'))
+
+#check (Algebra.Presentation.LengthTwo.mixedIncl_apply P : ∀ (t : σ) (f : P.ker),
+  mixedIncl P (Finsupp.single t (P.ker.toCotangent f)) =
+    alternTmul (xKer P t) (degeneracyZero_mapKer P f))
+
+#check (Algebra.Presentation.LengthTwo.mixedIncl_apply_eq_zero_of_mem_sq P :
+  ∀ (t : σ) (f : P.ker), (f : P.Ring) ∈ P.ker ^ 2 →
+    mixedIncl P (Finsupp.single t (P.ker.toCotangent f)) = 0)
+
+#check (Algebra.Presentation.LengthTwo.faceSub_degeneracyIncl P :
+  (faceSub P).comp (degeneracyIncl P) = 0)
+
+#check (Algebra.Presentation.LengthTwo.faceSub_mixedIncl P : ∀ (t : σ) (f : P.ker),
+  faceSub P (mixedIncl P (Finsupp.single t (P.ker.toCotangent f))) =
+    alternTmul f (relationKer P t))
+
+#check (Algebra.Presentation.LengthTwo.faceSub_wedgeIncl P : ∀ t t' : σ,
+  faceSub P (wedgeIncl P (exteriorPower.ιMulti B 2 fun i =>
+    Finsupp.single (if i = 0 then t else t') (1 : B))) =
+    alternTmul (relationKer P t') (relationKer P t))
+
+#check (Algebra.Presentation.LengthTwo.faceSubLM P :
+  term1MulKerModuleCat P →ₗ[B] term0MulKerModuleCat P)
+
+#check (Ideal.conormalExteriorSquareToMulKer P.ker :
+  ⋀[P.Ring ⧸ P.ker]^2 P.ker.Cotangent →ₗ[P.Ring ⧸ P.ker]
+    mulKerQuotientModuleCat P.ker)
+
+#check (Ideal.conormalExteriorSquareToMulKer_apply P.ker : ∀ a b : P.ker,
+  conormalExteriorSquareToMulKer P.ker
+      (exteriorPower.ιMulti (P.Ring ⧸ P.ker) 2 fun i =>
+        if i = 0 then P.ker.toCotangent a else P.ker.toCotangent b) =
+    alternTmul a b)
+
+#check (Algebra.Presentation.LengthTwo.cokerFaceSubMkQ P :
+  term0MulKerModuleCat P →ₗ[B] cokerFaceSub P)
+
+#check (Algebra.Presentation.LengthTwo.exact_conormalExteriorSquare_cokerFaceSub P :
+  Function.Exact (conormalExteriorSquareToMulKer P.ker) (cokerFaceSubMkQ P))
+
+#check (Algebra.Presentation.LengthTwo.cokerFaceSubMkQ_surjective P :
+  Function.Surjective (cokerFaceSubMkQ P))
+
+end Presentation
+
+

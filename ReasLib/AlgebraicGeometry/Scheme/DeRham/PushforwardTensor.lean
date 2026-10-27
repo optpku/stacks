@@ -27,7 +27,7 @@ variable (sq : CommSq f p q h)
 
 /-- The coefficient-site direct image is a right adjoint to inverse image of modules. -/
 theorem coefficientPushforward_rightAdjoint :
-    ((Cohomology.coefficientHom sq).modulePushforward.{u}).IsRightAdjoint := by
+    (RingedSite.Hom.modulePushforward.{u} (Cohomology.coefficientHom sq)).IsRightAdjoint := by
   infer_instance
 
 -- Local instance justification (defeq pin): all derived functors below use this one coefficient morphism and its canonical underived adjunction.
@@ -82,8 +82,21 @@ abbrev pushforwardCommShift : (pushforward sq).CommShift ℤ :=
 
 /-- The monoidal structure of underived coefficient pullback comes from pullback of
 modules over the actual commutative structure sheaves. -/
-abbrev underivedPullbackMonoidal : (Cohomology.coefficientHom sq).modulePullback.{u}.Monoidal := by
-  infer_instance
+abbrev underivedPullbackMonoidal :
+    (RingedSite.Hom.modulePullback.{u} (Cohomology.coefficientHom sq)).Monoidal :=
+  @RingedSite.Hom.commRingModulePullbackMonoidal
+    _ _ _ _ (Opens.grothendieckTopology X) (Opens.grothendieckTopology Y)
+    _ _ (RingedSpace.DeRham.coefficients p.toLRSHom.toShHom)
+    (RingedSpace.DeRham.coefficients q.toLRSHom.toShHom)
+    _ _ _ _ (Cohomology.coefficientHom sq)
+    (by
+      change RepresentablyFlat (TopologicalSpace.Opens.map f.toLRSHom.toShHom.hom.base)
+      infer_instance)
+    (by
+      change (PresheafOfModules.pushforward.{u}
+        (F := TopologicalSpace.Opens.map f.toLRSHom.toShHom.hom.base)
+        (Cohomology.coefficientHom sq).structureSheafMap.hom).IsRightAdjoint
+      infer_instance)
 
 -- Local instance justification (defeq pin): descend the tensor comparison of this concrete module pullback to homotopy objects, using its canonical invertibility theorem.
 attribute [local instance] underivedPullbackMonoidal

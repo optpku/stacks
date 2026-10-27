@@ -39,7 +39,8 @@ theorem RightVertical.baseIso.app
     (c : Over (Limits.prod U V)) :
     (RightVertical.baseIso eU eV).app c =
       eU.app ((Over.map Limits.prod.fst).obj c) ≪≫
-        (eV.app ((Over.map Limits.prod.snd).obj c)).symm := sorry
+        (eV.app ((Over.map Limits.prod.snd).obj c)).symm := by
+  rfl
 
 /-- The hom component of `RightVertical.baseIso` is the expected composite. -/
 @[simp]
@@ -48,7 +49,8 @@ theorem RightVertical.baseIso.hom.app
     (c : Over (Limits.prod U V)) :
     (RightVertical.baseIso eU eV).hom.app c =
       eU.hom.app ((Over.map Limits.prod.fst).obj c) ≫
-        eV.inv.app ((Over.map Limits.prod.snd).obj c) := sorry
+        eV.inv.app ((Over.map Limits.prod.snd).obj c) := by
+  rfl
 /- Proof strategy: unfold `RightVertical.baseIso` and `NatIso.ofComponents`. -/
 
 /-- The inverse component of `RightVertical.baseIso` is the reverse composite. -/
@@ -58,7 +60,8 @@ theorem RightVertical.baseIso.inv.app
     (c : Over (Limits.prod U V)) :
     (RightVertical.baseIso eU eV).inv.app c =
       eV.hom.app ((Over.map Limits.prod.snd).obj c) ≫
-        eU.inv.app ((Over.map Limits.prod.fst).obj c) := sorry
+        eU.inv.app ((Over.map Limits.prod.fst).obj c) := by
+  rfl
 
 /-- The first projection of the product-slice right vertical is its `U`-leg. -/
 @[simp]
@@ -66,7 +69,8 @@ theorem RightVertical.functor.fst
     (eH : ((Over.map (Limits.prod.fst : Limits.prod U V ⟶ U) ⋙ gU) ⋙ xp) ≅
       ((Over.map (Limits.prod.snd : Limits.prod U V ⟶ V) ⋙ gV) ⋙ xp)) :
     RightVertical.functor eH ⋙ π₁ xp xp =
-      Over.map Limits.prod.fst ⋙ gU := sorry
+      Over.map Limits.prod.fst ⋙ gU := by
+  rfl
 
 /-- The second projection of the product-slice right vertical is its `V`-leg. -/
 @[simp]
@@ -74,7 +78,8 @@ theorem RightVertical.functor.snd
     (eH : ((Over.map (Limits.prod.fst : Limits.prod U V ⟶ U) ⋙ gU) ⋙ xp) ≅
       ((Over.map (Limits.prod.snd : Limits.prod U V ⟶ V) ⋙ gV) ⋙ xp)) :
     RightVertical.functor eH ⋙ π₂ xp xp =
-      Over.map Limits.prod.snd ⋙ gV := sorry
+      Over.map Limits.prod.snd ⋙ gV := by
+  rfl
 
 /-- The first component of a product-slice right-vertical object is obtained from the
 `U`-leg. -/
@@ -84,7 +89,8 @@ theorem RightVertical.functor.obj.fst
       ((Over.map (Limits.prod.snd : Limits.prod U V ⟶ V) ⋙ gV) ⋙ xp))
     (c : Over (Limits.prod U V)) :
     ((RightVertical.functor eH).obj c).fst =
-      gU.obj ((Over.map Limits.prod.fst).obj c) := sorry
+      gU.obj ((Over.map Limits.prod.fst).obj c) := by
+  rfl
 
 /-- The second component of a product-slice right-vertical object is obtained from the
 `V`-leg. -/
@@ -94,7 +100,8 @@ theorem RightVertical.functor.obj.snd
       ((Over.map (Limits.prod.snd : Limits.prod U V ⟶ V) ⋙ gV) ⋙ xp))
     (c : Over (Limits.prod U V)) :
     ((RightVertical.functor eH).obj c).snd =
-      gV.obj ((Over.map Limits.prod.snd).obj c) := sorry
+      gV.obj ((Over.map Limits.prod.snd).obj c) := by
+  rfl
 
 /-- The structural isomorphism of a product-slice right-vertical object is the supplied base
 comparison component. -/
@@ -103,7 +110,8 @@ theorem RightVertical.functor.obj.iso
     (eH : ((Over.map (Limits.prod.fst : Limits.prod U V ⟶ U) ⋙ gU) ⋙ xp) ≅
       ((Over.map (Limits.prod.snd : Limits.prod U V ⟶ V) ⋙ gV) ⋙ xp))
     (c : Over (Limits.prod U V)) :
-    ((RightVertical.functor eH).obj c).iso = eH.app c := sorry
+    ((RightVertical.functor eH).obj c).iso = eH.app c := by
+  rfl
 
 /-- The first component of a product-slice right-vertical morphism is obtained from the
 `U`-leg. -/
@@ -113,7 +121,8 @@ theorem RightVertical.functor.map.fst
       ((Over.map (Limits.prod.snd : Limits.prod U V ⟶ V) ⋙ gV) ⋙ xp))
     {c d : Over (Limits.prod U V)} (f : c ⟶ d) :
     ((RightVertical.functor eH).map f).fst =
-      gU.map ((Over.map Limits.prod.fst).map f) := sorry
+      gU.map ((Over.map Limits.prod.fst).map f) := by
+  rfl
 
 /-- The second component of a product-slice right-vertical morphism is obtained from the
 `V`-leg. -/
@@ -123,7 +132,8 @@ theorem RightVertical.functor.map.snd
       ((Over.map (Limits.prod.snd : Limits.prod U V ⟶ V) ⋙ gV) ⋙ xp))
     {c d : Over (Limits.prod U V)} (f : c ⟶ d) :
     ((RightVertical.functor eH).map f).snd =
-      gV.map ((Over.map Limits.prod.snd).map f) := sorry
+      gV.map ((Over.map Limits.prod.snd).map f) := by
+  rfl
 
 end RightVertical
 

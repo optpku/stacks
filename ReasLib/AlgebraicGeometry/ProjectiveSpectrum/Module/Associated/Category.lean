@@ -52,12 +52,39 @@ noncomputable def map {M N : GradedModule.Left 𝒜 ℤ} (f : M ⟶ N) :
 /-- The associated-sheaf map induced by the identity module morphism is the identity. -/
 @[stacks 0BXF "associated module sheaf map preserves identities"]
 theorem map_id (M : GradedModule.Left 𝒜 ℤ) :
-    map 𝒜 (𝟙 M) = 𝟙 (obj 𝒜 M) := sorry
+    map 𝒜 (𝟙 M) = 𝟙 (obj 𝒜 M) := by
+  apply SheafOfModules.hom_ext
+  apply PresheafOfModules.hom_ext
+  intro U
+  apply ModuleCat.hom_ext
+  apply LinearMap.ext
+  intro s
+  apply Subtype.ext
+  funext x
+  apply Subtype.ext
+  change LocalizedModule.map _ (LinearMap.id : M →ₗ[A] M) (s.1 x).1 = (s.1 x).1
+  simp
 
 /-- The associated-sheaf map induced by a composite is the composite of the associated maps. -/
 @[stacks 0BXF "associated module sheaf map preserves composition"]
 theorem map_comp {M N P : GradedModule.Left 𝒜 ℤ} (f : M ⟶ N) (g : N ⟶ P) :
-    map 𝒜 (f ≫ g) = map 𝒜 f ≫ map 𝒜 g := sorry
+    map 𝒜 (f ≫ g) = map 𝒜 f ≫ map 𝒜 g := by
+  apply SheafOfModules.hom_ext
+  apply PresheafOfModules.hom_ext
+  intro U
+  apply ModuleCat.hom_ext
+  apply LinearMap.ext
+  intro s
+  apply Subtype.ext
+  funext x
+  apply Subtype.ext
+  change LocalizedModule.map _ (g.toLinearMap.comp f.toLinearMap) (s.1 x).1 =
+    LocalizedModule.map _ g.toLinearMap (LocalizedModule.map _ f.toLinearMap (s.1 x).1)
+  exact congrArg
+    (fun h : LocalizedModule _ M →ₗ[A] LocalizedModule _ P ↦ h (s.1 x).1)
+    (IsLocalizedModule.map_comp' _ (LocalizedModule.mkLinearMap _ M)
+      (LocalizedModule.mkLinearMap _ N) (LocalizedModule.mkLinearMap _ P)
+      f.toLinearMap g.toLinearMap)
 
 /-- 0BXF: The associated module sheaf construction as a functor from integer-graded left
 modules to modules on `Proj 𝒜`. -/
@@ -71,12 +98,12 @@ noncomputable def functor : GradedModule.Left 𝒜 ℤ ⥤ (Proj 𝒜).Modules w
 /-- The associated-sheaf functor evaluates through the bundled-object constructor. -/
 @[simp, stacks 0BXF "associated module sheaf functor on objects"]
 theorem functor_obj (M : GradedModule.Left 𝒜 ℤ) :
-    (functor 𝒜).obj M = obj 𝒜 M := sorry
+    (functor 𝒜).obj M = obj 𝒜 M := rfl
 
 /-- The associated-sheaf functor maps through the bundled-morphism constructor. -/
 @[simp, stacks 0BXF "associated module sheaf functor on morphisms"]
 theorem functor_map {M N : GradedModule.Left 𝒜 ℤ} (f : M ⟶ N) :
-    (functor 𝒜).map f = map 𝒜 f := sorry
+    (functor 𝒜).map f = map 𝒜 f := rfl
 
 /-- The associated module sheaf functor restricted to finitely generated graded modules. -/
 @[stacks 0BXF]
@@ -86,12 +113,12 @@ noncomputable def fgFunctor : GradedModule.Left.FG 𝒜 ℤ ⥤ (Proj 𝒜).Modu
 /-- The finite associated-sheaf functor forgets finite generation before applying `obj`. -/
 @[simp]
 theorem fgFunctor_obj (M : GradedModule.Left.FG 𝒜 ℤ) :
-    (fgFunctor 𝒜).obj M = obj 𝒜 M.obj := sorry
+    (fgFunctor 𝒜).obj M = obj 𝒜 M.obj := rfl
 
 /-- The finite associated-sheaf functor forgets finite generation before applying `map`. -/
 @[simp]
 theorem fgFunctor_map {M N : GradedModule.Left.FG 𝒜 ℤ} (f : M ⟶ N) :
-    (fgFunctor 𝒜).map f = map 𝒜 (M := M.obj) (N := N.obj) f.hom := sorry
+    (fgFunctor 𝒜).map f = map 𝒜 (M := M.obj) (N := N.obj) f.hom := rfl
 
 /-- A finitely generated graded module has a coherent associated module sheaf over a Noetherian
 graded ring. -/
@@ -131,13 +158,13 @@ noncomputable def exactFunctor [Algebra.FiniteType (𝒜 0) A]
 @[simp]
 theorem exactFunctor_obj [Algebra.FiniteType (𝒜 0) A] [IsNoetherianRing (𝒜 0)]
     (M : GradedModule.Left.FG 𝒜 ℤ) :
-    ((exactFunctor 𝒜).obj.obj M).obj = obj 𝒜 M.obj := sorry
+    ((exactFunctor 𝒜).obj.obj M).obj = obj 𝒜 M.obj := rfl
 
 /-- The finite-type exact functor has the canonical associated map as its underlying morphism. -/
 @[simp]
 theorem exactFunctor_map [Algebra.FiniteType (𝒜 0) A] [IsNoetherianRing (𝒜 0)]
     {M N : GradedModule.Left.FG 𝒜 ℤ} (f : M ⟶ N) :
-    ((exactFunctor 𝒜).obj.map f).hom = map 𝒜 (M := M.obj) (N := N.obj) f.hom := sorry
+    ((exactFunctor 𝒜).obj.map f).hom = map 𝒜 (M := M.obj) (N := N.obj) f.hom := rfl
 
 end FiniteType
 

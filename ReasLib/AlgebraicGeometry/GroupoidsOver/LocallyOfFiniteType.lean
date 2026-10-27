@@ -44,6 +44,23 @@ class LocallyOfFiniteType {S : Scheme.{u}} {X Y : GroupoidsOver S} (f : X ⟶ Y)
 
 namespace LocallyOfFiniteType
 
+/-- For a 1-morphism representable by algebraic spaces, the named local finite
+type class is equivalent to testing local finite type on every representing
+morphism.
+
+Stacks, Tag 03YK:
+`source/stacks-official-a04446e57ec1/additional-sources-1.md:3842-3863`.
+The representability hypothesis is needed because `has` only tests existing
+representations. -/
+theorem iff_has {S : Scheme.{u}} {X Y : GroupoidsOver S} (f : X ⟶ Y)
+    (hf : relativelyRepresentableByAlgebraicSpaces f) :
+    LocallyOfFiniteType f ↔ has (@AlgebraicSpace.LocallyOfFiniteType S) f := by
+  constructor
+  · intro h
+    exact h.of_represents
+  · intro h
+    exact ⟨hf, h⟩
+
 /-- The identity 1-morphism of a category fibred in groupoids is locally of
 finite type. -/
 instance id {S : Scheme.{u}} {X : GroupoidsOver S} : LocallyOfFiniteType (𝟙 X) :=

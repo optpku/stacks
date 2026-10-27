@@ -20,8 +20,11 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicCycle
 
+attribute [local instance] SchemeOverField.regularProdOfRegular
+
 variable {k : Type u} [Field k] [IsAlgClosed k]
   (X : SchemeOverField k)
+  [LocallyOfFiniteType X.hom]
   (r s : ℤ)
   (alpha : CycleGroup X.left (X.hom.relativeDimensionFunction (fun _ ↦ 0)) r)
   (beta : CycleGroup X.left (X.hom.relativeDimensionFunction (fun _ ↦ 0)) s)

@@ -68,7 +68,7 @@ theorem map₂.app
         ((BasedCategory.PseudoPullback.Comparison.functor
           (FiberedCategoryOver.Groupoids.toBasedFunctor X.baseProjection)
           (FiberedCategoryOver.Groupoids.toBasedFunctor X.baseProjection)).map
-          (Γ.hom.toNatTrans.app a)) := sorry
+          (Γ.hom.toNatTrans.app a)) := rfl
 
 /-- The first projection of an induced comparison `2`-cell is the original component mapped by
 the canonical first projection of the two-fibre product. -/
@@ -83,7 +83,7 @@ theorem map₂.app.fst
       (FiberedCategoryOver.Groupoids.toFunctor
         (CategoryTheory.TwoFibreProduct.cone
           X.baseProjection X.baseProjection).fst).map
-        (Γ.hom.toNatTrans.app a) := sorry
+        (Γ.hom.toNatTrans.app a) := rfl
 
 /-- The second projection of an induced comparison `2`-cell is the original component mapped by
 the canonical second projection of the two-fibre product. -/
@@ -98,7 +98,7 @@ theorem map₂.app.snd
       (FiberedCategoryOver.Groupoids.toFunctor
         (CategoryTheory.TwoFibreProduct.cone
           X.baseProjection X.baseProjection).snd).map
-        (Γ.hom.toNatTrans.app a) := sorry
+        (Γ.hom.toNatTrans.app a) := rfl
 
 /-- The comparison-map `2`-cell is natural in morphisms of the source total category. -/
 @[reassoc]
@@ -109,7 +109,8 @@ theorem map₂.naturality
       X.baseProjection X.baseProjection}
     (Γ : M ⟶ N) {a b : A.total} (f : a ⟶ b) :
     (map M).map f ≫ (map₂ Γ).app b =
-      (map₂ Γ).app a ≫ (map N).map f := sorry
+      (map₂ Γ).app a ≫ (map N).map f :=
+  (map₂ Γ).naturality f
 
 /-- The comparison-map `2`-cell action preserves identity cells. -/
 @[simp]
@@ -118,7 +119,11 @@ theorem map₂.id
     {A : FiberedCategoryOver.Groupoids.{u, v, max w (max u v), v} C}
     (M : A ⟶ CategoryTheory.TwoFibreProduct.apex
       X.baseProjection X.baseProjection) :
-    map₂ (𝟙 M) = 𝟙 (map M) := sorry
+    map₂ (𝟙 M) = 𝟙 (map M) := by
+  change Functor.whiskerRight
+    (Functor.whiskerRight (𝟙 (FiberedCategoryOver.Groupoids.toFunctor M)) _) _ = _
+  simp only [Functor.whiskerRight_id', map]
+  rfl
 
 /-- The comparison-map `2`-cell action preserves vertical composition. -/
 @[simp]
@@ -128,7 +133,11 @@ theorem map₂.comp
     {M N P : A ⟶ CategoryTheory.TwoFibreProduct.apex
       X.baseProjection X.baseProjection}
     (Γ : M ⟶ N) (Δ : N ⟶ P) :
-    map₂ (Γ ≫ Δ) = map₂ Γ ≫ map₂ Δ := sorry
+    map₂ (Γ ≫ Δ) = map₂ Γ ≫ map₂ Δ := by
+  change Functor.whiskerRight
+    (Functor.whiskerRight (Γ.hom.toNatTrans ≫ Δ.hom.toNatTrans) _) _ = _
+  simp only [map₂, Functor.whiskerRight_comp]
+  rfl
 
 /-- The comparison construction acts functorially on the hom category of morphisms into the
 canonical two-fibre product. Its object and morphism data are the explicit `map` and `map₂`
@@ -152,7 +161,7 @@ theorem obj
     {X A : FiberedCategoryOver.Groupoids.{u, v, max w (max u v), v} C}
     (M : A ⟶ CategoryTheory.TwoFibreProduct.apex
       X.baseProjection X.baseProjection) :
-    (mapFunctor X A).obj M = map M := sorry
+    (mapFunctor X A).obj M = map M := rfl
 
 /-- The morphism action of the comparison-map hom functor is the canonical induced natural
 transformation. -/
@@ -161,7 +170,7 @@ theorem map
     {X A : FiberedCategoryOver.Groupoids.{u, v, max w (max u v), v} C}
     {M N : A ⟶ CategoryTheory.TwoFibreProduct.apex
       X.baseProjection X.baseProjection} (Γ : M ⟶ N) :
-    (mapFunctor X A).map Γ = map₂ Γ := sorry
+    (mapFunctor X A).map Γ = map₂ Γ := rfl
 
 end mapFunctor
 
@@ -184,7 +193,7 @@ theorem hom
     {X A : FiberedCategoryOver.Groupoids.{u, v, max w (max u v), v} C}
     {M N : A ⟶ CategoryTheory.TwoFibreProduct.apex
       X.baseProjection X.baseProjection} (e : M ≅ N) :
-    (mapIso e).hom = map₂ e.hom := sorry
+    (mapIso e).hom = map₂ e.hom := rfl
 
 /-- The inverse natural transformation of an induced comparison isomorphism is the image of
 the inverse `2`-cell. -/
@@ -193,7 +202,7 @@ theorem inv
     {X A : FiberedCategoryOver.Groupoids.{u, v, max w (max u v), v} C}
     {M N : A ⟶ CategoryTheory.TwoFibreProduct.apex
       X.baseProjection X.baseProjection} (e : M ≅ N) :
-    (mapIso e).inv = map₂ e.inv := sorry
+    (mapIso e).inv = map₂ e.inv := rfl
 
 end mapIso
 

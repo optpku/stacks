@@ -26,8 +26,8 @@ product on the derived direct image of Ω^•_{X/S} in D(Y, q⁻¹𝒪_T). -/
 #check (AlgebraicGeometry.Scheme.DeRham.DerivedPushforward.cupProduct :
   {X Y S T : Scheme} → (f : X ⟶ Y) → (p : X ⟶ S) → (q : Y ⟶ T) → (h : S ⟶ T) →
     (sq : CommSq f p q h) →
-    [((RingedSpace.DeRham.baseChangeHom
-        (coefficientSheafedSquare f p q h sq)).modulePushforward).IsRightAdjoint] →
+    [(modulePushforward (RingedSpace.DeRham.baseChangeHom
+        (coefficientSheafedSquare f p q h sq))).IsRightAdjoint] →
     [Functor.HasRightDerivedFunctor
       (modulePushforwardToDerived
         (RingedSpace.DeRham.baseChangeHom (coefficientSheafedSquare f p q h sq)))

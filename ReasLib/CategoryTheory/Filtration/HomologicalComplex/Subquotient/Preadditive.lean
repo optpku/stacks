@@ -35,6 +35,4 @@ variable {ι : Type w} {c : ComplexShape ι}
 noncomputable instance functor_additive {p q : ℤ} (hpq : p ≤ q) :
     (functor (C := C) (c := c) hpq).Additive := sorry
 
-#synth (functor (C := C) (c := ComplexShape.up ℤ) (le_refl (0 : ℤ))).Additive
-
 end CategoryTheory.HomologicalComplex.Filtered.Subquotient

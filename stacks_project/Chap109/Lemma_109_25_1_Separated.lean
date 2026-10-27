@@ -9,13 +9,12 @@ module
 public import stacks_project.Chap67.Definition_67_40_1_Proper
 public import stacks_project.Chap108.Lemma_108_4_2_QuasiSeparated
 
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.CohStack.Hom.Separated
+
 /-!
 # Separated morphisms of CohStack-sized groupoid fibrations
 
-A 1-morphism in `FiberedCategoryOver.Groupoids.{u + 1, u, u + 1, u + 1} (Over S)`
-is separated when its relative 2-diagonal is representable by algebraic spaces
-and proper, matching Definition 101.4.1 at the Hom-universe of
-`CohStack.toGroupoids`.
+Typed compatibility checks for the shared separatedness API.
 -/
 
 @[expose] public section
@@ -25,52 +24,33 @@ open AlgebraicGeometry.GroupScheme
 open FiberedCategoryOver
 open scoped Bicategory
 
-noncomputable section
-
 universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace.CohStack.Hom
 
-/-- A 1-morphism of categories fibred in groupoids over `Over S`, in the
-Hom-universe of `CohStack.toGroupoids`, is separated when its relative
-2-diagonal is representable by algebraic spaces and proper on scheme-slice
-representing morphisms. -/
-class Separated {S : Scheme.{u}}
+#check (AlgebraicGeometry.AlgebraicSpace.CohStack.Hom.Separated :
+  ∀ {S : Scheme.{u}}
     {X Y : FiberedCategoryOver.Groupoids.{u + 1, u, u + 1, u + 1} (Over S)}
-    (f : X ⟶ Y) : Prop where
-  /-- The relative 2-diagonal is representable by algebraic spaces. -/
-  representable_diagonal :
-    Classifying.relativelyRepresentableByAlgebraicSpaces (diagonal f)
-  /-- The relative 2-diagonal is proper. -/
-  proper_diagonal : has (@AlgebraicSpace.Proper S) (diagonal f)
+    (f : X ⟶ Y), Prop)
 
-namespace Separated
+#check (AlgebraicGeometry.AlgebraicSpace.CohStack.Hom.Separated.id :
+  ∀ {S : Scheme.{u}}
+    {X : FiberedCategoryOver.Groupoids.{u + 1, u, u + 1, u + 1} (Over S)},
+    Separated (𝟙 X))
 
-/-- The identity 1-morphism of a category fibred in groupoids is separated. -/
-instance id {S : Scheme.{u}}
-    {X : FiberedCategoryOver.Groupoids.{u + 1, u, u + 1, u + 1} (Over S)} :
-    Separated (𝟙 X) :=
-  sorry
-
-/-- A 1-morphism is separated if and only if its relative 2-diagonal is
-representable by algebraic spaces and proper. -/
-theorem iff {S : Scheme.{u}}
+#check (AlgebraicGeometry.AlgebraicSpace.CohStack.Hom.Separated.iff :
+  ∀ {S : Scheme.{u}}
     {X Y : FiberedCategoryOver.Groupoids.{u + 1, u, u + 1, u + 1} (Over S)}
-    (f : X ⟶ Y) :
+    (f : X ⟶ Y),
     Separated f ↔
       Classifying.relativelyRepresentableByAlgebraicSpaces (diagonal f) ∧
-        has (@AlgebraicSpace.Proper S) (diagonal f) :=
-  sorry
+        has (@AlgebraicSpace.Proper S) (diagonal f))
 
-/-- The relative 2-diagonal of a separated 1-morphism is representable by
-algebraic spaces and proper. -/
-theorem spec {S : Scheme.{u}}
+#check (AlgebraicGeometry.AlgebraicSpace.CohStack.Hom.Separated.spec :
+  ∀ {S : Scheme.{u}}
     {X Y : FiberedCategoryOver.Groupoids.{u + 1, u, u + 1, u + 1} (Over S)}
-    (f : X ⟶ Y) [Separated f] :
+    (f : X ⟶ Y) [Separated f],
     Classifying.relativelyRepresentableByAlgebraicSpaces (diagonal f) ∧
-      has (@AlgebraicSpace.Proper S) (diagonal f) :=
-  sorry
-
-end Separated
+      has (@AlgebraicSpace.Proper S) (diagonal f))
 
 end AlgebraicGeometry.AlgebraicSpace.CohStack.Hom

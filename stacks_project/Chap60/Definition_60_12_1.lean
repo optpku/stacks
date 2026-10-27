@@ -6,11 +6,19 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap60.Definition_60_12_1_Derivation
+public import ReasLib.AlgebraicGeometry.Crystalline.SheafDerivation
 import StacksCheckRecall
-import Mathlib.Tactic.CrossRefAttribute
+
+open AlgebraicGeometry.Scheme.Crystalline
+
+universe u
+
+variable {p : ℕ} [Fact p.Prime] (B : Base.{u} p)
+  (F : SheafOfModules.{u} (smallStructureSheaf (S := B.scheme) (I := B.ideal)
+    (γ := B.dividedPowers) (h_compatible := B.compatible)
+    (X := B.source) (x₀ := B.sourceToClosed)))
 
 /- Definition 60.12.1: in Situation 60.7.5, an `S`-derivation of the crystalline
-structure sheaf into a crystalline module sheaf is the canonical
-`CrystallineModuleSheaf.SDerivation` notion. -/
-@[stacks 07IX] #check CrystallineModuleSheaf.SDerivation
+structure sheaf into a sheaf of modules on the small crystalline site is a natural
+additive Leibniz map, vanishing on factoring base opens and respecting divided powers. -/
+@[stacks 07IX] #check (AlgebraicGeometry.Scheme.Crystalline.SDerivation B F : Type (u + 1))

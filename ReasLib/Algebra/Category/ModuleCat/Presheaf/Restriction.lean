@@ -48,7 +48,9 @@ theorem idComponentApp_naturality (f : R ⟶ R) (hf : f = 𝟙 R)
         (ModuleCat.restrictScalars (R.map p).hom).map
           (idComponentApp' f hf M Y).hom =
       (idComponentApp' f hf M X).hom ≫
-        ((PresheafOfModules.restrictScalars f).obj M).map p := sorry
+        ((PresheafOfModules.restrictScalars f).obj M).map p := by
+  ext x
+  rfl
 
 /-- The identity-restriction isomorphism on a fixed module presheaf. -/
 @[stacks 0FKQ "identity restriction on a module presheaf"]
@@ -64,7 +66,9 @@ theorem idComponentIso_naturality (f : R ⟶ R) (hf : f = 𝟙 R)
     {M N : PresheafOfModules.{v} R} (g : M ⟶ N) :
     g ≫ (idComponentIso' f hf N).hom =
       (idComponentIso' f hf M).hom ≫
-        (PresheafOfModules.restrictScalars f).map g := sorry
+        (PresheafOfModules.restrictScalars f).map g := by
+  ext X x
+  rfl
 
 /-- The inverse identity-restriction components are natural in the module presheaf. -/
 @[stacks 0FKQ "inverse identity restriction naturality for module presheaves"]
@@ -72,7 +76,9 @@ theorem idComponentIso_inv_naturality (f : R ⟶ R) (hf : f = 𝟙 R)
     {M N : PresheafOfModules.{v} R} (g : M ⟶ N) :
     (PresheafOfModules.restrictScalars f).map g ≫
         (idComponentIso' f hf N).inv =
-      (idComponentIso' f hf M).inv ≫ g := sorry
+      (idComponentIso' f hf M).inv ≫ g := by
+  ext X x
+  rfl
 
 /-- The forward identity-restriction components form a natural transformation. -/
 @[stacks 0FKQ "forward identity restriction natural transformation"]
@@ -97,26 +103,32 @@ identity-restriction comparison. -/
 @[simp, stacks 0FKQ "forward identity restriction natural transformation component"]
 theorem idNatTrans'_app (f : R ⟶ R) (hf : f = 𝟙 R)
     (M : PresheafOfModules.{v} R) :
-    (idNatTrans' f hf).app M = (idComponentIso' f hf M).hom := sorry
+    (idNatTrans' f hf).app M = (idComponentIso' f hf M).hom := by
+  rfl
 
 /-- A component of the inverse identity-restriction natural transformation is the inverse
 objectwise comparison. -/
 @[simp, stacks 0FKQ "inverse identity restriction natural transformation component"]
 theorem idInvNatTrans'_app (f : R ⟶ R) (hf : f = 𝟙 R)
     (M : PresheafOfModules.{v} R) :
-    (idInvNatTrans' f hf).app M = (idComponentIso' f hf M).inv := sorry
+    (idInvNatTrans' f hf).app M = (idComponentIso' f hf M).inv := by
+  rfl
 
 /-- The forward identity-restriction natural transformation followed by its inverse is the
 identity. -/
 @[simp, stacks 0FKQ "identity restriction natural transformation forward-inverse law"]
 theorem idNatTrans'_hom_inv_id (f : R ⟶ R) (hf : f = 𝟙 R) :
-    idNatTrans' f hf ≫ idInvNatTrans' f hf = 𝟙 _ := sorry
+    idNatTrans' f hf ≫ idInvNatTrans' f hf = 𝟙 _ := by
+  refine NatTrans.ext (funext fun M => ?_)
+  exact (idComponentIso' f hf M).hom_inv_id
 
 /-- The inverse identity-restriction natural transformation followed by its forward map is the
 identity. -/
 @[simp, stacks 0FKQ "identity restriction natural transformation inverse-forward law"]
 theorem idNatTrans'_inv_hom_id (f : R ⟶ R) (hf : f = 𝟙 R) :
-    idInvNatTrans' f hf ≫ idNatTrans' f hf = 𝟙 _ := sorry
+    idInvNatTrans' f hf ≫ idNatTrans' f hf = 𝟙 _ := by
+  refine NatTrans.ext (funext fun M => ?_)
+  exact (idComponentIso' f hf M).inv_hom_id
 
 /-- Restriction of module presheaves along a ring-presheaf endomorphism identified with the
 identity is naturally isomorphic to the identity, oriented from the identity functor to
@@ -134,30 +146,35 @@ noncomputable def idIso' (f : R ⟶ R) (hf : f = 𝟙 R) :
 /-- The forward natural transformation of `idIso'` is explicit. -/
 @[simp, stacks 0FKQ "identity restriction natural isomorphism hom"]
 theorem idIso'_hom (f : R ⟶ R) (hf : f = 𝟙 R) :
-    (idIso' f hf).hom = idNatTrans' f hf := sorry
+    (idIso' f hf).hom = idNatTrans' f hf := by
+  rfl
 
 /-- The inverse natural transformation of `idIso'` is explicit. -/
 @[simp, stacks 0FKQ "identity restriction natural isomorphism inverse"]
 theorem idIso'_inv (f : R ⟶ R) (hf : f = 𝟙 R) :
-    (idIso' f hf).inv = idInvNatTrans' f hf := sorry
+    (idIso' f hf).inv = idInvNatTrans' f hf := by
+  rfl
 
 /-- A component of `idIso'` is the objectwise identity-restriction comparison. -/
 @[simp, stacks 0FKQ "identity restriction natural isomorphism component"]
 theorem idIso'_app (f : R ⟶ R) (hf : f = 𝟙 R)
     (M : PresheafOfModules.{v} R) :
-    (idIso' f hf).app M = idComponentIso' f hf M := sorry
+    (idIso' f hf).app M = idComponentIso' f hf M := by
+  rfl
 
 /-- The forward component of `idIso'` is the objectwise comparison map. -/
 @[simp, stacks 0FKQ "identity restriction natural isomorphism hom component"]
 theorem idIso'_hom_app (f : R ⟶ R) (hf : f = 𝟙 R)
     (M : PresheafOfModules.{v} R) :
-    (idIso' f hf).hom.app M = (idComponentIso' f hf M).hom := sorry
+    (idIso' f hf).hom.app M = (idComponentIso' f hf M).hom := by
+  rfl
 
 /-- The inverse component of `idIso'` is the objectwise inverse comparison map. -/
 @[simp, stacks 0FKQ "identity restriction natural isomorphism inverse component"]
 theorem idIso'_inv_app (f : R ⟶ R) (hf : f = 𝟙 R)
     (M : PresheafOfModules.{v} R) :
-    (idIso' f hf).inv.app M = (idComponentIso' f hf M).inv := sorry
+    (idIso' f hf).inv.app M = (idComponentIso' f hf M).inv := by
+  rfl
 
 /-- Restriction of module presheaves along the identity ring-presheaf morphism is naturally
 isomorphic to the identity. -/
@@ -190,7 +207,9 @@ theorem compComponentApp_naturality (f : R₀ ⟶ R₁) (g : R₁ ⟶ R₂)
         (ModuleCat.restrictScalars (R₀.map p).hom).map
           (compComponentApp' f g gf hgf M Y).hom =
       (compComponentApp' f g gf hgf M X).hom ≫
-        ((PresheafOfModules.restrictScalars gf).obj M).map p := sorry
+        ((PresheafOfModules.restrictScalars gf).obj M).map p := by
+  ext x
+  rfl
 
 /-- The isomorphism from successive restrictions to restriction along a specified composite,
 on a fixed module presheaf. -/
@@ -212,7 +231,9 @@ theorem compComponentIso_naturality (f : R₀ ⟶ R₁) (g : R₁ ⟶ R₂)
           PresheafOfModules.restrictScalars f).map h ≫
         (compComponentIso' f g gf hgf N).hom =
         (compComponentIso' f g gf hgf M).hom ≫
-        (PresheafOfModules.restrictScalars gf).map h := sorry
+        (PresheafOfModules.restrictScalars gf).map h := by
+  ext X x
+  rfl
 
 /-- The inverse composition-restriction components are natural in the module presheaf. -/
 @[stacks 0FKQ "inverse composition restriction naturality for module presheaves"]
@@ -223,7 +244,9 @@ theorem compComponentIso_inv_naturality (f : R₀ ⟶ R₁) (g : R₁ ⟶ R₂)
         (compComponentIso' f g gf hgf N).inv =
       (compComponentIso' f g gf hgf M).inv ≫
         (PresheafOfModules.restrictScalars g ⋙
-          PresheafOfModules.restrictScalars f).map h := sorry
+          PresheafOfModules.restrictScalars f).map h := by
+  ext X x
+  rfl
 
 /-- The forward composition-restriction components form a natural transformation. -/
 @[stacks 0FKQ "forward composition restriction natural transformation"]
@@ -250,28 +273,34 @@ comparison. -/
 @[simp, stacks 0FKQ "forward composition restriction natural transformation component"]
 theorem compNatTrans'_app (f : R₀ ⟶ R₁) (g : R₁ ⟶ R₂)
     (gf : R₀ ⟶ R₂) (hgf : gf = f ≫ g) (M : PresheafOfModules.{v} R₂) :
-    (compNatTrans' f g gf hgf).app M = (compComponentIso' f g gf hgf M).hom := sorry
+    (compNatTrans' f g gf hgf).app M = (compComponentIso' f g gf hgf M).hom := by
+  rfl
 
 /-- A component of the inverse composition-restriction natural transformation is the inverse
 objectwise comparison. -/
 @[simp, stacks 0FKQ "inverse composition restriction natural transformation component"]
 theorem compInvNatTrans'_app (f : R₀ ⟶ R₁) (g : R₁ ⟶ R₂)
     (gf : R₀ ⟶ R₂) (hgf : gf = f ≫ g) (M : PresheafOfModules.{v} R₂) :
-    (compInvNatTrans' f g gf hgf).app M = (compComponentIso' f g gf hgf M).inv := sorry
+    (compInvNatTrans' f g gf hgf).app M = (compComponentIso' f g gf hgf M).inv := by
+  rfl
 
 /-- The forward composition-restriction natural transformation followed by its inverse is the
 identity. -/
 @[simp, stacks 0FKQ "composition restriction natural transformation forward-inverse law"]
 theorem compNatTrans'_hom_inv_id (f : R₀ ⟶ R₁) (g : R₁ ⟶ R₂)
     (gf : R₀ ⟶ R₂) (hgf : gf = f ≫ g) :
-    compNatTrans' f g gf hgf ≫ compInvNatTrans' f g gf hgf = 𝟙 _ := sorry
+    compNatTrans' f g gf hgf ≫ compInvNatTrans' f g gf hgf = 𝟙 _ := by
+  refine NatTrans.ext (funext fun M => ?_)
+  exact (compComponentIso' f g gf hgf M).hom_inv_id
 
 /-- The inverse composition-restriction natural transformation followed by its forward map is
 the identity. -/
 @[simp, stacks 0FKQ "composition restriction natural transformation inverse-forward law"]
 theorem compNatTrans'_inv_hom_id (f : R₀ ⟶ R₁) (g : R₁ ⟶ R₂)
     (gf : R₀ ⟶ R₂) (hgf : gf = f ≫ g) :
-    compInvNatTrans' f g gf hgf ≫ compNatTrans' f g gf hgf = 𝟙 _ := sorry
+    compInvNatTrans' f g gf hgf ≫ compNatTrans' f g gf hgf = 𝟙 _ := by
+  refine NatTrans.ext (funext fun M => ?_)
+  exact (compComponentIso' f g gf hgf M).inv_hom_id
 
 /-- Successive restrictions of module presheaves are naturally isomorphic to restriction along
 a specified morphism identified with the composite. -/
@@ -290,33 +319,38 @@ noncomputable def compIso' (f : R₀ ⟶ R₁) (g : R₁ ⟶ R₂)
 @[simp, stacks 0FKQ "composition restriction natural isomorphism hom"]
 theorem compIso'_hom (f : R₀ ⟶ R₁) (g : R₁ ⟶ R₂)
     (gf : R₀ ⟶ R₂) (hgf : gf = f ≫ g) :
-    (compIso' f g gf hgf).hom = compNatTrans' f g gf hgf := sorry
+    (compIso' f g gf hgf).hom = compNatTrans' f g gf hgf := by
+  rfl
 
 /-- The inverse natural transformation of `compIso'` is explicit. -/
 @[simp, stacks 0FKQ "composition restriction natural isomorphism inverse"]
 theorem compIso'_inv (f : R₀ ⟶ R₁) (g : R₁ ⟶ R₂)
     (gf : R₀ ⟶ R₂) (hgf : gf = f ≫ g) :
-    (compIso' f g gf hgf).inv = compInvNatTrans' f g gf hgf := sorry
+    (compIso' f g gf hgf).inv = compInvNatTrans' f g gf hgf := by
+  rfl
 
 /-- A component of `compIso'` is the objectwise composition-restriction comparison. -/
 @[simp, stacks 0FKQ "composition restriction natural isomorphism component"]
 theorem compIso'_app (f : R₀ ⟶ R₁) (g : R₁ ⟶ R₂)
     (gf : R₀ ⟶ R₂) (hgf : gf = f ≫ g) (M : PresheafOfModules.{v} R₂) :
-    (compIso' f g gf hgf).app M = compComponentIso' f g gf hgf M := sorry
+    (compIso' f g gf hgf).app M = compComponentIso' f g gf hgf M := by
+  rfl
 
 /-- The forward component of `compIso'` is the objectwise comparison map. -/
 @[simp, stacks 0FKQ "composition restriction natural isomorphism hom component"]
 theorem compIso'_hom_app (f : R₀ ⟶ R₁) (g : R₁ ⟶ R₂)
     (gf : R₀ ⟶ R₂) (hgf : gf = f ≫ g) (M : PresheafOfModules.{v} R₂) :
     (compIso' f g gf hgf).hom.app M =
-      (compComponentIso' f g gf hgf M).hom := sorry
+      (compComponentIso' f g gf hgf M).hom := by
+  rfl
 
 /-- The inverse component of `compIso'` is the objectwise inverse comparison map. -/
 @[simp, stacks 0FKQ "composition restriction natural isomorphism inverse component"]
 theorem compIso'_inv_app (f : R₀ ⟶ R₁) (g : R₁ ⟶ R₂)
     (gf : R₀ ⟶ R₂) (hgf : gf = f ≫ g) (M : PresheafOfModules.{v} R₂) :
     (compIso' f g gf hgf).inv.app M =
-      (compComponentIso' f g gf hgf M).inv := sorry
+      (compComponentIso' f g gf hgf M).inv := by
+  rfl
 
 /-- Successive restrictions of module presheaves are naturally isomorphic to restriction along
 the composite ring-presheaf morphism. -/

@@ -12,6 +12,7 @@ public import ReasLib.AlgebraicGeometry.Scheme.Module.ClosedImmersion.Exact
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Quasicoherent.FiniteTypeGeneration
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.FinitePresentation.ClosedImmersion
 public import ReasLib.AlgebraicGeometry.Scheme.RelativeProj.TwistGluing
+public import ReasLib.AlgebraicGeometry.ProjectiveSpectrum.Map.ClosedImmersion
 
 /-!
 # Closed subschemes of relative projective spectra
@@ -28,6 +29,73 @@ open SheafOfModules.RingedSite
 noncomputable section
 
 universe u
+
+namespace AlgebraicGeometry.AffineOpenSectionProj
+
+variable {S : Scheme.{u}} (U : S.affineOpens)
+variable {A B σ τ : Type u}
+variable [CommRing A] [SetLike σ A] [AddSubgroupClass σ A]
+variable [CommRing B] [SetLike τ B] [AddSubgroupClass τ B]
+variable (𝒢 : ℕ → σ) (ℋ : ℕ → τ) [GradedRing 𝒢] [GradedRing ℋ]
+variable (𝒜 ℬ : GradedAlgebraSheaf.{u, u} S.sheaf)
+variable (modelA : ∀ d : ℕ,
+  (𝒜 (Int.ofNat d)).val.obj (Opposite.op (U : S.Opens)) ≃+ 𝒢 d)
+variable (modelB : ∀ d : ℕ,
+  (ℬ (Int.ofNat d)).val.obj (Opposite.op (U : S.Opens)) ≃+ ℋ d)
+variable (hModelA : IsAffineOpenSectionModel 𝒢 𝒜 U modelA)
+variable (hModelB : IsAffineOpenSectionModel ℋ ℬ U modelB)
+
+/-- Transport a graded sheaf map to genuine affine section-ring models. The underlying
+function sums the images of the homogeneous components; no existence theorem is used to
+choose a ring map. -/
+noncomputable def mapOnSections
+    (hModelA : IsAffineOpenSectionModel 𝒢 𝒜 U modelA)
+    (hModelB : IsAffineOpenSectionModel ℋ ℬ U modelB)
+    (q : 𝒜 ⟶ ℬ) : 𝒢 →+*ᵍ ℋ := by
+  let f : ∀ d : ℕ, 𝒢 d →+ B := fun d ↦
+    { toFun := fun x ↦ (modelB d
+        ((((q.hom (Int.ofNat d)).val.app (Opposite.op (U : S.Opens))).hom)
+          ((modelA d).symm x))).val
+      map_zero' := by simp
+      map_add' := by intro x y; simp }
+  exact
+    { toRingHom := (DirectSum.toSemiring f (by sorry) (by sorry)).comp
+        (DirectSum.decomposeRingEquiv 𝒢).toRingHom
+      map_mem := by sorry }
+
+/-- On a homogeneous element, the transported map is exactly the corresponding sheaf map
+on sections, expressed in the two affine models. -/
+theorem mapOnSections_gradedAddHom (q : 𝒜 ⟶ ℬ) (d : ℕ) (x : 𝒢 d) :
+    (mapOnSections U 𝒢 ℋ 𝒜 ℬ modelA modelB hModelA hModelB q).gradedAddHom d x =
+      modelB d (((q.hom (Int.ofNat d)).val.app (Opposite.op (U : S.Opens))).hom
+        ((modelA d).symm x)) := by
+  apply Subtype.ext
+  change (DirectSum.toAddMonoid _) (DirectSum.decompose 𝒢 x.val) = _
+  rw [DirectSum.decompose_of_mem 𝒢 x.property, DirectSum.toAddMonoid_of]
+  rfl
+
+/-- Epimorphisms between quasi-coherent sheaves are surjective on affine sections, hence on
+every homogeneous component of their genuine affine models. -/
+theorem mapOnSections_surjective
+    (hqcA : 𝒜.IsQuasicoherent) (hqcB : ℬ.IsQuasicoherent)
+    (q : 𝒜 ⟶ ℬ) (hq : ∀ d : ℕ, Epi (q.hom (Int.ofNat d))) (d : ℕ) :
+    Function.Surjective
+      ((mapOnSections U 𝒢 ℋ 𝒜 ℬ modelA modelB hModelA hModelB q).gradedAddHom d) := by
+  sorry
+
+/-- The full-domain projective-spectrum morphism induced by an epic graded sheaf map on
+an affine open. This uses the canonical graded `Proj` map and its top-domain inclusion. -/
+noncomputable def projMapOfEpi
+    (hqcA : 𝒜.IsQuasicoherent) (hqcB : ℬ.IsQuasicoherent)
+    (q : 𝒜 ⟶ ℬ) (hq : ∀ d : ℕ, Epi (q.hom (Int.ofNat d))) :
+    Proj ℋ ⟶ Proj 𝒢 :=
+  let φ := mapOnSections U 𝒢 ℋ 𝒜 ℬ modelA modelB hModelA hModelB q
+  projMapOnTarget φ (projMapMap φ)
+    (projMapDomain_eq_top_of_eventually_surjective ⟨0, fun d _ ↦
+      mapOnSections_surjective U 𝒢 ℋ 𝒜 ℬ modelA modelB hModelA hModelB
+        hqcA hqcB q hq d⟩)
+
+end AlgebraicGeometry.AffineOpenSectionProj
 
 namespace AlgebraicGeometry.Scheme.RelativeProjTwist.Presentation
 
@@ -78,11 +146,18 @@ noncomputable def closedSubschemeDegreeKernel
     (i : Z ⟶ X) [IsClosedImmersion i] (d : ℕ) : Subobject (𝒜 (Int.ofNat d)) :=
   kernelSubobject (presentation.closedSubschemeDegreeMap i d)
 
+variable {sectionModel : ∀ (U : S.affineOpens) (d : ℕ),
+  (𝒜 (Int.ofNat d)).val.obj (Opposite.op (U : S.Opens)) ≃+ sectionGrading U d}
+
 /-- A presentation of a closed subscheme as the relative projective spectrum of a quotient
 graded algebra, including its affine models and the canonical quotient map. -/
 structure ClosedSubschemeQuotient
     (presentation : RelativeProjTwist.Presentation
-      𝒜 A σ sectionGrading P model p)
+      𝒜 A σ sectionGrading P (fun U d ↦ (sectionModel U d).toEquiv) p)
+    (hqc : 𝒜.IsQuasicoherent)
+    (hModel : ∀ U : S.affineOpens,
+      AffineOpenSectionProj.IsAffineOpenSectionModel
+        (sectionGrading U) 𝒜 U (sectionModel U))
     (i : Z ⟶ X) [IsClosedImmersion i] where
   /-- The quotient graded algebra on the base. -/
   algebra : GradedAlgebraSheaf.{u, u} S.sheaf
@@ -110,14 +185,28 @@ structure ClosedSubschemeQuotient
     ∀ U : S.affineOpens, ProjTwistPresentation (affineGrading U)
   /-- The quotient algebra's degree pieces agree with the affine homogeneous pieces. -/
   affineModel : ∀ (U : S.affineOpens) (d : ℕ),
-    (algebra (Int.ofNat d)).val.obj (Opposite.op (U : S.Opens)) ≃ affineGrading U d
+    (algebra (Int.ofNat d)).val.obj (Opposite.op (U : S.Opens)) ≃+ affineGrading U d
+  /-- The affine models preserve the graded unit and homogeneous multiplication. -/
+  affineModel_spec : ∀ U : S.affineOpens,
+    AffineOpenSectionProj.IsAffineOpenSectionModel
+      (affineGrading U) algebra U (affineModel U)
   /-- The rich relative-projective twist presentation of the closed subscheme. -/
   quotientPresentation : RelativeProjTwist.Presentation algebra affineRing affineGrade
-    affineGrading affinePresentation affineModel (i ≫ p)
+    affineGrading affinePresentation (fun U d ↦ (affineModel U d).toEquiv) (i ≫ p)
   /-- The homomorphism from the original algebra to the quotient algebra. -/
   quotientMap : 𝒜 ⟶ algebra
   /-- The quotient homomorphism is degreewise epic in nonnegative degrees. -/
   quotientMap_epi : ∀ d : ℕ, Epi (quotientMap.hom (Int.ofNat d))
+  /-- In the chosen affine charts, the actual quotient-induced Proj morphism is the specified
+  closed immersion. Thus the quotient represents a closed subscheme of `X`, not just an
+  isomorphic scheme over `S`. -/
+  embedding_commutes : ∀ U : S.affineOpens,
+    (quotientPresentation.localSchemeIso U).hom ≫
+        AffineOpenSectionProj.projMapOfEpi U (sectionGrading U) (affineGrading U)
+          𝒜 algebra (sectionModel U) (affineModel U) (hModel U) (affineModel_spec U)
+          hqc algebra_isQuasicoherent quotientMap quotientMap_epi ≫
+        (presentation.localSchemeIso U).inv ≫ (p ⁻¹ᵁ (U : S.Opens)).ι =
+      ((i ≫ p) ⁻¹ᵁ (U : S.Opens)).ι ≫ i
 
 namespace ClosedSubschemeQuotient
 
@@ -125,7 +214,11 @@ namespace ClosedSubschemeQuotient
 relative-projective presentation, quotient map, and defining properties. -/
 def ofComponents
     (presentation : RelativeProjTwist.Presentation
-      𝒜 A σ sectionGrading P model p)
+      𝒜 A σ sectionGrading P (fun U d ↦ (sectionModel U d).toEquiv) p)
+    (hqc : 𝒜.IsQuasicoherent)
+    (hModel : ∀ U : S.affineOpens,
+      AffineOpenSectionProj.IsAffineOpenSectionModel
+        (sectionGrading U) 𝒜 U (sectionModel U))
     (i : Z ⟶ X) [IsClosedImmersion i]
     (algebra : GradedAlgebraSheaf.{u, u} S.sheaf)
     (algebra_isCommutative : algebra.IsCommutative)
@@ -140,12 +233,22 @@ def ofComponents
     (affinePresentation :
       ∀ U : S.affineOpens, ProjTwistPresentation (affineGrading U))
     (affineModel : ∀ (U : S.affineOpens) (d : ℕ),
-      (algebra (Int.ofNat d)).val.obj (Opposite.op (U : S.Opens)) ≃ affineGrading U d)
+      (algebra (Int.ofNat d)).val.obj (Opposite.op (U : S.Opens)) ≃+ affineGrading U d)
+    (affineModel_spec : ∀ U : S.affineOpens,
+      AffineOpenSectionProj.IsAffineOpenSectionModel
+        (affineGrading U) algebra U (affineModel U))
     (quotientPresentation : RelativeProjTwist.Presentation algebra affineRing affineGrade
-      affineGrading affinePresentation affineModel (i ≫ p))
+      affineGrading affinePresentation (fun U d ↦ (affineModel U d).toEquiv) (i ≫ p))
     (quotientMap : 𝒜 ⟶ algebra)
-    (quotientMap_epi : ∀ d : ℕ, Epi (quotientMap.hom (Int.ofNat d))) :
-    ClosedSubschemeQuotient presentation i where
+    (quotientMap_epi : ∀ d : ℕ, Epi (quotientMap.hom (Int.ofNat d)))
+    (embedding_commutes : ∀ U : S.affineOpens,
+      (quotientPresentation.localSchemeIso U).hom ≫
+          AffineOpenSectionProj.projMapOfEpi U (sectionGrading U) (affineGrading U)
+            𝒜 algebra (sectionModel U) (affineModel U) (hModel U) (affineModel_spec U)
+            hqc algebra_isQuasicoherent quotientMap quotientMap_epi ≫
+          (presentation.localSchemeIso U).inv ≫ (p ⁻¹ᵁ (U : S.Opens)).ι =
+        ((i ≫ p) ⁻¹ᵁ (U : S.Opens)).ι ≫ i) :
+    ClosedSubschemeQuotient presentation hqc hModel i where
   algebra := algebra
   algebra_isCommutative := algebra_isCommutative
   algebra_isQuasicoherent := algebra_isQuasicoherent
@@ -158,17 +261,61 @@ def ofComponents
   affineGradedRing := affineGradedRing
   affinePresentation := affinePresentation
   affineModel := affineModel
+  affineModel_spec := affineModel_spec
   quotientPresentation := quotientPresentation
   quotientMap := quotientMap
   quotientMap_epi := quotientMap_epi
+  embedding_commutes := embedding_commutes
+
+attribute [local instance]
+  ClosedSubschemeQuotient.affineRingCommRing
+  ClosedSubschemeQuotient.affineGradeSetLike
+  ClosedSubschemeQuotient.affineGradeAddSubgroupClass
+  ClosedSubschemeQuotient.affineGradedRing
+
+/-- The morphism to the ambient scheme induced by the quotient on an affine base chart.
+Its scheme map is computed from the sheaf map on genuine homogeneous sections. -/
+noncomputable def affineMap
+    {presentation : RelativeProjTwist.Presentation
+      𝒜 A σ sectionGrading P (fun U d ↦ (sectionModel U d).toEquiv) p}
+    {hqc : 𝒜.IsQuasicoherent}
+    {hModel : ∀ U : S.affineOpens,
+      AffineOpenSectionProj.IsAffineOpenSectionModel
+        (sectionGrading U) 𝒜 U (sectionModel U)}
+    {i : Z ⟶ X} [IsClosedImmersion i]
+    (Q : ClosedSubschemeQuotient presentation hqc hModel i) (U : S.affineOpens) :
+    ((i ≫ p) ⁻¹ᵁ (U : S.Opens)).toScheme ⟶ X :=
+  (Q.quotientPresentation.localSchemeIso U).hom ≫
+    AffineOpenSectionProj.projMapOfEpi U (sectionGrading U) (Q.affineGrading U)
+      𝒜 Q.algebra (sectionModel U) (Q.affineModel U) (hModel U) (Q.affineModel_spec U)
+      hqc Q.algebra_isQuasicoherent Q.quotientMap Q.quotientMap_epi ≫
+    (presentation.localSchemeIso U).inv ≫ (p ⁻¹ᵁ (U : S.Opens)).ι
+
+/-- The quotient-induced morphism agrees with the specified closed immersion on every
+affine chart of the base. -/
+theorem affineMap_eq
+    {presentation : RelativeProjTwist.Presentation
+      𝒜 A σ sectionGrading P (fun U d ↦ (sectionModel U d).toEquiv) p}
+    {hqc : 𝒜.IsQuasicoherent}
+    {hModel : ∀ U : S.affineOpens,
+      AffineOpenSectionProj.IsAffineOpenSectionModel
+        (sectionGrading U) 𝒜 U (sectionModel U)}
+    {i : Z ⟶ X} [IsClosedImmersion i]
+    (Q : ClosedSubschemeQuotient presentation hqc hModel i) (U : S.affineOpens) :
+    Q.affineMap U = ((i ≫ p) ⁻¹ᵁ (U : S.Opens)).ι ≫ i :=
+  Q.embedding_commutes U
 
 /-- The defining commutativity, quasi-coherence, and epimorphy properties of a closed-subscheme
 quotient presentation. -/
 theorem spec
     {presentation : RelativeProjTwist.Presentation
-      𝒜 A σ sectionGrading P model p}
+      𝒜 A σ sectionGrading P (fun U d ↦ (sectionModel U d).toEquiv) p}
+    {hqc : 𝒜.IsQuasicoherent}
+    {hModel : ∀ U : S.affineOpens,
+      AffineOpenSectionProj.IsAffineOpenSectionModel
+        (sectionGrading U) 𝒜 U (sectionModel U)}
     {i : Z ⟶ X} [IsClosedImmersion i]
-    (Q : ClosedSubschemeQuotient presentation i) :
+    (Q : ClosedSubschemeQuotient presentation hqc hModel i) :
     Q.algebra.IsCommutative ∧
       Q.algebra.IsQuasicoherent ∧
         ∀ d : ℕ, Epi (Q.quotientMap.hom (Int.ofNat d)) := sorry
@@ -177,9 +324,13 @@ theorem spec
 kills that subobject and is universal among graded-algebra maps that kill it. -/
 def IsQuotientByDegreeSubobject
     {presentation : RelativeProjTwist.Presentation
-      𝒜 A σ sectionGrading P model p}
+      𝒜 A σ sectionGrading P (fun U d ↦ (sectionModel U d).toEquiv) p}
+    {hqc : 𝒜.IsQuasicoherent}
+    {hModel : ∀ U : S.affineOpens,
+      AffineOpenSectionProj.IsAffineOpenSectionModel
+        (sectionGrading U) 𝒜 U (sectionModel U)}
     {i : Z ⟶ X} [IsClosedImmersion i]
-    (Q : ClosedSubschemeQuotient presentation i) (d : ℕ)
+    (Q : ClosedSubschemeQuotient presentation hqc hModel i) (d : ℕ)
     (F : Subobject (𝒜 (Int.ofNat d))) : Prop :=
   F.arrow ≫ Q.quotientMap.hom (Int.ofNat d) = 0 ∧
     ∀ (ℬ : GradedAlgebraSheaf.{u, u} S.sheaf) (g : 𝒜 ⟶ ℬ),
@@ -192,9 +343,13 @@ end ClosedSubschemeQuotient
 the pushed-forward twists restricted to the closed subscheme. -/
 structure CanonicalClosedSubschemeQuotient
     (presentation : RelativeProjTwist.Presentation
-      𝒜 A σ sectionGrading P model p)
+      𝒜 A σ sectionGrading P (fun U d ↦ (sectionModel U d).toEquiv) p)
+    (hqc : 𝒜.IsQuasicoherent)
+    (hModel : ∀ U : S.affineOpens,
+      AffineOpenSectionProj.IsAffineOpenSectionModel
+        (sectionGrading U) 𝒜 U (sectionModel U))
     (i : Z ⟶ X) [IsClosedImmersion i]
-    extends ClosedSubschemeQuotient presentation i where
+    extends ClosedSubschemeQuotient presentation hqc hModel i where
   /-- The kernel in every nonnegative degree is the canonical restricted-twist kernel. -/
   quotientMap_kernel : ∀ d : ℕ,
     kernelSubobject (quotientMap.hom (Int.ofNat d)) =
@@ -205,13 +360,17 @@ namespace CanonicalClosedSubschemeQuotient
 /-- Equip a quotient presentation with its degreewise canonical-kernel identification. -/
 def ofQuotient
     (presentation : RelativeProjTwist.Presentation
-      𝒜 A σ sectionGrading P model p)
+      𝒜 A σ sectionGrading P (fun U d ↦ (sectionModel U d).toEquiv) p)
+    (hqc : 𝒜.IsQuasicoherent)
+    (hModel : ∀ U : S.affineOpens,
+      AffineOpenSectionProj.IsAffineOpenSectionModel
+        (sectionGrading U) 𝒜 U (sectionModel U))
     (i : Z ⟶ X) [IsClosedImmersion i]
-    (quotient : ClosedSubschemeQuotient presentation i)
+    (quotient : ClosedSubschemeQuotient presentation hqc hModel i)
     (quotientMap_kernel : ∀ d : ℕ,
       kernelSubobject (quotient.quotientMap.hom (Int.ofNat d)) =
         presentation.closedSubschemeDegreeKernel i d) :
-    CanonicalClosedSubschemeQuotient presentation i where
+    CanonicalClosedSubschemeQuotient presentation hqc hModel i where
   toClosedSubschemeQuotient := quotient
   quotientMap_kernel := quotientMap_kernel
 
@@ -219,9 +378,13 @@ def ofQuotient
 closed-subscheme quotient presentation. -/
 theorem spec
     {presentation : RelativeProjTwist.Presentation
-      𝒜 A σ sectionGrading P model p}
+      𝒜 A σ sectionGrading P (fun U d ↦ (sectionModel U d).toEquiv) p}
+    {hqc : 𝒜.IsQuasicoherent}
+    {hModel : ∀ U : S.affineOpens,
+      AffineOpenSectionProj.IsAffineOpenSectionModel
+        (sectionGrading U) 𝒜 U (sectionModel U)}
     {i : Z ⟶ X} [IsClosedImmersion i]
-    (Q : CanonicalClosedSubschemeQuotient presentation i) :
+    (Q : CanonicalClosedSubschemeQuotient presentation hqc hModel i) :
     Q.algebra.IsCommutative ∧
       Q.algebra.IsQuasicoherent ∧
         (∀ d : ℕ, Epi (Q.quotientMap.hom (Int.ofNat d))) ∧
@@ -243,11 +406,13 @@ theorem existsClosedSubschemeQuotientPresentation
     [∀ U, GradedRing (sectionGrading U)]
     (P : ∀ U : S.affineOpens, ProjTwistPresentation (sectionGrading U))
     (model : ∀ (U : S.affineOpens) (d : ℕ),
-      (𝒜 (Int.ofNat d)).val.obj (Opposite.op (U : S.Opens)) ≃ sectionGrading U d)
+      (𝒜 (Int.ofNat d)).val.obj (Opposite.op (U : S.Opens)) ≃+ sectionGrading U d)
+    (hModel : ∀ U : S.affineOpens,
+      AffineOpenSectionProj.IsAffineOpenSectionModel (sectionGrading U) 𝒜 U (model U))
     (presentation : RelativeProjTwist.Presentation
-      𝒜 A σ sectionGrading P model p)
+      𝒜 A σ sectionGrading P (fun U d ↦ (model U d).toEquiv) p)
     (i : Z ⟶ X) [IsClosedImmersion i] [QuasiCompact p] :
-    Nonempty (presentation.CanonicalClosedSubschemeQuotient i) := sorry
+    Nonempty (presentation.CanonicalClosedSubschemeQuotient hqc hModel i) := sorry
 
 /-- Over a quasi-compact quasi-separated base, every finitely presented closed subscheme of a
 quasi-compact relative projective spectrum is cut out by a finite-type quasi-coherent subobject
@@ -263,13 +428,15 @@ theorem existsQuotientByFiniteTypeDegreeSubobject
     [∀ U, GradedRing (sectionGrading U)]
     (P : ∀ U : S.affineOpens, ProjTwistPresentation (sectionGrading U))
     (model : ∀ (U : S.affineOpens) (d : ℕ),
-      (𝒜 (Int.ofNat d)).val.obj (Opposite.op (U : S.Opens)) ≃ sectionGrading U d)
+      (𝒜 (Int.ofNat d)).val.obj (Opposite.op (U : S.Opens)) ≃+ sectionGrading U d)
+    (hModel : ∀ U : S.affineOpens,
+      AffineOpenSectionProj.IsAffineOpenSectionModel (sectionGrading U) 𝒜 U (model U))
     (presentation : RelativeProjTwist.Presentation
-      𝒜 A σ sectionGrading P model p)
+      𝒜 A σ sectionGrading P (fun U d ↦ (model U d).toEquiv) p)
     (i : Z ⟶ X) [IsClosedImmersion i] [QuasiCompact p]
     [Scheme.Hom.FinitePresentation i] :
     ∃ (d : ℕ) (F : Subobject (𝒜 (Int.ofNat d)))
-      (Q : presentation.ClosedSubschemeQuotient i),
+      (Q : presentation.ClosedSubschemeQuotient hqc hModel i),
       0 < d ∧
         F ∈ Scheme.Modules.finiteTypeQuasiCoherentSubobjects (𝒜 (Int.ofNat d)) ∧
           Q.IsQuotientByDegreeSubobject d F := sorry

@@ -98,7 +98,17 @@ def toRestrictedHom₂HomApp {ξ η : FormalObject p} (a : ξ ⟶ η)
     (Quiver.Hom.op (a.app m ≫ toRestrictedHomPush ⟨η, rfl⟩ x))
     (@Functor.IsFibered.isStronglyCartesian_of_isCartesian
       (ArtinianLocalAlgCat Λ k)ᵒᵖ Fᵒᵖ inferInstance inferInstance p.op inferInstance
-      _ _ fst _ _ φ hφCart) sorry
+      _ _ fst _ _ φ hφCart) (by
+        letI : p.IsHomLift (a.baseTrunc m) (a.app m) := a.over m
+        letI : p.IsHomLift (truncationFactor x.2) (toRestrictedHomPush ⟨η, rfl⟩ x) :=
+          toRestrictedHomPush_isHomLift ⟨η, rfl⟩ x
+        have h : p.IsHomLift (truncationFactor x'.2)
+            (a.app m ≫ toRestrictedHomPush ⟨η, rfl⟩ x) := by
+          change p.IsHomLift (truncationFactor (a.base ≫ x.2)) _
+          with_unfolding_all
+            rw [← truncationFactor_baseTrunc a x.2]
+            infer_instance
+        exact (Category.id_comp fst).symm ▸ Along.isHomLift_op h)
 
 /-- The component `toRestrictedHom₂HomApp a x` lies over `id A`. -/
 theorem toRestrictedHom₂HomApp_over {ξ η : FormalObject p} (a : ξ ⟶ η)

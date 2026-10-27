@@ -91,6 +91,7 @@ theorem cohomologyMap_shiftedHom (K : Complex (J := J) (O := O))
     (x : (sourceFunctor K n).obj (Opposite.op M, N)) :
     targetLinearEquiv K M N n
         (cohomologyMap K M N n x) =
-      ShiftedHom.map (sourceLinearEquiv K M N n x) (Derived.tensorFunctor K) := sorry
+      @ShiftedHom.map _ _ _ _ _ _ _ _ _ _ _ (sourceLinearEquiv K M N n x)
+        (Derived.tensorFunctor K) (Derived.tensorFunctor_commShift K) := sorry
 
 end SheafOfModules.RingedSite.TensorWithObject.Derived.Hom.Cohomology

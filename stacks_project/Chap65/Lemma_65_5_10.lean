@@ -18,7 +18,7 @@ open CategoryTheory Limits AlgebraicGeometry
 universe u v
 
 variable (X : AlgebraicGeometry.ChosenBigSite.{u, v} AlgebraicGeometry.Scheme.fppfPrecoverage)
-  (S : X.carrier) (F : (Over S)ᵒᵖ ⥤ Type v)
+  (S : X.carrier) (F : (Over S)ᵒᵖ ⥤ Type u)
 
 /- Lemma 65.5.10: for a presheaf of sets on `(Sch/S)_fppf`, representability of its diagonal,
 representability of every Yoneda section, and representability of every pairwise section pullback

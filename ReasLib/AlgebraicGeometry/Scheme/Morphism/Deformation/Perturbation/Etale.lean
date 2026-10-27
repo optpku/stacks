@@ -39,10 +39,7 @@ noncomputable def pullbackDifferentialsIso
       (Scheme.Modules.pullback h).obj
         ((Scheme.Modules.pullback a₁).obj Ω[(X₁ ↘ S₁).toShHom]) :=
   (Scheme.Modules.pullback a₂).mapIso
-      (@asIso _ _ _ _ (Differentials.comparison
-        (sqS.map (Scheme.forgetToLocallyRingedSpace ⋙
-          LocallyRingedSpace.forgetToSheafedSpace)))
-        (Scheme.RelativeDifferentials.comparison_isIso_of_etale sqS)).symm ≪≫
+      (Scheme.RelativeDifferentials.comparisonIsoOfEtale sqS).symm ≪≫
     (Scheme.Modules.pullbackComp a₂ f).app Ω[(X₁ ↘ S₁).toShHom] ≪≫
     (Scheme.Modules.pullbackCongr sqA.w).app Ω[(X₁ ↘ S₁).toShHom] ≪≫
     ((Scheme.Modules.pullbackComp h a₁).app Ω[(X₁ ↘ S₁).toShHom]).symm
@@ -58,10 +55,7 @@ theorem pullbackDifferentialsIso_hom
     (sqA : CommSq a₂ h f a₁) [Etale f] [Etale s] :
     (pullbackDifferentialsIso s f h a₁ a₂ sqS sqA).hom =
       (Scheme.Modules.pullback a₂).map
-          (@asIso _ _ _ _ (Differentials.comparison
-            (sqS.map (Scheme.forgetToLocallyRingedSpace ⋙
-              LocallyRingedSpace.forgetToSheafedSpace)))
-            (Scheme.RelativeDifferentials.comparison_isIso_of_etale sqS)).inv ≫
+          (Scheme.RelativeDifferentials.comparisonIsoOfEtale sqS).inv ≫
         (Scheme.Modules.pullbackComp a₂ f).hom.app Ω[(X₁ ↘ S₁).toShHom] ≫
         (Scheme.Modules.pullbackCongr sqA.w).hom.app Ω[(X₁ ↘ S₁).toShHom] ≫
         (Scheme.Modules.pullbackComp h a₁).inv.app Ω[(X₁ ↘ S₁).toShHom] := sorry

@@ -54,19 +54,22 @@ def ofLeftEquivalence
 @[simp]
 theorem ofLeftEquivalence.pt
     (hf : Bicategory.Equivalence.OnHom f) (g : y ⟶ z) :
-    (ofLeftEquivalence hf g).pt = y := sorry
+    (ofLeftEquivalence hf g).pt = y := by
+  rfl
 
 /-- The first projection of the standard cone for a left equivalence uses the chosen inverse. -/
 @[simp]
 theorem ofLeftEquivalence.fst
     (hf : Bicategory.Equivalence.OnHom f) (g : y ⟶ z) :
-    (ofLeftEquivalence hf g).fst = g ≫ hf.inv := sorry
+    (ofLeftEquivalence hf g).fst = g ≫ hf.inv := by
+  rfl
 
 /-- The second projection of the standard cone for a left equivalence is the identity. -/
 @[simp]
 theorem ofLeftEquivalence.snd
     (hf : Bicategory.Equivalence.OnHom f) (g : y ⟶ z) :
-    (ofLeftEquivalence hf g).snd = 𝟙 y := sorry
+    (ofLeftEquivalence hf g).snd = 𝟙 y := by
+  rfl
 
 /-- The comparison isomorphism of the standard cone for a left equivalence is assembled from
 the associator, the chosen counit, and the unitors. -/
@@ -76,7 +79,8 @@ theorem ofLeftEquivalence.iso
     (ofLeftEquivalence hf g).iso =
       α_ g hf.inv f ≪≫
         Bicategory.whiskerLeftIso g hf.counit ≪≫
-          ρ_ g ≪≫ (λ_ g).symm := sorry
+          ρ_ g ≪≫ (λ_ g).symm := by
+  rfl
 
 /-- The standard cone built from equivalence data on the left leg is a bilimit cone. -/
 @[stacks 05W9 "standard left-equivalence pseudopullback bilimit"]
@@ -104,7 +108,8 @@ theorem homIso.hom
     (hf : Bicategory.Equivalence.OnHom f) :
     (homIso P hf).hom =
       (ρ_ (apexEquivalence P (ofLeftEquivalence hf g)).hom).inv ≫
-        (apexEquivalence.homSndIso P (ofLeftEquivalence hf g)).hom := sorry
+        (apexEquivalence.homSndIso P (ofLeftEquivalence hf g)).hom := by
+  rfl
 
 /-- The inverse cell of the named second-projection alignment reverses the universal comparison
 and then the right-unitor alignment. -/
@@ -114,7 +119,8 @@ theorem homIso.inv
     (hf : Bicategory.Equivalence.OnHom f) :
     (homIso P hf).inv =
       (apexEquivalence.homSndIso P (ofLeftEquivalence hf g)).inv ≫
-        (ρ_ (apexEquivalence P (ofLeftEquivalence hf g)).hom).hom := sorry
+        (ρ_ (apexEquivalence P (ofLeftEquivalence hf g)).hom).hom := by
+  rfl
 
 end sndEquivalence
 
@@ -137,7 +143,8 @@ theorem sndEquivalence.inv
     (P : PseudoPullbackCone f g) [P.IsBilimit]
     (hf : Bicategory.Equivalence.OnHom f) :
     (sndEquivalence P hf).inv =
-      (apexEquivalence P (ofLeftEquivalence hf g)).inv := sorry
+      (apexEquivalence P (ofLeftEquivalence hf g)).inv := by
+  rfl
 
 /-- The unit selected for the second-projection equivalence is the universal-apex unit
 transported across the named projection alignment. -/
@@ -149,7 +156,8 @@ theorem sndEquivalence.unit
       Bicategory.Equivalence.OnHom.changeHom.unitIso
         (Bicategory.Equivalence.OnHom.ofEquivalence
           (apexEquivalence P (ofLeftEquivalence hf g)))
-        (sndEquivalence.homIso P hf) := sorry
+        (sndEquivalence.homIso P hf) := by
+  rfl
 
 /-- The counit selected for the second-projection equivalence is the universal-apex counit
 transported across the named projection alignment. -/
@@ -161,7 +169,8 @@ theorem sndEquivalence.counit
       Bicategory.Equivalence.OnHom.changeHom.counitIso
         (Bicategory.Equivalence.OnHom.ofEquivalence
           (apexEquivalence P (ofLeftEquivalence hf g)))
-        (sndEquivalence.homIso P hf) := sorry
+        (sndEquivalence.homIso P hf) := by
+  rfl
 
 /- Data audit (mathlib 4.32): `ofLeftEquivalence` stores its apex, projections, and comparison
 isomorphism explicitly from the supplied `OnHom` data and bicategory coherence.

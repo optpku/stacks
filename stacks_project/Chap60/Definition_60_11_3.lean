@@ -6,24 +6,20 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap60.Definition_60_11_3_Crystal
-public import stacks_project.Chap60.Lemma_60_11_2
-
-open AlgebraicGeometry CategoryTheory
-open AlgebraicGeometry.Scheme.Crystalline
-open CrystallineModuleSheaf
-open SheafOfModules
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.Crystalline.Module.Quasicoherent
 
 @[expose] public section
 
-universe u
+open AlgebraicGeometry CategoryTheory SheafOfModules
+open AlgebraicGeometry.Scheme.Crystalline CrystallineModuleSheaf
+open scoped AlgebraicGeometry
 
-/-- Definition 60.11.3 (1): a sheaf of modules on `CRIS(X/S)` is a crystal in
-quasi-coherent modules if and only if it is quasi-coherent, equivalently locally
-quasi-coherent and a crystal in `𝒪_{X/S}`-modules. -/
+universe u v w
+
+/- Definition 60.11.3 (1) -/
 @[stacks 07IU]
-theorem CrystallineModuleSheaf.isCrystalInQuasiCoherentModules_iff
-    {S : Scheme.{u}} {I : S.IdealSheafData}
+#check (CrystallineModuleSheaf.isCrystalInQuasiCoherentModules_iff : ∀ {S : Scheme.{u}} {I : S.IdealSheafData}
     {γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V)}
     {h_compatible :
       ∀ (V : S.affineOpens) (f : Γ(S, V)),
@@ -39,18 +35,15 @@ theorem CrystallineModuleSheaf.isCrystalInQuasiCoherentModules_iff
       ∀ A : RelativeCRIS S I γ h_compatible X x₀,
         ((crystallineZariskiTopology S I γ h_compatible X x₀).over A).WEqualsLocallyBijective
           AddCommGrpCat.{u}]
-    {𝒪 : Sheaf (crystallineZariskiTopology S I γ h_compatible X x₀) RingCat.{u}}
-    (F : SheafOfModules 𝒪) :
+    (F : SheafOfModules (structureSheaf (S := S) (I := I) (γ := γ)
+      (h_compatible := h_compatible) (X := X) (x₀ := x₀))),
     IsCrystalInQuasiCoherentModules F ↔
       F.IsQuasicoherent ∧
-        IsLocallyQuasiCoherent (restrict F) ∧ IsCrystal (restrict F) := sorry
+        ModuleSheaf.IsLocallyQuasiCoherent (restrict F) ∧ ModuleSheaf.IsCrystal (restrict F))
 
-/-- Definition 60.11.3 (2): a sheaf of modules on `Cris(X/S)` is a crystal in
-quasi-coherent modules if and only if it is quasi-coherent, equivalently locally
-quasi-coherent and a crystal in `𝒪_{X/S}`-modules. -/
+/- Definition 60.11.3 (2) -/
 @[stacks 07IU]
-theorem CrisModuleSheaf.isCrystalInQuasiCoherentModules_iff
-    {S : Scheme.{u}} {I : S.IdealSheafData}
+#check (CrystallineModuleSheaf.CrisModuleSheaf.isCrystalInQuasiCoherentModules_iff : ∀ {S : Scheme.{u}} {I : S.IdealSheafData}
     {γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V)}
     {h_compatible :
       ∀ (V : S.affineOpens) (f : Γ(S, V)),
@@ -66,19 +59,16 @@ theorem CrisModuleSheaf.isCrystalInQuasiCoherentModules_iff
       ∀ A : smallCrystallineSite S I γ h_compatible X x₀,
         ((@smallCrystallineZariskiTopology S I γ h_compatible X x₀).over A).WEqualsLocallyBijective
           AddCommGrpCat.{u}]
-    {𝒪 : Sheaf (@smallCrystallineZariskiTopology S I γ h_compatible X x₀) RingCat.{u}}
-    (F : SheafOfModules 𝒪) :
+    (F : SheafOfModules (smallStructureSheaf (S := S) (I := I) (γ := γ)
+      (h_compatible := h_compatible) (X := X) (x₀ := x₀))),
     IsCrystalInQuasiCoherentModules F ↔
       F.IsQuasicoherent ∧
         CrisModuleSheaf.IsLocallyQuasiCoherent (CrisModuleSheaf.restrict F) ∧
-          CrisModuleSheaf.IsCrystal (CrisModuleSheaf.restrict F) := sorry
+          CrisModuleSheaf.IsCrystal (CrisModuleSheaf.restrict F))
 
-/-- Definition 60.11.3 (3): a sheaf of modules on `CRIS(X/S)` is a crystal in finite
-locally free modules if and only if it is a crystal in quasi-coherent modules and
-finite locally free. -/
-@[stacks 07IU]
-theorem CrystallineModuleSheaf.isCrystalInFiniteLocallyFreeModules_iff
-    {S : Scheme.{u}} {I : S.IdealSheafData}
+section
+
+variable {S : Scheme.{u}} {I : S.IdealSheafData}
     {γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V)}
     {h_compatible :
       ∀ (V : S.affineOpens) (f : Γ(S, V)),
@@ -94,17 +84,20 @@ theorem CrystallineModuleSheaf.isCrystalInFiniteLocallyFreeModules_iff
       ∀ A : RelativeCRIS S I γ h_compatible X x₀,
         ((crystallineZariskiTopology S I γ h_compatible X x₀).over A).WEqualsLocallyBijective
           AddCommGrpCat.{u}]
-    {𝒪 : Sheaf (crystallineZariskiTopology S I γ h_compatible X x₀) RingCat.{u}}
-    (F : SheafOfModules 𝒪) :
-    IsCrystalInFiniteLocallyFreeModules F ↔
-      IsCrystalInQuasiCoherentModules F ∧ F.IsFiniteLocallyFree := sorry
+variable (F : SheafOfModules (structureSheaf (S := S) (I := I) (γ := γ)
+      (h_compatible := h_compatible) (X := X) (x₀ := x₀)))
 
-/-- Definition 60.11.3 (4): a sheaf of modules on `Cris(X/S)` is a crystal in finite
-locally free modules if and only if it is a crystal in quasi-coherent modules and
-finite locally free. -/
+/- Definition 60.11.3 (3) -/
 @[stacks 07IU]
-theorem CrisModuleSheaf.isCrystalInFiniteLocallyFreeModules_iff
-    {S : Scheme.{u}} {I : S.IdealSheafData}
+#check (SheafOfModules.isCrystalInFiniteLocallyFreeModules_iff F :
+    IsCrystalInFiniteLocallyFreeModules F ↔
+      IsCrystalInQuasiCoherentModules F ∧ F.IsFiniteLocallyFree)
+
+end
+
+section
+
+variable {S : Scheme.{u}} {I : S.IdealSheafData}
     {γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V)}
     {h_compatible :
       ∀ (V : S.affineOpens) (f : Γ(S, V)),
@@ -120,9 +113,14 @@ theorem CrisModuleSheaf.isCrystalInFiniteLocallyFreeModules_iff
       ∀ A : smallCrystallineSite S I γ h_compatible X x₀,
         ((@smallCrystallineZariskiTopology S I γ h_compatible X x₀).over A).WEqualsLocallyBijective
           AddCommGrpCat.{u}]
-    {𝒪 : Sheaf (@smallCrystallineZariskiTopology S I γ h_compatible X x₀) RingCat.{u}}
-    (F : SheafOfModules 𝒪) :
+variable (F : SheafOfModules (smallStructureSheaf (S := S) (I := I) (γ := γ)
+      (h_compatible := h_compatible) (X := X) (x₀ := x₀)))
+
+/- Definition 60.11.3 (4) -/
+@[stacks 07IU]
+#check (SheafOfModules.isCrystalInFiniteLocallyFreeModules_iff F :
     IsCrystalInFiniteLocallyFreeModules F ↔
-      IsCrystalInQuasiCoherentModules F ∧ F.IsFiniteLocallyFree := sorry
+      IsCrystalInQuasiCoherentModules F ∧ F.IsFiniteLocallyFree)
 
 end
+

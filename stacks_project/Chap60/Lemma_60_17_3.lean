@@ -6,83 +6,49 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap60.Lemma_60_17_3_Functor
-public import stacks_project.Chap60.Lemma_60_17_3_Pair
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.Crystalline.Completed.Connection
+import StacksCheckRecall
 
 @[expose] public section
 
+noncomputable section
+
 open AlgebraicGeometry CategoryTheory
-open AlgebraicGeometry.Scheme.Crystalline
-open CrystallineModuleSheaf
-open CrystallineConnectionPair
-open scoped TensorProduct
+open CrystallineModuleSheaf.CrisModuleSheaf.Completed
 
 universe u
 
-variable {A : Type u} [CommRing A] (p : ℕ) [Fact (Nat.Prime p)]
+variable (p : ℕ) [Fact p.Prime]
+variable {A C ι : Type u} [CommRing A] [CommRing C] [Algebra A C]
 variable [Algebra (Localization.AtPrime (Ideal.span ({(p : ℤ)} : Set ℤ))) A]
-variable (I : Ideal A) (γ : DividedPowers I)
-variable {C : Type u} [CommRing C] [Algebra A C]
-variable {ι : Type u} (π : MvPolynomial ι A →ₐ[A] C)
-variable (hπ : Function.Surjective π)
-variable (J : Ideal (MvPolynomial ι A))
-variable (hJ : J = RingHom.ker π.toRingHom)
-variable (hIC : Ideal.map (algebraMap A C) I = (⊥ : Ideal C))
-variable (hpnil : IsNilpotent (p : C))
-variable (hIJ : Ideal.map (algebraMap A (MvPolynomial ι A)) I ≤ J)
+variable {I : Ideal A} (γ : DividedPowers I)
+variable (π : MvPolynomial ι A →ₐ[A] C) (hπ : Function.Surjective π)
+variable {J : Ideal (MvPolynomial ι A)} (hJ : J = RingHom.ker π.toRingHom)
+variable (hIC : Ideal.map (algebraMap A C) I = ⊥) (hpnil : IsNilpotent (p : C))
+variable {hIJ : Ideal.map (algebraMap A (MvPolynomial ι A)) I ≤ J}
 variable (E : DividedPowerEnvelope I γ (algebraMap A (MvPolynomial ι A)) J hIJ)
-variable (hE : DividedPowerEnvelope.IsUniversal γ
-  (algebraMap A (MvPolynomial ι A)) hIJ E)
-variable (γbar : DividedPowers
-  (Ideal.map (algebraMap E.D
-    (crystallineD p I γ π hπ J hJ hIC hpnil hIJ E hE)) E.D.ideal))
-variable {S : Scheme.{u}} {IS : S.IdealSheafData}
-variable {γS : ∀ V : S.affineOpens, DividedPowers (IS.ideal V)}
-variable {h_compatible :
-    ∀ (V : S.affineOpens) (f : Γ(S, V)),
-      (γS V).IsDPMorphism (γS (S.affineBasicOpen f))
-        (S.presheaf.map (homOfLE (S.basicOpen_le f)).op).hom}
-variable {X : Scheme.{u}} {x₀ : X ⟶ IS.subscheme}
+variable (hE : DividedPowerEnvelope.IsUniversal γ (algebraMap A (MvPolynomial ι A)) hIJ E)
 
-/-- Lemma 60.17.3 (1): in the situation of 60.17.0.1–60.17.0.3 the assignment
-from crystals in quasi-coherent `𝒪_{X/S}`-modules on `Cris(X/S)` to pairs
-`(M, ∇)` satisfying (07JB), (07JC), (07JD), and (07JE) preserves identity
-morphisms, sending `F` to `crystalToConnectionPair F T`. -/
-@[stacks 07JG]
-theorem crystalsToConnectionPairs_map_id
-    (T : smallCrystallineSite S IS γS h_compatible X x₀)
-    (F : CrisModuleSheaf S IS γS h_compatible X x₀)
-    [CrisModuleSheaf.IsCrystal F] [CrisModuleSheaf.IsLocallyQuasiCoherent F]
-    [Module (crystallineD p I γ π hπ J hJ hIC hpnil hIJ E hE)
-      (CrisModuleSheaf.sectionModule F T)] :
-    crystalToConnectionPair_map p I γ π hπ J hJ hIC hpnil hIJ E hE γbar (𝟙 F) T =
-      Hom.id p I γ π hπ J hJ hIC hpnil hIJ E hE γbar
-        (crystalToConnectionPair p I γ π hπ J hJ hIC hpnil hIJ E hE γbar F T) :=
-  sorry
+variable {X : Scheme.{u}} (IS : (Spec (.of A)).IdealSheafData)
+variable (γS : ∀ V : (Spec (.of A)).affineOpens, DividedPowers (IS.ideal V))
+variable (hc : ∀ (V : (Spec (.of A)).affineOpens) (f : Γ(Spec (.of A), V)),
+  (γS V).IsDPMorphism (γS ((Spec (.of A)).affineBasicOpen f))
+    ((Spec (.of A)).presheaf.map (homOfLE ((Spec (.of A)).basicOpen_le f)).op).hom)
+variable (x₀ : X ⟶ IS.subscheme) (eX : Spec (.of C) ≅ X)
+variable (heX : eX.hom ≫ x₀ ≫ IS.subschemeι = Spec.map (CommRingCat.ofHom (algebraMap A C)))
+variable (hI : IS = DividedPowers.affineIdeal (I := I))
+variable (hγ : DividedPowers.IsDPMorphism γ
+  (γS ⟨⊤, isAffineOpen_top (Spec (.of A))⟩) (Scheme.ΓSpecIso (.of A)).inv.hom)
 
-/-- Lemma 60.17.3 (2): in the situation of 60.17.0.1–60.17.0.3 the assignment
-from crystals in quasi-coherent `𝒪_{X/S}`-modules on `Cris(X/S)` to pairs
-`(M, ∇)` satisfying (07JB), (07JC), (07JD), and (07JE) preserves composition
-of morphisms. -/
-@[stacks 07JG]
-theorem crystalsToConnectionPairs_map_comp
-    (T : smallCrystallineSite S IS γS h_compatible X x₀)
-    {F G H : CrisModuleSheaf S IS γS h_compatible X x₀}
-    [CrisModuleSheaf.IsCrystal F] [CrisModuleSheaf.IsCrystal G]
-    [CrisModuleSheaf.IsCrystal H]
-    [CrisModuleSheaf.IsLocallyQuasiCoherent F]
-    [CrisModuleSheaf.IsLocallyQuasiCoherent G]
-    [CrisModuleSheaf.IsLocallyQuasiCoherent H]
-    [Module (crystallineD p I γ π hπ J hJ hIC hpnil hIJ E hE)
-      (CrisModuleSheaf.sectionModule F T)]
-    [Module (crystallineD p I γ π hπ J hJ hIC hpnil hIJ E hE)
-      (CrisModuleSheaf.sectionModule G T)]
-    [Module (crystallineD p I γ π hπ J hJ hIC hpnil hIJ E hE)
-      (CrisModuleSheaf.sectionModule H T)]
-    (φ : F ⟶ G) (ψ : G ⟶ H) :
-    crystalToConnectionPair_map p I γ π hπ J hJ hIC hpnil hIJ E hE γbar (φ ≫ ψ) T =
-      Hom.comp p I γ π hπ J hJ hIC hpnil hIJ E hE γbar
-        (crystalToConnectionPair_map p I γ π hπ J hJ hIC hpnil hIJ E hE γbar φ T)
-        (crystalToConnectionPair_map p I γ π hπ J hJ hIC hpnil hIJ E hE γbar ψ T) :=
-  sorry
+/- Lemma 60.17.3: crystals in quasi-coherent modules determine complete integrable
+connections satisfying (07JB), (07JC), (07JD), and (07JE), on the inverse limit of
+sections over the polynomial-envelope quotient thickenings. -/
+@[stacks 07JG] #check
+  (CrystallineModuleSheaf.CrisModuleSheaf.Completed.toConnectionPairs
+    p γ π hπ hJ hIC hpnil E hE IS γS hc x₀ eX heX hI hγ :
+    quasiCoherentCrystals IS γS hc x₀ ⥤
+      -- Local instance justification (noncanonical choice): the relative connection uses the coefficient algebra selected by the explicit polynomial envelope.
+      letI := DividedPowerEnvelope.Coordinates.baseAlgebra E
+      Connection.Adic.quasiNilpotentCategory (A := A) (δ := E.D.dividedPowers)
+        (DividedPowerEnvelope.Coordinates.completedCoord E hE p))
+

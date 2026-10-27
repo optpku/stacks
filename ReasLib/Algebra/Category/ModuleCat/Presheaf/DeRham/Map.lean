@@ -39,7 +39,8 @@ variable {a : O₁ ⟶ O₁'} {φ : O₁ ⟶ O₂} {φ' : O₁' ⟶ O₂'} {b : 
 commutative square of section rings. -/
 @[stacks 0FKQ "sectionwise square for presheaf de Rham maps"]
 theorem square_app (sq : CommSq a φ φ' b) (X : Cᵒᵖ) :
-    CommSq (a.app X) (φ.app X) (φ'.app X) (b.app X) := sorry
+    CommSq (a.app X) (φ.app X) (φ'.app X) (b.app X) :=
+  ⟨congrArg (fun f : O₁ ⟶ O₂' ↦ f.app X) sq.w⟩
 
 /-- The objectwise degree-`p` map induced by a commutative square of ring
 presheaves. -/
@@ -55,7 +56,15 @@ theorem mapComponent_naturality (sq : CommSq a φ φ' b) (p : ℕ)
     (term φ p).map f ≫
         (ModuleCat.restrictScalars (((ringPresheaf O₁).map f).hom)).map
           (mapComponent sq p Y) =
-      mapComponent sq p X ≫ ((restriction a).obj (term φ' p)).map f := sorry
+      mapComponent sq p X ≫ ((restriction a).obj (term φ' p)).map f := by
+  ext x
+  change CommRingCat.DeRham.mapApp (square_app sq Y) p
+      (CommRingCat.DeRham.mapApp (square φ f) p x) =
+    CommRingCat.DeRham.mapApp (square φ' f) p
+      (CommRingCat.DeRham.mapApp (square_app sq X) p x)
+  rw [CommRingCat.DeRham.mapApp_comp_apply, CommRingCat.DeRham.mapApp_comp_apply]
+  simp only [b.naturality f]
+  rfl
 
 /-- The degree-`p` morphism of module presheaves induced by a commutative
 square of commutative-ring presheaves. -/
@@ -68,7 +77,7 @@ noncomputable def mapApp (sq : CommSq a φ φ' b) (p : ℕ) :
 /-- Evaluation of the degreewise presheaf de Rham map recovers its objectwise component. -/
 @[simp, stacks 0FKQ "evaluation of degreewise presheaf de Rham maps"]
 theorem mapApp_app (sq : CommSq a φ φ' b) (p : ℕ) (X : Cᵒᵖ) :
-    (mapApp sq p).app X = mapComponent sq p X := sorry
+    (mapApp sq p).app X = mapComponent sq p X := rfl
 
 /-- Restriction of cochain complexes of module presheaves along the upper
 horizontal map. -/
@@ -81,7 +90,15 @@ abbrev complexRestriction (a : O₁ ⟶ O₁') :=
 theorem mapApp_comm (sq : CommSq a φ φ' b) (i j : ℕ)
     (hij : (up ℕ).Rel i j) :
     mapApp sq i ≫ ((complexRestriction a).obj (complex φ')).d i j =
-      (complex φ).d i j ≫ mapApp sq j := sorry
+      (complex φ).d i j ≫ mapApp sq j := by
+  have h : i + 1 = j := hij
+  subst j
+  change mapApp sq i ≫ (restriction a).map ((complex φ').d i (i + 1)) =
+    (complex φ).d i (i + 1) ≫ mapApp sq (i + 1)
+  simp only [complex, CochainComplex.of_d]
+  apply PresheafOfModules.hom_ext
+  intro X
+  exact (CommRingCat.DeRham.mapApp_d (square_app sq X) i).symm
 
 /-- A commutative square of commutative-ring presheaves induces a morphism of
 relative de Rham complexes. -/
@@ -95,12 +112,12 @@ noncomputable def map (sq : CommSq a φ φ' b) :
 degreewise square map. -/
 @[simp, stacks 0FKQ "degreewise component of presheaf de Rham maps"]
 theorem map_f (sq : CommSq a φ φ' b) (p : ℕ) :
-    (map sq).f p = mapApp sq p := sorry
+    (map sq).f p = mapApp sq p := rfl
 
 /-- The identity square on a morphism of commutative-ring presheaves. -/
 @[stacks 0FKQ "identity square for presheaf de Rham maps"]
 theorem idSquare (φ : O₁ ⟶ O₂) :
-    CommSq (𝟙 O₁) φ φ (𝟙 O₂) := sorry
+    CommSq (𝟙 O₁) φ φ (𝟙 O₂) := ⟨by simp⟩
 
 namespace Restriction
 
@@ -156,14 +173,21 @@ identity-restriction comparison. -/
 @[simp, stacks 0FKQ "identity law for presheaf de Rham maps"]
 theorem mapApp_id (φ : O₁ ⟶ O₂) (p : ℕ) :
     mapApp (idSquare φ) p =
-      (Restriction.idIso O₁).hom.app (term φ p) := sorry
+      (Restriction.idIso O₁).hom.app (term φ p) := by
+  ext X x
+  exact CommRingCat.DeRham.mapApp_id_apply (φ.app X) p x
 
 /-- The de Rham complex map of an identity presheaf square is the canonical
 identity-restriction comparison. -/
 @[simp, stacks 0FKQ "identity law for presheaf de Rham complex maps"]
 theorem map_id (φ : O₁ ⟶ O₂) :
     map (idSquare φ) =
-      (Restriction.Complex.idIso O₁).hom.app (complex φ) := sorry
+      (Restriction.Complex.idIso O₁).hom.app (complex φ) := by
+  apply HomologicalComplex.Hom.ext
+  funext p
+  change mapApp (idSquare φ) p = 𝟙 _ ≫ (Restriction.idIso O₁).hom.app (term φ p)
+  rw [Category.id_comp]
+  exact mapApp_id φ p
 
 /-- Degreewise presheaf de Rham maps preserve horizontal composition after the canonical
 comparison of successive scalar restrictions. -/
@@ -174,7 +198,9 @@ theorem mapApp_comp
     (sq : CommSq a φ φ' b) (sq' : CommSq a' φ' φ'' b') (p : ℕ) :
     mapApp sq p ≫ (restriction a).map (mapApp sq' p) ≫
         (Restriction.compIso a a').hom.app (term φ'' p) =
-      mapApp (CommSq.horiz_comp sq sq') p := sorry
+      mapApp (CommSq.horiz_comp sq sq') p := by
+  ext X x
+  exact CommRingCat.DeRham.mapApp_comp_apply (square_app sq X) (square_app sq' X) p x
 
 /-- Presheaf de Rham complex maps preserve horizontal composition after the canonical
 comparison of successive scalar restrictions. -/
@@ -185,6 +211,9 @@ theorem map_comp
     (sq : CommSq a φ φ' b) (sq' : CommSq a' φ' φ'' b') :
     map sq ≫ (complexRestriction a).map (map sq') ≫
         (Restriction.Complex.compIso a a').hom.app (complex φ'') =
-      map (CommSq.horiz_comp sq sq') := sorry
+      map (CommSq.horiz_comp sq sq') := by
+  apply HomologicalComplex.Hom.ext
+  funext p
+  exact mapApp_comp sq sq' p
 
 end PresheafOfModules.DeRham

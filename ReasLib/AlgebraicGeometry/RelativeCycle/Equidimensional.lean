@@ -47,7 +47,7 @@ theorem equidimensional_iff {X S : Scheme.{u}} {f : X ⟶ S} [LocallyOfFiniteTyp
     Equidimensional α ↔
       ∃ W : X.IdealSheafData,
         support α ⊆ W.support ∧ RelativeDimensionLE (W.subschemeι ≫ f) r :=
-  sorry
+  Iff.rfl
 
 end AlgebraicGeometry.Scheme.Hom.CyclesOnFibers
 
@@ -56,7 +56,14 @@ namespace AlgebraicGeometry.RelativeCycle
 variable {X S : Scheme.{u}} (f : X ⟶ S) [LocallyOfFiniteType f] (r : ℕ)
 
 /-- The zero family of fibrewise `r`-cycles is equidimensional. -/
-theorem isEquidimensional_zero : Equidimensional (0 : f.FiberCycleFamily r) := sorry
+theorem isEquidimensional_zero : Equidimensional (0 : f.FiberCycleFamily r) := by
+  refine ⟨⊤, ?_, ?_⟩
+  · show support (0 : f.FiberCycleFamily r) ⊆ (⊤ : X.IdealSheafData).support
+    simp [support, toAlgebraicCycle, AlgebraicCycle.geometricSupport]
+  · show RelativeDimensionLE ((⊤ : X.IdealSheafData).subschemeι ≫ f) r
+    exact
+      { toLocallyOfFiniteType := inferInstance
+        relativeDimensionLEAt := fun x ↦ isEmptyElim x }
 
 /-- The sum of equidimensional families of fibrewise `r`-cycles on a locally
 finite-type morphism is equidimensional. -/
@@ -67,7 +74,13 @@ theorem isEquidimensional_add {α β : f.FiberCycleFamily r}
 /-- The negative of an equidimensional family of fibrewise `r`-cycles is
 equidimensional. -/
 theorem isEquidimensional_neg {α : f.FiberCycleFamily r} (hα : Equidimensional α) :
-    Equidimensional (-α) := sorry
+    Equidimensional (-α) := by
+  obtain ⟨W, hW, hdim⟩ := hα
+  refine ⟨W, ?_, hdim⟩
+  show support (-α) ⊆ W.support
+  simpa only [support, toAlgebraicCycle, Pi.neg_apply, map_neg,
+    AlgebraicCycle.geometricSupport, Function.locallyFinsuppWithin.coe_neg,
+    Function.support_neg] using hW
 
 variable [IsLocallyNoetherian S]
 
@@ -84,7 +97,7 @@ def equidimensional : AddSubgroup (f.FiberCycleFamily r) where
 condition and equidimensionality of the family of fibre cycles. -/
 theorem mem_equidimensional (α : f.FiberCycleFamily r) :
     α ∈ equidimensional f r ↔ IsRelative α ∧ Equidimensional α :=
-  sorry
+  Iff.rfl
 
 /-- A family lies in `z_equi(X/S, r)` if and only if it is a relative `r`-cycle
 and its support is contained in a closed subscheme of relative dimension at
@@ -94,7 +107,7 @@ theorem mem_equidimensional_iff_support (α : f.FiberCycleFamily r) :
       IsRelative α ∧
         ∃ W : X.IdealSheafData,
           support α ⊆ W.support ∧ RelativeDimensionLE (W.subschemeι ≫ f) r :=
-  sorry
+  Iff.rfl
 
 end AlgebraicGeometry.RelativeCycle
 

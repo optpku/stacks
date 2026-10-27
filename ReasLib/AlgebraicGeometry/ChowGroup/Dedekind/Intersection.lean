@@ -15,6 +15,7 @@ public import ReasLib.AlgebraicGeometry.ChowGroup.Relative
 public import ReasLib.AlgebraicGeometry.BivariantClass.RegularImmersion
 public import ReasLib.AlgebraicGeometry.BivariantClass.VirtualNormalBundle.Commutation
 public import ReasLib.AlgebraicGeometry.ChowGroup.Dedekind.ExteriorProduct.Cap
+public import ReasLib.AlgebraicGeometry.ChowGroup.Intersection.Over
 
 /-!
 # Intersection products of Chow classes over a locally Dedekind base
@@ -38,10 +39,6 @@ universe u
 
 namespace AlgebraicGeometry.ChowGroup.Dedekind
 
-/-- The diagonal morphism of a scheme over a base, as a morphism in `Over S`. -/
-noncomputable abbrev diagonal {S : Scheme.{u}} (X : Over S) : X ⟶ X ⨯ X :=
-  prod.lift (𝟙 X) (𝟙 X)
-
 /-- The Over-diagonal is the transport of `pullback.diagonal` along `prodLeftIsoPullback`. -/
 theorem diagonal_left_eq {S : Scheme.{u}} (X : Over S) :
     (diagonal X).left =
@@ -56,19 +53,6 @@ instance diagonal_isImmersion {S : Scheme.{u}} (X : Over S)
 instance diagonal_isRegularImmersion {S : Scheme.{u}} (X : Over S)
     [Smooth X.hom] :
     IsRegularImmersion (diagonal X).left := sorry
-
-/-- The fiber product of two schemes locally of finite type over `S` remains locally of
-finite type over `S`. -/
-instance pullback_locallyOfFiniteType {S : Scheme.{u}} {X Y Z : Over S}
-    (fY : Y ⟶ X) (fZ : Z ⟶ X)
-    [LocallyOfFiniteType Y.hom] [LocallyOfFiniteType Z.hom] :
-    LocallyOfFiniteType (pullback fY fZ).hom := sorry
-
-/-- The product of two locally finite-type morphisms over `S` is locally of finite type. -/
-instance prodMap_locallyOfFiniteType {S : Scheme.{u}} {X Y Z : Over S}
-    (fY : Y ⟶ X) (fZ : Z ⟶ X)
-    [LocallyOfFiniteType fY.left] [LocallyOfFiniteType fZ.left] :
-    LocallyOfFiniteType (prod.map fY fZ).left := sorry
 
 /-- Closed-specialization data for the coborder factorization of the Over-diagonal. -/
 abbrev DiagonalSpecialization {S : Scheme.{u}} [UniversallyCatenary S]
@@ -121,25 +105,6 @@ theorem diagonalGysinClass_def {S : Scheme.{u}} [UniversallyCatenary S]
         BivariantClass.coborder_factorization (diagonal X) ▸
           BivariantClass.gysin_open_degree r ▸
             BivariantClass.gysinImmersion δ (diagonal X) e D r := sorry
-
-/-- The structure morphism of a fiber product over `X` to the base object `X`. -/
-noncomputable abbrev fiberProductToBase {S : Scheme.{u}} {X Y Z : Over S}
-    (fY : Y ⟶ X) (fZ : Z ⟶ X) :
-    pullback fY fZ ⟶ X :=
-  pullback.fst fY fZ ≫ fY
-
-/-- The comparison from a fiber product over `X` to the product over `S`. -/
-noncomputable abbrev fiberProductToProduct {S : Scheme.{u}} {X Y Z : Over S}
-    (fY : Y ⟶ X) (fZ : Z ⟶ X) :
-    pullback fY fZ ⟶ Y ⨯ Z :=
-  prod.lift (pullback.fst fY fZ) (pullback.snd fY fZ)
-
-/-- The comparison square identifying `Y ×_X Z` with the pullback of the diagonal
-along `Y ×_S Z ⟶ X ×_S X`. -/
-theorem intersectionSquare_isPullback {S : Scheme.{u}} {X Y Z : Over S}
-    (fY : Y ⟶ X) (fZ : Z ⟶ X) :
-    IsPullback (fiberProductToBase fY fZ).left (fiberProductToProduct fY fZ).left
-      (diagonal X).left (prod.map fY fZ).left := sorry
 
 /-- For a smooth scheme with conormal sheaf of constant rank `r`, the intersection
 product caps the Dedekind exterior product with the degree-`r` diagonal Gysin class. -/

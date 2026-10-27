@@ -7,6 +7,7 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.RelativeProj.DegreeOneTwists
+public import ReasLib.AlgebraicGeometry.Scheme.RelativeProj.GeneratedByDegreeOne
 public import ReasLib.AlgebraicGeometry.Scheme.RelativeProj.Presentation
 public import ReasLib.CategoryTheory.Monoidal.InvertibleQuotient
 
@@ -26,6 +27,59 @@ open SheafOfModules.RingedSite
 noncomputable section
 
 universe u
+
+namespace AlgebraicGeometry.Scheme.RelativeProjTwist.Presentation
+
+/-- Thin presentation shorthand for `GradedAlgebra.GeneratedBy` on every affine model.
+
+This is generation over degree zero, as used for invertible twists and in Stacks, Tag 07ZR.
+It does not require the structure sheaf to surject onto degree zero. The intrinsic property
+over the structure sheaf is owned by `GradedAlgebraSheaf.GeneratedByDegreeOne`; the bridge
+`generatedByDegreeOne_intrinsic` records the additional hypotheses. -/
+abbrev GeneratedByDegreeOne
+    {S : Scheme.{u}} {𝒜 : GradedAlgebraSheaf.{u, u} S.sheaf}
+    {A σ : S.affineOpens → Type u}
+    [∀ U, CommRing (A U)] [∀ U, SetLike (σ U) (A U)]
+    [∀ U, AddSubgroupClass (σ U) (A U)]
+    {sectionGrading : ∀ U : S.affineOpens, ℕ → σ U}
+    [∀ U, GradedRing (sectionGrading U)]
+    {P : ∀ U : S.affineOpens, ProjTwistPresentation (sectionGrading U)}
+    {model : ∀ (U : S.affineOpens) (d : ℕ),
+      (𝒜 (Int.ofNat d)).val.obj (Opposite.op (U : S.Opens)) ≃ sectionGrading U d}
+    {X : Scheme.{u}} {p : X ⟶ S}
+    (presentation : RelativeProjTwist.Presentation
+      𝒜 A σ sectionGrading P model p) : Prop :=
+  ∀ U : S.affineOpens, GradedAlgebra.GeneratedBy (sectionGrading U) 1
+
+/-- Generation in the chosen affine models implies intrinsic generation over the structure
+sheaf when the additive models preserve unit and multiplication and their degree-zero structure
+maps are surjective. Bare degreewise equivalences in a twist presentation do not supply these
+compatibilities. -/
+theorem generatedByDegreeOne_intrinsic
+    {S : Scheme.{u}} {𝒜 : GradedAlgebraSheaf.{u, u} S.sheaf}
+    {A σ : S.affineOpens → Type u}
+    [∀ U, CommRing (A U)] [∀ U, SetLike (σ U) (A U)]
+    [∀ U, AddSubgroupClass (σ U) (A U)]
+    {sectionGrading : ∀ U : S.affineOpens, ℕ → σ U}
+    [∀ U, GradedRing (sectionGrading U)]
+    {P : ∀ U : S.affineOpens, ProjTwistPresentation (sectionGrading U)}
+    (model : ∀ (U : S.affineOpens) (d : ℕ),
+      (𝒜 (Int.ofNat d)).val.obj (Opposite.op (U : S.Opens)) ≃+ sectionGrading U d)
+    (hModel : ∀ U : S.affineOpens,
+      AffineOpenSectionProj.IsAffineOpenSectionModel (sectionGrading U) 𝒜 U (model U))
+    {X : Scheme.{u}} {p : X ⟶ S}
+    (presentation : RelativeProjTwist.Presentation
+      𝒜 A σ sectionGrading P (fun U d ↦ (model U d).toEquiv) p)
+    (hgenerated : presentation.GeneratedByDegreeOne)
+    (hzero : ∀ U : S.affineOpens,
+      Function.Surjective
+        (AffineOpenSectionProj.degreeZeroStructureMap
+          (sectionGrading U) 𝒜 U (model U) (hModel U))) :
+    GradedAlgebraSheaf.GeneratedByDegreeOne 𝒜 :=
+  GradedAlgebraSheaf.generatedByDegreeOne_of_affineOpenSectionModels
+    𝒜 A σ sectionGrading model hModel hzero hgenerated
+
+end AlgebraicGeometry.Scheme.RelativeProjTwist.Presentation
 
 namespace AlgebraicGeometry.Scheme.Hom.RelativeProjPresentation
 
@@ -222,8 +276,10 @@ noncomputable def degreeOneMap {P : RelativeProjPresentation p} (D : DegreeOneTw
   ((Scheme.Modules.pullbackPushforwardAdjunction p).homEquiv
     (P.degreePiece 1) D.twistOne).symm (D.twistPresentation.psi.hom 1)
 
-/-- The affine models in degree-one twist data are generated in degree one. -/
-def GeneratedByDegreeOne {P : RelativeProjPresentation p} (D : DegreeOneTwist P) : Prop :=
+/-- Thin specialization of the affine-model generation shorthand to stored twist data.
+For generation over the structure sheaf, use `generatedByDegreeOne_intrinsic` with compatible
+additive section models and surjective degree-zero structure maps. -/
+abbrev GeneratedByDegreeOne {P : RelativeProjPresentation p} (D : DegreeOneTwist P) : Prop :=
   -- Local instance justification (defeq pin): unpack the explicit ring data stored in `D`.
   letI : ∀ U, CommRing (D.affineRing U) := D.affineRingComm
   -- Local instance justification (defeq pin): unpack the explicit grading carrier stored in `D`.
@@ -234,11 +290,44 @@ def GeneratedByDegreeOne {P : RelativeProjPresentation p} (D : DegreeOneTwist P)
     D.homogeneousCarrierAddSubgroup
   -- Local instance justification (defeq pin): unpack the explicit graded-ring laws stored in `D`.
   letI : ∀ U, GradedRing (D.sectionGrading U) := D.sectionGradingRing
-  ∀ U : S.affineOpens, GradedAlgebra.GeneratedBy (D.sectionGrading U) 1
+  D.twistPresentation.GeneratedByDegreeOne
 
 /-- Degree-one twist data retain the raw twist presentation and degree-one generation law. -/
 theorem spec {P : RelativeProjPresentation p} (D : DegreeOneTwist P) :
-    D.GeneratedByDegreeOne := sorry
+    D.GeneratedByDegreeOne :=
+  D.generatedByDegreeOne
+
+/-- The stored affine generation law yields intrinsic generation when the stored rings admit
+compatible additive section models and the structure maps onto degree zero are surjective.
+The raw set equivalences in `D.sectionModel` alone do not imply this conclusion. -/
+theorem generatedByDegreeOne_intrinsic {P : RelativeProjPresentation p} (D : DegreeOneTwist P) :
+    letI : ∀ U, CommRing (D.affineRing U) := D.affineRingComm
+    letI : ∀ U, SetLike (D.homogeneousCarrier U) (D.affineRing U) :=
+      D.homogeneousCarrierSetLike
+    letI : ∀ U, AddSubgroupClass (D.homogeneousCarrier U) (D.affineRing U) :=
+      D.homogeneousCarrierAddSubgroup
+    letI : ∀ U, GradedRing (D.sectionGrading U) := D.sectionGradingRing
+    ∀ (model : ∀ (U : S.affineOpens) (d : ℕ),
+        (P.algebra (Int.ofNat d)).val.obj (Opposite.op (U : S.Opens)) ≃+
+          D.sectionGrading U d)
+      (hModel : ∀ U : S.affineOpens,
+        AffineOpenSectionProj.IsAffineOpenSectionModel
+          (D.sectionGrading U) P.algebra U (model U))
+      (hzero : ∀ U : S.affineOpens,
+        Function.Surjective
+          (AffineOpenSectionProj.degreeZeroStructureMap
+            (D.sectionGrading U) P.algebra U (model U) (hModel U))),
+      GradedAlgebraSheaf.GeneratedByDegreeOne P.algebra :=
+  letI : ∀ U, CommRing (D.affineRing U) := D.affineRingComm
+  letI : ∀ U, SetLike (D.homogeneousCarrier U) (D.affineRing U) :=
+    D.homogeneousCarrierSetLike
+  letI : ∀ U, AddSubgroupClass (D.homogeneousCarrier U) (D.affineRing U) :=
+    D.homogeneousCarrierAddSubgroup
+  letI : ∀ U, GradedRing (D.sectionGrading U) := D.sectionGradingRing
+  fun model hModel hzero ↦
+    GradedAlgebraSheaf.generatedByDegreeOne_of_affineOpenSectionModels
+      P.algebra D.affineRing D.homogeneousCarrier D.sectionGrading model hModel hzero
+      D.generatedByDegreeOne
 
 /-- The canonical degree-one map is an epimorphism. -/
 theorem degreeOneMap_epi {P : RelativeProjPresentation p} (D : DegreeOneTwist P) :

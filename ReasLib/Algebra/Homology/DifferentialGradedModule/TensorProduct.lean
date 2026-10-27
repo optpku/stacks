@@ -43,6 +43,19 @@ namespace DifferentialGradedModule.TensorProduct
 variable {R : Type u} [CommRing R]
 variable {A : CochainDGAlgebra.{u, x} R}
 
+private theorem castLinearMap_apply {U : ModuleCat.{v} R} {V V' : ModuleCat.{w} R}
+    (h : V = V') (f : U →ₗ[R] V) (z : U) :
+    ModuleCat.castLinearMap h f z =
+      cast (congrArg (fun X : ModuleCat.{w} R ↦ (X : Type w)) h) (f z) := by
+  cases h
+  rfl
+
+private theorem apply_cast {I : Type*} {F : I → Type v} {G : I → Type w}
+    (f : ∀ i, F i → G i) {i j : I} (h : i = j) (z : F i) :
+    f j (cast (congrArg F h) z) = cast (congrArg G h) (f i z) := by
+  subst j
+  rfl
+
 /-- The ground-ring tensor bifunctor on the possibly different carrier universes of the two
 DG modules. -/
 @[stacks 09LL "ground-ring tensor bifunctor for DG module terms"]
@@ -81,7 +94,8 @@ abbrev rawTerm (M : DifferentialGradedModule.{u, v} A)
 
 /-- Reindex the left-action term of a homogeneous balancing relation. -/
 theorem balanceRightDegree (p i q n : ℤ) (h : (p + i) + q = n) :
-    p + (i + q) = n := sorry
+    p + (i + q) = n := by
+  simpa only [add_assoc] using h
 
 /-- A homogeneous generator of the relations
 `(m * a) ⊗ x = m ⊗ (a * x)`. -/
@@ -126,14 +140,30 @@ def tmul (M : DifferentialGradedModule.{u, v} A)
     ((ιMapBifunctor (rightComplex M) (leftComplex N) (baseBifunctor (R := R))
       (up ℤ) p q (p + q) rfl).hom (m ⊗ₜ[R] x))
 
+private theorem mk_ι_tmul (M : DifferentialGradedModule.{u, v} A)
+    (N : LeftDifferentialGradedModule.{u, w} A)
+    (p q n : ℤ) (h : p + q = n) (m : M.X p) (x : N.X q) :
+    mk M N n
+        ((ιMapBifunctor (rightComplex M) (leftComplex N) (baseBifunctor (R := R))
+          (up ℤ) p q n h).hom (m ⊗ₜ[R] x)) =
+      cast (congrArg (fun t : ℤ ↦ (family M N t : Type (max v w))) h) (tmul M N m x) := by
+  subst n
+  rfl
+
 /-- Pure tensor formation with a fixed right-module input, as a linear map. -/
 @[stacks 09LL "pure tensor map in the right factor"]
 def tmulRight (M : DifferentialGradedModule.{u, v} A)
     (N : LeftDifferentialGradedModule.{u, w} A) {p q : ℤ} (m : M.X p) :
     N.X q →ₗ[R] family M N (p + q) where
   toFun := tmul M N m
-  map_add' := sorry
-  map_smul' := sorry
+  map_add' := fun x y ↦ ((mk M N (p + q)).comp
+      ((ιMapBifunctor (rightComplex M) (leftComplex N) (baseBifunctor (R := R))
+        (up ℤ) p q (p + q) rfl).hom.comp
+        (_root_.TensorProduct.mk R (M.X p) (N.X q) m))).map_add x y
+  map_smul' := fun r x ↦ ((mk M N (p + q)).comp
+      ((ιMapBifunctor (rightComplex M) (leftComplex N) (baseBifunctor (R := R))
+        (up ℤ) p q (p + q) rfl).hom.comp
+        (_root_.TensorProduct.mk R (M.X p) (N.X q) m))).map_smul r x
 
 /-- Pure tensor formation with a fixed left-module input, as a linear map. -/
 @[stacks 09LL "pure tensor map in the left factor"]
@@ -141,14 +171,177 @@ def tmulLeft (M : DifferentialGradedModule.{u, v} A)
     (N : LeftDifferentialGradedModule.{u, w} A) {p q : ℤ} (x : N.X q) :
     M.X p →ₗ[R] family M N (p + q) where
   toFun := fun m ↦ tmul M N m x
-  map_add' := sorry
-  map_smul' := sorry
+  map_add' := fun m m' ↦ ((mk M N (p + q)).comp
+      ((ιMapBifunctor (rightComplex M) (leftComplex N) (baseBifunctor (R := R))
+        (up ℤ) p q (p + q) rfl).hom.comp
+        ((_root_.TensorProduct.mk R (M.X p) (N.X q)).flip x))).map_add m m'
+  map_smul' := fun r m ↦ ((mk M N (p + q)).comp
+      ((ιMapBifunctor (rightComplex M) (leftComplex N) (baseBifunctor (R := R))
+        (up ℤ) p q (p + q) rfl).hom.comp
+        ((_root_.TensorProduct.mk R (M.X p) (N.X q)).flip x))).map_smul r m
+
+private theorem family_hom_ext (M : DifferentialGradedModule.{u, v} A)
+    (N : LeftDifferentialGradedModule.{u, w} A) {n : ℤ} {P : ModuleCat.{max v w} R}
+    {f g : family M N n ⟶ P}
+    (h : ∀ (p q : ℤ) (hpq : p + q = n) (m : M.X p) (x : N.X q),
+      f (cast (congrArg (fun t : ℤ ↦ (family M N t : Type (max v w))) hpq) (tmul M N m x)) =
+        g (cast (congrArg (fun t : ℤ ↦ (family M N t : Type (max v w))) hpq) (tmul M N m x))) :
+    f = g := by
+  apply ModuleCat.hom_ext
+  apply Submodule.linearMap_qext
+  have heq : ModuleCat.ofHom (f.hom.comp (mk M N n)) =
+      ModuleCat.ofHom (g.hom.comp (mk M N n)) := by
+    apply mapBifunctor.hom_ext
+    intro p q hpq
+    apply ModuleCat.hom_ext
+    apply _root_.TensorProduct.ext'
+    intro m x
+    subst n
+    exact h p q rfl m x
+  exact congrArg (fun t : rawTerm M N n ⟶ P ↦ t.hom) heq
+
+private theorem raw_d_ι_tmul (M : DifferentialGradedModule.{u, v} A)
+    (N : LeftDifferentialGradedModule.{u, w} A)
+    (p q n : ℤ) (h : p + q = n) (m : M.X p) (x : N.X q) :
+    ((rawComplex M N).d n (n + 1)).hom
+        ((ιMapBifunctor (rightComplex M) (leftComplex N) (baseBifunctor (R := R))
+          (up ℤ) p q n h).hom (m ⊗ₜ[R] x)) =
+      (ιMapBifunctor (rightComplex M) (leftComplex N) (baseBifunctor (R := R))
+        (up ℤ) (p + 1) q (n + 1) (by change (p + 1) + q = n + 1; omega)).hom
+          (M.d p m ⊗ₜ[R] x) +
+      (p.negOnePow : R) •
+        (ιMapBifunctor (rightComplex M) (leftComplex N) (baseBifunctor (R := R))
+          (up ℤ) p (q + 1) (n + 1) (by change p + (q + 1) = n + 1; omega)).hom
+            (m ⊗ₜ[R] N.d q x) := by
+  subst n
+  change (ιMapBifunctor (rightComplex M) (leftComplex N) (baseBifunctor (R := R))
+    (up ℤ) p q (p + q) rfl ≫ (rawComplex M N).d (p + q) ((p + q) + 1))
+      (m ⊗ₜ[R] x) = _
+  rw [mapBifunctor.d_eq, Preadditive.comp_add, mapBifunctor.ι_D₁, mapBifunctor.ι_D₂,
+    mapBifunctor.d₁_eq _ _ _ _ (show (up ℤ).Rel p (p + 1) from rfl) q ((p + q) + 1)
+      (by change (p + 1) + q = (p + q) + 1; ac_rfl),
+    mapBifunctor.d₂_eq _ _ _ _ p (show (up ℤ).Rel q (q + 1) from rfl) ((p + q) + 1)
+      (by change p + (q + 1) = (p + q) + 1; ac_rfl)]
+  rw [show ComplexShape.ε₁ (up ℤ) (up ℤ) (up ℤ) (p, q) = 1 from rfl, one_smul,
+    show ComplexShape.ε₂ (up ℤ) (up ℤ) (up ℤ) (p, q) = p.negOnePow from rfl]
+  have hdM : (rightComplex M).d p (p + 1) = ModuleCat.ofHom (M.d p) :=
+    CochainComplex.of_d M.X (fun n ↦ ModuleCat.ofHom (M.d n)) p
+  have hdN : (leftComplex N).d q (q + 1) = ModuleCat.ofHom (N.d q) :=
+    CochainComplex.of_d N.X (fun n ↦ ModuleCat.ofHom (N.d n)) q
+  rw [hdM, hdN]
+  change
+    (ιMapBifunctor (rightComplex M) (leftComplex N) (baseBifunctor (R := R))
+      (up ℤ) (p + 1) q ((p + q) + 1) (by change (p + 1) + q = (p + q) + 1; ac_rfl)).hom
+        ((_root_.TensorProduct.map (M.d p) LinearMap.id) (m ⊗ₜ[R] x)) +
+    (p.negOnePow : ℤ) •
+      (ιMapBifunctor (rightComplex M) (leftComplex N) (baseBifunctor (R := R))
+        (up ℤ) p (q + 1) ((p + q) + 1) (by change p + (q + 1) = (p + q) + 1; ac_rfl)).hom
+          ((_root_.TensorProduct.map LinearMap.id (N.d q)) (m ⊗ₜ[R] x)) = _
+  simp only [_root_.TensorProduct.map_tmul, LinearMap.id_apply, Int.cast_smul_eq_zsmul]
+  rfl
+
+private theorem ι_tmul_cast_left (M : DifferentialGradedModule.{u, v} A)
+    (N : LeftDifferentialGradedModule.{u, w} A)
+    (p p' q n : ℤ) (h : p = p') (h' : p' + q = n) (m : M.X p) (x : N.X q) :
+    (ιMapBifunctor (rightComplex M) (leftComplex N) (baseBifunctor (R := R))
+        (up ℤ) p' q n h').hom
+        (cast (congrArg (fun t : ℤ ↦ (M.X t : Type v)) h) m ⊗ₜ[R] x) =
+      (ιMapBifunctor (rightComplex M) (leftComplex N) (baseBifunctor (R := R))
+        (up ℤ) p q n (by rw [h]; exact h')).hom (m ⊗ₜ[R] x) := by
+  subst p'
+  rfl
+
+private theorem ι_tmul_cast_right (M : DifferentialGradedModule.{u, v} A)
+    (N : LeftDifferentialGradedModule.{u, w} A)
+    (p q q' n : ℤ) (h : q = q') (h' : p + q' = n) (m : M.X p) (x : N.X q) :
+    (ιMapBifunctor (rightComplex M) (leftComplex N) (baseBifunctor (R := R))
+        (up ℤ) p q' n h').hom
+        (m ⊗ₜ[R] cast (congrArg (fun t : ℤ ↦ (N.X t : Type w)) h) x) =
+      (ιMapBifunctor (rightComplex M) (leftComplex N) (baseBifunctor (R := R))
+        (up ℤ) p q n (by rw [h]; exact h')).hom (m ⊗ₜ[R] x) := by
+  subst q'
+  rfl
+
+private theorem ι_tmul_add_left (M : DifferentialGradedModule.{u, v} A)
+    (N : LeftDifferentialGradedModule.{u, w} A) (p q n : ℤ) (h : p + q = n)
+    (m m' : M.X p) (x : N.X q) :
+    (ιMapBifunctor (rightComplex M) (leftComplex N) (baseBifunctor (R := R))
+      (up ℤ) p q n h).hom ((m + m') ⊗ₜ[R] x) =
+      (ιMapBifunctor (rightComplex M) (leftComplex N) (baseBifunctor (R := R))
+      (up ℤ) p q n h).hom (m ⊗ₜ[R] x) + (ιMapBifunctor (rightComplex M) (leftComplex N) (baseBifunctor (R := R))
+      (up ℤ) p q n h).hom (m' ⊗ₜ[R] x) :=
+  ((ιMapBifunctor (rightComplex M) (leftComplex N) (baseBifunctor (R := R))
+      (up ℤ) p q n h).hom.comp
+    ((_root_.TensorProduct.mk R (M.X p) (N.X q)).flip x)).map_add m m'
+
+private theorem ι_tmul_smul_left (M : DifferentialGradedModule.{u, v} A)
+    (N : LeftDifferentialGradedModule.{u, w} A) (p q n : ℤ) (h : p + q = n)
+    (r : R) (m : M.X p) (x : N.X q) :
+    (ιMapBifunctor (rightComplex M) (leftComplex N) (baseBifunctor (R := R))
+      (up ℤ) p q n h).hom ((r • m) ⊗ₜ[R] x) = r • (ιMapBifunctor (rightComplex M) (leftComplex N) (baseBifunctor (R := R))
+      (up ℤ) p q n h).hom (m ⊗ₜ[R] x) :=
+  ((ιMapBifunctor (rightComplex M) (leftComplex N) (baseBifunctor (R := R))
+      (up ℤ) p q n h).hom.comp
+    ((_root_.TensorProduct.mk R (M.X p) (N.X q)).flip x)).map_smul r m
+
+private theorem ι_tmul_add_right (M : DifferentialGradedModule.{u, v} A)
+    (N : LeftDifferentialGradedModule.{u, w} A) (p q n : ℤ) (h : p + q = n)
+    (m : M.X p) (x x' : N.X q) :
+    (ιMapBifunctor (rightComplex M) (leftComplex N) (baseBifunctor (R := R))
+      (up ℤ) p q n h).hom (m ⊗ₜ[R] (x + x')) =
+      (ιMapBifunctor (rightComplex M) (leftComplex N) (baseBifunctor (R := R))
+      (up ℤ) p q n h).hom (m ⊗ₜ[R] x) + (ιMapBifunctor (rightComplex M) (leftComplex N) (baseBifunctor (R := R))
+      (up ℤ) p q n h).hom (m ⊗ₜ[R] x') :=
+  ((ιMapBifunctor (rightComplex M) (leftComplex N) (baseBifunctor (R := R))
+      (up ℤ) p q n h).hom.comp
+    (_root_.TensorProduct.mk R (M.X p) (N.X q) m)).map_add x x'
+
+private theorem ι_tmul_smul_right (M : DifferentialGradedModule.{u, v} A)
+    (N : LeftDifferentialGradedModule.{u, w} A) (p q n : ℤ) (h : p + q = n)
+    (r : R) (m : M.X p) (x : N.X q) :
+    (ιMapBifunctor (rightComplex M) (leftComplex N) (baseBifunctor (R := R))
+      (up ℤ) p q n h).hom (m ⊗ₜ[R] (r • x)) = r • (ιMapBifunctor (rightComplex M) (leftComplex N) (baseBifunctor (R := R))
+      (up ℤ) p q n h).hom (m ⊗ₜ[R] x) :=
+  ((ιMapBifunctor (rightComplex M) (leftComplex N) (baseBifunctor (R := R))
+      (up ℤ) p q n h).hom.comp
+    (_root_.TensorProduct.mk R (M.X p) (N.X q) m)).map_smul r x
 
 /-- The raw total differential preserves the balancing relations. -/
 theorem differential_relations (M : DifferentialGradedModule.{u, v} A)
     (N : LeftDifferentialGradedModule.{u, w} A) (n : ℤ) :
     relations M N n ≤ Submodule.comap ((rawComplex M N).d n (n + 1)).hom
-      (relations M N (n + 1)) := sorry
+      (relations M N (n + 1)) := by
+  apply Submodule.span_le.mpr
+  rintro z ⟨p, i, q, h, m, a, x, rfl⟩
+  change ((rawComplex M N).d n (n + 1)).hom
+    (balanceGenerator M N p i q n h m a x) ∈ relations M N (n + 1)
+  have h₁ : ((p + 1) + i) + q = n + 1 := by omega
+  have h₂ : (p + (i + 1)) + q = n + 1 := by omega
+  have h₃ : (p + i) + (q + 1) = n + 1 := by omega
+  have heq : ((rawComplex M N).d n (n + 1)).hom
+      (balanceGenerator M N p i q n h m a x) =
+      balanceGenerator M N (p + 1) i q (n + 1) h₁ (M.d p m) a x +
+        (p.negOnePow : R) •
+          balanceGenerator M N p (i + 1) q (n + 1) h₂ m (A.d i a) x +
+        ((p + i).negOnePow : R) •
+          balanceGenerator M N p i (q + 1) (n + 1) h₃ m a (N.d q x) := by
+    rw [balanceGenerator, map_sub, raw_d_ι_tmul, raw_d_ι_tmul, M.comm_d, N.comm_d]
+    dsimp only [balanceGenerator]
+    erw [ι_tmul_add_left, ι_tmul_smul_left, ι_tmul_add_right, ι_tmul_smul_right,
+      ι_tmul_cast_left M N _ _ _ _ (show (p + 1) + i = (p + i) + 1 by omega),
+      ι_tmul_cast_left M N _ _ _ _ (show p + (i + 1) = (p + i) + 1 by omega),
+      ι_tmul_cast_right M N _ _ _ _ (show (i + 1) + q = (i + q) + 1 by omega),
+      ι_tmul_cast_right M N _ _ _ _ (show i + (q + 1) = (i + q) + 1 by omega)]
+    simp only [Int.negOnePow_add, Units.val_mul, Int.cast_mul, smul_add, smul_sub, smul_smul]
+    abel
+  rw [heq]
+  exact Submodule.add_mem _
+    (Submodule.add_mem _
+      (Submodule.subset_span ⟨p + 1, i, q, h₁, M.d p m, a, x, rfl⟩)
+      (Submodule.smul_mem _ _
+        (Submodule.subset_span ⟨p, i + 1, q, h₂, m, A.d i a, x, rfl⟩)))
+    (Submodule.smul_mem _ _
+      (Submodule.subset_span ⟨p, i, q + 1, h₃, m, a, N.d q x, rfl⟩))
 
 /-- The differential induced on the relative tensor quotient. -/
 def differential (M : DifferentialGradedModule.{u, v} A)
@@ -161,7 +354,18 @@ def differential (M : DifferentialGradedModule.{u, v} A)
 theorem differential_comp (M : DifferentialGradedModule.{u, v} A)
     (N : LeftDifferentialGradedModule.{u, w} A) (n : ℤ) :
     ModuleCat.ofHom (differential M N n) ≫
-      ModuleCat.ofHom (differential M N (n + 1)) = 0 := sorry
+      ModuleCat.ofHom (differential M N (n + 1)) = 0 := by
+  apply ModuleCat.hom_ext
+  apply Submodule.linearMap_qext
+  ext z
+  change (relations M N (n + 1 + 1)).mkQ
+    (((rawComplex M N).d (n + 1) (n + 1 + 1)).hom
+      (((rawComplex M N).d n (n + 1)).hom z)) = 0
+  have h := congrArg (fun f : rawTerm M N n ⟶ rawTerm M N (n + 1 + 1) ↦ f z)
+    ((rawComplex M N).d_comp_d n (n + 1) (n + 1 + 1))
+  change ((rawComplex M N).d (n + 1) (n + 1 + 1)).hom
+    (((rawComplex M N).d n (n + 1)).hom z) = 0 at h
+  rw [h, map_zero]
 
 /-- Section 22.12 (09LL): the relative tensor product of a right and a left DG `A`-module,
 as a concrete cochain complex of `R`-modules. -/
@@ -176,13 +380,14 @@ def complex (M : DifferentialGradedModule.{u, v} A)
 @[simp]
 theorem complex_X (M : DifferentialGradedModule.{u, v} A)
     (N : LeftDifferentialGradedModule.{u, w} A) (n : ℤ) :
-    (complex M N).X n = family M N n := sorry
+    (complex M N).X n = family M N n := rfl
 
 /-- The differential of the relative tensor complex is the descended total differential. -/
 @[simp]
 theorem complex_d (M : DifferentialGradedModule.{u, v} A)
     (N : LeftDifferentialGradedModule.{u, w} A) (n : ℤ) :
-    (complex M N).d n (n + 1) = ModuleCat.ofHom (differential M N n) := sorry
+    (complex M N).d n (n + 1) = ModuleCat.ofHom (differential M N n) := by
+  simp [complex]
 
 /-- A degree-preserving bilinear pairing from a right-left pair of DG modules to a cochain
 complex.  Its component on bidegree `(p, q)` lands directly in total degree `p + q`. -/
@@ -201,6 +406,20 @@ def rawDesc (M : DifferentialGradedModule.{u, v} A)
     (F := baseBifunctor (R := R)) (c := up ℤ)
     (fun p q h ↦ φ p q ≫ eqToHom (congrArg P.X h))).hom
 
+private theorem rawDesc_ι (M : DifferentialGradedModule.{u, v} A)
+    (N : LeftDifferentialGradedModule.{u, w} A)
+    {P : CochainComplex (ModuleCat.{max v w} R) ℤ} (φ : Pairing M N P)
+    (p q n : ℤ) (h : p + q = n) (z : baseTensor (R := R) (M.X p) (N.X q)) :
+    rawDesc M N φ n
+        ((ιMapBifunctor (rightComplex M) (leftComplex N) (baseBifunctor (R := R))
+          (up ℤ) p q n h).hom z) =
+      cast (congrArg (fun t : ℤ ↦ (P.X t : Type (max v w))) h) (φ p q z) := by
+  subst n
+  exact congrArg (fun f : baseTensor (R := R) (M.X p) (N.X q) ⟶ P.X (p + q) ↦ f z)
+    (ι_mapBifunctorDesc
+      (K₁ := rightComplex M) (K₂ := leftComplex N) (F := baseBifunctor (R := R))
+      (c := up ℤ) (fun a b h ↦ φ a b ≫ eqToHom (congrArg P.X h)) p q rfl)
+
 /-- A pairing is balanced when the two homogeneous actions of `A` agree elementwise. -/
 def IsBalanced (M : DifferentialGradedModule.{u, v} A)
     (N : LeftDifferentialGradedModule.{u, w} A)
@@ -217,7 +436,22 @@ theorem isBalanced_iff_relations_le_ker (M : DifferentialGradedModule.{u, v} A)
     (N : LeftDifferentialGradedModule.{u, w} A)
     {P : CochainComplex (ModuleCat.{max v w} R) ℤ} (φ : Pairing M N P) :
     IsBalanced M N φ ↔
-      ∀ n, relations M N n ≤ LinearMap.ker (rawDesc M N φ n) := sorry
+      ∀ n, relations M N n ≤ LinearMap.ker (rawDesc M N φ n) := by
+  constructor
+  · intro hφ n
+    apply Submodule.span_le.mpr
+    rintro z ⟨p, i, q, h, m, a, x, rfl⟩
+    subst n
+    change rawDesc M N φ _ (balanceGenerator M N p i q _ rfl m a x) = 0
+    rw [balanceGenerator, map_sub, rawDesc_ι, rawDesc_ι]
+    exact sub_eq_zero.mpr (hφ p i q m a x)
+  · intro hφ p i q m a x
+    have hz := hφ ((p + i) + q) (Submodule.subset_span
+      (show balanceGenerator M N p i q _ rfl m a x ∈ _ from
+        ⟨p, i, q, rfl, m, a, x, rfl⟩))
+    change rawDesc M N φ _ (balanceGenerator M N p i q _ rfl m a x) = 0 at hz
+    rw [balanceGenerator, map_sub, rawDesc_ι, rawDesc_ι] at hz
+    exact sub_eq_zero.mp hz
 
 /-- Descend a balanced homogeneous pairing to the relative tensor quotient in one degree. -/
 def descLinear (M : DifferentialGradedModule.{u, v} A)
@@ -227,11 +461,37 @@ def descLinear (M : DifferentialGradedModule.{u, v} A)
   (relations M N n).liftQ (rawDesc M N φ n)
     ((isBalanced_iff_relations_le_ker M N φ).mp hφ n)
 
+private theorem descLinear_tmul (M : DifferentialGradedModule.{u, v} A)
+    (N : LeftDifferentialGradedModule.{u, w} A)
+    {P : CochainComplex (ModuleCat.{max v w} R) ℤ} (φ : Pairing M N P)
+    (hφ : IsBalanced M N φ) (p q : ℤ) (m : M.X p) (x : N.X q) :
+    descLinear M N φ hφ (p + q) (tmul M N m x) = φ p q (m ⊗ₜ[R] x) := by
+  exact rawDesc_ι M N φ p q (p + q) rfl (m ⊗ₜ[R] x)
+
 /-- Reindex the first summand in the differential of a pure tensor. -/
-theorem differentialLeftDegree (p q : ℤ) : (p + 1) + q = (p + q) + 1 := sorry
+theorem differentialLeftDegree (p q : ℤ) : (p + 1) + q = (p + q) + 1 := by
+  ac_rfl
 
 /-- Reindex the second summand in the differential of a pure tensor. -/
-theorem differentialRightDegree (p q : ℤ) : p + (q + 1) = (p + q) + 1 := sorry
+theorem differentialRightDegree (p q : ℤ) : p + (q + 1) = (p + q) + 1 := by
+  ac_rfl
+
+private theorem differential_tmul (M : DifferentialGradedModule.{u, v} A)
+    (N : LeftDifferentialGradedModule.{u, w} A) (p q : ℤ)
+    (m : M.X p) (x : N.X q) :
+    (complex M N).d (p + q) ((p + q) + 1) (tmul M N m x) =
+      cast (congrArg (fun n : ℤ ↦ (family M N n : Type (max v w)))
+        (differentialLeftDegree p q)) (tmul M N (M.d p m) x) +
+      (p.negOnePow : R) •
+        cast (congrArg (fun n : ℤ ↦ (family M N n : Type (max v w)))
+          (differentialRightDegree p q)) (tmul M N m (N.d q x)) := by
+  rw [complex_d]
+  change mk M N ((p + q) + 1)
+    (((rawComplex M N).d (p + q) ((p + q) + 1)).hom
+      ((ιMapBifunctor (rightComplex M) (leftComplex N) (baseBifunctor (R := R))
+        (up ℤ) p q (p + q) rfl).hom (m ⊗ₜ[R] x))) = _
+  rw [raw_d_ι_tmul, map_add, map_smul, mk_ι_tmul, mk_ι_tmul]
+
 
 /-- A pairing is differential-compatible when it satisfies the homogeneous Koszul Leibniz
 identity on pure tensors.  This condition is independent of any proof of balancing. -/
@@ -254,7 +514,21 @@ theorem descLinear_comm (M : DifferentialGradedModule.{u, v} A)
     (hφ : IsBalanced M N φ) (hd : IsDifferentialCompatible M N φ) :
     ∀ i j, (up ℤ).Rel i j →
       ModuleCat.ofHom (descLinear M N φ hφ i) ≫ P.d i j =
-        (complex M N).d i j ≫ ModuleCat.ofHom (descLinear M N φ hφ j) := sorry
+        (complex M N).d i j ≫ ModuleCat.ofHom (descLinear M N φ hφ j) := by
+  intro i j hij
+  have hj : i + 1 = j := hij
+  subst j
+  apply family_hom_ext M N
+  intro p q hpq m x
+  subst i
+  change P.d (p + q) ((p + q) + 1) (descLinear M N φ hφ (p + q) (tmul M N m x)) =
+    descLinear M N φ hφ ((p + q) + 1)
+      ((complex M N).d (p + q) ((p + q) + 1) (tmul M N m x))
+  rw [descLinear_tmul, differential_tmul, map_add, map_smul,
+    apply_cast (fun n z ↦ descLinear M N φ hφ n z) (differentialLeftDegree p q),
+    apply_cast (fun n z ↦ descLinear M N φ hφ n z) (differentialRightDegree p q),
+    descLinear_tmul, descLinear_tmul]
+  exact hd p q m x
 
 /-- The cochain map out of a relative tensor complex induced by a balanced, differential-compatible
 homogeneous pairing. -/
@@ -272,7 +546,14 @@ theorem lift_tmul (M : DifferentialGradedModule.{u, v} A)
     {P : CochainComplex (ModuleCat.{max v w} R) ℤ} (φ : Pairing M N P)
     (hφ : IsBalanced M N φ) (hd : IsDifferentialCompatible M N φ)
     (p q : ℤ) (m : M.X p) (x : N.X q) :
-    (lift M N φ hφ hd).f (p + q) (tmul M N m x) = φ p q (m ⊗ₜ[R] x) := sorry
+    (lift M N φ hφ hd).f (p + q) (tmul M N m x) = φ p q (m ⊗ₜ[R] x) := by
+  change rawDesc M N φ (p + q)
+    ((ιMapBifunctor (rightComplex M) (leftComplex N) (baseBifunctor (R := R))
+      (up ℤ) p q (p + q) rfl).hom (m ⊗ₜ[R] x)) = _
+  exact congrArg (fun f : baseTensor (R := R) (M.X p) (N.X q) ⟶ P.X (p + q) ↦
+    f (m ⊗ₜ[R] x)) (ι_mapBifunctorDesc
+      (K₁ := rightComplex M) (K₂ := leftComplex N) (F := baseBifunctor (R := R))
+      (c := up ℤ) (fun a b h ↦ φ a b ≫ eqToHom (congrArg P.X h)) p q rfl)
 
 /-- Two cochain maps out of a relative tensor complex are equal when they agree on all
 homogeneous pure tensors. -/
@@ -282,7 +563,22 @@ theorem hom_ext (M : DifferentialGradedModule.{u, v} A)
     {P : CochainComplex (ModuleCat.{max v w} R) ℤ} {f g : complex M N ⟶ P}
     (h : ∀ (p q : ℤ) (m : M.X p) (x : N.X q),
       f.f (p + q) (tmul M N m x) = g.f (p + q) (tmul M N m x)) :
-    f = g := sorry
+    f = g := by
+  apply HomologicalComplex.Hom.ext
+  funext n
+  apply ModuleCat.hom_ext
+  apply Submodule.linearMap_qext
+  have heq :
+      ModuleCat.ofHom ((f.f n).hom.comp (mk M N n)) =
+        ModuleCat.ofHom ((g.f n).hom.comp (mk M N n)) := by
+    apply mapBifunctor.hom_ext
+    intro p q hpq
+    apply ModuleCat.hom_ext
+    apply TensorProduct.ext'
+    intro m x
+    subst n
+    exact h p q m x
+  exact congrArg (fun t : rawTerm M N n ⟶ P.X n ↦ t.hom) heq
 
 /-- A cochain map agreeing with a pairing on homogeneous pure tensors is its canonical lift. -/
 theorem lift_unique (M : DifferentialGradedModule.{u, v} A)
@@ -292,7 +588,11 @@ theorem lift_unique (M : DifferentialGradedModule.{u, v} A)
     (f : complex M N ⟶ P)
     (h : ∀ (p q : ℤ) (m : M.X p) (x : N.X q),
       f.f (p + q) (tmul M N m x) = φ p q (m ⊗ₜ[R] x)) :
-    f = lift M N φ hφ hd := sorry
+    f = lift M N φ hφ hd := by
+  apply hom_ext M N
+  intro p q m x
+  rw [lift_tmul]
+  exact h p q m x
 
 /-- A degree-`k` bilinear pairing from a right-left pair of DG modules to a cochain complex.
 Its component on bidegree `(p, q)` lands directly in degree `(p + q) + k`. -/
@@ -310,6 +610,23 @@ def gradedRawDesc (M : DifferentialGradedModule.{u, v} A)
   (mapBifunctorDesc (K₁ := rightComplex M) (K₂ := leftComplex N)
     (F := baseBifunctor (R := R)) (c := up ℤ)
     (fun p q h ↦ φ p q ≫ eqToHom (congrArg (fun t : ℤ ↦ P.X (t + k)) h))).hom
+
+private theorem gradedRawDesc_ι (M : DifferentialGradedModule.{u, v} A)
+    (N : LeftDifferentialGradedModule.{u, w} A)
+    {P : CochainComplex (ModuleCat.{max v w} R) ℤ} {k : ℤ}
+    (φ : GradedPairing M N P k) (p q n : ℤ) (h : p + q = n)
+    (z : baseTensor (R := R) (M.X p) (N.X q)) :
+    gradedRawDesc M N φ n
+        ((ιMapBifunctor (rightComplex M) (leftComplex N) (baseBifunctor (R := R))
+          (up ℤ) p q n h).hom z) =
+      cast (congrArg (fun t : ℤ ↦ (P.X (t + k) : Type (max v w))) h) (φ p q z) := by
+  subst n
+  exact congrArg
+    (fun f : baseTensor (R := R) (M.X p) (N.X q) ⟶ P.X ((p + q) + k) ↦ f z)
+    (ι_mapBifunctorDesc
+      (K₁ := rightComplex M) (K₂ := leftComplex N) (F := baseBifunctor (R := R))
+      (c := up ℤ)
+      (fun a b h ↦ φ a b ≫ eqToHom (congrArg (fun t : ℤ ↦ P.X (t + k)) h)) p q rfl)
 
 /-- A degree-shifted pairing is balanced when the two homogeneous actions of `A` agree
 elementwise. -/
@@ -330,7 +647,22 @@ theorem gradedIsBalanced_iff_relations_le_ker
     {P : CochainComplex (ModuleCat.{max v w} R) ℤ} {k : ℤ}
     (φ : GradedPairing M N P k) :
     GradedIsBalanced M N φ ↔
-      ∀ n, relations M N n ≤ LinearMap.ker (gradedRawDesc M N φ n) := sorry
+      ∀ n, relations M N n ≤ LinearMap.ker (gradedRawDesc M N φ n) := by
+  constructor
+  · intro hφ n
+    apply Submodule.span_le.mpr
+    rintro z ⟨p, i, q, h, m, a, x, rfl⟩
+    subst n
+    change gradedRawDesc M N φ _ (balanceGenerator M N p i q _ rfl m a x) = 0
+    rw [balanceGenerator, map_sub, gradedRawDesc_ι, gradedRawDesc_ι]
+    exact sub_eq_zero.mpr (hφ p i q m a x)
+  · intro hφ p i q m a x
+    have hz := hφ ((p + i) + q) (Submodule.subset_span
+      (show balanceGenerator M N p i q _ rfl m a x ∈ _ from
+        ⟨p, i, q, rfl, m, a, x, rfl⟩))
+    change gradedRawDesc M N φ _ (balanceGenerator M N p i q _ rfl m a x) = 0 at hz
+    rw [balanceGenerator, map_sub, gradedRawDesc_ι, gradedRawDesc_ι] at hz
+    exact sub_eq_zero.mp hz
 
 /-- Descend a balanced degree-`k` pairing to one degree of the relative tensor quotient. -/
 def gradedDescLinear (M : DifferentialGradedModule.{u, v} A)
@@ -343,11 +675,13 @@ def gradedDescLinear (M : DifferentialGradedModule.{u, v} A)
 
 /-- Reindex the first Leibniz summand for a degree-`k` pairing. -/
 theorem gradedDifferentialLeftDegree (p q k : ℤ) :
-    ((p + 1) + q) + k = ((p + q) + k) + 1 := sorry
+    ((p + 1) + q) + k = ((p + q) + k) + 1 := by
+  ac_rfl
 
 /-- Reindex the second Leibniz summand for a degree-`k` pairing. -/
 theorem gradedDifferentialRightDegree (p q k : ℤ) :
-    (p + (q + 1)) + k = ((p + q) + k) + 1 := sorry
+    (p + (q + 1)) + k = ((p + q) + k) + 1 := by
+  ac_rfl
 
 /-- A degree-`k` pairing is differential-compatible when it intertwines differentials with the
 usual sign `(-1)^k` on the source differential. -/
@@ -386,7 +720,17 @@ theorem gradedLift_tmul (M : DifferentialGradedModule.{u, v} A)
     (φ : GradedPairing M N P k) (hφ : GradedIsBalanced M N φ)
     (p q : ℤ) (m : M.X p) (x : N.X q) :
     (gradedLift M N φ hφ).v (p + q) ((p + q) + k) rfl (tmul M N m x) =
-      φ p q (m ⊗ₜ[R] x) := sorry
+      φ p q (m ⊗ₜ[R] x) := by
+  change gradedRawDesc M N φ (p + q)
+    ((ιMapBifunctor (rightComplex M) (leftComplex N) (baseBifunctor (R := R))
+      (up ℤ) p q (p + q) rfl).hom (m ⊗ₜ[R] x)) = _
+  exact congrArg
+    (fun f : baseTensor (R := R) (M.X p) (N.X q) ⟶ P.X ((p + q) + k) ↦
+      f (m ⊗ₜ[R] x)) (ι_mapBifunctorDesc
+        (K₁ := rightComplex M) (K₂ := leftComplex N) (F := baseBifunctor (R := R))
+        (c := up ℤ)
+        (fun a b h ↦ φ a b ≫ eqToHom (congrArg (fun t : ℤ ↦ P.X (t + k)) h))
+        p q rfl)
 
 /-- Two cochains of the same degree out of a relative tensor complex are equal when they agree
 on every homogeneous pure tensor. -/
@@ -398,7 +742,23 @@ theorem gradedCochain_ext (M : DifferentialGradedModule.{u, v} A)
     (h : ∀ (p q : ℤ) (m : M.X p) (x : N.X q),
       f.v (p + q) ((p + q) + k) rfl (tmul M N m x) =
         g.v (p + q) ((p + q) + k) rfl (tmul M N m x)) :
-    f = g := sorry
+    f = g := by
+  apply Cochain.ext
+  intro n t hnt
+  subst t
+  apply ModuleCat.hom_ext
+  apply Submodule.linearMap_qext
+  have heq :
+      ModuleCat.ofHom ((f.v n (n + k) rfl).hom.comp (mk M N n)) =
+        ModuleCat.ofHom ((g.v n (n + k) rfl).hom.comp (mk M N n)) := by
+    apply mapBifunctor.hom_ext
+    intro p q hpq
+    apply ModuleCat.hom_ext
+    apply TensorProduct.ext'
+    intro m x
+    subst n
+    exact h p q m x
+  exact congrArg (fun t : rawTerm M N n ⟶ P.X (n + k) ↦ t.hom) heq
 
 /-- A degree-`k` cochain agreeing with a balanced pairing on pure tensors is its canonical
 lift. -/
@@ -409,7 +769,60 @@ theorem gradedLift_unique (M : DifferentialGradedModule.{u, v} A)
     (f : Cochain (complex M N) P k)
     (h : ∀ (p q : ℤ) (m : M.X p) (x : N.X q),
       f.v (p + q) ((p + q) + k) rfl (tmul M N m x) = φ p q (m ⊗ₜ[R] x)) :
-    f = gradedLift M N φ hφ := sorry
+    f = gradedLift M N φ hφ := by
+  apply gradedCochain_ext M N
+  intro p q m x
+  rw [gradedLift_tmul]
+  exact h p q m x
+
+private theorem gradedLift_v_tmul (M : DifferentialGradedModule.{u, v} A)
+    (N : LeftDifferentialGradedModule.{u, w} A)
+    {P : CochainComplex (ModuleCat.{max v w} R) ℤ} {k : ℤ}
+    (φ : GradedPairing M N P k) (hφ : GradedIsBalanced M N φ)
+    (p q n t : ℤ) (hn : p + q = n) (ht : n + k = t) (m : M.X p) (x : N.X q) :
+    (gradedLift M N φ hφ).v n t ht
+        (cast (congrArg (fun n : ℤ ↦ (family M N n : Type (max v w))) hn) (tmul M N m x)) =
+      cast (congrArg (fun n : ℤ ↦ (P.X n : Type (max v w)))
+        (show (p + q) + k = t by omega)) (φ p q (m ⊗ₜ[R] x)) := by
+  subst n
+  subst t
+  exact gradedLift_tmul M N φ hφ p q m x
+
+private theorem delta_gradedLift_tmul (M : DifferentialGradedModule.{u, v} A)
+    (N : LeftDifferentialGradedModule.{u, w} A)
+    {P : CochainComplex (ModuleCat.{max v w} R) ℤ} {k : ℤ}
+    (φ : GradedPairing M N P k) (hφ : GradedIsBalanced M N φ)
+    (p q t : ℤ) (ht : ((p + q) + k) + 1 = t) (m : M.X p) (x : N.X q) :
+    (δ k (k + 1) (gradedLift M N φ hφ)).v (p + q) t (by omega) (tmul M N m x) =
+      cast (congrArg (fun n : ℤ ↦ (P.X n : Type (max v w))) ht)
+        (P.d ((p + q) + k) (((p + q) + k) + 1) (φ p q (m ⊗ₜ[R] x)) -
+          (k.negOnePow : R) •
+            (cast (congrArg (fun n : ℤ ↦ (P.X n : Type (max v w)))
+                (gradedDifferentialLeftDegree p q k))
+                  (φ (p + 1) q (M.d p m ⊗ₜ[R] x)) +
+              (p.negOnePow : R) •
+                cast (congrArg (fun n : ℤ ↦ (P.X n : Type (max v w)))
+                  (gradedDifferentialRightDegree p q k))
+                    (φ p (q + 1) (m ⊗ₜ[R] N.d q x)))) := by
+  subst t
+  rw [δ_v k (k + 1) rfl _ (p + q) (((p + q) + k) + 1) (by omega)
+    ((p + q) + k) ((p + q) + 1) (by omega) rfl]
+  change P.d ((p + q) + k) (((p + q) + k) + 1)
+      ((gradedLift M N φ hφ).v (p + q) ((p + q) + k) rfl (tmul M N m x)) +
+    (k + 1).negOnePow •
+      ((gradedLift M N φ hφ).v ((p + q) + 1) (((p + q) + k) + 1) (by omega)
+        ((complex M N).d (p + q) ((p + q) + 1) (tmul M N m x))) = _
+  rw [gradedLift_tmul, differential_tmul]
+  erw [map_add, map_smul]
+  erw [gradedLift_v_tmul M N φ hφ (p + 1) q ((p + q) + 1) (((p + q) + k) + 1)
+      (differentialLeftDegree p q) (by omega),
+    gradedLift_v_tmul M N φ hφ p (q + 1) ((p + q) + 1) (((p + q) + k) + 1)
+      (differentialRightDegree p q) (by omega)]
+  rw [Int.negOnePow_succ, Units.neg_smul]
+  rw [sub_eq_add_neg]
+  congr 1
+  congr 1
+  exact (Int.cast_smul_eq_zsmul R _ _).symm
 
 /-- Differential compatibility of a balanced degree-`k` pairing is equivalent to its lifted
 cochain being killed by the Hom-complex differential. -/
@@ -419,7 +832,24 @@ theorem gradedIsDifferentialCompatible_iff_delta_eq_zero
     {P : CochainComplex (ModuleCat.{max v w} R) ℤ} {k : ℤ}
     (φ : GradedPairing M N P k) (hφ : GradedIsBalanced M N φ) :
     GradedIsDifferentialCompatible M N φ ↔
-      δ k (k + 1) (gradedLift M N φ hφ) = 0 := sorry
+      δ k (k + 1) (gradedLift M N φ hφ) = 0 := by
+  constructor
+  · intro hd
+    apply gradedCochain_ext M N
+    intro p q m x
+    rw [delta_gradedLift_tmul M N φ hφ p q _ (by omega), hd p q m x, sub_self]
+    change cast (congrArg (fun n : ℤ ↦ (P.X n : Type (max v w)))
+      (show ((p + q) + k) + 1 = (p + q) + (k + 1) by omega)) 0 = 0
+    have hz (i j : ℤ) (h : i = j) :
+        cast (congrArg (fun n : ℤ ↦ (P.X n : Type (max v w))) h) (0 : P.X i) = 0 := by
+      subst j
+      rfl
+    exact hz _ _ (by omega)
+  · intro hd p q m x
+    have hz := congrArg (fun z : Cochain (complex M N) P (k + 1) ↦
+      z.v (p + q) (((p + q) + k) + 1) (by omega) (tmul M N m x)) hd
+    rw [delta_gradedLift_tmul M N φ hφ p q _ rfl] at hz
+    exact sub_eq_zero.mp hz
 
 /-- A balanced differential-compatible degree-`k` pairing gives a degree-`k` cocycle in the
 Hom complex out of the relative tensor product. -/
@@ -441,7 +871,7 @@ theorem d_tmul (M : DifferentialGradedModule.{u, v} A)
         (differentialLeftDegree p q)) (tmul M N (M.d p m) x) +
       (p.negOnePow : R) •
         cast (congrArg (fun n : ℤ ↦ (family M N n : Type (max v w)))
-          (differentialRightDegree p q)) (tmul M N m (N.d q x)) := sorry
+          (differentialRightDegree p q)) (tmul M N m (N.d q x)) := differential_tmul M N p q m x
 
 /-- Pure tensors satisfy the defining homogeneous balancing relation. -/
 @[stacks 09LL "homogeneous balancing relation"]
@@ -451,12 +881,20 @@ theorem tmul_smul (M : DifferentialGradedModule.{u, v} A)
     tmul M N (M.smul p i m a) x =
       cast (congrArg (fun n : ℤ ↦ (family M N n : Type (max v w)))
         (add_assoc p i q).symm)
-        (tmul M N m (N.smul i q a x)) := sorry
+        (tmul M N m (N.smul i q a x)) := by
+  have hz : mk M N ((p + i) + q) (balanceGenerator M N p i q _ rfl m a x) = 0 :=
+    (Submodule.Quotient.mk_eq_zero _).mpr (Submodule.subset_span
+      (show balanceGenerator M N p i q _ rfl m a x ∈ _ from
+        ⟨p, i, q, rfl, m, a, x, rfl⟩))
+  rw [balanceGenerator, map_sub, mk_ι_tmul, mk_ι_tmul] at hz
+  exact sub_eq_zero.mp hz
 
 /-- Applying a degree-`j` homogeneous map in the right-module factor changes total degree
 by `j`. -/
 theorem mapDegree (p q n j : ℤ) (h : p + q = n) :
-    (p + j) + q = n + j := sorry
+    (p + j) + q = n + j := by
+  rw [← h]
+  ac_rfl
 
 /-- Apply a homogeneous map to the right-module factor of one pure tensor. -/
 def rawMapPure (N : LeftDifferentialGradedModule.{u, w} A)
@@ -474,7 +912,19 @@ def rawMapComponent (N : LeftDifferentialGradedModule.{u, w} A)
     (n p q : ℤ) (h : p + q = n) :
   baseTensor (R := R) (M.X p) (N.X q) ⟶ rawTerm M' N (n + j) :=
   ModuleCat.TensorProduct.lift R
-    (LinearMap.mk₂ R (rawMapPure N g n p q h) sorry sorry sorry sorry)
+    (LinearMap.mk₂ R (rawMapPure N g n p q h)
+      (fun m m' x ↦ ((ιMapBifunctor (rightComplex M') (leftComplex N) (baseBifunctor (R := R))
+          (up ℤ) (p + j) q (n + j) (mapDegree p q n j h)).hom.comp
+          (((_root_.TensorProduct.mk R (M'.X (p + j)) (N.X q)).flip x).comp (g p))).map_add m m')
+      (fun r m x ↦ ((ιMapBifunctor (rightComplex M') (leftComplex N) (baseBifunctor (R := R))
+          (up ℤ) (p + j) q (n + j) (mapDegree p q n j h)).hom.comp
+          (((_root_.TensorProduct.mk R (M'.X (p + j)) (N.X q)).flip x).comp (g p))).map_smul r m)
+      (fun m x x' ↦ ((ιMapBifunctor (rightComplex M') (leftComplex N) (baseBifunctor (R := R))
+          (up ℤ) (p + j) q (n + j) (mapDegree p q n j h)).hom.comp
+          (_root_.TensorProduct.mk R (M'.X (p + j)) (N.X q) (g p m))).map_add x x')
+      (fun r m x ↦ ((ιMapBifunctor (rightComplex M') (leftComplex N) (baseBifunctor (R := R))
+          (up ℤ) (p + j) q (n + j) (mapDegree p q n j h)).hom.comp
+          (_root_.TensorProduct.mk R (M'.X (p + j)) (N.X q) (g p m))).map_smul r x))
 
 /-- The homogeneous map on unbalanced total tensor terms. -/
 def rawMap (N : LeftDifferentialGradedModule.{u, w} A)
@@ -485,11 +935,34 @@ def rawMap (N : LeftDifferentialGradedModule.{u, w} A)
     (F := baseBifunctor (R := R)) (c := up ℤ)
     (fun p q h ↦ rawMapComponent N g n p q h)).hom
 
+private theorem rawMap_ι_tmul (N : LeftDifferentialGradedModule.{u, w} A)
+    {M M' : DifferentialGradedModule.{u, v} A} {j : ℤ}
+    (g : DifferentialGradedModule.GradedHom A M M' j)
+    (n p q : ℤ) (h : p + q = n) (m : M.X p) (x : N.X q) :
+    rawMap N g n
+        ((ιMapBifunctor (rightComplex M) (leftComplex N) (baseBifunctor (R := R))
+          (up ℤ) p q n h).hom (m ⊗ₜ[R] x)) = rawMapPure N g n p q h m x := by
+  exact congrArg
+    (fun f : baseTensor (R := R) (M.X p) (N.X q) ⟶ rawTerm M' N (n + j) ↦
+      f (m ⊗ₜ[R] x))
+    (ι_mapBifunctorDesc
+      (K₁ := rightComplex M) (K₂ := leftComplex N) (F := baseBifunctor (R := R))
+      (c := up ℤ) (fun a b h ↦ rawMapComponent N g n a b h) p q h)
+
 /-- A homogeneous right-module map preserves the balancing relations. -/
 theorem map_relations (N : LeftDifferentialGradedModule.{u, w} A)
     {M M' : DifferentialGradedModule.{u, v} A} {j : ℤ}
     (g : DifferentialGradedModule.GradedHom A M M' j) (n : ℤ) :
-    relations M N n ≤ Submodule.comap (rawMap N g n) (relations M' N (n + j)) := sorry
+    relations M N n ≤ Submodule.comap (rawMap N g n) (relations M' N (n + j)) := by
+  apply Submodule.span_le.mpr
+  rintro z ⟨p, i, q, h, m, a, x, rfl⟩
+  change rawMap N g n (balanceGenerator M N p i q n h m a x) ∈ relations M' N (n + j)
+  rw [balanceGenerator, map_sub, rawMap_ι_tmul, rawMap_ι_tmul]
+  dsimp only [rawMapPure]
+  rw [g.2 p i m a]
+  erw [ι_tmul_cast_left M' N _ _ q (n + j)
+    (DifferentialGradedModule.gradedHom_smul_index p i j)]
+  exact Submodule.subset_span ⟨p + j, i, q, by omega, g p m, a, x, rfl⟩
 
 /-- The homogeneous right-module map descended to the balancing quotients. -/
 def mapLinear (N : LeftDifferentialGradedModule.{u, w} A)
@@ -507,12 +980,22 @@ theorem mapLinear_tmul (N : LeftDifferentialGradedModule.{u, w} A)
     (p q : ℤ) (m : M.X p) (x : N.X q) :
     mapLinear N g (p + q) (tmul M N m x) =
       cast (congrArg (fun n : ℤ ↦ (family M' N n : Type (max v w)))
-        (mapDegree p q (p + q) j rfl)) (tmul M' N (g p m) x) := sorry
+        (mapDegree p q (p + q) j rfl)) (tmul M' N (g p m) x) := by
+  change mk M' N ((p + q) + j)
+    (rawMap N g (p + q)
+      ((ιMapBifunctor (rightComplex M) (leftComplex N) (baseBifunctor (R := R))
+        (up ℤ) p q (p + q) rfl).hom (m ⊗ₜ[R] x))) = _
+  rw [rawMap_ι_tmul]
+  exact mk_ι_tmul M' N (p + j) q _ _ (g p m) x
 
 /-- Regard an ordinary right-DG-module morphism as a homogeneous map of degree zero. -/
 def gradedHomZero {M M' : DifferentialGradedModule.{u, v} A} (f : M ⟶ M') :
     DifferentialGradedModule.GradedHom A M M' 0 :=
-  ⟨fun n ↦ ModuleCat.castLinearMap (congrArg M'.X (add_zero n).symm) (f.hom n), sorry⟩
+  ⟨fun n ↦ ModuleCat.castLinearMap (congrArg M'.X (add_zero n).symm) (f.hom n), by
+    intro p i m a
+    dsimp only
+    rw [castLinearMap_apply, castLinearMap_apply,
+      apply_cast (fun p m ↦ M'.smul p i m a) (add_zero p).symm, cast_cast, f.comm_smul]⟩
 
 /-- The degree-preserving quotient map induced by a right-DG-module morphism. -/
 @[stacks 09LL "relative tensor map in the right module factor"]
@@ -522,13 +1005,40 @@ def mapRightLinear (N : LeftDifferentialGradedModule.{u, w} A)
   ModuleCat.castLinearMap (congrArg (family M' N) (add_zero n))
     (mapLinear N (gradedHomZero f) n)
 
+private theorem mapRightLinear_tmul (N : LeftDifferentialGradedModule.{u, w} A)
+    {M M' : DifferentialGradedModule.{u, v} A} (f : M ⟶ M')
+    (p q : ℤ) (m : M.X p) (x : N.X q) :
+    mapRightLinear N f (p + q) (tmul M N m x) =
+      tmul M' N (f.hom p m) x := by
+  rw [mapRightLinear, castLinearMap_apply, mapLinear_tmul]
+  change cast _ (cast _ (tmul M' N
+    (ModuleCat.castLinearMap (congrArg M'.X (add_zero p).symm) (f.hom p) m) x)) = _
+  rw [castLinearMap_apply, apply_cast (fun p m ↦ tmul M' N (p := p) m x) (add_zero p).symm,
+    cast_cast, cast_cast]
+  rfl
+
+
 /-- The cochain map induced by a morphism of the right tensor factor. -/
 @[stacks 09LL "relative tensor cochain map in the right factor"]
 def mapRight (N : LeftDifferentialGradedModule.{u, w} A)
     {M M' : DifferentialGradedModule.{u, v} A} (f : M ⟶ M') :
     complex M N ⟶ complex M' N where
   f n := ModuleCat.ofHom (mapRightLinear N f n)
-  comm' := sorry
+  comm' := by
+    intro i j hij
+    have hj : i + 1 = j := hij
+    subst j
+    apply family_hom_ext _ N
+    intro p q hpq m x
+    subst i
+    change (complex _ N).d (p + q) ((p + q) + 1)
+        (mapRightLinear N f (p + q) (tmul _ N m x)) =
+      mapRightLinear N f ((p + q) + 1)
+        ((complex _ N).d (p + q) ((p + q) + 1) (tmul _ N m x))
+    rw [mapRightLinear_tmul, differential_tmul, differential_tmul, map_add, map_smul,
+      apply_cast (fun n z ↦ mapRightLinear N f n z) (differentialLeftDegree p q),
+      apply_cast (fun n z ↦ mapRightLinear N f n z) (differentialRightDegree p q),
+      mapRightLinear_tmul, mapRightLinear_tmul, f.comm_d]
 
 /-- A right-DG-module morphism acts on a pure tensor through its first entry. -/
 @[simp]
@@ -536,7 +1046,7 @@ theorem mapRight_tmul (N : LeftDifferentialGradedModule.{u, w} A)
     {M M' : DifferentialGradedModule.{u, v} A} (f : M ⟶ M')
     (p q : ℤ) (m : M.X p) (x : N.X q) :
     (mapRight N f).f (p + q) (tmul M N m x) =
-      tmul M' N (f.hom p m) x := sorry
+      tmul M' N (f.hom p m) x := mapRightLinear_tmul N f p q m x
 
 /-- The relative tensor complex as a functor of its right-module factor. -/
 @[stacks 09LL "relative tensor functor in the right factor"]
@@ -545,8 +1055,19 @@ def rightModuleFunctor (N : LeftDifferentialGradedModule.{u, w} A) :
       CochainComplex (ModuleCat.{max v w} R) ℤ where
   obj M := complex M N
   map := mapRight N
-  map_id := sorry
-  map_comp := sorry
+  map_id := by
+    intro M
+    apply hom_ext M N
+    intro p q m x
+    rw [mapRight_tmul]
+    rfl
+  map_comp := by
+    intro M M' M'' f g
+    apply hom_ext M N
+    intro p q m x
+    change _ = (mapRight N g).f (p + q) ((mapRight N f).f (p + q) (tmul M N m x))
+    rw [mapRight_tmul, mapRight_tmul, mapRight_tmul]
+    rfl
 
 /-- Apply a left-module morphism on one pure tensor summand. -/
 def rawMapLeftPure (M : DifferentialGradedModule.{u, v} A)
@@ -561,7 +1082,19 @@ def rawMapLeftComponent (M : DifferentialGradedModule.{u, v} A)
     (n p q : ℤ) (h : p + q = n) :
     baseTensor (R := R) (M.X p) (N.X q) ⟶ rawTerm M N' n :=
   ModuleCat.TensorProduct.lift R
-    (LinearMap.mk₂ R (rawMapLeftPure M g n p q h) sorry sorry sorry sorry)
+    (LinearMap.mk₂ R (rawMapLeftPure M g n p q h)
+      (fun m m' x ↦ ((ιMapBifunctor (rightComplex M) (leftComplex N') (baseBifunctor (R := R))
+          (up ℤ) p q n h).hom.comp
+          ((_root_.TensorProduct.mk R (M.X p) (N'.X q)).flip (g.hom q x))).map_add m m')
+      (fun r m x ↦ ((ιMapBifunctor (rightComplex M) (leftComplex N') (baseBifunctor (R := R))
+          (up ℤ) p q n h).hom.comp
+          ((_root_.TensorProduct.mk R (M.X p) (N'.X q)).flip (g.hom q x))).map_smul r m)
+      (fun m x x' ↦ ((ιMapBifunctor (rightComplex M) (leftComplex N') (baseBifunctor (R := R))
+          (up ℤ) p q n h).hom.comp
+          ((_root_.TensorProduct.mk R (M.X p) (N'.X q) m).comp (g.hom q))).map_add x x')
+      (fun r m x ↦ ((ιMapBifunctor (rightComplex M) (leftComplex N') (baseBifunctor (R := R))
+          (up ℤ) p q n h).hom.comp
+          ((_root_.TensorProduct.mk R (M.X p) (N'.X q) m).comp (g.hom q))).map_smul r x))
 
 /-- The map induced on unbalanced terms by a left-module morphism. -/
 def rawMapLeft (M : DifferentialGradedModule.{u, v} A)
@@ -571,10 +1104,29 @@ def rawMapLeft (M : DifferentialGradedModule.{u, v} A)
     (F := baseBifunctor (R := R)) (c := up ℤ)
     (fun p q h ↦ rawMapLeftComponent M g n p q h)).hom
 
+private theorem rawMapLeft_ι_tmul (M : DifferentialGradedModule.{u, v} A)
+    {N N' : LeftDifferentialGradedModule.{u, w} A} (g : N ⟶ N')
+    (n p q : ℤ) (h : p + q = n) (m : M.X p) (x : N.X q) :
+    rawMapLeft M g n
+        ((ιMapBifunctor (rightComplex M) (leftComplex N) (baseBifunctor (R := R))
+          (up ℤ) p q n h).hom (m ⊗ₜ[R] x)) = rawMapLeftPure M g n p q h m x := by
+  exact congrArg
+    (fun f : baseTensor (R := R) (M.X p) (N.X q) ⟶ rawTerm M N' n ↦ f (m ⊗ₜ[R] x))
+    (ι_mapBifunctorDesc
+      (K₁ := rightComplex M) (K₂ := leftComplex N) (F := baseBifunctor (R := R))
+      (c := up ℤ) (fun a b h ↦ rawMapLeftComponent M g n a b h) p q h)
+
 /-- A left-module morphism preserves the balancing relations. -/
 theorem mapLeft_relations (M : DifferentialGradedModule.{u, v} A)
     {N N' : LeftDifferentialGradedModule.{u, w} A} (g : N ⟶ N') (n : ℤ) :
-    relations M N n ≤ Submodule.comap (rawMapLeft M g n) (relations M N' n) := sorry
+    relations M N n ≤ Submodule.comap (rawMapLeft M g n) (relations M N' n) := by
+  apply Submodule.span_le.mpr
+  rintro z ⟨p, i, q, h, m, a, x, rfl⟩
+  change rawMapLeft M g n (balanceGenerator M N p i q n h m a x) ∈ relations M N' n
+  rw [balanceGenerator, map_sub, rawMapLeft_ι_tmul, rawMapLeft_ι_tmul]
+  dsimp only [rawMapLeftPure]
+  rw [g.comm_smul]
+  exact Submodule.subset_span ⟨p, i, q, h, m, a, g.hom q x, rfl⟩
 
 /-- The quotient map induced by a left-module morphism. -/
 @[stacks 09LL "relative tensor map in the left module factor"]
@@ -584,13 +1136,40 @@ def mapLeftLinear (M : DifferentialGradedModule.{u, v} A)
   (relations M N n).mapQ (relations M N' n)
     (rawMapLeft M g n) (mapLeft_relations M g n)
 
+private theorem mapLeftLinear_tmul (M : DifferentialGradedModule.{u, v} A)
+    {N N' : LeftDifferentialGradedModule.{u, w} A} (g : N ⟶ N')
+    (p q : ℤ) (m : M.X p) (x : N.X q) :
+    mapLeftLinear M g (p + q) (tmul M N m x) =
+      tmul M N' m (g.hom q x) := by
+  change mk M N' (p + q)
+    (rawMapLeft M g (p + q)
+      ((ιMapBifunctor (rightComplex M) (leftComplex N) (baseBifunctor (R := R))
+        (up ℤ) p q (p + q) rfl).hom (m ⊗ₜ[R] x))) = _
+  rw [rawMapLeft_ι_tmul]
+  rfl
+
+
 /-- The cochain map induced by a morphism of the left tensor factor. -/
 @[stacks 09LL "relative tensor cochain map in the left factor"]
 def mapLeft (M : DifferentialGradedModule.{u, v} A)
     {N N' : LeftDifferentialGradedModule.{u, w} A} (g : N ⟶ N') :
     complex M N ⟶ complex M N' where
   f n := ModuleCat.ofHom (mapLeftLinear M g n)
-  comm' := sorry
+  comm' := by
+    intro i j hij
+    have hj : i + 1 = j := hij
+    subst j
+    apply family_hom_ext M _
+    intro p q hpq m x
+    subst i
+    change (complex M _).d (p + q) ((p + q) + 1)
+        (mapLeftLinear M g (p + q) (tmul M _ m x)) =
+      mapLeftLinear M g ((p + q) + 1)
+        ((complex M _).d (p + q) ((p + q) + 1) (tmul M _ m x))
+    rw [mapLeftLinear_tmul, differential_tmul, differential_tmul, map_add, map_smul,
+      apply_cast (fun n z ↦ mapLeftLinear M g n z) (differentialLeftDegree p q),
+      apply_cast (fun n z ↦ mapLeftLinear M g n z) (differentialRightDegree p q),
+      mapLeftLinear_tmul, mapLeftLinear_tmul, g.comm_d]
 
 /-- A left-DG-module morphism acts on a pure tensor through its second entry. -/
 @[simp]
@@ -598,7 +1177,7 @@ theorem mapLeft_tmul (M : DifferentialGradedModule.{u, v} A)
     {N N' : LeftDifferentialGradedModule.{u, w} A} (g : N ⟶ N')
     (p q : ℤ) (m : M.X p) (x : N.X q) :
     (mapLeft M g).f (p + q) (tmul M N m x) =
-      tmul M N' m (g.hom q x) := sorry
+      tmul M N' m (g.hom q x) := mapLeftLinear_tmul M g p q m x
 
 /-- The relative tensor complex as a functor of its left-module factor. -/
 @[stacks 09LL "relative tensor functor in the left factor"]
@@ -607,8 +1186,19 @@ def leftModuleFunctor (M : DifferentialGradedModule.{u, v} A) :
       CochainComplex (ModuleCat.{max v w} R) ℤ where
   obj N := complex M N
   map := mapLeft M
-  map_id := sorry
-  map_comp := sorry
+  map_id := by
+    intro N
+    apply hom_ext M N
+    intro p q m x
+    rw [mapLeft_tmul]
+    rfl
+  map_comp := by
+    intro N N' N'' f g
+    apply hom_ext M N
+    intro p q m x
+    change _ = (mapLeft M g).f (p + q) ((mapLeft M f).f (p + q) (tmul M N m x))
+    rw [mapLeft_tmul, mapLeft_tmul, mapLeft_tmul]
+    rfl
 
 /-- Section 22.12 (09LL): relative tensor product as a curried functor, first in the right
 DG-module factor and then in the left DG-module factor. -/
@@ -620,9 +1210,23 @@ def functor :
   obj M := leftModuleFunctor M
   map f :=
     { app := fun N ↦ mapRight N f
-      naturality := sorry }
-  map_id := sorry
-  map_comp := sorry
+      naturality := by
+        intro N N' g
+        apply hom_ext _ N
+        intro p q m x
+        change (mapRight N' f).f (p + q) ((mapLeft _ g).f (p + q) (tmul _ N m x)) =
+          (mapLeft _ g).f (p + q) ((mapRight N f).f (p + q) (tmul _ N m x))
+        rw [mapLeft_tmul, mapRight_tmul, mapRight_tmul, mapLeft_tmul] }
+  map_id := by
+    intro M
+    apply NatTrans.ext
+    funext N
+    exact (rightModuleFunctor N).map_id M
+  map_comp := by
+    intro M M' M'' f g
+    apply NatTrans.ext
+    funext N
+    exact (rightModuleFunctor N).map_comp f g
 
 /-- The relative tensor complex, functorial simultaneously in its right and left DG-module
 factors. -/
@@ -637,7 +1241,10 @@ theorem uncurried_map_tmul
     {X Y : DifferentialGradedModule.{u, v} A × LeftDifferentialGradedModule.{u, w} A}
     (f : X ⟶ Y) (p q : ℤ) (m : X.1.X p) (x : X.2.X q) :
     (uncurried.map f).f (p + q) (tmul X.1 X.2 m x) =
-      tmul Y.1 Y.2 (f.1.hom p m) (f.2.hom q x) := sorry
+      tmul Y.1 Y.2 (f.1.hom p m) (f.2.hom q x) := by
+  change (mapLeft Y.1 f.2).f (p + q)
+    ((mapRight X.2 f.1).f (p + q) (tmul X.1 X.2 m x)) = _
+  rw [mapRight_tmul, mapLeft_tmul]
 
 section UniverseInference
 

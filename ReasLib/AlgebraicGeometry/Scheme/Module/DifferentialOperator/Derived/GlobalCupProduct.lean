@@ -42,8 +42,8 @@ noncomputable abbrev derivedGlobalSections {X S : Scheme.{u}} (a : X ⟶ S)
 finite-order differential-operator complexes. -/
 noncomputable abbrev totalDerivedGlobalSections {S X Y : Scheme.{u}}
     (a : X ⟶ S) (b : Y ⟶ S)
-    [(leftCoefficientHom a b).modulePushforward.IsRightAdjoint]
-    [(rightCoefficientHom a b).modulePushforward.IsRightAdjoint]
+    [(RingedSite.Hom.modulePushforward.{u} (leftCoefficientHom a b)).IsRightAdjoint]
+    [(RingedSite.Hom.modulePushforward.{u} (rightCoefficientHom a b)).IsRightAdjoint]
     [Functor.HasRightDerivedFunctor
       (RingedSite.Hom.modulePushforwardToDerived (fiberCoefficientHom a b))
       (RingedSite.Hom.ModuleQis (coefficientSite (pullback.fst a b ≫ a)))]
@@ -75,8 +75,8 @@ abbrev CoefficientGlobalTensorModel (S : Scheme.{u})
 /-- The composite of a tensor comparison for derived global sections with derived global
 sections of a supplied relative cup-product morphism. -/
 noncomputable def globalCupProduct {S X Y : Scheme.{u}} (a : X ⟶ S) (b : Y ⟶ S)
-    [(leftCoefficientHom a b).modulePushforward.IsRightAdjoint]
-    [(rightCoefficientHom a b).modulePushforward.IsRightAdjoint]
+    [(RingedSite.Hom.modulePushforward.{u} (leftCoefficientHom a b)).IsRightAdjoint]
+    [(RingedSite.Hom.modulePushforward.{u} (rightCoefficientHom a b)).IsRightAdjoint]
     [Functor.HasRightDerivedFunctor
       (RingedSite.Hom.modulePushforwardToDerived (coefficientPushforwardHom a))
       (RingedSite.Hom.ModuleQis (coefficientSite a))]
@@ -120,8 +120,8 @@ noncomputable def globalCupProduct {S X Y : Scheme.{u}} (a : X ⟶ S) (b : Y ⟶
 /-- The generic global cup product is the tensor comparison followed by the image of the
 supplied relative cup-product morphism. -/
 theorem globalCupProduct_eq {S X Y : Scheme.{u}} (a : X ⟶ S) (b : Y ⟶ S)
-    [(leftCoefficientHom a b).modulePushforward.IsRightAdjoint]
-    [(rightCoefficientHom a b).modulePushforward.IsRightAdjoint]
+    [(RingedSite.Hom.modulePushforward.{u} (leftCoefficientHom a b)).IsRightAdjoint]
+    [(RingedSite.Hom.modulePushforward.{u} (rightCoefficientHom a b)).IsRightAdjoint]
     [Functor.HasRightDerivedFunctor
       (RingedSite.Hom.modulePushforwardToDerived (coefficientPushforwardHom a))
       (RingedSite.Hom.ModuleQis (coefficientSite a))]
@@ -164,12 +164,12 @@ section Canonical
 
 variable {S X Y : Scheme.{u}} (a : X ⟶ S) (b : Y ⟶ S)
 variable
-  [(leftCoefficientHom a b).modulePushforward.IsRightAdjoint]
-  [(rightCoefficientHom a b).modulePushforward.IsRightAdjoint]
-  [(coefficientPushforwardHom a).modulePushforward.IsRightAdjoint]
-  [(coefficientPushforwardHom b).modulePushforward.IsRightAdjoint]
-  [(fiberCoefficientHom a b).modulePushforward.IsRightAdjoint]
-  [(rightFiberCoefficientHom a b).modulePushforward.IsRightAdjoint]
+  [(RingedSite.Hom.modulePushforward.{u} (leftCoefficientHom a b)).IsRightAdjoint]
+  [(RingedSite.Hom.modulePushforward.{u} (rightCoefficientHom a b)).IsRightAdjoint]
+  [(RingedSite.Hom.modulePushforward.{u} (coefficientPushforwardHom a)).IsRightAdjoint]
+  [(RingedSite.Hom.modulePushforward.{u} (coefficientPushforwardHom b)).IsRightAdjoint]
+  [(RingedSite.Hom.modulePushforward.{u} (fiberCoefficientHom a b)).IsRightAdjoint]
+  [(RingedSite.Hom.modulePushforward.{u} (rightFiberCoefficientHom a b)).IsRightAdjoint]
   [Functor.HasLeftDerivedFunctor
     (RingedSite.Hom.modulePullbackToDerived.{u} (leftCoefficientHom a b))
     (RingedSite.Hom.ModuleQis.{u} (coefficientSite a))]
@@ -216,10 +216,22 @@ variable
   [RingedSite.Hom.DerivedAdjunction.HasPair.{u} (coefficientPushforwardHom b)]
   [RingedSite.Hom.DerivedAdjunction.HasPair.{u} (fiberCoefficientHom a b)]
   [RingedSite.Hom.DerivedAdjunction.HasPair.{u} (rightFiberCoefficientHom a b)]
-  [IsIso (RingedSite.Hom.modulePullbackDerived.compComparison
-    (leftCoefficientHom a b) (coefficientPushforwardHom a))]
-  [IsIso (RingedSite.Hom.modulePullbackDerived.compComparison
-    (rightCoefficientHom a b) (coefficientPushforwardHom b))]
+  [IsIso (@RingedSite.Hom.modulePullbackDerived.compComparison.{u}
+    _ _ _ (leftCoefficientHom a b) (coefficientPushforwardHom a)
+    inferInstance inferInstance inferInstance inferInstance inferInstance
+    inferInstance inferInstance
+    (inferInstanceAs (Functor.HasLeftDerivedFunctor
+      (RingedSite.Hom.modulePullbackToDerived.{u} (fiberCoefficientHom a b))
+      (RingedSite.Hom.ModuleQis.{u}
+        (RingedSpace.DeRham.coefficientSite (𝟙 S.toRingedSpace))))))]
+  [IsIso (@RingedSite.Hom.modulePullbackDerived.compComparison.{u}
+    _ _ _ (rightCoefficientHom a b) (coefficientPushforwardHom b)
+    inferInstance inferInstance inferInstance inferInstance inferInstance
+    inferInstance inferInstance
+    (inferInstanceAs (Functor.HasLeftDerivedFunctor
+      (RingedSite.Hom.modulePullbackToDerived.{u} (rightFiberCoefficientHom a b))
+      (RingedSite.Hom.ModuleQis.{u}
+        (RingedSpace.DeRham.coefficientSite (𝟙 S.toRingedSpace))))))]
   [Functor.Monoidal
     (RingedSite.Hom.modulePullbackHomotopy.{u} (fiberCoefficientHom a b))]
   [HomotopyCategory.Koszul.TensorDescends

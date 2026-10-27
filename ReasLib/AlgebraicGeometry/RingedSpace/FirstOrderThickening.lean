@@ -42,6 +42,18 @@ class IsFirstOrderThickening {X X' : RingedSpace.{u}} (i : X ⟶ X') : Prop
   square_zero :
     SheafOfModules.RingedSite.KernelIdeal.IsSquareZero (Hom.commRingSheafPushforwardMap i)
 
+/-- Bundling a first-order thickening preserves its first-order property. -/
+theorem isFirstOrderThickening_ofHom {Y Y' : RingedSpace.{u}}
+    (i : Y ⟶ Y') [IsFirstOrderThickening i] :
+    IsFirstOrderThickening (Thickening.of i).hom :=
+  (Thickening.of_hom i).symm ▸ (inferInstance : IsFirstOrderThickening i)
+
+/-- The canonical bundled thickening of a first-order thickening is first order. -/
+instance instIsFirstOrderThickening_ofHom {Y Y' : RingedSpace.{u}}
+    (i : Y ⟶ Y') [IsFirstOrderThickening i] :
+    IsFirstOrderThickening (Thickening.of i).hom :=
+  isFirstOrderThickening_ofHom i
+
 /-- A ringed-space morphism is a first-order thickening iff it is a thickening and its kernel
 ideal sheaf is square zero. -/
 theorem isFirstOrderThickening_iff {X X' : RingedSpace.{u}} (i : X ⟶ X') :

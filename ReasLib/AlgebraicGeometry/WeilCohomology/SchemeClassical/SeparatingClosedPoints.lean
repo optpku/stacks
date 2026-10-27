@@ -31,7 +31,7 @@ variable {dimension : V → ℕ} {product : V → V → V}
 variable {fst : ∀ X Y, product X Y ⟶ X} {snd : ∀ X Y, product X Y ⟶ Y}
 variable {point : V} {H : V → Type x} {CH : V → Type y}
 variable [∀ X, Ring (H X)] [∀ X, Algebra F (H X)] [∀ X, CommRing (CH X)]
-variable {Hgrade : ∀ X, ℤ × ℤ → Submodule F (H X)}
+variable {Hgrade : ∀ X, ℤ → Submodule F (H X)}
 variable {CHgrade : ∀ X, ℤ → Submodule ℤ (CH X)}
 variable [∀ X, GradedAlgebra (Hgrade X)] [∀ X, GradedAlgebra (CHgrade X)]
 variable {cyclePullback : ∀ {X Y : V},
@@ -96,7 +96,7 @@ def HasSeparatingClosedPoints (X : V) : Prop :=
         (T.scheme.obj X).hom)),
     (∀ i, Algebra.IsSeparable k ((T.scheme.obj X).left.residueField (x i))) ∧
       (∀ i, T.RepresentsClosedPoint (x i) (f i) (e i)) ∧
-      Function.Injective (fun a : Hgrade X (0, 0) ↦
+      Function.Injective (fun a : Hgrade X (0) ↦
         fun i ↦ T.degreeZeroPullback (f i) a)
 
 /-- The finite-family specification of `HasSeparatingClosedPoints`. -/
@@ -109,7 +109,7 @@ theorem hasSeparatingClosedPoints_iff (X : V) :
             (T.scheme.obj X).hom)),
         (∀ i, Algebra.IsSeparable k ((T.scheme.obj X).left.residueField (x i))) ∧
           (∀ i, T.RepresentsClosedPoint (x i) (f i) (e i)) ∧
-          Function.Injective (fun a : Hgrade X (0, 0) ↦
+          Function.Injective (fun a : Hgrade X (0) ↦
             fun i ↦ T.degreeZeroPullback (f i) a) := sorry
 
 /-- Separable closed-point restrictions detect degree-zero cohomology exactly
@@ -126,14 +126,14 @@ theorem hasSeparatingClosedPoints_iff_globalSectionsPullback_bijective
 degree-zero cohomology is a finite separable `F`-algebra. -/
 theorem degreeZeroFiniteSeparable_of_hasSeparatingClosedPoints
     {X : V} (hX : T.HasSeparatingClosedPoints X) :
-    Module.Finite F (Hgrade X (0, 0)) ∧
-      @Algebra.IsSeparable F (Hgrade X (0, 0)) inferInstance
+    Module.Finite F (Hgrade X (0)) ∧
+      @Algebra.IsSeparable F (Hgrade X (0)) inferInstance
         (T.degreeZeroCommRing X).toRing inferInstance := sorry
 
 /-- Degree-zero cohomology acts on a homogeneous piece by graded multiplication,
-using the commutative ring structure on the bidegree `(0, 0)` piece. -/
-instance moduleHgrade_of_degreeZero (X : V) (i : ℤ × ℤ) :
-    Module (Hgrade X (0, 0)) (Hgrade X i) where
+using the commutative ring structure on the bidegree `0` piece. -/
+instance moduleHgrade_of_degreeZero (X : V) (i : ℤ) :
+    Module (Hgrade X (0)) (Hgrade X i) where
   smul a b :=
     ⟨(a : H X) * (b : H X),
       cast (congrArg (fun j => (a : H X) * (b : H X) ∈ Hgrade X j) (zero_add i))
@@ -151,9 +151,9 @@ cohomology over degree-zero cohomology. -/
 theorem hasSeparatingClosedPoints_iff_closedPointClasses_span_eq_top
     {X : V} {d : ℕ} (hX : T.IsNonemptyEquidimensional X d) :
     T.HasSeparatingClosedPoints X ↔
-      @Submodule.span (Hgrade X (0, 0)) (Hgrade X (2 * (d : ℤ), (d : ℤ)))
+      @Submodule.span (Hgrade X (0)) (Hgrade X (2 * (d : ℤ)))
         (T.degreeZeroCommRing X).toSemiring _
-        (moduleHgrade_of_degreeZero X (2 * (d : ℤ), (d : ℤ)))
+        (moduleHgrade_of_degreeZero X (2 * (d : ℤ)))
         (Set.range (fun p : closedPoints (T.scheme.obj X).left ↦
           T.gradedCycleClass X (d : ℤ) (T.closedPointClass hX p))) = ⊤ := sorry
 

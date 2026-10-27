@@ -32,11 +32,12 @@ variable [∀ X, Ring (H X)] [∀ X, Algebra F (H X)] [∀ X, AddCommGroup (Pica
 
 /- Lemma 45.14.9: data (D0), (D1), and (D2') satisfying axioms (A1)–(A7),
 with p : P ⟶ X an axiom-(A3) projective bundle of positive rank over a nonempty
+/- 抽象层对角类 mixin：待 RL-2194 完成锚定后移除。 -/
 equidimensional base, the cycle-class map commutes with pushforward along p. -/
 @[stacks 0FIN] #check
   (WeilCohomology.SchemePreWeilTheory.cycleClass_pushforward_of_isProjectiveBundle :
     ∀ (T : SchemePreWeilTheory k F TateLine V dimension product fst snd point CH CHgrade
-      cyclePullback cyclePushforward pointCycle H Picard)
+      cyclePullback cyclePushforward pointCycle H Picard) [T.HasDiagonalClassRelation]
       {P X : V} (p : P ⟶ X) {d r : ℕ} (hr : 0 < r)
       (hp : T.IsProjectiveBundle p r)
       (hX : T.IsNonemptyEquidimensional X d)

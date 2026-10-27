@@ -50,7 +50,10 @@ include hK
 /-- An exact cochain-complex functor sends a short exact sequence to a short exact sequence of
 complexes. -/
 theorem map_shortExact {S : ShortComplex A} (hS : S.ShortExact) :
-    (S.map K).ShortExact := sorry
+    (S.map K).ShortExact := by
+  haveI : PreservesFiniteLimits K := hK.1
+  haveI : PreservesFiniteColimits K := hK.2
+  exact hS.map_of_exact K
 
 /-- The connecting morphism in homology of the image of a short exact sequence. -/
 @[stacks 01EK "connecting morphism of an exact cochain-complex functor"]
@@ -61,24 +64,35 @@ noncomputable def connecting {S : ShortComplex A} (hS : S.ShortExact) (n : ℕ) 
 
 /-- The degree-zero image of the first map of a short exact sequence is monic. -/
 theorem mono_map_f_zero {S : ShortComplex A} (hS : S.ShortExact) :
-    Mono ((degree K 0).obj.map S.f) := sorry
+    Mono ((degree K 0).obj.map S.f) := by
+  haveI : Mono (K.map S.f) := (map_shortExact K hK hS).mono_f
+  exact HomologicalComplex.mono_homologyMap_of_mono_of_not_rel (K.map S.f) 0
+    (fun i ↦ Nat.succ_ne_zero i)
 
 /-- The degree-zero homology branch of an exact nonnegative cochain-complex functor is left
 exact. -/
 theorem degree_zero_preservesFiniteLimits :
-    PreservesFiniteLimits (degree K 0).obj := sorry
+    PreservesFiniteLimits (degree K 0).obj := by
+  apply (Functor.preservesFiniteLimits_iff_forall_exact_map_and_mono _).2
+  intro S hS
+  exact ⟨(map_shortExact K hK hS).homology_exact₂ 0, mono_map_f_zero K hK hS⟩
 
 /-- The five-arrow homology window of an exact cochain-complex functor is exact. -/
 theorem exact₅ {S : ShortComplex A} (hS : S.ShortExact) (n : ℕ) :
     (mk₅ ((degree K n).obj.map S.f) ((degree K n).obj.map S.g)
       (connecting K hK hS n) ((degree K (n + 1)).obj.map S.f)
-      ((degree K (n + 1)).obj.map S.g)).Exact := sorry
+      ((degree K (n + 1)).obj.map S.g)).Exact := by
+  exact HomologicalComplex.HomologySequence.composableArrows₅_exact
+    (map_shortExact K hK hS) n (n + 1) (ComplexShape.up_mk n (n + 1) rfl)
 
 /-- The homology connecting morphisms are natural in morphisms of short exact sequences. -/
 theorem connecting_naturality {S T : ShortComplex A}
     (hS : S.ShortExact) (hT : T.ShortExact) (f : S ⟶ T) (n : ℕ) :
     CommSq ((degree K n).obj.map f.τ₃) (connecting K hK hS n)
-      (connecting K hK hT n) ((degree K (n + 1)).obj.map f.τ₁) := sorry
+      (connecting K hK hT n) ((degree K (n + 1)).obj.map f.τ₁) := by
+  exact ⟨(HomologicalComplex.HomologySequence.δ_naturality (K.mapShortComplex.map f)
+    (map_shortExact K hK hS) (map_shortExact K hK hT)
+    n (n + 1) (ComplexShape.up_mk n (n + 1) rfl)).symm⟩
 
 end Exact
 
@@ -118,25 +132,25 @@ functor. -/
 theorem functorBundled_obj
     (K : ExactFunctor A (CochainComplex B ℕ)) (n : ℕ) :
     ((functorBundled K).F n).obj = K.1 ⋙
-      HomologicalComplex.homologyFunctor B (ComplexShape.up ℕ) n := sorry
+      HomologicalComplex.homologyFunctor B (ComplexShape.up ℕ) n := rfl
 
 /-- The connecting morphism attached to a bundled exact cochain-complex functor. -/
 @[simp, stacks 01EK "connecting formula for a bundled exact cochain-complex functor"]
 theorem functorBundled_δ
     (K : ExactFunctor A (CochainComplex B ℕ))
     {S : ShortComplex A} (hS : S.ShortExact) (n : ℕ) :
-    (functorBundled K).δ hS n = connecting K.1 K.2 hS n := sorry
+    (functorBundled K).δ hS n = connecting K.1 K.2 hS n := rfl
 
 /-- The degree branches of `functor K hK` are the homology functors of `K`. -/
 @[simp]
 theorem functor_obj (n : ℕ) :
     ((functor K hK).F n).obj = K ⋙
-      HomologicalComplex.homologyFunctor B (ComplexShape.up ℕ) n := sorry
+      HomologicalComplex.homologyFunctor B (ComplexShape.up ℕ) n := rfl
 
 /-- The connecting morphism of `functor K hK` is the boundary map of the mapped short exact
 sequence. -/
 @[simp]
 theorem functor_δ {S : ShortComplex A} (hS : S.ShortExact) (n : ℕ) :
-    (functor K hK).δ hS n = connecting K hK hS n := sorry
+    (functor K hK).δ hS n = connecting K hK hS n := rfl
 
 end CategoryTheory.CohomologicalDeltaFunctor.ExactComplex

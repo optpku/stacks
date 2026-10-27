@@ -38,14 +38,16 @@ noncomputable section
 theorem graph.counitObj.base (F : X ⥤ᵇ Y)
     (P : (PseudoPullback F (𝟭 Y)).obj) :
     baseObj (((PseudoPullback.fst F (𝟭 Y)) ⋙ graph F).obj P) =
-      baseObj P := sorry
+      baseObj P := by
+  exact (fiberObj P).fst.2
 
 /-- The graph retraction and the original pseudo-pullback object have the same first
 component. -/
 theorem graph.counitObj.fst (F : X ⥤ᵇ Y)
     (P : (PseudoPullback F (𝟭 Y)).obj) :
     fstObj (((PseudoPullback.fst F (𝟭 Y)) ⋙ graph F).obj P) =
-      fstObj P := sorry
+      fstObj P := by
+  rfl
 
 /-- The base isomorphism used by the graph counit. -/
 noncomputable def graph.counitComponent.baseIso (F : X ⥤ᵇ Y)
@@ -66,28 +68,38 @@ noncomputable def graph.counitComponent.fstIso (F : X ⥤ᵇ Y)
 theorem graph.counitComponent.fstIso.hom (F : X ⥤ᵇ Y)
     (P : (PseudoPullback F (𝟭 Y)).obj) :
     (graph.counitComponent.fstIso F P).hom =
-      𝟙 (fstObj P) := sorry
+      𝟙 (fstObj P) := by
+  rfl
 
 /-- The inverse first-component map of the graph counit is the identity. -/
 @[simp]
 theorem graph.counitComponent.fstIso.inv (F : X ⥤ᵇ Y)
     (P : (PseudoPullback F (𝟭 Y)).obj) :
     (graph.counitComponent.fstIso F P).inv =
-      𝟙 (fstObj P) := sorry
+      𝟙 (fstObj P) := by
+  rfl
 
 /-- The forward first-component isomorphism of the graph counit lies over its forward base
 isomorphism. -/
 theorem graph.counitComponent.fstIso.isHomLift (F : X ⥤ᵇ Y)
     (P : (PseudoPullback F (𝟭 Y)).obj) :
     X.p.IsHomLift (graph.counitComponent.baseIso F P).hom
-      (graph.counitComponent.fstIso F P).hom := sorry
+      (graph.counitComponent.fstIso F P).hom := by
+  exact IsHomLift.id_lift_eqToHom_domain (fiberObj P).fst.2 rfl
 
 /-- The forward structural comparison of the graph counit lies over its forward base
 isomorphism. -/
 theorem graph.counitComponent.snd.isHomLift (F : X ⥤ᵇ Y)
     (P : (PseudoPullback F (𝟭 Y)).obj) :
     Y.p.IsHomLift (graph.counitComponent.baseIso F P).hom
-      (comparisonIsoApp P).hom := sorry
+      (comparisonIsoApp P).hom := by
+  letI : Y.p.IsHomLift (𝟙 (baseObj P)) (comparisonIsoApp P).hom :=
+    (fiberObj P).iso.hom.2
+  change Y.p.IsHomLift (eqToHom (fiberObj P).fst.2) (comparisonIsoApp P).hom
+  have h : Y.p.IsHomLift
+      (eqToHom (fiberObj P).fst.2 ≫ 𝟙 (baseObj P)) (comparisonIsoApp P).hom := by
+    infer_instance
+  simpa only [Category.comp_id] using h
 
 /-- The component isomorphisms of the graph counit respect the structural comparisons of the
 source and target pseudo-pullback objects. -/
@@ -97,7 +109,11 @@ theorem graph.counitComponent.compatibility (F : X ⥤ᵇ Y)
       (F.toFunctor.map (graph.counitComponent.fstIso F P).hom)
       (comparison (((PseudoPullback.fst F (𝟭 Y)) ⋙ graph F).obj P))
       (comparison P)
-      ((𝟭 Y).toFunctor.map (comparisonIsoApp P).hom) := sorry
+      ((𝟭 Y).toFunctor.map (comparisonIsoApp P).hom) := by
+  constructor
+  change F.toFunctor.map (𝟙 (fstObj P)) ≫ comparison P =
+    𝟙 (F.obj (fstObj P)) ≫ comparison P
+  rw [Functor.map_id]
 
 /-- The component of the canonical counit identifying graph retraction with the identity on the
 identity pseudo-pullback. -/
@@ -117,7 +133,8 @@ isomorphism on the retained base object. -/
 theorem graph.counitComponent.hom.base (F : X ⥤ᵇ Y)
     (P : (PseudoPullback F (𝟭 Y)).obj) :
     baseMap (graph.counitComponent F P).hom =
-      (graph.counitComponent.baseIso F P).hom := sorry
+      (graph.counitComponent.baseIso F P).hom := by
+  rfl
 
 /-- The first component of the forward graph-counit morphism is the canonical equality
 isomorphism on the retained first object. -/
@@ -125,7 +142,8 @@ isomorphism on the retained first object. -/
 theorem graph.counitComponent.hom.fst (F : X ⥤ᵇ Y)
     (P : (PseudoPullback F (𝟭 Y)).obj) :
     fstMap (graph.counitComponent F P).hom =
-      (graph.counitComponent.fstIso F P).hom := sorry
+      (graph.counitComponent.fstIso F P).hom := by
+  rfl
 
 /-- The second component of the forward graph-counit morphism is the structural comparison
 isomorphism carried by the pseudo-pullback object. -/
@@ -133,7 +151,8 @@ isomorphism carried by the pseudo-pullback object. -/
 theorem graph.counitComponent.hom.snd (F : X ⥤ᵇ Y)
     (P : (PseudoPullback F (𝟭 Y)).obj) :
     sndMap (graph.counitComponent F P).hom =
-      (comparisonIsoApp P).hom := sorry
+      (comparisonIsoApp P).hom := by
+  rfl
 
 /-- The base component of the inverse graph-counit morphism is the inverse canonical equality
 isomorphism on the retained base object. -/
@@ -141,7 +160,8 @@ isomorphism on the retained base object. -/
 theorem graph.counitComponent.inv.base (F : X ⥤ᵇ Y)
     (P : (PseudoPullback F (𝟭 Y)).obj) :
     baseMap (graph.counitComponent F P).inv =
-      (graph.counitComponent.baseIso F P).inv := sorry
+      (graph.counitComponent.baseIso F P).inv := by
+  rfl
 
 /-- The first component of the inverse graph-counit morphism is the inverse canonical equality
 isomorphism on the retained first object. -/
@@ -149,7 +169,8 @@ isomorphism on the retained first object. -/
 theorem graph.counitComponent.inv.fst (F : X ⥤ᵇ Y)
     (P : (PseudoPullback F (𝟭 Y)).obj) :
     fstMap (graph.counitComponent F P).inv =
-      (graph.counitComponent.fstIso F P).inv := sorry
+      (graph.counitComponent.fstIso F P).inv := by
+  rfl
 
 /-- The second component of the inverse graph-counit morphism is the inverse structural
 comparison isomorphism carried by the pseudo-pullback object. -/
@@ -157,21 +178,33 @@ comparison isomorphism carried by the pseudo-pullback object. -/
 theorem graph.counitComponent.inv.snd (F : X ⥤ᵇ Y)
     (P : (PseudoPullback F (𝟭 Y)).obj) :
     sndMap (graph.counitComponent F P).inv =
-      (comparisonIsoApp P).inv := sorry
+      (comparisonIsoApp P).inv := by
+  rfl
 
 /-- The graph counit components are natural in pseudo-pullback morphisms. -/
 theorem graph.counitComponent.naturality (F : X ⥤ᵇ Y)
     {P Q : (PseudoPullback F (𝟭 Y)).obj} (φ : P ⟶ Q) :
     ((PseudoPullback.fst F (𝟭 Y)) ⋙ graph F).map φ ≫
         (graph.counitComponent F Q).hom =
-      (graph.counitComponent F P).hom ≫ φ := sorry
+      (graph.counitComponent F P).hom ≫ φ := by
+  apply hom_ext
+  · change fstMap φ ≫ 𝟙 (fstObj Q) = 𝟙 (fstObj P) ≫ fstMap φ
+    simp only [Category.comp_id, Category.id_comp]
+  · change F.toFunctor.map (fstMap φ) ≫ comparison Q = comparison P ≫ sndMap φ
+    exact (comm φ).w
 
 /-- Every forward component of the graph counit is vertical over the unchanged base object. -/
 theorem graph.counitComponent.isHomLift (F : X ⥤ᵇ Y)
     (P : (PseudoPullback F (𝟭 Y)).obj) :
     (PseudoPullback F (𝟭 Y)).p.IsHomLift
       (𝟙 ((PseudoPullback F (𝟭 Y)).p.obj P))
-      (graph.counitComponent F P).hom := sorry
+      (graph.counitComponent F P).hom := by
+  apply IsHomLift.of_fac (PseudoPullback F (𝟭 Y)).p
+    (𝟙 ((PseudoPullback F (𝟭 Y)).p.obj P)) (graph.counitComponent F P).hom
+    (graph.counitObj.base F P) rfl
+  change 𝟙 (baseObj P) =
+    eqToHom (graph.counitObj.base F P).symm ≫ eqToHom (fiberObj P).fst.2 ≫ eqToHom rfl
+  simp only [eqToHom_trans, eqToHom_refl, Category.comp_id]
 
 /-- The first projection followed by the graph is canonically isomorphic, over the base, to the
 identity on the identity pseudo-pullback. -/
@@ -190,7 +223,8 @@ isomorphism. -/
 theorem graph.counitIso.hom.app (F : X ⥤ᵇ Y)
     (P : (PseudoPullback F (𝟭 Y)).obj) :
     (graph.counitIso F).hom.app P =
-      (graph.counitComponent F P).hom := sorry
+      (graph.counitComponent F P).hom := by
+  rfl
 
 /-- The inverse component of the based graph counit is the inverse explicit pseudo-pullback
 isomorphism. -/
@@ -198,7 +232,8 @@ isomorphism. -/
 theorem graph.counitIso.inv.app (F : X ⥤ᵇ Y)
     (P : (PseudoPullback F (𝟭 Y)).obj) :
     (graph.counitIso F).inv.app P =
-      (graph.counitComponent F P).inv := sorry
+      (graph.counitComponent F P).inv := by
+  rfl
 
 end
 

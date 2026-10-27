@@ -38,7 +38,7 @@ immersion of nonempty equidimensional objects whose conormal `K₀`-class
 extends from the target. -/
 theorem cycleClass_pushforward_of_conormalClass
     (T : SchemePreWeilTheory k F TateLine V dimension product fst snd point CH CHgrade
-      cyclePullback cyclePushforward pointCycle H Picard)
+      cyclePullback cyclePushforward pointCycle H Picard) [T.HasDiagonalClassRelation]
     (h_conormal : ∀ {Z X : V} {d e : ℕ}
       (hZ : T.IsNonemptyEquidimensional Z d)
       (hX : T.IsNonemptyEquidimensional X e) (i : Z ⟶ X)
@@ -49,6 +49,8 @@ theorem cycleClass_pushforward_of_conormalClass
     {X Y : V} {d e : ℕ} (hX : T.IsNonemptyEquidimensional X d)
     (hY : T.IsNonemptyEquidimensional Y e) (f : X ⟶ Y) (alpha : CH X) :
     T.pushforward hX hY f (T.cycleClass X alpha) =
-      T.cycleClass Y (cyclePushforward f alpha) := sorry
+      T.cycleClass Y (cyclePushforward f alpha) := by
+  have hdiagonal : T.HasDiagonalClassRelation := inferInstance
+  sorry
 
 end WeilCohomology.SchemePreWeilTheory

@@ -6,87 +6,40 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap60.Definition_60_8_4
-public import stacks_project.Chap60.Lemma_60_8_2
-public import ReasLib.AlgebraicGeometry.Scheme.Sites.Zariski.Big
-public import ReasLib.CategoryTheory.Sites.Topos.Cocontinuous
-import Mathlib.Tactic.CrossRefAttribute
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.Crystalline.Zariski
+public import ReasLib.AlgebraicGeometry.Crystalline.Limits
 
 @[expose] public section
 
 open CategoryTheory CategoryTheory.Limits AlgebraicGeometry
+open AlgebraicGeometry.Scheme.Crystalline
 
-noncomputable section
+universe u v w
 
-universe u
+/- Remark 60.8.6 (Comparison with Zariski site): the source-forgetting functor
+induces a morphism from the big crystalline topos to the big Zariski topos. -/
+@[stacks 07ID] #check (AlgebraicGeometry.Scheme.Crystalline.Base.zariskiToposMorphism :
+    ∀ {p : ℕ} [Fact p.Prime] (B : AlgebraicGeometry.Scheme.Crystalline.Base.{u} p),
+      MorphismOfTopoiIn.{_, _, _, _, u + 1} B.source.bigZariskiTopology
+        (crystallineZariskiTopology B.scheme B.ideal B.dividedPowers B.compatible
+          B.source B.sourceToClosed))
 
-namespace AlgebraicGeometry.Scheme.Crystalline
+variable {p : ℕ} [Fact p.Prime] (B : AlgebraicGeometry.Scheme.Crystalline.Base.{u} p)
 
-/-- Remark 60.8.6 (Comparison with Zariski site) (1): in Situation 60.7.5,
-the forgetful functor from the relative crystalline site to `Over X` is
-cocontinuous for the crystalline and big Zariski topologies. -/
-@[stacks 07ID]
-instance crystallineForgetful_isCocontinuous {p : ℕ} [Fact (Nat.Prime p)]
-    (S : Scheme.{u}) (I : S.IdealSheafData)
-    (γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V))
-    (h_compatible :
-      ∀ (V : S.affineOpens) (f : Γ(S, V)),
-        (γ V).IsDPMorphism (γ (S.affineBasicOpen f))
-          (S.presheaf.map (homOfLE (S.basicOpen_le f)).op).hom)
-    (s : S ⟶ Spec (.of (ULift.{u} (Int.LocalizationAtPrime p))))
-    (X : Scheme.{u}) (x₀ : X ⟶ I.subscheme)
-    (h_p : ∀ U : X.affineOpens, IsNilpotent (p : Γ(X, U))) :
-    (crystallineForgetful S I γ h_compatible s X x₀ h_p).IsCocontinuous
-      (crystallineZariskiTopology S I γ h_compatible X x₀)
-      X.bigZariskiTopology := sorry
+/- Cocontinuity uses the quasi-coherent ideal of the prime-local crystalline base. -/
+#check (AlgebraicGeometry.Scheme.Crystalline.crystallineForgetful_isCocontinuous
+    B.scheme B.ideal (h_quasiCoherent := B.quasiCoherent)
+    B.dividedPowers B.compatible B.toSpec B.source B.sourceToClosed B.prime_nilpotent :
+      (crystallineForgetful B.scheme B.ideal B.dividedPowers B.compatible B.toSpec
+        B.source B.sourceToClosed B.prime_nilpotent).IsCocontinuous
+        (crystallineZariskiTopology B.scheme B.ideal B.dividedPowers B.compatible
+          B.source B.sourceToClosed) B.source.bigZariskiTopology)
 
-/-- Remark 60.8.6 (Comparison with Zariski site) (2): the cocontinuous
-forgetful functor induces a morphism of topoi from the big crystalline topos
-of `X/S` to the big Zariski topos of `X`. -/
-@[stacks 07ID]
-noncomputable def crystallineToposMorphism {p : ℕ} [Fact (Nat.Prime p)]
-    (S : Scheme.{u}) (I : S.IdealSheafData)
-    (γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V))
-    (h_compatible :
-      ∀ (V : S.affineOpens) (f : Γ(S, V)),
-        (γ V).IsDPMorphism (γ (S.affineBasicOpen f))
-          (S.presheaf.map (homOfLE (S.basicOpen_le f)).op).hom)
-    (s : S ⟶ Spec (.of (ULift.{u} (Int.LocalizationAtPrime p))))
-    (X : Scheme.{u}) (x₀ : X ⟶ I.subscheme)
-    (h_p : ∀ U : X.affineOpens, IsNilpotent (p : Γ(X, U)))
-    [HasSheafify
-      (crystallineZariskiTopology S I γ h_compatible X x₀)
-      (Type (u + 1))]
-    [∀ P : (RelativeCRIS S I γ h_compatible X x₀)ᵒᵖ ⥤ Type (u + 1),
-      (crystallineForgetful S I γ h_compatible s X x₀ h_p).op.HasPointwiseRightKanExtension P] :
-    MorphismOfTopoiIn X.bigZariskiTopology
-      (crystallineZariskiTopology S I γ h_compatible X x₀) :=
-  (crystallineForgetful S I γ h_compatible s X x₀ h_p).morphismOfTopoiInOfCocontinuous
-    (crystallineZariskiTopology S I γ h_compatible X x₀) X.bigZariskiTopology
+/- Preservation of all existing limits includes products and fibred products. -/
+#check (AlgebraicGeometry.Scheme.Crystalline.Base.forgetful_preservesLimits :
+    ∀ {p : ℕ} [Fact p.Prime] (B : AlgebraicGeometry.Scheme.Crystalline.Base.{u} p),
+      PreservesLimitsOfSize.{v, w}
+        (crystallineForgetful B.scheme B.ideal B.dividedPowers B.compatible B.toSpec
+          B.source B.sourceToClosed B.prime_nilpotent))
 
-/-- The inverse-image functor of `crystallineToposMorphism` is the
-sheafified pullback along the crystalline forgetful functor. -/
-theorem crystallineToposMorphism_inverseImage {p : ℕ} [Fact (Nat.Prime p)]
-    (S : Scheme.{u}) (I : S.IdealSheafData)
-    (γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V))
-    (h_compatible :
-      ∀ (V : S.affineOpens) (f : Γ(S, V)),
-        (γ V).IsDPMorphism (γ (S.affineBasicOpen f))
-          (S.presheaf.map (homOfLE (S.basicOpen_le f)).op).hom)
-    (s : S ⟶ Spec (.of (ULift.{u} (Int.LocalizationAtPrime p))))
-    (X : Scheme.{u}) (x₀ : X ⟶ I.subscheme)
-    (h_p : ∀ U : X.affineOpens, IsNilpotent (p : Γ(X, U)))
-    [HasSheafify
-      (crystallineZariskiTopology S I γ h_compatible X x₀)
-      (Type (u + 1))]
-    [∀ P : (RelativeCRIS S I γ h_compatible X x₀)ᵒᵖ ⥤ Type (u + 1),
-      (crystallineForgetful S I γ h_compatible s X x₀ h_p).op.HasPointwiseRightKanExtension P] :
-    (crystallineToposMorphism S I γ h_compatible s X x₀ h_p).inverseImage =
-      (crystallineForgetful S I γ h_compatible s X x₀ h_p).sheafPullbackCocontinuous
-        (Type (u + 1))
-        (crystallineZariskiTopology S I γ h_compatible X x₀)
-        X.bigZariskiTopology := sorry
-
-end AlgebraicGeometry.Scheme.Crystalline
-
-end

@@ -20,7 +20,6 @@ target, obtained by mapping the source maximal ideal.  Working with this ideal
 directly avoids installing a theorem-produced local-ring instance merely to
 form the induced map on residue fields.
 
-@stack 0DYG
 -/
 
 universe u v w
@@ -28,14 +27,12 @@ universe u v w
 namespace RingHom.IsSquareZeroExtension
 
 /-- The target of a square-zero extension from a local ring is nontrivial. -/
-@[stacks 0DYG "square-zero extension has nontrivial target"]
 theorem targetNontrivial {A' : Type u} {A : Type v} [CommRing A'] [CommRing A]
     [IsLocalRing A'] (π : A' →+* A) [π.IsSquareZeroExtension] :
     Nontrivial A := sorry
 
 /-- The closed point on the target of a square-zero extension from a local
 ring. -/
-@[stacks 0DYG "closed point of a square-zero extension"]
 abbrev targetMaximalIdeal {A' : Type u} {A : Type v} [CommRing A'] [CommRing A]
     [IsLocalRing A'] (π : A' →+* A) [π.IsSquareZeroExtension] : Ideal A :=
   Ideal.map π (IsLocalRing.maximalIdeal A')
@@ -80,7 +77,6 @@ theorem comap_targetMaximalIdeal {A' : Type u} {A : Type v}
 
 /-- A map from a local ring to the target of a square-zero extension carries
 the closed point to the target closed point. -/
-@[stacks 0DYG "map local at the square-zero closed point"]
 def IsLocalAtClosedPoint {A' : Type u} {A : Type v} {S : Type w}
     [CommRing A'] [CommRing A] [CommRing S] [IsLocalRing A'] [IsLocalRing S]
     (π : A' →+* A) [π.IsSquareZeroExtension] (g : S →+* A) : Prop :=
@@ -88,7 +84,6 @@ def IsLocalAtClosedPoint {A' : Type u} {A : Type v} {S : Type w}
 
 /-- The map on residue fields induced by a map carrying the source closed
 point to the target closed point of a square-zero extension. -/
-@[stacks 0DYG "residue-field map at the square-zero closed point"]
 noncomputable abbrev residueFieldMap
     {A' : Type u} {A : Type v} {S : Type w}
     [CommRing A'] [CommRing A] [CommRing S] [IsLocalRing A'] [IsLocalRing S]

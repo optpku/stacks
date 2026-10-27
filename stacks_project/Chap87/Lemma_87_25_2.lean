@@ -6,7 +6,9 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap87.Definition_87_25_1_Surjective
+public import ReasLib.AlgebraicGeometry.FormalAlgebraicSpace.Surjective
+public import stacks_project.Chap87.Lemma_87_25_2_Surjective
+import StacksCheckRecall
 
 /-!
 # Composition of surjective morphisms of formal algebraic spaces
@@ -23,18 +25,14 @@ universe u
 
 namespace AlgebraicGeometry.FormalAlgebraicSpace
 
-namespace Surjective
-
-/-- Lemma 87.25.2: The composition of two surjective morphisms of formal
+/- Lemma 87.25.2: The composition of two surjective morphisms of formal
 algebraic spaces is a surjective morphism. -/
-@[stacks 0GHQ]
-instance comp {S : Scheme.{u}} {X Y Z : (Over S)ᵒᵖ ⥤ Type u}
+@[stacks 0GHQ] #check (AlgebraicGeometry.FormalAlgebraicSpace.ReductionData.surjective_comp :
+  ∀ {S : Scheme.{u}} {X Y Z : (Over S)ᵒᵖ ⥤ Type u}
     [IsFormalAlgebraicSpace X] [IsFormalAlgebraicSpace Y] [IsFormalAlgebraicSpace Z]
-    [Reduction X] [Reduction Y] [Reduction Z]
-    (f : X ⟶ Y) (g : Y ⟶ Z) [Surjective f] [Surjective g] :
-    Surjective (f ≫ g) :=
-  sorry
-
-end Surjective
+    (RX : ReductionData X) (RY : ReductionData Y) (RZ : ReductionData Z)
+    (f : X ⟶ Y) (g : Y ⟶ Z),
+    ReductionData.Surjective RX RY f → ReductionData.Surjective RY RZ g →
+      ReductionData.Surjective RX RZ (f ≫ g))
 
 end AlgebraicGeometry.FormalAlgebraicSpace

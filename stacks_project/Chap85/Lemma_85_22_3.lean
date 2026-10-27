@@ -6,9 +6,9 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import Mathlib.Tactic.CrossRefAttribute
+import StacksCheckRecall
 public import ReasLib.CategoryTheory.Sites.Hypercovering.Augmented
-public import stacks_project.Chap85.Lemma_85_20_3
+public import ReasLib.AlgebraicGeometry.RingedSite.Hypercovering.DerivedGlobalSections
 
 /-!
 # Lemma 85.22.3
@@ -16,7 +16,8 @@ public import stacks_project.Chap85.Lemma_85_20_3
 Let `C` be a site with fibre products and `X` an object of `C`. Let `O_C` be a
 sheaf of rings. Let `U` be a hypercovering of `X` in `C`. Then there is a
 canonical isomorphism `RΓ(X, E) ≅ RΓ((C / U)_total, La^* E)` in `D(Ab)` for
-every `E` in `D(O_X)`.
+every ambient `E` in `D(O_C)`, using its canonical derived restriction to
+`D(O_X)` before applying the augmentation pullback.
 -/
 
 @[expose] public section
@@ -24,8 +25,6 @@ every `E` in `D(O_X)`.
 open CategoryTheory CategoryTheory.Limits Opposite
 open RingedSite
 open CategoryTheory.Hypercovering (toSliceTerminal)
-open RingedSite.Hypercovering
-  (rGammaPullbackComparison toAmbient_terminal site_terminal HasModuleDerivedAdjunction)
 open SemiRepresentableFamily (overSiteDiagram overSiteTotalTopology totalForget)
 open scoped SemiRepresentableFamily Simplicial
 
@@ -53,46 +52,42 @@ variable [(overSiteTotalTopology (X.localization A.right).siteTopology
     (CategoryTheory.forget RingCat.{w})]
 variable [(X.localization A.right).siteTopology.HasSheafCompose
     (CategoryTheory.forget RingCat.{w})]
-variable [(SheafOfModules.restrictScalars.{w}
-    (toAmbient_terminal (X.localization A.right)
-      (toSliceTerminal X.siteTopology A.right (toHypercovering.{ι} A hA))).structureMap).IsRightAdjoint]
-variable [ToposHom.HasModulePullbackDerived
-    (toAmbient_terminal (X.localization A.right)
-      (toSliceTerminal X.siteTopology A.right (toHypercovering.{ι} A hA)))]
-variable [ToposHom.HasModulePushforwardDerived
-    (toAmbient_terminal (X.localization A.right)
-      (toSliceTerminal X.siteTopology A.right (toHypercovering.{ι} A hA)))]
-variable [HasModuleDerivedAdjunction A.right (toHypercovering.{ι} A hA)]
 variable [HasWeakSheafify (X.localization A.right).siteTopology AddCommGrpCat.{w}]
 variable [HasWeakSheafify
-    (site_terminal (X.localization A.right)
-      (toSliceTerminal X.siteTopology A.right (toHypercovering.{ι} A hA))).siteTopology
+    (RingedSite.Localization.AtSimplicialSR.site (X := X.localization A.right)
+      (toHypercovering.{ι} A hA).toSimplicialObject).siteTopology
     AddCommGrpCat.{w}]
 variable [HasGlobalSectionsFunctor (X.localization A.right).siteTopology AddCommGrpCat.{w}]
 variable [HasGlobalSectionsFunctor
-    (site_terminal (X.localization A.right)
-      (toSliceTerminal X.siteTopology A.right (toHypercovering.{ι} A hA))).siteTopology
+    (RingedSite.Localization.AtSimplicialSR.site (X := X.localization A.right)
+      (toHypercovering.{ι} A hA).toSimplicialObject).siteTopology
     AddCommGrpCat.{w}]
 variable [IsGrothendieckAbelian (RingedSite.ModuleCat.{w} (X.localization A.right))]
 variable [IsGrothendieckAbelian
     (RingedSite.ModuleCat.{w}
-      (site_terminal (X.localization A.right)
-        (toSliceTerminal X.siteTopology A.right (toHypercovering.{ι} A hA))))]
+      (RingedSite.Localization.AtSimplicialSR.site (X := X.localization A.right)
+        (toHypercovering.{ι} A hA).toSimplicialObject))]
 
-/-- Lemma 85.22.3: Let `C` be a site with fibre products and `X` an object of
+/- Lemma 85.22.3: Let `C` be a site with fibre products and `X` an object of
 `C`. Let `O_C` be a sheaf of rings. Let `U` be a hypercovering of `X` in `C`.
-For `E ∈ D(O_X)` the canonical map `RΓ(X, E) ⟶ RΓ((C / U)_total, La^* E)` is an
-isomorphism. -/
-@[stacks 0DAD]
-theorem rGammaPullbackComparison_app_isIso
-    (E : Hom.ModuleDerived.{w} (X.localization A.right)) :
-    IsIso ((rGammaPullbackComparison A.right (toHypercovering.{ι} A hA)).app E) :=
-  sorry
+For every ambient `E ∈ D(O_C)`, the canonical comparison evaluated at its
+derived restriction to `D(O_X)` is an isomorphism. -/
+@[stacks 0DAD] #check
+  (RingedSite.Hypercovering.rGammaPullbackComparison_restrict_app_isIso
+      A.right (toHypercovering.{ι} A hA) :
+    ∀ E : RingedSite.Hom.ModuleDerived.{w} X,
+      IsIso ((RingedSite.Hypercovering.rGammaPullbackComparison
+        A.right (toHypercovering.{ι} A hA)).app
+          ((RingedSite.Hom.localizedRestrictionDerived.{w} X A.right).obj E)))
 
-/-- The comparison `RΓ(X, -) ⟶ La^* ⋙ RΓ((C / U)_total, -)` is an isomorphism of
-functors on `D(O_X)`. -/
-theorem rGammaPullbackComparison_isIso :
-    IsIso (rGammaPullbackComparison A.right (toHypercovering.{ι} A hA)) :=
-  sorry
+/- The comparison is also an isomorphism of functors on the localized
+derived category `D(O_X)`. -/
+#check
+  (RingedSite.Localization.AtSimplicialSR.rGammaPullbackComparison_isIso
+      (X := X.localization A.right)
+      (CategoryTheory.Hypercovering.toSliceTerminal X.siteTopology A.right
+        (toHypercovering.{ι} A hA)) :
+    IsIso (RingedSite.Hypercovering.rGammaPullbackComparison
+      A.right (toHypercovering.{ι} A hA)))
 
 end CategoryTheory.SimplicialObject.Augmented

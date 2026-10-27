@@ -30,10 +30,14 @@ open CategoryTheory CategoryTheory.Limits CategoryTheory.MonoidalCategory
 
 noncomputable section
 
-universe u v
+set_option backward.privateInPublic true
+
+universe u v w
 
 namespace SheafOfModules.RingedSite
 namespace FirstOrderThickening
+
+section ExtensionAction
 
 variable {C : Type u} [Category.{v} C] {J : GrothendieckTopology C}
 variable [J.HasSheafCompose (forget₂ CommRingCat.{max u v} RingCat.{max u v})]
@@ -84,13 +88,25 @@ theorem infMapPushforward_spec (E : Extension π) (U : Cᵒᵖ)
         (((infMapPushforward E).val.app U).hom (tensorSection 𝒪' U f s)) =
       KernelIdeal.ιApp π U f • s' := sorry
 
-variable [HasWeakSheafify J CommRingCat.{max u v}]
-variable [J.WEqualsLocallyBijective CommRingCat.{max u v}]
+end ExtensionAction
+
+section KernelModule
+
+variable {C : Type u} [Category.{v} C] {J : GrothendieckTopology C}
+variable [J.HasSheafCompose (forget₂ CommRingCat.{w} RingCat.{w})]
+variable {𝒪' 𝒪 : Sheaf J CommRingCat.{w}} {π : 𝒪' ⟶ 𝒪}
+
+variable [J.HasSheafCompose (forget₂ RingCat.{w} AddCommGrpCat.{w})]
+variable [HasWeakSheafify J AddCommGrpCat.{w}]
+variable [J.WEqualsLocallyBijective AddCommGrpCat.{w}]
+
+variable [HasWeakSheafify J CommRingCat.{w}]
+variable [J.WEqualsLocallyBijective CommRingCat.{w}]
 
 /-- The kernel ideal regarded as an 𝒪-module after square-zero descent. -/
 noncomputable abbrev idealModule (hπ : KernelIdeal.IsSquareZero π)
     [Sheaf.IsLocallySurjective π] :
-    ringedSiteModuleCategory.{u, v, max u v, max u v} J 𝒪 :=
+    ringedSiteModuleCategory.{u, v, w, w} J 𝒪 :=
   hπ.targetModule (KernelIdeal.quotientComparison_isIso π)
 
 /-- The underlying additive map from the descended kernel module to the kernel ideal sheaf. -/
@@ -156,20 +172,137 @@ noncomputable def restrictIdealModuleIso (hπ : KernelIdeal.IsSquareZero π)
   hom_inv_id := restrictIdealModuleHom_inv_id hπ
   inv_hom_id := restrictIdealModuleInv_hom_id hπ
 
+end KernelModule
+
+section ExtensionTensor
+
+variable {C : Type u} [Category.{v} C] {J : GrothendieckTopology C}
+variable [J.HasSheafCompose (forget₂ CommRingCat.{max u v} RingCat.{max u v})]
+variable {𝒪' 𝒪 : Sheaf J CommRingCat.{max u v}} {π : 𝒪' ⟶ 𝒪}
+
+variable [J.HasSheafCompose (forget₂ RingCat.{max u v} AddCommGrpCat.{max u v})]
+variable [HasWeakSheafify J AddCommGrpCat.{max u v}]
+variable [J.WEqualsLocallyBijective AddCommGrpCat.{max u v}]
+
+variable [HasWeakSheafify J CommRingCat.{max u v}]
+variable [J.WEqualsLocallyBijective CommRingCat.{max u v}]
+
+private abbrev tensorComparisonReverseTarget (hπ : KernelIdeal.IsSquareZero π)
+    [Sheaf.IsLocallySurjective π] (E : Extension π) :=
+  moduleTensor ((restrictionAlong π).obj (idealModule hπ))
+    ((restrictionAlong π).obj E.quot)
+
+private def tensorComparisonReversePair (hπ : KernelIdeal.IsSquareZero π)
+    [Sheaf.IsLocallySurjective π] (E : Extension π) (U : Cᵒᵖ) :
+    (idealModule hπ).val.obj U →+ E.quot.val.obj U →+
+      (tensorComparisonReverseTarget hπ E).val.obj U :=
+  let t := tensorSectionLinear 𝒪' ((restrictionAlong π).obj (idealModule hπ))
+    ((restrictionAlong π).obj E.quot) U
+  { toFun x := (t x).toAddMonoidHom
+    map_zero' := by ext y; exact congrArg (fun f ↦ f y) t.map_zero
+    map_add' := by intro x y; ext z; exact congrArg (fun f ↦ f z) (t.map_add x y) }
+
+private def tensorComparisonReverseBalanced (hπ : KernelIdeal.IsSquareZero π)
+    [Sheaf.IsLocallySurjective π] (E : Extension π) : Prop :=
+  ∀ U (r : 𝒪.obj.obj U) (x : (idealModule hπ).val.obj U) (y : E.quot.val.obj U),
+    tensorComparisonReversePair hπ E U (r • x) y =
+      tensorComparisonReversePair hπ E U x (r • y)
+
+private def tensorComparisonReverseApp (hπ : KernelIdeal.IsSquareZero π)
+    [Sheaf.IsLocallySurjective π] (E : Extension π)
+    (p : tensorComparisonReverseBalanced hπ E) (U : Cᵒᵖ) :=
+  TensorProduct.liftAddHom (tensorComparisonReversePair hπ E U) (p U)
+
+private def tensorComparisonReversePresheafLaws (hπ : KernelIdeal.IsSquareZero π)
+    [Sheaf.IsLocallySurjective π] (E : Extension π)
+    (p : tensorComparisonReverseBalanced hπ E) : Prop :=
+  (∀ U (r : 𝒪'.obj.obj U)
+      (x : ((PresheafOfModules.restrictScalars (ringSheafMap π).hom).obj
+        (PresheafOfModules.Monoidal.tensorObj (idealModule hπ).val E.quot.val)).obj U),
+    tensorComparisonReverseApp hπ E p U (r • x) =
+      r • tensorComparisonReverseApp hπ E p U x) ∧
+  (∀ U V (f : U ⟶ V)
+      (x : ((PresheafOfModules.restrictScalars (ringSheafMap π).hom).obj
+        (PresheafOfModules.Monoidal.tensorObj (idealModule hπ).val E.quot.val)).obj U),
+    tensorComparisonReverseApp hπ E p V
+        ((((PresheafOfModules.restrictScalars (ringSheafMap π).hom).obj
+          (PresheafOfModules.Monoidal.tensorObj (idealModule hπ).val E.quot.val)).map f) x) =
+      ((tensorComparisonReverseTarget hπ E).val.map f)
+        (tensorComparisonReverseApp hπ E p U x))
+
+/-- The reverse pure-tensor assignment is balanced over quotient scalars and commutes with
+restriction; balance is checked after locally lifting those scalars through the projection. -/
+private theorem tensorComparison_idealInv_wellDefined (hπ : KernelIdeal.IsSquareZero π)
+    [Sheaf.IsLocallySurjective π] (E : Extension π) :
+    tensorComparisonReverseBalanced hπ E ∧
+      ∀ p : tensorComparisonReverseBalanced hπ E,
+        tensorComparisonReversePresheafLaws hπ E p := sorry
+
+private def tensorComparisonReversePresheaf (hπ : KernelIdeal.IsSquareZero π)
+    [Sheaf.IsLocallySurjective π] (E : Extension π) :
+    (PresheafOfModules.restrictScalars (ringSheafMap π).hom).obj
+        (PresheafOfModules.Monoidal.tensorObj (idealModule hπ).val E.quot.val) ⟶
+      (tensorComparisonReverseTarget hπ E).val where
+  app U := @ModuleCat.ofHom _ _ _ _ _
+    (((PresheafOfModules.restrictScalars (ringSheafMap π).hom).obj
+      (PresheafOfModules.Monoidal.tensorObj (idealModule hπ).val E.quot.val)).obj U).isModule
+    _ ((tensorComparisonReverseTarget hπ E).val.obj U).isModule
+    { toFun := tensorComparisonReverseApp hπ E
+        (tensorComparison_idealInv_wellDefined hπ E).1 U
+      map_add' := (tensorComparisonReverseApp hπ E
+        (tensorComparison_idealInv_wellDefined hπ E).1 U).map_add
+      map_smul' := ((tensorComparison_idealInv_wellDefined hπ E).2 (tensorComparison_idealInv_wellDefined hπ E).1).1 U }
+  naturality {U V} f := by
+    ext x
+    exact ((tensorComparison_idealInv_wellDefined hπ E).2 (tensorComparison_idealInv_wellDefined hπ E).1).2 U V f x
+
+/-- The reverse restriction-tensor comparison sends a pure tensor to the pure tensor of the
+same sections and descends this balanced assignment through module sheafification. -/
+def tensorComparison_idealInv (hπ : KernelIdeal.IsSquareZero π)
+    [Sheaf.IsLocallySurjective π] (E : Extension π) :
+    (restrictionAlong π).obj (moduleTensor (idealModule hπ) E.quot) ⟶
+      moduleTensor ((restrictionAlong π).obj (idealModule hπ))
+      ((restrictionAlong π).obj E.quot) :=
+  (restrictionAlong π).map (ModuleSheafification.tensorObjIso 𝒪 (idealModule hπ) E.quot).hom ≫
+    (ModuleSheafification.restrictionComponentIso π
+      (PresheafOfModules.Monoidal.tensorObj (idealModule hπ).val E.quot.val)).inv ≫
+    (moduleSheafificationHomEquiv 𝒪' _ _).symm
+      (tensorComparisonReversePresheaf hπ E)
+
+/-- The two restriction-tensor comparisons are mutually inverse. -/
+theorem tensorComparison_idealInv_laws (hπ : KernelIdeal.IsSquareZero π)
+    [Sheaf.IsLocallySurjective π] (E : Extension π) :
+    Restriction.tensorComparison π (idealModule hπ) E.quot ≫
+        tensorComparison_idealInv hπ E = 𝟙 _ ∧
+      tensorComparison_idealInv hπ E ≫
+        Restriction.tensorComparison π (idealModule hπ) E.quot = 𝟙 _ := sorry
+
+/-- Restriction of scalars through a locally surjective square-zero projection commutes with
+tensoring the descended kernel module and the quotient module. -/
+def tensorComparison_idealIso (hπ : KernelIdeal.IsSquareZero π)
+    [Sheaf.IsLocallySurjective π] (E : Extension π) :
+    moduleTensor ((restrictionAlong π).obj (idealModule hπ))
+      ((restrictionAlong π).obj E.quot) ≅
+      (restrictionAlong π).obj (moduleTensor (idealModule hπ) E.quot) where
+  hom := Restriction.tensorComparison π (idealModule hπ) E.quot
+  inv := tensorComparison_idealInv hπ E
+  hom_inv_id := (tensorComparison_idealInv_laws hπ E).1
+  inv_hom_id := (tensorComparison_idealInv_laws hπ E).2
+
 /-- After square-zero descent, the restriction tensor comparison for the kernel module and quotient
 module is an isomorphism. -/
 theorem tensorComparison_ideal_isIso (hπ : KernelIdeal.IsSquareZero π)
     [Sheaf.IsLocallySurjective π] (E : Extension π) :
-    IsIso (Restriction.tensorComparison π (idealModule hπ) E.quot) := sorry
+    IsIso (Restriction.tensorComparison π (idealModule hπ) E.quot) :=
+  (tensorComparison_idealIso hπ E).isIso_hom
 
 /-- The canonical target-ring-linear infinitesimal map associated to a mixed-scalar extension. -/
 noncomputable def infMap (hπ : KernelIdeal.IsSquareZero π)
     [Sheaf.IsLocallySurjective π] (E : Extension π) :
     moduleTensor (idealModule hπ) E.quot ⟶ E.kernel :=
-  have := tensorComparison_ideal_isIso hπ E
   (restrictHomEquivOfIsLocallySurjective (ringSheafMap π)
       (moduleTensor (idealModule hπ) E.quot) E.kernel).symm
-    (inv (Restriction.tensorComparison π (idealModule hπ) E.quot) ≫
+    ((tensorComparison_idealIso hπ E).inv ≫
       moduleTensorMap (restrictIdealModuleIso hπ).hom (𝟙 _) ≫
       infMapPushforward E)
 
@@ -182,6 +315,8 @@ theorem infMap_spec (hπ : KernelIdeal.IsSquareZero π)
     (hk : (E.ι.val.app U).hom k =
       KernelIdeal.ιApp π U (((restrictIdealModuleIso hπ).hom.val.app U).hom f) • s') :
     ((infMap hπ E).val.app U).hom (tensorSection 𝒪 U f s) = k := sorry
+
+end ExtensionTensor
 
 end FirstOrderThickening
 end SheafOfModules.RingedSite

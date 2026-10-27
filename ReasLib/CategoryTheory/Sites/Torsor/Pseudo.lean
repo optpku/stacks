@@ -92,11 +92,19 @@ theorem opIsCancelSMul (P : PseudoTorsor G) (U : Cᵒᵖ) :
 theorem res_smul (P : PseudoTorsor G) {U V : C} (f : V ⟶ U)
     (g : G.1.obj (op U)) (x : Sections P U) :
     P.res f ((P.mulAction U).smul g x) =
-      (P.mulAction V).smul (G.1.map f.op g) (P.res f x) := sorry
+      (P.mulAction V).smul (G.1.map f.op g) (P.res f x) :=
+  P.act_naturality f g x
 
 /-- Translation by a chosen pseudo-torsor section is bijective. -/
 theorem simplyTransitive (P : PseudoTorsor G) (U : C) (x : Sections P U) :
-    Function.Bijective (fun g : G.1.obj (op U) ↦ (P.mulAction U).smul g x) := sorry
+    Function.Bijective (fun g : G.1.obj (op U) ↦ (P.mulAction U).smul g x) := by
+  constructor
+  · show Function.Injective (fun g : G.1.obj (op U) ↦ (P.mulAction U).smul g x)
+    intro g h hgh
+    exact (P.isCancelSMul U).right_cancel' g h x hgh
+  · show Function.Surjective (fun g : G.1.obj (op U) ↦ (P.mulAction U).smul g x)
+    intro y
+    exact (P.isPretransitive U).exists_smul_eq x y
 
 /-- A morphism of pseudo torsors is an equivariant morphism of their underlying sheaves. -/
 structure Hom (P Q : PseudoTorsor G) where
@@ -119,24 +127,35 @@ abbrev app {P Q : PseudoTorsor G} (f : Hom P Q) (U : C) :
 theorem app_smul {P Q : PseudoTorsor G} (f : Hom P Q) (U : C)
     (g : G.1.obj (op U)) (x : Sections P U) :
     f.app U ((P.mulAction U).smul g x) =
-      (Q.mulAction U).smul g (f.app U x) := sorry
+      (Q.mulAction U).smul g (f.app U x) :=
+  f.comm U g x
 
 end Hom
 
 /-- Two pseudo-torsor morphisms are equal if their underlying sheaf maps agree. -/
-theorem Hom.ext_hom {P Q : PseudoTorsor G} {f g : Hom P Q} (h : f.hom = g.hom) : f = g := sorry
+theorem Hom.ext_hom {P Q : PseudoTorsor G} {f g : Hom P Q} (h : f.hom = g.hom) : f = g := by
+  cases f
+  cases g
+  cases h
+  rfl
 
 /-- Pseudo-torsor morphisms are determined by their values on every section. -/
 @[ext]
 theorem Hom.ext {P Q : PseudoTorsor G} {f g : Hom P Q}
-    (h : ∀ U : C, ∀ x : Sections P U, f.app U x = g.app U x) : f = g := sorry
+    (h : ∀ U : C, ∀ x : Sections P U, f.app U x = g.app U x) : f = g := by
+  apply Hom.ext_hom
+  apply Sheaf.hom_ext
+  apply NatTrans.ext
+  funext U
+  exact ConcreteCategory.hom_ext _ _ (h U.unop)
 
 /-- The identity sheaf morphism is equivariant for the stored pseudo-torsor action. -/
 theorem id_comm (P : PseudoTorsor G) (U : C) (g : G.1.obj (op U))
     (x : Sections P U) :
     (𝟙 P.carrier : P.carrier ⟶ P.carrier).1.app (op U) ((P.mulAction U).smul g x) =
       (P.mulAction U).smul g
-        ((𝟙 P.carrier : P.carrier ⟶ P.carrier).1.app (op U) x) := sorry
+        ((𝟙 P.carrier : P.carrier ⟶ P.carrier).1.app (op U) x) := by
+  rfl
 
 /-- The identity equivariant morphism of a pseudo torsor. -/
 def id (P : PseudoTorsor G) : Hom P P where
@@ -147,7 +166,10 @@ def id (P : PseudoTorsor G) : Hom P P where
 theorem comp_comm {P Q R : PseudoTorsor G} (f : Hom P Q) (g : Hom Q R)
     (U : C) (a : G.1.obj (op U)) (x : Sections P U) :
     (f.hom ≫ g.hom).1.app (op U) ((P.mulAction U).smul a x) =
-      (R.mulAction U).smul a ((f.hom ≫ g.hom).1.app (op U) x) := sorry
+      (R.mulAction U).smul a ((f.hom ≫ g.hom).1.app (op U) x) := by
+  change g.app U (f.app U ((P.mulAction U).smul a x)) =
+    (R.mulAction U).smul a (g.app U (f.app U x))
+  rw [f.app_smul, g.app_smul]
 
 /-- Composition of equivariant morphisms of pseudo torsors. -/
 def comp {P Q R : PseudoTorsor G} (f : Hom P Q) (g : Hom Q R) : Hom P R where
@@ -156,16 +178,22 @@ def comp {P Q R : PseudoTorsor G} (f : Hom P Q) (g : Hom Q R) : Hom P R where
 
 /-- Left composition with the identity equivariant morphism is neutral. -/
 theorem category_id_comp {P Q : PseudoTorsor G} (f : Hom P Q) :
-    comp (id P) f = f := sorry
+    comp (id P) f = f := by
+  apply Hom.ext_hom
+  exact Category.id_comp f.hom
 
 /-- Right composition with the identity equivariant morphism is neutral. -/
 theorem category_comp_id {P Q : PseudoTorsor G} (f : Hom P Q) :
-    comp f (id Q) = f := sorry
+    comp f (id Q) = f := by
+  apply Hom.ext_hom
+  exact Category.comp_id f.hom
 
 /-- Composition of equivariant pseudo-torsor morphisms is associative. -/
 theorem category_assoc {P Q R T : PseudoTorsor G}
     (f : Hom P Q) (g : Hom Q R) (h : Hom R T) :
-    comp (comp f g) h = comp f (comp g h) := sorry
+    comp (comp f g) h = comp f (comp g h) := by
+  apply Hom.ext_hom
+  exact Category.assoc f.hom g.hom h.hom
 
 /-- The explicit category structure on pseudo torsors and equivariant morphisms. -/
 @[implicit_reducible]

@@ -20,5 +20,5 @@ if and only if it is a universal effective epimorphic family. -/
   (AlgebraicGeometry.AffineScheme.hasQuasicoherentSectionDescent_iff_universalEffectiveEpi :
     ∀ (X : AlgebraicGeometry.AffineScheme.{u})
       (K : CategoryTheory.SemiRepresentableFamily.Over.{v} X),
-      AlgebraicGeometry.AffineScheme.hasQuasicoherentSectionDescent X K ↔
+      AlgebraicGeometry.AffineScheme.HasQuasicoherentSectionDescent X K ↔
         CategoryTheory.SemiRepresentableFamily.Over.IsUniversalEffectiveEpiFamily K)

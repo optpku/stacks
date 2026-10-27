@@ -79,4 +79,18 @@ theorem Base.spec (p : ℕ) [Fact p.Prime] (B : Base p) :
         (B.scheme.presheaf.map (homOfLE (B.scheme.basicOpen_le f)).op).hom) ∧
       ∀ U : B.source.affineOpens, IsNilpotent (p : Γ(B.source, U)) := sorry
 
+/-- Replace the source of a crystalline base while retaining its divided-power base. -/
+@[reducible]
+def Base.withSource {p : ℕ} [Fact p.Prime] (B : Base.{u} p)
+    (X : Scheme.{u}) (x₀ : X ⟶ B.ideal.subscheme)
+    (h_p : ∀ U : X.affineOpens, IsNilpotent (p : Γ(X, U))) : Base p :=
+  { B with source := X, sourceToClosed := x₀, prime_nilpotent := h_p }
+
+/-- If the prime lies in the defining ideal, it is nilpotent on every affine open of
+any scheme over the associated closed subscheme. -/
+theorem Base.prime_nilpotent_of_mem {p : ℕ} [Fact p.Prime] (B : Base.{u} p)
+    (h_p_mem : ∀ V : B.scheme.affineOpens, (p : Γ(B.scheme, V)) ∈ B.ideal.ideal V)
+    (X : Scheme.{u}) (x₀ : X ⟶ B.ideal.subscheme) :
+    ∀ U : X.affineOpens, IsNilpotent (p : Γ(X, U)) := sorry
+
 end AlgebraicGeometry.Scheme.Crystalline

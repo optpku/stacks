@@ -6,27 +6,14 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap63.Lemma_63_9_1_Comparison
-
-/-!
-# Independence of derived étale lower shriek from the compactification
-
-Lemma 63.9.1: for a finite type separated morphism of quasi-compact
-quasi-separated schemes, the functors `Rf_!` constructed from a
-compactification are, up to canonical isomorphism, independent of the choice
-of compactification.
--/
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Derived.LowerShriek.Compactification
+import StacksCheckRecall
 
 @[expose] public section
 
-open CategoryTheory
-open CategoryTheory.Limits
-open CategoryTheory.Functor
-open CategoryTheory.GrothendieckTopology
-open AlgebraicGeometry
-open AlgebraicGeometry.Scheme
-open AlgebraicGeometry.Scheme.Etale
-open AlgebraicGeometry.Scheme.Compactification
+open CategoryTheory CategoryTheory.Limits CategoryTheory.Functor
+open CategoryTheory.GrothendieckTopology AlgebraicGeometry AlgebraicGeometry.Scheme
+open AlgebraicGeometry.Scheme.Etale AlgebraicGeometry.Scheme.Compactification
 
 noncomputable section
 
@@ -34,11 +21,11 @@ universe u
 
 namespace AlgebraicGeometry.Scheme.Etale
 
-variable {Y : Scheme.{u}} (X : Over Y) {Λ : Type u} [CommRing Λ]
+variable {Y : Scheme.{u}} (X : Over Y) {Λ : Type u} [Ring Λ]
 variable [IsSeparated X.hom] [Scheme.Hom.FiniteType X.hom]
 variable [CompactSpace Y] [QuasiSeparatedSpace Y]
 variable [CompactSpace X.left] [QuasiSeparatedSpace X.left]
-variable {P Q : Of Y X} (φ : P ⟶ Q)
+variable (P Q : Of Y X)
 variable [HasSheafify X.left.smallEtaleTopology (ModuleCat.{u} Λ)]
 variable [∀ U : X.left.Etale,
   HasWeakSheafify (X.left.smallEtaleTopology.over U) (ModuleCat.{u} Λ)]
@@ -90,62 +77,30 @@ variable [(etaleExtensionByZero (Of.ι Q) (ModuleCat.{u} Λ)).Additive]
 variable [PreservesFiniteLimits (etaleExtensionByZero (Of.ι Q) (ModuleCat.{u} Λ))]
 variable [PreservesFiniteColimits
   (etaleExtensionByZero (Of.ι Q) (ModuleCat.{u} Λ))]
-variable [((smallEtalePullback P.obj.right.hom).sheafPushforwardContinuous
-    (ModuleCat.{u} Λ) Y.smallEtaleTopology
-    P.obj.right.left.smallEtaleTopology).Additive]
-variable [HasRightDerivedFunctor
-  (RightDerived.Cochain.toDerived
-    ((smallEtalePullback P.obj.right.hom).sheafPushforwardContinuous
-      (ModuleCat.{u} Λ) Y.smallEtaleTopology
-      P.obj.right.left.smallEtaleTopology))
-  (HomologicalComplex.quasiIso
-    (Sheaf P.obj.right.left.smallEtaleTopology (ModuleCat.{u} Λ))
-    (ComplexShape.up ℤ))]
-variable [((smallEtalePullback Q.obj.right.hom).sheafPushforwardContinuous
-    (ModuleCat.{u} Λ) Y.smallEtaleTopology
-    Q.obj.right.left.smallEtaleTopology).Additive]
-variable [HasRightDerivedFunctor
-  (RightDerived.Cochain.toDerived
-    ((smallEtalePullback Q.obj.right.hom).sheafPushforwardContinuous
-      (ModuleCat.{u} Λ) Y.smallEtaleTopology
-      Q.obj.right.left.smallEtaleTopology))
-  (HomologicalComplex.quasiIso
-    (Sheaf Q.obj.right.left.smallEtaleTopology (ModuleCat.{u} Λ))
-    (ComplexShape.up ℤ))]
-variable [((smallEtalePullback (Of.ambientMap φ)).sheafPushforwardContinuous
-    (ModuleCat.{u} Λ) Q.obj.right.left.smallEtaleTopology
-    P.obj.right.left.smallEtaleTopology).Additive]
-variable [(etaleModulePushforward (Of.ambientMap φ) Λ).Additive]
-variable [(etaleModulePushforward Q.obj.right.hom Λ).Additive]
-variable [(etaleModulePushforward P.obj.right.hom Λ).Additive]
 
-/-- Lemma 63.9.1 (1): Let `f : X ⟶ Y` be a finite type separated morphism of
-quasi-compact and quasi-separated schemes. The functor
-`Rf_! : D⁺_tors(X_étale, Λ) ⟶ D⁺_tors(Y_étale, Λ)` constructed from a
-compactification is, up to canonical isomorphism, independent of the choice of
-the compactification. -/
-@[stacks 0F7I]
-theorem etaleDerivedLowerShriek.isoOfHom_isIso_of_isGE_isTorsion
-    (K : EtaleDerived X.left Λ) (h_tors : etaleDerivedIsTorsion K) (n : ℤ)
-    [DerivedCategory.IsGE K n] :
-    IsIso (etaleDerivedLowerShriek.isoOfHom_app X Λ φ K) :=
-  sorry
+/- Lemma 63.9.1 (1): Compactification models of derived lower shriek are
+naturally isomorphic on the admissible domain of bounded-below torsion objects
+and, for torsion coefficient rings, all derived objects. -/
+@[stacks 0F7I] #check
+  (AlgebraicGeometry.Scheme.Etale.etaleDerivedLowerShriek.independent_admissible
+    X Λ :
+    IsIsomorphic
+      ((Derived.compactSupportAdmissible X.left Λ).ι ⋙ etaleDerivedLowerShriek X P)
+      ((Derived.compactSupportAdmissible X.left Λ).ι ⋙ etaleDerivedLowerShriek X Q))
 
-/-- Lemma 63.9.1 (2): Let `f : X ⟶ Y` be a finite type separated morphism of
-quasi-compact and quasi-separated schemes. If `Λ` is a torsion ring, then the
-functor `Rf_! : D(X_étale, Λ) ⟶ D(Y_étale, Λ)` constructed from a
-compactification is, up to canonical isomorphism, independent of the choice of
-the compactification. -/
-@[stacks 0F7I]
-theorem etaleDerivedLowerShriek.isoOfHom_isIso_of_isTorsion
-    (hΛ : AddMonoid.IsTorsion Λ) :
-    IsIso
-      (etaleDerivedLowerShriek.isoOfHom X Λ φ :
+/- Lemma 63.9.1 (2): Over a torsion coefficient ring, arbitrary compactifications
+produce naturally isomorphic functors on the entire derived category. -/
+@[stacks 0F7I] #check
+  (AlgebraicGeometry.Scheme.Etale.etaleDerivedLowerShriek.independent
+    X Λ :
+    AddMonoid.IsTorsion Λ →
+      IsIsomorphic
+        (etaleDerivedLowerShriek X P :
+          DerivedCategory (Sheaf X.left.smallEtaleTopology (ModuleCat.{u} Λ)) ⥤
+            DerivedCategory (Sheaf Y.smallEtaleTopology (ModuleCat.{u} Λ)))
         (etaleDerivedLowerShriek X Q :
-            EtaleDerived X.left Λ ⥤ EtaleDerived Y Λ) ⟶
-          (etaleDerivedLowerShriek X P :
-            EtaleDerived X.left Λ ⥤ EtaleDerived Y Λ)) :=
-  sorry
+          DerivedCategory (Sheaf X.left.smallEtaleTopology (ModuleCat.{u} Λ)) ⥤
+            DerivedCategory (Sheaf Y.smallEtaleTopology (ModuleCat.{u} Λ))))
 
 end AlgebraicGeometry.Scheme.Etale
 

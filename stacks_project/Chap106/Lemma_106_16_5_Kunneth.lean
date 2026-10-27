@@ -6,6 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.Module.Quasicoherent.DirectImage.Kunneth
 public import Mathlib.Algebra.Category.ModuleCat.Sheaf.PullbackFree
 public import Mathlib.Algebra.Category.ModuleCat.Sheaf.PushforwardContinuous
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSiteTensorUnit
@@ -22,283 +23,22 @@ public import stacks_project.Chap103.Proposition_103_11_1
 public import stacks_project.Chap103.Remark_103_11_3_CupProduct
 public import stacks_project.Chap96.Proposition_96_14_3_Comparison
 
-/-!
-# Quasi-coherent Künneth comparison for structure sheaves
+/-! Compatibility checks for the quasi-coherent Künneth construction. -/
 
-The underived Künneth morphism of quasi-coherent structure sheaves along a pair
-of quasi-compact quasi-separated morphisms of algebraic stacks, assembled from
-relative pullback maps, the quasi-coherent tensor, and multiplication of
-structure sheaves.
--/
-
-@[expose] public section
-
-open AlgebraicGeometry CategoryTheory CategoryTheory.Adjunction
-open AlgebraicGeometry.AlgebraicStack AlgebraicGeometry.GroupoidsOver
-open CategoryTheory.MonoidalCategory CategoryTheory.ObjectProperty
-open FiberedCategoryOver.Groupoids
-open SheafOfModules.RingedSite
+open AlgebraicGeometry CategoryTheory CategoryTheory.MonoidalCategory
+open AlgebraicGeometry.GroupoidsOver
 open scoped Bicategory
-
-noncomputable section
-
 universe u
 
-namespace AlgebraicGeometry.GroupoidsOver
-
-variable {S : Scheme.{u}}
-
-namespace QCoh
-
-/-- The quasi-coherent structure sheaf `O_X` of an algebraic stack, as the unit
-module on the fppf ringed site. -/
-def structureSheaf (X : GroupoidsOver S) [AlgebraicStack X] : QCoh X where
-  obj := SheafOfModules.unit (fppfRingedSite X).structureSheaf
-  property := sorry
-
-/-- The underlying module of `structureSheaf X` is the unit on the fppf ringed
-site of `X`. -/
-theorem structureSheaf_obj (X : GroupoidsOver S) [AlgebraicStack X] :
-    (structureSheaf X).obj = SheafOfModules.unit (fppfRingedSite X).structureSheaf :=
-  sorry
-
-/-- The obvious morphism `f : Y ×_X Z ⟶ X` from the chosen 2-fibre product,
-as `TwoFibreProduct.fst a b ≫ a`. -/
-abbrev fibreProductHom {X Y Z : GroupoidsOver S} (a : Y ⟶ X) (b : Z ⟶ X) :
-    TwoFibreProduct.apex.{u + 1, u, u + 1, u} a b ⟶ X :=
-  TwoFibreProduct.fst.{u + 1, u, u + 1, u} a b ≫ a
-
-/-- `fibreProductHom a b` is the composite of the first 2-fibre-product
-projection with `a`. -/
-theorem fibreProductHom_eq {X Y Z : GroupoidsOver S} (a : Y ⟶ X) (b : Z ⟶ X) :
-    fibreProductHom a b = TwoFibreProduct.fst.{u + 1, u, u + 1, u} a b ≫ a :=
-  sorry
-
-/-- The canonical 2-isomorphism identifying the two composites from the chosen
-2-fibre product to `X`. -/
-def fibreProductHom_comparison {X Y Z : GroupoidsOver S} (a : Y ⟶ X) (b : Z ⟶ X) :
-    fibreProductHom a b ≅
-      TwoFibreProduct.snd.{u + 1, u, u + 1, u} a b ≫ b :=
-  TwoFibreProduct.comparisonIso.{u + 1, u, u + 1, u} a b
-
-/-- `fibreProductHom_comparison a b` is the chosen 2-fibre-product comparison
-cell. -/
-theorem fibreProductHom_comparison_eq {X Y Z : GroupoidsOver S}
-    (a : Y ⟶ X) (b : Z ⟶ X) :
-    fibreProductHom_comparison a b =
-      TwoFibreProduct.comparisonIso.{u + 1, u, u + 1, u} a b :=
-  sorry
-
-/-- The coefficient map `O_X ⟶ f^{-1} O_Y` induces a morphism from the
-quasi-coherent structure sheaf of `X` to the pullback of the structure sheaf of
-`Y`. -/
-def structureSheafPullbackHom {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) :
-    structureSheaf X ⟶ (pullback f).obj (structureSheaf Y) :=
-  homMk (SheafOfModules.unitToPushforwardObjUnit (structureSheafMap f))
-
-/-- `structureSheafPullbackHom f` is `unitToPushforwardObjUnit` of
-`structureSheafMap f`. -/
-theorem structureSheafPullbackHom_eq {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) :
-    structureSheafPullbackHom f =
-      homMk (SheafOfModules.unitToPushforwardObjUnit (structureSheafMap f)) :=
-  sorry
-
-/-- Pullback of quasi-coherent structure sheaves along a 1-morphism is an
-isomorphism, because `structureSheafMap` is an isomorphism. -/
-instance structureSheafPullbackHom_isIso {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) :
-    IsIso (structureSheafPullbackHom f) :=
-  sorry
-
-/-- The module-level inverse of `structureSheafPullbackHom`, obtained from
-`structureSheafIso.hom` rather than `inv` of a deferred `IsIso`. -/
-def structureSheafPullbackInv_module {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) :
-    ((pullback f).obj (structureSheaf Y)).obj ⟶ (structureSheaf X).obj where
-  val.app x :=
-    ModuleCat.homMk
-      ((forget₂ RingCat.{u} AddCommGrpCat.{u}).map
-        ((structureSheafIso f).hom.hom.app x))
-      sorry
-  val.naturality := sorry
-
-/-- Inverse of `structureSheafPullbackHom`, as the quasi-coherent map associated
-to `structureSheafIso`. -/
-def structureSheafPullbackInv {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) :
-    (pullback f).obj (structureSheaf Y) ⟶ structureSheaf X :=
-  homMk (structureSheafPullbackInv_module f)
-
-/-- `structureSheafPullbackInv f` is the quasi-coherent packaging of
-`structureSheafPullbackInv_module f`. -/
-theorem structureSheafPullbackInv_eq {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) :
-    structureSheafPullbackInv f = homMk (structureSheafPullbackInv_module f) :=
-  sorry
-
-/-- Comparison of the transported structure sheaf with the tensor unit of
-commutative fppf modules. -/
-def structureSheafCommUnitToTensorUnit (X : GroupoidsOver S) [AlgebraicStack X] :
-    (toCommFppfModules X).obj (structureSheaf X).obj ⟶ 𝟙_ (commFppfModules X) :=
-  unitModuleToTensorUnit (J := inheritedFppfTopology X) (𝒪 := commFppfStructureSheaf X)
-
-/-- Comparison of the tensor unit of commutative fppf modules with the
-transported structure sheaf. -/
-def tensorUnitToStructureSheafCommUnit (X : GroupoidsOver S) [AlgebraicStack X] :
-    𝟙_ (commFppfModules X) ⟶ (toCommFppfModules X).obj (structureSheaf X).obj :=
-  tensorUnitToUnitModule (J := inheritedFppfTopology X) (𝒪 := commFppfStructureSheaf X)
-
-/-- Recover a fppf module from its commutative presentation. -/
-def fromToCommFppfModulesHom {X : GroupoidsOver S}
-    (F : RingedSite.ModuleCat.{u} (fppfRingedSite X)) :
-    (fromCommFppfModules X).obj ((toCommFppfModules X).obj F) ⟶ F :=
-  ⟨(PresheafOfModules.Restriction.compComponentIso'
-        (fromCommFppfCoefficient X) (toCommFppfCoefficient X)
-        (𝟙 (AlgebraicGeometry.GroupoidsOver.structureSheaf X).obj)
-        (fromCommFppfCoefficient_comp_toCommFppfCoefficient X) F.val).hom ≫
-      (PresheafOfModules.Restriction.idComponentIso'
-        (𝟙 (AlgebraicGeometry.GroupoidsOver.structureSheaf X).obj) rfl F.val).hom⟩
-
-/-- Multiplication of the quasi-coherent structure sheaf, obtained from the left
-unitor of the commutative fppf tensor at the tensor unit. -/
-def structureSheafMul (X : GroupoidsOver S) [AlgebraicStack X] :
-    tensor (structureSheaf X) (structureSheaf X) ⟶ structureSheaf X :=
-  homMk
-    ((fromCommFppfModules X).map
-        (moduleTensorMap.{u + 1, u, u}
-            (structureSheafCommUnitToTensorUnit X)
-            (structureSheafCommUnitToTensorUnit X) ≫
-          (λ_ (𝟙_ (commFppfModules X))).hom ≫
-            tensorUnitToStructureSheafCommUnit X) ≫
-      fromToCommFppfModulesHom (structureSheaf X).obj)
-
-/-- `structureSheafMul X` is the transported left unitor of the commutative
-fppf tensor at the unit. -/
-theorem structureSheafMul_eq (X : GroupoidsOver S) [AlgebraicStack X] :
-    structureSheafMul X =
-      homMk
-        ((fromCommFppfModules X).map
-            (moduleTensorMap.{u + 1, u, u}
-                (structureSheafCommUnitToTensorUnit X)
-                (structureSheafCommUnitToTensorUnit X) ≫
-              (λ_ (𝟙_ (commFppfModules X))).hom ≫
-                tensorUnitToStructureSheafCommUnit X) ≫
-          fromToCommFppfModulesHom (structureSheaf X).obj) :=
-  sorry
-
-/-- The 2-cell `𝟭 ⋙ pullback f ≅ pullback a ⋙ pullback fst` of the triangle
-`fst ≫ a = f`. -/
-def kunnethPullbackSquare {X Y Z : GroupoidsOver S}
-    (a : Y ⟶ X) (b : Z ⟶ X) :
-    𝟭 (QCoh X) ⋙ pullback (fibreProductHom a b) ≅
-      pullback a ⋙
-        pullback (TwoFibreProduct.fst.{u + 1, u, u + 1, u} a b) :=
-  (pullback (fibreProductHom a b)).leftUnitor ≪≫
-    pullback_comp (TwoFibreProduct.fst.{u + 1, u, u + 1, u} a b) a
-
-/-- The 2-cell `𝟭 ⋙ pullback f ≅ pullback b ⋙ pullback snd` obtained by
-transporting along the 2-fibre-product comparison isomorphism. -/
-def kunnethPullbackSquare_right {X Y Z : GroupoidsOver S}
-    (a : Y ⟶ X) (b : Z ⟶ X) :
-    𝟭 (QCoh X) ⋙ pullback (fibreProductHom a b) ≅
-      pullback b ⋙
-        pullback (TwoFibreProduct.snd.{u + 1, u, u + 1, u} a b) :=
-  (pullback (fibreProductHom a b)).leftUnitor ≪≫
-    (pullbackIso (fibreProductHom_comparison a b)).symm ≪≫
-      pullback_comp (TwoFibreProduct.snd.{u + 1, u, u + 1, u} a b) b
-
-variable {X Y Z : GroupoidsOver S}
-variable [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Z]
-variable (a : Y ⟶ X) (b : Z ⟶ X)
-variable [AlgebraicStack.QuasiCompact a] [AlgebraicStack.QuasiSeparated a]
-variable [AlgebraicStack.QuasiCompact b] [AlgebraicStack.QuasiSeparated b]
-variable [AlgebraicStack (TwoFibreProduct.apex.{u + 1, u, u + 1, u} a b)]
-variable [AlgebraicStack.QuasiCompact (fibreProductHom a b)]
-variable [AlgebraicStack.QuasiSeparated (fibreProductHom a b)]
-
-/-- Relative pullback map `a_{QCoh,*} O_Y ⟶ f_{QCoh,*} fst^* O_Y` induced by the
-triangle `fst ≫ a = f`. -/
-def relativePullbackMap :
-    (directImage a).obj (structureSheaf Y) ⟶
-      (directImage (fibreProductHom a b)).obj
-        ((pullback (TwoFibreProduct.fst.{u + 1, u, u + 1, u} a b)).obj
-          (structureSheaf Y)) :=
-  DerivedBaseChange.app
-    (pullback_directImage_adjunction a).some
-    (pullback_directImage_adjunction (fibreProductHom a b)).some
-    (kunnethPullbackSquare a b) (structureSheaf Y)
-
-/-- Relative pullback map `b_{QCoh,*} O_Z ⟶ f_{QCoh,*} snd^* O_Z` induced by the
-triangle `snd ≫ b ≅ f`. -/
-def relativePullbackMap_right :
-    (directImage b).obj (structureSheaf Z) ⟶
-      (directImage (fibreProductHom a b)).obj
-        ((pullback (TwoFibreProduct.snd.{u + 1, u, u + 1, u} a b)).obj
-          (structureSheaf Z)) :=
-  DerivedBaseChange.app
-    (pullback_directImage_adjunction b).some
-    (pullback_directImage_adjunction (fibreProductHom a b)).some
-    (kunnethPullbackSquare_right a b) (structureSheaf Z)
-
-/-- Relative structure-sheaf pushforward
-`a_{QCoh,*} O_Y ⟶ f_{QCoh,*} O_{Y ×_X Z}` obtained from the relative pullback
-map and `structureSheafPullbackInv`. -/
-def relativeStructurePushforward :
-    (directImage a).obj (structureSheaf Y) ⟶
-      (directImage (fibreProductHom a b)).obj
-        (structureSheaf (TwoFibreProduct.apex.{u + 1, u, u + 1, u} a b)) :=
-  relativePullbackMap a b ≫
-    (directImage (fibreProductHom a b)).map
-      (structureSheafPullbackInv
-        (TwoFibreProduct.fst.{u + 1, u, u + 1, u} a b))
-
-/-- Relative structure-sheaf pushforward
-`b_{QCoh,*} O_Z ⟶ f_{QCoh,*} O_{Y ×_X Z}` obtained from the right relative
-pullback map and `structureSheafPullbackInv`. -/
-def relativeStructurePushforward_right :
-    (directImage b).obj (structureSheaf Z) ⟶
-      (directImage (fibreProductHom a b)).obj
-        (structureSheaf (TwoFibreProduct.apex.{u + 1, u, u + 1, u} a b)) :=
-  relativePullbackMap_right a b ≫
-    (directImage (fibreProductHom a b)).map
-      (structureSheafPullbackInv
-        (TwoFibreProduct.snd.{u + 1, u, u + 1, u} a b))
-
-/-- The canonical underived Künneth morphism
-`a_{QCoh,*} O_Y ⊗_{O_X} b_{QCoh,*} O_Z ⟶ f_{QCoh,*} O_{Y ×_X Z}` of
-quasi-coherent structure sheaves. -/
-def kunnethMap :
-    tensor ((directImage a).obj (structureSheaf Y))
-      ((directImage b).obj (structureSheaf Z)) ⟶
-      (directImage (fibreProductHom a b)).obj
-        (structureSheaf (TwoFibreProduct.apex.{u + 1, u, u + 1, u} a b)) :=
-  tensorHom (relativeStructurePushforward a b)
-      (relativeStructurePushforward_right a b) ≫
-    directImage_tensorComparison (fibreProductHom a b)
-        (toLQCohFbc_isRightAdjoint_toQCoh X).some
-        (structureSheaf (TwoFibreProduct.apex.{u + 1, u, u + 1, u} a b))
-        (structureSheaf (TwoFibreProduct.apex.{u + 1, u, u + 1, u} a b)) ≫
-      (directImage (fibreProductHom a b)).map
-        (structureSheafMul (TwoFibreProduct.apex.{u + 1, u, u + 1, u} a b))
-
-/-- `kunnethMap a b` is the tensor of the two relative structure-sheaf
-pushforwards, followed by `directImage_tensorComparison` and multiplication of
-`O_{Y ×_X Z}`. -/
-theorem kunnethMap_spec :
-    kunnethMap a b =
-      tensorHom (relativeStructurePushforward a b)
-          (relativeStructurePushforward_right a b) ≫
-        directImage_tensorComparison (fibreProductHom a b)
-            (toLQCohFbc_isRightAdjoint_toQCoh X).some
-            (structureSheaf (TwoFibreProduct.apex.{u + 1, u, u + 1, u} a b))
-            (structureSheaf (TwoFibreProduct.apex.{u + 1, u, u + 1, u} a b)) ≫
-          (directImage (fibreProductHom a b)).map
-            (structureSheafMul
-              (TwoFibreProduct.apex.{u + 1, u, u + 1, u} a b)) :=
-  sorry
-
-end QCoh
-
-end AlgebraicGeometry.GroupoidsOver
+#check (AlgebraicGeometry.GroupoidsOver.QCoh.kunnethMap : ∀ {S : Scheme.{u}}
+  {X Y Z : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Z]
+  (a : Y ⟶ X) (b : Z ⟶ X)
+  [AlgebraicStack.QuasiCompact a] [AlgebraicStack.QuasiSeparated a]
+  [AlgebraicStack.QuasiCompact b] [AlgebraicStack.QuasiSeparated b]
+  [AlgebraicStack (TwoFibreProduct.apex.{u + 1, u, u + 1, u} a b)]
+  [AlgebraicStack.QuasiCompact (AlgebraicGeometry.GroupoidsOver.QCoh.fibreProductHom a b)]
+  [AlgebraicStack.QuasiSeparated (AlgebraicGeometry.GroupoidsOver.QCoh.fibreProductHom a b)],
+  QCoh.Fppf.tensor ((QCoh.directImage a).obj (QCoh.structureSheaf Y))
+      ((QCoh.directImage b).obj (QCoh.structureSheaf Z)) ⟶
+    (QCoh.directImage (AlgebraicGeometry.GroupoidsOver.QCoh.fibreProductHom a b)).obj
+      (QCoh.structureSheaf (TwoFibreProduct.apex.{u + 1, u, u + 1, u} a b)))

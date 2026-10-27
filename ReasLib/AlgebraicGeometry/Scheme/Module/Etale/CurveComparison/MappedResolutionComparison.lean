@@ -26,7 +26,9 @@ abbrev complex : CochainComplex D ℕ := (F.mapHomologicalComplex (ComplexShape.
 
 /-- Exactness at degree zero uses only exactness of F, not preservation of injectives. -/
 theorem exactZero :
-    (ShortComplex.mk (F.map (I.ι.f 0)) ((complex F I).d 0 1) sorry).Exact := sorry
+    (ShortComplex.mk (F.map (I.ι.f 0)) ((complex F I).d 0 1) (by
+      change F.map (I.ι.f 0) ≫ F.map (I.cocomplex.d 0 1) = 0
+      rw [← F.map_comp, I.ι_f_zero_comp_complex_d, F.map_zero])).Exact := sorry
 
 /-- Exactness of the mapped resolution in positive degrees. -/
 theorem exactSucc (n : ℕ) :

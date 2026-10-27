@@ -118,12 +118,3 @@ theorem map_span_eq_span_upperTriangular (h : IsKoszulRegularSequence f)
       Ideal.span (Set.range (UpperTriangular.family f)) := sorry
 
 end RingTheory.Sequence.IsKoszulRegularSequence
-
-section
-
-variable (R : Type u) [CommRing R] (n : ℕ)
-
-#synth Module.FaithfullyFlat R (RingTheory.Sequence.UpperTriangular.Ring R n)
-#synth Algebra.Smooth R (RingTheory.Sequence.UpperTriangular.Ring R n)
-
-end

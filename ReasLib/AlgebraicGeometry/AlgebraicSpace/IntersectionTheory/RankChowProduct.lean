@@ -232,15 +232,16 @@ with the same underlying algebraic space and the composite inclusion. -/
 def closedInAmbient (r : ℕ) (W : ClosedSubspace (rankOpenSubspace E r).X) : ClosedSubspace X where
   X := W.X
   ι := W.ι ≫ (rankOpenSubspace E r).ι
-  isClosedImmersion := by exact closedImmersion_comp W.ι (rankOpenSubspace E r).ι
+  isClosedImmersion := by
+    exact @closedImmersion_comp S W.X (rankOpenSubspace E r).X X
+      W.ι (rankOpenSubspace E r).ι W.isClosedImmersion inferInstance
 
 /-- Extending an integral closed subspace along a clopen rank inclusion preserves
 its dimension relative to the base dimension function. -/
 theorem closedInAmbient_dimension (r : ℕ) (W : ClosedSubspace (rankOpenSubspace E r).X)
     [hW : IsIntegral W.X] :
     Hom.deltaDimension f δ (@ClosedSubspace.irreducibleClosed S X (closedInAmbient E r W) hW) =
-      Hom.deltaDimension ((rankOpenSubspace E r).ι ≫ f) δ (ClosedSubspace.irreducibleClosed W) := by
-  sorry
+      Hom.deltaDimension ((rankOpenSubspace E r).ι ≫ f) δ (ClosedSubspace.irreducibleClosed W) := sorry
 
 /-- The sigma family is locally finite: near a point only its own rank can
 occur, and there the original integral-support family is locally finite. -/
@@ -286,8 +287,7 @@ theorem boundary_sigma_eq_glue
         (hWint z.1 z.2)).trans (hWdim z.1 z.2))
       (fun z ↦ φ z.1 z.2) (closedInAmbient_locallyFinite E J W hlocal) =
     cycleGlue E f δ k (fun r ↦ RationalEquivalence.boundary ((rankOpenSubspace E r).ι ≫ f)
-      δ k (W r) (hWint r) (hWdim r) (φ r) (hlocal r)) := by
-  sorry
+      δ k (W r) (hWint r) (hWdim r) (φ r) (hlocal r)) := sorry
 
 /-- Gluing rational boundaries on all rank loci gives a rational boundary on the ambient space. -/
 theorem cycleGlue_mem_boundaries

@@ -37,7 +37,9 @@ class Is (S : Scheme.{u}) (j : Arrow (Over S)) : Prop where
 
 /-- The defining compactification conditions, exposed as a conjunction. -/
 theorem is_iff (S : Scheme.{u}) (j : Arrow (Over S)) :
-    Is S j ↔ IsOpenImmersion j.hom.left ∧ QuasiCompact j.hom.left ∧ IsProper j.right.hom := sorry
+    Is S j ↔ IsOpenImmersion j.hom.left ∧ QuasiCompact j.hom.left ∧ IsProper j.right.hom :=
+  ⟨fun h ↦ ⟨h.isOpenImmersion, h.quasiCompact, h.isProper⟩,
+    fun ⟨hi, hq, hp⟩ ↦ ⟨hi, hq, hp⟩⟩
 
 namespace Is
 
@@ -78,7 +80,7 @@ def mk (S : Scheme.{u}) (X Xbar : Over S) (j : X ⟶ Xbar) [IsOpenImmersion j.le
 /-- The underlying arrow of `mk S X Xbar j` is the arrow determined by `j`. -/
 theorem mk_obj (S : Scheme.{u}) (X Xbar : Over S) (j : X ⟶ Xbar) [IsOpenImmersion j.left]
     [QuasiCompact j.left] [IsProper Xbar.hom] :
-    (mk S X Xbar j).obj = Arrow.mk j := sorry
+    (mk S X Xbar j).obj = Arrow.mk j := rfl
 
 /-- The functor sending a compactification to its open part over `S`. -/
 def openPart (S : Scheme.{u}) : Compactification S ⥤ Over S :=
@@ -86,11 +88,11 @@ def openPart (S : Scheme.{u}) : Compactification S ⥤ Over S :=
 
 /-- The open-part functor returns the source of the underlying compactification arrow. -/
 theorem openPart_obj (S : Scheme.{u}) (X : Compactification S) :
-    (openPart S).obj X = X.obj.left := sorry
+    (openPart S).obj X = X.obj.left := rfl
 
 /-- The open-part functor sends a compactification morphism to its interior component. -/
 theorem openPart_map (S : Scheme.{u}) {X Y : Compactification S} (f : X ⟶ Y) :
-    (openPart S).map f = f.hom.left := sorry
+    (openPart S).map f = f.hom.left := rfl
 
 /-- The functor sending a compactification to its proper part over `S`. -/
 def properPart (S : Scheme.{u}) : Compactification S ⥤ Over S :=
@@ -98,11 +100,11 @@ def properPart (S : Scheme.{u}) : Compactification S ⥤ Over S :=
 
 /-- The proper-part functor returns the target of the underlying compactification arrow. -/
 theorem properPart_obj (S : Scheme.{u}) (X : Compactification S) :
-    (properPart S).obj X = X.obj.right := sorry
+    (properPart S).obj X = X.obj.right := rfl
 
 /-- The proper-part functor sends a compactification morphism to its ambient component. -/
 theorem properPart_map (S : Scheme.{u}) {X Y : Compactification S} (f : X ⟶ Y) :
-    (properPart S).map f = f.hom.right := sorry
+    (properPart S).map f = f.hom.right := rfl
 
 /-- The functor from compactifications over `S` to their interior schemes. -/
 def interior (S : Scheme.{u}) : Compactification S ⥤ Scheme :=
@@ -110,11 +112,11 @@ def interior (S : Scheme.{u}) : Compactification S ⥤ Scheme :=
 
 /-- The interior functor returns the source scheme of a compactification. -/
 theorem interior_obj (S : Scheme.{u}) (X : Compactification S) :
-    (interior S).obj X = X.obj.left.left := sorry
+    (interior S).obj X = X.obj.left.left := rfl
 
 /-- The interior functor sends a compactification morphism to its map on open parts. -/
 theorem interior_map (S : Scheme.{u}) {X Y : Compactification S} (f : X ⟶ Y) :
-    (interior S).map f = f.hom.left.left := sorry
+    (interior S).map f = f.hom.left.left := rfl
 
 /-- Morphisms of compactifications whose map on interiors is an isomorphism. -/
 def interiorIsomorphisms (S : Scheme.{u}) : MorphismProperty (Compactification S) :=
@@ -123,7 +125,7 @@ def interiorIsomorphisms (S : Scheme.{u}) : MorphismProperty (Compactification S
 /-- A compactification morphism belongs to `interiorIsomorphisms S` exactly when its interior
 component is an isomorphism. -/
 theorem interiorIsomorphisms_iff (S : Scheme.{u}) {X Y : Compactification S} (f : X ⟶ Y) :
-    interiorIsomorphisms S f ↔ IsIso ((interior S).map f) := sorry
+    interiorIsomorphisms S f ↔ IsIso ((interior S).map f) := Iff.rfl
 
 end Compactification
 end Scheme

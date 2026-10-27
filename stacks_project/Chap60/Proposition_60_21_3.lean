@@ -13,7 +13,8 @@ public import stacks_project.Chap60.Proposition_60_21_1
 public import stacks_project.Chap60.Proposition_60_17_4
 public import stacks_project.Chap60.Lemma_60_17_3_Functor
 public import stacks_project.Chap60.Lemma_60_20_2_Completion
-import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.AlgebraicGeometry.Crystalline.Completed.DeRham
+import StacksCheckRecall
 
 @[expose] public section
 
@@ -48,200 +49,56 @@ variable (γbar : DividedPowers
     (crystallineD p IA γA π hπ J0 hJ0 hIC hpnil hIJ0 E0 hE0)) E0.D.ideal))
 variable [HasLimits AddCommGrpCat.{u}]
 
-/-- The `A`-module structure on `Ω_D` is the one induced by completing the
-relative divided-power differentials. -/
-noncomputable instance module_crystallineOmegaD_overA :
-    Module A
-      (crystallineOmegaD
-        (crystallineDBaseMap p IA γA π hπ J0 hJ0 hIC hpnil hIJ0 E0 hE0) γbar p) :=
-  AdicCompletion.instModuleOfIsScalarTower
-    (Ideal.span
-      {(p : crystallineD p IA γA π hπ J0 hJ0 hIC hpnil hIJ0 E0 hE0)})
-    (dividedPowerDifferential
-      (crystallineDBaseMap p IA γA π hπ J0 hJ0 hIC hpnil hIJ0 E0 hE0) γbar)
+variable (I : (Spec.{u} (.of A)).IdealSheafData)
+variable (γS : ∀ V : (Spec.{u} (.of A)).affineOpens, DividedPowers (I.ideal V))
+variable (h_compatible :
+  ∀ (V : (Spec.{u} (.of A)).affineOpens) (f : Γ(Spec (.of A), V)),
+    (γS V).IsDPMorphism (γS ((Spec (.of A)).affineBasicOpen f))
+      ((Spec (.of A)).presheaf.map
+        (homOfLE ((Spec (.of A)).basicOpen_le f)).op).hom)
+variable (s : Spec.{u} (.of A) ⟶ Spec (.of (ULift.{u} (Int.LocalizationAtPrime p))))
+variable (x₀ : Spec.{u} (.of C) ⟶ I.subscheme)
+variable (h_p : ∀ U : (Spec.{u} (.of C)).affineOpens,
+  IsNilpotent (p : Γ(Spec (.of C), U)))
+variable (hI : specIdealEqOfIdealTop IA I) (hγ : specDividedPowersEq IA γA I γS)
+variable (hx₀ : IsCanonicalCrisStructureMap I x₀)
+variable (F : CrisModuleSheaf (Spec (.of A)) I γS h_compatible (Spec (.of C)) x₀)
+variable [CrisModuleSheaf.IsCrystal F] [ModuleSheaf.IsLocallyQuasiCoherent F]
 
-/-- Scalar tower `A → D → Ω_D` for the completed relative differentials. -/
-instance isScalarTower_crystallineOmegaD :
-    IsScalarTower A
-      (crystallineD p IA γA π hπ J0 hJ0 hIC hpnil hIJ0 E0 hE0)
-      (crystallineOmegaD
-        (crystallineDBaseMap p IA γA π hπ J0 hJ0 hIC hpnil hIJ0 E0 hE0) γbar p) :=
-  AdicCompletion.instIsScalarTower
-    (Ideal.span
-      {(p : crystallineD p IA γA π hπ J0 hJ0 hIC hpnil hIJ0 E0 hE0)})
-    (dividedPowerDifferential
-      (crystallineDBaseMap p IA γA π hπ J0 hJ0 hIC hpnil hIJ0 E0 hE0) γbar)
-
-/-- Closed-immersion comparison maps of a crystal in quasi-coherent modules are
-epimorphisms, so the comparison-epi hypothesis of Proposition 60.21.1 holds. -/
-theorem comparison_epi_of_quasiCoherentCrystal
-    (I : (Spec.{u} (.of A)).IdealSheafData)
-    (γS : ∀ V : (Spec.{u} (.of A)).affineOpens, DividedPowers (I.ideal V))
-    (h_compatible :
-      ∀ (V : (Spec.{u} (.of A)).affineOpens) (f : Γ(Spec (.of A), V)),
-        (γS V).IsDPMorphism (γS ((Spec (.of A)).affineBasicOpen f))
-          ((Spec (.of A)).presheaf.map
-            (homOfLE ((Spec (.of A)).basicOpen_le f)).op).hom)
-    (x₀ : Spec.{u} (.of C) ⟶ I.subscheme)
-    (F : CrisModuleSheaf (Spec (.of A)) I γS h_compatible (Spec (.of C)) x₀)
-    [IsQuasiCoherentCrystal F] :
-    comparison_epi_of_closedImmersion (Spec (.of A)) I γS h_compatible
-      (Spec (.of C)) x₀ F :=
-  sorry
-
-/-- Proposition 60.21.3: in the affine setup of Proposition 60.21.1, if `F` is a
-crystal in quasi-coherent modules and `(M, ∇)` is the corresponding integrable
-connection over `D` from Proposition 60.17.4, then the p-adically completed
-de Rham complex `completedDeRhamComplex` of `M ⊗^∧_D Ω^*_D` computes
-`RΓ(Cris(X/S), F)`. -/
-@[stacks 07LG]
-theorem affineCrystalCompletedDeRham_computes_derivedGlobalSections
-    (I : (Spec.{u} (.of A)).IdealSheafData)
-    (γS : ∀ V : (Spec.{u} (.of A)).affineOpens, DividedPowers (I.ideal V))
-    (h_compatible :
-      ∀ (V : (Spec.{u} (.of A)).affineOpens) (f : Γ(Spec (.of A), V)),
-        (γS V).IsDPMorphism (γS ((Spec (.of A)).affineBasicOpen f))
-          ((Spec (.of A)).presheaf.map
-            (homOfLE ((Spec (.of A)).basicOpen_le f)).op).hom)
-    (s : Spec.{u} (.of A) ⟶ Spec (.of (ULift.{u} (Int.LocalizationAtPrime p))))
-    (x₀ : Spec.{u} (.of C) ⟶ I.subscheme)
-    (h_p : ∀ U : (Spec.{u} (.of C)).affineOpens,
-      IsNilpotent (p : Γ(Spec (.of C), U)))
-    (hI : specIdealEqOfIdealTop IA I)
-    (hγ : specDividedPowersEq IA γA I γS)
-    (hx₀ : IsCanonicalCrisStructureMap I x₀)
-    [HasSheafify
-      (smallCrystallineTopology p (Spec (.of A)) I γS h_compatible s
-        (Spec (.of C)) x₀ h_p)
-      AddCommGrpCat.{u}]
-    [HasSheafify (chaoticTopology (Spec (.of A)) I γS h_compatible (Spec (.of C)) x₀)
-      AddCommGrpCat.{u}]
-    [HasTerminal (smallCrystallineSite (Spec (.of A)) I γS h_compatible
-      (Spec (.of C)) x₀)]
-    [HasTerminal (chaoticSite (Spec (.of A)) I γS h_compatible (Spec (.of C)) x₀)]
-    [IsGrothendieckAbelian.{u + 1, u + 1, u + 1}
-      (Sheaf (smallCrystallineTopology p (Spec (.of A)) I γS h_compatible s
-        (Spec (.of C)) x₀ h_p) AddCommGrpCat.{u})]
-    [IsGrothendieckAbelian.{u + 1, u + 1, u + 1}
-      (Sheaf (chaoticTopology (Spec (.of A)) I γS h_compatible (Spec (.of C)) x₀)
-        AddCommGrpCat.{u})]
-    [HasSheafify (⊥ : GrothendieckTopology
-      (crisOppSite γA (algebraMap A C) hIC hpnil)) AddCommGrpCat.{u}]
-    [HasExt (Sheaf (smallCrystallineTopology p (Spec (.of A)) I γS h_compatible s
-      (Spec (.of C)) x₀ h_p) AddCommGrpCat.{u})]
-    (F : CrisModuleSheaf (Spec (.of A)) I γS h_compatible (Spec (.of C)) x₀)
-    [IsQuasiCoherentCrystal F]
-    (T : smallCrystallineSite (Spec (.of A)) I γS h_compatible (Spec (.of C)) x₀)
-    [Module (crystallineD p IA γA π hπ J0 hJ0 hIC hpnil hIJ0 E0 hE0)
-      (CrisModuleSheaf.sectionModule F T)]
-    (family :
-      DifferentialOperator.DeRham.Family A
-        (crystallineD p IA γA π hπ J0 hJ0 hIC hpnil hIJ0 E0 hE0)
-        (crystallineOmegaD
-          (crystallineDBaseMap p IA γA π hπ J0 hJ0 hIC hpnil hIJ0 E0 hE0) γbar p))
-    (calculus :
-      ExteriorCalculus
-        (crystallineOmegaD_derivation
-          (crystallineDBaseMap p IA γA π hπ J0 hJ0 hIC hpnil hIJ0 E0 hE0) γbar p)
-        family)
-    (conn :
-      Connection
-        (crystallineOmegaD_derivation
-          (crystallineDBaseMap p IA γA π hπ J0 hJ0 hIC hpnil hIJ0 E0 hE0) γbar p)
-        (crystalCarrier p IA γA π hπ J0 hJ0 hIC hpnil hIJ0 E0 hE0 F T))
-    (h_corr : ∀ m,
-      completedTensor.of p IA γA π hπ J0 hJ0 hIC hpnil hIJ0 E0 hE0 γbar
-          (crystalCarrier p IA γA π hπ J0 hJ0 hIC hpnil hIJ0 E0 hE0 F T)
-          (conn.toAddMonoidHom m) =
-        (crystalToConnectionPair p IA γA π hπ J0 hJ0 hIC hpnil hIJ0 E0 hE0 γbar
-          F T).nabla m)
-    (hconn : Connection.IsIntegrable conn calculus) :
+/- Proposition 60.21.3: the completed de Rham complex of the module with canonical
+connection corresponding to a quasi-coherent crystal computes its crystalline
+derived global sections in the affine polynomial-envelope setup. -/
+@[stacks 07LG] #check
+  (CrystallineModuleSheaf.CrisModuleSheaf.Completed.deRhamComplex_computes
+    p γA π hπ hJ0 hIC hpnil E0 hE0 I γS h_compatible x₀ (Iso.refl (Spec (.of C)))
+    ((Category.id_comp (x₀ ≫ I.subschemeι)).trans hx₀) hI hγ F s h_p :
     IsIsomorphic
-      ((siteAbelianSectionsDerived
-          (smallCrystallineTopology p (Spec (.of A)) I γS h_compatible s
-            (Spec (.of C)) x₀ h_p)
-          (⊤_ (smallCrystallineSite (Spec (.of A)) I γS h_compatible
-            (Spec (.of C)) x₀))).obj
-        ((DerivedCategory.singleFunctor
-            (Sheaf (smallCrystallineTopology p (Spec (.of A)) I γS h_compatible s
-              (Spec (.of C)) x₀ h_p) AddCommGrpCat.{u}) 0).obj
-          (toAbelianSheaf p (Spec (.of A)) I γS h_compatible s (Spec (.of C)) x₀ h_p
-            F)))
-      ((DerivedCategory.Q).obj
-        ((ComplexShape.embeddingUpNat.extendFunctor AddCommGrpCat.{u}).obj
-          (completedDeRhamComplex calculus hconn p))) :=
-  sorry
+      (CrystallineModuleSheaf.derivedGlobalSections p (Spec (.of A)) I γS h_compatible s
+        (Spec (.of C)) x₀ h_p F)
+      (DerivedCategory.Q.obj
+        ((ComplexShape.embeddingUpNat.extendFunctor AddCommGrpCat.{u + 1}).obj
+          ((AddCommGrpCat.uliftFunctor.{u + 1, u}.mapHomologicalComplex
+            (ComplexShape.up ℕ)).obj
+              (CrystallineModuleSheaf.CrisModuleSheaf.Completed.deRhamComplex
+                p γA π hπ hJ0 hIC hpnil E0 hE0 I γS h_compatible x₀
+                (Iso.refl (Spec (.of C)))
+                ((Category.id_comp (x₀ ≫ I.subschemeι)).trans hx₀) hI hγ F)))))
 
-/-- Degreewise cohomology of `RΓ(Cris(X/S), F)` agrees with homology of the
-completed de Rham complex of the corresponding pair `(M, ∇)`. -/
-theorem affineCrystalCompletedDeRham_computes_cohomology
-    (I : (Spec.{u} (.of A)).IdealSheafData)
-    (γS : ∀ V : (Spec.{u} (.of A)).affineOpens, DividedPowers (I.ideal V))
-    (h_compatible :
-      ∀ (V : (Spec.{u} (.of A)).affineOpens) (f : Γ(Spec (.of A), V)),
-        (γS V).IsDPMorphism (γS ((Spec (.of A)).affineBasicOpen f))
-          ((Spec (.of A)).presheaf.map
-            (homOfLE ((Spec (.of A)).basicOpen_le f)).op).hom)
-    (s : Spec.{u} (.of A) ⟶ Spec (.of (ULift.{u} (Int.LocalizationAtPrime p))))
-    (x₀ : Spec.{u} (.of C) ⟶ I.subscheme)
-    (h_p : ∀ U : (Spec.{u} (.of C)).affineOpens,
-      IsNilpotent (p : Γ(Spec (.of C), U)))
-    (hI : specIdealEqOfIdealTop IA I)
-    (hγ : specDividedPowersEq IA γA I γS)
-    (hx₀ : IsCanonicalCrisStructureMap I x₀)
-    [HasSheafify
-      (smallCrystallineTopology p (Spec (.of A)) I γS h_compatible s
-        (Spec (.of C)) x₀ h_p)
-      AddCommGrpCat.{u}]
-    [HasSheafify (chaoticTopology (Spec (.of A)) I γS h_compatible (Spec (.of C)) x₀)
-      AddCommGrpCat.{u}]
-    [HasTerminal (smallCrystallineSite (Spec (.of A)) I γS h_compatible
-      (Spec (.of C)) x₀)]
-    [HasTerminal (chaoticSite (Spec (.of A)) I γS h_compatible (Spec (.of C)) x₀)]
-    [IsGrothendieckAbelian.{u + 1, u + 1, u + 1}
-      (Sheaf (smallCrystallineTopology p (Spec (.of A)) I γS h_compatible s
-        (Spec (.of C)) x₀ h_p) AddCommGrpCat.{u})]
-    [IsGrothendieckAbelian.{u + 1, u + 1, u + 1}
-      (Sheaf (chaoticTopology (Spec (.of A)) I γS h_compatible (Spec (.of C)) x₀)
-        AddCommGrpCat.{u})]
-    [HasSheafify (⊥ : GrothendieckTopology
-      (crisOppSite γA (algebraMap A C) hIC hpnil)) AddCommGrpCat.{u}]
-    [HasExt (Sheaf (smallCrystallineTopology p (Spec (.of A)) I γS h_compatible s
-      (Spec (.of C)) x₀ h_p) AddCommGrpCat.{u})]
-    (F : CrisModuleSheaf (Spec (.of A)) I γS h_compatible (Spec (.of C)) x₀)
-    [IsQuasiCoherentCrystal F]
-    (T : smallCrystallineSite (Spec (.of A)) I γS h_compatible (Spec (.of C)) x₀)
-    [Module (crystallineD p IA γA π hπ J0 hJ0 hIC hpnil hIJ0 E0 hE0)
-      (CrisModuleSheaf.sectionModule F T)]
-    (family :
-      DifferentialOperator.DeRham.Family A
-        (crystallineD p IA γA π hπ J0 hJ0 hIC hpnil hIJ0 E0 hE0)
-        (crystallineOmegaD
-          (crystallineDBaseMap p IA γA π hπ J0 hJ0 hIC hpnil hIJ0 E0 hE0) γbar p))
-    (calculus :
-      ExteriorCalculus
-        (crystallineOmegaD_derivation
-          (crystallineDBaseMap p IA γA π hπ J0 hJ0 hIC hpnil hIJ0 E0 hE0) γbar p)
-        family)
-    (conn :
-      Connection
-        (crystallineOmegaD_derivation
-          (crystallineDBaseMap p IA γA π hπ J0 hJ0 hIC hpnil hIJ0 E0 hE0) γbar p)
-        (crystalCarrier p IA γA π hπ J0 hJ0 hIC hpnil hIJ0 E0 hE0 F T))
-    (h_corr : ∀ m,
-      completedTensor.of p IA γA π hπ J0 hJ0 hIC hpnil hIJ0 E0 hE0 γbar
-          (crystalCarrier p IA γA π hπ J0 hJ0 hIC hpnil hIJ0 E0 hE0 F T)
-          (conn.toAddMonoidHom m) =
-        (crystalToConnectionPair p IA γA π hπ J0 hJ0 hIC hpnil hIJ0 E0 hE0 γbar
-          F T).nabla m)
-    (hconn : Connection.IsIntegrable conn calculus)
-    (n : ℕ) :
+variable (n : ℕ)
+
+#check
+  (CrystallineModuleSheaf.CrisModuleSheaf.Completed.deRhamComplex_cohomology
+    p γA π hπ hJ0 hIC hpnil E0 hE0 I γS h_compatible x₀ (Iso.refl (Spec (.of C)))
+    ((Category.id_comp (x₀ ≫ I.subschemeι)).trans hx₀) hI hγ F s h_p n :
     IsIsomorphic
-      ((Sheaf.functorH
-          (smallCrystallineTopology p (Spec (.of A)) I γS h_compatible s
-            (Spec (.of C)) x₀ h_p) n).obj
-        (toAbelianSheaf p (Spec (.of A)) I γS h_compatible s (Spec (.of C)) x₀ h_p F))
-      ((completedDeRhamComplex calculus hconn p).homology n) :=
-  sorry
+      ((DerivedCategory.homologyFunctor AddCommGrpCat.{u + 1} (n : ℤ)).obj
+        (CrystallineModuleSheaf.derivedGlobalSections p (Spec (.of A)) I γS h_compatible s
+          (Spec (.of C)) x₀ h_p F))
+      (((AddCommGrpCat.uliftFunctor.{u + 1, u}.mapHomologicalComplex
+        (ComplexShape.up ℕ)).obj
+          (CrystallineModuleSheaf.CrisModuleSheaf.Completed.deRhamComplex
+            p γA π hπ hJ0 hIC hpnil E0 hE0 I γS h_compatible x₀
+            (Iso.refl (Spec (.of C)))
+            ((Category.id_comp (x₀ ≫ I.subschemeι)).trans hx₀) hI hγ F)).homology n))
 
 end

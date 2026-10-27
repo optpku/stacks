@@ -42,7 +42,7 @@ condition is exactly membership of the generated sieve in that topology. -/
 @[simp]
 theorem isCovering_toPrecoverage_iff
     (J : GrothendieckTopology C) (𝒰 : FormalCoproduct.{w} (CategoryTheory.Over U)) :
-    IsCovering J.toPrecoverage 𝒰 ↔ 𝒰.toSieve ∈ J U := sorry
+    IsCovering J.toPrecoverage 𝒰 ↔ 𝒰.toSieve ∈ J U := Iff.rfl
 
 /-- a fixed-target formal coproduct is a basis covering family when it
 covers for the specified precoverage and all of its source objects lie in the chosen basis. -/
@@ -56,7 +56,7 @@ def IsBasisCovering
 theorem isBasisCovering_iff
     (K : Precoverage C) (B : Set C) (𝒰 : FormalCoproduct.{w} (CategoryTheory.Over U)) :
     𝒰.IsBasisCovering K B ↔
-      IsCovering K 𝒰 ∧ FormalCoproduct.Over.objectsIn 𝒰 B := sorry
+      IsCovering K 𝒰 ∧ FormalCoproduct.Over.objectsIn 𝒰 B := Iff.rfl
 
 /-- For a Grothendieck topology, a basis covering family is exactly a family whose generated
 sieve is covering and whose source objects lie in the designated basis. -/
@@ -64,25 +64,25 @@ sieve is covering and whose source objects lie in the designated basis. -/
 theorem isBasisCovering_toPrecoverage_iff
     (J : GrothendieckTopology C) (B : Set C) (𝒰 : FormalCoproduct.{w} (CategoryTheory.Over U)) :
     𝒰.IsBasisCovering J.toPrecoverage B ↔
-      𝒰.toSieve ∈ J U ∧ FormalCoproduct.Over.objectsIn 𝒰 B := sorry
+      𝒰.toSieve ∈ J U ∧ FormalCoproduct.Over.objectsIn 𝒰 B := Iff.rfl
 
 /-- A basis covering family is covering for its underlying precoverage. -/
 theorem IsBasisCovering.isCovering
     {K : Precoverage C} {B : Set C} {𝒰 : FormalCoproduct.{w} (CategoryTheory.Over U)}
     (h𝒰 : 𝒰.IsBasisCovering K B) :
-    IsCovering K 𝒰 := sorry
+    IsCovering K 𝒰 := h𝒰.1
 
 /-- Every source object of a basis covering family belongs to the designated basis. -/
 theorem IsBasisCovering.mem_basis
     {K : Precoverage C} {B : Set C} {𝒰 : FormalCoproduct.{w} (CategoryTheory.Over U)}
     (h𝒰 : 𝒰.IsBasisCovering K B) (i : 𝒰.I) :
-    (𝒰.obj i).left ∈ B := sorry
+    (𝒰.obj i).left ∈ B := h𝒰.2 i
 
 /-- A basis covering family lies in its designated basis. -/
 theorem IsBasisCovering.objectsIn
     {K : Precoverage C} {B : Set C} {𝒰 : FormalCoproduct.{w} (CategoryTheory.Over U)}
     (h𝒰 : 𝒰.IsBasisCovering K B) :
-    FormalCoproduct.Over.objectsIn 𝒰 B := sorry
+    FormalCoproduct.Over.objectsIn 𝒰 B := h𝒰.2
 
 /-- Adjoining one arrow gives a basis covering exactly when the enlarged family covers, the old
 sources lie in the basis, and the new source lies in the basis. -/
@@ -92,7 +92,16 @@ theorem addSingleton_isBasisCovering_iff
     {U' : C} (f : U' ⟶ U) :
     (𝒰.addSingleton f).IsBasisCovering K B ↔
       IsCovering K (𝒰.addSingleton f) ∧
-        FormalCoproduct.Over.objectsIn 𝒰 B ∧ U' ∈ B := sorry
+        FormalCoproduct.Over.objectsIn 𝒰 B ∧ U' ∈ B := by
+  constructor
+  · intro h
+    exact ⟨h.1, fun i ↦ h.2 (.inl i), h.2 (.inr ())⟩
+  · intro h
+    refine ⟨h.1, ?_⟩
+    intro i
+    cases i with
+    | inl i => exact h.2.1 i
+    | inr _ => exact h.2.2
 
 /-- A basis covering remains a basis covering after adjoining an arrow whose source lies in the
 basis, provided that the enlarged family covers. -/
@@ -101,7 +110,8 @@ theorem IsBasisCovering.addSingleton
     {K : Precoverage C} {B : Set C} {𝒰 : FormalCoproduct.{w} (CategoryTheory.Over U)}
     (h𝒰 : 𝒰.IsBasisCovering K B) {U' : C} (f : U' ⟶ U) (hU' : U' ∈ B)
     (hcover : IsCovering K (𝒰.addSingleton f)) :
-    (𝒰.addSingleton f).IsBasisCovering K B := sorry
+    (𝒰.addSingleton f).IsBasisCovering K B :=
+  (addSingleton_isBasisCovering_iff K B 𝒰 f).2 ⟨hcover, h𝒰.objectsIn, hU'⟩
 
 /-- The indexed-arrow presentation of a basis covering family is its precoverage covering
 condition together with pointwise membership of the supplied source objects. -/
@@ -109,7 +119,7 @@ condition together with pointwise membership of the supplied source objects. -/
 theorem ofArrows_isBasisCovering_iff
     (K : Precoverage C) (B : Set C) {I : Type w} (X : I → C) (f : ∀ i : I, X i ⟶ U) :
     (ofArrows X f).IsBasisCovering K B ↔
-      IsCovering K (ofArrows X f) ∧ ∀ i : I, X i ∈ B := sorry
+      IsCovering K (ofArrows X f) ∧ ∀ i : I, X i ∈ B := Iff.rfl
 
 /-- The indexed-arrow presentation of a Grothendieck-topology basis covering family is its
 generated covering sieve together with pointwise source membership. -/
@@ -118,7 +128,7 @@ theorem ofArrows_isBasisCovering_toPrecoverage_iff
     (J : GrothendieckTopology C) (B : Set C) {I : Type w} (X : I → C)
     (f : ∀ i : I, X i ⟶ U) :
     (ofArrows X f).IsBasisCovering J.toPrecoverage B ↔
-      Sieve.ofArrows X f ∈ J U ∧ ∀ i : I, X i ∈ B := sorry
+      Sieve.ofArrows X f ∈ J U ∧ ∀ i : I, X i ∈ B := Iff.rfl
 
 end FormalCoproduct
 end Limits

@@ -124,8 +124,9 @@ namespace IntervalSplit
 
 /-- The interval-tail filtration has a top and a zero stage. -/
 theorem isFinite :
-    ({ obj := ⨁ J
-       filtration := IntervalTail.filtration a b J } : FilteredObject C).IsFinite := sorry
+    FilteredObject.IsFinite
+      ({ obj := ⨁ J
+         filtration := IntervalTail.filtration a b J } : FilteredObject C) := sorry
 
 /-- The finite filtered object formed from an interval-indexed family of summands, with the tail
 filtration. -/

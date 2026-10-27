@@ -42,3 +42,15 @@ instance instRelativeDimensionZero_id {X : Scheme.{u}} :
   relativeDimension_zero_of_isOpenImmersion _
 
 end AlgebraicGeometry.Scheme.Hom
+
+namespace AlgebraicGeometry.BivariantClass
+
+open Scheme.Hom
+
+/-- An open immersion has relative dimension zero. -/
+instance instRelativeDimensionZeroOfIsOpenImmersion
+    {X Y : Scheme.{u}} (f : X ⟶ Y) [IsOpenImmersion f] :
+    RelativeDimension f 0 :=
+  relativeDimension_zero_of_isOpenImmersion f
+
+end AlgebraicGeometry.BivariantClass

@@ -28,7 +28,9 @@ namespace CrystallineObject.FirstOrderThickening
 
 
 /-- An affine open of the square-zero scheme is affine in the base scheme on the same
-underlying open. -/
+underlying open.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 theorem baseOpen_isAffine
     {S : Scheme.{u}} {I : S.IdealSheafData}
     {γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V)}
@@ -41,7 +43,9 @@ theorem baseOpen_isAffine
     (V : (scheme T).affineOpens) :
     (V.1 : T.obj.1.thickening.Opens) ∈ T.obj.1.thickening.affineOpens := sorry
 
-/-- The affine open of `T` underlying an affine open of the square-zero scheme. -/
+/-- The affine open of `T` underlying an affine open of the square-zero scheme.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 def baseAffineOpen
     {S : Scheme.{u}} {I : S.IdealSheafData}
     {γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V)}
@@ -54,7 +58,9 @@ def baseAffineOpen
     (V : (scheme T).affineOpens) : T.obj.1.thickening.affineOpens :=
   ⟨V.1, baseOpen_isAffine T V⟩
 
-/-- The canonical module structure of `Ω[T/S]` on a square-zero affine open. -/
+/-- The canonical module structure of `Ω[T/S]` on a square-zero affine open.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 abbrev differentialModule
     {S : Scheme.{u}} {I : S.IdealSheafData}
     {γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V)}
@@ -70,7 +76,9 @@ abbrev differentialModule
   (Ω[T.obj.1.thickeningToBase.toShHom]).val.obj (Opposite.op V.1) |>.isModule
 
 set_option backward.isDefEq.respectTransparency false in
-/-- The affine-section ideal `J ⊕ Ω` in the square-zero extension. -/
+/-- The affine-section ideal `J ⊕ Ω` in the square-zero extension.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 def idealFamily
     {S : Scheme.{u}} {I : S.IdealSheafData}
     {γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V)}
@@ -102,7 +110,9 @@ def idealFamily
     (oppositeModule _ _) (oppositeModule_isCentral _ _)
     (T.obj.1.ideal.ideal (baseAffineOpen T V))
 
-/-- The family `J ⊕ Ω` is compatible with localization on affine basic opens. -/
+/-- The family `J ⊕ Ω` is compatible with localization on affine basic opens.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 theorem idealFamily_map_basicOpen
     {S : Scheme.{u}} {I : S.IdealSheafData}
     {γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V)}
@@ -119,7 +129,9 @@ theorem idealFamily_map_basicOpen
           (homOfLE ((scheme T).basicOpen_le f)).op).hom =
       idealFamily T ((scheme T).affineBasicOpen f) := sorry
 
-/-- The ideal sheaf `J' = J ⊕ Ω` on the explicit square-zero scheme. -/
+/-- The ideal sheaf `J' = J ⊕ Ω` on the explicit square-zero scheme.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 def ideal
     {S : Scheme.{u}} {I : S.IdealSheafData}
     {γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V)}
@@ -134,7 +146,9 @@ def ideal
   map_ideal_basicOpen := idealFamily_map_basicOpen T
 
 set_option backward.isDefEq.respectTransparency false in
-/-- The explicit divided powers on `J' = J ⊕ Ω`. -/
+/-- The explicit divided powers on `J' = J ⊕ Ω`.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 def dividedPowers
     {S : Scheme.{u}} {I : S.IdealSheafData}
     {γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V)}
@@ -167,7 +181,9 @@ def dividedPowers
     (T.obj.1.ideal.ideal (baseAffineOpen T V))
     (T.obj.1.gamma (baseAffineOpen T V))
 
-/-- The explicit divided powers commute with restriction to affine basic opens. -/
+/-- The explicit divided powers commute with restriction to affine basic opens.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 theorem dividedPowers_compatible
     {S : Scheme.{u}} {I : S.IdealSheafData}
     {γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V)}
@@ -184,7 +200,9 @@ theorem dividedPowers_compatible
         ((scheme T).presheaf.map
           (homOfLE ((scheme T).basicOpen_le f)).op).hom := sorry
 
-/-- The ideal `J ⊕ Ω` defines a divided-power thickening. -/
+/-- The ideal `J ⊕ Ω` defines a divided-power thickening.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 theorem isDividedPowerThickening
     {S : Scheme.{u}} {I : S.IdealSheafData}
     {γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V)}
@@ -197,7 +215,9 @@ theorem isDividedPowerThickening
     IsDividedPowerThickening (scheme T) (ideal T)
       (dividedPowers T) (dividedPowers_compatible T) := sorry
 
-/-- The source inclusion commutes with the structure morphism to `S`. -/
+/-- The source inclusion commutes with the structure morphism to `S`.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 theorem source_comm
     {S : Scheme.{u}} {I : S.IdealSheafData}
     {γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V)}
@@ -212,7 +232,9 @@ theorem source_comm
       T.obj.1.source.hom ≫ x₀ ≫ I.subschemeι := sorry
 
 /-- The source inclusion into the square-zero extension is a genuine
-thickening and its kernel is the displayed divided-power ideal. -/
+thickening and its kernel is the displayed divided-power ideal.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 theorem inclusion_spec
     {S : Scheme.{u}} {I : S.IdealSheafData}
     {γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V)}
@@ -224,7 +246,9 @@ theorem inclusion_spec
     IsThickening (T.obj.1.inclusion ≫ schemeInclusion T) ∧
       ideal T = (T.obj.1.inclusion ≫ schemeInclusion T).ker := sorry
 
-/-- The crystalline object carried by the explicit square-zero extension. -/
+/-- The crystalline object carried by the explicit square-zero extension.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 def crystallineObject
     {S : Scheme.{u}} (I : S.IdealSheafData)
     (γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V))
@@ -242,7 +266,9 @@ def crystallineObject
     (isDividedPowerThickening T) (inclusion_spec T).1 (inclusion_spec T).2 (source_comm T)
 
 /-- The explicit square-zero crystalline object is compatible with the divided powers on
-the base scheme. -/
+the base scheme.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 theorem crystallineObject_baseCompatible
     {S : Scheme.{u}} (I : S.IdealSheafData)
     (γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V))
@@ -256,7 +282,9 @@ theorem crystallineObject_baseCompatible
       (crystallineObject I γ h_compatible x₀ T) := sorry
 
 /-- The explicit square-zero construction as an object of the relative crystalline
-category. -/
+category.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 def relativeObject
     {S : Scheme.{u}} (I : S.IdealSheafData)
     (γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V))
@@ -271,7 +299,9 @@ def relativeObject
     crystallineObject_baseCompatible I γ h_compatible x₀ T⟩
 
 /-- The source of the explicit square-zero object remains the original open subscheme of
-`X`. -/
+`X`.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 theorem relativeObject_sourceIsOpen
     {S : Scheme.{u}} (I : S.IdealSheafData)
     (γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V))
@@ -283,7 +313,9 @@ theorem relativeObject_sourceIsOpen
     (T : smallCrystallineSite S I γ h_compatible X x₀) :
     IsOpenImmersion (relativeObject I γ h_compatible x₀ T).1.source.hom := sorry
 
-/-- The explicit square-zero crystalline object in the full small crystalline site. -/
+/-- The explicit square-zero crystalline object in the full small crystalline site.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 def smallObject
     {S : Scheme.{u}} (I : S.IdealSheafData)
     (γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V))
@@ -297,7 +329,9 @@ def smallObject
   ⟨relativeObject I γ h_compatible x₀ T,
     relativeObject_sourceIsOpen I γ h_compatible x₀ T⟩
 
-/-- The source square for the canonical inclusion commutes. -/
+/-- The source square for the canonical inclusion commutes.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 theorem inclusion_source_comm
     {S : Scheme.{u}} (I : S.IdealSheafData)
     (γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V))
@@ -311,7 +345,9 @@ theorem inclusion_source_comm
         (crystallineObject I γ h_compatible x₀ T).inclusion =
       T.obj.1.inclusion ≫ schemeInclusion T := sorry
 
-/-- The canonical inclusion commutes with the structure morphisms to `S`. -/
+/-- The canonical inclusion commutes with the structure morphisms to `S`.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 theorem inclusion_base_comm
     {S : Scheme.{u}} (I : S.IdealSheafData)
     (γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V))
@@ -325,7 +361,9 @@ theorem inclusion_base_comm
         (crystallineObject I γ h_compatible x₀ T).thickeningToBase =
       T.obj.1.thickeningToBase := sorry
 
-/-- Pulling back `J ⊕ Ω` along the canonical inclusion lands in `J`. -/
+/-- Pulling back `J ⊕ Ω` along the canonical inclusion lands in `J`.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 theorem inclusion_ideal_compatible
     {S : Scheme.{u}} (I : S.IdealSheafData)
     (γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V))
@@ -338,7 +376,9 @@ theorem inclusion_ideal_compatible
     (crystallineObject I γ h_compatible x₀ T).ideal.comap
         (schemeInclusion T) ≤ T.obj.1.ideal := sorry
 
-/-- The canonical inclusion preserves divided powers. -/
+/-- The canonical inclusion preserves divided powers.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 theorem inclusion_dividedPowers_compatible
     {S : Scheme.{u}} (I : S.IdealSheafData)
     (γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V))
@@ -354,7 +394,9 @@ theorem inclusion_dividedPowers_compatible
       ((crystallineObject I γ h_compatible x₀ T).gamma V).IsDPMorphism
         (T.obj.1.gamma W) ((schemeInclusion T).appLE V W hVW).hom := sorry
 
-/-- The crystalline morphism underlying the canonical inclusion `T ⟶ T'`. -/
+/-- The crystalline morphism underlying the canonical inclusion `T ⟶ T'`.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 def inclusionHom
     {S : Scheme.{u}} (I : S.IdealSheafData)
     (γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V))
@@ -374,7 +416,9 @@ def inclusionHom
   dividedPowers_compatible :=
     inclusion_dividedPowers_compatible I γ h_compatible x₀ T
 
-/-- The source square for the zero-section retraction commutes. -/
+/-- The source square for the zero-section retraction commutes.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 theorem p₀_source_comm
     {S : Scheme.{u}} (I : S.IdealSheafData)
     (γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V))
@@ -388,7 +432,9 @@ theorem p₀_source_comm
       (crystallineObject I γ h_compatible x₀ T).inclusion ≫
         p₀Scheme T := sorry
 
-/-- The zero-section retraction commutes with the structure morphisms to `S`. -/
+/-- The zero-section retraction commutes with the structure morphisms to `S`.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 theorem p₀_base_comm
     {S : Scheme.{u}} (I : S.IdealSheafData)
     (γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V))
@@ -401,7 +447,9 @@ theorem p₀_base_comm
     p₀Scheme T ≫ T.obj.1.thickeningToBase =
       (crystallineObject I γ h_compatible x₀ T).thickeningToBase := sorry
 
-/-- Pulling `J` back along the zero-section retraction lands in `J ⊕ Ω`. -/
+/-- Pulling `J` back along the zero-section retraction lands in `J ⊕ Ω`.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 theorem p₀_ideal_compatible
     {S : Scheme.{u}} (I : S.IdealSheafData)
     (γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V))
@@ -414,7 +462,9 @@ theorem p₀_ideal_compatible
     T.obj.1.ideal.comap (p₀Scheme T) ≤
       (crystallineObject I γ h_compatible x₀ T).ideal := sorry
 
-/-- The zero-section retraction preserves divided powers. -/
+/-- The zero-section retraction preserves divided powers.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 theorem p₀_dividedPowers_compatible
     {S : Scheme.{u}} (I : S.IdealSheafData)
     (γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V))
@@ -431,7 +481,9 @@ theorem p₀_dividedPowers_compatible
         ((crystallineObject I γ h_compatible x₀ T).gamma W)
         ((p₀Scheme T).appLE V W hVW).hom := sorry
 
-/-- The crystalline morphism underlying the zero-section retraction `p₀ : T' ⟶ T`. -/
+/-- The crystalline morphism underlying the zero-section retraction `p₀ : T' ⟶ T`.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 def p₀Hom
     {S : Scheme.{u}} (I : S.IdealSheafData)
     (γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V))
@@ -450,7 +502,9 @@ def p₀Hom
   ideal_compatible := p₀_ideal_compatible I γ h_compatible x₀ T
   dividedPowers_compatible := p₀_dividedPowers_compatible I γ h_compatible x₀ T
 
-/-- The source square for the universal-differential retraction commutes. -/
+/-- The source square for the universal-differential retraction commutes.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 theorem p₁_source_comm
     {S : Scheme.{u}} (I : S.IdealSheafData)
     (γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V))
@@ -464,7 +518,9 @@ theorem p₁_source_comm
       (crystallineObject I γ h_compatible x₀ T).inclusion ≫
         p₁Scheme T := sorry
 
-/-- The universal-differential retraction commutes with the structure morphisms to `S`. -/
+/-- The universal-differential retraction commutes with the structure morphisms to `S`.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 theorem p₁_base_comm
     {S : Scheme.{u}} (I : S.IdealSheafData)
     (γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V))
@@ -477,7 +533,9 @@ theorem p₁_base_comm
     p₁Scheme T ≫ T.obj.1.thickeningToBase =
       (crystallineObject I γ h_compatible x₀ T).thickeningToBase := sorry
 
-/-- Pulling `J` back along the universal-differential retraction lands in `J ⊕ Ω`. -/
+/-- Pulling `J` back along the universal-differential retraction lands in `J ⊕ Ω`.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 theorem p₁_ideal_compatible
     {S : Scheme.{u}} (I : S.IdealSheafData)
     (γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V))
@@ -490,7 +548,9 @@ theorem p₁_ideal_compatible
     T.obj.1.ideal.comap (p₁Scheme T) ≤
       (crystallineObject I γ h_compatible x₀ T).ideal := sorry
 
-/-- The universal-differential retraction preserves divided powers. -/
+/-- The universal-differential retraction preserves divided powers.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 theorem p₁_dividedPowers_compatible
     {S : Scheme.{u}} (I : S.IdealSheafData)
     (γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V))
@@ -508,7 +568,9 @@ theorem p₁_dividedPowers_compatible
         ((p₁Scheme T).appLE V W hVW).hom := sorry
 
 /-- The crystalline morphism underlying the universal-differential retraction
-`p₁ : T' ⟶ T`. -/
+`p₁ : T' ⟶ T`.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 def p₁Hom
     {S : Scheme.{u}} (I : S.IdealSheafData)
     (γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V))
@@ -527,7 +589,9 @@ def p₁Hom
   ideal_compatible := p₁_ideal_compatible I γ h_compatible x₀ T
   dividedPowers_compatible := p₁_dividedPowers_compatible I γ h_compatible x₀ T
 
-/-- The canonical inclusion as a morphism in the small crystalline site. -/
+/-- The canonical inclusion as a morphism in the small crystalline site.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 def inclusionMorph
     {S : Scheme.{u}} (I : S.IdealSheafData)
     (γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V))
@@ -540,7 +604,9 @@ def inclusionMorph
     T ⟶ smallObject I γ h_compatible x₀ T :=
   ObjectProperty.homMk (inclusionHom I γ h_compatible x₀ T)
 
-/-- The canonical zero-section retraction as a morphism in the small crystalline site. -/
+/-- The canonical zero-section retraction as a morphism in the small crystalline site.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 def p₀Morph
     {S : Scheme.{u}} (I : S.IdealSheafData)
     (γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V))
@@ -554,7 +620,9 @@ def p₀Morph
   ObjectProperty.homMk (p₀Hom I γ h_compatible x₀ T)
 
 /-- The canonical universal-differential retraction as a morphism in the small
-crystalline site. -/
+crystalline site.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 def p₁Morph
     {S : Scheme.{u}} (I : S.IdealSheafData)
     (γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V))
@@ -569,7 +637,9 @@ def p₁Morph
 
 
 
-/-- The second coordinate `δ (n-1)(f) • ω` in the square-zero divided powers. -/
+/-- The second coordinate `δ (n-1)(f) • ω` in the square-zero divided powers.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 def dividedPowerSecondCoordinate
     {S : Scheme.{u}} {I : S.IdealSheafData}
     {γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V)}
@@ -590,7 +660,9 @@ def dividedPowerSecondCoordinate
   DividedPowers.TrivSqZeroExt.dpowPred
     (T.obj.1.gamma (baseAffineOpen T V)) n f • ω
 
-/-- The divided powers on `J ⊕ Ω` satisfy `δ' n (f, ω) = (δ n f, δ (n-1) f • ω)`. -/
+/-- The divided powers on `J ⊕ Ω` satisfy `δ' n (f, ω) = (δ n f, δ (n-1) f • ω)`.
+Superseded by the divided-power construction in
+`ReasLib/AlgebraicGeometry/Crystalline/FirstOrder.lean`, to be migrated and removed by 07J3 / 07J6. -/
 theorem dividedPowers_apply
     {S : Scheme.{u}} {I : S.IdealSheafData}
     {γ : ∀ V : S.affineOpens, DividedPowers (I.ideal V)}

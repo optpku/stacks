@@ -56,7 +56,12 @@ ideal lies in the extended source maximal ideal. -/
 theorem exists_pow_le_map
     (hmR : (maximalIdeal R).FG)
     (hfinite : Module.Finite (R ⧸ mR) (S ⧸ mRS)) :
-    ∃ n : ℕ, 0 < n ∧ mS ^ n ≤ mRS := sorry
+    ∃ n : ℕ, 0 < n ∧ mS ^ n ≤ mRS := by
+  letI := hfinite
+  letI : Field (R ⧸ mR) := Ideal.Quotient.field mR
+  letI : IsArtinianRing (S ⧸ mRS) := IsArtinianRing.of_finite (R ⧸ mR) _
+  obtain ⟨n, hn⟩ := exists_maximalIdeal_pow_le_of_isArtinianRing_quotient mRS
+  exact ⟨n + 1, Nat.succ_pos n, (Ideal.pow_le_pow_right (Nat.le_succ n)).trans hn⟩
 
 /-- A chosen positive exponent comparing the target and source-induced
 maximal-ideal filtrations. -/
@@ -69,13 +74,15 @@ noncomputable def exponent
 theorem exponent_pos
     (hmR : (maximalIdeal R).FG)
     (hfinite : Module.Finite (R ⧸ mR) (S ⧸ mRS)) :
-    0 < exponent hmR hfinite := sorry
+    0 < exponent hmR hfinite :=
+  (Classical.choose_spec (exists_pow_le_map hmR hfinite)).1
 
 /-- The chosen exponent has the required power containment. -/
 theorem exponent_pow_le
     (hmR : (maximalIdeal R).FG)
     (hfinite : Module.Finite (R ⧸ mR) (S ⧸ mRS)) :
-    mS ^ exponent hmR hfinite ≤ mRS := sorry
+    mS ^ exponent hmR hfinite ≤ mRS :=
+  (Classical.choose_spec (exists_pow_le_map hmR hfinite)).2
 
 /-- The extended source maximal ideal lies in the target maximal ideal. -/
 theorem map_pow_one_le : mRS ^ 1 ≤ mS := sorry

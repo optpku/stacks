@@ -6,8 +6,8 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap82.Definition_82_18_1_ChernCap
-public import stacks_project.Chap82.Definition_82_22_1_Gysin
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.ChowGroup.RefinedGysin.FirstChern
+import StacksCheckRecall
 
 /-!
 # Gysin pushforward versus first Chern class
@@ -26,34 +26,30 @@ noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.Hom
-
-variable {S : Scheme.{u}} {B X : AlgebraicSpace S}
-  [UniversallyCatenary B] [IsQuasiSeparated B]
-variable (f : X ⟶ B) [QuasiSeparated f] [LocallyOfFiniteType f]
-variable (δ : Points B → ℤ) [IsDimensionFunction δ]
-variable (L : X.Modules) [isInvertibleObject L] (s : L.sections)
-variable (k : ℤ)
-
-/-- Lemma 82.22.4 (1): In Situation 82.2.1 let `X / B` be good. Let
+/- Lemma 82.22.4 (1): In Situation 82.2.1 let `X / B` be good. Let
 `(L, s, i : D ⟶ X)` be as in Definition 82.22.1. Let `α` be a `(k + 1)`-cycle
 on `X`. Then `i_* i^* α = c1(L) ∩ α` in `CH_k(X)`. -/
-@[stacks 0ER4]
-theorem chowPushforward_gysin_eq_firstChernClassCap
-    (α : cycleGroup f δ (k + 1)) :
-    chowPushforward f δ (zeroScheme L s) k (gysin f δ k L s α) =
-      firstChernClassCap f δ L k α :=
-  sorry
+@[stacks 0ER4] #check
+  (AlgebraicGeometry.AlgebraicSpace.Hom.chowPushforward_gysin_eq_firstChernClassCap :
+    ∀ {S : Scheme.{u}} {B X : AlgebraicSpace S}
+      [UniversallyCatenary B] [IsAbsolutelyQuasiSeparated B]
+      (f : X ⟶ B) [QuasiSeparated f] [LocallyOfFiniteType f]
+      (δ : Points B → ℤ) [IsDimensionFunction δ]
+      (L : X.Modules) [isInvertibleObject L] (s : L.sections)
+      (k : ℤ) (α : Hom.cycleGroup f δ (k + 1)),
+      Hom.chowPushforward f δ (zeroScheme L s) k (Hom.gysin f δ k L s α) =
+        Hom.firstChernClassCap f δ L k α)
 
-/-- Lemma 82.22.4 (2): In particular, if `D` is an effective Cartier divisor,
-then `D · α = c1(O_X(D)) ∩ α`, identifying `O_X(D)` with `L` by Lemma 71.7.8. -/
-@[stacks 0ER4]
-theorem cartierIntersection_eq_firstChernClassCap
-    [IsEffectiveCartierDivisor (zeroSchemeι L s)]
-    (α : cycleGroup f δ (k + 1)) :
-    cartierIntersection f δ k L s α = firstChernClassCap f δ L k α :=
-  sorry
-
-end Hom
-
-end AlgebraicGeometry.AlgebraicSpace
+/- Lemma 82.22.4 (2): If `D` is an effective Cartier divisor, then
+`D · α = c1(O_X(D)) ∩ α`. The effective Cartier pair `(L, s)` represents
+`O_X(D)`, as explained in the source section introduction. -/
+@[stacks 0ER4] #check
+  (AlgebraicGeometry.AlgebraicSpace.Hom.cartierIntersection_eq_firstChernClassCap :
+    ∀ {S : Scheme.{u}} {B X : AlgebraicSpace S}
+      [UniversallyCatenary B] [IsAbsolutelyQuasiSeparated B]
+      (f : X ⟶ B) [QuasiSeparated f] [LocallyOfFiniteType f]
+      (δ : Points B → ℤ) [IsDimensionFunction δ]
+      (L : X.Modules) [isInvertibleObject L] (s : L.sections)
+      (k : ℤ) [IsEffectiveCartierDivisor (zeroSchemeι L s)]
+      (α : Hom.cycleGroup f δ (k + 1)),
+      Hom.cartierIntersection f δ k L s α = Hom.firstChernClassCap f δ L k α)

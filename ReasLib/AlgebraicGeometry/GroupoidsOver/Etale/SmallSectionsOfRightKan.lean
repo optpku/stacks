@@ -28,6 +28,14 @@ namespace AlgebraicGeometry.GroupoidsOver
 
 variable {S : Scheme.{u}} {X Y : GroupoidsOver S}
 
+/-- Pointwise right Kan extensions along the cartesian total functor yield pointwise
+right Kan extensions along the underlying total functor. -/
+instance toFunctor_hasPointwiseRightKanExtension_of_cartesian (h : X ⟶ Y)
+    [∀ P : X.totalᵒᵖ ⥤ Type u,
+      (toCartesianBasedFunctor h).toFunctor.op.HasPointwiseRightKanExtension P] :
+    ∀ P : X.totalᵒᵖ ⥤ Type u,
+      (toFunctor h).op.HasPointwiseRightKanExtension P := sorry
+
 /-- The stronger presheaf extension premise supplies the exact sheaf-section size condition. -/
 instance hasSmallCFGTypeSections_of_pointwiseRightKanExtension (h : X ⟶ Y)
     [∀ P : X.totalᵒᵖ ⥤ Type u,

@@ -8,6 +8,7 @@ module
 
 public import ReasLib.AlgebraicGeometry.AlgebraicStack.Points.OpenMap
 public import ReasLib.AlgebraicGeometry.AlgebraicStack.TwoFibreProduct
+public import ReasLib.CategoryTheory.Bicategory.Limits.PseudoPullback.ProjectionEquivalence.Right
 
 /-!
 # Open and universally open morphisms of algebraic stacks
@@ -42,13 +43,22 @@ namespace Open
 instance comp {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Z]
     (f : X ⟶ Y) (g : Y ⟶ Z) [Open f] [Open g] :
-    Open (f ≫ g) :=
-  sorry
+    Open (f ≫ g) := by
+  constructor
+  change IsOpenMap (Points.map (f ≫ g))
+  have h : Points.map (f ≫ g) = Points.map g ∘ Points.map f :=
+    funext (Points.map_comp f g)
+  rw [h]
+  exact IsOpenMap.comp (Open.isOpenMap (f := g)) (Open.isOpenMap (f := f))
 
 /-- The identity morphism of an algebraic stack is open. -/
 instance id {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X] :
-    Open (𝟙 X) :=
-  sorry
+    Open (𝟙 X) := by
+  constructor
+  change IsOpenMap (Points.map (𝟙 X))
+  have h : Points.map (𝟙 X) = _root_.id := funext Points.map_id
+  rw [h]
+  exact IsOpenMap.id
 
 /-- An open morphism induces an open map on points for any pair of canonical
 topologies. -/
@@ -57,7 +67,7 @@ theorem spec {S : Scheme.{u}} {X Y : GroupoidsOver S}
     {τX : TopologicalSpace (Points X)} {τY : TopologicalSpace (Points Y)}
     (hX : IsPointsTopology X τX) (hY : IsPointsTopology Y τY) :
     isOpenMapOnPoints τX τY f :=
-  sorry
+  (pointsIsOpenMap_iff f).mp Open.isOpenMap τX τY hX hY
 
 /-- A morphism is open if its induced map on canonical point spaces is open. -/
 theorem of {S : Scheme.{u}} {X Y : GroupoidsOver S}
@@ -106,7 +116,8 @@ instance twoFibreProduct_snd {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Z]
     {f : X ⟶ Y} (g : Z ⟶ Y) [UniversallyOpen f] :
     Open (TwoFibreProduct.snd.{u + 1, u, u + 1, u} f g) :=
-  sorry
+  UniversallyOpen.spec (TwoFibreProduct.comparisonIso f g)
+    (TwoFibreProduct.cone.isBilimit f g)
 
 /-- Universally open morphisms remain universally open along the second
 projection of any algebraic-stack bilimit square. -/
@@ -123,15 +134,26 @@ instance twoFibreProduct_fst {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] [AlgebraicStack Z]
     (f : X ⟶ Y) (g : Z ⟶ Y) [UniversallyOpen g] :
     UniversallyOpen (TwoFibreProduct.fst.{u + 1, u, u + 1, u} f g) :=
-  sorry
+  @UniversallyOpen.of_isBilimit S Z Y X _ _ _ g f _
+    (TwoFibreProduct.cone f g).swap (instTwoFibreProduct (f := f) (g := g))
+    (PseudoPullbackCone.swap.isBilimitOf _ (TwoFibreProduct.cone.isBilimit f g))
 
 end UniversallyOpen
 
 /-- A universally open morphism of algebraic stacks is open. -/
 instance instOpen_of_universallyOpen {S : Scheme.{u}}
     {X Y : GroupoidsOver S} [AlgebraicStack X] [AlgebraicStack Y]
-    (f : X ⟶ Y) [UniversallyOpen f] : Open f :=
-  sorry
+    (f : X ⟶ Y) [UniversallyOpen f] : Open f := by
+  let c := PseudoPullbackCone.ofRightEquivalence f (Bicategory.Equivalence.OnHom.id Y)
+  have hc : c.IsBilimit := PseudoPullbackCone.ofRightEquivalence.isBilimit f _
+  have h : Open (f ≫ 𝟙 Y) := UniversallyOpen.spec c.iso hc
+  constructor
+  change IsOpenMap (Points.map f)
+  have hm : Points.map (f ≫ 𝟙 Y) = Points.map f := by
+    funext x
+    simp only [Points.map_comp, Points.map_id]
+  rw [← hm]
+  exact h.isOpenMap
 
 /-- A morphism of algebraic stacks is universally open if and only if every
 chosen second 2-fibre-product projection is open. -/

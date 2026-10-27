@@ -50,7 +50,7 @@ theorem pseudoCoherent_iff {S : Scheme.{u}} {X Y : AlgebraicSpace S}
           (over (@AlgebraicGeometry.Etale)).presheaf b →
             a ≫ f = yoneda.map h ≫ b →
               AlgebraicGeometry.PseudoCoherent h.left :=
-  sorry
+  ⟨fun hf ↦ hf.of_etale, fun hf ↦ ⟨hf⟩⟩
 
 namespace PseudoCoherent
 
@@ -62,7 +62,7 @@ theorem spec {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
     (ha : (over (@AlgebraicGeometry.Etale)).presheaf a)
     (hb : (over (@AlgebraicGeometry.Etale)).presheaf b)
     (w : a ≫ f = yoneda.map h ≫ b) : AlgebraicGeometry.PseudoCoherent h.left :=
-  sorry
+  PseudoCoherent.of_etale a b h ha hb w
 
 /-- The identity morphism of an algebraic space is pseudo-coherent. -/
 instance id {S : Scheme.{u}} {X : AlgebraicSpace S} : PseudoCoherent (𝟙 X) :=
@@ -86,7 +86,7 @@ theorem pseudoCoherent_iff_etaleLocal {S : Scheme.{u}} {X Y : AlgebraicSpace S}
     PseudoCoherent f ↔
       etaleLocal
         (@AlgebraicGeometry.PseudoCoherent : MorphismProperty Scheme.{u}) f :=
-  sorry
+  pseudoCoherent_iff f
 
 /-- A morphism `f : X ⟶ Y` of algebraic spaces is pseudo-coherent at a point `x`
 of `X` if it is pseudo-coherent after restriction to some open subspace
@@ -104,7 +104,7 @@ theorem pseudoCoherentAt_iff {S : Scheme.{u}} {X Y : AlgebraicSpace S}
       ∃ (X' : AlgebraicSpace S) (i : X' ⟶ X),
         IsOpenImmersion i ∧ x ∈ Set.range (Points.map i) ∧
           PseudoCoherent (i ≫ f) :=
-  sorry
+  Iff.rfl
 
 namespace PseudoCoherentAt
 
@@ -114,7 +114,7 @@ theorem of {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y}
     {x : Points X} {X' : AlgebraicSpace S} {i : X' ⟶ X}
     [IsOpenImmersion i] (hx : x ∈ Set.range (Points.map i))
     [PseudoCoherent (i ≫ f)] : PseudoCoherentAt f x :=
-  sorry
+  ⟨X', i, inferInstance, hx, inferInstance⟩
 
 end PseudoCoherentAt
 
@@ -122,8 +122,26 @@ end PseudoCoherentAt
 point of its source. -/
 theorem pseudoCoherentAt_of_pseudoCoherent {S : Scheme.{u}}
     {X Y : AlgebraicSpace S} (f : X ⟶ Y) [PseudoCoherent f] (x : Points X) :
-    PseudoCoherentAt f x :=
-  sorry
+    PseudoCoherentAt f x := by
+  refine ⟨X, 𝟙 X, ?_, ?_, ?_⟩
+  · show IsOpenImmersion (𝟙 X)
+    constructor
+    change (over (@AlgebraicGeometry.IsOpenImmersion)).presheaf (𝟙 X.functorOfPoints)
+    refine ⟨Functor.relativelyRepresentable.of_isIso yoneda _, ?_⟩
+    intro U V b fst snd h
+    have : IsIso (yoneda.map snd) := h.isIso_snd_of_isIso
+    have : IsIso snd := isIso_of_reflects_iso snd yoneda
+    have : IsIso snd.left := inferInstanceAs (IsIso ((Over.forget S).map snd))
+    change AlgebraicGeometry.IsOpenImmersion snd.left
+    infer_instance
+  · show x ∈ Set.range (Points.map (𝟙 X))
+    refine ⟨x, ?_⟩
+    induction x using Quotient.inductionOn with
+    | h p =>
+      change Quotient.mk _ (p.map (𝟙 X)) = Quotient.mk _ p
+      congr 1
+  · show PseudoCoherent (𝟙 X ≫ f)
+    simpa only [Category.id_comp] using (inferInstance : PseudoCoherent f)
 
 /-- Pseudo-coherence at a point is equivalent to the neighbourhood étale-local
 lift of scheme-level pseudo-coherence at that point. -/
@@ -131,7 +149,12 @@ theorem pseudoCoherentAt_iff_etaleLocalNear {S : Scheme.{u}}
     {X Y : AlgebraicSpace S} (f : X ⟶ Y) (x : Points X) :
     PseudoCoherentAt f x ↔
       etaleLocalNear
-        (@AlgebraicGeometry.PseudoCoherent : MorphismProperty Scheme.{u}) f x :=
-  sorry
+        (@AlgebraicGeometry.PseudoCoherent : MorphismProperty Scheme.{u}) f x := by
+  unfold PseudoCoherentAt etaleLocalNear
+  constructor
+  · rintro ⟨X', i, hi, hx, hf⟩
+    exact ⟨X', i, hi, hx, (pseudoCoherent_iff_etaleLocal (i ≫ f)).mp hf⟩
+  · rintro ⟨X', i, hi, hx, hf⟩
+    exact ⟨X', i, hi, hx, (pseudoCoherent_iff_etaleLocal (i ≫ f)).mpr hf⟩
 
 end AlgebraicGeometry.AlgebraicSpace

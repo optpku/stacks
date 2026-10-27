@@ -6,7 +6,8 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import Mathlib.Tactic.CrossRefAttribute
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.RingedSite.Localization.Simplicial.DerivedModuleDescent
 public import stacks_project.Chap85.Lemma_85_20_2_Adjunction
 
 /-!
@@ -45,26 +46,19 @@ variable [∀ P : (Grothendieck (overSiteDiagram K.toSimplicialObject))ᵒᵖ �
 variable [(overSiteTotalTopology (X.localization U).siteTopology
     K.toSimplicialObject).HasSheafCompose (CategoryTheory.forget RingCat.{w})]
 variable [(X.localization U).siteTopology.HasSheafCompose (CategoryTheory.forget RingCat.{w})]
-variable [(SheafOfModules.restrictScalars.{w}
-    (toAmbient_terminal (X.localization U)
-      (toSliceTerminal X.siteTopology U K)).structureMap).IsRightAdjoint]
-variable [ToposHom.HasModulePullbackDerived
-    (toAmbient_terminal (X.localization U) (toSliceTerminal X.siteTopology U K))]
-variable [ToposHom.HasModulePushforwardDerived
-    (toAmbient_terminal (X.localization U) (toSliceTerminal X.siteTopology U K))]
-variable [HasModuleDerivedAdjunction U K]
 
-/-- Lemma 85.20.2: Let `C` be a site with fibre products and `X` an object of
-`C`. Let `O_C` be a sheaf of rings. Let `K` be a hypercovering of `X`. For
-`E ∈ D(O_X)` the map `E ⟶ Ra_* La^* E` is an isomorphism. -/
-@[stacks 0DA5]
-theorem derivedUnit_app_isIso (E : Hom.ModuleDerived.{w} (X.localization U)) :
-    IsIso ((derivedUnit U K).app E :
-      E ⟶ (modulePushforwardDerived U K).obj ((modulePullbackDerived U K).obj E)) :=
-  sorry
+/- Lemma 85.20.2: For every object of the unbounded derived category of
+module sheaves on `X.localization U`, the canonical derived unit of a
+hypercovering of `U` is invertible. -/
+@[stacks 0DA5] #check
+  (RingedSite.Localization.AtSimplicialSR.derivedUnit_app_isIso
+    (X := X.localization U) (toSliceTerminal X.siteTopology U K) :
+    ∀ E : Hom.ModuleDerived.{w} (X.localization U),
+      IsIso ((RingedSite.Hypercovering.derivedUnit U K).app E))
 
-/-- The derived unit `𝟭 ⟶ La^* ⋙ Ra_*` is an isomorphism of functors on `D(O_X)`. -/
-theorem derivedUnit_isIso : IsIso (derivedUnit U K) :=
-  sorry
+#check
+  (RingedSite.Localization.AtSimplicialSR.derivedUnit_isIso
+    (X := X.localization U) (toSliceTerminal X.siteTopology U K) :
+    IsIso (RingedSite.Hypercovering.derivedUnit U K))
 
 end RingedSite.Hypercovering

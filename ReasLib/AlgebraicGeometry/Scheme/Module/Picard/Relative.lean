@@ -34,16 +34,18 @@ noncomputable def presheaf {S : Scheme.{u}} (X : Over S) :
 theorem presheaf_obj {S : Scheme.{u}} (X T : Over S) :
     (presheaf X).obj (op T) = (T ⊗ X).left.PicardGroup := sorry
 
-/-- The relative Picard functor is the fppf sheafification of the presheaf
-`T ↦ Pic(T ×ₛ X)`. -/
+/-- The relative Picard functor is the concrete fppf `plus-plus` sheafification
+of `T ↦ Pic(T ×ₛ X)`. Use the same model and unit as the group-valued
+sheafification and the degree subfunctors. The abstract chosen left adjoint
+`presheafToSheaf` is only canonically isomorphic to this model. -/
 noncomputable def functor {S : Scheme.{u}} (X : Over S) :
     Sheaf (Scheme.fppfTopology.over S) (Type (u + 1)) :=
-  (presheafToSheaf (Scheme.fppfTopology.over S) (Type (u + 1))).obj (presheaf X)
+  (plusPlusSheaf (Scheme.fppfTopology.over S) (Type (u + 1))).obj (presheaf X)
 
 /-- The underlying presheaf of the relative Picard functor is the fppf sheafification of
 `presheaf X`. -/
 theorem functor_val {S : Scheme.{u}} (X : Over S) :
-    (functor X).obj = (Scheme.fppfTopology.over S).sheafify (presheaf X) := sorry
+    (functor X).obj = (Scheme.fppfTopology.over S).sheafify (presheaf X) := rfl
 
 /-- A chosen `S`-scheme representing the relative Picard functor. -/
 noncomputable def scheme {S : Scheme.{u}} (X : Over S)

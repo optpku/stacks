@@ -55,7 +55,8 @@ theorem mapCompIsoApp.hom.fst
     (f : V ⟶ U) (g : W ⟶ V)
     (P : (fiberFunctor F U) ⊡ (fiberFunctor G U)) :
     (mapCompIsoApp F G f g P).hom.fst =
-      (Functor.Chosen.Reindex.compIsoApp X.p f g P.fst).hom := sorry
+      (Functor.Chosen.Reindex.compIsoApp X.p f g P.fst).hom := by
+  rfl
 
 /-- The right component of the forward selected fiber-pullback composition comparison. -/
 @[simp]
@@ -64,7 +65,8 @@ theorem mapCompIsoApp.hom.snd
     (f : V ⟶ U) (g : W ⟶ V)
     (P : (fiberFunctor F U) ⊡ (fiberFunctor G U)) :
     (mapCompIsoApp F G f g P).hom.snd =
-      (Functor.Chosen.Reindex.compIsoApp Y.p f g P.snd).hom := sorry
+      (Functor.Chosen.Reindex.compIsoApp Y.p f g P.snd).hom := by
+  rfl
 
 /-- The left component of the inverse selected fiber-pullback composition comparison. -/
 @[simp]
@@ -73,7 +75,8 @@ theorem mapCompIsoApp.inv.fst
     (f : V ⟶ U) (g : W ⟶ V)
     (P : (fiberFunctor F U) ⊡ (fiberFunctor G U)) :
     (mapCompIsoApp F G f g P).inv.fst =
-      (Functor.Chosen.Reindex.compIsoApp X.p f g P.fst).inv := sorry
+      (Functor.Chosen.Reindex.compIsoApp X.p f g P.fst).inv := by
+  rfl
 
 /-- The right component of the inverse selected fiber-pullback composition comparison. -/
 @[simp]
@@ -82,7 +85,8 @@ theorem mapCompIsoApp.inv.snd
     (f : V ⟶ U) (g : W ⟶ V)
     (P : (fiberFunctor F U) ⊡ (fiberFunctor G U)) :
     (mapCompIsoApp F G f g P).inv.snd =
-      (Functor.Chosen.Reindex.compIsoApp Y.p f g P.snd).inv := sorry
+      (Functor.Chosen.Reindex.compIsoApp Y.p f g P.snd).inv := by
+  rfl
 
 /-- The selected objectwise fiber-pullback composition comparisons are natural. -/
 theorem mapCompIsoApp.naturality.hom
@@ -92,7 +96,10 @@ theorem mapCompIsoApp.naturality.hom
     (functor F G (g ≫ f)).map φ ≫
         (mapCompIsoApp F G f g Q).hom =
       (mapCompIsoApp F G f g P).hom ≫
-        (functor F G f ⋙ functor F G g).map φ := sorry
+        (functor F G f ⋙ functor F G g).map φ := by
+  apply CategoricalPullback.hom_ext
+  · exact (Functor.Chosen.Reindex.compIso X.p f g).hom.naturality φ.fst
+  · exact (Functor.Chosen.Reindex.compIso Y.p f g).hom.naturality φ.snd
 
 /-- Inverse naturality of the selected objectwise fiber-pullback composition comparison. -/
 theorem mapCompIsoApp.naturality.inv
@@ -102,7 +109,10 @@ theorem mapCompIsoApp.naturality.inv
     (functor F G f ⋙ functor F G g).map φ ≫
         (mapCompIsoApp F G f g Q).inv =
       (mapCompIsoApp F G f g P).inv ≫
-        (functor F G (g ≫ f)).map φ := sorry
+        (functor F G (g ≫ f)).map φ := by
+  apply CategoricalPullback.hom_ext
+  · exact (Functor.Chosen.Reindex.compIso X.p f g).inv.naturality φ.fst
+  · exact (Functor.Chosen.Reindex.compIso Y.p f g).inv.naturality φ.snd
 
 /-- Direct and successive selected reindexing of categorical pullbacks of fibers are naturally
 isomorphic. -/
@@ -123,7 +133,8 @@ theorem mapCompIso.hom.app.fst
     (f : V ⟶ U) (g : W ⟶ V)
     (P : (fiberFunctor F U) ⊡ (fiberFunctor G U)) :
     ((mapCompIso F G f g).hom.app P).fst =
-      (Functor.Chosen.Reindex.compIsoApp X.p f g P.fst).hom := sorry
+      (Functor.Chosen.Reindex.compIsoApp X.p f g P.fst).hom := by
+  rfl
 
 /-- The second component of the forward selected natural composition comparison. -/
 @[simp]
@@ -132,7 +143,8 @@ theorem mapCompIso.hom.app.snd
     (f : V ⟶ U) (g : W ⟶ V)
     (P : (fiberFunctor F U) ⊡ (fiberFunctor G U)) :
     ((mapCompIso F G f g).hom.app P).snd =
-      (Functor.Chosen.Reindex.compIsoApp Y.p f g P.snd).hom := sorry
+      (Functor.Chosen.Reindex.compIsoApp Y.p f g P.snd).hom := by
+  rfl
 
 /-- The first component of the inverse selected natural composition comparison. -/
 @[simp]
@@ -141,7 +153,8 @@ theorem mapCompIso.inv.app.fst
     (f : V ⟶ U) (g : W ⟶ V)
     (P : (fiberFunctor F U) ⊡ (fiberFunctor G U)) :
     ((mapCompIso F G f g).inv.app P).fst =
-      (Functor.Chosen.Reindex.compIsoApp X.p f g P.fst).inv := sorry
+      (Functor.Chosen.Reindex.compIsoApp X.p f g P.fst).inv := by
+  rfl
 
 /-- The second component of the inverse selected natural composition comparison. -/
 @[simp]
@@ -150,7 +163,8 @@ theorem mapCompIso.inv.app.snd
     (f : V ⟶ U) (g : W ⟶ V)
     (P : (fiberFunctor F U) ⊡ (fiberFunctor G U)) :
     ((mapCompIso F G f g).inv.app P).snd =
-      (Functor.Chosen.Reindex.compIsoApp Y.p f g P.snd).inv := sorry
+      (Functor.Chosen.Reindex.compIsoApp Y.p f g P.snd).inv := by
+  rfl
 
 end FiberedCategoryOver.PseudoPullback.reindex.chosen
 

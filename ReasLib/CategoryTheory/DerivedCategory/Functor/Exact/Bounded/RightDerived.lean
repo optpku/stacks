@@ -17,8 +17,9 @@ public import Mathlib.Tactic.CrossRefAttribute
 
 An exact functor acts directly on bounded-below derived categories.  This leaf records the
 factorization through bounded-below localization and compares that exact action with the
-canonical total right-derived functor.  The comparison isomorphism is obtained directly from
-uniqueness of right-derived functors, so no separate invertibility proof selects inverse data.
+canonical total right-derived functor.  The comparison maps are the universal map out of that
+right-derived functor and the localization lift of the displayed factorization followed by its
+unit.  Its inverse is not selected from a separate invertibility or derived-model certificate.
 -/
 
 @[expose] public section
@@ -69,18 +70,51 @@ factorization, without choosing an inverse from a separate `IsIso` proof. -/
 @[stacks 015F "exact action is a bounded-below right-derived functor"]
 noncomputable instance actionIsRightDerived (F : A ⥤ₑ B) :
     (functor F).IsRightDerivedFunctor (factorIso F).hom
-      (HomotopyCategory.Plus.quasiIso A) := sorry
+      (HomotopyCategory.Plus.quasiIso A) :=
+  Functor.isRightDerivedFunctor_of_inverts
+    (HomotopyCategory.Plus.quasiIso A) (functor F) (factorIso F).symm
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The canonical bounded-below total right-derived functor of an exact functor is naturally
 isomorphic to its direct exact-derived action. -/
 @[stacks 015F "bounded-below exact right-derived comparison isomorphism"]
 noncomputable def rightDerivedIso (F : A ⥤ₑ B)
     [F.obj.toBoundedBelowDerived.HasRightDerivedFunctor
       (HomotopyCategory.Plus.quasiIso A)] :
-    Functor.RightDerived.Bounded.functor F.obj ≅ functor F :=
-  Functor.rightDerivedUnique (Functor.RightDerived.Bounded.functor F.obj) (functor F)
-    (Functor.RightDerived.Bounded.unit F.obj) (factorIso F).hom
-      (HomotopyCategory.Plus.quasiIso A)
+    Functor.RightDerived.Bounded.functor F.obj ≅ functor F where
+  hom := Functor.rightDerivedDesc (Functor.RightDerived.Bounded.functor F.obj)
+    (Functor.RightDerived.Bounded.unit F.obj) (HomotopyCategory.Plus.quasiIso A)
+    (functor F) (factorIso F).hom
+  inv := (Localization.fullyFaithfulWhiskeringLeft
+    (DerivedCategory.Plus.Qh : HomotopyCategory.Plus A ⥤ DerivedCategory.Plus A)
+    (HomotopyCategory.Plus.quasiIso A) (DerivedCategory.Plus B)).preimage
+      ((factorIso F).inv ≫ Functor.RightDerived.Bounded.unit F.obj)
+  hom_inv_id := by
+    let ff := Localization.fullyFaithfulWhiskeringLeft
+      (DerivedCategory.Plus.Qh : HomotopyCategory.Plus A ⥤ DerivedCategory.Plus A)
+      (HomotopyCategory.Plus.quasiIso A) (DerivedCategory.Plus B)
+    have hinv : Functor.whiskerLeft DerivedCategory.Plus.Qh
+        (ff.preimage ((factorIso F).inv ≫ Functor.RightDerived.Bounded.unit F.obj)) =
+        (factorIso F).inv ≫ Functor.RightDerived.Bounded.unit F.obj :=
+      ff.map_preimage _
+    apply Functor.rightDerived_ext (Functor.RightDerived.Bounded.functor F.obj)
+      (Functor.RightDerived.Bounded.unit F.obj) (HomotopyCategory.Plus.quasiIso A)
+    rw [Functor.whiskerLeft_comp, ← Category.assoc, Functor.rightDerived_fac,
+      hinv, Iso.hom_inv_id_assoc, Functor.whiskerLeft_id', Category.comp_id]
+  inv_hom_id := by
+    apply (Localization.fullyFaithfulWhiskeringLeft
+      (DerivedCategory.Plus.Qh : HomotopyCategory.Plus A ⥤ DerivedCategory.Plus A)
+      (HomotopyCategory.Plus.quasiIso A) (DerivedCategory.Plus B)).map_injective
+    simp only [Functor.map_comp, Functor.map_id]
+    erw [Functor.FullyFaithful.map_preimage]
+    rw [Category.assoc]
+    change (factorIso F).inv ≫ Functor.RightDerived.Bounded.unit F.obj ≫
+      Functor.whiskerLeft DerivedCategory.Plus.Qh
+        (Functor.rightDerivedDesc (Functor.RightDerived.Bounded.functor F.obj)
+          (Functor.RightDerived.Bounded.unit F.obj) (HomotopyCategory.Plus.quasiIso A)
+          (functor F) (factorIso F).hom) = _
+    rw [Functor.rightDerived_fac, Iso.inv_hom_id]
+    rfl
 
 /-- The forward map from the canonical bounded-below right-derived functor of an exact functor
 to its direct exact-derived action. -/
@@ -98,6 +132,9 @@ theorem rightDerivedComparison_fac (F : A ⥤ₑ B)
       (HomotopyCategory.Plus.quasiIso A)] :
     Functor.RightDerived.Bounded.unit F.obj ≫
         Functor.whiskerLeft DerivedCategory.Plus.Qh (rightDerivedComparison F) =
-      (factorIso F).hom := sorry
+      (factorIso F).hom :=
+  Functor.rightDerived_fac (Functor.RightDerived.Bounded.functor F.obj)
+    (Functor.RightDerived.Bounded.unit F.obj) (HomotopyCategory.Plus.quasiIso A)
+    (functor F) (factorIso F).hom
 
 end CategoryTheory.ExactFunctor.Derived.Plus

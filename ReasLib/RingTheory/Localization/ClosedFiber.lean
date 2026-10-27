@@ -71,7 +71,13 @@ theorem existsAssociatedPrimeOfMaximal
 /-- Localizing at the elements acting regularly on the closed-fiber module gives a semilocal
 ring. -/
 @[stacks 05DE]
-instance instFiniteMaximalSpectrum :
+instance instFiniteMaximalSpectrum
+    [IsNoetherianRing
+      (S ⧸ Ideal.map (algebraMap R S) (IsLocalRing.maximalIdeal R))]
+    [Module.Finite
+      (S ⧸ Ideal.map (algebraMap R S) (IsLocalRing.maximalIdeal R))
+      (N ⧸ (Ideal.map (algebraMap R S) (IsLocalRing.maximalIdeal R) •
+        (⊤ : Submodule S N)))] :
     Finite (MaximalSpectrum
       (Localization (nonZeroSMulDivisors S
         (N ⧸ (Ideal.map (algebraMap R S) (IsLocalRing.maximalIdeal R) •

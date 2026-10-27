@@ -53,55 +53,55 @@ def mapFunctor (X Y : StackOver.Sets.{u, v, w, vS} J) :
 @[simp]
 theorem map.hom (F : X ⟶ Y) :
     (map F).hom =
-      StackOver.Setoids.inertia.map (Hom.toSetoidsMor F) := sorry
+      StackOver.Setoids.inertia.map (Hom.toSetoidsMor F) := rfl
 
 /-- Forgetting to set-fibred categories gives the neutral inertia action directly. -/
 @[simp, stacks 04Z4 "underlying set-fibred absolute-inertia map"]
 theorem map.toSets (F : X ⟶ Y) :
     Hom.toSetsMor (map F) =
       (FiberedCategoryOver.Sets.Inertia.strictPseudofunctor C).map
-        (Hom.toSetsMor F) := sorry
+        (Hom.toSetsMor F) := rfl
 
 /-- The underlying setoid-stack `2`-cell is the setoid-stack inertia action. -/
 @[simp]
 theorem map₂.hom {F G : X ⟶ Y} (eta : F ⟶ G) :
-    (map₂ eta).hom = StackOver.Setoids.inertia.map₂ eta.hom := sorry
+    (map₂ eta).hom = StackOver.Setoids.inertia.map₂ eta.hom := rfl
 
 /-- The based natural transformation underlying a set-stack inertia `2`-cell is the neutral
 inertia action. -/
 @[simp]
 theorem map₂.toBased {F G : X ⟶ Y} (eta : F ⟶ G) :
     (map₂ eta).hom.hom.hom.hom =
-      BasedCategory.Inertia.map₂ eta.hom.hom.hom.hom := sorry
+      BasedCategory.Inertia.map₂ eta.hom.hom.hom.hom := rfl
 
 /-- Set-stack inertia preserves identity `1`-morphisms strictly. -/
 @[simp]
 theorem map.id (X : StackOver.Sets.{u, v, w, vS} J) :
-    map (𝟙 X) = 𝟙 (StackOver.Sets.inertia X) := sorry
+    map (𝟙 X) = 𝟙 (StackOver.Sets.inertia X) := rfl
 
 /-- Set-stack inertia preserves horizontal composition strictly. -/
 @[simp]
 theorem map.comp
     {Z : StackOver.Sets.{u, v, w, vS} J} (F : X ⟶ Y) (G : Y ⟶ Z) :
-    map (F ≫ G) = map F ≫ map G := sorry
+    map (F ≫ G) = map F ≫ map G := rfl
 
 /-- Set-stack inertia preserves identity `2`-morphisms. -/
 @[simp]
-theorem map₂.id (F : X ⟶ Y) : map₂ (𝟙 F) = 𝟙 (map F) := sorry
+theorem map₂.id (F : X ⟶ Y) : map₂ (𝟙 F) = 𝟙 (map F) := rfl
 
 /-- Set-stack inertia preserves vertical composition of `2`-morphisms. -/
 @[simp]
 theorem map₂.comp {F G H : X ⟶ Y} (eta : F ⟶ G) (theta : G ⟶ H) :
-    map₂ (eta ≫ theta) = map₂ eta ≫ map₂ theta := sorry
+    map₂ (eta ≫ theta) = map₂ eta ≫ map₂ theta := rfl
 
 /-- The object action of the local inertia functor is `inertia.map`. -/
 @[simp]
-theorem mapFunctor.obj (F : X ⟶ Y) : (mapFunctor X Y).obj F = map F := sorry
+theorem mapFunctor.obj (F : X ⟶ Y) : (mapFunctor X Y).obj F = map F := rfl
 
 /-- The morphism action of the local inertia functor is `inertia.map₂`. -/
 @[simp]
 theorem mapFunctor.map {F G : X ⟶ Y} (eta : F ⟶ G) :
-    (mapFunctor X Y).map eta = map₂ eta := sorry
+    (mapFunctor X Y).map eta = map₂ eta := rfl
 
 end StackOver.Sets.inertia
 

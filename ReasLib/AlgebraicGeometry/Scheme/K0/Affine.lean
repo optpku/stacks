@@ -141,7 +141,7 @@ namespace K0
 equivalent.  The proposition records the source-level existence claim; callers that
 need computational maps use `affineEquiv` with an explicit `K0Comparison`. -/
 theorem exists_affineEquiv (R : CommRingCat.{u}) :
-    Nonempty (K0 (Spec R) ≃+ ModuleCat.K0.projective R) :=
+    Nonempty (K0 (Spec R) ≃+ ModuleCat.K0.projective.{u, u} R) :=
   Nonempty.map (fun h : CategoryTheory.K0Comparison R ↦ K0.affineEquiv R h)
     (CategoryTheory.exists_K0Comparison (R := R))
 

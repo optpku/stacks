@@ -41,21 +41,24 @@ variable {J : Type uJ} [Bicategory.{wJ, vJ} J]
 theorem mapPseudoCone.pseudofunctor.obj.pt {E : Pseudofunctor J B}
     (K : Pseudofunctor B D) (S : Bicategory.PseudoCone E) :
     ((mapPseudoCone.pseudofunctor K E).obj S).pt =
-      K.obj S.pt := sorry
+      K.obj S.pt := by
+  rfl
 
 /-- The cone transformation of an object transported by `mapPseudoCone.pseudofunctor`. -/
 @[simp]
 theorem mapPseudoCone.pseudofunctor.obj.π {E : Pseudofunctor J B}
     (K : Pseudofunctor B D) (S : Bicategory.PseudoCone E) :
     ((mapPseudoCone.pseudofunctor K E).obj S).π =
-      mapConst J K S.pt ≫ (postcomp J K).map S.π := sorry
+      mapConst J K S.pt ≫ (postcomp J K).map S.π := by
+  rfl
 
 /-- The transported cone transformation, expressed using direct postcomposition of the
 original strong transformation. -/
 theorem mapPseudoCone.pseudofunctor.obj.π_postcomp {E : Pseudofunctor J B}
     (K : Pseudofunctor B D) (S : Bicategory.PseudoCone E) :
     ((mapPseudoCone.pseudofunctor K E).obj S).π =
-      mapConst J K S.pt ≫ S.π.postcomp K := sorry
+      mapConst J K S.pt ≫ S.π.postcomp K := by
+  rfl
 
 /-- Each component of a transported cone transformation is canonically isomorphic to the
 image of the corresponding original component. -/
@@ -70,7 +73,8 @@ def mapPseudoCone.pseudofunctor.obj.appIso {E : Pseudofunctor J B}
 theorem mapPseudoCone.pseudofunctor.obj.appIso.hom {E : Pseudofunctor J B}
     (K : Pseudofunctor B D) (S : Bicategory.PseudoCone E) (j : J) :
     (mapPseudoCone.pseudofunctor.obj.appIso K S j).hom =
-      (λ_ (K.map (S.π.app j))).hom := sorry
+      (λ_ (K.map (S.π.app j))).hom := by
+  rfl
 
 /-- The inverse component of `mapPseudoCone.pseudofunctor.obj.appIso` is the inverse left
 unitor. -/
@@ -78,21 +82,26 @@ unitor. -/
 theorem mapPseudoCone.pseudofunctor.obj.appIso.inv {E : Pseudofunctor J B}
     (K : Pseudofunctor B D) (S : Bicategory.PseudoCone E) (j : J) :
     (mapPseudoCone.pseudofunctor.obj.appIso K S j).inv =
-      (λ_ (K.map (S.π.app j))).inv := sorry
+      (λ_ (K.map (S.π.app j))).inv := by
+  rfl
 
 /-- The apex map underlying the image of a pseudocone morphism. -/
 @[simp]
 theorem mapPseudoCone.pseudofunctor.map.apex {E : Pseudofunctor J B}
     (K : Pseudofunctor B D) {S T : Bicategory.PseudoCone E} (u : S ⟶ T) :
     Bicategory.PseudoCone.map ((mapPseudoCone.pseudofunctor K E).map u) =
-      K.map (Bicategory.PseudoCone.map u) := sorry
+      K.map (Bicategory.PseudoCone.map u) := by
+  rfl
 
 /-- The comparison modification underlying the image of a pseudocone morphism. -/
 @[simp]
 theorem mapPseudoCone.pseudofunctor.map.fac {E : Pseudofunctor J B}
     (K : Pseudofunctor B D) {S T : Bicategory.PseudoCone E} (u : S ⟶ T) :
     Bicategory.PseudoCone.fac ((mapPseudoCone.pseudofunctor K E).map u) =
-      mapPseudoCone.fac K u := sorry
+      mapPseudoCone.fac K u := by
+  change (mapPseudoCone.fac K u ≫ (ρ_ (mapPseudoCone K S).π).inv) ≫
+    (ρ_ (mapPseudoCone K S).π).hom = mapPseudoCone.fac K u
+  exact (Iso.comp_inv_eq (ρ_ (mapPseudoCone K S).π).symm).2 rfl
 
 /-- The apex cell underlying the image of a pseudocone `2`-morphism. -/
 @[simp]
@@ -100,7 +109,8 @@ theorem mapPseudoCone.pseudofunctor.map₂.apex {E : Pseudofunctor J B}
     (K : Pseudofunctor B D) {S T : Bicategory.PseudoCone E}
     {u v : S ⟶ T} (η : u ⟶ v) :
     Bicategory.PseudoCone.map₂ ((mapPseudoCone.pseudofunctor K E).map₂ η) =
-      K.map₂ (Bicategory.PseudoCone.map₂ η) := sorry
+      K.map₂ (Bicategory.PseudoCone.map₂ η) := by
+  rfl
 
 /-- The forward unit comparison of pseudocone transport has apex cell `K.mapId`. -/
 @[simp]
@@ -108,7 +118,8 @@ theorem mapPseudoCone.pseudofunctor.mapId.hom.apex {E : Pseudofunctor J B}
     (K : Pseudofunctor B D) (S : Bicategory.PseudoCone E) :
     Bicategory.PseudoCone.map₂
         ((mapPseudoCone.pseudofunctor K E).mapId S).hom =
-      (K.mapId S.pt).hom := sorry
+      (K.mapId S.pt).hom := by
+  rfl
 
 /-- The inverse unit comparison of pseudocone transport has the inverse apex cell of
 `K.mapId`. -/
@@ -117,7 +128,8 @@ theorem mapPseudoCone.pseudofunctor.mapId.inv.apex {E : Pseudofunctor J B}
     (K : Pseudofunctor B D) (S : Bicategory.PseudoCone E) :
     Bicategory.PseudoCone.map₂
         ((mapPseudoCone.pseudofunctor K E).mapId S).inv =
-      (K.mapId S.pt).inv := sorry
+      (K.mapId S.pt).inv := by
+  rfl
 
 /-- The forward composition comparison of pseudocone transport has apex cell `K.mapComp`. -/
 @[simp]
@@ -127,7 +139,8 @@ theorem mapPseudoCone.pseudofunctor.mapComp.hom.apex {E : Pseudofunctor J B}
     Bicategory.PseudoCone.map₂
         ((mapPseudoCone.pseudofunctor K E).mapComp u v).hom =
       (K.mapComp (Bicategory.PseudoCone.map u)
-        (Bicategory.PseudoCone.map v)).hom := sorry
+        (Bicategory.PseudoCone.map v)).hom := by
+  rfl
 
 /-- The inverse composition comparison of pseudocone transport has the inverse apex cell of
 `K.mapComp`. -/
@@ -138,7 +151,8 @@ theorem mapPseudoCone.pseudofunctor.mapComp.inv.apex {E : Pseudofunctor J B}
     Bicategory.PseudoCone.map₂
         ((mapPseudoCone.pseudofunctor K E).mapComp u v).inv =
       (K.mapComp (Bicategory.PseudoCone.map u)
-        (Bicategory.PseudoCone.map v)).inv := sorry
+        (Bicategory.PseudoCone.map v)).inv := by
+  rfl
 
 -- Data audit: `mapPseudoCone.pseudofunctor.obj.appIso` is definitionally the explicit
 -- `mapPseudoCone.appIso`, hence its morphisms are the left unitor and its inverse. Its inherited

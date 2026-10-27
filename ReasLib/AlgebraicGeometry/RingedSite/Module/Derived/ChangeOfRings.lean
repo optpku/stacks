@@ -161,17 +161,17 @@ abbrev HasPullbackDerived (α : O ⟶ O')
 
 /-- Same-site restriction of scalars is the canonical right adjoint of module pullback. -/
 @[stacks 06YY "same-site commutative restriction is right adjoint"]
-instance modulePushforwardIsRightAdjoint (α : O ⟶ O') :
+instance modulePushforwardIsRightAdjoint [UnivLE.{w, z}] (α : O ⟶ O') :
     ((sameSiteHom α).modulePushforward.{z}).IsRightAdjoint := sorry
 
 /-- Same-site extension of scalars admits its canonical unbounded total left derived functor. -/
 @[stacks 06YY "same-site change of rings"]
-theorem modulePullbackToDerived_hasLeftDerived (α : O ⟶ O') :
+theorem modulePullbackToDerived_hasLeftDerived [UnivLE.{w, z}] (α : O ⟶ O') :
     HasPullbackDerived.{u, v, w, z} α := sorry
 
 /-- Typeclass owner for the total left derived same-site extension-of-scalars functor. -/
 @[stacks 06YY "same-site commutative pullback has a left derived functor"]
-instance modulePullbackToDerivedHasLeftDerived (α : O ⟶ O') :
+instance modulePullbackToDerivedHasLeftDerived [UnivLE.{w, z}] (α : O ⟶ O') :
     HasPullbackDerived.{u, v, w, z} α :=
   modulePullbackToDerived_hasLeftDerived α
 

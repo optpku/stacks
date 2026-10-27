@@ -6,11 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import Mathlib.FieldTheory.Separable
-public import Mathlib.LinearAlgebra.FiniteDimensional.Defs
-public import Mathlib.RingTheory.DiscreteValuationRing.Basic
-public import stacks_project.Chap67.Definition_67_41_1_ValuativeCriterion
-public import stacks_project.Chap69.Lemma_69_19_2_DVR
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.ValuativeCriterion.DVR.Existence
 
 /-!
 # DVR existence after dominating extensions
@@ -29,102 +25,92 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- A morphism of algebraic spaces satisfies existence of a dominating
+/- Lemma 70.21.4: a morphism of algebraic spaces satisfies existence of a dominating
 valuation-ring extension with a lift on every valuative square whose ring is a
 discrete valuation ring. -/
-@[mk_iff]
-class ValuativeCriterion.DVR.ExistsExtension {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (f : X ⟶ Y) : Prop where
-  /-- Every DVR valuative square admits a dominating valuation-ring extension with a
-  lift. -/
-  nonempty_extension :
-    ∀ sq : ValuativeCommSq f, IsDiscreteValuationRing sq.R → Nonempty sq.Extension
+#check (AlgebraicGeometry.AlgebraicSpace.ValuativeCriterion.DVR.ExistsExtension :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S}, (X ⟶ Y) → Prop)
 
 namespace ValuativeCriterion.DVR.ExistsExtension
 
-/-- The identity morphism of an algebraic space satisfies DVR existence after a
+/- The identity morphism of an algebraic space satisfies DVR existence after a
 dominating extension. -/
-instance id {S : Scheme.{u}} {X : AlgebraicSpace S} : ExistsExtension (𝟙 X) := sorry
+#check (AlgebraicGeometry.AlgebraicSpace.ValuativeCriterion.DVR.ExistsExtension.id :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S}, ExistsExtension (𝟙 X))
 
-/-- Existence for all valuative squares implies existence after a dominating
+/- Existence for all valuative squares implies existence after a dominating
 extension on DVR valuative squares. -/
-instance of_existence {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-    [ValuativeCriterion.Existence f] : ExistsExtension f := sorry
+#check (AlgebraicGeometry.AlgebraicSpace.ValuativeCriterion.DVR.ExistsExtension.of_existence :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    [ValuativeCriterion.Existence f], ExistsExtension f)
 
-/-- A dotted lift on every DVR valuative square implies existence after a
+/- A dotted lift on every DVR valuative square implies existence after a
 dominating extension. -/
-instance of_dvrExistence {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-    [ValuativeCriterion.DVR.Existence f] : ExistsExtension f := sorry
+#check (AlgebraicGeometry.AlgebraicSpace.ValuativeCriterion.DVR.ExistsExtension.of_dvrExistence :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    [ValuativeCriterion.DVR.Existence f], ExistsExtension f)
 
-/-- A morphism satisfies DVR existence after a dominating extension if and only if
+/- A morphism satisfies DVR existence after a dominating extension if and only if
 every DVR valuative square admits such an extension. -/
-theorem spec {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
+#check (AlgebraicGeometry.AlgebraicSpace.ValuativeCriterion.DVR.ExistsExtension.spec :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y),
     ExistsExtension f ↔
-      ∀ sq : ValuativeCommSq f, IsDiscreteValuationRing sq.R → Nonempty sq.Extension :=
-  sorry
+      ∀ sq : ValuativeCommSq f, IsDiscreteValuationRing sq.R → Nonempty sq.Extension)
 
-/-- Under `ExistsExtension f`, every DVR valuative square admits a dominating
+/- Under `ExistsExtension f`, every DVR valuative square admits a dominating
 valuation-ring extension with a lift. -/
-theorem exists_extension {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y}
-    [ExistsExtension f] (sq : ValuativeCommSq f) (hR : IsDiscreteValuationRing sq.R) :
-    Nonempty sq.Extension :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.ValuativeCriterion.DVR.ExistsExtension.exists_extension :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y}
+    [ExistsExtension f] (sq : ValuativeCommSq f) (hR : IsDiscreteValuationRing sq.R),
+    Nonempty sq.Extension)
 
 end ValuativeCriterion.DVR.ExistsExtension
 
-/-- A morphism of algebraic spaces satisfies existence of a finite separable
+/- A morphism of algebraic spaces satisfies existence of a finite separable
 dominating discrete valuation ring extension with a lift on every valuative
 square whose ring is a discrete valuation ring. -/
-@[mk_iff]
-class ValuativeCriterion.DVR.ExistsFiniteSeparableExtension
-    {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) : Prop where
-  /-- Every DVR valuative square admits a finite separable field extension, a
-  dominating discrete valuation ring, and a lift of the extended square. -/
-  exists_finiteSeparable :
-    ∀ sq : ValuativeCommSq f, IsDiscreteValuationRing sq.R →
-      ∃ e : sq.Extension,
-        FiniteDimensional sq.K e.K' ∧ Algebra.IsSeparable sq.K e.K' ∧
-          IsDiscreteValuationRing e.R'
+#check (AlgebraicGeometry.AlgebraicSpace.ValuativeCriterion.DVR.ExistsFiniteSeparableExtension :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S}, (X ⟶ Y) → Prop)
 
 namespace ValuativeCriterion.DVR.ExistsFiniteSeparableExtension
 
-/-- The identity morphism of an algebraic space satisfies finite-separable DVR
+/- The identity morphism of an algebraic space satisfies finite-separable DVR
 existence after a dominating extension. -/
-instance id {S : Scheme.{u}} {X : AlgebraicSpace S} :
-    ExistsFiniteSeparableExtension (𝟙 X) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.ValuativeCriterion.DVR.ExistsFiniteSeparableExtension.id :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S}, ExistsFiniteSeparableExtension (𝟙 X))
 
-/-- Existence for all valuative squares implies finite-separable DVR existence
+/- Existence for all valuative squares implies finite-separable DVR existence
 after a dominating extension. -/
-instance of_existence {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-    [ValuativeCriterion.Existence f] : ExistsFiniteSeparableExtension f := sorry
+#check (AlgebraicGeometry.AlgebraicSpace.ValuativeCriterion.DVR.ExistsFiniteSeparableExtension.of_existence :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    [ValuativeCriterion.Existence f], ExistsFiniteSeparableExtension f)
 
-/-- A dotted lift on every DVR valuative square implies finite-separable DVR
+/- A dotted lift on every DVR valuative square implies finite-separable DVR
 existence after a dominating extension. -/
-instance of_dvrExistence {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-    [ValuativeCriterion.DVR.Existence f] : ExistsFiniteSeparableExtension f :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.ValuativeCriterion.DVR.ExistsFiniteSeparableExtension.of_dvrExistence :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    [ValuativeCriterion.DVR.Existence f], ExistsFiniteSeparableExtension f)
 
-/-- A morphism satisfies finite-separable DVR existence after a dominating
+/- A morphism satisfies finite-separable DVR existence after a dominating
 extension if and only if every DVR valuative square admits a finite separable
 dominating discrete valuation ring extension with a lift. -/
-theorem spec {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
+#check (AlgebraicGeometry.AlgebraicSpace.ValuativeCriterion.DVR.ExistsFiniteSeparableExtension.spec :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y),
     ExistsFiniteSeparableExtension f ↔
       ∀ sq : ValuativeCommSq f, IsDiscreteValuationRing sq.R →
         ∃ e : sq.Extension,
           FiniteDimensional sq.K e.K' ∧ Algebra.IsSeparable sq.K e.K' ∧
-            IsDiscreteValuationRing e.R' :=
-  sorry
+            IsDiscreteValuationRing e.R')
 
 end ValuativeCriterion.DVR.ExistsFiniteSeparableExtension
 
 namespace ValuativeCriterion.DVR.ExistsExtension
 
-/-- Finite-separable DVR existence after extension implies existence of some
+/- Finite-separable DVR existence after extension implies existence of some
 dominating valuation-ring extension on DVR valuative squares. -/
-instance of_existsFiniteSeparableExtension {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (f : X ⟶ Y) [ExistsFiniteSeparableExtension f] : ExistsExtension f :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.ValuativeCriterion.DVR.ExistsExtension.of_existsFiniteSeparableExtension :
+  ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+    (f : X ⟶ Y) [ExistsFiniteSeparableExtension f], ExistsExtension f)
 
 end ValuativeCriterion.DVR.ExistsExtension
 

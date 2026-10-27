@@ -42,7 +42,8 @@ def underlyingMap (f : A ⟶ B) : commRingPresheaf A ⟶ commRingPresheaf B :=
 theorem underlyingMap_naturality (f : A ⟶ B) {X Y : (SimplexCategoryᵒᵖ)ᵒᵖ}
     (g : X ⟶ Y) :
     ((underlyingMap f).app Y).hom.comp ((commRingPresheaf A).map g).hom =
-      ((commRingPresheaf B).map g).hom.comp ((underlyingMap f).app X).hom := sorry
+      ((commRingPresheaf B).map g).hom.comp ((underlyingMap f).app X).hom :=
+  congrArg CommRingCat.Hom.hom ((underlyingMap f).naturality g)
 
 namespace Module
 
@@ -109,10 +110,76 @@ noncomputable def extension (f : A ⟶ B) : Module A ⥤ Module B where
   map_id := sorry
   map_comp := sorry
 
+/-- The comparison after scalar extension, via composition of scalar extensions and
+the original module's base-change map. -/
+noncomputable def extensionBaseChangeHom (f : A ⟶ B) (M : Module A)
+    {X Y : (SimplexCategoryᵒᵖ)ᵒᵖ} (g : X ⟶ Y) :
+    (ModuleCat.extendScalars ((commRingPresheaf B).map g).hom).obj
+        ((ModuleCat.extendScalars ((underlyingMap f).app X).hom).obj (M.obj X)) ⟶
+      (ModuleCat.extendScalars ((underlyingMap f).app Y).hom).obj (M.obj Y) :=
+  (ModuleCat.extendScalarsComp ((underlyingMap f).app X).hom
+    ((commRingPresheaf B).map g).hom).inv.app (M.obj X) ≫
+  eqToHom (congrArg
+    (fun h : (commRingPresheaf A).obj X →+* (commRingPresheaf B).obj Y ↦
+      (ModuleCat.extendScalars h).obj (M.obj X))
+    (underlyingMap_naturality f g).symm) ≫
+  (ModuleCat.extendScalarsComp ((commRingPresheaf A).map g).hom
+    ((underlyingMap f).app Y).hom).hom.app (M.obj X) ≫
+  (ModuleCat.extendScalars ((underlyingMap f).app Y).hom).map
+    (PresheafOfModules.BaseChange.map (commRingPresheaf A) M g)
+
+/-- Reverse the scalar-extension comparison, using only the inverse supplied by `hM` and
+the native scalar-extension composition isomorphisms. -/
+noncomputable def extensionBaseChangeInv (f : A ⟶ B) (M : Module A)
+    (hM : IsCartesian M) {X Y : (SimplexCategoryᵒᵖ)ᵒᵖ} (g : X ⟶ Y) :
+    (ModuleCat.extendScalars ((underlyingMap f).app Y).hom).obj (M.obj Y) ⟶
+      (ModuleCat.extendScalars ((commRingPresheaf B).map g).hom).obj
+        ((ModuleCat.extendScalars ((underlyingMap f).app X).hom).obj (M.obj X)) :=
+  (ModuleCat.extendScalars ((underlyingMap f).app Y).hom).map
+    (@CategoryTheory.inv _ _ _ _
+      (PresheafOfModules.BaseChange.map (commRingPresheaf A) M g) (hM g)) ≫
+  (ModuleCat.extendScalarsComp ((commRingPresheaf A).map g).hom
+    ((underlyingMap f).app Y).hom).inv.app (M.obj X) ≫
+  eqToHom (congrArg
+    (fun h : (commRingPresheaf A).obj X →+* (commRingPresheaf B).obj Y ↦
+      (ModuleCat.extendScalars h).obj (M.obj X))
+    (underlyingMap_naturality f g)) ≫
+  (ModuleCat.extendScalarsComp ((underlyingMap f).app X).hom
+    ((commRingPresheaf B).map g).hom).hom.app (M.obj X)
+
+/-- The cartesian comparison after scalar extension. No homotopy equivalence is needed to
+preserve cartesianness; both maps are constructed independently of the inverse-law proofs. -/
+noncomputable def extensionBaseChangeIso (f : A ⟶ B) (M : Module A)
+    (hM : IsCartesian M) {X Y : (SimplexCategoryᵒᵖ)ᵒᵖ} (g : X ⟶ Y) :
+    (PresheafOfModules.BaseChange.functor (commRingPresheaf B) g).obj
+        ((extension f).obj M) ≅ ((extension f).obj M).obj Y where
+  hom := extensionBaseChangeHom f M g
+  inv := extensionBaseChangeInv f M hM g
+  hom_inv_id := sorry
+  inv_hom_id := sorry
+
+/-- The displayed comparison is the canonical base-change map of the extended module. -/
+theorem extensionBaseChangeIso_hom (f : A ⟶ B) (M : Module A)
+    (hM : IsCartesian M) {X Y : (SimplexCategoryᵒᵖ)ᵒᵖ} (g : X ⟶ Y) :
+    (extensionBaseChangeIso f M hM g).hom =
+      PresheafOfModules.BaseChange.map (commRingPresheaf B) ((extension f).obj M) g := sorry
+
+/-- Scalar extension along any cosimplicial algebra map preserves cartesianness, storing the
+inverse of the displayed scalar-extension comparison. -/
+theorem extension_isCartesian_of_isCartesian (f : A ⟶ B) (M : Module A)
+    (hM : IsCartesian M) : IsCartesian ((extension f).obj M) := by
+  intro X Y g
+  refine ⟨⟨(extensionBaseChangeIso f M hM g).inv, ?_, ?_⟩⟩
+  · rw [← extensionBaseChangeIso_hom f M hM g]
+    exact (extensionBaseChangeIso f M hM g).hom_inv_id
+  · rw [← extensionBaseChangeIso_hom f M hM g]
+    exact (extensionBaseChangeIso f M hM g).inv_hom_id
+
 /-- Extension along a cosimplicial homotopy equivalence preserves cartesianness. -/
 theorem extension_isCartesian
     (e : CosimplicialObject.HomotopyEquiv A B) (M : Module A)
-    (hM : IsCartesian M) : IsCartesian ((extension e.hom).obj M) := sorry
+    (hM : IsCartesian M) : IsCartesian ((extension e.hom).obj M) :=
+  extension_isCartesian_of_isCartesian e.hom M hM
 
 end Module
 
@@ -124,6 +191,15 @@ noncomputable def extension (e : CosimplicialObject.HomotopyEquiv A B) :
     CartesianModule A ⥤ CartesianModule B :=
   ObjectProperty.FullSubcategory.restrict (Module.extension e.hom)
     (fun M hM ↦ Module.extension_isCartesian e M hM)
+
+/-- The public comparison of an output of `extension` uses the explicitly constructed inverse. -/
+theorem extension_baseChangeIso_inv (e : CosimplicialObject.HomotopyEquiv A B)
+    (M : CartesianModule A) {n m : SimplexCategory} (g : n ⟶ m) :
+    (baseChangeIso ((extension e).obj M) g).inv =
+      (Module.extensionBaseChangeIso e.hom M.obj M.property g.op.op).inv := by
+  apply (Iso.inv_eq_inv (baseChangeIso ((extension e).obj M) g)
+    (Module.extensionBaseChangeIso e.hom M.obj M.property g.op.op)).2
+  exact (Module.extensionBaseChangeIso_hom e.hom M.obj M.property g.op.op).symm
 
 /-- Forgetting the cartesian property from `extension` gives ordinary extension of scalars. -/
 theorem extension_obj (e : CosimplicialObject.HomotopyEquiv A B)

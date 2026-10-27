@@ -33,52 +33,57 @@ universe u v w
 
 namespace RingedSite.Localization
 
-variable (X : RingedSite.{u, v, w}) {U V : X} (f : V ⟶ U)
+variable (X : RingedSite.{u, v, w}) {U V : X.carrier} (f : @Quiver.Hom X.carrier X.carrier.str.toQuiver V U)
 variable [UnivLE.{max u v, w}]
-variable [X.siteTopology.HasSheafCompose (forget RingCat.{w})]
+variable [@GrothendieckTopology.HasSheafCompose X.carrier X.carrier.str RingCat.{w} inferInstance (Type w) inferInstance X.siteTopology (forget RingCat.{w})]
 
 /-- The coefficient-forgetful comparison for direct image along relocalization. -/
 noncomputable def relocalizationForgetIso :
-    (Over.map f).sheafPushforwardCocontinuous RingCat.{w}
-          (X.siteTopology.over V) (X.siteTopology.over U) ⋙
-        sheafCompose (X.siteTopology.over U) (forget RingCat.{w}) ≅
-      sheafCompose (X.siteTopology.over V) (forget RingCat.{w}) ⋙
-        (Over.Site.morphismOfTopoi X.siteTopology f).pushforward :=
-  Functor.sheafPushforwardCocontinuous.compSheafComposeIso
-    (Over.map f) (forget RingCat.{w})
-      (X.siteTopology.over V) (X.siteTopology.over U)
+    @Functor.sheafPushforwardCocontinuous (X.localization V).carrier (X.localization U).carrier (X.localization V).carrier.str (X.localization U).carrier.str
+        (@Over.map X.carrier X.carrier.str V U f) RingCat.{w} inferInstance (@GrothendieckTopology.over X.carrier X.carrier.str X.siteTopology V) (@GrothendieckTopology.over X.carrier X.carrier.str X.siteTopology U) inferInstance inferInstance ⋙
+        @sheafCompose (X.localization U).carrier (X.localization U).carrier.str RingCat.{w} inferInstance (Type w) inferInstance (@GrothendieckTopology.over X.carrier X.carrier.str X.siteTopology U) (forget RingCat.{w}) inferInstance ≅
+      @sheafCompose (X.localization V).carrier (X.localization V).carrier.str RingCat.{w} inferInstance (Type w) inferInstance (@GrothendieckTopology.over X.carrier X.carrier.str X.siteTopology V) (forget RingCat.{w}) inferInstance ⋙
+        (@Over.Site.morphismOfTopoi X.carrier X.carrier.str U V X.siteTopology f inferInstance inferInstance inferInstance inferInstance inferInstance).pushforward :=
+  @Functor.sheafPushforwardCocontinuous.compSheafComposeIso
+    (X.localization V).carrier (X.localization V).carrier.str (X.localization U).carrier (X.localization U).carrier.str RingCat.{w} inferInstance (Type w) inferInstance
+    (@Over.map X.carrier X.carrier.str V U f) (forget RingCat.{w}) (@GrothendieckTopology.over X.carrier X.carrier.str X.siteTopology V) (@GrothendieckTopology.over X.carrier X.carrier.str X.siteTopology U)
+    inferInstance inferInstance inferInstance inferInstance inferInstance inferInstance
 
 /-- The direct-image structure-sheaf map for relocalization. -/
 noncomputable def relocalizationStructureMap :
-    X.structureSheaf.over U ⟶
-      ((Over.map f).sheafPushforwardCocontinuous RingCat.{w}
-        (X.siteTopology.over V) (X.siteTopology.over U)).obj
-          (X.structureSheaf.over V) :=
-  ((Over.map f).sheafAdjunctionCocontinuous RingCat.{w}
-      (X.siteTopology.over V) (X.siteTopology.over U)).homEquiv _ _
-    ((Functor.sheafPushforwardContinuousComp' (Over.mapForget f)
-      RingCat.{w} (X.siteTopology.over V) (X.siteTopology.over U)
-        X.siteTopology).app X.structureSheaf).hom
+    @Sheaf.over X.carrier X.carrier.str X.siteTopology RingCat.{w} inferInstance X.structureSheaf U ⟶
+      (@Functor.sheafPushforwardCocontinuous (X.localization V).carrier (X.localization U).carrier (X.localization V).carrier.str (X.localization U).carrier.str
+        (@Over.map X.carrier X.carrier.str V U f) RingCat.{w} inferInstance (@GrothendieckTopology.over X.carrier X.carrier.str X.siteTopology V) (@GrothendieckTopology.over X.carrier X.carrier.str X.siteTopology U) inferInstance inferInstance).obj
+          (@Sheaf.over X.carrier X.carrier.str X.siteTopology RingCat.{w} inferInstance X.structureSheaf V) :=
+  (@Functor.sheafAdjunctionCocontinuous (X.localization V).carrier (X.localization U).carrier (X.localization V).carrier.str (X.localization U).carrier.str
+        (@Over.map X.carrier X.carrier.str V U f) RingCat.{w} inferInstance (@GrothendieckTopology.over X.carrier X.carrier.str X.siteTopology V) (@GrothendieckTopology.over X.carrier X.carrier.str X.siteTopology U) inferInstance inferInstance inferInstance).homEquiv _ _
+    ((@Functor.sheafPushforwardContinuousComp'
+      (X.localization V).carrier (X.localization V).carrier.str
+      (X.localization U).carrier (X.localization U).carrier.str X.carrier X.carrier.str
+      (@Over.map X.carrier X.carrier.str V U f) (@Over.forget X.carrier X.carrier.str U)
+      (@Over.forget X.carrier X.carrier.str V) (@Over.mapForget X.carrier X.carrier.str V U f)
+      RingCat.{w} inferInstance (@GrothendieckTopology.over X.carrier X.carrier.str X.siteTopology V) (@GrothendieckTopology.over X.carrier X.carrier.str X.siteTopology U)
+        X.siteTopology inferInstance inferInstance inferInstance).app X.structureSheaf).hom
 
 /-- The direct-image presentation of relocalization preserves the canonical internal-ring
 operations. -/
 theorem relocalization_isRingCompatible :
     ToposHom.Direct.IsRingCompatible
       (X := X.localization V) (Y := X.localization U)
-      (Over.Site.morphismOfTopoi X.siteTopology f)
-      ((Over.map f).sheafPushforwardCocontinuous RingCat.{w}
-        (X.siteTopology.over V) (X.siteTopology.over U))
+      (@Over.Site.morphismOfTopoi X.carrier X.carrier.str U V X.siteTopology f inferInstance inferInstance inferInstance inferInstance inferInstance)
+      (@Functor.sheafPushforwardCocontinuous (X.localization V).carrier (X.localization U).carrier (X.localization V).carrier.str (X.localization U).carrier.str
+        (@Over.map X.carrier X.carrier.str V U f) RingCat.{w} inferInstance (@GrothendieckTopology.over X.carrier X.carrier.str X.siteTopology V) (@GrothendieckTopology.over X.carrier X.carrier.str X.siteTopology U) inferInstance inferInstance)
       (relocalizationForgetIso X f) (relocalizationStructureMap X f) := sorry
 
-/-- Lemma 18.19.5 (04IY): the morphism of ringed topoi induced by relocalization along
+/-- The morphism of ringed topoi induced by relocalization along
 `f : V ⟶ U`. -/
 @[stacks 04IY "relocalization morphism"]
 noncomputable def relocalization : ToposHom (X.localization V) (X.localization U) :=
   ToposHom.ofDirectImage
     (X := X.localization V) (Y := X.localization U)
-    (Over.Site.morphismOfTopoi X.siteTopology f)
-    ((Over.map f).sheafPushforwardCocontinuous RingCat.{w}
-      (X.siteTopology.over V) (X.siteTopology.over U))
+    (@Over.Site.morphismOfTopoi X.carrier X.carrier.str U V X.siteTopology f inferInstance inferInstance inferInstance inferInstance inferInstance)
+    (@Functor.sheafPushforwardCocontinuous (X.localization V).carrier (X.localization U).carrier (X.localization V).carrier.str (X.localization U).carrier.str
+        (@Over.map X.carrier X.carrier.str V U f) RingCat.{w} inferInstance (@GrothendieckTopology.over X.carrier X.carrier.str X.siteTopology V) (@GrothendieckTopology.over X.carrier X.carrier.str X.siteTopology U) inferInstance inferInstance)
     (relocalizationForgetIso X f) (relocalizationStructureMap X f)
     (relocalization_isRingCompatible X f)
 

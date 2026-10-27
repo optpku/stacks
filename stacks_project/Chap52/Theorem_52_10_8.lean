@@ -24,11 +24,11 @@ namespace Ideal.LocalCohomology.AlgebraizationSituation
   (Ideal.LocalCohomology.AlgebraizationSituation.adicCohomologyCone_isEssentiallyConstant :
     ∀ {A : Type u} [CommRing A] [IsNoetherianRing A]
       [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
-      (H : MonoidalClosed (DerivedCategory (ModuleCat.{u} A)))
+      (C : CategoryTheory.DerivedCategory.CanonicalClosedPresentation (A := A))
       (I : Ideal A) (M : Type u)
       [AddCommGroup M] [Module A M] [Module.Finite A M]
       (T : Set (PrimeSpectrum A)) (s d : ℤ)
-      (h : AlgebraizationSituation H I M T s d) (i : ℤ) (hi : i ≤ s),
+      (h : AlgebraizationSituation C I M T s d) (i : ℤ) (hi : i ≤ s),
       (CategoryTheory.ModuleCat.SupportedOn.adicComparisonCone T I
         (ModuleCat.of A M) i).IsEssentiallyConstant)
 
@@ -37,11 +37,11 @@ namespace Ideal.LocalCohomology.AlgebraizationSituation
   (Ideal.LocalCohomology.AlgebraizationSituation.adicCohomologySystem_isMittagLeffler :
     ∀ {A : Type u} [CommRing A] [IsNoetherianRing A]
       [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
-      (H : MonoidalClosed (DerivedCategory (ModuleCat.{u} A)))
+      (C : CategoryTheory.DerivedCategory.CanonicalClosedPresentation (A := A))
       (I : Ideal A) (M : Type u)
       [AddCommGroup M] [Module A M] [Module.Finite A M]
       (T : Set (PrimeSpectrum A)) (s d : ℤ)
-      (h : AlgebraizationSituation H I M T s d) (i : ℤ) (hi : i ≤ s),
+      (h : AlgebraizationSituation C I M T s d) (i : ℤ) (hi : i ≤ s),
       CategoryTheory.SequentialInverseSystem.IsMittagLeffler
         (CategoryTheory.ModuleCat.SupportedOn.adicTower T I
           (ModuleCat.of A M) i))
@@ -51,11 +51,11 @@ namespace Ideal.LocalCohomology.AlgebraizationSituation
   (Ideal.LocalCohomology.AlgebraizationSituation.cohomology_isAnnihilatedByPower :
     ∀ {A : Type u} [CommRing A] [IsNoetherianRing A]
       [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
-      (H : MonoidalClosed (DerivedCategory (ModuleCat.{u} A)))
+      (C : CategoryTheory.DerivedCategory.CanonicalClosedPresentation (A := A))
       (I : Ideal A) (M : Type u)
       [AddCommGroup M] [Module A M] [Module.Finite A M]
       (T : Set (PrimeSpectrum A)) (s d : ℤ)
-      (h : AlgebraizationSituation H I M T s d) (i : ℤ) (hi : i ≤ s),
+      (h : AlgebraizationSituation C I M T s d) (i : ℤ) (hi : i ≤ s),
       Module.IsAnnihilatedByPower I
         (CategoryTheory.ModuleCat.SupportedOn.cohomology T
           (ModuleCat.single0Functor.obj (ModuleCat.of A M)) i))
@@ -65,11 +65,11 @@ namespace Ideal.LocalCohomology.AlgebraizationSituation
   (Ideal.LocalCohomology.AlgebraizationSituation.cohomologyLimitComparison_isIso :
     ∀ {A : Type u} [CommRing A] [IsNoetherianRing A]
       [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
-      (H : MonoidalClosed (DerivedCategory (ModuleCat.{u} A)))
+      (C : CategoryTheory.DerivedCategory.CanonicalClosedPresentation (A := A))
       (I : Ideal A) (M : Type u)
       [AddCommGroup M] [Module A M] [Module.Finite A M]
       (T : Set (PrimeSpectrum A)) (s d : ℤ)
-      (h : AlgebraizationSituation H I M T s d) (i : ℤ) (hi : i ≤ s),
+      (h : AlgebraizationSituation C I M T s d) (i : ℤ) (hi : i ≤ s),
       IsIso (CategoryTheory.ModuleCat.SupportedOn.adicLimitComparison T I
         (ModuleCat.of A M) i))
 

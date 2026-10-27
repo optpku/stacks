@@ -29,7 +29,7 @@ variable {dimension : V → ℕ} {product : V → V → V}
 variable {fst : ∀ X Y, product X Y ⟶ X} {snd : ∀ X Y, product X Y ⟶ Y}
 variable {point : V} {H : V → Type x} {CH : V → Type y}
 variable [∀ X, Ring (H X)] [∀ X, Algebra F (H X)] [∀ X, CommRing (CH X)]
-variable {Hgrade : ∀ X, ℤ × ℤ → Submodule F (H X)}
+variable {Hgrade : ∀ X, ℤ → Submodule F (H X)}
 variable {CHgrade : ∀ X, ℤ → Submodule ℤ (CH X)}
 variable [∀ X, GradedAlgebra (Hgrade X)] [∀ X, GradedAlgebra (CHgrade X)]
 variable {cyclePullback : ∀ {X Y : V},
@@ -60,6 +60,6 @@ projective scheme is nonzero. -/
     ∀ (T : SchemeClassicalTheory k F TateLine V dimension product fst snd point
       H CH Hgrade CHgrade cyclePullback cyclePushforward),
       ∀ (X : V), [Nonempty (T.scheme.obj X).left] →
-        (1 : Hgrade X (0, 0)) ≠ 0)
+        (1 : Hgrade X (0)) ≠ 0)
 
 end WeilCohomology

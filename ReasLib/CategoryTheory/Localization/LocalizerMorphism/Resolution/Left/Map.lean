@@ -51,11 +51,16 @@ abbrev hom (m : Map f R S) : Φ.functor.obj R.model ⟶ Φ.functor.obj S.model :
 
 /-- Maps of left resolutions are determined by their morphisms between resolving models. -/
 @[ext]
-theorem ext {m n : Map f R S} (h : m.modelHom = n.modelHom) : m = n := sorry
+theorem ext {m n : Map f R S} (h : m.modelHom = n.modelHom) : m = n := by
+  cases m
+  cases n
+  cases h
+  rfl
 
 /-- The identity model morphism satisfies the left-resolution comparison square. -/
 theorem id_naturality (R : Φ.LeftResolution X) :
-    Φ.functor.map (𝟙 R.model) ≫ R.comparison = R.comparison ≫ 𝟙 X := sorry
+    Φ.functor.map (𝟙 R.model) ≫ R.comparison = R.comparison ≫ 𝟙 X := by
+  rw [Φ.functor.map_id, Category.id_comp, Category.comp_id]
 
 /-- The identity map of a left resolution. -/
 @[stacks 0GSL "identity map of left resolutions"]
@@ -65,17 +70,19 @@ def id (R : Φ.LeftResolution X) : Map (𝟙 X) R R where
 
 /-- The identity left-resolution map has identity model morphism. -/
 @[simp]
-theorem id_modelHom (R : Φ.LeftResolution X) : (id R).modelHom = 𝟙 R.model := sorry
+theorem id_modelHom (R : Φ.LeftResolution X) : (id R).modelHom = 𝟙 R.model := rfl
 
 /-- The identity left-resolution map has identity target-model morphism. -/
 @[simp]
 theorem id_hom (R : Φ.LeftResolution X) :
-    (id R).hom = 𝟙 (Φ.functor.obj R.model) := sorry
+    (id R).hom = 𝟙 (Φ.functor.obj R.model) := Φ.functor.map_id R.model
 
 /-- Composite model morphisms satisfy the comparison square for the composite target map. -/
 theorem comp_naturality (m : Map f R S) (n : Map g S U) :
     Φ.functor.map (m.modelHom ≫ n.modelHom) ≫ U.comparison =
-      R.comparison ≫ (f ≫ g) := sorry
+      R.comparison ≫ (f ≫ g) := by
+  rw [Φ.functor.map_comp, Category.assoc, n.comparison_naturality,
+    m.comparison_naturality_assoc]
 
 /-- Compose maps of left resolutions. -/
 @[stacks 0GSL "composition of maps of left resolutions"]
@@ -86,16 +93,17 @@ def comp (m : Map f R S) (n : Map g S U) : Map (f ≫ g) R U where
 /-- Composition of left-resolution maps composes their model morphisms. -/
 @[simp]
 theorem comp_modelHom (m : Map f R S) (n : Map g S U) :
-    (comp m n).modelHom = m.modelHom ≫ n.modelHom := sorry
+    (comp m n).modelHom = m.modelHom ≫ n.modelHom := rfl
 
 /-- Composition of left-resolution maps composes their target-model morphisms. -/
 @[simp]
 theorem comp_hom (m : Map f R S) (n : Map g S U) :
-    (comp m n).hom = m.hom ≫ n.hom := sorry
+    (comp m n).hom = m.hom ≫ n.hom := Φ.functor.map_comp m.modelHom n.modelHom
 
 /-- Reindexing along an equality of target morphisms preserves the comparison square. -/
 theorem reindex_naturality {f' : X ⟶ Y} (e : f = f') (m : Map f R S) :
-    Φ.functor.map m.modelHom ≫ S.comparison = R.comparison ≫ f' := sorry
+    Φ.functor.map m.modelHom ≫ S.comparison = R.comparison ≫ f' := by
+  exact m.comparison_naturality.trans (congrArg (fun k : X ⟶ Y => R.comparison ≫ k) e)
 
 /-- Reindex a map of left resolutions along an equality of target morphisms. -/
 @[stacks 0GSL "reindexing maps of left resolutions"]
@@ -106,27 +114,33 @@ def reindex {f' : X ⟶ Y} (e : f = f') (m : Map f R S) : Map f' R S where
 /-- Reindexing a left-resolution map retains its model morphism. -/
 @[simp]
 theorem reindex_modelHom {f' : X ⟶ Y} (e : f = f') (m : Map f R S) :
-    (reindex e m).modelHom = m.modelHom := sorry
+    (reindex e m).modelHom = m.modelHom := rfl
 
 /-- Reindexing a left-resolution map retains its target-model morphism. -/
 @[simp]
 theorem reindex_hom {f' : X ⟶ Y} (e : f = f') (m : Map f R S) :
-    (reindex e m).hom = m.hom := sorry
+    (reindex e m).hom = m.hom := rfl
 
 /-- Reindexing along reflexivity leaves a left-resolution map unchanged. -/
 @[simp]
-theorem reindex_rfl (m : Map f R S) : reindex rfl m = m := sorry
+theorem reindex_rfl (m : Map f R S) : reindex rfl m = m := by
+  apply ext
+  rfl
 
 /-- Successive reindexings of a left-resolution map combine by transitivity. -/
 @[simp]
 theorem reindex_trans {f' f'' : X ⟶ Y} (e : f = f') (e' : f' = f'')
     (m : Map f R S) :
-    reindex e' (reindex e m) = reindex (e.trans e') m := sorry
+    reindex e' (reindex e m) = reindex (e.trans e') m := by
+  apply ext
+  rfl
 
 /-- Reindexing a left-resolution map along an equality and then its inverse recovers the map. -/
 @[simp]
 theorem reindex_symm {f' : X ⟶ Y} (e : f = f') (m : Map f R S) :
-    reindex e.symm (reindex e m) = m := sorry
+    reindex e.symm (reindex e m) = m := by
+  apply ext
+  rfl
 
 /-- Reindexing the left target morphism of a composite agrees with first reindexing its left
 factor. -/
@@ -134,7 +148,9 @@ factor. -/
 theorem reindex_comp_left {f' : X ⟶ Y} (e : f = f')
     (m : Map f R S) (n : Map g S U) :
     reindex (congrArg (fun k : X ⟶ Y => k ≫ g) e) (comp m n) =
-      comp (reindex e m) n := sorry
+      comp (reindex e m) n := by
+  apply ext
+  rfl
 
 /-- Reindexing the right target morphism of a composite agrees with first reindexing its right
 factor. -/
@@ -142,7 +158,9 @@ factor. -/
 theorem reindex_comp_right {g' : Y ⟶ Z} (e : g = g')
     (m : Map f R S) (n : Map g S U) :
     reindex (congrArg (fun k : Y ⟶ Z => f ≫ k) e) (comp m n) =
-      comp m (reindex e n) := sorry
+      comp m (reindex e n) := by
+  apply ext
+  rfl
 
 /-- Reindexing both target morphisms of a composite commutes with composition. -/
 @[simp]
@@ -150,13 +168,16 @@ theorem reindex_comp {f' : X ⟶ Y} {g' : Y ⟶ Z}
     (e : f = f') (e' : g = g') (m : Map f R S) (n : Map g S U) :
     reindex (congrArg₂ (fun (a : X ⟶ Y) (b : Y ⟶ Z) => a ≫ b) e e')
         (comp m n) =
-      comp (reindex e m) (reindex e' n) := sorry
+      comp (reindex e m) (reindex e' n) := by
+  apply ext
+  rfl
 
 /-- The comparison square of a same-target resolution morphism gives a resolution map over the
 identity. -/
 theorem ofHom_naturality {R S : Φ.LeftResolution X} (m : R ⟶ S) :
     Φ.functor.map (LeftResolution.modelHom m) ≫ S.comparison =
-      R.comparison ≫ 𝟙 X := sorry
+      R.comparison ≫ 𝟙 X := by
+  exact m.comm.trans (Category.comp_id R.comparison).symm
 
 /-- Regard a morphism in the category of left resolutions as a map over the identity. -/
 def ofHom {R S : Φ.LeftResolution X} (m : R ⟶ S) : Map (𝟙 X) R S where
@@ -166,28 +187,33 @@ def ofHom {R S : Φ.LeftResolution X} (m : R ⟶ S) : Map (𝟙 X) R S where
 /-- `ofHom` retains the morphism between resolving models. -/
 @[simp]
 theorem ofHom_modelHom {R S : Φ.LeftResolution X} (m : R ⟶ S) :
-    (ofHom m).modelHom = LeftResolution.modelHom m := sorry
+    (ofHom m).modelHom = LeftResolution.modelHom m := rfl
 
 /-- `ofHom` retains the target-model morphism. -/
 @[simp]
 theorem ofHom_hom {R S : Φ.LeftResolution X} (m : R ⟶ S) :
-    (ofHom m).hom = LeftResolution.hom m := sorry
+    (ofHom m).hom = LeftResolution.hom m := rfl
 
 /-- `ofHom` sends the identity resolution morphism to the identity resolution map. -/
 @[simp]
-theorem ofHom_id (R : Φ.LeftResolution X) : ofHom (𝟙 R) = id R := sorry
+theorem ofHom_id (R : Φ.LeftResolution X) : ofHom (𝟙 R) = id R := by
+  apply ext
+  rfl
 
 /-- `ofHom` preserves composition after identifying the composite base identity with the
 identity. -/
 @[simp]
 theorem ofHom_comp {R S U : Φ.LeftResolution X} (m : R ⟶ S) (n : S ⟶ U) :
     reindex (Category.id_comp (𝟙 X)) (comp (ofHom m) (ofHom n)) =
-      ofHom (m ≫ n) := sorry
+      ofHom (m ≫ n) := by
+  apply ext
+  rfl
 
 /-- The comparison square of a map over the identity defines a morphism in the category of left
 resolutions. -/
 theorem toHom_comm {R S : Φ.LeftResolution X} (m : Map (𝟙 X) R S) :
-    Φ.functor.map m.modelHom ≫ S.comparison = R.comparison := sorry
+    Φ.functor.map m.modelHom ≫ S.comparison = R.comparison := by
+  simpa only [Category.comp_id] using m.comparison_naturality
 
 /-- Regard a left-resolution map over the identity as a morphism in the resolution category. -/
 def toHom {R S : Φ.LeftResolution X} (m : Map (𝟙 X) R S) : R ⟶ S where
@@ -197,33 +223,41 @@ def toHom {R S : Φ.LeftResolution X} (m : Map (𝟙 X) R S) : R ⟶ S where
 /-- `toHom` retains the morphism between resolving models. -/
 @[simp]
 theorem toHom_modelHom {R S : Φ.LeftResolution X} (m : Map (𝟙 X) R S) :
-    LeftResolution.modelHom (toHom m) = m.modelHom := sorry
+    LeftResolution.modelHom (toHom m) = m.modelHom := rfl
 
 /-- `toHom` retains the target-model morphism. -/
 @[simp]
 theorem toHom_hom {R S : Φ.LeftResolution X} (m : Map (𝟙 X) R S) :
-    LeftResolution.hom (toHom m) = m.hom := sorry
+    LeftResolution.hom (toHom m) = m.hom := rfl
 
 /-- `toHom` sends the identity resolution map to the identity resolution morphism. -/
 @[simp]
-theorem toHom_id (R : Φ.LeftResolution X) : toHom (id R) = 𝟙 R := sorry
+theorem toHom_id (R : Φ.LeftResolution X) : toHom (id R) = 𝟙 R := by
+  apply LeftResolution.hom_ext
+  rfl
 
 /-- `toHom` preserves composition after identifying the composite base identity with the
 identity. -/
 @[simp]
 theorem toHom_comp {R S U : Φ.LeftResolution X}
     (m : Map (𝟙 X) R S) (n : Map (𝟙 X) S U) :
-    toHom (reindex (Category.id_comp (𝟙 X)) (comp m n)) = toHom m ≫ toHom n := sorry
+    toHom (reindex (Category.id_comp (𝟙 X)) (comp m n)) = toHom m ≫ toHom n := by
+  apply LeftResolution.hom_ext
+  rfl
 
 /-- Passing a resolution morphism through `ofHom` and `toHom` returns it. -/
 @[simp]
 theorem toHom_ofHom {R S : Φ.LeftResolution X} (m : R ⟶ S) :
-    toHom (ofHom m) = m := sorry
+    toHom (ofHom m) = m := by
+  apply LeftResolution.hom_ext
+  rfl
 
 /-- Passing a resolution map over the identity through `toHom` and `ofHom` returns it. -/
 @[simp]
 theorem ofHom_toHom {R S : Φ.LeftResolution X} (m : Map (𝟙 X) R S) :
-    ofHom (toHom m) = m := sorry
+    ofHom (toHom m) = m := by
+  apply ext
+  rfl
 
 /-- Morphisms in one fiber of left resolutions are equivalent to resolution maps over the
 identity target morphism. -/
@@ -237,16 +271,22 @@ def homEquiv {R S : Φ.LeftResolution X} : (R ⟶ S) ≃ Map (𝟙 X) R S where
 /-- The left identity law for composition of left-resolution maps. -/
 @[simp]
 theorem id_comp (m : Map f R S) :
-    reindex (Category.id_comp f) (comp (id R) m) = m := sorry
+    reindex (Category.id_comp f) (comp (id R) m) = m := by
+  apply ext
+  exact Category.id_comp m.modelHom
 
 /-- The right identity law for composition of left-resolution maps. -/
 @[simp]
 theorem comp_id (m : Map f R S) :
-    reindex (Category.comp_id f) (comp m (id S)) = m := sorry
+    reindex (Category.comp_id f) (comp m (id S)) = m := by
+  apply ext
+  exact Category.comp_id m.modelHom
 
 /-- Associativity of composition of left-resolution maps, after reindexing the target map. -/
 theorem assoc (m : Map f R S) (n : Map g S U) (k : Map h U V) :
-    reindex (Category.assoc f g h) (comp (comp m n) k) = comp m (comp n k) := sorry
+    reindex (Category.assoc f g h) (comp (comp m n) k) = comp m (comp n k) := by
+  apply ext
+  exact Category.assoc m.modelHom n.modelHom k.modelHom
 
 end Map
 

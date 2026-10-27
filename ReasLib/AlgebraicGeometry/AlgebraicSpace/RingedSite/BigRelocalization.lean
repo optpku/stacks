@@ -202,6 +202,7 @@ def relocalizationRingedHomCompIso {Z : AlgebraicSpace S} (f : Y ⟶ X) (g : Z �
 def siteHom (X : AlgebraicSpace S) :
     RingedSite.Hom (Big.ringedSite X) (spacesRingedSite X) where
   base := relocalizationFunctor (𝟙 X)
+  isMorphismOfSites := identity_isMorphismOfSites X
   structureSheafMap := relocalizationStructureSheafMap (𝟙 X)
 
 /-- The base functor of `siteHom X` is identity-base relocalization. -/

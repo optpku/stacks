@@ -6,8 +6,8 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import ReasLib.AlgebraicGeometry.RingedSpace.Module.MorphismDifferentials
-public import stacks_project.Chap109.Lemma_109_7_3
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Curve.DeligneMumford.Derivations
+import StacksCheckRecall
 
 /-!
 # Curves with finite reduced automorphism groups
@@ -30,15 +30,15 @@ namespace AlgebraicGeometry.AlgebraicSpace
 namespace Spaces
 namespace Curves
 
-/-- Lemma 109.7.4: given a proper scheme `X` over a field `k` of dimension at
+/- Lemma 109.7.4: given a proper scheme `X` over a field `k` of dimension at
 most one, the classifying morphism `Spec k ⟶ 𝒞urves` factors through
 `𝒞urves^{DM}` if and only if `Aut(X)` is geometrically reduced over `k` and has
 dimension `0`, if and only if `Aut(X) ⟶ Spec k` is unramified, if and only if
 `Der_k(𝒪_X, 𝒪_X) = 0`. -/
-@[stacks 0E6G]
-theorem classifying_factorsThrough_dm_tfae_scheme_derivations
-    {k : Type u} [Field k] (X : SchemeOverField k) [IsProper X.hom]
-    (hdim : topologicalKrullDim X.left ≤ 1) :
+@[stacks 0E6G] #check
+  (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.classifying_factorsThrough_dm_tfae_scheme_derivations :
+    ∀ {k : Type u} [Field k] (X : SchemeOverField k) [IsProper X.hom]
+      (hdim : topologicalKrullDim X.left ≤ 1),
     List.TFAE
       [dm (Spec (CommRingCat.of k)) (mkOfSchemeOverField X hdim),
         (∀ G : AlgebraicSpace (Spec (CommRingCat.of k)),
@@ -47,8 +47,7 @@ theorem classifying_factorsThrough_dm_tfae_scheme_derivations
         IsUnramified (mkOfSchemeOverField X hdim),
         Subsingleton
           (RingedSpace.Hom.derivations X.hom.toShHom
-            (SheafOfModules.unit X.left.toRingedSpace.ringCatSheaf))] :=
-  sorry
+            (SheafOfModules.unit X.left.toRingedSpace.ringCatSheaf))])
 
 end Curves
 end Spaces

@@ -163,27 +163,27 @@ end existsZariskiCover
 is universally injective after every scheme-valued base change, after every
 affine-scheme-valued base change, after a surjective scheme morphism to its
 target, or over a Zariski covering of its target. -/
-theorem tfae :
+theorem tfae_local :
     List.TFAE [UniversallyInjective f, forallScheme f, forallAffine f,
       existsSchemeSurjectiveOnTarget f, existsZariskiCover f] := sorry
 
 /-- A morphism of algebraic spaces is universally injective iff every
 scheme-valued base change is universally injective. -/
-theorem iff_forallScheme : UniversallyInjective f ↔ forallScheme f := (tfae f).out 0 1
+theorem iff_forallScheme : UniversallyInjective f ↔ forallScheme f := (tfae_local f).out 0 1
 
 /-- A morphism of algebraic spaces is universally injective iff every
 affine-scheme-valued base change is universally injective. -/
-theorem iff_forallAffine : UniversallyInjective f ↔ forallAffine f := (tfae f).out 0 2
+theorem iff_forallAffine : UniversallyInjective f ↔ forallAffine f := (tfae_local f).out 0 2
 
 /-- A morphism of algebraic spaces is universally injective iff some surjective
 scheme morphism to the target has universally injective pullback. -/
 theorem iff_existsSchemeSurjectiveOnTarget :
-    UniversallyInjective f ↔ existsSchemeSurjectiveOnTarget f := (tfae f).out 0 3
+    UniversallyInjective f ↔ existsSchemeSurjectiveOnTarget f := (tfae_local f).out 0 3
 
 /-- A morphism of algebraic spaces is universally injective iff some Zariski
 covering of the target has universally injective inverse images under `f`. -/
 theorem iff_existsZariskiCover :
-    UniversallyInjective f ↔ existsZariskiCover f := (tfae f).out 0 4
+    UniversallyInjective f ↔ existsZariskiCover f := (tfae_local f).out 0 4
 
 end UniversallyInjective
 

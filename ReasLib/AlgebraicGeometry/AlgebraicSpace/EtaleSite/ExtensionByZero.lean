@@ -55,12 +55,20 @@ def terminalChart (q : CostructuredArrow (etaleRestriction f).op (Opposite.op V)
   CostructuredArrow.mk (Y := Opposite.op (liftChart f V q))
     (MorphismProperty.CostructuredArrow.homMk
       (A := V) (B := (etaleRestriction f).obj (liftChart f V q))
-      (𝟙 V.left) trivial sorry).op
+      (𝟙 V.left) trivial (by
+        change (ofOverFunctor S).map (𝟙 V.left) ≫
+          ((ofOverMap q.hom.unop.left ≫ q.left.unop.hom) ≫ f) = V.hom
+        rw [CategoryTheory.Functor.map_id, Category.id_comp, Category.assoc]
+        exact q.hom.unop.w)).op
 
 /-- Monicity makes every chart lift agree with the lift supplied by `q`. -/
 theorem liftChart_w [Mono f]
     (q r : CostructuredArrow (etaleRestriction f).op (Opposite.op V)) :
-    ofOverMap r.hom.unop.left ≫ r.left.unop.hom = (liftChart f V q).hom := sorry
+    ofOverMap r.hom.unop.left ≫ r.left.unop.hom = (liftChart f V q).hom := by
+  apply (cancel_mono f).1
+  change (ofOverFunctor S).map r.hom.unop.left ≫ (r.left.unop.hom ≫ f) =
+    (ofOverFunctor S).map q.hom.unop.left ≫ (q.left.unop.hom ≫ f)
+  exact r.hom.unop.w.trans q.hom.unop.w.symm
 
 /-- The actual map into the terminal left-Kan index uses the original scheme arrow. -/
 def toTerminalChart [Mono f]
@@ -69,12 +77,23 @@ def toTerminalChart [Mono f]
   CostructuredArrow.homMk
     (MorphismProperty.CostructuredArrow.homMk
       (A := liftChart f V q) (B := r.left.unop)
-      r.hom.unop.left trivial (liftChart_w f V q r)).op sorry
+      r.hom.unop.left trivial (liftChart_w f V q r)).op (by
+        apply Quiver.Hom.unop_inj
+        apply MorphismProperty.CostructuredArrow.Hom.ext
+        change (𝟙 V.left) ≫ r.hom.unop.left = r.hom.unop.left
+        exact Category.id_comp _)
 
 /-- The comma triangle determines the underlying scheme map into the terminal lift. -/
 theorem toTerminalChart_unique [Mono f]
     (q r : CostructuredArrow (etaleRestriction f).op (Opposite.op V))
-    (m : r ⟶ terminalChart f V q) : m = toTerminalChart f V q r := sorry
+    (m : r ⟶ terminalChart f V q) : m = toTerminalChart f V q r := by
+  apply CostructuredArrow.hom_ext
+  apply Quiver.Hom.unop_inj
+  apply MorphismProperty.CostructuredArrow.Hom.ext
+  have h := congrArg (fun a ↦ a.unop.left) (CostructuredArrow.w m)
+  change (𝟙 V.left) ≫ m.left.unop.left = r.hom.unop.left at h
+  change m.left.unop.left = r.hom.unop.left
+  exact (Category.id_comp _).symm.trans h
 
 /-- The specified lift is terminal, with explicit incoming morphisms. -/
 def terminalChartIsTerminal [Mono f]
@@ -119,8 +138,8 @@ instance smallEtaleTopology_hasSheafify_addCommGrpCat (X : AlgebraicSpace S) :
   infer_instance
 
 /-- Commutative-ring-valued sheaves on the small étale site of an algebraic space
-admit weak sheafification. -/
-instance smallEtaleTopology_hasWeakSheafify_commRingCat (X : AlgebraicSpace S) :
+admit weak sheafification in the successor coefficient universe. -/
+instance smallEtaleTopology_hasWeakSheafify_commRingCat_succ (X : AlgebraicSpace S) :
     HasWeakSheafify (smallEtaleTopology X) CommRingCat.{u + 1} := by
   infer_instance
 
@@ -134,22 +153,22 @@ instance smallEtaleTopology_hasWeakSheafify_ringCat (X : AlgebraicSpace S) :
 étale topology of an algebraic space. -/
 instance smallEtaleTopology_hasSheafCompose_commRingCat (X : AlgebraicSpace S) :
     (smallEtaleTopology X).HasSheafCompose
-      (forget₂ CommRingCat.{u + 1} RingCat.{u + 1}) :=
-  sorry
+      (forget₂ CommRingCat.{u + 1} RingCat.{u + 1}) := by
+  infer_instance
 
 /-- Coefficient change from rings to abelian groups preserves sheaves on the small
 étale topology of an algebraic space. -/
 instance smallEtaleTopology_hasSheafCompose_ringCat (X : AlgebraicSpace S) :
     (smallEtaleTopology X).HasSheafCompose
-      (forget₂ RingCat.{u + 1} AddCommGrpCat.{u + 1}) :=
-  sorry
+      (forget₂ RingCat.{u + 1} AddCommGrpCat.{u + 1}) := by
+  infer_instance
 
 /-- On the small étale topology of an algebraic space, sheafification equivalences of
 abelian sheaves in the morphism universe are the locally bijective morphisms. -/
 instance smallEtaleTopology_wEqualsLocallyBijective_addCommGrpCat
     (X : AlgebraicSpace S) :
-    (smallEtaleTopology X).WEqualsLocallyBijective AddCommGrpCat.{u + 1} :=
-  sorry
+    (smallEtaleTopology X).WEqualsLocallyBijective AddCommGrpCat.{u + 1} := by
+  infer_instance
 
 /-- Under the canonical Kan-extension and sheafification hypotheses, étale sheaf
 restriction on algebraic spaces is a right adjoint. -/
@@ -162,13 +181,13 @@ instance etaleRestrictionSheaf_isRightAdjoint {U X : AlgebraicSpace S}
     (etaleRestriction f) A (smallEtaleTopology U) (smallEtaleTopology X)).isRightAdjoint
 
 /-- The canonical sheaf-valued extension-by-zero functor along an étale morphism of
-algebraic spaces, given by the sheaf pullback of étale restriction. -/
+algebraic spaces, constructed by left Kan extension followed by sheafification. -/
 noncomputable abbrev etaleExtensionByZero {U X : AlgebraicSpace S}
     (f : U ⟶ X) [Etale f] (A : Type v) [Category.{w} A]
     [∀ F : (smallEtaleSite U)ᵒᵖ ⥤ A, (etaleRestriction f).op.HasLeftKanExtension F]
     [HasWeakSheafify (smallEtaleTopology X) A] :
     Sheaf (smallEtaleTopology U) A ⥤ Sheaf (smallEtaleTopology X) A :=
-  Functor.sheafPullback (etaleRestriction f) A
+  Functor.sheafPullbackConstruction.sheafPullback (etaleRestriction f) A
     (smallEtaleTopology U) (smallEtaleTopology X)
 
 /-- The canonical adjunction `f_! ⊣ f⁻¹` for étale extension by zero and restriction. -/
@@ -177,7 +196,7 @@ def etaleExtensionByZero_adjunction {U X : AlgebraicSpace S}
     [∀ F : (smallEtaleSite U)ᵒᵖ ⥤ A, (etaleRestriction f).op.HasLeftKanExtension F]
     [HasWeakSheafify (smallEtaleTopology X) A] :
     etaleExtensionByZero f A ⊣ etaleRestrictionSheaf f A :=
-  Functor.sheafAdjunctionContinuous (etaleRestriction f) A
+  Functor.sheafPullbackConstruction.sheafAdjunctionContinuous (etaleRestriction f) A
     (smallEtaleTopology U) (smallEtaleTopology X)
 
 /-- Extension by zero for sheaves of abelian groups on small étale sites of algebraic
@@ -229,8 +248,28 @@ theorem constantIntegerPullbackIso_laws {U X : AlgebraicSpace S}
       𝟙 (CategoryTheory.constantIntegerSheaf.{u + 1, u, u + 1} (smallEtaleTopology U))) ∧
     (e.hom ≫ constantIntegerPullbackHom f =
       𝟙 ((etaleRestrictionSheaf f AddCommGrpCat.{u + 1}).obj
-        (CategoryTheory.constantIntegerSheaf.{u + 1, u, u + 1} (smallEtaleTopology X)))) :=
-  sorry
+        (CategoryTheory.constantIntegerSheaf.{u + 1, u, u + 1} (smallEtaleTopology X)))) := by
+  let M := AddCommGrpCat.of (ULift.{u + 1} ℤ)
+  let e := ((etaleRestriction f).constantSheafRestrictionIso
+    (smallEtaleTopology U) (smallEtaleTopology X) AddCommGrpCat.{u + 1}).app M
+  have h : constantIntegerPullbackHom f = e.inv := by
+    apply Sheaf.hom_ext
+    have hc : (Functor.constCompWhiskeringLeftIso ((smallEtaleSite U)ᵒᵖ)
+        (C := AddCommGrpCat.{u + 1}) (etaleRestriction f).op).inv.app M =
+        𝟙 ((Functor.const (smallEtaleSite U)ᵒᵖ).obj M) := by
+      ext Y
+      rfl
+    simp only [constantIntegerPullbackHom, ObjectProperty.ι_obj, hc,
+      sheafificationAdjunction_unit_app, Functor.constantSheafRestrictionIso,
+      NatIso.ofComponents.app, Iso.app_inv, Iso.symm_inv,
+      Functor.pushforwardContinuousSheafificationCompatibility_hom_app_hom,
+      sheafifyLift, M, e]
+    erw [Category.id_comp]
+    rfl
+  change (constantIntegerPullbackHom f ≫ e.hom = 𝟙 _) ∧
+    (e.hom ≫ constantIntegerPullbackHom f = 𝟙 _)
+  rw [h]
+  exact ⟨e.inv_hom_id, e.hom_inv_id⟩
 
 /-- Restriction of the constant integer sheaf has both maps from the actual
 restriction/Ran and constant/global-sections adjunctions. The forward leg is
@@ -271,6 +310,6 @@ theorem traceMap_spec {U X : AlgebraicSpace S} (f : U ⟶ X) [Etale f] :
     (abelianExtensionByZero_adjunction f).homEquiv
         (CategoryTheory.constantIntegerSheaf.{u + 1, u, u + 1} (smallEtaleTopology U)) (CategoryTheory.constantIntegerSheaf.{u + 1, u, u + 1} (smallEtaleTopology X)) (traceMap f) =
       constantIntegerPullbackHom f :=
-  sorry
+  (abelianExtensionByZero_adjunction f).homEquiv _ _ |>.apply_symm_apply _
 
 end AlgebraicGeometry.AlgebraicSpace

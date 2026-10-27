@@ -27,23 +27,24 @@ variable {M : Type v} [AddCommGroup M] [Module A M] [Module.Finite A M]
 /-- Restricting the locus of an algebraization situation to a specialization-stable subset preserves the situation. -/
 theorem restrict
     [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
-    (H : MonoidalClosed (DerivedCategory (ModuleCat.{u} A)))
+    (C : CategoryTheory.DerivedCategory.CanonicalClosedPresentation (A := A))
     {I : Ideal A} {T : Set (PrimeSpectrum A)} {s d : ℤ}
-    (h : AlgebraizationSituation H I M T s d)
+    (h : AlgebraizationSituation C I M T s d)
     (T' : Set (PrimeSpectrum A))
     (hT' : StableUnderSpecialization T') (hsub : T' ⊆ T) :
-    AlgebraizationSituation H I M T' s d := sorry
+    AlgebraizationSituation C I M T' s d := sorry
 
 /-- Localization transports an algebraization situation along a multiplicative subset. -/
 theorem localize
     [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
-    (H : MonoidalClosed (DerivedCategory (ModuleCat.{u} A)))
+    (C : CategoryTheory.DerivedCategory.CanonicalClosedPresentation (A := A))
     {I : Ideal A} {T : Set (PrimeSpectrum A)} {s d : ℤ}
-    (h : AlgebraizationSituation H I M T s d)
+    (h : AlgebraizationSituation C I M T s d)
     (S : Submonoid A)
     [MonoidalCategory (DerivedCategory (ModuleCat.{u} (Localization S)))]
-    (Hs : MonoidalClosed (DerivedCategory (ModuleCat.{u} (Localization S)))) :
-    AlgebraizationSituation Hs
+    (Cs : CategoryTheory.DerivedCategory.CanonicalClosedPresentation
+      (A := Localization S)) :
+    AlgebraizationSituation Cs
       (I.map (algebraMap A (Localization S)))
       (LocalizedModule S M)
       {q : PrimeSpectrum (Localization S) |
@@ -52,14 +53,14 @@ theorem localize
 /-- Adic completion transports an algebraization situation to the completed ring and module. -/
 theorem complete
     [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
-    (H : MonoidalClosed (DerivedCategory (ModuleCat.{u} A)))
+    (C : CategoryTheory.DerivedCategory.CanonicalClosedPresentation (A := A))
     {I : Ideal A} {T : Set (PrimeSpectrum A)} {s d : ℤ}
-    (h : AlgebraizationSituation H I M T s d)
+    (h : AlgebraizationSituation C I M T s d)
     [MonoidalCategory
       (DerivedCategory (ModuleCat.{u} (AdicCompletion I A)))]
-    (Hhat : MonoidalClosed
-      (DerivedCategory (ModuleCat.{u} (AdicCompletion I A)))) :
-    AlgebraizationSituation Hhat
+    (Chat : CategoryTheory.DerivedCategory.CanonicalClosedPresentation
+      (A := AdicCompletion I A)) :
+    AlgebraizationSituation Chat
       (I.map (algebraMap A (AdicCompletion I A)))
       (AdicCompletion I M)
       {q : PrimeSpectrum (AdicCompletion I A) |

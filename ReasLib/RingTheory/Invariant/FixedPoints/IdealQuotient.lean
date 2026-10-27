@@ -42,17 +42,17 @@ abbrev ideal (J : Ideal (FixedPoints.subring R G)) : Ideal R :=
 /-- The extension ideal is stable under the whole group action. -/
 @[stacks 0H35 "stability of a fixed-subring ideal extension"]
 theorem ideal_isStable (J : Ideal (FixedPoints.subring R G)) :
-    (ideal J).IsStable G := sorry
--- Proof strategy: for each `g`, rewrite pointwise scalar action by
--- `Ideal.pointwise_smul_def` and combine the two ideal maps with `Ideal.map_map`; the composite
--- ring hom equals the fixed-subring subtype because every source element is fixed by `g`.
+    (ideal J).IsStable G := by
+  intro g
+  rw [Ideal.pointwise_smul_def, ideal, Ideal.map_map]
+  congr 1
+  exact RingHom.ext fun x ↦ x.2 g
 
 /-- The pointwise form of stability for an extended fixed-subring ideal. -/
 @[simp, stacks 0H35 "pointwise stability of a fixed-subring ideal extension"]
 theorem ideal_smul (J : Ideal (FixedPoints.subring R G)) (g : G) :
-    g • ideal J = ideal J := sorry
--- Proof strategy: this is the value of `ideal_isStable J` at `g` after unfolding
--- `Ideal.IsStable`.
+    g • ideal J = ideal J :=
+  ideal_isStable J g
 
 /-- The canonical action on the quotient by an extended fixed-subring ideal.
 
@@ -108,9 +108,8 @@ theorem mapOfLE_mk (I : Ideal R) (hI : I.IsStable G)
     -- selected by `hI` in the codomain fixed subring.
     letI := Ideal.Quotient.action I hI
     ((mapOfLE I hI J hJ (Ideal.Quotient.mk J x) :
-        FixedPoints.subring (R ⧸ I) G) : R ⧸ I) = Ideal.Quotient.mk I x := sorry
--- Proof strategy: unfold `mapOfLE`, rewrite `Ideal.quotientMap` on the representative, then use
--- `Ideal.Quotient.fixedPointsMap_mk`; all quotient actions are pinned to the same proof `hI`.
+        FixedPoints.subring (R ⧸ I) G) : R ⧸ I) = Ideal.Quotient.mk I x := by
+  rfl
 
 /-- Composing the general factorization with the source quotient projection recovers the
 equivariant quotient projection restricted to fixed points. -/
@@ -122,10 +121,8 @@ theorem mapOfLE_comp_mk (I : Ideal R) (hI : I.IsStable G)
     -- `hI`.
     letI := Ideal.Quotient.action I hI
     (mapOfLE I hI J hJ).comp (Ideal.Quotient.mk J) =
-      (Ideal.Quotient.mkHom I hI).fixedPoints := sorry
--- Proof strategy: apply `Ideal.Quotient.ringHom_ext` to the source quotient and evaluate on a
--- fixed element; after coercing the target subtype, `mapOfLE_mk` identifies both sides with
--- `Ideal.Quotient.mk I x`.
+      (Ideal.Quotient.mkHom I hI).fixedPoints := by
+  rfl
 
 /-- The canonical map from `FixedPoints.subring R G ⧸ J` to the fixed subring of
 `R ⧸ FixedPoints.Quotient.ideal J`. -/
@@ -147,9 +144,8 @@ theorem map_mk (J : Ideal (FixedPoints.subring R G))
     -- action and its fixed-point codomain.
     letI := action J
     ((map J (Ideal.Quotient.mk J x) : fixed J) : R ⧸ ideal J) =
-      Ideal.Quotient.mk (ideal J) x := sorry
--- Proof strategy: unfold `map` and specialize `mapOfLE_mk` to `I = ideal J`,
--- `hI = ideal_isStable J`, and `hJ = Ideal.le_comap_map`.
+      Ideal.Quotient.mk (ideal J) x := by
+  rfl
 
 /-- The fixed-subring quotient map composed with the source quotient projection is the restricted
 equivariant quotient projection. -/
@@ -157,9 +153,8 @@ equivariant quotient projection. -/
 theorem map_comp_mk (J : Ideal (FixedPoints.subring R G)) :
     -- Local instance justification (defeq pin): the two maps share the same quotient action.
     letI := action J
-    (map J).comp (Ideal.Quotient.mk J) = (mkHom J).fixedPoints := sorry
--- Proof strategy: unfold `map` and `mkHom`, then specialize `mapOfLE_comp_mk` with the canonical
--- extension ideal and `Ideal.le_comap_map`; retain the named quotient action throughout.
+    (map J).comp (Ideal.Quotient.mk J) = (mkHom J).fixedPoints := by
+  rfl
 
 /-- Every fixed class in `fixed J` has a monic polynomial over
 `FixedPoints.subring R G ⧸ J` whose image is its shifted
@@ -168,38 +163,97 @@ power. -/
 theorem exists_monic (J : Ideal (FixedPoints.subring R G)) [Finite G]
     (b : fixed J) :
     ∃ P : Polynomial (FixedPoints.subring R G ⧸ J),
-      P.Monic ∧ P.map (map J) = (Polynomial.X - Polynomial.C b) ^ Nat.card G := sorry
--- Proof strategy: apply `MulSemiringActionHom.exists_monic_map_eq_orbit` to the equivariant
--- quotient map `mkHom J` and `Ideal.Quotient.mk_surjective`.  Map the resulting polynomial over
--- `FixedPoints.subring R G` through `Ideal.Quotient.mk J`; monicity is preserved, and
--- `Polynomial.map_map` together with `map_comp_mk` gives the required target identity.
+      P.Monic ∧ P.map (map J) = (Polynomial.X - Polynomial.C b) ^ Nat.card G := by
+  classical
+  letI := Fintype.ofFinite G
+  letI := action J
+  obtain ⟨r, hr⟩ := Ideal.Quotient.mk_surjective (b : R ⧸ ideal J)
+  obtain ⟨P, hP, _, hPm⟩ := Polynomial.lifts_and_natDegree_eq_and_monic
+    (Algebra.IsInvariant.charpoly_mem_lifts (FixedPoints.subring R G) R G r)
+    (MulSemiringAction.monic_charpoly G r)
+  have hgr (g : G) : Ideal.Quotient.mk (ideal J) (g • r) = (b : R ⧸ ideal J) := by
+    calc
+      Ideal.Quotient.mk (ideal J) (g • r) = g • Ideal.Quotient.mk (ideal J) r := rfl
+      _ = g • (b : R ⧸ ideal J) := congrArg (g • ·) hr
+      _ = b := b.2 g
+  refine ⟨P.map (Ideal.Quotient.mk J), hPm.map _, ?_⟩
+  apply Polynomial.map_injective (fixed J).subtype Subtype.val_injective
+  calc
+    ((P.map (Ideal.Quotient.mk J)).map (map J)).map (fixed J).subtype =
+        (P.map (FixedPoints.subring R G).subtype).map (Ideal.Quotient.mk (ideal J)) := by
+      rw [Polynomial.map_map, Polynomial.map_map, Polynomial.map_map]
+      rfl
+    _ = (MulSemiringAction.charpoly G r).map (Ideal.Quotient.mk (ideal J)) :=
+      congrArg (Polynomial.map (Ideal.Quotient.mk (ideal J))) hP
+    _ = (Polynomial.X - Polynomial.C (b : R ⧸ ideal J)) ^ Nat.card G := by
+      simp [MulSemiringAction.charpoly_eq, Polynomial.map_prod, hgr,
+        Nat.card_eq_fintype_card]
+    _ = ((Polynomial.X - Polynomial.C b) ^ Nat.card G).map (fixed J).subtype := by
+      simp
+  rfl
 
 /-- A kernel element of the fixed-subring quotient map satisfies the orbit-power identity. -/
 @[stacks 0H35 "kernel orbit-power identity"]
 theorem kernel_pow (J : Ideal (FixedPoints.subring R G)) [Finite G]
     (a : RingHom.ker (map J)) :
-    (Polynomial.X - Polynomial.C a.1) ^ Nat.card G = Polynomial.X ^ Nat.card G := sorry
--- Proof strategy: choose a representative `x : FixedPoints.subring R G` of `a.1`.  The kernel
--- equation and `map_mk` imply `(x : R) ∈ ideal J`.  Install `Fintype.ofFinite G` and compare
--- coefficients: after mapping `(X - C x) ^ Fintype.card G` through the fixed-subring subtype,
--- `MulSemiringAction.charpoly_eq` identifies it with the orbit polynomial of `x`; every
--- coefficient below the leading one lies in `J` by `FixedPoints.charpolyCoeff_mem`, the leading
--- coefficients agree by `MulSemiringAction.monic_charpoly`, and higher coefficients vanish.
--- Apply `Polynomial.ext`, quotient coefficients by `Ideal.Quotient.mk J`, and finally rewrite
--- `Nat.card_eq_fintype_card` and the chosen representative equality.
+    (Polynomial.X - Polynomial.C a.1) ^ Nat.card G = Polynomial.X ^ Nat.card G := by
+  classical
+  letI := Fintype.ofFinite G
+  rcases subsingleton_or_nontrivial (FixedPoints.subring R G) with h | h
+  · exact Subsingleton.elim _ _
+  · obtain ⟨x, hx⟩ := Ideal.Quotient.mk_surjective a.1
+    have hxI : (x : R) ∈ ideal J := by
+      apply Ideal.Quotient.eq_zero_iff_mem.mp
+      have ha := congrArg Subtype.val (show map J a.1 = 0 from a.2)
+      rwa [← hx, map_mk] at ha
+    let p : Polynomial (FixedPoints.subring R G) :=
+      (Polynomial.X - Polynomial.C x) ^ Fintype.card G
+    have hp : p.map (FixedPoints.subring R G).subtype =
+        MulSemiringAction.charpoly G (x : R) := by
+      have hfixed (g : G) : g • (x : R) = (x : R) := x.2 g
+      simp [p, MulSemiringAction.charpoly_eq, hfixed]
+    have hcoeff (n : ℕ) : p.coeff n = FixedPoints.charpolyCoeff G (x : R) n := by
+      apply Subtype.ext
+      change (FixedPoints.subring R G).subtype (p.coeff n) =
+        (MulSemiringAction.charpoly G (x : R)).coeff n
+      rw [← Polynomial.coeff_map, hp]
+    have hmonic : p.Monic := (Polynomial.monic_X_sub_C x).pow _
+    have hdegree : p.natDegree = Fintype.card G := by
+      rw [Polynomial.Monic.natDegree_pow (Polynomial.monic_X_sub_C x),
+        Polynomial.natDegree_X_sub_C, mul_one]
+    have hq : p.map (Ideal.Quotient.mk J) = Polynomial.X ^ Fintype.card G := by
+      ext n
+      rw [Polynomial.coeff_map, Polynomial.coeff_X_pow]
+      rcases lt_trichotomy n (Fintype.card G) with hn | rfl | hn
+      · rw [if_neg hn.ne]
+        apply Ideal.Quotient.eq_zero_iff_mem.mpr
+        rw [hcoeff]
+        exact FixedPoints.charpolyCoeff_mem G J hxI hn
+      · rw [if_pos rfl, ← hdegree, hmonic.coeff_natDegree, map_one]
+      · rw [Polynomial.coeff_eq_zero_of_natDegree_lt (hdegree.trans_lt hn),
+          map_zero, if_neg hn.ne']
+    simpa only [p, Polynomial.map_pow, Polynomial.map_sub, Polynomial.map_X,
+      Polynomial.map_C, hx, Nat.card_eq_fintype_card] using hq
 
 /-- The fixed-subring quotient map is shift-power generated. -/
 @[stacks 0H35 "shift-power generation of the fixed-subring quotient map"]
 theorem isGenerated (J : Ideal (FixedPoints.subring R G)) [Finite G] :
-    RingHom.ShiftPower.IsGenerated (map J) := sorry
--- Proof strategy: give `map J` its canonical algebra structure, prove its adjoin is top
--- elementwise, and use `exists_monic J b` as the shift-power witness for each `b : fixed J`;
--- finish with `Algebra.subset_adjoin`.
+    RingHom.ShiftPower.IsGenerated (map J) := by
+  apply top_unique
+  intro b _
+  apply Subring.subset_closure
+  right
+  obtain ⟨P, _, hP⟩ := exists_monic J b
+  exact ⟨Nat.card G, Nat.card_pos, P, hP⟩
 
 /-- The fixed-subring quotient map is integral. -/
 @[stacks 0H35 "integrality of the fixed-subring quotient map"]
 theorem isIntegral (J : Ideal (FixedPoints.subring R G)) [Finite G] :
-    (map J).IsIntegral := sorry
--- Proof strategy: apply `RingHom.ShiftPower.isIntegral` to `isGenerated J`.
+    (map J).IsIntegral := by
+  intro b
+  obtain ⟨P, hP, hPb⟩ := exists_monic J b
+  refine ⟨P, hP, ?_⟩
+  rw [← Polynomial.eval_map, hPb]
+  simp [Nat.ne_of_gt (Nat.card_pos (α := G))]
 
 end FixedPoints.Quotient

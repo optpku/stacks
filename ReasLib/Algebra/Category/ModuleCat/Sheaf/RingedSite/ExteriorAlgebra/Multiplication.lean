@@ -56,7 +56,7 @@ theorem powerι_tensor_powerι_mul
 multiplication followed by its homogeneous inclusion. -/
 @[reassoc, stacks 01CF "degree-one multiplication in an exterior-algebra sheaf"]
 theorem ι_tensor_ι_mul (F : ringedSiteModuleCategory J O) :
-    tensorHom (ι O F) (ι O F) ≫ mul O F =
+    tensorHom (ExteriorAlgebra.ι O F) (ExteriorAlgebra.ι O F) ≫ mul O F =
       tensorHom (ExteriorPower.degreeOne O F) (ExteriorPower.degreeOne O F) ≫
         ExteriorPower.mul O F 1 1 ≫ powerι O F (1 + 1) := sorry
 

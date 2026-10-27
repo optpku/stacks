@@ -6,8 +6,8 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap66.Lemma_66_33_1_Affine
-public import stacks_project.Chap109.Lemma_109_22_7_Substack
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Curve.StableQuasiCompact
 
 /-!
 # Quasi-compactness of the stack of stable curves of genus `g`
@@ -30,14 +30,13 @@ namespace AlgebraicGeometry.AlgebraicSpace
 namespace Spaces
 namespace Curves
 
-/-- Lemma 109.25.2: for `2 ≤ g`, the algebraic stack `ℳ̄_g` of stable
+/- Lemma 109.25.2: for `2 ≤ g`, the algebraic stack `ℳ̄_g` of stable
 genus-`g` curves is quasi-compact, as witnessed by a surjective smooth atlas
 from a quasi-compact scheme over `specZ`. -/
-@[stacks 0E9B]
-theorem isQuasiCompact_stableOfGenus (g : ℕ) (hg : 2 ≤ g) :
+@[stacks 0E9B] #check (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.isQuasiCompact_stableOfGenus :
+  ∀ (g : ℕ) (hg : 2 ≤ g),
     ∃ (U : Over specZ) (p : Classifying.slice U ⟶ ofObjectProperty (stableOfGenus g specZ)),
-      Classifying.Smooth p ∧ Classifying.Surjective p ∧ CompactSpace U.left :=
-  sorry
+      Classifying.Smooth p ∧ Classifying.Surjective p ∧ CompactSpace U.left)
 
 end Curves
 end Spaces

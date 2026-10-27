@@ -104,13 +104,6 @@ instance moduleCatAlgebraicStructure (R : Type u) [Ring R] :
 instance supplies faithfulness, while `Mathlib.Algebra.Category.ModuleCat.Basic` supplies
 reflection of isomorphisms. -/
 
-/-- For a commutative ring `R`, the category of `R`-modules with its forgetful functor to sets is
-a type of algebraic structures. -/
-theorem moduleCatAlgebraicStructureOfCommRing (R : Type u) [CommRing R] :
-    IsAlgebraicStructure (ModuleCat.{v} R) (forget (ModuleCat.{v} R)) := sorry
-/- Proof strategy: specialize `moduleCatAlgebraicStructure` to the underlying ring structure on
-`R`; no additional limit, filtered-colimit, or isomorphism argument is required. -/
-
 /-- The category of Lie algebras over a commutative ring is a reusable strengthening of the field
 case. -/
 instance lieAlgebraCatAlgebraicStructure (R : Type u) [CommRing R] :
@@ -121,10 +114,3 @@ instance lieAlgebraCatAlgebraicStructure (R : Type u) [CommRing R] :
 `LieHom.ext` and an inverse linear map to reflect isomorphisms, then apply
 `IsAlgebraicStructure.mk`. -/
 
-/-- For a field `k`, the category of Lie algebras over `k`, with its forgetful functor to sets, is
-a type of algebraic structures. -/
-theorem lieAlgebraCatAlgebraicStructureOfField (k : Type u) [Field k] :
-    IsAlgebraicStructure (LieAlgebraCat.{v} k) (forget (LieAlgebraCat.{v} k)) := sorry
-/- Proof strategy: specialize `lieAlgebraCatAlgebraicStructure` to the commutative-ring
-structure carried by the field `k`; no additional limit, filtered-colimit, or isomorphism argument
-is required. -/

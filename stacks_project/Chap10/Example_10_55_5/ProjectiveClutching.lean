@@ -410,9 +410,9 @@ private theorem equalEndpointProjectiveDetRankData_exists_of_lineProduct_and_zer
     equalEndpointProjectiveDetRankData_exists_of_vectorClutchingPresentations_and_zeroPicClass
       k hpresent hzero_pic
 
-/-- Helper for Chap10 Example 10 55 5: the no-argument closure reduces to the source clauses
-consumed by the imported determinant-rank bridge. -/
-private theorem equalEndpointSourceClauses_noArgs :
+/-- Source-level generator normal form and residual-line injectivity for the equal-endpoint
+ring.  These geometric assertions are the remaining proof obligations for the classification. -/
+theorem equalEndpointSourceClauses_noArgs :
     (∀ M : ModuleCat.FiniteProjective.{u, u} R,
       ∃ unitRatio : kˣ,
         ModuleCat.K0.projectiveOf R M =
@@ -420,12 +420,28 @@ private theorem equalEndpointSourceClauses_noArgs :
             (Additive.ofMul unitRatio, equalEndpointProjectiveRank k M)) ∧
       (∀ u v : kˣ,
         equalEndpointLineResidualClass k u = equalEndpointLineResidualClass k v → u = v) := by
-  -- Route correction: the final theorem should consume the smaller source-clause interface,
-  -- not reopen the stale clutching-plus-zero-Pic wrapper route.
   -- TODO: prove the source clauses directly by combining a generator normal form for arbitrary
   -- finite-projective modules with a rank-one comparison showing residual equality preserves the
   -- Picard coordinate, then feed those two facts through the existing source-clause bridge.
   sorry
+
+/-- Residual Milnor-line classes identify endpoint-unit ratios with the generic-rank kernel.
+This normalized classification is a theorem about the actual class map, with no inverse-coordinate
+data among its hypotheses. -/
+theorem equalEndpointLineResidualEquiv_exists_noArgs :
+    ∃ e : Additive kˣ ≃+ (equalEndpointProjectiveRankMap.{u, u} k).ker,
+      ∀ a : Additive kˣ, e a = equalEndpointLineResidualClass k a.toMul := by
+  exact equalEndpointLineResidualEquiv_exists_of_sourceClauses k
+    (equalEndpointSourceClauses_noArgs k)
+
+/-- The explicit residual-line homomorphism is bijective by the normalized source classification.
+-/
+theorem equalEndpointLineResidualHom_bijective :
+    Function.Bijective
+      (equalEndpointLineResidualHom (k := k)
+        (hmul := equalEndpointLineResidualClass_mul k)) := by
+  exact equalEndpointLineResidualHom_bijective_of_sourceClauses k
+    (equalEndpointSourceClauses_noArgs k)
 
 /-- Helper for Chap10 Example 10 55 5: the remaining no-argument input for the final wrapper is
 the source-clause package, and the determinant-rank data is then formal. -/
@@ -462,10 +478,13 @@ theorem equalEndpointProjectiveRankProduct_exists :
     ∃ e : ModuleCat.K0.projective.{u, u} R ≃+ Additive kˣ × ℤ,
       (AddMonoidHom.snd (Additive kˣ) ℤ).comp e.toAddMonoidHom =
         equalEndpointProjectiveRankMap.{u, u} k := by
-  -- Route correction: the stable closure uses determinant-rank data directly, because the local
-  -- det-rank-to-product bridge already avoids the stale exactness packaging.
-  have hdetRank := equalEndpointProjectiveDetRankData_exists_noArgs k
-  exact equalEndpointProjectiveRankProduct_exists_of_detRankData k hdetRank
+  -- Combine the normalized residual-line classification with the free rank section.
+  rcases equalEndpointLineResidualEquiv_exists_noArgs k with ⟨e, he⟩
+  have hbijective : Function.Bijective (equalEndpointLineRankClassMap k) :=
+    equalEndpointLineRankClassMap_bijective_of_lineResidualEquiv k e he
+  rcases equalEndpointProjectiveRankProduct_exists_of_lineRankClassMap_bijective k hbijective with
+    ⟨eProduct, hrank, _hline⟩
+  exact ⟨eProduct, hrank⟩
 
 end
 

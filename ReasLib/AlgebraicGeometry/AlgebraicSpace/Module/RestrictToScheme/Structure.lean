@@ -62,11 +62,88 @@ noncomputable def restrictToSchemeOpensIso {U : Over S} (F : (ofOver U).Modules)
     (opensToSchemeModules U.left).mapIso
       ((restrictToOpensPushforwardIso U).app ((Modules.restrictFunctor (𝟙 (ofOver U))).obj F))
 
+/-! The two coefficient maps used by `unitMap` have explicit reverse transports.  The
+first one is the inverse of the scheme restriction/global-sections comparison, while
+the second one is the identity comparison for the presentation site. -/
+
+private def openChartUnitInv (U : Over S) :
+    (SmallEtale.Modules.toScheme (tautologicalChart U)).obj
+        (SheafOfModules.unit (SmallEtale.structureSheaf (ofOver U))) ⟶
+      SheafOfModules.unit U.left.ringCatSheaf where
+  val :=
+    { app := fun V ↦ by
+        let A := ((SmallEtale.Modules.toScheme (tautologicalChart U)).obj
+          (SheafOfModules.unit (SmallEtale.structureSheaf (ofOver U)))).val.obj V
+        let B := (SheafOfModules.unit U.left.ringCatSheaf).val.obj V
+        letI : AddCommGroup A := A.isAddCommGroup
+        letI : Module (U.left.ringCatSheaf.obj.obj V) A := A.isModule
+        letI : AddCommGroup B := B.isAddCommGroup
+        letI : Module (U.left.ringCatSheaf.obj.obj V) B := B.isModule
+        exact @ModuleCat.ofHom (U.left.ringCatSheaf.obj.obj V) _ A B
+          A.isAddCommGroup A.isModule B.isAddCommGroup B.isModule
+          { toFun := fun x ↦ ((Scheme.restrictFunctorΓ (X := U.left)).hom.app V).hom x
+            map_add' := by sorry
+            map_smul' := by sorry }
+      naturality := by sorry }
+
+private def toPresentationSchemeComparison {S : Scheme.{u}} (X : AlgebraicSpace S) :
+    SmallEtale.toScheme X ⟶ SmallEtale.toPresentation X ⋙ smallEtaleToScheme X where
+  app _ := 𝟙 _
+  naturality _ _ _ := rfl
+
+private noncomputable def toPresentationStructureMapInv {S : Scheme.{u}}
+    (X : AlgebraicSpace S) :
+    ((SmallEtale.toPresentation X).sheafPushforwardContinuous RingCat.{u}
+      (SmallEtale.topology X) (smallEtaleTopology X)).obj (structureSheaf X) ⟶
+      SmallEtale.structureSheaf X :=
+  Scheme.Site.inverseStructureSheafMap
+    (SmallEtale.topology X) (smallEtaleTopology X)
+    (SmallEtale.toScheme X) (smallEtaleToScheme X)
+    (SmallEtale.toPresentation X) (toPresentationSchemeComparison X)
+    (SmallEtale.structurePresheaf_isSheaf X) (structurePresheaf_isSheaf X)
+
+private def toPresentationUnitInv {S : Scheme.{u}} (X : AlgebraicSpace S) :
+    (SheafOfModules.pushforward (toPresentationStructureMap X)).obj
+        (SheafOfModules.unit (structureSheaf X)) ⟶
+      SheafOfModules.unit (SmallEtale.structureSheaf X) where
+  val :=
+    { app := fun V ↦ by
+        let A := ((SheafOfModules.pushforward (toPresentationStructureMap X)).obj
+          (SheafOfModules.unit (structureSheaf X))).val.obj V
+        let B := (SheafOfModules.unit (SmallEtale.structureSheaf X)).val.obj V
+        letI : AddCommGroup A := A.isAddCommGroup
+        letI : Module ((SmallEtale.structureSheaf X).obj.obj V) A := A.isModule
+        letI : AddCommGroup B := B.isAddCommGroup
+        letI : Module ((SmallEtale.structureSheaf X).obj.obj V) B := B.isModule
+        exact @ModuleCat.ofHom ((SmallEtale.structureSheaf X).obj.obj V) _ A B
+          A.isAddCommGroup A.isModule B.isAddCommGroup B.isModule
+          { toFun := fun x ↦ (toPresentationStructureMapInv X).hom.app V x
+            map_add' := by sorry
+            map_smul' := by sorry }
+      naturality := by sorry }
+
+private def unitMapInv (U : Over S) :
+    (Modules.restrictToScheme U).obj
+        (SheafOfModules.unit (structureSheaf (ofOver U))) ⟶
+      SheafOfModules.unit U.left.ringCatSheaf :=
+  (SmallEtale.Modules.toScheme (tautologicalChart U)).map
+      (toPresentationUnitInv (ofOver U)) ≫ openChartUnitInv U
+
+private noncomputable def unitMapIso (U : Over S) :
+    SheafOfModules.unit U.left.ringCatSheaf ≅
+      (Modules.restrictToScheme U).obj
+        (SheafOfModules.unit (structureSheaf (ofOver U))) where
+  hom := unitMap U
+  inv := unitMapInv U
+  hom_inv_id := by sorry
+  inv_hom_id := by sorry
+
 /-- Restriction to the underlying scheme preserves zero module morphisms. -/
 instance preservesZeroMorphisms (U : Over S) :
     (Modules.restrictToScheme U).PreservesZeroMorphisms := sorry
 
 /-- The coefficient comparison identifies the scheme and restricted structure modules. -/
-instance unitMap_isIso (U : Over S) : IsIso (unitMap U) := sorry
+instance unitMap_isIso (U : Over S) : IsIso (unitMap U) :=
+  (unitMapIso U).isIso_hom
 
 end AlgebraicGeometry.AlgebraicSpace.Modules.RestrictToScheme

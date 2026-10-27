@@ -35,8 +35,10 @@ exterior product. -/
 theorem flatPullback_snd_eq_fundamental_exteriorProduct :
     reindex ((X ⨯ Y).hom.relativeDimensionFunction (fun _ ↦ 0))
         (add_comm s (X.dimension : ℤ))
-        (flatPullback (fun _ ↦ 0) (X ⨯ Y) Y
-          (prod.snd : X ⨯ Y ⟶ Y) X.dimension s beta) =
+        (@flatPullback _ _ (fun _ ↦ 0) _ (X ⨯ Y) Y _ _
+          (prod.snd : X ⨯ Y ⟶ Y) X.dimension
+            (SchemeOverField.flatProdSnd X Y)
+            (SchemeOverField.relativeDimensionProdSnd X Y) s beta) =
       exteriorProductPairing X Y (X.dimension : ℤ) s
         (fundamental (X.hom.relativeDimensionFunction (fun _ ↦ 0))
           (X.dimension : ℤ)) beta := sorry
@@ -44,8 +46,10 @@ theorem flatPullback_snd_eq_fundamental_exteriorProduct :
 /-- The first projection flat pullback of a cycle is its exterior product with the
 fundamental cycle of the second factor. -/
 theorem flatPullback_fst_eq_exteriorProduct_fundamental :
-    flatPullback (fun _ ↦ 0) (X ⨯ Y) X
-        (prod.fst : X ⨯ Y ⟶ X) Y.dimension r alpha =
+    @flatPullback _ _ (fun _ ↦ 0) _ (X ⨯ Y) X _ _
+        (prod.fst : X ⨯ Y ⟶ X) Y.dimension
+          (SchemeOverField.flatProdFst X Y)
+          (SchemeOverField.relativeDimensionProdFst X Y) r alpha =
       exteriorProductPairing X Y r (Y.dimension : ℤ) alpha
         (fundamental (Y.hom.relativeDimensionFunction (fun _ ↦ 0))
           (Y.dimension : ℤ)) := sorry
@@ -69,19 +73,24 @@ theorem projectionPullbacks_intersectProperly :
     AlgebraicCycle.IntersectProperly
       (toAlgebraicCycle ((X ⨯ Y).hom.relativeDimensionFunction (fun _ ↦ 0))
         (r + (Y.dimension : ℤ))
-        (flatPullback (fun _ ↦ 0) (X ⨯ Y) X
-          (prod.fst : X ⨯ Y ⟶ X) Y.dimension r alpha))
+        (@flatPullback _ _ (fun _ ↦ 0) _ (X ⨯ Y) X _ _
+          (prod.fst : X ⨯ Y ⟶ X) Y.dimension
+          (SchemeOverField.flatProdFst X Y)
+          (SchemeOverField.relativeDimensionProdFst X Y) r alpha))
       (toAlgebraicCycle ((X ⨯ Y).hom.relativeDimensionFunction (fun _ ↦ 0))
         ((X.dimension : ℤ) + s)
         (reindex ((X ⨯ Y).hom.relativeDimensionFunction (fun _ ↦ 0))
           (add_comm s (X.dimension : ℤ))
-          (flatPullback (fun _ ↦ 0) (X ⨯ Y) Y
-            (prod.snd : X ⨯ Y ⟶ Y) X.dimension s beta))) := sorry
+          (@flatPullback _ _ (fun _ ↦ 0) _ (X ⨯ Y) Y _ _
+            (prod.snd : X ⨯ Y ⟶ Y) X.dimension
+            (SchemeOverField.flatProdSnd X Y)
+            (SchemeOverField.relativeDimensionProdSnd X Y) s beta))) := sorry
 
 /-- The exterior product equals the intersection of the two exterior factors. -/
 theorem exteriorProduct_eq_intersection :
     exteriorProductPairing X Y r s alpha beta =
-      intersectionIn (X ⨯ Y) (r + (Y.dimension : ℤ))
+      @intersectionIn k _ (X ⨯ Y) _ (SchemeOverField.regularProdOfRegular X Y)
+        (r + (Y.dimension : ℤ))
         ((X.dimension : ℤ) + s)
         (exteriorProductPairing X Y r (Y.dimension : ℤ) alpha
           (fundamental (Y.hom.relativeDimensionFunction (fun _ ↦ 0))
@@ -95,7 +104,8 @@ theorem exteriorProduct_eq_intersection :
 /-- The exterior-factor intersection equals the type-correct intersection of the
 projection flat pullbacks. -/
 theorem intersection_eq_projectionIntersection :
-    intersectionIn (X ⨯ Y) (r + (Y.dimension : ℤ))
+    @intersectionIn k _ (X ⨯ Y) _ (SchemeOverField.regularProdOfRegular X Y)
+        (r + (Y.dimension : ℤ))
         ((X.dimension : ℤ) + s)
         (exteriorProductPairing X Y r (Y.dimension : ℤ) alpha
           (fundamental (Y.hom.relativeDimensionFunction (fun _ ↦ 0))
@@ -105,14 +115,19 @@ theorem intersection_eq_projectionIntersection :
             (X.dimension : ℤ)) beta)
         (exteriorFactors_intersectProperly X Y r s alpha beta) (r + s)
         (exteriorIntersectionDegree X Y r s) =
-      intersectionIn (X ⨯ Y) (r + (Y.dimension : ℤ))
+      @intersectionIn k _ (X ⨯ Y) _ (SchemeOverField.regularProdOfRegular X Y)
+        (r + (Y.dimension : ℤ))
         ((X.dimension : ℤ) + s)
-        (flatPullback (fun _ ↦ 0) (X ⨯ Y) X
-          (prod.fst : X ⨯ Y ⟶ X) Y.dimension r alpha)
+        (@flatPullback _ _ (fun _ ↦ 0) _ (X ⨯ Y) X _ _
+          (prod.fst : X ⨯ Y ⟶ X) Y.dimension
+          (SchemeOverField.flatProdFst X Y)
+          (SchemeOverField.relativeDimensionProdFst X Y) r alpha)
         (reindex ((X ⨯ Y).hom.relativeDimensionFunction (fun _ ↦ 0))
           (add_comm s (X.dimension : ℤ))
-          (flatPullback (fun _ ↦ 0) (X ⨯ Y) Y
-            (prod.snd : X ⨯ Y ⟶ Y) X.dimension s beta))
+          (@flatPullback _ _ (fun _ ↦ 0) _ (X ⨯ Y) Y _ _
+            (prod.snd : X ⨯ Y ⟶ Y) X.dimension
+            (SchemeOverField.flatProdSnd X Y)
+            (SchemeOverField.relativeDimensionProdSnd X Y) s beta))
         (projectionPullbacks_intersectProperly X Y r s alpha beta) (r + s)
         (exteriorIntersectionDegree X Y r s) := sorry
 

@@ -105,20 +105,3 @@ end CatPullbackMore
 end CategoricalPullbackEquivalencesImplementation
 end Limits.CategoricalPullback
 end CategoryTheory
-
-section RightDomainChangeInstanceSmoke
-
-open CategoryTheory
-
-universe v u
-
-variable {A B B' D : Type u}
-variable [Category.{v} A] [Category.{v} B] [Category.{v} B'] [Category.{v} D]
-variable (E : B' ≌ B) (F : A ⥤ D) (G : B ⥤ D)
-
-#synth (CategoryTheory.Limits.CategoricalPullback.DomainChange.Right.map E.functor F G).Faithful
-#synth (CategoryTheory.Limits.CategoricalPullback.DomainChange.Right.map E.functor F G).Full
-#synth (CategoryTheory.Limits.CategoricalPullback.DomainChange.Right.map E.functor F G).EssSurj
-#synth (CategoryTheory.Limits.CategoricalPullback.DomainChange.Right.map E.functor F G).IsEquivalence
-
-end RightDomainChangeInstanceSmoke

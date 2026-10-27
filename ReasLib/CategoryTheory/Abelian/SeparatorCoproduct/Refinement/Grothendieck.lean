@@ -32,16 +32,20 @@ variable {U M N : C}
 
 namespace Grothendieck
 
-/-- Lemma 19.12.1: in a Grothendieck abelian category, an epimorphism `π : M ⟶ N` and a
+/-- In a Grothendieck abelian category, an epimorphism `π : M ⟶ N` and a
 separator `U` admit a subobject of `M` which still surjects onto `N` and whose size is at most the
-source bound `c(|N|)`. -/
+cardinal bound `c(|N|)`. -/
 @[stacks 079J "Grothendieck specialization"]
 theorem exists_refinement
     (hU : IsSeparator U) (π : M ⟶ N) [Epi π] :
     ∃ P : Subobject M,
       Epi (P.arrow ≫ π) ∧
         Cardinal.mk (Subobject (P : C)) ≤
-          Subobject.coproductCardinal U (Subobject.smallCardinal N) := sorry
+          Subobject.coproductCardinal U (Subobject.smallCardinal N) := by
+  obtain ⟨P, hp, hcard⟩ := SeparatorEpi.exists_refinement hU π
+  refine ⟨P, hp, hcard.trans_eq ?_⟩
+  exact Subobject.cardinalMk_coprod_const_eq_coproductCardinal U
+    (Subobject.smallCardinal N) rfl
 
 end Grothendieck
 

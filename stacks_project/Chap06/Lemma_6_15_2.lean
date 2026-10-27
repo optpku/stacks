@@ -38,12 +38,12 @@ variable (R : Type u) [CommRing R]
 /- Lemma 6.15.2 (6): modules over a fixed commutative ring form a type of algebraic
 structures. -/
 @[stacks 007N "modules over a fixed ring"]
-#check (moduleCatAlgebraicStructureOfCommRing R :
+#check (inferInstance :
   IsAlgebraicStructure (ModuleCat.{v} R) (CategoryTheory.forget (ModuleCat.{v} R)))
 
 variable (k : Type u) [Field k]
 
 /- Lemma 6.15.2 (7): Lie algebras over a fixed field form a type of algebraic structures. -/
 @[stacks 007N "Lie algebras over a fixed field"]
-#check (lieAlgebraCatAlgebraicStructureOfField k :
+#check (inferInstance :
   IsAlgebraicStructure (LieAlgebraCat.{v} k) (CategoryTheory.forget (LieAlgebraCat.{v} k)))

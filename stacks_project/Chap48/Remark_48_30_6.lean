@@ -22,18 +22,7 @@ indexed by positive affine reindexings. -/
     CategoryTheory.PNatInverseSystem C → CategoryTheory.PNatInverseSystem C → Type v)
 
 #check
-  (CategoryTheory.PNatInverseSystem.LinearHom.equivalent_iff :
-    ∀ {A B : CategoryTheory.PNatInverseSystem C}
-        (f g : CategoryTheory.PNatInverseSystem.LinearHom A B),
-      CategoryTheory.PNatInverseSystem.LinearHom.Equivalent f g ↔
-        ∃ (c d : ℕ+)
-            (hc : max f.slope g.slope ≤ c) (hd : max f.offset g.offset ≤ d),
-          ∀ n : OrderDual ℕ+,
-            A.map (homOfLE (OrderDual.toDual_le_toDual.mpr
-              ((CategoryTheory.PNatInverseSystem.affineReindex_mono
-                ((le_max_left _ _).trans hc)
-                ((le_max_left _ _).trans hd)) n.ofDual))) ≫ f.hom.app n =
-              A.map (homOfLE (OrderDual.toDual_le_toDual.mpr
-                ((CategoryTheory.PNatInverseSystem.affineReindex_mono
-                  ((le_max_right _ _).trans hc)
-                  ((le_max_right _ _).trans hd)) n.ofDual))) ≫ g.hom.app n)
+  (CategoryTheory.PNatInverseSystem.LinearHom.Equivalent :
+    ∀ {A B : CategoryTheory.PNatInverseSystem C},
+      CategoryTheory.PNatInverseSystem.LinearHom A B →
+        CategoryTheory.PNatInverseSystem.LinearHom A B → Prop)

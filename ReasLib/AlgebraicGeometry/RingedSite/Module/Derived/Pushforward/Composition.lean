@@ -7,7 +7,7 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Derived.Adjunction
-public import ReasLib.AlgebraicGeometry.RingedSite.Module.Pushforward.Composition
+public import ReasLib.AlgebraicGeometry.RingedSite.Module.Derived.Pullback.Composition
 
 @[expose] public section
 
@@ -41,7 +41,7 @@ variable [Functor.HasRightDerivedFunctor
   (modulePushforwardToDerived.{z} f) (ModuleQis.{z} X)]
 variable [Functor.HasRightDerivedFunctor
   (modulePushforwardToDerived.{z} g) (ModuleQis.{z} Y)]
-variable [Functor.HasRightDerivedFunctor
+variable [hCompositeRight : Functor.HasRightDerivedFunctor
   (modulePushforwardToDerived.{z} (f.comp g)) (ModuleQis.{z} X)]
 
 variable [Functor.HasLeftDerivedFunctor
@@ -49,17 +49,28 @@ variable [Functor.HasLeftDerivedFunctor
 variable [Functor.HasLeftDerivedFunctor
   (modulePullbackToDerived.{z} g) (ModuleQis.{z} Z)]
 variable [Functor.HasLeftDerivedFunctor
-  (modulePullbackToDerived.{z} (f.comp g)) (ModuleQis.{z} Z)]
+  (compositePullbackToDerived.{z} f g) (ModuleQis.{z} Z)]
+
+/-- The absolute-derived pair condition for the inverse and direct images along a composite. -/
+abbrev compositeDerivedPair : Prop :=
+  @DerivedAdjunction.HasPair.{z} _ _ (f.comp g) inferInstance inferInstance
+    (modulePushforwardComp_isRightAdjoint f g) inferInstance inferInstance
+
 variable [DerivedAdjunction.HasPair.{z} f]
 variable [DerivedAdjunction.HasPair.{z} g]
-variable [DerivedAdjunction.HasPair.{z} (f.comp g)]
+variable [compositeDerivedPair.{z} f g]
+
+/-- The canonical derived inverse-image–direct-image adjunction along a composite. -/
+abbrev compositeDerivedAdjunction :=
+  @moduleDerivedAdjunction.{z} _ _ (f.comp g) inferInstance inferInstance
+    (modulePushforwardComp_isRightAdjoint f g) inferInstance inferInstance inferInstance
 
 /-- The adjunction whose left adjoint is the composite derived inverse image, transported along a
 comparison with derived pullback for the composite morphism. -/
 abbrev compositePushforwardAdjunction
     (hpull : modulePullbackDerived.{z} g ⋙ modulePullbackDerived.{z} f ≅
-      modulePullbackDerived.{z} (f.comp g)) :
-    modulePullbackDerived.{z} (f.comp g) ⊣
+      compositePullbackDerived.{z} f g) :
+    compositePullbackDerived.{z} f g ⊣
       modulePushforwardDerived.{z} f ⋙ modulePushforwardDerived.{z} g :=
   ((moduleDerivedAdjunction.{z} g).comp
     (moduleDerivedAdjunction.{z} f)).ofNatIsoLeft hpull
@@ -68,32 +79,32 @@ abbrev compositePushforwardAdjunction
 composite morphism. -/
 noncomputable def modulePushforwardDerivedCompIsoOfPullback
     (hpull : modulePullbackDerived.{z} g ⋙ modulePullbackDerived.{z} f ≅
-      modulePullbackDerived.{z} (f.comp g)) :
+      compositePullbackDerived.{z} f g) :
     modulePushforwardDerived.{z} f ⋙ modulePushforwardDerived.{z} g ≅
       modulePushforwardDerived.{z} (f.comp g) :=
   (compositePushforwardAdjunction f g hpull).rightAdjointUniq
-    (moduleDerivedAdjunction.{z} (f.comp g))
+    (compositeDerivedAdjunction.{z} f g)
 
 /-- The comparison isomorphism is characterized by compatibility with the counits of the
 canonical derived adjunctions. -/
 theorem modulePushforwardDerivedCompIsoOfPullback_hom_counit
     (hpull : modulePullbackDerived.{z} g ⋙ modulePullbackDerived.{z} f ≅
-      modulePullbackDerived.{z} (f.comp g)) :
+      compositePullbackDerived.{z} f g) :
     Functor.whiskerRight
         (modulePushforwardDerivedCompIsoOfPullback f g hpull).hom
-        (modulePullbackDerived.{z} (f.comp g)) ≫
-      (moduleDerivedAdjunction.{z} (f.comp g)).counit =
+        (compositePullbackDerived.{z} f g) ≫
+      (compositeDerivedAdjunction.{z} f g).counit =
         (compositePushforwardAdjunction f g hpull).counit := sorry
 
 /-- The component of the derived direct-image comparison is characterized by the corresponding
 counit equation at that derived object. -/
 theorem modulePushforwardDerivedCompIsoOfPullback_hom_app_counit
     (hpull : modulePullbackDerived.{z} g ⋙ modulePullbackDerived.{z} f ≅
-      modulePullbackDerived.{z} (f.comp g))
+      compositePullbackDerived.{z} f g)
     (K : ModuleDerived.{z} X) :
-    (modulePullbackDerived.{z} (f.comp g)).map
+    (compositePullbackDerived.{z} f g).map
         ((modulePushforwardDerivedCompIsoOfPullback f g hpull).hom.app K) ≫
-      (moduleDerivedAdjunction.{z} (f.comp g)).counit.app K =
+      (compositeDerivedAdjunction.{z} f g).counit.app K =
         (compositePushforwardAdjunction f g hpull).counit.app K := sorry
 
 end

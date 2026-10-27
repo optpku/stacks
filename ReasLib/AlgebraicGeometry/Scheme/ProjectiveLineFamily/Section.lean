@@ -32,13 +32,16 @@ abbrev toBase {S : Scheme.{u}} (X : Over S) : space X ⟶ S :=
 
 /-- The family structure morphism is the first projection followed by `X ⟶ S`. -/
 theorem toBase_def {S : Scheme.{u}} (X : Over S) :
-    toBase X = pullback.fst X.hom (ProjectiveSpace.toBase 1 S) ≫ X.hom := sorry
+    toBase X = pullback.fst X.hom (ProjectiveSpace.toBase 1 S) ≫ X.hom := rfl
 
 /-- The identity of `X` and the relative zero section have compatible maps to `S`. -/
 theorem zeroSection_fac {S : Scheme.{u}} (X : Over S) :
     𝟙 X.left ≫ X.hom =
       (X.hom ≫ ProjectiveLine.Relative.zeroSection S) ≫
-        ProjectiveSpace.toBase 1 S := sorry
+        ProjectiveSpace.toBase 1 S := by
+  have h : ProjectiveLine.Relative.zeroSection S ≫ ProjectiveSpace.toBase 1 S = 𝟙 S :=
+    pullback.lift_fst _ _ _
+  simp only [Category.id_comp, Category.assoc, h, Category.comp_id]
 
 /-- The canonical zero-section morphism `i₀ : X ⟶ X ×ₛ ℙ¹ₛ`. -/
 noncomputable def zeroSection {S : Scheme.{u}} (X : Over S) : X.left ⟶ space X :=
@@ -47,22 +50,38 @@ noncomputable def zeroSection {S : Scheme.{u}} (X : Over S) : X.left ⟶ space X
 
 /-- The zero section projects to the identity on `X`. -/
 theorem zeroSection_fst {S : Scheme.{u}} (X : Over S) :
-    zeroSection X ≫ pullback.fst X.hom (ProjectiveSpace.toBase 1 S) = 𝟙 X.left := sorry
+    zeroSection X ≫ pullback.fst X.hom (ProjectiveSpace.toBase 1 S) = 𝟙 X.left :=
+  pullback.lift_fst _ _ _
 
 /-- The second projection of the zero section is the relative zero section. -/
 theorem zeroSection_snd {S : Scheme.{u}} (X : Over S) :
     zeroSection X ≫ pullback.snd X.hom (ProjectiveSpace.toBase 1 S) =
-      X.hom ≫ ProjectiveLine.Relative.zeroSection S := sorry
+      X.hom ≫ ProjectiveLine.Relative.zeroSection S :=
+  pullback.lift_snd _ _ _
 
 /-- The canonical zero section of a projective-line family is a closed immersion. -/
 instance instIsClosedImmersionZeroSection {S : Scheme.{u}} (X : Over S) :
-    IsClosedImmersion (zeroSection X) := sorry
+    IsClosedImmersion (zeroSection X) := by
+  haveI : IsSeparated (pullback.fst X.hom (ProjectiveSpace.toBase 1 S)) := by
+    exact MorphismProperty.pullback_fst _ _
+      (MorphismProperty.pullback_fst (terminal.from S) _
+        (inferInstanceAs (IsSeparated
+          (terminal.from (ProjectiveSpace.scheme (ULift.{u} ℤ) 1)))))
+  haveI : IsClosedImmersion
+      (zeroSection X ≫ pullback.fst X.hom (ProjectiveSpace.toBase 1 S)) := by
+    rw [zeroSection_fst]
+    exact MorphismProperty.id_mem @IsClosedImmersion X.left
+  exact IsClosedImmersion.of_comp (zeroSection X)
+    (pullback.fst X.hom (ProjectiveSpace.toBase 1 S))
 
 /-- The identity of `X` and the relative infinity section have compatible maps to `S`. -/
 theorem infinitySection_fac {S : Scheme.{u}} (X : Over S) :
     𝟙 X.left ≫ X.hom =
       (X.hom ≫ ProjectiveLine.Relative.infinitySection S) ≫
-        ProjectiveSpace.toBase 1 S := sorry
+        ProjectiveSpace.toBase 1 S := by
+  have h : ProjectiveLine.Relative.infinitySection S ≫ ProjectiveSpace.toBase 1 S = 𝟙 S :=
+    pullback.lift_fst _ _ _
+  simp only [Category.id_comp, Category.assoc, h, Category.comp_id]
 
 /-- The canonical infinity-section morphism `i∞ : X ⟶ X ×ₛ ℙ¹ₛ`. -/
 noncomputable def infinitySection {S : Scheme.{u}} (X : Over S) : X.left ⟶ space X :=
@@ -71,15 +90,28 @@ noncomputable def infinitySection {S : Scheme.{u}} (X : Over S) : X.left ⟶ spa
 
 /-- The infinity section projects to the identity on `X`. -/
 theorem infinitySection_fst {S : Scheme.{u}} (X : Over S) :
-    infinitySection X ≫ pullback.fst X.hom (ProjectiveSpace.toBase 1 S) = 𝟙 X.left := sorry
+    infinitySection X ≫ pullback.fst X.hom (ProjectiveSpace.toBase 1 S) = 𝟙 X.left :=
+  pullback.lift_fst _ _ _
 
 /-- The second projection of the infinity section is the relative infinity section. -/
 theorem infinitySection_snd {S : Scheme.{u}} (X : Over S) :
     infinitySection X ≫ pullback.snd X.hom (ProjectiveSpace.toBase 1 S) =
-      X.hom ≫ ProjectiveLine.Relative.infinitySection S := sorry
+      X.hom ≫ ProjectiveLine.Relative.infinitySection S :=
+  pullback.lift_snd _ _ _
 
 /-- The canonical infinity section of a projective-line family is a closed immersion. -/
 instance instIsClosedImmersionInfinitySection {S : Scheme.{u}} (X : Over S) :
-    IsClosedImmersion (infinitySection X) := sorry
+    IsClosedImmersion (infinitySection X) := by
+  haveI : IsSeparated (pullback.fst X.hom (ProjectiveSpace.toBase 1 S)) := by
+    exact MorphismProperty.pullback_fst _ _
+      (MorphismProperty.pullback_fst (terminal.from S) _
+        (inferInstanceAs (IsSeparated
+          (terminal.from (ProjectiveSpace.scheme (ULift.{u} ℤ) 1)))))
+  haveI : IsClosedImmersion
+      (infinitySection X ≫ pullback.fst X.hom (ProjectiveSpace.toBase 1 S)) := by
+    rw [infinitySection_fst]
+    exact MorphismProperty.id_mem @IsClosedImmersion X.left
+  exact IsClosedImmersion.of_comp (infinitySection X)
+    (pullback.fst X.hom (ProjectiveSpace.toBase 1 S))
 
 end AlgebraicGeometry.ProjectiveLineFamily

@@ -11,9 +11,8 @@ public import ReasLib.AlgebraicGeometry.RingedSite.Module.Underlying
 /-!
 # Underlying additive sections of module sheaves
 
-This file owns the underived additive-sections functor and its comparison with
-module-valued evaluation.  Derived factorizations live in the sibling `Derived`
-directory.
+The additive sections of a module sheaf are obtained by evaluating the module sheaf
+and then forgetting the scalar action.
 -/
 
 @[expose] public section

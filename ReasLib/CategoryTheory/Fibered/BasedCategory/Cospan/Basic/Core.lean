@@ -94,31 +94,31 @@ def id (F : X₁ ⥤ᵇ S₁) (G : Y₁ ⥤ᵇ S₁) :
 functor. -/
 @[simp]
 theorem id.left (F : X₁ ⥤ᵇ S₁) (G : Y₁ ⥤ᵇ S₁) :
-    (id F G).left = 𝟙 X₁ := sorry
+    (id F G).left = 𝟙 X₁ := rfl
 
 /-- The right component of the identity based cospan transformation is the identity based
 functor. -/
 @[simp]
 theorem id.right (F : X₁ ⥤ᵇ S₁) (G : Y₁ ⥤ᵇ S₁) :
-    (id F G).right = 𝟙 Y₁ := sorry
+    (id F G).right = 𝟙 Y₁ := rfl
 
 /-- The common-target component of the identity based cospan transformation is the identity
 based functor. -/
 @[simp]
 theorem id.base (F : X₁ ⥤ᵇ S₁) (G : Y₁ ⥤ᵇ S₁) :
-    (id F G).base = 𝟙 S₁ := sorry
+    (id F G).base = 𝟙 S₁ := rfl
 
 /-- The left comparison of the identity based cospan transformation is the canonical identity
 comparison. -/
 @[simp]
 theorem id.leftIso (F : X₁ ⥤ᵇ S₁) (G : Y₁ ⥤ᵇ S₁) :
-    (id F G).leftIso = BasedNatIso.id F := sorry
+    (id F G).leftIso = BasedNatIso.id F := rfl
 
 /-- The right comparison of the identity based cospan transformation is the canonical identity
 comparison. -/
 @[simp]
 theorem id.rightIso (F : X₁ ⥤ᵇ S₁) (G : Y₁ ⥤ᵇ S₁) :
-    (id F G).rightIso = BasedNatIso.id G := sorry
+    (id F G).rightIso = BasedNatIso.id G := rfl
 
 /-- Vertical composition of universe-polymorphic based cospan transformations. -/
 def comp
@@ -137,7 +137,7 @@ components. -/
 theorem comp.left
     (psi : BasedCospanTransform F₁ G₁ F₂ G₂)
     (phi : BasedCospanTransform F₂ G₂ F₃ G₃) :
-    (comp psi phi).left = psi.left ⋙ phi.left := sorry
+    (comp psi phi).left = psi.left ⋙ phi.left := rfl
 
 /-- The right component of a composite based cospan transformation is the composite of the
 right components. -/
@@ -145,7 +145,7 @@ right components. -/
 theorem comp.right
     (psi : BasedCospanTransform F₁ G₁ F₂ G₂)
     (phi : BasedCospanTransform F₂ G₂ F₃ G₃) :
-    (comp psi phi).right = psi.right ⋙ phi.right := sorry
+    (comp psi phi).right = psi.right ⋙ phi.right := rfl
 
 /-- The common-target component of a composite based cospan transformation is the composite of
 the common-target components. -/
@@ -153,7 +153,7 @@ the common-target components. -/
 theorem comp.base
     (psi : BasedCospanTransform F₁ G₁ F₂ G₂)
     (phi : BasedCospanTransform F₂ G₂ F₃ G₃) :
-    (comp psi phi).base = psi.base ⋙ phi.base := sorry
+    (comp psi phi).base = psi.base ⋙ phi.base := rfl
 
 /-- The left comparison of a composite based cospan transformation is obtained by whiskering
 and composing the two left comparisons. -/
@@ -163,7 +163,7 @@ theorem comp.leftIso
     (phi : BasedCospanTransform F₂ G₂ F₃ G₃) :
     (comp psi phi).leftIso =
       BasedNatIso.whiskerLeft psi.left phi.leftIso ≪≫
-        BasedNatIso.whiskerRight psi.leftIso phi.base := sorry
+        BasedNatIso.whiskerRight psi.leftIso phi.base := rfl
 
 /-- The right comparison of a composite based cospan transformation is obtained by whiskering
 and composing the two right comparisons. -/
@@ -173,7 +173,7 @@ theorem comp.rightIso
     (phi : BasedCospanTransform F₂ G₂ F₃ G₃) :
     (comp psi phi).rightIso =
       BasedNatIso.whiskerLeft psi.right phi.rightIso ≪≫
-        BasedNatIso.whiskerRight psi.rightIso phi.base := sorry
+        BasedNatIso.whiskerRight psi.rightIso phi.base := rfl
 
 end BasedCospanTransform
 

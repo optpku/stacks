@@ -52,7 +52,11 @@ theorem specialFiberIdeal_def
 instance instIsClosedImmersionSpecialFiber
     {R : Type u} [CommRing R] [IsLocalRing R] {X : Scheme.{u}}
     (f : X ⟶ Spec (CommRingCat.of R)) :
-    IsClosedImmersion (f.fiberι (IsLocalRing.closedPoint R)) := sorry
+    IsClosedImmersion (f.fiberι (IsLocalRing.closedPoint R)) := by
+  letI : IsClosedImmersion
+      ((Spec (CommRingCat.of R)).fromSpecResidueField (IsLocalRing.closedPoint R)) :=
+    isClosed_singleton_iff_isClosedImmersion.mp (IsLocalRing.isClosed_singleton_closedPoint R)
+  exact MorphismProperty.pullback_fst _ _ inferInstance
 
 /-- The subscheme cut out by the special-fibre ideal is canonically isomorphic to the fibre. -/
 noncomputable def specialFiberIso
@@ -66,7 +70,10 @@ theorem specialFiberIso_hom_fiberι
     {R : Type u} [CommRing R] [IsLocalRing R] {X : Scheme.{u}}
     (f : X ⟶ Spec (CommRingCat.of R)) :
     f.specialFiberIso.hom ≫ f.fiberι (IsLocalRing.closedPoint R) =
-      f.specialFiberIdeal.subschemeι := sorry
+      f.specialFiberIdeal.subschemeι := by
+  change inv (f.fiberι (IsLocalRing.closedPoint R)).toImage ≫
+      f.fiberι (IsLocalRing.closedPoint R) = _
+  exact (IsIso.inv_comp_eq _).2 (f.fiberι (IsLocalRing.closedPoint R)).toImage_imageι.symm
 
 /-- The kernel presentation of the special fibre agrees with the pullback of the maximal-ideal
 datum from the local base. -/

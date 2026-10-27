@@ -37,14 +37,14 @@ def IsSolution {σ : Type u} {ι : Type v} {R : Type w} {S : Type x}
 theorem isSolution_iff {σ : Type u} {ι : Type v} {R : Type w} {S : Type x}
     [CommSemiring R] [CommSemiring S] [Algebra R S]
     (f : ι → MvPolynomial σ R) (a : σ → S) :
-    IsSolution f a ↔ ∀ j, aeval a (f j) = 0 := sorry
+    IsSolution f a ↔ ∀ j, aeval a (f j) = 0 := Iff.rfl
 
 /-- For a tuple in the coefficient ring, algebraic evaluation agrees with
 the usual multivariate polynomial evaluation. -/
 @[simp]
 theorem isSolution_iff_eval {σ : Type u} {ι : Type v} {R : Type w}
     [CommSemiring R] (f : ι → MvPolynomial σ R) (a : σ → R) :
-    IsSolution f a ↔ ∀ j, eval a (f j) = 0 := sorry
+    IsSolution f a ↔ ∀ j, eval a (f j) = 0 := Iff.rfl
 
 /-- An exact solution `a` approximates a tuple `aHat` modulo `I` when its
 image under `φ` is coordinatewise congruent to `aHat` modulo `I`. -/
@@ -65,7 +65,7 @@ theorem isApproximation_iff {σ : Type u} {ι : Type v} {R : Type w}
     (f : ι → MvPolynomial σ R) (aHat : σ → T)
     (φ : S →ₐ[R] T) (I : Ideal T) (a : σ → S) :
     IsApproximation f aHat φ I a ↔
-      IsSolution f a ∧ ∀ i, aHat i ≡ φ (a i) [SMOD I] := sorry
+      IsSolution f a ∧ ∀ i, aHat i ≡ φ (a i) [SMOD I] := Iff.rfl
 
 namespace IsSolution
 
@@ -76,7 +76,9 @@ theorem map {σ : Type u} {ι : Type v} {R : Type w}
     [Algebra R S] [Algebra R T]
     {f : ι → MvPolynomial σ R} {a : σ → S}
     (ha : IsSolution f a) (g : S →ₐ[R] T) :
-    IsSolution f (fun i ↦ g (a i)) := sorry
+    IsSolution f (fun i ↦ g (a i)) := by
+  intro j
+  rw [← comp_aeval_apply, ha j, map_zero]
 
 end IsSolution
 
@@ -88,7 +90,7 @@ theorem isSolution {σ : Type u} {ι : Type v} {R : Type w}
     [CommRing R] [CommRing S] [CommRing T] [Algebra R S] [Algebra R T]
     {f : ι → MvPolynomial σ R} {aHat : σ → T}
     {φ : S →ₐ[R] T} {I : Ideal T} {a : σ → S}
-    (ha : IsApproximation f aHat φ I a) : IsSolution f a := sorry
+    (ha : IsApproximation f aHat φ I a) : IsSolution f a := ha.1
 
 /-- Each coordinate of an approximate solution has the prescribed
 congruence. -/
@@ -98,7 +100,7 @@ theorem modEq {σ : Type u} {ι : Type v} {R : Type w}
     {f : ι → MvPolynomial σ R} {aHat : σ → T}
     {φ : S →ₐ[R] T} {I : Ideal T} {a : σ → S}
     (ha : IsApproximation f aHat φ I a) (i : σ) :
-    aHat i ≡ φ (a i) [SMOD I] := sorry
+    aHat i ≡ φ (a i) [SMOD I] := ha.2 i
 
 end IsApproximation
 
@@ -135,7 +137,7 @@ theorem solution_of {σ : Type u} {ι : Type v} {R : Type w}
     {f : ι → MvPolynomial σ R} {aHat : σ → T}
     {φ : S →ₐ[R] T} {I : Ideal T} (a : σ → S)
     {ha : IsApproximation f aHat φ I a} :
-    (of a ha).solution = a := sorry
+    (of a ha).solution = a := rfl
 
 /-- The tuple stored by a solution approximation solves the polynomial
 system. -/
@@ -145,7 +147,7 @@ theorem isSolution {σ : Type u} {ι : Type v} {R : Type w}
     {f : ι → MvPolynomial σ R} {aHat : σ → T}
     {φ : S →ₐ[R] T} {I : Ideal T}
     (A : SolutionApproximation f aHat φ I) :
-    IsSolution f A.solution := sorry
+    IsSolution f A.solution := A.isApproximation.isSolution
 
 /-- The tuple stored by a solution approximation satisfies the prescribed
 coordinatewise congruence. -/
@@ -155,7 +157,7 @@ theorem modEq {σ : Type u} {ι : Type v} {R : Type w}
     {f : ι → MvPolynomial σ R} {aHat : σ → T}
     {φ : S →ₐ[R] T} {I : Ideal T}
     (A : SolutionApproximation f aHat φ I) (i : σ) :
-    aHat i ≡ φ (A.solution i) [SMOD I] := sorry
+    aHat i ≡ φ (A.solution i) [SMOD I] := A.isApproximation.modEq i
 
 /-- A bundled solution approximation exists exactly when an approximating
 exact solution exists. -/
@@ -165,7 +167,10 @@ theorem nonempty_iff_exists {σ : Type u} {ι : Type v} {R : Type w}
     (f : ι → MvPolynomial σ R) (aHat : σ → T)
     (φ : S →ₐ[R] T) (I : Ideal T) :
     Nonempty (SolutionApproximation f aHat φ I) ↔
-      ∃ a, IsApproximation f aHat φ I a := sorry
+      ∃ a, IsApproximation f aHat φ I a := by
+  constructor
+  · exact fun ⟨A⟩ ↦ ⟨A.solution, A.isApproximation⟩
+  · exact fun ⟨a, ha⟩ ↦ ⟨of a ha⟩
 
 end SolutionApproximation
 

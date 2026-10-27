@@ -45,7 +45,8 @@ regular generator. -/
 theorem regularShifts
     (K : Complex (J := J) (O := O))
     (h_ext : CochainComplex.Enriched.ComputesSelfExt K) :
-    (tensorFunctor K).IsFullyFaithfulOnSelfShifts
+    @Functor.IsFullyFaithfulOnSelfShifts _ _ _ _ _ _
+      (tensorFunctor K) (tensorFunctor_commShift K)
       (DifferentialGradedModule.Derived.regularObject (endDGA K)) := sorry
 
 end FullyFaithful
@@ -58,10 +59,11 @@ noncomputable def fullyFaithful
     (h_compact : IsCompactObject (DerivedCategory.Q.obj K))
     (h_ext : CochainComplex.Enriched.ComputesSelfExt K) :
     (tensorFunctor K).FullyFaithful :=
-  Functor.FullyFaithful.ofCompactGenerator_of_bounds
-    (C := DifferentialGradedModule.Derived.Category (endDGA K))
-    (D := RingedSiteDerived.max J O)
-    (F := tensorFunctor K) (G := representableFunctor K)
+  @Functor.FullyFaithful.ofCompactGenerator_of_bounds
+    (DifferentialGradedModule.Derived.Category (endDGA K))
+    (RingedSiteDerived.max J O) _ _ _ _ _ _ _ _ _ _ _ _
+    (tensorFunctor K) (representableFunctor K)
+    (tensorFunctor_commShift K) (tensorFunctor_isTriangulated K) _
     (adjunction K)
     (DifferentialGradedModule.Derived.regularObject (endDGA K))
     (DifferentialGradedModule.Derived.regularObject_isLocalizingGenerator (endDGA K))

@@ -6,10 +6,10 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import Mathlib.CategoryTheory.IsomorphismClasses
-public import Mathlib.Tactic.CrossRefAttribute
 public import ReasLib.CategoryTheory.Sites.Hypercovering.Augmented
-public import stacks_project.Chap85.Lemma_85_19_2
+public import ReasLib.CategoryTheory.Sites.Hypercovering.DerivedAdjunction
+public import ReasLib.CategoryTheory.Sites.Hypercovering.PresheafTarget.DerivedDescent
+import StacksCheckRecall
 
 /-!
 # Lemma 85.21.2
@@ -45,28 +45,22 @@ variable [∀ P : (Grothendieck
     AddCommGrpCat.{max w u v},
     (totalForget (toHypercovering.{w} A hA).toSimplicialObject).op.HasPointwiseRightKanExtension P]
 
-/-- Lemma 85.21.2: Let `C` be a site with fibre products and `X` an object of
+/- Lemma 85.21.2: Let `C` be a site with fibre products and `X` an object of
 `C`. Let `a : U ⟶ X` be a hypercovering of `X` in `C` as defined above. For
 `E ∈ D(C / X)` the map `E ⟶ Ra_* a⁻¹ E` is an isomorphism. -/
-@[stacks 0D8N]
-theorem derivedUnit_app_isIso
-    (E : DerivedCategory (Sheaf (J.over A.right) AddCommGrpCat.{max w u v})) :
-    IsIso ((Hypercovering.derivedUnit J A.right (toHypercovering.{w} A hA)).app E :
-      E ⟶ (Hypercovering.directImageDerived J A.right (toHypercovering.{w} A hA)).obj
-        ((Hypercovering.inverseImageDerived J A.right (toHypercovering.{w} A hA)).obj E)) :=
-  sorry
+@[stacks 0D8N] #check
+  (CategoryTheory.SemiRepresentableFamily.derivedUnit_app_isIso.{w, v, max u v}
+    (J.over A.right) (CategoryTheory.Hypercovering.toSliceTerminal J A.right
+      (toHypercovering.{w} A hA)) :
+    ∀ E : DerivedCategory (Sheaf (J.over A.right) AddCommGrpCat.{max w u v}),
+      IsIso ((CategoryTheory.Hypercovering.derivedUnit J A.right
+        (toHypercovering.{w} A hA)).app E))
 
-/-- The derived unit `𝟭 ⟶ a⁻¹ ⋙ Ra_*` is an isomorphism of functors on `D(C / X)`. -/
-theorem derivedUnit_isIso :
-    IsIso (Hypercovering.derivedUnit J A.right (toHypercovering.{w} A hA)) :=
-  sorry
-
-/-- Every `E ∈ D(C / X)` is isomorphic to `Ra_* a⁻¹ E`. -/
-theorem isIsomorphic_inverseImageDirectImage
-    (E : DerivedCategory (Sheaf (J.over A.right) AddCommGrpCat.{max w u v})) :
-    IsIsomorphic E
-      ((Hypercovering.directImageDerived J A.right (toHypercovering.{w} A hA)).obj
-        ((Hypercovering.inverseImageDerived J A.right (toHypercovering.{w} A hA)).obj E)) :=
-  sorry
+/- The derived unit `𝟭 ⟶ a⁻¹ ⋙ Ra_*` is an isomorphism of functors on `D(C / X)`. -/
+#check
+  (CategoryTheory.SemiRepresentableFamily.derivedUnit_isIso.{w, v, max u v}
+    (J.over A.right) (CategoryTheory.Hypercovering.toSliceTerminal J A.right
+      (toHypercovering.{w} A hA)) :
+    IsIso (CategoryTheory.Hypercovering.derivedUnit J A.right (toHypercovering.{w} A hA)))
 
 end CategoryTheory.SimplicialObject.Augmented

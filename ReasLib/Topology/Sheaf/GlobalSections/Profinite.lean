@@ -97,22 +97,3 @@ theorem exactGlobalSections (X : TopCat.{u}) [CompactSpace X] [T2Space X]
         (Opens.grothendieckTopology X) AddCommGrpCat.{u}) := sorry
 
 end TopCat.Sheaf.GlobalSections.Profinite
-
-section
-
-variable (X : TopCat.{u}) [CompactSpace X] [T2Space X] [TotallyDisconnectedSpace X]
-
-#synth PreservesFiniteColimits
-  (siteAbelianSectionsFunctor
-    (Opens.grothendieckTopology X) (⊤ : Opens X))
-#synth (siteAbelianSectionsFunctor
-  (Opens.grothendieckTopology X) (⊤ : Opens X)).PreservesHomology
-#synth (CategoryTheory.Sheaf.Γ
-  (Opens.grothendieckTopology X) AddCommGrpCat.{u}).PreservesEpimorphisms
-#synth PreservesFiniteColimits
-  (CategoryTheory.Sheaf.Γ
-    (Opens.grothendieckTopology X) AddCommGrpCat.{u})
-#synth (CategoryTheory.Sheaf.Γ
-  (Opens.grothendieckTopology X) AddCommGrpCat.{u}).PreservesHomology
-
-end

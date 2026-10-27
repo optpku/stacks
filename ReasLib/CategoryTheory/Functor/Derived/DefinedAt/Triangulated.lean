@@ -6,8 +6,11 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
+public import Mathlib.CategoryTheory.Localization.Triangulated
+public import Mathlib.CategoryTheory.Triangulated.Subcategory
 public import ReasLib.CategoryTheory.Functor.Derived.DefinedAt.Shift
-public import ReasLib.CategoryTheory.Functor.Derived.PointwiseValue.Triangle.Distinguished
+public import ReasLib.CategoryTheory.Functor.Derived.PointwiseValue.Triangle.Construction
+public import ReasLib.CategoryTheory.MorphismProperty.SaturatedMultiplicativeSystem
 
 @[expose] public section
 
@@ -135,14 +138,13 @@ end TwoOutOfThree
 
 section ValueTriangle
 
-variable [CategoryTheory.IsTriangulated D] [CategoryTheory.IsTriangulated D']
-  [F.CommShift ℤ] [F.IsTriangulated]
-  [IsSaturatedMultiplicativeSystem S] [S.IsCompatibleWithTriangulation]
-
 /-- If the right-derived functor is source-defined at all three vertices of a
 distinguished triangle, its canonical triangle of pointwise values is distinguished. -/
 @[stacks 05SC "distinguished triangle of source-defined right-derived values"]
 theorem Functor.RightDerived.DefinedAt.Triangle.valueDistinguished
+    [CategoryTheory.IsTriangulated D] [CategoryTheory.IsTriangulated D']
+    [F.CommShift ℤ] [F.IsTriangulated]
+    [IsSaturatedMultiplicativeSystem S] [S.IsCompatibleWithTriangulation]
     (T : Triangle D) (hT : T ∈ distTriang D)
     [Functor.RightDerived.DefinedAt F S T.obj₁]
     [Functor.RightDerived.DefinedAt F S T.obj₂]
@@ -153,6 +155,9 @@ theorem Functor.RightDerived.DefinedAt.Triangle.valueDistinguished
 distinguished triangle, its canonical triangle of pointwise values is distinguished. -/
 @[stacks 05SC "distinguished triangle of source-defined left-derived values"]
 theorem Functor.LeftDerived.DefinedAt.Triangle.valueDistinguished
+    [CategoryTheory.IsTriangulated D] [CategoryTheory.IsTriangulated D']
+    [F.CommShift ℤ] [F.IsTriangulated]
+    [IsSaturatedMultiplicativeSystem S] [S.IsCompatibleWithTriangulation]
     (T : Triangle D) (hT : T ∈ distTriang D)
     [Functor.LeftDerived.DefinedAt F S T.obj₁]
     [Functor.LeftDerived.DefinedAt F S T.obj₂]

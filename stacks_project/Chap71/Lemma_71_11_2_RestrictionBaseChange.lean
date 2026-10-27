@@ -6,29 +6,15 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.RestrictToScheme.BaseChange
-public import stacks_project.Chap71.Lemma_71_11_2_RestrictionMonoidal
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.RestrictToScheme.ExtensionBaseChange
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.RestrictToScheme.ExtensionMonoidal
 
-/-! The represented-scheme direct-image square has its public owner; the extension mate
-continues to use the source extension adjunction. -/
-
-@[expose] public section
 open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
-noncomputable section
+open AlgebraicGeometry.AlgebraicSpace.Modules.RestrictToScheme
 universe u
+variable {S : Scheme.{u}} {X : AlgebraicSpace S} {T Z : Over S}
 
-namespace AlgebraicGeometry.AlgebraicSpace.Modules.RestrictToScheme
-variable {S : Scheme.{u}} {T Z : Over S}
-
-/-- Inverse images commute with extension, by uniqueness of their actual adjunctions. -/
-def extensionPullbackIso (t : T ⟶ Z) :
+#check (AlgebraicGeometry.AlgebraicSpace.Modules.RestrictToScheme.extensionPullbackIso :
+    ∀ (t : T ⟶ Z),
     Scheme.Modules.pullback t.left ⋙ extension T ≅
-      extension Z ⋙ Modules.pullback (ofOverMap t) :=
-  ((Scheme.Modules.pullbackPushforwardAdjunction t.left).comp
-      (extensionAdjunction T)).leftAdjointUniq
-    (((extensionAdjunction Z).comp
-      (Modules.pullbackPushforwardAdjunction (ofOverMap t))).ofNatIsoRight
-        (pushforwardComparisonIso t))
-
-
-end AlgebraicGeometry.AlgebraicSpace.Modules.RestrictToScheme
+      extension Z ⋙ Modules.pullback (ofOverMap t))

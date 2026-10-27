@@ -57,8 +57,7 @@ theorem fppfEtaleRingedComparison_structureSheafMap_naturality
       totalComparisonSection U Y ≫
         (((toSliceTotal U).sheafPushforwardContinuous RingCat.{u}
           (spacesEtaleTotalTopology U) (sliceTotalTopology (fppfTopology S) U)).obj
-            (fppfTotalStructureSheaf U)).obj.map f := by
-  sorry
+            (fppfTotalStructureSheaf U)).obj.map f := sorry
 
 /-- The direct structure map is identity on the common section rings in every degree. -/
 def fppfEtaleRingedComparison_structureSheafMap :
@@ -76,8 +75,7 @@ theorem fppfEtaleRingedComparison_isRingCompatible :
       (SmallCoefficients.fppfEtaleComparison U)
       ((toSliceTotal U).sheafPushforwardContinuous RingCat.{u}
         (spacesEtaleTotalTopology U) (sliceTotalTopology (fppfTopology S) U))
-      (toSliceTotal_forgetIso U) (fppfEtaleRingedComparison_structureSheafMap U) := by
-  sorry
+      (toSliceTotal_forgetIso U) (fppfEtaleRingedComparison_structureSheafMap U) := sorry
 
 /-- The canonical comparison from the total fppf ringed topos to the total étale ringed topos. -/
 def fppfEtaleRingedComparison : ToposHom (fppfTotalRingedSite U) (etaleTotalRingedSite U) :=
@@ -161,16 +159,14 @@ theorem fppfAugmentationRinged_structureSheafMap_equalizes (V : (Over X)ᵒᵖ) 
         (RingedSite.Hom.underlyingStructureSheaf (fppfTotalRingedSite U)) 0).hom.app V =
     fppfStructureZeroApp U a V ≫
       (SmallCoefficients.fppfAugmentationParallel U a (Type u)
-        (RingedSite.Hom.underlyingStructureSheaf (fppfTotalRingedSite U)) 1).hom.app V := by
-  sorry
+        (RingedSite.Hom.underlyingStructureSheaf (fppfTotalRingedSite U)) 1).hom.app V := sorry
 
 /-- Cartesian projection on global sections is natural in the object over the target. -/
 theorem fppfAugmentationRinged_structureSheafMap_naturality
     {V W : (Over X)ᵒᵖ} (f : V ⟶ W) :
     (RingedSite.Hom.underlyingStructureSheaf (overFppfRingedSite X)).obj.map f ≫
       fppfStructureZeroApp U a W =
-    fppfStructureZeroApp U a V ≫ (fppfStructureZero U a).obj.map f := by
-  sorry
+    fppfStructureZeroApp U a V ≫ (fppfStructureZero U a).obj.map f := sorry
 
 /-- The degree-zero cartesian pullback on sections. -/
 private def fppfStructureZeroMap :
@@ -193,8 +189,7 @@ def fppfAugmentationRinged_structureSheafMap :
 /-- Cartesian pullback on sections is a homomorphism of the canonical internal rings. -/
 theorem fppfAugmentationRinged_isRingCompatible :
     UnderlyingRingCompatible (fppfTotalRingedSite U) (overFppfRingedSite X)
-      (SmallCoefficients.fppfAugmentation U a) (fppfAugmentationRinged_structureSheafMap U a) := by
-  sorry
+      (SmallCoefficients.fppfAugmentation U a) (fppfAugmentationRinged_structureSheafMap U a) := sorry
 
 /-- The total fppf augmentation as a morphism of ringed topoi. -/
 def fppfAugmentationRinged : ToposHom (fppfTotalRingedSite U) (overFppfRingedSite X) :=
@@ -230,8 +225,7 @@ theorem augmentationDegreeZeroStructureSheafMap_naturality
       augmentationDegreeZeroSection U a V ≫
         (((augmentationFunctor U a).sheafPushforwardContinuous RingCat.{u}
           (spacesEtaleTopology X) (spacesEtaleTotalTopology U)).obj
-            (etaleTotalStructureSheaf U)).obj.map f := by
-  sorry
+            (etaleTotalStructureSheaf U)).obj.map f := sorry
 
 /-- The ring-valued section map associated to the degree-zero cartesian pullback functor. -/
 def spacesEtaleAugmentationRinged_structureSheafMap :
@@ -263,16 +257,14 @@ theorem spacesEtaleAugmentationRinged_totalStructureSheafMap_equalizes
         (RingedSite.Hom.underlyingStructureSheaf (etaleTotalRingedSite U)) 0).hom.app V =
     etaleStructureZeroApp U a V ≫
       (SmallCoefficients.spacesEtaleAugmentationParallel U a
-        (RingedSite.Hom.underlyingStructureSheaf (etaleTotalRingedSite U)) 1).hom.app V := by
-  sorry
+        (RingedSite.Hom.underlyingStructureSheaf (etaleTotalRingedSite U)) 1).hom.app V := sorry
 
 /-- The canonical degree-zero section map is natural as a map to stage direct image. -/
 theorem spacesEtaleAugmentationRinged_totalStructureSheafMap_naturality
     {V W : (spacesEtaleSite X)ᵒᵖ} (f : V ⟶ W) :
     (RingedSite.Hom.underlyingStructureSheaf (spacesRingedSite X)).obj.map f ≫
       etaleStructureZeroApp U a W =
-    etaleStructureZeroApp U a V ≫ (etaleStructureZero U a).obj.map f := by
-  sorry
+    etaleStructureZeroApp U a V ≫ (etaleStructureZero U a).obj.map f := sorry
 
 /-- The degree-zero section map into the stage direct image. -/
 private def etaleStructureZeroMap :
@@ -297,8 +289,7 @@ def spacesEtaleAugmentationRinged_totalStructureSheafMap :
 theorem spacesEtaleAugmentationRinged_isRingCompatible :
     UnderlyingRingCompatible (etaleTotalRingedSite U) (spacesRingedSite X)
       (SmallCoefficients.spacesEtaleAugmentation U a)
-      (spacesEtaleAugmentationRinged_totalStructureSheafMap U a) := by
-  sorry
+      (spacesEtaleAugmentationRinged_totalStructureSheafMap U a) := sorry
 
 /-- The genuine total étale augmentation, with its canonical structure-sheaf map. -/
 def spacesEtaleAugmentationRinged : ToposHom (etaleTotalRingedSite U) (spacesRingedSite X) :=
@@ -318,8 +309,7 @@ theorem spacesEtaleAugmentationRinged_structureMap_restrict :
           (RingedSite.Hom.underlyingStructureSheaf (etaleTotalRingedSite U)) 0)
         (SmallCoefficients.spacesEtaleAugmentationParallel U a
           (RingedSite.Hom.underlyingStructureSheaf (etaleTotalRingedSite U)) 1) =
-      etaleStructureZeroMap U a := by
-  sorry
+      etaleStructureZeroMap U a := sorry
 
 /-- The underlying comparison of direct images around the canonical ringed square. -/
 def fppfEtaleRingedCommSq_homIso :
@@ -332,8 +322,7 @@ theorem fppfEtaleRingedCommSq_comm :
     (ToposHom.comp (fppfEtaleRingedComparison U) (spacesEtaleAugmentationRinged U a)).directStructureMap ≫
       (MorphismOfTopoiIn.ringDirectImageNatTrans (fppfEtaleRingedCommSq_homIso U a).hom).app
         (fppfTotalRingedSite U).structureSheaf =
-      (ToposHom.comp (fppfAugmentationRinged U a) (Fppf.spacesRingedComparison X)).directStructureMap := by
-  sorry
+      (ToposHom.comp (fppfAugmentationRinged U a) (Fppf.spacesRingedComparison X)).directStructureMap := sorry
 
 /-- The canonical total fppf and étale augmentations form a commutative square of ringed topoi. -/
 def fppfEtaleRingedCommSq :
@@ -365,8 +354,7 @@ theorem fppfEtaleRingedCommSq_lower :
 /-- In every degree the total inclusion is the canonical inclusion of the spaces-étale site. -/
 theorem toSliceTotal_comp_includeStage (n : SimplexCategoryᵒᵖ) :
     SpacesEtale.includeStage (U := U) n ⋙ toSliceTotal U =
-      spacesEtaleToBig (U.obj n) ⋙ Grothendieck.ι (sliceDiagram U) n := by
-  sorry
+      spacesEtaleToBig (U.obj n) ⋙ Grothendieck.ι (sliceDiagram U) n := sorry
 
 end AlgebraicGeometry.AlgebraicSpace.Simplicial
 

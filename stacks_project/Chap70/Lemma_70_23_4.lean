@@ -38,12 +38,7 @@ a morphism of inverse systems over (B_i) on a common tail with f = lim f_i. -/
       {Xsys : Over (OrderDual.toDual i₁) ⥤ AlgebraicSpace S}
       {Ysys : Over (OrderDual.toDual i₂) ⥤ AlgebraicSpace S}
       (xCone : Cone Xsys) (yCone : Cone Ysys)
-      (xToBase : Xsys ⟶ tailBaseDiagram D i₁) (yToBase : Ysys ⟶ tailBaseDiagram D i₂)
       (xToS : xCone.pt ⟶ c.pt) (yToS : yCone.pt ⟶ c.pt)
-      (xCone_toBase : ∀ j : Over (OrderDual.toDual i₁),
-        xCone.π.app j ≫ xToBase.app j = xToS ≫ c.π.app j.left)
-      (yCone_toBase : ∀ j : Over (OrderDual.toDual i₂),
-        yCone.π.app j ≫ yToBase.app j = yToS ≫ c.π.app j.left)
       [QuasiSeparated xToS] [FiniteType xToS]
       [QuasiSeparated yToS] [FiniteType yToS]
       (Xapprox : FiniteTypeApproximationLimitSystem D c i₁ Xsys xCone xToS)
@@ -52,7 +47,7 @@ a morphism of inverse systems over (B_i) on a common tail with f = lim f_i. -/
       ∃ (i₀ : I) (hi₁ : i₁ ≤ i₀) (hi₂ : i₂ ≤ i₀),
         ∃ φ : InverseSystemMorphismOverBase D i₀
           (restrictTail hi₁ Xsys) (restrictTail hi₂ Ysys)
-          (restrictTailToBase D hi₁ xToBase) (restrictTailToBase D hi₂ yToBase),
+          (restrictTailToBase D hi₁ Xapprox.toBase) (restrictTailToBase D hi₂ Yapprox.toBase),
           φ.IsLimitMorphism
             (Cone.whisker (Over.map (homOfLE hi₁ : OrderDual.toDual i₀ ⟶ OrderDual.toDual i₁)) xCone)
             (Cone.whisker (Over.map (homOfLE hi₂ : OrderDual.toDual i₀ ⟶ OrderDual.toDual i₂)) yCone) f)
@@ -69,12 +64,7 @@ tail that both induce f agree for all sufficiently late stages. -/
       {Xsys : Over (OrderDual.toDual i₁) ⥤ AlgebraicSpace S}
       {Ysys : Over (OrderDual.toDual i₂) ⥤ AlgebraicSpace S}
       (xCone : Cone Xsys) (yCone : Cone Ysys)
-      (xToBase : Xsys ⟶ tailBaseDiagram D i₁) (yToBase : Ysys ⟶ tailBaseDiagram D i₂)
       (xToS : xCone.pt ⟶ c.pt) (yToS : yCone.pt ⟶ c.pt)
-      (xCone_toBase : ∀ j : Over (OrderDual.toDual i₁),
-        xCone.π.app j ≫ xToBase.app j = xToS ≫ c.π.app j.left)
-      (yCone_toBase : ∀ j : Over (OrderDual.toDual i₂),
-        yCone.π.app j ≫ yToBase.app j = yToS ≫ c.π.app j.left)
       [QuasiSeparated xToS] [FiniteType xToS]
       [QuasiSeparated yToS] [FiniteType yToS]
       (Xapprox : FiniteTypeApproximationLimitSystem D c i₁ Xsys xCone xToS)
@@ -83,7 +73,7 @@ tail that both induce f agree for all sufficiently late stages. -/
       {i₀ : I} (hi₁ : i₁ ≤ i₀) (hi₂ : i₂ ≤ i₀)
       (φ ψ : InverseSystemMorphismOverBase D i₀
         (restrictTail hi₁ Xsys) (restrictTail hi₂ Ysys)
-        (restrictTailToBase D hi₁ xToBase) (restrictTailToBase D hi₂ yToBase)),
+        (restrictTailToBase D hi₁ Xapprox.toBase) (restrictTailToBase D hi₂ Yapprox.toBase)),
       φ.IsLimitMorphism
           (Cone.whisker (Over.map (homOfLE hi₁ : OrderDual.toDual i₀ ⟶ OrderDual.toDual i₁)) xCone)
           (Cone.whisker (Over.map (homOfLE hi₂ : OrderDual.toDual i₀ ⟶ OrderDual.toDual i₂)) yCone) f →

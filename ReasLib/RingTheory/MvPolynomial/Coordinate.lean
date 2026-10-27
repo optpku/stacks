@@ -47,11 +47,13 @@ def generator (n : ℕ) :
 /-- The canonical coordinate generator has underlying polynomial `X i`. -/
 @[stacks 0G8R "finite-variable coordinate generator coercion", simp]
 theorem coe_generator (n : ℕ) (i : Fin n) :
-    (generator (R := R) n i : base (R := R) n) = X i := sorry
+    (generator (R := R) n i : base (R := R) n) = X i := rfl
 
 /-- The successor of a source-facing tail index lies in the ambient finite coordinate type. -/
 @[stacks 0G8R "finite-variable tail index bound"]
-theorem tailIndex_lt (n : ℕ) (i : Fin (n - 1)) : i.1 + 1 < n := sorry
+theorem tailIndex_lt (n : ℕ) (i : Fin (n - 1)) : i.1 + 1 < n := by
+  have hi := i.isLt
+  omega
 
 /-- Stacks tag `0G8R`: the successor embedding of tail coordinates into `Fin n`.
 
@@ -64,16 +66,21 @@ def tailIndex (n : ℕ) (i : Fin (n - 1)) : Fin n :=
 /-- The finite-variable tail index has the expected value. -/
 @[stacks 0G8R "finite-variable tail index value", simp]
 theorem tailIndex_val (n : ℕ) (i : Fin (n - 1)) :
-    (tailIndex n i).1 = i.1 + 1 := sorry
+    (tailIndex n i).1 = i.1 + 1 := rfl
 
 /-- A tail index is never the distinguished first coordinate. -/
 @[stacks 0G8R "finite-variable tail index nonzero"]
 theorem tailIndex_ne_zero (n : ℕ) (i : Fin (n - 1)) :
-    (tailIndex n i).1 ≠ 0 := sorry
+    (tailIndex n i).1 ≠ 0 := by
+  rw [tailIndex_val]
+  exact Nat.succ_ne_zero i.1
 
 /-- The finite-variable tail index is injective. -/
 @[stacks 0G8R "finite-variable tail index injectivity"]
-theorem tailIndex_injective (n : ℕ) : Function.Injective (tailIndex n) := sorry
+theorem tailIndex_injective (n : ℕ) : Function.Injective (tailIndex n) := by
+  intro i j h
+  apply Fin.ext
+  exact Nat.succ.inj (congrArg Fin.val h)
 
 /-! ## Successor-indexed coordinates -/
 
@@ -96,7 +103,7 @@ def headGenerator (n : ℕ) : center (R := R) n :=
 /-- The head coordinate generator has underlying polynomial `X 0`. -/
 @[stacks 0G8R "successor-indexed head coordinate coercion", simp]
 theorem coe_headGenerator (n : ℕ) :
-    (headGenerator (R := R) n : base (R := R) n) = X (0 : Fin (n + 1)) := sorry
+    (headGenerator (R := R) n : base (R := R) n) = X (0 : Fin (n + 1)) := rfl
 
 /-- The canonical inclusion of tail coordinate indices into a successor-indexed coordinate
 system. -/
@@ -106,16 +113,21 @@ abbrev tailIndex (n : ℕ) (i : Fin n) : Fin (n + 1) := i.succ
 /-- A successor-indexed tail coordinate has natural-number value `i + 1`. -/
 @[stacks 0G8R "successor-indexed tail coordinate index value", simp]
 theorem tailIndex_val (n : ℕ) (i : Fin n) :
-    (tailIndex n i).1 = i.1 + 1 := sorry
+    (tailIndex n i).1 = i.1 + 1 := rfl
 
 /-- A successor-indexed tail coordinate is not the distinguished head coordinate. -/
 @[stacks 0G8R "successor-indexed tail coordinate nonzero"]
 theorem tailIndex_ne_zero (n : ℕ) (i : Fin n) :
-    (tailIndex n i).1 ≠ 0 := sorry
+    (tailIndex n i).1 ≠ 0 := by
+  rw [tailIndex_val]
+  exact Nat.succ_ne_zero i.1
 
 /-- The successor-indexed tail coordinate inclusion is injective. -/
 @[stacks 0G8R "successor-indexed tail coordinate injectivity"]
-theorem tailIndex_injective (n : ℕ) : Function.Injective (tailIndex n) := sorry
+theorem tailIndex_injective (n : ℕ) : Function.Injective (tailIndex n) := by
+  intro i j h
+  apply Fin.ext
+  exact Nat.succ.inj (congrArg Fin.val h)
 
 /-- The canonical family of generators indexed by the tail coordinates. -/
 @[stacks 0G8R "successor-indexed tail coordinate generators"]
@@ -125,7 +137,7 @@ def tailGenerator (n : ℕ) : Fin n → center (R := R) n :=
 /-- A tail coordinate generator has underlying polynomial at its successor index. -/
 @[stacks 0G8R "successor-indexed tail coordinate generator coercion", simp]
 theorem coe_tailGenerator (n : ℕ) (i : Fin n) :
-    (tailGenerator (R := R) n i : base (R := R) n) = X (tailIndex n i) := sorry
+    (tailGenerator (R := R) n i : base (R := R) n) = X (tailIndex n i) := rfl
 
 end Succ
 

@@ -18,6 +18,7 @@ open CategoryTheory
 universe u v w x y z
 
 /- Proposition 45.14.17: Assume given data (D0), (D1), and (D2') satisfying
+/- 抽象层对角类 mixin：待 RL-2194 完成锚定后移除。 -/
 axioms (A1)–(A8). Then we have a Weil cohomology theory. -/
 @[stacks 0FIU] #check
   (WeilCohomology.SchemePreWeilTheory.isWeil_of_axiomsA1ToA8 :
@@ -33,7 +34,7 @@ axioms (A1)–(A8). Then we have a Weil cohomology theory. -/
       {pointCycle : CHgrade point 0} {H Picard : V → Type w}
       [∀ X, Ring (H X)] [∀ X, Algebra F (H X)] [∀ X, AddCommGroup (Picard X)]
       (T : WeilCohomology.SchemePreWeilTheory k F TateLine V dimension product fst snd
-        point CH CHgrade cyclePullback cyclePushforward pointCycle H Picard)
+        point CH CHgrade cyclePullback cyclePushforward pointCycle H Picard) [T.HasDiagonalClassRelation]
       (hA8 : T.SatisfiesAxiomA8),
       -- Local instance justification (proof-local temporary data): SchemeClassicalTheory takes GradedAlgebra as a typeclass binder, while the graded algebra on T.Hgrade is constructed by gradedAlgebraHgrade
       letI : ∀ X, GradedAlgebra (T.Hgrade X) := T.gradedAlgebraHgrade

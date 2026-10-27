@@ -6,10 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import ReasLib.AlgebraicGeometry.RingedSite.Localization
-public import ReasLib.CategoryTheory.Limits.Over.FiniteLimits
-public import stacks_project.Chap85.Lemma_85_18_2_Adjunction
-public import stacks_project.Chap85.Lemma_85_19_1_Slice
+public import ReasLib.AlgebraicGeometry.RingedSite.Hypercovering.DerivedAdjunction
 
 /-!
 # Derived adjunction of a hypercovering of an object, modules
@@ -61,20 +58,10 @@ variable [ToposHom.HasModulePushforwardDerived (toAmbient L.simplicial)]
 abbrev site_terminal : RingedSite.{max ι u v, max ι u v, w} :=
   site L.simplicial
 
-/-- `site_terminal` is `site` of the underlying simplicial object. -/
-theorem site_terminal_eq :
-    site_terminal Y L = site L.simplicial :=
-  sorry
-
 /-- The ringed augmentation `a` of a site-level hypercovering, with the ambient
 ringed site explicit. -/
 abbrev toAmbient_terminal : ToposHom (site L.simplicial) Y :=
   toAmbient L.simplicial
-
-/-- `toAmbient_terminal` is `toAmbient` of the underlying simplicial object. -/
-theorem toAmbient_terminal_eq :
-    toAmbient_terminal Y L = toAmbient L.simplicial :=
-  sorry
 
 /-- Unbounded derived inverse image `La^*` along a site-level hypercovering, with
 the ambient ringed site explicit. -/
@@ -82,29 +69,16 @@ abbrev modulePullbackDerived_terminal :
     Hom.ModuleDerived.{w} Y ⥤ Hom.ModuleDerived.{w} (site L.simplicial) :=
   (toAmbient L.simplicial).modulePullbackDerived
 
-/-- `modulePullbackDerived_terminal` is derived module pullback along
-`toAmbient_terminal`. -/
-theorem modulePullbackDerived_terminal_eq :
-    modulePullbackDerived_terminal Y L = (toAmbient L.simplicial).modulePullbackDerived :=
-  sorry
-
 /-- Unbounded total right-derived direct image `Ra_*` along a site-level
 hypercovering, with the ambient ringed site explicit. -/
 abbrev modulePushforwardDerived_terminal :
     Hom.ModuleDerived.{w} (site L.simplicial) ⥤ Hom.ModuleDerived.{w} Y :=
   (toAmbient L.simplicial).modulePushforwardDerived
 
-/-- `modulePushforwardDerived_terminal` is derived module pushforward along
-`toAmbient_terminal`. -/
-theorem modulePushforwardDerived_terminal_eq :
-    modulePushforwardDerived_terminal Y L =
-      (toAmbient L.simplicial).modulePushforwardDerived :=
-  sorry
-
 /-- Absolute-derived pair conditions for `La^* ⊣ Ra_*` along a site-level
 hypercovering, with the ambient ringed site explicit. -/
 abbrev HasModuleDerivedAdjunction_terminal : Prop :=
-  HasModuleDerivedAdjunction L
+  ToposHom.HasModuleDerivedAdjunction (toAmbient L.simplicial)
 
 variable [HasModuleDerivedAdjunction_terminal Y L]
 
@@ -112,25 +86,14 @@ variable [HasModuleDerivedAdjunction_terminal Y L]
 with the ambient ringed site explicit. -/
 abbrev moduleDerivedAdjunction_terminal :
     modulePullbackDerived_terminal Y L ⊣ modulePushforwardDerived_terminal Y L :=
-  moduleDerivedAdjunction L
-
-/-- `moduleDerivedAdjunction_terminal` is the terminal-hypercovering derived
-adjunction. -/
-theorem moduleDerivedAdjunction_terminal_eq :
-    moduleDerivedAdjunction_terminal Y L = moduleDerivedAdjunction L :=
-  sorry
+  (toAmbient L.simplicial).moduleDerivedAdjunction
 
 /-- The canonical derived unit `E ⟶ Ra_* La^* E`, with the ambient ringed site
 explicit. -/
 abbrev derivedUnit_terminal :
     𝟭 (Hom.ModuleDerived.{w} Y) ⟶
       modulePullbackDerived_terminal Y L ⋙ modulePushforwardDerived_terminal Y L :=
-  derivedUnit L
-
-/-- `derivedUnit_terminal` is the terminal-hypercovering derived unit. -/
-theorem derivedUnit_terminal_eq :
-    derivedUnit_terminal Y L = derivedUnit L :=
-  sorry
+  Localization.AtSimplicialSR.derivedUnit L
 
 end Terminal
 
@@ -155,70 +118,10 @@ variable [ToposHom.HasModulePullbackDerived
 variable [ToposHom.HasModulePushforwardDerived
     (toAmbient_terminal (X.localization U) (toSliceTerminal X.siteTopology U K))]
 
-/-- Unbounded derived inverse image `La^*` of `O_U`-modules along the ringed
-augmentation of a hypercovering of an object. -/
-abbrev modulePullbackDerived :
-    Hom.ModuleDerived.{w} (X.localization U) ⥤
-      Hom.ModuleDerived.{w}
-        (site_terminal (X.localization U) (toSliceTerminal X.siteTopology U K)) :=
-  modulePullbackDerived_terminal (X.localization U) (toSliceTerminal X.siteTopology U K)
-
-/-- `modulePullbackDerived` is the slice instantiation of
-`modulePullbackDerived_terminal`. -/
-theorem modulePullbackDerived_eq :
-    modulePullbackDerived U K =
-      modulePullbackDerived_terminal (X.localization U)
-        (toSliceTerminal X.siteTopology U K) :=
-  sorry
-
-/-- Unbounded total right-derived direct image `Ra_*` of `O`-modules along the
-ringed augmentation of a hypercovering of an object. -/
-abbrev modulePushforwardDerived :
-    Hom.ModuleDerived.{w}
-        (site_terminal (X.localization U) (toSliceTerminal X.siteTopology U K)) ⥤
-      Hom.ModuleDerived.{w} (X.localization U) :=
-  modulePushforwardDerived_terminal (X.localization U) (toSliceTerminal X.siteTopology U K)
-
-/-- `modulePushforwardDerived` is the slice instantiation of
-`modulePushforwardDerived_terminal`. -/
-theorem modulePushforwardDerived_eq :
-    modulePushforwardDerived U K =
-      modulePushforwardDerived_terminal (X.localization U)
-        (toSliceTerminal X.siteTopology U K) :=
-  sorry
-
 /-- Absolute-derived pair conditions for `La^* ⊣ Ra_*` along a hypercovering of an
 object. -/
 abbrev HasModuleDerivedAdjunction : Prop :=
   HasModuleDerivedAdjunction_terminal (X.localization U)
     (toSliceTerminal X.siteTopology U K)
-
-variable [HasModuleDerivedAdjunction U K]
-
-/-- The unbounded derived adjunction `La^* ⊣ Ra_*` attached to a hypercovering of an
-object. -/
-abbrev moduleDerivedAdjunction :
-    modulePullbackDerived U K ⊣ modulePushforwardDerived U K :=
-  moduleDerivedAdjunction_terminal (X.localization U) (toSliceTerminal X.siteTopology U K)
-
-/-- `moduleDerivedAdjunction` is the slice instantiation of
-`moduleDerivedAdjunction_terminal`. -/
-theorem moduleDerivedAdjunction_eq :
-    moduleDerivedAdjunction U K =
-      moduleDerivedAdjunction_terminal (X.localization U)
-        (toSliceTerminal X.siteTopology U K) :=
-  sorry
-
-/-- The canonical derived unit `E ⟶ Ra_* La^* E` on `D(O_U)`. -/
-abbrev derivedUnit :
-    𝟭 (Hom.ModuleDerived.{w} (X.localization U)) ⟶
-      modulePullbackDerived U K ⋙ modulePushforwardDerived U K :=
-  derivedUnit_terminal (X.localization U) (toSliceTerminal X.siteTopology U K)
-
-/-- `derivedUnit` is the slice instantiation of `derivedUnit_terminal`. -/
-theorem derivedUnit_eq :
-    derivedUnit U K =
-      derivedUnit_terminal (X.localization U) (toSliceTerminal X.siteTopology U K) :=
-  sorry
 
 end RingedSite.Hypercovering

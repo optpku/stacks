@@ -74,7 +74,7 @@ def id (J : GrothendieckTopology C) : MorphismOfTopoiIn J J :=
   LeftExactAdjunction.id _
 
 /-- Composition of topos morphisms. -/
-def comp {E : Type u₃} [Category.{v₃} E] {L : GrothendieckTopology E}
+abbrev comp {E : Type u₃} [Category.{v₃} E] {L : GrothendieckTopology E}
     (f : MorphismOfTopoiIn J K) (g : MorphismOfTopoiIn K L) : MorphismOfTopoiIn J L :=
   LeftExactAdjunction.comp f g
 

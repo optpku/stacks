@@ -7,7 +7,7 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import Mathlib.AlgebraicGeometry.Morphisms.Etale
-public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Pullback.Differentials
+public import ReasLib.AlgebraicGeometry.Scheme.Differentials.AffineExplicit
 
 @[expose] public section
 
@@ -21,6 +21,10 @@ variable {X₁ X₂ S₁ S₂ : Scheme.{u}}
 variable {f : X₂ ⟶ X₁} {g : S₂ ⟶ S₁}
 variable {p₁ : X₁ ⟶ S₁} {p₂ : X₂ ⟶ S₂}
 
+/-- The canonical étale differential comparison, with the explicit affine-glued inverse. -/
+noncomputable abbrev comparisonIsoOfEtale (sq : CommSq f p₂ p₁ g) [Etale f] [Etale g] :=
+  etaleGlobalComparisonIso sq
+
 /-- For a commutative square of schemes whose horizontal morphisms are étale, the canonical
 pullback comparison on relative differentials is an isomorphism. -/
 instance comparison_isIso_of_etale (sq : CommSq f p₂ p₁ g) [Etale f] [Etale g] :
@@ -28,6 +32,7 @@ instance comparison_isIso_of_etale (sq : CommSq f p₂ p₁ g) [Etale f] [Etale 
       (RingedSpace.Hom.Differentials.comparison
         (sq.map
           (Scheme.forgetToLocallyRingedSpace ⋙
-            LocallyRingedSpace.forgetToSheafedSpace))) := sorry
+            LocallyRingedSpace.forgetToSheafedSpace))) :=
+  (comparisonIsoOfEtale sq).isIso_hom
 
 end AlgebraicGeometry.Scheme.RelativeDifferentials

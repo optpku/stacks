@@ -22,6 +22,7 @@ universe u v w
 /- Lemma 45.14.15: Assume given data (D0), (D1), and (D2') satisfying axioms
 (A1)–(A8). If `b : X' ⟶ X` is the blowup of a nonempty equidimensional smooth
 projective scheme `X` of dimension `d` in a smooth nowhere dense center, then
+/- 抽象层对角类 mixin：待 RL-2194 完成锚定后移除。 -/
 cohomological pushforward along `b` sends `1` to `1`. -/
 @[stacks 0FIS] #check
   (WeilCohomology.PreWeilTheory.pushforward_one_of_isBlowupOfSmoothCenter :
@@ -32,7 +33,7 @@ cohomological pushforward along `b` sends `1` to `1`. -/
       [∀ X, Ring (H X)] [∀ X, Algebra F (H X)]
       [∀ X, AddCommGroup (Picard X)] [∀ X, Ring (Cycle X)]
       (T : WeilCohomology.PreWeilTheory F TateLine
-        (ULiftHom.{u + 1} (SchemeOverField k)) H Picard Cycle)
+        (ULiftHom.{u + 1} (SchemeOverField k)) H Picard Cycle) [T.HasDiagonalClassRelation]
       (hA8 : T.SatisfiesAxiomA8)
       {X' X : SchemeOverField k} {d : ℕ}
       [Nonempty X.left] [EquidimensionalSpace X.left] [Smooth X.hom] [Projective X.hom]

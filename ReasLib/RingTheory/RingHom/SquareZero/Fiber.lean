@@ -132,9 +132,9 @@ instance isScalarTower_algebra :
     letI := algebraCompOfSquareZero π B
     IsScalarTower A' A B := sorry
 
-variable {N : Type u} [AddCommGroup N] [Module B N] [Module A N] [IsScalarTower A B N]
-variable (c : KernelModule π →ₗ[A] N)
+variable {N : Type u} [AddCommGroup N] [Module B N] [Module A N]
 
+variable [IsScalarTower A B N] in
 /-- Scalar multiplication after restriction along π is the A-action of π r. -/
 theorem moduleRestrictScalars_smul (r : A') (n : N) :
     -- Local instance justification (noncanonical choice): π selects restriction of the given A-action on N to A'.
@@ -150,12 +150,15 @@ instance isScalarTower_moduleA :
     IsScalarTower A' A N := sorry
 
 /-- The restricted A'-action and the B-action on N form a scalar tower. -/
-instance isScalarTower_moduleB :
+instance isScalarTower_moduleB [IsScalarTower A B N] :
     -- Local instance justification (noncanonical choice): π and the A-algebra structure select the composite A'-algebra structure on B.
     letI := algebraCompOfSquareZero π B
     -- Local instance justification (noncanonical choice): π selects restriction of the given A-action on N to A'.
     letI : Module A' N := moduleRestrictScalars π N
     IsScalarTower A' B N := sorry
+
+variable [IsScalarTower A B N]
+variable (c : KernelModule π →ₗ[A] N)
 
 set_option backward.privateInPublic true in
 /-- The maps of a solution commute with the composite A'-algebra structure on B. -/

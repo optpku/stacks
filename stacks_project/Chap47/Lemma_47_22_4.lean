@@ -21,30 +21,22 @@ universe u
 
 /- Lemma 47.22.4 (1) -/
 @[stacks 0BFR] #check (CategoryTheory.DerivedCategory.IsDualizingComplex.exists_of_field :
-  ∀ (k : Type u) [Field k]
-    [MonoidalCategory (DerivedCategory (ModuleCat.{u} k))]
-    (H : MonoidalClosed (DerivedCategory (ModuleCat.{u} k))),
-    ∃ ω : DerivedCategory (ModuleCat.{u} k), ω.IsDualizingComplex H)
+  ∀ (k : Type u) [Field k],
+    ∃ ω : DerivedCategory (ModuleCat.{u} k), CategoryTheory.DerivedCategory.IsDualizing ω)
 
 /- Lemma 47.22.4 (2) -/
 @[stacks 0BFR] #check (CategoryTheory.DerivedCategory.IsDualizingComplex.exists_of_completeLocal :
-  ∀ (A : Type u) [CommRing A] [IsNoetherianRing A] [IsCompleteLocalRing A]
-    [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
-    (H : MonoidalClosed (DerivedCategory (ModuleCat.{u} A))),
-    ∃ ω : DerivedCategory (ModuleCat.{u} A), ω.IsDualizingComplex H)
+  ∀ (A : Type u) [CommRing A] [IsNoetherianRing A] [IsCompleteLocalRing A],
+    ∃ ω : DerivedCategory (ModuleCat.{u} A), CategoryTheory.DerivedCategory.IsDualizing ω)
 
 /- Lemma 47.22.4 (3) -/
 @[stacks 0BFR] #check (CategoryTheory.DerivedCategory.IsDualizingComplex.exists_int :
-  ∀ [MonoidalCategory (DerivedCategory (ModuleCat.{0} ℤ))]
-    (H : MonoidalClosed (DerivedCategory (ModuleCat.{0} ℤ))),
-    ∃ ω : DerivedCategory (ModuleCat.{0} ℤ), ω.IsDualizingComplex H)
+  ∃ ω : DerivedCategory (ModuleCat.{0} ℤ), CategoryTheory.DerivedCategory.IsDualizing ω)
 
 /- Lemma 47.22.4 (4) -/
 @[stacks 0BFR] #check (CategoryTheory.DerivedCategory.IsDualizingComplex.exists_of_dedekindDomain :
-  ∀ (A : Type u) [CommRing A] [IsDedekindDomain A]
-    [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
-    (H : MonoidalClosed (DerivedCategory (ModuleCat.{u} A))),
-    ∃ ω : DerivedCategory (ModuleCat.{u} A), ω.IsDualizingComplex H)
+  ∀ (A : Type u) [CommRing A] [IsDedekindDomain A],
+    ∃ ω : DerivedCategory (ModuleCat.{u} A), CategoryTheory.DerivedCategory.IsDualizing ω)
 
 /- Lemma 47.22.4 (5) -/
 @[stacks 0BFR] #check (CategoryTheory.DerivedCategory.IsDualizingComplex.exists_of_essFiniteType :

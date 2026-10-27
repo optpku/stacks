@@ -57,7 +57,7 @@ theorem differentialGradedAlgebra_leftLeibniz_index (n m : ℤ) :
 theorem differentialGradedAlgebra_rightLeibniz_index (n m : ℤ) :
     n + (m + 1) = n + m + 1 := sorry
 
-/-- Definition 24.12.1 (1): a sheaf of differential graded `𝒪`-algebras is a cochain complex of
+/-- A sheaf of differential graded `𝒪`-algebras is a cochain complex of
 `𝒪`-modules equipped with degreewise multiplication, a unit, and the graded Leibniz rule. -/
 @[stacks 0FRF]
 structure DifferentialGradedAlgebra where
@@ -158,7 +158,60 @@ theorem coe_apply (A : DGA(𝒪)) (n : ℤ) :
 theorem toComplex_X (A : DGA(𝒪)) (n : ℤ) :
     A.toComplex.X n = A n := sorry
 
-/-- Definition 24.12.1 (2): a homomorphism of differential graded `𝒪`-algebra sheaves is a
+/-- A multiplication-preserving morphism of differential graded `𝒪`-algebra sheaves is a
+morphism of cochain complexes compatible with the homogeneous multiplication maps. -/
+@[stacks 0FRF, ext]
+structure MulHom (A B : DGA(𝒪)) where
+  /-- The underlying morphism of cochain complexes. -/
+  hom : A.toComplex ⟶ B.toComplex
+  /-- The degreewise components commute with multiplication. -/
+  comm_mul :
+    ∀ n m : ℤ,
+      A.mul n m ≫ hom.f (n + m) =
+        ((hom.f n) ▷ A.toComplex.X m) ≫
+          (B.toComplex.X n ◁ hom.f m) ≫
+          B.mul n m
+
+namespace MulHom
+
+/-- The degree-`n` component of a multiplication-preserving morphism of differential graded
+algebra sheaves. -/
+def component {A B : DGA(𝒪)} (f : MulHom A B) (n : ℤ) :
+    A.toComplex.X n ⟶ B.toComplex.X n :=
+  f.hom.f n
+
+/-- Evaluation of a multiplication-preserving morphism recovers its degree-`n` component. -/
+@[simp]
+theorem component_eq {A B : DGA(𝒪)} (f : MulHom A B) (n : ℤ) :
+    f.component n = f.hom.f n := rfl
+
+/-- The underlying cochain map has the same components as the multiplication-preserving map. -/
+@[simp]
+theorem hom_f {A B : DGA(𝒪)} (f : MulHom A B) (n : ℤ) :
+    f.hom.f n = f.component n := rfl
+
+/-- The identity multiplication-preserving morphism of a differential graded algebra sheaf. -/
+def id (A : DGA(𝒪)) : MulHom A A where
+  hom := 𝟙 A.toComplex
+  comm_mul := sorry
+
+/-- The composite of multiplication-preserving morphisms of differential graded algebra sheaves. -/
+def comp {A B D : DGA(𝒪)} (f : MulHom A B) (g : MulHom B D) : MulHom A D where
+  hom := f.hom ≫ g.hom
+  comm_mul := sorry
+
+/-- The underlying cochain map of the identity multiplication-preserving map is the identity. -/
+@[simp]
+theorem id_hom (A : DGA(𝒪)) : (id A).hom = 𝟙 A.toComplex := rfl
+
+/-- The underlying cochain map of a composite is the composite of underlying cochain maps. -/
+@[simp]
+theorem comp_hom {A B D : DGA(𝒪)} (f : MulHom A B) (g : MulHom B D) :
+    (comp f g).hom = f.hom ≫ g.hom := rfl
+
+end MulHom
+
+/-- A unit-preserving homomorphism of differential graded `𝒪`-algebra sheaves is a
 morphism of cochain complexes that preserves the unit and multiplication. -/
 @[stacks 0FRF, ext]
 structure Hom (A B : DGA(𝒪)) where
@@ -218,6 +271,31 @@ theorem id_hom (A : DGA(𝒪)) : (id A).hom = 𝟙 A.toComplex := sorry
 theorem comp_hom {A B D : DGA(𝒪)} (f : Hom A B) (g : Hom B D) :
     (comp f g).hom = f.hom ≫ g.hom := sorry
 
+/-- Forget unit preservation while retaining the cochain map and multiplication compatibility. -/
+def toMulHom {A B : DGA(𝒪)} (f : Hom A B) : MulHom A B where
+  hom := f.hom
+  comm_mul := f.comm_mul
+
+/-- Forgetting unit preservation leaves the underlying cochain map unchanged. -/
+@[simp]
+theorem toMulHom_hom {A B : DGA(𝒪)} (f : Hom A B) :
+    f.toMulHom.hom = f.hom := rfl
+
+/-- Forgetting unit preservation leaves every homogeneous component unchanged. -/
+@[simp]
+theorem toMulHom_f {A B : DGA(𝒪)} (f : Hom A B) (n : ℤ) :
+    f.toMulHom.component n = f.hom.f n := rfl
+
+/-- Forgetting unit preservation carries the unital identity to the multiplication-preserving
+identity. -/
+@[simp]
+theorem id_toMulHom (A : DGA(𝒪)) : (id A).toMulHom = MulHom.id A := rfl
+
+/-- Forgetting unit preservation commutes with composition. -/
+@[simp]
+theorem comp_toMulHom {A B D : DGA(𝒪)} (f : Hom A B) (g : Hom B D) :
+    (comp f g).toMulHom = MulHom.comp f.toMulHom g.toMulHom := rfl
+
 end Hom
 
 /-- Two differential graded algebra homomorphisms are equal when their underlying cochain maps
@@ -269,6 +347,19 @@ instance forgetToComplex_faithful :
 using its canonical identification with the ambient monoidal unit. -/
 abbrev oneFromUnitModule (A : DGA(𝒪)) : unitModule J 𝒪 ⟶ A.toComplex.X 0 :=
   unitIsoTensorUnit.hom ≫ A.one
+
+/-- Transport a differential graded algebra structure along an isomorphism of its underlying
+cochain complex, conjugating multiplication and carrying the unit forward. -/
+def transport (A : DifferentialGradedAlgebra (𝒪 := 𝒪))
+    (K : CochainComplex (ringedSiteModuleCategory J 𝒪) ℤ)
+    (e : A.toComplex ≅ K) : DifferentialGradedAlgebra (𝒪 := 𝒪) where
+  toComplex := K
+  mul n m := (e.inv.f n ⊗ₘ e.inv.f m) ≫ A.mul n m ≫ e.hom.f (n + m)
+  one := A.one ≫ e.hom.f 0
+  mul_assoc := sorry
+  one_mul := sorry
+  mul_one := sorry
+  d_mul := sorry
 
 end DifferentialGradedAlgebra
 

@@ -23,12 +23,12 @@ variable (Schh : AlgebraicGeometry.ChosenBigHSite.{u, v})
 /- Lemma 38.34.19: the morphisms of topoi induced on the big h sites satisfy
 `g_big ∘ f_big = (g ∘ f)_big`. -/
 @[stacks 0EU7] #check
-  (CategoryTheory.Over.Site.morphismOfTopoi_comp.{u, v, max u v}
+  (CategoryTheory.Over.Site.morphismOfTopoi_comp.{v, u, max u v}
       Schh.toGrothendieck f.left g.left :
     MorphismOfTopoiIn.comp
-        (CategoryTheory.Over.Site.morphismOfTopoi.{u, v, max u v}
+        (CategoryTheory.Over.Site.morphismOfTopoi.{v, u, max u v}
           Schh.toGrothendieck g.left)
-        (CategoryTheory.Over.Site.morphismOfTopoi.{u, v, max u v}
+        (CategoryTheory.Over.Site.morphismOfTopoi.{v, u, max u v}
           Schh.toGrothendieck f.left) =
-      CategoryTheory.Over.Site.morphismOfTopoi.{u, v, max u v}
+      CategoryTheory.Over.Site.morphismOfTopoi.{v, u, max u v}
         Schh.toGrothendieck (f.left ≫ g.left))

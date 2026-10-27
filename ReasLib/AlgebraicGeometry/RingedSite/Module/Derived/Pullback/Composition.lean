@@ -31,11 +31,6 @@ universe z uX vX uY vY uZ vZ w
 
 namespace RingedSite.Hom
 
--- Local instance justification (defeq pin): align the generic composition constructors with
--- the canonical derived-category owner used by `ModuleDerived` and `moduleLocalization`.
-attribute [local instance] moduleCat_hasDerivedCategory
-  modulePullback.DerivedCategory.hasLeftDerived
-
 section
 
 variable {X : RingedSite.{uX, vX, w}} {Y : RingedSite.{uY, vY, w}}
@@ -44,12 +39,25 @@ variable [UnivLE.{max uX vX, z}] [UnivLE.{max uY vY, z}]
   [UnivLE.{max uZ vZ, z}]
 variable [(f.modulePushforward.{z}).IsRightAdjoint]
 variable [(g.modulePushforward.{z}).IsRightAdjoint]
+
+/-- The homotopy-to-derived inverse image along a composite, using the right-adjoint
+certificate induced by its constituent direct images. -/
+abbrev compositePullbackToDerived :=
+  @modulePullbackToDerived.{z} _ _ (f.comp g) inferInstance
+    (modulePushforwardComp_isRightAdjoint f g)
+
 variable [Functor.HasLeftDerivedFunctor
   (modulePullbackToDerived.{z} f) (ModuleQis.{z} Y)]
 variable [Functor.HasLeftDerivedFunctor
   (modulePullbackToDerived.{z} g) (ModuleQis.{z} Z)]
 variable [Functor.HasLeftDerivedFunctor
-  (modulePullbackToDerived.{z} (f.comp g)) (ModuleQis.{z} Z)]
+  (compositePullbackToDerived.{z} f g) (ModuleQis.{z} Z)]
+
+/-- The total left derived inverse image along a composite, using the right-adjoint
+certificate induced by its constituent direct images. -/
+abbrev compositePullbackDerived :=
+  @modulePullbackDerived.{z} _ _ (f.comp g) inferInstance inferInstance
+    (modulePushforwardComp_isRightAdjoint f g) inferInstance
 
 namespace modulePullbackToDerived
 
@@ -57,13 +65,14 @@ namespace modulePullbackToDerived
 homotopy-level pullback model. -/
 @[stacks 05T2 "homotopy model for composed pullback"]
 noncomputable abbrev compIso :
-    modulePullbackToDerived.{z} (f.comp g) ≅
+    compositePullbackToDerived.{z} f g ≅
       modulePullbackHomotopy.{z} g ⋙ modulePullbackToDerived.{z} f :=
-  Functor.LeftDerived.Homotopy.Composition.toDerivedIso
-    (modulePullback.{z} f)
-    (modulePullback.{z} g)
-    (modulePullback.{z} (f.comp g))
-    (modulePullbackCompIso.{z} f g)
+  @Functor.LeftDerived.Homotopy.Composition.toDerivedIso
+    (ModuleCat.{z} X) inferInstance inferInstance
+    (ModuleCat.{z} Y) inferInstance inferInstance
+    (ModuleCat.{z} Z) inferInstance inferInstance (moduleCat_hasDerivedCategory X)
+    (modulePullback.{z} f) (modulePullback.{z} g) (compositePullback.{z} f g)
+    inferInstance inferInstance inferInstance (modulePullbackCompIso.{z} f g)
 
 end modulePullbackToDerived
 
@@ -76,28 +85,41 @@ noncomputable abbrev compCounit :
     moduleLocalization.{z} Z ⋙
         (modulePullbackDerived.{z} g ⋙ modulePullbackDerived.{z} f) ⟶
       modulePullbackHomotopy.{z} g ⋙ modulePullbackToDerived.{z} f :=
-  Functor.LeftDerived.Homotopy.Composition.counit
-    (modulePullback.{z} f)
-    (modulePullback.{z} g)
+  @Functor.LeftDerived.Homotopy.Composition.counit
+    (ModuleCat.{z} X) inferInstance inferInstance
+    (ModuleCat.{z} Y) inferInstance inferInstance
+    (ModuleCat.{z} Z) inferInstance inferInstance
+    (moduleCat_hasDerivedCategory X) (moduleCat_hasDerivedCategory Y)
+    (moduleCat_hasDerivedCategory Z)
+    (modulePullback.{z} f) (modulePullback.{z} g) inferInstance inferInstance
+    (modulePullback.DerivedCategory.hasLeftDerived f)
+    (modulePullback.DerivedCategory.hasLeftDerived g)
 
 /-- The canonical comparison from iterated derived pullback to derived pullback along the
 composite ringed-site morphism.  It is defined without an invertibility hypothesis. -/
 @[stacks 05T2 "ringed-site derived-pullback comparison"]
 noncomputable abbrev compComparison :
     modulePullbackDerived.{z} g ⋙ modulePullbackDerived.{z} f ⟶
-      modulePullbackDerived.{z} (f.comp g) :=
-  Functor.LeftDerived.Homotopy.Composition.comparison
-    (modulePullback.{z} f)
-    (modulePullback.{z} g)
-    (modulePullback.{z} (f.comp g))
-    (modulePullbackCompIso.{z} f g)
+      compositePullbackDerived.{z} f g :=
+  @Functor.LeftDerived.Homotopy.Composition.comparison
+    (ModuleCat.{z} X) inferInstance inferInstance
+    (ModuleCat.{z} Y) inferInstance inferInstance
+    (ModuleCat.{z} Z) inferInstance inferInstance
+    (moduleCat_hasDerivedCategory X) (moduleCat_hasDerivedCategory Y)
+    (moduleCat_hasDerivedCategory Z)
+    (modulePullback.{z} f) (modulePullback.{z} g) (compositePullback.{z} f g)
+    inferInstance inferInstance inferInstance (modulePullbackCompIso.{z} f g)
+    (modulePullback.DerivedCategory.hasLeftDerived f)
+    (modulePullback.DerivedCategory.hasLeftDerived g)
+    (@modulePullback.DerivedCategory.hasLeftDerived.{z} _ _ (f.comp g)
+      inferInstance inferInstance (modulePushforwardComp_isRightAdjoint f g) inferInstance)
 
 /-- The canonical isomorphism from iterated derived pullback to pullback along the composite,
 when the canonical comparison is invertible. -/
 @[stacks 05T2 "ringed-site derived-pullback composition isomorphism"]
 noncomputable def compIso [IsIso (compComparison f g)] :
     modulePullbackDerived.{z} g ⋙ modulePullbackDerived.{z} f ≅
-      modulePullbackDerived.{z} (f.comp g) :=
+      compositePullbackDerived.{z} f g :=
   asIso (compComparison f g)
 
 /-- The derived-pullback composition comparison is characterized by the canonical total-left-
@@ -106,7 +128,7 @@ derived counits. -/
 theorem compComparison_counit :
     Functor.whiskerLeft (moduleLocalization.{z} Z)
         (compComparison f g) ≫
-      ((modulePullbackToDerived.{z} (f.comp g)).totalLeftDerivedCounit
+      ((compositePullbackToDerived.{z} f g).totalLeftDerivedCounit
         (moduleLocalization.{z} Z) (ModuleQis.{z} Z)) =
         compCounit f g ≫ (modulePullbackToDerived.compIso f g).inv := sorry
 
@@ -116,7 +138,7 @@ comparison. -/
 theorem compComparison_counit_app (K : ModuleHomotopy.{z} Z) :
     (compComparison f g).app
         ((moduleLocalization.{z} Z).obj K) ≫
-      ((modulePullbackToDerived.{z} (f.comp g)).totalLeftDerivedCounit
+      ((compositePullbackToDerived.{z} f g).totalLeftDerivedCounit
         (moduleLocalization.{z} Z) (ModuleQis.{z} Z)).app K =
         (compCounit f g).app K ≫
           (modulePullbackToDerived.compIso f g).inv.app K := sorry

@@ -6,9 +6,9 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import Mathlib.Tactic.CrossRefAttribute
+import StacksCheckRecall
 public import ReasLib.CategoryTheory.Sites.Hypercovering.Augmented
-public import stacks_project.Chap85.Lemma_85_20_1
+public import ReasLib.AlgebraicGeometry.RingedSite.Hypercovering.ModuleDescent
 
 /-!
 # Lemma 85.22.1
@@ -86,40 +86,50 @@ variable [stageInclRestrictScalarsAdjoint (X.localization A.right)
 variable [stageMapRestrictScalarsAdjoint (X.localization A.right)
     (toSliceTerminal X.siteTopology A.right (toHypercovering.{ι} A hA))]
 
-/-- Lemma 85.22.1
+/- Lemma 85.22.1
 Let `C` be a site with fibre products and `X` an object of `C`. Let `O_C` be a sheaf of
 rings. Let `U` be a hypercovering of `X` in `C`. With notation as above,
 `a^* : Mod(O_X) ⥤ Mod(O)` is fully faithful with essential image the cartesian
 `O`-modules. The functor `a_*` provides the quasi-inverse. -/
 @[stacks 0DAB]
-def moduleCartesianEquivalence :=
-  Hypercovering.moduleCartesianEquivalence A.right (toHypercovering.{ι} A hA)
+#check (RingedSite.Hypercovering.moduleCartesianEquivalence A.right (toHypercovering.{ι} A hA) :
+  SheafOfModules.{w} (X.localization A.right).structureSheaf ≌
+    RingedSite.Localization.AtSimplicialSR.Cartesian (X := X.localization A.right)
+      (toHypercovering.{ι} A hA).toSimplicialObject)
 
-/-- The forward functor of `moduleCartesianEquivalence` is `a^*` corestricted to cartesian
+/- The forward functor of `moduleCartesianEquivalence` is `a^*` corestricted to cartesian
 `O`-modules. -/
-theorem moduleCartesianEquivalence_functor :
-    (moduleCartesianEquivalence A hA).functor =
+#check (RingedSite.Hypercovering.moduleCartesianEquivalence_functor A.right
+    (toHypercovering.{ι} A hA) :
+    (RingedSite.Hypercovering.moduleCartesianEquivalence A.right
+      (toHypercovering.{ι} A hA)).functor =
       cartesianFunctor_terminal (X.localization A.right)
-        (toSliceTerminal X.siteTopology A.right (toHypercovering.{ι} A hA)) :=
-  sorry
+        (toSliceTerminal X.siteTopology A.right (toHypercovering.{ι} A hA)))
 
-/-- The inverse functor of `moduleCartesianEquivalence` is `a_*` on cartesian `O`-modules. -/
-theorem moduleCartesianEquivalence_inverse :
-    (moduleCartesianEquivalence A hA).inverse =
+/- The inverse functor of `moduleCartesianEquivalence` is `a_*` on cartesian `O`-modules. -/
+#check (RingedSite.Hypercovering.moduleCartesianEquivalence_inverse A.right
+    (toHypercovering.{ι} A hA) :
+    (RingedSite.Hypercovering.moduleCartesianEquivalence A.right
+      (toHypercovering.{ι} A hA)).inverse =
       cartesianInverse_terminal (X.localization A.right)
-        (toSliceTerminal X.siteTopology A.right (toHypercovering.{ι} A hA)) :=
-  sorry
+        (toSliceTerminal X.siteTopology A.right (toHypercovering.{ι} A hA)))
 
-/-- An `O`-module on `((C / U)_total, O)` lies in the essential image of `a^*` if and only
+/- An `O`-module on `((C / U)_total, O)` lies in the essential image of `a^*` if and only
 if it is cartesian. -/
-theorem module_mem_essImage_iff_isCartesian
-    (G : SheafOfModules.{w}
+#check (RingedSite.Hypercovering.module_mem_essImage_iff_isCartesian A.right
+    (toHypercovering.{ι} A hA) :
+    ∀ G : SheafOfModules.{w}
       (ringSheaf_terminal (X.localization A.right)
-        (toSliceTerminal X.siteTopology A.right (toHypercovering.{ι} A hA)))) :
+        (toSliceTerminal X.siteTopology A.right (toHypercovering.{ι} A hA))),
     (modulePullback_terminal (X.localization A.right)
       (toSliceTerminal X.siteTopology A.right (toHypercovering.{ι} A hA))).essImage G ↔
       IsCartesian_terminal (X.localization A.right)
-        (toSliceTerminal X.siteTopology A.right (toHypercovering.{ι} A hA)) G :=
-  sorry
+        (toSliceTerminal X.siteTopology A.right (toHypercovering.{ι} A hA)) G)
+
+/- Pullback along the augmentation is fully faithful. -/
+#check (RingedSite.Hypercovering.modulePullback_fullyFaithful A.right
+    (toHypercovering.{ι} A hA) :
+    (modulePullback_terminal (X.localization A.right)
+      (toSliceTerminal X.siteTopology A.right (toHypercovering.{ι} A hA))).FullyFaithful)
 
 end CategoryTheory.SimplicialObject.Augmented

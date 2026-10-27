@@ -7,6 +7,7 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import ReasLib.AlgebraicGeometry.FormalAlgebraicSpace.Reduction.AlgebraicSpace
+public import ReasLib.AlgebraicGeometry.FormalAlgebraicSpace.Reduction.Class
 public import ReasLib.AlgebraicGeometry.FormalAlgebraicSpace.Reduction.Etale
 public import ReasLib.AlgebraicGeometry.FormalAlgebraicSpace.Morphism.FiniteType
 
@@ -29,79 +30,60 @@ namespace AlgebraicGeometry.FormalAlgebraicSpace
 
 variable {S : Scheme.{u}}
 
-/-- The algebraic-space reduction of a formal algebraic space, in the sense of
+/- The algebraic-space reduction of a formal algebraic space, in the sense of
 Lemma 87.12.1: a reduced algebraic space, a representable thickening into the
 formal algebraic space, and unique factorization of morphisms from reduced
 algebraic spaces. -/
-class Reduction (X : (Over S)ᵒᵖ ⥤ Type u) [IsFormalAlgebraicSpace X] where
-  /-- The underlying reduced algebraic space `X_red`. -/
-  space : AlgebraicSpace S
-  /-- The representable thickening `X_red ⟶ X`. -/
-  ι : space.functorOfPoints ⟶ X
-  /-- The reduction is reduced in the étale-local sense. -/
-  isReduced : AlgebraicSpace.hasEtaleLocal
-    (IsReduced : ObjectProperty Scheme.{u}) space
-  /-- The structure morphism is representable by algebraic spaces. -/
-  representable : AlgebraicSpace.representableByAlgebraicSpaces ι
-  /-- Yoneda pullbacks of the structure morphism are thickenings. -/
-  isThickening : ∀ ⦃U : Over S⦄ (ξ : yoneda.obj U ⟶ X),
-    AlgebraicSpace.IsThickening
-      (AlgebraicSpace.representableByAlgebraicSpaces.pullbackHom representable ξ)
-  /-- A morphism from a reduced algebraic space into `X` factors uniquely
-  through the reduction. -/
-  liftUnique {U : AlgebraicSpace S}
-    (hU : AlgebraicSpace.hasEtaleLocal
-      (IsReduced : ObjectProperty Scheme.{u}) U)
-    (g : U.functorOfPoints ⟶ X) :
-    ∃! h : U.functorOfPoints ⟶ space.functorOfPoints, h ≫ ι = g
+#check (AlgebraicGeometry.FormalAlgebraicSpace.Reduction :
+  ∀ {S : Scheme.{u}} (X : (Over S)ᵒᵖ ⥤ Type u) [IsFormalAlgebraicSpace X],
+    Type (u + 1))
 
-/-- The algebraic-space reduction of a formal algebraic space. -/
-abbrev reduction (X : (Over S)ᵒᵖ ⥤ Type u) [IsFormalAlgebraicSpace X]
-    [R : Reduction X] : AlgebraicSpace S :=
-  R.space
+/- The algebraic-space reduction of a formal algebraic space. -/
+#check (AlgebraicGeometry.FormalAlgebraicSpace.reduction :
+  ∀ {S : Scheme.{u}} (X : (Over S)ᵒᵖ ⥤ Type u) [IsFormalAlgebraicSpace X]
+    [R : Reduction X],
+    AlgebraicSpace S)
 
-/-- The algebraic-space reduction is the `space` field of `Reduction`. -/
-theorem reduction_def (X : (Over S)ᵒᵖ ⥤ Type u) [IsFormalAlgebraicSpace X]
-    [R : Reduction X] : reduction X = R.space :=
-  rfl
+/- The algebraic-space reduction is the `space` field of `Reduction`. -/
+#check (AlgebraicGeometry.FormalAlgebraicSpace.reduction_def :
+  ∀ {S : Scheme.{u}} (X : (Over S)ᵒᵖ ⥤ Type u) [IsFormalAlgebraicSpace X]
+    [R : Reduction X],
+    reduction X = R.space)
 
-/-- The canonical morphism from the reduction of a formal algebraic space. -/
-abbrev reductionι (X : (Over S)ᵒᵖ ⥤ Type u) [IsFormalAlgebraicSpace X]
-    [R : Reduction X] : (reduction X).functorOfPoints ⟶ X :=
-  R.ι
+/- The canonical morphism from the reduction of a formal algebraic space. -/
+#check (AlgebraicGeometry.FormalAlgebraicSpace.reductionι :
+  ∀ {S : Scheme.{u}} (X : (Over S)ᵒᵖ ⥤ Type u) [IsFormalAlgebraicSpace X]
+    [R : Reduction X],
+    (reduction X).functorOfPoints ⟶ X)
 
-/-- The reduction morphism is the `ι` field of `Reduction`. -/
-theorem reductionι_def (X : (Over S)ᵒᵖ ⥤ Type u) [IsFormalAlgebraicSpace X]
-    [R : Reduction X] : reductionι X = R.ι :=
-  rfl
+/- The reduction morphism is the `ι` field of `Reduction`. -/
+#check (AlgebraicGeometry.FormalAlgebraicSpace.reductionι_def :
+  ∀ {S : Scheme.{u}} (X : (Over S)ᵒᵖ ⥤ Type u) [IsFormalAlgebraicSpace X]
+    [R : Reduction X],
+    reductionι X = R.ι)
 
-/-- The reduction of an algebraic space, viewed as a formal algebraic space, is
+/- The reduction of an algebraic space, viewed as a formal algebraic space, is
 the reduced induced algebraic space of Definition 66.12.5. -/
-instance instReduction_ofAlgebraicSpace (X : AlgebraicSpace S) :
-    Reduction X.functorOfPoints where
-  space := AlgebraicSpace.reduction X
-  ι := AlgebraicSpace.reductionι X
-  isReduced := isReduced_algebraicSpaceReduction X
-  representable := AlgebraicSpace.representableByAlgebraicSpaces.of_hom
-    (AlgebraicSpace.reductionι X)
-  isThickening := fun {_} ξ ↦ isThickening_algebraicSpaceReductionι X ξ
-  liftUnique := liftUnique_algebraicSpaceReduction X
+#check (AlgebraicGeometry.FormalAlgebraicSpace.instReduction_ofAlgebraicSpace :
+  ∀ {S : Scheme.{u}} (X : AlgebraicSpace S),
+    Reduction X.functorOfPoints)
 
-/-- On an algebraic space, `reduction` recovers `AlgebraicSpace.reduction`. -/
-theorem reduction_functorOfPoints (X : AlgebraicSpace S) :
-    reduction X.functorOfPoints = AlgebraicSpace.reduction X :=
-  rfl
+/- On an algebraic space, `reduction` recovers `AlgebraicSpace.reduction`. -/
+#check (AlgebraicGeometry.FormalAlgebraicSpace.reduction_functorOfPoints :
+  ∀ {S : Scheme.{u}} (X : AlgebraicSpace S),
+    reduction X.functorOfPoints = AlgebraicSpace.reduction X)
 
-/-- On an algebraic space, `reductionι` recovers `AlgebraicSpace.reductionι`. -/
-theorem reductionι_functorOfPoints (X : AlgebraicSpace S) :
-    reductionι X.functorOfPoints = AlgebraicSpace.reductionι X :=
-  rfl
+/- On an algebraic space, `reductionι` recovers `AlgebraicSpace.reductionι`. -/
+#check (AlgebraicGeometry.FormalAlgebraicSpace.reductionι_functorOfPoints :
+  ∀ {S : Scheme.{u}} (X : AlgebraicSpace S),
+    reductionι X.functorOfPoints = AlgebraicSpace.reductionι X)
 
-/-- Lemma 87.12.1: the reduction is reduced, the structure morphism is a
+/- Lemma 87.12.1: the reduction is reduced, the structure morphism is a
 representable thickening, and maps from reduced algebraic spaces factor
 uniquely through it. -/
-theorem reduction_spec (X : (Over S)ᵒᵖ ⥤ Type u) [IsFormalAlgebraicSpace X]
-    [R : Reduction X] :
+#check (AlgebraicGeometry.FormalAlgebraicSpace.reduction_spec :
+  ∀ {S : Scheme.{u}} (X : (Over S)ᵒᵖ ⥤ Type u) [IsFormalAlgebraicSpace X]
+    [R : Reduction X],
     AlgebraicSpace.hasEtaleLocal
         (IsReduced : ObjectProperty Scheme.{u}) (reduction X) ∧
       AlgebraicSpace.representableByAlgebraicSpaces (reductionι X) ∧
@@ -114,21 +96,13 @@ theorem reduction_spec (X : (Over S)ᵒᵖ ⥤ Type u) [IsFormalAlgebraicSpace X
               (IsReduced : ObjectProperty Scheme.{u}) U)
             (g : U.functorOfPoints ⟶ X),
             ∃! h : U.functorOfPoints ⟶ (reduction X).functorOfPoints,
-              h ≫ reductionι X = g :=
-  ⟨R.isReduced, R.representable, R.isThickening, fun {_} hU g ↦ R.liftUnique hU g⟩
+              h ≫ reductionι X = g)
 
-
-/-- The legacy reduction interface supplies explicit canonical reduction data. -/
-def Reduction.toReductionData {X : (Over S)ᵒᵖ ⥤ Type u}
-    [IsFormalAlgebraicSpace X] (R : Reduction X) : ReductionData X where
-  space := R.space
-  ι := R.ι
-  isReduced := R.isReduced
-  representable := R.representable
-  isThickening := fun {_} ξ ↦
-    ⟨(R.isThickening ξ).toIsClosedImmersion,
-      (R.isThickening ξ).toSurjective.map_surjective⟩
-  liftUnique := R.liftUnique
+/- The legacy reduction interface supplies explicit canonical reduction data. -/
+#check (AlgebraicGeometry.FormalAlgebraicSpace.Reduction.toReductionData :
+  ∀ {S : Scheme.{u}} {X : (Over S)ᵒᵖ ⥤ Type u}
+    [IsFormalAlgebraicSpace X] (R : Reduction X),
+    ReductionData X)
 
 /-- The pullback of a reduction along an étale morphism is an algebraic space. -/
 instance instIsAlgebraicSpace_pullback_reductionι

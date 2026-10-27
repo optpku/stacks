@@ -37,7 +37,7 @@ variable {D : J ⥤ Over B}
 apex of `c`. -/
 private theorem toOverApex_w (c : Cocone D) {i j : J} (hij : i ⟶ j) :
     (D.map hij).left ≫ (c.ι.app j).left = (c.ι.app i).left :=
-  sorry
+  congrArg (fun k : D.obj i ⟶ c.pt ↦ k.left) (c.w hij)
 
 /-- The diagram `i ↦ X_i` of a cocone `(X, X_i ⟶ X)`, viewed in the slice over
 the apex `X`. -/
@@ -50,14 +50,14 @@ def toOverApex (c : Cocone D) : J ⥤ Over c.pt.left :=
 /-- The object of `toOverApex c` at `i` is the cocone leg `X_i ⟶ X`. -/
 theorem toOverApex_obj (c : Cocone D) (i : J) :
     (toOverApex c).obj i = Over.mk (c.ι.app i).left :=
-  sorry
+  rfl
 
 /-- The objects of `toOverApex c` are the cocone legs, and the transition maps
 are the underlying morphisms of `D`. -/
 theorem toOverApex_spec (c : Cocone D) (i : J) {j : J} (hij : i ⟶ j) :
     (toOverApex c).obj i = Over.mk (c.ι.app i).left ∧
       ((toOverApex c).map hij).left = (D.map hij).left :=
-  sorry
+  ⟨rfl, rfl⟩
 
 /-- The diagram `i ↦ X_i ×_X U` in `Over B`, obtained by pulling back the
 cocone legs along `f : U ⟶ X` and postcomposing into `Over B`. -/
@@ -70,7 +70,7 @@ theorem baseChangeDiagram_obj (c : Cocone D) {U : AlgebraicSpace S}
     (f : U ⟶ c.pt.left) (i : J) :
     (baseChangeDiagram c f).obj i =
       Over.mk (overPullbackSnd f (Over.mk (c.ι.app i).left) ≫ f ≫ c.pt.hom) :=
-  sorry
+  rfl
 
 /-- The triangle witnessing that the second projection of `X_i ×_X U` is a
 morphism over `B` from the pulled-back object to `U`. -/
@@ -78,7 +78,7 @@ private theorem baseChangeLeg_w (c : Cocone D) {U : AlgebraicSpace S}
     (f : U ⟶ c.pt.left) (i : J) :
     overPullbackSnd f (Over.mk (c.ι.app i).left) ≫ (Over.mk (f ≫ c.pt.hom)).hom =
       ((baseChangeDiagram c f).obj i).hom :=
-  sorry
+  rfl
 
 /-- The cocone leg `X_i ×_X U ⟶ U` in `Over B`. -/
 def baseChangeLeg (c : Cocone D) {U : AlgebraicSpace S} (f : U ⟶ c.pt.left)
@@ -95,19 +95,25 @@ def baseChangeCocone (c : Cocone D) {U : AlgebraicSpace S}
   pt := Over.mk (f ≫ c.pt.hom)
   ι :=
     { app := fun i ↦ baseChangeLeg c f i
-      naturality := fun _ _ _ ↦ sorry }
+      naturality := by
+        intro i j hij
+        apply Over.OverMorphism.ext
+        change overPullbackMap f ((toOverApex c).map hij) ≫
+            overPullbackSnd f ((toOverApex c).obj j) =
+          overPullbackSnd f ((toOverApex c).obj i) ≫ 𝟙 U
+        simpa using overPullbackMap_snd f ((toOverApex c).map hij) }
 
 /-- The apex of `baseChangeCocone c f` is `U` over `B`. -/
 theorem baseChangeCocone_pt (c : Cocone D) {U : AlgebraicSpace S}
     (f : U ⟶ c.pt.left) :
     (baseChangeCocone c f).pt = Over.mk (f ≫ c.pt.hom) :=
-  sorry
+  rfl
 
 /-- The `i`-th leg of `baseChangeCocone c f` is `baseChangeLeg c f i`. -/
 theorem baseChangeCocone_ι (c : Cocone D) {U : AlgebraicSpace S}
     (f : U ⟶ c.pt.left) (i : J) :
     (baseChangeCocone c f).ι.app i = baseChangeLeg c f i :=
-  sorry
+  rfl
 
 /-- The canonical morphism `U_a ×_X U_b ⟶ X` of a family over `X`. -/
 def overlapHom {X : AlgebraicSpace S} {ι : Type w} (family : ι → Over X)
@@ -123,6 +129,6 @@ theorem overlapHom_spec {X : AlgebraicSpace S} {ι : Type w}
         overPullbackFst (family b).hom (family a) ≫ (family a).hom ∧
       overlapHom family a b =
         overPullbackSnd (family b).hom (family a) ≫ (family b).hom :=
-  sorry
+  ⟨rfl, (ReasLibPullback.isPullback (family a).hom (family b).hom).w⟩
 
 end AlgebraicGeometry.AlgebraicSpace

@@ -8,6 +8,7 @@ module
 
 public import Mathlib.Order.Filter.CountablyGenerated
 public import Mathlib.RingTheory.FiniteType
+public import Mathlib.RingTheory.Finiteness.Ideal
 public import Mathlib.RingTheory.Noetherian.Defs
 public import ReasLib.RingTheory.Topology.WeaklyAdmissible
 public import ReasLib.RingTheory.Topology.TopologicalNilradical.Quotient
@@ -29,7 +30,7 @@ adic Noetherian rings.
 
 noncomputable section
 
-open scoped Topology
+open scoped Topology TensorProduct
 
 universe u
 
@@ -54,7 +55,13 @@ theorem ofIdeals_def (I : Ideal A) (J : Ideal C) :
 
 /-- Finite generation is preserved by `ofIdeals`. -/
 theorem ofIdeals_fg (I : Ideal A) (J : Ideal C) (hI : I.FG) (hJ : J.FG) :
-    (ofIdeals B A C I J).FG := sorry
+    (ofIdeals B A C I J).FG := by
+  classical
+  obtain ⟨s, hs⟩ := hI.map (includeLeft B A C)
+  obtain ⟨t, ht⟩ := hJ.map (includeRight B A C)
+  refine ⟨s ∪ t, ?_⟩
+  rw [Finset.coe_union, Ideal.span_union, hs, ht]
+  exact Ideal.add_eq_sup.symm
 
 /-- If `I` and `J` are finitely generated ideals of definition of pre-adic
 rings `A` and `C`, then `ofIdeals I J` is an ideal of definition of
@@ -89,7 +96,48 @@ theorem isCountablyGenerated_nhds [IsTopologicalRing B] [IsLinearTopology B B]
     [IsTopologicalRing C] [IsLinearTopology C C]
     [(nhds (0 : A)).IsCountablyGenerated] [(nhds (0 : C)).IsCountablyGenerated]
     (hA : Continuous (algebraMap B A)) (hC : Continuous (algebraMap B C)) :
-    (nhds (0 : Completed B A C)).IsCountablyGenerated := sorry
+    (nhds (0 : Completed B A C)).IsCountablyGenerated := by
+  obtain ⟨I, hI, hIb⟩ :=
+    (IsLinearTopology.hasBasis_open_ideal (R := A)).exists_antitone_subbasis
+  obtain ⟨J, hJ, hJb⟩ :=
+    (IsLinearTopology.hasBasis_open_ideal (R := C)).exists_antitone_subbasis
+  have hnhds : nhds (0 : Completed B A C) =
+      ⨅ (I' : {I' : Ideal A // IsOpen (I' : Set A)})
+        (J' : {J' : Ideal C // IsOpen (J' : Set C)}),
+        Filter.principal {x : Completed B A C | π B A C I'.1 J'.1 I'.2 J'.2 x = 0} := by
+    change @nhds _ (TopologicalSpace.induced Subtype.val _) _ = _
+    simp only [nhds_induced, nhds_iInf, Filter.comap_iInf, Filter.comap_comap]
+    apply iInf_congr
+    intro I'
+    apply iInf_congr
+    intro J'
+    rw [@nhds_discrete ((A ⧸ I'.1) ⊗[B] (C ⧸ J'.1)) ⊥ (discreteTopology_bot _)]
+    rw [← Filter.principal_singleton, Filter.comap_principal]
+    rfl
+  have heq : nhds (0 : Completed B A C) =
+      ⨅ (n : ℕ) (m : ℕ),
+        Filter.principal {x : Completed B A C | π B A C (I n) (J m) (hI n) (hJ m) x = 0} := by
+    rw [hnhds]
+    apply le_antisymm
+    · show _ ≤ _
+      refine le_iInf fun n => le_iInf fun m => ?_
+      refine iInf_le_of_le (⟨I n, hI n⟩ : {I' : Ideal A // IsOpen (I' : Set A)}) ?_
+      exact iInf_le _ (⟨J m, hJ m⟩ : {J' : Ideal C // IsOpen (J' : Set C)})
+    · show _ ≤ _
+      refine le_iInf fun I' => le_iInf fun J' => ?_
+      obtain ⟨n, hn⟩ := hIb.mem_iff.mp (I'.2.mem_nhds I'.1.zero_mem)
+      obtain ⟨m, hm⟩ := hJb.mem_iff.mp (J'.2.mem_nhds J'.1.zero_mem)
+      refine iInf_le_of_le n (iInf_le_of_le m (Filter.principal_mono.mpr ?_))
+      intro x hx
+      change x.1 I' J' = 0
+      change x.1 ⟨I n, hI n⟩ ⟨J m, hJ m⟩ = 0 at hx
+      calc
+        x.1 I' J' = map (Ideal.Quotient.factorₐ B hn) (Ideal.Quotient.factorₐ B hm)
+            (x.1 ⟨I n, hI n⟩ ⟨J m, hJ m⟩) :=
+          (x.2 ⟨I n, hI n⟩ I' ⟨J m, hJ m⟩ J' hn hm).symm
+        _ = 0 := by rw [hx, map_zero]
+  rw [heq]
+  infer_instance
 
 /-- If `A` and `C` are pre-adic with finitely generated ideals of definition,
 then `Completed B A C` is adic. -/
@@ -110,7 +158,11 @@ theorem exists_fg_isIdealOfDefinition [IsTopologicalRing B] [IsLinearTopology B 
     (hAfg : ∃ I : Ideal A, I.FG ∧ TopologicalRing.Ideal.IsIdealOfDefinition I)
     (hCfg : ∃ J : Ideal C, J.FG ∧ TopologicalRing.Ideal.IsIdealOfDefinition J) :
     ∃ K : Ideal (Completed B A C),
-      K.FG ∧ TopologicalRing.Ideal.IsIdealOfDefinition K := sorry
+      K.FG ∧ TopologicalRing.Ideal.IsIdealOfDefinition K := by
+  obtain ⟨I, hIfg, hI⟩ := hAfg
+  obtain ⟨J, hJfg, hJ⟩ := hCfg
+  exact ⟨ofIdeals B A C I J, ofIdeals_fg I J hIfg hJfg,
+    isIdealOfDefinition_ofIdeals hA hC I J hIfg hJfg hI hJ⟩
 
 /-- If `A` and `C` are pre-adic with finitely generated ideals of definition,
 then `Completed B A C` is adic and has a finitely generated ideal of
@@ -123,7 +175,9 @@ theorem isAdicWithFGIdealOfDefinition [IsTopologicalRing B] [IsLinearTopology B 
     (hCfg : ∃ J : Ideal C, J.FG ∧ TopologicalRing.Ideal.IsIdealOfDefinition J) :
     TopologicalRing.IsAdicRing (Completed B A C) ∧
       ∃ K : Ideal (Completed B A C),
-        K.FG ∧ TopologicalRing.Ideal.IsIdealOfDefinition K := sorry
+        K.FG ∧ TopologicalRing.Ideal.IsIdealOfDefinition K := by
+  exact ⟨isAdicRing hA hC hAfg hCfg,
+    exists_fg_isIdealOfDefinition hA hC hAfg hCfg⟩
 
 /-- If `A` and `C` are pre-adic Noetherian and
 `B ⧸ topologicalNilradical B →+* A ⧸ topologicalNilradical A` is of finite
@@ -146,6 +200,14 @@ theorem isAdicNoetherianRing [IsTopologicalRing B] [IsLinearTopology B B]
     (hA : Continuous (algebraMap B A)) (hC : Continuous (algebraMap B C))
     (hfin : (topologicalNilradical.quotientMap (algebraMap B A) hA).FiniteType) :
     TopologicalRing.IsAdicRing (Completed B A C) ∧
-      IsNoetherianRing (Completed B A C) := sorry
+      IsNoetherianRing (Completed B A C) := by
+  have hfg (R : Type u) [CommRing R] [TopologicalSpace R]
+      [TopologicalRing.IsPreadicRing R] [IsNoetherianRing R] :
+      ∃ I : Ideal R, I.FG ∧ TopologicalRing.Ideal.IsIdealOfDefinition I := by
+    obtain ⟨I, hI⟩ := TopologicalRing.IsPreadicRing.exists_ideal_isAdic (R := R)
+    have hpow := isAdic_iff.mp hI
+    exact ⟨I, IsNoetherian.noetherian I,
+      by simpa only [pow_one] using hpow.1 1, hpow.2⟩
+  exact ⟨isAdicRing hA hC (hfg A) (hfg C), isNoetherianRing hA hC hfin⟩
 
 end Algebra.TensorProduct.Completed

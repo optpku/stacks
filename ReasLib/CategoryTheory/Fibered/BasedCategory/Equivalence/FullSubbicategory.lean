@@ -49,7 +49,7 @@ noncomputable def equivalenceOfQuasiInverse
 @[simp]
 theorem equivalenceOfQuasiInverse.hom
     (F : X ⟶ Y) (e : BasedFunctor.QuasiInverse F.hom) :
-    (equivalenceOfQuasiInverse F e).hom = F := sorry
+    (equivalenceOfQuasiInverse F e).hom = F := rfl
 
 /-- The inverse morphism of `equivalenceOfQuasiInverse` is the induced lift of the supplied
 based quasi-inverse. -/
@@ -57,7 +57,7 @@ based quasi-inverse. -/
 theorem equivalenceOfQuasiInverse.inv
     (F : X ⟶ Y) (e : BasedFunctor.QuasiInverse F.hom) :
     (equivalenceOfQuasiInverse F e).inv =
-      Bicategory.InducedBicategory.mkHom e.inverse := sorry
+      Bicategory.InducedBicategory.mkHom e.inverse := rfl
 
 /-- Interpret an owner morphism whose underlying based functor is an equivalence as an equivalence
 in the full subbicategory. -/
@@ -77,50 +77,62 @@ noncomputable def asEquivalenceOf
 @[simp]
 theorem asEquivalence.hom
     (F : X ⟶ Y) [BasedFunctor.IsEquivalence F.hom] :
-    (asEquivalence F).hom = F := sorry
+    (asEquivalence F).hom = F := rfl
 
 /-- The inverse morphism of `asEquivalence` is the induced lift of the canonical based inverse. -/
 @[simp]
 theorem asEquivalence.inv
     (F : X ⟶ Y) [BasedFunctor.IsEquivalence F.hom] :
     (asEquivalence F).inv =
-      Bicategory.InducedBicategory.mkHom F.hom.inv := sorry
+      Bicategory.InducedBicategory.mkHom F.hom.inv := rfl
 
 /-- The forward morphism of `asEquivalenceOf` is the supplied owner morphism. -/
 @[simp]
 theorem asEquivalenceOf.hom
     (F : X ⟶ Y) (h : BasedFunctor.IsEquivalence F.hom) :
-    (asEquivalenceOf F h).hom = F := sorry
+    (asEquivalenceOf F h).hom = F := rfl
 
 /-- An owner morphism whose underlying based functor is an equivalence occurs as the forward
 morphism of a bicategorical equivalence. -/
 theorem exists_equivalence_of_isEquivalence
     (F : X ⟶ Y) [BasedFunctor.IsEquivalence F.hom] :
-    ∃ e : X ≌ Y, e.hom = F := sorry
+    ∃ e : X ≌ Y, e.hom = F := by
+  exact ⟨Bicategory.Equivalence.mkOfAdjointifyCounit
+    (f := F) (g := Bicategory.InducedBicategory.mkHom F.hom.inv)
+    (Bicategory.InducedBicategory.isoMk F.hom.unitIso)
+    (Bicategory.InducedBicategory.isoMk F.hom.counitIso), rfl⟩
 
 /-- The underlying based functor of the forward morphism of a full-subbicategory equivalence is
 an equivalence over the base. -/
 theorem hom.isEquivalence
     (e : X ≌ Y) :
-    BasedFunctor.IsEquivalence e.hom.hom := sorry
+    BasedFunctor.IsEquivalence e.hom.hom :=
+  ⟨⟨{
+    inverse := e.inv.hom
+    unitIso := Bicategory.InducedBicategory.forget.map₂Iso e.unit
+    counitIso := Bicategory.InducedBicategory.forget.map₂Iso e.counit }⟩⟩
 
 /-- The underlying based functor of the inverse morphism of a full-subbicategory equivalence is
 an equivalence over the base. -/
 theorem inv.isEquivalence
     (e : X ≌ Y) :
-    BasedFunctor.IsEquivalence e.inv.hom := sorry
+    BasedFunctor.IsEquivalence e.inv.hom :=
+  ⟨⟨{
+    inverse := e.hom.hom
+    unitIso := (Bicategory.InducedBicategory.forget.map₂Iso e.counit).symm
+    counitIso := (Bicategory.InducedBicategory.forget.map₂Iso e.unit).symm }⟩⟩
 
 /-- Typeclass bridge from a full-subbicategory equivalence to its forward underlying based
 functor. -/
 instance homIsEquivalence
     (e : X ≌ Y) :
-    BasedFunctor.IsEquivalence e.hom.hom := sorry
+    BasedFunctor.IsEquivalence e.hom.hom := hom.isEquivalence e
 
 /-- Typeclass bridge from a full-subbicategory equivalence to its inverse underlying based
 functor. -/
 instance invIsEquivalence
     (e : X ≌ Y) :
-    BasedFunctor.IsEquivalence e.inv.hom := sorry
+    BasedFunctor.IsEquivalence e.inv.hom := inv.isEquivalence e
 
 end ObjectProperty.FullSubbicategory
 

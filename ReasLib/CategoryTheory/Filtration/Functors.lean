@@ -47,12 +47,12 @@ def functor (p : ℤ) : FilteredObject C ⥤ C where
 /-- Evaluation of the stage functor on objects. -/
 @[simp]
 theorem functor_obj (A : FilteredObject C) (p : ℤ) :
-    (functor p).obj A = A.filtration.stage p := sorry
+    (functor p).obj A = A.filtration.stage p := rfl
 
 /-- Evaluation of the stage functor on morphisms. -/
 @[simp]
 theorem functor_map {A B : FilteredObject C} (f : A ⟶ B) (p : ℤ) :
-    (functor p).map f = f.stageMap p := sorry
+    (functor p).map f = f.stageMap p := rfl
 
 /-- The canonical inclusion of the `p`-th stage into the underlying object, functorially. -/
 @[stacks 0121 "stage inclusion"]
@@ -68,7 +68,10 @@ namespace Comparison
 theorem naturality {A B : FilteredObject C} (f : A ⟶ B) {p q : ℤ}
     (hpq : p ≤ q) :
     A.filtration.inclusion hpq ≫ f.stageMap p =
-      f.stageMap q ≫ B.filtration.inclusion hpq := sorry
+      f.stageMap q ≫ B.filtration.inclusion hpq := by
+  apply (cancel_mono (B.filtration.stage p).arrow).1
+  simp only [Category.assoc, Hom.stageMap_arrow, IndexedFiltration.inclusion_arrow]
+  simp only [← Category.assoc, IndexedFiltration.inclusion_arrow]
 
 end Comparison
 
@@ -84,12 +87,18 @@ namespace Comparison
 /-- Successive stage comparisons compose to the direct comparison. -/
 theorem comp {p q r : ℤ} (hpq : p ≤ q) (hqr : q ≤ r) :
     (mapOfLE hqr : (functor r : FilteredObject C ⥤ C) ⟶ functor q) ≫
-      mapOfLE hpq = mapOfLE (hpq.trans hqr) := sorry
+      mapOfLE hpq = mapOfLE (hpq.trans hqr) := by
+  apply NatTrans.ext
+  funext A
+  exact A.filtration.inclusion_trans hpq hqr
 
 /-- The comparison `F^q A ⟶ F^p A` followed by inclusion into `A` is the inclusion `F^q A ⟶ A`. -/
 theorem comp_toForget {p q : ℤ} (hpq : p ≤ q) :
     (mapOfLE hpq : (functor q : FilteredObject C ⥤ C) ⟶ functor p) ≫
-      toForget p = toForget q := sorry
+      toForget p = toForget q := by
+  apply NatTrans.ext
+  funext A
+  exact A.filtration.inclusion_arrow hpq
 
 end Comparison
 
@@ -103,17 +112,14 @@ variable [HasZeroMorphisms C]
 
 /-- The induced map on a filtration stage preserves zero morphisms. -/
 theorem Hom.stageMap_zero (X Y : FilteredObject C) (p : ℤ) :
-    (0 : X ⟶ Y).stageMap p = 0 := sorry
+    (0 : X ⟶ Y).stageMap p = 0 := by
+  apply (cancel_mono (Y.filtration.stage p).arrow).1
+  simp only [Hom.stageMap_arrow, zero_hom, comp_zero, zero_comp]
 
 instance (p : ℤ) : ((Stage.functor p : FilteredObject C ⥤ C)).PreservesZeroMorphisms where
   map_zero X Y := Hom.stageMap_zero X Y p
 
 instance : ((FilteredObject.forget : FilteredObject C ⥤ C)).PreservesZeroMorphisms where
-  map_zero _ _ := rfl
-
-/-- Evaluation at a fixed degree preserves zero morphisms on graded objects. -/
-instance GradedObject.eval_preservesZeroMorphisms (p : ℤ) :
-    (GradedObject.eval p : GradedObject ℤ C ⥤ C).PreservesZeroMorphisms where
   map_zero _ _ := rfl
 
 end ZeroMorphisms
@@ -162,15 +168,21 @@ theorem quotientMap_comm (f : X ⟶ Y) (p : ℤ) :
 
 /-- The induced map on quotients preserves identities. -/
 theorem quotientMap_id (X : FilteredObject C) (p : ℤ) :
-    (𝟙 X : X ⟶ X).quotientMap p = 𝟙 (X.quotient p) := sorry
+    (𝟙 X : X ⟶ X).quotientMap p = 𝟙 (X.quotient p) := by
+  apply (cancel_epi (cokernel.π (X.filtration.stage p).arrow)).1
+  simp [quotientMap]
 
 /-- The induced map on quotients preserves composition. -/
 theorem quotientMap_comp (f : X ⟶ Y) (g : Y ⟶ Z) (p : ℤ) :
-    (f ≫ g).quotientMap p = f.quotientMap p ≫ g.quotientMap p := sorry
+    (f ≫ g).quotientMap p = f.quotientMap p ≫ g.quotientMap p := by
+  apply (cancel_epi (cokernel.π (X.filtration.stage p).arrow)).1
+  simp [quotientMap, Category.assoc]
 
 /-- The induced map on quotients preserves zero morphisms. -/
 theorem quotientMap_zero (X Y : FilteredObject C) (p : ℤ) :
-    (0 : X ⟶ Y).quotientMap p = 0 := sorry
+    (0 : X ⟶ Y).quotientMap p = 0 := by
+  apply (cancel_epi (cokernel.π (X.filtration.stage p).arrow)).1
+  simp [quotientMap]
 
 end Hom
 
@@ -185,12 +197,12 @@ def quotientFunctor (p : ℤ) : FilteredObject C ⥤ C where
 /-- Evaluation of the quotient functor on objects. -/
 @[simp]
 theorem quotientFunctor_obj (A : FilteredObject C) (p : ℤ) :
-    (quotientFunctor p).obj A = A.quotient p := sorry
+    (quotientFunctor p).obj A = A.quotient p := rfl
 
 /-- Evaluation of the quotient functor on morphisms. -/
 @[simp]
 theorem quotientFunctor_map {A B : FilteredObject C} (f : A ⟶ B) (p : ℤ) :
-    (quotientFunctor p).map f = f.quotientMap p := sorry
+    (quotientFunctor p).map f = f.quotientMap p := rfl
 
 instance (p : ℤ) : ((quotientFunctor p : FilteredObject C ⥤ C)).PreservesZeroMorphisms where
   map_zero X Y := Hom.quotientMap_zero X Y p
@@ -219,36 +231,52 @@ noncomputable def associatedGradedMap (f : X ⟶ Y) : X.associatedGraded ⟶ Y.a
 
 /-- The induced map on graded pieces preserves identities. -/
 theorem gradedPieceMap_id (X : FilteredObject C) (p : ℤ) :
-    (𝟙 X : X ⟶ X).gradedPieceMap p = 𝟙 (X.gradedPiece p) := sorry
+    (𝟙 X : X ⟶ X).gradedPieceMap p = 𝟙 (X.gradedPiece p) := by
+  apply (cancel_epi (cokernel.π (X.filtration.succInclusion p))).1
+  have h : (𝟙 X : X ⟶ X).stageMap p = 𝟙 (X.stage p) := Hom.stageMap_id X p
+  simp [gradedPieceMap, h]
 
 /-- The induced map on graded pieces preserves composition. -/
 theorem gradedPieceMap_comp (f : X ⟶ Y) (g : Y ⟶ Z) (p : ℤ) :
-    (f ≫ g).gradedPieceMap p = f.gradedPieceMap p ≫ g.gradedPieceMap p := sorry
+    (f ≫ g).gradedPieceMap p = f.gradedPieceMap p ≫ g.gradedPieceMap p := by
+  apply (cancel_epi (cokernel.π (X.filtration.succInclusion p))).1
+  have h : (f ≫ g).stageMap p = f.stageMap p ≫ g.stageMap p := Hom.stageMap_comp f g p
+  simp [gradedPieceMap, h, Category.assoc]
 
 /-- The induced map on graded pieces preserves zero morphisms. -/
 theorem gradedPieceMap_zero (X Y : FilteredObject C) (p : ℤ) :
-    (0 : X ⟶ Y).gradedPieceMap p = 0 := sorry
+    (0 : X ⟶ Y).gradedPieceMap p = 0 := by
+  apply (cancel_epi (cokernel.π (X.filtration.succInclusion p))).1
+  simp [gradedPieceMap, Hom.stageMap_zero]
 
 /-- A zero composite of filtered morphisms induces a zero composite on every graded piece. -/
 theorem gradedPieceMap_comp_zero (f : X ⟶ Y) (g : Y ⟶ Z) (hcomp : f ≫ g = 0) (p : ℤ) :
-    f.gradedPieceMap p ≫ g.gradedPieceMap p = 0 := sorry
+    f.gradedPieceMap p ≫ g.gradedPieceMap p = 0 := by
+  rw [← gradedPieceMap_comp, hcomp, gradedPieceMap_zero]
 
 /-- The induced map on associated graded objects preserves identities. -/
 theorem associatedGradedMap_id (X : FilteredObject C) :
-    (𝟙 X : X ⟶ X).associatedGradedMap = 𝟙 X.associatedGraded := sorry
+    (𝟙 X : X ⟶ X).associatedGradedMap = 𝟙 X.associatedGraded := by
+  funext p
+  exact gradedPieceMap_id X p
 
 /-- The induced map on associated graded objects preserves composition. -/
 theorem associatedGradedMap_comp (f : X ⟶ Y) (g : Y ⟶ Z) :
-    (f ≫ g).associatedGradedMap = f.associatedGradedMap ≫ g.associatedGradedMap := sorry
+    (f ≫ g).associatedGradedMap = f.associatedGradedMap ≫ g.associatedGradedMap := by
+  funext p
+  exact gradedPieceMap_comp f g p
 
 /-- Evaluating the associated-graded map of a composite gives the composite of the evaluated
 graded-piece maps. -/
 theorem associatedGradedMap_comp_apply (f : X ⟶ Y) (g : Y ⟶ Z) (p : ℤ) :
-    ((f ≫ g).associatedGradedMap) p = f.associatedGradedMap p ≫ g.associatedGradedMap p := sorry
+    ((f ≫ g).associatedGradedMap) p = f.associatedGradedMap p ≫ g.associatedGradedMap p :=
+  gradedPieceMap_comp f g p
 
 /-- The induced map on associated graded objects preserves zero morphisms. -/
 theorem associatedGradedMap_zero (X Y : FilteredObject C) :
-    (0 : X ⟶ Y).associatedGradedMap = 0 := sorry
+    (0 : X ⟶ Y).associatedGradedMap = 0 := by
+  funext p
+  exact gradedPieceMap_zero X Y p
 
 end Hom
 
@@ -263,12 +291,12 @@ noncomputable def associatedGradedFunctor : FilteredObject C ⥤ GradedObject �
 /-- Evaluation of the associated graded functor on objects. -/
 @[simp]
 theorem associatedGradedFunctor_obj (A : FilteredObject C) :
-    associatedGradedFunctor.obj A = A.associatedGraded := sorry
+    associatedGradedFunctor.obj A = A.associatedGraded := rfl
 
 /-- Evaluation of the associated graded functor on morphisms. -/
 @[simp]
 theorem associatedGradedFunctor_map {A B : FilteredObject C} (f : A ⟶ B) :
-    associatedGradedFunctor.map f = f.associatedGradedMap := sorry
+    associatedGradedFunctor.map f = f.associatedGradedMap := rfl
 
 instance :
     ((associatedGradedFunctor : FilteredObject C ⥤ GradedObject ℤ C)).PreservesZeroMorphisms where
@@ -286,7 +314,9 @@ private theorem Hom.gradedPieceMap_add {X Y : FilteredObject C} (f g : X ⟶ Y) 
 
 /-- The induced map on associated graded objects preserves addition. -/
 private theorem Hom.associatedGradedMap_add {X Y : FilteredObject C} (f g : X ⟶ Y) :
-    (f + g).associatedGradedMap = f.associatedGradedMap + g.associatedGradedMap := sorry
+    (f + g).associatedGradedMap = f.associatedGradedMap + g.associatedGradedMap := by
+  funext p
+  exact Hom.gradedPieceMap_add f g p
 
 instance :
     (associatedGradedFunctor : FilteredObject C ⥤ GradedObject ℤ C).Additive where

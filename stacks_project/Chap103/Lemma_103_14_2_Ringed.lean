@@ -6,232 +6,316 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import Mathlib.CategoryTheory.Limits.Preserves.Finite
-public import ReasLib.Algebra.Category.ModuleCat.Sheaf.ChangeOfRings
-public import ReasLib.AlgebraicGeometry.RingedSite.Module.LowerShriek
-public import ReasLib.AlgebraicGeometry.RingedSite.Topos.HomOfCocontinuous
-public import ReasLib.AlgebraicGeometry.RingedSite.Topos.Module
-public import stacks_project.Chap96.Lemma_96_12_4_EtaleModules
-public import stacks_project.Chap103.Lemma_103_14_2_Topos
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Sites.Precoverage
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Sites.Ringed
 
-/-!
-# Restricted structure sheaves and ringed morphisms of topoi
-
-Restriction of `𝒪_X` along the lisse-étale and flat-fppf inclusions yields the
-structure sheaves of the small sites. The resulting morphisms of ringed topoi
-have invertible structure maps, so geometric inverse image agrees with module
-pullback and is exact.
--/
+/-! Compatibility checks for Lemma 103.14.2. The explicit sheafification,
+sheaf-composition and Kan-extension premises stand for the Stacks bounded-site
+size convention. -/
 
 @[expose] public section
-
 open AlgebraicGeometry AlgebraicGeometry.GroupoidsOver CategoryTheory
 open CategoryTheory.Functor CategoryTheory.Limits
 open RingedSite.Cocontinuous
 open scoped MorphismOfTopoiIn
-
-noncomputable section
-
 universe u
-
 namespace AlgebraicGeometry.AlgebraicStack
-
 variable {S : Scheme.{u}}
 
-/-- The structure sheaf `𝒪_{X_lisse,étale}` is the restriction of the étale
-structure sheaf along the lisse-étale inclusion. -/
-abbrev lisseEtaleStructureSheaf (X : GroupoidsOver S) [AlgebraicStack X] :
-    Sheaf (lisseEtaleTopology X) RingCat.{u} :=
-  inverseImageRingSheaf (lisseEtaleInclusion X) (etaleStructureSheaf X)
+#check (AlgebraicGeometry.AlgebraicStack.lisseEtaleStructureSheaf :
+  ∀ (X : GroupoidsOver S) [AlgebraicStack X],
+    Sheaf (lisseEtaleTopology X) RingCat.{u})
 
-/-- `lisseEtaleStructureSheaf` is continuous pushforward of `etaleStructureSheaf`. -/
-theorem lisseEtaleStructureSheaf_eq (X : GroupoidsOver S) [AlgebraicStack X] :
+#check (AlgebraicGeometry.AlgebraicStack.lisseEtaleStructureSheaf_eq :
+  ∀ (X : GroupoidsOver S) [AlgebraicStack X],
     lisseEtaleStructureSheaf X =
       ((lisseEtaleInclusion X).sheafPushforwardContinuous RingCat.{u}
-        (lisseEtaleTopology X) X.etaleTopology).obj (etaleStructureSheaf X) :=
-  sorry
+        (lisseEtaleTopology X) X.etaleTopology).obj (etaleStructureSheaf X))
 
-/-- The lisse-étale site of `X`, ringed by the restricted structure sheaf. -/
-abbrev lisseEtaleRingedSite (X : GroupoidsOver S) [AlgebraicStack X] :
-    RingedSite.{u + 1, u, u} :=
-  RingedSite.ofRingSheaf (lisseEtaleTopology X) (lisseEtaleStructureSheaf X)
+#check (AlgebraicGeometry.AlgebraicStack.lisseEtaleRingedSite :
+  ∀ (X : GroupoidsOver S) [AlgebraicStack X],
+    RingedSite.{u + 1, u, u})
 
-/-- The structure sheaf of `lisseEtaleRingedSite X` is `lisseEtaleStructureSheaf X`. -/
-theorem lisseEtaleRingedSite_structureSheaf (X : GroupoidsOver S)
-    [AlgebraicStack X] :
-    (lisseEtaleRingedSite X).structureSheaf = lisseEtaleStructureSheaf X :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicStack.lisseEtaleRingedSite_structureSheaf :
+  ∀ (X : GroupoidsOver S)
+    [AlgebraicStack X],
+    (lisseEtaleRingedSite X).structureSheaf = lisseEtaleStructureSheaf X)
 
-/-- The identity/restriction map of étale structure sheaves as ring presheaves. -/
-def lisseEtaleStructurePresheafHom (X : GroupoidsOver S) [AlgebraicStack X] :
+#check (AlgebraicGeometry.AlgebraicStack.lisseEtaleStructurePresheafHom :
+  ∀ (X : GroupoidsOver S) [AlgebraicStack X],
     (lisseEtaleInclusion X).op ⋙ (etaleStructureSheaf X).obj ⟶
-      (lisseEtaleStructureSheaf X).obj :=
-  ((lisseEtaleInclusion X).sheafPushforwardContinuousCompSheafToPresheafIso
-      RingCat.{u} (lisseEtaleTopology X) X.etaleTopology).inv.app
-    (etaleStructureSheaf X)
+      (lisseEtaleStructureSheaf X).obj)
 
-/-- `lisseEtaleStructurePresheafHom` is the inverse of the continuous-pushforward
-comparison on `etaleStructureSheaf`. -/
-theorem lisseEtaleStructurePresheafHom_eq (X : GroupoidsOver S)
-    [AlgebraicStack X] :
+#check (AlgebraicGeometry.AlgebraicStack.lisseEtaleStructurePresheafHom_eq :
+  ∀ (X : GroupoidsOver S)
+    [AlgebraicStack X],
     lisseEtaleStructurePresheafHom X =
       ((lisseEtaleInclusion X).sheafPushforwardContinuousCompSheafToPresheafIso
           RingCat.{u} (lisseEtaleTopology X) X.etaleTopology).inv.app
-        (etaleStructureSheaf X) :=
-  sorry
+        (etaleStructureSheaf X))
 
-/-- The morphism of ringed topoi induced by the lisse-étale inclusion, with
-identity restriction map on structure sheaves. -/
-def lisseEtaleRingedToposHom (X : GroupoidsOver S) [AlgebraicStack X] :
-    RingedSite.ToposHom (lisseEtaleRingedSite X) (etaleRingedSite X) :=
-  @toRingedTopos.{u + 1, u, u + 1, u, u}
-    (lisseEtaleRingedSite X) (etaleRingedSite X) (lisseEtaleInclusion X)
-    inferInstance inferInstance inferInstance inferInstance inferInstance
-    (lisseEtaleStructurePresheafHom X)
+#check (AlgebraicGeometry.AlgebraicStack.lisseEtaleRingedToposHom :
+  ∀ (X : GroupoidsOver S) [AlgebraicStack X]
+    [HasSheafify (lisseEtaleTopology X) (Type u)]
+    [∀ P : (lisseEtaleSite X)ᵒᵖ ⥤ Type u,
+      (lisseEtaleInclusion X).op.HasPointwiseRightKanExtension P]
+    [(lisseEtaleTopology X).HasSheafCompose (forget RingCat.{u})]
+    [X.etaleTopology.HasSheafCompose (forget RingCat.{u})],
+    RingedSite.ToposHom (lisseEtaleRingedSite X) (etaleRingedSite X))
 
-/-- The underlying morphism of topoi of `lisseEtaleRingedToposHom` is
-`lisseEtaleToposHom`. -/
-theorem lisseEtaleRingedToposHom_toTopos (X : GroupoidsOver S)
-    [AlgebraicStack X] :
-    (lisseEtaleRingedToposHom X).toTopos = lisseEtaleToposHom X :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicStack.lisseEtaleRingedToposHom_toTopos :
+  ∀ (X : GroupoidsOver S)
+    [AlgebraicStack X]
+    [HasSheafify (lisseEtaleTopology X) (Type u)]
+    [∀ P : (lisseEtaleSite X)ᵒᵖ ⥤ Type u,
+      (lisseEtaleInclusion X).op.HasPointwiseRightKanExtension P]
+    [(lisseEtaleTopology X).HasSheafCompose (forget RingCat.{u})]
+    [X.etaleTopology.HasSheafCompose (forget RingCat.{u})],
+    (lisseEtaleRingedToposHom X).toTopos = lisseEtaleToposHom X)
 
-/-- The inverse-image structure map of the lisse-étale ringed morphism is an
-isomorphism. -/
-instance lisseEtaleRingedToposHom.structureMap_isIso
-    (X : GroupoidsOver S) [AlgebraicStack X] :
-    IsIso (lisseEtaleRingedToposHom X).structureMap :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicStack.lisseEtaleStructureSheafIsoInv :
+  ∀ (X : GroupoidsOver S) [AlgebraicStack X]
+    [HasSheafify (lisseEtaleTopology X) (Type u)]
+    [∀ P : (lisseEtaleSite X)ᵒᵖ ⥤ Type u,
+      (lisseEtaleInclusion X).op.HasPointwiseRightKanExtension P]
+    [(lisseEtaleTopology X).HasSheafCompose (forget RingCat.{u})]
+    [X.etaleTopology.HasSheafCompose (forget RingCat.{u})]
+    [HasSheafify X.etaleTopology (Type u)],
+    lisseEtaleStructureSheaf X ⟶ (lisseEtaleToposHom X).ringInverseImage.obj (etaleStructureSheaf X))
 
-/-- Restriction of scalars along the lisse-étale structure map is a right
-adjoint. -/
-instance lisseEtaleRingedToposHom.restrictScalars_isRightAdjoint
-    (X : GroupoidsOver S) [AlgebraicStack X] :
-    (SheafOfModules.restrictScalars.{u}
-      (lisseEtaleRingedToposHom X).structureMap).IsRightAdjoint :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicStack.lisseEtaleStructureSheafIso :
+  ∀ (X : GroupoidsOver S) [AlgebraicStack X]
+    [HasSheafify (lisseEtaleTopology X) (Type u)]
+    [∀ P : (lisseEtaleSite X)ᵒᵖ ⥤ Type u,
+      (lisseEtaleInclusion X).op.HasPointwiseRightKanExtension P]
+    [(lisseEtaleTopology X).HasSheafCompose (forget RingCat.{u})]
+    [X.etaleTopology.HasSheafCompose (forget RingCat.{u})]
+    [HasSheafify X.etaleTopology (Type u)],
+    (lisseEtaleToposHom X).ringInverseImage.obj (etaleStructureSheaf X) ≅ lisseEtaleStructureSheaf X)
 
-/-- Module pullback along the lisse-étale ringed morphism factors as geometric
-inverse image followed by extension of scalars. -/
-theorem lisseEtaleRingedToposHom_modulePullback_eq
-    (X : GroupoidsOver S) [AlgebraicStack X] :
-    (lisseEtaleRingedToposHom X).modulePullback =
-      (lisseEtaleRingedToposHom X).toTopos.moduleInverseImage
-          (etaleRingedSite X).structureSheaf ⋙
-        SheafOfModules.ChangeOfRings.extendScalars
-          (lisseEtaleRingedToposHom X).structureMap :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicStack.lisseEtaleRingedToposHom.structureMap_isIso :
+  ∀ (X : GroupoidsOver S) [AlgebraicStack X]
+    [HasSheafify (lisseEtaleTopology X) (Type u)]
+    [∀ P : (lisseEtaleSite X)ᵒᵖ ⥤ Type u,
+      (lisseEtaleInclusion X).op.HasPointwiseRightKanExtension P]
+    [(lisseEtaleTopology X).HasSheafCompose (forget RingCat.{u})]
+    [X.etaleTopology.HasSheafCompose (forget RingCat.{u})]
+    [HasSheafify X.etaleTopology (Type u)],
+    IsIso (lisseEtaleRingedToposHom X).structureMap)
 
-/-- Module pullback along the lisse-étale ringed morphism preserves finite
-limits. -/
-instance lisseEtaleRingedToposHom.modulePullback_preservesFiniteLimits
-    (X : GroupoidsOver S) [AlgebraicStack X] :
-    PreservesFiniteLimits (lisseEtaleRingedToposHom X).modulePullback :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicStack.lisseEtaleRingedToposHom.restrictScalars_isRightAdjoint :
+  ∀ (X : GroupoidsOver S) [AlgebraicStack X]
+    [HasSheafify (lisseEtaleTopology X) (Type u)]
+    [∀ P : (lisseEtaleSite X)ᵒᵖ ⥤ Type u,
+      (lisseEtaleInclusion X).op.HasPointwiseRightKanExtension P]
+    [(lisseEtaleTopology X).HasSheafCompose (forget RingCat.{u})]
+    [X.etaleTopology.HasSheafCompose (forget RingCat.{u})]
+    [HasSheafify X.etaleTopology (Type u)],
+    (SheafOfModules.restrictScalars.{u} (lisseEtaleRingedToposHom X).structureMap).IsRightAdjoint)
 
-/-- Module pullback along the lisse-étale ringed morphism preserves finite
-colimits. -/
-instance lisseEtaleRingedToposHom.modulePullback_preservesFiniteColimits
-    (X : GroupoidsOver S) [AlgebraicStack X] :
-    PreservesFiniteColimits (lisseEtaleRingedToposHom X).modulePullback :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicStack.lisseEtaleModulePullback :
+  ∀ (X : GroupoidsOver S) [AlgebraicStack X]
+    [HasSheafify (lisseEtaleTopology X) (Type u)]
+    [∀ P : (lisseEtaleSite X)ᵒᵖ ⥤ Type u,
+      (lisseEtaleInclusion X).op.HasPointwiseRightKanExtension P]
+    [(lisseEtaleTopology X).HasSheafCompose (forget RingCat.{u})]
+    [X.etaleTopology.HasSheafCompose (forget RingCat.{u})]
+    [HasSheafify X.etaleTopology (Type u)],
+    SheafOfModules.{u} (etaleRingedSite X).structureSheaf ⥤
+      SheafOfModules.{u} (lisseEtaleStructureSheaf X))
 
-/-- The structure sheaf `𝒪_{X_flat,fppf}` is the restriction of `𝒪_X` along the
-flat-fppf inclusion. -/
-abbrev flatFppfStructureSheaf (X : GroupoidsOver S) [AlgebraicStack X] :
-    Sheaf (flatFppfTopology X) RingCat.{u} :=
-  inverseImageRingSheaf (flatFppfInclusion X) (structureSheaf X)
+#check (AlgebraicGeometry.AlgebraicStack.lisseEtaleRingedToposHom_modulePullback_eq :
+  ∀ (X : GroupoidsOver S) [AlgebraicStack X]
+    [HasSheafify (lisseEtaleTopology X) (Type u)]
+    [∀ P : (lisseEtaleSite X)ᵒᵖ ⥤ Type u,
+      (lisseEtaleInclusion X).op.HasPointwiseRightKanExtension P]
+    [(lisseEtaleTopology X).HasSheafCompose (forget RingCat.{u})]
+    [X.etaleTopology.HasSheafCompose (forget RingCat.{u})]
+    [HasSheafify X.etaleTopology (Type u)],
+    lisseEtaleModulePullback X =
+      (lisseEtaleToposHom X).moduleInverseImage (etaleStructureSheaf X) ⋙
+        @SheafOfModules.ChangeOfRings.extendScalars _ _ _ _ _
+          (lisseEtaleRingedToposHom X).structureMap
+          (lisseEtaleRingedToposHom.restrictScalars_isRightAdjoint X))
 
-/-- `flatFppfStructureSheaf` is continuous pushforward of `structureSheaf`. -/
-theorem flatFppfStructureSheaf_eq (X : GroupoidsOver S) [AlgebraicStack X] :
+#check (AlgebraicGeometry.AlgebraicStack.lisseEtaleModulePullbackRestrictionIso :
+  ∀ (X : GroupoidsOver S) [AlgebraicStack X]
+    [HasSheafify (lisseEtaleTopology X) (Type u)]
+    [∀ P : (lisseEtaleSite X)ᵒᵖ ⥤ Type u,
+      (lisseEtaleInclusion X).op.HasPointwiseRightKanExtension P]
+    [(lisseEtaleTopology X).HasSheafCompose (forget RingCat.{u})]
+    [X.etaleTopology.HasSheafCompose (forget RingCat.{u})]
+    [HasSheafify X.etaleTopology (Type u)],
+    lisseEtaleModulePullback X ≅
+      (lisseEtaleToposHom X).moduleInverseImage (etaleStructureSheaf X) ⋙
+        SheafOfModules.restrictScalars.{u} (lisseEtaleStructureSheafIso X).inv)
+
+#check (AlgebraicGeometry.AlgebraicStack.lisseEtaleRingedToposHom.modulePullback_preservesFiniteLimits :
+  ∀ (X : GroupoidsOver S) [AlgebraicStack X]
+    [HasSheafify (lisseEtaleTopology X) (Type u)]
+    [∀ P : (lisseEtaleSite X)ᵒᵖ ⥤ Type u,
+      (lisseEtaleInclusion X).op.HasPointwiseRightKanExtension P]
+    [(lisseEtaleTopology X).HasSheafCompose (forget RingCat.{u})]
+    [X.etaleTopology.HasSheafCompose (forget RingCat.{u})]
+    [HasSheafify X.etaleTopology (Type u)],
+    PreservesFiniteLimits (lisseEtaleModulePullback X))
+
+#check (AlgebraicGeometry.AlgebraicStack.lisseEtaleRingedToposHom.modulePullback_preservesFiniteColimits :
+  ∀ (X : GroupoidsOver S) [AlgebraicStack X]
+    [HasSheafify (lisseEtaleTopology X) (Type u)]
+    [∀ P : (lisseEtaleSite X)ᵒᵖ ⥤ Type u,
+      (lisseEtaleInclusion X).op.HasPointwiseRightKanExtension P]
+    [(lisseEtaleTopology X).HasSheafCompose (forget RingCat.{u})]
+    [X.etaleTopology.HasSheafCompose (forget RingCat.{u})]
+    [HasSheafify X.etaleTopology (Type u)],
+    PreservesFiniteColimits (lisseEtaleModulePullback X))
+
+#check (AlgebraicGeometry.AlgebraicStack.flatFppfStructureSheaf :
+  ∀ (X : GroupoidsOver S) [AlgebraicStack X],
+    Sheaf (flatFppfTopology X) RingCat.{u})
+
+#check (AlgebraicGeometry.AlgebraicStack.flatFppfStructureSheaf_eq :
+  ∀ (X : GroupoidsOver S) [AlgebraicStack X],
     flatFppfStructureSheaf X =
       ((flatFppfInclusion X).sheafPushforwardContinuous RingCat.{u}
-        (flatFppfTopology X) (inheritedFppfTopology X)).obj (structureSheaf X) :=
-  sorry
+        (flatFppfTopology X) (inheritedFppfTopology X)).obj (structureSheaf X))
 
-/-- The flat-fppf site of `X`, ringed by the restricted structure sheaf. -/
-abbrev flatFppfRingedSite (X : GroupoidsOver S) [AlgebraicStack X] :
-    RingedSite.{u + 1, u, u} :=
-  RingedSite.ofRingSheaf (flatFppfTopology X) (flatFppfStructureSheaf X)
+#check (AlgebraicGeometry.AlgebraicStack.flatFppfRingedSite :
+  ∀ (X : GroupoidsOver S) [AlgebraicStack X],
+    RingedSite.{u + 1, u, u})
 
-/-- The structure sheaf of `flatFppfRingedSite X` is `flatFppfStructureSheaf X`. -/
-theorem flatFppfRingedSite_structureSheaf (X : GroupoidsOver S)
-    [AlgebraicStack X] :
-    (flatFppfRingedSite X).structureSheaf = flatFppfStructureSheaf X :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicStack.flatFppfRingedSite_structureSheaf :
+  ∀ (X : GroupoidsOver S)
+    [AlgebraicStack X],
+    (flatFppfRingedSite X).structureSheaf = flatFppfStructureSheaf X)
 
-/-- The identity/restriction map of fppf structure sheaves as ring presheaves. -/
-def flatFppfStructurePresheafHom (X : GroupoidsOver S) [AlgebraicStack X] :
+#check (AlgebraicGeometry.AlgebraicStack.flatFppfStructurePresheafHom :
+  ∀ (X : GroupoidsOver S) [AlgebraicStack X],
     (flatFppfInclusion X).op ⋙ (structureSheaf X).obj ⟶
-      (flatFppfStructureSheaf X).obj :=
-  ((flatFppfInclusion X).sheafPushforwardContinuousCompSheafToPresheafIso
-      RingCat.{u} (flatFppfTopology X) (inheritedFppfTopology X)).inv.app
-    (structureSheaf X)
+      (flatFppfStructureSheaf X).obj)
 
-/-- `flatFppfStructurePresheafHom` is the inverse of the continuous-pushforward
-comparison on `structureSheaf`. -/
-theorem flatFppfStructurePresheafHom_eq (X : GroupoidsOver S)
-    [AlgebraicStack X] :
+#check (AlgebraicGeometry.AlgebraicStack.flatFppfStructurePresheafHom_eq :
+  ∀ (X : GroupoidsOver S)
+    [AlgebraicStack X],
     flatFppfStructurePresheafHom X =
       ((flatFppfInclusion X).sheafPushforwardContinuousCompSheafToPresheafIso
           RingCat.{u} (flatFppfTopology X) (inheritedFppfTopology X)).inv.app
-        (structureSheaf X) :=
-  sorry
+        (structureSheaf X))
 
-/-- The morphism of ringed topoi induced by the flat-fppf inclusion, with
-identity restriction map on structure sheaves. -/
-def flatFppfRingedToposHom (X : GroupoidsOver S) [AlgebraicStack X] :
-    RingedSite.ToposHom (flatFppfRingedSite X) (ringedSite X) :=
-  @toRingedTopos.{u + 1, u, u + 1, u, u}
-    (flatFppfRingedSite X) (ringedSite X) (flatFppfInclusion X)
-    inferInstance inferInstance inferInstance inferInstance inferInstance
-    (flatFppfStructurePresheafHom X)
+#check (AlgebraicGeometry.AlgebraicStack.flatFppfRingedToposHom :
+  ∀ (X : GroupoidsOver S) [AlgebraicStack X]
+    [HasSheafify (flatFppfTopology X) (Type u)]
+    [∀ P : (flatFppfSite X)ᵒᵖ ⥤ Type u,
+      (flatFppfInclusion X).op.HasPointwiseRightKanExtension P]
+    [(flatFppfTopology X).HasSheafCompose (forget RingCat.{u})]
+    [(inheritedFppfTopology X).HasSheafCompose (forget RingCat.{u})],
+    RingedSite.ToposHom (flatFppfRingedSite X) (ringedSite X))
 
-/-- The underlying morphism of topoi of `flatFppfRingedToposHom` is
-`flatFppfToposHom`. -/
-theorem flatFppfRingedToposHom_toTopos (X : GroupoidsOver S)
-    [AlgebraicStack X] :
-    (flatFppfRingedToposHom X).toTopos = flatFppfToposHom X :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicStack.flatFppfRingedToposHom_toTopos :
+  ∀ (X : GroupoidsOver S)
+    [AlgebraicStack X]
+    [HasSheafify (flatFppfTopology X) (Type u)]
+    [∀ P : (flatFppfSite X)ᵒᵖ ⥤ Type u,
+      (flatFppfInclusion X).op.HasPointwiseRightKanExtension P]
+    [(flatFppfTopology X).HasSheafCompose (forget RingCat.{u})]
+    [(inheritedFppfTopology X).HasSheafCompose (forget RingCat.{u})],
+    (flatFppfRingedToposHom X).toTopos = flatFppfToposHom X)
 
-/-- The inverse-image structure map of the flat-fppf ringed morphism is an
-isomorphism. -/
-instance flatFppfRingedToposHom.structureMap_isIso
-    (X : GroupoidsOver S) [AlgebraicStack X] :
-    IsIso (flatFppfRingedToposHom X).structureMap :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicStack.flatFppfStructureSheafIsoInv :
+  ∀ (X : GroupoidsOver S) [AlgebraicStack X]
+    [HasSheafify (flatFppfTopology X) (Type u)]
+    [∀ P : (flatFppfSite X)ᵒᵖ ⥤ Type u,
+      (flatFppfInclusion X).op.HasPointwiseRightKanExtension P]
+    [(flatFppfTopology X).HasSheafCompose (forget RingCat.{u})]
+    [(inheritedFppfTopology X).HasSheafCompose (forget RingCat.{u})]
+    [HasSheafify (inheritedFppfTopology X) (Type u)],
+    flatFppfStructureSheaf X ⟶ (flatFppfToposHom X).ringInverseImage.obj (structureSheaf X))
 
-/-- Restriction of scalars along the flat-fppf structure map is a right
-adjoint. -/
-instance flatFppfRingedToposHom.restrictScalars_isRightAdjoint
-    (X : GroupoidsOver S) [AlgebraicStack X] :
-    (SheafOfModules.restrictScalars.{u}
-      (flatFppfRingedToposHom X).structureMap).IsRightAdjoint :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicStack.flatFppfStructureSheafIso :
+  ∀ (X : GroupoidsOver S) [AlgebraicStack X]
+    [HasSheafify (flatFppfTopology X) (Type u)]
+    [∀ P : (flatFppfSite X)ᵒᵖ ⥤ Type u,
+      (flatFppfInclusion X).op.HasPointwiseRightKanExtension P]
+    [(flatFppfTopology X).HasSheafCompose (forget RingCat.{u})]
+    [(inheritedFppfTopology X).HasSheafCompose (forget RingCat.{u})]
+    [HasSheafify (inheritedFppfTopology X) (Type u)],
+    (flatFppfToposHom X).ringInverseImage.obj (structureSheaf X) ≅ flatFppfStructureSheaf X)
 
-/-- Module pullback along the flat-fppf ringed morphism factors as geometric
-inverse image followed by extension of scalars. -/
-theorem flatFppfRingedToposHom_modulePullback_eq
-    (X : GroupoidsOver S) [AlgebraicStack X] :
-    (flatFppfRingedToposHom X).modulePullback =
-      (flatFppfRingedToposHom X).toTopos.moduleInverseImage
-          (ringedSite X).structureSheaf ⋙
-        SheafOfModules.ChangeOfRings.extendScalars
-          (flatFppfRingedToposHom X).structureMap :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicStack.flatFppfRingedToposHom.structureMap_isIso :
+  ∀ (X : GroupoidsOver S) [AlgebraicStack X]
+    [HasSheafify (flatFppfTopology X) (Type u)]
+    [∀ P : (flatFppfSite X)ᵒᵖ ⥤ Type u,
+      (flatFppfInclusion X).op.HasPointwiseRightKanExtension P]
+    [(flatFppfTopology X).HasSheafCompose (forget RingCat.{u})]
+    [(inheritedFppfTopology X).HasSheafCompose (forget RingCat.{u})]
+    [HasSheafify (inheritedFppfTopology X) (Type u)],
+    IsIso (flatFppfRingedToposHom X).structureMap)
 
-/-- Module pullback along the flat-fppf ringed morphism preserves finite
-limits. -/
-instance flatFppfRingedToposHom.modulePullback_preservesFiniteLimits
-    (X : GroupoidsOver S) [AlgebraicStack X] :
-    PreservesFiniteLimits (flatFppfRingedToposHom X).modulePullback :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicStack.flatFppfRingedToposHom.restrictScalars_isRightAdjoint :
+  ∀ (X : GroupoidsOver S) [AlgebraicStack X]
+    [HasSheafify (flatFppfTopology X) (Type u)]
+    [∀ P : (flatFppfSite X)ᵒᵖ ⥤ Type u,
+      (flatFppfInclusion X).op.HasPointwiseRightKanExtension P]
+    [(flatFppfTopology X).HasSheafCompose (forget RingCat.{u})]
+    [(inheritedFppfTopology X).HasSheafCompose (forget RingCat.{u})]
+    [HasSheafify (inheritedFppfTopology X) (Type u)],
+    (SheafOfModules.restrictScalars.{u} (flatFppfRingedToposHom X).structureMap).IsRightAdjoint)
 
-/-- Module pullback along the flat-fppf ringed morphism preserves finite
-colimits. -/
-instance flatFppfRingedToposHom.modulePullback_preservesFiniteColimits
-    (X : GroupoidsOver S) [AlgebraicStack X] :
-    PreservesFiniteColimits (flatFppfRingedToposHom X).modulePullback :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicStack.flatFppfModulePullback :
+  ∀ (X : GroupoidsOver S) [AlgebraicStack X]
+    [HasSheafify (flatFppfTopology X) (Type u)]
+    [∀ P : (flatFppfSite X)ᵒᵖ ⥤ Type u,
+      (flatFppfInclusion X).op.HasPointwiseRightKanExtension P]
+    [(flatFppfTopology X).HasSheafCompose (forget RingCat.{u})]
+    [(inheritedFppfTopology X).HasSheafCompose (forget RingCat.{u})]
+    [HasSheafify (inheritedFppfTopology X) (Type u)],
+    SheafOfModules.{u} (ringedSite X).structureSheaf ⥤
+      SheafOfModules.{u} (flatFppfStructureSheaf X))
+
+#check (AlgebraicGeometry.AlgebraicStack.flatFppfRingedToposHom_modulePullback_eq :
+  ∀ (X : GroupoidsOver S) [AlgebraicStack X]
+    [HasSheafify (flatFppfTopology X) (Type u)]
+    [∀ P : (flatFppfSite X)ᵒᵖ ⥤ Type u,
+      (flatFppfInclusion X).op.HasPointwiseRightKanExtension P]
+    [(flatFppfTopology X).HasSheafCompose (forget RingCat.{u})]
+    [(inheritedFppfTopology X).HasSheafCompose (forget RingCat.{u})]
+    [HasSheafify (inheritedFppfTopology X) (Type u)],
+    flatFppfModulePullback X =
+      (flatFppfToposHom X).moduleInverseImage (structureSheaf X) ⋙
+        @SheafOfModules.ChangeOfRings.extendScalars _ _ _ _ _
+          (flatFppfRingedToposHom X).structureMap
+          (flatFppfRingedToposHom.restrictScalars_isRightAdjoint X))
+
+#check (AlgebraicGeometry.AlgebraicStack.flatFppfModulePullbackRestrictionIso :
+  ∀ (X : GroupoidsOver S) [AlgebraicStack X]
+    [HasSheafify (flatFppfTopology X) (Type u)]
+    [∀ P : (flatFppfSite X)ᵒᵖ ⥤ Type u,
+      (flatFppfInclusion X).op.HasPointwiseRightKanExtension P]
+    [(flatFppfTopology X).HasSheafCompose (forget RingCat.{u})]
+    [(inheritedFppfTopology X).HasSheafCompose (forget RingCat.{u})]
+    [HasSheafify (inheritedFppfTopology X) (Type u)],
+    flatFppfModulePullback X ≅
+      (flatFppfToposHom X).moduleInverseImage (structureSheaf X) ⋙
+        SheafOfModules.restrictScalars.{u} (flatFppfStructureSheafIso X).inv)
+
+#check (AlgebraicGeometry.AlgebraicStack.flatFppfRingedToposHom.modulePullback_preservesFiniteLimits :
+  ∀ (X : GroupoidsOver S) [AlgebraicStack X]
+    [HasSheafify (flatFppfTopology X) (Type u)]
+    [∀ P : (flatFppfSite X)ᵒᵖ ⥤ Type u,
+      (flatFppfInclusion X).op.HasPointwiseRightKanExtension P]
+    [(flatFppfTopology X).HasSheafCompose (forget RingCat.{u})]
+    [(inheritedFppfTopology X).HasSheafCompose (forget RingCat.{u})]
+    [HasSheafify (inheritedFppfTopology X) (Type u)],
+    PreservesFiniteLimits (flatFppfModulePullback X))
+
+#check (AlgebraicGeometry.AlgebraicStack.flatFppfRingedToposHom.modulePullback_preservesFiniteColimits :
+  ∀ (X : GroupoidsOver S) [AlgebraicStack X]
+    [HasSheafify (flatFppfTopology X) (Type u)]
+    [∀ P : (flatFppfSite X)ᵒᵖ ⥤ Type u,
+      (flatFppfInclusion X).op.HasPointwiseRightKanExtension P]
+    [(flatFppfTopology X).HasSheafCompose (forget RingCat.{u})]
+    [(inheritedFppfTopology X).HasSheafCompose (forget RingCat.{u})]
+    [HasSheafify (inheritedFppfTopology X) (Type u)],
+    PreservesFiniteColimits (flatFppfModulePullback X))
 
 end AlgebraicGeometry.AlgebraicStack

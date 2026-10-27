@@ -29,6 +29,6 @@ variable (X : Scheme.{u}) [IsLocallyNoetherian X] [IsIntegral X]
 
 /- Definition 31.26.7: the Weil divisor class group of `X` is the quotient of the group of
 Weil divisors by its subgroup of principal Weil divisors. -/
-@[stacks 0BE4] #check (AlgebraicGeometry.WeilDivisorClassGroup X : Type (u + 1))
+@[stacks 0BE4] #check (AlgebraicGeometry.WeilDivisorClassGroup X : Type u)
 
 end

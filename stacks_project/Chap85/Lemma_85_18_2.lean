@@ -6,8 +6,9 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import Mathlib.Tactic.CrossRefAttribute
-public import stacks_project.Chap85.Lemma_85_18_2_Adjunction
+public import ReasLib.AlgebraicGeometry.RingedSite.Localization.Simplicial.DerivedModuleDescent
+public import ReasLib.AlgebraicGeometry.RingedSite.Localization.Simplicial.DerivedGlobalSections
+import StacksCheckRecall
 
 /-!
 # Lemma 85.18.2
@@ -44,22 +45,14 @@ variable [∀ P : (Grothendieck (overSiteDiagram K.simplicial))ᵒᵖ ⥤ Type w
 variable [(overSiteTotalTopology X.siteTopology K.simplicial).HasSheafCompose
     (CategoryTheory.forget RingCat.{w})]
 variable [X.siteTopology.HasSheafCompose (CategoryTheory.forget RingCat.{w})]
-variable [(SheafOfModules.restrictScalars.{w}
-    (toAmbient K.simplicial).structureMap).IsRightAdjoint]
-variable [ToposHom.HasModulePullbackDerived (toAmbient K.simplicial)]
-variable [ToposHom.HasModulePushforwardDerived (toAmbient K.simplicial)]
-variable [HasModuleDerivedAdjunction K]
 
-/-- Lemma 85.18.2: Let `C` be a site with equalizers and fibre products. Let `O_C`
-be a sheaf of rings. Let `K` be a hypercovering. For `E ∈ D(O_C)` the map
-`E ⟶ Ra_* La^* E` is an isomorphism. -/
-@[stacks 0DA0]
-theorem derivedUnit_app_isIso (E : Hom.ModuleDerived.{w} X) :
-    IsIso ((derivedUnit K).app E) :=
-  sorry
+/- Lemma 85.18.2: For every object of the unbounded derived category of module
+sheaves, the canonical map E ⟶ Ra_* La^* E is an isomorphism. -/
+@[stacks 0DA0] #check (RingedSite.Localization.AtSimplicialSR.derivedUnit_app_isIso K :
+  ∀ E : Hom.ModuleDerived.{w} X,
+    IsIso ((RingedSite.Localization.AtSimplicialSR.derivedUnit K).app E))
 
-/-- The derived unit `𝟭 ⟶ La^* ⋙ Ra_*` is an isomorphism of functors on `D(O_C)`. -/
-theorem derivedUnit_isIso : IsIso (derivedUnit K) :=
-  sorry
+#check (RingedSite.Localization.AtSimplicialSR.derivedUnit_isIso K :
+  IsIso (RingedSite.Localization.AtSimplicialSR.derivedUnit K))
 
 end RingedSite.Localization.AtSimplicialSR

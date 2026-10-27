@@ -32,12 +32,14 @@ differentials, and uniformly bounded component subobject cardinals is small and 
 @[stacks 079K "termwise construction"]
 theorem ofTermwise (S : HomologicalComplex.TermwiseSubcomplex M)
     (kappa : Cardinal.{z}) (n : ℤ)
-    (hzero : ∀ i : ℤ, n < i → IsZero (S.X i))
+    (hzero : ∀ i : ℤ, n < i → IsZero (S.X i : C))
     (hexact : ∀ i : ℤ,
       imageSubobject (S.d (i - 1) i) = kernelSubobject (S.d i (i + 1)))
     (hcard : ∀ i : ℤ,
-      Cardinal.lift.{z, max u v} (Cardinal.mk (Subobject (S.X i))) ≤
+      Cardinal.lift.{z, max u v} (Cardinal.mk (Subobject (S.X i : C))) ≤
         Cardinal.lift.{max u v, z} kappa) :
-    CochainComplex.SmallAcyclic.BoundedBy kappa S.complex := sorry
+    CochainComplex.SmallAcyclic.BoundedBy kappa S.complex := by
+  refine ⟨⟨n, ?_⟩, (S.acyclic_iff_image_eq_kernel).mpr hexact, hcard⟩
+  exact (CochainComplex.isStrictlyLE_iff S.complex n).mpr hzero
 
 end CochainComplex.SmallAcyclic.BoundedBy

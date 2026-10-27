@@ -43,10 +43,10 @@ variable [DerivedCategory.DerivedTensor.Bifunctor.Has (C := ringedSiteModuleCate
 
 /- Definition 92.19.1: Let C be a site. Let A ⟶ B be a homomorphism of sheaves
 of rings. Let F be a sheaf of B-modules. The map F ⟶ (L_{B/A} ⊗^L_B F)⟦1⟧
-in 92.19.0.2 is called the Atiyah class of F. This is connectingMap,
+in 92.19.0.2 is called the Atiyah class of F. This is atiyahClass,
 equivalently the third arrow of atiyahTriangle. -/
 @[stacks 09DI]
-#check (SheafOfModules.RingedSite.CotangentComplex.connectingMap φ F :
+#check (SheafOfModules.RingedSite.CotangentComplex.atiyahClass φ F :
   (DerivedCategory.singleFunctor (ringedSiteModuleCategory.{u, u, u, u} J B) 0).obj F ⟶
     (SheafOfModules.RingedSite.CotangentComplex.tensorModule φ F)⟦(1 : ℤ)⟧)
 

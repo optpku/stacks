@@ -87,13 +87,21 @@ namespace Implementation
 
 Proof strategy: simplify both unit composites. -/
 private theorem idHom_naturality (X : Inertia C) :
-    X.aut.hom ≫ 𝟙 X.obj = 𝟙 X.obj ≫ X.aut.hom := sorry
+    X.aut.hom ≫ 𝟙 X.obj = 𝟙 X.obj ≫ X.aut.hom := by
+  simp
 
 /-- Composition preserves the intertwining equation.
 
 Proof strategy: reassociate and rewrite with the two input equations. -/
 private theorem compHom_naturality {X Y Z : Inertia C} (f : Hom X Y) (g : Hom Y Z) :
-    X.aut.hom ≫ (f.hom ≫ g.hom) = (f.hom ≫ g.hom) ≫ Z.aut.hom := sorry
+    X.aut.hom ≫ (f.hom ≫ g.hom) = (f.hom ≫ g.hom) ≫ Z.aut.hom := by
+  calc
+    X.aut.hom ≫ (f.hom ≫ g.hom) = (X.aut.hom ≫ f.hom) ≫ g.hom :=
+      (Category.assoc _ _ _).symm
+    _ = (f.hom ≫ Y.aut.hom) ≫ g.hom := by rw [f.naturality]
+    _ = f.hom ≫ (Y.aut.hom ≫ g.hom) := Category.assoc _ _ _
+    _ = f.hom ≫ (g.hom ≫ Z.aut.hom) := by rw [g.naturality]
+    _ = (f.hom ≫ g.hom) ≫ Z.aut.hom := (Category.assoc _ _ _).symm
 
 /-- The identity inertia morphism. -/
 private def idHom (X : Inertia C) : Hom X X :=
@@ -107,20 +115,26 @@ private def compHom {X Y Z : Inertia C} (f : Hom X Y) (g : Hom Y Z) : Hom X Z :=
 
 Proof strategy: apply `Hom.ext` and use the left identity in `C`. -/
 private theorem idHom_comp {X Y : Inertia C} (f : Hom X Y) :
-    compHom (idHom X) f = f := sorry
+    compHom (idHom X) f = f := by
+  apply Hom.ext
+  exact Category.id_comp f.hom
 
 /-- Right identity for inertia morphisms.
 
 Proof strategy: apply `Hom.ext` and use the right identity in `C`. -/
 private theorem compHom_id {X Y : Inertia C} (f : Hom X Y) :
-    compHom f (idHom Y) = f := sorry
+    compHom f (idHom Y) = f := by
+  apply Hom.ext
+  exact Category.comp_id f.hom
 
 /-- Associativity for inertia morphisms.
 
 Proof strategy: apply `Hom.ext` and use associativity in `C`. -/
 private theorem compHom_assoc {W X Y Z : Inertia C}
     (f : Hom W X) (g : Hom X Y) (h : Hom Y Z) :
-    compHom (compHom f g) h = compHom f (compHom g h) := sorry
+    compHom (compHom f g) h = compHom f (compHom g h) := by
+  apply Hom.ext
+  exact Category.assoc f.hom g.hom h.hom
 
 end Implementation
 
@@ -160,25 +174,29 @@ abbrev hom {X Y : Inertia C} (f : X ⟶ Y) : X.obj ⟶ Y.obj :=
 Proof strategy: project the `naturality` field. -/
 @[reassoc, stacks 034I "inertia intertwining readout"]
 theorem hom.naturality {X Y : Inertia C} (f : X ⟶ Y) :
-    X.aut.hom ≫ hom f = hom f ≫ Y.aut.hom := sorry
+    X.aut.hom ≫ hom f = hom f ≫ Y.aut.hom := f.2
 
 /-- The underlying arrow of an inertia morphism also intertwines the inverse
 automorphisms. -/
 @[reassoc, stacks 034I "inertia inverse intertwining readout"]
 theorem hom.invNaturality {X Y : Inertia C} (f : X ⟶ Y) :
-    X.aut.inv ≫ hom f = hom f ≫ Y.aut.inv := sorry
+    X.aut.inv ≫ hom f = hom f ≫ Y.aut.inv := by
+  apply X.aut.inv_comp_eq.mpr
+  rw [← Category.assoc, hom.naturality f, Category.assoc,
+    Y.aut.hom_inv_id, Category.comp_id]
 
 /-- Inertia morphisms are determined by their underlying arrows.
 
 Proof strategy: apply `Hom.ext`. -/
 @[ext, stacks 034I "inertia underlying-arrow extensionality"]
-theorem hom_ext {X Y : Inertia C} (f g : X ⟶ Y) (h : hom f = hom g) : f = g := sorry
+theorem hom_ext {X Y : Inertia C} (f g : X ⟶ Y) (h : hom f = hom g) : f = g :=
+  Hom.ext h
 
 /-- The underlying arrow of an identity inertia morphism is an identity.
 
 Proof strategy: unfold the category instance. -/
 @[simp, stacks 034I "inertia identity underlying arrow"]
-theorem hom_id (X : Inertia C) : hom (𝟙 X) = 𝟙 X.obj := sorry
+theorem hom_id (X : Inertia C) : hom (𝟙 X) = 𝟙 X.obj := rfl
 
 /-- The underlying arrow of a composite inertia morphism is the composite of the underlying
 arrows.
@@ -186,14 +204,28 @@ arrows.
 Proof strategy: unfold the category instance. -/
 @[simp, stacks 034I "inertia composition underlying arrow"]
 theorem hom_comp {X Y Z : Inertia C} (f : X ⟶ Y) (g : Y ⟶ Z) :
-    hom (f ≫ g) = hom f ≫ hom g := sorry
+    hom (f ≫ g) = hom f ≫ hom g := rfl
 
 /-- An inertia morphism is invertible when its underlying arrow is invertible.
 
 Proof strategy: lift the inverse underlying arrow with `homMk` and verify the two equations by
 `hom_ext`. -/
 @[stacks 034I "inertia invertibility from underlying arrow"]
-theorem isIso_of_hom_isIso {X Y : Inertia C} (f : X ⟶ Y) [IsIso (hom f)] : IsIso f := sorry
+theorem isIso_of_hom_isIso {X Y : Inertia C} (f : X ⟶ Y) [IsIso (hom f)] : IsIso f := by
+  obtain ⟨g, hfg, hgf⟩ := (inferInstance : IsIso (hom f)).out
+  have hg : Y.aut.hom ≫ g = g ≫ X.aut.hom := by
+    apply (cancel_epi (hom f)).1
+    calc
+      hom f ≫ (Y.aut.hom ≫ g) = X.aut.hom ≫ (hom f ≫ g) := by
+        rw [← Category.assoc, ← hom.naturality f, Category.assoc]
+      _ = X.aut.hom := by rw [hfg, Category.comp_id]
+      _ = hom f ≫ (g ≫ X.aut.hom) := by
+        rw [← Category.assoc, hfg, Category.id_comp]
+  refine ⟨⟨homMk g hg, ?_, ?_⟩⟩
+  · apply hom_ext
+    exact hfg
+  · apply hom_ext
+    exact hgf
 
 /-- An inverse ambient arrow automatically intertwines the automorphisms in the reverse
 direction when the forward arrow does. -/
@@ -201,7 +233,10 @@ direction when the forward arrow does. -/
 theorem isoMk.inv.naturality {X Y : Inertia C}
     (e : X.obj ≅ Y.obj)
     (naturality : X.aut.hom ≫ e.hom = e.hom ≫ Y.aut.hom) :
-    Y.aut.hom ≫ e.inv = e.inv ≫ X.aut.hom := sorry
+    Y.aut.hom ≫ e.inv = e.inv ≫ X.aut.hom := by
+  apply e.eq_inv_comp.mpr
+  rw [← Category.assoc, ← naturality, Category.assoc,
+    e.hom_inv_id, Category.comp_id]
 
 /-- The inertia morphisms induced by the two directions of a compatible ambient isomorphism
 compose to the identity on the source. -/
@@ -210,7 +245,9 @@ theorem isoMk.hom_inv_id {X Y : Inertia C}
     (e : X.obj ≅ Y.obj)
     (naturality : X.aut.hom ≫ e.hom = e.hom ≫ Y.aut.hom) :
     homMk e.hom naturality ≫
-      homMk e.inv (isoMk.inv.naturality e naturality) = 𝟙 X := sorry
+      homMk e.inv (isoMk.inv.naturality e naturality) = 𝟙 X := by
+  apply hom_ext
+  exact e.hom_inv_id
 
 /-- The inertia morphisms induced by the two directions of a compatible ambient isomorphism
 compose to the identity on the target. -/
@@ -219,7 +256,9 @@ theorem isoMk.inv_hom_id {X Y : Inertia C}
     (e : X.obj ≅ Y.obj)
     (naturality : X.aut.hom ≫ e.hom = e.hom ≫ Y.aut.hom) :
     homMk e.inv (isoMk.inv.naturality e naturality) ≫
-      homMk e.hom naturality = 𝟙 Y := sorry
+      homMk e.hom naturality = 𝟙 Y := by
+  apply hom_ext
+  exact e.inv_hom_id
 
 /-- Package an ambient isomorphism compatible with the chosen automorphisms as an isomorphism
 in the inertia category. The ambient isomorphism is the sole non-`Prop` data owner. -/
@@ -238,14 +277,14 @@ def isoMk {X Y : Inertia C}
 theorem isoMk.hom {X Y : Inertia C}
     (e : X.obj ≅ Y.obj)
     (naturality : X.aut.hom ≫ e.hom = e.hom ≫ Y.aut.hom) :
-    Inertia.hom (isoMk e naturality).hom = e.hom := sorry
+    Inertia.hom (isoMk e naturality).hom = e.hom := rfl
 
 /-- The underlying inverse arrow of `Inertia.isoMk` is the supplied ambient inverse arrow. -/
 @[simp, stacks 034I "abstract inertia isomorphism inverse arrow"]
 theorem isoMk.inv {X Y : Inertia C}
     (e : X.obj ≅ Y.obj)
     (naturality : X.aut.hom ≫ e.hom = e.hom ≫ Y.aut.hom) :
-    Inertia.hom (isoMk e naturality).inv = e.inv := sorry
+    Inertia.hom (isoMk e naturality).inv = e.inv := rfl
 
 /-- Forget the automorphism from the inertia category. -/
 @[stacks 042H "abstract inertia forgetful functor"]
@@ -269,7 +308,9 @@ private def identitySectionObj (X : C) : Inertia C := Inertia.mk X 1
 
 Proof strategy: simplify the identity automorphisms and unit composites. -/
 private theorem identitySectionMap_naturality {X Y : C} (f : X ⟶ Y) :
-    (identitySectionObj X).aut.hom ≫ f = f ≫ (identitySectionObj Y).aut.hom := sorry
+    (identitySectionObj X).aut.hom ≫ f = f ≫ (identitySectionObj Y).aut.hom := by
+  change 𝟙 X ≫ f = f ≫ 𝟙 Y
+  simp
 
 /-- The inertia morphism selected by the identity section. -/
 private def identitySectionMap {X Y : C} (f : X ⟶ Y) :
@@ -280,13 +321,17 @@ private def identitySectionMap {X Y : C} (f : X ⟶ Y) :
 
 Proof strategy: apply `hom_ext`; both underlying arrows are identities. -/
 private theorem identitySectionMap_id (X : C) :
-    identitySectionMap (𝟙 X) = 𝟙 (identitySectionObj X) := sorry
+    identitySectionMap (𝟙 X) = 𝟙 (identitySectionObj X) := by
+  apply hom_ext
+  rfl
 
 /-- The identity section preserves composition.
 
 Proof strategy: apply `hom_ext`; both underlying arrows are the same composite. -/
 private theorem identitySectionMap_comp {X Y Z : C} (f : X ⟶ Y) (g : Y ⟶ Z) :
-    identitySectionMap (f ≫ g) = identitySectionMap f ≫ identitySectionMap g := sorry
+    identitySectionMap (f ≫ g) = identitySectionMap f ≫ identitySectionMap g := by
+  apply hom_ext
+  rfl
 
 end Implementation
 
@@ -301,17 +346,17 @@ def identitySection (C : Type uC) [Category.{vC} C] : C ⥤ Inertia C where
 /-- The identity section retains the underlying object. -/
 @[simp, stacks 04Z3 "abstract inertia identity-section object"]
 theorem identitySection.obj.underlying (X : C) :
-    ((identitySection C).obj X).obj = X := sorry
+    ((identitySection C).obj X).obj = X := rfl
 
 /-- The identity section equips an object with its identity automorphism. -/
 @[simp, stacks 04Z3 "abstract inertia identity automorphism"]
 theorem identitySection.obj.aut (X : C) :
-    ((identitySection C).obj X).aut = 1 := sorry
+    ((identitySection C).obj X).aut = 1 := rfl
 
 /-- The identity section retains the underlying arrow. -/
 @[simp, stacks 04Z3 "abstract inertia identity-section arrow"]
 theorem identitySection.map.hom {X Y : C} (f : X ⟶ Y) :
-    Inertia.hom ((identitySection C).map f) = f := sorry
+    Inertia.hom ((identitySection C).map f) = f := rfl
 
 end IdentitySection
 
@@ -320,7 +365,7 @@ end IdentitySection
 Proof strategy: apply functor extensionality; both object and morphism maps are identities. -/
 @[simp, stacks 04Z3 "abstract inertia identity-section round trip"]
 theorem identitySection.comp_forget (C : Type uC) [Category.{vC} C] :
-    identitySection C ⋙ forget C = 𝟭 C := sorry
+    identitySection C ⋙ forget C = 𝟭 C := rfl
 
 section Map
 
@@ -338,7 +383,9 @@ private def mapObj (G : C ⥤ D) (X : Inertia C) : Inertia D :=
 Proof strategy: apply `G.map` to `hom.naturality` and rewrite by functoriality. -/
 private theorem mapHom_naturality (G : C ⥤ D) {X Y : Inertia C} (f : X ⟶ Y) :
     (mapObj G X).aut.hom ≫ G.map (hom f) =
-      G.map (hom f) ≫ (mapObj G Y).aut.hom := sorry
+      G.map (hom f) ≫ (mapObj G Y).aut.hom := by
+  change G.map X.aut.hom ≫ G.map (hom f) = G.map (hom f) ≫ G.map Y.aut.hom
+  simpa only [Functor.map_comp] using congrArg G.map (hom.naturality f)
 
 /-- The inertia morphism obtained by applying a functor. -/
 private def mapHom (G : C ⥤ D) {X Y : Inertia C} (f : X ⟶ Y) :
@@ -349,14 +396,20 @@ private def mapHom (G : C ⥤ D) {X Y : Inertia C} (f : X ⟶ Y) :
 
 Proof strategy: apply `hom_ext` and use `G.map_id`. -/
 private theorem mapHom_id (G : C ⥤ D) (X : Inertia C) :
-    mapHom G (𝟙 X) = 𝟙 (mapObj G X) := sorry
+    mapHom G (𝟙 X) = 𝟙 (mapObj G X) := by
+  apply hom_ext
+  change G.map (hom (𝟙 X)) = 𝟙 (G.obj X.obj)
+  simp
 
 /-- Mapping inertia morphisms preserves composition.
 
 Proof strategy: apply `hom_ext` and use `G.map_comp`. -/
 private theorem mapHom_comp (G : C ⥤ D) {X Y Z : Inertia C}
     (f : X ⟶ Y) (g : Y ⟶ Z) :
-    mapHom G (f ≫ g) = mapHom G f ≫ mapHom G g := sorry
+    mapHom G (f ≫ g) = mapHom G f ≫ mapHom G g := by
+  apply hom_ext
+  change G.map (hom (f ≫ g)) = G.map (hom f) ≫ G.map (hom g)
+  simp
 
 end Implementation
 
@@ -375,28 +428,28 @@ end Map
 Proof strategy: unfold `map` and its object implementation. -/
 @[simp, stacks 04Z4 "abstract inertia map on objects"]
 theorem map.obj.underlying (G : C ⥤ D) (X : Inertia C) :
-    ((map G).obj X).obj = G.obj X.obj := sorry
+    ((map G).obj X).obj = G.obj X.obj := rfl
 
 /-- The induced inertia functor maps automorphisms by `Functor.mapIso`.
 
 Proof strategy: unfold `map` and its object implementation. -/
 @[simp, stacks 04Z4 "abstract inertia map on automorphisms"]
 theorem map.obj.aut (G : C ⥤ D) (X : Inertia C) :
-    ((map G).obj X).aut = G.mapIso X.aut := sorry
+    ((map G).obj X).aut = G.mapIso X.aut := rfl
 
 /-- The induced inertia functor maps underlying arrows by `Functor.map`.
 
 Proof strategy: unfold `map` and its morphism implementation. -/
 @[simp, stacks 04Z4 "abstract inertia map on arrows"]
 theorem map.hom (G : C ⥤ D) {X Y : Inertia C} (f : X ⟶ Y) :
-    hom ((map G).map f) = G.map (hom f) := sorry
+    hom ((map G).map f) = G.map (hom f) := rfl
 
 /-- Mapping inertia and then forgetting agrees with forgetting and applying the original functor.
 
 Proof strategy: apply functor extensionality and use `map.obj.underlying` and `map.hom`. -/
 @[stacks 04Z4 "abstract inertia map forgetful compatibility"]
 theorem map.comp_forget (G : C ⥤ D) :
-    map G ⋙ forget D = forget C ⋙ G := sorry
+    map G ⋙ forget D = forget C ⋙ G := rfl
 
 end Inertia
 

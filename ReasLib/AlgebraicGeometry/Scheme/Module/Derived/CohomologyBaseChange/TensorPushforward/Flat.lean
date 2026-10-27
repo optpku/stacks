@@ -44,8 +44,8 @@ theorem pushforwardTensorBaseChange_isIso
     [KFlat.HomotopyTensorDescends X'.toRingedSpace]
     [KFlat.TensorDescends X'.toRingedSpace]
     [KFlat.IsLocalization X'.toRingedSpace]
-    [HasPair (RingedSpace.opensRingedSiteHom f.toShHom)]
-    [HasPair (RingedSpace.opensRingedSiteHom f'.toShHom)]
+    [RingedSpace.DerivedAdjunction.HasPair f.toShHom]
+    [RingedSpace.DerivedAdjunction.HasPair f'.toShHom]
     [IsIso
       (RingedSpace.modulePullbackDerived.compComparison f'.toShHom g.toShHom)]
     [IsIso

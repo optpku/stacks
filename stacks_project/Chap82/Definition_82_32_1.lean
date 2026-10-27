@@ -6,7 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap82.Definition_82_32_1_Degree
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.ChowGroup.Degree
 import StacksCheckRecall
 
 /-!
@@ -29,9 +29,19 @@ p_* : CH_0(X) ⟶ CH_0(Spec k) ⟶ ℤ of proper pushforward on Chow groups
 (Lemma 82.16.3) with the natural isomorphism CH_0(Spec k) ≃ ℤ sending
 [Spec k] to 1. Notation: deg(α). -/
 @[stacks 0ESG]
-#check (Hom.chowDegree :
+#check (AlgebraicGeometry.AlgebraicSpace.Hom.chowDegree :
   ∀ {k : Type u} [Field k] {X : AlgebraicSpace (Spec (CommRingCat.of k))}
-    [Proper (toBase X)],
-    Hom.chowGroup (toBase X) (fun _ ↦ (0 : ℤ)) 0 →+ ℤ)
+    [Proper (SchemeRealization.toBase X)],
+    Hom.chowGroup (SchemeRealization.toBase X) (fun _ ↦ (0 : ℤ)) 0 →+ ℤ)
+
+#check (AlgebraicGeometry.AlgebraicSpace.Hom.specFieldChowEquiv :
+  ∀ (k : Type u) [Field k],
+    Hom.chowGroup
+      (SchemeRealization.toBase (ofOver (Over.mk (𝟙 (Spec (CommRingCat.of k))))))
+      (fun _ ↦ (0 : ℤ)) 0 ≃+ ℤ)
+
+#check (AlgebraicGeometry.AlgebraicSpace.Hom.specFieldChowEquiv_fundamentalClass :
+  ∀ (k : Type u) [Field k],
+    Hom.specFieldChowEquiv k (Hom.specFieldFundamentalClass k) = 1)
 
 end AlgebraicGeometry.AlgebraicSpace

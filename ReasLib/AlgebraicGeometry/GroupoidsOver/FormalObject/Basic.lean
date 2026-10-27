@@ -24,7 +24,7 @@ open scoped Bicategory
 
 noncomputable section
 
-universe u
+universe u v
 
 namespace AlgebraicGeometry
 
@@ -34,7 +34,7 @@ variable {S : Scheme.{u}} [IsLocallyNoetherian S]
 
 /-- A complete local base with a forward system in a groupoid fibration over
 its positive maximal-adic quotient spectra. -/
-def FormalObject (X : GroupoidsOver S) :=
+def FormalObject (X : FiberedCategoryOver.Groupoids.{u + 1, u, u + 1, v} (Over S)) :=
   Σ' base : CompleteLocalSAlgebra S,
     Σ' objects : ℕ → X.total,
       Σ' step : ∀ n, objects n ⟶ objects (n + 1),
@@ -43,7 +43,7 @@ def FormalObject (X : GroupoidsOver S) :=
 
 namespace FormalObject
 
-variable {X : GroupoidsOver S}
+variable {X : FiberedCategoryOver.Groupoids.{u + 1, u, u + 1, v} (Over S)}
 
 /-- The complete local base of a formal object. -/
 def base (ξ : FormalObject X) : CompleteLocalSAlgebra S := ξ.1
@@ -108,13 +108,13 @@ def stageOne (ξ : FormalObject X) : X.total :=
 theorem stageOne_over (ξ : FormalObject X) :
     X.p.obj ξ.stageOne = ξ.base.stageOver 0 := ξ.over_obj 0
 
-variable {Y : GroupoidsOver S}
+variable {Y : FiberedCategoryOver.Groupoids.{u + 1, u, u + 1, v} (Over S)}
 
 /-- The image `F(ξ)` of a formal object along a 1-morphism of categories fibred in
 groupoids: the same complete local base, with stages and transitions mapped by `F`. -/
 def map (F : X ⟶ Y) (ξ : FormalObject X) : FormalObject Y :=
   ⟨ξ.base, (fun n ↦ (FiberedCategoryOver.Groupoids.toFunctor F).obj (ξ.objects n)),
-    (fun n ↦ (FiberedCategoryOver.Groupoids.toFunctor F).map (ξ.step n)), by sorry⟩
+    (fun n ↦ (FiberedCategoryOver.Groupoids.toFunctor F).map (ξ.step n)), sorry⟩
 
 /-- Mapping a formal object along `F` preserves the complete local base. -/
 theorem map_base (F : X ⟶ Y) (ξ : FormalObject X) :

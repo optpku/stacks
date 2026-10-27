@@ -36,5 +36,3 @@ localization away from an idempotent cutting out the diagonal. -/
     Ideal.span {1 - Algebra.FormallyUnramified.elem R S})
 
 end Algebra.FormallyUnramified
-
-#check @exists_idempotent_tensorProduct_self_isLocalization_of_unramified

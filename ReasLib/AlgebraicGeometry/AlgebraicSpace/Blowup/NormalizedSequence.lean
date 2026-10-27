@@ -86,6 +86,31 @@ theorem toSource_cons {S : Scheme.{u}} {X Y : AlgebraicSpace S} [IsDecent X]
     (cons step tail).toSource = tail.toSource ≫ step.hom :=
   sorry
 
+/-- Every center in a finite normalized-blowup sequence lies over the specified subset of
+its initial space. -/
+def EveryCenterOver {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+    (s : NormalizedBlowupSequence X Y) (T : Set (Points X)) : Prop :=
+  match s with
+  | nil _ => True
+  | @cons _ _ _ _ _ step tail =>
+      step.point ∈ T ∧ tail.EveryCenterOver (Points.map step.hom ⁻¹' T)
+
+/-- An empty normalized-blowup sequence has no centers. -/
+theorem everyCenterOver_nil {S : Scheme.{u}} (X : AlgebraicSpace S)
+    (T : Set (Points X)) : (nil X).EveryCenterOver T ↔ True :=
+  sorry
+
+/-- Center support for a nonempty normalized-blowup sequence consists of support for its
+first center and support for the remaining centers after pulling back the specified subset
+along the normalized blowup morphism. -/
+theorem everyCenterOver_cons {S : Scheme.{u}} {X Y : AlgebraicSpace S} [IsDecent X]
+    [HasFiniteIrreducibleComponentsOnCompactOpens X]
+    (step : NormalizedBlowup X) (tail : NormalizedBlowupSequence step.source Y)
+    (T : Set (Points X)) :
+    (cons step tail).EveryCenterOver T ↔
+      step.point ∈ T ∧ tail.EveryCenterOver (Points.map step.hom ⁻¹' T) :=
+  sorry
+
 /-- `EveryTargetOver s f` says that every post-initial stage of `s`, composed with `f`, is proper
 over the target of `f`. -/
 def EveryTargetOver {S : Scheme.{u}} {X Y B : AlgebraicSpace S}
@@ -111,6 +136,34 @@ theorem everyTargetOver_cons {S : Scheme.{u}} {X Y B : AlgebraicSpace S} [IsDece
   sorry
 
 end NormalizedBlowupSequence
+
+/-- A morphism factors into finitely many normalized closed-point blowups over a specified
+subset when its domain is isomorphic to the terminal space of such a sequence, with the
+composite equal to the given morphism. -/
+def FactorsAsNormalizedBlowups {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+    (f : Y ⟶ X) (T : Set (Points X)) : Prop :=
+  ∃ (Z : AlgebraicSpace S) (s : NormalizedBlowupSequence X Z) (e : Y ≅ Z),
+    e.hom ≫ s.toSource = f ∧ s.EveryCenterOver T
+
+/-- Factorization into normalized closed-point blowups is characterized by a sequence,
+an isomorphism with its terminal space, equality of composites, and support of every center
+over the specified subset. -/
+theorem factorsAsNormalizedBlowups_iff {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+    (f : Y ⟶ X) (T : Set (Points X)) :
+    FactorsAsNormalizedBlowups f T ↔
+      ∃ (Z : AlgebraicSpace S) (s : NormalizedBlowupSequence X Z) (e : Y ≅ Z),
+        e.hom ≫ s.toSource = f ∧ s.EveryCenterOver T :=
+  Iff.rfl
+
+/-- Every isomorphism admits a zero-step normalized closed-point blowup factorization
+with centers supported over any specified subset. -/
+theorem factorsAsNormalizedBlowups_of_isIso {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+    (f : Y ⟶ X) [IsIso f] (T : Set (Points X)) :
+    FactorsAsNormalizedBlowups f T := by
+  refine ⟨X, NormalizedBlowupSequence.nil X, asIso f, ?_, ?_⟩
+  · change f ≫ 𝟙 X = f
+    exact Category.comp_id f
+  · trivial
 
 /-- A two-dimensional Noetherian integral algebraic space has a resolution by normalized blowups
 when its normalization is proper, a finite sequence of normalized point blowups has every later

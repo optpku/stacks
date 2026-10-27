@@ -30,11 +30,15 @@ theorem isIso_homCongr_iff
     IsIso (eX.homCongr eY f) ↔ IsIso f := by
   constructor
   · intro h
-    letI := h
+    -- Local instance justification (proof-local temporary data): `h` is the invertibility
+    -- certificate for the transported morphism used by the implication proof.
+    letI : IsIso (eX.homCongr eY f) := h
     rw [show f = eX.hom ≫ eX.homCongr eY f ≫ eY.inv by simp]
     infer_instance
   · intro h
-    letI := h
+    -- Local instance justification (proof-local temporary data): `h` is the invertibility
+    -- certificate for the original morphism used by the reverse implication proof.
+    letI : IsIso f := h
     change IsIso (eX.inv ≫ f ≫ eY.hom)
     infer_instance
 

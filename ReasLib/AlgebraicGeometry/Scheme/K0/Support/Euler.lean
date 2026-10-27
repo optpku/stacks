@@ -31,6 +31,28 @@ universe u
 
 namespace AlgebraicGeometry.Scheme.K0WithSupport
 
+private theorem moduleSupport_coproduct_subset
+    {Y : RingedSpace.{u}} {ι : Type} (F : ι → Y.Modules) (T : Set Y)
+    (hF : ∀ i, RingedSpace.moduleSupport (F i) ⊆ T) :
+    RingedSpace.moduleSupport (∐ F) ⊆ T := by
+  intro x hx
+  by_contra h
+  let G := RingedSpace.stalkModuleFunctor (X := Y) x
+  letI : PreservesColimits G :=
+    RingedSpace.stalkModuleFunctor_preservesColimits (X := Y) x
+  letI : PreservesColimitsOfSize.{0, 0} G := preservesColimitsOfSize_shrink G
+  have hFzero (i : ι) : IsZero (G.obj (F i)) := by
+    have hzero : IsZero (TopCat.Presheaf.stalk (F i).val.presheaf x) := by
+      by_contra hn
+      exact h (hF i hn)
+    exact ModuleCat.isZero_iff_subsingleton.mpr
+      (AddCommGrpCat.isZero_iff_subsingleton.mp hzero)
+  have hz : IsZero (G.obj (∐ F)) :=
+    (isColimitOfPreserves G (colimit.isColimit (Discrete.functor F))).isZero_pt
+      ((Discrete.functor F ⋙ G).isZero (fun i ↦ hFzero i.as))
+  exact hx (AddCommGrpCat.isZero_iff_subsingleton.mpr
+    (ModuleCat.isZero_iff_subsingleton.mp hz))
+
 variable (X : Scheme.{u}) [IsLocallyNoetherian X] (T : Set X)
 
 /-- The coproduct of the even cohomology sheaves of a supported perfect complex is
@@ -46,7 +68,7 @@ theorem evenCohomology_support_subset
     (E : RingedSpace.ModuleDerived.PerfectSupportedOn T) :
     RingedSpace.moduleSupport
       (∐ fun i : ℤ ↦ RingedSpace.ModuleDerived.cohomologySheaf E.obj (2 * i)) ⊆ T :=
-  sorry
+  moduleSupport_coproduct_subset _ T (fun i ↦ E.property.2 (2 * i))
 
 /-- The supported coherent sheaf given by the coproduct of the even cohomology sheaves. -/
 noncomputable def evenCohomology
@@ -62,7 +84,7 @@ theorem evenCohomology_obj
     (E : RingedSpace.ModuleDerived.PerfectSupportedOn T) :
     (evenCohomology X T E).obj.obj =
       ∐ fun i : ℤ ↦ RingedSpace.ModuleDerived.cohomologySheaf E.obj (2 * i) :=
-  sorry
+  rfl
 
 /-- The coproduct of the odd cohomology sheaves of a supported perfect complex is
 coherent. -/
@@ -77,7 +99,7 @@ theorem oddCohomology_support_subset
     (E : RingedSpace.ModuleDerived.PerfectSupportedOn T) :
     RingedSpace.moduleSupport
       (∐ fun i : ℤ ↦ RingedSpace.ModuleDerived.cohomologySheaf E.obj (2 * i + 1)) ⊆ T :=
-  sorry
+  moduleSupport_coproduct_subset _ T (fun i ↦ E.property.2 (2 * i + 1))
 
 /-- The supported coherent sheaf given by the coproduct of the odd cohomology sheaves. -/
 noncomputable def oddCohomology
@@ -93,7 +115,7 @@ theorem oddCohomology_obj
     (E : RingedSpace.ModuleDerived.PerfectSupportedOn T) :
     (oddCohomology X T E).obj.obj =
       ∐ fun i : ℤ ↦ RingedSpace.ModuleDerived.cohomologySheaf E.obj (2 * i + 1) :=
-  sorry
+  rfl
 
 /-- The supported coherent Euler class of a supported perfect complex. -/
 noncomputable def eulerValue
@@ -107,7 +129,7 @@ theorem eulerValue_def
     eulerValue X T E =
       K0'WithSupport.of X T (evenCohomology X T E) -
         K0'WithSupport.of X T (oddCohomology X T E) :=
-  sorry
+  rfl
 
 /-- Supported coherent Euler classes are additive on distinguished triangles. -/
 theorem eulerValue_distinguished
@@ -125,8 +147,10 @@ noncomputable def toCoherent : K0WithSupport X T →+ K0'WithSupport X T :=
 /-- The supported Euler homomorphism sends a perfect generator to its Euler class. -/
 theorem toCoherent_of
     (E : RingedSpace.ModuleDerived.PerfectSupportedOn T) :
-    toCoherent X T (TriangulatedK0.of E) = eulerValue X T E :=
-  sorry
+    toCoherent X T (TriangulatedK0.of E) = eulerValue X T E := by
+  change FreeAbelianGroup.lift (eulerValue X T) (FreeAbelianGroup.of E) =
+    eulerValue X T E
+  exact FreeAbelianGroup.lift_apply_of _ _
 
 /-- For a closed immersion into a locally Noetherian scheme, the supported Euler
 homomorphism sends a perfect generator to the difference of its even and odd cohomology
@@ -139,6 +163,7 @@ theorem toCoherent_of_closedImmersion {X Z : Scheme.{u}} [IsLocallyNoetherian X]
           (evenCohomology X (Set.range i.base) E) -
         K0'WithSupport.of X (Set.range i.base)
           (oddCohomology X (Set.range i.base) E) :=
-  sorry
+  (toCoherent_of X (Set.range i.base) E).trans
+    (eulerValue_def X (Set.range i.base) E)
 
 end AlgebraicGeometry.Scheme.K0WithSupport

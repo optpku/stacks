@@ -58,12 +58,14 @@ noncomputable def Chosen.cartesianHom (p : S ⥤ C) [p.IsFibered]
 arrow. -/
 instance Chosen.cartesianHom.isStronglyCartesian (p : S ⥤ C) [p.IsFibered]
     {U V : C} (f : V ⟶ U) (x : p.Fiber U) :
-    p.IsStronglyCartesian f (Chosen.cartesianHom p f x) := sorry
+    p.IsStronglyCartesian f (Chosen.cartesianHom p f x) := by
+  exact (Cleavage.reindexLift (Cleavage.ofIsFibered p) f x).isStronglyCartesian
 
 /-- The selected cartesian arrow is a lift of its displayed base arrow. -/
 theorem Chosen.cartesianHom.isHomLift (p : S ⥤ C) [p.IsFibered]
     {U V : C} (f : V ⟶ U) (x : p.Fiber U) :
-    p.IsHomLift f (Chosen.cartesianHom p f x) := sorry
+    p.IsHomLift f (Chosen.cartesianHom p f x) := by
+  exact (Chosen.cartesianHom.isStronglyCartesian p f x).toIsHomLift
 
 /-- The image in the base of the selected cartesian arrow is its displayed base arrow, up to the
 endpoint transports carried by the standard-fiber objects. -/
@@ -71,7 +73,8 @@ endpoint transports carried by the standard-fiber objects. -/
 theorem Chosen.cartesianHom.map (p : S ⥤ C) [p.IsFibered]
     {U V : C} (f : V ⟶ U) (x : p.Fiber U) :
     p.map (Chosen.cartesianHom p f x) =
-      eqToHom (Chosen.reindexObj p f x).2 ≫ f ≫ eqToHom x.2.symm := sorry
+      eqToHom (Chosen.reindexObj p f x).2 ≫ f ≫ eqToHom x.2.symm := by
+  exact IsHomLift.fac' p f (Chosen.cartesianHom p f x)
 
 /-- The canonical factor of an ambient morphism through the cartesian arrow selected from a
 fibred projection. -/
@@ -85,7 +88,8 @@ noncomputable def Chosen.cartesianFactor (p : S ⥤ C) [p.IsFibered]
 instance Chosen.cartesianFactor.isHomLift (p : S ⥤ C) [p.IsFibered]
     {U V W : C} (f : V ⟶ U) (g : W ⟶ V) (x : p.Fiber U)
     {y : S} (φ : y ⟶ x.1) [p.IsHomLift (g ≫ f) φ] :
-    p.IsHomLift g (Chosen.cartesianFactor p f g x φ) := sorry
+    p.IsHomLift g (Chosen.cartesianFactor p f g x φ) := by
+  exact IsStronglyCartesian.map_isHomLift p f (Chosen.cartesianHom p f x) rfl φ
 
 /-- The canonical selected factor has the prescribed composite with the selected cartesian
 arrow. -/
@@ -93,7 +97,8 @@ arrow. -/
 theorem Chosen.cartesianFactor.fac (p : S ⥤ C) [p.IsFibered]
     {U V W : C} (f : V ⟶ U) (g : W ⟶ V) (x : p.Fiber U)
     {y : S} (φ : y ⟶ x.1) [p.IsHomLift (g ≫ f) φ] :
-    Chosen.cartesianFactor p f g x φ ≫ Chosen.cartesianHom p f x = φ := sorry
+    Chosen.cartesianFactor p f g x φ ≫ Chosen.cartesianHom p f x = φ := by
+  exact IsStronglyCartesian.fac p f (Chosen.cartesianHom p f x) rfl φ
 
 /-- A selected factor with the correct base arrow and composite is the canonical one. -/
 theorem Chosen.cartesianFactor.unique (p : S ⥤ C) [p.IsFibered]
@@ -101,7 +106,8 @@ theorem Chosen.cartesianFactor.unique (p : S ⥤ C) [p.IsFibered]
     {y : S} (φ : y ⟶ x.1) [p.IsHomLift (g ≫ f) φ]
     (ψ : y ⟶ (Chosen.reindexObj p f x).1) [p.IsHomLift g ψ]
     (hψ : ψ ≫ Chosen.cartesianHom p f x = φ) :
-    ψ = Chosen.cartesianFactor p f g x φ := sorry
+    ψ = Chosen.cartesianFactor p f g x φ := by
+  exact IsStronglyCartesian.map_uniq p f (Chosen.cartesianHom p f x) rfl φ ψ hψ
 
 /-- The selected cartesian arrow is right-cancellative among ambient arrows over the same base
 arrow. -/
@@ -110,14 +116,17 @@ theorem Chosen.cartesianHom.ambient_ext (p : S ⥤ C) [p.IsFibered]
     {y : S} {φ ψ : y ⟶ (Chosen.reindexObj p f x).1}
     [p.IsHomLift g φ] [p.IsHomLift g ψ]
     (h : φ ≫ Chosen.cartesianHom p f x = ψ ≫ Chosen.cartesianHom p f x) :
-    φ = ψ := sorry
+    φ = ψ := by
+  exact IsStronglyCartesian.ext p f (Chosen.cartesianHom p f x) g h
 
 /-- Universal-property form of `Chosen.cartesianFactor`. -/
 theorem Chosen.cartesianFactor.existsUnique (p : S ⥤ C) [p.IsFibered]
     {U V W : C} (f : V ⟶ U) (g : W ⟶ V) (x : p.Fiber U)
     {y : S} (φ : y ⟶ x.1) [p.IsHomLift (g ≫ f) φ] :
     ∃! ψ : y ⟶ (Chosen.reindexObj p f x).1,
-      p.IsHomLift g ψ ∧ ψ ≫ Chosen.cartesianHom p f x = φ := sorry
+      p.IsHomLift g ψ ∧ ψ ≫ Chosen.cartesianHom p f x = φ := by
+  exact IsStronglyCartesian.universal_property p f (Chosen.cartesianHom p f x)
+    g (g ≫ f) rfl φ
 
 /-- The selected reindexing target associated to an ambient morphism: reindex its codomain
 along its image in the base. -/
@@ -135,7 +144,11 @@ noncomputable def Chosen.verticalFactorHom (p : S ⥤ C) [p.IsFibered]
 /-- The selected ambient factor lies over the identity of the source base object. -/
 instance Chosen.verticalFactorHom.isHomLift (p : S ⥤ C) [p.IsFibered]
     {x y : S} (φ : x ⟶ y) :
-    p.IsHomLift (𝟙 (p.obj x)) (Chosen.verticalFactorHom p φ) := sorry
+    p.IsHomLift (𝟙 (p.obj x)) (Chosen.verticalFactorHom p φ) := by
+  exact @Chosen.cartesianFactor.isHomLift C _ S _ p _
+    (p.obj y) (p.obj x) (p.obj x) (p.map φ) (𝟙 (p.obj x))
+    (Fiber.mk (p := p) (a := y) rfl) x φ
+    (IsHomLift.lift_id_comp p (p.map φ) φ)
 
 /-- The vertical factor of an ambient morphism, bundled as a morphism in the standard fiber. -/
 @[stacks 02XN]
@@ -153,7 +166,11 @@ theorem Chosen.verticalFactor.fac (p : S ⥤ C) [p.IsFibered]
     (Chosen.verticalFactor p φ).1 ≫
       Chosen.cartesianHom p (p.map φ)
         (Fiber.mk (p := p) (a := y) rfl : p.Fiber (p.obj y)) =
-      φ := sorry
+      φ := by
+  exact @Chosen.cartesianFactor.fac C _ S _ p _
+    (p.obj y) (p.obj x) (p.obj x) (p.map φ) (𝟙 (p.obj x))
+    (Fiber.mk (p := p) (a := y) rfl) x φ
+    (IsHomLift.lift_id_comp p (p.map φ) φ)
 
 /-- A vertical morphism with the selected cartesian factorization is the selected vertical
 factor. -/
@@ -163,14 +180,44 @@ theorem Chosen.verticalFactor.unique (p : S ⥤ C) [p.IsFibered]
       Chosen.verticalTarget p φ)
     (hψ : ψ.1 ≫ Chosen.cartesianHom p (p.map φ)
       (Fiber.mk (p := p) (a := y) rfl : p.Fiber (p.obj y)) = φ) :
-    ψ = Chosen.verticalFactor p φ := sorry
+    ψ = Chosen.verticalFactor p φ := by
+  apply Subtype.ext
+  exact @Chosen.cartesianHom.ambient_ext C _ S _ p _
+    (p.obj y) (p.obj x) (p.obj x) (p.map φ) (𝟙 (p.obj x))
+    (Fiber.mk (p := p) (a := y) rfl) x ψ.1 (Chosen.verticalFactor p φ).1
+    ψ.2 (Chosen.verticalFactor p φ).2
+    (hψ.trans (Chosen.verticalFactor.fac p φ).symm)
 
 /-- If an ambient morphism is strongly cartesian over its image in the base, then its selected
 vertical factor is an isomorphism in the source fiber. -/
 theorem Chosen.verticalFactor.isIso_of_isStronglyCartesian
     (p : S ⥤ C) [p.IsFibered] {x y : S} (φ : x ⟶ y)
     [p.IsStronglyCartesian (p.map φ) φ] :
-    IsIso (Chosen.verticalFactor p φ) := sorry
+    IsIso (Chosen.verticalFactor p φ) := by
+  have hφ : p.IsStronglyCartesian (p.map φ) φ := inferInstance
+  haveI : p.IsHomLift (𝟙 (p.obj x)) (Chosen.verticalFactor p φ).1 :=
+    (Chosen.verticalFactor p φ).2
+  have hcart : p.IsStronglyCartesian (p.map φ)
+      (Chosen.cartesianHom p (p.map φ) (Fiber.mk (p := p) (a := y) rfl)) :=
+    Chosen.cartesianHom.isStronglyCartesian p (p.map φ) (Fiber.mk (p := p) (a := y) rfl)
+  have hcomp : p.IsStronglyCartesian (𝟙 (p.obj x) ≫ p.map φ)
+      ((Chosen.verticalFactor p φ).1 ≫ Chosen.cartesianHom p (p.map φ)
+        (Fiber.mk (p := p) (a := y) rfl)) := by
+    rw [Category.id_comp, Chosen.verticalFactor.fac]
+    simpa only [Fiber.mk] using hφ
+  haveI : p.IsStronglyCartesian (𝟙 (p.obj x)) (Chosen.verticalFactor p φ).1 :=
+    @IsStronglyCartesian.of_comp C S _ _ p (p.obj x) (p.obj x) (p.obj y)
+      x (Chosen.verticalTarget p φ).1 y (𝟙 (p.obj x)) (p.map φ)
+      (Chosen.verticalFactor p φ).1
+      (Chosen.cartesianHom p (p.map φ) (Fiber.mk (p := p) (a := y) rfl))
+      hcart hcomp (Chosen.verticalFactor p φ).2
+  haveI : IsIso (Chosen.verticalFactor p φ).1 :=
+    IsStronglyCartesian.isIso_of_base_isIso p (𝟙 (p.obj x)) _
+  refine ⟨⟨CategoryTheory.inv (Chosen.verticalFactor p φ).1, inferInstance⟩, ?_, ?_⟩
+  · apply Subtype.ext
+    exact IsIso.hom_inv_id _
+  · apply Subtype.ext
+    exact IsIso.inv_hom_id _
 
 /-- The object action of selected reindexing is the object selected by
 `Cleavage.ofIsFibered`. -/
@@ -178,7 +225,8 @@ theorem Chosen.verticalFactor.isIso_of_isStronglyCartesian
 theorem Chosen.reindex.obj (p : S ⥤ C) [p.IsFibered]
     {U V : C} (f : V ⟶ U) (x : p.Fiber U) :
     (Chosen.reindex p f).obj x =
-      Chosen.reindexObj p f x := sorry
+      Chosen.reindexObj p f x := by
+  rfl
 
 /-- The morphism action of selected reindexing is the cartesian factorization selected by
 `Cleavage.ofIsFibered`. -/
@@ -186,14 +234,18 @@ theorem Chosen.reindex.obj (p : S ⥤ C) [p.IsFibered]
 theorem Chosen.reindex.map (p : S ⥤ C) [p.IsFibered]
     {U V : C} (f : V ⟶ U) {x y : p.Fiber U} (φ : x ⟶ y) :
     (Chosen.reindex p f).map φ =
-      Chosen.reindexMap p f φ := sorry
+      Chosen.reindexMap p f φ := by
+  rfl
 
 /-- The selected reindexing map is characterized by cartesian factorization. -/
 @[reassoc]
 theorem Chosen.reindexMap.fac (p : S ⥤ C) [p.IsFibered]
     {U V : C} (f : V ⟶ U) {x y : p.Fiber U} (φ : x ⟶ y) :
     (Chosen.reindexMap p f φ).1 ≫ Chosen.cartesianHom p f y =
-      Chosen.cartesianHom p f x ≫ φ.1 := sorry
+      Chosen.cartesianHom p f x ≫ φ.1 := by
+  haveI := φ.2
+  exact IsStronglyCartesian.fac p f (Chosen.cartesianHom p f y)
+    (Category.id_comp f).symm (Chosen.cartesianHom p f x ≫ φ.1)
 
 /-- A morphism between selected reindexing objects satisfying the cartesian factorization
 equation is the selected reindexing map. -/
@@ -202,7 +254,12 @@ theorem Chosen.reindexMap.unique (p : S ⥤ C) [p.IsFibered]
     (ψ : Chosen.reindexObj p f x ⟶ Chosen.reindexObj p f y)
     (h : ψ.1 ≫ Chosen.cartesianHom p f y =
       Chosen.cartesianHom p f x ≫ φ.1) :
-    ψ = Chosen.reindexMap p f φ := sorry
+    ψ = Chosen.reindexMap p f φ := by
+  apply Subtype.ext
+  haveI := ψ.2
+  haveI := (Chosen.reindexMap p f φ).2
+  exact Chosen.cartesianHom.ambient_ext p f (𝟙 V) y
+    (h.trans (Chosen.reindexMap.fac p f φ).symm)
 
 /-- Selected reindexing on morphisms is characterized by the cartesian factorization
 equation. -/
@@ -210,7 +267,8 @@ equation. -/
 theorem Chosen.reindex.map_fac (p : S ⥤ C) [p.IsFibered]
     {U V : C} (f : V ⟶ U) {x y : p.Fiber U} (φ : x ⟶ y) :
     ((Chosen.reindex p f).map φ).1 ≫ Chosen.cartesianHom p f y =
-      Chosen.cartesianHom p f x ≫ φ.1 := sorry
+      Chosen.cartesianHom p f x ≫ φ.1 := by
+  exact Chosen.reindexMap.fac p f φ
 
 /-- Morphisms into a selected reindexing object are determined by their composite with the
 selected strongly cartesian arrow. -/
@@ -218,7 +276,10 @@ theorem Chosen.cartesianHom.ext (p : S ⥤ C) [p.IsFibered]
     {U V : C} (f : V ⟶ U) {x : p.Fiber U} {y : p.Fiber V}
     {φ ψ : y ⟶ (Chosen.reindex p f).obj x}
     (h : φ.1 ≫ Chosen.cartesianHom p f x = ψ.1 ≫ Chosen.cartesianHom p f x) :
-    φ = ψ := sorry
+    φ = ψ := by
+  apply Subtype.ext
+  exact @Chosen.cartesianHom.ambient_ext C _ S _ p _ U V V f (𝟙 V) x
+    y.1 φ.1 ψ.1 φ.2 ψ.2 h
 
 end Functor
 

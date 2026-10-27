@@ -27,7 +27,7 @@ class. -/
       (f : X ⟶ B) [QuasiSeparated f] [LocallyOfFiniteType f]
       (δ : Points B → ℤ) [IsDimensionFunction δ]
       (L : X.Modules) [isInvertibleObject L],
-      ChowCohomology.degree δ f 1)
+      OperationalChow δ f 1)
 
 #check
   (AlgebraicGeometry.AlgebraicSpace.IntersectionTheory.OperationalFirstChern.degree_cap :

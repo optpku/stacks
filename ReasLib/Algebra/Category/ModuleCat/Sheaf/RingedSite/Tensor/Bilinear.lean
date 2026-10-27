@@ -27,9 +27,113 @@ open CategoryTheory.MonoidalCategory
 
 noncomputable section
 
-universe u v
+universe u v w
 
 namespace SheafOfModules.RingedSite
+
+section General
+
+variable {C : Type u} [Category.{v} C] {J : GrothendieckTopology C}
+variable [J.HasSheafCompose (forget₂ CommRingCat.{w} RingCat.{w})]
+variable [J.HasSheafCompose (forget₂ RingCat.{w} AddCommGrpCat.{w})]
+variable [HasWeakSheafify J AddCommGrpCat.{w}]
+variable [J.WEqualsLocallyBijective AddCommGrpCat.{w}]
+variable (O : Sheaf J CommRingCat.{w})
+
+/-- A restriction-compatible bilinear map on local sections of three module sheaves. -/
+@[stacks 03L6 "bilinear maps on sections of module sheaves"]
+abbrev BilinearMap
+    (F G H : ringedSiteModuleCategory.{u, v, w, w} J O) :=
+  PresheafOfModules.BilinearMap O.obj F.val G.val H.val
+
+namespace BilinearMap
+
+variable {O}
+variable {F G H : ringedSiteModuleCategory.{u, v, w, w} J O}
+
+/-- Compatible bilinear maps on local sections are canonically equivalent to morphisms from the
+tensor product sheaf. -/
+@[stacks 03L6 "bilinear universal property for module sheaves"]
+noncomputable def homEquiv :
+    BilinearMap O F G H ≃ (tensorObj F G ⟶ H) :=
+  (PresheafOfModules.BilinearMap.homEquiv
+      (R := O.obj) (F := F.val) (G := G.val) (H := H.val)).trans
+    ((moduleSheafificationHomEquiv O
+        (PresheafOfModules.Monoidal.tensorObj F.val G.val) H).symm.trans
+      ((ModuleSheafification.tensorObjIso O F G).symm.homCongr (Iso.refl H)))
+
+/-- The tensor-product sheaf morphism represented by a compatible sectionwise bilinear map. -/
+@[stacks 03L6 "descent of a sectionwise bilinear map"]
+noncomputable def hom (b : BilinearMap O F G H) : tensorObj F G ⟶ H :=
+  homEquiv b
+
+/-- The compatible sectionwise bilinear map represented by a tensor-product sheaf morphism. -/
+noncomputable def ofHom (f : tensorObj F G ⟶ H) : BilinearMap O F G H :=
+  homEquiv.symm f
+
+section Underlying
+
+variable [J.HasSheafCompose (CategoryTheory.forget RingCat.{w})]
+
+/-- A sectionwise bilinear map as an actual morphism of the underlying sheaves of sets. -/
+noncomputable def underlyingHom (b : BilinearMap O F G H) :
+    (Sheaf.InternalModule.ToInternal.underlying (ringSheaf J O)).obj F ⊗
+      (Sheaf.InternalModule.ToInternal.underlying (ringSheaf J O)).obj G ⟶
+      (Sheaf.InternalModule.ToInternal.underlying (ringSheaf J O)).obj H where
+  hom :=
+    { app := fun U ↦ TypeCat.ofHom fun p ↦ b.app U p.1 p.2
+      naturality := by sorry }
+
+/-- Evaluate the specified sheaf map while retaining the module carriers for inference. -/
+noncomputable def underlyingApp
+    (b : (Sheaf.InternalModule.ToInternal.underlying (ringSheaf J O)).obj F ⊗
+      (Sheaf.InternalModule.ToInternal.underlying (ringSheaf J O)).obj G ⟶
+      (Sheaf.InternalModule.ToInternal.underlying (ringSheaf J O)).obj H)
+    (U : Cᵒᵖ) : F.val.obj U → G.val.obj U → H.val.obj U :=
+  fun x y ↦ b.hom.app U (x, y)
+
+/-- Lift a specified sheaf morphism to the existing sectionwise bilinear-map type.
+Only its additivity and scalar compatibility are supplied as proof fields. -/
+noncomputable def ofUnderlyingHom
+    (b : (Sheaf.InternalModule.ToInternal.underlying (ringSheaf J O)).obj F ⊗
+      (Sheaf.InternalModule.ToInternal.underlying (ringSheaf J O)).obj G ⟶
+      (Sheaf.InternalModule.ToInternal.underlying (ringSheaf J O)).obj H)
+    (ha : ∀ U (x x' : F.val.obj U) (y : G.val.obj U),
+      underlyingApp b U (x + x') y = underlyingApp b U x y + underlyingApp b U x' y)
+    (hs : ∀ U (r : O.obj.obj U) (x : F.val.obj U) (y : G.val.obj U),
+      underlyingApp b U (r • x) y = r • underlyingApp b U x y)
+    (ha' : ∀ U (x : F.val.obj U) (y y' : G.val.obj U),
+      underlyingApp b U x (y + y') = underlyingApp b U x y + underlyingApp b U x y')
+    (hs' : ∀ U (r : O.obj.obj U) (x : F.val.obj U) (y : G.val.obj U),
+      underlyingApp b U x (r • y) = r • underlyingApp b U x y) :
+    BilinearMap O F G H where
+  app U :=
+    { toFun := fun x ↦
+        { toFun := underlyingApp b U x
+          map_add' := ha' U x
+          map_smul' := fun r y ↦ hs' U r x y }
+      map_add' := by intros; ext y; exact ha U _ _ y
+      map_smul' := by intros; ext y; exact hs U _ _ y }
+  naturality := by sorry
+
+/-- The lifted bilinear map retains the supplied section function. -/
+@[simp]
+theorem ofUnderlyingHom_app
+    (b : (Sheaf.InternalModule.ToInternal.underlying (ringSheaf J O)).obj F ⊗
+      (Sheaf.InternalModule.ToInternal.underlying (ringSheaf J O)).obj G ⟶
+      (Sheaf.InternalModule.ToInternal.underlying (ringSheaf J O)).obj H)
+    (ha hs ha' hs') (U : Cᵒᵖ) (x : F.val.obj U) (y : G.val.obj U) :
+    (ofUnderlyingHom b ha hs ha' hs').app U x y = underlyingApp b U x y := rfl
+
+end Underlying
+
+end BilinearMap
+
+end General
+
+-- Keep the established universe arguments of the section-facing API. All
+-- data is supplied by the universe-polymorphic bilinear owner above.
+section Legacy
 
 variable {C : Type u} [Category.{v} C] {J : GrothendieckTopology C}
 variable [J.HasSheafCompose (forget₂ CommRingCat RingCat)]
@@ -42,7 +146,7 @@ variable (O : Sheaf J CommRingCat.{max u v})
 @[stacks 03L6 "bilinear maps on sections of module sheaves"]
 abbrev SectionBilinearMap
     (F G H : ringedSiteModuleCategory J O) :=
-  PresheafOfModules.BilinearMap O.obj F.val G.val H.val
+  BilinearMap O F G H
 
 namespace SectionBilinearMap
 
@@ -54,20 +158,16 @@ tensor product sheaf. -/
 @[stacks 03L6 "bilinear universal property for module sheaves"]
 noncomputable def homEquiv :
     SectionBilinearMap O F G H ≃ (tensorObj F G ⟶ H) :=
-  (PresheafOfModules.BilinearMap.homEquiv
-      (R := O.obj) (F := F.val) (G := G.val) (H := H.val)).trans
-    ((moduleSheafificationHomEquiv O
-        (PresheafOfModules.Monoidal.tensorObj F.val G.val) H).symm.trans
-      ((ModuleSheafification.tensorObjIso O F G).symm.homCongr (Iso.refl H)))
+  BilinearMap.homEquiv
 
 /-- The tensor-product sheaf morphism represented by a compatible sectionwise bilinear map. -/
 @[stacks 03L6 "descent of a sectionwise bilinear map"]
 noncomputable def hom (b : SectionBilinearMap O F G H) : tensorObj F G ⟶ H :=
-  homEquiv b
+  BilinearMap.hom b
 
 /-- The compatible sectionwise bilinear map represented by a tensor-product sheaf morphism. -/
 noncomputable def ofHom (f : tensorObj F G ⟶ H) : SectionBilinearMap O F G H :=
-  homEquiv.symm f
+  BilinearMap.ofHom f
 
 /-- The descended sheaf morphism evaluates on a pure tensor section by the original bilinear
 map. -/
@@ -132,6 +232,7 @@ theorem hom_naturality
 
 end SectionBilinearMap
 
+
+end Legacy
+
 end SheafOfModules.RingedSite
-
-

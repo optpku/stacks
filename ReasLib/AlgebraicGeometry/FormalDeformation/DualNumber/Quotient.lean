@@ -152,14 +152,14 @@ theorem quotientBy_map_mk {A B : ArtinianLocalAlgCat Λ k} (f : A ⟶ B)
       Quot.mk (orbitRel G B) ((restrictedDualNumber Λ k).map f x) := rfl
 
 /-- The quotient map `underline{k[ε]} ⟶ underline{k[ε]}/G`. -/
-def quotientMk : restrictedDualNumber Λ k ⟶ quotientBy G where
+def orbitQuotientMk : restrictedDualNumber Λ k ⟶ quotientBy G where
   app A := TypeCat.ofHom (Quot.mk (orbitRel G A))
   naturality := sorry
 
-/-- The component of `quotientMk` at `A` is `Quot.mk`. -/
-theorem quotientMk_app (A : ArtinianLocalAlgCat Λ k)
+/-- The component of `orbitQuotientMk` at `A` is `Quot.mk`. -/
+theorem orbitQuotientMk_app (A : ArtinianLocalAlgCat Λ k)
     (x : (restrictedDualNumber Λ k).obj A) :
-    (quotientMk G).app A x = Quot.mk (orbitRel G A) x := rfl
+    (orbitQuotientMk G).app A x = Quot.mk (orbitRel G A) x := rfl
 
 /-- Hom-universe lift of the category of elements of `underline{k[ε]}/G`, matching
 the universe constraint of `FormalObject`. -/
@@ -183,7 +183,7 @@ theorem quotientProjection_eq :
       (ULiftHom.down : quotientTotal G ⥤ (quotientBy G).Elements) ⋙
         CategoryOfElements.π (quotientBy G) := rfl
 
-/-- The based functor `underline{k[ε]} ⟶ underline{k[ε]}/G` induced by `quotientMk`. -/
+/-- The based functor `underline{k[ε]} ⟶ underline{k[ε]}/G` induced by `orbitQuotientMk`. -/
 def quotientBasedFunctor :
     BasedCategory.ofFunctor
         (CompleteLocalAlgCat.identityProjection (dualNumberComplete Λ k)) ⥤ᵇ
@@ -192,18 +192,18 @@ def quotientBasedFunctor :
     ((ULiftHom.down :
         CompleteLocalAlgCat.identityTotal (dualNumberComplete Λ k) ⥤
           (restrictedDualNumber Λ k).Elements) ⋙
-      CategoryOfElements.map (quotientMk G) ⋙
+      CategoryOfElements.map (orbitQuotientMk G) ⋙
       (ULiftHom.up : (quotientBy G).Elements ⥤ quotientTotal G))
     sorry
 
 /-- The underlying total functor of `quotientBasedFunctor` is the Hom-universe lift
-of `CategoryOfElements.map (quotientMk G)`. -/
+of `CategoryOfElements.map (orbitQuotientMk G)`. -/
 theorem quotientBasedFunctor_eq :
     (quotientBasedFunctor G).toFunctor =
       (ULiftHom.down :
           CompleteLocalAlgCat.identityTotal (dualNumberComplete Λ k) ⥤
             (restrictedDualNumber Λ k).Elements) ⋙
-        CategoryOfElements.map (quotientMk G) ⋙
+        CategoryOfElements.map (orbitQuotientMk G) ⋙
         (ULiftHom.up : (quotientBy G).Elements ⥤ quotientTotal G) := rfl
 
 /-- Stage `n` of `quotientFormalObject`, the image of the identity truncation of

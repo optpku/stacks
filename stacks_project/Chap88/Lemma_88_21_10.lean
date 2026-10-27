@@ -6,9 +6,8 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import Mathlib.Tactic.CrossRefAttribute
-public import stacks_project.Chap88.Lemma_88_21_9
-public import ReasLib.Algebra.Module.IdealPower.Predicate
+public import ReasLib.AlgebraicGeometry.FormalSpectrum.RigSurjective
+import StacksCheckRecall
 
 /-!
 # Rig-surjectivity versus special-fiber faithful flatness
@@ -29,15 +28,15 @@ universe u
 
 namespace AlgebraicGeometry.FormalAlgebraicSpace.RigSurjective
 
-/-- Lemma 88.21.10: Let `A` be a Noetherian ring complete with respect to an
+/- Lemma 88.21.10: Let `A` be a Noetherian ring complete with respect to an
 ideal `I`. Let `B` be an `I`-adically complete `A`-algebra. Assume that the
 `I`-torsion in `A` is `0`, equivalently `I.powerTorsion A 1 = ⊥`, and that
 `A ⧸ I ^ n →+* B ⧸ I ^ n B` is of finite type and flat for all `n`. Then
 `Spf(B) ⟶ Spf(A)`, encoded as `spfAdicCompletionMap B hA I`, is rig-surjective
 if and only if `A ⧸ I →+* B ⧸ IB` is faithfully flat. -/
-@[stacks 0AQY]
-theorem iff_specialFiber_faithfullyFlat
-    {A B : Type u} [CommRing A] [CommRing B] [IsNoetherianRing A] [Algebra A B]
+@[stacks 0AQY] #check
+  (AlgebraicGeometry.FormalAlgebraicSpace.RigSurjective.iff_specialFiber_faithfullyFlat :
+    ∀ {A B : Type u} [CommRing A] [CommRing B] [IsNoetherianRing A] [Algebra A B]
     (I : Ideal A) [IsAdicComplete I A] [IsAdicComplete I B]
     [Algebra.FiniteType (A ⧸ I) (B ⧸ I.map (algebraMap A B))]
     (h_torsion : I.powerTorsion A 1 = ⊥)
@@ -47,10 +46,9 @@ theorem iff_specialFiber_faithfullyFlat
     (hflat : ∀ n : ℕ,
       (Ideal.quotientMap ((I ^ (n + 1)).map (algebraMap A B))
         (algebraMap A B) Ideal.le_comap_map).Flat)
-    {S : Scheme.{u}} (hA : Spec (.of A) ⟶ S) :
+    {S : Scheme.{u}} (hA : Spec (.of A) ⟶ S),
     RigSurjective (spfAdicCompletionMap B hA I) ↔
       (Ideal.quotientMap (I.map (algebraMap A B))
-        (algebraMap A B) Ideal.le_comap_map).FaithfullyFlat :=
-  sorry
+        (algebraMap A B) Ideal.le_comap_map).FaithfullyFlat)
 
 end AlgebraicGeometry.FormalAlgebraicSpace.RigSurjective

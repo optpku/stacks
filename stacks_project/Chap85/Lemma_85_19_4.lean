@@ -6,9 +6,8 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import Mathlib.Tactic.CrossRefAttribute
-public import stacks_project.Chap85.Lemma_85_17_5
-public import stacks_project.Chap85.Lemma_85_19_4_Adjunction
+public import ReasLib.CategoryTheory.Sites.Hypercovering.CartesianDerivedEquivalence
+import StacksCheckRecall
 
 /-!
 # Lemma 85.19.4
@@ -61,64 +60,24 @@ variable [(directImage (J.over X) (toSliceTerminal J X K).simplicial
       (Sheaf (overSiteTotalTopology (J.over X) (toSliceTerminal J X K).simplicial)
         AddCommGrpCat.{max w u v}))]
 
-/-- Cartesian abelian sheaves on `(C / K)_total` form a weak Serre subcategory of
-`Ab((C / K)_total)`. -/
-instance cartesianProperty_isWeakSerreClass :
-    IsWeakSerreClass
-      (cartesianProperty (J.over X) K.toSimplicialObject
-        AddCommGrpCat.{max w u v}) :=
-  SemiRepresentableFamily.cartesianProperty_isWeakSerreClass.{w, v, max u v}
-    (J.over X) (toSliceTerminal J X K)
-
-/-- The functor `a⁻¹` corestricted from `D⁺(C / X)` to `D_A⁺((C / K)_total)`, where
-`A` is the object property of cartesian abelian sheaves. -/
-abbrev plusCartesianFunctor :
-    DerivedCategory.Plus (Sheaf (J.over X) AddCommGrpCat.{max w u v}) ⥤
-      DerivedCategory.Plus.CohomologyIn
-        (cartesianProperty (J.over X) K.toSimplicialObject
-          AddCommGrpCat.{max w u v}) :=
-  SemiRepresentableFamily.plusCartesianFunctor.{w, v, max u v}
-    (J.over X) (toSliceTerminal J X K)
-
-/-- The functor sending an object of `D_A⁺((C / K)_total)` to `Ra_*` of its
-underlying object of `D⁺((C / K)_total)`. -/
-abbrev plusCartesianInverse :
+/- Lemma 85.19.4: Derived inverse image along a hypercovering of an object induces
+the bounded-below cartesian derived equivalence, with quasi-inverse the derived
+direct image. -/
+@[stacks 0D8M] #check (CategoryTheory.Hypercovering.plusCartesianEquivalence J X K :
+  DerivedCategory.Plus (Sheaf (J.over X) AddCommGrpCat.{max w u v}) ≌
     DerivedCategory.Plus.CohomologyIn
-        (cartesianProperty (J.over X) K.toSimplicialObject
-          AddCommGrpCat.{max w u v}) ⥤
-      DerivedCategory.Plus (Sheaf (J.over X) AddCommGrpCat.{max w u v}) :=
-  SemiRepresentableFamily.plusCartesianInverse.{w, v, max u v}
-    (J.over X) (toSliceTerminal J X K)
+      (cartesianProperty (J.over X) K.toSimplicialObject
+        AddCommGrpCat.{max w u v}))
 
-/-- Lemma 85.19.4: Let `C` be a site with fibre products and `X` an object of
-`C`. Let `K` be a hypercovering of `X`. Let `A` denote the weak Serre subcategory
-of cartesian abelian sheaves on `(C / K)_total`. Then `a⁻¹` defines an
-equivalence `D⁺(C / X) ≌ D_A⁺((C / K)_total)` with quasi-inverse `Ra_*`. -/
-@[stacks 0D8M]
-def plusCartesianEquivalence :
-    DerivedCategory.Plus (Sheaf (J.over X) AddCommGrpCat.{max w u v}) ≌
-      DerivedCategory.Plus.CohomologyIn
-        (cartesianProperty (J.over X) K.toSimplicialObject
-          AddCommGrpCat.{max w u v}) :=
-  SemiRepresentableFamily.plusCartesianEquivalence.{w, v, max u v}
-    (J.over X) (toSliceTerminal J X K)
+#check (CategoryTheory.Hypercovering.cartesianProperty_isWeakSerreClass J X K :
+  IsWeakSerreClass
+    (cartesianProperty (J.over X) K.toSimplicialObject
+      AddCommGrpCat.{max w u v}))
 
-/-- The forward functor of `plusCartesianEquivalence` is `a⁻¹` corestricted to
-`D_A⁺((C / K)_total)`. -/
-theorem plusCartesianEquivalence_functor :
-    (plusCartesianEquivalence J X K).functor = plusCartesianFunctor J X K :=
-  sorry
+#check (CategoryTheory.Hypercovering.plusCartesianEquivalence_functor J X K :
+  (plusCartesianEquivalence J X K).functor = plusCartesianFunctor J X K)
 
-/-- The inverse functor of `plusCartesianEquivalence` is `Ra_*` on
-`D_A⁺((C / K)_total)`. -/
-theorem plusCartesianEquivalence_inverse :
-    (plusCartesianEquivalence J X K).inverse = plusCartesianInverse J X K :=
-  sorry
-
-/-- The corestricted functor `a⁻¹ : D⁺(C / X) ⥤ D_A⁺((C / K)_total)` is an
-equivalence. -/
-instance plusCartesianFunctor_isEquivalence :
-    (plusCartesianFunctor J X K).IsEquivalence :=
-  Equivalence.isEquivalence_functor (plusCartesianEquivalence J X K)
+#check (CategoryTheory.Hypercovering.plusCartesianEquivalence_inverse J X K :
+  (plusCartesianEquivalence J X K).inverse = plusCartesianInverse J X K)
 
 end CategoryTheory.Hypercovering

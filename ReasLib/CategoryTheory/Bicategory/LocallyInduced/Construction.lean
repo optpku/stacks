@@ -77,7 +77,7 @@ abbrev mkHom {X Y : LocallyInducedBicategory C F Q}
 @[simp]
 theorem mkHom.toAmbient {X Y : LocallyInducedBicategory C F Q}
     (f : F X ⟶ F Y) (hf : Q X Y f) :
-    (mkHom f hf).obj = f := sorry
+    (mkHom f hf).obj = f := rfl
 /- Proof strategy: the object projection of the subtype constructor is definitionally `f`. -/
 
 section Construction
@@ -92,7 +92,7 @@ local instance
 /-- The underlying ambient `1`-morphism of an induced identity is the ambient identity. -/
 @[simp]
 lemma id.toAmbient (X : LocallyInducedBicategory C F Q) :
-    (𝟙 X : X ⟶ X).obj = 𝟙 (F X) := sorry
+    (𝟙 X : X ⟶ X).obj = 𝟙 (F X) := rfl
 /- Proof strategy: unfold `categoryStruct`; the identity is the selected ambient identity by
 definition. -/
 
@@ -100,14 +100,14 @@ definition. -/
 @[simp]
 lemma comp.toAmbient {X Y Z : LocallyInducedBicategory C F Q}
     (f : X ⟶ Y) (g : Y ⟶ Z) :
-    (f ≫ g : X ⟶ Z).obj = f.obj ≫ g.obj := sorry
+    (f ≫ g : X ⟶ Z).obj = f.obj ≫ g.obj := rfl
 /- Proof strategy: unfold `categoryStruct`; the composite is the selected ambient composite by
 definition. -/
 
 /-- The underlying ambient `2`-morphism of an identity is the ambient identity. -/
 @[simp]
 lemma id₂.toAmbient {X Y : LocallyInducedBicategory C F Q} (f : X ⟶ Y) :
-    (𝟙 f : f ⟶ f).hom = 𝟙 f.obj := sorry
+    (𝟙 f : f ⟶ f).hom = 𝟙 f.obj := rfl
 /- Proof strategy: unfold the full-subcategory hom category; its identity cell is the ambient
 identity cell. -/
 
@@ -115,7 +115,7 @@ identity cell. -/
 @[simp]
 lemma comp₂.toAmbient {X Y : LocallyInducedBicategory C F Q}
     {f g h : X ⟶ Y} (η : f ⟶ g) (θ : g ⟶ h) :
-    (η ≫ θ).hom = η.hom ≫ θ.hom := sorry
+    (η ≫ θ).hom = η.hom ≫ θ.hom := rfl
 /- Proof strategy: unfold the full-subcategory hom category; vertical composition is inherited
 from the ambient hom-category. -/
 
@@ -155,7 +155,9 @@ private def rightUnitor {X Y : LocallyInducedBicategory C F Q} (f : X ⟶ Y) :
 /-- Left whiskering preserves identity `2`-morphisms. -/
 private theorem whiskerLeftId {X Y Z : LocallyInducedBicategory C F Q}
     (f : X ⟶ Y) (g : Y ⟶ Z) :
-    whiskerLeft f (𝟙 g) = 𝟙 (f ≫ g) := sorry
+    whiskerLeft f (𝟙 g) = 𝟙 (f ≫ g) := by
+  apply ObjectProperty.hom_ext
+  exact whiskerLeft_id f.obj g.obj
 /- Proof strategy: apply `ObjectProperty.hom_ext`; the ambient equation is
 `CategoryTheory.Bicategory.whiskerLeft_id f.obj g.obj`. -/
 
@@ -163,7 +165,9 @@ private theorem whiskerLeftId {X Y Z : LocallyInducedBicategory C F Q}
 private theorem whiskerLeftComp {X Y Z : LocallyInducedBicategory C F Q}
     (f : X ⟶ Y) {g h k : Y ⟶ Z} (η : g ⟶ h) (θ : h ⟶ k) :
     whiskerLeft f (η ≫ θ) =
-      whiskerLeft f η ≫ whiskerLeft f θ := sorry
+      whiskerLeft f η ≫ whiskerLeft f θ := by
+  apply ObjectProperty.hom_ext
+  exact whiskerLeft_comp f.obj η.hom θ.hom
 /- Proof strategy: apply `ObjectProperty.hom_ext`; use the ambient
 `CategoryTheory.Bicategory.whiskerLeft_comp` law. -/
 
@@ -171,7 +175,9 @@ private theorem whiskerLeftComp {X Y Z : LocallyInducedBicategory C F Q}
 private theorem idWhiskerLeft {X Y : LocallyInducedBicategory C F Q}
     {f g : X ⟶ Y} (η : f ⟶ g) :
     whiskerLeft (𝟙 X) η =
-      (leftUnitor f).hom ≫ η ≫ (leftUnitor g).inv := sorry
+      (leftUnitor f).hom ≫ η ≫ (leftUnitor g).inv := by
+  apply ObjectProperty.hom_ext
+  exact id_whiskerLeft η.hom
 /- Proof strategy: apply `ObjectProperty.hom_ext`; expose the ambient cells and apply
 `CategoryTheory.Bicategory.id_whiskerLeft η.hom`. -/
 
@@ -181,14 +187,18 @@ private theorem compWhiskerLeft {W X Y Z : LocallyInducedBicategory C F Q}
     whiskerLeft (f ≫ g) η =
       (associator f g h).hom ≫
         whiskerLeft f (whiskerLeft g η) ≫
-          (associator f g k).inv := sorry
+          (associator f g k).inv := by
+  apply ObjectProperty.hom_ext
+  exact comp_whiskerLeft f.obj g.obj η.hom
 /- Proof strategy: apply `ObjectProperty.hom_ext`; the resulting ambient equation is
 `CategoryTheory.Bicategory.comp_whiskerLeft f.obj g.obj η.hom`. -/
 
 /-- Right whiskering preserves identity `2`-morphisms. -/
 private theorem idWhiskerRight {X Y Z : LocallyInducedBicategory C F Q}
     (f : X ⟶ Y) (g : Y ⟶ Z) :
-    whiskerRight (𝟙 f) g = 𝟙 (f ≫ g) := sorry
+    whiskerRight (𝟙 f) g = 𝟙 (f ≫ g) := by
+  apply ObjectProperty.hom_ext
+  exact id_whiskerRight f.obj g.obj
 /- Proof strategy: apply `ObjectProperty.hom_ext`; use the ambient
 `CategoryTheory.Bicategory.id_whiskerRight f.obj g.obj` law. -/
 
@@ -196,7 +206,9 @@ private theorem idWhiskerRight {X Y Z : LocallyInducedBicategory C F Q}
 private theorem whiskerRightId {X Y : LocallyInducedBicategory C F Q}
     {f g : X ⟶ Y} (η : f ⟶ g) :
     whiskerRight η (𝟙 Y) =
-      (rightUnitor f).hom ≫ η ≫ (rightUnitor g).inv := sorry
+      (rightUnitor f).hom ≫ η ≫ (rightUnitor g).inv := by
+  apply ObjectProperty.hom_ext
+  exact whiskerRight_id η.hom
 /- Proof strategy: apply `ObjectProperty.hom_ext`; expose the ambient cells and apply
 `CategoryTheory.Bicategory.whiskerRight_id η.hom`. -/
 
@@ -206,7 +218,9 @@ private theorem whiskerRightComp {W X Y Z : LocallyInducedBicategory C F Q}
     whiskerRight η (h ≫ k) =
       (associator f h k).inv ≫
         whiskerRight (whiskerRight η h) k ≫
-          (associator g h k).hom := sorry
+          (associator g h k).hom := by
+  apply ObjectProperty.hom_ext
+  exact whiskerRight_comp η.hom h.obj k.obj
 /- Proof strategy: apply `ObjectProperty.hom_ext`; the underlying equation is the ambient
 `CategoryTheory.Bicategory.whiskerRight_comp η.hom h.obj k.obj` law. -/
 
@@ -214,7 +228,9 @@ private theorem whiskerRightComp {W X Y Z : LocallyInducedBicategory C F Q}
 private theorem compWhiskerRight {X Y Z : LocallyInducedBicategory C F Q}
     {f g h : X ⟶ Y} (η : f ⟶ g) (θ : g ⟶ h) (k : Y ⟶ Z) :
     whiskerRight (η ≫ θ) k =
-      whiskerRight η k ≫ whiskerRight θ k := sorry
+      whiskerRight η k ≫ whiskerRight θ k := by
+  apply ObjectProperty.hom_ext
+  exact comp_whiskerRight η.hom θ.hom k.obj
 /- Proof strategy: apply `ObjectProperty.hom_ext`; use the ambient
 `CategoryTheory.Bicategory.comp_whiskerRight η.hom θ.hom k.obj` law. -/
 
@@ -224,7 +240,9 @@ private theorem whiskerAssoc {W X Y Z : LocallyInducedBicategory C F Q}
     whiskerRight (whiskerLeft f η) k =
       (associator f g k).hom ≫
         whiskerLeft f (whiskerRight η k) ≫
-          (associator f h k).inv := sorry
+          (associator f h k).inv := by
+  apply ObjectProperty.hom_ext
+  exact whisker_assoc f.obj η.hom k.obj
 /- Proof strategy: apply `ObjectProperty.hom_ext`; use the ambient
 `CategoryTheory.Bicategory.whisker_assoc f.obj η.hom k.obj` law. -/
 
@@ -232,7 +250,9 @@ private theorem whiskerAssoc {W X Y Z : LocallyInducedBicategory C F Q}
 private theorem whiskerExchange {X Y Z : LocallyInducedBicategory C F Q}
     {f g : X ⟶ Y} {h k : Y ⟶ Z} (η : f ⟶ g) (θ : h ⟶ k) :
     whiskerLeft f θ ≫ whiskerRight η k =
-      whiskerRight η h ≫ whiskerLeft g θ := sorry
+      whiskerRight η h ≫ whiskerLeft g θ := by
+  apply ObjectProperty.hom_ext
+  exact whisker_exchange η.hom θ.hom
 /- Proof strategy: apply `ObjectProperty.hom_ext`; the remaining equality is the ambient
 `CategoryTheory.Bicategory.whisker_exchange η.hom θ.hom`. -/
 
@@ -243,7 +263,9 @@ private theorem pentagon {V W X Y Z : LocallyInducedBicategory C F Q}
         (associator f (g ≫ h) k).hom ≫
           whiskerLeft f (associator g h k).hom =
       (associator (f ≫ g) h k).hom ≫
-        (associator f g (h ≫ k)).hom := sorry
+        (associator f g (h ≫ k)).hom := by
+  apply ObjectProperty.hom_ext
+  exact CategoryTheory.Bicategory.pentagon f.obj g.obj h.obj k.obj
 /- Proof strategy: apply `ObjectProperty.hom_ext`; the ambient representatives satisfy
 `CategoryTheory.Bicategory.pentagon f.obj g.obj h.obj k.obj`. -/
 
@@ -252,7 +274,9 @@ private theorem triangle {X Y Z : LocallyInducedBicategory C F Q}
     (f : X ⟶ Y) (g : Y ⟶ Z) :
     (associator f (𝟙 Y) g).hom ≫
         whiskerLeft f (leftUnitor g).hom =
-      whiskerRight (rightUnitor f).hom g := sorry
+      whiskerRight (rightUnitor f).hom g := by
+  apply ObjectProperty.hom_ext
+  exact CategoryTheory.Bicategory.triangle f.obj g.obj
 /- Proof strategy: apply `ObjectProperty.hom_ext`; use the ambient
 `CategoryTheory.Bicategory.triangle f.obj g.obj` law. -/
 
@@ -288,7 +312,7 @@ left whiskering. -/
 @[simp]
 lemma whiskerLeft.toAmbient {X Y Z : LocallyInducedBicategory C F Q}
     (f : X ⟶ Y) {g h : Y ⟶ Z} (η : g ⟶ h) :
-    (f ◁ η).hom = f.obj ◁ η.hom := sorry
+    (f ◁ η).hom = f.obj ◁ η.hom := rfl
 /- Proof strategy: unfold the bicategory instance and `Implementation.whiskerLeft`. -/
 
 /-- The ambient representative of right whiskering in a locally induced bicategory is ambient
@@ -296,7 +320,7 @@ right whiskering. -/
 @[simp]
 lemma whiskerRight.toAmbient {X Y Z : LocallyInducedBicategory C F Q}
     {f g : X ⟶ Y} (η : f ⟶ g) (h : Y ⟶ Z) :
-    (η ▷ h).hom = η.hom ▷ h.obj := sorry
+    (η ▷ h).hom = η.hom ▷ h.obj := rfl
 /- Proof strategy: unfold the bicategory instance and `Implementation.whiskerRight`. -/
 
 end LocallyInducedBicategory

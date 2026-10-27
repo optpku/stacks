@@ -46,7 +46,7 @@ def comparison {K : CochainComplex.Plus (FilteredObject.Finite.category C)}
 cochain map. -/
 @[simp, stacks 05TW "bounded comparison of a strict filtered-injective resolution"]
 theorem comparison_hom {K : CochainComplex.Plus (FilteredObject.Finite.category C)}
-    (R : Resolution K) : R.comparison.hom = R.ι := sorry
+    (R : Resolution K) : R.comparison.hom = R.ι := rfl
 
 namespace Map
 
@@ -71,7 +71,7 @@ def complexMap
 theorem targetMap_hom
     {K L : CochainComplex.Plus (FilteredObject.Finite.category C)} {f : K ⟶ L}
     {R : Resolution K} {S : Resolution L} (m : Map f R S) :
-    m.targetMap.hom = m.hom := sorry
+    m.targetMap.hom = m.hom := rfl
 
 /-- Forgetting the termwise filtered-injective presentation of a target map recovers its
 bounded-complex presentation. -/
@@ -79,7 +79,7 @@ bounded-complex presentation. -/
 theorem complexMap_hom
     {K L : CochainComplex.Plus (FilteredObject.Finite.category C)} {f : K ⟶ L}
     {R : Resolution K} {S : Resolution L} (m : Map f R S) :
-    m.complexMap.hom = m.targetMap := sorry
+    m.complexMap.hom = m.targetMap := rfl
 
 /-- The bounded target map is compatible with the source morphism and the two resolution
 comparisons. -/
@@ -87,12 +87,14 @@ comparisons. -/
 theorem comparison_naturality
     {K L : CochainComplex.Plus (FilteredObject.Finite.category C)} {f : K ⟶ L}
     {R : Resolution K} {S : Resolution L} (m : Map f R S) :
-    R.comparison ≫ m.targetMap = f ≫ S.comparison := sorry
+    R.comparison ≫ m.targetMap = f ≫ S.comparison := by
+  apply ObjectProperty.hom_ext
+  exact m.ι_naturality
 
 /-- The bounded target map of the identity resolution map is the identity. -/
 @[simp, stacks 05TU "identity bounded target map"]
 theorem id_targetMap {K : CochainComplex.Plus (FilteredObject.Finite.category C)}
-    (R : Resolution K) : (id R).targetMap = 𝟙 R.target := sorry
+    (R : Resolution K) : (id R).targetMap = 𝟙 R.target := rfl
 
 /-- Bounded target maps preserve composition of resolution maps. -/
 @[simp, stacks 05TU "composition of bounded target maps"]
@@ -100,19 +102,19 @@ theorem comp_targetMap
     {K L M : CochainComplex.Plus (FilteredObject.Finite.category C)}
     {f : K ⟶ L} {g : L ⟶ M} {R : Resolution K} {S : Resolution L}
     {T : Resolution M} (m : Map f R S) (n : Map g S T) :
-    (comp m n).targetMap = m.targetMap ≫ n.targetMap := sorry
+    (comp m n).targetMap = m.targetMap ≫ n.targetMap := rfl
 
 /-- Reindexing a resolution map does not change its bounded target map. -/
 @[simp, stacks 05TU "reindexing a bounded target map"]
 theorem reindex_targetMap
     {K L : CochainComplex.Plus (FilteredObject.Finite.category C)} {f g : K ⟶ L}
     {R : Resolution K} {S : Resolution L} (h : f = g) (m : Map f R S) :
-    (reindex h m).targetMap = m.targetMap := sorry
+    (reindex h m).targetMap = m.targetMap := rfl
 
 /-- The termwise filtered-injective target map of the identity resolution map is the identity. -/
 @[simp, stacks 05TU "identity termwise filtered-injective target map"]
 theorem id_complexMap {K : CochainComplex.Plus (FilteredObject.Finite.category C)}
-    (R : Resolution K) : (id R).complexMap = 𝟙 R.complex := sorry
+    (R : Resolution K) : (id R).complexMap = 𝟙 R.complex := rfl
 
 /-- Termwise filtered-injective target maps preserve composition of resolution maps. -/
 @[simp, stacks 05TU "composition of termwise filtered-injective target maps"]
@@ -120,14 +122,14 @@ theorem comp_complexMap
     {K L M : CochainComplex.Plus (FilteredObject.Finite.category C)}
     {f : K ⟶ L} {g : L ⟶ M} {R : Resolution K} {S : Resolution L}
     {T : Resolution M} (m : Map f R S) (n : Map g S T) :
-    (comp m n).complexMap = m.complexMap ≫ n.complexMap := sorry
+    (comp m n).complexMap = m.complexMap ≫ n.complexMap := rfl
 
 /-- Reindexing a resolution map does not change its termwise filtered-injective target map. -/
 @[simp, stacks 05TU "reindexing a termwise filtered-injective target map"]
 theorem reindex_complexMap
     {K L : CochainComplex.Plus (FilteredObject.Finite.category C)} {f g : K ⟶ L}
     {R : Resolution K} {S : Resolution L} (h : f = g) (m : Map f R S) :
-    (reindex h m).complexMap = m.complexMap := sorry
+    (reindex h m).complexMap = m.complexMap := rfl
 
 end Map
 

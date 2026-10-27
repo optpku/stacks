@@ -33,24 +33,27 @@ structure FieldValuedPoint {S : Scheme.{u}}
   /-- The source field. -/
   K : Type u
   /-- The field structure on the source. -/
-  [field : Field K]
+  field : Field K
   /-- The structure morphism of `Spec(K)` over `S`. -/
-  structureHom : Spec (.of K) ⟶ S
+  structureHom : Spec (@CommRingCat.of K field.toCommRing) ⟶ S
   /-- The morphism `Spec(K) ⟶ X` of groupoid fibrations over `S`. -/
   hom : Classifying.slice (Over.mk structureHom) ⟶ X
 
 namespace FieldValuedPoint
 
-attribute [instance] field
-
 variable {S : Scheme.{u}}
   {X : FiberedCategoryOver.Groupoids.{u + 1, u, u + 1, u + 1} (Over S)}
+
+/-- The spectrum of the explicitly stored source field of a field-valued point. -/
+def sourceSpec (p : FieldValuedPoint X) : Scheme.{u} :=
+  Spec (@CommRingCat.of p.K p.field.toCommRing)
 
 /-- Construct a field-valued point from a field, a structure morphism to `S`, and
 a morphism into `X`. -/
 def of (K : Type u) [Field K] (structureHom : Spec (.of K) ⟶ S)
     (hom : Classifying.slice (Over.mk structureHom) ⟶ X) : FieldValuedPoint X where
   K := K
+  field := inferInstance
   structureHom := structureHom
   hom := hom
 
@@ -122,7 +125,7 @@ theorem ofAlgebraicSpace_hom {F : AlgebraicSpace S}
 2-isomorphism. Existence of such a factorization says that `p` dominates `q`. -/
 structure Factorization (p q : FieldValuedPoint X) where
   /-- The morphism of source field spectra. -/
-  schemeHom : Spec (.of p.K) ⟶ Spec (.of q.K)
+  schemeHom : p.sourceSpec ⟶ q.sourceSpec
   /-- The triangle over `S` commutes. -/
   fac_structure : schemeHom ≫ q.structureHom = p.structureHom
   /-- The triangle over `X` 2-commutes. -/
@@ -133,7 +136,7 @@ namespace Factorization
 
 /-- Construct a factorization from a morphism of field spectra, a commuting
 triangle over `S`, and a 2-isomorphism over `X`. -/
-def of {p q : FieldValuedPoint X} (schemeHom : Spec (.of p.K) ⟶ Spec (.of q.K))
+def of {p q : FieldValuedPoint X} (schemeHom : p.sourceSpec ⟶ q.sourceSpec)
     (fac_structure : schemeHom ≫ q.structureHom = p.structureHom)
     (fac_iso :
       Classifying.overMap (Over.homMk schemeHom fac_structure) ≫ q.hom ≅ p.hom) :
@@ -218,8 +221,8 @@ theorem Equivalent.ofAlgebraicSpace {F : AlgebraicSpace S}
 theorem equivalent_iff (p q : FieldValuedPoint X) :
     Equivalent p q ↔
       ∃ (r : FieldValuedPoint X)
-        (a : Spec (.of r.K) ⟶ Spec (.of p.K))
-        (b : Spec (.of r.K) ⟶ Spec (.of q.K))
+        (a : r.sourceSpec ⟶ p.sourceSpec)
+        (b : r.sourceSpec ⟶ q.sourceSpec)
         (ha : a ≫ p.structureHom = r.structureHom)
         (hb : b ≫ q.structureHom = r.structureHom),
         Nonempty

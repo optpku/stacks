@@ -41,20 +41,65 @@ global function of `U`. -/
 theorem isRegularEtaleSection_iff {S : Scheme.{u}} {X : AlgebraicSpace S} {U : smallEtaleSite X}
     (s : (commStructureSheafLift X).obj.obj (op U)) :
     IsRegularEtaleSection s ↔ Scheme.IsRegularStructureSection s.down :=
-  sorry
+  Iff.rfl
 
 /-- The unit section of the structure sheaf on an étale chart is regular. -/
 theorem isRegularEtaleSection_one {S : Scheme.{u}} {X : AlgebraicSpace S}
     (U : smallEtaleSite X) :
     IsRegularEtaleSection (1 : (commStructureSheafLift X).obj.obj (op U)) :=
-  sorry
+  by
+    change Mono (SheafOfModules.regularSectionHom _ _)
+    simp only [SheafOfModules.regularSectionHom, Equiv.symm_apply_apply]
+    change Mono (RingedSpace.globalSectionMul (1 : Γ(U.left.left, ⊤))
+      (SheafOfModules.unit U.left.left.toRingedSpace.ringCatSheaf))
+    have h : RingedSpace.globalSectionMul (1 : Γ(U.left.left, ⊤))
+        (SheafOfModules.unit U.left.left.toRingedSpace.ringCatSheaf) = 𝟙 _ := by
+      apply SheafOfModules.hom_ext
+      apply PresheafOfModules.hom_ext
+      intro W
+      apply ModuleCat.hom_ext
+      apply LinearMap.ext
+      intro x
+      change ((U.left.left.presheaf.map (TopologicalSpace.Opens.leTop W.unop).op).hom 1) • x = x
+      simp
+    exact h.symm ▸ inferInstance
 
 /-- The product of two regular structure sections on an étale chart is regular. -/
 theorem isRegularEtaleSection_mul {S : Scheme.{u}} {X : AlgebraicSpace S}
     {U : smallEtaleSite X} {s t : (commStructureSheafLift X).obj.obj (op U)}
     (hs : IsRegularEtaleSection s) (ht : IsRegularEtaleSection t) :
     IsRegularEtaleSection (s * t) :=
-  sorry
+  by
+    simp only [IsRegularEtaleSection, Scheme.IsRegularStructureSection,
+      RingedSpace.IsRegularSection, SheafOfModules.IsRegularSection,
+      SheafOfModules.regularSectionHom, Equiv.symm_apply_apply] at hs ht ⊢
+    change Mono (RingedSpace.globalSectionMul s.down
+      (SheafOfModules.unit U.left.left.toRingedSpace.ringCatSheaf)) at hs
+    change Mono (RingedSpace.globalSectionMul t.down
+      (SheafOfModules.unit U.left.left.toRingedSpace.ringCatSheaf)) at ht
+    change Mono (RingedSpace.globalSectionMul (s.down * t.down)
+      (SheafOfModules.unit U.left.left.toRingedSpace.ringCatSheaf))
+    have h : RingedSpace.globalSectionMul (s.down * t.down)
+        (SheafOfModules.unit U.left.left.toRingedSpace.ringCatSheaf) =
+        RingedSpace.globalSectionMul s.down
+            (SheafOfModules.unit U.left.left.toRingedSpace.ringCatSheaf) ≫
+          RingedSpace.globalSectionMul t.down
+            (SheafOfModules.unit U.left.left.toRingedSpace.ringCatSheaf) := by
+      apply SheafOfModules.hom_ext
+      apply PresheafOfModules.hom_ext
+      intro W
+      apply ModuleCat.hom_ext
+      apply LinearMap.ext
+      intro x
+      change ((U.left.left.presheaf.map (TopologicalSpace.Opens.leTop W.unop).op).hom (s.down * t.down)) • x =
+        ((U.left.left.presheaf.map (TopologicalSpace.Opens.leTop W.unop).op).hom t.down) •
+          (((U.left.left.presheaf.map (TopologicalSpace.Opens.leTop W.unop).op).hom s.down) • x)
+      exact (congrArg (fun r : Γ(U.left.left, W.unop) ↦ r • x)
+        ((U.left.left.presheaf.map (TopologicalSpace.Opens.leTop W.unop).op).hom.map_mul
+          s.down t.down)).trans ((mul_smul _ _ _).trans (smul_comm _ _ _))
+    letI := hs
+    letI := ht
+    exact h.symm ▸ inferInstance
 
 /-- Restriction along a morphism of étale charts preserves regular structure sections. -/
 theorem isRegularEtaleSection_map {S : Scheme.{u}} {X : AlgebraicSpace S}
@@ -78,7 +123,7 @@ def regularStructureSections {S : Scheme.{u}} (X : AlgebraicSpace S) :
 theorem mem_regularStructureSections_iff {S : Scheme.{u}} {X : AlgebraicSpace S}
     {U : smallEtaleSite X} (s : (commStructureSheafLift X).obj.obj (op U)) :
     s ∈ (regularStructureSections X).obj (op U) ↔ IsRegularEtaleSection s :=
-  sorry
+  Iff.rfl
 
 /-- The sheaf of meromorphic functions `𝒦_X` on `X_étale`, obtained by sheafifying the
 objectwise localization `U ↦ S_X(U)⁻¹ 𝒪_X(U)`. -/
@@ -89,7 +134,7 @@ def meromorphicFunctionSheaf {S : Scheme.{u}} (X : AlgebraicSpace S) :
 /-- `𝒦_X` is the localization sheaf of `𝒪_X` at the family of regular sections. -/
 theorem meromorphicFunctionSheaf_eq {S : Scheme.{u}} (X : AlgebraicSpace S) :
     meromorphicFunctionSheaf X = (regularStructureSections X).localizationSheaf :=
-  sorry
+  rfl
 
 /-- The canonical morphism of sheaves of rings `𝒪_X ⟶ 𝒦_X`. -/
 def toMeromorphicFunctionSheafHom {S : Scheme.{u}} (X : AlgebraicSpace S) :
@@ -99,7 +144,7 @@ def toMeromorphicFunctionSheafHom {S : Scheme.{u}} (X : AlgebraicSpace S) :
 /-- The canonical map `𝒪_X ⟶ 𝒦_X` is the localization-sheaf unit. -/
 theorem toMeromorphicFunctionSheafHom_eq {S : Scheme.{u}} (X : AlgebraicSpace S) :
     toMeromorphicFunctionSheafHom X = (regularStructureSections X).toLocalizationSheaf :=
-  sorry
+  rfl
 
 /-- The ring of meromorphic functions on `X` is the ring of global sections of `𝒦_X`. -/
 def meromorphicFunctions {S : Scheme.{u}} (X : AlgebraicSpace S) : CommRingCat.{u + 1} :=
@@ -108,7 +153,7 @@ def meromorphicFunctions {S : Scheme.{u}} (X : AlgebraicSpace S) : CommRingCat.{
 /-- Meromorphic functions on `X` are the limit of the underlying presheaf of `𝒦_X`. -/
 theorem meromorphicFunctions_eq {S : Scheme.{u}} (X : AlgebraicSpace S) :
     meromorphicFunctions X = limit (meromorphicFunctionSheaf X).obj :=
-  sorry
+  rfl
 
 /-- The canonical ring map from global regular functions to meromorphic functions. -/
 def toMeromorphicFunctions {S : Scheme.{u}} (X : AlgebraicSpace S) :
@@ -118,7 +163,7 @@ def toMeromorphicFunctions {S : Scheme.{u}} (X : AlgebraicSpace S) :
 /-- The global regular-to-meromorphic map is induced by `𝒪_X ⟶ 𝒦_X`. -/
 theorem toMeromorphicFunctions_eq {S : Scheme.{u}} (X : AlgebraicSpace S) :
     toMeromorphicFunctions X = limMap (toMeromorphicFunctionSheafHom X).hom :=
-  sorry
+  rfl
 
 /-- Local sections of `𝒦_X` are algebras over the corresponding sections of `𝒪_X`. -/
 instance instAlgebraSectionsMeromorphicFunctionSheaf {S : Scheme.{u}} (X : AlgebraicSpace S)

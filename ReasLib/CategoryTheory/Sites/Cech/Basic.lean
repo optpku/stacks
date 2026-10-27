@@ -59,34 +59,34 @@ abbrev restrictPresheafToOver (U : C) :
 functor. -/
 @[simp]
 theorem restrictPresheafToOver_obj (U : C) (F : Cᵒᵖ ⥤ A) :
-    (restrictPresheafToOver U).obj F = (Over.forget U).op ⋙ F := sorry
+    (restrictPresheafToOver U).obj F = (Over.forget U).op ⋙ F := rfl
 
 /-- Evaluating a presheaf restricted to `Over U` at `V ⟶ U` evaluates the original presheaf at
 `V`. -/
 @[simp]
 theorem restrictPresheafToOver_obj_obj (U : C) (F : Cᵒᵖ ⥤ A) (V : Over U) :
-    ((restrictPresheafToOver U).obj F).obj (op V) = F.obj (op V.left) := sorry
+    ((restrictPresheafToOver U).obj F).obj (op V) = F.obj (op V.left) := rfl
 
 /-- The map of a presheaf restricted to `Over U` is the map induced by the underlying slice
 morphism. -/
 @[simp]
 theorem restrictPresheafToOver_obj_map
     (U : C) (F : Cᵒᵖ ⥤ A) {V W : Over U} (f : V ⟶ W) :
-    ((restrictPresheafToOver U).obj F).map f.op = F.map f.left.op := sorry
+    ((restrictPresheafToOver U).obj F).map f.op = F.map f.left.op := rfl
 
 /-- Restriction to a slice sends a natural transformation to its left whiskering by the slice
 forgetful functor. -/
 @[simp]
 theorem restrictPresheafToOver_map
     (U : C) {F G : Cᵒᵖ ⥤ A} (α : F ⟶ G) :
-    (restrictPresheafToOver U).map α = (Over.forget U).op.whiskerLeft α := sorry
+    (restrictPresheafToOver U).map α = (Over.forget U).op.whiskerLeft α := rfl
 
 /-- The component of a restricted natural transformation at a slice object is its original
 component at the underlying object. -/
 @[simp]
 theorem restrictPresheafToOver_map_app
     (U : C) {F G : Cᵒᵖ ⥤ A} (α : F ⟶ G) (V : Over U) :
-    ((restrictPresheafToOver U).map α).app (op V) = α.app (op V.left) := sorry
+    ((restrictPresheafToOver U).map α).app (op V) = α.app (op V.left) := rfl
 
 end
 
@@ -114,7 +114,7 @@ abbrev cechComplexOnPresheaves (family : ι → Over U) :
 @[simp]
 theorem cechComplexOnPresheaves_obj
     (family : ι → Over U) (F : Cᵒᵖ ⥤ A) :
-    (cechComplexOnPresheaves U family).obj F = cechComplex U family F := sorry
+    (cechComplexOnPresheaves U family).obj F = cechComplex U family F := rfl
 
 /-- In degree `p`, the Čech-complex functor is the product of values on the degree-`p`
 iterated intersections of the family. -/
@@ -123,7 +123,7 @@ theorem cechComplexOnPresheaves_obj_X
     (family : ι → Over U) (F : Cᵒᵖ ⥤ A) (p : ℕ) :
     ((cechComplexOnPresheaves U family).obj F).X p =
       ∏ᶜ fun i : cechCoverIntersectionIndex (FormalCoproduct.mk _ family) p ↦
-        F.obj (op (cechCoverIntersectionObject (FormalCoproduct.mk _ family) p i)) := sorry
+        F.obj (op (cechCoverIntersectionObject (FormalCoproduct.mk _ family) p i)) := rfl
 
 /-- The morphism part of the Čech-complex functor is induced by restricting the natural
 transformation to `Over U` and applying `cechComplexFunctor`. -/
@@ -131,7 +131,7 @@ transformation to `Over U` and applying `cechComplexFunctor`. -/
 theorem cechComplexOnPresheaves_map
     (family : ι → Over U) {F G : Cᵒᵖ ⥤ A} (α : F ⟶ G) :
     (cechComplexOnPresheaves U family).map α =
-      (cechComplexFunctor family).map ((restrictPresheafToOver U).map α) := sorry
+      (cechComplexFunctor family).map ((restrictPresheafToOver U).map α) := rfl
 
 end Complex
 
@@ -151,14 +151,14 @@ abbrev cechCohomology
 @[simp]
 theorem cechComplex_homology
     (family : ι → Over U) (F : Cᵒᵖ ⥤ A) (i : ℕ) :
-    (cechComplex U family F).homology i = cechCohomology U family F i := sorry
+    (cechComplex U family F).homology i = cechCohomology U family F i := rfl
 
 /-- The degree-`i` homology of the Čech-complex functor is Čech cohomology. -/
 @[simp]
 theorem cechComplexOnPresheaves_obj_homology
     (family : ι → Over U) (F : Cᵒᵖ ⥤ A) (i : ℕ) :
     ((cechComplexOnPresheaves U family).obj F).homology i =
-      cechCohomology U family F i := sorry
+      cechCohomology U family F i := rfl
 
 end Cohomology
 

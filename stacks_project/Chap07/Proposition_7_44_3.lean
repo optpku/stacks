@@ -77,8 +77,13 @@ rather than repackaged into a new conjunction theorem. -/
 #check @grpCatAlgebraicStructure
 #check @monCatAlgebraicStructure
 #check @commRingCatAlgebraicStructure
-#check @moduleCatAlgebraicStructureOfCommRing
-#check @lieAlgebraCatAlgebraicStructureOfField
+
+variable (R : Type w) [CommRing R] (k : Type w) [Field k]
+
+#check (inferInstance :
+  IsAlgebraicStructure (ModuleCat.{v} R) (forget (ModuleCat.{v} R)))
+#check (inferInstance :
+  IsAlgebraicStructure (LieAlgebraCat.{v} k) (forget (LieAlgebraCat.{v} k)))
 
 variable (A : Type w) [Category.{max u₁ u₂ v} A]
 variable {FA : A → A → Type (max u₁ u₂ v)} {CA : A → Type (max u₁ u₂ v)}

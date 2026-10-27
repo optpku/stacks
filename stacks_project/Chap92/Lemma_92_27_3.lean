@@ -6,49 +6,38 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap92.Lemma_92_27_3_Omega
-public import stacks_project.Chap92.Lemma_92_27_3_Comparison
-import Mathlib.Tactic.CrossRefAttribute
-
-/-!
-# Cotangent complex of an algebraic space over a ring via derived lower shriek
-
-Lemma 92.27.3 identifies `L_{X/Λ}` in `D(𝒪_X)` with
-`Lπ_!(Ω_{O/underline{Λ}} ⊗_O underline{𝒪}_X)`, recovering the source chain
-`L_{X/Λ} = Lπ_!(Li^* Ω_{O/underline{Λ}}) = Lπ_!(i^* Ω_{O/underline{Λ}}) =
-Lπ_!(Ω_{O/underline{Λ}} ⊗_O underline{𝒪}_X)`.
--/
-
-@[expose] public section
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.CotangentSite.NaiveDifferentials
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.CotangentSite.DerivedLowerShriek
+import StacksCheckRecall
 
 open CategoryTheory
 open AlgebraicGeometry
 open AlgebraicGeometry.AlgebraicSpace
-open AlgebraicGeometry.AlgebraicSpace.Cotangent
-
-noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.Cotangent
+/- Lemma 92.27.3 -/
+@[stacks 08VM] #check
+  (AlgebraicGeometry.AlgebraicSpace.Cotangent.lowerShriek_omega :
+    ∀ (Λ : CommRingCat.{u}) (X : AlgebraicSpace (Spec Λ)),
+      IsIsomorphic (AlgebraicGeometry.AlgebraicSpace.Cotangent.cotangent
+        (AlgebraicGeometry.AlgebraicSpace.SchemeRealization.toBase X))
+        ((AlgebraicGeometry.AlgebraicSpace.Cotangent.lowerShriek Λ X).obj
+          (AlgebraicGeometry.AlgebraicSpace.Cotangent.singleOmegaTensorInverseImage Λ X)))
 
-variable (Λ : CommRingCat.{u}) (X : AlgebraicSpace (Spec Λ))
+#check (AlgebraicGeometry.AlgebraicSpace.Cotangent.derivedInverseImage_omega :
+  ∀ (Λ : CommRingCat.{u}) (X : AlgebraicSpace (Spec Λ)),
+    IsIsomorphic
+      ((AlgebraicGeometry.AlgebraicSpace.Cotangent.derivedInverseImage Λ X).obj
+        (AlgebraicGeometry.AlgebraicSpace.Cotangent.singleOmega Λ X))
+      (AlgebraicGeometry.AlgebraicSpace.Cotangent.singleOmegaTensor Λ X))
 
-/-- Lemma 92.27.3. In the situation above there is a canonical isomorphism
-`L_{X/Λ} = Lπ_!(Li^* Ω_{O/underline{Λ}}) = Lπ_!(i^* Ω_{O/underline{Λ}}) =
-Lπ_!(Ω_{O/underline{Λ}} ⊗_O underline{𝒪}_X)` in `D(𝒪_X)`. The last two equalities
-use that `Ω_{O/underline{Λ}}` is a flat `O`-module because each affine vertex is a
-polynomial `Λ`-algebra. -/
-@[stacks 08VM]
-theorem lowerShriek_omega :
-    IsIsomorphic (cotangent (toBase X))
-      ((lowerShriek Λ X).obj (singleOmegaTensorInverseImage Λ X)) :=
-  sorry
-
-/-- The same identification with `L_{𝒪_X / underline{Λ}}`, via Lemma 92.26.4. -/
-theorem lowerShriek_omega_constCotangent :
-    IsIsomorphic (constCotangent Λ X)
-      ((lowerShriek Λ X).obj (singleOmegaTensorInverseImage Λ X)) :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace.Cotangent
+#check (AlgebraicGeometry.AlgebraicSpace.Cotangent.lowerShriek_derivedInverseImage :
+  ∀ (Λ : CommRingCat.{u}) (X : AlgebraicSpace (Spec Λ)),
+    IsIsomorphic
+      ((AlgebraicGeometry.AlgebraicSpace.Cotangent.lowerShriek Λ X).obj
+        ((AlgebraicGeometry.AlgebraicSpace.Cotangent.transportDerived Λ X).obj
+          ((AlgebraicGeometry.AlgebraicSpace.Cotangent.derivedInverseImage Λ X).obj
+            (AlgebraicGeometry.AlgebraicSpace.Cotangent.singleOmega Λ X))))
+      ((AlgebraicGeometry.AlgebraicSpace.Cotangent.lowerShriek Λ X).obj
+        (AlgebraicGeometry.AlgebraicSpace.Cotangent.singleOmegaTensorInverseImage Λ X)))

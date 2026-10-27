@@ -6,8 +6,8 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap99.Lemma_99_15_2
-public import stacks_project.Chap108.Lemma_108_4_8_Algebraic
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Curve.Diagonal
+import StacksCheckRecall
 
 /-!
 # Lemma 99.15.4
@@ -15,27 +15,13 @@ public import stacks_project.Chap108.Lemma_108_4_8_Algebraic
 The diagonal of `Curves` is representable by algebraic spaces.
 -/
 
-@[expose] public section
-
-open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
-open AlgebraicGeometry.AlgebraicSpace.Spaces
-open AlgebraicGeometry.GroupScheme
-open scoped Bicategory
-
-noncomputable section
-
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.Spaces
-namespace Curves
-
-/-- Lemma 99.15.4: the diagonal
+/- Lemma 99.15.4: the diagonal
 `Δ : Curves ⟶ Curves × Curves` is representable by algebraic spaces. -/
-@[stacks 0D53]
-theorem relativelyRepresentableByAlgebraicSpaces_diagonal (S : Scheme.{u}) :
-    Classifying.relativelyRepresentableByAlgebraicSpaces
-      (CohStack.diagonal (toGroupoids S)) :=
-  sorry
-
-end Curves
-end AlgebraicGeometry.AlgebraicSpace.Spaces
+@[stacks 0D53] #check
+  (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.relativelyRepresentableByAlgebraicSpaces_diagonal :
+    ∀ S : AlgebraicGeometry.Scheme.{u},
+      AlgebraicGeometry.GroupScheme.Classifying.relativelyRepresentableByAlgebraicSpaces
+        (AlgebraicGeometry.AlgebraicSpace.CohStack.diagonal
+          (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.toGroupoids S)))

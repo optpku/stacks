@@ -68,35 +68,53 @@ variable {D : Type u'} [Category.{v'} D] (F : C ⥤ D)
 theorem s'_comp_ε :
     F.map ed.s' ≫
         (((SimplicialObject.Augmented.whiskering C D).obj F).obj X).hom.app (op ⦋0⦌) =
-      𝟙 (F.obj X.right) := sorry
+      𝟙 (F.obj X.right) := by
+  set_option backward.isDefEq.respectTransparency false in
+    change F.map ed.s' ≫ (F.map (X.hom.app (op ⦋0⦌)) ≫ 𝟙 _) = _
+    simpa only [Functor.map_comp, Functor.map_id, Category.comp_id] using
+      congrArg F.map ed.s'_comp_ε
 
 /-- The mapped initial last-degeneracy relation. -/
 theorem s₀_comp_δ₀ :
     F.map (ed.s 0) ≫
         (((SimplicialObject.Augmented.whiskering C D).obj F).obj X).left.δ 0 =
       (((SimplicialObject.Augmented.whiskering C D).obj F).obj X).hom.app (op ⦋0⦌) ≫
-        F.map ed.s' := sorry
+        F.map ed.s' := by
+  set_option backward.isDefEq.respectTransparency false in
+    change F.map (ed.s 0) ≫ F.map (X.left.δ 0) =
+      (F.map (X.hom.app (op ⦋0⦌)) ≫ 𝟙 _) ≫ F.map ed.s'
+    simpa only [Functor.map_comp, Category.comp_id] using
+      congrArg F.map ed.s₀_comp_δ₀
 
 /-- The mapped last extra degeneracies remain sections of the final faces. -/
 theorem s_comp_δ_last (n : ℕ) :
     F.map (ed.s n) ≫
         (((SimplicialObject.Augmented.whiskering C D).obj F).obj X).left.δ
           (Fin.last (n + 1)) =
-      𝟙 _ := sorry
+      𝟙 _ := by
+  change F.map (ed.s n) ≫ F.map (X.left.δ (Fin.last (n + 1))) = _
+  simpa only [Functor.map_comp, Functor.map_id] using
+    congrArg F.map (ed.s_comp_δ_last n)
 
 /-- The mapped last extra degeneracies commute with nonfinal faces. -/
 theorem s_comp_δ (n : ℕ) (i : Fin (n + 2)) :
     F.map (ed.s (n + 1)) ≫
         (((SimplicialObject.Augmented.whiskering C D).obj F).obj X).left.δ i.castSucc =
       (((SimplicialObject.Augmented.whiskering C D).obj F).obj X).left.δ i ≫
-        F.map (ed.s n) := sorry
+        F.map (ed.s n) := by
+  change F.map (ed.s (n + 1)) ≫ F.map (X.left.δ i.castSucc) =
+    F.map (X.left.δ i) ≫ F.map (ed.s n)
+  simpa only [Functor.map_comp] using congrArg F.map (ed.s_comp_δ n i)
 
 /-- The mapped last extra degeneracies commute with degeneracies. -/
 theorem s_comp_σ (n : ℕ) (i : Fin (n + 1)) :
     F.map (ed.s n) ≫
         (((SimplicialObject.Augmented.whiskering C D).obj F).obj X).left.σ i.castSucc =
       (((SimplicialObject.Augmented.whiskering C D).obj F).obj X).left.σ i ≫
-        F.map (ed.s (n + 1)) := sorry
+        F.map (ed.s (n + 1)) := by
+  change F.map (ed.s n) ≫ F.map (X.left.σ i.castSucc) =
+    F.map (X.left.σ i) ≫ F.map (ed.s (n + 1))
+  simpa only [Functor.map_comp] using congrArg F.map (ed.s_comp_σ n i)
 
 end map
 
@@ -117,13 +135,13 @@ def map (ed : LastExtraDegeneracy X) {D : Type u'} [Category.{v'} D] (F : C ⥤ 
 functor. -/
 @[simp, stacks 08ND "mapped last extra degeneracy zero-section"]
 theorem map_s' {D : Type u'} [Category.{v'} D] (F : C ⥤ D) :
-    (ed.map F).s' = F.map ed.s' := sorry
+    (ed.map F).s' = F.map ed.s' := rfl
 
 /-- The degreewise maps of the image of a last extra degeneracy are obtained by applying the
 functor. -/
 @[simp, stacks 08ND "mapped last extra degeneracy maps"]
 theorem map_s {D : Type u'} [Category.{v'} D] (F : C ⥤ D) (n : ℕ) :
-    (ed.map F).s n = F.map (ed.s n) := sorry
+    (ed.map F).s n = F.map (ed.s n) := rfl
 
 namespace app
 
@@ -134,32 +152,51 @@ variable (ed : LastExtraDegeneracy X) (a : A)
 /-- The evaluated zero-section is a section of the evaluated augmentation. -/
 theorem s'_comp_ε :
     ed.s'.app a ≫ (SimplicialObject.Augmented.Pointwise.obj X a).hom.app (op ⦋0⦌) =
-      𝟙 ((SimplicialObject.Augmented.Pointwise.obj X a).right) := sorry
+      𝟙 ((SimplicialObject.Augmented.Pointwise.obj X a).right) := by
+  change ed.s'.app a ≫ (X.hom.app (op ⦋0⦌)).app a = 𝟙 (X.right.obj a)
+  simpa only [NatTrans.comp_app, NatTrans.id_app] using
+    congrArg (fun f => f.app a) ed.s'_comp_ε
 
 /-- The initial face relation for a last extra degeneracy holds after evaluation. -/
 theorem s₀_comp_δ₀ :
     (ed.s 0).app a ≫ (SimplicialObject.Augmented.Pointwise.obj X a).left.δ 0 =
       (SimplicialObject.Augmented.Pointwise.obj X a).hom.app (op ⦋0⦌) ≫
-        ed.s'.app a := sorry
+        ed.s'.app a := by
+  change (ed.s 0).app a ≫ (X.left.δ 0).app a =
+    (X.hom.app (op ⦋0⦌)).app a ≫ ed.s'.app a
+  simpa only [NatTrans.comp_app] using
+    congrArg (fun f => f.app a) ed.s₀_comp_δ₀
 
 /-- Evaluated last extra degeneracies remain sections of the final faces. -/
 theorem s_comp_δ_last (n : ℕ) :
     (ed.s n).app a ≫
         (SimplicialObject.Augmented.Pointwise.obj X a).left.δ (Fin.last (n + 1)) =
-      𝟙 _ := sorry
+      𝟙 _ := by
+  change (ed.s n).app a ≫ (X.left.δ (Fin.last (n + 1))).app a =
+    𝟙 ((X.left _⦋n⦌).obj a)
+  simpa only [NatTrans.comp_app, NatTrans.id_app] using
+    congrArg (fun f => f.app a) (ed.s_comp_δ_last n)
 
 /-- Evaluated last extra degeneracies commute with all nonfinal faces. -/
 theorem s_comp_δ (n : ℕ) (i : Fin (n + 2)) :
     (ed.s (n + 1)).app a ≫
         (SimplicialObject.Augmented.Pointwise.obj X a).left.δ i.castSucc =
-      (SimplicialObject.Augmented.Pointwise.obj X a).left.δ i ≫ (ed.s n).app a := sorry
+      (SimplicialObject.Augmented.Pointwise.obj X a).left.δ i ≫ (ed.s n).app a := by
+  change (ed.s (n + 1)).app a ≫ (X.left.δ i.castSucc).app a =
+    (X.left.δ i).app a ≫ (ed.s n).app a
+  simpa only [NatTrans.comp_app] using
+    congrArg (fun f => f.app a) (ed.s_comp_δ n i)
 
 /-- Evaluated last extra degeneracies commute with degeneracies. -/
 theorem s_comp_σ (n : ℕ) (i : Fin (n + 1)) :
     (ed.s n).app a ≫
         (SimplicialObject.Augmented.Pointwise.obj X a).left.σ i.castSucc =
       (SimplicialObject.Augmented.Pointwise.obj X a).left.σ i ≫
-        (ed.s (n + 1)).app a := sorry
+        (ed.s (n + 1)).app a := by
+  change (ed.s n).app a ≫ (X.left.σ i.castSucc).app a =
+    (X.left.σ i).app a ≫ (ed.s (n + 1)).app a
+  simpa only [NatTrans.comp_app] using
+    congrArg (fun f => f.app a) (ed.s_comp_σ n i)
 
 end app
 
@@ -183,14 +220,14 @@ def app {A : Type u'} [Category.{v'} A]
 theorem app_s' {A : Type u'} [Category.{v'} A]
     {X : SimplicialObject.Augmented (A ⥤ C)}
     (ed : LastExtraDegeneracy X) (a : A) :
-    (ed.app a).s' = ed.s'.app a := sorry
+    (ed.app a).s' = ed.s'.app a := rfl
 
 /-- Each map of an evaluated last extra degeneracy is evaluated pointwise. -/
 @[simp]
 theorem app_s {A : Type u'} [Category.{v'} A]
     {X : SimplicialObject.Augmented (A ⥤ C)}
     (ed : LastExtraDegeneracy X) (a : A) (n : ℕ) :
-    (ed.app a).s n = (ed.s n).app a := sorry
+    (ed.app a).s n = (ed.s n).app a := rfl
 
 namespace ofIso
 
@@ -200,7 +237,12 @@ variable {Y : SimplicialObject.Augmented C} (e : X ≅ Y)
 theorem s'_comp_ε :
     ((SimplicialObject.Augmented.point.mapIso e).inv ≫ ed.s' ≫
         (SimplicialObject.Augmented.drop.mapIso e).hom.app (op ⦋0⦌)) ≫
-      Y.hom.app (op ⦋0⦌) = 𝟙 Y.right := sorry
+      Y.hom.app (op ⦋0⦌) = 𝟙 Y.right := by
+  set_option backward.isDefEq.respectTransparency false in
+    change (e.inv.right ≫ ed.s' ≫ e.hom.left.app (op ⦋0⦌)) ≫
+      Y.hom.app (op ⦋0⦌) = 𝟙 Y.right
+    rw [Category.assoc, Category.assoc, w_app e.hom, ed.s'_comp_ε_assoc, Category.id_comp]
+    exact (SimplicialObject.Augmented.point.mapIso e).inv_hom_id
 
 /-- The transported initial last-degeneracy relation. -/
 theorem s₀_comp_δ₀ :
@@ -209,13 +251,26 @@ theorem s₀_comp_δ₀ :
       Y.left.δ 0 =
         Y.hom.app (op ⦋0⦌) ≫
           ((SimplicialObject.Augmented.point.mapIso e).inv ≫ ed.s' ≫
-            (SimplicialObject.Augmented.drop.mapIso e).hom.app (op ⦋0⦌)) := sorry
+            (SimplicialObject.Augmented.drop.mapIso e).hom.app (op ⦋0⦌)) := by
+  set_option backward.isDefEq.respectTransparency false in
+    change (e.inv.left.app (op ⦋0⦌) ≫ ed.s 0 ≫ e.hom.left.app (op ⦋1⦌)) ≫
+      Y.left.δ 0 = Y.hom.app (op ⦋0⦌) ≫
+        e.inv.right ≫ ed.s' ≫ e.hom.left.app (op ⦋0⦌)
+    rw [Category.assoc, Category.assoc,
+      ← SimplicialObject.δ_naturality e.hom.left 0, ed.s₀_comp_δ₀_assoc]
+    simpa only [Category.assoc] using
+      congrArg (fun f => f ≫ ed.s' ≫ e.hom.left.app (op ⦋0⦌)) (w_app e.inv (op ⦋0⦌))
 
 /-- Transported last extra degeneracies remain sections of the final faces. -/
 theorem s_comp_δ_last (n : ℕ) :
     ((SimplicialObject.Augmented.drop.mapIso e).inv.app (op ⦋n⦌) ≫ ed.s n ≫
         (SimplicialObject.Augmented.drop.mapIso e).hom.app (op ⦋n + 1⦌)) ≫
-      Y.left.δ (Fin.last (n + 1)) = 𝟙 _ := sorry
+      Y.left.δ (Fin.last (n + 1)) = 𝟙 _ := by
+  change (e.inv.left.app (op ⦋n⦌) ≫ ed.s n ≫
+    e.hom.left.app (op ⦋n + 1⦌)) ≫ Y.left.δ (Fin.last (n + 1)) = 𝟙 _
+  rw [Category.assoc, Category.assoc, ← SimplicialObject.δ_naturality,
+    ed.s_comp_δ_last_assoc]
+  exact congr_app (SimplicialObject.Augmented.drop.mapIso e).inv_hom_id (op ⦋n⦌)
 
 /-- Transported last extra degeneracies commute with nonfinal faces. -/
 theorem s_comp_δ (n : ℕ) (i : Fin (n + 2)) :
@@ -225,7 +280,16 @@ theorem s_comp_δ (n : ℕ) (i : Fin (n + 2)) :
       Y.left.δ i.castSucc =
         Y.left.δ i ≫
           ((SimplicialObject.Augmented.drop.mapIso e).inv.app (op ⦋n⦌) ≫ ed.s n ≫
-            (SimplicialObject.Augmented.drop.mapIso e).hom.app (op ⦋n + 1⦌)) := sorry
+            (SimplicialObject.Augmented.drop.mapIso e).hom.app (op ⦋n + 1⦌)) := by
+  set_option backward.isDefEq.respectTransparency false in
+    change (e.inv.left.app (op ⦋n + 1⦌) ≫ ed.s (n + 1) ≫
+      e.hom.left.app (op ⦋n + 2⦌)) ≫ Y.left.δ i.castSucc =
+        Y.left.δ i ≫ e.inv.left.app (op ⦋n⦌) ≫ ed.s n ≫ e.hom.left.app (op ⦋n + 1⦌)
+    rw [Category.assoc, Category.assoc,
+      ← SimplicialObject.δ_naturality e.hom.left i.castSucc, ed.s_comp_δ_assoc]
+    simpa only [Category.assoc] using
+      congrArg (fun f => f ≫ ed.s n ≫ e.hom.left.app (op ⦋n + 1⦌))
+        (SimplicialObject.δ_naturality e.inv.left i).symm
 
 /-- Transported last extra degeneracies commute with degeneracies. -/
 theorem s_comp_σ (n : ℕ) (i : Fin (n + 1)) :
@@ -235,7 +299,17 @@ theorem s_comp_σ (n : ℕ) (i : Fin (n + 1)) :
         Y.left.σ i ≫
           ((SimplicialObject.Augmented.drop.mapIso e).inv.app (op ⦋n + 1⦌) ≫
             ed.s (n + 1) ≫
-              (SimplicialObject.Augmented.drop.mapIso e).hom.app (op ⦋n + 2⦌)) := sorry
+              (SimplicialObject.Augmented.drop.mapIso e).hom.app (op ⦋n + 2⦌)) := by
+  set_option backward.isDefEq.respectTransparency false in
+    change (e.inv.left.app (op ⦋n⦌) ≫ ed.s n ≫
+      e.hom.left.app (op ⦋n + 1⦌)) ≫ Y.left.σ i.castSucc =
+        Y.left.σ i ≫ e.inv.left.app (op ⦋n + 1⦌) ≫ ed.s (n + 1) ≫
+          e.hom.left.app (op ⦋n + 2⦌)
+    rw [Category.assoc, Category.assoc,
+      ← SimplicialObject.σ_naturality e.hom.left i.castSucc, ed.s_comp_σ_assoc]
+    simpa only [Category.assoc] using
+      congrArg (fun f => f ≫ ed.s (n + 1) ≫ e.hom.left.app (op ⦋n + 2⦌))
+        (SimplicialObject.σ_naturality e.inv.left i).symm
 
 end ofIso
 
@@ -259,7 +333,7 @@ section. -/
 theorem ofIso_s' {Y : SimplicialObject.Augmented C} (e : X ≅ Y) (ed : LastExtraDegeneracy X) :
     (ofIso e ed).s' =
       (SimplicialObject.Augmented.point.mapIso e).inv ≫ ed.s' ≫
-        (SimplicialObject.Augmented.drop.mapIso e).hom.app (op ⦋0⦌) := sorry
+        (SimplicialObject.Augmented.drop.mapIso e).hom.app (op ⦋0⦌) := rfl
 
 /-- The degreewise maps of a transported last extra degeneracy are the conjugated source maps. -/
 @[simp, stacks 08ND "transported last extra degeneracy maps"]
@@ -267,7 +341,7 @@ theorem ofIso_s {Y : SimplicialObject.Augmented C} (e : X ≅ Y) (ed : LastExtra
     (n : ℕ) :
     (ofIso e ed).s n =
       (SimplicialObject.Augmented.drop.mapIso e).inv.app (op ⦋n⦌) ≫ ed.s n ≫
-        (SimplicialObject.Augmented.drop.mapIso e).hom.app (op ⦋n + 1⦌) := sorry
+        (SimplicialObject.Augmented.drop.mapIso e).hom.app (op ⦋n + 1⦌) := rfl
 
 /-- The simplicial section of the augmentation generated by the degree-zero section of a last
 extra degeneracy. -/
@@ -280,23 +354,38 @@ degree-zero component. -/
 @[simp, stacks 08ND "component of the section from a last extra degeneracy"]
 theorem section_app (Δ : SimplexCategoryᵒᵖ) :
     ed.section_.app Δ =
-      ed.s' ≫ X.left.map (SimplexCategory.isTerminalZero.from (unop Δ)).op := sorry
+      ed.s' ≫ X.left.map (SimplexCategory.isTerminalZero.from (unop Δ)).op := rfl
 
 /-- In degree zero, the simplicial section supplied by a last extra degeneracy is its defining
 section. -/
 @[simp, stacks 08ND "degree-zero section from a last extra degeneracy"]
-theorem section_app_zero : ed.section_.app (op ⦋0⦌) = ed.s' := sorry
+theorem section_app_zero : ed.section_.app (op ⦋0⦌) = ed.s' := by
+  rw [section_app, Limits.IsTerminal.from_self, op_id, Functor.map_id, Category.comp_id]
 
 /-- Iterating the final degeneracy from the degree-zero section gives every component of the
 canonical simplicial section. -/
 @[reassoc (attr := simp), stacks 08ND "last-extra-degeneracy section in every degree"]
 theorem s'_σLastIter (n : ℕ) :
-    ed.s' ≫ X.left.σLastIter n (zero_add n) = ed.section_.app (op ⦋n⦌) := sorry
+    ed.s' ≫ X.left.σLastIter n (zero_add n) = ed.section_.app (op ⦋n⦌) := by
+  rw [section_app]
+  dsimp [SimplicialObject.σLastIter]
+  congr 3
+  subsingleton
 
 /-- The simplicial section supplied by a last extra degeneracy is a strict section of the
 augmentation. -/
 @[simp, stacks 08ND "section identity from a last extra degeneracy"]
-theorem section_comp_hom : ed.section_ ≫ X.hom = 𝟙 _ := sorry
+theorem section_comp_hom : ed.section_ ≫ X.hom = 𝟙 _ := by
+  set_option backward.isDefEq.respectTransparency false in
+    apply NatTrans.ext
+    funext Δ
+    change ed.section_.app Δ ≫ X.hom.app Δ = 𝟙 X.right
+    have h : X.left.map (SimplexCategory.isTerminalZero.from (unop Δ)).op ≫ X.hom.app Δ =
+        X.hom.app (op ⦋0⦌) :=
+      (X.hom.naturality (SimplexCategory.isTerminalZero.from (unop Δ)).op).trans
+        (Category.comp_id _)
+    rw [section_app, Category.assoc, h]
+    exact ed.s'_comp_ε
 
 /-- A last extra degeneracy canonically exhibits its augmentation as a split epimorphism. -/
 @[stacks 08ND "split epimorphism from a last extra degeneracy"]

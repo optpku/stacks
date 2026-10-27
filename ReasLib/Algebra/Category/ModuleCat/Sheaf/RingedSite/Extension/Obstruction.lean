@@ -189,6 +189,8 @@ theorem obsExtension_spec (E E' : Extension π)
 
 variable [HasExt (ringedSiteModuleCategory.{u, v, max u v, max u v} J 𝒪)]
 
+namespace Extension
+
 /-- The obstruction class o(φ, ψ) ∈ Ext¹_𝒪(ℱ, ℒ) of a pair of endpoint maps whose
 infinitesimal-map square commutes. -/
 noncomputable def mapObstruction (E E' : Extension π)
@@ -210,5 +212,7 @@ theorem mapObstruction_eq_zero_iff (E E' : Extension π)
     (φ : E.quot ⟶ E'.quot) (ψ : E.kernel ⟶ E'.kernel)
     (h : infMapCommSq E E' φ ψ) :
     mapObstruction E E' φ ψ h = 0 ↔ Nonempty (CompatibleMap E E' φ ψ) := sorry
+
+end Extension
 
 end SheafOfModules.RingedSite.FirstOrderThickening

@@ -6,71 +6,51 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import Mathlib.CategoryTheory.ObjectProperty.ClosedUnderIsomorphisms
-public import stacks_project.Chap67.Lemma_67_37_4_Smooth
-public import stacks_project.Chap109.Lemma_109_8_1_Substack
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Curve.Smooth
 
 /-!
 # The object properties of smooth families of curves
 
 `𝒞urves^{smooth}` and `𝒞urves^{smooth, 1}` are the full subcategories of
 families of curves whose structure morphisms are smooth, respectively smooth of
-relative dimension 1. Membership is the source-facing packaging of a classifying
-morphism factoring through those open substacks.
+relative dimension 1. Membership expresses the classifying morphism factoring
+through the corresponding open substack.
 -/
-
-@[expose] public section
 
 open CategoryTheory AlgebraicGeometry CategoryTheory.ObjectProperty
 open AlgebraicGeometry.AlgebraicSpace
 
-noncomputable section
-
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
-namespace Spaces
-namespace Curves
+namespace AlgebraicGeometry.AlgebraicSpace.Spaces.Curves
 
-/-- The object property of smooth families of curves, corresponding to the
-open substack 𝒞urves^{smooth}. -/
-def smooth (S : Scheme.{u}) : ObjectProperty (Obj S) :=
-  fun P ↦ AlgebraicSpace.Smooth (hom P)
+#check (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.smooth :
+    ∀ (S : Scheme.{u}),
+    ObjectProperty (Obj S))
 
-/-- Membership in `smooth` is smoothness of the structure morphism. -/
-theorem smooth_iff {S : Scheme.{u}} (P : Obj S) :
-    smooth S P ↔ AlgebraicSpace.Smooth (hom P) :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.smooth_iff :
+    ∀ {S : Scheme.{u}} (P : Obj S),
+    smooth S P ↔ AlgebraicSpace.Smooth (hom P))
 
-/-- The smoothness property of families of curves is closed under
-isomorphisms. -/
-instance instIsClosedUnderIsomorphisms_smooth (S : Scheme.{u}) :
-    (smooth S).IsClosedUnderIsomorphisms :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.instIsClosedUnderIsomorphisms_smooth :
+    ∀ (S : Scheme.{u}),
+    (smooth S).IsClosedUnderIsomorphisms)
 
-/-- The object property of smooth families of curves of relative dimension 1,
-corresponding to the open substack `𝒞urves^{smooth, 1}`. -/
-def smoothDim1 (S : Scheme.{u}) : ObjectProperty (Obj S) :=
-  fun P ↦ AlgebraicSpace.Smooth (hom P) ∧ RelativeDimension (hom P) 1
+#check (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.smoothDim1 :
+    ∀ (S : Scheme.{u}),
+    ObjectProperty (Obj S))
 
-/-- Membership in `smoothDim1` is smoothness of the structure morphism together
-with exact relative dimension 1. -/
-theorem smoothDim1_iff {S : Scheme.{u}} (P : Obj S) :
+#check (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.smoothDim1_iff :
+    ∀ {S : Scheme.{u}} (P : Obj S),
     smoothDim1 S P ↔
-      AlgebraicSpace.Smooth (hom P) ∧ RelativeDimension (hom P) 1 :=
-  sorry
+      AlgebraicSpace.Smooth (hom P) ∧ RelativeDimension (hom P) 1)
 
-/-- The smoothness relative-dimension-1 property of families of curves is
-closed under isomorphisms. -/
-instance instIsClosedUnderIsomorphisms_smoothDim1 (S : Scheme.{u}) :
-    (smoothDim1 S).IsClosedUnderIsomorphisms :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.instIsClosedUnderIsomorphisms_smoothDim1 :
+    ∀ (S : Scheme.{u}),
+    (smoothDim1 S).IsClosedUnderIsomorphisms)
 
-/-- Membership in `𝒞urves^{smooth, 1}` implies membership in `𝒞urves^{smooth}`. -/
-theorem smoothDim1_le_smooth {S : Scheme.{u}} (P : Obj S) :
-    smoothDim1 S P → smooth S P :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.smoothDim1_le_smooth :
+    ∀ {S : Scheme.{u}} (P : Obj S),
+    smoothDim1 S P → smooth S P)
 
-end Curves
-end Spaces
-end AlgebraicGeometry.AlgebraicSpace
+end AlgebraicGeometry.AlgebraicSpace.Spaces.Curves

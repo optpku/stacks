@@ -151,6 +151,19 @@ def gradedAlgebra (A : DividedPowerChainAlgebra.{u, v} R) (d : ℕ+)
   NonnegGradedAlgebra.Adjoin.Even.dpAlgebra
     A.toChainDGAlgebra.nonnegativePart d A.gamma hd d.2
 
+/-- The even-variable graded algebra uses the uniform-Bell composition coefficient on every
+positive divided monomial. -/
+theorem gradedAlgebra_gamma_tPower (A : DividedPowerChainAlgebra.{u, v} R) (d : ℕ+)
+    (hd : Even (d : ℕ)) (n : ℕ) (i : ℕ+) :
+    NonnegGradedAlgebra.Adjoin.Even.gammaCoords A.toChainDGAlgebra.nonnegativePart d hd
+        (gradedAlgebra A d hd).gamma n
+        (NonnegGradedAlgebra.Adjoin.Even.tPower A.toChainDGAlgebra.nonnegativePart i) =
+      Nat.uniformBell n (i : ℕ) •
+        NonnegGradedAlgebra.Adjoin.Even.monomial A.toChainDGAlgebra.nonnegativePart
+          (n * (i : ℕ)) A.toChainDGAlgebra.nonnegativePart.oneEven :=
+  (NonnegGradedAlgebra.Adjoin.Even.dividedPowers_isCanonical
+    A.toChainDGAlgebra.nonnegativePart d A.gamma hd d.2).tPower n i
+
 /-- The positive-degree differential family on the base nonnegative graded algebra. -/
 def baseDifferential (A : DividedPowerChainAlgebra.{u, v} R) :
     ∀ n : ℕ+, A.toChainDGAlgebra.nonnegativePart.piece n →ₗ[R]

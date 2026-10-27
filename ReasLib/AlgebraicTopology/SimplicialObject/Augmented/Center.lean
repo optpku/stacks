@@ -36,7 +36,10 @@ theorem augmentedApp.commSq (z : CatCenter D)
     CommSq
       (Functor.whiskerLeft Q.left z)
       Q.hom Q.hom
-      ((SimplicialObject.const D).map (z.app Q.right)) := sorry
+      ((SimplicialObject.const D).map (z.app Q.right)) := by
+  refine ⟨?_⟩
+  ext n
+  exact (z.naturality (Q.hom.app n)).symm
 
 /-- The endomorphism of an augmented simplicial object induced by a central endomorphism of its
 ambient category. -/
@@ -50,13 +53,13 @@ def augmentedApp (z : CatCenter D) (Q : SimplicialObject.Augmented D) : Q ⟶ Q 
 endomorphism. -/
 @[simp, stacks 0G5S "simplicial component of the augmented center action"]
 theorem augmentedApp.left (z : CatCenter D) (Q : SimplicialObject.Augmented D) :
-    (augmentedApp z Q).left = Functor.whiskerLeft Q.left z := sorry
+    (augmentedApp z Q).left = Functor.whiskerLeft Q.left z := rfl
 
 /-- The augmentation-point component of the center action is the component of the central
 endomorphism at that point. -/
 @[simp, stacks 0G5S "point component of the augmented center action"]
 theorem augmentedApp.right (z : CatCenter D) (Q : SimplicialObject.Augmented D) :
-    (augmentedApp z Q).right = z.app Q.right := sorry
+    (augmentedApp z Q).right = z.app Q.right := rfl
 
 variable {C : Type uC} [Category.{vC} C]
 
@@ -67,7 +70,10 @@ theorem whiskerRight.commSq (z : CatCenter C) {X : SimplicialObject (C ⥤ C)}
     (ε : X ⟶ (SimplicialObject.const (C ⥤ C)).obj (𝟭 C)) :
     CommSq
       (Functor.whiskerLeft X (whiskerRight C z)) ε ε
-      ((SimplicialObject.const (C ⥤ C)).map z) := sorry
+      ((SimplicialObject.const (C ⥤ C)).map z) := by
+  refine ⟨?_⟩
+  ext n A
+  exact (ε.app n).naturality (z.app A)
 
 /-- Left-whiskering a central endomorphism by every simplicial degree commutes with any
 augmentation to the identity endofunctor. -/
@@ -76,13 +82,22 @@ theorem whiskerLeft.commSq (z : CatCenter C) {X : SimplicialObject (C ⥤ C)}
     (ε : X ⟶ (SimplicialObject.const (C ⥤ C)).obj (𝟭 C)) :
     CommSq
       (Functor.whiskerLeft X (whiskerLeft C z)) ε ε
-      ((SimplicialObject.const (C ⥤ C)).map z) := sorry
+      ((SimplicialObject.const (C ⥤ C)).map z) := by
+  refine ⟨?_⟩
+  ext n A
+  exact (z.naturality ((ε.app n).app A)).symm
 
 /-- The center action is natural in the augmented simplicial object. -/
 @[stacks 0G5S "naturality of the augmented center action"]
 theorem augmentedApp.naturality (z : CatCenter D)
     {Q R : SimplicialObject.Augmented D} (f : Q ⟶ R) :
-    f ≫ augmentedApp z R = augmentedApp z Q ≫ f := sorry
+    f ≫ augmentedApp z R = augmentedApp z Q ≫ f := by
+  apply SimplicialObject.Augmented.hom_ext
+  · show (f ≫ augmentedApp z R).left = (augmentedApp z Q ≫ f).left
+    ext n
+    exact z.naturality (f.left.app n)
+  · show (f ≫ augmentedApp z R).right = (augmentedApp z Q ≫ f).right
+    exact z.naturality f.right
 
 /-- A central endomorphism of `D` induces a central endomorphism of the category of augmented
 simplicial objects in `D`. -/
@@ -94,12 +109,18 @@ def augmentedMap (z : CatCenter D) :
 
 /-- The lifted identity central endomorphism is the identity. -/
 @[simp]
-theorem augmentedMap.one : augmentedMap (1 : CatCenter D) = 1 := sorry
+theorem augmentedMap.one : augmentedMap (1 : CatCenter D) = 1 := by
+  apply CatCenter.ext
+  intro Q
+  exact SimplicialObject.Augmented.hom_ext _ _ rfl rfl
 
 /-- Lifting central endomorphisms preserves multiplication. -/
 @[simp]
 theorem augmentedMap.mul (z w : CatCenter D) :
-    augmentedMap (z * w) = augmentedMap z * augmentedMap w := sorry
+    augmentedMap (z * w) = augmentedMap z * augmentedMap w := by
+  apply CatCenter.ext
+  intro Q
+  exact SimplicialObject.Augmented.hom_ext _ _ rfl rfl
 
 /-- The center action on augmented simplicial objects, bundled as a monoid homomorphism between
 category centers. -/
@@ -113,6 +134,6 @@ def augmented :
 /-- Evaluating the bundled center action at an augmented object gives `augmentedApp`. -/
 @[simp]
 theorem augmented_app (z : CatCenter D) (Q : SimplicialObject.Augmented D) :
-    (augmented z).app Q = augmentedApp z Q := sorry
+    (augmented z).app Q = augmentedApp z Q := rfl
 
 end CategoryTheory.CatCenter

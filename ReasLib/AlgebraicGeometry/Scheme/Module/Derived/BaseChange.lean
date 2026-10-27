@@ -23,10 +23,8 @@ namespace AlgebraicGeometry.Scheme.Hom.DerivedBaseChange
 
 variable {X X' S S' : Scheme.{u}}
 variable {g' : X' ⟶ X} {f' : X' ⟶ S'} {f : X ⟶ S} {g : S' ⟶ S}
-variable [RingedSite.Hom.DerivedAdjunction.HasPair
-  (RingedSpace.opensRingedSiteHom f.toShHom)]
-variable [RingedSite.Hom.DerivedAdjunction.HasPair
-  (RingedSpace.opensRingedSiteHom f'.toShHom)]
+variable [RingedSpace.DerivedAdjunction.HasPair f.toShHom]
+variable [RingedSpace.DerivedAdjunction.HasPair f'.toShHom]
 variable [hleft : IsIso
   (RingedSpace.modulePullbackDerived.compComparison f'.toShHom g.toShHom)]
 variable [hright : IsIso
@@ -71,10 +69,8 @@ variable {Z' Z X' X : Scheme.{u}}
 the canonical unbounded derived base-change transformation is invertible. -/
 theorem map_isIso_of_isClosedImmersion
     (g : Z' ⟶ Z) (i' : Z' ⟶ X') (i : Z ⟶ X) (f : X' ⟶ X)
-    [RingedSite.Hom.DerivedAdjunction.HasPair
-      (RingedSpace.opensRingedSiteHom i.toShHom)]
-    [RingedSite.Hom.DerivedAdjunction.HasPair
-      (RingedSpace.opensRingedSiteHom i'.toShHom)]
+    [RingedSpace.DerivedAdjunction.HasPair i.toShHom]
+    [RingedSpace.DerivedAdjunction.HasPair i'.toShHom]
     [IsIso (RingedSpace.modulePullbackDerived.compComparison i'.toShHom f.toShHom)]
     [IsIso (RingedSpace.modulePullbackDerived.compComparison g.toShHom i.toShHom)]
     (sq : IsPullback g i' i f) [IsClosedImmersion i]

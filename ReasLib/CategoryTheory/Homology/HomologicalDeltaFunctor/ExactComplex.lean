@@ -48,13 +48,17 @@ complexes. -/
 @[stacks 010Q "short-exact image of an exact chain-complex functor"]
 theorem map_shortExact [PreservesFiniteLimits K] [PreservesFiniteColimits K]
     {S : ShortComplex A} (hS : S.ShortExact) :
-    (S.map K).ShortExact := sorry
+    (S.map K).ShortExact :=
+  hS.map_of_exact K
 
 /-- Exactness-property bridge for callers that already package both preservation facts. -/
 @[stacks 010Q "exactness bridge for chain-complex functors"]
 theorem map_shortExact_of_exact (hK : exactFunctor A (ChainComplex B ℕ) K)
     {S : ShortComplex A} (hS : S.ShortExact) :
-    (S.map K).ShortExact := sorry
+    (S.map K).ShortExact := by
+  letI : PreservesFiniteLimits K := hK.1
+  letI : PreservesFiniteColimits K := hK.2
+  exact map_shortExact K hS
 
 /-- The connecting morphism in homology of the image of a short exact sequence. -/
 @[stacks 010Q "connecting morphism of an exact chain-complex functor"]
@@ -68,14 +72,21 @@ noncomputable def connecting [PreservesFiniteLimits K] [PreservesFiniteColimits 
 @[stacks 010Q "epimorphism in degree zero homology"]
 theorem epi_map_g_zero [PreservesFiniteLimits K] [PreservesFiniteColimits K]
     {S : ShortComplex A} (hS : S.ShortExact) :
-    Epi ((degree K 0).obj.map S.g) := sorry
+    Epi ((degree K 0).obj.map S.g) := by
+  have : Epi ((K.map S.g).f 0) :=
+    ((map_shortExact K hS).map_of_exact (HomologicalComplex.eval B _ 0)).epi_g
+  exact HomologicalComplex.epi_homologyMap_of_epi_of_not_rel (K.map S.g) 0
+    (fun j ↦ by simp [ComplexShape.down_Rel])
 
 /-- The degree-zero homology branch of an exact nonnegative chain-complex functor is right
 exact. -/
 @[stacks 010Q "right exactness of degree-zero homology"]
 theorem degree_zero_preservesFiniteColimits [PreservesFiniteLimits K]
     [PreservesFiniteColimits K] :
-    PreservesFiniteColimits (degree K 0).obj := sorry
+    PreservesFiniteColimits (degree K 0).obj := by
+  apply (Functor.preservesFiniteColimits_iff_forall_exact_map_and_epi _).2
+  intro S hS
+  exact ⟨(map_shortExact K hS).homology_exact₂ 0, epi_map_g_zero K hS⟩
 
 /-- The five-arrow homology window of an exact chain-complex functor is exact. -/
 @[stacks 010Q "long exact homology window"]
@@ -83,7 +94,9 @@ theorem exact₅ [PreservesFiniteLimits K] [PreservesFiniteColimits K]
     {S : ShortComplex A} (hS : S.ShortExact) (n : ℕ) :
     (mk₅ ((degree K (n + 1)).obj.map S.f) ((degree K (n + 1)).obj.map S.g)
       (connecting K hS n) ((degree K n).obj.map S.f)
-      ((degree K n).obj.map S.g)).Exact := sorry
+      ((degree K n).obj.map S.g)).Exact :=
+  HomologicalComplex.HomologySequence.composableArrows₅_exact
+    (map_shortExact K hS) (n + 1) n (ComplexShape.down_mk (n + 1) n rfl)
 
 /-- The homology connecting morphisms are natural in morphisms of short exact sequences. -/
 @[stacks 010Q "naturality of homology connecting morphisms"]
@@ -91,7 +104,10 @@ theorem connecting_naturality [PreservesFiniteLimits K] [PreservesFiniteColimits
     {S T : ShortComplex A}
     (hS : S.ShortExact) (hT : T.ShortExact) (f : S ⟶ T) (n : ℕ) :
     CommSq ((degree K (n + 1)).obj.map f.τ₃) (connecting K hS n)
-      (connecting K hT n) ((degree K n).obj.map f.τ₁) := sorry
+      (connecting K hT n) ((degree K n).obj.map f.τ₁) := by
+  exact ⟨(HomologicalComplex.HomologySequence.δ_naturality
+    (K.mapShortComplex.map f) (map_shortExact K hS) (map_shortExact K hT)
+    (n + 1) n (ComplexShape.down_mk (n + 1) n rfl)).symm⟩
 
 /-- The homological delta functor canonically attached to an exact additive functor into
 nonnegative chain complexes. -/
@@ -129,26 +145,26 @@ noncomputable def functorOfExact
 theorem functorBundled_obj
     (K : ExactFunctor A (ChainComplex B ℕ)) (n : ℕ) :
     ((functorBundled K n).obj) = K.1 ⋙
-      HomologicalComplex.homologyFunctor B (ComplexShape.down ℕ) n := sorry
+      HomologicalComplex.homologyFunctor B (ComplexShape.down ℕ) n := rfl
 
 /-- The connecting morphism attached to a bundled exact functor. -/
 @[simp, stacks 010Q "connecting formula for a bundled exact chain-complex functor"]
 theorem functorBundled_δ
     (K : ExactFunctor A (ChainComplex B ℕ))
     {S : ShortComplex A} (hS : S.ShortExact) (n : ℕ) :
-    (functorBundled K).δ hS n = connecting K.1 hS n := sorry
+    (functorBundled K).δ hS n = connecting K.1 hS n := rfl
 
 /-- The degree branches of `functor K` are the homology functors of `K`. -/
 @[simp, stacks 010Q "degree formula for the homological delta functor"]
 theorem functor_obj [PreservesFiniteLimits K] [PreservesFiniteColimits K] (n : ℕ) :
     ((functor K n).obj) = K ⋙
-      HomologicalComplex.homologyFunctor B (ComplexShape.down ℕ) n := sorry
+      HomologicalComplex.homologyFunctor B (ComplexShape.down ℕ) n := rfl
 
 /-- The connecting morphism of `functor K` is the boundary map of the mapped short exact
 sequence. -/
 @[simp, stacks 010Q "connecting formula for the homological delta functor"]
 theorem functor_δ [PreservesFiniteLimits K] [PreservesFiniteColimits K]
     {S : ShortComplex A} (hS : S.ShortExact) (n : ℕ) :
-    (functor K).δ hS n = connecting K hS n := sorry
+    (functor K).δ hS n = connecting K hS n := rfl
 
 end CategoryTheory.HomologicalDeltaFunctor.ExactComplex

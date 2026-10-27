@@ -29,23 +29,23 @@ theorem pairHenselization
     (I : Ideal A) [Algebra A Ah] (Ih : Ideal Ah) [IsPairHenselization A I Ah Ih]
     [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
     [MonoidalCategory (DerivedCategory (ModuleCat.{u} Ah))]
-    (HA : MonoidalClosed (DerivedCategory (ModuleCat.{u} A)))
-    (HAh : MonoidalClosed (DerivedCategory (ModuleCat.{u} Ah)))
-    (ω : DerivedCategory (ModuleCat.{u} A)) (hω : ω.IsDualizingComplex HA) :
+    (CA : CanonicalClosedPresentation (A := A))
+    (CAh : CanonicalClosedPresentation (A := Ah))
+    (ω : DerivedCategory (ModuleCat.{u} A)) (hω : ω.IsCanonicalDualizingComplex CA) :
     let _ : IsNoetherianRing Ah :=
       IsPairHenselization.isNoetherianRing (B := A) (J := I) (A := Ah) (I := Ih)
-    ((ModuleCat.derivedExtensionOfScalars (algebraMap A Ah)).obj ω).IsDualizingComplex HAh := sorry
+    ((ModuleCat.derivedExtensionOfScalars (algebraMap A Ah)).obj ω).IsCanonicalDualizingComplex CAh := sorry
 
 /-- Derived extension to the adic completion of a Noetherian ring preserves dualizing complexes. -/
 theorem adicCompletion
     {A : Type u} [CommRing A] [IsNoetherianRing A] (I : Ideal A)
     [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
     [MonoidalCategory (DerivedCategory (ModuleCat.{u} (AdicCompletion I A)))]
-    (HA : MonoidalClosed (DerivedCategory (ModuleCat.{u} A)))
-    (HAhat : MonoidalClosed (DerivedCategory (ModuleCat.{u} (AdicCompletion I A))))
-    (ω : DerivedCategory (ModuleCat.{u} A)) (hω : ω.IsDualizingComplex HA) :
+    (CA : CanonicalClosedPresentation (A := A))
+    (CAhat : CanonicalClosedPresentation (A := AdicCompletion I A))
+    (ω : DerivedCategory (ModuleCat.{u} A)) (hω : ω.IsCanonicalDualizingComplex CA) :
     ((ModuleCat.derivedExtensionOfScalars
-      (algebraMap A (AdicCompletion I A))).obj ω).IsDualizingComplex HAhat := sorry
+      (algebraMap A (AdicCompletion I A))).obj ω).IsCanonicalDualizingComplex CAhat := sorry
 
 /-- Derived extension to the henselization of a Noetherian local ring preserves dualizing
 complexes. -/

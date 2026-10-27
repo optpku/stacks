@@ -6,73 +6,55 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import Mathlib.Tactic.CrossRefAttribute
-public import stacks_project.Chap85.Lemma_85_34_4_DerivedQCoh
-public import stacks_project.Chap85.Lemma_85_34_4_Equivalence
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.RingedSite.Module.Derived.Existence
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Simplicial.QCoh.DerivedDescent
 
-/-!
-# Lemma 85.34.4
-
-Let `S` be a scheme, `X` an algebraic space over `S`, and `U` a simplicial
-algebraic space over `S`, with augmentation `a : U ⟶ X`. If `a` is an fppf
-hypercovering of `X`, then `QCoh(𝒪_U)` is a weak Serre subcategory of
-`Mod(𝒪_U)`, and `a^* : D_QCoh(𝒪_X) ⥤ D_QCoh(𝒪_U)` is an equivalence with
-quasi-inverse `Ra_*`. Here `a` is the Section 85.32 spaces-étale augmentation
-of ringed topoi.
--/
+/-! # Quasi-coherent unbounded descent for an fppf hypercovering -/
 
 @[expose] public section
 
-universe u
-
-open CategoryTheory AlgebraicGeometry CategoryTheory.ObjectProperty
+open AlgebraicGeometry CategoryTheory CategoryTheory.ObjectProperty
 open AlgebraicGeometry.AlgebraicSpace.Simplicial
 open Functor
 open scoped Simplicial
 
-noncomputable section
+universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace.Simplicial
+/- Lemma 85.34.4 (1): For an fppf hypercovering augmentation, quasi-coherent modules
+on the total étale ringed topos form a weak Serre subcategory of all native module sheaves. -/
+@[stacks 0DHF] #check
+  (AlgebraicGeometry.AlgebraicSpace.Simplicial.QCohDerived.quasiCoherent_isWeakSerreClass :
+    ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} {U : SimplicialObject (AlgebraicSpace S)}
+      (a : U ⟶ (const SimplexCategoryᵒᵖ).obj X),
+      IsFppfHypercovering a → (quasiCoherentModuleProperty U).IsWeakSerreClass)
 
-variable {S : Scheme.{u}} {X : AlgebraicSpace S}
-variable {U : SimplicialObject (AlgebraicSpace S)}
-variable (a : U ⟶ (const SimplexCategoryᵒᵖ).obj X)
+/- Lemma 85.34.4 (2): Exact inverse image for the Section 85.32 total augmentation
+is an equivalence on unbounded derived categories with quasi-coherent homology.
+Its right adjoint is the canonical unbounded derived direct image Ra_* below. -/
+@[stacks 0DHF] #check
+  (AlgebraicGeometry.AlgebraicSpace.Simplicial.QCohDerived.pullback_isEquivalence :
+    ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} {U : SimplicialObject (AlgebraicSpace S)}
+      (a : U ⟶ (const SimplexCategoryᵒᵖ).obj X) (ha : IsFppfHypercovering a),
+      (QCohDerived.pullback a ha).IsEquivalence)
 
-/-- Lemma 85.34.4 (1): Let `S` be a scheme. Let `X` be an algebraic space over `S`.
-Let `U` be a simplicial algebraic space over `S`. Let `a : U ⟶ X` be an
-augmentation. If `a : U ⟶ X` is an fppf hypercovering of `X`, then
-`QCoh(𝒪_U)` is a weak Serre subcategory of `Mod(𝒪_U)`. Here `a` is the
-Section 85.32 spaces-étale augmentation, and `QCoh(𝒪_U)` (resp. `Mod(𝒪_U)`)
-is the category of quasi-coherent modules (resp. all modules) on
-`etaleTotalRingedSite U` at coefficient universe `u + 1`. -/
-@[stacks 0DHF]
-instance quasiCoherent_isWeakSerreClass (ha : IsFppfHypercovering a) :
-    let _ := ha
-    (quasiCoherentProperty U).IsWeakSerreClass :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.Simplicial.QCohDerived.adjunction :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} {U : SimplicialObject (AlgebraicSpace S)}
+    (a : U ⟶ (const SimplexCategoryᵒᵖ).obj X) (ha : IsFppfHypercovering a),
+    QCohDerived.pullback a ha ⊣ QCohDerived.pushforward a ha)
 
-/-- Lemma 85.34.4 (2): Let `S` be a scheme. Let `X` be an algebraic space over `S`.
-Let `U` be a simplicial algebraic space over `S`. Let `a : U ⟶ X` be an
-augmentation. If `a : U ⟶ X` is an fppf hypercovering of `X`, then
-`a^* : D_QCoh(𝒪_X) ⥤ D_QCoh(𝒪_U)` is an equivalence of categories with
-quasi-inverse `Ra_*`. Here `a : Sh(U_étale) ⟶ Sh(X_étale)` is the Section 85.32
-spaces-étale augmentation `spacesEtaleAugmentationHom`. -/
-@[stacks 0DHF]
-def derivedQCohEquivalence (ha : IsFppfHypercovering a) :
-    spacesDerivedQCoh X ≌ DerivedQCoh U :=
-  derivedQCohDescent a ha
+#check (AlgebraicGeometry.AlgebraicSpace.Simplicial.QCohDerived.pushforward_obj :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} {U : SimplicialObject (AlgebraicSpace S)}
+    (a : U ⟶ (const SimplexCategoryᵒᵖ).obj X) (ha : IsFppfHypercovering a)
+    (E : QCohDerived.Total U),
+    ((QCohDerived.pushforward a ha).obj E).obj = (EtaleModuleDerived.pushforward a).obj E.obj)
 
-/-- The forward functor of `derivedQCohEquivalence` is `a^*` restricted to
-`D_QCoh`. -/
-theorem derivedQCohEquivalence_functor (ha : IsFppfHypercovering a) :
-    (derivedQCohEquivalence a ha).functor = DerivedQCoh.pullback a :=
-  sorry
+#check (AlgebraicGeometry.AlgebraicSpace.Simplicial.QCohDerived.unit_app_isIso :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} {U : SimplicialObject (AlgebraicSpace S)}
+    (a : U ⟶ (const SimplexCategoryᵒᵖ).obj X) (ha : IsFppfHypercovering a)
+    (E : QCohDerived.Base X), IsIso ((QCohDerived.ambientAdjunction a ha).unit.app E.obj))
 
-/-- The inverse functor of `derivedQCohEquivalence` is `Ra_*` on `D_QCoh`. -/
-theorem derivedQCohEquivalence_inverse (ha : IsFppfHypercovering a) :
-    (derivedQCohEquivalence a ha).inverse = DerivedQCoh.pushforward a ha :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace.Simplicial
-
-end
+#check (AlgebraicGeometry.AlgebraicSpace.Simplicial.QCohDerived.counit_app_isIso :
+  ∀ {S : Scheme.{u}} {X : AlgebraicSpace S} {U : SimplicialObject (AlgebraicSpace S)}
+    (a : U ⟶ (const SimplexCategoryᵒᵖ).obj X) (ha : IsFppfHypercovering a)
+    (E : QCohDerived.Total U), IsIso ((QCohDerived.ambientAdjunction a ha).counit.app E.obj))

@@ -326,6 +326,88 @@ theorem firstOrder_minimal
     IsLeast {N : Submodule B (KaehlerDifferential.DeRham.dividedPowerDifferential f δ) |
       compatible f δ N} (submodule f δ) := sorry
 
+/-- The square-zero extension by all divided-power differentials, with full ideal in the first coordinate. -/
+def fullExtensionRing
+    {A : Type u} [CommRing A] {B : Type v} [CommRing B]
+    (f : A →+* B) {J : Ideal B} (δ : DividedPowers J) :
+    -- Local instance justification (defeq pin): f.toAlgebra is the canonical algebra induced by the explicit ring morphism, keeping differential terms definitionally aligned.
+    letI : Algebra A B := f.toAlgebra
+    DividedPowerRing :=
+  -- Local instance justification (defeq pin): f.toAlgebra is the canonical algebra induced by the explicit ring morphism, keeping differential terms definitionally aligned.
+  letI : Algebra A B := f.toAlgebra
+  DividedPowerRing.of (TrivSqZeroExt B (KaehlerDifferential.DeRham.dividedPowerDifferential f δ))
+    (DividedPowers.TrivSqZeroExt.ideal (KaehlerDifferential.DeRham.dividedPowerDifferential f δ) J) (DividedPowers.TrivSqZeroExt.dividedPowers (KaehlerDifferential.DeRham.dividedPowerDifferential f δ) δ)
+
+/-- The distinguished ideal of the full extension is the inverse image of the original ideal. -/
+theorem fullExtensionRing_ideal
+    {A : Type u} [CommRing A] {B : Type v} [CommRing B]
+    (f : A →+* B) {J : Ideal B} (δ : DividedPowers J) :
+    -- Local instance justification (defeq pin): f.toAlgebra is the canonical algebra induced by the explicit ring morphism, keeping differential terms definitionally aligned.
+    letI : Algebra A B := f.toAlgebra
+    (fullExtensionRing f δ).ideal = DividedPowers.TrivSqZeroExt.ideal (KaehlerDifferential.DeRham.dividedPowerDifferential f δ) J :=
+  rfl
+
+/-- The divided powers on the full extension are the coordinate divided powers. -/
+theorem fullExtensionRing_dividedPowers
+    {A : Type u} [CommRing A] {B : Type v} [CommRing B]
+    (f : A →+* B) {J : Ideal B} (δ : DividedPowers J) :
+    -- Local instance justification (defeq pin): f.toAlgebra is the canonical algebra induced by the explicit ring morphism, keeping differential terms definitionally aligned.
+    letI : Algebra A B := f.toAlgebra
+    (fullExtensionRing f δ).dividedPowers = DividedPowers.TrivSqZeroExt.dividedPowers (KaehlerDifferential.DeRham.dividedPowerDifferential f δ) δ :=
+  rfl
+
+/-- The constant inclusion into the full differential extension preserves divided powers. -/
+def fullInclusionDPMorphism
+    {A : Type u} [CommRing A] {B : Type v} [CommRing B]
+    (f : A →+* B) {J : Ideal B} (δ : DividedPowers J) :
+    -- Local instance justification (defeq pin): f.toAlgebra is the canonical algebra induced by the explicit ring morphism, keeping differential terms definitionally aligned.
+    letI : Algebra A B := f.toAlgebra
+    DividedPowers.DPMorphism δ (DividedPowers.TrivSqZeroExt.dividedPowers (KaehlerDifferential.DeRham.dividedPowerDifferential f δ) δ) :=
+  -- Local instance justification (defeq pin): f.toAlgebra is the canonical algebra induced by the explicit ring morphism, keeping differential terms definitionally aligned.
+  letI : Algebra A B := f.toAlgebra
+  DividedPowers.TrivSqZeroExt.inlDPMorphism (KaehlerDifferential.DeRham.dividedPowerDifferential f δ) δ
+
+/-- The divided-power Taylor homomorphism preserves the full coordinate divided powers. -/
+theorem fullTaylor_isDPMorphism
+    {A : Type u} [CommRing A] {B : Type v} [CommRing B]
+    (f : A →+* B) {J : Ideal B} (δ : DividedPowers J) :
+    -- Local instance justification (defeq pin): f.toAlgebra is the canonical algebra induced by the explicit ring morphism, keeping differential terms definitionally aligned.
+    letI : Algebra A B := f.toAlgebra
+    DividedPowers.IsDPMorphism δ (DividedPowers.TrivSqZeroExt.dividedPowers (KaehlerDifferential.DeRham.dividedPowerDifferential f δ) δ) (taylorHom f δ) :=
+  sorry
+
+/-- The Taylor morphism into the full differential extension as a divided-power morphism. -/
+def fullTaylorDPMorphism
+    {A : Type u} [CommRing A] {B : Type v} [CommRing B]
+    (f : A →+* B) {J : Ideal B} (δ : DividedPowers J) :
+    -- Local instance justification (defeq pin): f.toAlgebra is the canonical algebra induced by the explicit ring morphism, keeping differential terms definitionally aligned.
+    letI : Algebra A B := f.toAlgebra
+    DividedPowers.DPMorphism δ (DividedPowers.TrivSqZeroExt.dividedPowers (KaehlerDifferential.DeRham.dividedPowerDifferential f δ) δ) :=
+  -- Local instance justification (defeq pin): f.toAlgebra is the canonical algebra induced by the explicit ring morphism, keeping differential terms definitionally aligned.
+  letI : Algebra A B := f.toAlgebra
+  DividedPowers.DPMorphism.mk' (fullTaylor_isDPMorphism f δ)
+
+/-- Projection from the full differential extension preserves divided powers. -/
+theorem fullProjection_isDPMorphism
+    {A : Type u} [CommRing A] {B : Type v} [CommRing B]
+    (f : A →+* B) {J : Ideal B} (δ : DividedPowers J) :
+    -- Local instance justification (defeq pin): f.toAlgebra is the canonical algebra induced by the explicit ring morphism, keeping differential terms definitionally aligned.
+    letI : Algebra A B := f.toAlgebra
+    DividedPowers.IsDPMorphism (DividedPowers.TrivSqZeroExt.dividedPowers (KaehlerDifferential.DeRham.dividedPowerDifferential f δ) δ) δ
+      (TrivSqZeroExt.fstHom B B (KaehlerDifferential.DeRham.dividedPowerDifferential f δ)).toRingHom :=
+  sorry
+
+/-- The first-coordinate projection as a divided-power morphism. -/
+def fullProjectionDPMorphism
+    {A : Type u} [CommRing A] {B : Type v} [CommRing B]
+    (f : A →+* B) {J : Ideal B} (δ : DividedPowers J) :
+    -- Local instance justification (defeq pin): f.toAlgebra is the canonical algebra induced by the explicit ring morphism, keeping differential terms definitionally aligned.
+    letI : Algebra A B := f.toAlgebra
+    DividedPowers.DPMorphism (DividedPowers.TrivSqZeroExt.dividedPowers (KaehlerDifferential.DeRham.dividedPowerDifferential f δ) δ) δ :=
+  -- Local instance justification (defeq pin): f.toAlgebra is the canonical algebra induced by the explicit ring morphism, keeping differential terms definitionally aligned.
+  letI : Algebra A B := f.toAlgebra
+  DividedPowers.DPMorphism.mk' (fullProjection_isDPMorphism f δ)
+
 end DividedPowerDifferential
 
 end

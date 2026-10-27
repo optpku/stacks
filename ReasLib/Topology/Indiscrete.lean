@@ -34,6 +34,6 @@ instance r1Space [IndiscreteTopology X] : R1Space X := sorry
 theorem not_t0 [IndiscreteTopology X] [Nontrivial X] : ¬ T0Space X := sorry
 
 /-- The two-point space with the indiscrete topology is not Kolmogorov. -/
-theorem notT0WithTopologyBool : ¬ T0Space (WithTopology Bool ⊤) := sorry
+theorem not_t0Space_withTopology_bool : ¬ T0Space (WithTopology Bool ⊤) := sorry
 
 end IndiscreteTopology

@@ -6,8 +6,8 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap64.Example_64_30_2_Abstract
-public import stacks_project.Chap64.Example_64_30_2_Tame
+public import ReasLib.Topology.Algebra.Category.ProfiniteGrp.PrimeToTrace
+public import ReasLib.AlgebraicGeometry.MultiplicativeGroup.TameTrace
 import StacksCheckRecall
 
 /-!
@@ -48,7 +48,7 @@ variable (conjugation : ∀ x : extension.G,
   kernelEquiv (extension.conjHom frobenius x) =
     Multiplicative.ofAdd (unit.val * (kernelEquiv x).toAdd))
 
--- Example 64.30.2, abstract clause with the explicit local boundary correction.
+/- Example 64.30.2, abstract clause with the explicit local boundary correction. -/
 @[stacks 03VQ] #check (PadicInt.PrimeTo.exists_int_of_full_continuous_trace_formula
   extension q hq F degree_class traceFormula kernelEquiv unit frobenius
   degree_frobenius conjugation :
@@ -64,8 +64,8 @@ section Geometric
 open MultiplicativeGroupTame
 variable (p : ℕ) [Fact p.Prime]
 
--- Example 64.30.2, the actual tame geometric realization of the case a=1.
-@[stacks 03VQ] #check (tame_multiplicative_realization (p := p) :
+/- Example 64.30.2, the actual tame geometric realization of the case a=1. -/
+@[stacks 03VQ] #check (MultiplicativeGroupTame.tame_multiplicative_realization (p := p) :
   ∃ F : ∀ d : ℕ+, sourcePoints p d → ConjClasses (sourceExtension p).middle,
     ∃ hdeg : ∀ (d : ℕ+) (x : sourcePoints p d),
         (sourceExtension p).degClass (F d x) = hatZNatCast d.val,

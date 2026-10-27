@@ -33,7 +33,11 @@ variable {O : Sheaf J CommRingCat.{u}}
 /-- The value of a power of a global section is the corresponding pointwise power. -/
 theorem sectionPow_naturality (s : (unitModule J O).sections) (n : ℕ)
     (U V : Cᵒᵖ) (g : U ⟶ V) :
-    (unitModule J O).val.map g (ExtendedCech.sectionValue s U ^ n) = ExtendedCech.sectionValue s V ^ n := sorry
+    (unitModule J O).val.map g (ExtendedCech.sectionValue s U ^ n) = ExtendedCech.sectionValue s V ^ n := by
+  change O.obj.map g (ExtendedCech.sectionValue s U ^ n) =
+    ExtendedCech.sectionValue s V ^ n
+  rw [map_pow]
+  exact congrArg (fun a : O.obj.obj V ↦ a ^ n) (PresheafOfModules.sections_property s g)
 
 /-- The global section obtained by taking a pointwise power of a global section. -/
 noncomputable def sectionPow
@@ -44,7 +48,7 @@ noncomputable def sectionPow
 
 /-- Evaluation of a powered global section is pointwise exponentiation. -/
 theorem sectionPow_apply (s : (unitModule J O).sections) (n : ℕ) (U : Cᵒᵖ) :
-    (sectionPow s n).val U = ExtendedCech.sectionValue s U ^ n := sorry
+    (sectionPow s n).val U = ExtendedCech.sectionValue s U ^ n := rfl
 
 /-- The finite free family map for the `n`th powers of the chosen sections. -/
 noncomputable def poweredFamilyMap
@@ -55,20 +59,25 @@ noncomputable def poweredFamilyMap
 /-- The powered family map unfolds to the Čech family-map construction. -/
 theorem poweredFamilyMap_def
     {r : ℕ} (f : Fin r → (unitModule J O).sections) (n : ℕ) :
-    poweredFamilyMap f n = ExtendedCech.familyMap (fun i ↦ sectionPow (f i) n) := sorry
+    poweredFamilyMap f n = ExtendedCech.familyMap (fun i ↦ sectionPow (f i) n) := rfl
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Multiplication by a global section on a sheaf of modules. -/
 noncomputable def globalSectionAction
     (s : (unitModule J O).sections) (M : ringedSiteModuleCategory J O) : M ⟶ M where
   val.app U := ModuleCat.ofHom
     (LinearMap.lsmul (O.obj.obj U) (M.val.obj U) (ExtendedCech.sectionValue s U))
-  val.naturality _ := sorry
+  val.naturality {U V} g := by
+    ext x
+    have hs : (ringSheaf J O).obj.map g (ExtendedCech.sectionValue s U) =
+        ExtendedCech.sectionValue s V := PresheafOfModules.sections_property s g
+    exact hs ▸ (M.val.map_smul g (ExtendedCech.sectionValue s U) x).symm
 
 /-- The global-section action has the expected component on every object of the site. -/
 theorem globalSectionAction_app
     (s : (unitModule J O).sections) (M : ringedSiteModuleCategory J O) (U : Cᵒᵖ) :
     (globalSectionAction s M).val.app U = ModuleCat.ofHom
-      (LinearMap.lsmul (O.obj.obj U) (M.val.obj U) (ExtendedCech.sectionValue s U)) := sorry
+      (LinearMap.lsmul (O.obj.obj U) (M.val.obj U) (ExtendedCech.sectionValue s U)) := rfl
 
 /-- The diagonal endomorphism of the finite free module sheaf which multiplies generator `i`
 by `f i`. -/
@@ -91,14 +100,37 @@ noncomputable abbrev poweredLinearForm
 /-- The powered linear form uses exponent `n + 1` at zero-based stage `n`. -/
 theorem poweredLinearForm_hom
     {r : ℕ} (f : Fin r → (unitModule J O).sections) (n : ℕ) :
-    (poweredLinearForm f n).hom = (poweredFamilyMap f (n + 1)).hom := sorry
+    (poweredLinearForm f n).hom = (poweredFamilyMap f (n + 1)).hom := rfl
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The diagonal free-module map intertwines the `(n + 2)`nd- and `(n + 1)`st-power
 linear forms. -/
 theorem poweredFamilyStep_comp
     {r : ℕ} (f : Fin r → (unitModule J O).sections) (n : ℕ) :
     poweredFamilyStep f ≫ (poweredLinearForm f n).hom =
-      (poweredLinearForm f (n + 1)).hom := sorry
+      (poweredLinearForm f (n + 1)).hom := by
+  apply (unitModule J O).freeHomEquiv.injective
+  funext i
+  simp only [poweredLinearForm, Over.mk_hom, freeHomEquiv_comp_apply,
+    poweredFamilyStep, Equiv.apply_symm_apply]
+  apply PresheafOfModules.sections_ext
+  intro U
+  change ((poweredLinearForm f n).hom.val.app U).hom
+      (LinearMap.lsmul (O.obj.obj U) (((poweredFamilyMap f 1).left).val.obj U)
+        (ExtendedCech.sectionValue (f i.down) U) ((freeSection i).val U)) =
+    ExtendedCech.sectionValue (f i.down) U ^ (n + 1 + 1)
+  dsimp only [LinearMap.lsmul_apply]
+  rw [map_smul]
+  have h := congrArg (fun s ↦ s.val U)
+    (sectionsMap_freeHomEquiv_symm_freeSection
+      (fun j : ULift.{u} (Fin r) ↦ sectionPow (f j.down) (n + 1)) i)
+  change ((poweredLinearForm f n).hom.val.app U).hom ((freeSection i).val U) =
+    ExtendedCech.sectionValue (f i.down) U ^ (n + 1) at h
+  rw [h]
+  change ExtendedCech.sectionValue (f i.down) U *
+      ExtendedCech.sectionValue (f i.down) U ^ (n + 1) =
+    ExtendedCech.sectionValue (f i.down) U ^ (n + 1 + 1)
+  exact (pow_succ' (ExtendedCech.sectionValue (f i.down) U) (n + 1)).symm
 
 /-- The adjacent morphism from the `(n + 2)`nd-power linear form to the
 `(n + 1)`st-power linear form. -/
@@ -111,7 +143,7 @@ noncomputable def poweredLinearFormStep
 free-module endomorphism. -/
 theorem poweredLinearFormStep_left
     {r : ℕ} (f : Fin r → (unitModule J O).sections) (n : ℕ) :
-    (poweredLinearFormStep f n).left = poweredFamilyStep f := sorry
+    (poweredLinearFormStep f n).left = poweredFamilyStep f := rfl
 
 /-- The ordinary Koszul cochain complex on the `(n + 1)`st powers, placed in nonpositive
 degrees by downward extension of the exterior-degree chain complex. -/
@@ -125,7 +157,7 @@ theorem poweredKoszulChainStage_def
     {r : ℕ} (f : Fin r → (unitModule J O).sections) (n : ℕ) :
     poweredKoszulChainStage f n =
       (Koszul.complex O (poweredLinearForm f n).hom).extend
-        ComplexShape.embeddingDownNat := sorry
+        ComplexShape.embeddingDownNat := rfl
 
 /-- The adjacent transition in the ordinary powered Koszul cochain tower. -/
 noncomputable def poweredKoszulChainStep
@@ -140,6 +172,6 @@ theorem poweredKoszulChainStep_def
     {r : ℕ} (f : Fin r → (unitModule J O).sections) (n : ℕ) :
     poweredKoszulChainStep f n =
       (ComplexShape.embeddingDownNat.extendFunctor
-        (ringedSiteModuleCategory J O)).map (Koszul.map O (poweredLinearFormStep f n)) := sorry
+        (ringedSiteModuleCategory J O)).map (Koszul.map O (poweredLinearFormStep f n)) := rfl
 
 end SheafOfModules.RingedSite.Koszul

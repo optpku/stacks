@@ -24,6 +24,15 @@ namespace AlgebraicGeometry.Correspondence
 
 variable {k : Type u} [Field k]
 
+private theorem graphAction_capFamily_ext {X Y : SchemeOverField k}
+    [LocallyOfFiniteType X.hom] [LocallyOfFiniteType Y.hom]
+    {f : X ⟶ Y} {s : ℤ} {alpha beta : BivariantClass (fun _ ↦ 0) f s}
+    (h : @alpha.cap = @beta.cap) : alpha = beta := by
+  cases alpha
+  cases beta
+  cases h
+  rfl
+
 /-- Integral operational Chow pullback along a morphism, obtained by restriction along
 the cartesian identity square. -/
 def integralCohomologyPullback
@@ -43,8 +52,22 @@ def integralCohomologyPullback
   ({ toFun := fun alpha ↦
        BivariantClass.restrict (fun _ ↦ 0) f (𝟙 Y) f
          IsPullback.of_id_snd s alpha
-     map_add' := sorry
-     map_smul' := sorry } :
+     map_add' := by
+       intro alpha beta
+       apply graphAction_capFamily_ext
+       rfl
+     map_smul' := by
+       intro n alpha
+       letI := sourceGroup
+       letI := targetGroup
+       let restrictHom : BivariantClass (fun _ ↦ 0) (𝟙 X) s →+
+           BivariantClass (fun _ ↦ 0) (𝟙 Y) s :=
+         AddMonoidHom.mk'
+           (BivariantClass.restrict (fun _ ↦ 0) f (𝟙 Y) f IsPullback.of_id_snd s)
+           (fun alpha beta ↦ by
+             apply graphAction_capFamily_ext
+             rfl)
+       exact map_zsmul restrictHom n alpha } :
     @LinearMap ℤ ℤ inferInstance inferInstance (RingHom.id ℤ)
       (BivariantClass (fun _ ↦ 0) (𝟙 X) s)
       (BivariantClass (fun _ ↦ 0) (𝟙 Y) s)
@@ -59,7 +82,7 @@ theorem integralCohomologyPullback_apply
     (alpha : BivariantClass (fun _ ↦ 0) (𝟙 X) s) :
     integralCohomologyPullback f s alpha =
       BivariantClass.restrict (fun _ ↦ 0) f (𝟙 Y) f
-        IsPullback.of_id_snd s alpha := sorry
+        IsPullback.of_id_snd s alpha := rfl
 
 /-- Rational operational Chow pullback along a morphism. -/
 noncomputable def cohomologyPullback
@@ -91,7 +114,7 @@ theorem cohomologyPullback_tmul
         (BivariantClass.pointwiseAddCommGroup (fun _ ↦ 0) (𝟙 Y) s).toAddCommMonoid
         inferInstance (@AddCommGroup.toIntModule _
           (BivariantClass.pointwiseAddCommGroup (fun _ ↦ 0) (𝟙 Y) s)) a
-        (integralCohomologyPullback f s alpha) := sorry
+        (integralCohomologyPullback f s alpha) := rfl
 
 /-- Rational proper pushforward on Chow homology. -/
 noncomputable def homologyPushforward
@@ -106,7 +129,7 @@ theorem homologyPushforward_tmul
     [LocallyOfFiniteType Y.hom] (f : Y ⟶ X) [IsProper f.left] (n : ℤ)
     (a : ℚ) (alpha : RelativeChow (fun _ ↦ 0) Y n) :
     homologyPushforward f n (a ⊗ₜ[ℤ] alpha) =
-      a ⊗ₜ[ℤ] ChowGroup.map (fun _ ↦ 0) Y X f n alpha := sorry
+      a ⊗ₜ[ℤ] ChowGroup.map (fun _ ↦ 0) Y X f n alpha := rfl
 
 /-- Integral Poincare duality sends an operational class to its cap product with the fundamental class. -/
 noncomputable def integralPoincareDuality
@@ -131,8 +154,22 @@ noncomputable def integralPoincareDuality
            (X.hom.relativeDimensionFunction (fun _ ↦ 0)) inferInstance d
            (@CycleGroup.fundamental X.left hX
              (X.hom.relativeDimensionFunction (fun _ ↦ 0)) d))
-     map_add' := sorry
-     map_smul' := sorry } :
+     map_add' := by
+       intro alpha beta
+       rfl
+     map_smul' := by
+       intro n alpha
+       letI := sourceGroup
+       let capHom : BivariantClass (fun _ ↦ 0) (𝟙 X) s →+
+           RelativeChow (fun _ ↦ 0) X ((d : ℤ) - s) :=
+         AddMonoidHom.mk'
+           (fun alpha ↦ alpha.cap (𝟙 X) (𝟙 X) (𝟙 X) IsPullback.of_id_fst d
+             (@chowClass X.left hX
+               (X.hom.relativeDimensionFunction (fun _ ↦ 0)) inferInstance d
+               (@CycleGroup.fundamental X.left hX
+                 (X.hom.relativeDimensionFunction (fun _ ↦ 0)) d)))
+           (fun alpha beta ↦ rfl)
+       exact map_zsmul capHom n alpha } :
     @LinearMap ℤ ℤ inferInstance inferInstance (RingHom.id ℤ)
       (BivariantClass (fun _ ↦ 0) (𝟙 X) s)
       (RelativeChow (fun _ ↦ 0) X ((d : ℤ) - s))
@@ -152,7 +189,7 @@ theorem integralPoincareDuality_apply
       alpha.cap (𝟙 X) (𝟙 X) (𝟙 X) IsPullback.of_id_fst d
         (@chowClass X.left hX (X.hom.relativeDimensionFunction (fun _ ↦ 0)) inferInstance d
           (@CycleGroup.fundamental X.left hX
-            (X.hom.relativeDimensionFunction (fun _ ↦ 0)) d)) := sorry
+            (X.hom.relativeDimensionFunction (fun _ ↦ 0)) d)) := rfl
 
 /-- Rational Poincare duality is scalar extension of cap product with the fundamental class. -/
 noncomputable def poincareDuality
@@ -179,7 +216,7 @@ theorem poincareDuality_tmul
           (BivariantClass.pointwiseAddCommGroup (fun _ ↦ 0) (𝟙 X) s).toAddCommMonoid
           inferInstance (@AddCommGroup.toIntModule _
             (BivariantClass.pointwiseAddCommGroup (fun _ ↦ 0) (𝟙 X) s)) a alpha) =
-      a ⊗ₜ[ℤ] integralPoincareDuality X d s alpha := sorry
+      a ⊗ₜ[ℤ] integralPoincareDuality X d s alpha := rfl
 
 /-- For a smooth equidimensional scheme of dimension `d`, capping with its fundamental class is bijective. -/
 theorem poincareDuality_bijective
@@ -189,15 +226,18 @@ theorem poincareDuality_bijective
 
 /-- The grading identification used after applying Poincare duality to transposed-graph pushforward. -/
 theorem transposedPushforwardDegree (d e : ℕ) (s : ℤ) :
-    (d : ℤ) - (s + ((d : ℤ) - (e : ℤ) + 0)) = (e : ℤ) - s := sorry
+    (d : ℤ) - (s + ((d : ℤ) - (e : ℤ) + 0)) = (e : ℤ) - s := by
+  omega
 
 /-- The grading identification placing a Poincare-dual class in the input of transposed-graph pullback. -/
 theorem transposedPullbackInputDegree (d : ℕ) (s : ℤ) :
-    (d : ℤ) - s = -(s - (d : ℤ)) := sorry
+    (d : ℤ) - s = -(s - (d : ℤ)) := by
+  omega
 
 /-- The grading identification used after transposed-graph pullback. -/
 theorem transposedPullbackOutputDegree (d e : ℕ) (s : ℤ) :
-    -((d : ℤ) - (e : ℤ) + 0 + (s - (d : ℤ))) = (e : ℤ) - s := sorry
+    -((d : ℤ) - (e : ℤ) + 0 + (s - (d : ℤ))) = (e : ℤ) - s := by
+  omega
 
 /-- The degree-zero graph correspondence acts on rational operational Chow cohomology as Gysin pullback. -/
 theorem pushforward_graph

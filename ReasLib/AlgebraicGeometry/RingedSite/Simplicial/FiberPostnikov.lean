@@ -13,6 +13,7 @@ public import Mathlib.CategoryTheory.Functor.OfSequence
 public import Mathlib.CategoryTheory.Monoidal.Preadditive
 public import ReasLib.Algebra.Homology.CochainComplex.Truncation.Brutal.Derived.Postnikov
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.Complex.Monoidal
+public import ReasLib.AlgebraicGeometry.RingedSite.Module.Derived.Localization
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Derived.Tensor
 public import ReasLib.CategoryTheory.DerivedCategory.Monoidal.Tensor
 public import ReasLib.CategoryTheory.Pretriangulated.HomotopyColimit.Definition
@@ -84,10 +85,7 @@ def fiberModuleCochain_XIso (n : ℕ) :
       (fiberModuleComplex F J (Sheaf.ringSheafOfComm O)).X n :=
   (fiberModuleComplex F J (Sheaf.ringSheafOfComm O)).extendXIso embeddingDownNat rfl
 
-/-- Canonical derived-category structure on modules over the commutative ring sheaf `O`. -/
-noncomputable instance fiberTotalModules_hasDerivedCategory :
-    HasDerivedCategory (ringedSiteModuleCategory.{_, _, w, w} (topology F J) O) :=
-  moduleCategoryHasDerivedCategory (𝒪 := O)
+attribute [local instance] moduleCategoryHasDerivedCategory
 
 variable (K : RingedSiteDerived (topology F J) O)
 

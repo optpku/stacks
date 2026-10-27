@@ -59,7 +59,8 @@ theorem Pullback.Lift.Fiber.cone.fst
     (L : IndexedFunctor u F H) (R : IndexedFunctor u G H)
     (A : IndexedFunctor v K F) (B : IndexedFunctor v K G)
     (e : A.comp L ≅ B.comp R) (U : E) :
-    (Pullback.Lift.Fiber.cone L R A B e U).fst = A.app U := sorry
+    (Pullback.Lift.Fiber.cone L R A B e U).fst = A.app U := by
+  rfl
 
 /-- The second functor of the fiberwise commutative square underlying a pointwise-pullback lift
 is the second input component. -/
@@ -69,7 +70,8 @@ theorem Pullback.Lift.Fiber.cone.snd
     (L : IndexedFunctor u F H) (R : IndexedFunctor u G H)
     (A : IndexedFunctor v K F) (B : IndexedFunctor v K G)
     (e : A.comp L ≅ B.comp R) (U : E) :
-    (Pullback.Lift.Fiber.cone L R A B e U).snd = B.app U := sorry
+    (Pullback.Lift.Fiber.cone L R A B e U).snd = B.app U := by
+  rfl
 
 /-- The structural isomorphism of the fiberwise commutative square underlying a
 pointwise-pullback lift is the corresponding component of the indexed compatibility
@@ -81,7 +83,8 @@ theorem Pullback.Lift.Fiber.cone.iso
     (A : IndexedFunctor v K F) (B : IndexedFunctor v K G)
     (e : A.comp L ≅ B.comp R) (U : E) :
     (Pullback.Lift.Fiber.cone L R A B e U).iso =
-      IndexedFunctor.isoApp e U := sorry
+      IndexedFunctor.isoApp e U := by
+  rfl
 
 /-- The component functor into a pointwise categorical pullback induced by two component
 functors and an indexed compatibility isomorphism. -/
@@ -107,7 +110,8 @@ theorem Pullback.Lift.Fiber.functor.compFst
     (e : A.comp L ≅ B.comp R) (U : E) :
     Pullback.Lift.Fiber.functor L R A B e U ⋙
         π₁ (L.app (v.obj U)) (R.app (v.obj U)) =
-      A.app U := sorry
+      A.app U := by
+  rfl
 
 /-- The second projection of the component pointwise-pullback lift is the given right component
 functor. -/
@@ -119,7 +123,8 @@ theorem Pullback.Lift.Fiber.functor.compSnd
     (e : A.comp L ≅ B.comp R) (U : E) :
     Pullback.Lift.Fiber.functor L R A B e U ⋙
         π₂ (L.app (v.obj U)) (R.app (v.obj U)) =
-      B.app U := sorry
+      B.app U := by
+  rfl
 
 /-- The left object component of the component pointwise-pullback lift. -/
 @[simp]
@@ -130,7 +135,8 @@ theorem Pullback.Lift.Fiber.functor.obj.fst
     (e : A.comp L ≅ B.comp R) (U : E)
     (x : K.obj (LocallyDiscrete.mk (op U))) :
     (Pullback.Lift.Fiber.functor L R A B e U |>.obj x).fst =
-      (A.app U).obj x := sorry
+      (A.app U).obj x := by
+  rfl
 
 /-- The right object component of the component pointwise-pullback lift. -/
 @[simp]
@@ -141,7 +147,8 @@ theorem Pullback.Lift.Fiber.functor.obj.snd
     (e : A.comp L ≅ B.comp R) (U : E)
     (x : K.obj (LocallyDiscrete.mk (op U))) :
     (Pullback.Lift.Fiber.functor L R A B e U |>.obj x).snd =
-      (B.app U).obj x := sorry
+      (B.app U).obj x := by
+  rfl
 
 /-- The structural isomorphism of an object under the component pointwise-pullback lift is the
 corresponding component of the indexed compatibility isomorphism. -/
@@ -153,7 +160,8 @@ theorem Pullback.Lift.Fiber.functor.obj.iso
     (e : A.comp L ≅ B.comp R) (U : E)
     (x : K.obj (LocallyDiscrete.mk (op U))) :
     (Pullback.Lift.Fiber.functor L R A B e U |>.obj x).iso =
-      (IndexedFunctor.isoApp e U).app x := sorry
+      (IndexedFunctor.isoApp e U).app x := by
+  rfl
 
 /-- The left morphism component of the component pointwise-pullback lift. -/
 @[simp]
@@ -164,7 +172,8 @@ theorem Pullback.Lift.Fiber.functor.map.fst
     (e : A.comp L ≅ B.comp R) (U : E)
     {x y : K.obj (LocallyDiscrete.mk (op U))} (φ : x ⟶ y) :
     (Pullback.Lift.Fiber.functor L R A B e U |>.map φ).fst =
-      (A.app U).map φ := sorry
+      (A.app U).map φ := by
+  rfl
 
 /-- The right morphism component of the component pointwise-pullback lift. -/
 @[simp]
@@ -175,7 +184,8 @@ theorem Pullback.Lift.Fiber.functor.map.snd
     (e : A.comp L ≅ B.comp R) (U : E)
     {x y : K.obj (LocallyDiscrete.mk (op U))} (φ : x ⟶ y) :
     (Pullback.Lift.Fiber.functor L R A B e U |>.map φ).snd =
-      (B.app U).map φ := sorry
+      (B.app U).map φ := by
+  rfl
 
 end Pseudofunctor.LocallyDiscreteOpToCat.IndexedFunctor
 

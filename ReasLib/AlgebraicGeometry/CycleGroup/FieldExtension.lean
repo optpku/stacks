@@ -35,8 +35,8 @@ namespace AlgebraicGeometry.SchemeOverField
 /-- The group `Z_r(X)` of cycles of relative dimension `r` on a scheme over a
 field. -/
 abbrev cycleGroup {k : Type u} [Field k] (X : SchemeOverField k) (r : ℕ) : Type u :=
-  CycleGroup X.left (X.hom.relativeDimensionFunction
-    (fun _ : Spec (CommRingCat.of k) ↦ (0 : ℤ))) (r : ℤ)
+  CycleGroup X.left
+    (fun x ↦ (0 : ℤ) + ((X.hom.residueFieldTranscendenceDegreeAt x).toNat : ℤ)) (r : ℤ)
 
 end AlgebraicGeometry.SchemeOverField
 

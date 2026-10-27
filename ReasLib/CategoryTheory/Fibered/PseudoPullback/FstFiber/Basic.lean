@@ -73,7 +73,8 @@ set_option backward.privateInPublic.warn false
 namespace Implementation
 
 /-- The explicit two-fibre-product object associated to a structured arrow `(x, φ)` over `f`.
-Its non-Prop payload is the source data `f`, `x`, and the canonical isomorphism attached to `φ`. -/
+Its inverse map is the Cartesian factor supplied by the original groupoid-fibration input;
+only the inverse laws use the deferred proofs. -/
 private noncomputable def obj
     [Functor.IsFibered.InGroupoids pY] (f : Over U)
     (A : structuredArrow G F f) :
@@ -81,8 +82,11 @@ private noncomputable def obj
   PseudoPullback.mk G F f.left
     { fst := Fiber.mk rfl
       snd := A.right
-      iso := @asIso _ _ _ _ A.hom
-        (Functor.IsFibered.InGroupoids.hom_isIso (p := pY) f.left A.hom) }
+      iso :=
+        { hom := A.hom
+          inv := Functor.IsFibered.InGroupoids.fiberInverse (p := pY) f.left A.hom
+          hom_inv_id := Functor.IsFibered.InGroupoids.comp_fiberInverse (p := pY) f.left A.hom
+          inv_hom_id := Functor.IsFibered.InGroupoids.fiberInverse_comp (p := pY) f.left A.hom } }
 
 /-- The comparison square used by the explicit two-fibre-product morphism attached to a
 structured-arrow morphism.

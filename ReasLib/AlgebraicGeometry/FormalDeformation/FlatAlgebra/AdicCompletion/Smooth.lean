@@ -9,6 +9,7 @@ module
 public import Mathlib.RingTheory.FiniteType
 public import Mathlib.RingTheory.Smooth.Locus
 public import ReasLib.AlgebraicGeometry.FormalDeformation.FlatAlgebra.AdicCompletion
+public import ReasLib.AlgebraicGeometry.FormalDeformation.FlatAlgebra.DualNumber
 public import ReasLib.AlgebraicGeometry.FormalDeformation.FlatAlgebra.RimSchlessinger
 public import ReasLib.AlgebraicGeometry.FormalDeformation.Smooth
 public import ReasLib.AlgebraicGeometry.FormalDeformation.Differential
@@ -33,13 +34,6 @@ variable {Λ k : Type u} [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra 
 variable {P : Type u} [CommRing P] [Algebra k P]
 
 namespace FlatAlgebraCat
-
-/-- The projection of deformations of a commutative residue-field algebra to
-Artinian local bases is a predeformation category. -/
-instance instIsPredeformationCategory_deformationForget (P : Type u) [CommRing P]
-    [Algebra k P] : IsPredeformationCategory (deformationForget Λ k P) :=
-  CategoryTheory.Functor.instIsPredeformationCategory_overForget
-    (forget : FlatAlgebraCat Λ k ⥤ ArtinianLocalAlgCat Λ k) (residueObj Λ k P)
 
 variable (Λ k) in
 /-- Adic completion of deformations of a finite-type residue-field algebra as a

@@ -8,6 +8,8 @@ module
 
 public import ReasLib.AlgebraicGeometry.BivariantClass.VirtualNormalBundle.ClosedImmersion
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Normal
+public import ReasLib.AlgebraicGeometry.Scheme.Module.Normal.Duality
+public import ReasLib.AlgebraicGeometry.Scheme.Module.FiniteLocallyFree.Dual
 
 @[expose] public section
 
@@ -78,5 +80,33 @@ theorem normalClass_def
     (D : ClosedDeformation (i ≫ p) p i rfl (ofNormalSheaf i r e)) :
     normalClass delta p i r e D =
       globalClassOfRank delta (i ≫ p) p i rfl (ofNormalSheaf i r e) D r := rfl
+
+/-- The normal sheaf of a morphism with finite locally free conormal sheaf is finite
+locally free. -/
+theorem normalSheaf_isFiniteLocallyFree {Z X : Scheme.{u}} (i : Z ⟶ X)
+    [Scheme.Modules.IsFiniteLocallyFree (Scheme.Hom.conormalSheaf i)] :
+    Scheme.Modules.IsFiniteLocallyFree (Scheme.Hom.normalSheaf i) :=
+  SheafOfModules.IsFiniteLocallyFree.of_iso (Scheme.Hom.normalSheafIsoDualConormal i).symm
+
+/-- The normal virtual bundle of an immersion with finite locally free conormal sheaf,
+using the inverse of canonical evaluation as its quotient map. -/
+noncomputable def ofNormalSheafOfRankLoci {Z X : Scheme.{u}} (i : Z ⟶ X)
+    [IsImmersion i]
+    [Scheme.Modules.IsFiniteLocallyFree (Scheme.Hom.conormalSheaf i)] :
+    VirtualNormalBundle i :=
+  ofSurjection i (Scheme.Hom.normalSheaf i) (normalSheaf_isFiniteLocallyFree i)
+    (Scheme.Hom.bidualityIsoOfRankLoci i).hom inferInstance
+
+/-- The canonical normal virtual bundle has the normal sheaf as its module. -/
+theorem ofNormalSheafOfRankLoci_module {Z X : Scheme.{u}} (i : Z ⟶ X)
+    [IsImmersion i]
+    [Scheme.Modules.IsFiniteLocallyFree (Scheme.Hom.conormalSheaf i)] :
+    (ofNormalSheafOfRankLoci i).module = Scheme.Hom.normalSheaf i := rfl
+
+/-- The quotient map of the canonical normal virtual bundle is inverse evaluation. -/
+theorem ofNormalSheafOfRankLoci_map {Z X : Scheme.{u}} (i : Z ⟶ X)
+    [IsImmersion i]
+    [Scheme.Modules.IsFiniteLocallyFree (Scheme.Hom.conormalSheaf i)] :
+    (ofNormalSheafOfRankLoci i).map = (Scheme.Hom.bidualityIsoOfRankLoci i).hom := rfl
 
 end AlgebraicGeometry.Scheme.Hom.VirtualNormalBundle

@@ -99,12 +99,13 @@ theorem of_leftWedge
         leftWedgeTwo p (leftWedge 1 η ξ) ω)
     (isDifferential : DifferentialOperator.DeRham.IsDifferential D δ) (p : ℕ) :
     (of leftWedge leftWedgeTwo differential_smul differential_leftWedge
-      leftWedge_assoc isDifferential).leftWedge p = leftWedge p := sorry
+      leftWedge_assoc isDifferential).leftWedge p = leftWedge p := rfl
 
 /-- The scalar Leibniz law exposed from an exterior calculus. -/
 theorem differential_smul_apply (C : ExteriorCalculus D δ) (p : ℕ) (b : B)
     (ω : exteriorPower.form B Ω p) :
-    δ p (b • ω) = C.leftWedge p (D b) ω + b • δ p ω := sorry
+    δ p (b • ω) = C.leftWedge p (D b) ω + b • δ p ω :=
+  C.differential_smul p b ω
 
 end ExteriorCalculus
 
@@ -135,7 +136,11 @@ theorem descendedFamily_isDifferential
     (hcondition : DifferentialOperator.DeRham.KernelCondition π δ) :
     DifferentialOperator.DeRham.IsDifferential
       (π.compDer (KaehlerDifferential.D A B))
-      (descendedFamily π hπ δ hδ hcondition) := sorry
+      (descendedFamily π hπ δ hδ hcondition) := by
+  exact DifferentialOperator.DeRham.Family.descend_isDifferential π
+    (fun p ↦ exteriorPower.form.mapRestrictScalars_surjective A π hπ p) δ hδ
+    (DifferentialOperator.DeRham.KernelCondition.preservesKernel π hπ δ hδ.formula
+      (KaehlerDifferential.span_range_derivation A B) hcondition)
 
 /-- The explicit quotient family is intertwined with the source family in every degree. -/
 theorem descendedFamily_descends
@@ -144,7 +149,18 @@ theorem descendedFamily_descends
     (hδ : DifferentialOperator.DeRham.IsDifferential (KaehlerDifferential.D A B) δ)
     (hcondition : DifferentialOperator.DeRham.KernelCondition π δ) :
     DifferentialOperator.DeRham.Descends π δ
-      (descendedFamily π hπ δ hδ hcondition) := sorry
+      (descendedFamily π hπ δ hδ hcondition) := by
+  intro p
+  -- Pin the four scalar actions used by the degreewise descent construction.
+  letI : Module A (exteriorPower.form B Ω[B⁄A] p) :=
+    exteriorPower.form.moduleOfScalarTower p
+  letI : Module A (exteriorPower.form B Ω[B⁄A] (p + 1)) :=
+    exteriorPower.form.moduleOfScalarTower (p + 1)
+  letI : Module A (exteriorPower.form B Ω p) :=
+    exteriorPower.form.moduleOfScalarTower p
+  letI : Module A (exteriorPower.form B Ω (p + 1)) :=
+    exteriorPower.form.moduleOfScalarTower (p + 1)
+  apply LinearMap.descendOfSurjective_comp
 
 end KaehlerDifferential.DeRham
 
@@ -184,7 +200,7 @@ theorem of_apply (toAddMonoidHom : M →+ M ⊗[B] Ω)
     (leibniz : ∀ (b : B) (m : M),
       toAddMonoidHom (b • m) = b • toAddMonoidHom m + m ⊗ₜ[B] D b)
     (m : M) :
-    (of toAddMonoidHom leibniz).toAddMonoidHom m = toAddMonoidHom m := sorry
+    (of toAddMonoidHom leibniz).toAddMonoidHom m = toAddMonoidHom m := rfl
 
 /-- Evaluate a connection on a module element. -/
 def apply (conn : Connection D M) : M → M ⊗[B] Ω :=
@@ -192,7 +208,8 @@ def apply (conn : Connection D M) : M → M ⊗[B] Ω :=
 
 /-- The connection map satisfies the Leibniz rule. -/
 theorem apply_leibniz (conn : Connection D M) (b : B) (m : M) :
-    apply conn (b • m) = b • apply conn m + m ⊗ₜ[B] D b := sorry
+    apply conn (b • m) = b • apply conn m + m ⊗ₜ[B] D b :=
+  conn.leibniz b m
 
 variable {δ : DifferentialOperator.DeRham.Family A B Ω}
 
@@ -205,15 +222,31 @@ def pairing (conn : Connection D M) (C : ExteriorCalculus D δ) (p : ℕ) :
         TensorProduct.map (LinearMap.id : M →ₗ[B] M) ((C.leftWedge p).flip ω)
             (apply conn m) +
           m ⊗ₜ[B] δ p ω
-      map_zero' := sorry
-      map_add' := sorry }
-  map_zero' := sorry
-  map_add' := sorry
+      map_zero' := by simp
+      map_add' := by
+        intro ω ξ
+        simp [TensorProduct.map_add_right, TensorProduct.tmul_add, add_add_add_comm] }
+  map_zero' := by
+    apply AddMonoidHom.ext
+    intro ω
+    simp [apply]
+  map_add' := by
+    intro m n
+    apply AddMonoidHom.ext
+    intro ω
+    simp [apply, TensorProduct.add_tmul, add_add_add_comm]
 
 /-- The pairing is balanced over `B`, so it descends through the tensor product. -/
 theorem pairing_balanced (conn : Connection D M) (C : ExteriorCalculus D δ) (p : ℕ)
     (b : B) (m : M) (ω : exteriorPower.form B Ω p) :
-    pairing conn C p (b • m) ω = pairing conn C p m (b • ω) := sorry
+    pairing conn C p (b • m) ω = pairing conn C p m (b • ω) := by
+  change TensorProduct.map (LinearMap.id : M →ₗ[B] M) ((C.leftWedge p).flip ω)
+        (apply conn (b • m)) + (b • m) ⊗ₜ[B] δ p ω =
+    TensorProduct.map (LinearMap.id : M →ₗ[B] M) ((C.leftWedge p).flip (b • ω))
+        (apply conn m) + m ⊗ₜ[B] δ p (b • ω)
+  rw [apply_leibniz, C.differential_smul, map_smul, TensorProduct.map_smul_right]
+  simp [TensorProduct.tmul_add, TensorProduct.tmul_smul, TensorProduct.smul_tmul,
+    add_assoc, add_left_comm]
 
 /-- The degree-`p` extension of a connection to tensor products with `p`-forms. -/
 def differential (conn : Connection D M) (C : ExteriorCalculus D δ) (p : ℕ) :
@@ -227,7 +260,7 @@ theorem differential_tmul (conn : Connection D M) (C : ExteriorCalculus D δ) (p
     differential conn C p (m ⊗ₜ[B] ω) =
       TensorProduct.map (LinearMap.id : M →ₗ[B] M) ((C.leftWedge p).flip ω)
           (apply conn m) +
-        m ⊗ₜ[B] δ p ω := sorry
+        m ⊗ₜ[B] δ p ω := rfl
 
 /-- A connection is integrable when the connection map followed by the differential on
 one-forms is zero. -/
@@ -242,11 +275,62 @@ def SquaresToZero (conn : Connection D M) (C : ExteriorCalculus D δ) : Prop :=
 /-- Integrability is exactly vanishing of the source connection-curvature composite. -/
 theorem isIntegrable_iff (conn : Connection D M) (C : ExteriorCalculus D δ) :
     IsIntegrable conn C ↔
-      (differential conn C 1).comp conn.toAddMonoidHom = 0 := sorry
+      (differential conn C 1).comp conn.toAddMonoidHom = 0 := Iff.rfl
 
 /-- An integrable connection has square-zero differentials in every positive form degree. -/
 theorem squaresToZero_of_isIntegrable (conn : Connection D M) (C : ExteriorCalculus D δ)
-    (hconn : IsIntegrable conn C) : SquaresToZero conn C := sorry
+    (hconn : IsIntegrable conn C) : SquaresToZero conn C := by
+  -- Fix the degree-one domain as `M ⊗[B] Ω` before tensor induction.
+  let d₁ : M ⊗[B] Ω →+ M ⊗[B] exteriorPower.form B Ω 2 := differential conn C 1
+  have d₁_tmul (m : M) (η : Ω) :
+      d₁ (m ⊗ₜ[B] η) =
+        TensorProduct.map (LinearMap.id : M →ₗ[B] M) ((C.leftWedge 1).flip η)
+            (apply conn m) + m ⊗ₜ[B] δ 1 η := rfl
+  have differential_wedge (p : ℕ) (ω : exteriorPower.form B Ω p) (x : M ⊗[B] Ω) :
+      differential conn C (p + 1)
+          (TensorProduct.map (LinearMap.id : M →ₗ[B] M) ((C.leftWedge p).flip ω) x) =
+        TensorProduct.map (LinearMap.id : M →ₗ[B] M) ((C.leftWedgeTwo p).flip ω)
+            (d₁ x) -
+          TensorProduct.map (LinearMap.id : M →ₗ[B] M)
+            ((C.leftWedge (p + 1)).flip (δ p ω)) x := by
+    induction x using TensorProduct.induction_on with
+    | zero => simp
+    | tmul m η =>
+      have hassoc :
+          TensorProduct.map (LinearMap.id : M →ₗ[B] M)
+              ((C.leftWedge (p + 1)).flip (C.leftWedge p η ω)) (apply conn m) =
+            TensorProduct.map (LinearMap.id : M →ₗ[B] M) ((C.leftWedgeTwo p).flip ω)
+              (TensorProduct.map (LinearMap.id : M →ₗ[B] M)
+                ((C.leftWedge 1).flip η) (apply conn m)) := by
+        induction (apply conn m) using TensorProduct.induction_on with
+        | zero => simp
+        | tmul n ξ => simp [C.leftWedge_assoc]
+        | add x y hx hy => simp [map_add, hx, hy]
+      rw [d₁_tmul]
+      simp only [TensorProduct.map_tmul, LinearMap.id_apply, LinearMap.flip_apply,
+        differential_tmul, C.differential_leftWedge, TensorProduct.tmul_sub, map_add]
+      rw [hassoc]
+      abel
+    | add x y hx hy => simp [map_add, hx, hy, sub_add_sub_comm]
+  intro p
+  apply AddMonoidHom.ext
+  intro x
+  change differential conn C (p + 2) (differential conn C (p + 1) x) = 0
+  induction x using TensorProduct.induction_on with
+  | zero => simp
+  | tmul m ω =>
+    have hcurv : d₁ (conn.toAddMonoidHom m) = 0 :=
+      DFunLike.congr_fun hconn m
+    have hδ : δ (p + 2) (δ (p + 1) ω) = 0 := by
+      -- Pin the source and target actions of the square-zero linear-map identity.
+      letI : Module A (exteriorPower.form B Ω (p + 1)) :=
+        exteriorPower.form.moduleOfScalarTower (p + 1)
+      letI : Module A (exteriorPower.form B Ω (p + 3)) :=
+        exteriorPower.form.moduleOfScalarTower (p + 3)
+      exact LinearMap.congr_fun (C.isDifferential.square_zero (p + 1)) ω
+    rw [differential_tmul, map_add, differential_wedge, differential_tmul]
+    simp [apply, hcurv, hδ]
+  | add x y hx hy => simp [map_add, hx, hy]
 
 /-- The degree-indexed additive-group terms of the de Rham complex of a connection. -/
 def deRhamTerm (conn : Connection D M) : ℕ → AddCommGrpCat
@@ -262,7 +346,11 @@ def deRhamDifferential (conn : Connection D M) (C : ExteriorCalculus D δ) :
 /-- Consecutive de Rham differentials compose to zero in every degree for an integrable connection. -/
 theorem deRhamDifferential_comp (conn : Connection D M) (C : ExteriorCalculus D δ)
     (hconn : IsIntegrable conn C) (n : ℕ) :
-    deRhamDifferential conn C n ≫ deRhamDifferential conn C (n + 1) = 0 := sorry
+    deRhamDifferential conn C n ≫ deRhamDifferential conn C (n + 1) = 0 := by
+  apply AddCommGrpCat.hom_ext
+  cases n with
+  | zero => exact hconn
+  | succ p => exact squaresToZero_of_isIntegrable conn C hconn p
 
 /-- The de Rham cochain complex associated to an integrable connection. -/
 def deRhamComplex (conn : Connection D M) (C : ExteriorCalculus D δ)
@@ -272,43 +360,45 @@ def deRhamComplex (conn : Connection D M) (C : ExteriorCalculus D δ)
 
 /-- The degree-zero term of the de Rham complex is the connection module. -/
 theorem deRhamTerm_zero (conn : Connection D M) :
-    deRhamTerm conn 0 = AddCommGrpCat.of M := sorry
+    deRhamTerm conn 0 = AddCommGrpCat.of M := rfl
 
 /-- The successor terms of the de Rham complex are tensor products with exterior forms. -/
 theorem deRhamTerm_succ (conn : Connection D M) (p : ℕ) :
     deRhamTerm conn (p + 1) =
-      AddCommGrpCat.of (M ⊗[B] exteriorPower.form B Ω (p + 1)) := sorry
+      AddCommGrpCat.of (M ⊗[B] exteriorPower.form B Ω (p + 1)) := rfl
 
 /-- The degree-zero de Rham differential is the original additive connection map. -/
 theorem deRhamDifferential_zero (conn : Connection D M) (C : ExteriorCalculus D δ) :
-    deRhamDifferential conn C 0 = AddCommGrpCat.ofHom conn.toAddMonoidHom := sorry
+    deRhamDifferential conn C 0 = AddCommGrpCat.ofHom conn.toAddMonoidHom := rfl
 
 /-- The successor de Rham differential is the extended connection differential. -/
 theorem deRhamDifferential_succ (conn : Connection D M) (C : ExteriorCalculus D δ) (p : ℕ) :
     deRhamDifferential conn C (p + 1) =
-      AddCommGrpCat.ofHom (differential conn C (p + 1)) := sorry
+      AddCommGrpCat.ofHom (differential conn C (p + 1)) := rfl
 
 /-- The degree-zero object of the concrete de Rham complex. -/
 theorem deRhamComplex_X_zero (conn : Connection D M) (C : ExteriorCalculus D δ)
     (hconn : IsIntegrable conn C) :
-    (deRhamComplex conn C hconn).X 0 = AddCommGrpCat.of M := sorry
+    (deRhamComplex conn C hconn).X 0 = AddCommGrpCat.of M := rfl
 
 /-- The successor objects of the concrete de Rham complex are tensor products with exterior forms. -/
 theorem deRhamComplex_X_succ (conn : Connection D M) (C : ExteriorCalculus D δ)
     (hconn : IsIntegrable conn C) (p : ℕ) :
     (deRhamComplex conn C hconn).X (p + 1) =
-      AddCommGrpCat.of (M ⊗[B] exteriorPower.form B Ω (p + 1)) := sorry
+      AddCommGrpCat.of (M ⊗[B] exteriorPower.form B Ω (p + 1)) := rfl
 
 /-- The first differential of the concrete de Rham complex is the connection map. -/
 theorem deRhamComplex_d_zero (conn : Connection D M) (C : ExteriorCalculus D δ)
     (hconn : IsIntegrable conn C) :
-    (deRhamComplex conn C hconn).d 0 1 = AddCommGrpCat.ofHom conn.toAddMonoidHom := sorry
+    (deRhamComplex conn C hconn).d 0 1 = AddCommGrpCat.ofHom conn.toAddMonoidHom := by
+  exact CochainComplex.of_d (deRhamTerm conn) (deRhamDifferential conn C) 0
 
 /-- The successor differentials of the concrete de Rham complex are the extended connection maps. -/
 theorem deRhamComplex_d_succ (conn : Connection D M) (C : ExteriorCalculus D δ)
     (hconn : IsIntegrable conn C) (p : ℕ) :
     (deRhamComplex conn C hconn).d (p + 1) (p + 2) =
-      AddCommGrpCat.ofHom (differential conn C (p + 1)) := sorry
+      AddCommGrpCat.ofHom (differential conn C (p + 1)) := by
+  exact CochainComplex.of_d (deRhamTerm conn) (deRhamDifferential conn C) (p + 1)
 
 end Connection
 
@@ -330,6 +420,7 @@ theorem integrableConnection_squaresToZero
       (descendedFamily π hπ δ hδ hcondition))
     (conn : Connection (π.compDer (KaehlerDifferential.D A B)) M)
     (hconn : Connection.IsIntegrable conn C) :
-    Connection.SquaresToZero conn C := sorry
+    Connection.SquaresToZero conn C :=
+  Connection.squaresToZero_of_isIntegrable conn C hconn
 
 end KaehlerDifferential.DeRham

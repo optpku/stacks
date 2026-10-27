@@ -40,20 +40,92 @@ def finiteYMap (f : Hom T T') :
   | 0 => fun i => Fin.cases (f.yMap 0) (fun j => Fin.elim0 j) i
   | n + 1 => fun i => Fin.cases (f.yMap (n + 1)) (finiteYMap f n) i
 
+private theorem finiteYMap_heq (f : Hom T T') (n : ℕ) (i : Fin (n + 1)) :
+    HEq (finiteYMap f n i) (f.yMap (Tower.Finite.index i)) := by
+  induction n with
+  | zero =>
+      refine Fin.cases ?_ (fun j => Fin.elim0 j) i
+      rfl
+  | succ n ih =>
+      refine Fin.cases ?_ (fun j => ?_) i
+      · rfl
+      · change HEq (finiteYMap f n j) (f.yMap (Tower.Finite.index j.succ))
+        have h : Tower.Finite.index j.succ = Tower.Finite.index j := by
+          simp only [Tower.Finite.index, Fin.val_rev, Fin.val_succ]
+          omega
+        rw [h]
+        exact ih j
+
+private theorem rowApp_heq (f : Hom T T') (n : ℕ) (i : Fin (n + 1)) :
+    HEq (rowApp f n i) (f.xMap (Tower.Finite.index i)) := by
+  induction n with
+  | zero =>
+      refine Fin.cases ?_ (fun j => Fin.elim0 j) i
+      rfl
+  | succ n ih =>
+      refine Fin.cases ?_ (fun j => ?_) i
+      · rfl
+      · change HEq (rowApp f n j) (f.xMap (Tower.Finite.index j.succ))
+        have h : Tower.Finite.index j.succ = Tower.Finite.index j := by
+          simp only [Tower.Finite.index, Fin.val_rev, Fin.val_succ]
+          omega
+        rw [h]
+        exact ih j
+
 /-- Internal finite auxiliary maps commute with the comparisons to the finite row. -/
 theorem finiteYMap_comm_toX (f : Hom T T') (n : ℕ) (i : Fin (n + 1)) :
     CommSq ((T.finite n).toX i) (finiteYMap f n i) ((row f n).app i)
-      ((T'.finite n).toX i) := sorry
+      ((T'.finite n).toX i) := by
+  induction n with
+  | zero =>
+      refine Fin.cases ?_ (fun j => Fin.elim0 j) i
+      exact f.comm_toX 0
+  | succ n ih =>
+      refine Fin.cases ?_ (fun j => ?_) i
+      · exact f.comm_toX (n + 1)
+      · exact ih j
 
 /-- Internal finite auxiliary maps commute with the second maps of stage triangles. -/
 theorem finiteYMap_comm_toNext (f : Hom T T') (n : ℕ) (i : Fin n) :
     CommSq ((T.finite n).toNext i) ((row f n).app i.castSucc)
-      (finiteYMap f n i.succ) ((T'.finite n).toNext i) := sorry
+      (finiteYMap f n i.succ) ((T'.finite n).toNext i) := by
+  induction n with
+  | zero => exact Fin.elim0 i
+  | succ n ih =>
+      refine Fin.cases ?_ (fun j => ?_) i
+      · cases n with
+        | zero =>
+            change CommSq (T.toNext 0 ≫ 𝟙 _) (f.xMap 1) (f.yMap 0)
+              (T'.toNext 0 ≫ 𝟙 _)
+            simpa only [Category.comp_id] using f.comm_toNext 0
+        | succ n =>
+            change CommSq (T.toNext (n + 1) ≫ 𝟙 _) (f.xMap (n + 2))
+              (f.yMap (n + 1)) (T'.toNext (n + 1) ≫ 𝟙 _)
+            simpa only [Category.comp_id] using f.comm_toNext (n + 1)
+      · cases n with
+        | zero => exact Fin.elim0 j
+        | succ n => exact ih j
 
 /-- Internal finite auxiliary maps commute with the connecting maps of stage triangles. -/
 theorem finiteYMap_comm_connecting (f : Hom T T') (n : ℕ) (i : Fin n) :
     CommSq ((T.finite n).connecting i) (finiteYMap f n i.succ)
-      ((finiteYMap f n i.castSucc)⟦(1 : ℤ)⟧') ((T'.finite n).connecting i) := sorry
+      ((finiteYMap f n i.castSucc)⟦(1 : ℤ)⟧') ((T'.finite n).connecting i) := by
+  induction n with
+  | zero => exact Fin.elim0 i
+  | succ n ih =>
+      refine Fin.cases ?_ (fun j => ?_) i
+      · cases n with
+        | zero =>
+            change CommSq (𝟙 _ ≫ T.connecting 0) (f.yMap 0)
+              ((f.yMap 1)⟦(1 : ℤ)⟧') (𝟙 _ ≫ T'.connecting 0)
+            simpa only [Category.id_comp] using f.comm_connecting 0
+        | succ n =>
+            change CommSq (𝟙 _ ≫ T.connecting (n + 1)) (f.yMap (n + 1))
+              ((f.yMap (n + 2))⟦(1 : ℤ)⟧') (𝟙 _ ≫ T'.connecting (n + 1))
+            simpa only [Category.id_comp] using f.comm_connecting (n + 1)
+      · cases n with
+        | zero => exact Fin.elim0 j
+        | succ n => exact ih j
 
 end Core
 
@@ -69,17 +141,17 @@ def finite (f : Hom T T') (n : ℕ) :
 /-- At length zero, finite restriction uses the zeroth auxiliary-object component. -/
 @[simp 1100]
 theorem finite_zero_yMap (f : Hom T T') :
-    (finite f 0).yMap 0 = f.yMap 0 := sorry
+    (finite f 0).yMap 0 = f.yMap 0 := rfl
 
 /-- The new head of a successor finite restriction uses the corresponding auxiliary map. -/
 @[simp 1100]
 theorem finite_succ_yMap_zero (f : Hom T T') (n : ℕ) :
-    (finite f (n + 1)).yMap 0 = f.yMap (n + 1) := sorry
+    (finite f (n + 1)).yMap 0 = f.yMap (n + 1) := rfl
 
 /-- Successor components of a successor finite restriction come from the preceding restriction. -/
 @[simp 1100]
 theorem finite_succ_yMap_succ (f : Hom T T') (n : ℕ) (i : Fin (n + 1)) :
-    (finite f (n + 1)).yMap i.succ = (finite f n).yMap i := sorry
+    (finite f (n + 1)).yMap i.succ = (finite f n).yMap i := rfl
 
 /-- An auxiliary component of finite restriction is the corresponding transported `yMap`. This
 theorem is intentionally not a simp rule because its normal form contains endpoint transports. -/
@@ -87,7 +159,9 @@ theorem is intentionally not a simp rule because its normal form contains endpoi
 theorem finite_yMap (f : Hom T T') (n : ℕ) (i : Fin (n + 1)) :
     (finite f n).yMap i =
       eqToHom (Tower.Finite.auxObj T n i) ≫ f.yMap (Tower.Finite.index i) ≫
-        eqToHom (Tower.Finite.auxObj T' n i).symm := sorry
+        eqToHom (Tower.Finite.auxObj T' n i).symm := by
+  exact (conj_eqToHom_iff_heq _ _ (Tower.Finite.auxObj T n i)
+    (Tower.Finite.auxObj T' n i)).2 (Core.finiteYMap_heq f n i)
 
 /-- The stage-triangle morphism of a finite restriction is the corresponding tower
 stage-triangle morphism, transported along the canonical finite-stage identifications. This
@@ -97,17 +171,61 @@ theorem finite_triangleMorphism (f : Hom T T') (n : ℕ) (i : Fin n) :
     (finite f n).triangleMorphism i =
       eqToHom (Tower.Finite.triangle T n i) ≫
         triangleMorphism f (Tower.Finite.index i) ≫
-          eqToHom (Tower.Finite.triangle T' n i).symm := sorry
+          eqToHom (Tower.Finite.triangle T' n i).symm := by
+  apply Triangle.hom_ext
+  · simp only [comp_hom₁, Triangle.eqToHom_hom₁]
+    apply (conj_eqToHom_iff_heq' _ _ _ _).2
+    change HEq (Core.finiteYMap f n i.castSucc) (f.yMap (Tower.Finite.index i + 1))
+    have h : Tower.Finite.index i.castSucc = Tower.Finite.index i + 1 := by
+      simp only [Tower.Finite.index, Fin.val_rev, Fin.val_castSucc]
+      omega
+    have hy := Core.finiteYMap_heq f n i.castSucc
+    rw [h] at hy
+    exact hy
+  · simp only [comp_hom₂, Triangle.eqToHom_hom₂]
+    apply (conj_eqToHom_iff_heq' _ _ _ _).2
+    change HEq (Core.rowApp f n i.castSucc) (f.xMap (Tower.Finite.index i + 1))
+    have h : Tower.Finite.index i.castSucc = Tower.Finite.index i + 1 := by
+      simp only [Tower.Finite.index, Fin.val_rev, Fin.val_castSucc]
+      omega
+    have hx := Core.rowApp_heq f n i.castSucc
+    rw [h] at hx
+    exact hx
+  · simp only [comp_hom₃, Triangle.eqToHom_hom₃]
+    apply (conj_eqToHom_iff_heq' _ _ _ _).2
+    change HEq (Core.finiteYMap f n i.succ) (f.yMap (Tower.Finite.index i))
+    have h : Tower.Finite.index i.succ = Tower.Finite.index i := by
+      simp only [Tower.Finite.index, Fin.val_rev, Fin.val_succ]
+      omega
+    have hy := Core.finiteYMap_heq f n i.succ
+    rw [h] at hy
+    exact hy
 
 /-- Finite restriction of an identity is componentwise the identity on auxiliary objects. -/
 @[simp]
 theorem id_finite_yMap (T : Tower D) (n : ℕ) (i : Fin (n + 1)) :
-    (finite (id T) n).yMap i = 𝟙 (T.finite n i) := sorry
+    (finite (id T) n).yMap i = 𝟙 (T.finite n i) := by
+  induction n with
+  | zero =>
+      refine Fin.cases ?_ (fun j => Fin.elim0 j) i
+      rfl
+  | succ n ih =>
+      refine Fin.cases ?_ (fun j => ?_) i
+      · rfl
+      · exact ih j
 
 /-- Finite restriction of a composite composes auxiliary-object components pointwise. -/
 @[simp]
 theorem comp_finite_yMap (f : Hom T T') (g : Hom T' T'') (n : ℕ)
     (i : Fin (n + 1)) :
-    (finite (comp f g) n).yMap i = (finite f n).yMap i ≫ (finite g n).yMap i := sorry
+    (finite (comp f g) n).yMap i = (finite f n).yMap i ≫ (finite g n).yMap i := by
+  induction n with
+  | zero =>
+      refine Fin.cases ?_ (fun j => Fin.elim0 j) i
+      rfl
+  | succ n ih =>
+      refine Fin.cases ?_ (fun j => ?_) i
+      · rfl
+      · exact ih j
 
 end CategoryTheory.PostnikovSystem.Tower.Hom

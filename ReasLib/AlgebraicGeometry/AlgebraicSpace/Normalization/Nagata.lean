@@ -9,9 +9,13 @@ module
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Nagata
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.FiniteComponents.Noetherian
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Normalization.Absolute
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Normalization.Construction
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.FiniteType
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.Finite
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Reduced
 
 /-!
-# Finiteness of the absolute normalization of a Nagata algebraic space
+# Finiteness of relative and absolute normalizations over Nagata algebraic spaces
 -/
 
 @[expose] public section
@@ -34,3 +38,29 @@ instance instIsFiniteNormalizationToOfIsNagata {S : Scheme.{u}} (X : AlgebraicSp
   isFinite_normalizationTo_of_isNagata X
 
 end AlgebraicGeometry.AlgebraicSpace
+
+namespace AlgebraicGeometry.AlgebraicSpace.Hom
+
+/-- The relative normalization of a quasi-separated finite-type morphism of algebraic
+spaces with reduced source and Nagata target is finite. -/
+theorem isFinite_fromNormalization_of_isNagata_of_finiteType
+    {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    [FiniteType f] [QuasiSeparated f] [IsNagata Y] [IsReduced X] :
+    IsFinite (fromNormalization f) :=
+  sorry
+
+end AlgebraicGeometry.AlgebraicSpace.Hom
+
+namespace AlgebraicGeometry.AlgebraicSpace.IsFinite
+
+open AlgebraicGeometry.AlgebraicSpace.Hom
+
+/-- The relative normalization of a quasi-separated finite-type morphism of algebraic
+spaces with reduced source and Nagata target is canonically a finite morphism. -/
+instance fromNormalization_of_isNagata_of_finiteType
+    {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+    [FiniteType f] [QuasiSeparated f] [IsNagata Y] [IsReduced X] :
+    IsFinite (fromNormalization f) :=
+  isFinite_fromNormalization_of_isNagata_of_finiteType f
+
+end AlgebraicGeometry.AlgebraicSpace.IsFinite

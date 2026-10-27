@@ -24,6 +24,8 @@ namespace AlgebraicGeometry.ChosenBigProetaleSite
 
 variable (X : ChosenBigProetaleSite.{u, v}) (S : X.carrier)
 
+attribute [local instance] SmallToBig.relocalizationFunctor_isContinuous
+
 /- Lemma 61.12.13 (1): the identity-base relocalization functor defines a morphism
 of small-to-big pro-étale sites. -/
 #check

@@ -14,6 +14,7 @@ public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Dimension.DeltaDimension
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.CycleGroup.Basic
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.ClosedSubspace.Noetherian
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Length.GeometricPoint
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Length.Point
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Points.IrreducibleComponents
 
 /-!
@@ -63,8 +64,16 @@ multiplicity is the length of `𝒪_Y` at its generic point in the sense of `has
 theorem hasLengthAt_componentMultiplicity [IsLocallyNoetherian X]
     (Y : ClosedSubspace X) [IsDecent Y.X] (η : genericPoints Y.X) :
     Modules.hasLengthAt (SheafOfModules.unit (structureSheaf Y.X) : Y.X.Modules) η.1
-      (componentMultiplicity Y η) :=
-  sorry
+      (componentMultiplicity Y η) := by
+  letI : IsLocallyNoetherian Y.X := instIsLocallyNoetherian_of_isClosedImmersion Y
+  let F : Y.X.Modules := SheafOfModules.unit (structureSheaf Y.X)
+  have hlength := Modules.hasLengthAt_lengthAt F η.1
+  obtain ⟨xbar, hx, hbar⟩ :=
+    (Modules.exists_lengthAtGeometricPoint_iff F η.1 (Modules.lengthAt F η.1)).mpr hlength
+  have hmul : (componentMultiplicity Y η : ℕ∞) = Modules.lengthAt F η.1 :=
+    (componentMultiplicity_eq_length Y η xbar hx).trans hbar
+  rw [hmul]
+  exact hlength
 
 /-- Every component of a decent closed subspace of a locally Noetherian space
 has positive multiplicity. -/
@@ -87,8 +96,9 @@ theorem componentCycle_apply [IsLocallyNoetherian X]
     (Y : ClosedSubspace X) (η : genericPoints Y.X) (x : Points X) :
     componentCycle Y η x =
       @ite ℤ (x = Points.map Y.ι η.1) (Classical.propDecidable _)
-        (componentMultiplicity Y η : ℤ) 0 :=
-  sorry
+        (componentMultiplicity Y η : ℤ) 0 := by
+  classical
+  exact Function.locallyFinsuppWithin.single_apply
 
 /-- The pointwise sum of the dimension-`k` component cycles has locally finite
 support. -/
@@ -120,13 +130,22 @@ theorem associatedCycle_apply [IsLocallyNoetherian X]
       ∑ᶠ η : genericPoints Y.X,
         @ite ℤ (d (Points.map Y.ι η.1) = k) (Classical.propDecidable _)
           (componentCycle Y η x) 0 :=
-  sorry
+  rfl
 
 /-- Off the `δ`-dimension-`k` locus, the associated cycle coefficient vanishes. -/
 theorem associatedCycle_eq_zero_of_dimension_ne [IsLocallyNoetherian X]
     (Y : ClosedSubspace X) (d : Points X → ℤ) (k : ℤ) {x : Points X}
-    (hx : d x ≠ k) : associatedCycle Y d k x = 0 :=
-  sorry
+    (hx : d x ≠ k) : associatedCycle Y d k x = 0 := by
+  classical
+  rw [associatedCycle_apply]
+  apply finsum_eq_zero_of_forall_eq_zero
+  intro η
+  by_cases hη : d (Points.map Y.ι η.1) = k
+  · have hne : x ≠ Points.map Y.ι η.1 := by
+      intro h
+      exact hx ((congrArg d h).trans hη)
+    simp [hη, componentCycle_apply, hne]
+  · simp [hη]
 
 end ClosedSubspace
 
@@ -157,7 +176,7 @@ theorem closedSubspaceCycle_eq_associatedCycle {S : Scheme.{u}}
       @ClosedSubspace.associatedCycle S X
         (LocallyOfFiniteType.isLocallyNoetherian f) Y
         ((relativeDimensionFunction f) δ) k :=
-  sorry
+  rfl
 
 /-- Coefficients of the closed-subspace cycle are the multiplicity-weighted sum over
 its dimension-`k` generic points. -/
@@ -173,7 +192,7 @@ theorem closedSubspaceCycle_apply {S : Scheme.{u}} {B X : AlgebraicSpace S}
           (Classical.propDecidable _)
           (@ClosedSubspace.componentCycle S X
             (LocallyOfFiniteType.isLocallyNoetherian f) Y η x) 0 :=
-  sorry
+  rfl
 
 /-- The associated closed-subspace cycle belongs to the group of cycles of its
 specified relative dimension. -/
@@ -183,8 +202,11 @@ theorem closedSubspaceCycle_mem_cycleGroup {S : Scheme.{u}} {B X : AlgebraicSpac
     (δ : Points B → ℤ) [IsDimensionFunction δ]
     (Y : ClosedSubspace X) (k : ℤ)
     (hY : (closedSubspaceDeltaDimension f) δ Y ≤ (k : EInt)) :
-    closedSubspaceCycle f δ Y k hY ∈ Hom.cycleGroup f δ k :=
-  sorry
+    closedSubspaceCycle f δ Y k hY ∈ Hom.cycleGroup f δ k := by
+  intro x hx
+  by_contra hdim
+  exact hx (@ClosedSubspace.associatedCycle_eq_zero_of_dimension_ne S X
+    (LocallyOfFiniteType.isLocallyNoetherian f) Y ((relativeDimensionFunction f) δ) k x hdim)
 
 end Hom
 

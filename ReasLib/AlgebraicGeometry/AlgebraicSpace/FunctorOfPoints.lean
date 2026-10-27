@@ -158,7 +158,7 @@ theorem ofOver_functorOfPoints {S : Scheme.{u}} (T : Over S) :
     (ofOver T).functorOfPoints = yoneda.obj T := rfl
 
 /-- The functor of points of a bundled algebraic space is an algebraic space. -/
-def instIsAlgebraicSpace_functorOfPoints {S : Scheme.{u}} (X : AlgebraicSpace S) :
+instance instIsAlgebraicSpace_functorOfPoints {S : Scheme.{u}} (X : AlgebraicSpace S) :
     IsAlgebraicSpace X.functorOfPoints :=
   Obj.isAlgebraicSpace X
 

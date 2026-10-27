@@ -30,7 +30,6 @@ variable {F : A ⥤ B}
 /-- The counit of postcomposition by an adjointified equivalence, expressed as a natural
 isomorphism on the whole functor category. Its component at `G` is the canonical comparison for
 the lift of `G`. -/
-@[stacks 04W9 "comparison for a functor-category quasi-inverse lift"]
 def comparisonNatIso (e : QuasiInverse F) (E : Type uE) [Category.{vE} E] :
     e.liftFunctor E ⋙
         (Functor.whiskeringRight E A B).obj F ≅
@@ -40,7 +39,6 @@ def comparisonNatIso (e : QuasiInverse F) (E : Type uE) [Category.{vE} E] :
 /-- A comparison after applying the forward functor identifies a functor with the corresponding
 lift through an explicit quasi-inverse. The quasi-inverse unit is adjointified so that this
 comparison is coherent with the supplied counit. -/
-@[stacks 04W9 "uniqueness of a functor-category quasi-inverse lift"]
 def isoOfComparison (e : QuasiInverse F) (L : E ⥤ A) (G : E ⥤ B)
     (α : L ⋙ F ≅ G) :
     L ≅ (e.liftFunctor E).obj G :=
@@ -66,7 +64,6 @@ theorem isoOfComparison.inv.app (e : QuasiInverse F) (L : E ⥤ A) (G : E ⥤ B)
 
 /-- Applying the original functor after a quasi-inverse lift recovers the input functor through
 the supplied counit. -/
-@[stacks 04W9 "pointwise comparison for a functor-category quasi-inverse lift"]
 def comparisonIso (e : QuasiInverse F) (G : E ⥤ B) :
     (e.liftFunctor E).obj G ⋙ F ≅ G :=
   (comparisonNatIso e E).app G

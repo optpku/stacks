@@ -11,6 +11,9 @@ public import ReasLib.Algebra.Category.ModuleCat.Presheaf.CommRing
 public import ReasLib.Algebra.Category.ModuleCat.Presheaf.DifferentialOperator
 public import ReasLib.Algebra.Module.PrincipalParts.RingHom.BaseChange
 
+import all ReasLib.Algebra.Module.PrincipalParts.Basic
+import all ReasLib.Algebra.Module.PrincipalParts.RingHom
+
 /-!
 # Principal parts of a presheaf of modules
 
@@ -42,6 +45,22 @@ noncomputable abbrev universalClass (k : ℕ) (X : Cᵒᵖ) (m : F.obj X) :
     module φ F k X :=
   _root_.PrincipalParts.RingHom.universalClass (φ.app X).hom (F.obj X) k m
 
+private theorem hom_ext_universalClass (k : ℕ) (X : Cᵒᵖ)
+    {N : ModuleCat (O₂.obj X)} {f g : module φ F k X ⟶ N}
+    (h : ∀ m : F.obj X,
+      f.hom (universalClass φ F k X m) = g.hom (universalClass φ F k X m)) : f = g := by
+  letI : Algebra (O₁.obj X) (O₂.obj X) :=
+    _root_.PrincipalParts.RingHom.algebra (φ.app X).hom
+  letI : Module (O₁.obj X) (F.obj X) :=
+    _root_.PrincipalParts.RingHom.sourceModule (φ.app X).hom (F.obj X)
+  letI : IsScalarTower (O₁.obj X) (O₂.obj X) (F.obj X) :=
+    IsScalarTower.of_compHom _ _ _
+  letI : Module (O₁.obj X) N :=
+    _root_.PrincipalParts.RingHom.sourceModule (φ.app X).hom N
+  letI : IsScalarTower (O₁.obj X) (O₂.obj X) N := IsScalarTower.of_compHom _ _ _
+  apply ModuleCat.hom_ext
+  exact _root_.PrincipalParts.linearMap_ext k h
+
 /-- A restriction morphism of `F` induces the corresponding base-change morphism between its
 sectionwise principal-parts modules. -/
 noncomputable abbrev restrictionMap (k : ℕ) {X Y : Cᵒᵖ} (f : X ⟶ Y) :
@@ -57,14 +76,32 @@ universal class of its restriction. -/
 theorem restrictionMap_universalClass (k : ℕ) {X Y : Cᵒᵖ}
     (f : X ⟶ Y) (m : F.obj X) :
     (restrictionMap φ F k f).hom (universalClass φ F k X m) =
-      universalClass φ F k Y ((F.map f).hom m) := sorry
+      universalClass φ F k Y ((F.map f).hom m) := by
+  letI : Algebra (O₁.obj X) (O₂.obj X) :=
+    _root_.PrincipalParts.RingHom.algebra (φ.app X).hom
+  letI : Module (O₁.obj X) (F.obj X) :=
+    _root_.PrincipalParts.RingHom.sourceModule (φ.app X).hom (F.obj X)
+  letI : IsScalarTower (O₁.obj X) (O₂.obj X) (F.obj X) :=
+    IsScalarTower.of_compHom _ _ _
+  unfold restrictionMap _root_.PrincipalParts.RingHom.BaseChange.map
+    _root_.PrincipalParts.BaseChange.moduleMap
+  unfold _root_.PrincipalParts.BaseChange.Internal.mapFun _root_.PrincipalParts.BaseChange.map
+  erw [_root_.PrincipalParts.representingEquiv_symm_apply_universalDifferential]
+  rfl
 
 /-- The restriction map on sectionwise principal parts preserves identity morphisms. -/
 theorem restrictionMap_id (k : ℕ) (X : Cᵒᵖ) :
     restrictionMap φ F k (𝟙 X) =
       (ModuleCat.restrictScalarsId' (((ringPresheaf O₂).map (𝟙 X)).hom)
         (congrArg RingCat.Hom.hom ((ringPresheaf O₂).map_id X))).inv.app
-          (module φ F k X) := sorry
+          (module φ F k X) := by
+  apply hom_ext_universalClass φ F k X
+  intro m
+  rw [restrictionMap_universalClass]
+  change universalClass φ F k X ((F.map (𝟙 X)).hom m) = universalClass φ F k X m
+  congr 1
+  rw [F.map_id]
+  rfl
 
 /-- The restriction maps on sectionwise principal parts preserve composition. -/
 theorem restrictionMap_comp (k : ℕ) {X Y Z : Cᵒᵖ} (f : X ⟶ Y) (g : Y ⟶ Z) :
@@ -75,7 +112,16 @@ theorem restrictionMap_comp (k : ℕ) {X Y Z : Cᵒᵖ} (f : X ⟶ Y) (g : Y ⟶
         (ModuleCat.restrictScalarsComp' ((ringPresheaf O₂).map f).hom
           ((ringPresheaf O₂).map g).hom ((ringPresheaf O₂).map (f ≫ g)).hom
           (congrArg RingCat.Hom.hom ((ringPresheaf O₂).map_comp f g))).inv.app
-          (module φ F k Z) := sorry
+          (module φ F k Z) := by
+  apply hom_ext_universalClass φ F k X
+  intro m
+  change (restrictionMap φ F k (f ≫ g)).hom (universalClass φ F k X m) =
+    (restrictionMap φ F k g).hom
+      ((restrictionMap φ F k f).hom (universalClass φ F k X m))
+  rw [restrictionMap_universalClass, restrictionMap_universalClass,
+    restrictionMap_universalClass]
+  congr 1
+  exact F.map_comp_apply f g m
 
 /-- The presheaf of modules whose value at `X` is the explicit-ring-hom principal-parts module
 `PrincipalParts.RingHom.module (φ.app X).hom (F.obj X) k`, with restriction maps induced by base
@@ -106,7 +152,12 @@ theorem universalDifferentialApp_naturality (k : ℕ) {X Y : Cᵒᵖ} (f : X ⟶
           (universalDifferentialApp φ F k Y) =
       universalDifferentialApp φ F k X ≫
         ((PresheafOfModules.restrictScalars
-          (PresheafOfModules.presheafStructureMap φ)).obj (presheaf φ F k)).map f := sorry
+          (PresheafOfModules.presheafStructureMap φ)).obj (presheaf φ F k)).map f := by
+  ext m
+  dsimp only [ModuleCat.hom_comp, LinearMap.comp_apply, ModuleCat.restrictScalars.map_apply,
+    universalDifferentialApp, _root_.PrincipalParts.RingHom.universalDifferential,
+    ModuleCat.hom_ofHom]
+  exact (restrictionMap_universalClass φ F k f m).symm
 
 /-- The universal differential from a module presheaf to its sectionwise principal-parts
 presheaf, linear after restriction to the source ring presheaf. -/
@@ -124,13 +175,26 @@ principal-parts order. -/
 @[stacks 09CK "order bound for the presheaf universal differential"]
 theorem universalDifferential_isOrderLE (k : ℕ) :
     PresheafOfModules.IsDifferentialOperatorOfOrder φ
-      (universalDifferential φ F k) k := sorry
+      (universalDifferential φ F k) k := by
+  intro X
+  letI : Algebra (O₁.obj X) (O₂.obj X) :=
+    _root_.PrincipalParts.RingHom.algebra (φ.app X).hom
+  letI : Module (O₁.obj X) (F.obj X) :=
+    _root_.PrincipalParts.RingHom.sourceModule (φ.app X).hom (F.obj X)
+  letI : IsScalarTower (O₁.obj X) (O₂.obj X) (F.obj X) :=
+    IsScalarTower.of_compHom _ _ _
+  change ModuleCat.IsDifferentialOperatorOfOrder (φ.app X).hom
+    (_root_.PrincipalParts.RingHom.universalDifferential (φ.app X).hom (F.obj X) k) k
+  unfold ModuleCat.IsDifferentialOperatorOfOrder _root_.PrincipalParts.RingHom.universalDifferential
+  exact _root_.PrincipalParts.universalDifferential_isDifferentialOperatorOfOrder
+    (R := O₁.obj X) (S := O₂.obj X) (M := F.obj X) k
 
 /-- Evaluating the universal presheaf differential at a site object gives the explicit
 ring-hom universal differential. -/
 @[simp]
 theorem universalDifferential_app (k : ℕ) (X : Cᵒᵖ) :
-    (universalDifferential φ F k).app X = universalDifferentialApp φ F k X := sorry
+    (universalDifferential φ F k).app X = universalDifferentialApp φ F k X := by
+  rfl
 
 section Functoriality
 
@@ -145,7 +209,18 @@ noncomputable abbrev mapApp (k : ℕ) (α : F ⟶ G) (X : Cᵒᵖ) :
 @[simp]
 theorem mapApp_universalClass (k : ℕ) (α : F ⟶ G) (X : Cᵒᵖ) (m : F.obj X) :
     (mapApp φ F k α X).hom (universalClass φ F k X m) =
-      universalClass φ G k X ((α.app X).hom m) := sorry
+      universalClass φ G k X ((α.app X).hom m) := by
+  letI : Algebra (O₁.obj X) (O₂.obj X) :=
+    _root_.PrincipalParts.RingHom.algebra (φ.app X).hom
+  letI : Module (O₁.obj X) (F.obj X) :=
+    _root_.PrincipalParts.RingHom.sourceModule (φ.app X).hom (F.obj X)
+  letI : IsScalarTower (O₁.obj X) (O₂.obj X) (F.obj X) :=
+    IsScalarTower.of_compHom _ _ _
+  unfold mapApp _root_.PrincipalParts.RingHom.map
+  rw [ModuleCat.hom_ofHom]
+  unfold _root_.PrincipalParts.map
+  erw [_root_.PrincipalParts.representingEquiv_symm_apply_universalDifferential]
+  rfl
 
 /-- The objectwise maps on principal parts are natural in the site object. -/
 theorem mapApp_naturality (k : ℕ) (α : F ⟶ G)
@@ -153,7 +228,16 @@ theorem mapApp_naturality (k : ℕ) (α : F ⟶ G)
     restrictionMap φ F k f ≫
         (ModuleCat.restrictScalars ((ringPresheaf O₂).map f).hom).map
           (mapApp φ F k α Y) =
-      mapApp φ F k α X ≫ restrictionMap φ G k f := sorry
+      mapApp φ F k α X ≫ restrictionMap φ G k f := by
+  apply hom_ext_universalClass φ F k X
+  intro m
+  change (mapApp φ F k α Y).hom
+      ((restrictionMap φ F k f).hom (universalClass φ F k X m)) =
+    (restrictionMap φ G k f).hom ((mapApp φ F k α X).hom (universalClass φ F k X m))
+  rw [restrictionMap_universalClass, mapApp_universalClass, mapApp_universalClass,
+    restrictionMap_universalClass]
+  congr 1
+  exact PresheafOfModules.naturality_apply α f m
 
 /-- The morphism of principal-parts presheaves induced by a morphism of module presheaves. -/
 noncomputable def map (k : ℕ) (α : F ⟶ G) : presheaf φ F k ⟶ presheaf φ G k where
@@ -162,12 +246,28 @@ noncomputable def map (k : ℕ) (α : F ⟶ G) : presheaf φ F k ⟶ presheaf φ
 
 /-- Principal-parts functoriality preserves identity morphisms of module presheaves. -/
 @[simp]
-theorem map_id (k : ℕ) : map φ F k (𝟙 F) = 𝟙 (presheaf φ F k) := sorry
+theorem map_id (k : ℕ) : map φ F k (𝟙 F) = 𝟙 (presheaf φ F k) := by
+  apply PresheafOfModules.hom_ext
+  intro X
+  apply hom_ext_universalClass φ F k X
+  intro m
+  change (mapApp φ F k (𝟙 F) X).hom (universalClass φ F k X m) =
+    universalClass φ F k X m
+  rw [mapApp_universalClass]
+  rfl
 
 /-- Principal-parts functoriality preserves composition of module-presheaf morphisms. -/
 @[simp]
 theorem map_comp (k : ℕ) (α : F ⟶ G) (β : G ⟶ H) :
-    map φ F k (α ≫ β) = map φ F k α ≫ map φ G k β := sorry
+    map φ F k (α ≫ β) = map φ F k α ≫ map φ G k β := by
+  apply PresheafOfModules.hom_ext
+  intro X
+  apply hom_ext_universalClass φ F k X
+  intro m
+  change (mapApp φ F k (α ≫ β) X).hom (universalClass φ F k X m) =
+    (mapApp φ G k β X).hom ((mapApp φ F k α X).hom (universalClass φ F k X m))
+  rw [mapApp_universalClass, mapApp_universalClass, mapApp_universalClass]
+  rfl
 
 /-- Principal parts of fixed order form an endofunctor on module presheaves. -/
 noncomputable def functor (k : ℕ) :

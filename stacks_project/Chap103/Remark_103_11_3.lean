@@ -6,67 +6,42 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import Mathlib.CategoryTheory.CommSq
-public import stacks_project.Chap103.Remark_103_11_3_CupProduct
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.Module.Quasicoherent.DirectImage.Tensor
+import StacksCheckRecall
 
-/-!
-# Tensor comparison for quasi-coherent direct image
+/-! # Tensor comparison for quasi-coherent direct image -/
 
-For a quasi-compact quasi-separated morphism of algebraic stacks, the naive
-relative cup product in degree 0 compares the tensor of quasi-coherent
-direct images with the tensor of étale direct images.
--/
-
-@[expose] public section
-
-open AlgebraicGeometry CategoryTheory
+open AlgebraicGeometry CategoryTheory CategoryTheory.MonoidalCategory
 open AlgebraicGeometry.GroupoidsOver
 open scoped Bicategory
 
-noncomputable section
-
 universe u
 
-namespace AlgebraicGeometry.GroupoidsOver
+namespace AlgebraicGeometry.GroupoidsOver.QCoh
 
-variable {S : Scheme.{u}}
-
-namespace QCoh
-
-/-- Remark 103.11.3 (1): let `f : X ⟶ Y` be a quasi-compact and quasi-separated
-morphism of algebraic stacks, and let `F`, `G` be in `QCoh(𝒪_X)`. There is a
-canonical commutative square in `LQCoh^{fbc}(𝒪_Y)` whose right vertical arrow
-`c` is the degree-0 naive relative cup product
-`f_* F ⊗ f_* G ⟶ f_*(F ⊗ G)`, whose source and target lie in `LQCoh^{fbc}`,
-and whose left vertical arrow is `Q(c)` after the tensorator `μ` of `Q`. -/
-@[stacks 0GQR]
-theorem directImage_tensor_commSq {X Y : GroupoidsOver S}
+/- Remark 103.11.3: the canonical tensor comparison square. -/
+@[stacks 0GQR] #check (AlgebraicGeometry.GroupoidsOver.QCoh.directImage_tensor_commSq :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y)
     [AlgebraicStack.QuasiCompact f] [AlgebraicStack.QuasiSeparated f]
-    (adj : toLQCohFbc Y ⊣ LQCohFbc.toQCoh Y) (F G : QCoh X) :
+    [HasSmallCFGTypeSections f]
+    (F G : QCoh X),
     CommSq
-      (LQCohFbc.directImageTensorCounit f adj F G)
-      (directImage_tensorComparison_included f adj F G)
+      (LQCohFbc.directImageTensorCounit f (toLQCohFbcAdjunction Y) F G)
+      (directImage_tensorComparison_included f (toLQCohFbcAdjunction Y) F G)
       (LQCohFbc.naiveRelativeCupProduct f F G)
-      (adj.counit.app
-        ((LQCohFbc.directImage f).obj ((toLQCohFbc X).obj (tensor F G)))) :=
-  sorry
+      ((toLQCohFbcAdjunction Y).counit.app
+        ((LQCohFbc.directImage f).obj ((toLQCohFbc X).obj (Fppf.tensor F G)))))
 
-/-- Remark 103.11.3 (2): the degree-0 naive relative cup product, and the
-induced quasi-coherent comparison obtained by applying `Q`, are functorial in
-`F` and `G`. -/
-@[stacks 0GQR]
-theorem directImage_tensor_natural {X Y : GroupoidsOver S}
+#check (AlgebraicGeometry.GroupoidsOver.QCoh.directImage_tensor_natural :
+  ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y)
     [AlgebraicStack.QuasiCompact f] [AlgebraicStack.QuasiSeparated f]
-    (adj : toLQCohFbc Y ⊣ LQCohFbc.toQCoh Y)
-    {F F' G G' : QCoh X} (α : F ⟶ F') (β : G ⟶ G') :
+    [HasSmallCFGTypeSections f]
+    {F F' G G' : QCoh X} (α : F ⟶ F') (β : G ⟶ G'),
     tensorHom ((directImage f).map α) ((directImage f).map β) ≫
-      directImage_tensorComparison f adj F' G' =
-    directImage_tensorComparison f adj F G ≫
-      (directImage f).map (tensorHom α β) :=
-  sorry
+      directImage_tensorComparison f (toLQCohFbcAdjunction Y) F' G' =
+    directImage_tensorComparison f (toLQCohFbcAdjunction Y) F G ≫
+      (directImage f).map (tensorHom α β))
 
-end QCoh
-
-end AlgebraicGeometry.GroupoidsOver
+end AlgebraicGeometry.GroupoidsOver.QCoh

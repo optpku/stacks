@@ -6,16 +6,8 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap91.Lemma_91_10_3_IsoClass
-public import stacks_project.Chap91.Lemma_91_11_7_Lift
-
-/-!
-# Isomorphism classes of flat lifts of modules
-
-On a same-site first-order thickening `π : O' ⟶ O`, this leaf owns the isomorphism
-classes of flat lifts of an `O`-module `F`, together with the Baer-sum action of
-`O`-module extension classes of `F` by `I ⊗_O F`.
--/
+public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.FirstOrderThickening.FlatLift.IsoClass
+import StacksCheckRecall
 
 @[expose] public section
 
@@ -45,95 +37,9 @@ variable [(restrictScalars (ringSheafMap π)).IsRightAdjoint]
 variable (f' : OB' ⟶ O')
 variable (F : ringedSiteModuleCategory.{u, v, max u v, max u v} J O)
 
-/-- Two flat lifts are equivalent when there is an isomorphism of pairs. -/
-def isomorphicSetoid : Setoid (FlatLift π f' F) where
-  r L₁ L₂ := Nonempty (FlatLift.Hom L₁ L₂)
-  iseqv := sorry
-
-/-- Isomorphism classes of flat lifts of `F` along `π`. -/
-abbrev IsoClass := Quotient (isomorphicSetoid π f' F)
-
-namespace IsoClass
-
-/-- The isomorphism class of a given flat lift. -/
-def mk (L : FlatLift π f' F) : IsoClass π f' F :=
-  Quotient.mk (isomorphicSetoid π f' F) L
-
-end IsoClass
-
-variable {π f' F}
-variable {OB : Sheaf J CommRingCat.{max u v}} {τ : OB' ⟶ OB}
-variable [IsFirstOrderThickening τ]
-variable {f : OB ⟶ O} [(restrictScalars (ringSheafMap f)).IsRightAdjoint]
-variable {hcomm : f' ≫ π = τ ≫ f}
-
-/-- Translate a flat lift by the restriction of an `O`-module extension, using the
-Baer sum on the associated 08MB extension with `c = 𝟙`. The result remains a flat
-lift because `(f, f')` is strict and `F` is flat over `O_B`. -/
-def vaddLift [IsFlat OB ((restrictionAlong f).obj F)]
-    (hstrict : IsStrict f f' hcomm)
-    (ξ : CategoryTheory.Extension (moduleTensor (ideal π) F) F)
-    (L : FlatLift π f' F) : FlatLift π f' F :=
-  ofModuleExtension f' hstrict ⟨L⟩
-    (ModuleExtension.vaddExtension ξ (toModuleExtension f' hstrict L))
-
-/-- Baer-sum translation preserves isomorphism of flat lifts. -/
-theorem vaddLift_isomorphic [IsFlat OB ((restrictionAlong f).obj F)]
-    (hstrict : IsStrict f f' hcomm)
-    {ξ ξ' : CategoryTheory.Extension (moduleTensor (ideal π) F) F}
-    (hξ : IsIsomorphic ξ ξ') {L L' : FlatLift π f' F}
-    (hL : Nonempty (FlatLift.Hom L L')) :
-    Nonempty (FlatLift.Hom (vaddLift hstrict ξ L) (vaddLift hstrict ξ' L')) := sorry
-
-/-- The Baer-sum action of `O`-module extension classes on isomorphism classes of
-flat lifts, along a strict morphism with `F` flat over `O_B`. -/
-def vadd [IsFlat OB ((restrictionAlong f).obj F)]
-    (hstrict : IsStrict f f' hcomm)
-    (ξ : ExtensionClass (moduleTensor (ideal π) F) F) (E : IsoClass π f' F) :
-    IsoClass π f' F :=
-  Quotient.map₂ (vaddLift hstrict)
-    (fun _ _ hξ _ _ hL ↦ vaddLift_isomorphic hstrict hξ hL) ξ E
-
-/-- The Baer-sum action computes on representatives. -/
-theorem vadd_mk [IsFlat OB ((restrictionAlong f).obj F)]
-    (hstrict : IsStrict f f' hcomm)
-    (ξ : CategoryTheory.Extension (moduleTensor (ideal π) F) F)
-    (L : FlatLift π f' F) :
-    vadd hstrict (Quotient.mk (isIsomorphicSetoid
-          (CategoryTheory.Extension (moduleTensor (ideal π) F) F)) ξ)
-      (Quotient.mk (isomorphicSetoid π f' F) L) =
-      Quotient.mk (isomorphicSetoid π f' F) (vaddLift hstrict ξ L) := sorry
-
-/-- The split `O`-module extension acts trivially on isomorphism classes. -/
-theorem vadd_zero [IsFlat OB ((restrictionAlong f).obj F)]
-    (hstrict : IsStrict f f' hcomm) (E : IsoClass π f' F) :
-    vadd hstrict (0 : ExtensionClass (moduleTensor (ideal π) F) F) E = E := sorry
-
-/-- The Baer-sum action is an action of the extension group. -/
-theorem vadd_add [IsFlat OB ((restrictionAlong f).obj F)]
-    (hstrict : IsStrict f f' hcomm)
-    (ξ η : ExtensionClass (moduleTensor (ideal π) F) F)
-    (E : IsoClass π f' F) :
-    vadd hstrict (ξ + η) E = vadd hstrict ξ (vadd hstrict η E) := sorry
-
-/-- If at least one flat lift exists, then along a strict morphism with `F` flat
-over `O_B`, isomorphism classes form a principal homogeneous space under the
-`O`-module extension group of `F` by `I ⊗_O F`. -/
-theorem existsUnique_vadd [IsFlat OB ((restrictionAlong f).obj F)]
-    (hstrict : IsStrict f f' hcomm) (h_exists : Nonempty (FlatLift π f' F))
-    (E E' : IsoClass π f' F) :
-    ∃! ξ : ExtensionClass (moduleTensor (ideal π) F) F,
-      vadd hstrict ξ E = E' := sorry
-
-variable [HasExt.{w} (ringedSiteModuleCategory.{u, v, max u v, max u v} J O)]
-
-/-- The Baer-sum action on isomorphism classes depends only on the Ext¹ class of the
-acting `O`-module extension. -/
-theorem vadd_congr_toExt [IsFlat OB ((restrictionAlong f).obj F)]
-    (hstrict : IsStrict f f' hcomm)
-    {ξ η : ExtensionClass (moduleTensor (ideal π) F) F}
-    (h : ExtensionClass.toExt ξ = ExtensionClass.toExt η) (E : IsoClass π f' F) :
-    vadd hstrict ξ E = vadd hstrict η E := sorry
+/- Flat-lift isomorphism classes use compatible isomorphisms of middle modules. -/
+#check (SheafOfModules.RingedSite.FirstOrderThickening.FlatLift.IsoClass π f' F :
+  Type (max u v + 1))
 
 end FlatLift
 end SheafOfModules.RingedSite.FirstOrderThickening

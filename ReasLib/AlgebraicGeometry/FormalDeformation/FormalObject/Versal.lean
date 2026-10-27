@@ -37,9 +37,58 @@ def elementsProjectionULift (U : ArtinianLocalAlgCat Λ k ⥤ Type u) :
     ULiftHom.{u + 1} U.Elements ⥤ ArtinianLocalAlgCat Λ k :=
   ULiftHom.down ⋙ CategoryOfElements.π U
 
+/-- Every arrow of the lifted category of elements is strongly cocartesian. -/
+theorem elementsProjectionULift_isStronglyCartesian
+    (U : ArtinianLocalAlgCat Λ k ⥤ Type u)
+    {a b : (ULiftHom.{u + 1} U.Elements)ᵒᵖ} (φ : a ⟶ b) :
+    (elementsProjectionULift U).op.IsStronglyCartesian
+      ((elementsProjectionULift U).op.map φ) φ := by
+  refine { toIsHomLift := IsHomLift.map _ _, universal_property' := ?_ }
+  intro c g ψ hψ
+  letI := hψ
+  have hbase := congrArg Quiver.Hom.unop
+    (IsHomLift.eq_of_isHomLift (elementsProjectionULift U).op
+      (g ≫ (elementsProjectionULift U).op.map φ) ψ)
+  change φ.unop.down.val ≫ g.unop = ψ.unop.down.val at hbase
+  have helement : U.map g.unop a.unop.objDown.2 = c.unop.objDown.2 := by
+    calc
+      _ = U.map g.unop (U.map φ.unop.down.val b.unop.objDown.2) := by
+        rw [φ.unop.down.property]
+      _ = U.map (φ.unop.down.val ≫ g.unop) b.unop.objDown.2 :=
+        (U.map_comp_apply _ _ _).symm
+      _ = U.map ψ.unop.down.val b.unop.objDown.2 :=
+        congrArg (fun f ↦ U.map f b.unop.objDown.2) hbase
+      _ = c.unop.objDown.2 := ψ.unop.down.property
+  let χ : c ⟶ a :=
+    Quiver.Hom.op (show a.unop ⟶ c.unop from
+      ⟨CategoryOfElements.homMk _ _ g.unop helement⟩)
+  refine ⟨χ, ⟨?_, ?_⟩, ?_⟩
+  · exact IsHomLift.map (elementsProjectionULift U).op χ
+  · apply Quiver.Hom.unop_inj
+    apply ULift.ext
+    exact Subtype.ext hbase
+  · intro χ' hχ'
+    letI := hχ'.1
+    apply Quiver.Hom.unop_inj
+    apply ULift.ext
+    exact Subtype.ext (congrArg Quiver.Hom.unop
+      (IsHomLift.eq_of_isHomLift (elementsProjectionULift U).op g χ')).symm
+
 /-- A lifted category-of-elements projection is cofibered in groupoids. -/
 instance elementsProjectionULift_op_inGroupoids (U : ArtinianLocalAlgCat Λ k ⥤ Type u) :
-    Functor.IsFibered.InGroupoids (elementsProjectionULift U).op := sorry
+    Functor.IsFibered.InGroupoids (elementsProjectionULift U).op := by
+  refine
+    { toIsFibered := Functor.IsFibered.of_exists_isStronglyCartesian ?_
+      all_isCartesian := fun φ ↦ ?_ }
+  · intro a R f
+    let b : (ULiftHom.{u + 1} U.Elements)ᵒᵖ :=
+      Opposite.op (ULiftHom.objUp ⟨R.unop, U.map f.unop a.unop.objDown.2⟩)
+    let φ : b ⟶ a :=
+      Quiver.Hom.op (show a.unop ⟶ b.unop from
+        ⟨CategoryOfElements.homMk _ _ f.unop rfl⟩)
+    exact ⟨b, φ, elementsProjectionULift_isStronglyCartesian U φ⟩
+  · letI := elementsProjectionULift_isStronglyCartesian U φ
+    infer_instance
 
 end FormalObject
 
@@ -86,7 +135,8 @@ theorem identityStageMap_eq (R : CompleteLocalAlgCat Λ k) (n : ℕ) :
 
 /-- Identity successor maps lie over the corresponding Artinian truncation projections. -/
 theorem identityFormalObject_over_step (R : CompleteLocalAlgCat Λ k) (n : ℕ) :
-    (identityProjection R).IsHomLift (R.truncationMap n) (identityStageMap R n) := sorry
+    (identityProjection R).IsHomLift (R.truncationMap n) (identityStageMap R n) := by
+  exact IsHomLift.map (identityProjection R) (identityStageMap R n)
 
 /-- The formal object of a restricted coyoneda given by its canonical identity tower. -/
 def identityFormalObject (R : CompleteLocalAlgCat Λ k) :
@@ -130,7 +180,9 @@ theorem represents_obj (ξ : FormalObject p)
     (φ : BasedCategory.ofFunctor (CompleteLocalAlgCat.identityProjection ξ.base) ⥤ᵇ
       BasedCategory.ofFunctor p) (representation : Represents ξ φ) (n : ℕ) :
     ∃ e : φ.obj (CompleteLocalAlgCat.identityStage ξ.base n) ≅ ξ.system.family n,
-      p.IsHomLift (𝟙 (ξ.base.truncation n)) e.hom := sorry
+      p.IsHomLift (𝟙 (ξ.base.truncation n)) e.hom := by
+  obtain ⟨stageIso, over, _⟩ := representation
+  exact ⟨stageIso n, over n⟩
 
 /-- A formal object is versal when it admits a smooth representing based functor. -/
 class IsVersal (ξ : FormalObject p) [Functor.IsFibered.InGroupoids p.op] : Prop where
@@ -163,7 +215,7 @@ theorem IsMinimalVersal.spec (ξ : FormalObject p) [Functor.IsFibered.InGroupoid
 theorem prorepresentationFunctor_over (U : ArtinianLocalAlgCat Λ k ⥤ Type u)
     {R : CompleteLocalAlgCat Λ k} (e : U ≅ CompleteLocalAlgCat.restrictedCoyoneda R) :
     (ULiftHom.down ⋙ CategoryOfElements.map e.inv ⋙ ULiftHom.up) ⋙
-      elementsProjectionULift U = CompleteLocalAlgCat.identityProjection R := sorry
+      elementsProjectionULift U = CompleteLocalAlgCat.identityProjection R := rfl
 
 /-- The based functor induced by the inverse of an actual prorepresentation. -/
 def prorepresentationFunctor (U : ArtinianLocalAlgCat Λ k ⥤ Type u)
@@ -179,7 +231,14 @@ theorem fromProrepresentation_over_obj (p : F ⥤ ArtinianLocalAlgCat Λ k)
     (q : BasedCategory.ofFunctor (elementsProjectionULift U) ⥤ᵇ BasedCategory.ofFunctor p)
     {R : CompleteLocalAlgCat Λ k} (e : U ≅ CompleteLocalAlgCat.restrictedCoyoneda R) (n : ℕ) :
     p.obj (q.obj ((prorepresentationFunctor U e).obj (CompleteLocalAlgCat.identityStage R n))) =
-      R.truncation n := sorry
+      R.truncation n := by
+  calc
+    _ = (elementsProjectionULift U).obj
+        ((prorepresentationFunctor U e).obj (CompleteLocalAlgCat.identityStage R n)) :=
+      q.w_obj _
+    _ = (CompleteLocalAlgCat.identityProjection R).obj
+        (CompleteLocalAlgCat.identityStage R n) := (prorepresentationFunctor U e).w_obj _
+    _ = R.truncation n := rfl
 
 /-- Evaluation of a presentation on prorepresenting successor maps lifts the truncation projection. -/
 theorem fromProrepresentation_over_step (p : F ⥤ ArtinianLocalAlgCat Λ k)
@@ -187,7 +246,10 @@ theorem fromProrepresentation_over_step (p : F ⥤ ArtinianLocalAlgCat Λ k)
     (q : BasedCategory.ofFunctor (elementsProjectionULift U) ⥤ᵇ BasedCategory.ofFunctor p)
     {R : CompleteLocalAlgCat Λ k} (e : U ≅ CompleteLocalAlgCat.restrictedCoyoneda R) (n : ℕ) :
     p.IsHomLift (R.truncationMap n)
-      (q.map ((prorepresentationFunctor U e).map (CompleteLocalAlgCat.identityStageMap R n))) := sorry
+      (q.map ((prorepresentationFunctor U e).map (CompleteLocalAlgCat.identityStageMap R n))) := by
+  apply (BasedFunctor.isHomLift_iff q _ _).mpr
+  apply (BasedFunctor.isHomLift_iff (prorepresentationFunctor U e) _ _).mpr
+  exact CompleteLocalAlgCat.identityFormalObject_over_step R n
 
 /-- Evaluate an actual prorepresentation and a presentation on the canonical identity tower. -/
 def fromProrepresentation (p : F ⥤ ArtinianLocalAlgCat Λ k)
@@ -231,15 +293,39 @@ namespace CompleteLocalAlgCat
 /-- The identity based functor represents the canonical identity formal object. -/
 theorem identityFormalObject_represents (R : CompleteLocalAlgCat Λ k) :
     FormalObject.Represents (identityFormalObject R)
-      (BasedFunctor.id (BasedCategory.ofFunctor (identityProjection R))) := sorry
+      (BasedFunctor.id (BasedCategory.ofFunctor (identityProjection R))) := by
+  refine ⟨fun n ↦ Iso.refl (identityStage R n), ?_, ?_⟩
+  · intro n
+    exact IsHomLift.id rfl
+  · intro n
+    change identityStageMap R n ≫ 𝟙 (identityStage R n) =
+      𝟙 (identityStage R (n + 1)) ≫
+        (Functor.ofOpSequence (identityStageMap R)).map
+          (homOfLE (Nat.le_add_right n 1)).op
+    rw [Functor.ofOpSequence_map_homOfLE_succ]
+    exact (Category.comp_id (identityStageMap R n)).trans
+      (Category.id_comp (identityStageMap R n)).symm
 
 /-- The canonical identity formal object is versal. -/
 instance instIsVersalIdentityFormalObject (R : CompleteLocalAlgCat Λ k) :
-    FormalObject.IsVersal (identityFormalObject R) := sorry
+    FormalObject.IsVersal (identityFormalObject R) := by
+  refine ⟨⟨BasedFunctor.id _, identityFormalObject_represents R, ?_⟩⟩
+  constructor
+  intro B A f _ y x α hα
+  refine ⟨y, α, 𝟙 y, hα, ?_, ?_⟩
+  · have hy : (identityProjection R).obj y = B := by
+      cases hα
+      rfl
+    exact IsHomLift.id hy
+  · exact Category.id_comp α
 
 /-- The canonical identity formal object is minimal versal. -/
 instance instIsMinimalVersalIdentityFormalObject (R : CompleteLocalAlgCat Λ k) :
-    FormalObject.IsMinimalVersal (identityFormalObject R) := sorry
+    FormalObject.IsMinimalVersal (identityFormalObject R) where
+  toIsVersal := instIsVersalIdentityFormalObject R
+  surjective_base := by
+    intro η morphism
+    sorry
 
 end CompleteLocalAlgCat
 
@@ -249,7 +335,11 @@ namespace FormalObject
 instance instIsMinimalPresentationIdentity (R : CompleteLocalAlgCat Λ k) :
     IsMinimalPresentation (CompleteLocalAlgCat.identityProjection R)
       (CompleteLocalAlgCat.restrictedCoyoneda R)
-      (BasedFunctor.id (BasedCategory.ofFunctor (CompleteLocalAlgCat.identityProjection R))) := sorry
+      (BasedFunctor.id (BasedCategory.ofFunctor (CompleteLocalAlgCat.identityProjection R))) := by
+  constructor
+  refine ⟨R, Iso.refl _, ?_⟩
+  change IsMinimalVersal (CompleteLocalAlgCat.identityFormalObject R)
+  infer_instance
 
 end FormalObject
 

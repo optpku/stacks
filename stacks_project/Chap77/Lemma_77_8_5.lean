@@ -6,8 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap77.Lemma_77_8_5_ClosedImmersion
-public import stacks_project.Chap77.Lemma_77_8_5_ZeroFunctor
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.BaseChange.ZeroFunctor.Pure
 import StacksCheckRecall
 
 @[expose] public section
@@ -28,7 +27,7 @@ variable (hG_pure : 𝒢.IsPureOver f)
 `𝒢` is of finite presentation, flat over `B`, and pure relative to `B`, then
 `F_zero` is an algebraic space. -/
 @[stacks 0CWC] #check
-  (zeroOverSFunctor.isAlgebraicSpace f hG_flat hG_pure u :
+  (AlgebraicGeometry.AlgebraicSpace.Modules.zeroOverSFunctor.isAlgebraicSpace f hG_flat hG_pure u :
     IsAlgebraicSpace (zeroOverSFunctor f u))
 
 section
@@ -39,7 +38,7 @@ variable [IsAlgebraicSpace (zeroOverSFunctor f u)]
 `𝒢` is of finite presentation, flat over `B`, and pure relative to `B`, then
 `F_zero ⟶ B` is a closed immersion. -/
 @[stacks 0CWC] #check
-  (zeroOverSFunctor.isClosedImmersion_toB f hG_flat hG_pure u :
+  (AlgebraicGeometry.AlgebraicSpace.Modules.zeroOverSFunctor.isClosedImmersion_toB f hG_flat hG_pure u :
     IsClosedImmersion (zeroOverSFunctor.toB f u))
 
 section
@@ -49,7 +48,7 @@ variable [ℱ.IsFiniteType]
 /- Lemma 77.8.5 (3): In Situation 77.7.1, if in addition `ℱ` is of finite type,
 then `F_zero ⟶ B` is of finite presentation. -/
 @[stacks 0CWC] #check
-  (zeroOverSFunctor.finitePresentation_toB f hG_flat hG_pure u :
+  (AlgebraicGeometry.AlgebraicSpace.Modules.zeroOverSFunctor.finitePresentation_toB f hG_flat hG_pure u :
     FinitePresentation (zeroOverSFunctor.toB f u))
 
 end

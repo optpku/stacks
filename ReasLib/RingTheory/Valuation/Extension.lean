@@ -43,9 +43,12 @@ variable {A : Type u} [CommRing A] [IsDomain A] [ValuationRing A]
 
 /-- The identity map of a valuation ring is an extension of valuation rings. -/
 @[stacks 0ASG "identity extension of a valuation ring", instance]
-instance valuationRingSelfExtension : IsExtensionOfValuationRings A A := sorry
--- Proof strategy: use `isLocalHom_id A` for locality and the injectivity of the
--- identity algebra map for `algebraMap_injective`.
+instance valuationRingSelfExtension : IsExtensionOfValuationRings A A where
+  toIsLocalHom := by
+    simpa only [Algebra.algebraMap_self] using isLocalHom_id A
+  algebraMap_injective := by
+    intro a b hab
+    simpa only [Algebra.algebraMap_self, RingHom.id_apply] using hab
 
 end
 
@@ -57,10 +60,12 @@ theorem isExtensionOfValuationRings_iff
     [CommRing A] [CommRing B] [Algebra A B]
     [IsDomain A] [ValuationRing A] [IsDomain B] [ValuationRing B] :
     IsExtensionOfValuationRings A B ↔
-      IsLocalHom (algebraMap A B) ∧ Function.Injective (algebraMap A B) := sorry
--- Proof strategy: project the two fields of `IsExtensionOfValuationRings` in
--- the forward direction and invoke its constructor on the pair in the reverse
--- direction.
+      IsLocalHom (algebraMap A B) ∧ Function.Injective (algebraMap A B) := by
+  constructor
+  · intro h
+    exact ⟨h.toIsLocalHom, h.algebraMap_injective⟩
+  · rintro ⟨hLocal, hInjective⟩
+    exact { toIsLocalHom := hLocal, algebraMap_injective := hInjective }
 
 namespace IsExtensionOfValuationRings
 
@@ -98,11 +103,33 @@ include h
 /-- The valuation integers of the target fraction field pull back to those of the source. -/
 @[stacks 0ASG "fraction-field valuation integers under an extension"]
 theorem integer_comap :
-    Subring.comap (algebraMap K L) (Valuation.integer vB) = Valuation.integer vA := sorry
--- Proof strategy: ext a source fraction `x`.  The forward implication uses the
--- valuation-ring alternative for `x` and `x⁻¹`; in the inverse branch, locality
--- of `A → B` reflects the target unit back to a source unit.  The reverse
--- implication maps an integer representative from `A` into `B`.
+    Subring.comap (algebraMap K L) (Valuation.integer vB) = Valuation.integer vA := by
+  ext x
+  rw [Subring.mem_comap, ValuationRing.mem_integer_iff, ValuationRing.mem_integer_iff]
+  constructor
+  · rintro ⟨b, hb⟩
+    rcases val_le_one_or_val_inv_le_one vA x with hx | hx
+    · exact (ValuationRing.mem_integer_iff A K x).mp hx
+    · obtain ⟨a, ha⟩ := (ValuationRing.mem_integer_iff A K x⁻¹).mp hx
+      by_cases hx0 : x = 0
+      · exact ⟨0, by simp [hx0]⟩
+      · have hab : algebraMap A B a * b = 1 := by
+          apply IsFractionRing.injective B L
+          calc
+            algebraMap B L (algebraMap A B a * b) =
+                algebraMap K L (algebraMap A K a) * algebraMap B L b := by
+              rw [map_mul, ← IsScalarTower.algebraMap_apply A B L,
+                IsScalarTower.algebraMap_apply A K L]
+            _ = algebraMap K L (x⁻¹ * x) := by rw [ha, hb, map_mul]
+            _ = algebraMap B L 1 := by rw [inv_mul_cancel₀ hx0, map_one, map_one]
+        have hau : IsUnit a :=
+          isUnit_of_map_unit (algebraMap A B) a (IsUnit.of_mul_eq_one b hab)
+        refine ⟨↑(hau.unit⁻¹), ?_⟩
+        rw [map_units_inv, hau.unit_spec, ha, inv_inv]
+  · rintro ⟨a, rfl⟩
+    refine ⟨algebraMap A B a, ?_⟩
+    rw [← IsScalarTower.algebraMap_apply A B L,
+      ← IsScalarTower.algebraMap_apply A K L]
 
 /-- The source fraction field carries the valuation relation induced by its valuation ring. -/
 @[stacks 0ASG "valuative relation on the source fraction field", instance]
@@ -116,15 +143,13 @@ noncomputable instance fractionRingValuativeRel_target : ValuativeRel L :=
 
 /-- The source valuation is compatible with its induced valuative relation. -/
 @[stacks 0ASG "compatibility of the source fraction-field valuation", instance]
-instance fractionRing_valuation_compatible_source : Valuation.Compatible vA := sorry
--- Proof strategy: apply `Valuation.Compatible.ofValuation vA` to the valuative
--- relation installed by `fractionRingValuativeRel_source`.
+instance fractionRing_valuation_compatible_source : Valuation.Compatible vA :=
+  Valuation.Compatible.ofValuation vA
 
 /-- The target valuation is compatible with its induced valuative relation. -/
 @[stacks 0ASG "compatibility of the target fraction-field valuation", instance]
-instance fractionRing_valuation_compatible_target : Valuation.Compatible vB := sorry
--- Proof strategy: apply `Valuation.Compatible.ofValuation vB` to the valuative
--- relation installed by `fractionRingValuativeRel_target`.
+instance fractionRing_valuation_compatible_target : Valuation.Compatible vB :=
+  Valuation.Compatible.ofValuation vB
 
 include h
 /-- The fraction-field algebra map extends the source valuation to the target valuation. -/
@@ -135,10 +160,11 @@ instance fractionRing_hasExtension : Valuation.HasExtension vA vB :=
 include h
 /-- The fraction-field extension is a valuative extension. -/
 @[stacks 0ASG "canonical valuative extension of fraction fields"]
-theorem fractionRingValuativeExtension_spec : ValuativeExtension K L := sorry
--- Proof strategy: construct the Prop-valued class, rewrite both valuative
--- relations with `Valuation.vle_iff_le`, and use
--- `Valuation.HasExtension.val_map_le_iff` from `integer_comap`.
+theorem fractionRingValuativeExtension_spec : ValuativeExtension K L := by
+  constructor
+  intro x y
+  simpa only [Valuation.vle_iff_le vA, Valuation.vle_iff_le vB] using
+    Valuation.HasExtension.val_map_le_iff vA vB x y
 
 /-- The canonical valuative extension of the fraction fields of an extension of valuation rings. -/
 @[stacks 0ASG "valuative extension on fraction fields", instance]
@@ -153,9 +179,8 @@ def WeaklyUnramified : Prop :=
 
 /-- The defining value-group criterion for a weakly unramified extension. -/
 theorem WeaklyUnramified.spec (hWeak : WeaklyUnramified A B) :
-    Function.Bijective (ValuativeExtension.mapValueGroupWithZero K L) := sorry
--- Proof strategy: unfold `WeaklyUnramified`; the conclusion is its defining
--- proposition.
+    Function.Bijective (ValuativeExtension.mapValueGroupWithZero K L) :=
+  hWeak
 
 /-- When the residue-field extension is finite, its residue degree is the vector-space dimension
 `[κ_B : κ_A]`. -/
@@ -172,9 +197,8 @@ noncomputable def ramificationIndex : ℕ∞ :=
 
 /-- The ramification index of an extension of valuation rings is positive. -/
 @[stacks 0ASG "positivity of the ramification index"]
-theorem ramificationIndex_pos : 0 < ramificationIndex A B := sorry
--- Proof strategy: unfold `ramificationIndex`; the quotient group is nonempty,
--- so its extended-natural cardinality is positive (`ENat.card_pos`).
+theorem ramificationIndex_pos : 0 < ramificationIndex A B :=
+  ENat.card_pos
 
 end IsExtensionOfValuationRings
 
@@ -197,18 +221,19 @@ variable [Field L] [Algebra A L] [hFaithful : FaithfulSMul A L]
 include hFaithful
 /-- The normalization map is injective when the original action on `L` is faithful. -/
 theorem integralClosure_algebraMap_injective :
-    Function.Injective (algebraMap A (integralClosure A L)) := sorry
--- Proof strategy: compose with the canonical inclusion of the integral closure
--- into `L`, rewrite the composite by `IsScalarTower.algebraMap_eq`, and apply
--- `FaithfulSMul.algebraMap_injective A L`.
+    Function.Injective (algebraMap A (integralClosure A L)) := by
+  intro a b hab
+  apply FaithfulSMul.algebraMap_injective A L
+  have h := congrArg (algebraMap (integralClosure A L) L) hab
+  simpa only [← IsScalarTower.algebraMap_apply A (integralClosure A L) L] using h
 
 /-- The integral normalization map between valuation rings is local. -/
 @[stacks 0ASG "locality of the normalization map between valuation rings"]
 theorem integralClosure_isLocalHom [ValuationRing (integralClosure A L)] :
-    IsLocalHom (algebraMap A (integralClosure A L)) := sorry
--- Proof strategy: use integrality of the normalization map together with
--- `integralClosure_algebraMap_injective`, then apply the canonical theorem that
--- an injective integral map between valuation rings is local.
+    IsLocalHom (algebraMap A (integralClosure A L)) :=
+  RingHom.IsIntegral.isLocalHom
+    (algebraMap_isIntegral_iff.mpr (inferInstance : Algebra.IsIntegral A (integralClosure A L)))
+    (integralClosure_algebraMap_injective (A := A) (L := L))
 
 /-- The normalization map is an extension of valuation rings when the normalization is a valuation
 ring. -/

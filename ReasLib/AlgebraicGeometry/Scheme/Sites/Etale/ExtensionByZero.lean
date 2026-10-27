@@ -7,6 +7,7 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Restriction
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Module.Sheafification
 public import Mathlib.CategoryTheory.Sites.Pullback
 public import Mathlib.Algebra.Category.ModuleCat.Sheaf
 
@@ -22,6 +23,12 @@ universe u w u₁ v₁
 namespace AlgebraicGeometry.Scheme
 
 variable {U X : Scheme.{u}}
+
+/-- Module-valued presheaves admit left Kan extensions along opposite étale
+restriction. -/
+instance etaleRestrictionModuleHasLeftKanExtension (j : U ⟶ X) [Etale j]
+    (Λ : Type u) [Ring Λ] (F : U.Etaleᵒᵖ ⥤ ModuleCat.{u} Λ) :
+    (etaleRestriction j).op.HasLeftKanExtension F := sorry
 
 /-- The restriction functor induced on sheaves by an étale morphism. -/
 abbrev etaleRestrictionSheaf (j : U ⟶ X) [Etale j] (A : Type u₁) [Category.{v₁} A] :

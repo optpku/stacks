@@ -42,7 +42,15 @@ symmetric tensor power. -/
 theorem piTensorLift_eq_of_rel
     (f : MultilinearMap R (fun _ : ι ↦ M) N) (hf : IsInvariant f) :
     addConGen (Rel R ι M) ≤
-      AddCon.ker (PiTensorProduct.lift f).toAddMonoidHom := sorry
+      AddCon.ker (PiTensorProduct.lift f).toAddMonoidHom := by
+  apply AddCon.addConGen_le.mpr
+  intro x y h
+  cases h with
+  | perm e m =>
+    apply (AddCon.ker_rel _).mpr
+    change PiTensorProduct.lift f (PiTensorProduct.tprod R m) =
+      PiTensorProduct.lift f (PiTensorProduct.tprod R (m ∘ e))
+    simpa only [PiTensorProduct.lift.tprod] using (hf e m).symm
 
 /-- The additive quotient lift of a symmetric multilinear map. -/
 noncomputable def liftAddHom
@@ -55,7 +63,11 @@ noncomputable def liftAddHom
 theorem liftAddHom_smul
     (f : MultilinearMap R (fun _ : ι ↦ M) N) (hf : IsInvariant f)
     (r : R) (x : Sym[R] ι M) :
-    liftAddHom f hf (r • x) = r • liftAddHom f hf x := sorry
+    liftAddHom f hf (r • x) = r • liftAddHom f hf x := by
+  refine AddCon.induction_on x ?_
+  intro y
+  change PiTensorProduct.lift f (r • y) = r • PiTensorProduct.lift f y
+  exact (PiTensorProduct.lift f).map_smul r y
 
 /-- The linear map from a symmetric tensor power induced by a symmetric multilinear map. -/
 @[stacks 01CF "universal property of symmetric powers"]
@@ -71,7 +83,8 @@ lift. -/
 theorem lift_mk
     (f : MultilinearMap R (fun _ : ι ↦ M) N) (hf : IsInvariant f)
     (x : ⨂[R] (_ : ι), M) :
-    lift f hf (SymmetricPower.mk R ι M x) = PiTensorProduct.lift f x := sorry
+    lift f hf (SymmetricPower.mk R ι M x) = PiTensorProduct.lift f x := by
+  rfl
 
 /-- The symmetric-power lift evaluates on a pure symmetric tensor by the original multilinear
 map. -/
@@ -79,7 +92,9 @@ map. -/
 theorem lift_tprod
     (f : MultilinearMap R (fun _ : ι ↦ M) N) (hf : IsInvariant f)
     (m : ι → M) :
-    lift f hf (SymmetricPower.tprod R m) = f m := sorry
+    lift f hf (SymmetricPower.tprod R m) = f m := by
+  change lift f hf (SymmetricPower.mk R ι M (PiTensorProduct.tprod R m)) = f m
+  rw [lift_mk, PiTensorProduct.lift.tprod]
 
 /-- A linear map from a symmetric power induces a multilinear map by composition with the pure
 symmetric tensor map. -/
@@ -92,24 +107,33 @@ the pure symmetric tensor. -/
 @[simp]
 theorem compTprod_apply
     (g : Sym[R] ι M →ₗ[R] N) (m : ι → M) :
-    compTprod g m = g (SymmetricPower.tprod R m) := sorry
+    compTprod g m = g (SymmetricPower.tprod R m) := by
+  rfl
 
 /-- The multilinear map induced by a map from a symmetric power is permutation-invariant. -/
 theorem compTprod_isInvariant (g : Sym[R] ι M →ₗ[R] N) :
-    IsInvariant (compTprod g) := sorry
+    IsInvariant (compTprod g) := by
+  intro e m
+  exact congrArg g (tprod_equiv e m)
 
 /-- Composing a symmetric-power lift with the pure symmetric tensor map recovers the original
 multilinear map. -/
 @[simp]
 theorem compTprod_lift
     (f : MultilinearMap R (fun _ : ι ↦ M) N) (hf : IsInvariant f) :
-    compTprod (lift f hf) = f := sorry
+    compTprod (lift f hf) = f := by
+  apply MultilinearMap.ext
+  intro m
+  exact lift_tprod f hf m
 
 /-- Descending the multilinear map induced by a linear map from a symmetric power recovers the
 original linear map. -/
 @[simp]
 theorem lift_compTprod (g : Sym[R] ι M →ₗ[R] N) :
-    lift (compTprod g) (compTprod_isInvariant g) = g := sorry
+    lift (compTprod g) (compTprod_isInvariant g) = g := by
+  apply LinearMap.ext_on_range (span_tprod_eq_top R ι M)
+  intro m
+  exact lift_tprod (compTprod g) (compTprod_isInvariant g) m
 
 /-- Linear maps out of a symmetric tensor power are determined by their values on pure symmetric
 tensors. -/
@@ -117,6 +141,7 @@ theorem linearMap_ext
     {f g : Sym[R] ι M →ₗ[R] N}
     (h : ∀ m : ι → M, f (SymmetricPower.tprod R m) =
       g (SymmetricPower.tprod R m)) :
-    f = g := sorry
+    f = g := by
+  exact LinearMap.ext_on_range (span_tprod_eq_top R ι M) h
 
 end SymmetricPower

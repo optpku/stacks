@@ -10,6 +10,7 @@ public import ReasLib.AlgebraicGeometry.AlgebraicSpace.RelativeProj.Functor
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.RestrictToScheme.PresentationComparison
 public import ReasLib.AlgebraicGeometry.ProjectiveSpectrum.Twist.Sections
 public import ReasLib.AlgebraicGeometry.ProjectiveSpectrum.Twist.CanonicalAlgebra
+public import ReasLib.AlgebraicGeometry.ProjectiveSpectrum.Twist.GradedMap
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Sections
 public import Mathlib.RingTheory.GradedAlgebra.RingHom
 
@@ -17,6 +18,7 @@ public import Mathlib.RingTheory.GradedAlgebra.RingHom
 open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace Opposite
 open CategoryTheory.Limits
 open SheafOfModules.RingedSite
+open scoped DirectSum
 noncomputable section
 universe u
 namespace AlgebraicGeometry.AlgebraicSpace.RelativeProj
@@ -70,6 +72,66 @@ theorem openImmersionSite_hom (U : smallEtaleSite X) (W : U.left.left.Opens) :
     (openImmersionSite U W).hom = openImmersionι U W ≫ U.hom :=
   sorry
 
+/-! The section ring is formed before choosing any small graded-ring model. -/
+namespace EtaleSectionRing
+
+variable (𝒜 : GradedAlgebraSheaf.{u + 1, u} (commStructureSheafLift X))
+    (U : smallEtaleSite X)
+
+/-- The actual nonnegative homogeneous sections on an object of the étale site. -/
+abbrev degree (n : ℕ) : Type (u + 1) := (𝒜 (Int.ofNat n)).val.obj (op U)
+
+/-- The direct sum of the actual homogeneous sections, without any universe shrinking. -/
+abbrev ring : Type (u + 1) := ⨁ n : ℕ, degree 𝒜 U n
+
+instance instGOne : GradedMonoid.GOne (degree 𝒜 U) where
+  one := 𝒜.one (op U)
+
+instance instGNonUnitalNonAssocSemiring :
+    DirectSum.GNonUnitalNonAssocSemiring (degree 𝒜 U) where
+  mul := fun {m n} x y ↦ 𝒜.mul (op U) (m : ℤ) (n : ℤ) x y
+  mul_zero := sorry
+  zero_mul := sorry
+  mul_add := sorry
+  add_mul := sorry
+
+instance instGMonoid : GradedMonoid.GMonoid (degree 𝒜 U) where
+  toGMul := inferInstance
+  toGOne := inferInstance
+  one_mul := sorry
+  mul_one := sorry
+  mul_assoc := sorry
+  gnpow_zero' := sorry
+  gnpow_succ' := sorry
+
+instance instGSemiring : DirectSum.GSemiring (degree 𝒜 U) :=
+  { (inferInstance : DirectSum.GNonUnitalNonAssocSemiring (degree 𝒜 U)),
+    (inferInstance : GradedMonoid.GMonoid (degree 𝒜 U)) with
+    natCast := fun n ↦ n • 𝒜.one (op U)
+    natCast_zero := sorry
+    natCast_succ := sorry }
+
+instance instGRing : DirectSum.GRing (degree 𝒜 U) :=
+  { (inferInstance : DirectSum.GSemiring (degree 𝒜 U)) with
+    intCast := fun z ↦ z • 𝒜.one (op U)
+    intCast_ofNat := sorry
+    intCast_negSucc_ofNat := sorry }
+
+/-- The ring restriction is the finite-sum extension of the actual sheaf restrictions. -/
+def restrict {U U' : smallEtaleSite X} (f : U ⟶ U') : ring 𝒜 U' →+* ring 𝒜 U :=
+  DirectSum.toSemiring
+    (fun n ↦ (DirectSum.of (degree 𝒜 U) n).comp
+      (((𝒜 (n : ℤ)).val.map f.op).hom.toAddMonoidHom)) sorry sorry
+
+/-- Ring restriction on a homogeneous section is precisely sheaf restriction. -/
+@[simp] theorem restrict_of {U U' : smallEtaleSite X} (f : U ⟶ U')
+    (n : ℕ) (x : degree 𝒜 U' n) :
+    restrict 𝒜 f (DirectSum.of (degree 𝒜 U') n x) =
+      DirectSum.of (degree 𝒜 U) n (((𝒜 (n : ℤ)).val.map f.op).hom x) :=
+  DirectSum.toSemiring_of _ _ _ _ _
+
+end EtaleSectionRing
+
 /-- The scalar-unit homomorphism into degree zero of an affine section model. -/
 def atlasDegreeZeroStructureMap
     (𝒜 : GradedAlgebraSheaf.{u + 1, u} (commStructureSheafLift X))
@@ -105,14 +167,17 @@ def atlasToAffineOpen
       (openImmersionSite atlas (V : atlas.left.left.Opens)) grading model isModel)) ≫
         (Scheme.isoSpec (V : atlas.left.left.Opens).toScheme).inv
 
-/-- Affine-open projective-spectrum data for an étale chart of relative Proj. -/
-structure AtlasAffineProjData
+/-- An explicitly supplied affine-Proj chart witness. Its geometric isomorphism is input,
+not the conclusion of a relative-Proj construction. `IsEtaleSectionModel` identifies the
+model with the actual section ring via `sectionRingEquiv`. No quasi-coherence is needed to
+describe an individual supplied witness; the source-facing atlas witness requires it. -/
+structure AtlasAffineProjWitness
     {S : Scheme.{u}} {X : AlgebraicSpace S}
     (𝒜 : GradedAlgebraSheaf.{u + 1, u} (commStructureSheafLift X))
     (atlas : smallEtaleSite X) (localScheme : Scheme.{u})
     (localπ : localScheme ⟶ atlas.left.left)
     (V : atlas.left.left.affineOpens) where
-  /-- The affine section ring. -/
+  /-- A small model of the affine section ring. -/
   A : Type u
   /-- Commutative ring structure on the affine section ring. -/
   instCommRing : CommRing A
@@ -141,10 +206,81 @@ structure AtlasAffineProjData
       @atlasToAffineOpen S X 𝒜 atlas V A instCommRing grading instGradedAlgebra model isModel =
         CategoryTheory.Limits.pullback.snd localπ (V : atlas.left.left.Opens).ι
 
-namespace AtlasAffineProjData
+/-- Compatibility name for the explicitly supplied witness interface. This abbreviation
+does not assert that such charts exist for an arbitrary scheme over the atlas. -/
+abbrev AtlasAffineProjData
+    {S : Scheme.{u}} {X : AlgebraicSpace S}
+    (𝒜 : GradedAlgebraSheaf.{u + 1, u} (commStructureSheafLift X))
+    (atlas : smallEtaleSite X) (localScheme : Scheme.{u})
+    (localπ : localScheme ⟶ atlas.left.left) (V : atlas.left.left.affineOpens) :=
+  AtlasAffineProjWitness 𝒜 atlas localScheme localπ V
 
-/-- The affine section model preserves unit and multiplication and its projective chart
-identification is over the canonical scalar structural morphism. -/
+namespace AtlasAffineProjWitness
+
+variable {𝒜 : GradedAlgebraSheaf.{u + 1, u} (commStructureSheafLift X)}
+    {atlas : smallEtaleSite X} {localScheme : Scheme.{u}}
+    {localπ : localScheme ⟶ atlas.left.left} {V : atlas.left.left.affineOpens}
+
+/-- Assemble the degreewise model into a ring equivalence with the actual section ring.
+Both directions are explicit finite homogeneous decompositions. -/
+def sectionRingEquiv (data : AtlasAffineProjWitness 𝒜 atlas localScheme localπ V) :
+    letI := data.instCommRing
+    EtaleSectionRing.ring 𝒜 (openImmersionSite atlas (V : atlas.left.left.Opens)) ≃+* data.A := by
+  letI := data.instCommRing
+  letI := data.instGradedAlgebra
+  exact
+    { ((DirectSum.congrAddEquiv (fun d ↦ (data.model d).trans AddEquiv.ulift)).trans
+        (DirectSum.decomposeRingEquiv data.grading).symm.toAddEquiv) with
+      map_mul' := sorry }
+
+/-- The assembled ring equivalence is the given model on each homogeneous section. -/
+@[simp] theorem sectionRingEquiv_of
+    (data : AtlasAffineProjWitness 𝒜 atlas localScheme localπ V) (d : ℕ)
+    (x : EtaleSectionRing.degree 𝒜
+      (openImmersionSite atlas (V : atlas.left.left.Opens)) d) :
+    data.sectionRingEquiv (DirectSum.of
+      (EtaleSectionRing.degree 𝒜 (openImmersionSite atlas (V : atlas.left.left.Opens))) d x) =
+        ((data.model d x).down : data.A) := sorry
+
+/-- The elementary affine model supplies a genuine witness: restrict its structure map
+back to the same affine open. The isomorphism uses the pullback projection and lift. -/
+def ofSectionModel
+    (𝒜 : GradedAlgebraSheaf.{u + 1, u} (commStructureSheafLift X))
+    (atlas : smallEtaleSite X) (V : atlas.left.left.affineOpens)
+    {A : Type u} [CommRing A] (grading : ℕ → Submodule ℤ A) [GradedAlgebra grading]
+    (model : ∀ d : ℕ, (𝒜 (Int.ofNat d)).val.obj
+      (op (openImmersionSite atlas (V : atlas.left.left.Opens))) ≃+
+        ULift.{u + 1} (grading d))
+    (isModel : IsEtaleSectionModel 𝒜
+      (openImmersionSite atlas (V : atlas.left.left.Opens)) grading model) :
+    AtlasAffineProjWitness 𝒜 atlas (Proj grading)
+      (atlasToAffineOpen 𝒜 atlas V grading model isModel ≫ (V : atlas.left.left.Opens).ι) V where
+  A := A
+  instCommRing := inferInstance
+  grading := grading
+  instGradedAlgebra := inferInstance
+  model := model
+  isModel := isModel
+  projIso :=
+    { hom := pullback.fst _ _
+      inv := pullback.lift (𝟙 _) (atlasToAffineOpen 𝒜 atlas V grading model isModel)
+        (Category.id_comp _)
+      hom_inv_id := by
+        apply pullback.hom_ext
+        · simp only [Category.assoc, pullback.lift_fst, Category.comp_id, Category.id_comp]
+        · simp only [Category.assoc, pullback.lift_snd, Category.id_comp]
+          apply (cancel_mono (V : atlas.left.left.Opens).ι).1
+          simpa only [Category.assoc] using
+            (pullback.condition (f := atlasToAffineOpen 𝒜 atlas V grading model isModel ≫
+              (V : atlas.left.left.Opens).ι) (g := (V : atlas.left.left.Opens).ι))
+      inv_hom_id := pullback.lift_fst _ _ _ }
+  projIso_over := by
+    apply (cancel_mono (V : atlas.left.left.Opens).ι).1
+    simpa only [Category.assoc] using
+      (pullback.condition (f := atlasToAffineOpen 𝒜 atlas V grading model isModel ≫
+        (V : atlas.left.left.Opens).ι) (g := (V : atlas.left.left.Opens).ι))
+
+/-- Record the laws of a supplied witness. This is not an existence or chart theorem. -/
 theorem conditions_spec
     {𝒜 : GradedAlgebraSheaf.{u + 1, u} (commStructureSheafLift X)}
     {atlas : smallEtaleSite X} {localScheme : Scheme.{u}}
@@ -170,6 +306,34 @@ def serreTwist {S : Scheme.{u}} {X : AlgebraicSpace S}
   @Proj.AssociatedModule.twistingSheaf ℤ data.A inferInstance data.instCommRing
       (@Ring.toIntAlgebra data.A data.instCommRing.toRing) data.grading data.instGradedAlgebra n
 
+end AtlasAffineProjWitness
+
+namespace AtlasAffineProjData
+
+variable {𝒜 : GradedAlgebraSheaf.{u + 1, u} (commStructureSheafLift X)}
+    {atlas : smallEtaleSite X} {localScheme : Scheme.{u}}
+    {localπ : localScheme ⟶ atlas.left.left} {V : atlas.left.left.affineOpens}
+
+abbrev A (data : AtlasAffineProjData 𝒜 atlas localScheme localπ V) :=
+  AtlasAffineProjWitness.A data
+abbrev instCommRing (data : AtlasAffineProjData 𝒜 atlas localScheme localπ V) :=
+  AtlasAffineProjWitness.instCommRing data
+abbrev grading (data : AtlasAffineProjData 𝒜 atlas localScheme localπ V) :=
+  AtlasAffineProjWitness.grading data
+abbrev instGradedAlgebra (data : AtlasAffineProjData 𝒜 atlas localScheme localπ V) :=
+  AtlasAffineProjWitness.instGradedAlgebra data
+abbrev model (data : AtlasAffineProjData 𝒜 atlas localScheme localπ V) :=
+  AtlasAffineProjWitness.model data
+abbrev isModel (data : AtlasAffineProjData 𝒜 atlas localScheme localπ V) :=
+  AtlasAffineProjWitness.isModel data
+abbrev projIso (data : AtlasAffineProjData 𝒜 atlas localScheme localπ V) :=
+  AtlasAffineProjWitness.projIso data
+abbrev projIso_over (data : AtlasAffineProjData 𝒜 atlas localScheme localπ V) :=
+  AtlasAffineProjWitness.projIso_over data
+
+export AtlasAffineProjWitness
+  (mk ofSectionModel sectionRingEquiv serreTwist conditions_spec)
+
 end AtlasAffineProjData
 
 /-- The restriction arrow in `X_étale` associated to nested Zariski opens of an atlas chart. -/
@@ -191,6 +355,115 @@ def atlasFibreRestrict {S : Scheme.{u}} {X : AlgebraicSpace S}
     (CategoryTheory.Limits.pullback.fst localπ (V : atlas.left.left.Opens).ι)
     (CategoryTheory.Limits.pullback.snd localπ (V : atlas.left.left.Opens).ι ≫
       Scheme.homOfLE atlas.left.left h) sorry
+
+namespace AtlasAffineProjWitness
+
+variable {𝒜 : GradedAlgebraSheaf.{u + 1, u} (commStructureSheafLift X)}
+    {atlas : smallEtaleSite X} {localScheme : Scheme.{u}}
+    {localπ : localScheme ⟶ atlas.left.left} {V V' : atlas.left.left.affineOpens}
+
+/-- The graded model restriction is transported from the actual section-ring restriction,
+using the assembled ring equivalences. It is not additional witness data. -/
+def sectionRestrict (data : AtlasAffineProjWitness 𝒜 atlas localScheme localπ V)
+    (data' : AtlasAffineProjWitness 𝒜 atlas localScheme localπ V')
+    (h : (V : atlas.left.left.Opens) ≤ (V' : atlas.left.left.Opens)) :
+    @GradedRingHom ℕ data'.A data.A _ _ data'.instCommRing.toSemiring
+      data.instCommRing.toSemiring inferInstance inferInstance data'.grading data.grading := by
+  letI := data.instCommRing
+  letI := data'.instCommRing
+  exact
+    { toRingHom := (data.sectionRingEquiv.toRingHom.comp
+        (EtaleSectionRing.restrict 𝒜 (atlasOpenLe atlas h))).comp
+          data'.sectionRingEquiv.symm.toRingHom
+      map_mem := sorry }
+
+/-- The model restriction agrees with sheaf restriction in every nonnegative degree. -/
+theorem sectionRestrict_spec (data : AtlasAffineProjWitness 𝒜 atlas localScheme localπ V)
+    (data' : AtlasAffineProjWitness 𝒜 atlas localScheme localπ V')
+    (h : (V : atlas.left.left.Opens) ≤ (V' : atlas.left.left.Opens))
+    (d : ℕ) (x : data'.grading d) :
+    letI := data.instCommRing
+    letI := data'.instCommRing
+    ((data.model d (((𝒜 (Int.ofNat d)).val.map (atlasOpenLe atlas h).op).hom
+      ((data'.model d).symm (ULift.up x)))).down : data.A) =
+        (sectionRestrict data data' h).toRingHom x := sorry
+
+/-- Quasi-coherence identifies restriction with scalar extension (Stacks 01NO), so its
+projective domain is all of the smaller chart. -/
+theorem sectionRestrict_domain (hqc : 𝒜.IsQuasicoherent)
+    (data : AtlasAffineProjWitness 𝒜 atlas localScheme localπ V)
+    (data' : AtlasAffineProjWitness 𝒜 atlas localScheme localπ V')
+    (h : (V : atlas.left.left.Opens) ≤ (V' : atlas.left.left.Opens)) :
+    letI := data.instCommRing
+    letI := data'.instCommRing
+    letI := data.instGradedAlgebra
+    letI := data'.instGradedAlgebra
+    projMapDomain (sectionRestrict data data' h) = ⊤ := sorry
+
+/-- The actual Proj map of the section restriction, extended from its full natural domain.
+Only the proof that the domain is full uses quasi-coherence. -/
+def chartRestrict (hqc : 𝒜.IsQuasicoherent)
+    (data : AtlasAffineProjWitness 𝒜 atlas localScheme localπ V)
+    (data' : AtlasAffineProjWitness 𝒜 atlas localScheme localπ V')
+    (h : (V : atlas.left.left.Opens) ≤ (V' : atlas.left.left.Opens)) :
+    @Proj data.A _ data.instCommRing inferInstance inferInstance data.grading data.instGradedAlgebra ⟶
+      @Proj data'.A _ data'.instCommRing inferInstance inferInstance data'.grading data'.instGradedAlgebra := by
+  letI := data.instCommRing
+  letI := data'.instCommRing
+  letI := data.instGradedAlgebra
+  letI := data'.instGradedAlgebra
+  exact Proj.AssociatedModule.GradedMap.fullMap.{u, 0, 0}
+    (sectionRestrict data data' h) (sectionRestrict_domain hqc data data' h)
+
+/-- The restriction-induced chart map lies over inclusion of the affine base opens. -/
+theorem chartRestrict_over (hqc : 𝒜.IsQuasicoherent)
+    (data : AtlasAffineProjWitness 𝒜 atlas localScheme localπ V)
+    (data' : AtlasAffineProjWitness 𝒜 atlas localScheme localπ V')
+    (h : (V : atlas.left.left.Opens) ≤ (V' : atlas.left.left.Opens)) :
+    @atlasToAffineOpen S X 𝒜 atlas V data.A data.instCommRing data.grading
+        data.instGradedAlgebra data.model data.isModel ≫ Scheme.homOfLE atlas.left.left h =
+      chartRestrict hqc data data' h ≫
+        @atlasToAffineOpen S X 𝒜 atlas V' data'.A data'.instCommRing data'.grading
+          data'.instGradedAlgebra data'.model data'.isModel := sorry
+
+/-- Compatibility of supplied geometric identifications with the actual restriction maps
+(Stacks 01NQ). This property belongs to the chart family, independently of twists. -/
+def IsCoherent (hqc : 𝒜.IsQuasicoherent)
+    (chart : ∀ V, AtlasAffineProjWitness 𝒜 atlas localScheme localπ V) : Prop :=
+  ∀ (V V' : atlas.left.left.affineOpens)
+    (h : (V : atlas.left.left.Opens) ≤ (V' : atlas.left.left.Opens)),
+    (chart V).projIso.hom ≫ chartRestrict hqc (chart V) (chart V') h =
+      atlasFibreRestrict localπ h ≫ (chart V').projIso.hom
+
+end AtlasAffineProjWitness
+
+/-- An explicitly supplied coherent family of affine-Proj chart witnesses for a
+quasi-coherent algebra. This records the output of gluing; it does not construct it. -/
+structure AtlasAffineProjAtlasWitness
+    (𝒜 : GradedAlgebraSheaf.{u + 1, u} (commStructureSheafLift X))
+    (hqc : 𝒜.IsQuasicoherent) (atlas : smallEtaleSite X) (localScheme : Scheme.{u})
+    (localπ : localScheme ⟶ atlas.left.left) where
+  /-- The supplied affine chart identifications. -/
+  chart : ∀ V, AtlasAffineProjWitness 𝒜 atlas localScheme localπ V
+  /-- The identifications commute with the restriction-induced Proj maps. -/
+  coherent : AtlasAffineProjWitness.IsCoherent hqc chart
+
+namespace AtlasAffineProjAtlasWitness
+
+variable {𝒜 : GradedAlgebraSheaf.{u + 1, u} (commStructureSheafLift X)}
+    {hqc : 𝒜.IsQuasicoherent} {atlas : smallEtaleSite X} {localScheme : Scheme.{u}}
+    {localπ : localScheme ⟶ atlas.left.left}
+
+/-- Triple-open compatibility is a property of the chart family (Stacks 01NP). -/
+theorem chartRestrict_comp (data : AtlasAffineProjAtlasWitness 𝒜 hqc atlas localScheme localπ)
+    (V V' V'' : atlas.left.left.affineOpens)
+    (h : (V : atlas.left.left.Opens) ≤ (V' : atlas.left.left.Opens))
+    (h' : (V' : atlas.left.left.Opens) ≤ (V'' : atlas.left.left.Opens)) :
+    AtlasAffineProjWitness.chartRestrict hqc (data.chart V) (data.chart V') h ≫
+      AtlasAffineProjWitness.chartRestrict hqc (data.chart V') (data.chart V'') h' =
+        AtlasAffineProjWitness.chartRestrict hqc (data.chart V) (data.chart V'') (h.trans h') := sorry
+
+end AtlasAffineProjAtlasWitness
 
 /-- The scheme underlying the étale cover of a twist presentation. -/
 abbrev localCoverOver {S : Scheme.{u}} {X : AlgebraicSpace S}
@@ -637,11 +910,14 @@ theorem chartFibreAlgebraMul_eq {atlas : smallEtaleSite X} {localScheme : Scheme
            (asLiftedSection (twistModule (n + m)) U result).down)) := rfl
 
 set_option backward.privateInPublic true in
-/-- A twist presentation of relative Proj of a graded algebra sheaf on an algebraic space,
-forced to agree étale-locally with Serre twists on scheme-level `Proj`. -/
+/-- An explicitly supplied twist presentation for a quasi-coherent graded algebra sheaf.
+The local affine-Proj identifications and their coherence are witnesses, not an existence
+theorem or a construction of relative Proj by gluing. -/
 structure Twist {S : Scheme.{u}} {X : AlgebraicSpace S}
     (𝒜 : GradedAlgebraSheaf.{u + 1, u} (commStructureSheafLift X))
     (deg : DegreePieces 𝒜) where
+  /-- The source algebra satisfies the quasi-coherence hypothesis of Stacks 01NN. -/
+  algebra_isQuasicoherent : 𝒜.IsQuasicoherent
   /-- The algebraic space `P = underline{Proj}_X(𝒜)`. -/
   space : AlgebraicSpace S
   /-- The structure morphism `π : P ⟶ X`. -/
@@ -697,71 +973,18 @@ structure Twist {S : Scheme.{u}} {X : AlgebraicSpace S}
   /-- The covering morphism is the base-change projection after the local identification. -/
   localCoverHom_eq :
     localCoverHom = localIso.inv ≫ etaleBaseChangeHom π atlas
-  /-- On every affine open of the atlas, the local scheme fibre is the projective spectrum
-  of a unit-and-multiplication-preserving section model of `𝒜`. -/
-  localSectionData :
-    ∀ V : atlas.left.left.affineOpens,
-      AtlasAffineProjData 𝒜 atlas localScheme localπ V
+  /-- Supplied coherent affine-Proj witnesses, independently of the twist modules. -/
+  localCharts : AtlasAffineProjAtlasWitness 𝒜 algebra_isQuasicoherent atlas localScheme localπ
   /-- Restriction of `𝒪_P(n)` to each affine chart recovers Serre's twisting sheaf. -/
   serreTwistIso :
     ∀ (V : atlas.left.left.affineOpens) (n : ℤ),
-      (Scheme.Modules.pullback (localSectionData V).projIso.hom).obj
-          (AtlasAffineProjData.serreTwist (localSectionData V) n) ≅
+      (Scheme.Modules.pullback (localCharts.chart V).projIso.hom).obj
+          (AtlasAffineProjData.serreTwist (localCharts.chart V) n) ≅
         chartFibreRestrictModule localπ localCoverHom V (twistModule n)
-  /-- Restriction of affine chart models along nested affine opens. -/
-  sectionRestrict :
-    ∀ (V V' : atlas.left.left.affineOpens),
-      (V : atlas.left.left.Opens) ≤ (V' : atlas.left.left.Opens) →
-        @GradedRingHom ℕ (localSectionData V').A (localSectionData V).A _ _
-          (localSectionData V').instCommRing.toSemiring
-          (localSectionData V).instCommRing.toSemiring inferInstance inferInstance
-          (localSectionData V').grading (localSectionData V).grading
-  /-- Restriction of models recovers sheaf restriction on nested affine opens. -/
-  sectionRestrict_spec :
-    ∀ (V V' : atlas.left.left.affineOpens)
-      (h : (V : atlas.left.left.Opens) ≤ (V' : atlas.left.left.Opens))
-      (d : ℕ) (x : (localSectionData V').grading d),
-      ((localSectionData V).model d
-          (((𝒜 (Int.ofNat d)).val.map (atlasOpenLe atlas h).op).hom
-            (((localSectionData V').model d).symm (ULift.up x)))).down =
-        (@RingHom.instFunLike (localSectionData V').A (localSectionData V).A
-          (localSectionData V').instCommRing.toNonAssocSemiring
-          (localSectionData V).instCommRing.toNonAssocSemiring).coe
-          (@GradedRingHom.toRingHom ℕ (localSectionData V').A (localSectionData V).A _ _
-            (localSectionData V').instCommRing.toSemiring
-            (localSectionData V).instCommRing.toSemiring inferInstance inferInstance
-            (localSectionData V').grading (localSectionData V).grading
-            (sectionRestrict V V' h)) x
-  /-- The induced morphism of affine `Proj` charts along nested affine opens. -/
-  chartRestrict :
-    ∀ (V V' : atlas.left.left.affineOpens),
-      (V : atlas.left.left.Opens) ≤ (V' : atlas.left.left.Opens) →
-        (@Proj (localSectionData V).A _ (localSectionData V).instCommRing inferInstance inferInstance
-            (localSectionData V).grading (localSectionData V).instGradedAlgebra ⟶
-          @Proj (localSectionData V').A _ (localSectionData V').instCommRing inferInstance inferInstance
-            (localSectionData V').grading (localSectionData V').instGradedAlgebra)
-  /-- Chart morphisms lie over the restriction of affine opens. -/
-  chartRestrict_over :
-    ∀ (V V' : atlas.left.left.affineOpens)
-      (h : (V : atlas.left.left.Opens) ≤ (V' : atlas.left.left.Opens)),
-      (@atlasToAffineOpen S X 𝒜 atlas V
-        (localSectionData V).A (localSectionData V).instCommRing
-        (localSectionData V).grading (localSectionData V).instGradedAlgebra
-        (localSectionData V).model (localSectionData V).isModel) ≫ Scheme.homOfLE atlas.left.left h =
-        chartRestrict V V' h ≫ (@atlasToAffineOpen S X 𝒜 atlas V'
-        (localSectionData V').A (localSectionData V').instCommRing
-        (localSectionData V').grading (localSectionData V').instGradedAlgebra
-        (localSectionData V').model (localSectionData V').isModel)
-  /-- Chart isomorphisms are compatible with fibre restriction. -/
-  projIso_restrict :
-    ∀ (V V' : atlas.left.left.affineOpens)
-      (h : (V : atlas.left.left.Opens) ≤ (V' : atlas.left.left.Opens)),
-      (localSectionData V).projIso.hom ≫ chartRestrict V V' h =
-        atlasFibreRestrict localπ h ≫ (localSectionData V').projIso.hom
   /-- On each affine chart the actual evaluation of the pushed-forward degree-one map
   is Serre's canonical homogeneous section. -/
   canonicalHom_agrees_with_twistSection :
-    ∀ (V : atlas.left.left.affineOpens) (f : (localSectionData V).grading 1),
+    ∀ (V : atlas.left.left.affineOpens) (f : (localCharts.chart V).grading 1),
       let hf : Etale localCoverHom := by
         rw [localCoverHom_eq]
         infer_instance
@@ -775,38 +998,89 @@ structure Twist {S : Scheme.{u}} {X : AlgebraicSpace S}
           ((((Modules.pushforward π).map (canonicalHom 1)).val.app
             (op (openImmersionSite atlas (V : atlas.left.left.Opens)))).hom
               (chartFibreDegreeOneUnliftedSection deg π localπ localCoverHom
-                (localSectionData V) f))) =
+                (localCharts.chart V) f))) =
         @fibreSectionToEtale S (chartFibreOver localπ V) space cover hf' (twistModule 1) ⊤
           (chartFibreTransportedTwistSection localπ localCoverHom twistModule
-            localSectionData serreTwistIso V f)
+            localCharts.chart serreTwistIso V f)
   /-- The actual graded multiplication is canonical Serre multiplication in every pair
   of integral degrees and over every open of each projective chart. -/
   twistMul_agrees_with_serreMul :
     ∀ (V : atlas.left.left.affineOpens) (n m : ℤ)
-      (W : (@Proj (localSectionData V).A _ (localSectionData V).instCommRing
-        inferInstance inferInstance (localSectionData V).grading
-          (localSectionData V).instGradedAlgebra).Opens)
-      (s : (AtlasAffineProjData.serreTwist (localSectionData V) n).val.obj (op W))
-      (t : (AtlasAffineProjData.serreTwist (localSectionData V) m).val.obj (op W)),
+      (W : (@Proj (localCharts.chart V).A _ (localCharts.chart V).instCommRing
+        inferInstance inferInstance (localCharts.chart V).grading
+          (localCharts.chart V).instGradedAlgebra).Opens)
+      (s : (AtlasAffineProjData.serreTwist (localCharts.chart V) n).val.obj (op W))
+      (t : (AtlasAffineProjData.serreTwist (localCharts.chart V) m).val.obj (op W)),
       let hf : Etale localCoverHom := by
         rw [localCoverHom_eq]
         infer_instance
-      let W' := (localSectionData V).projIso.hom ⁻¹ᵁ W
+      let W' := (localCharts.chart V).projIso.hom ⁻¹ᵁ W
       let transport := fun (k : ℤ)
-          (x : (AtlasAffineProjData.serreTwist (localSectionData V) k).val.obj (op W)) ↦
+          (x : (AtlasAffineProjData.serreTwist (localCharts.chart V) k).val.obj (op W)) ↦
         ((serreTwistIso V k).hom.val.app (op W')).hom
           ((Scheme.Modules.Hom.app
-            ((Scheme.Modules.pullbackPushforwardAdjunction (localSectionData V).projIso.hom).unit.app
-              (AtlasAffineProjData.serreTwist (localSectionData V) k)) W).hom x)
+            ((Scheme.Modules.pullbackPushforwardAdjunction (localCharts.chart V).projIso.hom).unit.app
+              (AtlasAffineProjData.serreTwist (localCharts.chart V) k)) W).hom x)
       @chartFibreAlgebraMul S X atlas localScheme localπ space localCoverHom hf
         twistAlgebra twistModule twistModuleIso V W' n m (transport n s) (transport m t) =
       transport (n + m)
-        (@Proj.AssociatedModule.CanonicalAlgebra.mulSection ℤ (localSectionData V).A
-          inferInstance (localSectionData V).instCommRing
-          (@Ring.toIntAlgebra (localSectionData V).A (localSectionData V).instCommRing.toRing)
-          (localSectionData V).grading (localSectionData V).instGradedAlgebra (op W) n m s t)
+        (@Proj.AssociatedModule.CanonicalAlgebra.mulSection ℤ (localCharts.chart V).A
+          inferInstance (localCharts.chart V).instCommRing
+          (@Ring.toIntAlgebra (localCharts.chart V).A (localCharts.chart V).instCommRing.toRing)
+          (localCharts.chart V).grading (localCharts.chart V).instGradedAlgebra (op W) n m s t)
 
 namespace Twist
+
+variable {𝒜 : GradedAlgebraSheaf.{u + 1, u} (commStructureSheafLift X)}
+    {deg : DegreePieces 𝒜}
+
+/-- Compatibility projection of the supplied affine charts from their coherent owner. -/
+abbrev localSectionData (P : Twist 𝒜 deg) := P.localCharts.chart
+
+/-- The old restriction API now computes from actual sheaf restriction. -/
+def sectionRestrict (P : Twist 𝒜 deg) (V V' : P.atlas.left.left.affineOpens)
+    (h : (V : P.atlas.left.left.Opens) ≤ (V' : P.atlas.left.left.Opens)) :=
+  AtlasAffineProjWitness.sectionRestrict (P.localSectionData V) (P.localSectionData V') h
+
+/-- Model restriction agrees with the given layer of the algebra sheaf. -/
+theorem sectionRestrict_spec (P : Twist 𝒜 deg) (V V' : P.atlas.left.left.affineOpens)
+    (h : (V : P.atlas.left.left.Opens) ≤ (V' : P.atlas.left.left.Opens))
+    (d : ℕ) (x : (P.localSectionData V').grading d) :
+    letI := (P.localSectionData V).instCommRing
+    letI := (P.localSectionData V').instCommRing
+    (((P.localSectionData V).model d
+      (((𝒜 (Int.ofNat d)).val.map (atlasOpenLe P.atlas h).op).hom
+        (((P.localSectionData V').model d).symm (ULift.up x)))).down :
+          (P.localSectionData V).A) = (P.sectionRestrict V V' h).toRingHom x :=
+  AtlasAffineProjWitness.sectionRestrict_spec (P.localSectionData V) (P.localSectionData V') h d x
+
+/-- The old chart restriction API is the actual Proj map of the section restriction. -/
+def chartRestrict (P : Twist 𝒜 deg) (V V' : P.atlas.left.left.affineOpens)
+    (h : (V : P.atlas.left.left.Opens) ≤ (V' : P.atlas.left.left.Opens)) :=
+  AtlasAffineProjWitness.chartRestrict P.algebra_isQuasicoherent
+    (P.localSectionData V) (P.localSectionData V') h
+
+/-- The actual chart restriction commutes with the affine base maps. -/
+theorem chartRestrict_over (P : Twist 𝒜 deg) (V V' : P.atlas.left.left.affineOpens)
+    (h : (V : P.atlas.left.left.Opens) ≤ (V' : P.atlas.left.left.Opens)) :
+    @atlasToAffineOpen S X 𝒜 P.atlas V (P.localSectionData V).A
+        (P.localSectionData V).instCommRing (P.localSectionData V).grading
+        (P.localSectionData V).instGradedAlgebra (P.localSectionData V).model
+        (P.localSectionData V).isModel ≫ Scheme.homOfLE P.atlas.left.left h =
+      P.chartRestrict V V' h ≫
+        @atlasToAffineOpen S X 𝒜 P.atlas V' (P.localSectionData V').A
+          (P.localSectionData V').instCommRing (P.localSectionData V').grading
+          (P.localSectionData V').instGradedAlgebra (P.localSectionData V').model
+          (P.localSectionData V').isModel :=
+  AtlasAffineProjWitness.chartRestrict_over P.algebra_isQuasicoherent
+    (P.localSectionData V) (P.localSectionData V') h
+
+/-- Nested-open coherence is supplied by the chart owner, independently of twists. -/
+theorem projIso_restrict (P : Twist 𝒜 deg) (V V' : P.atlas.left.left.affineOpens)
+    (h : (V : P.atlas.left.left.Opens) ≤ (V' : P.atlas.left.left.Opens)) :
+    (P.localSectionData V).projIso.hom ≫ P.chartRestrict V V' h =
+      atlasFibreRestrict P.localπ h ≫ (P.localSectionData V').projIso.hom :=
+  P.localCharts.coherent V V' h
 
 /-- Serre's twist section of a homogeneous element of an affine chart model. -/
 def chartTwistSection {S : Scheme.{u}} {X : AlgebraicSpace S}

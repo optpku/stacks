@@ -65,7 +65,8 @@ def toCycle (h : IsCycle A d f) :
 /-- The homogeneous value underlying the bundled cycle is the original attaching element. -/
 @[simp, stacks 09PM "underlying value of a bundled attaching cycle"]
 theorem iCycles_toCycle (h : IsCycle A d f) :
-    A.toChainDGAlgebra.iCycles ((((d : ℕ) - 1 : ℕ) : ℤ)) h.toCycle = f := sorry
+    A.toChainDGAlgebra.iCycles ((((d : ℕ) - 1 : ℕ) : ℤ)) h.toCycle = f := by
+  exact A.toChainDGAlgebra.toChainComplex.i_cyclesMk f _ _ h
 
 end IsCycle
 
@@ -126,7 +127,8 @@ def attachingCycle (X : Cell A d f) :
 /-- The homogeneous value underlying a cell's attaching cycle is its attaching element. -/
 @[simp, stacks 09PM "underlying value of a cell attaching cycle"]
 theorem iCycles_attachingCycle (X : Cell A d f) :
-    A.toChainDGAlgebra.iCycles ((((d : ℕ) - 1 : ℕ) : ℤ)) X.attachingCycle = f := sorry
+    A.toChainDGAlgebra.iCycles ((((d : ℕ) - 1 : ℕ) : ℤ)) X.attachingCycle = f := by
+  exact IsCycle.iCycles_toCycle X.attaching_isCycle
 
 /-- A morphism out of a cell has the prescribed restriction to the base and value on the
 adjoined variable. -/
@@ -143,7 +145,8 @@ theorem lift_isLift (X : Cell A d f) {C : DividedPowerChainAlgebra.{u, v} R} (g 
     (x : C.toChainDGAlgebra.nonnegativePiece (d : ℕ))
     (hx : C.toChainDGAlgebra.nonnegativeDifferential d x =
       g.toChainHom (((d : ℕ) - 1 : ℕ) : ℤ) f) :
-    X.IsLift g x (X.lift g x hx) := sorry
+    X.IsLift g x (X.lift g x hx) := by
+  exact ⟨X.lift_base g x hx, X.lift_generator g x hx⟩
 
 /-- A morphism with the prescribed base restriction and generator value is the canonical
 relative lift. -/
@@ -152,14 +155,19 @@ theorem lift_unique (X : Cell A d f) {C : DividedPowerChainAlgebra.{u, v} R} (g 
     (hx : C.toChainDGAlgebra.nonnegativeDifferential d x =
       g.toChainHom (((d : ℕ) - 1 : ℕ) : ℤ) f)
     (h : X.algebra ⟶ C) (hh : X.IsLift g x h) :
-    h = X.lift g x hx := sorry
+    h = X.lift g x hx := by
+  apply X.hom_ext
+  · exact hh.base.trans (X.lift_base g x hx).symm
+  · exact hh.generator.trans (X.lift_generator g x hx).symm
 
 /-- Base data and a compatible image of the adjoined variable admit a unique relative lift. -/
 theorem existsUnique_lift (X : Cell A d f) {C : DividedPowerChainAlgebra.{u, v} R} (g : A ⟶ C)
     (x : C.toChainDGAlgebra.nonnegativePiece (d : ℕ))
     (hx : C.toChainDGAlgebra.nonnegativeDifferential d x =
       g.toChainHom (((d : ℕ) - 1 : ℕ) : ℤ) f) :
-    ∃! h : X.algebra ⟶ C, X.IsLift g x h := sorry
+    ∃! h : X.algebra ⟶ C, X.IsLift g x h := by
+  exact ⟨X.lift g x hx, X.lift_isLift g x hx,
+    fun h hh ↦ X.lift_unique g x hx h hh⟩
 
 /-- A map between two cell models is a comparison when it is the relative lift of the target
 base inclusion and target generator. -/
@@ -169,7 +177,7 @@ def IsComparison (X Y : Cell A d f) (g : X.algebra ⟶ Y.algebra) : Prop :=
 /-- Being a cell comparison is exactly having the target base restriction and generator value. -/
 @[simp]
 theorem isComparison_iff (X Y : Cell A d f) (g : X.algebra ⟶ Y.algebra) :
-    IsComparison X Y g ↔ X.IsLift Y.ι Y.generator g := sorry
+    IsComparison X Y g ↔ X.IsLift Y.ι Y.generator g := Iff.rfl
 
 /-- The canonical comparison from one cell model to another, constructed by the relative lift. -/
 def comparison (X Y : Cell A d f) : X.algebra ⟶ Y.algebra :=
@@ -177,46 +185,69 @@ def comparison (X Y : Cell A d f) : X.algebra ⟶ Y.algebra :=
 
 /-- The canonical comparison fixes the base and the adjoined variable. -/
 theorem comparison_isComparison (X Y : Cell A d f) :
-    IsComparison X Y (X.comparison Y) := sorry
+    IsComparison X Y (X.comparison Y) := by
+  exact X.lift_isLift Y.ι Y.generator Y.map_generator
 
 /-- The canonical comparison restricts to the target inclusion on the base cell. -/
 @[simp]
 theorem ι_comp_comparison (X Y : Cell A d f) :
-    X.ι ≫ X.comparison Y = Y.ι := sorry
+    X.ι ≫ X.comparison Y = Y.ι := by
+  exact X.lift_base Y.ι Y.generator Y.map_generator
 
 /-- The canonical comparison sends the source generator to the target generator. -/
 @[simp]
 theorem comparison_generator (X Y : Cell A d f) :
-    (X.comparison Y).toChainHom ((d : ℕ) : ℤ) X.generator = Y.generator := sorry
+    (X.comparison Y).toChainHom ((d : ℕ) : ℤ) X.generator = Y.generator := by
+  exact X.lift_generator Y.ι Y.generator Y.map_generator
 
 /-- Every comparison map between two cell models is the canonical comparison. -/
 theorem comparison_unique (X Y : Cell A d f) (g : X.algebra ⟶ Y.algebra)
     (hg : IsComparison X Y g) :
-    g = X.comparison Y := sorry
+    g = X.comparison Y := by
+  exact X.lift_unique Y.ι Y.generator Y.map_generator g hg
 
 /-- There is a unique divided-power chain-DGA comparison between two cell models. -/
 theorem existsUnique_comparison (X Y : Cell A d f) :
-    ∃! g : X.algebra ⟶ Y.algebra, IsComparison X Y g := sorry
+    ∃! g : X.algebra ⟶ Y.algebra, IsComparison X Y g := by
+  exact X.existsUnique_lift Y.ι Y.generator Y.map_generator
 
 /-- The comparison from a cell model to itself is the identity. -/
 @[simp]
 theorem comparison_self (X : Cell A d f) :
-    X.comparison X = 𝟙 X.algebra := sorry
+    X.comparison X = 𝟙 X.algebra := by
+  apply X.hom_ext
+  · calc
+      X.ι ≫ X.comparison X = X.ι := X.ι_comp_comparison X
+      _ = X.ι ≫ 𝟙 X.algebra := by rfl
+  · change (X.comparison X).toChainHom ((d : ℕ) : ℤ) X.generator = X.generator
+    exact X.comparison_generator X
 
 /-- Canonical cell comparisons compose transitively. -/
 @[simp]
 theorem comparison_comp (X Y Z : Cell A d f) :
-    X.comparison Y ≫ Y.comparison Z = X.comparison Z := sorry
+    X.comparison Y ≫ Y.comparison Z = X.comparison Z := by
+  apply X.hom_ext
+  · calc
+      X.ι ≫ (X.comparison Y ≫ Y.comparison Z) =
+          (X.ι ≫ X.comparison Y) ≫ Y.comparison Z := by rfl
+      _ = Z.ι := by rw [ι_comp_comparison, ι_comp_comparison]
+      _ = X.ι ≫ X.comparison Z := (X.ι_comp_comparison Z).symm
+  · change (Y.comparison Z).toChainHom ((d : ℕ) : ℤ)
+        ((X.comparison Y).toChainHom ((d : ℕ) : ℤ) X.generator) =
+      (X.comparison Z).toChainHom ((d : ℕ) : ℤ) X.generator
+    simp only [comparison_generator]
 
 /-- The forward and backward comparisons between two cell models compose to the identity on the
 source model. -/
 theorem comparison_hom_inv_id (X Y : Cell A d f) :
-    X.comparison Y ≫ Y.comparison X = 𝟙 X.algebra := sorry
+    X.comparison Y ≫ Y.comparison X = 𝟙 X.algebra := by
+  exact (X.comparison_comp Y X).trans X.comparison_self
 
 /-- The backward and forward comparisons between two cell models compose to the identity on the
 target model. -/
 theorem comparison_inv_hom_id (X Y : Cell A d f) :
-    Y.comparison X ≫ X.comparison Y = 𝟙 Y.algebra := sorry
+    Y.comparison X ≫ X.comparison Y = 𝟙 Y.algebra := by
+  exact Y.comparison_hom_inv_id X
 
 /-- The canonical isomorphism between two realizations of the same divided-power chain-DGA
 cell. -/
@@ -230,27 +261,31 @@ def comparisonIso (X Y : Cell A d f) : X.algebra ≅ Y.algebra where
 /-- The forward map of the canonical cell-model isomorphism is the canonical comparison. -/
 @[simp]
 theorem comparisonIso_hom (X Y : Cell A d f) :
-    (X.comparisonIso Y).hom = X.comparison Y := sorry
+    (X.comparisonIso Y).hom = X.comparison Y := rfl
 
 /-- The inverse map of the canonical cell-model isomorphism is the reverse comparison. -/
 @[simp]
 theorem comparisonIso_inv (X Y : Cell A d f) :
-    (X.comparisonIso Y).inv = Y.comparison X := sorry
+    (X.comparisonIso Y).inv = Y.comparison X := rfl
 
 /-- The canonical isomorphism from a cell model to itself is the identity isomorphism. -/
 @[simp]
 theorem comparisonIso_self (X : Cell A d f) :
-    X.comparisonIso X = Iso.refl X.algebra := sorry
+    X.comparisonIso X = Iso.refl X.algebra := by
+  apply Iso.ext
+  exact X.comparison_self
 
 /-- Reversing a canonical cell-model isomorphism exchanges its two models. -/
 @[simp]
 theorem comparisonIso_symm (X Y : Cell A d f) :
-    (X.comparisonIso Y).symm = Y.comparisonIso X := sorry
+    (X.comparisonIso Y).symm = Y.comparisonIso X := rfl
 
 /-- Canonical cell-model isomorphisms compose transitively. -/
 @[simp]
 theorem comparisonIso_trans (X Y Z : Cell A d f) :
-    (X.comparisonIso Y).trans (Y.comparisonIso Z) = X.comparisonIso Z := sorry
+    (X.comparisonIso Y).trans (Y.comparisonIso Z) = X.comparisonIso Z := by
+  apply Iso.ext
+  exact X.comparison_comp Y Z
 
 namespace Comparison
 
@@ -259,14 +294,17 @@ the identity on the source complex. -/
 theorem hom_inv_id (X Y : Cell A d f) :
     (X.comparison Y).toChainHom.toChainMap ≫
         (Y.comparison X).toChainHom.toChainMap =
-      𝟙 X.algebra.toChainDGAlgebra.toChainComplex := sorry
+      𝟙 X.algebra.toChainDGAlgebra.toChainComplex := by
+  exact congrArg (fun g : X.algebra ⟶ X.algebra ↦ g.toChainHom.toChainMap)
+    (X.comparison_hom_inv_id Y)
 
 /-- The underlying chain maps of the reverse and forward canonical cell comparisons compose to
 the identity on the target complex. -/
 theorem inv_hom_id (X Y : Cell A d f) :
     (Y.comparison X).toChainHom.toChainMap ≫
         (X.comparison Y).toChainHom.toChainMap =
-      𝟙 Y.algebra.toChainDGAlgebra.toChainComplex := sorry
+      𝟙 Y.algebra.toChainDGAlgebra.toChainComplex := by
+  exact hom_inv_id Y X
 
 /-- The canonical comparison between two cell models, forgotten to an isomorphism of their
 underlying chain complexes. -/
@@ -283,34 +321,42 @@ def chainIso (X Y : Cell A d f) :
 comparison. -/
 @[simp]
 theorem chainIso_hom (X Y : Cell A d f) :
-    (chainIso X Y).hom = (X.comparison Y).toChainHom.toChainMap := sorry
+    (chainIso X Y).hom = (X.comparison Y).toChainHom.toChainMap := rfl
 
 /-- The inverse map of the underlying chain-complex comparison is the reverse cell
 comparison. -/
 @[simp]
 theorem chainIso_inv (X Y : Cell A d f) :
-    (chainIso X Y).inv = (Y.comparison X).toChainHom.toChainMap := sorry
+    (chainIso X Y).inv = (Y.comparison X).toChainHom.toChainMap := rfl
 
 /-- The underlying chain-complex comparison from a cell model to itself is the identity. -/
 @[simp]
 theorem chainIso_self (X : Cell A d f) :
-    chainIso X X = Iso.refl X.algebra.toChainDGAlgebra.toChainComplex := sorry
+    chainIso X X = Iso.refl X.algebra.toChainDGAlgebra.toChainComplex := by
+  apply Iso.ext
+  exact congrArg (fun g : X.algebra ⟶ X.algebra ↦ g.toChainHom.toChainMap)
+    X.comparison_self
 
 /-- Reversing an underlying chain-complex comparison exchanges its two cell models. -/
 @[simp]
 theorem chainIso_symm (X Y : Cell A d f) :
-    (chainIso X Y).symm = chainIso Y X := sorry
+    (chainIso X Y).symm = chainIso Y X := rfl
 
 /-- Underlying chain-complex comparisons compose transitively. -/
 @[simp]
 theorem chainIso_trans (X Y Z : Cell A d f) :
-    (chainIso X Y).trans (chainIso Y Z) = chainIso X Z := sorry
+    (chainIso X Y).trans (chainIso Y Z) = chainIso X Z := by
+  apply Iso.ext
+  exact congrArg (fun g : X.algebra ⟶ Z.algebra ↦ g.toChainHom.toChainMap)
+    (X.comparison_comp Y Z)
 
 /-- The underlying chain-complex comparison intertwines the two base inclusions. -/
 @[stacks 09PM "base naturality of the cell-model chain comparison"]
 theorem inclusion_comp_chainIso_hom (X Y : Cell A d f) :
     X.ι.toChainHom.toChainMap ≫ (chainIso X Y).hom =
-      Y.ι.toChainHom.toChainMap := sorry
+      Y.ι.toChainHom.toChainMap := by
+  exact congrArg (fun g : A ⟶ Y.algebra ↦ g.toChainHom.toChainMap)
+    (X.ι_comp_comparison Y)
 
 end Comparison
 
@@ -319,16 +365,16 @@ end Cell
 namespace Implementation
 
 /-- The zero exponent has admissible weight in every homogeneous coefficient piece. -/
-theorem zeroWeightLe (d m : ℕ) : 0 * d ≤ m := sorry
+theorem zeroWeightLe (d m : ℕ) : 0 * d ≤ m := by simp
 
 /-- The degree of a coefficient at exponent zero is unchanged. -/
-theorem zeroCoefficientDegree (d m : ℕ) : m = m - 0 * d := sorry
+theorem zeroCoefficientDegree (d m : ℕ) : m = m - 0 * d := by simp
 
 /-- The exponent-one weight is admissible in the degree of the variable. -/
-theorem oneWeightLe (d : ℕ) : 1 * d ≤ d := sorry
+theorem oneWeightLe (d : ℕ) : 1 * d ≤ d := by simp
 
 /-- The coefficient of the degree-`d` variable at exponent one lies in base degree zero. -/
-theorem oneCoefficientDegree (d : ℕ) : 0 = d - 1 * d := sorry
+theorem oneCoefficientDegree (d : ℕ) : 0 = d - 1 * d := by simp
 
 end Implementation
 

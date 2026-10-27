@@ -56,27 +56,6 @@ variable {C : Type u} [Category.{v} C] (toScheme : C ⥤ Scheme.{w})
   [Scheme.Modules.IsFiniteLocallyFreeOfRank r E] (p : P ⟶ X)
   (hP : Scheme.ProjectiveBundle.Representation (toScheme.map p) E)
 
-/-- Build the projective-bundle Chern context from a first Chern class and a verified
-projective-bundle-formula equivalence. -/
-def ofProjectiveBundleFormula
-    (firstChernClass :
-      ∀ (Y : C) (L : (toScheme.obj Y).Modules),
-        Scheme.Modules.Invertible L → A.obj (Opposite.op Y))
-    (projectiveBundleEquiv :
-      (Fin r → A.obj (Opposite.op X)) ≃ A.obj (Opposite.op P))
-    (projectiveBundleEquiv_apply : ∀ a,
-      projectiveBundleEquiv a =
-        ∑ i : Fin r,
-          firstChernClass P
-                (Scheme.ProjectiveBundle.tautologicalSheaf (toScheme.map p) hP)
-                (Scheme.ProjectiveBundle.tautologicalSheaf_isInvertible (toScheme.map p) hP) ^
-              i.1 *
-            A.map p.op (a i)) :
-    ProjectiveBundleContext toScheme A X P E r p hP where
-  firstChernClass := firstChernClass
-  projectiveBundleEquiv := projectiveBundleEquiv
-  projectiveBundleEquiv_apply := projectiveBundleEquiv_apply
-
 variable (S : ProjectiveBundleContext toScheme A X P E r p hP)
 
 /-- The class `c₁(𝒪_P(1))` of the tautological invertible module on the projective

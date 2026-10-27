@@ -50,7 +50,7 @@ theorem irreducibleComponentsCodimAtLeast_iff (k : ℕ) (F : Set X) :
     irreducibleComponentsCodimAtLeast k F ↔
       ∀ Z : IrreducibleCloseds X,
         Maximal (fun Y : IrreducibleCloseds X ↦ (Y : Set X) ⊆ F) Z →
-          (k : ℕ∞) ≤ Order.coheight Z := sorry
+          (k : ℕ∞) ≤ Order.coheight Z := Iff.rfl
 
 /-- The finite weighted sum of a family of effective Cartier divisors, expressed as the product
 of the corresponding powers of ideal-sheaf data. -/
@@ -62,7 +62,7 @@ def effectiveCartierDivisorWeightedSum (a : ι →₀ ℕ)
 corresponding powers of ideal-sheaf data. -/
 theorem effectiveCartierDivisorWeightedSum_def (a : ι →₀ ℕ)
     (D : ι → X.IdealSheafData) :
-    effectiveCartierDivisorWeightedSum a D = a.prod (fun i n ↦ D i ^ n) := sorry
+    effectiveCartierDivisorWeightedSum a D = a.prod (fun i n ↦ D i ^ n) := rfl
 
 /-- Two closed subschemes of `X` agree away from codimension `2` if they coincide after
 restriction to some open subscheme of `X` whose complement in the support of the second subscheme
@@ -78,7 +78,7 @@ theorem agreesAwayFromCodimensionTwo_iff (D Z : X.IdealSheafData) :
     D.agreesAwayFromCodimensionTwo Z ↔
       ∃ U : X.Opens,
         D.comap U.ι = Z.comap U.ι ∧
-          irreducibleComponentsCodimAtLeast 2 (((Z.support : Set X) \ (U : Set X)) : Set X) := sorry
+          irreducibleComponentsCodimAtLeast 2 (((Z.support : Set X) \ (U : Set X)) : Set X) := Iff.rfl
 
 /-- `D` is an effective Cartier divisor approximation to `Z` if it is an effective Cartier
 divisor contained in `Z` and agreeing with `Z` away from codimension `2`. -/
@@ -91,7 +91,7 @@ that subscheme and agrees with it away from codimension `2`. -/
 theorem effectiveCartierDivisorApproximation_iff (D Z : X.IdealSheafData) :
     EffectiveCartierDivisorApproximation D Z ↔
       AlgebraicGeometry.IsEffectiveCartierDivisor D.subschemeι ∧
-        Z ≤ D ∧ D.agreesAwayFromCodimensionTwo Z := sorry
+        Z ≤ D ∧ D.agreesAwayFromCodimensionTwo Z := Iff.rfl
 
 namespace EffectiveCartierDivisorApproximation
 
@@ -137,14 +137,22 @@ theorem exists_of_stalks_uniqueFactorizationMonoid
     [IsNoetherian X] (Z : X.IdealSheafData)
     (hnowhere : IsNowhereDense (Z.support : Set X))
     (hUFD : ∀ x : X, x ∈ Z.support → UniqueFactorizationMonoid (X.presheaf.stalk x)) :
-    ∃ D : X.IdealSheafData, EffectiveCartierDivisorApproximation D Z := sorry
+    ∃ D : X.IdealSheafData, EffectiveCartierDivisorApproximation D Z := by
+  obtain ⟨ι, D, Z', hCartier, hIntegral, hZ'closed, hZ'codim, hcover⟩ :=
+    exists_cover_of_stalks_uniqueFactorizationMonoid Z hnowhere hUFD
+  obtain ⟨a, ha⟩ := exists_weightedSum Z D hCartier hIntegral Z' hZ'closed hZ'codim hcover
+  exact ⟨effectiveCartierDivisorWeightedSum a D, ha⟩
 
 /-- A nowhere-dense closed subscheme of a regular Noetherian scheme has an effective Cartier
 divisor approximation. -/
 theorem exists_of_regular
     [IsNoetherian X] [Scheme.Regular X] (Z : X.IdealSheafData)
     (hnowhere : IsNowhereDense (Z.support : Set X)) :
-    ∃ D : X.IdealSheafData, EffectiveCartierDivisorApproximation D Z := sorry
+    ∃ D : X.IdealSheafData, EffectiveCartierDivisorApproximation D Z := by
+  obtain ⟨ι, D, Z', hCartier, hIntegral, hZ'closed, hZ'codim, hcover⟩ :=
+    exists_cover_of_regular Z hnowhere
+  obtain ⟨a, ha⟩ := exists_weightedSum Z D hCartier hIntegral Z' hZ'closed hZ'codim hcover
+  exact ⟨effectiveCartierDivisorWeightedSum a D, ha⟩
 
 end EffectiveCartierDivisorApproximation
 

@@ -6,64 +6,47 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import ReasLib.AlgebraicGeometry.Scheme.GlobalSections
-public import ReasLib.AlgebraicGeometry.Scheme.Variety.Curve.ArithmeticGenus
-public import stacks_project.Chap109.Lemma_109_9_4_Substack
-
-/-!
-# Curves of a given genus
-
-There is a decomposition of `𝒞urves^{h0, 1}` into open-and-closed substacks
-`𝒞urves_g` for `g ≥ 0`, classifying families of curves for which
-`𝒪_S ⟶ f_* 𝒪_X` is an isomorphism after every base change, every fibre has
-dimension `1`, and `R^1 f_* 𝒪_X` is locally free of rank `g`, equivalently
-proper schemes of dimension `1` over a field with `H^0(X, 𝒪_X) = k` and
-genus `g`.
--/
-
-@[expose] public section
+import StacksCheckRecall
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Curve.Genus
 
 open CategoryTheory AlgebraicGeometry CategoryTheory.Limits
+open CategoryTheory.ObjectProperty
 open AlgebraicGeometry.AlgebraicSpace
-
-noncomputable section
 
 universe u
 
-namespace AlgebraicGeometry.AlgebraicSpace
-namespace Spaces
-namespace Curves
+namespace AlgebraicGeometry.AlgebraicSpace.Spaces.Curves
 
-/-- Lemma 109.9.4 (1): given a family of curves `X ⟶ S`, the classifying
-morphism `S ⟶ 𝒞urves` factors through `𝒞urves_g` if and only if `𝒪_S ⟶ f_* 𝒪_X`
-is an isomorphism after every base change (including the identity), the fibres
-of `X ⟶ S` have dimension `1`, and `R^1 f_* 𝒪_X` is a locally free `𝒪_S`-module
-of rank `g`. -/
+/- Lemma 109.9.4 (1): the parent locus decomposes into clopen genus loci. -/
 @[stacks 0E6K]
-theorem classifying_factorsThrough_ofGenus_iff
-    {S : Scheme.{u}} (P : Obj S) (g : ℕ) :
+#check (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.exists_ofGenus_clopen_decomposition :
+  ∀ {S : Scheme.{u}} (P : Obj S), h0Dim1 S P →
+    ∃ U : ℕ → (base P).left.Opens,
+      iSup U = ⊤ ∧
+        Pairwise (fun g g' ↦ Disjoint (U g : Set (base P).left) (U g')) ∧
+          (∀ g, IsClopen (U g : Set (base P).left)) ∧
+            ∀ g, ∀ {Q : Obj S} (φ : Q ⟶ P),
+              ofGenus g S Q ↔ Set.range (baseMap φ).left ⊆ U g)
+
+/- Lemma 109.9.4 (2): the family characterization of the genus locus. -/
+@[stacks 0E6K]
+#check (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.ofGenus_iff :
+  ∀ (g : ℕ) {S : Scheme.{u}} (P : Obj S),
     ofGenus g S P ↔
       (∀ {Z : AlgebraicSpace S} (φ : Z ⟶ ofOver (base P)),
           IsIso (Modules.unitToPushforwardObjUnit (pullback.snd (hom P) φ))) ∧
         (∀ y : Points (ofOver (base P)), fiberDimension (hom P) y = 1) ∧
           SheafOfModules.IsFiniteLocallyFreeOfRank g
-            (higherDirectImageOne (hom P)) :=
-  sorry
+            (higherDirectImageOne (hom P)))
 
-/-- Lemma 109.9.4 (2): given a scheme `X` proper over a field `k` with
-dimension at most one, the classifying morphism `Spec k ⟶ 𝒞urves` factors
-through `𝒞urves_g` if and only if `dim(X) = 1`, `k = H^0(X, 𝒪_X)`, and the
-genus of `X` is `g`. -/
+/- Lemma 109.9.4 (3): the proper-field characterization of the genus locus. -/
 @[stacks 0E6K]
-theorem classifying_factorsThrough_ofGenus_iff_scheme
-    {k : Type u} [Field k] (X : SchemeOverField k) [IsProper X.hom]
-    (hdim : topologicalKrullDim X.left ≤ 1) (g : ℕ) :
+#check (AlgebraicGeometry.AlgebraicSpace.Spaces.Curves.ofGenus_iff_scheme :
+  ∀ {k : Type u} [Field k] (X : SchemeOverField k) [IsProper X.hom]
+    (hdim : topologicalKrullDim X.left ≤ 1) (g : ℕ),
     ofGenus g (Spec (CommRingCat.of k)) (mkOfSchemeOverField X hdim) ↔
       ∃ (hdim1 : topologicalKrullDim X.left = 1)
         (hΓ : Function.Bijective (Scheme.Hom.globalSectionsMap X.hom)),
-        SchemeOverField.genus X hdim1 hΓ = g :=
-  sorry
+        SchemeOverField.genus X hdim1 hΓ = g)
 
-end Curves
-end Spaces
-end AlgebraicGeometry.AlgebraicSpace
+end AlgebraicGeometry.AlgebraicSpace.Spaces.Curves

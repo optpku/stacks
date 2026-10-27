@@ -35,8 +35,8 @@ namespace AlgebraicGeometry.AlgebraicSpace.Hom
 scheme of `s` and `i = zeroSchemeι L s`. Let `N` be an invertible `X.Modules`
 object. Then `i*(c1(N) ∩ α) = c1(i* N) ∩ i* α` in
 `chowGroup (zeroSchemeι L s ≫ f) δ k` for all
-`α : chowGroup f δ (k + 1 + 1)`, where `i*` is `chowGysin` and `c1(-) ∩ -`
-is `FirstChernChow.cap`. The source degrees `CH_k(X)` and `CH_{k-2}(D)` are
+`α : chowGroup f δ (k + 1 + 1)`, where `i*` is `ChowGroup.RefinedGysin.gysin f δ L s`
+and `c1(-) ∩ -` is `FirstChernChow.cap`. The source degrees `CH_k(X)` and `CH_{k-2}(D)` are
 reindexed so both maps land in degree `k`; the printed source `CH_k(Z)` is
 `CH_k(X)`. -/
 @[stacks 0ERB]
@@ -49,9 +49,9 @@ reindexed so both maps land in degree `k`; the printed source `CH_k(Z)` is
     (N : X.Modules) [isInvertibleObject N]
     [isInvertibleObject ((Modules.pullback (zeroSchemeι L s)).obj N)]
     (k : ℤ) (α : chowGroup f δ (k + 1 + 1)),
-    chowGysin δ f L s k (FirstChernChow.cap f δ N (k + 1) α) =
+    ChowGroup.RefinedGysin.gysin f δ L s k (FirstChernChow.cap f δ N (k + 1) α) =
       FirstChernChow.cap (zeroSchemeι L s ≫ f) δ
         ((Modules.pullback (zeroSchemeι L s)).obj N) k
-        (chowGysin δ f L s (k + 1) α))
+        (ChowGroup.RefinedGysin.gysin f δ L s (k + 1) α))
 
 end AlgebraicGeometry.AlgebraicSpace.Hom

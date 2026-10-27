@@ -34,8 +34,8 @@ theorem cohomologyBaseChange_comp_isIso
     {X' X S' S : Scheme.{u}}
     (g' : X' ⟶ X) (f' : X' ⟶ S') (f : X ⟶ S) (g : S' ⟶ S)
     [QuasiCompact f] [QuasiSeparated f]
-    [HasPair (RingedSpace.opensRingedSiteHom f.toShHom)]
-    [HasPair (RingedSpace.opensRingedSiteHom f'.toShHom)]
+    [RingedSpace.DerivedAdjunction.HasPair f.toShHom]
+    [RingedSpace.DerivedAdjunction.HasPair f'.toShHom]
     [IsIso (RingedSpace.modulePullbackDerived.compComparison f'.toShHom g.toShHom)]
     [IsIso (RingedSpace.modulePullbackDerived.compComparison g'.toShHom f.toShHom)]
     (sq : IsPullback g' f' f g) (K : ModuleDerived.Quasicoherent X)

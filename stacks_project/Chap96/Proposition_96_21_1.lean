@@ -6,12 +6,8 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap94.Definition_94_12_1_AlgebraicStack
-public import stacks_project.Chap96.Lemma_96_19_10_LocallyOfFinitePresentation
-public import stacks_project.Chap96.Lemma_96_19_11
-public import stacks_project.Chap96.Lemma_96_19_12
-public import stacks_project.Chap100.Lemma_100_11_1_Flat
-
+import ReasLib.AlgebraicGeometry.AlgebraicStack.CechPushforwardSpectralSequence
+import StacksCheckRecall
 /-!
 # Relative Čech spectral sequences for higher direct images
 
@@ -32,16 +28,15 @@ universe u
 
 namespace AlgebraicGeometry.GroupoidsOver
 
-variable {S : Scheme.{u}} {U X Y : GroupoidsOver S}
-
-/-- Proposition 96.21.1 (1): Let `f : 𝒰 ⟶ 𝒳` and `g : 𝒳 ⟶ 𝒴` be composable
+/- Proposition 96.21.1 (1): Let `f : 𝒰 ⟶ 𝒳` and `g : 𝒳 ⟶ 𝒴` be composable
 1-morphisms of algebraic stacks. Let `F` be an abelian étale sheaf on `𝒳`.
 Assume that `f` is representable by algebraic spaces, surjective, and smooth.
 Then there is a spectral sequence
 `E₁^{p, q} = R^q (g ∘ f_p)_* f_p⁻¹ F ⇒ R^{p+q} g_* F` in `Ab(𝒴_étale)`,
 with higher direct images computed in the étale topology. -/
-@[stacks 072G]
-theorem exists_etaleRelativeCechPushforwardSpectralSequence
+@[stacks 072G] #check
+  (AlgebraicGeometry.GroupoidsOver.exists_etaleRelativeCechPushforwardSpectralSequence :
+    ∀ {S : Scheme.{u}} {U X Y : GroupoidsOver S}
     [AlgebraicStack U] [AlgebraicStack X] [AlgebraicStack Y]
     (f : U ⟶ X) (g : X ⟶ Y)
     (F : Sheaf (X.associatedTopology StandardTopology.etale) AddCommGrpCat.{u + 1})
@@ -53,34 +48,28 @@ theorem exists_etaleRelativeCechPushforwardSpectralSequence
     [∀ p : ℕ, HasSheafify (relativeCechSite f StandardTopology.etale p)
       AddCommGrpCat.{u + 1}]
     [∀ p : ℕ, HasInjectiveResolutions
-      (Sheaf (relativeCechSite f StandardTopology.etale p) AddCommGrpCat.{u + 1})] :
+      (Sheaf (relativeCechSite f StandardTopology.etale p) AddCommGrpCat.{u + 1})],
     ∃ (E : CohomologicalSpectralSequenceNat
         (Sheaf (Y.associatedTopology StandardTopology.etale) AddCommGrpCat.{u + 1}) 1)
       (pageOneIso : ∀ p q : ℕ,
         (E.page 1 le_rfl).X (p, q) ≅
           relativeCechPushforwardPageOne f g StandardTopology.etale F p q),
       CohomologicalSpectralSequenceNat.ConvergesTo E
-        (fun n ↦ higherDirectImage g StandardTopology.etale F n) :=
-  sorry
+        (fun n ↦ higherDirectImage g StandardTopology.etale F n))
 
-/-- Proposition 96.21.1 (2): Let `f : 𝒰 ⟶ 𝒳` and `g : 𝒳 ⟶ 𝒴` be composable
+/- Proposition 96.21.1 (2): Let `f : 𝒰 ⟶ 𝒳` and `g : 𝒳 ⟶ 𝒴` be composable
 1-morphisms of algebraic stacks. Let `F` be a sheaf of modules on
 `𝒳_étale`. Assume that `f` is representable by algebraic spaces, surjective,
 and smooth. Then there is a spectral sequence
 `E₁^{p, q} = R^q (g ∘ f_p)_* f_p⁻¹ F ⇒ R^{p+q} g_* F` in
 `Mod(𝒴_étale, 𝒪_𝒴)`. -/
-@[stacks 072G]
-theorem exists_etaleRelativeCechModulePushforwardSpectralSequence
+@[stacks 072G] #check
+  (AlgebraicGeometry.GroupoidsOver.exists_etaleRelativeCechModulePushforwardSpectralSequence :
+    ∀ {S : Scheme.{u}} {U X Y : GroupoidsOver S}
     [AlgebraicStack U] [AlgebraicStack X] [AlgebraicStack Y]
     (f : U ⟶ X) (g : X ⟶ Y)
     (F : SheafOfModules.{u + 1} (associatedStructureSheaf X StandardTopology.etale))
-    [Groupoids.Hom.Surjective f] [Groupoids.Hom.Smooth f]
-    [HasInjectiveResolutions
-      (SheafOfModules.{u + 1} (associatedStructureSheaf X StandardTopology.etale))]
-    [∀ p : ℕ, HasInjectiveResolutions
-      (SheafOfModules.{u + 1}
-        (associatedStructureSheaf
-          (Cech.covering.{u + 1, u, u + 1, u} f ⦋p⦌) StandardTopology.etale))] :
+    [Groupoids.Hom.Surjective f] [Groupoids.Hom.Smooth f],
     ∃ (E : CohomologicalSpectralSequenceNat
         (SheafOfModules.{u + 1}
           (associatedStructureSheaf Y StandardTopology.etale)) 1)
@@ -88,17 +77,17 @@ theorem exists_etaleRelativeCechModulePushforwardSpectralSequence
         (E.page 1 le_rfl).X (p, q) ≅
           relativeCechModulePushforwardPageOne f g StandardTopology.etale F p q),
       CohomologicalSpectralSequenceNat.ConvergesTo E
-        (fun n ↦ associatedModuleHigherDirectImage g StandardTopology.etale F n) :=
-  sorry
+        (fun n ↦ associatedModuleHigherDirectImage g StandardTopology.etale F n))
 
-/-- Proposition 96.21.1 (3): Let `f : 𝒰 ⟶ 𝒳` and `g : 𝒳 ⟶ 𝒴` be composable
+/- Proposition 96.21.1 (3): Let `f : 𝒰 ⟶ 𝒳` and `g : 𝒳 ⟶ 𝒴` be composable
 1-morphisms of algebraic stacks. Let `F` be an abelian sheaf on `𝒳`. Assume
 that `f` is representable by algebraic spaces, surjective, flat, and locally of
 finite presentation. Then there is a spectral sequence
 `E₁^{p, q} = R^q (g ∘ f_p)_* f_p⁻¹ F ⇒ R^{p+q} g_* F` in `Ab(𝒴)`, with higher
 direct images computed in the fppf topology. -/
-@[stacks 072G]
-theorem exists_fppfRelativeCechPushforwardSpectralSequence
+@[stacks 072G] #check
+  (AlgebraicGeometry.GroupoidsOver.exists_fppfRelativeCechPushforwardSpectralSequence :
+    ∀ {S : Scheme.{u}} {U X Y : GroupoidsOver S}
     [AlgebraicStack U] [AlgebraicStack X] [AlgebraicStack Y]
     (f : U ⟶ X) (g : X ⟶ Y)
     (F : Sheaf (X.associatedTopology StandardTopology.fppf) AddCommGrpCat.{u + 1})
@@ -111,35 +100,29 @@ theorem exists_fppfRelativeCechPushforwardSpectralSequence
     [∀ p : ℕ, HasSheafify (relativeCechSite f StandardTopology.fppf p)
       AddCommGrpCat.{u + 1}]
     [∀ p : ℕ, HasInjectiveResolutions
-      (Sheaf (relativeCechSite f StandardTopology.fppf p) AddCommGrpCat.{u + 1})] :
+      (Sheaf (relativeCechSite f StandardTopology.fppf p) AddCommGrpCat.{u + 1})],
     ∃ (E : CohomologicalSpectralSequenceNat
         (Sheaf (Y.associatedTopology StandardTopology.fppf) AddCommGrpCat.{u + 1}) 1)
       (pageOneIso : ∀ p q : ℕ,
         (E.page 1 le_rfl).X (p, q) ≅
           relativeCechPushforwardPageOne f g StandardTopology.fppf F p q),
       CohomologicalSpectralSequenceNat.ConvergesTo E
-        (fun n ↦ higherDirectImage g StandardTopology.fppf F n) :=
-  sorry
+        (fun n ↦ higherDirectImage g StandardTopology.fppf F n))
 
-/-- Proposition 96.21.1 (4): Let `f : 𝒰 ⟶ 𝒳` and `g : 𝒳 ⟶ 𝒴` be composable
+/- Proposition 96.21.1 (4): Let `f : 𝒰 ⟶ 𝒳` and `g : 𝒳 ⟶ 𝒴` be composable
 1-morphisms of algebraic stacks. Let `F` be a sheaf of modules on `𝒪_𝒳`.
 Assume that `f` is representable by algebraic spaces, surjective, flat, and
 locally of finite presentation. Then there is a spectral sequence
 `E₁^{p, q} = R^q (g ∘ f_p)_* f_p⁻¹ F ⇒ R^{p+q} g_* F` in `Mod(𝒪_𝒴)`, with
 higher direct images computed in the fppf topology. -/
-@[stacks 072G]
-theorem exists_fppfRelativeCechModulePushforwardSpectralSequence
+@[stacks 072G] #check
+  (AlgebraicGeometry.GroupoidsOver.exists_fppfRelativeCechModulePushforwardSpectralSequence :
+    ∀ {S : Scheme.{u}} {U X Y : GroupoidsOver S}
     [AlgebraicStack U] [AlgebraicStack X] [AlgebraicStack Y]
     (f : U ⟶ X) (g : X ⟶ Y)
     (F : SheafOfModules.{u + 1} (associatedStructureSheaf X StandardTopology.fppf))
     [Groupoids.Hom.Surjective f] [Groupoids.Hom.Flat f]
-    [Groupoids.Hom.LocallyOfFinitePresentation f]
-    [HasInjectiveResolutions
-      (SheafOfModules.{u + 1} (associatedStructureSheaf X StandardTopology.fppf))]
-    [∀ p : ℕ, HasInjectiveResolutions
-      (SheafOfModules.{u + 1}
-        (associatedStructureSheaf
-          (Cech.covering.{u + 1, u, u + 1, u} f ⦋p⦌) StandardTopology.fppf))] :
+    [Groupoids.Hom.LocallyOfFinitePresentation f],
     ∃ (E : CohomologicalSpectralSequenceNat
         (SheafOfModules.{u + 1}
           (associatedStructureSheaf Y StandardTopology.fppf)) 1)
@@ -147,7 +130,6 @@ theorem exists_fppfRelativeCechModulePushforwardSpectralSequence
         (E.page 1 le_rfl).X (p, q) ≅
           relativeCechModulePushforwardPageOne f g StandardTopology.fppf F p q),
       CohomologicalSpectralSequenceNat.ConvergesTo E
-        (fun n ↦ associatedModuleHigherDirectImage g StandardTopology.fppf F n) :=
-  sorry
+        (fun n ↦ associatedModuleHigherDirectImage g StandardTopology.fppf F n))
 
 end AlgebraicGeometry.GroupoidsOver

@@ -33,6 +33,14 @@ namespace FiberedCategoryOver.Hom
 
 variable {X Y Z : FiberedCategoryOver.{u, v, w, vS} C}
 
+/-- At equal value universes the heterogeneous Hom map is the lifted fixed-universe map. -/
+private theorem presheafHomMap_whiskerRight_ulift
+    (F : X ⟶ Y) {U : C} (x y : X.p.Fiber U) :
+    Functor.whiskerRight (presheafHomMap F x y) uliftFunctor.{vS, vS} =
+      CartesianBasedFunctor.HomPresheaf.Chosen.map
+        (FiberedCategoryOver.toCartesianBasedFunctor F) x y := by
+  rfl
+
 /-- The fixed-universe view of the heterogeneous cartesian-functor local-equivalence owner. -/
 @[stacks 02ZP "fixed-universe local-equivalence predicate"]
 abbrev IsLocalEquivalence
@@ -69,26 +77,86 @@ localizing class of the corresponding slice site. -/
 theorem IsLocalEquivalence.presheafHomMap_mem
     {J : GrothendieckTopology C} {F : X ⟶ Y}
     (hF : IsLocalEquivalence J F) {U : C} (x y : X.p.Fiber U) :
-    (J.over U).W (presheafHomMap F x y) := sorry
+    (J.over U).W (presheafHomMap F x y) := by
+  let e : Arrow.mk (CartesianBasedFunctor.HomPresheaf.Chosen.map
+      (FiberedCategoryOver.toCartesianBasedFunctor F) x y) ≅
+      Arrow.mk (presheafHomMap F x y) :=
+    Arrow.isoMk
+      (Functor.isoWhiskerLeft _ uliftFunctorTrivial ≪≫ Functor.rightUnitor _)
+      (Functor.isoWhiskerLeft _ uliftFunctorTrivial ≪≫ Functor.rightUnitor _)
+      (by
+        rw [← presheafHomMap_whiskerRight_ulift]
+        ext W δ
+        rfl)
+  exact ((J.over U).W.arrow_mk_iso_iff e).1
+      (Presheaf.LocallyBijective.mem_W _ _ (hF.isHomwise x y).1 (hF.isHomwise x y).2)
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The identity morphism of a fibered category is a local equivalence. -/
 @[stacks 02ZP "identity fixed-universe local equivalence"]
 theorem IsLocalEquivalence.id (J : GrothendieckTopology C) :
-    IsLocalEquivalence J (𝟙 X) := sorry
+    IsLocalEquivalence J (𝟙 X) := by
+  constructor
+  · intro U x y
+    simp only [← presheafHomMap_whiskerRight_ulift, presheafHomMap.id,
+      Functor.whiskerRight_id']
+    exact ⟨Presheaf.isLocallyInjective_of_injective _ _ (fun _ _ _ h ↦ h),
+      Presheaf.isLocallySurjective_of_surjective _ _ (fun _ s ↦ ⟨s, rfl⟩)⟩
+  · intro U y
+    refine J.superset_covering (S := ⊤) ?_ (J.top_mem U)
+    intro V f _
+    exact ⟨f⁎[X.chosenCleavage] y, ⟨Iso.refl _⟩⟩
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Local equivalences of fibered categories are closed under composition. -/
 @[stacks 02ZP "composition of fixed-universe local equivalences"]
 theorem IsLocalEquivalence.comp
     {J : GrothendieckTopology C} {F : X ⟶ Y} {G : Y ⟶ Z}
     (hF : IsLocalEquivalence J F) (hG : IsLocalEquivalence J G) :
-    IsLocalEquivalence J (F ≫ G) := sorry
+    IsLocalEquivalence J (F ≫ G) := by
+  constructor
+  · intro U x y
+    have hFx := hF.isHomwise x y
+    have hGxy := hG.isHomwise ((FiberedCategoryOver.fiberFunctor F U).obj x)
+      ((FiberedCategoryOver.fiberFunctor F U).obj y)
+    simp only [← presheafHomMap_whiskerRight_ulift] at hFx hGxy ⊢
+    rw [presheafHomMap.comp, Functor.whiskerRight_comp]
+    letI := hFx.1
+    letI := hFx.2
+    letI := hGxy.1
+    letI := hGxy.2
+    exact ⟨inferInstance, inferInstance⟩
+  · intro U z
+    apply J.transitive (hG.locallyEssentiallySurjective z)
+      (EssentialImage.sieve (F ≫ G) z)
+    intro V f hf
+    rcases hf with ⟨y, ⟨eG⟩⟩
+    apply J.superset_covering ?_ (hF.locallyEssentiallySurjective y)
+    intro W g hg
+    rcases hg with ⟨x, ⟨eF⟩⟩
+    exact ⟨x, ⟨CartesianBasedFunctor.EssentialImage.compIso
+      (F := FiberedCategoryOver.toCartesianBasedFunctor F)
+      (G := FiberedCategoryOver.toCartesianBasedFunctor G) f g z y x eF eG⟩⟩
 
 /-- An equivalence over the base is a local equivalence. -/
 @[stacks 02ZP "equivalence over the base gives a local equivalence"]
 theorem IsLocalEquivalence.of_isEquivalence
     (J : GrothendieckTopology C) (F : X ⟶ Y)
     (hF : (FiberedCategoryOver.toBasedFunctor F).IsEquivalence) :
-    IsLocalEquivalence J F := sorry
+    IsLocalEquivalence J F := by
+  constructor
+  · intro U x y
+    letI := CartesianBasedFunctor.HomPresheaf.Chosen.map.isIso_of_isEquivalence
+      (FiberedCategoryOver.toCartesianBasedFunctor F) hF x y
+    exact ⟨inferInstance, inferInstance⟩
+  · rcases hF.nonempty with ⟨e⟩
+    intro U y
+    refine J.superset_covering (S := ⊤) ?_ (J.top_mem U)
+    intro V f _
+    let z := f⁎[Y.chosenCleavage] y
+    refine ⟨(e.inverse.fiberFunctor V).obj z, ⟨?_⟩⟩
+    exact (((BasedCategory.fiberFunctor Y.toBasedCategory Y.toBasedCategory V).mapIso
+      e.counitIso).app z)
 
 /-- Precomposition by an equivalence over the base preserves local equivalence. -/
 @[stacks 02ZP "left-equivalence transport of local equivalence"]
@@ -96,7 +164,8 @@ theorem IsLocalEquivalence.comp_left_of_isEquivalence
     {J : GrothendieckTopology C} (E : X ⟶ Y)
     (hE : (FiberedCategoryOver.toBasedFunctor E).IsEquivalence)
     (G : Y ⟶ Z) (hG : IsLocalEquivalence J G) :
-    IsLocalEquivalence J (E ≫ G) := sorry
+    IsLocalEquivalence J (E ≫ G) := by
+  exact (IsLocalEquivalence.of_isEquivalence J E hE).comp hG
 
 /-- Postcomposition by an equivalence over the base preserves local equivalence. -/
 @[stacks 02ZP "right-equivalence transport of local equivalence"]
@@ -104,30 +173,70 @@ theorem IsLocalEquivalence.comp_right_of_isEquivalence
     {J : GrothendieckTopology C} (F : X ⟶ Y)
     (hF : IsLocalEquivalence J F) (E : Y ⟶ Z)
     (hE : (FiberedCategoryOver.toBasedFunctor E).IsEquivalence) :
-    IsLocalEquivalence J (F ≫ E) := sorry
+    IsLocalEquivalence J (F ≫ E) := by
+  exact hF.comp (IsLocalEquivalence.of_isEquivalence J E hE)
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Local equivalence reflects across postcomposition by an equivalence over the base. -/
 @[stacks 02ZP "right-equivalence reflection of local equivalence"]
 theorem IsLocalEquivalence.of_comp_right_isEquivalence
     {J : GrothendieckTopology C} (F : X ⟶ Y) (E : Y ⟶ Z)
     (hE : (FiberedCategoryOver.toBasedFunctor E).IsEquivalence)
     (hFE : IsLocalEquivalence J (F ≫ E)) :
-    IsLocalEquivalence J F := sorry
+    IsLocalEquivalence J F := by
+  constructor
+  · intro U x y
+    have h := hFE.isHomwise x y
+    simp only [← presheafHomMap_whiskerRight_ulift] at h ⊢
+    rw [presheafHomMap.comp, Functor.whiskerRight_comp] at h
+    letI := presheafHomMap.isIso_of_isEquivalence E hE
+      ((FiberedCategoryOver.fiberFunctor F U).obj x)
+      ((FiberedCategoryOver.fiberFunctor F U).obj y)
+    exact ⟨(Presheaf.isLocallyInjective_comp_iff (J.over U) _ _).1 h.1,
+      (Presheaf.isLocallySurjective_comp_iff (J.over U) _ _).1 h.2⟩
+  · rcases hE.nonempty with ⟨e⟩
+    intro U y
+    apply J.superset_covering ?_
+      (hFE.locallyEssentiallySurjective ((FiberedCategoryOver.fiberFunctor E U).obj y))
+    intro V f hf
+    rcases hf with ⟨x, ⟨c⟩⟩
+    let unit := (BasedCategory.fiberFunctor Y.toBasedCategory Y.toBasedCategory V).mapIso
+      e.unitIso
+    refine ⟨x, ⟨?_⟩⟩
+    exact unit.app ((FiberedCategoryOver.fiberFunctor F V).obj x) ≪≫
+      (e.inverse.fiberFunctor V).mapIso
+        (c ≪≫ FiberedCategoryOver.Reindex.mapIso E f y) ≪≫
+          (unit.app (f⁎[Y.chosenCleavage] y)).symm
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Transport local equivalence along an isomorphism of parallel morphisms of
 fibered categories. -/
 @[stacks 02ZP "isomorphism transport of local equivalence"]
 theorem IsLocalEquivalence.of_iso
     {J : GrothendieckTopology C} {F G : X ⟶ Y} (e : F ≅ G)
     (hF : IsLocalEquivalence J F) :
-    IsLocalEquivalence J G := sorry
+    IsLocalEquivalence J G := by
+  constructor
+  · intro U x y
+    have hFx := hF.isHomwise x y
+    simp only [← presheafHomMap_whiskerRight_ulift] at hFx ⊢
+    simp only [← presheafHomMap.ownerIso e x y, Functor.whiskerRight_comp]
+    letI := hFx.1
+    letI := hFx.2
+    exact ⟨inferInstance, inferInstance⟩
+  · intro U y
+    apply J.superset_covering ?_ (hF.locallyEssentiallySurjective y)
+    intro V f hf
+    rcases hf with ⟨x, ⟨c⟩⟩
+    exact ⟨x, ⟨(((FiberedCategoryOver.fiberHomFunctor X Y V).mapIso e).app x).symm ≪≫ c⟩⟩
 
 /-- Isomorphic parallel morphisms of fibered categories are local equivalences
 simultaneously. -/
 @[stacks 02ZP "isomorphism invariance of local equivalence"]
 theorem isLocalEquivalence_iff_of_iso
     {J : GrothendieckTopology C} {F G : X ⟶ Y} (e : F ≅ G) :
-    IsLocalEquivalence J F ↔ IsLocalEquivalence J G := sorry
+    IsLocalEquivalence J F ↔ IsLocalEquivalence J G := by
+  exact ⟨IsLocalEquivalence.of_iso e, IsLocalEquivalence.of_iso e.symm⟩
 
 end FiberedCategoryOver.Hom
 

@@ -26,7 +26,7 @@ variable {dimension : V → ℕ} {product : V → V → V}
 variable {fst : ∀ X Y, product X Y ⟶ X} {snd : ∀ X Y, product X Y ⟶ Y}
 variable {point : V} {H : V → Type x} {CH : V → Type y}
 variable [∀ X, Ring (H X)] [∀ X, Algebra F (H X)] [∀ X, CommRing (CH X)]
-variable {Hgrade : ∀ X, ℤ × ℤ → Submodule F (H X)}
+variable {Hgrade : ∀ X, ℤ → Submodule F (H X)}
 variable {CHgrade : ∀ X, ℤ → Submodule ℤ (CH X)}
 variable [∀ X, GradedAlgebra (Hgrade X)] [∀ X, GradedAlgebra (CHgrade X)]
 variable {cyclePullback : ∀ {X Y : V},
@@ -39,7 +39,7 @@ object fails to have separable closed points detecting degree-zero cohomology. -
 theorem exists_not_hasSeparatingClosedPoints_of_negativeCohomology
     (T : SchemeClassicalTheory k F TateLine V dimension product fst snd point
       H CH Hgrade CHgrade cyclePullback cyclePushforward)
-    (hneg : ∃ (Y : V) (i j : ℤ), i < 0 ∧ Hgrade Y (i, j) ≠ ⊥) :
+    (hneg : ∃ (Y : V) (i j : ℤ), i < 0 ∧ Hgrade Y (i) ≠ ⊥) :
     ∃ (X : V) (d : ℕ),
       T.IsNonemptyEquidimensional X d ∧ ¬ T.HasSeparatingClosedPoints X := sorry
 

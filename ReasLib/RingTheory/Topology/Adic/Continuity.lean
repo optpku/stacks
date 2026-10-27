@@ -113,7 +113,22 @@ theorem of_continuous (φ : R →+* S) (I : Ideal R) (J : Ideal S)
     (h : letI : TopologicalSpace R := I.adicTopology
          letI : TopologicalSpace S := J.adicTopology
          Continuous φ) :
-    φ.AdicContinuous I J := sorry
+    φ.AdicContinuous I J := by
+  letI : TopologicalSpace R := I.adicTopology
+  letI : TopologicalSpace S := J.adicTopology
+  have h0c : ContinuousAt φ (0 : R) := h.continuousAt
+  have h0' := h0c
+  change Filter.Tendsto φ (𝓝 (0 : R)) (𝓝 (φ 0)) at h0'
+  rw [map_zero φ] at h0'
+  have hJmem : (J : Set S) ∈ 𝓝 (0 : S) := by
+    rw [J.hasBasis_nhds_zero_adic.mem_iff]
+    exact ⟨1, trivial, by simpa⟩
+  have hpre : φ ⁻¹' (J : Set S) ∈ 𝓝 (0 : R) := h0' hJmem
+  rcases I.hasBasis_nhds_zero_adic.mem_iff.mp hpre with ⟨n, -, hn⟩
+  refine ⟨n, ?_⟩
+  rw [Ideal.map_le_iff_le_comap]
+  intro x hx
+  exact hn hx
 
 /-- An adically continuous map is continuous between the corresponding adic
 topologies. -/
@@ -153,16 +168,6 @@ theorem continuous_iff_exists_pos (φ : R →+* S) (I : Ideal R) (J : Ideal S) :
       ∃ n : ℕ+, Ideal.map φ (I ^ (n : ℕ)) ≤ J := sorry
 
 end AdicContinuous
-
-/-- A ring homomorphism is continuous between two adic topologies exactly
-when some source-ideal power maps into the target ideal. -/
--- Local instance justification (noncanonical choice): The assertion selects the explicitly supplied I-adic and J-adic topologies, not ambient canonical instances.
-theorem continuous_adic_iff_exists_pow_map_le
-    (φ : R →+* S) (I : Ideal R) (J : Ideal S) :
-    letI : TopologicalSpace R := I.adicTopology
-    letI : TopologicalSpace S := J.adicTopology
-    Continuous φ ↔
-      ∃ n : ℕ, Ideal.map φ (I ^ n) ≤ J := sorry
 
 end RingHom
 

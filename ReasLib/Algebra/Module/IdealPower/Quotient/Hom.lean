@@ -61,7 +61,14 @@ abbrev baseHom (I : Ideal R) (M : ModuleCat.{v} R) {n : ℕ}
 @[stacks 0EGY "kernel bound for maps into an exact quotient-ring module"]
 theorem power_smul_le_ker (I : Ideal R) (M : ModuleCat.{v} R) {n : ℕ}
     (P : ModuleCat.{v} (R ⧸ I ^ n)) (f : baseHom I M P) :
-    I ^ n • (⊤ : Submodule R (M : Type v)) ≤ LinearMap.ker f.hom := sorry
+    I ^ n • (⊤ : Submodule R (M : Type v)) ≤ LinearMap.ker f.hom := by
+  refine Submodule.smul_le.mpr ?_
+  intro r hr x _
+  change f.hom (r • x) = 0
+  rw [map_smul]
+  have hz (y : P) : Ideal.Quotient.mk (I ^ n) r • y = 0 := by
+    rw [Ideal.Quotient.eq_zero_iff_mem.mpr hr, zero_smul]
+  exact hz (f.hom x)
 
 /-- Descend a base-linear map `M ⟶ P` to an `R / I ^ n`-linear morphism
 `M / I ^ n M ⟶ P`.  The quotient-ring linearity is recovered by full faithfulness of
@@ -84,19 +91,32 @@ noncomputable def lift (I : Ideal R) (M : ModuleCat.{v} R) {n : ℕ}
 @[simp, stacks 0EGY "quotient-ring descent on representatives"]
 theorem lift_mk (I : Ideal R) (M : ModuleCat.{v} R) {n : ℕ}
     (P : ModuleCat.{v} (R ⧸ I ^ n)) (f : baseHom I M P) (x : M) :
-    (lift I M P f).hom (Ideal.PowerQuotient.mk I M n x) = f.hom x := sorry
+    (lift I M P f).hom (Ideal.PowerQuotient.mk I M n x) = f.hom x := by
+  rfl
 
 /-- Quotient-ring descent preserves addition. -/
 @[stacks 0EGY "additivity of quotient-ring descent"]
 theorem lift_add (I : Ideal R) (M : ModuleCat.{v} R) {n : ℕ}
     (P : ModuleCat.{v} (R ⧸ I ^ n)) (f g : baseHom I M P) :
-    lift I M P (f + g) = lift I M P f + lift I M P g := sorry
+    lift I M P (f + g) = lift I M P f + lift I M P g := by
+  apply ModuleCat.hom_ext
+  apply LinearMap.ext
+  intro x
+  refine Submodule.Quotient.induction_on _ x ?_
+  intro y
+  rfl
 
 /-- Quotient-ring descent respects the original-ring scalar action. -/
 @[stacks 0EGY "linearity of quotient-ring descent over the base ring"]
 theorem lift_smul (I : Ideal R) (M : ModuleCat.{v} R) {n : ℕ}
     (P : ModuleCat.{v} (R ⧸ I ^ n)) (r : R) (f : baseHom I M P) :
-    lift I M P (r • f) = r • lift I M P f := sorry
+    lift I M P (r • f) = r • lift I M P f := by
+  apply ModuleCat.hom_ext
+  apply LinearMap.ext
+  intro x
+  refine Submodule.Quotient.induction_on _ x ?_
+  intro y
+  rfl
 
 /-- Restrict a quotient-ring morphism along `M ⟶ M / I ^ n M` and the quotient map
 `R ⟶ R / I ^ n`. -/
@@ -111,25 +131,37 @@ abbrev restrict (I : Ideal R) (M : ModuleCat.{v} R) {n : ℕ}
 @[stacks 0EGY "additivity of restriction from quotient-ring morphisms"]
 theorem restrict_add (I : Ideal R) (M : ModuleCat.{v} R) {n : ℕ}
     (P : ModuleCat.{v} (R ⧸ I ^ n)) (f g : stageOver I M n ⟶ P) :
-    restrict I M P (f + g) = restrict I M P f + restrict I M P g := sorry
+    restrict I M P (f + g) = restrict I M P f + restrict I M P g := by
+  apply ModuleCat.hom_ext
+  rfl
 
 /-- Restriction from quotient-ring morphisms respects the original-ring scalar action. -/
 @[stacks 0EGY "linearity of restriction from quotient-ring morphisms"]
 theorem restrict_smul (I : Ideal R) (M : ModuleCat.{v} R) {n : ℕ}
     (P : ModuleCat.{v} (R ⧸ I ^ n)) (r : R) (g : stageOver I M n ⟶ P) :
-    restrict I M P (r • g) = r • restrict I M P g := sorry
+    restrict I M P (r • g) = r • restrict I M P g := by
+  apply ModuleCat.hom_ext
+  rfl
 
 /-- Descending after restriction is the identity on quotient-ring morphisms. -/
 @[simp, stacks 0EGY "descent-restriction inverse law for quotient-ring morphisms"]
 theorem lift_restrict (I : Ideal R) (M : ModuleCat.{v} R) {n : ℕ}
     (P : ModuleCat.{v} (R ⧸ I ^ n)) (g : stageOver I M n ⟶ P) :
-    lift I M P (restrict I M P g) = g := sorry
+    lift I M P (restrict I M P g) = g := by
+  apply ModuleCat.hom_ext
+  apply LinearMap.ext
+  intro x
+  refine Submodule.Quotient.induction_on _ x ?_
+  intro y
+  rfl
 
 /-- Restricting after descent is the identity on base-linear maps. -/
 @[simp, stacks 0EGY "restriction-descent inverse law for quotient-ring morphisms"]
 theorem restrict_lift (I : Ideal R) (M : ModuleCat.{v} R) {n : ℕ}
     (P : ModuleCat.{v} (R ⧸ I ^ n)) (f : baseHom I M P) :
-    restrict I M P (lift I M P f) = f := sorry
+    restrict I M P (lift I M P f) = f := by
+  apply ModuleCat.hom_ext
+  rfl
 
 /-- Base-linear maps into an `R / I ^ n`-module are canonically equivalent to quotient-ring
 linear morphisms out of `M / I ^ n M`. -/
@@ -147,13 +179,15 @@ noncomputable def equiv (I : Ideal R) (M : ModuleCat.{v} R) {n : ℕ}
 @[simp, stacks 0EGY "forward map of the quotient-ring Hom equivalence"]
 theorem equiv_apply (I : Ideal R) (M : ModuleCat.{v} R) {n : ℕ}
     (P : ModuleCat.{v} (R ⧸ I ^ n)) (f : baseHom I M P) :
-    equiv I M P f = lift I M P f := sorry
+    equiv I M P f = lift I M P f := by
+  rfl
 
 /-- The inverse map of `equiv` is restriction along the quotient maps. -/
 @[simp, stacks 0EGY "inverse map of the quotient-ring Hom equivalence"]
 theorem equiv_symm_apply (I : Ideal R) (M : ModuleCat.{v} R) {n : ℕ}
     (P : ModuleCat.{v} (R ⧸ I ^ n)) (g : stageOver I M n ⟶ P) :
-    (equiv I M P).symm g = restrict I M P g := sorry
+    (equiv I M P).symm g = restrict I M P g := by
+  rfl
 
 /-- The universal Hom equivalence is linear over the original commutative ring. -/
 @[stacks 0EGY "linear universal Hom equivalence for an exact quotient-ring module"]
@@ -167,13 +201,15 @@ noncomputable def linearEquiv (I : Ideal R) (M : ModuleCat.{v} R) {n : ℕ}
 @[simp, stacks 0EGY "forward map of the linear quotient-ring Hom equivalence"]
 theorem linearEquiv_apply (I : Ideal R) (M : ModuleCat.{v} R) {n : ℕ}
     (P : ModuleCat.{v} (R ⧸ I ^ n)) (f : baseHom I M P) :
-    linearEquiv I M P f = lift I M P f := sorry
+    linearEquiv I M P f = lift I M P f := by
+  rfl
 
 /-- The inverse of the linear universal Hom equivalence is restriction along the quotient maps. -/
 @[simp, stacks 0EGY "inverse map of the linear quotient-ring Hom equivalence"]
 theorem linearEquiv_symm_apply (I : Ideal R) (M : ModuleCat.{v} R) {n : ℕ}
     (P : ModuleCat.{v} (R ⧸ I ^ n)) (g : stageOver I M n ⟶ P) :
-    (linearEquiv I M P).symm g = restrict I M P g := sorry
+    (linearEquiv I M P).symm g = restrict I M P g := by
+  rfl
 
 /-- The stage `Hom_R(M, N / I ^ (n + 1) N)` of the positive ideal-power Hom system. -/
 @[stacks 09BB "Hom stage over a positive ideal-power quotient"]
@@ -234,7 +270,8 @@ theorem exactRestrictDomain_apply
     (M : Type v) [AddCommGroup M] [Module R M]
     (N : Type w) [AddCommGroup N] [Module R N]
     (n : ℕ+) (f : exactQuotientStage I M N n) (x : M) :
-    exactRestrictDomain I M N n f x = f (Submodule.Quotient.mk x) := sorry
+    exactRestrictDomain I M N n f x = f (Submodule.Quotient.mk x) := by
+  rfl
 
 /-- Every map into `N / I ^ n N` kills `I ^ n M`. -/
 @[stacks 09BB "factorization condition at an exact positive ideal power"]
@@ -243,7 +280,15 @@ theorem exactPow_smul_le_ker
     (M : Type v) [AddCommGroup M] [Module R M]
     (N : Type w) [AddCommGroup N] [Module R N]
     (n : ℕ+) (f : exactStage I M N n) :
-    I ^ (n : ℕ) • (⊤ : Submodule R M) ≤ LinearMap.ker f := sorry
+    I ^ (n : ℕ) • (⊤ : Submodule R M) ≤ LinearMap.ker f := by
+  refine Submodule.smul_le.mpr ?_
+  intro r hr x _
+  change f (r • x) = 0
+  rw [map_smul]
+  refine Submodule.Quotient.induction_on _ (f x) ?_
+  intro y
+  rw [← Submodule.Quotient.mk_smul, Submodule.Quotient.mk_eq_zero]
+  exact Submodule.smul_mem_smul hr Submodule.mem_top
 
 /-- The linear operation factoring a map through the exact quotient `M / I ^ n M`. -/
 @[stacks 09BB "factorization through an exact positive source quotient"]
@@ -255,8 +300,18 @@ noncomputable def exactLiftDomain
   toFun f := Submodule.liftQ
     (I ^ (n : ℕ) • (⊤ : Submodule R M)) f
     (exactPow_smul_le_ker I M N n f)
-  map_add' := sorry
-  map_smul' := sorry
+  map_add' f g := by
+    apply LinearMap.ext
+    intro x
+    refine Submodule.Quotient.induction_on _ x ?_
+    intro y
+    rfl
+  map_smul' r f := by
+    apply LinearMap.ext
+    intro x
+    refine Submodule.Quotient.induction_on _ x ?_
+    intro y
+    rfl
 
 /-- The exact positive-stage equivalence
 `Hom_R(M / I ^ n M, N / I ^ n N) ≃ Hom_R(M, N / I ^ n N)`. -/
@@ -266,7 +321,18 @@ noncomputable def exactStageEquiv
     (M : Type v) [AddCommGroup M] [Module R M]
     (N : Type w) [AddCommGroup N] [Module R N]
     (n : ℕ+) : exactQuotientStage I M N n ≃ₗ[R] exactStage I M N n :=
-  LinearEquiv.ofLinear (exactRestrictDomain I M N n) (exactLiftDomain I M N n) sorry sorry
+  LinearEquiv.ofLinear (exactRestrictDomain I M N n) (exactLiftDomain I M N n)
+    (by
+      ext f x
+      rfl)
+    (by
+      apply LinearMap.ext
+      intro f
+      apply LinearMap.ext
+      intro x
+      refine Submodule.Quotient.induction_on _ x ?_
+      intro y
+      rfl)
 
 /-- Exact source-quotient factorization has the expected value on representatives. -/
 @[simp, stacks 09BB "exact source-quotient Hom factorization on representatives"]
@@ -275,7 +341,8 @@ theorem exactLiftDomain_mk
     (M : Type v) [AddCommGroup M] [Module R M]
     (N : Type w) [AddCommGroup N] [Module R N]
     (n : ℕ+) (f : exactStage I M N n) (x : M) :
-    exactLiftDomain I M N n f (Submodule.Quotient.mk x) = f x := sorry
+    exactLiftDomain I M N n f (Submodule.Quotient.mk x) = f x := by
+  rfl
 
 /-- The forward map of `exactStageEquiv` is precomposition with the exact quotient map. -/
 @[simp, stacks 09BB "application of the exact quotient-domain Hom equivalence"]
@@ -284,7 +351,8 @@ theorem exactStageEquiv_apply
     (M : Type v) [AddCommGroup M] [Module R M]
     (N : Type w) [AddCommGroup N] [Module R N]
     (n : ℕ+) (f : exactQuotientStage I M N n) :
-    exactStageEquiv I M N n f = exactRestrictDomain I M N n f := sorry
+    exactStageEquiv I M N n f = exactRestrictDomain I M N n f := by
+  rfl
 
 /-- The inverse map of `exactStageEquiv` is the explicit quotient factorization map. -/
 @[simp, stacks 09BB "inverse of the exact quotient-domain Hom equivalence"]
@@ -293,7 +361,8 @@ theorem exactStageEquiv_symm_apply
     (M : Type v) [AddCommGroup M] [Module R M]
     (N : Type w) [AddCommGroup N] [Module R N]
     (n : ℕ+) (f : exactStage I M N n) :
-    (exactStageEquiv I M N n).symm f = exactLiftDomain I M N n f := sorry
+    (exactStageEquiv I M N n).symm f = exactLiftDomain I M N n f := by
+  rfl
 
 /-- Pointwise reduction sends a linear map `M →ₗ[R] N` to a map
 `M →ₗ[R] N / I ^ n N`. -/
@@ -304,8 +373,12 @@ noncomputable def exactReduction
     (N : Type w) [AddCommGroup N] [Module R N]
     (n : ℕ+) : (M →ₗ[R] N) →ₗ[R] exactStage I M N n where
   toFun f := (Ideal.PowerQuotient.mk I (ModuleCat.of R N) (n : ℕ)).comp f
-  map_add' := sorry
-  map_smul' := sorry
+  map_add' f g := by
+    ext x
+    rfl
+  map_smul' r f := by
+    ext x
+    rfl
 
 /-- The canonical comparison from the exact quotient of `Hom_R(M, N)` to maps from `M` into
 `N / I ^ n N`. -/
@@ -318,7 +391,14 @@ noncomputable def exactComparison
     Ideal.PowerQuotient I (M →ₗ[R] N) (n : ℕ) →ₗ[R] exactStage I M N n :=
   Submodule.liftQ
     (I ^ (n : ℕ) • (⊤ : Submodule R (M →ₗ[R] N)))
-    (exactReduction I M N n) sorry
+    (exactReduction I M N n) (by
+      refine Submodule.smul_le.mpr ?_
+      intro r hr f _
+      change exactReduction I M N n (r • f) = 0
+      ext x
+      change (Submodule.Quotient.mk (r • f x) : Ideal.PowerQuotient I N (n : ℕ)) = 0
+      exact (Submodule.Quotient.mk_eq_zero _).mpr
+        (Submodule.smul_mem_smul hr Submodule.mem_top))
 
 /-- The canonical comparison from the exact quotient of `Hom_R(M, N)` to maps between the exact
 quotient stages of `M` and `N`. -/
@@ -351,7 +431,8 @@ theorem restrictDomain_apply
     (M : Type v) [AddCommGroup M] [Module R M]
     (N : Type w) [AddCommGroup N] [Module R N]
     (n : ℕ) (f : quotientStage I M N n) (x : M) :
-    restrictDomain I M N n f x = f (Submodule.Quotient.mk x) := sorry
+    restrictDomain I M N n f x = f (Submodule.Quotient.mk x) := by
+  rfl
 
 /-- Every map into `N / I ^ (n + 1) N` kills `I ^ (n + 1) M`. -/
 @[stacks 09BB "factorization condition for quotienting the Hom source"]
@@ -360,7 +441,8 @@ theorem pow_smul_le_ker_stage
     (M : Type v) [AddCommGroup M] [Module R M]
     (N : Type w) [AddCommGroup N] [Module R N]
     (n : ℕ) (f : stage I M N n) :
-    I ^ (n + 1) • (⊤ : Submodule R M) ≤ LinearMap.ker f := sorry
+    I ^ (n + 1) • (⊤ : Submodule R M) ≤ LinearMap.ker f := by
+  exact exactPow_smul_le_ker I M N ⟨n + 1, Nat.succ_pos n⟩ f
 
 /-- Factoring maps through the source quotient is additive. -/
 @[stacks 09BB "additivity of source-quotient factorization"]
@@ -377,7 +459,12 @@ theorem liftDomain_add
           (pow_smul_le_ker_stage I M N n f) +
         Submodule.liftQ
           (I ^ (n + 1) • (⊤ : Submodule R M)) g
-          (pow_smul_le_ker_stage I M N n g) := sorry
+          (pow_smul_le_ker_stage I M N n g) := by
+  apply LinearMap.ext
+  intro x
+  refine Submodule.Quotient.induction_on _ x ?_
+  intro y
+  rfl
 
 /-- Factoring maps through the source quotient is compatible with scalar multiplication. -/
 @[stacks 09BB "linearity of source-quotient factorization"]
@@ -391,7 +478,12 @@ theorem liftDomain_smul
         (pow_smul_le_ker_stage I M N n (r • f)) =
       r • Submodule.liftQ
         (I ^ (n + 1) • (⊤ : Submodule R M)) f
-        (pow_smul_le_ker_stage I M N n f) := sorry
+        (pow_smul_le_ker_stage I M N n f) := by
+  apply LinearMap.ext
+  intro x
+  refine Submodule.Quotient.induction_on _ x ?_
+  intro y
+  rfl
 
 /-- The linear operation that factors a map through `M / I ^ (n + 1) M`. -/
 @[stacks 09BB "factorization through the positive ideal-power source quotient"]
@@ -413,7 +505,8 @@ theorem liftDomain_mk
     (M : Type v) [AddCommGroup M] [Module R M]
     (N : Type w) [AddCommGroup N] [Module R N]
     (n : ℕ) (f : stage I M N n) (x : M) :
-    liftDomain I M N n f (Submodule.Quotient.mk x) = f x := sorry
+    liftDomain I M N n f (Submodule.Quotient.mk x) = f x := by
+  rfl
 
 /-- Restricting after source-quotient factorization is the identity. -/
 @[stacks 09BB "source-quotient Hom factorization inverse law"]
@@ -422,7 +515,9 @@ theorem restrictDomain_comp_liftDomain
     (M : Type v) [AddCommGroup M] [Module R M]
     (N : Type w) [AddCommGroup N] [Module R N]
     (n : ℕ) :
-    (restrictDomain I M N n).comp (liftDomain I M N n) = LinearMap.id := sorry
+    (restrictDomain I M N n).comp (liftDomain I M N n) = LinearMap.id := by
+  ext f x
+  rfl
 
 /-- Factoring after restriction along the source quotient is the identity. -/
 @[stacks 09BB "quotient-stage Hom restriction inverse law"]
@@ -431,7 +526,14 @@ theorem liftDomain_comp_restrictDomain
     (M : Type v) [AddCommGroup M] [Module R M]
     (N : Type w) [AddCommGroup N] [Module R N]
     (n : ℕ) :
-    (liftDomain I M N n).comp (restrictDomain I M N n) = LinearMap.id := sorry
+    (liftDomain I M N n).comp (restrictDomain I M N n) = LinearMap.id := by
+  apply LinearMap.ext
+  intro f
+  apply LinearMap.ext
+  intro x
+  refine Submodule.Quotient.induction_on _ x ?_
+  intro y
+  rfl
 
 /-- The canonical equivalence
 `Hom_R(M / I ^ (n + 1) M, N / I ^ (n + 1) N) ≃ Hom_R(M, N / I ^ (n + 1) N)`. -/
@@ -452,7 +554,8 @@ theorem quotientStageEquiv_apply
     (M : Type v) [AddCommGroup M] [Module R M]
     (N : Type w) [AddCommGroup N] [Module R N]
     (n : ℕ) (f : quotientStage I M N n) :
-    quotientStageEquiv I M N n f = restrictDomain I M N n f := sorry
+    quotientStageEquiv I M N n f = restrictDomain I M N n f := by
+  rfl
 
 /-- The inverse of `quotientStageEquiv` is the explicit quotient factorization map. -/
 @[simp, stacks 09BB "inverse of the quotient-domain Hom equivalence"]
@@ -461,7 +564,8 @@ theorem quotientStageEquiv_symm_apply
     (M : Type v) [AddCommGroup M] [Module R M]
     (N : Type w) [AddCommGroup N] [Module R N]
     (n : ℕ) (f : stage I M N n) :
-    (quotientStageEquiv I M N n).symm f = liftDomain I M N n f := sorry
+    (quotientStageEquiv I M N n).symm f = liftDomain I M N n f := by
+  rfl
 
 /-- Postcomposition with quotient reduction gives the successor transition on the Hom stages. -/
 @[stacks 09BB "transition on the positive ideal-power Hom system"]
@@ -517,7 +621,8 @@ theorem quotientStageEquiv_quotientStep
     (N : Type w) [AddCommGroup N] [Module R N]
     (n : ℕ) (f : quotientStage I M N (n + 1)) :
     quotientStageEquiv I M N n (quotientStep I M N n f) =
-      step I M N n (quotientStageEquiv I M N (n + 1) f) := sorry
+      step I M N n (quotientStageEquiv I M N (n + 1) f) := by
+  exact (quotientStageEquiv I M N n).apply_symm_apply _
 
 /-- The stage equivalences between the source-facing and canonical Hom models are natural in the
 inverse-system index. -/
@@ -530,7 +635,16 @@ theorem quotientSystemIso_naturality
     (quotientSystem I M N).map f ≫
         (quotientStageEquiv I M N j.unop).toModuleIso.hom =
       (quotientStageEquiv I M N i.unop).toModuleIso.hom ≫
-        (system I M N).map f := sorry
+        (system I M N).map f := by
+  exact (NatTrans.ofOpSequence
+    (F := quotientSystem I M N) (G := system I M N)
+    (fun n ↦ (quotientStageEquiv I M N n).toModuleIso.hom)
+    (fun n ↦ by
+      simp only [quotientSystem, system, Functor.ofOpSequence_map_homOfLE_succ]
+      apply ModuleCat.hom_ext
+      apply LinearMap.ext
+      intro g
+      exact quotientStageEquiv_quotientStep I M N n g)).naturality f
 
 /-- The source-facing system of maps between quotient stages is naturally isomorphic to the
 canonical system `n ↦ Hom_R(M, N / I ^ (n + 1) N)`. -/
@@ -552,7 +666,8 @@ theorem quotientSystemIso_hom_app
     (N : Type w) [AddCommGroup N] [Module R N]
     (n : ℕ) :
     (quotientSystemIso I M N).hom.app (op n) =
-      (quotientStageEquiv I M N n).toModuleIso.hom := sorry
+      (quotientStageEquiv I M N n).toModuleIso.hom := by
+  rfl
 
 /-- The inverse component of `quotientSystemIso` is quotient factorization in the source. -/
 @[simp, stacks 09BB "inverse component of the quotient-domain Hom system isomorphism"]
@@ -562,7 +677,8 @@ theorem quotientSystemIso_inv_app
     (N : Type w) [AddCommGroup N] [Module R N]
     (n : ℕ) :
     (quotientSystemIso I M N).inv.app (op n) =
-      (quotientStageEquiv I M N n).toModuleIso.inv := sorry
+      (quotientStageEquiv I M N n).toModuleIso.inv := by
+  rfl
 
 /-- Applying the Hom transition reduces the value of a map by one ideal-power stage. -/
 @[simp, stacks 09BB "application of the positive ideal-power Hom transition"]
@@ -571,7 +687,8 @@ theorem step_apply
     (M : Type v) [AddCommGroup M] [Module R M]
     (N : Type w) [AddCommGroup N] [Module R N]
     (n : ℕ) (f : stage I M N (n + 1)) (x : M) :
-    step I M N n f x = (positiveStep I (ModuleCat.of R N) n).hom (f x) := sorry
+    step I M N n f x = (positiveStep I (ModuleCat.of R N) n).hom (f x) := by
+  rfl
 
 /-- The object at index `n` in the Hom system is its explicit stage. -/
 @[simp, stacks 09BB "object of the positive ideal-power Hom system"]
@@ -580,7 +697,8 @@ theorem system_obj
     (M : Type v) [AddCommGroup M] [Module R M]
     (N : Type w) [AddCommGroup N] [Module R N]
     (n : ℕ) :
-    (system I M N).obj (op n) = ModuleCat.of R (stage I M N n) := sorry
+    (system I M N).obj (op n) = ModuleCat.of R (stage I M N n) := by
+  rfl
 
 /-- The successor map of the Hom system is the explicit postcomposition transition. -/
 @[simp, stacks 09BB "successor map of the positive ideal-power Hom system"]
@@ -589,7 +707,8 @@ theorem system_stepMap
     (M : Type v) [AddCommGroup M] [Module R M]
     (N : Type w) [AddCommGroup N] [Module R N]
     (n : ℕ) :
-    (system I M N).stepMap n = ModuleCat.ofHom (step I M N n) := sorry
+    (system I M N).stepMap n = ModuleCat.ofHom (step I M N n) := by
+  exact Functor.ofOpSequence_map_homOfLE_succ _ n
 
 /-- The object at index `n` in the source-facing Hom system is the explicit quotient-domain
 stage. -/
@@ -600,7 +719,8 @@ theorem quotientSystem_obj
     (N : Type w) [AddCommGroup N] [Module R N]
     (n : ℕ) :
     (quotientSystem I M N).obj (op n) =
-      ModuleCat.of R (quotientStage I M N n) := sorry
+      ModuleCat.of R (quotientStage I M N n) := by
+  rfl
 
 /-- The successor map of the source-facing Hom system is `quotientStep`. -/
 @[simp, stacks 09BB "successor map of the quotient-domain Hom system"]
@@ -609,7 +729,8 @@ theorem quotientSystem_stepMap
     (M : Type v) [AddCommGroup M] [Module R M]
     (N : Type w) [AddCommGroup N] [Module R N]
     (n : ℕ) :
-    (quotientSystem I M N).stepMap n = ModuleCat.ofHom (quotientStep I M N n) := sorry
+    (quotientSystem I M N).stepMap n = ModuleCat.ofHom (quotientStep I M N n) := by
+  exact Functor.ofOpSequence_map_homOfLE_succ _ n
 
 /-- The canonical map `Hom_R(M, N) → Hom_R(M, N / I ^ (n + 1) N)`. -/
 @[stacks 09BB "reduction into a positive ideal-power Hom stage"]
@@ -630,7 +751,8 @@ theorem reduction_apply
     (N : Type w) [AddCommGroup N] [Module R N]
     (n : ℕ) (f : M →ₗ[R] N) (x : M) :
     reduction I M N n f x =
-      (Submodule.Quotient.mk (f x) : positive I N n) := sorry
+      (Submodule.Quotient.mk (f x) : positive I N n) := by
+  rfl
 
 /-- Reduction to consecutive Hom stages commutes with the successor transition. -/
 @[stacks 09BB "successor compatibility of reduction into Hom stages"]
@@ -640,7 +762,9 @@ theorem reduction_step
     (N : Type w) [AddCommGroup N] [Module R N]
     (n : ℕ) :
     (step I M N n).comp (reduction I M N (n + 1)) =
-      reduction I M N n := sorry
+      reduction I M N n := by
+  ext f x
+  rfl
 
 /-- The submodule `I ^ (n + 1) Hom_R(M, N)` lies in the kernel of pointwise reduction. -/
 @[stacks 09BB "kernel condition for the quotient Hom comparison"]
@@ -650,7 +774,14 @@ theorem pow_smul_le_ker_reduction
     (N : Type w) [AddCommGroup N] [Module R N]
     (n : ℕ) :
     I ^ (n + 1) • (⊤ : Submodule R (M →ₗ[R] N)) ≤
-      LinearMap.ker (reduction I M N n) := sorry
+      LinearMap.ker (reduction I M N n) := by
+  refine Submodule.smul_le.mpr ?_
+  intro r hr f _
+  change reduction I M N n (r • f) = 0
+  ext x
+  change (Submodule.Quotient.mk (r • f x) : positive I N n) = 0
+  exact (Submodule.Quotient.mk_eq_zero _).mpr
+    (Submodule.smul_mem_smul hr Submodule.mem_top)
 
 /-- The canonical comparison
 `Hom_R(M, N) / I ^ (n + 1) Hom_R(M, N) → Hom_R(M, N / I ^ (n + 1) N)`. -/
@@ -675,7 +806,8 @@ theorem comparison_mk
     (n : ℕ) (f : M →ₗ[R] N) :
     comparison I M N n
         (Submodule.Quotient.mk f : positive I (M →ₗ[R] N) n) =
-      reduction I M N n f := sorry
+      reduction I M N n f := by
+  rfl
 
 /-- Pointwise, the quotient-Hom comparison sends `[f]` to `x ↦ [f x]`. -/
 @[simp, stacks 09BB "pointwise quotient Hom comparison on representatives"]
@@ -686,7 +818,8 @@ theorem comparison_mk_apply
     (n : ℕ) (f : M →ₗ[R] N) (x : M) :
     comparison I M N n
         (Submodule.Quotient.mk f : positive I (M →ₗ[R] N) n) x =
-      (Submodule.Quotient.mk (f x) : positive I N n) := sorry
+      (Submodule.Quotient.mk (f x) : positive I N n) := by
+  rfl
 
 /-- The quotient-Hom comparisons commute with the successor transitions. -/
 @[stacks 09BB "successor compatibility of the quotient Hom comparison"]
@@ -697,7 +830,14 @@ theorem comparison_step
     (n : ℕ) :
     (comparison I M N n).comp
         (positiveStep I (ModuleCat.of R (M →ₗ[R] N)) n).hom =
-      (step I M N n).comp (comparison I M N (n + 1)) := sorry
+      (step I M N n).comp (comparison I M N (n + 1)) := by
+  apply LinearMap.ext
+  intro x
+  refine Submodule.Quotient.induction_on _ x ?_
+  intro f
+  apply LinearMap.ext
+  intro y
+  rfl
 
 /-- The quotient-Hom comparison with the source-facing target
 `Hom_R(M / I ^ (n + 1) M, N / I ^ (n + 1) N)`. -/
@@ -720,7 +860,8 @@ theorem quotientComparison_mk
     (n : ℕ) (f : M →ₗ[R] N) :
     quotientComparison I M N n
         (Submodule.Quotient.mk f : positive I (M →ₗ[R] N) n) =
-      (quotientStageEquiv I M N n).symm (reduction I M N n f) := sorry
+      (quotientStageEquiv I M N n).symm (reduction I M N n f) := by
+  rfl
 
 /-- The source-facing quotient-Hom comparisons commute with quotient-stage transitions. -/
 @[stacks 09BB "successor compatibility of the quotient-domain comparison"]
@@ -731,7 +872,18 @@ theorem quotientComparison_step
     (n : ℕ) :
     (quotientComparison I M N n).comp
         (positiveStep I (ModuleCat.of R (M →ₗ[R] N)) n).hom =
-      (quotientStep I M N n).comp (quotientComparison I M N (n + 1)) := sorry
+      (quotientStep I M N n).comp (quotientComparison I M N (n + 1)) := by
+  apply LinearMap.ext
+  intro x
+  apply (quotientStageEquiv I M N n).injective
+  change comparison I M N n
+      ((positiveStep I (ModuleCat.of R (M →ₗ[R] N)) n).hom x) =
+    quotientStageEquiv I M N n
+      (quotientStep I M N n (quotientComparison I M N (n + 1) x))
+  rw [quotientStageEquiv_quotientStep]
+  simp only [quotientComparison, LinearMap.comp_apply, LinearEquiv.coe_coe,
+    LinearEquiv.apply_symm_apply]
+  exact LinearMap.congr_fun (comparison_step I M N n) x
 
 /-- The component of the source-facing quotient-Hom comparison in the inverse-system category. -/
 @[stacks 09BB "component of the quotient-domain comparison"]
@@ -755,7 +907,13 @@ theorem quotientComparisonApp_naturality
     (n : ℕ) :
     (positiveSystem I (ModuleCat.of R (M →ₗ[R] N))).stepMap n ≫
         quotientComparisonApp I M N n =
-      quotientComparisonApp I M N (n + 1) ≫ (quotientSystem I M N).stepMap n := sorry
+      quotientComparisonApp I M N (n + 1) ≫ (quotientSystem I M N).stepMap n := by
+  rw [positiveSystem_stepMap, quotientSystem_stepMap]
+  apply ModuleCat.hom_ext
+  change (quotientComparison I M N n).comp
+      (positiveStep I (ModuleCat.of R (M →ₗ[R] N)) n).hom =
+    (quotientStep I M N n).comp (quotientComparison I M N (n + 1))
+  exact quotientComparison_step I M N n
 
 /-- The natural transformation from the positive quotient system of `Hom_R(M, N)` to the
 source-facing quotient-domain Hom system. -/
@@ -776,7 +934,8 @@ theorem quotientComparisonNatTrans_app
     (M : Type v) [AddCommGroup M] [Module R M]
     (N : Type w) [AddCommGroup N] [Module R N]
     (n : ℕ) :
-    (quotientComparisonNatTrans I M N).app (op n) = quotientComparisonApp I M N n := sorry
+    (quotientComparisonNatTrans I M N).app (op n) = quotientComparisonApp I M N n := by
+  rfl
 
 /-- The comparison component between the canonical quotient system of `Hom_R(M, N)` and the
 positive ideal-power Hom system. -/
@@ -801,7 +960,13 @@ theorem comparisonApp_naturality
     (n : ℕ) :
     (positiveSystem I (ModuleCat.of R (M →ₗ[R] N))).stepMap n ≫
         comparisonApp I M N n =
-      comparisonApp I M N (n + 1) ≫ (system I M N).stepMap n := sorry
+      comparisonApp I M N (n + 1) ≫ (system I M N).stepMap n := by
+  rw [positiveSystem_stepMap, system_stepMap]
+  apply ModuleCat.hom_ext
+  change (comparison I M N n).comp
+      (positiveStep I (ModuleCat.of R (M →ₗ[R] N)) n).hom =
+    (step I M N n).comp (comparison I M N (n + 1))
+  exact comparison_step I M N n
 
 /-- The canonical natural transformation from the positive quotient system of `Hom_R(M, N)`
 to the system `n ↦ Hom_R(M, N / I ^ (n + 1) N)`. -/
@@ -822,6 +987,7 @@ theorem comparisonNatTrans_app
     (M : Type v) [AddCommGroup M] [Module R M]
     (N : Type w) [AddCommGroup N] [Module R N]
     (n : ℕ) :
-    (comparisonNatTrans I M N).app (op n) = comparisonApp I M N n := sorry
+    (comparisonNatTrans I M N).app (op n) = comparisonApp I M N n := by
+  rfl
 
 end Ideal.PowerQuotient.Hom

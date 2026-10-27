@@ -46,7 +46,8 @@ namespace opensRingedSiteHom.DerivedPushforward
 
 /-- Direct image along an opens-ringed-site morphism has the canonical total right derived
 functor supplied by the Grothendieck-abelian module category. -/
-instance hasDerived {X Y : RingedSpace.{u}} (f : X ⟶ Y) :
+@[instance]
+theorem hasDerived {X Y : RingedSpace.{u}} (f : X ⟶ Y) :
     Functor.HasRightDerivedFunctor
       (_root_.RingedSite.Hom.modulePushforwardToDerived.{u} (opensRingedSiteHom f))
       (_root_.RingedSite.Hom.ModuleQis.{u} X.opensRingedSite) := by
@@ -57,13 +58,13 @@ namespace Composition
 
 /-- Direct image along a composite of opens-ringed-site morphisms has the same canonical total
 right derived functor. -/
-instance hasDerived {X Y Z : RingedSpace.{u}} (f : X ⟶ Y) (g : Y ⟶ Z) :
+theorem hasDerived {X Y Z : RingedSpace.{u}} (f : X ⟶ Y) (g : Y ⟶ Z) :
     Functor.HasRightDerivedFunctor
       (_root_.RingedSite.Hom.modulePushforwardToDerived.{u}
-        (opensRingedSiteHom f ≫ opensRingedSiteHom g))
+        (_root_.RingedSite.Hom.comp (opensRingedSiteHom f) (opensRingedSiteHom g)))
       (_root_.RingedSite.Hom.ModuleQis.{u} X.opensRingedSite) := by
   exact _root_.RingedSite.Hom.modulePushforwardToDerived.hasRightDerived.{u}
-    (opensRingedSiteHom f ≫ opensRingedSiteHom g)
+    (_root_.RingedSite.Hom.comp (opensRingedSiteHom f) (opensRingedSiteHom g))
 
 end Composition
 end opensRingedSiteHom.DerivedPushforward

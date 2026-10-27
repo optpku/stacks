@@ -95,13 +95,13 @@ trivial summand. -/
 noncomputable def infinityLift (π : E ⟶ X)
     (hπ : ProjectiveBundle.Representation π (C ⊞ 𝟙_ X.Modules)) :
     ProjectiveBundle.Lift π (𝟙 X) :=
-  (ProjectiveBundle.sectionLiftEquiv π hπ).symm (infinityQuotient C)
+  (ProjectiveBundle.sectionLiftEquiv π hπ).symm (CategoryTheory.InvertibleQuotient.IsoClass.mk (infinityQuotient C))
 
 /-- The quotient associated to `infinityLift` is the quotient onto the trivial summand. -/
 theorem infinityLift_spec (π : E ⟶ X)
     (hπ : ProjectiveBundle.Representation π (C ⊞ 𝟙_ X.Modules)) :
     ProjectiveBundle.sectionLiftEquiv π hπ (infinityLift C π hπ) =
-      infinityQuotient C := sorry
+      CategoryTheory.InvertibleQuotient.IsoClass.mk (infinityQuotient C) := sorry
 
 /-- The section of the projective compactification defined by the quotient onto the trivial
 summand. -/

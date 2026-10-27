@@ -6,12 +6,11 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import stacks_project.Chap76.Lemma_76_15_12_Differentials
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Thickening.UniversalFirstOrder.Differentials
 import StacksCheckRecall
 
 open CategoryTheory AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
 open AlgebraicGeometry.AlgebraicSpace.Hom
-open AlgebraicGeometry.AlgebraicSpace.IsUniversalFirstOrder
 
 noncomputable section
 
@@ -27,7 +26,8 @@ variable (w : i ≫ h' = h)
 with `i^* (h')^* Ω_{X/B}`. Source notation `Ω_{Z'/B} ⊗ 𝒪_Z` is
 `(Modules.pullback i).obj (relativeDifferentials (h' ≫ f))`. -/
 #check
-  (pullbackDifferentialsComparison i h' h f w :
+  (AlgebraicGeometry.AlgebraicSpace.IsUniversalFirstOrder.pullbackDifferentialsComparison
+    i h' h f w :
     (Modules.pullback h).obj (relativeDifferentials f) ⟶
       (Modules.pullback i).obj (relativeDifferentials (h' ≫ f)))
 
@@ -39,5 +39,7 @@ structure morphism `h' : Z' ⟶ X`, then the canonical comparison
 `h^* Ω_{X/B} ⟶ i^* Ω_{Z'/B}`. -/
 @[stacks 060E]
 #check
-  (pullbackDifferentialsComparison_isIso i h' h f w :
-    IsIso (pullbackDifferentialsComparison i h' h f w))
+  (AlgebraicGeometry.AlgebraicSpace.IsUniversalFirstOrder.pullbackDifferentialsComparison_isIso
+    i h' h f w :
+    IsIso (AlgebraicGeometry.AlgebraicSpace.IsUniversalFirstOrder.pullbackDifferentialsComparison
+      i h' h f w))

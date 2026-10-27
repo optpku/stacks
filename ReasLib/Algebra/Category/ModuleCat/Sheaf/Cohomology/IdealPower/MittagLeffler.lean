@@ -55,9 +55,9 @@ theorem isMittagLeffler_of_isNoetherian
     {I : Ideal A}
     {F : PNatInverseSystem (Sheaf J (ModuleCat.{max u v w} A))}
     (P : PNatInverseSystem.IdealPower.Presentation I F) (p : ℕ)
-    [Action P p]
+    [Action P (p + 1)]
     [IsNoetherian (Ideal.AssociatedGraded.ring I)
-      (SiteModuleCohomology.directSum (terms P) p)] :
+      (SiteModuleCohomology.directSum (terms P) (p + 1))] :
     SequentialInverseSystem.IsMittagLeffler
       (siteModuleCohomologyTower F.toSequential p) := sorry
 
@@ -82,8 +82,8 @@ theorem isMittagLeffler_of_isNoetherian
     {I : Ideal A}
     {F : PNatInverseSystem (Sheaf J (ModuleCat.{max u v w} A))}
     (P : PNatInverseSystem.IdealPower.Family I F) (p : ℕ)
-    [Action P p]
-    [IsNoetherian (Ideal.AssociatedGraded.ring I) (directSum P p)] :
+    [Action P (p + 1)]
+    [IsNoetherian (Ideal.AssociatedGraded.ring I) (directSum P (p + 1))] :
     SequentialInverseSystem.IsMittagLeffler
       (siteModuleCohomologyTower F.toSequential p) := sorry
 

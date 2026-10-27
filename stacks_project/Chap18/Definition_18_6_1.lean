@@ -14,7 +14,7 @@ import StacksCheckRecall
 /-!
 # Definition 18.6.1
 
-The textbook ringed-site object and its category are supplied by the reusable owner
+The ringed-site object and its explicit identity and composition operations are supplied by the reusable owner
 `RingedSite` in `ReasLib.AlgebraicGeometry.RingedSite.Basic`.
 -/
 
@@ -36,9 +36,9 @@ adjoint structure-sheaf maps. -/
 variable (Z : RingedSite.{uZ, vZ, w})
   (f : RingedSite.Hom X Y) (g : RingedSite.Hom Y Z)
 
-/- Definition 18.6.1 (3): morphisms compose across independent site universes; the category
-instance on each fixed universe level specializes this operation to `≫`. -/
+/- Definition 18.6.1 (3): morphisms compose across independent site universes through the
+explicit composition operation on ringed-site morphisms. -/
 @[stacks 03AD "(3)"]
 #check (RingedSite.Hom.comp f g : RingedSite.Hom X Z)
 
-#check (inferInstance : Category.{max u v w} (RingedSite.{u, v, w}))
+#check (RingedSite.Hom.id X : RingedSite.Hom X X)

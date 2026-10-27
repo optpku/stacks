@@ -16,14 +16,14 @@ import StacksCheckRecall
 
 @stack 090Q
 
-The canonical owner uses the Bezout-domain formulation; the second recall is
-the source-facing finitely-generated-ideal criterion.
+The canonical owner uses the Bezout-domain formulation.  The defining field
+`IsBezout.isPrincipal_of_FG` is precisely the source's condition that every
+finitely generated ideal is principal.
 -/
 
-/- Lemma 10.50.15 (Tag 090Q): the canonical owner criterion is `ValuationRing.iff_local_bezout_domain`; the
-finitely-generated-ideal presentation is the reusable shared bridge. -/
+/- Lemma 10.50.15 (Tag 090Q): a domain is a valuation ring iff it is local and Bezout. -/
 @[stacks 090Q "canonical Bezout-domain criterion"]
 #check @ValuationRing.iff_local_bezout_domain
 
 @[stacks 090Q "source finitely-generated-ideal criterion"]
-#check @ValuationRing.iff_local_and_fg_ideals_principal
+#check @IsBezout.isPrincipal_of_FG

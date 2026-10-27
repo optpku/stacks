@@ -45,7 +45,10 @@ abbrev arrowStage {M : C} (f : End M) (n : ℕ) : Arrow C :=
 /-- The commutative square from `f^(n+2)` to `f^(n+1)` with sides `f` and `𝟙`. -/
 @[stacks 0H3D "endomorphism power lowering square"]
 theorem stepSquare_comm {M : C} (f : End M) (n : ℕ) :
-    f ≫ (f ^ (n + 1)) = (f ^ (n + 2)) ≫ 𝟙 M := sorry
+    f ≫ (f ^ (n + 1)) = (f ^ (n + 2)) ≫ 𝟙 M := by
+  rw [Category.comp_id]
+  change (f ^ (n + 1) * f : End M) = f ^ (n + 2)
+  exact (pow_succ f (n + 1)).symm
 
 /-- The arrow-category transition between consecutive positive powers of an endomorphism. -/
 @[stacks 0H3D "endomorphism power lowering square morphism"]
@@ -61,17 +64,21 @@ abbrev arrowSystem {M : C} (f : End M) : SequentialInverseSystem (Arrow C) :=
 /-- The object at stage `n` of the inverse system of power arrows. -/
 @[simp, stacks 0H3D "endomorphism power arrow system object"]
 theorem arrowSystem_obj {M : C} (f : End M) (n : ℕ) :
-    (arrowSystem f).obj (op n) = arrowStage f n := sorry
+    (arrowSystem f).obj (op n) = arrowStage f n := rfl
 
 /-- The successor map of the inverse system of power arrows. -/
 @[simp, stacks 0H3D "endomorphism power arrow system transition"]
 theorem arrowSystem_stepMap {M : C} (f : End M) (n : ℕ) :
-    (arrowSystem f).stepMap n = stepSquare f n := sorry
+    (arrowSystem f).stepMap n = stepSquare f n := by
+  exact Functor.ofOpSequence_map_homOfLE_succ (stepSquare f) n
 
 /-- The commutative square from `f^(n+1)` to `f^(n+2)` with sides `𝟙` and `f`. -/
 @[stacks 0H3D "endomorphism power raising square"]
 theorem raiseSquare_comm {M : C} (f : End M) (n : ℕ) :
-    𝟙 M ≫ (f ^ (n + 2)) = (f ^ (n + 1)) ≫ f := sorry
+    𝟙 M ≫ (f ^ (n + 2)) = (f ^ (n + 1)) ≫ f := by
+  rw [Category.id_comp]
+  change (f ^ (n + 2) : End M) = f * f ^ (n + 1)
+  exact pow_succ' f (n + 1)
 
 /-- The arrow-category map from one positive power of an endomorphism to the next. -/
 @[stacks 0H3D "endomorphism power raising square morphism"]
@@ -87,12 +94,13 @@ abbrev arrowDirectSystem {M : C} (f : End M) : ℕ ⥤ Arrow C :=
 /-- The object at stage `n` of the direct system of power arrows. -/
 @[simp, stacks 0H3D "endomorphism power arrow direct system object"]
 theorem arrowDirectSystem_obj {M : C} (f : End M) (n : ℕ) :
-    (arrowDirectSystem f).obj n = arrowStage f n := sorry
+    (arrowDirectSystem f).obj n = arrowStage f n := rfl
 
 /-- The successor map of the direct system of power arrows. -/
 @[simp, stacks 0H3D "endomorphism power arrow direct system transition"]
 theorem arrowDirectSystem_map_succ {M : C} (f : End M) (n : ℕ) :
-    (arrowDirectSystem f).map (homOfLE (Nat.le_succ n)) = raiseSquare f n := sorry
+    (arrowDirectSystem f).map (homOfLE (Nat.le_succ n)) = raiseSquare f n := by
+  exact Functor.ofSequence_map_homOfLE_succ (raiseSquare f) n
 
 section ZeroMorphisms
 
@@ -106,7 +114,9 @@ abbrev kernelStage [HasKernels C] {M : C} (f : End M) (n : ℕ) : C :=
 /-- The power-kernel successor relation. -/
 @[stacks 0H3D "endomorphism power kernel zero relation"]
 theorem kernelStep_zero [HasKernels C] {M : C} (f : End M) (n : ℕ) :
-    (kernel.ι (f ^ (n + 2)) ≫ f) ≫ (f ^ (n + 1)) = 0 := sorry
+    (kernel.ι (f ^ (n + 2)) ≫ f) ≫ (f ^ (n + 1)) = 0 := by
+  rw [Category.assoc, stepSquare_comm, Category.comp_id]
+  exact kernel.condition _
 
 /-- The transition from the kernel of `f^(n+2)` to the kernel of `f^(n+1)`, obtained by
 functoriality of kernels. -/
@@ -119,7 +129,8 @@ noncomputable abbrev kernelStep [HasKernels C] {M : C} (f : End M) (n : ℕ) :
 @[simp, reassoc, stacks 0H3D "endomorphism power kernel transition factorization"]
 theorem kernelStep_comp_ι [HasKernels C] {M : C} (f : End M) (n : ℕ) :
     kernelStep f n ≫ kernel.ι (f ^ (n + 1)) =
-      kernel.ι (f ^ (n + 2)) ≫ f := sorry
+      kernel.ι (f ^ (n + 2)) ≫ f := by
+  simp [kernelStep, Limits.ker, stepSquare, arrowStage, Arrow.hom, Arrow.mk]
 
 /-- The inverse system of kernels of successive positive powers of an endomorphism. -/
 @[stacks 0H3D "endomorphism power kernel system"]
@@ -129,12 +140,15 @@ abbrev kernelSystem [HasKernels C] {M : C} (f : End M) : SequentialInverseSystem
 /-- The object at stage `n` of the inverse system of power kernels. -/
 @[simp, stacks 0H3D "endomorphism power kernel system object"]
 theorem kernelSystem_obj [HasKernels C] {M : C} (f : End M) (n : ℕ) :
-    (kernelSystem f).obj (op n) = kernelStage f n := sorry
+    (kernelSystem f).obj (op n) = kernelStage f n := rfl
 
 /-- The successor map of the inverse system of power kernels. -/
 @[simp, stacks 0H3D "endomorphism power kernel system transition"]
 theorem kernelSystem_stepMap [HasKernels C] {M : C} (f : End M) (n : ℕ) :
-    (kernelSystem f).stepMap n = kernelStep f n := sorry
+    (kernelSystem f).stepMap n = kernelStep f n := by
+  change (Limits.ker C).map ((arrowSystem f).stepMap n) = kernelStep f n
+  rw [arrowSystem_stepMap]
+  rfl
 
 /-- The canonical map from the kernel of `f^(n+1)` to the kernel of `f^(n+2)`. -/
 @[stacks 0H3D "endomorphism power kernel raising map"]
@@ -145,7 +159,8 @@ noncomputable abbrev kernelRaise [HasKernels C] {M : C} (f : End M) (n : ℕ) :
 /-- The raising map is characterized after composing with the next kernel inclusion. -/
 @[simp, reassoc, stacks 0H3D "endomorphism power kernel raising factorization"]
 theorem kernelRaise_comp_ι [HasKernels C] {M : C} (f : End M) (n : ℕ) :
-    kernelRaise f n ≫ kernel.ι (f ^ (n + 2)) = kernel.ι (f ^ (n + 1)) := sorry
+    kernelRaise f n ≫ kernel.ι (f ^ (n + 2)) = kernel.ι (f ^ (n + 1)) := by
+  simp [kernelRaise, Limits.ker, raiseSquare, arrowStage, Arrow.hom, Arrow.mk]
 
 /-- The direct system of kernels of successive positive powers of an endomorphism. -/
 @[stacks 0H3D "endomorphism power kernel direct system"]
@@ -155,12 +170,16 @@ abbrev kernelDirectSystem [HasKernels C] {M : C} (f : End M) : ℕ ⥤ C :=
 /-- The object at stage `n` of the direct system of power kernels. -/
 @[simp, stacks 0H3D "endomorphism power kernel direct system object"]
 theorem kernelDirectSystem_obj [HasKernels C] {M : C} (f : End M) (n : ℕ) :
-    (kernelDirectSystem f).obj n = kernelStage f n := sorry
+    (kernelDirectSystem f).obj n = kernelStage f n := rfl
 
 /-- The successor map of the direct system of power kernels. -/
 @[simp, stacks 0H3D "endomorphism power kernel direct system transition"]
 theorem kernelDirectSystem_map_succ [HasKernels C] {M : C} (f : End M) (n : ℕ) :
-    (kernelDirectSystem f).map (homOfLE (Nat.le_succ n)) = kernelRaise f n := sorry
+    (kernelDirectSystem f).map (homOfLE (Nat.le_succ n)) = kernelRaise f n := by
+  change (Limits.ker C).map ((arrowDirectSystem f).map (homOfLE (Nat.le_succ n))) =
+    kernelRaise f n
+  rw [arrowDirectSystem_map_succ]
+  rfl
 
 /-- The quotient stage associated to the `(n+1)`st power of an endomorphism. -/
 @[stacks 0H3D "endomorphism power quotient stage"]
@@ -170,7 +189,12 @@ abbrev quotientStage [HasCokernels C] {M : C} (f : End M) (n : ℕ) : C :=
 /-- The power-quotient successor relation. -/
 @[stacks 0H3D "endomorphism power quotient zero relation"]
 theorem quotientStep_zero [HasCokernels C] {M : C} (f : End M) (n : ℕ) :
-    (f ^ (n + 2)) ≫ cokernel.π (f ^ (n + 1)) = 0 := sorry
+    (f ^ (n + 2)) ≫ cokernel.π (f ^ (n + 1)) = 0 := by
+  calc
+    (f ^ (n + 2)) ≫ cokernel.π (f ^ (n + 1)) =
+        (f ≫ (f ^ (n + 1))) ≫ cokernel.π (f ^ (n + 1)) := by
+      rw [stepSquare_comm, Category.comp_id]
+    _ = 0 := by simp
 
 /-- The transition from the quotient by `f^(n+2)` to the quotient by `f^(n+1)`, obtained by
 functoriality of cokernels. -/
@@ -182,12 +206,15 @@ noncomputable abbrev quotientStep [HasCokernels C] {M : C} (f : End M) (n : ℕ)
 /-- The quotient transition is characterized by the cokernel projections. -/
 @[simp, reassoc, stacks 0H3D "endomorphism power quotient transition factorization"]
 theorem quotientStep_comp_π [HasCokernels C] {M : C} (f : End M) (n : ℕ) :
-    cokernel.π (f ^ (n + 2)) ≫ quotientStep f n = cokernel.π (f ^ (n + 1)) := sorry
+    cokernel.π (f ^ (n + 2)) ≫ quotientStep f n = cokernel.π (f ^ (n + 1)) := by
+  simp [quotientStep, Limits.coker, stepSquare, arrowStage, Arrow.hom, Arrow.mk]
 
 /-- The forward quotient map induced by one further multiplication by `f`. -/
 @[stacks 0H3D "endomorphism power quotient raising zero relation"]
 theorem quotientRaise_zero [HasCokernels C] {M : C} (f : End M) (n : ℕ) :
-    (f ^ (n + 1)) ≫ f ≫ cokernel.π (f ^ (n + 2)) = 0 := sorry
+    (f ^ (n + 1)) ≫ f ≫ cokernel.π (f ^ (n + 2)) = 0 := by
+  rw [← Category.assoc, ← raiseSquare_comm, Category.id_comp]
+  exact cokernel.condition _
 
 /-- The forward quotient map induced by one further multiplication by `f`. -/
 @[stacks 0H3D "endomorphism power quotient raising map"]
@@ -199,12 +226,15 @@ noncomputable def quotientRaise [HasCokernels C] {M : C} (f : End M) (n : ℕ) :
 @[simp, reassoc, stacks 0H3D "endomorphism power quotient raising factorization"]
 theorem quotientProjection_comp_raise [HasCokernels C] {M : C} (f : End M) (n : ℕ) :
     cokernel.π (f ^ (n + 1)) ≫ quotientRaise f n =
-      f ≫ cokernel.π (f ^ (n + 2)) := sorry
+      f ≫ cokernel.π (f ^ (n + 2)) := by
+  simp [quotientRaise, Limits.coker, raiseSquare, arrowStage, Arrow.hom, Arrow.mk]
 
 /-- The square expressing that an endomorphism commutes with each of its powers. -/
 @[stacks 0H3D "endomorphism power action square"]
 theorem quotientActionSquare_comm [HasCokernels C] {M : C} (f : End M) (n : ℕ) :
-    f ≫ (f ^ (n + 1)) = (f ^ (n + 1)) ≫ f := sorry
+    f ≫ (f ^ (n + 1)) = (f ^ (n + 1)) ≫ f := by
+  change f ^ (n + 1) * f = f * f ^ (n + 1)
+  rw [← pow_succ, ← pow_succ']
 
 /-- The endomorphism square on the `(n+1)`st power arrow. -/
 @[stacks 0H3D "endomorphism power action square morphism"]
@@ -222,17 +252,24 @@ noncomputable abbrev quotientAction [HasCokernels C] {M : C} (f : End M) (n : �
 @[simp, reassoc, stacks 0H3D "endomorphism power quotient action factorization"]
 theorem quotientProjection_comp_action [HasCokernels C] {M : C} (f : End M) (n : ℕ) :
     cokernel.π (f ^ (n + 1)) ≫ quotientAction f n =
-      f ≫ cokernel.π (f ^ (n + 1)) := sorry
+      f ≫ cokernel.π (f ^ (n + 1)) := by
+  simp [quotientAction, Limits.coker, quotientActionSquare, arrowStage, Arrow.hom, Arrow.mk]
 
 /-- Raising and then lowering a quotient stage is the induced action of `f`. -/
 @[reassoc, stacks 0H3D "endomorphism power quotient raise-lower action"]
 theorem quotientRaise_comp_step [HasCokernels C] {M : C} (f : End M) (n : ℕ) :
-    quotientRaise f n ≫ quotientStep f n = quotientAction f n := sorry
+    quotientRaise f n ≫ quotientStep f n = quotientAction f n := by
+  apply (cancel_epi (cokernel.π (f ^ (n + 1)))).1
+  rw [← Category.assoc, quotientProjection_comp_raise, Category.assoc,
+    quotientStep_comp_π, quotientProjection_comp_action]
 
 /-- Lowering and then raising a quotient stage is the induced action of `f` on the next stage. -/
 @[reassoc, stacks 0H3D "endomorphism power quotient lower-raise action"]
 theorem quotientStep_comp_raise [HasCokernels C] {M : C} (f : End M) (n : ℕ) :
-    quotientStep f n ≫ quotientRaise f n = quotientAction f (n + 1) := sorry
+    quotientStep f n ≫ quotientRaise f n = quotientAction f (n + 1) := by
+  apply (cancel_epi (cokernel.π (f ^ (n + 2)))).1
+  rw [← Category.assoc, quotientStep_comp_π, quotientProjection_comp_raise,
+    quotientProjection_comp_action]
 
 /-- The inverse system of successive power quotients. -/
 @[stacks 0H3D "endomorphism power quotient system"]
@@ -242,12 +279,15 @@ abbrev quotientSystem [HasCokernels C] {M : C} (f : End M) : SequentialInverseSy
 /-- The object at stage `n` of the inverse system of power quotients. -/
 @[simp, stacks 0H3D "endomorphism power quotient system object"]
 theorem quotientSystem_obj [HasCokernels C] {M : C} (f : End M) (n : ℕ) :
-    (quotientSystem f).obj (op n) = quotientStage f n := sorry
+    (quotientSystem f).obj (op n) = quotientStage f n := rfl
 
 /-- The successor map of the inverse system of power quotients. -/
 @[simp, stacks 0H3D "endomorphism power quotient system transition"]
 theorem quotientSystem_stepMap [HasCokernels C] {M : C} (f : End M) (n : ℕ) :
-    (quotientSystem f).stepMap n = quotientStep f n := sorry
+    (quotientSystem f).stepMap n = quotientStep f n := by
+  change (Limits.coker C).map ((arrowSystem f).stepMap n) = quotientStep f n
+  rw [arrowSystem_stepMap]
+  rfl
 
 /-- The direct system of successive power quotients and the raising maps. -/
 @[stacks 0H3D "endomorphism power quotient direct system"]
@@ -257,12 +297,16 @@ abbrev quotientDirectSystem [HasCokernels C] {M : C} (f : End M) : ℕ ⥤ C :=
 /-- The object at stage `n` of the direct system of power quotients. -/
 @[simp, stacks 0H3D "endomorphism power quotient direct system object"]
 theorem quotientDirectSystem_obj [HasCokernels C] {M : C} (f : End M) (n : ℕ) :
-    (quotientDirectSystem f).obj n = quotientStage f n := sorry
+    (quotientDirectSystem f).obj n = quotientStage f n := rfl
 
 /-- The successor map of the direct system of power quotients. -/
 @[simp, stacks 0H3D "endomorphism power quotient direct system transition"]
 theorem quotientDirectSystem_map_succ [HasCokernels C] {M : C} (f : End M) (n : ℕ) :
-    (quotientDirectSystem f).map (homOfLE (Nat.le_succ n)) = quotientRaise f n := sorry
+    (quotientDirectSystem f).map (homOfLE (Nat.le_succ n)) = quotientRaise f n := by
+  change (Limits.coker C).map ((arrowDirectSystem f).map (homOfLE (Nat.le_succ n))) =
+    quotientRaise f n
+  rw [arrowDirectSystem_map_succ]
+  rfl
 
 /-- The short complex formed by the power endomorphism and its cokernel projection. -/
 @[stacks 0H3D "endomorphism power quotient row"]
@@ -273,13 +317,15 @@ abbrev quotientRow [HasCokernels C] {M : C} (f : End M) (n : ℕ) : ShortComplex
 /-- Commutativity of the first square in the transition between consecutive quotient rows. -/
 @[stacks 0H3D "endomorphism power quotient row first square"]
 theorem rowStep_comm₁₂ [HasCokernels C] {M : C} (f : End M) (n : ℕ) :
-    f ≫ (f ^ (n + 1)) = (f ^ (n + 2)) ≫ 𝟙 M := sorry
+    f ≫ (f ^ (n + 1)) = (f ^ (n + 2)) ≫ 𝟙 M := by
+  exact stepSquare_comm f n
 
 /-- Commutativity of the second square in the transition between consecutive quotient rows. -/
 @[stacks 0H3D "endomorphism power quotient row second square"]
 theorem rowStep_comm₂₃ [HasCokernels C] {M : C} (f : End M) (n : ℕ) :
     𝟙 M ≫ cokernel.π (f ^ (n + 1)) =
-      cokernel.π (f ^ (n + 2)) ≫ quotientStep f n := sorry
+      cokernel.π (f ^ (n + 2)) ≫ quotientStep f n := by
+  simpa only [Category.id_comp] using (quotientStep_comp_π f n).symm
 
 /-- The morphism from the `(n+1)`st quotient row to the `n`th quotient row. -/
 @[stacks 0H3D "endomorphism power quotient row transition"]
@@ -291,17 +337,17 @@ noncomputable def rowStep [HasCokernels C] {M : C} (f : End M) (n : ℕ) :
 /-- The left component of the transition between consecutive quotient rows. -/
 @[simp, stacks 0H3D "endomorphism power quotient row transition left component"]
 theorem rowStep_τ₁ [HasCokernels C] {M : C} (f : End M) (n : ℕ) :
-    (rowStep f n).τ₁ = f := sorry
+    (rowStep f n).τ₁ = f := rfl
 
 /-- The middle component of the transition between consecutive quotient rows. -/
 @[simp, stacks 0H3D "endomorphism power quotient row transition middle component"]
 theorem rowStep_τ₂ [HasCokernels C] {M : C} (f : End M) (n : ℕ) :
-    (rowStep f n).τ₂ = 𝟙 M := sorry
+    (rowStep f n).τ₂ = 𝟙 M := rfl
 
 /-- The right component of the transition between consecutive quotient rows. -/
 @[simp, stacks 0H3D "endomorphism power quotient row transition right component"]
 theorem rowStep_τ₃ [HasCokernels C] {M : C} (f : End M) (n : ℕ) :
-    (rowStep f n).τ₃ = quotientStep f n := sorry
+    (rowStep f n).τ₃ = quotientStep f n := rfl
 
 /-- The inverse system of short complexes consisting of the endomorphism power quotient rows. -/
 @[stacks 0H3D "endomorphism power quotient row system"]
@@ -312,12 +358,13 @@ abbrev rowSystem [HasCokernels C] {M : C} (f : End M) :
 /-- The object at stage `n` of the inverse system of quotient rows. -/
 @[simp, stacks 0H3D "endomorphism power quotient row system object"]
 theorem rowSystem_obj [HasCokernels C] {M : C} (f : End M) (n : ℕ) :
-    (rowSystem f).obj (op n) = quotientRow f n := sorry
+    (rowSystem f).obj (op n) = quotientRow f n := rfl
 
 /-- The successor map of the inverse system of quotient rows. -/
 @[simp, stacks 0H3D "endomorphism power quotient row system transition"]
 theorem rowSystem_stepMap [HasCokernels C] {M : C} (f : End M) (n : ℕ) :
-    (rowSystem f).stepMap n = rowStep f n := sorry
+    (rowSystem f).stepMap n = rowStep f n := by
+  exact Functor.ofOpSequence_map_homOfLE_succ (rowStep f) n
 
 end ZeroMorphisms
 
@@ -339,21 +386,25 @@ def kernelStableAt {M : C} (f : End M) (c : ℕ) : Prop :=
 /-- Kernel stabilization is the existence of a cutoff satisfying `kernelStableAt`. -/
 @[stacks 0H3D "endomorphism power kernel stabilization witness"]
 theorem kernelStabilizes_iff {M : C} (f : End M) :
-    kernelStabilizes f ↔ ∃ c : ℕ, kernelStableAt f c := sorry
+    kernelStabilizes f ↔ ∃ c : ℕ, kernelStableAt f c := Iff.rfl
 
 /-- A fixed stabilized cutoff controls every later positive power, including the successor tail. -/
 @[stacks 0H3D "successor tail at a stabilized endomorphism cutoff"]
 theorem kernelStableAt_succ {M : C} (f : End M) {c : ℕ}
     (h : kernelStableAt f c) :
     ∀ n : ℕ,
-      kernelSubobject (f ^ (n + c + 2)) = kernelSubobject (f ^ (c + 1)) := sorry
+      kernelSubobject (f ^ (n + c + 2)) = kernelSubobject (f ^ (c + 1)) := by
+  intro n
+  simpa only [Nat.add_right_comm n 1 c] using h (n + 1)
 
 /-- A stabilized kernel cutoff also controls the successor tail. -/
 @[stacks 0H3D "successor of a stabilized endomorphism kernel tail"]
 theorem kernelStabilizes_succ {M : C} (f : End M)
     (h : kernelStabilizes f) :
     ∃ c : ℕ, ∀ n : ℕ,
-      kernelSubobject (f ^ (n + c + 2)) = kernelSubobject (f ^ (c + 1)) := sorry
+      kernelSubobject (f ^ (n + c + 2)) = kernelSubobject (f ^ (c + 1)) := by
+  obtain ⟨c, hc⟩ := h
+  exact ⟨c, kernelStableAt_succ f hc⟩
 
 end Abelian
 

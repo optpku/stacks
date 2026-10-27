@@ -127,7 +127,8 @@ theorem quotientMap_isAssociated (I : Ideal R) :
 isomorphism. -/
 @[stacks 01IG "affine quotient closed immersion", instance]
 theorem quotientMap_isClosedImmersion (I : Ideal R) :
-    IsClosedImmersion (quotientMap I) := sorry
+    IsClosedImmersion (quotientMap I) :=
+  IsClosedImmersion.spec_of_quotient_mk I
 
 /-- The affine quotient is canonically isomorphic to the Mathlib closed subscheme attached to its
 kernel ideal-sheaf datum. -/
@@ -140,7 +141,8 @@ noncomputable def quotientIsoSubscheme (I : Ideal R) :
 @[reassoc (attr := simp), stacks 01IG "affine quotient subscheme comparison"]
 theorem quotientIsoSubscheme_hom_subschemeι (I : Ideal R) :
     (quotientIsoSubscheme I).hom ≫ (quotientMap I).ker.subschemeι =
-      quotientMap I := sorry
+      quotientMap I :=
+  (quotientMap I).toImage_imageι
 
 /-- The affine quotient and its canonical ideal-sheaf subscheme are isomorphic as objects over
 `Spec R`. -/

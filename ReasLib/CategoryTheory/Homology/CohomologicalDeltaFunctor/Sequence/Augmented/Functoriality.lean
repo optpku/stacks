@@ -47,21 +47,31 @@ augmented window. -/
 @[simp]
 theorem functor_obj (F : CohomologicalDeltaFunctor A B)
     (S : (ShortComplex.shortExact A).FullSubcategory) :
-    (functor F).obj S = F.augmentedWindow S.property := sorry
+    (functor F).obj S = F.augmentedWindow S.property := rfl
 
 /-- The morphism action of the augmented-window functor is the pointwise
 naturality map. -/
 @[simp]
 theorem functor_map (F : CohomologicalDeltaFunctor A B)
     {S T : (ShortComplex.shortExact A).FullSubcategory} (φ : S ⟶ T) :
-    (functor F).map φ = map F S.property T.property φ.hom := sorry
+    (functor F).map φ = map F S.property T.property φ.hom := rfl
 
 /-- Pointwise augmented model maps are natural in the short exact complex. -/
 theorem natTrans_naturality {F G : CohomologicalDeltaFunctor A B}
     (τ : F ⟶ G) {S T : (ShortComplex.shortExact A).FullSubcategory}
     (φ : S ⟶ T) :
     (functor F).map φ ≫ modelMap τ T.property =
-      modelMap τ S.property ≫ (functor G).map φ := sorry
+      modelMap τ S.property ≫ (functor G).map φ := by
+  apply NatTrans.ext
+  funext i
+  fin_cases i
+  · rfl
+  · exact (τ.app 0).naturality φ.hom.τ₁
+  · exact (τ.app 0).naturality φ.hom.τ₂
+  · exact (τ.app 0).naturality φ.hom.τ₃
+  · exact (τ.app 1).naturality φ.hom.τ₁
+  · exact (τ.app 1).naturality φ.hom.τ₂
+  · exact (τ.app 1).naturality φ.hom.τ₃
 
 /-- A morphism of cohomological delta functors induces a natural
 transformation between their augmented-window functors. -/
@@ -75,19 +85,29 @@ pointwise augmented model map. -/
 @[simp]
 theorem natTrans_app {F G : CohomologicalDeltaFunctor A B} (τ : F ⟶ G)
     (S : (ShortComplex.shortExact A).FullSubcategory) :
-    (natTrans τ).app S = modelMap τ S.property := sorry
+    (natTrans τ).app S = modelMap τ S.property := rfl
 
 /-- The identity delta-functor morphism induces the identity augmented-window
 natural transformation. -/
 @[simp]
 theorem natTrans_id (F : CohomologicalDeltaFunctor A B) :
-    natTrans (𝟙 F) = 𝟙 (functor F) := sorry
+    natTrans (𝟙 F) = 𝟙 (functor F) := by
+  apply NatTrans.ext
+  funext S
+  apply NatTrans.ext
+  funext i
+  fin_cases i <;> rfl
 
 /-- Augmented-window natural transformations preserve composition. -/
 @[simp]
 theorem natTrans_comp {F G H : CohomologicalDeltaFunctor A B}
     (τ : F ⟶ G) (σ : G ⟶ H) :
-    natTrans (τ ≫ σ) = natTrans τ ≫ natTrans σ := sorry
+    natTrans (τ ≫ σ) = natTrans τ ≫ natTrans σ := by
+  apply NatTrans.ext
+  funext S
+  apply hom_ext_succ
+  · exact (Category.id_comp _).symm
+  · apply hom_ext₅ <;> rfl
 
 /-- Taking the augmented low-degree window is functorial in the
 cohomological delta functor. -/
@@ -105,13 +125,13 @@ noncomputable def modelFunctor :
 recovers the low-degree exact-window functor. -/
 @[simp]
 theorem functor_comp_δ₀ (F : CohomologicalDeltaFunctor A B) :
-    functor F ⋙ δ₀Functor = exactWindow.functor F 0 := sorry
+    functor F ⋙ δ₀Functor = exactWindow.functor F 0 := rfl
 
 /-- Evaluating the augmented model functor at a delta functor gives its
 augmented-window functor. -/
 @[simp]
 theorem modelFunctor_obj (F : CohomologicalDeltaFunctor A B) :
-    (modelFunctor (A := A) (B := B)).obj F = functor F := sorry
+    (modelFunctor (A := A) (B := B)).obj F = functor F := rfl
 
 /-- Evaluating an augmented model-functor map gives the pointwise augmented
 model map. -/
@@ -119,6 +139,6 @@ model map. -/
 theorem modelFunctor_map_app {F G : CohomologicalDeltaFunctor A B}
     (τ : F ⟶ G) (S : (ShortComplex.shortExact A).FullSubcategory) :
     ((modelFunctor (A := A) (B := B)).map τ).app S =
-      modelMap τ S.property := sorry
+      modelMap τ S.property := rfl
 
 end CategoryTheory.CohomologicalDeltaFunctor.augmentedWindow

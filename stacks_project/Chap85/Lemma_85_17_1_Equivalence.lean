@@ -6,11 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import Mathlib.CategoryTheory.EssentialImage
-public import Mathlib.CategoryTheory.Limits.Shapes.Equalizers
-public import Mathlib.CategoryTheory.Sites.CoverLifting
-public import ReasLib.CategoryTheory.Sites.Hypercovering.PresheafTarget.Terminal
-public import stacks_project.Chap85.Lemma_85_17_1_Cartesian
+public import ReasLib.CategoryTheory.Sites.Hypercovering.PresheafTarget.SheafDescent
 
 /-!
 # Hypercovering descent equivalence for sheaves
@@ -49,124 +45,74 @@ variable [HasWeakSheafify (overSiteTotalTopology J K.simplicial) (Type (max w u 
 variable [∀ P : (Grothendieck (overSiteDiagram K.simplicial))ᵒᵖ ⥤ A,
     (totalForget K.simplicial).op.HasPointwiseRightKanExtension P]
 
-/-- The adjunction `a⁻¹ ⊣ a_*` presented by the continuous and cocontinuous functor
-`j_total`. -/
-def sheafLocalizationAdjunction :
-    inverseImage J K.simplicial A ⊣ directImage J K.simplicial A :=
-  (totalForget K.simplicial).sheafAdjunctionCocontinuous A
-    (overSiteTotalTopology J K.simplicial) J
+#check (CategoryTheory.SemiRepresentableFamily.sheafLocalizationAdjunction J K A :
+  inverseImage J K.simplicial A ⊣ directImage J K.simplicial A)
 
-/-- `sheafLocalizationAdjunction` is `sheafAdjunctionCocontinuous` of `j_total`. -/
-theorem sheafLocalizationAdjunction_eq :
-    sheafLocalizationAdjunction J K A =
-      (totalForget K.simplicial).sheafAdjunctionCocontinuous A
-        (overSiteTotalTopology J K.simplicial) J :=
-  sorry
+#check (CategoryTheory.SemiRepresentableFamily.sheafLocalizationAdjunction_eq J K A :
+  sheafLocalizationAdjunction J K A =
+    (totalForget K.simplicial).sheafAdjunctionCocontinuous A
+      (overSiteTotalTopology J K.simplicial) J)
 
-/-- Inverse image `a⁻¹` along a hypercovering is full. -/
-instance inverseImage_full : (inverseImage J K.simplicial A).Full :=
-  sorry
+#check (CategoryTheory.SemiRepresentableFamily.inverseImage_full J K A :
+  (inverseImage J K.simplicial A).Full)
 
-/-- Inverse image `a⁻¹` along a hypercovering is faithful. -/
-instance inverseImage_faithful : (inverseImage J K.simplicial A).Faithful :=
-  sorry
+#check (CategoryTheory.SemiRepresentableFamily.inverseImage_faithful J K A :
+  (inverseImage J K.simplicial A).Faithful)
 
-/-- Inverse image `a⁻¹` along a hypercovering is fully faithful. -/
-def inverseImage_fullyFaithful : (inverseImage J K.simplicial A).FullyFaithful :=
-  FullyFaithful.ofFullyFaithful _
+#check (CategoryTheory.SemiRepresentableFamily.inverseImage_fullyFaithful J K A :
+  (inverseImage J K.simplicial A).FullyFaithful)
 
-/-- The unit of `a⁻¹ ⊣ a_*` is an isomorphism. -/
-theorem unit_app_isIso (F : Sheaf J A) :
-    IsIso ((sheafLocalizationAdjunction J K A).unit.app F) :=
-  sorry
+#check (CategoryTheory.SemiRepresentableFamily.unit_app_isIso J K A :
+  ∀ F : Sheaf J A, IsIso ((sheafLocalizationAdjunction J K A).unit.app F))
 
-/-- The counit of `a⁻¹ ⊣ a_*` is an isomorphism precisely on cartesian sheaves. -/
-theorem counit_app_isIso_iff_isCartesian
-    (G : Sheaf (overSiteTotalTopology J K.simplicial) A) :
-    IsIso ((sheafLocalizationAdjunction J K A).counit.app G) ↔
-      IsCartesian J K.simplicial A G :=
-  sorry
+#check (CategoryTheory.SemiRepresentableFamily.counit_app_isIso_iff_isCartesian J K A :
+  ∀ G : Sheaf (overSiteTotalTopology J K.simplicial) A,
+    IsIso ((sheafLocalizationAdjunction J K A).counit.app G) ↔ IsCartesian J K.simplicial A G)
 
-/-- The counit of `a⁻¹ ⊣ a_*` is an isomorphism on a cartesian sheaf. -/
-theorem counit_app_isIso_of_isCartesian
-    (G : Sheaf (overSiteTotalTopology J K.simplicial) A)
-    (h : IsCartesian J K.simplicial A G) :
-    IsIso ((sheafLocalizationAdjunction J K A).counit.app G) :=
-  sorry
+#check (CategoryTheory.SemiRepresentableFamily.counit_app_isIso_of_isCartesian J K A :
+  ∀ G : Sheaf (overSiteTotalTopology J K.simplicial) A,
+    IsCartesian J K.simplicial A G → IsIso ((sheafLocalizationAdjunction J K A).counit.app G))
 
-/-- A sheaf on `(C / K)_total` lies in the essential image of `a⁻¹` if and only if it is
-cartesian. -/
-theorem mem_essImage_iff_isCartesian
-    (G : Sheaf (overSiteTotalTopology J K.simplicial) A) :
-    (inverseImage J K.simplicial A).essImage G ↔ IsCartesian J K.simplicial A G :=
-  sorry
+#check (CategoryTheory.SemiRepresentableFamily.mem_essImage_iff_isCartesian J K A :
+  ∀ G : Sheaf (overSiteTotalTopology J K.simplicial) A,
+    (inverseImage J K.simplicial A).essImage G ↔ IsCartesian J K.simplicial A G)
 
-/-- The functor `a⁻¹` corestricted to cartesian sheaves on `(C / K)_total`. -/
-def cartesianFunctor : Sheaf J A ⥤ Cartesian J K.simplicial A :=
-  (cartesianProperty J K.simplicial A).lift (inverseImage J K.simplicial A)
-    fun F ↦ inverseImage_isCartesian J K.simplicial A F
+#check (CategoryTheory.SemiRepresentableFamily.cartesianFunctor J K A :
+  Sheaf J A ⥤ Cartesian J K.simplicial A)
 
-/-- On objects, `cartesianFunctor` is inverse image along `j_total`. -/
-theorem cartesianFunctor_obj (F : Sheaf J A) :
-    ((cartesianFunctor J K A).obj F).obj = (inverseImage J K.simplicial A).obj F :=
-  sorry
+#check (CategoryTheory.SemiRepresentableFamily.cartesianFunctor_obj J K A :
+  ∀ F : Sheaf J A,
+    ((cartesianFunctor J K A).obj F).obj = (inverseImage J K.simplicial A).obj F)
 
-/-- The functor sending a cartesian sheaf on `(C / K)_total` to `a_*` of its underlying
-sheaf. -/
-def cartesianInverse : Cartesian J K.simplicial A ⥤ Sheaf J A :=
-  (cartesianProperty J K.simplicial A).ι ⋙ directImage J K.simplicial A
+#check (CategoryTheory.SemiRepresentableFamily.cartesianInverse J K A :
+  Cartesian J K.simplicial A ⥤ Sheaf J A)
 
-/-- On objects, `cartesianInverse` is direct image along `j_total`. -/
-theorem cartesianInverse_obj (G : Cartesian J K.simplicial A) :
-    (cartesianInverse J K A).obj G = (directImage J K.simplicial A).obj G.obj :=
-  sorry
+#check (CategoryTheory.SemiRepresentableFamily.cartesianInverse_obj J K A :
+  ∀ G : Cartesian J K.simplicial A,
+    (cartesianInverse J K A).obj G = (directImage J K.simplicial A).obj G.obj)
 
-/-- The unit isomorphism `𝟭 ≅ a⁻¹ ⋙ a_*` of hypercovering descent. -/
-def cartesianUnitIso :
-    𝟭 (Sheaf J A) ≅ cartesianFunctor J K A ⋙ cartesianInverse J K A :=
-  NatIso.ofComponents
-    (fun F ↦
-      @asIso _ _ _ _ ((sheafLocalizationAdjunction J K A).unit.app F)
-        (unit_app_isIso J K A F))
-    sorry
+#check (CategoryTheory.SemiRepresentableFamily.cartesianUnitIso J K A :
+  𝟭 (Sheaf J A) ≅ cartesianFunctor J K A ⋙ cartesianInverse J K A)
 
-/-- The component of `cartesianUnitIso` at `F` is the adjunction unit. -/
-theorem cartesianUnitIso_hom_app (F : Sheaf J A) :
-    (cartesianUnitIso J K A).hom.app F =
-      (sheafLocalizationAdjunction J K A).unit.app F :=
-  sorry
+#check (CategoryTheory.SemiRepresentableFamily.cartesianUnitIso_hom_app J K A :
+  ∀ F : Sheaf J A,
+    (cartesianUnitIso J K A).hom.app F = (sheafLocalizationAdjunction J K A).unit.app F)
 
-/-- The counit isomorphism `a_* ⋙ a⁻¹ ≅ 𝟭` on cartesian sheaves. -/
-def cartesianCounitIso :
-    cartesianInverse J K A ⋙ cartesianFunctor J K A ≅ 𝟭 (Cartesian J K.simplicial A) :=
-  NatIso.ofComponents
-    (fun G ↦
-      (cartesianProperty J K.simplicial A).isoMk
-        (@asIso _ _ _ _ ((sheafLocalizationAdjunction J K A).counit.app G.obj)
-          (counit_app_isIso_of_isCartesian J K A G.obj G.property)))
-    sorry
+#check (CategoryTheory.SemiRepresentableFamily.cartesianCounitIso J K A :
+  cartesianInverse J K A ⋙ cartesianFunctor J K A ≅ 𝟭 (Cartesian J K.simplicial A))
 
-/-- The component of `cartesianCounitIso` at `G` is the adjunction counit on the underlying
-sheaf. -/
-theorem cartesianCounitIso_hom_app_hom (G : Cartesian J K.simplicial A) :
+#check (CategoryTheory.SemiRepresentableFamily.cartesianCounitIso_hom_app_hom J K A :
+  ∀ G : Cartesian J K.simplicial A,
     ((cartesianCounitIso J K A).hom.app G).hom =
-      (sheafLocalizationAdjunction J K A).counit.app G.obj :=
-  sorry
+      (sheafLocalizationAdjunction J K A).counit.app G.obj)
 
-/-- If `K` is a hypercovering of the terminal presheaf, then `a⁻¹` implements an equivalence
-between sheaves on `C` and cartesian sheaves on `(C / K)_total`, with quasi-inverse `a_*`. -/
-def cartesianEquivalence : Sheaf J A ≌ Cartesian J K.simplicial A :=
-  Equivalence.mk (cartesianFunctor J K A) (cartesianInverse J K A)
-    (cartesianUnitIso J K A) (cartesianCounitIso J K A)
+#check (CategoryTheory.SemiRepresentableFamily.cartesianEquivalence J K A :
+  Sheaf J A ≌ Cartesian J K.simplicial A)
 
-/-- The forward functor of `cartesianEquivalence` is `a⁻¹` corestricted to cartesian sheaves. -/
-theorem cartesianEquivalence_functor :
-    (cartesianEquivalence J K A).functor = cartesianFunctor J K A :=
-  sorry
+#check (CategoryTheory.SemiRepresentableFamily.cartesianEquivalence_functor J K A :
+  (cartesianEquivalence J K A).functor = cartesianFunctor J K A)
 
-/-- The inverse functor of `cartesianEquivalence` is `a_*` on cartesian sheaves. -/
-theorem cartesianEquivalence_inverse :
-    (cartesianEquivalence J K A).inverse = cartesianInverse J K A :=
-  sorry
+#check (CategoryTheory.SemiRepresentableFamily.cartesianEquivalence_inverse J K A :
+  (cartesianEquivalence J K A).inverse = cartesianInverse J K A)
 
 end CategoryTheory.SemiRepresentableFamily

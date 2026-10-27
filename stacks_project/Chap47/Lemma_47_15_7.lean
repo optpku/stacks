@@ -24,14 +24,14 @@ dualizing after localization at every member of a finite family generating the u
   ∀ {A : Type u} [CommRing A] [IsNoetherianRing A]
     {ι : Type v} [Finite ι]
     [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
-    (HA : MonoidalClosed (DerivedCategory (ModuleCat.{u} A)))
+    (CA : DerivedCategory.CanonicalClosedPresentation (A := A))
     (f : ι → A) (hunit : Ideal.span (Set.range f) = ⊤)
     [∀ i, MonoidalCategory
       (DerivedCategory (ModuleCat.{u} (Localization.Away (f i))))]
-    (Hlocal : ∀ i, MonoidalClosed
-      (DerivedCategory (ModuleCat.{u} (Localization.Away (f i)))))
+    (Clocal : ∀ i, DerivedCategory.CanonicalClosedPresentation
+      (A := Localization.Away (f i)))
     (ω : DerivedCategory (ModuleCat.{u} A)),
     (∀ i,
       ((ModuleCat.derivedExtensionOfScalars
-        (algebraMap A (Localization.Away (f i)))).obj ω).IsDualizingComplex (Hlocal i)) →
-      ω.IsDualizingComplex HA)
+        (algebraMap A (Localization.Away (f i)))).obj ω).IsCanonicalDualizingComplex (Clocal i)) →
+      ω.IsCanonicalDualizingComplex CA)

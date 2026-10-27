@@ -60,14 +60,14 @@ noncomputable def toEquivalencePreservingUnit (e : QuasiInverse F) : X ≌ Y :=
 /-- The forward morphism of the bicategorical equivalence built from `e` is the original based
 functor. -/
 @[simp] theorem toEquivalence.hom (e : QuasiInverse F) :
-    e.toEquivalence.hom = F := sorry
+    e.toEquivalence.hom = F := rfl
 /- Proof strategy: unfold `toEquivalence`; the hom projection of
 `Bicategory.Equivalence.mkOfAdjointifyUnit` is definitionally the supplied functor `F`. -/
 
 /-- The inverse morphism of the bicategorical equivalence built from `e` is the chosen based
 quasi-inverse. -/
 @[simp] theorem toEquivalence.inv (e : QuasiInverse F) :
-    e.toEquivalence.inv = e.inverse := sorry
+    e.toEquivalence.inv = e.inverse := rfl
 /- Proof strategy: unfold `toEquivalence`; its inverse projection is definitionally
 the `QuasiInverse.inverse` supplied to `mkOfAdjointifyUnit`. -/
 
@@ -75,36 +75,36 @@ the `QuasiInverse.inverse` supplied to `mkOfAdjointifyUnit`. -/
 supplied unit against the supplied counit. -/
 theorem toEquivalence.unit (e : QuasiInverse F) :
     e.toEquivalence.unit =
-      Bicategory.Equivalence.adjointifyUnit e.unitIso e.counitIso := sorry
+      Bicategory.Equivalence.adjointifyUnit e.unitIso e.counitIso := rfl
 
 /-- Packaging explicit based quasi-inverse data retains the supplied counit isomorphism. -/
 @[simp]
 theorem toEquivalence.counit (e : QuasiInverse F) :
-    e.toEquivalence.counit = e.counitIso := sorry
+    e.toEquivalence.counit = e.counitIso := rfl
 
 /-- The forward morphism of the unit-preserving bicategorical equivalence is the original based
 functor. -/
 @[simp]
 theorem toEquivalencePreservingUnit.hom (e : QuasiInverse F) :
-    e.toEquivalencePreservingUnit.hom = F := sorry
+    e.toEquivalencePreservingUnit.hom = F := rfl
 
 /-- The inverse morphism of the unit-preserving bicategorical equivalence is the supplied based
 quasi-inverse. -/
 @[simp]
 theorem toEquivalencePreservingUnit.inv (e : QuasiInverse F) :
-    e.toEquivalencePreservingUnit.inv = e.inverse := sorry
+    e.toEquivalencePreservingUnit.inv = e.inverse := rfl
 
 /-- The unit of the unit-preserving bicategorical equivalence is the supplied unit candidate. -/
 @[simp]
 theorem toEquivalencePreservingUnit.unit (e : QuasiInverse F) :
-    e.toEquivalencePreservingUnit.unit = e.unitIso := sorry
+    e.toEquivalencePreservingUnit.unit = e.unitIso := rfl
 
 /-- The counit of the unit-preserving bicategorical equivalence is the canonical adjustment of
 the supplied counit against the supplied unit. -/
 @[simp]
 theorem toEquivalencePreservingUnit.counit (e : QuasiInverse F) :
     e.toEquivalencePreservingUnit.counit =
-      Bicategory.adjointifyCounit e.unitIso e.counitIso := sorry
+      Bicategory.adjointifyCounit e.unitIso e.counitIso := rfl
 
 end QuasiInverse
 
@@ -125,7 +125,7 @@ noncomputable def asEquivalenceOf (F : X ⥤ᵇ Y) (h : F.IsEquivalence) : X ≌
 /-- The forward `1`-morphism of `BasedFunctor.asEquivalence F` is `F`. -/
 @[simp]
 theorem asEquivalence.hom (F : X ⥤ᵇ Y) [F.IsEquivalence] :
-    F.asEquivalence.hom = F := sorry
+    F.asEquivalence.hom = F := rfl
 /- Proof strategy: unfold `BasedFunctor.asEquivalence` and apply
 `QuasiInverse.toEquivalence.hom`. -/
 
@@ -133,32 +133,32 @@ theorem asEquivalence.hom (F : X ⥤ᵇ Y) [F.IsEquivalence] :
 based functor. -/
 @[simp]
 theorem asEquivalenceOf.hom (F : X ⥤ᵇ Y) (h : F.IsEquivalence) :
-    (F.asEquivalenceOf h).hom = F := sorry
+    (F.asEquivalenceOf h).hom = F := rfl
 
 /-- The inverse `1`-morphism of an equivalence packaged from an explicit proof is the inverse in
 the quasi-inverse data selected through that proof. -/
 @[simp]
 theorem asEquivalenceOf.inv (F : X ⥤ᵇ Y) (h : F.IsEquivalence) :
-    (F.asEquivalenceOf h).inv = (F.asQuasiInverseOf h).inverse := sorry
+    (F.asEquivalenceOf h).inv = (F.asQuasiInverseOf h).inverse := rfl
 
 /-- The unit of an equivalence packaged from an explicit proof is the canonical adjustment of
 the unit and counit selected through that proof. -/
 theorem asEquivalenceOf.unit (F : X ⥤ᵇ Y) (h : F.IsEquivalence) :
     (F.asEquivalenceOf h).unit =
       Bicategory.Equivalence.adjointifyUnit
-        (F.asQuasiInverseOf h).unitIso (F.asQuasiInverseOf h).counitIso := sorry
+        (F.asQuasiInverseOf h).unitIso (F.asQuasiInverseOf h).counitIso := rfl
 
 /-- The counit of an equivalence packaged from an explicit proof is the counit selected through
 that proof. -/
 @[simp]
 theorem asEquivalenceOf.counit (F : X ⥤ᵇ Y) (h : F.IsEquivalence) :
-    (F.asEquivalenceOf h).counit = (F.asQuasiInverseOf h).counitIso := sorry
+    (F.asEquivalenceOf h).counit = (F.asQuasiInverseOf h).counitIso := rfl
 
 /-- The inverse `1`-morphism selected by `BasedFunctor.asEquivalence F` is the chosen based
 inverse `F.inv`. -/
 @[simp]
 theorem asEquivalence.inv (F : X ⥤ᵇ Y) [F.IsEquivalence] :
-    F.asEquivalence.inv = F.inv := sorry
+    F.asEquivalence.inv = F.inv := rfl
 /- Proof strategy: unfold `BasedFunctor.asEquivalence`, `BasedFunctor.inv`, and use
 `QuasiInverse.toEquivalence.inv`. -/
 
@@ -166,35 +166,41 @@ theorem asEquivalence.inv (F : X ⥤ᵇ Y) [F.IsEquivalence] :
 unit against the named chosen counit over the base. -/
 theorem asEquivalence.unit (F : X ⥤ᵇ Y) [F.IsEquivalence] :
     F.asEquivalence.unit =
-      Bicategory.Equivalence.adjointifyUnit F.unitIso F.counitIso := sorry
+      Bicategory.Equivalence.adjointifyUnit F.unitIso F.counitIso := rfl
 
 /-- The counit of `BasedFunctor.asEquivalence F` is the named chosen counit over the base. -/
 @[simp]
 theorem asEquivalence.counit (F : X ⥤ᵇ Y) [F.IsEquivalence] :
-    F.asEquivalence.counit = F.counitIso := sorry
+    F.asEquivalence.counit = F.counitIso := rfl
 
 /-- The forward `1`-morphism of a bicategorical equivalence is an equivalence over the base. -/
 theorem hom.isEquivalence (e : X ≌ Y) :
-    e.hom.IsEquivalence := sorry
-/- Proof strategy: apply `IsEquivalence.mk'` to `e.inv`, with the canonical unit and
-counit isomorphisms carried by the bicategorical equivalence `e`. -/
+    e.hom.IsEquivalence :=
+  ⟨⟨{ inverse := e.inv, unitIso := e.unit, counitIso := e.counit }⟩⟩
+/- Package `e.inv`, `e.unit`, and `e.counit` directly as the nonempty quasi-inverse witness. -/
 
 /-- In one fixed based-category bicategory, `F.IsEquivalence` is equivalent to occurrence as the
 forward morphism of a bicategorical equivalence. -/
 theorem isEquivalence_iff_exists_equivalence (F : X ⥤ᵇ Y) :
-    F.IsEquivalence ↔ ∃ e : X ≌ Y, e.hom = F := sorry
-/- Proof strategy: install the forward hypothesis as an instance and use `F.asEquivalence`; in
-the reverse direction use `hom.isEquivalence`. -/
+    F.IsEquivalence ↔ ∃ e : X ≌ Y, e.hom = F := by
+  constructor
+  · intro h
+    exact ⟨(F.asQuasiInverseOf h).toEquivalencePreservingUnit, rfl⟩
+  · rintro ⟨e, rfl⟩
+    exact hom.isEquivalence e
+/- The forward witness uses mathlib's unit-preserving adjointification; the reverse direction
+forgets the triangle identity through `hom.isEquivalence`. -/
 
 /-- Typeclass bridge from a bicategorical equivalence to the property carried by its forward
 `1`-morphism. -/
 instance homIsEquivalence (e : X ≌ Y) :
-    e.hom.IsEquivalence := sorry
+    e.hom.IsEquivalence := hom.isEquivalence e
 
 /-- Typeclass bridge from a bicategorical equivalence to the property carried by its inverse
 `1`-morphism. -/
 instance invIsEquivalence (e : X ≌ Y) :
-    e.inv.IsEquivalence := sorry
+    e.inv.IsEquivalence :=
+  ⟨⟨{ inverse := e.hom, unitIso := e.counit.symm, counitIso := e.unit.symm }⟩⟩
 
 end SameUniverse
 

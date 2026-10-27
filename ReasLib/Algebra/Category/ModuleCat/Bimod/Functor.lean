@@ -74,62 +74,83 @@ noncomputable def rightModuleFunctor :
   obj M :=
     toRightModule (R := R) (A := A) (RightModuleFunctor.restricted (R := R) M)
   map f := RightModuleFunctor.map (R := R) f
-  map_id := sorry
-  map_comp := sorry
+  map_id := by
+    intro M
+    apply _root_.Bimod.hom_ext
+    apply ModuleCat.hom_ext
+    apply LinearMap.ext
+    intro m
+    rfl
+  map_comp := by
+    intro M N P f g
+    apply _root_.Bimod.hom_ext
+    apply ModuleCat.hom_ext
+    apply LinearMap.ext
+    intro m
+    rfl
 
 /-- On objects, `rightModuleFunctor` restricts scalars to `R` and applies `toRightModule`. -/
 @[simp, stacks 09LN "ordinary right-module realization on objects"]
 theorem rightModuleFunctor_obj (M : ModuleCat.{u} Aᵐᵒᵖ) :
     (rightModuleFunctor (R := R) (A := A)).obj M =
       toRightModule (R := R) (A := A)
-        (RightModuleFunctor.restricted (R := R) M) := sorry
+        (RightModuleFunctor.restricted (R := R) M) := rfl
 
 /-- On morphisms, `rightModuleFunctor` is the categorical form of the underlying right-linear
 map. -/
 @[simp, stacks 09LN "ordinary right-module realization on morphisms"]
 theorem rightModuleFunctor_map {M N : ModuleCat.{u} Aᵐᵒᵖ} (f : M ⟶ N) :
     (rightModuleFunctor (R := R) (A := A)).map f =
-      RightModuleFunctor.map (R := R) f := sorry
+      RightModuleFunctor.map (R := R) f := rfl
 
 namespace RightModuleFunctor
 
 /-- The right-module realization of an ordinary morphism has the same pointwise action. -/
 @[simp, stacks 09LN "ordinary right-module realization on elements"]
 theorem map_apply {M N : ModuleCat.{u} Aᵐᵒᵖ} (f : M ⟶ N) (m : M) :
-    (map (R := R) f).hom m = f.hom m := sorry
+    (map (R := R) f).hom m = f.hom m := rfl
 
 /-- Recovering the right-linear map of a categorical morphism preserves evaluation. -/
 @[simp, stacks 09LN "ordinary right-module realization inverse on elements"]
 theorem linearPreimage_apply {M N : ModuleCat.{u} Aᵐᵒᵖ}
     (f : (rightModuleFunctor (R := R) (A := A)).obj M ⟶
       (rightModuleFunctor (R := R) (A := A)).obj N) (m : M) :
-    linearPreimage (R := R) f m = f.hom m := sorry
+    linearPreimage (R := R) f m = f.hom m := rfl
 
 /-- The underlying right-linear map of `preimage f` is `linearPreimage f`. -/
 @[simp, stacks 09LN "underlying map of the ordinary right-module realization inverse"]
 theorem preimage_hom {M N : ModuleCat.{u} Aᵐᵒᵖ}
     (f : (rightModuleFunctor (R := R) (A := A)).obj M ⟶
       (rightModuleFunctor (R := R) (A := A)).obj N) :
-    (preimage (R := R) f).hom = linearPreimage (R := R) f := sorry
+    (preimage (R := R) f).hom = linearPreimage (R := R) f := rfl
 
 /-- Recovering an ordinary right-module morphism preserves its pointwise action. -/
 @[simp, stacks 09LN "ordinary right-module realization preimage on elements"]
 theorem preimage_apply {M N : ModuleCat.{u} Aᵐᵒᵖ}
     (f : (rightModuleFunctor (R := R) (A := A)).obj M ⟶
       (rightModuleFunctor (R := R) (A := A)).obj N) (m : M) :
-    (preimage (R := R) f).hom m = f.hom m := sorry
+    (preimage (R := R) f).hom m = f.hom m := rfl
 
 /-- Realizing and then recovering an ordinary right-module morphism is the identity. -/
 @[simp, stacks 09LN "inverse after ordinary right-module realization"]
 theorem preimage_map {M N : ModuleCat.{u} Aᵐᵒᵖ} (f : M ⟶ N) :
-    preimage (R := R) (map (R := R) f) = f := sorry
+    preimage (R := R) (map (R := R) f) = f := by
+  apply ModuleCat.hom_ext
+  apply LinearMap.ext
+  intro m
+  rfl
 
 /-- Recovering and then realizing a categorical right-module morphism is the identity. -/
 @[simp, stacks 09LN "ordinary right-module realization after inverse"]
 theorem map_preimage {M N : ModuleCat.{u} Aᵐᵒᵖ}
     (f : (rightModuleFunctor (R := R) (A := A)).obj M ⟶
       (rightModuleFunctor (R := R) (A := A)).obj N) :
-    map (R := R) (preimage (R := R) f) = f := sorry
+    map (R := R) (preimage (R := R) f) = f := by
+  apply _root_.Bimod.hom_ext
+  apply ModuleCat.hom_ext
+  apply LinearMap.ext
+  intro m
+  rfl
 
 /-- The realization functor from ordinary right modules to categorical right modules is fully
 faithful. -/
@@ -137,20 +158,22 @@ faithful. -/
 noncomputable def fullyFaithful :
     (rightModuleFunctor (R := R) (A := A)).FullyFaithful where
   preimage f := RightModuleFunctor.preimage (R := R) f
-  map_preimage := sorry
-  preimage_map := sorry
+  map_preimage := map_preimage (R := R)
+  preimage_map := preimage_map (R := R)
 
 /-- Typeclass search uses the bundled fully faithful structure to recognize the right-module
 realization functor as full. -/
 @[stacks 09LN "ordinary right-module realization is full"]
 instance functorFull :
-    (rightModuleFunctor (R := R) (A := A)).Full := sorry
+    (rightModuleFunctor (R := R) (A := A)).Full :=
+  (fullyFaithful (R := R) (A := A)).full
 
 /-- Typeclass search uses the bundled fully faithful structure to recognize the right-module
 realization functor as faithful. -/
 @[stacks 09LN "ordinary right-module realization is faithful"]
 instance functorFaithful :
-    (rightModuleFunctor (R := R) (A := A)).Faithful := sorry
+    (rightModuleFunctor (R := R) (A := A)).Faithful :=
+  (fullyFaithful (R := R) (A := A)).faithful
 
 end RightModuleFunctor
 
@@ -196,62 +219,83 @@ noncomputable def leftModuleFunctor :
   obj M :=
     toLeftModule (R := R) (A := A) (LeftModuleFunctor.restricted (R := R) M)
   map f := LeftModuleFunctor.map (R := R) f
-  map_id := sorry
-  map_comp := sorry
+  map_id := by
+    intro M
+    apply _root_.Bimod.hom_ext
+    apply ModuleCat.hom_ext
+    apply LinearMap.ext
+    intro m
+    rfl
+  map_comp := by
+    intro M N P f g
+    apply _root_.Bimod.hom_ext
+    apply ModuleCat.hom_ext
+    apply LinearMap.ext
+    intro m
+    rfl
 
 /-- On objects, `leftModuleFunctor` restricts scalars to `R` and applies `toLeftModule`. -/
 @[simp, stacks 09LN "ordinary left-module realization on objects"]
 theorem leftModuleFunctor_obj (M : ModuleCat.{u} A) :
     (leftModuleFunctor (R := R) (A := A)).obj M =
       toLeftModule (R := R) (A := A)
-        (LeftModuleFunctor.restricted (R := R) M) := sorry
+        (LeftModuleFunctor.restricted (R := R) M) := rfl
 
 /-- On morphisms, `leftModuleFunctor` is the categorical form of the underlying left-linear
 map. -/
 @[simp, stacks 09LN "ordinary left-module realization on morphisms"]
 theorem leftModuleFunctor_map {M N : ModuleCat.{u} A} (f : M ⟶ N) :
     (leftModuleFunctor (R := R) (A := A)).map f =
-      LeftModuleFunctor.map (R := R) f := sorry
+      LeftModuleFunctor.map (R := R) f := rfl
 
 namespace LeftModuleFunctor
 
 /-- The left-module realization of an ordinary morphism has the same pointwise action. -/
 @[simp, stacks 09LN "ordinary left-module realization on elements"]
 theorem map_apply {M N : ModuleCat.{u} A} (f : M ⟶ N) (m : M) :
-    (map (R := R) f).hom m = f.hom m := sorry
+    (map (R := R) f).hom m = f.hom m := rfl
 
 /-- Recovering the left-linear map of a categorical morphism preserves evaluation. -/
 @[simp, stacks 09LN "ordinary left-module realization inverse on elements"]
 theorem linearPreimage_apply {M N : ModuleCat.{u} A}
     (f : (leftModuleFunctor (R := R) (A := A)).obj M ⟶
       (leftModuleFunctor (R := R) (A := A)).obj N) (m : M) :
-    linearPreimage (R := R) f m = f.hom m := sorry
+    linearPreimage (R := R) f m = f.hom m := rfl
 
 /-- The underlying left-linear map of `preimage f` is `linearPreimage f`. -/
 @[simp, stacks 09LN "underlying map of the ordinary left-module realization inverse"]
 theorem preimage_hom {M N : ModuleCat.{u} A}
     (f : (leftModuleFunctor (R := R) (A := A)).obj M ⟶
       (leftModuleFunctor (R := R) (A := A)).obj N) :
-    (preimage (R := R) f).hom = linearPreimage (R := R) f := sorry
+    (preimage (R := R) f).hom = linearPreimage (R := R) f := rfl
 
 /-- Recovering an ordinary left-module morphism preserves its pointwise action. -/
 @[simp, stacks 09LN "ordinary left-module realization preimage on elements"]
 theorem preimage_apply {M N : ModuleCat.{u} A}
     (f : (leftModuleFunctor (R := R) (A := A)).obj M ⟶
       (leftModuleFunctor (R := R) (A := A)).obj N) (m : M) :
-    (preimage (R := R) f).hom m = f.hom m := sorry
+    (preimage (R := R) f).hom m = f.hom m := rfl
 
 /-- Realizing and then recovering an ordinary left-module morphism is the identity. -/
 @[simp, stacks 09LN "inverse after ordinary left-module realization"]
 theorem preimage_map {M N : ModuleCat.{u} A} (f : M ⟶ N) :
-    preimage (R := R) (map (R := R) f) = f := sorry
+    preimage (R := R) (map (R := R) f) = f := by
+  apply ModuleCat.hom_ext
+  apply LinearMap.ext
+  intro m
+  rfl
 
 /-- Recovering and then realizing a categorical left-module morphism is the identity. -/
 @[simp, stacks 09LN "ordinary left-module realization after inverse"]
 theorem map_preimage {M N : ModuleCat.{u} A}
     (f : (leftModuleFunctor (R := R) (A := A)).obj M ⟶
       (leftModuleFunctor (R := R) (A := A)).obj N) :
-    map (R := R) (preimage (R := R) f) = f := sorry
+    map (R := R) (preimage (R := R) f) = f := by
+  apply _root_.Bimod.hom_ext
+  apply ModuleCat.hom_ext
+  apply LinearMap.ext
+  intro m
+  rfl
 
 /-- The realization functor from ordinary left modules to categorical left modules is fully
 faithful. -/
@@ -259,20 +303,22 @@ faithful. -/
 noncomputable def fullyFaithful :
     (leftModuleFunctor (R := R) (A := A)).FullyFaithful where
   preimage f := LeftModuleFunctor.preimage (R := R) f
-  map_preimage := sorry
-  preimage_map := sorry
+  map_preimage := map_preimage (R := R)
+  preimage_map := preimage_map (R := R)
 
 /-- Typeclass search uses the bundled fully faithful structure to recognize the left-module
 realization functor as full. -/
 @[stacks 09LN "ordinary left-module realization is full"]
 instance functorFull :
-    (leftModuleFunctor (R := R) (A := A)).Full := sorry
+    (leftModuleFunctor (R := R) (A := A)).Full :=
+  (fullyFaithful (R := R) (A := A)).full
 
 /-- Typeclass search uses the bundled fully faithful structure to recognize the left-module
 realization functor as faithful. -/
 @[stacks 09LN "ordinary left-module realization is faithful"]
 instance functorFaithful :
-    (leftModuleFunctor (R := R) (A := A)).Faithful := sorry
+    (leftModuleFunctor (R := R) (A := A)).Faithful :=
+  (fullyFaithful (R := R) (A := A)).faithful
 
 end LeftModuleFunctor
 

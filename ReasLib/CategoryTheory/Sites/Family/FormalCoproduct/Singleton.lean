@@ -37,18 +37,21 @@ abbrev singletonFunctor (X : C) :
 
 /-- The singleton functor agrees with the arrow-based singleton-family constructor. -/
 @[simp] theorem singletonFunctor_obj (X : C) (Y : CategoryTheory.Over X) :
-    (singletonFunctor.{w} X).obj Y = singleton Y.hom := sorry
+    (singletonFunctor.{w} X).obj Y = singleton Y.hom := by
+  rfl
 
 /-- The singleton functor has the unique map between its singleton index types. -/
 @[simp] theorem singletonFunctor_map_f (X : C)
     {Y Z : CategoryTheory.Over X} (f : Y ⟶ Z) :
-    ((singletonFunctor.{w} X).map f).f = fun _ ↦ PUnit.unit := sorry
+    ((singletonFunctor.{w} X).map f).f = fun _ ↦ PUnit.unit := by
+  rfl
 
 /-- The sole component of a mapped singleton family is the original slice morphism. -/
 @[simp] theorem singletonFunctor_map_phi (X : C)
     {Y Z : CategoryTheory.Over X} (f : Y ⟶ Z)
     (i : ((singletonFunctor.{w} X).obj Y).index) :
-    ((singletonFunctor.{w} X).map f).φ i = f := sorry
+    ((singletonFunctor.{w} X).map f).φ i = f := by
+  rfl
 
 end SemiRepresentableFamily.OverFamily
 
@@ -66,34 +69,40 @@ def toOverFamily (A : SimplicialObject.Augmented C) :
 @[simp] theorem toOverFamily_obj (A : SimplicialObject.Augmented C)
     (Delta : SimplexCategoryᵒᵖ) :
     A.toOverFamily.obj Delta =
-      SemiRepresentableFamily.OverFamily.singleton (A.hom.app Delta) := sorry
+      SemiRepresentableFamily.OverFamily.singleton (A.hom.app Delta) := by
+  rfl
 
 /-- Every degree of `A.toOverFamily` has one index. -/
 @[simp] theorem toOverFamily_obj_index (A : SimplicialObject.Augmented C)
     (Delta : SimplexCategoryᵒᵖ) :
-    (A.toOverFamily.obj Delta).index = PUnit := sorry
+    (A.toOverFamily.obj Delta).index = PUnit := by
+  rfl
 
 /-- The source of the unique family member in degree `Delta` is `A.left.obj Delta`. -/
 @[simp] theorem toOverFamily_obj_left (A : SimplicialObject.Augmented C)
     (Delta : SimplexCategoryᵒᵖ) (i : (A.toOverFamily.obj Delta).index) :
-    ((A.toOverFamily.obj Delta).obj i).left = A.left.obj Delta := sorry
+    ((A.toOverFamily.obj Delta).obj i).left = A.left.obj Delta := by
+  rfl
 
 /-- The unique structure arrow in degree `Delta` is the augmentation component. -/
 @[simp] theorem toOverFamily_obj_hom (A : SimplicialObject.Augmented C)
     (Delta : SimplexCategoryᵒᵖ) (i : (A.toOverFamily.obj Delta).index) :
-    ((A.toOverFamily.obj Delta).obj i).hom = A.hom.app Delta := sorry
+    ((A.toOverFamily.obj Delta).obj i).hom = A.hom.app Delta := by
+  rfl
 
 /-- Simplicial structure maps of singleton families have the unique index map. -/
 @[simp] theorem toOverFamily_map_f (A : SimplicialObject.Augmented C)
     {Delta Delta' : SimplexCategoryᵒᵖ} (f : Delta ⟶ Delta') :
-    (A.toOverFamily.map f).f = fun _ ↦ PUnit.unit := sorry
+    (A.toOverFamily.map f).f = fun _ ↦ PUnit.unit := by
+  rfl
 
 /-- The underlying component of a singleton-family structure map is the corresponding
 simplicial structure map. -/
 @[simp] theorem toOverFamily_map_phi_left (A : SimplicialObject.Augmented C)
     {Delta Delta' : SimplexCategoryᵒᵖ} (f : Delta ⟶ Delta')
     (i : (A.toOverFamily.obj Delta).index) :
-    ((A.toOverFamily.map f).φ i).left = A.left.map f := sorry
+    ((A.toOverFamily.map f).φ i).left = A.left.map f := by
+  rfl
 
 end SimplicialObject.Augmented
 

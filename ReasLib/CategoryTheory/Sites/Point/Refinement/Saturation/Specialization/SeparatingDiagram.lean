@@ -53,13 +53,16 @@ namespace hom
 /-- A reflexive separating-stage diagram transition is the identity morphism. -/
 @[simp]
 theorem refl (D : κ ⥤ SeparatingStage.{u, v, q, r, r'} S P x y) (i : κ) :
-    hom D (le_rfl : i ≤ i) = 𝟙 (stage D i) := sorry
+    hom D (le_rfl : i ≤ i) = 𝟙 (stage D i) := by
+  change D.map (𝟙 i) = 𝟙 (D.obj i)
+  exact D.map_id i
 
 /-- Separating-stage diagram transitions compose along chains of indices. -/
 @[simp]
 theorem comp (D : κ ⥤ SeparatingStage.{u, v, q, r, r'} S P x y)
     {i j k : κ} (hij : i ≤ j) (hjk : j ≤ k) :
-    hom D (le_trans hij hjk) = hom D hij ≫ hom D hjk := sorry
+    hom D (le_trans hij hjk) = hom D hij ≫ hom D hjk := by
+  simpa only [homOfLE_comp] using D.map_comp (homOfLE hij) (homOfLE hjk)
 
 end hom
 
@@ -75,14 +78,14 @@ namespace toRefinementDiagram
 separating stage. -/
 @[simp]
 theorem obj (D : κ ⥤ SeparatingStage.{u, v, q, r, r'} S P x y) (i : κ) :
-    (toRefinementDiagram D).obj i = (stage D i).toRefinementStage := sorry
+    (toRefinementDiagram D).obj i = (stage D i).toRefinementStage := rfl
 
 /-- A transition of the forgotten diagram is the refinement-stage morphism underlying the
 corresponding separating-stage transition. -/
 @[simp]
 theorem map (D : κ ⥤ SeparatingStage.{u, v, q, r, r'} S P x y)
     {i j : κ} (hij : i ≤ j) :
-    (toRefinementDiagram D).map (homOfLE hij) = (hom D hij).toRefinementStage := sorry
+    (toRefinementDiagram D).map (homOfLE hij) = (hom D hij).toRefinementStage := rfl
 
 namespace map
 
@@ -92,7 +95,7 @@ theorem toRefinement
     (D : κ ⥤ SeparatingStage.{u, v, q, r, r'} S P x y)
     {i j : κ} (hij : i ≤ j) :
     ((toRefinementDiagram D).map (homOfLE hij)).toRefinement =
-      (hom D hij).toRefinement := sorry
+      (hom D hij).toRefinement := rfl
 
 end map
 
@@ -109,13 +112,13 @@ namespace toTargetDiagram
 /-- The target component is the target carried by the corresponding separating stage. -/
 @[simp]
 theorem obj (D : κ ⥤ SeparatingStage.{u, v, q, r, r'} S P x y) (i : κ) :
-    (toTargetDiagram D).obj i = (stage D i).target := sorry
+    (toTargetDiagram D).obj i = (stage D i).target := rfl
 
 /-- A target transition is the fully forgotten separating-stage transition. -/
 @[simp]
 theorem map (D : κ ⥤ SeparatingStage.{u, v, q, r, r'} S P x y)
     {i j : κ} (hij : i ≤ j) :
-    (toTargetDiagram D).map (homOfLE hij) = (hom D hij).toRefinementStage.toTarget := sorry
+    (toTargetDiagram D).map (homOfLE hij) = (hom D hij).toRefinementStage.toTarget := rfl
 
 /-- Forgetting a separating-stage transition to targets preserves its ordered refinement. -/
 @[simp]
@@ -123,12 +126,12 @@ theorem map.toRefinement
     (D : κ ⥤ SeparatingStage.{u, v, q, r, r'} S P x y)
     {i j : κ} (hij : i ≤ j) :
     ((toTargetDiagram D).map (homOfLE hij)).toRefinement =
-      (hom D hij).toRefinement := sorry
+      (hom D hij).toRefinement := rfl
 
 /-- The target diagram factors through the neutral refinement-stage diagram. -/
 theorem factorization
     (D : κ ⥤ SeparatingStage.{u, v, q, r, r'} S P x y) :
-    toTargetDiagram D = toRefinementDiagram D ⋙ RefinementStage.forget := sorry
+    toTargetDiagram D = toRefinementDiagram D ⋙ RefinementStage.forget := rfl
 
 end toTargetDiagram
 

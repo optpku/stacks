@@ -73,7 +73,9 @@ noncomputable abbrev rightUnit (R : D ⥤ C) [R.Additive]
 @[stacks 015F "exact bounded-below action is left derived", instance]
 noncomputable instance left_isLeftDerived (L : C ⥤ₑ D) :
     (left L).IsLeftDerivedFunctor (leftFactor L)
-      (HomotopyCategory.Plus.quasiIso C) := sorry
+      (HomotopyCategory.Plus.quasiIso C) :=
+  Functor.isLeftDerivedFunctor_of_inverts (HomotopyCategory.Plus.quasiIso C)
+    (left L) (ExactFunctor.Derived.Plus.factorIso L).symm
 
 /-- The localization factor for the composite of the derived left and right adjoints. -/
 @[stacks 015F "bounded-below left-right composite factor"]
@@ -82,8 +84,7 @@ noncomputable abbrev leftRightFactor (L : C ⥤ₑ D) (R : D ⥤ C) [R.Additive]
       (HomotopyCategory.Plus.quasiIso D)] :
     DerivedCategory.Plus.Qh ⋙ (left L ⋙ right R) ⟶
       L.obj.mapHomotopyCategoryPlus ⋙ (DerivedCategory.Plus.Qh ⋙ right R) :=
-  (Functor.associator DerivedCategory.Plus.Qh (left L) (right R)).inv ≫
-    Functor.whiskerRight (leftFactor L) (right R)
+  Adjunction.Derived.leftRightFactor (right R) (leftFactor L)
 
 /-- The localization unit for the composite of the derived right and left adjoints. -/
 @[stacks 015A "bounded-below right-left composite unit"]
@@ -92,11 +93,11 @@ noncomputable abbrev rightLeftUnit (L : C ⥤ₑ D) (R : D ⥤ C) [R.Additive]
       (HomotopyCategory.Plus.quasiIso D)] :
     R.mapHomotopyCategoryPlus ⋙ (DerivedCategory.Plus.Qh ⋙ left L) ⟶
       DerivedCategory.Plus.Qh ⋙ (right R ⋙ left L) :=
-  Functor.whiskerRight (rightUnit R) (left L) ≫
-    (Functor.associator DerivedCategory.Plus.Qh (right R) (left L)).hom
+  Adjunction.Derived.rightLeftUnit (left L) (rightUnit R)
 
-/-- The two absolute-derived conditions needed for an exact-left bounded-below derived
-adjunction. -/
+/-- Compatibility facade for `Adjunction.Derived.HasPair` on the bounded-below models.
+The two fields retain the original record-construction API; `hasPair_iff_derivedHasPair`
+identifies this facade with the common condition. -/
 @[stacks 015F "exact-left bounded-below derived adjunction pair"]
 class HasPair (L : C ⥤ₑ D) (R : D ⥤ C) [R.Additive]
     [R.toBoundedBelowDerived.HasRightDerivedFunctor
@@ -111,6 +112,28 @@ class HasPair (L : C ⥤ₑ D) (R : D ⥤ C) [R.Additive]
       (HomotopyCategory.Plus.quasiIso D)
 
 attribute [instance] HasPair.leftRight HasPair.rightLeft
+
+/-- The compatibility facade supplies the common derived-pair condition. -/
+instance HasPair.toDerivedHasPair {L : C ⥤ₑ D} {R : D ⥤ C} [R.Additive]
+    [R.toBoundedBelowDerived.HasRightDerivedFunctor
+      (HomotopyCategory.Plus.quasiIso D)] [self : HasPair L R] :
+    Adjunction.Derived.HasPair (left L) (right R) (leftFactor L) (rightUnit R)
+      (HomotopyCategory.Plus.quasiIso C) (HomotopyCategory.Plus.quasiIso D) where
+  toIsLeftDerivedFunctor := self.leftRight
+  toIsRightDerivedFunctor := self.rightLeft
+
+/-- The legacy fields impose exactly the common pair condition, with no extra hypotheses. -/
+theorem hasPair_iff_derivedHasPair (L : C ⥤ₑ D) (R : D ⥤ C) [R.Additive]
+    [R.toBoundedBelowDerived.HasRightDerivedFunctor
+      (HomotopyCategory.Plus.quasiIso D)] :
+    HasPair L R ↔
+      Adjunction.Derived.HasPair (left L) (right R) (leftFactor L) (rightUnit R)
+        (HomotopyCategory.Plus.quasiIso C) (HomotopyCategory.Plus.quasiIso D) := by
+  constructor
+  · intro h
+    exact HasPair.toDerivedHasPair (self := h)
+  · intro h
+    exact { leftRight := h.toIsLeftDerivedFunctor, rightLeft := h.toIsRightDerivedFunctor }
 
 /-- Exact left actions and canonical bounded-below right-derived actions form the absolute
 derived pair required by the derived-adjunction construction. -/
@@ -144,16 +167,10 @@ noncomputable def adjunction [EnoughInjectives D] (L : C ⥤ₑ D) (R : D ⥤ C)
       (HomotopyCategory.Plus.quasiIso D)]
     (adj : L.obj ⊣ R) :
     left L ⊣ right R :=
-  @Adjunction.derived
-    _ _ _ _ _ _ _ _ _ _
+  Adjunction.Derived.HasPair.derived
     (Adjunction.mapHomotopyCategoryPlusAdjunction adj)
-    DerivedCategory.Plus.Qh DerivedCategory.Plus.Qh
     (HomotopyCategory.Plus.quasiIso C)
     (HomotopyCategory.Plus.quasiIso D)
-    inferInstance inferInstance
-    (left L) (right R) (leftFactor L) (rightUnit R)
-    (left_isLeftDerived L) inferInstance
-    (HasPair.leftRight (L := L) (R := R))
-    (HasPair.rightLeft (L := L) (R := R))
+    (leftFactor L) (rightUnit R)
 
 end CategoryTheory.Adjunction.Derived.Plus

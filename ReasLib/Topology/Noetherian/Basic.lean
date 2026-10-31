@@ -38,7 +38,8 @@ class LocallyNoetherianSpace (X : Type u) [TopologicalSpace X] : Prop where
 /-- The defining open-neighbourhood condition for a locally Noetherian space. -/
 theorem locallyNoetherianSpace_iff :
     LocallyNoetherianSpace X ↔
-      ∀ x : X, ∃ U : Opens X, x ∈ U ∧ NoetherianSpace U := sorry
+      ∀ x : X, ∃ U : Opens X, x ∈ U ∧ NoetherianSpace U :=
+  ⟨fun h => h.exists_open, fun h => ⟨h⟩⟩
 
 /-- Every neighbourhood of a point in a locally Noetherian space contains an open Noetherian
 neighbourhood. -/
@@ -56,11 +57,6 @@ theorem LocallyNoetherianSpace.exists_mem_nhds_subset [LocallyNoetherianSpace X]
 filter. -/
 theorem LocallyNoetherianSpace.exists_mem_nhds [LocallyNoetherianSpace X] (x : X) :
     ∃ s : Set X, s ∈ 𝓝 x ∧ NoetherianSpace s := sorry
-
-/-- Open subspaces of locally Noetherian spaces are locally Noetherian. -/
-protected theorem _root_.IsOpen.locallyNoetherianSpace
-    [LocallyNoetherianSpace X] {U : Set X} (hU : IsOpen U) :
-    LocallyNoetherianSpace U := sorry
 
 /-- Every subspace of a locally Noetherian space is locally Noetherian. -/
 instance LocallyNoetherianSpace.set (S : Set X) [LocallyNoetherianSpace X] :

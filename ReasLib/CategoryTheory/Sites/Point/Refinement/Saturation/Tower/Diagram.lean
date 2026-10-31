@@ -49,7 +49,8 @@ namespace Implementation
 /-- The comparison assigned to an identity of lifted tower indices is the identity. -/
 private theorem mapId
     (T : Tower (J := J) (S := S) (P := P) (x := x) (y := y)) (n : Index) :
-    T.hom ((ULift.down_le).mpr (leOfHom (𝟙 n))) = 𝟙 (T.stage n.down) := sorry
+    T.hom ((ULift.down_le).mpr (leOfHom (𝟙 n))) = 𝟙 (T.stage n.down) := by
+  exact Functor.OfSequence.map_id T.step n.down
 
 /-- Comparisons assigned to composable lifted-index morphisms preserve composition. -/
 private theorem mapComp
@@ -57,7 +58,9 @@ private theorem mapComp
     {n m p : Index} (f : n ⟶ m) (g : m ⟶ p) :
     T.hom ((ULift.down_le).mpr (leOfHom (f ≫ g))) =
       T.hom ((ULift.down_le).mpr (leOfHom f)) ≫
-        T.hom ((ULift.down_le).mpr (leOfHom g)) := sorry
+        T.hom ((ULift.down_le).mpr (leOfHom g)) := by
+  exact Functor.OfSequence.map_comp T.step n.down m.down p.down
+    ((ULift.down_le).mpr (leOfHom f)) ((ULift.down_le).mpr (leOfHom g))
 
 /-- Comparisons from level zero are natural with respect to lifted tower transitions. -/
 private theorem baseNaturality
@@ -65,7 +68,11 @@ private theorem baseNaturality
     {n m : Index} (f : n ⟶ m) :
     ((Functor.const Index).obj (T.stage 0)).map f ≫ T.hom (Nat.zero_le m.down) =
       T.hom (Nat.zero_le n.down) ≫
-        T.hom ((ULift.down_le).mpr (leOfHom f)) := sorry
+        T.hom ((ULift.down_le).mpr (leOfHom f)) := by
+  change 𝟙 _ ≫ T.hom (Nat.zero_le m.down) = _
+  rw [Category.id_comp]
+  exact Functor.OfSequence.map_comp T.step 0 n.down m.down
+    (Nat.zero_le n.down) ((ULift.down_le).mpr (leOfHom f))
 
 end Implementation
 
@@ -92,32 +99,40 @@ namespace toDiagram
 @[simp]
 theorem stage (T : Tower (J := J) (S := S) (P := P) (x := x) (y := y))
     (n : Index) :
-    T.toDiagram.stage n = T.stage n.down := sorry
+    T.toDiagram.stage n = T.stage n.down := rfl
 
 /-- The base map in the tower diagram is the derived comparison out of level zero. -/
 @[simp]
 theorem fromBase (T : Tower (J := J) (S := S) (P := P) (x := x) (y := y))
     (n : Index) :
-    T.toDiagram.fromBase n = T.hom (Nat.zero_le n.down) := sorry
+    T.toDiagram.fromBase n = T.hom (Nat.zero_le n.down) := rfl
 
 /-- The transition in a tower's diagram is the corresponding derived tower comparison. -/
 @[simp]
 theorem hom (T : Tower (J := J) (S := S) (P := P) (x := x) (y := y))
     {n m : Index} (hnm : n ≤ m) :
-    T.toDiagram.hom hnm = T.hom ((ULift.down_le).mpr hnm) := sorry
+    T.toDiagram.hom hnm = T.hom ((ULift.down_le).mpr hnm) := rfl
 
 end toDiagram
 
 /-- The successor realization property of a tower supplies eventual realization for the
 target diagram underlying its canonical based diagram. -/
 theorem eventuallyRealizes (T : Tower (J := J) (S := S) (P := P) (x := x) (y := y)) :
-    Target.Diagram.eventuallyRealizes (J := J) T.toDiagram.toTargetDiagram := sorry
+    Target.Diagram.eventuallyRealizes (J := J) T.toDiagram.toTargetDiagram := by
+  intro n request
+  refine ⟨⟨n.down + 1⟩, (ULift.down_le).mp (Nat.le_succ n.down), ?_⟩
+  change ((T.hom (Nat.le_succ n.down)).mapRequest request).is_realized
+  have hstep : T.hom (Nat.le_succ n.down) = T.step n.down :=
+    Functor.ofSequence_map_homOfLE_succ T.step n.down
+  rw [hstep]
+  exact T.realizes n.down request
 
 /-- The telescope target of a sequential saturation tower is finite-cover complete. -/
 theorem telescopeTargetComplete
     (T : Tower (J := J) (S := S) (P := P) (x := x) (y := y))
     {target : Target.Diagram.TelescopeTarget T.toDiagram.toTargetDiagram} :
-    target.toTarget.complete J := sorry
+    target.toTarget.complete J := by
+  exact target.complete_of_eventuallyRealizes T.eventuallyRealizes
 
 namespace telescopeStage
 
@@ -126,7 +141,8 @@ theorem targetComplete
     (T : Tower (J := J) (S := S) (P := P) (x := x) (y := y))
     {target : Target.Diagram.TelescopeTarget T.toDiagram.toTargetDiagram}
     (anchor : Stage.Diagram.TelescopeAnchor (J := J) T.toDiagram target) :
-    (T.toDiagram.telescopeStage anchor).targetComplete := sorry
+    (T.toDiagram.telescopeStage anchor).targetComplete := by
+  exact T.telescopeTargetComplete (target := target)
 
 end telescopeStage
 

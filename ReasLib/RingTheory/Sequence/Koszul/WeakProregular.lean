@@ -55,15 +55,6 @@ def AtOnce {ι : Type v} [Finite ι] (f : ι → R) : Prop :=
 
 end IsWeaklyProregular
 
-/-- Weak proregularity is the eventual vanishing of all positive-homology transition systems of
-the powered Koszul tower. -/
-theorem isWeaklyProregular_iff {ι : Type v} [Finite ι] (f : ι → R) :
-    IsWeaklyProregular f ↔
-      ∀ p : ℕ, 0 < p →
-        PreorderInverseSystem.Transition.EventuallyZero
-          (powerSystem f ⋙
-            HomologicalComplex.homologyFunctor (ModuleCat R) (down ℕ) p) := sorry
-
 /-- For a finite Koszul complex, homologywise eventual vanishing is equivalent to choosing one
 later transition which vanishes in all positive degrees simultaneously. -/
 theorem isWeaklyProregular_iff_atOnce {ι : Type v} [Finite ι] (f : ι → R) :
@@ -81,6 +72,7 @@ theorem IsWeaklyProregular.eventuallyZero {ι : Type v} [Finite ι] {f : ι → 
     (h : IsWeaklyProregular f) (p : ℕ) (hp : 0 < p) :
     PreorderInverseSystem.Transition.EventuallyZero
       (powerSystem f ⋙
-        HomologicalComplex.homologyFunctor (ModuleCat R) (down ℕ) p) := sorry
+        HomologicalComplex.homologyFunctor (ModuleCat R) (down ℕ) p) :=
+  h p hp
 
 end KoszulComplex

@@ -33,7 +33,9 @@ variable {R : Type u} [Semiring R]
 range. -/
 @[stacks 00SC "finite family ideal/list span bridge"]
 theorem ofList_ofFn_eq_span_range {c : ℕ} (xs : Fin c → R) :
-    Ideal.ofList (List.ofFn xs) = Ideal.span (Set.range xs) := sorry
+    Ideal.ofList (List.ofFn xs) = Ideal.span (Set.range xs) := by
+  apply congrArg Ideal.span
+  exact Set.ext (fun x ↦ List.mem_ofFn' xs x)
 
 /-- An explicit finite family of elements of an ideal whose range spans that ideal. -/
 structure FiniteGeneratingFamily (I : Ideal R) where
@@ -54,11 +56,13 @@ variable {I : Ideal R}
 abbrev Index (G : I.FiniteGeneratingFamily) : Type := Fin G.count
 
 /-- The `i`-th element of a finite generating family belongs to the ideal. -/
-theorem mem (G : I.FiniteGeneratingFamily) (i : G.Index) : G.generator i ∈ I := sorry
+theorem mem (G : I.FiniteGeneratingFamily) (i : G.Index) : G.generator i ∈ I :=
+  G.generator_mem i
 
 /-- The range of a finite generating family spans its ideal. -/
 theorem span_range_eq (G : I.FiniteGeneratingFamily) :
-    Ideal.span (Set.range G.generator) = I := sorry
+    Ideal.span (Set.range G.generator) = I :=
+  G.span_eq
 
 /-- The generator function obtained by adjoining one element to a finite generating family. -/
 def prependGenerator (G : I.FiniteGeneratingFamily) (a : I) : Fin (G.count + 1) → R :=
@@ -67,11 +71,18 @@ def prependGenerator (G : I.FiniteGeneratingFamily) (a : I) : Fin (G.count + 1) 
 /-- Every value of the generator function obtained by adjoining an ideal element lies in the
 ideal. -/
 theorem prependGenerator_mem (G : I.FiniteGeneratingFamily) (a : I)
-    (i : Fin (G.count + 1)) : prependGenerator G a i ∈ I := sorry
+    (i : Fin (G.count + 1)) : prependGenerator G a i ∈ I := by
+  refine Fin.cases ?_ (fun j ↦ ?_) i
+  · show prependGenerator G a 0 ∈ I
+    simpa only [prependGenerator, Fin.cons_zero] using a.property
+  · show prependGenerator G a j.succ ∈ I
+    simpa only [prependGenerator, Fin.cons_succ] using G.generator_mem j
 
 /-- Adjoining an ideal element to a spanning family leaves its generated ideal unchanged. -/
 theorem span_range_prependGenerator (G : I.FiniteGeneratingFamily) (a : I) :
-    Ideal.span (Set.range (prependGenerator G a)) = I := sorry
+    Ideal.span (Set.range (prependGenerator G a)) = I := by
+  rw [prependGenerator, Fin.range_cons, Ideal.span_insert, G.span_eq]
+  exact sup_eq_right.mpr (I.span_singleton_le_iff_mem.mpr a.property)
 
 /-- Prepend an element of an ideal to an explicit finite generating family of that ideal. -/
 @[stacks 00SC "prepend finite ideal generating family"]
@@ -90,18 +101,38 @@ noncomputable def finsetOfFG (I : Ideal R) (hI : I.FG) : Finset R :=
 
 /-- The finite set selected from an `Ideal.FG` witness spans the original ideal. -/
 theorem span_coe_finsetOfFG (I : Ideal R) (hI : I.FG) :
-    Ideal.span (↑(finsetOfFG I hI) : Set R) = I := sorry
+    Ideal.span (↑(finsetOfFG I hI) : Set R) = I :=
+  Classical.choose_spec hI
 
 /-- Every element of the finite set selected from an `Ideal.FG` witness lies in the ideal. -/
 theorem finsetOfFG_mem (I : Ideal R) (hI : I.FG) {x : R}
-    (hx : x ∈ finsetOfFG I hI) : x ∈ I := sorry
+    (hx : x ∈ finsetOfFG I hI) : x ∈ I := by
+  rw [← span_coe_finsetOfFG I hI]
+  exact Ideal.subset_span hx
 
 /-- Enumerating the selected finite generating set by `Fin` gives a family spanning the ideal. -/
 theorem span_range_finsetOfFG (I : Ideal R) (hI : I.FG) :
     Ideal.span
         (Set.range fun i : Fin (finsetOfFG I hI).card ↦
           ((finsetOfFG I hI).equivFin.symm i : R)) =
-      I := sorry
+      I := by
+  have hrange :
+      (Set.range fun i : Fin (finsetOfFG I hI).card ↦
+        ((finsetOfFG I hI).equivFin.symm i : R)) =
+        (↑(finsetOfFG I hI) : Set R) := by
+    ext x
+    constructor
+    · change (∃ i, ((finsetOfFG I hI).equivFin.symm i : R) = x) →
+        x ∈ (↑(finsetOfFG I hI) : Set R)
+      rintro ⟨i, rfl⟩
+      exact ((finsetOfFG I hI).equivFin.symm i).property
+    · change x ∈ (↑(finsetOfFG I hI) : Set R) →
+        ∃ i, ((finsetOfFG I hI).equivFin.symm i : R) = x
+      intro hx
+      refine ⟨(finsetOfFG I hI).equivFin ⟨x, hx⟩, ?_⟩
+      simp only [Equiv.symm_apply_apply]
+  rw [hrange]
+  exact span_coe_finsetOfFG I hI
 
 /-- A finite generating family selected from an `Ideal.FG` witness.
 
@@ -116,11 +147,13 @@ noncomputable def ofFG (I : Ideal R) (hI : I.FG) : I.FiniteGeneratingFamily wher
 
 /-- The generators selected by `ofFG` lie in the original ideal. -/
 theorem ofFG_mem (I : Ideal R) (hI : I.FG) (i : (ofFG I hI).Index) :
-    (ofFG I hI).generator i ∈ I := sorry
+    (ofFG I hI).generator i ∈ I :=
+  (ofFG I hI).mem i
 
 /-- The generators selected by `ofFG` span the original ideal. -/
 theorem span_range_ofFG (I : Ideal R) (hI : I.FG) :
-    Ideal.span (Set.range (ofFG I hI).generator) = I := sorry
+    Ideal.span (Set.range (ofFG I hI).generator) = I :=
+  (ofFG I hI).span_range_eq
 
 end FiniteGeneratingFamily
 

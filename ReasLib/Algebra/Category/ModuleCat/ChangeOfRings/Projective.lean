@@ -29,7 +29,6 @@ namespace ModuleCat.ExtendScalars
 
 /-- Extension of scalars preserves projective objects for every map of
 commutative rings. -/
-@[stacks 00M8 "extension-of-scalars projectives"]
 instance preservesProjectiveObjects
     {R S : Type u} [CommRing R] [CommRing S] (f : R →+* S) :
     (ModuleCat.extendScalars.{u, u, u} f).PreservesProjectiveObjects := by

@@ -7,6 +7,8 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.FunctorOfPoints
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.SchemeRealization
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.FiniteType
 public import Mathlib.AlgebraicGeometry.Morphisms.FiniteType
 public import Mathlib.AlgebraicGeometry.Restrict
 public import Mathlib.CategoryTheory.Limits.FunctorCategory.Basic
@@ -29,11 +31,10 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
-/-- An algebraic space is locally of finite type over its base when the structural morphism
-of every representable étale scheme chart is locally of finite type. -/
-def IsLocallyOfFiniteTypeOver {S : Scheme.{u}} (X : AlgebraicSpace S) : Prop :=
-  ∀ (T : Over S) (p : yoneda.obj T ⟶ X.functorOfPoints),
-    (MorphismProperty.over (@Etale)).presheaf p → LocallyOfFiniteType T.hom
+/-- Compatibility specialization of the canonical locally-of-finite-type class to the
+structural morphism of an algebraic space over its base. -/
+abbrev IsLocallyOfFiniteTypeOver {S : Scheme.{u}} (X : AlgebraicSpace S) : Prop :=
+  AlgebraicGeometry.AlgebraicSpace.LocallyOfFiniteType (SchemeRealization.toBase X)
 
 /-- An algebraic space is isomorphic to its base over an open when its restricted functor of
 points has an invertible morphism to the terminal presheaf. -/
@@ -46,14 +47,13 @@ def locallyOfFiniteTypeOverOpenProperty {S : Scheme.{u}} (U : S.Opens) :
     ObjectProperty (AlgebraicSpace S) :=
   fun X ↦ IsLocallyOfFiniteTypeOver X ∧ IsIsoOverSchemeOpen X U
 
-/-- Membership in the open-isomorphism property means that every representable étale scheme
-chart is locally of finite type over the base and the restricted terminal map is invertible. -/
+/-- Membership means that the structural morphism is locally of finite type and the
+restricted terminal map is invertible. -/
 theorem locallyOfFiniteTypeOverOpenProperty_iff {S : Scheme.{u}} (U : S.Opens)
     (X : AlgebraicSpace S) :
     locallyOfFiniteTypeOverOpenProperty U X ↔
-      (∀ (T : Over S) (p : yoneda.obj T ⟶ X.functorOfPoints),
-        (MorphismProperty.over (@Etale)).presheaf p → LocallyOfFiniteType T.hom) ∧
-      IsIso (Functor.whiskerLeft (Over.map U.ι).op (Limits.terminal.from X.functorOfPoints)) := sorry
+      AlgebraicGeometry.AlgebraicSpace.LocallyOfFiniteType (SchemeRealization.toBase X) ∧
+      IsIso (Functor.whiskerLeft (Over.map U.ι).op (Limits.terminal.from X.functorOfPoints)) := Iff.rfl
 
 /-- The full subcategory of algebraic spaces locally of finite type over the base and
 isomorphic to it over a specified open. -/

@@ -81,12 +81,6 @@ theorem shortExact_of_preservesFiniteLimits
     {S : ShortComplex A} (hS : S.ShortExact) [Epi (F.map S.g)] :
     (S.map F).ShortExact := sorry
 
-/-- Explicit-premise form of `shortExact_of_preservesFiniteLimits`. -/
-@[stacks 015D "explicit finite-limit short exactness criterion"]
-theorem shortExact_of_preservesFiniteLimits_of
-    [F.Additive] [PreservesFiniteLimits F]
-    {S : ShortComplex A} (hS : S.ShortExact) (h_epi : Epi (F.map S.g)) :
-    (S.map F).ShortExact := sorry
 
 /-- A finite-colimit-preserving additive functor maps a short exact complex to an exact short
 complex. -/
@@ -110,31 +104,5 @@ theorem shortExact_of_preservesFiniteColimits
     {S : ShortComplex A} (hS : S.ShortExact) [Mono (F.map S.f)] :
     (S.map F).ShortExact := sorry
 
-/-- Explicit-premise form of `shortExact_of_preservesFiniteColimits`. -/
-@[stacks 015D "explicit finite-colimit short exactness criterion"]
-theorem shortExact_of_preservesFiniteColimits_of
-    [F.Additive] [PreservesFiniteColimits F]
-    {S : ShortComplex A} (hS : S.ShortExact) (h_mono : Mono (F.map S.f)) :
-    (S.map F).ShortExact := sorry
-
-/-- Stacks 015D source-facing form of `exact_of_preservesFiniteLimits`. -/
-@[stacks 015D]
-theorem exact_map_of_shortExact [F.Additive] [PreservesFiniteLimits F]
-    {S : ShortComplex A} (hS : S.ShortExact) :
-    (S.map F).Exact := sorry
-
-/-- Stacks 015D source-facing form of `mono_of_preservesFiniteLimits`. -/
-@[stacks 015D]
-theorem mono_map_f_of_shortExact [F.Additive] [PreservesFiniteLimits F]
-    {S : ShortComplex A} (hS : S.ShortExact) :
-    Mono (F.map S.f) := sorry
-
-/-- Stacks 015D source-facing explicit-premise form of
-`shortExact_of_preservesFiniteLimits`. -/
-@[stacks 015D]
-theorem map_shortExact_of_epi_map_g
-    [F.Additive] [PreservesFiniteLimits F]
-    {S : ShortComplex A} (hS : S.ShortExact) (h_epi : Epi (F.map S.g)) :
-    (S.map F).ShortExact := sorry
 
 end CategoryTheory.Functor

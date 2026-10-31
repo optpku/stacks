@@ -77,14 +77,16 @@ noncomputable abbrev ι (ℱ : X.Modules) :
 /-- The annihilator inclusion followed by the scalar-action map is zero. -/
 @[reassoc, stacks 0H2H "kernel equation"]
 theorem ι_comp_action (ℱ : X.Modules) :
-    ι ℱ ≫ action ℱ = 0 := sorry
+    ι ℱ ≫ action ℱ = 0 := by
+  exact kernelSubobject_arrow_comp (action ℱ)
 
 /-- A morphism into the structure module factors through `Ann(ℱ)` exactly when it acts trivially
 on `ℱ`. -/
 @[stacks 0H2H "annihilator universal property"]
 theorem factors_iff (ℱ : X.Modules) {K : X.Modules}
     (f : K ⟶ SheafOfModules.unit X.ringCatSheaf) :
-    (subobject ℱ).Factors f ↔ f ≫ action ℱ = 0 := sorry
+    (subobject ℱ).Factors f ↔ f ≫ action ℱ = 0 := by
+  exact kernelSubobject_factors_iff (action ℱ) f
 
 /-- The canonical lift of a morphism annihilated by `action ℱ` to the annihilator module. -/
 @[stacks 0H2H "annihilator lift"]
@@ -98,12 +100,14 @@ noncomputable abbrev lift (ℱ : X.Modules) {K : X.Modules}
 @[reassoc, stacks 0H2H "annihilator lift equation"]
 theorem lift_ι (ℱ : X.Modules) {K : X.Modules}
     (f : K ⟶ SheafOfModules.unit X.ringCatSheaf) (h : f ≫ action ℱ = 0) :
-    lift ℱ f h ≫ ι ℱ = f := sorry
+    lift ℱ f h ≫ ι ℱ = f := by
+  exact SheafOfModules.RingedSite.Annihilator.lift_ι ℱ f h
 
 /-- Morphisms into `Ann(ℱ)` are determined by their composites with the kernel inclusion. -/
 @[ext, stacks 0H2H "annihilator morphism extensionality"]
 theorem hom_ext (ℱ : X.Modules) {K : X.Modules} {f g : K ⟶ Ann(ℱ)}
-    (h : f ≫ ι ℱ = g ≫ ι ℱ) : f = g := sorry
+    (h : f ≫ ι ℱ = g ≫ ι ℱ) : f = g := by
+  exact (cancel_mono (subobject ℱ).arrow).mp h
 
 /-- Isomorphic module sheaves have isomorphic annihilator modules. -/
 @[stacks 0H2H "annihilator isomorphism"]
@@ -114,22 +118,30 @@ noncomputable abbrev mapIso {ℱ 𝒢 : X.Modules} (e : ℱ ≅ 𝒢) : Ann(ℱ)
 /-- The annihilator isomorphism commutes with the canonical inclusions. -/
 @[reassoc, stacks 0H2H "annihilator isomorphism inclusion"]
 theorem mapIso_hom_ι {ℱ 𝒢 : X.Modules} (e : ℱ ≅ 𝒢) :
-    (mapIso e).hom ≫ ι 𝒢 = ι ℱ := sorry
+    (mapIso e).hom ≫ ι 𝒢 = ι ℱ := by
+  exact SheafOfModules.RingedSite.Annihilator.mapIso_hom_ι e
 
 /-- The inverse annihilator isomorphism commutes with the canonical inclusions. -/
 @[reassoc, stacks 0H2H "inverse annihilator isomorphism inclusion"]
 theorem mapIso_inv_ι {ℱ 𝒢 : X.Modules} (e : ℱ ≅ 𝒢) :
-    (mapIso e).inv ≫ ι ℱ = ι 𝒢 := sorry
+    (mapIso e).inv ≫ ι ℱ = ι 𝒢 := by
+  exact SheafOfModules.RingedSite.Annihilator.mapIso_inv_ι e
 
 /-- The identity module isomorphism induces the identity annihilator isomorphism. -/
 @[simp, stacks 0H2H "annihilator identity isomorphism"]
 theorem mapIso_refl (ℱ : X.Modules) :
-    mapIso (Iso.refl ℱ) = Iso.refl (Ann(ℱ)) := sorry
+    mapIso (Iso.refl ℱ) = Iso.refl (Ann(ℱ)) := by
+  apply Iso.ext
+  apply hom_ext ℱ
+  simpa only [Iso.refl_hom, Category.id_comp] using mapIso_hom_ι (Iso.refl ℱ)
 
 /-- Annihilator isomorphisms respect composition of module-sheaf isomorphisms. -/
 @[simp, stacks 0H2H "annihilator composition isomorphism"]
 theorem mapIso_trans {ℱ 𝒢 ℋ : X.Modules} (e : ℱ ≅ 𝒢) (e' : 𝒢 ≅ ℋ) :
-    mapIso (e.trans e') = (mapIso e).trans (mapIso e') := sorry
+    mapIso (e.trans e') = (mapIso e).trans (mapIso e') := by
+  apply Iso.ext
+  apply hom_ext ℋ
+  simp only [Iso.trans_hom, Category.assoc, mapIso_hom_ι]
 
 /-- A section of the annihilator, viewed as a section of `𝒪_X` via the kernel inclusion. -/
 abbrev sectionToRing (ℱ : X.Modules) (U : Opens X)
@@ -141,11 +153,26 @@ abbrev sectionToRing (ℱ : X.Modules) (U : Opens X)
 theorem sectionToRing_smul_eq_zero
     (ℱ : X.Modules) (U : Opens X)
     (s : (Ann(ℱ)).val.obj (op U)) (m : ℱ.val.obj (op U)) :
-    sectionToRing ℱ U s • m = 0 := sorry
+    sectionToRing ℱ U s • m = 0 := by
+  let r := sectionToRing ℱ U s
+  have hs := congrArg
+    (fun f : Ann(ℱ) ⟶ (ihom ℱ).obj ℱ => (f.val.app (op U)).hom s) (ι_comp_action ℱ)
+  change ((action ℱ).val.app (op U)).hom r = 0 at hs
+  have hscalar :=
+    (SheafOfModules.RingedSite.Annihilator.action_val_app_apply
+      (J := Opens.grothendieckTopology X) (O := X.sheaf) ℱ (op U) r).symm.trans hs
+  change SheafOfModules.sectionActionHom X.sheaf ℱ U r =
+    (0 : ℱ.over U ⟶ ℱ.over U) at hscalar
+  have h := congrArg
+    (fun f : ℱ.over U ⟶ ℱ.over U =>
+      (f.val.app (op (Over.mk (𝟙 U)))).hom m) hscalar
+  change X.presheaf.map (op (𝟙 U)) r • m = 0 at h
+  exact (congrArg (fun t : X.presheaf.obj (op U) => t • m)
+    (X.presheaf.map_id_apply (op U) r)).symm.trans h
 
 end Annihilator
 
 end SheafOfModules
 
--- The morphism, kernel, and isomorphism payloads above are explicit.  Any inherited `sorryAx` is
--- confined to Prop-valued kernel/isomorphism laws and the canonical monoidal comparison owners.
+-- The payloads above use the canonical local-action and kernel owners. Inherited `sorryAx`
+-- records the remaining laws of the ambient internal-Hom structures.

@@ -27,20 +27,6 @@ namespace AlgebraicGeometry.ChernClass.Derived
 
 open RingedSpace.ModuleDerived
 
-/-- Perfect complexes remain perfect under the already specified K-flat tensor.
-Locally finite-free representatives tensor to finite-free representatives; this
-law concerns the existing tensor object and selects no resolution or object. -/
-theorem isPerfect_kFlatTensor {X : Scheme.{u}}
-    [KFlat.HomotopyTensorDescends X.toRingedSpace]
-    [KFlat.TensorDescends X.toRingedSpace]
-    [KFlat.IsLocalization X.toRingedSpace]
-    {E F : RingedSpace.ModuleDerived X.toRingedSpace}
-    (hE : RingedSpace.ModuleDerived.IsPerfect E)
-    (hF : RingedSpace.ModuleDerived.IsPerfect F) :
-    RingedSpace.ModuleDerived.IsPerfect
-      (CategoryTheory.MonoidalCategory.tensorObj E F) :=
-  RingedSpace.ModuleDerived.IsPerfect.kFlatTensor hE hF
-
 
 /- Lemma 42.46.11 (1): The first Chern class of a derived tensor product is the virtual-rank-weighted sum
 of the first Chern classes of its factors. -/

@@ -10,7 +10,7 @@ public import ReasLib.CategoryTheory.Adjunction.HomotopyCategory
 public import ReasLib.CategoryTheory.DerivedCategory.Functor.Exact
 public import ReasLib.CategoryTheory.DerivedCategory.Functor.TotalRightDerived
 public import ReasLib.CategoryTheory.Functor.Derived.Exact.Cochain
-public import Mathlib.CategoryTheory.Functor.Derived.Adjunction
+public import ReasLib.CategoryTheory.Functor.Derived.Adjunction.Restriction
 public import Mathlib.Tactic.CrossRefAttribute
 
 @[expose] public section
@@ -73,14 +73,16 @@ noncomputable abbrev rightUnit (R : D ⥤ C) [R.Additive]
 @[stacks 015F "exact action is left derived", instance]
 noncomputable instance left_isLeftDerived (L : C ⥤ₑ D) :
     (left L).IsLeftDerivedFunctor (leftFactor L)
-      (HomologicalComplex.quasiIso C (up ℤ)) := sorry
+      (HomologicalComplex.quasiIso C (up ℤ)) :=
+  Functor.LeftDerived.Exact.Cochain.isLeftDerived L.obj
 
 /-- The K-injective action is a right-derived functor of the homotopy action. -/
 @[stacks 05TH "K-injective action is right derived", instance]
 noncomputable instance right_isRightDerived (R : D ⥤ C) [R.Additive]
     [IsGrothendieckAbelian D] :
     (right R).IsRightDerivedFunctor (rightUnit R)
-      (HomologicalComplex.quasiIso D (up ℤ)) := sorry
+      (HomologicalComplex.quasiIso D (up ℤ)) :=
+  Functor.RightDerived.KInjective.isRightDerived R
 
 /-- The structure map for deriving the composite of the exact left action and the right action. -/
 @[stacks 015F "exact-left/right-derived composite factor"]
@@ -90,9 +92,7 @@ noncomputable abbrev leftRightFactor (L : C ⥤ₑ D) (R : D ⥤ C)
         (left L ⋙ right R) ⟶
       (L.obj.mapHomologicalComplex (up ℤ) ⋙
           (DerivedCategory.Q : CochainComplex D ℤ ⥤ DerivedCategory D)) ⋙ right R :=
-  (Functor.associator (DerivedCategory.Q : CochainComplex C ℤ ⥤ DerivedCategory C)
-      (left L) (right R)).inv ≫
-    Functor.whiskerRight (leftFactor L) (right R)
+  Adjunction.Derived.leftRightFactor (right R) (leftFactor L)
 
 /-- The structure map for deriving the composite of the right action and the exact left action. -/
 @[stacks 05TH "right-derived/exact-left composite unit"]
@@ -102,11 +102,11 @@ noncomputable abbrev rightLeftUnit (L : C ⥤ₑ D) (R : D ⥤ C)
         (DerivedCategory.Q : CochainComplex C ℤ ⥤ DerivedCategory C)) ⋙ left L ⟶
       (DerivedCategory.Q : CochainComplex D ℤ ⥤ DerivedCategory D) ⋙
         (right R ⋙ left L) :=
-  Functor.whiskerRight (rightUnit R) (left L) ≫
-    (Functor.associator (DerivedCategory.Q : CochainComplex D ℤ ⥤ DerivedCategory D)
-      (right R) (left L)).hom
+  Adjunction.Derived.rightLeftUnit (left L) (rightUnit R)
 
-/-- The absolute-derived pair needed by the unbounded derived-adjunction construction. -/
+/-- Compatibility facade for `Adjunction.Derived.HasPair` on the K-injective models.
+The two fields retain the original record-construction API; `hasPair_iff_derivedHasPair`
+identifies this facade with the common condition. -/
 @[stacks 015F "absolute unbounded derived pair"]
 class HasPair (L : C ⥤ₑ D) (R : D ⥤ C) [R.Additive]
     [IsGrothendieckAbelian D] : Prop where
@@ -120,6 +120,26 @@ class HasPair (L : C ⥤ₑ D) (R : D ⥤ C) [R.Additive]
       (HomologicalComplex.quasiIso D (up ℤ))
 
 attribute [instance] HasPair.leftRight HasPair.rightLeft
+
+/-- The compatibility facade supplies the common derived-pair condition. -/
+instance HasPair.toDerivedHasPair {L : C ⥤ₑ D} {R : D ⥤ C} [R.Additive]
+    [IsGrothendieckAbelian D] [self : HasPair L R] :
+    Adjunction.Derived.HasPair (left L) (right R) (leftFactor L) (rightUnit R)
+      (HomologicalComplex.quasiIso C (up ℤ)) (HomologicalComplex.quasiIso D (up ℤ)) where
+  toIsLeftDerivedFunctor := self.leftRight
+  toIsRightDerivedFunctor := self.rightLeft
+
+/-- The legacy fields impose exactly the common pair condition, with no extra hypotheses. -/
+theorem hasPair_iff_derivedHasPair (L : C ⥤ₑ D) (R : D ⥤ C) [R.Additive]
+    [IsGrothendieckAbelian D] :
+    HasPair L R ↔
+      Adjunction.Derived.HasPair (left L) (right R) (leftFactor L) (rightUnit R)
+        (HomologicalComplex.quasiIso C (up ℤ)) (HomologicalComplex.quasiIso D (up ℤ)) := by
+  constructor
+  · intro h
+    exact HasPair.toDerivedHasPair (self := h)
+  · intro h
+    exact { leftRight := h.toIsLeftDerivedFunctor, rightLeft := h.toIsRightDerivedFunctor }
 
 /-- The specified K-injective model is canonically isomorphic to the homotopy-defined total right-
 derived functor. -/
@@ -263,7 +283,7 @@ private lemma rightLeftModelIso_unit (L : C ⥤ₑ D) (R : D ⥤ C)
   have hUnit := NatTrans.congr_app (rightModelIso_unit R) A
   dsimp only [NatTrans.comp_app, Functor.whiskerLeft_app,
     Functor.whiskerRight_app, Functor.associator_hom_app] at hPost hUnit
-  dsimp only [rightLeftModelIso, rightLeftUnit, NatTrans.comp_app,
+  dsimp only [rightLeftModelIso, rightLeftUnit, Adjunction.Derived.rightLeftUnit, NatTrans.comp_app,
     Iso.trans_hom, Iso.symm_hom, Functor.isoWhiskerRight_hom, Functor.whiskerRight_app,
     Functor.whiskerLeft_app, Functor.associator_hom_app]
   rw [← cancel_epi ((compositeCochainIso L R).hom.app A)]
@@ -297,18 +317,11 @@ noncomputable instance hasPair (L : C ⥤ₑ D) (R : D ⥤ C) [R.Additive]
 noncomputable def adjunction (L : C ⥤ₑ D) (R : D ⥤ C) [R.Additive]
     [IsGrothendieckAbelian D] (adj : L.obj ⊣ R) :
     left L ⊣ right R :=
-  @CategoryTheory.Adjunction.derived
-    _ _ _ _ _ _ _ _ _ _
+  Adjunction.Derived.HasPair.derived
     (CategoryTheory.Adjunction.mapHomologicalComplexAdjunction adj (up ℤ))
-    (DerivedCategory.Q : CochainComplex C ℤ ⥤ DerivedCategory C)
-    (DerivedCategory.Q : CochainComplex D ℤ ⥤ DerivedCategory D)
     (HomologicalComplex.quasiIso C (up ℤ))
     (HomologicalComplex.quasiIso D (up ℤ))
-    inferInstance inferInstance
-    (left L) (right R) (leftFactor L) (rightUnit R)
-    (left_isLeftDerived L) (right_isRightDerived R)
-    (HasPair.leftRight (L := L) (R := R))
-    (HasPair.rightLeft (L := L) (R := R))
+    (leftFactor L) (rightUnit R)
 
 end CategoryTheory.Adjunction.Derived.KInjective
 

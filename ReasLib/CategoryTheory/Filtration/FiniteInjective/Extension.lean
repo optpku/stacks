@@ -89,8 +89,8 @@ theorem ofLeftExact_map {I J : category A} (T : A ⥤ₗ B) (f : I ⟶ J) :
 theorem ofLeftExact_gradedIso (T : A ⥤ₗ B) (p : ℤ) :
     (ofLeftExact T).gradedIso p = FilteredInjective.GradedPiece.natIso T.obj p := sorry
 
-/-- Equation 13.26.13.4 (`05U0`): every additive functor admits an additive filtered extension
-on finite filtered-injective objects. -/
+/-- Every additive functor admits an additive filtered extension on finite filtered-injective
+objects. -/
 @[stacks 05U0]
 theorem nonempty (T : A ⥤+ B) : Nonempty (Extension T) := sorry
 

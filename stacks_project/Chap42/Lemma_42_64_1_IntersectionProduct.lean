@@ -35,7 +35,7 @@ namespace AlgebraicGeometry.ChowGroup.Dedekind
       conormalSheaf (diagonal X).left)
     (D : DiagonalSpecialization δ X e) (r : ℕ)
     [Scheme.Modules.IsFiniteLocallyFreeOfRank r (conormalSheaf (diagonal X).left)]
-    (alpha : Total δ Y) (beta : Total δ Z),
-    Total δ (pullback fY fZ))
+    (alpha : ChowGroup.Total δ Y) (beta : ChowGroup.Total δ Z),
+    ChowGroup.Total δ (pullback fY fZ))
 
 end AlgebraicGeometry.ChowGroup.Dedekind

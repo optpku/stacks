@@ -23,9 +23,11 @@ proper over `Y'`. -/
   (AlgebraicGeometry.AlgebraicSpace.ClosedSubset.ProperOver.preimage :
     ∀ {S : AlgebraicGeometry.Scheme.{u}} {X' X Y' Y : AlgebraicGeometry.AlgebraicSpace S}
       {g' : X' ⟶ X} {f' : X' ⟶ Y'} {f : X ⟶ Y} {g : Y' ⟶ Y},
-      IsPullback g' f' f g →
+      ∀ (sq : IsPullback g' f' f g),
         ∀ [AlgebraicGeometry.AlgebraicSpace.LocallyOfFiniteType f]
           (T : TopologicalSpace.Closeds (AlgebraicGeometry.AlgebraicSpace.Points X)),
           AlgebraicGeometry.AlgebraicSpace.ClosedSubset.ProperOver f T →
+          letI : AlgebraicGeometry.AlgebraicSpace.LocallyOfFiniteType f' :=
+            AlgebraicGeometry.AlgebraicSpace.LocallyOfFiniteType.of_isPullback sq inferInstance
           AlgebraicGeometry.AlgebraicSpace.ClosedSubset.ProperOver f'
             (T.preimage (AlgebraicGeometry.AlgebraicSpace.Points.continuous_map g')))

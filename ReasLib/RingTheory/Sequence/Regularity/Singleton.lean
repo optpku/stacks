@@ -27,7 +27,7 @@ variable {R : Type u} [CommRing R]
 variable {M : Type v} [AddCommGroup M] [Module R M]
 
 /-- The empty list is a regular sequence exactly when the module is nontrivial. -/
-@[simp, stacks 032C "regularity of the empty sequence"]
+@[simp]
 theorem isRegular_nil_iff : IsRegular M ([] : List R) ↔ Nontrivial M := by
   constructor
   · intro h
@@ -47,14 +47,13 @@ theorem isRegular_nil_iff : IsRegular M ([] : List R) ↔ Nontrivial M := by
 
 /-- A singleton is regular exactly when its entry acts regularly and the quotient is
 nontrivial. -/
-@[simp, stacks 032C "regularity of a singleton sequence"]
+@[simp]
 theorem isRegular_singleton_iff (x : R) :
     IsRegular M [x] ↔ IsSMulRegular M x ∧ Nontrivial (QuotSMulTop x M) := by
   rw [isRegular_cons_iff, isRegular_nil_iff (R := R)]
 
 /-- Over a local ring, a finite nontrivial module and an element of the maximal ideal form a
 regular singleton exactly when the element acts regularly. -/
-@[stacks 032C "regular singleton in the maximal ideal"]
 theorem isRegular_singleton_iff_of_mem_maximalIdeal
     [IsLocalRing R] [Module.Finite R M] [Nontrivial M]
     {x : R} (hx : x ∈ maximalIdeal R) :

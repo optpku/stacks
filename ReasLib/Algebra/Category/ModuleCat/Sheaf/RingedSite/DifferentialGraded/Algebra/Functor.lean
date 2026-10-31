@@ -57,7 +57,6 @@ noncomputable def map : DGA(OC) ⥤ DGA(OD) :=
 /-- A morphism out of a transported differential graded algebra, expressed as the corresponding
 morphism from the transported monoid object.  The comparison is the inverse of the canonical
 monoid-side counit, so no choice of multiplication or unit data is involved. -/
-@[stacks 0FSA "transported differential graded algebra map as a monoid map"]
 noncomputable def mapHomToMon {A : DGA(OC)} {B : DGA(OD)}
     (φ : (map F).obj A ⟶ B) :
     F.mapMon.obj A.toMon ⟶ B.toMon :=

@@ -35,8 +35,8 @@ dimension at the identity equals the dimension of the restricted stabilizer fibr
       ∃ U' : Over S, ∃ g : U' ⟶ G.U, ∃ u' : U'.left,
         IsAffine U'.left ∧ IsImmersion g.left ∧ g.left u' = u ∧
           LocallyOfFinitePresentation g.left ∧
-          CohenMacaulay (sliceSource G g).left ∧
-          LocallyOfFinitePresentation (sliceSource G g).left ∧
+          CohenMacaulay (saturationMap G g).left ∧
+          LocallyOfFinitePresentation (saturationMap G g).left ∧
           CohenMacaulay (G.pullback g).s.left ∧
           LocallyOfFinitePresentation (G.pullback g).s.left ∧
           CohenMacaulay (G.pullback g).t.left ∧

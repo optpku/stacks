@@ -9,6 +9,7 @@ module
 public import Mathlib.CategoryTheory.Adjunction.CompositionIso
 public import Mathlib.CategoryTheory.Sites.Sheafification
 public import ReasLib.CategoryTheory.Sites.MorphismOfSites
+public import ReasLib.CategoryTheory.Sites.ExactMorphismOfSites
 public import ReasLib.CategoryTheory.Sites.PrecoverageStability
 
 /-!
@@ -28,8 +29,8 @@ namespace CategoryTheory
 open Limits Opposite
 
 /-- Situation 7.18.1: a cofiltered inverse diagram of categories equipped with
-finite selected covers, the literal Stacks-site axioms, and continuous
-representably-flat transition functors. -/
+finite selected covers, the literal Stacks-site axioms, and continuous exact
+transition functors. -/
 @[stacks 0A34]
 structure CofilteredSiteDiagram.{uI', uC', vC'} where
   /-- The cofiltered index category `𝓘`. -/
@@ -58,9 +59,13 @@ structure CofilteredSiteDiagram.{uI', uC', vC'} where
   transitionContinuous {i j : I} (a : j ⟶ i) :
     Functor.Precoverage.IsContinuous
       (diagram.map a.op).toFunctor (stageCov i) (stageCov j)
-  /-- Each transition functor is representably flat. -/
-  transition_representablyFlat {i j : I} (a : j ⟶ i) :
-    RepresentablyFlat (diagram.map a.op).toFunctor
+  /-- Each transition has exact inverse image on sheaves. -/
+  transition_isExact {i j : I} (a : j ⟶ i)
+      [HasWeakSheafify ((stageCov j).toGrothendieck) (Type (max uC' vC'))]
+      [∀ P : (diagram.obj (op i))ᵒᵖ ⥤ Type (max uC' vC'),
+        (diagram.map a.op).toFunctor.op.HasLeftKanExtension P] :
+    IsExactMorphismOfSites ((stageCov i).toGrothendieck)
+      ((stageCov j).toGrothendieck) (diagram.map a.op).toFunctor
 
 /-- The stored category structure on the index type. -/
 instance instSmallCategory (S : CofilteredSiteDiagram.{uI, uC, vC}) :
@@ -125,21 +130,19 @@ instance stageFunctorContinuous {i j : S.I} (a : j ⟶ i) :
     Functor.Precoverage.IsContinuous (S.stageFunctor a) (S.stageCov i) (S.stageCov j) :=
   S.transitionContinuous a
 
-/-- The chosen transition flatness data, exposed for the abbreviated stage functor. -/
-instance stageFunctor_representablyFlat {i j : S.I} (a : j ⟶ i) :
-    RepresentablyFlat (S.stageFunctor a) := S.transition_representablyFlat a
-
 /-- Every transition is continuous for the generated stage topologies. -/
 instance stageFunctor_isContinuous {i j : S.I} (a : j ⟶ i) :
     Functor.IsContinuous (S.stageFunctor a) (S.stageTopology i) (S.stageTopology j) :=
   Functor.Precoverage.IsContinuous.toContinuous
     (S.stageFunctorContinuous a)
 
-/-- Every transition is a morphism of the generated stage sites. -/
-instance stageFunctor_isMorphismOfSites {i j : S.I} (a : j ⟶ i) :
-    IsMorphismOfSites (S.stageTopology i) (S.stageTopology j) (S.stageFunctor a) where
-  toIsContinuous := inferInstance
-  toRepresentablyFlat := inferInstance
+/-- Exactness of each transition at the common site universe. -/
+instance stageFunctor_isExact {i j : S.I} (a : j ⟶ i)
+    [HasWeakSheafify (S.stageTopology j) (Type (max uC vC))]
+    [∀ P : (S.stage i)ᵒᵖ ⥤ Type (max uC vC),
+      (S.stageFunctor a).op.HasLeftKanExtension P] :
+    IsExactMorphismOfSites (S.stageTopology i) (S.stageTopology j)
+      (S.stageFunctor a) := S.transition_isExact a
 
 /-- Continuity in the identity-arrow normal form used by a `Cat`-valued
 diagram. This named instance avoids repeated local instance pins in sheaf

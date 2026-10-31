@@ -43,7 +43,7 @@ def openCoverCompatible
 compatible sections on every open cover have a unique global amalgamation. -/
 @[stacks 01JK "open-cover gluing on locally ringed spaces"]
 def openCoverGluing (F : LocallyRingedSpace.{u}ᵒᵖ ⥤ Type v) : Prop :=
-  ∀ {J : Type w} ⦃X : LocallyRingedSpace.{u}⦄ (U : J → Opens X) (_ : IsOpenCover U)
+  ∀ {J : Type u} ⦃X : LocallyRingedSpace.{u}⦄ (U : J → Opens X) (_ : IsOpenCover U)
     (s : ∀ j : J, F.obj (op (X.restrict (U j).isOpenEmbedding))),
       F.openCoverCompatible U s →
       ∃! t : F.obj (op X),

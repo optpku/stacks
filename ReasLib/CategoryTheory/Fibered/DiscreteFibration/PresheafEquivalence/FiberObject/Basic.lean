@@ -39,6 +39,63 @@ set_option backward.privateInPublic.warn false
 
 namespace Implementation
 
+/-- Lift uniqueness determines morphisms after transporting their domains. -/
+private theorem fiberObjectHomLift_hom_eq
+    (p : S ⥤ C) [Functor.IsDiscreteFibration p]
+    {R : C} {a : S} (f : R ⟶ p.obj a) (l₁ l₂ : HomLift p f) :
+    l₁.hom = eqToHom
+      (congrArg HomLift.domain ((IsDiscreteFibration.homLiftSubsingleton f).elim l₁ l₂)) ≫
+        l₂.hom := by
+  have h := (IsDiscreteFibration.homLiftSubsingleton f).elim l₁ l₂
+  cases h
+  simp
+
+/-- A prescribed lift identifies the domain of the intrinsic reindexing object. -/
+private theorem fiberObjectReindex_eq_of_isHomLift
+    (p : S ⥤ C) [Functor.IsDiscreteFibration p]
+    {U V : C} (f : V ⟶ U) (x : p.Fiber U)
+    {a : S} (φ : a ⟶ x.1) (hφ : p.IsHomLift f φ) :
+    (IsDiscreteFibration.reindexObj p f x).1 = a := by
+  letI : p.IsHomLift f φ := hφ
+  exact congrArg HomLift.domain
+    ((IsDiscreteFibration.homLiftSubsingleton (f ≫ eqToHom x.2.symm)).elim
+      (IsDiscreteFibration.lift p _) ⟨a, φ, inferInstance⟩)
+
+/-- The intrinsic arrow inherits its lift property directly from its defining lift package. -/
+private theorem fiberObjectCartesianHom_isHomLift
+    (p : S ⥤ C) [Functor.IsDiscreteFibration p]
+    {U V : C} (f : V ⟶ U) (x : p.Fiber U) :
+    p.IsHomLift f (IsDiscreteFibration.cartesianHom p f x) := by
+  exact (IsHomLift.lift_comp_eqToHom_iff p f _ x.2.symm).mp
+    (IsDiscreteFibration.lift p (f ≫ eqToHom x.2.symm)).isHomLift
+
+/-- Unique lifting supplies the full universal property of a strongly cartesian arrow. -/
+private theorem fiberObject_isStronglyCartesian_of_isHomLift
+    (p : S ⥤ C) [Functor.IsDiscreteFibration p]
+    {R T : C} {a b : S} {f : R ⟶ T} {φ : a ⟶ b}
+    (hφ : p.IsHomLift f φ) : p.IsStronglyCartesian f φ := by
+  obtain ⟨⟩ := hφ
+  refine { universal_property' := ?_ }
+  intro a' g φ' hφ'
+  let l := IsDiscreteFibration.lift p g
+  letI : p.IsHomLift g l.hom := l.isHomLift
+  let composite : HomLift p (g ≫ p.map φ) :=
+    ⟨l.domain, l.hom ≫ φ, IsHomLift.comp p g (p.map φ) l.hom φ⟩
+  let original : HomLift p (g ≫ p.map φ) := ⟨a', φ', hφ'⟩
+  have domain_eq : l.domain = a' :=
+    congrArg HomLift.domain
+      ((IsDiscreteFibration.homLiftSubsingleton (g ≫ p.map φ)).elim composite original)
+  have hom_eq : l.hom ≫ φ = eqToHom domain_eq ≫ φ' :=
+    fiberObjectHomLift_hom_eq p _ composite original
+  refine ⟨eqToHom domain_eq.symm ≫ l.hom, ⟨inferInstance, ?_⟩, ?_⟩
+  · show (eqToHom domain_eq.symm ≫ l.hom) ≫ φ = φ'
+    rw [Category.assoc, hom_eq]
+    simp
+  · intro ψ hψ
+    simpa only [eqToHom_refl, Category.id_comp] using
+      fiberObjectHomLift_hom_eq p g ⟨a', ψ, hψ.1⟩
+        ⟨a', eqToHom domain_eq.symm ≫ l.hom, inferInstance⟩
+
 /-- The transparent restriction function used to assemble `fiberObjectPresheaf`. It is the
 intrinsic reindexing function determined by unique lifting, so no auxiliary cleavage is selected.
 Transparency lets category-of-elements morphisms expose their defining reindexing equality
@@ -48,23 +105,34 @@ private noncomputable abbrev fiberObjectRestriction
     p.Fiber (unop U) ⟶ p.Fiber (unop V) :=
   TypeCat.ofHom (IsDiscreteFibration.reindexObj p f.unop)
 
-/-- Raw restriction along an identity is the identity.
-
-Proof strategy: apply `TypeCat.Hom.ext` and then
-`IsDiscreteFibration.reindexObj.id`. -/
+/-- Raw restriction along an identity is the identity, by uniqueness of the identity lift. -/
 private theorem fiberObjectRestriction_id
     (p : S ⥤ C) [Functor.IsDiscreteFibration p] (U : Cᵒᵖ) :
-    fiberObjectRestriction p (𝟙 U) = 𝟙 (p.Fiber (unop U)) := sorry
+    fiberObjectRestriction p (𝟙 U) = 𝟙 (p.Fiber (unop U)) := by
+  apply TypeCat.homEquiv.injective
+  funext x
+  apply Subtype.ext
+  exact fiberObjectReindex_eq_of_isHomLift p (𝟙 (unop U)) x
+    (𝟙 x.1) (IsHomLift.id x.2)
 
-/-- Raw restriction of fiber objects is contravariantly functorial.
-
-Proof strategy: apply `TypeCat.Hom.ext` pointwise and use
-`IsDiscreteFibration.reindexObj.comp` with the unopposite arrows. -/
+/-- Raw restriction of fiber objects is contravariantly functorial, by uniqueness of the
+composite lift. -/
 private theorem fiberObjectRestriction_comp
     (p : S ⥤ C) [Functor.IsDiscreteFibration p] {U V W : Cᵒᵖ}
     (f : U ⟶ V) (g : V ⟶ W) :
     fiberObjectRestriction p (f ≫ g) =
-      fiberObjectRestriction p f ≫ fiberObjectRestriction p g := sorry
+      fiberObjectRestriction p f ≫ fiberObjectRestriction p g := by
+  apply TypeCat.homEquiv.injective
+  funext x
+  apply Subtype.ext
+  exact fiberObjectReindex_eq_of_isHomLift p (g.unop ≫ f.unop) x
+    (IsDiscreteFibration.cartesianHom p g.unop
+      (IsDiscreteFibration.reindexObj p f.unop x) ≫
+        IsDiscreteFibration.cartesianHom p f.unop x)
+    (@IsHomLift.comp C S _ _ p _ _ _ _ _ _ g.unop f.unop _ _
+      (fiberObjectCartesianHom_isHomLift p g.unop
+        (IsDiscreteFibration.reindexObj p f.unop x))
+      (fiberObjectCartesianHom_isHomLift p f.unop x))
 
 end Implementation
 
@@ -81,10 +149,9 @@ noncomputable def fiberObjectPresheaf
   map_id U := Implementation.fiberObjectRestriction_id p U
   map_comp f g := Implementation.fiberObjectRestriction_comp p f g
 
-/- Axiom audit: the object types are explicit and the restriction functions use only the
-choice-independent specification of `IsDiscreteFibration.reindexObj`; their non-`Prop` data depend
-only on `Classical.choice`. The `sorryAx` dependency is confined to the Prop-valued
-identity/composition laws. -/
+/- Axiom audit: the object types are explicit and the restriction functions use the unique lift
+supplied by `IsDiscreteFibration`; their non-`Prop` data depend only on `Classical.choice`.
+The identity/composition laws are proved directly from lift uniqueness. -/
 
 end FiberObjectPresheafImplementation
 
@@ -92,7 +159,7 @@ end FiberObjectPresheafImplementation
 @[simp]
 theorem fiberObjectPresheaf.obj
     (p : S ⥤ C) [Functor.IsDiscreteFibration p] (U : Cᵒᵖ) :
-    p.fiberObjectPresheaf.obj U = p.Fiber (unop U) := sorry
+    p.fiberObjectPresheaf.obj U = p.Fiber (unop U) := rfl
 /- Proof strategy: unfold only the object projection of `fiberObjectPresheaf`. -/
 
 /-- The restriction map of `fiberObjectPresheaf` evaluates to the intrinsic reindexing determined
@@ -102,20 +169,20 @@ theorem fiberObjectPresheaf.map_apply
     (p : S ⥤ C) [Functor.IsDiscreteFibration p]
     {U V : Cᵒᵖ} (f : U ⟶ V) (x : p.Fiber (unop U)) :
     p.fiberObjectPresheaf.map f x =
-      IsDiscreteFibration.reindexObj p f.unop x := sorry
+      IsDiscreteFibration.reindexObj p f.unop x := rfl
 /- Proof strategy: unfold the map projection and the private restriction function. -/
 
 /-- The restriction map of `fiberObjectPresheaf` may be computed with any cleavage.
 
-This is the choice-independence specification: two cartesian reindexings are isomorphic, and
-strict discreteness of the target fiber turns that isomorphism into equality of objects.
-
-Proof strategy: compare the default and supplied cartesian lifts by their canonical vertical
-isomorphism, then apply `obj_ext_of_isDiscrete` in the target fiber. -/
+This is the choice-independence specification: unique lifting identifies the supplied
+cartesian lift with the intrinsic lift, including its domain object. -/
 theorem fiberObjectPresheaf.map_eq_reindex
     (p : S ⥤ C) [Functor.IsDiscreteFibration p] (χ : p.Cleavage)
     {U V : Cᵒᵖ} (f : U ⟶ V) (x : p.Fiber (unop U)) :
-    p.fiberObjectPresheaf.map f x = (f.unop)⁎[χ] x := sorry
+    p.fiberObjectPresheaf.map f x = (f.unop)⁎[χ] x := by
+  apply Subtype.ext
+  exact Implementation.fiberObjectReindex_eq_of_isHomLift p f.unop x
+    (χ.cartesianHom f.unop x) (χ.reindexLift f.unop x).isStronglyCartesian.toIsHomLift
 
 namespace fiberObjectPresheaf
 
@@ -125,7 +192,10 @@ theorem tautologicalSection.naturality
     (p : S ⥤ C) [Functor.IsDiscreteFibration p]
     {x y : Sᵒᵖ} (f : x ⟶ y) :
     p.fiberObjectPresheaf.map (p.map f.unop).op ⟨x.unop, rfl⟩ =
-      ⟨y.unop, rfl⟩ := sorry
+      ⟨y.unop, rfl⟩ := by
+  apply Subtype.ext
+  exact Implementation.fiberObjectReindex_eq_of_isHomLift p (p.map f.unop)
+    ⟨x.unop, rfl⟩ f.unop (IsHomLift.map f.unop)
 
 /-- The tautological section of the fiber-object presheaf pulled back to the total category.
 At a total object it records that object with its reflexive fiber witness. -/
@@ -141,7 +211,7 @@ noncomputable def tautologicalSection
 @[simp]
 theorem tautologicalSection.apply
     (p : S ⥤ C) [Functor.IsDiscreteFibration p] (x : Sᵒᵖ) :
-    (tautologicalSection p).1 x = ⟨x.unop, rfl⟩ := sorry
+    (tautologicalSection p).1 x = ⟨x.unop, rfl⟩ := rfl
 
 end fiberObjectPresheaf
 
@@ -157,8 +227,7 @@ noncomputable def fiberObjectPresheaf.cartesianHom
 
 /- Axiom audit: the morphism is the explicit intrinsic cartesian arrow and its non-`Prop` payload
 depends only on `Classical.choice`; no propositional computation theorem is used to align its
-domain. The whole declaration inherits `sorryAx` only from the functor-law fields of
-`fiberObjectPresheaf` occurring in its endpoint type. -/
+domain, and the presheaf laws in its endpoint type are proved above. -/
 
 /-- `fiberObjectPresheaf.cartesianHom` is the intrinsic cartesian arrow selected by unique
 lifting. -/
@@ -167,7 +236,7 @@ theorem fiberObjectPresheaf.cartesianHom.eq_intrinsic
     (p : S ⥤ C) [Functor.IsDiscreteFibration p]
     {U V : Cᵒᵖ} (f : U ⟶ V) (x : p.Fiber (unop U)) :
     fiberObjectPresheaf.cartesianHom p f x =
-      IsDiscreteFibration.cartesianHom p f.unop x := sorry
+      IsDiscreteFibration.cartesianHom p f.unop x := rfl
 /- Proof strategy: unfold `fiberObjectPresheaf.cartesianHom`; reducibility of
 `fiberObjectPresheaf` aligns the source objects definitionally. -/
 
@@ -177,10 +246,10 @@ instance fiberObjectPresheaf.cartesianHom.isStronglyCartesian
     (p : S ⥤ C) [Functor.IsDiscreteFibration p]
     {U V : Cᵒᵖ} (f : U ⟶ V) (x : p.Fiber (unop U)) :
     p.IsStronglyCartesian f.unop
-      (fiberObjectPresheaf.cartesianHom p f x) := sorry
-/- Proof strategy: rewrite by
-`fiberObjectPresheaf.cartesianHom.eq_intrinsic` and use the intrinsic cartesian-arrow
-instance. -/
+      (fiberObjectPresheaf.cartesianHom p f x) := by
+  exact Implementation.fiberObject_isStronglyCartesian_of_isHomLift p
+    (Implementation.fiberObjectCartesianHom_isHomLift p f.unop x)
+/- Proof strategy: derive the universal property directly from unique lifting. -/
 
 /-- The projection of the endpoint-aligned cartesian arrow is the displayed base morphism, with
 the endpoint transports stored by the two fiber objects. -/
@@ -190,10 +259,10 @@ theorem fiberObjectPresheaf.cartesianHom.map
     {U V : Cᵒᵖ} (f : U ⟶ V) (x : p.Fiber (unop U)) :
     p.map (fiberObjectPresheaf.cartesianHom p f x) =
       eqToHom (p.fiberObjectPresheaf.map f x).2 ≫
-        f.unop ≫ eqToHom x.2.symm := sorry
-/- Proof strategy: rewrite the arrow by
-`fiberObjectPresheaf.cartesianHom.eq_intrinsic` and apply `cartesianHom.map`; reducibility of
-`fiberObjectPresheaf` aligns the source witness. -/
+        f.unop ≫ eqToHom x.2.symm := by
+  letI := Implementation.fiberObjectCartesianHom_isHomLift p f.unop x
+  exact IsHomLift.fac' p f.unop (IsDiscreteFibration.cartesianHom p f.unop x)
+/- Proof strategy: apply mathlib's `IsHomLift.fac'` to the defining lift package. -/
 
 end Functor
 

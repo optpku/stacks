@@ -109,8 +109,13 @@ noncomputable def diagram [Nonempty I] [IsDirected I (· ≤ ·)] :
     precoverage_isStableUnderPullbackArrows (D.obj i)
   transitionContinuous a :=
     @baseChange_isContinuous _ _ (D.map a) (hD (leOfHom a))
-  transition_representablyFlat a :=
-    @baseChange_representablyFlat _ _ (D.map a) (hD (leOfHom a))
+  -- RL-1733 (landed in f31a6fb06) replaced the `transition_representablyFlat` field of
+  -- `CofilteredSiteDiagram` with the stronger `transition_isExact`, and left this, its only
+  -- consumer, unchanged -- so the library did not compile.  There is no bridge lemma from
+  -- representable flatness of the transition to exactness of its inverse image on sheaves, so
+  -- the new obligation is recorded here as proof debt instead of being faked from
+  -- `baseChange_representablyFlat`, which proves something strictly weaker.
+  transition_isExact a := sorry
 
 /-- The category at a stage of `diagram D` is that stage's affine etale
 category. -/

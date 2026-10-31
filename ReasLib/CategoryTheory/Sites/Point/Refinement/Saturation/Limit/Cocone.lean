@@ -52,7 +52,15 @@ theorem naturality (D : Diagram (J := J) A κ)
     (anchor : TelescopeAnchor (J := J) D target) {a b : κ} (f : a ⟶ b) :
     D.functor.map f ≫ D.telescopeInclusion anchor b =
       D.telescopeInclusion anchor a ≫
-        ((Functor.const κ).obj (D.telescopeStage anchor)).map f := sorry
+        ((Functor.const κ).obj (D.telescopeStage anchor)).map f := by
+  let hab : a ≤ b := f.le
+  have hf : f = homOfLE hab := Subsingleton.elim _ _
+  rw [hf]
+  rw [Functor.const_obj_map]
+  change D.functor.map (homOfLE hab) ≫ D.telescopeInclusion anchor b =
+    D.telescopeInclusion anchor a ≫ 𝟙 (D.telescopeStage anchor)
+  rw [Category.comp_id]
+  exact telescopeInclusion.naturality D anchor hab
 
 end telescopeCocone
 
@@ -73,7 +81,7 @@ namespace telescopeCocone
 theorem pt (D : Diagram (J := J) A κ)
     {target : Target.Diagram.TelescopeTarget D.toTargetDiagram}
     (anchor : TelescopeAnchor (J := J) D target) :
-    (D.telescopeCocone anchor).pt = D.telescopeStage anchor := sorry
+    (D.telescopeCocone anchor).pt = D.telescopeStage anchor := rfl
 
 /-- A component of the stage telescope cocone is the canonical telescope
 inclusion at that index. -/
@@ -81,7 +89,7 @@ inclusion at that index. -/
 theorem ιApp (D : Diagram (J := J) A κ)
     {target : Target.Diagram.TelescopeTarget D.toTargetDiagram}
     (anchor : TelescopeAnchor (J := J) D target) (a : κ) :
-    (D.telescopeCocone anchor).ι.app a = D.telescopeInclusion anchor a := sorry
+    (D.telescopeCocone anchor).ι.app a = D.telescopeInclusion anchor a := rfl
 
 end telescopeCocone
 
@@ -101,7 +109,16 @@ theorem fac (D : Diagram (J := J) A κ)
     {target : Target.Diagram.TelescopeTarget D.toTargetDiagram}
     (anchor : TelescopeAnchor (J := J) D target) (a : κ) :
     D.baseToTelescope anchor =
-      D.fromBase a ≫ (D.telescopeCocone anchor).ι.app a := sorry
+      D.fromBase a ≫ (D.telescopeCocone anchor).ι.app a := by
+  obtain ⟨c, hic, hac⟩ := directed_of (· ≤ ·) anchor.index a
+  change D.fromBase anchor.index ≫ D.telescopeInclusion anchor anchor.index =
+    D.fromBase a ≫ (D.telescopeCocone anchor).ι.app a
+  rw [telescopeCocone.ιApp, ← telescopeInclusion.naturality D anchor hic,
+    ← telescopeInclusion.naturality D anchor hac]
+  change D.fromBase anchor.index ≫ (D.hom hic ≫ D.telescopeInclusion anchor c) =
+    D.fromBase a ≫ (D.hom hac ≫ D.telescopeInclusion anchor c)
+  rw [← Category.assoc, ← Category.assoc,
+    ← Diagram.fromBase.comp D hic, ← Diagram.fromBase.comp D hac]
 
 /-- The ordered refinement underlying the base-to-telescope morphism is the
 composite through the anchor component. -/
@@ -111,7 +128,7 @@ theorem toRefinement (D : Diagram (J := J) A κ)
     (anchor : TelescopeAnchor (J := J) D target) :
     (D.baseToTelescope anchor).toRefinement =
       (D.fromBase anchor.index).toRefinement.comp
-        (D.telescopeInclusion anchor anchor.index).toRefinement := sorry
+        (D.telescopeInclusion anchor anchor.index).toRefinement := rfl
 
 /-- Request transport along the base-to-telescope morphism may be computed
 through any diagram component. -/
@@ -121,7 +138,9 @@ theorem mapRequest (D : Diagram (J := J) A κ)
     (request : A.target.Request J) :
     (D.baseToTelescope anchor).mapRequest request =
       (D.telescopeInclusion anchor a).mapRequest
-        ((D.fromBase a).mapRequest request) := sorry
+        ((D.fromBase a).mapRequest request) := by
+  rw [fac D anchor a, telescopeCocone.ιApp]
+  exact Stage.Hom.comp.mapRequest (D.fromBase a) (D.telescopeInclusion anchor a) request
 
 end baseToTelescope
 
@@ -141,7 +160,7 @@ telescope stage. -/
 theorem ptRight (D : Diagram (J := J) A κ)
     {target : Target.Diagram.TelescopeTarget D.toTargetDiagram}
     (anchor : TelescopeAnchor (J := J) D target) :
-    (D.underTelescopeCocone anchor).pt.right = D.telescopeStage anchor := sorry
+    (D.underTelescopeCocone anchor).pt.right = D.telescopeStage anchor := rfl
 
 /-- The structure map of the lifted telescope point is the canonical
 base-to-telescope morphism. -/
@@ -149,7 +168,7 @@ base-to-telescope morphism. -/
 theorem ptHom (D : Diagram (J := J) A κ)
     {target : Target.Diagram.TelescopeTarget D.toTargetDiagram}
     (anchor : TelescopeAnchor (J := J) D target) :
-    (D.underTelescopeCocone anchor).pt.hom = D.baseToTelescope anchor := sorry
+    (D.underTelescopeCocone anchor).pt.hom = D.baseToTelescope anchor := rfl
 
 /-- Forgetting a lifted telescope leg gives the corresponding stage telescope
 inclusion. -/
@@ -158,7 +177,7 @@ theorem ιAppRight (D : Diagram (J := J) A κ)
     {target : Target.Diagram.TelescopeTarget D.toTargetDiagram}
     (anchor : TelescopeAnchor (J := J) D target) (a : κ) :
     ((D.underTelescopeCocone anchor).ι.app a).right =
-      D.telescopeInclusion anchor a := sorry
+      D.telescopeInclusion anchor a := rfl
 
 end underTelescopeCocone
 

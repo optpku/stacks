@@ -45,7 +45,6 @@ section FormallyEtale
 variable {R : Type u} {S : Type v} [CommRing R] [CommRing S]
 
 /-- A formally étale ring map is formally smooth for every adic topology on its target. -/
-@[stacks 07QN "formally etale maps are adically formally smooth"]
 theorem FormallyEtale.formallySmoothForAdic {f : R →+* S} (hf : f.FormallyEtale)
     (𝔫 : Ideal S) : f.formally_smooth_for_adic 𝔫 := sorry
 

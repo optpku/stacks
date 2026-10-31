@@ -48,16 +48,33 @@ noncomputable def baseChangeTensorOf
         { toFun := fun x ↦ b₁ •
             baseChangeOf A A₁ B' B B₁' B₁ h_quasiFinite h_quasiFinite₁
               h_open h_open₁ h_baseChange h_finiteModel x
-          map_zero' := sorry
-          map_add' := sorry }
-       map_zero' := sorry
-       map_add' := sorry } :
+          map_zero' := by simp
+          map_add' := by
+            intro x y
+            simp }
+       map_zero' := by
+         ext x
+         simp
+       map_add' := by
+         intro b₁ c₁
+         ext x
+         simp [add_smul] } :
       B₁ →+
         (RelativeDualizingModule.of A B' B h_quasiFinite h_open →+
           RelativeDualizingModule.of A₁ B₁' B₁ h_quasiFinite₁ h_open₁))
-    sorry
-  map_add' := sorry
-  map_smul' := sorry
+    (by
+      intro r b₁ x
+      simp [Algebra.smul_def, smul_smul, mul_comm])
+  map_add' := by
+    intro x y
+    exact map_add _ x y
+  map_smul' := by
+    intro c x
+    induction x using TensorProduct.induction_on with
+    | zero => simp
+    | add x y hx hy => simp [hx, hy]
+    | tmul b₁ x =>
+        simp [TensorProduct.smul_tmul', smul_smul]
 
 /-- On a pure tensor, `baseChangeTensorOf` is scalar multiplication of the
 chosen-model base-change map. -/
@@ -87,7 +104,8 @@ theorem baseChangeTensorOf_tmul
     baseChangeTensorOf A A₁ B' B B₁' B₁ h_quasiFinite h_quasiFinite₁
         h_open h_open₁ h_baseChange h_finiteModel (b₁ ⊗ₜ[B] x) =
       b₁ • baseChangeOf A A₁ B' B B₁' B₁ h_quasiFinite h_quasiFinite₁
-        h_open h_open₁ h_baseChange h_finiteModel x := sorry
+        h_open h_open₁ h_baseChange h_finiteModel x := by
+  rfl
 
 /-- If `A → A₁` is flat, `baseChangeTensorOf` is bijective and hence induces
 the base-change isomorphism. The tensor product is written with `B₁` on the

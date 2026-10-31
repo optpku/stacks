@@ -44,10 +44,6 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace.DerivedQCoh
 
-/-- The canonical exact inverse-image comparison for a represented algebraic space. -/
-noncomputable abbrev ofOverEpsilonStar {S : Scheme.{u}} (U : Over S) :
-    Scheme.DerivedQCoh U.left ⥤ DerivedQCoh (ofOver U) :=
-  schemeToSpaceDerived U
 
 /- Remark 75.6.3 (1): the canonical étale-to-Zariski equivalences commute naturally
 with derived pullback along every morphism represented by schemes. -/

@@ -104,14 +104,17 @@ noncomputable abbrev pushforwardUnit
 /-- Exact topology-comparison inverse image is a left-derived model on homotopy categories. -/
 @[stacks 0EZF "topology-comparison inverse image is left derived", instance]
 noncomputable instance pullback_isLeftDerived :
-    (pullback hle X).IsLeftDerivedFunctor (pullbackFactors hle X) (qis τ' X) := sorry
+    (pullback hle X).IsLeftDerivedFunctor (pullbackFactors hle X) (qis τ' X) :=
+  Functor.isLeftDerivedFunctor_of_inverts (qis τ' X) (pullback hle X)
+    (comparisonTopologyPullbackAb hle X).mapDerivedCategoryFactorsh
 
 /-- Topology-comparison direct image is its canonical total right-derived model. -/
 @[stacks 0EZF "topology-comparison direct image is right derived", instance]
 noncomputable instance pushforward_isRightDerived
     [Functor.HasRightDerivedFunctor
       (Functor.Homotopy.toDerived (comparisonTopologyPushforwardAb hle X)) (qis τ X)] :
-    (pushforward hle X).IsRightDerivedFunctor (pushforwardUnit hle X) (qis τ X) := sorry
+    (pushforward hle X).IsRightDerivedFunctor (pushforwardUnit hle X) (qis τ X) :=
+  Functor.instIsRightDerivedFunctorTotalRightDerivedTotalRightDerivedUnit _ _ _
 
 /-- The structure map for deriving `pullback hle X ⋙ pushforward hle X` from the left. -/
 @[stacks 0EZF "topology-comparison pullback-pushforward derived structure"]
@@ -121,8 +124,7 @@ noncomputable abbrev pullbackPushforwardFactors
     qh τ' X ⋙ (pullback hle X ⋙ pushforward hle X) ⟶
       (comparisonTopologyPullbackAb hle X).mapHomotopyCategory (up ℤ) ⋙
         (qh τ X ⋙ pushforward hle X) :=
-  (Functor.associator (qh τ' X) (pullback hle X) (pushforward hle X)).inv ≫
-    Functor.whiskerRight (pullbackFactors hle X) (pushforward hle X)
+  Adjunction.Derived.leftRightFactor (pushforward hle X) (pullbackFactors hle X)
 
 /-- The structure map for deriving `pushforward hle X ⋙ pullback hle X` from the right. -/
 @[stacks 0EZF "topology-comparison pushforward-pullback derived structure"]
@@ -132,11 +134,11 @@ noncomputable abbrev pushforwardPullbackUnit
     (comparisonTopologyPushforwardAb hle X).mapHomotopyCategory (up ℤ) ⋙
         (qh τ' X ⋙ pullback hle X) ⟶
       qh τ X ⋙ (pushforward hle X ⋙ pullback hle X) :=
-  Functor.whiskerRight (pushforwardUnit hle X) (pullback hle X) ≫
-    (Functor.associator (qh τ X) (pushforward hle X) (pullback hle X)).hom
+  Adjunction.Derived.rightLeftUnit (pullback hle X) (pushforwardUnit hle X)
 
-/-- The absolute-derived compatibility needed to retain the topology-comparison adjunction after
-passing to unbounded derived categories. -/
+/-- Compatibility facade for `Adjunction.Derived.HasPair` on the topology-comparison models.
+The two fields retain the original record-construction API; `hasPair_iff_derivedHasPair`
+identifies this facade with the common condition. -/
 @[stacks 0EZF "topology-comparison derived adjunction pair"]
 class HasPair
     [Functor.HasRightDerivedFunctor
@@ -151,6 +153,37 @@ class HasPair
       (pushforwardPullbackUnit hle X) (qis τ X)
 
 attribute [instance] HasPair.pullbackPushforward HasPair.pushforwardPullback
+
+section
+
+variable {hle X}
+
+/-- The compatibility facade supplies the common derived-pair condition. -/
+instance HasPair.toDerivedHasPair
+    [Functor.HasRightDerivedFunctor
+      (Functor.Homotopy.toDerived (comparisonTopologyPushforwardAb hle X)) (qis τ X)]
+    [self : HasPair hle X] :
+    Adjunction.Derived.HasPair (pullback hle X) (pushforward hle X)
+      (pullbackFactors hle X) (pushforwardUnit hle X) (qis τ' X) (qis τ X) where
+  toIsLeftDerivedFunctor := self.pullbackPushforward
+  toIsRightDerivedFunctor := self.pushforwardPullback
+
+/-- The legacy fields impose exactly the common pair condition, with no extra hypotheses. -/
+theorem hasPair_iff_derivedHasPair
+    [Functor.HasRightDerivedFunctor
+      (Functor.Homotopy.toDerived (comparisonTopologyPushforwardAb hle X)) (qis τ X)] :
+    HasPair hle X ↔
+      Adjunction.Derived.HasPair (pullback hle X) (pushforward hle X)
+        (pullbackFactors hle X) (pushforwardUnit hle X) (qis τ' X) (qis τ X) := by
+  constructor
+  · intro h
+    exact HasPair.toDerivedHasPair (self := h)
+  · intro h
+    exact
+      { pullbackPushforward := h.toIsLeftDerivedFunctor
+        pushforwardPullback := h.toIsRightDerivedFunctor }
+
+end
 
 /-- The canonical topology-comparison adjunction on unbounded derived categories. -/
 @[stacks 0EZF "topology-comparison derived adjunction"]

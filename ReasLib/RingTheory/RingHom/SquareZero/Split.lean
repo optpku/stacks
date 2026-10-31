@@ -145,7 +145,7 @@ private theorem trivialSolution_comm :
     letI := isCentralScalar_of_commRing B N
     (TrivSqZeroExt.fstHom B B N).toRingHom.comp
         ((inlHom B N).comp (algebraMap A B)) =
-      (structureMap : A →+* B).comp (RingHom.id A) := sorry
+      (algebraMap A B).comp (RingHom.id A) := sorry
 
 set_option backward.privateInPublic true in
 /-- The split solution induces the zero coefficient map on the identity kernel. -/

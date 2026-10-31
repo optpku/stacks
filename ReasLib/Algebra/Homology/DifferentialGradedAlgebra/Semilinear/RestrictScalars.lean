@@ -38,7 +38,12 @@ maps form a commutative triangle. -/
 theorem restrictScalarsComponent_smul (f : SemilinearHom sigma A B)
     (h : sigma.comp rho = tau) (n : ℤ) (q : Q)
     (x : (A.restrictScalars rho).X n) :
-    f n (q • x) = tau q • f n x := sorry
+    f n (q • x) = tau q • f n x := by
+  calc
+    f n (q • x) = sigma (rho q) • f n x :=
+      (f.map n).map_smulₛₗ (rho q) x
+    _ = tau q • f n x :=
+      congrArg (fun s : S ↦ s • f n x) (DFunLike.congr_fun h q)
 
 /-- The homogeneous component of a semilinear map as a linear map over a common base ring. -/
 def restrictScalarsLinearMap (f : SemilinearHom sigma A B)
@@ -60,7 +65,7 @@ def restrictScalarsComponent (f : SemilinearHom sigma A B)
 @[simp]
 theorem restrictScalarsComponent_apply (f : SemilinearHom sigma A B)
     (h : sigma.comp rho = tau) (n : ℤ) (x : (A.restrictScalars rho).X n) :
-    f.restrictScalarsComponent h n x = f n x := sorry
+    f.restrictScalarsComponent h n x = f n x := rfl
 
 /-- The base-restricted homogeneous components commute with the differential. -/
 theorem restrictScalarsComponent_comm (f : SemilinearHom sigma A B)
@@ -68,7 +73,16 @@ theorem restrictScalarsComponent_comm (f : SemilinearHom sigma A B)
     (hij : (ComplexShape.down ℤ).Rel i j) :
     f.restrictScalarsComponent h i ≫ (B.restrictScalars tau).toChainComplex.d i j =
       (A.restrictScalars rho).toChainComplex.d i j ≫
-        f.restrictScalarsComponent h j := sorry
+        f.restrictScalarsComponent h j := by
+  have hj : j = i - 1 := by
+    change j + 1 = i at hij
+    exact eq_sub_iff_add_eq.mpr hij
+  subst j
+  apply ModuleCat.hom_ext
+  apply LinearMap.ext
+  intro x
+  change B.d i (f i x) = f (i - 1) (A.d i x)
+  exact (f.map_d i x).symm
 
 /-- The chain map obtained by restricting the source and target of a semilinear chain-DGA map to
 a common base ring. -/
@@ -83,13 +97,14 @@ def restrictScalarsChainMap (f : SemilinearHom sigma A B)
 @[simp]
 theorem restrictScalarsChainMap_f (f : SemilinearHom sigma A B)
     (h : sigma.comp rho = tau) (n : ℤ) :
-    (f.restrictScalarsChainMap h).f n = f.restrictScalarsComponent h n := sorry
+    (f.restrictScalarsChainMap h).f n = f.restrictScalarsComponent h n := rfl
 
 /-- The base-restricted chain map preserves the homogeneous unit. -/
 theorem restrictScalarsChainMap_one (f : SemilinearHom sigma A B)
     (h : sigma.comp rho = tau) :
     (f.restrictScalarsChainMap h).f 0 (A.restrictScalars rho).one =
-      (B.restrictScalars tau).one := sorry
+      (B.restrictScalars tau).one := by
+  exact f.map_one
 
 /-- The base-restricted chain map preserves homogeneous multiplication. -/
 theorem restrictScalarsChainMap_mul (f : SemilinearHom sigma A B)
@@ -99,7 +114,8 @@ theorem restrictScalarsChainMap_mul (f : SemilinearHom sigma A B)
         ((A.restrictScalars rho).mul n m x y) =
       (B.restrictScalars tau).mul n m
         ((f.restrictScalarsChainMap h).f n x)
-        ((f.restrictScalarsChainMap h).f m y) := sorry
+        ((f.restrictScalarsChainMap h).f m y) := by
+  exact f.map_mul n m x y
 
 /-- Tag 09PQ: restrict a semilinear chain-DGA morphism on both sides to a common base ring through
 a commutative scalar triangle. -/
@@ -116,21 +132,24 @@ morphism. -/
 @[simp]
 theorem restrictScalars_apply (f : SemilinearHom sigma A B)
     (h : sigma.comp rho = tau) (n : ℤ) (x : (A.restrictScalars rho).X n) :
-    f.restrictScalars h n x = f n x := sorry
+    f.restrictScalars h n x = f n x := rfl
 
 /-- Restriction to a common base ring preserves degreewise surjectivity. -/
 theorem restrictScalars_surjective (f : SemilinearHom sigma A B)
     (h : sigma.comp rho = tau) (hf : f.Surjective) :
-    (f.restrictScalars h).Surjective := sorry
+    (f.restrictScalars h).Surjective := by
+  exact hf
 
 /-- Restriction to a common base ring preserves degreewise injectivity. -/
 theorem restrictScalars_injective (f : SemilinearHom sigma A B)
     (h : sigma.comp rho = tau) (hf : f.Injective) :
-    (f.restrictScalars h).Injective := sorry
+    (f.restrictScalars h).Injective := by
+  exact hf
 
 /-- Restriction to a common base ring preserves degreewise bijectivity. -/
 theorem restrictScalars_bijective (f : SemilinearHom sigma A B)
     (h : sigma.comp rho = tau) (hf : f.Bijective) :
-    (f.restrictScalars h).Bijective := sorry
+    (f.restrictScalars h).Bijective := by
+  exact hf
 
 end ChainDGAlgebra.SemilinearHom

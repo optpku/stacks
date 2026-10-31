@@ -52,19 +52,32 @@ def grading (M : Right.{i, x, v, u} 𝒜) (N : Bimodule.{i, y, w, v, u} 𝒜 �
 degrees. -/
 theorem tmul_mem (M : Right.{i, x, v, u} 𝒜) (N : Bimodule.{i, y, w, v, u} 𝒜 𝒝)
     {p q : ι} {m : M} {n : N} (hm : m ∈ M.grading p) (hn : n ∈ N.grading q) :
-    Module.Bimodule.RelativeTensor.tmul (R := R) (A := A) m n ∈ grading M N (p + q) := sorry
-
-/-- Compatible gradings on the two factors induce an internal direct-sum grading on the concrete
-relative tensor quotient. -/
-theorem isInternal (M : Right.{i, x, v, u} 𝒜)
-    (N : Bimodule.{i, y, w, v, u} 𝒜 𝒝) : DirectSum.IsInternal (grading M N) := sorry
+    Module.Bimodule.RelativeTensor.tmul (R := R) (A := A) m n ∈ grading M N (p + q) := by
+  apply Submodule.subset_span
+  exact ⟨p, q, m, n, hm, hn, rfl, rfl⟩
 
 /-- The inherited right action sends tensor degree `k` and algebra degree `i` to degree `k + i`. -/
 theorem smul_mem (M : Right.{i, x, v, u} 𝒜) (N : Bimodule.{i, y, w, v, u} 𝒜 𝒝)
     {k i : ι} {x : Module.Bimodule.RelativeTensor.Product
       (R := R) (A := A) (M := M) (N := N)} {b : B}
     (hx : x ∈ grading M N k) (hb : b ∈ 𝒝 i) :
-    MulOpposite.op b • x ∈ grading M N (k + i) := sorry
+    MulOpposite.op b • x ∈ grading M N (k + i) := by
+  have h : grading M N k ≤ Submodule.comap
+      (Module.Bimodule.RelativeTensor.rightLinear
+        (R := R) (A := A) (M := M) (N := N) (MulOpposite.op b))
+      (grading M N (k + i)) := by
+    apply Submodule.span_le.mpr
+    rintro z ⟨p, q, m, n, hm, hn, hpq, rfl⟩
+    change MulOpposite.op b • Module.Bimodule.RelativeTensor.tmul (R := R) (A := A) m n ∈
+      grading M N (k + i)
+    rw [Module.Bimodule.RelativeTensor.tmul_smul]
+    have hn' : MulOpposite.op b • n ∈ N.grading (q + i) := by
+      have hb' : MulOpposite.op b ∈ oppositeGrading 𝒝 i :=
+        Submodule.mem_map.mpr ⟨b, hb, rfl⟩
+      simpa only [vadd_eq_add, add_comm i q] using SetLike.GradedSMul.smul_mem hb' hn
+    rw [← hpq, add_assoc]
+    exact tmul_mem M N hm hn'
+  exact h hx
 
 /-- Insert a tensor of homogeneous components into the summand indexed by the sum of their
 degrees. -/
@@ -78,10 +91,37 @@ def componentMap (M : Right.{i, x, v, u} 𝒜) (N : Bimodule.{i, y, w, v, u} �
             DirectSum.lof R ι (fun k ↦ grading M N k) (p + q)
               ⟨Module.Bimodule.RelativeTensor.tmul (R := R) (A := A) m.1 n.1,
                 tmul_mem M N m.2 n.2⟩
-          map_add' := sorry
-          map_smul' := sorry }
-      map_add' := sorry
-      map_smul' := sorry }
+          map_add' := by
+            intro n n'
+            rw [← map_add]
+            congr 1
+            apply Subtype.ext
+            simp [Module.Bimodule.RelativeTensor.tmul, TensorProduct.tmul_add]
+          map_smul' := by
+            intro r n
+            rw [← map_smul]
+            congr 1
+            apply Subtype.ext
+            simp [Module.Bimodule.RelativeTensor.tmul, TensorProduct.tmul_smul] }
+      map_add' := by
+        intro m m'
+        apply LinearMap.ext
+        intro n
+        change DirectSum.lof R ι (fun k ↦ grading M N k) (p + q) _ =
+          DirectSum.lof R ι (fun k ↦ grading M N k) (p + q) _ +
+            DirectSum.lof R ι (fun k ↦ grading M N k) (p + q) _
+        rw [← map_add]
+        congr 1
+        apply Subtype.ext
+        simp [Module.Bimodule.RelativeTensor.tmul, TensorProduct.add_tmul]
+      map_smul' := by
+        intro r m
+        apply LinearMap.ext
+        intro n
+        change DirectSum.lof R ι (fun k ↦ grading M N k) (p + q) _ =
+          r • DirectSum.lof R ι (fun k ↦ grading M N k) (p + q) _
+        rw [← map_smul]
+        congr 1 }
 
 /-- On homogeneous pure tensors, `componentMap` is the canonical inclusion into total degree
 `p + q`. -/
@@ -92,7 +132,8 @@ theorem componentMap_tmul (M : Right.{i, x, v, u} 𝒜)
     componentMap M N p q (m ⊗ₜ[R] n) =
       DirectSum.lof R ι (fun k ↦ grading M N k) (p + q)
         ⟨Module.Bimodule.RelativeTensor.tmul (R := R) (A := A) m.1 n.1,
-          tmul_mem M N m.2 n.2⟩ := sorry
+          tmul_mem M N m.2 n.2⟩ := by
+  exact TensorProduct.lift.tmul m n
 
 /-- Sum the maps from all bidegrees into the total-degree decomposition. -/
 def pairSum (M : Right.{i, x, v, u} 𝒜) (N : Bimodule.{i, y, w, v, u} 𝒜 𝒝) :
@@ -121,12 +162,63 @@ def decomposePairing (M : Right.{i, x, v, u} 𝒜)
     M →ₗ[R] N →ₗ[R] DirectSum ι (fun k ↦ grading M N k) :=
   TensorProduct.curry (rawDecompose M N)
 
+private theorem rawDecompose_tmul (M : Right.{i, x, v, u} 𝒜)
+    (N : Bimodule.{i, y, w, v, u} 𝒜 𝒝) {p q : ι} {m : M} {n : N}
+    (hm : m ∈ M.grading p) (hn : n ∈ N.grading q) :
+    rawDecompose M N (m ⊗ₜ[R] n) =
+      DirectSum.lof R ι (fun k ↦ grading M N k) (p + q)
+        ⟨Module.Bimodule.RelativeTensor.tmul (R := R) (A := A) m n,
+          tmul_mem M N hm hn⟩ := by
+  change pairSum M N
+    ((TensorProduct.directSum R R (fun p ↦ M.grading p) (fun q ↦ N.grading q))
+      ((DirectSum.decomposeLinearEquiv M.grading) m ⊗ₜ[R]
+        (DirectSum.decomposeLinearEquiv N.grading) n)) = _
+  rw [DirectSum.decomposeLinearEquiv_apply_coe M.grading p ⟨m, hm⟩,
+    DirectSum.decomposeLinearEquiv_apply_coe N.grading q ⟨n, hn⟩,
+    TensorProduct.directSum_lof_tmul_lof]
+  simp only [pairSum, DirectSum.toModule_lof]
+  exact componentMap_tmul M N p q _ _
+
 /-- The decomposition pairing respects the balancing relation over `A`. -/
 theorem decomposePairing_balanced (M : Right.{i, x, v, u} 𝒜)
     (N : Bimodule.{i, y, w, v, u} 𝒜 𝒝) :
     Module.Bimodule.RelativeTensor.IsBalanced (R := R) (A := A)
       (M := M) (N := N) (Q := DirectSum ι (fun k ↦ grading M N k))
-      (decomposePairing M N) := sorry
+      (decomposePairing M N) := by
+  intro a m n
+  induction a using DirectSum.Decomposition.inductionOn (ℳ := 𝒜) with
+  | zero => simp
+  | add a a' iha iha' =>
+      simpa only [MulOpposite.op_add, add_smul, map_add, LinearMap.add_apply]
+        using congrArg₂ (· + ·) iha iha'
+  | @homogeneous i a =>
+      induction m using DirectSum.Decomposition.inductionOn (ℳ := M.grading) with
+      | zero => simp
+      | add m m' ihm ihm' =>
+          simpa only [smul_add, map_add, LinearMap.add_apply]
+            using congrArg₂ (· + ·) ihm ihm'
+      | @homogeneous p m =>
+          induction n using DirectSum.Decomposition.inductionOn (ℳ := N.grading) with
+          | zero => simp
+          | add n n' ihn ihn' =>
+              simpa only [smul_add, map_add] using congrArg₂ (· + ·) ihn ihn'
+          | @homogeneous q n =>
+              change rawDecompose M N (M.action (m : M) (a : A) ⊗ₜ[R] (n : N)) =
+                rawDecompose M N ((m : M) ⊗ₜ[R] N.leftAction (a : A) (n : N))
+              rw [rawDecompose_tmul M N
+                (Right.smul_mem M m.property a.property) n.property,
+                rawDecompose_tmul M N m.property
+                  (Bimodule.left_smul_mem N a.property n.property)]
+              have h {k l : ι} (hkl : k = l)
+                  (x : grading M N k) (y : grading M N l)
+                  (hxy : (x : M ⊗ᵣ[R, A] N) = y) :
+                  DirectSum.lof R ι (fun j ↦ grading M N j) k x =
+                    DirectSum.lof R ι (fun j ↦ grading M N j) l y := by
+                subst l
+                exact congrArg (DirectSum.lof R ι (fun j ↦ grading M N j) k)
+                  (Subtype.ext hxy)
+              apply h (add_assoc p i q)
+              exact Module.Bimodule.RelativeTensor.tmul_balance (m : M) (a : A) (n : N)
 
 /-- The explicit homogeneous decomposition map on the relative tensor quotient. -/
 def decompose (M : Right.{i, x, v, u} 𝒜) (N : Bimodule.{i, y, w, v, u} 𝒜 𝒝) :
@@ -144,7 +236,10 @@ theorem decompose_tmul (M : Right.{i, x, v, u} 𝒜)
     decompose M N (Module.Bimodule.RelativeTensor.tmul (R := R) (A := A) m n) =
       DirectSum.lof R ι (fun k ↦ grading M N k) (p + q)
         ⟨Module.Bimodule.RelativeTensor.tmul (R := R) (A := A) m n,
-          tmul_mem M N hm hn⟩ := sorry
+          tmul_mem M N hm hn⟩ := by
+  simp only [decompose, Module.Bimodule.RelativeTensor.lift_tmul,
+    decomposePairing, TensorProduct.curry_apply]
+  exact rawDecompose_tmul M N hm hn
 
 /-- Projecting the decomposition of a homogeneous pure tensor to its total degree recovers that
 tensor in the corresponding graded piece. -/
@@ -155,7 +250,8 @@ theorem component_decompose_tmul (M : Right.{i, x, v, u} 𝒜)
     DirectSum.component R ι (fun k ↦ grading M N k) (p + q)
         (decompose M N (Module.Bimodule.RelativeTensor.tmul (R := R) (A := A) m n)) =
       ⟨Module.Bimodule.RelativeTensor.tmul (R := R) (A := A) m n,
-        tmul_mem M N hm hn⟩ := sorry
+        tmul_mem M N hm hn⟩ := by
+  rw [decompose_tmul M N hm hn, DirectSum.component.lof_self]
 
 /-- Every component away from the total degree of a homogeneous pure tensor vanishes. -/
 @[simp]
@@ -163,12 +259,69 @@ theorem component_decompose_tmul_of_ne (M : Right.{i, x, v, u} 𝒜)
     (N : Bimodule.{i, y, w, v, u} 𝒜 𝒝) {p q k : ι} {m : M} {n : N}
     (hm : m ∈ M.grading p) (hn : n ∈ N.grading q) (hk : k ≠ p + q) :
     DirectSum.component R ι (fun j ↦ grading M N j) k
-        (decompose M N (Module.Bimodule.RelativeTensor.tmul (R := R) (A := A) m n)) = 0 := sorry
+        (decompose M N (Module.Bimodule.RelativeTensor.tmul (R := R) (A := A) m n)) = 0 := by
+  rw [decompose_tmul M N hm hn, DirectSum.component.of]
+  simp [hk.symm]
+
+/-- Recomposing the explicit homogeneous decomposition recovers the relative tensor. -/
+theorem coeLinearMap_decompose (M : Right.{i, x, v, u} 𝒜)
+    (N : Bimodule.{i, y, w, v, u} 𝒜 𝒝) :
+    DirectSum.coeLinearMap (grading M N) ∘ₗ decompose M N = LinearMap.id := by
+  apply Module.Bimodule.RelativeTensor.hom_ext
+  intro m n
+  induction m using DirectSum.Decomposition.inductionOn (ℳ := M.grading) with
+  | zero => simp [Module.Bimodule.RelativeTensor.tmul]
+  | add m m' hm hm' =>
+      simpa only [Module.Bimodule.RelativeTensor.tmul, TensorProduct.add_tmul, map_add]
+        using congrArg₂ (· + ·) hm hm'
+  | homogeneous m =>
+      induction n using DirectSum.Decomposition.inductionOn (ℳ := N.grading) with
+      | zero => simp [Module.Bimodule.RelativeTensor.tmul]
+      | add n n' hn hn' =>
+          simpa only [Module.Bimodule.RelativeTensor.tmul, TensorProduct.tmul_add, map_add]
+            using congrArg₂ (· + ·) hn hn'
+      | homogeneous n =>
+          change DirectSum.coeLinearMap (grading M N)
+            (decompose M N (Module.Bimodule.RelativeTensor.tmul (R := R) (A := A) m.1 n.1)) = _
+          rw [decompose_tmul M N m.2 n.2, DirectSum.coeLinearMap_lof]
+          rfl
 
 /-- The canonical direct-sum decomposition of the graded relative tensor quotient. -/
 instance instDecomposition (M : Right.{i, x, v, u} 𝒜)
     (N : Bimodule.{i, y, w, v, u} 𝒜 𝒝) : DirectSum.Decomposition (grading M N) :=
-  DirectSum.Decomposition.ofLinearMap (grading M N) (decompose M N) sorry sorry
+  DirectSum.Decomposition.ofLinearMap (grading M N) (decompose M N)
+    (coeLinearMap_decompose M N)
+    (by
+      apply DirectSum.linearMap_ext
+      intro k
+      apply LinearMap.ext
+      intro x
+      simp only [LinearMap.comp_apply, DirectSum.coeLinearMap_lof, LinearMap.id_apply]
+      change decompose M N x.1 = DirectSum.lof R ι (fun j ↦ grading M N j) k x
+      have h : ∀ (z) (hz : z ∈ grading M N k),
+          decompose M N z = DirectSum.lof R ι (fun j ↦ grading M N j) k ⟨z, hz⟩ := by
+        intro z hz
+        induction hz using Submodule.span_induction with
+        | mem z hz =>
+            rcases hz with ⟨p, q, m, n, hm, hn, hpq, rfl⟩
+            subst k
+            exact decompose_tmul M N hm hn
+        | zero =>
+            change decompose M N 0 = DirectSum.lof R ι (fun j ↦ grading M N j) k 0
+            simp
+        | add z z' hz hz' ih ih' =>
+            rw [map_add, ih, ih', ← map_add]
+            rfl
+        | smul r z hz ih =>
+            rw [map_smul, ih, ← map_smul]
+            rfl
+      exact h x.1 x.2)
+
+/-- Compatible gradings on the two factors induce an internal direct-sum grading on the concrete
+relative tensor quotient. -/
+theorem isInternal (M : Right.{i, x, v, u} 𝒜)
+    (N : Bimodule.{i, y, w, v, u} 𝒜 𝒝) : DirectSum.IsInternal (grading M N) :=
+  DirectSum.Decomposition.isInternal (grading M N)
 
 /-- The graded relative tensor quotient as a right graded `B`-module. -/
 @[stacks 09LN "graded relative tensor product object"]
@@ -181,17 +334,21 @@ def obj (M : Right.{i, x, v, u} 𝒜) (N : Bimodule.{i, y, w, v, u} 𝒜 𝒝) :
   isScalarTower := inferInstance
   grading := grading M N
   decomposition := instDecomposition M N
-  gradedSMul := ⟨sorry⟩
+  gradedSMul := ⟨by
+    intro i k b x hb hx
+    have hb' : MulOpposite.unop b ∈ 𝒝 i :=
+      (op_mem_oppositeGrading_iff 𝒝).mp hb
+    simpa only [MulOpposite.op_unop, vadd_eq_add, add_comm k i] using smul_mem M N hx hb'⟩
 
 /-- The carrier of the graded relative tensor object is the concrete relative tensor quotient. -/
 @[simp]
 theorem obj_carrier (M : Right.{i, x, v, u} 𝒜) (N : Bimodule.{i, y, w, v, u} 𝒜 𝒝) :
-    (obj M N).carrier = (M ⊗ᵣ[R, A] N) := sorry
+    (obj M N).carrier = (M ⊗ᵣ[R, A] N) := rfl
 
 /-- The grading of the relative tensor object is the total-degree grading. -/
 @[simp]
 theorem obj_grading (M : Right.{i, x, v, u} 𝒜) (N : Bimodule.{i, y, w, v, u} 𝒜 𝒝)
-    (k : ι) : (obj M N).grading k = grading M N k := sorry
+    (k : ι) : (obj M N).grading k = grading M N k := rfl
 
 end RelativeTensor
 

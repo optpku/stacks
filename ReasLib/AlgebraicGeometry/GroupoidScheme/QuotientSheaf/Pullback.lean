@@ -6,6 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
+public import ReasLib.AlgebraicGeometry.GroupoidScheme.Restriction.Saturation
 public import ReasLib.AlgebraicGeometry.GroupoidScheme.PreRelation
 public import ReasLib.AlgebraicGeometry.Scheme.PreRelation.QuotientSheaf.Pullback
 
@@ -25,17 +26,6 @@ noncomputable section
 universe u
 
 namespace AlgebraicGeometry.GroupoidScheme
-
-/-- The saturation morphism sends a pair consisting of an object over `U'` and an arrow
-targeting its image to the source of that arrow. -/
-def saturationMap {S : Scheme.{u}} (G : GroupoidScheme S) {U' : Over S}
-    (g : U' ⟶ G.U) : Limits.pullback g G.t ⟶ G.U :=
-  Limits.pullback.snd g G.t ≫ G.s
-
-/-- The saturation morphism is the source map after the second pullback projection. -/
-theorem saturationMap_def {S : Scheme.{u}} (G : GroupoidScheme S) {U' : Over S}
-    (g : U' ⟶ G.U) :
-    G.saturationMap g = Limits.pullback.snd g G.t ≫ G.s := rfl
 
 /-- Local surjectivity of the saturation morphism induces local surjectivity of the
 canonical comparison between the quotient sheaves of a groupoid and its restriction. -/

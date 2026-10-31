@@ -26,5 +26,5 @@ punctured spectrum. -/
     (hdepth : ∀ y : Y, y ∈ closedPoints Y →
       (2 : ℕ∞) ≤ moduleDepth (Y.presheaf.stalk y) (Y.presheaf.stalk y)),
     let U : (Spec (CommRingCat.of A)).Opens := PuncturedSpectrum.puncturedOpen A
-    let B : CommRingCat := CommRingCat.of (Γ(Y, pi ⁻¹ᵁ U))
-    Nonempty (Y ≅ Spec B))
+    IsIso Y.toSpecΓ ∧
+      IsIso (Y.presheaf.map (homOfLE (show pi ⁻¹ᵁ U ≤ ⊤ from le_top)).op))

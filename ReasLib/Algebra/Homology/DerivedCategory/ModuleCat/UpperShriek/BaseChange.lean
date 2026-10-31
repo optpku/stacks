@@ -28,7 +28,8 @@ namespace CategoryTheory.ModuleCat.UpperShriek.Presentation
 
 variable {R A : Type u} [CommRing R] [CommRing A] [Algebra R A]
 
-/-- The polynomial-presentation map obtained by extending coefficients along `R → R'`. -/
+/-- The polynomial map defined by the presentation's variable images and the new coefficients.
+This map is defined for any `f`; surjectivity requires `f` to be the actual `R`-algebra map. -/
 noncomputable def baseChangeMap {f : R →+* A} (p : Presentation f)
     (R' : Type u) [CommRing R'] [Algebra R R'] :
     MvPolynomial (Fin p.n) R' →+* A ⊗[R] R' :=
@@ -42,25 +43,25 @@ theorem baseChangeMap_comp_C {f : R →+* A} (p : Presentation f)
     (R' : Type u) [CommRing R'] [Algebra R R'] :
     (p.baseChangeMap R').comp MvPolynomial.C = algebraMap R' (A ⊗[R] R') := sorry
 
-/-- Coefficient extension preserves surjectivity of a polynomial presentation map. -/
-theorem baseChangeMap_surjective {f : R →+* A} (p : Presentation f)
+/-- Coefficient extension preserves surjectivity of a presentation of the actual algebra map. -/
+theorem baseChangeMap_surjective (p : Presentation (algebraMap R A))
     (R' : Type u) [CommRing R'] [Algebra R R'] :
     Function.Surjective (p.baseChangeMap R') := sorry
 
 /-- The finite polynomial presentation induced after base change along `R → R'`. -/
-noncomputable def baseChange {f : R →+* A} (p : Presentation f)
+noncomputable def baseChange (p : Presentation (algebraMap R A))
     (R' : Type u) [CommRing R'] [Algebra R R'] :
     Presentation (algebraMap R' (A ⊗[R] R')) :=
   Presentation.ofSurjection (algebraMap R' (A ⊗[R] R')) p.n (p.baseChangeMap R')
     (p.baseChangeMap_comp_C R') (p.baseChangeMap_surjective R')
 
 /-- The base-changed presentation has the same number of polynomial variables. -/
-theorem baseChange_n {f : R →+* A} (p : Presentation f)
+theorem baseChange_n (p : Presentation (algebraMap R A))
     (R' : Type u) [CommRing R'] [Algebra R R'] :
     (p.baseChange R').n = p.n := sorry
 
 /-- The map of the base-changed presentation is the coefficient-extended presentation map. -/
-theorem baseChange_map {f : R →+* A} (p : Presentation f)
+theorem baseChange_map (p : Presentation (algebraMap R A))
     (R' : Type u) [CommRing R'] [Algebra R R'] :
     (p.baseChange R').map = p.baseChangeMap R' := sorry
 

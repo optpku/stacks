@@ -22,6 +22,7 @@ when the cohomology sheaves have support proper over the base scheme. -/
   (AlgebraicGeometry.AlgebraicSpace.ModuleDerived.pushforwardDerived_boundedBelowCoherent_of_properSupport :
     ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S}
       (f : X ⟶ Y) [LocallyOfFiniteType f] [IsNoetherian Y]
+      [LocallyOfFiniteType (SchemeRealization.toBase X)]
       (E : ModuleDerived X),
       DerivedCategory.cohomologyIn
         (SheafOfModules.isCoherent (structureSheaf X)) E →

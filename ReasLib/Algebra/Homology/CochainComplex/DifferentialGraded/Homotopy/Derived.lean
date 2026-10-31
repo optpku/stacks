@@ -8,6 +8,7 @@ module
 
 public import Mathlib.Algebra.Homology.DerivedCategory.Linear
 public import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.Algebra.Homology.CochainComplex.DifferentialGraded.Homotopy.Additive
 public import ReasLib.Algebra.Homology.CochainComplex.DifferentialGraded.Homotopy.QuasiIso
 
 /-!
@@ -40,6 +41,13 @@ derived category. -/
 abbrev derivedQ :
     DifferentialGradedCategory.K R (CochainComplex A ℤ) ⥤ DerivedCategory.{w} A :=
   toMathlib (R := R) ⋙ DerivedCategory.Qh
+
+/-- The enriched-to-derived localization is additive, by the additive cochain homotopy
+comparison followed by Mathlib's additive localization. -/
+noncomputable instance derivedQ_additive :
+    (derivedQ (R := R) (A := A)).Additive := by
+  change (toMathlib (R := R) (C := A) ⋙ DerivedCategory.Qh).Additive
+  infer_instance
 
 /-- The enriched-to-derived localization is `R`-linear over the coefficient ring. -/
 @[stacks 09KX "linearity of the enriched derived localization"]

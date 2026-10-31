@@ -182,8 +182,6 @@ instance : Preadditive (HomologyPageTower C) where
   add_comp := sorry
   comp_add := sorry
 
-#synth Preadditive (HomologyPageTower C)
-
 namespace PageFunctor
 
 /-- Evaluation at a fixed page of a homology-page tower is additive. -/
@@ -228,12 +226,6 @@ noncomputable instance functor_additive (r : ℕ+) :
     (functor C r).Additive := sorry
 
 end PageQuotient
-
-#synth (pageFunctor C 1).Additive
-#synth (PageHomology.functor C 1).Additive
-#synth (Cycle.functor C 1).Additive
-#synth (Boundary.functor C 1).Additive
-#synth (PageQuotient.functor C 1).Additive
 
 end HomologyPageTower
 

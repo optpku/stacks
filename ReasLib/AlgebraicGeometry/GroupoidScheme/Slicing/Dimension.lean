@@ -40,7 +40,7 @@ theorem existsAffineSliceDimensionDrop
       ∃ U' : Over S, ∃ g : U' ⟶ G.U, ∃ u' : U'.left,
         IsAffine U'.left ∧ IsImmersion g.left ∧ g.left u' = u ∧
           LocallyOfFinitePresentation g.left ∧
-          CohenMacaulayAt (sliceSource G g).left
+          CohenMacaulayAt (saturationMap G g).left
             ((pullbackToTargetSquare G g).left ((G.pullback g).e.left u')) ∧
           fiberDimensionAt (G.pullback g).s.left ((G.pullback g).e.left u') +
             (1 : WithBot ℕ∞) = d₂ := sorry
@@ -57,8 +57,8 @@ theorem existsAffineSliceDimensionEqStabilizer
     ∃ U' : Over S, ∃ g : U' ⟶ G.U, ∃ u' : U'.left,
       IsAffine U'.left ∧ IsImmersion g.left ∧ g.left u' = u ∧
         LocallyOfFinitePresentation g.left ∧
-        CohenMacaulay (sliceSource G g).left ∧
-        LocallyOfFinitePresentation (sliceSource G g).left ∧
+        CohenMacaulay (saturationMap G g).left ∧
+        LocallyOfFinitePresentation (saturationMap G g).left ∧
         CohenMacaulay (G.pullback g).s.left ∧
         LocallyOfFinitePresentation (G.pullback g).s.left ∧
         CohenMacaulay (G.pullback g).t.left ∧

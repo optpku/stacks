@@ -36,23 +36,23 @@ scheme. -/
 /- Situation 40.12.1 (3): the map
 `h : U' ×_{g, G.U, G.t} G.R ⟶ G.U` is the second projection followed by the source map. -/
 @[stacks 04MY] #check
-  (AlgebraicGeometry.GroupoidScheme.sliceSource_def G :
+  (AlgebraicGeometry.GroupoidScheme.saturationMap_def G :
     ∀ g : U' ⟶ G.U,
-      AlgebraicGeometry.GroupoidScheme.sliceSource G g =
+      AlgebraicGeometry.GroupoidScheme.saturationMap G g =
         Limits.pullback.snd g G.t ≫ G.s)
 
 #check
-  (AlgebraicGeometry.GroupoidScheme.sliceSource G :
+  (AlgebraicGeometry.GroupoidScheme.saturationMap G :
     (g : U' ⟶ G.U) → Limits.pullback g G.t ⟶ G.U)
 
 /- Situation 40.12.1 (4): the source fibre of the restricted groupoid is the
-residue-field base change of the fibre of `sliceSource G g` at `g.left u'`. -/
+residue-field base change of the fibre of `saturationMap G g` at `g.left u'`. -/
 @[stacks 04MY] #check
   (AlgebraicGeometry.GroupoidScheme.sliceFiberMap_isPullback G :
     ∀ (g : U' ⟶ G.U) (u' : U'.left),
       IsPullback (AlgebraicGeometry.GroupoidScheme.sliceFiberMap G g u')
         ((G.pullback g).s.left.fiberToSpecResidueField u')
-        ((AlgebraicGeometry.GroupoidScheme.sliceSource G g).left.fiberToSpecResidueField
+        ((AlgebraicGeometry.GroupoidScheme.saturationMap G g).left.fiberToSpecResidueField
           (g.left u'))
         (Spec.map (g.left.residueFieldMap u')))
 
@@ -60,7 +60,7 @@ residue-field base change of the fibre of `sliceSource G g` at `g.left u'`. -/
   (AlgebraicGeometry.GroupoidScheme.sliceFiberMap G :
     (g : U' ⟶ G.U) → (u' : U'.left) →
       (G.pullback g).s.left.fiber u' ⟶
-        (AlgebraicGeometry.GroupoidScheme.sliceSource G g).left.fiber (g.left u'))
+        (AlgebraicGeometry.GroupoidScheme.saturationMap G g).left.fiber (g.left u'))
 
 /- Situation 40.12.1 (5): the identity arrow `G.e(u)` as a point of the
 scheme-theoretic source fibre at `u`. -/

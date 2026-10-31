@@ -28,4 +28,4 @@ universe u
 /- The shared field-object predicate retains its base, groupoid, and field parameters. -/
 #check (AlgebraicGeometry.GroupoidAlgebraicSpace.IsOnField :
   ∀ {S : Scheme.{u}} {B : AlgebraicSpace S} (G : GroupoidAlgebraicSpace B)
-    {k : Type u} [Field k], (Spec (.of k) ⟶ S) → Prop)
+    {k : Type u} [Field k], (Spec (.of k) ⟶ S) → Type (u + 1))

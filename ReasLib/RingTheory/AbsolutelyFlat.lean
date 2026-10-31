@@ -35,11 +35,11 @@ namespace IsAbsolutelyFlatRing
 
 variable (R : Type u) [CommRing R]
 
-/-- Absolute flatness is equivalent to flatness of every module in any fixed universe. -/
+/-- Absolute flatness is equivalent to flatness of every module in a universe containing the ring. -/
 @[stacks 092B "all modules are flat"]
 theorem iff_forall_module_flat :
     IsAbsolutelyFlatRing R ↔
-      ∀ (M : Type v) [AddCommGroup M] [Module R M], Module.Flat R M := sorry
+      ∀ (M : Type (max u v)) [AddCommGroup M] [Module R M], Module.Flat R M := sorry
 
 /-- Every module over an absolutely flat ring is flat. -/
 @[stacks 092B "modules over an absolutely flat ring are flat"]

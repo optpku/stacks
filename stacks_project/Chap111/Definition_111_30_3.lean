@@ -23,6 +23,4 @@ variable {C : Type u} [CategoryTheory.Category.{v} C]
 inclusion from stage `p + 1` to stage `p`, is injective in `𝒜`. -/
 @[stacks 028A] #check
   (CategoryTheory.DecreasingFiltration.Finite.IsFilteredInjective :
-    (A : C) →
-      {F : CategoryTheory.DecreasingFiltration A //
-        CategoryTheory.IndexedFiltration.IsFinite F} → Prop)
+    CategoryTheory.FilteredObject.Finite.category C → Prop)

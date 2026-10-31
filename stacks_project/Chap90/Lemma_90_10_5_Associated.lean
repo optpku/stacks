@@ -42,8 +42,8 @@ namespace CategoryTheory.Functor
       (f : A ⟶ B) (x : (p.op).Fiber (op A)),
     (isoClassFunctor p).map f (Quotient.mk'' x) = Quotient.mk'' ((f.op)⁎[χ] x))
 
-#check (CategoryTheory.Functor.isoClassFunctor_op_isFiberedInGroupoids :
-  ∀ (p : F ⥤ ArtinianLocalAlgCat Λ k) [IsFibered.InGroupoids p.op],
-    IsFibered.InGroupoids (CategoryOfElements.π (isoClassFunctor p)).op)
+example (p : F ⥤ ArtinianLocalAlgCat Λ k) [IsFibered.InGroupoids p.op] :
+    IsFibered.InGroupoids (CategoryOfElements.π (isoClassFunctor p)).op := by
+  infer_instance
 
 end CategoryTheory.Functor

@@ -66,17 +66,23 @@ noncomputable def moduleSheafificationCounitInv :
     𝟭 (ringedSiteModuleCategory.{u, v, z, w} J 𝒪) ⟶
       moduleSheafificationRightAdjoint 𝒪 ⋙ moduleSheafification 𝒪 where
   app ℱ := inv ((moduleSheafificationCounit 𝒪).app ℱ)
-  naturality _ _ _ := sorry
+  naturality _ _ f := by
+    simpa only [NatIso.isIso_inv_app] using
+      (inv (moduleSheafificationCounit 𝒪)).naturality f
 
 /-- The fixed-ring module-sheafification counit followed by its named inverse is the identity. -/
 @[simp, stacks 03L6 "fixed-ring module sheafification counit forward-inverse law"]
 theorem moduleSheafificationCounit_hom_inv_id :
-    moduleSheafificationCounit 𝒪 ≫ moduleSheafificationCounitInv 𝒪 = 𝟙 _ := sorry
+    moduleSheafificationCounit 𝒪 ≫ moduleSheafificationCounitInv 𝒪 = 𝟙 _ := by
+  refine NatTrans.ext (funext fun ℱ => ?_)
+  exact IsIso.hom_inv_id ((moduleSheafificationCounit 𝒪).app ℱ)
 
 /-- The named inverse followed by the fixed-ring module-sheafification counit is the identity. -/
 @[simp, stacks 03L6 "fixed-ring module sheafification counit inverse-forward law"]
 theorem moduleSheafificationCounit_inv_hom_id :
-    moduleSheafificationCounitInv 𝒪 ≫ moduleSheafificationCounit 𝒪 = 𝟙 _ := sorry
+    moduleSheafificationCounitInv 𝒪 ≫ moduleSheafificationCounit 𝒪 = 𝟙 _ := by
+  refine NatTrans.ext (funext fun ℱ => ?_)
+  exact IsIso.inv_hom_id ((moduleSheafificationCounit 𝒪).app ℱ)
 
 /-- The counit of fixed-ring module sheafification as a literal natural isomorphism with a
 named inverse. -/
@@ -92,12 +98,14 @@ noncomputable def moduleSheafificationCounitIso :
 /-- The forward transformation of the fixed-ring counit is the adjunction counit. -/
 @[simp, stacks 03L6 "fixed-ring module sheafification counit natural isomorphism hom"]
 theorem moduleSheafificationCounitIso_hom :
-    (moduleSheafificationCounitIso 𝒪).hom = moduleSheafificationCounit 𝒪 := sorry
+    (moduleSheafificationCounitIso 𝒪).hom = moduleSheafificationCounit 𝒪 := by
+  rfl
 
 /-- The inverse transformation of the fixed-ring counit is the named inverse family. -/
 @[simp, stacks 03L6 "fixed-ring module sheafification counit natural isomorphism inverse"]
 theorem moduleSheafificationCounitIso_inv :
-    (moduleSheafificationCounitIso 𝒪).inv = moduleSheafificationCounitInv 𝒪 := sorry
+    (moduleSheafificationCounitIso 𝒪).inv = moduleSheafificationCounitInv 𝒪 := by
+  rfl
 
 /-- The counit identifies the sheafification of the underlying identity-restricted presheaf of a
 module sheaf with that module sheaf. -/
@@ -113,7 +121,8 @@ isomorphism. -/
 theorem moduleSheafificationCounitIso_app
     (ℱ : ringedSiteModuleCategory.{u, v, z, w} J 𝒪) :
     (moduleSheafificationCounitIso 𝒪).app ℱ =
-      moduleSheafificationCounitIsoApp 𝒪 ℱ := sorry
+      moduleSheafificationCounitIsoApp 𝒪 ℱ := by
+  rfl
 
 /-- The forward component of the fixed-ring counit natural isomorphism is the adjunction
 counit component. -/
@@ -121,7 +130,8 @@ counit component. -/
 theorem moduleSheafificationCounitIso_hom_app
     (ℱ : ringedSiteModuleCategory.{u, v, z, w} J 𝒪) :
     (moduleSheafificationCounitIso 𝒪).hom.app ℱ =
-      (moduleSheafificationCounit 𝒪).app ℱ := sorry
+      (moduleSheafificationCounit 𝒪).app ℱ := by
+  rfl
 
 /-- The inverse component of the fixed-ring counit natural isomorphism is the named inverse
 component. -/
@@ -129,7 +139,8 @@ component. -/
 theorem moduleSheafificationCounitIso_inv_app
     (ℱ : ringedSiteModuleCategory.{u, v, z, w} J 𝒪) :
     (moduleSheafificationCounitIso 𝒪).inv.app ℱ =
-      (moduleSheafificationCounitInv 𝒪).app ℱ := sorry
+      (moduleSheafificationCounitInv 𝒪).app ℱ := by
+  rfl
 
 namespace ValRestriction
 
@@ -165,34 +176,40 @@ noncomputable def natTransInv :
 theorem natTrans_naturality
     {ℱ 𝒢 : ringedSiteModuleCategory.{u, v, z, w} J 𝒪} (f : ℱ ⟶ 𝒢) :
     f.val ≫ (natTrans 𝒪).app 𝒢 =
-      (natTrans 𝒪).app ℱ ≫ (moduleSheafificationRightAdjoint 𝒪).map f := sorry
+      (natTrans 𝒪).app ℱ ≫ (moduleSheafificationRightAdjoint 𝒪).map f := by
+  exact (natTrans 𝒪).naturality f
 
 /-- Naturality of the inverse underlying-presheaf identity-restriction comparison. -/
 @[stacks 03L6 "inverse underlying presheaf identity-restriction naturality"]
 theorem natTransInv_naturality
     {ℱ 𝒢 : ringedSiteModuleCategory.{u, v, z, w} J 𝒪} (f : ℱ ⟶ 𝒢) :
     (moduleSheafificationRightAdjoint 𝒪).map f ≫ (natTransInv 𝒪).app 𝒢 =
-      (natTransInv 𝒪).app ℱ ≫ f.val := sorry
+      (natTransInv 𝒪).app ℱ ≫ f.val := by
+  exact (natTransInv 𝒪).naturality f
 
 /-- The underlying-presheaf comparison followed by its inverse is the identity. -/
 @[simp, stacks 03L6 "underlying presheaf identity-restriction forward-inverse law"]
 theorem natTrans_hom_inv_id :
-    natTrans 𝒪 ≫ natTransInv 𝒪 = 𝟙 _ := sorry
+    natTrans 𝒪 ≫ natTransInv 𝒪 = 𝟙 _ := by
+  exact (natIso 𝒪).hom_inv_id
 
 /-- The inverse underlying-presheaf comparison followed by the comparison is the identity. -/
 @[simp, stacks 03L6 "underlying presheaf identity-restriction inverse-forward law"]
 theorem natTrans_inv_hom_id :
-    natTransInv 𝒪 ≫ natTrans 𝒪 = 𝟙 _ := sorry
+    natTransInv 𝒪 ≫ natTrans 𝒪 = 𝟙 _ := by
+  exact (natIso 𝒪).inv_hom_id
 
 /-- The forward natural transformation of `ValRestriction.natIso`. -/
 @[simp, stacks 03L6 "underlying presheaf identity-restriction isomorphism hom"]
 theorem natIso_hom :
-    (natIso 𝒪).hom = natTrans 𝒪 := sorry
+    (natIso 𝒪).hom = natTrans 𝒪 := by
+  rfl
 
 /-- The inverse natural transformation of `ValRestriction.natIso`. -/
 @[simp, stacks 03L6 "underlying presheaf identity-restriction isomorphism inverse"]
 theorem natIso_inv :
-    (natIso 𝒪).inv = natTransInv 𝒪 := sorry
+    (natIso 𝒪).inv = natTransInv 𝒪 := by
+  rfl
 
 end ValRestriction
 
@@ -211,21 +228,28 @@ objectwise comparison. -/
 @[simp, stacks 03L6 "underlying presheaf identity-restriction isomorphism component"]
 theorem natIso_app
     (ℱ : ringedSiteModuleCategory.{u, v, z, w} J 𝒪) :
-    (natIso 𝒪).app ℱ = valRestrictionIso 𝒪 ℱ := sorry
+    (natIso 𝒪).app ℱ = valRestrictionIso 𝒪 ℱ := by
+  apply Iso.ext
+  ext X x
+  rfl
 
 /-- A component of the forward identity-restriction comparison is the forward map of the
 objectwise isomorphism. -/
 @[simp, stacks 03L6 "underlying presheaf identity-restriction hom component"]
 theorem natTrans_app
     (ℱ : ringedSiteModuleCategory.{u, v, z, w} J 𝒪) :
-    (natTrans 𝒪).app ℱ = (valRestrictionIso 𝒪 ℱ).hom := sorry
+    (natTrans 𝒪).app ℱ = (valRestrictionIso 𝒪 ℱ).hom := by
+  ext X x
+  rfl
 
 /-- A component of the inverse identity-restriction comparison is the inverse map of the
 objectwise isomorphism. -/
 @[simp, stacks 03L6 "underlying presheaf identity-restriction inverse component"]
 theorem natTransInv_app
     (ℱ : ringedSiteModuleCategory.{u, v, z, w} J 𝒪) :
-    (natTransInv 𝒪).app ℱ = (valRestrictionIso 𝒪 ℱ).inv := sorry
+    (natTransInv 𝒪).app ℱ = (valRestrictionIso 𝒪 ℱ).inv := by
+  ext X x
+  rfl
 
 end ValRestriction
 
@@ -268,7 +292,9 @@ theorem moduleSheafificationExact [HasSheafify J AddCommGrpCat.{z}] :
     exactFunctor
       (PresheafOfModules.{z} (ringSheaf J 𝒪).obj)
       (ringedSiteModuleCategory.{u, v, z, w} J 𝒪)
-      (moduleSheafification 𝒪) := sorry
+      (moduleSheafification 𝒪) := by
+  rw [exactFunctor_iff]
+  exact ⟨inferInstance, inferInstance⟩
 
 
 

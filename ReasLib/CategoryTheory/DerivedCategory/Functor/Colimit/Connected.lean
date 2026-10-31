@@ -42,22 +42,16 @@ variable {C : Type u} [Category.{v} C]
 variable {A : Type w} [Category A]
 variable [HasColimitsOfShape Cᵒᵖ A]
 
-/-- The constant-diagram/colimit adjunction for `A`-valued presheaves on `C`. -/
-@[stacks 08Q7 "constant-diagram colimit adjunction"]
-abbrev constantColimitAdjunction :
-    (colim : (Cᵒᵖ ⥤ A) ⥤ A) ⊣ (Functor.const (Cᵒᵖ) : A ⥤ Cᵒᵖ ⥤ A) :=
-  Limits.colimConstAdj
-
 /-- The counit of the constant-diagram/colimit adjunction is invertible for a connected index. -/
 @[stacks 08Q7 "connected constant-colimit counit instance"]
 instance constantColimitCounit_isIso [IsConnected C] :
-    IsIso (constantColimitAdjunction (C := C) (A := A)).counit := sorry
+    IsIso (Limits.colimConstAdj (J := Cᵒᵖ) (C := A)).counit := sorry
 
 /-- An initial or final object supplies the connectedness needed for the underived counit. -/
 @[stacks 08Q7 "initial-or-final underived lower-shriek counit"]
 theorem constantColimitCounit_isIso_of_hasInitial_or_hasTerminal
     (hC : Nonempty (Limits.HasInitial C) ∨ Nonempty (Limits.HasTerminal C)) :
-    IsIso (constantColimitAdjunction (C := C) (A := A)).counit := sorry
+    IsIso (Limits.colimConstAdj (J := Cᵒᵖ) (C := A)).counit := sorry
 
 end Underived
 
@@ -123,7 +117,7 @@ noncomputable abbrev derivedColimitCounit :
       𝟭 (DerivedCategory.{q'} A) :=
   Adjunction.derivedε
     (Adjunction.mapHomotopyCategoryAdjunction
-      (constantColimitAdjunction (C := C) (A := A)))
+      (Limits.colimConstAdj (J := Cᵒᵖ) (C := A)))
     (HomotopyCategory.quasiIso A (up ℤ))
     (Functor.totalLeftDerivedCounit
       (categoryOverPointColimitToDerived C A)

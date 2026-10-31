@@ -84,16 +84,16 @@ variable {Λ k : Type} [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra Λ
 #check (ArtinianLocalAlgCat.residue Λ k : ArtinianLocalAlgCat Λ k)
 #check (ArtinianLocalAlgCat.dualNumber Λ k : ArtinianLocalAlgCat Λ k)
 #check (D.toDualNumberAlgHom : k →ₐ[Λ] DualNumber k)
-#check (ArtinianLocalAlgCat.homOfDerivation D :
+#check (ArtinianLocalAlgCat.derivationToDualNumber D :
   ArtinianLocalAlgCat.residue Λ k ⟶ ArtinianLocalAlgCat.dualNumber Λ k)
 #check (ArtinianLocalAlgCat.residueToDualNumber Λ k :
   ArtinianLocalAlgCat.residue Λ k ⟶ ArtinianLocalAlgCat.dualNumber Λ k)
 
-#check (ArtinianLocalAlgCat.homOfDerivation_hom D :
-  (ArtinianLocalAlgCat.homOfDerivation D).hom = D.toDualNumberAlgHom)
+#check (ArtinianLocalAlgCat.derivationToDualNumber_hom D :
+  (ArtinianLocalAlgCat.derivationToDualNumber D).hom = D.toDualNumberAlgHom)
 
-#check (ArtinianLocalAlgCat.homOfDerivation_apply D :
-  ∀ value : k, (ArtinianLocalAlgCat.homOfDerivation D).hom value =
+#check (ArtinianLocalAlgCat.derivationToDualNumber_apply D :
+  ∀ value : k, (ArtinianLocalAlgCat.derivationToDualNumber D).hom value =
     inl value + inr (D value))
 
 variable (left right : k)

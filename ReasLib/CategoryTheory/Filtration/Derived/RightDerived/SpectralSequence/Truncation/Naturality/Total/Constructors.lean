@@ -41,12 +41,12 @@ noncomputable abbrev of {K : DerivedCategory A} (S : Realization F K) :
 /-- The total truncation constructor retains the source derived object. -/
 @[simp, stacks 0BKM "base computation for a total truncation realization"]
 theorem of_base {K : DerivedCategory A} (S : Realization F K) :
-    (of F S).base = K := sorry
+    (of F S).base = K := rfl
 
 /-- The total truncation constructor retains the supplied realization. -/
 @[simp, stacks 0BKM "displayed computation for a total truncation realization"]
 theorem of_obj {K : DerivedCategory A} (S : Realization F K) :
-    (of F S).obj = S := sorry
+    (of F S).obj = S := rfl
 
 namespace Hom
 
@@ -62,32 +62,34 @@ noncomputable abbrev ofMap {K L : DerivedCategory A} {f : K ⟶ L}
 @[simp, stacks 0BKM "base computation for a total truncation realization map"]
 theorem ofMap_base {K L : DerivedCategory A} {f : K ⟶ L}
     {S : Realization F K} {T : Realization F L} (m : Realization.Map F f S T) :
-    (ofMap F m).base = f := sorry
+    (ofMap F m).base = f := rfl
 
 /-- The displayed component of the constructed total truncation map is the supplied map. -/
 @[simp, stacks 0BKM "displayed computation for a total truncation realization map"]
 theorem ofMap_displayed {K L : DerivedCategory A} {f : K ⟶ L}
     {S : Realization F K} {T : Realization F L} (m : Realization.Map F f S T) :
-    (ofMap F m).displayed = m := sorry
+    (ofMap F m).displayed = m := rfl
 
 /-- Construction of total truncation maps preserves identities. -/
 @[simp, stacks 0BKM "identity computation for total truncation realization maps"]
 theorem ofMap_id {K : DerivedCategory A} (S : Realization F K) :
-    ofMap F (Realization.Map.id F S) = 𝟙 (of F S) := sorry
+    ofMap F (Realization.Map.id F S) = 𝟙 (of F S) := rfl
 
 /-- Construction of total truncation maps preserves composition. -/
 @[simp, stacks 0BKM "composition computation for total truncation realization maps"]
 theorem ofMap_comp {K L M : DerivedCategory A} {f : K ⟶ L} {g : L ⟶ M}
     {S : Realization F K} {T : Realization F L} {U : Realization F M}
     (m : Realization.Map F f S T) (n : Realization.Map F g T U) :
-    ofMap F (Realization.Map.comp F m n) = ofMap F m ≫ ofMap F n := sorry
+    ofMap F (Realization.Map.comp F m n) = ofMap F m ≫ ofMap F n := rfl
 
 /-- Reindexing a truncation realization map leaves the constructed total morphism unchanged. -/
 @[stacks 0BKM "reindexing computation for total truncation realization maps"]
 theorem ofMap_reindex {K L : DerivedCategory A} {f g : K ⟶ L}
     {S : Realization F K} {T : Realization F L} (h : f = g)
     (m : Realization.Map F f S T) :
-    ofMap F (Realization.Map.reindex F h m) = ofMap F m := sorry
+    ofMap F (Realization.Map.reindex F h m) = ofMap F m := by
+  cases h
+  rfl
 
 end Hom
 
@@ -96,7 +98,7 @@ underlying generic realization. -/
 @[simp, stacks 0BKM "generic image of a constructed total truncation realization"]
 theorem genericFunctor_obj_of {K : DerivedCategory A} (S : Realization F K) :
     (genericFunctor F).obj (of F S) =
-      RightDerived.SpectralSequence.Realization.Total.of F S.original := sorry
+      RightDerived.SpectralSequence.Realization.Total.of F S.original := rfl
 
 /-- The truncation-to-generic functor sends a constructed total map to the total map of its
 underlying generic realization map. -/
@@ -104,6 +106,6 @@ underlying generic realization map. -/
 theorem genericFunctor_map_ofMap {K L : DerivedCategory A} {f : K ⟶ L}
     {S : Realization F K} {T : Realization F L} (m : Realization.Map F f S T) :
     (genericFunctor F).map (Hom.ofMap F m) =
-      RightDerived.SpectralSequence.Realization.Total.Hom.ofMap F m.original := sorry
+      RightDerived.SpectralSequence.Realization.Total.Hom.ofMap F m.original := rfl
 
 end CategoryTheory.FilteredComplex.RightDerived.SpectralSequence.Truncation.Realization.Total

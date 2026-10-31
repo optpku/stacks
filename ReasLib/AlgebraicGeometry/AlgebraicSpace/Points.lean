@@ -8,6 +8,8 @@ module
 
 public import Mathlib.CategoryTheory.Yoneda
 public import Mathlib.CategoryTheory.InducedCategory
+public import Mathlib.AlgebraicGeometry.Pullbacks
+public import Mathlib.RingTheory.TensorProduct.Nontrivial
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.FunctorOfPoints
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism
 
@@ -22,6 +24,7 @@ when they become equal after restriction along a common field extension.
 @[expose] public section
 
 open CategoryTheory AlgebraicGeometry Opposite
+open scoped TensorProduct
 
 noncomputable section
 
@@ -35,7 +38,7 @@ def ofOverMap {S : Scheme.{u}} {U V : Over S} (f : U ⟶ V) : ofOver U ⟶ ofOve
 
 /-- `ofOverMap f` is the Yoneda image of a morphism of schemes over `S`. -/
 theorem ofOverMap_eq {S : Scheme.{u}} {U V : Over S} (f : U ⟶ V) :
-    ofOverMap f = yoneda.map f := sorry
+    ofOverMap f = yoneda.map f := rfl
 
 /-- The morphism of algebraic spaces over `S` induced by a morphism of schemes compatible with the
 given structure morphisms. -/
@@ -46,7 +49,7 @@ def ofOverHomMk {S : Scheme.{u}} {XK XL : Scheme.{u}} {σK : XK ⟶ S} {σL : XL
 /-- `ofOverHomMk f hf` is `ofOverMap` of the corresponding morphism in `Over S`. -/
 theorem ofOverHomMk_eq {S : Scheme.{u}} {XK XL : Scheme.{u}} {σK : XK ⟶ S} {σL : XL ⟶ S}
     (f : XK ⟶ XL) (hf : f ≫ σL = σK) :
-    ofOverHomMk f hf = ofOverMap (Over.homMk f hf) := sorry
+    ofOverHomMk f hf = ofOverMap (Over.homMk f hf) := rfl
 
 set_option backward.privateInPublic true in
 /-- Explicit field and morphism data for a field-valued point of an algebraic space. -/
@@ -132,7 +135,7 @@ abbrev overObj (p : FieldValuedPoint X) : Over S :=
 
 /-- The structure morphism of `overObj p` is `p.structureHom`. -/
 @[simp]
-theorem overObj_hom (p : FieldValuedPoint X) : p.overObj.hom = p.structureHom := sorry
+theorem overObj_hom (p : FieldValuedPoint X) : p.overObj.hom = p.structureHom := rfl
 
 set_option backward.privateInPublic true in
 /-- Postcompose a field-valued point with a morphism of algebraic spaces over `S`. -/
@@ -184,11 +187,17 @@ def of {p q : FieldValuedPoint X} (schemeHom : p.overObj.left ⟶ q.overObj.left
 
 /-- The identity factorization commutes with the structure morphisms. -/
 theorem refl_fac_structure (p : FieldValuedPoint X) :
-    (𝟙 p.overObj.left) ≫ p.structureHom = p.structureHom := sorry
+    (𝟙 p.overObj.left) ≫ p.structureHom = p.structureHom := by simp
 
 /-- The identity factorization commutes with the morphisms into `X`. -/
 theorem refl_fac_hom (p : FieldValuedPoint X) :
-    ofOverHomMk (𝟙 p.overObj.left) (refl_fac_structure p) ≫ p.hom = p.hom := sorry
+    ofOverHomMk (𝟙 p.overObj.left) (refl_fac_structure p) ≫ p.hom = p.hom := by
+  rw [ofOverHomMk_eq, ofOverMap_eq]
+  have heq : Over.homMk (𝟙 p.overObj.left) (refl_fac_structure p) = 𝟙 p.overObj := by
+    apply Over.OverMorphism.ext
+    change (𝟙 p.overObj.left) = 𝟙 p.overObj.left
+    rfl
+  exact congrArg (fun k ↦ yoneda.map k ≫ p.hom) heq
 
 /-- The identity factorization of a field-valued point. -/
 def refl (p : FieldValuedPoint X) : Factorization p p where
@@ -269,12 +278,183 @@ theorem Equivalent.refl (p : FieldValuedPoint X) : Equivalent p p :=
   ⟨CommonExtension.refl p⟩
 
 /-- Equivalence of field-valued points is symmetric. -/
-theorem Equivalent.symm {p q : FieldValuedPoint X} : Equivalent p q → Equivalent q p := sorry
+theorem Equivalent.symm {p q : FieldValuedPoint X} : Equivalent p q → Equivalent q p := by
+  rintro ⟨e⟩
+  exact ⟨CommonExtension.symm e⟩
+
+private theorem ofOverHomMk_comp {S : Scheme.{u}} {A B C : Scheme.{u}}
+    {a : A ⟶ S} {b : B ⟶ S} {c : C ⟶ S}
+    (f : A ⟶ B) (g : B ⟶ C) (hf : f ≫ b = a) (hg : g ≫ c = b) :
+    ofOverHomMk f hf ≫ ofOverHomMk g hg =
+      ofOverHomMk (f ≫ g) (by rw [Category.assoc, hg, hf]) := by
+  rw [ofOverHomMk_eq, ofOverHomMk_eq, ofOverHomMk_eq]
+  apply yoneda.map_injective
+  ext U x
+  rfl
+
+private theorem field_amalgam {K L M : Type u} [Field K] [Field L] [Field M]
+    (f : Spec (.of K) ⟶ Spec (.of M)) (g : Spec (.of L) ⟶ Spec (.of M)) :
+    ∃ (Ω : Type u) (_ : Field Ω) (i : Spec (.of Ω) ⟶ Spec (.of K))
+      (j : Spec (.of Ω) ⟶ Spec (.of L)), i ≫ f = j ≫ g := by
+  let φ : CommRingCat.of M ⟶ CommRingCat.of K := Spec.homEquiv f
+  let ψ : CommRingCat.of M ⟶ CommRingCat.of L := Spec.homEquiv g
+  letI : Algebra M K := φ.hom.toAlgebra
+  letI : Algebra M L := ψ.hom.toAlgebra
+  let A := K ⊗[M] L
+  haveI : Nontrivial A :=
+    Algebra.TensorProduct.nontrivial_of_algebraMap_injective_of_isDomain M K L
+      (RingHom.injective _) (RingHom.injective _)
+  obtain ⟨x⟩ : Nonempty (PrimeSpectrum A) := inferInstance
+  let R : CommRingCat := (Spec (.of A)).residueField x
+  let Ω : Type u := R.carrier
+  let z : Spec (.of Ω) ⟶ Spec (.of A) := (Spec (.of A)).fromSpecResidueField x
+  let e := pullbackSpecIso M K L
+  let i : Spec (.of Ω) ⟶ Spec (.of K) :=
+    z ≫ e.inv ≫ Limits.pullback.fst (Spec.map (CommRingCat.ofHom (algebraMap M K)))
+      (Spec.map (CommRingCat.ofHom (algebraMap M L)))
+  let j : Spec (.of Ω) ⟶ Spec (.of L) :=
+    z ≫ e.inv ≫ Limits.pullback.snd (Spec.map (CommRingCat.ofHom (algebraMap M K)))
+      (Spec.map (CommRingCat.ofHom (algebraMap M L)))
+  have hf : Spec.map (CommRingCat.ofHom (algebraMap M K)) = f := by
+    change Spec.map φ = f
+    exact Spec.map_preimage f
+  have hg : Spec.map (CommRingCat.ofHom (algebraMap M L)) = g := by
+    change Spec.map ψ = g
+    exact Spec.map_preimage g
+  have hij : i ≫ f = j ≫ g := by
+    have hpb :
+        Limits.pullback.fst (Spec.map (CommRingCat.ofHom (algebraMap M K)))
+            (Spec.map (CommRingCat.ofHom (algebraMap M L))) ≫
+          Spec.map (CommRingCat.ofHom (algebraMap M K)) =
+        Limits.pullback.snd (Spec.map (CommRingCat.ofHom (algebraMap M K)))
+            (Spec.map (CommRingCat.ofHom (algebraMap M L))) ≫
+          Spec.map (CommRingCat.ofHom (algebraMap M L)) :=
+      Limits.pullback.condition
+    simpa [i, j, Category.assoc, hf, hg] using
+      congrArg (fun k ↦ z ≫ e.inv ≫ k) hpb
+  exact ⟨Ω, inferInstance, i, j, hij⟩
 
 /-- Equivalence of field-valued points is transitive. -/
 theorem Equivalent.trans {p q r : FieldValuedPoint X} :
-    Equivalent p q → Equivalent q r → Equivalent p r := sorry
-
+    Equivalent p q → Equivalent q r → Equivalent p r := by
+  rintro ⟨e₁⟩ ⟨e₂⟩
+  let f := e₁.right.schemeHom
+  let g := e₂.left.schemeHom
+  let hfam := field_amalgam f g
+  let Ω : Type u := Classical.choose hfam
+  letI : Field Ω := Classical.choose (Classical.choose_spec hfam)
+  let hiData := Classical.choose_spec (Classical.choose_spec hfam)
+  let i : Spec (.of Ω) ⟶ e₁.point.overObj.left := Classical.choose hiData
+  let hjData := Classical.choose_spec hiData
+  let j : Spec (.of Ω) ⟶ e₂.point.overObj.left := Classical.choose hjData
+  have hij : i ≫ f = j ≫ g := Classical.choose_spec hjData
+  let σ : Spec (.of Ω) ⟶ S := i ≫ e₁.point.structureHom
+  let hiOver : i ≫ e₁.point.overObj.hom = σ := by
+    rfl
+  let hi : i ≫ e₁.point.structureHom = σ := by
+    simpa only [overObj_hom] using hiOver
+  let hjOver : j ≫ e₂.point.overObj.hom = σ := by
+    change j ≫ e₂.point.overObj.hom = i ≫ e₁.point.overObj.hom
+    have hl : e₁.right.schemeHom ≫ q.overObj.hom = e₁.point.overObj.hom := by
+      simpa only [overObj_hom] using e₁.right.fac_structure
+    have hr : e₂.left.schemeHom ≫ q.overObj.hom = e₂.point.overObj.hom := by
+      simpa only [overObj_hom] using e₂.left.fac_structure
+    rw [← hr, ← hl]
+    rw [← Category.assoc, ← Category.assoc, hij]
+  let hj : j ≫ e₂.point.structureHom = σ := by
+    simpa only [overObj_hom] using hjOver
+  let cHom : ofOver (Over.mk σ) ⟶ X :=
+    ofOverHomMk i hi ≫ e₁.point.hom
+  let c : FieldValuedPoint X := FieldValuedPoint.of Ω σ cHom
+  have hleftOver : e₁.right.schemeHom ≫ q.overObj.hom = e₁.point.overObj.hom := by
+    simpa only [overObj_hom] using e₁.right.fac_structure
+  have hrightOver : e₂.left.schemeHom ≫ q.overObj.hom = e₂.point.overObj.hom := by
+    simpa only [overObj_hom] using e₂.left.fac_structure
+  have hif :
+      (i ≫ e₁.right.schemeHom) ≫ q.overObj.hom = σ := by
+    rw [Category.assoc, hleftOver]
+    exact hiOver
+  have hjg :
+      (j ≫ e₂.left.schemeHom) ≫ q.overObj.hom = σ := by
+    rw [Category.assoc, hrightOver]
+    exact hjOver
+  have hmap :
+      ofOverHomMk (i ≫ e₁.right.schemeHom) hif =
+        ofOverHomMk (j ≫ e₂.left.schemeHom) hjg := by
+    rw [ofOverHomMk_eq, ofOverHomMk_eq]
+    exact congrArg yoneda.map (Over.OverMorphism.ext hij)
+  have hcomp₁ :
+      ofOverHomMk i hi ≫ ofOverHomMk e₁.right.schemeHom e₁.right.fac_structure =
+        ofOverHomMk (i ≫ e₁.right.schemeHom) hif := by
+    convert ofOverHomMk_comp i e₁.right.schemeHom hi e₁.right.fac_structure using 1 <;> simp
+  have hcomp₂ :
+      ofOverHomMk j hj ≫ ofOverHomMk e₂.left.schemeHom e₂.left.fac_structure =
+        ofOverHomMk (j ≫ e₂.left.schemeHom) hjg := by
+    convert ofOverHomMk_comp j e₂.left.schemeHom hj e₂.left.fac_structure using 1 <;> simp
+  have hpath :
+      ofOverHomMk i hi ≫ e₁.point.hom =
+        ofOverHomMk j hj ≫ e₂.point.hom := by
+    calc
+      ofOverHomMk i hi ≫ e₁.point.hom =
+          ofOverHomMk i hi ≫ (ofOverHomMk e₁.right.schemeHom e₁.right.fac_structure ≫ q.hom) := by
+            exact congrArg (fun k ↦ ofOverHomMk i hi ≫ k) e₁.right.fac_hom.symm
+      _ = (ofOverHomMk i hi ≫ ofOverHomMk e₁.right.schemeHom e₁.right.fac_structure) ≫ q.hom := by
+            simp only [Category.assoc]
+      _ = ofOverHomMk (i ≫ e₁.right.schemeHom) hif ≫ q.hom := by exact congrArg (fun k ↦ k ≫ q.hom) hcomp₁
+      _ = ofOverHomMk (j ≫ e₂.left.schemeHom) hjg ≫ q.hom := by rw [hmap]
+      _ = (ofOverHomMk j hj ≫ ofOverHomMk e₂.left.schemeHom e₂.left.fac_structure) ≫ q.hom := by
+            exact congrArg (fun k ↦ k ≫ q.hom) hcomp₂.symm
+      _ = ofOverHomMk j hj ≫ (ofOverHomMk e₂.left.schemeHom e₂.left.fac_structure ≫ q.hom) := by
+            simp only [Category.assoc]
+      _ = ofOverHomMk j hj ≫ e₂.point.hom := by
+            exact congrArg (fun k ↦ ofOverHomMk j hj ≫ k) e₂.left.fac_hom
+  have hleftStruct :
+      (i ≫ e₁.left.schemeHom) ≫ p.structureHom = σ := by
+    rw [Category.assoc, e₁.left.fac_structure]
+  let left : Factorization c p := {
+    schemeHom := i ≫ e₁.left.schemeHom
+    fac_structure := hleftStruct
+    fac_hom := by
+      change ofOverHomMk (i ≫ e₁.left.schemeHom) hleftStruct ≫ p.hom =
+        ofOverHomMk i hi ≫ e₁.point.hom
+      have hcomp :
+          ofOverHomMk i hi ≫ ofOverHomMk e₁.left.schemeHom e₁.left.fac_structure =
+            ofOverHomMk (i ≫ e₁.left.schemeHom) hleftStruct := by
+        convert ofOverHomMk_comp i e₁.left.schemeHom hi e₁.left.fac_structure using 1
+      calc
+        ofOverHomMk (i ≫ e₁.left.schemeHom) hleftStruct ≫ p.hom =
+            (ofOverHomMk i hi ≫ ofOverHomMk e₁.left.schemeHom e₁.left.fac_structure) ≫ p.hom := by
+              exact congrArg (fun k ↦ k ≫ p.hom) hcomp.symm
+        _ = ofOverHomMk i hi ≫ (ofOverHomMk e₁.left.schemeHom e₁.left.fac_structure ≫ p.hom) := by
+              simp only [Category.assoc]
+        _ = ofOverHomMk i hi ≫ e₁.point.hom := by
+              exact congrArg (fun k ↦ ofOverHomMk i hi ≫ k) e₁.left.fac_hom
+  }
+  have hrightStruct :
+      (j ≫ e₂.right.schemeHom) ≫ r.structureHom = σ := by
+    rw [Category.assoc, e₂.right.fac_structure]
+    exact hj
+  let right : Factorization c r := {
+    schemeHom := j ≫ e₂.right.schemeHom
+    fac_structure := hrightStruct
+    fac_hom := by
+      change ofOverHomMk (j ≫ e₂.right.schemeHom) hrightStruct ≫ r.hom =
+        ofOverHomMk i hi ≫ e₁.point.hom
+      have hcomp :
+          ofOverHomMk j hj ≫ ofOverHomMk e₂.right.schemeHom e₂.right.fac_structure =
+            ofOverHomMk (j ≫ e₂.right.schemeHom) hrightStruct := by
+        convert ofOverHomMk_comp j e₂.right.schemeHom hj e₂.right.fac_structure using 1
+      calc
+        ofOverHomMk (j ≫ e₂.right.schemeHom) hrightStruct ≫ r.hom =
+            (ofOverHomMk j hj ≫ ofOverHomMk e₂.right.schemeHom e₂.right.fac_structure) ≫ r.hom := by
+              exact congrArg (fun k ↦ k ≫ r.hom) hcomp.symm
+        _ = ofOverHomMk j hj ≫ (ofOverHomMk e₂.right.schemeHom e₂.right.fac_structure ≫ r.hom) := by
+              simp only [Category.assoc]
+        _ = ofOverHomMk j hj ≫ e₂.point.hom := by
+              exact congrArg (fun k ↦ ofOverHomMk j hj ≫ k) e₂.right.fac_hom
+        _ = ofOverHomMk i hi ≫ e₁.point.hom := hpath.symm
+  }
+  exact ⟨CommonExtension.of c left right⟩
 /-- Equivalence is preserved by postcomposition with a morphism of algebraic spaces over `S`. -/
 theorem Equivalent.map {Y : AlgebraicSpace S} {p q : FieldValuedPoint X} (h : Equivalent p q)
     (f : X ⟶ Y) : Equivalent (p.map f) (q.map f) := sorry

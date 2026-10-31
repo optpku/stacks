@@ -9,7 +9,7 @@ module
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.IntersectionTheory.AffineProjSym
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.IntersectionTheory.SmallProjectiveFunctor
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Atlas.Input
-public import stacks_project.Chap71.Lemma_71_11_2_RestrictionBaseChange
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.RestrictToScheme.ExtensionBaseChange
 public import Mathlib.AlgebraicGeometry.Limits
 
 /-! Explicit Proj(Sym) chart atlas and quotient-functor carrier for P(E). -/

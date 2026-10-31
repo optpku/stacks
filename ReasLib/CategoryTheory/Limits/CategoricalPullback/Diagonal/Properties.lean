@@ -53,25 +53,3 @@ instance isEquivalence (F : A ⥤ C) (G : B ⥤ C) (H : C ⥤ D) [H.Full] [H.Fai
 end postcompose
 
 end CategoryTheory.Limits.CategoricalPullback
-
-section PostcomposeInstanceSmoke
-
-open CategoryTheory
-open CategoryTheory.Limits
-open scoped CategoricalPullback
-
-universe v u
-
-variable {A B C D : Type u}
-variable [Category.{v} A] [Category.{v} B] [Category.{v} C] [Category.{v} D]
-variable (F : A ⥤ C) (G : B ⥤ C) (H : C ⥤ D)
-
-#synth (CategoryTheory.Limits.CategoricalPullback.postcompose F G H).Faithful
-
-variable [H.Full] [H.Faithful]
-
-#synth (CategoryTheory.Limits.CategoricalPullback.postcompose F G H).Full
-#synth (CategoryTheory.Limits.CategoricalPullback.postcompose F G H).EssSurj
-#synth (CategoryTheory.Limits.CategoricalPullback.postcompose F G H).IsEquivalence
-
-end PostcomposeInstanceSmoke

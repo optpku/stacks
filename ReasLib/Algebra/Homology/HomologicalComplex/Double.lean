@@ -7,6 +7,7 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import Mathlib.Algebra.Homology.Double
+public import Mathlib.Algebra.Homology.HomologicalComplexAbelian
 public import Mathlib.CategoryTheory.Limits.Shapes.Kernels
 public import ReasLib.CategoryTheory.Homology.DegreewiseSplit
 public import ReasLib.CategoryTheory.ShortComplex.FunctorCategory
@@ -44,14 +45,16 @@ theorem comm {f g : Arrow C} (φ : f ⟶ g) (hi : c.Rel i₀ i₁)
     (φ.left ≫ (doubleXIso₀ g.hom hi).inv) ≫ (double g.hom hi).d i₀ i₁ =
       f.hom ≫
         (φ.right ≫
-          (doubleXIso₁ g.hom hi hne).inv) := sorry
+          (doubleXIso₁ g.hom hi hne).inv) := by
+  simp [double_d _ _ hne, Category.assoc]
 
 /-- The target endpoint map of a square commutes with every outgoing zero differential of the
 target double complex. -/
 theorem next {f g : Arrow C} (φ : f ⟶ g) (hi : c.Rel i₀ i₁)
     (hne : i₀ ≠ i₁) (j : I) (hj : c.Rel i₁ j) :
     (φ.right ≫ (doubleXIso₁ g.hom hi hne).inv) ≫
-      (double g.hom hi).d i₁ j = 0 := sorry
+      (double g.hom hi).d i₁ j = 0 := by
+  rw [double_d_eq_zero₀ _ _ _ _ hne.symm, comp_zero]
 
 end map
 
@@ -73,7 +76,8 @@ canonical endpoint identifications. -/
 theorem f₀ {f g : Arrow C} (hi : c.Rel i₀ i₁) (hne : i₀ ≠ i₁)
     (φ : f ⟶ g) :
     (map hi hne φ).f i₀ =
-      (doubleXIso₀ f.hom hi).hom ≫ φ.left ≫ (doubleXIso₀ g.hom hi).inv := sorry
+      (doubleXIso₀ f.hom hi).hom ≫ φ.left ≫ (doubleXIso₀ g.hom hi).inv := by
+  simp [HomologicalComplex.double.map]
 
 /-- At the target degree, `double.map` is the right side of the defining square under the
 canonical endpoint identifications. -/
@@ -82,16 +86,23 @@ theorem f₁ {f g : Arrow C} (hi : c.Rel i₀ i₁) (hne : i₀ ≠ i₁)
     (φ : f ⟶ g) :
     (map hi hne φ).f i₁ =
       (doubleXIso₁ f.hom hi hne).hom ≫ φ.right ≫
-        (doubleXIso₁ g.hom hi hne).inv := sorry
+        (doubleXIso₁ g.hom hi hne).inv := by
+  simp [HomologicalComplex.double.map]
 
 /-- The map of double complexes associated to an identity square is the identity. -/
 theorem id (hi : c.Rel i₀ i₁) (hne : i₀ ≠ i₁) (f : Arrow C) :
-    map hi hne (𝟙 f) = 𝟙 (double f.hom hi) := sorry
+    map hi hne (𝟙 f) = 𝟙 (double f.hom hi) := by
+  apply from_double_hom_ext
+  · simp
+  · simp
 
 /-- Maps of double complexes preserve composition of commutative squares. -/
 theorem comp (hi : c.Rel i₀ i₁) (hne : i₀ ≠ i₁) {f g h : Arrow C}
     (φ : f ⟶ g) (ψ : g ⟶ h) :
-    map hi hne (φ ≫ ψ) = map hi hne φ ≫ map hi hne ψ := sorry
+    map hi hne (φ ≫ ψ) = map hi hne φ ≫ map hi hne ψ := by
+  apply from_double_hom_ext
+  · simp [Category.assoc]
+  · simp [Category.assoc]
 
 end map
 
@@ -108,13 +119,13 @@ noncomputable def functor (C : Type u) [Category.{v} C] [HasZeroMorphisms C]
 /-- The value of `double.functor` is Mathlib's two-term complex. -/
 @[simp, stacks 0192 "two-term complex functor object formula"]
 theorem functor_obj (hi : c.Rel i₀ i₁) (hne : i₀ ≠ i₁) (f : Arrow C) :
-    (functor C hi hne).obj f = double f.hom hi := sorry
+    (functor C hi hne).obj f = double f.hom hi := rfl
 
 /-- The action of `double.functor` on a square is `double.map`. -/
 @[simp, stacks 0192 "two-term complex functor map formula"]
 theorem functor_map (hi : c.Rel i₀ i₁) (hne : i₀ ≠ i₁)
     {f g : Arrow C} (φ : f ⟶ g) :
-    (functor C hi hne).map φ = map hi hne φ := sorry
+    (functor C hi hne).map φ = map hi hne φ := rfl
 
 section Cokernel
 
@@ -126,7 +137,9 @@ projection. -/
 theorem toCokernelApp_comm (f : Arrow C) (hi : c.Rel i₀ i₁)
     (hne : i₀ ≠ i₁) (i : I) (h : c.Rel i i₁) :
     (double f.hom hi).d i i₁ ≫
-        ((doubleXIso₁ f.hom hi hne).hom ≫ cokernel.π f.hom) = 0 := sorry
+        ((doubleXIso₁ f.hom hi hne).hom ≫ cokernel.π f.hom) = 0 := by
+  obtain rfl := c.prev_eq h hi
+  simp [double_d _ _ hne, Category.assoc]
 
 /-- The canonical map from a two-term complex to its cokernel concentrated in the target
 degree. -/
@@ -142,7 +155,12 @@ noncomputable def toCokernelApp (f : Arrow C) (hi : c.Rel i₀ i₁)
 theorem toCokernelApp_naturality {f g : Arrow C} (φ : f ⟶ g)
     (hi : c.Rel i₀ i₁) (hne : i₀ ≠ i₁) :
     map hi hne φ ≫ toCokernelApp g hi hne =
-      toCokernelApp f hi hne ≫ (single C c i₁).map ((Limits.coker C).map φ) := sorry
+      toCokernelApp f hi hne ≫ (single C c i₁).map ((Limits.coker C).map φ) := by
+  apply to_single_hom_ext
+  change (map hi hne φ).f i₁ ≫ (toCokernelApp g hi hne).f i₁ =
+    (toCokernelApp f hi hne).f i₁ ≫
+      ((single C c i₁).map ((Limits.coker C).map φ)).f i₁
+  simp [toCokernelApp, single_map_f_self, Category.assoc, Limits.coker]
 
 /-- The natural transformation from the two-term-complex functor to the target-degree
 cokernel functor. -/
@@ -157,7 +175,7 @@ noncomputable def toCokernel (C : Type u) [Category.{v} C] [HasZeroMorphisms C]
 /-- A component of `toCokernel` is the canonical cokernel augmentation. -/
 @[simp, stacks 0192 "component of the functorial two-term cokernel augmentation"]
 theorem toCokernel_app (hi : c.Rel i₀ i₁) (hne : i₀ ≠ i₁) (f : Arrow C) :
-    (toCokernel C hi hne).app f = toCokernelApp f hi hne := sorry
+    (toCokernel C hi hne).app f = toCokernelApp f hi hne := rfl
 
 end Cokernel
 
@@ -167,7 +185,8 @@ namespace ιApp
 theorem comm (f : Arrow C) (hi : c.Rel i₀ i₁)
     (hne : i₀ ≠ i₁) (j : I) (hj : c.Rel i₁ j) :
     (doubleXIso₁ f.hom hi hne).inv ≫
-      (double f.hom hi).d i₁ j = 0 := sorry
+      (double f.hom hi).d i₁ j = 0 := by
+  rw [double_d_eq_zero₀ _ _ _ _ hne.symm, comp_zero]
 
 end ιApp
 
@@ -176,7 +195,13 @@ namespace πApp
 /-- The endpoint projection from a two-term complex commutes with every incoming differential. -/
 theorem comm (f : Arrow C) (hi : c.Rel i₀ i₁)
     (j : I) (hj : c.Rel j i₀) :
-    (double f.hom hi).d j i₀ ≫ (doubleXIso₀ f.hom hi).hom = 0 := sorry
+    (double f.hom hi).d j i₀ ≫ (doubleXIso₀ f.hom hi).hom = 0 := by
+  classical
+  by_cases h : i₀ = i₁
+  · subst i₁
+    simp [HomologicalComplex.double]
+    rfl
+  · rw [double_d_eq_zero₁ _ _ _ _ h, zero_comp]
 
 end πApp
 
@@ -199,7 +224,11 @@ namespace ι
 theorem naturality {f g : Arrow C} (φ : f ⟶ g) (hi : c.Rel i₀ i₁)
     (hne : i₀ ≠ i₁) :
     ((Arrow.rightFunc : Arrow C ⥤ C) ⋙ single C c i₁).map φ ≫ ιApp g hi hne =
-      ιApp f hi hne ≫ (functor C hi hne).map φ := sorry
+      ιApp f hi hne ≫ (functor C hi hne).map φ := by
+  apply from_single_hom_ext
+  change ((single C c i₁).map φ.right).f i₁ ≫ (ιApp g hi hne).f i₁ =
+    (ιApp f hi hne).f i₁ ≫ (map hi hne φ).f i₁
+  simp [ιApp, single_map_f_self, Category.assoc]
 
 end ι
 
@@ -216,7 +245,7 @@ noncomputable def ι (C : Type u) [Category.{v} C] [HasZeroMorphisms C]
 /-- The component of the natural endpoint inclusion is `ιApp`. -/
 @[simp, stacks 0192 "target endpoint inclusion component formula"]
 theorem ι_app (hi : c.Rel i₀ i₁) (hne : i₀ ≠ i₁) (f : Arrow C) :
-    (ι C hi hne).app f = ιApp f hi hne := sorry
+    (ι C hi hne).app f = ιApp f hi hne := rfl
 
 /-- The canonical projection from a two-term complex onto its source endpoint, concentrated in
 degree `i₀`. -/
@@ -231,7 +260,11 @@ namespace π
 theorem naturality {f g : Arrow C} (φ : f ⟶ g) (hi : c.Rel i₀ i₁)
     (hne : i₀ ≠ i₁) :
     (functor C hi hne).map φ ≫ πApp g hi =
-      πApp f hi ≫ ((Arrow.leftFunc : Arrow C ⥤ C) ⋙ single C c i₀).map φ := sorry
+      πApp f hi ≫ ((Arrow.leftFunc : Arrow C ⥤ C) ⋙ single C c i₀).map φ := by
+  apply to_single_hom_ext
+  change (map hi hne φ).f i₀ ≫ (πApp g hi).f i₀ =
+    (πApp f hi).f i₀ ≫ ((single C c i₀).map φ.left).f i₀
+  simp [πApp, single_map_f_self, Category.assoc]
 
 end π
 
@@ -248,12 +281,16 @@ noncomputable def π (C : Type u) [Category.{v} C] [HasZeroMorphisms C]
 /-- The component of the natural endpoint projection is `πApp`. -/
 @[simp, stacks 0192 "source endpoint projection component formula"]
 theorem π_app (hi : c.Rel i₀ i₁) (hne : i₀ ≠ i₁) (f : Arrow C) :
-    (π C hi hne).app f = πApp f hi := sorry
+    (π C hi hne).app f = πApp f hi := rfl
 
 /-- The natural endpoint inclusion and projection compose to zero. -/
 @[stacks 0192 "single-double-single composition"]
 theorem ι_comp_π (hi : c.Rel i₀ i₁) (hne : i₀ ≠ i₁) :
-    ι C hi hne ≫ π C hi hne = 0 := sorry
+    ι C hi hne ≫ π C hi hne = 0 := by
+  apply NatTrans.ext
+  funext f
+  apply from_single_hom_ext
+  exact (isZero_single_obj_X c i₀ f.left i₁ hne.symm).eq_of_tgt _ _
 
 /-- The canonical single--double--single short complex, functorial in the underlying arrow. -/
 @[stacks 0192 "functorial single-double-single short complex"]
@@ -313,11 +350,21 @@ namespace laws
 /-- The degreewise retraction is a right inverse to the endpoint inclusion. -/
 theorem f_r (f : Arrow C) (hi : c.Rel i₀ i₁) (hne : i₀ ≠ i₁) (n : I) :
     ((shortComplex.app hi hne f).degreewise n).f ≫
-      retraction f hi hne n = 𝟙 _ := sorry
+      retraction f hi hne n = 𝟙 _ := by
+  by_cases h : n = i₁
+  · subst n
+    change (ιApp f hi hne).f i₁ ≫ retraction f hi hne i₁ = 𝟙 _
+    simp [ιApp, retraction, singleObjXSelf, Category.assoc]
+  · exact (isZero_single_obj_X c i₁ f.right n h).eq_of_src _ _
 
 /-- The degreewise section is a left inverse to the endpoint projection. -/
 theorem s_g (f : Arrow C) (hi : c.Rel i₀ i₁) (hne : i₀ ≠ i₁) (n : I) :
-    section_ f hi n ≫ ((shortComplex.app hi hne f).degreewise n).g = 𝟙 _ := sorry
+    section_ f hi n ≫ ((shortComplex.app hi hne f).degreewise n).g = 𝟙 _ := by
+  by_cases h : n = i₀
+  · subst n
+    change section_ f hi i₀ ≫ (πApp f hi).f i₀ = 𝟙 _
+    simp [πApp, section_, singleObjXSelf, Category.assoc]
+  · exact (isZero_single_obj_X c i₀ f.left n h).eq_of_src _ _
 
 /-- The retraction and section split the identity of the middle term in every degree. -/
 theorem id (f : Arrow C) (hi : c.Rel i₀ i₁) (hne : i₀ ≠ i₁) (n : I) :
@@ -328,7 +375,16 @@ theorem id (f : Arrow C) (hi : c.Rel i₀ i₁) (hne : i₀ ≠ i₁) (n : I) :
       ((((shortComplex.app hi hne f).degreewise n).g :
           (double f.hom hi).X n ⟶ ((single C c i₀).obj f.left).X n) ≫
         section_ f hi n :
-        (double f.hom hi).X n ⟶ (double f.hom hi).X n) = 𝟙 _ := sorry
+        (double f.hom hi).X n ⟶ (double f.hom hi).X n) = 𝟙 _ := by
+  change retraction f hi hne n ≫ (ιApp f hi hne).f n +
+    (πApp f hi).f n ≫ section_ f hi n = 𝟙 _
+  by_cases h₀ : n = i₀
+  · subst n
+    simp [retraction, section_, πApp, hne, singleObjXSelf, Category.assoc]
+  · by_cases h₁ : n = i₁
+    · subst n
+      simp [retraction, section_, ιApp, h₀, singleObjXSelf, Category.assoc]
+    · exact (isZero_double_X f.hom hi n h₀ h₁).eq_of_src _ _
 
 end laws
 
@@ -355,7 +411,9 @@ noncomputable def degreewiseSplitting (f : Arrow C) (hi : c.Rel i₀ i₁)
 /-- The single--double--single row associated to an arrow is degreewise split. -/
 @[stacks 0192 "degreewise-split single-double-single row"]
 theorem isDegreewiseSplit (f : Arrow C) (hi : c.Rel i₀ i₁) (hne : i₀ ≠ i₁) :
-    (shortComplex.app hi hne f).IsDegreewiseSplit := sorry
+    (shortComplex.app hi hne f).IsDegreewiseSplit := by
+  intro n
+  exact ⟨degree.splitting f hi hne n⟩
 
 end Splitting
 
@@ -368,7 +426,10 @@ variable {I : Type w} {c : ComplexShape I} {i₀ i₁ : I} [DecidableEq I]
 @[stacks 0192 "short exact single-double-single row"]
 theorem shortComplex.app.shortExact (f : Arrow C) (hi : c.Rel i₀ i₁)
     (hne : i₀ ≠ i₁) :
-    (shortComplex.app hi hne f).ShortExact := sorry
+    (shortComplex.app hi hne f).ShortExact := by
+  apply shortExact_of_degreewise_shortExact
+  intro n
+  exact (degree.splitting f hi hne n).shortExact
 
 end ShortExact
 
@@ -381,7 +442,25 @@ variable {I : Type w} {c : ComplexShape I} {i₀ i₁ : I}
 @[stacks 0192 "acyclic two-term complex with invertible differential"]
 theorem acyclic_of_isIso {X Y : C} (f : X ⟶ Y) [IsIso f]
     (hi : c.Rel i₀ i₁) (hne : i₀ ≠ i₁) :
-    (double f hi).Acyclic := sorry
+    (double f hi).Acyclic := by
+  intro n
+  by_cases h₀ : n = i₀
+  · subst n
+    haveI : IsIso ((double f hi).sc i₀).g := by
+      change IsIso ((double f hi).d i₀ (c.next i₀))
+      rw [c.next_eq' hi, double_d f hi hne]
+      infer_instance
+    exact (ShortComplex.exact_iff_mono ((double f hi).sc i₀)
+      (double_d_eq_zero₁ f hi _ _ hne)).2 inferInstance
+  · by_cases h₁ : n = i₁
+    · subst n
+      haveI : IsIso ((double f hi).sc i₁).f := by
+        change IsIso ((double f hi).d (c.prev i₁) i₁)
+        rw [c.prev_eq' hi, double_d f hi hne]
+        infer_instance
+      exact (ShortComplex.exact_iff_epi ((double f hi).sc i₁)
+        (double_d_eq_zero₀ f hi _ _ hne.symm)).2 inferInstance
+    · exact ExactAt.of_isZero (isZero_double_X f hi n h₀ h₁)
 
 end Acyclic
 

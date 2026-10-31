@@ -28,7 +28,7 @@ generalization are open exactly when finite flat modules are finite locally free
 @[stacks 052U]
 theorem closed_stableUnderGeneralization_isOpen_iff_finiteFlat_finiteLocallyFree :
     (∀ Z : Set (PrimeSpectrum R), IsClosed Z → StableUnderGeneralization Z → IsOpen Z) ↔
-      ∀ (M : Type v) [AddCommGroup M] [Module R M] [Module.Finite R M] [Module.Flat R M],
+      ∀ (M : Type (max u v)) [AddCommGroup M] [Module R M] [Module.Finite R M] [Module.Flat R M],
         Module.FiniteLocallyFree R M := sorry
 
 end PrimeSpectrum

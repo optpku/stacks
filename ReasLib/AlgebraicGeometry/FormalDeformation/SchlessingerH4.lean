@@ -8,6 +8,7 @@ module
 
 public import Mathlib.CategoryTheory.Elements
 public import Mathlib.CategoryTheory.Limits.Types.Pullbacks
+public import ReasLib.AlgebraicGeometry.FormalDeformation.Schlessinger.Types
 public import ReasLib.AlgebraicGeometry.FormalDeformation.RimSchlessinger
 
 /-!
@@ -29,21 +30,12 @@ variable {Λ k : Type u} [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra 
 
 namespace CategoryTheory.Functor
 
-/-- The induced map `F.obj P → Types.PullbackObj (F.map f1) (F.map f2)` associated to a
-fibre-product square in `ArtinianLocalAlgCat Λ k`. -/
-def schlessingerH4Comparison (F : ArtinianLocalAlgCat Λ k ⥤ Type v)
-    {A A1 A2 P : ArtinianLocalAlgCat Λ k}
-    (f1 : A1 ⟶ A) (f2 : A2 ⟶ A) (π1 : P ⟶ A1) (π2 : P ⟶ A2)
-    (h : IsPullback π1 π2 f1 f2) :
-    F.obj P → Types.PullbackObj (F.map f1) (F.map f2) :=
-  (PullbackCone.mk (F.map π1) (F.map π2) (F.map_commSq h.toCommSq).w).toPullbackObj
-
 /-- The Schlessinger (H4) comparison map sends `x` to the pair `(F.map π1 x, F.map π2 x)`. -/
 theorem schlessingerH4Comparison_spec (F : ArtinianLocalAlgCat Λ k ⥤ Type v)
     {A A1 A2 P : ArtinianLocalAlgCat Λ k}
     (f1 : A1 ⟶ A) (f2 : A2 ⟶ A) (π1 : P ⟶ A1) (π2 : P ⟶ A2)
     (h : IsPullback π1 π2 f1 f2) (x : F.obj P) :
-    (schlessingerH4Comparison F f1 f2 π1 π2 h x).1 = (F.map π1 x, F.map π2 x) := sorry
+    (pullbackObjMap_subtype F π1 π2 f1 f2 h x).1 = (F.map π1 x, F.map π2 x) := rfl
 
 /-- Schlessinger's condition (H4): `F` preserves fibre-product squares in
 `ArtinianLocalAlgCat Λ k` along a surjection. -/
@@ -61,7 +53,7 @@ theorem hasSchlessingerH4_iff (F : ArtinianLocalAlgCat Λ k ⥤ Type v) :
       ∀ {A A1 A2 P : ArtinianLocalAlgCat Λ k} (f1 : A1 ⟶ A) (f2 : A2 ⟶ A)
         (π1 : P ⟶ A1) (π2 : P ⟶ A2) (h : IsPullback π1 π2 f1 f2),
         Function.Surjective f2.hom →
-          Function.Bijective (schlessingerH4Comparison F f1 f2 π1 π2 h) := sorry
+          Function.Bijective (pullbackObjMap_subtype F π1 π2 f1 f2 h) := sorry
 
 /-- The category-of-elements projection of a set-valued functor satisfies the
 Rim-Schlessinger condition exactly when the functor satisfies Schlessinger's (H4). -/

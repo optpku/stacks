@@ -33,11 +33,16 @@ roots = ["ReasLib"]
 globs = ["ReasLib.*"]
 
 # Textbook chapter entry points remain in the project library.
+# The glob is `stacks_project.+` (submodules only), not `stacks_project.*`: in Lake `X.*`
+# selects X itself as well, and there is no `stacks_project.lean` root module, so its
+# input job failed on every build. Lake swallows that one error into
+# "stacks_project: some modules have bad imports" and exits 1 even when all 46k modules
+# compile, which made `lake build`'s exit status useless for verification runs
+# (diagnosed 2026-10-28 from repair15 round 1: rc=1, zero failing modules).
 [[lean_lib]]
 name = "stacks_project"
 roots = ["stacks_project"]
-globs = ["stacks_project.*"]
+globs = ["stacks_project.+"]
 
 [[lean_lib]]
 name = "stacks"
-

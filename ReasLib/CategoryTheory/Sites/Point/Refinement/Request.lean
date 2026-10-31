@@ -68,7 +68,10 @@ noncomputable def mapRequest (R : OrderedRefinement S T)
 /-- A realized request remains realized after transport along a refinement. -/
 theorem mapRequest.isRealized (R : OrderedRefinement S T)
     (r : EssentiallySmallFiber.CoverLift.Request J S) :
-    r.is_realized → (R.mapRequest r).is_realized := sorry
+    r.is_realized → (R.mapRequest r).is_realized := by
+  intro h
+  change (r.map (OrderedRefinement.EssentiallySmall.fiberMap R)).is_realized
+  exact Functor.CoverLift.Request.is_realized_map r _ h
 
 /-- A finite-cover lifting request is solved by a pure refinement when its fiber map realizes the
 request.  Naming this predicate at the refinement layer avoids repeating the lower-level
@@ -81,19 +84,25 @@ def solves (R : OrderedRefinement S T)
 @[simp]
 theorem solves_iff (R : OrderedRefinement S T)
     (r : EssentiallySmallFiber.CoverLift.Request J S) :
-    R.solves r ↔ (R.mapRequest r).is_realized := sorry
+    R.solves r ↔ (R.mapRequest r).is_realized := by
+  rfl
 
 /-- Transporting a finite-cover lifting request along the identity refinement leaves it unchanged. -/
 @[simp]
 theorem id.mapRequest (S : ιᵒᵖ ⥤ C)
     (r : EssentiallySmallFiber.CoverLift.Request J S) :
-    (id S).mapRequest r = r := sorry
+    (id S).mapRequest r = r := by
+  change r.map (OrderedRefinement.EssentiallySmall.fiberMap (id S)) = r
+  rw [OrderedRefinement.EssentiallySmall.fiberMap_id S]
+  exact Functor.CoverLift.Request.map_id r
 
 /-- The identity refinement solves exactly the already-realized requests. -/
 @[simp]
 theorem id.solves_iff (S : ιᵒᵖ ⥤ C)
     (r : EssentiallySmallFiber.CoverLift.Request J S) :
-    (id S).solves r ↔ r.is_realized := sorry
+    (id S).solves r ↔ r.is_realized := by
+  change ((id S).mapRequest r).is_realized ↔ r.is_realized
+  rw [id.mapRequest]
 
 section Composition
 
@@ -106,7 +115,12 @@ transport. -/
 @[simp]
 theorem comp.mapRequest (R : OrderedRefinement S T) (Q : OrderedRefinement T U)
     (r : EssentiallySmallFiber.CoverLift.Request J S) :
-    (R.comp Q).mapRequest r = Q.mapRequest (R.mapRequest r) := sorry
+    (R.comp Q).mapRequest r = Q.mapRequest (R.mapRequest r) := by
+  change r.map (OrderedRefinement.EssentiallySmall.fiberMap (R.comp Q)) =
+    (r.map (OrderedRefinement.EssentiallySmall.fiberMap R)).map
+      (OrderedRefinement.EssentiallySmall.fiberMap Q)
+  rw [OrderedRefinement.EssentiallySmall.fiberMap_comp,
+    Functor.CoverLift.Request.map_comp]
 
 /-- A factorization of pure refinements transports a finite-cover lifting request by the
 successive request transports.  Unlike `comp.mapRequest`, this eliminates an arbitrary
@@ -116,19 +130,33 @@ theorem IsFactorization.mapRequest
     {R : OrderedRefinement S T} {Q : OrderedRefinement T U}
     {P : OrderedRefinement S U} (h : IsFactorization R Q P)
     (r : EssentiallySmallFiber.CoverLift.Request J S) :
-    P.mapRequest r = Q.mapRequest (R.mapRequest r) := sorry
+    P.mapRequest r = Q.mapRequest (R.mapRequest r) := by
+  change r.map (OrderedRefinement.EssentiallySmall.fiberMap P) =
+    (r.map (OrderedRefinement.EssentiallySmall.fiberMap R)).map
+      (OrderedRefinement.EssentiallySmall.fiberMap Q)
+  rw [OrderedRefinement.IsFactorization.EssentiallySmall.fiberMap h,
+    Functor.CoverLift.Request.map_comp]
 
 /-- A request solved by one pure refinement remains solved after a further refinement. -/
 theorem comp.solves (R : OrderedRefinement S T) (Q : OrderedRefinement T U)
     (r : EssentiallySmallFiber.CoverLift.Request J S) :
-    R.solves r → (R.comp Q).solves r := sorry
+    R.solves r → (R.comp Q).solves r := by
+  intro h
+  change r.is_solved_by (OrderedRefinement.EssentiallySmall.fiberMap (R.comp Q))
+  rw [OrderedRefinement.EssentiallySmall.fiberMap_comp]
+  exact Functor.CoverLift.Request.is_solved_by_comp r _ _ h
 
 /-- A composite refinement solves a request exactly when its second factor
 solves the request transported through the first factor. -/
 @[simp]
 theorem comp.solves_iff (R : OrderedRefinement S T) (Q : OrderedRefinement T U)
     (r : EssentiallySmallFiber.CoverLift.Request J S) :
-    (R.comp Q).solves r ↔ Q.solves (R.mapRequest r) := sorry
+    (R.comp Q).solves r ↔ Q.solves (R.mapRequest r) := by
+  change (r.map (OrderedRefinement.EssentiallySmall.fiberMap (R.comp Q))).is_realized ↔
+    ((r.map (OrderedRefinement.EssentiallySmall.fiberMap R)).map
+      (OrderedRefinement.EssentiallySmall.fiberMap Q)).is_realized
+  rw [OrderedRefinement.EssentiallySmall.fiberMap_comp,
+    Functor.CoverLift.Request.map_comp]
 
 /-- Along a factorization, solving a source request with the total refinement is equivalent to
 solving its transported request with the second refinement. -/
@@ -136,7 +164,12 @@ theorem IsFactorization.solves_iff
     {R : OrderedRefinement S T} {Q : OrderedRefinement T U}
     {P : OrderedRefinement S U} (h : IsFactorization R Q P)
     (r : EssentiallySmallFiber.CoverLift.Request J S) :
-    P.solves r ↔ Q.solves (R.mapRequest r) := sorry
+    P.solves r ↔ Q.solves (R.mapRequest r) := by
+  change (r.map (OrderedRefinement.EssentiallySmall.fiberMap P)).is_realized ↔
+    ((r.map (OrderedRefinement.EssentiallySmall.fiberMap R)).map
+      (OrderedRefinement.EssentiallySmall.fiberMap Q)).is_realized
+  rw [OrderedRefinement.IsFactorization.EssentiallySmall.fiberMap h,
+    Functor.CoverLift.Request.map_comp]
 
 end Composition
 

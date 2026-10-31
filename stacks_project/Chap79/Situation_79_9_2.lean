@@ -18,4 +18,4 @@ universe u
 `U = Spec(k)` for a field `k`. -/
 @[stacks 06DY] #check (AlgebraicGeometry.GroupoidAlgebraicSpace.IsOnField :
   ∀ {S : Scheme.{u}} {B : AlgebraicSpace S} (G : GroupoidAlgebraicSpace B)
-    {k : Type u} [Field k], (Spec (.of k) ⟶ S) → Prop)
+    {k : Type u} [Field k], (Spec (.of k) ⟶ S) → Type (u + 1))

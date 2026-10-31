@@ -77,7 +77,18 @@ piece define the same bundled module. -/
 @[stacks 05EQ "base-changed local piece scalar-action compatibility"]
 theorem baseChangeLocalModuleRestrict_eq_direct (φ : R →+* S) (i : ι) :
     data.baseChangeLocalModuleRestrict φ i =
-      data.baseChangeLocalModuleDirect φ i := sorry
+      data.baseChangeLocalModuleDirect φ i := by
+  have hm : (data.baseChangeLocalModuleRestrict φ i).isModule =
+      (data.baseChangeLocalModuleDirect φ i).isModule := by
+    apply Module.ext'
+    intro s x
+    change algebraMap S (Localization.Away (φ (f i))) s •
+      (show LocalizedModule.Away (φ (f i)) (data.baseChangeUnderlying φ i) from x) =
+      s • (show LocalizedModule.Away (φ (f i)) (data.baseChangeUnderlying φ i) from x)
+    exact IsScalarTower.algebraMap_smul (Localization.Away (φ (f i))) s
+      (show LocalizedModule.Away (φ (f i)) (data.baseChangeUnderlying φ i) from x)
+  exact congrArg (fun m => @ModuleCat.of S _
+    (LocalizedModule.Away (φ (f i)) (data.baseChangeUnderlying φ i)) _ m) hm
 
 /-- The canonical `S`-linear equivalence between the restricted and direct
 scalar views of a base-changed local piece. -/
@@ -136,7 +147,12 @@ theorem baseChangeUnit_comp_iso_hom (φ : R →+* S) (i : ι) :
           (Localization.awayMap φ (f i))).map
             (data.baseChangeLocalModuleIso φ i).hom =
       ModuleCat.ExtendRestrictScalarsAdj.Unit.map
-        (Localization.awayMap φ (f i)) := sorry
+        (Localization.awayMap φ (f i)) := by
+  dsimp only [baseChangeUnit]
+  simp only [Category.assoc]
+  erw [← Functor.map_comp]
+  simp
+  rfl
 
 /-- The overlap module of a base-changed local piece, with the restricted
 `S`-module action fixed to the canonical `ModuleCat.Algebra` action. -/
@@ -211,13 +227,13 @@ noncomputable def baseChange (φ : R →+* S) :
 canonical base-changed local piece. -/
 @[simp, stacks 05EQ "principal-open pregluing base change local piece projection"]
 theorem baseChange_localModule (φ : R →+* S) (i : ι) :
-    (data.baseChange φ).localModule i = data.baseChangeLocalModule φ i := sorry
+    (data.baseChange φ).localModule i = data.baseChangeLocalModule φ i := rfl
 
 /-- The overlap projection of a base-changed pregluing datum is the canonical
 three-step transported overlap isomorphism. -/
 @[simp, stacks 05EQ "principal-open pregluing base change overlap projection"]
 theorem baseChange_overlapIso (φ : R →+* S) (i j : ι) :
-    (data.baseChange φ).overlapIso i j = data.baseChangeOverlapIso φ i j := sorry
+    (data.baseChange φ).overlapIso i j = data.baseChangeOverlapIso φ i j := rfl
 
 end PreGluing
 
@@ -245,7 +261,7 @@ noncomputable def baseChange (φ : R →+* S) :
 base-changed underlying pregluing datum. -/
 @[simp, stacks 05EQ "principal-open gluing base change underlying pregluing"]
 theorem baseChange_toPreGluing (φ : R →+* S) :
-    (glue.baseChange φ).toPreGluing = glue.toPreGluing.baseChange φ := sorry
+    (glue.baseChange φ).toPreGluing = glue.toPreGluing.baseChange φ := rfl
 
 /-- Extend the underlying base-ring map of the `i`-th local component of a
 gluing morphism along `φ`. -/
@@ -310,19 +326,71 @@ of its extended underlying component. -/
 @[simp, stacks 05EQ "principal-open gluing morphism base-change component"]
 theorem baseChangeMap_hom {X Y : Gluing f}
     (φ : R →+* S) (ψ : X ⟶ Y) (i : ι) :
-    (baseChangeMap φ ψ).hom i = baseChangeMapLocal φ ψ i := sorry
+    (baseChangeMap φ ψ).hom i = baseChangeMapLocal φ ψ i := rfl
 
 /-- Base change sends the identity gluing morphism to the identity. -/
 @[stacks 05EQ "principal-open gluing base-change identity"]
 theorem baseChangeMap_id (φ : R →+* S) (X : Gluing f) :
-    baseChangeMap φ (𝟙 X) = 𝟙 (X.baseChange φ) := sorry
+    baseChangeMap φ (𝟙 X) = 𝟙 (X.baseChange φ) := by
+  have ext {α β : X.baseChange φ ⟶ X.baseChange φ}
+      (h : ∀ i, α.hom i = β.hom i) : α = β := by
+    cases α with
+    | mk a ha =>
+      cases β with
+      | mk b hb =>
+        have hab : a = b := funext h
+        cases hab
+        rfl
+  apply ext
+  intro i
+  change baseChangeMapLocal φ (𝟙 X) i = 𝟙 _
+  apply ModuleCat.hom_ext
+  change LocalizedModule.map (Submonoid.powers (φ (f i)))
+    (((ModuleCat.extendScalars φ).map
+      (ModuleCat.ofHom (((𝟙 X : X ⟶ X).hom i).hom.restrictScalars R))).hom) =
+      LinearMap.id
+  have hid : (((𝟙 X : X ⟶ X).hom i).hom.restrictScalars R) = LinearMap.id := rfl
+  rw [show ModuleCat.ofHom (((𝟙 X : X ⟶ X).hom i).hom.restrictScalars R) = 𝟙 _ by
+    apply ModuleCat.hom_ext
+    exact hid]
+  simp [LocalizedModule.map_id]
 
 /-- Base change sends a composite of gluing morphisms to the composite of
 their base changes. -/
 @[stacks 05EQ "principal-open gluing base-change composition"]
 theorem baseChangeMap_comp (φ : R →+* S) {X Y Z : Gluing f}
     (ψ : X ⟶ Y) (χ : Y ⟶ Z) :
-    baseChangeMap φ (ψ ≫ χ) = baseChangeMap φ ψ ≫ baseChangeMap φ χ := sorry
+    baseChangeMap φ (ψ ≫ χ) = baseChangeMap φ ψ ≫ baseChangeMap φ χ := by
+  have ext {α β : X.baseChange φ ⟶ Z.baseChange φ}
+      (h : ∀ i, α.hom i = β.hom i) : α = β := by
+    cases α with
+    | mk a ha =>
+      cases β with
+      | mk b hb =>
+        have hab : a = b := funext h
+        cases hab
+        rfl
+  apply ext
+  intro i
+  change baseChangeMapLocal φ (ψ ≫ χ) i =
+    baseChangeMapLocal φ ψ i ≫ baseChangeMapLocal φ χ i
+  apply ModuleCat.hom_ext
+  change LocalizedModule.map (Submonoid.powers (φ (f i)))
+      (((ModuleCat.extendScalars φ).map
+        (ModuleCat.ofHom (((ψ ≫ χ).hom i).hom.restrictScalars R))).hom) =
+    (LocalizedModule.map (Submonoid.powers (φ (f i)))
+      (((ModuleCat.extendScalars φ).map
+        (ModuleCat.ofHom ((χ.hom i).hom.restrictScalars R))).hom)).comp
+      (LocalizedModule.map (Submonoid.powers (φ (f i)))
+        (((ModuleCat.extendScalars φ).map
+          (ModuleCat.ofHom ((ψ.hom i).hom.restrictScalars R))).hom))
+  have hcomp : ModuleCat.ofHom (((ψ ≫ χ).hom i).hom.restrictScalars R) =
+      ModuleCat.ofHom ((ψ.hom i).hom.restrictScalars R) ≫
+        ModuleCat.ofHom ((χ.hom i).hom.restrictScalars R) := rfl
+  rw [hcomp, Functor.map_comp, ModuleCat.hom_comp]
+  ext x
+  induction x using LocalizedModule.induction_on with
+  | _ m s => simp
 
 /-- Base change of principal-open module gluing data, packaged as a functor.
 The target family is the literal pointwise image `fun i ↦ φ (f i)`. -/

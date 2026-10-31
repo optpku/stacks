@@ -26,14 +26,12 @@ variable {R : Type u} {A : Type v} [CommRing R] [CommRing A]
 
 /-- The ring homomorphism induced by `f` after quotienting by a source ideal
 and its image in the target. -/
-@[stacks 07CM "quotient map by a source ideal"]
 def quotientByIdeal (f : R →+* A) (I : Ideal R) :
     R ⧸ I →+* A ⧸ I.map f :=
   Ideal.quotientMap (I.map f) f Ideal.le_comap_map
 
 /-- The homomorphism induced by `f` on quotients by compatible source and
 target ideals. Compatibility is stated map-first as `I.map f ≤ J`. -/
-@[stacks 09PX "quotient map by compatible ideals"]
 def quotientByIdeals (f : R →+* A) (I : Ideal R) (J : Ideal A)
     (hIJ : I.map f ≤ J) : R ⧸ I →+* A ⧸ J :=
   Ideal.quotientMap J f (Ideal.map_le_iff_le_comap.mp hIJ)
@@ -41,7 +39,6 @@ def quotientByIdeals (f : R →+* A) (I : Ideal R) (J : Ideal A)
 /-- If the composite `R → A → A ⧸ J` is surjective, then its canonical
 comparison from the quotient by `J.comap f` is bijective.  This is the
 map-first first stage of an ideal-power quotient tower. -/
-@[stacks 0H1D "surjective quotient comparison"]
 theorem quotientMap_bijective_of_surjective
     (f : R →+* A) (J : Ideal A)
     (h_surjective : Function.Surjective ((Ideal.Quotient.mk J).comp f)) :

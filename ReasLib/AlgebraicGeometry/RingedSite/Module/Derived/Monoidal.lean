@@ -53,21 +53,21 @@ namespace KFlat
 
 /-- The condition that totalized tensoring over `O` descends from cochain complexes of module
 sheaves to their homotopy category. -/
-@[stacks 0FPB "commutative ringed-site homotopy tensor-descends condition"]
+@[stacks 0FPT "commutative ringed-site homotopy tensor-descends condition"]
 abbrev HomotopyTensorDescends : Prop :=
   HomotopyCategory.Koszul.TensorDescends
     (C := ringedSiteModuleCategory.{u, v, w, w} J O)
 
 /-- The condition that tensoring K-flat homotopy objects over `O` preserves the restricted
 quasi-isomorphisms. -/
-@[stacks 0FPB "commutative ringed-site K-flat tensor-descends condition"]
+@[stacks 0FPT "commutative ringed-site K-flat tensor-descends condition"]
 abbrev TensorDescends [HomotopyTensorDescends O] : Prop :=
   HomotopyCategory.KFlat.TensorDescends
     (C := ringedSiteModuleCategory.{u, v, w, w} J O)
 
 /-- The condition that K-flat homotopy objects over `O` localize to the derived category of
 module sheaves. -/
-@[stacks 0FPB "commutative ringed-site K-flat localization condition"]
+@[stacks 0FPT "commutative ringed-site K-flat localization condition"]
 abbrev IsLocalization : Prop :=
   @CategoryTheory.DerivedCategory.KFlat.IsLocalization
     (ringedSiteModuleCategory.{u, v, w, w} J O) _ _
@@ -118,8 +118,7 @@ end KFlat
 
 /-- The derived category of modules over `O` carries the tensor product obtained by localizing
 K-flat complexes. -/
-@[stacks 0FPB "commutative ringed-site derived tensor product",
-  stacks 0FPT "derived tensor product", implicit_reducible]
+@[stacks 0FPT "derived tensor product", implicit_reducible]
 noncomputable def monoidalCategory
     [KFlat.HomotopyTensorDescends O] [KFlat.TensorDescends O]
     [KFlat.IsLocalization O] :
@@ -129,8 +128,7 @@ noncomputable def monoidalCategory
     (moduleCat_hasDerivedCategory (RingedSite.ofCommRingSheaf J O)) _ _ _ _ _ _ _ _ _ _
 
 /-- The K-flat derived tensor product of module sheaves over `O` is symmetric. -/
-@[stacks 0FPB "commutative ringed-site symmetric derived tensor product",
-  stacks 0FPT "symmetric derived tensor product", implicit_reducible]
+@[stacks 0FPT "symmetric derived tensor product", implicit_reducible]
 noncomputable def symmetricCategory
     [KFlat.HomotopyTensorDescends O] [KFlat.TensorDescends O]
     [KFlat.IsLocalization O] :

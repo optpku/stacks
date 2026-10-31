@@ -22,12 +22,6 @@ universe u
 
 namespace AlgebraicGeometry.BivariantClass
 
-/-- An integer is a generic-dimension index when every irreducible component through the
-point has that generic relative dimension. -/
-abbrev IsGenericDimensionIndex {X S : Scheme.{u}} (f : X ⟶ S)
-    [UniversallyCatenary S] [LocallyOfFiniteType f]
-    (δ : S → ℤ) [IsDimensionFunction δ] (x : X) (n : ℤ) : Prop :=
-  Scheme.Hom.IsGenericDimensionIndex f δ x n
 
 /- Lemma 42.59.8: under preservation of pointwise generic-dimension differences and the
 generic Cohen–Macaulay condition, the lci Gysin action satisfies `f^![Y'] = [X']`. -/

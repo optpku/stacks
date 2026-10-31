@@ -55,36 +55,37 @@ noncomputable def comparison (p : ℤ) : source C p ⟶ target C p :=
 @[simp, stacks 05TW "object computation for the total graded-piece source"]
 theorem source_obj (p : ℤ) (X : Resolution.Total C) :
     (source C p).obj X =
-      (FilteredObject.Finite.Plus.GradedPiece.cochain C p).obj X.base := sorry
+      (FilteredObject.Finite.Plus.GradedPiece.cochain C p).obj X.base := rfl
 
 /-- The source graded-piece functor maps a total morphism through its stored base map. -/
 @[simp, stacks 05TU "map computation for the total graded-piece source"]
 theorem source_map (p : ℤ) {X Y : Resolution.Total C} (f : X ⟶ Y) :
     (source C p).map f =
-      (FilteredObject.Finite.Plus.GradedPiece.cochain C p).map f.base := sorry
+      (FilteredObject.Finite.Plus.GradedPiece.cochain C p).map f.base := rfl
 
 /-- The target graded-piece functor returns the graded piece of the stored resolution target. -/
 @[simp, stacks 05TW "object computation for the total graded-piece target"]
 theorem target_obj (p : ℤ) (X : Resolution.Total C) :
-    (target C p).obj X = X.obj.gradedPiece p := sorry
+    (target C p).obj X = X.obj.gradedPiece p := rfl
 
 /-- The target graded-piece functor maps a total morphism through its displayed resolution map. -/
 @[simp, stacks 05TU "map computation for the total graded-piece target"]
 theorem target_map (p : ℤ) {X Y : Resolution.Total C} (f : X ⟶ Y) :
-    (target C p).map f = f.displayed.gradedPieceMap p := sorry
+    (target C p).map f = f.displayed.gradedPieceMap p := rfl
 
 /-- A component of the total graded-piece comparison is the comparison of the stored
 resolution. -/
 @[simp, stacks 05TW "component computation for the total graded-piece comparison"]
 theorem comparison_app (p : ℤ) (X : Resolution.Total C) :
-    (comparison C p).app X = X.obj.gradedPieceComparison p := sorry
+    (comparison C p).app X = X.obj.gradedPieceComparison p := rfl
 
 /-- Forward naturality of the total graded-piece comparison in terms of stored source and target
 maps. -/
 @[reassoc, stacks 05TU "naturality of the total graded-piece comparison"]
 theorem comparison_naturality (p : ℤ) {X Y : Resolution.Total C} (f : X ⟶ Y) :
     (source C p).map f ≫ (comparison C p).app Y =
-      (comparison C p).app X ≫ (target C p).map f := sorry
+      (comparison C p).app X ≫ (target C p).map f :=
+  (comparison C p).naturality f
 
 /-! ## Homotopy view -/
 
@@ -111,36 +112,37 @@ noncomputable def comparison (p : ℤ) : source C p ⟶ target C p :=
 @[simp, stacks 05TW "object computation for the total graded-piece homotopy source"]
 theorem source_obj (p : ℤ) (X : Resolution.Total C) :
     (source C p).obj X =
-      (FilteredObject.Finite.Plus.GradedPiece.homotopy C p).obj X.base := sorry
+      (FilteredObject.Finite.Plus.GradedPiece.homotopy C p).obj X.base := rfl
 
 /-- The homotopy source maps a total morphism by quotienting its graded-piece base map. -/
 @[simp, stacks 05TU "map computation for the total graded-piece homotopy source"]
 theorem source_map (p : ℤ) {X Y : Resolution.Total C} (f : X ⟶ Y) :
     (source C p).map f =
-      (FilteredObject.Finite.Plus.GradedPiece.homotopy C p).map f.base := sorry
+      (FilteredObject.Finite.Plus.GradedPiece.homotopy C p).map f.base := rfl
 
 /-- The homotopy target returns the graded-piece homotopy view of the stored resolution. -/
 @[simp, stacks 05TW "object computation for the total graded-piece homotopy target"]
 theorem target_obj (p : ℤ) (X : Resolution.Total C) :
-    (target C p).obj X = X.obj.gradedPieceHomotopy p := sorry
+    (target C p).obj X = X.obj.gradedPieceHomotopy p := rfl
 
 /-- The homotopy target maps a total morphism through the graded-piece homotopy map of its
 displayed resolution map. -/
 @[simp, stacks 05TU "map computation for the total graded-piece homotopy target"]
 theorem target_map (p : ℤ) {X Y : Resolution.Total C} (f : X ⟶ Y) :
-    (target C p).map f = f.displayed.gradedPieceHomotopyMap p := sorry
+    (target C p).map f = f.displayed.gradedPieceHomotopyMap p := rfl
 
 /-- A component of the total homotopy comparison is the graded-piece homotopy comparison of the
 stored resolution. -/
 @[simp, stacks 05TW "component computation for the total graded-piece homotopy comparison"]
 theorem comparison_app (p : ℤ) (X : Resolution.Total C) :
-    (comparison C p).app X = X.obj.gradedPieceHomotopyComparison p := sorry
+    (comparison C p).app X = X.obj.gradedPieceHomotopyComparison p := rfl
 
 /-- Forward naturality of the total graded-piece homotopy comparison in terms of stored maps. -/
 @[reassoc, stacks 05TU "naturality of the total graded-piece homotopy comparison"]
 theorem comparison_naturality (p : ℤ) {X Y : Resolution.Total C} (f : X ⟶ Y) :
     (source C p).map f ≫ (comparison C p).app Y =
-      (comparison C p).app X ≫ (target C p).map f := sorry
+      (comparison C p).app X ≫ (target C p).map f :=
+  (comparison C p).naturality f
 
 end Homotopy
 

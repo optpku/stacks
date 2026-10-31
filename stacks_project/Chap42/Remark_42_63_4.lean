@@ -31,7 +31,7 @@ class commutes with the cap action of a bivariant class. -/
     {X Y Z : Over S} [LocallyOfFiniteType X.hom]
     [LocallyOfFiniteType Y.hom] [LocallyOfFiniteType Z.hom]
     (g : Y ⟶ Z) (q : ℤ)
-    (α : Total δ X) (c' : BivariantClass δ g q) (β : Total δ Z),
+    (α : ChowGroup.Total δ X) (c' : BivariantClass δ g q) (β : ChowGroup.Total δ Z),
     Total.exteriorProduct δ h_delta X Y α
         (Total.cap δ c' (𝟙 Y) g (𝟙 Z) IsPullback.of_id_fst β) =
       Total.cap δ c' (Limits.prod.snd : X ⨯ Y ⟶ Y)

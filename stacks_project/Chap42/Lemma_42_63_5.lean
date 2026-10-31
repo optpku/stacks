@@ -33,10 +33,10 @@ associative after pushforward along the canonical associator
       [AlgebraicGeometry.LocallyOfFiniteType X.hom]
       [AlgebraicGeometry.LocallyOfFiniteType Y.hom]
       [AlgebraicGeometry.LocallyOfFiniteType Z.hom]
-      (α : AlgebraicGeometry.ChowGroup.Dedekind.Total δ X)
-      (β : AlgebraicGeometry.ChowGroup.Dedekind.Total δ Y)
-      (γ : AlgebraicGeometry.ChowGroup.Dedekind.Total δ Z),
-      AlgebraicGeometry.ChowGroup.Dedekind.Total.map δ
+      (α : AlgebraicGeometry.ChowGroup.Total δ X)
+      (β : AlgebraicGeometry.ChowGroup.Total δ Y)
+      (γ : AlgebraicGeometry.ChowGroup.Total δ Z),
+      AlgebraicGeometry.ChowGroup.Total.map δ
           (Limits.prod.associator X Y Z).hom
           (AlgebraicGeometry.ChowGroup.Dedekind.Total.exteriorProduct
             δ h_delta (X ⨯ Y) Z

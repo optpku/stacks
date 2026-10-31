@@ -40,7 +40,7 @@ def compApp {U R : C} (s t : U ⟶ R) [HasPushout s t] (c : R ⟶ pushout s t)
 /-- The coyoneda interpretation of object-level source is precomposition with `s`. -/
 theorem coyoneda_map_src_app {U R : C} (s : U ⟶ R) {T : C} (a : R ⟶ T) :
     (coyoneda.map s.op).app T a = s ≫ a :=
-  sorry
+  rfl
 
 /-- The coyoneda quintuple of `U`, `R`, `s`, `t`, `c` is a groupoid in functors. -/
 abbrev isCoyonedaGroupoid {U R : C} (s t : U ⟶ R) [HasPushout s t]
@@ -55,7 +55,7 @@ theorem compApp_src {U R : C} (s t : U ⟶ R) [HasPushout s t] (c : R ⟶ pushou
     [h_groupoid : isCoyonedaGroupoid s t c] {T : C} (a b : R ⟶ T)
     (h : s ≫ a = t ≫ b) :
     s ≫ compApp s t c a b h = s ≫ b :=
-  sorry
+  by exact h_groupoid.comp_src a b h
 
 /-- The target of a composite `T`-point is the target of the later arrow.
 This is the groupoid target law, available only when the coyoneda quintuple is a
@@ -64,21 +64,29 @@ theorem compApp_tgt {U R : C} (s t : U ⟶ R) [HasPushout s t] (c : R ⟶ pushou
     [h_groupoid : isCoyonedaGroupoid s t c] {T : C} (a b : R ⟶ T)
     (h : s ≫ a = t ≫ b) :
     t ≫ compApp s t c a b h = t ≫ a :=
-  sorry
+  by exact h_groupoid.comp_tgt a b h
 
 /-- Object-level source law of composition: postcomposing `c` with `s` recovers the
 earlier-arrow inclusion of the pushout. -/
 theorem source_comp {U R : C} (s t : U ⟶ R) [HasPushout s t] (c : R ⟶ pushout s t)
     [h_groupoid : isCoyonedaGroupoid s t c] :
     s ≫ c = s ≫ pushout.inr s t :=
-  sorry
+  by
+    have h := compApp_src s t c (pushout.inl s t) (pushout.inr s t) (pushout.condition :
+      s ≫ pushout.inl s t = t ≫ pushout.inr s t)
+    rw [compApp, pushout.desc_inl_inr, Category.comp_id] at h
+    exact h
 
 /-- Object-level target law of composition: postcomposing `c` with `t` recovers the
 later-arrow inclusion of the pushout. -/
 theorem target_comp {U R : C} (s t : U ⟶ R) [HasPushout s t] (c : R ⟶ pushout s t)
     [h_groupoid : isCoyonedaGroupoid s t c] :
     t ≫ c = t ≫ pushout.inl s t :=
-  sorry
+  by
+    have h := compApp_tgt s t c (pushout.inl s t) (pushout.inr s t) (pushout.condition :
+      s ≫ pushout.inl s t = t ≫ pushout.inr s t)
+    rw [compApp, pushout.desc_inl_inr, Category.comp_id] at h
+    exact h
 
 end Representable
 
@@ -135,27 +143,27 @@ def of (U R : C) (s t : U ⟶ R) [HasPushout s t] (c : R ⟶ pushout s t)
 /-- The object representing objects in a packaged representable groupoid is the supplied `U`. -/
 theorem of_U (U R : C) (s t : U ⟶ R) [HasPushout s t] (c : R ⟶ pushout s t)
     (h : isCoyonedaGroupoid s t c) : (of U R s t c h).U = U :=
-  sorry
+  rfl
 
 /-- The object representing arrows in a packaged representable groupoid is the supplied `R`. -/
 theorem of_R (U R : C) (s t : U ⟶ R) [HasPushout s t] (c : R ⟶ pushout s t)
     (h : isCoyonedaGroupoid s t c) : (of U R s t c h).R = R :=
-  sorry
+  rfl
 
 /-- The source morphism of a packaged representable groupoid is the supplied `s`. -/
 theorem of_s (U R : C) (s t : U ⟶ R) [HasPushout s t] (c : R ⟶ pushout s t)
     (h : isCoyonedaGroupoid s t c) : (of U R s t c h).s = s :=
-  sorry
+  rfl
 
 /-- The target morphism of a packaged representable groupoid is the supplied `t`. -/
 theorem of_t (U R : C) (s t : U ⟶ R) [HasPushout s t] (c : R ⟶ pushout s t)
     (h : isCoyonedaGroupoid s t c) : (of U R s t c h).t = t :=
-  sorry
+  rfl
 
 /-- The composition morphism of a packaged representable groupoid is the supplied `c`. -/
 theorem of_c (U R : C) (s t : U ⟶ R) [HasPushout s t] (c : R ⟶ pushout s t)
     (h : isCoyonedaGroupoid s t c) : (of U R s t c h).c = c :=
-  sorry
+  rfl
 
 /-- The discrete representable groupoid in functors on an object `U`. -/
 def discrete (U : C) : Representable C where
@@ -164,27 +172,77 @@ def discrete (U : C) : Representable C where
   s := 𝟙 U
   t := 𝟙 U
   c := pushout.inl (𝟙 U) (𝟙 U)
-  isGroupoid := sorry
+  isGroupoid := by
+    refine
+      { comp_src := ?_
+        comp_tgt := ?_
+        assoc := ?_
+        exists_id := ?_
+        exists_inv := ?_
+        naturality := ?_ }
+    · intro T a b h
+      change (𝟙 U ≫ a) = (𝟙 U ≫ b) at h
+      change 𝟙 U ≫ compApp (𝟙 U) (𝟙 U) (pushout.inl (𝟙 U) (𝟙 U)) a b h =
+        𝟙 U ≫ b
+      simpa only [compApp, pushout.inl_desc, Category.id_comp] using h
+    · intro T a b h
+      change (𝟙 U ≫ a) = (𝟙 U ≫ b) at h
+      change 𝟙 U ≫ compApp (𝟙 U) (𝟙 U) (pushout.inl (𝟙 U) (𝟙 U)) a b h =
+        𝟙 U ≫ a
+      simp only [compApp, pushout.inl_desc, Category.id_comp]
+    · intro T a b d h_ab h_bd h_ab_d h_a_bd
+      simp only [compApp, pushout.inl_desc]
+    · intro T x
+      refine ⟨x, ?_, ?_, ?_, ?_⟩
+      · change 𝟙 U ≫ x = x
+        simp only [Category.id_comp]
+      · change 𝟙 U ≫ x = x
+        simp only [Category.id_comp]
+      · intro a h
+        change 𝟙 U ≫ a = 𝟙 U ≫ x at h
+        rw [compApp, pushout.inl_desc]
+      · intro a h
+        change 𝟙 U ≫ x = 𝟙 U ≫ a at h
+        have h' : x = a := by simpa only [Category.id_comp] using h
+        rw [compApp, pushout.inl_desc, h']
+    · intro T a
+      refine ⟨a, rfl, rfl, ?_, ?_, ?_, ?_⟩
+      · intro b h
+        rw [compApp, pushout.inl_desc]
+      · intro b h
+        have h' : a = b := by
+          simpa only [coyoneda_map_src_app, compApp, pushout.inl_desc,
+            Category.id_comp] using h
+        simpa only [compApp, pushout.inl_desc] using h'
+      · intro b h
+        rw [compApp, pushout.inl_desc]
+      · intro b h
+        have h' : a = b := by
+          simpa only [coyoneda_map_src_app, compApp, pushout.inl_desc,
+            Category.id_comp] using h
+        simpa only [compApp, pushout.inl_desc] using h'
+    · intro T T' f a b h h'
+      simp only [compApp, pushout.inl_desc]
 
 /-- The object of objects of the discrete representable groupoid is `U`. -/
 theorem discrete_U (U : C) : (discrete U).U = U :=
-  sorry
+  rfl
 
 /-- The object of arrows of the discrete representable groupoid is `U`. -/
 theorem discrete_R (U : C) : (discrete U).R = U :=
-  sorry
+  rfl
 
 /-- The source of the discrete representable groupoid is the identity. -/
 theorem discrete_s (U : C) : (discrete U).s = 𝟙 U :=
-  sorry
+  rfl
 
 /-- The target of the discrete representable groupoid is the identity. -/
 theorem discrete_t (U : C) : (discrete U).t = 𝟙 U :=
-  sorry
+  rfl
 
 /-- The composition of the discrete representable groupoid is the first pushout inclusion. -/
 theorem discrete_c (U : C) : (discrete U).c = pushout.inl (𝟙 U) (𝟙 U) :=
-  sorry
+  rfl
 
 end Representable
 
@@ -195,7 +253,7 @@ theorem Representable.spec {C : Type u} [Category.{v} C] (G : Representable C) :
       IsGroupoidInFunctors (coyoneda.obj (op G.U)) (coyoneda.obj (op G.R))
         (coyoneda.map G.s.op) (coyoneda.map G.t.op)
         (Representable.compApp G.s G.t G.c) :=
-  sorry
+  ⟨inferInstance, G.isGroupoid⟩
 
 end CategoryTheory.GroupoidInFunctors
 

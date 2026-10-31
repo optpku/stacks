@@ -188,7 +188,7 @@ theorem decompose_natToInt
 universe uA uσ
 
 variable {A : Type uA} {σ : Type uσ} [SetLike σ A]
-variable [SMul A M]
+variable [SMulZeroClass A M]
 
 /-- A graded scalar action extends across the natural-to-integer module grading. -/
 @[instance 100, stacks 00K8 "graded scalar action on integer extension", stacks 00K3]

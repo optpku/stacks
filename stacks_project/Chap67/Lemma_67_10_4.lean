@@ -17,5 +17,5 @@ universe u
 
 /- Lemma 67.10.4: a composition of monomorphisms is a monomorphism. -/
 @[stacks 042O] #check
-  (AlgebraicGeometry.AlgebraicSpace.monomorphisms_isStableUnderComposition :
+  (inferInstance :
     ∀ {S : Scheme.{u}}, (monomorphisms (AlgebraicSpace S)).IsStableUnderComposition)

@@ -49,7 +49,7 @@ class ShiftCompatibility
   map_d (X Y : Comp R A) (n k : ℤ) (f : X.obj ⟶[k + n] Y.obj) :
     homEquiv X Y n (k + 1)
         (castHom (add_right_comm k n 1) (D.d (k + n) f)) =
-      D.d k (homEquiv X Y n k f)
+      ((Int.negOnePow n : ℤ) : R) • D.d k (homEquiv X Y n k f)
   /-- Shifting the target commutes with homogeneous precomposition. -/
   map_precomp {W X Y : Comp R A} (n i j : ℤ)
       (f : W.obj ⟶[i] X.obj) (g : X.obj ⟶[j + n] Y.obj) :

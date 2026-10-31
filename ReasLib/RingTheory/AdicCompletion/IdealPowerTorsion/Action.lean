@@ -30,7 +30,28 @@ def quotientAction (I : Ideal R) (n : ℕ) (a : R ⧸ I ^ n)
 `R`-action. -/
 theorem quotientAction_mk (I : Ideal R) (n : ℕ) (r : R)
     (x : I.powerAnnihilatedSubmodule M n) :
-    quotientAction I n (Ideal.Quotient.mk (I ^ n) r) x = r • x := sorry
+    quotientAction I n (Ideal.Quotient.mk (I ^ n) r) x = r • x := by
+  rfl
+
+private theorem quotientAction_eval_eq_of_le (I : Ideal R) (a : AdicCompletion I R)
+    (x : M) {m n : ℕ} (hmn : m ≤ n)
+    (hm : x ∈ I.powerAnnihilatedSubmodule M m)
+    (hn : x ∈ I.powerAnnihilatedSubmodule M n) :
+    quotientAction I m (AdicCompletion.evalₐ I m a) ⟨x, hm⟩ =
+      quotientAction I n (AdicCompletion.evalₐ I n a) ⟨x, hn⟩ := by
+  induction a using AdicCompletion.induction_on with
+  | _ f =>
+    rw [AdicCompletion.evalₐ_mk, AdicCompletion.evalₐ_mk,
+      ← AdicCompletion.Ideal.mk_eq_mk I hmn f, quotientAction_mk, quotientAction_mk]
+
+private theorem quotientAction_eval_eq (I : Ideal R) (a : AdicCompletion I R)
+    (x : M) {m n : ℕ} (hm : x ∈ I.powerAnnihilatedSubmodule M m)
+    (hn : x ∈ I.powerAnnihilatedSubmodule M n) :
+    quotientAction I m (AdicCompletion.evalₐ I m a) ⟨x, hm⟩ =
+      quotientAction I n (AdicCompletion.evalₐ I n a) ⟨x, hn⟩ := by
+  rcases le_total m n with hmn | hnm
+  · exact quotientAction_eval_eq_of_le I a x hmn hm hn
+  · exact (quotientAction_eval_eq_of_le I a x hnm hn hm).symm
 
 end Ideal.PowerAnnihilated
 
@@ -50,16 +71,50 @@ noncomputable def completionAction (I : Ideal R)
   Ideal.PowerAnnihilated.quotientAction I n (AdicCompletion.evalₐ I n a)
     ⟨x, Classical.choose_spec hx⟩
 
+private theorem completionAction_eq_of_mem_stage (I : Ideal R)
+    (hM : Module.IsIdealPowerTorsion I M) (a : AdicCompletion I R)
+    (n : ℕ) (x : M) (hx : x ∈ I.powerAnnihilatedSubmodule M n) :
+    completionAction I hM a x =
+      Ideal.PowerAnnihilated.quotientAction I n (AdicCompletion.evalₐ I n a) ⟨x, hx⟩ := by
+  dsimp only [completionAction]
+  exact Ideal.PowerAnnihilated.quotientAction_eval_eq I a x _ hx
+
 /-- The completed-scalar action is additive in the module argument. -/
 theorem completionAction_add (I : Ideal R)
     (hM : Module.IsIdealPowerTorsion I M) (a : AdicCompletion I R) (x y : M) :
     completionAction I hM a (x + y) =
-      completionAction I hM a x + completionAction I hM a y := sorry
+      completionAction I hM a x + completionAction I hM a y := by
+  obtain ⟨m, hm⟩ := (Ideal.primaryComponent_mem M I x).mp (by
+    rw [hM]
+    exact Submodule.mem_top)
+  obtain ⟨n, hn⟩ := (Ideal.primaryComponent_mem M I y).mp (by
+    rw [hM]
+    exact Submodule.mem_top)
+  have hx : x ∈ I.powerAnnihilatedSubmodule M (max m n) :=
+    Submodule.torsionBySet_le_torsionBySet_pow m (max m n) (le_max_left _ _) I hm
+  have hy : y ∈ I.powerAnnihilatedSubmodule M (max m n) :=
+    Submodule.torsionBySet_le_torsionBySet_pow n (max m n) (le_max_right _ _) I hn
+  rw [completionAction_eq_of_mem_stage I hM a (max m n) (x + y)
+      ((I.powerAnnihilatedSubmodule M (max m n)).add_mem hx hy),
+    completionAction_eq_of_mem_stage I hM a (max m n) x hx,
+    completionAction_eq_of_mem_stage I hM a (max m n) y hy]
+  exact congrArg (fun z : I.powerAnnihilatedSubmodule M (max m n) ↦ (z : M))
+    (smul_add (AdicCompletion.evalₐ I (max m n) a) ⟨x, hx⟩ ⟨y, hy⟩)
 
 /-- The completed-scalar action respects the original `R`-scalar multiplication. -/
 theorem completionAction_smul (I : Ideal R)
     (hM : Module.IsIdealPowerTorsion I M) (a : AdicCompletion I R) (r : R) (x : M) :
-    completionAction I hM a (r • x) = r • completionAction I hM a x := sorry
+    completionAction I hM a (r • x) = r • completionAction I hM a x := by
+  obtain ⟨n, hx⟩ := (Ideal.primaryComponent_mem M I x).mp (by
+    rw [hM]
+    exact Submodule.mem_top)
+  rw [completionAction_eq_of_mem_stage I hM a n (r • x)
+      ((I.powerAnnihilatedSubmodule M n).smul_mem r hx),
+    completionAction_eq_of_mem_stage I hM a n x hx]
+  obtain ⟨s, hs⟩ := Ideal.Quotient.mk_surjective (AdicCompletion.evalₐ I n a)
+  rw [← hs, Ideal.PowerAnnihilated.quotientAction_mk,
+    Ideal.PowerAnnihilated.quotientAction_mk]
+  exact smul_comm s r x
 
 /-- A completed scalar acting as an `R`-linear endomorphism. -/
 noncomputable def completionEnd (I : Ideal R)
@@ -71,22 +126,48 @@ noncomputable def completionEnd (I : Ideal R)
 /-- Zero acts by the zero endomorphism. -/
 theorem completionEnd_zero (I : Ideal R)
     (hM : Module.IsIdealPowerTorsion I M) :
-    completionEnd I hM 0 = 0 := sorry
+    completionEnd I hM 0 = 0 := by
+  ext x
+  change completionAction I hM 0 x = 0
+  simp [completionAction, Ideal.PowerAnnihilated.quotientAction]
 
 /-- Addition of completed scalars acts by addition of endomorphisms. -/
 theorem completionEnd_add (I : Ideal R)
     (hM : Module.IsIdealPowerTorsion I M) (a b : AdicCompletion I R) :
-    completionEnd I hM (a + b) = completionEnd I hM a + completionEnd I hM b := sorry
+    completionEnd I hM (a + b) = completionEnd I hM a + completionEnd I hM b := by
+  ext x
+  change completionAction I hM (a + b) x =
+    completionAction I hM a x + completionAction I hM b x
+  simp [completionAction, Ideal.PowerAnnihilated.quotientAction, add_smul]
 
 /-- One acts by the identity endomorphism. -/
 theorem completionEnd_one (I : Ideal R)
     (hM : Module.IsIdealPowerTorsion I M) :
-    completionEnd I hM 1 = 1 := sorry
+    completionEnd I hM 1 = 1 := by
+  ext x
+  change completionAction I hM 1 x = x
+  simp [completionAction, Ideal.PowerAnnihilated.quotientAction]
 
 /-- Multiplication of completed scalars acts by composition of endomorphisms. -/
 theorem completionEnd_mul (I : Ideal R)
     (hM : Module.IsIdealPowerTorsion I M) (a b : AdicCompletion I R) :
-    completionEnd I hM (a * b) = completionEnd I hM a * completionEnd I hM b := sorry
+    completionEnd I hM (a * b) = completionEnd I hM a * completionEnd I hM b := by
+  ext x
+  change completionAction I hM (a * b) x =
+    completionAction I hM a (completionAction I hM b x)
+  obtain ⟨n, hx⟩ := (Ideal.primaryComponent_mem M I x).mp (by
+    rw [hM]
+    exact Submodule.mem_top)
+  rw [completionAction_eq_of_mem_stage I hM (a * b) n x hx,
+    completionAction_eq_of_mem_stage I hM b n x hx]
+  have hy : Ideal.PowerAnnihilated.quotientAction I n
+      (AdicCompletion.evalₐ I n b) ⟨x, hx⟩ ∈ I.powerAnnihilatedSubmodule M n :=
+    (AdicCompletion.evalₐ I n b • (⟨x, hx⟩ : I.powerAnnihilatedSubmodule M n)).property
+  rw [completionAction_eq_of_mem_stage I hM a n _ hy]
+  simpa only [map_mul, Ideal.PowerAnnihilated.quotientAction] using
+    congrArg (fun z : I.powerAnnihilatedSubmodule M n ↦ (z : M))
+      (mul_smul (AdicCompletion.evalₐ I n a) (AdicCompletion.evalₐ I n b)
+        (⟨x, hx⟩ : I.powerAnnihilatedSubmodule M n))
 
 /-- The canonical action of the `I`-adic completion on an `I`-power-torsion module,
 as a ring homomorphism into its ring of `R`-linear endomorphisms. -/
@@ -105,13 +186,23 @@ theorem completionToEnd_apply_of_mem_stage (I : Ideal R)
     (hM : Module.IsIdealPowerTorsion I M) (a : AdicCompletion I R)
     (n : ℕ) (x : M) (hx : x ∈ I.powerAnnihilatedSubmodule M n) :
     completionToEnd I hM a x =
-      Ideal.PowerAnnihilated.quotientAction I n (AdicCompletion.evalₐ I n a) ⟨x, hx⟩ := sorry
+      Ideal.PowerAnnihilated.quotientAction I n (AdicCompletion.evalₐ I n a) ⟨x, hx⟩ := by
+  exact completionAction_eq_of_mem_stage I hM a n x hx
 
 /-- The completion action extends the original scalar action along the canonical
 map from `R` to its `I`-adic completion. -/
 theorem completionToEnd_comp_algebraMap (I : Ideal R)
     (hM : Module.IsIdealPowerTorsion I M) :
     (completionToEnd I hM).comp (algebraMap R (AdicCompletion I R)) =
-      Module.toModuleEnd R M := sorry
+      Module.toModuleEnd R M := by
+  ext r x
+  change completionAction I hM (algebraMap R (AdicCompletion I R) r) x = r • x
+  obtain ⟨n, hx⟩ := (Ideal.primaryComponent_mem M I x).mp (by
+    rw [hM]
+    exact Submodule.mem_top)
+  rw [completionAction_eq_of_mem_stage I hM _ n x hx]
+  have hr : AdicCompletion.evalₐ I n (algebraMap R (AdicCompletion I R) r) =
+      Ideal.Quotient.mk (I ^ n) r := (AdicCompletion.evalₐ I n).commutes r
+  rw [hr, Ideal.PowerAnnihilated.quotientAction_mk]
 
 end Module.IsIdealPowerTorsion

@@ -100,7 +100,21 @@ noncomputable def fromBaseChangeForm (p : ℕ) :
 
 /-- Tensor cancellation sends the included coefficient tensor to the original coefficient tensor. -/
 theorem cancelBaseChange_form_tmul (p : ℕ) (m : M) (η : exteriorPower.form B' Ω' p) :
-    cancelBaseChange_form p ((m ⊗ₜ[B] (1 : B')) ⊗ₜ[B'] η) = m ⊗ₜ[B] η := sorry
+    cancelBaseChange_form p ((m ⊗ₜ[B] (1 : B')) ⊗ₜ[B'] η) = m ⊗ₜ[B] η := by
+  simp [cancelBaseChange_form, AddEquiv.linearEquiv]
+
+/-- Tensor cancellation inserts the unit in the extended coefficient factor. -/
+theorem toBaseChangeForm_tmul (p : ℕ) (m : M) (η : exteriorPower.form B' Ω' p) :
+    toBaseChangeForm p (m ⊗ₜ[B] η) = (m ⊗ₜ[B] (1 : B')) ⊗ₜ[B'] η := by
+  apply (cancelBaseChange_form p).injective
+  simp [toBaseChangeForm, cancelBaseChange_form_tmul]
+
+/-- Extended scalars multiply the coefficient factor of a pure tensor. -/
+theorem baseChangeModule_smul_tmul (scalar : B') (m : M) (coefficient : B') :
+    scalar • (m ⊗ₜ[B] coefficient) = m ⊗ₜ[B] (scalar * coefficient) := by
+  change (TensorProduct.comm B M B').symm
+      (scalar • (TensorProduct.comm B M B' (m ⊗ₜ[B] coefficient))) = _
+  simp [TensorProduct.smul_tmul']
 
 /-- The explicit degreewise components consist of coefficient inclusion and induced form maps. -/
 noncomputable def baseChangeDeRhamHom_f
@@ -120,7 +134,7 @@ theorem baseChangeForm_tmul (φ : Ω →ₗ[B] Ω') (p : ℕ) (m : M)
     (η : exteriorPower.form B Ω p) :
     (baseChangeForm φ p : M ⊗[B] exteriorPower.form B Ω p →ₗ[B]
       M ⊗[B] exteriorPower.form B' Ω' p) (m ⊗ₜ[B] η) =
-      m ⊗ₜ[B] inducedForm φ p η := sorry
+      m ⊗ₜ[B] inducedForm φ p η := rfl
 
 /-- Compatible exterior calculi preserve derivations, differentials, and both wedge operations. -/
 structure CompatibleCalculi
@@ -162,7 +176,12 @@ theorem CompatibleCalculi.iff (φ : Ω →ₗ[B] Ω') (C : ExteriorCalculus D δ
       (∀ p η ω, inducedForm φ (p + 1) (C.leftWedge p η ω) =
         C'.leftWedge p (φ η) (inducedForm φ p ω)) ∧
       (∀ p η ω, inducedForm φ (p + 2) (C.leftWedgeTwo p η ω) =
-        C'.leftWedgeTwo p (inducedForm φ 2 η) (inducedForm φ p ω)) := sorry
+        C'.leftWedgeTwo p (inducedForm φ 2 η) (inducedForm φ p ω)) := by
+  constructor
+  · intro h
+    exact ⟨h.derivation, h.differential, h.wedge, h.wedgeTwo⟩
+  · rintro ⟨hderivation, hdifferential, hwedge, hwedgeTwo⟩
+    exact ⟨hderivation, hdifferential, hwedge, hwedgeTwo⟩
 
 /-- The scalar-extension connection value is the transported connection plus the scalar derivative. -/
 noncomputable def scalarExtensionValue (D' : Derivation A' B' Ω') (conn : Connection D M)
@@ -174,13 +193,29 @@ noncomputable def scalarExtensionValue (D' : Derivation A' B' Ω') (conn : Conne
 theorem scalarExtensionValue_add_left (D' : Derivation A' B' Ω') (conn : Connection D M)
     (φ : Ω →ₗ[B] Ω') (first second : M) (scalar : B') :
     scalarExtensionValue D' conn φ (first + second) scalar =
-      scalarExtensionValue D' conn φ first scalar + scalarExtensionValue D' conn φ second scalar := sorry
+      scalarExtensionValue D' conn φ first scalar + scalarExtensionValue D' conn φ second scalar := by
+  let F : M ⊗[B] Ω →ₗ[B] (M ⊗[B] B') ⊗[B'] Ω' :=
+    (toBaseChangeForm 1).comp (baseChangeForm φ 1)
+  change scalar • F (conn.toAddMonoidHom (first + second)) +
+      ((first + second) ⊗ₜ[B] 1) ⊗ₜ[B'] D' scalar =
+    (scalar • F (conn.toAddMonoidHom first) + (first ⊗ₜ[B] 1) ⊗ₜ[B'] D' scalar) +
+      (scalar • F (conn.toAddMonoidHom second) + (second ⊗ₜ[B] 1) ⊗ₜ[B'] D' scalar)
+  rw [map_add, map_add, smul_add, TensorProduct.add_tmul, TensorProduct.add_tmul]
+  exact add_add_add_comm _ _ _ _
 
 /-- The scalar-extension value is additive in the extended scalar. -/
 theorem scalarExtensionValue_add_right (D' : Derivation A' B' Ω') (conn : Connection D M)
     (φ : Ω →ₗ[B] Ω') (m : M) (first second : B') :
     scalarExtensionValue D' conn φ m (first + second) =
-      scalarExtensionValue D' conn φ m first + scalarExtensionValue D' conn φ m second := sorry
+      scalarExtensionValue D' conn φ m first + scalarExtensionValue D' conn φ m second := by
+  let F : M ⊗[B] Ω →ₗ[B] (M ⊗[B] B') ⊗[B'] Ω' :=
+    (toBaseChangeForm 1).comp (baseChangeForm φ 1)
+  change (first + second) • F (conn.toAddMonoidHom m) +
+      (m ⊗ₜ[B] 1) ⊗ₜ[B'] D' (first + second) =
+    (first • F (conn.toAddMonoidHom m) + (m ⊗ₜ[B] 1) ⊗ₜ[B'] D' first) +
+      (second • F (conn.toAddMonoidHom m) + (m ⊗ₜ[B] 1) ⊗ₜ[B'] D' second)
+  rw [add_smul, map_add, TensorProduct.tmul_add]
+  exact add_add_add_comm _ _ _ _
 
 /-- The scalar-extension values form an additive pairing in the coefficient and scalar. -/
 noncomputable def scalarExtensionPairing (D' : Derivation A' B' Ω') (conn : Connection D M)
@@ -194,7 +229,25 @@ theorem scalarExtensionPairing_balanced (D' : Derivation A' B' Ω') (conn : Conn
     (φ : Ω →ₗ[B] Ω') (hφD : ∀ b, φ (D b) = D' (algebraMap B B' b))
     (b : B) (m : M) (scalar : B') :
     scalarExtensionPairing D' conn φ (b • m) scalar =
-      scalarExtensionPairing D' conn φ m (b • scalar) := sorry
+      scalarExtensionPairing D' conn φ m (b • scalar) := by
+  let F : M ⊗[B] Ω →ₗ[B] (M ⊗[B] B') ⊗[B'] Ω' :=
+    (toBaseChangeForm 1).comp (baseChangeForm φ 1)
+  have hF (n : M) (η : Ω) : F (n ⊗ₜ[B] η) = (n ⊗ₜ[B] 1) ⊗ₜ[B'] φ η := by
+    change toBaseChangeForm 1 (baseChangeForm φ 1 (n ⊗ₜ[B] η)) = _
+    rw [baseChangeForm_tmul, toBaseChangeForm_tmul]
+    rfl
+  change scalar • F (conn.toAddMonoidHom (b • m)) +
+      ((b • m) ⊗ₜ[B] 1) ⊗ₜ[B'] D' scalar =
+    (b • scalar) • F (conn.toAddMonoidHom m) +
+      (m ⊗ₜ[B] 1) ⊗ₜ[B'] D' (b • scalar)
+  rw [conn.leibniz, map_add, map_smul, hF]
+  rw [Algebra.smul_def, D'.leibniz, ← hφD]
+  simp only [smul_add, TensorProduct.tmul_add, TensorProduct.tmul_smul,
+    TensorProduct.smul_tmul', baseChangeModule_smul_tmul, mul_one]
+  rw [← IsScalarTower.algebraMap_smul B' b (F (conn.toAddMonoidHom m)),
+    ← mul_smul, mul_comm scalar (algebraMap B B' b)]
+  rw [TensorProduct.smul_tmul b m (1 : B'), Algebra.smul_def, mul_one]
+  ac_rfl
 
 /-- The balanced scalar-extension pairing lifts to an additive map on the tensor product. -/
 noncomputable def scalarExtensionMap (conn : Connection D M) (φ : Ω →ₗ[B] Ω')
@@ -207,7 +260,23 @@ noncomputable def scalarExtensionMap (conn : Connection D M) (φ : Ω →ₗ[B] 
 theorem scalarExtensionMap_leibniz (conn : Connection D M) (φ : Ω →ₗ[B] Ω')
     (hφD : ∀ b, φ (D b) = D' (algebraMap B B' b)) (scalar : B') (tensor : M ⊗[B] B') :
     scalarExtensionMap conn φ hφD (scalar • tensor) =
-      scalar • scalarExtensionMap conn φ hφD tensor + tensor ⊗ₜ[B'] D' scalar := sorry
+      scalar • scalarExtensionMap conn φ hφD tensor + tensor ⊗ₜ[B'] D' scalar := by
+  let F : M ⊗[B] Ω →ₗ[B] (M ⊗[B] B') ⊗[B'] Ω' :=
+    (toBaseChangeForm 1).comp (baseChangeForm φ 1)
+  induction tensor using TensorProduct.induction_on with
+  | zero => simp
+  | tmul m coefficient =>
+    rw [baseChangeModule_smul_tmul]
+    change (scalar * coefficient) • F (conn.toAddMonoidHom m) +
+        (m ⊗ₜ[B] 1) ⊗ₜ[B'] D' (scalar * coefficient) =
+      scalar • (coefficient • F (conn.toAddMonoidHom m) +
+        (m ⊗ₜ[B] 1) ⊗ₜ[B'] D' coefficient) +
+        (m ⊗ₜ[B] coefficient) ⊗ₜ[B'] D' scalar
+    simp [Derivation.leibniz, mul_smul, smul_add,
+      TensorProduct.tmul_add, TensorProduct.tmul_smul, TensorProduct.smul_tmul',
+      baseChangeModule_smul_tmul, add_assoc]
+  | add x y hx hy =>
+    simp [smul_add, map_add, TensorProduct.add_tmul, hx, hy, add_add_add_comm]
 
 /-- The scalar extension of a connection is obtained by the tensor Leibniz formula. -/
 noncomputable def scalarExtension (conn : Connection D M) (φ : Ω →ₗ[B] Ω')
@@ -218,7 +287,7 @@ noncomputable def scalarExtension (conn : Connection D M) (φ : Ω →ₗ[B] Ω'
 theorem scalarExtension_apply_tmul (conn : Connection D M) (φ : Ω →ₗ[B] Ω')
     (hφD : ∀ b, φ (D b) = D' (algebraMap B B' b)) (m : M) (scalar : B') :
     (scalarExtension conn φ hφD).toAddMonoidHom (m ⊗ₜ[B] scalar) =
-      scalarExtensionValue D' conn φ m scalar := sorry
+      scalarExtensionValue D' conn φ m scalar := rfl
 
 /-- The explicit base-change components commute with the de Rham differentials. -/
 theorem baseChangeDeRhamHom_comm (conn : Connection D M) (C : ExteriorCalculus D δ)
@@ -228,6 +297,72 @@ theorem baseChangeDeRhamHom_comm (conn : Connection D M) (C : ExteriorCalculus D
     baseChangeDeRhamHom_f conn C hconn (scalarExtension conn φ compat.derivation) C' hconn' φ first ≫
         (deRhamComplex (scalarExtension conn φ compat.derivation) C' hconn').d first second =
       (deRhamComplex conn C hconn).d first second ≫
-        baseChangeDeRhamHom_f conn C hconn (scalarExtension conn φ compat.derivation) C' hconn' φ second := sorry
+        baseChangeDeRhamHom_f conn C hconn (scalarExtension conn φ compat.derivation) C' hconn' φ second := by
+  -- Use the canonical module on each form degree when working with the differentials.
+  letI (p : ℕ) : Module B (exteriorPower.form B Ω p) := exteriorPower.form.module p
+  letI (p : ℕ) : Module B' (exteriorPower.form B' Ω' p) := exteriorPower.form.module p
+  let F (p : ℕ) : M ⊗[B] exteriorPower.form B Ω p →ₗ[B]
+      (M ⊗[B] B') ⊗[B'] exteriorPower.form B' Ω' p :=
+    (toBaseChangeForm p).comp (baseChangeForm φ p)
+  let F₁ : M ⊗[B] Ω →ₗ[B] (M ⊗[B] B') ⊗[B'] Ω' := F 1
+  have hF (p : ℕ) (m : M) (ω : exteriorPower.form B Ω p) :
+      F p (m ⊗ₜ[B] ω) = (m ⊗ₜ[B] 1) ⊗ₜ[B'] inducedForm φ p ω := by
+    change toBaseChangeForm p (baseChangeForm φ p (m ⊗ₜ[B] ω)) = _
+    rw [baseChangeForm_tmul, toBaseChangeForm_tmul]
+    rfl
+  have hF₁ (m : M) (η : Ω) :
+      F₁ (m ⊗ₜ[B] η) = (m ⊗ₜ[B] 1) ⊗ₜ[B'] φ η := hF 1 m η
+  have hincl (m : M) :
+      (scalarExtension conn φ compat.derivation).toAddMonoidHom (m ⊗ₜ[B] 1) =
+        F₁ (conn.toAddMonoidHom m) := by
+    rw [scalarExtension_apply_tmul]
+    change (1 : B') • F₁ (conn.toAddMonoidHom m) +
+      (m ⊗ₜ[B] 1) ⊗ₜ[B'] D' 1 = F₁ (conn.toAddMonoidHom m)
+    simp [Derivation.map_one_eq_zero]
+  have hwedge (p : ℕ) (ω : exteriorPower.form B Ω p) (x : M ⊗[B] Ω) :
+      TensorProduct.map (LinearMap.id : (M ⊗[B] B') →ₗ[B'] M ⊗[B] B')
+          ((C'.leftWedge p).flip (inducedForm φ p ω)) (F₁ x) =
+        F (p + 1) (TensorProduct.map (LinearMap.id : M →ₗ[B] M)
+          ((C.leftWedge p).flip ω) x) := by
+    induction x using TensorProduct.induction_on with
+    | zero => simp
+    | tmul m η =>
+      rw [hF₁, TensorProduct.map_tmul, TensorProduct.map_tmul, hF]
+      simp only [LinearMap.id_apply, LinearMap.flip_apply]
+      rw [compat.wedge]
+    | add x y hx hy => simp [map_add, hx, hy]
+  have hdiff (p : ℕ) (x : M ⊗[B] exteriorPower.form B Ω p) :
+      differential (scalarExtension conn φ compat.derivation) C' p (F p x) =
+        F (p + 1) (differential conn C p x) := by
+    induction x using TensorProduct.induction_on with
+    | zero => simp
+    | tmul m ω =>
+      rw [hF, differential_tmul, differential_tmul, map_add, hF]
+      rw [show apply (scalarExtension conn φ compat.derivation) (m ⊗ₜ[B] 1) =
+        F₁ (conn.toAddMonoidHom m) from hincl m]
+      rw [hwedge, compat.differential]
+      rfl
+    | add x y hx hy => simp [map_add, hx, hy]
+  by_cases h : first + 1 = second
+  · subst second
+    cases first with
+    | zero =>
+      rw [deRhamComplex_d_zero, deRhamComplex_d_zero]
+      apply AddCommGrpCat.hom_ext
+      apply AddMonoidHom.ext
+      intro m
+      exact hincl m
+    | succ p =>
+      rw [deRhamComplex_d_succ, deRhamComplex_d_succ]
+      apply AddCommGrpCat.hom_ext
+      apply AddMonoidHom.ext
+      intro x
+      exact hdiff (p + 1) x
+  · have hsource : (deRhamComplex conn C hconn).d first second = 0 :=
+      CochainComplex.of_d_ne _ _ h
+    have htarget :
+        (deRhamComplex (scalarExtension conn φ compat.derivation) C' hconn').d first second = 0 :=
+      CochainComplex.of_d_ne _ _ h
+    rw [hsource, htarget, Limits.comp_zero, Limits.zero_comp]
 
 end Connection

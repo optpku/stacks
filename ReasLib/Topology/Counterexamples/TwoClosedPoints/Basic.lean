@@ -55,17 +55,22 @@ instance : TopologicalSpace Point :=
         U = firstBasicOpen ∨ U = secondBasicOpen}
 
 /-- Every isolated generic point is open. -/
-theorem isOpen_genericSingleton (n : ℕ) : IsOpen ({generic n} : Set Point) := sorry
+theorem isOpen_genericSingleton (n : ℕ) : IsOpen ({generic n} : Set Point) := by
+  exact isOpen_generateFrom_of_mem (Or.inl ⟨n, rfl⟩)
 
 /-- The distinguished basic open containing the first closed point is open. -/
-theorem isOpen_firstBasicOpen : IsOpen firstBasicOpen := sorry
+theorem isOpen_firstBasicOpen : IsOpen firstBasicOpen := by
+  exact isOpen_generateFrom_of_mem (Or.inr (Or.inl rfl))
 
 /-- The distinguished basic open containing the second closed point is open. -/
-theorem isOpen_secondBasicOpen : IsOpen secondBasicOpen := sorry
+theorem isOpen_secondBasicOpen : IsOpen secondBasicOpen := by
+  exact isOpen_generateFrom_of_mem (Or.inr (Or.inr rfl))
 
 /-- The two distinguished basic opens cover the whole space. -/
 theorem firstBasicOpen_union_secondBasicOpen :
-    firstBasicOpen ∪ secondBasicOpen = Set.univ := sorry
+    firstBasicOpen ∪ secondBasicOpen = Set.univ := by
+  ext x
+  cases x <;> simp [firstBasicOpen, secondBasicOpen, genericSet]
 
 /-- The topological space with two closed points and countably many generic points. -/
 abbrev space : TopCat :=
@@ -85,22 +90,80 @@ abbrev genericPoint (n : ℕ) : space :=
 
 /-- Every open neighborhood of the first closed point contains its distinguished basic open. -/
 theorem firstBasicOpen_subset_of_mem {U : Opens space} (hU : firstPoint ∈ U) :
-    firstBasicOpen ⊆ U := sorry
+    firstBasicOpen ⊆ U := by
+  have hsubset {V : Set Point} (hopen : IsOpen V) : first ∈ V → firstBasicOpen ⊆ V := by
+    change TopologicalSpace.GenerateOpen _ V at hopen
+    induction hopen with
+    | basic V hV =>
+      intro hfirst
+      rcases hV with ⟨n, rfl⟩ | rfl | rfl
+      · simp at hfirst
+      · exact Subset.rfl
+      · simp [secondBasicOpen, genericSet] at hfirst
+    | univ =>
+      intro _
+      exact subset_univ _
+    | inter V W hV hW ihV ihW =>
+      intro hfirst
+      exact subset_inter (ihV hfirst.1) (ihW hfirst.2)
+    | sUnion S hS ih =>
+      rintro ⟨V, hVS, hfirst⟩
+      exact (ih V hVS hfirst).trans (subset_sUnion_of_mem hVS)
+  exact hsubset U.isOpen hU
 
 /-- Every open neighborhood of the second closed point contains its distinguished basic open. -/
 theorem secondBasicOpen_subset_of_mem {U : Opens space} (hU : secondPoint ∈ U) :
-    secondBasicOpen ⊆ U := sorry
+    secondBasicOpen ⊆ U := by
+  have hsubset {V : Set Point} (hopen : IsOpen V) : second ∈ V → secondBasicOpen ⊆ V := by
+    change TopologicalSpace.GenerateOpen _ V at hopen
+    induction hopen with
+    | basic V hV =>
+      intro hsecond
+      rcases hV with ⟨n, rfl⟩ | rfl | rfl
+      · simp at hsecond
+      · simp [firstBasicOpen, genericSet] at hsecond
+      · exact Subset.rfl
+    | univ =>
+      intro _
+      exact subset_univ _
+    | inter V W hV hW ihV ihW =>
+      intro hsecond
+      exact subset_inter (ihV hsecond.1) (ihW hsecond.2)
+    | sUnion S hS ih =>
+      rintro ⟨V, hVS, hsecond⟩
+      exact (ih V hVS hsecond).trans (subset_sUnion_of_mem hVS)
+  exact hsubset U.isOpen hU
 
 /-- The two-closed-points space is compact. -/
 @[stacks 01BT "counterexample space"]
-instance compactSpace : CompactSpace space := sorry
+instance compactSpace : CompactSpace space := by
+  classical
+  refine ⟨isCompact_iff_finite_subcover.mpr ?_⟩
+  intro ι V hV hcover
+  obtain ⟨i, hi⟩ := mem_iUnion.mp (hcover (mem_univ firstPoint))
+  obtain ⟨j, hj⟩ := mem_iUnion.mp (hcover (mem_univ secondPoint))
+  have hfirst := firstBasicOpen_subset_of_mem (U := ⟨V i, hV i⟩) hi
+  have hsecond := secondBasicOpen_subset_of_mem (U := ⟨V j, hV j⟩) hj
+  refine ⟨{i, j}, ?_⟩
+  intro x _
+  have hx : x ∈ firstBasicOpen ∪ secondBasicOpen := by
+    rw [firstBasicOpen_union_secondBasicOpen]
+    exact mem_univ x
+  rcases hx with hx | hx
+  · exact mem_iUnion.mpr ⟨i, mem_iUnion.mpr ⟨by simp, hfirst hx⟩⟩
+  · exact mem_iUnion.mpr ⟨j, mem_iUnion.mpr ⟨by simp, hsecond hx⟩⟩
 
 /-- The tail of generic points beginning at `n`. -/
 def tailSet (n : ℕ) : Set space :=
   {x | ∃ m : ℕ, n ≤ m ∧ x = generic m}
 
 /-- Every tail of generic points is open. -/
-theorem isOpen_tailSet (n : ℕ) : IsOpen (tailSet n) := sorry
+theorem isOpen_tailSet (n : ℕ) : IsOpen (tailSet n) := by
+  have htail : tailSet n = ⋃ m : ℕ, ⋃ (_ : n ≤ m), ({generic m} : Set space) := by
+    ext x
+    simp [tailSet]
+  rw [htail]
+  exact isOpen_iUnion fun m => isOpen_iUnion fun _ => isOpen_genericSingleton m
 
 /-- The open subset consisting of the generic tail beginning at `n`. -/
 def tailOpen (n : ℕ) : Opens space :=
@@ -115,7 +178,24 @@ abbrev tailInclusion (n : ℕ) : tailSpace n ⟶ space :=
   TopCat.Opens.Subspace.inclusion (tailOpen n)
 
 /-- Every tail subspace is discrete. -/
-instance tailSpace_discrete (n : ℕ) : DiscreteTopology (tailSpace n) := sorry
+instance tailSpace_discrete (n : ℕ) : DiscreteTopology (tailSpace n) := by
+  apply discreteTopology_iff_isOpen_singleton.mpr
+  rintro ⟨x, hx⟩
+  obtain ⟨m, hnm, rfl⟩ := hx
+  have hsingle : (Subtype.val : tailSpace n → space) ⁻¹' ({generic m} : Set space) =
+      ({⟨generic m, ⟨m, hnm, rfl⟩⟩} : Set (tailSpace n)) := by
+    ext y
+    change y.1 = generic m ↔ y = (⟨generic m, ⟨m, hnm, rfl⟩⟩ : tailSpace n)
+    constructor
+    · intro h
+      exact Subtype.ext h
+    · rintro rfl
+      rfl
+  have hopen : IsOpen ((Subtype.val : tailSpace n → space) ⁻¹'
+      ({generic m} : Set space)) :=
+    (isOpen_genericSingleton m).preimage continuous_subtype_val
+  rw [hsingle] at hopen
+  exact hopen
 
 end TopCat.Counterexample.TwoClosedPoints
 

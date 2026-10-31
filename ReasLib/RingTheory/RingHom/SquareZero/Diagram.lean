@@ -34,26 +34,6 @@ variable [CommRing A₂'] [CommRing A₂] [CommRing B₂] [Algebra A₂ B₂]
 variable [AddCommGroup N₁] [Module B₁ N₁] [Module A₁ N₁] [IsScalarTower A₁ B₁ N₁]
 variable [AddCommGroup N₂] [Module B₂ N₂] [Module A₂ N₂] [IsScalarTower A₂ B₂ N₂]
 
-/-- The map on square-zero kernels induced by a commutative square of ring homomorphisms. -/
-def kerMapOfHoms {R' R S' S : Type u} [CommRing R'] [CommRing R] [CommRing S'] [CommRing S]
-    {πR : R' →+* R} [πR.IsSquareZeroExtension] {πS : S' →+* S} [πS.IsSquareZeroExtension]
-    (f' : R' →+* S') (f : R →+* S) (hcomm : πS.comp f' = f.comp πR) :
-    KernelModule πR →+ KernelModule πS where
-  toFun x :=
-    ofMem
-      (Iff.mpr (mem_ker (f := πS) (r := f' x.1))
-        ((DFunLike.congr_fun hcomm x.1).trans
-          ((congrArg f x.2).trans (map_zero f))))
-  map_zero' := sorry
-  map_add' := sorry
-
-/-- `kerMapOfHoms` acts by the source map of the square. -/
-theorem kerMapOfHoms_apply {R' R S' S : Type u}
-    [CommRing R'] [CommRing R] [CommRing S'] [CommRing S]
-    {πR : R' →+* R} [πR.IsSquareZeroExtension] {πS : S' →+* S} [πS.IsSquareZeroExtension]
-    (f' : R' →+* S') (f : R →+* S) (hcomm : πS.comp f' = f.comp πR) (x : KernelModule πR) :
-    val (kerMapOfHoms f' f hcomm x) = f' (val x) := sorry
-
 variable {π₁ : A₁' →+* A₁} [π₁.IsSquareZeroExtension]
 variable {π₂ : A₂' →+* A₂} [π₂.IsSquareZeroExtension]
 variable {c₁ : KernelModule π₁ →ₗ[A₁] N₁}

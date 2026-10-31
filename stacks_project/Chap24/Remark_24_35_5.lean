@@ -38,8 +38,8 @@ homologywise pro-zero property. -/
 
 /- Its fine-grained API exposes the eventual-zero condition degree by degree. -/
 #check
-  (KoszulComplex.isWeaklyProregular_iff f :
-    KoszulComplex.IsWeaklyProregular f ↔
+  (KoszulComplex.IsWeaklyProregular.eventuallyZero (f := f) :
+    KoszulComplex.IsWeaklyProregular f →
       ∀ p : ℕ, 0 < p →
         PreorderInverseSystem.Transition.EventuallyZero
           (KoszulComplex.powerSystem f ⋙

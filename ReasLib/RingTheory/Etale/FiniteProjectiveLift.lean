@@ -36,7 +36,7 @@ theorem exists_etale_finite_projective_lift_of_finite_projective_quotient
     (hPbar : Module.FiniteProjective (A ⧸ I) Pbar) :
     ∃ (A' : Type u) (_ : CommRing A') (_ : Algebra A A') (_ : Etale A A')
       (eIso : (A ⧸ I) ≃ₐ[A ⧸ I] (A' ⧸ Ideal.map (algebraMap A A') I))
-      (P' : Type v) (_ : AddCommGroup P') (_ : Module A' P'),
+      (P' : Type (max u v)) (_ : AddCommGroup P') (_ : Module A' P'),
       let J : Ideal A' := Ideal.map (algebraMap A A') I
       let Q : Type u := A' ⧸ J
       let _ : CommRing Q := inferInstance

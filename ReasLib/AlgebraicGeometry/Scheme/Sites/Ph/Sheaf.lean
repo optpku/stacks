@@ -7,6 +7,7 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Sites.Ph.Basic
+public import Mathlib.CategoryTheory.Sites.Coherent.RegularSheaves
 
 /-!
 # Singleton-cover sheaf criteria for the `ph` site
@@ -30,11 +31,12 @@ variable {S : Scheme.{u}}
 
 /-- The type of sections on `V` equalized by the two projections of `V ×_U V`.
 
-This is the canonical target for the restriction map associated with a
+This transparent compatibility abbreviation is exactly the subtype codomain of
+`regularTopology.mapToEqualizer`. It is the target for the restriction map associated with a
 singleton cover `f : V ⟶ U`; it does not assume that `f` is proper or
 surjective, allowing the construction to be reused for arbitrary arrows.
 -/
-def equalizer (F : (Over S)ᵒᵖ ⥤ Type v) {U V : Over S} (f : V ⟶ U) : Type v :=
+abbrev equalizer (F : (Over S)ᵒᵖ ⥤ Type v) {U V : Over S} (f : V ⟶ U) : Type v :=
   { s : F.obj (op V) //
       F.map (pullback.fst f f).op s = F.map (pullback.snd f f).op s }
 
@@ -43,13 +45,14 @@ theorem equalizerMap_property
     (F : (Over S)ᵒᵖ ⥤ Type v) {U V : Over S} (f : V ⟶ U)
     (s : F.obj (op U)) :
     F.map (pullback.fst f f).op (F.map f.op s) =
-      F.map (pullback.snd f f).op (F.map f.op s) := sorry
+      F.map (pullback.snd f f).op (F.map f.op s) := by
+  simp only [← comp_apply, ← Functor.map_comp, ← op_comp, pullback.condition]
 
 /-- The canonical restriction map into the equalizer associated with `f`. -/
-def equalizerMap
+noncomputable def equalizerMap
     (F : (Over S)ᵒᵖ ⥤ Type v) {U V : Over S} (f : V ⟶ U) :
     F.obj (op U) → equalizer F f :=
-  fun s ↦ ⟨F.map f.op s, equalizerMap_property F f s⟩
+  regularTopology.mapToEqualizer F f (pullback.fst f f) (pullback.snd f f) pullback.condition
 
 /-- The underlying section of `equalizerMap F f s` is the restriction of `s`
 along `f`. -/
@@ -57,7 +60,7 @@ along `f`. -/
 theorem equalizerMap_val
     (F : (Over S)ᵒᵖ ⥤ Type v) {U V : Over S} (f : V ⟶ U)
     (s : F.obj (op U)) :
-    (equalizerMap F f s).val = F.map f.op s := sorry
+    (equalizerMap F f s).val = F.map f.op s := rfl
 
 namespace Sheaf
 
@@ -87,14 +90,14 @@ namespace Equalizer
 /-- A presheaf satisfies the proper-surjective equalizer condition. -/
 def IsProperSurjective (F : (Over S)ᵒᵖ ⥤ Type v) : Prop :=
   ∀ ⦃U V : Over S⦄ (f : V ⟶ U) [IsProper f.left] [Surjective f.left],
-    Function.Bijective (equalizerMap F f)
+    regularTopology.SingleEqualizerCondition F f
 
 /-- A presheaf satisfies the proper-surjective equalizer condition on affine
 targets. -/
 def IsAffineProperSurjective (F : (Over S)ᵒᵖ ⥤ Type v) : Prop :=
   ∀ ⦃U V : Over S⦄ (f : V ⟶ U) [IsAffine U.left] [IsProper f.left]
     [Surjective f.left],
-    Function.Bijective (equalizerMap F f)
+    regularTopology.SingleEqualizerCondition F f
 
 /-- The proper-surjective equalizer condition is equivalent to the singleton
 sheaf condition. -/

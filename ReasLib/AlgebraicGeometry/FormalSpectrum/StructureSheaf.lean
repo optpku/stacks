@@ -62,12 +62,42 @@ instance instTopologicalSpaceComponentType (U : Opens (OpenPrime A)) (I : Ideal 
 theorem isDiscrete_componentType_of_isCompact (U : Opens (OpenPrime A)) (I : Ideal A)
     (hI : TopologicalRing.Ideal.IsIdealOfDefinition I)
     (hU : IsCompact (pullbackOpens U I hI : Set (PrimeSpectrum (A ⧸ I)))) :
-    DiscreteTopology (componentType U I hI) := sorry
+    DiscreteTopology (componentType U I hI) := by
+  refine ⟨le_antisymm ?_ bot_le⟩
+  change pseudoDiscreteComponentTopology U I hI ≤ ⊥
+  have h :=
+    (iInf_le_of_le (pullbackOpens U I hI)
+      (iInf_le_of_le hU (iInf_le _ le_rfl)) :
+      pseudoDiscreteComponentTopology U I hI ≤
+        TopologicalSpace.induced
+          ((structureSheaf (A ⧸ I)).1.map (homOfLE le_rfl).op).hom ⊥)
+  have hid : TopologicalSpace.induced
+      ((structureSheaf (A ⧸ I)).1.map (homOfLE le_rfl).op).hom ⊥ =
+        (⊥ : TopologicalSpace (componentType U I hI)) := by
+    simp [induced_id]
+    rfl
+  exact h.trans_eq hid
 
 /-- The pseudo-discrete component section rings are topological rings. -/
 instance instIsTopologicalRingComponentType (U : Opens (OpenPrime A)) (I : Ideal A)
     (hI : TopologicalRing.Ideal.IsIdealOfDefinition I) :
-    IsTopologicalRing (componentType U I hI) := sorry
+    IsTopologicalRing (componentType U I hI) := by
+  refine
+    { toContinuousAdd := continuousAdd_iInf fun V =>
+        continuousAdd_iInf fun _ => continuousAdd_iInf fun hVU => ?_
+      toContinuousMul := continuousMul_iInf fun V =>
+        continuousMul_iInf fun _ => continuousMul_iInf fun hVU => ?_
+      toContinuousNeg := continuousNeg_iInf fun V =>
+        continuousNeg_iInf fun _ => continuousNeg_iInf fun hVU => ?_ }
+  · refine @continuousAdd_induced _ _ _ _ _ _ _ ⊥ ?_
+      ((structureSheaf (A ⧸ I)).1.map (homOfLE hVU).op).hom
+    exact @continuousAdd_of_discreteTopology _ ⊥ _ (discreteTopology_bot _)
+  · refine @continuousMul_induced _ _ _ _ _ _ _ ⊥ ?_
+      ((structureSheaf (A ⧸ I)).1.map (homOfLE hVU).op).hom
+    exact @continuousMul_of_discreteTopology _ ⊥ _ (discreteTopology_bot _)
+  · refine @ContinuousNeg.induced _ _ _ _ _ _ _ ⊥ ?_
+      ((structureSheaf (A ⧸ I)).1.map (homOfLE hVU).op).hom
+    exact @continuousNeg_of_discreteTopology _ ⊥ _ (discreteTopology_bot _)
 
 /-- Restriction of quotient-spectrum sections along an inclusion of opens. -/
 def componentRestrict {U V : Opens (OpenPrime A)} (hVU : V ≤ U) (I : Ideal A)
@@ -81,7 +111,20 @@ theorem pullbackOpens_subset_comap_factor (U : Opens (OpenPrime A)) {I J : Ideal
     (hI : TopologicalRing.Ideal.IsIdealOfDefinition I)
     (hJ : TopologicalRing.Ideal.IsIdealOfDefinition J) (hIJ : I ≤ J) :
     (pullbackOpens U J hJ : Set (PrimeSpectrum (A ⧸ J))) ⊆
-      PrimeSpectrum.comap (Ideal.Quotient.factor hIJ) ⁻¹' pullbackOpens U I hI := sorry
+      PrimeSpectrum.comap (Ideal.Quotient.factor hIJ) ⁻¹' pullbackOpens U I hI := by
+  intro q hq
+  change OpenPrime.homeomorphQuotientInv I hI
+    (PrimeSpectrum.comap (Ideal.Quotient.factor hIJ) q) ∈ U
+  change OpenPrime.homeomorphQuotientInv J hJ q ∈ U at hq
+  have h : OpenPrime.homeomorphQuotientInv I hI
+      (PrimeSpectrum.comap (Ideal.Quotient.factor hIJ) q) =
+        OpenPrime.homeomorphQuotientInv J hJ q := by
+    apply Subtype.ext
+    change PrimeSpectrum.comap (Ideal.Quotient.mk I)
+      (PrimeSpectrum.comap (Ideal.Quotient.factor hIJ) q) =
+        PrimeSpectrum.comap (Ideal.Quotient.mk J) q
+    rw [← PrimeSpectrum.comap_comp_apply, Ideal.Quotient.factor_comp_mk]
+  rwa [h]
 
 /-- Transition of component sections induced by a quotient factor homomorphism. -/
 def transition (U : Opens (OpenPrime A)) {I J : Ideal A}
@@ -110,7 +153,21 @@ theorem sectionSubring_laws (U : Opens (OpenPrime A)) :
         IsCompatible U (s + t)) ∧
       (∀ s t : ComponentFamily U, IsCompatible U s → IsCompatible U t →
         IsCompatible U (s * t)) ∧
-      (∀ s : ComponentFamily U, IsCompatible U s → IsCompatible U (-s)) := sorry
+      (∀ s : ComponentFamily U, IsCompatible U s → IsCompatible U (-s)) := by
+  refine ⟨?_, ?_, ?_, ?_, ?_⟩
+  · intro I J hI hJ hIJ
+    exact map_zero _
+  · intro I J hI hJ hIJ
+    exact map_one _
+  · intro s t hs ht I J hI hJ hIJ
+    exact (map_add (transition U hI hJ hIJ) (s ⟨I, hI⟩) (t ⟨I, hI⟩)).trans
+      (congrArg₂ (· + ·) (hs hI hJ hIJ) (ht hI hJ hIJ))
+  · intro s t hs ht I J hI hJ hIJ
+    exact (map_mul (transition U hI hJ hIJ) (s ⟨I, hI⟩) (t ⟨I, hI⟩)).trans
+      (congrArg₂ (· * ·) (hs hI hJ hIJ) (ht hI hJ hIJ))
+  · intro s hs I J hI hJ hIJ
+    exact (map_neg (transition U hI hJ hIJ) (s ⟨I, hI⟩)).trans
+      (congrArg Neg.neg (hs hI hJ hIJ))
 
 /-- The subring of compatible families of quotient-spectrum sections. -/
 def sectionSubring (U : Opens (OpenPrime A)) : Subring (ComponentFamily U) where
@@ -136,11 +193,12 @@ def ofCompatible (U : Opens (OpenPrime A)) (s : ComponentFamily U)
 theorem ofCompatible_spec (U : Opens (OpenPrime A)) (s : ComponentFamily U)
     (h : IsCompatible U s) :
     (∀ (I : Ideal A) (hI : TopologicalRing.Ideal.IsIdealOfDefinition I),
-      (ofCompatible U s h).component I hI = s ⟨I, hI⟩) ∧ IsCompatible U s := sorry
+      (ofCompatible U s h).component I hI = s ⟨I, hI⟩) ∧ IsCompatible U s :=
+  ⟨fun _ _ => rfl, h⟩
 
 /-- The inverse-limit section rings are topological rings. -/
 instance instIsTopologicalRingSections (U : Opens (OpenPrime A)) :
-    IsTopologicalRing (Sections U) := sorry
+    IsTopologicalRing (Sections U) := inferInstance
 
 /-- Componentwise restriction of a section family. -/
 def restrictedFamily {U V : Opens (OpenPrime A)} (hVU : V ≤ U) (s : Sections U) :
@@ -155,7 +213,29 @@ theorem restriction_laws {U V : Opens (OpenPrime A)} (hVU : V ≤ U) :
         restrictedFamily hVU (s * t) = restrictedFamily hVU s * restrictedFamily hVU t) ∧
       restrictedFamily hVU 0 = 0 ∧
       (∀ s t : Sections U,
-        restrictedFamily hVU (s + t) = restrictedFamily hVU s + restrictedFamily hVU t) := sorry
+        restrictedFamily hVU (s + t) = restrictedFamily hVU s + restrictedFamily hVU t) := by
+  refine ⟨?_, ?_, ?_, ?_, ?_⟩
+  · intro s I J hI hJ hIJ
+    have hcomm (t : componentType U I hI) :
+        transition V hI hJ hIJ (componentRestrict hVU I hI t) =
+          componentRestrict hVU J hJ (transition U hI hJ hIJ t) := by
+      apply Subtype.ext
+      funext p
+      rfl
+    change transition V hI hJ hIJ (componentRestrict hVU I hI (s.component I hI)) =
+      componentRestrict hVU J hJ (s.component J hJ)
+    rw [hcomm]
+    exact congrArg (componentRestrict hVU J hJ) (s.property hI hJ hIJ)
+  · funext I
+    exact map_one (componentRestrict hVU I.val I.property)
+  · intro s t
+    funext I
+    exact map_mul (componentRestrict hVU I.val I.property) _ _
+  · funext I
+    exact map_zero (componentRestrict hVU I.val I.property)
+  · intro s t
+    funext I
+    exact map_add (componentRestrict hVU I.val I.property) _ _
 
 /-- The ring homomorphism restricting inverse-limit sections. -/
 def restriction {U V : Opens (OpenPrime A)} (hVU : V ≤ U) : Sections U →+* Sections V where
@@ -167,7 +247,25 @@ def restriction {U V : Opens (OpenPrime A)} (hVU : V ≤ U) : Sections U →+* S
 
 /-- Restriction is continuous for the inverse-limit topology. -/
 theorem continuous_restriction {U V : Opens (OpenPrime A)} (hVU : V ≤ U) :
-    Continuous (restriction hVU : Sections U → Sections V) := sorry
+    Continuous (restriction hVU : Sections U → Sections V) := by
+  have hc (I : Ideal A) (hI : TopologicalRing.Ideal.IsIdealOfDefinition I) :
+      Continuous (componentRestrict hVU I hI) := by
+    change Continuous[_, pseudoDiscreteComponentTopology V I hI] _
+    refine continuous_iInf_rng.mpr fun W =>
+      continuous_iInf_rng.mpr fun hW => continuous_iInf_rng.mpr fun hWV => ?_
+    apply continuous_induced_rng.mpr
+    have hWU : W ≤ pullbackOpens U I hI :=
+      hWV.trans (Opens.comap_mono (OpenPrime.homeomorphQuotientInv I hI) hVU)
+    have hcont : Continuous[pseudoDiscreteComponentTopology U I hI, ⊥]
+        (((structureSheaf (A ⧸ I)).1.map (homOfLE hWU).op).hom :
+          componentType U I hI → _) :=
+      continuous_iff_le_induced.mpr
+        (iInf_le_of_le W (iInf_le_of_le hW (iInf_le _ hWU)))
+    exact hcont
+  apply Continuous.subtype_mk
+  apply continuous_pi
+  intro I
+  exact (hc I.val I.property).comp ((continuous_apply I).comp continuous_subtype_val)
 
 /-- Continuous restriction of sections, bundled as a morphism of topological rings. -/
 def restrictionHom {U V : Opens (OpenPrime A)} (hVU : V ≤ U) :
@@ -180,7 +278,26 @@ theorem structurePresheaf_laws :
       restrictionHom (leOfHom (unop (𝟙 U))) = 𝟙 (TopCommRingCat.of (Sections (unop U)))) ∧
       (∀ {U V W : (Opens (OpenPrime A))ᵒᵖ} (f : U ⟶ V) (g : V ⟶ W),
         restrictionHom (leOfHom (unop (f ≫ g))) =
-          restrictionHom (leOfHom (unop f)) ≫ restrictionHom (leOfHom (unop g))) := sorry
+          restrictionHom (leOfHom (unop f)) ≫ restrictionHom (leOfHom (unop g))) := by
+  constructor
+  · intro U
+    apply Subtype.ext
+    apply RingHom.ext
+    intro s
+    apply Subtype.ext
+    funext I
+    apply Subtype.ext
+    funext p
+    rfl
+  · intro U V W f g
+    apply Subtype.ext
+    apply RingHom.ext
+    intro s
+    apply Subtype.ext
+    funext I
+    apply Subtype.ext
+    funext p
+    rfl
 
 /-- The presheaf of topological rings given by compatible quotient-spectrum sections. -/
 def structurePresheaf (A : Type u) [CommRing A] [TopologicalSpace A] [IsTopologicalRing A] :
@@ -192,11 +309,11 @@ def structurePresheaf (A : Type u) [CommRing A] [TopologicalSpace A] [IsTopologi
 
 /-- The objects of the structure presheaf are inverse-limit section rings. -/
 theorem structurePresheaf_obj (U : (Opens (OpenPrime A))ᵒᵖ) :
-    (structurePresheaf A).obj U = TopCommRingCat.of (Sections (unop U)) := sorry
+    (structurePresheaf A).obj U = TopCommRingCat.of (Sections (unop U)) := rfl
 
 /-- The maps of the structure presheaf are the continuous restriction homomorphisms. -/
 theorem structurePresheaf_map {U V : (Opens (OpenPrime A))ᵒᵖ} (f : U ⟶ V) :
-    (structurePresheaf A).map f = restrictionHom (leOfHom (unop f)) := sorry
+    (structurePresheaf A).map f = restrictionHom (leOfHom (unop f)) := rfl
 
 /-- The inverse-limit structure presheaf satisfies the sheaf condition. -/
 theorem structurePresheaf_isSheaf : (structurePresheaf A).IsSheaf := sorry

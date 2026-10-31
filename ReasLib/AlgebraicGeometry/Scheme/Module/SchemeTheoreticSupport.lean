@@ -50,7 +50,7 @@ def IsSchemeTheoreticSupport (I : X.IdealSheafData) : Prop :=
 @[stacks 05JV]
 theorem isSchemeTheoreticSupport_iff (I : X.IdealSheafData) :
     IsSchemeTheoreticSupport ℱ I ↔
-      ∀ U : X.affineOpens, I.ideal U = Module.annihilator Γ(X, U.1) (Γ(ℱ, U.1)) := sorry
+      ∀ U : X.affineOpens, I.ideal U = Module.annihilator Γ(X, U.1) (Γ(ℱ, U.1)) := Iff.rfl
 
 /-- On every affine open, the ideal of the scheme-theoretic support is the annihilator of
 the corresponding module of sections. -/
@@ -63,12 +63,19 @@ theorem schemeTheoreticSupport_ideal [ℱ.IsQuasicoherent] [ℱ.IsFiniteType]
 scheme-theoretic support. -/
 theorem isSchemeTheoreticSupport_iff_eq_schemeTheoreticSupport
     [ℱ.IsQuasicoherent] [ℱ.IsFiniteType] (I : X.IdealSheafData) :
-    IsSchemeTheoreticSupport ℱ I ↔ I = schemeTheoreticSupport ℱ := sorry
+    IsSchemeTheoreticSupport ℱ I ↔ I = schemeTheoreticSupport ℱ := by
+  constructor
+  · intro hI
+    exact Scheme.IdealSheafData.ext (funext fun U ↦
+      (hI U).trans (schemeTheoreticSupport_ideal ℱ U).symm)
+  · rintro rfl
+    exact schemeTheoreticSupport_ideal ℱ
 
 /-- The canonical scheme-theoretic support has the affine annihilator characterization. -/
 theorem schemeTheoreticSupport_isSchemeTheoreticSupport
     [ℱ.IsQuasicoherent] [ℱ.IsFiniteType] :
-    IsSchemeTheoreticSupport ℱ (schemeTheoreticSupport ℱ) := sorry
+    IsSchemeTheoreticSupport ℱ (schemeTheoreticSupport ℱ) :=
+  schemeTheoreticSupport_ideal ℱ
 
 /-- The ordinary module support is the underlying closed set of its scheme-theoretic support. -/
 @[stacks 05JV]
@@ -94,7 +101,9 @@ theorem schemeTheoreticSupport_spec [ℱ.IsQuasicoherent] [ℱ.IsFiniteType] :
         (∃ 𝒢 : J.subscheme.Modules,
           ∃ _ : 𝒢.IsQuasicoherent,
             Nonempty ((Scheme.Modules.pushforward J.subschemeι).obj 𝒢 ≅ ℱ)) ↔
-          J ≤ schemeTheoreticSupport ℱ := sorry
+          J ≤ schemeTheoreticSupport ℱ :=
+  ⟨schemeTheoreticSupport_isSchemeTheoreticSupport ℱ,
+    exists_pushforward_iff_le_schemeTheoreticSupport ℱ⟩
 
 /-- A finite-type quasicoherent module descends to a finite-type quasicoherent module of full
 support on any ideal-sheaf datum having its affine annihilator characterization. -/

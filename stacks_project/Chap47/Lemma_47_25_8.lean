@@ -30,7 +30,8 @@ at `q`. -/
       (presentation : Presentation (algebraMap R A))
       (p : PrimeSpectrum R) (q : PrimeSpectrum A)
       (hq : PrimeSpectrum.comap (algebraMap R A) q = p)
-      (d : ℕ) (hd : ringKrullDim (fiberLocalRingAt R A q) = d)
+      (d : ℕ)
+      (hd : topologicalKrullDimAt (fiberPrimeAt R A q) = (d : WithBot ℕ∞))
       (i : ℤ)
       (hi : Nontrivial
         (LocalizedModule.AtPrime q.asIdeal

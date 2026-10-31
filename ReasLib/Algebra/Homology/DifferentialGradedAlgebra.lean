@@ -32,11 +32,11 @@ namespace ChainDGAlgebra
 
 /-- Reassociates the left term in the chain Leibniz rule. -/
 theorem leftLeibnizIndex (n m : ℤ) :
-    (n - 1) + m = n + m - 1 := sorry
+    (n - 1) + m = n + m - 1 := by ring
 
 /-- Reassociates the right term in the chain Leibniz rule. -/
 theorem rightLeibnizIndex (n m : ℤ) :
-    n + (m - 1) = n + m - 1 := sorry
+    n + (m - 1) = n + m - 1 := by ring
 
 end ChainDGAlgebra
 
@@ -110,28 +110,28 @@ noncomputable abbrev homologyπ (A : ChainDGAlgebra.{u, v} R) (n : ℤ) :
 
 /-- The homogeneous component accessor is the underlying chain-complex component. -/
 @[simp] theorem X_eq_toChainComplex_X (A : ChainDGAlgebra.{u, v} R) (n : ℤ) :
-    A.X n = A.toChainComplex.X n := sorry
+    A.X n = A.toChainComplex.X n := rfl
 
 /-- The differential accessor is the underlying chain-complex differential. -/
 @[simp] theorem d_eq_toChainComplex_d (A : ChainDGAlgebra.{u, v} R) (n : ℤ) :
-    A.d n = A.toChainComplex.d n (n - 1) := sorry
+    A.d n = A.toChainComplex.d n (n - 1) := rfl
 
 /-- Homogeneous multiplication is associative. -/
 theorem mul_assoc_apply (A : ChainDGAlgebra.{u, v} R) (i j k : ℤ)
     (a : A.X i) (b : A.X j) (c : A.X k) :
     cast (congrArg (fun n : ℤ ↦ (A.X n : Type v)) (add_assoc i j k))
       (A.mul (i + j) k (A.mul i j a b) c) =
-      A.mul i (j + k) a (A.mul j k b c) := sorry
+      A.mul i (j + k) a (A.mul j k b c) := A.mul_assoc i j k a b c
 
 /-- The homogeneous left unit law. -/
 @[simp] theorem one_mul_apply (A : ChainDGAlgebra.{u, v} R) (n : ℤ) (a : A.X n) :
     cast (congrArg (fun i : ℤ ↦ (A.X i : Type v)) (zero_add n))
-      (A.mul 0 n A.one a) = a := sorry
+      (A.mul 0 n A.one a) = a := A.one_mul n a
 
 /-- The homogeneous right unit law. -/
 @[simp] theorem mul_one_apply (A : ChainDGAlgebra.{u, v} R) (n : ℤ) (a : A.X n) :
     cast (congrArg (fun i : ℤ ↦ (A.X i : Type v)) (add_zero n))
-      (A.mul n 0 a A.one) = a := sorry
+      (A.mul n 0 a A.one) = a := A.mul_one n a
 
 /-- The chain Leibniz rule on homogeneous elements. -/
 theorem leibniz_apply (A : ChainDGAlgebra.{u, v} R) (n m : ℤ)
@@ -143,7 +143,7 @@ theorem leibniz_apply (A : ChainDGAlgebra.{u, v} R) (n m : ℤ)
         n.negOnePow •
           cast (congrArg (fun i : ℤ ↦ (A.X i : Type v))
               (ChainDGAlgebra.rightLeibnizIndex n m))
-            (A.mul n (m - 1) a (A.d m b)) := sorry
+            (A.mul n (m - 1) a (A.d m b)) := A.leibniz n m a b
 
 end ChainDGAlgebra
 
@@ -172,19 +172,31 @@ def id (A : ChainDGAlgebra.{u, v} R) : Hom A A where
 /-- Composition of chain-DGA homomorphisms. -/
 def comp (g : Hom B C) (f : Hom A B) : Hom A C where
   toChainMap := f.toChainMap ≫ g.toChainMap
-  map_one := sorry
-  map_mul _ _ _ _ := sorry
+  map_one := by
+    change g.toChainMap.f 0 (f.toChainMap.f 0 A.one) = C.one
+    rw [f.map_one, g.map_one]
+  map_mul n m a b := by
+    change g.toChainMap.f (n + m) (f.toChainMap.f (n + m) (A.mul n m a b)) =
+      C.mul n m (g.toChainMap.f n (f.toChainMap.f n a))
+        (g.toChainMap.f m (f.toChainMap.f m b))
+    rw [f.map_mul, g.map_mul]
 
 /-- The underlying map of the identity chain-DGA homomorphism. -/
 @[simp] theorem id_toChainMap (A : ChainDGAlgebra.{u, v} R) :
-    (id A).toChainMap = 𝟙 A.toChainComplex := sorry
+    (id A).toChainMap = 𝟙 A.toChainComplex := rfl
 
 /-- The underlying map of a composite chain-DGA homomorphism. -/
 @[simp] theorem comp_toChainMap (g : Hom B C) (f : Hom A B) :
-    (comp g f).toChainMap = f.toChainMap ≫ g.toChainMap := sorry
+    (comp g f).toChainMap = f.toChainMap ≫ g.toChainMap := rfl
 
 /-- Chain-DGA homomorphisms are determined by their underlying chain maps. -/
-theorem ext_toChainMap {f g : Hom A B} (h : f.toChainMap = g.toChainMap) : f = g := sorry
+theorem ext_toChainMap {f g : Hom A B} (h : f.toChainMap = g.toChainMap) : f = g := by
+  cases f with
+  | mk f hf₁ hf₂ =>
+    cases g with
+    | mk g hg₁ hg₂ =>
+      cases h
+      rfl
 
 /-- A chain-DGA homomorphism is surjective in every degree. -/
 def Surjective (f : Hom A B) : Prop :=
@@ -199,25 +211,42 @@ def Bijective (f : Hom A B) : Prop :=
   f.Injective ∧ f.Surjective
 
 /-- The identity chain-DGA homomorphism is degreewise surjective. -/
-theorem id_surjective (A : ChainDGAlgebra.{u, v} R) : (id A).Surjective := sorry
+theorem id_surjective (A : ChainDGAlgebra.{u, v} R) : (id A).Surjective := by
+  intro n b
+  exact ⟨b, rfl⟩
 
 /-- The identity chain-DGA homomorphism is degreewise injective. -/
-theorem id_injective (A : ChainDGAlgebra.{u, v} R) : (id A).Injective := sorry
+theorem id_injective (A : ChainDGAlgebra.{u, v} R) : (id A).Injective := by
+  intro n a b h
+  exact h
 
 /-- The identity chain-DGA homomorphism is degreewise bijective. -/
-theorem id_bijective (A : ChainDGAlgebra.{u, v} R) : (id A).Bijective := sorry
+theorem id_bijective (A : ChainDGAlgebra.{u, v} R) : (id A).Bijective :=
+  ⟨id_injective A, id_surjective A⟩
 
 /-- A composite of degreewise surjective chain-DGA homomorphisms is degreewise surjective. -/
 theorem comp_surjective (g : Hom B C) (f : Hom A B)
-    (hg : g.Surjective) (hf : f.Surjective) : (comp g f).Surjective := sorry
+    (hg : g.Surjective) (hf : f.Surjective) : (comp g f).Surjective := by
+  intro n c
+  obtain ⟨b, hb⟩ := hg n c
+  obtain ⟨a, ha⟩ := hf n b
+  refine ⟨a, ?_⟩
+  change g.toChainMap.f n (f.toChainMap.f n a) = c
+  rw [ha, hb]
 
 /-- A composite of degreewise injective chain-DGA homomorphisms is degreewise injective. -/
 theorem comp_injective (g : Hom B C) (f : Hom A B)
-    (hg : g.Injective) (hf : f.Injective) : (comp g f).Injective := sorry
+    (hg : g.Injective) (hf : f.Injective) : (comp g f).Injective := by
+  intro n a b h
+  apply hf n
+  apply hg n
+  change g.toChainMap.f n (f.toChainMap.f n a) = g.toChainMap.f n (f.toChainMap.f n b)
+  exact h
 
 /-- A composite of degreewise bijective chain-DGA homomorphisms is degreewise bijective. -/
 theorem comp_bijective (g : Hom B C) (f : Hom A B)
-    (hg : g.Bijective) (hf : f.Bijective) : (comp g f).Bijective := sorry
+    (hg : g.Bijective) (hf : f.Bijective) : (comp g f).Bijective :=
+  ⟨comp_injective g f hg.1 hf.1, comp_surjective g f hg.2 hf.2⟩
 
 end ChainDGAlgebra.Hom
 
@@ -236,31 +265,39 @@ instance {A B : ChainDGAlgebra.{u, v} R} :
 /-- Coercion to a function is the degreewise action of the underlying chain map. -/
 @[simp] theorem coe_apply {A B : ChainDGAlgebra.{u, v} R}
     (f : Hom A B) (n : ℤ) (a : A.X n) :
-    f n a = f.toChainMap.f n a := sorry
+    f n a = f.toChainMap.f n a := rfl
 
 /-- A chain-DGA homomorphism commutes with differentials. -/
 @[simp] theorem map_d_apply {A B : ChainDGAlgebra.{u, v} R}
     (f : Hom A B) (n : ℤ) (a : A.X n) :
-    f (n - 1) (A.d n a) = B.d n (f n a) := sorry
+    f (n - 1) (A.d n a) = B.d n (f n a) := by
+  change f.toChainMap.f (n - 1) (A.toChainComplex.d n (n - 1) a) =
+    B.toChainComplex.d n (n - 1) (f.toChainMap.f n a)
+  exact congrArg (fun q => q a) (f.toChainMap.comm n (n - 1)).symm
 
 /-- A chain-DGA homomorphism preserves the unit. -/
 @[simp] theorem map_one_apply {A B : ChainDGAlgebra.{u, v} R} (f : Hom A B) :
-    f 0 A.one = B.one := sorry
+    f 0 A.one = B.one := f.map_one
 
 /-- A chain-DGA homomorphism preserves homogeneous multiplication. -/
 @[simp] theorem map_mul_apply {A B : ChainDGAlgebra.{u, v} R} (f : Hom A B)
     (n m : ℤ) (a : A.X n) (b : A.X m) :
-    f (n + m) (A.mul n m a b) = B.mul n m (f n a) (f m b) := sorry
+    f (n + m) (A.mul n m a b) = B.mul n m (f n a) (f m b) := f.map_mul n m a b
 
 /-- Chain-DGA homomorphism composition acts degreewise by function composition. -/
 @[simp] theorem comp_apply {A B C : ChainDGAlgebra.{u, v} R}
     (g : Hom B C) (f : Hom A B)
     (n : ℤ) (a : A.X n) :
-    Hom.comp g f n a = g n (f n a) := sorry
+    Hom.comp g f n a = g n (f n a) := rfl
 
 /-- Chain-DGA homomorphisms are determined degreewise. -/
 @[ext] theorem hom_ext {A B : ChainDGAlgebra.{u, v} R} {f g : Hom A B}
-    (h : ∀ n : ℤ, ∀ a : A.X n, f n a = g n a) : f = g := sorry
+    (h : ∀ n : ℤ, ∀ a : A.X n, f n a = g n a) : f = g := by
+  apply Hom.ext_toChainMap
+  apply HomologicalComplex.hom_ext
+  intro n
+  ext a
+  exact h n a
 
 end ChainDGAlgebra
 
@@ -268,11 +305,11 @@ namespace CochainDGAlgebra
 
 /-- Reassociates the left term in the cochain Leibniz rule. -/
 theorem leftLeibnizIndex (n m : ℤ) :
-    (n + 1) + m = n + m + 1 := sorry
+    (n + 1) + m = n + m + 1 := by ring
 
 /-- Reassociates the right term in the cochain Leibniz rule. -/
 theorem rightLeibnizIndex (n m : ℤ) :
-    n + (m + 1) = n + m + 1 := sorry
+    n + (m + 1) = n + m + 1 := by ring
 
 end CochainDGAlgebra
 
@@ -347,28 +384,28 @@ noncomputable abbrev homologyπ (A : CochainDGAlgebra.{u, v} R) (n : ℤ) :
 
 /-- The homogeneous component accessor is the underlying cochain-complex component. -/
 @[simp] theorem X_eq_toCochainComplex_X (A : CochainDGAlgebra.{u, v} R) (n : ℤ) :
-    A.X n = A.toCochainComplex.X n := sorry
+    A.X n = A.toCochainComplex.X n := rfl
 
 /-- The differential accessor is the underlying cochain-complex differential. -/
 @[simp] theorem d_eq_toCochainComplex_d (A : CochainDGAlgebra.{u, v} R) (n : ℤ) :
-    A.d n = A.toCochainComplex.d n (n + 1) := sorry
+    A.d n = A.toCochainComplex.d n (n + 1) := rfl
 
 /-- Homogeneous multiplication is associative. -/
 theorem mul_assoc_apply (A : CochainDGAlgebra.{u, v} R) (i j k : ℤ)
     (a : A.X i) (b : A.X j) (c : A.X k) :
     cast (congrArg (fun n : ℤ ↦ (A.X n : Type v)) (add_assoc i j k))
       (A.mul (i + j) k (A.mul i j a b) c) =
-      A.mul i (j + k) a (A.mul j k b c) := sorry
+      A.mul i (j + k) a (A.mul j k b c) := A.mul_assoc i j k a b c
 
 /-- The homogeneous left unit law. -/
 @[simp] theorem one_mul_apply (A : CochainDGAlgebra.{u, v} R) (n : ℤ) (a : A.X n) :
     cast (congrArg (fun i : ℤ ↦ (A.X i : Type v)) (zero_add n))
-      (A.mul 0 n A.one a) = a := sorry
+      (A.mul 0 n A.one a) = a := A.one_mul n a
 
 /-- The homogeneous right unit law. -/
 @[simp] theorem mul_one_apply (A : CochainDGAlgebra.{u, v} R) (n : ℤ) (a : A.X n) :
     cast (congrArg (fun i : ℤ ↦ (A.X i : Type v)) (add_zero n))
-      (A.mul n 0 a A.one) = a := sorry
+      (A.mul n 0 a A.one) = a := A.mul_one n a
 
 /-- The cochain Leibniz rule on homogeneous elements. -/
 theorem leibniz_apply (A : CochainDGAlgebra.{u, v} R) (n m : ℤ)
@@ -380,6 +417,6 @@ theorem leibniz_apply (A : CochainDGAlgebra.{u, v} R) (n m : ℤ)
         n.negOnePow •
           cast (congrArg (fun i : ℤ ↦ (A.X i : Type v))
               (CochainDGAlgebra.rightLeibnizIndex n m))
-            (A.mul n (m + 1) a (A.d m b)) := sorry
+            (A.mul n (m + 1) a (A.d m b)) := A.leibniz n m a b
 
 end CochainDGAlgebra

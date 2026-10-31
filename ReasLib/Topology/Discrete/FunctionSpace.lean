@@ -46,19 +46,21 @@ end DiscreteCodomain
 
 section DiscreteDomain
 
-variable {ι : Type u} {X : Type v} [TopologicalSpace ι] [DiscreteTopology ι]
-  [TopologicalSpace X]
+variable {ι : Type u} {X : Type v} [TopologicalSpace ι] [TopologicalSpace X]
 
 /-- Evaluation on a Pi type is continuous when its index space is discrete. -/
 @[stacks 0BMC "continuity of evaluation for a discrete function-space domain"]
-theorem continuous_eval_of_discrete :
+theorem continuous_eval_of_discrete [DiscreteTopology ι] :
     Continuous fun p : (ι → X) × ι ↦ p.1 p.2 := sorry
 
-/-- A family of functions on a discrete space is continuous once its uncurried action is
+/-- A family of functions is continuous once its uncurried action is
 continuous. -/
 @[stacks 0BMC "continuity of a family from continuity of its action on a discrete space"]
 theorem continuous_of_continuous_uncurry_of_discrete {Z : Type w} [TopologicalSpace Z]
-    (f : Z → ι → X) (hf : Continuous fun p : Z × ι ↦ f p.1 p.2) : Continuous f := sorry
+    (f : Z → ι → X) (hf : Continuous fun p : Z × ι ↦ f p.1 p.2) : Continuous f := by
+  apply continuous_pi
+  intro i
+  exact hf.comp (continuous_id.prodMk continuous_const)
 
 end DiscreteDomain
 

@@ -36,14 +36,6 @@ namespace AlgebraicGeometry.FormalAlgebraicSpace
   ∀ {S : Scheme.{u}} {X Y : (Over S)ᵒᵖ ⥤ Type u} (f : X ⟶ Y)
     [IsIso f], Proper f)
 
-#check (Proper.spec :
-  ∀ {S : Scheme.{u}} {X Y : (Over S)ᵒᵖ ⥤ Type u} (f : X ⟶ Y)
-    [hf : Proper f],
-    AlgebraicSpace.representableByAlgebraicSpaces f ∧
-      ∀ ⦃U : Over S⦄ (ξ : yoneda.obj U ⟶ Y),
-        AlgebraicSpace.Proper
-          (AlgebraicSpace.representableByAlgebraicSpaces.pullbackHom hf.representable ξ))
-
 #check (Proper.iff_relativeAlgebraicSpaces :
   ∀ {S : Scheme.{u}} {X Y : (Over S)ᵒᵖ ⥤ Type u} (f : X ⟶ Y),
     Proper f ↔ AlgebraicSpace.relativeAlgebraicSpaces (@AlgebraicSpace.Proper S) f)

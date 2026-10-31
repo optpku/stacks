@@ -103,7 +103,12 @@ theorem iff :
           [Algebra B A] [Algebra B C] [ContinuousSMul B A] [ContinuousSMul B C]
           [IsAdicRing (Completed B A C)] [IsNoetherianRing (Completed B A C)],
           P (algebraMap B A) → Q (algebraMap B C) →
-            P (includeRight B A C) := sorry
+            P (includeRight B A C) := by
+      constructor
+      · intro h
+        exact ⟨h.isAdicNoetherian, h.ofIncludeRight⟩
+      · rintro ⟨h₁, h₂⟩
+        exact IsStableUnderBaseChangeBy.of P Q h₁ h₂
 
 variable {P Q}
 variable {A B C : Type u}
@@ -119,26 +124,32 @@ theorem spec (hbc : IsStableUnderBaseChangeBy P Q)
     (hφ : P (algebraMap B A)) (hψ : Q (algebraMap B C)) :
     IsAdicRing (Completed B A C) ∧ IsNoetherianRing (Completed B A C) ∧
       ∀ [IsAdicRing (Completed B A C)] [IsNoetherianRing (Completed B A C)],
-        P (includeRight B A C) := sorry
+        P (includeRight B A C) := by
+  refine ⟨(hbc.isAdicNoetherian hφ hψ).1, (hbc.isAdicNoetherian hφ hψ).2, ?_⟩
+  intro _ _
+  exact hbc.ofIncludeRight hφ hψ
 
 /-- Stability of `P` under base change by `Q` implies that `Completed B A C`
 is adic. -/
 theorem isAdicRing (hbc : IsStableUnderBaseChangeBy P Q)
     (hφ : P (algebraMap B A)) (hψ : Q (algebraMap B C)) :
-    IsAdicRing (Completed B A C) := sorry
+    IsAdicRing (Completed B A C) :=
+  (hbc.isAdicNoetherian hφ hψ).1
 
 /-- Stability of `P` under base change by `Q` implies that `Completed B A C`
 is Noetherian. -/
 theorem isNoetherianRing (hbc : IsStableUnderBaseChangeBy P Q)
     (hφ : P (algebraMap B A)) (hψ : Q (algebraMap B C)) :
-    IsNoetherianRing (Completed B A C) := sorry
+    IsNoetherianRing (Completed B A C) :=
+  (hbc.isAdicNoetherian hφ hψ).2
 
 /-- Stability of `P` under base change by `Q` applies to the canonical
 inclusion `includeRight B A C`. -/
 theorem of_includeRight (hbc : IsStableUnderBaseChangeBy P Q)
     [IsAdicRing (Completed B A C)] [IsNoetherianRing (Completed B A C)]
     (hφ : P (algebraMap B A)) (hψ : Q (algebraMap B C)) :
-    P (includeRight B A C) := sorry
+    P (includeRight B A C) :=
+  hbc.ofIncludeRight hφ hψ
 
 end IsStableUnderBaseChangeBy
 
@@ -219,7 +230,12 @@ theorem iff :
           [CommRing C] [TopologicalSpace C] [IsAdicRing C] [IsNoetherianRing C]
           [Algebra B A] [Algebra B C] [ContinuousSMul B A] [ContinuousSMul B C]
           [IsAdicRing (Completed B A C)] [IsNoetherianRing (Completed B A C)],
-          P (algebraMap B A) → P (includeRight B A C) := sorry
+          P (algebraMap B A) → P (includeRight B A C) := by
+      constructor
+      · intro h
+        exact ⟨h.isAdicNoetherian, h.ofIncludeRight⟩
+      · rintro ⟨h₁, h₂⟩
+        exact IsStableUnderBaseChange.of P h₁ h₂
 
 variable {P}
 variable {A B C : Type u}
@@ -230,17 +246,20 @@ variable [Algebra B A] [Algebra B C] [ContinuousSMul B A] [ContinuousSMul B C]
 
 /-- Stability under base change implies that `Completed B A C` is adic. -/
 theorem isAdicRing (hbc : IsStableUnderBaseChange P) (hφ : P (algebraMap B A)) :
-    IsAdicRing (Completed B A C) := sorry
+    IsAdicRing (Completed B A C) :=
+  (hbc.isAdicNoetherian hφ).1
 
 /-- Stability under base change implies that `Completed B A C` is Noetherian. -/
 theorem isNoetherianRing (hbc : IsStableUnderBaseChange P)
-    (hφ : P (algebraMap B A)) : IsNoetherianRing (Completed B A C) := sorry
+    (hφ : P (algebraMap B A)) : IsNoetherianRing (Completed B A C) :=
+  (hbc.isAdicNoetherian hφ).2
 
 /-- Stability under base change applies to the canonical inclusion
 `includeRight B A C`. -/
 theorem of_includeRight (hbc : IsStableUnderBaseChange P)
     [IsAdicRing (Completed B A C)] [IsNoetherianRing (Completed B A C)]
-    (hφ : P (algebraMap B A)) : P (includeRight B A C) := sorry
+    (hφ : P (algebraMap B A)) : P (includeRight B A C) :=
+  hbc.ofIncludeRight hφ
 
 end IsStableUnderBaseChange
 

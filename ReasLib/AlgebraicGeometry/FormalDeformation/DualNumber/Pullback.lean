@@ -9,6 +9,7 @@ module
 public import ReasLib.FieldTheory.MvRatFunc.Frobenius
 public import ReasLib.RingTheory.DualNumber.Derivation
 public import ReasLib.AlgebraicGeometry.FormalDeformation.DualNumber.Section
+public import ReasLib.AlgebraicGeometry.FormalDeformation.DualNumber.Derivation
 
 /-!
 # Derivation sections and a nonsurjective dual-number pullback
@@ -30,26 +31,20 @@ namespace ArtinianLocalAlgCat
 variable {Λ k : Type u} [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra Λ k]
   [Module.Finite Λ k]
 
-/-- The dual-number algebra map associated to a derivation preserves the canonical
-residue-field identifications. -/
-theorem derivation_residue_compat (D : Derivation Λ k k) :
-    residueCompat (A := residue Λ k) (B := dualNumber Λ k)
-        D.toDualNumberAlgHom (Derivation.toDualNumberAlgHom_isLocalHom D) =
-      residueIsoHom (residue Λ k) := sorry
-
 /-- A relative derivation defines a morphism from the residue-field object to
 the dual-number object. -/
-def homOfDerivation (D : Derivation Λ k k) : residue Λ k ⟶ dualNumber Λ k :=
-  Hom.of D.toDualNumberAlgHom
-    (Derivation.toDualNumberAlgHom_isLocalHom D) (derivation_residue_compat D)
+@[deprecated derivationToDualNumber (since := "2026-10-22")]
+abbrev homOfDerivation (D : Derivation Λ k k) : residue Λ k ⟶ dualNumber Λ k :=
+  derivationToDualNumber D
 
 /-- The underlying map of the derivation morphism is its dual-number algebra map. -/
 theorem homOfDerivation_hom (D : Derivation Λ k k) :
-    (homOfDerivation D).hom = D.toDualNumberAlgHom := sorry
+    (homOfDerivation D).hom = D.toDualNumberAlgHom := rfl
 
 /-- The derivation morphism sends `a` to `inl a + inr (D a)`. -/
 theorem homOfDerivation_apply (D : Derivation Λ k k) (value : k) :
-    (homOfDerivation D).hom value = inl value + inr (D value) := sorry
+    (homOfDerivation D).hom value = inl value + inr (D value) :=
+  derivationToDualNumber_apply D value
 
 open MvRatFunc.Frobenius
 

@@ -221,23 +221,21 @@ theorem sheafComparisonIso_inv (α : O₂ ⟶ O₃) (x : X) :
 
 /-- The canonical isomorphism from the stalk of the scalar-extended conormal sheaf to the
 scalar-extended kernel-cotangent module of the induced stalk-ring morphism. -/
-@[stacks 0D09 "conormal sheaf stalk identification", stacks 08UO "conormal term"]
+@[stacks 0D09 "conormal sheaf stalk identification"]
 noncomputable def sheafStalkIso (α : O₂ ⟶ O₃) (x : X) :
     sheafStalk α x ≅ extendedAlgebraic α x :=
   (sheafComparisonIso α x).symm ≪≫ algebraicComparisonIso α x
 
 /-- The forward map of `sheafStalkIso` is the inverse sheafification comparison followed by
 the algebraic conormal comparison. -/
-@[stacks 0D09 "conormal sheaf stalk identification hom",
-  stacks 08UO "conormal term hom", simp]
+@[stacks 0D09 "conormal sheaf stalk identification hom", simp]
 theorem sheafStalkIso_hom (α : O₂ ⟶ O₃) (x : X) :
     (sheafStalkIso α x).hom =
       sheafComparisonInv α x ≫ algebraicComparison α x := sorry
 
 /-- The inverse of `sheafStalkIso` first applies the inverse algebraic comparison and then the
 canonical comparison to the conormal sheaf stalk. -/
-@[stacks 0D09 "conormal sheaf stalk identification inverse",
-  stacks 08UO "conormal term inverse", simp]
+@[stacks 0D09 "conormal sheaf stalk identification inverse", simp]
 theorem sheafStalkIso_inv (α : O₂ ⟶ O₃) (x : X) :
     (sheafStalkIso α x).inv =
       algebraicComparisonInv α x ≫ sheafComparison α x := sorry
@@ -295,8 +293,7 @@ theorem tensorComparison_inv_hom_id {O₁ : X.Sheaf CommRingCat.{u}}
 
 /-- The base-changed-differentials stalk comparison, built from the relative-differentials
 stalk isomorphism and the natural change-of-rings stalk isomorphism. -/
-@[stacks 0D09 "base-changed differentials stalk comparison isomorphism",
-  stacks 08UO "differentials term comparison isomorphism"]
+@[stacks 0D09 "base-changed differentials stalk comparison isomorphism"]
 noncomputable def tensorComparisonIso {O₁ : X.Sheaf CommRingCat.{u}}
     (φ : O₁ ⟶ O₂) (α : O₂ ⟶ O₃) (x : X) :
     tensorAlgebraic φ α x ≅ tensorSheafStalk φ α x where
@@ -314,24 +311,21 @@ instance tensorComparison_isIso {O₁ : X.Sheaf CommRingCat.{u}}
 
 /-- The forward map of `tensorComparisonIso` is the canonical base-changed-differentials
 comparison. -/
-@[stacks 0D09 "base-changed differentials stalk comparison isomorphism hom",
-  stacks 08UO "differentials term comparison isomorphism hom", simp]
+@[stacks 0D09 "base-changed differentials stalk comparison isomorphism hom", simp]
 theorem tensorComparisonIso_hom {O₁ : X.Sheaf CommRingCat.{u}}
     (φ : O₁ ⟶ O₂) (α : O₂ ⟶ O₃) (x : X) :
     (tensorComparisonIso φ α x).hom = tensorComparison φ α x := sorry
 
 /-- The inverse map of the base-changed-differentials comparison is the explicit reverse
 composite. -/
-@[stacks 0D09 "base-changed differentials stalk comparison isomorphism inverse",
-  stacks 08UO "differentials term comparison isomorphism inverse", simp]
+@[stacks 0D09 "base-changed differentials stalk comparison isomorphism inverse", simp]
 theorem tensorComparisonIso_inv {O₁ : X.Sheaf CommRingCat.{u}}
     (φ : O₁ ⟶ O₂) (α : O₂ ⟶ O₃) (x : X) :
     (tensorComparisonIso φ α x).inv = tensorComparisonInv φ α x := sorry
 
 /-- The canonical isomorphism from the stalk of the sheaf-level scalar-extended
 relative-differentials term to scalar extension of differentials of the stalk rings. -/
-@[stacks 0D09 "base-changed differentials stalk identification",
-  stacks 08UO "differentials term"]
+@[stacks 0D09 "base-changed differentials stalk identification"]
 noncomputable def tensorStalkIso {O₁ : X.Sheaf CommRingCat.{u}}
     (φ : O₁ ⟶ O₂) (α : O₂ ⟶ O₃) (x : X) :
     tensorSheafStalk φ α x ≅ tensorAlgebraic φ α x :=
@@ -339,15 +333,13 @@ noncomputable def tensorStalkIso {O₁ : X.Sheaf CommRingCat.{u}}
 
 /-- The forward map of `tensorStalkIso` is the inverse base-changed-differentials
 comparison. -/
-@[stacks 0D09 "base-changed differentials stalk identification hom",
-  stacks 08UO "differentials term hom", simp]
+@[stacks 0D09 "base-changed differentials stalk identification hom", simp]
 theorem tensorStalkIso_hom {O₁ : X.Sheaf CommRingCat.{u}}
     (φ : O₁ ⟶ O₂) (α : O₂ ⟶ O₃) (x : X) :
     (tensorStalkIso φ α x).hom = tensorComparisonInv φ α x := sorry
 
 /-- The inverse of `tensorStalkIso` is the canonical base-changed-differentials comparison. -/
-@[stacks 0D09 "base-changed differentials stalk identification inverse",
-  stacks 08UO "differentials term inverse", simp]
+@[stacks 0D09 "base-changed differentials stalk identification inverse", simp]
 theorem tensorStalkIso_inv {O₁ : X.Sheaf CommRingCat.{u}}
     (φ : O₁ ⟶ O₂) (α : O₂ ⟶ O₃) (x : X) :
     (tensorStalkIso φ α x).inv = tensorComparison φ α x := sorry

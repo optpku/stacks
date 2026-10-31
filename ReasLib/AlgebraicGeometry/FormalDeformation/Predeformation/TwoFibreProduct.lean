@@ -9,6 +9,7 @@ module
 public import ReasLib.AlgebraicGeometry.FormalDeformation.Predeformation.Bundled
 public import ReasLib.CategoryTheory.Fibered.Groupoids.Hom.TwoCell
 public import ReasLib.CategoryTheory.Fibered.BasedCategory.NaturalIso
+public import ReasLib.CategoryTheory.Bicategory.InducedBicategory.Iso
 public import ReasLib.CategoryTheory.Bicategory.Limits.PseudoPullback.PseudoCone.Bilimit
 public import ReasLib.CategoryTheory.Fibered.TwoFibreProduct.FullSubbicategory.Lift
 
@@ -47,24 +48,20 @@ variable (w0 : W.p.Fiber (Over.mk kToS))
 /-- Residue-fibre identification of the two images of `w0` in `Y`, extracted from the
 `2`-cell of a `2`-commutative square. -/
 def residueIso :
-    residueImage gZ (residueImage gW w0) ≅ residueImage fX (residueImage fW w0) := by
-  let hom := (toNatTrans sq.inv).app (Functor.Fiber.fiberInclusion.obj w0)
-  let inv := (toNatTrans sq.hom).app (Functor.Fiber.fiberInclusion.obj w0)
-  have laws :
-      Y.p.IsHomLift (𝟙 (Over.mk kToS)) hom ∧
-      Y.p.IsHomLift (𝟙 (Over.mk kToS)) inv ∧
-      hom ≫ inv = 𝟙 _ ∧ inv ≫ hom = 𝟙 _ := by
-    sorry
-  exact
-    { hom := ⟨hom, laws.1⟩
-      inv := ⟨inv, laws.2.1⟩
-      hom_inv_id := Subtype.ext laws.2.2.1
-      inv_hom_id := Subtype.ext laws.2.2.2 }
+    residueImage gZ (residueImage gW w0) ≅ residueImage fX (residueImage fW w0) :=
+  (BasedNatIso.fiber (Bicategory.InducedBicategory.Iso.toAmbient sq).symm
+    (Over.mk kToS)).app w0
 
 /-- The forward component of `residueIso` is the fibrewise action of `sq.inv` on `w0`. -/
 theorem residueIso_hom :
     Functor.Fiber.fiberInclusion.map (residueIso kToS fX gZ fW gW sq w0).hom =
       (toNatTrans sq.inv).app (Functor.Fiber.fiberInclusion.obj w0) :=
+  rfl
+
+/-- The inverse component of `residueIso` is the fibrewise action of `sq.hom` on `w0`. -/
+theorem residueIso_inv :
+    Functor.Fiber.fiberInclusion.map (residueIso kToS fX gZ fW gW sq w0).inv =
+      (toNatTrans sq.hom).app (Functor.Fiber.fiberInclusion.obj w0) :=
   rfl
 
 /-- Natural transformation of total functors filling the image of a `2`-commutative

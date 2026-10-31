@@ -26,6 +26,13 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace.RestrictScalars
 
+/-- The canonical map of pullbacks induced by a map of test algebraic spaces. -/
+def fiberMap {S : Scheme.{u}} {Z B T T' : AlgebraicSpace S}
+    (g : Z ⟶ B) (a : T ⟶ B) (h : T' ⟶ T) :
+    pullback (h ≫ a) g ⟶ pullback a g :=
+  pullback.lift (pullback.fst (h ≫ a) g ≫ h) (pullback.snd (h ≫ a) g)
+    (by simpa only [Category.assoc] using (pullback.condition (f := h ≫ a) (g := g)))
+
 /-- A pair `(a, b)` consisting of a morphism `a : T ⟶ B` over `S` and a
 morphism `b : T ×_{a,B} Z ⟶ X` over `Z`. -/
 structure Pair {S : Scheme.{u}} {X Z B : AlgebraicSpace S} (f : X ⟶ Z) (g : Z ⟶ B)
@@ -54,7 +61,8 @@ the pullback cone identity on `T ×_{a,B} Z`. -/
 theorem spec {S : Scheme.{u}} {X Z B T : AlgebraicSpace S} {f : X ⟶ Z} {g : Z ⟶ B}
     (p : Pair f g T) :
     p.b ≫ f = pullback.snd p.a g ∧
-      pullback.fst p.a g ≫ p.a = pullback.snd p.a g ≫ g := sorry
+      pullback.fst p.a g ≫ p.a = pullback.snd p.a g ≫ g :=
+  ⟨p.overZ, pullback.condition⟩
 
 /-- The type of restriction-of-scalars pairs for a scheme `T` over `S`, recovered
 as an algebraic space via `ofOver`. -/
@@ -77,8 +85,7 @@ theorem fiberMap_condition {S : Scheme.{u}} {X Z B T T' : AlgebraicSpace S}
 def fiberMap {S : Scheme.{u}} {X Z B T T' : AlgebraicSpace S} {f : X ⟶ Z}
     {g : Z ⟶ B} (p : Pair f g T) (h : T' ⟶ T) :
     pullback (h ≫ p.a) g ⟶ pullback p.a g :=
-  pullback.lift (pullback.fst (h ≫ p.a) g ≫ h) (pullback.snd (h ≫ p.a) g)
-    (fiberMap_condition p h)
+  RestrictScalars.fiberMap g p.a h
 
 /-- The comparison `fiberMap p h` commutes with the first projections via `h`. -/
 theorem fiberMap_fst {S : Scheme.{u}} {X Z B T T' : AlgebraicSpace S} {f : X ⟶ Z}
@@ -101,7 +108,7 @@ def map {S : Scheme.{u}} {X Z B T T' : AlgebraicSpace S} {f : X ⟶ Z} {g : Z �
     (p : Pair f g T) (h : T' ⟶ T) : Pair f g T' where
   a := h ≫ p.a
   b := fiberMap p h ≫ p.b
-  overZ := sorry
+  overZ := map_overZ p h
 
 end Pair
 

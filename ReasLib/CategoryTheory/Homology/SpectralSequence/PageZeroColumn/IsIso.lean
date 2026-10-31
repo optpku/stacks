@@ -54,8 +54,4 @@ theorem map_isIso_of_isIsoFrom (f : E ⟶ E') (p : ℤ)
     (h : SpectralSequence.Hom.IsIsoFrom f 1 zero_le_one) :
     IsIso (map f p) := sorry
 
-variable (f : E ⟶ E') [IsIso f]
-#synth IsIso ((map f 0).f 0)
-#synth IsIso (map f 0)
-
 end CategoryTheory.CohomologicalSpectralSequence.PageZeroColumn

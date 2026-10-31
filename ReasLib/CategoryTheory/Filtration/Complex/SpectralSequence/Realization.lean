@@ -33,7 +33,6 @@ variable {C : Type u} [Category.{v} C] [Abelian C]
 /-- A spectral sequence realizes the graded family `H` through the filtered complex `F` when it
 is associated to `F` and the cohomology of the underlying complex is degreewise isomorphic to
 `H`. -/
-@[stacks 0G1X, stacks 0G1Y, stacks 0G1Z, stacks 0G20]
 structure Realizes (F : FilteredComplex C)
     (E : CohomologicalSpectralSequence C 0) (H : ℤ → C) : Prop where
   /-- The spectral sequence is associated to the filtered complex. -/

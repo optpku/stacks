@@ -73,20 +73,4 @@ instance compatibleWithTriangulation :
 
 end Bounded.QuasiIso
 
-#synth (Plus.QuasiIso C).HasLeftCalculusOfFractions
-#synth (Plus.QuasiIso C).HasRightCalculusOfFractions
-#synth (Minus.QuasiIso C).HasLeftCalculusOfFractions
-#synth (Minus.QuasiIso C).HasRightCalculusOfFractions
-#synth (Bounded.QuasiIso C).HasLeftCalculusOfFractions
-#synth (Bounded.QuasiIso C).HasRightCalculusOfFractions
-#synth (Plus.Acyclic C).IsClosedUnderIsomorphisms
-#synth (Plus.Acyclic C).IsStableUnderRetracts
-#synth (Plus.Acyclic C).IsTriangulated
-#synth (Minus.Acyclic C).IsClosedUnderIsomorphisms
-#synth (Minus.Acyclic C).IsStableUnderRetracts
-#synth (Minus.Acyclic C).IsTriangulated
-#synth (Bounded.Acyclic C).IsClosedUnderIsomorphisms
-#synth (Bounded.Acyclic C).IsStableUnderRetracts
-#synth (Bounded.Acyclic C).IsTriangulated
-
 end CategoryTheory.FilteredObject.FiniteDerived

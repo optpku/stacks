@@ -40,14 +40,15 @@ abbrev factor (s : CompositionSeries (Submodule R M)) (i : Fin s.length) :=
 /-- The composition factor agrees with the quotient presentation using `Submodule.submoduleOf`. -/
 theorem factor_eq_quotient_submoduleOf
     (s : CompositionSeries (Submodule R M)) (i : Fin s.length) :
-    factor s i = ((s i.succ) ⧸ (s i.castSucc).submoduleOf (s i.succ)) := sorry
+    factor s i = ((s i.succ) ⧸ (s i.castSucc).submoduleOf (s i.succ)) := rfl
 
 namespace Factor
 
 /-- Every factor of a composition series is simple. -/
 @[stacks 00J3 "(2)"]
 theorem isSimple (s : CompositionSeries (Submodule R M)) (i : Fin s.length) :
-    IsSimpleModule R (factor s i) := sorry
+    IsSimpleModule R (factor s i) := by
+  exact (covBy_iff_quot_is_simple (s.step i).le).mp (s.step i)
 
 /- `factor` is deliberately an `abbrev`, matching Mathlib's quotient views. A global
 `IsSimpleModule` instance would therefore have an overbroad reducible head and could match
@@ -68,7 +69,9 @@ namespace Factor
 @[stacks 00J3 "(3), maximal annihilator"]
 theorem annihilatorIsMaximal
     (s : CompositionSeries (Submodule R M)) (i : Fin s.length) :
-    (Module.annihilator R (factor s i)).IsMaximal := sorry
+    (Module.annihilator R (factor s i)).IsMaximal := by
+  letI := Factor.isSimple s i
+  exact IsSimpleModule.annihilator_isMaximal
 
 /-- The maximal-spectrum point canonically attached to a composition factor. -/
 @[stacks 00J3 "(3), annihilator point"]
@@ -80,25 +83,33 @@ def annihilatorPoint
 @[simp]
 theorem annihilatorPoint_asIdeal
     (s : CompositionSeries (Submodule R M)) (i : Fin s.length) :
-    (annihilatorPoint s i).asIdeal = Module.annihilator R (factor s i) := sorry
+    (annihilatorPoint s i).asIdeal = Module.annihilator R (factor s i) := rfl
 
 /-- Equality of annihilator points is detected on their underlying annihilator ideals. -/
 @[simp]
 theorem annihilatorPoint_eq_iff
     (s : CompositionSeries (Submodule R M)) (i : Fin s.length) (m : MaximalSpectrum R) :
-    annihilatorPoint s i = m ↔ Module.annihilator R (factor s i) = m.asIdeal := sorry
+    annihilatorPoint s i = m ↔ Module.annihilator R (factor s i) = m.asIdeal := by
+  exact MaximalSpectrum.ext_iff
 
 /-- A composition factor is linearly equivalent to the quotient by its annihilator. -/
 @[stacks 00J3 "(3), quotient by annihilator"]
 theorem nonemptyLinearEquivQuotientAnnihilator
     (s : CompositionSeries (Submodule R M)) (i : Fin s.length) :
-    Nonempty (factor s i ≃ₗ[R] R ⧸ Module.annihilator R (factor s i)) := sorry
+    Nonempty (factor s i ≃ₗ[R] R ⧸ Module.annihilator R (factor s i)) := by
+  letI := Factor.isSimple s i
+  obtain ⟨I, hI, ⟨e⟩⟩ := isSimpleModule_iff_quot_maximal.mp (Factor.isSimple s i)
+  have hEq : Module.annihilator R (factor s i) = I := by
+    rw [e.annihilator_eq, I.annihilator_quotient]
+  exact ⟨e.trans (Submodule.quotEquivOfEq I (Module.annihilator R (factor s i)) hEq.symm)⟩
 
 /-- A composition factor is linearly equivalent to the quotient by its canonical annihilator
 point. -/
 theorem nonemptyLinearEquivQuotient
     (s : CompositionSeries (Submodule R M)) (i : Fin s.length) :
-    Nonempty (factor s i ≃ₗ[R] R ⧸ (annihilatorPoint s i).asIdeal) := sorry
+    Nonempty (factor s i ≃ₗ[R] R ⧸ (annihilatorPoint s i).asIdeal) := by
+  rw [annihilatorPoint_asIdeal]
+  exact nonemptyLinearEquivQuotientAnnihilator s i
 
 end Factor
 
@@ -114,7 +125,10 @@ noncomputable def multiplicity
 @[simp]
 theorem multiplicity_pos_iff
     (s : CompositionSeries (Submodule R M)) (m : MaximalSpectrum R) :
-    0 < multiplicity s m ↔ ∃ i : Fin s.length, Factor.annihilatorPoint s i = m := sorry
+    0 < multiplicity s m ↔ ∃ i : Fin s.length, Factor.annihilatorPoint s i = m := by
+  rw [multiplicity, Set.ncard_pos (Set.toFinite _)]
+  change (∃ i : Fin s.length, Module.annihilator R (factor s i) = m.asIdeal) ↔ _
+  simp [Factor.annihilatorPoint_eq_iff]
 
 /-- A weighted sum over the factors regroups by annihilator-point multiplicity. This purely
 combinatorial form works in every additive commutative monoid and requires no endpoints for the
@@ -124,7 +138,40 @@ theorem sum_factorWeight_eq_finsum_multiplicity_nsmul
     {N : Type*} [AddCommMonoid N]
     (s : CompositionSeries (Submodule R M)) (w : MaximalSpectrum R → N) :
     ∑ i : Fin s.length, w (Factor.annihilatorPoint s i) =
-      ∑ᶠ m : MaximalSpectrum R, multiplicity s m • w m := sorry
+      ∑ᶠ m : MaximalSpectrum R, multiplicity s m • w m := by
+  classical
+  let p : Fin s.length → MaximalSpectrum R := Factor.annihilatorPoint s
+  let t : Finset (MaximalSpectrum R) := Finset.univ.image p
+  have ht : Function.support (fun m : MaximalSpectrum R => multiplicity s m • w m) ⊆ (t : Set _) := by
+    intro m hm
+    by_contra hmt
+    have hzero : multiplicity s m = 0 := by
+      rw [multiplicity, Set.ncard_eq_zero (Set.toFinite _)]
+      ext i
+      constructor
+      · intro hi
+        apply hmt
+        exact Finset.mem_image.mpr ⟨i, Finset.mem_univ _, by
+          exact Factor.annihilatorPoint_eq_iff s i m |>.mpr hi⟩
+      · simp
+    exact hm (by simp [hzero])
+  rw [finsum_eq_finsetSum_of_support_subset _ ht]
+  change (∑ i : Fin s.length, w (p i)) = _
+  rw [← Finset.sum_fiberwise_of_maps_to' (s := Finset.univ) (t := t) (g := p)
+    (f := w) (by
+      intro i hi
+      exact Finset.mem_image.mpr ⟨i, Finset.mem_univ _, rfl⟩)]
+  apply Finset.sum_congr rfl
+  intro m hm
+  rw [multiplicity, Set.ncard_eq_toFinset_card]
+  let u : Finset (Fin s.length) := Finset.univ.filter (fun i => p i = m)
+  have hu : (Set.toFinite {i : Fin s.length |
+      Module.annihilator R (factor s i) = m.asIdeal}).toFinset = u := by
+    ext i
+    rw [Set.Finite.mem_toFinset]
+    simp only [u, Finset.mem_filter, Finset.mem_univ, true_and]
+    exact (Factor.annihilatorPoint_eq_iff s i m).symm
+  rw [hu, ← Finset.sum_const]
 
 end CommRing
 
@@ -141,7 +188,12 @@ theorem jordanHolderFactors
     (hF₀ : F.head = ⊥) (hF₁ : F.last = ⊤)
     (hG₀ : G.head = ⊥) (hG₁ : G.last = ⊤) :
     ∃ σ : Fin F.length ≃ Fin G.length,
-      ∀ i : Fin F.length, Nonempty (factor F i ≃ₗ[R] factor G (σ i)) := sorry
+      ∀ i : Fin F.length, Nonempty (factor F i ≃ₗ[R] factor G (σ i)) := by
+  have hEq : CompositionSeries.Equivalent F G :=
+    F.jordan_holder G (hF₀.trans hG₀.symm) (hF₁.trans hG₁.symm)
+  refine ⟨hEq.choose, ?_⟩
+  intro i
+  exact hEq.choose_spec i
 
 end JordanHolder
 

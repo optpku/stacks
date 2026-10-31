@@ -29,8 +29,7 @@ namespace CategoryTheory.FilteredObject.Finite.FilteredInjective
 
 variable {C : Type u} [_root_.CategoryTheory.Category.{v} C] [Abelian C]
 
-/-- Lemma 13.26.3 (`05TQ`): a strict monomorphism from a finite filtered-injective object is a
-split monomorphism. -/
+/-- A strict monomorphism from a finite filtered-injective object is a split monomorphism. -/
 @[stacks 05TQ]
 theorem splitMono {I : FilteredObject.Finite.category C}
     [FilteredObject.IsFilteredInjective I.obj]

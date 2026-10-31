@@ -39,29 +39,29 @@ variable (F : A ⥤ C) (G : B ⥤ C) (H : C ⥤ D)
 /-- The first object of the explicit inverse is the first object of the inner pullback. -/
 @[simp] theorem inverse.obj.fst
     (X : (toDiagonal F G H) ⊡ (Δₚ H)) :
-    ((DiagonalComparison.equivalence F G H).inverse.obj X).fst = X.fst.fst := sorry
+    ((DiagonalComparison.equivalence F G H).inverse.obj X).fst = X.fst.fst := by rfl
 
 /-- The second object of the explicit inverse is the second object of the inner pullback. -/
 @[simp] theorem inverse.obj.snd
     (X : (toDiagonal F G H) ⊡ (Δₚ H)) :
-    ((DiagonalComparison.equivalence F G H).inverse.obj X).snd = X.fst.snd := sorry
+    ((DiagonalComparison.equivalence F G H).inverse.obj X).snd = X.fst.snd := by rfl
 
 /-- The structural isomorphism of the explicit inverse is recovered from the two projections of
 the outer pullback isomorphism. -/
 @[simp] theorem inverse.obj.iso
     (X : (toDiagonal F G H) ⊡ (Δₚ H)) :
     ((DiagonalComparison.equivalence F G H).inverse.obj X).iso =
-      (π₁ H H).mapIso X.iso ≪≫ ((π₂ H H).mapIso X.iso).symm := sorry
+      (π₁ H H).mapIso X.iso ≪≫ ((π₂ H H).mapIso X.iso).symm := by rfl
 
 /-- The first map of the explicit inverse is the first inner map. -/
 @[simp] theorem inverse.map.fst
     {X Y : (toDiagonal F G H) ⊡ (Δₚ H)} (f : X ⟶ Y) :
-    ((DiagonalComparison.equivalence F G H).inverse.map f).fst = f.fst.fst := sorry
+    ((DiagonalComparison.equivalence F G H).inverse.map f).fst = f.fst.fst := by rfl
 
 /-- The second map of the explicit inverse is the second inner map. -/
 @[simp] theorem inverse.map.snd
     {X Y : (toDiagonal F G H) ⊡ (Δₚ H)} (f : X ⟶ Y) :
-    ((DiagonalComparison.equivalence F G H).inverse.map f).snd = f.fst.snd := sorry
+    ((DiagonalComparison.equivalence F G H).inverse.map f).snd = f.fst.snd := by rfl
 
 end CategoricalPullback.DiagonalComparison.equivalence
 
@@ -71,25 +71,25 @@ namespace CategoricalPullback.DiagonalComparison
 @[simp] theorem inverseFstIso.hom.app
     (F : A ⥤ C) (G : B ⥤ C) (H : C ⥤ D)
     (X : (toDiagonal F G H) ⊡ (Δₚ H)) :
-    (inverseFstIso F G H).hom.app X = 𝟙 _ := sorry
+    (inverseFstIso F G H).hom.app X = 𝟙 _ := by rfl
 
 /-- The inverse component of the inverse first-projection comparison is the identity. -/
 @[simp] theorem inverseFstIso.inv.app
     (F : A ⥤ C) (G : B ⥤ C) (H : C ⥤ D)
     (X : (toDiagonal F G H) ⊡ (Δₚ H)) :
-    (inverseFstIso F G H).inv.app X = 𝟙 _ := sorry
+    (inverseFstIso F G H).inv.app X = 𝟙 _ := by rfl
 
 /-- The forward component of the inverse second-projection comparison is the identity. -/
 @[simp] theorem inverseSndIso.hom.app
     (F : A ⥤ C) (G : B ⥤ C) (H : C ⥤ D)
     (X : (toDiagonal F G H) ⊡ (Δₚ H)) :
-    (inverseSndIso F G H).hom.app X = 𝟙 _ := sorry
+    (inverseSndIso F G H).hom.app X = 𝟙 _ := by rfl
 
 /-- The inverse component of the inverse second-projection comparison is the identity. -/
 @[simp] theorem inverseSndIso.inv.app
     (F : A ⥤ C) (G : B ⥤ C) (H : C ⥤ D)
     (X : (toDiagonal F G H) ⊡ (Δₚ H)) :
-    (inverseSndIso F G H).inv.app X = 𝟙 _ := sorry
+    (inverseSndIso F G H).inv.app X = 𝟙 _ := by rfl
 
 end CategoricalPullback.DiagonalComparison
 

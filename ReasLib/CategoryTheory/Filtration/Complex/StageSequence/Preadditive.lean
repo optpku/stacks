@@ -29,7 +29,6 @@ namespace CategoryTheory.FilteredComplex.StageSequence
 variable {C : Type u} [Category.{v} C] [Preadditive C]
 
 /-- A stage sequence selected by an antitone index function is additive. -/
-@[stacks 0D8Z "additivity of an antitone filtration-stage sequence"]
 noncomputable instance functor_additive (p : ℕ → ℤ) (hp : Antitone p) :
     (functor (C := C) p hp).Additive := sorry
 

@@ -39,20 +39,33 @@ instance polynomialFormScalarTower :
       (Algebra.toSMul : SMul B (DPPolynomial B ι))
       (inferInstance : Module (DPPolynomial B ι)
         (formB A (DPPolynomial B ι) (DPPolynomial.dividedPowers (ι := ι) δ))).toSMul
-      (polynomialFormModule A B δ ι).toSMul := sorry
+      (polynomialFormModule A B δ ι).toSMul := by
+  refine @IsScalarTower.mk B (DPPolynomial B ι)
+    (formB A (DPPolynomial B ι) (DPPolynomial.dividedPowers (ι := ι) δ))
+    (Algebra.toSMul : SMul B (DPPolynomial B ι))
+    (inferInstance : Module (DPPolynomial B ι)
+      (formB A (DPPolynomial B ι) (DPPolynomial.dividedPowers (ι := ι) δ))).toSMul
+    (polynomialFormModule A B δ ι).toSMul ?_
+  intro coefficient polynomial form
+  change (algebraMap B (DPPolynomial B ι) coefficient * polynomial) • form =
+    (algebraMap B (DPPolynomial B ι) coefficient) • (polynomial • form)
+  exact mul_smul _ _ _
 
 /-- The coefficient map on canonical quotient forms, using the restricted module action. -/
 noncomputable def coefficientFormMap :
     formB A B δ →ₗ[B] formB A (DPPolynomial B ι) (DPPolynomial.dividedPowers (ι := ι) δ) where
   toFun := formMap A B δ ι
-  map_add' := sorry
-  map_smul' := sorry
+  map_add' := (formMap A B δ ι).map_add
+  map_smul' := (formMap A B δ ι).map_smul
 
 /-- The form comparison intertwines the full derivation on the polynomial extension. -/
 theorem formMap_derivation (coefficient : B) :
     coefficientFormMap A B δ ι (derivationB A B δ coefficient) =
       derivationB A (DPPolynomial B ι) (DPPolynomial.dividedPowers (ι := ι) δ)
-        (algebraMap B (DPPolynomial B ι) coefficient) := sorry
+        (algebraMap B (DPPolynomial B ι) coefficient) := by
+  change (derivationP A B δ ι).liftKaehlerDifferential
+      (KaehlerDifferential.D A B coefficient) = _
+  exact Derivation.liftKaehlerDifferential_comp_D (derivationP A B δ ι) coefficient
 
 /-- The target connection is induced by scalar extension, not independently supplied. -/
 noncomputable def inducedConnection (conn : Connection (derivationB A B δ) M) :
@@ -66,7 +79,7 @@ theorem inducedConnection_tmul (conn : Connection (derivationB A B δ) M)
     (inducedConnection A B δ ι conn).toAddMonoidHom (element ⊗ₜ[B] coefficient) =
       Connection.scalarExtensionValue
         (derivationB A (DPPolynomial B ι) (DPPolynomial.dividedPowers (ι := ι) δ)) conn
-        (coefficientFormMap A B δ ι) element coefficient := sorry
+        (coefficientFormMap A B δ ι) element coefficient := rfl
 
 /-- Scalar extension preserves integrability for the canonical calculi. -/
 theorem inducedConnection_isIntegrable (conn : Connection (derivationB A B δ) M)
@@ -92,7 +105,7 @@ theorem scalarExtensionComparison_zero (conn : Connection (derivationB A B δ) M
     (hconn : Connection.IsIntegrable conn (canonicalCalculus A B δ)) :
     (scalarExtensionComparison A B δ ι conn hconn).f 0 =
       AddCommGrpCat.ofHom
-        (Connection.coeffInclude : M →ₗ[B] M ⊗[B] DPPolynomial B ι).toAddMonoidHom := sorry
+        (Connection.coeffInclude : M →ₗ[B] M ⊗[B] DPPolynomial B ι).toAddMonoidHom := rfl
 
 /-- Adjoining divided-power polynomial variables preserves the de Rham complex with coefficients. -/
 theorem dpPolynomial_deRhamComparison_quasiIso

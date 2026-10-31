@@ -55,7 +55,6 @@ noncomputable def gradedMulHom (A : DGA(𝒪)) :
   CategoryTheory.GradedObject.Monoidal.mulHom A.toGradedObject A.mul
 
 /-- The underlying graded monoid of a differential graded algebra sheaf. -/
-@[stacks 0FSA "underlying graded monoid of a differential graded algebra"]
 noncomputable def toGradedMon (A : DGA(𝒪)) : Mon GrdO where
   X := A.toGradedObject
   mon :=
@@ -72,7 +71,6 @@ noncomputable def toGradedMonMap {A B : DGA(𝒪)} (f : A ⟶ B) :
 
 /-- Forgetting differentials gives a functor from differential graded algebras to graded monoid
 objects. -/
-@[stacks 0FSA "underlying graded monoid functor"]
 noncomputable def toGradedMonFunctor : DGA(𝒪) ⥤ Mon GrdO where
   obj := toGradedMon
   map := toGradedMonMap

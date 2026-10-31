@@ -6,6 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.FinitePresentation.FiniteType
 public import ReasLib.Algebra.Homology.DerivedCategory.Perfect
 public import ReasLib.Algebra.Homology.DerivedCategory.ScalarExtension.CoefficientMap
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.GlobalSections.AffineBaseChange

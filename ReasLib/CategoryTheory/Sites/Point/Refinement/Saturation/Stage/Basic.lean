@@ -93,7 +93,14 @@ the realization certificate is proposition-valued. -/
 theorem ext {A B : Stage.{u, v, q, r, r'} (J := J) S P x y}
     (h_separating : A.toSeparatingStage = B.toSeparatingStage)
     (h_solved : HEq A.solved B.solved) :
-    A = B := sorry
+    A = B := by
+  cases A with
+  | mk A solved solvedRealized =>
+    cases B with
+    | mk B solved' solvedRealized' =>
+      cases h_separating
+      cases h_solved
+      rfl
 
 /-- Transport a finite-cover request from the original system to a saturation stage. -/
 noncomputable def mapRequest (A : Stage.{u, v, q, r, r'} (J := J) S P x y)
@@ -105,7 +112,9 @@ namespace mapRequest
 /-- A realized source request remains realized after transport to a scheduled-stage target. -/
 theorem isRealized (A : Stage.{u, v, q, r, r'} (J := J) S P x y)
     (request : EssentiallySmallFiber.CoverLift.Request J S) :
-    request.is_realized → (A.mapRequest request).is_realized := sorry
+    request.is_realized → (A.mapRequest request).is_realized := by
+  simpa [mapRequest] using
+    (SeparatingStage.mapRequest.isRealized (A := A.toSeparatingStage) request)
 
 end mapRequest
 
@@ -119,7 +128,9 @@ scheduled-stage target. -/
 @[simp]
 theorem solves_iff (A : Stage.{u, v, q, r, r'} (J := J) S P x y)
     (request : EssentiallySmallFiber.CoverLift.Request J S) :
-    A.solves request ↔ (A.mapRequest request).is_realized := sorry
+    A.solves request ↔ (A.mapRequest request).is_realized := by
+  simpa [solves, mapRequest] using
+    (SeparatingStage.solves_iff (A := A.toSeparatingStage) request)
 
 namespace toSeparatingStage
 
@@ -128,14 +139,16 @@ namespace toSeparatingStage
 theorem mapRequest
     (A : Stage.{u, v, q, r, r'} (J := J) S P x y)
     (request : EssentiallySmallFiber.CoverLift.Request J S) :
-    A.toSeparatingStage.mapRequest request = A.mapRequest request := sorry
+    A.toSeparatingStage.mapRequest request = A.mapRequest request := by
+  rfl
 
 /-- Forgetting scheduling does not change whether a source request is solved. -/
 @[simp]
 theorem solves_iff
     (A : Stage.{u, v, q, r, r'} (J := J) S P x y)
     (request : EssentiallySmallFiber.CoverLift.Request J S) :
-    A.toSeparatingStage.solves request ↔ A.solves request := sorry
+    A.toSeparatingStage.solves request ↔ A.solves request := by
+  rfl
 
 end toSeparatingStage
 
@@ -149,7 +162,9 @@ its target fiber. -/
 theorem targetComplete_iff_finiteCoverLifts
     (A : Stage.{u, v, q, r, r'} (J := J) S P x y) :
     A.targetComplete ↔
-      Functor.FiniteCoverLifts.{u, v, q, w'} A.target.fiber J := sorry
+      Functor.FiniteCoverLifts.{u, v, q, w'} A.target.fiber J := by
+  simpa [targetComplete] using
+    (Target.complete_iff_finiteCoverLifts (T := A.target) (J := J))
 
 /-- A scheduled saturation stage is source-complete when it solves every finite-cover request
 on the original inverse-system fiber. -/
@@ -162,13 +177,19 @@ theorem sourceComplete_iff_finiteCoverLifts
     (A : Stage.{u, v, q, r, r'} (J := J) S P x y) :
     A.sourceComplete ↔
       NatTrans.FiniteCoverLifts.{u, v, q, w'}
-        (OrderedRefinement.EssentiallySmall.fiberMap A.toRefinement) J := sorry
+        (OrderedRefinement.EssentiallySmall.fiberMap A.toRefinement) J := by
+  simpa [sourceComplete] using
+    (SeparatingStage.sourceComplete_iff_finiteCoverLifts
+      (A := A.toSeparatingStage) (J := J))
 
 /-- Target completion implies source completion along the refinement carried by a scheduled
 saturation stage. -/
 theorem sourceComplete_of_targetComplete
     (A : Stage.{u, v, q, r, r'} (J := J) S P x y) :
-    A.targetComplete → A.sourceComplete := sorry
+    A.targetComplete → A.sourceComplete := by
+  simpa [targetComplete, sourceComplete] using
+    (SeparatingStage.sourceComplete_of_targetComplete
+      (A := A.toSeparatingStage) (J := J))
 
 namespace toSeparatingStage
 
@@ -176,7 +197,8 @@ namespace toSeparatingStage
 @[simp]
 theorem sourceComplete_iff
     (A : Stage.{u, v, q, r, r'} (J := J) S P x y) :
-    A.toSeparatingStage.sourceComplete J ↔ A.sourceComplete := sorry
+    A.toSeparatingStage.sourceComplete J ↔ A.sourceComplete := by
+  rfl
 
 end toSeparatingStage
 

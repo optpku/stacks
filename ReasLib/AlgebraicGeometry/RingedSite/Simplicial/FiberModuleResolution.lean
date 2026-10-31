@@ -223,11 +223,6 @@ variable [∀ n, (SheafOfModules.restrictScalars.{w}
     ((fiberStageMorphism F J O n).comp (IsAugmentation.ringedHom F J K u0 O O_D aSharp)).structureMap).IsRightAdjoint]
 variable (G : SheafOfModules.{w} O_D)
 
-/-- Stage pullback comparisons for a ringed augmentation are invertible. -/
-instance fiberModulePullbackStageComp_isIso {n m : SimplexCategory} (φ : n ⟶ m) :
-    IsIso (fiberModulePullbackStageComp F J O (IsAugmentation.ringedHom F J K u0 O O_D aSharp) G φ) :=
-  sorry
-
 /-- The augmentation's stage-composition identification on underlying inverse images. -/
 private def fiberModulePullbackStageInverseImageIso {n m : SimplexCategory} (φ : n ⟶ m) :
     ((fiberRingedToposMap F J O φ).comp
@@ -268,6 +263,11 @@ def fiberModulePullbackStageCompIso {n m : SimplexCategory} (φ : n ⟶ m) :
     (IsAugmentation.ringedHom F J K u0 O O_D aSharp) G φ
   hom_inv_id := by sorry
   inv_hom_id := by sorry
+
+/-- Stage pullback comparisons for a ringed augmentation are invertible. -/
+instance fiberModulePullbackStageComp_isIso {n m : SimplexCategory} (φ : n ⟶ m) :
+    IsIso (fiberModulePullbackStageComp F J O (IsAugmentation.ringedHom F J K u0 O O_D aSharp) G φ) :=
+  (fiberModulePullbackStageCompIso F J K u0 O O_D aSharp G φ).isIso_inv
 
 /-- The structure map `g_{m!}(a_m^* G) ⟶ g_{n!}(a_n^* G)` induced by a fiberwise simplex
 operator `φ : n ⟶ m`. -/

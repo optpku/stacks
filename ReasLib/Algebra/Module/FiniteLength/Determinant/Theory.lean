@@ -39,7 +39,7 @@ def moduleProperty (R : Type u) [CommRing R] : ObjectProperty (ModuleCat.{v} R) 
 
 /-- Membership in `moduleProperty R` is finite length of the underlying module. -/
 theorem mem_moduleProperty_iff (R : Type u) [CommRing R] (M : ModuleCat.{v} R) :
-    moduleProperty R M ↔ IsFiniteLength R M := sorry
+    moduleProperty R M ↔ IsFiniteLength R M := Iff.rfl
 
 /-- The property that a bundled vector space is one-dimensional. -/
 def lineProperty (κ : Type u) [Field κ] : ObjectProperty (ModuleCat.{v} κ) :=
@@ -47,7 +47,7 @@ def lineProperty (κ : Type u) [Field κ] : ObjectProperty (ModuleCat.{v} κ) :=
 
 /-- Membership in `lineProperty κ` is equality of the dimension with one. -/
 theorem mem_lineProperty_iff (κ : Type u) [Field κ] (L : ModuleCat.{v} κ) :
-    lineProperty κ L ↔ Module.finrank κ L = 1 := sorry
+    lineProperty κ L ↔ Module.finrank κ L = 1 := Iff.rfl
 
 /-- The groupoid of finite-length `R`-modules and their isomorphisms. -/
 abbrev ModuleCore (R : Type u) [CommRing R] :=
@@ -65,7 +65,7 @@ def ofModule (M : ModuleCat.{v} R) (hM : IsFiniteLength R M) : ModuleCore.{u, v}
 
 /-- The underlying module of `ofModule R M hM` is `M`. -/
 theorem ofModule_obj (M : ModuleCat.{v} R) (hM : IsFiniteLength R M) :
-    (ofModule R M hM).of.obj = M := sorry
+    (ofModule R M hM).of.obj = M := rfl
 
 /-- An isomorphism of finite-length modules as a morphism in `ModuleCore R`. -/
 def ofIso {M N : ModuleCat.{v} R} (hM : IsFiniteLength R M)
@@ -79,7 +79,7 @@ def residueProperty : ObjectProperty (ModuleCore.{u, v} R) :=
 /-- Membership in `residueProperty R` means annihilation by the maximal ideal. -/
 theorem mem_residueProperty_iff (M : ModuleCore.{u, v} R) :
     residueProperty R M ↔
-      Module.IsTorsionBySet R M.of.obj (IsLocalRing.maximalIdeal R) := sorry
+      Module.IsTorsionBySet R M.of.obj (IsLocalRing.maximalIdeal R) := Iff.rfl
 
 /-- The full subcategory of finite-length modules annihilated by the maximal ideal. -/
 abbrev ResidueCore := (residueProperty.{u, v} R).FullSubcategory
@@ -92,7 +92,7 @@ def ofResidueModule (M : ModuleCat.{v} R) (hM : IsFiniteLength R M)
 /-- The underlying bundled module of `ofResidueModule R M hM hAnn` is `M`. -/
 theorem ofResidueModule_obj (M : ModuleCat.{v} R) (hM : IsFiniteLength R M)
     (hAnn : Module.IsTorsionBySet R M (IsLocalRing.maximalIdeal R)) :
-    (ofResidueModule R M hM hAnn).obj.of.obj = M := sorry
+    (ofResidueModule R M hM hAnn).obj.of.obj = M := rfl
 
 end Theory
 
@@ -123,7 +123,7 @@ def value (D : Theory.{u, v} R) (M : ModuleCat.{v} R) (hM : IsFiniteLength R M) 
 /-- The value of a theory is the underlying object of its functor value. -/
 theorem value_def (D : Theory.{u, v} R) (M : ModuleCat.{v} R)
     (hM : IsFiniteLength R M) :
-    D.value M hM = (D.toFunctor.obj (ofModule R M hM)).of.obj := sorry
+    D.value M hM = (D.toFunctor.obj (ofModule R M hM)).of.obj := rfl
 
 /-- The linear equivalence induced by a theory on an isomorphism of finite-length modules. -/
 def mapEquiv (D : Theory.{u, v} R) {M N : ModuleCat.{v} R}
@@ -139,11 +139,11 @@ def restriction (D : Theory.{u, v} R) : ResidueCore.{u, v} R ⥤
 
 /-- The object map of the residue restriction is inherited from the determinant functor. -/
 theorem restriction_obj (D : Theory.{u, v} R) (M : ResidueCore.{u, v} R) :
-    D.restriction.obj M = D.toFunctor.obj M.obj := sorry
+    D.restriction.obj M = D.toFunctor.obj M.obj := rfl
 
 /-- The morphism map of the residue restriction is inherited from the determinant functor. -/
 theorem restriction_map (D : Theory.{u, v} R) {M N : ResidueCore.{u, v} R}
-    (f : M ⟶ N) : D.restriction.map f = D.toFunctor.map f.hom := sorry
+    (f : M ⟶ N) : D.restriction.map f = D.toFunctor.map f.hom := rfl
 
 /-- The canonical determinant line attached to a finite-length module-core object. -/
 def canonicalObj (X : ModuleCore.{u, v} R) :
@@ -162,11 +162,23 @@ def canonicalMap (R : Type u) [CommRing R] [IsLocalRing R]
 
 /-- The canonical determinant-line map preserves identity morphisms. -/
 theorem canonicalMap_id (X : ModuleCore.{u, v} R) :
-    canonicalMap R (𝟙 X) = 𝟙 (canonicalObj X) := sorry
+    canonicalMap R (𝟙 X) = 𝟙 (canonicalObj X) := by
+  apply Core.hom_ext
+  apply ObjectProperty.hom_ext
+  apply ModuleCat.hom_ext
+  exact congrArg LinearEquiv.toLinearMap
+    (Module.FiniteLengthDeterminant.mapEquiv_refl X.of.property)
 
 /-- The canonical determinant-line map preserves composition. -/
 theorem canonicalMap_comp {X Y Z : ModuleCore.{u, v} R} (f : X ⟶ Y) (g : Y ⟶ Z) :
-    canonicalMap R (f ≫ g) = canonicalMap R f ≫ canonicalMap R g := sorry
+    canonicalMap R (f ≫ g) = canonicalMap R f ≫ canonicalMap R g := by
+  apply Core.hom_ext
+  apply ObjectProperty.hom_ext
+  apply ModuleCat.hom_ext
+  exact congrArg LinearEquiv.toLinearMap
+    (Module.FiniteLengthDeterminant.mapEquiv_trans X.of.property Y.of.property Z.of.property
+      ((moduleProperty R).ι.mapIso f.iso).toLinearEquiv
+      ((moduleProperty R).ι.mapIso g.iso).toLinearEquiv).symm
 
 /-- The concrete determinant functor on finite-length modules and isomorphisms. -/
 def canonicalFunctor : ModuleCore.{u, v} R ⥤
@@ -178,11 +190,11 @@ def canonicalFunctor : ModuleCore.{u, v} R ⥤
 
 /-- The canonical functor sends an object to its explicitly bundled determinant line. -/
 theorem canonicalFunctor_obj (X : ModuleCore.{u, v} R) :
-    canonicalFunctor.obj X = canonicalObj X := sorry
+    canonicalFunctor.obj X = canonicalObj X := rfl
 
 /-- The canonical functor sends a core morphism to determinant-symbol transport. -/
 theorem canonicalFunctor_map {X Y : ModuleCore.{u, v} R} (f : X ⟶ Y) :
-    canonicalFunctor.map f = canonicalMap R f := sorry
+    canonicalFunctor.map f = canonicalMap R f := rfl
 
 /-- The canonical determinant theory built from determinant symbols and short-exact
 concatenation. -/
@@ -191,13 +203,13 @@ def canonical (R : Type u) [CommRing R] [IsLocalRing R] : Theory.{u, v} R where
   comparison := fun S h₁ h₂ h₃ hS ↦ exactEquiv S h₁ h₂ h₃ hS
 
 /-- The functor field of the canonical theory is `canonicalFunctor`. -/
-theorem canonical_toFunctor : (canonical R).toFunctor = canonicalFunctor := sorry
+theorem canonical_toFunctor : (canonical R).toFunctor = canonicalFunctor := rfl
 
 /-- The comparison field of the canonical theory is the concrete `exactEquiv`. -/
 theorem canonical_comparison (S : ShortComplex (ModuleCat.{v} R))
     (h₁ : IsFiniteLength R S.X₁) (h₂ : IsFiniteLength R S.X₂)
     (h₃ : IsFiniteLength R S.X₃) (hS : S.ShortExact) :
-    (canonical R).comparison S h₁ h₂ h₃ hS = exactEquiv S h₁ h₂ h₃ hS := sorry
+    (canonical R).comparison S h₁ h₂ h₃ hS = exactEquiv S h₁ h₂ h₃ hS := rfl
 
 /-- The row-first comparison map of a determinant theory on a three-by-three diagram. -/
 def viaRows (D : Theory.{u, v} R) (T : ThreeByThree.{u, v} R) :
@@ -260,7 +272,7 @@ theorem isNatural_iff (D : Theory.{u, v} R) : D.IsNatural ↔
             (D.mapEquiv hS₁ hT₁ (ShortComplex.π₁.mapIso e))
             (D.mapEquiv hS₃ hT₃ (ShortComplex.π₃.mapIso e))).toLinearMap =
         (D.mapEquiv hS₂ hT₂ (ShortComplex.π₂.mapIso e)).toLinearMap.comp
-          (D.comparison S hS₁ hS₂ hS₃ hS).toLinearMap := sorry
+          (D.comparison S hS₁ hS₂ hS₃ hS).toLinearMap := Iff.rfl
 
 /-- Signed three-by-three coherence for a determinant theory. -/
 def IsCoherent (D : Theory.{u, v} R) : Prop :=
@@ -268,7 +280,7 @@ def IsCoherent (D : Theory.{u, v} R) : Prop :=
 
 /-- The coherence predicate unfolded as equality of its two named routes. -/
 theorem isCoherent_iff (D : Theory.{u, v} R) :
-    D.IsCoherent ↔ ∀ T : ThreeByThree.{u, v} R, viaRows D T = viaColumns D T := sorry
+    D.IsCoherent ↔ ∀ T : ThreeByThree.{u, v} R, viaRows D T = viaColumns D T := Iff.rfl
 
 /-- The linear equivalence underlying a component of an isomorphism of determinant
 functors. -/
@@ -323,7 +335,7 @@ theorem agreesOnResidue_iff (D : Theory.{u, v} R)
         (hAnn₁ : Module.IsTorsionBySet R S.X₁ (IsLocalRing.maximalIdeal R))
         (hAnn₂ : Module.IsTorsionBySet R S.X₂ (IsLocalRing.maximalIdeal R))
         (hAnn₃ : Module.IsTorsionBySet R S.X₃ (IsLocalRing.maximalIdeal R)),
-        ResidueCompatibleAt D e S h₁ h₂ h₃ hS hAnn₁ hAnn₂ hAnn₃ := sorry
+        ResidueCompatibleAt D e S h₁ h₂ h₃ hS hAnn₁ hAnn₂ hAnn₃ := Iff.rfl
 
 /-- Compatibility of a functor isomorphism with every short-exact comparison equivalence. -/
 def Compatible (D E : Theory.{u, v} R) (e : D.toFunctor ≅ E.toFunctor) : Prop :=
@@ -349,7 +361,15 @@ namespace Iso
 
 /-- The identity functor isomorphism is compatible with the comparison equivalences. -/
 theorem refl_compatible (D : Theory.{u, v} R) :
-    Compatible D D (CategoryTheory.Iso.refl D.toFunctor) := sorry
+    Compatible D D (CategoryTheory.Iso.refl D.toFunctor) := by
+  intro S h₁ h₂ h₃ hS
+  have hid (X : ModuleCore.{u, v} R) :
+      functorEquiv (CategoryTheory.Iso.refl D.toFunctor) X =
+        LinearEquiv.refl (IsLocalRing.ResidueField R) _ := by
+    ext x
+    rfl
+  simp only [hid, TensorProduct.congr_refl_refl, LinearEquiv.refl_toLinearMap,
+    LinearMap.comp_id, LinearMap.id_comp]
 
 /-- The identity isomorphism of a determinant theory. -/
 def refl (D : Theory.{u, v} R) : Iso D D where
@@ -358,7 +378,24 @@ def refl (D : Theory.{u, v} R) : Iso D D where
 
 /-- The inverse of a compatible functor isomorphism is compatible. -/
 theorem symm_compatible {D E : Theory.{u, v} R} (e : Iso D E) :
-    Compatible E D e.functorIso.symm := sorry
+    Compatible E D e.functorIso.symm := by
+  have hcancel (X : ModuleCore.{u, v} R) (x : (E.toFunctor.obj X).of.obj) :
+      functorEquiv e.functorIso X (functorEquiv e.functorIso.symm X x) = x := by
+    exact congrArg (fun f : E.toFunctor.obj X ⟶ E.toFunctor.obj X =>
+      f.iso.hom.hom.hom x) (e.functorIso.inv_hom_id_app X)
+  have hcancel' (X : ModuleCore.{u, v} R) (x : (D.toFunctor.obj X).of.obj) :
+      functorEquiv e.functorIso.symm X (functorEquiv e.functorIso X x) = x := by
+    exact congrArg (fun f : D.toFunctor.obj X ⟶ D.toFunctor.obj X =>
+      f.iso.hom.hom.hom x) (e.functorIso.hom_inv_id_app X)
+  intro S h₁ h₂ h₃ hS
+  apply TensorProduct.ext'
+  intro x y
+  have h := congrArg (fun z => functorEquiv e.functorIso.symm (ofModule R S.X₂ h₂) z)
+    (LinearMap.congr_fun (e.comparison_comm S h₁ h₂ h₃ hS)
+      (functorEquiv e.functorIso.symm (ofModule R S.X₁ h₁) x ⊗ₜ[IsLocalRing.ResidueField R]
+        functorEquiv e.functorIso.symm (ofModule R S.X₃ h₃) y))
+  simpa only [LinearMap.comp_apply, LinearEquiv.coe_coe, TensorProduct.congr_tmul,
+    hcancel, hcancel'] using h.symm
 
 /-- The inverse of an isomorphism of determinant theories. -/
 def symm {D E : Theory.{u, v} R} (e : Iso D E) : Iso E D where
@@ -367,7 +404,16 @@ def symm {D E : Theory.{u, v} R} (e : Iso D E) : Iso E D where
 
 /-- A composite of compatible functor isomorphisms is compatible. -/
 theorem trans_compatible {D E F : Theory.{u, v} R} (e : Iso D E) (f : Iso E F) :
-    Compatible D F (e.functorIso ≪≫ f.functorIso) := sorry
+    Compatible D F (e.functorIso ≪≫ f.functorIso) := by
+  have hcomp (X : ModuleCore.{u, v} R) :
+      functorEquiv (e.functorIso ≪≫ f.functorIso) X =
+        (functorEquiv e.functorIso X).trans (functorEquiv f.functorIso X) := by
+    ext x
+    rfl
+  intro S h₁ h₂ h₃ hS
+  simp only [hcomp, TensorProduct.congr_trans, LinearEquiv.coe_trans, LinearMap.comp_assoc]
+  rw [← LinearMap.comp_assoc, f.comparison_comm S h₁ h₂ h₃ hS,
+    LinearMap.comp_assoc, e.comparison_comm S h₁ h₂ h₃ hS]
 
 /-- The composite of two isomorphisms of determinant theories. -/
 def trans {D E F : Theory.{u, v} R} (e : Iso D E) (f : Iso E F) : Iso D F where
@@ -381,20 +427,29 @@ def restrict {D E : Theory.{u, v} R} (e : Iso D E) : D.restriction ≅ E.restric
 /-- The component of a restricted theory isomorphism is its original component. -/
 theorem restrict_app {D E : Theory.{u, v} R} (e : Iso D E)
     (X : ResidueCore.{u, v} R) :
-    (e.restrict.app X).hom.iso = (e.functorIso.app X.obj).hom.iso := sorry
+    (e.restrict.app X).hom.iso = (e.functorIso.app X.obj).hom.iso := rfl
 
 end Iso
 
 /-- The canonical determinant theory satisfies naturality. -/
-theorem canonical_isNatural : (canonical R).IsNatural := sorry
+theorem canonical_isNatural : (canonical R).IsNatural := by
+  intro S T hS₁ hS₂ hS₃ hT₁ hT₂ hT₃ hS e
+  exact exactEquiv_naturality hS₁ hS₂ hS₃ hT₁ hT₂ hT₃ hS e
 
 /-- The canonical determinant theory satisfies signed three-by-three coherence. -/
-theorem canonical_isCoherent : (canonical R).IsCoherent := sorry
+theorem canonical_isCoherent : (canonical R).IsCoherent := by
+  intro T
+  exact ThreeByThree.commutes T
 
 /-- The canonical determinant theory agrees with itself on the residue subcategory. -/
 theorem canonical_agreesOnResidue :
     (canonical R).AgreesOnResidue
-      (CategoryTheory.Iso.refl (canonical R).restriction) := sorry
+      (CategoryTheory.Iso.refl (canonical R).restriction) := by
+  intro S h₁ h₂ h₃ hS hAnn₁ hAnn₂ hAnn₃
+  apply TensorProduct.ext'
+  intro x y
+  simp only [LinearMap.comp_apply, LinearEquiv.coe_coe]
+  rfl
 
 end Theory
 

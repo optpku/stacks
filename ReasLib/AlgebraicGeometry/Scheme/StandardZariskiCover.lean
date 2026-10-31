@@ -54,7 +54,8 @@ def opens (𝒰 : T.StandardZariskiCover.{u, v}) : 𝒰.index → T.Opens :=
 /-- Evaluation of the distinguished-open family underlying a standard Zariski cover. -/
 @[simp, stacks 020R "standard Zariski cover family evaluation"]
 theorem opens_apply (𝒰 : T.StandardZariskiCover.{u, v}) (i : 𝒰.index) :
-    𝒰.opens i = T.basicOpen (𝒰.generator i) := sorry
+    𝒰.opens i = T.basicOpen (𝒰.generator i) :=
+  rfl
 
 /-- The `i`-th distinguished open in a standard Zariski cover, viewed as an open subscheme of
 `T`. -/
@@ -70,17 +71,25 @@ abbrev f (𝒰 : T.StandardZariskiCover.{u, v}) (i : 𝒰.index) : 𝒰.X i ⟶ 
 /-- The top open of `T` is the supremum of the chosen distinguished opens. -/
 @[stacks 020R "standard Zariski cover equality"]
 theorem basicOpen_eq_iSup (𝒰 : T.StandardZariskiCover.{u, v}) :
-    (⊤ : T.Opens) = ⨆ i : 𝒰.index, 𝒰.opens i := sorry
+    (⊤ : T.Opens) = ⨆ i : 𝒰.index, 𝒰.opens i := by
+  have hspan : Ideal.span (Set.range 𝒰.generator) = ⊤ := by
+    apply PrimeSpectrum.iSup_basicOpen_eq_top_iff.mp
+    rw [← 𝒰.cover, PrimeSpectrum.basicOpen_one]
+  simpa only [opens, iSup_range] using
+    (AlgebraicGeometry.iSup_basicOpen_of_span_eq_top (⊤ : T.Opens)
+      (Set.range 𝒰.generator) hspan).symm
 
 /-- The distinguished-open family of a standard Zariski cover has supremum `⊤`. -/
 @[stacks 020R "standard Zariski cover supremum"]
 theorem iSup_eq_top (𝒰 : T.StandardZariskiCover.{u, v}) :
-    (⨆ i : 𝒰.index, 𝒰.opens i) = (⊤ : T.Opens) := sorry
+    (⨆ i : 𝒰.index, 𝒰.opens i) = (⊤ : T.Opens) :=
+  𝒰.basicOpen_eq_iSup.symm
 
 /-- The distinguished-open family underlying a standard Zariski cover is an open cover. -/
 @[stacks 020R "standard Zariski open cover"]
 theorem isOpenCover (𝒰 : T.StandardZariskiCover.{u, v}) :
-    TopologicalSpace.IsOpenCover 𝒰.opens := sorry
+    TopologicalSpace.IsOpenCover 𝒰.opens :=
+  TopologicalSpace.IsOpenCover.mk 𝒰.iSup_eq_top
 
 /-- The underlying distinguished-open family, viewed as an ordinary open cover of `T`. -/
 @[stacks 020R "standard Zariski cover as a scheme open cover"]
@@ -90,22 +99,27 @@ abbrev toOpenCover (𝒰 : T.StandardZariskiCover.{u, v}) : T.OpenCover :=
 /-- The objects of `toOpenCover` are the chosen distinguished opens. -/
 @[simp, stacks 020R "standard Zariski cover object readout"]
 theorem toOpenCover_X (𝒰 : T.StandardZariskiCover.{u, v}) (i : 𝒰.index) :
-    𝒰.toOpenCover.X i = 𝒰.X i := sorry
+    𝒰.toOpenCover.X i = 𝒰.X i :=
+  rfl
 
 /-- The maps of `toOpenCover` are the inclusions of the chosen distinguished opens. -/
 @[simp, stacks 020R "standard Zariski cover map readout"]
 theorem toOpenCover_f (𝒰 : T.StandardZariskiCover.{u, v}) (i : 𝒰.index) :
-    𝒰.toOpenCover.f i = 𝒰.f i := sorry
+    𝒰.toOpenCover.f i = 𝒰.f i :=
+  rfl
 
 /-- The range of the `i`-th component is the distinguished open cut out by `𝒰.generator i`. -/
 @[stacks 020R "standard Zariski cover range"]
 theorem opensRange_eq_basicOpen (𝒰 : T.StandardZariskiCover.{u, v}) (i : 𝒰.index) :
-    (𝒰.f i).opensRange = T.basicOpen (𝒰.generator i) := sorry
+    (𝒰.f i).opensRange = T.basicOpen (𝒰.generator i) :=
+  Scheme.Opens.opensRange_ι _
 
 /-- Every component of a standard Zariski cover of an affine scheme is affine. -/
 @[stacks 020R "standard Zariski cover affine member"]
 theorem isAffine_obj [IsAffine T] (𝒰 : T.StandardZariskiCover.{u, v}) (i : 𝒰.index) :
-    IsAffine (𝒰.X i) := sorry
+    IsAffine (𝒰.X i) := by
+  change IsAffine (T.basicOpen (𝒰.generator i))
+  infer_instance
 
 end StandardZariskiCover
 

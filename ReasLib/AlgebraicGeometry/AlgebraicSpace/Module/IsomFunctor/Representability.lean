@@ -6,6 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.FinitePresentation.FiniteType
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.IsomFunctor
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.FunctorOfPoints.Over
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.FlatOver.BaseChange

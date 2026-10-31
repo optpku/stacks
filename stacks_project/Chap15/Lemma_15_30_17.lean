@@ -36,4 +36,4 @@ public import ReasLib.RingTheory.Sequence.Koszul.Regularity.UpperTriangular
 /- Lemma 15.30.17 (4), tag `068Q`: the original and transformed families generate the same
 extended ideal. -/
 @[stacks 068Q "Lemma 15.30.17 (4)"]
-#check @RingTheory.Sequence.IsKoszulRegularSequence.map_span_eq_span_upperTriangular
+#check @RingTheory.Sequence.UpperTriangular.map_span_eq_span

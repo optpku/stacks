@@ -101,8 +101,15 @@ product-slice scheme. -/
 private theorem pairBaseIso_hom_isHomLift [AlgebraicStack X] (f : X ⟶ Y) (y : Y.total)
     (q : (GroupoidsOver.slice (pairScheme X y)).total) :
     (FiberedCategoryOver.Groupoids.base.{u + 1, u, u + 1} (Over S)).p.IsHomLift
-      (𝟙 q.left) (pairBaseIso f y q).hom :=
-  sorry
+      (𝟙 q.left) (pairBaseIso f y q).hom := by
+  apply IsHomLift.of_fac'
+    (FiberedCategoryOver.Groupoids.base.{u + 1, u, u + 1} (Over S)).p
+    (𝟙 q.left) (pairBaseIso f y q).hom
+    (sourceMap_base_obj f y q) (targetMap_base_obj f y q)
+  change eqToHom (sourceMap_base_obj f y q) ≫
+      eqToHom (targetMap_base_obj f y q).symm = _
+  simp
+  rfl
 
 /-- Pair the two actual target objects over their common base. -/
 private def pairObject [AlgebraicStack X] (f : X ⟶ Y) (y : Y.total)
@@ -120,10 +127,43 @@ private def pairFunctor [AlgebraicStack X] (f : X ⟶ Y) (y : Y.total) :
       (relativeProduct Y).total where
   obj := pairObject f y
   map {q r} α := BasedCategory.PseudoPullback.Hom.mk α.left
-    ((toFunctor (sourceMap f y)).map α) sorry
-    ((toFunctor (targetMap f y)).map α) sorry sorry
-  map_id := sorry
-  map_comp := sorry
+    ((toFunctor (sourceMap f y)).map α)
+    (by
+      letI : (GroupoidsOver.slice (pairScheme X y)).p.IsHomLift α.left α :=
+        Functor.IsHomLift.map α
+      exact BasedFunctor.preserves_isHomLift (toBasedFunctor (sourceMap f y)) α.left α)
+    ((toFunctor (targetMap f y)).map α)
+    (by
+      letI : (GroupoidsOver.slice (pairScheme X y)).p.IsHomLift α.left α :=
+        Functor.IsHomLift.map α
+      exact BasedFunctor.preserves_isHomLift (toBasedFunctor (targetMap f y)) α.left α)
+    (by
+      constructor
+      change Y.p.map ((toFunctor (sourceMap f y)).map α) ≫
+          (eqToHom (sourceMap_base_obj f y r) ≫ eqToHom (targetMap_base_obj f y r).symm) =
+        (eqToHom (sourceMap_base_obj f y q) ≫ eqToHom (targetMap_base_obj f y q).symm) ≫
+          Y.p.map ((toFunctor (targetMap f y)).map α)
+      letI : (GroupoidsOver.slice (pairScheme X y)).p.IsHomLift α.left α :=
+        Functor.IsHomLift.map α
+      letI := BasedFunctor.preserves_isHomLift (toBasedFunctor (sourceMap f y)) α.left α
+      letI := BasedFunctor.preserves_isHomLift (toBasedFunctor (targetMap f y)) α.left α
+      rw [IsHomLift.fac' Y.p α.left ((toFunctor (sourceMap f y)).map α),
+        IsHomLift.fac' Y.p α.left ((toFunctor (targetMap f y)).map α)]
+      simp)
+  map_id := by
+    intro q
+    apply BasedCategory.PseudoPullback.hom_ext
+    · change (toFunctor (sourceMap f y)).map (𝟙 q) = _
+      exact (toFunctor (sourceMap f y)).map_id q
+    · change (toFunctor (targetMap f y)).map (𝟙 q) = _
+      exact (toFunctor (targetMap f y)).map_id q
+  map_comp := by
+    intro q r t α β
+    apply BasedCategory.PseudoPullback.hom_ext
+    · change (toFunctor (sourceMap f y)).map (α ≫ β) = _
+      exact (toFunctor (sourceMap f y)).map_comp α β
+    · change (toFunctor (targetMap f y)).map (α ≫ β) = _
+      exact (toFunctor (targetMap f y)).map_comp α β
 
 /-- The actual product-scheme pair is the test map for the original target
  diagonal witness. -/
@@ -133,7 +173,7 @@ private def pairMap [AlgebraicStack X] (f : X ⟶ Y) (y : Y.total) :
   let F : BasedFunctor (toBasedCategory (GroupoidsOver.slice (pairScheme X y)))
       (toBasedCategory (relativeProduct Y)) :=
     { toFunctor := pairFunctor f y
-      w := sorry }
+      w := rfl }
   ofBasedFunctor F
 
 /-- The actual diagonal-pullback groupoid-fibred category. -/

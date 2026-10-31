@@ -10,6 +10,8 @@ public import ReasLib.AlgebraicGeometry.AlgebraicStack.Points
 public import ReasLib.AlgebraicGeometry.AlgebraicStack.LocallyOfFiniteType
 public import ReasLib.AlgebraicGeometry.AlgebraicStack.Surjective
 
+import ReasLib.AlgebraicGeometry.AlgebraicStack.FiniteType.Composition
+
 /-!
 # Finite-type points of algebraic stacks
 
@@ -40,7 +42,7 @@ theorem isFiniteTypePoint_iff {S : Scheme.{u}} {X : GroupoidsOver S}
     [AlgebraicStack X] (x : Points X) :
     IsFiniteTypePoint x ↔
       ∃ p : FieldValuedPoint X, LocallyOfFiniteType p.hom ∧ Points.mk p = x :=
-  sorry
+  Iff.rfl
 
 namespace IsFiniteTypePoint
 
@@ -49,14 +51,14 @@ point. -/
 theorem of_fieldValuedPoint {S : Scheme.{u}} {X : GroupoidsOver S}
     [AlgebraicStack X] (p : FieldValuedPoint X) [LocallyOfFiniteType p.hom] :
     IsFiniteTypePoint (Points.mk p) :=
-  sorry
+  ⟨p, inferInstance, rfl⟩
 
 /-- A finite-type point is represented by some locally-of-finite-type
 field-valued point. -/
 theorem exists_fieldValuedPoint {S : Scheme.{u}} {X : GroupoidsOver S}
     [AlgebraicStack X] {x : Points X} (hx : IsFiniteTypePoint x) :
     ∃ p : FieldValuedPoint X, LocallyOfFiniteType p.hom ∧ Points.mk p = x :=
-  sorry
+  hx
 
 end IsFiniteTypePoint
 
@@ -69,7 +71,7 @@ def finiteTypePoints {S : Scheme.{u}} (X : GroupoidsOver S) [AlgebraicStack X] :
 theorem mem_finiteTypePoints_iff {S : Scheme.{u}} {X : GroupoidsOver S}
     [AlgebraicStack X] {x : Points X} :
     x ∈ finiteTypePoints X ↔ IsFiniteTypePoint x :=
-  sorry
+  Iff.rfl
 
 namespace LocallyOfFiniteType
 
@@ -78,8 +80,11 @@ of algebraic stacks is contained in the finite-type points of its target. -/
 @[stacks 06G0]
 theorem image_finiteTypePoints_subset {S : Scheme.{u}} {X Y : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [LocallyOfFiniteType f] :
-    Points.map f '' finiteTypePoints X ⊆ finiteTypePoints Y :=
-  sorry
+    Points.map f '' finiteTypePoints X ⊆ finiteTypePoints Y := by
+  rintro _ ⟨x, hx, rfl⟩
+  obtain ⟨p, hp, rfl⟩ := hx
+  letI : LocallyOfFiniteType p.hom := hp
+  exact ⟨p.map f, comp p.hom f, rfl⟩
 
 /-- A locally-of-finite-type morphism of algebraic stacks sends finite-type
 points to finite-type points. -/
@@ -87,7 +92,7 @@ theorem map_mem_finiteTypePoints {S : Scheme.{u}} {X Y : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [LocallyOfFiniteType f]
     {x : Points X} (hx : x ∈ finiteTypePoints X) :
     Points.map f x ∈ finiteTypePoints Y :=
-  sorry
+  image_finiteTypePoints_subset f ⟨x, hx, rfl⟩
 
 /-- A surjective locally-of-finite-type morphism of algebraic stacks maps its
 finite-type points onto the finite-type points of its target. -/
@@ -103,8 +108,8 @@ the target. -/
 theorem mem_image_finiteTypePoints_iff {S : Scheme.{u}} {X Y : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [LocallyOfFiniteType f] [Surjective f]
     {y : Points Y} :
-    y ∈ Points.map f '' finiteTypePoints X ↔ y ∈ finiteTypePoints Y :=
-  sorry
+    y ∈ Points.map f '' finiteTypePoints X ↔ y ∈ finiteTypePoints Y := by
+  rw [image_finiteTypePoints_eq_of_surjective f]
 
 end LocallyOfFiniteType
 

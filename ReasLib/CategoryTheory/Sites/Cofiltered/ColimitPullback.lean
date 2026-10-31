@@ -9,7 +9,7 @@ module
 public import Mathlib.CategoryTheory.Sites.Sheafification
 public import Mathlib.Tactic.CrossRefAttribute
 public import ReasLib.CategoryTheory.Sites.Cofiltered.Colimit.SheafPullback
-public import ReasLib.CategoryTheory.Sites.MorphismOfSites
+public import ReasLib.CategoryTheory.Sites.ExactMorphismOfSites
 
 /-!
 # Pullback sections on cofiltered colimit sites
@@ -176,8 +176,11 @@ noncomputable def comparison
 /-- Each cocone functor from a stage site to the colimit site is a morphism of sites. -/
 @[stacks 0A35 "(1)"]
 theorem stageCocone_isMorphismOfSites
-    (S : CofilteredSiteDiagram.{u, u, u}) (i : S.I) :
-    IsMorphismOfSites (S.stageTopology i) S.colimitTopology
+    (S : CofilteredSiteDiagram.{u, u, u}) (i : S.I)
+    [HasWeakSheafify S.colimitTopology (Type u)]
+    [∀ P : (S.stage i)ᵒᵖ ⥤ Type u,
+      (S.stageCoconeFunctor i).op.HasLeftKanExtension P] :
+    IsExactMorphismOfSites (S.stageTopology i) S.colimitTopology
       (S.stageCoconeFunctor i) := sorry
 
 /-- The canonical filtered-colimit comparison on stage-pullback sections is invertible. -/

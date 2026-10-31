@@ -52,7 +52,14 @@ nonemptiness, directedness, and essential smallness are proposition-valued. -/
 @[ext]
 theorem ext {S T : DirectedInverseSystem.{u, v, r, q} C}
     (h_index : S.index = T.index) (h_diagram : HEq S.diagram T.diagram) :
-    S = T := sorry
+    S = T := by
+  cases S with
+  | mk S_index S_nonempty S_directed S_diagram S_small =>
+    cases T with
+    | mk T_index T_nonempty T_directed T_diagram T_small =>
+      cases h_index
+      cases h_diagram
+      rfl
 
 /-- The index of a directed inverse system is nonempty. -/
 instance indexNonempty (T : DirectedInverseSystem.{u, v, r, q} C) : Nonempty T.index :=
@@ -102,18 +109,59 @@ theorem toPresheafFiber_naturality [LocallySmall.{q} C]
     (T : DirectedInverseSystem.{u, v, r, q} C) {F G : Cᵒᵖ ⥤ Type q}
     (η : F ⟶ G) (X : C) (x : T.fiber.obj X) :
     T.toPresheafFiber X x F ≫ T.presheafFiber.map η =
-      η.app (op X) ≫ T.toPresheafFiber X x G := sorry
+      η.app (op X) ≫ T.toPresheafFiber X x G := by
+  letI : IsDirectedOrder T.index := T.directed
+  letI : Nonempty T.index := T.nonempty
+  letI : IsFiltered T.index := inferInstance
+  letI : IsCofiltered T.indexᵒᵖ := inferInstance
+  letI : InitiallySmall.{q} T.indexᵒᵖ := initiallySmall_of_essentiallySmall _
+  letI : InitiallySmall.{q}
+      (CategoryTheory.GrothendieckTopology.Point.ofIsCofiltered.fiber T.diagram).Elements :=
+    inferInstance
+  letI : IsCofiltered
+      (CategoryTheory.GrothendieckTopology.Point.ofIsCofiltered.fiber T.diagram).Elements :=
+    inferInstance
+  letI : HasColimitsOfShape
+      ((CategoryTheory.GrothendieckTopology.Point.ofIsCofiltered.fiber T.diagram).Elementsᵒᵖ)
+      (Type q) :=
+    hasColimitsOfShape_of_finallySmall _ _
+  letI : HasColimitsOfShape T.fiber.Elementsᵒᵖ (Type q) := by
+    change HasColimitsOfShape
+      ((CategoryTheory.GrothendieckTopology.Point.ofIsCofiltered.fiber T.diagram).Elementsᵒᵖ)
+      (Type q)
+    infer_instance
+  change
+    T.fiber.toPresheafFiber X x F ≫ T.fiber.presheafFiber.map η =
+      η.app (op X) ≫ T.fiber.toPresheafFiber X x G
+  exact colimit.ι_map (Functor.whiskerLeft (CategoryOfElements.π T.fiber).op η)
+    (op (T.fiber.elementsMk X x))
 
 /-- The category of elements of a directed inverse-system fiber is cofiltered. -/
 theorem fiberIsCofiltered [LocallySmall.{q} C]
     (T : DirectedInverseSystem.{u, v, r, q} C) :
-    IsCofiltered T.fiber.Elements := sorry
+    IsCofiltered T.fiber.Elements := by
+  letI : IsDirectedOrder T.index := T.directed
+  letI : Nonempty T.index := T.nonempty
+  letI : IsFiltered T.index := inferInstance
+  letI : IsCofiltered T.indexᵒᵖ := inferInstance
+  letI : InitiallySmall.{q} T.indexᵒᵖ := initiallySmall_of_essentiallySmall _
+  change IsCofiltered
+    (CategoryTheory.GrothendieckTopology.Point.ofIsCofiltered.fiber T.diagram).Elements
+  infer_instance
 
 /-- The category of elements of a directed inverse-system fiber is initially small in its fiber
 universe. -/
 theorem fiberInitiallySmall [LocallySmall.{q} C]
     (T : DirectedInverseSystem.{u, v, r, q} C) :
-    InitiallySmall.{q} T.fiber.Elements := sorry
+    InitiallySmall.{q} T.fiber.Elements := by
+  letI : IsDirectedOrder T.index := T.directed
+  letI : Nonempty T.index := T.nonempty
+  letI : IsFiltered T.index := inferInstance
+  letI : IsCofiltered T.indexᵒᵖ := inferInstance
+  letI : InitiallySmall.{q} T.indexᵒᵖ := initiallySmall_of_essentiallySmall _
+  change InitiallySmall.{q}
+    (CategoryTheory.GrothendieckTopology.Point.ofIsCofiltered.fiber T.diagram).Elements
+  infer_instance
 
 /-- Construct a site point from a directed inverse system once its fiber lifts along all covering
 sieves.  The underlying fiber functor remains exactly `T.fiber`. -/
@@ -131,7 +179,7 @@ noncomputable def toPoint [LocallySmall.{q} C]
 theorem toPoint_fiber [LocallySmall.{q} C]
     {J : GrothendieckTopology C} (T : DirectedInverseSystem.{u, v, r, q} C)
     (hT : GrothendieckTopology.Point.Fiber.coversLift J T.fiber) :
-    (T.toPoint hT).fiber = T.fiber := sorry
+    (T.toPoint hT).fiber = T.fiber := rfl
 
 namespace FiniteCoverLifts
 
@@ -151,7 +199,7 @@ theorem point_fiber [LocallySmall.{q} C]
     {J : GrothendieckTopology C} (T : DirectedInverseSystem.{u, v, r, q} C)
     (hJ : ∀ X : C, GrothendieckTopology.HasFiniteRefinement J X)
     (hT : Functor.FiniteCoverLifts.{u, v, q, w'} T.fiber J) :
-    (point T hJ hT).fiber = T.fiber := sorry
+    (point T hJ hT).fiber = T.fiber := rfl
 
 end FiniteCoverLifts
 
@@ -178,7 +226,14 @@ directedness is proposition-valued. -/
 @[ext]
 theorem ext {S T : DirectedPreorderSystem.{u, v, r} C}
     (h_index : S.index = T.index) (h_diagram : HEq S.diagram T.diagram) :
-    S = T := sorry
+    S = T := by
+  cases S with
+  | mk S_index S_directed S_diagram =>
+    cases T with
+    | mk T_index T_directed T_diagram =>
+      cases h_index
+      cases h_diagram
+      rfl
 
 /-- The directedness instance carried by a `DirectedPreorderSystem`. -/
 instance indexDirected (D : DirectedPreorderSystem.{u, v, r} C) :
@@ -204,7 +259,7 @@ namespace toDirected
 theorem index
     (D : DirectedPreorderSystem.{u, v, r} C) (hD : Nonempty D.index)
     [EssentiallySmall.{q} D.indexᵒᵖ] :
-    (D.toDirected hD).index = D.index := sorry
+    (D.toDirected hD).index = D.index := rfl
 
 /-- Adding nonemptiness and smallness does not change the inverse-system
 diagram. -/
@@ -212,7 +267,7 @@ diagram. -/
 theorem diagram
     (D : DirectedPreorderSystem.{u, v, r} C) (hD : Nonempty D.index)
     [EssentiallySmall.{q} D.indexᵒᵖ] :
-    (D.toDirected hD).diagram = D.diagram := sorry
+    (D.toDirected hD).diagram = D.diagram := rfl
 
 end toDirected
 

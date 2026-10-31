@@ -33,12 +33,4 @@ theorem mono_tfae {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     List.TFAE [∀ (T : (Over S)ᵒᵖ), Function.Injective (f.app T), Mono f,
       IsIso (pullback.diagonal f)] := sorry
 
-/-- Monomorphisms of algebraic spaces over a scheme are stable under composition. -/
-theorem monomorphisms_isStableUnderComposition {S : Scheme.{u}} :
-    (monomorphisms (AlgebraicSpace S)).IsStableUnderComposition := inferInstance
-
-/-- Monomorphisms of algebraic spaces over a scheme are stable under base change. -/
-theorem monomorphisms_isStableUnderBaseChange {S : Scheme.{u}} :
-    (monomorphisms (AlgebraicSpace S)).IsStableUnderBaseChange := inferInstance
-
 end AlgebraicGeometry.AlgebraicSpace

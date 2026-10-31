@@ -42,7 +42,10 @@ theorem sectionFromTop_naturality
     (M : X.Modules) (m : M.val.presheaf.obj (Opposite.op ⊤)) :
     ∀ U V : (Opens X)ᵒᵖ, ∀ f : U ⟶ V,
       M.val.map f (M.val.map (topOpenRestriction U) m) =
-        M.val.map (topOpenRestriction V) m := sorry
+        M.val.map (topOpenRestriction V) m := by
+  intro U V f
+  rw [← M.val.map_comp_apply]
+  exact M.val.congr_map_apply (Subsingleton.elim _ _) m
 
 /-- The compatible global section determined by a value of a module sheaf on the top open. -/
 noncomputable def sectionFromTop
@@ -56,19 +59,26 @@ noncomputable def sectionFromTop
 @[simp]
 theorem sectionFromTop_eval
     (M : X.Modules) (m : M.val.presheaf.obj (Opposite.op ⊤)) (U : (Opens X)ᵒᵖ) :
-    (sectionFromTop M m).1 U = M.val.map (topOpenRestriction U) m := sorry
+    (sectionFromTop M m).1 U = M.val.map (topOpenRestriction U) m := rfl
 
 /-- Evaluation at the top open recovers the value used to define `sectionFromTop`. -/
 @[simp]
 theorem sectionFromTop_eval_top
     (M : X.Modules) (m : M.val.presheaf.obj (Opposite.op ⊤)) :
-    (sectionFromTop M m).1 (Opposite.op ⊤) = m := sorry
+    (sectionFromTop M m).1 (Opposite.op ⊤) = m := by
+  rw [sectionFromTop_eval]
+  change M.val.presheaf.map (𝟙 (op (⊤ : Opens X))) m = m
+  rw [M.val.presheaf.map_id]
+  rfl
 
 /-- A compatible global section is reconstructed from its value at the top open. -/
 @[simp]
 theorem sectionFromTop_of_section
     (M : X.Modules) (s : M.sections) :
-    sectionFromTop M (s.1 (Opposite.op ⊤)) = s := sorry
+    sectionFromTop M (s.1 (Opposite.op ⊤)) = s := by
+  apply PresheafOfModules.sections_ext
+  intro U
+  exact PresheafOfModules.sections_property s (topOpenRestriction U)
 
 /-- Forming a compatible section from a top-open value commutes with a morphism of module
 sheaves. -/
@@ -76,7 +86,10 @@ sheaves. -/
 theorem sectionsMap_sectionFromTop
     {M N : X.Modules} (f : M ⟶ N) (m : M.val.presheaf.obj (Opposite.op ⊤)) :
     SheafOfModules.sectionsMap f (sectionFromTop M m) =
-      sectionFromTop N (f.val.app (Opposite.op ⊤) m) := sorry
+      sectionFromTop N (f.val.app (Opposite.op ⊤) m) := by
+  apply PresheafOfModules.sections_ext
+  intro U
+  exact PresheafOfModules.naturality_apply f.val (topOpenRestriction U) m
 
 /-- Global sections of a module sheaf are equivalent to values over the top open. -/
 noncomputable def sectionsEquivTop (M : X.Modules) :
@@ -89,20 +102,20 @@ noncomputable def sectionsEquivTop (M : X.Modules) :
 /-- `sectionsEquivTop` sends a compatible section to its value at the top open. -/
 @[simp]
 theorem sectionsEquivTop_apply (M : X.Modules) (s : M.sections) :
-    sectionsEquivTop M s = s.1 (Opposite.op ⊤) := sorry
+    sectionsEquivTop M s = s.1 (Opposite.op ⊤) := rfl
 
 /-- The inverse of `sectionsEquivTop` reconstructs the compatible section from a top-open value. -/
 @[simp]
 theorem sectionsEquivTop_symm_apply
     (M : X.Modules) (m : M.val.presheaf.obj (Opposite.op ⊤)) :
-    (sectionsEquivTop M).symm m = sectionFromTop M m := sorry
+    (sectionsEquivTop M).symm m = sectionFromTop M m := rfl
 
 /-- Top evaluation commutes with the map on sections induced by a morphism of module sheaves. -/
 @[simp]
 theorem sectionsEquivTop_sectionsMap
     {M N : X.Modules} (f : M ⟶ N) (s : M.sections) :
     sectionsEquivTop N (SheafOfModules.sectionsMap f s) =
-      f.val.app (Opposite.op ⊤) (sectionsEquivTop M s) := sorry
+      f.val.app (Opposite.op ⊤) (sectionsEquivTop M s) := rfl
 
 /-- The morphism from the structure module classified by a value of a module sheaf on the top
 open. -/
@@ -115,7 +128,8 @@ noncomputable def topSectionMorphism
 @[simp]
 theorem unitHomEquiv_topSectionMorphism
     (M : X.Modules) (m : M.val.presheaf.obj (Opposite.op ⊤)) :
-    M.unitHomEquiv (topSectionMorphism M m) = sectionFromTop M m := sorry
+    M.unitHomEquiv (topSectionMorphism M m) = sectionFromTop M m :=
+  M.unitHomEquiv.apply_symm_apply _
 
 /-- Evaluating the morphism classified by a top-open value on the distinguished unit section
 recovers that value. -/
@@ -123,38 +137,62 @@ recovers that value. -/
 theorem topSectionMorphism_apply_top
     (M : X.Modules) (m : M.val.presheaf.obj (Opposite.op ⊤)) :
     (topSectionMorphism M m).val.app (Opposite.op ⊤)
-        (1 : X.ringCatSheaf.obj.obj (Opposite.op ⊤)) = m := sorry
+        (1 : X.ringCatSheaf.obj.obj (Opposite.op ⊤)) = m := by
+  change (M.unitHomEquiv (topSectionMorphism M m)).1 (op ⊤) = m
+  rw [unitHomEquiv_topSectionMorphism, sectionFromTop_eval_top]
 
 /-- Passing from a section to its top-open value and then to its classified unit morphism agrees
 with the standard section-to-unit-morphism equivalence. -/
 @[simp]
 theorem topSectionMorphism_sectionsEquivTop
     (M : X.Modules) (s : M.sections) :
-    topSectionMorphism M (sectionsEquivTop M s) = M.unitHomEquiv.symm s := sorry
+    topSectionMorphism M (sectionsEquivTop M s) = M.unitHomEquiv.symm s := by
+  simp only [topSectionMorphism, sectionsEquivTop_apply, sectionFromTop_of_section]
 
 /-- The unit morphism classified by a top-open value is natural in the module sheaf. -/
 @[simp]
 theorem topSectionMorphism_map
     {M N : X.Modules} (f : M ⟶ N) (m : M.val.presheaf.obj (Opposite.op ⊤)) :
     topSectionMorphism N (f.val.app (Opposite.op ⊤) m) =
-      topSectionMorphism M m ≫ f := sorry
+      topSectionMorphism M m ≫ f := by
+  unfold topSectionMorphism
+  rw [← sectionsMap_sectionFromTop]
+  exact (SheafOfModules.unitHomEquiv_symm_comp (sectionFromTop M m) f).symm
 
 /-- The morphism from the structure module classified by a top-open value is injective in that
 value. -/
 theorem topSectionMorphism_injective (M : X.Modules) :
-    Function.Injective (topSectionMorphism M) := sorry
+    Function.Injective (topSectionMorphism M) :=
+  M.unitHomEquiv.symm.injective.comp (sectionsEquivTop M).symm.injective
 
 /-- The zero top-open value classifies the zero morphism from the structure module. -/
 @[simp]
 theorem topSectionMorphism_zero (M : X.Modules) :
-    topSectionMorphism M 0 = 0 := sorry
+    topSectionMorphism M 0 = 0 := by
+  apply M.unitHomEquiv.injective
+  rw [unitHomEquiv_topSectionMorphism]
+  apply PresheafOfModules.sections_ext
+  intro U
+  change M.val.map (topOpenRestriction U) 0 = 0
+  exact map_zero (M.val.map (topOpenRestriction U)).hom
 
 /-- Addition of top-open values corresponds to addition of their classified structure-module
 morphisms. -/
 @[simp]
 theorem topSectionMorphism_add
     (M : X.Modules) (m n : M.val.presheaf.obj (Opposite.op ⊤)) :
-    topSectionMorphism M (m + n) = topSectionMorphism M m + topSectionMorphism M n := sorry
+    topSectionMorphism M (m + n) = topSectionMorphism M m + topSectionMorphism M n := by
+  apply M.unitHomEquiv.injective
+  rw [unitHomEquiv_topSectionMorphism]
+  apply PresheafOfModules.sections_ext
+  intro U
+  change M.val.map (topOpenRestriction U) (m + n) =
+    (topSectionMorphism M m).val.app U (1 : X.ringCatSheaf.obj.obj U) +
+      (topSectionMorphism M n).val.app U (1 : X.ringCatSheaf.obj.obj U)
+  rw [← SheafOfModules.unitHomEquiv_apply_coe,
+    ← SheafOfModules.unitHomEquiv_apply_coe,
+    unitHomEquiv_topSectionMorphism, unitHomEquiv_topSectionMorphism]
+  exact map_add (M.val.map (topOpenRestriction U)).hom m n
 
 /-- The value of the distinguished global unit section on the top open. -/
 noncomputable def unitTopValue (X : RingedSpace.{u}) :
@@ -171,13 +209,18 @@ noncomputable def unitSectionFromTop (X : RingedSpace.{u})
 @[simp]
 theorem sectionsEquivTop_unitSectionFromTop (X : RingedSpace.{u})
     (r : X.ringCatSheaf.obj.obj (Opposite.op ⊤)) :
-    sectionsEquivTop (SheafOfModules.unit X.ringCatSheaf) (unitSectionFromTop X r) = r := sorry
+    sectionsEquivTop (SheafOfModules.unit X.ringCatSheaf) (unitSectionFromTop X r) = r :=
+  sectionFromTop_eval_top (SheafOfModules.unit X.ringCatSheaf) r
 
 /-- The distinguished unit value classifies the identity of the structure module. -/
 @[simp]
 theorem topSectionMorphism_unit_one :
     topSectionMorphism (SheafOfModules.unit X.ringCatSheaf)
         (unitTopValue X) =
-      𝟙 (SheafOfModules.unit X.ringCatSheaf) := sorry
+      𝟙 (SheafOfModules.unit X.ringCatSheaf) := by
+  apply (SheafOfModules.unit X.ringCatSheaf).unitHomEquiv.injective
+  apply (sectionsEquivTop _).injective
+  rw [unitHomEquiv_topSectionMorphism, sectionsEquivTop_apply, sectionFromTop_eval_top]
+  rfl
 
 end AlgebraicGeometry.RingedSpace

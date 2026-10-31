@@ -40,19 +40,23 @@ def element (p : D ⥤ C) (F : Cᵒᵖ ⥤ Type w)
 @[simp]
 theorem element_fst (p : D ⥤ C) (F : Cᵒᵖ ⥤ Type w)
     (σ : (p.op ⋙ F).sections) (d : D) :
-    (element p F σ d).1 = op (p.obj d) := sorry
+    (element p F σ d).1 = op (p.obj d) := rfl
 
 /-- The value of the element selected by a section is its component at the given object. -/
 @[simp]
 theorem element_snd (p : D ⥤ C) (F : Cᵒᵖ ⥤ Type w)
     (σ : (p.op ⋙ F).sections) (d : D) :
-    (element p F σ d).2 = σ.1 (op d) := sorry
+    (element p F σ d).2 = σ.1 (op d) := rfl
 
 /-- Section naturality supplies the membership equation for the category-of-elements arrow
 associated to a morphism of `D`. -/
 theorem map_property (p : D ⥤ C) (F : Cᵒᵖ ⥤ Type w)
     (σ : (p.op ⋙ F).sections) {d e : D} (f : d ⟶ e) :
-    F.map (p.map f).op (element p F σ e).2 = (element p F σ d).2 := sorry
+    F.map (p.map f).op (element p F σ e).2 = (element p F σ d).2 := by
+  rw [element_snd, element_snd]
+  convert σ.property f.op using 1 <;>
+    simp [Functor.comp_obj, Functor.op_obj, Opposite.unop_op] <;>
+    rfl
 
 /-- The morphism in the opposite category of elements induced by a section and a morphism of
 the indexing category. -/
@@ -68,17 +72,23 @@ the projected morphism. -/
 @[simp]
 theorem hom_unop_val (p : D ⥤ C) (F : Cᵒᵖ ⥤ Type w)
     (σ : (p.op ⋙ F).sections) {d e : D} (f : d ⟶ e) :
-    (hom p F σ f).unop.val = (p.map f).op := sorry
+    (hom p F σ f).unop.val = (p.map f).op := rfl
 
 /-- The morphisms induced by a section preserve identities. -/
 theorem hom_id (p : D ⥤ C) (F : Cᵒᵖ ⥤ Type w)
     (σ : (p.op ⋙ F).sections) (d : D) :
-    hom p F σ (𝟙 d) = 𝟙 (op (element p F σ d)) := sorry
+    hom p F σ (𝟙 d) = 𝟙 (op (element p F σ d)) := by
+  apply Quiver.Hom.unop_inj
+  apply CategoryOfElements.ext F
+  simp [hom]
 
 /-- The morphisms induced by a section preserve composition. -/
 theorem hom_comp (p : D ⥤ C) (F : Cᵒᵖ ⥤ Type w)
     (σ : (p.op ⋙ F).sections) {d e k : D} (f : d ⟶ e) (g : e ⟶ k) :
-    hom p F σ (f ≫ g) = hom p F σ f ≫ hom p F σ g := sorry
+    hom p F σ (f ≫ g) = hom p F σ f ≫ hom p F σ g := by
+  apply Quiver.Hom.unop_inj
+  apply CategoryOfElements.ext F
+  simp [hom]
 
 /-- A section of `p.op ⋙ F` as a functor from the indexing category to the opposite category
 of elements of `F`. -/
@@ -93,19 +103,26 @@ def functor (p : D ⥤ C) (F : Cᵒᵖ ⥤ Type w)
 @[simp]
 theorem functor_obj (p : D ⥤ C) (F : Cᵒᵖ ⥤ Type w)
     (σ : (p.op ⋙ F).sections) (d : D) :
-    (functor p F σ).obj d = op (element p F σ d) := sorry
+    (functor p F σ).obj d = op (element p F σ d) := rfl
 
 /-- The functor induced by a section sends a morphism over the opposite projected morphism. -/
 @[simp]
 theorem functor_map_unop_val (p : D ⥤ C) (F : Cᵒᵖ ⥤ Type w)
     (σ : (p.op ⋙ F).sections) {d e : D} (f : d ⟶ e) :
-    ((functor p F σ).map f).unop.val = (p.map f).op := sorry
+    ((functor p F σ).map f).unop.val = (p.map f).op := by
+  exact hom_unop_val p F σ f
 
 /-- The functor induced by a section commutes strictly with the projection to `C`. -/
 @[simp]
 theorem functor_comp_projection (p : D ⥤ C) (F : Cᵒᵖ ⥤ Type w)
     (σ : (p.op ⋙ F).sections) :
-    functor p F σ ⋙ (CategoryOfElements.π F).leftOp = p := sorry
+    functor p F σ ⋙ (CategoryOfElements.π F).leftOp = p := by
+  refine Functor.ext (fun d => ?_) ?_
+  · simp [functor, Functor.comp_obj, Functor.leftOp_obj]
+  · intro d e f
+    rw [conj_eqToHom_iff_heq]
+    · exact heq_of_eq (Quiver.Hom.unop_op (p.map f))
+    · simp [functor, Functor.comp_obj, Functor.leftOp_obj]
 
 end CategoryOfElements.Section
 

@@ -15,6 +15,11 @@ public import ReasLib.Algebra.Homology.CochainComplex.Filtration.SemiFree.Derive
 
 This leaf records factorization consequences of compactness for semi-free
 filtrations and their finite-support subfiltrations.
+
+The coefficients here are an ordinary ring, viewed in degree zero. The finite-support
+factorization combines stage factorization with this specialization of Stacks tag 09R2.
+The general DG-algebra statement is
+`DifferentialGradedModule.Derived.exists_factorization_through_finiteSubfiltration`.
 -/
 
 open CategoryTheory CategoryTheory.Limits ComplexShape DerivedCategory
@@ -39,7 +44,9 @@ theorem exists_factorization_through_semiFreeStage
     ∃ n : ℕ, ∃ ψ : E ⟶ DerivedCategory.Q.obj (F.stage n),
       ψ ≫ DerivedCategory.Q.map (F.coconeApp n) = f := sorry
 
-/-- A map into a stage of a semi-free filtration factors through a finite-support subfiltration. -/
+/-- A map into a stage of a semi-free filtration factors through a finite-support subfiltration
+whose stages are intersections with the ambient stages and whose quotient maps retain the chosen
+finite subsets of ambient summands. -/
 theorem exists_factorization_through_finiteSubfiltration_of_stage
     (E : DerivedCategory (ModuleCat A))
     (hE : IsCompactObject E)
@@ -51,8 +58,9 @@ theorem exists_factorization_through_finiteSubfiltration_of_stage
         f ≫ DerivedCategory.Q.map (F.coconeApp n) := sorry
 
 /-- Every map from a compact derived object into a semi-free complex factors through a
-finite-support subfiltration. -/
-@[stacks 09R2]
+finite-support subfiltration with actual intersection stages and selected-summand quotient maps.
+This is the ordinary-ring cochain specialization of 09R2, combined with stage factorization. -/
+@[stacks 09R2 "ordinary-ring cochain specialization and stage factorization"]
 theorem exists_factorization_through_finiteSubfiltration
     (E : DerivedCategory (ModuleCat A))
     (hE : IsCompactObject E)

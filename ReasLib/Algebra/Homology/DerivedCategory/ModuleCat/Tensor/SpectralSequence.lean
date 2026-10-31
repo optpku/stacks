@@ -72,7 +72,8 @@ theorem spec
     ConvergesTo E K L ↔
       ∃ F : FilteredComplex ModR,
         FilteredComplex.Cohomology.Convergence.Converges F E ∧
-          ∀ n : ℤ, Nonempty (F.underlying.homology n ≅ abutment K L n) := sorry
+          ∀ n : ℤ, Nonempty (F.underlying.homology n ≅ abutment K L n) :=
+  Iff.rfl
 
 end ConvergesTo
 
@@ -93,20 +94,23 @@ theorem spec
     {E : CohomologicalSpectralSequence ModR 0} {K L : DModMinus} :
     IsRightCohomology E K L ↔
       (∀ p q : ℤ, Nonempty ((E.page 2).X (p, q) ≅ rightPageTwo K L p q)) ∧
-        ConvergesTo E K L := sorry
+        ConvergesTo E K L :=
+  Iff.rfl
 
 /-- A right-cohomology derived tensor spectral sequence has the stated page-two entries. -/
 @[stacks 0662 "right-cohomology page-two identification"]
 theorem pageTwo
     {E : CohomologicalSpectralSequence ModR 0} {K L : DModMinus}
     (h : IsRightCohomology E K L) (p q : ℤ) :
-    Nonempty ((E.page 2).X (p, q) ≅ rightPageTwo K L p q) := sorry
+    Nonempty ((E.page 2).X (p, q) ≅ rightPageTwo K L p q) :=
+  h.1 p q
 
 /-- A right-cohomology derived tensor spectral sequence converges to the common abutment. -/
 @[stacks 0662 "right-cohomology convergence consequence"]
 theorem converges
     {E : CohomologicalSpectralSequence ModR 0} {K L : DModMinus}
-    (h : IsRightCohomology E K L) : ConvergesTo E K L := sorry
+    (h : IsRightCohomology E K L) : ConvergesTo E K L :=
+  h.2
 
 end IsRightCohomology
 
@@ -127,20 +131,23 @@ theorem spec
     {E : CohomologicalSpectralSequence ModR 0} {K L : DModMinus} :
     IsLeftCohomology E K L ↔
       (∀ p q : ℤ, Nonempty ((E.page 2).X (p, q) ≅ leftPageTwo K L p q)) ∧
-        ConvergesTo E K L := sorry
+        ConvergesTo E K L :=
+  Iff.rfl
 
 /-- A left-cohomology derived tensor spectral sequence has the stated page-two entries. -/
 @[stacks 0662 "left-cohomology page-two identification"]
 theorem pageTwo
     {E : CohomologicalSpectralSequence ModR 0} {K L : DModMinus}
     (h : IsLeftCohomology E K L) (p q : ℤ) :
-    Nonempty ((E.page 2).X (p, q) ≅ leftPageTwo K L p q) := sorry
+    Nonempty ((E.page 2).X (p, q) ≅ leftPageTwo K L p q) :=
+  h.1 p q
 
 /-- A left-cohomology derived tensor spectral sequence converges to the common abutment. -/
 @[stacks 0662 "left-cohomology convergence consequence"]
 theorem converges
     {E : CohomologicalSpectralSequence ModR 0} {K L : DModMinus}
-    (h : IsLeftCohomology E K L) : ConvergesTo E K L := sorry
+    (h : IsLeftCohomology E K L) : ConvergesTo E K L :=
+  h.2
 
 end IsLeftCohomology
 
@@ -160,7 +167,10 @@ theorem existsLeftCohomology (K L : DModMinus) :
 @[stacks 0662 "paired derived tensor spectral sequences"]
 theorem existsPair (K L : DModMinus) :
     ∃ E_right E_left : CohomologicalSpectralSequence ModR 0,
-      IsRightCohomology E_right K L ∧ IsLeftCohomology E_left K L := sorry
+      IsRightCohomology E_right K L ∧ IsLeftCohomology E_left K L := by
+  obtain ⟨E_right, h_right⟩ := existsRightCohomology K L
+  obtain ⟨E_left, h_left⟩ := existsLeftCohomology K L
+  exact ⟨E_right, E_left, h_right, h_left⟩
 
 /-- Example 15.62.4 (3): the page-two differential of a cohomological spectral sequence has
 target bidegree `(p + 2, q - 1)`. -/

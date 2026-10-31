@@ -95,59 +95,39 @@ def toCotangentEquiv (π : A' →+* A) [π.IsSquareZeroExtension] :
 
 variable {B : Type u} [CommRing B] [Algebra A B]
 
-/-- The structure morphism of the given `A`-algebra. -/
-def structureMap : A →+* B :=
-  (inferInstance : Algebra A B).algebraMap
-
 variable (π : A' →+* A) [π.IsSquareZeroExtension]
 
-/-- The map induced on kernels sends zero to zero. -/
-private theorem kerMapOf_map_zero {Bprime : Type u} [CommRing Bprime] (fromA' : A' →+* Bprime)
-    (toB : Bprime →+* B)
-    (hcomm : toB.comp fromA' = (structureMap : A →+* B).comp π)
-    [toB.IsSquareZeroExtension] : (fun x : KernelModule π =>
+/-- The map on square-zero kernels induced by a commutative square of ring homomorphisms. -/
+def kerMapOfHoms {R' R S' S : Type u} [CommRing R'] [CommRing R] [CommRing S'] [CommRing S]
+    {πR : R' →+* R} [πR.IsSquareZeroExtension] {πS : S' →+* S} [πS.IsSquareZeroExtension]
+    (f' : R' →+* S') (f : R →+* S) (hcomm : πS.comp f' = f.comp πR) :
+    KernelModule πR →+ KernelModule πS where
+  toFun x :=
     ofMem
-      (Iff.mpr (mem_ker (f := toB) (r := fromA' x.1))
+      (Iff.mpr (mem_ker (f := πS) (r := f' x.1))
         ((DFunLike.congr_fun hcomm x.1).trans
-          ((congrArg (structureMap : A →+* B) x.2).trans
-            (map_zero (structureMap : A →+* B)))))) 0 = 0 := sorry
+          ((congrArg f x.2).trans (map_zero f))))
+  map_zero' := by apply Subtype.ext; exact map_zero f'
+  map_add' := by intro x y; apply Subtype.ext; exact map_add f' x.1 y.1
 
-/-- The map induced on kernels preserves addition. -/
-private theorem kerMapOf_map_add {Bprime : Type u} [CommRing Bprime] (fromA' : A' →+* Bprime)
-    (toB : Bprime →+* B)
-    (hcomm : toB.comp fromA' = (structureMap : A →+* B).comp π)
-    [toB.IsSquareZeroExtension] (x y : KernelModule π) :
-    (fun x : KernelModule π =>
-    ofMem
-      (Iff.mpr (mem_ker (f := toB) (r := fromA' x.1))
-        ((DFunLike.congr_fun hcomm x.1).trans
-          ((congrArg (structureMap : A →+* B) x.2).trans
-            (map_zero (structureMap : A →+* B)))))) (x + y) =
-      (fun x : KernelModule π =>
-    ofMem
-      (Iff.mpr (mem_ker (f := toB) (r := fromA' x.1))
-        ((DFunLike.congr_fun hcomm x.1).trans
-          ((congrArg (structureMap : A →+* B) x.2).trans
-            (map_zero (structureMap : A →+* B)))))) x + (fun x : KernelModule π =>
-    ofMem
-      (Iff.mpr (mem_ker (f := toB) (r := fromA' x.1))
-        ((DFunLike.congr_fun hcomm x.1).trans
-          ((congrArg (structureMap : A →+* B) x.2).trans
-            (map_zero (structureMap : A →+* B)))))) y := sorry
+/-- `kerMapOfHoms` acts by the source map of the square. -/
+theorem kerMapOfHoms_apply {R' R S' S : Type u}
+    [CommRing R'] [CommRing R] [CommRing S'] [CommRing S]
+    {πR : R' →+* R} [πR.IsSquareZeroExtension] {πS : S' →+* S} [πS.IsSquareZeroExtension]
+    (f' : R' →+* S') (f : R →+* S) (hcomm : πS.comp f' = f.comp πR) (x : KernelModule πR) :
+    val (kerMapOfHoms f' f hcomm x) = f' (val x) := rfl
 
-/-- The map on kernels induced by a commutative square of ring homomorphisms. -/
-def kerMapOf {Bprime : Type u} [CommRing Bprime] (fromA' : A' →+* Bprime)
+/-- Compatibility alias for the externally reserved `SquareZero.Fiber` consumer.
+New solution interfaces and migrated consumers use `algebraMap` directly. -/
+@[deprecated "Use algebraMap A B." (since := "2026-10-22")]
+abbrev structureMap : A →+* B := algebraMap A B
+
+/-- The algebra-map specialization of the canonical square kernel map. -/
+abbrev kerMapOf {Bprime : Type u} [CommRing Bprime] (fromA' : A' →+* Bprime)
     (toB : Bprime →+* B)
-    (hcomm : toB.comp fromA' = (structureMap : A →+* B).comp π)
-    [toB.IsSquareZeroExtension] : KernelModule π →+ KernelModule toB where
-  toFun := (fun x : KernelModule π =>
-    ofMem
-      (Iff.mpr (mem_ker (f := toB) (r := fromA' x.1))
-        ((DFunLike.congr_fun hcomm x.1).trans
-          ((congrArg (structureMap : A →+* B) x.2).trans
-            (map_zero (structureMap : A →+* B))))))
-  map_zero' := by exact kerMapOf_map_zero π fromA' toB hcomm
-  map_add' := by exact kerMapOf_map_add π fromA' toB hcomm
+    (hcomm : toB.comp fromA' = (algebraMap A B).comp π)
+    [toB.IsSquareZeroExtension] : KernelModule π →+ KernelModule toB :=
+  kerMapOfHoms fromA' (algebraMap A B) hcomm
 
 variable {N : Type u} [AddCommGroup N] [Module B N] [Module A N]
 variable (c : KernelModule π →ₗ[A] N)
@@ -165,7 +145,7 @@ structure Solution [IsScalarTower A B N] where
   /-- The square-zero surjection B' →+* B. -/
   toB : carrier →+* B
   /-- The right-hand square commutes. -/
-  comm_right : toB.comp fromA' = (structureMap : A →+* B).comp π
+  comm_right : toB.comp fromA' = (algebraMap A B).comp π
   /-- The projection B' →+* B is a square-zero extension. -/
   [isSquareZero : toB.IsSquareZeroExtension]
   /-- B-linear identification of ker(B' →+* B) with N. -/
@@ -181,7 +161,7 @@ identification, and the induced-map condition. -/
 def of [IsScalarTower A B N] {Bprime : Type u} [CommRing Bprime]
     (fromA' : A' →+* Bprime) (toB : Bprime →+* B)
     [hsq : toB.IsSquareZeroExtension]
-    (comm_right : toB.comp fromA' = (structureMap : A →+* B).comp π)
+    (comm_right : toB.comp fromA' = (algebraMap A B).comp π)
     (kernelEquiv : KernelModule toB ≃ₗ[B] N)
     (induces : ∀ x : KernelModule π,
       kernelEquiv (kerMapOf π fromA' toB comm_right x) = c x) :
@@ -197,7 +177,7 @@ def of [IsScalarTower A B N] {Bprime : Type u} [CommRing Bprime]
 
 /-- The right-hand square of a solution commutes. -/
 theorem spec [IsScalarTower A B N] (S : Solution (B := B) (N := N) π c) :
-    S.toB.comp S.fromA' = (structureMap : A →+* B).comp π := sorry
+    S.toB.comp S.fromA' = (algebraMap A B).comp π := sorry
 
 /-- The kernel map of a solution preserves addition. -/
 private theorem kerMap_map_add [IsScalarTower A B N] (S : Solution (B := B) (N := N) π c)
@@ -207,7 +187,7 @@ private theorem kerMap_map_add [IsScalarTower A B N] (S : Solution (B := B) (N :
     -- Local instance justification (proof-local temporary data): unpack its stored square-zero projection.
     letI := S.isSquareZero
     -- Local instance justification (search instability): the intermediate ring B is not determined by the kernel type.
-    letI : Module A (KernelModule S.toB) := Module.compHom _ (structureMap : A →+* B)
+    letI : Module A (KernelModule S.toB) := Module.compHom _ (algebraMap A B)
     kerMapOf π S.fromA' S.toB S.comm_right (x + y) =
       kerMapOf π S.fromA' S.toB S.comm_right x + kerMapOf π S.fromA' S.toB S.comm_right y := sorry
 
@@ -219,7 +199,7 @@ private theorem kerMap_map_smul [IsScalarTower A B N] (S : Solution (B := B) (N 
     -- Local instance justification (proof-local temporary data): unpack its stored square-zero projection.
     letI := S.isSquareZero
     -- Local instance justification (search instability): the intermediate ring B is not determined by the kernel type.
-    letI : Module A (KernelModule S.toB) := Module.compHom _ (structureMap : A →+* B)
+    letI : Module A (KernelModule S.toB) := Module.compHom _ (algebraMap A B)
     kerMapOf π S.fromA' S.toB S.comm_right (r • x) =
       r • kerMapOf π S.fromA' S.toB S.comm_right x := sorry
 
@@ -231,7 +211,7 @@ def kerMap [IsScalarTower A B N] (S : Solution (B := B) (N := N) π c) :
     letI := S.isSquareZero
     -- Local instance justification (search instability): restrict-scalars along Algebra A B cannot infer the intermediate ring B from KernelModule S.toB.
     letI : Module A (KernelModule S.toB) :=
-      Module.compHom _ (structureMap : A →+* B)
+      Module.compHom _ (algebraMap A B)
     KernelModule π →ₗ[A] KernelModule S.toB :=
   -- Local instance justification (proof-local temporary data): bundled `S.commRing` is not globally registered on the structure Solution.
   letI := S.commRing
@@ -239,16 +219,16 @@ def kerMap [IsScalarTower A B N] (S : Solution (B := B) (N := N) π c) :
   letI := S.isSquareZero
   -- Local instance justification (search instability): restrict-scalars along Algebra A B cannot infer the intermediate ring B from KernelModule S.toB.
   letI : Module A (KernelModule S.toB) :=
-    Module.compHom _ (structureMap : A →+* B)
+    Module.compHom _ (algebraMap A B)
   { toFun := fun x => kerMapOf π S.fromA' S.toB S.comm_right x
     map_add' := by exact kerMap_map_add π c S
     map_smul' := by exact kerMap_map_smul π c S }
 
 /-- `kerMapOf` acts by the structure map A' →+* B'. -/
 theorem kerMapOf_apply {Bprime : Type u} [CommRing Bprime] (fromA' : A' →+* Bprime)
-    (toB : Bprime →+* B) (hcomm : toB.comp fromA' = (structureMap : A →+* B).comp π)
+    (toB : Bprime →+* B) (hcomm : toB.comp fromA' = (algebraMap A B).comp π)
     [toB.IsSquareZeroExtension] (x : KernelModule π) :
-    val (kerMapOf π fromA' toB hcomm x) = fromA' (val x) := sorry
+    val (kerMapOf π fromA' toB hcomm x) = fromA' (val x) := rfl
 
 /-- The inclusion determined by the coefficient identification sends zero to zero. -/
 private theorem inclusion_map_zero [IsScalarTower A B N] (S : Solution (B := B) (N := N) π c) :
@@ -299,7 +279,7 @@ def toLiftingSquare [IsScalarTower A B N] (S : Solution (B := B) (N := N) π c) 
   -- Local instance justification (proof-local temporary data): bundled `S.commRing` is not globally registered on the structure Solution.
   letI := S.commRing
   { upper := S.fromA'
-    lower := (structureMap : A →+* B)
+    lower := (algebraMap A B)
     comm := S.comm_right }
 
 /-- The bottom row 0 ⟶ ker π ⟶ A' ⟶ A is exact at A'. -/

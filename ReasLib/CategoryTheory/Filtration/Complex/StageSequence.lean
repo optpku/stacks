@@ -19,7 +19,8 @@ An antitone sequence of integer filtration indices determines a sequential
 diagram of stage complexes.  This file owns that neutral construction, its
 canonical cocone to the underlying complex, and its functoriality in filtered
 maps.  Concrete filtrations can specialize it without rebuilding transition
-maps degree by degree.
+maps degree by degree. The input stages come from filtered complexes (Stacks 012L);
+these auxiliary sequence constructions do not claim that definition or the Postnikov example.
 -/
 
 open CategoryTheory CategoryTheory.Limits
@@ -35,7 +36,6 @@ namespace FilteredComplex.StageSequence
 variable {C : Type u} [Category.{v} C] [HasZeroMorphisms C]
 
 /-- The sequential diagram of stages selected by an antitone index function. -/
-@[stacks 0D8Z]
 def ofAntitone (K : FilteredComplex C) (p : ℕ → ℤ) (hp : Antitone p) :
     ℕ ⥤ CochainComplex C ℤ :=
   Functor.ofSequence (fun n ↦ K.stageComparison (hp (Nat.le_succ n)))
@@ -65,7 +65,6 @@ theorem toUnderlying_naturality (K : FilteredComplex C) (p : ℕ → ℤ)
 
 /-- The stage inclusions form a natural transformation to the constant
 diagram at the underlying complex. -/
-@[stacks 0D8Z]
 def toUnderlying (K : FilteredComplex C) (p : ℕ → ℤ) (hp : Antitone p) :
     ofAntitone K p hp ⟶ (Functor.const ℕ).obj K.underlying :=
   NatTrans.ofSequence (fun n ↦ K.stageInclusion (p n))
@@ -78,7 +77,6 @@ theorem toUnderlying_app (K : FilteredComplex C) (p : ℕ → ℤ)
     (toUnderlying K p hp).app n = K.stageInclusion (p n) := sorry
 
 /-- The canonical cocone from an antitone stage sequence to the underlying complex. -/
-@[stacks 0D8Z]
 def cocone (K : FilteredComplex C) (p : ℕ → ℤ) (hp : Antitone p) :
     Cocone (ofAntitone K p hp) :=
   Cocone.mk K.underlying (toUnderlying K p hp)
@@ -105,7 +103,6 @@ theorem map_naturality {K L : FilteredComplex C} (f : K ⟶ L)
         (ofAntitone L p hp).map (homOfLE (Nat.le_succ n)) := sorry
 
 /-- A filtered morphism induces a morphism between the corresponding stage sequences. -/
-@[stacks 0D8Z]
 def map {K L : FilteredComplex C} (f : K ⟶ L) (p : ℕ → ℤ)
     (hp : Antitone p) :
     ofAntitone K p hp ⟶ ofAntitone L p hp :=
@@ -130,7 +127,6 @@ theorem map_comp {K L M : FilteredComplex C} (f : K ⟶ L) (g : L ⟶ M)
 
 /-- Taking the stages selected by an antitone index function is functorial in
 the filtered complex. -/
-@[stacks 0D8Z]
 def functor (p : ℕ → ℤ) (hp : Antitone p) :
     FilteredComplex C ⥤ (ℕ ⥤ CochainComplex C ℤ) where
   obj K := ofAntitone K p hp
@@ -139,19 +135,19 @@ def functor (p : ℕ → ℤ) (hp : Antitone p) :
   map_comp f g := map_comp f g p hp
 
 /-- Evaluating the stage-sequence functor gives the selected antitone diagram. -/
-@[simp, stacks 0D8Z]
+@[simp]
 theorem functor_obj (K : FilteredComplex C) (p : ℕ → ℤ) (hp : Antitone p) :
     (functor p hp).obj K = ofAntitone K p hp := sorry
 
 /-- The map of the stage-sequence functor is the termwise stage map. -/
-@[simp, stacks 0D8Z]
+@[simp]
 theorem functor_map {K L : FilteredComplex C} (f : K ⟶ L)
     (p : ℕ → ℤ) (hp : Antitone p) :
     (functor p hp).map f = map f p hp := sorry
 
 /-- The sequence map and the underlying map commute with the canonical
 transformations to the underlying complexes. -/
-@[reassoc, stacks 0D8Z]
+@[reassoc]
 theorem map_comp_toUnderlying {K L : FilteredComplex C} (f : K ⟶ L)
     (p : ℕ → ℤ) (hp : Antitone p) :
     map f p hp ≫ toUnderlying L p hp =

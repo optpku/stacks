@@ -45,7 +45,6 @@ theorem of_subsingleton_primesOver
 
 /-- A finite flat algebra over a local ring with rank-one closed fiber has bijective structure
 map. -/
-@[stacks 04GG "rank-one special fiber of a finite flat local algebra"]
 theorem algebraMap_bijective_of_finrank_specialFiber_eq_one
     {R : Type u} {A : Type v} [CommRing R] [IsLocalRing R] [CommRing A] [Algebra R A]
     [Module.Finite R A] [Module.Flat R A]
@@ -54,7 +53,6 @@ theorem algebraMap_bijective_of_finrank_specialFiber_eq_one
 
 /-- A finite flat algebra over a local ring with rank-one closed fiber is canonically equivalent
 to the base as an algebra. -/
-@[stacks 04GG "rank-one special fiber of a finite flat local algebra"]
 noncomputable def algEquiv_of_finrank_specialFiber_eq_one
     {R : Type u} {A : Type v} [CommRing R] [IsLocalRing R] [CommRing A] [Algebra R A]
     [Module.Finite R A] [Module.Flat R A]

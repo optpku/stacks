@@ -10,6 +10,7 @@ public import Mathlib.CategoryTheory.Elements
 public import Mathlib.CategoryTheory.Limits.Types.Limits
 public import Mathlib.Data.Countable.Small
 public import ReasLib.CategoryTheory.Fibered.InGroupoids.Basic
+public import ReasLib.CategoryTheory.Fibered.InGroupoids.Elements
 public import ReasLib.CategoryTheory.InverseSystem.Sequential
 public import ReasLib.AlgebraicGeometry.FormalDeformation.CompleteLocal
 
@@ -154,11 +155,6 @@ theorem typesCompletion_map (F : ArtinianLocalAlgCat Λ k ⥤ Type w)
     {S T : CompleteLocalAlgCat Λ k} (f : S ⟶ T) :
     (typesCompletion F).map f =
       limMap (whiskerRight (CompleteLocalAlgCat.truncationSystemMap f) F) := sorry
-
-/-- The opposite of the category-of-elements projection of a set-valued functor on
-`C_Λ` is fibered in groupoids. -/
-instance pi_op_isFiberedInGroupoids (F : ArtinianLocalAlgCat Λ k ⥤ Type w) :
-    IsFibered.InGroupoids (CategoryOfElements.π F).op := sorry
 
 /-- The element of `F` at the `n`th truncation of `S` determined by a completion
 point. -/

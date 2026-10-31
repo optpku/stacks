@@ -43,32 +43,32 @@ def associatedTriangle (sigma : GradedSplitting S) :
 /-- The first object of the associated triangle is the kernel term of the short complex. -/
 @[simp]
 theorem associatedTriangle_obj₁ (sigma : GradedSplitting S) :
-    (associatedTriangle S sigma).obj₁ = S.X₁ := sorry
+    (associatedTriangle S sigma).obj₁ = S.X₁ := by rfl
 
 /-- The second object of the associated triangle is the middle term of the short complex. -/
 @[simp]
 theorem associatedTriangle_obj₂ (sigma : GradedSplitting S) :
-    (associatedTriangle S sigma).obj₂ = S.X₂ := sorry
+    (associatedTriangle S sigma).obj₂ = S.X₂ := by rfl
 
 /-- The third object of the associated triangle is the quotient term of the short complex. -/
 @[simp]
 theorem associatedTriangle_obj₃ (sigma : GradedSplitting S) :
-    (associatedTriangle S sigma).obj₃ = S.X₃ := sorry
+    (associatedTriangle S sigma).obj₃ = S.X₃ := by rfl
 
 /-- The first map of the associated triangle is the first map of the short complex. -/
 @[simp]
 theorem associatedTriangle_mor₁ (sigma : GradedSplitting S) :
-    (associatedTriangle S sigma).mor₁ = S.f := sorry
+    (associatedTriangle S sigma).mor₁ = S.f := by rfl
 
 /-- The second map of the associated triangle is the second map of the short complex. -/
 @[simp]
 theorem associatedTriangle_mor₂ (sigma : GradedSplitting S) :
-    (associatedTriangle S sigma).mor₂ = S.g := sorry
+    (associatedTriangle S sigma).mor₂ = S.g := by rfl
 
 /-- The third map of the associated triangle is the connecting morphism of the splitting. -/
 @[simp]
 theorem associatedTriangle_mor₃ (sigma : GradedSplitting S) :
-    (associatedTriangle S sigma).mor₃ = sigma.connectingHom := sorry
+    (associatedTriangle S sigma).mor₃ = sigma.connectingHom := by rfl
 
 /-- Equation 22.8.1.1 (09K7): the triangle in the DG homotopy category associated to a graded
 `A`-linearly split short complex. -/
@@ -80,24 +80,24 @@ def associatedTriangleK (sigma : GradedSplitting S) :
 /-- The first object of the associated homotopy-category triangle is represented by `S.X₁`. -/
 @[simp]
 theorem associatedTriangleK_obj₁ (sigma : GradedSplitting S) :
-    (associatedTriangleK S sigma).obj₁ = (toK A).obj S.X₁ := sorry
+    (associatedTriangleK S sigma).obj₁ = (toK A).obj S.X₁ := by rfl
 
 /-- The second object of the associated homotopy-category triangle is represented by `S.X₂`. -/
 @[simp]
 theorem associatedTriangleK_obj₂ (sigma : GradedSplitting S) :
-    (associatedTriangleK S sigma).obj₂ = (toK A).obj S.X₂ := sorry
+    (associatedTriangleK S sigma).obj₂ = (toK A).obj S.X₂ := by rfl
 
 /-- The third object of the associated homotopy-category triangle is represented by `S.X₃`. -/
 @[simp]
 theorem associatedTriangleK_obj₃ (sigma : GradedSplitting S) :
-    (associatedTriangleK S sigma).obj₃ = (toK A).obj S.X₃ := sorry
+    (associatedTriangleK S sigma).obj₃ = (toK A).obj S.X₃ := by rfl
 
 /-- The third map of the associated homotopy-category triangle is represented by the explicit
 connecting DG-module morphism, followed by the canonical shift comparison. -/
 @[simp]
 theorem associatedTriangleK_mor₃ (sigma : GradedSplitting S) :
     (associatedTriangleK S sigma).mor₃ =
-      (toK A).map sigma.connectingHom ≫ ((toK A).commShiftIso (1 : ℤ)).hom.app S.X₁ := sorry
+      (toK A).map sigma.connectingHom ≫ ((toK A).commShiftIso (1 : ℤ)).hom.app S.X₁ := by rfl
 
 /-- The canonical graded correction from `sigma` to `sigma'` is section for `sigma'` followed by
 retraction for `sigma`. -/
@@ -109,7 +109,7 @@ def splittingCorrection (sigma sigma' : GradedSplitting S) :
 @[simp]
 theorem splittingCorrection_hom (sigma sigma' : GradedSplitting S) (n : ℤ) :
     (splittingCorrection S sigma sigma').hom n =
-      (sigma.r.hom n).comp (sigma'.s.hom n) := sorry
+      (sigma.r.hom n).comp (sigma'.s.hom n) := by rfl
 
 /-- The shifted correction satisfies the homotopy equation between the two connecting maps. -/
 theorem connectingHomotopy_condition (sigma sigma' : GradedSplitting S) :
@@ -128,32 +128,49 @@ correction. -/
 @[simp]
 theorem connectingHomotopy_hom (sigma sigma' : GradedSplitting S) :
     (connectingHomotopy S sigma sigma').hom =
-      -(splittingCorrection S sigma sigma').toShiftHomotopy := sorry
+      -(splittingCorrection S sigma sigma').toShiftHomotopy := by rfl
 
 /-- Connecting morphisms obtained from two splittings agree in the DG homotopy category. -/
 theorem connectingHom_eq_in_K (sigma sigma' : GradedSplitting S) :
-    (toK A).map sigma.connectingHom = (toK A).map sigma'.connectingHom := sorry
+    (toK A).map sigma.connectingHom = (toK A).map sigma'.connectingHom := by
+  exact (connectingHomotopy S sigma sigma').toK_eq.symm
 
 /-- Lemma 22.8.1 (09K6): changing the graded `A`-linear splitting gives the canonical
 identity-on-vertices isomorphism of associated triangles in the DG homotopy category. -/
 @[stacks 09K6 "independence of the splitting for an associated DG-module triangle"]
 def associatedTriangleIso (sigma sigma' : GradedSplitting S) :
     associatedTriangleK S sigma ≅ associatedTriangleK S sigma' :=
-  Triangle.isoMk _ _ (Iso.refl _) (Iso.refl _) (Iso.refl _) sorry sorry sorry
+  Triangle.isoMk _ _ (Iso.refl ((toK A).obj S.X₁))
+    (Iso.refl ((toK A).obj S.X₂)) (Iso.refl ((toK A).obj S.X₃))
+    (by
+      change (toK A).map S.f ≫ 𝟙 _ = 𝟙 _ ≫ (toK A).map S.f
+      rw [Category.comp_id, Category.id_comp])
+    (by
+      change (toK A).map S.g ≫ 𝟙 _ = 𝟙 _ ≫ (toK A).map S.g
+      rw [Category.comp_id, Category.id_comp])
+    (by
+      change ((toK A).map sigma.connectingHom ≫
+          ((toK A).commShiftIso (1 : ℤ)).hom.app S.X₁) ≫
+          (shiftFunctor (K R (DifferentialGradedModule.{u, w} A)) (1 : ℤ)).map
+            (𝟙 ((toK A).obj S.X₁)) =
+        𝟙 ((toK A).obj S.X₃) ≫ ((toK A).map sigma'.connectingHom ≫
+          ((toK A).commShiftIso (1 : ℤ)).hom.app S.X₁)
+      erw [CategoryTheory.Functor.map_id, Category.comp_id, Category.id_comp,
+        connectingHom_eq_in_K S sigma sigma'])
 
 /-- Splitting independence acts by the identity on the first vertex. -/
 @[simp]
 theorem associatedTriangleIso_hom₁ (sigma sigma' : GradedSplitting S) :
-    (associatedTriangleIso S sigma sigma').hom.hom₁ = 𝟙 _ := sorry
+    (associatedTriangleIso S sigma sigma').hom.hom₁ = 𝟙 _ := by rfl
 
 /-- Splitting independence acts by the identity on the second vertex. -/
 @[simp]
 theorem associatedTriangleIso_hom₂ (sigma sigma' : GradedSplitting S) :
-    (associatedTriangleIso S sigma sigma').hom.hom₂ = 𝟙 _ := sorry
+    (associatedTriangleIso S sigma sigma').hom.hom₂ = 𝟙 _ := by rfl
 
 /-- Splitting independence acts by the identity on the third vertex. -/
 @[simp]
 theorem associatedTriangleIso_hom₃ (sigma sigma' : GradedSplitting S) :
-    (associatedTriangleIso S sigma sigma').hom.hom₃ = 𝟙 _ := sorry
+    (associatedTriangleIso S sigma sigma').hom.hom₃ = 𝟙 _ := by rfl
 
 end DifferentialGradedModule.ShortComplex

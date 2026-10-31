@@ -84,7 +84,7 @@ theorem neighborhood_of
         (closedPoint (AdicCompletion (maximalIdeal R) R)) = U.point)
     (approximation : SolutionApproximation f aHat phi
       (Ideal.map phi.toRingHom (U.point.asIdeal ^ N))) :
-    (of U phi hbranch approximation).neighborhood = U := sorry
+    (of U phi hbranch approximation).neighborhood = U := rfl
 
 /-- The comparison map of a constructed closed-point approximation is the
 supplied comparison map. -/
@@ -100,7 +100,7 @@ theorem comparison_of
         (closedPoint (AdicCompletion (maximalIdeal R) R)) = U.point)
     (approximation : SolutionApproximation f aHat phi
       (Ideal.map phi.toRingHom (U.point.asIdeal ^ N))) :
-    (of U phi hbranch approximation).comparison = phi := sorry
+    (of U phi hbranch approximation).comparison = phi := rfl
 
 /-- The approximation carried by the closed-point constructor is the
 supplied exact approximation. -/
@@ -116,7 +116,7 @@ theorem approximation_of
         (closedPoint (AdicCompletion (maximalIdeal R) R)) = U.point)
     (approximation : SolutionApproximation f aHat phi
       (Ideal.map phi.toRingHom (U.point.asIdeal ^ N))) :
-    (of U phi hbranch approximation).approximation = approximation := sorry
+    (of U phi hbranch approximation).approximation = approximation := rfl
 
 /-- The selected point of a closed-point approximation lies over the closed
 point of the base ring. -/
@@ -128,7 +128,10 @@ theorem comap_point
     {aHat : sigma → AdicCompletion (maximalIdeal R) R} {N : ℕ}
     (P : AtClosedPoint.{u, v, w, x} f aHat N) :
     PrimeSpectrum.comap (algebraMap R P.neighborhood.carrier)
-      P.neighborhood.point = closedPoint R := sorry
+      P.neighborhood.point = closedPoint R := by
+  apply PrimeSpectrum.ext
+  rw [PrimeSpectrum.comap_asIdeal]
+  exact P.neighborhood.over.symm
 
 /-- The selected point of a closed-point approximation has the same residue
 field as the closed point of the base ring. -/
@@ -140,7 +143,15 @@ theorem residueFieldBijectiveAt
     {aHat : sigma → AdicCompletion (maximalIdeal R) R} {N : ℕ}
     (P : AtClosedPoint.{u, v, w, x} f aHat N) :
     RingHom.ResidueField.IsBijectiveAt
-      (algebraMap R P.neighborhood.carrier) P.neighborhood.point := sorry
+      (algebraMap R P.neighborhood.carrier) P.neighborhood.point := by
+  have hres {p : PrimeSpectrum R} (U : EtaleNeighborhood.{u, v} p) :
+      RingHom.ResidueField.IsBijectiveAt (algebraMap R U.carrier) U.point := by
+    rcases p with ⟨p, hp⟩
+    rcases U with ⟨A, q, hq, hres⟩
+    dsimp only at hq
+    subst p
+    exact hres
+  exact hres P.neighborhood
 
 /-- The chosen tuple of a closed-point approximation has the bundled exact
 approximation property. -/
@@ -153,7 +164,8 @@ theorem isApproximation
     (P : AtClosedPoint.{u, v, w, x} f aHat N) :
     IsApproximation f aHat P.comparison
       (Ideal.map P.comparison.toRingHom
-        (P.neighborhood.point.asIdeal ^ N)) P.approximation.solution := sorry
+        (P.neighborhood.point.asIdeal ^ N)) P.approximation.solution :=
+  P.approximation.isApproximation
 
 /-- The chosen tuple of a closed-point approximation is an exact solution
 of the original polynomial system. -/
@@ -164,7 +176,8 @@ theorem isSolution
     {sigma : Type w} {iota : Type x} {f : iota → MvPolynomial sigma R}
     {aHat : sigma → AdicCompletion (maximalIdeal R) R} {N : ℕ}
     (P : AtClosedPoint.{u, v, w, x} f aHat N) :
-    IsSolution f P.approximation.solution := sorry
+    IsSolution f P.approximation.solution :=
+  P.approximation.isApproximation.isSolution
 
 /-- Every coordinate of the chosen exact solution has the prescribed
 closed-point congruence. -/
@@ -177,7 +190,8 @@ theorem modEq
     (P : AtClosedPoint.{u, v, w, x} f aHat N) (i : sigma) :
     aHat i ≡ P.comparison (P.approximation.solution i)
       [SMOD Ideal.map P.comparison.toRingHom
-        (P.neighborhood.point.asIdeal ^ N)] := sorry
+        (P.neighborhood.point.asIdeal ^ N)] :=
+  P.approximation.isApproximation.modEq i
 
 /-- The etale-neighborhood, selected-branch, and exact-approximation
 properties carried by a closed-point approximation. -/
@@ -198,7 +212,12 @@ theorem spec
         P.neighborhood.point ∧
       IsApproximation f aHat P.comparison
         (Ideal.map P.comparison.toRingHom
-          (P.neighborhood.point.asIdeal ^ N)) P.approximation.solution := sorry
+          (P.neighborhood.point.asIdeal ^ N)) P.approximation.solution :=
+  ⟨⟨P.neighborhood.etaleAlgebra.property,
+      P.comap_point,
+      P.residueFieldBijectiveAt⟩,
+    P.branch,
+    P.approximation.isApproximation⟩
 
 end AtClosedPoint
 

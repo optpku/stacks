@@ -40,7 +40,43 @@ noncomputable def exteriorComparisonProductLift (s : S.Splitting)
 differential in a commuting square. -/
 theorem exteriorComparisonProductLift_comp (s : S.Splitting)
     (dL : N ⟶ S.X₂) (dM : N ⟶ S.X₃) (hcomm : dL ≫ S.g = dM) :
-    exteriorComparisonProductLift s dL dM ≫ s.prodIso.hom = dL := sorry
+    exteriorComparisonProductLift s dL dM ≫ s.prodIso.hom = dL := by
+  have hfst : s.prodIso.inv ≫ ModuleCat.ofHom (LinearMap.fst R S.X₁ S.X₃) = s.r := by
+    change biprod.lift s.r S.g ≫ (ModuleCat.biprodIsoProd S.X₁ S.X₃).hom ≫
+      ModuleCat.ofHom (LinearMap.fst R S.X₁ S.X₃) = s.r
+    have hf : (ModuleCat.biprodIsoProd S.X₁ S.X₃).hom ≫
+        ModuleCat.ofHom (LinearMap.fst R S.X₁ S.X₃) = biprod.fst := by
+      rw [← cancel_epi (ModuleCat.biprodIsoProd S.X₁ S.X₃).inv]
+      simp
+    rw [hf, biprod.lift_fst]
+  have hsnd : s.prodIso.inv ≫ ModuleCat.ofHom (LinearMap.snd R S.X₁ S.X₃) = S.g := by
+    change biprod.lift s.r S.g ≫ (ModuleCat.biprodIsoProd S.X₁ S.X₃).hom ≫
+      ModuleCat.ofHom (LinearMap.snd R S.X₁ S.X₃) = S.g
+    have hf : (ModuleCat.biprodIsoProd S.X₁ S.X₃).hom ≫
+        ModuleCat.ofHom (LinearMap.snd R S.X₁ S.X₃) = biprod.snd := by
+      rw [← cancel_epi (ModuleCat.biprodIsoProd S.X₁ S.X₃).inv]
+      simp
+    rw [hf, biprod.lift_snd]
+  apply (cancel_mono s.prodIso.inv).1
+  simp only [Category.assoc, Iso.hom_inv_id, Category.comp_id]
+  apply ModuleCat.hom_ext
+  apply LinearMap.ext
+  intro x
+  change ((ModuleCat.Hom.hom (exteriorComparisonProductLift s dL dM)) x : S.X₁ × S.X₃) =
+    (ModuleCat.Hom.hom (dL ≫ s.prodIso.inv) x : S.X₁ × S.X₃)
+  apply Prod.ext
+  · have hcomp : exteriorComparisonProductLift s dL dM ≫
+        ModuleCat.ofHom (LinearMap.fst R S.X₁ S.X₃) =
+        dL ≫ s.prodIso.inv ≫ ModuleCat.ofHom (LinearMap.fst R S.X₁ S.X₃) := by
+      rw [← Category.assoc, Category.assoc, hfst]
+      rfl
+    exact ConcreteCategory.congr_hom hcomp x
+  · have hcomp : exteriorComparisonProductLift s dL dM ≫
+        ModuleCat.ofHom (LinearMap.snd R S.X₁ S.X₃) =
+        dL ≫ s.prodIso.inv ≫ ModuleCat.ofHom (LinearMap.snd R S.X₁ S.X₃) := by
+      rw [← Category.assoc, Category.assoc, hsnd, hcomm]
+      rfl
+    exact ConcreteCategory.congr_hom hcomp x
 
 /-- The exterior comparison before passage to the cokernel, constructed in a product model of
 the split short exact row. -/
@@ -88,7 +124,9 @@ theorem exteriorComparisonPre_ker (s : S.Splitting)
 
 /-- The exterior-power map induced by a cokernel projection is surjective. -/
 theorem cokernelExteriorPower_surjective (dL : N ⟶ S.X₂) (p : ℕ) :
-    Function.Surjective (ModuleCat.exteriorPower.map (cokernel.π dL) p) := sorry
+    Function.Surjective (ModuleCat.exteriorPower.map (cokernel.π dL) p) := by
+  exact _root_.exteriorPower.map_surjective
+    ((ModuleCat.epi_iff_surjective (cokernel.π dL)).mp inferInstance)
 
 /-- The canonical family of comparison maps attached to a short exact row and a commuting
 two-term differential from `N` to its middle and right terms. -/
@@ -118,7 +156,12 @@ theorem exteriorComparison_comp_map
     (hRank : Module.finrank R N = Module.finrank R S.X₃) (p : ℕ) :
     (exteriorComparison hS dL dM hcomm hRank p).comp
         (ModuleCat.exteriorPower.map (cokernel.π dL) p).hom =
-      exteriorComparisonPre hS.splittingOfProjective dL dM hRank p := sorry
+      exteriorComparisonPre hS.splittingOfProjective dL dM hRank p := by
+  apply LinearMap.ext
+  intro x
+  dsimp [exteriorComparison, ModuleCat.exteriorPower.descOfSurjective]
+  rw [LinearMap.quotKerEquivOfSurjective_symm_apply]
+  rfl
 
 /-- The canonical exterior comparison is uniquely determined by its precomparison composite. -/
 theorem exteriorComparison_unique
@@ -131,7 +174,12 @@ theorem exteriorComparison_unique
       S.X₁.exteriorPower p ⊗[R] (det[R](N) →ₗ[R] det[R](S.X₃)))
     (hc : c.comp (ModuleCat.exteriorPower.map (cokernel.π dL) p).hom =
       exteriorComparisonPre hS.splittingOfProjective dL dM hRank p) :
-    c = exteriorComparison hS dL dM hcomm hRank p := sorry
+    c = exteriorComparison hS dL dM hcomm hRank p := by
+  apply LinearMap.ext
+  intro y
+  obtain ⟨x, rfl⟩ := cokernelExteriorPower_surjective dL p y
+  exact (LinearMap.congr_fun hc x).trans
+    (LinearMap.congr_fun (exteriorComparison_comp_map hS dL dM hcomm hRank p) x).symm
 
 /-- In degree zero, the exterior comparison carries the exterior unit to the discriminant of
 the two-term complex `N ⟶ S.X₃`. -/
@@ -163,6 +211,15 @@ theorem exteriorComparison_wedge
           (det[R](N) →ₗ[R] det[R](S.X₃))).symm
             (ω ⊗ₜ[R] exteriorComparison hS dL dM hcomm hRank p η)) := sorry
 
+private theorem exteriorPower_mul_oneLinear (M : ModuleCat.{v} R) (p : ℕ) (x : M.exteriorPower p) :
+    ModuleCat.exteriorPower.mul M p 0
+      (x ⊗ₜ[R] ModuleCat.exteriorPower.oneLinear M (1 : R)) = x := by
+  apply Subtype.ext
+  change ((⋀[R]^p M).subtype x) *
+    ((⋀[R]^0 M).subtype ((exteriorPower.zeroEquiv R M).symm 1)) =
+      (⋀[R]^p M).subtype x
+  simp [exteriorPower.zeroEquiv_symm_apply]
+
 /-- Composing the exterior comparison with the map from `S.X₁` is tensor multiplication by
 the discriminant of `N ⟶ S.X₃`. -/
 theorem exteriorComparison_comp
@@ -176,7 +233,29 @@ theorem exteriorComparison_comp
         (ModuleCat.exteriorPower.map (S.f ≫ cokernel.π dL) p).hom =
       (TensorProduct.mk R (S.X₁.exteriorPower p)
         (det[R](N) →ₗ[R] det[R](S.X₃))).flip
-          (ModuleCat.twoTermDiscriminant dM hRank) := sorry
+          (ModuleCat.twoTermDiscriminant dM hRank) := by
+  apply LinearMap.ext
+  intro ω
+  have hw := exteriorComparison_wedge hS dL dM hcomm hRank p 0 ω
+    (ModuleCat.exteriorPower.oneLinear (cokernel dL) (1 : R))
+  rw [exteriorComparison_zero hS dL dM hcomm hRank] at hw
+  have hleft := exteriorPower_mul_oneLinear (cokernel dL) p
+    ((ModuleCat.exteriorPower.map (S.f ≫ cokernel.π dL) p).hom ω)
+  have hright := exteriorPower_mul_oneLinear S.X₁ p ω
+  change exteriorComparison hS dL dM hcomm hRank p
+      ((ModuleCat.exteriorPower.map (S.f ≫ cokernel.π dL) p).hom ω) =
+    ω ⊗ₜ[R] ModuleCat.twoTermDiscriminant dM hRank
+  have htarget : TensorProduct.map (ModuleCat.exteriorPower.mul S.X₁ p 0).hom LinearMap.id
+      ((TensorProduct.assoc R (S.X₁.exteriorPower p) (S.X₁.exteriorPower 0)
+        (det[R](N) →ₗ[R] det[R](S.X₃))).symm
+        (ω ⊗ₜ[R] (ModuleCat.exteriorPower.oneLinear S.X₁ 1 ⊗ₜ[R]
+          ModuleCat.twoTermDiscriminant dM hRank))) =
+      ω ⊗ₜ[R] ModuleCat.twoTermDiscriminant dM hRank := by
+    simp only [TensorProduct.assoc_symm_tmul, TensorProduct.map_tmul, LinearMap.id_apply]
+    exact congrArg (fun x : S.X₁.exteriorPower p ↦
+      x ⊗ₜ[R] ModuleCat.twoTermDiscriminant dM hRank) hright
+  exact (congrArg (exteriorComparison hS dL dM hcomm hRank p) hleft.symm).trans
+    (hw.trans htarget)
 
 end CategoryTheory.ShortComplex.ShortExact
 

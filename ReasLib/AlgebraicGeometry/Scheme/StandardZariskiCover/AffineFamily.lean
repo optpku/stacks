@@ -43,7 +43,8 @@ the affine slice. -/
 @[stacks 020T "standard Zariski cover slice factorization"]
 theorem affineOverMap_fac {S : Scheme.{u}} (U : S.AffineOver)
     (𝒰 : U.obj.left.StandardZariskiCover.{u, v}) (i : 𝒰.index) :
-    𝒰.f i ≫ U.obj.hom = (affineOverObj U 𝒰 i).obj.hom := sorry
+    𝒰.f i ≫ U.obj.hom = (affineOverObj U 𝒰 i).obj.hom :=
+  rfl
 
 /-- The arrow from a standard distinguished-open member to its affine-slice
 target. -/
@@ -65,7 +66,8 @@ of the distinguished-open immersion with the structure map of the target. -/
 @[simp, stacks 020T "standard Zariski cover slice object readout"]
 theorem affineOverObj_obj {S : Scheme.{u}} (U : S.AffineOver)
     (𝒰 : U.obj.left.StandardZariskiCover.{u, v}) (i : 𝒰.index) :
-    (affineOverObj U 𝒰 i).obj = Over.mk (𝒰.f i ≫ U.obj.hom) := sorry
+    (affineOverObj U 𝒰 i).obj = Over.mk (𝒰.f i ≫ U.obj.hom) :=
+  rfl
 
 /-- Applying the affine-slice inclusion to a standard-cover chart arrow
 recovers its underlying arrow in `Over S`. -/
@@ -73,7 +75,8 @@ recovers its underlying arrow in `Over S`. -/
 theorem forget_affineOverMap {S : Scheme.{u}} (U : S.AffineOver)
     (𝒰 : U.obj.left.StandardZariskiCover.{u, v}) (i : 𝒰.index) :
     (AffineOver.forget S).map (affineOverMap U 𝒰 i) =
-      Over.homMk (𝒰.f i) (affineOverMap_fac U 𝒰 i) := sorry
+      Over.homMk (𝒰.f i) (affineOverMap_fac U 𝒰 i) :=
+  rfl
 
 end StandardZariskiCover
 

@@ -32,9 +32,11 @@ namespace AlgebraicGeometry.AlgebraicSpace.ClosedSubset
 #check (AlgebraicGeometry.AlgebraicSpace.ClosedSubset.ProperOver.preimage :
   ∀ {S : Scheme.{u}} {X' X Y' Y : AlgebraicSpace S}
     {g' : X' ⟶ X} {f' : X' ⟶ Y'} {f : X ⟶ Y} {g : Y' ⟶ Y},
-    IsPullback g' f' f g →
+    ∀ (sq : IsPullback g' f' f g),
       ∀ [LocallyOfFiniteType f] (T : Closeds (Points X)),
-        ProperOver f T → ProperOver f' (T.preimage (Points.continuous_map g')))
+        ProperOver f T →
+          letI : LocallyOfFiniteType f' := LocallyOfFiniteType.of_isPullback sq inferInstance
+          ProperOver f' (T.preimage (Points.continuous_map g')))
 
 #check (AlgebraicGeometry.AlgebraicSpace.ClosedSubset.ProperOver.preimage_pullback :
   ∀ {S : Scheme.{u}} {X Y Y' : AlgebraicSpace S}

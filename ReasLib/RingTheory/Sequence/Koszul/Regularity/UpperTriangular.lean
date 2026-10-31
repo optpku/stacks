@@ -109,12 +109,4 @@ theorem isRegular_upperTriangular (h : IsKoszulRegularSequence f)
     (hproper : Ideal.span (Set.range f) ≠ (⊤ : Ideal R)) :
     IsRegular (UpperTriangular.Ring R n) (List.ofFn (UpperTriangular.family f)) := sorry
 
-/-- Lemma 15.30.17 (4), tag `068Q`: under the source hypotheses, the
-original family and its universal upper-triangular transform generate the same extended ideal. -/
-@[stacks 068Q "Lemma 15.30.17 (4)"]
-theorem map_span_eq_span_upperTriangular (h : IsKoszulRegularSequence f)
-    (hproper : Ideal.span (Set.range f) ≠ (⊤ : Ideal R)) :
-    Ideal.map (algebraMap R (UpperTriangular.Ring R n)) (Ideal.span (Set.range f)) =
-      Ideal.span (Set.range (UpperTriangular.family f)) := sorry
-
 end RingTheory.Sequence.IsKoszulRegularSequence

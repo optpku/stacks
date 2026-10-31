@@ -169,6 +169,7 @@ variable [CommRing R] [CommRing A] [CommRing R'] [CommRing A']
 variable [Algebra R A] [Algebra R R'] [Algebra R A'] [Algebra A A'] [Algebra R' A']
 variable [IsScalarTower R A A'] [IsScalarTower R R' A']
 variable [hpush : Algebra.IsPushout R R' A A']
+variable [Module.Flat R A]
 variable [hasRHom : CategoryTheory.DerivedCategory.InternalHom.RHom.Has.{u, u} (A := A')]
 
 include hpush

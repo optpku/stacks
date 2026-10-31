@@ -34,6 +34,4 @@ variable {C : Type u} [Category.{v} C] [Abelian C]
 noncomputable instance functor_additive (q : ℤ) :
     (functor (C := C) q).Additive := sorry
 
-#synth (functor (C := C) 0).Additive
-
 end CategoryTheory.CohomologicalSpectralSequence.PageOneRow

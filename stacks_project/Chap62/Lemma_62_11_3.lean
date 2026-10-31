@@ -28,21 +28,6 @@ universe u
 namespace AlgebraicGeometry.Scheme.Hom
 namespace CyclesOnFibers
 
-/-- The base change of `f : X ⟶ Y` along `g : S' ⟶ S`, as the morphism
-`X ×_S S' ⟶ Y ×_S S'` induced by `Over.pullback`. -/
-noncomputable abbrev overPullbackHom {S S' X Y : Scheme.{u}}
-    (g : S' ⟶ S) (p : Y ⟶ S) (f : X ⟶ Y) :
-    (pullback (f ≫ p) g : Scheme) ⟶ pullback p g :=
-  Scheme.Pullback.overMap g p f
-
-/-- The square with top map `overPullbackHom g p f` is the cartesian
-base change of `f` by `Y ×_S S' ⟶ Y`. -/
-theorem isPullback_overPullbackHom {S S' X Y : Scheme.{u}}
-    (g : S' ⟶ S) (p : Y ⟶ S) (f : X ⟶ Y) :
-    IsPullback (pullback.fst (f ≫ p) g) (overPullbackHom g p f) f
-      (pullback.fst p g) :=
-  Scheme.Pullback.isPullback_overMap g p f
-
 /- Lemma 62.11.3: compatibility with flat base change. -/
 @[stacks 0H68] #check (AlgebraicGeometry.Scheme.Hom.CyclesOnFibers.cap_baseChange :
     ∀ {S S' X Y : Scheme.{u}}

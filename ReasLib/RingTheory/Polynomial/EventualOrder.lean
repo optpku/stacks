@@ -29,9 +29,9 @@ variable {K : Type u} [NormedField K] [LinearOrder K] [IsStrictOrderedRing K]
   [OrderTopology K]
 variable {ι : Type v} {l : Filter ι} {f : ι → K}
 
-/-- If `f` tends to infinity and `P(f i)` is eventually nonnegative and at
+/-- If `f` tends to infinity along a non-bottom filter and `P(f i)` is eventually nonnegative and at
 most `Q(f i)`, then `P` has degree at most `Q`. -/
-theorem degree_le_of_eventually_nonneg_le_comp {P Q : K[X]}
+theorem degree_le_of_eventually_nonneg_le_comp {P Q : K[X]} [NeBot l]
     (hf : Tendsto f l atTop)
     (hPQ : ∀ᶠ i in l, 0 ≤ P.eval (f i) ∧ P.eval (f i) ≤ Q.eval (f i)) :
     P.degree ≤ Q.degree := sorry

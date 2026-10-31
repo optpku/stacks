@@ -56,12 +56,27 @@ theorem liftPoly_coeff (π : A₁' →+* A₁) [hπ : π.IsSquareZeroExtension]
     (p : MvPolynomial B₁ A₁) (d : B₁ →₀ ℕ) :
     (d ∈ p.support →
       (liftPoly π p).coeff d = Function.surjInv hπ.surjective (p.coeff d)) ∧
-      (d ∉ p.support → (liftPoly π p).coeff d = 0) := sorry
+      (d ∉ p.support → (liftPoly π p).coeff d = 0) := by
+  classical
+  constructor
+  · intro hd
+    simp [liftPoly, coeff_sum, coeff_monomial, hd]
+  · intro hd
+    simp [liftPoly, coeff_sum, coeff_monomial, hd]
 
 /-- The coefficientwise section projects back to the original polynomial. -/
 theorem liftPoly_map (π : A₁' →+* A₁) [hπ : π.IsSquareZeroExtension]
     (p : MvPolynomial B₁ A₁) :
-    MvPolynomial.map π (liftPoly π p) = p := sorry
+    MvPolynomial.map π (liftPoly π p) = p := by
+  classical
+  apply MvPolynomial.ext
+  intro d
+  rw [coeff_map]
+  by_cases hd : d ∈ p.support
+  · rw [(liftPoly_coeff π p d).1 hd]
+    exact Function.rightInverse_surjInv hπ.surjective _
+  · rw [(liftPoly_coeff π p d).2 hd, map_zero]
+    exact (notMem_support_iff.mp hd).symm
 
 namespace RelativeDiagram
 
@@ -78,7 +93,11 @@ def generatorLiftFront :
 
 /-- The chosen front generator lift projects to the original generator. -/
 theorem generatorLiftFront_spec (b : B₁) :
-    S₁.toB (generatorLiftFront b) = b := sorry
+    S₁.toB (generatorLiftFront b) = b := by
+  letI := S₁.commRing
+  letI := S₁.isSquareZero
+  change S₁.toB (Function.surjInv S₁.isSquareZero.surjective b) = b
+  exact Function.rightInverse_surjInv S₁.isSquareZero.surjective b
 
 /-- A set-theoretic lift of g along the back projection B'₂ → B₂. -/
 def generatorLiftBack (D : RelativeDiagram S₁ S₂) :
@@ -93,7 +112,11 @@ def generatorLiftBack (D : RelativeDiagram S₁ S₂) :
 
 /-- The chosen back generator lift projects to its connecting image. -/
 theorem generatorLiftBack_spec (D : RelativeDiagram S₁ S₂) (b : B₁) :
-    S₂.toB (generatorLiftBack D b) = D.g b := sorry
+    S₂.toB (generatorLiftBack D b) = D.g b := by
+  letI := S₂.commRing
+  letI := S₂.isSquareZero
+  change S₂.toB (Function.surjInv S₂.isSquareZero.surjective (D.g b)) = D.g b
+  exact Function.rightInverse_surjInv S₂.isSquareZero.surjective (D.g b)
 
 /-- The A'₁-algebra map A'₁[B₁] → B'₁ determined by front generator lifts. -/
 def evalFront :
@@ -119,7 +142,25 @@ theorem evalFront_lift_mem_ker (D : RelativeDiagram S₁ S₂)
     -- Local instance justification (proof-local temporary data): bundled `S₁.commRing` is not globally registered on the structure Solution.
     letI := S₁.commRing
     S₁.toB (evalFront (liftPoly π₁
-      (Function.surjInv Cotangent.mk_surjective f).1)) = 0 := sorry
+      (Function.surjInv Cotangent.mk_surjective f).1)) = 0 := by
+  letI := S₁.commRing
+  letI := S₁.isSquareZero
+  let x := Function.surjInv Cotangent.mk_surjective f
+  let p' := liftPoly π₁ x.1
+  have hx : MvPolynomial.aeval (R := A₁) (Generators.self A₁ B₁).val x.1 = 0 :=
+    Generators.aeval_val_eq_zero x.2
+  change S₁.toB (MvPolynomial.eval₂Hom S₁.fromA' generatorLiftFront p') = 0
+  rw [MvPolynomial.map_eval₂Hom]
+  simp_rw [generatorLiftFront_spec]
+  rw [S₁.comm_right]
+  change MvPolynomial.eval₂Hom ((algebraMap A₁ B₁).comp π₁)
+    (fun b : B₁ => b) p' = 0
+  rw [← MvPolynomial.eval₂Hom_map_hom π₁ (fun b : B₁ => b)
+    (algebraMap A₁ B₁) p']
+  rw [liftPoly_map]
+  have hid : (fun b : B₁ => b) = (_root_.id : B₁ → B₁) := rfl
+  rw [hid]
+  simpa [MvPolynomial.aeval_def, Generators.self, id] using hx
 
 /-- Back evaluation of a lifted cotangent representative lands in ker(B'₂ → B₂). -/
 theorem evalBack_lift_mem_ker (D : RelativeDiagram S₁ S₂)
@@ -127,7 +168,30 @@ theorem evalBack_lift_mem_ker (D : RelativeDiagram S₁ S₂)
     -- Local instance justification (proof-local temporary data): bundled `S₂.commRing` is not globally registered on the structure Solution.
     letI := S₂.commRing
     S₂.toB (evalBack D (liftPoly π₁
-      (Function.surjInv Cotangent.mk_surjective f).1)) = 0 := sorry
+      (Function.surjInv Cotangent.mk_surjective f).1)) = 0 := by
+  letI := S₂.commRing
+  letI := S₂.isSquareZero
+  let x := Function.surjInv Cotangent.mk_surjective f
+  let p' := liftPoly π₁ x.1
+  have hx : MvPolynomial.aeval (R := A₁) (Generators.self A₁ B₁).val x.1 = 0 :=
+    Generators.aeval_val_eq_zero x.2
+  change S₂.toB (MvPolynomial.eval₂Hom (S₂.fromA'.comp D.t')
+    (generatorLiftBack D) p') = 0
+  rw [MvPolynomial.map_eval₂Hom]
+  simp_rw [generatorLiftBack_spec]
+  rw [← RingHom.comp_assoc, S₂.comm_right]
+  rw [RingHom.comp_assoc, D.comm_base]
+  change MvPolynomial.eval₂Hom
+    (((algebraMap A₂ B₂).comp D.t).comp π₁) (D.g) p' = 0
+  rw [← D.comm_alg]
+  rw [← MvPolynomial.eval₂Hom_map_hom π₁ (D.g : B₁ → B₂)
+    (D.g.comp (algebraMap A₁ B₁)) p']
+  rw [liftPoly_map]
+  rw [← MvPolynomial.map_eval₂Hom (algebraMap A₁ B₁) (fun b : B₁ => b)
+    D.g x.1]
+  have hid : (fun b : B₁ => b) = (_root_.id : B₁ → B₁) := rfl
+  rw [hid]
+  simpa [MvPolynomial.aeval_def, Generators.self, id] using congrArg D.g hx
 
 /-- The restricted Hom space of conormal representatives. -/
 abbrev ConormalMaps (D : RelativeDiagram S₁ S₂) : Type u :=
@@ -176,19 +240,24 @@ theorem conormalHom_apply (D : RelativeDiagram S₁ S₂)
       S₂.kernelEquiv (ofMem (Iff.mpr (mem_ker (f := S₂.toB) (r := evalBack D f'))
           (evalBack_lift_mem_ker D f))) -
         D.ν (S₁.kernelEquiv (ofMem (Iff.mpr (mem_ker (f := S₁.toB) (r := evalFront f'))
-          (evalFront_lift_mem_ker D f)))) := sorry
+        (evalFront_lift_mem_ker D f)))) := by
+  rfl
 
 /-- The conormal representative is additive in its cotangent input. -/
 theorem conormal_map_add (D : RelativeDiagram S₁ S₂)
     (f g : (Generators.self A₁ B₁).toExtension.Cotangent) :
-    conormalHom D (f + g) = conormalHom D f + conormalHom D g := sorry
+    conormalHom D (f + g) = conormalHom D f + conormalHom D g := by
+  letI := moduleRestrict D
+  exact (conormalHom D).map_add f g
 
 /-- The conormal representative is linear in its cotangent input. -/
 theorem conormal_map_smul (D : RelativeDiagram S₁ S₂) (b : B₁)
     (f : (Generators.self A₁ B₁).toExtension.Cotangent) :
     -- Local instance justification (noncanonical choice): scalar multiplication on the codomain is the action restricted along D.g.
     letI := moduleRestrict D
-    conormalHom D (b • f) = b • conormalHom D f := sorry
+    conormalHom D (b • f) = b • conormalHom D f := by
+  letI := moduleRestrict D
+  exact (conormalHom D).map_smul b f
 
 /-- The coefficient group containing the canonical obstruction class. -/
 abbrev ObstructionGroup (D : RelativeDiagram S₁ S₂) : Type u :=
@@ -206,7 +275,8 @@ def mapObstruction (D : RelativeDiagram S₁ S₂) : ObstructionGroup D :=
 theorem mapObstruction_spec (D : RelativeDiagram S₁ S₂) :
     -- Local instance justification (noncanonical choice): the B₁-action on N₂ is restriction along D.g.
     letI := moduleRestrict D
-    mapObstruction D = extOneNaiveCotangent_mk A₁ B₁ N₂ (conormalHom D) := sorry
+    mapObstruction D = extOneNaiveCotangent_mk A₁ B₁ N₂ (conormalHom D) := by
+  rfl
 
 /-- Evaluation of a conormal representative on a relation and its polynomial lift. -/
 theorem conormalHom_eval (D : RelativeDiagram S₁ S₂)

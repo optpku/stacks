@@ -54,7 +54,7 @@ namespace IsBoundedBelow
 
 /-- The source-semantic specification of boundedness below. -/
 theorem spec {K : ChainComplex ModR ℤ} :
-    IsBoundedBelow K ↔ ∃ n : ℤ, (cochainView K).IsStrictlyLE n := sorry
+    IsBoundedBelow K ↔ ∃ n : ℤ, (cochainView K).IsStrictlyLE n := Iff.rfl
 
 end IsBoundedBelow
 
@@ -111,7 +111,7 @@ theorem spec
     ConvergesTo E K M ↔
       ∃ F : FilteredComplex ModR,
         FilteredComplex.Cohomology.Convergence.Converges F E ∧
-          ∀ n : ℤ, Nonempty (F.underlying.homology (-n) ≅ abutment K M n) := sorry
+          ∀ n : ℤ, Nonempty (F.underlying.homology (-n) ≅ abutment K M n) := Iff.rfl
 
 end ConvergesTo
 
@@ -130,18 +130,18 @@ theorem spec
     {E : CohomologicalSpectralSequence ModR 0} {K : ChainComplex ModR ℤ} {M : ModR} :
     IsFirst E K M ↔
       (∀ (i : ℤ) (j : ℕ), Nonempty (firstPageTwoObject E i j ≅ firstPageTwo K M i j)) ∧
-        ConvergesTo E K M := sorry
+        ConvergesTo E K M := Iff.rfl
 
 /-- The first Tor spectral sequence has the displayed page-two entries. -/
 theorem pageTwo
     {E : CohomologicalSpectralSequence ModR 0} {K : ChainComplex ModR ℤ} {M : ModR}
     (h : IsFirst E K M) (i : ℤ) (j : ℕ) :
-    Nonempty (firstPageTwoObject E i j ≅ firstPageTwo K M i j) := sorry
+    Nonempty (firstPageTwoObject E i j ≅ firstPageTwo K M i j) := h.1 i j
 
 /-- The first Tor spectral sequence converges to derived tensor homology. -/
 theorem converges
     {E : CohomologicalSpectralSequence ModR 0} {K : ChainComplex ModR ℤ} {M : ModR}
-    (h : IsFirst E K M) : ConvergesTo E K M := sorry
+    (h : IsFirst E K M) : ConvergesTo E K M := h.2
 
 end IsFirst
 
@@ -168,12 +168,12 @@ theorem spec
         ∀ (i : ℤ) (j : ℕ),
           CommSq ((E.page 1).d (-i, -(j : ℤ)) (-(i - 1), -(j : ℤ)))
             (pageOneIso i j).hom (pageOneIso (i - 1) j).hom (secondPageOneMap K M i j)) ∧
-        ConvergesTo E K M := sorry
+        ConvergesTo E K M := Iff.rfl
 
 /-- The second Tor spectral sequence converges to derived tensor homology. -/
 theorem converges
     {E : CohomologicalSpectralSequence ModR 0} {K : ChainComplex ModR ℤ} {M : ModR}
-    (h : IsSecond E K M) : ConvergesTo E K M := sorry
+    (h : IsSecond E K M) : ConvergesTo E K M := h.2
 
 end IsSecond
 
@@ -193,6 +193,9 @@ theorem existsSecond (K : ChainComplex ModR ℤ) (hK : IsBoundedBelow K) (M : Mo
 @[stacks 061Z "paired Tor spectral sequences"]
 theorem existsPair (K : ChainComplex ModR ℤ) (hK : IsBoundedBelow K) (M : ModR) :
     ∃ E₂ E₁ : CohomologicalSpectralSequence ModR 0,
-      IsFirst E₂ K M ∧ IsSecond E₁ K M := sorry
+      IsFirst E₂ K M ∧ IsSecond E₁ K M := by
+  obtain ⟨E₂, h₂⟩ := existsFirst K hK M
+  obtain ⟨E₁, h₁⟩ := existsSecond K hK M
+  exact ⟨E₂, E₁, h₂, h₁⟩
 
 end CategoryTheory.DerivedCategory.TorSpectralSequence

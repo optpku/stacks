@@ -12,7 +12,11 @@ Authors: Yuanhe Zhang, Jason D. Lee, Fanghui Liu
 Uses the Euclidean volume argument of Yuanhe Zhang, Jason D. Lee and Fanghui Liu,
 SLT/CoveringNumber.lean, commit d0f506f0a695018265dccb33bcb05e2f5ca1c876.
 -/
-import ReasLib.Analysis.InnerProductSpace.Euclidean.Packing
+module
+
+public import ReasLib.Analysis.InnerProductSpace.Euclidean.Packing
+
+@[expose] public section
 
 /-!
 # Packing and internal covers in finite-dimensional real inner-product spaces
@@ -139,3 +143,5 @@ theorem exists_finset_cover_card_le_one_of_finrank_eq_zero (hE : Module.finrank 
     simpa [Subsingleton.elim x a] using hr
 
 end InnerProductSpace
+
+end

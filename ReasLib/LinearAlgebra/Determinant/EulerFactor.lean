@@ -53,17 +53,33 @@ extension of `f` to the chosen split free presentation. -/
 theorem charpolyRev_spec (f : M →ₗ[R] M) :
     charpolyRev f =
       let p := splitFreePresentation R M
-      Matrix.charpolyRev (LinearMap.toMatrix' (p.iota ∘ₗ f ∘ₗ p.pi)) := sorry
+      Matrix.charpolyRev (LinearMap.toMatrix' (p.iota ∘ₗ f ∘ₗ p.pi)) := rfl
 
 /-- The constant term of `charpolyRev f` is `1`. -/
-theorem charpolyRev_eval_zero (f : M →ₗ[R] M) : (charpolyRev f).eval 0 = 1 := sorry
+theorem charpolyRev_eval_zero (f : M →ₗ[R] M) : (charpolyRev f).eval 0 = 1 := by
+  exact Matrix.eval_charpolyRev
 
 /-- The reverse characteristic polynomial of the zero extension of a
 finite-projective endomorphism is independent of the chosen split free
 presentation. -/
 theorem charpolyRev_independent (p q : SplitFreePresentation R M) (f : M →ₗ[R] M) :
     Matrix.charpolyRev (LinearMap.toMatrix' (p.iota ∘ₗ f ∘ₗ p.pi)) =
-      Matrix.charpolyRev (LinearMap.toMatrix' (q.iota ∘ₗ f ∘ₗ q.pi)) := sorry
+      Matrix.charpolyRev (LinearMap.toMatrix' (q.iota ∘ₗ f ∘ₗ q.pi)) := by
+  let a := p.iota ∘ₗ f ∘ₗ q.pi
+  let b := q.iota ∘ₗ p.pi
+  have hp : ∀ x : M, p.pi (p.iota x) = x :=
+    fun x ↦ congrArg (fun h : M →ₗ[R] M ↦ h x) p.pi_comp_iota
+  have hq : ∀ x : M, q.pi (q.iota x) = x :=
+    fun x ↦ congrArg (fun h : M →ₗ[R] M ↦ h x) q.pi_comp_iota
+  have hab : a ∘ₗ b = p.iota ∘ₗ f ∘ₗ p.pi := by
+    ext x
+    simp only [a, b, comp_apply, hq]
+  have hba : b ∘ₗ a = q.iota ∘ₗ f ∘ₗ q.pi := by
+    ext x
+    simp only [a, b, comp_apply, hp]
+  rw [← hab, ← hba, toMatrix'_comp, toMatrix'_comp,
+    Matrix.charpolyRev, Matrix.charpolyRev, Matrix.map_mul, Matrix.map_mul,
+    ← Matrix.smul_mul, Matrix.det_one_sub_mul_comm, Matrix.mul_smul]
 
 /-- The local Euler factor of a finite-projective endomorphism, equal to
 `det(1 - f T^d)⁻¹` for positive `d`. -/
@@ -75,11 +91,12 @@ def eulerFactor (f : M →ₗ[R] M) (d : ℕ) : PowerSeries R :=
 theorem eulerFactor_def (f : M →ₗ[R] M) (d : ℕ) :
     eulerFactor f d =
       PowerSeries.invOfUnit
-        (Polynomial.toPowerSeries (Polynomial.expand R d (charpolyRev f))) 1 := sorry
+        (Polynomial.toPowerSeries (Polynomial.expand R d (charpolyRev f))) 1 := rfl
 
 /-- The constant coefficient of a local Euler factor is `1`. -/
 theorem constantCoeff_eulerFactor (f : M →ₗ[R] M) (d : ℕ) :
-    PowerSeries.constantCoeff (eulerFactor f d) = 1 := sorry
+    PowerSeries.constantCoeff (eulerFactor f d) = 1 := by
+  simp [eulerFactor]
 
 /-- The Euler factor of the zero extension is independent of the chosen split
 free presentation. -/
@@ -92,8 +109,18 @@ theorem eulerFactor_independent (p q : SplitFreePresentation R M)
       PowerSeries.invOfUnit
         (Polynomial.toPowerSeries
           (Polynomial.expand R d
-            (Matrix.charpolyRev (LinearMap.toMatrix' (q.iota ∘ₗ f ∘ₗ q.pi))))) 1 :=
-  sorry
+            (Matrix.charpolyRev (LinearMap.toMatrix' (q.iota ∘ₗ f ∘ₗ q.pi))))) 1 := by
+  rw [charpolyRev_independent p q f]
+
+private theorem charpolyRev_of_subsingleton [Subsingleton M] (f : M →ₗ[R] M) :
+    charpolyRev f = 1 := by
+  have hf : f = 0 := Subsingleton.elim _ _
+  simp [charpolyRev, hf, Matrix.charpolyRev]
+
+private theorem eulerFactor_of_subsingleton [Subsingleton M] (f : M →ₗ[R] M) (d : ℕ) :
+    eulerFactor f d = 1 := by
+  rw [eulerFactor, charpolyRev_of_subsingleton]
+  simpa using (PowerSeries.invOfUnit_mul (1 : PowerSeries R) 1 (by simp))
 
 end LinearMap
 
@@ -123,7 +150,36 @@ theorem eulerFactor_eq_prod (f : P ⟶ P) (d : ℕ) (a b : ℤ)
         if Even i then LinearMap.eulerFactor (ModuleCat.Hom.hom (f.f i)) d
         else Polynomial.toPowerSeries
           (Polynomial.expand R d
-            (LinearMap.charpolyRev (ModuleCat.Hom.hom (f.f i)))) := sorry
+            (LinearMap.charpolyRev (ModuleCat.Hom.hom (f.f i)))) := by
+  classical
+  let term : ℤ → PowerSeries R := fun i ↦
+    if Even i then LinearMap.eulerFactor (ModuleCat.Hom.hom (f.f i)) d
+    else Polynomial.toPowerSeries
+      (Polynomial.expand R d (LinearMap.charpolyRev (ModuleCat.Hom.hom (f.f i))))
+  have outside (a b : ℤ) (ha : P.IsStrictlyGE a) (hb : P.IsStrictlyLE b)
+      (i : ℤ) (hi : i ∉ Finset.Icc a b) : term i = 1 := by
+    haveI : P.IsStrictlyGE a := ha
+    haveI : P.IsStrictlyLE b := hb
+    have hz : Limits.IsZero (P.X i) := by
+      by_cases hia : i < a
+      · exact P.isZero_of_isStrictlyGE a i hia
+      · have hbi : b < i := lt_of_not_ge fun hib ↦
+          hi (Finset.mem_Icc.mpr ⟨le_of_not_gt hia, hib⟩)
+        exact P.isZero_of_isStrictlyLE b i hbi
+    haveI : Subsingleton (P.X i) := ModuleCat.subsingleton_of_isZero hz
+    dsimp only [term]
+    split <;> simp [LinearMap.eulerFactor_of_subsingleton,
+      LinearMap.charpolyRev_of_subsingleton]
+  let h := hP.bounded
+  let c := h.choose
+  let e := h.choose_spec.choose
+  change (∏ i ∈ Finset.Icc c e, term i) = ∏ i ∈ Finset.Icc a b, term i
+  calc
+    _ = ∏ i ∈ Finset.Icc c e ∪ Finset.Icc a b, term i :=
+      Finset.prod_subset Finset.subset_union_left fun i _ hi ↦
+        outside c e h.choose_spec.choose_spec.1 h.choose_spec.choose_spec.2 i hi
+    _ = _ := (Finset.prod_subset Finset.subset_union_right fun i _ hi ↦
+      outside a b ha hb i hi).symm
 
 end CochainComplex.IsBoundedFiniteProjective
 
@@ -177,7 +233,7 @@ theorem eulerFactor_spec {K : DerivedCategory (ModuleCat R)}
           ((HomotopyCategory.quotient _ _).obj P)).surjective g'
       let fP := (HomotopyCategory.quotient _ _).preimage hmap
       @CochainComplex.IsBoundedFiniteProjective.eulerFactor _ _ P instFP fP d :=
-  sorry
+  rfl
 
 /-- For positive exponent, the derived Euler factor is independent of the
 bounded finite-projective representative and of any cochain lift of the

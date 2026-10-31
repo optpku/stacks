@@ -61,6 +61,7 @@ coherent cohomology. -/
 @[stacks 0D0R]
 theorem pushforwardDerived_boundedBelowCoherent_of_properSupport
     (f : X ⟶ Y) [LocallyOfFiniteType f] [IsNoetherian Y]
+    [LocallyOfFiniteType (SchemeRealization.toBase X)]
     (E : ModuleDerived X)
     (hE_coherent : DerivedCategory.cohomologyIn
       (SheafOfModules.isCoherent (structureSheaf X)) E)

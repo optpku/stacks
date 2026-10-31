@@ -37,13 +37,15 @@ abbrev subsetInclusion {X : TopCat.{u}} (Z : Set X) : subsetSpace Z ⟶ X :=
 
 /-- The canonical subset inclusion is an inducing map. -/
 theorem subsetInclusion_isInducing {X : TopCat.{u}} (Z : Set X) :
-    Topology.IsInducing (subsetInclusion Z) := sorry
+    Topology.IsInducing (subsetInclusion Z) :=
+  Topology.IsInducing.subtypeVal
 
-/-- The inverse-image functor on opens along a subset inclusion is continuous for the canonical
-Grothendieck topologies. -/
+/-- The generic continuous-map instance does not synthesize for the reducible subspace
+inclusion expression, so this compatibility instance supplies its proved specialization. -/
 instance subsetInclusion_opensMap_isContinuous {X : TopCat.{u}} (Z : Set X) :
     (Opens.map (subsetInclusion Z)).IsContinuous
       (Opens.grothendieckTopology X)
-      (Opens.grothendieckTopology (subsetSpace Z)) := sorry
+      (Opens.grothendieckTopology (subsetSpace Z)) :=
+  _root_.instIsContinuousOpensCarrierMapGrothendieckTopology (subsetInclusion Z)
 
 end TopCat

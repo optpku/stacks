@@ -30,9 +30,10 @@ universe u
 namespace AlgebraicGeometry.AlgebraicSpace.ClosedSubset
 
 /-- A closed subset `T` of `Points X` is proper over `Y` along `f : X ⟶ Y` when it is
-the point image of a closed immersion that is proper over `Y`. -/
+the point image of a closed immersion that is proper over `Y`. The ambient morphism
+`f` is locally of finite type, as in the source definition. -/
 def ProperOver {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-    (T : Closeds (Points X)) : Prop :=
+    [LocallyOfFiniteType f] (T : Closeds (Points X)) : Prop :=
   ∃ (Z : AlgebraicSpace S) (i : Z ⟶ X),
     IsClosedImmersion i ∧ Set.range (Points.map i) = T.carrier ∧ Proper (i ≫ f)
 

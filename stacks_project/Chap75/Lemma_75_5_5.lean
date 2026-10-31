@@ -25,21 +25,3 @@ spaces over `S`. The functor `Lf^*` sends `D_QCoh(𝒪_X)` into `D_QCoh(𝒪_Y)`
       (f : Y ⟶ X),
       derivedQuasiCoherentModuleProperty X ≤
         (derivedQuasiCoherentModuleProperty Y).inverseImage (ModuleDerived.pullback f))
-
-namespace AlgebraicGeometry.AlgebraicSpace.DerivedQCoh
-
-namespace pullback
-
-/-- Total left derived module pullback preserves quasi-coherent cohomology. -/
-theorem mapsTo {S : Scheme.{u}} {Y X : AlgebraicSpace S} (f : Y ⟶ X) :
-    derivedQuasiCoherentModuleProperty X ≤
-      (derivedQuasiCoherentModuleProperty Y).inverseImage (modulePullbackDerived f) := by
-  intro K hK n
-  exact ObjectProperty.prop_of_iso (quasiCoherentModuleProperty Y)
-    ((DerivedCategory.homologyFunctor (Modules Y) n).mapIso
-      ((ModuleDerived.pullbackIsoTotalLeftDerived f).app K))
-    (ModuleDerived.pullback_preservesQuasiCoherent f K hK n)
-
-end pullback
-
-end AlgebraicGeometry.AlgebraicSpace.DerivedQCoh

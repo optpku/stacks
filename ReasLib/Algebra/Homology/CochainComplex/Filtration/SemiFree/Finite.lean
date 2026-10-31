@@ -34,6 +34,8 @@ structure FiniteCell (P : ModuleCat.DGMod A) extends SemiFreeFiltration P where
   length : ℕ
   /-- The filtration reaches the ambient cochain complex at stage `length`. -/
   topIso : stage length ≅ P
+  /-- The terminal identification is the actual filtration cocone map. -/
+  topIso_hom : topIso.hom = toCocone.app length
   /-- Quotient-index types before the terminal stage are finite. -/
   pieceFintype : ∀ i : Fin length, Fintype (pieceIndex i)
   /-- No new quotient summands occur after the terminal stage. -/
@@ -63,13 +65,20 @@ noncomputable def transport {P Q : ModuleCat.DGMod A}
   { F.toSemiFreeFiltration.transport e with
     length := F.length
     topIso := F.topIso ≪≫ e
+    topIso_hom := by
+      have hc := IsColimit.comp_coconePointUniqueUpToIso_hom
+        (colimit.isColimit (Functor.ofSequence F.inclusion)) F.isColimit F.length
+      exact ((congrArg (fun f : F.stage F.length ⟶ P ↦ f ≫ e.hom) F.topIso_hom).trans
+        (congrArg (fun f : F.stage F.length ⟶ P ↦ f ≫ e.hom) hc).symm).trans
+          (Category.assoc _ _ _)
     pieceFintype := F.pieceFintype
     pieceIsEmpty := F.pieceIsEmpty }
 
 /-- A finite cell filtration is in particular a semi-free filtration. -/
 theorem hasSemiFreeFiltration {P : ModuleCat.DGMod A}
     (F : FiniteCell P) :
-    HasSemiFreeFiltration P := sorry
+    HasSemiFreeFiltration P :=
+  ⟨F.toSemiFreeFiltration⟩
 
 end FiniteCell
 
@@ -86,9 +95,11 @@ theorem iff_ofIso {P Q : ModuleCat.DGMod A} (e : P ≅ Q) :
 
 end HasFiniteCellFiltration
 
-/-- A finite-support subfiltration of a semi-free filtration is a finite cell filtration of a
-subobject together with compatible maps into each ambient stage and chosen finite subsets of the
-ambient quotient summands. -/
+/-- A finite-support subfiltration is a finite cell filtration of a subobject whose stages are
+the intersections with the ambient stages and whose quotient maps include the selected finite
+subsets of ambient summands. This is the ordinary-ring cochain specialization of the subfiltration
+in Stacks tag 09R2; general DG-algebra coefficients are treated by
+`DifferentialGradedModule.PropertyP.FiniteSubfiltration`. -/
 structure FiniteSummandSubfiltration
     {P : ModuleCat.DGMod A} (F : SemiFreeFiltration P) where
   /-- The resulting cochain-complex subobject. -/
@@ -97,13 +108,13 @@ structure FiniteSummandSubfiltration
   filtration : FiniteCell (Subobject.underlying.obj subobject)
   /-- The stagewise comparison into the ambient semi-free filtration. -/
   stageMap (n : ℕ) : filtration.stage n ⟶ F.stage n
+  /-- Each selected stage is the intersection with the corresponding ambient stage. -/
+  stagePullback (n : ℕ) :
+    IsPullback (stageMap n) (filtration.coconeApp n)
+      (F.coconeApp n) subobject.arrow
   /-- The stagewise comparison maps commute with the consecutive inclusions. -/
   stageMap_comm (n : ℕ) :
     CommSq (filtration.inclusion n) (stageMap n) (stageMap (n + 1)) (F.inclusion n)
-  /-- The top comparison lands in the ambient complex through the selected cocone map. -/
-  stageMap_top :
-    filtration.topIso.hom ≫ subobject.arrow =
-      stageMap filtration.length ≫ F.coconeApp filtration.length
   /-- The quotient comparison induced at a nontrivial finite stage. -/
   quotientMap (i : Fin filtration.length) :
     cokernel (filtration.inclusion i.1) ⟶ cokernel (F.inclusion i.1)
@@ -118,8 +129,49 @@ structure FiniteSummandSubfiltration
   /-- Retained summands have the same shift degrees as their ambient counterparts. -/
   pieceDegree_eq (i : Fin filtration.length) (j : filtration.pieceIndex i) :
     filtration.pieceDegree i j = F.pieceDegree i (pieceIndexEquiv i j)
+  /-- Under the piece isomorphisms the quotient map includes exactly the retained summands. -/
+  pieceMap_ι (i : Fin filtration.length) (j : filtration.pieceIndex i) :
+    let _ := filtration.pieceHasCoproduct i
+    let _ := F.pieceHasCoproduct i
+    Sigma.ι (fun j ↦ CochainComplex.shiftedFreeDGModule A (filtration.pieceDegree i j)) j ≫
+        (filtration.pieceIso i).inv ≫ quotientMap i ≫ (F.pieceIso i).hom =
+      eqToHom (congrArg (CochainComplex.shiftedFreeDGModule A) (pieceDegree_eq i j)) ≫
+        Sigma.ι (fun j ↦ CochainComplex.shiftedFreeDGModule A (F.pieceDegree i j))
+          (pieceIndexEquiv i j)
 
 namespace FiniteSummandSubfiltration
+
+/-- Every comparison stage commutes with the actual cocone maps. -/
+theorem stageMap_coconeApp {P : ModuleCat.DGMod A} {F : SemiFreeFiltration P}
+    (F' : FiniteSummandSubfiltration F) (n : ℕ) :
+    F'.stageMap n ≫ F.coconeApp n =
+      F'.filtration.coconeApp n ≫ F'.subobject.arrow :=
+  (F'.stagePullback n).w
+
+/-- The terminal comparison is the selected subobject inclusion through the filtration cocone. -/
+theorem stageMap_top {P : ModuleCat.DGMod A} {F : SemiFreeFiltration P}
+    (F' : FiniteSummandSubfiltration F) :
+    F'.filtration.topIso.hom ≫ F'.subobject.arrow =
+      F'.stageMap F'.filtration.length ≫ F.coconeApp F'.filtration.length := by
+  rw [F'.filtration.topIso_hom]
+  exact (F'.stageMap_coconeApp F'.filtration.length).symm
+
+/-- The quotient comparison is the coproduct inclusion of the retained ambient summands. -/
+theorem quotientMap_pieceIso {P : ModuleCat.DGMod A} {F : SemiFreeFiltration P}
+    (F' : FiniteSummandSubfiltration F) (i : Fin F'.filtration.length) :
+    let _ := F'.filtration.pieceHasCoproduct i
+    let _ := F.pieceHasCoproduct i
+    F'.quotientMap i ≫ (F.pieceIso i).hom =
+      (F'.filtration.pieceIso i).hom ≫ Sigma.desc (fun j ↦
+        eqToHom (congrArg (CochainComplex.shiftedFreeDGModule A) (F'.pieceDegree_eq i j)) ≫
+          Sigma.ι (fun j ↦ CochainComplex.shiftedFreeDGModule A (F.pieceDegree i j))
+            (F'.pieceIndexEquiv i j)) := by
+  let _ := F'.filtration.pieceHasCoproduct i
+  let _ := F.pieceHasCoproduct i
+  apply (cancel_epi (F'.filtration.pieceIso i).inv).1
+  apply Sigma.hom_ext
+  intro j
+  simpa only [Category.assoc, Iso.inv_hom_id_assoc, Sigma.ι_desc] using F'.pieceMap_ι i j
 
 /-- The cochain complex underlying a finite-support subfiltration. -/
 abbrev obj {P : ModuleCat.DGMod A} {F : SemiFreeFiltration P}
@@ -136,7 +188,8 @@ instance instPieceSubsetFintype {P : ModuleCat.DGMod A}
 /-- The ambient subobject selected by a finite-support subfiltration has a semi-free filtration. -/
 theorem hasSemiFreeFiltration {P : ModuleCat.DGMod A}
     {F : SemiFreeFiltration P} (F' : FiniteSummandSubfiltration F) :
-    HasSemiFreeFiltration F'.obj := sorry
+    HasSemiFreeFiltration F'.obj :=
+  F'.filtration.hasSemiFreeFiltration
 
 end FiniteSummandSubfiltration
 

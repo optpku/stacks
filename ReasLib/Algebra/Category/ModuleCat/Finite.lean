@@ -27,7 +27,6 @@ namespace ModuleCat
 variable (R : Type u) [Ring R]
 
 /-- Finitely generated bundled modules are closed under isomorphisms. -/
-@[stacks 00JH "finite module isomorphism closure"]
 instance isFG.isClosedUnderIsomorphisms :
     (isFG.{v} R).IsClosedUnderIsomorphisms where
   of_iso {X Y} e hX := by
@@ -41,7 +40,6 @@ instance isFGContainsZero : (isFG.{v} R).ContainsZero where
   exists_zero := ⟨ModuleCat.of R PUnit, isZero_of_subsingleton _, Module.Finite.of_finite⟩
 
 /-- A subsingleton bundled module is finitely generated. -/
-@[stacks 00JH "subsingleton module is finite"]
 theorem isFG_of_subsingleton (M : ModuleCat.{v} R) [Subsingleton M] :
     isFG.{v} R M := by
   -- Local instance justification (proof-local temporary data): install the finite-type evidence

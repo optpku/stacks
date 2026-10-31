@@ -9,6 +9,7 @@ module
 public import Mathlib.Algebra.Category.ModuleCat.Abelian
 public import Mathlib.Algebra.Homology.ShortComplex.ShortExact
 public import Mathlib.LinearAlgebra.Charpoly.Basic
+import Mathlib.LinearAlgebra.Charpoly.ToMatrix
 public import Mathlib.LinearAlgebra.Determinant
 public import Mathlib.LinearAlgebra.TensorProduct.Tower
 public import Mathlib.LinearAlgebra.Trace
@@ -63,7 +64,14 @@ noncomputable instance factorIsScalarTower
     let _ : Module R[X] M := φ.toPolynomialModule
     let _ : Module R (factor s.1 i) :=
       Module.compHom (factor s.1 i) (C : R →+* R[X])
-    IsScalarTower R R[X] (factor s.1 i) := sorry
+    IsScalarTower R R[X] (factor s.1 i) := by
+  letI : Module R[X] M := φ.toPolynomialModule
+  letI : Module R (factor s.1 i) :=
+    Module.compHom (factor s.1 i) (C : R →+* R[X])
+  refine ⟨?_⟩
+  intro r p x
+  rw [Algebra.smul_def]
+  exact mul_smul (C r) p x
 -- Proof strategy: unfold both `Module.compHom` actions and apply the scalar-tower constructor;
 -- evaluation of `C r` on the factor agrees definitionally with the restricted `R`-action.
 
@@ -166,6 +174,64 @@ noncomputable def charpoly (s : StableCompositionSeries φ) :
     Polynomial (IsLocalRing.ResidueField R) :=
   ∏ i : Fin s.1.length, factorCharpoly s i
 
+private theorem factor_invariants_eq_of_linearEquiv (s t : StableCompositionSeries φ) (i : Fin s.1.length) (j : Fin t.1.length)
+    (h : letI : Module R[X] M := φ.toPolynomialModule
+      Nonempty (factor s.1 i ≃ₗ[R[X]] factor t.1 j)) :
+    s.factorDet i = t.factorDet j ∧ s.factorTrace i = t.factorTrace j ∧
+      s.factorCharpoly i = t.factorCharpoly j := by
+  letI : Module R[X] M := φ.toPolynomialModule
+  letI : Module R (factor s.1 i) := Module.compHom (factor s.1 i) (C : R →+* R[X])
+  letI : Module R (factor t.1 j) := Module.compHom (factor t.1 j) (C : R →+* R[X])
+  obtain ⟨e⟩ := h
+  let er := e.restrictScalars R
+  let ek := LinearEquiv.baseChange R (ResidueField R) _ _ er
+  have he : ek.conj (s.factorResidueFieldMap i) = t.factorResidueFieldMap j := by
+    apply LinearMap.ext
+    intro z
+    induction z using TensorProduct.induction_on with
+    | zero => simp
+    | tmul a x =>
+      simp only [LinearEquiv.conj_apply_apply, LinearMap.baseChange_tmul,
+        StableCompositionSeries.factorResidueFieldMap,
+        StableCompositionSeries.factorMap]
+      change TensorProduct.tmul R a (e ((X : R[X]) • e.symm x)) = TensorProduct.tmul R a ((X : R[X]) • x)
+      rw [e.map_smul, e.apply_symm_apply]
+    | add x y hx hy => simp only [map_add, hx, hy]
+  refine ⟨?_, ?_, ?_⟩
+  · change (s.factorResidueFieldMap i).det = (t.factorResidueFieldMap j).det
+    rw [← he]
+    exact (LinearMap.det_conj _ ek).symm
+  · change LinearMap.trace _ _ (s.factorResidueFieldMap i) =
+      LinearMap.trace _ _ (t.factorResidueFieldMap j)
+    rw [← he]
+    exact (LinearMap.trace_conj' _ ek).symm
+  · change (s.factorResidueFieldMap i).charpoly = (t.factorResidueFieldMap j).charpoly
+    rw [← he]
+    exact (LinearEquiv.charpoly_conj ek _).symm
+
+private theorem invariants_eq (s t : StableCompositionSeries φ) :
+    s.det = t.det ∧ s.trace = t.trace ∧ s.charpoly = t.charpoly := by
+  letI : Module R[X] M := φ.toPolynomialModule
+  obtain ⟨σ, hσ⟩ :=
+    s.1.jordan_holder t.1 (s.2.1.trans t.2.1.symm) (s.2.2.trans t.2.2.symm)
+  have h i := factor_invariants_eq_of_linearEquiv s t i (σ i) (hσ i)
+  refine ⟨?_, ?_, ?_⟩
+  · show (∏ i, s.factorDet i) = ∏ i, t.factorDet i
+    calc
+      (∏ i, s.factorDet i) = ∏ i, t.factorDet (σ i) :=
+        Finset.prod_congr rfl fun i _ => (h i).1
+      _ = ∏ i, t.factorDet i := σ.prod_comp _
+  · show (∑ i, s.factorTrace i) = ∑ i, t.factorTrace i
+    calc
+      (∑ i, s.factorTrace i) = ∑ i, t.factorTrace (σ i) :=
+        Finset.sum_congr rfl fun i _ => (h i).2.1
+      _ = ∑ i, t.factorTrace i := σ.sum_comp _
+  · show (∏ i, s.factorCharpoly i) = ∏ i, t.factorCharpoly i
+    calc
+      (∏ i, s.factorCharpoly i) = ∏ i, t.factorCharpoly (σ i) :=
+        Finset.prod_congr rfl fun i _ => (h i).2.2
+      _ = ∏ i, t.factorCharpoly i := σ.prod_comp _
+
 end LocalRing
 
 end StableCompositionSeries
@@ -174,12 +240,30 @@ section LocalRing
 
 variable [IsLocalRing R]
 
+private theorem nonempty_stableCompositionSeries [IsNoetherian R M] [IsArtinian R M]
+    (φ : Module.End R M) : Nonempty (StableCompositionSeries φ) := by
+  letI : Module R[X] M := φ.toPolynomialModule
+  letI : IsScalarTower R R[X] M :=
+    IsScalarTower.of_algebraMap_smul fun r x => by
+      change (aeval φ) (C r) x = r • x
+      simp
+  letI : IsNoetherian R[X] M := isNoetherian_of_tower R inferInstance
+  letI : IsArtinian R[X] M := isArtinian_of_tower R inferInstance
+  obtain ⟨s, hs⟩ := exists_compositionSeries_of_isNoetherian_isArtinian R[X] M
+  exact ⟨⟨s, hs⟩⟩
+
 /-- The stable-series determinant has a unique value when the underlying module is noetherian
 and artinian. -/
 @[stacks 0GSY "Jordan-Hoelder invariance of the stable determinant"]
 theorem existsUnique_stableDet [IsNoetherian R M] [IsArtinian R M]
     (φ : Module.End R M) :
-    ∃! a : IsLocalRing.ResidueField R, ∀ s : StableCompositionSeries φ, a = s.det := sorry
+    ∃! a : IsLocalRing.ResidueField R, ∀ s : StableCompositionSeries φ, a = s.det := by
+  obtain ⟨s⟩ := nonempty_stableCompositionSeries φ
+  refine ⟨s.det, ?_, ?_⟩
+  · intro t
+    exact (StableCompositionSeries.invariants_eq s t).1
+  · intro a ha
+    exact ha s
 -- Proof strategy: obtain stable composition series from finite length over `R[X]`; compare any two
 -- by Jordan--Hölder, transport the conjugate residue-field factor maps along the factor
 -- equivalences, and use determinant invariance plus permutation invariance of the finite product.
@@ -189,7 +273,13 @@ artinian. -/
 @[stacks 0GSY "Jordan-Hoelder invariance of the stable trace"]
 theorem existsUnique_stableTrace [IsNoetherian R M] [IsArtinian R M]
     (φ : Module.End R M) :
-    ∃! a : IsLocalRing.ResidueField R, ∀ s : StableCompositionSeries φ, a = s.trace := sorry
+    ∃! a : IsLocalRing.ResidueField R, ∀ s : StableCompositionSeries φ, a = s.trace := by
+  obtain ⟨s⟩ := nonempty_stableCompositionSeries φ
+  refine ⟨s.trace, ?_, ?_⟩
+  · intro t
+    exact (StableCompositionSeries.invariants_eq s t).2.1
+  · intro a ha
+    exact ha s
 -- Proof strategy: use the same Jordan--Hölder matching of stable factors as for determinant;
 -- trace is invariant under conjugacy and the matched factor traces have the same finite sum.
 
@@ -199,7 +289,13 @@ noetherian and artinian. -/
 theorem existsUnique_stableCharpoly [IsNoetherian R M] [IsArtinian R M]
     (φ : Module.End R M) :
     ∃! p : Polynomial (IsLocalRing.ResidueField R),
-      ∀ s : StableCompositionSeries φ, p = s.charpoly := sorry
+      ∀ s : StableCompositionSeries φ, p = s.charpoly := by
+  obtain ⟨s⟩ := nonempty_stableCompositionSeries φ
+  refine ⟨s.charpoly, ?_, ?_⟩
+  · intro t
+    exact (StableCompositionSeries.invariants_eq s t).2.2
+  · intro a ha
+    exact ha s
 -- Proof strategy: match the stable composition factors by Jordan--Hölder, use characteristic-
 -- polynomial invariance under the induced conjugacies, and compare the products after reindexing.
 
@@ -246,14 +342,22 @@ noncomputable def finiteLengthCharpoly
 @[stacks 0GSY "stable-series formula for the finite-length determinant"]
 theorem finiteLengthDeterminant_eq_det
     (φ : Module.End R M) (hM : IsFiniteLength R M) (s : StableCompositionSeries φ) :
-    φ.finiteLengthDeterminant hM = s.det := sorry
+    φ.finiteLengthDeterminant hM = s.det := by
+  letI : IsNoetherian R M := (isFiniteLength_iff_isNoetherian_isArtinian.mp hM).1
+  letI : IsArtinian R M := (isFiniteLength_iff_isNoetherian_isArtinian.mp hM).2
+  let h := existsUnique_stableDet φ
+  exact (h.choose_spec.1 (someStableCompositionSeries φ hM)).symm.trans (h.choose_spec.1 s)
 -- Proof strategy: use `existsUnique_stableDet` to compare the fixed stable series with `s`.
 
 /-- Any stable composition series computes the canonical finite-length trace. -/
 @[stacks 0GSY "stable-series formula for the finite-length trace"]
 theorem finiteLengthTrace_eq_trace
     (φ : Module.End R M) (hM : IsFiniteLength R M) (s : StableCompositionSeries φ) :
-    φ.finiteLengthTrace hM = s.trace := sorry
+    φ.finiteLengthTrace hM = s.trace := by
+  letI : IsNoetherian R M := (isFiniteLength_iff_isNoetherian_isArtinian.mp hM).1
+  letI : IsArtinian R M := (isFiniteLength_iff_isNoetherian_isArtinian.mp hM).2
+  let h := existsUnique_stableTrace φ
+  exact (h.choose_spec.1 (someStableCompositionSeries φ hM)).symm.trans (h.choose_spec.1 s)
 -- Proof strategy: use `existsUnique_stableTrace` to compare the fixed stable series with `s`.
 
 /-- Any stable composition series computes the canonical finite-length characteristic
@@ -261,7 +365,11 @@ polynomial. -/
 @[stacks 0GSY "stable-series formula for the finite-length characteristic polynomial"]
 theorem finiteLengthCharpoly_eq_charpoly
     (φ : Module.End R M) (hM : IsFiniteLength R M) (s : StableCompositionSeries φ) :
-    φ.finiteLengthCharpoly hM = s.charpoly := sorry
+    φ.finiteLengthCharpoly hM = s.charpoly := by
+  letI : IsNoetherian R M := (isFiniteLength_iff_isNoetherian_isArtinian.mp hM).1
+  letI : IsArtinian R M := (isFiniteLength_iff_isNoetherian_isArtinian.mp hM).2
+  let h := existsUnique_stableCharpoly φ
+  exact (h.choose_spec.1 (someStableCompositionSeries φ hM)).symm.trans (h.choose_spec.1 s)
 -- Proof strategy: use `existsUnique_stableCharpoly` to compare the fixed stable series with `s`.
 
 end LocalRing

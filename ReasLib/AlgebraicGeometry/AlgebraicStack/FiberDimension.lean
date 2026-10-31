@@ -75,7 +75,7 @@ def projection (w : RelativeDimensionChoice f t) : w.fiber ⟶ T :=
 projection to the source. -/
 theorem projection_spec (w : RelativeDimensionChoice f t) :
     AlgebraicSpace.Points.map w.projection w.fiberPoint = t :=
-  sorry
+  w.mapsToSource
 
 /-- The dimension of the representing fibre at its chosen point. -/
 def dimension (w : RelativeDimensionChoice f t) : WithBot ℕ∞ :=
@@ -85,14 +85,14 @@ def dimension (w : RelativeDimensionChoice f t) : WithBot ℕ∞ :=
 dimension at the chosen fibre point. -/
 theorem dimension_def (w : RelativeDimensionChoice f t) :
     w.dimension = AlgebraicSpace.dimensionAt w.fiberPoint :=
-  sorry
+  rfl
 
 /-- A relative-dimension choice represents the image of `t` and lifts `t` along
 the fibre projection. -/
 theorem spec (w : RelativeDimensionChoice f t) :
     Points.mk w.point = Points.map f (Points.ofAlgebraicSpace t) ∧
       AlgebraicSpace.Points.map w.projection w.fiberPoint = t :=
-  sorry
+  ⟨w.representsImage, w.projection_spec⟩
 
 end RelativeDimensionChoice
 
@@ -118,8 +118,12 @@ theorem fiberDimensionAt_eq {S : Scheme.{u}} {T : AlgebraicSpace S}
     {X : GroupoidsOver S} [AlgebraicStack X] (f : T.toGroupoids ⟶ X)
     [LocallyOfFiniteType f] (t : AlgebraicSpace.Points T)
     (w : RelativeDimensionChoice f t) :
-    fiberDimensionAt f t = w.dimension :=
-  sorry
+    fiberDimensionAt f t = w.dimension := by
+  apply le_antisymm
+  · show fiberDimensionAt f t ≤ w.dimension
+    exact iSup_le fun w' ↦ le_of_eq (fiberDimensionAt_independent f t w' w)
+  · show w.dimension ≤ fiberDimensionAt f t
+    exact le_iSup (fun w' : RelativeDimensionChoice f t ↦ w'.dimension) w
 
 /-- A representing fibre and a lift of `t` exist, by the surjectivity of points
 of a 2-fibre product. -/
@@ -144,7 +148,10 @@ theorem fiberDimensionAt_iff_relativeDimensionAt {S : Scheme.{u}}
     (d : ℕ) (t : AlgebraicSpace.Points T) :
     AlgebraicSpace.RelativeDimensionAt φ d t ↔
       fiberDimensionAt (AlgebraicSpace.toGroupoids.map φ) t =
-        (d : WithBot ℕ∞) :=
-  sorry
+        (d : WithBot ℕ∞) := by
+  obtain ⟨w⟩ := exists_relativeDimensionChoice (AlgebraicSpace.toGroupoids.map φ) t
+  rw [fiberDimensionAt_eq (AlgebraicSpace.toGroupoids.map φ) t w,
+    fiberDimensionAt_eq_of_algebraicSpace φ t w]
+  exact AlgebraicSpace.relativeDimensionAt_iff_fiberDimensionAt φ d t
 
 end AlgebraicGeometry.AlgebraicStack

@@ -45,12 +45,17 @@ namespace Map
 @[ext, stacks 09KU "extensionality of maps of property-I resolutions"]
 theorem ext {M N : DifferentialGradedModule.{u, v} A} {f : M ⟶ N}
     {I : Resolution A M} {J : Resolution A N} {m n : Map f I J}
-    (h : m.hom = n.hom) : m = n := sorry
+    (h : m.hom = n.hom) : m = n := by
+  cases m
+  cases n
+  cases h
+  rfl
 
 /-- The identity morphism satisfies the property I resolution comparison square. -/
 @[stacks 09KU "identity map of a property-I resolution"]
 theorem idNaturality {M : DifferentialGradedModule.{u, v} A} (I : Resolution A M) :
-    I.ι ≫ 𝟙 I.obj = 𝟙 M ≫ I.ι := sorry
+    I.ι ≫ 𝟙 I.obj = 𝟙 M ≫ I.ι := by
+  simp
 
 /-- The identity morphism of a property I resolution. -/
 @[stacks 09KU "identity map of a property-I resolution"]
@@ -62,7 +67,8 @@ def id {M : DifferentialGradedModule.{u, v} A} (I : Resolution A M) :
 /-- The resolving morphism underlying the identity resolution map is the identity. -/
 @[simp, stacks 09KU "identity map of a property-I resolution"]
 theorem id_hom {M : DifferentialGradedModule.{u, v} A} (I : Resolution A M) :
-    (id I).hom = 𝟙 I.obj := sorry
+    (id I).hom = 𝟙 I.obj := by
+  rfl
 
 /-- Composable resolution maps satisfy the comparison square for the composite base map. -/
 @[stacks 09KU "composition of maps of property-I resolutions"]
@@ -70,7 +76,13 @@ theorem compNaturality {M N P : DifferentialGradedModule.{u, v} A}
     {f : M ⟶ N} {g : N ⟶ P}
     {I : Resolution A M} {J : Resolution A N} {K : Resolution A P}
     (m : Map f I J) (n : Map g J K) :
-    I.ι ≫ (m.hom ≫ n.hom) = (f ≫ g) ≫ K.ι := sorry
+    I.ι ≫ (m.hom ≫ n.hom) = (f ≫ g) ≫ K.ι := by
+  calc
+    I.ι ≫ (m.hom ≫ n.hom) = (I.ι ≫ m.hom) ≫ n.hom := (Category.assoc _ _ _).symm
+    _ = (f ≫ J.ι) ≫ n.hom := by rw [m.ι_naturality]
+    _ = f ≫ (J.ι ≫ n.hom) := Category.assoc _ _ _
+    _ = f ≫ (g ≫ K.ι) := by rw [n.ι_naturality]
+    _ = (f ≫ g) ≫ K.ι := (Category.assoc _ _ _).symm
 
 /-- Composition of maps of property I resolutions. -/
 @[stacks 09KU "composition of maps of property-I resolutions"]
@@ -87,14 +99,16 @@ theorem comp_hom {M N P : DifferentialGradedModule.{u, v} A}
     {f : M ⟶ N} {g : N ⟶ P}
     {I : Resolution A M} {J : Resolution A N} {K : Resolution A P}
     (m : Map f I J) (n : Map g J K) :
-    (comp m n).hom = m.hom ≫ n.hom := sorry
+    (comp m n).hom = m.hom ≫ n.hom := by
+  rfl
 
 /-- Reindexing a resolution map along an equality of base morphisms preserves its comparison
 square. -/
 @[stacks 09KU "reindexing a map of property-I resolutions"]
 theorem reindexNaturality {M N : DifferentialGradedModule.{u, v} A}
     {f g : M ⟶ N} {I : Resolution A M} {J : Resolution A N}
-    (h : f = g) (m : Map f I J) : I.ι ≫ m.hom = g ≫ J.ι := sorry
+    (h : f = g) (m : Map f I J) : I.ι ≫ m.hom = g ≫ J.ι := by
+  simpa [h] using m.ι_naturality
 
 /-- Reindex a map of property I resolutions along an equality of base morphisms. -/
 @[stacks 09KU "reindexing a map of property-I resolutions"]
@@ -108,27 +122,33 @@ def reindex {M N : DifferentialGradedModule.{u, v} A}
 @[simp, stacks 09KU "reindexing a map of property-I resolutions"]
 theorem reindex_hom {M N : DifferentialGradedModule.{u, v} A}
     {f g : M ⟶ N} {I : Resolution A M} {J : Resolution A N}
-    (h : f = g) (m : Map f I J) : (reindex h m).hom = m.hom := sorry
+    (h : f = g) (m : Map f I J) : (reindex h m).hom = m.hom := by
+  rfl
 
 /-- Reindexing along reflexivity leaves a resolution map unchanged. -/
 @[simp, stacks 09KU "reindexing a map of property-I resolutions"]
 theorem reindex_rfl {M N : DifferentialGradedModule.{u, v} A}
     {f : M ⟶ N} {I : Resolution A M} {J : Resolution A N}
-    (m : Map f I J) : reindex rfl m = m := sorry
+    (m : Map f I J) : reindex rfl m = m := by
+  rfl
 
 /-- Identity is a left unit for maps of property I resolutions, up to reindexing. -/
 @[stacks 09KU "left identity for maps of property-I resolutions"]
 theorem id_comp {M N : DifferentialGradedModule.{u, v} A}
     {f : M ⟶ N} {I : Resolution A M} {J : Resolution A N}
     (m : Map f I J) :
-    reindex (Category.id_comp f) (comp (id I) m) = m := sorry
+    reindex (Category.id_comp f) (comp (id I) m) = m := by
+  apply ext
+  simp
 
 /-- Identity is a right unit for maps of property I resolutions, up to reindexing. -/
 @[stacks 09KU "right identity for maps of property-I resolutions"]
 theorem comp_id {M N : DifferentialGradedModule.{u, v} A}
     {f : M ⟶ N} {I : Resolution A M} {J : Resolution A N}
     (m : Map f I J) :
-    reindex (Category.comp_id f) (comp m (id J)) = m := sorry
+    reindex (Category.comp_id f) (comp m (id J)) = m := by
+  apply ext
+  simp
 
 /-- Composition of maps of property I resolutions is associative, up to reindexing. -/
 @[stacks 09KU "associativity of maps of property-I resolutions"]
@@ -137,7 +157,9 @@ theorem assoc {M N P Q : DifferentialGradedModule.{u, v} A}
     {I : Resolution A M} {J : Resolution A N}
     {K : Resolution A P} {L : Resolution A Q}
     (m : Map f I J) (n : Map g J K) (k : Map h K L) :
-    reindex (Category.assoc f g h) (comp (comp m n) k) = comp m (comp n k) := sorry
+    reindex (Category.assoc f g h) (comp (comp m n) k) = comp m (comp n k) := by
+  apply ext
+  simp [Category.assoc]
 
 end Map
 

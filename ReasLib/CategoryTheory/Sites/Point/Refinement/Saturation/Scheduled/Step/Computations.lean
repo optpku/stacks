@@ -44,7 +44,14 @@ variable {base : A ⟶ L} {request : A.target.Request J}
 @[ext]
 theorem ext {step₁ step₂ : Step base request}
     (hstage : step₁.stage = step₂.stage) (hhom : HEq step₁.hom step₂.hom) :
-    step₁ = step₂ := sorry
+    step₁ = step₂ := by
+  cases step₁ with
+  | mk stage₁ hom₁ realizes₁ =>
+    cases step₂ with
+    | mk stage₂ hom₂ realizes₂ =>
+      cases hstage
+      cases hhom
+      rfl
 
 namespace fromBase
 
@@ -52,21 +59,26 @@ namespace fromBase
 the stored transition. -/
 @[simp]
 theorem eq (step : Step base request) :
-    step.fromBase = base ≫ step.hom := sorry
+    step.fromBase = base ≫ step.hom := rfl
 
 /-- Transport along a step's composite base map is transport to the current
 stage followed by transport along the stored transition. -/
 @[simp]
 theorem mapRequest (step : Step base request) :
     step.fromBase.mapRequest request =
-      step.hom.mapRequest (base.mapRequest request) := sorry
+      step.hom.mapRequest (base.mapRequest request) := by
+  change Stage.Hom.mapRequest (Stage.Hom.comp base step.hom) request =
+    Stage.Hom.mapRequest step.hom (Stage.Hom.mapRequest base request)
+  exact Stage.Hom.comp.mapRequest base step.hom request
 
 end fromBase
 
 /-- The request transported to the current stage is realized after the
 stored transition of a one-request step. -/
 theorem realizesLocal (step : Step base request) :
-    (step.hom.mapRequest (base.mapRequest request)).is_realized := sorry
+    (step.hom.mapRequest (base.mapRequest request)).is_realized := by
+  rw [← fromBase.mapRequest step]
+  exact step.realizes
 
 namespace ofLocal
 
@@ -75,21 +87,21 @@ namespace ofLocal
 theorem stage
     (B : Stage.{u, v, q, r, r'} (J := J) S P x y) (f : L ⟶ B)
     (hreal : (f.mapRequest (base.mapRequest request)).is_realized) :
-    (ofLocal B f hreal).stage = B := sorry
+    (ofLocal B f hreal).stage = B := rfl
 
 /-- `ofLocal` retains its explicitly supplied transition. -/
 @[simp]
 theorem hom
     (B : Stage.{u, v, q, r, r'} (J := J) S P x y) (f : L ⟶ B)
     (hreal : (f.mapRequest (base.mapRequest request)).is_realized) :
-    (ofLocal B f hreal).hom = f := sorry
+    (ofLocal B f hreal).hom = f := rfl
 
 /-- The base map of `ofLocal` is the explicit composite of its inputs. -/
 @[simp]
 theorem fromBase
     (B : Stage.{u, v, q, r, r'} (J := J) S P x y) (f : L ⟶ B)
     (hreal : (f.mapRequest (base.mapRequest request)).is_realized) :
-    (ofLocal B f hreal).fromBase = base ≫ f := sorry
+    (ofLocal B f hreal).fromBase = base ≫ f := rfl
 
 end ofLocal
 
@@ -101,7 +113,8 @@ after the fixed base map. -/
 theorem realizes
     (h : ∃ (B : Stage.{u, v, q, r, r'} (J := J) S P x y), ∃ f : L ⟶ B,
       ((base ≫ f).mapRequest request).is_realized) :
-    ((base ≫ (ofExists h).hom).mapRequest request).is_realized := sorry
+    ((base ≫ (ofExists h).hom).mapRequest request).is_realized := by
+  exact (ofExists h).realizes
 
 /-- The transition selected by `ofExists` realizes the request transported to
 the current stage. -/
@@ -109,7 +122,9 @@ the current stage. -/
 theorem realizesLocal
     (h : ∃ (B : Stage.{u, v, q, r, r'} (J := J) S P x y), ∃ f : L ⟶ B,
       ((base ≫ f).mapRequest request).is_realized) :
-    ((ofExists h).hom.mapRequest (base.mapRequest request)).is_realized := sorry
+    ((ofExists h).hom.mapRequest (base.mapRequest request)).is_realized := by
+  rw [← fromBase.mapRequest (ofExists h)]
+  exact (ofExists h).realizes
 
 end ofExists
 

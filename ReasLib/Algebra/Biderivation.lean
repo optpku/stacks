@@ -58,43 +58,60 @@ def apply (D : Biderivation A B M) : B → M :=
 /-- Evaluating the smart constructor recovers the original `A`-linear map. -/
 theorem ofLinearMap_apply (f : B →ₗ[A] M)
     (hleibniz : ∀ x y : B, f (x * y) = x • f y + MulOpposite.op y • f x) (x : B) :
-    (ofLinearMap f hleibniz).apply x = f x := sorry
+    (ofLinearMap f hleibniz).apply x = f x := rfl
 
 /-- The underlying linear map of the smart constructor is the original map. -/
 theorem ofLinearMap_toLinearMap (f : B →ₗ[A] M)
     (hleibniz : ∀ x y : B, f (x * y) = x • f y + MulOpposite.op y • f x) :
-    (ofLinearMap f hleibniz).toLinearMap = f := sorry
+    (ofLinearMap f hleibniz).toLinearMap = f := rfl
 
 /-- An `A`-biderivation satisfies the bimodule Leibniz identity. -/
 theorem leibniz (D : Biderivation A B M) (x y : B) :
-    D.apply (x * y) = x • D.apply y + MulOpposite.op y • D.apply x := sorry
+    D.apply (x * y) = x • D.apply y + MulOpposite.op y • D.apply x :=
+  D.leibniz' x y
 
 /-- An `A`-biderivation respects scalar multiplication and satisfies the bimodule Leibniz identity. -/
 theorem spec (D : Biderivation A B M) :
     (∀ a : A, ∀ x : B, D.apply (a • x) = a • D.apply x) ∧
-      (∀ x y : B, D.apply (x * y) = x • D.apply y + MulOpposite.op y • D.apply x) := sorry
+      (∀ x y : B, D.apply (x * y) = x • D.apply y + MulOpposite.op y • D.apply x) :=
+  ⟨fun a x => D.toLinearMap.map_smul a x, D.leibniz⟩
 
 /-- An `A`-biderivation vanishes at `1`. -/
-theorem map_one_eq_zero (D : Biderivation A B M) : D.apply 1 = 0 := sorry
+theorem map_one_eq_zero (D : Biderivation A B M) : D.apply 1 = 0 := by
+  apply (add_eq_left (a := D.apply 1)).mp
+  simpa only [one_mul, MulOpposite.op_one, one_smul] using (D.leibniz 1 1).symm
 
 /-- An `A`-biderivation vanishes on the structure map `A → B`. -/
 theorem map_algebraMap (D : Biderivation A B M) (a : A) :
-    D.apply (algebraMap A B a) = 0 := sorry
+    D.apply (algebraMap A B a) = 0 := by
+  calc
+    D.apply (algebraMap A B a) = D.apply (a • (1 : B)) := by
+      rw [Algebra.algebraMap_eq_smul_one]
+    _ = a • D.apply 1 := D.toLinearMap.map_smul a 1
+    _ = 0 := by rw [D.map_one_eq_zero, smul_zero]
 
 /-- Two `A`-biderivations agreeing as maps `B → M` are equal. -/
 theorem ext {D1 D2 : Biderivation A B M} (h : ∀ x : B, D1.apply x = D2.apply x) :
-    D1 = D2 := sorry
+    D1 = D2 := by
+  cases D1 with
+  | mk f hf =>
+    cases D2 with
+    | mk g hg =>
+      have hfg : f = g := LinearMap.ext h
+      cases hfg
+      rfl
 
 /-- The zero `A`-linear map satisfies the bimodule Leibniz identity. -/
 theorem zero_leibniz (x y : B) :
     (0 : B →ₗ[A] M) (x * y) =
-      x • (0 : B →ₗ[A] M) y + MulOpposite.op y • (0 : B →ₗ[A] M) x := sorry
+      x • (0 : B →ₗ[A] M) y + MulOpposite.op y • (0 : B →ₗ[A] M) x := by
+  simp
 
 /-- The zero `A`-biderivation. -/
 def zero : Biderivation A B M :=
   ofLinearMap 0 zero_leibniz
 
 /-- The zero `A`-biderivation evaluates to `0`. -/
-theorem zero_apply (x : B) : (zero : Biderivation A B M).apply x = 0 := sorry
+theorem zero_apply (x : B) : (zero : Biderivation A B M).apply x = 0 := rfl
 
 end Biderivation

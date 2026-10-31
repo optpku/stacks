@@ -53,7 +53,7 @@ def eventuallyStabilizesBelow (K : FilteredComplex A) : Prop :=
 on a chosen filtered right-derived model. -/
 @[stacks 0BKK "comparison bridge for eventual vanishing of filtered right-derived cohomology"]
 theorem eventuallyVanishesAbove_iff
-    {K : FilteredComplex A} (R : KInjectiveResolution K) (P : Model.Comparison F R) :
+    {K : FilteredComplex A} (R : KInjectiveResolution K) :
     eventuallyVanishesAbove F K ↔
       FilteredComplex.StageCohomology.eventuallyVanishesAbove (model F R) := sorry
 
@@ -61,39 +61,9 @@ theorem eventuallyVanishesAbove_iff
 condition on a chosen filtered right-derived model. -/
 @[stacks 0BKK "comparison bridge for eventual stabilization of filtered right-derived cohomology"]
 theorem eventuallyStabilizesBelow_iff
-    {K : FilteredComplex A} (R : KInjectiveResolution K) (P : Model.Comparison F R) :
+    {K : FilteredComplex A} (R : KInjectiveResolution K) :
     eventuallyStabilizesBelow F K ↔
       FilteredComplex.StageCohomology.eventuallyStabilizesBelow (model F R) := sorry
-
-/-- A generic model vanishing hypothesis can be transported to the specialized right-derived
-condition without unfolding the chosen comparison. -/
-@[stacks 0BKK "generic-to-specialized vanishing bridge for filtered right-derived cohomology"]
-theorem eventuallyVanishesAbove_of_generic
-    {K : FilteredComplex A} (R : KInjectiveResolution K) (P : Model.Comparison F R)
-    (h : FilteredComplex.StageCohomology.eventuallyVanishesAbove (model F R)) :
-    eventuallyVanishesAbove F K := sorry
-
-/-- A generic model stabilization hypothesis can be transported to the specialized right-derived
-condition without unfolding the chosen comparison. -/
-@[stacks 0BKK "generic-to-specialized stabilization bridge for filtered right-derived cohomology"]
-theorem eventuallyStabilizesBelow_of_generic
-    {K : FilteredComplex A} (R : KInjectiveResolution K) (P : Model.Comparison F R)
-    (h : FilteredComplex.StageCohomology.eventuallyStabilizesBelow (model F R)) :
-    eventuallyStabilizesBelow F K := sorry
-
-/-- A specialized vanishing hypothesis can be transported to the generic filtered model. -/
-@[stacks 0BKK "specialized-to-generic vanishing bridge for filtered right-derived cohomology"]
-theorem eventuallyVanishesAbove_to_generic
-    {K : FilteredComplex A} (R : KInjectiveResolution K) (P : Model.Comparison F R)
-    (h : eventuallyVanishesAbove F K) :
-    FilteredComplex.StageCohomology.eventuallyVanishesAbove (model F R) := sorry
-
-/-- A specialized stabilization hypothesis can be transported to the generic filtered model. -/
-@[stacks 0BKK "specialized-to-generic stabilization bridge for filtered right-derived cohomology"]
-theorem eventuallyStabilizesBelow_to_generic
-    {K : FilteredComplex A} (R : KInjectiveResolution K) (P : Model.Comparison F R)
-    (h : eventuallyStabilizesBelow F K) :
-    FilteredComplex.StageCohomology.eventuallyStabilizesBelow (model F R) := sorry
 
 end StageCohomology
 

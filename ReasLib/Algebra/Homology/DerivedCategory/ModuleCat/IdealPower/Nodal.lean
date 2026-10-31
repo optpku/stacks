@@ -7,6 +7,7 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import Mathlib.RingTheory.MvPowerSeries.Basic
+public import Mathlib.RingTheory.MvPowerSeries.NoZeroDivisors
 public import Mathlib.Algebra.Category.ModuleCat.Algebra
 public import Mathlib.Algebra.Module.Torsion.Basic
 public import Mathlib.Algebra.Homology.AlternatingConst
@@ -81,11 +82,40 @@ abbrev quotientModule (k : Type u) [Field k] : ModuleCat (Ring k) :=
 
 /-- The nodal coordinates satisfy the defining relation `x * y = 0`. -/
 @[simp, stacks 0EH2 "defining relation in the nodal ring"]
-theorem x_mul_y (k : Type u) [Field k] : x k * y k = 0 := sorry
+theorem x_mul_y (k : Type u) [Field k] : x k * y k = 0 := by
+  rw [x, y, ← map_mul]
+  exact Ideal.Quotient.eq_zero_iff_mem.mpr (Ideal.mem_span_singleton_self (relation k))
 
 /-- The nodal coordinates also satisfy the reversed defining relation `y * x = 0`. -/
 @[simp, stacks 0EH2 "reversed defining relation in the nodal ring"]
-theorem y_mul_x (k : Type u) [Field k] : y k * x k = 0 := sorry
+theorem y_mul_x (k : Type u) [Field k] : y k * x k = 0 := by
+  simpa only [mul_comm] using x_mul_y k
+
+private theorem powerSeriesX_ne_zero (k : Type u) [Field k] (i : Fin 2) :
+    (X i : PowerSeriesRing k) ≠ 0 := by
+  intro h
+  have hcoeff := congrArg (MvPowerSeries.coeff (Finsupp.single i 1)) h
+  simpa using hcoeff
+
+private theorem quotient_mul_factor (k : Type u) [Field k]
+    (a b : PowerSeriesRing k) (ha : a ≠ 0) (hab : relation k = a * b)
+    (z : Ring k) (hz : Ideal.Quotient.mk _ a * z = 0) :
+    ∃ w : Ring k, Ideal.Quotient.mk _ b * w = z := by
+  obtain ⟨f, rfl⟩ := Ideal.Quotient.mk_surjective z
+  have hmem : a * f ∈ Ideal.span ({relation k} : Set (PowerSeriesRing k)) :=
+    Ideal.Quotient.eq_zero_iff_mem.mp (by simpa only [map_mul] using hz)
+  obtain ⟨g, hg⟩ := Ideal.mem_span_singleton.mp hmem
+  have hf : f = b * g := mul_left_cancel₀ ha (by simpa only [hab, mul_assoc] using hg)
+  refine ⟨Ideal.Quotient.mk _ g, ?_⟩
+  rw [← map_mul, ← hf]
+
+private theorem ambientMulXKernel (k : Type u) [Field k]
+    (z : Ring k) (hz : x k * z = 0) : ∃ w : Ring k, y k * w = z :=
+  quotient_mul_factor k _ _ (powerSeriesX_ne_zero k 0) rfl z hz
+
+private theorem ambientMulYKernel (k : Type u) [Field k]
+    (z : Ring k) (hz : y k * z = 0) : ∃ w : Ring k, x k * w = z :=
+  quotient_mul_factor k _ _ (powerSeriesX_ne_zero k 1) (mul_comm _ _) z hz
 
 /-- The regular module used in every term of the ambient periodic resolution. -/
 @[stacks 0EH2 "regular module in the ambient periodic resolution"]
@@ -103,14 +133,27 @@ abbrev mulY (k : Type u) [Field k] : regularModule k ⟶ regularModule k :=
   ModuleCat.ofHom (LinearMap.mulLeft (Ring k) (y k))
 
 /-- Consecutive `x`-then-`y` differentials in the periodic resolution compose to zero. -/
-theorem mulX_comp_mulY (k : Type u) [Field k] : mulX k ≫ mulY k = 0 := sorry
+theorem mulX_comp_mulY (k : Type u) [Field k] : mulX k ≫ mulY k = 0 := by
+  apply ModuleCat.hom_ext
+  apply LinearMap.ext
+  intro z
+  change y k * (x k * z) = 0
+  rw [← mul_assoc, y_mul_x, zero_mul]
 
 /-- Consecutive `y`-then-`x` differentials in the periodic resolution compose to zero. -/
-theorem mulY_comp_mulX (k : Type u) [Field k] : mulY k ≫ mulX k = 0 := sorry
+theorem mulY_comp_mulX (k : Type u) [Field k] : mulY k ≫ mulX k = 0 := by
+  apply ModuleCat.hom_ext
+  apply LinearMap.ext
+  intro z
+  change x k * (y k * z) = 0
+  rw [← mul_assoc, x_mul_y, zero_mul]
 
 /-- Related degrees in the downward natural-number complex have opposite parity. -/
 theorem ambientResolutionParity (i j : ℕ) (h : (ComplexShape.down ℕ).Rel i j) :
-    Odd (i + j) := sorry
+    Odd (i + j) := by
+  have hij : j + 1 = i := h
+  subst i
+  exact ⟨j, by omega⟩
 
 /-- The explicit periodic chain complex
 `⋯ ⟶ A ⟶[y] A ⟶[x] A ⟶[y] A` resolving `A / (y)`. -/
@@ -121,6 +164,40 @@ noncomputable def ambientResolutionComplex (k : Type u) [Field k] :
     (mulX_comp_mulY k) (mulY_comp_mulX k)
     ambientResolutionParity
 
+private theorem ambientResolution_d_one_zero (k : Type u) [Field k] :
+    (ambientResolutionComplex k).d 1 0 = mulY k := by
+  have h1 : ¬ Even (1 : ℕ) := by
+    rintro ⟨n, hn⟩
+    omega
+  unfold ambientResolutionComplex
+  simp [HomologicalComplex.alternatingConst_d, ComplexShape.down_Rel, h1]
+
+private theorem ambientYX_exact (k : Type u) [Field k] :
+    (ShortComplex.mk (mulY k) (mulX k) (mulY_comp_mulX k)).Exact := by
+  rw [ShortComplex.moduleCat_exact_iff]
+  intro z hz
+  exact ambientMulXKernel k z hz
+
+private theorem ambientXY_exact (k : Type u) [Field k] :
+    (ShortComplex.mk (mulX k) (mulY k) (mulX_comp_mulY k)).Exact := by
+  rw [ShortComplex.moduleCat_exact_iff]
+  intro z hz
+  exact ambientMulYKernel k z hz
+
+private theorem ambientExactAtSucc (k : Type u) [Field k] (n : ℕ) :
+    (ambientResolutionComplex k).ExactAt (n + 1) := by
+  rw [HomologicalComplex.exactAt_iff' _ (n + 2) (n + 1) n (by simp) (by simp)]
+  by_cases hn : Even (n + 1)
+  · exact (ShortComplex.exact_iff_of_iso
+      (HomologicalComplex.alternatingConstScIsoEven (regularModule k)
+        (mulX_comp_mulY k) (mulY_comp_mulX k) ambientResolutionParity
+        (i := n + 2) (j := n + 1) (k := n) rfl rfl hn)).mpr (ambientYX_exact k)
+  · exact (ShortComplex.exact_iff_of_iso
+      (HomologicalComplex.alternatingConstScIsoOdd (regularModule k)
+        (mulX_comp_mulY k) (mulY_comp_mulX k) ambientResolutionParity
+        (i := n + 2) (j := n + 1) (k := n) rfl rfl (Nat.not_even_iff_odd.mp hn))).mpr
+      (ambientXY_exact k)
+
 /-- The quotient map at degree zero of the ambient periodic resolution. -/
 @[stacks 0EH2 "ambient periodic resolution augmentation map"]
 abbrev ambientQuotient (k : Type u) [Field k] : regularModule k ⟶ quotientModule k :=
@@ -128,7 +205,14 @@ abbrev ambientQuotient (k : Type u) [Field k] : regularModule k ⟶ quotientModu
 
 /-- The differential entering degree zero is killed by the quotient augmentation. -/
 theorem ambientAugmentationCondition (k : Type u) [Field k] :
-    (ambientResolutionComplex k).d 1 0 ≫ ambientQuotient k = 0 := sorry
+    (ambientResolutionComplex k).d 1 0 ≫ ambientQuotient k = 0 := by
+  rw [ambientResolution_d_one_zero]
+  apply ModuleCat.hom_ext
+  change (ambientQuotient k).hom.comp (mulY k).hom = 0
+  apply LinearMap.ext
+  intro z
+  change Ideal.Quotient.mk (idealY k) (y k * z) = 0
+  exact Ideal.Quotient.eq_zero_iff_mem.mpr (Ideal.mem_span_singleton.mpr ⟨z, rfl⟩)
 
 /-- The explicit augmentation of the ambient periodic complex to `A / (y)`. -/
 @[stacks 0EH2 "ambient periodic resolution augmentation"]
@@ -141,15 +225,53 @@ noncomputable def ambientAugmentation (k : Type u) [Field k] :
 /-- The ambient periodic augmentation is a free resolution of `A / (y)`. -/
 @[stacks 0EH2 "ambient periodic free resolution"]
 theorem ambientIsFreeResolution (k : Type u) [Field k] :
-    ChainComplex.IsFreeResolution (ambientAugmentation k) := sorry
+    ChainComplex.IsFreeResolution (ambientAugmentation k) := by
+  have hq : QuasiIso (ambientAugmentation k) := by
+    constructor
+    intro n
+    cases n with
+    | zero =>
+      rw [ChainComplex.quasiIsoAt₀_iff]
+      rw [ShortComplex.quasiIso_iff_of_zeros' _ (by simp; rfl)
+        (by simp; rfl) (by simp; rfl)]
+      have hf0 : (ambientAugmentation k).f 0 = ambientQuotient k := by
+        simp [ambientAugmentation]
+      constructor
+      · rw [ShortComplex.moduleCat_exact_iff]
+        intro z hz
+        change Ring k at z
+        have hzq : Ideal.Quotient.mk (idealY k) z = 0 := by
+          change ((ambientAugmentation k).f 0).hom z = 0 at hz
+          rw [hf0] at hz
+          exact hz
+        have hzmem : z ∈ idealY k := Ideal.Quotient.eq_zero_iff_mem.mp hzq
+        obtain ⟨c, hc⟩ := Ideal.mem_span_singleton'.mp hzmem
+        refine ⟨c, ?_⟩
+        change ((ambientResolutionComplex k).d 1 0).hom c = z
+        rw [ambientResolution_d_one_zero]
+        change y k * c = z
+        simpa only [mul_comm] using hc
+      · change Epi ((ambientAugmentation k).f 0)
+        rw [hf0]
+        exact (ModuleCat.epi_iff_surjective _).mpr (Submodule.mkQ_surjective _)
+    | succ n =>
+      rw [quasiIsoAt_iff_exactAt' _ _
+        (ChainComplex.exactAt_succ_single_obj (quotientModule k) n)]
+      exact ambientExactAtSucc k n
+  exact { toQuasiIso := hq, termwise_free := fun n => inferInstanceAs
+    (Module.Free (Ring k) (Ring k)) }
 
 /-- The mathlib projective-resolution owner associated to the explicit ambient periodic
 resolution. -/
 @[stacks 0EH2 "ambient periodic projective resolution"]
 noncomputable def ambientProjectiveResolution (k : Type u) [Field k] :
     ProjectiveResolution (quotientModule k) :=
-  ChainComplex.IsFreeResolution.toProjectiveResolution
-    (ambientAugmentation k) (h := ambientIsFreeResolution k)
+  { complex := ambientResolutionComplex k
+    projective n := by
+      change Projective (regularModule k)
+      infer_instance
+    π := ambientAugmentation k
+    quasiIso := (ambientIsFreeResolution k).toQuasiIso }
 
 /-- The enriched module-valued Hom complex attached to the ambient periodic resolution and a
 target module `N`. -/
@@ -165,24 +287,30 @@ module. -/
 theorem regularHom_evalOne_left_inv
     (k : Type u) [Field k] (N : ModuleCat (Ring k))
     (f : regularModule k ⟶ N) :
-    ModuleCat.ofHom (LinearMap.toSpanSingleton (Ring k) N (f.hom 1)) = f := sorry
+    ModuleCat.ofHom (LinearMap.toSpanSingleton (Ring k) N (f.hom 1)) = f := by
+  apply ModuleCat.hom_ext
+  apply LinearMap.ext
+  intro r
+  change r • f.hom 1 = f.hom r
+  simpa only [smul_eq_mul, mul_one] using (f.hom.map_smul r (1 : Ring k)).symm
 
 /-- The scalar-span map evaluates at `1` to its defining vector. -/
 theorem regularHom_evalOne_right_inv
     (k : Type u) [Field k] (N : ModuleCat (Ring k)) (z : N) :
-    (ModuleCat.ofHom (LinearMap.toSpanSingleton (Ring k) N z)).hom 1 = z := sorry
+    (ModuleCat.ofHom (LinearMap.toSpanSingleton (Ring k) N z)).hom 1 = z := by
+  exact LinearMap.toSpanSingleton_apply_one (Ring k) N z
 
 /-- Evaluation at `1` is additive on morphisms from the regular module. -/
 theorem regularHom_evalOne_map_add
     (k : Type u) [Field k] (N : ModuleCat (Ring k))
     (f g : regularModule k ⟶ N) :
-    (f + g).hom 1 = f.hom 1 + g.hom 1 := sorry
+    (f + g).hom 1 = f.hom 1 + g.hom 1 := rfl
 
 /-- Evaluation at `1` respects scalar multiplication on morphisms from the regular module. -/
 theorem regularHom_evalOne_map_smul
     (k : Type u) [Field k] (N : ModuleCat (Ring k))
     (r : Ring k) (f : regularModule k ⟶ N) :
-    (r • f).hom 1 = r • f.hom 1 := sorry
+    (r • f).hom 1 = r • f.hom 1 := rfl
 
 /-- The canonical linear equivalence `Hom_A(A, N) ≃ N`, given by evaluation at `1`. -/
 @[stacks 0EH2 "evaluation equivalence for the ambient regular module"]
@@ -199,12 +327,12 @@ noncomputable def regularHomEquiv
 /-- The degree identity selecting the unique component of a cochain into a complex concentrated
 in degree zero. -/
 theorem ambientCochainDegree_add (m : ℕ) :
-    -(m : ℤ) + (m : ℤ) = 0 := sorry
+    -(m : ℤ) + (m : ℤ) = 0 := neg_add_cancel _
 
 /-- Every term of the chosen ambient projective resolution is the regular module. -/
 theorem ambientProjectiveTerm_eq_regular
     (k : Type u) [Field k] (m : ℕ) :
-    (ambientProjectiveResolution k).complex.X m = regularModule k := sorry
+    (ambientProjectiveResolution k).complex.X m = regularModule k := rfl
 
 /-- The canonical identification of an ambient projective-resolution term with the regular
 module. -/
@@ -231,14 +359,27 @@ theorem ambientCochainToRegularFun_map_add
     (k : Type u) [Field k] (N : ModuleCat (Ring k)) (m : ℕ)
     (z w : (ambientHomComplex k N).X (m : ℤ)) :
     ambientCochainToRegularFun k N m (z + w) =
-      ambientCochainToRegularFun k N m z + ambientCochainToRegularFun k N m w := sorry
+      ambientCochainToRegularFun k N m z + ambientCochainToRegularFun k N m w := by
+  unfold ambientCochainToRegularFun
+  erw [(CochainComplex.HomComplex.Cochain.toSingleEquiv (ambientCochainDegree_add m)).map_add]
+  simp only [Preadditive.comp_add]
 
 /-- Reading an ambient Hom-complex degree as a regular-module morphism is linear. -/
 theorem ambientCochainToRegularFun_map_smul
     (k : Type u) [Field k] (N : ModuleCat (Ring k)) (m : ℕ)
     (r : Ring k) (z : (ambientHomComplex k N).X (m : ℤ)) :
     ambientCochainToRegularFun k N m (r • z) =
-      r • ambientCochainToRegularFun k N m z := sorry
+      r • ambientCochainToRegularFun k N m z := by
+  change (ambientProjectiveTermIso k m).inv ≫
+      ((ambientProjectiveResolution k).cochainComplexXIso (-(m : ℤ)) m rfl).inv ≫
+        ((r • z).v (-(m : ℤ)) 0 (ambientCochainDegree_add m) ≫
+          (HomologicalComplex.singleObjXSelf (.up ℤ) 0 N).hom) =
+    r • ((ambientProjectiveTermIso k m).inv ≫
+      ((ambientProjectiveResolution k).cochainComplexXIso (-(m : ℤ)) m rfl).inv ≫
+        (z.v (-(m : ℤ)) 0 (ambientCochainDegree_add m) ≫
+          (HomologicalComplex.singleObjXSelf (.up ℤ) 0 N).hom))
+  erw [CochainComplex.HomComplex.Cochain.smul_v]
+  simp only [Linear.smul_comp, Linear.comp_smul]
 
 /-- Read a degree-`m` enriched cochain linearly as a morphism from the regular module. -/
 @[stacks 0EH2 "evaluation of an ambient Hom-complex degree"]
@@ -266,14 +407,29 @@ theorem regularToAmbientCochainFun_map_add
     (k : Type u) [Field k] (N : ModuleCat (Ring k)) (m : ℕ)
     (f g : regularModule k ⟶ N) :
     regularToAmbientCochainFun k N m (f + g) =
-      regularToAmbientCochainFun k N m f + regularToAmbientCochainFun k N m g := sorry
+      regularToAmbientCochainFun k N m f + regularToAmbientCochainFun k N m g := by
+  simp only [regularToAmbientCochainFun, Preadditive.comp_add, map_add]
+  rfl
 
 /-- Assembly of regular-module morphisms into enriched cochains is linear. -/
 theorem regularToAmbientCochainFun_map_smul
     (k : Type u) [Field k] (N : ModuleCat (Ring k)) (m : ℕ)
     (r : Ring k) (f : regularModule k ⟶ N) :
     regularToAmbientCochainFun k N m (r • f) =
-      r • regularToAmbientCochainFun k N m f := sorry
+      r • regularToAmbientCochainFun k N m f := by
+  have hsmul (z : (ambientHomComplex k N).X (m : ℤ)) :
+      CochainComplex.HomComplex.Cochain.toSingleEquiv (ambientCochainDegree_add m) (r • z) =
+        r • CochainComplex.HomComplex.Cochain.toSingleEquiv (ambientCochainDegree_add m) z := by
+    change (r • z).v (-(m : ℤ)) 0 (ambientCochainDegree_add m) ≫
+        (HomologicalComplex.singleObjXSelf (.up ℤ) 0 N).hom =
+      r • (z.v (-(m : ℤ)) 0 (ambientCochainDegree_add m) ≫
+        (HomologicalComplex.singleObjXSelf (.up ℤ) 0 N).hom)
+    erw [CochainComplex.HomComplex.Cochain.smul_v]
+    simp only [Linear.smul_comp]
+  apply (CochainComplex.HomComplex.Cochain.toSingleEquiv
+    (K := (ambientProjectiveResolution k).cochainComplex) (X := N)
+    (ambientCochainDegree_add m)).injective
+  simp only [regularToAmbientCochainFun, hsmul, AddEquiv.apply_symm_apply, Linear.comp_smul]
 
 /-- Assemble a regular-module morphism linearly into the corresponding degree-`m` enriched
 cochain. -/
@@ -289,13 +445,19 @@ noncomputable def regularToAmbientCochain
 theorem regularToAmbientCochain_ambientCochainToRegular
     (k : Type u) [Field k] (N : ModuleCat (Ring k)) (m : ℕ)
     (z : (ambientHomComplex k N).X (m : ℤ)) :
-    regularToAmbientCochain k N m (ambientCochainToRegular k N m z) = z := sorry
+    regularToAmbientCochain k N m (ambientCochainToRegular k N m z) = z := by
+  simp only [regularToAmbientCochain, ambientCochainToRegular,
+    regularToAmbientCochainFun, ambientCochainToRegularFun, LinearMap.coe_mk, AddHom.coe_mk,
+    Iso.hom_inv_id_assoc, AddEquiv.symm_apply_apply]
 
 /-- Evaluation after assembly is the identity on regular-module morphisms. -/
 theorem ambientCochainToRegular_regularToAmbientCochain
     (k : Type u) [Field k] (N : ModuleCat (Ring k)) (m : ℕ)
     (f : regularModule k ⟶ N) :
-    ambientCochainToRegular k N m (regularToAmbientCochain k N m f) = f := sorry
+    ambientCochainToRegular k N m (regularToAmbientCochain k N m f) = f := by
+  simp only [regularToAmbientCochain, ambientCochainToRegular,
+    regularToAmbientCochainFun, ambientCochainToRegularFun, LinearMap.coe_mk, AddHom.coe_mk,
+    AddEquiv.apply_symm_apply, Iso.inv_hom_id_assoc]
 
 /-- Degree-`m` enriched cochains are canonically equivalent to morphisms from the regular
 module. -/
@@ -389,17 +551,21 @@ def ambientExt2Window (k : Type u) [Field k] (N : ModuleCat (Ring k)) :
 /-- The left object of the degree-two Hom window is its degree-one term. -/
 theorem ambientHomWindowX1_eq
     (k : Type u) [Field k] (N : ModuleCat (Ring k)) :
-    (ambientHomExt2Window k N).X₁ = (ambientHomComplex k N).X (1 : ℤ) := sorry
+    (ambientHomExt2Window k N).X₁ = (ambientHomComplex k N).X (1 : ℤ) := by
+  exact congrArg (ambientHomComplex k N).X
+    ((ComplexShape.up ℤ).prev_eq' (show (ComplexShape.up ℤ).Rel 1 2 from rfl))
 
 /-- The middle object of the degree-two Hom window is its degree-two term. -/
 theorem ambientHomWindowX2_eq
     (k : Type u) [Field k] (N : ModuleCat (Ring k)) :
-    (ambientHomExt2Window k N).X₂ = (ambientHomComplex k N).X (2 : ℤ) := sorry
+    (ambientHomExt2Window k N).X₂ = (ambientHomComplex k N).X (2 : ℤ) := rfl
 
 /-- The right object of the degree-two Hom window is its degree-three term. -/
 theorem ambientHomWindowX3_eq
     (k : Type u) [Field k] (N : ModuleCat (Ring k)) :
-    (ambientHomExt2Window k N).X₃ = (ambientHomComplex k N).X (3 : ℤ) := sorry
+    (ambientHomExt2Window k N).X₃ = (ambientHomComplex k N).X (3 : ℤ) := by
+  exact congrArg (ambientHomComplex k N).X
+    ((ComplexShape.up ℤ).next_eq' (show (ComplexShape.up ℤ).Rel 2 3 from rfl))
 
 /-- The left component of the explicit ambient window identification. -/
 @[stacks 0EH2 "left component of the ambient Ext window identification"]
@@ -415,12 +581,20 @@ noncomputable def ambientWindowX2Iso
     (ambientHomExt2Window k N).X₂ ≅ N :=
   eqToIso (ambientHomWindowX2_eq k N) ≪≫ ambientHomDegreeIso k N 2
 
-/-- The right component of the explicit ambient window identification. -/
+/-- The right component of the explicit ambient window identification.
+
+The enriched Hom differential from degree two to degree three is negative
+precomposition. Consequently the comparison with the unsigned scalar
+multiplication window uses the negative of evaluation in degree three. -/
 @[stacks 0EH2 "right component of the ambient Ext window identification"]
 noncomputable def ambientWindowX3Iso
     (k : Type u) [Field k] (N : ModuleCat (Ring k)) :
     (ambientHomExt2Window k N).X₃ ≅ N :=
-  eqToIso (ambientHomWindowX3_eq k N) ≪≫ ambientHomDegreeIso k N 3
+  let e := eqToIso (ambientHomWindowX3_eq k N) ≪≫ ambientHomDegreeIso k N 3
+  { hom := -e.hom
+    inv := -e.inv
+    hom_inv_id := by simp
+    inv_hom_id := by simp }
 
 /-- Evaluation at `1` identifies the first enriched Hom differential with multiplication by
 `x`. -/
@@ -430,7 +604,7 @@ theorem ambientWindowIso_comm_f
       (ambientHomExt2Window k N).f ≫ (ambientWindowX2Iso k N).hom := sorry
 
 /-- Evaluation at `1` identifies the second enriched Hom differential with multiplication by
-`y`. -/
+`-y`. The compensating negation in degree three gives the unsigned `y` square. -/
 theorem ambientWindowIso_comm_g
     (k : Type u) [Field k] (N : ModuleCat (Ring k)) :
     (ambientWindowX2Iso k N).hom ≫ (ambientExt2Window k N).g =

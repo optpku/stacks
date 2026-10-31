@@ -9,6 +9,7 @@ module
 public import Mathlib.Algebra.Category.ModuleCat.Colimits
 public import Mathlib.Algebra.Category.ModuleCat.Sheaf.PushforwardContinuous
 public import Mathlib.Algebra.Category.ModuleCat.Presheaf.Sheafification
+public import ReasLib.Algebra.Category.ModuleCat.Sheaf.Localization
 
 /-!
 # Extension of module sheaves from a slice by direct sums
@@ -104,6 +105,22 @@ def lowerShriekDirectSumAdjunction (R : Sheaf J RingCat.{w}) (U : C)
           right_inv := sorry }
       homEquiv_naturality_left_symm := sorry
       homEquiv_naturality_right := sorry }
+
+/-- The explicit arrow-indexed direct-sum model computes the canonical
+extension-by-zero construction.  This comparison is the unique isomorphism
+of left adjoints, so it carries the actual maps and inverse supplied by the
+adjunction uniqueness theorem. -/
+noncomputable def lowerShriekDirectSumIso (R : Sheaf J RingCat.{w}) (U : C)
+    [UnivLE.{v, z}] [HasWeakSheafify J AddCommGrpCat.{z}]
+    [J.WEqualsLocallyBijective AddCommGrpCat.{z}]
+    [presheafRestrictionIsRightAdjoint :
+      ((PresheafOfModules.pushforward (restrictionRingHom R U).hom) :
+      PresheafOfModules.{z} R.obj ⥤
+        PresheafOfModules.{z} (R.over U).obj).IsRightAdjoint] :
+    lowerShriekDirectSum R U ≅ lowerShriekSheafification R U :=
+  Adjunction.leftAdjointUniq
+    (lowerShriekDirectSumAdjunction R U)
+    (lowerShriekSheafificationAdj R U)
 
 /-- Evaluation of extension identifies it with the sheafification of the
 arrow-indexed direct-sum presheaf. -/

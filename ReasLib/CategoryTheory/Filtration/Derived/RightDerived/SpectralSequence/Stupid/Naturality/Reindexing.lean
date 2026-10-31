@@ -51,8 +51,12 @@ noncomputable def Map.reindex
     {S : Realization F K} {T : Realization F L}
     (h : f = g) (m : Map F f S T) : Map F g S T where
   original := Map.reindexOriginal F h m
-  pageOne_hom := sorry
-  target_hom := sorry
+  pageOne_hom := by
+    cases h
+    exact m.pageOne_hom
+  target_hom := by
+    cases h
+    exact m.target_hom
 
 /-- Reindexing preserves the filtered component of a stupid-filtration realization map. -/
 @[simp, stacks 0FLK "reindexed filtered map of a stupid-filtration realization"]
@@ -60,7 +64,7 @@ theorem Map.reindex_filteredMap
     {K L : CochainComplex A ℤ} {f g : K ⟶ L}
     {S : Realization F K} {T : Realization F L}
     (h : f = g) (m : Map F f S T) :
-    (Map.reindex F h m).filteredMap = m.filteredMap := sorry
+    (Map.reindex F h m).filteredMap = m.filteredMap := rfl
 
 /-- Reindexing preserves the spectral-sequence component of a stupid-filtration realization
 map. -/
@@ -69,7 +73,7 @@ theorem Map.reindex_sequenceMap
     {K L : CochainComplex A ℤ} {f g : K ⟶ L}
     {S : Realization F K} {T : Realization F L}
     (h : f = g) (m : Map F f S T) :
-    (Map.reindex F h m).sequenceMap = m.sequenceMap := sorry
+    (Map.reindex F h m).sequenceMap = m.sequenceMap := rfl
 
 /-- The original component of a reindexed stupid-filtration map is its named transported
 generic map. -/
@@ -78,7 +82,7 @@ theorem Map.reindex_original
     {K L : CochainComplex A ℤ} {f g : K ⟶ L}
     {S : Realization F K} {T : Realization F L}
     (h : f = g) (m : Map F f S T) :
-    (Map.reindex F h m).original = Map.reindexOriginal F h m := sorry
+    (Map.reindex F h m).original = Map.reindexOriginal F h m := rfl
 
 /-- Reindexing the source cochain map preserves the original generic map up to dependent
 equality.  Prefer `Map.reindex_original` when an ordinary equality is sufficient. -/
@@ -87,7 +91,9 @@ theorem Map.reindex_original_heq
     {K L : CochainComplex A ℤ} {f g : K ⟶ L}
     {S : Realization F K} {T : Realization F L}
     (h : f = g) (m : Map F f S T) :
-    HEq (Map.reindex F h m).original m.original := sorry
+    HEq (Map.reindex F h m).original m.original := by
+  cases h
+  rfl
 
 /-- Reindexing a stupid-filtration map preserves its association morphism. -/
 @[simp, stacks 0FLK "reindexing computation for a stupid-filtration association morphism"]
@@ -96,7 +102,9 @@ theorem Map.toAssociationHom_reindex
     {S : Realization F K} {T : Realization F L}
     (h : f = g) (m : Map F f S T) :
     ((Map.reindex_filteredMap F h m) ▸
-      (Map.reindex F h m).toAssociationHom) = m.toAssociationHom := sorry
+      (Map.reindex F h m).toAssociationHom) = m.toAssociationHom := by
+  cases h
+  rfl
 
 /-- Successive reindexings of a stupid-filtration realization map combine by transitivity. -/
 @[simp, stacks 0FLK "transitivity of stupid-filtration map transport"]
@@ -104,7 +112,10 @@ theorem Map.reindex_trans
     {K L : CochainComplex A ℤ} {f f' f'' : K ⟶ L}
     {S : Realization F K} {T : Realization F L}
     (e : f = f') (e' : f' = f'') (m : Map F f S T) :
-    Map.reindex F e' (Map.reindex F e m) = Map.reindex F (e.trans e') m := sorry
+    Map.reindex F e' (Map.reindex F e m) = Map.reindex F (e.trans e') m := by
+  cases e
+  cases e'
+  rfl
 
 /-- Reindexing along an equality and its inverse recovers a stupid-filtration realization map. -/
 @[simp, stacks 0FLK "inverse stupid-filtration map transport"]
@@ -112,7 +123,9 @@ theorem Map.reindex_symm
     {K L : CochainComplex A ℤ} {f f' : K ⟶ L}
     {S : Realization F K} {T : Realization F L}
     (e : f = f') (m : Map F f S T) :
-    Map.reindex F e.symm (Map.reindex F e m) = m := sorry
+    Map.reindex F e.symm (Map.reindex F e m) = m := by
+  cases e
+  rfl
 
 end Realization
 

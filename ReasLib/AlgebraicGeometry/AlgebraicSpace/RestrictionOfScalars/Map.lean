@@ -36,26 +36,26 @@ namespace Pair
 `(a, b)` to `(a, b ≫ h)`. -/
 def postcomp {S : Scheme.{u}} {X' X Z B : AlgebraicSpace S} (h : X' ⟶ X)
     (f : X ⟶ Z) (g : Z ⟶ B) {T : Over S} (p : Pair (h ≫ f) g T) : Pair f g T where
-  base := p.base
-  lift := p.lift ≫ h
+  a := p.a
+  b := p.b ≫ h
   overZ := sorry
 
-/-- The base morphism of `postcomp h f g p` is `p.base`. -/
+/-- The base morphism of `postcomp h f g p` is `p.a`. -/
 theorem postcomp_base {S : Scheme.{u}} {X' X Z B : AlgebraicSpace S} (h : X' ⟶ X)
     (f : X ⟶ Z) (g : Z ⟶ B) {T : Over S} (p : Pair (h ≫ f) g T) :
-    (postcomp h f g p).base = p.base :=
+    (postcomp h f g p).a = p.a :=
   sorry
 
-/-- The lift of `postcomp h f g p` is `p.lift ≫ h`. -/
+/-- The lift of `postcomp h f g p` is `p.b ≫ h`. -/
 theorem postcomp_lift {S : Scheme.{u}} {X' X Z B : AlgebraicSpace S} (h : X' ⟶ X)
     (f : X ⟶ Z) (g : Z ⟶ B) {T : Over S} (p : Pair (h ≫ f) g T) :
-    (postcomp h f g p).lift = p.lift ≫ h :=
+    (postcomp h f g p).b = p.b ≫ h :=
   sorry
 
 /-- The postcomposed lift remains a morphism over `Z`. -/
 theorem postcomp_overZ {S : Scheme.{u}} {X' X Z B : AlgebraicSpace S} (h : X' ⟶ X)
     (f : X ⟶ Z) (g : Z ⟶ B) {T : Over S} (p : Pair (h ≫ f) g T) :
-    (postcomp h f g p).lift ≫ f = fiberSnd g (postcomp h f g p).base :=
+    (postcomp h f g p).b ≫ f = fiberSnd g (postcomp h f g p).a :=
   sorry
 
 end Pair

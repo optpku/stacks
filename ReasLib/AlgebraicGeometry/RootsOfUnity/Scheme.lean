@@ -35,7 +35,7 @@ def overInt (n : ℕ) : Over (Spec (CommRingCat.of (ULift.{u} ℤ))) :=
 
 /-- The underlying scheme of `overInt n` is `Spec(coordinateRing n)`. -/
 theorem overInt_left (n : ℕ) :
-    (overInt.{u} n).left = Spec (CommRingCat.of (coordinateRing.{u} n)) := sorry
+    (overInt.{u} n).left = Spec (CommRingCat.of (coordinateRing.{u} n)) := rfl
 
 namespace HomOver
 
@@ -49,7 +49,10 @@ def value (n : ℕ) [NeZero n] (T : Over (Spec (CommRingCat.of (ULift.{u} ℤ)))
 /-- Evaluation at the distinguished coordinate is an `n`th root of unity. -/
 theorem value_pow (n : ℕ) [NeZero n]
     (T : Over (Spec (CommRingCat.of (ULift.{u} ℤ))))
-    (f : T ⟶ overInt.{u} n) : value n T f ^ n = 1 := sorry
+    (f : T ⟶ overInt.{u} n) : value n T f ^ n = 1 := by
+  change ((Scheme.homToSpecGlobalSectionsEquiv T.left _ f.left).hom
+    (generator.{u} n)) ^ n = 1
+  rw [← map_pow, generator_pow, map_one]
 
 /-- A point of `overInt n` determines an element of the roots-of-unity subgroup. -/
 def root (n : ℕ) [NeZero n] (T : Over (Spec (CommRingCat.of (ULift.{u} ℤ))))
@@ -59,7 +62,7 @@ def root (n : ℕ) [NeZero n] (T : Over (Spec (CommRingCat.of (ULift.{u} ℤ))))
 /-- The underlying ring element of `root n T f` is distinguished-coordinate evaluation. -/
 theorem root_coe (n : ℕ) [NeZero n]
     (T : Over (Spec (CommRingCat.of (ULift.{u} ℤ))))
-    (f : T ⟶ overInt.{u} n) : (root n T f).val.val = value n T f := sorry
+    (f : T ⟶ overInt.{u} n) : (root n T f).val.val = value n T f := rfl
 
 /-- Evaluation at a chosen root annihilates the defining roots-of-unity relation. -/
 private theorem pointEvaluation_descends (n : ℕ) [NeZero n]
@@ -86,7 +89,8 @@ def ringHomOfRoot (n : ℕ) [NeZero n]
 theorem ringHomOfRoot_generator (n : ℕ) [NeZero n]
     (T : Over (Spec (CommRingCat.of (ULift.{u} ℤ))))
     (ζ : rootsOfUnity n Γ(T.left, ⊤)) :
-    ringHomOfRoot n T ζ (generator.{u} n) = ζ.val.val := sorry
+    ringHomOfRoot n T ζ (generator.{u} n) = ζ.val.val := by
+  simp [ringHomOfRoot, generator]
 
 /-- The coordinate-ring map of a root is compatible with the maps from `ULift ℤ`. -/
 private theorem pointMorphism_over (n : ℕ) [NeZero n]
@@ -108,12 +112,32 @@ def ofRoot (n : ℕ) [NeZero n]
 /-- Reconstructing a point from its distinguished-coordinate root is the identity. -/
 theorem ofRoot_root (n : ℕ) [NeZero n]
     (T : Over (Spec (CommRingCat.of (ULift.{u} ℤ))))
-    (f : T ⟶ overInt.{u} n) : ofRoot n T (root n T f) = f := sorry
+    (f : T ⟶ overInt.{u} n) : ofRoot n T (root n T f) = f := by
+  apply Over.OverMorphism.ext
+  apply (Scheme.homToSpecGlobalSectionsEquiv T.left _).injective
+  change Scheme.homToSpecGlobalSectionsEquiv T.left _
+      ((Scheme.homToSpecGlobalSectionsEquiv T.left _).symm
+        (CommRingCat.ofHom (ringHomOfRoot n T (root n T f)))) =
+    Scheme.homToSpecGlobalSectionsEquiv T.left _ f.left
+  rw [Equiv.apply_symm_apply]
+  apply CommRingCat.hom_ext
+  apply Ideal.Quotient.ringHom_ext
+  apply Polynomial.ringHom_ext'
+  · exact congrArg CommRingCat.Hom.hom
+      (CommRingCat.isInitial.hom_ext (CommRingCat.ofHom _) (CommRingCat.ofHom _))
+  · change ringHomOfRoot n T (root n T f) (generator.{u} n) = value n T f
+    exact ringHomOfRoot_generator n T (root n T f)
 
 /-- Evaluating the point classified by a root recovers that root. -/
 theorem root_ofRoot (n : ℕ) [NeZero n]
     (T : Over (Spec (CommRingCat.of (ULift.{u} ℤ))))
-    (ζ : rootsOfUnity n Γ(T.left, ⊤)) : root n T (ofRoot n T ζ) = ζ := sorry
+    (ζ : rootsOfUnity n Γ(T.left, ⊤)) : root n T (ofRoot n T ζ) = ζ := by
+  apply rootsOfUnity.coe_injective
+  change (Scheme.homToSpecGlobalSectionsEquiv T.left _
+    ((Scheme.homToSpecGlobalSectionsEquiv T.left _).symm
+      (CommRingCat.ofHom (ringHomOfRoot n T ζ)))).hom (generator.{u} n) = ζ.val.val
+  rw [Equiv.apply_symm_apply]
+  exact ringHomOfRoot_generator n T ζ
 
 /-- Points of `overInt n` are canonically equivalent to roots of unity in global sections. -/
 def equiv (n : ℕ) [NeZero n] (T : Over (Spec (CommRingCat.of (ULift.{u} ℤ)))) :
@@ -126,14 +150,23 @@ def equiv (n : ℕ) [NeZero n] (T : Over (Spec (CommRingCat.of (ULift.{u} ℤ)))
 /-- The forward map of `equiv` is distinguished-coordinate evaluation. -/
 theorem equiv_apply (n : ℕ) [NeZero n]
     (T : Over (Spec (CommRingCat.of (ULift.{u} ℤ))))
-    (f : T ⟶ overInt.{u} n) : equiv n T f = root n T f := sorry
+    (f : T ⟶ overInt.{u} n) : equiv n T f = root n T f := rfl
 
 /-- The affine point equivalence is natural under precomposition over `Spec(ULift ℤ)`. -/
 theorem equiv_naturality (n : ℕ) [NeZero n]
     {T T' : Over (Spec (CommRingCat.of (ULift.{u} ℤ)))} (g : T' ⟶ T)
     (f : T ⟶ overInt.{u} n) :
     equiv n T' (g ≫ f) =
-      restrictRootsOfUnity (Scheme.Γ.map g.left.op).hom n (equiv n T f) := sorry
+      restrictRootsOfUnity (Scheme.Γ.map g.left.op).hom n (equiv n T f) := by
+  apply rootsOfUnity.coe_injective
+  change (Scheme.homToSpecGlobalSectionsEquiv T'.left _ (g.left ≫ f.left)).hom
+      (generator.{u} n) =
+    (Scheme.Γ.map g.left.op).hom
+      ((Scheme.homToSpecGlobalSectionsEquiv T.left _ f.left).hom (generator.{u} n))
+  have h := congrArg Quiver.Hom.unop
+    (ΓSpec.adjunction.homEquiv_naturality_left_symm g.left f.left)
+  exact congrArg (fun φ : CommRingCat.of (coordinateRing.{u} n) ⟶ Γ(T'.left, ⊤) =>
+    φ.hom (generator.{u} n)) h
 
 end HomOver
 end AlgebraicGeometry.RootsOfUnity

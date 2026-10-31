@@ -27,52 +27,66 @@ namespace AlgebraicGeometry.Scheme.Hom
 
 /-- Finite-type scheme morphisms form a morphism property stable under composition. -/
 instance finiteType_isStableUnderComposition :
-    MorphismProperty.IsStableUnderComposition @FiniteType := sorry
+    MorphismProperty.IsStableUnderComposition @FiniteType where
+  comp_mem f g hf hg :=
+    { toQuasiCompact :=
+        MorphismProperty.comp_mem _ f g hf.toQuasiCompact hg.toQuasiCompact
+      toLocallyOfFiniteType :=
+        MorphismProperty.comp_mem _ f g hf.toLocallyOfFiniteType hg.toLocallyOfFiniteType }
 
 /-- The composite of two finite-type scheme morphisms is finite type. -/
 @[stacks 01T3]
 theorem FiniteType.comp
     {X Y Z : Scheme.{u}} {f : X ⟶ Y} {g : Y ⟶ Z}
     (hf : FiniteType f) (hg : FiniteType g) :
-    FiniteType (f ≫ g) := sorry
+    FiniteType (f ≫ g) :=
+  MorphismProperty.comp_mem _ f g hf hg
 
 /-- Finite-type scheme morphisms are closed under composition. -/
 @[stacks 01T3, instance]
 instance finiteType_comp
     {X Y Z : Scheme.{u}} (f : X ⟶ Y) (g : Y ⟶ Z)
     [FiniteType f] [FiniteType g] :
-    FiniteType (f ≫ g) := sorry
+    FiniteType (f ≫ g) :=
+  FiniteType.comp inferInstance inferInstance
 
 /-- Finite-type scheme morphisms form a morphism property stable under base change. -/
 instance finiteType_isStableUnderBaseChange :
-    MorphismProperty.IsStableUnderBaseChange @FiniteType := sorry
+    MorphismProperty.IsStableUnderBaseChange @FiniteType where
+  of_isPullback sq hg :=
+    { toQuasiCompact := MorphismProperty.of_isPullback sq hg.toQuasiCompact
+      toLocallyOfFiniteType := MorphismProperty.of_isPullback sq hg.toLocallyOfFiniteType }
 
 /-- The left pullback projection is finite type when the right morphism is finite type. -/
 theorem FiniteType.pullback_fst
     {X S S' : Scheme.{u}} (f : X ⟶ S) {g : S' ⟶ S}
     (hg : FiniteType g) :
-    FiniteType (pullback.fst f g) := sorry
+    FiniteType (pullback.fst f g) :=
+  MorphismProperty.pullback_fst f g hg
 
 /-- Pulling a finite-type right morphism back along an arbitrary morphism gives a finite-type
 left projection. -/
 instance finiteType_pullback_fst
     {X S S' : Scheme.{u}} (f : X ⟶ S) (g : S' ⟶ S)
     [FiniteType g] :
-    FiniteType (pullback.fst f g) := sorry
+    FiniteType (pullback.fst f g) :=
+  FiniteType.pullback_fst f inferInstance
 
 /-- Every base change of a finite-type scheme morphism is finite type. -/
 @[stacks 01T4]
 theorem FiniteType.pullback_snd
     {X S S' : Scheme.{u}} {f : X ⟶ S}
     (hf : FiniteType f) (g : S' ⟶ S) :
-    FiniteType (pullback.snd f g) := sorry
+    FiniteType (pullback.snd f g) :=
+  MorphismProperty.pullback_snd f g hf
 
 /-- The pullback projection obtained by base changing a finite-type morphism is finite type. -/
 @[stacks 01T4, instance]
 instance finiteType_pullback_snd
     {X S S' : Scheme.{u}} (f : X ⟶ S) (g : S' ⟶ S)
     [FiniteType f] :
-    FiniteType (pullback.snd f g) := sorry
+    FiniteType (pullback.snd f g) :=
+  FiniteType.pullback_snd inferInstance g
 
 end AlgebraicGeometry.Scheme.Hom
 
@@ -82,6 +96,7 @@ namespace AlgebraicGeometry.LocallyOfFiniteType
 theorem pullback_snd
     {X S S' : Scheme.{u}} {f : X ⟶ S}
     (hf : LocallyOfFiniteType f) (g : S' ⟶ S) :
-    LocallyOfFiniteType (pullback.snd f g) := sorry
+    LocallyOfFiniteType (pullback.snd f g) :=
+  MorphismProperty.pullback_snd f g hf
 
 end AlgebraicGeometry.LocallyOfFiniteType

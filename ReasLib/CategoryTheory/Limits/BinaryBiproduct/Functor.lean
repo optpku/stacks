@@ -31,13 +31,11 @@ variable {C : Type uC} [Category.{vC} C] [HasZeroMorphisms C] [HasBinaryBiproduc
 variable (F G : J ⥤ C)
 
 /-- The chosen functor-category binary biproduct evaluates to the pointwise binary biproduct. -/
-@[stacks 0G6D "pointwise binary biproduct evaluation comparison"]
 noncomputable def pointwiseBiprodIso :
     (pointwiseBinaryBicone F G).pt ≅ F ⊞ G :=
   biprod.uniqueUpToIso F G (pointwiseBinaryBicone.isBilimit F G)
 
 /-- Evaluation of the chosen functor-category binary biproduct at `X`. -/
-@[stacks 0G6D "evaluated pointwise binary biproduct comparison"]
 noncomputable def evalBiprodIso (X : J) :
     (F ⊞ G).obj X ≅ F.obj X ⊞ G.obj X :=
   ((pointwiseBiprodIso F G).app X).symm ≪≫

@@ -7,6 +7,7 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import ReasLib.AlgebraicGeometry.BivariantClass.Dedekind.Commutation
+public import ReasLib.AlgebraicGeometry.ChowGroup.Total
 public import ReasLib.AlgebraicGeometry.Scheme.Over.ProductMap
 
 @[expose] public section
@@ -31,7 +32,7 @@ noncomputable def cap
     {U' V' : Over S} [LocallyOfFiniteType U'.hom] [LocallyOfFiniteType V'.hom]
     (i : U' ⟶ U) (f' : U' ⟶ V') (k : V' ⟶ V) [LocallyOfFiniteType k.left]
     (square : IsPullback i.left f'.left f.left k.left) :
-    Total δ V' →+ Total δ U' :=
+    ChowGroup.Total δ V' →+ ChowGroup.Total δ U' :=
   DirectSum.toAddMonoid fun d ↦
     (DirectSum.of _ (d - q)).comp (c.cap i f' k square d)
 
@@ -85,7 +86,7 @@ theorem exteriorProduct_cap
     {X Y Z : Over S} [LocallyOfFiniteType X.hom]
     [LocallyOfFiniteType Y.hom] [LocallyOfFiniteType Z.hom]
     (g : Y ⟶ Z) (q : ℤ)
-    (α : Total δ X) (c' : BivariantClass δ g q) (β : Total δ Z) :
+    (α : ChowGroup.Total δ X) (c' : BivariantClass δ g q) (β : ChowGroup.Total δ Z) :
     Total.exteriorProduct δ h_delta X Y α
         (Total.cap δ c' (𝟙 Y) g (𝟙 Z) IsPullback.of_id_fst β) =
       Total.cap δ c' (Limits.prod.snd : X ⨯ Y ⟶ Y)

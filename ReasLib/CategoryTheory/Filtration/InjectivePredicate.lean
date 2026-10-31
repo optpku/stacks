@@ -7,7 +7,8 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import ReasLib.CategoryTheory.Filtration.Exhaustive
-public import ReasLib.CategoryTheory.Filtration.GradedPiece
+public import ReasLib.CategoryTheory.Filtration.Finite
+public import ReasLib.CategoryTheory.Filtration.Injective
 public import Mathlib.CategoryTheory.Preadditive.Injective.Basic
 
 /-!
@@ -32,18 +33,18 @@ namespace Finite
 variable {C : Type u} [Category.{v} C] [HasZeroObject C] [HasZeroMorphisms C]
   [HasCokernels C]
 
-/-- A finite decreasing filtration is filtered injective when every graded piece is injective
-in the ambient category. -/
-def IsFilteredInjective (A : C)
-    (F : {F : DecreasingFiltration A // IndexedFiltration.IsFinite F}) : Prop :=
-  ∀ p : ℤ, Injective (F.val.gradedPiece p)
+/-- Filtered injectivity for a finite filtered object is the canonical filtered-object predicate.
+
+This is a thin specialization: the finite subcategory carries an underlying `FilteredObject`,
+and filtered injectivity is owned by `FilteredObject.IsFilteredInjective`. -/
+abbrev IsFilteredInjective (I : FilteredObject.Finite.category C) : Prop :=
+  FilteredObject.IsFilteredInjective I.obj
 
 /-- A finite decreasing filtration is filtered injective exactly when all its graded pieces are
 injective. -/
-theorem isFilteredInjective_iff (A : C)
-    (F : {F : DecreasingFiltration A // IndexedFiltration.IsFinite F}) :
-    IsFilteredInjective A F ↔ ∀ p : ℤ, Injective (F.val.gradedPiece p) :=
-  Iff.rfl
+theorem isFilteredInjective_iff (I : FilteredObject.Finite.category C) :
+    IsFilteredInjective I ↔ ∀ p : ℤ, Injective (I.obj.gradedPiece p) :=
+  ⟨fun h p => h.injective p, fun h => ⟨h⟩⟩
 
 end Finite
 

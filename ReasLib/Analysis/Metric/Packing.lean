@@ -14,7 +14,11 @@ Yuanhe Zhang, Jason D. Lee and Fanghui Liu, SLT/CoveringNumber.lean,
 commit d0f506f0a695018265dccb33bcb05e2f5ca1c876 (Apache-2.0).
 The canonical predicates and cardinal invariants are owned by Mathlib.
 -/
-import Mathlib.Topology.MetricSpace.CoveringNumbers
+module
+
+public import Mathlib.Topology.MetricSpace.CoveringNumbers
+
+@[expose] public section
 
 /-!
 # Finite maximal packings and internal covers
@@ -119,3 +123,5 @@ lemma IsSeparated.pairwiseDisjoint_closedBall_half (hsep : IsSeparated (ε : ℝ
 end PseudoMetricSpace
 
 end Metric
+
+end

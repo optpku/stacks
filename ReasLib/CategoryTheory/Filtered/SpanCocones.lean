@@ -51,21 +51,31 @@ noncomputable def cocone [HasSpanCocones I]
 theorem of
     (h : ∀ ⦃x y z : I⦄ (f : x ⟶ y) (g : x ⟶ z),
       ∃ (w : I) (fy : y ⟶ w) (gz : z ⟶ w), f ≫ fy = g ≫ gz) :
-    HasSpanCocones I := sorry
+    HasSpanCocones I where
+  nonempty f g := by
+    obtain ⟨w, fy, gz, hfg⟩ := h f g
+    exact ⟨PushoutCocone.mk fy gz hfg⟩
 
 end HasSpanCocones
 
 /-- Every span in a category with span cocones has explicit commuting fillers. -/
 theorem HasSpanCocones.exists [HasSpanCocones I]
     {x y z : I} (f : x ⟶ y) (g : x ⟶ z) :
-    ∃ (w : I) (fy : y ⟶ w) (gz : z ⟶ w), f ≫ fy = g ≫ gz := sorry
+    ∃ (w : I) (fy : y ⟶ w) (gz : z ⟶ w), f ≫ fy = g ≫ gz := by
+  obtain ⟨s⟩ := HasSpanCocones.nonempty f g
+  exact ⟨s.pt, s.inl, s.inr, s.condition⟩
 
 /-- The canonical-cocone class agrees with the explicit apex-and-fillers condition. -/
 @[stacks 09WS "span-cocone criterion"]
 theorem hasSpanCocones_iff :
     HasSpanCocones I ↔
       ∀ ⦃x y z : I⦄ (f : x ⟶ y) (g : x ⟶ z),
-        ∃ (w : I) (fy : y ⟶ w) (gz : z ⟶ w), f ≫ fy = g ≫ gz := sorry
+        ∃ (w : I) (fy : y ⟶ w) (gz : z ⟶ w), f ≫ fy = g ≫ gz := by
+  constructor
+  · intro h x y z f g
+    letI := h
+    exact HasSpanCocones.exists f g
+  · exact HasSpanCocones.of
 
 /-
 `IsFiltered.span` verifies that the stronger canonical owner `IsFilteredOrEmpty` supplies the
@@ -74,13 +84,15 @@ claiming the absent converse.
 -/
 /-- A filtered-or-empty category has a commuting cocone on every span. -/
 instance (priority := 100) hasSpanCocones_of_isFilteredOrEmpty
-    [IsFilteredOrEmpty I] : HasSpanCocones I := sorry
+    [IsFilteredOrEmpty I] : HasSpanCocones I :=
+  HasSpanCocones.of fun {_ _ _} f g => IsFiltered.span f g
 /- Proof strategy: apply `IsFiltered.span` and package its apex, two legs, and commutativity
 equation with `PushoutCocone.mk`; no universal property is required. -/
 
 /-- A category with pushouts has a commuting cocone on every span. -/
 instance (priority := 100) hasSpanCocones_of_hasPushouts
-    [HasPushouts I] : HasSpanCocones I := sorry
+    [HasPushouts I] : HasSpanCocones I where
+  nonempty f g := ⟨colimit.cocone (span f g)⟩
 
 /-
 `CategoryTheory.decomposedEquiv` is the exact canonical disjoint-union presentation, and
@@ -95,13 +107,25 @@ namespace HasSpanCocones
 
 /-- In a preconnected category with span cocones, any two objects admit a common successor. -/
 theorem existsCommonSuccessor [HasSpanCocones I] [IsPreconnected I]
-    (X Y : I) : ∃ (Z : I), Nonempty (X ⟶ Z) ∧ Nonempty (Y ⟶ Z) := sorry
+    (X Y : I) : ∃ (Z : I), Nonempty (X ⟶ Z) ∧ Nonempty (Y ⟶ Z) := by
+  refine induct_on_objects
+    {Y : I | ∃ Z : I, Nonempty (X ⟶ Z) ∧ Nonempty (Y ⟶ Z)}
+    ⟨X, ⟨𝟙 X⟩, ⟨𝟙 X⟩⟩ (fun {Y₁ Y₂} f => ?_) Y
+  constructor
+  · rintro ⟨Z, ⟨a⟩, ⟨b⟩⟩
+    obtain ⟨W, c, d, _⟩ := HasSpanCocones.exists b f
+    exact ⟨W, ⟨a ≫ c⟩, ⟨d⟩⟩
+  · rintro ⟨Z, ⟨a⟩, ⟨b⟩⟩
+    exact ⟨Z, ⟨a⟩, ⟨f ≫ b⟩⟩
 /- Proof strategy: use `IsPreconnected` to obtain a zigzag from `X` to `Y` and induct along it.
 At each edge, `HasSpanCocones.cocone` combines the current common successor with the next vertex. -/
 
 /-- A preconnected category with span cocones has common successors. -/
 instance toHasCommonSuccessors
-    [HasSpanCocones I] [IsPreconnected I] : HasCommonSuccessors I := sorry
+    [HasSpanCocones I] [IsPreconnected I] : HasCommonSuccessors I where
+  nonempty X Y := by
+    obtain ⟨Z, ⟨f⟩, ⟨g⟩⟩ := existsCommonSuccessor X Y
+    exact ⟨⟨Z, f, g⟩⟩
 
 end HasSpanCocones
 
@@ -112,7 +136,18 @@ namespace component
 /-- Each canonical connected component inherits span cocones from the ambient category. -/
 @[stacks 09WS "span cocones on connected components"]
 instance hasSpanCocones [HasSpanCocones I]
-    (j : ConnectedComponents I) : HasSpanCocones j.Component := sorry
+    (j : ConnectedComponents I) : HasSpanCocones j.Component := by
+  apply HasSpanCocones.of
+  intro X Y Z f g
+  obtain ⟨W, fy, gz, hfg⟩ := HasSpanCocones.exists f.hom g.hom
+  have hW : ConnectedComponents.mk W = j := by
+    calc
+      ConnectedComponents.mk W = ConnectedComponents.mk Y.obj :=
+        Quotient.sound' (Zigzag.of_inv fy)
+      _ = j := Y.property
+  let W' : j.Component := ⟨W, hW⟩
+  refine ⟨W', ObjectProperty.homMk fy, ObjectProperty.homMk gz, ?_⟩
+  exact ObjectProperty.hom_ext _ hfg
 /- Proof strategy: apply `HasSpanCocones.cocone` to the underlying ambient span. Each filler arrow
 identifies the ambient apex with the original component by `ConnectedComponents.mk.eq_of_hom`,
 so package the apex and fillers in the full subcategory `j.Component`. -/
@@ -130,7 +165,11 @@ equivalence is `CategoryTheory.decomposedEquiv`. -/
 theorem emptyOrNonemptyComponents [HasSpanCocones I] :
     IsEmpty I ∨
       Nonempty (ConnectedComponents I) ∧
-        ∀ j : ConnectedComponents I, IsConnected j.Component ∧ HasSpanCocones j.Component := sorry
+        ∀ j : ConnectedComponents I, IsConnected j.Component ∧ HasSpanCocones j.Component := by
+  rcases _root_.isEmpty_or_nonempty I with h | h
+  · exact Or.inl h
+  · obtain ⟨X⟩ := h
+    exact Or.inr ⟨⟨ConnectedComponents.mk X⟩, fun j => ⟨inferInstance, inferInstance⟩⟩
 /- Proof strategy: split on IsEmpty I. In the nonempty case choose an object to obtain a connected component, use instIsConnectedComponent for connectedness of each Component, and install ConnectedComponents.component.hasSpanCocones for the inherited span condition. -/
 
 end HasSpanCocones

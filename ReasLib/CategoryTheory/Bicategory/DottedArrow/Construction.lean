@@ -107,6 +107,16 @@ structure Hom (A A' : Object sq) where
   /-- Compatibility with the lower-right comparison `2`-isomorphisms. -/
   right_comm : A.right.hom ≫ hom ▷ p = A'.right.hom
 
+/-- Compatible dotted-arrow morphisms are determined by their ambient `2`-morphism. -/
+@[ext]
+theorem Hom.ext {A A' : Object sq} {η θ : Hom A A'} (h : η.hom = θ.hom) : η = θ := by
+  cases η with
+  | mk η η_left η_right =>
+    cases θ with
+    | mk θ θ_left θ_right =>
+      cases h
+      rfl
+
 section Category
 
 section
@@ -121,14 +131,16 @@ namespace Implementation
 Proof strategy: use `Bicategory.whiskerLeft_id`, then cancel the resulting unitors with
 the ambient category identity laws. -/
 private theorem idHom_left_comm (A : Object sq) :
-    sq.fst ◁ 𝟙 A.arrow ≫ A.left.hom = A.left.hom := sorry
+    sq.fst ◁ 𝟙 A.arrow ≫ A.left.hom = A.left.hom := by
+  simp
 
 /-- Right-triangle compatibility for the identity morphism of a dotted arrow.
 
 Proof strategy: use `Bicategory.id_whiskerRight`, then cancel the resulting unitors with
 the ambient category identity laws. -/
 private theorem idHom_right_comm (A : Object sq) :
-    A.right.hom ≫ 𝟙 A.arrow ▷ p = A.right.hom := sorry
+    A.right.hom ≫ 𝟙 A.arrow ▷ p = A.right.hom := by
+  simp
 
 end Implementation
 
@@ -146,7 +158,8 @@ Proof strategy: rewrite with `Bicategory.whiskerLeft_comp`, reassociate, and app
 two input `left_comm` equations. -/
 private theorem compHom_left_comm
     {A A' A'' : Object sq} (η : Hom A A') (θ : Hom A' A'') :
-    sq.fst ◁ (η.hom ≫ θ.hom) ≫ A''.left.hom = A.left.hom := sorry
+    sq.fst ◁ (η.hom ≫ θ.hom) ≫ A''.left.hom = A.left.hom := by
+  rw [Bicategory.whiskerLeft_comp, Category.assoc, θ.left_comm, η.left_comm]
 
 /-- Right-triangle compatibility for composition of dotted-arrow morphisms.
 
@@ -154,7 +167,8 @@ Proof strategy: rewrite with `Bicategory.comp_whiskerRight`, reassociate, and ap
 two input `right_comm` equations. -/
 private theorem compHom_right_comm
     {A A' A'' : Object sq} (η : Hom A A') (θ : Hom A' A'') :
-    A.right.hom ≫ (η.hom ≫ θ.hom) ▷ p = A''.right.hom := sorry
+    A.right.hom ≫ (η.hom ≫ θ.hom) ▷ p = A''.right.hom := by
+  rw [Bicategory.comp_whiskerRight, ← Category.assoc, η.right_comm, θ.right_comm]
 
 end Implementation
 
@@ -171,20 +185,26 @@ namespace Implementation
 
 Proof strategy: apply `Hom.ext`; the ambient component is `Category.id_comp`. -/
 private theorem idHom_comp {A A' : Object sq} (η : Hom A A') :
-    compHom (idHom A) η = η := sorry
+    compHom (idHom A) η = η := by
+  apply Hom.ext
+  exact Category.id_comp η.hom
 
 /-- Right identity law for dotted-arrow morphisms.
 
 Proof strategy: apply `Hom.ext`; the ambient component is `Category.comp_id`. -/
 private theorem comp_idHom {A A' : Object sq} (η : Hom A A') :
-    compHom η (idHom A') = η := sorry
+    compHom η (idHom A') = η := by
+  apply Hom.ext
+  exact Category.comp_id η.hom
 
 /-- Associativity law for dotted-arrow morphisms.
 
 Proof strategy: apply `Hom.ext`; the ambient component is `Category.assoc`. -/
 private theorem compHom_assoc {A₀ A₁ A₂ A₃ : Object sq}
     (η : Hom A₀ A₁) (θ : Hom A₁ A₂) (ι : Hom A₂ A₃) :
-    compHom (compHom η θ) ι = compHom η (compHom θ ι) := sorry
+    compHom (compHom η θ) ι = compHom η (compHom θ ι) := by
+  apply Hom.ext
+  exact Category.assoc η.hom θ.hom ι.hom
 
 end Implementation
 
@@ -217,13 +237,13 @@ variable {sq : Bicategory.PseudoPullbackCone y p}
 /-- The underlying `2`-morphism of the identity dotted-arrow morphism is the identity. -/
 @[simp]
 theorem id_hom (A : DottedArrow sq) :
-    (𝟙 A : A ⟶ A).hom = 𝟙 A.arrow := sorry
+    (𝟙 A : A ⟶ A).hom = 𝟙 A.arrow := rfl
 
 /-- The underlying `2`-morphism of a composite dotted-arrow morphism is the composite of the
 underlying `2`-morphisms. -/
 @[simp]
 theorem comp_hom {A A' A'' : DottedArrow sq} (η : A ⟶ A') (θ : A' ⟶ A'') :
-    (η ≫ θ).hom = η.hom ≫ θ.hom := sorry
+    (η ≫ θ).hom = η.hom ≫ θ.hom := rfl
 
 end DottedArrow
 

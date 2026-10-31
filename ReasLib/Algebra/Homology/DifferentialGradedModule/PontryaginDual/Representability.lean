@@ -31,6 +31,19 @@ namespace DifferentialGradedModule.PontryaginRepresentable
 variable {R : Type u} [CommRing R]
 variable {A : CochainDGAlgebra.{u, v} R}
 
+private theorem castLinearMap_add {M N N' : ModuleCat.{v} R} (h : N = N')
+    (f g : M →ₗ[R] N) :
+    ModuleCat.castLinearMap h (f + g) =
+      ModuleCat.castLinearMap h f + ModuleCat.castLinearMap h g := by
+  cases h
+  rfl
+
+private theorem castLinearMap_smul {M N N' : ModuleCat.{v} R} (h : N = N')
+    (r : R) (f : M →ₗ[R] N) :
+    ModuleCat.castLinearMap h (r • f) = r • ModuleCat.castLinearMap h f := by
+  cases h
+  rfl
+
 /-- Evaluate a homogeneous map `M ⟶ Aᵛ` on the unit of `A`. -/
 @[stacks 09K4 "unit evaluation from the enriched Hom component"]
 def characterOfGradedHom (M : DifferentialGradedModule.{u, v} A) (k : ℤ)
@@ -44,12 +57,29 @@ def characterOfGradedHom (M : DifferentialGradedModule.{u, v} A) (k : ℤ)
 theorem characterOfGradedHom_add (M : DifferentialGradedModule.{u, v} A) (k : ℤ)
     (f g : GradedHom A M A.dualRegularModule k) :
     characterOfGradedHom M k (f + g) =
-      characterOfGradedHom M k f + characterOfGradedHom M k g := sorry
+      characterOfGradedHom M k f + characterOfGradedHom M k g := by
+  ext x
+  let e : A.dualRegularModule.X (-k + k) =
+      ModuleCat.of R (CharacterModule (A.X 0)) :=
+    (congrArg A.dualRegularModule.X (neg_add_cancel k)).trans rfl
+  change (ModuleCat.castLinearMap e (f (-k) + g (-k)) x) A.one =
+    (ModuleCat.castLinearMap e (f (-k)) x) A.one +
+      (ModuleCat.castLinearMap e (g (-k)) x) A.one
+  rw [castLinearMap_add]
+  rfl
 
 /-- Unit evaluation is linear in the homogeneous map. -/
 theorem characterOfGradedHom_smul (M : DifferentialGradedModule.{u, v} A) (k : ℤ)
     (r : R) (f : GradedHom A M A.dualRegularModule k) :
-    characterOfGradedHom M k (r • f) = r • characterOfGradedHom M k f := sorry
+    characterOfGradedHom M k (r • f) = r • characterOfGradedHom M k f := by
+  ext x
+  let e : A.dualRegularModule.X (-k + k) =
+      ModuleCat.of R (CharacterModule (A.X 0)) :=
+    (congrArg A.dualRegularModule.X (neg_add_cancel k)).trans rfl
+  change (ModuleCat.castLinearMap e (r • f (-k)) x) A.one =
+    (ModuleCat.castLinearMap e (f (-k)) (r • x)) A.one
+  rw [castLinearMap_smul, (ModuleCat.castLinearMap e (f (-k))).map_smul]
+  rfl
 
 /-- Unit evaluation as a linear map from the enriched Hom component to the character module. -/
 @[stacks 09K4 "linear unit evaluation into the character module"]
@@ -74,12 +104,26 @@ def pairingValue (M : DifferentialGradedModule.{u, v} A) (k n : ℤ)
 /-- The action pairing is additive in the module variable. -/
 theorem pairingValue_add (M : DifferentialGradedModule.{u, v} A) (k n : ℤ)
     (c : CharacterModule (M.X (-k))) (x y : M.X n) :
-    pairingValue M k n c (x + y) = pairingValue M k n c x + pairingValue M k n c y := sorry
+    pairingValue M k n c (x + y) = pairingValue M k n c x + pairingValue M k n c y := by
+  unfold pairingValue
+  rw [map_add, castLinearMap_add]
+  ext a
+  exact c.map_add _ _
 
 /-- The action pairing is linear in the module variable. -/
 theorem pairingValue_smul (M : DifferentialGradedModule.{u, v} A) (k n : ℤ)
     (c : CharacterModule (M.X (-k))) (r : R) (x : M.X n) :
-    pairingValue M k n c (r • x) = r • pairingValue M k n c x := sorry
+    pairingValue M k n c (r • x) = r • pairingValue M k n c x := by
+  let e : M.X (n + -(n + k)) = M.X (-k) :=
+    congrArg M.X
+      ((congrArg (fun z : ℤ ↦ n + z) (Int.neg_add (a := n) (b := k))).trans
+        (add_neg_cancel_left n (-k)))
+  let f := ModuleCat.castLinearMap e (M.smul n (-(n + k)) x)
+  unfold pairingValue
+  rw [map_smul, castLinearMap_smul]
+  ext a
+  change c (r • f a) = c (f (r • a))
+  rw [f.map_smul]
 
 /-- A character of `M^{-k}` induces the degree-`n` component of an `A`-linear homogeneous map
 to `Aᵛ`. -/
@@ -103,12 +147,25 @@ def gradedHomOfCharacter (M : DifferentialGradedModule.{u, v} A) (k : ℤ)
 theorem gradedHomOfCharacter_add (M : DifferentialGradedModule.{u, v} A) (k : ℤ)
     (c d : CharacterModule (M.X (-k))) :
     gradedHomOfCharacter M k (c + d) =
-      gradedHomOfCharacter M k c + gradedHomOfCharacter M k d := sorry
+      gradedHomOfCharacter M k c + gradedHomOfCharacter M k d := by
+  apply Subtype.ext
+  funext n
+  apply LinearMap.ext
+  intro x
+  change pairingValue M k n (c + d) x =
+    pairingValue M k n c x + pairingValue M k n d x
+  exact map_add _ _ _
 
 /-- Extension along the action is linear in the character. -/
 theorem gradedHomOfCharacter_smul (M : DifferentialGradedModule.{u, v} A) (k : ℤ)
     (r : R) (c : CharacterModule (M.X (-k))) :
-    gradedHomOfCharacter M k (r • c) = r • gradedHomOfCharacter M k c := sorry
+    gradedHomOfCharacter M k (r • c) = r • gradedHomOfCharacter M k c := by
+  apply Subtype.ext
+  funext n
+  apply LinearMap.ext
+  intro x
+  change pairingValue M k n (r • c) x = r • pairingValue M k n c x
+  exact map_smul _ _ _
 
 /-- Extension along the action as a linear map into the enriched Hom component. -/
 @[stacks 09K4 "linear extension from characters to the enriched Hom component"]
@@ -142,19 +199,37 @@ def dualToHomComplex (M : DifferentialGradedModule.{u, v} A) :
     M.pontryaginDual.toCochainComplex ⟶
       DifferentialGradedCategory.homComplex M A.dualRegularModule where
   f k := ModuleCat.ofHom (gradedHomEquivCharacter M k).symm.toLinearMap
-  comm' := sorry
+  comm' := by
+    intro i j h
+    ext x
+    apply (gradedHomEquivCharacter M j).injective
+    have hc := congrArg (fun f ↦ f ((gradedHomEquivCharacter M i).symm x))
+      ((homComplexToDual M).comm i j)
+    change (M.pontryaginDual.toCochainComplex.d i j)
+        ((gradedHomEquivCharacter M i) ((gradedHomEquivCharacter M i).symm x)) =
+      (gradedHomEquivCharacter M j)
+        (((DifferentialGradedCategory.homComplex M A.dualRegularModule).d i j)
+          ((gradedHomEquivCharacter M i).symm x)) at hc
+    change (gradedHomEquivCharacter M j)
+        (((DifferentialGradedCategory.homComplex M A.dualRegularModule).d i j)
+          ((gradedHomEquivCharacter M i).symm x)) =
+      (gradedHomEquivCharacter M j) ((gradedHomEquivCharacter M j).symm
+        ((M.pontryaginDual.toCochainComplex.d i j) x))
+    rw [LinearEquiv.apply_symm_apply] at hc
+    rw [LinearEquiv.apply_symm_apply]
+    exact hc.symm
 
 /-- The forward cochain comparison is degreewise unit evaluation. -/
 @[simp, stacks 09K4 "component of the enriched Hom to Pontryagin-dual map"]
 theorem homComplexToDual_f (M : DifferentialGradedModule.{u, v} A) (k : ℤ) :
     (homComplexToDual M).f k =
-      ModuleCat.ofHom (gradedHomEquivCharacter M k).toLinearMap := sorry
+      ModuleCat.ofHom (gradedHomEquivCharacter M k).toLinearMap := rfl
 
 /-- The inverse cochain comparison is degreewise extension along the right action. -/
 @[simp, stacks 09K4 "component of the Pontryagin-dual to enriched Hom map"]
 theorem dualToHomComplex_f (M : DifferentialGradedModule.{u, v} A) (k : ℤ) :
     (dualToHomComplex M).f k =
-      ModuleCat.ofHom (gradedHomEquivCharacter M k).symm.toLinearMap := sorry
+      ModuleCat.ofHom (gradedHomEquivCharacter M k).symm.toLinearMap := rfl
 
 /-- Lemma 22.19.3 (09K4), enriched core: evaluation on the unit identifies
 `Hom_A(M, Aᵛ)` with the Pontryagin dual complex `Mᵛ`. -/
@@ -164,8 +239,12 @@ def homComplexIsoDual (M : DifferentialGradedModule.{u, v} A) :
       M.pontryaginDual.toCochainComplex where
   hom := homComplexToDual M
   inv := dualToHomComplex M
-  hom_inv_id := sorry
-  inv_hom_id := sorry
+  hom_inv_id := by
+    ext k x
+    exact (gradedHomEquivCharacter M k).symm_apply_apply x
+  inv_hom_id := by
+    ext k x
+    exact (gradedHomEquivCharacter M k).apply_symm_apply x
 
 /-- The Hom-complex comparison induces an isomorphism on degree-`k` cycles. -/
 @[stacks 09K4 "cycle-level Hom-complex and Pontryagin-dual isomorphism"]

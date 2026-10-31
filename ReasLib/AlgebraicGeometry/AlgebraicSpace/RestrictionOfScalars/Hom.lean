@@ -30,61 +30,21 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace.RestrictionOfScalars
 
-/-- Transport to the explicit fibre product preserves the triangle over `Z`. -/
-private theorem pairToScheme_overZ {S : Scheme.{u}} {X Z B : AlgebraicSpace S}
-    {f : X ⟶ Z} {g : Z ⟶ B} {T : Over S}
-    (p : RestrictScalars.Pair f g (ofOver T)) :
-    ((fiberPullbackIso g p.a).hom ≫ p.b) ≫ f = fiberSnd g p.a := sorry
-
-private def pairToScheme {S : Scheme.{u}} {X Z B : AlgebraicSpace S}
-    {f : X ⟶ Z} {g : Z ⟶ B} {T : Over S}
-    (p : RestrictScalars.Pair f g (ofOver T)) : Pair f g T where
-  base := p.a
-  lift := (fiberPullbackIso g p.a).hom ≫ p.b
-  overZ := pairToScheme_overZ p
-
-/-- Transport to the categorical pullback preserves the triangle over `Z`. -/
-private theorem pairFromScheme_overZ {S : Scheme.{u}} {X Z B : AlgebraicSpace S}
-    {f : X ⟶ Z} {g : Z ⟶ B} {T : Over S} (p : Pair f g T) :
-    ((fiberPullbackIso g p.base).inv ≫ p.lift) ≫ f =
-      pullback.snd p.base g := sorry
-
-private def pairFromScheme {S : Scheme.{u}} {X Z B : AlgebraicSpace S}
-    {f : X ⟶ Z} {g : Z ⟶ B} {T : Over S} (p : Pair f g T) :
-    RestrictScalars.Pair f g (ofOver T) where
-  a := p.base
-  b := (fiberPullbackIso g p.base).inv ≫ p.lift
-  overZ := pairFromScheme_overZ p
-
-/-- Transporting a pair to the explicit fibre product and back recovers it. -/
-private theorem pairOverEquiv_left_inv {S : Scheme.{u}} {X Z B : AlgebraicSpace S}
-    {f : X ⟶ Z} {g : Z ⟶ B} {T : Over S}
-    (p : RestrictScalars.Pair f g (ofOver T)) :
-    pairFromScheme (pairToScheme p) = p := sorry
-
-/-- Transporting a pair to the categorical pullback and back recovers it. -/
-private theorem pairOverEquiv_right_inv {S : Scheme.{u}} {X Z B : AlgebraicSpace S}
-    {f : X ⟶ Z} {g : Z ⟶ B} {T : Over S} (p : Pair f g T) :
-    pairToScheme (pairFromScheme p) = p := sorry
-
-/-- Pairs on the algebraic space associated to a scheme correspond to pairs
-using the explicit scheme-based fibre product. -/
+/-- Scheme-valued and algebraic-space-valued pairs use the same canonical carrier. -/
 def pairOverEquiv {S : Scheme.{u}} {X Z B : AlgebraicSpace S} (f : X ⟶ Z) (g : Z ⟶ B)
-    (T : Over S) : RestrictScalars.Pair f g (ofOver T) ≃ Pair f g T where
-  toFun := pairToScheme
-  invFun := pairFromScheme
-  left_inv := pairOverEquiv_left_inv
-  right_inv := pairOverEquiv_right_inv
+    (T : Over S) : RestrictScalars.Pair f g (ofOver T) ≃ Pair f g T :=
+  Equiv.refl _
 
 /-- Transport of a pair preserves its base morphism. -/
 theorem pairOverEquiv_base {S : Scheme.{u}} {X Z B : AlgebraicSpace S} (f : X ⟶ Z)
     (g : Z ⟶ B) {T : Over S} (p : RestrictScalars.Pair f g (ofOver T)) :
-    (pairOverEquiv f g T p).base = p.a := rfl
+    (pairOverEquiv f g T p).a = p.a := rfl
 
 /-- Transport of a pair precomposes its lift with the canonical pullback comparison. -/
 theorem pairOverEquiv_lift {S : Scheme.{u}} {X Z B : AlgebraicSpace S} (f : X ⟶ Z)
     (g : Z ⟶ B) {T : Over S} (p : RestrictScalars.Pair f g (ofOver T)) :
-    (pairOverEquiv f g T p).lift = (fiberPullbackIso g p.a).hom ≫ p.b := rfl
+    (pairOverEquiv f g T p).b = (fiberPullbackIso g p.a).hom ≫ p.b :=
+  (Category.id_comp _).symm
 
 /-- Restriction of a geometric pair along scheme-valued points is natural. -/
 private theorem ofPair_hom_naturality {S : Scheme.{u}} {X Z B T : AlgebraicSpace S}
@@ -144,14 +104,14 @@ private def toPairSnd {S : Scheme.{u}} {X Z B T : AlgebraicSpace S}
 private theorem toPairSection_overB {S : Scheme.{u}} {X Z B T : AlgebraicSpace S}
     {f : X ⟶ Z} {g : Z ⟶ B} (v : toSheaf.obj T ⟶ sheaf f g)
     {U : (Over S)ᵒᵖ} (x : (pullback (toPair_a v) g).functorOfPoints.obj U) :
-    𝟙 (ofOver U.unop) ≫ (toPairEval v (toPairFst v x)).base =
+    𝟙 (ofOver U.unop) ≫ (toPairEval v (toPairFst v x)).a =
       (yonedaEquiv.symm (toPairSnd v x) : ofOver U.unop ⟶ Z) ≫ g := sorry
 
 private def toPairSection {S : Scheme.{u}} {X Z B T : AlgebraicSpace S}
     {f : X ⟶ Z} {g : Z ⟶ B} (v : toSheaf.obj T ⟶ sheaf f g)
     {U : (Over S)ᵒᵖ} (x : (pullback (toPair_a v) g).functorOfPoints.obj U) :
-    ofOver U.unop ⟶ fiber g (toPairEval v (toPairFst v x)).base :=
-  ReasLibPullback.pullbackLift (toPairEval v (toPairFst v x)).base g (𝟙 _)
+    ofOver U.unop ⟶ fiber g (toPairEval v (toPairFst v x)).a :=
+  Limits.pullback.lift (𝟙 _)
     (yonedaEquiv.symm (toPairSnd v x) : ofOver U.unop ⟶ Z)
     (toPairSection_overB v x)
 
@@ -161,16 +121,16 @@ private theorem toPair_b_naturality {S : Scheme.{u}} {X Z B T : AlgebraicSpace S
     {U V : (Over S)ᵒᵖ} (φ : U ⟶ V) :
     (pullback (toPair_a v) g).functorOfPoints.map φ ≫
         TypeCat.ofHom (fun x ↦
-          yonedaEquiv (toPairSection v x ≫ (toPairEval v (toPairFst v x)).lift)) =
+          yonedaEquiv (toPairSection v x ≫ (toPairEval v (toPairFst v x)).b)) =
       TypeCat.ofHom (fun x ↦
-          yonedaEquiv (toPairSection v x ≫ (toPairEval v (toPairFst v x)).lift)) ≫
+          yonedaEquiv (toPairSection v x ≫ (toPairEval v (toPairFst v x)).b)) ≫
         X.functorOfPoints.map φ := sorry
 
 private def toPair_b {S : Scheme.{u}} {X Z B T : AlgebraicSpace S}
     {f : X ⟶ Z} {g : Z ⟶ B} (v : toSheaf.obj T ⟶ sheaf f g) :
     pullback (toPair_a v) g ⟶ X where
   app U := TypeCat.ofHom fun x ↦
-    yonedaEquiv (toPairSection v x ≫ (toPairEval v (toPairFst v x)).lift)
+    yonedaEquiv (toPairSection v x ≫ (toPairEval v (toPairFst v x)).b)
   naturality := fun _ _ φ ↦ toPair_b_naturality v φ
 
 /-- The reconstructed lift commutes with the morphisms to `Z`. -/

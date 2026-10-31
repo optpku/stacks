@@ -87,10 +87,12 @@ theorem isEssentiallyConstant_iff {M : I ⥤ C} (c : Cocone M) :
       ∃ (i : I) (s : c.pt ⟶ M.obj i),
         s ≫ c.ι.app i = 𝟙 c.pt ∧
           ∀ j : I, ∃ (k : I) (ik : i ⟶ k) (jk : j ⟶ k),
-            M.map jk = c.ι.app j ≫ s ≫ M.map ik := sorry
-/- Proof strategy: unfold `Cocone.IsEssentiallyConstant`; in the forward direction take
-`s := σ.section_` and `σ.id`, and in the reverse direction package `s` and its identity as a
-`SplitEpi`.  The factorization clause is unchanged. -/
+            M.map jk = c.ι.app j ≫ s ≫ M.map ik := by
+  constructor
+  · rintro ⟨i, σ, hσ⟩
+    exact ⟨i, σ.section_, σ.id, hσ⟩
+  · rintro ⟨i, s, hs, h⟩
+    exact ⟨i, { section_ := s, id := hs }, h⟩
 
 namespace IsEssentiallyConstant
 
@@ -115,13 +117,18 @@ noncomputable def stageSplitEpi {M : I ⥤ C} {c : Cocone M}
 theorem stage_spec {M : I ⥤ C} {c : Cocone M}
     (hc : c.IsEssentiallyConstant) (j : I) :
     ∃ (k : I) (ik : hc.stage ⟶ k) (jk : j ⟶ k),
-      M.map jk = c.ι.app j ≫ hc.stageSplitEpi.section_ ≫ M.map ik := sorry
+      M.map jk = c.ι.app j ≫ hc.stageSplitEpi.section_ ≫ M.map ik := by
+  exact hc.choose_spec.choose_spec j
 
 /-- Postcomposition preserves an essentially constant cocone presentation. -/
 theorem map {M : I ⥤ C} {c : Cocone M} (hc : c.IsEssentiallyConstant) (F : C ⥤ D) :
-    (F.mapCocone c).IsEssentiallyConstant := sorry
-/- Proof strategy: map the chosen `SplitEpi` with `SplitEpi.map F`; applying `F.map` to each
-factorization equality and simplifying with `F.map_comp` gives the required mapped equality. -/
+    (F.mapCocone c).IsEssentiallyConstant := by
+  rcases hc with ⟨i, σ, hσ⟩
+  refine ⟨i, σ.map F, ?_⟩
+  intro j
+  obtain ⟨k, ik, jk, h⟩ := hσ j
+  refine ⟨k, ik, jk, ?_⟩
+  simpa only [Functor.map_comp] using! congrArg F.map h
 
 end IsEssentiallyConstant
 
@@ -143,17 +150,33 @@ theorem isEssentiallyConstant_iff {M : I ⥤ C} (c : Cone M) :
       ∃ (i : I) (r : M.obj i ⟶ c.pt),
         c.π.app i ≫ r = 𝟙 c.pt ∧
           ∀ j : I, ∃ (k : I) (ki : k ⟶ i) (kj : k ⟶ j),
-            M.map kj = M.map ki ≫ r ≫ c.π.app j := sorry
-/- Proof strategy: unfold `Cone.IsEssentiallyConstant`; extract `σ.retraction` and `σ.id` in one
-direction, and build the corresponding `SplitMono` from `r` and its identity in the other. -/
+            M.map kj = M.map ki ≫ r ≫ c.π.app j := by
+  constructor
+  · rintro ⟨i, σ, hσ⟩
+    exact ⟨i, σ.retraction, σ.id, hσ⟩
+  · rintro ⟨i, r, hr, h⟩
+    exact ⟨i, { retraction := r, id := hr }, h⟩
 
 /-- Essential constancy of a cone is the categorical dual of essential constancy of its opposite
 cocone. -/
 theorem isEssentiallyConstant_iff_op {M : I ⥤ C} (c : Cone M) :
-    c.IsEssentiallyConstant ↔ c.op.IsEssentiallyConstant := sorry
-/- Proof strategy: unpack either witness, apply `op` or `unop` to its chosen index morphisms and
-splitting map, and transport the factorization equality with `Quiver.Hom.op_inj` or
-`Quiver.Hom.unop_inj`; composition reverses exactly as displayed in the dual diagrams above. -/
+    c.IsEssentiallyConstant ↔ c.op.IsEssentiallyConstant := by
+  rw [isEssentiallyConstant_iff, Cocone.isEssentiallyConstant_iff]
+  constructor
+  · rintro ⟨i, r, hr, h⟩
+    refine ⟨Opposite.op i, r.op, ?_, ?_⟩
+    · simpa using! congrArg Quiver.Hom.op hr
+    · intro j
+      obtain ⟨k, ki, kj, hkj⟩ := h j.unop
+      refine ⟨Opposite.op k, ki.op, kj.op, ?_⟩
+      simpa [Category.assoc] using! congrArg Quiver.Hom.op hkj
+  · rintro ⟨i, s, hs, h⟩
+    refine ⟨i.unop, s.unop, ?_, ?_⟩
+    · simpa using! congrArg Quiver.Hom.unop hs
+    · intro j
+      obtain ⟨k, ik, jk, hjk⟩ := h (Opposite.op j)
+      refine ⟨k.unop, ik.unop, jk.unop, ?_⟩
+      simpa [Category.assoc] using! congrArg Quiver.Hom.unop hjk
 
 namespace IsEssentiallyConstant
 
@@ -177,19 +200,25 @@ noncomputable def stageSplitMono {M : I ⥤ C} {c : Cone M}
 theorem stage_spec {M : I ⥤ C} {c : Cone M}
     (hc : c.IsEssentiallyConstant) (j : I) :
     ∃ (k : I) (ki : k ⟶ hc.stage) (kj : k ⟶ j),
-      M.map kj = M.map ki ≫ hc.stageSplitMono.retraction ≫ c.π.app j := sorry
+      M.map kj = M.map ki ≫ hc.stageSplitMono.retraction ≫ c.π.app j := by
+  exact hc.choose_spec.choose_spec j
 
 /-- Taking opposites sends an essentially constant cone to an essentially constant cocone.
 This named direction avoids forcing consumers to rewrite with
 `Cone.isEssentiallyConstant_iff_op` and transport across the displayed opposite cone. -/
 theorem op {M : I ⥤ C} {c : Cone M} (hc : c.IsEssentiallyConstant) :
-    c.op.IsEssentiallyConstant := sorry
+    c.op.IsEssentiallyConstant := by
+  exact (Cone.isEssentiallyConstant_iff_op c).mp hc
 
 /-- Postcomposition preserves an essentially constant cone presentation. -/
 theorem map {M : I ⥤ C} {c : Cone M} (hc : c.IsEssentiallyConstant) (F : C ⥤ D) :
-    (F.mapCone c).IsEssentiallyConstant := sorry
-/- Proof strategy: map the chosen `SplitMono` with `SplitMono.map F`; applying `F.map` to each
-factorization equality and simplifying with `F.map_comp` gives the mapped cone witness. -/
+    (F.mapCone c).IsEssentiallyConstant := by
+  rcases hc with ⟨i, σ, hσ⟩
+  refine ⟨i, σ.map F, ?_⟩
+  intro j
+  obtain ⟨k, ki, kj, h⟩ := hσ j
+  refine ⟨k, ki, kj, ?_⟩
+  simpa only [Functor.map_comp] using! congrArg F.map h
 
 end IsEssentiallyConstant
 
@@ -200,7 +229,13 @@ namespace Cocone.IsEssentiallyConstant
 /-- Taking opposites sends an essentially constant cocone to an essentially constant cone.
 This is the dual elimination form of `Cone.IsEssentiallyConstant.op`. -/
 theorem op {M : I ⥤ C} {c : Cocone M} (hc : c.IsEssentiallyConstant) :
-    c.op.IsEssentiallyConstant := sorry
+    c.op.IsEssentiallyConstant := by
+  rcases hc with ⟨i, σ, hσ⟩
+  refine ⟨Opposite.op i, σ.op, ?_⟩
+  intro j
+  obtain ⟨k, ik, jk, h⟩ := hσ j.unop
+  refine ⟨Opposite.op k, ik.op, jk.op, ?_⟩
+  simpa [Category.assoc] using! congrArg Quiver.Hom.op h
 
 end Cocone.IsEssentiallyConstant
 

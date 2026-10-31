@@ -35,63 +35,85 @@ namespace CategoryTheory.CochainComplex
 
 variable (𝒝 : Type u) [Category.{v} 𝒝] [Preadditive 𝒝]
 
+private theorem cochain_comp_castHom {A B C : CochainComplex 𝒝 ℤ}
+    {i j k l : ℤ} (f : Cochain A B i) (g : Cochain B C j)
+    (h : i + j = k) (e : k = l) :
+    @castHom ℤ (fun n : ℤ ↦ Cochain A C n) k l e (Cochain.comp f g h) =
+      Cochain.comp f g (h.trans e) := by
+  cases e
+  rfl
+
 /-- The Hom-complex differential squares to zero. -/
 theorem complexesDgDifferential_sq {A B : CochainComplex 𝒝 ℤ}
     (n : ℤ) (f : Cochain A B n) :
-    δ (n + 1) (n + 1 + 1) (δ n (n + 1) f) = 0 := sorry
+    δ (n + 1) (n + 1 + 1) (δ n (n + 1) f) = 0 := by
+  exact δ_δ n (n + 1) (n + 1 + 1) f
 
 /-- The identity cochain is closed for the Hom-complex differential. -/
 theorem complexesDgId_closed (A : CochainComplex 𝒝 ℤ) :
-    δ 0 1 ((((Cocycle.equivHom A A) (𝟙 A) : Cocycle A A 0) : Cochain A A 0)) = 0 := sorry
+    δ 0 1 ((((Cocycle.equivHom A A) (𝟙 A) : Cocycle A A 0) : Cochain A A 0)) = 0 := by
+  exact δ_ofHom (𝟙 A)
 
 /-- Left unit for homogeneous composition of cochains. -/
 theorem complexesDgComp_id_left {A B : CochainComplex 𝒝 ℤ}
     {n : ℤ} (f : Cochain A B n) :
     castHom (add_zero n) (Cochain.comp f (((Cocycle.equivHom B B) (𝟙 B) : Cocycle B B 0)) rfl) =
-      f := sorry
+      f := by
+  rw [cochain_comp_castHom]
+  exact Cochain.comp_id f
 
 /-- Right unit for homogeneous composition of cochains. -/
 theorem complexesDgComp_id_right {A B : CochainComplex 𝒝 ℤ}
     {n : ℤ} (f : Cochain A B n) :
     castHom (zero_add n) (Cochain.comp (((Cocycle.equivHom A A) (𝟙 A) : Cocycle A A 0)) f rfl) =
-      f := sorry
+      f := by
+  rw [cochain_comp_castHom]
+  exact Cochain.id_comp f
 
 /-- Associativity of homogeneous composition of cochains. -/
 theorem complexesDgComp_assoc {W X Y Z : CochainComplex 𝒝 ℤ}
     {i j k : ℤ}
     (h : Cochain Y Z k) (g : Cochain X Y j) (f : Cochain W X i) :
     castHom (add_assoc i j k) (Cochain.comp (Cochain.comp f g rfl) h rfl) =
-      Cochain.comp f (Cochain.comp g h rfl) rfl := sorry
+      Cochain.comp f (Cochain.comp g h rfl) rfl := by
+  rw [cochain_comp_castHom]
+  exact Cochain.comp_assoc f g h rfl rfl (add_assoc i j k)
 
 /-- Homogeneous composition is additive in its left input. -/
 theorem complexesDgComp_add_left {A B C : CochainComplex 𝒝 ℤ} {i j : ℤ}
     (g₁ g₂ : Cochain B C j) (f : Cochain A B i) :
-    Cochain.comp f (g₁ + g₂) rfl = Cochain.comp f g₁ rfl + Cochain.comp f g₂ rfl := sorry
+    Cochain.comp f (g₁ + g₂) rfl = Cochain.comp f g₁ rfl + Cochain.comp f g₂ rfl := by
+  exact Cochain.comp_add f g₁ g₂ rfl
 
 /-- Homogeneous composition is additive in its right input. -/
 theorem complexesDgComp_add_right {A B C : CochainComplex 𝒝 ℤ} {i j : ℤ}
     (g : Cochain B C j) (f₁ f₂ : Cochain A B i) :
-    Cochain.comp (f₁ + f₂) g rfl = Cochain.comp f₁ g rfl + Cochain.comp f₂ g rfl := sorry
+    Cochain.comp (f₁ + f₂) g rfl = Cochain.comp f₁ g rfl + Cochain.comp f₂ g rfl := by
+  exact Cochain.add_comp f₁ f₂ g rfl
 
 /-- Homogeneous composition is `ℤ`-linear in its left input. -/
 theorem complexesDgComp_zsmul_left {A B C : CochainComplex 𝒝 ℤ} {i j : ℤ}
     (r : ℤ) (g : Cochain B C j) (f : Cochain A B i) :
-    Cochain.comp f (r • g) rfl = r • Cochain.comp f g rfl := sorry
+    Cochain.comp f (r • g) rfl = r • Cochain.comp f g rfl := by
+  exact Cochain.comp_smul f r g rfl
 
 /-- Homogeneous composition is `ℤ`-linear in its right input. -/
 theorem complexesDgComp_zsmul_right {A B C : CochainComplex 𝒝 ℤ} {i j : ℤ}
     (r : ℤ) (g : Cochain B C j) (f : Cochain A B i) :
-    Cochain.comp (r • f) g rfl = r • Cochain.comp f g rfl := sorry
+    Cochain.comp (r • f) g rfl = r • Cochain.comp f g rfl := by
+  exact Cochain.smul_comp r f g rfl
 
 /-- The Hom-complex differential is additive. -/
 theorem complexesDgDifferential_add {A B : CochainComplex 𝒝 ℤ}
     (n : ℤ) (f g : Cochain A B n) :
-    δ n (n + 1) (f + g) = δ n (n + 1) f + δ n (n + 1) g := sorry
+    δ n (n + 1) (f + g) = δ n (n + 1) f + δ n (n + 1) g := by
+  exact δ_add n (n + 1) f g
 
 /-- The Hom-complex differential is `ℤ`-linear. -/
 theorem complexesDgDifferential_zsmul {A B : CochainComplex 𝒝 ℤ}
     (n r : ℤ) (f : Cochain A B n) :
-    δ n (n + 1) (r • f) = r • δ n (n + 1) f := sorry
+    δ n (n + 1) (r • f) = r • δ n (n + 1) f := by
+  exact δ_smul n (n + 1) r f
 
 /-- The Hom-complex differential satisfies the graded Leibniz rule on homogeneous cochains. -/
 theorem complexesDgDifferential_comp {A B C : CochainComplex 𝒝 ℤ}
@@ -101,7 +123,9 @@ theorem complexesDgDifferential_comp {A B C : CochainComplex 𝒝 ℤ}
           (Cochain.comp f (δ j (j + 1) g) rfl) +
         (j.negOnePow : ℤ) •
           @castHom ℤ (fun n : ℤ ↦ Cochain A C n) _ _ (d_comp_right_index i j)
-            (Cochain.comp (δ i (i + 1) f) g rfl) := sorry
+            (Cochain.comp (δ i (i + 1) f) g rfl) := by
+  rw [cochain_comp_castHom, cochain_comp_castHom]
+  exact δ_comp f g rfl (i + 1) (j + 1) (i + j + 1) rfl rfl rfl
 
 /-- Homogeneous cochain composition is linear in its left input over a chosen linear base ring.
 -/
@@ -109,7 +133,8 @@ theorem cochainComplexDgComp_smul_left
     {R : Type w} [CommRing R] [Linear R 𝒝]
     {A B C : CochainComplex 𝒝 ℤ} {i j : ℤ}
     (r : R) (g : Cochain B C j) (f : Cochain A B i) :
-    Cochain.comp f (r • g) rfl = r • Cochain.comp f g rfl := sorry
+    Cochain.comp f (r • g) rfl = r • Cochain.comp f g rfl := by
+  exact Cochain.comp_smul f r g rfl
 
 /-- Homogeneous cochain composition is linear in its right input over a chosen linear base ring.
 -/
@@ -117,14 +142,16 @@ theorem cochainComplexDgComp_smul_right
     {R : Type w} [CommRing R] [Linear R 𝒝]
     {A B C : CochainComplex 𝒝 ℤ} {i j : ℤ}
     (r : R) (g : Cochain B C j) (f : Cochain A B i) :
-    Cochain.comp (r • f) g rfl = r • Cochain.comp f g rfl := sorry
+    Cochain.comp (r • f) g rfl = r • Cochain.comp f g rfl := by
+  exact Cochain.smul_comp r f g rfl
 
 /-- The Hom-complex differential is linear over a chosen linear base ring. -/
 theorem cochainComplexDgDifferential_smul
     {R : Type w} [CommRing R] [Linear R 𝒝]
     {A B : CochainComplex 𝒝 ℤ}
     (n : ℤ) (r : R) (f : Cochain A B n) :
-    δ n (n + 1) (r • f) = r • δ n (n + 1) f := sorry
+    δ n (n + 1) (r • f) = r • δ n (n + 1) f := by
+  exact δ_smul n (n + 1) r f
 
 /-- The Hom-complex differential satisfies the graded Leibniz rule over a chosen linear base
 ring. -/
@@ -137,7 +164,8 @@ theorem cochainComplexDgDifferential_comp
           (Cochain.comp f (δ j (j + 1) g) rfl) +
         (j.negOnePow : R) •
           @castHom ℤ (fun n : ℤ ↦ Cochain A C n) _ _ (d_comp_right_index i j)
-            (Cochain.comp (δ i (i + 1) f) g rfl) := sorry
+            (Cochain.comp (δ i (i + 1) f) g rfl) := by
+  simpa only [Int.cast_smul_eq_zsmul] using (complexesDgDifferential_comp 𝒝 g f)
 
 /-- The differential graded category of cochain complexes over a chosen commutative base ring
 acting linearly on the ambient preadditive category.  The base ring is explicit because a single
@@ -171,7 +199,8 @@ corresponding group of homogeneous cochains. -/
 theorem differentialGradedCategory_hom
     (R : Type w) [CommRing R] [Linear R 𝒝]
     (A B : CochainComplex 𝒝 ℤ) (n : ℤ) :
-    (differentialGradedCategory 𝒝 R).Hom A B n = Cochain A B n := sorry
+    (differentialGradedCategory 𝒝 R).Hom A B n = Cochain A B n := by
+  rfl
 
 /-- The differential in the explicit `R`-linear cochain-complex DG category is the Hom-complex
 differential. -/
@@ -179,7 +208,8 @@ differential. -/
 theorem differentialGradedCategory_d
     (R : Type w) [CommRing R] [Linear R 𝒝]
     {A B : CochainComplex 𝒝 ℤ} (n : ℤ) (f : Cochain A B n) :
-    (differentialGradedCategory 𝒝 R).d n f = δ n (n + 1) f := sorry
+    (differentialGradedCategory 𝒝 R).d n f = δ n (n + 1) f := by
+  rfl
 
 /-- The identity of the explicit `R`-linear cochain-complex DG category is the degree-zero
 cocycle associated to the identity map of complexes. -/
@@ -188,7 +218,8 @@ theorem differentialGradedCategory_id
     (R : Type w) [CommRing R] [Linear R 𝒝]
     (A : CochainComplex 𝒝 ℤ) :
     (differentialGradedCategory 𝒝 R).id A =
-      (((Cocycle.equivHom A A) (𝟙 A) : Cocycle A A 0) : Cochain A A 0) := sorry
+      (((Cocycle.equivHom A A) (𝟙 A) : Cocycle A A 0) : Cochain A A 0) := by
+  rfl
 
 /-- Composition in the explicit `R`-linear cochain-complex DG category is homogeneous cochain
 composition. -/
@@ -197,7 +228,8 @@ theorem differentialGradedCategory_comp
     (R : Type w) [CommRing R] [Linear R 𝒝]
     {A B C : CochainComplex 𝒝 ℤ} {i j : ℤ}
     (g : Cochain B C j) (f : Cochain A B i) :
-    (differentialGradedCategory 𝒝 R).comp g f = Cochain.comp f g rfl := sorry
+    (differentialGradedCategory 𝒝 R).comp g f = Cochain.comp f g rfl := by
+  rfl
 
 /-- The cochain complexes in a preadditive category form the canonical differential graded
 category over `ℤ`, with the Hom
@@ -212,6 +244,7 @@ homogeneous cochains. -/
 @[simp]
 theorem complexesDifferentialGradedCategory_hom
     (A B : CochainComplex 𝒝 ℤ) (n : ℤ) :
-    (A ⟶[n] B) = Cochain A B n := sorry
+    (A ⟶[n] B) = Cochain A B n := by
+  rfl
 
 end CategoryTheory.CochainComplex

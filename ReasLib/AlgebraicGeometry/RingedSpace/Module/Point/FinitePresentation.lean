@@ -34,12 +34,10 @@ variable (R : Type u) [CommRing R]
 
 /-- A module is finitely presented exactly when its corresponding sheaf on the ringed point is
 finitely presented. -/
-@[stacks 01BR "finite presentation on a ringed point"]
 theorem sheaf_isFinitePresentation_iff (M : ModuleCat.{u} R) :
     (sheaf R M).IsFinitePresentation ↔ Module.FinitePresentation R M := sorry
 
 /-- A finitely presented module gives a finitely presented module sheaf on the ringed point. -/
-@[stacks 01BR "finitely presented point module sheaf"]
 instance sheaf_isFinitePresentation (M : ModuleCat.{u} R)
     [Module.FinitePresentation R M] :
     (sheaf R M).IsFinitePresentation := sorry

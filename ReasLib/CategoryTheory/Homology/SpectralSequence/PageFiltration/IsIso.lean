@@ -63,11 +63,6 @@ theorem map_app_isIso_of_isIsoFrom
     (h : SpectralSequence.Hom.IsIsoFrom f 1 le_rfl) :
     IsIso ((map f pq).app r) := sorry
 
-variable {E E' : SpectralSequence C c 1} (f : E ⟶ E') (pq : κ) [IsIso f]
-
-#synth IsIso (map f pq)
-#synth IsIso ((map f pq).app 1)
-
 end HomologyTower
 
 namespace Cycle

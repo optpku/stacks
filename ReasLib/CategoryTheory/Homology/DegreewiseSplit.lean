@@ -47,14 +47,16 @@ def IsDegreewiseSplit (S : ShortComplex (HomologicalComplex C c)) : Prop :=
 /-- A degreewise-split short complex admits a chosen family of splittings, and conversely. -/
 @[stacks 014I "degreewise-splitting family bridge"]
 theorem isDegreewiseSplit_iff (S : ShortComplex (HomologicalComplex C c)) :
-    S.IsDegreewiseSplit ↔ Nonempty (DegreewiseSplitting S) := sorry
+    S.IsDegreewiseSplit ↔ Nonempty (DegreewiseSplitting S) :=
+  Classical.nonempty_pi.symm
 
 /-- A chosen family of splittings witnesses the degreewise-split property. -/
 @[stacks 014I "chosen splitting witnesses degreewise splitness"]
 theorem isDegreewiseSplit_of_splitting
     (S : ShortComplex (HomologicalComplex C c))
     (σ : DegreewiseSplitting S) :
-    S.IsDegreewiseSplit := sorry
+    S.IsDegreewiseSplit :=
+  fun i ↦ ⟨σ i⟩
 
 namespace Splitting
 
@@ -67,7 +69,12 @@ def IsSectionCorrection (σ σ' : S.Splitting) (h : S.X₃ ⟶ S.X₁) : Prop :=
 /-- A correction of the section by `h ≫ S.f` corrects the retraction by `-S.g ≫ h`. -/
 theorem retraction_eq_sub (σ σ' : S.Splitting) (h : S.X₃ ⟶ S.X₁)
     (hs : σ.IsSectionCorrection σ' h) :
-    σ'.r = σ.r - S.g ≫ h := sorry
+    σ'.r = σ.r - S.g ≫ h := by
+  haveI := σ.mono_f
+  apply (cancel_mono S.f).1
+  rw [Preadditive.sub_comp, σ'.r_f, σ.r_f, hs]
+  simp only [Preadditive.comp_add, Category.assoc]
+  abel
 
 /-- If section and retraction corrections are written using `h` and `k`, respectively, then
 `k = -h`. -/
@@ -76,7 +83,10 @@ theorem retractionCorrection_eq_neg
     (σ σ' : S.Splitting) (h k : S.X₃ ⟶ S.X₁)
     (hs : σ.IsSectionCorrection σ' h)
     (hk : σ'.r = σ.r + S.g ≫ k) :
-    k = -h := sorry
+    k = -h := by
+  have hk' := congrArg (fun r : S.X₂ ⟶ S.X₁ ↦ σ.s ≫ r) hk
+  rw [retraction_eq_sub σ σ' h hs] at hk'
+  simpa [Preadditive.comp_sub, Preadditive.comp_add] using hk'.symm
 
 end Splitting
 
@@ -90,21 +100,29 @@ def RespectsSplittings (φ : S ⟶ T) (σ : S.Splitting) (τ : T.Splitting) : Pr
 
 /-- Compatibility with splittings identifies the induced maps on the retract summands. -/
 theorem RespectsSplittings.retraction {φ : S ⟶ T} {σ : S.Splitting} {τ : T.Splitting}
-    (h : φ.RespectsSplittings σ τ) : φ.τ₂ ≫ τ.r = σ.r ≫ φ.τ₁ := sorry
+    (h : φ.RespectsSplittings σ τ) : φ.τ₂ ≫ τ.r = σ.r ≫ φ.τ₁ :=
+  h.1
 
 /-- Compatibility with splittings identifies the induced maps on the section summands. -/
 theorem RespectsSplittings.section {φ : S ⟶ T} {σ : S.Splitting} {τ : T.Splitting}
-    (h : φ.RespectsSplittings σ τ) : σ.s ≫ φ.τ₂ = φ.τ₃ ≫ τ.s := sorry
+    (h : φ.RespectsSplittings σ τ) : σ.s ≫ φ.τ₂ = φ.τ₃ ≫ τ.s :=
+  h.2
 
 /-- Identity morphisms respect every chosen splitting. -/
 theorem respectsSplittings_id (σ : S.Splitting) :
-    RespectsSplittings (𝟙 S) σ σ := sorry
+    RespectsSplittings (𝟙 S) σ σ := by
+  simp [RespectsSplittings]
 
 /-- A composite respects splittings when both of its factors do. -/
 theorem RespectsSplittings.comp {R : ShortComplex C} {φ : S ⟶ T} {ψ : T ⟶ R}
     {σ : S.Splitting} {τ : T.Splitting} {υ : R.Splitting}
     (hφ : φ.RespectsSplittings σ τ) (hψ : ψ.RespectsSplittings τ υ) :
-    (φ ≫ ψ).RespectsSplittings σ υ := sorry
+    (φ ≫ ψ).RespectsSplittings σ υ := by
+  constructor
+  · change (φ.τ₂ ≫ ψ.τ₂) ≫ υ.r = σ.r ≫ (φ.τ₁ ≫ ψ.τ₁)
+    rw [Category.assoc, hψ.1, ← Category.assoc, hφ.1, Category.assoc]
+  · change σ.s ≫ (φ.τ₂ ≫ ψ.τ₂) = (φ.τ₃ ≫ ψ.τ₃) ≫ υ.s
+    rw [← Category.assoc, hφ.2, Category.assoc, hψ.2, Category.assoc]
 
 end Hom
 
@@ -122,11 +140,15 @@ def RespectsDegreewiseSplittings (φ : S ⟶ T)
 theorem RespectsDegreewiseSplittings.app {φ : S ⟶ T}
     {σ : DegreewiseSplitting S} {τ : DegreewiseSplitting T}
     (h : φ.RespectsDegreewiseSplittings σ τ) (i : ι) :
-    ((eval C c i).mapShortComplex.map φ).RespectsSplittings (σ i) (τ i) := sorry
+    ((eval C c i).mapShortComplex.map φ).RespectsSplittings (σ i) (τ i) :=
+  h i
 
 /-- Identity morphisms preserve every chosen degreewise splitting. -/
 theorem respectsDegreewiseSplittings_id (σ : DegreewiseSplitting S) :
-    RespectsDegreewiseSplittings (𝟙 S) σ σ := sorry
+    RespectsDegreewiseSplittings (𝟙 S) σ σ := by
+  intro i
+  rw [Functor.map_id]
+  exact respectsSplittings_id (σ i)
 
 /-- A composite preserves degreewise splittings when both factors do. -/
 theorem RespectsDegreewiseSplittings.comp
@@ -134,7 +156,10 @@ theorem RespectsDegreewiseSplittings.comp
     {σ : DegreewiseSplitting S} {τ : DegreewiseSplitting T}
     {υ : DegreewiseSplitting R} (hφ : φ.RespectsDegreewiseSplittings σ τ)
     (hψ : ψ.RespectsDegreewiseSplittings τ υ) :
-    (φ ≫ ψ).RespectsDegreewiseSplittings σ υ := sorry
+    (φ ≫ ψ).RespectsDegreewiseSplittings σ υ := by
+  intro i
+  rw [Functor.map_comp]
+  exact (hφ i).comp (hψ i)
 
 end Hom
 
@@ -163,20 +188,21 @@ def comp {σ : DegreewiseSplitting S} {τ : DegreewiseSplitting T}
 
 /-- The underlying short-complex morphism of the identity is the identity. -/
 @[simp]
-theorem id_val (σ : DegreewiseSplitting S) : (id σ).1 = 𝟙 S := sorry
+theorem id_val (σ : DegreewiseSplitting S) : (id σ).1 = 𝟙 S := rfl
 
 /-- The underlying short-complex morphism of a composite is the composite of the underlying
 morphisms. -/
 @[simp]
 theorem comp_val {σ : DegreewiseSplitting S} {τ : DegreewiseSplitting T}
     {υ : DegreewiseSplitting R} (φ : Hom σ τ) (ψ : Hom τ υ) :
-    (comp φ ψ).1 = φ.1 ≫ ψ.1 := sorry
+    (comp φ ψ).1 = φ.1 ≫ ψ.1 := rfl
 
 /-- Morphisms of chosen degreewise splittings are equal when their underlying short-complex
 morphisms are equal. -/
 @[ext]
 theorem ext {σ : DegreewiseSplitting S} {τ : DegreewiseSplitting T}
-    {φ ψ : Hom σ τ} (h : φ.1 = ψ.1) : φ = ψ := sorry
+    {φ ψ : Hom σ τ} (h : φ.1 = ψ.1) : φ = ψ :=
+  Subtype.ext h
 
 end Hom
 
@@ -213,19 +239,26 @@ def component (S : ShortComplex (CochainComplex C ℤ))
 theorem component_comp_xIso (S : ShortComplex (CochainComplex C ℤ))
     (σ : ShortComplex.DegreewiseSplitting S) (n : ℤ) :
     component S σ n ≫ (S.X₁.shiftFunctorObjXIso 1 n (n + 1) rfl).hom =
-      coordinate S σ n := sorry
+      coordinate S σ n := by
+  simp [component]
 
 /-- The raw connecting-map components commute with the cochain differentials. -/
 theorem comm (S : ShortComplex (CochainComplex C ℤ))
     (σ : ShortComplex.DegreewiseSplitting S) (i j : ℤ)
     (hij : (ComplexShape.up ℤ).Rel i j) :
     component S σ i ≫ (S.X₁⟦(1 : ℤ)⟧).d i j =
-      S.X₃.d i j ≫ component S σ j := sorry
+      S.X₃.d i j ≫ component S σ j := by
+  have hcomponent (n : ℤ) :
+      (homOfDegreewiseSplit S σ).f n = component S σ n := by
+    simp [homOfDegreewiseSplit_f, cocycleOfDegreewiseSplit, component, coordinate]
+  rw [← hcomponent i, ← hcomponent j]
+  exact (homOfDegreewiseSplit S σ).comm' i j hij
 
 /-- The canonical connecting map has the raw component exposed by `component`. -/
 theorem component_eq (S : ShortComplex (CochainComplex C ℤ))
     (σ : ShortComplex.DegreewiseSplitting S) (n : ℤ) :
-    (homOfDegreewiseSplit S σ).f n = component S σ n := sorry
+    (homOfDegreewiseSplit S σ).f n = component S σ n := by
+  simp [homOfDegreewiseSplit_f, cocycleOfDegreewiseSplit, component, coordinate]
 
 end homOfDegreewiseSplit
 

@@ -24,12 +24,14 @@ with `f : X ⟶ Y` locally of finite type, if `F` is a finite type quasi-coheren
     ∀ {S : AlgebraicGeometry.Scheme.{u}}
       {X' X Y' Y : AlgebraicGeometry.AlgebraicSpace S}
       {g' : X' ⟶ X} {f' : X' ⟶ Y'} {f : X ⟶ Y} {g : Y' ⟶ Y},
-      IsPullback g' f' f g →
+      ∀ (sq : IsPullback g' f' f g),
         ∀ [AlgebraicGeometry.AlgebraicSpace.LocallyOfFiniteType f]
           (F : X.Modules)
           [F.IsFiniteType] [F.IsQuasicoherent]
           (hF : AlgebraicGeometry.AlgebraicSpace.ClosedSubset.ProperOver f
             (AlgebraicGeometry.AlgebraicSpace.Modules.closedSupport F)),
+          letI : AlgebraicGeometry.AlgebraicSpace.LocallyOfFiniteType f' :=
+            AlgebraicGeometry.AlgebraicSpace.LocallyOfFiniteType.of_isPullback sq inferInstance
           AlgebraicGeometry.AlgebraicSpace.ClosedSubset.ProperOver f'
             (AlgebraicGeometry.AlgebraicSpace.Modules.closedSupport
               ((AlgebraicGeometry.AlgebraicSpace.Modules.pullback g').obj F)))

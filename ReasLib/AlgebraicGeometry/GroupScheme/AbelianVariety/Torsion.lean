@@ -10,6 +10,7 @@ public import Mathlib.Algebra.Module.Torsion.Basic
 public import ReasLib.AlgebraicGeometry.GroupScheme.AbelianVariety.Etale
 public import ReasLib.AlgebraicGeometry.GroupScheme.AbelianVariety.Surjective
 public import ReasLib.AlgebraicGeometry.GroupScheme.Torsion
+public import ReasLib.AlgebraicGeometry.GroupScheme.Torsion.Additive
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.PointsOver
 
 /-!
@@ -21,7 +22,7 @@ results for torsion on abelian varieties.
 
 @[expose] public section
 
-open AlgebraicGeometry CategoryTheory
+open AlgebraicGeometry CategoryTheory MonoidalCategory
 open scoped CategoryTheory.MonObj AbelianVariety
 
 universe u
@@ -37,6 +38,12 @@ theorem mulBy_fiber_zero_encard_le {k : Type u} [Field k] (p : ℕ) [Fact p.Prim
       p ^ dimension A := sorry
 
 variable {k : Type u} [Field k] (A : SchemeOverField k) [GrpObj A] [AbelianVariety A]
+
+/-- The field-specific consumer observes the canonical multiplication kernel carrier. -/
+theorem torsionGroupScheme_carrier_is_canonical (n : ℕ) :
+    (SchemeOverField.torsionGroupScheme A n).X =
+      Scheme.GroupObject.multiplicationKernel A n :=
+  SchemeOverField.torsionGroupScheme_X_eq_multiplicationKernel A n
 
 /-- The `n`-torsion group scheme of an abelian variety is finite locally free of rank
 `n ^ (2 * dimension A)` when `n` is nonzero. -/
@@ -55,6 +62,20 @@ theorem rationalTorsion_equiv [IsAlgClosed k] (n : ℕ) [NeZero n] (hunit : IsUn
     Nonempty
       (AddSubgroup.torsionBy (SchemeOverField.rationalPoints A) (n : ℤ) ≃+
         (Fin (2 * dimension A) → ZMod n)) := sorry
+
+/-- The geometric torsion classification on the actual kernel's rational point group.
+The comparison is the general additive kernel API; the geometric classification
+retains the proof obligation of `rationalTorsion_equiv`. -/
+theorem kernelRationalPoints_equiv [IsAlgClosed k] (n : ℕ) [NeZero n]
+    (hunit : IsUnit (n : k)) :
+    letI := Scheme.GroupObject.multiplicationKernelGrpObj A n
+    Nonempty
+      (Additive (𝟙_ (SchemeOverField k) ⟶ (SchemeOverField.torsionGroupScheme A n).X) ≃+
+        (Fin (2 * dimension A) → ZMod n)) := by
+  letI := Scheme.GroupObject.multiplicationKernelGrpObj A n
+  obtain ⟨e⟩ := rationalTorsion_equiv A n hunit
+  exact ⟨(Scheme.GroupObject.torsionByAddEquivSchemeKerPoints A
+    (𝟙_ (SchemeOverField k)) n).symm.trans e⟩
 
 /-- In characteristic `p`, the rational `p ^ m`-torsion of an abelian variety has one fixed
 rank at most its dimension for every positive exponent `m`. -/

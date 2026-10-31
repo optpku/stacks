@@ -205,8 +205,8 @@ theorem extend_fac {A B : FilteredObject C} {I : FilteredObject.Finite.category 
     [FilteredObject.IsFilteredInjective I.obj] (f : A ⟶ I.obj) (u : A ⟶ B)
     [Mono u.hom] (hu : FilteredObject.Hom.Strict u) : u ≫ extend f u hu = f := sorry
 
-/-- Lemma 13.26.4 (`05TR`): a map to a finite filtered-injective object extends across a strict
-monomorphism.  The witness is the explicit finite recursion `extend`. -/
+/-- A map to a finite filtered-injective object extends across a strict monomorphism.  The witness
+is the explicit finite recursion `extend`. -/
 @[stacks 05TR]
 theorem factors {A B : FilteredObject C} {I : FilteredObject.Finite.category C}
     [FilteredObject.IsFilteredInjective I.obj] (f : A ⟶ I.obj) (u : A ⟶ B)

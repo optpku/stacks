@@ -46,7 +46,13 @@ external index from n to (m : ℤ) + n. -/
 theorem mulMapsTo {m : ℕ} (p : 𝒜 m) (n i : ℤ) :
     Set.MapsTo (LinearMap.lsmul A M (p : A))
       (GradedModule.shiftGrading ℳ n i)
-      (GradedModule.shiftGrading ℳ ((m : ℤ) + n) i) := sorry
+      (GradedModule.shiftGrading ℳ ((m : ℤ) + n) i) := by
+  intro x hx
+  simp only [GradedModule.shiftGrading, Equiv.addRight_symm_apply, neg_neg,
+    LinearMap.lsmul_apply] at hx ⊢
+  have h := SetLike.GradedSMul.smul_mem (A := 𝒜) (B := ℳ) p.property hx
+  change (p : A) • x ∈ ℳ ((m : ℤ) + (i + n)) at h
+  simpa only [SetLike.mem_coe, add_left_comm] using h
 
 /-- The associated-sheaf morphism induced by multiplication by a homogeneous scalar. -/
 @[stacks 0B5R "homogeneous action map between shifted associated sheaves"]
@@ -71,33 +77,81 @@ noncomputable instance instGSMul :
     GradedMonoid.GSMul (fun m : ℕ ↦ 𝒜 m) (degree 𝒜 ℳ) where
   smul := fun p x ↦ smul 𝒜 ℳ p x
 
+omit [DirectSum.Decomposition ℳ] in
+private theorem graded_ext (x y : GradedMonoid (degree 𝒜 ℳ))
+    (hdeg : x.1 = y.1)
+    (hval : ∀ z : (⊤ : (Proj 𝒜).Opens), (x.2.1 z).1 = (y.2.1 z).1) : x = y := by
+  rcases x with ⟨i, x⟩
+  rcases y with ⟨j, y⟩
+  dsimp only at hdeg
+  subst j
+  congr 1
+  apply Subtype.ext
+  funext z
+  exact Subtype.ext (hval z)
+
 /-- The degree-zero unit acts trivially on shifted associated-sheaf sections. -/
 theorem one_smul (x : GradedMonoid (degree 𝒜 ℳ)) :
-    (1 : GradedMonoid (fun m : ℕ ↦ 𝒜 m)) • x = x := sorry
+    (1 : GradedMonoid (fun m : ℕ ↦ 𝒜 m)) • x = x := by
+  refine graded_ext 𝒜 ℳ _ _ ?_ ?_
+  · exact zero_vadd ℕ x.1
+  · intro z
+    change LocalizedModule.map _ (LinearMap.lsmul A M (1 : A)) (x.2.1 z).1 =
+      (x.2.1 z).1
+    have h : LinearMap.lsmul A M (1 : A) = LinearMap.id := by
+      ext y
+      exact _root_.one_smul A y
+    rw [h, LocalizedModule.map_id]
+    rfl
 
 /-- Successive homogeneous actions on shifted associated-sheaf sections compose as
 multiplication. -/
 theorem mul_smul (a b : GradedMonoid (fun m : ℕ ↦ 𝒜 m))
     (x : GradedMonoid (degree 𝒜 ℳ)) :
-    (a * b) • x = a • b • x := sorry
+    (a * b) • x = a • b • x := by
+  refine graded_ext 𝒜 ℳ _ _ ?_ ?_
+  · exact add_vadd a.1 b.1 x.1
+  · intro z
+    change LocalizedModule.map _ (LinearMap.lsmul A M ((a.2 : A) * (b.2 : A)))
+        (x.2.1 z).1 =
+      LocalizedModule.map _ (LinearMap.lsmul A M (a.2 : A))
+        (LocalizedModule.map _ (LinearMap.lsmul A M (b.2 : A)) (x.2.1 z).1)
+    induction (x.2.1 z).1 using LocalizedModule.induction_on with
+    | _ y s =>
+      simp only [LocalizedModule.map_mk, LinearMap.lsmul_apply, SemigroupAction.mul_smul]
 
 /-- A homogeneous scalar distributes over addition of shifted associated-sheaf sections. -/
 theorem smul_add {m : ℕ} {n : ℤ} (p : 𝒜 m)
     (x y : degree 𝒜 ℳ n) :
-    smul 𝒜 ℳ p (x + y) = smul 𝒜 ℳ p x + smul 𝒜 ℳ p y := sorry
+    smul 𝒜 ℳ p (x + y) = smul 𝒜 ℳ p x + smul 𝒜 ℳ p y := by
+  exact _root_.map_add (Scheme.Modules.globalSectionsMap (actionMap 𝒜 ℳ p n)).hom x y
 
 /-- A homogeneous scalar sends the zero shifted associated-sheaf section to zero. -/
 theorem smul_zero {m : ℕ} {n : ℤ} (p : 𝒜 m) :
-    smul 𝒜 ℳ p (0 : degree 𝒜 ℳ n) = 0 := sorry
+    smul 𝒜 ℳ p (0 : degree 𝒜 ℳ n) = 0 := by
+  exact _root_.map_zero (Scheme.Modules.globalSectionsMap (actionMap 𝒜 ℳ p n)).hom
 
 /-- Addition of homogeneous scalars distributes through the shifted-section action. -/
 theorem add_smul {m : ℕ} {n : ℤ} (p q : 𝒜 m)
     (x : degree 𝒜 ℳ n) :
-    smul 𝒜 ℳ (p + q) x = smul 𝒜 ℳ p x + smul 𝒜 ℳ q x := sorry
+    smul 𝒜 ℳ (p + q) x = smul 𝒜 ℳ p x + smul 𝒜 ℳ q x := by
+  apply Subtype.ext
+  funext z
+  apply Subtype.ext
+  change LocalizedModule.map _ (LinearMap.lsmul A M ((p + q : 𝒜 m) : A))
+      (x.1 z).1 =
+    LocalizedModule.map _ (LinearMap.lsmul A M (p : A)) (x.1 z).1 +
+      LocalizedModule.map _ (LinearMap.lsmul A M (q : A)) (x.1 z).1
+  simp only [Submodule.coe_add, _root_.map_add, LinearMap.add_apply]
 
 /-- The zero homogeneous scalar acts by zero on shifted associated-sheaf sections. -/
 theorem zero_smul {m : ℕ} {n : ℤ} (x : degree 𝒜 ℳ n) :
-    smul 𝒜 ℳ (0 : 𝒜 m) x = 0 := sorry
+    smul 𝒜 ℳ (0 : 𝒜 m) x = 0 := by
+  apply Subtype.ext
+  funext z
+  apply Subtype.ext
+  change LocalizedModule.map _ (LinearMap.lsmul A M (0 : A)) (x.1 z).1 = 0
+  simp only [_root_.map_zero, LinearMap.zero_apply]
 
 /-- Shifted associated-sheaf sections form a graded multiplicative action. -/
 noncomputable instance instGMulAction :
@@ -124,6 +178,6 @@ notation does not track the output degree `(m : ℤ) + n`. -/
 @[simp, stacks 0B5R "homogeneous action on shifted associated-sheaf sections"]
 theorem smul_of {m : ℕ} {n : ℤ} (p : 𝒜 m) (x : degree 𝒜 ℳ n) :
     GradedMonoid.GSMul.smul
-        (A := fun d : ℕ ↦ 𝒜 d) (M := degree 𝒜 ℳ) p x = smul 𝒜 ℳ p x := sorry
+        (A := fun d : ℕ ↦ 𝒜 d) (M := degree 𝒜 ℳ) p x = smul 𝒜 ℳ p x := rfl
 
 end AlgebraicGeometry.Proj.AssociatedModule.ShiftedSections

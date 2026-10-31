@@ -31,6 +31,31 @@ namespace CategoryTheory.FilteredComplex.RightDerived.SpectralSequence
 variable {A : Type uA} [Category.{vA} A] [Abelian A] [HasDerivedCategory.{wA} A]
 variable {B : Type uB} [Category.{vB} B] [Abelian B] [HasDerivedCategory.{wB} B]
 
+private theorem realizationMap_ext_components
+    (F : A ⥤ B) [F.Additive] [F.PreservesMonomorphisms]
+    [Functor.RightDerived.KInjective.HasDerived F]
+    {K L : FilteredComplex A} {f : K ⟶ L}
+    {S : Realization F K} {T : Realization F L} {m n : Realization.Map F f S T}
+    (hResolution : m.resolutionMap.hom = n.resolutionMap.hom)
+    (hSequence : m.sequenceMap = n.sequenceMap) : m = n := by
+  rcases m with ⟨⟨r, hr⟩, c, ⟨φ, hφ⟩⟩
+  rcases n with ⟨⟨r', hr'⟩, c', ⟨ψ, hψ⟩⟩
+  change r = r' at hResolution
+  cases hResolution
+  change φ = ψ at hSequence
+  cases hSequence
+  rfl
+
+private theorem realizationMap_reindex_eq_transport
+    (F : A ⥤ B) [F.Additive] [F.PreservesMonomorphisms]
+    [Functor.RightDerived.KInjective.HasDerived F]
+    {K L : FilteredComplex A} {f g : K ⟶ L}
+    {S : Realization F K} {T : Realization F L} (h : f = g)
+    (m : Realization.Map F f S T) :
+    Realization.Map.reindex F h m = h ▸ m := by
+  cases h
+  rfl
+
 /-- `[stacks 0BKK]` The dependent category of unbounded right-derived realizations and their maps.
 The base category is `FilteredComplex A`, and the displayed hom over `f` is
 `Realization.Map F f`. -/
@@ -43,16 +68,28 @@ def displayedCategory
   Hom f S T := Realization.Map F f S T
   id S := Realization.Map.id F S
   comp m n := Realization.Map.comp F m n
-  id_comp := fun _ => sorry
-  comp_id := fun _ => sorry
-  assoc := fun _ _ _ => sorry
+  id_comp := fun m => by
+    rw [← realizationMap_reindex_eq_transport F]
+    apply realizationMap_ext_components F
+    · exact Category.id_comp m.resolutionMap.hom
+    · exact Category.id_comp m.sequenceMap
+  comp_id := fun m => by
+    rw [← realizationMap_reindex_eq_transport F]
+    apply realizationMap_ext_components F
+    · exact Category.comp_id m.resolutionMap.hom
+    · exact Category.comp_id m.sequenceMap
+  assoc := fun m n k => by
+    rw [← realizationMap_reindex_eq_transport F]
+    apply realizationMap_ext_components F
+    · exact Category.assoc m.resolutionMap.hom n.resolutionMap.hom k.resolutionMap.hom
+    · exact Category.assoc m.sequenceMap n.sequenceMap k.sequenceMap
 
 /-- `[stacks 0BKK]` The displayed-object family of unbounded right-derived realizations. -/
 @[simp, stacks 0BKK]
 theorem displayedCategory_obj
     (F : A ⥤ B) [F.Additive] [F.PreservesMonomorphisms]
     [Functor.RightDerived.KInjective.HasDerived F] (K : FilteredComplex A) :
-    (displayedCategory F).obj K = Realization F K := sorry
+    (displayedCategory F).obj K = Realization F K := rfl
 
 /-- `[stacks 0BKK]` The displayed hom family of unbounded right-derived realization maps. -/
 @[simp, stacks 0BKK]
@@ -61,7 +98,7 @@ theorem displayedCategory_hom
     [Functor.RightDerived.KInjective.HasDerived F]
     {K L : FilteredComplex A} {f : K ⟶ L}
     (S : Realization F K) (T : Realization F L) :
-    (displayedCategory F).Hom f S T = Realization.Map F f S T := sorry
+    (displayedCategory F).Hom f S T = Realization.Map F f S T := rfl
 
 /-- `[stacks 0BKK]` The identity operation of the displayed realization category. -/
 @[simp, stacks 0BKK]
@@ -69,7 +106,7 @@ theorem displayedCategory_id
     (F : A ⥤ B) [F.Additive] [F.PreservesMonomorphisms]
     [Functor.RightDerived.KInjective.HasDerived F]
     {K : FilteredComplex A} (S : Realization F K) :
-    (displayedCategory F).id S = Realization.Map.id F S := sorry
+    (displayedCategory F).id S = Realization.Map.id F S := rfl
 
 /-- `[stacks 0BKK]` The composition operation of the displayed realization category. -/
 @[simp, stacks 0BKK]
@@ -79,7 +116,7 @@ theorem displayedCategory_comp
     {K L M : FilteredComplex A} {f : K ⟶ L} {g : L ⟶ M}
     {R : Realization F K} {S : Realization F L} {T : Realization F M}
     (m : Realization.Map F f R S) (n : Realization.Map F g S T) :
-    (displayedCategory F).comp m n = Realization.Map.comp F m n := sorry
+    (displayedCategory F).comp m n = Realization.Map.comp F m n := rfl
 
 /-- `[stacks 0BKK]` Equality transport for maps of unbounded right-derived realizations agrees
 with the canonical displayed transport. -/
@@ -91,7 +128,8 @@ theorem Realization.Map.reindex_eq_cast
     {S : Realization F K} {T : Realization F L} (h : f = g)
     (m : Realization.Map F f S T) :
     Realization.Map.reindex F h m =
-      DisplayedCategory.Hom.cast (displayedCategory F) h m := sorry
+      DisplayedCategory.Hom.cast (displayedCategory F) h m :=
+  realizationMap_reindex_eq_transport F h m
 
 /-- The generic displayed transport can be converted back to the owner-level realization-map
 reindexing. -/
@@ -103,6 +141,7 @@ theorem Realization.Map.cast_eq_reindex
     {S : Realization F K} {T : Realization F L} (h : f = g)
     (m : Realization.Map F f S T) :
     DisplayedCategory.Hom.cast (displayedCategory F) h m =
-      Realization.Map.reindex F h m := sorry
+      Realization.Map.reindex F h m :=
+  (Realization.Map.reindex_eq_cast F h m).symm
 
 end CategoryTheory.FilteredComplex.RightDerived.SpectralSequence

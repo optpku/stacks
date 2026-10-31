@@ -8,6 +8,7 @@ module
 
 public import Mathlib.Algebra.Category.ModuleCat.ChangeOfRings
 public import Mathlib.Algebra.Module.GradedModule
+public import Mathlib.CategoryTheory.Limits.Preserves.Limits
 public import Mathlib.Tactic.CrossRefAttribute
 public import ReasLib.Algebra.Module.GradedNatInt
 public import ReasLib.Algebra.Module.Graded.DegreeZero.ModuleCat
@@ -65,10 +66,32 @@ def degreewise
       (X := 𝒢 i d)
       (Y := 𝒢 j d)
       { toFun := fun x ↦ ⟨F.map f x.1, h𝒢 f d x.2⟩
-        map_add' := sorry
-        map_smul' := sorry }
-  map_id := fun _ => sorry
-  map_comp := fun _ _ => sorry
+        map_add' := by
+          intro x y
+          apply Subtype.ext
+          exact (F.map f).hom.map_add x.1 y.1
+        map_smul' := by
+          intro a x
+          apply Subtype.ext
+          change F.map f ((algebraMap (𝒜 0) A a) • x.1) =
+            (algebraMap (𝒜 0) A a) • F.map f x.1
+          rw [map_smul] }
+  map_id := fun _ => by
+    apply ModuleCat.hom_ext
+    apply LinearMap.ext
+    intro x
+    apply Subtype.ext
+    change F.map (𝟙 _) x.1 = x.1
+    rw [F.map_id]
+    rfl
+  map_comp := fun f g => by
+    apply ModuleCat.hom_ext
+    apply LinearMap.ext
+    intro x
+    apply Subtype.ext
+    change F.map (f ≫ g) x.1 = F.map g (F.map f x.1)
+    rw [F.map_comp]
+    rfl
 
 /-- The morphism of the degreewise diagram acts on underlying elements through
 the corresponding morphism of `F`. -/
@@ -82,7 +105,9 @@ theorem degreewise_map_apply
         x ∈ 𝒢 i d → F.map f x ∈ 𝒢 j d)
     (d : ℤ) {i j : J} (f : i ⟶ j)
     (x : (degreewise 𝒜 F 𝒢 h𝒢 d).obj i) :
-    ((degreewise 𝒜 F 𝒢 h𝒢 d).map f x).1 = F.map f x.1 := sorry
+    ((degreewise 𝒜 F 𝒢 h𝒢 d).map f x).1 = F.map f x.1 := by
+  change (F.map f) x.1 = (F.map f) x.1
+  rfl
 
 /-- The inclusion of the degree-`d` stage of `degreewise` into the corresponding
 ambient stage after restricting scalars to `𝒜 0`. -/
@@ -109,7 +134,9 @@ theorem degreewiseStageInclusion_apply
       ∀ ⦃i j : J⦄ (f : i ⟶ j) (d : ℤ) {x : F.obj i},
         x ∈ 𝒢 i d → F.map f x ∈ 𝒢 j d)
     (d : ℤ) (j : J) (x : (degreewise 𝒜 F 𝒢 h𝒢 d).obj j) :
-    degreewiseStageInclusion 𝒜 F 𝒢 h𝒢 d j x = x.1 := sorry
+    degreewiseStageInclusion 𝒜 F 𝒢 h𝒢 d j x = x.1 := by
+  change x.1 = x.1
+  rfl
 
 /-- The stage inclusions assemble into a natural transformation from the
 degreewise diagram to the ambient diagram after restriction of scalars. -/
@@ -125,7 +152,12 @@ def degreewiseInclusion
     degreewise 𝒜 F 𝒢 h𝒢 d ⟶
       F ⋙ ModuleCat.restrictScalars (algebraMap (𝒜 0) A) where
   app j := degreewiseStageInclusion 𝒜 F 𝒢 h𝒢 d j
-  naturality := fun _ => sorry
+  naturality := by
+    intro i j f
+    apply ModuleCat.hom_ext
+    apply LinearMap.ext
+    intro x
+    rfl
 
 /-- The `j`th component of `degreewiseInclusion` is the degree-piece subtype
 map at that stage. -/
@@ -139,7 +171,8 @@ theorem degreewiseInclusion_app
         x ∈ 𝒢 i d → F.map f x ∈ 𝒢 j d)
     (d : ℤ) (j : J) :
     (degreewiseInclusion 𝒜 F 𝒢 h𝒢 d).app j =
-      degreewiseStageInclusion 𝒜 F 𝒢 h𝒢 d j := sorry
+      degreewiseStageInclusion 𝒜 F 𝒢 h𝒢 d j := by
+  rfl
 
 /-- The degree-`d` map from the vertex of a degree-preserving cone to one
 stage of the degreewise diagram. -/
@@ -164,8 +197,15 @@ def degreewiseConeMap
     (X := 𝓜 d)
     (Y := 𝒢 j d)
     { toFun := fun x ↦ ⟨c.π.app j x.1, h𝓜 j d x.2⟩
-      map_add' := sorry
-      map_smul' := sorry }
+      map_add' := by
+        intro x y
+        apply Subtype.ext
+        exact (c.π.app j).hom.map_add x.1 y.1
+      map_smul' := by
+        intro a x
+        apply Subtype.ext
+        change c.π.app j ((a : A) • x.1) = (a : A) • c.π.app j x.1
+        exact (c.π.app j).hom.map_smul (a : A) x.1 }
 
 /-- The stage map induced by a degree-preserving cone acts through the
 corresponding cone leg. -/
@@ -185,7 +225,8 @@ theorem degreewiseConeMap_apply
         x ∈ 𝓜 d → c.π.app j x ∈ 𝒢 j d)
     (d : ℤ) (j : J) (x : 𝓜 d) :
     degreewiseConeMap 𝒜 F c 𝓜 𝒢 h𝒢 h𝓜 d j x =
-      ⟨c.π.app j x.1, h𝓜 j d x.2⟩ := sorry
+      ⟨c.π.app j x.1, h𝓜 j d x.2⟩ := by
+  rfl
 
 /-- The cone induced by a degree-preserving cone after taking one homogeneous
 degree. -/
@@ -208,7 +249,14 @@ def degreewiseCone
   pt := ModuleCat.of (𝒜 0) (𝓜 d)
   π :=
     { app := fun j ↦ degreewiseConeMap 𝒜 F c 𝓜 𝒢 h𝒢 h𝓜 d j
-      naturality := fun _ => sorry }
+      naturality := by
+        intro i j f
+        apply ModuleCat.hom_ext
+        apply LinearMap.ext
+        intro x
+        apply Subtype.ext
+        change c.π.app j x.1 = F.map f (c.π.app i x.1)
+        exact (congrArg (fun φ : c.pt ⟶ F.obj j ↦ φ x.1) (c.w f)).symm }
 
 /-- The `j`th leg of `degreewiseCone` is `degreewiseConeMap` at `j`. -/
 @[simp, stacks 0EKD "degreewise cone leg projection"]
@@ -227,7 +275,8 @@ theorem degreewiseCone_π_app
         x ∈ 𝓜 d → c.π.app j x ∈ 𝒢 j d)
     (d : ℤ) (j : J) :
     (degreewiseCone 𝒜 F c 𝓜 𝒢 h𝒢 h𝓜 d).π.app j =
-      degreewiseConeMap 𝒜 F c 𝓜 𝒢 h𝒢 h𝓜 d j := sorry
+      degreewiseConeMap 𝒜 F c 𝓜 𝒢 h𝒢 h𝓜 d j := by
+  rfl
 
 /-- The canonical map from the degree-`d` piece of the vertex of a
 degree-preserving cone to the limit of the degreewise diagram. -/
@@ -270,7 +319,12 @@ theorem degreewiseLimitMap_π
     (d : ℤ) [HasLimit (degreewise 𝒜 F 𝒢 h𝒢 d)] (j : J) :
     degreewiseLimitMap 𝒜 F c 𝓜 𝒢 h𝒢 h𝓜 d ≫
         limit.π (degreewise 𝒜 F 𝒢 h𝒢 d) j =
-      degreewiseConeMap 𝒜 F c 𝓜 𝒢 h𝒢 h𝓜 d j := sorry
+      degreewiseConeMap 𝒜 F c 𝓜 𝒢 h𝒢 h𝓜 d j := by
+  change limit.lift (degreewise 𝒜 F 𝒢 h𝒢 d)
+      (degreewiseCone 𝒜 F c 𝓜 𝒢 h𝒢 h𝓜 d) ≫
+      limit.π (degreewise 𝒜 F 𝒢 h𝒢 d) j = _
+  rw [limit.lift_π]
+  rfl
 
 /-- The canonical inclusion from the limit of the degreewise diagram into the
 ambient limit after restriction of scalars to `𝒜 0`. -/
@@ -294,7 +348,13 @@ noncomputable def degreewiseLimitInclusion
         { app := fun j ↦
             limit.π (degreewise 𝒜 F 𝒢 h𝒢 d) j ≫
               degreewiseStageInclusion 𝒜 F 𝒢 h𝒢 d j
-          naturality := fun _ => sorry } } ≫
+          naturality := by
+            intro i j f
+            apply ModuleCat.hom_ext
+            apply LinearMap.ext
+            intro x
+            exact (congrArg (fun y : 𝒢 j d ↦ (y : F.obj j))
+              (ConcreteCategory.congr_hom (limit.w (degreewise 𝒜 F 𝒢 h𝒢 d) f) x)).symm } } ≫
     (preservesLimitIso (ModuleCat.restrictScalars (algebraMap (𝒜 0) A)) F).inv
 
 /-- Projecting `degreewiseLimitInclusion` to a stage is the degreewise limit
@@ -315,7 +375,10 @@ theorem degreewiseLimitInclusion_π
     degreewiseLimitInclusion 𝒜 F 𝒢 h𝒢 d ≫
         (ModuleCat.restrictScalars (algebraMap (𝒜 0) A)).map (limit.π F j) =
       limit.π (degreewise 𝒜 F 𝒢 h𝒢 d) j ≫
-        degreewiseStageInclusion 𝒜 F 𝒢 h𝒢 d j := sorry
+        degreewiseStageInclusion 𝒜 F 𝒢 h𝒢 d j := by
+  dsimp only [degreewiseLimitInclusion]
+  rw [Category.assoc, preservesLimitIso_inv_π]
+  exact limit.lift_π _ j
 
 namespace PNat
 
@@ -423,7 +486,18 @@ theorem limitMap_π
     (d : ℤ) [HasLimit (degreewise 𝒜 F 𝒢 h𝒢 d)] (n : ℕ+) :
     limitMap 𝒜 F s 𝓜 𝒢 h𝒢 h𝓜 d ≫
         (degreewise 𝒜 F 𝒢 h𝒢 d).limitProjection n =
-      coneMap 𝒜 F s 𝓜 𝒢 h𝒢 h𝓜 d n := sorry
+      coneMap 𝒜 F s 𝓜 𝒢 h𝒢 h𝓜 d n := by
+  let 𝒢' : ∀ j : ℕ+ᵒᵈ, ℤ → Submodule ℤ (F.obj j) :=
+    fun j ↦ 𝒢 (OrderDual.ofDual j)
+  letI : ∀ j : ℕ+ᵒᵈ, SetLike.GradedSMul 𝒜 (𝒢' j) :=
+    fun j ↦ gradedSMul (OrderDual.ofDual j)
+  exact degreewiseLimitMap_π 𝒜 F s 𝓜 𝒢'
+    (fun {i j} f e {x} hx ↦
+      h𝒢
+        (show OrderDual.ofDual j ≤ OrderDual.ofDual i from leOfHom f)
+        e hx)
+    (fun j e {x} hx ↦ h𝓜 (OrderDual.ofDual j) e hx)
+    d (OrderDual.toDual n)
 
 end PNat
 

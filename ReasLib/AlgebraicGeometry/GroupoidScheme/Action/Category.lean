@@ -40,7 +40,23 @@ theorem actionMap_over_source {S : Scheme.{u}} (G : GroupoidScheme S) (V : Over 
     (φ : (Over.pullback G.t).obj V ≅ (Over.pullback G.s).obj V)
     {T : Over S} (v : T ⟶ V.left) (r : T ⟶ G.R)
     (h : v ≫ V.hom = r ≫ G.t) :
-    actionMap G V φ v r h ≫ V.hom = r ≫ G.s := sorry
+    actionMap G V φ v r h ≫ V.hom = r ≫ G.s := by
+  have haction :
+      (φ.hom.left ≫ pullback.fst V.hom G.s) ≫ V.hom =
+        pullback.snd V.hom G.t ≫ G.s := by
+    simp only [Category.assoc]
+    erw [pullback.condition]
+    change φ.hom.left ≫ ((Over.pullback G.s).obj V).hom ≫ G.s =
+      ((Over.pullback G.t).obj V).hom ≫ G.s
+    rw [← Category.assoc, Over.w φ.hom]
+  calc
+    actionMap G V φ v r h ≫ V.hom =
+        pullback.lift v r h ≫ ((φ.hom.left ≫ pullback.fst V.hom G.s) ≫ V.hom) := by
+      simp [actionMap, Category.assoc]
+    _ = pullback.lift v r h ≫ (pullback.snd V.hom G.t ≫ G.s) := by erw [haction]
+    _ = r ≫ G.s := by
+      rw [← Category.assoc]
+      erw [pullback.lift_snd]
 
 namespace Action
 
@@ -86,7 +102,8 @@ def ofIso {S : Scheme.{u}} (G : GroupoidScheme S) (V : Over G.U)
 
 /-- The two defining laws carried by an action system. -/
 theorem spec {S : Scheme.{u}} {G : GroupoidScheme S} (A : System G) :
-    IsUnital G A.V A.iso ∧ IsCocycle G A.V A.iso := sorry
+    IsUnital G A.V A.iso ∧ IsCocycle G A.V A.iso := by
+  exact ⟨A.unit, A.cocycle⟩
 
 /-- A morphism of action systems is a map over `G.U` compatible with their action
 isomorphisms. -/
@@ -117,12 +134,17 @@ theorem compatibility_w {S : Scheme.{u}} {G : GroupoidScheme S} {A B : System G}
 
 /-- Action-system morphisms are determined by their underlying maps. -/
 theorem ext {S : Scheme.{u}} {G : GroupoidScheme S} {A B : System G}
-    {f g : Hom A B} (h : f.map = g.map) : f = g := sorry
+    {f g : Hom A B} (h : f.map = g.map) : f = g := by
+  cases f
+  cases g
+  cases h
+  rfl
 
 /-- The identity map satisfies action compatibility. -/
 theorem id_compatibility {S : Scheme.{u}} {G : GroupoidScheme S} (A : System G) :
     CommSq A.iso.hom ((Over.pullback G.t).map (𝟙 A.V))
-      ((Over.pullback G.s).map (𝟙 A.V)) A.iso.hom := sorry
+      ((Over.pullback G.s).map (𝟙 A.V)) A.iso.hom := by
+  simp
 
 /-- The identity morphism of an action system. -/
 def id {S : Scheme.{u}} {G : GroupoidScheme S} (A : System G) : Hom A A where
@@ -133,7 +155,8 @@ def id {S : Scheme.{u}} {G : GroupoidScheme S} (A : System G) : Hom A A where
 theorem comp_compatibility {S : Scheme.{u}} {G : GroupoidScheme S} {A B C : System G}
     (f : Hom A B) (g : Hom B C) :
     CommSq A.iso.hom ((Over.pullback G.t).map (f.map ≫ g.map))
-      ((Over.pullback G.s).map (f.map ≫ g.map)) C.iso.hom := sorry
+      ((Over.pullback G.s).map (f.map ≫ g.map)) C.iso.hom := by
+  simpa only [Functor.map_comp] using CommSq.vert_comp f.compatibility g.compatibility
 
 /-- Composition of morphisms of action systems. -/
 def comp {S : Scheme.{u}} {G : GroupoidScheme S} {A B C : System G}
@@ -143,16 +166,22 @@ def comp {S : Scheme.{u}} {G : GroupoidScheme S} {A B C : System G}
 
 /-- Left identity for morphisms of action systems. -/
 theorem id_comp {S : Scheme.{u}} {G : GroupoidScheme S} {A B : System G}
-    (f : Hom A B) : comp (id A) f = f := sorry
+    (f : Hom A B) : comp (id A) f = f := by
+  apply ext
+  simp [comp, id]
 
 /-- Right identity for morphisms of action systems. -/
 theorem comp_id {S : Scheme.{u}} {G : GroupoidScheme S} {A B : System G}
-    (f : Hom A B) : comp f (id B) = f := sorry
+    (f : Hom A B) : comp f (id B) = f := by
+  apply ext
+  simp [comp, id]
 
 /-- Associativity for morphisms of action systems. -/
 theorem assoc {S : Scheme.{u}} {G : GroupoidScheme S} {A B C D : System G}
     (f : Hom A B) (g : Hom B C) (h : Hom C D) :
-    comp (comp f g) h = comp f (comp g h) := sorry
+    comp (comp f g) h = comp f (comp g h) := by
+  apply ext
+  simp [comp, Category.assoc]
 
 end Hom
 
@@ -191,11 +220,13 @@ def iso {S : Scheme.{u}} {G : GroupoidScheme S} (A : Action G) :
 
 /-- A groupoid action satisfies the identity-arrow law. -/
 theorem unit {S : Scheme.{u}} {G : GroupoidScheme S} (A : Action G) :
-    IsUnital G (obj A) (iso A) := sorry
+    IsUnital G (obj A) (iso A) := by
+  exact A.unit
 
 /-- A groupoid action satisfies the composition law. -/
 theorem cocycle {S : Scheme.{u}} {G : GroupoidScheme S} (A : Action G) :
-    IsCocycle G (obj A) (iso A) := sorry
+    IsCocycle G (obj A) (iso A) := by
+  exact A.cocycle
 
 /-- The underlying map over `G.U` of a morphism of groupoid actions. -/
 def hom {S : Scheme.{u}} {G : GroupoidScheme S} {A B : Action G} (f : A ⟶ B) :
@@ -218,7 +249,8 @@ theorem homCompatibility_w {S : Scheme.{u}} {G : GroupoidScheme S} {A B : Action
 
 /-- Morphisms of groupoid actions are determined by their underlying maps. -/
 theorem homExt {S : Scheme.{u}} {G : GroupoidScheme S} {A B : Action G}
-    {f g : A ⟶ B} (h : hom f = hom g) : f = g := sorry
+    {f g : A ⟶ B} (h : hom f = hom g) : f = g := by
+  exact Action.System.Hom.ext h
 
 end Action
 

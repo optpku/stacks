@@ -106,13 +106,21 @@ noncomputable def moduleBaseChangeStalkComparisonInv :
 @[simp]
 theorem moduleBaseChangeStalkComparison_hom_inv_id :
     moduleBaseChangeStalkComparison p ℱ x ≫
-      moduleBaseChangeStalkComparisonInv p ℱ x = 𝟙 _ := sorry
+      moduleBaseChangeStalkComparisonInv p ℱ x = 𝟙 _ :=
+  (TopCat.Presheaf.stalkBaseChangeComparisonIso p.hom ℱ.val x ≪≫
+    moduleSheafificationStalkIso 𝒪'
+      ((PresheafOfModules.pullback
+        (TopCat.Presheaf.commRingPresheafHomOverId p.hom)).obj ℱ.val) x).hom_inv_id
 
 /-- The explicit inverse followed by the normalized base-change comparison is the identity. -/
 @[simp]
 theorem moduleBaseChangeStalkComparison_inv_hom_id :
     moduleBaseChangeStalkComparisonInv p ℱ x ≫
-      moduleBaseChangeStalkComparison p ℱ x = 𝟙 _ := sorry
+      moduleBaseChangeStalkComparison p ℱ x = 𝟙 _ :=
+  (TopCat.Presheaf.stalkBaseChangeComparisonIso p.hom ℱ.val x ≪≫
+    moduleSheafificationStalkIso 𝒪'
+      ((PresheafOfModules.pullback
+        (TopCat.Presheaf.commRingPresheafHomOverId p.hom)).obj ℱ.val) x).inv_hom_id
 
 /-- The normalized canonical isomorphism between extension of scalars on a module-sheaf stalk
 and the stalk of the extended module sheaf. -/
@@ -132,7 +140,8 @@ noncomputable def moduleBaseChangeStalkComparisonIso :
 of the extended module sheaf is an isomorphism. -/
 @[stacks 0D09 "module base-change stalk comparison is an isomorphism", instance]
 instance moduleBaseChangeStalkComparison_isIso :
-    IsIso (moduleBaseChangeStalkComparison p ℱ x) := sorry
+    IsIso (moduleBaseChangeStalkComparison p ℱ x) :=
+  (moduleBaseChangeStalkComparisonIso p ℱ x).isIso_hom
 
 /-- The explicit inverse of the identity-restricted sheaf base-change comparison. -/
 noncomputable def sheafModuleBaseChangeComparisonInv :
@@ -149,17 +158,44 @@ noncomputable def sheafModuleBaseChangeComparisonInv :
         ((TopCat.Presheaf.stalkFunctor CommRingCat x).map_id 𝒪'.obj))).hom.app _ ≫
     moduleBaseChangeStalkComparisonInv p ℱ x
 
+/-- Normalizing restriction along the identity stalk map recovers the ordinary comparison. -/
+private theorem sheafModuleBaseChangeComparison_normalize :
+    sheafModuleBaseChangeComparison p ℱ x ≫
+      (ModuleCat.restrictScalarsId'
+        (((TopCat.Presheaf.stalkFunctor CommRingCat x).map (𝟙 𝒪'.obj)).hom)
+        (congrArg CommRingCat.Hom.hom
+          ((TopCat.Presheaf.stalkFunctor CommRingCat x).map_id 𝒪'.obj))).hom.app _ =
+      moduleBaseChangeStalkComparison p ℱ x := by
+  ext m
+  rfl
+
 /-- The identity-restricted comparison followed by its explicit inverse is the identity. -/
 @[simp]
 theorem sheafModuleBaseChangeComparison_hom_inv_id :
     sheafModuleBaseChangeComparison p ℱ x ≫
-      sheafModuleBaseChangeComparisonInv p ℱ x = 𝟙 _ := sorry
+      sheafModuleBaseChangeComparisonInv p ℱ x = 𝟙 _ := by
+  dsimp only [sheafModuleBaseChangeComparisonInv]
+  rw [← Category.assoc, sheafModuleBaseChangeComparison_normalize p ℱ x]
+  exact moduleBaseChangeStalkComparison_hom_inv_id p ℱ x
 
 /-- The explicit inverse followed by the identity-restricted comparison is the identity. -/
 @[simp]
 theorem sheafModuleBaseChangeComparison_inv_hom_id :
     sheafModuleBaseChangeComparisonInv p ℱ x ≫
-      sheafModuleBaseChangeComparison p ℱ x = 𝟙 _ := sorry
+      sheafModuleBaseChangeComparison p ℱ x = 𝟙 _ := by
+  apply (cancel_mono
+    ((ModuleCat.restrictScalarsId'
+      (((TopCat.Presheaf.stalkFunctor CommRingCat x).map (𝟙 𝒪'.obj)).hom)
+      (congrArg CommRingCat.Hom.hom
+        ((TopCat.Presheaf.stalkFunctor CommRingCat x).map_id 𝒪'.obj))).hom.app
+          (sheafModuleBaseChangeTarget p ℱ x))).1
+  rw [Category.assoc, sheafModuleBaseChangeComparison_normalize p ℱ x]
+  calc
+    sheafModuleBaseChangeComparisonInv p ℱ x ≫ moduleBaseChangeStalkComparison p ℱ x =
+        _ ≫ (moduleBaseChangeStalkComparisonInv p ℱ x ≫
+          moduleBaseChangeStalkComparison p ℱ x) := Category.assoc _ _ _
+    _ = _ ≫ 𝟙 _ := congrArg (_ ≫ ·) (moduleBaseChangeStalkComparison_inv_hom_id p ℱ x)
+    _ = _ := by rw [Category.comp_id, Category.id_comp]
 
 /-- The canonical isomorphism before normalizing restriction along the identity stalk map. -/
 noncomputable def sheafModuleBaseChangeComparisonIso :
@@ -177,31 +213,32 @@ noncomputable def sheafModuleBaseChangeComparisonIso :
 
 /-- The identity-restricted sheaf base-change comparison is an isomorphism. -/
 instance sheafModuleBaseChangeComparison_isIso :
-    IsIso (sheafModuleBaseChangeComparison p ℱ x) := sorry
+    IsIso (sheafModuleBaseChangeComparison p ℱ x) :=
+  (sheafModuleBaseChangeComparisonIso p ℱ x).isIso_hom
 
 /-- The forward map of `sheafModuleBaseChangeComparisonIso` is the canonical sheaf base-change
 comparison. -/
 @[simp]
 theorem sheafModuleBaseChangeComparisonIso_hom :
     (sheafModuleBaseChangeComparisonIso p ℱ x).hom =
-      sheafModuleBaseChangeComparison p ℱ x := sorry
+      sheafModuleBaseChangeComparison p ℱ x := rfl
 
 /-- The inverse map of the identity-restricted base-change isomorphism is explicit. -/
 @[simp]
 theorem sheafModuleBaseChangeComparisonIso_inv :
     (sheafModuleBaseChangeComparisonIso p ℱ x).inv =
-      sheafModuleBaseChangeComparisonInv p ℱ x := sorry
+      sheafModuleBaseChangeComparisonInv p ℱ x := rfl
 
 /-- The forward map of the normalized base-change isomorphism is the canonical comparison. -/
 @[simp]
 theorem moduleBaseChangeStalkComparisonIso_hom :
     (moduleBaseChangeStalkComparisonIso p ℱ x).hom =
-      moduleBaseChangeStalkComparison p ℱ x := sorry
+      moduleBaseChangeStalkComparison p ℱ x := rfl
 
 /-- The inverse map of the normalized base-change isomorphism is explicit. -/
 @[simp]
 theorem moduleBaseChangeStalkComparisonIso_inv :
     (moduleBaseChangeStalkComparisonIso p ℱ x).inv =
-      moduleBaseChangeStalkComparisonInv p ℱ x := sorry
+      moduleBaseChangeStalkComparisonInv p ℱ x := rfl
 
 end TopCat.Sheaf

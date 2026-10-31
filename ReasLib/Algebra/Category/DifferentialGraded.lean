@@ -35,34 +35,36 @@ def castHom {α : Sort _} {β : α → Sort _} {a b : α} (h : a = b) : β a →
 namespace DifferentialGradedCategory
 
 /-- Arithmetic identity used to align the left Leibniz term in degree `(i, j)`. -/
-theorem d_comp_left_index (i j : ℤ) : i + (j + 1) = i + j + 1 := sorry
+theorem d_comp_left_index (i j : ℤ) : i + (j + 1) = i + j + 1 :=
+  (add_assoc i j 1).symm
 
 /-- Arithmetic identity used to align the right Leibniz term in degree `(i, j)`. -/
-theorem d_comp_right_index (i j : ℤ) : (i + 1) + j = i + j + 1 := sorry
+theorem d_comp_right_index (i j : ℤ) : (i + 1) + j = i + j + 1 := by
+  rw [add_assoc, add_comm 1 j, ← add_assoc]
 
 /-- Arithmetic identity used to align the first Leibniz term in degree `(0, 0)`. -/
-theorem zero_add_zero_succ_eq : 0 + (0 + 1 : ℤ) = 0 + 1 := sorry
+theorem zero_add_zero_succ_eq : 0 + (0 + 1 : ℤ) = 0 + 1 := rfl
 
 /-- Arithmetic identity used to align the second Leibniz term in degree `(0, 0)`. -/
-theorem zero_succ_add_zero_eq : (0 + 1 : ℤ) + 0 = 0 + 1 := sorry
+theorem zero_succ_add_zero_eq : (0 + 1 : ℤ) + 0 = 0 + 1 := rfl
 
 /-- Arithmetic identity used to align the first Leibniz term in degree `(0, -1)`. -/
-theorem negOne_add_zero_succ_eq_zero : -1 + (0 + 1 : ℤ) = 0 := sorry
+theorem negOne_add_zero_succ_eq_zero : -1 + (0 + 1 : ℤ) = 0 := rfl
 
 /-- Arithmetic identity used to align the second Leibniz term in degree `(0, -1)`. -/
-theorem negOne_succ_add_zero_eq_zero : (-1 + 1 : ℤ) + 0 = 0 := sorry
+theorem negOne_succ_add_zero_eq_zero : (-1 + 1 : ℤ) + 0 = 0 := rfl
 
 /-- Arithmetic identity used to align the first Leibniz term in degree `(-1, 0)`. -/
-theorem zero_add_negOne_succ_eq_zero : 0 + (-1 + 1 : ℤ) = 0 := sorry
+theorem zero_add_negOne_succ_eq_zero : 0 + (-1 + 1 : ℤ) = 0 := rfl
 
 /-- Arithmetic identity used to align the second Leibniz term in degree `(-1, 0)`. -/
-theorem zero_succ_add_negOne_eq_zero : (0 + 1 : ℤ) + -1 = 0 := sorry
+theorem zero_succ_add_negOne_eq_zero : (0 + 1 : ℤ) + -1 = 0 := rfl
 
 /-- Arithmetic identity used to align the first homotopy-composition term in degree `-1`. -/
-theorem zero_add_negOne_eq : 0 + (-1 : ℤ) = -1 := sorry
+theorem zero_add_negOne_eq : 0 + (-1 : ℤ) = -1 := rfl
 
 /-- Arithmetic identity used to align the second homotopy-composition term in degree `-1`. -/
-theorem negOne_add_zero_eq : (-1 : ℤ) + 0 = -1 := sorry
+theorem negOne_add_zero_eq : (-1 : ℤ) + 0 = -1 := rfl
 
 end DifferentialGradedCategory
 
@@ -135,13 +137,17 @@ scoped notation:max X " ⟶[" n "] " Y =>
 @[simp]
 theorem castHom_add {α : Sort _} {β : α → Type _} [∀ a, Add (β a)]
     {a b : α} (h : a = b) (x y : β a) :
-    castHom h (x + y) = castHom h x + castHom h y := sorry
+    castHom h (x + y) = castHom h x + castHom h y := by
+  cases h
+  rfl
 
 /-- Dependent transport commutes with scalar multiplication. -/
 @[simp]
 theorem castHom_smul {S : Type _} {α : Sort _} {β : α → Type _}
     [∀ a, SMul S (β a)] {a b : α} (h : a = b) (r : S) (x : β a) :
-    castHom h (r • x) = r • castHom h x := sorry
+    castHom h (r • x) = r • castHom h x := by
+  cases h
+  rfl
 
 variable {R : Type u} [CommRing R]
 variable {C : Type v} [D : DifferentialGradedCategory R C]
@@ -151,113 +157,158 @@ open scoped DifferentialGradedCategory
 /-- Transport along reflexivity is the identity. -/
 @[simp]
 theorem castHom_rfl {α : Sort _} {β : α → Sort _} {a : α} (x : β a) :
-    castHom rfl x = x := sorry
+    castHom rfl x = x := rfl
 
 /-- Dependent transport sends zero to zero. -/
 @[simp]
 theorem castHom_zero {α : Sort _} {β : α → Type _} [∀ a, Zero (β a)]
     {a b : α} (h : a = b) :
-    castHom h (0 : β a) = 0 := sorry
+    castHom h (0 : β a) = 0 := by
+  cases h
+  rfl
 
 /-- Transporting along an equality and then its inverse is the identity. -/
 @[simp]
 theorem castHom_symm_castHom {α : Sort _} {β : α → Sort _} {a b : α}
     (h : a = b) (x : β a) :
-    castHom h.symm (castHom h x) = x := sorry
+    castHom h.symm (castHom h x) = x := by
+  cases h
+  rfl
 
 /-- The standard dependent `cast` agrees with `castHom`. -/
 theorem cast_eq_castHom {α : Sort _} {β : α → Type _} {a b : α}
     (h : a = b) (x : β a) :
-    cast (congrArg β h) x = castHom h x := sorry
+    cast (congrArg β h) x = castHom h x := by
+  cases h
+  rfl
 
 /-- Successive dependent transports compose. -/
 theorem castHom_trans {α : Sort _} {β : α → Sort _} {a b c : α}
     (h₁ : a = b) (h₂ : b = c) (x : β a) :
-    castHom h₂ (castHom h₁ x) = castHom (h₁.trans h₂) x := sorry
+    castHom h₂ (castHom h₁ x) = castHom (h₁.trans h₂) x := by
+  cases h₁
+  cases h₂
+  rfl
 
 /-- The transported term does not depend on the chosen proof of equality. -/
 theorem castHom_congr {α : Sort _} {β : α → Sort _} {a b : α}
     (h₁ h₂ : a = b) (x : β a) :
-    castHom h₁ x = castHom h₂ x := sorry
+    castHom h₁ x = castHom h₂ x := rfl
 
 /-- The differential commutes with transport of a homogeneous degree. -/
 @[simp]
 theorem d_castHom {X Y : C} {i j : ℤ} (h : i = j) (f : X ⟶[i] Y) :
-    D.d j (castHom h f) = castHom (congrArg (fun n : ℤ ↦ n + 1) h) (D.d i f) := sorry
+    D.d j (castHom h f) = castHom (congrArg (fun n : ℤ ↦ n + 1) h) (D.d i f) := by
+  cases h
+  rfl
 
 /-- Right composition commutes with transport of the degree of its right input. -/
 theorem comp_castHom_right {X Y Z : C} {i i' j : ℤ}
     (h : i = i') (g : Y ⟶[j] Z) (f : X ⟶[i] Y) :
-    castHom (congrArg (fun n : ℤ ↦ n + j) h) (D.comp g f) = D.comp g (castHom h f) := sorry
+    castHom (congrArg (fun n : ℤ ↦ n + j) h) (D.comp g f) = D.comp g (castHom h f) := by
+  cases h
+  rfl
 
 /-- Left composition commutes with transport of the degree of its left input. -/
 theorem comp_castHom_left {X Y Z : C} {i j j' : ℤ}
     (h : j = j') (g : Y ⟶[j] Z) (f : X ⟶[i] Y) :
-    castHom (congrArg (fun n : ℤ ↦ i + n) h) (D.comp g f) = D.comp (castHom h g) f := sorry
+    castHom (congrArg (fun n : ℤ ↦ i + n) h) (D.comp g f) = D.comp (castHom h g) f := by
+  cases h
+  rfl
 
 /-- Left identity for closed degree-zero morphisms. -/
-theorem id_comp {X Y : C} (f : X ⟶[0] Y) : D.comp (D.id Y) f = f := sorry
+theorem id_comp {X Y : C} (f : X ⟶[0] Y) : D.comp (D.id Y) f = f := by
+  simpa [castHom] using D.id_comp_hom f
 
 /-- Right identity for closed degree-zero morphisms. -/
-theorem comp_id {X Y : C} (f : X ⟶[0] Y) : D.comp f (D.id X) = f := sorry
+theorem comp_id {X Y : C} (f : X ⟶[0] Y) : D.comp f (D.id X) = f := by
+  simpa [castHom] using D.comp_id_hom f
 
 /-- Associativity of degree-zero composition. -/
 theorem comp_assoc_zero {W X Y Z : C} (h : Y ⟶[0] Z) (g : X ⟶[0] Y) (f : W ⟶[0] X) :
-    D.comp h (D.comp g f) = D.comp (D.comp h g) f := sorry
+    D.comp h (D.comp g f) = D.comp (D.comp h g) f := by
+  simpa [castHom] using D.comp_assoc h g f
 
 /-- The Leibniz rule for two degree-zero morphisms. -/
 theorem d_comp_zero_zero {X Y Z : C} (g : Y ⟶[0] Z) (f : X ⟶[0] Y) :
     D.d 0 (D.comp g f) =
       castHom zero_add_zero_succ_eq (D.comp (D.d 0 g) f) +
-        castHom zero_succ_add_zero_eq (D.comp g (D.d 0 f)) := sorry
+        castHom zero_succ_add_zero_eq (D.comp g (D.d 0 f)) := by
+  have h : D.d 0 (D.comp g f) =
+      castHom zero_add_zero_succ_eq (D.comp (D.d 0 g) f) +
+        ((0 : ℤ).negOnePow : R) •
+          castHom zero_succ_add_zero_eq (D.comp g (D.d 0 f)) := D.d_comp g f
+  rw [show ((0 : ℤ).negOnePow : R) = 1 by simp] at h
+  exact h.trans (congrArg
+    (fun t ↦ castHom zero_add_zero_succ_eq (D.comp (D.d 0 g) f) + t)
+    (one_smul R _))
 
 /-- The Leibniz rule for a degree-zero morphism after a degree-`-1` morphism. -/
 theorem d_comp_zero_negOne {X Y Z : C} (g : Y ⟶[0] Z) (f : X ⟶[-1] Y) :
     D.d (-1) (D.comp g f) =
       castHom negOne_add_zero_succ_eq_zero (D.comp (D.d 0 g) f) +
-        castHom negOne_succ_add_zero_eq_zero (D.comp g (D.d (-1) f)) := sorry
+        castHom negOne_succ_add_zero_eq_zero (D.comp g (D.d (-1) f)) := by
+  have h : D.d (-1) (D.comp g f) =
+      castHom negOne_add_zero_succ_eq_zero (D.comp (D.d 0 g) f) +
+        ((0 : ℤ).negOnePow : R) •
+          castHom negOne_succ_add_zero_eq_zero (D.comp g (D.d (-1) f)) := D.d_comp g f
+  simpa using h
 
 /-- The Leibniz rule for a degree-`-1` morphism after a degree-zero morphism. -/
 theorem d_comp_negOne_zero {X Y Z : C} (g : Y ⟶[-1] Z) (f : X ⟶[0] Y) :
     D.d (-1) (D.comp g f) =
       castHom zero_add_negOne_succ_eq_zero (D.comp (D.d (-1) g) f) -
-        castHom zero_succ_add_negOne_eq_zero (D.comp g (D.d 0 f)) := sorry
+        castHom zero_succ_add_negOne_eq_zero (D.comp g (D.d 0 f)) := by
+  have h : D.d (-1) (D.comp g f) =
+      castHom zero_add_negOne_succ_eq_zero (D.comp (D.d (-1) g) f) +
+        ((-1 : ℤ).negOnePow : R) •
+          castHom zero_succ_add_negOne_eq_zero (D.comp g (D.d 0 f)) := D.d_comp g f
+  simpa [sub_eq_add_neg] using h
 
 /-- The differential sends the zero homogeneous morphism to zero. -/
 @[simp]
-theorem d_zero {X Y : C} (n : ℤ) : D.d n (0 : X ⟶[n] Y) = 0 := sorry
+theorem d_zero {X Y : C} (n : ℤ) : D.d n (0 : X ⟶[n] Y) = 0 := by
+  simpa using D.d_smul n (0 : R) (0 : X ⟶[n] Y)
 
 /-- The differential commutes with additive inverses. -/
-theorem d_neg {X Y : C} (n : ℤ) (f : X ⟶[n] Y) : D.d n (-f) = -D.d n f := sorry
+theorem d_neg {X Y : C} (n : ℤ) (f : X ⟶[n] Y) : D.d n (-f) = -D.d n f := by
+  simpa using D.d_smul n (-1 : R) f
 
 /-- The differential commutes with subtraction. -/
 theorem d_sub {X Y : C} (n : ℤ) (f g : X ⟶[n] Y) :
-    D.d n (f - g) = D.d n f - D.d n g := sorry
+    D.d n (f - g) = D.d n f - D.d n g := by
+  rw [sub_eq_add_neg, D.d_add, d_neg, ← sub_eq_add_neg]
 
 /-- Left composition by zero vanishes. -/
 @[simp]
 theorem comp_zero_left {X Y Z : C} {i j : ℤ} (f : X ⟶[i] Y) :
-    D.comp (0 : Y ⟶[j] Z) f = 0 := sorry
+    D.comp (0 : Y ⟶[j] Z) f = 0 := by
+  simpa using D.comp_smul_left (0 : R) (0 : Y ⟶[j] Z) f
 
 /-- Right composition by zero vanishes. -/
 @[simp]
 theorem comp_zero_right {X Y Z : C} {i j : ℤ} (g : Y ⟶[j] Z) :
-    D.comp g (0 : X ⟶[i] Y) = 0 := sorry
+    D.comp g (0 : X ⟶[i] Y) = 0 := by
+  simpa using D.comp_smul_right (0 : R) g (0 : X ⟶[i] Y)
 
 /-- Left composition commutes with additive inverses. -/
 theorem comp_neg_left {X Y Z : C} {i j : ℤ} (g : Y ⟶[j] Z) (f : X ⟶[i] Y) :
-    D.comp (-g) f = -D.comp g f := sorry
+    D.comp (-g) f = -D.comp g f := by
+  simpa using D.comp_smul_left (-1 : R) g f
 
 /-- Right composition commutes with additive inverses. -/
 theorem comp_neg_right {X Y Z : C} {i j : ℤ} (g : Y ⟶[j] Z) (f : X ⟶[i] Y) :
-    D.comp g (-f) = -D.comp g f := sorry
+    D.comp g (-f) = -D.comp g f := by
+  simpa using D.comp_smul_right (-1 : R) g f
 
 /-- Left composition commutes with subtraction. -/
 theorem comp_sub_left {X Y Z : C} {i j : ℤ} (g₁ g₂ : Y ⟶[j] Z) (f : X ⟶[i] Y) :
-    D.comp (g₁ - g₂) f = D.comp g₁ f - D.comp g₂ f := sorry
+    D.comp (g₁ - g₂) f = D.comp g₁ f - D.comp g₂ f := by
+  rw [sub_eq_add_neg, D.comp_add_left, comp_neg_left, ← sub_eq_add_neg]
 
 /-- Right composition commutes with subtraction. -/
 theorem comp_sub_right {X Y Z : C} {i j : ℤ} (g : Y ⟶[j] Z) (f₁ f₂ : X ⟶[i] Y) :
-    D.comp g (f₁ - f₂) = D.comp g f₁ - D.comp g f₂ := sorry
+    D.comp g (f₁ - f₂) = D.comp g f₁ - D.comp g f₂ := by
+  rw [sub_eq_add_neg, D.comp_add_right, comp_neg_right, ← sub_eq_add_neg]
 
 end DifferentialGradedCategory

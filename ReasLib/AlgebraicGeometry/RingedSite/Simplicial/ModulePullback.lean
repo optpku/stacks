@@ -6,6 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
+public import Mathlib.CategoryTheory.Functor.Derived.PointwiseLeftDerived
 public import ReasLib.AlgebraicGeometry.RingedSite.Simplicial.Operators
 public import ReasLib.AlgebraicGeometry.RingedSite.Topos.Module.Derived.Comparison
 
@@ -48,6 +49,23 @@ end RingedSite.Simplicial
 
 namespace CategoryTheory.SimplicialSites
 
+set_option backward.defeqAttrib.useBackward true in
+set_option backward.isDefEq.respectTransparency false in
+/-- Continuous pushforward has the identity cartesian product comparison. -/
+private theorem continuousPushforward_mu
+    {D E : Type u} [Category.{v} D] [Category.{v} E]
+    (F : D ⥤ E) (JD : GrothendieckTopology D) (JE : GrothendieckTopology E)
+    [F.IsContinuous JD JE]
+    [(F.sheafPushforwardContinuous (Type w) JD JE).Monoidal]
+    [PreservesFiniteProducts (F.sheafPushforwardContinuous (Type w) JD JE)]
+    (P Q : Sheaf JE (Type w)) :
+    Functor.LaxMonoidal.μ (F.sheafPushforwardContinuous (Type w) JD JE) P Q = 𝟙 _ := by
+  have h : CartesianMonoidalCategory.prodComparisonIso
+      (F.sheafPushforwardContinuous (Type w) JD JE) P Q = Iso.refl _ := by
+    ext <;> rfl
+  exact (Functor.Monoidal.μ_of_cartesianMonoidalCategory
+    (F.sheafPushforwardContinuous (Type w) JD JE) P Q).trans (congrArg Iso.inv h)
+
 variable (C : SimplexCategory ⥤ Cat.{v, u}) (J : ∀ n, Precoverage (C.obj n))
 variable [instWeakSheafify : ∀ n, HasWeakSheafify (J n).toGrothendieck (Type w)]
 variable [instLeftKan : ∀ (m n : SimplexCategory) (φ : m ⟶ n) (P : (C.obj m)ᵒᵖ ⥤ Type w),
@@ -59,6 +77,28 @@ variable [(topology C J).HasSheafCompose (forget RingCat.{w})]
 variable [∀ n, ((J n).toGrothendieck).HasSheafCompose (forget RingCat.{w})]
 
 variable [UnivLE.{max u v, w}]
+
+set_option backward.defeqAttrib.useBackward true in
+set_option backward.isDefEq.respectTransparency false in
+/-- The direct image of a module uses the original addition on each section. -/
+private theorem ringedModulePushforward_section_add {m n : SimplexCategory} (φ : m ⟶ n)
+    (M : SheafOfModules (componentRingedSite C J O n).structureSheaf)
+    (U : (C.obj m)ᵒᵖ)
+    (x y : M.val.obj ((C.map φ).toFunctor.op.obj U)) :
+    (((ringedToposMap C J O φ).modulePushforward.obj M).val.obj U).isAddCommGroup.add x y =
+      x + y := by
+  let f := (C.map φ).toFunctor.sheafPushforwardContinuous (Type w)
+    (J m).toGrothendieck (J n).toGrothendieck
+  letI : PreservesFiniteProducts f :=
+    LeftExactAdjunction.pushforwardPreservesFiniteProducts (ringedToposMap C J O φ).toTopos
+  letI := Functor.Monoidal.ofChosenFiniteProducts f
+  change ((Functor.LaxMonoidal.μ f
+    (Sheaf.InternalModule.ToInternal.carrier _ M)
+    (Sheaf.InternalModule.ToInternal.carrier _ M) ≫
+      f.map (Sheaf.InternalModule.ToInternal.add _ M)).hom.app U) (x, y) = _
+  rw [continuousPushforward_mu]
+  rfl
+
 variable [∀ {m n : SimplexCategory} (φ : m ⟶ n),
     (SheafOfModules.restrictScalars.{w}
       (ringedToposMap C J O φ).structureMap).IsRightAdjoint]
@@ -96,7 +136,19 @@ theorem ringedModulePushforwardCompIso_add {l m n : SimplexCategory} (ψ : l ⟶
     ∀ M U (x y : (((ringedToposMap C J O φ).modulePushforward ⋙ (ringedToposMap C J O ψ).modulePushforward).obj M).val.obj U),
       underlyingApp ((componentRingedSite C J O l).structureSheaf) ((ringedModulePushforwardCompUnderlyingIso C J O ψ φ).hom.app M) U (x + y) =
         underlyingApp ((componentRingedSite C J O l).structureSheaf) ((ringedModulePushforwardCompUnderlyingIso C J O ψ φ).hom.app M) U x +
-          underlyingApp ((componentRingedSite C J O l).structureSheaf) ((ringedModulePushforwardCompUnderlyingIso C J O ψ φ).hom.app M) U y := sorry
+          underlyingApp ((componentRingedSite C J O l).structureSheaf) ((ringedModulePushforwardCompUnderlyingIso C J O ψ φ).hom.app M) U y := by
+  intro M U x y
+  let t := ((map_comp_toFunctor C ψ φ).inv.app U.unop).op
+  have hsource :=
+    (ringedModulePushforward_section_add C J O ψ
+      ((ringedToposMap C J O φ).modulePushforward.obj M) U x y).trans
+    (ringedModulePushforward_section_add C J O φ M ((C.map ψ).toFunctor.op.obj U) x y)
+  calc
+    _ = M.val.map t ((M.val.obj
+        ((C.map φ).toFunctor.op.obj ((C.map ψ).toFunctor.op.obj U))).isAddCommGroup.add x y) :=
+      congrArg (fun z ↦ M.val.map t z) hsource
+    _ = _ := (M.val.map t).hom.map_add' x y
+    _ = _ := (ringedModulePushforward_section_add C J O (ψ ≫ φ) M U _ _).symm
 
 /-- The underlying pushforward comparison preserves scalar multiplication of sections. -/
 theorem ringedModulePushforwardCompIso_smul {l m n : SimplexCategory} (ψ : l ⟶ m) (φ : m ⟶ n) :
@@ -149,7 +201,15 @@ theorem ringedModulePushforwardIdIso_add (n : SimplexCategory) :
     ∀ M U (x y : (((ringedToposMap C J O (𝟙 n)).modulePushforward).obj M).val.obj U),
       underlyingApp ((componentRingedSite C J O n).structureSheaf) ((ringedModulePushforwardIdUnderlyingIso C J O n).hom.app M) U (x + y) =
         underlyingApp ((componentRingedSite C J O n).structureSheaf) ((ringedModulePushforwardIdUnderlyingIso C J O n).hom.app M) U x +
-          underlyingApp ((componentRingedSite C J O n).structureSheaf) ((ringedModulePushforwardIdUnderlyingIso C J O n).hom.app M) U y := sorry
+          underlyingApp ((componentRingedSite C J O n).structureSheaf) ((ringedModulePushforwardIdUnderlyingIso C J O n).hom.app M) U y := by
+  intro M U x y
+  let e := Cat.Hom.toNatIso (eqToIso (C.map_id n))
+  calc
+    _ = M.val.map (e.inv.app U.unop).op
+        ((M.val.obj ((C.map (𝟙 n)).toFunctor.op.obj U)).isAddCommGroup.add x y) :=
+      congrArg (fun z ↦ M.val.map (e.inv.app U.unop).op z)
+        (ringedModulePushforward_section_add C J O (𝟙 n) M U x y)
+    _ = _ := (M.val.map (e.inv.app U.unop).op).hom.map_add' x y
 
 /-- The underlying pushforward comparison preserves scalar multiplication of sections. -/
 theorem ringedModulePushforwardIdIso_smul (n : SimplexCategory) :
@@ -188,7 +248,7 @@ theorem derivedPullbackCompComparison_app {l m n : SimplexCategory}
       (derivedPullbackCompComparisonOf
         (ringedToposMap C J O φ) (ringedToposMap C J O ψ)
         (ringedToposMap C J O (ψ ≫ φ)) (ringedModulePullbackCompIso C J O ψ φ)).app K :=
-  sorry
+  rfl
 
 /-- The composition comparison of derived module pullbacks is an isomorphism. -/
 theorem derivedPullbackCompComparison_isIso {l m n : SimplexCategory}
@@ -209,12 +269,21 @@ theorem derivedPullbackIdComparison_app (n : SimplexCategory)
     (derivedPullbackIdComparison C J O n).app K =
       (derivedPullbackIdComparisonOf (ringedToposMap C J O (𝟙 n))
         (ringedModulePullbackIdIso C J O n)).app K :=
-  sorry
+  rfl
 
 /-- The identity comparison of derived module pullbacks is an isomorphism. -/
 theorem derivedPullbackIdComparison_isIso (n : SimplexCategory) :
-    IsIso (derivedPullbackIdComparison C J O n) :=
-  sorry
+    IsIso (derivedPullbackIdComparison C J O n) := by
+  apply (Functor.isLeftDerivedFunctor_iff_isIso_leftDerivedLift
+    (ringedToposMap C J O (𝟙 n)).modulePullbackDerived
+      ((ToposHom.modulePullbackToDerived (ringedToposMap C J O (𝟙 n))).totalLeftDerivedCounit
+        (Hom.moduleLocalization (componentRingedSite C J O n))
+        (Hom.ModuleQis (componentRingedSite C J O n)))
+      (Hom.ModuleQis (componentRingedSite C J O n)) _ _).mp
+  exact Functor.isLeftDerivedFunctor_of_inverts _ _
+    (Functor.rightUnitor _ ≪≫
+      (derivedPullbackIdSourceIsoOf (ringedToposMap C J O (𝟙 n))
+        (ringedModulePullbackIdIso C J O n)).symm)
 
 /-- The canonical module-pullback comparisons for the component ringed sites. -/
 def modulePullbackFunctoriality :

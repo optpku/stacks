@@ -72,29 +72,11 @@ def isoClassMk (S : Solution (B := B) (N := N) π c) : IsoClass π B c :=
 theorem isoClassMk_eq_of_hom {S₁ S₂ : Solution (B := B) (N := N) π c}
     (φ : FittingMap (compare S₁ S₂)) : isoClassMk S₁ = isoClassMk S₂ := sorry
 
-/-- Difference of polynomial kernel maps, as an A-linear map on J = ker(A[B] → B). -/
-def obstructionOnKer (S₁ S₂ : Solution (B := B) (N := N) π c) :
-    (Generators.self A B).toExtension.ker →ₗ[A] N where
-  toFun j :=
-    evalPolyKerMap S₂ (liftPoly π j.1) (liftPoly_mem_evalToB_ker j) -
-      evalPolyKerMap S₁ (liftPoly π j.1) (liftPoly_mem_evalToB_ker j)
-  map_add' := sorry
-  map_smul' := sorry
-
-/-- `obstructionOnKer` is the difference of the two polynomial kernel maps. -/
-theorem obstructionOnKer_apply (S₁ S₂ : Solution (B := B) (N := N) π c)
-    (j : (Generators.self A B).toExtension.ker) :
-    obstructionOnKer S₁ S₂ j =
-      evalPolyKerMap S₂ (liftPoly π j.1) (liftPoly_mem_evalToB_ker j) -
-        evalPolyKerMap S₁ (liftPoly π j.1) (liftPoly_mem_evalToB_ker j) := sorry
-
-/-- The obstruction representative Hom_B(J/J², N), obtained by lifting
-`evalPolyKerMap S₂ - evalPolyKerMap S₁` through J². -/
-def obstructionHom (S₁ S₂ : Solution (B := B) (N := N) π c) :
-    (Generators.self A B).toExtension.Cotangent →ₗ[B] N where
-  toFun x := Ideal.Cotangent.lift (obstructionOnKer S₁ S₂) sorry (Cotangent.val x)
-  map_add' := sorry
-  map_smul' := sorry
+/-- The fixed-diagram conormal representative is the canonical relative one
+for the identity connecting diagram. -/
+abbrev obstructionHom (S₁ S₂ : Solution (B := B) (N := N) π c) :
+    (Generators.self A B).toExtension.Cotangent →ₗ[B] N :=
+  RelativeDiagram.conormalHom (compare S₁ S₂)
 
 /-- On the class of a kernel polynomial, the obstruction representative is eval₂ - eval₁. -/
 theorem obstructionHom_spec (S₁ S₂ : Solution (B := B) (N := N) π c)
@@ -106,15 +88,25 @@ theorem obstructionHom_spec (S₁ S₂ : Solution (B := B) (N := N) π c)
 /-- The obstruction class o(B'₁, B'₂) in Ext¹_B(NL_{B/A}, N), against the ambient
 B-module structure on N. -/
 def obstruction (S₁ S₂ : Solution (B := B) (N := N) π c) : extOneNaiveCotangent A B N :=
-  extOneNaiveCotangent_mk A B N (obstructionHom S₁ S₂)
+  RelativeDiagram.mapObstruction (compare S₁ S₂)
+
+/-- The fixed-diagram obstruction is the canonical relative obstruction for the
+identity connecting diagram.  The local restriction instance on the latter is
+the identity `B`-module structure, so both classes live in the same Ext group. -/
+theorem obstruction_eq_mapObstruction_compare
+    (S₁ S₂ : Solution (B := B) (N := N) π c) :
+    obstruction S₁ S₂ =
+      (letI := RelativeDiagram.moduleRestrict (compare S₁ S₂)
+       RelativeDiagram.mapObstruction (compare S₁ S₂)) := rfl
 
 /-- `obstruction` is the class of `obstructionHom`. -/
 theorem obstruction_spec (S₁ S₂ : Solution (B := B) (N := N) π c) :
-    obstruction S₁ S₂ = extOneNaiveCotangent_mk A B N (obstructionHom S₁ S₂) := sorry
+    obstruction S₁ S₂ = extOneNaiveCotangent_mk A B N (obstructionHom S₁ S₂) := rfl
 
 /-- The obstruction vanishes if and only if the identity diagram admits a fitting map. -/
 theorem obstruction_eq_zero_iff (S₁ S₂ : Solution (B := B) (N := N) π c) :
-    obstruction S₁ S₂ = 0 ↔ Nonempty (FittingMap (compare S₁ S₂)) := sorry
+    obstruction S₁ S₂ = 0 ↔ Nonempty (FittingMap (compare S₁ S₂)) := by
+  exact mapObstruction_eq_zero_iff (compare S₁ S₂)
 
 /-- Translating a solution by δ realizes the class of δ as an obstruction. -/
 theorem obstruction_translate (δ : (Generators.self A B).toExtension.Cotangent →ₗ[B] N)

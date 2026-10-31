@@ -7,6 +7,7 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import ReasLib.AlgebraicGeometry.GroupoidScheme.Restriction.Presentation
+public import ReasLib.AlgebraicGeometry.GroupoidScheme.Restriction.Saturation
 public import ReasLib.AlgebraicGeometry.GroupoidScheme.Stabilizer.Morphism
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.Fiber.BaseChange
 
@@ -28,29 +29,18 @@ universe u
 
 namespace AlgebraicGeometry.GroupoidScheme
 
-/-- The slicing source morphism is the second projection from the target pullback followed by
-the groupoid source map. -/
-def sliceSource {S : Scheme.{u}} (G : GroupoidScheme S) {U' : Over S}
-    (g : U' ⟶ G.U) : Limits.pullback g G.t ⟶ G.U :=
-  Limits.pullback.snd g G.t ≫ G.s
-
-/-- The slicing source map is the second projection followed by the groupoid source. -/
-theorem sliceSource_def {S : Scheme.{u}} (G : GroupoidScheme S) {U' : Over S}
-    (g : U' ⟶ G.U) :
-    sliceSource G g = Limits.pullback.snd g G.t ≫ G.s := sorry
-
 /-- The restricted source map is the pullback of the slicing source map along `g`. -/
 theorem restrictionSourceSquare {S : Scheme.{u}} (G : GroupoidScheme S)
     {U' : Over S} (g : U' ⟶ G.U) :
     IsPullback (pullbackToTargetSquare G g).left (G.pullback g).s.left
-      (sliceSource G g).left g.left := sorry
+      (G.saturationMap g).left g.left := sorry
 
 /-- The canonical map from the restricted source fibre to the corresponding fibre of the
 slicing source map. -/
 def sliceFiberMap {S : Scheme.{u}} (G : GroupoidScheme S) {U' : Over S}
     (g : U' ⟶ G.U) (u' : U'.left) :
-    (G.pullback g).s.left.fiber u' ⟶ (sliceSource G g).left.fiber (g.left u') :=
-  Scheme.Hom.baseChangeFiberMap (sliceSource G g).left g.left
+    (G.pullback g).s.left.fiber u' ⟶ (G.saturationMap g).left.fiber (g.left u') :=
+  Scheme.Hom.baseChangeFiberMap (G.saturationMap g).left g.left
     (pullbackToTargetSquare G g).left (G.pullback g).s.left
     (restrictionSourceSquare G g) u'
 
@@ -58,7 +48,7 @@ def sliceFiberMap {S : Scheme.{u}} (G : GroupoidScheme S) {U' : Over S}
 arrow schemes. -/
 theorem sliceFiberMap_fiberι {S : Scheme.{u}} (G : GroupoidScheme S)
     {U' : Over S} (g : U' ⟶ G.U) (u' : U'.left) :
-    sliceFiberMap G g u' ≫ (sliceSource G g).left.fiberι (g.left u') =
+    sliceFiberMap G g u' ≫ (G.saturationMap g).left.fiberι (g.left u') =
       (G.pullback g).s.left.fiberι u' ≫ (pullbackToTargetSquare G g).left := sorry
 
 /-- The source fibre of a restricted groupoid is the residue-field base change of the
@@ -67,7 +57,7 @@ theorem sliceFiberMap_isPullback {S : Scheme.{u}} (G : GroupoidScheme S)
     {U' : Over S} (g : U' ⟶ G.U) (u' : U'.left) :
     IsPullback (sliceFiberMap G g u')
       ((G.pullback g).s.left.fiberToSpecResidueField u')
-      ((sliceSource G g).left.fiberToSpecResidueField (g.left u'))
+      ((G.saturationMap g).left.fiberToSpecResidueField (g.left u'))
       (Spec.map (g.left.residueFieldMap u')) := sorry
 
 /-- The identity arrow over `u` has source `u`. -/

@@ -29,23 +29,6 @@ universe u
 namespace AlgebraicGeometry.Scheme.Hom
 namespace CyclesOnFibers
 
-variable {S : Scheme.{u}} [UniversallyCatenary S] (δ : S → ℤ) [IsDimensionFunction δ]
-variable {X Y : Over S} [LocallyOfFiniteType X.hom] [LocallyOfFiniteType Y.hom]
-variable (f : X ⟶ Y) [LocallyOfFiniteType f.left] [IsLocallyNoetherian Y.left]
-variable (ℒ : Y.left.Modules) [Invertible ℒ] (s : ℒ.sections)
-
-/-- The pullback of `ℒ` along the displayed morphism `f.left`. -/
-noncomputable abbrev gysinPullbackModule : X.left.Modules :=
-  (Modules.pullback f.left).obj ℒ
-
-/-- The pullback of a section of `ℒ` along the displayed morphism `f.left`. -/
-noncomputable abbrev gysinPullbackSection : (gysinPullbackModule f ℒ).sections :=
-  sectionsPullback f.left ℒ s
-
-/-- The restriction of `ℒ` to its zero scheme `D`. -/
-noncomputable abbrev gysinRestrictionModule : (zeroScheme ℒ s).Modules :=
-  (Modules.pullback (zeroSchemeι ℒ s)).obj ℒ
-
 /- Lemma 62.12.2: Let `(S, δ)` be as in the fibre-cycle action setup, and let
 `f : X ⟶ Y` be a morphism of schemes locally of finite type over `S`. Let
 `α` be a relative `r`-cycle on `X / Y`, and let `(ℒ, s)` be a Gysin pair on

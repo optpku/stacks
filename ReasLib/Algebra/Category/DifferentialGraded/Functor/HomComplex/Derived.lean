@@ -264,15 +264,25 @@ section Additive
 
 variable [Preadditive D] [L.Additive]
 
-/-- Additivity of total derived Hom in the localized source variable. -/
+/-- Additivity of total derived Hom in the localized source variable, for an additive
+localization of a homotopy category with a zero object and binary biproducts.
+
+The duplication/biproduct and zero-insertion adjunctions are used
+to compare ordinary Kan extensions; Kan uniqueness also gives preservation of zero maps. -/
 @[stacks 0CS6 "additivity in the source variable of total derived Hom"]
 noncomputable instance sourceFunctorAdditive (N : D)
+    [Limits.HasZeroObject (K R A)] [Limits.HasBinaryBiproducts (K R A)] [L.Additive]
     [(Derived.functor (R := R) (A := A)).HasRightDerivedFunctor (qis W)] :
     (sourceFunctor L W N).Additive := sorry
 
-/-- Additivity of total derived Hom in the localized target variable. -/
+/-- Additivity of total derived Hom in the localized target variable, for an additive
+localization of a homotopy category with a zero object and binary biproducts.
+
+The global Kan argument derives preservation of biproducts and zero maps from these
+source hypotheses and additivity of the localization. -/
 @[stacks 0CS6 "additivity in the target variable of total derived Hom"]
 noncomputable instance targetFunctorAdditive (M : Dᵒᵖ)
+    [Limits.HasZeroObject (K R A)] [Limits.HasBinaryBiproducts (K R A)] [L.Additive]
     [(Derived.functor (R := R) (A := A)).HasRightDerivedFunctor (qis W)] :
     (targetFunctor L W M).Additive := sorry
 
@@ -282,15 +292,23 @@ section Linear
 
 variable [Preadditive D] [Linear R D] [Functor.Linear R L]
 
-/-- `R`-linearity of total derived Hom in the localized source variable. -/
+/-- Preservation of `R`-scalars by total derived Hom in the localized source variable when
+the localization is `R`-linear.
+
+Central scalar endomorphisms and ordinary Kan uniqueness give this law. The localization
+linearity hypothesis is explicit; `Functor.Linear` has no additivity superclass. -/
 @[stacks 0CS6 "linearity in the source variable of total derived Hom"]
-noncomputable instance sourceFunctorLinear (N : D)
+noncomputable instance sourceFunctorLinear (N : D) [Functor.Linear R L]
     [(Derived.functor (R := R) (A := A)).HasRightDerivedFunctor (qis W)] :
     Functor.Linear R (sourceFunctor L W N) := sorry
 
-/-- `R`-linearity of total derived Hom in the localized target variable. -/
+/-- Preservation of `R`-scalars by total derived Hom in the localized target variable when
+the localization is `R`-linear.
+
+Central scalar endomorphisms and ordinary Kan uniqueness give this law. The localization
+linearity hypothesis is explicit; `Functor.Linear` has no additivity superclass. -/
 @[stacks 0CS6 "linearity in the target variable of total derived Hom"]
-noncomputable instance targetFunctorLinear (M : Dᵒᵖ)
+noncomputable instance targetFunctorLinear (M : Dᵒᵖ) [Functor.Linear R L]
     [(Derived.functor (R := R) (A := A)).HasRightDerivedFunctor (qis W)] :
     Functor.Linear R (targetFunctor L W M) := sorry
 

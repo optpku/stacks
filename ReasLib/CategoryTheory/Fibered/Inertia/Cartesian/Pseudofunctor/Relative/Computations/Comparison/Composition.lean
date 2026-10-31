@@ -7,6 +7,7 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import ReasLib.CategoryTheory.Fibered.Inertia.Cartesian.Pseudofunctor.Relative.Computations.Action
+import ReasLib.CategoryTheory.Fibered.Inertia.Cartesian.Pseudofunctor.Relative.ToBased.Computations.Comparisons
 
 /-!
 # Composition comparison computations for fibred relative inertia
@@ -35,7 +36,8 @@ theorem pseudofunctor.mapComp
     (f : R ⟶ S) (g : S ⟶ T) :
     (pseudofunctor C).mapComp f g =
       FiberedCategoryOver.BasedFunctorIso.lift
-        ((basedPseudofunctor C).mapComp f g) := sorry
+        ((basedPseudofunctor C).mapComp f g) := by
+  rfl
 
 /-- The forward fibred relative-inertia composition comparison forgets to
 the underlying based comparison cell. -/
@@ -47,7 +49,8 @@ theorem pseudofunctor.mapComp.hom.toBasedNatTrans
     (f : R ⟶ S) (g : S ⟶ T) :
     FiberedCategoryOver.toBasedNatTrans
         ((pseudofunctor C).mapComp f g).hom =
-      ((basedPseudofunctor C).mapComp f g).hom := sorry
+      ((basedPseudofunctor C).mapComp f g).hom := by
+  rfl
 
 /-- The inverse fibred relative-inertia composition comparison forgets to
 the underlying based comparison cell. -/
@@ -59,7 +62,8 @@ theorem pseudofunctor.mapComp.inv.toBasedNatTrans
     (f : R ⟶ S) (g : S ⟶ T) :
     FiberedCategoryOver.toBasedNatTrans
         ((pseudofunctor C).mapComp f g).inv =
-      ((basedPseudofunctor C).mapComp f g).inv := sorry
+      ((basedPseudofunctor C).mapComp f g).inv := by
+  rfl
 
 /-- The forward composition comparison component is the corresponding
 component of the based relative-inertia pseudofunctor. -/
@@ -72,7 +76,8 @@ theorem pseudofunctor.mapComp.hom.app
     (A : ((pseudofunctor C).obj R).total) :
     (FiberedCategoryOver.toNatTrans
         ((pseudofunctor C).mapComp f g).hom).app A =
-      ((basedPseudofunctor C).mapComp f g).hom.toNatTrans.app A := sorry
+      ((basedPseudofunctor C).mapComp f g).hom.toNatTrans.app A := by
+  rfl
 
 /-- The inverse composition comparison component is the corresponding
 component of the based relative-inertia pseudofunctor. -/
@@ -85,7 +90,8 @@ theorem pseudofunctor.mapComp.inv.app
     (A : ((pseudofunctor C).obj R).total) :
     (FiberedCategoryOver.toNatTrans
         ((pseudofunctor C).mapComp f g).inv).app A =
-      ((basedPseudofunctor C).mapComp f g).inv.toNatTrans.app A := sorry
+      ((basedPseudofunctor C).mapComp f g).inv.toNatTrans.app A := by
+  rfl
 
 /-- Every forward component of the packaged fibred relative-inertia composition comparison is
 vertical over the identity base arrow. -/
@@ -98,7 +104,9 @@ theorem pseudofunctor.mapComp.hom.app.isHomLift
     (FiberedCategoryOver.relativeInertia T.hom).p.IsHomLift
       (𝟙 ((FiberedCategoryOver.relativeInertia R.hom).p.obj A))
       ((FiberedCategoryOver.toNatTrans
-        ((pseudofunctor C).mapComp f g).hom).app A) := sorry
+        ((pseudofunctor C).mapComp f g).hom).app A) := by
+  exact (FiberedCategoryOver.toBasedNatTrans
+    ((pseudofunctor C).mapComp f g).hom).isHomLift' A
 
 /-- Every inverse component of the packaged fibred relative-inertia composition comparison is
 vertical over the identity base arrow. -/
@@ -111,7 +119,9 @@ theorem pseudofunctor.mapComp.inv.app.isHomLift
     (FiberedCategoryOver.relativeInertia T.hom).p.IsHomLift
       (𝟙 ((FiberedCategoryOver.relativeInertia R.hom).p.obj A))
       ((FiberedCategoryOver.toNatTrans
-        ((pseudofunctor C).mapComp f g).inv).app A) := sorry
+        ((pseudofunctor C).mapComp f g).inv).app A) := by
+  exact (FiberedCategoryOver.toBasedNatTrans
+    ((pseudofunctor C).mapComp f g).inv).isHomLift' A
 
 /-- The ambient arrow underlying a forward composition-comparison component
 is an identity. -/
@@ -125,7 +135,14 @@ theorem pseudofunctor.mapComp.hom.app.underlying
     CategoryTheory.RelativeInertia.hom
         ((FiberedCategoryOver.toNatTrans
           ((pseudofunctor C).mapComp f g).hom).app A) =
-      𝟙 _ := sorry
+      𝟙 _ := by
+  let X := (FiberedCategoryOver.toFunctor (Bicategory.PseudoComma.left g)).obj
+    ((FiberedCategoryOver.toFunctor (Bicategory.PseudoComma.left f)).obj A.obj)
+  change (Bicategory.PseudoComma.left₂
+    ((toBased C).mapComp f g).hom).toNatTrans.app A.obj ≫ 𝟙 X = 𝟙 X
+  rw [toBased.mapComp.hom.left, StrictPseudofunctor.mapComp_eq_eqToIso]
+  change 𝟙 X ≫ 𝟙 X = 𝟙 X
+  simp
 
 /-- The ambient arrow underlying an inverse composition-comparison component
 is an identity. -/
@@ -139,7 +156,14 @@ theorem pseudofunctor.mapComp.inv.app.underlying
     CategoryTheory.RelativeInertia.hom
         ((FiberedCategoryOver.toNatTrans
           ((pseudofunctor C).mapComp f g).inv).app A) =
-      𝟙 _ := sorry
+      𝟙 _ := by
+  let X := (FiberedCategoryOver.toFunctor (Bicategory.PseudoComma.left g)).obj
+    ((FiberedCategoryOver.toFunctor (Bicategory.PseudoComma.left f)).obj A.obj)
+  change 𝟙 X ≫ (Bicategory.PseudoComma.left₂
+    ((toBased C).mapComp f g).inv).toNatTrans.app A.obj = 𝟙 X
+  rw [toBased.mapComp.inv.left, StrictPseudofunctor.mapComp_eq_eqToIso]
+  change 𝟙 X ≫ 𝟙 X = 𝟙 X
+  simp
 
 end FiberedCategoryOver.RelativeInertia.pseudoComma
 

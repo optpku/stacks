@@ -12,9 +12,11 @@ public import Mathlib.Algebra.Homology.HomologicalComplex
 public import Mathlib.Algebra.Homology.HomologicalComplexBiprod
 public import Mathlib.Algebra.Homology.ShortComplex.ModuleCat
 public import Mathlib.Algebra.Homology.ShortComplex.HomologicalComplex
+public import Mathlib.LinearAlgebra.Basis.Prod
 public import Mathlib.RingTheory.Finiteness.Defs
+public import Mathlib.RingTheory.Finiteness.Prod
 public import Mathlib.RingTheory.Flat.TorsionFree
-public import Mathlib.RingTheory.Noetherian.Defs
+public import Mathlib.RingTheory.Noetherian.Basic
 public import Mathlib.Tactic.CrossRefAttribute
 public import ReasLib.Algebra.Homology.HomologicalComplex.Termwise.Regular
 
@@ -65,24 +67,27 @@ variable {K : HomologicalComplex (ModuleCat R) c}
 /-- Assemble the finite-free class from the separate termwise freeness and finiteness predicates. -/
 @[stacks 064Q "assemble termwise finite freeness"]
 theorem of (hfree : K.IsTermwiseFree) (hfinite : K.IsTermwiseFinite) :
-    K.IsTermwiseFiniteFree := sorry
+    K.IsTermwiseFiniteFree :=
+  ⟨fun i => ⟨hfree i, hfinite i⟩⟩
 
 end IsTermwiseFiniteFree
 
 /-- Unfolding the termwise-free predicate exposes the free structure in every degree. -/
 @[stacks 00LQ "termwise free characterization"]
 theorem isTermwiseFree_iff (K : HomologicalComplex (ModuleCat R) c) :
-    K.IsTermwiseFree ↔ ∀ i : ι, Module.Free R (K.X i) := sorry
+    K.IsTermwiseFree ↔ ∀ i : ι, Module.Free R (K.X i) := Iff.rfl
 
 /-- Unfolding the termwise-finite predicate exposes the finite structure in every degree. -/
 @[stacks 00MS "termwise finite characterization"]
 theorem isTermwiseFinite_iff (K : HomologicalComplex (ModuleCat R) c) :
-    K.IsTermwiseFinite ↔ ∀ i : ι, Module.Finite R (K.X i) := sorry
+    K.IsTermwiseFinite ↔ ∀ i : ι, Module.Finite R (K.X i) := Iff.rfl
 
 /-- A complex is termwise finite free exactly when it is both termwise free and termwise finite. -/
 @[stacks 064Q "termwise finite-free characterization"]
 theorem isTermwiseFiniteFree_iff (K : HomologicalComplex (ModuleCat R) c) :
-    K.IsTermwiseFiniteFree ↔ K.IsTermwiseFree ∧ K.IsTermwiseFinite := sorry
+    K.IsTermwiseFiniteFree ↔ K.IsTermwiseFree ∧ K.IsTermwiseFinite :=
+  ⟨fun hK => ⟨fun i => (hK.out i).1, fun i => (hK.out i).2⟩,
+    fun hK => IsTermwiseFiniteFree.of hK.1 hK.2⟩
 
 /-- A termwise finite free complex supplies the canonical free instance in every degree. -/
 @[stacks 064Q "termwise finite-free free instance"]
@@ -102,16 +107,21 @@ variable {K : HomologicalComplex (ModuleCat R) c}
 
 /-- A termwise-free complex has a free module in each specified degree. -/
 @[stacks 00LQ "termwise free component"]
-theorem free (hK : K.IsTermwiseFree) (i : ι) : Module.Free R (K.X i) := sorry
+theorem free (hK : K.IsTermwiseFree) (i : ι) : Module.Free R (K.X i) := hK i
 
 /-- A termwise-free complex has a projective object in each specified degree. -/
 @[stacks 00LQ "termwise free projective component"]
-theorem projective (hK : K.IsTermwiseFree) (i : ι) : Projective (K.X i) := sorry
+theorem projective (hK : K.IsTermwiseFree) (i : ι) : Projective (K.X i) := by
+  letI := hK.free i
+  infer_instance
 
 /-- A nonzerodivisor acts regularly on every term of a termwise-free complex. -/
 @[stacks 00LQ "termwise free regular scalar"]
 theorem isTermwiseSMulRegular (hK : K.IsTermwiseFree) {r : R}
-    (hr : r ∈ nonZeroDivisors R) : K.IsTermwiseSMulRegular r := sorry
+    (hr : r ∈ nonZeroDivisors R) : K.IsTermwiseSMulRegular r := by
+  intro i
+  letI := hK.free i
+  exact (isRegular_iff_mem_nonZeroDivisors.mpr hr).isSMulRegular
 
 end IsTermwiseFree
 
@@ -121,12 +131,18 @@ variable {K : HomologicalComplex (ModuleCat R) c}
 
 /-- A termwise-finite complex has a finite module in each specified degree. -/
 @[stacks 00MS "termwise finite component"]
-theorem finite (hK : K.IsTermwiseFinite) (i : ι) : Module.Finite R (K.X i) := sorry
+theorem finite (hK : K.IsTermwiseFinite) (i : ι) : Module.Finite R (K.X i) := hK i
 
 /-- The homology of a termwise finite complex over a Noetherian ring is finite. -/
 @[stacks 0AZ4 "finiteness of homology"]
 theorem finite_homology [IsNoetherianRing R] (hK : K.IsTermwiseFinite) (i : ι) :
-    Module.Finite R ((HomologicalComplex.homologyFunctor (ModuleCat R) c i).obj K) := sorry
+    Module.Finite R ((HomologicalComplex.homologyFunctor (ModuleCat R) c i).obj K) := by
+  letI := hK.finite i
+  haveI : Module.Finite R (K.cycles i) :=
+    Module.Finite.of_injective (K.iCycles i).hom
+      ((ModuleCat.mono_iff_injective _).mp inferInstance)
+  exact Module.Finite.of_surjective (K.homologyπ i).hom
+    ((ModuleCat.epi_iff_surjective _).mp inferInstance)
 
 end IsTermwiseFinite
 
@@ -136,44 +152,58 @@ variable {K : HomologicalComplex (ModuleCat R) c}
 
 /-- A specified term of a termwise finite free complex is free. -/
 @[stacks 064Q "termwise finite-free component free"]
-theorem free (hK : K.IsTermwiseFiniteFree) (i : ι) : Module.Free R (K.X i) := sorry
+theorem free (hK : K.IsTermwiseFiniteFree) (i : ι) : Module.Free R (K.X i) := (hK.out i).1
 
 /-- A specified term of a termwise finite free complex is finite. -/
 @[stacks 064Q "termwise finite-free component finite"]
-theorem finite (hK : K.IsTermwiseFiniteFree) (i : ι) : Module.Finite R (K.X i) := sorry
+theorem finite (hK : K.IsTermwiseFiniteFree) (i : ι) : Module.Finite R (K.X i) := (hK.out i).2
 
 /-- A termwise finite free complex is termwise free. -/
 @[stacks 064Q "finite-free to termwise free"]
-theorem isTermwiseFree (hK : K.IsTermwiseFiniteFree) : K.IsTermwiseFree := sorry
+theorem isTermwiseFree (hK : K.IsTermwiseFiniteFree) : K.IsTermwiseFree := hK.free
 
 /-- A termwise finite free complex is termwise finite. -/
 @[stacks 064Q "finite-free to termwise finite"]
-theorem isTermwiseFinite (hK : K.IsTermwiseFiniteFree) : K.IsTermwiseFinite := sorry
+theorem isTermwiseFinite (hK : K.IsTermwiseFiniteFree) : K.IsTermwiseFinite := hK.finite
 
 /-- Every component of a termwise finite free complex is projective. -/
 @[stacks 064Q "termwise finite-free projective component"]
-theorem projective (hK : K.IsTermwiseFiniteFree) (i : ι) : Projective (K.X i) := sorry
+theorem projective (hK : K.IsTermwiseFiniteFree) (i : ι) : Projective (K.X i) :=
+  hK.isTermwiseFree.projective i
 
 /-- A nonzerodivisor acts regularly on a termwise finite-free complex. -/
 @[stacks 064Q "termwise finite-free regular scalar"]
 theorem isTermwiseSMulRegular (hK : K.IsTermwiseFiniteFree) {r : R}
-    (hr : r ∈ nonZeroDivisors R) : K.IsTermwiseSMulRegular r := sorry
+    (hr : r ∈ nonZeroDivisors R) : K.IsTermwiseSMulRegular r :=
+  hK.isTermwiseFree.isTermwiseSMulRegular hr
 
 /-- Termwise finite freeness transports across a strict isomorphism of complexes. -/
 @[stacks 064Q "termwise finite-free transport"]
 theorem of_iso (hK : K.IsTermwiseFiniteFree)
-    {L : HomologicalComplex (ModuleCat R) c} (e : K ≅ L) : L.IsTermwiseFiniteFree := sorry
+    {L : HomologicalComplex (ModuleCat R) c} (e : K ≅ L) : L.IsTermwiseFiniteFree := by
+  refine ⟨fun i => ?_⟩
+  letI := hK.free i
+  letI := hK.finite i
+  exact ⟨Module.Free.of_equiv (HomologicalComplex.Hom.isoApp e i).toLinearEquiv,
+    Module.Finite.equiv (HomologicalComplex.Hom.isoApp e i).toLinearEquiv⟩
 
 end IsTermwiseFiniteFree
 
 /-- The canonical zero complex is termwise finite free. -/
 instance instIsTermwiseFiniteFreeZeroModuleCat :
-    (HomologicalComplex.zero : HomologicalComplex (ModuleCat R) c).IsTermwiseFiniteFree := sorry
+    (HomologicalComplex.zero : HomologicalComplex (ModuleCat R) c).IsTermwiseFiniteFree := by
+  refine ⟨fun i => ?_⟩
+  letI : Subsingleton ((HomologicalComplex.zero : HomologicalComplex (ModuleCat R) c).X i) :=
+    ModuleCat.subsingleton_of_isZero (Limits.isZero_zero _)
+  exact ⟨inferInstance, inferInstance⟩
 
 /-- The biproduct of termwise finite free complexes is termwise finite free. -/
 instance instIsTermwiseFiniteFreeBiprodModuleCat (K L : HomologicalComplex (ModuleCat R) c)
     [K.IsTermwiseFiniteFree] [L.IsTermwiseFiniteFree] :
-    (K ⊞ L).IsTermwiseFiniteFree := sorry
+    (K ⊞ L).IsTermwiseFiniteFree := by
+  refine ⟨fun i => ?_⟩
+  let e := ((biprodXIso K L i) ≪≫ ModuleCat.biprodIsoProd (K.X i) (L.X i)).toLinearEquiv
+  exact ⟨Module.Free.of_equiv e.symm, Module.Finite.equiv e.symm⟩
 
 end HomologicalComplex
 
@@ -224,7 +254,8 @@ namespace IsTermwiseFiniteFree
 
 /-- Compatibility accessor for the finite-free structures in every integer cochain degree. -/
 theorem out (E : CochainComplex (ModuleCat R) ℤ) [hE : E.IsTermwiseFiniteFree] (i : ℤ) :
-    Module.Free R (E.X i) ∧ Module.Finite R (E.X i) := sorry
+    Module.Free R (E.X i) ∧ Module.Finite R (E.X i) :=
+  HomologicalComplex.IsTermwiseFiniteFree.out i
 
 end IsTermwiseFiniteFree
 

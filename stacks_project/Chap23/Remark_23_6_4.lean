@@ -29,7 +29,7 @@ universe u v w
 namespace DividedPowerGradedAlgebra.Adjoin
 
 variable {R : Type u} [CommRing R]
-variable (A : DividedPowerGradedAlgebra.{u, v} R) (d : ℕ+) (J : Type w)
+variable (A : DividedPowerGradedAlgebra.{u, v} R) (d : ℕ+) (J : Type w) [Small.{v} J]
 
 /- Remark 23.6.4 (0F4I): a possibly infinite family of homogeneous generators in one fixed
 positive degree has a graded divided-power extension with the relative mapping property. -/
@@ -98,7 +98,7 @@ end DividedPowerGradedAlgebra.Adjoin
 namespace DividedPowerChainAlgebra.Adjoin
 
 variable {R : Type u} [CommRing R]
-variable (A : DividedPowerChainAlgebra.{u, v} R) (d : ℕ+) (J : Type w)
+variable (A : DividedPowerChainAlgebra.{u, v} R) (d : ℕ+) (J : Type w) [Small.{v} J]
 variable (f : J → A.toChainDGAlgebra.nonnegativePiece ((d : ℕ) - 1))
 variable (hf : ∀ j : J, IsCycle A d (f j))
 

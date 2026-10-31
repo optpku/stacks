@@ -6,6 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.FinitePresentation.FiniteType
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.Perfect
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.Tensor
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.Pushforward

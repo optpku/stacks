@@ -58,16 +58,6 @@ instance of_isIso {S : Scheme.{u}} {X Y : (Over S)ᵒᵖ ⥤ Type u} (f : X ⟶ 
     [IsIso f] : Proper f :=
   sorry
 
-/-- A proper morphism of functors of points is representable by algebraic spaces,
-and every Yoneda pullback is a proper morphism of algebraic spaces. -/
-theorem spec {S : Scheme.{u}} {X Y : (Over S)ᵒᵖ ⥤ Type u} (f : X ⟶ Y)
-    [hf : Proper f] :
-    AlgebraicSpace.representableByAlgebraicSpaces f ∧
-      ∀ ⦃U : Over S⦄ (ξ : yoneda.obj U ⟶ Y),
-        AlgebraicSpace.Proper
-          (AlgebraicSpace.representableByAlgebraicSpaces.pullbackHom hf.representable ξ) :=
-  sorry
-
 /-- A morphism of functors of points is proper if and only if it satisfies the
 Bootstrap transfer of `AlgebraicSpace.Proper`. -/
 theorem iff_relativeAlgebraicSpaces {S : Scheme.{u}}

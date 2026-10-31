@@ -77,48 +77,76 @@ class IsQuasiRegularClosedImmersion (i : Z ⟶ X) : Prop extends IsClosedImmersi
 /-- The closedness and regular-ideal-sheaf conditions defining a regular closed immersion. -/
 theorem isRegularClosedImmersion_iff (i : Z ⟶ X) :
     IsRegularClosedImmersion i ↔
-      IsClosedImmersion i ∧ IsRegularIdealSheaf i.kernelIdealSubobject := sorry
+      IsClosedImmersion i ∧ IsRegularIdealSheaf i.kernelIdealSubobject := by
+  constructor
+  · intro h
+    exact ⟨h.toIsClosedImmersion, h.idealSheaf_isRegular⟩
+  · rintro ⟨hi, hI⟩
+    letI : IsClosedImmersion i := hi
+    exact ⟨hI⟩
 
 /-- The closedness and Koszul-regular-ideal-sheaf conditions defining a Koszul-regular closed
 immersion. -/
 theorem isKoszulRegularClosedImmersion_iff (i : Z ⟶ X) :
     IsKoszulRegularClosedImmersion i ↔
-      IsClosedImmersion i ∧ IsKoszulRegularIdealSheaf i.kernelIdealSubobject := sorry
+      IsClosedImmersion i ∧ IsKoszulRegularIdealSheaf i.kernelIdealSubobject := by
+  constructor
+  · intro h
+    exact ⟨h.toIsClosedImmersion, h.idealSheaf_isKoszulRegular⟩
+  · rintro ⟨hi, hI⟩
+    letI : IsClosedImmersion i := hi
+    exact ⟨hI⟩
 
 /-- The closedness and `H_1`-regular-ideal-sheaf conditions defining an `H_1`-regular closed
 immersion. -/
 theorem isH1RegularClosedImmersion_iff (i : Z ⟶ X) :
     IsH1RegularClosedImmersion i ↔
-      IsClosedImmersion i ∧ IsH1RegularIdealSheaf i.kernelIdealSubobject := sorry
+      IsClosedImmersion i ∧ IsH1RegularIdealSheaf i.kernelIdealSubobject := by
+  constructor
+  · intro h
+    exact ⟨h.toIsClosedImmersion, h.idealSheaf_isH1Regular⟩
+  · rintro ⟨hi, hI⟩
+    letI : IsClosedImmersion i := hi
+    exact ⟨hI⟩
 
 /-- The closedness and quasi-regular-ideal-sheaf conditions defining a quasi-regular closed
 immersion. -/
 theorem isQuasiRegularClosedImmersion_iff (i : Z ⟶ X) :
     IsQuasiRegularClosedImmersion i ↔
-      IsClosedImmersion i ∧ IsQuasiRegularIdealSheaf i.kernelIdealSubobject := sorry
+      IsClosedImmersion i ∧ IsQuasiRegularIdealSheaf i.kernelIdealSubobject := by
+  constructor
+  · intro h
+    exact ⟨h.toIsClosedImmersion, h.idealSheaf_isQuasiRegular⟩
+  · rintro ⟨hi, hI⟩
+    letI : IsClosedImmersion i := hi
+    exact ⟨hI⟩
 
 /-- A regular closed immersion exposes its closedness and regular ideal-sheaf conditions. -/
 theorem IsRegularClosedImmersion.source_spec
     {i : Z ⟶ X} (h : IsRegularClosedImmersion i) :
-    IsClosedImmersion i ∧ IsRegularIdealSheaf i.kernelIdealSubobject := sorry
+    IsClosedImmersion i ∧ IsRegularIdealSheaf i.kernelIdealSubobject := by
+  exact ⟨h.toIsClosedImmersion, h.idealSheaf_isRegular⟩
 
 /-- A Koszul-regular closed immersion exposes its closedness and Koszul-regular ideal-sheaf
 conditions. -/
 theorem IsKoszulRegularClosedImmersion.source_spec
     {i : Z ⟶ X} (h : IsKoszulRegularClosedImmersion i) :
-    IsClosedImmersion i ∧ IsKoszulRegularIdealSheaf i.kernelIdealSubobject := sorry
+    IsClosedImmersion i ∧ IsKoszulRegularIdealSheaf i.kernelIdealSubobject := by
+  exact ⟨h.toIsClosedImmersion, h.idealSheaf_isKoszulRegular⟩
 
 /-- An `H_1`-regular closed immersion exposes its closedness and `H_1`-regular ideal-sheaf
 conditions. -/
 theorem IsH1RegularClosedImmersion.source_spec
     {i : Z ⟶ X} (h : IsH1RegularClosedImmersion i) :
-    IsClosedImmersion i ∧ IsH1RegularIdealSheaf i.kernelIdealSubobject := sorry
+    IsClosedImmersion i ∧ IsH1RegularIdealSheaf i.kernelIdealSubobject := by
+  exact ⟨h.toIsClosedImmersion, h.idealSheaf_isH1Regular⟩
 
 /-- A quasi-regular closed immersion exposes its closedness and quasi-regular ideal-sheaf
 conditions. -/
 theorem IsQuasiRegularClosedImmersion.source_spec
     {i : Z ⟶ X} (h : IsQuasiRegularClosedImmersion i) :
-    IsClosedImmersion i ∧ IsQuasiRegularIdealSheaf i.kernelIdealSubobject := sorry
+    IsClosedImmersion i ∧ IsQuasiRegularIdealSheaf i.kernelIdealSubobject := by
+  exact ⟨h.toIsClosedImmersion, h.idealSheaf_isQuasiRegular⟩
 
 end ClosedImmersionRegularity
 
@@ -129,25 +157,29 @@ variable {X Z : Scheme.{u}} (i : Z ⟶ X)
 /-- A regular closed immersion supplies a regularity instance for its canonical ideal sheaf. -/
 instance instIsRegularIdealSheafClosedImmersionIdealSubobject
     [h : IsRegularClosedImmersion i] :
-    IsRegularIdealSheaf i.kernelIdealSubobject := sorry
+    IsRegularIdealSheaf i.kernelIdealSubobject := by
+  exact h.idealSheaf_isRegular
 
 /-- A Koszul-regular closed immersion supplies a Koszul-regularity instance for its canonical
 ideal sheaf. -/
 instance instIsKoszulRegularIdealSheafClosedImmersionIdealSubobject
     [h : IsKoszulRegularClosedImmersion i] :
-    IsKoszulRegularIdealSheaf i.kernelIdealSubobject := sorry
+    IsKoszulRegularIdealSheaf i.kernelIdealSubobject := by
+  exact h.idealSheaf_isKoszulRegular
 
 /-- An `H_1`-regular closed immersion supplies an `H_1`-regularity instance for its canonical
 ideal sheaf. -/
 instance instIsH1RegularIdealSheafClosedImmersionIdealSubobject
     [h : IsH1RegularClosedImmersion i] :
-    IsH1RegularIdealSheaf i.kernelIdealSubobject := sorry
+    IsH1RegularIdealSheaf i.kernelIdealSubobject := by
+  exact h.idealSheaf_isH1Regular
 
 /-- A quasi-regular closed immersion supplies a quasi-regularity instance for its canonical
 ideal sheaf. -/
 instance instIsQuasiRegularIdealSheafClosedImmersionIdealSubobject
     [h : IsQuasiRegularClosedImmersion i] :
-    IsQuasiRegularIdealSheaf i.kernelIdealSubobject := sorry
+    IsQuasiRegularIdealSheaf i.kernelIdealSubobject := by
+  exact h.idealSheaf_isQuasiRegular
 
 end ClosedImmersionCompanions
 
@@ -194,7 +226,13 @@ class IsQuasiRegularImmersion (i : Z ⟶ X) : Prop extends IsImmersion i where
 theorem isRegularImmersion_iff (i : Z ⟶ X) :
     IsRegularImmersion i ↔
       IsImmersion i ∧
-        ∃ U : X.Opens, ∃ j : Z ⟶ U.toScheme, IsRegularClosedImmersion j ∧ j ≫ U.ι = i := sorry
+        ∃ U : X.Opens, ∃ j : Z ⟶ U.toScheme, IsRegularClosedImmersion j ∧ j ≫ U.ι = i := by
+  constructor
+  · intro h
+    exact ⟨h.toIsImmersion, h.exists_isRegularClosedImmersion⟩
+  · rintro ⟨hi, hrest⟩
+    letI : IsImmersion i := hi
+    exact ⟨hrest⟩
 
 /-- The immersion and local Koszul-regular-closed-immersion conditions defining a
 Koszul-regular immersion. -/
@@ -202,7 +240,13 @@ theorem isKoszulRegularImmersion_iff (i : Z ⟶ X) :
     IsKoszulRegularImmersion i ↔
       IsImmersion i ∧
         ∃ U : X.Opens, ∃ j : Z ⟶ U.toScheme,
-          IsKoszulRegularClosedImmersion j ∧ j ≫ U.ι = i := sorry
+          IsKoszulRegularClosedImmersion j ∧ j ≫ U.ι = i := by
+  constructor
+  · intro h
+    exact ⟨h.toIsImmersion, h.exists_isKoszulRegularClosedImmersion⟩
+  · rintro ⟨hi, hrest⟩
+    letI : IsImmersion i := hi
+    exact ⟨hrest⟩
 
 /-- The immersion and local `H_1`-regular-closed-immersion conditions defining an
 `H_1`-regular immersion. -/
@@ -210,7 +254,13 @@ theorem isH1RegularImmersion_iff (i : Z ⟶ X) :
     IsH1RegularImmersion i ↔
       IsImmersion i ∧
         ∃ U : X.Opens, ∃ j : Z ⟶ U.toScheme,
-          IsH1RegularClosedImmersion j ∧ j ≫ U.ι = i := sorry
+          IsH1RegularClosedImmersion j ∧ j ≫ U.ι = i := by
+  constructor
+  · intro h
+    exact ⟨h.toIsImmersion, h.exists_isH1RegularClosedImmersion⟩
+  · rintro ⟨hi, hrest⟩
+    letI : IsImmersion i := hi
+    exact ⟨hrest⟩
 
 /-- The immersion and local quasi-regular-closed-immersion conditions defining a
 quasi-regular immersion. -/
@@ -218,13 +268,20 @@ theorem isQuasiRegularImmersion_iff (i : Z ⟶ X) :
     IsQuasiRegularImmersion i ↔
       IsImmersion i ∧
         ∃ U : X.Opens, ∃ j : Z ⟶ U.toScheme,
-          IsQuasiRegularClosedImmersion j ∧ j ≫ U.ι = i := sorry
+          IsQuasiRegularClosedImmersion j ∧ j ≫ U.ι = i := by
+  constructor
+  · intro h
+    exact ⟨h.toIsImmersion, h.exists_isQuasiRegularClosedImmersion⟩
+  · rintro ⟨hi, hrest⟩
+    letI : IsImmersion i := hi
+    exact ⟨hrest⟩
 
 /-- A regular immersion exposes its immersion condition and local regular closed presentation. -/
 theorem IsRegularImmersion.source_spec
     {i : Z ⟶ X} (h : IsRegularImmersion i) :
     IsImmersion i ∧
-      ∃ U : X.Opens, ∃ j : Z ⟶ U.toScheme, IsRegularClosedImmersion j ∧ j ≫ U.ι = i := sorry
+      ∃ U : X.Opens, ∃ j : Z ⟶ U.toScheme, IsRegularClosedImmersion j ∧ j ≫ U.ι = i := by
+  exact ⟨h.toIsImmersion, h.exists_isRegularClosedImmersion⟩
 
 /-- A Koszul-regular immersion exposes its immersion condition and local Koszul-regular closed
 presentation. -/
@@ -232,7 +289,8 @@ theorem IsKoszulRegularImmersion.source_spec
     {i : Z ⟶ X} (h : IsKoszulRegularImmersion i) :
     IsImmersion i ∧
       ∃ U : X.Opens, ∃ j : Z ⟶ U.toScheme,
-        IsKoszulRegularClosedImmersion j ∧ j ≫ U.ι = i := sorry
+        IsKoszulRegularClosedImmersion j ∧ j ≫ U.ι = i := by
+  exact ⟨h.toIsImmersion, h.exists_isKoszulRegularClosedImmersion⟩
 
 /-- An `H_1`-regular immersion exposes its immersion condition and local `H_1`-regular closed
 presentation. -/
@@ -240,7 +298,8 @@ theorem IsH1RegularImmersion.source_spec
     {i : Z ⟶ X} (h : IsH1RegularImmersion i) :
     IsImmersion i ∧
       ∃ U : X.Opens, ∃ j : Z ⟶ U.toScheme,
-        IsH1RegularClosedImmersion j ∧ j ≫ U.ι = i := sorry
+        IsH1RegularClosedImmersion j ∧ j ≫ U.ι = i := by
+  exact ⟨h.toIsImmersion, h.exists_isH1RegularClosedImmersion⟩
 
 /-- A quasi-regular immersion exposes its immersion condition and local quasi-regular closed
 presentation. -/
@@ -248,7 +307,8 @@ theorem IsQuasiRegularImmersion.source_spec
     {i : Z ⟶ X} (h : IsQuasiRegularImmersion i) :
     IsImmersion i ∧
       ∃ U : X.Opens, ∃ j : Z ⟶ U.toScheme,
-        IsQuasiRegularClosedImmersion j ∧ j ≫ U.ι = i := sorry
+        IsQuasiRegularClosedImmersion j ∧ j ≫ U.ι = i := by
+  exact ⟨h.toIsImmersion, h.exists_isQuasiRegularClosedImmersion⟩
 
 end ImmersionRegularity
 
@@ -258,27 +318,31 @@ variable {X Z : Scheme.{u}} (i : Z ⟶ X)
 
 /-- A regular immersion has a regular closed-immersion presentation over an open subscheme. -/
 theorem exists_restrict_isRegularClosedImmersion [h : IsRegularImmersion i] :
-    ∃ U : X.Opens, ∃ j : Z ⟶ U.toScheme, IsRegularClosedImmersion j ∧ j ≫ U.ι = i := sorry
+    ∃ U : X.Opens, ∃ j : Z ⟶ U.toScheme, IsRegularClosedImmersion j ∧ j ≫ U.ι = i := by
+  exact h.exists_isRegularClosedImmersion
 
 /-- A Koszul-regular immersion has a Koszul-regular closed-immersion presentation over an open
 subscheme. -/
 theorem exists_restrict_isKoszulRegularClosedImmersion
     [h : IsKoszulRegularImmersion i] :
     ∃ U : X.Opens, ∃ j : Z ⟶ U.toScheme,
-      IsKoszulRegularClosedImmersion j ∧ j ≫ U.ι = i := sorry
+      IsKoszulRegularClosedImmersion j ∧ j ≫ U.ι = i := by
+  exact h.exists_isKoszulRegularClosedImmersion
 
 /-- An `H_1`-regular immersion has an `H_1`-regular closed-immersion presentation over an open
 subscheme. -/
 theorem exists_restrict_isH1RegularClosedImmersion [h : IsH1RegularImmersion i] :
     ∃ U : X.Opens, ∃ j : Z ⟶ U.toScheme,
-      IsH1RegularClosedImmersion j ∧ j ≫ U.ι = i := sorry
+      IsH1RegularClosedImmersion j ∧ j ≫ U.ι = i := by
+  exact h.exists_isH1RegularClosedImmersion
 
 /-- A quasi-regular immersion has a quasi-regular closed-immersion presentation over an open
 subscheme. -/
 theorem exists_restrict_isQuasiRegularClosedImmersion
     [h : IsQuasiRegularImmersion i] :
     ∃ U : X.Opens, ∃ j : Z ⟶ U.toScheme,
-      IsQuasiRegularClosedImmersion j ∧ j ≫ U.ι = i := sorry
+      IsQuasiRegularClosedImmersion j ∧ j ≫ U.ι = i := by
+  exact h.exists_isQuasiRegularClosedImmersion
 
 end ImmersionCompanions
 

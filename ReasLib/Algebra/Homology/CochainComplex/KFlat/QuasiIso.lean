@@ -36,14 +36,19 @@ namespace CochainComplex.IsKFlat
 
 section FixedRight
 
-variable {C : Type u} [Category.{v} C] [Preadditive C] [HasZeroObject C]
+variable {C : Type u} [Category.{v} C] [Abelian C]
 variable [CategoryWithHomology C] [MonoidalCategory C] [MonoidalPreadditive C]
 variable {K : CochainComplex C ℤ}
 variable [∀ X : CochainComplex C ℤ,
   CochainComplex.HasMapBifunctor X K (curriedTensor C)]
 
 /-- Tensoring a quasi-isomorphism on the right by a fixed K-flat complex preserves
-quasi-isomorphisms. -/
+quasi-isomorphisms in an abelian coefficient category.
+
+The abelian hypothesis supplies the kernel/cokernel cone criterion used by the
+Stacks argument; `CategoryWithHomology` alone also permits non-abelian coefficient
+categories where this implication can fail.  The homology interface remains explicit
+because `QuasiIso` is defined from it. -/
 @[stacks 06Y0 "fixed K-flat tensor factor preserves quasi-isomorphisms",
   stacks 06YP "K-flat tensor invariance"]
 theorem quasiIso_tensorHom_left {L M : CochainComplex C ℤ}

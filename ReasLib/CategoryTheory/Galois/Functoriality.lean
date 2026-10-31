@@ -44,18 +44,24 @@ def forgetContAction (G : Type uG) [Monoid G] [TopologicalSpace G] :
 of its finite continuous action realization. -/
 def fiberIso_functorToContAction :
     F' ≅ functorToContAction F' ⋙ forgetContAction (Aut F') :=
-  NatIso.ofComponents (fun X ↦ Iso.refl (F'.obj X)) fun _ ↦ sorry
+  NatIso.ofComponents (fun X ↦ Iso.refl (F'.obj X)) fun f ↦ by
+    change F'.map f ≫ 𝟙 _ = 𝟙 _ ≫ F'.map f
+    simp
 
 /-- Restriction of scalars preserves the underlying finite set. -/
 def res_comp_forgetContAction (h : ContinuousMonoidHom (Aut F') (Aut F)) :
     ContAction.res FintypeCat h ⋙ forgetContAction (Aut F') ≅
       forgetContAction (Aut F) :=
-  NatIso.ofComponents (fun _ ↦ Iso.refl _) fun _ ↦ sorry
+  NatIso.ofComponents (fun _ ↦ Iso.refl _) fun f ↦ by
+    change f.hom.hom ≫ 𝟙 _ = 𝟙 _ ≫ f.hom.hom
+    simp
 
 /-- The action realization of `F` followed by the underlying-set functor recovers `F`. -/
 def functorToContAction_comp_forget :
     functorToContAction F ⋙ forgetContAction (Aut F) ≅ F :=
-  NatIso.ofComponents (fun X ↦ Iso.refl (F.obj X)) fun _ ↦ sorry
+  NatIso.ofComponents (fun X ↦ Iso.refl (F.obj X)) fun f ↦ by
+    change F.map f ≫ 𝟙 _ = 𝟙 _ ≫ F.map f
+    simp
 
 /-- The inverse action equivalence identifies `F'` with the underlying-set functor. -/
 noncomputable def inv_comp_fiberIso_functorToContAction :
@@ -77,14 +83,43 @@ noncomputable def fiberIsoOfContinuousHom (h : ContinuousMonoidHom (Aut F') (Aut
 
 /-- The converse functor associated to a continuous homomorphism is exact. -/
 theorem functorOfContinuousHom_exact (h : ContinuousMonoidHom (Aut F') (Aut F)) :
-    exactFunctor C C' (functorOfContinuousHomCore F F' h) :=
-  sorry
+    exactFunctor C C' (functorOfContinuousHomCore F F' h) := by
+  constructor
+  · letI : PreservesFiniteLimits (functorOfContinuousHomCore F F' h ⋙ F') :=
+      preservesFiniteLimits_of_natIso (fiberIsoOfContinuousHom F F' h).symm
+    exact preservesFiniteLimits_of_reflects_of_preserves (functorOfContinuousHomCore F F' h) F'
+  · sorry
 
 /-- The converse functor and its fibre comparison recover the original homomorphism. -/
 theorem functorOfContinuousHom_induced (h : ContinuousMonoidHom (Aut F') (Aut F)) :
     inducedContinuousHomCore F F' (functorOfContinuousHomCore F F' h)
-      (fiberIsoOfContinuousHom F F' h) = h :=
-  sorry
+      (fiberIsoOfContinuousHom F F' h) = h := by
+  apply ContinuousMonoidHom.ext
+  intro σ
+  apply Iso.ext
+  apply NatTrans.ext
+  funext X
+  change (fiberIsoOfContinuousHom F F' h).inv.app X ≫
+    σ.hom.app ((functorOfContinuousHomCore F F' h).obj X) ≫
+    (fiberIsoOfContinuousHom F F' h).hom.app X = (h σ).hom.app X
+  let e := (functorToContAction F').asEquivalence.counitIso.app
+    ((ContAction.res FintypeCat h).obj ((functorToContAction F).obj X))
+  have he : (fiberIsoOfContinuousHom F F' h).hom.app X = e.hom.hom.hom := rfl
+  have he_inv : (fiberIsoOfContinuousHom F F' h).inv.app X = e.inv.hom.hom := rfl
+  have hid : e.inv.hom.hom ≫ e.hom.hom.hom = 𝟙 (F.obj X) :=
+    ((forgetContAction (Aut F')).mapIso e).inv_hom_id
+  have hc : σ.hom.app ((functorOfContinuousHomCore F F' h).obj X) ≫
+      e.hom.hom.hom = e.hom.hom.hom ≫ (h σ).hom.app X :=
+    e.hom.hom.comm σ
+  rw [he, he_inv]
+  calc
+    _ = e.inv.hom.hom ≫ (e.hom.hom.hom ≫ (h σ).hom.app X) :=
+      congrArg (fun f ↦ e.inv.hom.hom ≫ f) hc
+    _ = (e.inv.hom.hom ≫ e.hom.hom.hom) ≫ (h σ).hom.app X :=
+      (Category.assoc _ _ _).symm
+    _ = 𝟙 (F.obj X) ≫ (h σ).hom.app X :=
+      congrArg (fun f ↦ f ≫ (h σ).hom.app X) hid
+    _ = (h σ).hom.app X := Category.id_comp _
 
 /-- An exact functor between Galois categories admits a fibre comparison isomorphism. -/
 theorem existsIso_comp_fiber (H : C ⥤ C') (h_exact : exactFunctor C C' H) :
@@ -111,8 +146,14 @@ theorem inducedContinuousHom_conj (H : C ⥤ C') (h_exact : exactFunctor C C' H)
     (t t' : H ⋙ F' ≅ F) :
     ∃ g : Aut F, ∀ σ : Aut F',
       inducedContinuousHom F F' H h_exact t' σ =
-        g * inducedContinuousHom F F' H h_exact t σ * g⁻¹ :=
-  sorry
+        g * inducedContinuousHom F F' H h_exact t σ * g⁻¹ := by
+  let g : Aut F := t.symm ≪≫ t'
+  refine ⟨g, ?_⟩
+  intro σ
+  change t'.conjAut _ = g * t.conjAut _ * g⁻¹
+  apply Iso.ext
+  simp [g, Iso.conjAut_hom, Iso.conj_apply, Aut.Aut_mul_def, Aut.Aut_inv_def,
+    Category.assoc]
 
 /-- The canonical converse functor associated to a continuous homomorphism. -/
 noncomputable def functorOfContinuousHom (h : ContinuousMonoidHom (Aut F') (Aut F)) : C ⥤ C' :=
@@ -121,13 +162,13 @@ noncomputable def functorOfContinuousHom (h : ContinuousMonoidHom (Aut F') (Aut 
 /-- The canonical converse functor is exact. -/
 theorem functorOfContinuousHom_exact_ofHom (h : ContinuousMonoidHom (Aut F') (Aut F)) :
     exactFunctor C C' (functorOfContinuousHom F F' h) :=
-  sorry
+  functorOfContinuousHom_exact F F' h
 
 /-- The canonical converse functor and its fibre comparison recover the given homomorphism. -/
 theorem functorOfContinuousHom_induced_ofHom (h : ContinuousMonoidHom (Aut F') (Aut F)) :
     inducedContinuousHom F F' (functorOfContinuousHom F F' h)
       (functorOfContinuousHom_exact_ofHom F F' h)
       (fiberIsoOfContinuousHom F F' h) = h :=
-  sorry
+  functorOfContinuousHom_induced F F' h
 
 end CategoryTheory.PreGaloisCategory

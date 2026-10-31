@@ -39,13 +39,13 @@ universe is chosen uniformly on both sides, so the equivalence instance
 also applies to downstream categories living above the base-ring universe. -/
 @[stacks 09ZL "finite-etale quotient reduction view"]
 abbrev reduction (I : Ideal A) :
-    CommAlgCat.FiniteEtale A ⥤ CommAlgCat.FiniteEtale (A ⧸ I) :=
+    CommAlgCat.FiniteEtale.{max u v} A ⥤ CommAlgCat.FiniteEtale.{max u v} (A ⧸ I) :=
   CommAlgCat.FiniteEtale.baseChange A (A ⧸ I)
 
 /-- Lemma 15.13.2: reduction modulo an ideal in a henselian pair is the canonical equivalence on
 finite etale algebras. Lemma 10.153.7 is its henselian-local-ring specialization. -/
 @[stacks 09ZL "finite-etale reduction over a henselian pair"]
 instance reduction_isEquivalence (I : Ideal A) [HenselianRing A I] :
-    Functor.IsEquivalence (reduction I) := sorry
+    Functor.IsEquivalence (reduction.{u, v} I) := sorry
 
 end CommAlgCat.FiniteEtale

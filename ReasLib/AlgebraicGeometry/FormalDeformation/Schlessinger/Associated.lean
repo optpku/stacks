@@ -12,6 +12,7 @@ public import Mathlib.CategoryTheory.Opposites
 public import Mathlib.Combinatorics.Quiver.Basic
 public import ReasLib.CategoryTheory.Fibered.FiberIsoClassPresheaf.Basic
 public import ReasLib.CategoryTheory.Fibered.InGroupoids.Basic
+public import ReasLib.CategoryTheory.Fibered.InGroupoids.Elements
 public import ReasLib.AlgebraicGeometry.FormalDeformation.ArtinianLocal
 public import ReasLib.AlgebraicGeometry.FormalDeformation.Predeformation
 public import ReasLib.AlgebraicGeometry.FormalDeformation.Schlessinger
@@ -55,12 +56,6 @@ theorem isoClassFunctor_map_mk (p : F ⥤ ArtinianLocalAlgCat Λ k)
     [IsFibered.InGroupoids p.op] (χ : (p.op).Cleavage)
     {A B : ArtinianLocalAlgCat Λ k} (f : A ⟶ B) (x : (p.op).Fiber (op A)) :
     (isoClassFunctor p).map f (Quotient.mk'' x) = Quotient.mk'' ((f.op)⁎[χ] x) := sorry
-
-/-- The category of elements of `isoClassFunctor p` is cofibered in groupoids over
-`ArtinianLocalAlgCat Λ k`. -/
-instance isoClassFunctor_op_isFiberedInGroupoids (p : F ⥤ ArtinianLocalAlgCat Λ k)
-    [IsFibered.InGroupoids p.op] :
-    IsFibered.InGroupoids (CategoryOfElements.π (isoClassFunctor p)).op := sorry
 
 /-- If a category cofibered in groupoids over Artinian local algebras satisfies (S1),
 then its associated functor of isomorphism classes satisfies (S1). -/

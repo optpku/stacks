@@ -50,7 +50,8 @@ noncomputable def fiberProductSnd {W : Scheme.{u}} {U : Scheme.{u}ᵒᵖ ⥤ Typ
 theorem fiberProduct_spec {W : Scheme.{u}} {U : Scheme.{u}ᵒᵖ ⥤ Type u}
     (w : yoneda.obj W ⟶ U) (hw : MorphismProperty.presheaf (@Etale) w) :
     IsPullback (yoneda.map (fiberProductFst w hw))
-      (yoneda.map (fiberProductSnd w hw)) w w := sorry
+      (yoneda.map (fiberProductSnd w hw)) w w :=
+  hw.rep.isPullback' w
 
 /-- The diagonal of a representable étale chart in its represented kernel pair. -/
 noncomputable def diagonal {W : Scheme.{u}} {U : Scheme.{u}ᵒᵖ ⥤ Type u}
@@ -62,17 +63,37 @@ noncomputable def diagonal {W : Scheme.{u}} {U : Scheme.{u}ᵒᵖ ⥤ Type u}
 /-- The diagonal is a section of the first kernel-pair projection. -/
 theorem diagonal_fst {W : Scheme.{u}} {U : Scheme.{u}ᵒᵖ ⥤ Type u}
     (w : yoneda.obj W ⟶ U) (hw : MorphismProperty.presheaf (@Etale) w) :
-    diagonal w hw ≫ fiberProductFst w hw = 𝟙 W := sorry
+    diagonal w hw ≫ fiberProductFst w hw = 𝟙 W := by
+  apply yoneda.map_injective
+  rw [Functor.map_comp, CategoryTheory.Functor.map_id]
+  dsimp only [diagonal, fiberProductFst, fiberProduct]
+  rw [Functor.map_preimage, hw.rep.map_fst' w]
+  exact PullbackCone.IsLimit.lift_fst _ _ _ _
 
 /-- The diagonal is a section of the second kernel-pair projection. -/
 theorem diagonal_snd {W : Scheme.{u}} {U : Scheme.{u}ᵒᵖ ⥤ Type u}
     (w : yoneda.obj W ⟶ U) (hw : MorphismProperty.presheaf (@Etale) w) :
-    diagonal w hw ≫ fiberProductSnd w hw = 𝟙 W := sorry
+    diagonal w hw ≫ fiberProductSnd w hw = 𝟙 W := by
+  apply yoneda.map_injective
+  rw [Functor.map_comp, CategoryTheory.Functor.map_id]
+  dsimp only [diagonal, fiberProductSnd, fiberProduct]
+  rw [Functor.map_preimage]
+  exact PullbackCone.IsLimit.lift_snd _ _ _ _
 
 /-- The diagonal is an open immersion, being a section of an étale projection. -/
 instance instIsOpenImmersionDiagonal {W : Scheme.{u}} {U : Scheme.{u}ᵒᵖ ⥤ Type u}
     (w : yoneda.obj W ⟶ U) (hw : MorphismProperty.presheaf (@Etale) w) :
-    IsOpenImmersion (diagonal w hw) := sorry
+    IsOpenImmersion (diagonal w hw) := by
+  haveI : Etale (fiberProductSnd w hw) := hw.property_snd w
+  letI : MorphismProperty.HasOfPostcompProperty (@IsOpenImmersion) (@Etale) :=
+    MorphismProperty.hasOfPostcompProperty_iff_le_diagonal.mpr fun X Y f hf ↦ by
+      letI := hf
+      exact inferInstanceAs (IsOpenImmersion (pullback.diagonal f))
+  apply MorphismProperty.HasOfPostcompProperty.of_postcomp
+    (W := @IsOpenImmersion) (W' := @Etale) (diagonal w hw)
+    (fiberProductSnd w hw) (inferInstanceAs (Etale _))
+  rw [diagonal_snd]
+  infer_instance
 
 /-- The scheme formed by gluing a represented kernel pair to `V` along `W`. -/
 noncomputable def obj {W V : Scheme.{u}} {U : Scheme.{u}ᵒᵖ ⥤ Type u}
@@ -84,7 +105,8 @@ noncomputable def obj {W V : Scheme.{u}} {U : Scheme.{u}ᵒᵖ ⥤ Type u}
 theorem source_condition {W V : Scheme.{u}} {U : Scheme.{u}ᵒᵖ ⥤ Type u}
     (ιW : W ⟶ V) (w : yoneda.obj W ⟶ U) (hw : MorphismProperty.presheaf (@Etale) w)
     [IsOpenImmersion ιW] :
-    diagonal w hw ≫ (fiberProductSnd w hw ≫ ιW) = ιW ≫ 𝟙 V := sorry
+    diagonal w hw ≫ (fiberProductSnd w hw ≫ ιW) = ιW ≫ 𝟙 V := by
+  simp [← Category.assoc, diagonal_snd]
 
 /-- The source projection extends the second kernel-pair projection and the identity of `V`. -/
 noncomputable def source {W V : Scheme.{u}} {U : Scheme.{u}ᵒᵖ ⥤ Type u}
@@ -96,7 +118,8 @@ noncomputable def source {W V : Scheme.{u}} {U : Scheme.{u}ᵒᵖ ⥤ Type u}
 theorem target_condition {W V : Scheme.{u}} {U : Scheme.{u}ᵒᵖ ⥤ Type u}
     (ιW : W ⟶ V) (w : yoneda.obj W ⟶ U) (hw : MorphismProperty.presheaf (@Etale) w)
     [IsOpenImmersion ιW] :
-    diagonal w hw ≫ (fiberProductFst w hw ≫ ιW) = ιW ≫ 𝟙 V := sorry
+    diagonal w hw ≫ (fiberProductFst w hw ≫ ιW) = ιW ≫ 𝟙 V := by
+  simp [← Category.assoc, diagonal_fst]
 
 /-- The target projection extends the first kernel-pair projection and the identity of `V`. -/
 noncomputable def target {W V : Scheme.{u}} {U : Scheme.{u}ᵒᵖ ⥤ Type u}
@@ -111,7 +134,9 @@ theorem fiberProductMap_condition {W W' : Scheme.{u}}
     (w' : yoneda.obj W' ⟶ U') (hW : W ⟶ W') (u : U ⟶ U')
     (hWU : IsPullback (yoneda.map hW) w w' u) :
     yoneda.map (fiberProductFst w hw ≫ hW) ≫ w' =
-      yoneda.map (fiberProductSnd w hw ≫ hW) ≫ w' := sorry
+      yoneda.map (fiberProductSnd w hw ≫ hW) ≫ w' := by
+  simp only [Functor.map_comp, Category.assoc, hWU.w]
+  rw [← Category.assoc, (fiberProduct_spec w hw).w, Category.assoc]
 
 /-- The comparison of represented kernel pairs induced by a cartesian chart transition. -/
 noncomputable def fiberProductMap {W W' : Scheme.{u}}
@@ -124,13 +149,48 @@ noncomputable def fiberProductMap {W W' : Scheme.{u}}
     (yoneda.map (fiberProductFst w hw ≫ hW)) (yoneda.map (fiberProductSnd w hw ≫ hW))
     (fiberProductMap_condition w hw w' hW u hWU))
 
+/-- Comparison maps commute with the first kernel-pair projection. -/
+theorem fiberProductMap_fst {W W' : Scheme.{u}} {U U' : Scheme.{u}ᵒᵖ ⥤ Type u}
+    (w : yoneda.obj W ⟶ U) (hw : MorphismProperty.presheaf (@Etale) w)
+    (w' : yoneda.obj W' ⟶ U') (hw' : MorphismProperty.presheaf (@Etale) w')
+    (hW : W ⟶ W') (u : U ⟶ U') (hWU : IsPullback (yoneda.map hW) w w' u) :
+    fiberProductMap w hw w' hw' hW u hWU ≫ fiberProductFst w' hw' =
+      fiberProductFst w hw ≫ hW := by
+  apply yoneda.map_injective
+  rw [Functor.map_comp]
+  dsimp only [fiberProductMap, fiberProductFst, fiberProductSnd, fiberProduct]
+  rw [Functor.map_preimage, hw'.rep.map_fst' w']
+  exact PullbackCone.IsLimit.lift_fst _ _ _ _
+
+/-- Comparison maps commute with the second kernel-pair projection. -/
+theorem fiberProductMap_snd {W W' : Scheme.{u}} {U U' : Scheme.{u}ᵒᵖ ⥤ Type u}
+    (w : yoneda.obj W ⟶ U) (hw : MorphismProperty.presheaf (@Etale) w)
+    (w' : yoneda.obj W' ⟶ U') (hw' : MorphismProperty.presheaf (@Etale) w')
+    (hW : W ⟶ W') (u : U ⟶ U') (hWU : IsPullback (yoneda.map hW) w w' u) :
+    fiberProductMap w hw w' hw' hW u hWU ≫ fiberProductSnd w' hw' =
+      fiberProductSnd w hw ≫ hW := by
+  apply yoneda.map_injective
+  rw [Functor.map_comp]
+  dsimp only [fiberProductMap, fiberProductFst, fiberProductSnd, fiberProduct]
+  rw [Functor.map_preimage]
+  exact PullbackCone.IsLimit.lift_snd _ _ _ _
+
 /-- The diagonal commutes with comparison maps of represented kernel pairs. -/
 theorem diagonal_natural {W W' : Scheme.{u}} {U U' : Scheme.{u}ᵒᵖ ⥤ Type u}
     (w : yoneda.obj W ⟶ U) (hw : MorphismProperty.presheaf (@Etale) w)
     (w' : yoneda.obj W' ⟶ U') (hw' : MorphismProperty.presheaf (@Etale) w')
     (hW : W ⟶ W') (u : U ⟶ U') (hWU : IsPullback (yoneda.map hW) w w' u) :
     diagonal w hw ≫ fiberProductMap w hw w' hw' hW u hWU =
-      hW ≫ diagonal w' hw' := sorry
+      hW ≫ diagonal w' hw' := by
+  apply hw'.rep.hom_ext'
+  · change (diagonal w hw ≫ fiberProductMap w hw w' hw' hW u hWU) ≫
+        fiberProductFst w' hw' = (hW ≫ diagonal w' hw') ≫ fiberProductFst w' hw'
+    simp only [Category.assoc, fiberProductMap_fst, diagonal_fst, Category.comp_id]
+    rw [← Category.assoc, diagonal_fst, Category.id_comp]
+  · change (diagonal w hw ≫ fiberProductMap w hw w' hw' hW u hWU) ≫
+        fiberProductSnd w' hw' = (hW ≫ diagonal w' hw') ≫ fiberProductSnd w' hw'
+    simp only [Category.assoc, fiberProductMap_snd, diagonal_snd, Category.comp_id]
+    rw [← Category.assoc, diagonal_snd, Category.id_comp]
 
 /-- The transition of glued relations induced by cartesian chart and open-subscheme transitions. -/
 noncomputable def map {W V W' V' : Scheme.{u}} {U U' : Scheme.{u}ᵒᵖ ⥤ Type u}
@@ -148,25 +208,29 @@ noncomputable def map {W V W' V' : Scheme.{u}} {U U' : Scheme.{u}ᵒᵖ ⥤ Type
 theorem source_inl {W V : Scheme.{u}} {U : Scheme.{u}ᵒᵖ ⥤ Type u}
     (ιW : W ⟶ V) (w : yoneda.obj W ⟶ U) (hw : MorphismProperty.presheaf (@Etale) w)
     [IsOpenImmersion ιW] :
-    pushout.inl (diagonal w hw) ιW ≫ source ιW w hw = fiberProductSnd w hw ≫ ιW := sorry
+    pushout.inl (diagonal w hw) ιW ≫ source ιW w hw = fiberProductSnd w hw ≫ ιW := by
+  exact pushout.inl_desc _ _ _
 
 /-- On the `V` chart, the source is the identity. -/
 theorem source_inr {W V : Scheme.{u}} {U : Scheme.{u}ᵒᵖ ⥤ Type u}
     (ιW : W ⟶ V) (w : yoneda.obj W ⟶ U) (hw : MorphismProperty.presheaf (@Etale) w)
     [IsOpenImmersion ιW] :
-    pushout.inr (diagonal w hw) ιW ≫ source ιW w hw = 𝟙 V := sorry
+    pushout.inr (diagonal w hw) ιW ≫ source ιW w hw = 𝟙 V := by
+  exact pushout.inr_desc _ _ _
 
 /-- On the kernel-pair chart, the target is the first projection followed by `W ⟶ V`. -/
 theorem target_inl {W V : Scheme.{u}} {U : Scheme.{u}ᵒᵖ ⥤ Type u}
     (ιW : W ⟶ V) (w : yoneda.obj W ⟶ U) (hw : MorphismProperty.presheaf (@Etale) w)
     [IsOpenImmersion ιW] :
-    pushout.inl (diagonal w hw) ιW ≫ target ιW w hw = fiberProductFst w hw ≫ ιW := sorry
+    pushout.inl (diagonal w hw) ιW ≫ target ιW w hw = fiberProductFst w hw ≫ ιW := by
+  exact pushout.inl_desc _ _ _
 
 /-- On the `V` chart, the target is the identity. -/
 theorem target_inr {W V : Scheme.{u}} {U : Scheme.{u}ᵒᵖ ⥤ Type u}
     (ιW : W ⟶ V) (w : yoneda.obj W ⟶ U) (hw : MorphismProperty.presheaf (@Etale) w)
     [IsOpenImmersion ιW] :
-    pushout.inr (diagonal w hw) ιW ≫ target ιW w hw = 𝟙 V := sorry
+    pushout.inr (diagonal w hw) ιW ≫ target ιW w hw = 𝟙 V := by
+  exact pushout.inr_desc _ _ _
 
 /-- The square of second kernel-pair projections for a cartesian chart transition is cartesian. -/
 theorem fiberProduct_isPullback {W W' : Scheme.{u}} {U U' : Scheme.{u}ᵒᵖ ⥤ Type u}
@@ -174,7 +238,13 @@ theorem fiberProduct_isPullback {W W' : Scheme.{u}} {U U' : Scheme.{u}ᵒᵖ ⥤
     (w' : yoneda.obj W' ⟶ U') (hw' : MorphismProperty.presheaf (@Etale) w')
     (hW : W ⟶ W') (u : U ⟶ U') (hWU : IsPullback (yoneda.map hW) w w' u) :
     IsPullback (fiberProductMap w hw w' hw' hW u hWU)
-      (fiberProductSnd w hw) (fiberProductSnd w' hw') hW := sorry
+      (fiberProductSnd w hw) (fiberProductSnd w' hw') hW := by
+  apply IsPullback.of_map yoneda (fiberProductMap_snd w hw w' hw' hW u hWU)
+  have H := (fiberProduct_spec w hw).paste_horiz hWU
+  rw [← Functor.map_comp, ← fiberProductMap_fst w hw w' hw' hW u hWU,
+    Functor.map_comp, ← hWU.w] at H
+  exact H.of_right (by simp only [← Functor.map_comp, fiberProductMap_snd])
+    (fiberProduct_spec w' hw')
 
 /-- Cartesian transitions of charts and open subschemes induce a cartesian source square
 of the glued relations. -/

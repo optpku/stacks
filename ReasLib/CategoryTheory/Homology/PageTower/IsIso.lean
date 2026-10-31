@@ -94,16 +94,6 @@ noncomputable instance map_isIso {P Q : HomologyPageTower C} (f : P ⟶ Q) (r : 
 
 end PageQuotient
 
-variable {P Q : HomologyPageTower C} (f : P ⟶ Q) [IsIso f]
-
-#synth IsIso (f.app 1)
-#synth IsIso (PageCycle.map f 1)
-#synth IsIso (PageBoundary.map f 1)
-#synth IsIso (PageHomology.map f 1)
-#synth IsIso (Cycle.map f 1)
-#synth IsIso (Boundary.map f 1)
-#synth IsIso (PageQuotient.map f 1)
-
 end HomologyPageTower
 
 end CategoryTheory

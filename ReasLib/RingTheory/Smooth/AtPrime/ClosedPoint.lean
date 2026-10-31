@@ -26,7 +26,6 @@ namespace Algebra.Smooth
 variable {R : Type u} {S : Type v} [CommRing R] [CommRing S] [Algebra R S]
 
 /-- For a local target, global smoothness is equivalent to smoothness at its closed point. -/
-@[stacks 0DQ1 "smoothness at the closed point of a local ring"]
 theorem iff_smoothAtPrime_closedPoint [IsLocalRing S] :
     Algebra.Smooth R S ↔
       Algebra.SmoothAtPrime R S (IsLocalRing.closedPoint S) := sorry

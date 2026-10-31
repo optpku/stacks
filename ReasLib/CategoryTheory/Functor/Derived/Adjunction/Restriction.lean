@@ -101,6 +101,66 @@ end LeftDerived
 
 end CategoryTheory.Functor
 
+namespace CategoryTheory.Adjunction.Derived
+
+variable {C1 : Type uC1} {C2 : Type uC2} {D1 : Type uD1} {D2 : Type uD2}
+variable [Category.{vC1} C1] [Category.{vC2} C2]
+variable [Category.{vD1} D1] [Category.{vD2} D2]
+variable {G : C1 ⥤ C2} {F : C2 ⥤ C1} {L1 : C1 ⥤ D1} {L2 : C2 ⥤ D2}
+
+/-- The structure map for postcomposing a left-derived model with a right-derived model. -/
+abbrev leftRightFactor {LF : D1 ⥤ D2} (RF : D2 ⥤ D1)
+    (α : L1 ⋙ LF ⟶ G ⋙ L2) :
+    L1 ⋙ (LF ⋙ RF) ⟶ (G ⋙ L2) ⋙ RF :=
+  (Functor.associator L1 LF RF).inv ≫ Functor.whiskerRight α RF
+
+/-- The structure map for postcomposing a right-derived model with a left-derived model. -/
+abbrev rightLeftUnit (LF : D1 ⥤ D2) {RF : D2 ⥤ D1}
+    (β : F ⋙ L1 ⟶ L2 ⋙ RF) :
+    (F ⋙ L1) ⋙ LF ⟶ L2 ⋙ (RF ⋙ LF) :=
+  Functor.whiskerRight β LF ≫ (Functor.associator L2 RF LF).hom
+
+/-- The two composite-derived hypotheses of `Adjunction.derived`, for specified models and
+structure maps. This only asks for stability under postcomposition with the other model, rather
+than absoluteness under every functor. The individual derived-functor hypotheses are separate.
+
+This is the common owner of the total-derived, bounded-below, K-injective, and topology-comparison
+pair conditions. The total-derived `HasPair` is a transparent specialization. The other facades
+retain their legacy fields and provide `hasPair_iff_derivedHasPair` and one-way instance bridges
+to this class. -/
+class HasPair (LF : D1 ⥤ D2) (RF : D2 ⥤ D1)
+    (α : L1 ⋙ LF ⟶ G ⋙ L2) (β : F ⋙ L1 ⟶ L2 ⋙ RF)
+    (W1 : MorphismProperty C1) (W2 : MorphismProperty C2)
+    [L1.IsLocalization W1] [L2.IsLocalization W2] : Prop extends
+    (LF ⋙ RF).IsLeftDerivedFunctor (leftRightFactor RF α) W1,
+    (RF ⋙ LF).IsRightDerivedFunctor (rightLeftUnit LF β) W2
+
+/-- The common pair condition is exactly the conjunction of Mathlib's composite hypotheses. -/
+theorem hasPair_iff (LF : D1 ⥤ D2) (RF : D2 ⥤ D1)
+    (α : L1 ⋙ LF ⟶ G ⋙ L2) (β : F ⋙ L1 ⟶ L2 ⋙ RF)
+    (W1 : MorphismProperty C1) (W2 : MorphismProperty C2)
+    [L1.IsLocalization W1] [L2.IsLocalization W2] :
+    HasPair LF RF α β W1 W2 ↔
+      (LF ⋙ RF).IsLeftDerivedFunctor (leftRightFactor RF α) W1 ∧
+      (RF ⋙ LF).IsRightDerivedFunctor (rightLeftUnit LF β) W2 := by
+  constructor
+  · intro h
+    exact ⟨h.toIsLeftDerivedFunctor, h.toIsRightDerivedFunctor⟩
+  · rintro ⟨hleft, hright⟩
+    exact { toIsLeftDerivedFunctor := hleft, toIsRightDerivedFunctor := hright }
+
+/-- Bridge from the common pair condition to Mathlib's canonical derived adjunction. -/
+noncomputable def HasPair.derived (adj : G ⊣ F)
+    (W1 : MorphismProperty C1) (W2 : MorphismProperty C2)
+    [L1.IsLocalization W1] [L2.IsLocalization W2]
+    {LF : D1 ⥤ D2} {RF : D2 ⥤ D1}
+    (α : L1 ⋙ LF ⟶ G ⋙ L2) (β : F ⋙ L1 ⟶ L2 ⋙ RF)
+    [LF.IsLeftDerivedFunctor α W1] [RF.IsRightDerivedFunctor β W2]
+    [HasPair LF RF α β W1 W2] : LF ⊣ RF :=
+  adj.derived W1 W2 α β
+
+end CategoryTheory.Adjunction.Derived
+
 namespace CategoryTheory.Adjunction.TotalDerived
 
 variable {C1 : Type uC1} {C2 : Type uC2} {D1 : Type uD1} {D2 : Type uD2}
@@ -108,27 +168,59 @@ variable [Category.{vC1} C1] [Category.{vC2} C2]
 variable [Category.{vD1} D1] [Category.{vD2} D2]
 variable {G : C1 ⥤ C2} {F : C2 ⥤ C1} (adj : G ⊣ F)
 
-/-- The canonical total left- and right-derived functors of an adjoint pair remain derived after
-composition with one another. This is precisely the absolute-derived hypothesis required by
-`Adjunction.derived`. -/
+/-- Transparent specialization of `Adjunction.Derived.HasPair` to the canonical total-derived
+models. It supplies exactly the composite hypotheses required by `Adjunction.derived`. -/
 @[stacks 0BYX "absolute total-derived adjunction pair"]
-class HasPair (W1 : MorphismProperty C1) (W2 : MorphismProperty C2)
+abbrev HasPair (W1 : MorphismProperty C1) (W2 : MorphismProperty C2)
     {L1 : C1 ⥤ D1} {L2 : C2 ⥤ D2}
     [L1.IsLocalization W1] [L2.IsLocalization W2]
     [(G ⋙ L2).HasLeftDerivedFunctor W1]
-    [(F ⋙ L1).HasRightDerivedFunctor W2] : Prop extends
-    ((G ⋙ L2).totalLeftDerived L1 W1 ⋙
-      (F ⋙ L1).totalRightDerived L2 W2).IsLeftDerivedFunctor
-        ((Functor.associator L1 ((G ⋙ L2).totalLeftDerived L1 W1)
-            ((F ⋙ L1).totalRightDerived L2 W2)).inv ≫
-          Functor.whiskerRight ((G ⋙ L2).totalLeftDerivedCounit L1 W1)
-            ((F ⋙ L1).totalRightDerived L2 W2)) W1,
-    ((F ⋙ L1).totalRightDerived L2 W2 ⋙
-      (G ⋙ L2).totalLeftDerived L1 W1).IsRightDerivedFunctor
-        (Functor.whiskerRight ((F ⋙ L1).totalRightDerivedUnit L2 W2)
-            ((G ⋙ L2).totalLeftDerived L1 W1) ≫
-          (Functor.associator L2 ((F ⋙ L1).totalRightDerived L2 W2)
-            ((G ⋙ L2).totalLeftDerived L1 W1)).hom) W2
+    [(F ⋙ L1).HasRightDerivedFunctor W2] : Prop :=
+  Derived.HasPair ((G ⋙ L2).totalLeftDerived L1 W1)
+    ((F ⋙ L1).totalRightDerived L2 W2)
+    ((G ⋙ L2).totalLeftDerivedCounit L1 W1)
+    ((F ⋙ L1).totalRightDerivedUnit L2 W2) W1 W2
+
+/-- Compatibility constructor for callers supplying the two total-derived universal properties.
+The result is the common pair condition, with no additional wrapper. -/
+abbrev HasPair.mk {W1 : MorphismProperty C1} {W2 : MorphismProperty C2}
+    {L1 : C1 ⥤ D1} {L2 : C2 ⥤ D2}
+    [L1.IsLocalization W1] [L2.IsLocalization W2]
+    [(G ⋙ L2).HasLeftDerivedFunctor W1]
+    [(F ⋙ L1).HasRightDerivedFunctor W2]
+    (toIsLeftDerivedFunctor :
+      ((G ⋙ L2).totalLeftDerived L1 W1 ⋙
+        (F ⋙ L1).totalRightDerived L2 W2).IsLeftDerivedFunctor
+          (Derived.leftRightFactor ((F ⋙ L1).totalRightDerived L2 W2)
+            ((G ⋙ L2).totalLeftDerivedCounit L1 W1)) W1)
+    (toIsRightDerivedFunctor :
+      ((F ⋙ L1).totalRightDerived L2 W2 ⋙
+        (G ⋙ L2).totalLeftDerived L1 W1).IsRightDerivedFunctor
+          (Derived.rightLeftUnit ((G ⋙ L2).totalLeftDerived L1 W1)
+            ((F ⋙ L1).totalRightDerivedUnit L2 W2)) W2) :
+    HasPair (G := G) (F := F) W1 W2 (L1 := L1) (L2 := L2) :=
+  { toIsLeftDerivedFunctor := toIsLeftDerivedFunctor,
+    toIsRightDerivedFunctor := toIsRightDerivedFunctor }
+
+/-- Compatibility projection; the inherited instance is owned by `Derived.HasPair`. -/
+abbrev HasPair.toIsLeftDerivedFunctor
+    {W1 : MorphismProperty C1} {W2 : MorphismProperty C2}
+    {L1 : C1 ⥤ D1} {L2 : C2 ⥤ D2}
+    [L1.IsLocalization W1] [L2.IsLocalization W2]
+    [(G ⋙ L2).HasLeftDerivedFunctor W1]
+    [(F ⋙ L1).HasRightDerivedFunctor W2]
+    [self : HasPair (G := G) (F := F) W1 W2 (L1 := L1) (L2 := L2)] :=
+  Derived.HasPair.toIsLeftDerivedFunctor (self := self)
+
+/-- Compatibility projection; the inherited instance is owned by `Derived.HasPair`. -/
+abbrev HasPair.toIsRightDerivedFunctor
+    {W1 : MorphismProperty C1} {W2 : MorphismProperty C2}
+    {L1 : C1 ⥤ D1} {L2 : C2 ⥤ D2}
+    [L1.IsLocalization W1] [L2.IsLocalization W2]
+    [(G ⋙ L2).HasLeftDerivedFunctor W1]
+    [(F ⋙ L1).HasRightDerivedFunctor W2]
+    [self : HasPair (G := G) (F := F) W1 W2 (L1 := L1) (L2 := L2)] :=
+  Derived.HasPair.toIsRightDerivedFunctor (self := self)
 
 /-- The absolute total-derived pair condition consists exactly of the two composite-derived
 conditions used by `Adjunction.derived`. -/
@@ -151,7 +243,8 @@ theorem hasPair_iff
         (Functor.whiskerRight ((F ⋙ L1).totalRightDerivedUnit L2 W2)
               ((G ⋙ L2).totalLeftDerived L1 W1) ≫
           (Functor.associator L2 ((F ⋙ L1).totalRightDerived L2 W2)
-            ((G ⋙ L2).totalLeftDerived L1 W1)).hom) W2) := sorry
+            ((G ⋙ L2).totalLeftDerived L1 W1)).hom) W2) :=
+  Derived.hasPair_iff _ _ _ _ W1 W2
 
 /-- Construct the derived adjunction from the bundled absolute-derived pair condition. -/
 @[stacks 0BYX "adjunction from an absolute total-derived pair"]
@@ -164,7 +257,7 @@ noncomputable def HasPair.derived
     [h : HasPair (G := G) (F := F) W1 W2 (L1 := L1) (L2 := L2)] :
     (G ⋙ L2).totalLeftDerived L1 W1 ⊣
       (F ⋙ L1).totalRightDerived L2 W2 :=
-  adj.derived W1 W2
+  Derived.HasPair.derived adj W1 W2
     ((G ⋙ L2).totalLeftDerivedCounit L1 W1)
     ((F ⋙ L1).totalRightDerivedUnit L2 W2)
 

@@ -79,7 +79,8 @@ def fgAmbientProdObj (P : ObjectProperty (Over (CommAlgCat.of S R)))
     [P.IsClosedUnderIsomorphisms] [P.ContainsFGTrivSqZeroExt]
     (M N : FGModuleCat.{u} R) : P.FullSubcategory where
   obj := (fgOverFunctor S R).obj M ⨯ (fgOverFunctor S R).obj N
-  property := sorry
+  property := P.prop_of_isIso (prodComparison (fgOverFunctor S R) M N)
+    (P.prop_of_is ((fgOverFunctor S R).obj (M ⨯ N)))
 
 /-- The induced map `F(R[M] ×_R R[N]) ⟶ F(R[M]) × F(R[N])`. -/
 def fgAmbientProdMap (P : ObjectProperty (Over (CommAlgCat.of S R)))
@@ -102,7 +103,10 @@ class BijectiveOnFGSquareZeroProds [P.ContainsFGTrivSqZeroExt]
 products of values. -/
 instance instBijectiveOnFGSquareZeroProds_constPUnit [P.ContainsFGTrivSqZeroExt] :
     ((const P.FullSubcategory).obj (PUnit : Type u)).BijectiveOnFGSquareZeroProds where
-  bijective_prod _ _ := sorry
+  bijective_prod _ _ :=
+    ⟨fun _ _ _ ↦ Subsingleton.elim (α := PUnit) _ _,
+      fun _ ↦ ⟨PUnit.unit, Prod.ext (Subsingleton.elim (α := PUnit) _ _)
+        (Subsingleton.elim (α := PUnit) _ _)⟩⟩
 
 /-- Bijectivity of the ambient fibre-product map is equivalent to bijectivity of
 `fgProdMap`. -/
@@ -111,7 +115,46 @@ theorem fgAmbientProdMap_bijective_iff (P : ObjectProperty (Over (CommAlgCat.of 
     [P.ContainsFGTrivSqZeroExt] (F : P.FullSubcategory ⥤ Type u)
     (M N : FGModuleCat.{u} R) :
     Function.Bijective (fgAmbientProdMap P F M N) ↔
-      Function.Bijective (fgProdMap P F M N) := sorry
+      Function.Bijective (fgProdMap P F M N) := by
+  let c : (fgLift P).obj (M ⨯ N) ⟶ fgAmbientProdObj P M N :=
+    ObjectProperty.homMk (prodComparison (fgOverFunctor S R) M N)
+  haveI : IsIso c := (ObjectProperty.isIso_hom_iff c).mp (by
+    change IsIso (prodComparison (fgOverFunctor S R) M N)
+    infer_instance)
+  have hc₁ : c ≫ ObjectProperty.homMk prod.fst = (fgLift P).map prod.fst := by
+    apply ObjectProperty.hom_ext
+    exact prodComparison_fst (fgOverFunctor S R) M N
+  have hc₂ : c ≫ ObjectProperty.homMk prod.snd = (fgLift P).map prod.snd := by
+    apply ObjectProperty.hom_ext
+    exact prodComparison_snd (fgOverFunctor S R) M N
+  have hfst :
+      TypeCat.ofHom (fgProdMap P F M N) ≫ TypeCat.ofHom _root_.Prod.fst =
+        F.map c ≫ F.map (ObjectProperty.homMk prod.fst) := by
+    change prodComparison (fgEval P F) M N ≫
+      (Types.binaryProductIso ((fgEval P F).obj M) ((fgEval P F).obj N)).hom ≫
+        TypeCat.ofHom _root_.Prod.fst = _
+    rw [Types.binaryProductIso_hom_comp_fst, prodComparison_fst, ← F.map_comp, hc₁]
+    rfl
+  have hsnd :
+      TypeCat.ofHom (fgProdMap P F M N) ≫ TypeCat.ofHom _root_.Prod.snd =
+        F.map c ≫ F.map (ObjectProperty.homMk prod.snd) := by
+    change prodComparison (fgEval P F) M N ≫
+      (Types.binaryProductIso ((fgEval P F).obj M) ((fgEval P F).obj N)).hom ≫
+        TypeCat.ofHom _root_.Prod.snd = _
+    rw [Types.binaryProductIso_hom_comp_snd, prodComparison_snd, ← F.map_comp, hc₂]
+    rfl
+  have hcomp : fgProdMap P F M N = fgAmbientProdMap P F M N ∘ F.map c := by
+    funext x
+    apply Prod.ext
+    · change (TypeCat.ofHom (fgProdMap P F M N) ≫ TypeCat.ofHom _root_.Prod.fst) x =
+        (F.map c ≫ F.map (ObjectProperty.homMk prod.fst)) x
+      exact ConcreteCategory.congr_hom hfst x
+    · change (TypeCat.ofHom (fgProdMap P F M N) ≫ TypeCat.ofHom _root_.Prod.snd) x =
+        (F.map c ≫ F.map (ObjectProperty.homMk prod.snd)) x
+      exact ConcreteCategory.congr_hom hsnd x
+  rw [hcomp]
+  exact (Function.Bijective.of_comp_iff _ ((isIso_iff_bijective (F.map c)).mp
+    (by infer_instance))).symm
 
 /-- The product comparison of `fgEval` is an isomorphism if and only if `fgProdMap`
 is bijective. -/
@@ -119,35 +162,65 @@ theorem isIso_prodComparison_iff_bijective_fgProdMap
     (P : ObjectProperty (Over (CommAlgCat.of S R))) [P.ContainsFGTrivSqZeroExt]
     (F : P.FullSubcategory ⥤ Type u) (M N : FGModuleCat.{u} R) :
     IsIso (prodComparison (fgEval P F) M N) ↔ Function.Bijective (fgProdMap P F M N) :=
-  sorry
+  (isIso_comp_right_iff (prodComparison (fgEval P F) M N)
+    (Types.binaryProductIso ((fgEval P F).obj M) ((fgEval P F).obj N)).hom).symm.trans
+      (isIso_iff_bijective _)
 
 /-- If `fgEval` preserves finite products, then `F` is bijective on fibre products
 of `R[M]`. -/
 theorem BijectiveOnFGSquareZeroProds.of_preservesFiniteProducts
     (P : ObjectProperty (Over (CommAlgCat.of S R))) [P.ContainsFGTrivSqZeroExt]
     (F : P.FullSubcategory ⥤ Type u)
-    [PreservesFiniteProducts (fgEval P F)] : F.BijectiveOnFGSquareZeroProds := sorry
+    [PreservesFiniteProducts (fgEval P F)] : F.BijectiveOnFGSquareZeroProds where
+  bijective_prod M N := (isIso_prodComparison_iff_bijective_fgProdMap P F M N).mp
+    (by infer_instance)
 
 /-- `F(R)` is a singleton if and only if `F(R[0])` is a singleton. -/
 theorem unique_overSelf_iff_unique_fgEval_zero
     (P : ObjectProperty (Over (CommAlgCat.of S R))) [P.IsClosedUnderIsomorphisms]
     [P.ContainsFGTrivSqZeroExt] (F : P.FullSubcategory ⥤ Type u) :
     Nonempty (Unique (F.obj (overSelfObj P))) ↔
-      Nonempty (Unique ((fgEval P F).obj 0)) := sorry
+      Nonempty (Unique ((fgEval P F).obj 0)) := by
+  let e : F.obj (overSelfObj P) ≅ (fgEval P F).obj 0 :=
+    F.mapIso (P.isoMk (overSelf_iso_fgOverFunctor_zero S R))
+  constructor
+  · rintro ⟨h⟩
+    letI := h
+    exact ⟨e.symm.toEquiv.unique⟩
+  · rintro ⟨h⟩
+    letI := h
+    exact ⟨e.toEquiv.unique⟩
 
 /-- If `F(R)` is a singleton, then `F(R[0])` is a singleton. -/
 instance instUnique_fgEval_zero [P.IsClosedUnderIsomorphisms] [P.ContainsFGTrivSqZeroExt]
     {F : P.FullSubcategory ⥤ Type u} [Unique (F.obj (overSelfObj P))] :
     Unique ((fgEval P F).obj 0) where
   default := F.map (overSelfObjToFgLiftZero P) default
-  uniq := sorry
+  uniq x := by
+    let e : F.obj (overSelfObj P) ≅ (fgEval P F).obj 0 :=
+      F.mapIso (P.isoMk (overSelf_iso_fgOverFunctor_zero S R))
+    apply e.symm.toEquiv.injective
+    exact Subsingleton.elim _ _
 
 /-- Singleton evaluation at `R` and bijective product comparisons imply that
 `M ↦ F(R[M])` preserves finite products. -/
 instance instPreservesFiniteProducts_fgEval [P.IsClosedUnderIsomorphisms]
     [P.ContainsFGTrivSqZeroExt] {F : P.FullSubcategory ⥤ Type u}
     [Unique (F.obj (overSelfObj P))] [F.BijectiveOnFGSquareZeroProds] :
-    PreservesFiniteProducts (fgEval P F) := sorry
+    PreservesFiniteProducts (fgEval P F) := by
+  letI (M N : FGModuleCat.{u} R) : IsIso (prodComparison (fgEval P F) M N) :=
+    (isIso_prodComparison_iff_bijective_fgProdMap P F M N).mpr
+      (BijectiveOnFGSquareZeroProds.bijective_prod M N)
+  letI : PreservesLimitsOfShape (Discrete WalkingPair) (fgEval P F) :=
+    preservesBinaryProducts_of_isIso_prodComparison (fgEval P F)
+  letI : PreservesLimit (Functor.empty.{0} (FGModuleCat.{u} R)) (fgEval P F) :=
+    preservesLimit_of_preserves_limit_cone
+      (HasZeroObject.zeroIsTerminal (C := FGModuleCat.{u} R))
+      ((isLimitMapConeEmptyConeEquiv (fgEval P F) 0).symm
+        ((Types.isTerminalEquivUnique _).symm inferInstance))
+  letI : PreservesLimitsOfShape (Discrete PEmpty.{1}) (fgEval P F) :=
+    preservesLimitsOfShape_pempty_of_preservesTerminal (fgEval P F)
+  exact PreservesFiniteProducts.of_preserves_binary_and_terminal (fgEval P F)
 
 /-- The unique `R`-linear lift of `M ↦ F(R[M])` through `ModuleCat R ⥤ Type`. -/
 theorem module_fgEval (P : ObjectProperty (Over (CommAlgCat.of S R)))
@@ -155,6 +228,7 @@ theorem module_fgEval (P : ObjectProperty (Over (CommAlgCat.of S R)))
     [P.ContainsFGTrivSqZeroExt] (F : P.FullSubcategory ⥤ Type u)
     [Unique (F.obj (overSelfObj P))] [F.BijectiveOnFGSquareZeroProds] :
     ∃! G : FGModuleCat.{u} R ⥤ ModuleCat.{u} R,
-      G.ModuleLinear R ∧ G ⋙ forget (ModuleCat.{u} R) = fgEval P F := sorry
+      G.ModuleLinear R ∧ G ⋙ forget (ModuleCat.{u} R) = fgEval P F :=
+  FGModuleCat.existsUnique_linearLift (fgEval P F)
 
 end CategoryTheory.Functor

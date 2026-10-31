@@ -41,7 +41,8 @@ noncomputable def overSectionsEquivEvaluation
 @[simp]
 theorem overSectionsEquivEvaluation_apply
     (M : SheafOfModules.{z} R) (s : M.sections) :
-    overSectionsEquivEvaluation M s = s.1 (op (Over.mk (𝟙 U))) := sorry
+    overSectionsEquivEvaluation M s = s.1 (op (Over.mk (𝟙 U))) := by
+  rfl
 
 /-- The inverse slice terminal-evaluation equivalence computes a reconstructed sheaf section at
 an arbitrary object of `C / U`. -/
@@ -50,7 +51,8 @@ theorem overSectionsEquivEvaluation_symm_apply
     (M : SheafOfModules.{z} R)
     (m : M.val.obj (op (Over.mk (𝟙 U)))) (W : Over U) :
     ((overSectionsEquivEvaluation M).symm m).1 (op W) =
-      M.val.map ((Over.mkIdTerminal.from W).op) m := sorry
+      M.val.map ((Over.mkIdTerminal.from W).op) m := by
+  rfl
 
 /-- Slice terminal evaluation commutes with the map on sections induced by a module-sheaf
 morphism. -/
@@ -58,7 +60,8 @@ morphism. -/
 theorem overSectionsEquivEvaluation_sectionsMap
     {M N : SheafOfModules.{z} R} (ψ : M ⟶ N) (s : M.sections) :
     overSectionsEquivEvaluation N (sectionsMap ψ s) =
-      ψ.val.app (op (Over.mk (𝟙 U))) (overSectionsEquivEvaluation M s) := sorry
+      ψ.val.app (op (Over.mk (𝟙 U))) (overSectionsEquivEvaluation M s) := by
+  rfl
 
 /-- Reconstruction from a slice terminal value is natural in a module-sheaf morphism. -/
 @[simp]
@@ -66,7 +69,9 @@ theorem sectionsMap_overSectionsEquivEvaluation_symm
     {M N : SheafOfModules.{z} R} (ψ : M ⟶ N)
     (m : M.val.obj (op (Over.mk (𝟙 U)))) :
     sectionsMap ψ ((overSectionsEquivEvaluation M).symm m) =
-      (overSectionsEquivEvaluation N).symm (ψ.val.app (op (Over.mk (𝟙 U))) m) := sorry
+      (overSectionsEquivEvaluation N).symm (ψ.val.app (op (Over.mk (𝟙 U))) m) := by
+  apply (overSectionsEquivEvaluation N).injective
+  simp only [overSectionsEquivEvaluation_sectionsMap, Equiv.apply_symm_apply]
 
 end SheafOfModules
 
@@ -86,7 +91,8 @@ noncomputable def sectionsOverEquiv
 @[simp]
 theorem sectionsOverEquiv_apply
     (M : SheafOfModules.{z} S) (U : D) (s : (M.over U).sections) :
-    sectionsOverEquiv M U s = s.1 (op (Over.mk (𝟙 U))) := sorry
+    sectionsOverEquiv M U s = s.1 (op (Over.mk (𝟙 U))) := by
+  rfl
 
 /-- The inverse of `sectionsOverEquiv` evaluates at an arrow `V ⟶ U` by the ordinary restriction
 map of `M`. -/
@@ -94,14 +100,20 @@ map of `M`. -/
 theorem sectionsOverEquiv_symm_apply
     (M : SheafOfModules.{z} S) {V U : D} (f : V ⟶ U)
     (m : M.val.obj (op U)) :
-    ((sectionsOverEquiv M U).symm m).1 (op (Over.mk f)) = M.val.map f.op m := sorry
+    ((sectionsOverEquiv M U).symm m).1 (op (Over.mk f)) = M.val.map f.op m := by
+  change ((overSectionsEquivEvaluation (M.over U)).symm m).1 (op (Over.mk f)) = _
+  rw [overSectionsEquivEvaluation_symm_apply]
+  change M.val.map ((Over.mkIdTerminal.from (Over.mk f)).left).op m = _
+  rw [Over.mkIdTerminal_from_left]
+  rfl
 
 /-- The direct restriction-to-slice section equivalence is natural in a module-sheaf morphism. -/
 @[simp]
 theorem sectionsOverEquiv_sectionsMap
     {M N : SheafOfModules.{z} S} (U : D) (ψ : M ⟶ N) (s : (M.over U).sections) :
     sectionsOverEquiv N U (sectionsMap (ψ.over U) s) =
-      ψ.val.app (op U) (sectionsOverEquiv M U s) := sorry
+      ψ.val.app (op U) (sectionsOverEquiv M U s) := by
+  rfl
 
 /-- Reconstructing a section of a restriction from a base-site value is natural in a
 module-sheaf morphism. -/
@@ -110,20 +122,31 @@ theorem sectionsMap_sectionsOverEquiv_symm
     {M N : SheafOfModules.{z} S} (U : D) (ψ : M ⟶ N)
     (m : M.val.obj (op U)) :
     sectionsMap (ψ.over U) ((sectionsOverEquiv M U).symm m) =
-      (sectionsOverEquiv N U).symm (ψ.val.app (op U) m) := sorry
+      (sectionsOverEquiv N U).symm (ψ.val.app (op U) m) := by
+  apply (sectionsOverEquiv N U).injective
+  simp only [sectionsOverEquiv_sectionsMap, Equiv.apply_symm_apply]
 
 /-- A module-sheaf morphism with an explicit right inverse induces a surjective map on global
 sections. -/
 theorem sectionsMap_surjective_of_comp_eq_id
     {M N : SheafOfModules.{z} S} {f : M ⟶ N} {g : N ⟶ M}
-    (h : g ≫ f = 𝟙 N) : Function.Surjective (sectionsMap f) := sorry
+    (h : g ≫ f = 𝟙 N) : Function.Surjective (sectionsMap f) := by
+  intro s
+  refine ⟨sectionsMap g s, ?_⟩
+  show sectionsMap f (sectionsMap g s) = s
+  rw [← sectionsMap_comp, h, sectionsMap_id]
 
 /-- Evaluation at any object sends a module-sheaf morphism with an explicit right inverse to a
 surjective linear map. -/
 theorem evaluation_map_surjective_of_comp_eq_id
     {M N : SheafOfModules.{z} S} {f : M ⟶ N} {g : N ⟶ M}
     (h : g ≫ f = 𝟙 N) (U : Dᵒᵖ) :
-    Function.Surjective (((evaluation S U).map f).hom) := sorry
+    Function.Surjective (((evaluation S U).map f).hom) := by
+  intro s
+  refine ⟨((evaluation S U).map g).hom s, ?_⟩
+  change (g ≫ f).val.app U s = s
+  rw [h]
+  rfl
 
 end SheafOfModules
 

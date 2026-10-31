@@ -45,14 +45,30 @@ variable [Right.Has (C := C)]
 /-- Lower Tor-amplitude descends to retracts. -/
 @[stacks 08G3 "lower-bound retract stability, abstract monoidal form"]
 instance torAmplitudeGE_isStableUnderRetracts (a : ℤ) :
-    (torAmplitudeGE (C := C) a).IsStableUnderRetracts := sorry
+    (torAmplitudeGE (C := C) a).IsStableUnderRetracts where
+  of_retract := by
+    intro K L r hL M
+    apply (DerivedCategory.isGE_iff _ _).mpr
+    intro i hi
+    exact IsZero.of_mono
+      (((r.map (Right.functor ((DerivedCategory.singleFunctor C 0).obj M))).map
+        (DerivedCategory.homologyFunctor C i)).i)
+      ((DerivedCategory.isGE_iff _ _).mp (hL M) i hi)
 /- Proof strategy: fixed-right derived tensor preserves retract diagrams, and `IsGE` is stable
 under retracts. -/
 
 /-- Upper Tor-amplitude descends to retracts. -/
 @[stacks 08G3 "upper-bound retract stability, abstract monoidal form"]
 instance torAmplitudeLE_isStableUnderRetracts (b : ℤ) :
-    (torAmplitudeLE (C := C) b).IsStableUnderRetracts := sorry
+    (torAmplitudeLE (C := C) b).IsStableUnderRetracts where
+  of_retract := by
+    intro K L r hL M
+    apply (DerivedCategory.isLE_iff _ _).mpr
+    intro i hi
+    exact IsZero.of_mono
+      (((r.map (Right.functor ((DerivedCategory.singleFunctor C 0).obj M))).map
+        (DerivedCategory.homologyFunctor C i)).i)
+      ((DerivedCategory.isLE_iff _ _).mp (hL M) i hi)
 /- Proof strategy: fixed-right derived tensor preserves retract diagrams, and `IsLE` is stable
 under retracts. -/
 
@@ -60,14 +76,16 @@ under retracts. -/
 @[stacks 08G3 "lower Tor-amplitude under retract"]
 theorem HasTorAmplitudeGE.ofRetract
     {K L : DerivedCategory C} {a : ℤ} (r : Retract K L) (hL : HasTorAmplitudeGE L a) :
-    HasTorAmplitudeGE K a := sorry
+    HasTorAmplitudeGE K a :=
+  (torAmplitudeGE (C := C) a).prop_of_retract r hL
 /- Proof strategy: apply `torAmplitudeGE_isStableUnderRetracts` to `r` and `hL`. -/
 
 /-- A retract of an object with upper Tor-amplitude at most `b` has the same upper bound. -/
 @[stacks 08G3 "upper Tor-amplitude under retract"]
 theorem HasTorAmplitudeLE.ofRetract
     {K L : DerivedCategory C} {b : ℤ} (r : Retract K L) (hL : HasTorAmplitudeLE L b) :
-    HasTorAmplitudeLE K b := sorry
+    HasTorAmplitudeLE K b :=
+  (torAmplitudeLE (C := C) b).prop_of_retract r hL
 /- Proof strategy: apply `torAmplitudeLE_isStableUnderRetracts` to `r` and `hL`. -/
 
 /-- A retract of an object with Tor-amplitude in `[a, b]` has the same bound. -/
@@ -75,7 +93,8 @@ theorem HasTorAmplitudeLE.ofRetract
 theorem HasTorAmplitudeIn.ofRetract
     {K L : DerivedCategory C} {a b : ℤ} (r : Retract K L)
     (hL : HasTorAmplitudeIn L a b) :
-    HasTorAmplitudeIn K a b := sorry
+    HasTorAmplitudeIn K a b :=
+  ⟨HasTorAmplitudeGE.ofRetract r hL.1, HasTorAmplitudeLE.ofRetract r hL.2⟩
 /- Proof strategy: project the interval into lower and upper bounds, transport each across the
 retract, and recombine them. -/
 
@@ -83,7 +102,11 @@ retract, and recombine them. -/
 @[stacks 08G3 "finite Tor dimension under retract"]
 theorem HasFiniteTorDimension.ofRetract
     {K L : DerivedCategory C} (r : Retract K L) (hL : HasFiniteTorDimension L) :
-    HasFiniteTorDimension K := sorry
+    HasFiniteTorDimension K := by
+  simp only [HasFiniteTorDimension, finiteTorDimension, ObjectProperty.prop_iSup_iff,
+    HasTorAmplitudeIn] at hL ⊢
+  obtain ⟨a, b, h⟩ := hL
+  exact ⟨a, b, HasTorAmplitudeIn.ofRetract r h⟩
 /- Proof strategy: choose an interval witnessing `hL` and transport that interval across the
 retract with `HasTorAmplitudeIn.ofRetract`. -/
 
@@ -95,7 +118,9 @@ Tor-amplitude in `[a, b]`, then both summands have Tor-amplitude in `[a, b]`. -/
 theorem summands_of_biprod
     (K L : DerivedCategory C) [HasBinaryBiproduct K L] {a b : ℤ}
     (hKL : HasTorAmplitudeIn (K ⊞ L) a b) :
-    HasTorAmplitudeIn K a b ∧ HasTorAmplitudeIn L a b := sorry
+    HasTorAmplitudeIn K a b ∧ HasTorAmplitudeIn L a b :=
+  ⟨HasTorAmplitudeIn.ofRetract (BinaryBiproduct.bicone K L).retract_left hKL,
+    HasTorAmplitudeIn.ofRetract (BinaryBiproduct.bicone K L).retract_right hKL⟩
 /- Proof strategy: apply `HasTorAmplitudeIn.ofRetract` to the canonical left and right biproduct
 retracts. -/
 
@@ -104,7 +129,8 @@ retracts. -/
 theorem left_of_biprod
     (K L : DerivedCategory C) [HasBinaryBiproduct K L] {a b : ℤ}
     (hKL : HasTorAmplitudeIn (K ⊞ L) a b) :
-    HasTorAmplitudeIn K a b := sorry
+    HasTorAmplitudeIn K a b :=
+  (summands_of_biprod K L hKL).1
 /- Proof strategy: project the left component of `summands_of_biprod`. -/
 
 /-- The right summand of a biproduct inherits its Tor-amplitude interval. -/
@@ -112,7 +138,8 @@ theorem left_of_biprod
 theorem right_of_biprod
     (K L : DerivedCategory C) [HasBinaryBiproduct K L] {a b : ℤ}
     (hKL : HasTorAmplitudeIn (K ⊞ L) a b) :
-    HasTorAmplitudeIn L a b := sorry
+    HasTorAmplitudeIn L a b :=
+  (summands_of_biprod K L hKL).2
 /- Proof strategy: project the right component of `summands_of_biprod`. -/
 
 end TorAmplitude

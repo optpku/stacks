@@ -7,6 +7,7 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.Restriction
+import ReasLib.CategoryTheory.Adjunction.SimplicialResolution.Evaluation
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.PrincipalParts.FirstOrder.BaseChange
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Simplicial
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.CotangentComplex
@@ -71,7 +72,9 @@ private theorem augmentation_naturality (φ : A ⟶ B)
     (standardSimplicial φ).map f ≫ standardAugmentation A (Under.mk φ) m =
       standardAugmentation A (Under.mk φ) n ≫
         ((SimplicialObject.const (Sheaf J CommRingCat.{u})).obj B).map f :=
-  sorry
+by
+  exact congrArg (fun k => k.right)
+    ((standardResolution A (Under.mk φ)).hom.naturality f)
 
 /-- The augmentation `P_• ⟶ B` of the standard resolution, as a map of simplicial ring sheaves. -/
 def augmentation (φ : A ⟶ B) :
@@ -93,14 +96,25 @@ theorem standardSimplicial_map (φ : A ⟶ B) {n m : SimplexCategoryᵒᵖ} (f :
 /-- The ring-square of a simplicial operator of the standard resolution. -/
 theorem standardOperator_commSq (φ : A ⟶ B) {n m : SimplexCategoryᵒᵖ} (f : n ⟶ m) :
     CommSq (𝟙 A) (standardTerm A (Under.mk φ) n).hom
-      (standardTerm A (Under.mk φ) m).hom ((standardSimplicial φ).map f) :=
-  sorry
+      (standardTerm A (Under.mk φ) m).hom ((standardSimplicial φ).map f) := by
+  refine ⟨?_⟩
+  simpa [standardSimplicial, standardSimplicial_map] using
+    (standardMap A (Under.mk φ) f).w.symm
 
 /-- Every standard-resolution augmentation is locally surjective on the underlying rings. -/
 instance standardAugmentation_isLocallySurjective (φ : A ⟶ B) (n : SimplexCategoryᵒᵖ) :
     Presheaf.IsLocallySurjective J
-      (ringSheafMap ((augmentation φ).app n)).hom :=
-  sorry
+      (ringSheafMap ((augmentation φ).app n)).hom := by
+  apply Presheaf.isLocallySurjective_of_surjective J
+  intro U y
+  refine ⟨((Adjunction.SimplicialResolution.postcompose.eval.inverse
+    (freeForgetAdjunction A) (Under.mk φ)).app n).hom.app U y, ?_⟩
+  have h := congr_app
+    (Adjunction.SimplicialResolution.postcompose.eval.inverse.comp_hom
+      (freeForgetAdjunction A) (Under.mk φ)) n
+  have hU := congrArg (fun k => k.hom.app U) h
+  have hy := ConcreteCategory.congr_hom hU y
+  exact hy
 
 /-- The standard-resolution augmentation induces a quasi-isomorphism of additive complexes. -/
 theorem augmentation_quasiIso (φ : A ⟶ B) :
@@ -145,13 +159,19 @@ def degreeSequenceMap (n m : SimplexCategoryᵒᵖ) (f : n ⟶ m) :
 /-- Identity coherence of the restrictedAssembly transition maps. -/
 private theorem restrictedAssembly_id (X : (SimplexCategory × C)ᵒᵖ)
     (x : ((restrictedDegree φ F) (op X.unop.1)).val.obj (op X.unop.2)) :
-    (ofDegreewiseMap (standardSimplicial φ) (restrictedDegree φ F) (restrictedModuleMap φ F) (𝟙 X)).hom x = x :=
-  sorry
+    (ofDegreewiseMap (standardSimplicial φ) (restrictedDegree φ F) (restrictedModuleMap φ F) (𝟙 X)).hom x = x := by
+  change (F.val.map (𝟙 (op X.unop.2))).hom x = x
+  rw [F.val.map_id]
+  rfl
 
 /-- Composition coherence from augmentation and principal-parts functoriality. -/
 private theorem restrictedAssembly_comp :
-    degreewiseMapComp (standardSimplicial φ) (restrictedDegree φ F) (restrictedModuleMap φ F) :=
-  sorry
+    degreewiseMapComp (standardSimplicial φ) (restrictedDegree φ F) (restrictedModuleMap φ F) := by
+  unfold degreewiseMapComp
+  intro X Y Z f g x
+  change (F.val.map (f.unop.2.op ≫ g.unop.2.op)).hom x =
+    (F.val.map g.unop.2.op).hom ((F.val.map f.unop.2.op).hom x)
+  exact F.val.map_comp_apply _ _ x
 
 /-- Identity coherence of the cotangentAssembly transition maps. -/
 private theorem cotangentAssembly_id (X : (SimplexCategory × C)ᵒᵖ)
@@ -203,8 +223,16 @@ private def atiyahSequence_f_component (X : (SimplexCategory × C)ᵒᵖ) :
 private theorem atiyahSequence_f_naturality {X Y : (SimplexCategory × C)ᵒᵖ}
     (f : X ⟶ Y) (x : (cotangentModule φ F).val.obj X) :
     (atiyahSequence_f_component φ F Y).hom ((cotangentModule φ F).val.map f |>.hom <| x) =
-      ((principalPartsModule φ F).val.map f).hom ((atiyahSequence_f_component φ F X).hom x) :=
-  sorry
+      ((principalPartsModule φ F).val.map f).hom ((atiyahSequence_f_component φ F X).hom x) := by
+  have h := congrArg (fun k => k.val.app (op Y.unop.2))
+    (degreeSequenceMap φ F (op X.unop.1) (op Y.unop.1) f.unop.1.op).comm₁₂
+  have hx := ConcreteCategory.congr_hom h
+    (((degreeSequence φ F (op X.unop.1)).X₁.val.map f.unop.2.op).hom x)
+  exact hx.trans (congrArg
+    ((degreeSequenceMap φ F (op X.unop.1) (op Y.unop.1) f.unop.1.op).τ₂.val.app
+      (op Y.unop.2)).hom
+    (PresheafOfModules.naturality_apply (degreeSequence φ F (op X.unop.1)).f.val
+      f.unop.2.op x))
 
 /-- The coherent assembled f arrow of the simplicial principal-parts sequence. -/
 def atiyahSequence_f : cotangentModule φ F ⟶ principalPartsModule φ F :=
@@ -220,8 +248,16 @@ private def atiyahSequence_g_component (X : (SimplexCategory × C)ᵒᵖ) :
 private theorem atiyahSequence_g_naturality {X Y : (SimplexCategory × C)ᵒᵖ}
     (f : X ⟶ Y) (x : (principalPartsModule φ F).val.obj X) :
     (atiyahSequence_g_component φ F Y).hom ((principalPartsModule φ F).val.map f |>.hom <| x) =
-      ((restrictedModule φ F).val.map f).hom ((atiyahSequence_g_component φ F X).hom x) :=
-  sorry
+      ((restrictedModule φ F).val.map f).hom ((atiyahSequence_g_component φ F X).hom x) := by
+  have h := congrArg (fun k => k.val.app (op Y.unop.2))
+    (degreeSequenceMap φ F (op X.unop.1) (op Y.unop.1) f.unop.1.op).comm₂₃
+  have hx := ConcreteCategory.congr_hom h
+    (((degreeSequence φ F (op X.unop.1)).X₂.val.map f.unop.2.op).hom x)
+  exact hx.trans (congrArg
+    ((degreeSequenceMap φ F (op X.unop.1) (op Y.unop.1) f.unop.1.op).τ₃.val.app
+      (op Y.unop.2)).hom
+    (PresheafOfModules.naturality_apply (degreeSequence φ F (op X.unop.1)).g.val
+      f.unop.2.op x))
 
 /-- The coherent assembled g arrow of the simplicial principal-parts sequence. -/
 def atiyahSequence_g : principalPartsModule φ F ⟶ restrictedModule φ F :=
@@ -229,8 +265,12 @@ def atiyahSequence_g : principalPartsModule φ F ⟶ restrictedModule φ F :=
     (atiyahSequence_g_component φ F) (atiyahSequence_g_naturality φ F)
 
 /-- The two assembled principal-parts arrows compose to zero. -/
-theorem atiyahSequence_zero : atiyahSequence_f φ F ≫ atiyahSequence_g φ F = 0 :=
-  sorry
+theorem atiyahSequence_zero : atiyahSequence_f φ F ≫ atiyahSequence_g φ F = 0 := by
+  apply SheafOfModules.hom_ext
+  apply PresheafOfModules.hom_ext
+  intro X
+  exact congrArg (fun k => k.val.app (op X.unop.2))
+    (degreeSequence φ F (op X.unop.1)).zero
 
 /-- The short complex of simplicial `P_•`-modules
 `Ω_{P_•/A} ⊗ F ⟶ P¹_{P_•/A}(F) ⟶ F`. -/

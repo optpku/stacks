@@ -6,6 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Sheafification
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.SchemeRestriction
 public import Mathlib.AlgebraicGeometry.Modules.Sheaf
 public import Mathlib.Algebra.Category.ModuleCat.Sheaf.Generators
@@ -21,56 +22,59 @@ namespace AlgebraicGeometry.AlgebraicSpace.SmallEtale.Modules
 
 variable {S : Scheme.{u}} {X : AlgebraicSpace S}
 
-/-- A small étale module is quasicoherent if its realization on every étale scheme chart
-is a quasicoherent scheme module. -/
-def IsQuasicoherent (F : Modules X) : Prop :=
-  ∀ U : site X, SheafOfModules.IsQuasicoherent.{u} ((toScheme U).obj F)
+/-- The canonical site-level quasicoherence predicate for a small étale module. -/
+abbrev IsQuasicoherent (F : Modules X) : Prop :=
+  SheafOfModules.isQuasicoherent (structureSheaf X) F
 
-/-- A small étale module is of finite type if its realization on every étale scheme chart
-is of finite type. -/
-def IsFiniteType (F : Modules X) : Prop :=
-  ∀ U : site X, SheafOfModules.IsFiniteType.{u} ((toScheme U).obj F)
+/-- The canonical site-level finite-type predicate for a small étale module. -/
+abbrev IsFiniteType (F : Modules X) : Prop :=
+  SheafOfModules.IsFiniteType (M := (F : SheafOfModules (structureSheaf X)))
 
-/-- A small étale module is of finite presentation if its realization on every étale scheme
-chart is of finite presentation. -/
-def IsFinitePresentation (F : Modules X) : Prop :=
-  ∀ U : site X, SheafOfModules.IsFinitePresentation.{u} ((toScheme U).obj F)
+/-- The canonical site-level finite-presentation predicate for a small étale module. -/
+abbrev IsFinitePresentation (F : Modules X) : Prop :=
+  SheafOfModules.IsFinitePresentation (M := (F : SheafOfModules (structureSheaf X)))
 
 /-- Quasicoherence of a small étale module is tested on every étale scheme chart. -/
-theorem isQuasicoherent_iff (F : Modules X) :
+theorem isQuasicoherent_iff_forall_chart (F : Modules X) :
     IsQuasicoherent F ↔
       ∀ U : site X, SheafOfModules.IsQuasicoherent.{u} ((toScheme U).obj F) := sorry
 
 /-- Finite type of a small étale module is tested on every étale scheme chart. -/
-theorem isFiniteType_iff (F : Modules X) :
+theorem isFiniteType_iff_forall_chart (F : Modules X) :
     IsFiniteType F ↔
       ∀ U : site X, SheafOfModules.IsFiniteType.{u} ((toScheme U).obj F) := sorry
 
 /-- Finite presentation of a small étale module is tested on every étale scheme chart. -/
-theorem isFinitePresentation_iff (F : Modules X) :
+theorem isFinitePresentation_iff_forall_chart (F : Modules X) :
     IsFinitePresentation F ↔
       ∀ U : site X, SheafOfModules.IsFinitePresentation.{u} ((toScheme U).obj F) := sorry
 
-section SiteComparisons
+theorem isQuasicoherent_iff (F : Modules X) :
+    IsQuasicoherent F ↔
+      ∀ U : site X, SheafOfModules.IsQuasicoherent.{u} ((toScheme U).obj F) :=
+  isQuasicoherent_iff_forall_chart F
 
-variable [∀ U : site X, HasWeakSheafify ((topology X).over U) AddCommGrpCat.{u}]
-  [∀ U : site X, ((topology X).over U).WEqualsLocallyBijective AddCommGrpCat.{u}]
+theorem isFiniteType_iff (F : Modules X) :
+    IsFiniteType F ↔
+      ∀ U : site X, SheafOfModules.IsFiniteType.{u} ((toScheme U).obj F) :=
+  isFiniteType_iff_forall_chart F
 
-/-- Chartwise quasicoherence agrees with local presentations on the small étale site when
-the slice sheafification interfaces are available. -/
+theorem isFinitePresentation_iff (F : Modules X) :
+    IsFinitePresentation F ↔
+      ∀ U : site X, SheafOfModules.IsFinitePresentation.{u} ((toScheme U).obj F) :=
+  isFinitePresentation_iff_forall_chart F
+
+/-- The compatibility name is the canonical site-level quasicoherence predicate. -/
 theorem isQuasicoherent_iff_site (F : Modules X) :
-    IsQuasicoherent F ↔ SheafOfModules.IsQuasicoherent F := sorry
+    IsQuasicoherent F ↔ SheafOfModules.IsQuasicoherent F := Iff.rfl
 
-/-- Chartwise finite type agrees with local finite generation on the small étale site when
-the slice sheafification interfaces are available. -/
+/-- The compatibility name is the canonical site-level finite-type predicate. -/
 theorem isFiniteType_iff_site (F : Modules X) :
-    IsFiniteType F ↔ SheafOfModules.IsFiniteType F := sorry
+    IsFiniteType F ↔ SheafOfModules.IsFiniteType F := Iff.rfl
 
-/-- Chartwise finite presentation agrees with local finite presentations on the small
-étale site when the slice sheafification interfaces are available. -/
+/-- The compatibility name is the canonical site-level finite-presentation predicate. -/
 theorem isFinitePresentation_iff_site (F : Modules X) :
-    IsFinitePresentation F ↔ SheafOfModules.IsFinitePresentation F := sorry
+    IsFinitePresentation F ↔ SheafOfModules.IsFinitePresentation F := Iff.rfl
 
-end SiteComparisons
 
 end AlgebraicGeometry.AlgebraicSpace.SmallEtale.Modules

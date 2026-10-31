@@ -50,7 +50,16 @@ the telescope triangle. -/
 theorem distinguished {K : ℕ ⥤ D} {X Y : D}
     (P : Presentation K X) (e : X ≅ Y) :
     Triangle.mk (CoproductCocone.telescopeMap K P.coproduct)
-      (toCocone P e) (connecting P e) ∈ distTriang D := sorry
+      (toCocone P e) (connecting P e) ∈ distTriang D := by
+  let T := Triangle.mk (CoproductCocone.telescopeMap K P.coproduct)
+    P.toCocone P.connecting
+  let T' := Triangle.mk (CoproductCocone.telescopeMap K P.coproduct)
+    (toCocone P e) (connecting P e)
+  let i : T ≅ T' := Triangle.isoMk T T' (Iso.refl _) (Iso.refl _) e
+    (by dsimp [T, T', Triangle.mk]; simp)
+    (by dsimp [T, T', Triangle.mk]; simp [toCocone])
+    (by dsimp [T, T', Triangle.mk]; simp [connecting])
+  exact Pretriangulated.isomorphic_distinguished T P.distinguished T' i.symm
 
 end Presentation.ObjectIso
 
@@ -68,45 +77,56 @@ def Presentation.ofObjectIso {K : ℕ ⥤ D} {X Y : D}
 @[simp]
 theorem Presentation.ofObjectIso.coproduct {K : ℕ ⥤ D} {X Y : D}
     (P : Presentation K X) (e : X ≅ Y) :
-    (P.ofObjectIso e).coproduct = P.coproduct := sorry
+    (P.ofObjectIso e).coproduct = P.coproduct := rfl
 
 /-- The coproduct-to-cocone map after object transport is postcomposed with the forward
 isomorphism. -/
 @[simp]
 theorem Presentation.ofObjectIso.toCocone {K : ℕ ⥤ D} {X Y : D}
     (P : Presentation K X) (e : X ≅ Y) :
-    (P.ofObjectIso e).toCocone = P.toCocone ≫ e.hom := sorry
+    (P.ofObjectIso e).toCocone = P.toCocone ≫ e.hom := rfl
 
 /-- The connecting map after object transport is precomposed with the inverse isomorphism. -/
 @[simp]
 theorem Presentation.ofObjectIso.connecting {K : ℕ ⥤ D} {X Y : D}
     (P : Presentation K X) (e : X ≅ Y) :
-    (P.ofObjectIso e).connecting = e.inv ≫ P.connecting := sorry
+    (P.ofObjectIso e).connecting = e.inv ≫ P.connecting := rfl
 
 /-- Every stage map after object transport is postcomposed with the forward isomorphism. -/
 @[simp, reassoc]
 theorem Presentation.ofObjectIso.ι {K : ℕ ⥤ D} {X Y : D}
     (P : Presentation K X) (e : X ≅ Y) (n : ℕ) :
-    (P.ofObjectIso e).ι n = P.ι n ≫ e.hom := sorry
+    (P.ofObjectIso e).ι n = P.ι n ≫ e.hom := by
+  simp [Presentation.ι, Presentation.coproductInclusion, Presentation.ofObjectIso,
+    ObjectIso.toCocone, Category.assoc]
 
 /-- The cocone legs after object transport are postcomposed with the forward isomorphism. -/
 @[simp, reassoc]
 theorem Presentation.ofObjectIso.cocone_ι_app {K : ℕ ⥤ D} {X Y : D}
     (P : Presentation K X) (e : X ≅ Y) (n : ℕ) :
-    (P.ofObjectIso e).cocone.ι.app n = P.cocone.ι.app n ≫ e.hom := sorry
+    (P.ofObjectIso e).cocone.ι.app n = P.cocone.ι.app n ≫ e.hom := by
+  change (P.ofObjectIso e).ι n = P.ι n ≫ e.hom
+  exact Presentation.ofObjectIso.ι P e n
 
 /-- Transporting a presentation along the identity isomorphism recovers the original
 presentation. -/
 @[simp]
 theorem Presentation.ofObjectIso.refl {K : ℕ ⥤ D} {X : D}
     (P : Presentation K X) :
-    P.ofObjectIso (CategoryTheory.Iso.refl X) = P := sorry
+    P.ofObjectIso (CategoryTheory.Iso.refl X) = P := by
+  cases P with
+  | mk coproduct toCocone connecting distinguished =>
+    simp [Presentation.ofObjectIso, ObjectIso.toCocone, ObjectIso.connecting]
 
 /-- Successive object transports agree with transport along the composite isomorphism. -/
 @[simp]
 theorem Presentation.ofObjectIso.trans {K : ℕ ⥤ D} {X Y Z : D}
     (P : Presentation K X) (e : X ≅ Y) (f : Y ≅ Z) :
-    (P.ofObjectIso e).ofObjectIso f = P.ofObjectIso (e ≪≫ f) := sorry
+    (P.ofObjectIso e).ofObjectIso f = P.ofObjectIso (e ≪≫ f) := by
+  cases P with
+  | mk coproduct toCocone connecting distinguished =>
+    simp [Presentation.ofObjectIso, ObjectIso.toCocone, ObjectIso.connecting,
+      Category.assoc]
 
 namespace IsOf
 
@@ -114,7 +134,15 @@ namespace IsOf
 @[stacks 0CRH]
 theorem ofObjectIso {K : ℕ ⥤ D} {X Y : D}
     (h : HomotopyColimit.IsOf K X) (e : X ≅ Y) :
-    HomotopyColimit.IsOf K Y := sorry
+    HomotopyColimit.IsOf K Y := by
+  rcases h with ⟨coproduct, toCocone, connecting, distinguished⟩
+  let P : Presentation K X :=
+    { coproduct := coproduct
+      toCocone := toCocone
+      connecting := connecting
+      distinguished := distinguished }
+  exact ⟨coproduct, toCocone ≫ e.hom, e.inv ≫ connecting,
+    Presentation.ObjectIso.distinguished P e⟩
 
 end IsOf
 

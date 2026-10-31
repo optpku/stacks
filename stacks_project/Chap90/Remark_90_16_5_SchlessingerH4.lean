@@ -38,6 +38,6 @@ namespace CategoryTheory.Functor
       ∀ {A A1 A2 P : ArtinianLocalAlgCat Λ k} (f1 : A1 ⟶ A) (f2 : A2 ⟶ A)
         (π1 : P ⟶ A1) (π2 : P ⟶ A2) (h : IsPullback π1 π2 f1 f2),
         Function.Surjective f2.hom →
-          Function.Bijective (schlessingerH4Comparison F f1 f2 π1 π2 h))
+          Function.Bijective (pullbackObjMap_subtype F π1 π2 f1 f2 h))
 
 end CategoryTheory.Functor

@@ -34,7 +34,13 @@ variable (I : Ideal A) (M : Type v) [AddCommGroup M] [Module A M]
 theorem denominator_eq_comap (q n : ℕ) :
     PowerSubmodule.stage I (PowerSubmodule.stage I M q) n =
       (PowerSubmodule.stage I M (q + n)).comap
-        (PowerSubmodule.subtype I M q) := sorry
+        (PowerSubmodule.subtype I M q) := by
+  ext x
+  change x ∈ I ^ n • (⊤ : Submodule A (PowerSubmodule.stage I M q)) ↔
+    (x : M) ∈ I ^ (q + n) • (⊤ : Submodule A M)
+  rw [Submodule.mem_smul_top_iff]
+  change (x : M) ∈ I ^ n • (I ^ q • (⊤ : Submodule A M)) ↔ _
+  rw [← Submodule.mul_smul, ← pow_add, Nat.add_comm n q]
 
 /-- The quotient map from the numerator stage to a fixed-width ideal-power slice. -/
 def mk (q n : ℕ) :
@@ -43,14 +49,18 @@ def mk (q n : ℕ) :
 
 /-- The slice quotient map sends a stage representative to its quotient class. -/
 theorem mk_apply (q n : ℕ) (x : PowerSubmodule.stage I M q) :
-    mk I M q n x = (Submodule.Quotient.mk x : PowerSlice I M q n) := sorry
+    mk I M q n x = (Submodule.Quotient.mk x : PowerSlice I M q n) := by
+  rfl
 
 /-- Inclusion from a deeper numerator stage carries the fixed-width denominator
 into the corresponding denominator at a shallower stage. -/
 theorem transition_mapsTo (n q r : ℕ) (h : r ≤ q) :
     PowerSubmodule.stage I (PowerSubmodule.stage I M q) n ≤
       (PowerSubmodule.stage I (PowerSubmodule.stage I M r) n).comap
-        (Submodule.inclusion (PowerSubmodule.stage_antitone I h)) := sorry
+        (Submodule.inclusion (PowerSubmodule.stage_antitone I h)) := by
+  intro x hx
+  exact PowerSubmodule.map_mem I
+    (Submodule.inclusion (PowerSubmodule.stage_antitone (M := M) I h)) n hx
 
 /-- The canonical transition from the slice beginning at `q` to the slice beginning at `r`. -/
 def transition (n q r : ℕ) (h : r ≤ q) :
@@ -65,13 +75,18 @@ viewed in the shallower numerator stage. -/
 theorem transition_mk (n q r : ℕ) (h : r ≤ q)
     (x : PowerSubmodule.stage I M q) :
     transition I M n q r h (mk I M q n x) =
-      mk I M r n (Submodule.inclusion (PowerSubmodule.stage_antitone I h) x) := sorry
+      mk I M r n (Submodule.inclusion (PowerSubmodule.stage_antitone I h) x) := by
+  rfl
 
 /-- Multiplication by a coefficient in `I ^ c` sends the `q`th ideal-power stage
 into every stage of exponent at most `q + c`. -/
 theorem coefficient_smul_mem (q r c : ℕ) (a : (I ^ c : Ideal A)) (h : r ≤ q + c)
     (x : M) (hx : x ∈ PowerSubmodule.stage I M q) :
-    (a : A) • x ∈ PowerSubmodule.stage I M r := sorry
+    (a : A) • x ∈ PowerSubmodule.stage I M r := by
+  apply PowerSubmodule.stage_antitone I h
+  change (a : A) • x ∈ I ^ (q + c) • (⊤ : Submodule A M)
+  rw [Nat.add_comm q c, pow_add, Submodule.mul_smul]
+  exact Submodule.smul_mem_smul a.property hx
 
 /-- Multiplication by a coefficient, restricted between the indicated numerator stages. -/
 def smulStageTo (q r c : ℕ) (a : (I ^ c : Ideal A)) (h : r ≤ q + c) :
@@ -82,14 +97,17 @@ def smulStageTo (q r c : ℕ) (a : (I ^ c : Ideal A)) (h : r ≤ q + c) :
 /-- The restricted coefficient map evaluates as ambient scalar multiplication. -/
 theorem smulStageTo_apply (q r c : ℕ) (a : (I ^ c : Ideal A)) (h : r ≤ q + c)
     (x : PowerSubmodule.stage I M q) :
-    (smulStageTo I M q r c a h x : M) = (a : A) • (x : M) := sorry
+    (smulStageTo I M q r c a h x : M) = (a : A) • (x : M) := by
+  rfl
 
 /-- Coefficient multiplication carries the source slice denominator into the
 target slice denominator. -/
 theorem smulTo_mapsTo (n q r c : ℕ) (a : (I ^ c : Ideal A)) (h : r ≤ q + c) :
     PowerSubmodule.stage I (PowerSubmodule.stage I M q) n ≤
       (PowerSubmodule.stage I (PowerSubmodule.stage I M r) n).comap
-        (smulStageTo I M q r c a h) := sorry
+        (smulStageTo I M q r c a h) := by
+  intro x hx
+  exact PowerSubmodule.map_mem I (smulStageTo I M q r c a h) n hx
 
 /-- Multiplication by a coefficient in `I ^ c` from the slice at `q` to the slice at `r`. -/
 def smulTo (n q r c : ℕ) (a : (I ^ c : Ideal A)) (h : r ≤ q + c) :
@@ -104,12 +122,15 @@ of its scalar multiple. -/
 theorem smulTo_mk (n q r c : ℕ) (a : (I ^ c : Ideal A)) (h : r ≤ q + c)
     (x : PowerSubmodule.stage I M q) :
     smulTo I M n q r c a h (mk I M q n x) =
-      mk I M r n (smulStageTo I M q r c a h x) := sorry
+      mk I M r n (smulStageTo I M q r c a h x) := by
+  rfl
 
 /-- The coefficient shift from exponent `n - (2 + d) * c` reaches the slice at
 exponent `n - (1 + d) * c`. -/
 theorem coefficientIndex_le (n c d : ℕ) :
-    n - (1 + d) * c ≤ n - (2 + d) * c + c := sorry
+    n - (1 + d) * c ≤ n - (2 + d) * c + c := by
+  simp only [Nat.add_mul, Nat.one_mul, Nat.two_mul]
+  omega
 
 end PowerSlice
 

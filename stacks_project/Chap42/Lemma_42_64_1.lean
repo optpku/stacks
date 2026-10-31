@@ -46,10 +46,10 @@ associative after pushforward along the canonical fiber-product associator
         AlgebraicGeometry.Scheme.Hom.conormalSheaf
           (AlgebraicGeometry.ChowGroup.Dedekind.diagonal X).left)
       (D : AlgebraicGeometry.ChowGroup.Dedekind.DiagonalSpecialization δ X e)
-      (α : AlgebraicGeometry.ChowGroup.Dedekind.Total δ Y)
-      (β : AlgebraicGeometry.ChowGroup.Dedekind.Total δ Z)
-      (γ : AlgebraicGeometry.ChowGroup.Dedekind.Total δ W),
-      AlgebraicGeometry.ChowGroup.Dedekind.Total.map δ
+      (α : AlgebraicGeometry.ChowGroup.Total δ Y)
+      (β : AlgebraicGeometry.ChowGroup.Total δ Z)
+      (γ : AlgebraicGeometry.ChowGroup.Total δ W),
+      AlgebraicGeometry.ChowGroup.Total.map δ
           (AlgebraicGeometry.ChowGroup.Dedekind.fiberProductAssociator
             fY fZ fW).hom
           (AlgebraicGeometry.ChowGroup.Dedekind.intersectionProductTotal

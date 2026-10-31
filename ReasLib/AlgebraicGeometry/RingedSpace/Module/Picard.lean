@@ -65,12 +65,14 @@ isomorphic. -/
 theorem picardClass_eq_iff {X : RingedSpace.{u}}
     (L N : X.Modules) [MonoidalCategory.isInvertibleObject L]
     [MonoidalCategory.isInvertibleObject N] :
-    Modules.picardClass L = Modules.picardClass N ↔ Nonempty (L ≅ N) := sorry
+    Modules.picardClass L = Modules.picardClass N ↔ Nonempty (L ≅ N) :=
+  MonoidalCategory.PicardGroup.mk_eq_mk_iff L N
 
 /-- The structure module represents the zero Picard class. -/
 @[stacks 01CX "zero Picard class"]
 theorem picardClass_unit {X : RingedSpace.{u}} :
-    Modules.picardClass (𝟙_ X.Modules) = (0 : X.PicardGroup) := sorry
+    Modules.picardClass (𝟙_ X.Modules) = (0 : X.PicardGroup) :=
+  MonoidalCategory.PicardGroup.mk_unit
 
 /-- An invertible module sheaf has zero Picard class exactly when it is isomorphic to the
 structure module. -/
@@ -78,7 +80,8 @@ structure module. -/
 theorem picardClass_eq_zero_iff {X : RingedSpace.{u}}
     (L : X.Modules) [MonoidalCategory.isInvertibleObject L] :
     Modules.picardClass L = (0 : X.PicardGroup) ↔
-      Nonempty (L ≅ 𝟙_ X.Modules) := sorry
+      Nonempty (L ≅ 𝟙_ X.Modules) :=
+  MonoidalCategory.PicardGroup.mk_eq_zero_iff L
 
 /-- Tensor product of invertible module sheaves represents addition of their Picard classes. -/
 @[stacks 01CX "addition of Picard classes"]
@@ -86,7 +89,8 @@ theorem picardClass_tensor {X : RingedSpace.{u}}
     (L N : X.Modules) [MonoidalCategory.isInvertibleObject L]
     [MonoidalCategory.isInvertibleObject N] :
     Modules.picardClass (L ⊗ N) =
-      Modules.picardClass L + Modules.picardClass N := sorry
+      Modules.picardClass L + Modules.picardClass N :=
+  MonoidalCategory.PicardGroup.mk_tensor L N
 
 /-- The representative of the zero Picard class is canonically the structure module. -/
 @[stacks 01CX "representative of the zero Picard class"]

@@ -17,7 +17,6 @@ import Mathlib.Tactic.CrossRefAttribute
 The positive index `ℕ+` and the ordinary sequential index `ℕ` differ only by the shift
 `n ↦ n + 1`.  This file owns the canonical categorical reindexing, so concrete positive
 systems do not need to rebuild an `ofOpSequence` by hand.
-@stack 0EGS
 -/
 
 @[expose] public section
@@ -33,12 +32,10 @@ namespace CategoryTheory.PNatInverseSystem
 variable {C : Type u} [Category.{v} C]
 
 /-- The index equivalence from `ℕᵒᵖ` to `OrderDual ℕ+`, induced by `n ↦ n + 1`. -/
-@[stacks 0EGS "reindexing positive inverse systems by ordinary sequential indices"]
 def indexEquivalence : ℕᵒᵖ ≌ OrderDual ℕ+ :=
   (OrderIso.pnatIsoNat.symm.equivalence.op).trans (orderDualEquivalence ℕ+).symm
 
 /-- Reindex a positive inverse system along the canonical positive-to-sequential equivalence. -/
-@[stacks 0EGS "sequential reindexing of a positive inverse system"]
 abbrev toSequential (F : PNatInverseSystem C) : SequentialInverseSystem C :=
   indexEquivalence.functor ⋙ F
 
@@ -52,7 +49,6 @@ theorem toSequential_stepMap (F : PNatInverseSystem C) (n : ℕ) :
     F.toSequential.stepMap n = F.stepMap (Nat.succPNat n) := sorry
 
 /-- Reindexing a positive inverse system by `n ↦ n + 1` does not change its limit. -/
-@[stacks 0EGS "limits are invariant under positive sequential reindexing"]
 noncomputable def toSequentialLimitIso (F : PNatInverseSystem C) [HasLimit F] :
     limit F.toSequential ≅ limit F :=
   HasLimit.isoOfEquivalence indexEquivalence (Iso.refl _)

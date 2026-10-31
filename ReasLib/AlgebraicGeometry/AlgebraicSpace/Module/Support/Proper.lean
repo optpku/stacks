@@ -6,6 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.FiniteType.BaseChange
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Support.Closed
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.SchemeTheoreticSupport
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.ClosedSubset.Proper.BaseChange
@@ -40,6 +41,7 @@ theorem closedSupport_pullback_isProperOver {S : Scheme.{u}}
     {g : Y' ⟶ Y} (sq : IsPullback g' f' f g) [LocallyOfFiniteType f]
     (F : X.Modules) [F.IsFiniteType] [F.IsQuasicoherent]
     (hF : ClosedSubset.ProperOver f (closedSupport F)) :
+    letI : LocallyOfFiniteType f' := LocallyOfFiniteType.of_isPullback sq inferInstance
     ClosedSubset.ProperOver f' (closedSupport ((pullback g').obj F)) :=
   sorry
 

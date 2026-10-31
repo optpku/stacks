@@ -61,7 +61,10 @@ abbrev toBase
 theorem specMap_comp
     (A B C : Type u) [CommRing A] [CommRing B] [CommRing C]
     [Algebra A B] [Algebra B C] [Algebra A C] [IsScalarTower A B C] :
-    specMap B C ≫ specMap A B = specMap A C := sorry
+    specMap B C ≫ specMap A B = specMap A C := by
+  dsimp only [specMap]
+  rw [← Spec.map_comp, ← CommRingCat.ofHom_comp,
+    ← IsScalarTower.algebraMap_eq A B C]
 
 /-- The spectrum map `Spec C ⟶ Spec B` in a compatible algebra tower, regarded as a morphism over
 `Spec A`. -/
@@ -76,7 +79,8 @@ noncomputable def specMapOverBase
 theorem specMapOverBase_left
     (A B C : Type u) [Field A] [CommRing B] [CommRing C]
     [Algebra A B] [Algebra B C] [Algebra A C] [IsScalarTower A B C] :
-    (specMapOverBase A B C).left = specMap B C := sorry
+    (specMapOverBase A B C).left = specMap B C := by
+  rfl
 
 /-- The iterated affine base change along a compatible algebra tower is canonically isomorphic
 to the direct base change. -/
@@ -95,7 +99,9 @@ theorem iteratedIso_hom_toSource
     [Algebra A B] [Algebra B C] [Algebra A C] [IsScalarTower A B C]
     {X : Scheme.{u}} (f : X ⟶ Spec (CommRingCat.of A)) :
     (iteratedIso A B C f).hom ≫ toSource A C f =
-      toSource B C (toBase A B f) ≫ toSource A B f := sorry
+      toSource B C (toBase A B f) ≫ toSource A B f := by
+  simp [iteratedIso, toSource, pullback.congrHom_hom, Category.assoc,
+    pullback.map, pullback.lift_fst]
 
 /-- The tower base-change isomorphism commutes with the projection to the final affine base. -/
 @[reassoc (attr := simp)]
@@ -104,7 +110,9 @@ theorem iteratedIso_hom_toBase
     [Algebra A B] [Algebra B C] [Algebra A C] [IsScalarTower A B C]
     {X : Scheme.{u}} (f : X ⟶ Spec (CommRingCat.of A)) :
     (iteratedIso A B C f).hom ≫ toBase A C f =
-      toBase B C (toBase A B f) := sorry
+      toBase B C (toBase A B f) := by
+  simp [iteratedIso, toBase, pullback.congrHom_hom, Category.assoc,
+    pullback.map, pullback.lift_snd]
 
 /-- The morphism between affine base changes induced by a compatible map `B → C`. -/
 noncomputable def map
@@ -140,7 +148,22 @@ theorem iteratedIso_hom_map
     {X : Scheme.{u}} (f : X ⟶ Spec (CommRingCat.of A)) :
     (iteratedIso A B C f).hom ≫
         map f (algebraMap B C) (IsScalarTower.algebraMap_eq A B C) =
-      toSource B C (toBase A B f) := sorry
+      toSource B C (toBase A B f) := by
+  apply pullback.hom_ext
+  · change ((iteratedIso A B C f).hom ≫
+        map f (algebraMap B C) (IsScalarTower.algebraMap_eq A B C)) ≫
+          toSource A B f = toSource B C (toBase A B f) ≫ toSource A B f
+    simpa [map, toSource, Category.assoc, pullback.map, pullback.lift_fst] using
+      iteratedIso_hom_toSource A B C f
+  · change ((iteratedIso A B C f).hom ≫
+        map f (algebraMap B C) (IsScalarTower.algebraMap_eq A B C)) ≫
+          toBase A B f = toSource B C (toBase A B f) ≫ toBase A B f
+    calc
+      _ = (iteratedIso A B C f).hom ≫ toBase A C f ≫ specMap B C := by
+        simp [map, toBase, Category.assoc, pullback.map, pullback.lift_snd]
+      _ = toBase B C (toBase A B f) ≫ specMap B C := by
+        rw [← Category.assoc, iteratedIso_hom_toBase]
+      _ = toSource B C (toBase A B f) ≫ toBase A B f := pullback.condition.symm
 
 /-- The affine base-change comparison induced by an `A`-algebra homomorphism `B →ₐ[A] C`.
 
@@ -159,7 +182,8 @@ theorem map_toSource
     [Algebra A B] [Algebra A C] {X : Scheme.{u}}
     (f : X ⟶ Spec (CommRingCat.of A)) (g : B →+* C)
     (hg : algebraMap A C = g.comp (algebraMap A B)) :
-    map f g hg ≫ toSource A B f = toSource A C f := sorry
+    map f g hg ≫ toSource A B f = toSource A C f := by
+  simp [map, toSource, pullback.map, pullback.lift_fst]
 
 /-- An affine base-change comparison morphism commutes with the projection to the affine base. -/
 theorem map_toBase
@@ -168,14 +192,16 @@ theorem map_toBase
     (f : X ⟶ Spec (CommRingCat.of A)) (g : B →+* C)
     (hg : algebraMap A C = g.comp (algebraMap A B)) :
     map f g hg ≫ toBase A B f =
-      toBase A C f ≫ Spec.map (CommRingCat.ofHom g) := sorry
+      toBase A C f ≫ Spec.map (CommRingCat.ofHom g) := by
+  simp [map, toBase, pullback.map, pullback.lift_snd]
 
 /-- The `mapAlg` comparison commutes with the source projection. -/
 theorem mapAlg_toSource
     {A B C : Type u} [CommRing A] [CommRing B] [CommRing C]
     [Algebra A B] [Algebra A C] {X : Scheme.{u}}
     (f : X ⟶ Spec (CommRingCat.of A)) (g : B →ₐ[A] C) :
-    mapAlg f g ≫ toSource A B f = toSource A C f := sorry
+    mapAlg f g ≫ toSource A B f = toSource A C f := by
+  exact map_toSource f g.toRingHom _
 
 /-- The `mapAlg` comparison commutes with the affine-base projection. -/
 theorem mapAlg_toBase
@@ -183,7 +209,8 @@ theorem mapAlg_toBase
     [Algebra A B] [Algebra A C] {X : Scheme.{u}}
     (f : X ⟶ Spec (CommRingCat.of A)) (g : B →ₐ[A] C) :
     mapAlg f g ≫ toBase A B f =
-      toBase A C f ≫ Spec.map (CommRingCat.ofHom g.toRingHom) := sorry
+      toBase A C f ≫ Spec.map (CommRingCat.ofHom g.toRingHom) := by
+  exact map_toBase f g.toRingHom _
 
 end Scheme.AffineBaseChange
 

@@ -40,17 +40,17 @@ namespace IsTermwiseFlat
 
 /-- Every component of a termwise-flat complex is flat. -/
 theorem isFlat {K : HomologicalComplex C c} (hK : IsTermwiseFlat K) (i : ι) :
-    IsFlat (K.X i) := sorry
+    IsFlat (K.X i) := hK i
 
 end IsTermwiseFlat
 
 /-- Termwise flatness unfolds to flatness in every degree. -/
 theorem isTermwiseFlat_iff (K : HomologicalComplex C c) :
-    IsTermwiseFlat K ↔ ∀ i : ι, IsFlat (K.X i) := sorry
+    IsTermwiseFlat K ↔ ∀ i : ι, IsFlat (K.X i) := Iff.rfl
 
 /-- Degreewise flatness constructs the termwise-flat predicate. -/
 theorem isTermwiseFlat_of_forall
     (K : HomologicalComplex C c) (hK : ∀ i : ι, IsFlat (K.X i)) :
-    IsTermwiseFlat K := sorry
+    IsTermwiseFlat K := hK
 
 end HomologicalComplex

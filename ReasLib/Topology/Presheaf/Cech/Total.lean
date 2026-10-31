@@ -37,10 +37,14 @@ abbrev rowCechFunctor (U : ι → Opens X) :
   CategoryTheory.Cech.Total.rowCechFunctor
     (C := Opens X) (A := AddCommGrpCat.{max u uι}) U
 
-/-- The topological Cech row functor is additive. -/
-@[stacks 00ZY "additivity of the topological row Cech functor"]
-noncomputable instance rowCechFunctor_additive (U : ι → Opens X) :
-    (rowCechFunctor U).Additive := sorry
+/-- Transfer canonical Cech additivity through extension by zero.  The explicit coefficient
+universe makes this composition available to the topological row interface. -/
+instance rowCechFunctor_additive (U : ι → Opens X) : (rowCechFunctor U).Additive := by
+  change (CategoryTheory.cechComplexFunctor (A := AddCommGrpCat.{max u uι}) U ⋙
+    ComplexShape.embeddingUpNat.extendFunctor AddCommGrpCat.{max u uι}).Additive
+  letI := CategoryTheory.Cech.cechComplexFunctor_additive
+    (A := AddCommGrpCat.{max u uι}) U
+  infer_instance
 
 /-- The rowwise Cech double-complex functor of an indexed family of opens. -/
 @[stacks 07MB "topological double Cech infrastructure for total cup-product constructions"]

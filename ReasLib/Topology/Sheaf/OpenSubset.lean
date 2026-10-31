@@ -8,6 +8,7 @@ module
 
 public import ReasLib.Topology.Opens.Inclusion
 public import ReasLib.Topology.Sheaf.Pullback
+public import ReasLib.Topology.Sheaves.OpenSubset.Restriction
 
 /-!
 # Restriction of sheaves to open subspaces
@@ -43,6 +44,13 @@ abbrev restrict (𝓕 : TopCat.Sheaf A X) (U : Opens X) :
     TopCat.Sheaf A (space U) :=
   (TopCat.Sheaf.pullback A (inclusion U)).obj 𝓕
 
+/-- Comparison with the canonical open-embedding restriction.  The latter is the common
+restriction model used by the open-cover API; `restrict` is retained as a thin compatibility
+specialization of the concrete sheaf pullback API. -/
+noncomputable def restrictIsoSheafPullback (𝓕 : TopCat.Sheaf A X) (U : Opens X) :
+    restrict 𝓕 U ≅ (U.isOpenEmbedding.sheafPullback A).obj 𝓕 :=
+  (U.isOpenEmbedding.sheafPullbackIso A).app 𝓕
+
 namespace Restriction
 
 /-- For an open inclusion, restriction along the counit of the adjunction on opens agrees with
@@ -59,10 +67,11 @@ theorem openEmbeddingCounitEq
 noncomputable def pullbackIso
     (𝓕 : TopCat.Sheaf A X) {W U : Opens X} (h : W ≤ U) :
     (TopCat.Sheaf.pullback A (homOfLE h)).obj (restrict 𝓕 U) ≅ restrict 𝓕 W :=
-  (TopCat.Sheaf.pullbackComp (A := A) (homOfLE h) (inclusion U)).app 𝓕 ≪≫
-    eqToIso (congrArg
-      (fun f ↦ (TopCat.Sheaf.pullback A f).obj 𝓕)
-      (homOfLE_comp_inclusion h))
+  ((homOfLE_isOpenEmbedding h).sheafPullbackIso A).app (restrict 𝓕 U) ≪≫
+    (TopCat.Opens.Subspace.sheafPullback A h).mapIso
+      (restrictIsoSheafPullback 𝓕 U) ≪≫
+    (TopCat.Opens.Subspace.sheafPullbackCompInclusionIso (C := A) h).app 𝓕 ≪≫
+    (restrictIsoSheafPullback 𝓕 W).symm
 
 /-- The canonical map from `𝓕.restrict U` to the pushforward of `𝓕.restrict W` along the
 inclusion `W ⊆ U`. -/

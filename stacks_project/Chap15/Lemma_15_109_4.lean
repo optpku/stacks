@@ -38,7 +38,7 @@ type algebra model.  This historical snapshot is the current Stacks Lemma
           (RingHom.ker φ).Cotangent) ↦
   (AdicCompletion.Algebraization.exists_finiteTypeAlgEquiv_of_kernelCotangent_annihilated
       I φ hφ c hker :
-    ∃ (D : Type x) (_ : CommRing D) (_ : Algebra A D)
+    ∃ (D : Type (max u v x)) (_ : CommRing D) (_ : Algebra A D)
       (_ : Algebra.FiniteType A D),
       Nonempty
         (AdicCompletion (Ideal.map (algebraMap A D) I) D ≃ₐ[A] C))

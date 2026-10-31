@@ -51,15 +51,15 @@ noncomputable instance instAlgebra_succ (A : Type u) [CommRing A] (n : ℕ) :
 
 /-- The zeroth iterate is the envelope `T(A)`. -/
 theorem iterate_zero (A : Type u) [CommRing A] :
-    iterate A 0 = IndEtaleEnvelope A := sorry
+    iterate A 0 = IndEtaleEnvelope A := rfl
 
 /-- The successor iterate is the envelope of the previous stage. -/
 theorem iterate_succ (A : Type u) [CommRing A] (n : ℕ) :
-    iterate A (n + 1) = IndEtaleEnvelope (iterate A n) := sorry
+    iterate A (n + 1) = IndEtaleEnvelope (iterate A n) := rfl
 
 /-- The `n`-th iterate as a commutative ring object is `of (iterate A n)`. -/
 theorem iterateObj_eq_of (A : Type u) [CommRing A] (n : ℕ) :
-    iterateObj A n = of (iterate A n) := sorry
+    iterateObj A n = of (iterate A n) := rfl
 
 /-- The successor morphism of the iterated envelope system. -/
 noncomputable def succHom (A : Type u) [CommRing A] (n : ℕ) :
@@ -68,7 +68,7 @@ noncomputable def succHom (A : Type u) [CommRing A] (n : ℕ) :
 
 /-- The successor morphism is the structure map of the next envelope. -/
 theorem succHom_hom (A : Type u) [CommRing A] (n : ℕ) :
-    (succHom A n).hom = algebraMap (iterate A n) (iterate A (n + 1)) := sorry
+    (succHom A n).hom = algebraMap (iterate A n) (iterate A (n + 1)) := rfl
 
 /-- The `ℕ`-indexed diagram of iterated envelopes. -/
 noncomputable def iterateFunctor (A : Type u) [CommRing A] : ℕ ⥤ CommRingCat.{u} :=
@@ -76,7 +76,7 @@ noncomputable def iterateFunctor (A : Type u) [CommRing A] : ℕ ⥤ CommRingCat
 
 /-- The sequential diagram evaluates at `n` to the `n`-th iterate. -/
 theorem iterateFunctor_obj (A : Type u) [CommRing A] (n : ℕ) :
-    (iterateFunctor A).obj n = iterateObj A n := sorry
+    (iterateFunctor A).obj n = iterateObj A n := rfl
 
 /-- The sequential colimit of the iterated envelopes `T^{n+1}(A)`. -/
 noncomputable def Iteration (A : Type u) [CommRing A] : Type u :=
@@ -99,7 +99,19 @@ noncomputable instance instAlgebra_ι (A : Type u) [CommRing A] (n : ℕ) :
 
 /-- Coprojections of `Iteration A` intertwine the successor algebra maps. -/
 theorem ι_comp_succHom (A : Type u) [CommRing A] (n : ℕ) :
-    (ι A (n + 1)).comp (succHom A n).hom = ι A n := sorry
+    (ι A (n + 1)).comp (succHom A n).hom = ι A n := by
+  have hcat :
+      (iterateFunctor A).map (CategoryTheory.homOfLE (Nat.le_add_right n 1)) ≫
+          colimit.ι (iterateFunctor A) (n + 1) =
+        colimit.ι (iterateFunctor A) n :=
+    (colimit.cocone (iterateFunctor A)).ι.naturality
+      (CategoryTheory.homOfLE (Nat.le_add_right n 1))
+  change (Functor.ofSequence (succHom A)).map
+      (CategoryTheory.homOfLE (Nat.le_add_right n 1)) ≫
+        colimit.ι (iterateFunctor A) (n + 1) =
+      colimit.ι (iterateFunctor A) n at hcat
+  rw [Functor.ofSequence_map_homOfLE_succ] at hcat
+  exact congrArg CommRingCat.Hom.hom hcat
 
 /-- The structure map `A → Iteration A` through the envelope `T(A)`. -/
 noncomputable def algebraMap_iteration (A : Type u) [CommRing A] :
@@ -113,7 +125,7 @@ noncomputable instance instAlgebra_iteration (A : Type u) [CommRing A] :
 
 /-- The `A`-algebra structure map of `Iteration A` factors through `T(A)`. -/
 theorem algebraMap_iteration_eq (A : Type u) [CommRing A] :
-    algebraMap A (Iteration A) = algebraMap_iteration A := sorry
+    algebraMap A (Iteration A) = algebraMap_iteration A := rfl
 
 /-- The sequential colimit of the iterated envelopes is faithfully flat
 over the initial ring. -/
@@ -135,13 +147,15 @@ ind-étale algebra with the faithfully flat étale retraction property. -/
 theorem iteration_spec (A : Type u) [CommRing A] :
     Module.FaithfullyFlat A (Iteration A) ∧
       (algebraMap A (Iteration A)).IndEtale ∧
-      HasFaithfullyFlatEtaleRetraction (Iteration A) := sorry
+      HasFaithfullyFlatEtaleRetraction (Iteration A) := by
+  exact ⟨inferInstance, indEtale A, inferInstance⟩
 
 /-- Every commutative ring admits a faithfully flat ind-étale algebra over
 which every faithfully flat étale algebra admits a retraction. -/
 theorem exists_faithfullyFlat_indEtale_retraction (A : Type u) [CommRing A] :
     ∃ (C : Type u) (_ : CommRing C) (_ : Algebra A C),
       Module.FaithfullyFlat A C ∧ (algebraMap A C).IndEtale ∧
-      HasFaithfullyFlatEtaleRetraction C := sorry
+      HasFaithfullyFlatEtaleRetraction C := by
+  exact ⟨Iteration A, inferInstance, inferInstance, iteration_spec A⟩
 
 end Algebra.IndEtaleEnvelope

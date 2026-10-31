@@ -36,9 +36,9 @@ theorem existsAffineSliceFlatLocallyQuasiFinite
     ∃ U' : Over S, ∃ g : U' ⟶ G.U, ∃ u' : U'.left,
       IsAffine U'.left ∧ IsImmersion g.left ∧ g.left u' = u ∧
         LocallyOfFinitePresentation g.left ∧
-        Flat (sliceSource G g).left ∧
-        LocallyOfFinitePresentation (sliceSource G g).left ∧
-        LocallyQuasiFinite (sliceSource G g).left ∧
+        Flat (saturationMap G g).left ∧
+        LocallyOfFinitePresentation (saturationMap G g).left ∧
+        LocallyQuasiFinite (saturationMap G g).left ∧
         Flat (G.pullback g).s.left ∧
         LocallyOfFinitePresentation (G.pullback g).s.left ∧
         LocallyQuasiFinite (G.pullback g).s.left ∧

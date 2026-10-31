@@ -32,12 +32,12 @@ quasi-compact scheme-theoretically dense open subspace is finitely presented. -/
     ∀ {S : Scheme.{u}} {X Y V : AlgebraicSpace S} (f : X ⟶ Y),
       LocallyOfFinitePresentation f →
       ∀ (F : SmallEtale.Modules X),
-        SmallEtale.Modules.IsQuasicoherent F → SmallEtale.Modules.IsFiniteType F →
+        SheafOfModules.IsQuasicoherent F → SheafOfModules.IsFiniteType F →
         SmallEtale.Modules.FlatOver F f → ∀ (ι : V ⟶ Y)
           (h_open : Representable.IsOpenImmersion ι),
         Representable.QuasiCompact ι → Open.IsSchemeTheoreticallyDense ι →
-        SmallEtale.Modules.IsFinitePresentation
+        SheafOfModules.IsFinitePresentation
           ((SmallEtale.Modules.restrict (Open.inverseImageι f ι h_open)
             (Representable.isOpenImmersion_etale (Open.inverseImageι f ι h_open)
               (Open.inverseImage_isOpenImmersion f ι h_open))).obj F) →
-        SmallEtale.Modules.IsFinitePresentation F)
+        SheafOfModules.IsFinitePresentation F)

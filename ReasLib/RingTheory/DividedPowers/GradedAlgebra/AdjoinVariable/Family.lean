@@ -335,7 +335,8 @@ theorem generator_sq_eq_zero (X : Family A d J) (hd : Odd d) (j : J) :
 The model remains explicit input to downstream constructions; this existence theorem does not
 define a public choice of a carrier. -/
 @[stacks 0F4I "existence of indexed graded divided-power extensions"]
-theorem nonempty (A : DividedPowerGradedAlgebra.{u, v} R) (d : ℕ) (J : Type w) :
+theorem nonempty (A : DividedPowerGradedAlgebra.{u, v} R) (d : ℕ) (J : Type w)
+    [Small.{v} J] :
     Nonempty (Family A d J) := sorry
 
 namespace FiniteSubset

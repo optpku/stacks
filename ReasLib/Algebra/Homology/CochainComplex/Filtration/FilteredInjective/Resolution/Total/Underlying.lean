@@ -56,36 +56,37 @@ base complex. -/
 @[simp, stacks 05TW "underlying source of a total strict filtered-injective resolution"]
 theorem source_obj (X : Resolution.Total C) :
     (source C).obj X =
-      (FilteredObject.Finite.Plus.Forget.cochain C).obj X.base := sorry
+      (FilteredObject.Finite.Plus.Forget.cochain C).obj X.base := rfl
 
 /-- The underlying source functor maps a total morphism by forgetting the filtration on its base
 morphism. -/
 @[simp, stacks 05TU "underlying source map of a total strict filtered-injective resolution"]
 theorem source_map {X Y : Resolution.Total C} (f : X ⟶ Y) :
     (source C).map f =
-      (FilteredObject.Finite.Plus.Forget.cochain C).map f.base := sorry
+      (FilteredObject.Finite.Plus.Forget.cochain C).map f.base := rfl
 
 /-- The underlying target of a total resolution is the stored underlying bounded target. -/
 @[simp, stacks 05TW "underlying target of a total strict filtered-injective resolution"]
 theorem target_obj (X : Resolution.Total C) :
-    (target C).obj X = X.obj.underlying := sorry
+    (target C).obj X = X.obj.underlying := rfl
 
 /-- The underlying target functor maps a total morphism by its stored underlying target map. -/
 @[simp, stacks 05TU "underlying target map of a total strict filtered-injective resolution"]
 theorem target_map {X Y : Resolution.Total C} (f : X ⟶ Y) :
-    (target C).map f = f.displayed.underlyingMap := sorry
+    (target C).map f = f.displayed.underlyingMap := rfl
 
 /-- A component of the total underlying comparison is the underlying comparison stored by its
 resolution. -/
 @[simp, stacks 05TW "component of the total underlying strict-resolution comparison"]
 theorem comparison_app (X : Resolution.Total C) :
-    (comparison C).app X = X.obj.underlyingComparison := sorry
+    (comparison C).app X = X.obj.underlyingComparison := rfl
 
 /-- Forward naturality of the underlying comparison on total strict-resolution morphisms. -/
 @[reassoc, stacks 05TU "naturality of the total underlying strict-resolution comparison"]
 theorem comparison_naturality {X Y : Resolution.Total C} (f : X ⟶ Y) :
     (source C).map f ≫ (comparison C).app Y =
-      (comparison C).app X ≫ (target C).map f := sorry
+      (comparison C).app X ≫ (target C).map f :=
+  (comparison C).naturality f
 
 namespace Homotopy
 
@@ -116,36 +117,37 @@ homotopy functor. -/
 @[simp, stacks 05TW "underlying homotopy source of a total strict resolution"]
 theorem source_obj (X : Resolution.Total C) :
     (source C).obj X =
-      (FilteredObject.Finite.Plus.Forget.homotopy C).obj X.base := sorry
+      (FilteredObject.Finite.Plus.Forget.homotopy C).obj X.base := rfl
 
 /-- The homotopy source maps a total morphism by the canonical underlying homotopy functor. -/
 @[simp, stacks 05TU "underlying homotopy source map of a total strict resolution"]
 theorem source_map {X Y : Resolution.Total C} (f : X ⟶ Y) :
     (source C).map f =
-      (FilteredObject.Finite.Plus.Forget.homotopy C).map f.base := sorry
+      (FilteredObject.Finite.Plus.Forget.homotopy C).map f.base := rfl
 
 /-- The homotopy target of a total resolution is its stored underlying homotopy target. -/
 @[simp, stacks 05TW "underlying homotopy target of a total strict resolution"]
 theorem target_obj (X : Resolution.Total C) :
-    (target C).obj X = X.obj.underlyingHomotopy := sorry
+    (target C).obj X = X.obj.underlyingHomotopy := rfl
 
 /-- The homotopy target maps a total morphism by its stored underlying homotopy target map. -/
 @[simp, stacks 05TU "underlying homotopy target map of a total strict resolution"]
 theorem target_map {X Y : Resolution.Total C} (f : X ⟶ Y) :
-    (target C).map f = f.displayed.underlyingHomotopyMap := sorry
+    (target C).map f = f.displayed.underlyingHomotopyMap := rfl
 
 /-- A component of the total underlying homotopy comparison is the comparison attached to its
 stored resolution. -/
 @[simp, stacks 05TW "component of the total underlying homotopy comparison"]
 theorem comparison_app (X : Resolution.Total C) :
-    (comparison C).app X = X.obj.underlyingHomotopyComparison := sorry
+    (comparison C).app X = X.obj.underlyingHomotopyComparison := rfl
 
 /-- Forward naturality of the underlying homotopy comparison on total strict-resolution
 morphisms. -/
 @[reassoc, stacks 05TU "naturality of the total underlying homotopy comparison"]
 theorem comparison_naturality {X Y : Resolution.Total C} (f : X ⟶ Y) :
     (source C).map f ≫ (comparison C).app Y =
-      (comparison C).app X ≫ (target C).map f := sorry
+      (comparison C).app X ≫ (target C).map f :=
+  (comparison C).naturality f
 
 end Homotopy
 

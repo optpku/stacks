@@ -38,7 +38,7 @@ at the restricted identity. -/
         ∃ U' : Over S, ∃ g : U' ⟶ G.U, ∃ u' : U'.left,
           IsAffine U'.left ∧ IsImmersion g.left ∧ g.left u' = u ∧
             LocallyOfFinitePresentation g.left ∧
-            CohenMacaulayAt (sliceSource G g).left
+            CohenMacaulayAt (saturationMap G g).left
               ((pullbackToTargetSquare G g).left ((G.pullback g).e.left u')) ∧
             fiberDimensionAt (G.pullback g).s.left ((G.pullback g).e.left u') +
               (1 : WithBot ℕ∞) = d₂)

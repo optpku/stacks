@@ -65,7 +65,14 @@ variable {D : Type uD} [Category.{vD} D]
 The terminal-index cocone is the canonical presentation. -/
 @[stacks 05PU "terminal-index presentation"]
 theorem of_isTerminal (M : I ⥤ C) {i : I} (hi : IsTerminal i) :
-    IsEssentiallyConstant M := sorry
+    IsEssentiallyConstant M := by
+  refine ⟨coconeOfDiagramTerminal hi M, i, { section_ := 𝟙 (M.obj i), id := ?_ }, ?_⟩
+  · change 𝟙 (M.obj i) ≫ M.map (hi.from i) = 𝟙 (M.obj i)
+    simp
+  · intro j
+    refine ⟨i, 𝟙 i, hi.from j, ?_⟩
+    change M.map (hi.from j) = M.map (hi.from j) ≫ 𝟙 (M.obj i) ≫ M.map (𝟙 i)
+    simp
 
 /-- The selected essentially constant cocone presentation of a filtered-oriented diagram.
 This is the single choice boundary for consumers that need presentation data rather than only
@@ -78,7 +85,8 @@ noncomputable def cocone {M : I ⥤ C} (hM : IsEssentiallyConstant M) :
 /-- The selected cocone presentation satisfies the defining essential-constancy condition. -/
 theorem cocone.isEssentiallyConstant {M : I ⥤ C}
     (hM : IsEssentiallyConstant M) :
-    hM.cocone.IsEssentiallyConstant := sorry
+    hM.cocone.IsEssentiallyConstant :=
+  hM.choose_spec
 
 /-- The selected stage of an essentially constant filtered diagram. -/
 @[stacks 05PU "filtered diagram selected stage"]
@@ -99,13 +107,19 @@ noncomputable def cocone.splitEpi {M : I ⥤ C}
 theorem cocone.factorization {M : I ⥤ C}
     (hM : IsEssentiallyConstant M) (j : I) :
     ∃ (k : I) (ik : cocone.stage hM ⟶ k) (jk : j ⟶ k),
-      M.map jk = hM.cocone.ι.app j ≫ (cocone.splitEpi hM).section_ ≫ M.map ik := sorry
+      M.map jk = hM.cocone.ι.app j ≫ (cocone.splitEpi hM).section_ ≫ M.map ik :=
+  hM.choose_spec.choose_spec.choose_spec j
 
 /-- Postcomposition preserves essential constancy of a filtered diagram presentation. -/
 theorem map {M : I ⥤ C} (hM : IsEssentiallyConstant M) (F : C ⥤ D) :
-    IsEssentiallyConstant (M ⋙ F) := sorry
-/- Proof strategy: unpack `hM` as `⟨c, hc⟩`; the required cocone is `F.mapCocone c`, and its
-certificate is `hc.map F`. -/
+    IsEssentiallyConstant (M ⋙ F) := by
+  obtain ⟨c, i, σ, hσ⟩ := hM
+  refine ⟨F.mapCocone c, i, σ.map F, ?_⟩
+  intro j
+  obtain ⟨k, ik, jk, h⟩ := hσ j
+  refine ⟨k, ik, jk, ?_⟩
+  change F.map (M.map jk) = F.map (c.ι.app j) ≫ F.map σ.section_ ≫ F.map (M.map ik)
+  simpa only [Functor.map_comp] using congrArg (fun f ↦ F.map f) h
 
 end IsEssentiallyConstant
 
@@ -122,10 +136,27 @@ def IsEssentiallyConstant (M : I ⥤ C) : Prop :=
 /-- A cofiltered diagram presentation is essentially constant exactly when its opposite filtered
 presentation is essentially constant. -/
 theorem isEssentiallyConstant_iff_op (M : I ⥤ C) :
-    IsEssentiallyConstant M ↔ IsFiltered.IsEssentiallyConstant M.op := sorry
-/- Proof strategy: send `⟨c, hc⟩` to the opposite cocone `c.op` using
-`Cone.isEssentiallyConstant_iff_op`; conversely use `Cocone.unop` and the op/unop involutivity of
-cones and cocones. -/
+    IsEssentiallyConstant M ↔ IsFiltered.IsEssentiallyConstant M.op := by
+  constructor
+  · rintro ⟨c, i, σ, hσ⟩
+    refine ⟨c.op, Opposite.op i, σ.op, ?_⟩
+    intro j
+    obtain ⟨k, ki, kj, h⟩ := hσ j.unop
+    refine ⟨Opposite.op k, ki.op, kj.op, ?_⟩
+    apply Quiver.Hom.unop_inj
+    change M.map kj = (M.map ki ≫ σ.retraction) ≫ c.π.app j.unop
+    simpa only [Category.assoc] using h
+  · rintro ⟨c, i, σ, hσ⟩
+    refine ⟨c.unop, i.unop, { retraction := σ.section_.unop, id := ?_ }, ?_⟩
+    · apply Quiver.Hom.op_inj
+      change σ.section_ ≫ c.ι.app i = 𝟙 c.pt
+      exact σ.id
+    · intro j
+      obtain ⟨k, ik, jk, h⟩ := hσ (Opposite.op j)
+      refine ⟨k.unop, ik.unop, jk.unop, ?_⟩
+      apply Quiver.Hom.op_inj
+      change M.op.map jk = (c.ι.app (Opposite.op j) ≫ σ.section_) ≫ M.op.map ik
+      simpa only [Category.assoc] using h
 
 namespace IsEssentiallyConstant
 
@@ -135,7 +166,14 @@ variable {D : Type uD} [Category.{vD} D]
 The initial-index cone is the canonical presentation. -/
 @[stacks 05PU "initial-index presentation"]
 theorem of_isInitial (M : I ⥤ C) {i : I} (hi : IsInitial i) :
-    IsEssentiallyConstant M := sorry
+    IsEssentiallyConstant M := by
+  refine ⟨coneOfDiagramInitial hi M, i, { retraction := 𝟙 (M.obj i), id := ?_ }, ?_⟩
+  · change M.map (hi.to i) ≫ 𝟙 (M.obj i) = 𝟙 (M.obj i)
+    simp
+  · intro j
+    refine ⟨i, 𝟙 i, hi.to j, ?_⟩
+    change M.map (hi.to j) = M.map (𝟙 i) ≫ 𝟙 (M.obj i) ≫ M.map (hi.to j)
+    simp
 
 /-- The selected essentially constant cone presentation of a cofiltered-oriented diagram.
 This is the single choice boundary for consumers that need presentation data rather than only
@@ -148,7 +186,8 @@ noncomputable def cone {M : I ⥤ C} (hM : IsEssentiallyConstant M) :
 /-- The selected cone presentation satisfies the defining essential-constancy condition. -/
 theorem cone.isEssentiallyConstant {M : I ⥤ C}
     (hM : IsEssentiallyConstant M) :
-    hM.cone.IsEssentiallyConstant := sorry
+    hM.cone.IsEssentiallyConstant :=
+  hM.choose_spec
 
 /-- The selected stage of an essentially constant cofiltered diagram. -/
 @[stacks 05PU "cofiltered diagram selected stage"]
@@ -169,13 +208,19 @@ noncomputable def cone.splitMono {M : I ⥤ C}
 theorem cone.factorization {M : I ⥤ C}
     (hM : IsEssentiallyConstant M) (j : I) :
     ∃ (k : I) (ki : k ⟶ cone.stage hM) (kj : k ⟶ j),
-      M.map kj = M.map ki ≫ (cone.splitMono hM).retraction ≫ hM.cone.π.app j := sorry
+      M.map kj = M.map ki ≫ (cone.splitMono hM).retraction ≫ hM.cone.π.app j :=
+  hM.choose_spec.choose_spec.choose_spec j
 
 /-- Postcomposition preserves essential constancy of a cofiltered diagram presentation. -/
 theorem map {M : I ⥤ C} (hM : IsEssentiallyConstant M) (F : C ⥤ D) :
-    IsEssentiallyConstant (M ⋙ F) := sorry
-/- Proof strategy: unpack `hM` as `⟨c, hc⟩`; use the mapped cone `F.mapCone c` and the certificate
-`hc.map F`. -/
+    IsEssentiallyConstant (M ⋙ F) := by
+  obtain ⟨c, i, σ, hσ⟩ := hM
+  refine ⟨F.mapCone c, i, σ.map F, ?_⟩
+  intro j
+  obtain ⟨k, ki, kj, h⟩ := hσ j
+  refine ⟨k, ki, kj, ?_⟩
+  change F.map (M.map kj) = F.map (M.map ki) ≫ F.map σ.retraction ≫ F.map (c.π.app j)
+  simpa only [Functor.map_comp] using congrArg (fun f ↦ F.map f) h
 
 end IsEssentiallyConstant
 

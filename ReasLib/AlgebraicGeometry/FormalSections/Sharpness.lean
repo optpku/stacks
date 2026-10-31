@@ -78,7 +78,13 @@ abbrev deletedIdeal (k : Type u) [CommRing k] : Ideal (Ring k) :=
   Ideal.span ({x k, y k, s k, t k} : Set (Ring k))
 
 /-- The inclusion `(s, t) ⊆ (x, y, s, t)`. -/
-theorem idealI_le_deletedIdeal (k : Type u) [CommRing k] : idealI k ≤ deletedIdeal k := sorry
+theorem idealI_le_deletedIdeal (k : Type u) [CommRing k] : idealI k ≤ deletedIdeal k := by
+  apply Ideal.span_mono
+  intro a ha
+  simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at ha ⊢
+  rcases ha with rfl | rfl
+  · exact Or.inr (Or.inr (Or.inl rfl))
+  · exact Or.inr (Or.inr (Or.inr rfl))
 
 /-- The punctured affine spectrum `X = Spec(A) - V(𝔞)`. -/
 noncomputable def puncturedOpen (k : Type u) [Field k] :
@@ -87,7 +93,7 @@ noncomputable def puncturedOpen (k : Type u) [Field k] :
 
 /-- The punctured-open construction is the complement of the deleted ideal. -/
 theorem puncturedOpen_def (k : Type u) [Field k] :
-    puncturedOpen k = (Scheme.idealSheafDataOfIdealOnSpec (deletedIdeal k)).openComplement := sorry
+    puncturedOpen k = (Scheme.idealSheafDataOfIdealOnSpec (deletedIdeal k)).openComplement := rfl
 
 /-- The ideal sheaf `I 𝒪_X` on the punctured spectrum. -/
 noncomputable abbrev idealSheaf (k : Type u) [Field k] :
@@ -128,7 +134,7 @@ theorem quotientStageUnit_apply (k : Type u) [Field k] (n : ℕ) :
     quotientStageUnit k n =
       ((Scheme.Hom.globalSectionsFunctor (puncturedOpen k).ι).map
           (projection (idealSheaf k).toSubobject (structureModule k) n)).hom
-        (Scheme.Hom.globalSectionsMap (puncturedOpen k).ι 1) := sorry
+        (Scheme.Hom.globalSectionsMap (puncturedOpen k).ι 1) := rfl
 
 /-- The section-power sequence represented by the rational function `g = t / x = s / y`. -/
 abbrev SectionPower (k : Type u) [Field k] := ℕ → sectionsModule k
@@ -144,7 +150,7 @@ theorem elementOnNeighborhood_def (k : Type u) [Field k]
     (V : (puncturedOpen k).toScheme.Opens) (a : Ring k) :
     elementOnNeighborhood k V a =
       (puncturedOpen k).toScheme.presheaf.map V.leTop.op
-        (Scheme.Hom.globalSectionsMap (puncturedOpen k).ι a) := sorry
+        (Scheme.Hom.globalSectionsMap (puncturedOpen k).ι a) := rfl
 
 -- Local declaration justification (metaprogramming implementation): Lean's module system
 -- must expose the private cover body to the public neighborhood and gluing constructions.
@@ -213,14 +219,119 @@ def powerStageEquation (k : Type u) [Field k] (e n : ℕ)
 
 /-- The neighborhood contains the support of `I 𝒪_X`. -/
 theorem rationalSectionNeighborhood_containsIdealSupport (k : Type u) [Field k] :
-    ((idealSheaf k).support : Set (puncturedOpen k)) ⊆ rationalSectionNeighborhood k := sorry
+    ((idealSheaf k).support : Set (puncturedOpen k)) ⊆ rationalSectionNeighborhood k := by
+  intro p hp
+  simp only [rationalSectionNeighborhood, fractionCover]
+  change p ∈ (⨆ i : Bool, match i with
+    | true => (puncturedOpen k).toScheme.basicOpen
+        ((Scheme.Hom.globalSectionsMap (puncturedOpen k).ι) (x k))
+    | false => (puncturedOpen k).toScheme.basicOpen
+        ((Scheme.Hom.globalSectionsMap (puncturedOpen k).ι) (y k)))
+  rw [TopologicalSpace.Opens.mem_iSup]
+  simp only [Bool.exists_bool]
+  have hbasic (z : Ring k) :
+      p ∈ (puncturedOpen k).toScheme.basicOpen
+          ((Scheme.Hom.globalSectionsMap (puncturedOpen k).ι) z) ↔
+        (puncturedOpen k).ι p ∈
+          (Spec (CommRingCat.of (Ring k))).basicOpen
+            ((Scheme.ΓSpecIso (CommRingCat.of (Ring k))).inv z) := by
+    have hopen := Scheme.Hom.preimage_basicOpen_top (puncturedOpen k).ι
+      ((Scheme.ΓSpecIso (CommRingCat.of (Ring k))).inv z)
+    change p ∈ (puncturedOpen k).toScheme.basicOpen
+      (((Scheme.ΓSpecIso (CommRingCat.of (Ring k))).inv ≫
+        Scheme.Hom.appTop (puncturedOpen k).ι).hom z) ↔ _
+    exact Iff.of_eq (congrArg (fun V => p ∈ V) hopen.symm)
+  have hsupport : ∀ z ∈ idealI k, z ∈ ((puncturedOpen k).ι p).asIdeal := by
+    change ((p : (puncturedOpen k).toScheme) ∈
+      ((Scheme.idealSheafDataOfIdealOnSpec (idealI k)).comap
+        (puncturedOpen k).ι).support) at hp
+    rw [Scheme.IdealSheafData.support_comap] at hp
+    change (puncturedOpen k).ι (p : (puncturedOpen k).toScheme) ∈
+      (Scheme.idealSheafDataOfIdealOnSpec (idealI k)).support at hp
+    change (puncturedOpen k).ι (p : (puncturedOpen k).toScheme) ∈
+      (Scheme.IdealSheafData.ofIdealTop
+        ((idealI k).comap (CommRingCat.Hom.hom
+          (Scheme.ΓSpecIso (CommRingCat.of (Ring k))).hom))).support at hp
+    have hp0 := (Scheme.IdealSheafData.mem_support_iff.mp hp)
+      ⟨⊤, isAffineOpen_top _⟩
+    simp only [Scheme.IdealSheafData.ofIdealTop_ideal] at hp0
+    rw [AlgebraicGeometry.Spec_zeroLocus] at hp0
+    change (show PrimeSpectrum (Ring k) from (puncturedOpen k).ι p) ∈
+      PrimeSpectrum.zeroLocus _ at hp0
+    rw [PrimeSpectrum.mem_zeroLocus] at hp0
+    intro z hz
+    apply hp0
+    change (Scheme.ΓSpecIso (CommRingCat.of (Ring k))).inv z ∈
+      Ideal.map
+        (CommRingCat.Hom.hom ((Spec (CommRingCat.of (Ring k))).presheaf.map
+          (homOfLE (show (⊤ : (Spec (CommRingCat.of (Ring k))).Opens) ≤ ⊤ by rfl)).op))
+        (Ideal.comap (CommRingCat.Hom.hom
+          (Scheme.ΓSpecIso (CommRingCat.of (Ring k))).hom) (idealI k))
+    exact Ideal.mem_map_of_mem
+      (CommRingCat.Hom.hom ((Spec (CommRingCat.of (Ring k))).presheaf.map
+        (homOfLE (show (⊤ : (Spec (CommRingCat.of (Ring k))).Opens) ≤ ⊤ by rfl)).op))
+      (I := Ideal.comap (CommRingCat.Hom.hom
+        (Scheme.ΓSpecIso (CommRingCat.of (Ring k))).hom) (idealI k))
+      (x := (Scheme.ΓSpecIso (CommRingCat.of (Ring k))).inv z)
+      (Ideal.mem_comap.mpr (by simpa using hz))
+  by_contra h
+  push Not at h
+  have hxnot : (show PrimeSpectrum (Ring k) from (puncturedOpen k).ι p) ∉
+      PrimeSpectrum.basicOpen (x k) := by
+    intro hx
+    apply h.2
+    apply (hbasic (x k)).mpr
+    rw [AlgebraicGeometry.basicOpen_eq_of_affine]
+    exact hx
+  have hynot : (show PrimeSpectrum (Ring k) from (puncturedOpen k).ι p) ∉
+      PrimeSpectrum.basicOpen (y k) := by
+    intro hy
+    apply h.1
+    apply (hbasic (y k)).mpr
+    rw [AlgebraicGeometry.basicOpen_eq_of_affine]
+    exact hy
+  have hxmem : x k ∈ ((puncturedOpen k).ι p).asIdeal :=
+    not_not.mp ((not_congr (PrimeSpectrum.mem_basicOpen (x k) _)).mp hxnot)
+  have hymem : y k ∈ ((puncturedOpen k).ι p).asIdeal :=
+    not_not.mp ((not_congr (PrimeSpectrum.mem_basicOpen (y k) _)).mp hynot)
+  have hsmem := hsupport (s k) (by exact Ideal.subset_span (by simp [idealI]))
+  have htmem := hsupport (t k) (by exact Ideal.subset_span (by simp [idealI]))
+  have hdelIdeal : deletedIdeal k ≤ ((puncturedOpen k).ι p).asIdeal := by
+    apply (Ideal.span_le).2
+    intro z hz
+    simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at hz
+    rcases hz with rfl | rfl | rfl | rfl
+    · exact hxmem
+    · exact hymem
+    · exact hsmem
+    · exact htmem
+  have hdel : (puncturedOpen k).ι p ∈
+      (Scheme.idealSheafDataOfIdealOnSpec (deletedIdeal k)).support := by
+    let hdData := Scheme.IdealSheafData.ofIdealTop
+      ((deletedIdeal k).comap (CommRingCat.Hom.hom
+        (Scheme.ΓSpecIso (CommRingCat.of (Ring k))).hom))
+    change (puncturedOpen k).ι (p : (puncturedOpen k).toScheme) ∈ (hdData.support : Set _)
+    rw [Scheme.IdealSheafData.coe_support_ofIdealTop]
+    rw [AlgebraicGeometry.Spec_zeroLocus]
+    change (show PrimeSpectrum (Ring k) from (puncturedOpen k).ι p) ∈
+      PrimeSpectrum.zeroLocus _
+    rw [PrimeSpectrum.mem_zeroLocus]
+    intro z hz
+    apply hdelIdeal
+    simpa using hz
+  exact p.2 hdel
 
 -- Local declaration justification (metaprogramming implementation): Lean's module system
 -- must expose the private covering law to the public quotient-stage construction.
 set_option backward.privateInPublic true in
 /-- The neighborhood and the complement of the ideal support cover `X`. -/
 private theorem rationalSectionNeighborhood_cover (k : Type u) [Field k] :
-    rationalSectionNeighborhood k ⊔ (idealSheaf k).openComplement = ⊤ := sorry
+    rationalSectionNeighborhood k ⊔ (idealSheaf k).openComplement = ⊤ := by
+  apply top_unique
+  intro p _
+  by_cases hp : p ∈ (idealSheaf k).support
+  · exact Or.inl (rationalSectionNeighborhood_containsIdealSupport k hp)
+  · exact Or.inr hp
 
 -- Local declaration justification (metaprogramming implementation): Lean's module system
 -- must expose the private vanishing law to the public quotient-stage construction.
@@ -248,7 +359,15 @@ theorem rationalSectionPowerStage_restrict (k : Type u) [Field k] (e n : ℕ) :
     ((quotientSheafSystem k).obj (op n)).presheaf.map
         (rationalSectionNeighborhood k).leTop.op (rationalSectionPowerStage k e n) =
       Scheme.Modules.Hom.app (projection (idealSheaf k).toSubobject (structureModule k) n)
-        (rationalSectionNeighborhood k) (gluedRationalSection k ^ e) := sorry
+        (rationalSectionNeighborhood k) (gluedRationalSection k ^ e) := by
+  simpa only [rationalSectionPowerStage] using
+    (AlgebraicGeometry.Scheme.Modules.extendOfZeroOn_spec
+      ((quotientSheafSystem k).obj (op n)) (rationalSectionNeighborhood k)
+      (idealSheaf k).openComplement (rationalSectionNeighborhood_cover k)
+      (quotientSheafSystem_zeroOnComplement k n)
+      (Scheme.Modules.Hom.app
+        (projection (idealSheaf k).toSubobject (structureModule k) n)
+        (rationalSectionNeighborhood k) (gluedRationalSection k ^ e))).1
 
 -- Local declaration justification (metaprogramming implementation): Lean's module system
 -- must expose the private compatibility law to the public inverse-limit construction.
@@ -274,7 +393,12 @@ noncomputable def rationalSectionPowerValues (k : Type u) [Field k] : SectionPow
 /-- Every limit projection is the explicitly constructed stage section. -/
 theorem rationalSectionPowerValues_apply (k : Type u) [Field k] (e n : ℕ) :
     (limit.π (quotientModuleSystem k) (op n)).hom (rationalSectionPowerValues k e) =
-      rationalSectionPowerStage k e n := sorry
+      rationalSectionPowerStage k e n := by
+  exact CategoryTheory.Limits.Types.isLimitEquivSections_symm_apply
+    (isLimitOfPreserves (forget (ModuleCat (Ring k)))
+      (limit.isLimit (quotientModuleSystem k)))
+    ⟨fun m => rationalSectionPowerStage k e m.unop,
+      rationalSectionPowerStage_compatible k e⟩ (op n)
 
 /-- The explicitly constructed powers satisfy the displayed stage equations. -/
 theorem rationalSectionPowerValues_spec (k : Type u) [Field k] (e n : ℕ) :

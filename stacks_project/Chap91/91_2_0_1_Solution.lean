@@ -25,7 +25,7 @@ variable [IsScalarTower A B N]
     (fromA' : A' →+* Bprime) (toB : Bprime →+* B)
     [toB.IsSquareZeroExtension]
     (comm_right : toB.comp fromA' =
-      (RingHom.SquareZeroExtension.structureMap : A →+* B).comp π)
+      (algebraMap A B).comp π)
     (kernelEquiv : RingHom.SquareZeroExtension.KernelModule toB ≃ₗ[B] N),
     (∀ x : RingHom.SquareZeroExtension.KernelModule π,
       kernelEquiv (RingHom.SquareZeroExtension.kerMapOf π fromA' toB comm_right x) = c x) →
@@ -33,6 +33,6 @@ variable [IsScalarTower A B N]
 #check (RingHom.SquareZeroExtension.Solution.spec π c :
   ∀ solution : RingHom.SquareZeroExtension.Solution π c,
     solution.toB.comp solution.fromA' =
-      (RingHom.SquareZeroExtension.structureMap : A →+* B).comp π)
+      (algebraMap A B).comp π)
 
 end

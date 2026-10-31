@@ -76,11 +76,6 @@ noncomputable instance invCommShift
 
 end FacIso
 
-variable (h_inverts : Inverts C)
-
-#synth NatTrans.CommShift (facIso C h_inverts).hom ℤ
-#synth NatTrans.CommShift (facIso C h_inverts).inv ℤ
-
 end Forget
 
 end CategoryTheory.FilteredObject.FiniteDerived

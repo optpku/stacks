@@ -42,7 +42,16 @@ namespace triangEnvelope
 /-- For a nonempty object property, the canonical triangulated envelope is the supremum of its
 positive additive extension stages after shift closure. -/
 theorem eq_iSup_additiveExtensionStage (P : ObjectProperty C) [P.Nonempty] :
-    P.triangEnvelope = ⨆ n : ℕ+, additiveExtensionStage (P.shiftClosure ℤ) n := sorry
+    P.triangEnvelope = ⨆ n : ℕ+, additiveExtensionStage (P.shiftClosure ℤ) n := by
+  calc
+    P.triangEnvelope = ⨆ n : ℕ, P.triangEnvelopeIter n := rfl
+    _ = ⨆ n : ℕ+, P.triangEnvelopeIter n.natPred := by
+      symm
+      exact Equiv.pnatEquivNat.iSup_comp (g := fun n : ℕ => P.triangEnvelopeIter n)
+    _ = ⨆ n : ℕ+, additiveExtensionStage (P.shiftClosure ℤ) n := by
+      apply iSup_congr
+      intro n
+      exact triangEnvelopeIter.eq_additiveExtensionStage P n
 
 end triangEnvelope
 
@@ -58,38 +67,59 @@ namespace Property
 
 /-- The object-generated property is its canonical singleton triangulated envelope. -/
 theorem eq_triangEnvelope (E : C) :
-    property E = (singleton E).triangEnvelope := sorry
+    property E = (singleton E).triangEnvelope := rfl
 
 /-- The object-generated property is the supremum of its positive finite stages. -/
 theorem eq_iSup_stage (E : C) :
-    property E = ⨆ n : ℕ+, stage E n := sorry
+    property E = ⨆ n : ℕ+, stage E n := by
+  calc
+    property E = (singleton E).triangEnvelope := rfl
+    _ = ⨆ n : ℕ+, additiveExtensionStage ((singleton E).shiftClosure ℤ) n :=
+      triangEnvelope.eq_iSup_additiveExtensionStage (singleton E)
+    _ = ⨆ n : ℕ+, stage E n := by
+      apply iSup_congr
+      intro n
+      exact (triangEnvelopeIter.eq_additiveExtensionStage (singleton E) n).symm
 
 /-- Membership in the object-generated property is witnessed at a positive finite stage. -/
-theorem mem_iff (E X : C) : property E X ↔ ∃ n : ℕ+, stage E n X := sorry
+theorem mem_iff (E X : C) : property E X ↔ ∃ n : ℕ+, stage E n X := by
+  rw [eq_iSup_stage]
+  exact prop_iSup_iff _ _
 
 /-- The object-generated property is the supremum of all finite interval-stage presentations. -/
 theorem eq_iSup_intervalStage (E : C) :
     property E =
       ⨆ n : ℕ+, ⨆ m : ℕ+,
-        additiveExtensionStage (objectShiftInterval E (-(m : ℤ)) (m : ℤ)) n := sorry
+        additiveExtensionStage (objectShiftInterval E (-(m : ℤ)) (m : ℤ)) n := by
+  rw [eq_iSup_stage]
+  apply iSup_congr
+  intro n
+  exact Stage.eq_iSup_intervalStage E n
 
 /-- The singleton object property is contained in its object-generated triangulated envelope. -/
-theorem singleton_le (E : C) : singleton E ≤ property E := sorry
+theorem singleton_le (E : C) : singleton E ≤ property E := by
+  change singleton E ≤ (singleton E).triangEnvelope
+  exact le_triangEnvelope _
 
 /-- The generating object belongs to its object-generated triangulated envelope. -/
-theorem self_mem (E : C) : property E E := sorry
+theorem self_mem (E : C) : property E E := by
+  exact (singleton_le E) E (by simp)
 
 /-- The object-generated triangulated envelope is the least retract-stable triangulated object
 property containing the singleton object property. -/
 @[stacks 0ATG]
 theorem le_iff (E : C) (P : ObjectProperty C) [P.IsStableUnderRetracts] [P.IsTriangulated] :
-    property E ≤ P ↔ singleton E ≤ P := sorry
+    property E ≤ P ↔ singleton E ≤ P := by
+  change (singleton E).triangEnvelope ≤ P ↔ singleton E ≤ P
+  exact triangEnvelope_le_iff _
 
 /-- A retract-stable triangulated object property containing `E` contains the object-generated
 triangulated envelope of `E`. -/
 theorem le_of_mem (E : C) (P : ObjectProperty C)
     [P.IsStableUnderRetracts] [P.IsTriangulated] (hE : P E) :
-    property E ≤ P := sorry
+    property E ≤ P := by
+  apply (le_iff E P).2
+  exact singleton_le_iff.mpr hE
 
 end Property
 

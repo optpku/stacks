@@ -55,7 +55,8 @@ noncomputable def derivedTowerFunctor :
 truncation tower. -/
 @[simp, stacks 070M]
 theorem derivedTowerFunctor_obj (K : CochainComplex 𝒜 ℤ) :
-    (derivedTowerFunctor 𝒜).obj K = derivedTower K := sorry
+    (derivedTowerFunctor 𝒜).obj K = derivedTower K := by
+  rfl
 
 /-- A component of the functorial map between derived lower-truncation
 towers is the localization of the corresponding truncation map. -/
@@ -63,7 +64,8 @@ towers is the localization of the corresponding truncation map. -/
 theorem derivedTowerFunctor_map_app {K L : CochainComplex 𝒜 ℤ}
     (f : K ⟶ L) (n : ℕ) :
     ((derivedTowerFunctor 𝒜).map f).app (op n) =
-      DerivedCategory.Q.map (CochainComplex.truncGEMap f (index n)) := sorry
+      DerivedCategory.Q.map (CochainComplex.truncGEMap f (index n)) := by
+  rfl
 
 /-- Stacks 070M: the canonical map from a complex to the `n`th derived lower-truncation stage.
 -/
@@ -83,7 +85,8 @@ noncomputable def derivedSourceCone (K : CochainComplex 𝒜 ℤ) :
 lower-truncation stages. -/
 @[simp, stacks 070M]
 theorem derivedSourceCone_π_app (K : CochainComplex 𝒜 ℤ) (n : ℕ) :
-    (derivedSourceCone K).π.app (op n) = derivedToStage K n := sorry
+    (derivedSourceCone K).π.app (op n) = derivedToStage K n := by
+  rfl
 
 /-- The maps from a complex to its derived lower truncations are natural in
 the original cochain complex. -/
@@ -91,7 +94,12 @@ the original cochain complex. -/
 theorem derivedToStage_naturality {K L : CochainComplex 𝒜 ℤ}
     (f : K ⟶ L) (n : ℕ) :
     DerivedCategory.Q.map f ≫ derivedToStage L n =
-      derivedToStage K n ≫ ((derivedTowerFunctor 𝒜).map f).app (op n) := sorry
+      derivedToStage K n ≫ ((derivedTowerFunctor 𝒜).map f).app (op n) := by
+  change DerivedCategory.Q.map f ≫ DerivedCategory.Q.map (L.πTruncGE (index n)) =
+    DerivedCategory.Q.map (K.πTruncGE (index n)) ≫
+      DerivedCategory.Q.map (CochainComplex.truncGEMap f (index n))
+  rw [← Functor.map_comp, ← Functor.map_comp,
+    CochainComplex.πTruncGE_naturality]
 
 /-- The derived lower-truncation cone legs are natural in the original
 cochain complex. -/
@@ -100,7 +108,9 @@ theorem derivedSourceNatTrans_naturality
     {K L : CochainComplex 𝒜 ℤ} (f : K ⟶ L) :
     (DerivedCategory.Q ⋙ Functor.const ℕᵒᵖ).map f ≫
         (derivedSourceCone L).π =
-      (derivedSourceCone K).π ≫ (derivedTowerFunctor 𝒜).map f := sorry
+      (derivedSourceCone K).π ≫ (derivedTowerFunctor 𝒜).map f := by
+  ext j
+  exact derivedToStage_naturality f j.unop
 
 variable (𝒜) in
 /-- The canonical derived maps from a complex to all of its lower
@@ -115,7 +125,8 @@ noncomputable def derivedSourceNatTrans :
 lower-truncation source-cone transformation. -/
 @[simp, stacks 070M]
 theorem derivedSourceNatTrans_app (K : CochainComplex 𝒜 ℤ) :
-    (derivedSourceNatTrans 𝒜).app K = (derivedSourceCone K).π := sorry
+    (derivedSourceNatTrans 𝒜).app K = (derivedSourceCone K).π := by
+  rfl
 
 /-- Evaluating `derivedSourceNatTrans` at a truncation stage gives the
 canonical derived map to that stage. -/
@@ -123,7 +134,8 @@ canonical derived map to that stage. -/
 theorem derivedSourceNatTrans_app_app
     (K : CochainComplex 𝒜 ℤ) (n : ℕ) :
     ((derivedSourceNatTrans 𝒜).app K).app (op n) =
-      derivedToStage K n := sorry
+      derivedToStage K n := by
+  rfl
 
 /-- A cochain map induces the canonical morphism between the corresponding
 derived source cones after postcomposition along the map of derived towers. -/
@@ -139,13 +151,27 @@ noncomputable def derivedSourceConeMap {K L : CochainComplex 𝒜 ℤ}
 @[simp, stacks 070M]
 theorem derivedSourceConeMap_hom {K L : CochainComplex 𝒜 ℤ}
     (f : K ⟶ L) :
-    (derivedSourceConeMap f).hom = DerivedCategory.Q.map f := sorry
+    (derivedSourceConeMap f).hom = DerivedCategory.Q.map f := by
+  rfl
 
 /-- The canonical derived maps to lower truncations commute with the successor transition. -/
 @[reassoc (attr := simp), stacks 070M]
 theorem derivedToStage_comp_transition (K : CochainComplex 𝒜 ℤ) (n : ℕ) :
     derivedToStage K (n + 1) ≫ (derivedTower K).transitionMap (Nat.le_succ n) =
-      derivedToStage K n := sorry
+      derivedToStage K n := by
+  change DerivedCategory.Q.map (K.πTruncGE (index (n + 1))) ≫
+    DerivedCategory.Q.map ((diagram K).map (homOfLE (Nat.le_succ n)).op) =
+      DerivedCategory.Q.map (K.πTruncGE (index n))
+  rw [show (diagram K).map (homOfLE (Nat.le_succ n)).op = step K n from
+    Functor.ofOpSequence_map_homOfLE_succ (step K) n, ← Functor.map_comp]
+  apply congrArg DerivedCategory.Q.map
+  change K.πTruncGE (index (n + 1)) ≫ step K n = K.πTruncGE (index n)
+  letI : (K.truncGE (index n)).IsStrictlyGE (index (n + 1)) :=
+    (K.truncGE (index n)).isStrictlyGE_of_ge (index (n + 1)) (index n)
+      (neg_le_neg (Int.ofNat_le_ofNat_of_le (Nat.le_succ (n + 1))))
+  dsimp only [step, truncGEMapOfLE]
+  rw [← Category.assoc, CochainComplex.πTruncGE_naturality,
+    Category.assoc, IsIso.hom_inv_id, Category.comp_id]
 
 /-- Stacks 070M: concrete comparison data from `K` to a derived limit of its canonical
 lower-truncation tower. -/

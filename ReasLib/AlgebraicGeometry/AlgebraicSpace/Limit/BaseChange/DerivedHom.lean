@@ -96,7 +96,7 @@ theorem stagePullback_eq
     (x₀ : X₀ ⟶ D.obj (OrderDual.toDual s.base))
     (j : (Over (OrderDual.toDual s.base))ᵒᵖ) :
     s.stagePullback x₀ j =
-      ModuleDerived.pullback ((Over.post D ⋙ Over.pullback x₀).obj j.unop).hom := sorry
+      ModuleDerived.pullback ((Over.post D ⋙ Over.pullback x₀).obj j.unop).hom := by rfl
 
 /-- Derived pullback from `D(𝒪_{X₀})` to the base-changed limit. -/
 noncomputable def limitPullback
@@ -115,7 +115,7 @@ theorem limitPullback_eq
     s.limitPullback x₀ =
       ModuleDerived.pullback
         ((Over.pullback x₀).obj
-          (Over.mk (s.limitCone.cone.π.app (OrderDual.toDual s.base)))).hom := sorry
+          (Over.mk (s.limitCone.cone.π.app (OrderDual.toDual s.base)))).hom := by rfl
 
 /-- Derived pullback along a transition followed by the stage projection agrees with the
 direct stage pullback from `X₀`. -/
@@ -125,7 +125,8 @@ private theorem stagePullback_comp_eq
     {j k : (Over (OrderDual.toDual s.base))ᵒᵖ} (f : j ⟶ k) :
     ModuleDerived.pullback
         ((stageTransition s x₀ f).left ≫ stageProjection s x₀ j) =
-      s.stagePullback x₀ k := sorry
+      s.stagePullback x₀ k := by
+  exact congrArg ModuleDerived.pullback (Over.w (stageTransition s x₀ f))
 
 /-- Derived pullback along the limit transition followed by the stage projection agrees with
 direct pullback from `X₀` to the base-changed limit. -/
@@ -135,7 +136,8 @@ private theorem limitPullback_comp_eq
     (j : (Over (OrderDual.toDual s.base))ᵒᵖ) :
     ModuleDerived.pullback
         ((limitTransition s x₀ j).left ≫ stageProjection s x₀ j) =
-      s.limitPullback x₀ := sorry
+      s.limitPullback x₀ := by
+  exact congrArg ModuleDerived.pullback (Over.w (limitTransition s x₀ j))
 
 /-- Canonical comparison between iterated pullback along a stage transition and direct
 pullback from `X₀` to the later stage. -/
@@ -198,7 +200,9 @@ private theorem stageHomMap_id_cat
     (x₀ : X₀ ⟶ D.obj (OrderDual.toDual s.base))
     (K₀ L₀ : ModuleDerived X₀)
     (j : (Over (OrderDual.toDual s.base))ᵒᵖ) :
-    TypeCat.ofHom (s.stageHomMap x₀ K₀ L₀ (𝟙 j)) = 𝟙 _ := sorry
+    TypeCat.ofHom (s.stageHomMap x₀ K₀ L₀ (𝟙 j)) = 𝟙 _ := by
+  rw [stageHomMap_id]
+  rfl
 
 /-- The categorical stage Hom maps respect composition. -/
 private theorem stageHomMap_comp_cat
@@ -208,7 +212,8 @@ private theorem stageHomMap_comp_cat
     {j k l : (Over (OrderDual.toDual s.base))ᵒᵖ} (f : j ⟶ k) (g : k ⟶ l) :
     TypeCat.ofHom (s.stageHomMap x₀ K₀ L₀ (f ≫ g)) =
       TypeCat.ofHom
-        (Function.comp (s.stageHomMap x₀ K₀ L₀ g) (s.stageHomMap x₀ K₀ L₀ f)) := sorry
+        (Function.comp (s.stageHomMap x₀ K₀ L₀ g) (s.stageHomMap x₀ K₀ L₀ f)) := by
+  rw [stageHomMap_comp]
 
 /-- The concrete functor of Hom types between the stage derived pullbacks. -/
 @[expose]
@@ -229,7 +234,7 @@ theorem stageHomFunctor_obj
     (K₀ L₀ : ModuleDerived X₀)
     (j : (Over (OrderDual.toDual s.base))ᵒᵖ) :
     (s.stageHomFunctor x₀ K₀ L₀).obj j =
-      ((s.stagePullback x₀ j).obj K₀ ⟶ (s.stagePullback x₀ j).obj L₀) := sorry
+      ((s.stagePullback x₀ j).obj K₀ ⟶ (s.stagePullback x₀ j).obj L₀) := rfl
 
 /-- The map of the stage Hom functor is the canonical pullback transition. -/
 theorem stageHomFunctor_map
@@ -237,7 +242,7 @@ theorem stageHomFunctor_map
     (x₀ : X₀ ⟶ D.obj (OrderDual.toDual s.base))
     (K₀ L₀ : ModuleDerived X₀)
     {j k : (Over (OrderDual.toDual s.base))ᵒᵖ} (f : j ⟶ k) :
-    (s.stageHomFunctor x₀ K₀ L₀).map f = TypeCat.ofHom (s.stageHomMap x₀ K₀ L₀ f) := sorry
+    (s.stageHomFunctor x₀ K₀ L₀).map f = TypeCat.ofHom (s.stageHomMap x₀ K₀ L₀ f) := rfl
 
 /-- Pull a stage morphism to the base-changed limit along its cone projection. -/
 noncomputable def stageToLimitHom
@@ -279,6 +284,6 @@ theorem homDiagram_ι
     (x₀ : X₀ ⟶ D.obj (OrderDual.toDual s.base))
     (K₀ L₀ : ModuleDerived X₀)
     (j : (Over (OrderDual.toDual s.base))ᵒᵖ) :
-    (s.homDiagram x₀ K₀ L₀).ι j = s.stageToLimitHom x₀ K₀ L₀ j := sorry
+    (s.homDiagram x₀ K₀ L₀).ι j = s.stageToLimitHom x₀ K₀ L₀ j := by rfl
 
 end AlgebraicGeometry.AlgebraicSpace.Limit.QcqsAffineLimit

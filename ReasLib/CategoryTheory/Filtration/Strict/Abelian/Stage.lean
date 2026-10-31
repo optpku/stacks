@@ -52,11 +52,6 @@ namespace StageMap
 theorem mono_of_hom_mono (g : A ⟶ B) [Mono g.hom] (p : ℤ) :
     Mono (stageMap g p) := sorry
 
-/-- The left square of the canonical stage-row map commutes. -/
-theorem toShortComplex_left_comm (g : A ⟶ B) (p : ℤ) :
-    stageMap g (p + 1) ≫ B.filtration.succInclusion p =
-      A.filtration.succInclusion p ≫ stageMap g p := sorry
-
 /-- The right square of the canonical stage-row map commutes. -/
 theorem toShortComplex_right_comm (g : A ⟶ B) (p : ℤ) :
     stageMap g p ≫ cokernel.π (B.filtration.succInclusion p) =
@@ -66,7 +61,7 @@ theorem toShortComplex_right_comm (g : A ⟶ B) (p : ℤ) :
 def toShortComplex (g : A ⟶ B) (p : ℤ) :
     FilteredObject.Hom.stageShortComplex A p ⟶ FilteredObject.Hom.stageShortComplex B p :=
   ShortComplex.homMk (stageMap g (p + 1)) (stageMap g p) (gradedPieceMap g p)
-    (toShortComplex_left_comm g p) (toShortComplex_right_comm g p)
+    (succInclusion_naturality g p).symm (toShortComplex_right_comm g p)
 
 end StageMap
 

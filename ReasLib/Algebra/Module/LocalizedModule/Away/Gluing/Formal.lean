@@ -78,7 +78,12 @@ source-gluing components are equal. -/
 theorem ext {X Y : FormalGluing φ f} {α β : Hom X Y}
     (hglobal : α.globalMap = β.globalMap)
     (hsource : α.sourceMap = β.sourceMap) :
-    α = β := sorry
+    α = β := by
+  cases α
+  cases β
+  cases hglobal
+  cases hsource
+  rfl
 
 /-- Identity components form a commuting comparison square. -/
 @[stacks 05EL "formal gluing identity comparison square"]
@@ -87,7 +92,10 @@ theorem id_comm (X : FormalGluing φ f) :
       (Gluing.ofModuleMap (fun i ↦ φ (f i)) (𝟙 X.globalModule))
       X.comparisonIso.hom
       X.comparisonIso.hom
-      (Gluing.baseChangeMap φ (𝟙 X.sourceGluing)) := sorry
+      (Gluing.baseChangeMap φ (𝟙 X.sourceGluing)) := by
+  constructor
+  simpa only [Gluing.ofModuleMap_id, Gluing.baseChangeMap_id,
+    Category.id_comp, Category.comp_id]
 
 /-- The identity morphism of a formal gluing object. -/
 @[stacks 05EL "formal gluing identity morphism"]
@@ -105,7 +113,9 @@ theorem comp_comm {X Y Z : FormalGluing φ f}
         (α.globalMap ≫ β.globalMap))
       X.comparisonIso.hom
       Z.comparisonIso.hom
-      (Gluing.baseChangeMap φ (α.sourceMap ≫ β.sourceMap)) := sorry
+      (Gluing.baseChangeMap φ (α.sourceMap ≫ β.sourceMap)) := by
+  simpa only [Gluing.ofModuleMap_comp, Gluing.baseChangeMap_comp] using
+    α.comm.horiz_comp β.comm
 
 /-- Composition of morphisms of formal gluing objects. -/
 @[stacks 05EL "formal gluing morphism composition"]
@@ -118,18 +128,27 @@ noncomputable def comp {X Y Z : FormalGluing φ f}
 /-- Left identity for morphisms of formal gluing objects. -/
 @[stacks 05EL "formal gluing morphism left identity"]
 theorem id_comp {X Y : FormalGluing φ f} (α : Hom X Y) :
-    comp (id X) α = α := sorry
+    comp (id X) α = α := by
+  apply Hom.ext
+  · simp [comp, id]
+  · simp [comp, id]
 
 /-- Right identity for morphisms of formal gluing objects. -/
 @[stacks 05EL "formal gluing morphism right identity"]
 theorem comp_id {X Y : FormalGluing φ f} (α : Hom X Y) :
-    comp α (id Y) = α := sorry
+    comp α (id Y) = α := by
+  apply Hom.ext
+  · simp [comp, id]
+  · simp [comp, id]
 
 /-- Associativity of composition for morphisms of formal gluing objects. -/
 @[stacks 05EL "formal gluing morphism associativity"]
 theorem assoc {W X Y Z : FormalGluing φ f}
     (α : Hom W X) (β : Hom X Y) (γ : Hom Y Z) :
-    comp (comp α β) γ = comp α (comp β γ) := sorry
+    comp (comp α β) γ = comp α (comp β γ) := by
+  apply Hom.ext
+  · simp [comp, Category.assoc]
+  · simp [comp, Category.assoc]
 
 end Hom
 
@@ -148,14 +167,16 @@ noncomputable instance instCategory : Category (FormalGluing φ f) where
 identity module morphism. -/
 @[stacks 05EL "formal gluing global projection identity"]
 theorem globalMap_id (X : FormalGluing φ f) :
-    (𝟙 X : X ⟶ X).globalMap = 𝟙 X.globalModule := sorry
+    (𝟙 X : X ⟶ X).globalMap = 𝟙 X.globalModule := by
+  rfl
 
 /-- The global component of a composite formal-gluing morphism is the
 composite of its global components. -/
 @[stacks 05EL "formal gluing global projection composition"]
 theorem globalMap_comp {X Y Z : FormalGluing φ f}
     (α : X ⟶ Y) (β : Y ⟶ Z) :
-    (α ≫ β).globalMap = α.globalMap ≫ β.globalMap := sorry
+    (α ≫ β).globalMap = α.globalMap ≫ β.globalMap := by
+  rfl
 
 /-- The global target-ring module underlying a formal gluing object,
 functorially in compatible morphisms. -/
@@ -171,14 +192,16 @@ noncomputable def globalModuleFunctor :
 the identity gluing morphism. -/
 @[stacks 05EL "formal gluing source projection identity"]
 theorem sourceMap_id (X : FormalGluing φ f) :
-    (𝟙 X : X ⟶ X).sourceMap = 𝟙 X.sourceGluing := sorry
+    (𝟙 X : X ⟶ X).sourceMap = 𝟙 X.sourceGluing := by
+  rfl
 
 /-- The source-gluing component of a composite is the composite of the
 source-gluing components. -/
 @[stacks 05EL "formal gluing source projection composition"]
 theorem sourceMap_comp {X Y Z : FormalGluing φ f}
     (α : X ⟶ Y) (β : Y ⟶ Z) :
-    (α ≫ β).sourceMap = α.sourceMap ≫ β.sourceMap := sorry
+    (α ≫ β).sourceMap = α.sourceMap ≫ β.sourceMap := by
+  rfl
 
 /-- The source principal-open gluing datum underlying a formal gluing object,
 functorially in compatible morphisms. -/
@@ -209,7 +232,8 @@ formal-gluing morphisms. -/
 @[stacks 05EL "formal gluing comparison naturality"]
 theorem comparison_naturality {X Y : FormalGluing φ f} (α : X ⟶ Y) :
     (globalTargetFunctor.map α) ≫ Y.comparisonIso.hom =
-      X.comparisonIso.hom ≫ sourceBaseChangeFunctor.map α := sorry
+      X.comparisonIso.hom ≫ sourceBaseChangeFunctor.map α := by
+  exact α.comm.w
 
 /-- The objectwise formal-gluing comparisons assemble into a natural
 isomorphism from global localization to source-gluing base change. -/

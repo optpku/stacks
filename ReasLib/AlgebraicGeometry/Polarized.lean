@@ -78,7 +78,8 @@ instance Obj.relativelyAmple (x : Obj) : RelativelyAmple x.hom x.line :=
 invertible relatively ample module. -/
 theorem Obj.spec (x : Obj) :
     IsProper x.hom ∧ Flat x.hom ∧ Scheme.Hom.FinitePresentation x.hom ∧
-      Scheme.Modules.Invertible x.line ∧ RelativelyAmple x.hom x.line := sorry
+      Scheme.Modules.Invertible x.line ∧ RelativelyAmple x.hom x.line := by
+  exact ⟨inferInstance, inferInstance, inferInstance, inferInstance, inferInstance⟩
 
 /-- Package a proper flat finite-presentation morphism and a relatively ample module as a
 polarized object. -/
@@ -172,18 +173,109 @@ def Hom.comp {x y z : Obj} (α : Hom x y) (β : Hom y z) : Hom x z :=
     ((Scheme.Modules.pullbackComp α.map β.map).symm.app z.line ≪≫
       (Scheme.Modules.pullback α.map).mapIso β.iso ≪≫ α.iso)
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Left unit law for composition of polarized morphisms. -/
 theorem Hom.id_comp {x y : Obj} (α : Hom x y) : Hom.comp (Hom.id x) α = α :=
-  sorry
+  by
+    unfold Hom at α ⊢
+    rcases α with ⟨f, g, ⟨hp, e⟩⟩
+    dsimp [Hom.comp, Hom.id, homMk, Hom.map, Hom.base, Hom.iso]
+    refine Sigma.ext (Category.id_comp f) ?_
+    apply heq_of_eq
+    refine Sigma.ext (Category.id_comp g) ?_
+    apply heq_of_eq
+    apply congrArg₂ PProd.mk
+    · exact Subsingleton.elim _ _
+    · apply Iso.ext
+      simp only [Iso.trans_hom, Iso.symm_hom, Iso.app_hom, Functor.mapIso_hom]
+      rw [(Scheme.Modules.pullbackId x.X).hom.naturality]
+      have hunit := congrArg (fun t ↦ t.app y.line)
+        (Scheme.Modules.pseudofunctor_right_unitality f)
+      change (Scheme.Modules.pullbackComp (𝟙 x.X) f).inv.app y.line ≫
+        (Scheme.Modules.pullbackId x.X).hom.app ((Scheme.Modules.pullback f).obj y.line) ≫
+          𝟙 _ = 𝟙 _ at hunit
+      simpa only [Category.comp_id, Category.id_comp, Functor.id_map, Category.assoc] using
+        congrArg (fun t ↦ t ≫ e.hom) hunit
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Right unit law for composition of polarized morphisms. -/
 theorem Hom.comp_id {x y : Obj} (α : Hom x y) : Hom.comp α (Hom.id y) = α :=
-  sorry
+  by
+    unfold Hom at α ⊢
+    rcases α with ⟨f, g, ⟨hp, e⟩⟩
+    dsimp [Hom.comp, Hom.id, homMk, Hom.map, Hom.base, Hom.iso]
+    refine Sigma.ext (Category.comp_id f) ?_
+    apply heq_of_eq
+    refine Sigma.ext (Category.comp_id g) ?_
+    apply heq_of_eq
+    apply congrArg₂ PProd.mk
+    · exact Subsingleton.elim _ _
+    · apply Iso.ext
+      simp only [Iso.trans_hom, Iso.symm_hom, Iso.app_hom, Functor.mapIso_hom]
+      have hunit := congrArg (fun t ↦ t.app y.line)
+        (Scheme.Modules.pseudofunctor_left_unitality f)
+      change (Scheme.Modules.pullbackComp f (𝟙 y.X)).inv.app y.line ≫
+        (Scheme.Modules.pullback f).map ((Scheme.Modules.pullbackId y.X).hom.app y.line) ≫
+          𝟙 _ = 𝟙 _ at hunit
+      simpa only [Category.comp_id, Category.id_comp, Category.assoc] using
+        congrArg (fun t ↦ t ≫ e.hom) hunit
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Associativity of composition of polarized morphisms. -/
 theorem Hom.assoc {w x y z : Obj} (α : Hom w x) (β : Hom x y) (γ : Hom y z) :
     Hom.comp (Hom.comp α β) γ = Hom.comp α (Hom.comp β γ) :=
-  sorry
+  by
+    unfold Hom at α β γ ⊢
+    rcases α with ⟨f, b, ⟨hf, e⟩⟩
+    rcases β with ⟨g, c, ⟨hg, i⟩⟩
+    rcases γ with ⟨h, d, ⟨hh, j⟩⟩
+    dsimp [Hom.comp, homMk, Hom.map, Hom.base, Hom.iso]
+    refine Sigma.ext (Category.assoc f g h) ?_
+    apply heq_of_eq
+    refine Sigma.ext (Category.assoc b c d) ?_
+    apply heq_of_eq
+    apply congrArg₂ PProd.mk
+    · exact Subsingleton.elim _ _
+    · apply Iso.ext
+      simp only [Iso.trans_hom, Iso.symm_hom, Iso.app_hom, Functor.mapIso_hom,
+        Functor.map_comp, Category.assoc]
+      have hn := (Scheme.Modules.pullbackComp f g).inv.naturality j.hom
+      have hn' : (Scheme.Modules.pullback (f ≫ g)).map j.hom ≫
+          (Scheme.Modules.pullbackComp f g).inv.app y.line =
+        (Scheme.Modules.pullbackComp f g).inv.app ((Scheme.Modules.pullback h).obj z.line) ≫
+          (Scheme.Modules.pullback f).map ((Scheme.Modules.pullback g).map j.hom) := by
+        simpa only [Functor.comp_map] using hn
+      have hcoh := congrArg (fun t ↦ t.app z.line)
+        (Scheme.Modules.pseudofunctor_associativity f g h)
+      change (Scheme.Modules.pullbackComp f (g ≫ h)).inv.app z.line ≫
+        (Scheme.Modules.pullback f).map ((Scheme.Modules.pullbackComp g h).inv.app z.line) ≫
+          𝟙 _ ≫ (Scheme.Modules.pullbackComp f g).hom.app
+            ((Scheme.Modules.pullback h).obj z.line) ≫
+          (Scheme.Modules.pullbackComp (f ≫ g) h).hom.app z.line = 𝟙 _ at hcoh
+      have hcoh' := congrArg (fun t ↦ t ≫
+        (Scheme.Modules.pullbackComp (f ≫ g) h).inv.app z.line ≫
+          (Scheme.Modules.pullbackComp f g).inv.app ((Scheme.Modules.pullback h).obj z.line)) hcoh
+      simp only [Category.assoc, Category.id_comp,
+        Iso.hom_inv_id_app_assoc, Iso.hom_inv_id_app] at hcoh'
+      change (Scheme.Modules.pullbackComp f (g ≫ h)).inv.app z.line ≫
+          (Scheme.Modules.pullback f).map ((Scheme.Modules.pullbackComp g h).inv.app z.line) ≫
+          𝟙 ((Scheme.Modules.pullback f).obj ((Scheme.Modules.pullback g).obj
+            ((Scheme.Modules.pullback h).obj z.line))) =
+        (Scheme.Modules.pullbackComp (f ≫ g) h).inv.app z.line ≫
+          (Scheme.Modules.pullbackComp f g).inv.app ((Scheme.Modules.pullback h).obj z.line) at hcoh'
+      erw [Category.comp_id] at hcoh'
+      calc
+        _ = (Scheme.Modules.pullbackComp (f ≫ g) h).inv.app z.line ≫
+            (Scheme.Modules.pullbackComp f g).inv.app ((Scheme.Modules.pullback h).obj z.line) ≫
+            (Scheme.Modules.pullback f).map ((Scheme.Modules.pullback g).map j.hom) ≫
+            (Scheme.Modules.pullback f).map i.hom ≫ e.hom := by
+          simpa only [Category.assoc] using congrArg (fun t ↦
+            (Scheme.Modules.pullbackComp (f ≫ g) h).inv.app z.line ≫
+              t ≫ (Scheme.Modules.pullback f).map i.hom ≫ e.hom) hn'
+        _ = _ := by
+          simpa only [Category.assoc] using congrArg (fun t ↦
+            t ≫ (Scheme.Modules.pullback f).map ((Scheme.Modules.pullback g).map j.hom) ≫
+              (Scheme.Modules.pullback f).map i.hom ≫ e.hom) hcoh'.symm
 
 /-- Polarized objects and cartesian line-bundle isomorphisms form a category. -/
 instance category : Category Obj where
@@ -200,24 +292,27 @@ def p : Obj ⥤ Scheme.{u} where
   map φ := φ.base
 
 /-- The forgetful functor sends a polarized object to its base scheme. -/
-theorem p_obj (x : Obj) : p.obj x = x.S := sorry
+theorem p_obj (x : Obj) : p.obj x = x.S := rfl
 
 /-- The forgetful functor sends a polarized morphism to its base map. -/
-theorem p_map {x y : Obj} (φ : x ⟶ y) : p.map φ = φ.base := sorry
+theorem p_map {x y : Obj} (φ : x ⟶ y) : p.map φ = φ.base := rfl
 
 /-- The category of polarized proper families over schemes, with projection to the base. -/
 def over : BasedCategory.{u, u + 1} Scheme.{u} :=
   BasedCategory.ofFunctor p
 
 /-- The projection of the category of polarized families is the forgetful functor. -/
-theorem over_p : over.p = p := sorry
+theorem over_p : over.p = p := rfl
 
 /-- Identity morphisms are sent to identity morphisms in `Sch / Spec ℤ`. -/
 theorem schemeToOverSpecZ_map_id (T : Scheme.{u}) :
     (Over.homMk (𝟙 T) (specULiftZIsTerminal.hom_ext _ _) :
         Over.mk (specULiftZIsTerminal.from T) ⟶ Over.mk (specULiftZIsTerminal.from T)) =
       𝟙 (Over.mk (specULiftZIsTerminal.from T)) :=
-  sorry
+  by
+    ext
+    change 𝟙 T = 𝟙 T
+    rfl
 
 /-- Composition of scheme morphisms is preserved in `Sch / Spec ℤ`. -/
 theorem schemeToOverSpecZ_map_comp {X Y Z : Scheme.{u}} (f : X ⟶ Y) (g : Y ⟶ Z) :
@@ -227,7 +322,9 @@ theorem schemeToOverSpecZ_map_comp {X Y Z : Scheme.{u}} (f : X ⟶ Y) (g : Y ⟶
           Over.mk (specULiftZIsTerminal.from X) ⟶ Over.mk (specULiftZIsTerminal.from Y)) ≫
         (Over.homMk g (specULiftZIsTerminal.hom_ext _ _) :
           Over.mk (specULiftZIsTerminal.from Y) ⟶ Over.mk (specULiftZIsTerminal.from Z)) :=
-  sorry
+  by
+    ext
+    rfl
 
 /-- The functor sending a scheme to itself as an object of `Sch / Spec ℤ`. -/
 def schemeToOverSpecZ : Scheme.{u} ⥤ Over specZ.{u} where

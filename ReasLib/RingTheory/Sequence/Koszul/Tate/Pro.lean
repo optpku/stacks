@@ -207,13 +207,15 @@ theorem comparison_hasRepresentativeInverse (T : Tower K) :
 the category of divided-power chain DGAs. -/
 @[stacks 0GZ5 "Koszul and Tate inverse systems are pro-isomorphic"]
 theorem comparison_isIso (T : Tower K) :
-    IsIso T.comparison.toHom := sorry
+    IsIso T.comparison.toHom :=
+  T.factorization.hom_isIso
 
 /-- Typeclass search can use the canonical pro-isomorphism of every explicit Koszul--Tate tower
 without a proof-local `letI`. -/
 @[stacks 0GZ5 "typeclass bridge for the Koszul--Tate pro-isomorphism"]
 instance comparisonIsIso (T : Tower K) :
-    IsIso T.comparison.toHom := sorry
+    IsIso T.comparison.toHom :=
+  comparison_isIso T
 
 /-- Over a Noetherian ring, the canonical powered Koszul divided-power system admits a coherent
 Koszul--Tate tower.  This specialization avoids forcing downstream users to pass the canonical

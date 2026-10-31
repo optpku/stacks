@@ -16,14 +16,15 @@ public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.FunctorOfPoints
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Points
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Points.Comparison
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Points.Topology
 
 /-!
 # Universal homeomorphisms of algebraic spaces
 
 A morphism of algebraic spaces is a universal homeomorphism when every base change
 induces a homeomorphism on underlying point spaces. The canonical topology on
-`Points` is characterized, rather than constructed, so competing topologies remain
-explicit parameters.
+`Points` comes from its canonical instance. Equivalent presentations of that topology
+remain explicit parameters in the characterization theorems.
 -/
 
 @[expose] public section
@@ -86,8 +87,8 @@ theorem isHomeomorphOnPoints_iff {S : Scheme.{u}} {X Y : AlgebraicSpace S}
 /-- The morphism property of inducing a homeomorphism on canonical point spaces. -/
 def pointsIsHomeomorph {S : Scheme.{u}} : MorphismProperty (AlgebraicSpace S) :=
   fun {X Y} f ↦
-    ∀ (τX : TopologicalSpace (Points X)) (τY : TopologicalSpace (Points Y)),
-      IsPointsTopology X τX → IsPointsTopology Y τY → isHomeomorphOnPoints τX τY f
+    @IsHomeomorph (Points X) (Points Y) (inferInstance : TopologicalSpace (Points X))
+      (inferInstance : TopologicalSpace (Points Y)) (Points.map f)
 
 /-- A morphism induces a homeomorphism on points if it does so for every pair of
 canonical topologies on the source and target. -/

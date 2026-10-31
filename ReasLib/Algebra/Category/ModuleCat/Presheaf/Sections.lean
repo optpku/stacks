@@ -32,7 +32,7 @@ variable {C : Type u} [Category.{v} C] {R : Cᵒᵖ ⥤ RingCat.{w}}
 
 /-- Compatible sections of a module presheaf carry the pointwise additive commutative group
 structure. -/
-@[stacks 01BL "additive group of module-presheaf sections", instance]
+@[instance]
 noncomputable instance instSectionsAddCommGroup (M : PresheafOfModules.{z} R) :
     AddCommGroup M.sections :=
   @AddSubgroup.toAddCommGroup (∀ X, M.presheaf.obj X) _

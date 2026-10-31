@@ -30,20 +30,18 @@ namespace CategoryTheory.GradedObject.Total
 variable {I : Type w} {C : Type u} [Category.{v} C]
 variable [HasCoproductsOfShape I C]
 
-/-- Totalization of `I`-graded objects, requiring only coproducts of the grading shape. -/
+/-- Totalization is Mathlib's canonical coproduct functor on a family. -/
 @[stacks 01CF "total functor on graded objects"]
-noncomputable def functor : GradedObject I C ⥤ C where
-  obj X := ∐ X
-  map f := Limits.Sigma.map f
+abbrev functor : GradedObject I C ⥤ C := Limits.Sigma.functor I
 
 /-- Totalization sends a graded object to the coproduct of its homogeneous pieces. -/
 @[simp]
 theorem functor_obj (X : GradedObject I C) :
-    (functor (I := I) (C := C)).obj X = ∐ X := sorry
+    (functor (I := I) (C := C)).obj X = ∐ X := rfl
 
 /-- Totalization maps a graded morphism by the coproduct of its components. -/
 @[simp]
 theorem functor_map {X Y : GradedObject I C} (f : X ⟶ Y) :
-    (functor (I := I) (C := C)).map f = Limits.Sigma.map f := sorry
+    (functor (I := I) (C := C)).map f = Limits.Sigma.map f := rfl
 
 end CategoryTheory.GradedObject.Total

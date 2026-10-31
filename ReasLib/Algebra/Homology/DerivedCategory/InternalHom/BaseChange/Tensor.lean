@@ -38,6 +38,7 @@ namespace CochainComplex.HomComplex.Pushout.Tensor
 variable {R A R' : Type u}
 variable [CommRing R] [CommRing A] [CommRing R']
 variable [Algebra R A] [Algebra R R']
+variable [Module.Flat R A]
 variable [hasRHom : InternalHom.RHom.Has.{u, u} (A := A ⊗[R] R')]
 
 /-- For the canonical tensor-product pushout, separate upper and lower bounds together with

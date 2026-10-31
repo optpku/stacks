@@ -538,7 +538,7 @@ from this existence statement. -/
 @[stacks 0F4I "existence of indexed divided-power chain-DGA extensions"]
 theorem nonempty (A : DividedPowerChainAlgebra.{u, v} R) (d : ℕ+)
     {J : Type w} (f : J → A.toChainDGAlgebra.nonnegativePiece ((d : ℕ) - 1))
-    (hf : ∀ j : J, IsCycle A d (f j)) :
+    (hf : ∀ j : J, IsCycle A d (f j)) [Small.{v} J] :
     Nonempty (Family A d f) := sorry
 
 namespace FiniteSubset

@@ -38,7 +38,31 @@ private theorem pullbackCoyonedaHomApp_condition {objU objR : C}
           ((pullbackObjIso (coyoneda.map (op src)) (coyoneda.map (op tgt)) T).hom x) =
       tgt ≫
         pullback.snd ((coyoneda.map (op src)).app T) ((coyoneda.map (op tgt)).app T)
-          ((pullbackObjIso (coyoneda.map (op src)) (coyoneda.map (op tgt)) T).hom x) := sorry
+          ((pullbackObjIso (coyoneda.map (op src)) (coyoneda.map (op tgt)) T).hom x) := by
+  change (coyoneda.map (op src)).app T
+      (pullback.fst ((coyoneda.map (op src)).app T) ((coyoneda.map (op tgt)).app T)
+        ((pullbackObjIso (coyoneda.map (op src)) (coyoneda.map (op tgt)) T).hom x)) =
+    (coyoneda.map (op tgt)).app T
+      (pullback.snd ((coyoneda.map (op src)).app T) ((coyoneda.map (op tgt)).app T)
+        ((pullbackObjIso (coyoneda.map (op src)) (coyoneda.map (op tgt)) T).hom x))
+  have h := congrArg (fun k => k x)
+    (congrArg (fun k => k.app T)
+      (pullback.condition (f := coyoneda.map (op src)) (g := coyoneda.map (op tgt))))
+  have hfstIso :
+      pullback.fst ((coyoneda.map (op src)).app T) ((coyoneda.map (op tgt)).app T)
+          ((pullbackObjIso (coyoneda.map (op src)) (coyoneda.map (op tgt)) T).hom x) =
+        (pullback.fst (coyoneda.map (op src)) (coyoneda.map (op tgt))).app T x := by
+    simpa only [NatTrans.comp_app, CategoryTheory.comp_apply] using
+      congrArg (fun k => k x)
+        (pullbackObjIso_hom_comp_fst (coyoneda.map (op src)) (coyoneda.map (op tgt)) T)
+  have hsndIso :
+      pullback.snd ((coyoneda.map (op src)).app T) ((coyoneda.map (op tgt)).app T)
+          ((pullbackObjIso (coyoneda.map (op src)) (coyoneda.map (op tgt)) T).hom x) =
+        (pullback.snd (coyoneda.map (op src)) (coyoneda.map (op tgt))).app T x := by
+    simpa only [NatTrans.comp_app, CategoryTheory.comp_apply] using
+      congrArg (fun k => k x)
+        (pullbackObjIso_hom_comp_snd (coyoneda.map (op src)) (coyoneda.map (op tgt)) T)
+  simpa only [hfstIso, hsndIso, NatTrans.comp_app, CategoryTheory.comp_apply] using h
 
 /-- The `T`-component of the coyoneda comparison out of the functor-level pullback. -/
 def pullbackCoyonedaHomApp {objU objR : C} (src tgt : objU ⟶ objR) [HasPushout src tgt]
@@ -57,7 +81,9 @@ def pullbackCoyonedaHomApp {objU objR : C} (src tgt : objU ⟶ objR) [HasPushout
 private theorem pullbackCoyonedaInvApp_condition {objU objR : C}
     (src tgt : objU ⟶ objR) [HasPushout src tgt] (T : C) (h : pushout src tgt ⟶ T) :
     (coyoneda.map (op src)).app T (pushout.inl src tgt ≫ h) =
-      (coyoneda.map (op tgt)).app T (pushout.inr src tgt ≫ h) := sorry
+      (coyoneda.map (op tgt)).app T (pushout.inr src tgt ≫ h) := by
+  change src ≫ pushout.inl src tgt ≫ h = tgt ≫ pushout.inr src tgt ≫ h
+  rw [← Category.assoc, ← Category.assoc, pushout.condition]
 
 /-- The `T`-component of the coyoneda comparison into the functor-level pullback. -/
 def pullbackCoyonedaInvApp {objU objR : C} (src tgt : objU ⟶ objR) [HasPushout src tgt]
@@ -71,31 +97,163 @@ def pullbackCoyonedaInvApp {objU objR : C} (src tgt : objU ⟶ objR) [HasPushout
         ⟨⟨pushout.inl src tgt ≫ h, pushout.inr src tgt ≫ h⟩,
           by exact pullbackCoyonedaInvApp_condition src tgt T h⟩)
 
+/-- The forward comparison has the prescribed restriction along the left inclusion. -/
+private theorem pullbackCoyonedaHomApp_inl {objU objR : C}
+    (src tgt : objU ⟶ objR) [HasPushout src tgt] (T : C)
+    (x : (pullback (coyoneda.map (op src)) (coyoneda.map (op tgt))).obj T) :
+    pushout.inl src tgt ≫ pullbackCoyonedaHomApp src tgt T x =
+      (pullback.fst (coyoneda.map (op src)) (coyoneda.map (op tgt))).app T x := by
+  change pushout.inl src tgt ≫ pushout.desc _ _ _ = _
+  rw [pushout.inl_desc]
+  exact congrArg (fun k => k x)
+    (pullbackObjIso_hom_comp_fst (coyoneda.map (op src)) (coyoneda.map (op tgt)) T)
+
+/-- The forward comparison has the prescribed restriction along the right inclusion. -/
+private theorem pullbackCoyonedaHomApp_inr {objU objR : C}
+    (src tgt : objU ⟶ objR) [HasPushout src tgt] (T : C)
+    (x : (pullback (coyoneda.map (op src)) (coyoneda.map (op tgt))).obj T) :
+    pushout.inr src tgt ≫ pullbackCoyonedaHomApp src tgt T x =
+      (pullback.snd (coyoneda.map (op src)) (coyoneda.map (op tgt))).app T x := by
+  change pushout.inr src tgt ≫ pushout.desc _ _ _ = _
+  rw [pushout.inr_desc]
+  exact congrArg (fun k => k x)
+    (pullbackObjIso_hom_comp_snd (coyoneda.map (op src)) (coyoneda.map (op tgt)) T)
+
+/-- The reverse comparison recovers the left restriction under the first projection. -/
+private theorem pullbackCoyonedaInvApp_fst {objU objR : C}
+    (src tgt : objU ⟶ objR) [HasPushout src tgt] (T : C) (h : pushout src tgt ⟶ T) :
+    (pullback.fst (coyoneda.map (op src)) (coyoneda.map (op tgt))).app T
+        (pullbackCoyonedaInvApp src tgt T h) = pushout.inl src tgt ≫ h := by
+  change (pullback.fst (coyoneda.map (op src)) (coyoneda.map (op tgt))).app T
+      ((pullbackObjIso (coyoneda.map (op src)) (coyoneda.map (op tgt)) T).inv
+        ((Types.pullbackIsoPullback
+          ((coyoneda.map (op src)).app T) ((coyoneda.map (op tgt)).app T)).inv
+          ⟨⟨pushout.inl src tgt ≫ h, pushout.inr src tgt ≫ h⟩, _⟩)) = _
+  rw [← CategoryTheory.comp_apply, pullbackObjIso_inv_comp_fst]
+  rw [← CategoryTheory.comp_apply, Types.pullbackIsoPullback_inv_fst]
+  rfl
+
+/-- The reverse comparison recovers the right restriction under the second projection. -/
+private theorem pullbackCoyonedaInvApp_snd {objU objR : C}
+    (src tgt : objU ⟶ objR) [HasPushout src tgt] (T : C) (h : pushout src tgt ⟶ T) :
+    (pullback.snd (coyoneda.map (op src)) (coyoneda.map (op tgt))).app T
+        (pullbackCoyonedaInvApp src tgt T h) = pushout.inr src tgt ≫ h := by
+  change (pullback.snd (coyoneda.map (op src)) (coyoneda.map (op tgt))).app T
+      ((pullbackObjIso (coyoneda.map (op src)) (coyoneda.map (op tgt)) T).inv
+        ((Types.pullbackIsoPullback
+          ((coyoneda.map (op src)).app T) ((coyoneda.map (op tgt)).app T)).inv
+          ⟨⟨pushout.inl src tgt ≫ h, pushout.inr src tgt ≫ h⟩, _⟩)) = _
+  rw [← CategoryTheory.comp_apply, pullbackObjIso_inv_comp_snd]
+  rw [← CategoryTheory.comp_apply, Types.pullbackIsoPullback_inv_snd]
+  rfl
+
 /-- The forward coyoneda comparison commutes with transitions in the base category. -/
 private theorem pullbackCoyonedaHomApp_naturality {objU objR : C}
     (src tgt : objU ⟶ objR) [HasPushout src tgt] {T T' : C} (f : T ⟶ T') :
     (pullback (coyoneda.map (op src)) (coyoneda.map (op tgt))).map f ≫
         pullbackCoyonedaHomApp src tgt T' =
-      pullbackCoyonedaHomApp src tgt T ≫ (coyoneda.obj (op (pushout src tgt))).map f := sorry
+      pullbackCoyonedaHomApp src tgt T ≫ (coyoneda.obj (op (pushout src tgt))).map f := by
+  ext x
+  change pullbackCoyonedaHomApp src tgt T'
+      ((pullback (coyoneda.map (op src)) (coyoneda.map (op tgt))).map f x) =
+    pullbackCoyonedaHomApp src tgt T x ≫ f
+  apply pushout.hom_ext
+  · rw [← Category.assoc, pullbackCoyonedaHomApp_inl, pullbackCoyonedaHomApp_inl]
+    exact (pullback.fst (coyoneda.map (op src)) (coyoneda.map (op tgt))).naturality_apply f x
+  · rw [← Category.assoc, pullbackCoyonedaHomApp_inr, pullbackCoyonedaHomApp_inr]
+    exact (pullback.snd (coyoneda.map (op src)) (coyoneda.map (op tgt))).naturality_apply f x
+
+/-- The evaluated pullback projections jointly determine an element. -/
+private theorem pullbackCoyoneda_point_ext {objU objR : C}
+    (src tgt : objU ⟶ objR) (T : C)
+    {x y : (pullback (coyoneda.map (op src)) (coyoneda.map (op tgt))).obj T}
+    (hfst : (pullback.fst (coyoneda.map (op src)) (coyoneda.map (op tgt))).app T x =
+      (pullback.fst (coyoneda.map (op src)) (coyoneda.map (op tgt))).app T y)
+    (hsnd : (pullback.snd (coyoneda.map (op src)) (coyoneda.map (op tgt))).app T x =
+      (pullback.snd (coyoneda.map (op src)) (coyoneda.map (op tgt))).app T y) : x = y := by
+  apply (pullbackObjIso (coyoneda.map (op src)) (coyoneda.map (op tgt)) T).toEquiv.injective
+  apply PullbackCone.IsLimit.type_ext
+    (pullbackIsPullback ((coyoneda.map (op src)).app T) ((coyoneda.map (op tgt)).app T))
+  · calc
+      _ = pullback.fst ((coyoneda.map (op src)).app T) ((coyoneda.map (op tgt)).app T)
+          ((pullbackObjIso (coyoneda.map (op src)) (coyoneda.map (op tgt)) T).hom x) := by rfl
+      _ = (pullback.fst (coyoneda.map (op src)) (coyoneda.map (op tgt))).app T x := by
+        simpa only [NatTrans.comp_app, CategoryTheory.comp_apply] using
+          congrArg (fun k => k x)
+            (pullbackObjIso_hom_comp_fst (coyoneda.map (op src)) (coyoneda.map (op tgt)) T)
+      _ = (pullback.fst (coyoneda.map (op src)) (coyoneda.map (op tgt))).app T y := hfst
+      _ = pullback.fst ((coyoneda.map (op src)).app T) ((coyoneda.map (op tgt)).app T)
+          ((pullbackObjIso (coyoneda.map (op src)) (coyoneda.map (op tgt)) T).hom y) := by
+        simpa only [NatTrans.comp_app, CategoryTheory.comp_apply] using
+          (congrArg (fun k => k y)
+            (pullbackObjIso_hom_comp_fst (coyoneda.map (op src)) (coyoneda.map (op tgt)) T)).symm
+  · calc
+      _ = pullback.snd ((coyoneda.map (op src)).app T) ((coyoneda.map (op tgt)).app T)
+          ((pullbackObjIso (coyoneda.map (op src)) (coyoneda.map (op tgt)) T).hom x) := by rfl
+      _ = (pullback.snd (coyoneda.map (op src)) (coyoneda.map (op tgt))).app T x := by
+        simpa only [NatTrans.comp_app, CategoryTheory.comp_apply] using
+          congrArg (fun k => k x)
+            (pullbackObjIso_hom_comp_snd (coyoneda.map (op src)) (coyoneda.map (op tgt)) T)
+      _ = (pullback.snd (coyoneda.map (op src)) (coyoneda.map (op tgt))).app T y := hsnd
+      _ = pullback.snd ((coyoneda.map (op src)).app T) ((coyoneda.map (op tgt)).app T)
+          ((pullbackObjIso (coyoneda.map (op src)) (coyoneda.map (op tgt)) T).hom y) := by
+        simpa only [NatTrans.comp_app, CategoryTheory.comp_apply] using
+          (congrArg (fun k => k y)
+            (pullbackObjIso_hom_comp_snd (coyoneda.map (op src)) (coyoneda.map (op tgt)) T)).symm
 
 /-- The reverse coyoneda comparison commutes with transitions in the base category. -/
 private theorem pullbackCoyonedaInvApp_naturality {objU objR : C}
     (src tgt : objU ⟶ objR) [HasPushout src tgt] {T T' : C} (f : T ⟶ T') :
     (coyoneda.obj (op (pushout src tgt))).map f ≫ pullbackCoyonedaInvApp src tgt T' =
       pullbackCoyonedaInvApp src tgt T ≫
-        (pullback (coyoneda.map (op src)) (coyoneda.map (op tgt))).map f := sorry
+        (pullback (coyoneda.map (op src)) (coyoneda.map (op tgt))).map f := by
+  apply ConcreteCategory.ext
+  apply TypeCat.Fun.ext
+  funext h
+  change pullbackCoyonedaInvApp src tgt T' (h ≫ f) =
+    (pullback (coyoneda.map (op src)) (coyoneda.map (op tgt))).map f
+      (pullbackCoyonedaInvApp src tgt T h)
+  apply pullbackCoyoneda_point_ext src tgt T'
+  · rw [pullbackCoyonedaInvApp_fst]
+    calc
+      _ = (pullback.fst (coyoneda.map (op src)) (coyoneda.map (op tgt))).app T
+          (pullbackCoyonedaInvApp src tgt T h) ≫ f := by
+            rw [pullbackCoyonedaInvApp_fst, Category.assoc]
+      _ = _ :=
+        ((pullback.fst (coyoneda.map (op src)) (coyoneda.map (op tgt))).naturality_apply
+          f (pullbackCoyonedaInvApp src tgt T h)).symm
+  · rw [pullbackCoyonedaInvApp_snd]
+    calc
+      _ = (pullback.snd (coyoneda.map (op src)) (coyoneda.map (op tgt))).app T
+          (pullbackCoyonedaInvApp src tgt T h) ≫ f := by
+            rw [pullbackCoyonedaInvApp_snd, Category.assoc]
+      _ = _ :=
+        ((pullback.snd (coyoneda.map (op src)) (coyoneda.map (op tgt))).naturality_apply
+          f (pullbackCoyonedaInvApp src tgt T h)).symm
 
 /-- The forward comparison followed by the reverse comparison is the identity at each object. -/
 private theorem pullbackCoyonedaHomApp_inv {objU objR : C}
     (src tgt : objU ⟶ objR) [HasPushout src tgt] (T : C) :
     pullbackCoyonedaHomApp src tgt T ≫ pullbackCoyonedaInvApp src tgt T =
-      𝟙 ((pullback (coyoneda.map (op src)) (coyoneda.map (op tgt))).obj T) := sorry
+      𝟙 ((pullback (coyoneda.map (op src)) (coyoneda.map (op tgt))).obj T) := by
+  apply ConcreteCategory.ext
+  apply TypeCat.Fun.ext
+  funext x
+  change pullbackCoyonedaInvApp src tgt T (pullbackCoyonedaHomApp src tgt T x) = x
+  apply pullbackCoyoneda_point_ext src tgt T
+  · rw [pullbackCoyonedaInvApp_fst, pullbackCoyonedaHomApp_inl]
+  · rw [pullbackCoyonedaInvApp_snd, pullbackCoyonedaHomApp_inr]
 
 /-- The reverse comparison followed by the forward comparison is the identity at each object. -/
 private theorem pullbackCoyonedaInvApp_hom {objU objR : C}
     (src tgt : objU ⟶ objR) [HasPushout src tgt] (T : C) :
     pullbackCoyonedaInvApp src tgt T ≫ pullbackCoyonedaHomApp src tgt T =
-      𝟙 ((coyoneda.obj (op (pushout src tgt))).obj T) := sorry
+      𝟙 ((coyoneda.obj (op (pushout src tgt))).obj T) := by
+  ext h
+  change pullbackCoyonedaHomApp src tgt T (pullbackCoyonedaInvApp src tgt T h) = h
+  apply pushout.hom_ext
+  · rw [pullbackCoyonedaHomApp_inl, pullbackCoyonedaInvApp_fst]
+  · rw [pullbackCoyonedaHomApp_inr, pullbackCoyonedaInvApp_snd]
 
 /-- The fibre product of coyoneda source and target maps is corepresented by the pushout. -/
 def pullbackCoyonedaIso {objU objR : C} (src tgt : objU ⟶ objR) [HasPushout src tgt] :
@@ -149,14 +307,36 @@ theorem coyonedaComp_def {objU objR : C} (src tgt : objU ⟶ objR) [HasPushout s
 the pullback of the coyoneda source and target maps to the arrow functor. -/
 theorem coyonedaComp_bijective {U R : C} (s t : U ⟶ R) [HasPushout s t] :
     Function.Bijective (coyonedaComp s t) :=
-  sorry
+  by
+    constructor
+    · intro c₁ c₂ h
+      change (pullbackCoyonedaIso s t).hom ≫ coyoneda.map (op c₁) =
+        (pullbackCoyonedaIso s t).hom ≫ coyoneda.map (op c₂) at h
+      have hmap : coyoneda.map (op c₁) = coyoneda.map (op c₂) :=
+        (cancel_epi (pullbackCoyonedaIso s t).hom).mp h
+      have hop : op c₁ = op c₂ := Coyoneda.fullyFaithful.map_injective hmap
+      exact congrArg unop hop
+    · intro cFun
+      obtain ⟨q, hq⟩ :=
+        Coyoneda.fullyFaithful.map_surjective
+          (X := op (pushout s t)) (Y := op R)
+          ((pullbackCoyonedaIso s t).inv ≫ cFun)
+      refine ⟨q.unop, ?_⟩
+      change (pullbackCoyonedaIso s t).hom ≫ coyoneda.map (op q.unop) = cFun
+      rw [show op q.unop = q by rfl, hq]
+      simp
 
 /-- Every natural transformation from the coyoneda pullback to the arrow functor is
 induced by a unique morphism into the pushout. -/
 theorem existsUnique_coyonedaComp {U R : C} (s t : U ⟶ R) [HasPushout s t]
     (cFun : pullback (coyoneda.map (op s)) (coyoneda.map (op t)) ⟶ coyoneda.obj (op R)) :
     ∃! c : R ⟶ pushout s t, coyonedaComp s t c = cFun :=
-  sorry
+  by
+    have hb := coyonedaComp_bijective s t
+    rcases hb.2 cFun with ⟨c, hc⟩
+    refine ⟨c, hc, ?_⟩
+    intro c' hc'
+    exact hb.1 (hc'.trans hc.symm)
 
 /-- The groupoid-in-functors laws on a coyoneda quintuple, including the unique identity
 and inverse maps required by the bundled carrier. -/
@@ -432,14 +612,122 @@ theorem isRepresentable_iff (G : GroupoidInFunctors.{u, v, v} C) :
 
 /-- The object functor of a representable groupoid in functors is corepresentable. -/
 theorem isCorepresentable_obj (G : GroupoidInFunctors.{u, v, v} C) [IsRepresentable G] :
-    G.U.IsCorepresentable := sorry
+    G.U.IsCorepresentable := by
+  rcases (IsRepresentable.exists_representation (G := G)) with
+    ⟨objU, objR, src, tgt, h, comp, idMap, invMap, laws, ⟨e⟩⟩
+  refine Functor.IsCorepresentable.mk' (X := objU) ?_
+  let eU : coyoneda.obj (op objU) ≅ G.U :=
+    { hom := e.hom.obj
+      inv := e.inv.obj
+      hom_inv_id := by
+        change e.hom.obj ≫ e.inv.obj = 𝟙 (coyoneda.obj (op objU))
+        have h' := congrArg Hom.obj e.hom_inv_id
+        change e.hom.obj ≫ e.inv.obj = 𝟙 (coyoneda.obj (op objU)) at h'
+        exact h'
+      inv_hom_id := by
+        change e.inv.obj ≫ e.hom.obj = 𝟙 G.U
+        have h' := congrArg Hom.obj e.inv_hom_id
+        change e.inv.obj ≫ e.hom.obj = 𝟙 G.U at h'
+        exact h' }
+  exact eU
 
 /-- The arrow functor of a representable groupoid in functors is corepresentable. -/
 theorem isCorepresentable_arrow (G : GroupoidInFunctors.{u, v, v} C)
-    [IsRepresentable G] : G.R.IsCorepresentable := sorry
+    [IsRepresentable G] : G.R.IsCorepresentable := by
+  rcases (IsRepresentable.exists_representation (G := G)) with
+    ⟨objU, objR, src, tgt, h, comp, idMap, invMap, laws, ⟨e⟩⟩
+  refine Functor.IsCorepresentable.mk' (X := objR) ?_
+  let eR : coyoneda.obj (op objR) ≅ G.R :=
+    { hom := e.hom.arrow
+      inv := e.inv.arrow
+      hom_inv_id := by
+        change e.hom.arrow ≫ e.inv.arrow = 𝟙 (coyoneda.obj (op objR))
+        have h' := congrArg Hom.arrow e.hom_inv_id
+        change e.hom.arrow ≫ e.inv.arrow = 𝟙 (coyoneda.obj (op objR)) at h'
+        exact h'
+      inv_hom_id := by
+        change e.inv.arrow ≫ e.hom.arrow = 𝟙 G.R
+        have h' := congrArg Hom.arrow e.inv_hom_id
+        change e.inv.arrow ≫ e.hom.arrow = 𝟙 G.R at h'
+        exact h' }
+  exact eR
 
 /-- Representability is invariant under isomorphism of groupoids in functors. -/
 theorem isRepresentable_of_iso {G H : GroupoidInFunctors.{u, v, v} C} (e : Iso G H)
-    [IsRepresentable G] : IsRepresentable H := sorry
+    [IsRepresentable G] : IsRepresentable H := by
+  rcases (IsRepresentable.exists_representation (G := G)) with
+    ⟨objU, objR, src, tgt, h, comp, idMap, invMap, laws, ⟨r⟩⟩
+  refine ⟨⟨objU, objR, src, tgt, h, comp, idMap, invMap, laws, ?_⟩⟩
+  have hom_ext : ∀ {X Y : GroupoidInFunctors.{u, v, v} C} (f g : Hom X Y),
+      f.obj = g.obj → f.arrow = g.arrow → f = g := by
+    intro X Y f g h_obj h_arrow
+    cases f
+    cases g
+    cases h_obj
+    cases h_arrow
+    rfl
+  have r_obj_hom_inv : r.hom.obj ≫ r.inv.obj = 𝟙 _ := by
+    have h' := congrArg Hom.obj r.hom_inv_id
+    change r.hom.obj ≫ r.inv.obj = 𝟙 _ at h'
+    exact h'
+  have r_arrow_hom_inv : r.hom.arrow ≫ r.inv.arrow = 𝟙 _ := by
+    have h' := congrArg Hom.arrow r.hom_inv_id
+    change r.hom.arrow ≫ r.inv.arrow = 𝟙 _ at h'
+    exact h'
+  have r_obj_inv_hom : r.inv.obj ≫ r.hom.obj = 𝟙 _ := by
+    have h' := congrArg Hom.obj r.inv_hom_id
+    change r.inv.obj ≫ r.hom.obj = 𝟙 _ at h'
+    exact h'
+  have r_arrow_inv_hom : r.inv.arrow ≫ r.hom.arrow = 𝟙 _ := by
+    have h' := congrArg Hom.arrow r.inv_hom_id
+    change r.inv.arrow ≫ r.hom.arrow = 𝟙 _ at h'
+    exact h'
+  have e_obj_hom_inv : e.hom.obj ≫ e.inv.obj = 𝟙 G.U := by
+    have h' := congrArg Hom.obj e.hom_inv_id
+    change e.hom.obj ≫ e.inv.obj = 𝟙 G.U at h'
+    exact h'
+  have e_arrow_hom_inv : e.hom.arrow ≫ e.inv.arrow = 𝟙 G.R := by
+    have h' := congrArg Hom.arrow e.hom_inv_id
+    change e.hom.arrow ≫ e.inv.arrow = 𝟙 G.R at h'
+    exact h'
+  have e_obj_inv_hom : e.inv.obj ≫ e.hom.obj = 𝟙 H.U := by
+    have h' := congrArg Hom.obj e.inv_hom_id
+    change e.inv.obj ≫ e.hom.obj = 𝟙 H.U at h'
+    exact h'
+  have e_arrow_inv_hom : e.inv.arrow ≫ e.hom.arrow = 𝟙 H.R := by
+    have h' := congrArg Hom.arrow e.inv_hom_id
+    change e.inv.arrow ≫ e.hom.arrow = 𝟙 H.R at h'
+    exact h'
+  refine ⟨⟨Hom.comp r.hom e.hom, Hom.comp e.inv r.inv, ?_, ?_⟩⟩
+  · apply hom_ext
+    · change (r.hom.obj ≫ e.hom.obj) ≫ (e.inv.obj ≫ r.inv.obj) = 𝟙 _
+      calc
+        _ = r.hom.obj ≫ (e.hom.obj ≫ e.inv.obj) ≫ r.inv.obj := by
+          simp only [Category.assoc]
+        _ = r.hom.obj ≫ (𝟙 G.U) ≫ r.inv.obj := by rw [e_obj_hom_inv]
+        _ = r.hom.obj ≫ r.inv.obj := by simp only [Category.id_comp]
+        _ = 𝟙 _ := r_obj_hom_inv
+    · change (r.hom.arrow ≫ e.hom.arrow) ≫ (e.inv.arrow ≫ r.inv.arrow) = 𝟙 _
+      calc
+        _ = r.hom.arrow ≫ (e.hom.arrow ≫ e.inv.arrow) ≫ r.inv.arrow := by
+          simp only [Category.assoc]
+        _ = r.hom.arrow ≫ (𝟙 G.R) ≫ r.inv.arrow := by rw [e_arrow_hom_inv]
+        _ = r.hom.arrow ≫ r.inv.arrow := by simp only [Category.id_comp]
+        _ = 𝟙 _ := r_arrow_hom_inv
+  · apply hom_ext
+    · change (e.inv.obj ≫ r.inv.obj) ≫ (r.hom.obj ≫ e.hom.obj) = 𝟙 _
+      calc
+        _ = e.inv.obj ≫ (r.inv.obj ≫ r.hom.obj) ≫ e.hom.obj := by
+          simp only [Category.assoc]
+        _ = e.inv.obj ≫ (𝟙 G.U) ≫ e.hom.obj := by rw [r_obj_inv_hom]
+        _ = e.inv.obj ≫ e.hom.obj := by simp only [Category.id_comp]
+        _ = 𝟙 _ := e_obj_inv_hom
+    · change (e.inv.arrow ≫ r.inv.arrow) ≫ (r.hom.arrow ≫ e.hom.arrow) = 𝟙 _
+      calc
+        _ = e.inv.arrow ≫ (r.inv.arrow ≫ r.hom.arrow) ≫ e.hom.arrow := by
+          simp only [Category.assoc]
+        _ = e.inv.arrow ≫ (𝟙 G.R) ≫ e.hom.arrow := by rw [r_arrow_inv_hom]
+        _ = e.inv.arrow ≫ e.hom.arrow := by simp only [Category.id_comp]
+        _ = 𝟙 _ := e_arrow_inv_hom
 
 end CategoryTheory.GroupoidInFunctors

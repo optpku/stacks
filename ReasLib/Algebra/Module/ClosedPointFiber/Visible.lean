@@ -48,9 +48,17 @@ theorem smulTop_le_ker_quotientLinearFormBase
     (N : Type v) [AddCommGroup N] [Module R N]
     (x : closedPoints (PrimeSpectrum R)) (φ : Module.Dual R N) :
     x.1.asIdeal • (⊤ : Submodule R N) ≤
-      LinearMap.ker (quotientLinearFormBase N x φ) := sorry
--- Proof strategy: use `Submodule.smul_induction_on`; coefficients from `x` map to zero in
--- `R / x`, and the kernel is closed under addition.
+      LinearMap.ker (quotientLinearFormBase N x φ) := by
+  intro z hz
+  refine Submodule.smul_induction_on hz ?_ ?_
+  · intro r hr n hn
+    change Ideal.Quotient.mk x.1.asIdeal (φ (r • n)) = 0
+    rw [map_smul]
+    exact Ideal.Quotient.eq_zero_iff_mem.mpr (Ideal.mul_mem_right (φ n) x.1.asIdeal hr)
+  · intro z₁ z₂ hz₁ hz₂
+    rw [LinearMap.mem_ker] at hz₁ hz₂ ⊢
+    change (quotientLinearFormBase N x φ) (z₁ + z₂) = 0
+    rw [(quotientLinearFormBase N x φ).map_add, hz₁, hz₂, add_zero]
 
 /-- The `R`-linear map on `N(x)` induced by a global linear form, before transporting the target
 from `R / x` to `κ(x)`. -/
@@ -68,9 +76,14 @@ theorem quotientLinearFormMap_map_smul
     (N : Type v) [AddCommGroup N] [Module R N]
     (x : closedPoints (PrimeSpectrum R)) (φ : Module.Dual R N)
     (c : R ⧸ x.1.asIdeal) (q : N﹙x﹚) :
-    quotientLinearFormMap N x φ (c • q) = c • quotientLinearFormMap N x φ q := sorry
--- Proof strategy: lift `c` through `Ideal.Quotient.mk_surjective` and `q` through the module
--- quotient map, then reduce both sides to linearity of `φ` and the quotient scalar formula.
+    quotientLinearFormMap N x φ (c • q) = c • quotientLinearFormMap N x φ q := by
+  obtain ⟨r, rfl⟩ := Ideal.Quotient.mk_surjective c
+  refine Submodule.Quotient.induction_on (x.1.asIdeal • (⊤ : Submodule R N)) q ?_
+  intro n
+  rw [Module.Quotient.mk_smul_mk]
+  change Ideal.Quotient.mk x.1.asIdeal (φ (r • n)) = _
+  simp [quotientLinearFormMap, quotientLinearFormBase, Submodule.liftQ_apply,
+    map_smul, smul_eq_mul]
 
 /-- A global `R`-linear form induces an `(R / x)`-linear form on the quotient fiber. -/
 @[stacks 0GV9 "quotient-valued closed-point fiber form"]
@@ -88,9 +101,8 @@ theorem linearForm_map_add
     (x : closedPoints (PrimeSpectrum R)) (φ : Module.Dual R N) (a b : N﹙x﹚) :
     residueFieldAlgEquiv (R := R) x (quotientLinearForm N x φ (a + b)) =
       residueFieldAlgEquiv (R := R) x (quotientLinearForm N x φ a) +
-        residueFieldAlgEquiv (R := R) x (quotientLinearForm N x φ b) := sorry
--- Proof strategy: rewrite with `map_add` for `quotientLinearForm` and then with `map_add` for
--- `residueFieldAlgEquiv`.
+        residueFieldAlgEquiv (R := R) x (quotientLinearForm N x φ b) := by
+  rw [map_add, map_add]
 
 /-- Compatibility of the induced fiber form with the `κ(x)`-scalar action. -/
 theorem linearForm_map_smul
@@ -98,9 +110,17 @@ theorem linearForm_map_smul
     (x : closedPoints (PrimeSpectrum R)) (φ : Module.Dual R N)
     (c : κ(x)) (q : N﹙x﹚) :
     residueFieldAlgEquiv (R := R) x (quotientLinearForm N x φ (c • q)) =
-      c • residueFieldAlgEquiv (R := R) x (quotientLinearForm N x φ q) := sorry
--- Proof strategy: express the `κ(x)` action through `residueFieldAlgEquiv.symm`, apply
--- `quotientLinearForm.map_smul`, and transport multiplication back through the algebra equivalence.
+      c • residueFieldAlgEquiv (R := R) x (quotientLinearForm N x φ q) := by
+  obtain ⟨c', rfl⟩ := (residueFieldAlgEquiv (R := R) x).surjective c
+  dsimp [instModule]
+  change residueFieldAlgEquiv (R := R) x
+      (quotientLinearFormMap N x φ
+        ((residueFieldAlgEquiv (R := R) x).symm
+          ((residueFieldAlgEquiv (R := R) x) c') • q)) = _
+  rw [(residueFieldAlgEquiv (R := R) x).symm_apply_apply]
+  rw [quotientLinearFormMap_map_smul]
+  simp only [smul_eq_mul, map_mul]
+  rfl
 
 /-- The `κ(x)`-linear form on `N(x)` induced by a global `R`-linear form. -/
 @[stacks 0GV9 "canonical closed-point fiber linear form"]
@@ -153,9 +173,10 @@ noncomputable def quotientMap
 theorem quotientMap_comp_inclusion
     (N : Type v) [AddCommGroup N] [Module R N]
     (x : closedPoints (PrimeSpectrum R)) :
-    (quotientMap N x).comp (inclusion N x) = 0 := sorry
--- Proof strategy: ext an element of `invisible N x`; `Submodule.mkQ` sends every element of the
--- quotienting submodule to zero.
+    (quotientMap N x).comp (inclusion N x) = 0 := by
+  ext q
+  change (invisible N x).mkQ ((invisible N x).subtype q) = 0
+  exact (Submodule.Quotient.mk_eq_zero _).2 q.property
 
 /-- The canonical short complex `B(x) ⟶ N(x) ⟶ V(x)`. -/
 @[stacks 0GV9 "canonical visible-fiber short complex"]
@@ -171,9 +192,18 @@ noncomputable abbrev sequence
 @[stacks 0GV9 "canonical visible-fiber short exact sequence"]
 theorem shortExact
     (N : Type v) [AddCommGroup N] [Module R N]
-    (x : closedPoints (PrimeSpectrum R)) : (sequence N x).ShortExact := sorry
--- Proof strategy: use the module-category short-exact criterion: the subtype inclusion is
--- injective, `Submodule.mkQ` is surjective, and its kernel is exactly `invisible N x`.
+    (x : closedPoints (PrimeSpectrum R)) : (sequence N x).ShortExact := by
+  apply ModuleCat.shortComplex_shortExact
+  · intro q
+    constructor
+    · intro hq
+      change (invisible N x).mkQ q = 0 at hq
+      exact ⟨⟨q, (Submodule.Quotient.mk_eq_zero _).1 hq⟩, rfl⟩
+    · rintro ⟨q, rfl⟩
+      change (invisible N x).mkQ ((invisible N x).subtype q) = 0
+      exact (Submodule.Quotient.mk_eq_zero _).2 q.property
+  · exact (invisible N x).injective_subtype
+  · exact (invisible N x).mkQ_surjective
 
 /-- The class in `V(x)` represented by the image of a global section in `N(x)`. -/
 @[stacks 0GV9 "visible class of a global section"]
@@ -186,18 +216,21 @@ noncomputable abbrev visibleClass
 theorem visibleClass_surjective
     (N : Type v) [AddCommGroup N] [Module R N]
     (x : closedPoints (PrimeSpectrum R)) :
-    Function.Surjective (visibleClass x : N → Visible N x) := sorry
--- Proof strategy: compose surjectivity of the original fiber quotient map with surjectivity of
--- `(invisible N x).mkQ`.
+    Function.Surjective (visibleClass x : N → Visible N x) := by
+  intro y
+  obtain ⟨q, rfl⟩ := (invisible N x).mkQ_surjective y
+  obtain ⟨s, rfl⟩ := Submodule.Quotient.mk_surjective (x.1.asIdeal • (⊤ : Submodule R N)) q
+  exact ⟨s, rfl⟩
 
 /-- Every global form vanishes on the invisible subspace of the fiber. -/
 theorem invisible_le_ker_linearForm
     (N : Type v) [AddCommGroup N] [Module R N]
     (x : closedPoints (PrimeSpectrum R)) (φ : Module.Dual R N) :
-    invisible N x ≤ LinearMap.ker (linearForm N x φ) := sorry
--- Proof strategy: unfold `invisible` as the dual coannihilator of the span of induced forms;
--- `linearForm N x φ` belongs to that span by `Submodule.subset_span`, so every invisible vector
--- evaluates to zero.
+    invisible N x ≤ LinearMap.ker (linearForm N x φ) := by
+  intro q hq
+  change q ∈ (Submodule.span κ(x) (Set.range (linearForm N x))).dualCoannihilator at hq
+  rw [Submodule.mem_dualCoannihilator] at hq
+  exact hq (linearForm N x φ) (Submodule.subset_span ⟨φ, rfl⟩)
 
 /-- The linear form on `V(x)` induced by a global `R`-linear form. -/
 @[stacks 0GV9 "visible quotient linear form"]
@@ -211,9 +244,14 @@ noncomputable def visibleLinearForm
 theorem visibleLinearForm_apply_visibleClass
     (N : Type v) [AddCommGroup N] [Module R N]
     (x : closedPoints (PrimeSpectrum R)) (φ : Module.Dual R N) (s : N) :
-    visibleLinearForm N x φ (visibleClass x s) = algebraMap R κ(x) (φ s) := sorry
--- Proof strategy: unfold the two quotient lifts and evaluate on `Submodule.Quotient.mk s`; the
--- resulting residue-field value is the algebra-map image of `φ s`.
+    visibleLinearForm N x φ (visibleClass x s) = algebraMap R κ(x) (φ s) := by
+  change residueFieldAlgEquiv (R := R) x
+      ((x.1.asIdeal • (⊤ : Submodule R N)).liftQ (quotientLinearFormBase N x φ)
+        (smulTop_le_ker_quotientLinearFormBase N x φ) (Submodule.Quotient.mk s)) = _
+  rw [Submodule.liftQ_apply]
+  change residueFieldAlgEquiv (R := R) x
+      (algebraMap R (R ⧸ x.1.asIdeal) (φ s)) = _
+  exact Ideal.ResidueField.quotientAlgEquiv_apply_algebraMap x.1.asIdeal (φ s)
 
 /-- For a finitely presented module, every linear form on `V(x)` is induced by a global
 `R`-linear form. -/
@@ -221,11 +259,56 @@ theorem visibleLinearForm_apply_visibleClass
 theorem visibleLinearForm_surjective
     (N : Type v) [AddCommGroup N] [Module R N] [Module.FinitePresentation R N]
     (x : closedPoints (PrimeSpectrum R)) :
-    Function.Surjective (visibleLinearForm N x) := sorry
--- Proof strategy: finite presentation makes the fiber finite-dimensional. Identify the dual of
--- the quotient by a dual coannihilator with the span of the inducing fiber forms, then lift each
--- spanning form through the finite-presentation localization/base-change comparison for
--- `Module.Dual R N`.
+    Function.Surjective (visibleLinearForm N x) := by
+  letI := finiteDimensional_of_finitePresentation N x
+  letI : FiniteDimensional κ(x) (Visible N x) :=
+    Module.Finite.of_surjective (quotientMap N x) (invisible N x).mkQ_surjective
+  have hspan : Submodule.span κ(x) (Set.range (visibleLinearForm N x)) = ⊤ := by
+    apply Submodule.span_eq_top_of_ne_zero
+    intro q hq
+    obtain ⟨p, rfl⟩ := (invisible N x).mkQ_surjective q
+    by_contra h
+    push Not at h
+    have hp : p ∈ invisible N x := by
+      change p ∈ ((Submodule.span κ(x) (Set.range (linearForm N x))).dualCoannihilator :
+        Set (N﹙x﹚))
+      rw [Submodule.coe_dualCoannihilator_span]
+      rintro _ ⟨φ, rfl⟩
+      exact h _ ⟨φ, rfl⟩
+    exact hq ((Submodule.Quotient.mk_eq_zero _).2 hp)
+  intro ℓ
+  have hℓ : ℓ ∈ Submodule.span κ(x) (Set.range (visibleLinearForm N x)) := by
+    rw [hspan]
+    exact Submodule.mem_top
+  induction hℓ using Submodule.span_induction with
+  | mem f hf => exact hf
+  | zero =>
+      refine ⟨0, ?_⟩
+      apply LinearMap.ext
+      intro q
+      obtain ⟨s, rfl⟩ := visibleClass_surjective N x q
+      simp [visibleLinearForm_apply_visibleClass]
+  | add f g hf hg ihf ihg =>
+      obtain ⟨φ, rfl⟩ := ihf
+      obtain ⟨ψ, rfl⟩ := ihg
+      refine ⟨φ + ψ, ?_⟩
+      apply LinearMap.ext
+      intro q
+      obtain ⟨s, rfl⟩ := visibleClass_surjective N x q
+      simp [visibleLinearForm_apply_visibleClass]
+  | smul c f hf ih =>
+      obtain ⟨φ, rfl⟩ := ih
+      obtain ⟨r, rfl⟩ := x.1.asIdeal.algebraMap_residueField_surjective c
+      refine ⟨r • φ, ?_⟩
+      apply LinearMap.ext
+      intro q
+      obtain ⟨s, rfl⟩ := visibleClass_surjective N x q
+      change (visibleLinearForm N x (r • φ)) (visibleClass x s) =
+        (algebraMap R κ(x) r) • (visibleLinearForm N x φ) (visibleClass x s)
+      rw [visibleLinearForm_apply_visibleClass, visibleLinearForm_apply_visibleClass]
+      change algebraMap R κ(x) (r * φ s) =
+        (algebraMap R κ(x) r) * algebraMap R κ(x) (φ s)
+      rw [map_mul]
 
 /-- The `R`-linear map sending the standard basis of `R^r` to a selected family of sections. -/
 @[stacks 0GV9 "linear map of selected sections"]

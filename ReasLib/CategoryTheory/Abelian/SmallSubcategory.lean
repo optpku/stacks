@@ -67,7 +67,7 @@ def abelianFullSubcategory : Abelian B.FullSubcategory := B.abelian
 
 /-- An object property is contained in `B` exactly when it is pointwise bounded by the carrier. -/
 @[simp]
-theorem contains_iff (E : ObjectProperty A) : B.Contains E ↔ E ≤ B.carrier := sorry
+theorem contains_iff (E : ObjectProperty A) : B.Contains E ↔ E ≤ B.carrier := Iff.rfl
 
 /-- The inclusion of a small abelian subcategory preserves finite limits. -/
 def inclusion_preservesFiniteLimits : PreservesFiniteLimits B.carrier.ι :=
@@ -85,24 +85,39 @@ def inclusion : B.FullSubcategory ⥤ₑ A :=
 /-- The exact inclusion sends an object to its underlying ambient object. -/
 @[simp]
 theorem inclusion_obj (X : B.FullSubcategory) :
-    B.inclusion.obj.obj X = X.obj := sorry
+    B.inclusion.obj.obj X = X.obj := rfl
 
 /-- The exact inclusion sends a morphism to its underlying ambient morphism. -/
 @[simp]
 theorem inclusion_map {X Y : B.FullSubcategory} (f : X ⟶ Y) :
-    B.inclusion.obj.map f = f.hom := sorry
+    B.inclusion.obj.map f = f.hom := rfl
 
 /-- A short complex in a small abelian subcategory is short exact exactly when its image in the
 ambient abelian category is short exact. -/
 @[stacks 05PQ "short exact sequences under inclusion"]
 theorem inclusion_shortExact_iff {S : ShortComplex B.FullSubcategory} :
-    (S.map B.carrier.ι).ShortExact ↔ S.ShortExact := sorry
+    (S.map B.carrier.ι).ShortExact ↔ S.ShortExact := by
+  letI := B.abelianFullSubcategory
+  letI := B.inclusion_preservesFiniteLimits
+  letI := B.inclusion_preservesFiniteColimits
+  -- The stored abelian structure and the ambient full-subcategory structure have the same zeros.
+  let z₀ : HasZeroMorphisms B.FullSubcategory :=
+    @Preadditive.preadditiveHasZeroMorphisms _ _ B.abelianFullSubcategory.toPreadditive
+  have h : ∀ [z : HasZeroMorphisms B.FullSubcategory]
+      [B.carrier.ι.PreservesZeroMorphisms] (T : ShortComplex B.FullSubcategory),
+      (T.map B.carrier.ι).ShortExact ↔ T.ShortExact := by
+    intro z _ T
+    cases Subsingleton.elim z z₀
+    exact ShortExact.shortExact_map_iff B.carrier.ι
+  exact @h B.carrier.instHasZeroMorphismsFullSubcategory inferInstance S
 
 /-- The replete closure of the carrier remains essentially small.  It need not be small, since an
 ambient isomorphism class can have a large type of representatives. -/
 @[stacks 05PQ "replete closure"]
 theorem essentiallySmall_isoClosure :
-    ObjectProperty.EssentiallySmall.{w} B.carrier.isoClosure := sorry
+    ObjectProperty.EssentiallySmall.{w} B.carrier.isoClosure := by
+  letI := B.smallCarrier
+  infer_instance
 
 /-- At any universe in which the ambient category is locally small, every small object property
 is contained in a small abelian full subcategory. -/
@@ -115,11 +130,16 @@ theorem exists_containingAt (E : ObjectProperty A) [ObjectProperty.Small.{w} E]
 subcategory.  The output universe also accommodates the ambient Hom types. -/
 @[stacks 05PQ]
 theorem exists_containing (E : ObjectProperty A) [ObjectProperty.Small.{w} E] :
-    ∃ B : SmallAbelianSubcategory.{max v w, v, u} A, B.Contains E := sorry
+    ∃ B : SmallAbelianSubcategory.{max v w, v, u} A, B.Contains E := by
+  letI : ObjectProperty.Small.{max v w} E := small_lift.{u, v, w} (Subtype E)
+  letI : LocallySmall.{max v w} A := locallySmall_max
+  exact exists_containingAt E
 
 /-- A set-sized family of objects lies in a small abelian full subcategory with exact inclusion. -/
 theorem exists_containingFamily {I : Type i} [Small.{w} I] (X : I → A) :
-    ∃ B : SmallAbelianSubcategory.{max v w, v, u} A, ∀ i, B.carrier (X i) := sorry
+    ∃ B : SmallAbelianSubcategory.{max v w, v, u} A, ∀ i, B.carrier (X i) := by
+  obtain ⟨B, hB⟩ := exists_containing (ObjectProperty.ofObj X)
+  exact ⟨B, fun i ↦ hB _ (ObjectProperty.ofObj_apply X i)⟩
 
 /-- Construct a small abelian subcategory from its object property, model, abelian structure,
 and exact inclusion data. -/
@@ -132,7 +152,8 @@ def ofProperty (carrier : ObjectProperty A) (objectModel : Type w)
 
 /-- The selected carrier is small and its inclusion into the ambient category is exact. -/
 theorem spec : ObjectProperty.Small.{w} B.carrier ∧
-    exactFunctor B.FullSubcategory A B.carrier.ι := sorry
+    exactFunctor B.FullSubcategory A B.carrier.ι :=
+  ⟨B.smallCarrier, B.inclusionExact⟩
 
 end SmallAbelianSubcategory
 

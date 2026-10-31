@@ -39,10 +39,6 @@ theorem primeToPQuotientDiagram_obj (G : ProfiniteGrp.{u}) (p : ℕ)
 theorem mem_primeToPOpenNormal (G : ProfiniteGrp.{u}) (p : ℕ) (N : OpenNormalSubgroup G) :
     primeToPOpenNormal G p N ↔ p.Coprime (Nat.card (G ⧸ N.toSubgroup)) := sorry
 
-/-- The restricted prime-to-`p` finite-quotient diagram has a limit in `ProfiniteGrp`. -/
-instance hasLimit_primeToPQuotientDiagram (G : ProfiniteGrp.{u}) (p : ℕ) :
-    HasLimit (primeToPQuotientDiagram G p) := inferInstance
-
 /-- The maximal prime-to-`p` quotient of a profinite group. -/
 abbrev primeToPQuotient (G : ProfiniteGrp.{u}) (p : ℕ) : ProfiniteGrp.{u} :=
   CategoryTheory.Limits.limit (primeToPQuotientDiagram G p)

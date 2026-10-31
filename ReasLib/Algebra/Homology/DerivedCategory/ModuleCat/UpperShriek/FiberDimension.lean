@@ -11,6 +11,7 @@ public import Mathlib.RingTheory.KrullDimension.Basic
 public import ReasLib.Algebra.Homology.DerivedCategory.ModuleEmbedding
 public import ReasLib.Algebra.Homology.DerivedCategory.ModuleCat.UpperShriek
 public import ReasLib.RingTheory.RingHom.Fiber.Local
+public import ReasLib.Topology.KrullDimension.Local
 
 @[expose] public section
 
@@ -31,7 +32,8 @@ theorem neg_fiberDimension_le_of_localizedCohomology_nontrivial
     (hf : (algebraMap R A).FiniteType) (presentation : Presentation (algebraMap R A))
     (p : PrimeSpectrum R) (q : PrimeSpectrum A)
     (hq : PrimeSpectrum.comap (algebraMap R A) q = p)
-    (d : ℕ) (hd : ringKrullDim (fiberLocalRingAt R A q) = d)
+    (d : ℕ)
+    (hd : topologicalKrullDimAt (fiberPrimeAt R A q) = (d : WithBot ℕ∞))
     (i : ℤ)
     (hi : Nontrivial
       (LocalizedModule.AtPrime q.asIdeal

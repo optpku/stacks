@@ -56,13 +56,15 @@ abbrev underlyingMap {K L : FilteredComplex 𝒜} (α : K ⟶ L) :
 -/
 @[simp, stacks 012C "identity map on underlying filtered cochain complexes"]
 theorem underlyingMap_id (K : FilteredComplex 𝒜) :
-    K.underlyingMap (𝟙 K) = 𝟙 K.underlying := sorry
+    K.underlyingMap (𝟙 K) = 𝟙 K.underlying :=
+  underlyingFunctor.map_id K
 
 /-- Underlying maps of filtered cochain complexes preserve composition. -/
 @[simp, stacks 012C "composition of underlying filtered cochain-complex maps"]
 theorem underlyingMap_comp {K L M : FilteredComplex 𝒜}
     (f : K ⟶ L) (g : L ⟶ M) :
-    K.underlyingMap (f ≫ g) = K.underlyingMap f ≫ L.underlyingMap g := sorry
+    K.underlyingMap (f ≫ g) = K.underlyingMap f ≫ L.underlyingMap g :=
+  underlyingFunctor.map_comp f g
 
 namespace Stage
 
@@ -85,13 +87,15 @@ abbrev stageMap {K L : FilteredComplex 𝒜} (α : K ⟶ L) (p : ℤ) :
 /-- The map on a fixed filtration stage induced by an identity is the identity. -/
 @[simp, stacks 012C "identity map on a filtered cochain-complex stage"]
 theorem stageMap_id (K : FilteredComplex 𝒜) (p : ℤ) :
-    K.stageMap (𝟙 K) p = 𝟙 (K.stage p) := sorry
+    K.stageMap (𝟙 K) p = 𝟙 (K.stage p) :=
+  (Stage.functor p).map_id K
 
 /-- Maps on a fixed filtration stage preserve composition. -/
 @[simp, stacks 012C "composition of filtered cochain-complex stage maps"]
 theorem stageMap_comp {K L M : FilteredComplex 𝒜}
     (f : K ⟶ L) (g : L ⟶ M) (p : ℤ) :
-    K.stageMap (f ≫ g) p = K.stageMap f p ≫ L.stageMap g p := sorry
+    K.stageMap (f ≫ g) p = K.stageMap f p ≫ L.stageMap g p :=
+  (Stage.functor p).map_comp f g
 
 /-- The canonical inclusion of the `p`-th filtration stage complex into the underlying complex. -/
 abbrev stageInclusion (K : FilteredComplex 𝒜) (p : ℤ) :
@@ -108,33 +112,51 @@ abbrev stageComparison (K : FilteredComplex 𝒜) {p q : ℤ}
 /-- The comparison from a filtration stage to itself is the identity. -/
 @[simp, stacks 012L "identity filtered cochain-complex stage comparison"]
 theorem stageComparison_refl (K : FilteredComplex 𝒜) (p : ℤ) :
-    K.stageComparison (le_refl p) = 𝟙 (K.stage p) := sorry
+    K.stageComparison (le_refl p) = 𝟙 (K.stage p) := by
+  apply HomologicalComplex.hom_ext
+  intro n
+  exact (K.X n).filtration.inclusion_refl p
 
 /-- Composing two filtration-stage comparisons gives the direct comparison. -/
 @[stacks 012L "composition of filtered cochain-complex stage comparisons"]
 theorem stageComparison_comp (K : FilteredComplex 𝒜) {p q r : ℤ}
     (hpq : p ≤ q) (hqr : q ≤ r) :
-    K.stageComparison hqr ≫ K.stageComparison hpq = K.stageComparison (hpq.trans hqr) := sorry
+    K.stageComparison hqr ≫ K.stageComparison hpq = K.stageComparison (hpq.trans hqr) := by
+  apply HomologicalComplex.hom_ext
+  intro n
+  exact (K.X n).filtration.inclusion_trans hpq hqr
 
 /-- A stage comparison followed by the inclusion into the underlying complex is the inclusion
 from the later stage. -/
 @[stacks 012L "stage comparison followed by filtered cochain-complex inclusion"]
 theorem stageComparison_comp_stageInclusion (K : FilteredComplex 𝒜) {p q : ℤ}
     (hpq : p ≤ q) :
-    K.stageComparison hpq ≫ K.stageInclusion p = K.stageInclusion q := sorry
+    K.stageComparison hpq ≫ K.stageInclusion p = K.stageInclusion q := by
+  apply HomologicalComplex.hom_ext
+  intro n
+  exact (K.X n).filtration.inclusion_arrow hpq
 
 /-- A filtered cochain-complex map commutes with each filtration-stage comparison. -/
 @[reassoc, stacks 012C "naturality of filtered cochain-complex stage comparison"]
 theorem stageComparison_naturality {K L : FilteredComplex 𝒜} (f : K ⟶ L) {p q : ℤ}
     (hpq : p ≤ q) :
     K.stageComparison hpq ≫ K.stageMap f p =
-      K.stageMap f q ≫ L.stageComparison hpq := sorry
+      K.stageMap f q ≫ L.stageComparison hpq := by
+  apply HomologicalComplex.hom_ext
+  intro n
+  change (K.X n).filtration.inclusion hpq ≫ (f.f n).stageMap p =
+    (f.f n).stageMap q ≫ (L.X n).filtration.inclusion hpq
+  apply (cancel_mono ((L.X n).filtration.stage p).arrow).1
+  simp only [Category.assoc, FilteredObject.Hom.stageMap_arrow,
+    IndexedFiltration.inclusion_arrow]
+  simp only [← Category.assoc, IndexedFiltration.inclusion_arrow]
 
 /-- A filtered cochain-complex map commutes with each stage inclusion into the underlying
 cochain complex. -/
 @[reassoc, stacks 012C "naturality of filtered cochain-complex stage inclusion"]
 theorem stageMap_comp_stageInclusion {K L : FilteredComplex 𝒜} (f : K ⟶ L) (p : ℤ) :
-    K.stageMap f p ≫ L.stageInclusion p = K.stageInclusion p ≫ K.underlyingMap f := sorry
+    K.stageMap f p ≫ L.stageInclusion p = K.stageInclusion p ≫ K.underlyingMap f :=
+  ((FilteredObject.Stage.toForget p).mapHomologicalComplex (ComplexShape.up ℤ)).naturality f
 
 section Graded
 

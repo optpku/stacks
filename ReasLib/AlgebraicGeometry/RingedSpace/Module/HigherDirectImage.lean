@@ -33,9 +33,12 @@ universe u
 namespace AlgebraicGeometry.RingedSpace.Hom
 
 /-- The degree-`i` higher direct image functor on module sheaves along a morphism of ringed
-spaces. -/
+spaces, using the proved generic sheaf-of-modules resolution construction. -/
 abbrev higherDirectImageModuleFunctor
     {X Y : RingedSpace.{u}} (f : X ⟶ Y) (i : ℕ) : X.Modules ⥤ Y.Modules :=
+  letI : HasInjectiveResolutions X.Modules :=
+    SheafOfModules.LargeSite.injectiveResolutions _ X.ringCatSheaf
+  letI : (pushforward f).Additive := ⟨by intros; rfl⟩
   (pushforward f).rightDerived i
 
 /-- The degree-`i` higher direct image of a module sheaf along a morphism of ringed spaces. -/
@@ -79,9 +82,13 @@ pushforward. -/
 noncomputable abbrev isoHomologyPushforward
     {X Y : RingedSpace.{u}} (f : X ⟶ Y)
     (F : X.Modules) (I : InjectiveResolution F) (i : ℕ) :
+    letI : (pushforward f).Additive := ⟨by intros; rfl⟩
     higherDirectImageModule f F i ≅
       (HomologicalComplex.homologyFunctor Y.Modules (ComplexShape.up ℕ) i).obj
         (((pushforward f).mapHomologicalComplex (ComplexShape.up ℕ)).obj I.cocomplex) :=
+  letI : HasInjectiveResolutions X.Modules :=
+    SheafOfModules.LargeSite.injectiveResolutions _ X.ringCatSheaf
+  letI : (pushforward f).Additive := ⟨by intros; rfl⟩
   I.isoRightDerivedObj (pushforward f) i
 
 end HigherDirectImage

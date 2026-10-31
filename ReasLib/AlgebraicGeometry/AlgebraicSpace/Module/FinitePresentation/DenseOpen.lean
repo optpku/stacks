@@ -27,14 +27,14 @@ scheme-theoretically dense open subspace of the target is finitely presented. -/
 theorem finitePresentation_of_restrict_of_flatOver
     {S : Scheme.{u}} {X Y V : AlgebraicSpace S} (f : X ⟶ Y)
     [LocallyOfFinitePresentation f] (F : Modules X)
-    (h_quasicoherent : IsQuasicoherent F) (h_finiteType : IsFiniteType F)
+    (h_quasicoherent : SheafOfModules.IsQuasicoherent F) (h_finiteType : SheafOfModules.IsFiniteType F)
     (h_flat : FlatOver F f) (ι : V ⟶ Y)
     (h_open : Representable.IsOpenImmersion ι) (h_quasiCompact : Representable.QuasiCompact ι)
     (h_dense : Open.IsSchemeTheoreticallyDense ι)
-    (h_restrict : IsFinitePresentation
+    (h_restrict : SheafOfModules.IsFinitePresentation
       ((restrict (Open.inverseImageι f ι h_open)
         (Representable.isOpenImmersion_etale (Open.inverseImageι f ι h_open)
           (Open.inverseImage_isOpenImmersion f ι h_open))).obj F)) :
-    IsFinitePresentation F := sorry
+    SheafOfModules.IsFinitePresentation F := sorry
 
 end AlgebraicGeometry.AlgebraicSpace.SmallEtale.Modules

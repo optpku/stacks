@@ -65,7 +65,6 @@ namespace RingedSiteDerived
 
 /-- The canonical max-universe derived category attached to a commutative ring-sheaf
 presentation. -/
-@[stacks 09LX "max-universe derived-category presentation for tensoring"]
 abbrev max (J : GrothendieckTopology C)
     (𝒪 : Sheaf J CommRingCat.{max u v}) :=
   @_root_.RingedSite.Hom.ModuleDerived.{max u v, u, v, max u v}
@@ -86,13 +85,13 @@ variable [UnivLE.{max u v, z}]
 
 /-- The localized module category has the canonical abelian structure of a ringed-site module
 category. -/
-@[stacks 08FJ "abelian structure on localized ringed-site modules", reducible]
+@[reducible]
 noncomputable def localizedModuleCatAbelian :
     Abelian (ModuleCat.{z} (X.localization U)) :=
   RingedSite.moduleCatAbelian (X.localization U)
 
 /-- The localized module category carries its standard derived-category structure. -/
-@[stacks 08FJ "derived category on localized ringed-site modules", reducible]
+@[reducible]
 noncomputable def localizedModuleCatHasDerivedCategory :
     HasDerivedCategory (ModuleCat.{z} (X.localization U)) :=
   RingedSite.Hom.moduleCat_hasDerivedCategory (X.localization U)

@@ -51,21 +51,23 @@ theorem iff_val
     (φ : O₁ ⟶ O₂) {F G : ringedSiteModuleCategory.{u, v, z, w} J O₂}
     (D : (restrictionAlong φ).obj F ⟶ (restrictionAlong φ).obj G) (k : ℕ) :
     IsDifferentialOperatorOfOrder φ D k ↔
-      PresheafOfModules.IsDifferentialOperatorOfOrder φ.hom D.val k := sorry
+      PresheafOfModules.IsDifferentialOperatorOfOrder φ.hom D.val k := Iff.rfl
 
 /-- Evaluate a ringed-site differential operator at a section object. -/
 theorem app
     (φ : O₁ ⟶ O₂) {F G : ringedSiteModuleCategory.{u, v, z, w} J O₂}
     (D : (restrictionAlong φ).obj F ⟶ (restrictionAlong φ).obj G)
     {k : ℕ} (hD : IsDifferentialOperatorOfOrder φ D k) (X : Cᵒᵖ) :
-    ModuleCat.IsDifferentialOperatorOfOrder (φ.hom.app X).hom (D.val.app X) k := sorry
+    ModuleCat.IsDifferentialOperatorOfOrder (φ.hom.app X).hom (D.val.app X) k := hD X
 
 /-- The zero morphism of restricted module sheaves has every differential-operator
 order bound. -/
 theorem zero (φ : O₁ ⟶ O₂)
     {F G : ringedSiteModuleCategory.{u, v, z, w} J O₂} (k : ℕ) :
     IsDifferentialOperatorOfOrder φ (0 : (restrictionAlong φ).obj F ⟶
-      (restrictionAlong φ).obj G) k := sorry
+      (restrictionAlong φ).obj G) k := by
+  intro X
+  exact ModuleCat.IsDifferentialOperatorOfOrder.zero (φ.hom.app X).hom k
 
 /-- The sum of two ringed-site differential operators with a common order bound
 has that same order bound. -/
@@ -74,20 +76,26 @@ theorem add (φ : O₁ ⟶ O₂)
     {D E : (restrictionAlong φ).obj F ⟶ (restrictionAlong φ).obj G} {k : ℕ}
     (hD : IsDifferentialOperatorOfOrder φ D k)
     (hE : IsDifferentialOperatorOfOrder φ E k) :
-    IsDifferentialOperatorOfOrder φ (D + E) k := sorry
+    IsDifferentialOperatorOfOrder φ (D + E) k := by
+  intro X
+  exact ModuleCat.IsDifferentialOperatorOfOrder.add (φ.hom.app X).hom (hD X) (hE X)
 
 /-- Negation preserves the ringed-site differential-operator order bound. -/
 theorem neg (φ : O₁ ⟶ O₂)
     {F G : ringedSiteModuleCategory.{u, v, z, w} J O₂}
     {D : (restrictionAlong φ).obj F ⟶ (restrictionAlong φ).obj G} {k : ℕ}
     (hD : IsDifferentialOperatorOfOrder φ D k) :
-    IsDifferentialOperatorOfOrder φ (-D) k := sorry
+    IsDifferentialOperatorOfOrder φ (-D) k := by
+  intro X
+  exact ModuleCat.IsDifferentialOperatorOfOrder.neg (φ.hom.app X).hom (hD X)
 
 /-- The identity morphism of a restricted module sheaf is a differential
 operator of order zero. -/
 theorem id (φ : O₁ ⟶ O₂)
     {F : ringedSiteModuleCategory.{u, v, z, w} J O₂} :
-    IsDifferentialOperatorOfOrder φ (𝟙 ((restrictionAlong φ).obj F)) 0 := sorry
+    IsDifferentialOperatorOfOrder φ (𝟙 ((restrictionAlong φ).obj F)) 0 := by
+  intro X
+  exact ModuleCat.IsDifferentialOperatorOfOrder.id (φ.hom.app X).hom
 
 /-- Composing ringed-site differential operators adds their order bounds. -/
 @[stacks 09CS, stacks 0G3R]
@@ -97,14 +105,18 @@ theorem comp (φ : O₁ ⟶ O₂)
     {E : (restrictionAlong φ).obj G ⟶ (restrictionAlong φ).obj H}
     {k l : ℕ} (hD : IsDifferentialOperatorOfOrder φ D k)
     (hE : IsDifferentialOperatorOfOrder φ E l) :
-    IsDifferentialOperatorOfOrder φ (D ≫ E) (k + l) := sorry
+    IsDifferentialOperatorOfOrder φ (D ≫ E) (k + l) := by
+  intro X
+  exact ModuleCat.IsDifferentialOperatorOfOrder.comp (φ.hom.app X).hom (hD X) (hE X)
 
 /-- A ringed-site differential operator has the successor order bound. -/
 theorem le_succ (φ : O₁ ⟶ O₂)
     {F G : ringedSiteModuleCategory.{u, v, z, w} J O₂}
     {D : (restrictionAlong φ).obj F ⟶ (restrictionAlong φ).obj G} {k : ℕ}
     (hD : IsDifferentialOperatorOfOrder φ D k) :
-    IsDifferentialOperatorOfOrder φ D (k + 1) := sorry
+    IsDifferentialOperatorOfOrder φ D (k + 1) := by
+  intro X
+  exact ModuleCat.IsDifferentialOperatorOfOrder.le_succ (φ.hom.app X).hom (hD X)
 
 /-- A ringed-site differential operator with order bound `k` has every larger
 order bound. -/
@@ -112,13 +124,21 @@ theorem mono (φ : O₁ ⟶ O₂)
     {F G : ringedSiteModuleCategory.{u, v, z, w} J O₂}
     {D : (restrictionAlong φ).obj F ⟶ (restrictionAlong φ).obj G}
     {k l : ℕ} (hD : IsDifferentialOperatorOfOrder φ D k) (hkl : k ≤ l) :
-    IsDifferentialOperatorOfOrder φ D l := sorry
+    IsDifferentialOperatorOfOrder φ D l := by
+  intro X
+  exact ModuleCat.IsDifferentialOperatorOfOrder.mono (φ.hom.app X).hom (hD X) hkl
 
 /-- Restriction of scalars sends an `O₂`-linear morphism to an order-zero differential
 operator. -/
 theorem restrictionAlong_map
     (φ : O₁ ⟶ O₂) {F G : ringedSiteModuleCategory.{u, v, z, w} J O₂} (f : F ⟶ G) :
-    IsDifferentialOperatorOfOrder φ ((restrictionAlong φ).map f) 0 := sorry
+    IsDifferentialOperatorOfOrder φ ((restrictionAlong φ).map f) 0 := by
+  intro X
+  rw [ModuleCat.IsDifferentialOperatorOfOrder.iff_hom]
+  rw [LinearMap.isDifferentialOperatorOfOrder_zero_iff]
+  intro s m
+  change (f.val.app X).hom (s • m) = s • (f.val.app X).hom m
+  exact (f.val.app X).hom.map_smul s m
 
 /-- Precomposition with an `O₂`-linear source morphism preserves a differential-operator
 order bound. -/
@@ -127,7 +147,8 @@ theorem precompose
     {F F' G : ringedSiteModuleCategory.{u, v, z, w} J O₂} {k : ℕ}
     (α : F' ⟶ F) {D : (restrictionAlong φ).obj F ⟶ (restrictionAlong φ).obj G}
     (hD : IsDifferentialOperatorOfOrder φ D k) :
-    IsDifferentialOperatorOfOrder φ ((restrictionAlong φ).map α ≫ D) k := sorry
+    IsDifferentialOperatorOfOrder φ ((restrictionAlong φ).map α ≫ D) k := by
+  simpa only [Nat.zero_add] using comp φ (restrictionAlong_map φ α) hD
 
 /-- Postcomposition with an `O₂`-linear target morphism preserves a differential-operator
 order bound. -/
@@ -136,7 +157,8 @@ theorem postcompose
     {F G G' : ringedSiteModuleCategory.{u, v, z, w} J O₂} {k : ℕ}
     {D : (restrictionAlong φ).obj F ⟶ (restrictionAlong φ).obj G}
     (hD : IsDifferentialOperatorOfOrder φ D k) (α : G ⟶ G') :
-    IsDifferentialOperatorOfOrder φ (D ≫ (restrictionAlong φ).map α) k := sorry
+    IsDifferentialOperatorOfOrder φ (D ≫ (restrictionAlong φ).map α) k := by
+  simpa only [Nat.add_zero] using comp φ hD (restrictionAlong_map φ α)
 
 end IsDifferentialOperatorOfOrder
 
@@ -160,7 +182,7 @@ theorem mem_addSubgroup_iff
     (φ : O₁ ⟶ O₂) (F : ringedSiteModuleCategory.{u, v, z, w} J O₂) (k : ℕ)
     (G : ringedSiteModuleCategory.{u, v, z, w} J O₂)
     (D : (restrictionAlong φ).obj F ⟶ (restrictionAlong φ).obj G) :
-    D ∈ addSubgroup φ F k G ↔ IsDifferentialOperatorOfOrder φ D k := sorry
+    D ∈ addSubgroup φ F k G ↔ IsDifferentialOperatorOfOrder φ D k := Iff.rfl
 
 /-- Order-`k` differential operators from a fixed module sheaf `F` to a module sheaf `G`. -/
 @[stacks 09CR "bounded differential operators"]
@@ -187,14 +209,14 @@ def ofHom
 theorem toHom_isOfOrder
     {φ : O₁ ⟶ O₂} {F G : ringedSiteModuleCategory.{u, v, z, w} J O₂} {k : ℕ}
     (D : ofOrder φ F k G) :
-    IsDifferentialOperatorOfOrder φ (toHom D) k := sorry
+    IsDifferentialOperatorOfOrder φ (toHom D) k := D.2
 
 /-- Bundling the underlying morphism of a bounded operator recovers that operator. -/
 @[simp]
 theorem ofHom_toHom
     {φ : O₁ ⟶ O₂} {F G : ringedSiteModuleCategory.{u, v, z, w} J O₂} {k : ℕ}
     (D : ofOrder φ F k G) :
-    ofHom (toHom D) (toHom_isOfOrder D) = D := sorry
+    ofHom (toHom D) (toHom_isOfOrder D) = D := rfl
 
 /-- Taking the underlying morphism of a freshly bundled operator recovers the input. -/
 @[simp]
@@ -202,7 +224,7 @@ theorem toHom_ofHom
     {φ : O₁ ⟶ O₂} {F G : ringedSiteModuleCategory.{u, v, z, w} J O₂} {k : ℕ}
     (D : (restrictionAlong φ).obj F ⟶ (restrictionAlong φ).obj G)
     (hD : IsDifferentialOperatorOfOrder φ D k) :
-    toHom (ofHom D hD) = D := sorry
+    toHom (ofHom D hD) = D := rfl
 
 /-- Precompose a bounded differential operator with an `O₂`-linear source morphism. -/
 noncomputable def precompose
@@ -218,21 +240,27 @@ theorem toHom_precompose
     (φ : O₁ ⟶ O₂)
     {F F' G : ringedSiteModuleCategory.{u, v, z, w} J O₂} {k : ℕ}
     (α : F' ⟶ F) (D : ofOrder φ F k G) :
-    toHom (precompose φ α D) = (restrictionAlong φ).map α ≫ toHom D := sorry
+    toHom (precompose φ α D) = (restrictionAlong φ).map α ≫ toHom D := rfl
 
 /-- Precomposition sends the zero differential operator to zero. -/
 theorem precompose_zero
     (φ : O₁ ⟶ O₂)
     {F F' G : ringedSiteModuleCategory.{u, v, z, w} J O₂} {k : ℕ}
     (α : F' ⟶ F) :
-    precompose φ α (0 : ofOrder φ F k G) = 0 := sorry
+    precompose φ α (0 : ofOrder φ F k G) = 0 := by
+  apply Subtype.ext
+  change (restrictionAlong φ).map α ≫ 0 = 0
+  simp
 
 /-- Precomposition preserves addition of bounded differential operators. -/
 theorem precompose_add
     (φ : O₁ ⟶ O₂)
     {F F' G : ringedSiteModuleCategory.{u, v, z, w} J O₂} {k : ℕ}
     (α : F' ⟶ F) (D E : ofOrder φ F k G) :
-    precompose φ α (D + E) = precompose φ α D + precompose φ α E := sorry
+    precompose φ α (D + E) = precompose φ α D + precompose φ α E := by
+  apply Subtype.ext
+  change (restrictionAlong φ).map α ≫ (toHom D + toHom E) = _
+  simp
 
 /-- Bounded differential operators, bundled as an object of `AddCommGrpCat`. -/
 noncomputable abbrev group
@@ -245,7 +273,12 @@ theorem precompose_id
     (φ : O₁ ⟶ O₂) (G : ringedSiteModuleCategory.{u, v, z, w} J O₂) (k : ℕ)
     (F : ringedSiteModuleCategory.{u, v, z, w} J O₂) :
     TypeCat.ofHom (precompose (G := G) (k := k) φ (𝟙 F)) =
-      𝟙 (ofOrder φ F k G) := sorry
+      𝟙 (ofOrder φ F k G) := by
+  apply ConcreteCategory.hom_ext
+  intro D
+  apply Subtype.ext
+  change (restrictionAlong φ).map (𝟙 F) ≫ toHom D = toHom D
+  simp
 
 /-- Precomposition reverses composition of source morphisms. -/
 theorem precompose_comp
@@ -254,7 +287,13 @@ theorem precompose_comp
     (α : F' ⟶ F) (β : F'' ⟶ F') :
     TypeCat.ofHom (precompose (G := G) (k := k) φ (β ≫ α)) =
       TypeCat.ofHom (precompose (G := G) (k := k) φ α) ≫
-        TypeCat.ofHom (precompose (G := G) (k := k) φ β) := sorry
+        TypeCat.ofHom (precompose (G := G) (k := k) φ β) := by
+  apply ConcreteCategory.hom_ext
+  intro D
+  apply Subtype.ext
+  change (restrictionAlong φ).map (β ≫ α) ≫ toHom D =
+    (restrictionAlong φ).map β ≫ ((restrictionAlong φ).map α ≫ toHom D)
+  simp only [Functor.map_comp, Category.assoc]
 
 /-- Precomposition as a morphism between the additive groups of bounded differential
 operators. -/
@@ -273,14 +312,19 @@ theorem toHom_sourceMap
     (φ : O₁ ⟶ O₂) (G : ringedSiteModuleCategory.{u, v, z, w} J O₂) (k : ℕ)
     {F F' : ringedSiteModuleCategory.{u, v, z, w} J O₂} (α : F' ⟶ F)
     (D : ofOrder φ F k G) :
-    toHom (sourceMap φ G k α D) = (restrictionAlong φ).map α ≫ toHom D := sorry
+    toHom (sourceMap φ G k α D) = (restrictionAlong φ).map α ≫ toHom D := rfl
 
 /-- Precomposition by an identity induces the identity on the operator group. -/
 @[simp]
 theorem sourceMap_id
     (φ : O₁ ⟶ O₂) (G : ringedSiteModuleCategory.{u, v, z, w} J O₂) (k : ℕ)
     (F : ringedSiteModuleCategory.{u, v, z, w} J O₂) :
-    sourceMap φ G k (𝟙 F) = 𝟙 (group φ F k G) := sorry
+    sourceMap φ G k (𝟙 F) = 𝟙 (group φ F k G) := by
+  apply ConcreteCategory.hom_ext
+  intro D
+  apply Subtype.ext
+  change (restrictionAlong φ).map (𝟙 F) ≫ toHom D = toHom D
+  simp
 
 /-- Source maps reverse composition. -/
 @[simp]
@@ -288,7 +332,13 @@ theorem sourceMap_comp
     (φ : O₁ ⟶ O₂) (G : ringedSiteModuleCategory.{u, v, z, w} J O₂) (k : ℕ)
     {F F' F'' : ringedSiteModuleCategory.{u, v, z, w} J O₂}
     (α : F' ⟶ F) (β : F'' ⟶ F') :
-    sourceMap φ G k (β ≫ α) = sourceMap φ G k α ≫ sourceMap φ G k β := sorry
+    sourceMap φ G k (β ≫ α) = sourceMap φ G k α ≫ sourceMap φ G k β := by
+  apply ConcreteCategory.hom_ext
+  intro D
+  apply Subtype.ext
+  change (restrictionAlong φ).map (β ≫ α) ≫ toHom D =
+    (restrictionAlong φ).map β ≫ ((restrictionAlong φ).map α ≫ toHom D)
+  simp only [Functor.map_comp, Category.assoc]
 
 /-- The `AddCommGrpCat`-valued contravariant functor of bounded differential operators into a
 fixed target module sheaf. -/
@@ -298,21 +348,30 @@ noncomputable def sourceGroupFunctor
     (ringedSiteModuleCategory.{u, v, z, w} J O₂)ᵒᵖ ⥤ AddCommGrpCat where
   obj F := group φ F.unop k G
   map α := sourceMap φ G k α.unop
-  map_id F := sorry
-  map_comp α β := sorry
+  map_id F := by simpa using sourceMap_id φ G k F.unop
+  map_comp α β := by simpa using sourceMap_comp φ G k α.unop β.unop
 
 /-- Precomposition is additive in the source morphism. -/
 theorem sourceMap_add
     (φ : O₁ ⟶ O₂) (G : ringedSiteModuleCategory.{u, v, z, w} J O₂) (k : ℕ)
     {F F' : ringedSiteModuleCategory.{u, v, z, w} J O₂} (α β : F' ⟶ F) :
-    sourceMap φ G k (α + β) = sourceMap φ G k α + sourceMap φ G k β := sorry
+    sourceMap φ G k (α + β) = sourceMap φ G k α + sourceMap φ G k β := by
+  apply ConcreteCategory.hom_ext
+  intro D
+  apply Subtype.ext
+  change (restrictionAlong φ).map (α + β) ≫ toHom D =
+    (restrictionAlong φ).map α ≫ toHom D + (restrictionAlong φ).map β ≫ toHom D
+  simp only [Functor.map_add, Preadditive.add_comp]
 
 namespace sourceGroupFunctor
 
 /-- The source-contravariant differential-operator functor is additive. -/
 instance additive
     (φ : O₁ ⟶ O₂) (G : ringedSiteModuleCategory.{u, v, z, w} J O₂) (k : ℕ) :
-    (sourceGroupFunctor φ G k).Additive := sorry
+    (sourceGroupFunctor φ G k).Additive := by
+  constructor
+  intro F F' α β
+  exact sourceMap_add φ G k α.unop β.unop
 
 end sourceGroupFunctor
 
@@ -340,21 +399,27 @@ theorem toHom_postcompose
     {F G G' : ringedSiteModuleCategory.{u, v, z, w} J O₂} {k : ℕ}
     (α : G ⟶ G') (D : ofOrder φ F k G) :
     toHom (postcompose φ α D) =
-      toHom D ≫ (restrictionAlong φ).map α := sorry
+      toHom D ≫ (restrictionAlong φ).map α := rfl
 
 /-- Postcomposition sends the zero differential operator to zero. -/
 theorem postcompose_zero
     (φ : O₁ ⟶ O₂)
     {F G G' : ringedSiteModuleCategory.{u, v, z, w} J O₂} {k : ℕ}
     (α : G ⟶ G') :
-    postcompose (F := F) (k := k) φ α (0 : ofOrder φ F k G) = 0 := sorry
+    postcompose (F := F) (k := k) φ α (0 : ofOrder φ F k G) = 0 := by
+  apply Subtype.ext
+  change 0 ≫ (restrictionAlong φ).map α = 0
+  simp
 
 /-- Postcomposition preserves addition of bounded differential operators. -/
 theorem postcompose_add
     (φ : O₁ ⟶ O₂)
     {F G G' : ringedSiteModuleCategory.{u, v, z, w} J O₂} {k : ℕ}
     (α : G ⟶ G') (D E : ofOrder φ F k G) :
-    postcompose φ α (D + E) = postcompose φ α D + postcompose φ α E := sorry
+    postcompose φ α (D + E) = postcompose φ α D + postcompose φ α E := by
+  apply Subtype.ext
+  change (toHom D + toHom E) ≫ (restrictionAlong φ).map α = _
+  simp
 
 /-- Postcomposition as a morphism between the additive groups of bounded differential
 operators. -/
@@ -372,7 +437,12 @@ noncomputable def map
 theorem map_id
     (φ : O₁ ⟶ O₂) (F : ringedSiteModuleCategory.{u, v, z, w} J O₂) (k : ℕ)
     (G : ringedSiteModuleCategory.{u, v, z, w} J O₂) :
-    map φ F k (𝟙 G) = 𝟙 (group φ F k G) := sorry
+    map φ F k (𝟙 G) = 𝟙 (group φ F k G) := by
+  apply ConcreteCategory.hom_ext
+  intro D
+  apply Subtype.ext
+  change toHom D ≫ (restrictionAlong φ).map (𝟙 G) = toHom D
+  simp
 
 /-- The additive-group morphisms induced by postcomposition respect composition. -/
 @[simp]
@@ -380,7 +450,13 @@ theorem map_comp
     (φ : O₁ ⟶ O₂) (F : ringedSiteModuleCategory.{u, v, z, w} J O₂) (k : ℕ)
     {G G' G'' : ringedSiteModuleCategory.{u, v, z, w} J O₂}
     (α : G ⟶ G') (β : G' ⟶ G'') :
-    map φ F k (α ≫ β) = map φ F k α ≫ map φ F k β := sorry
+    map φ F k (α ≫ β) = map φ F k α ≫ map φ F k β := by
+  apply ConcreteCategory.hom_ext
+  intro D
+  apply Subtype.ext
+  change toHom D ≫ (restrictionAlong φ).map (α ≫ β) =
+    (toHom D ≫ (restrictionAlong φ).map α) ≫ (restrictionAlong φ).map β
+  simp only [Functor.map_comp, Category.assoc]
 
 /-- The `AddCommGrpCat`-valued functor of bounded differential operators out of a fixed module
 sheaf. -/
@@ -397,14 +473,23 @@ noncomputable def groupFunctor
 theorem map_add
     (φ : O₁ ⟶ O₂) (F : ringedSiteModuleCategory.{u, v, z, w} J O₂) (k : ℕ)
     {G G' : ringedSiteModuleCategory.{u, v, z, w} J O₂} (α β : G ⟶ G') :
-    map φ F k (α + β) = map φ F k α + map φ F k β := sorry
+    map φ F k (α + β) = map φ F k α + map φ F k β := by
+  apply ConcreteCategory.hom_ext
+  intro D
+  apply Subtype.ext
+  change toHom D ≫ (restrictionAlong φ).map (α + β) =
+    toHom D ≫ (restrictionAlong φ).map α + toHom D ≫ (restrictionAlong φ).map β
+  simp only [Functor.map_add, Preadditive.comp_add]
 
 namespace groupFunctor
 
 /-- The additive-group-valued differential-operator functor is additive. -/
 instance additive
     (φ : O₁ ⟶ O₂) (F : ringedSiteModuleCategory.{u, v, z, w} J O₂) (k : ℕ) :
-    (groupFunctor φ F k).Additive := sorry
+    (groupFunctor φ F k).Additive := by
+  constructor
+  intro G G' α β
+  exact map_add φ F k α β
 
 end groupFunctor
 
@@ -423,7 +508,7 @@ theorem toHom_map
     {G G' : ringedSiteModuleCategory.{u, v, z, w} J O₂} (α : G ⟶ G')
     (D : ofOrder φ F k G) :
     toHom ((functor φ F k).map α D) =
-      toHom D ≫ (restrictionAlong φ).map α := sorry
+      toHom D ≫ (restrictionAlong φ).map α := rfl
 
 /-- Simultaneous precomposition in the source and postcomposition in the target. -/
 noncomputable def bimap
@@ -439,14 +524,17 @@ theorem toHom_bimap
     {F F' G G' : ringedSiteModuleCategory.{u, v, z, w} J O₂}
     (α : F' ⟶ F) (β : G ⟶ G') (D : ofOrder φ F k G) :
     toHom (bimap φ k α β D) =
-      (restrictionAlong φ).map α ≫ toHom D ≫ (restrictionAlong φ).map β := sorry
+      (restrictionAlong φ).map α ≫ toHom D ≫ (restrictionAlong φ).map β := by
+  change ((restrictionAlong φ).map α ≫ toHom D) ≫ (restrictionAlong φ).map β = _
+  exact Category.assoc _ _ _
 
 /-- Acting by identities in both variables gives the identity on bounded operators. -/
 @[simp]
 theorem bimap_id
     (φ : O₁ ⟶ O₂) (k : ℕ)
     (F G : ringedSiteModuleCategory.{u, v, z, w} J O₂) :
-    bimap φ k (𝟙 F) (𝟙 G) = 𝟙 (group φ F k G) := sorry
+    bimap φ k (𝟙 F) (𝟙 G) = 𝟙 (group φ F k G) := by
+  simp only [bimap, sourceMap_id, map_id, Category.id_comp]
 
 /-- Simultaneous source and target maps compose functorially. -/
 @[simp]
@@ -455,7 +543,16 @@ theorem bimap_comp
     {F F' F'' G G' G'' : ringedSiteModuleCategory.{u, v, z, w} J O₂}
     (α : F' ⟶ F) (α' : F'' ⟶ F') (β : G ⟶ G') (β' : G' ⟶ G'') :
     bimap φ k (α' ≫ α) (β ≫ β') =
-      bimap φ k α β ≫ bimap φ k α' β' := sorry
+      bimap φ k α β ≫ bimap φ k α' β' := by
+  apply ConcreteCategory.hom_ext
+  intro D
+  apply Subtype.ext
+  change ((restrictionAlong φ).map (α' ≫ α) ≫ toHom D) ≫
+      (restrictionAlong φ).map (β ≫ β') =
+    ((restrictionAlong φ).map α' ≫
+      (((restrictionAlong φ).map α ≫ toHom D) ≫ (restrictionAlong φ).map β)) ≫
+        (restrictionAlong φ).map β'
+  simp only [Functor.map_comp, Category.assoc]
 
 /-- The additive-group-valued bifunctor of bounded differential operators, contravariant in
 the source and covariant in the target.  Its two partial functors are additive separately. -/
@@ -466,8 +563,8 @@ noncomputable def groupBifunctor
         ringedSiteModuleCategory.{u, v, z, w} J O₂ ⥤ AddCommGrpCat where
   obj P := group φ P.1.unop k P.2
   map α := bimap φ k α.1.unop α.2
-  map_id P := sorry
-  map_comp α β := sorry
+  map_id P := by simpa using bimap_id φ k P.1.unop P.2
+  map_comp α β := by simpa using bimap_comp φ k α.1.unop β.1.unop α.2 β.2
 
 /-- The Type-valued bifunctor of bounded differential operators, contravariant in the source
 and covariant in the target. -/

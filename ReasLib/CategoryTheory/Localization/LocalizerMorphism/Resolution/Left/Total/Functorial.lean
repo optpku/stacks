@@ -41,12 +41,20 @@ def totalMap (R : FunctorialAlong Φ F) {X Y : D} (f : X ⟶ Y) :
 
 /-- The selected total morphism preserves identities. -/
 theorem totalMap_id (R : FunctorialAlong Φ F) (X : D) :
-    R.totalMap (𝟙 X) = 𝟙 (R.totalObj X) := sorry
+    R.totalMap (𝟙 X) = 𝟙 (R.totalObj X) := by
+  apply ObjectProperty.hom_ext
+  apply Comma.hom_ext
+  · exact R.model.map_id X
+  · exact F.map_id X
 
 /-- The selected total morphism preserves composition. -/
 theorem totalMap_comp (R : FunctorialAlong Φ F)
     {X Y Z : D} (f : X ⟶ Y) (g : Y ⟶ Z) :
-    R.totalMap (f ≫ g) = R.totalMap f ≫ R.totalMap g := sorry
+    R.totalMap (f ≫ g) = R.totalMap f ≫ R.totalMap g := by
+  apply ObjectProperty.hom_ext
+  apply Comma.hom_ext
+  · exact R.model.map_comp f g
+  · exact F.map_comp f g
 
 /-- A functorial family of left resolutions, assembled as a functor to the total category. -/
 @[stacks 0GSL "functor to the total category of left resolutions"]
@@ -61,36 +69,36 @@ namespace total
 /-- The base of a selected total object is the corresponding value of the input functor. -/
 @[simp]
 theorem obj_base (R : FunctorialAlong Φ F) (X : D) :
-    (R.total.obj X).base = F.obj X := sorry
+    (R.total.obj X).base = F.obj X := rfl
 
 /-- The model of a selected total object is the corresponding value of the model functor. -/
 @[simp]
 theorem obj_model (R : FunctorialAlong Φ F) (X : D) :
-    (R.total.obj X).model = R.model.obj X := sorry
+    (R.total.obj X).model = R.model.obj X := rfl
 
 /-- The comparison of a selected total object is the corresponding component of the functorial
 comparison. -/
 @[simp]
 theorem obj_comparison (R : FunctorialAlong Φ F) (X : D) :
-    (R.total.obj X).comparison = R.comparison.app X := sorry
+    (R.total.obj X).comparison = R.comparison.app X := rfl
 
 /-- The base component of a selected total morphism is the map of the input functor. -/
 @[simp]
 theorem map_baseHom (R : FunctorialAlong Φ F) {X Y : D} (f : X ⟶ Y) :
-    Total.baseHom (R.total.map f) = F.map f := sorry
+    Total.baseHom (R.total.map f) = F.map f := rfl
 
 /-- The model component of a selected total morphism is the map of the model functor. -/
 @[simp]
 theorem map_modelHom (R : FunctorialAlong Φ F) {X Y : D} (f : X ⟶ Y) :
-    Total.modelHom (R.total.map f) = R.model.map f := sorry
+    Total.modelHom (R.total.map f) = R.model.map f := rfl
 
 /-- Projecting a functorial total left resolution to its base recovers the input functor. -/
 theorem comp_base (R : FunctorialAlong Φ F) :
-    R.total ⋙ Total.baseFunctor Φ = F := sorry
+    R.total ⋙ Total.baseFunctor Φ = F := rfl
 
 /-- Projecting a functorial total left resolution to its models recovers the model functor. -/
 theorem comp_model (R : FunctorialAlong Φ F) :
-    R.total ⋙ Total.modelFunctor Φ = R.model := sorry
+    R.total ⋙ Total.modelFunctor Φ = R.model := rfl
 
 end total
 

@@ -12,8 +12,10 @@ public import Mathlib.Algebra.Category.ModuleCat.Monoidal.Basic
 public import Mathlib.Algebra.Category.ModuleCat.Projective
 public import Mathlib.Algebra.Module.Torsion.Basic
 public import Mathlib.CategoryTheory.Monoidal.Tor
+public import Mathlib.RingTheory.Flat.CategoryTheory
 public import Mathlib.Tactic.CrossRefAttribute
 public import ReasLib.RingTheory.Flatness.IdealTensor
+public import ReasLib.Algebra.Category.ModuleCat.Tor.Ideal
 
 /-!
 # Flatness Criteria Through `Tor`
@@ -28,7 +30,7 @@ particular categorical construction namespace.
 
 @[expose] public section
 
-open CategoryTheory CategoryTheory.Limits
+open CategoryTheory CategoryTheory.Limits CategoryTheory.MonoidalCategory
 
 universe u
 
@@ -41,7 +43,15 @@ variable {M : Type u} [AddCommGroup M] [Module R M]
 @[stacks 00M5 "flatness and Tor vanishing"]
 theorem isZero_tor_succ (hM : Module.Flat R M) (n : ℕ) (N : ModuleCat R) :
     IsZero
-      (((CategoryTheory.Tor (ModuleCat R) (n + 1)).obj (ModuleCat.of R M)).obj N) := sorry
+      (((CategoryTheory.Tor (ModuleCat R) (n + 1)).obj (ModuleCat.of R M)).obj N) := by
+  letI : Module.Flat R M := hM
+  let F := (tensoringLeft (ModuleCat R)).obj (ModuleCat.of R M)
+  let P := CategoryTheory.projectiveResolution N
+  refine IsZero.of_iso ?_ (P.isoLeftDerivedObj F (n + 1))
+  change IsZero (((F.mapHomologicalComplex _).obj P.complex).homology (n + 1))
+  have hEx : (F.mapHomologicalComplex _).obj P.complex |>.ExactAt (n + 1) := by
+    exact (P.complex_exactAt_succ n).map F
+  exact hEx.isZero_homology
 
 /-- A module is flat exactly when all positive-degree `Tor` objects against modules in the common
 universe vanish. -/
@@ -49,14 +59,32 @@ universe vanish. -/
 theorem iff_isZero_tor_succ :
     Module.Flat R M ↔ ∀ n : ℕ, ∀ N : ModuleCat R,
       IsZero
-        (((CategoryTheory.Tor (ModuleCat R) (n + 1)).obj (ModuleCat.of R M)).obj N) := sorry
+        (((CategoryTheory.Tor (ModuleCat R) (n + 1)).obj (ModuleCat.of R M)).obj N) := by
+  constructor
+  · intro hM n N
+    exact isZero_tor_succ hM n N
+  · intro h
+    apply (Module.Flat.iff_lift_lsmul_comp_subtype_injective (R := R) (M := M)).2
+    intro I hI
+    simpa [Ideal.tensorMul] using
+      (CategoryTheory.ModuleCat.Tor.isZero_oneQuotient_iff (M := M) I).1
+        (h 0 (ModuleCat.of R (R ⧸ I)))
 
 /-- A module is flat exactly when its first `Tor` object vanishes against every module in the
 common universe. -/
 @[stacks 00M5 "flatness and Tor vanishing"]
 theorem iff_isZero_tor_one :
     Module.Flat R M ↔ ∀ N : ModuleCat R,
-      IsZero (((CategoryTheory.Tor (ModuleCat R) 1).obj (ModuleCat.of R M)).obj N) := sorry
+      IsZero (((CategoryTheory.Tor (ModuleCat R) 1).obj (ModuleCat.of R M)).obj N) := by
+  constructor
+  · intro hM N
+    simpa using isZero_tor_succ hM 0 N
+  · intro h
+    apply (Module.Flat.iff_lift_lsmul_comp_subtype_injective (R := R) (M := M)).2
+    intro I hI
+    simpa [Ideal.tensorMul] using
+      (CategoryTheory.ModuleCat.Tor.isZero_oneQuotient_iff (M := M) I).1
+        (h (ModuleCat.of R (R ⧸ I)))
 
 /-- A module is flat exactly when `Tor₁(M, R ⧸ I)` vanishes for every ideal. -/
 @[stacks 00M5 "flatness and Tor vanishing"]
@@ -64,7 +92,15 @@ theorem iff_isZero_tor_one_quotient :
     Module.Flat R M ↔ ∀ I : Ideal R,
       IsZero
         (((CategoryTheory.Tor (ModuleCat R) 1).obj (ModuleCat.of R M)).obj
-          (ModuleCat.of R (R ⧸ I))) := sorry
+          (ModuleCat.of R (R ⧸ I))) := by
+  constructor
+  · intro hM I
+    simpa using isZero_tor_succ hM 0 (ModuleCat.of R (R ⧸ I))
+  · intro h
+    apply (Module.Flat.iff_lift_lsmul_comp_subtype_injective (R := R) (M := M)).2
+    intro I hI
+    simpa [Ideal.tensorMul] using
+      (CategoryTheory.ModuleCat.Tor.isZero_oneQuotient_iff (M := M) I).1 (h I)
 
 /-- A module is flat exactly when `Tor₁(M, R ⧸ I)` vanishes for every finitely generated ideal.
 -/
@@ -73,7 +109,17 @@ theorem iff_isZero_tor_one_quotient_of_fg :
     Module.Flat R M ↔ ∀ I : Ideal R, I.FG →
       IsZero
         (((CategoryTheory.Tor (ModuleCat R) 1).obj (ModuleCat.of R M)).obj
-          (ModuleCat.of R (R ⧸ I))) := sorry
+          (ModuleCat.of R (R ⧸ I))) := by
+  constructor
+  · intro hM I hI
+    apply (CategoryTheory.ModuleCat.Tor.isZero_oneQuotient_iff (M := M) I).2
+    simpa [Ideal.tensorMul] using
+      ((Module.Flat.iff_lift_lsmul_comp_subtype_injective (R := R) (M := M)).1 hM
+        (I := I) hI)
+  · intro h
+    apply (Module.Flat.iff_lift_lsmul_comp_subtype_injective (R := R) (M := M)).2
+    intro I hI
+    apply (CategoryTheory.ModuleCat.Tor.isZero_oneQuotient_iff (M := M) I).1 (h I hI)
 
 /-- Lemma 10.99.8 (1): quotient flatness modulo `I` together with vanishing of
 `Tor₁^R(R ⧸ I, M)` gives quotient flatness modulo every positive power of `I`. -/
@@ -133,6 +179,19 @@ theorem tor_tfae :
         ∀ I : Ideal R, I.FG →
           IsZero
             (((CategoryTheory.Tor (ModuleCat R) 1).obj (ModuleCat.of R M)).obj
-              (ModuleCat.of R (R ⧸ I))) ] := sorry
+              (ModuleCat.of R (R ⧸ I))) ] := by
+  tfae_have 1 ↔ 2 := iff_isZero_tor_succ
+  tfae_have 2 → 3 := by
+    intro h N
+    simpa using h 0 N
+  tfae_have 3 → 4 := by
+    intro h I
+    exact h (ModuleCat.of R (R ⧸ I))
+  tfae_have 4 → 5 := by
+    intro h I _
+    exact h I
+  tfae_have 5 → 1 :=
+    (iff_isZero_tor_one_quotient_of_fg (R := R) (M := M)).mpr
+  tfae_finish
 
 end Module.Flat

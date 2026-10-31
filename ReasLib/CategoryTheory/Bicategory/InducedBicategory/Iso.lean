@@ -12,9 +12,9 @@ import Mathlib.Tactic.CrossRefAttribute
 /-!
 # Isomorphisms in induced bicategories
 
-This leaf exposes the ambient forward and inverse cells of mathlib's canonical
-`Bicategory.InducedBicategory.isoMk`. It adds only computation theorems: the isomorphism data
-continues to be owned by mathlib's constructor.
+This leaf exposes the ambient forward and inverse cells of induced-bicategory isomorphisms.
+The ambient isomorphism is obtained through mathlib's canonical forgetful pseudofunctor and
+`PrelaxFunctor.map₂Iso`; the remaining API records its computations and the `isoMk` readouts.
 -/
 
 @[expose] public section
@@ -44,13 +44,11 @@ theorem toAmbient_inv_hom_id {X Y : InducedBicategory D F} {f g : X ⟶ Y}
     (e : f ≅ g) :
     e.inv.hom ≫ e.hom.hom = 𝟙 g.hom := sorry
 
-/-- Forget the induced-bicategory wrapper on a `2`-isomorphism. -/
+/-- Forget the induced-bicategory wrapper on a `2`-isomorphism using mathlib's canonical
+forgetful pseudofunctor. -/
 def toAmbient {X Y : InducedBicategory D F} {f g : X ⟶ Y}
-    (e : f ≅ g) : f.hom ≅ g.hom where
-  hom := e.hom.hom
-  inv := e.inv.hom
-  hom_inv_id := toAmbient_hom_inv_id e
-  inv_hom_id := toAmbient_inv_hom_id e
+    (e : f ≅ g) : f.hom ≅ g.hom :=
+  (Bicategory.InducedBicategory.forget (C := D) (F := F)).toPrelaxFunctor.map₂Iso e
 
 /-- The forward cell of `Iso.toAmbient` is the ambient forward cell. -/
 @[simp]

@@ -6,6 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.FiniteType.BaseChange
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.ClosedSubset.Proper
 public import Mathlib.CategoryTheory.Limits.Shapes.Pullback.HasPullback
 
@@ -30,6 +31,7 @@ theorem preimage {S : Scheme.{u}} {X' X Y' Y : AlgebraicSpace S}
     {g' : X' ⟶ X} {f' : X' ⟶ Y'} {f : X ⟶ Y} {g : Y' ⟶ Y}
     (sq : IsPullback g' f' f g) [LocallyOfFiniteType f]
     (T : Closeds (Points X)) (hT : ProperOver f T) :
+    letI : LocallyOfFiniteType f' := LocallyOfFiniteType.of_isPullback sq inferInstance
     ProperOver f' (T.preimage (Points.continuous_map g')) :=
   sorry
 

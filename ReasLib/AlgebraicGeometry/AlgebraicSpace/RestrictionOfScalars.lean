@@ -10,6 +10,7 @@ public import Mathlib.CategoryTheory.Limits.Shapes.Pullback.HasPullback
 public import Mathlib.CategoryTheory.Types.Basic
 public import Mathlib.CategoryTheory.Yoneda
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Pullback
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.RestrictScalars.Pair
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Sheaf
 
 /-!
@@ -35,49 +36,36 @@ namespace AlgebraicGeometry.AlgebraicSpace.RestrictionOfScalars
 over `S` with `g : Z ⟶ B`. -/
 def fiber {S : Scheme.{u}} {Z B : AlgebraicSpace S} (g : Z ⟶ B) {T : Over S}
     (a : ofOver T ⟶ B) : AlgebraicSpace S :=
-  AlgebraicGeometry.AlgebraicSpace.ReasLibPullback.pullbackOver a g B.isSheaf
-    B.representableDiagonal
+  pullback a g
 
 /-- The projection `T ×_{a,B} Z ⟶ T`. -/
 def fiberFst {S : Scheme.{u}} {Z B : AlgebraicSpace S} (g : Z ⟶ B) {T : Over S}
     (a : ofOver T ⟶ B) : fiber g a ⟶ ofOver T :=
-  AlgebraicGeometry.AlgebraicSpace.ReasLibPullback.pullbackOverFst a g B.isSheaf
-    B.representableDiagonal
+  pullback.fst a g
 
 /-- The projection `T ×_{a,B} Z ⟶ Z`. -/
 def fiberSnd {S : Scheme.{u}} {Z B : AlgebraicSpace S} (g : Z ⟶ B) {T : Over S}
     (a : ofOver T ⟶ B) : fiber g a ⟶ Z :=
-  AlgebraicGeometry.AlgebraicSpace.ReasLibPullback.pullbackOverSnd a g B.isSheaf
-    B.representableDiagonal
+  pullback.snd a g
 
-/-- The functor of points of the fibre product `T ×_{a,B} Z`, as a presheaf
-pullback. -/
+/-- The functor of points of the fibre product `T ×_{a,B} Z`, using the canonical
+categorical pullback. -/
 def fiberFunctorOfPoints {S : Scheme.{u}} {Z B : AlgebraicSpace S} (g : Z ⟶ B)
     {T : Over S} (a : ofOver T ⟶ B) : (Over S)ᵒᵖ ⥤ Type u :=
-  let aP : (ofOver T).functorOfPoints ⟶ B.functorOfPoints := a
-  let gP : Z.functorOfPoints ⟶ B.functorOfPoints := g
-  Limits.pullback aP gP
+  (fiber g a).functorOfPoints
 
-/-- The functor of points of `fiber g a` is the presheaf pullback of `a` and `g`. -/
+/-- The functor of points of `fiber g a` is the canonical fibre presheaf. -/
 theorem fiber_functorOfPoints {S : Scheme.{u}} {Z B : AlgebraicSpace S}
     (g : Z ⟶ B) {T : Over S} (a : ofOver T ⟶ B) :
-    (fiber g a).functorOfPoints = fiberFunctorOfPoints g a := sorry
+    (fiber g a).functorOfPoints = fiberFunctorOfPoints g a := rfl
 
 /-- The comparison `T' ×_{a',B} Z ⟶ T ×_{a,B} Z` induced by `φ : T' ⟶ T`. -/
 def fiberMap {S : Scheme.{u}} {Z B : AlgebraicSpace S} (g : Z ⟶ B) {T T' : Over S}
     (φ : T' ⟶ T) (a : ofOver T ⟶ B) :
     fiber g ((CategoryTheory.yoneda.map φ : ofOver T' ⟶ ofOver T) ≫ a) ⟶ fiber g a :=
-  let a' : (ofOver T').functorOfPoints ⟶ B.functorOfPoints :=
-    (CategoryTheory.yoneda.map φ : ofOver T' ⟶ ofOver T) ≫ a
-  let a₀ : (ofOver T).functorOfPoints ⟶ B.functorOfPoints := a
-  let g₀ : Z.functorOfPoints ⟶ B.functorOfPoints := g
-  let iT : (ofOver T').functorOfPoints ⟶ (ofOver T).functorOfPoints :=
+  RestrictScalars.fiberMap (S := S) (Z := Z) (B := B)
+    (T := ofOver T) (T' := ofOver T') g a
     (CategoryTheory.yoneda.map φ : ofOver T' ⟶ ofOver T)
-  let result : (fiber g ((CategoryTheory.yoneda.map φ : ofOver T' ⟶ ofOver T) ≫ a)).functorOfPoints ⟶
-      (fiber g a).functorOfPoints :=
-    Limits.pullback.map a' g₀ a₀ g₀ iT (𝟙 Z.functorOfPoints) (𝟙 B.functorOfPoints)
-      (Category.comp_id a') ((Category.comp_id g₀).trans (Category.id_comp g₀).symm)
-  result
 
 /-- `fiberMap` commutes with the first projections via `yoneda.map φ`. -/
 theorem fiberMap_fst {S : Scheme.{u}} {Z B : AlgebraicSpace S} (g : Z ⟶ B)
@@ -94,38 +82,42 @@ theorem fiberMap_snd {S : Scheme.{u}} {Z B : AlgebraicSpace S} (g : Z ⟶ B)
 
 /-- A pair `(a, b)` consisting of a morphism `a : T ⟶ B` and a morphism
 `b : T ×_{a,B} Z ⟶ X` over `Z`. -/
-structure Pair {S : Scheme.{u}} {X Z B : AlgebraicSpace S} (f : X ⟶ Z)
-    (g : Z ⟶ B) (T : Over S) where
-  /-- The morphism `a : T ⟶ B`. -/
-  base : ofOver T ⟶ B
-  /-- The morphism `b : T ×_{a,B} Z ⟶ X`. -/
-  lift : fiber g base ⟶ X
-  /-- The morphism `b` lies over `Z`. -/
-  overZ : lift ≫ f = fiberSnd g base
+@[deprecated RestrictScalars.Pair (since := "2026-10-22")]
+abbrev Pair {S : Scheme.{u}} {X Z B : AlgebraicSpace S} (f : X ⟶ Z)
+    (g : Z ⟶ B) (T : Over S) := RestrictScalars.Pair f g (ofOver T)
 
 namespace Pair
+
+/-- Compatibility projection to the canonical pair base morphism. -/
+abbrev base {S : Scheme.{u}} {X Z B : AlgebraicSpace S} {f : X ⟶ Z} {g : Z ⟶ B}
+    {T : Over S} (p : Pair f g T) := p.a
+
+/-- Compatibility projection to the canonical pair lift. -/
+abbrev lift {S : Scheme.{u}} {X Z B : AlgebraicSpace S} {f : X ⟶ Z} {g : Z ⟶ B}
+    {T : Over S} (p : Pair f g T) := p.b
+
 
 /-- Build a restriction-of-scalars pair from a morphism `a : T ⟶ B`, a morphism
 `b : T ×_{a,B} Z ⟶ X`, and the over-`Z` triangle. -/
 def of {S : Scheme.{u}} {X Z B : AlgebraicSpace S} {f : X ⟶ Z} {g : Z ⟶ B}
     {T : Over S} (base : ofOver T ⟶ B) (lift : fiber g base ⟶ X)
-    (overZ : lift ≫ f = fiberSnd g base) : Pair f g T where
-  base := base
-  lift := lift
-  overZ := overZ
+    (overZ : lift ≫ f = fiberSnd g base) : Pair f g T :=
+  RestrictScalars.Pair.of base lift overZ
 
 /-- A restriction-of-scalars pair consists of the over-`Z` triangle together with
 the pullback cone identity on `T ×_{a,B} Z`. -/
 theorem spec {S : Scheme.{u}} {X Z B : AlgebraicSpace S} {f : X ⟶ Z} {g : Z ⟶ B}
     {T : Over S} (p : Pair f g T) :
     p.lift ≫ f = fiberSnd g p.base ∧
-      fiberFst g p.base ≫ p.base = fiberSnd g p.base ≫ g := sorry
+      fiberFst g p.base ≫ p.base = fiberSnd g p.base ≫ g :=
+  RestrictScalars.Pair.spec p
 
 /-- Two restriction-of-scalars pairs are equal if their base morphisms agree and
 the lifts agree after transport. -/
 theorem ext {S : Scheme.{u}} {X Z B : AlgebraicSpace S} {f : X ⟶ Z} {g : Z ⟶ B}
     {T : Over S} {p q : Pair f g T} (h_base : p.base = q.base)
-    (h_lift : h_base ▸ p.lift = q.lift) : p = q := sorry
+    (h_lift : HEq p.lift q.lift) : p = q :=
+  RestrictScalars.Pair.ext h_base h_lift
 
 /-- Precomposition of a lift preserves its triangle over `Z`. -/
 theorem precomp_overZ {S : Scheme.{u}} {X Z B : AlgebraicSpace S}
@@ -137,18 +129,17 @@ theorem precomp_overZ {S : Scheme.{u}} {X Z B : AlgebraicSpace S}
 `yoneda.map φ ≫ a` and `b` to the composite `(φ × id_Z) ≫ b`. -/
 def precomp {S : Scheme.{u}} {X Z B : AlgebraicSpace S} {f : X ⟶ Z} {g : Z ⟶ B}
     {T T' : Over S} (φ : T' ⟶ T) (p : Pair f g T) : Pair f g T' :=
-  let base : ofOver T' ⟶ ofOver T := CategoryTheory.yoneda.map φ
-  Pair.of (base ≫ p.base) (fiberMap g φ p.base ≫ p.lift) (precomp_overZ φ p)
+  RestrictScalars.Pair.map p (CategoryTheory.yoneda.map φ)
 
 /-- The base morphism of `precomp φ p` is `yoneda.map φ ≫ p.base`. -/
 theorem precomp_base {S : Scheme.{u}} {X Z B : AlgebraicSpace S} {f : X ⟶ Z}
     {g : Z ⟶ B} {T T' : Over S} (φ : T' ⟶ T) (p : Pair f g T) :
-    (precomp φ p).base = (CategoryTheory.yoneda.map φ : ofOver T' ⟶ ofOver T) ≫ p.base := sorry
+    (precomp φ p).base = (CategoryTheory.yoneda.map φ : ofOver T' ⟶ ofOver T) ≫ p.base := rfl
 
 /-- The lift of `precomp φ p` is `fiberMap g φ p.base ≫ p.lift`. -/
 theorem precomp_lift {S : Scheme.{u}} {X Z B : AlgebraicSpace S} {f : X ⟶ Z}
     {g : Z ⟶ B} {T T' : Over S} (φ : T' ⟶ T) (p : Pair f g T) :
-    (precomp φ p).lift = fiberMap g φ p.base ≫ p.lift := sorry
+    (precomp φ p).lift = fiberMap g φ p.base ≫ p.lift := rfl
 
 /-- Restriction-of-scalars pairs are equivalent to dependent pairs of a base
 morphism `a : T ⟶ B` and a lift over `Z`. -/
@@ -197,14 +188,14 @@ of restriction-of-scalars pairs. -/
 theorem restrictionOfScalars_obj {S : Scheme.{u}} {X Z B : AlgebraicSpace S}
     (f : X ⟶ Z) (g : Z ⟶ B) (T : Over S) :
     (restrictionOfScalars f g).obj (op T) = RestrictionOfScalars.Pair f g T :=
-  sorry
+  rfl
 
 /-- Restriction of `restrictionOfScalars f g` along `φ : T' ⟶ T` is
 `Pair.precomp φ`. -/
 theorem restrictionOfScalars_map {S : Scheme.{u}} {X Z B : AlgebraicSpace S}
     (f : X ⟶ Z) (g : Z ⟶ B) {T T' : Over S} (φ : T' ⟶ T) :
     (restrictionOfScalars f g).map φ.op =
-      TypeCat.ofHom (RestrictionOfScalars.Pair.precomp φ) := sorry
+      TypeCat.ofHom (RestrictionOfScalars.Pair.precomp φ) := rfl
 
 end AlgebraicGeometry.AlgebraicSpace
 
@@ -233,34 +224,34 @@ theorem toFunctorOfPoints_app {S : Scheme.{u}} {X Z B : AlgebraicSpace S}
     (p : Pair f g T.unop) :
     (toFunctorOfPoints f g).app T p = ULift.up (yonedaEquiv p.base) := sorry
 
-/-- The explicit fibre product is canonically isomorphic to the categorical pullback. -/
+/-- The canonical fibre is the categorical pullback. -/
 def fiberPullbackIso {S : Scheme.{u}} {Z B : AlgebraicSpace S} (g : Z ⟶ B)
     {T : Over S} (a : ofOver T ⟶ B) : fiber g a ≅ pullback a g :=
-  (ReasLibPullback.isPullback a g).isoPullback
+  Iso.refl _
 
 /-- The canonical comparison preserves the projection to the test scheme. -/
 theorem fiberPullbackIso_hom_fst {S : Scheme.{u}} {Z B : AlgebraicSpace S}
     (g : Z ⟶ B) {T : Over S} (a : ofOver T ⟶ B) :
     (fiberPullbackIso g a).hom ≫ pullback.fst a g = fiberFst g a :=
-  (ReasLibPullback.isPullback a g).isoPullback_hom_fst
+  by exact Category.id_comp _
 
 /-- The canonical comparison preserves the projection to `Z`. -/
 theorem fiberPullbackIso_hom_snd {S : Scheme.{u}} {Z B : AlgebraicSpace S}
     (g : Z ⟶ B) {T : Over S} (a : ofOver T ⟶ B) :
     (fiberPullbackIso g a).hom ≫ pullback.snd a g = fiberSnd g a :=
-  (ReasLibPullback.isPullback a g).isoPullback_hom_snd
+  by exact Category.id_comp _
 
 /-- The inverse comparison preserves the projection to the test scheme. -/
 theorem fiberPullbackIso_inv_fst {S : Scheme.{u}} {Z B : AlgebraicSpace S}
     (g : Z ⟶ B) {T : Over S} (a : ofOver T ⟶ B) :
     (fiberPullbackIso g a).inv ≫ fiberFst g a = pullback.fst a g :=
-  (ReasLibPullback.isPullback a g).isoPullback_inv_fst
+  by exact Category.id_comp _
 
 /-- The inverse comparison preserves the projection to `Z`. -/
 theorem fiberPullbackIso_inv_snd {S : Scheme.{u}} {Z B : AlgebraicSpace S}
     (g : Z ⟶ B) {T : Over S} (a : ofOver T ⟶ B) :
     (fiberPullbackIso g a).inv ≫ fiberSnd g a = pullback.snd a g :=
-  (ReasLibPullback.isPullback a g).isoPullback_inv_snd
+  by exact Category.id_comp _
 
 /-- Restriction of scalars satisfies fppf descent. -/
 theorem isSheaf {S : Scheme.{u}} {X Z B : AlgebraicSpace S} (f : X ⟶ Z) (g : Z ⟶ B) :

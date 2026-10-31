@@ -14,6 +14,7 @@ public import Mathlib.RingTheory.Localization.AtPrime.Basic
 public import Mathlib.RingTheory.Localization.Defs
 public import ReasLib.RingTheory.Henselian.Henselization
 public import ReasLib.RingTheory.Henselian.StrictHenselization
+public import ReasLib.RingTheory.RingHom.IndEtale.WeaklyEtale
 public import ReasLib.Algebra.Category.ModuleCat.Tor.Independence
 public import ReasLib.RingTheory.Algebra.TensorProduct.Multiplication
 
@@ -30,10 +31,39 @@ flat unramified maps, étale maps, directed colimits of vanishing maps, and
 @[expose] public section
 
 open CategoryTheory CategoryTheory.Limits
+open scoped TensorProduct
 
 universe u
 
 namespace Algebra.CotangentComplex
+
+private theorem weaklyEtale_of_isLocalization
+    (A B : Type u) [CommRing A] [CommRing B] [Algebra A B]
+    (S : Submonoid A) [IsLocalization S B] : Algebra.WeaklyEtale A B := by
+  have h_epi : Algebra.IsEpi A B := by
+    rw [Algebra.isEpi_iff_forall_one_tmul_eq]
+    intro z
+    obtain ⟨⟨r, s⟩, hz⟩ := IsLocalization.surj S z
+    let f : B →ₐ[A] B ⊗[A] B := Algebra.TensorProduct.includeLeft
+    let g : B →ₐ[A] B ⊗[A] B := Algebra.TensorProduct.includeRight
+    change g z = f z
+    apply ((IsLocalization.map_units B s).map f).mul_left_inj.mp
+    have hs : f (algebraMap A B s) = g (algebraMap A B s) := by
+      simp [f, g]
+    calc
+      g z * f (algebraMap A B s) = g (z * algebraMap A B s) := by
+        rw [hs, map_mul]
+      _ = g (algebraMap A B r) := congrArg g hz
+      _ = f (algebraMap A B r) := by simp [f, g]
+      _ = f z * f (algebraMap A B s) := by rw [← hz, map_mul]
+  refine ⟨IsLocalization.flat B S, ?_⟩
+  algebraize [Algebra.TensorProduct.lmul' A (S := B) |>.toRingHom]
+  apply RingHom.Flat.of_bijective
+  constructor
+  · exact h_epi.injective_lift_mul
+  · intro b
+    refine ⟨1 ⊗ₜ[A] b, ?_⟩
+    simp
 
 /-- If `B` is Tor-independent of itself over `A` and the cotangent complex of
 the canonical multiplication `B ⊗[A] B → B` vanishes in `D(B)`, then `L_{B/A}`
@@ -61,7 +91,15 @@ theorem isZero_derived_of_weaklyEtale (A B : Type u) [CommRing A] [CommRing B] [
 theorem isZero_derived_of_flat_isEpi (A B : Type u) [CommRing A] [CommRing B] [Algebra A B]
     (h_flat : Module.Flat A B) (h_epi : Algebra.IsEpi A B) :
     IsZero (derived A B) :=
-  sorry
+  isZero_derived_of_weaklyEtale A B <| by
+    refine ⟨h_flat, ?_⟩
+    algebraize [Algebra.TensorProduct.lmul' A (S := B) |>.toRingHom]
+    apply RingHom.Flat.of_bijective
+    constructor
+    · exact h_epi.injective_lift_mul
+    · intro b
+      refine ⟨1 ⊗ₜ[A] b, ?_⟩
+      simp
 
 /-- The cotangent complex `L_{B/A}` vanishes in `D(B)` if
 `B = S⁻¹A` for a multiplicative subset `S ⊆ A`. -/
@@ -69,7 +107,7 @@ theorem isZero_derived_of_flat_isEpi (A B : Type u) [CommRing A] [CommRing B] [A
 theorem isZero_derived_of_isLocalization (A B : Type u) [CommRing A] [CommRing B] [Algebra A B]
     (S : Submonoid A) [IsLocalization S B] :
     IsZero (derived A B) :=
-  sorry
+  isZero_derived_of_weaklyEtale A B (weaklyEtale_of_isLocalization A B S)
 
 /-- The cotangent complex `L_{B/A}` vanishes in `D(B)` if
 `A → B` is unramified and flat. -/
@@ -85,7 +123,9 @@ theorem isZero_derived_of_unramified_flat (A B : Type u) [CommRing A] [CommRing 
 theorem isZero_derived_of_etale (A B : Type u) [CommRing A] [CommRing B] [Algebra A B]
     (h : Algebra.Etale A B) :
     IsZero (derived A B) :=
-  sorry
+  isZero_derived_of_weaklyEtale A B <| by
+    letI := h
+    infer_instance
 
 /-- The cotangent complex of a filtered colimit of ring maps
 vanishes in the derived category of the colimit if each stagewise cotangent
@@ -116,7 +156,13 @@ theorem isZero_derived_of_isHenselizationOf_atPrime
     [IsScalarTower A (Localization.AtPrime p) B]
     (h : IsHenselizationOf (Localization.AtPrime p) B) :
     IsZero (derived A B) :=
-  sorry
+  letI := h
+  letI : Algebra.WeaklyEtale (Localization.AtPrime p) B :=
+    RingHom.IndEtale.Raw.weaklyEtale (IsHenselizationOf.indEtale)
+  letI : Algebra.WeaklyEtale A (Localization.AtPrime p) := by
+    exact weaklyEtale_of_isLocalization A (Localization.AtPrime p) p.primeCompl
+  isZero_derived_of_weaklyEtale A B
+    (Algebra.WeaklyEtale.trans A (Localization.AtPrime p) B)
 
 /-- The cotangent complex `L_{B/A}` vanishes in `D(B)` if `B`
 is a strict henselization of a local ring of `A`. -/
@@ -128,6 +174,12 @@ theorem isZero_derived_of_isStrictHenselizationOf_atPrime
     [IsScalarTower A (Localization.AtPrime p) B]
     (h : IsStrictHenselizationOf (Localization.AtPrime p) B) :
     IsZero (derived A B) :=
-  sorry
+  letI := h
+  letI : Algebra.WeaklyEtale (Localization.AtPrime p) B :=
+    RingHom.IndEtale.Raw.weaklyEtale (IsStrictHenselizationOf.indEtale)
+  letI : Algebra.WeaklyEtale A (Localization.AtPrime p) := by
+    exact weaklyEtale_of_isLocalization A (Localization.AtPrime p) p.primeCompl
+  isZero_derived_of_weaklyEtale A B
+    (Algebra.WeaklyEtale.trans A (Localization.AtPrime p) B)
 
 end Algebra.CotangentComplex

@@ -52,7 +52,6 @@ theorem mulApp_naturality
       mulApp f M U ≫ M.val.map i := sorry
 
 /-- Multiplication by a global function as an endomorphism of a module sheaf. -/
-@[stacks 0EHA "global-section scalar endomorphism of a module sheaf"]
 noncomputable def mul (f : globalSectionsRing X) (M : X.Modules) : M ⟶ M where
   val.app U := mulApp f M U
   val.naturality i := mulApp_naturality f M i
@@ -85,7 +84,6 @@ theorem center_add (f g : globalSectionsRing X) :
 
 /-- The canonical ring homomorphism from global functions to central endomorphisms of module
 sheaves. -/
-@[stacks 0EHA "global-section action through the categorical center"]
 noncomputable def centerHom (X : RingedSpace.{u}) :
     globalSectionsRing X →+* CatCenter X.Modules where
   toFun := center
@@ -95,7 +93,6 @@ noncomputable def centerHom (X : RingedSpace.{u}) :
   map_add' := center_add
 
 /-- The category of module sheaves is canonically linear over the ring of global functions. -/
-@[stacks 0EHA "global-section linearity of module sheaves"]
 noncomputable instance instLinear (X : RingedSpace.{u}) :
     Linear (globalSectionsRing X) X.Modules :=
   Linear.ofRingMorphism (centerHom X)
@@ -113,7 +110,6 @@ namespace AlgebraicGeometry.RingedSpace
 variable {X : RingedSpace.{u}}
 
 /-- Multiplication by a global section on a module sheaf, exposed at the ringed-space layer. -/
-@[stacks 0EHA "global-section multiplication on a module sheaf"]
 noncomputable abbrev globalSectionMul (f : globalSectionsRing X) (M : X.Modules) : M ⟶ M :=
   GlobalSections.mul f M
 

@@ -9,6 +9,7 @@ module
 public import ReasLib.Algebra.Homology.DerivedCategory.ModuleCat.UpperShriek.FiberDimension
 public import ReasLib.Algebra.Homology.DerivedCategory.TorAmplitude.Relative
 public import ReasLib.RingTheory.RingHom.Fiber.Basic
+public import ReasLib.Topology.KrullDimension.Local
 
 @[expose] public section
 
@@ -29,7 +30,8 @@ theorem relativeDualizingCohomology_degree_mem
     (hf : (algebraMap R A).FiniteType) (presentation : Presentation (algebraMap R A))
     (p : PrimeSpectrum R) (q : PrimeSpectrum A)
     (hq : PrimeSpectrum.comap (algebraMap R A) q = p)
-    (d : ℕ) (hd : ringKrullDim (fiberLocalRingAt R A q) = d)
+    (d : ℕ)
+    (hd : topologicalKrullDimAt (fiberPrimeAt R A q) = (d : WithBot ℕ∞))
     (i : ℤ)
     (hi : Nontrivial
       (LocalizedModule.AtPrime q.asIdeal

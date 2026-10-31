@@ -34,18 +34,13 @@ variable {R : Type u} [CommRing R]
 
 namespace KoszulComplex.Family
 
-/-- Evaluation of the finite-family linear form on its `i`th standard basis vector. -/
-@[simp]
-theorem linearForm_basisFun {r : ℕ} (f : Fin r → R) (i : Fin r) :
-    koszulLinearForm f (Pi.basisFun R (Fin r) i) = f i := sorry
-
 /-- The canonical null-homotopy for multiplication by a member of a finite family. -/
 @[stacks 0663 "finite-family Koszul generator null-homotopy"]
 noncomputable def scalarHomotopyZero {r : ℕ} (f : Fin r → R) (i : Fin r) :
     Homotopy ((f i) • 𝟙 (KoszulComplex.family f)) 0 :=
   Eq.mp
     (congrArg (fun a : R => Homotopy (a • 𝟙 (KoszulComplex.family f)) 0)
-      (linearForm_basisFun f i))
+      (koszulLinearForm_basis f i))
     (KoszulComplex.scalarHomotopyZero (koszulLinearForm f)
       (Pi.basisFun R (Fin r) i))
 

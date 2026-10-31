@@ -7,7 +7,7 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.IntersectionTheory.ProjectiveAtlas
-public import stacks_project.Chap66.Lemma_66_26_3_Glueing
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Glueing
 
 /-! The tautological quotient is descended from the actual represented quotient classes.
 Representatives are extracted only from existing quotient classes. The transition

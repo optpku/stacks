@@ -62,7 +62,11 @@ theorem mapCocone_naturality_raw {X Y : D} (f : X ⟶ Y)
           (CostructuredArrow.mk (g₂.hom ≫ S.Q.map f)) =
       colimit.ι (CostructuredArrow.proj S.Q (S.Q.obj Y) ⋙ F)
         (CostructuredArrow.mk (g₁.hom ≫ S.Q.map f)) ≫
-          ((Functor.const (CostructuredArrow S.Q (S.Q.obj X))).obj (obj F S Y)).map φ := sorry
+          ((Functor.const (CostructuredArrow S.Q (S.Q.obj X))).obj (obj F S Y)).map φ := by
+  set_option backward.isDefEq.respectTransparency false in
+    rw [Functor.const_obj_map, Category.comp_id]
+    exact colimit.w (CostructuredArrow.proj S.Q (S.Q.obj Y) ⋙ F)
+      ((CostructuredArrow.map (S.Q.map f)).map φ)
 
 /-- The canonical cocone on the right-derived-value diagram which induces the map along `f`. -/
 @[stacks 05SA]
@@ -84,7 +88,8 @@ theorem mapCocone_naturality {X Y : D} (f : X ⟶ Y)
       colimit.ι (CostructuredArrow.proj S.Q (S.Q.obj Y) ⋙ F)
           (CostructuredArrow.mk (g₂.hom ≫ S.Q.map f)) =
       colimit.ι (CostructuredArrow.proj S.Q (S.Q.obj Y) ⋙ F)
-        (CostructuredArrow.mk (g₁.hom ≫ S.Q.map f)) := sorry
+        (CostructuredArrow.mk (g₁.hom ≫ S.Q.map f)) :=
+  (mapCocone F S f).w φ
 
 /-- the canonical map between pointwise right-derived values induced by `f`. -/
 @[stacks 05SA]
@@ -101,7 +106,8 @@ theorem ι_map {X Y : D} (f : X ⟶ Y)
     (g : CostructuredArrow S.Q (S.Q.obj X)) :
     colimit.ι (CostructuredArrow.proj S.Q (S.Q.obj X) ⋙ F) g ≫ map F S f =
       colimit.ι (CostructuredArrow.proj S.Q (S.Q.obj Y) ⋙ F)
-        (CostructuredArrow.mk (g.hom ≫ S.Q.map f)) := sorry
+        (CostructuredArrow.mk (g.hom ≫ S.Q.map f)) :=
+  colimit.ι_desc (mapCocone F S f) g
 
 /-- Morphisms out of a pointwise right-derived value are determined by their composites with
 all legs of its defining colimit. -/
@@ -111,13 +117,19 @@ theorem hom_ext {X : D} [F.HasPointwiseRightDerivedFunctorAt S X] {Z : D'}
     (h : ∀ j : CostructuredArrow S.Q (S.Q.obj X),
       colimit.ι (CostructuredArrow.proj S.Q (S.Q.obj X) ⋙ F) j ≫ f =
         colimit.ι (CostructuredArrow.proj S.Q (S.Q.obj X) ⋙ F) j ≫ g) :
-    f = g := sorry
+    f = g :=
+  colimit.hom_ext h
 
 /-- the canonical map of pointwise right-derived values sends an identity morphism
 to the identity of the corresponding value, without requiring global pointwise definedness. -/
 @[stacks 05SA, simp]
 theorem map_id (X : D) [F.HasPointwiseRightDerivedFunctorAt S X] :
-    map F S (𝟙 X) = 𝟙 (obj F S X) := sorry
+    map F S (𝟙 X) = 𝟙 (obj F S X) := by
+  set_option backward.isDefEq.respectTransparency false in
+    apply hom_ext F S
+    intro j
+    rw [ι_map, S.Q.map_id, Category.comp_id, Category.comp_id]
+    rfl
 
 /-- the canonical maps of pointwise right-derived values respect composition whenever
 the three individual values are defined, without requiring a global derived functor. -/
@@ -125,7 +137,16 @@ the three individual values are defined, without requiring a global derived func
 theorem map_comp {X Y Z : D} (f : X ⟶ Y) (g : Y ⟶ Z)
     [F.HasPointwiseRightDerivedFunctorAt S X] [F.HasPointwiseRightDerivedFunctorAt S Y]
     [F.HasPointwiseRightDerivedFunctorAt S Z] :
-    map F S (f ≫ g) = map F S f ≫ map F S g := sorry
+    map F S (f ≫ g) = map F S f ≫ map F S g := by
+  set_option backward.isDefEq.respectTransparency false in
+    apply hom_ext F S
+    intro j
+    rw [ι_map, ← Category.assoc, ι_map, ι_map, S.Q.map_comp]
+    let leg (k : S.Q.obj j.left ⟶ S.Q.obj Z) : F.obj j.left ⟶ obj F S Z :=
+      colimit.ι (CostructuredArrow.proj S.Q (S.Q.obj Z) ⋙ F) (CostructuredArrow.mk k)
+    change leg (j.hom ≫ S.Q.map f ≫ S.Q.map g) =
+      leg ((j.hom ≫ S.Q.map f) ≫ S.Q.map g)
+    exact congrArg leg (Category.assoc j.hom (S.Q.map f) (S.Q.map g)).symm
 
 /-- the map of pointwise right-derived values is compatible with every commutative
 square of denominators. -/
@@ -134,7 +155,16 @@ theorem map_comp_of_square {X Y : D} (f : X ⟶ Y)
     [F.HasPointwiseRightDerivedFunctorAt S X] [F.HasPointwiseRightDerivedFunctorAt S Y]
     {X' Y' : D} (s : X ⟶ X') (s' : Y ⟶ Y') (hs : S s) (hs' : S s') (f' : X' ⟶ Y')
     (sq : CommSq f s s' f') :
-    CommSq (ι F S s hs) (F.map f') (map F S f) (ι F S s' hs') := sorry
+    CommSq (ι F S s hs) (F.map f') (map F S f) (ι F S s' hs') := by
+  let u : CostructuredArrow.mk ((Localization.isoOfHom S.Q S s hs).inv ≫ S.Q.map f) ⟶
+      CostructuredArrow.mk ((Localization.isoOfHom S.Q S s' hs').inv) :=
+    CostructuredArrow.homMk f' (by
+      apply (Localization.isoOfHom S.Q S s hs).eq_inv_comp.mpr
+      change S.Q.map s ≫ (S.Q.map f' ≫ (Localization.isoOfHom S.Q S s' hs').inv) =
+        S.Q.map f
+      rw [← Category.assoc, ← S.Q.map_comp, ← sq.w, S.Q.map_comp,
+        Category.assoc, Localization.isoOfHom_hom_inv_id, Category.comp_id])
+  exact ⟨(ι_map F S f _).trans (colimit.w _ u).symm⟩
 
 /-- The equality form of denominator-square compatibility for pointwise right-derived maps. -/
 @[stacks 05SA, reassoc]
@@ -142,7 +172,8 @@ theorem ι_map_of_square {X Y : D} (f : X ⟶ Y)
     [F.HasPointwiseRightDerivedFunctorAt S X] [F.HasPointwiseRightDerivedFunctorAt S Y]
     {X' Y' : D} (s : X ⟶ X') (s' : Y ⟶ Y') (hs : S s) (hs' : S s') (f' : X' ⟶ Y')
     (sq : CommSq f s s' f') :
-    ι F S s hs ≫ map F S f = F.map f' ≫ ι F S s' hs' := sorry
+    ι F S s hs ≫ map F S f = F.map f' ≫ ι F S s' hs' :=
+  (map_comp_of_square F S f s s' hs hs' f' sq).w
 
 /-- denominator-square compatibility characterizes the canonical map between
 pointwise right-derived values. -/
@@ -154,7 +185,29 @@ theorem map_hom_ext {X Y : D} (f : X ⟶ Y)
     (hφ : ∀ ⦃X' Y' : D⦄ (s : X ⟶ X') (s' : Y ⟶ Y') (hs : S s) (hs' : S s')
         (f' : X' ⟶ Y') (_ : CommSq f s s' f'),
           CommSq (ι F S s hs) (F.map f') φ (ι F S s' hs')) :
-    φ = map F S f := sorry
+    φ = map F S f := by
+  set_option backward.isDefEq.respectTransparency false in
+    apply hom_ext F S
+    intro j
+    obtain ⟨a, ha⟩ := Localization.exists_leftFraction S.Q S j.hom
+    let u : j ⟶ CostructuredArrow.mk ((Localization.isoOfHom S.Q S a.s a.hs).inv) :=
+      CostructuredArrow.homMk a.f ha.symm
+    have hj : F.map a.f ≫ ι F S a.s a.hs =
+        colimit.ι (CostructuredArrow.proj S.Q (S.Q.obj X) ⋙ F) j :=
+      colimit.w (CostructuredArrow.proj S.Q (S.Q.obj X) ⋙ F) u
+    obtain ⟨b, hb⟩ :=
+      (MorphismProperty.RightFraction.mk a.s a.hs f).exists_leftFraction
+    have sq : CommSq f a.s b.s b.f := ⟨hb⟩
+    have hleg : ι F S a.s a.hs ≫ φ = ι F S a.s a.hs ≫ map F S f :=
+      (hφ a.s b.s a.hs b.hs b.f sq).w.trans
+        (ι_map_of_square F S f a.s b.s a.hs b.hs b.f sq).symm
+    calc
+      colimit.ι (CostructuredArrow.proj S.Q (S.Q.obj X) ⋙ F) j ≫ φ =
+          F.map a.f ≫ (ι F S a.s a.hs ≫ φ) := by
+        rw [← hj, Category.assoc]
+      _ = F.map a.f ≫ (ι F S a.s a.hs ≫ map F S f) := by rw [hleg]
+      _ = colimit.ι (CostructuredArrow.proj S.Q (S.Q.obj X) ⋙ F) j ≫ map F S f := by
+        rw [← Category.assoc, hj]
 
 
 end CategoryTheory.Functor.RightDerived.Value

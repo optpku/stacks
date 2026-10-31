@@ -11,6 +11,7 @@ public import Mathlib.Geometry.RingedSpace.SheafedSpace
 public import Mathlib.Geometry.RingedSpace.Stalks
 public import Mathlib.Topology.Category.TopCommRingCat
 public import Mathlib.RingTheory.LocalRing.Basic
+public import Mathlib.RingTheory.LocalRing.RingHom.Basic
 public import Mathlib.Topology.Category.TopCat.OpenNhds
 
 @[expose] public section
@@ -60,7 +61,7 @@ def ofSheafedSpace (X : SheafedSpace TopCommRingCat.{u})
 theorem ofSheafedSpace_spec (X : SheafedSpace TopCommRingCat.{u})
     (h : ∀ x : X.carrier, IsLocalRing ((ringPresheaf X).stalk x)) :
     (ofSheafedSpace X h).toSheafedSpace = X ∧
-      ∀ x : X.carrier, IsLocalRing ((ringPresheaf X).stalk x) := sorry
+      ∀ x : X.carrier, IsLocalRing ((ringPresheaf X).stalk x) := ⟨rfl, h⟩
 
 /-- The ring-valued presheaf of a locally topologically ringed space. -/
 def underlyingRingPresheaf (X : LocallyTopologicallyRingedSpaceCat.{u}) :
@@ -85,16 +86,41 @@ theorem Hom.ofSheafedHom_spec {X Y : LocallyTopologicallyRingedSpaceCat.{u}}
     (f : X.toSheafedSpace ⟶ Y.toSheafedSpace)
     (h : ∀ x : X.carrier, IsLocalHom (stalkRingHom f x)) :
     (Hom.ofSheafedHom f h).toSheafedHom = f ∧
-      ∀ x : X.carrier, IsLocalHom (stalkRingHom f x) := sorry
+      ∀ x : X.carrier, IsLocalHom (stalkRingHom f x) := ⟨rfl, h⟩
 
 /-- The identity morphism is local on stalks. -/
 theorem id_isLocalHom (X : LocallyTopologicallyRingedSpaceCat.{u}) :
-    ∀ x : X.carrier, IsLocalHom (stalkRingHom (𝟙 X.toSheafedSpace) x) := sorry
+    ∀ x : X.carrier, IsLocalHom (stalkRingHom (𝟙 X.toSheafedSpace) x) := by
+  intro x
+  change IsLocalHom
+    (((forget₂ TopCommRingCat CommRingCat).mapPresheaf.map
+      (𝟙 X.toSheafedSpace.toPresheafedSpace)).stalkMap x).hom
+  rw [((forget₂ TopCommRingCat CommRingCat).mapPresheaf.map_id),
+    PresheafedSpace.stalkMap.id]
+  exact isLocalHom_id _
 
 /-- Composition of local sheaf morphisms is local on stalks. -/
 theorem comp_isLocalHom {X Y Z : LocallyTopologicallyRingedSpaceCat.{u}}
     (f : Hom X Y) (g : Hom Y Z) :
-    ∀ x : X.carrier, IsLocalHom (stalkRingHom (f.toSheafedHom ≫ g.toSheafedHom) x) := sorry
+    ∀ x : X.carrier, IsLocalHom (stalkRingHom (f.toSheafedHom ≫ g.toSheafedHom) x) := by
+  intro x
+  change IsLocalHom
+    (((forget₂ TopCommRingCat CommRingCat).mapPresheaf.map
+      (f.toSheafedHom ≫ g.toSheafedHom).hom).stalkMap x).hom
+  rw [show (f.toSheafedHom ≫ g.toSheafedHom).hom =
+      f.toSheafedHom.hom ≫ g.toSheafedHom.hom by rfl]
+  rw [Functor.map_comp, PresheafedSpace.stalkMap.comp]
+  have hg : IsLocalHom
+      (((forget₂ TopCommRingCat CommRingCat).mapPresheaf.map g.toSheafedHom.hom).stalkMap
+        (((forget₂ TopCommRingCat CommRingCat).mapPresheaf.map f.toSheafedHom.hom).base x)).hom := by
+    change IsLocalHom (stalkRingHom g.toSheafedHom
+      (((forget₂ TopCommRingCat CommRingCat).mapPresheaf.map f.toSheafedHom.hom).base x))
+    exact g.2 _
+  have hf : IsLocalHom
+      (((forget₂ TopCommRingCat CommRingCat).mapPresheaf.map f.toSheafedHom.hom).stalkMap x).hom := by
+    change IsLocalHom (stalkRingHom f.toSheafedHom x)
+    exact f.2 x
+  refine ⟨fun a ha => hg.map_nonunit a (hf.map_nonunit _ ha)⟩
 
 /-- The identity local morphism. -/
 def id (X : LocallyTopologicallyRingedSpaceCat.{u}) : Hom X X :=
@@ -107,16 +133,22 @@ def comp {X Y Z : LocallyTopologicallyRingedSpaceCat.{u}} (f : Hom X Y) (g : Hom
 
 /-- Left identity for composition of local morphisms. -/
 theorem id_comp {X Y : LocallyTopologicallyRingedSpaceCat.{u}} (f : Hom X Y) :
-    comp (id X) f = f := sorry
+    comp (id X) f = f := by
+  apply Subtype.ext
+  simp [comp, id, Hom.ofSheafedHom, Hom.toSheafedHom]
 
 /-- Right identity for composition of local morphisms. -/
 theorem comp_id {X Y : LocallyTopologicallyRingedSpaceCat.{u}} (f : Hom X Y) :
-    comp f (id Y) = f := sorry
+    comp f (id Y) = f := by
+  apply Subtype.ext
+  simp [comp, id, Hom.ofSheafedHom, Hom.toSheafedHom]
 
 /-- Associativity of composition of local morphisms. -/
 theorem assoc {W X Y Z : LocallyTopologicallyRingedSpaceCat.{u}}
     (f : Hom W X) (g : Hom X Y) (h : Hom Y Z) :
-    comp (comp f g) h = comp f (comp g h) := sorry
+    comp (comp f g) h = comp f (comp g h) := by
+  apply Subtype.ext
+  simp [comp, Hom.ofSheafedHom, Hom.toSheafedHom]
 
 /-- The category of locally topologically ringed spaces and local sheaf morphisms. -/
 instance instCategory : Category LocallyTopologicallyRingedSpaceCat.{u} where
@@ -138,7 +170,13 @@ def forgetToSheafedSpace :
 /-- Restriction along an open embedding preserves locality of the underlying ring stalks. -/
 theorem restrict_isLocalRing {U : TopCat.{u}} (X : LocallyTopologicallyRingedSpaceCat.{u})
     {f : U ⟶ X.carrier} (h : Topology.IsOpenEmbedding f) :
-    ∀ x : U, IsLocalRing ((ringPresheaf (X.toSheafedSpace.restrict h)).stalk x) := sorry
+    ∀ x : U, IsLocalRing ((ringPresheaf (X.toSheafedSpace.restrict h)).stalk x) := by
+  intro x
+  apply @RingEquiv.isLocalRing _ _ _ (X.property (f x))
+  let R : PresheafedSpace CommRingCat.{u} :=
+    { carrier := X.carrier
+      presheaf := ringPresheaf X.toSheafedSpace }
+  exact (R.restrictStalkIso h x).symm.commRingCatIsoToRingEquiv
 
 /-- Restriction of a locally topologically ringed space along an open embedding. -/
 def restrict {U : TopCat.{u}} (X : LocallyTopologicallyRingedSpaceCat.{u})

@@ -44,7 +44,6 @@ theorem leftTensorHom_app_naturality
 
 /-- The sectionwise degree-one left multiplication morphism
 `F ⊗ Λ(F) ⟶ Λ(F)` for a module presheaf. -/
-@[stacks 0FJN "sectionwise degree-one exterior multiplication"]
 noncomputable def leftTensorHom
     (F : PresheafOfModules.{w} (RingPresheaf 𝒪)) :
     PresheafOfModules.Monoidal.tensorObj F (presheaf 𝒪 F) ⟶ presheaf 𝒪 F where

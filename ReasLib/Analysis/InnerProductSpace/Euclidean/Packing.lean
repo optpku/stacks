@@ -14,8 +14,12 @@ Adapted from SLT/CoveringNumber.lean at
 Changes: Mathlib metric predicates, restricted imports, arbitrary-subset packing
 interface, and a separate dimension-zero branch.
 -/
-import ReasLib.Analysis.Metric.Packing
-import Mathlib.MeasureTheory.Measure.Lebesgue.VolumeOfBalls
+module
+
+public import ReasLib.Analysis.Metric.Packing
+public import Mathlib.MeasureTheory.Measure.Lebesgue.VolumeOfBalls
+
+@[expose] public section
 
 /-!
 # Euclidean volume counting for strictly separated finite sets
@@ -184,3 +188,5 @@ theorem finset_card_le_of_isSeparated {ι : Type*} [Fintype ι]
     exact finset_card_le_of_isSeparated_pos hR hε hsub hsep
 
 end EuclideanSpace
+
+end

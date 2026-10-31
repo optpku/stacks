@@ -208,11 +208,17 @@ def ofArrow {S : Scheme.{u}} {G : GroupoidScheme S} {T : Over S}
 theorem ofArrow_arrow {S : Scheme.{u}} {G : GroupoidScheme S} {T : Over S}
     {x y : T ⟶ G.U} (arrow : T ⟶ G.R)
     (source : arrow ≫ G.s = x) (target : arrow ≫ G.t = y) :
-    (ofArrow arrow source target).arrow = arrow := sorry
+    (ofArrow arrow source target).arrow = arrow := rfl
 
 /-- Pointwise morphisms with the same underlying arrow are equal. -/
 theorem ext {S : Scheme.{u}} {G : GroupoidScheme S} {T : Over S}
-    {x y : T ⟶ G.U} {f g : G.PointHom x y} (h : f.arrow = g.arrow) : f = g := sorry
+    {x y : T ⟶ G.U} {f g : G.PointHom x y} (h : f.arrow = g.arrow) : f = g := by
+  cases f with
+  | mk f fs ft =>
+    cases g with
+    | mk g gs gt =>
+      cases h
+      rfl
 
 end PointHom
 
@@ -223,21 +229,65 @@ def pointGroupoid {S : Scheme.{u}} (G : GroupoidScheme S) (T : Over S) :
   Hom := fun x y ↦ G.PointHom x y
   id := fun x ↦
     { arrow := x ≫ G.e
-      source := sorry
-      target := sorry }
+      source := by simp [Category.assoc, G.identity_source]
+      target := by simp [Category.assoc, G.identity_target] }
   comp := fun f g ↦
     { arrow := G.compose g.arrow f.arrow (g.source.trans f.target.symm)
-      source := sorry
-      target := sorry }
-  id_comp := sorry
-  comp_id := sorry
-  assoc := sorry
+      source := by
+        simp [compose, Category.assoc, G.comp_source, pullback.lift_snd_assoc, f.source]
+      target := by
+        simp [compose, Category.assoc, G.comp_target, pullback.lift_fst_assoc, g.target] }
+  id_comp := by
+    intro x y f
+    apply PointHom.ext
+    change G.compose f.arrow (x ≫ G.e) _ = f.arrow
+    have hri : f.arrow ≫ G.s = ((f.arrow ≫ G.s) ≫ G.e) ≫ G.t := by
+      calc
+        f.arrow ≫ G.s = x := f.source
+        _ = (x ≫ G.e) ≫ G.t := by simp [Category.assoc, G.identity_target]
+        _ = ((f.arrow ≫ G.s) ≫ G.e) ≫ G.t := by rw [f.source]
+    simpa [compose, f.source] using G.right_identity f.arrow hri
+  comp_id := by
+    intro x y f
+    apply PointHom.ext
+    change G.compose (y ≫ G.e) f.arrow _ = f.arrow
+    have hli : ((f.arrow ≫ G.t) ≫ G.e) ≫ G.s = f.arrow ≫ G.t := by
+      calc
+        ((f.arrow ≫ G.t) ≫ G.e) ≫ G.s = (y ≫ G.e) ≫ G.s := by rw [f.target]
+        _ = y := by simp [Category.assoc, G.identity_source]
+        _ = f.arrow ≫ G.t := f.target.symm
+    simpa [compose, f.target] using G.left_identity f.arrow hli
+  assoc := by
+    intro w x y z f g h
+    apply PointHom.ext
+    let h_hg : h.arrow ≫ G.s = g.arrow ≫ G.t := h.source.trans g.target.symm
+    let h_gf : g.arrow ≫ G.s = f.arrow ≫ G.t := g.source.trans f.target.symm
+    let h_hg_f : G.compose h.arrow g.arrow h_hg ≫ G.s = f.arrow ≫ G.t := by
+      simpa [compose, Category.assoc, G.comp_source, pullback.lift_snd_assoc] using h_gf
+    let h_h_gf : h.arrow ≫ G.s = G.compose g.arrow f.arrow h_gf ≫ G.t := by
+      simpa [compose, Category.assoc, G.comp_target, pullback.lift_fst_assoc] using h_hg
+    simpa [compose] using
+      (G.associativity h.arrow g.arrow f.arrow h_hg h_gf h_hg_f h_h_gf).symm
   inv := fun f ↦
     { arrow := f.arrow ≫ G.i
-      source := sorry
-      target := sorry }
-  inv_comp := sorry
-  comp_inv := sorry
+      source := by
+        simp [Category.assoc, G.inverse_source, f.target]
+      target := by
+        simp [Category.assoc, G.inverse_target, f.source] }
+  inv_comp := by
+    intro x y f
+    apply PointHom.ext
+    change G.compose f.arrow (f.arrow ≫ G.i) _ = y ≫ G.e
+    have hi : f.arrow ≫ G.s = (f.arrow ≫ G.i) ≫ G.t := by
+      simp [Category.assoc, G.inverse_target]
+    simpa [compose, f.target] using G.inverse_comp f.arrow hi
+  comp_inv := by
+    intro x y f
+    apply PointHom.ext
+    change G.compose (f.arrow ≫ G.i) f.arrow _ = x ≫ G.e
+    have hi : (f.arrow ≫ G.i) ≫ G.s = f.arrow ≫ G.t := by
+      simp [Category.assoc, G.inverse_source]
+    simpa [compose, f.source] using G.comp_inverse f.arrow hi
 
 /-- The bundled groupoid of `T`-points of a groupoid scheme. -/
 def groupoidPoints {S : Scheme.{u}} (G : GroupoidScheme S) (T : Over S) : Grpd.{u, u} :=

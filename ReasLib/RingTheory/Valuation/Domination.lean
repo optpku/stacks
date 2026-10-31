@@ -99,8 +99,6 @@ theorem coe_mapOfRangeLe
 
 section Local
 
-variable [IsLocalRing R]
-
 /-- The map to a dominating valuation subring is local. -/
 @[stacks 052M "local map to a dominating valuation subring"]
 theorem isLocalHom_mapOfRangeLe
@@ -136,8 +134,6 @@ theorem coe_algebraMapOfRangeLe
     (A : ValuationSubring K)
     (hA : LocalSubring.range (algebraMap R K) ≤ A.toLocalSubring) (r : R) :
     (algebraMapOfRangeLe A hA r : K) = algebraMap R K r := sorry
-
-variable [IsLocalRing R]
 
 /-- The canonical algebra map to a dominating valuation subring is local. -/
 @[stacks 052M "local algebra map to a dominating valuation subring"]

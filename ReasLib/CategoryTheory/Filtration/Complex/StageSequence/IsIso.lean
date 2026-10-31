@@ -30,12 +30,10 @@ variable {K L : FilteredComplex C}
 
 /-- Every component of a selected stage-sequence map is an isomorphism when the filtered-complex
 map is. -/
-@[stacks 0D8Z "isomorphism on antitone filtration-stage sequence components"]
 noncomputable instance map_app_isIso (f : K ⟶ L) (p : ℕ → ℤ) (hp : Antitone p) (n : ℕ)
     [IsIso f] : IsIso ((map f p hp).app n) := sorry
 
 /-- A selected stage-sequence map is an isomorphism when its filtered-complex map is. -/
-@[stacks 0D8Z "isomorphism of antitone filtration-stage sequence maps"]
 noncomputable instance map_isIso (f : K ⟶ L) (p : ℕ → ℤ) (hp : Antitone p)
     [IsIso f] : IsIso (map f p hp) := sorry
 

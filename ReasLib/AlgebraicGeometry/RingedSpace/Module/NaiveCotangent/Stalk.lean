@@ -244,8 +244,7 @@ omit [HasWeakSheafify (Opens.grothendieckTopology X) (Type u)]
     (CategoryTheory.forget CommRingCat.{u})] in
 /-- The canonical isomorphism from degree `-1` of the sheaf-level stalk to the algebraic
 conormal term of the stalkwise canonical presentation. -/
-@[stacks 0D09 "degree -1 conormal stalk identification",
-  stacks 08UO "degree -1 component"]
+@[stacks 0D09 "degree -1 conormal stalk identification"]
 noncomputable def negOneIso (φ : O₁ ⟶ O₂) (x : X) :
     (stalk φ x).X (-1) ≅ conormal φ x :=
   negOneComponentIso φ x ≪≫
@@ -257,8 +256,7 @@ omit [HasWeakSheafify (Opens.grothendieckTopology X) (Type u)]
     (CategoryTheory.forget CommRingCat.{u})] in
 /-- The forward map of `negOneIso` is the conormal stalk comparison after the canonical
 identification of the degree `-1` term. -/
-@[stacks 0D09 "degree -1 conormal stalk identification hom",
-  stacks 08UO "degree -1 component hom", simp]
+@[stacks 0D09 "degree -1 conormal stalk identification hom", simp]
 theorem negOneIso_hom (φ : O₁ ⟶ O₂) (x : X) :
     (negOneIso φ x).hom =
       (negOneComponentIso φ x).hom ≫
@@ -272,8 +270,7 @@ omit [HasWeakSheafify (Opens.grothendieckTopology X) (Type u)]
     (CategoryTheory.forget CommRingCat.{u})] in
 /-- The inverse map of `negOneIso` applies the explicit algebraic and sheaf conormal
 comparisons before the canonical degree identification. -/
-@[stacks 0D09 "degree -1 conormal stalk identification inverse",
-  stacks 08UO "degree -1 component inverse", simp]
+@[stacks 0D09 "degree -1 conormal stalk identification inverse", simp]
 theorem negOneIso_inv (φ : O₁ ⟶ O₂) (x : X) :
     (negOneIso φ x).inv =
       TopCat.Sheaf.Conormal.Stalk.algebraicComparisonInv
@@ -318,8 +315,7 @@ omit [HasWeakSheafify (Opens.grothendieckTopology X) (Type u)]
     (CategoryTheory.forget CommRingCat.{u})] in
 /-- The canonical isomorphism from degree `0` of the sheaf-level stalk to the algebraic
 relative-differentials term of the stalkwise canonical presentation. -/
-@[stacks 0D09 "degree 0 differentials stalk identification",
-  stacks 08UO "degree 0 component"]
+@[stacks 0D09 "degree 0 differentials stalk identification"]
 noncomputable def zeroIso (φ : O₁ ⟶ O₂) (x : X) :
     (stalk φ x).X 0 ≅ differentials φ x :=
   zeroComponentIso φ x ≪≫
@@ -332,8 +328,7 @@ omit [HasWeakSheafify (Opens.grothendieckTopology X) (Type u)]
     (CategoryTheory.forget CommRingCat.{u})] in
 /-- The forward map of `zeroIso` is the differentials stalk comparison after the canonical
 identification of the degree `0` term. -/
-@[stacks 0D09 "degree 0 differentials stalk identification hom",
-  stacks 08UO "degree 0 component hom", simp]
+@[stacks 0D09 "degree 0 differentials stalk identification hom", simp]
 theorem zeroIso_hom (φ : O₁ ⟶ O₂) (x : X) :
     (zeroIso φ x).hom =
       (zeroComponentIso φ x).hom ≫
@@ -346,8 +341,7 @@ omit [HasWeakSheafify (Opens.grothendieckTopology X) (Type u)]
     (CategoryTheory.forget CommRingCat.{u})] in
 /-- The inverse map of `zeroIso` applies the explicit base-changed differentials comparison
 before the canonical degree identification. -/
-@[stacks 0D09 "degree 0 differentials stalk identification inverse",
-  stacks 08UO "degree 0 component inverse", simp]
+@[stacks 0D09 "degree 0 differentials stalk identification inverse", simp]
 theorem zeroIso_inv (φ : O₁ ⟶ O₂) (x : X) :
     (zeroIso φ x).inv =
       TopCat.Sheaf.Conormal.Stalk.tensorComparison
@@ -473,15 +467,14 @@ noncomputable def reindexStalkIso (φ : O₁ ⟶ O₂) (x : X) :
 /-- Lemma 17.31.4 (0D09): the canonical isomorphism from the ordinary stalk of the sheaf-level
 naive cotangent complex to the algebraic naive cotangent complex of the induced morphism on
 stalk rings. -/
-@[stacks 0D09, stacks 08UO]
+@[stacks 0D09]
 noncomputable def stalkIso (φ : O₁ ⟶ O₂) (x : X) :
     stalk φ x ≅ algebraicStalk φ x :=
   presentationStalkIso φ x ≪≫ polynomialStalkIso φ x ≪≫ reindexStalkIso φ x
 
 /-- The forward map of `stalkIso` is the composite of the presentation, polynomial, and
 generator-reindexing comparisons. -/
-@[stacks 0D09 "naive cotangent stalk isomorphism hom",
-  stacks 08UO "naive cotangent stalk isomorphism hom", simp]
+@[stacks 0D09 "naive cotangent stalk isomorphism hom", simp]
 theorem stalkIso_hom (φ : O₁ ⟶ O₂) (x : X) :
     (stalkIso φ x).hom =
       (presentationStalkIso φ x).hom ≫
@@ -490,8 +483,7 @@ theorem stalkIso_hom (φ : O₁ ⟶ O₂) (x : X) :
 
 /-- The inverse of `stalkIso` applies the generator reindexing, polynomial, and presentation
 comparisons in reverse order. -/
-@[stacks 0D09 "naive cotangent stalk isomorphism inverse",
-  stacks 08UO "naive cotangent stalk isomorphism inverse", simp]
+@[stacks 0D09 "naive cotangent stalk isomorphism inverse", simp]
 theorem stalkIso_inv (φ : O₁ ⟶ O₂) (x : X) :
     (stalkIso φ x).inv =
       (reindexStalkIso φ x).inv ≫
@@ -500,8 +492,7 @@ theorem stalkIso_inv (φ : O₁ ⟶ O₂) (x : X) :
 
 /-- The degree `-1` component of `stalkIso` is the composite of the presentation, polynomial,
 and generator-reindexing comparisons. -/
-@[stacks 0D09 "degree -1 naive cotangent stalk isomorphism hom",
-  stacks 08UO "degree -1 naive cotangent stalk isomorphism hom"]
+@[stacks 0D09 "degree -1 naive cotangent stalk isomorphism hom"]
 theorem stalkIso_hom_f_negOne (φ : O₁ ⟶ O₂) (x : X) :
     (stalkIso φ x).hom.f (-1) =
       (presentationStalkIso φ x).hom.f (-1) ≫
@@ -510,8 +501,7 @@ theorem stalkIso_hom_f_negOne (φ : O₁ ⟶ O₂) (x : X) :
 
 /-- The degree `0` component of `stalkIso` is the composite of the presentation, polynomial,
 and generator-reindexing comparisons. -/
-@[stacks 0D09 "degree 0 naive cotangent stalk isomorphism hom",
-  stacks 08UO "degree 0 naive cotangent stalk isomorphism hom"]
+@[stacks 0D09 "degree 0 naive cotangent stalk isomorphism hom"]
 theorem stalkIso_hom_f_zero (φ : O₁ ⟶ O₂) (x : X) :
     (stalkIso φ x).hom.f 0 =
       (presentationStalkIso φ x).hom.f 0 ≫
@@ -520,8 +510,7 @@ theorem stalkIso_hom_f_zero (φ : O₁ ⟶ O₂) (x : X) :
 
 /-- The degree `-1` component of the inverse stalk isomorphism applies the three comparison
 inverses in reverse order. -/
-@[stacks 0D09 "degree -1 naive cotangent stalk isomorphism inverse",
-  stacks 08UO "degree -1 naive cotangent stalk isomorphism inverse"]
+@[stacks 0D09 "degree -1 naive cotangent stalk isomorphism inverse"]
 theorem stalkIso_inv_f_negOne (φ : O₁ ⟶ O₂) (x : X) :
     (stalkIso φ x).inv.f (-1) =
       (reindexStalkIso φ x).inv.f (-1) ≫
@@ -530,8 +519,7 @@ theorem stalkIso_inv_f_negOne (φ : O₁ ⟶ O₂) (x : X) :
 
 /-- The degree `0` component of the inverse stalk isomorphism applies the three comparison
 inverses in reverse order. -/
-@[stacks 0D09 "degree 0 naive cotangent stalk isomorphism inverse",
-  stacks 08UO "degree 0 naive cotangent stalk isomorphism inverse"]
+@[stacks 0D09 "degree 0 naive cotangent stalk isomorphism inverse"]
 theorem stalkIso_inv_f_zero (φ : O₁ ⟶ O₂) (x : X) :
     (stalkIso φ x).inv.f 0 =
       (reindexStalkIso φ x).inv.f 0 ≫
@@ -540,7 +528,6 @@ theorem stalkIso_inv_f_zero (φ : O₁ ⟶ O₂) (x : X) :
 
 /-- The visible degree `-1 → 0` differential is compatible with the canonical stalk
 isomorphism. -/
-@[stacks 08UO "differential compatibility"]
 theorem stalkIso_hom_d_negOne_zero (φ : O₁ ⟶ O₂) (x : X) :
     (stalkIso φ x).hom.f (-1) ≫ (algebraicStalk φ x).d (-1) 0 =
       (stalk φ x).d (-1) 0 ≫ (stalkIso φ x).hom.f 0 := sorry

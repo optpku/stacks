@@ -43,7 +43,17 @@ namespace finiteLocallyConstant
 
 /-- The finite locally constant set-valued object property is closed under isomorphisms. -/
 instance isClosedUnderIsomorphisms :
-    (finiteLocallyConstant J).IsClosedUnderIsomorphisms := sorry
+    (finiteLocallyConstant J).IsClosedUnderIsomorphisms where
+  of_iso {X Y} e hF := by
+    letI : IsFiniteLocallyConstant X := hF
+    refine ⟨?_⟩
+    intro U
+    obtain ⟨I, U', hU', hchart⟩ :=
+      IsLocallyConstantWith.existsConstantCover (P := Finite) (F := X) U
+    refine ⟨I, U', hU', ?_⟩
+    intro i
+    obtain ⟨E, hE, ⟨e_i⟩⟩ := hchart i
+    refine ⟨E, hE, ⟨((J.overPullback (Type w) (U' i).left).mapIso e).symm ≪≫ e_i⟩⟩
 
 /-- Finite locally constant set-valued sheaves are closed
 under limits indexed by a finite category. -/

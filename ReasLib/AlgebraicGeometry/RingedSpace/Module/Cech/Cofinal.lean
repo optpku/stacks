@@ -55,14 +55,16 @@ namespace IsBasisStableFamily
 @[stacks 01EW "basis-stable family membership"]
 theorem mem
     {B : Set (Opens X.carrier)} {ι : Type v} {𝒰 : ι → Opens X.carrier}
-    (h𝒰 : IsBasisStableFamily B 𝒰) (i : ι) : 𝒰 i ∈ B := sorry
+    (h𝒰 : IsBasisStableFamily B 𝒰) (i : ι) : 𝒰 i ∈ B :=
+  h𝒰.1 i
 
 /-- Every nonempty finite intersection of a basis-stable family lies in the basis. -/
 @[stacks 01EW "basis-stable family finite intersections"]
 theorem intersection_mem
     {B : Set (Opens X.carrier)} {ι : Type v} {𝒰 : ι → Opens X.carrier}
     (h𝒰 : IsBasisStableFamily B 𝒰) (p : ℕ) (σ : Fin (p + 1) → ι) :
-    iInf (𝒰 ∘ σ) ∈ B := sorry
+    iInf (𝒰 ∘ σ) ∈ B :=
+  h𝒰.2 p σ
 
 end IsBasisStableFamily
 
@@ -79,7 +81,8 @@ namespace IsCechAcyclicFamily
 theorem isZero
     {ι : Type u} {𝒰 : ι → Opens X.carrier} {ℱ : X.Modules}
     (h𝒰 : IsCechAcyclicFamily 𝒰 ℱ) {p : ℕ} (hp : 0 < p) :
-    IsZero (moduleCechCohomology 𝒰 ℱ p) := sorry
+    IsZero (moduleCechCohomology 𝒰 ℱ p) :=
+  h𝒰 p hp
 
 end IsCechAcyclicFamily
 
@@ -90,14 +93,16 @@ namespace IsAcyclic
 theorem isCechAcyclicFamily
     {ℱ : X.Modules} (hℱ : IsAcyclic ℱ)
     {ι : Type u} (𝒰 : ι → Opens X.carrier) :
-    IsCechAcyclicFamily 𝒰 ℱ := sorry
+    IsCechAcyclicFamily 𝒰 ℱ :=
+  hℱ 𝒰
 
 /-- The global Cech-acyclicity predicate is equivalent to its familywise formulation. -/
 @[stacks 01EV "familywise characterization of Cech acyclicity"]
 theorem iff_forall_isCechAcyclicFamily
     (ℱ : X.Modules) :
     IsAcyclic ℱ ↔
-      ∀ {ι : Type u} (𝒰 : ι → Opens X.carrier), IsCechAcyclicFamily 𝒰 ℱ := sorry
+      ∀ {ι : Type u} (𝒰 : ι → Opens X.carrier), IsCechAcyclicFamily 𝒰 ℱ :=
+  Iff.rfl
 
 end IsAcyclic
 
@@ -131,7 +136,8 @@ theorem iff_expanded
               IsRefinement 𝒱 𝒰 refine ∧
               (∀ i, 𝒰 i ∈ B) ∧
               (∀ p : ℕ, ∀ σ : Fin (p + 1) → ι, iInf (𝒰 ∘ σ) ∈ B) ∧
-              ∀ p : ℕ, 0 < p → IsZero (moduleCechCohomology 𝒰 ℱ p) := sorry
+              ∀ p : ℕ, 0 < p → IsZero (moduleCechCohomology 𝒰 ℱ p) := by
+  simp only [IsAcyclicOnBasis, IsBasisStableFamily, IsCechAcyclicFamily, and_assoc]
 
 /-- Extract a basis-stable Čech-acyclic refinement from the canonical predicate. -/
 @[stacks 01EW "basis-stable Cech refinement"]
@@ -144,7 +150,8 @@ theorem exists_refinement
       iSup 𝒰 = U ∧
         IsRefinement 𝒱 𝒰 refine ∧
         IsBasisStableFamily B 𝒰 ∧
-        IsCechAcyclicFamily 𝒰 ℱ := sorry
+        IsCechAcyclicFamily 𝒰 ℱ :=
+  hℱ hU 𝒱 h𝒱
 
 /-- Compatibility expansion of `exists_refinement` for clients written against the original
 five-field conjunction. -/
@@ -159,7 +166,8 @@ theorem exists_refinement_expanded
         IsRefinement 𝒱 𝒰 refine ∧
         (∀ i, 𝒰 i ∈ B) ∧
         (∀ p : ℕ, ∀ σ : Fin (p + 1) → ι, iInf (𝒰 ∘ σ) ∈ B) ∧
-        ∀ p : ℕ, 0 < p → IsZero (moduleCechCohomology 𝒰 ℱ p) := sorry
+        ∀ p : ℕ, 0 < p → IsZero (moduleCechCohomology 𝒰 ℱ p) :=
+  iff_expanded.mp hℱ hU 𝒱 h𝒱
 
 /-- Lemma 20.11.9 (01EW): Čech acyclicity on a cofinal system of basis-stable covers
 implies positive-degree sheaf-cohomology vanishing on every basis open. -/

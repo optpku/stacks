@@ -40,6 +40,23 @@ variable [hpush : Algebra.IsPushout R R' A A']
 
 include hpush
 
+/-- A canonical route comparison certificate is enough to identify the derived-extension
+ counit on a bounded-above relatively flat model.  The comparison is the component at
+ `DerivedCategory.Q.obj F` of the existing map from the base-ring route to the target-algebra
+ route; the bounded-above and relative-flat hypotheses are the data used to compute the former.
+ No flatness of the square edge `R → A` is built into this criterion. -/
+@[stacks 0E1U "counit criterion from the canonical pushout comparison"]
+theorem counitIsIso_of_comparisonApp
+    (F : CochainComplex (ModuleCat A) ℤ)
+    (hF : CochainComplex.minus (ModuleCat A) F)
+    (hFflat : F.IsTermwiseFlatOver R)
+    (hcomparison : IsIso
+      (comparisonApp (R := R) (A := A) (R' := R') (A' := A')
+        (DerivedCategory.Q.obj F))) :
+    IsIso ((ModuleCat.derivedExtensionComplexCounit (algebraMap A A')).app F) := sorry
+
+variable [Module.Flat R A]
+
 /-- In a pushout square, bounded-above relative flatness of the model makes the derived-extension
 comparison invertible. -/
 @[stacks 0E1U "relatively flat model under pushout base change"]

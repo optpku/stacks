@@ -33,9 +33,9 @@ universe u v
 
 namespace Algebra.IsSmoothAt
 
-/-- Tag `00TV`: smoothness at a prime of an essentially finite-type field algebra implies that
+/-- Tag `00TT`: smoothness at a prime of an essentially finite-type field algebra implies that
 its prime localization is regular local. -/
-@[stacks 00TV "regularity at a smooth prime over a field"]
+@[stacks 00TT "regularity at a smooth prime over a field"]
 theorem isRegularLocalRing
     {k : Type u} {S : Type v} [Field k] [CommRing S] [Algebra k S]
     [Algebra.EssFiniteType k S] (q : Ideal S) [q.IsPrime]
@@ -58,9 +58,9 @@ end Algebra.IsSmoothAt
 
 namespace Algebra.IsSmoothAt
 
-/-- Tag `00TS`: smoothness at a point is characterized by the upper Kähler-fiber dimension
+/-- Tag `00TT`: smoothness at a point is characterized by the upper Kähler-fiber dimension
 bound against its intrinsic local topological dimension. -/
-@[stacks 00TS "smoothness by Kähler-fiber dimension bound"]
+@[stacks 00TT "smoothness by Kähler-fiber dimension bound"]
 theorem iff_finrank_kaehlerFiber_le_topologicalKrullDimAt
     {k : Type u} {S : Type v} [Field k] [CommRing S] [Algebra k S]
     [Algebra.FiniteType k S] (q : PrimeSpectrum S) :
@@ -68,9 +68,9 @@ theorem iff_finrank_kaehlerFiber_le_topologicalKrullDimAt
       Module.finrank q.asIdeal.ResidueField (q.asIdeal.ResidueField ⊗[S] Ω[S⁄k]) ≤
         topologicalKrullDimAt q := sorry
 
-/-- Tag `00TS`: smoothness at a point is characterized by equality of its Kähler-fiber dimension
+/-- Tag `00TT`: smoothness at a point is characterized by equality of its Kähler-fiber dimension
 and intrinsic local topological dimension. -/
-@[stacks 00TS "smoothness by Kähler-fiber dimension equality"]
+@[stacks 00TT "smoothness by Kähler-fiber dimension equality"]
 theorem iff_finrank_kaehlerFiber_eq_topologicalKrullDimAt
     {k : Type u} {S : Type v} [Field k] [CommRing S] [Algebra k S]
     [Algebra.FiniteType k S] (q : PrimeSpectrum S) :

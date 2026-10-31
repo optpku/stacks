@@ -19,6 +19,6 @@ variable {C : Type u} [Category.{v} C] [HasZeroMorphisms C] [HasBinaryBiproducts
 /-- An object is indecomposable exactly when it is nonzero and every binary biproduct
 decomposition has a zero summand. -/
 public theorem indecomposable_iff (X : C) :
-    Indecomposable X ↔ ¬ IsZero X ∧ ∀ Y Z, (X ≅ Y ⊞ Z) → IsZero Y ∨ IsZero Z := sorry
+    Indecomposable X ↔ ¬ IsZero X ∧ ∀ Y Z, (X ≅ Y ⊞ Z) → IsZero Y ∨ IsZero Z := Iff.rfl
 
 end CategoryTheory

@@ -48,10 +48,9 @@ theorem restrict_mem_wildInertia
     (sigma : r.wildInertia Gal(M/K)) :
     AlgEquiv.restrictNormalHom (F := K) (K₁ := M) L sigma.1 ∈
       (under (A := A) (L := L) (M := M) r).wildInertia Gal(L/K) := sorry
--- Proof strategy: rewrite both wild-inertia memberships with `Ideal.mem_wildInertia_iff`.
--- The inertia component is `restrict_mem_inertia`; for the cotangent component, transport the
--- displacement along `towerMap_smul` and use the finite flat DVR tower identity comparing the
--- square of `under r` with the contraction of `r ^ 2`.
+-- Remaining ingredient: functoriality of cotangent inertia in the localized finite DVR tower.
+-- Use compatible uniformizers or the associated-graded characterization; contracting `r ^ 2`
+-- alone does not give the square of the contracted ideal in a ramified tower.
 
 /-- The homomorphism on wild inertia groups induced by Galois restriction. -/
 @[stacks 0BU7 "map on wild inertia groups in a Galois tower"]
@@ -69,7 +68,8 @@ theorem wildInertiaHom_apply
     (r : Ideal (integralClosure A M)) [r.IsMaximal]
     (sigma : r.wildInertia Gal(M/K)) :
     (wildInertiaHom (A := A) (K := K) (L := L) (M := M) r sigma : Gal(L/K)) =
-      AlgEquiv.restrictNormalHom (F := K) (K₁ := M) L sigma.1 := sorry
+      AlgEquiv.restrictNormalHom (F := K) (K₁ := M) L sigma.1 := by
+  rfl
 -- Proof strategy: unfold `wildInertiaHom`; `MonoidHom.codRestrict` changes only the proof of
 -- wild-inertia membership, so its coercion is the composite of subgroup inclusion and Galois
 -- restriction definitionally.
@@ -82,7 +82,10 @@ theorem wildInertia_le_comap_inertiaHom
     (r.wildInertia Gal(M/K)).subgroupOf (r.inertia Gal(M/K)) ≤
       Subgroup.comap (inertiaHom (A := A) (K := K) (L := L) (M := M) r)
         (((under (A := A) (L := L) (M := M) r).wildInertia Gal(L/K)).subgroupOf
-          ((under (A := A) (L := L) (M := M) r).inertia Gal(L/K))) := sorry
+          ((under (A := A) (L := L) (M := M) r).inertia Gal(L/K))) := by
+  intro sigma hsigma
+  exact restrict_mem_wildInertia (A := A) (K := K) (L := L) (M := M) r
+    ⟨sigma.1, hsigma⟩
 -- Proof strategy: use `Subgroup.le_comap`, coerce an upper wild element to upper inertia, and
 -- apply `restrict_mem_wildInertia`; identify the resulting ambient automorphism with
 -- `inertiaHom` using `inertiaHom_apply`.
@@ -109,7 +112,8 @@ theorem tameInertiaHom_mk
     tameInertiaHom (A := A) (K := K) (L := L) (M := M) r
         (QuotientGroup.mk sigma) =
       QuotientGroup.mk
-        (inertiaHom (A := A) (K := K) (L := L) (M := M) r sigma) := sorry
+        (inertiaHom (A := A) (K := K) (L := L) (M := M) r sigma) := by
+  rfl
 -- Proof strategy: unfold `tameInertiaHom` and apply `QuotientGroup.map_mk`; the subgroup
 -- condition supplied to the quotient map is `wildInertia_le_comap_inertiaHom`.
 
@@ -134,18 +138,24 @@ theorem map_wildInertia_eq
     Subgroup.map (AlgEquiv.restrictNormalHom (F := K) (K₁ := M) L)
         (r.wildInertia Gal(M/K)) =
       (under (A := A) (L := L) (M := M) r).wildInertia Gal(L/K) := sorry
--- Proof strategy: the forward inclusion is `restrict_mem_wildInertia`. For the reverse
--- inclusion, first lift the lower element with `inertiaHom_surjective`, then correct the lift in
--- the kernel of Galois restriction so that its cotangent action is trivial. The correction uses
--- the finite DVR square-ideal comparison for the contracted branch and the corresponding exact
--- sequence on cotangent inertia.
+-- Remaining ingredient: wild inertia is the normal residue-characteristic Sylow subgroup of
+-- inertia, and is trivial in residue characteristic zero. Together with
+-- `inertiaHom_surjective`, its Sylow description gives surjectivity as in Stacks 0BU7.
 
 /-- The induced homomorphism from upper to lower wild inertia is surjective. -/
 @[stacks 0BU7 "surjective wild-inertia restriction"]
 theorem wildInertiaHom_surjective
     (r : Ideal (integralClosure A M)) [r.IsMaximal] :
     Function.Surjective
-      (wildInertiaHom (A := A) (K := K) (L := L) (M := M) r) := sorry
+      (wildInertiaHom (A := A) (K := K) (L := L) (M := M) r) := by
+  intro sigma
+  have hsigma : sigma.1 ∈ Subgroup.map
+      (AlgEquiv.restrictNormalHom (F := K) (K₁ := M) L)
+      (r.wildInertia Gal(M/K)) := by
+    rw [map_wildInertia_eq (A := A) (K := K) (L := L) (M := M) r]
+    exact sigma.property
+  obtain ⟨tau, htau, htausigma⟩ := hsigma
+  exact ⟨⟨tau, htau⟩, Subtype.ext htausigma⟩
 -- Proof strategy: translate `map_wildInertia_eq` into surjectivity of the codomain-restricted
 -- map, using `wildInertiaHom_apply` to identify its ambient value with Galois restriction.
 
@@ -154,7 +164,10 @@ theorem wildInertiaHom_surjective
 theorem tameInertiaHom_surjective
     (r : Ideal (integralClosure A M)) [r.IsMaximal] :
     Function.Surjective
-      (tameInertiaHom (A := A) (K := K) (L := L) (M := M) r) := sorry
+      (tameInertiaHom (A := A) (K := K) (L := L) (M := M) r) := by
+  apply QuotientGroup.map_surjective_of_surjective
+  exact (QuotientGroup.mk'_surjective _).comp
+    (inertiaHom_surjective (A := A) (K := K) (L := L) (M := M) r)
 -- Proof strategy: apply `QuotientGroup.map_surjective_of_surjective`. Surjectivity after the
 -- lower quotient projection follows from `inertiaHom_surjective` and
 -- `QuotientGroup.mk'_surjective`; the induced-map formula is `tameInertiaHom_mk`.
@@ -165,8 +178,11 @@ inertia. -/
 theorem tameInertiaCard_dvd
     (r : Ideal (integralClosure A M)) [r.IsMaximal] :
     Nat.card ((under (A := A) (L := L) (M := M) r).tameInertia Gal(L/K)) ∣
-      Nat.card (r.tameInertia Gal(M/K)) := sorry
--- Proof strategy: apply `MonoidHom.card_dvd_of_surjective` to `tameInertiaHom` and
+      Nat.card (r.tameInertia Gal(M/K)) := by
+  exact Subgroup.card_dvd_of_surjective
+    (tameInertiaHom (A := A) (K := K) (L := L) (M := M) r)
+    (tameInertiaHom_surjective (A := A) (K := K) (L := L) (M := M) r)
+-- Proof strategy: apply `Subgroup.card_dvd_of_surjective` to `tameInertiaHom` and
 -- `tameInertiaHom_surjective`; finiteness of both quotient groups comes from the finite Galois
 -- groups.
 
@@ -177,11 +193,40 @@ branch-independent Galois invariant. -/
 @[stacks 0BU7 "divisibility of ramification indices in a Galois tower"]
 theorem ramificationIdxIn_dvd :
     Ideal.ramificationIdxIn (IsLocalRing.maximalIdeal A) (integralClosure A L) ∣
-      Ideal.ramificationIdxIn (IsLocalRing.maximalIdeal A) (integralClosure A M) := sorry
--- Proof strategy: specialize `Ideal.ramificationIdxIn_mul_ramificationIdxIn` to the tower of
--- integral closures `integralClosure A L ⟶ integralClosure A M`; the displayed divisibility is
--- the first factor of that product formula. Use lying over for a chosen branch only internally,
--- since `ramificationIdxIn` is branch-independent in the finite Galois setting.
+      Ideal.ramificationIdxIn (IsLocalRing.maximalIdeal A) (integralClosure A M) := by
+  letI : Algebra (integralClosure A L) (integralClosure A M) :=
+    algebra (A := A) (L := L) (M := M)
+  letI : IsScalarTower A (integralClosure A L) (integralClosure A M) :=
+    IsScalarTower.of_algebraMap_eq fun x =>
+      ((towerMap (A := A) (L := L) (M := M)).commutes x).symm
+  letI : IsDedekindDomain (integralClosure A L) :=
+    integralClosure.isDedekindDomain A K L
+  letI : Module.IsTorsionFree (integralClosure A L) (integralClosure A M) :=
+    Module.isTorsionFree_iff_algebraMap_injective.mpr (by
+      intro x y h
+      apply Subtype.ext
+      exact (algebraMap L M).injective (congrArg Subtype.val h))
+  letI : IsFractionRing (integralClosure A L) L :=
+    IsIntegralClosure.isFractionRing_of_finite_extension A K L (integralClosure A L)
+  letI : IsFractionRing (integralClosure A M) M :=
+    IsIntegralClosure.isFractionRing_of_finite_extension A K M (integralClosure A M)
+  letI : IsGaloisGroup Gal(L/K) A (integralClosure A L) :=
+    IsGaloisGroup.of_isFractionRing Gal(L/K) A (integralClosure A L) K L
+  letI : IsGaloisGroup Gal(M/K) A (integralClosure A M) :=
+    IsGaloisGroup.of_isFractionRing Gal(M/K) A (integralClosure A M) K M
+  letI : Module.IsTorsionFree A M := Module.IsTorsionFree.trans_faithfulSMul A K M
+  obtain ⟨r⟩ := (inferInstance :
+    Nonempty ((IsLocalRing.maximalIdeal A).primesOver (integralClosure A M)))
+  let q := r.1.under (integralClosure A L)
+  letI : r.1.LiesOver q := Ideal.over_under r.1
+  letI : q.LiesOver (IsLocalRing.maximalIdeal A) :=
+    Ideal.LiesOver.tower_bot r.1 q (IsLocalRing.maximalIdeal A)
+  rw [Ideal.ramificationIdxIn_eq_ramificationIdx (IsLocalRing.maximalIdeal A) q Gal(L/K),
+    Ideal.ramificationIdxIn_eq_ramificationIdx (IsLocalRing.maximalIdeal A) r.1 Gal(M/K)]
+  exact Ideal.ramificationIdx_below_dvd q r.1
+-- Use a prime above the base maximal ideal and its contraction. The canonical tower map is
+-- injective, so the upper closure is flat over the lower Dedekind domain. Branch-independent
+-- Galois indices then reduce the claim to `Ideal.ramificationIdx_below_dvd`.
 
 end Surjectivity
 

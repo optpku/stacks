@@ -100,6 +100,55 @@ theorem homOfDegreeZero_def {X Y : GradedCategory k} (h : X.2 = Y.2)
     homOfDegreeZero h f = castDegree (h ▸ degree_id X.2) f :=
   rfl
 
+private theorem castDegree_eq_transport {X Y : SchemeOverField k}
+    [LocallyOfFiniteType X.hom] [LocallyOfFiniteType Y.hom]
+    {r s : ℤ} (h : r = s) (c : Rational X Y r) : castDegree h c = h ▸ c := by
+  cases h
+  letI := BivariantClass.pointwiseAddCommGroup (fun _ ↦ 0)
+    (CategoryTheory.Limits.prod.snd : X ⨯ Y ⟶ Y) r
+  change castDegree (rfl : r = r) c = c
+  induction c using TensorProduct.induction_on with
+  | zero => exact (castDegree rfl).map_zero
+  | tmul a c => simp [castDegree, BivariantClass.Nonnegative.castGrading]
+  | add c d hc hd => simp only [map_add, hc, hd]
+
+private theorem castDegree_trans {X Y : SchemeOverField k}
+    [LocallyOfFiniteType X.hom] [LocallyOfFiniteType Y.hom]
+    {r s t : ℤ} (h : r = s) (h' : s = t) (c : Rational X Y r) :
+    castDegree h' (castDegree h c) = castDegree (h.trans h') c := by
+  cases h
+  cases h'
+  simp only [castDegree_eq_transport]
+
+private theorem composition_castDegree {X Y Z : SchemeOverField k}
+    [LocallyOfFiniteType X.hom] [LocallyOfFiniteType Y.hom]
+    [LocallyOfFiniteType Z.hom] [Projective Y.hom]
+    {r r' s s' : ℤ} (hr : r = r') (hs : s = s')
+    (f : Rational X Y r) (g : Rational Y Z s) :
+    composition X Y Z r' s' (castDegree hr f) (castDegree hs g) =
+      castDegree (congrArg₂ (· + ·) hr hs) (composition X Y Z r s f g) := by
+  cases hr
+  cases hs
+  simp only [castDegree_eq_transport]
+
+private theorem homOfDegreeZero_comp {X Y Z : GradedCategory k}
+    (hXY : X.2 = Y.2) (hYZ : Y.2 = Z.2)
+    (f : X.1 ⟶ Y.1) (g : Y.1 ⟶ Z.1) :
+    gradedComp (homOfDegreeZero hXY f) (homOfDegreeZero hYZ g) =
+      homOfDegreeZero (hXY.trans hYZ) (f ≫ g) := by
+  unfold gradedComp homOfDegreeZero
+  rw [composition_castDegree, castDegree_trans]
+  rfl
+
+private theorem homOfDegreeZero_id (X : GradedCategory k) :
+    homOfDegreeZero (X := X) (Y := X) rfl (𝟙 X.1) = gradedId X := rfl
+
+private theorem homOfDegreeZero_hom_inv_id {X Y : GradedCategory k}
+    (h : X.2 = Y.2) (e : X.1 ≅ Y.1) :
+    gradedComp (homOfDegreeZero h e.hom) (homOfDegreeZero h.symm e.inv) = gradedId X := by
+  rw [homOfDegreeZero_comp, e.hom_inv_id]
+  exact homOfDegreeZero_id X
+
 set_option backward.privateInPublic true in
 /-- The category structure determined by the graded correspondence operations. -/
 @[implicit_reducible]
@@ -163,8 +212,18 @@ def associator (X Y Z : GradedCategory k) :
     (Correspondence.associator X.1 Y.1 Z.1).hom
   inv := homOfDegreeZero (add_assoc X.2 Y.2 Z.2).symm
     (Correspondence.associator X.1 Y.1 Z.1).inv
-  hom_inv_id := sorry
-  inv_hom_id := sorry
+  hom_inv_id := by
+    exact homOfDegreeZero_hom_inv_id
+      (X := tensorObj (tensorObj X Y) Z)
+      (Y := tensorObj X (tensorObj Y Z))
+      (add_assoc X.2 Y.2 Z.2)
+      (Correspondence.associator X.1 Y.1 Z.1)
+  inv_hom_id := by
+    exact homOfDegreeZero_hom_inv_id
+      (X := tensorObj X (tensorObj Y Z))
+      (Y := tensorObj (tensorObj X Y) Z)
+      (add_assoc X.2 Y.2 Z.2).symm
+      (Correspondence.associator X.1 Y.1 Z.1).symm
 
 /-- The underlying scheme correspondence of the graded associator is the usual one. -/
 theorem associator_hom (X Y Z : GradedCategory k) :
@@ -178,8 +237,10 @@ def leftUnitorSchemeIso (X : GradedCategory k) :
   hom := CategoryTheory.Limits.prod.snd
   inv := CategoryTheory.Limits.prod.lift (CategoryTheory.Limits.terminal.from X.1.scheme)
     (𝟙 X.1.scheme)
-  hom_inv_id := sorry
-  inv_hom_id := sorry
+  hom_inv_id := by
+    exact (CategoryTheory.Limits.prod.leftUnitor X.1.scheme).hom_inv_id
+  inv_hom_id := by
+    exact (CategoryTheory.Limits.prod.leftUnitor X.1.scheme).inv_hom_id
 
 /-- The left unitor induced by the product with `Spec(k)`. -/
 def leftUnitor (X : GradedCategory k) : tensorObj (tensorUnit k) X ≅ X where
@@ -187,8 +248,12 @@ def leftUnitor (X : GradedCategory k) : tensorObj (tensorUnit k) X ≅ X where
     (Correspondence.rationalGraphIso _ _ (leftUnitorSchemeIso X))
   inv := homOfDegreeZero (zero_add X.2).symm
     (Correspondence.rationalGraphIso _ _ (leftUnitorSchemeIso X).symm)
-  hom_inv_id := sorry
-  inv_hom_id := sorry
+  hom_inv_id := by
+    exact homOfDegreeZero_hom_inv_id (X := tensorObj (tensorUnit k) X) (Y := X)
+      (zero_add X.2) (Correspondence.leftUnitor X.1)
+  inv_hom_id := by
+    exact homOfDegreeZero_hom_inv_id (X := X) (Y := tensorObj (tensorUnit k) X)
+      (zero_add X.2).symm (Correspondence.leftUnitor X.1).symm
 
 /-- The underlying scheme correspondence of the graded left unitor is the usual one. -/
 theorem leftUnitor_hom (X : GradedCategory k) :
@@ -203,8 +268,10 @@ def rightUnitorSchemeIso (X : GradedCategory k) :
   hom := CategoryTheory.Limits.prod.fst
   inv := CategoryTheory.Limits.prod.lift (𝟙 X.1.scheme)
     (CategoryTheory.Limits.terminal.from X.1.scheme)
-  hom_inv_id := sorry
-  inv_hom_id := sorry
+  hom_inv_id := by
+    exact (CategoryTheory.Limits.prod.rightUnitor X.1.scheme).hom_inv_id
+  inv_hom_id := by
+    exact (CategoryTheory.Limits.prod.rightUnitor X.1.scheme).inv_hom_id
 
 /-- The right unitor induced by the product with `Spec(k)`. -/
 def rightUnitor (X : GradedCategory k) : tensorObj X (tensorUnit k) ≅ X where
@@ -212,8 +279,12 @@ def rightUnitor (X : GradedCategory k) : tensorObj X (tensorUnit k) ≅ X where
     (Correspondence.rationalGraphIso _ _ (rightUnitorSchemeIso X))
   inv := homOfDegreeZero (add_zero X.2).symm
     (Correspondence.rationalGraphIso _ _ (rightUnitorSchemeIso X).symm)
-  hom_inv_id := sorry
-  inv_hom_id := sorry
+  hom_inv_id := by
+    exact homOfDegreeZero_hom_inv_id (X := tensorObj X (tensorUnit k)) (Y := X)
+      (add_zero X.2) (Correspondence.rightUnitor X.1)
+  inv_hom_id := by
+    exact homOfDegreeZero_hom_inv_id (X := X) (Y := tensorObj X (tensorUnit k))
+      (add_zero X.2).symm (Correspondence.rightUnitor X.1).symm
 
 /-- The underlying scheme correspondence of the graded right unitor is the usual one. -/
 theorem rightUnitor_hom (X : GradedCategory k) :
@@ -226,8 +297,12 @@ theorem rightUnitor_hom (X : GradedCategory k) :
 def braiding (X Y : GradedCategory k) : tensorObj X Y ≅ tensorObj Y X where
   hom := homOfDegreeZero (add_comm X.2 Y.2) (Correspondence.braiding X.1 Y.1).hom
   inv := homOfDegreeZero (add_comm X.2 Y.2).symm (Correspondence.braiding X.1 Y.1).inv
-  hom_inv_id := sorry
-  inv_hom_id := sorry
+  hom_inv_id := by
+    exact homOfDegreeZero_hom_inv_id (X := tensorObj X Y) (Y := tensorObj Y X)
+      (add_comm X.2 Y.2) (Correspondence.braiding X.1 Y.1)
+  inv_hom_id := by
+    exact homOfDegreeZero_hom_inv_id (X := tensorObj Y X) (Y := tensorObj X Y)
+      (add_comm X.2 Y.2).symm (Correspondence.braiding X.1 Y.1).symm
 
 /-- The concrete tensor product, tensor unit, and coherence isomorphisms on graded
 rational Chow correspondences. -/

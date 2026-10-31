@@ -69,13 +69,13 @@ noncomputable def functor :
 /-- Evaluation of `Finite.AssociatedGraded.functor` on a finite filtered object. -/
 @[stacks 05RZ "finite filtered associated graded functor", simp]
 theorem obj (A : FilteredObject.Finite.category C) :
-    (functor C).obj A = A.obj.associatedGraded := sorry
+    (functor C).obj A = A.obj.associatedGraded := rfl
 
 /-- Evaluation of `Finite.AssociatedGraded.functor` on a morphism of finite filtered objects. -/
 @[stacks 05RZ "finite filtered associated graded functor", simp]
 theorem map {A B : FilteredObject.Finite.category C} (f : A ⟶ B) :
     (functor C).map f =
-      ((FilteredObject.Finite.inclusion C).map f).associatedGradedMap := sorry
+      ((FilteredObject.Finite.inclusion C).map f).associatedGradedMap := rfl
 
 end Finite.AssociatedGraded
 
@@ -93,7 +93,8 @@ namespace Finite.Forget
 
 /-- The finite filtered forgetful functor is additive. -/
 @[stacks 05RZ "finite filtered forgetful functor"]
-instance additive : (Finite.Forget.functor C).Additive := sorry
+instance additive : (Finite.Forget.functor C).Additive :=
+  inferInstanceAs ((Finite.inclusion C ⋙ FilteredObject.forget).Additive)
 
 end Finite.Forget
 
@@ -109,13 +110,15 @@ namespace Finite.AssociatedGraded
 /-- The finite filtered associated-graded functor is additive. -/
 @[stacks 05RZ "finite filtered associated graded functor"]
 instance additive :
-    (Finite.AssociatedGraded.functor C).Additive := sorry
+    (Finite.AssociatedGraded.functor C).Additive :=
+  inferInstanceAs ((Finite.inclusion C ⋙ associatedGradedFunctor).Additive)
 
 /-- The finite associated-graded functor preserves the canonical zero morphisms used by
 homological complexes of finite filtered and graded objects. -/
 @[stacks 05RZ "finite filtered associated graded functor"]
 instance preservesZeroMorphisms :
-    (Finite.AssociatedGraded.functor C).PreservesZeroMorphisms := sorry
+    (Finite.AssociatedGraded.functor C).PreservesZeroMorphisms :=
+  Functor.preservesZeroMorphisms_of_additive _
 
 /-- The associated-graded functor on cochain complexes of finite filtered objects. -/
 @[stacks 05RZ "finite filtered associated graded cochain functor"]
@@ -143,7 +146,7 @@ graded functor. -/
 @[stacks 05RZ "finite filtered associated graded homotopy functor"]
 theorem eq_map :
     homotopy C =
-      (Finite.AssociatedGraded.functor C).mapHomotopyCategory (ComplexShape.up ℤ) := sorry
+      (Finite.AssociatedGraded.functor C).mapHomotopyCategory (ComplexShape.up ℤ) := rfl
 
 end Homotopy
 
@@ -186,7 +189,7 @@ theorem quasiIso_iff {K L : HomotopyCategory (FilteredObject.Finite.category C) 
     (f : K ⟶ L) :
     quasiIso C f ↔
       HomotopyCategory.quasiIso (GradedObject ℤ C) (ComplexShape.up ℤ)
-        ((Finite.AssociatedGraded.homotopy C).map f) := sorry
+        ((Finite.AssociatedGraded.homotopy C).map f) := Iff.rfl
 
 /-- The homotopy-class of a finite filtered cochain map is a finite filtered quasi-isomorphism
 exactly when the original cochain map is one. -/
@@ -195,7 +198,13 @@ theorem quasiIso_quotient_map_iff
     {K L : CochainComplex (FilteredObject.Finite.category C) ℤ} (f : K ⟶ L) :
     quasiIso C
         ((HomotopyCategory.quotient (FilteredObject.Finite.category C) (ComplexShape.up ℤ)).map f) ↔
-      Finite.CochainComplex.quasiIso C f := sorry
+      Finite.CochainComplex.quasiIso C f := by
+  change HomotopyCategory.quasiIso (GradedObject ℤ C) (ComplexShape.up ℤ)
+    ((HomotopyCategory.quotient (GradedObject ℤ C) (ComplexShape.up ℤ)).map
+      ((Finite.AssociatedGraded.cochain C).map f)) ↔
+    QuasiIso ((Finite.AssociatedGraded.cochain C).map f)
+  exact (HomotopyCategory.quotient_map_mem_quasiIso_iff _).trans
+    (HomologicalComplex.mem_quasiIso_iff _)
 
 /-- A finite filtered complex is acyclic when its associated graded complex has zero homology in
 every degree. -/
@@ -211,7 +220,7 @@ homotopy functor. -/
 theorem acyclic_iff (K : HomotopyCategory (FilteredObject.Finite.category C) (ComplexShape.up ℤ)) :
     acyclic C K ↔
       HomotopyCategory.Homology.acyclic (GradedObject ℤ C)
-        ((Finite.AssociatedGraded.homotopy C).obj K) := sorry
+        ((Finite.AssociatedGraded.homotopy C).obj K) := Iff.rfl
 
 end Finite.Homotopy
 

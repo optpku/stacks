@@ -30,7 +30,6 @@ universe v u
 namespace CategoryTheory
 
 /-- A sequential inverse system in `A` is a functor `ℕᵒᵖ ⥤ A`. -/
-@[stacks 08TC "sequential inverse systems"]
 abbrev SequentialInverseSystem (A : Type u) [Category.{v} A] := ℕᵒᵖ ⥤ A
 
 namespace SequentialInverseSystem
@@ -38,7 +37,6 @@ namespace SequentialInverseSystem
 variable {A : Type u} [Category.{v} A]
 
 /-- The family of objects underlying a sequential inverse system. -/
-@[stacks 08TC "underlying family of a sequential inverse system"]
 abbrev family (F : SequentialInverseSystem A) : ℕ → A :=
   fun n ↦ F.obj (op n)
 

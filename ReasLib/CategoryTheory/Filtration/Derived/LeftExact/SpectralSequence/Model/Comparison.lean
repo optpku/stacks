@@ -85,7 +85,18 @@ namespace IsCompatible
 theorem id (T : A ⥤ₗ B) [EnoughInjectives A]
     {K : CochainComplex.Plus (FilteredObject.Finite.category A)} {R : Resolution K}
     (P : Comparison T R) :
-    IsCompatible T (Resolution.Map.id R) P P := sorry
+    IsCompatible T (Resolution.Map.id R) P P := by
+  constructor
+  · intro p n
+    constructor
+    dsimp only [modelMap, Resolution.Map.id, FilteredComplex.gradedPieceMap, gradedPieceMap]
+    simp only [Functor.map_id, HomologicalComplex.homologyMap_id, Category.id_comp,
+      Category.comp_id]
+  · intro n
+    constructor
+    dsimp only [modelMap, Resolution.Map.id, FilteredComplex.underlyingMap, underlyingMap]
+    simp only [Functor.map_id, HomologicalComplex.homologyMap_id, Category.id_comp,
+      Category.comp_id]
 
 /-- Compatibility of finite model comparisons is preserved by composition. -/
 @[stacks 015W "composition of finite filtered right-derived model comparisons"]
@@ -95,7 +106,16 @@ theorem comp (T : A ⥤ₗ B) [EnoughInjectives A]
     {U : Resolution M} {m : Resolution.Map f R S} {n : Resolution.Map g S U}
     {P : Comparison T R} {Q : Comparison T S} {V : Comparison T U}
     (h : IsCompatible T m P Q) (k : IsCompatible T n Q V) :
-    IsCompatible T (Resolution.Map.comp m n) P V := sorry
+    IsCompatible T (Resolution.Map.comp m n) P V := by
+  constructor
+  · intro p i
+    simpa only [modelMap, Resolution.Map.comp, FilteredComplex.gradedPieceMap, gradedPieceMap,
+      Functor.map_comp, HomologicalComplex.homologyMap_comp] using
+      (h.gradedPieceSq p i).horiz_comp (k.gradedPieceSq p i)
+  · intro i
+    simpa only [modelMap, Resolution.Map.comp, FilteredComplex.underlyingMap, underlyingMap,
+      Functor.map_comp, HomologicalComplex.homologyMap_comp] using
+      (h.underlyingSq i).horiz_comp (k.underlyingSq i)
 
 /-- Reindexing a resolution map preserves compatibility of finite model comparisons. -/
 @[stacks 015W "reindexing finite filtered right-derived model comparisons"]
@@ -104,7 +124,9 @@ theorem reindex (T : A ⥤ₗ B) [EnoughInjectives A]
     {R : Resolution K} {S : Resolution L} {m : Resolution.Map f R S}
     {P : Comparison T R} {Q : Comparison T S} (h : f = g)
     (hm : IsCompatible T m P Q) :
-    IsCompatible T (Resolution.Map.reindex h m) P Q := sorry
+    IsCompatible T (Resolution.Map.reindex h m) P Q := by
+  cases h
+  exact hm
 
 /-- Naturality of a compatible finite model comparison on a graded piece. -/
 @[reassoc, stacks 015W
@@ -118,7 +140,8 @@ theorem gradedPiece_naturality (T : A ⥤ₗ B) [EnoughInjectives A]
           (FilteredComplex.gradedPieceMap (modelMap T m) p) n ≫
         (Q.gradedPieceIso p n).hom =
       (P.gradedPieceIso p n).hom ≫
-        (DerivedCategory.Plus.homologyFunctor B n).map (gradedPieceMap T f p) := sorry
+        (DerivedCategory.Plus.homologyFunctor B n).map (gradedPieceMap T f p) :=
+  (h.gradedPieceSq p n).w
 
 /-- Naturality of the inverse compatible finite model comparison on a graded piece. -/
 @[reassoc, stacks 015W
@@ -132,7 +155,8 @@ theorem gradedPiece_inv_naturality (T : A ⥤ₗ B) [EnoughInjectives A]
         (Q.gradedPieceIso p n).inv =
       (P.gradedPieceIso p n).inv ≫
         HomologicalComplex.homologyMap
-          (FilteredComplex.gradedPieceMap (modelMap T m) p) n := sorry
+          (FilteredComplex.gradedPieceMap (modelMap T m) p) n :=
+  (h.gradedPieceSq p n).vert_inv.w
 
 /-- Naturality of a compatible finite model comparison on underlying complexes. -/
 @[reassoc, stacks 015W
@@ -146,7 +170,8 @@ theorem underlying_naturality (T : A ⥤ₗ B) [EnoughInjectives A]
           (FilteredComplex.underlyingMap (modelMap T m)) n ≫
         (Q.underlyingIso n).hom =
       (P.underlyingIso n).hom ≫
-        (DerivedCategory.Plus.homologyFunctor B n).map (underlyingMap T f) := sorry
+        (DerivedCategory.Plus.homologyFunctor B n).map (underlyingMap T f) :=
+  (h.underlyingSq n).w
 
 /-- Naturality of the inverse compatible finite model comparison on underlying complexes. -/
 @[reassoc, stacks 015W
@@ -160,7 +185,8 @@ theorem underlying_inv_naturality (T : A ⥤ₗ B) [EnoughInjectives A]
         (Q.underlyingIso n).inv =
       (P.underlyingIso n).inv ≫
         HomologicalComplex.homologyMap
-          (FilteredComplex.underlyingMap (modelMap T m)) n := sorry
+          (FilteredComplex.underlyingMap (modelMap T m)) n :=
+  (h.underlyingSq n).vert_inv.w
 
 /-- Solving the graded-piece comparison square for the finite filtered-model homology map. -/
 @[reassoc, stacks 015W
@@ -174,7 +200,9 @@ theorem gradedPiece_naturality_inv (T : A ⥤ₗ B) [EnoughInjectives A]
         (DerivedCategory.Plus.homologyFunctor B n).map (gradedPieceMap T f p) ≫
         (Q.gradedPieceIso p n).inv =
       HomologicalComplex.homologyMap
-        (FilteredComplex.gradedPieceMap (modelMap T m) p) n := sorry
+        (FilteredComplex.gradedPieceMap (modelMap T m) p) n := by
+  rw [← Category.assoc, ← (h.gradedPieceSq p n).w, Category.assoc, Iso.hom_inv_id,
+    Category.comp_id]
 
 /-- Solving the underlying comparison square for the finite filtered-model homology map. -/
 @[reassoc, stacks 015W
@@ -188,7 +216,9 @@ theorem underlying_naturality_inv (T : A ⥤ₗ B) [EnoughInjectives A]
         (DerivedCategory.Plus.homologyFunctor B n).map (underlyingMap T f) ≫
         (Q.underlyingIso n).inv =
       HomologicalComplex.homologyMap
-        (FilteredComplex.underlyingMap (modelMap T m)) n := sorry
+        (FilteredComplex.underlyingMap (modelMap T m)) n := by
+  rw [← Category.assoc, ← (h.underlyingSq n).w, Category.assoc, Iso.hom_inv_id,
+    Category.comp_id]
 
 end IsCompatible
 

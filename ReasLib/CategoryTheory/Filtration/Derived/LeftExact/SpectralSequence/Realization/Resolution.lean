@@ -43,7 +43,7 @@ theorem resolutionDisplayedFunctor_map_id
         (Resolution.displayedCategory A)
         ((𝟭 (CochainComplex.Plus (FilteredObject.Finite.category A))).map_id K)
         ((Map.id S).resolutionMap) =
-      (Resolution.displayedCategory A).id S.resolution := sorry
+      (Resolution.displayedCategory A).id S.resolution := rfl
 
 /-- Forgetting a realization to its resolution preserves displayed composition after transport
 along the identity base functor. -/
@@ -57,7 +57,7 @@ theorem resolutionDisplayedFunctor_map_comp
         (Resolution.displayedCategory A)
         ((𝟭 (CochainComplex.Plus (FilteredObject.Finite.category A))).map_comp f g)
         ((Map.comp m n).resolutionMap) =
-      (Resolution.displayedCategory A).comp m.resolutionMap n.resolutionMap := sorry
+      (Resolution.displayedCategory A).comp m.resolutionMap n.resolutionMap := rfl
 
 /-- The displayed functor forgetting a finite right-derived realization to its chosen strict
 filtered-injective resolution. -/
@@ -84,7 +84,7 @@ finite filtered source complex. -/
 @[stacks 015W "base projection of the total resolution forgetful functor"]
 theorem resolutionFunctor_forgetBase
     (T : A ⥤ₗ B) [EnoughInjectives A] :
-    resolutionFunctor T ⋙ Resolution.Total.source A = Total.forgetBase T := sorry
+    resolutionFunctor T ⋙ Resolution.Total.source A = Total.forgetBase T := rfl
 
 /-- Object computation for the displayed resolution forgetful functor. -/
 @[simp, stacks 015W "forgetful displayed functor from finite realizations to resolutions"]
@@ -92,7 +92,7 @@ theorem resolutionDisplayedFunctor_obj
     (T : A ⥤ₗ B) [EnoughInjectives A]
     {K : CochainComplex.Plus (FilteredObject.Finite.category A)}
     (S : Realization T K) :
-    (resolutionDisplayedFunctor T).obj S = S.resolution := sorry
+    (resolutionDisplayedFunctor T).obj S = S.resolution := rfl
 
 /-- Morphism computation for the displayed resolution forgetful functor. -/
 @[simp, stacks 015W "forgetful displayed functor from finite realizations to resolutions"]
@@ -100,26 +100,26 @@ theorem resolutionDisplayedFunctor_map
     (T : A ⥤ₗ B) [EnoughInjectives A]
     {K L : CochainComplex.Plus (FilteredObject.Finite.category A)} {f : K ⟶ L}
     {S : Realization T K} {R : Realization T L} (m : Map f S R) :
-    (resolutionDisplayedFunctor T).map m = m.resolutionMap := sorry
+    (resolutionDisplayedFunctor T).map m = m.resolutionMap := rfl
 
 /-- The total resolution forgetful functor preserves the base complex. -/
 @[simp, stacks 015W "forgetful functor from total finite realizations to total resolutions"]
 theorem resolutionFunctor_obj_base
     (T : A ⥤ₗ B) [EnoughInjectives A] (S : Total T) :
-    ((resolutionFunctor T).obj S).base = S.base := sorry
+    ((resolutionFunctor T).obj S).base = S.base := rfl
 
 /-- The displayed object of the total resolution forgetful functor is the chosen resolution. -/
 @[simp, stacks 015W "forgetful functor from total finite realizations to total resolutions"]
 theorem resolutionFunctor_obj_obj
     (T : A ⥤ₗ B) [EnoughInjectives A] (S : Total T) :
-    ((resolutionFunctor T).obj S).obj = S.obj.resolution := sorry
+    ((resolutionFunctor T).obj S).obj = S.obj.resolution := rfl
 
 /-- The total resolution forgetful functor preserves the base morphism. -/
 @[simp, stacks 015W "forgetful functor from total finite realizations to total resolutions"]
 theorem resolutionFunctor_map_base
     (T : A ⥤ₗ B) [EnoughInjectives A]
     {S R : Total T} (m : S ⟶ R) :
-    ((resolutionFunctor T).map m).base = m.base := sorry
+    ((resolutionFunctor T).map m).base = m.base := rfl
 
 /-- The displayed morphism of the total resolution forgetful functor is the stored resolution
 map. -/
@@ -127,6 +127,6 @@ map. -/
 theorem resolutionFunctor_map_displayed
     (T : A ⥤ₗ B) [EnoughInjectives A]
     {S R : Total T} (m : S ⟶ R) :
-    ((resolutionFunctor T).map m).displayed = m.displayed.resolutionMap := sorry
+    ((resolutionFunctor T).map m).displayed = m.displayed.resolutionMap := rfl
 
 end CategoryTheory.FilteredObject.Finite.RightDerived.SpectralSequence.Realization

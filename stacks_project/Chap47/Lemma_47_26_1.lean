@@ -17,8 +17,8 @@ noncomputable section
 
 universe u
 
-/- Lemma 47.26.1: a complex of modules over a Noetherian commutative ring is dualizing if
-its derived extension along a faithfully flat map to another Noetherian ring is dualizing. -/
+/- Lemma 47.26.1: canonical dualizing descends along a faithfully flat map between
+Noetherian rings. -/
 @[stacks 0E4A] #check
   (CategoryTheory.DerivedCategory.IsDualizingComplex.of_faithfullyFlat :
     ∀ {A B : Type u} [CommRing A] [CommRing B]
@@ -26,8 +26,8 @@ its derived extension along a faithfully flat map to another Noetherian ring is 
       [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
       [MonoidalCategory (DerivedCategory (ModuleCat.{u} B))]
       (f : A →+* B), f.FaithfullyFlat →
-      (HA : MonoidalClosed (DerivedCategory (ModuleCat.{u} A))) →
-      (HB : MonoidalClosed (DerivedCategory (ModuleCat.{u} B))) →
+      (CA : CategoryTheory.DerivedCategory.CanonicalClosedPresentation (A := A)) →
+      (CB : CategoryTheory.DerivedCategory.CanonicalClosedPresentation (A := B)) →
       (K : DerivedCategory (ModuleCat.{u} A)) →
-      ((ModuleCat.derivedExtensionOfScalars f).obj K).IsDualizingComplex HB →
-      K.IsDualizingComplex HA)
+      ((ModuleCat.derivedExtensionOfScalars f).obj K).IsCanonicalDualizingComplex CB →
+      K.IsCanonicalDualizingComplex CA)

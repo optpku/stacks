@@ -32,19 +32,40 @@ namespace IsAdmissibleSpan
 variable {S : Scheme.{u}} {Z X Y : Over S} {i : Z ⟶ X} {j : Z ⟶ Y}
 
 /-- The span consisting of two identity morphisms is admissible. -/
-instance instIdentity (X : Over S) : IsAdmissibleSpan (𝟙 X) (𝟙 X) := sorry
+instance instIdentity (X : Over S) : IsAdmissibleSpan (𝟙 X) (𝟙 X) where
+  toIsClosedImmersion := by
+    change IsClosedImmersion (𝟙 X.left)
+    infer_instance
+  toIsIntegralHom := by
+    change IsIntegralHom (𝟙 X.left)
+    infer_instance
+  exists_affineOpen y := by
+    obtain ⟨U, hU, hyU, _⟩ :=
+      exists_isAffineOpen_mem_and_subset (X := X.left) (U := ⊤) (x := y) (by trivial)
+    refine ⟨U, hU, ?_⟩
+    intro z hz
+    change z = y at hz
+    change z ∈ U
+    exact hz.symm ▸ hyU
 
 /-- The three conditions characterizing an admissible span. -/
 theorem iff (i : Z ⟶ X) (j : Z ⟶ Y) :
     IsAdmissibleSpan i j ↔
       IsClosedImmersion i.left ∧ IsIntegralHom j.left ∧
         ∀ y : Y.left, ∃ U : X.left.Opens, IsAffineOpen U ∧
-          ∀ z : Z.left, j.left z = y → i.left z ∈ U := sorry
+          ∀ z : Z.left, j.left z = y → i.left z ∈ U := by
+  constructor
+  · intro h
+    exact ⟨h.toIsClosedImmersion, h.toIsIntegralHom, h.exists_affineOpen⟩
+  · rintro ⟨hi, hj, h⟩
+    exact { toIsClosedImmersion := hi, toIsIntegralHom := hj, exists_affineOpen := h }
 
 /-- The fibre over a point is contained in the inverse image of a suitable affine open. -/
 theorem fiber_subset_preimage [IsAdmissibleSpan i j] (y : Y.left) :
     ∃ U : X.left.Opens, IsAffineOpen U ∧
-      {z : Z.left | j.left z = y} ⊆ (i.left ⁻¹ᵁ U : Set Z.left) := sorry
+      {z : Z.left | j.left z = y} ⊆ (i.left ⁻¹ᵁ U : Set Z.left) := by
+  obtain ⟨U, hU, h⟩ := exists_affineOpen (i := i) (j := j) y
+  exact ⟨U, hU, fun z hz ↦ h z hz⟩
 
 /-- Every point in one target of an admissible span has an affine neighborhood whose
 inverse image agrees with that of an affine open in the other target. -/

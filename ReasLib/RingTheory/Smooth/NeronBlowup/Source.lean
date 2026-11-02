@@ -47,7 +47,9 @@ namespace sourceCenter
 instance instIsPrime
     (S : Algebra.DVR.Factorization R L) {B : Type x} [CommRing B]
     (g : B →+* S.mid) :
-    (S.sourceCenter g).IsPrime := sorry
+    (S.sourceCenter g).IsPrime := by
+  change (Ideal.comap g (Ideal.comap S.toTarget.toRingHom (maximalIdeal L))).IsPrime
+  infer_instance
 
 /-- Lemma 16.4.2 (2) (Tag 0BJ3): a surjection carries its induced source
 center onto the closed center of the DVR factorization. -/
@@ -55,7 +57,8 @@ center onto the closed center of the DVR factorization. -/
 theorem map_eq
     (S : Algebra.DVR.Factorization R L) {B : Type x} [CommRing B]
     (g : B →+* S.mid) (h : Function.Surjective g) :
-    Ideal.map g (S.sourceCenter g) = S.closedIdeal := sorry
+    Ideal.map g (S.sourceCenter g) = S.closedIdeal := by
+  exact Ideal.map_comap_of_surjective g h S.closedIdeal
 
 end sourceCenter
 
@@ -72,7 +75,10 @@ theorem sourceParameter_mem
     (S : Algebra.DVR.Factorization R L) {B : Type x} [CommRing B]
     [Algebra R B] (g : B →ₐ[R] S.mid)
     (π : R) (hπ : Irreducible π) :
-    algebraMap R B π ∈ S.sourceCenter g.toRingHom := sorry
+    algebraMap R B π ∈ S.sourceCenter g.toRingHom := by
+  change S.toTarget (g (algebraMap R B π)) ∈ maximalIdeal L
+  rw [g.commutes, S.toTarget.commutes]
+  exact map_nonunit (algebraMap R L) π hπ.not_isUnit
 
 /-- The image of a uniformizer in the closed center on a source algebra. -/
 @[stacks 0BJ3 "source uniformizer"]
@@ -101,7 +107,8 @@ abbrev center : Ideal B :=
 of the target DVR factorization. -/
 @[stacks 0BJ3 "source center comparison"]
 theorem center_eq (h : Function.Surjective (algebraMap B S.mid)) :
-    Ideal.map (algebraMap B S.mid) (center (B := B) S) = S.closedIdeal := sorry
+    Ideal.map (algebraMap B S.mid) (center (B := B) S) = S.closedIdeal := by
+  exact sourceCenter.map_eq S (map (B := B) S).toRingHom h
 
 variable [IsExtensionOfDiscreteValuationRings R L]
 
@@ -170,8 +177,11 @@ theorem mem_ker_iff (π : R) (hπ : Irreducible π)
     (x : Tensor (B := B) S π hπ) :
     x ∈ RingHom.ker (Source.comparison (B := B) S π hπ).toRingHom ↔
       ∃ n : ℕ,
-        (algebraMap B (Tensor (B := B) S π hπ) (algebraMap R B π)) ^ n * x = 0 :=
-  sorry
+        (algebraMap B (Tensor (B := B) S π hπ) (algebraMap R B π)) ^ n * x = 0 := by
+  rw [ker_eq_powerTorsion S π hπ h]
+  simp only [Ideal.principalPowerTorsion, Ideal.primaryComponent_mem,
+    Ideal.span_singleton_pow, Submodule.torsionBySet_ideal_span_singleton_eq,
+    Submodule.mem_torsionBy_iff, smul_eq_mul]
 
 end comparison
 
@@ -182,7 +192,14 @@ affine Neron blowup. -/
 @[stacks 0BJ3 "source Neron quotient comparison bijective"]
 theorem bijective (π : R) (hπ : Irreducible π)
     (h : Function.Surjective (algebraMap B S.mid)) :
-    Function.Bijective (Source.quotientComparison (B := B) S π hπ) := sorry
+    Function.Bijective (Source.quotientComparison (B := B) S π hπ) := by
+  constructor
+  · change Function.Injective (Source.quotientComparison (B := B) S π hπ)
+    apply RingHom.lift_injective_of_ker_le_ideal
+    exact (comparison.ker_eq_powerTorsion S π hπ h).le
+  · change Function.Surjective (Source.quotientComparison (B := B) S π hπ)
+    exact Ideal.Quotient.lift_surjective_of_surjective _ _
+      (comparison.surjective S π hπ h)
 
 end quotientComparison
 

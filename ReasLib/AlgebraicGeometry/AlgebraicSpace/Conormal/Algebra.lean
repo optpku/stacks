@@ -74,6 +74,51 @@ theorem inverseImageStructureSheafHom_eq {X Y : AlgebraicSpace S} (f : X ⟶ Y) 
 
 namespace ConormalAlgebra
 
+private theorem associatedGraded_map_id {R : Type u} [CommRing R] (I : Ideal R)
+    (h : I ≤ Ideal.comap (RingHom.id R) I) :
+    Ideal.AssociatedGraded.map (RingHom.id R) h =
+      RingHom.id (Ideal.AssociatedGraded.ring I) := by
+  apply RingHom.ext
+  intro x
+  obtain ⟨x, rfl⟩ := Ideal.Quotient.mk_surjective x
+  change Ideal.Quotient.mk _ (ReesAlgebra.Grading.map (RingHom.id R) h x) =
+    Ideal.Quotient.mk _ x
+  apply congrArg (Ideal.Quotient.mk _)
+  apply Subtype.ext
+  change Polynomial.map (RingHom.id R) (x : Polynomial R) = x
+  exact Polynomial.map_id
+
+private theorem associatedGraded_map_comp {R T W : Type u}
+    [CommRing R] [CommRing T] [CommRing W]
+    {I : Ideal R} {J : Ideal T} {K : Ideal W}
+    (f : R →+* T) (g : T →+* W)
+    (hIJ : I ≤ Ideal.comap f J) (hJK : J ≤ Ideal.comap g K)
+    (hIK : I ≤ Ideal.comap (g.comp f) K) :
+    Ideal.AssociatedGraded.map (g.comp f) hIK =
+      (Ideal.AssociatedGraded.map g hJK).comp (Ideal.AssociatedGraded.map f hIJ) := by
+  apply RingHom.ext
+  intro x
+  obtain ⟨x, rfl⟩ := Ideal.Quotient.mk_surjective x
+  change Ideal.Quotient.mk _ (ReesAlgebra.Grading.map (g.comp f) hIK x) =
+    Ideal.Quotient.mk _ (ReesAlgebra.Grading.map g hJK (ReesAlgebra.Grading.map f hIJ x))
+  apply congrArg (Ideal.Quotient.mk _)
+  apply Subtype.ext
+  change Polynomial.map (g.comp f) (x : Polynomial R) =
+    Polynomial.map g (Polynomial.map f (x : Polynomial R))
+  exact (Polynomial.map_map f g x).symm
+
+private theorem associatedGraded_map_algebraMap {R T : Type u}
+    [CommRing R] [CommRing T] {I : Ideal R} {J : Ideal T}
+    (f : R →+* T) (h : I ≤ Ideal.comap f J) (r : R) :
+    Ideal.AssociatedGraded.map f h (algebraMap R (Ideal.AssociatedGraded.ring I) r) =
+      algebraMap T (Ideal.AssociatedGraded.ring J) (f r) := by
+  change Ideal.Quotient.mk _ (ReesAlgebra.Grading.map f h (algebraMap R (reesAlgebra I) r)) =
+    Ideal.Quotient.mk _ (algebraMap T (reesAlgebra J) (f r))
+  apply congrArg (Ideal.Quotient.mk _)
+  apply Subtype.ext
+  change Polynomial.map f (Polynomial.C r) = Polynomial.C (f r)
+  exact Polynomial.map_C f
+
 variable {Z X : AlgebraicSpace S} (i : Z ⟶ X) [IsImmersion i]
 
 /-- The kernel map `𝒪_{X \ ∂Z} ⟶ j_* 𝒪_Z` of the coborder closed immersion. -/
@@ -131,8 +176,17 @@ noncomputable def coborderGradePresheaf :
     (smallEtaleSite (Hom.coborder i))ᵒᵖ ⥤ CommRingCat.{u} where
   obj := coborderGradeObj i
   map := coborderGradeMap i
-  map_id := sorry
-  map_comp := sorry
+  map_id U := by
+    apply CommRingCat.hom_ext
+    change Ideal.AssociatedGraded.map _ _ = _
+    simp only [CommRingCat.hom_id]
+    exact associatedGraded_map_id _ _
+  map_comp f g := by
+    apply CommRingCat.hom_ext
+    change Ideal.AssociatedGraded.map _ _ =
+      (Ideal.AssociatedGraded.map _ _).comp (Ideal.AssociatedGraded.map _ _)
+    simp only [Functor.map_comp, CommRingCat.hom_comp]
+    exact associatedGraded_map_comp _ _ _ _ _
 
 /-- Evaluating the coborder associated graded presheaf recovers the sectionwise
 associated graded ring. -/
@@ -169,7 +223,14 @@ morphism of presheaves. -/
 noncomputable def coborderStructureMapPresheaf :
     (commStructureSheaf (Hom.coborder i)).obj ⟶ coborderGradePresheaf i where
   app U := coborderStructureMap_app i U
-  naturality := fun _ _ _ => sorry
+  naturality := by
+    intro U V f
+    apply CommRingCat.hom_ext
+    apply RingHom.ext
+    intro r
+    exact (associatedGraded_map_algebraMap
+      (((commStructureSheaf (Hom.coborder i)).obj.map f).hom)
+      (coborderKernel_sectionIdeal_le_comap i f) r).symm
 
 /-- The component of `coborderStructureMapPresheaf i` at `U` is the associated
 graded algebra map. -/
@@ -268,7 +329,7 @@ theorem total_spec :
           ((commRingInverseImage (IsImmersion.liftCoborder i)).map
             (coborderStructureMap i)) ∧
       IsClosedImmersion (IsImmersion.liftCoborder i) :=
-  sorry
+  ⟨rfl, rfl, inferInstance⟩
 
 /-- Pushforward of the degree-one conormal piece along the coborder closed immersion
 is isomorphic to the successive coborder quotient `I / I²`. -/

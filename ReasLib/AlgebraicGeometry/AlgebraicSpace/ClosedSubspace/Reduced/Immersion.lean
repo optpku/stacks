@@ -116,26 +116,56 @@ private def inverseApp (U : (Over S)ᵒᵖ)
             (inverse_ker X Z g U p)]
         exact Over.w q)
 
+/-- The explicit lift retains the second projection to the test scheme. -/
+private theorem inverseApp_fac (U : (Over S)ᵒᵖ)
+    (p : (pullback (inclusion X Z).hom g).obj U) :
+    inverseApp X Z g U p ≫ descendedInclusion X Z g =
+      (pullback.snd (inclusion X Z).hom g).app U p := by
+  apply Over.OverMorphism.ext
+  exact AlgebraicGeometry.IsClosedImmersion.lift_fac _ _ _
+
 /-- The closed-subscheme lifts commute with restriction along test morphisms. -/
 private theorem inverse_naturality {U V : (Over S)ᵒᵖ} (f : U ⟶ V) :
     (pullback (inclusion X Z).hom g).map f ≫ TypeCat.ofHom (inverseApp X Z g V) =
       TypeCat.ofHom (inverseApp X Z g U) ≫ (yoneda.obj (descendedScheme X Z g)).map f := by
-  sorry
+  letI : Mono (descendedInclusion X Z g) := Over.mono_of_mono_left _
+  apply ConcreteCategory.hom_ext
+  intro p
+  change inverseApp X Z g V ((pullback (inclusion X Z).hom g).map f p) =
+    f.unop ≫ inverseApp X Z g U p
+  apply (cancel_mono (descendedInclusion X Z g)).1
+  rw [inverseApp_fac, Category.assoc, inverseApp_fac]
+  exact ConcreteCategory.congr_hom ((pullback.snd (inclusion X Z).hom g).naturality f) p
 
 /-- The inverse comparison lifts the second projection through the closed subscheme. -/
 @[no_expose] def comparisonInverse : pullback (inclusion X Z).hom g ⟶ yoneda.obj (descendedScheme X Z g) where
   app U := TypeCat.ofHom (inverseApp X Z g U)
   naturality _ _ f := private inverse_naturality X Z g f
 
+/-- The inverse comparison retains the prescribed projection to the test scheme. -/
+private theorem comparisonInverse_snd :
+    comparisonInverse X Z g ≫ yoneda.map (descendedInclusion X Z g) =
+      pullback.snd (inclusion X Z).hom g := by
+  apply NatTrans.ext
+  funext U
+  apply ConcreteCategory.hom_ext
+  intro p
+  exact inverseApp_fac X Z g U p
+
 /-- The comparison followed by its explicit inverse is the identity. -/
 theorem comparison_comp_inverse :
     comparison X Z g ≫ comparisonInverse X Z g = 𝟙 (yoneda.obj (descendedScheme X Z g)) := by
-  sorry
+  letI : Mono (descendedInclusion X Z g) := Over.mono_of_mono_left _
+  apply (cancel_mono (yoneda.map (descendedInclusion X Z g))).1
+  rw [Category.assoc, comparisonInverse_snd, comparison, pullback.lift_snd,
+    Category.id_comp]
 
 /-- The explicit inverse followed by the comparison is the identity. -/
 theorem inverse_comp_comparison :
     comparisonInverse X Z g ≫ comparison X Z g = 𝟙 (pullback (inclusion X Z).hom g) := by
-  sorry
+  apply (cancel_mono (pullback.snd (inclusion X Z).hom g)).1
+  rw [Category.assoc, comparison, pullback.lift_snd, comparisonInverse_snd,
+    Category.id_comp]
 
 /-- The closed subscheme represents the image-sheaf pullback via the two explicit comparisons. -/
 def comparisonIso : yoneda.obj (descendedScheme X Z g) ≅ pullback (inclusion X Z).hom g where
@@ -166,9 +196,15 @@ kernel-ideal projection by uniqueness of pullbacks over T. -/
 theorem inclusion_closed :
     (MorphismProperty.over (@AlgebraicGeometry.IsClosedImmersion)).presheaf
       (inclusion X Z).hom := by
-  refine ⟨inclusion_representable X Z, ?_⟩
-  intro T V g a b h
-  sorry
+  letI : (MorphismProperty.over (@AlgebraicGeometry.IsClosedImmersion) :
+      MorphismProperty (Over S)).RespectsIso := by
+    change ((MorphismProperty.inverseImage (@AlgebraicGeometry.IsClosedImmersion)
+      (Over.forget S)).RespectsIso)
+    infer_instance
+  apply MorphismProperty.relative.of_exists
+  intro T g
+  exact ⟨descendedScheme X Z g, descendedToImage X Z g, descendedInclusion X Z g,
+    descended_isPullback X Z g, descendedInclusion_closed X Z g⟩
 
 /-- The inclusion of the reduced image algebraic space is a closed immersion. -/
 instance space_inclusion_closed : AlgebraicSpace.IsClosedImmersion
@@ -183,7 +219,45 @@ def closedSubspace : ClosedSubspace X where
 
 /-- Its support is exactly Z, computed on the explicit surjective atlas. -/
 theorem pointsSet_eq : (closedSubspace X Z).pointsSet = (Z : Set (Points X)) := by
-  sorry
+  have hchart : Function.Surjective (Points.mapOfOver (ReducedClosed.Space.chart X Z)) :=
+    (Points.isOpenQuotientMap_mapOfOver (ReducedClosed.Space.chart X Z)
+      (ReducedClosed.Space.atlas_etale X Z)
+      (ReducedClosed.Space.atlas_surjective X Z)).surjective
+  have hatlas : Function.Surjective (Points.mapOfOver (atlasMap X)) :=
+    (Points.isOpenQuotientMap_mapOfOver (atlasMap X)
+      (AtlasInput.representableEtale X) (AtlasInput.locallySurjective X)).surjective
+  have hcomp (p : (reducedAtlas X Z).left) :
+      Points.map (ReducedClosed.Space.ι X Z)
+          (Points.mapOfOver (ReducedClosed.Space.chart X Z) p) =
+        Points.mapOfOver (atlasMap X) ((atlasInclusion X Z).left p) := by
+    change Points.map (ReducedClosed.Space.ι X Z)
+        (Points.map (ReducedClosed.Space.chart X Z)
+          (ofOver.pointsEquiv (reducedAtlas X Z) p)) =
+      Points.map (atlasMap X)
+        (ofOver.pointsEquiv (atlasScheme X) ((atlasInclusion X Z).left p))
+    rw [← Points.map_comp, ReducedClosed.Space.chart_ι]
+    change Points.map (ofOverMap (atlasInclusion X Z) ≫ atlasMap X) _ = _
+    rw [Points.map_comp, ofOver.pointsEquiv_naturality]
+  change Set.range (Points.map (ReducedClosed.Space.ι X Z)) = (Z : Set (Points X))
+  apply Set.Subset.antisymm
+  · rintro x ⟨y, rfl⟩
+    obtain ⟨p, rfl⟩ := hchart y
+    rw [hcomp p]
+    have hp : (atlasInclusion X Z).left p ∈
+        (closedOnAtlas X Z : Set (atlasScheme X).left) := by
+      rw [← atlasInclusion_range]
+      exact ⟨p, rfl⟩
+    exact hp
+  · intro x hx
+    obtain ⟨p, hp⟩ := hatlas x
+    have hpZ : p ∈ (closedOnAtlas X Z : Set (atlasScheme X).left) := by
+      change Points.mapOfOver (atlasMap X) p ∈ (Z : Set (Points X))
+      rw [hp]
+      exact hx
+    rw [← atlasInclusion_range] at hpZ
+    obtain ⟨q, hq⟩ := hpZ
+    refine ⟨Points.mapOfOver (ReducedClosed.Space.chart X Z) q, ?_⟩
+    rw [hcomp q, hq, hp]
 
 end AlgebraicGeometry.AlgebraicSpace.ReducedClosed.Immersion
 

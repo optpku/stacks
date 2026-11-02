@@ -10,6 +10,7 @@ public import Mathlib.Data.Fin.VecNotation
 public import Mathlib.RingTheory.Ideal.Height
 public import Mathlib.RingTheory.Ideal.Quotient.Defs
 public import Mathlib.RingTheory.Localization.AtPrime.Basic
+public import Mathlib.RingTheory.MvPowerSeries.Inverse
 public import Mathlib.RingTheory.MvPowerSeries.Substitution
 public import Mathlib.RingTheory.PowerSeries.Binomial
 public import Mathlib.RingTheory.PowerSeries.NoZeroDivisors
@@ -52,7 +53,10 @@ def z (r s t : ℕ) : Ring r s t :=
 
 /-- The defining coordinate relation in the Pham–Brieskorn quotient. -/
 theorem x_pow_add_y_pow_add_z_pow (r s t : ℕ) :
-    x r s t ^ r + y r s t ^ s + z r s t ^ t = 0 := sorry
+    x r s t ^ r + y r s t ^ s + z r s t ^ t = 0 := by
+  simp only [x, y, z, ← map_pow, ← map_add]
+  exact Ideal.Quotient.eq_zero_iff_mem.mpr
+    (Ideal.subset_span (Set.mem_singleton (relation r s t)))
 
 /-- The binomial power series with rational exponent `1 / 7`. -/
 def seventhRootSeries : PowerSeries ℂ :=
@@ -148,16 +152,22 @@ def psi (ζ : rootsOfUnity 7 ℂ) : Ring 2 5 7 →+* PowerSeries ℂ :=
 
 /-- The first coordinate is sent to `T ^ 7` by `psi ζ`. -/
 theorem psi_x (ζ : rootsOfUnity 7 ℂ) :
-    psi ζ (x 2 5 7) = PowerSeries.X ^ 7 := sorry
+    psi ζ (x 2 5 7) = PowerSeries.X ^ 7 := by
+  change substAlgHom (hasSubst_psiCoords ζ) (X 0) = _
+  exact substAlgHom_X (hasSubst_psiCoords ζ) 0
 
 /-- The second coordinate is sent to `T ^ 3` by `psi ζ`. -/
 theorem psi_y (ζ : rootsOfUnity 7 ℂ) :
-    psi ζ (y 2 5 7) = PowerSeries.X ^ 3 := sorry
+    psi ζ (y 2 5 7) = PowerSeries.X ^ 3 := by
+  change substAlgHom (hasSubst_psiCoords ζ) (X 1) = _
+  exact substAlgHom_X (hasSubst_psiCoords ζ) 1
 
 /-- The third coordinate is sent to its binomial-series branch value by `psi ζ`. -/
 theorem psi_z (ζ : rootsOfUnity 7 ℂ) :
     psi ζ (z 2 5 7) =
-      -(PowerSeries.C ((ζ : ℂˣ) : ℂ) * PowerSeries.X ^ 2 * seventhRootSeries) := sorry
+      -(PowerSeries.C ((ζ : ℂˣ) : ℂ) * PowerSeries.X ^ 2 * seventhRootSeries) := by
+  change substAlgHom (hasSubst_psiCoords ζ) (X 2) = _
+  exact substAlgHom_X (hasSubst_psiCoords ζ) 2
 
 /-- The kernel ideal defining the branch indexed by `ζ`. -/
 def prime (ζ : rootsOfUnity 7 ℂ) : Ideal (Ring 2 5 7) :=
@@ -181,7 +191,20 @@ theorem zeroLocus_xyDiff_eq_iUnion_prime :
 
 /-- The quotient by `xyDiff` is local. -/
 instance instIsLocalRing_xyDiffQuotient :
-    IsLocalRing (Ring 2 5 7 ⧸ Ideal.span {xyDiff}) := sorry
+    IsLocalRing (Ring 2 5 7 ⧸ Ideal.span {xyDiff}) := by
+  letI : Nontrivial (Ring 2 5 7) := (psi 1).domain_nontrivial
+  letI : IsLocalRing (Ring 2 5 7) :=
+    IsLocalRing.of_surjective' (Ideal.Quotient.mk _) Ideal.Quotient.mk_surjective
+  have hle : Ideal.span {xyDiff} ≤ RingHom.ker (psi 1) := by
+    refine Ideal.span_le.mpr ?_
+    intro f hf
+    rw [Set.mem_singleton_iff.mp hf]
+    change psi 1 xyDiff = 0
+    simp [xyDiff, psi_x, psi_y, ← pow_mul]
+  let f : (Ring 2 5 7 ⧸ Ideal.span {xyDiff}) →+* PowerSeries ℂ :=
+    Ideal.Quotient.lift _ (psi 1) (fun _ ha ↦ hle ha)
+  letI : Nontrivial (Ring 2 5 7 ⧸ Ideal.span {xyDiff}) := f.domain_nontrivial
+  exact IsLocalRing.of_surjective' (Ideal.Quotient.mk _) Ideal.Quotient.mk_surjective
 
 /-- The quotient by `xyDiff` is reduced away from its closed point. -/
 theorem xyDiff_isReduced_away_from_closedPoint
@@ -198,6 +221,8 @@ theorem not_uniqueFactorizationMonoid {r s t : ℕ} (hr : 1 < r) (hrs : r < s) (
 
 /-- The `(2, 5, 7)` Pham–Brieskorn quotient is not factorial. -/
 theorem not_uniqueFactorizationMonoid_two_five_seven :
-    ¬ UniqueFactorizationMonoid (Ring 2 5 7) := sorry
+    ¬ UniqueFactorizationMonoid (Ring 2 5 7) := by
+  exact not_uniqueFactorizationMonoid (by norm_num) (by norm_num) (by norm_num)
+    (by norm_num) (by norm_num) (by norm_num) (by norm_num)
 
 end MvPowerSeries.PhamBrieskorn

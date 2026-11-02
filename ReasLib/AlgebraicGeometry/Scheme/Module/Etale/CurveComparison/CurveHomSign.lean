@@ -6,7 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.CompletedDualResolution
+public import Mathlib.Algebra.Homology.HomologicalComplex
 public import Mathlib.Algebra.Ring.NegOnePow
 public import Mathlib.Tactic
 
@@ -54,7 +54,7 @@ abbrev signed : CochainComplex C ℤ where
   d i j := (phase j * phase i) • K.d i j
   shape i j h := by simp [K.shape i j h]
   d_comp_d' i j l _ _ := by
-    simp
+    simp [Preadditive.zsmul_comp, Preadditive.comp_zsmul]
 
 /-- On adjacent degrees the changed differential is the actual Hom sign. -/
 theorem signed_d (i : ℤ) : (signed K).d i (i + 1) =
@@ -67,9 +67,9 @@ def componentIso (i : ℤ) : K.X i ≅ (signed K).X i where
   hom := phase i • 𝟙 _
   inv := phase i • 𝟙 _
   hom_inv_id := by
-    simp [smul_smul]
+    simp [Preadditive.zsmul_comp, Preadditive.comp_zsmul, smul_smul]
   inv_hom_id := by
-    simp [smul_smul]
+    simp [Preadditive.zsmul_comp, Preadditive.comp_zsmul, smul_smul]
 
 /-- The specified signs, not an arbitrary complex isomorphism. -/
 def iso : K ≅ signed K := HomologicalComplex.Hom.isoOfComponents

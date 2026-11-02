@@ -93,7 +93,9 @@ pullbacks: `WalkingCospan` is finite, and is equivalent to its countable represe
 @[stacks 09X2 "countable limits imply pullback closure"]
 instance instIsClosedUnderPullbacks
     (P : ObjectProperty LCCat.{u}) [IsClosedUnderCountableLimits P] :
-    P.isoClosure.IsClosedUnderLimitsOfShape WalkingCospan := sorry
+    P.isoClosure.IsClosedUnderLimitsOfShape WalkingCospan := by
+  exact ObjectProperty.IsClosedUnderLimitsOfShape.of_equivalence
+    (ULiftHomULiftCategory.equiv.{u, u} WalkingCospan).symm
 
 /-- A full subcategory of `LCCat` whose isomorphism closure is closed under pullbacks has
 pullbacks: it is equivalent to the full subcategory on its isomorphism closure. -/
@@ -119,7 +121,8 @@ the full-subcategory inclusion. -/
 theorem toAmbient_toPresieve
     {P : ObjectProperty LCCat.{u}} {U : P.FullSubcategory}
     (𝒰 : SemiRepresentableFamily.Over.{w} U) :
-    (toAmbient 𝒰).toPresieve = 𝒰.toPresieve.map P.ι := sorry
+    (toAmbient 𝒰).toPresieve = 𝒰.toPresieve.map P.ι := by
+  exact (Presieve.map_ofArrows (F := P.ι) (fun i ↦ (𝒰.obj i).hom)).symm
 
 /-- The qc precoverage on `P.FullSubcategory` is the canonical comap of the ambient qc
 precoverage.  In particular, a covering presieve retains its concrete ambient presentation. -/
@@ -133,7 +136,8 @@ ambient qc precoverage. -/
 @[simp]
 theorem mem_qcPrecoverage_iff
     {P : ObjectProperty LCCat.{u}} {U : P.FullSubcategory} {R : Presieve U} :
-    R ∈ qcPrecoverage P U ↔ R.map P.ι ∈ LCCat.qcPrecoverage U.obj := sorry
+    R ∈ qcPrecoverage P U ↔ R.map P.ι ∈ LCCat.qcPrecoverage U.obj := by
+  rfl
 
 /-- An internal family is qc-covering precisely when its ambient presentation is qc-covering. -/
 @[stacks 09X2 "qc family criterion on a small stage"]
@@ -141,21 +145,34 @@ theorem isCovering_qcPrecoverage_iff
     {P : ObjectProperty LCCat.{u}} {U : P.FullSubcategory}
     (𝒰 : SemiRepresentableFamily.Over.{w} U) :
     𝒰.IsCovering (qcPrecoverage P) ↔
-      (toAmbient 𝒰).IsQuasiCompactCovering := sorry
+      (toAmbient 𝒰).IsQuasiCompactCovering := by
+  rw [← LCCat.isCovering_qcPrecoverage_iff]
+  change 𝒰.toPresieve ∈ qcPrecoverage P U ↔
+    (toAmbient 𝒰).toPresieve ∈ LCCat.qcPrecoverage U.obj
+  rw [toAmbient_toPresieve]
+  exact mem_qcPrecoverage_iff
 
 /-- The stage qc precoverage contains singleton isomorphism families. -/
 instance instQcPrecoverageHasIsos
-    (P : ObjectProperty LCCat.{u}) : (qcPrecoverage P).HasIsos := sorry
+    (P : ObjectProperty LCCat.{u}) : (qcPrecoverage P).HasIsos := by
+  unfold qcPrecoverage
+  infer_instance
 
 /-- The stage qc precoverage is stable under composition. -/
 instance instQcPrecoverageIsStableUnderComposition
     (P : ObjectProperty LCCat.{u}) :
-    (qcPrecoverage P).IsStableUnderComposition := sorry
+    (qcPrecoverage P).IsStableUnderComposition := by
+  unfold qcPrecoverage
+  infer_instance
 
 /-- The qc precoverage on a pullback-closed stage has the base-change axiom. -/
 instance instQcPrecoverageIsStableUnderBaseChange
     (P : ObjectProperty LCCat.{u}) [P.isoClosure.IsClosedUnderLimitsOfShape WalkingCospan] :
-    (qcPrecoverage P).IsStableUnderBaseChange := sorry
+    (qcPrecoverage P).IsStableUnderBaseChange := by
+  letI : PreservesLimitsOfShape WalkingCospan P.ι :=
+    preservesLimitsOfShape_of_natIso (ObjectProperty.ιOfLECompιIso P.le_isoClosure)
+  unfold qcPrecoverage
+  infer_instance
 
 /-- The qc pretopology on a pullback-closed stage is obtained from the canonical qc precoverage. -/
 @[stacks 09X2 "qc pretopology on a small full subcategory"]
@@ -177,7 +194,8 @@ theorem isCovering_qcPretopology_iff
     [P.isoClosure.IsClosedUnderLimitsOfShape WalkingCospan]
     {U : P.FullSubcategory} {𝒰 : SemiRepresentableFamily.Over.{w} U} :
     𝒰.IsCovering (qcPretopology P).toPrecoverage ↔
-      𝒰.IsCovering (qcPrecoverage P) := sorry
+      𝒰.IsCovering (qcPrecoverage P) := by
+  rfl
 
 /-! ### The source-facing stage owner -/
 

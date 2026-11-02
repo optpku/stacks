@@ -57,7 +57,8 @@ corresponding reindexed basis vector with transported coefficient. -/
 theorem map_single (A : CosimplicialObject RingCat.{u}) {n m : SimplexCategory}
     (f : n ⟶ m) (i : Fin (n.len + 1)) (c : A.obj n) :
     map A f (Finsupp.single i c) =
-      Finsupp.single (f.toOrderHom i) ((A.map f).hom c) := sorry
+      Finsupp.single (f.toOrderHom i) ((A.map f).hom c) := by
+  simp [map, Finsupp.lmapDomain_apply]
 
 /-- The cutoff map on a basis vector is given by the prescribed interval formula. -/
 theorem hom_single_apply (A : CosimplicialObject RingCat.{u}) (n : SimplexCategory)
@@ -66,7 +67,11 @@ theorem hom_single_apply (A : CosimplicialObject RingCat.{u}) (n : SimplexCatego
     hom A n (Finsupp.single i c) α =
       if SSet.stdSimplex.asOrderHom α i = (0 : Fin 2) then
         Finsupp.single i c
-      else 0 := sorry
+      else 0 := by
+  classical
+  change component A n α (Finsupp.single i c) = _
+  simp only [component, Finsupp.linearCombination_single]
+  split_ifs <;> simp
 
 /-- The cutoff maps commute with every cosimplicial simplex operator and its
 coefficient transport. -/
@@ -74,7 +79,18 @@ theorem hom_naturality (A : CosimplicialObject RingCat.{u}) {n m : SimplexCatego
     (f : n ⟶ m) (x : Fin (n.len + 1) →₀ A.obj n)
     (α : (Δ[1] : SSet.{0}).obj (op m)) :
     hom A m (map A f x) α =
-      map A f (hom A n x ((Δ[1] : SSet.{0}).map f.op α)) := sorry
+      map A f (hom A n x ((Δ[1] : SSet.{0}).map f.op α)) := by
+  classical
+  induction x using Finsupp.induction_linear with
+  | zero => simp
+  | add x y hx hy =>
+    simp only [map_add, Pi.add_apply, hx, hy]
+  | single i c =>
+    rw [map_single, hom_single_apply, hom_single_apply]
+    have hα : SSet.stdSimplex.asOrderHom ((Δ[1] : SSet.{0}).map f.op α) i =
+        SSet.stdSimplex.asOrderHom α (f.toOrderHom i) := rfl
+    rw [hα]
+    split_ifs <;> simp [map_single]
 
 /-- The degreewise module map induced by a simplex operator. -/
 def presheafMap (A : CosimplicialObject RingCat.{u})
@@ -95,7 +111,12 @@ def presheafMap (A : CosimplicialObject RingCat.{u})
 theorem presheafMap_id (A : CosimplicialObject RingCat.{u})
     (X : (SimplexCategoryᵒᵖ)ᵒᵖ) :
     presheafMap A (𝟙 X) = (ModuleCat.restrictScalarsId' ((ringPresheaf A).map (𝟙 X)).hom
-      (congrArg RingCat.Hom.hom ((ringPresheaf A).map_id X))).inv.app _ := sorry
+      (congrArg RingCat.Hom.hom ((ringPresheaf A).map_id X))).inv.app _ := by
+  apply ModuleCat.hom_ext
+  apply Finsupp.lhom_ext
+  intro i c
+  change map A (𝟙 (unop (unop X))) (Finsupp.single i c) = Finsupp.single i c
+  simp [map_single]
 
 /-- The composition law for the degreewise module maps. -/
 theorem presheafMap_comp (A : CosimplicialObject RingCat.{u})
@@ -104,7 +125,13 @@ theorem presheafMap_comp (A : CosimplicialObject RingCat.{u})
       (ModuleCat.restrictScalars _).map (presheafMap A g) ≫
         (ModuleCat.restrictScalarsComp' ((ringPresheaf A).map f).hom
           ((ringPresheaf A).map g).hom ((ringPresheaf A).map (f ≫ g)).hom
-          (congrArg RingCat.Hom.hom <| (ringPresheaf A).map_comp f g)).inv.app _ := sorry
+          (congrArg RingCat.Hom.hom <| (ringPresheaf A).map_comp f g)).inv.app _ := by
+  apply ModuleCat.hom_ext
+  apply Finsupp.lhom_ext
+  intro i c
+  change map A (f.unop.unop ≫ g.unop.unop) (Finsupp.single i c) =
+    map A g.unop.unop (map A f.unop.unop (Finsupp.single i c))
+  simp [map_single]
 
 /-- The concrete presheaf of vertex modules attached to a cosimplicial ring. -/
 noncomputable def presheaf (A : CosimplicialObject RingCat.{u}) :
@@ -119,13 +146,28 @@ noncomputable def presheaf (A : CosimplicialObject RingCat.{u}) :
 theorem homotopy_zero_endpoint (A : CosimplicialObject RingCat.{u})
     (n : SimplexCategory) :
     ModuleCat.ofHom (component A n (SSet.stdSimplex.const 1 0 (op n))) =
-      PresheafOfModules.Hom.app (𝟙 (presheaf A)) (op (op n)) := sorry
+      PresheafOfModules.Hom.app (𝟙 (presheaf A)) (op (op n)) := by
+  apply ModuleCat.hom_ext
+  apply Finsupp.lhom_ext
+  intro i c
+  change hom A n (Finsupp.single i c) (SSet.stdSimplex.const 1 0 (op n)) =
+    Finsupp.single i c
+  rw [hom_single_apply]
+  change (if (0 : Fin 2) = 0 then Finsupp.single i c else 0) = Finsupp.single i c
+  rfl
 
 /-- Evaluation at the constant one simplex gives the zero component. -/
 theorem homotopy_one_endpoint (A : CosimplicialObject RingCat.{u})
     (n : SimplexCategory) :
     ModuleCat.ofHom (component A n (SSet.stdSimplex.const 1 1 (op n))) =
-      PresheafOfModules.Hom.app (0 : presheaf A ⟶ presheaf A) (op (op n)) := sorry
+      PresheafOfModules.Hom.app (0 : presheaf A ⟶ presheaf A) (op (op n)) := by
+  apply ModuleCat.hom_ext
+  apply Finsupp.lhom_ext
+  intro i c
+  change hom A n (Finsupp.single i c) (SSet.stdSimplex.const 1 1 (op n)) = 0
+  rw [hom_single_apply]
+  change (if (1 : Fin 2) = 0 then Finsupp.single i c else 0) = 0
+  rfl
 
 /-- The cutoff homotopy is natural with respect to simplex operators. -/
 theorem homotopy_naturality (A : CosimplicialObject RingCat.{u})
@@ -134,7 +176,11 @@ theorem homotopy_naturality (A : CosimplicialObject RingCat.{u})
     (presheaf A).map (op (op σ) : op (op n₁) ⟶ op (op n₂)) ≫
         (ModuleCat.restrictScalars _).map (ModuleCat.ofHom (component A n₂ α)) =
       ModuleCat.ofHom (component A n₁ ((Δ[1] : SSet).map σ.op α)) ≫
-        (presheaf A).map (op (op σ) : op (op n₁) ⟶ op (op n₂)) := sorry
+        (presheaf A).map (op (op σ) : op (op n₁) ⟶ op (op n₂)) := by
+  apply ModuleCat.hom_ext
+  apply LinearMap.ext
+  intro x
+  exact hom_naturality A σ x α
 
 /-- The module-valued cutoff homotopy on the vertex presheaf. -/
 noncomputable def homotopy (A : CosimplicialObject RingCat.{u}) :
@@ -149,11 +195,13 @@ noncomputable def homotopy (A : CosimplicialObject RingCat.{u}) :
 theorem homotopy_hom_apply (A : CosimplicialObject RingCat.{u})
     {n : SimplexCategory} (α : (Δ[1] : SSet.{0}).obj (op n))
     (x : Fin (n.len + 1) →₀ A.obj n) :
-    (homotopy A).hom α x = hom A n x α := sorry
+    (homotopy A).hom α x = hom A n x α := by
+  rfl
 
 /-- The vertex module presheaf has the displayed module-valued homotopy. -/
 theorem homotopic_zero (A : CosimplicialObject RingCat.{u}) :
     Nonempty (PresheafOfModules.CosimplicialHomotopy (presheaf A)
-      (𝟙 (presheaf A)) (0 : presheaf A ⟶ presheaf A)) := sorry
+      (𝟙 (presheaf A)) (0 : presheaf A ⟶ presheaf A)) := by
+  exact ⟨homotopy A⟩
 
 end CategoryTheory.CosimplicialObject.VertexModule

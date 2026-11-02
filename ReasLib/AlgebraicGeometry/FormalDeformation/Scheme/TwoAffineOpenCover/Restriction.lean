@@ -192,6 +192,15 @@ def overlapSectionsMap₁ {src tgt : deformationCategory_overlap₁ Λ k c hX} (
     sorry
   exact FlatAlgebraCat.Hom.of base ring certificates.1 (certificates.2 certificates.1)
 
+/-- Flat-algebra morphisms are determined by their base and ring maps. -/
+theorem restrictionFlatAlgebraHom_ext {Q P : FlatAlgebraCat Λ k} {f g : Q ⟶ P}
+    (hbase : f.baseHom = g.baseHom) (hring : f.toRingHom = g.toRingHom) : f = g := by
+  rcases f with ⟨_, _, _, _⟩
+  rcases g with ⟨_, _, _, _⟩
+  cases hbase
+  cases hring
+  rfl
+
 /-- The functor `Def_{overlapOpenSpec₁} ⥤ Def_{P₁₂}` sending `(A, W)` to `(A, Γ(W, ⊤))`. -/
 def overlapSectionsFunctor₁ :
     deformationCategory_overlap₁ Λ k c hX ⥤ deformationCategory_ringInf Λ k c hX := by
@@ -204,7 +213,31 @@ def overlapSectionsFunctor₁ :
       (∀ {src mid tgt : deformationCategory_overlap₁ Λ k c hX}
         (f : src ⟶ mid) (g : mid ⟶ tgt),
         overlapSectionsMap₁ Λ k c hX (f ≫ g) =
-          overlapSectionsMap₁ Λ k c hX f ≫ overlapSectionsMap₁ Λ k c hX g) := sorry
+          overlapSectionsMap₁ Λ k c hX f ≫ overlapSectionsMap₁ Λ k c hX g) := by
+    refine ⟨?_, ?_, ?_⟩
+    · intro src tgt f
+      apply restrictionFlatAlgebraHom_ext
+      · change f.left.baseHom ≫ tgt.hom.baseHom = src.hom.baseHom
+        exact congrArg FlatSchemeCat.Hom.baseHom f.w
+      · have h := congrArg FlatSchemeCat.Hom.schemeHom f.w
+        change tgt.hom.schemeHom ≫ f.left.schemeHom = src.hom.schemeHom at h
+        change (f.left.schemeHom.appTop ≫ tgt.hom.schemeHom.appTop ≫
+            (overlapIso₁ c).inv.appTop ≫ (c.U₁ ⊓ c.U₂).topIso.hom).hom =
+          (src.hom.schemeHom.appTop ≫ (overlapIso₁ c).inv.appTop ≫
+            (c.U₁ ⊓ c.U₂).topIso.hom).hom
+        rw [← Category.assoc, ← Scheme.Hom.comp_appTop, h]
+    · intro Y
+      apply restrictionFlatAlgebraHom_ext
+      · rfl
+      · change (Scheme.Hom.appTop (𝟙 Y.left.scheme)).hom = RingHom.id _
+        simp
+    · intro src mid tgt f g
+      apply restrictionFlatAlgebraHom_ext
+      · rfl
+      · change (g.left.schemeHom ≫ f.left.schemeHom).appTop.hom =
+          g.left.schemeHom.appTop.hom.comp f.left.schemeHom.appTop.hom
+        rw [Scheme.Hom.comp_appTop]
+        rfl
   exact {
     obj := fun Y ↦ Over.mk (overlapSectionsResidueHom₁ Λ k c hX Y)
     map := fun f ↦ Over.homMk (overlapSectionsMap₁ Λ k c hX f) (certificates.1 f)
@@ -224,8 +257,10 @@ def restrictRingFunctor₁ :
 /-- `restrictRingFunctor₁` lies strictly over `ArtinianLocalAlgCat`. -/
 theorem restrictRingFunctor₁_comp_forget :
     (restrictRingFunctor₁ Λ k c hX).comp (algebraForget_ringInf Λ k c hX) =
-      algebraForget_ring₁ Λ k c hX :=
-  sorry
+      algebraForget_ring₁ Λ k c hX := by
+  exact CategoryTheory.Functor.ext (fun _ ↦ rfl) (fun _ _ f ↦
+    ((Category.id_comp (f.left.baseHom ≫ 𝟙 _)).trans
+      (Category.comp_id f.left.baseHom)).symm)
 
 /-- The morphism `Def_{P₁} ⥤ᵇ Def_{P₁₂}` of categories over `ArtinianLocalAlgCat`. -/
 def restrictRing₁ :
@@ -296,7 +331,31 @@ def overlapSectionsFunctor₂ :
       (∀ {src mid tgt : deformationCategory_overlap₂ Λ k c hX}
         (f : src ⟶ mid) (g : mid ⟶ tgt),
         overlapSectionsMap₂ Λ k c hX (f ≫ g) =
-          overlapSectionsMap₂ Λ k c hX f ≫ overlapSectionsMap₂ Λ k c hX g) := sorry
+          overlapSectionsMap₂ Λ k c hX f ≫ overlapSectionsMap₂ Λ k c hX g) := by
+    refine ⟨?_, ?_, ?_⟩
+    · intro src tgt f
+      apply restrictionFlatAlgebraHom_ext
+      · change f.left.baseHom ≫ tgt.hom.baseHom = src.hom.baseHom
+        exact congrArg FlatSchemeCat.Hom.baseHom f.w
+      · have h := congrArg FlatSchemeCat.Hom.schemeHom f.w
+        change tgt.hom.schemeHom ≫ f.left.schemeHom = src.hom.schemeHom at h
+        change (f.left.schemeHom.appTop ≫ tgt.hom.schemeHom.appTop ≫
+            (overlapIso₂ c).inv.appTop ≫ (c.U₁ ⊓ c.U₂).topIso.hom).hom =
+          (src.hom.schemeHom.appTop ≫ (overlapIso₂ c).inv.appTop ≫
+            (c.U₁ ⊓ c.U₂).topIso.hom).hom
+        rw [← Category.assoc, ← Scheme.Hom.comp_appTop, h]
+    · intro Y
+      apply restrictionFlatAlgebraHom_ext
+      · rfl
+      · change (Scheme.Hom.appTop (𝟙 Y.left.scheme)).hom = RingHom.id _
+        simp
+    · intro src mid tgt f g
+      apply restrictionFlatAlgebraHom_ext
+      · rfl
+      · change (g.left.schemeHom ≫ f.left.schemeHom).appTop.hom =
+          g.left.schemeHom.appTop.hom.comp f.left.schemeHom.appTop.hom
+        rw [Scheme.Hom.comp_appTop]
+        rfl
   exact {
     obj := fun Y ↦ Over.mk (overlapSectionsResidueHom₂ Λ k c hX Y)
     map := fun f ↦ Over.homMk (overlapSectionsMap₂ Λ k c hX f) (certificates.1 f)
@@ -316,8 +375,10 @@ def restrictRingFunctor₂ :
 /-- `restrictRingFunctor₂` lies strictly over `ArtinianLocalAlgCat`. -/
 theorem restrictRingFunctor₂_comp_forget :
     (restrictRingFunctor₂ Λ k c hX).comp (algebraForget_ringInf Λ k c hX) =
-      algebraForget_ring₂ Λ k c hX :=
-  sorry
+      algebraForget_ring₂ Λ k c hX := by
+  exact CategoryTheory.Functor.ext (fun _ ↦ rfl) (fun _ _ f ↦
+    ((Category.id_comp (f.left.baseHom ≫ 𝟙 _)).trans
+      (Category.comp_id f.left.baseHom)).symm)
 
 /-- The morphism `Def_{P₂} ⥤ᵇ Def_{P₁₂}` of categories over `ArtinianLocalAlgCat`. -/
 def restrictRing₂ :

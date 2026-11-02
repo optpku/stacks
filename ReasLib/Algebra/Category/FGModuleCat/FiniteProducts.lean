@@ -29,10 +29,31 @@ namespace FGModuleCat
 variable (R : Type u) [Ring R]
 
 /-- Finite products exist in `FGModuleCat R` for an arbitrary ring `R`. -/
-instance instHasFiniteProducts : HasFiniteProducts (FGModuleCat.{v} R) := sorry
+instance instHasFiniteProducts : HasFiniteProducts (FGModuleCat.{v} R) where
+  out n :=
+    { has_limit := fun F => HasLimit.mk
+        { cone :=
+            { pt := of R (∀ i : Fin n, F.obj ⟨i⟩)
+              π := Discrete.natTrans fun i => ofHom (LinearMap.proj i.as) }
+          isLimit :=
+            { lift := fun s => ofHom (LinearMap.pi fun i => (s.π.app ⟨i⟩).hom.hom)
+              fac := by
+                intro s i
+                apply hom_ext
+                rfl
+              uniq := by
+                intro s m h
+                apply hom_ext
+                apply LinearMap.ext
+                intro x
+                funext i
+                exact DFunLike.congr_fun (congrArg (fun f => f.hom.hom) (h ⟨i⟩)) x } } }
 
 /-- The finitely generated zero module is a zero object of `FGModuleCat R`. -/
-theorem isZero_ofPUnit : IsZero (of R (PUnit : Type v)) := sorry
+theorem isZero_ofPUnit : IsZero (of R (PUnit : Type v)) :=
+  IsZero.of_full_of_faithful_of_isZero
+    (forget₂ (FGModuleCat.{v} R) (ModuleCat.{v} R)) _
+    (ModuleCat.isZero_of_subsingleton (ModuleCat.of R (PUnit : Type v)))
 
 /-- The zero object of `FGModuleCat R` is the zero module. -/
 instance instHasZeroObject : HasZeroObject (FGModuleCat.{v} R) where

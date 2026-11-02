@@ -73,8 +73,17 @@ def stageVarsMap {E E' : Index A} (h : E ≤ E') : StageVars E → StageVars E' 
 `E ⊆ E'`. -/
 theorem stageMap_span_le {E E' : Index A} (h : E ≤ E') :
     stageIdeal E ≤
-      (stageIdeal E').comap (rename (stageVarsMap h)).toRingHom :=
-  sorry
+      (stageIdeal E').comap (rename (stageVarsMap h)).toRingHom := by
+  apply Ideal.span_le.mpr
+  rintro _ ⟨x, rfl⟩
+  change rename (stageVarsMap h) (stageRelation E x) ∈ stageIdeal E'
+  have hrel : rename (stageVarsMap h) (stageRelation E x) =
+      stageRelation E' (stageVarsMap h x) := by
+    unfold stageRelation
+    rw [rename_rename]
+    rfl
+  rw [hrel]
+  exact Ideal.subset_span ⟨stageVarsMap h x, rfl⟩
 
 /-- The canonical `A`-algebra transition `B_E → B_{E'}` along `E ⊆ E'`,
 inserting `1`s in the extra tensor factors. -/
@@ -101,8 +110,29 @@ noncomputable def ringFunctor (A : Type u) [CommRing A] :
     Index A ⥤ CommRingCat.{u} where
   obj E := of (stage E)
   map f := ofHom (stageMap (leOfHom f)).toRingHom
-  map_id := sorry
-  map_comp := sorry
+  map_id E := by
+    apply CommRingCat.hom_ext
+    apply Ideal.Quotient.ringHom_ext
+    apply RingHom.ext
+    intro p
+    change Ideal.Quotient.mk (stageIdeal E)
+        (rename (stageVarsMap (leOfHom (𝟙 E))) p) =
+      Ideal.Quotient.mk (stageIdeal E) p
+    have h : stageVarsMap (leOfHom (𝟙 E)) = _root_.id := by
+      funext x
+      rfl
+    rw [h, rename_id_apply]
+  map_comp {E E' E''} f g := by
+    apply CommRingCat.hom_ext
+    apply Ideal.Quotient.ringHom_ext
+    apply RingHom.ext
+    intro p
+    change Ideal.Quotient.mk (stageIdeal E'')
+        (rename (stageVarsMap (leOfHom (f ≫ g))) p) =
+      Ideal.Quotient.mk (stageIdeal E'')
+        (rename (stageVarsMap (leOfHom g)) (rename (stageVarsMap (leOfHom f)) p))
+    rw [rename_rename]
+    rfl
 
 end Algebra.IndEtaleEnvelope
 
@@ -160,8 +190,20 @@ noncomputable def stagePushPoly {A' : Type u} [CommRing A'] (φ : A →+* A')
 /-- Relations of `B_E` push forward into the relations of `B_{φ(E)}`. -/
 theorem stageHomAlong_span_le {A' : Type u} [CommRing A'] (φ : A →+* A')
     (E : Index A) :
-    stageIdeal E ≤ (stageIdeal ((indexMap φ).obj E)).comap (stagePushPoly φ E) :=
-  sorry
+    stageIdeal E ≤ (stageIdeal ((indexMap φ).obj E)).comap (stagePushPoly φ E) := by
+  apply Ideal.span_le.mpr
+  rintro _ ⟨x, rfl⟩
+  change stagePushPoly φ E (stageRelation E x) ∈ stageIdeal ((indexMap φ).obj E)
+  have hrel : stagePushPoly φ E (stageRelation E x) =
+      stageRelation ((indexMap φ).obj E) (stageVarsMapAlong φ E x) := by
+    change rename (stageVarsMapAlong φ E)
+        (MvPolynomial.map φ (rename
+          (fun j : Fin x.1.1.n ↦ (⟨x.1, j⟩ : StageVars E))
+          (x.1.1.relations x.2))) = _
+    rw [map_rename, rename_rename]
+    rfl
+  rw [hrel]
+  exact Ideal.subset_span ⟨stageVarsMapAlong φ E x, rfl⟩
 
 /-- The stage ring map `B_E → B_{φ(E)}` induced by coefficient pushforward. -/
 noncomputable def stageHomAlong {A' : Type u} [CommRing A'] (φ : A →+* A')
@@ -174,7 +216,19 @@ stage diagram of `A'`. -/
 noncomputable def stageNatTrans {A' : Type u} [CommRing A'] (φ : A →+* A') :
     ringFunctor A ⟶ indexMap φ ⋙ ringFunctor A' where
   app E := ofHom (stageHomAlong φ E)
-  naturality := sorry
+  naturality {E E'} f := by
+    apply CommRingCat.hom_ext
+    apply Ideal.Quotient.ringHom_ext
+    apply RingHom.ext
+    intro p
+    change Ideal.Quotient.mk (stageIdeal ((indexMap φ).obj E'))
+        (rename (stageVarsMapAlong φ E')
+          (MvPolynomial.map φ (rename (stageVarsMap (leOfHom f)) p))) =
+      Ideal.Quotient.mk (stageIdeal ((indexMap φ).obj E'))
+        (rename (stageVarsMap (leOfHom ((indexMap φ).map f)))
+          (rename (stageVarsMapAlong φ E) (MvPolynomial.map φ p)))
+    rw [map_rename, rename_rename, rename_rename]
+    rfl
 
 /-- The functoriality map `T(φ) : T(A) →+* T(A')`, obtained as the colimit
 comparison of the natural transformation between the finite-stage diagrams. -/
@@ -187,14 +241,36 @@ noncomputable def map {A' : Type u} [CommRing A'] (φ : A →+* A') :
 theorem map_ι {A' : Type u} [CommRing A'] (φ : A →+* A') (E : Index A) :
     (map φ).comp (colimit.ι (ringFunctor A) E).hom =
       (colimit.ι (ringFunctor A') ((indexMap φ).obj E)).hom.comp
-        ((stageNatTrans φ).app E).hom :=
-  sorry
+        ((stageNatTrans φ).app E).hom := by
+  exact congrArg CommRingCat.Hom.hom
+    (colimit.ι_desc
+      ((Cocone.precompose (stageNatTrans φ)).obj
+        ((colimit.cocone (ringFunctor A')).whisker (indexMap φ))) E)
 
 /-- Outer square in the category of rings: `T(φ)` commutes with the structure
 maps of `T(A)` and `T(A')`. -/
 theorem map_comp_algebraMap {A' : Type u} [CommRing A'] (φ : A →+* A') :
     (map φ).comp (algebraMap A (IndEtaleEnvelope A)) =
-      (algebraMap A' (IndEtaleEnvelope A')).comp φ :=
-  sorry
+      (algebraMap A' (IndEtaleEnvelope A')).comp φ := by
+  apply RingHom.ext
+  intro a
+  change map φ (algebraMap_self A a) = algebraMap_self A' (φ a)
+  refine Eq.trans
+    (RingHom.congr_fun (map_ι φ (emptyIndex A))
+      (algebraMap A (stage (emptyIndex A)) a)) ?_
+  change (colimit.ι (ringFunctor A') ((indexMap φ).obj (emptyIndex A))).hom
+      (Ideal.Quotient.mk _ (rename _ (MvPolynomial.map φ (C a)))) =
+    algebraMap_self A' (φ a)
+  rw [MvPolynomial.map_C, rename_C]
+  let f : emptyIndex A' ⟶ (indexMap φ).obj (emptyIndex A) :=
+    homOfLE (Set.empty_subset _)
+  have h := RingHom.congr_fun
+    (congrArg CommRingCat.Hom.hom (colimit.w (ringFunctor A') f))
+    (algebraMap A' (stage (emptyIndex A')) (φ a))
+  change (colimit.ι (ringFunctor A') ((indexMap φ).obj (emptyIndex A))).hom
+      (stageMap (leOfHom f) (algebraMap A' (stage (emptyIndex A')) (φ a))) =
+    algebraMap_self A' (φ a) at h
+  rw [AlgHom.commutes] at h
+  exact h
 
 end Algebra.IndEtaleEnvelope

@@ -139,19 +139,22 @@ theorem projectiveIndex_def
       Module.finrank k (Scheme.Hom.globalSectionsMod X.hom D.associatedSheaf) - 1 := sorry
 
 /-- The effective divisors in a complete system are exactly the rational Hilbert points in its
-Abel-map fibre. -/
+Abel-map fibre, using a representation with the same universal divisor as the fixed Abel map. -/
 theorem points_iff
     {k : Type u} [Field k] [IsAlgClosed k]
     (X : SchemeOverField k) [AlgebraicGeometry.Curve X] [Smooth X.hom] [Projective X.hom]
     (D E : X.left.IdealSheafData)
     [IsEffectiveCartierDivisor D.subschemeι]
     [IsEffectiveCartierDivisor E.subschemeι] (d : ℕ)
+    (R : (Hilbert.functor X d).RepresentableBy (Hilbert.functor X d).reprX)
+    (hR : (R.homEquiv (𝟙 (Hilbert.functor X d).reprX)).ideal =
+      Hilbert.universalDivisor X d)
     (degree_eq : Scheme.Modules.curveDegreeOfInvertible X.hom
       (topologicalKrullDim_eq_one X).le D.associatedSheaf = (d : ℤ)) :
     E ∈ completeLinearSystem X.left D ↔
       ∃ p : (Over.mk (FieldExtension.specMap k k) : SchemeOverField k) ⟶
           abelFibre X D d degree_eq,
-        (Hilbert.rationalPointsEquiv X d
+        (Hilbert.rationalPointsEquiv X d (Hilbert.functor X d).reprX R
           (p ≫ pullback.fst (RelativePicard.abelMap X d)
             (picardPoint X D d degree_eq))).ideal =
           E.comap (pullback.fst X.hom (FieldExtension.specMap k k)) := sorry

@@ -9,6 +9,7 @@ module
 public import ReasLib.Algebra.Homology.CochainComplex.CartanEilenberg.Properties
 public import ReasLib.CategoryTheory.Homology.DoubleComplex.TotalComparison.QuasiIso
 public import ReasLib.CategoryTheory.Homology.DoubleComplex.TotalSupport
+public import Mathlib.Data.Int.Interval
 
 /-!
 # Total Complex of a Cartan--Eilenberg Resolution
@@ -36,7 +37,63 @@ variable {K : CochainComplex.Plus A}
 coproduct total. -/
 @[stacks 015H "total existence for a Cartan-Eilenberg double complex"]
 instance Bicomplex.hasTotal (I : CartanEilenbergResolution K) :
-    I.bicomplex.HasTotal (up ℤ) := sorry
+    I.bicomplex.HasTotal (up ℤ) := by
+  classical
+  intro n
+  let T := {ij : ℤ × ℤ // ij.1 + ij.2 = n}
+  let X : T → A := fun ij => (I.bicomplex.X ij.1.1).X ij.1.2
+  change HasCoproduct X
+  have hfin : {ij : T | ¬ IsZero (X ij)}.Finite := by
+    obtain ⟨a, ha⟩ := I.horizontalPlus
+    letI : CochainComplex.IsStrictlyGE I.bicomplex a := ha
+    refine Set.Finite.of_injOn (f := fun ij : T => ij.1.1) ?_ ?_
+      (Set.finite_Icc a n)
+    · intro ij hij
+      constructor
+      · by_contra hpa
+        have hz := CochainComplex.isZero_of_isStrictlyGE I.bicomplex a ij.1.1
+          (lt_of_not_ge hpa)
+        exact hij ((HomologicalComplex.eval A (up ℤ) ij.1.2).map_isZero hz)
+      · by_contra hpn
+        have hn : ij.1.2 < 0 := by
+          have hi : ij.1.1 + ij.1.2 = n := ij.2
+          change ¬ ij.1.1 ≤ n at hpn
+          omega
+        have hz := CochainComplex.isZero_of_isStrictlyGE
+          (I.columnResolution ij.1.1).cochainComplex 0 ij.1.2 hn
+        exact hij (hz.of_iso
+          ((HomologicalComplex.eval A (up ℤ) ij.1.2).mapIso (I.columnIso ij.1.1).symm))
+    · intro ij _ kl _ h
+      apply Subtype.ext
+      apply Prod.ext h
+      have hi : ij.1.1 + ij.1.2 = n := ij.2
+      have hk : kl.1.1 + kl.1.2 = n := kl.2
+      change ij.1.1 = kl.1.1 at h
+      omega
+  let S := {ij : T // ¬ IsZero (X ij)}
+  letI : Fintype S := hfin.fintype
+  let Y : S → A := fun ij => X ij.1
+  let c : Cofan X := Cofan.mk (∐ Y)
+    (fun ij => if h : ¬ IsZero (X ij) then Sigma.ι Y ⟨ij, h⟩ else 0)
+  apply HasColimit.mk
+  refine ⟨c, Cofan.IsColimit.mk c
+    (fun s => Sigma.desc (fun ij : S => s.inj ij.1)) ?_ ?_⟩
+  · intro s ij
+    change (if h : ¬ IsZero (X ij) then (Sigma.ι Y ⟨ij, h⟩ : X ij ⟶ ∐ Y) else 0) ≫
+      Sigma.desc (fun kl : S => s.inj kl.1) = s.inj ij
+    by_cases hij : ¬ IsZero (X ij)
+    · simp only [dif_pos hij, Sigma.ι_desc]
+    · exact (not_not.mp hij).eq_of_src _ _
+  · intro s m hm
+    change (m : (∐ Y) ⟶ s.pt) = Sigma.desc (fun ij : S => s.inj ij.1)
+    apply Sigma.hom_ext (f := Y)
+    rintro ⟨ij, hij⟩
+    rw [Sigma.ι_desc]
+    have h := hm ij
+    change (if h : ¬ IsZero (X ij) then
+      (Sigma.ι Y ⟨ij, h⟩ : X ij ⟶ ∐ Y) else 0) ≫ m = s.inj ij at h
+    rw [dif_pos hij] at h
+    exact h
 
 variable (I : CartanEilenbergResolution K)
 

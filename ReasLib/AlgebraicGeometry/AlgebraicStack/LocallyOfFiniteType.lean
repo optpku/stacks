@@ -53,7 +53,7 @@ theorem locallyOfFiniteType_iff {S : Scheme.{u}} {X Y : GroupoidsOver S}
         (h : U ⟶ V),
         IsSmoothSurjectivePresentation f a b h ∧
           AlgebraicSpace.LocallyOfFiniteType h :=
-  sorry
+  ⟨fun h ↦ h.exists_surjective_smooth_presentation, fun h ↦ ⟨h⟩⟩
 
 namespace LocallyOfFiniteType
 
@@ -89,7 +89,7 @@ theorem iff_groupoidsHom {S : Scheme.{u}} {X Y : GroupoidsOver S}
 /-- The identity morphism of an algebraic stack is locally of finite type. -/
 instance id {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X] :
     LocallyOfFiniteType (𝟙 X) :=
-  sorry
+  of_groupoidsHom (𝟙 X)
 
 /-- A locally-of-finite-type morphism of algebraic stacks admits a smooth
 algebraic-space presentation with surjective source atlas and
@@ -101,14 +101,18 @@ theorem spec {S : Scheme.{u}} {X Y : GroupoidsOver S}
       (h : U ⟶ V),
       IsSmoothSurjectivePresentation f a b h ∧
         AlgebraicSpace.LocallyOfFiniteType h :=
-  sorry
+  LocallyOfFiniteType.exists_surjective_smooth_presentation (f := f)
 
 /-- A morphism of algebraic spaces that is locally of finite type induces a
 1-morphism of algebraic stacks that is locally of finite type. -/
 instance of_toGroupoids {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
     [AlgebraicSpace.LocallyOfFiniteType f] :
-    LocallyOfFiniteType (AlgebraicSpace.toGroupoids.map f) :=
-  sorry
+    LocallyOfFiniteType (AlgebraicSpace.toGroupoids.map f) where
+  exists_surjective_smooth_presentation := by
+    refine ⟨X, Y, 𝟙 X.toGroupoids, 𝟙 Y.toGroupoids, f, ?_, inferInstance⟩
+    refine ⟨inferInstance, inferInstance, inferInstance, ?_⟩
+    exact ⟨(λ_ (AlgebraicSpace.toGroupoids.map f)) ≪≫
+      (ρ_ (AlgebraicSpace.toGroupoids.map f)).symm⟩
 
 end LocallyOfFiniteType
 

@@ -41,8 +41,9 @@ correspond to degree-`d` effective divisors on the base-changed curve. -/
   (AlgebraicGeometry.Hilbert.rationalPointsEquiv :
     ∀ {k K : Type u} [Field k] [Field K] [Algebra k K]
       (X : SchemeOverField k) [Curve X] [GeometricallyIrreducible X.hom]
-      [SmoothOfRelativeDimension 1 X.hom] [IsProper X.hom] (d : ℕ),
-      ((Over.mk (FieldExtension.specMap k K) : SchemeOverField k) ⟶ (functor X d).reprX) ≃
+      [SmoothOfRelativeDimension 1 X.hom] [IsProper X.hom] (d : ℕ)
+      (H : SchemeOverField k) (R : (functor X d).RepresentableBy H),
+      ((Over.mk (FieldExtension.specMap k K) : SchemeOverField k) ⟶ H) ≃
         Point X d (Over.mk (FieldExtension.specMap k K)))
 
 /- Addition of effective divisors of degrees `d₁` and `d₂` is finite locally free of rank

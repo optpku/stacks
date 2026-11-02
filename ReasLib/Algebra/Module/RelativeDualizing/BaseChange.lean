@@ -49,13 +49,18 @@ scoped instance Algebra.RelativeDual.baseChangeIsScalarTower
     [IsScalarTower R B C] [IsScalarTower R C' C] :
     IsScalarTower B (B ⊗[R] C') C := sorry
 
-/-- Base change of the finite open model `C' → C` along `R → B` is again
-an open model of `C`. -/
+/-- If both `Spec B → Spec R` and `Spec C → Spec C'` are open immersions,
+the canonical map `Spec C → Spec (B ⊗[R] C')` is an open immersion.
+
+The projection of the fiber product to `Spec C'` is an open immersion by base change.
+The given map `Spec C → Spec C'` factors through that open subscheme, so its factor
+is again an open immersion. No finiteness or flatness hypothesis is added. -/
 theorem Algebra.RelativeDual.baseChange_isOpenImmersion
     (R B C' C : Type u)
     [CommRing R] [CommRing B] [CommRing C'] [CommRing C]
     [Algebra R B] [Algebra R C'] [Algebra R C] [Algebra B C] [Algebra C' C]
     [IsScalarTower R B C] [IsScalarTower R C' C]
+    (h_openB : IsOpenImmersion (Spec.map (CommRingCat.ofHom (algebraMap R B))))
     (h_open : IsOpenImmersion (Spec.map (CommRingCat.ofHom (algebraMap C' C)))) :
     IsOpenImmersion (Spec.map (CommRingCat.ofHom
       (algebraMap (B ⊗[R] C') C))) := sorry

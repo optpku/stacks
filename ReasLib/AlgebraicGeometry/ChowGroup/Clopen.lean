@@ -46,7 +46,11 @@ abbrev boundaries (U : X.left.Opens) (n : ℤ) : AddSubgroup (cycles δ X U n) :
 
 /-- The inclusion of a clopen subscheme is proper. -/
 theorem inclusion_isProper (U : X.left.Opens) (hU : IsClosed (U : Set X.left)) :
-    IsProper (ι X U).left := sorry
+    IsProper (ι X U).left := by
+  change IsProper U.ι
+  letI : IsClosedImmersion U.ι :=
+    IsClosedImmersion.of_isPreimmersion U.ι (by simpa only [U.range_ι] using hU)
+  infer_instance
 
 /-- Restriction of a homogeneous Chow class to an open subscheme. -/
 def restrict (U : X.left.Opens) (n : ℤ) :
@@ -81,7 +85,28 @@ theorem assembledCycles_locallyFinite (n : ℤ)
     (a : ∀ i, cycles δ X (U i) n) :
     LocallyFinite fun i ↦
       (CycleGroup.toAlgebraicCycle (X.hom.relativeDimensionFunction δ) n
-        (extendedCycles δ X U hclosed n a i)).support := sorry
+        (extendedCycles δ X U hclosed n a i)).support := by
+  have hU : LocallyFinite fun i ↦ (U i : Set X.left) := by
+    intro x
+    have hx : x ∈ iSup U := by
+      rw [hcover]
+      trivial
+    obtain ⟨i, hxi⟩ := TopologicalSpace.Opens.mem_iSup.mp hx
+    refine ⟨(U i : Set X.left), (U i).isOpen.mem_nhds hxi, ?_⟩
+    refine (Set.finite_singleton i).subset ?_
+    rintro j ⟨y, hyj, hyi⟩
+    by_contra hji
+    exact Set.disjoint_left.mp (hdisjoint hji) hyj hyi
+  apply hU.subset
+  intro i x hx
+  change (∑ᶠ y ∈ (U i).ι.base ⁻¹' {x},
+    (a i).1 y * (AlgebraicCycle.mapCoeff (U i).ι
+      (((U i).ι ≫ X.hom).relativeDimensionFunction δ)
+      (X.hom.relativeDimensionFunction δ) y : ℤ)) ≠ 0 at hx
+  obtain ⟨y, hy, _⟩ := exists_ne_zero_of_finsum_mem_ne_zero hx
+  have hyx : (U i).ι y = x := hy
+  rw [← hyx]
+  exact y.property
 
 /-- The locally finite sum of cycles extended from a disjoint clopen cover. -/
 def assembleCycles (n : ℤ)
@@ -93,14 +118,66 @@ def assembleCycles (n : ℤ)
 
 /-- Assembly of zero cycles is zero. -/
 theorem assembleCycles_zero (n : ℤ) :
-    assembleCycles δ X U hclosed hdisjoint hcover n 0 = 0 := sorry
+    assembleCycles δ X U hclosed hdisjoint hcover n 0 = 0 := by
+  apply Subtype.ext
+  apply Function.locallyFinsuppWithin.ext
+  intro x
+  change (∑ᶠ i, CycleGroup.toAlgebraicCycle (X.hom.relativeDimensionFunction δ) n
+    (extendedCycles δ X U hclosed n 0 i) x) = 0
+  have hzero (i : I) :
+      CycleGroup.toAlgebraicCycle (X.hom.relativeDimensionFunction δ) n
+          (extendedCycles δ X U hclosed n 0 i) x = 0 := by
+    letI : IsProper (ι X (U i)).left := inclusion_isProper X (U i) (hclosed i)
+    change CycleGroup.toAlgebraicCycle (X.hom.relativeDimensionFunction δ) n
+      (pushCycles δ (ι X (U i)) n (0 : cycles δ X (U i) n)) x = 0
+    have hz : pushCycles δ (ι X (U i)) n (0 : cycles δ X (U i) n) = 0 := by
+      exact CycleGroup.mapValue_zero _ _ _ _
+    rw [hz]
+    rfl
+  simp_rw [hzero]
+  simp
 
 /-- Assembly of cycles preserves addition. -/
 theorem assembleCycles_add (n : ℤ)
     (a b : ∀ i, cycles δ X (U i) n) :
     assembleCycles δ X U hclosed hdisjoint hcover n (a + b) =
       assembleCycles δ X U hclosed hdisjoint hcover n a +
-        assembleCycles δ X U hclosed hdisjoint hcover n b := sorry
+        assembleCycles δ X U hclosed hdisjoint hcover n b := by
+  apply Subtype.ext
+  apply Function.locallyFinsuppWithin.ext
+  intro x
+  have hfinite (c : ∀ i, cycles δ X (U i) n) :
+      (Function.support fun i ↦
+        CycleGroup.toAlgebraicCycle (X.hom.relativeDimensionFunction δ) n
+          (extendedCycles δ X U hclosed n c i) x).Finite :=
+    (assembledCycles_locallyFinite δ X U hclosed hdisjoint hcover n c).point_finite x
+  change (∑ᶠ i, CycleGroup.toAlgebraicCycle (X.hom.relativeDimensionFunction δ) n
+      (extendedCycles δ X U hclosed n (a + b) i) x) =
+    (∑ᶠ i, CycleGroup.toAlgebraicCycle (X.hom.relativeDimensionFunction δ) n
+      (extendedCycles δ X U hclosed n a i) x) +
+    ∑ᶠ i, CycleGroup.toAlgebraicCycle (X.hom.relativeDimensionFunction δ) n
+      (extendedCycles δ X U hclosed n b i) x
+  have hadd (i : I) :
+      CycleGroup.toAlgebraicCycle (X.hom.relativeDimensionFunction δ) n
+          (extendedCycles δ X U hclosed n (a + b) i) x =
+        CycleGroup.toAlgebraicCycle (X.hom.relativeDimensionFunction δ) n
+          (extendedCycles δ X U hclosed n a i) x +
+        CycleGroup.toAlgebraicCycle (X.hom.relativeDimensionFunction δ) n
+          (extendedCycles δ X U hclosed n b i) x := by
+    letI : IsProper (ι X (U i)).left := inclusion_isProper X (U i) (hclosed i)
+    change CycleGroup.toAlgebraicCycle (X.hom.relativeDimensionFunction δ) n
+      (pushCycles δ (ι X (U i)) n (a i + b i)) x =
+      CycleGroup.toAlgebraicCycle (X.hom.relativeDimensionFunction δ) n
+        (pushCycles δ (ι X (U i)) n (a i)) x +
+      CycleGroup.toAlgebraicCycle (X.hom.relativeDimensionFunction δ) n
+        (pushCycles δ (ι X (U i)) n (b i)) x
+    have hadd' : pushCycles δ (ι X (U i)) n (a i + b i) =
+        pushCycles δ (ι X (U i)) n (a i) + pushCycles δ (ι X (U i)) n (b i) := by
+      exact CycleGroup.mapValue_add _ _ _ _ _ _
+    rw [hadd']
+    rfl
+  simp_rw [hadd]
+  exact finsum_add_distrib (hfinite a) (hfinite b)
 
 /-- The additive assembly map on cycles of a fixed degree. -/
 def assembleCyclesHom (n : ℤ) :

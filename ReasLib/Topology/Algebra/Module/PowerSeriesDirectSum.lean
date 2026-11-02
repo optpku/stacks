@@ -47,25 +47,40 @@ def openSubmodule (m : ℕ) : Submodule (PowerSeries k) (Module k) :=
 /-- Membership in the weighted submodule is coordinatewise membership in the corresponding ideal
 power. -/
 theorem mem_openSubmodule {m : ℕ} {x : Module k} :
-    x ∈ openSubmodule k m ↔ ∀ n, x n ∈ xIdeal k ^ (n * m) := sorry
+    x ∈ openSubmodule k m ↔ ∀ n, x n ∈ xIdeal k ^ (n * m) := by
+  simp only [openSubmodule, Submodule.mem_iInf, Submodule.mem_comap,
+    ← DirectSum.apply_eq_component]
 
 /-- The weighted submodules admit a common refinement under intersections. -/
 theorem basisInter (m n : ℕ) :
     ∃ p : ℕ, (openSubmodule k p : Set (Module k)) ⊆
-      (openSubmodule k m : Set (Module k)) ∩ openSubmodule k n := sorry
+      (openSubmodule k m : Set (Module k)) ∩ openSubmodule k n := by
+  refine ⟨max m n, ?_⟩
+  intro x hx
+  have hx' := (mem_openSubmodule k).mp hx
+  constructor
+  · exact (mem_openSubmodule k).mpr fun i ↦
+      Ideal.pow_le_pow_right (Nat.mul_le_mul_left i (Nat.le_max_left m n)) (hx' i)
+  · exact (mem_openSubmodule k).mpr fun i ↦
+      Ideal.pow_le_pow_right (Nat.mul_le_mul_left i (Nat.le_max_right m n)) (hx' i)
 
 /-- Every weighted submodule contains the zero vector. -/
-theorem basisZero (m : ℕ) : (0 : Module k) ∈ openSubmodule k m := sorry
+theorem basisZero (m : ℕ) : (0 : Module k) ∈ openSubmodule k m :=
+  (openSubmodule k m).zero_mem
 
 /-- The weighted submodules admit an additive refinement. -/
 theorem basisAdd (m : ℕ) :
     ∃ n : ℕ, (openSubmodule k n : Set (Module k)) + (openSubmodule k n : Set (Module k)) ⊆
-      (openSubmodule k m : Set (Module k)) := sorry
+      (openSubmodule k m : Set (Module k)) := by
+  refine ⟨m, ?_⟩
+  rintro _ ⟨x, hx, y, hy, rfl⟩
+  exact (openSubmodule k m).add_mem hx hy
 
 /-- The weighted submodules admit a refinement stable under negation. -/
 theorem basisNeg (m : ℕ) :
     ∃ n : ℕ, (openSubmodule k n : Set (Module k)) ⊆
-      (fun x : Module k ↦ -x) ⁻¹' (openSubmodule k m : Set (Module k)) := sorry
+      (fun x : Module k ↦ -x) ⁻¹' (openSubmodule k m : Set (Module k)) :=
+  ⟨m, fun _ hx ↦ (openSubmodule k m).neg_mem hx⟩
 
 /-- The additive filter basis whose sets are the weighted submodules. -/
 @[implicit_reducible]
@@ -106,7 +121,14 @@ instance instIsTopologicalAddGroup : IsTopologicalAddGroup (Module k) :=
 /-- The weighted submodules form a neighbourhood basis at zero. -/
 theorem hasBasis_openSubmodule :
     (nhds (0 : Module k)).HasBasis (fun _ : ℕ ↦ True) fun m ↦
-      (openSubmodule k m : Set (Module k)) := sorry
+      (openSubmodule k m : Set (Module k)) := by
+  refine ⟨fun U ↦ ?_⟩
+  rw [(moduleAddGroupFilterBasis k).nhds_zero_hasBasis.mem_iff]
+  constructor
+  · rintro ⟨_, ⟨m, rfl⟩, h⟩
+    exact ⟨m, trivial, h⟩
+  · rintro ⟨m, _, h⟩
+    exact ⟨_, ⟨m, rfl⟩, h⟩
 
 /-- The weighted topology is linear over `k⟦X⟧`. -/
 instance instIsLinearTopology : IsLinearTopology (PowerSeries k) (Module k) :=
@@ -119,22 +141,66 @@ def ringTopologicalSpace : TopologicalSpace (PowerSeries k) :=
 
 /-- Every vector is pointwise absorbed by a sufficiently large power of `X`. -/
 theorem exists_pow_smul_mem (x : Module k) (m : ℕ) :
-    ∃ n : ℕ, ∀ r ∈ xIdeal k ^ n, r • x ∈ openSubmodule k m := sorry
+    ∃ n : ℕ, ∀ r ∈ xIdeal k ^ n, r • x ∈ openSubmodule k m := by
+  classical
+  refine ⟨x.support.sup (fun i ↦ i * m), ?_⟩
+  intro r hr
+  apply (mem_openSubmodule k).mpr
+  intro i
+  change r * x i ∈ xIdeal k ^ (i * m)
+  by_cases hi : i ∈ x.support
+  · exact (xIdeal k ^ (i * m)).mul_mem_right (x i)
+      (Ideal.pow_le_pow_right (Finset.le_sup hi) hr)
+  · rw [DFinsupp.notMem_support_iff.mp hi, mul_zero]
+    exact Ideal.zero_mem _
 
 /-- No power of `X` uniformly absorbs the whole module into a positive weighted submodule. -/
 theorem not_exists_pow_smul_top {m : ℕ} (hm : 0 < m) :
     ¬ ∃ n : ℕ,
-        xIdeal k ^ n • (⊤ : Submodule (PowerSeries k) (Module k)) ≤ openSubmodule k m := sorry
+        xIdeal k ^ n • (⊤ : Submodule (PowerSeries k) (Module k)) ≤ openSubmodule k m := by
+  rintro ⟨n, hn⟩
+  have hX : (PowerSeries.X : PowerSeries k) ^ n ∈ xIdeal k ^ n :=
+    Ideal.pow_mem_pow (Ideal.subset_span (Set.mem_singleton _)) n
+  have hcoord := (mem_openSubmodule k).mp
+    (hn (Submodule.smul_mem_smul hX
+      (show DirectSum.lof (PowerSeries k) ℕ (fun _ : ℕ ↦ PowerSeries k) (n + 1) 1 ∈
+        (⊤ : Submodule (PowerSeries k) (Module k)) from Submodule.mem_top))) (n + 1)
+  change (PowerSeries.X : PowerSeries k) ^ n *
+    (DirectSum.lof (PowerSeries k) ℕ (fun _ : ℕ ↦ PowerSeries k) (n + 1) 1) (n + 1) ∈
+      xIdeal k ^ ((n + 1) * m) at hcoord
+  rw [DirectSum.lof_apply, mul_one] at hcoord
+  have hdvd : (PowerSeries.X : PowerSeries k) ^ ((n + 1) * m) ∣ PowerSeries.X ^ n := by
+    simpa only [xIdeal, Ideal.span_singleton_pow, Ideal.mem_span_singleton] using hcoord
+  have hlt : n < (n + 1) * m := lt_of_lt_of_le (Nat.lt_succ_self n)
+    (by simpa only [Nat.mul_one] using
+      Nat.mul_le_mul_left (n + 1) (Nat.succ_le_of_lt hm))
+  have hzero := PowerSeries.X_pow_dvd_iff.mp hdvd n hlt
+  exact (one_ne_zero : (1 : k) ≠ 0)
+    (by simpa only [PowerSeries.coeff_X_pow_self] using hzero)
 
 /-- Scalar multiplication is continuous for the weighted module topology and the `X`-adic ring
 topology. -/
 theorem continuousSMul {k : Type u} [Field k] [TopologicalSpace (PowerSeries k)]
     [IsTopologicalRing (PowerSeries k)] (h_adic : IsAdic (xIdeal k)) :
-    Continuous fun p : PowerSeries k × Module k ↦ p.1 • p.2 := sorry
+    Continuous fun p : PowerSeries k × Module k ↦ p.1 • p.2 := by
+  letI : ContinuousSMul (PowerSeries k) (Module k) := by
+    apply ContinuousSMul.of_basis_zero (hasBasis_openSubmodule k)
+    · intro m _
+      refine ⟨Set.univ, Filter.univ_mem, m, trivial, ?_⟩
+      rintro _ ⟨r, _, x, hx, rfl⟩
+      exact (openSubmodule k m).smul_mem r hx
+    · intro r m _
+      exact ⟨m, trivial, fun _ hx ↦ (openSubmodule k m).smul_mem r hx⟩
+    · intro x m _
+      obtain ⟨n, hn⟩ := exists_pow_smul_mem k x m
+      exact h_adic.hasBasis_nhds_zero.mem_of_superset (i := n) trivial hn
+  exact continuous_smul
 
 /-- Uniform absorption fails for every weighted index. -/
 theorem not_forall_exists_pow_smul_top {k : Type u} [Field k] :
     ¬ ∀ m : ℕ, ∃ n : ℕ,
-        xIdeal k ^ n • (⊤ : Submodule (PowerSeries k) (Module k)) ≤ openSubmodule k m := sorry
+        xIdeal k ^ n • (⊤ : Submodule (PowerSeries k) (Module k)) ≤ openSubmodule k m := by
+  intro h
+  exact not_exists_pow_smul_top k (m := 1) Nat.zero_lt_one (h 1)
 
 end IsLinearTopology.PowerSeriesDirectSum

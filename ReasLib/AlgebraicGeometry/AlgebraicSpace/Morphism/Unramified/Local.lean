@@ -8,6 +8,9 @@ module
 
 public import Mathlib.Data.List.TFAE
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.Unramified
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Locality.Criteria
+public import ReasLib.AlgebraicGeometry.Scheme.Morphism.EtaleLocal.Unramified
+public import ReasLib.AlgebraicGeometry.Scheme.Morphism.Unramified.BaseChange
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Pullback
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Surjective
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.ZariskiCover.Basic
@@ -44,62 +47,44 @@ theorem unramifiedAt_iff {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
 namespace Unramified
 
 /-- Every base change of `f` along a morphism from a scheme is unramified. -/
-def baseChangeOnSchemes {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
+abbrev baseChangeOnSchemes {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     Prop :=
-  ∀ {Z : Over S} (g : ofOver Z ⟶ Y), Unramified (pullbackAlongScheme.snd f g)
+  Locality.Criteria.forallScheme (@Unramified S) f
 
 /-- Every base change of `f` along a morphism from an affine scheme is
 unramified. -/
-def baseChangeOnAffineSchemes {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+abbrev baseChangeOnAffineSchemes {S : Scheme.{u}} {X Y : AlgebraicSpace S}
     (f : X ⟶ Y) : Prop :=
-  ∀ {Z : Over S} (g : ofOver Z ⟶ Y),
-    IsAffine Z.left → Unramified (pullbackAlongScheme.snd f g)
+  Locality.Criteria.forallAffine (@Unramified S) f
 
 /-- There is a surjective étale morphism from a scheme to `Y` along which the
 base change of `f` is unramified. -/
-def existsSurjectiveEtaleTarget {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+abbrev existsSurjectiveEtaleTarget {S : Scheme.{u}} {X Y : AlgebraicSpace S}
     (f : X ⟶ Y) : Prop :=
-  ∃ (V : Over S) (b : ofOver V ⟶ Y),
-    (over (@AlgebraicGeometry.Etale)).presheaf b ∧
-      Surjective b ∧ Unramified (pullbackAlongScheme.snd f b)
+  Locality.Criteria.existsSurjectiveEtaleTarget (@Unramified S) f
 
 /-- There is a surjective étale morphism `φ` from a scheme to `X` such that
 `φ ≫ f` is unramified. -/
-def existsSurjectiveEtaleSource {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+abbrev existsSurjectiveEtaleSource {S : Scheme.{u}} {X Y : AlgebraicSpace S}
     (f : X ⟶ Y) : Prop :=
-  ∃ (U : Over S) (φ : ofOver U ⟶ X),
-    (over (@AlgebraicGeometry.Etale)).presheaf φ ∧
-      Surjective φ ∧ Unramified (φ ≫ f)
+  Locality.Criteria.existsSurjectiveEtaleSource (@Unramified S) f
 
 /-- Every étale scheme square over `f` has unramified top arrow. -/
-def forallEtaleSquare {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
+abbrev forallEtaleSquare {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     Prop :=
-  ∀ {U V : Over S} (a : yoneda.obj U ⟶ X.functorOfPoints)
-    (b : yoneda.obj V ⟶ Y.functorOfPoints) (h : U ⟶ V),
-    (over (@AlgebraicGeometry.Etale)).presheaf a →
-      (over (@AlgebraicGeometry.Etale)).presheaf b →
-        a ≫ f = yoneda.map h ≫ b → AlgebraicGeometry.Unramified h.left
+  Locality.Criteria.forallEtaleSquare (@AlgebraicGeometry.Unramified) f
 
 /-- There is an étale scheme square over `f` with surjective source cover and
 unramified top arrow. -/
-def existsEtaleSquare {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
+abbrev existsEtaleSquare {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     Prop :=
-  ∃ (U V : Over S) (a : ofOver U ⟶ X) (b : ofOver V ⟶ Y) (h : U ⟶ V),
-    (over (@AlgebraicGeometry.Etale)).presheaf a ∧
-      (over (@AlgebraicGeometry.Etale)).presheaf b ∧
-        a ≫ f = ofOverMap h ≫ b ∧
-          Surjective a ∧ AlgebraicGeometry.Unramified h.left
+  Locality.Criteria.existsEtaleSquare (@AlgebraicGeometry.Unramified) f
 
 /-- There are Zariski coverings of `Y` and of the inverse images in `X` on which
 the pieces of `f` are unramified. -/
-def existsZariskiCover {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
+abbrev existsZariskiCover {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     Prop :=
-  ∃ 𝒱 : ZariskiCover.{u, v} Y, ∀ i : 𝒱.I₀,
-    ∃ (Xi : AlgebraicSpace S) (ι : Xi ⟶ X) (_ : IsOpenImmersion ι)
-      (𝒰 : ZariskiCover.{u, v} Xi) (h : ∀ j, 𝒰.X j ⟶ 𝒱.X i),
-      (∀ j, 𝒰.f j ≫ ι ≫ f = h j ≫ 𝒱.f i) ∧
-        (∀ j, Unramified (h j)) ∧
-          Set.range (Points.map ι) = (Points.map f) ⁻¹' Set.range (Points.map (𝒱.f i))
+  Locality.Criteria.existsZariskiCover.{u, v} (@Unramified S) f
 
 end Unramified
 
@@ -119,7 +104,28 @@ theorem unramified_tfae {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) 
       , Unramified.forallEtaleSquare f
       , Unramified.existsEtaleSquare f
       , Unramified.existsZariskiCover.{u, v} f ] :=
-  sorry
+  by
+    have hP : (@Unramified S : MorphismProperty (AlgebraicSpace S)) =
+        etaleLocal (@AlgebraicGeometry.Unramified) := by
+      funext U V g
+      exact propext (unramified_iff g)
+    have hlocal := Locality.Criteria.etaleLocal_tfae.{u, v}
+      (@AlgebraicGeometry.Unramified) f
+    have hbase : List.TFAE
+        [ Unramified f, Unramified.baseChangeOnSchemes f
+        , Unramified.baseChangeOnAffineSchemes f
+        , Unramified.existsSurjectiveEtaleTarget f
+        , Unramified.existsSurjectiveEtaleSource f
+        , Unramified.forallEtaleSquare f, Unramified.existsEtaleSquare f
+        , Unramified.existsZariskiCover.{u, v} f ] := by
+      simpa only [Unramified.baseChangeOnSchemes, Unramified.baseChangeOnAffineSchemes,
+        Unramified.existsSurjectiveEtaleTarget, Unramified.existsSurjectiveEtaleSource,
+        Unramified.forallEtaleSquare, Unramified.existsEtaleSquare,
+        Unramified.existsZariskiCover, hP] using hlocal
+    have hpoint : Unramified f ↔ ∀ x : Points X, UnramifiedAt f x := by sorry
+    exact List.tfae_cons_cons.mpr ⟨hpoint,
+      List.tfae_cons_cons.mpr ⟨hpoint.symm.trans (hbase.out 0 1),
+        (List.tfae_cons_cons.mp hbase).2⟩⟩
 
 
 end AlgebraicGeometry.AlgebraicSpace

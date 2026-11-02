@@ -11,6 +11,8 @@ public import ReasLib.CategoryTheory.Sites.LocallyConstant.Finite.Closure
 public import Mathlib.AlgebraicGeometry.Noetherian
 public import Mathlib.CategoryTheory.ObjectProperty.LimitsOfShape
 public import Mathlib.CategoryTheory.ObjectProperty.ColimitsOfShape
+public import Mathlib.CategoryTheory.Sites.RegularEpi
+public import Mathlib.CategoryTheory.Limits.Shapes.KernelPair
 
 @[expose] public section
 
@@ -71,7 +73,25 @@ instance constructibleEtaleSet_isClosedUnderQuotients [IsNoetherian X] :
           (fun {Y} f ↦
             ((Scheme.smallEtalePullback f).sheafPullback (Type (u + 1))
               X.smallEtaleTopology Y.smallEtaleTopology).obj)
-          (fun {Y} G ↦ IsFiniteLocallyConstant G) F) := sorry
+          (fun {Y} G ↦ IsFiniteLocallyConstant G) F) := by
+  let P : ObjectProperty (Sheaf X.smallEtaleTopology (Type (u + 1))) :=
+    fun F ↦ IsConstructibleEtaleSet
+      (fun {Y} f ↦
+        ((Scheme.smallEtalePullback f).sheafPullback (Type (u + 1))
+          X.smallEtaleTopology Y.smallEtaleTopology).obj)
+      (fun {_Y} G ↦ IsFiniteLocallyConstant G) F
+  change P.IsClosedUnderQuotients
+  refine ⟨fun {F G} f _ hF ↦ ?_⟩
+  have hprod : P (F ⨯ F) :=
+    P.prop_limit (pair F F) (by rintro ⟨_ | _⟩ <;> exact hF)
+  have hrel : P (pullback f f) :=
+    P.prop_of_mono (prod.lift (pullback.fst f f) (pullback.snd f f)) hprod
+  exact P.prop_of_isColimit
+    ((IsKernelPair.of_hasPullback f).toCoequalizer (regularEpiOfEpi f))
+    (by
+      rintro (_ | _)
+      · exact hrel
+      · exact hF)
 
 end SetValuedNoetherian
 

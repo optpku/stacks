@@ -7,6 +7,7 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.Differentials
+public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.Sheafification.Localization
 public import Mathlib.Algebra.Category.ModuleCat.Sheaf.PushforwardContinuous
 import Mathlib.Tactic.CrossRefAttribute
 
@@ -22,6 +23,7 @@ the canonical `over` constructions for sheaves and module sheaves.
 
 open CategoryTheory
 open SheafOfModules.RingedSite
+open PresheafOfModules.DifferentialsConstruction
 
 noncomputable section
 
@@ -48,6 +50,19 @@ abbrev localizedMap (phi : O₁ ⟶ O₂) (U : C) :
 abbrev localized (phi : O₁ ⟶ O₂) (U : C) :
     SheafOfModules (ringSheaf (J.over U) (O₂.over U)) :=
   relativeDifferentials (localizedMap phi U)
+
+/-- The canonical module-sheaf comparison for localized differentials. -/
+noncomputable def overIso (phi : O₁ ⟶ O₂) (U : C) :
+    (relativeDifferentials phi).over U ≅ localized phi U :=
+  ModuleSheafification.overIso O₂ U (relativeDifferentials' phi.hom)
+
+/-- The localization comparison preserves the universal differential. -/
+theorem overIso_d (phi : O₁ ⟶ O₂) (U : C) (X : (Over U)ᵒᵖ)
+    (x : O₂.obj.obj (Opposite.op X.unop.left)) :
+    (overIso phi U).hom.val.app X
+        (((relativeDifferential phi).app (Opposite.op X.unop.left)).d x) =
+      ((relativeDifferential (localizedMap phi U)).app X).d x := by
+  sorry
 
 /-- Lemma 18.33.6 (04BO): restriction of relative differentials to a slice
 site is isomorphic to the relative differentials of the restricted ring

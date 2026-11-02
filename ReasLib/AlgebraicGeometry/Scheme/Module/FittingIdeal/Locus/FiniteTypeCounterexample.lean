@@ -40,7 +40,41 @@ def finiteSupportIdeal : Ideal CoordinateRing :=
 
 /-- A binary sequence belongs to `finiteSupportIdeal` exactly when its support is finite. -/
 theorem mem_finiteSupportIdeal_iff {a : CoordinateRing} :
-    a ∈ finiteSupportIdeal ↔ {n : ℕ | a n ≠ 0}.Finite := sorry
+    a ∈ finiteSupportIdeal ↔ {n : ℕ | a n ≠ 0}.Finite := by
+  classical
+  constructor
+  · intro ha
+    induction ha using Submodule.span_induction with
+    | mem b hb =>
+        obtain ⟨n, rfl⟩ := hb
+        exact (Set.finite_singleton n).subset (by
+          intro j hj
+          by_contra h
+          change j ≠ n at h
+          exact hj (by simp [Ne.symm h]))
+    | zero => simp
+    | add b c hb hc ihb ihc =>
+        refine (ihb.union ihc).subset ?_
+        intro n hn
+        by_contra h
+        have hb : b n = 0 := not_not.mp (fun hbn ↦ h (Or.inl hbn))
+        have hc : c n = 0 := not_not.mp (fun hcn ↦ h (Or.inr hcn))
+        exact hn (by simp [hb, hc])
+    | smul b c hc ihc =>
+        refine ihc.subset ?_
+        intro n hn hc
+        exact hn (by simp [hc])
+  · intro ha
+    have hsum : a = ∑ n ∈ ha.toFinset, a * Pi.single n (1 : ZMod 2) := by
+      funext j
+      rw [Finset.sum_apply]
+      by_cases hj : a j = 0
+      · simp [Pi.mul_apply, hj]
+      · have hj' : j ∈ ha.toFinset := ha.mem_toFinset.mpr hj
+        simp [Pi.mul_apply, Pi.single_apply, hj']
+    rw [hsum]
+    exact finiteSupportIdeal.sum_mem fun n _ ↦
+      finiteSupportIdeal.mul_mem_left a (Ideal.subset_span ⟨n, rfl⟩)
 
 /-- The point of the binary-sequence spectrum corresponding to a maximal ideal. -/
 def point (m : Ideal CoordinateRing) (hm : m.IsMaximal) : BinarySequenceSpectrum.spectrum where
@@ -65,61 +99,226 @@ noncomputable def openClosedLocusι (m : Ideal CoordinateRing) (hm : m.IsMaximal
 
 /-- The finite-support ideal is contained in a maximal ideal. -/
 theorem exists_maximalIdeal_containing_finiteSupportIdeal :
-    ∃ m : Ideal CoordinateRing, m.IsMaximal ∧ finiteSupportIdeal ≤ m := sorry
+    ∃ m : Ideal CoordinateRing, m.IsMaximal ∧ finiteSupportIdeal ≤ m := by
+  apply Ideal.exists_le_maximal
+  intro h
+  have hfinite := mem_finiteSupportIdeal_iff.mp
+    (show (1 : CoordinateRing) ∈ finiteSupportIdeal by simp [h])
+  exact Set.infinite_univ (by simpa using hfinite)
 
 /-- The associated sheaf of the quotient of the binary-sequence ring by `m`. -/
 noncomputable def sheaf (m : Ideal CoordinateRing) : BinarySequenceSpectrum.spectrum.Modules :=
   tilde (ModuleCat.of (CommRingCat.of CoordinateRing) (CoordinateRing ⧸ m))
 
 /-- The associated quotient sheaf is of finite type. -/
-instance sheafIsFiniteType (m : Ideal CoordinateRing) : (sheaf m).IsFiniteType := sorry
+instance sheafIsFiniteType (m : Ideal CoordinateRing) : (sheaf m).IsFiniteType :=
+  Modules.tilde_isFiniteType_of_module_finite
+    (ModuleCat.of (CommRingCat.of CoordinateRing) (CoordinateRing ⧸ m))
 
 /-- The associated quotient sheaf is flat. -/
-instance sheafIsFlat (m : Ideal CoordinateRing) : SheafOfModules.IsFlat (sheaf m) := sorry
+instance sheafIsFlat (m : Ideal CoordinateRing) : SheafOfModules.IsFlat (sheaf m) := by
+  letI : IsAbsolutelyFlatRing CoordinateRing :=
+    ⟨fun a ↦ ⟨1, by simp only [pow_two, BooleanRing.mul_self, mul_one]⟩⟩
+  apply (Modules.tilde_isFlat_iff_module_flat
+    (ModuleCat.of (CommRingCat.of CoordinateRing) (CoordinateRing ⧸ m))).2
+  infer_instance
 
 /-- Every positive Fitting ideal of a quotient of the binary-sequence ring is the unit ideal. -/
 theorem fittingIdeal_succ_eq_top (m : Ideal CoordinateRing) (i : ℕ) :
-    Fit[CoordinateRing]_(i + 1)(CoordinateRing ⧸ m) = ⊤ := sorry
+    Fit[CoordinateRing]_(i + 1)(CoordinateRing ⧸ m) = ⊤ := by
+  apply FittingIdeal.eq_top_of_surjective
+  refine ⟨m.mkQ.comp (LinearMap.proj (0 : Fin (i + 1))), ?_⟩
+  exact m.mkQ_surjective.comp (LinearMap.proj_surjective _)
 
 /-- The zeroth Fitting ideal sheaf of the associated quotient sheaf is the kernel datum of the
 affine quotient morphism. -/
 theorem fittingIdealSheaf_zero_eq_quotientMap_ker (m : Ideal CoordinateRing) :
     fittingIdealSheaf (sheaf m) 0 =
       (AlgebraicGeometry.Spec.quotientMap (R := CommRingCat.of CoordinateRing) m :
-        Spec (CommRingCat.of (CoordinateRing ⧸ m)) ⟶ BinarySequenceSpectrum.spectrum).ker := sorry
+        Spec (CommRingCat.of (CoordinateRing ⧸ m)) ⟶ BinarySequenceSpectrum.spectrum).ker := by
+  rw [sheaf, fittingIdealSheaf_tilde, FittingIdeal.quotientAtZero,
+    AlgebraicGeometry.Spec.quotientMap_ker]
+  exact congrArg IdealSheafData.ofIdealTop
+    (Ideal.map_symm (ΓSpecIso (CommRingCat.of CoordinateRing)).commRingCatIsoToRingEquiv).symm
 
 /-- Every positive Fitting ideal sheaf of the associated quotient sheaf is the unit ideal
 sheaf. -/
 theorem fittingIdealSheaf_succ_eq_top (m : Ideal CoordinateRing) (i : ℕ) :
-    fittingIdealSheaf (sheaf m) (i + 1) = ⊤ := sorry
+    fittingIdealSheaf (sheaf m) (i + 1) = ⊤ := by
+  rw [sheaf, fittingIdealSheaf_tilde, fittingIdeal_succ_eq_top]
+  apply IdealSheafData.ext_of_isAffine
+  simp [idealSheafDataOfIdealOnSpec]
 
+set_option backward.isDefEq.respectTransparency false in
+private theorem range_quotientMap_eq_singleton
+    (m : Ideal CoordinateRing) (hm : m.IsMaximal) :
+    Set.range (AlgebraicGeometry.Spec.quotientMap
+      (R := CommRingCat.of CoordinateRing) m) = {point m hm} := by
+  change Set.range (PrimeSpectrum.comap (Ideal.Quotient.mk m)) = _
+  rw [range_comap_of_surjective _ _ Ideal.Quotient.mk_surjective]
+  have hker : RingHom.ker (Ideal.Quotient.mk m) = m := by
+    ext a
+    exact Ideal.Quotient.eq_zero_iff_mem
+  rw [hker]
+  exact (PrimeSpectrum.closure_singleton (point m hm)).symm.trans
+    ((PrimeSpectrum.isClosed_singleton_iff_isMaximal (point m hm)).2 hm).closure_eq
+
+set_option backward.isDefEq.respectTransparency false in
 /-- The complement of the zeroth Fitting closed subscheme is the complement of the selected
 maximal point. -/
 theorem fittingOpenComplement_zero_eq_puncturedOpen
     (m : Ideal CoordinateRing) (hm : m.IsMaximal) :
     fittingOpenComplement (sheaf m) 0 =
       DoubleAlong.puncturedOpen (point m hm)
-        ((PrimeSpectrum.isClosed_singleton_iff_isMaximal (point m hm)).2 hm) := sorry
+        ((PrimeSpectrum.isClosed_singleton_iff_isMaximal (point m hm)).2 hm) := by
+  apply Opens.ext
+  change ((fittingIdealSheaf (sheaf m) 0).support : Set BinarySequenceSpectrum.spectrum)ᶜ =
+    ({point m hm} : Set BinarySequenceSpectrum.spectrum)ᶜ
+  rw [fittingIdealSheaf_zero_eq_quotientMap_ker, Scheme.Hom.support_ker,
+    range_quotientMap_eq_singleton m hm]
+  rw [((PrimeSpectrum.isClosed_singleton_iff_isMaximal (point m hm)).2 hm).closure_eq]
 
 /-- A maximal ideal containing the finite-support ideal determines a nonisolated point of the
 binary-sequence spectrum. -/
 theorem point_not_isOpen_singleton
     (m : Ideal CoordinateRing) (hm : m.IsMaximal) (hI : finiteSupportIdeal ≤ m) :
-    ¬ IsOpen ({point m hm} : Set BinarySequenceSpectrum.spectrum) := sorry
+    ¬ IsOpen ({point m hm} : Set BinarySequenceSpectrum.spectrum) := by
+  intro h
+  obtain ⟨_, ⟨a, rfl⟩, hma, ha⟩ :=
+    PrimeSpectrum.isTopologicalBasis_basic_opens.isOpen_iff.mp h (point m hm) rfl
+  obtain ⟨n, hn⟩ : ∃ n, a n ≠ 0 := by
+    by_contra hzero
+    push Not at hzero
+    exact hma (by simpa [show a = 0 from funext hzero] using m.zero_mem)
+  let q : PrimeSpectrum CoordinateRing :=
+    PrimeSpectrum.comap (projection n) ⟨⊥, inferInstance⟩
+  have hqa : q ∈ PrimeSpectrum.basicOpen a := by
+    change a n ∉ (⊥ : Ideal (ZMod 2))
+    simpa only [Submodule.mem_bot] using hn
+  have hq : q = point m hm := ha hqa
+  have he : Pi.single n (1 : ZMod 2) ∈ q.asIdeal := by
+    rw [hq]
+    exact hI (Ideal.subset_span ⟨n, rfl⟩)
+  change (Pi.single n (1 : ZMod 2) : CoordinateRing) n ∈ (⊥ : Ideal (ZMod 2)) at he
+  exact one_ne_zero (by simpa only [Pi.single_eq_same, Submodule.mem_bot] using he)
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The identity of the binary-sequence spectrum does not factor through the coproduct of the
 punctured spectrum and the selected closed point. -/
 theorem identity_not_factor_through_openClosedLocus
     (m : Ideal CoordinateRing) (hm : m.IsMaximal) (hI : finiteSupportIdeal ≤ m) :
     ¬ Nonempty (Over.mk (𝟙 BinarySequenceSpectrum.spectrum) ⟶
-      Over.mk (openClosedLocusι m hm)) := sorry
+      Over.mk (openClosedLocusι m hm)) := by
+  rintro ⟨f⟩
+  let U := DoubleAlong.puncturedOpen (point m hm)
+    ((PrimeSpectrum.isClosed_singleton_iff_isMaximal (point m hm)).2 hm)
+  let Z := Spec (CommRingCat.of (CoordinateRing ⧸ m))
+  let j : Z ⟶ openClosedLocus m hm := coprod.inr
+  have hj : j ≫ openClosedLocusι m hm =
+      AlgebraicGeometry.Spec.quotientMap (R := CommRingCat.of CoordinateRing) m := by
+    dsimp only [j, openClosedLocusι]
+    exact coprod.inr_desc _ _
+  have hi : (coprod.inl : U.toScheme ⟶ openClosedLocus m hm) ≫ openClosedLocusι m hm =
+      U.ι := by
+    dsimp only [openClosedLocusι]
+    exact coprod.inl_desc _ _
+  let g : BinarySequenceSpectrum.spectrum ⟶ openClosedLocus m hm := f.left
+  have hg : g ≫ openClosedLocusι m hm = 𝟙 BinarySequenceSpectrum.spectrum := f.w
+  have hw (x : BinarySequenceSpectrum.spectrum) : openClosedLocusι m hm (g x) = x :=
+    congrArg (fun k : BinarySequenceSpectrum.spectrum ⟶ BinarySequenceSpectrum.spectrum ↦ k x) hg
+  have hpre : g ⁻¹' Set.range j = {point m hm} := by
+    ext x
+    constructor
+    · rintro ⟨z, hz⟩
+      have hz' : AlgebraicGeometry.Spec.quotientMap (R := CommRingCat.of CoordinateRing) m z =
+          x := by
+        calc
+          _ = openClosedLocusι m hm (j z) := by
+            exact (congrArg (fun k : Z ⟶ BinarySequenceSpectrum.spectrum ↦ k z) hj).symm
+          _ = x := by rw [hz]; exact hw x
+      rw [← range_quotientMap_eq_singleton m hm]
+      exact ⟨z, hz'⟩
+    · intro hx
+      obtain ⟨y | z, hy⟩ := (AlgebraicGeometry.coprodMk U.toScheme Z).surjective (g x)
+      · have hxy : U.ι y = x := by
+          calc
+            _ = openClosedLocusι m hm ((coprod.inl : U.toScheme ⟶ openClosedLocus m hm) y) := by
+              exact (congrArg (fun k : U.toScheme ⟶ BinarySequenceSpectrum.spectrum ↦ k y) hi).symm
+            _ = openClosedLocusι m hm (g x) := by rw [← coprodMk_inl, hy]
+            _ = x := hw x
+        exact (y.property (hxy.trans hx)).elim
+      · refine ⟨z, ?_⟩
+        change (coprod.inr : Z ⟶ U.toScheme ⨿ Z) z = g x
+        simpa only [coprodMk_inr] using hy
+  apply point_not_isOpen_singleton m hm hI
+  rw [← hpre]
+  exact j.isOpenEmbedding.isOpen_range.preimage g.continuous
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The identity of the binary-sequence spectrum does not factor through the Fitting flat locus
 of its finite-type flat quotient sheaf. -/
 @[stacks 0FJ0]
 theorem identity_not_factor_through_fittingFlatLocus
     (m : Ideal CoordinateRing) (hm : m.IsMaximal) (hI : finiteSupportIdeal ≤ m) :
     ¬ Nonempty (Over.mk (𝟙 BinarySequenceSpectrum.spectrum) ⟶
-      Over.mk (fittingFlatLocusι (sheaf m))) := sorry
+      Over.mk (fittingFlatLocusι (sheaf m))) := by
+  rintro ⟨f⟩
+  let F := sheaf m
+  let g : BinarySequenceSpectrum.spectrum ⟶ fittingFlatLocus F := f.left
+  let j : fittingRankLocus F 1 ⟶ fittingFlatLocus F := Sigma.ι (fittingRankLocus F) 1
+  have hg : g ≫ fittingFlatLocusι F = 𝟙 BinarySequenceSpectrum.spectrum := f.w
+  have hw (x : BinarySequenceSpectrum.spectrum) : fittingFlatLocusι F (g x) = x :=
+    congrArg (fun k : BinarySequenceSpectrum.spectrum ⟶ BinarySequenceSpectrum.spectrum ↦ k x) hg
+  have hsupp : ((fittingIdealSheaf F 0).support : Set BinarySequenceSpectrum.spectrum) =
+      {point m hm} := by
+    rw [fittingIdealSheaf_zero_eq_quotientMap_ker, Scheme.Hom.support_ker,
+      range_quotientMap_eq_singleton m hm]
+    exact ((PrimeSpectrum.isClosed_singleton_iff_isMaximal (point m hm)).2 hm).closure_eq
+  have hrange (z : fittingRankLocus F 1) : fittingRankLocusι F 1 z = point m hm := by
+    have hz : fittingRankLocusι F 1 z ∈ (fittingIdealSheaf F 0).support :=
+      (IdealSheafData.range_subschemeι _).le ⟨z.1, rfl⟩
+    change fittingRankLocusι F 1 z ∈
+      ((fittingIdealSheaf F 0).support : Set BinarySequenceSpectrum.spectrum) at hz
+    rw [hsupp] at hz
+    exact hz
+  have hempty (r : ℕ) : IsEmpty (fittingRankLocus F (r + 2)) := by
+    haveI : IsEmpty (fittingIdealSheaf F (r + 1)).subscheme := by
+      rw [fittingIdealSheaf_succ_eq_top]
+      infer_instance
+    exact ⟨fun z ↦ isEmptyElim z.1⟩
+  have hpre : g ⁻¹' Set.range j = {point m hm} := by
+    ext x
+    constructor
+    · rintro ⟨z, hz⟩
+      change x = point m hm
+      calc
+        x = fittingFlatLocusι F (g x) := (hw x).symm
+        _ = fittingFlatLocusι F (j z) := by rw [hz]
+        _ = fittingRankLocusι F 1 z := by
+          exact congrArg (fun k : fittingRankLocus F 1 ⟶ BinarySequenceSpectrum.spectrum ↦ k z)
+            (Sigma.ι_desc (fun r ↦ fittingRankLocusι F r) 1)
+        _ = point m hm := hrange z
+    · intro hx
+      obtain ⟨⟨r, z⟩, hz⟩ := (AlgebraicGeometry.sigmaMk (fittingRankLocus F)).surjective (g x)
+      cases r with
+      | zero =>
+          have hzx : fittingRankLocusι F 0 z = x := by
+            calc
+              _ = fittingFlatLocusι F (Sigma.ι (fittingRankLocus F) 0 z) := by
+                exact (congrArg
+                  (fun k : fittingRankLocus F 0 ⟶ BinarySequenceSpectrum.spectrum ↦ k z)
+                  (Sigma.ι_desc (fun r ↦ fittingRankLocusι F r) 0)).symm
+              _ = fittingFlatLocusι F (g x) := by rw [← sigmaMk_mk, hz]
+              _ = x := hw x
+          have hzmem : fittingRankLocusι F 0 z ∈ fittingOpenComplement F 0 := z.property
+          rw [fittingOpenComplement_zero_eq_puncturedOpen m hm] at hzmem
+          exact (hzmem (hzx.trans hx)).elim
+      | succ r =>
+          cases r with
+          | zero => exact ⟨z, by simpa only [sigmaMk_mk] using hz⟩
+          | succ r => exact ((hempty r).false z).elim
+  apply point_not_isOpen_singleton m hm hI
+  rw [← hpre]
+  exact j.isOpenEmbedding.isOpen_range.preimage g.continuous
 
 end AlgebraicGeometry.Scheme.FittingIdealFiniteTypeCounterexample

@@ -28,9 +28,10 @@ variable {R A : Type u} [CommRing R] [CommRing A]
     [MonoidalCategory (DerivedCategory (ModuleCat.{u, u} R))]
     [MonoidalCategory (DerivedCategory (ModuleCat.{u, u} A))]
     (f : R →+* A) (hf : f.FiniteType) (p : CategoryTheory.ModuleCat.UpperShriek.Presentation f)
-    (HR : MonoidalClosed (DerivedCategory (ModuleCat.{u, u} R)))
-    (HA : MonoidalClosed (DerivedCategory (ModuleCat.{u, u} A)))
-    (ω : DerivedCategory (ModuleCat.{u, u} R)) (hω : ω.IsDualizingComplex HR),
-    (p.functor.obj ω).IsDualizingComplex HA)
+    (CR : DerivedCategory.CanonicalClosedPresentation (A := R))
+    (CA : DerivedCategory.CanonicalClosedPresentation (A := A))
+    (ω : DerivedCategory (ModuleCat.{u, u} R))
+    (hω : ω.IsDualizingComplex CR.comparison.closed),
+    (p.functor.obj ω).IsDualizingComplex CA.comparison.closed)
 
 end CategoryTheory.ModuleCat.UpperShriek

@@ -273,28 +273,28 @@ left summand. -/
 theorem mayerVietorisLowerShriekToBiprod_fst :
     mayerVietorisLowerShriekToBiprod U V Λ ≫ biprod.fst =
       mayerVietorisLowerShriekToLeft U V Λ :=
-  sorry
+  biprod.lift_fst _ _
 
 /-- The second projection of `mayerVietorisLowerShriekToBiprod` is the map to the
 right summand. -/
 theorem mayerVietorisLowerShriekToBiprod_snd :
     mayerVietorisLowerShriekToBiprod U V Λ ≫ biprod.snd =
       mayerVietorisLowerShriekToRight U V Λ :=
-  sorry
+  biprod.lift_snd _ _
 
 /-- The left inclusion into `mayerVietorisLowerShriekFromBiprod` is the counit
 along `U`. -/
 theorem mayerVietorisLowerShriekFromBiprod_inl :
     biprod.inl ≫ mayerVietorisLowerShriekFromBiprod U V Λ =
       (etaleDerivedExtensionByZeroAdjunction (U.ι) Λ).counit :=
-  sorry
+  biprod.inl_desc _ _
 
 /-- The right inclusion into `mayerVietorisLowerShriekFromBiprod` is the negative
 of the counit along `V`. -/
 theorem mayerVietorisLowerShriekFromBiprod_inr :
     biprod.inr ≫ mayerVietorisLowerShriekFromBiprod U V Λ =
       -(etaleDerivedExtensionByZeroAdjunction (V.ι) Λ).counit :=
-  sorry
+  biprod.inr_desc _ _
 
 /-- The two Mayer–Vietoris maps compose to zero. -/
 theorem mayerVietorisLowerShriekToBiprod_comp_fromBiprod :
@@ -325,7 +325,9 @@ theorem etaleDerivedMayerVietorisLowerShriekTriangle
           ((mayerVietorisLowerShriekToBiprod U V Λ).app K)
           ((mayerVietorisLowerShriekFromBiprod U V Λ).app K)
           δ ∈ distTriang (DerivedCategory (Sheaf X.smallEtaleTopology (ModuleCat.{v} Λ))) :=
-  sorry
+  by
+    obtain ⟨δ, hδ⟩ := etaleDerived_mayerVietoris_lowerShriek_triangle U V Λ hUV
+    exact ⟨δ.app K, hδ K⟩
 
 end TwoOpens
 

@@ -8,6 +8,7 @@ module
 
 public import Mathlib.CategoryTheory.Functor.OfSequence
 public import Mathlib.Topology.Category.TopCat.Limits.Basic
+public import Mathlib.Topology.Compactness.Compact
 public import Mathlib.Topology.Order
 
 /-!
@@ -41,7 +42,19 @@ def stageSpace (n : ℕ) : TopCat.{0} where
 
 /-- The identity function `ℕ → ℕ` is continuous from `T_{n+1}` to `T_n`. -/
 theorem stageTransition_continuous (n : ℕ) :
-    @Continuous ℕ ℕ (stageTopology (n + 1)) (stageTopology n) id := sorry
+    @Continuous ℕ ℕ (stageTopology (n + 1)) (stageTopology n) id := by
+  letI := stageTopology (n + 1)
+  apply continuous_generateFrom_iff.mpr
+  rintro s (⟨k, hk, rfl⟩ | rfl)
+  · exact isOpen_generateFrom_of_mem (Or.inl ⟨k, Nat.le.step hk, rfl⟩)
+  · change IsOpen (Ioi n)
+    have h : Ioi n = ({n + 1} : Set ℕ) ∪ Ioi (n + 1) := by
+      ext k
+      simp only [mem_Ioi, mem_union, mem_singleton_iff]
+      omega
+    rw [h]
+    exact (isOpen_generateFrom_of_mem (Or.inl ⟨n + 1, le_rfl, rfl⟩)).union
+      (isOpen_generateFrom_of_mem (Or.inr rfl))
 
 /-- The identity bonding map `X_{n+1} ⟶ X_n`. -/
 def stageTransition (n : ℕ) : stageSpace (n + 1) ⟶ stageSpace n :=
@@ -54,14 +67,26 @@ def system : ℕᵒᵖ ⥤ TopCat.{0} :=
   Functor.ofOpSequence stageTransition
 
 /-- Each stage space `X_n` is quasi-compact. -/
-instance compactSpace_stageSpace (n : ℕ) : CompactSpace (stageSpace n) := sorry
+instance compactSpace_stageSpace (n : ℕ) : CompactSpace (stageSpace n) := by
+  have hb : (stageBasis n).Finite := by
+    have h := (((Finset.range (n + 1)).finite_toSet).image
+      (fun k : ℕ => ({k} : Set ℕ))).insert (Ioi n)
+    refine h.subset ?_
+    rintro s (⟨k, hk, rfl⟩ | rfl)
+    · exact Or.inr ⟨k, Finset.mem_range.mpr (Nat.lt_succ_of_le hk), rfl⟩
+    · exact Or.inl rfl
+  refine @compactSpace_generateFrom ℕ (stageTopology n) (stageBasis n) rfl ?_
+  intro P hP hcover
+  exact ⟨P, Subset.rfl, hb.subset hP, hcover⟩
 
 /-- Each prescribed singleton `{k}` with `k ≤ n` is open in `T_n`. -/
 theorem isOpen_singleton (n k : ℕ) (hk : k ≤ n) :
-    @IsOpen ℕ (stageTopology n) {k} := sorry
+    @IsOpen ℕ (stageTopology n) {k} :=
+  isOpen_generateFrom_of_mem (Or.inl ⟨k, hk, rfl⟩)
 
 /-- The tail `Ioi n` is open in `T_n`. -/
-theorem isOpen_Ioi (n : ℕ) : @IsOpen ℕ (stageTopology n) (Ioi n) := sorry
+theorem isOpen_Ioi (n : ℕ) : @IsOpen ℕ (stageTopology n) (Ioi n) :=
+  isOpen_generateFrom_of_mem (Or.inr rfl)
 
 /-- The identity projection from discrete `ℕ` to the stage `X_n`. -/
 def discreteProjection (n : ℕ) : TopCat.discrete.obj ℕ ⟶ stageSpace n :=
@@ -74,16 +99,38 @@ theorem discreteProjection_naturality (n : ℕ) :
           (homOfLE (n.le_add_right 1)).op ≫
         discreteProjection n =
       discreteProjection (n + 1) ≫ system.map (homOfLE (n.le_add_right 1)).op :=
-  sorry
+  by
+    simp only [system, Functor.ofOpSequence_map_homOfLE_succ]
+    rfl
 
 /-- Discrete `ℕ` with identity projections, as a cone on `system`. -/
 def discreteCone : Cone system where
   pt := TopCat.discrete.obj ℕ
   π := NatTrans.ofOpSequence discreteProjection discreteProjection_naturality
 
+private theorem coneLeg_apply_eq_zero (s : Cone system) (n : ℕ) (x : s.pt) :
+    s.π.app (op n) x = s.π.app (op 0) x := by
+  induction n with
+  | zero => rfl
+  | succ n ih =>
+    have h := ConcreteCategory.congr_hom (s.w (homOfLE (n.le_add_right 1)).op) x
+    simp only [system, Functor.ofOpSequence_map_homOfLE_succ] at h
+    exact h.trans ih
+
 /-- Continuity of the common underlying cone map into discrete `ℕ`. -/
 theorem coneLift_continuous (s : Cone system) :
-    @Continuous s.pt ℕ _ ⊥ (s.π.app (op 0)) := sorry
+    @Continuous s.pt ℕ _ ⊥ (s.π.app (op 0)) := by
+  letI : TopologicalSpace ℕ := ⊥
+  apply continuous_discrete_rng.mpr
+  intro k
+  have h : s.π.app (op 0) ⁻¹' {k} = s.π.app (op k) ⁻¹' {k} := by
+    ext x
+    change (s.π.app (op 0) x = k) ↔ s.π.app (op k) x = k
+    rw [coneLeg_apply_eq_zero s k x]
+    rfl
+  set_option backward.isDefEq.respectTransparency false in
+    rw [h]
+  exact (isOpen_singleton k k le_rfl).preimage (s.π.app (op k)).hom.continuous
 
 /-- The universal map from a test cone to discrete `ℕ`, given by the common underlying
 set-map of the cone legs. -/
@@ -92,12 +139,16 @@ def coneLift (s : Cone system) : s.pt ⟶ discreteCone.pt :=
 
 /-- The factorization law for the universal map into the discrete limiting cone. -/
 theorem coneLift_fac (s : Cone system) (j : ℕᵒᵖ) :
-    coneLift s ≫ discreteCone.π.app j = s.π.app j := sorry
+    coneLift s ≫ discreteCone.π.app j = s.π.app j := by
+  ext x
+  exact (coneLeg_apply_eq_zero s j.unop x).symm
 
 /-- The uniqueness law for the universal map into the discrete limiting cone. -/
 theorem coneLift_uniq (s : Cone system) (m : s.pt ⟶ discreteCone.pt)
     (h : ∀ j, m ≫ discreteCone.π.app j = s.π.app j) :
-    m = coneLift s := sorry
+    m = coneLift s := by
+  ext x
+  exact ConcreteCategory.congr_hom (h (op 0)) x
 
 /-- Discrete `ℕ` with identity projections is a limiting cone for `system`. -/
 def isLimitDiscreteCone : IsLimit discreteCone where
@@ -106,12 +157,21 @@ def isLimitDiscreteCone : IsLimit discreteCone where
   uniq := coneLift_uniq
 
 /-- The inverse limit of `system` is not quasi-compact. -/
-theorem not_compactSpace_limit : ¬ CompactSpace (limit system : TopCat.{0}) := sorry
+theorem not_compactSpace_limit : ¬ CompactSpace (limit system : TopCat.{0}) := by
+  intro h
+  haveI : CompactSpace (limit.cone system).pt := h
+  let e := TopCat.homeoOfIso
+    ((limit.isLimit system).conePointUniqueUpToIso isLimitDiscreteCone)
+  haveI : CompactSpace (TopCat.discrete.obj ℕ) :=
+    Function.Surjective.compactSpace e.continuous e.surjective
+  exact (Set.infinite_univ : (univ : Set ℕ).Infinite)
+    (isCompact_univ (X := TopCat.discrete.obj ℕ)).finite_of_discrete
 
 /-- There is an inverse system of quasi-compact topological spaces over `ℕ` whose limit
 is not quasi-compact. -/
 theorem exists_compactSpace_limit_not_compactSpace :
     ∃ F : ℕᵒᵖ ⥤ TopCat.{0},
-      (∀ n, CompactSpace (F.obj n)) ∧ ¬ CompactSpace (limit F : TopCat) := sorry
+      (∀ n, CompactSpace (F.obj n)) ∧ ¬ CompactSpace (limit F : TopCat) :=
+  ⟨system, fun n => compactSpace_stageSpace n.unop, not_compactSpace_limit⟩
 
 end TopCat.Counterexample.NatQuasiCompact

@@ -10,6 +10,7 @@ public import Mathlib.Algebra.Category.ModuleCat.ChangeOfRings
 public import Mathlib.Algebra.Category.ModuleCat.Differentials.Presheaf
 public import Mathlib.CategoryTheory.IsomorphismClasses
 public import Mathlib.CategoryTheory.Sites.ConstantSheaf
+public import ReasLib.Algebra.Category.ModuleCat.Presheaf.ChangeOfRings.Adjunction
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.ChangeOfRings
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.Differentials
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.Flat
@@ -50,25 +51,25 @@ instance topology_hasWeakSheafify_commRing :
 
 /-- Weak sheafification of lifted commutative ring sheaves on `C_{X/Λ}`. -/
 instance topology_hasWeakSheafify_commRing_succ :
-    HasWeakSheafify (topology Λ X) CommRingCat.{u + 1} :=
-  sorry
+    HasWeakSheafify (topology Λ X) CommRingCat.{u + 1} := by
+  infer_instance
 
 /-- Weak sheafification of lifted abelian groups on `C_{X/Λ}`. -/
 instance topology_hasWeakSheafify_addCommGrp_succ :
-    HasWeakSheafify (topology Λ X) AddCommGrpCat.{u + 1} :=
-  sorry
+    HasWeakSheafify (topology Λ X) AddCommGrpCat.{u + 1} := by
+  infer_instance
 
 /-- Locally bijective morphisms are the weak equivalences for lifted abelian groups on
 `C_{X/Λ}`. -/
 instance topology_WEqualsLocallyBijective_addCommGrp_succ :
-    (topology Λ X).WEqualsLocallyBijective AddCommGrpCat.{u + 1} :=
-  sorry
+    (topology Λ X).WEqualsLocallyBijective AddCommGrpCat.{u + 1} := by
+  infer_instance
 
 /-- Restriction of scalars of lifted module sheaves on `C_{X/Λ}` is a right adjoint. -/
 instance topology_restrictScalars_isRightAdjoint
     {R R' : Sheaf (topology Λ X) RingCat.{u + 1}} (α : R ⟶ R') :
-    (SheafOfModules.restrictScalars.{u + 1} α).IsRightAdjoint :=
-  sorry
+    (SheafOfModules.restrictScalars.{u + 1} α).IsRightAdjoint := by
+  infer_instance
 
 /-- The constant sheaf `underline{Λ}` on `C_{X/Λ}`. -/
 def constSheaf : Sheaf (topology Λ X) CommRingCat.{u + 1} :=
@@ -113,7 +114,14 @@ def constToOPresheaf :
     (Functor.const (category Λ X)ᵒᵖ).obj
       (CommRingCat.universeLift.{u, u + 1}.obj Λ) ⟶ structurePresheaf Λ X where
   app := constToOPresheafApp Λ X
-  naturality _ _ _ := sorry
+  naturality x y f := by
+    change 𝟙 _ ≫ (CommRingCat.universeLift.{u, u + 1}).map
+        ((Scheme.ΓSpecIso Λ).inv ≫ (unop y).right.obj.hom.appTop) =
+      (CommRingCat.universeLift.{u, u + 1}).map
+          ((Scheme.ΓSpecIso Λ).inv ≫ (unop x).right.obj.hom.appTop) ≫
+        (CommRingCat.universeLift.{u, u + 1}).map f.unop.right.hom.left.appTop
+    rw [Category.id_comp, ← Functor.map_comp, Category.assoc,
+      ← Scheme.Hom.comp_appTop, Over.w]
 
 /-- Components of `constToOPresheaf` are `constToOPresheafApp`. -/
 theorem constToOPresheaf_app (x : (category Λ X)ᵒᵖ) :
@@ -165,7 +173,7 @@ def constToOLiftPresheaf :
         (CommRingCat.universeLift.{u, u + 1}.obj Λ) ⟶
       structurePresheafLift Λ X where
   app := constToOLiftPresheafApp Λ X
-  naturality _ _ _ := sorry
+  naturality _ _ f := (constToOPresheaf Λ X).naturality f
 
 /-- Components of `constToOLiftPresheaf` are `constToOLiftPresheafApp`. -/
 theorem constToOLiftPresheaf_app (x : (category Λ X)ᵒᵖ) :

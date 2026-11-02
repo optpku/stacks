@@ -47,7 +47,11 @@ variable (over_step : ∀ n, X.p.IsHomLift
 include over_obj in
 /-- The zeroth maximal-adic stage lies over the residue-field point. -/
 theorem adicResidueFiber_over :
-    X.p.obj (objects 0) = Over.mk (adicResidueToS toS) := sorry
+    X.p.obj (objects 0) = Over.mk (adicResidueToS toS) := by
+  rw [over_obj 0]
+  change AdicPresentation.quotientStage toS (maximalIdeal R ^ 1) = _
+  rw [pow_one]
+  rfl
 
 /-- The actual zeroth stage, viewed in the fibre over the residue-field spectrum. -/
 def adicResidueFiber : X.p.Fiber (Over.mk (adicResidueToS toS)) :=
@@ -66,13 +70,18 @@ include h_toS in
 /-- The residue-field structure morphism factors through the chosen affine open. -/
 theorem adicResidueFactor :
     Spec.map (CommRingCat.ofHom (algebraMap Λ (ResidueField R))) ≫ openImmersion =
-      adicResidueToS toS := sorry
+      adicResidueToS toS := by
+  rw [adicResidueToS, ← h_toS, ← Category.assoc, ← Spec.map_comp]
+  rfl
 
 include h_toS in
 /-- The canonical coefficient-algebra truncation spectrum is the maximal-adic stage over `S`. -/
 theorem adicTruncationOver (n : ℕ) :
     specOver openImmersion ((CompleteLocalAlgCat.of R AlgEquiv.refl).truncation n) =
-      AdicPresentation.stage toS (maximalIdeal R) n := sorry
+      AdicPresentation.stage toS (maximalIdeal R) n := by
+  unfold specOver AdicPresentation.stage AdicPresentation.quotientStage
+  rw [← h_toS, ← Category.assoc, ← Spec.map_comp]
+  rfl
 
 variable [LocallyOfFiniteType (adicResidueToS toS)]
 
@@ -83,7 +92,70 @@ theorem adicFromResidue_over (n : ℕ) :
       (specOver_toResidue openImmersion (adicResidueToS toS)
         (adicResidueFactor toS openImmersion h_toS)
         ((CompleteLocalAlgCat.of R AlgEquiv.refl).truncation n))
-      (adicFromResidue objects step n) := sorry
+      (adicFromResidue objects step n) := by
+  have hseq : ∀ n, X.p.IsHomLift
+      ((AdicPresentation.diagram toS (maximalIdeal R)).map (homOfLE (Nat.zero_le n)))
+      (adicFromResidue objects step n) := by
+    intro n
+    induction n with
+    | zero =>
+      change X.p.IsHomLift
+        ((AdicPresentation.diagram toS (maximalIdeal R)).map (𝟙 0)) (𝟙 (objects 0))
+      rw [CategoryTheory.Functor.map_id]
+      exact IsHomLift.id (p := X.p) (over_obj 0)
+    | succ n ih =>
+      letI := ih
+      letI := over_step n
+      have hcomp := IsHomLift.comp X.p
+        ((AdicPresentation.diagram toS (maximalIdeal R)).map (homOfLE (Nat.zero_le n)))
+        ((AdicPresentation.diagram toS (maximalIdeal R)).map (homOfLE (Nat.le_succ n)))
+        (adicFromResidue objects step n) (step n)
+      have htriangle : adicFromResidue objects step (n + 1) =
+          adicFromResidue objects step n ≫ step n := by
+        change OfSequence.map step 0 (n + 1) _ = OfSequence.map step 0 n _ ≫ step n
+        rw [OfSequence.map_comp step 0 n (n + 1) (Nat.zero_le n) (Nat.le_succ n),
+          OfSequence.map_le_succ]
+      rw [htriangle]
+      simpa only [← CategoryTheory.Functor.map_comp, homOfLE_comp] using hcomp
+  have hres (r : R) :
+      (ArtinianLocalAlgCat.toResidue ((CompleteLocalAlgCat.of (Λ := Λ) R AlgEquiv.refl).truncation n)).hom
+        (Ideal.Quotient.mk (maximalIdeal R ^ (n + 1)) r) = residue R r := by
+    rfl
+  have hcast {I J K : Ideal R} (e : I = J) (hK : K ≤ I) :
+      eqToHom (congrArg (fun L : Ideal R => Spec (CommRingCat.of (R ⧸ L))) e.symm) ≫
+        Spec.map (CommRingCat.ofHom (Ideal.Quotient.factor hK)) =
+        Spec.map (CommRingCat.ofHom (Ideal.Quotient.factor (hK.trans (le_of_eq e)))) := by
+    cases e
+    simp only [eqToHom_refl, Category.id_comp]
+  have h0 : Over.mk (adicResidueToS toS) =
+      (AdicPresentation.diagram toS (maximalIdeal R)).obj 0 := by
+    change Over.mk (adicResidueToS toS) = AdicPresentation.quotientStage toS (maximalIdeal R ^ 1)
+    rw [pow_one]
+    rfl
+  have hmap : specOver_toResidue openImmersion (adicResidueToS toS)
+      (adicResidueFactor toS openImmersion h_toS)
+      ((CompleteLocalAlgCat.of (Λ := Λ) R AlgEquiv.refl).truncation n) =
+      eqToHom h0 ≫
+        (AdicPresentation.diagram toS (maximalIdeal R)).map (homOfLE (Nat.zero_le n)) ≫
+        eqToHom (adicTruncationOver toS openImmersion h_toS n).symm := by
+    apply Over.OverMorphism.ext
+    simp only [Over.comp_left, Over.eqToHom_left]
+    change Spec.map (CommRingCat.ofHom
+      (ArtinianLocalAlgCat.toResidue ((CompleteLocalAlgCat.of (Λ := Λ) R AlgEquiv.refl).truncation n)).hom.toRingHom) =
+      eqToHom (congrArg (fun L : Ideal R => Spec (CommRingCat.of (R ⧸ L)))
+        (pow_one (maximalIdeal R)).symm) ≫
+        Spec.map (CommRingCat.ofHom (Ideal.Quotient.factor
+          (Ideal.pow_le_pow_right (Nat.succ_le_succ (Nat.zero_le n))))) ≫ 𝟙 _
+    rw [Category.comp_id, hcast (pow_one (maximalIdeal R))]
+    apply congrArg (fun f : (R ⧸ maximalIdeal R ^ (n + 1)) →+* ResidueField R =>
+      Spec.map (CommRingCat.ofHom f))
+    apply Ideal.Quotient.ringHom_ext
+    ext r
+    exact hres r
+  rw [hmap]
+  have hcomp := @IsHomLift.lift_comp_eqToHom _ _ _ _ X.p _ _ _ _ _ _ (hseq n) _
+    (adicTruncationOver toS openImmersion h_toS n).symm
+  exact @IsHomLift.lift_eqToHom_comp _ _ _ _ X.p _ _ _ _ _ _ hcomp _ h0
 
 /-- The original stage with its composite from the residue object over the canonical truncation. -/
 def adicObject (n : ℕ) :
@@ -99,11 +171,31 @@ include over_obj over_step h_toS in
 theorem adicStep_over (n : ℕ) :
     X.p.IsHomLift
       (specOverMap openImmersion ((CompleteLocalAlgCat.of R AlgEquiv.refl).truncationMap n))
-      (step n) := sorry
+      (step n) := by
+  have h : specOverMap openImmersion
+      ((CompleteLocalAlgCat.of R AlgEquiv.refl).truncationMap n) =
+      eqToHom (adicTruncationOver toS openImmersion h_toS n) ≫
+        (AdicPresentation.diagram toS (maximalIdeal R)).map (homOfLE (Nat.le_succ n)) ≫
+        eqToHom (adicTruncationOver toS openImmersion h_toS (n + 1)).symm := by
+    apply Over.OverMorphism.ext
+    simp only [Over.comp_left, Over.eqToHom_left]
+    change Spec.map _ = (𝟙 _) ≫ Spec.map _ ≫ (𝟙 _)
+    simp only [Category.id_comp, Category.comp_id]
+    rfl
+  rw [h]
+  letI := over_step n
+  have hcomp := IsHomLift.lift_comp_eqToHom X.p
+    ((AdicPresentation.diagram toS (maximalIdeal R)).map (homOfLE (Nat.le_succ n)))
+    (step n) (adicTruncationOver toS openImmersion h_toS (n + 1)).symm
+  exact @IsHomLift.lift_eqToHom_comp _ _ _ _ X.p _ _ _ _ _ _ hcomp _
+    (adicTruncationOver toS openImmersion h_toS n)
 
 /-- Forward composites from the residue stage commute with each successor transition. -/
 theorem adicStep_triangle (n : ℕ) :
-    adicFromResidue objects step (n + 1) = adicFromResidue objects step n ≫ step n := sorry
+    adicFromResidue objects step (n + 1) = adicFromResidue objects step n ≫ step n := by
+  change OfSequence.map step 0 (n + 1) _ = OfSequence.map step 0 n _ ≫ step n
+  rw [OfSequence.map_comp step 0 n (n + 1) (Nat.zero_le n) (Nat.le_succ n),
+    OfSequence.map_le_succ]
 
 /-- The original forward arrow as a reversed predeformation arrow over a truncation projection. -/
 def adicStep (n : ℕ) :
@@ -142,7 +234,11 @@ def adicProjection :
 theorem adicStageMap_over (n : ℕ) :
     (adicProjection toS objects over_obj openImmersion h_toS).IsHomLift
       ((CompleteLocalAlgCat.of R AlgEquiv.refl).truncationMap n)
-      (adicStageMap toS objects step over_obj over_step openImmersion h_toS n) := sorry
+      (adicStageMap toS objects step over_obj over_step openImmersion h_toS n) := by
+  change (adicProjection toS objects over_obj openImmersion h_toS).IsHomLift
+    ((adicProjection toS objects over_obj openImmersion h_toS).map
+      (adicStageMap toS objects step over_obj over_step openImmersion h_toS n)) _
+  exact IsHomLift.map _ _
 
 /-- A maximal-adic forward system defines a formal object of its residue-point predeformation category. -/
 def formalObjectOfAdicSystem :
@@ -171,6 +267,12 @@ theorem formalObjectOfAdicSystem_spec (n : ℕ) :
       (adicStep toS objects step over_obj over_step openImmersion h_toS n).hom = step n ∧
       p.obj (ξ.system.family n) = (CompleteLocalAlgCat.of R AlgEquiv.refl).truncation n ∧
       p.IsHomLift ((CompleteLocalAlgCat.of R AlgEquiv.refl).truncationMap n)
-        (ξ.system.stepMap n) := sorry
+        (ξ.system.stepMap n) := by
+  dsimp only [formalObjectOfAdicSystem, _root_.FormalObject.of, _root_.FormalObject.system,
+    SequentialInverseSystem.family, SequentialInverseSystem.stepMap,
+    SequentialInverseSystem.transitionMap]
+  rw [Functor.ofOpSequence_map_homOfLE_succ]
+  exact ⟨rfl, rfl, rfl, rfl, rfl,
+    adicStageMap_over toS objects step over_obj over_step openImmersion h_toS n⟩
 
 end AlgebraicGeometry.GroupoidsOver.Predeformation

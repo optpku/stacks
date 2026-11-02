@@ -33,6 +33,9 @@ universe u
 
 namespace AlgebraicGeometry.GroupoidsOver
 
+set_option backward.defeqAttrib.useBackward true
+set_option backward.isDefEq.respectTransparency false
+
 variable {S : Scheme.{u}} {Y X : GroupoidsOver S} (f : Y ⟶ X)
 
 /-- Scheme identification `p(f(y)) = p(y)` induced by commutativity of `f`. -/
@@ -66,13 +69,31 @@ theorem transportEtaleFunctor_obj (y : Y.total) (V' : (Y.p.obj y).left.Etale) :
 private theorem smallEtaleEval_toBase_domain_eq {Z : GroupoidsOver S} (x : Z.total)
     (V' : (Z.p.obj x).left.Etale) :
     Z.p.obj ((smallEtaleEval x).obj V') = (etaleOver x V').left :=
-  sorry
+  by
+    letI := Chosen.cartesianHom.isStronglyCartesian Z.p (etaleOver x V').hom ⟨x, rfl⟩
+    exact IsHomLift.domain_eq Z.p (etaleOver x V').hom (smallEtaleEval_toBase x V')
+
+/-- Transporting an étale neighborhood along equality of objects of `Over S`
+identifies its domain and its structural morphism. -/
+private theorem etaleOver_transport_eq (A B : Over S) (h : A = B)
+    (V' : B.left.Etale) :
+    let T := (eqToIso (congrArg (fun U : Scheme.{u} => Cat.of U.Etale)
+      (congrArg Over.left h).symm)).hom.toFunctor
+    let a := (Over.iteratedSliceBackward A).obj ((Scheme.Etale.forget A.left).obj (T.obj V'))
+    let b := (Over.iteratedSliceBackward B).obj ((Scheme.Etale.forget B.left).obj V')
+    ∃ e : b.left = a.left, b.hom ≫ eqToHom h.symm = eqToHom e ≫ a.hom := by
+  cases h
+  exact ⟨rfl, by change _ ≫ 𝟙 _ = 𝟙 _ ≫ _; simp⟩
 
 /-- Domain identification for the cartesian fill-in of `smallEtaleEval_map_app`. -/
 private theorem smallEtaleEval_map_domain_eq (y : Y.total) (V' : (Y.p.obj y).left.Etale) :
     X.p.obj ((toFunctor f).obj ((smallEtaleEval y).obj V')) =
       (etaleOver ((toFunctor f).obj y) (transportEtale f y V')).left :=
-  sorry
+  by
+    obtain ⟨h, _⟩ := etaleOver_transport_eq
+      (X.p.obj ((toFunctor f).obj y)) (Y.p.obj y) (Functor.congr_obj (comm f) y) V'
+    exact ((Functor.congr_obj (comm f) ((smallEtaleEval y).obj V')).trans
+      (smallEtaleEval_toBase_domain_eq y V')).trans h
 
 /-- Base morphism in `Over S` underlying `f` applied to the étale lift of `y`. -/
 private def smallEtaleEval_map_base (y : Y.total) (V' : (Y.p.obj y).left.Etale) :
@@ -86,7 +107,21 @@ private theorem smallEtaleEval_map_app_comp (y : Y.total) (V' : (Y.p.obj y).left
     smallEtaleEval_map_base f y V' =
       eqToHom (smallEtaleEval_map_domain_eq f y V') ≫
         (etaleOver ((toFunctor f).obj y) (transportEtale f y V')).hom :=
-  sorry
+  by
+    obtain ⟨_, h⟩ := etaleOver_transport_eq
+      (X.p.obj ((toFunctor f).obj y)) (Y.p.obj y) (Functor.congr_obj (comm f) y) V'
+    change X.p.map ((toFunctor f).map (smallEtaleEval_toBase y V')) = _
+    rw [show X.p.map ((toFunctor f).map (smallEtaleEval_toBase y V')) =
+      eqToHom (Functor.congr_obj (comm f) ((smallEtaleEval y).obj V')) ≫
+        Y.p.map (smallEtaleEval_toBase y V') ≫
+          eqToHom (Functor.congr_obj (comm f) y).symm from
+      Functor.congr_hom (comm f) (smallEtaleEval_toBase y V')]
+    dsimp only [smallEtaleEval_toBase]
+    rw [Chosen.cartesianHom.map]
+    simp only [eqToHom_refl, Category.comp_id, Category.assoc]
+    erw [h]
+    simp only [eqToHom_trans_assoc]
+    rfl
 
 /-- The reverse triangle identity for the inverse cartesian fill-in. -/
 private theorem smallEtaleEval_map_app_inv_comp (y : Y.total) (V' : (Y.p.obj y).left.Etale) :
@@ -95,7 +130,12 @@ private theorem smallEtaleEval_map_app_inv_comp (y : Y.total) (V' : (Y.p.obj y).
         ((smallEtaleEval_toBase_domain_eq ((toFunctor f).obj y) (transportEtale f y V')).trans
           (smallEtaleEval_map_domain_eq f y V').symm) ≫
         smallEtaleEval_map_base f y V' :=
-  sorry
+  by
+    rw [smallEtaleEval_map_app_comp]
+    simpa only [Category.assoc, eqToHom_trans_assoc, eqToHom_refl, Category.comp_id] using
+      (Chosen.cartesianHom.map X.p
+        (etaleOver ((toFunctor f).obj y) (transportEtale f y V')).hom
+        ⟨(toFunctor f).obj y, rfl⟩)
 
 /-- Cartesian fill-in comparing `f` applied to the étale lift of `y` with the
 étale lift of `f(y)`, obtained from the universal property of
@@ -146,7 +186,12 @@ theorem smallEtaleEval_map_app_triangle (y : Y.total)
     smallEtaleEval_map_app f y V' ≫
         smallEtaleEval_toBase ((toFunctor f).obj y) (transportEtale f y V') =
       (toFunctor f).map (smallEtaleEval_toBase y V') :=
-  sorry
+  by
+    letI := Chosen.cartesianHom.isStronglyCartesian X.p
+      (etaleOver ((toFunctor f).obj y) (transportEtale f y V')).hom
+      ⟨(toFunctor f).obj y, rfl⟩
+    unfold smallEtaleEval_map_app
+    apply IsStronglyCartesian.fac
 
 /-- Triangle identity for `smallEtaleEval_map_app_inv` against the image of the
 cartesian lift of `y`. -/
@@ -155,19 +200,94 @@ theorem smallEtaleEval_map_app_inv_triangle (y : Y.total)
     smallEtaleEval_map_app_inv f y V' ≫
         (toFunctor f).map (smallEtaleEval_toBase y V') =
       smallEtaleEval_toBase ((toFunctor f).obj y) (transportEtale f y V') :=
-  sorry
+  by
+    letI := IsFibered.isStronglyCartesian_of_isCartesian X.p
+      (X.p.map ((toFunctor f).map (smallEtaleEval_toBase y V')))
+      ((toFunctor f).map (smallEtaleEval_toBase y V'))
+    unfold smallEtaleEval_map_app_inv
+    apply IsStronglyCartesian.fac
+
+/-- Both cartesian comparison arrows lie over the identity of the étale domain. -/
+private theorem smallEtaleEval_map_app_lifts (y : Y.total)
+    (V' : (Y.p.obj y).left.Etale) :
+    let U := (etaleOver ((toFunctor f).obj y) (transportEtale f y V')).left
+    X.p.IsHomLift (𝟙 U) (smallEtaleEval_map_app f y V') ∧
+      X.p.IsHomLift (𝟙 U) (smallEtaleEval_map_app_inv f y V') := by
+  dsimp only
+  let h := smallEtaleEval_map_domain_eq f y V'
+  let k := smallEtaleEval_toBase_domain_eq ((toFunctor f).obj y) (transportEtale f y V')
+  have hf : X.p.IsHomLift (eqToHom h) (smallEtaleEval_map_app f y V') := by
+    unfold smallEtaleEval_map_app
+    apply IsStronglyCartesian.map_isHomLift
+  have hi : X.p.IsHomLift (eqToHom (k.trans h.symm))
+      (smallEtaleEval_map_app_inv f y V') := by
+    unfold smallEtaleEval_map_app_inv
+    apply IsStronglyCartesian.map_isHomLift
+  constructor
+  · exact (IsHomLift.lift_eqToHom_comp_iff X.p (𝟙 _)
+      (smallEtaleEval_map_app f y V') h).mp (by simpa only [Category.comp_id] using hf)
+  · haveI := hi
+    have hi' := IsHomLift.lift_comp_eqToHom X.p (eqToHom (k.trans h.symm))
+      (smallEtaleEval_map_app_inv f y V') h
+    have hi'' : X.p.IsHomLift (eqToHom k) (smallEtaleEval_map_app_inv f y V') := by
+      simpa only [eqToHom_trans] using hi'
+    exact (IsHomLift.lift_eqToHom_comp_iff X.p (𝟙 _)
+      (smallEtaleEval_map_app_inv f y V') k).mp
+        (by simpa only [Category.comp_id] using hi'')
 
 /-- The forward cartesian comparison followed by the reverse comparison is the identity. -/
 private theorem smallEtaleEval_map_app_hom_inv_id (y : Y.total)
     (V' : (Y.p.obj y).left.Etale) :
     smallEtaleEval_map_app f y V' ≫ smallEtaleEval_map_app_inv f y V' = 𝟙 _ :=
-  sorry
+  by
+    obtain ⟨hf, hi⟩ := smallEtaleEval_map_app_lifts f y V'
+    haveI hf' : X.p.IsHomLift
+        (𝟙 (X.p.obj ((smallEtaleEval y ⋙ toFunctor f).obj V')))
+        (smallEtaleEval_map_app f y V') := by
+      exact Eq.mpr (congrArg
+        (fun U : Over S => X.p.IsHomLift (𝟙 U) (smallEtaleEval_map_app f y V'))
+        (smallEtaleEval_map_domain_eq f y V')) hf
+    haveI hi' : X.p.IsHomLift
+        (𝟙 (X.p.obj ((smallEtaleEval y ⋙ toFunctor f).obj V')))
+        (smallEtaleEval_map_app_inv f y V') := by
+      exact Eq.mpr (congrArg
+        (fun U : Over S => X.p.IsHomLift (𝟙 U) (smallEtaleEval_map_app_inv f y V'))
+        (smallEtaleEval_map_domain_eq f y V')) hi
+    haveI hcomp : X.p.IsHomLift
+        (𝟙 (X.p.obj ((toFunctor f).obj ((smallEtaleEval y).obj V'))))
+        (smallEtaleEval_map_app f y V' ≫ smallEtaleEval_map_app_inv f y V') :=
+      @IsHomLift.comp_of_lift_id _ _ _ _ X.p _ _ _ _ _ _ hf' hi'
+    haveI hid : X.p.IsHomLift
+        (𝟙 (X.p.obj ((toFunctor f).obj ((smallEtaleEval y).obj V'))))
+        (𝟙 ((smallEtaleEval y ⋙ toFunctor f).obj V')) :=
+      IsHomLift.id (p := X.p) rfl
+    letI := IsFibered.isStronglyCartesian_of_isCartesian X.p
+      (X.p.map ((toFunctor f).map (smallEtaleEval_toBase y V')))
+      ((toFunctor f).map (smallEtaleEval_toBase y V'))
+    apply IsStronglyCartesian.ext X.p
+      (X.p.map ((toFunctor f).map (smallEtaleEval_toBase y V')))
+      ((toFunctor f).map (smallEtaleEval_toBase y V')) (𝟙 _)
+    simp only [Category.assoc, smallEtaleEval_map_app_inv_triangle,
+      smallEtaleEval_map_app_triangle, Category.id_comp]
 
 /-- The reverse cartesian comparison followed by the forward comparison is the identity. -/
 private theorem smallEtaleEval_map_app_inv_hom_id (y : Y.total)
     (V' : (Y.p.obj y).left.Etale) :
     smallEtaleEval_map_app_inv f y V' ≫ smallEtaleEval_map_app f y V' = 𝟙 _ :=
-  sorry
+  by
+    obtain ⟨hf, hi⟩ := smallEtaleEval_map_app_lifts f y V'
+    letI := hf
+    letI := hi
+    haveI := IsHomLift.id (p := X.p)
+      (smallEtaleEval_toBase_domain_eq ((toFunctor f).obj y) (transportEtale f y V'))
+    letI := Chosen.cartesianHom.isStronglyCartesian X.p
+      (etaleOver ((toFunctor f).obj y) (transportEtale f y V')).hom
+      ⟨(toFunctor f).obj y, rfl⟩
+    apply IsStronglyCartesian.ext X.p
+      (etaleOver ((toFunctor f).obj y) (transportEtale f y V')).hom
+      (smallEtaleEval_toBase ((toFunctor f).obj y) (transportEtale f y V')) (𝟙 _)
+    simp only [Category.assoc, smallEtaleEval_map_app_triangle,
+      smallEtaleEval_map_app_inv_triangle, Category.id_comp]
 
 /-- `smallEtaleEval_map_app` is an isomorphism of objects of the total category. -/
 def smallEtaleEval_map_appIso (y : Y.total) (V' : (Y.p.obj y).left.Etale) :
@@ -178,13 +298,105 @@ def smallEtaleEval_map_appIso (y : Y.total) (V' : (Y.p.obj y).left.Etale) :
   hom_inv_id := by exact smallEtaleEval_map_app_hom_inv_id f y V'
   inv_hom_id := by exact smallEtaleEval_map_app_inv_hom_id f y V'
 
+/-- An evaluation map lies over the corresponding morphism of étale neighborhoods. -/
+private theorem smallEtaleEval_map_lift {Z : GroupoidsOver S} (x : Z.total)
+    {V' W' : (Z.p.obj x).left.Etale} (i : V' ⟶ W') :
+    Z.p.IsHomLift
+      (((Over.iteratedSliceBackward (Z.p.obj x)).map
+        ((Scheme.Etale.forget (Z.p.obj x).left).map i)).left)
+      ((smallEtaleEval x).map i) := by
+  let χ := Cleavage.ofIsFibered Z.p
+  let j := (Over.iteratedSliceBackward (Z.p.obj x)).map
+    ((Scheme.Etale.forget (Z.p.obj x).left).map i)
+  exact @IsStronglyCartesian.map_isHomLift _ _ _ _ Z.p _ _ _ _
+    (etaleOver x W').hom (χ.cartesianHom (etaleOver x W').hom ⟨x, rfl⟩)
+    (χ.reindexLift (etaleOver x W').hom ⟨x, rfl⟩).isStronglyCartesian _ _
+    j.left (etaleOver x V').hom (Over.w j).symm
+    (χ.cartesianHom (etaleOver x V').hom ⟨x, rfl⟩)
+    (χ.reindexLift (etaleOver x V').hom ⟨x, rfl⟩).isStronglyCartesian.toIsHomLift
+
+/-- Evaluation maps commute with the chosen arrows to the original object. -/
+private theorem smallEtaleEval_map_toBase {Z : GroupoidsOver S} (x : Z.total)
+    {V' W' : (Z.p.obj x).left.Etale} (i : V' ⟶ W') :
+    (smallEtaleEval x).map i ≫ smallEtaleEval_toBase x W' = smallEtaleEval_toBase x V' := by
+  let χ := Cleavage.ofIsFibered Z.p
+  let j := (Over.iteratedSliceBackward (Z.p.obj x)).map
+    ((Scheme.Etale.forget (Z.p.obj x).left).map i)
+  exact @IsStronglyCartesian.fac _ _ _ _ Z.p _ _ _ _
+    (etaleOver x W').hom (χ.cartesianHom (etaleOver x W').hom ⟨x, rfl⟩)
+    (χ.reindexLift (etaleOver x W').hom ⟨x, rfl⟩).isStronglyCartesian _ _
+    j.left (etaleOver x V').hom (Over.w j).symm
+    (χ.cartesianHom (etaleOver x V').hom ⟨x, rfl⟩)
+    (χ.reindexLift (etaleOver x V').hom ⟨x, rfl⟩).isStronglyCartesian.toIsHomLift
+
+/-- Reindexing an étale morphism along an equality commutes with its map in `Over S`. -/
+private theorem etaleOver_transport_map_eq (A B : Over S) (h : A = B)
+    {V' W' : B.left.Etale} (i : V' ⟶ W') :
+    let T := (eqToIso (congrArg (fun U : Scheme.{u} => Cat.of U.Etale)
+      (congrArg Over.left h).symm)).hom.toFunctor
+    let a := T ⋙ Scheme.Etale.forget A.left ⋙ Over.iteratedSliceBackward A
+    let b := Scheme.Etale.forget B.left ⋙ Over.iteratedSliceBackward B
+    ∀ (hV : (b.obj V').left = (a.obj V').left)
+      (hW : (b.obj W').left = (a.obj W').left),
+      (b.map i).left ≫ eqToHom hW = eqToHom hV ≫ (a.map i).left := by
+  cases h
+  dsimp only
+  intro hV hW
+  change ((Over.iteratedSliceBackward A).map ((Scheme.Etale.forget A.left).map i)).left ≫ 𝟙 _ =
+    𝟙 _ ≫ ((Over.iteratedSliceBackward A).map ((Scheme.Etale.forget A.left).map i)).left
+  simp
+
 /-- Naturality of `smallEtaleEval_map_app` in the étale neighborhood. -/
 theorem smallEtaleEval_map_naturality (y : Y.total)
     {V' W' : (Y.p.obj y).left.Etale} (i : V' ⟶ W') :
     (smallEtaleEval y ⋙ toFunctor f).map i ≫ smallEtaleEval_map_app f y W' =
       smallEtaleEval_map_app f y V' ≫
         (smallEtaleEval ((toFunctor f).obj y)).map (transportEtale_map f y i) :=
-  sorry
+  by
+    obtain ⟨hV, _⟩ := etaleOver_transport_eq
+      (X.p.obj ((toFunctor f).obj y)) (Y.p.obj y) (Functor.congr_obj (comm f) y) V'
+    obtain ⟨hW, _⟩ := etaleOver_transport_eq
+      (X.p.obj ((toFunctor f).obj y)) (Y.p.obj y) (Functor.congr_obj (comm f) y) W'
+    let j := (Over.iteratedSliceBackward (Y.p.obj y)).map
+      ((Scheme.Etale.forget (Y.p.obj y).left).map i)
+    let k := (Over.iteratedSliceBackward (X.p.obj ((toFunctor f).obj y))).map
+      ((Scheme.Etale.forget (X.p.obj ((toFunctor f).obj y)).left).map (transportEtale_map f y i))
+    have hbase : j.left ≫ eqToHom hW = eqToHom hV ≫ k.left :=
+      etaleOver_transport_map_eq _ _ (Functor.congr_obj (comm f) y) i hV hW
+    haveI hy : Y.p.IsHomLift j.left ((smallEtaleEval y).map i) :=
+      smallEtaleEval_map_lift y i
+    haveI hx : X.p.IsHomLift k.left
+        ((smallEtaleEval ((toFunctor f).obj y)).map (transportEtale_map f y i)) :=
+      smallEtaleEval_map_lift ((toFunctor f).obj y) (transportEtale_map f y i)
+    haveI hfy : X.p.IsHomLift j.left ((toFunctor f).map ((smallEtaleEval y).map i)) :=
+      BasedFunctor.preserves_isHomLift (toBasedFunctor f) j.left ((smallEtaleEval y).map i)
+    haveI hfy' : X.p.IsHomLift (j.left ≫ eqToHom hW)
+        ((toFunctor f).map ((smallEtaleEval y).map i)) :=
+      IsHomLift.lift_comp_eqToHom X.p j.left _ hW
+    haveI hφW := (smallEtaleEval_map_app_lifts f y W').1
+    haveI hφV := (smallEtaleEval_map_app_lifts f y V').1
+    haveI hφV' : X.p.IsHomLift (eqToHom hV) (smallEtaleEval_map_app f y V') := by
+      simpa only [Category.comp_id] using
+        (@IsHomLift.lift_eqToHom_comp _ _ _ _ X.p _ _ _ _
+          (𝟙 _) (smallEtaleEval_map_app f y V') hφV _ hV)
+    haveI hl : X.p.IsHomLift (j.left ≫ eqToHom hW)
+        ((smallEtaleEval y ⋙ toFunctor f).map i ≫ smallEtaleEval_map_app f y W') :=
+      @IsHomLift.comp_lift_id_right _ _ _ _ X.p _ _ _ _ _
+        (j.left ≫ eqToHom hW) _ hfy' _ hφW
+    haveI hr : X.p.IsHomLift (j.left ≫ eqToHom hW)
+        (smallEtaleEval_map_app f y V' ≫
+          (smallEtaleEval ((toFunctor f).obj y)).map (transportEtale_map f y i)) := by
+      rw [hbase]
+      exact IsHomLift.comp X.p _ _ _ _
+    letI := Chosen.cartesianHom.isStronglyCartesian X.p
+      (etaleOver ((toFunctor f).obj y) (transportEtale f y W')).hom
+      ⟨(toFunctor f).obj y, rfl⟩
+    apply IsStronglyCartesian.ext X.p
+      (etaleOver ((toFunctor f).obj y) (transportEtale f y W')).hom
+      (smallEtaleEval_toBase ((toFunctor f).obj y) (transportEtale f y W'))
+      (j.left ≫ eqToHom hW)
+    simp only [Functor.comp_map, Category.assoc, smallEtaleEval_map_app_triangle,
+      smallEtaleEval_map_toBase, ← Functor.map_comp]
 
 /-- Natural isomorphism identifying étale evaluation of `y` after `f` with étale
 evaluation of `f(y)`. -/
@@ -211,7 +423,16 @@ def restrictSmallEtaleSheaf_reindex (y : Y.total)
     Sheaf (Y.p.obj y).left.smallEtaleTopology (Type (u + 1)) where
   obj :=
     (transportEtaleFunctor f y).op ⋙ (restrictSmallEtaleSheaf F ((toFunctor f).obj y)).obj
-  property := sorry
+  property := by
+    have htransport (U V : Scheme.{u}) (h : U = V)
+        (G : Sheaf U.smallEtaleTopology (Type (u + 1))) :
+        Presheaf.IsSheaf V.smallEtaleTopology
+          ((eqToIso (congrArg (fun W : Scheme.{u} => Cat.of W.Etale) h.symm)).hom.toFunctor.op ⋙
+            G.obj) := by
+      cases h
+      change Presheaf.IsSheaf U.smallEtaleTopology G.obj
+      exact G.property
+    exact htransport _ _ (map_obj_left_eq f y) (restrictSmallEtaleSheaf F ((toFunctor f).obj y))
 
 /-- The underlying presheaf of `restrictSmallEtaleSheaf_reindex` is reindexing of
 `restrictSmallEtaleSheaf F (f(y))` along `transportEtaleFunctor`. -/
@@ -271,7 +492,19 @@ def restrictSmallEtaleSheaf_inverseImage_presheaf (y : Y.total)
       (restrictSmallEtaleSheaf_reindex f y F).obj :=
   NatIso.ofComponents
     (fun V' ↦ restrictSmallEtaleSheaf_inverseImage_app f y F (unop V'))
-    (fun _ ↦ sorry)
+    (fun i ↦ by
+      letI : (toFunctor f).IsContinuous Y.etaleTopology X.etaleTopology :=
+        CartesianBasedFunctor.inheritedTopology.isContinuous
+          (toCartesianBasedFunctor f) (StandardTopology.etale.overTopology S)
+      let α := ((Functor.isoWhiskerRight
+        (CartesianBasedFunctor.morphismOfTopoiIn.inverseImageComparisonIso
+          (toCartesianBasedFunctor f) (StandardTopology.etale.overTopology S))
+        (sheafToPresheaf Y.etaleTopology (Type (u + 1)))).app F) ≪≫
+          ((toFunctor f).sheafPushforwardContinuousCompSheafToPresheafIso
+            (Type (u + 1)) Y.etaleTopology X.etaleTopology).app F
+      let β := Functor.isoWhiskerLeft (smallEtaleEval y).op α ≪≫
+        Functor.isoWhiskerRight (NatIso.op (smallEtaleEval_map f y).symm) F.obj
+      exact β.hom.naturality i)
 
 /-- Canonical identification `f⁻¹ F|_{U_étale} = F|_{U_étale}` of small étale
 sheaves on `p(y)`. -/

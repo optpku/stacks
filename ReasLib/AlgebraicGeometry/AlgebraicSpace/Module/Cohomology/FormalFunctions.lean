@@ -83,7 +83,7 @@ theorem toQuotientModPow_comp_mkQ (I : Ideal A)
           (I ^ n • (⊤ : Submodule A
             (GradedCohomology.cohomologyOver (𝟙 (Spec (CommRingCat.of A))) f F p))) =
       (toQuotientCohomology I f F p n).hom :=
-  sorry
+  Submodule.liftQ_mkQ _ _ _
 
 /-- The descended comparisons are natural with respect to the adic quotient
 transitions and the cohomology tower. -/
@@ -97,7 +97,15 @@ theorem toQuotientModPow_natural (I : Ideal A)
           (GradedCohomology.cohomologyOver (𝟙 (Spec (CommRingCat.of A))) f F p) h) ≫
         toQuotientModPow I f F p m =
       toQuotientModPow I f F p n ≫ (quotientSystem I f F p).transitionMap h :=
-  sorry
+  by
+    apply ModuleCat.hom_ext
+    apply Submodule.linearMap_qext
+    ext x
+    change (toQuotientCohomology I f F p m).hom x =
+      ((quotientSystem I f F p).transitionMap h).hom
+        ((toQuotientCohomology I f F p n).hom x)
+    exact (congrArg (fun k ↦ k.hom x)
+      (toQuotientCohomology_natural I f F p h)).symm
 
 /-- Evaluations on the adic completion followed by the descended comparisons
 form a natural family of morphisms to the quotient cohomology system. -/
@@ -166,7 +174,7 @@ theorem limitComparison_comp_π (I : Ideal A)
         ((toQuotientModPow I f F p n).hom ∘ₗ
           AdicCompletion.eval I
             (GradedCohomology.cohomologyOver (𝟙 (Spec (CommRingCat.of A))) f F p) n) :=
-  sorry
+  limit.lift_π _ _
 
 /-- For a coherent sheaf on an algebraic space proper over a Noetherian affine
 base, the canonical comparison from completed cohomology to the inverse limit
@@ -202,6 +210,7 @@ theorem isHomeomorph_limitComparison [IsNoetherianRing A] (I : Ideal A)
       (limitComparison I f F p).hom :=
   sorry
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The canonical quotient-cohomology maps form a natural family along the
 ideal-power quotient cohomology system. -/
 theorem toLimit_naturality (I : Ideal A)
@@ -214,7 +223,12 @@ theorem toLimit_naturality (I : Ideal A)
         toQuotientCohomology I f F p targetIndex.unop =
       toQuotientCohomology I f F p sourceIndex.unop ≫
         (quotientSystem I f F p).map g :=
-  sorry
+  by
+    have hg : (homOfLE (leOfHom g.unop)).op = g := Subsingleton.elim _ _
+    have hn := (toQuotientCohomology_natural I f F p (leOfHom g.unop)).symm
+    dsimp only [SequentialInverseSystem.transitionMap] at hn
+    rw [hg] at hn
+    simpa only [Category.id_comp, quotientSystem] using hn
 
 /-- The canonical comparison `H^p(X, F) ⟶ lim_n H^p(X, F / I^n F)` induced by
 `toQuotientCohomology`. -/
@@ -240,7 +254,7 @@ theorem toLimit_comp_π (I : Ideal A)
     [HasInjectiveResolutions X.Modules] (p n : ℕ) :
     toLimit I f F p ≫ limit.π (quotientSystem I f F p) (op n) =
       toQuotientCohomology I f F p n :=
-  sorry
+  limit.lift_π _ _
 
 /-- Over an I-adically complete Noetherian ring, the canonical comparison from
 cohomology of a coherent sheaf on a proper algebraic space to the inverse limit

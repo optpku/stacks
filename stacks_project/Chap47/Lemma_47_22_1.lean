@@ -28,8 +28,8 @@ dualizing complex by derived extension of scalars. -/
       [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
       [MonoidalCategory (DerivedCategory (ModuleCat.{u} B))]
       (f : A →+* B) [IsLocalHom f] (hflat : f.Flat) (hmax : f.MapsMaximalIdeal)
-      (HA : MonoidalClosed (DerivedCategory (ModuleCat.{u} A)))
-      (HB : MonoidalClosed (DerivedCategory (ModuleCat.{u} B)))
+      (CA : CategoryTheory.DerivedCategory.CanonicalClosedPresentation (A := A))
+      (CB : CategoryTheory.DerivedCategory.CanonicalClosedPresentation (A := B))
       (ω : DerivedCategory (ModuleCat.{u} A)),
-      ω.IsNormalizedDualizingComplex HA →
-        ((ModuleCat.derivedExtensionOfScalars f).obj ω).IsNormalizedDualizingComplex HB)
+      ω.IsCanonicalNormalizedDualizingComplex CA →
+        ((ModuleCat.derivedExtensionOfScalars f).obj ω).IsCanonicalNormalizedDualizingComplex CB)

@@ -7,6 +7,8 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import ReasLib.AlgebraicGeometry.AlgebraicStack.Separation
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Product
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.Diagonal
 public import ReasLib.CategoryTheory.Fibered.Groupoids.BaseProjection.Naturality
 public import ReasLib.CategoryTheory.Fibered.Groupoids.Product
 public import ReasLib.CategoryTheory.Fibered.Groupoids.Diagonal.Construction
@@ -87,6 +89,19 @@ theorem toSelfProduct_eq {S : Scheme.{u}} {X : GroupoidsOver S}
     toSelfProduct x1 x2 = TwoFibreProduct.map (toSelfCospan x1 x2) :=
   rfl
 
+/-- Two cells into the resized identity fibration agree because its projection is faithful. -/
+private theorem isomComparison_base_twoCell_ext {S : Scheme.{u}} {A : GroupoidsOver S}
+    {F G : A ⟶ base.{u + 1, u, u + 1} (Over S)} (η θ : F ⟶ G) : η = θ := by
+  apply InducedBicategory.hom₂_ext
+  apply BasedNatTrans.ext
+  apply NatTrans.ext
+  funext a
+  apply (Cat.ObjULift.down (Over S)).map_injective
+  change (base.{u + 1, u, u + 1} (Over S)).p.map (η.hom.toNatTrans.app a) =
+    (base.{u + 1, u, u + 1} (Over S)).p.map (θ.hom.toNatTrans.app a)
+  rw [IsHomLift.fac' _ (𝟙 (A.p.obj a)) _,
+    IsHomLift.fac' _ (𝟙 (A.p.obj a)) _]
+
 /-- Left generating naturality for the identification of
 `(TwoFibreProduct.postcomposeCospan x1 x2 f).comp (toSelfCospan (x1 ≫ f) (x2 ≫ f))` with
 `toSelfCospan x1 x2`. -/
@@ -99,7 +114,7 @@ private theorem fibreProductCospan_comp_toSelfCospan_leftNaturality
     ((TwoFibreProduct.postcomposeCospan.{u + 1, u, u + 1, u} x1 x2 f).comp
         (toSelfCospan (x1 ≫ f) (x2 ≫ f))).leftIso.hom ≫
       x1 ◁ (baseProjection.naturality.{u + 1, u} f).hom :=
-  sorry
+  isomComparison_base_twoCell_ext _ _
 
 /-- Right generating naturality for the identification of
 `(TwoFibreProduct.postcomposeCospan x1 x2 f).comp (toSelfCospan (x1 ≫ f) (x2 ≫ f))` with
@@ -113,7 +128,7 @@ private theorem fibreProductCospan_comp_toSelfCospan_rightNaturality
     ((TwoFibreProduct.postcomposeCospan.{u + 1, u, u + 1, u} x1 x2 f).comp
         (toSelfCospan (x1 ≫ f) (x2 ≫ f))).rightIso.hom ≫
       x2 ◁ (baseProjection.naturality.{u + 1, u} f).hom :=
-  sorry
+  isomComparison_base_twoCell_ext _ _
 
 /-- The composite cospan `(𝟙, 𝟙, f)` then `(𝟙, 𝟙, baseProjection Y)` is
 isomorphic to `(𝟙, 𝟙, baseProjection X)`. -/
@@ -191,7 +206,18 @@ theorem isRepresentableByAlgebraicSpace_isomApex {S : Scheme.{u}}
     {X : GroupoidsOver S} [AlgebraicStack X] {Z : AlgebraicSpace S}
     (x1 x2 : Z.toGroupoids ⟶ X) :
     IsRepresentableByAlgebraicSpace (AlgebraicStack.isomApex x1 x2) :=
-  sorry
+  by
+    have hZ : IsRepresentableByAlgebraicSpace Z.toGroupoids :=
+      ⟨Z, ⟨Bicategory.Equivalence.id _⟩⟩
+    have hPair : IsRepresentableByAlgebraicSpace
+        (TwoFibreProduct.apex.{u + 1, u, u + 1, u} x1 x2) :=
+      (relativelyRepresentableByAlgebraicSpaces.diagonal_iff_ofAlgebraicSpacePair X).mp
+        (AlgebraicStack.representableDiagonal (X := X)) x1 x2 hZ hZ
+    exact (relativelyRepresentableByAlgebraicSpaces.diagonal_iff_ofAlgebraicSpacePair
+      (FiberedCategoryOver.Groupoids.prod Z.toGroupoids Z.toGroupoids)).mp
+        (AlgebraicStack.representableDiagonal (X :=
+          FiberedCategoryOver.Groupoids.prod Z.toGroupoids Z.toGroupoids))
+        (diagonal.{u + 1, u, u + 1} Z.toGroupoids) (toSelfProduct x1 x2) hZ hPair
 
 /-- The comparison `Isom_X(x1, x2) ⟶ Isom_Y(x1 ≫ f, x2 ≫ f)` induced by `f`. -/
 def isomComparison {S : Scheme.{u}} {X Y : GroupoidsOver S} (f : X ⟶ Y)

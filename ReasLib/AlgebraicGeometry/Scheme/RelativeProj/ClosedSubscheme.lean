@@ -59,9 +59,51 @@ noncomputable def mapOnSections
       map_zero' := by simp
       map_add' := by intro x y; simp }
   exact
-    { toRingHom := (DirectSum.toSemiring f (by sorry) (by sorry)).comp
+    { toRingHom := (DirectSum.toSemiring f (by
+        change ((modelB 0)
+          (((q.hom 0).val.app (Opposite.op (U : S.Opens))).hom
+            ((modelA 0).symm (1 : 𝒢 0)))).val = (1 : B)
+        have hA : (modelA 0).symm (1 : 𝒢 0) =
+            𝒜.one (Opposite.op (U : S.Opens)) := by
+          apply (modelA 0).injective
+          simpa only [AddEquiv.apply_symm_apply] using (hModelA.one_eq).symm
+        have hq := q.map_one (Opposite.op (U : S.Opens))
+        have hB := hModelB.one_eq
+        rw [hA]
+        rw [hq]
+        rw [hB]
+        rfl) (by
+        intro d e x y
+        let qd := ((q.hom (Int.ofNat d)).val.app (Opposite.op (U : S.Opens))).hom
+        let qe := ((q.hom (Int.ofNat e)).val.app (Opposite.op (U : S.Opens))).hom
+        let qde := ((q.hom (Int.ofNat (d + e))).val.app (Opposite.op (U : S.Opens))).hom
+        have hA := IsAffineOpenSectionModel.mul_eq 𝒢 𝒜 U modelA hModelA
+          d e ((modelA d).symm x) ((modelA e).symm y)
+        have hB := IsAffineOpenSectionModel.mul_eq ℋ ℬ U modelB hModelB d e
+          (qd ((modelA d).symm x)) (qe ((modelA e).symm y))
+        have hA' :
+            𝒜.mul (Opposite.op (U : S.Opens)) (Int.ofNat d) (Int.ofNat e)
+                ((modelA d).symm x) ((modelA e).symm y) =
+              (modelA (d + e)).symm ((SetLike.gMul 𝒢).mul x y) := by
+          simpa only [AddEquiv.apply_symm_apply] using (eq_of_heq hA)
+        have hm : qde ((modelA (d + e)).symm ((SetLike.gMul 𝒢).mul x y)) =
+            (modelB (d + e)).symm ((SetLike.gMul ℋ).mul
+              (modelB d (qd ((modelA d).symm x)))
+              (modelB e (qe ((modelA e).symm y)))) :=
+          (congrArg qde hA'.symm).trans
+            ((q.map_mul (Opposite.op (U : S.Opens))
+              (Int.ofNat d) (Int.ofNat e) ((modelA d).symm x) ((modelA e).symm y)).trans
+                (eq_of_heq hB))
+        exact (congrArg (fun z ↦ (modelB (d + e) z).val) hm).trans
+          (congrArg Subtype.val ((modelB (d + e)).apply_symm_apply _)))).comp
         (DirectSum.decomposeRingEquiv 𝒢).toRingHom
-      map_mem := by sorry }
+      map_mem := by
+        intro d x hx
+        change (DirectSum.toAddMonoid f) (DirectSum.decompose 𝒢 x) ∈ ℋ d
+        rw [DirectSum.decompose_of_mem 𝒢 hx, DirectSum.toAddMonoid_of]
+        exact (modelB d
+          ((((q.hom (Int.ofNat d)).val.app (Opposite.op (U : S.Opens))).hom)
+            ((modelA d).symm ⟨x, hx⟩))).property }
 
 /-- On a homogeneous element, the transported map is exactly the corresponding sheaf map
 on sections, expressed in the two affine models. -/
@@ -81,7 +123,43 @@ theorem mapOnSections_surjective
     (q : 𝒜 ⟶ ℬ) (hq : ∀ d : ℕ, Epi (q.hom (Int.ofNat d))) (d : ℕ) :
     Function.Surjective
       ((mapOnSections U 𝒢 ℋ 𝒜 ℬ modelA modelB hModelA hModelB q).gradedAddHom d) := by
-  sorry
+  letI : (𝒜 (Int.ofNat d)).IsQuasicoherent := hqcA (Int.ofNat d)
+  letI : (ℬ (Int.ofNat d)).IsQuasicoherent := hqcB (Int.ofNat d)
+  -- Use the scheme-module category when applying the restriction functor.
+  let f : (show S.Modules from 𝒜 (Int.ofNat d)) ⟶
+      (show S.Modules from ℬ (Int.ofNat d)) := q.hom (Int.ofNat d)
+  haveI : Epi f := hq d
+  let R : CommRingCat := S.presheaf.obj (Opposite.op (U : S.Opens))
+  let M := (Scheme.Modules.restrictFunctor U.property.fromSpec).obj (𝒜 (Int.ofNat d))
+  let N := (Scheme.Modules.restrictFunctor U.property.fromSpec).obj (ℬ (Int.ofNat d))
+  let g : M ⟶ N := (Scheme.Modules.restrictFunctor U.property.fromSpec).map f
+  haveI hg : Epi g := inferInstanceAs
+    (Epi ((Scheme.Modules.restrictFunctor U.property.fromSpec).map f))
+  haveI hM : IsIso (Scheme.Modules.fromTildeΓ M) := inferInstance
+  haveI hN : IsIso (Scheme.Modules.fromTildeΓ N) := inferInstance
+  have hMepi : Epi (Scheme.Modules.fromTildeΓ M) := inferInstance
+  haveI : Epi ((moduleSpecΓFunctor (R := R)).map g) := by
+    -- The affine tilde counit is invertible and commutes with the restricted map.
+    apply Functor.epi_of_epi_map (tilde.functor _)
+    let t := (tilde.functor R).map ((moduleSpecΓFunctor (R := R)).map g)
+    have he : t ≫ Scheme.Modules.fromTildeΓ N =
+        Scheme.Modules.fromTildeΓ M ≫ g := (tilde.adjunction).counit.naturality g
+    haveI : Epi (t ≫ Scheme.Modules.fromTildeΓ N) := by
+      rw [he]
+      exact epi_comp' hMepi hg
+    exact (@epi_comp_iff_of_isIso _ _ _ _ _ t (Scheme.Modules.fromTildeΓ N) hN).mp
+      inferInstance
+  have hs := (ModuleCat.epi_iff_surjective
+    ((moduleSpecΓFunctor (R := R)).map g)).mp inferInstance
+  change Function.Surjective
+    (((q.hom (Int.ofNat d)).val.app
+      (Opposite.op (U.property.fromSpec ''ᵁ ⊤))).hom) at hs
+  rw [U.property.fromSpec.image_top_eq_opensRange, U.property.opensRange_fromSpec] at hs
+  intro y
+  obtain ⟨x, hx⟩ := hs ((modelB d).symm y)
+  refine ⟨modelA d x, ?_⟩
+  rw [mapOnSections_gradedAddHom, AddEquiv.symm_apply_apply, hx,
+    AddEquiv.apply_symm_apply]
 
 /-- The full-domain projective-spectrum morphism induced by an epic graded sheaf map on
 an affine open. This uses the canonical graded `Proj` map and its top-domain inclusion. -/
@@ -318,7 +396,8 @@ theorem spec
     (Q : ClosedSubschemeQuotient presentation hqc hModel i) :
     Q.algebra.IsCommutative ∧
       Q.algebra.IsQuasicoherent ∧
-        ∀ d : ℕ, Epi (Q.quotientMap.hom (Int.ofNat d)) := sorry
+        ∀ d : ℕ, Epi (Q.quotientMap.hom (Int.ofNat d)) := by
+  exact ⟨Q.algebra_isCommutative, Q.algebra_isQuasicoherent, Q.quotientMap_epi⟩
 
 /-- A closed-subscheme quotient is generated by a subobject in degree `d` when the quotient map
 kills that subobject and is universal among graded-algebra maps that kill it. -/
@@ -389,7 +468,9 @@ theorem spec
       Q.algebra.IsQuasicoherent ∧
         (∀ d : ℕ, Epi (Q.quotientMap.hom (Int.ofNat d))) ∧
           ∀ d : ℕ, kernelSubobject (Q.quotientMap.hom (Int.ofNat d)) =
-            presentation.closedSubschemeDegreeKernel i d := sorry
+            presentation.closedSubschemeDegreeKernel i d := by
+  exact ⟨Q.algebra_isCommutative, Q.algebra_isQuasicoherent,
+    Q.quotientMap_epi, Q.quotientMap_kernel⟩
 
 end CanonicalClosedSubschemeQuotient
 

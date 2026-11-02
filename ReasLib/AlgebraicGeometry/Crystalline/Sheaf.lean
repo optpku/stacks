@@ -53,7 +53,11 @@ theorem CrystallineSheaf.of_spec {C : Type v} [Category C]
       (crystallineInverseImage C thickening f).obj (obj B) ⟶ obj A) :
     (CrystallineSheaf.of thickening obj comparison).obj = obj ∧
       ∀ {A B : C} (f : A ⟶ B),
-        (CrystallineSheaf.of thickening obj comparison).comparison f = comparison f := sorry
+        (CrystallineSheaf.of thickening obj comparison).comparison f = comparison f := by
+  constructor
+  · rfl
+  · intro A B f
+    rfl
 
 namespace CrystallineSheaf
 
@@ -112,6 +116,20 @@ def restrictObj
     TopCat.Sheaf (Type u) A.1.thickening.toTopCat :=
   ⟨restrictPresheaf F A, restrictPresheaf_isSheaf F A⟩
 
+private theorem crystallineHom_ext
+    {A B : CrystallineObject S I γ h_compatible X x₀}
+    {f g : CrystallineObject.Hom A B} (h : f.thickening = g.thickening) : f = g := by
+  have hs : f.source = g.source := by
+    apply Over.OverMorphism.ext
+    letI : IsClosedImmersion B.inclusion := B.inclusion_isThickening.toIsClosedImmersion
+    apply (cancel_mono B.inclusion).mp
+    rw [f.source_comm, g.source_comm, h]
+  cases f
+  cases g
+  cases hs
+  cases h
+  rfl
+
 /-- Maps on open crystalline restrictions give a morphism into the direct image sheaf. -/
 def comparisonPushforward
     (F : CategoryTheory.Sheaf (crystallineZariskiTopology S I γ h_compatible X x₀) (Type u))
@@ -121,7 +139,25 @@ def comparisonPushforward
   ObjectProperty.homMk
     { app U := F.obj.map (Quiver.Hom.op (CrystallineObject.Hom.restrictOpen f U.unop :
           relativeRestrictOpen A (f.thickening ⁻¹ᵁ U.unop) ⟶ relativeRestrictOpen B U.unop))
-      naturality := sorry }
+      naturality := by
+        intro U V i
+        change
+          F.obj.map ((relativeOpensFunctor B).op.map i) ≫
+              F.obj.map (Quiver.Hom.op (CrystallineObject.Hom.restrictOpen f V.unop)) =
+            F.obj.map (Quiver.Hom.op (CrystallineObject.Hom.restrictOpen f U.unop)) ≫
+              F.obj.map ((relativeOpensFunctor A).op.map
+                ((TopologicalSpace.Opens.map f.thickening.base).op.map i))
+        rw [← F.obj.map_comp, ← F.obj.map_comp]
+        congr 1
+        apply Quiver.Hom.unop_inj
+        change
+          CrystallineObject.Hom.restrictOpen f V.unop ≫
+              (relativeOpensFunctor B).map i.unop =
+            (relativeOpensFunctor A).map
+                ((TopologicalSpace.Opens.map f.thickening.base).map i.unop) ≫
+              CrystallineObject.Hom.restrictOpen f U.unop
+        apply crystallineHom_ext
+        exact morphismRestrict_homOfLE f.thickening V.unop U.unop i.unop.le }
 
 /-- A crystalline morphism induces a comparison from the inverse image of the target restriction
 to the source restriction. -/
@@ -141,7 +177,9 @@ theorem comparison_spec
     (((TopCat.Sheaf.pullbackPushforwardAdjunction (Type u) f.thickening.base).homEquiv _ _)
       (comparison F f)).hom.app (op U) =
         F.obj.map (Quiver.Hom.op (CrystallineObject.Hom.restrictOpen f U :
-          relativeRestrictOpen A (f.thickening ⁻¹ᵁ U) ⟶ relativeRestrictOpen B U)) := sorry
+          relativeRestrictOpen A (f.thickening ⁻¹ᵁ U) ⟶ relativeRestrictOpen B U)) := by
+  simp [comparison, comparisonPushforward]
+  rfl
 
 /-- Restriction of a small crystalline sheaf to the opens of a thickening. -/
 def smallRestrictPresheaf
@@ -176,7 +214,22 @@ def smallComparisonPushforward
   ObjectProperty.homMk
     { app U := F.obj.map (ObjectProperty.homMk
           (CrystallineObject.Hom.restrictOpen f.hom U.unop)).op
-      naturality := sorry }
+      naturality := by
+        intro U V i
+        change
+          F.obj.map ((smallOpensFunctor B).op.map i) ≫
+              F.obj.map (ObjectProperty.homMk
+                (CrystallineObject.Hom.restrictOpen f.hom V.unop)).op =
+            F.obj.map (ObjectProperty.homMk
+                (CrystallineObject.Hom.restrictOpen f.hom U.unop)).op ≫
+              F.obj.map ((smallOpensFunctor A).op.map
+                ((TopologicalSpace.Opens.map f.hom.thickening.base).op.map i))
+        rw [← F.obj.map_comp, ← F.obj.map_comp]
+        congr 1
+        apply Quiver.Hom.unop_inj
+        apply ObjectProperty.hom_ext
+        apply crystallineHom_ext
+        exact morphismRestrict_homOfLE f.hom.thickening V.unop U.unop i.unop.le }
 
 /-- A small crystalline morphism induces the inverse-image comparison of restricted sheaves. -/
 def smallComparison
@@ -196,6 +249,8 @@ theorem smallComparison_spec
     (U : B.obj.1.thickening.Opens) :
     (((TopCat.Sheaf.pullbackPushforwardAdjunction (Type u) f.hom.thickening.base).homEquiv _ _)
       (smallComparison F f)).hom.app (op U) =
-        F.obj.map (ObjectProperty.homMk (CrystallineObject.Hom.restrictOpen f.hom U)).op := sorry
+        F.obj.map (ObjectProperty.homMk (CrystallineObject.Hom.restrictOpen f.hom U)).op := by
+  simp [smallComparison, smallComparisonPushforward]
+  rfl
 
 end AlgebraicGeometry.Scheme.Crystalline.Sheaf

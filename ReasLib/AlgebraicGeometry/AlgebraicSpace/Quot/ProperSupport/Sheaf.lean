@@ -67,7 +67,7 @@ def quotOverFunctor (f : X ⟶ B) [FinitePresentation f] (F : X.Modules)
 pairs. -/
 theorem quotOverFunctor_obj (f : X ⟶ B) [FinitePresentation f] (F : X.Modules)
     [F.IsQuasicoherent] (U : Over S) :
-    (quotOverFunctor f F).obj (op U) = QuotSpaceQuotient f F (ofOver U) := sorry
+    (quotOverFunctor f F).obj (op U) = QuotSpaceQuotient f F (ofOver U) := rfl
 
 /-- The presheaf `quotOverFunctor f F` is an fppf sheaf on `Over S`. -/
 theorem quotIsSheaf (f : X ⟶ B) [FinitePresentation f] (F : X.Modules)
@@ -83,7 +83,7 @@ def quotSheaf (f : X ⟶ B) [FinitePresentation f] (F : X.Modules)
 Quot pairs on `ofOver U`. -/
 theorem quotSheaf_obj (f : X ⟶ B) [FinitePresentation f] (F : X.Modules)
     [F.IsQuasicoherent] (U : Over S) :
-    (quotSheaf f F).obj.obj (op U) = QuotSpaceQuotient f F (ofOver U) := sorry
+    (quotSheaf f F).obj.obj (op U) = QuotSpaceQuotient f F (ofOver U) := rfl
 
 /-- The component of the canonical comparison at a scheme `U` over `S`, sending
 a `U`-point of `T` to the pullback pair `(h ∘ a, a^* Q)`. -/
@@ -114,7 +114,7 @@ corresponding morphism `ofOver U ⟶ T`. -/
 theorem toQuotSheafHom_app (f : X ⟶ B) [FinitePresentation f] (F : X.Modules)
     [F.IsQuasicoherent] {T : AlgebraicSpace S} (Q : QuotSpaceQuotient f F T)
     (U : (Over S)ᵒᵖ) (x : (AlgebraicSpace.toSheaf.obj T).obj.obj U) :
-    (toQuotSheafHom f F T Q).hom.app U x = toQuotSheafHomApp f F Q U x := sorry
+    (toQuotSheafHom f F T Q).hom.app U x = toQuotSheafHomApp f F Q U x := rfl
 
 /-- The component of the inclusion `Quot_{F/X/B} ⟶ Q^{fp}_{F/X/B}` at a scheme
 `U` over `S`, sending a proper-support pair to its underlying finitely
@@ -125,11 +125,25 @@ def quotSheafToFpSheafApp (f : X ⟶ B) [FinitePresentation f] (F : X.Modules)
     FpSpaceQuotient f F (ofOver U.unop) :=
   Q.toFpSpaceQuotient
 
+set_option maxHeartbeats 1000000 in
+/-- Forgetting proper support commutes with pullback along any morphism of algebraic spaces. -/
+theorem QuotSpaceQuotient.toFpSpaceQuotient_pullback
+    {T T' : AlgebraicSpace S} {f : X ⟶ B} [FinitePresentation f] {F : X.Modules}
+    (Q : QuotSpaceQuotient f F T) (a : T' ⟶ T) :
+    (Q.pullback a).toFpSpaceQuotient = Q.toFpSpaceQuotient.pullback a := by
+  rcases Q with ⟨h, q⟩
+  refine Quotient.inductionOn q ?_
+  intro P
+  rfl
+
 /-- Forgetting proper support commutes with pullback of quotient pairs. -/
 theorem quotSheafToFpSheaf_naturality (f : X ⟶ B) [FinitePresentation f]
     (F : X.Modules) [F.IsQuasicoherent] {U V : (Over S)ᵒᵖ} (φ : U ⟶ V) :
     (quotOverFunctor f F).map φ ≫ TypeCat.ofHom (quotSheafToFpSheafApp f F V) =
-      TypeCat.ofHom (quotSheafToFpSheafApp f F U) ≫ (fpOverFunctor f F).map φ := sorry
+      TypeCat.ofHom (quotSheafToFpSheafApp f F U) ≫ (fpOverFunctor f F).map φ := by
+  apply ConcreteCategory.hom_ext
+  intro Q
+  exact Q.toFpSpaceQuotient_pullback (ofOverMap φ.unop)
 
 /-- The inclusion of fppf sheaves `Quot_{F/X/B} ⟶ Q^{fp}_{F/X/B}` on
 `(Sch/S)_fppf`, sending a proper-support pair `(h, Q)` to the same pair as a
@@ -145,7 +159,7 @@ proper support. -/
 theorem quotSheafToFpSheaf_app (f : X ⟶ B) [FinitePresentation f]
     (F : X.Modules) [F.IsQuasicoherent] (U : (Over S)ᵒᵖ)
     (Q : QuotSpaceQuotient f F (ofOver U.unop)) :
-    (quotSheafToFpSheaf f F).hom.app U Q = quotSheafToFpSheafApp f F U Q := sorry
+    (quotSheafToFpSheaf f F).hom.app U Q = quotSheafToFpSheafApp f F U Q := rfl
 
 /-- The comparison `T ⟶ Quot_{F/X/B}` composed with the inclusion into
 `Q^{fp}_{F/X/B}` recovers the finitely presented comparison of the underlying
@@ -154,7 +168,13 @@ theorem toQuotSheafHom_comp_quotSheafToFpSheaf (f : X ⟶ B)
     [FinitePresentation f] (F : X.Modules) [F.IsQuasicoherent]
     {T : AlgebraicSpace S} (Q : QuotSpaceQuotient f F T) :
     toQuotSheafHom f F T Q ≫ quotSheafToFpSheaf f F =
-      toFpSheafHom f F T Q.toFpSpaceQuotient := sorry
+      toFpSheafHom f F T Q.toFpSpaceQuotient := by
+  apply Sheaf.hom_ext
+  apply NatTrans.ext
+  funext U
+  apply ConcreteCategory.hom_ext
+  intro x
+  exact Q.toFpSpaceQuotient_pullback (T' := ofOver U.unop) (yonedaEquiv.symm x.down)
 
 /-- Pullback of finitely presented flat quotient pairs with proper support gives a
 bijection with morphisms from the fppf sheaf of points of an algebraic space to the

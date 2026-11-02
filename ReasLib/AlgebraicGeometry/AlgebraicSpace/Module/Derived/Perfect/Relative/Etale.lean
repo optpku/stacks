@@ -59,7 +59,7 @@ theorem onEtaleSquare_iff {X Y : AlgebraicSpace S} {f : X ⟶ Y}
     onEtaleSquare sq E ↔
       Scheme.ModuleDerived.IsPerfectRelativeTo sq.map.left
         ((DerivedQCoh.SchemeRestriction.derived sq.left.left).obj
-          ((pullback sq.left.hom).obj E)) := sorry
+          ((pullback sq.left.hom).obj E)) := Iff.rfl
 
 /-- The restricted complex is relatively perfect on every étale scheme square. -/
 def everyEtaleSquare {X Y : AlgebraicSpace S} (f : X ⟶ Y)
@@ -74,7 +74,7 @@ theorem everyEtaleSquare_iff {X Y : AlgebraicSpace S} (f : X ⟶ Y)
     everyEtaleSquare f E ↔
       ∀ (sq : EtaleSquare f) [AlgebraicGeometry.Flat sq.map.left]
         [AlgebraicGeometry.LocallyOfFinitePresentation sq.map.left],
-        onEtaleSquare sq E := sorry
+        onEtaleSquare sq E := Iff.rfl
 
 /-- Universal étale-square relative perfectness specializes to each étale square. -/
 theorem everyEtaleSquare_spec {X Y : AlgebraicSpace S} (f : X ⟶ Y)
@@ -82,7 +82,7 @@ theorem everyEtaleSquare_spec {X Y : AlgebraicSpace S} (f : X ⟶ Y)
     (h : everyEtaleSquare f E) (sq : EtaleSquare f)
     [AlgebraicGeometry.Flat sq.map.left]
     [AlgebraicGeometry.LocallyOfFinitePresentation sq.map.left] :
-    onEtaleSquare sq E := sorry
+    onEtaleSquare sq E := h sq
 
 /-- There is an étale scheme square with surjective source chart on which the restricted complex is relatively perfect. -/
 def existsSurjectiveEtaleSquare {X Y : AlgebraicSpace S}
@@ -100,7 +100,7 @@ theorem existsSurjectiveEtaleSquare_iff {X Y : AlgebraicSpace S}
     existsSurjectiveEtaleSquare f E ↔
       ∃ (sq : EtaleSquare f) (hFlat : AlgebraicGeometry.Flat sq.map.left)
           (hLFP : AlgebraicGeometry.LocallyOfFinitePresentation sq.map.left),
-        Surjective sq.left.hom ∧ onEtaleSquare sq E (hFlat := hFlat) (hLFP := hLFP) := sorry
+        Surjective sq.left.hom ∧ onEtaleSquare sq E (hFlat := hFlat) (hLFP := hLFP) := Iff.rfl
 
 /-- The `RΓ` test on an affine étale scheme square: derived global sections of `E|_U`
 are `𝒪_Y(V)`-perfect. -/
@@ -133,7 +133,7 @@ theorem affineSectionsRelative_iff {X Y : AlgebraicSpace S}
         ((RingedSpace.moduleDerivedGlobalSections
             sq.left.left.left.toRingedSpace).obj
           ((DerivedQCoh.SchemeRestriction.derived sq.left.left).obj
-            ((pullback sq.left.hom).obj E))) := sorry
+            ((pullback sq.left.hom).obj E))) := Iff.rfl
 
 /-- Derived global sections are perfect over the target chart ring on every affine étale square. -/
 def everyAffineSections {X Y : AlgebraicSpace S} (f : X ⟶ Y)
@@ -151,7 +151,7 @@ theorem everyAffineSections_iff {X Y : AlgebraicSpace S}
       ∀ (sq : EtaleSquare f) [IsAffine sq.left.left.left]
         [IsAffine sq.right.left.left] [AlgebraicGeometry.Flat sq.map.left]
         [AlgebraicGeometry.LocallyOfFinitePresentation sq.map.left],
-        affineSectionsRelative sq E := sorry
+        affineSectionsRelative sq E := Iff.rfl
 
 /-- Universal affine relative perfectness specializes to derived sections on each affine étale square. -/
 theorem everyAffineSections_spec {X Y : AlgebraicSpace S}
@@ -161,7 +161,7 @@ theorem everyAffineSections_spec {X Y : AlgebraicSpace S}
     [IsAffine sq.left.left.left] [IsAffine sq.right.left.left]
     [AlgebraicGeometry.Flat sq.map.left]
     [AlgebraicGeometry.LocallyOfFinitePresentation sq.map.left] :
-    affineSectionsRelative sq E := sorry
+    affineSectionsRelative sq E := h sq
 
 /-- For a quasi-coherent derived complex, testing every étale square is equivalent to testing one square with surjective source chart. -/
 theorem everyEtaleSquare_iff_existsSurjectiveEtaleSquare
@@ -191,7 +191,9 @@ theorem iff_existsSurjectiveEtaleSquare {X Y : AlgebraicSpace S}
     (f : X ⟶ Y)
     [Flat f] [LocallyOfFinitePresentation f] {E : ModuleDerived X}
     (hE : derivedQuasiCoherentModuleProperty X E) :
-    IsPerfectRelativeTo f E ↔ existsSurjectiveEtaleSquare f E := sorry
+    IsPerfectRelativeTo f E ↔ existsSurjectiveEtaleSquare f E :=
+  (iff_everyEtaleSquare f hE).trans
+    (everyEtaleSquare_iff_existsSurjectiveEtaleSquare f hE)
 
 /-- `Y`-perfectness of `E` is equivalent to `𝒪_Y(V)`-perfectness of `RΓ(U, E)` on every
 affine étale scheme square over `f`. -/
@@ -199,7 +201,8 @@ theorem iff_everyAffineSections {X Y : AlgebraicSpace S}
     (f : X ⟶ Y)
     [Flat f] [LocallyOfFinitePresentation f] {E : ModuleDerived X}
     (hE : derivedQuasiCoherentModuleProperty X E) :
-    IsPerfectRelativeTo f E ↔ everyAffineSections f E := sorry
+    IsPerfectRelativeTo f E ↔ everyAffineSections f E :=
+  (iff_everyEtaleSquare f hE).trans (everyEtaleSquare_iff_everyAffineSections f hE)
 
 /-- For a flat, locally finitely presented morphism and a quasi-coherent derived complex,
 intrinsic relative perfectness, all étale-square tests, one surjective étale-square test,
@@ -210,6 +213,12 @@ theorem tfae {S : Scheme.{u}} {X Y : AlgebraicSpace S}
     (hE : derivedQuasiCoherentModuleProperty X E) :
     List.TFAE [IsPerfectRelativeTo f E, IsPerfectRelativeTo.everyEtaleSquare f E,
       IsPerfectRelativeTo.existsSurjectiveEtaleSquare f E,
-      IsPerfectRelativeTo.everyAffineSections f E] := sorry
+      IsPerfectRelativeTo.everyAffineSections f E] := by
+  refine List.tfae_cons_cons.mpr ⟨iff_everyEtaleSquare f hE, ?_⟩
+  refine List.tfae_cons_cons.mpr
+    ⟨everyEtaleSquare_iff_existsSurjectiveEtaleSquare f hE, ?_⟩
+  exact List.tfae_cons_cons.mpr
+    ⟨(everyEtaleSquare_iff_existsSurjectiveEtaleSquare f hE).symm.trans
+      (everyEtaleSquare_iff_everyAffineSections f hE), List.tfae_singleton _⟩
 
 end AlgebraicGeometry.AlgebraicSpace.ModuleDerived.IsPerfectRelativeTo

@@ -153,16 +153,6 @@ def componentsIntersection (k : Type u) [Field k] :
 instance componentsIntersection_isIso (k : Type u) [Field k] :
     IsIso (componentsIntersection k) := sorry
 
-/-- The scheme-theoretic intersection of the two `ℙ¹` components is two copies of `Spec k`. -/
-def componentsPullbackIso (k : Type u) [Field k] :
-    pullback (firstComponent k) (secondComponent k) ≅
-      Spec (.of k) ⨿ Spec (.of k) :=
-  (asIso (componentsIntersection k)).symm
-
-/-- `componentsPullbackIso` is inverse to the two-point intersection morphism. -/
-theorem componentsPullbackIso_hom (k : Type u) [Field k] :
-    (componentsPullbackIso k).hom = inv (componentsIntersection k) := sorry
-
 /-- geometrically, `X` is the union of two copies of `ℙ¹_k`. -/
 theorem isUnionOfTwoProjectiveLines (k : Type u) [Field k] :
     Function.Surjective (coprod.desc (firstComponent k) (secondComponent k)).base := sorry

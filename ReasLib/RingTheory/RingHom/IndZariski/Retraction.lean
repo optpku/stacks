@@ -69,7 +69,7 @@ theorem exists_retraction {A B : Type u} [CommRing A] [CommRing B] {f : A →+* 
     (h : HasFaithfullyFlatIsIsoOnLocalRingsRetraction A)
     (hf : f.FaithfullyFlat) (hiso : f.IsIsoOnLocalRings) :
     ∃ r : B →+* A, r.comp f = RingHom.id A :=
-  sorry
+  h B f hf hiso
 
 end HasFaithfullyFlatIsIsoOnLocalRingsRetraction
 
@@ -81,13 +81,13 @@ theorem exists_retraction {A B : Type u} [CommRing A] [CommRing B] {f : A →+* 
     (h : HasFaithfullyFlatIndZariskiRetraction A)
     (hf : f.FaithfullyFlat) (hind : f.IndZariski) :
     ∃ r : B →+* A, r.comp f = RingHom.id A :=
-  sorry
+  h B f hf hind
 
 /-- The identifying-local-rings and ind-Zariski retraction properties are equivalent. -/
 theorem iff_isIsoOnLocalRings (A : Type u) [CommRing A] :
     HasFaithfullyFlatIndZariskiRetraction A ↔
       HasFaithfullyFlatIsIsoOnLocalRingsRetraction A :=
-  sorry
+  (hasFaithfullyFlatIndZariskiRetraction_tfae A).out 1 0
 
 /-- The ind-Zariski retraction property is equivalent to `PrimeSpectrum A` being
 w-local with `ConnectedComponents (PrimeSpectrum A)` extremally disconnected. -/
@@ -95,7 +95,7 @@ theorem iff_wLocal_extremallyDisconnected (A : Type u) [CommRing A] :
     HasFaithfullyFlatIndZariskiRetraction A ↔
       WLocalSpace (PrimeSpectrum A) ∧
         ExtremallyDisconnected (ConnectedComponents (PrimeSpectrum A)) :=
-  sorry
+  (hasFaithfullyFlatIndZariskiRetraction_tfae A).out 1 2
 
 /-- A commutative ring whose spectrum is w-local with extremally disconnected
 connected components has the faithfully flat ind-Zariski retraction property. -/
@@ -103,7 +103,7 @@ theorem of_wLocal_extremallyDisconnected {A : Type u} [CommRing A]
     [WLocalSpace (PrimeSpectrum A)]
     [ExtremallyDisconnected (ConnectedComponents (PrimeSpectrum A))] :
     HasFaithfullyFlatIndZariskiRetraction A :=
-  sorry
+  (iff_wLocal_extremallyDisconnected A).mpr ⟨inferInstance, inferInstance⟩
 
 end HasFaithfullyFlatIndZariskiRetraction
 
@@ -127,7 +127,9 @@ theorem exists_faithfullyFlat_wLocal_extremallyDisconnected
     ∃ (B : Type u) (_ : CommRing B) (f : A →+* B),
       f.FaithfullyFlat ∧ f.IndZariski ∧
         WLocalSpace (PrimeSpectrum B) ∧
-          ExtremallyDisconnected (ConnectedComponents (PrimeSpectrum B)) :=
-  sorry
+          ExtremallyDisconnected (ConnectedComponents (PrimeSpectrum B)) := by
+  obtain ⟨B, hB, f, hf, hind, hret⟩ := exists_faithfullyFlat_indZariskiRetraction A
+  exact ⟨B, hB, f, hf, hind,
+    (Algebra.HasFaithfullyFlatIndZariskiRetraction.iff_wLocal_extremallyDisconnected B).mp hret⟩
 
 end RingHom.IndZariski

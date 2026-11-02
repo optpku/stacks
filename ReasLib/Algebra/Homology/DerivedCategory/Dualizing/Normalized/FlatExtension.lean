@@ -30,9 +30,10 @@ theorem baseChange_of_flat_of_mapsMaximalIdeal
     [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
     [MonoidalCategory (DerivedCategory (ModuleCat.{u} B))]
     (f : A →+* B) [IsLocalHom f] (hflat : f.Flat) (hmax : f.MapsMaximalIdeal)
-    (HA : MonoidalClosed (DerivedCategory (ModuleCat.{u} A)))
-    (HB : MonoidalClosed (DerivedCategory (ModuleCat.{u} B)))
-    (ω : DerivedCategory (ModuleCat.{u} A)) (hω : ω.IsNormalizedDualizingComplex HA) :
-    ((ModuleCat.derivedExtensionOfScalars f).obj ω).IsNormalizedDualizingComplex HB := sorry
+    (CA : CanonicalClosedPresentation (A := A))
+    (CB : CanonicalClosedPresentation (A := B))
+    (ω : DerivedCategory (ModuleCat.{u} A))
+    (hω : ω.IsCanonicalNormalizedDualizingComplex CA) :
+    ((ModuleCat.derivedExtensionOfScalars f).obj ω).IsCanonicalNormalizedDualizingComplex CB := sorry
 
 end CategoryTheory.DerivedCategory.IsNormalizedDualizingComplex

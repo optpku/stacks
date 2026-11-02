@@ -92,7 +92,7 @@ quasi-separated pullback schemes. -/
 theorem Scheme.Hom.quasiSeparated_iff_exists_affineCover_pullback
     {X S : Scheme.{u}} (f : X ⟶ S) :
     QuasiSeparated f ↔
-      ∃ 𝒰 : S.AffineOpenCover.{v},
+      ∃ 𝒰 : S.AffineOpenCover.{max u v},
         ∀ i : 𝒰.I₀, QuasiSeparatedSpace ((𝒰.openCover.pullback₁ f).X i) := sorry
 
 /-- A scheme morphism is quasi-separated exactly when some affine target cover has inverse-image
@@ -101,8 +101,8 @@ affine covers with compact intersections. -/
 theorem Scheme.Hom.quasiSeparated_iff_exists_affineCover_hasCompactIntersections
     {X S : Scheme.{u}} (f : X ⟶ S) :
     QuasiSeparated f ↔
-      ∃ 𝒰 : S.AffineOpenCover.{v}, ∀ i : 𝒰.I₀,
-        ∃ 𝒱 : ((𝒰.openCover.pullback₁ f).X i).AffineOpenCover.{w},
+      ∃ 𝒰 : S.AffineOpenCover.{max u v}, ∀ i : 𝒰.I₀,
+        ∃ 𝒱 : ((𝒰.openCover.pullback₁ f).X i).AffineOpenCover.{max u w},
           𝒱.HasCompactIntersections := sorry
 
 end AlgebraicGeometry

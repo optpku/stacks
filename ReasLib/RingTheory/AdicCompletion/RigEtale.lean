@@ -57,7 +57,7 @@ theorem annihilatesNaiveCotangent_iff (I : Ideal A) (B : Type u) [CommRing B]
               (algebraMap A B a) • x = 0) ∧
             ∀ x : ((NaiveCotangent.Adic.naiveCotangent I P).homology 0 : Type u),
               (algebraMap A B a) • x = 0 :=
-  sorry
+  Iff.rfl
 
 /-- An `A`-algebra `B` is rig-étale over the pair `(A, I)` when it is
 topologically of finite type and some power of `I` annihilates completed naive
@@ -71,21 +71,66 @@ namespace RigEtale
 
 /-- The identity algebra is rig-étale over `(A, I)` whenever `A` is `I`-adically
 complete. -/
-instance id (I : Ideal A) [IsAdicComplete I A] : RigEtale I A := sorry
+instance id (I : Ideal A) [IsAdicComplete I A] : RigEtale I A := by
+  classical
+  let e₀ := (MvPolynomial.isEmptyAlgEquiv A PEmpty).symm
+  have hpoly : IsAdicComplete (NaiveCotangent.Adic.polynomialIdeal A I PEmpty)
+      (MvPolynomial PEmpty A) := by
+    have h := (IsAdicComplete.congr_ringEquiv I e₀.toRingEquiv).mpr inferInstance
+    change IsAdicComplete (I.map e₀.toRingHom) (MvPolynomial PEmpty A) at h
+    simpa only [NaiveCotangent.Adic.polynomialIdeal_eq_map, e₀,
+      MvPolynomial.isEmptyAlgEquiv_symm_toRingHom, MvPolynomial.algebraMap_eq] using h
+  letI := hpoly
+  let e : NaiveCotangent.Adic.polynomialCompletion A I PEmpty ≃ₐ[A] A :=
+    ((AdicCompletion.ofAlgEquiv
+      (NaiveCotangent.Adic.polynomialIdeal A I PEmpty)).restrictScalars A).symm.trans
+        (MvPolynomial.isEmptyAlgEquiv A PEmpty)
+  let P : NaiveCotangent.Adic.Presentation A A I PEmpty := ⟨e.toAlgHom, e.surjective⟩
+  have hker (g : P.toExtension.ker) : g = 0 := by
+    apply Subtype.ext
+    apply e.injective
+    exact g.property.trans (map_zero e).symm
+  have hcot (x : P.toExtension.Cotangent) : x = 0 := by
+    obtain ⟨g, rfl⟩ := Algebra.Extension.Cotangent.mk_surjective x
+    rw [hker g, map_zero]
+  letI : Subsingleton P.toExtension.Cotangent := ⟨fun x y ↦ (hcot x).trans (hcot y).symm⟩
+  let K := NaiveCotangent.Adic.naiveCotangent I P
+  have hH (n : ℕ) (hn : n = 0 ∨ n = 1) : Subsingleton (K.homology n) := by
+    apply ModuleCat.subsingleton_of_isZero
+    apply (K.sc n).isZero_homology_of_isZero_X₂
+    rcases hn with rfl | rfl
+    · change CategoryTheory.Limits.IsZero (ModuleCat.of A (PEmpty → A))
+      exact ModuleCat.isZero_of_subsingleton _
+    · change CategoryTheory.Limits.IsZero (ModuleCat.of A P.toExtension.Cotangent)
+      exact ModuleCat.isZero_of_subsingleton _
+  refine
+    { toTopologicallyFiniteType := ?_
+      exists_pow_annihilates := ⟨0, PEmpty, inferInstance, P, ?_⟩ }
+  · refine ⟨inferInstance, ?_⟩
+    exact FiniteType.of_restrictScalars_finiteType A (A ⧸ I) _
+  · intro a ha
+    haveI := hH 1 (Or.inr rfl)
+    haveI := hH 0 (Or.inl rfl)
+    exact ⟨fun x ↦ Subsingleton.elim _ _, fun x ↦ Subsingleton.elim _ _⟩
 
 /-- Rig-étaleness unpacks as topological finite type together with annihilation
 of completed naive cotangent homology by some power of `I`. -/
 theorem iff (I : Ideal A) (B : Type u) [CommRing B] [Algebra A B] :
     RigEtale I B ↔
       TopologicallyFiniteType I B ∧ ∃ c : ℕ, annihilatesNaiveCotangent I B c :=
-  sorry
+  by
+    constructor
+    · intro h
+      exact ⟨h.toTopologicallyFiniteType, h.exists_pow_annihilates⟩
+    · rintro ⟨hfinite, hann⟩
+      exact { toTopologicallyFiniteType := hfinite, exists_pow_annihilates := hann }
 
 /-- A rig-étale algebra is topologically of finite type and has some power of
 `I` annihilating completed naive cotangent homology. -/
 theorem spec (I : Ideal A) (B : Type u) [CommRing B] [Algebra A B]
     [RigEtale I B] :
     TopologicallyFiniteType I B ∧ ∃ c : ℕ, annihilatesNaiveCotangent I B c :=
-  sorry
+  ⟨RigEtale.toTopologicallyFiniteType, RigEtale.exists_pow_annihilates⟩
 
 end RigEtale
 
@@ -116,7 +161,12 @@ namespace RigEtale
 instance id {A : Type u} [CommRing A] [TopologicalSpace A]
     [TopologicalRing.IsAdicRing A] [IsNoetherianRing A] :
     RigEtale (RingHom.id A) :=
-  sorry
+  by
+    refine ⟨continuous_id, ?_⟩
+    obtain ⟨I, hI, hcomplete⟩ :=
+      TopologicalRing.IsAdicRing.exists_ideal_isAdicComplete (R := A)
+    exact ⟨I, TopologicalRing.Ideal.isIdealOfDefinition_of_isAdic hI, by
+      simpa using hI, Algebra.RigEtale.id I⟩
 
 /-- Rig-étaleness of a continuous homomorphism is equivalent to the existence of
 an ideal of definition of `A` inducing the topology on `B` and making the
@@ -128,7 +178,13 @@ theorem iff (φ : A →+* B) :
           TopologicalRing.Ideal.IsIdealOfDefinition I ∧
             IsAdic (Ideal.map φ I) ∧
               @Algebra.RigEtale A _ I B _ φ.toAlgebra :=
-  sorry
+  by
+    constructor
+    · intro h
+      rcases h.exists_idealOfDefinition with ⟨I, hI, hmap, hrig⟩
+      exact ⟨h.toContinuous, ⟨I, hI, hmap⟩, ⟨I, hI, hmap, hrig⟩⟩
+    · rintro ⟨hcont, _, hex⟩
+      exact { toContinuous := hcont, exists_idealOfDefinition := hex }
 
 /-- Rig-étaleness may equivalently be tested on every ideal of definition. -/
 theorem iff_forall_idealOfDefinition (φ : A →+* B) :
@@ -149,7 +205,14 @@ theorem spec (φ : A →+* B) [RingHom.RigEtale φ] :
           IsAdic (Ideal.map φ I) ∧
             @Algebra.TopologicallyFiniteType A _ I B _ φ.toAlgebra ∧
               ∃ c : ℕ, @Algebra.annihilatesNaiveCotangent A _ I B _ φ.toAlgebra c :=
-  sorry
+  by
+    rcases RingHom.RigEtale.exists_idealOfDefinition (φ := φ) with
+      ⟨I, hI, hmap, hrig⟩
+    letI : Algebra A B := φ.toAlgebra
+    letI : @Algebra.RigEtale A _ I B _ φ.toAlgebra := hrig
+    have hspec := Algebra.RigEtale.spec I B
+    exact ⟨RingHom.RigEtale.toContinuous, ⟨I, hI, hmap⟩,
+      ⟨I, hI, hmap, hspec.1, hspec.2⟩⟩
 
 end RigEtale
 

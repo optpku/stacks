@@ -60,7 +60,7 @@ theorem conjClassTrace_mk
     [IsScalarTower Λ (Λ[G]) P] [IsScalarTower Λ (Λ[Γ]) P]
     [MonoidAlgebra.IsRestrictionAlongInl Λ S P] (γ : S.degreeOne) :
     conjClassTrace S P (Quotient.mk (MulAction.orbitRel G S.degreeOne) γ) =
-      traceG (smulEndZ S γ.val : Module.End (Λ[S.centralizer γ.val]) P) := sorry
+      traceG (smulEndZ S γ.val : Module.End (Λ[S.centralizer γ.val]) P) := rfl
 
 end LinearMap.FiniteProjective
 
@@ -77,7 +77,27 @@ variable [IsScalarTower Λ (Λ[Γ]) P] [IsRestrictionAlongInl Λ S P]
 theorem oneEnd_invariant (g : G) (p : P) :
     ((mk Λ G P).comp (LinearMap.FiniteProjective.smulEnd S.degreeOneLift.val))
         ((single g (1 : Λ) : Λ[G]) • p) =
-      ((mk Λ G P).comp (LinearMap.FiniteProjective.smulEnd S.degreeOneLift.val)) p := sorry
+      ((mk Λ G P).comp (LinearMap.FiniteProjective.smulEnd S.degreeOneLift.val)) p := by
+  have hinl : S.rightHom (S.inl g) = 1 := by
+    have hg : S.inl g ∈ MonoidHom.mrange S.inl := ⟨g, rfl⟩
+    rw [S.range_inl_eq_ker_rightHom] at hg
+    exact hg
+  obtain ⟨h, hh, _⟩ := S.eqDegree_leftTorsor S.degreeOneLift.val
+    (S.degreeOneLift.val * S.inl g) (by simp only [map_mul, hinl, mul_one])
+  change mk Λ G P ((single S.degreeOneLift.val (1 : Λ) : Λ[Γ]) •
+      ((single g (1 : Λ) : Λ[G]) • p)) =
+    mk Λ G P ((single S.degreeOneLift.val (1 : Λ) : Λ[Γ]) • p)
+  have hsmul : (single S.degreeOneLift.val (1 : Λ) : Λ[Γ]) •
+        ((single g (1 : Λ) : Λ[G]) • p) =
+      (single h (1 : Λ) : Λ[G]) •
+        ((single S.degreeOneLift.val (1 : Λ) : Λ[Γ]) • p) := by
+    rw [IsRestrictionAlongInl.smul_single S g p,
+      IsRestrictionAlongInl.smul_single S h _, ← mul_smul, ← mul_smul]
+    simp only [single_mul_single, one_mul, hh]
+  rw [hsmul]
+  apply (Submodule.Quotient.eq (ker Λ G P)).mpr
+  exact Submodule.subset_span
+    ⟨(h, (single S.degreeOneLift.val (1 : Λ) : Λ[Γ]) • p), rfl⟩
 
 /-- The descended coefficient-linear degree-one action on coinvariants. -/
 def oneEnd : Module.End Λ (Coinvariants Λ G P) :=
@@ -87,7 +107,23 @@ def oneEnd : Module.End Λ (Coinvariants Λ G P) :=
 /-- Every degree-one lift gives the same action on coinvariant classes. -/
 theorem oneEnd_spec (γ : S.degreeOne) (p : P) :
     (oneEnd S P : Module.End Λ (Coinvariants Λ G P)) (mk Λ G P p) =
-      mk Λ G P ((LinearMap.FiniteProjective.smulEnd γ.val : Module.End Λ P) p) := sorry
+      mk Λ G P ((LinearMap.FiniteProjective.smulEnd γ.val : Module.End Λ P) p) := by
+  have hdeg : S.rightHom S.degreeOneLift.val = S.rightHom γ.val :=
+    congrArg Multiplicative.ofAdd (S.degreeOneLift.property.trans γ.property.symm)
+  obtain ⟨g, hg, _⟩ := S.eqDegree_leftTorsor S.degreeOneLift.val γ.val hdeg
+  change mk Λ G P ((single S.degreeOneLift.val (1 : Λ) : Λ[Γ]) • p) =
+    mk Λ G P ((single γ.val (1 : Λ) : Λ[Γ]) • p)
+  rw [hg]
+  have hsmul : (single (S.inl g * S.degreeOneLift.val) (1 : Λ) : Λ[Γ]) • p =
+      (single g (1 : Λ) : Λ[G]) •
+        ((single S.degreeOneLift.val (1 : Λ) : Λ[Γ]) • p) := by
+    rw [IsRestrictionAlongInl.smul_single S g _, ← mul_smul,
+      single_mul_single, one_mul]
+  rw [hsmul]
+  symm
+  apply (Submodule.Quotient.eq (ker Λ G P)).mpr
+  exact Submodule.subset_span
+    ⟨(g, (single S.degreeOneLift.val (1 : Λ) : Λ[Γ]) • p), rfl⟩
 
 /-- The endomorphism for a natural number is the corresponding power of the degree-one action. -/
 def natEnd (n : ℕ) : Module.End Λ (Coinvariants Λ G P) :=
@@ -100,7 +136,7 @@ def natAction : Multiplicative ℕ →* Module.End Λ (Coinvariants Λ G P) :=
 /-- The bundled natural-number action agrees with the power formula. -/
 theorem natAction_apply (n : ℕ) :
     (natAction S P (Multiplicative.ofAdd n) : Module.End Λ (Coinvariants Λ G P)) =
-      natEnd S P n := sorry
+      natEnd S P n := rfl
 
 end MonoidAlgebra.Coinvariants
 

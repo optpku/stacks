@@ -45,7 +45,9 @@ private theorem abelianSheafHomPresheaf_map_id
       𝟙 (AddCommGrpCat.of
         ((CategoryTheory.Over.forget X.unop).op ⋙ A.obj ⟶
           (CategoryTheory.Over.forget X.unop).op ⋙ B.obj)) :=
-  sorry
+  by
+    apply (forget AddCommGrpCat).map_injective
+    exact (presheafHom A.obj B.obj).map_id X
 
 /-- Restriction of local morphisms respects composition. -/
 private theorem abelianSheafHomPresheaf_map_comp
@@ -54,7 +56,9 @@ private theorem abelianSheafHomPresheaf_map_comp
     AddCommGrpCat.ofHom (abelianSheafHom_restrict J A B (f ≫ g)) =
       AddCommGrpCat.ofHom (abelianSheafHom_restrict J A B f) ≫
         AddCommGrpCat.ofHom (abelianSheafHom_restrict J A B g) :=
-  sorry
+  by
+    apply (forget AddCommGrpCat).map_injective
+    exact (presheafHom A.obj B.obj).map_comp f g
 
 /-- The presheaf of abelian groups of local morphisms between abelian sheaves. -/
 def abelianSheafHomPresheaf (A B : Sheaf J AddCommGrpCat.{max w u v}) :
@@ -69,7 +73,9 @@ def abelianSheafHomPresheaf (A B : Sheaf J AddCommGrpCat.{max w u v}) :
 /-- The local-Hom presheaf of abelian sheaves satisfies the sheaf condition. -/
 theorem abelianSheafHomPresheaf_isSheaf (A B : Sheaf J AddCommGrpCat.{max w u v}) :
     Presheaf.IsSheaf J (abelianSheafHomPresheaf J A B) :=
-  sorry
+  by
+    apply Presheaf.isSheaf_of_isSheaf_comp J _ (forget AddCommGrpCat)
+    exact B.property.hom A.obj
 
 /-- Internal Hom of abelian sheaves: the sheaf `Hom(A, B)` whose sections over `X`
 are morphisms of restrictions to `C/X`. -/
@@ -104,7 +110,7 @@ theorem abelianSheafHom_forget_hom_app
     (A B : Sheaf J AddCommGrpCat.{max w u v}) (X : Cᵒᵖ) :
     (abelianSheafHom_forget J A B).hom.hom.app X =
       (Equiv.toIso (abelianSheafHom_forget_equiv J A B X)).hom :=
-  sorry
+  rfl
 
 /-- The additive precomposition map on local Hom groups. -/
 def abelianSheafHom_precomp
@@ -122,7 +128,10 @@ private theorem abelianSheafHom_map_naturality
         AddCommGrpCat.ofHom (abelianSheafHom_precomp J A A' B f Y) =
       AddCommGrpCat.ofHom (abelianSheafHom_precomp J A A' B f X) ≫
         (abelianSheafHom J A' B).obj.map g :=
-  sorry
+  by
+    apply (forget AddCommGrpCat).map_injective
+    ext φ Y
+    rfl
 
 /-- Precomposition `Hom(A, B) ⟶ Hom(A', B)` induced by `f : A' ⟶ A`. -/
 def abelianSheafHom_map (A A' B : Sheaf J AddCommGrpCat.{max w u v}) (f : A' ⟶ A) :
@@ -134,13 +143,22 @@ def abelianSheafHom_map (A A' B : Sheaf J AddCommGrpCat.{max w u v}) (f : A' ⟶
 /-- `abelianSheafHom_map` of a zero morphism is zero. -/
 theorem abelianSheafHom_map_zero (A A' B : Sheaf J AddCommGrpCat.{max w u v}) :
     abelianSheafHom_map J A A' B (0 : A' ⟶ A) = 0 :=
-  sorry
+  by
+    ext X φ
+    change Functor.whiskerLeft (Over.forget X.unop).op (0 : A'.obj ⟶ A.obj) ≫ φ = 0
+    apply NatTrans.ext
+    funext Y
+    exact zero_comp
 
 /-- `abelianSheafHom_map` reverses composition. -/
 theorem abelianSheafHom_map_comp (A A' A'' B : Sheaf J AddCommGrpCat.{max w u v})
     (f : A'' ⟶ A') (g : A' ⟶ A) :
     abelianSheafHom_map J A A'' B (f ≫ g) =
       abelianSheafHom_map J A A' B g ≫ abelianSheafHom_map J A' A'' B f :=
-  sorry
+  by
+    ext X φ
+    change (Functor.whiskerLeft (Over.forget X.unop).op f.hom ≫
+      Functor.whiskerLeft (Over.forget X.unop).op g.hom) ≫ φ = _
+    exact Category.assoc _ _ _
 
 end CategoryTheory

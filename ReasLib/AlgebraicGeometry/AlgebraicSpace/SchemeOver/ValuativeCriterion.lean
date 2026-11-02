@@ -222,7 +222,7 @@ theorem of_point (R : Type u) [CommRing R] [IsDomain R] [ValuationRing R] (K : T
     (i₂ : ofOver (Over.mk structureHom) ⟶ B)
     (point : F.obj (op (CostructuredArrow.mk
       ((ofOverFunctor S).map (specAlgebraMapOver R K structureHom) ≫ i₂)))) :
-    (of R K structureHom i₂ point).point = point := sorry
+    (of R K structureHom i₂ point).point = point := rfl
 
 /-- The two structure morphisms `Spec(K') ⟶ S` obtained via `K` and via `R'`
 agree. -/
@@ -234,7 +234,9 @@ theorem specK_compat_of (sq : ValuativeCommSq F) (R' : Type u) [CommRing R'] [Is
     Spec.map (CommRingCat.ofHom (algebraMap sq.K K')) ≫
         Spec.map (CommRingCat.ofHom (algebraMap sq.R sq.K)) ≫ sq.structureHom =
       Spec.map (CommRingCat.ofHom (algebraMap R' K')) ≫
-        Spec.map (CommRingCat.ofHom (algebraMap sq.R R')) ≫ sq.structureHom := sorry
+        Spec.map (CommRingCat.ofHom (algebraMap sq.R R')) ≫ sq.structureHom := by
+  simp only [← Category.assoc, ← Spec.map_comp, ← CommRingCat.ofHom_comp,
+    ← IsScalarTower.algebraMap_eq]
 
 /-- `Spec(R')` as a scheme over `B`, via the algebra map `R → R'`. -/
 abbrev schemesOverR'Of (sq : ValuativeCommSq F) (R' : Type u) [CommRing R']
@@ -272,7 +274,25 @@ theorem toSpecKOf_w (sq : ValuativeCommSq F) (R' : Type u) [CommRing R'] [IsDoma
         Spec.map (CommRingCat.ofHom (algebraMap R' K')) ≫
           Spec.map (CommRingCat.ofHom (algebraMap sq.R R')) ≫ sq.structureHom) :
     (ofOverFunctor S).map (specExtendOver sq.structureHom specK_compat) ≫ sq.schemesOverK.hom =
-      (schemesOverK'Of sq R' K').hom := sorry
+      (schemesOverK'Of sq R' K').hom := by
+  have h : specExtendOver sq.structureHom specK_compat ≫ sq.verticalOver =
+      specAlgebraMapOver R' K'
+          (Spec.map (CommRingCat.ofHom (algebraMap sq.R R')) ≫ sq.structureHom) ≫
+        specAlgebraMapOver sq.R R' sq.structureHom := by
+    apply Over.OverMorphism.ext
+    change Spec.map (CommRingCat.ofHom (algebraMap sq.K K')) ≫
+        Spec.map (CommRingCat.ofHom (algebraMap sq.R sq.K)) =
+      Spec.map (CommRingCat.ofHom (algebraMap R' K')) ≫
+        Spec.map (CommRingCat.ofHom (algebraMap sq.R R'))
+    simp only [← Spec.map_comp, ← CommRingCat.ofHom_comp,
+      ← IsScalarTower.algebraMap_eq]
+  change (ofOverFunctor S).map (specExtendOver sq.structureHom specK_compat) ≫
+      ((ofOverFunctor S).map sq.verticalOver ≫ sq.i₂) =
+    (ofOverFunctor S).map (specAlgebraMapOver R' K'
+        (Spec.map (CommRingCat.ofHom (algebraMap sq.R R')) ≫ sq.structureHom)) ≫
+      (ofOverFunctor S).map (specAlgebraMapOver sq.R R' sq.structureHom) ≫ sq.i₂
+  simpa only [Functor.map_comp, Category.assoc] using
+    congrArg (fun f => (ofOverFunctor S).map f ≫ sq.i₂) h
 
 /-- The morphism `Spec(K') ⟶ Spec(K)` of schemes over `B`. -/
 def toSpecKOf (sq : ValuativeCommSq F) (R' : Type u) [CommRing R'] [IsDomain R']
@@ -538,14 +558,15 @@ theorem of_lift (sq : ValuativeCommSq F) (R' : Type u) [CommRing R'] [IsDomain R
     (fac :
       F.map (op (verticalMapOf sq R' K')) lift =
         F.map (op (toSpecKOf sq R' K' (specK_compat_of sq R' K'))) sq.point) :
-    (of sq R' K' lift fac).lift = lift := sorry
+    (of sq R' K' lift fac).lift = lift := rfl
 
 /-- The dominating ring map is injective and local, and the lifted point
 restricts to the pullback of the original generic point. -/
 theorem spec {sq : ValuativeCommSq F} (e : Extension sq) :
     Function.Injective (algebraMap sq.R e.R') ∧
       IsLocalHom (algebraMap sq.R e.R') ∧
-      F.map (op e.verticalMap) e.lift = F.map (op e.toSpecK) sq.point := sorry
+      F.map (op e.verticalMap) e.lift = F.map (op e.toSpecK) sq.point := by
+  exact ⟨IsExtensionOfValuationRings.algebraMap_injective, inferInstance, e.fac⟩
 
 end Extension
 
@@ -565,13 +586,17 @@ namespace ValuativeCriterion.Existence
 /-- The constant functor at the terminal type satisfies the existence part of
 the valuative criterion. -/
 instance instConst {S : Scheme.{u}} {B : AlgebraicSpace S} :
-    Existence ((Functor.const ((SchemeOver B)ᵒᵖ)).obj PUnit.{u + 2}) := sorry
+    Existence ((Functor.const ((SchemeOver B)ᵒᵖ)).obj PUnit.{u + 2}) where
+  nonempty_extension sq := by
+    refine ⟨ValuativeCommSq.Extension.of sq sq.R sq.K PUnit.unit ?_⟩
+    exact Subsingleton.elim (α := PUnit.{u + 2}) _ _
 
 /-- A functor satisfies existence if and only if every valuative square admits a
 dominating extension with a lifted point. -/
 theorem spec {S : Scheme.{u}} {B : AlgebraicSpace S}
     (F : (SchemeOver B)ᵒᵖ ⥤ Type (u + 1)) :
-    Existence F ↔ ∀ sq : ValuativeCommSq F, Nonempty sq.Extension := sorry
+    Existence F ↔ ∀ sq : ValuativeCommSq F, Nonempty sq.Extension := by
+  exact ⟨fun h => h.nonempty_extension, fun h => ⟨h⟩⟩
 
 end ValuativeCriterion.Existence
 

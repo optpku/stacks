@@ -54,7 +54,7 @@ theorem boundedOnFiniteTypeFields_iff {S : Scheme.{u}}
         (f : Spec (CommRingCat.of k) ⟶ S) [LocallyOfFiniteType f],
           Cardinal.mk (F.obj (op (asLocallyNoetherian (Over.mk f)))) ≤
             Cardinal.lift.{u + 1} U.left.size :=
-  sorry
+  Iff.rfl
 
 end Noetherian
 
@@ -67,8 +67,10 @@ instance instIsLocallyNoetherian_specCompleteLocal {S : Scheme.{u}}
     IsLocallyNoetherian
       (Over.mk
         (Spec.map (CommRingCat.ofHom (algebraMap Λ R.carrier)) ≫
-          openImmersion)).left :=
-  sorry
+          openImmersion)).left := by
+  change IsLocallyNoetherian (Spec (CommRingCat.of R.carrier))
+  letI : IsNoetherianRing R.carrier := R.isNoetherianRing
+  infer_instance
 
 /-- Compatibility of `Spec` of the maximal-adic quotient of `R` with the
 structure morphisms to `S`. -/
@@ -80,8 +82,9 @@ theorem truncationOverMap_comp {S : Scheme.{u}}
         (Ideal.Quotient.mk (maximalIdeal R.carrier ^ (n + 1)))) ≫
       Spec.map (CommRingCat.ofHom (algebraMap Λ R.carrier)) ≫ openImmersion =
     Spec.map (CommRingCat.ofHom (algebraMap Λ (R.truncation n).carrier)) ≫
-      openImmersion :=
-  sorry
+      openImmersion := by
+  rw [← Category.assoc, ← Spec.map_comp]
+  rfl
 
 /-- The morphism `Spec(R ⧸ m_R ^{n+1}) ⟶ Spec(R)` over `S` induced by the
 canonical quotient map of a complete local algebra. -/
@@ -105,8 +108,8 @@ theorem truncationOverMap_left {S : Scheme.{u}}
     (R : CompleteLocalAlgCat Λ k) (n : ℕ) :
     (truncationOverMap openImmersion R n).left =
       Spec.map (CommRingCat.ofHom
-        (Ideal.Quotient.mk (maximalIdeal R.carrier ^ (n + 1)))) :=
-  sorry
+        (Ideal.Quotient.mk (maximalIdeal R.carrier ^ (n + 1)))) := by
+  rfl
 
 /-- Every tangent space of a Type-valued functor on locally Noetherian schemes
 is finite-dimensional over its finite-type residue field. -/
@@ -139,8 +142,9 @@ instance instFiniteDimensional {S : Scheme.{u}} [IsLocallyNoetherian S]
       Spec.map (CommRingCat.ofHom (algebraMap Λ k)) ≫ openImmersion = kToS)
     (x0 : F.obj (op (asLocallyNoetherian (Over.mk kToS))))
     [HasSchlessingerH2 (evalAt F openImmersion kToS h_factor x0)] :
-    FiniteDimensional k (tangentSpace F openImmersion kToS h_factor x0) :=
-  sorry
+    FiniteDimensional k (tangentSpace F openImmersion kToS h_factor x0) := by
+  exact HasFiniteDimensionalTangentSpaces.finiteDimensional (F := F)
+    openImmersion kToS h_factor x0
 
 end HasFiniteDimensionalTangentSpaces
 
@@ -159,8 +163,12 @@ theorem hasFiniteDimensionalTangentSpaces_iff {S : Scheme.{u}}
           Spec.map (CommRingCat.ofHom (algebraMap Λ k)) ≫ openImmersion = kToS)
         (x0 : F.obj (op (asLocallyNoetherian (Over.mk kToS))))
         [HasSchlessingerH2 (evalAt F openImmersion kToS h_factor x0)],
-        FiniteDimensional k (tangentSpace F openImmersion kToS h_factor x0) :=
-  sorry
+        FiniteDimensional k (tangentSpace F openImmersion kToS h_factor x0) := by
+  constructor
+  · intro h
+    exact h.finiteDimensional
+  · intro h
+    exact ⟨h⟩
 
 /-- The representable functor `Mor_S(-, V)` on locally Noetherian schemes over
 `S` has finite-dimensional tangent spaces. -/
@@ -224,8 +232,8 @@ theorem spec {S : Scheme.{u}} [IsLocallyNoetherian S]
       ∀ n,
         F.map (op (asLocallyNoetherianMap (truncationOverMap openImmersion R n)))
           x =
-          evalAt.val F openImmersion kToS h_factor x0 (ξ n) :=
-  sorry
+          evalAt.val F openImmersion kToS h_factor x0 (ξ n) := by
+  exact HasEffectiveFormalObjects.isEffective openImmersion kToS h_factor x0 R ξ hξ
 
 end HasEffectiveFormalObjects
 
@@ -254,8 +262,12 @@ theorem hasEffectiveFormalObjects_iff {S : Scheme.{u}} [IsLocallyNoetherian S]
           ∀ n,
             F.map (op (asLocallyNoetherianMap
                 (truncationOverMap openImmersion R n))) x =
-              evalAt.val F openImmersion kToS h_factor x0 (ξ n) :=
-  sorry
+              evalAt.val F openImmersion kToS h_factor x0 (ξ n) := by
+  constructor
+  · intro h
+    exact h.isEffective
+  · intro h
+    exact ⟨h⟩
 
 /-- The representable functor `Mor_S(-, V)` on locally Noetherian schemes over
 `S` has effective formal objects. -/

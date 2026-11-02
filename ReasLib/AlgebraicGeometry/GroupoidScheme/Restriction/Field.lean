@@ -8,6 +8,7 @@ module
 
 public import Mathlib.AlgebraicGeometry.Morphisms.UniversallyOpen
 public import ReasLib.AlgebraicGeometry.GroupoidScheme.Restriction.Presentation
+public import ReasLib.AlgebraicGeometry.GroupoidScheme.Restriction.Stability
 
 /-!
 # Restriction of groupoid schemes along field extensions
@@ -194,84 +195,6 @@ private lemma overPullbackSndProperty {X Y Z : Over S} (f : X ⟶ Z) (g : Y ⟶ 
     (CategoryTheory.Limits.PreservesPullback.iso (Over.forget S) f g).hom
     (Limits.pullback.snd f.left g.left)).mpr (P.pullback_snd f.left g.left hf)
 
-private lemma restrictedSourceOfStableUnderBaseChange
-    {P : CategoryTheory.MorphismProperty Scheme.{u}} [P.IsStableUnderComposition]
-    [P.IsStableUnderBaseChange] {U' : Over S} (g : U' ⟶ G.U) (hs : P G.s.left) (hg : P g.left) :
-    P (G.pullback g).s.left := by
-  let Q : CategoryTheory.MorphismProperty (Over S) := P.inverseImage (Over.forget S)
-  have hsPullback : P (Limits.pullback.snd G.s g).left :=
-    overPullbackSndProperty G.s g hs
-  have hgPullback : P (Limits.pullback.snd g G.t).left :=
-    overPullbackSndProperty g G.t hg
-  have hOuter :
-      P (Limits.pullback.fst (Limits.pullback.fst G.s g) (Limits.pullback.snd g G.t)).left :=
-    overPullbackFstProperty (Limits.pullback.fst G.s g) (Limits.pullback.snd g G.t) hgPullback
-  have hComposite :
-      Q
-        ((pullbackArrowIso G g).hom ≫
-          Limits.pullback.fst (Limits.pullback.fst G.s g) (Limits.pullback.snd g G.t) ≫
-          Limits.pullback.snd G.s g) := by
-    have hProjected :
-        Q
-          (Limits.pullback.fst (Limits.pullback.fst G.s g) (Limits.pullback.snd g G.t) ≫
-            Limits.pullback.snd G.s g) := by
-      exact Q.comp_mem _ _ hOuter hsPullback
-    exact (Q.cancel_left_of_respectsIso (pullbackArrowIso G g).hom
-      (Limits.pullback.fst (Limits.pullback.fst G.s g) (Limits.pullback.snd g G.t) ≫
-        Limits.pullback.snd G.s g)).mpr hProjected
-  have hCompositeLeft : P
-      (((pullbackArrowIso G g).hom ≫
-          Limits.pullback.fst (Limits.pullback.fst G.s g) (Limits.pullback.snd g G.t) ≫
-          Limits.pullback.snd G.s g).left) := by
-    simpa [Q, MorphismProperty.inverseImage] using hComposite
-  have hSource :
-      (((pullbackArrowIso G g).hom ≫
-          Limits.pullback.fst (Limits.pullback.fst G.s g) (Limits.pullback.snd g G.t) ≫
-          Limits.pullback.snd G.s g).left) = (G.pullback g).s.left := by
-    simpa [AlgebraicGeometry.GroupoidScheme.pullback] using
-      congrArg Over.Hom.left (pullbackArrowIso_hom_upper_snd G g)
-  rw [hSource] at hCompositeLeft
-  exact hCompositeLeft
-
-private lemma restrictedTargetOfStableUnderBaseChange
-    {P : CategoryTheory.MorphismProperty Scheme.{u}} [P.IsStableUnderComposition]
-    [P.IsStableUnderBaseChange] {U' : Over S} (g : U' ⟶ G.U) (ht : P G.t.left) (hg : P g.left) :
-    P (G.pullback g).t.left := by
-  let Q : CategoryTheory.MorphismProperty (Over S) := P.inverseImage (Over.forget S)
-  have hgPullback : P (Limits.pullback.fst g G.t).left :=
-    overPullbackFstProperty g G.t ht
-  have hUpper : P (Limits.pullback.fst G.s g).left :=
-    overPullbackFstProperty G.s g hg
-  have hOuter :
-      P (Limits.pullback.snd (Limits.pullback.fst G.s g) (Limits.pullback.snd g G.t)).left :=
-    overPullbackSndProperty (Limits.pullback.fst G.s g) (Limits.pullback.snd g G.t) hUpper
-  have hComposite :
-      Q
-        ((pullbackArrowIso G g).hom ≫
-          Limits.pullback.snd (Limits.pullback.fst G.s g) (Limits.pullback.snd g G.t) ≫
-          Limits.pullback.fst g G.t) := by
-    have hProjected :
-        Q
-          (Limits.pullback.snd (Limits.pullback.fst G.s g) (Limits.pullback.snd g G.t) ≫
-            Limits.pullback.fst g G.t) := by
-      exact Q.comp_mem _ _ hOuter hgPullback
-    exact (Q.cancel_left_of_respectsIso (pullbackArrowIso G g).hom
-      (Limits.pullback.snd (Limits.pullback.fst G.s g) (Limits.pullback.snd g G.t) ≫
-        Limits.pullback.fst g G.t)).mpr hProjected
-  have hCompositeLeft : P
-      (((pullbackArrowIso G g).hom ≫
-          Limits.pullback.snd (Limits.pullback.fst G.s g) (Limits.pullback.snd g G.t) ≫
-          Limits.pullback.fst g G.t).left) := by
-    simpa [Q, MorphismProperty.inverseImage] using hComposite
-  have hTarget :
-      (((pullbackArrowIso G g).hom ≫
-          Limits.pullback.snd (Limits.pullback.fst G.s g) (Limits.pullback.snd g G.t) ≫
-          Limits.pullback.fst g G.t).left) = (G.pullback g).t.left := by
-    simpa [AlgebraicGeometry.GroupoidScheme.pullback] using
-      congrArg Over.Hom.left (pullbackArrowIso_hom_lower_fst G g)
-  rw [hTarget] at hCompositeLeft
-  exact hCompositeLeft
-
 private lemma pullbackToSourceSquare_eq_iteratedFst {U' : Over S} (g : U' ⟶ G.U) :
     (pullbackArrowIso G g).hom ≫
         pullback.fst (pullback.fst G.s g) (pullback.snd g G.t) =
@@ -417,40 +340,40 @@ theorem pullbackToTargetSquare_universallyOpen :
 /-- The source map of the field-restricted groupoid scheme is surjective. -/
 theorem restrictionSource_surjective :
     Surjective (G.pullback (fieldRestriction G eU ι)).s.left := by
-  exact restrictedSourceOfStableUnderBaseChange (G := G) (g := fieldRestriction G eU ι)
+  exact restrictedSource_ofStableUnderBaseChange (G := G) (g := fieldRestriction G eU ι)
     (source_surjective_of_field G eU)
     (fieldRestriction_surjective (G := G) (eU := eU) (ι := ι))
 
 /-- The source map of the field-restricted groupoid scheme is flat. -/
 theorem restrictionSource_flat : Flat (G.pullback (fieldRestriction G eU ι)).s.left := by
-  exact restrictedSourceOfStableUnderBaseChange (G := G) (g := fieldRestriction G eU ι)
+  exact restrictedSource_ofStableUnderBaseChange (G := G) (g := fieldRestriction G eU ι)
     (source_flat_of_field G eU)
     (fieldRestriction_flat (G := G) (eU := eU) (ι := ι))
 
 /-- The source map of the field-restricted groupoid scheme is universally open. -/
 theorem restrictionSource_universallyOpen :
     UniversallyOpen (G.pullback (fieldRestriction G eU ι)).s.left := by
-  exact restrictedSourceOfStableUnderBaseChange (G := G) (g := fieldRestriction G eU ι)
+  exact restrictedSource_ofStableUnderBaseChange (G := G) (g := fieldRestriction G eU ι)
     (source_universallyOpen_of_field G eU)
     (fieldRestriction_universallyOpen (G := G) (eU := eU) (ι := ι))
 
 /-- The target map of the field-restricted groupoid scheme is surjective. -/
 theorem restrictionTarget_surjective :
     Surjective (G.pullback (fieldRestriction G eU ι)).t.left := by
-  exact restrictedTargetOfStableUnderBaseChange (G := G) (g := fieldRestriction G eU ι)
+  exact restrictedTarget_ofStableUnderBaseChange (G := G) (g := fieldRestriction G eU ι)
     (target_surjective_of_field G eU)
     (fieldRestriction_surjective (G := G) (eU := eU) (ι := ι))
 
 /-- The target map of the field-restricted groupoid scheme is flat. -/
 theorem restrictionTarget_flat : Flat (G.pullback (fieldRestriction G eU ι)).t.left := by
-  exact restrictedTargetOfStableUnderBaseChange (G := G) (g := fieldRestriction G eU ι)
+  exact restrictedTarget_ofStableUnderBaseChange (G := G) (g := fieldRestriction G eU ι)
     (target_flat_of_field G eU)
     (fieldRestriction_flat (G := G) (eU := eU) (ι := ι))
 
 /-- The target map of the field-restricted groupoid scheme is universally open. -/
 theorem restrictionTarget_universallyOpen :
     UniversallyOpen (G.pullback (fieldRestriction G eU ι)).t.left := by
-  exact restrictedTargetOfStableUnderBaseChange (G := G) (g := fieldRestriction G eU ι)
+  exact restrictedTarget_ofStableUnderBaseChange (G := G) (g := fieldRestriction G eU ι)
     (target_universallyOpen_of_field G eU)
     (fieldRestriction_universallyOpen (G := G) (eU := eU) (ι := ι))
 

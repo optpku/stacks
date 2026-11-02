@@ -8,7 +8,9 @@ module
 
 public import ReasLib.AlgebraicGeometry.AlgebraicStack.Points
 public import ReasLib.CategoryTheory.Bicategory.Limits.PseudoPullback.PseudoCone.Bilimit
+public import ReasLib.CategoryTheory.Bicategory.Limits.PseudoPullback.ProjectionEquivalence.Right
 public import ReasLib.CategoryTheory.Fibered.TwoFibreProduct.FullSubbicategory.Basic
+public import ReasLib.CategoryTheory.Fibered.TwoFibreProduct.FullSubbicategory.Bilimit
 
 /-!
 # Universally injective morphisms of algebraic stacks
@@ -63,7 +65,7 @@ theorem spec {S : Scheme.{u}} {X Y : GroupoidsOver S}
     {Z P : GroupoidsOver S} [AlgebraicStack Z] [AlgebraicStack P]
     {g : Z ⟶ Y} {fst : P ⟶ X} {snd : P ⟶ Z} (iso : fst ≫ f ≅ snd ≫ g)
     (h : (CategoryTheory.Bicategory.PseudoPullbackCone.mk f g P fst snd iso).IsBilimit) : Function.Injective (Points.map snd) :=
-  sorry
+  UniversallyInjective.injective_baseChange iso h
 
 /-- A morphism is universally injective as soon as every 2-fibre-product base
 change induces an injective map on points. -/
@@ -73,13 +75,24 @@ theorem of {S : Scheme.{u}} {X Y : GroupoidsOver S}
       {g : Z ⟶ Y} {fst : P ⟶ X} {snd : P ⟶ Z} (iso : fst ≫ f ≅ snd ≫ g),
       (CategoryTheory.Bicategory.PseudoPullbackCone.mk f g P fst snd iso).IsBilimit → Function.Injective (Points.map snd)) :
     UniversallyInjective f :=
-  sorry
+  ⟨hf⟩
 
 /-- A universally injective morphism induces an injective map on points. -/
 theorem map_injective {S : Scheme.{u}} {X Y : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] {f : X ⟶ Y}
     [UniversallyInjective f] : Function.Injective (Points.map f) :=
-  sorry
+  by
+    let c := CategoryTheory.Bicategory.PseudoPullbackCone.ofRightEquivalence f
+      (CategoryTheory.Bicategory.Equivalence.OnHom.id Y)
+    have hc : c.IsBilimit :=
+      CategoryTheory.Bicategory.PseudoPullbackCone.ofRightEquivalence.isBilimit f _
+    have h : Function.Injective (Points.map (f ≫ 𝟙 Y)) :=
+      UniversallyInjective.spec c.iso hc
+    have hm : Points.map (f ≫ 𝟙 Y) = Points.map f := by
+      funext x
+      simp only [Points.map_comp, Points.map_id]
+    rw [← hm]
+    exact h
 
 /-- The chosen 2-fibre-product projection `Z ×_Y X ⟶ Z` of a universally
 injective morphism `f : X ⟶ Y` induces an injective map on points, once the
@@ -90,7 +103,8 @@ theorem twoFibreProduct_snd {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
     [AlgebraicStack (TwoFibreProduct.apex.{u + 1, u, u + 1, u} f g)] :
     Function.Injective
       (Points.map (TwoFibreProduct.snd.{u + 1, u, u + 1, u} f g)) :=
-  sorry
+  UniversallyInjective.spec (TwoFibreProduct.comparisonIso f g)
+    (TwoFibreProduct.cone.isBilimit f g)
 
 end UniversallyInjective
 
@@ -105,6 +119,12 @@ theorem universallyInjective_iff_twoFibreProduct_snd {S : Scheme.{u}}
         [AlgebraicStack (TwoFibreProduct.apex.{u + 1, u, u + 1, u} f g)],
         Function.Injective
           (Points.map (TwoFibreProduct.snd.{u + 1, u, u + 1, u} f g)) :=
-  sorry
+  by
+    constructor
+    · intro hf
+      letI : UniversallyInjective f := hf
+      intro Z _ g _
+      exact UniversallyInjective.twoFibreProduct_snd g
+    · sorry
 
 end AlgebraicGeometry.AlgebraicStack

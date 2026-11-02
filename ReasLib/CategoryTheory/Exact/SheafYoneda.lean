@@ -7,6 +7,9 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import Mathlib.CategoryTheory.Preadditive.Yoneda.Basic
+public import Mathlib.Algebra.Category.Grp.Limits
+public import Mathlib.CategoryTheory.Limits.Shapes.NormalMono.Basic
+public import Mathlib.CategoryTheory.Sites.EffectiveEpimorphic
 public import ReasLib.CategoryTheory.Exact.Site
 
 @[expose] public section
@@ -31,7 +34,17 @@ variable {A : Type u} [Category.{v} A] [Preadditive A] [HasFiniteProducts A]
 
 /-- Every additive representable is a sheaf for the admissible-epimorphism topology. -/
 theorem preadditiveYoneda_isSheaf (E : ExactStructure A) (X : A) :
-    Presheaf.IsSheaf E.topology (preadditiveYoneda.obj X) := sorry
+    Presheaf.IsSheaf E.topology (preadditiveYoneda.obj X) := by
+  apply Presheaf.isSheaf_of_isSheaf_comp E.topology _ (forget AddCommGrpCat)
+  apply (isSheaf_iff_isSheaf_of_type E.topology _).2
+  change Presieve.IsSheaf E.topology (yoneda.obj X)
+  apply (Presieve.isSheaf_coverage E.singletonAdmissibleEpiCoverage _).2
+  intro Y R hR
+  change ∃ (Z : A) (p : Z ⟶ Y), E.AdmissibleEpi p ∧ R = Presieve.singleton p at hR
+  rcases hR with ⟨Z, p, ⟨K, i, w, hS⟩, rfl⟩
+  obtain ⟨hc⟩ := (E.isKernelCokernelPair hS).2
+  letI : NormalEpi p := ⟨K, i, w, hc⟩
+  exact Presieve.IsSheafFor.singleton_of_isRepresentable_of_effectiveEpi p (yoneda.obj X)
 
 /-- The sheaf-valued additive Yoneda functor of an exact structure. -/
 @[stacks 05SF "sheaf-valued Yoneda embedding"]
@@ -40,11 +53,15 @@ def sheafYoneda (E : ExactStructure A) : A ⥤ Sheaf E.topology AddCommGrpCat.{v
 
 /-- The sheaf-valued Yoneda functor of an exact structure is full. -/
 @[stacks 05SF "full sheaf-valued Yoneda embedding"]
-instance sheafYoneda_full (E : ExactStructure A) : Functor.Full E.sheafYoneda := sorry
+instance sheafYoneda_full (E : ExactStructure A) : Functor.Full E.sheafYoneda := by
+  unfold sheafYoneda
+  infer_instance
 
 /-- The sheaf-valued Yoneda functor of an exact structure is faithful. -/
 @[stacks 05SF "faithful sheaf-valued Yoneda embedding"]
-instance sheafYoneda_faithful (E : ExactStructure A) : Functor.Faithful E.sheafYoneda := sorry
+instance sheafYoneda_faithful (E : ExactStructure A) : Functor.Faithful E.sheafYoneda := by
+  unfold sheafYoneda
+  infer_instance
 
 /-- The sheaf-valued Yoneda functor sends admissible kernel-cokernel pairs to short exact
 sequences. -/
@@ -64,7 +81,8 @@ is short exact. -/
 @[stacks 05SF "admissibility detected by sheaf-valued Yoneda"]
 theorem sheafYoneda_shortExact_iff
     (E : ExactStructure A) {S : ShortComplex A} :
-    (S.map E.sheafYoneda).ShortExact ↔ E.admissible S := sorry
+    (S.map E.sheafYoneda).ShortExact ↔ E.admissible S :=
+  ⟨E.sheafYoneda_reflects_admissible, E.sheafYoneda_maps_admissible⟩
 
 /-- The essential image of the sheaf-valued Yoneda functor is closed under short exact
 extensions. -/

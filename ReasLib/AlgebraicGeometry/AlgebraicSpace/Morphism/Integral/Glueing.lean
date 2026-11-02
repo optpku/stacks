@@ -46,6 +46,7 @@ def glueingAlgebraToFiber {X Y : AlgebraicSpace S} (f : X ⟶ Y) [IsIntegralHom 
       (pushforwardStructureQcAlgebra (fieldFiberι f p ≫ f)).obj :=
   pushforwardStructureQcAlgebraMap f (fieldFiberι f p)
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The `𝒪_Y`-algebra map `p_* 𝒪_{Spec(k)} ⟶ (X_y ⟶ Y)_* 𝒪_{X_y}`. -/
 def glueingPointToFiber {X Y : AlgebraicSpace S} (f : X ⟶ Y) [IsIntegralHom f]
     (p : FieldValuedPoint Y) [IsClosedImmersion p.hom] :
@@ -58,7 +59,32 @@ def glueingPointToFiber {X Y : AlgebraicSpace S} (f : X ⟶ Y) [IsIntegralHom f]
       eqToHom
         (congrArg (fun g ↦ (commRingPushforward g).obj (commStructureSheaf (fieldFiber f p)))
           (fieldFiberι_comp f p).symm))
-    sorry
+    (by
+      haveI : QuasiCompact (fieldFiberToSpec f p ≫ p.hom) := by
+        rw [← fieldFiberι_comp f p]
+        infer_instance
+      haveI : QuasiSeparated (fieldFiberToSpec f p ≫ p.hom) := by
+        rw [← fieldFiberι_comp f p]
+        infer_instance
+      have hw := (pushforwardStructureQcAlgebraMap p.hom (fieldFiberToSpec f p)).w
+      change commStructureSheafMap p.hom ≫
+          ((commRingPushforward p.hom).map (commStructureSheafMap (fieldFiberToSpec f p)) ≫
+            (commRingPushforwardComp (fieldFiberToSpec f p) p.hom).hom.app
+              (commStructureSheaf (fieldFiber f p))) =
+        commStructureSheafMap (fieldFiberToSpec f p ≫ p.hom) at hw
+      have heq (a b : fieldFiber f p ⟶ Y) (h : a = b) :
+          commStructureSheafMap b ≫
+              eqToHom
+                (congrArg
+                  (fun g ↦ (commRingPushforward g).obj (commStructureSheaf (fieldFiber f p)))
+                  h.symm) =
+            commStructureSheafMap a := by
+        subst b
+        simp
+      change commStructureSheafMap p.hom ≫ _ = commStructureSheafMap (fieldFiberι f p ≫ f)
+      simp only [← Category.assoc] at hw ⊢
+      rw [hw]
+      exact heq _ _ (fieldFiberι_comp f p))
 
 
 /-- The sheaf of `𝒪_Y`-algebras obtained as the fibre product of `f_* 𝒪_X` and
@@ -74,7 +100,8 @@ def glueingAlgebraStructure {X Y : AlgebraicSpace S} (f : X ⟶ Y) [IsIntegralHo
     (p : FieldValuedPoint Y) [IsClosedImmersion p.hom] :
     commStructureSheaf Y ⟶ glueingAlgebraSheaf f p :=
   pullback.lift (pushforwardStructureQcAlgebra f).obj.hom
-    (pushforwardStructureQcAlgebra p.hom).obj.hom sorry
+    (pushforwardStructureQcAlgebra p.hom).obj.hom
+    ((glueingAlgebraToFiber f p).w.trans (glueingPointToFiber f p).w.symm)
 
 /-- The quasi-coherent `𝒪_Y`-algebra `𝒜'` whose relative spectrum realises the
 glueing factorization of `f` at `p`. -/
@@ -91,7 +118,9 @@ def glueingAlgebra_fst {X Y : AlgebraicSpace S} (f : X ⟶ Y) [IsIntegralHom f]
   InducedCategory.homMk
     (Under.homMk (pullback.fst (glueingAlgebraToFiber f p).right
         (glueingPointToFiber f p).right)
-      sorry)
+      (by
+        change glueingAlgebraStructure f p ≫ pullback.fst _ _ = _
+        exact pullback.lift_fst _ _ _))
 
 /-- The second projection of the glueing algebra, as an `𝒪_Y`-algebra map into
 `p_* 𝒪_{Spec(k)}`. -/
@@ -101,15 +130,18 @@ def glueingAlgebra_snd {X Y : AlgebraicSpace S} (f : X ⟶ Y) [IsIntegralHom f]
   InducedCategory.homMk
     (Under.homMk (pullback.snd (glueingAlgebraToFiber f p).right
         (glueingPointToFiber f p).right)
-      sorry)
+      (by
+        change glueingAlgebraStructure f p ≫ pullback.snd _ _ = _
+        exact pullback.lift_snd _ _ _))
 
 /-- The two projections exhibit `glueingAlgebra f p` as the pullback of
 `glueingAlgebraToFiber` and `glueingPointToFiber`. -/
 theorem isPullback_glueingAlgebra {X Y : AlgebraicSpace S} (f : X ⟶ Y)
     [IsIntegralHom f] (p : FieldValuedPoint Y) [IsClosedImmersion p.hom] :
     IsPullback (glueingAlgebra_fst f p).hom (glueingAlgebra_snd f p).hom
-      (glueingAlgebraToFiber f p) (glueingPointToFiber f p) :=
-  sorry
+      (glueingAlgebraToFiber f p) (glueingPointToFiber f p) := by
+  apply IsPullback.of_map_of_faithful (Under.forget (commStructureSheaf Y))
+  exact IsPullback.of_hasPullback _ _
 
 /-- The relative spectrum of the glueing algebra, as an algebraic space over `S`. -/
 def glueingSpec {X Y : AlgebraicSpace S} (f : X ⟶ Y) [IsIntegralHom f]
@@ -143,8 +175,13 @@ theorem fromGlueing_eq {X Y : AlgebraicSpace S} (f : X ⟶ Y) [IsIntegralHom f]
 /-- The glueing maps factor `f` as `toGlueing f p ≫ fromGlueing f p`. -/
 theorem toGlueing_comp_fromGlueing {X Y : AlgebraicSpace S} (f : X ⟶ Y)
     [IsIntegralHom f] (p : FieldValuedPoint Y) [IsClosedImmersion p.hom] :
-    toGlueing f p ≫ fromGlueing f p = f :=
-  sorry
+    toGlueing f p ≫ fromGlueing f p = f := by
+  apply NatTrans.ext
+  funext T
+  apply ConcreteCategory.hom_ext
+  intro x
+  change yonedaEquiv (yonedaEquiv.symm x ≫ f) = f.app T x
+  simp only [yonedaEquiv_comp, Equiv.apply_symm_apply]
 
 variable {X Y : AlgebraicSpace S}
 

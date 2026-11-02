@@ -49,7 +49,13 @@ theorem mem_coordinateIdeal_iff (n : ℕ) (Z : (ProjectiveSpace.scheme R n).Idea
             (ProjectiveSpace.coordinateLocalizationAway (R := R) n i) f ∈
           Ideal.map (ProjectiveSpace.coordinateAwayToLocalization (R := R) n i)
             (Ideal.comap (ProjectiveSpace.coordinateBasicOpenIsoAway (R := R) n i).hom.hom
-              (Z.ideal (ProjectiveSpace.coordinateBasicOpen (R := R) n i))) := sorry
+              (Z.ideal (ProjectiveSpace.coordinateBasicOpen (R := R) n i))) := by
+  simp only [coordinateIdeal, Submodule.mem_iInf, Ideal.mem_comap]
+
+/-- The intrinsic coordinate ideal is homogeneous for the standard polynomial grading. -/
+theorem coordinateIdeal_isHomogeneous (n : ℕ)
+    (Z : (ProjectiveSpace.scheme R n).IdealSheafData) :
+    (coordinateIdeal n Z).IsHomogeneous (ProjectiveSpace.grading R n) := sorry
 
 /-- Extending the reconstructed coordinate ideal to an ordinary coordinate localization
 recovers the extended ideal of the corresponding affine chart. -/

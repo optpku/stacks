@@ -49,13 +49,24 @@ def cohomologyMap (R G : Type u) [CommRing R] [Group G]
 /-- The cohomology map of an identity is an identity. -/
 theorem cohomologyMap_id (R G : Type u) [CommRing R] [Group G]
     [TopologicalSpace G] [IsTopologicalGroup G] (i : ℕ) (M : DiscreteModuleCat R G) :
-    cohomologyMap R G i (𝟙 M) = 𝟙 (cohomologyObject R G i M) := sorry
+    cohomologyMap R G i (𝟙 M) = 𝟙 (cohomologyObject R G i M) := by
+  apply ModuleCat.hom_ext
+  ext x
+  dsimp [cohomologyMap]
+  change x.comp (Ext.mk₀ (𝟙 M)) (add_zero i) = x
+  exact Ext.comp_mk₀_id x
 
 /-- Cohomology maps preserve composition. -/
 theorem cohomologyMap_comp (R G : Type u) [CommRing R] [Group G]
     [TopologicalSpace G] [IsTopologicalGroup G] (i : ℕ)
     {M N P : DiscreteModuleCat R G} (f : M ⟶ N) (g : N ⟶ P) :
-    cohomologyMap R G i (f ≫ g) = cohomologyMap R G i f ≫ cohomologyMap R G i g := sorry
+    cohomologyMap R G i (f ≫ g) = cohomologyMap R G i f ≫ cohomologyMap R G i g := by
+  apply ModuleCat.hom_ext
+  ext x
+  dsimp [cohomologyMap]
+  change x.comp (Ext.mk₀ (f ≫ g)) (add_zero i) =
+    (x.comp (Ext.mk₀ f) (add_zero i)).comp (Ext.mk₀ g) (add_zero i)
+  rw [Ext.comp_assoc_of_second_deg_zero, Ext.mk₀_comp_mk₀]
 
 /-- Continuous cohomology of discrete `R`-linear `G`-modules as a module-valued functor. -/
 def cohomologyFunctor (R G : Type u) [CommRing R] [Group G]
@@ -70,13 +81,13 @@ def cohomologyFunctor (R G : Type u) [CommRing R] [Group G]
 theorem cohomologyFunctor_obj (R G : Type u) [CommRing R] [Group G]
     [TopologicalSpace G] [IsTopologicalGroup G] (i : ℕ) (M : DiscreteModuleCat R G) :
     (cohomologyFunctor R G i).obj M =
-      ModuleCat.of R (Ext (trivialCoefficient R G) M i) := sorry
+      ModuleCat.of R (Ext (trivialCoefficient R G) M i) := rfl
 
 /-- The action of `cohomologyFunctor` on morphisms is Ext postcomposition. -/
 theorem cohomologyFunctor_map (R G : Type u) [CommRing R] [Group G]
     [TopologicalSpace G] [IsTopologicalGroup G] (i : ℕ)
     {M N : DiscreteModuleCat R G} (f : M ⟶ N) :
-    (cohomologyFunctor R G i).map f = cohomologyMap R G i f := sorry
+    (cohomologyFunctor R G i).map f = cohomologyMap R G i f := rfl
 
 /-- The component of the comparison between forgetting cohomology and first forgetting the
 coefficient scalars. -/
@@ -99,7 +110,19 @@ theorem forgetComparison_naturality (R G : Type) [CommRing R] [Group G]
       forgetComparisonApp R G i N =
       forgetComparisonApp R G i M ≫
         (restrictScalars (Int.castRingHom R) ⋙ cohomologyFunctor ℤ G i ⋙
-          forget₂ (ModuleCat ℤ) AddCommGrpCat).map f := sorry
+          forget₂ (ModuleCat ℤ) AddCommGrpCat).map f := by
+  apply AddCommGrpCat.hom_ext
+  ext x
+  change
+    Adjunction.Ext.comparison (extendRestrictAdjunction (Int.castRingHom R))
+        (trivialCoefficient ℤ G) N i
+        ((Ext.mk₀ (extendTrivialHom R G)).comp
+          (x.comp (Ext.mk₀ f) (add_zero i)) (zero_add i)) =
+      (Adjunction.Ext.comparison (extendRestrictAdjunction (Int.castRingHom R))
+        (trivialCoefficient ℤ G) M i
+        ((Ext.mk₀ (extendTrivialHom R G)).comp x (zero_add i))).comp
+          (Ext.mk₀ ((restrictScalars (Int.castRingHom R)).map f)) (add_zero i)
+  rw [← Ext.comp_assoc_of_third_deg_zero, Adjunction.Ext.comparison_naturality_right]
 
 /-- The natural comparison between the two routes from discrete continuous `R`-linear
 `G`-modules to abelian groups. -/
@@ -119,7 +142,7 @@ theorem forgetComparison_app (R G : Type) [CommRing R] [Group G]
       AddCommGrpCat.ofHom
         ((Adjunction.Ext.comparison (extendRestrictAdjunction (Int.castRingHom R))
           (trivialCoefficient ℤ G) M i).comp
-            ((Ext.mk₀ (extendTrivialHom R G)).precomp M (zero_add i))) := sorry
+            ((Ext.mk₀ (extendTrivialHom R G)).precomp M (zero_add i))) := rfl
 
 /-- Forgetting the scalar structure preserves the cohomology comparison isomorphism. -/
 instance instIsIsoForgetComparison (R G : Type) [CommRing R] [Group G]

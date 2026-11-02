@@ -137,7 +137,7 @@ theorem baseChange_apply {S X S' X' : Scheme.{u}} {f : X ⟶ S} {g : S' ⟶ S}
           (CycleGroup.baseChangePullback
             (Spec.map (g.residueFieldMap s')) (fun _ ↦ 0) (fun _ ↦ 0) 0
             (isDimensionFunctionCompatible_residueFieldSpecMap g s')
-            (f.fiberToSpecResidueField (g s')) r (α (g s')))) := sorry
+            (f.fiberToSpecResidueField (g s')) r (α (g s')))) := rfl
 
 /-- Base change along the identity square is the identity on families. -/
 theorem baseChange_id {X S : Scheme.{u}} (f : X ⟶ S) [LocallyOfFiniteType f]
@@ -172,7 +172,7 @@ theorem restrict_apply {X S : Scheme.{u}} {f : X ⟶ S} [LocallyOfFiniteType f]
         ((f.resLE V U hU).fiberRelativeDimensionFunction s) r
         (CycleGroup.Localization.openPullback
           (f.fiberToSpecResidueField (V.ι s)) (fun _ ↦ 0)
-          (fiberOpen f U (V.ι s)) r (α (V.ι s))) := sorry
+          (fiberOpen f U (V.ι s)) r (α (V.ι s))) := rfl
 
 /-- Flat pullback of a family of fibre cycles along a morphism of relative
 dimension `e` over `S`. -/
@@ -193,7 +193,7 @@ theorem flatPullback_apply {X' X S : Scheme.{u}} {f : X ⟶ S} [LocallyOfFiniteT
     flatPullback h hf e α s =
       fiberwiseFlatPullback s (f'.fiberToSpecResidueField s)
         (f.fiberToSpecResidueField s) (idTriangleFiberMap h hf s)
-        (idTriangleFiberMap_fiberToSpecResidueField h hf s) e (α s) := sorry
+        (idTriangleFiberMap_fiberToSpecResidueField h hf s) e (α s) := rfl
 
 /-- Flat pullback along the identity, of relative dimension `0`, is reindexing
 by `r + 0 = r`. -/
@@ -218,11 +218,23 @@ theorem pushforward_apply {X Y S : Scheme.{u}} {fX : X ⟶ S} {fY : Y ⟶ S}
     (hf : h ≫ fY = fX) [IsProper h] {r : ℤ} (α : fX.FiberCycleFamily r) (s : S) :
     pushforward h hf α s =
       fiberwisePushforward s (fX.fiberToSpecResidueField s)
-        (fY.fiberToSpecResidueField s) (idTriangleFiberMap h hf s) (α s) := sorry
+        (fY.fiberToSpecResidueField s) (idTriangleFiberMap h hf s) (α s) := rfl
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Proper pushforward along the identity is the identity on families. -/
 theorem pushforward_id {X S : Scheme.{u}} (f : X ⟶ S) [LocallyOfFiniteType f]
     {r : ℤ} (α : f.FiberCycleFamily r) :
-    pushforward (𝟙 X) (Category.id_comp f) α = α := sorry
+    pushforward (𝟙 X) (Category.id_comp f) α = α := by
+  funext s
+  have hmap : idTriangleFiberMap (𝟙 X) (Category.id_comp f) s =
+      𝟙 (f.fiber s) := by
+    change pullback.map f (S.fromSpecResidueField s) f (S.fromSpecResidueField s)
+      (𝟙 X) (AlgebraicGeometry.Spec.map (R := S.residueField s) (S := S.residueField s)
+        (Scheme.Hom.residueFieldMap (𝟙 S) s)) (𝟙 S) (by simp) (by simp) =
+          𝟙 (pullback f (S.fromSpecResidueField s))
+    simp only [Scheme.residueFieldMap_id, AlgebraicGeometry.Spec.map_id]
+    exact pullback.map_id (f := f) (g := S.fromSpecResidueField s)
+  simp only [pushforward, fiberwisePushforward, hmap, CycleGroup.mapHom_id,
+    AddMonoidHom.id_apply]
 
 end AlgebraicGeometry.Scheme.Hom.FiberCycleFamily

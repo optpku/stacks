@@ -43,7 +43,7 @@ theorem isRigSmoothArrow_iff {S : Scheme.{u}} {U V : (Over S)ᵒᵖ ⥤ Type u}
     (g : U ⟶ V) :
     isRigSmoothArrow hU hUaff hV hVaff g ↔
       @AffineFormalAlgebraicSpace.RigSmooth S U V hU hUaff hV hVaff g :=
-  sorry
+  Iff.rfl
 
 variable {S : Scheme.{u}} {X Y : (Over S)ᵒᵖ ⥤ Type u}
 variable [IsFormalAlgebraicSpace X] [IsFormalAlgebraicSpace Y]
@@ -68,7 +68,7 @@ theorem etaleAffineLocally_iff (f : X ⟶ Y) :
         {u : U ⟶ X} {v : V ⟶ Y} {g : U ⟶ V},
         CommSq g u v f → Etale u → Etale v →
           AffineFormalAlgebraicSpace.RigSmooth g :=
-  sorry
+  Iff.rfl
 
 namespace etaleAffineLocally
 
@@ -82,7 +82,7 @@ theorem of {f : X ⟶ Y}
       CommSq g u v f → Etale u → Etale v →
         AffineFormalAlgebraicSpace.RigSmooth g) :
     etaleAffineLocally f :=
-  sorry
+  h
 
 /-- The universal affine étale chart condition gives rig-smoothness of the top
 arrow of any specified affine étale chart square. -/
@@ -93,7 +93,7 @@ theorem spec {f : X ⟶ Y} (h : etaleAffineLocally f)
     {u : U ⟶ X} {v : V ⟶ Y} {g : U ⟶ V}
     (sq : CommSq g u v f) (hu : Etale u) (hv : Etale v) :
     AffineFormalAlgebraicSpace.RigSmooth g :=
-  sorry
+  h sq hu hv
 
 end etaleAffineLocally
 
@@ -120,7 +120,7 @@ theorem existsCoverOnTarget_iff (f : X ⟶ Y) :
           ∀ k, isRigSmoothArrow (hX.isFormal k) (hX.isAffine k)
               (hY.isFormal j) (hY.isAffine j)
               (σ k ≫ pullback.fst (π j) f) :=
-  sorry
+  Iff.rfl
 
 namespace existsCoverOnTarget
 
@@ -133,7 +133,7 @@ theorem of {f : X ⟶ Y} {ι : Type u} {Y_ : ι → ((Over S)ᵒᵖ ⥤ Type u)}
       ∀ k, isRigSmoothArrow (hX.isFormal k) (hX.isAffine k)
           (hY.isFormal j) (hY.isAffine j) (σ k ≫ pullback.fst (π j) f)) :
     existsCoverOnTarget f :=
-  sorry
+  ⟨ι, Y_, π, hY, hX⟩
 
 /-- The target covering condition supplies affine étale target charts and
 affine étale coverings of their pullbacks with rig-smooth projections. -/
@@ -145,7 +145,7 @@ theorem spec {f : X ⟶ Y} (h : existsCoverOnTarget f) :
         ∀ k, isRigSmoothArrow (hX.isFormal k) (hX.isAffine k)
             (hY.isFormal j) (hY.isAffine j)
             (σ k ≫ pullback.fst (π j) f) :=
-  sorry
+  h
 
 end existsCoverOnTarget
 
@@ -172,7 +172,7 @@ theorem existsCoverOnSource_iff (f : X ⟶ Y) :
             (q : X_ i ⟶ Y_i) (p : Y_i ⟶ Y),
           Etale p ∧ π i ≫ f = q ≫ p ∧
             isRigSmoothArrow (hX.isFormal i) (hX.isAffine i) hYF hYA q :=
-  sorry
+  Iff.rfl
 
 namespace existsCoverOnSource
 
@@ -186,7 +186,7 @@ theorem of {f : X ⟶ Y} {ι : Type u} {X_ : ι → ((Over S)ᵒᵖ ⥤ Type u)}
       Etale p ∧ π i ≫ f = q ≫ p ∧
         isRigSmoothArrow (hX.isFormal i) (hX.isAffine i) hYF hYA q) :
     existsCoverOnSource f :=
-  sorry
+  ⟨ι, X_, π, hX, hFac⟩
 
 /-- The source covering condition supplies an affine étale source covering
 and rig-smooth factorizations through affine étale target charts. -/
@@ -198,7 +198,7 @@ theorem spec {f : X ⟶ Y} (h : existsCoverOnSource f) :
           (q : X_ i ⟶ Y_i) (p : Y_i ⟶ Y),
         Etale p ∧ π i ≫ f = q ≫ p ∧
           isRigSmoothArrow (hX.isFormal i) (hX.isAffine i) hYF hYA q :=
-  sorry
+  h
 
 end existsCoverOnSource
 
@@ -207,20 +207,22 @@ the universal affine étale chart condition, the target covering condition, and
 the source covering condition are equivalent. -/
 theorem tfae (f : X ⟶ Y) :
     List.TFAE [RigSmooth f, etaleAffineLocally f, existsCoverOnTarget f,
-      existsCoverOnSource f] :=
+      existsCoverOnSource f] := by
+  apply List.tfae_cons_cons.mpr
+  refine ⟨⟨fun h ↦ h.of_affineEtaleChart, fun h ↦ ⟨h⟩⟩, ?_⟩
   sorry
 
 /-- The existence of affine étale target charts with affine étale coverings of
 their pullbacks having rig-smooth projections is equivalent to rig-smoothness. -/
 theorem iff_existsCoverOnTarget (f : X ⟶ Y) :
     existsCoverOnTarget f ↔ RigSmooth f :=
-  sorry
+  (tfae f).out 2 0
 
 /-- The existence of an affine étale source covering with rig-smooth
 factorizations through affine étale target charts is equivalent to rig-smoothness. -/
 theorem iff_existsCoverOnSource (f : X ⟶ Y) :
     existsCoverOnSource f ↔ RigSmooth f :=
-  sorry
+  (tfae f).out 3 0
 
 end RigSmooth
 

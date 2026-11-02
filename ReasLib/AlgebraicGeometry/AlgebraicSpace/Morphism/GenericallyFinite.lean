@@ -15,6 +15,9 @@ public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.Finite
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.LocallyQuasiFinite.Locality
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Decent
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Points.Fiber
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.FieldFiber.QuasiFinite
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.RelativeConditions.Implications
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.RelativeConditions.InheritedFromTarget
 
 /-!
 # Generically finite morphisms of algebraic spaces
@@ -83,8 +86,24 @@ theorem tfae_finite_fieldFiber_quasiFiniteAt_isFinite_open_of_isDecent
       , ∀ x : Points X, Points.map f x = Points.mk p → QuasiFiniteAt f x
       , ∃ Y' : OpenSubspace Y,
           Points.mk p ∈ Y'.pointsSet ∧ IsFinite (pullback.snd f Y'.ι)
-      , (fiberOver f (Points.mk p)).Finite ] :=
-  sorry
+      , (fiberOver f (Points.mk p)).Finite ] := by
+  haveI : IsDecent X := IsDecent.of_decent f
+  have hfinite : (fiberOver f (Points.mk p)).Finite ↔
+      Finite (Points (fieldFiber f p)) := by
+    constructor
+    · intro h
+      letI := h.to_subtype
+      exact finite_fieldFiber_of_isDecent_finite f p
+    · exact finite_fiberOver_of_finite_fieldFiber f p
+  have h := tfae_finite_fieldFiber_quasiFiniteAt_isFinite_open f p hy
+  apply List.tfae_of_forall (Finite (Points (fieldFiber f p)))
+  intro a ha
+  simp only [List.mem_cons, List.not_mem_nil, or_false] at ha
+  rcases ha with rfl | rfl | rfl | rfl
+  · exact Iff.rfl
+  · exact h.out 1 0
+  · exact h.out 2 0
+  · exact hfinite
 
 /-- Finiteness of the points of a field-valued fibre over a codimension-zero
 point is equivalent to quasi-finiteness at every point of the source over that
@@ -94,7 +113,7 @@ theorem finite_fieldFiber_iff_quasiFiniteAt {S : Scheme.{u}}
     (p : FieldValuedPoint Y) (hy : localRingDimAt (Points.mk p) = 0) :
     Finite (Points (fieldFiber f p)) ↔
       ∀ x : Points X, Points.map f x = Points.mk p → QuasiFiniteAt f x :=
-  sorry
+  (tfae_finite_fieldFiber_quasiFiniteAt_isFinite_open f p hy).out 0 1
 
 /-- Quasi-finiteness at every point over a codimension-zero point is equivalent
 to the existence of an open subspace of the target containing that point on
@@ -105,7 +124,7 @@ theorem quasiFiniteAt_iff_exists_isFinite_open {S : Scheme.{u}}
     (∀ x : Points X, Points.map f x = Points.mk p → QuasiFiniteAt f x) ↔
       ∃ Y' : OpenSubspace Y,
         Points.mk p ∈ Y'.pointsSet ∧ IsFinite (pullback.snd f Y'.ι) :=
-  sorry
+  (tfae_finite_fieldFiber_quasiFiniteAt_isFinite_open f p hy).out 1 2
 
 /-- Finiteness of the points of a field-valued fibre over a codimension-zero
 point is equivalent to the existence of an open subspace of the target
@@ -116,7 +135,7 @@ theorem finite_fieldFiber_iff_exists_isFinite_open {S : Scheme.{u}}
     Finite (Points (fieldFiber f p)) ↔
       ∃ Y' : OpenSubspace Y,
         Points.mk p ∈ Y'.pointsSet ∧ IsFinite (pullback.snd f Y'.ι) :=
-  sorry
+  (tfae_finite_fieldFiber_quasiFiniteAt_isFinite_open f p hy).out 0 2
 
 /-- If the target is decent, finiteness of the set-theoretic fibre over a
 codimension-zero point is equivalent to finiteness of the points of a
@@ -126,7 +145,7 @@ theorem finite_fiberOver_iff_finite_fieldFiber_of_isDecent {S : Scheme.{u}}
     [IsDecent Y] (p : FieldValuedPoint Y)
     (hy : localRingDimAt (Points.mk p) = 0) :
     (fiberOver f (Points.mk p)).Finite ↔ Finite (Points (fieldFiber f p)) :=
-  sorry
+  (tfae_finite_fieldFiber_quasiFiniteAt_isFinite_open_of_isDecent f p hy).out 3 0
 
 /-- Let `S` be a scheme. Let `f : X ⟶ Y` be a morphism of
 algebraic spaces over `S`. Assume that `f` is quasi-separated and locally of

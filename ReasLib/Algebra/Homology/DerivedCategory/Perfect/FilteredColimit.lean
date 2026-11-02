@@ -88,14 +88,20 @@ noncomputable abbrev stageTransitionBaseChange {j k : Set.Ici i₀} (hjk : j ⟶
 @[stacks 0BC7 "stage-to-colimit map equation"]
 theorem stageToColimitBaseChange_comp_eq (j : Set.Ici i₀) :
     (colimit.ι F j.1).hom.comp (F.map (homOfLE j.2)).hom =
-      (colimit.ι F i₀).hom := sorry
+      (colimit.ι F i₀).hom := by
+  exact RingHom.ext fun x ↦
+    RingHom.congr_fun
+      (congrArg CommRingCat.Hom.hom (colimit.w F (homOfLE j.2))) x
 
 /-- The ring-map equation identifying a transition after the fixed stage map with the later stage
 map. -/
 @[stacks 0BC7 "stage transition map equation"]
 theorem stageTransitionBaseChange_comp_eq {j k : Set.Ici i₀} (hjk : j ⟶ k) :
     (F.map hjk).hom.comp (F.map (homOfLE j.2)).hom =
-      (F.map (homOfLE k.2)).hom := sorry
+      (F.map (homOfLE k.2)).hom := by
+  change (F.map (homOfLE j.2) ≫ F.map hjk).hom = _
+  rw [← F.map_comp]
+  congr 1
 
 /-- The comparison isomorphism between two-step and direct extension to the colimit. -/
 @[stacks 0BC7 "stage-to-colimit comparison"]
@@ -193,7 +199,9 @@ theorem homDiagram_natural
       (β : (stageHomFunctor F i₀ K₀ L₀).obj j),
       stageToColimitHomMap F i₀ K₀ L₀ k
           ((stageHomFunctor F i₀ K₀ L₀).map f β) =
-        stageToColimitHomMap F i₀ K₀ L₀ j β := sorry
+        stageToColimitHomMap F i₀ K₀ L₀ j β := by
+  intro j k f β
+  exact stageToColimitHomMap_natural F i₀ K₀ L₀ f β
 
 /-- The explicit filtered Hom diagram attached to two source objects. -/
 @[stacks 0BC7 "filtered Hom diagram"]
@@ -218,7 +226,10 @@ theorem exists_stage_factorization_of_isPerfect
     (K₀ L₀ : DerivedCategory (ModuleCat (F.obj i₀))) (hK₀ : K₀.IsPerfect)
     (α : colimitHom F i₀ K₀ L₀) :
     ∃ (j : Set.Ici i₀) (β : stageHom F i₀ K₀ L₀ j),
-      α = stageToColimitHomMap F i₀ K₀ L₀ j β := sorry
+      α = stageToColimitHomMap F i₀ K₀ L₀ j β := by
+  obtain ⟨h⟩ := homDiagram_isColimit F i₀ K₀ L₀ hK₀
+  obtain ⟨j, β, hβ⟩ := Types.jointly_surjective_of_isColimit h α
+  exact ⟨j, β, hβ.symm⟩
 
 /-- Lemma 15.75.18 (0BC7), Hom eventual equality: equal stage representatives become equal at a
 later stage when the source object is perfect. -/
@@ -230,7 +241,16 @@ theorem eventually_eq_of_stage_morphisms_with_equal_colimit_images_of_isPerfect
       stageToColimitHomMap F i₀ K₀ L₀ j β₂) :
     ∃ (k : Set.Ici i₀) (hjk : j ⟶ k),
       stageTransitionHomMap F i₀ K₀ L₀ hjk β₁ =
-        stageTransitionHomMap F i₀ K₀ L₀ hjk β₂ := sorry
+        stageTransitionHomMap F i₀ K₀ L₀ hjk β₂ := by
+  letI : IsFilteredOrEmpty (Set.Ici i₀) :=
+    { cocone_objs := by
+        intro i j
+        obtain ⟨k, f, g, _⟩ := IsFilteredOrEmpty.cocone_objs i.1 j.1
+        exact ⟨⟨k, i.2.trans (leOfHom f)⟩,
+          homOfLE (leOfHom f), homOfLE (leOfHom g), trivial⟩
+      cocone_maps := fun {_ Y} _ _ ↦ ⟨Y, 𝟙 Y, Subsingleton.elim _ _⟩ }
+  obtain ⟨h⟩ := homDiagram_isColimit F i₀ K₀ L₀ hK₀
+  exact (Types.FilteredColimit.isColimit_eq_iff' h β₁ β₂).mp hβ
 
 end Hom
 

@@ -63,7 +63,32 @@ private theorem restrictAbelianInverseImage_naturality (n : SimplexCategory)
     {U V : (C.obj n)ᵒᵖ} (f : U ⟶ V) :
     ((stageRestrict C J AddCommGrpCat.{w} n).obj
       ((IsAugmentation.abelianInverseImage C J K u0).obj G)).obj.map f ≫ 𝟙 _ =
-      𝟙 _ ≫ ((IsAugmentation.abelianStageInverseImage C J K u0 n).obj G).obj.map f := sorry
+      𝟙 _ ≫ ((IsAugmentation.abelianStageInverseImage C J K u0 n).obj G).obj.map f := by
+  let P := IsAugmentation.abelianInverseImagePresheaf C J K u0 G
+  have h := P.map_id (op (ofObj C n U.unop))
+  let e : (C.map (𝟙 n)).toFunctor.obj U.unop = U.unop :=
+    (congrArg (fun F : C.obj n ⟶ C.obj n ↦ F.toFunctor.obj U.unop)
+      (C.map_id n)).trans (Cat.Hom.id_obj U.unop)
+  change (IsAugmentation.abelianInverseImageSystemMap C J K u0 G (𝟙 n)).hom.app U ≫
+    ((IsAugmentation.abelianStageInverseImage C J K u0 n).obj G).obj.map
+      (eqToHom (congrArg op e)) = 𝟙 _ at h
+  simp only [Category.comp_id, Category.id_comp]
+  change (IsAugmentation.abelianInverseImageSystemMap C J K u0 G (𝟙 n)).hom.app U ≫
+    ((IsAugmentation.abelianStageInverseImage C J K u0 n).obj G).obj.map
+      (f.unop ≫ eqToHom e.symm).op = _
+  simp only [op_comp, eqToHom_op, Quiver.Hom.op_unop]
+  calc
+    _ = (IsAugmentation.abelianInverseImageSystemMap C J K u0 G (𝟙 n)).hom.app U ≫
+        (((IsAugmentation.abelianStageInverseImage C J K u0 n).obj G).obj.map
+          (eqToHom (congrArg op e)) ≫
+          ((IsAugmentation.abelianStageInverseImage C J K u0 n).obj G).obj.map f) :=
+      congrArg (fun k ↦
+        (IsAugmentation.abelianInverseImageSystemMap C J K u0 G (𝟙 n)).hom.app U ≫ k)
+        (((IsAugmentation.abelianStageInverseImage C J K u0 n).obj G).obj.map_comp _ _)
+    _ = _ := by
+      simpa only [Category.assoc, Category.id_comp] using
+        congrArg (fun k ↦ k ≫
+          ((IsAugmentation.abelianStageInverseImage C J K u0 n).obj G).obj.map f) h
 
 /-- Identity-on-sections identification of the degree-`n` restriction of `a⁻¹ G` with `a_n⁻¹ G`. -/
 def restrictAbelianInverseImageIso (n : SimplexCategory) :
@@ -77,12 +102,14 @@ def restrictAbelianInverseImageIso (n : SimplexCategory) :
 /-- The forward map of `restrictAbelianInverseImageIso` is identity on sections. -/
 theorem restrictAbelianInverseImageIso_hom_app (n : SimplexCategory)
     (U : (C.obj n)ᵒᵖ) :
-    ((restrictAbelianInverseImageIso C J K u0 G n).hom.hom.app U) = 𝟙 _ := sorry
+    ((restrictAbelianInverseImageIso C J K u0 G n).hom.hom.app U) = 𝟙 _ := by
+  rfl
 
 /-- The inverse map of `restrictAbelianInverseImageIso` is identity on sections. -/
 theorem restrictAbelianInverseImageIso_inv_app (n : SimplexCategory)
     (U : (C.obj n)ᵒᵖ) :
-    ((restrictAbelianInverseImageIso C J K u0 G n).inv.hom.app U) = 𝟙 _ := sorry
+    ((restrictAbelianInverseImageIso C J K u0 G n).inv.hom.app U) = 𝟙 _ := by
+  rfl
 
 /-- The structure map `g_{m!}(a_m⁻¹ G) ⟶ g_{n!}(a_n⁻¹ G)` induced by a simplex operator `φ : n ⟶
 m`. -/
@@ -126,7 +153,8 @@ def lowerShriekInverseImage :
 theorem lowerShriekInverseImage_obj (n : SimplexCategory) :
     (lowerShriekInverseImage C J K u0 G).obj (op n) =
       (abelianLowerShriek C J n).obj
-        ((IsAugmentation.abelianStageInverseImage C J K u0 n).obj G) := sorry
+        ((IsAugmentation.abelianStageInverseImage C J K u0 n).obj G) := by
+  rfl
 
 /-- The face map `d_i : g_{(n+1)!}(a_{n+1}⁻¹ G) ⟶ g_{n!}(a_n⁻¹ G)`. -/
 def inverseImageFace (n : ℕ) (i : Fin (n + 2)) :
@@ -179,12 +207,14 @@ abbrev inverseImageComplex :
 theorem inverseImageComplex_X (n : ℕ) :
     (inverseImageComplex C J K u0 G).X n =
       (abelianLowerShriek C J ⦋n⦌).obj
-        ((IsAugmentation.abelianStageInverseImage C J K u0 ⦋n⦌).obj G) := sorry
+        ((IsAugmentation.abelianStageInverseImage C J K u0 ⦋n⦌).obj G) := by
+  rfl
 
 /-- Differentials of `inverseImageComplex` are the alternating sums of face maps. -/
 theorem inverseImageComplex_d_eq (n : ℕ) :
     (inverseImageComplex C J K u0 G).d (n + 1) n =
-      ∑ i : Fin (n + 2), (-1 : ℤ) ^ (i : ℕ) • inverseImageFace C J K u0 G n i := sorry
+      ∑ i : Fin (n + 2), (-1 : ℤ) ^ (i : ℕ) • inverseImageFace C J K u0 G n i := by
+  exact AlternatingFaceMapComplex.obj_d_eq (lowerShriekInverseImage C J K u0 G) n
 
 /-- The canonical chain-map augmentation from `inverseImageComplex` to `a⁻¹ G` concentrated in
 degree zero. -/

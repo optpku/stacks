@@ -8,7 +8,11 @@ module
 
 public import ReasLib.Topology.Category.LCCat.SmallToSlice.Comparison
 public import ReasLib.CategoryTheory.Sites.TopologyComparison.Consequences
+public import ReasLib.CategoryTheory.Sites.TopologyComparison.HigherDirectImage
 public import ReasLib.CategoryTheory.Sites.AbelianSheaf.Additive
+public import ReasLib.CategoryTheory.DerivedCategory.Functor.Exact.Bounded.Homology
+public import Mathlib.Algebra.Homology.DerivedCategory.Ext.EnoughInjectives
+public import Mathlib.Algebra.Homology.DerivedCategory.RightDerivedFunctorPlus
 import Mathlib.Tactic.CrossRefAttribute
 
 @[expose] public section
@@ -52,7 +56,10 @@ noncomputable abbrev qcPushforward_aInverse_unit
 @[stacks 0DCY "comparison map for a_X⁻¹ is invertible"]
 theorem qcPushforward_aInverse_unit_isIso
     (F : Sheaf (Opens.grothendieckTopology X.obj) AddCommGrpCat.{u + 1}) :
-    IsIso (qcPushforward_aInverse_unit X F) := sorry
+    IsIso (qcPushforward_aInverse_unit X F) := by
+  exact comparisonTopology_unit_isIso_of_isSheaf AddCommGrpCat.{u + 1}
+    LCCat.zar_le_qc X ((abPullback X).obj F)
+    (essImageAb_isSheafQc X ((abPullback X).obj_mem_essImage F))
 
 variable [HasInjectiveResolutions
   (Sheaf (LCCat.qcTopology.over X) AddCommGrpCat.{u + 1})]
@@ -64,7 +71,35 @@ theorem qcPushforward_aInverse_higherDirectImage_isZero
     (i : ℕ) (hi : 0 < i) :
     IsZero
       (((comparisonTopologyPushforwardAb LCCat.zar_le_qc X).rightDerived i).obj
-        ((aInverseAb X).obj F)) := sorry
+        ((aInverseAb X).obj F)) := by
+  -- The comparison API uses families of instances on all slices. These are the canonical
+  -- instances; enough injectives gives Ext in the coefficient universe, without a size increase.
+  letI : ∀ Z : LCCat,
+      HasSheafify (LCCat.qcTopology.over Z) AddCommGrpCat.{u + 1} :=
+    fun Z => by infer_instance
+  letI : ∀ Z : LCCat,
+      HasSheafify (LCCat.zarTopology.over Z) AddCommGrpCat.{u + 1} :=
+    fun Z => by infer_instance
+  letI : ∀ Z : LCCat,
+      HasExt.{u + 1} (Sheaf (LCCat.qcTopology.over Z) AddCommGrpCat.{u + 1}) :=
+    fun Z => hasExt_of_enoughInjectives.{u + 1, u + 1, u + 2} _
+  letI : ∀ Z : LCCat,
+      HasInjectiveResolutions
+        (Sheaf (LCCat.qcTopology.over Z) AddCommGrpCat.{u + 1}) :=
+    fun Z => by infer_instance
+  letI : ∀ Z : LCCat,
+      HasInjectiveResolutions
+        (Sheaf (LCCat.zarTopology.over Z) AddCommGrpCat.{u + 1}) :=
+    fun Z => by infer_instance
+  haveI : IsIso (qcPushforward_aInverse_unit X F) :=
+    qcPushforward_aInverse_unit_isIso X F
+  apply TopologyComparison.HigherDirectImage.comparisonPushforward_isZero LCCat.zar_le_qc
+    (comparisonSituation.{u, u, u, u}) i
+    (TopologyComparison.Vanishing.localVanishing_all (comparisonSituation.{u, u, u, u}) i) X
+    ((aInverseAb X).obj F)
+  · exact ⟨F, ⟨asIso (qcPushforward_aInverse_unit X F)⟩⟩
+  · exact hi
+  · exact le_rfl
 
 /-- Lemma 21.31.10 (1): the canonical degree-zero comparison unit is invertible and all positive
 higher direct images of the inverse-image coefficient vanish. -/
@@ -77,7 +112,9 @@ theorem qcPullback_pushforward
         ∀ i : ℕ, 0 < i →
         IsZero
           (((comparisonTopologyPushforwardAb LCCat.zar_le_qc X).rightDerived i).obj
-            ((aInverseAb X).obj F)) := sorry
+            ((aInverseAb X).obj F)) := by
+  exact ⟨qcPushforward_aInverse_unit_isIso X F,
+    qcPushforward_aInverse_higherDirectImage_isZero X F⟩
 
 end Comparison
 
@@ -148,7 +185,33 @@ theorem comparisonDerivedUnit_isIso
       (Sheaf (Opens.grothendieckTopology X.obj) AddCommGrpCat.{u + 1})) :
     IsIso
       ((GrothendieckTopology.Derived.Plus.unit LCCat.zar_le_qc X).app
-        ((abPullbackPlus X).obj K)) := sorry
+        ((abPullbackPlus X).obj K)) := by
+  -- As above, pin the canonical slice instances and the coefficient-sized Ext groups.
+  letI : ∀ Z : LCCat,
+      HasSheafify (LCCat.qcTopology.over Z) AddCommGrpCat.{u + 1} :=
+    fun Z => by infer_instance
+  letI : ∀ Z : LCCat,
+      HasSheafify (LCCat.zarTopology.over Z) AddCommGrpCat.{u + 1} :=
+    fun Z => by infer_instance
+  letI : ∀ Z : LCCat,
+      HasExt.{u + 1} (Sheaf (LCCat.qcTopology.over Z) AddCommGrpCat.{u + 1}) :=
+    fun Z => hasExt_of_enoughInjectives.{u + 1, u + 1, u + 2} _
+  letI : ∀ Z : LCCat,
+      HasInjectiveResolutions
+        (Sheaf (LCCat.zarTopology.over Z) AddCommGrpCat.{u + 1}) :=
+    fun Z => by infer_instance
+  letI : ∀ Z : LCCat, Functor.HasRightDerivedFunctor
+      ((comparisonTopologyPushforwardAb LCCat.zar_le_qc Z).toBoundedBelowDerived)
+      (HomotopyCategory.Plus.quasiIso
+        (Sheaf (LCCat.qcTopology.over Z) AddCommGrpCat.{u + 1})) :=
+    fun Z => by infer_instance
+  apply TopologyComparison.Consequences.unit_isIso_of_cohomologyIn LCCat.zar_le_qc
+    (comparisonSituation.{u, u, u, u})
+    (TopologyComparison.Vanishing.all (comparisonSituation.{u, u, u, u})) X
+    ⟨(abPullbackPlus X).obj K, ?_⟩
+  intro n
+  exact ⟨(DerivedCategory.Plus.homologyFunctor _ n).obj K,
+    ⟨(ExactFunctor.Derived.Plus.homologyIso (ExactFunctor.of (abPullback X)) K n).symm⟩⟩
 
 end DerivedComparison
 
@@ -216,7 +279,30 @@ theorem qcDerivedUnit_isIso
     IsIso
       ((((Adjunction.Derived.Plus.adjunction
           (ExactFunctor.of (abPullback X)) (abPushforward X) (abAdjunction X)).comp
-        (GrothendieckTopology.Derived.Plus.adjunction LCCat.zar_le_qc X)).unit).app K) := sorry
+        (GrothendieckTopology.Derived.Plus.adjunction LCCat.zar_le_qc X)).unit).app K) := by
+  haveI : IsIso (derivedAdjunction X).unit := derivedUnit_isIso X
+  let ff := (derivedAdjunction X).fullyFaithfulLOfIsIsoUnit
+  letI : (ExactFunctor.of (abPullback X)).mapDerivedCategory.Full := ff.full
+  letI : (ExactFunctor.of (abPullback X)).mapDerivedCategory.Faithful := ff.faithful
+  -- Restrict full faithfulness along the fully faithful bounded-below inclusions.
+  letI : (Adjunction.Derived.Plus.left (ExactFunctor.of (abPullback X))).Full :=
+    Functor.Full.of_comp_faithful_iso
+      (ExactFunctor.Derived.Plus.compιIso (ExactFunctor.of (abPullback X)))
+  letI : (Adjunction.Derived.Plus.left (ExactFunctor.of (abPullback X))).Faithful :=
+    Functor.Faithful.of_comp_iso
+      (ExactFunctor.Derived.Plus.compιIso (ExactFunctor.of (abPullback X)))
+  haveI : IsIso ((Adjunction.Derived.Plus.adjunction
+      (ExactFunctor.of (abPullback X)) (abPushforward X) (abAdjunction X)).unit) :=
+    Adjunction.unit_isIso_of_L_fully_faithful _
+  haveI : IsIso ((GrothendieckTopology.Derived.Plus.adjunction LCCat.zar_le_qc X).unit.app
+      ((Adjunction.Derived.Plus.left (ExactFunctor.of (abPullback X))).obj K)) :=
+    comparisonDerivedUnit_isIso X K
+  rw [Adjunction.comp_unit_app]
+  exact IsIso.comp_isIso'
+    (NatIso.isIso_app_of_isIso _ K)
+    (Functor.map_isIso (Adjunction.Derived.Plus.right (abPushforward X))
+      ((GrothendieckTopology.Derived.Plus.adjunction LCCat.zar_le_qc X).unit.app
+        ((Adjunction.Derived.Plus.left (ExactFunctor.of (abPullback X))).obj K)))
 
 end CompositeUnit
 

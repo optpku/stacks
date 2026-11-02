@@ -58,9 +58,8 @@ noncomputable def fixedPointsMap : A →ₐ[FixedPoints.subring R G]
 theorem fixedPointsMap_apply (a : A) :
     (fixedPointsMap (R := R) (G := G) (A := A) a : baseChange (R := R) (G := G) (A := A)) =
       (Algebra.TensorProduct.includeLeft : A →ₐ[FixedPoints.subring R G]
-        baseChange (R := R) (G := G) (A := A)) a := sorry
--- Proof strategy: unfold `fixedPointsMap`, `fixed`, and `baseChange`, then apply
--- `Algebra.TensorProduct.RightAction.coe_toFixed`.
+        baseChange (R := R) (G := G) (A := A)) a :=
+  rfl
 
 /-- The specialized fixed-points map followed by subtype inclusion is `includeLeft`. -/
 @[simp, stacks 0BRG "fixed-point map composition"]
@@ -68,9 +67,8 @@ theorem fixedPointsMap_val_comp :
     (fixed (R := R) (G := G) (A := A)).val.comp
         (fixedPointsMap (R := R) (G := G) (A := A)) =
       (Algebra.TensorProduct.includeLeft : A →ₐ[FixedPoints.subring R G]
-        baseChange (R := R) (G := G) (A := A)) := sorry
--- Proof strategy: unfold the three specialization abbreviations and use
--- `Algebra.TensorProduct.RightAction.val_comp_toFixed`.
+        baseChange (R := R) (G := G) (A := A)) :=
+  rfl
 
 variable [Finite G]
 
@@ -91,10 +89,19 @@ theorem exists_monic_ambient (b : fixed (R := R) (G := G) (A := A)) :
 theorem exists_monic (b : fixed (R := R) (G := G) (A := A)) :
     ∃ P : Polynomial A, P.Monic ∧
       P.map (fixedPointsMap (R := R) (G := G) (A := A)).toRingHom =
-        (X - C b) ^ Nat.card G := sorry
--- Proof strategy: unfold the fixed-subring specialization and apply
--- `Algebra.IsInvariant.TensorProduct.exists_monic` with the canonical
--- `FixedPoints.subring_isInvariant` instance.
+        (X - C b) ^ Nat.card G := by
+  obtain ⟨P, hP, hPb⟩ := exists_monic_ambient b
+  refine ⟨P, hP, ?_⟩
+  apply Polynomial.map_injective
+    (fixed (R := R) (G := G) (A := A)).val.toRingHom Subtype.val_injective
+  have hcomp :
+      (fixed (R := R) (G := G) (A := A)).val.toRingHom.comp
+          (fixedPointsMap (R := R) (G := G) (A := A)).toRingHom =
+        (Algebra.TensorProduct.includeLeft : A →ₐ[FixedPoints.subring R G]
+          baseChange (R := R) (G := G) (A := A)).toRingHom :=
+    RingHom.ext fun a ↦ fixedPointsMap_apply a
+  rw [Polynomial.map_map, hcomp]
+  simpa using hPb
 
 /-- A kernel element has the translated power identity in `Polynomial A`. -/
 @[stacks 0BRG "Lemma 15.111.6 (2), kernel power identity"]
@@ -110,15 +117,18 @@ theorem kernel_pow
 theorem kernel_pow_ambient
     (a : RingHom.ker (Algebra.TensorProduct.includeLeft : A →ₐ[FixedPoints.subring R G]
       baseChange (R := R) (G := G) (A := A)).toRingHom) :
-    ((X - C a.1) ^ Nat.card G : Polynomial A) = X ^ Nat.card G := sorry
--- Proof strategy: use `Algebra.TensorProduct.RightAction.ker_toFixed` to transport `a` to the
--- kernel of `fixedPointsMap`, apply `kernel_pow`, and retain the same underlying element of `A`.
+    ((X - C a.1) ^ Nat.card G : Polynomial A) = X ^ Nat.card G := by
+  have ha : fixedPointsMap (R := R) (G := G) (A := A) a.1 = 0 :=
+    Subtype.ext (show
+      (Algebra.TensorProduct.includeLeft : A →ₐ[FixedPoints.subring R G]
+        baseChange (R := R) (G := G) (A := A)) a.1 = 0 from a.2)
+  exact kernel_pow ⟨a.1, ha⟩
 
 /-- Predicate form of the fixed-subring kernel power identity. -/
 @[stacks 0BRG "kernel power identity from map vanishing"]
 theorem kernel_pow_of_map_eq_zero {a : A}
     (ha : fixedPointsMap (R := R) (G := G) (A := A) a = 0) :
-    ((X - C a) ^ Nat.card G : Polynomial A) = X ^ Nat.card G := sorry
--- Proof strategy: package `a` with `ha` as a kernel element and apply `kernel_pow`.
+    ((X - C a) ^ Nat.card G : Polynomial A) = X ^ Nat.card G := by
+  exact kernel_pow ⟨a, ha⟩
 
 end FixedPoints.Tensor

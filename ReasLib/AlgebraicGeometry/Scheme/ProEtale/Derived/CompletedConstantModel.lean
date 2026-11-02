@@ -34,9 +34,7 @@ variable {Λ : Type w} [CommRing Λ]
 variable {C : Type u} [Category.{v} C]
 variable (J : GrothendieckTopology C) (I : Ideal Λ)
 variable [HasWeakSheafify J (ModuleCat.{w} Λ)]
-variable [∀ U : C, HasWeakSheafify (J.over U) (ModuleCat.{w} Λ)]
 variable [Abelian (Sheaf J (ModuleCat.{w} Λ))]
-variable [∀ U : C, Abelian (Sheaf (J.over U) (ModuleCat.{w} Λ))]
 variable [HasDerivedCategory (Sheaf J (ModuleCat.{w} Λ))]
 
 -- Local declaration justification (instance diamond): `Sheaf` is a `FullSubcategory`,
@@ -51,13 +49,7 @@ whose terms are completed constant sheaves of finite projective `Λ^∧`-modules
 Differentials are arbitrary sheaf maps, not necessarily induced by module maps. -/
 def HasTermwiseCompletedConstantModel
     (K : DerivedCategory (Sheaf J (ModuleCat.{w} Λ))) : Prop :=
-  ∃ P : CochainComplex.Bounded (Sheaf J (ModuleCat.{w} Λ)),
-    ∃ _ : DerivedCategory.Q.obj P.obj ≅ K,
-      ∀ n : ℤ,
-        ∃ M : ModuleCat.{w} (AdicCompletion I Λ),
-          Module.Finite (AdicCompletion I Λ) M ∧
-            Module.Projective (AdicCompletion I Λ) M ∧
-              Nonempty (P.obj.X n ≅ constantAdicCompletionSheaf J I M)
+  CategoryTheory.ConstantSheaf.AdicCompletion.Derived.HasTermwiseCompletedConstantModel J I K
 
 /-- Unfolding `HasTermwiseCompletedConstantModel` recovers a bounded termwise
 completed-constant witness. -/
@@ -71,14 +63,15 @@ theorem hasTermwiseCompletedConstantModel_iff
               Module.Finite (AdicCompletion I Λ) M ∧
                 Module.Projective (AdicCompletion I Λ) M ∧
                   Nonempty (P.obj.X n ≅ constantAdicCompletionSheaf J I M) :=
-  sorry
+  Iff.rfl
 
 /-- Termwise completed-constant models transport along derived isomorphisms. -/
 theorem hasTermwiseCompletedConstantModel_of_iso
     {K L : DerivedCategory (Sheaf J (ModuleCat.{w} Λ))}
     (e : K ≅ L) (h : HasTermwiseCompletedConstantModel J I K) :
     HasTermwiseCompletedConstantModel J I L :=
-  sorry
+  CategoryTheory.ConstantSheaf.AdicCompletion.Derived.hasTermwiseCompletedConstantModel_of_iso
+    J I e h
 
 /-- The completed constant complex of a bounded finite projective `Λ^∧`-complex,
 with constant differentials, is a termwise completed-constant model. This is
@@ -89,7 +82,8 @@ theorem hasTermwiseCompletedConstantModel_of_constantAdicCompletionComplex
     [M.IsBoundedFiniteProjective] :
     HasTermwiseCompletedConstantModel J I
       (DerivedCategory.Q.obj ((constantAdicCompletionComplex J I).obj M)) :=
-  sorry
+  CategoryTheory.ConstantSheaf.AdicCompletion.Derived.hasTermwiseCompletedConstantModel_of_ofAdicModuleComplex
+    J I M
 
 end Derived
 

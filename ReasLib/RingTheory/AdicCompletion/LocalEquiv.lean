@@ -32,13 +32,25 @@ variable [IsLocalRing A] [IsLocalRing B]
 /-- The completion maps induced by a ring equivalence and its inverse compose to the identity. -/
 theorem mapLocal_comp_symm (e : A ≃+* B) :
     (mapLocal e.toRingHom).comp (mapLocal e.symm.toRingHom) =
-      RingHom.id (AdicCompletion (maximalIdeal B) B) := sorry
+      RingHom.id (AdicCompletion (maximalIdeal B) B) := by
+  rw [mapLocal_comp_mapLocal]
+  calc
+    mapLocal (e.toRingHom.comp e.symm.toRingHom) = mapLocal (RingHom.id B) := by
+      congr 1
+      exact RingHom.ext e.apply_symm_apply
+    _ = _ := mapLocal_id B
 
 /-- The completion maps induced by an inverse ring equivalence and the original equivalence
 compose to the identity. -/
 theorem mapLocal_symm_comp (e : A ≃+* B) :
     (mapLocal e.symm.toRingHom).comp (mapLocal e.toRingHom) =
-      RingHom.id (AdicCompletion (maximalIdeal A) A) := sorry
+      RingHom.id (AdicCompletion (maximalIdeal A) A) := by
+  rw [mapLocal_comp_mapLocal]
+  calc
+    mapLocal (e.symm.toRingHom.comp e.toRingHom) = mapLocal (RingHom.id A) := by
+      congr 1
+      exact RingHom.ext e.symm_apply_apply
+    _ = _ := mapLocal_id A
 
 /-- The canonical equivalence of maximal-ideal completions induced by a local ring equivalence. -/
 @[stacks 0CAR "maximal-ideal completion under a ring equivalence"]
@@ -49,31 +61,35 @@ noncomputable def mapLocalEquiv (e : A ≃+* B) :
 
 /-- The map on maximal-ideal completions induced by a ring equivalence is bijective. -/
 theorem mapLocal_bijective (e : A ≃+* B) :
-    Function.Bijective (mapLocal e.toRingHom) := sorry
+    Function.Bijective (mapLocal e.toRingHom) :=
+  (mapLocalEquiv e).bijective
 
 /-- The underlying map of `mapLocalEquiv` is the canonical local completion map. -/
 @[simp]
 theorem mapLocalEquiv_toRingHom (e : A ≃+* B) :
-    (mapLocalEquiv e).toRingHom = mapLocal e.toRingHom := sorry
+    (mapLocalEquiv e).toRingHom = mapLocal e.toRingHom := rfl
 
 /-- The completion equivalence induced by a local-ring equivalence sends a dense source element
 to the dense image element. -/
 @[simp]
 theorem mapLocalEquiv_apply_algebraMap (e : A ≃+* B) (a : A) :
     mapLocalEquiv e (algebraMap A (AdicCompletion (maximalIdeal A) A) a) =
-      algebraMap B (AdicCompletion (maximalIdeal B) B) (e a) := sorry
+      algebraMap B (AdicCompletion (maximalIdeal B) B) (e a) :=
+  mapLocal_apply_algebraMap e.toRingHom a
 
 /-- The inverse completion equivalence sends a dense target element to the dense inverse-image
 element. -/
 @[simp]
 theorem mapLocalEquiv_symm_apply_algebraMap (e : A ≃+* B) (b : B) :
     (mapLocalEquiv e).symm (algebraMap B (AdicCompletion (maximalIdeal B) B) b) =
-      algebraMap A (AdicCompletion (maximalIdeal A) A) (e.symm b) := sorry
+      algebraMap A (AdicCompletion (maximalIdeal A) A) (e.symm b) :=
+  mapLocal_apply_algebraMap e.symm.toRingHom b
 
 /-- The completion equivalence intertwines the two canonical completion maps. -/
 theorem mapLocalEquiv_comp (e : A ≃+* B) :
     (mapLocalEquiv e).toRingHom.comp
         (algebraMap A (AdicCompletion (maximalIdeal A) A)) =
-      (algebraMap B (AdicCompletion (maximalIdeal B) B)).comp e.toRingHom := sorry
+      (algebraMap B (AdicCompletion (maximalIdeal B) B)).comp e.toRingHom :=
+  mapLocal_comp e.toRingHom
 
 end AdicCompletion

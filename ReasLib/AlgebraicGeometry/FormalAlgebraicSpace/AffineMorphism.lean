@@ -38,7 +38,13 @@ theorem adicStageMap_comm {A B : Type u} [CommRing A] [CommRing B] {I : Ideal A}
     Spec.map (CommRingCat.ofHom (Ideal.quotientMap (J ^ (n + 1)) φ (hpow n))) ≫
       (powerStage hA I n).hom =
         (powerStage (Spec.map (CommRingCat.ofHom φ) ≫ hA) J n).hom :=
-  sorry
+  by
+  change Spec.map (CommRingCat.ofHom (Ideal.quotientMap (J ^ (n + 1)) φ (hpow n))) ≫
+      (Spec.map (CommRingCat.ofHom (Ideal.Quotient.mk (I ^ (n + 1)))) ≫ hA) =
+    Spec.map (CommRingCat.ofHom (Ideal.Quotient.mk (J ^ (n + 1)))) ≫
+      (Spec.map (CommRingCat.ofHom φ) ≫ hA)
+  simp only [← Category.assoc, ← Spec.map_comp, ← CommRingCat.ofHom_comp,
+    Ideal.quotientMap_comp_mk]
 
 /-- The morphism of affine thickenings induced by `φ : A →+* B` at infinitesimal
 order `n`, using `Ideal.quotientMap` on the compatible powers of ideals of
@@ -61,7 +67,7 @@ theorem adicStageMap_left {A B : Type u} [CommRing A] [CommRing B] {I : Ideal A}
     {S : Scheme.{u}} (hA : Spec (.of A) ⟶ S) :
     (adicStageMap φ hpow n hA).left =
       Spec.map (CommRingCat.ofHom (Ideal.quotientMap (J ^ (n + 1)) φ (hpow n))) :=
-  sorry
+  rfl
 
 /-- The quotient-induced stage maps commute with every transition of the canonical
 power-thickening diagrams. -/
@@ -72,7 +78,20 @@ theorem adicStageMap_naturality {A B : Type u} [CommRing A] [CommRing B]
     (powerThickenings (Spec.map (CommRingCat.ofHom φ) ≫ hA) J).map transitionHom ≫
         adicStageMap φ hpow n hA =
       adicStageMap φ hpow m hA ≫ (powerThickenings hA I).map transitionHom :=
-  sorry
+  by
+  apply Over.OverMorphism.ext
+  change Spec.map (CommRingCat.ofHom (Ideal.Quotient.factorPow J
+      (Nat.succ_le_succ (leOfHom transitionHom)))) ≫
+        Spec.map (CommRingCat.ofHom (Ideal.quotientMap (J ^ (n + 1)) φ (hpow n))) =
+    Spec.map (CommRingCat.ofHom (Ideal.quotientMap (J ^ (m + 1)) φ (hpow m))) ≫
+      Spec.map (CommRingCat.ofHom (Ideal.Quotient.factorPow I
+        (Nat.succ_le_succ (leOfHom transitionHom))))
+  rw [← Spec.map_comp, ← Spec.map_comp,
+    ← CommRingCat.ofHom_comp, ← CommRingCat.ofHom_comp]
+  apply congrArg (fun f ↦ Spec.map (CommRingCat.ofHom f))
+  apply Ideal.Quotient.ringHom_ext
+  ext x
+  simp [Ideal.Quotient.factorPow]
 
 /-- The morphism of thickening diagrams induced by `φ : A →+* B`. -/
 def adicThickeningsMap {A B : Type u} [CommRing A] [CommRing B] {I : Ideal A}
@@ -91,7 +110,7 @@ theorem adicThickeningsMap_app {A B : Type u} [CommRing A] [CommRing B]
     (hpow : ∀ n : ℕ, I ^ (n + 1) ≤ (J ^ (n + 1)).comap φ) (n : ℕ)
     {S : Scheme.{u}} (hA : Spec (.of A) ⟶ S) :
     (adicThickeningsMap φ hpow hA).app n = adicStageMap φ hpow n hA :=
-  sorry
+  rfl
 
 /-- An arrow `g : U ⟶ V` of affine formal algebraic spaces over `S` is induced
 by a continuous homomorphism `φ : A →+* B` of adic Noetherian rings when `U`
@@ -165,7 +184,7 @@ theorem isInducedBy_iff {S : Scheme.{u}} {U V : (Over S)ᵒᵖ ⥤ Type u} (g : 
                                 cU.ι.app n ≫ ηU ≫ g =
                                   yoneda.map ((adicThickeningsMap φ hpow hA).app n) ≫
                                     cV.ι.app n ≫ ηV :=
-  sorry
+  Iff.rfl
 
 /-- If `g` is induced by `φ : A →+* B`, the source of `g` is presented by
 successive quotient spectra of `B`. -/
@@ -179,7 +198,9 @@ theorem domain_of {S : Scheme.{u}} {U V : (Over S)ᵒᵖ ⥤ Type u} {g : U ⟶ 
       (hB : Spec (.of B) ⟶ S),
         FormalAlgebraicSpace.IsDirectedAffineThickeningColimit
           (powerThickenings hB J) U :=
-  sorry
+  by
+  rcases h.2 with ⟨I, J, _, hJ, _, _, hA, hU, _⟩
+  exact ⟨J, hJ, Spec.map (CommRingCat.ofHom φ) ≫ hA, hU⟩
 
 /-- If `g` is induced by `φ : A →+* B`, the target of `g` is presented by
 successive quotient spectra of `A`. -/
@@ -193,6 +214,8 @@ theorem codomain_of {S : Scheme.{u}} {U V : (Over S)ᵒᵖ ⥤ Type u} {g : U �
       (hA : Spec (.of A) ⟶ S),
         FormalAlgebraicSpace.IsDirectedAffineThickeningColimit
           (powerThickenings hA I) V :=
-  sorry
+  by
+  rcases h.2 with ⟨I, J, hI, _, _, _, hA, _, hV, _⟩
+  exact ⟨I, hI, hA, hV⟩
 
 end AlgebraicGeometry.AffineFormalAlgebraicSpace

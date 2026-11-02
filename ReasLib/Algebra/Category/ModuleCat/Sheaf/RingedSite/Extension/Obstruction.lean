@@ -62,11 +62,15 @@ theorem infMapCommSq_iff (E E' : Extension π)
         moduleTensorMap (𝟙 (ideal π)) φ ≫ infMap hπ.isSquareZero E' := by
   exact ⟨fun h => h.w, fun h => ⟨h⟩⟩
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The composite of the signed inclusion and the sum of the quotient maps vanishes. -/
 private theorem obsShortComplex_zero (E E' : Extension π)
     (φ : E.quot ⟶ E'.quot) (ψ : E.kernel ⟶ E'.kernel) :
     biprod.lift E.ι (-((restrictionAlong π).map ψ ≫ E'.ι)) ≫
-      biprod.desc (E.p ≫ (restrictionAlong π).map φ) E'.p = 0 := sorry
+      biprod.desc (E.p ≫ (restrictionAlong π).map φ) E'.p = 0 := by
+  simp only [biprod.lift_desc, neg_comp, Category.assoc, E'.zero, comp_zero,
+    neg_zero, add_zero]
+  rw [← Category.assoc, E.zero, zero_comp]
 
 /-- The source complex 𝒦 ⟶ ℱ' ⊞ 𝒢' ⟶ 𝒢 whose middle homology represents the obstruction. -/
 noncomputable def obsShortComplex (E E' : Extension π)
@@ -90,10 +94,12 @@ noncomputable def obsHomology (E E' : Extension π)
     ringedSiteModuleCategory.{u, v, max u v, max u v} J 𝒪' :=
   (obsShortComplex E E' φ ψ).homology
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The inclusion of ℒ into the middle of `obsShortComplex` lands in the cycles. -/
 private theorem obsι_comp_g (E E' : Extension π)
     (φ : E.quot ⟶ E'.quot) (ψ : E.kernel ⟶ E'.kernel) :
-    (E'.ι ≫ biprod.inr) ≫ (obsShortComplex E E' φ ψ).g = 0 := sorry
+    (E'.ι ≫ biprod.inr) ≫ (obsShortComplex E E' φ ψ).g = 0 := by
+  simp [obsShortComplex, Category.assoc, E'.zero]
 
 /-- The 𝒪'-linear map ℒ ⟶ ℋ induced by inr : 𝒢' ⟶ ℱ' ⊞ 𝒢' through cycles. -/
 noncomputable def obsι (E E' : Extension π)
@@ -102,11 +108,14 @@ noncomputable def obsι (E E' : Extension π)
   (obsShortComplex E E' φ ψ).liftCycles (E'.ι ≫ biprod.inr) (by exact obsι_comp_g E E' φ ψ) ≫
     (obsShortComplex E E' φ ψ).homologyπ
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The composite of `toCycles` with the projection of cycles onto ℱ vanishes. -/
 private theorem toCycles_comp_obsπ (E E' : Extension π)
     (φ : E.quot ⟶ E'.quot) (ψ : E.kernel ⟶ E'.kernel) :
     (obsShortComplex E E' φ ψ).toCycles ≫
-      ((obsShortComplex E E' φ ψ).iCycles ≫ biprod.fst ≫ E.p) = 0 := sorry
+      ((obsShortComplex E E' φ ψ).iCycles ≫ biprod.fst ≫ E.p) = 0 := by
+  rw [ShortComplex.toCycles_i_assoc]
+  simp [obsShortComplex, ← Category.assoc, E.zero]
 
 /-- The 𝒪'-linear map ℋ ⟶ ℱ induced by fst : ℱ' ⊞ 𝒢' ⟶ ℱ' through homology. -/
 noncomputable def obsπ (E E' : Extension π)
@@ -158,10 +167,28 @@ noncomputable def obsModuleπ (E E' : Extension π)
     (SheafOfModules.ChangeOfRings.extendRestrictAdjunction
         (ringSheafMap π)).counit.app E.quot
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The descended inclusion followed by the descended projection is zero. -/
 private theorem obsExtension_zero (E E' : Extension π)
     (φ : E.quot ⟶ E'.quot) (ψ : E.kernel ⟶ E'.kernel) :
-    obsModuleι E E' φ ψ ≫ obsModuleπ E E' φ ψ = 0 := sorry
+    obsModuleι E E' φ ψ ≫ obsModuleπ E E' φ ψ = 0 := by
+  let adj := SheafOfModules.ChangeOfRings.extendRestrictAdjunction (ringSheafMap π)
+  have hzero : obsι E E' φ ψ ≫ obsπ E E' φ ψ = 0 := by
+    simp [obsι, obsπ, Category.assoc]
+  have hι : (restrictionAlong π).map (obsModuleι E E' φ ψ) =
+      obsι E E' φ ψ ≫ adj.unit.app (obsHomology E E' φ ψ) := by
+    apply SheafOfModules.hom_ext
+    exact (PresheafOfModules.restrictHomEquivOfIsLocallySurjective
+      (ringSheafMap π).hom (obsModule E E' φ ψ).isSheaf).apply_symm_apply _
+  have hp : adj.unit.app (obsHomology E E' φ ψ) ≫
+      (restrictionAlong π).map (obsModuleπ E E' φ ψ) = obsπ E E' φ ψ :=
+    (adj.homEquiv _ _).apply_symm_apply _
+  apply SheafOfModules.hom_ext
+  apply (PresheafOfModules.restrictScalars (ringSheafMap π).hom).map_injective
+  change ((restrictionAlong π).map (obsModuleι E E' φ ψ ≫ obsModuleπ E E' φ ψ)).val =
+    ((restrictionAlong π).map (0 : E'.kernel ⟶ E.quot)).val
+  exact congrArg SheafOfModules.Hom.val (by
+    rw [Functor.map_comp, hι, Category.assoc, hp, hzero, Functor.map_zero])
 
 /-- The descended complex ℒ ⟶ ℋ ⟶ ℱ over the quotient ring sheaf. -/
 noncomputable def obsExtension (E E' : Extension π)

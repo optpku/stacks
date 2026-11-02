@@ -47,7 +47,7 @@ theorem isLift_iff (x' : Points (pullback f V.obj.hom)) :
       Points.map (pullback.fst f V.obj.hom) x' = x ∧
         Points.map (pullback.snd f V.obj.hom) x' =
           ofOver.pointsEquiv V.obj.toOver V.obj.point :=
-  sorry
+  Iff.rfl
 
 /-- Uniqueness of the fibre point of `pullback f V.obj.hom` over
 `(x, V.obj.point)`. -/
@@ -82,7 +82,18 @@ theorem schemeHomToBase_spec (hx' : isLift f V x') :
         (U.obj.hom ≫ pullback.snd f V.obj.hom :
           yoneda.obj U.obj.toOver ⟶ yoneda.obj V.obj.toOver)) ≫ V.obj.hom =
         U.obj.hom ≫ pullback.snd f V.obj.hom ≫ V.obj.hom :=
-  sorry
+  by
+    let m := Yoneda.fullyFaithful.preimage
+      (U.obj.hom ≫ pullback.snd f V.obj.hom :
+        yoneda.obj U.obj.toOver ⟶ yoneda.obj V.obj.toOver)
+    have hm : ofOverMap m = U.obj.hom ≫ pullback.snd f V.obj.hom :=
+      Yoneda.fullyFaithful.map_preimage _
+    constructor
+    · apply (ofOver.pointsEquiv V.obj.toOver).injective
+      change ofOver.pointsEquiv V.obj.toOver (m.left U.obj.point) = _
+      rw [ofOver.pointsEquiv_naturality m, hm, Points.map_comp]
+      exact (congrArg (Points.map (pullback.snd f V.obj.hom)) U.obj.2.2).trans hx'.2
+    · rw [hm, Category.assoc]
 
 /-- The stalk map of `schemeHomToBase` transported to the selected point of `V`. -/
 def schemeHomToBase_stalkMap
@@ -97,7 +108,7 @@ theorem schemeHomToBase_stalkMap_eq
     (hpoint : schemeHomToBase f V U U.obj.point = V.obj.point) :
     schemeHomToBase_stalkMap f V U hpoint =
       hpoint ▸ (schemeHomToBase f V U).stalkMap U.obj.point :=
-  sorry
+  rfl
 
 /-- The underlying ring homomorphism of `schemeHomToBase_stalkMap`. -/
 def schemeHomToBase_stalkHom
@@ -110,7 +121,16 @@ def schemeHomToBase_stalkHom
 instance schemeHomToBase_stalkHom_isLocalHom
     (hpoint : schemeHomToBase f V U U.obj.point = V.obj.point) :
     IsLocalHom (schemeHomToBase_stalkHom f V U hpoint) :=
-  sorry
+  by
+    unfold schemeHomToBase_stalkHom schemeHomToBase_stalkMap
+    let q := (schemeHomToBase f V U).stalkMap U.obj.point
+    have hlocal : ∀ (v : V.obj.scheme),
+        ∀ (h : (schemeHomToBase f V U) U.obj.point = v),
+          IsLocalHom (CommRingCat.Hom.hom (h ▸ q)) := by
+      intro v h
+      cases h
+      infer_instance
+    exact hlocal _ hpoint
 
 /-- The Zariski-stalk `Spec` square of `schemeHomToBase` at the selected points
 `u` and `v` commutes. -/
@@ -120,7 +140,18 @@ theorem fromSpecStalk_commSq (hx' : isLift f V x')
       (Scheme.fromSpecStalk U.obj.scheme U.obj.point)
       (Scheme.fromSpecStalk V.obj.scheme V.obj.point)
       (schemeHomToBase f V U) :=
-  sorry
+  by
+    unfold schemeHomToBase_stalkMap
+    have hsq : ∀ (v : V.obj.scheme),
+        ∀ (h : (schemeHomToBase f V U) U.obj.point = v),
+          CommSq (Spec.map (h ▸ (schemeHomToBase f V U).stalkMap U.obj.point))
+            (Scheme.fromSpecStalk U.obj.scheme U.obj.point)
+            (Scheme.fromSpecStalk V.obj.scheme v)
+            (schemeHomToBase f V U) := by
+      intro v h
+      cases h
+      exact ⟨Scheme.SpecMap_stalkMap_fromSpecStalk (schemeHomToBase f V U)⟩
+    exact hsq _ hpoint
 
 
 /-- The neighbourhood morphism over the pullback gives a commutative square
@@ -128,6 +159,8 @@ with the original morphism of algebraic spaces. -/
 theorem space_commSq (hx' : isLift f V x') :
     CommSq (U.obj.hom ≫ pullback.snd f V.obj.hom)
       (U.obj.hom ≫ pullback.fst f V.obj.hom) V.obj.hom f :=
-  sorry
+  by
+    constructor
+    simp only [Category.assoc, pullback.condition]
 
 end AlgebraicGeometry.AlgebraicSpace.EtaleNeighborhood

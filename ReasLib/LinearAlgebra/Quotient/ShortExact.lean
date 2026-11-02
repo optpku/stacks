@@ -52,17 +52,21 @@ def projection (f : M →ₗ[R] N) (q : Submodule R N) :
 /-- The quotient-sequence inclusion sends the class of `m` to the class of `f m`. -/
 @[simp, stacks 0G1N "general quotient-sequence inclusion formula"]
 theorem inclusion_mk (f : M →ₗ[R] N) (q : Submodule R N) (m : M) :
-    inclusion f q (Submodule.Quotient.mk m) = Submodule.Quotient.mk (f m) := sorry
+    inclusion f q (Submodule.Quotient.mk m) = Submodule.Quotient.mk (f m) := rfl
 
 /-- The terminal quotient projection preserves representatives. -/
 @[simp, stacks 0G1N "general quotient-sequence projection formula"]
 theorem projection_mk (f : M →ₗ[R] N) (q : Submodule R N) (n : N) :
-    projection f q (Submodule.Quotient.mk n) = Submodule.Quotient.mk n := sorry
+    projection f q (Submodule.Quotient.mk n) = Submodule.Quotient.mk n := rfl
 
 /-- The two maps in the quotient sequence compose to zero. -/
 @[stacks 0G1N "general quotient-sequence complex relation"]
 theorem projection_comp_inclusion (f : M →ₗ[R] N) (q : Submodule R N) :
-    (projection f q).comp (inclusion f q) = 0 := sorry
+    (projection f q).comp (inclusion f q) = 0 := by
+  ext m
+  change Submodule.Quotient.mk (f m) = 0
+  exact (Submodule.Quotient.mk_eq_zero _).mpr
+    ((le_sup_right : LinearMap.range f ≤ q ⊔ LinearMap.range f) ⟨m, rfl⟩)
 
 /-- The `ModuleCat` short complex associated to a linear map and a target submodule. -/
 @[stacks 0G1N "general quotient short complex"]
@@ -74,21 +78,29 @@ def shortComplex (f : M →ₗ[R] N) (q : Submodule R N) :
 /-- The inclusion in the quotient sequence is injective. -/
 @[stacks 0G1N "general quotient-sequence injectivity"]
 theorem inclusion_injective (f : M →ₗ[R] N) (q : Submodule R N) :
-    Function.Injective (inclusion f q) := sorry
+    Function.Injective (inclusion f q) := by
+  apply LinearMap.ker_eq_bot.mp
+  rw [inclusion, Submodule.ker_mapQ, Submodule.mkQ_map_self]
 
 /-- The two quotient maps are exact as functions. -/
 @[stacks 0G1N "general quotient-sequence exactness"]
 theorem exact (f : M →ₗ[R] N) (q : Submodule R N) :
-    Function.Exact (inclusion f q) (projection f q) := sorry
+    Function.Exact (inclusion f q) (projection f q) := by
+  rw [LinearMap.exact_iff, inclusion, Submodule.range_mapQ, projection,
+    Submodule.ker_mapQ, Submodule.comap_id, Submodule.map_sup,
+    Submodule.mkQ_map_self, bot_sup_eq]
 
 /-- The terminal projection in the quotient sequence is surjective. -/
 @[stacks 0G1N "general quotient-sequence surjectivity"]
 theorem projection_surjective (f : M →ₗ[R] N) (q : Submodule R N) :
-    Function.Surjective (projection f q) := sorry
+    Function.Surjective (projection f q) :=
+  Submodule.factor_surjective le_sup_left
 
 /-- The quotient sequence attached to a linear map and a target submodule is short exact. -/
 @[stacks 0G1N "general quotient short exact sequence"]
 theorem shortExact (f : M →ₗ[R] N) (q : Submodule R N) :
-    (shortComplex f q).ShortExact := sorry
+    (shortComplex f q).ShortExact :=
+  ModuleCat.shortComplex_shortExact (shortComplex f q)
+    (exact f q) (inclusion_injective f q) (projection_surjective f q)
 
 end LinearMap.QuotientSequence

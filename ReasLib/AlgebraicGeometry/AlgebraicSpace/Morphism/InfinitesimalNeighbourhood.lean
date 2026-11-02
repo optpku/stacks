@@ -6,8 +6,10 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
+public import Mathlib.CategoryTheory.Monoidal.CoherenceLemmas
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.ClosedSubspace.Inclusion
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Immersion.Coborder
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Immersion.Composition
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.SchemeTheoreticImage.QuasiCompact
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.ClosedImmersion.QuasiCompact
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.IdealSubobject.Power
@@ -40,6 +42,23 @@ namespace Hom.InfinitesimalNeighbourhood
 
 variable {Z X : AlgebraicSpace S} (i : Z ⟶ X) [IsImmersion i]
 
+private theorem ideal_mul_le_left (I J : IdealSubobject X) :
+    IdealSubobject.mul I J ≤ I := by
+  open CategoryTheory.Limits CategoryTheory.MonoidalCategory in
+    change imageSubobject (Modules.action I J.toModule ≫ J.arrow) ≤ I
+    apply imageSubobject_le _
+      (I.toModule ◁ (J.arrow ≫ (Modules.structureModuleIsoTensorUnit X).hom) ≫
+        (ρ_ I.toModule).hom)
+    apply (cancel_mono (Modules.structureModuleIsoTensorUnit X).hom).1
+    let e := Modules.structureModuleIsoTensorUnit X
+    let f := I.arrow ≫ e.hom
+    let g := J.arrow ≫ e.hom
+    change (I.toModule ◁ g ≫ (ρ_ I.toModule).hom) ≫ f =
+      ((I.arrow ▷ J.toModule) ≫ (e.hom ▷ J.toModule) ≫ (λ_ J.toModule).hom) ≫ g
+    rw [Category.assoc, ← rightUnitor_naturality, ← Category.assoc, whisker_exchange,
+      Category.assoc, ← unitors_equal, leftUnitor_naturality]
+    simp only [f, comp_whiskerRight, Category.assoc]
+
 /-- The ideal defining the `n`th infinitesimal neighbourhood is the
 `(n + 1)`st power of the kernel ideal on the coborder open. -/
 @[reducible]
@@ -56,7 +75,7 @@ theorem ideal_eq_pow (n : ℕ) :
 the coborder kernel ideal. -/
 theorem ideal_le_idealSheafSubobject (n : ℕ) :
     ideal i n ≤ idealSheafSubobject (IsImmersion.liftCoborder i) :=
-  sorry
+  ideal_mul_le_left _ _
 
 /-- Ordinary section powers of the coborder kernel lie in the sheaf-image
 sections of the neighbourhood ideal. -/
@@ -103,24 +122,25 @@ def fromSource (n : ℕ) : Z ⟶ space i n :=
 coborder closed factor of the immersion. -/
 theorem fromSource_subschemeι (n : ℕ) :
     fromSource i n ≫ subschemeι (ideal i n) = IsImmersion.liftCoborder i :=
-  sorry
+  rfl
 
 /-- The infinitesimal-neighbourhood factorization recovers the original
 immersion. -/
 theorem fromSource_toAmbient (n : ℕ) :
     fromSource i n ≫ toAmbient i n = i :=
-  sorry
+  rfl
 
 /-- The canonical map from the source to its infinitesimal neighbourhood is a
 closed immersion. -/
 instance fromSource_isClosedImmersion (n : ℕ) :
     IsClosedImmersion (fromSource i n) :=
-  sorry
+  IsClosedImmersion.of_comp (IsImmersion.liftCoborder i)
+    (subschemeι (ideal i n)) (fromSource i n) (fromSource_subschemeι i n)
 
 /-- The canonical map from an infinitesimal neighbourhood to the ambient space
 is an immersion. -/
 instance toAmbient_isImmersion (n : ℕ) : IsImmersion (toAmbient i n) :=
-  sorry
+  IsImmersion.comp (subschemeι (ideal i n)) (IsImmersion.coborderRange i).ι
 
 /-- The canonical map from an immersion to its `n`th infinitesimal neighbourhood
 is an `n`th-order thickening. -/

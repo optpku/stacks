@@ -6,6 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
+public import Mathlib.CategoryTheory.Sites.SubcanonicalOver
 public import ReasLib.AlgebraicGeometry.MultiplicativeGroup
 public import ReasLib.CategoryTheory.Fibered.Groupoids.Hom
 public import ReasLib.CategoryTheory.Fibered.Representable.Stack
@@ -37,8 +38,9 @@ namespace AlgebraicGeometry.Picard
 
 /-- The representable presheaf of `𝔾ₘ[S]` is a sheaf on `(Sch/S)_fppf`. -/
 theorem mulGroupStack_isSheaf (S : Scheme.{u}) :
-    Presheaf.IsSheaf (Scheme.fppfTopology.over S) (yoneda.obj (𝔾ₘ[S]).X) :=
-  sorry
+    Presheaf.IsSheaf (Scheme.fppfTopology.over S) (yoneda.obj (𝔾ₘ[S]).X) := by
+  rw [isSheaf_iff_isSheaf_of_type]
+  exact GrothendieckTopology.Subcanonical.isSheaf_of_isRepresentable _
 
 /-- The stack in groupoids represented by `𝔾ₘ[S]` over `(Sch/S)_fppf`. -/
 def mulGroupStack (S : Scheme.{u}) :
@@ -66,6 +68,14 @@ structure ProductHom {X S : Scheme.{u}} {f : X ⟶ S} (x y : ProductObj f) where
   /-- The `𝔾ₘ[S]`-points are compatible with the test map. -/
   mul_w : pic.base ≫ y.mul = x.mul
 
+/-- Product morphisms are determined by their underlying Picard morphisms. -/
+@[ext] theorem ProductHom.ext {X S : Scheme.{u}} {f : X ⟶ S} {x y : ProductObj f}
+    {α β : ProductHom x y} (h : α.pic = β.pic) : α = β := by
+  cases α
+  cases β
+  cases h
+  rfl
+
 /-- The identity morphism of a product object. -/
 def ProductHom.id {X S : Scheme.{u}} {f : X ⟶ S} (x : ProductObj f) :
     ProductHom x x where
@@ -82,19 +92,22 @@ def ProductHom.comp {X S : Scheme.{u}} {f : X ⟶ S} {x y z : ProductObj f}
 
 /-- Composing a product morphism with the identity on its source leaves it unchanged. -/
 theorem ProductHom.id_comp {X S : Scheme.{u}} {f : X ⟶ S} {x y : ProductObj f}
-    (α : ProductHom x y) : ProductHom.comp (ProductHom.id x) α = α :=
-  sorry
+    (α : ProductHom x y) : ProductHom.comp (ProductHom.id x) α = α := by
+  apply ProductHom.ext
+  exact @Category.id_comp (Obj f) (category f) x.pic y.pic α.pic
 
 /-- Composing a product morphism with the identity on its target leaves it unchanged. -/
 theorem ProductHom.comp_id {X S : Scheme.{u}} {f : X ⟶ S} {x y : ProductObj f}
-    (α : ProductHom x y) : ProductHom.comp α (ProductHom.id y) = α :=
-  sorry
+    (α : ProductHom x y) : ProductHom.comp α (ProductHom.id y) = α := by
+  apply ProductHom.ext
+  exact @Category.comp_id (Obj f) (category f) x.pic y.pic α.pic
 
 /-- Composition of product morphisms is associative. -/
 theorem ProductHom.assoc {X S : Scheme.{u}} {f : X ⟶ S} {w x y z : ProductObj f}
     (α : ProductHom w x) (β : ProductHom x y) (γ : ProductHom y z) :
-    ProductHom.comp (ProductHom.comp α β) γ = ProductHom.comp α (ProductHom.comp β γ) :=
-  sorry
+    ProductHom.comp (ProductHom.comp α β) γ = ProductHom.comp α (ProductHom.comp β γ) := by
+  apply ProductHom.ext
+  exact @Category.assoc (Obj f) (category f) w.pic x.pic y.pic z.pic α.pic β.pic γ.pic
 
 /-- Product objects form a category. -/
 @[reducible] def productCategory {X S : Scheme.{u}} (f : X ⟶ S) :
@@ -138,7 +151,7 @@ def mulGroupProduct {X S : Scheme.{u}} (f : X ⟶ S) :
 /-- The projection of `mulGroupProduct f` is the product projection. -/
 theorem mulGroupProduct_p {X S : Scheme.{u}} (f : X ⟶ S) :
     (mulGroupProduct f).p = ProductObj.p f :=
-  sorry
+  rfl
 
 /-- Transport global units of `X_T` to global units of `T` by the structure-sheaf isomorphism. -/
 def unitsRestrict {X S : Scheme.{u}} (f : X ⟶ S)
@@ -209,8 +222,9 @@ set_option backward.privateInPublic true in
 private theorem inertiaMulMap_id {X S : Scheme.{u}} (f : X ⟶ S)
     [Scheme.Hom.IsIsoBaseChangeStructurePushforward f]
     (ξ : @RelativeInertia (Obj f) (category f) (Over S) inferInstance (p f)) :
-    inertiaMulMap f (𝟙 ξ) = ProductHom.id (inertiaMulObj f ξ) :=
-  sorry
+    inertiaMulMap f (𝟙 ξ) = ProductHom.id (inertiaMulObj f ξ) := by
+  apply ProductHom.ext
+  rfl
 
 set_option backward.privateInPublic true in
 /-- The comparison on inertia arrows preserves composition. -/
@@ -218,8 +232,9 @@ private theorem inertiaMulMap_comp {X S : Scheme.{u}} (f : X ⟶ S)
     [Scheme.Hom.IsIsoBaseChangeStructurePushforward f]
     {ξ η ζ : @RelativeInertia (Obj f) (category f) (Over S) inferInstance (p f)}
     (φ : ξ ⟶ η) (ψ : η ⟶ ζ) :
-    inertiaMulMap f (φ ≫ ψ) = ProductHom.comp (inertiaMulMap f φ) (inertiaMulMap f ψ) :=
-  sorry
+    inertiaMulMap f (φ ≫ ψ) = ProductHom.comp (inertiaMulMap f φ) (inertiaMulMap f ψ) := by
+  apply ProductHom.ext
+  rfl
 
 set_option backward.privateInPublic true in
 set_option backward.privateInPublic.warn false in
@@ -243,7 +258,7 @@ private theorem inertiaMulFunctor_w {X S : Scheme.{u}} (f : X ⟶ S)
       (@RelativeInertia.category (Obj f) (category f) (Over S) inferInstance (p f))
       _ (productCategory f) _ inferInstance (inertiaMulFunctor f) (mulGroupProduct f).p =
       (StackOver.Groupoids.inertia (picardStack f)).p :=
-  sorry
+  rfl
 
 set_option backward.privateInPublic true in
 set_option backward.privateInPublic.warn false in

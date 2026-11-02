@@ -76,7 +76,20 @@ theorem realizesTensorMap_left
     {map : B ⊗[A] C →+* K}
     (h : Model.realizesTensorMap pA pB pC pD model map) :
     model.left.residueMap.comp (algebraMap B pB.ResidueField) =
-      Algebra.TensorProduct.RingHom.restrictLeft map := sorry
+      Algebra.TensorProduct.RingHom.restrictLeft map := by
+  change map = _ at h
+  rw [h, ← model.leftTarget_comm]
+  ext b
+  change model.target.residueMap
+      (ResidueField.leftTarget (pB := pB) (pD := pD)
+        (algebraMap B pB.ResidueField b)) =
+    model.target.residueMap
+      (algebraMap (B ⊗[A] C) pD.ResidueField
+        (Algebra.TensorProduct.includeLeftRingHom b))
+  exact congrArg model.target.residueMap
+    (Ideal.ResidueField.map_algebraMap pB pD
+      (Algebra.TensorProduct.includeLeft : B →ₐ[A] B ⊗[A] C).toRingHom
+      (pD.over_def pB) b)
 
 /-- The right model's base residue map realizes the right-factor restriction
 of a realized tensor map. -/
@@ -88,7 +101,20 @@ theorem realizesTensorMap_right
     {map : B ⊗[A] C →+* K}
     (h : Model.realizesTensorMap pA pB pC pD model map) :
     model.right.residueMap.comp (algebraMap C pC.ResidueField) =
-      Algebra.TensorProduct.RingHom.restrictRight map := sorry
+      Algebra.TensorProduct.RingHom.restrictRight map := by
+  change map = _ at h
+  rw [h, ← model.rightTarget_comm]
+  ext c
+  change model.target.residueMap
+      (ResidueField.rightTarget (pC := pC) (pD := pD)
+        (algebraMap C pC.ResidueField c)) =
+    model.target.residueMap
+      (algebraMap (B ⊗[A] C) pD.ResidueField
+        ((Algebra.TensorProduct.includeRight : C →ₐ[A] B ⊗[A] C) c))
+  exact congrArg model.target.residueMap
+    (Ideal.ResidueField.map_algebraMap pC pD
+      (Algebra.TensorProduct.includeRight : C →ₐ[A] B ⊗[A] C).toRingHom
+      (pD.over_def pC) c)
 
 /-- The source model's base residue map realizes the base-ring restriction of
 a realized tensor map. -/
@@ -100,7 +126,24 @@ theorem realizesTensorMap_base
     {map : B ⊗[A] C →+* K}
     (h : Model.realizesTensorMap pA pB pC pD model map) :
     model.source.residueMap.comp (algebraMap A pA.ResidueField) =
-      Algebra.TensorProduct.RingHom.restrictBase map := sorry
+      Algebra.TensorProduct.RingHom.restrictBase map := by
+  have hbase : model.target.residueMap.comp
+      (ResidueField.sourceTarget (pA := pA) (pB := pB) (pD := pD)) =
+      model.source.residueMap := by
+    rw [ResidueField.sourceTarget_eq_left, ← RingHom.comp_assoc,
+      model.leftTarget_comm, model.sourceLeft_comm]
+  change map = _ at h
+  rw [h, ← hbase]
+  ext a
+  change model.target.residueMap
+      (ResidueField.sourceTarget (pA := pA) (pB := pB) (pD := pD)
+        (algebraMap A pA.ResidueField a)) =
+    model.target.residueMap
+      (algebraMap (B ⊗[A] C) pD.ResidueField (algebraMap A (B ⊗[A] C) a))
+  letI : pD.LiesOver pA := targetLiesOverSource pA pB pD
+  exact congrArg model.target.residueMap
+    (Ideal.ResidueField.map_algebraMap pA pD (algebraMap A (B ⊗[A] C))
+      (pD.over_def pA) a)
 
 /-- A tensor map realized by a common-field model has the selected tensor
 prime as its kernel. -/
@@ -111,7 +154,13 @@ theorem realizesTensorMap_ker
       (Ash := Ash) (Bsh := Bsh) (Csh := Csh) (Dsh := Dsh) (K := K)}
     {map : B ⊗[A] C →+* K}
     (h : Model.realizesTensorMap pA pB pC pD model map) :
-    RingHom.ker map = pD := sorry
+    RingHom.ker map = pD := by
+  change map = _ at h
+  rw [h]
+  change RingHom.ker
+    (model.target.residueMap.comp (algebraMap (B ⊗[A] C) pD.ResidueField)) = pD
+  exact (RingHom.ker_comp_of_injective _ model.target.residueMap.injective).trans
+    (Ideal.ker_algebraMap_residueField pD)
 
 /-- The left-factor restriction of a tensor map realized by a common-field
 model has kernel `pB`. -/
@@ -122,7 +171,10 @@ theorem realizesTensorMap_left_ker
       (Ash := Ash) (Bsh := Bsh) (Csh := Csh) (Dsh := Dsh) (K := K)}
     {map : B ⊗[A] C →+* K}
     (h : Model.realizesTensorMap pA pB pC pD model map) :
-    RingHom.ker (Algebra.TensorProduct.RingHom.restrictLeft map) = pB := sorry
+    RingHom.ker (Algebra.TensorProduct.RingHom.restrictLeft map) = pB := by
+  rw [← realizesTensorMap_left pA pB pC pD h]
+  exact (RingHom.ker_comp_of_injective _ model.left.residueMap.injective).trans
+    (Ideal.ker_algebraMap_residueField pB)
 
 /-- The right-factor restriction of a tensor map realized by a common-field
 model has kernel `pC`. -/
@@ -133,7 +185,10 @@ theorem realizesTensorMap_right_ker
       (Ash := Ash) (Bsh := Bsh) (Csh := Csh) (Dsh := Dsh) (K := K)}
     {map : B ⊗[A] C →+* K}
     (h : Model.realizesTensorMap pA pB pC pD model map) :
-    RingHom.ker (Algebra.TensorProduct.RingHom.restrictRight map) = pC := sorry
+    RingHom.ker (Algebra.TensorProduct.RingHom.restrictRight map) = pC := by
+  rw [← realizesTensorMap_right pA pB pC pD h]
+  exact (RingHom.ker_comp_of_injective _ model.right.residueMap.injective).trans
+    (Ideal.ker_algebraMap_residueField pC)
 
 /-- The base-ring restriction of a tensor map realized by a common-field
 model has kernel `pA`. -/
@@ -144,7 +199,10 @@ theorem realizesTensorMap_base_ker
       (Ash := Ash) (Bsh := Bsh) (Csh := Csh) (Dsh := Dsh) (K := K)}
     {map : B ⊗[A] C →+* K}
     (h : Model.realizesTensorMap pA pB pC pD model map) :
-    RingHom.ker (Algebra.TensorProduct.RingHom.restrictBase map) = pA := sorry
+    RingHom.ker (Algebra.TensorProduct.RingHom.restrictBase map) = pA := by
+  rw [← realizesTensorMap_base pA pB pC pD h]
+  exact (RingHom.ker_comp_of_injective _ model.source.residueMap.injective).trans
+    (Ideal.ker_algebraMap_residueField pA)
 
 end Model
 

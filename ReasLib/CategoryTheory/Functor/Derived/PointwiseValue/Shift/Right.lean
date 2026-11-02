@@ -68,6 +68,7 @@ noncomputable def indexEquivalence
     (forwardEquivalence (S := S) X n).counitIso.symm
     (forwardEquivalence (S := S) X n).unitIso.symm
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The right-comma equivalence projects to the source shift. -/
 @[stacks 05SU]
 noncomputable def forwardEquivalenceProj
@@ -76,8 +77,9 @@ noncomputable def forwardEquivalenceProj
         CostructuredArrow.proj S.Q (S.Q.obj (X⟦n⟧)) ≅
       CostructuredArrow.proj S.Q (S.Q.obj X) ⋙ shiftFunctor D n := by
   refine NatIso.ofComponents (fun _ ↦ Iso.refl _) ?_
-  intro X Y f
-  sorry
+  intro A B f
+  change (shiftFunctor D n).map f.left ≫ 𝟙 _ = 𝟙 _ ≫ (shiftFunctor D n).map f.left
+  simp only [Category.comp_id, Category.id_comp]
 
 /-- Reindexing the shifted right-comma diagram and then projecting agrees with shifting the
 original projection functor. -/

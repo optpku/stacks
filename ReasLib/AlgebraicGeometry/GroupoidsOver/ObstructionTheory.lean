@@ -51,7 +51,7 @@ def of (ξ : ObjectOverSpec X) (M : ModuleCat.{u} ξ.carrier) : ObstructionTripl
 `A`-module. -/
 theorem spec (ξ : ObstructionTriple X) :
     ξ.toS.MapsIntoAffineOpen ∧ X.p.obj ξ.obj = Over.mk ξ.toS :=
-  sorry
+  ⟨ξ.mapsIntoAffineOpen, ξ.over_obj⟩
 
 /-- A morphism of triples along `A → B`: a morphism of objects over spectra
 together with an `A`-linear map `M → N` after restriction of scalars. -/
@@ -74,7 +74,7 @@ and an `A`-linear map of modules after restriction of scalars. -/
 theorem Hom.spec {ξ η : ObstructionTriple X} (f : Hom ξ η) :
     Spec.map (CommRingCat.ofHom f.toRingHom) ≫ ξ.toS = η.toS ∧
       X.p.IsHomLift (ObjectOverSpec.specOverMap f.toRingHom f.toS_comp) f.restriction :=
-  sorry
+  ⟨f.toS_comp, f.isHomLift⟩
 
 /-- Identity morphism of an obstruction triple. -/
 def Hom.id (ξ : ObstructionTriple X) : Hom ξ ξ where
@@ -109,7 +109,7 @@ def toTriple (σ : DeformationSituation X) : ObstructionTriple X :=
 /-- `toTriple` is the object over `Spec(A)` paired with the kernel module. -/
 theorem toTriple_M (σ : DeformationSituation X) :
     σ.toTriple.M = σ.kernelModule :=
-  sorry
+  rfl
 
 /-- The morphism of obstruction triples induced by a morphism of deformation
 situations, using the kernel map on modules. -/
@@ -120,7 +120,7 @@ def Hom.toTripleHom {σ τ : DeformationSituation X} (f : DeformationSituation.H
 /-- `toTripleHom` uses the stored restriction arrow and the kernel map. -/
 theorem Hom.toTripleHom_toModule {σ τ : DeformationSituation X} (f : DeformationSituation.Hom σ τ) :
     (Hom.toTripleHom f).toModule = f.kernelMap :=
-  sorry
+  rfl
 
 end DeformationSituation
 
@@ -195,7 +195,7 @@ theorem spec (𝒪 : ObstructionTheory X) :
         𝒪.map f.toTripleHom (𝒪.obstruction σ) = 𝒪.obstruction τ) ∧
       ∀ σ : DeformationSituation X,
         Nonempty (DeformationSituation.ObjectLift σ) ↔ 𝒪.obstruction σ = 0 :=
-  sorry
+  ⟨𝒪.moduleLinear, 𝒪.map_id, 𝒪.map_comp, 𝒪.map_module, 𝒪.map_obstruction, 𝒪.lifts_iff⟩
 
 /-- The obstruction module `O_x(M)` of a triple `(x, A, M)`. -/
 def moduleObj (𝒪 : ObstructionTheory X) (ξ : ObstructionTriple X) :
@@ -205,20 +205,20 @@ def moduleObj (𝒪 : ObstructionTheory X) (ξ : ObstructionTriple X) :
 /-- `moduleObj` is the value of the obstruction-module functor on `M`. -/
 theorem module_apply (𝒪 : ObstructionTheory X) (ξ : ObstructionTriple X) :
     𝒪.moduleObj ξ = (𝒪.module ξ.toObjectOverSpec).obj ξ.M :=
-  sorry
+  rfl
 
 /-- Applying a functoriality map to an element of an obstruction module. -/
 theorem map_apply (𝒪 : ObstructionTheory X) {ξ η : ObstructionTriple X}
     (f : ObstructionTriple.Hom ξ η) (m : (𝒪.module ξ.toObjectOverSpec).obj ξ.M) :
     𝒪.map f m = (𝒪.map f).hom m :=
-  sorry
+  rfl
 
 /-- The obstruction of a deformation situation vanishes if and only if there is
 a lift of `x` along `Spec(A) ⟶ Spec(A')`. -/
 theorem obstruction_eq_zero_iff_nonempty_objectLift (𝒪 : ObstructionTheory X)
     (σ : DeformationSituation X) :
     𝒪.obstruction σ = 0 ↔ Nonempty (DeformationSituation.ObjectLift σ) :=
-  sorry
+  (𝒪.lifts_iff σ).symm
 
 end ObstructionTheory
 

@@ -8,6 +8,7 @@ module
 
 public import Mathlib.CategoryTheory.Triangulated.Subcategory
 public import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.CategoryTheory.Functor.Derived.DefinedAt.Triangulated
 public import ReasLib.CategoryTheory.Functor.Derived.Definedness.Shift
 public import ReasLib.CategoryTheory.ObjectProperty.Localization.Triangulated
 
@@ -16,17 +17,18 @@ public import ReasLib.CategoryTheory.ObjectProperty.Localization.Triangulated
 /-!
 # Triangulated Domains of Definition for Pointwise Derived Functors
 
-This leaf specializes the general full-subcategory localization API to the object properties
-where pointwise derived values are defined.  It provides the zero, triangle, shift, and
-localization-factorization interfaces needed by applications without making them depend on the
-Chapter 13 presentation.
+Mathlib's `Definedness.property` records only existence of the pointwise colimit (or limit).
+That predicate is weaker than the essential-constancy notion used by Stacks 05S9, so no
+triangulated-domain or triangulated-functor instances are exported for it here.  The source-faithful
+05SE API is owned by `Functor.RightDerived.DefinedAt` and `Functor.LeftDerived.DefinedAt`.
+The zero-object statements below follow by forgetting essential constancy.
 -/
 
 universe v₁ v₂ u₁ u₂
 
 namespace CategoryTheory
 
-open Limits Localization MorphismProperty ObjectProperty Pretriangulated
+open Limits MorphismProperty
 open scoped ZeroObject
 
 variable {D : Type u₁} {D' : Type u₂}
@@ -36,8 +38,7 @@ variable {D : Type u₁} {D' : Type u₂}
   [Pretriangulated D] [_root_.CategoryTheory.IsTriangulated D]
   (F : D ⥤ D') (S : MorphismProperty D)
 
-/-- the right-derived-defined object property contains the zero object in a
-triangulated localization situation. -/
+/-- The pointwise right-derived existence property contains zero, by essential constancy. -/
 @[stacks 05SE]
 theorem Functor.RightDerived.Definedness.property.zero
     [HasZeroObject D'] [HasShift D' ℤ] [Preadditive D']
@@ -45,10 +46,11 @@ theorem Functor.RightDerived.Definedness.property.zero
     [Pretriangulated D'] [_root_.CategoryTheory.IsTriangulated D']
     [F.CommShift ℤ] [F.IsTriangulated]
     [IsSaturatedMultiplicativeSystem S] [S.IsCompatibleWithTriangulation] :
-    Functor.RightDerived.Definedness.property F S (0 : D) := sorry
+    Functor.RightDerived.Definedness.property F S (0 : D) := by
+  letI := Functor.RightDerived.DefinedAt.zero (F := F) (S := S)
+  exact Functor.RightDerived.DefinedAt.hasPointwise
 
-/-- the left-derived-defined object property contains the zero object in a
-triangulated localization situation. -/
+/-- The pointwise left-derived existence property contains zero, by essential constancy. -/
 @[stacks 05SE]
 theorem Functor.LeftDerived.Definedness.property.zero
     [HasZeroObject D'] [HasShift D' ℤ] [Preadditive D']
@@ -56,69 +58,8 @@ theorem Functor.LeftDerived.Definedness.property.zero
     [Pretriangulated D'] [_root_.CategoryTheory.IsTriangulated D']
     [F.CommShift ℤ] [F.IsTriangulated]
     [IsSaturatedMultiplicativeSystem S] [S.IsCompatibleWithTriangulation] :
-    Functor.LeftDerived.Definedness.property F S (0 : D) := sorry
-
-/-- the full subcategory on which the pointwise right-derived functor is defined
-is triangulated. -/
-@[stacks 05SE]
-instance Functor.RightDerived.Definedness.property.isTriangulated
-    [HasZeroObject D'] [HasShift D' ℤ] [Preadditive D']
-    [∀ n : ℤ, (shiftFunctor D' n).Additive]
-    [Pretriangulated D'] [_root_.CategoryTheory.IsTriangulated D']
-    [F.CommShift ℤ] [F.IsTriangulated]
-    [IsSaturatedMultiplicativeSystem S] [S.IsCompatibleWithTriangulation] :
-    (Functor.RightDerived.Definedness.property F S).IsTriangulated := sorry
-
-/-- the full subcategory on which the pointwise left-derived functor is defined
-is triangulated. -/
-@[stacks 05SE]
-instance Functor.LeftDerived.Definedness.property.isTriangulated
-    [HasZeroObject D'] [HasShift D' ℤ] [Preadditive D']
-    [∀ n : ℤ, (shiftFunctor D' n).Additive]
-    [Pretriangulated D'] [_root_.CategoryTheory.IsTriangulated D']
-    [F.CommShift ℤ] [F.IsTriangulated]
-    [IsSaturatedMultiplicativeSystem S] [S.IsCompatibleWithTriangulation] :
-    (Functor.LeftDerived.Definedness.property F S).IsTriangulated := sorry
-
-/-- the right-derived functor on its domain of definition is triangulated. -/
-@[stacks 05SE]
-instance Functor.RightDerived.Definedness.functor.isTriangulated
-    [HasZeroObject D'] [HasShift D' ℤ] [Preadditive D']
-    [∀ n : ℤ, (shiftFunctor D' n).Additive]
-    [Pretriangulated D'] [_root_.CategoryTheory.IsTriangulated D']
-    [F.CommShift ℤ] [F.IsTriangulated]
-    [IsSaturatedMultiplicativeSystem S] [S.IsCompatibleWithTriangulation] :
-    (Functor.RightDerived.Definedness.functor F S).IsTriangulated := sorry
-
-/-- the localized right-derived factorization is triangulated. -/
-@[stacks 05SE]
-instance Functor.RightDerived.Definedness.localizationFactorization.isTriangulated
-    [HasZeroObject D'] [HasShift D' ℤ] [Preadditive D']
-    [∀ n : ℤ, (shiftFunctor D' n).Additive]
-    [Pretriangulated D'] [_root_.CategoryTheory.IsTriangulated D']
-    [F.CommShift ℤ] [F.IsTriangulated]
-    [IsSaturatedMultiplicativeSystem S] [S.IsCompatibleWithTriangulation] :
-    (Functor.RightDerived.Definedness.localizationFactorization F S).IsTriangulated := sorry
-
-/-- the left-derived functor on its domain of definition is triangulated. -/
-@[stacks 05SE]
-instance Functor.LeftDerived.Definedness.functor.isTriangulated
-    [HasZeroObject D'] [HasShift D' ℤ] [Preadditive D']
-    [∀ n : ℤ, (shiftFunctor D' n).Additive]
-    [Pretriangulated D'] [_root_.CategoryTheory.IsTriangulated D']
-    [F.CommShift ℤ] [F.IsTriangulated]
-    [IsSaturatedMultiplicativeSystem S] [S.IsCompatibleWithTriangulation] :
-    (Functor.LeftDerived.Definedness.functor F S).IsTriangulated := sorry
-
-/-- the localized left-derived factorization is triangulated. -/
-@[stacks 05SE]
-instance Functor.LeftDerived.Definedness.localizationFactorization.isTriangulated
-    [HasZeroObject D'] [HasShift D' ℤ] [Preadditive D']
-    [∀ n : ℤ, (shiftFunctor D' n).Additive]
-    [Pretriangulated D'] [_root_.CategoryTheory.IsTriangulated D']
-    [F.CommShift ℤ] [F.IsTriangulated]
-    [IsSaturatedMultiplicativeSystem S] [S.IsCompatibleWithTriangulation] :
-    (Functor.LeftDerived.Definedness.localizationFactorization F S).IsTriangulated := sorry
-
+    Functor.LeftDerived.Definedness.property F S (0 : D) := by
+  letI := Functor.LeftDerived.DefinedAt.zero (F := F) (S := S)
+  exact Functor.LeftDerived.DefinedAt.hasPointwise
 
 end CategoryTheory

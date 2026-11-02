@@ -60,6 +60,7 @@ variable [∀ X : C, PreservesFiniteColimits (tensorRight X)]
 an arbitrary object preserves short exactness. -/
 @[stacks 03EX]
 theorem shortExact_map_tensorRight_of_flat_quotient
+    [BraidedCategory C]
     (S : ShortComplex C) (hS : S.ShortExact) (G : C) [IsFlat S.X₃] :
     (S.map (tensorRight G)).ShortExact := sorry
 
@@ -93,6 +94,7 @@ variable [∀ X : C, PreservesFiniteColimits (tensorRight X)]
 right-augmented exactness. -/
 @[stacks 03EZ]
 theorem map_tensorRight
+    [BraidedCategory C]
     {F : ℕ → C} {d : ∀ n, F (n + 1) ⟶ F n}
     {Q : C} {q : F 0 ⟶ Q}
     (h : RightAugmentedExact F d Q q) (G : C)

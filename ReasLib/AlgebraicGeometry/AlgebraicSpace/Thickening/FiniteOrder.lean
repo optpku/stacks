@@ -45,7 +45,12 @@ theorem isFiniteOrderThickening_iff {S : Scheme.{u}} {X X' : AlgebraicSpace S}
     IsFiniteOrderThickening i ↔
       IsClosedImmersion i ∧
         ∃ n, (Hom.idealSheafSubobject i).pow_eq_bot (n + 1) :=
-  sorry
+  by
+    constructor
+    · intro h
+      exact ⟨h.isClosedImmersion, h.exists_pow_succ_eq_zero⟩
+    · rintro ⟨hclosed, hnilpotent⟩
+      exact ⟨hclosed, hnilpotent⟩
 
 namespace IsFiniteOrderThickening
 
@@ -80,7 +85,14 @@ theorem isNthOrderThickening_iff (n : ℕ) {S : Scheme.{u}}
     {X X' : AlgebraicSpace S} (i : X ⟶ X') :
     IsNthOrderThickening n i ↔
       IsClosedImmersion i ∧ (Hom.idealSheafSubobject i).pow_eq_bot (n + 1) :=
-  sorry
+  by
+    constructor
+    · intro h
+      exact ⟨h.toIsFiniteOrderThickening.isClosedImmersion, h.pow_succ_eq_zero⟩
+    · rintro ⟨hclosed, hpow⟩
+      exact
+        { toIsFiniteOrderThickening := ⟨hclosed, n, hpow⟩
+          pow_succ_eq_zero := hpow }
 
 namespace IsNthOrderThickening
 

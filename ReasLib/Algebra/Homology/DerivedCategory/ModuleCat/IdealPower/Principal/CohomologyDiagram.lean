@@ -114,30 +114,30 @@ structure Comparison (f : A) (K : DerivedCategory (ModuleCat.{u} A)) (p : ℤ) w
   middleRightMap : middleMiddle f K p ⟶ right f K p
   /-- The middle-row composite vanishes. -/
   middleRowZero : middleLeftMap ≫ middleRightMap = 0
-  /-- The upper map in the left column. -/
-  leftTopMap : topLeft f K p ⟶ middleLeft f K p
   /-- The lower map in the left column. -/
-  leftBottomMap : middleLeft f K p ⟶ bottomLeft f K p
+  leftBottomMap : bottomLeft f K p ⟶ middleLeft f K p
+  /-- The upper map in the left column. -/
+  leftTopMap : middleLeft f K p ⟶ topLeft f K p
   /-- The left-column composite vanishes. -/
-  leftColumnZero : leftTopMap ≫ leftBottomMap = 0
-  /-- The upper map in the middle column. -/
-  middleTopMap : topMiddle f K p ⟶ middleMiddle f K p
+  leftColumnZero : leftBottomMap ≫ leftTopMap = 0
   /-- The lower map in the middle column. -/
-  middleBottomMap : middleMiddle f K p ⟶ bottomMiddle f K p
+  middleBottomMap : bottomMiddle f K p ⟶ middleMiddle f K p
+  /-- The upper map in the middle column. -/
+  middleTopMap : middleMiddle f K p ⟶ topMiddle f K p
   /-- The middle-column composite vanishes. -/
-  middleColumnZero : middleTopMap ≫ middleBottomMap = 0
+  middleColumnZero : middleBottomMap ≫ middleTopMap = 0
   /-- The bottom comparison between the two first-derived-limit terms. -/
   bottomIso : bottomLeft f K p ≅ bottomMiddle f K p
-  /-- The morphism from the top short exact row to the middle short exact row. -/
-  topToMiddle :
-    ShortComplex.mk topLeftMap topRightMap topRowZero ⟶
-      ShortComplex.mk middleLeftMap middleRightMap middleRowZero
-  /-- The left component of `topToMiddle` is the upper left-column map. -/
-  topToMiddleLeft : topToMiddle.τ₁ = leftTopMap
-  /-- The middle component of `topToMiddle` is the upper middle-column map. -/
-  topToMiddleMiddle : topToMiddle.τ₂ = middleTopMap
-  /-- The right component of `topToMiddle` is the identity of the common Tate term. -/
-  topToMiddleRight : topToMiddle.τ₃ = 𝟙 (right f K p)
+  /-- The morphism from the middle short exact row to the top short exact row. -/
+  middleToTop :
+    ShortComplex.mk middleLeftMap middleRightMap middleRowZero ⟶
+      ShortComplex.mk topLeftMap topRightMap topRowZero
+  /-- The left component of `middleToTop` is the upper left-column map. -/
+  middleToTopLeft : middleToTop.τ₁ = leftTopMap
+  /-- The middle component of `middleToTop` is the upper middle-column map. -/
+  middleToTopMiddle : middleToTop.τ₂ = middleTopMap
+  /-- The right component of `middleToTop` is the identity of the common Tate term. -/
+  middleToTopRight : middleToTop.τ₃ = 𝟙 (right f K p)
   /-- The top row is short exact. -/
   topRowShortExact :
     (ShortComplex.mk topLeftMap topRightMap topRowZero).ShortExact
@@ -146,13 +146,13 @@ structure Comparison (f : A) (K : DerivedCategory (ModuleCat.{u} A)) (p : ℤ) w
     (ShortComplex.mk middleLeftMap middleRightMap middleRowZero).ShortExact
   /-- The left column is short exact. -/
   leftColumnShortExact :
-    (ShortComplex.mk leftTopMap leftBottomMap leftColumnZero).ShortExact
+    (ShortComplex.mk leftBottomMap leftTopMap leftColumnZero).ShortExact
   /-- The middle column is short exact. -/
   middleColumnShortExact :
-    (ShortComplex.mk middleTopMap middleBottomMap middleColumnZero).ShortExact
+    (ShortComplex.mk middleBottomMap middleTopMap middleColumnZero).ShortExact
   /-- The bottom square commutes through the bottom comparison isomorphism. -/
   bottomSquare :
-    CommSq middleLeftMap leftBottomMap middleBottomMap bottomIso.hom
+    CommSq bottomIso.hom leftBottomMap middleBottomMap middleLeftMap
 
 namespace Comparison
 
@@ -172,13 +172,13 @@ abbrev middleRow {f : A} {K : DerivedCategory (ModuleCat.{u} A)} {p : ℤ}
 @[stacks 0H32 "left column of the principal completion diagram"]
 abbrev leftColumn {f : A} {K : DerivedCategory (ModuleCat.{u} A)} {p : ℤ}
     (D : Comparison f K p) : ShortComplex (ModuleCat.{u} A) :=
-  ShortComplex.mk D.leftTopMap D.leftBottomMap D.leftColumnZero
+  ShortComplex.mk D.leftBottomMap D.leftTopMap D.leftColumnZero
 
 /-- The middle-column short complex of a principal derived-completion comparison diagram. -/
 @[stacks 0H32 "middle column of the principal completion diagram"]
 abbrev middleColumn {f : A} {K : DerivedCategory (ModuleCat.{u} A)} {p : ℤ}
     (D : Comparison f K p) : ShortComplex (ModuleCat.{u} A) :=
-  ShortComplex.mk D.middleTopMap D.middleBottomMap D.middleColumnZero
+  ShortComplex.mk D.middleBottomMap D.middleTopMap D.middleColumnZero
 
 /-- The bundled source specification: both rows and both columns are short exact, the row
 comparison uses the two column maps and the identity on the Tate term, and the bottom square
@@ -188,10 +188,10 @@ theorem spec {f : A} {K : DerivedCategory (ModuleCat.{u} A)} {p : ℤ}
     (D : Comparison f K p) :
     D.topRow.ShortExact ∧ D.middleRow.ShortExact ∧
       D.leftColumn.ShortExact ∧ D.middleColumn.ShortExact ∧
-      D.topToMiddle.τ₁ = D.leftColumn.f ∧
-      D.topToMiddle.τ₂ = D.middleColumn.f ∧
-      D.topToMiddle.τ₃ = 𝟙 (right f K p) ∧
-      CommSq D.middleRow.f D.leftColumn.g D.middleColumn.g D.bottomIso.hom := sorry
+      D.middleToTop.τ₁ = D.leftColumn.g ∧
+      D.middleToTop.τ₂ = D.middleColumn.g ∧
+      D.middleToTop.τ₃ = 𝟙 (right f K p) ∧
+      CommSq D.bottomIso.hom D.leftColumn.f D.middleColumn.f D.middleRow.f := sorry
 
 end Comparison
 

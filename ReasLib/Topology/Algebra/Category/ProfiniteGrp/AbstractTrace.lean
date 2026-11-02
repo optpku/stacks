@@ -85,22 +85,27 @@ def pointCount (T : AbstractTraceData S) (n : ℕ) : ℕ :=
 /-- Trace data have a positive integer and degree-d support in each multiplicity. -/
 theorem spec (T : AbstractTraceData S) :
     1 ≤ T.q ∧ ∀ (d : ℕ+) (c : ConjClasses S.middle),
-      T.multiplicity d c ≠ 0 → S.degClass c = hatZNatCast d.val := sorry
+      T.multiplicity d c ≠ 0 → S.degClass c = hatZNatCast d.val :=
+  ⟨T.one_le_q, T.support_degree⟩
 
 /-- Multiply the integer by m and degree-d multiplicities by m^d. -/
 def scale (T : AbstractTraceData S) (m : ℕ) (hm : 1 ≤ m) : AbstractTraceData S where
   q := m * T.q
   one_le_q := Nat.mul_le_mul hm T.one_le_q
   multiplicity d := m ^ d.val • T.multiplicity d
-  support_degree := sorry
+  support_degree := by
+    intro d c hc
+    apply T.support_degree d c
+    intro hzero
+    exact hc (by simp [Finsupp.smul_apply, hzero])
 
 /-- Scaling multiplies the distinguished integer by m. -/
 theorem scale_q (T : AbstractTraceData S) (m : ℕ) (hm : 1 ≤ m) :
-    (T.scale m hm).q = m * T.q := sorry
+    (T.scale m hm).q = m * T.q := rfl
 
 /-- Scaling multiplies degree-d multiplicities by m^d. -/
 theorem scale_multiplicity (T : AbstractTraceData S) (m : ℕ) (hm : 1 ≤ m) (d : ℕ+) :
-    (T.scale m hm).multiplicity d = m ^ d.val • T.multiplicity d := sorry
+    (T.scale m hm).multiplicity d = m ^ d.val • T.multiplicity d := rfl
 
 /-- The scaled divisor sum weights each degree-d summand by m^d. -/
 theorem leftHandSum_scale {Λ : Type v} [Ring Λ] (T : AbstractTraceData S)
@@ -110,7 +115,17 @@ theorem leftHandSum_scale {Λ : Type v} [Ring Λ] (T : AbstractTraceData S)
       ∑ d ∈ n.divisors, if h : 0 < d then
         d • (m ^ d • (T.multiplicity ⟨d, h⟩).sum
           (fun c a ↦ a • conjClassTrace S M (powClass S c (n / d))))
-      else 0 := sorry
+      else 0 := by
+  classical
+  unfold leftHandSum
+  apply Finset.sum_congr rfl
+  intro d hd
+  split_ifs with h
+  · dsimp only [scale]
+    rw [Finsupp.sum_smul_index (h := fun c (a : ℕ) ↦
+      a • conjClassTrace S M (powClass S c (n / d))) (fun _ ↦ zero_smul ℕ _)]
+    simp only [PNat.mk_coe, mul_smul, Finsupp.sum, Finset.smul_sum]
+  · rfl
 
 end AbstractTraceData
 
@@ -170,7 +185,16 @@ theorem IsAbstractTraceFormula.spec (T : AbstractTraceData S) :
         (hunit : IsUnit (T.q : Λ)) (M : DiscreteModuleCat Λ S.middle)
         [Module.Finite Λ M.obj.V] [Module.Projective Λ M.obj.V]
         (hperf : DerivedCategory.IsPerfect (derivedCoinvariants S M)) (n : ℕ),
-        0 < n → T.leftHandSum M n = (T.q ^ n) • traceFrobeniusPow S M hperf n) := sorry
+        0 < n → T.leftHandSum M n = (T.q ^ n) • traceFrobeniusPow S M hperf n) := by
+  constructor
+  · intro h
+    refine ⟨h.finite_cd, h.homology_perfect, ?_⟩
+    intro Λ _ _ hunit M _ _ hperf n hn
+    exact IsAbstractTraceFormula.trace_eq_of_perfect S h hunit M hperf n hn
+  · rintro ⟨hcd, hperf, htrace⟩
+    refine ⟨hcd, hperf, ?_⟩
+    intro Λ _ _ hunit M _ _ n hn
+    exact htrace hunit M (hperf hunit M) n hn
 
 /-- At a fixed integer, the trace formula determines all conjugacy-class multiplicities. -/
 theorem AbstractTraceData.multiplicity_unique {T₁ T₂ : AbstractTraceData S}

@@ -62,11 +62,15 @@ noncomputable def precompShortComplex
   g := DifferentialGradedCategory.HomComplex.precomp (Y := I) (homToCompHom S.f)
   zero := precomp_comp_zero S I
 
+instance gradedInjectiveOfKInjective (I : Mod(𝒜, d)) [Module.IsKInjective.GradedInjective I] :
+    (forgetToGraded 𝒜).IsInjectiveObj I :=
+  Module.IsKInjective.GradedInjective.gradedInjective
+
 /-- A graded-injective target sends every short exact sequence of DG modules to a short exact
 sequence of enriched Hom complexes. -/
 @[stacks 0FSQ]
 theorem precomp_shortExact (S : ShortComplex Mod(𝒜, d)) (hS : S.ShortExact)
-    (I : Mod(𝒜, d)) [Module.IsKInjective.GradedInjective I] :
+    (I : Mod(𝒜, d)) [(forgetToGraded 𝒜).IsInjectiveObj I] :
     (precompShortComplex S I).ShortExact := sorry
 
 end

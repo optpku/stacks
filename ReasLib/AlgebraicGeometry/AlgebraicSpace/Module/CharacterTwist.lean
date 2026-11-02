@@ -30,11 +30,27 @@ open SheafOfModules.RingedSite
 
 noncomputable section
 
+-- The local sheafification certificates are private Prop-valued proofs.
+set_option backward.privateInPublic true
+
 universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
 variable {S : Scheme.{u}}
+
+private theorem characterTwist_hasWeakSheafify (X : AlgebraicSpace S) :
+    HasWeakSheafify (smallEtaleTopology X) AddCommGrpCat.{u + 1} := by
+  letI := smallEtaleTopology_hasSheafify_addCommGrpCat X
+  exact HasSheafify.isRightAdjoint
+
+private theorem characterTwist_wEqualsLocallyBijective (X : AlgebraicSpace S) :
+    (smallEtaleTopology X).WEqualsLocallyBijective AddCommGrpCat.{u + 1} :=
+  smallEtaleTopology_wEqualsLocallyBijective_addCommGrpCat X
+
+-- Use the proved sheafification owners for these Prop parameters, so that the
+-- chosen left adjoint does not rely on the admitted successor-universe instances.
+attribute [local instance 2000] characterTwist_hasWeakSheafify characterTwist_wEqualsLocallyBijective
 
 variable {W U : AlgebraicSpace S} {G : Type u} [Group G] [Finite G]
 variable (ρ : G →* Aut W) (q : W ⟶ U) [IsFree ρ] [IsFreeQuotient ρ q] (χ : G →* ℤˣ)
@@ -53,7 +69,7 @@ theorem integerCharacterSection_def (V : (smallEtaleSite U)ᵒᵖ) :
       (ModuleCat.restrictScalars
           (ULift.ringEquiv : ULift.{u + 1} ℤ ≃+* ℤ).toRingHom).obj
         (ModuleCat.of ℤ ((integerCharacterAbelianSheaf ρ q χ).obj.obj V)) :=
-  sorry
+  rfl
 
 /-- Restriction of `integerCharacterSection` along an étale arrow. -/
 noncomputable def integerCharacterSectionRestrict
@@ -64,8 +80,9 @@ noncomputable def integerCharacterSectionRestrict
     (X := integerCharacterSection ρ q χ V)
     (Y := integerCharacterSection ρ q χ W)
     { toFun := fun m ↦ (integerCharacterAbelianSheaf ρ q χ).obj.map f m
-      map_add' := sorry
-      map_smul' := sorry }
+      map_add' := fun m n ↦ map_add ((integerCharacterAbelianSheaf ρ q χ).obj.map f).hom m n
+      map_smul' := fun r m ↦
+        map_zsmul ((integerCharacterAbelianSheaf ρ q χ).obj.map f).hom r.down m }
 
 /-- `integerCharacterSectionRestrict` acts by restriction of abelian sections. -/
 theorem integerCharacterSectionRestrict_apply
@@ -73,8 +90,9 @@ theorem integerCharacterSectionRestrict_apply
     (m : integerCharacterSection ρ q χ V) :
     (integerCharacterSectionRestrict ρ q χ f).hom m =
       (integerCharacterAbelianSheaf ρ q χ).obj.map f m :=
-  sorry
+  rfl
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Pointwise scalar extension of `ℤ̲(χ)` along `integerToStructurePresheaf`. -/
 noncomputable def integerCharacterExtendScalarsPresheaf :
     PresheafOfModules.{u + 1}
@@ -94,12 +112,66 @@ noncomputable def integerCharacterExtendScalarsPresheaf :
         (ModuleCat.restrictScalarsComp'App.{u + 1, u + 1, u + 1, u + 1}
             ((integerToStructurePresheaf U).app V).hom
             ((commStructureSheafLift U).obj.map f).hom
-            ((integerToStructurePresheaf U).app W).hom sorry
+            ((integerToStructurePresheaf U).app W).hom (by
+              ext r
+              exact (map_intCast ((commStructureSheafLift U).obj.map f).hom r.down).symm)
             ((ModuleCat.extendScalars.{u + 1, u + 1, u + 1}
                 ((integerToStructurePresheaf U).app W).hom).obj
               (integerCharacterSection ρ q χ W))).hom)
-  map_id := sorry
-  map_comp := sorry
+  map_id V := by
+    apply ((ModuleCat.extendRestrictScalarsAdj.{u + 1, u + 1, u + 1}
+      ((integerToStructurePresheaf U).app V).hom).homEquiv _ _).injective
+    ext m
+    simp [ModuleCat.extendRestrictScalarsAdj_homEquiv_apply,
+      integerCharacterSectionRestrict]
+    rfl
+  map_comp {V W T} f g := by
+    let η := fun V ↦
+      (ModuleCat.extendRestrictScalarsAdj.{u + 1, u + 1, u + 1}
+        ((integerToStructurePresheaf U).app V).hom).unit.app
+          (integerCharacterSection ρ q χ V)
+    let φ := fun {V W : (smallEtaleSite U)ᵒᵖ} (h : V ⟶ W) ↦
+      ((ModuleCat.extendRestrictScalarsAdj.{u + 1, u + 1, u + 1}
+          ((integerToStructurePresheaf U).app V).hom).homEquiv _ _).symm
+        (integerCharacterSectionRestrict ρ q χ h ≫
+          (ModuleCat.extendRestrictScalarsAdj.{u + 1, u + 1, u + 1}
+              ((integerToStructurePresheaf U).app W).hom).unit.app
+            (integerCharacterSection ρ q χ W) ≫
+          (ModuleCat.restrictScalarsComp'App.{u + 1, u + 1, u + 1, u + 1}
+              ((integerToStructurePresheaf U).app V).hom
+              ((commStructureSheafLift U).obj.map h).hom
+              ((integerToStructurePresheaf U).app W).hom (by
+                ext r
+                exact (map_intCast ((commStructureSheafLift U).obj.map h).hom r.down).symm)
+              ((ModuleCat.extendScalars.{u + 1, u + 1, u + 1}
+                  ((integerToStructurePresheaf U).app W).hom).obj
+                (integerCharacterSection ρ q χ W))).hom)
+    have hφ {V W : (smallEtaleSite U)ᵒᵖ} (h : V ⟶ W)
+        (m : integerCharacterSection ρ q χ V) :
+        φ h ((ModuleCat.extendRestrictScalarsAdj.{u + 1, u + 1, u + 1}
+          ((integerToStructurePresheaf U).app V).hom).unit.app _ m) =
+        (ModuleCat.extendRestrictScalarsAdj.{u + 1, u + 1, u + 1}
+          ((integerToStructurePresheaf U).app W).hom).unit.app _
+            ((integerCharacterSectionRestrict ρ q χ h).hom m) := by
+      change (((ModuleCat.extendRestrictScalarsAdj.{u + 1, u + 1, u + 1}
+        ((integerToStructurePresheaf U).app V).hom).homEquiv _ _) (φ h)).hom m = _
+      dsimp only [φ]
+      rw [Equiv.apply_symm_apply]
+      rfl
+    apply ((ModuleCat.extendRestrictScalarsAdj.{u + 1, u + 1, u + 1}
+      ((integerToStructurePresheaf U).app V).hom).homEquiv _ _).injective
+    ext m
+    change φ (f ≫ g) (η V m) = φ g (φ f (η V m))
+    calc
+      φ (f ≫ g) (η V m) = η T ((integerCharacterSectionRestrict ρ q χ (f ≫ g)).hom m) :=
+        hφ (f ≫ g) m
+      _ = η T ((integerCharacterSectionRestrict ρ q χ g).hom
+          ((integerCharacterSectionRestrict ρ q χ f).hom m)) :=
+        congrArg (fun s : integerCharacterSection ρ q χ T ↦ η T s)
+          (CategoryTheory.congr_fun ((integerCharacterAbelianSheaf ρ q χ).obj.map_comp f g) m)
+      _ = φ g (η W ((integerCharacterSectionRestrict ρ q χ f).hom m)) :=
+        (hφ g _).symm
+      _ = φ g (φ f (η V m)) := congrArg (fun s ↦ φ g s) (hφ f m).symm
 
 /-- On each étale object, `integerCharacterExtendScalarsPresheaf` is
 `ModuleCat.extendScalars` of `integerCharacterSection`. -/
@@ -107,7 +179,7 @@ theorem integerCharacterExtendScalarsPresheaf_obj (V : (smallEtaleSite U)ᵒᵖ)
     (integerCharacterExtendScalarsPresheaf ρ q χ).obj V =
       (ModuleCat.extendScalars ((integerToStructurePresheaf U).app V).hom).obj
         (integerCharacterSection ρ q χ V) :=
-  sorry
+  rfl
 
 /-- The `𝒪_U`-module `𝒪_U ⊗_ℤ ℤ̲(χ)`, obtained by sheafifying the pointwise
 scalar extension of the character sheaf. -/
@@ -124,7 +196,7 @@ theorem integerCharacterModule_def :
       (PresheafOfModules.sheafification
           (𝟙 (commRingedSiteLift U).structureSheaf.obj)).obj
         (integerCharacterExtendScalarsPresheaf ρ q χ) :=
-  sorry
+  rfl
 
 /-- The scalar extension `𝒪_U ⊗_ℤ ℤ̲(χ)` is quasi-coherent. -/
 instance integerCharacterModule_isQuasicoherent :
@@ -144,7 +216,7 @@ theorem tensorIntegerCharacterModulePresheaf_def (F : U.Modules) :
     tensorIntegerCharacterModulePresheaf ρ q χ F =
       PresheafOfModules.Monoidal.tensorObj (Modules.liftModule F).val
         (integerCharacterExtendScalarsPresheaf ρ q χ) :=
-  sorry
+  rfl
 
 /-- The `𝒪_U`-module `F ⊗_ℤ ℤ̲(χ)`, obtained by sheafifying the pointwise tensor
 of the universe-lifted module `F` with `𝒪_U ⊗_ℤ ℤ̲(χ)`. -/
@@ -161,7 +233,7 @@ theorem tensorIntegerCharacterModule_def (F : U.Modules) :
       (PresheafOfModules.sheafification
           (𝟙 (commRingedSiteLift U).structureSheaf.obj)).obj
         (tensorIntegerCharacterModulePresheaf ρ q χ F) :=
-  sorry
+  rfl
 
 /-- As abelian sheaves, sheafification of `tensorIntegerCharacterModulePresheaf`
 is the module-sheaf forgetful image of `tensorIntegerCharacterModule`. -/

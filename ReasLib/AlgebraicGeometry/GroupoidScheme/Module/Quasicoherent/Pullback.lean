@@ -79,13 +79,40 @@ noncomputable def pullbackObj {S : Scheme.{u}} {G H : GroupoidScheme S}
   of ((Scheme.QCoh.pullback f.obj.left).obj A.obj) (pullbackAction f A)
     (pullbackAction_cocycle f A) (pullbackAction_unit f A)
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Pullback of an underlying equivariant morphism remains compatible with equivariance. -/
 theorem pullbackMap_compatibility {S : Scheme.{u}} {G H : GroupoidScheme S}
     (f : Hom G H) {A B : H.QCoh} (a : A ⟶ B) :
     (Scheme.QCoh.pullback G.t.left).map
           ((Scheme.QCoh.pullback f.obj.left).map (hom a)) ≫ (pullbackObj f B).action =
       (pullbackObj f A).action ≫ (Scheme.QCoh.pullback G.s.left).map
-        ((Scheme.QCoh.pullback f.obj.left).map (hom a)) := sorry
+        ((Scheme.QCoh.pullback f.obj.left).map (hom a)) := by
+  have ht := (targetSquareIso f).hom.naturality (hom a)
+  have hs := (sourceSquareIso f).inv.naturality (hom a)
+  dsimp only [Functor.comp_map] at ht hs
+  have ha : (Scheme.QCoh.pullback H.t.left).map (hom a) ≫ B.action =
+      A.action ≫ (Scheme.QCoh.pullback H.s.left).map (hom a) :=
+    (a : System.Hom A B).compatibility
+  change (Scheme.QCoh.pullback G.t.left).map
+        ((Scheme.QCoh.pullback f.obj.left).map (hom a)) ≫ pullbackAction f B =
+      pullbackAction f A ≫ (Scheme.QCoh.pullback G.s.left).map
+        ((Scheme.QCoh.pullback f.obj.left).map (hom a))
+  dsimp only [pullbackAction]
+  calc
+    _ = (targetSquareIso f).hom.app A.obj ≫
+        (Scheme.QCoh.pullback f.arrow.left).map
+          ((Scheme.QCoh.pullback H.t.left).map (hom a) ≫ B.action) ≫
+        (sourceSquareIso f).inv.app B.obj := by
+      simp only [Functor.map_comp, ← Category.assoc]
+      rw [ht]
+    _ = (targetSquareIso f).hom.app A.obj ≫
+        (Scheme.QCoh.pullback f.arrow.left).map
+          (A.action ≫ (Scheme.QCoh.pullback H.s.left).map (hom a)) ≫
+        (sourceSquareIso f).inv.app B.obj := by
+      rw [ha]
+    _ = _ := by
+      simp only [Functor.map_comp, Category.assoc]
+      rw [hs]
 
 /-- Pullback of a morphism of equivariant quasi-coherent modules. -/
 noncomputable def pullbackMap {S : Scheme.{u}} {G H : GroupoidScheme S}
@@ -96,12 +123,18 @@ noncomputable def pullbackMap {S : Scheme.{u}} {G H : GroupoidScheme S}
 /-- Pullback preserves identity equivariant morphisms. -/
 theorem pullbackMap_id {S : Scheme.{u}} {G H : GroupoidScheme S}
     (f : Hom G H) (A : H.QCoh) :
-    pullbackMap f (𝟙 A) = 𝟙 (pullbackObj f A) := sorry
+    pullbackMap f (𝟙 A) = 𝟙 (pullbackObj f A) := by
+  change System.Hom.mk _ _ = System.Hom.mk _ _
+  congr 1
+  exact (Scheme.QCoh.pullback f.obj.left).map_id A.obj
 
 /-- Pullback preserves composition of equivariant morphisms. -/
 theorem pullbackMap_comp {S : Scheme.{u}} {G H : GroupoidScheme S}
     (f : Hom G H) {A B C : H.QCoh} (a : A ⟶ B) (b : B ⟶ C) :
-    pullbackMap f (a ≫ b) = pullbackMap f a ≫ pullbackMap f b := sorry
+    pullbackMap f (a ≫ b) = pullbackMap f a ≫ pullbackMap f b := by
+  change System.Hom.mk _ _ = System.Hom.mk _ _
+  congr 1
+  exact (Scheme.QCoh.pullback f.obj.left).map_comp (hom a) (hom b)
 
 /-- Pullback along a morphism of groupoid schemes is a functor on equivariant
 quasi-coherent modules. -/
@@ -116,19 +149,19 @@ noncomputable def pullback {S : Scheme.{u}} {G H : GroupoidScheme S} (f : Hom G 
 object component. -/
 theorem pullback_obj {S : Scheme.{u}} {G H : GroupoidScheme S} (f : Hom G H)
     (A : H.QCoh) :
-    ((pullback f).obj A).obj = (Scheme.QCoh.pullback f.obj.left).obj A.obj := sorry
+    ((pullback f).obj A).obj = (Scheme.QCoh.pullback f.obj.left).obj A.obj := rfl
 
 /-- The equivariance map of a pulled-back object is the pullback of the original action,
 transported across the source and target squares. -/
 theorem pullback_action {S : Scheme.{u}} {G H : GroupoidScheme S} (f : Hom G H)
     (A : H.QCoh) :
-    ((pullback f).obj A).action = pullbackAction f A := sorry
+    ((pullback f).obj A).action = pullbackAction f A := rfl
 
 /-- The underlying map of a pulled-back equivariant morphism is ordinary pullback along the
 object component. -/
 theorem pullback_map {S : Scheme.{u}} {G H : GroupoidScheme S} (f : Hom G H)
     {A B : H.QCoh} (a : A ⟶ B) :
-    hom ((pullback f).map a) = (Scheme.QCoh.pullback f.obj.left).map (hom a) := sorry
+    hom ((pullback f).map a) = (Scheme.QCoh.pullback f.obj.left).map (hom a) := rfl
 
 end QCoh
 

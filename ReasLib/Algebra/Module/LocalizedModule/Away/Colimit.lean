@@ -19,8 +19,8 @@ This leaf records the diagram of principal localizations indexed by the
 divisibility preorder on a submonoid and its canonical cocone into the total
 localization.
 
-The descent morphism below is concrete; only its well-definedness, linearity, and universal
-property laws are deferred as proposition-valued statements.
+The descent morphism below is concrete; its well-definedness, linearity, and universal
+property follow by transporting fractions to common denominators.
 
 @stack 00CR
 -/
@@ -34,6 +34,55 @@ universe u v
 namespace LocalizedModule.Away
 
 variable {R : Type u} [CommRing R]
+
+private theorem restriction_mk_one
+    {M : Type v} [AddCommGroup M] [Module R M]
+    (a b : R) (h : a ∣ b) (m : M) :
+    mapOfDvd a b h (LocalizedModule.mk m 1) = LocalizedModule.mk m 1 := by
+  simp only [mapOfDvd, mapOfIsUnit, LinearMap.comp_apply,
+    LinearMap.restrictScalars_apply, LinearEquiv.coe_coe,
+    LocalizedModule.equivTensorProduct_apply_mk, TensorProduct.map_tmul,
+    AlgHom.toLinearMap_apply, LinearMap.id_apply, Localization.mk_one, map_one,
+    LocalizedModule.equivTensorProduct_symm_apply_tmul_one]
+
+private theorem smul_mk_pow
+    {M : Type v} [AddCommGroup M] [Module R M] (a : R) (n : ℕ) (m : M) :
+    a ^ n • LocalizedModule.mk m (Submonoid.pow a n) = LocalizedModule.mk m 1 := by
+  rw [LocalizedModule.smul'_mk]
+  exact LocalizedModule.mk_cancel (Submonoid.pow a n) m
+
+private theorem restriction_mk_pow
+    {M : Type v} [AddCommGroup M] [Module R M]
+    (a b : R) {r : R} (hr : b = a * r) (n : ℕ) (m : M) :
+    mapOfDvd a b ⟨r, hr⟩ (LocalizedModule.mk m (Submonoid.pow a n)) =
+      LocalizedModule.mk (r ^ n • m) (Submonoid.pow b n) := by
+  apply IsLocalizedModule.smul_injective
+    (LocalizedModule.mkLinearMap (Submonoid.powers b) M) (Submonoid.pow b n)
+  change b ^ n • mapOfDvd a b ⟨r, hr⟩ (LocalizedModule.mk m (Submonoid.pow a n)) =
+    b ^ n • LocalizedModule.mk (r ^ n • m) (Submonoid.pow b n)
+  rw [smul_mk_pow]
+  calc
+    b ^ n • mapOfDvd a b ⟨r, hr⟩ (LocalizedModule.mk m (Submonoid.pow a n)) =
+        mapOfDvd a b ⟨r, hr⟩
+          (r ^ n • (a ^ n • LocalizedModule.mk m (Submonoid.pow a n))) := by
+      rw [← map_smul]
+      apply congrArg (mapOfDvd a b ⟨r, hr⟩)
+      rw [hr, mul_pow, mul_smul, smul_comm]
+    _ = r ^ n • LocalizedModule.mk m 1 := by
+      rw [smul_mk_pow, map_smul, restriction_mk_one]
+    _ = LocalizedModule.mk (r ^ n • m) 1 := LocalizedModule.smul'_mk _ _ _
+
+private theorem toTotal_mk_pow
+    (S : Submonoid R) {M : Type v} [AddCommGroup M] [Module R M]
+    (s : S) (n : ℕ) (m : M) :
+    toLocalizedModule S s (LocalizedModule.mk m (Submonoid.pow (s : R) n)) =
+      LocalizedModule.mk m (s ^ n) := by
+  rw [IsLocalizedModule.mk_eq_mk']
+  rw [toLocalizedModule, IsLocalizedModule.liftOfLE_mk']
+  rw [IsLocalizedModule.mk_eq_mk']
+  apply congrArg (IsLocalizedModule.mk' (LocalizedModule.mkLinearMap S M) m)
+  apply Subtype.ext
+  rfl
 
 /-- Tag `00CR`: the `ModuleCat R` morphism between principal localizations
 induced by a divisibility relation inside a submonoid. -/
@@ -51,7 +100,19 @@ morphism. -/
 theorem divisibilityMap_id
     (S : Submonoid R) (M : Type v) [AddCommGroup M] [Module R M]
     (s : S.Divisibility) :
-    divisibilityMap S M (leOfHom (𝟙 s)) = 𝟙 _ := sorry
+    divisibilityMap S M (leOfHom (𝟙 s)) = 𝟙 _ := by
+  apply ModuleCat.hom_ext
+  apply LinearMap.ext
+  intro x
+  induction x using LocalizedModule.induction_on with
+  | h m t =>
+    obtain ⟨_, ⟨n, rfl⟩⟩ := t
+    have hs : (s : R) ∣ (s : R) := dvd_refl _
+    change mapOfDvd (s : R) (s : R) hs
+      (LocalizedModule.mk m (Submonoid.pow (s : R) n)) =
+        LocalizedModule.mk m (Submonoid.pow (s : R) n)
+    simpa only [one_pow, one_smul] using
+      (restriction_mk_pow (s : R) (s : R) (mul_one _).symm n m)
 
 /-- Divisibility morphisms between principal localizations compose along
 composition in the divisibility preorder. -/
@@ -60,7 +121,28 @@ theorem divisibilityMap_comp
     (S : Submonoid R) (M : Type v) [AddCommGroup M] [Module R M]
     {a b c : S.Divisibility} (f : a ⟶ b) (g : b ⟶ c) :
     divisibilityMap S M (leOfHom (f ≫ g)) =
-      divisibilityMap S M (leOfHom f) ≫ divisibilityMap S M (leOfHom g) := sorry
+      divisibilityMap S M (leOfHom f) ≫ divisibilityMap S M (leOfHom g) := by
+  obtain ⟨r, hr⟩ := leOfHom f
+  obtain ⟨q, hq⟩ := leOfHom g
+  have hc : (c : R) = (a : R) * (r * q) := by
+    rw [hq, hr, mul_assoc]
+  apply ModuleCat.hom_ext
+  apply LinearMap.ext
+  intro x
+  induction x using LocalizedModule.induction_on with
+  | h m t =>
+    obtain ⟨_, ⟨n, rfl⟩⟩ := t
+    have hab : (a : R) ∣ (b : R) := ⟨r, hr⟩
+    have hbc : (b : R) ∣ (c : R) := ⟨q, hq⟩
+    have hac : (a : R) ∣ (c : R) := ⟨r * q, hc⟩
+    change mapOfDvd (a : R) (c : R) hac
+      (LocalizedModule.mk m (Submonoid.pow (a : R) n)) =
+        mapOfDvd (b : R) (c : R) hbc
+          (mapOfDvd (a : R) (b : R) hab
+            (LocalizedModule.mk m (Submonoid.pow (a : R) n)))
+    rw [restriction_mk_pow _ _ hc, restriction_mk_pow _ _ hr,
+      restriction_mk_pow _ _ hq]
+    simp only [mul_pow, mul_smul, smul_comm (r ^ n) (q ^ n)]
 
 /-- Tag `00CR`: the diagram of principal localizations of `M` indexed by
 elements of `S` ordered by divisibility. -/
@@ -81,7 +163,29 @@ theorem divisibilityCocone_naturality
     {a b : S.Divisibility} (f : a ⟶ b) :
     divisibilityMap S M (leOfHom f) ≫
         ModuleCat.ofHom (toLocalizedModule (M := M) S (b : S)) =
-      ModuleCat.ofHom (toLocalizedModule (M := M) S (a : S)) := sorry
+      ModuleCat.ofHom (toLocalizedModule (M := M) S (a : S)) := by
+  obtain ⟨r, hr⟩ := leOfHom f
+  apply ModuleCat.hom_ext
+  apply LinearMap.ext
+  intro x
+  induction x using LocalizedModule.induction_on with
+  | h m t =>
+    obtain ⟨_, ⟨n, rfl⟩⟩ := t
+    have hab : (a : R) ∣ (b : R) := ⟨r, hr⟩
+    change toLocalizedModule S (b : S)
+      (mapOfDvd (a : R) (b : R) hab
+        (LocalizedModule.mk m (Submonoid.pow (a : R) n))) =
+          toLocalizedModule S (a : S)
+            (LocalizedModule.mk m (Submonoid.pow (a : R) n))
+    rw [restriction_mk_pow _ _ hr, toTotal_mk_pow, toTotal_mk_pow]
+    apply LocalizedModule.mk_eq.mpr
+    refine ⟨1, ?_⟩
+    simp only [one_smul]
+    calc
+      (a : R) ^ n • r ^ n • m = ((a : R) ^ n * r ^ n) • m :=
+        (mul_smul _ _ _).symm
+      _ = ((a : R) * r) ^ n • m := by rw [mul_pow]
+      _ = (b : R) ^ n • m := by rw [hr]
 
 /-- Tag `00CR`: the canonical cocone from the divisibility diagram of
 principal localizations to the total localization at `S`. -/
@@ -96,6 +200,24 @@ noncomputable def divisibilityCocone
 
 namespace divisibilityCoconeDesc
 
+private theorem cocone_mk_pow
+    (S : Submonoid R) (M : Type v) [AddCommGroup M] [Module R M]
+    (c : Cocone (divisibilityDiagram S M)) (s t : S) {r : R}
+    (hr : (t : R) = (s : R) * r) (n : ℕ) (m : M) :
+    c.ι.app s (LocalizedModule.mk m (Submonoid.pow (s : R) n)) =
+      c.ι.app t (LocalizedModule.mk (r ^ n • m) (Submonoid.pow (t : R) n)) := by
+  have h := congrArg
+    (fun k : ModuleCat.of R (LocalizedModule.Away (s : R) M) ⟶ c.pt ↦
+      k (LocalizedModule.mk m (Submonoid.pow (s : R) n)))
+    (c.w (homOfLE (show (s : S.Divisibility) ≤ (t : S.Divisibility) from ⟨r, hr⟩)))
+  have hst : (s : R) ∣ (t : R) := ⟨r, hr⟩
+  change c.ι.app t
+    (mapOfDvd (s : R) (t : R) hst
+      (LocalizedModule.mk m (Submonoid.pow (s : R) n))) =
+        c.ι.app s (LocalizedModule.mk m (Submonoid.pow (s : R) n)) at h
+  rw [restriction_mk_pow _ _ hr] at h
+  exact h.symm
+
 /-- Evaluating a cocone in the denominator component respects the equivalence relation defining
 the total localized module. -/
 @[stacks 00CR "principal localization cocone descent well-definedness"]
@@ -103,7 +225,23 @@ theorem wellDefined
     (S : Submonoid R) (M : Type v) [AddCommGroup M] [Module R M]
     (c : Cocone (divisibilityDiagram S M)) (p p' : M × S) (h : p ≈ p') :
     c.ι.app p.2 (LocalizedModule.mk p.1 (Submonoid.pow (p.2 : R) 1)) =
-      c.ι.app p'.2 (LocalizedModule.mk p'.1 (Submonoid.pow (p'.2 : R) 1)) := sorry
+      c.ι.app p'.2 (LocalizedModule.mk p'.1 (Submonoid.pow (p'.2 : R) 1)) := by
+  rcases p with ⟨m, s⟩
+  rcases p' with ⟨m', t⟩
+  obtain ⟨u, hu⟩ := h
+  let q : S := u * s * t
+  have hs : (q : R) = (s : R) * ((u : R) * (t : R)) := by
+    dsimp only [q, Submonoid.coe_mul]
+    ac_rfl
+  have ht : (q : R) = (t : R) * ((u : R) * (s : R)) := by
+    dsimp only [q, Submonoid.coe_mul]
+    ac_rfl
+  change c.ι.app s (LocalizedModule.mk m (Submonoid.pow (s : R) 1)) =
+    c.ι.app t (LocalizedModule.mk m' (Submonoid.pow (t : R) 1))
+  rw [cocone_mk_pow S M c s q hs, cocone_mk_pow S M c t q ht]
+  apply congrArg (fun m : M ↦ c.ι.app q
+    (LocalizedModule.mk m (Submonoid.pow (q : R) 1)))
+  simpa only [pow_one, mul_smul, Submonoid.smul_def] using hu
 
 /-- The underlying function of the canonical descent morphism evaluates a fraction in the cocone
 component indexed by its denominator. -/
@@ -120,14 +258,42 @@ noncomputable def toFun
 theorem map_add
     (S : Submonoid R) (M : Type v) [AddCommGroup M] [Module R M]
     (c : Cocone (divisibilityDiagram S M)) (x y : LocalizedModule S M) :
-    toFun S M c (x + y) = toFun S M c x + toFun S M c y := sorry
+    toFun S M c (x + y) = toFun S M c x + toFun S M c y := by
+  induction x, y using LocalizedModule.induction_on₂ with
+  | h m m' s t =>
+    rw [LocalizedModule.mk_add_mk]
+    simp only [toFun, LocalizedModule.liftOn_mk, Submonoid.smul_def]
+    rw [cocone_mk_pow S M c s (s * t) rfl,
+      cocone_mk_pow S M c t (s * t) (mul_comm (s : R) (t : R))]
+    simp only [pow_one]
+    let st : S.Divisibility := (s * t : S)
+    let u : Submonoid.powers (st : R) := Submonoid.pow (st : R) 1
+    have heq :
+        LocalizedModule.mk ((t : R) • m + (s : R) • m') u =
+          LocalizedModule.mk ((t : R) • m) u +
+            LocalizedModule.mk ((s : R) • m') u := by
+      rw [LocalizedModule.mk_add_mk]
+      apply LocalizedModule.mk_eq.mpr
+      refine ⟨1, ?_⟩
+      simp only [one_smul, mul_smul, smul_add]
+    change c.ι.app st (LocalizedModule.mk ((t : R) • m + (s : R) • m') u) =
+      c.ι.app st (LocalizedModule.mk ((t : R) • m) u) +
+        c.ι.app st (LocalizedModule.mk ((s : R) • m') u)
+    rw [heq]
+    exact (c.ι.app st).hom.map_add _ _
 
 /-- The underlying descent function preserves scalar multiplication. -/
 @[stacks 00CR "principal localization cocone descent scalar action"]
 theorem map_smul
     (S : Submonoid R) (M : Type v) [AddCommGroup M] [Module R M]
     (c : Cocone (divisibilityDiagram S M)) (r : R) (x : LocalizedModule S M) :
-    toFun S M c (r • x) = r • toFun S M c x := sorry
+    toFun S M c (r • x) = r • toFun S M c x := by
+  induction x using LocalizedModule.induction_on with
+  | h m s =>
+    rw [LocalizedModule.smul'_mk]
+    simp only [toFun, LocalizedModule.liftOn_mk]
+    rw [← LocalizedModule.smul'_mk]
+    exact (c.ι.app s).hom.map_smul r _
 
 end divisibilityCoconeDesc
 
@@ -150,14 +316,56 @@ theorem divisibilityCoconeDesc_apply_mk
     (S : Submonoid R) (M : Type v) [AddCommGroup M] [Module R M]
     (c : Cocone (divisibilityDiagram S M)) (m : M) (s : S) :
     divisibilityCoconeDesc S M c (LocalizedModule.mk m s) =
-      c.ι.app s (LocalizedModule.mk m (Submonoid.pow (s : R) 1)) := sorry
+      c.ι.app s (LocalizedModule.mk m (Submonoid.pow (s : R) 1)) := by
+  change divisibilityCoconeDesc.toFun S M c (LocalizedModule.mk m s) = _
+  exact LocalizedModule.liftOn_mk _ m s
 
 /-- The canonical descent morphism factors every leg of the total-localization cocone. -/
 @[reassoc, simp, stacks 00CR "principal localization cocone descent factorization"]
 theorem divisibilityCoconeDesc_fac
     (S : Submonoid R) (M : Type v) [AddCommGroup M] [Module R M]
     (c : Cocone (divisibilityDiagram S M)) (s : S.Divisibility) :
-    (divisibilityCocone S M).ι.app s ≫ divisibilityCoconeDesc S M c = c.ι.app s := sorry
+    (divisibilityCocone S M).ι.app s ≫ divisibilityCoconeDesc S M c = c.ι.app s := by
+  apply ModuleCat.hom_ext
+  apply LinearMap.ext
+  intro x
+  induction x using LocalizedModule.induction_on with
+  | h m t =>
+    obtain ⟨_, ⟨n, rfl⟩⟩ := t
+    change divisibilityCoconeDesc S M c
+      (toLocalizedModule S (s : S)
+        (LocalizedModule.mk m (Submonoid.pow (s : R) n))) =
+          c.ι.app s (LocalizedModule.mk m (Submonoid.pow (s : R) n))
+    rw [toTotal_mk_pow, divisibilityCoconeDesc_apply_mk]
+    let q : S := (s : S) ^ n
+    let b : S.Divisibility := (s : S) * q
+    have hq : (b : R) = (q : R) * (s : R) := by
+      change (s : R) * (q : R) = (q : R) * (s : R)
+      exact mul_comm _ _
+    have hs : (b : R) = (s : R) * (q : R) := rfl
+    have heq :
+        LocalizedModule.mk ((s : R) • m) (Submonoid.pow (b : R) 1) =
+          LocalizedModule.mk ((q : R) ^ n • m) (Submonoid.pow (b : R) n) := by
+      apply LocalizedModule.mk_eq.mpr
+      refine ⟨1, ?_⟩
+      change (1 : R) • ((b : R) ^ n • ((s : R) • m)) =
+        (1 : R) • ((b : R) ^ 1 • ((q : R) ^ n • m))
+      simp only [pow_one, ← mul_smul, one_mul]
+      congr 1
+      change ((s : R) * (s : R) ^ n) ^ n * (s : R) =
+        ((s : R) * (s : R) ^ n) * ((s : R) ^ n) ^ n
+      rw [mul_pow]
+      ac_rfl
+    change c.ι.app q (LocalizedModule.mk m (Submonoid.pow (q : R) 1)) =
+      c.ι.app (s : S) (LocalizedModule.mk m (Submonoid.pow (s : R) n))
+    rw [divisibilityCoconeDesc.cocone_mk_pow S M c q (b : S) hq,
+      divisibilityCoconeDesc.cocone_mk_pow S M c (s : S) (b : S) hs]
+    change (c.ι.app b).hom
+        (LocalizedModule.mk ((s : R) ^ 1 • m) (Submonoid.pow (b : R) 1)) =
+      (c.ι.app b).hom
+        (LocalizedModule.mk ((q : R) ^ n • m) (Submonoid.pow (b : R) n))
+    rw [pow_one]
+    exact congrArg (c.ι.app b).hom heq
 
 /-- A morphism compatible with all principal-localization cocone legs is the canonical descent
 morphism. -/
@@ -167,7 +375,21 @@ theorem divisibilityCoconeDesc_unique
     (c : Cocone (divisibilityDiagram S M))
     (t : (divisibilityCocone S M).pt ⟶ c.pt)
     (ht : ∀ s : S.Divisibility, (divisibilityCocone S M).ι.app s ≫ t = c.ι.app s) :
-    t = divisibilityCoconeDesc S M c := sorry
+    t = divisibilityCoconeDesc S M c := by
+  apply ModuleCat.hom_ext
+  apply LinearMap.ext
+  intro x
+  induction x using LocalizedModule.induction_on with
+  | h m s =>
+    rw [divisibilityCoconeDesc_apply_mk]
+    have h := congrArg
+      (fun k : ModuleCat.of R (LocalizedModule.Away (s : R) M) ⟶ c.pt ↦
+        k (LocalizedModule.mk m (Submonoid.pow (s : R) 1))) (ht s)
+    change t (toLocalizedModule S s
+      (LocalizedModule.mk m (Submonoid.pow (s : R) 1))) =
+        c.ι.app s (LocalizedModule.mk m (Submonoid.pow (s : R) 1)) at h
+    rw [toTotal_mk_pow, pow_one] at h
+    exact h
 
 /-- Tag `00CR`: every cocone on principal localizations indexed by
 divisibility admits a unique compatible morphism from the total localization.
@@ -177,7 +399,9 @@ theorem divisibilityCocone_existsUniqueDesc
     (S : Submonoid R) (M : Type v) [AddCommGroup M] [Module R M]
     (c : Cocone (divisibilityDiagram S M)) :
     ∃! t : (divisibilityCocone S M).pt ⟶ c.pt,
-      ∀ s : S.Divisibility, (divisibilityCocone S M).ι.app s ≫ t = c.ι.app s := sorry
+      ∀ s : S.Divisibility, (divisibilityCocone S M).ι.app s ≫ t = c.ι.app s := by
+  exact ⟨divisibilityCoconeDesc S M c, divisibilityCoconeDesc_fac S M c,
+    fun t ht ↦ divisibilityCoconeDesc_unique S M c t ht⟩
 
 /-- Lemma 10.9.9: the total localization is the colimit of the principal-localization diagram.
 
@@ -197,6 +421,7 @@ theorem divisibilityCocone_isColimit_fac
     (S : Submonoid R) (M : Type v) [AddCommGroup M] [Module R M]
     (c : Cocone (divisibilityDiagram S M)) (s : S.Divisibility) :
     (divisibilityCocone S M).ι.app s ≫
-        (divisibilityCocone_isColimit S M).desc c = c.ι.app s := sorry
+        (divisibilityCocone_isColimit S M).desc c = c.ι.app s := by
+  exact (divisibilityCocone_isColimit S M).fac c s
 
 end LocalizedModule.Away

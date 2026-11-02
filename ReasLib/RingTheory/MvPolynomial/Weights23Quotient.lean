@@ -7,6 +7,7 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import Mathlib.Algebra.Field.Basic
+import Mathlib.Algebra.Polynomial.Roots
 public import Mathlib.RingTheory.MvPolynomial.WeightedHomogeneous
 public import ReasLib.Algebra.Module.Graded.Hilbert.Rank
 public import ReasLib.Algebra.Module.Graded.LocallyFinite
@@ -36,13 +37,13 @@ def weight (i : Fin 2) : ℕ :=
   i.val + 2
 
 /-- The value of the weight function on a variable index. -/
-theorem weight_apply (i : Fin 2) : weight i = i.val + 2 := sorry
+theorem weight_apply (i : Fin 2) : weight i = i.val + 2 := rfl
 
 /-- The first variable has weight `2`. -/
-theorem weight_zero : weight 0 = 2 := sorry
+theorem weight_zero : weight 0 = 2 := rfl
 
 /-- The second variable has weight `3`. -/
-theorem weight_one : weight 1 = 3 := sorry
+theorem weight_one : weight 1 = 3 := rfl
 
 variable (k : Type u) [Field k]
 
@@ -59,10 +60,10 @@ abbrev y : PolynomialRing k :=
   X (1 : Fin 2)
 
 /-- The first variable is the variable indexed by `0`. -/
-theorem x_def : x k = X (0 : Fin 2) := sorry
+theorem x_def : x k = X (0 : Fin 2) := rfl
 
 /-- The second variable is the variable indexed by `1`. -/
-theorem y_def : y k = X (1 : Fin 2) := sorry
+theorem y_def : y k = X (1 : Fin 2) := rfl
 
 /-- The weighted homogeneous grading on the polynomial ring. -/
 abbrev polynomialGrading : ℕ → Submodule k (PolynomialRing k) :=
@@ -70,7 +71,7 @@ abbrev polynomialGrading : ℕ → Submodule k (PolynomialRing k) :=
 
 /-- Membership in a polynomial grading piece is weighted homogeneity. -/
 theorem mem_polynomialGrading_iff (n : ℕ) (f : PolynomialRing k) :
-    f ∈ polynomialGrading k n ↔ IsWeightedHomogeneous weight f n := sorry
+    f ∈ polynomialGrading k n ↔ IsWeightedHomogeneous weight f n := Iff.rfl
 
 /-- The canonical graded-algebra structure on the weighted polynomial grading. -/
 noncomputable instance instPolynomialGradedAlgebra : GradedAlgebra (polynomialGrading k) :=
@@ -81,19 +82,25 @@ def relationIdeal : Ideal (PolynomialRing k) :=
   Ideal.span {x k ^ 2, x k * y k}
 
 /-- The defining generators of the relation ideal. -/
-theorem relationIdeal_eq : relationIdeal k = Ideal.span {x k ^ 2, x k * y k} := sorry
+theorem relationIdeal_eq : relationIdeal k = Ideal.span {x k ^ 2, x k * y k} := rfl
 
 /-- The relation `x ^ 2` is homogeneous for the weighted grading. -/
-theorem x_pow_two_isHomogeneous : SetLike.IsHomogeneousElem (polynomialGrading k) (x k ^ 2) :=
-  sorry
+theorem x_pow_two_isHomogeneous : SetLike.IsHomogeneousElem (polynomialGrading k) (x k ^ 2) := by
+  exact ⟨_, (isWeightedHomogeneous_X k weight (0 : Fin 2)).pow 2⟩
 
 /-- The relation `x * y` is homogeneous for the weighted grading. -/
-theorem x_mul_y_isHomogeneous : SetLike.IsHomogeneousElem (polynomialGrading k) (x k * y k) :=
-  sorry
+theorem x_mul_y_isHomogeneous : SetLike.IsHomogeneousElem (polynomialGrading k) (x k * y k) := by
+  exact ⟨_, (isWeightedHomogeneous_X k weight (0 : Fin 2)).mul
+    (isWeightedHomogeneous_X k weight (1 : Fin 2))⟩
 
 /-- The relation ideal is homogeneous for the weighted grading. -/
-theorem relationIdeal_isHomogeneous : (relationIdeal k).IsHomogeneous (polynomialGrading k) :=
-  sorry
+theorem relationIdeal_isHomogeneous : (relationIdeal k).IsHomogeneous (polynomialGrading k) := by
+  apply Ideal.homogeneous_span
+  intro f hf
+  rcases Set.mem_insert_iff.mp hf with rfl | hf
+  · exact x_pow_two_isHomogeneous k
+  · obtain rfl := Set.mem_singleton_iff.mp hf
+    exact x_mul_y_isHomogeneous k
 
 /-- The quotient of the polynomial ring by the relation ideal. -/
 abbrev CoordinateRing :=
@@ -113,8 +120,16 @@ abbrev integerGrading : ℤ → Submodule k (CoordinateRing k) :=
   DirectSum.Decomposition.natToIntGrading (grading k)
 
 /-- Each graded piece of the quotient is finite-dimensional over `k`. -/
-instance instLocallyFinite : GradedModule.LocallyFinite (integerGrading k) :=
-  sorry
+instance instLocallyFinite : GradedModule.LocallyFinite (integerGrading k) := by
+  constructor
+  intro n
+  apply Module.Finite.of_fg
+  change (if 0 ≤ n then grading k n.toNat else ⊥).FG
+  split_ifs
+  · exact (weightedHomogeneousSubmodule_fg k weight
+      (by intro i; simp [weight]) n.toNat).map
+        (Ideal.Quotient.mkₐ k (relationIdeal k)).toLinearMap
+  · exact Submodule.fg_bot
 
 /-- The Hilbert function is the dimension of each integer-graded piece. -/
 theorem hilbertFunction_eq (k : Type u) [Field k] (n : ℤ) :
@@ -124,7 +139,53 @@ theorem hilbertFunction_eq (k : Type u) [Field k] (n : ℤ) :
 
 /-- The quotient has no Hilbert polynomial for the weighted grading. -/
 theorem not_hasHilbertPolynomial (k : Type u) [Field k] :
-    ¬ HasHilbertPolynomial (K0.Finite.genericRank.{u, u} k) (integerGrading k) :=
-  sorry
+    ¬ HasHilbertPolynomial (K0.Finite.genericRank.{u, u} k) (integerGrading k) := by
+  classical
+  rintro ⟨r, a, ha⟩
+  obtain ⟨N, hN⟩ := Filter.eventually_atTop.mp ha
+  -- Clearing the binomial denominators gives an ordinary polynomial over ℤ.
+  let P : Polynomial ℤ := ∑ i : Fin (r + 1),
+    (a i * (r.factorial / i.val.factorial : ℕ)) • descPochhammer ℤ i.val
+  have h_eval (n : ℤ) :
+      P.eval n = (r.factorial : ℤ) * ∑ i : Fin (r + 1), Ring.choose n i.val • a i := by
+    dsimp only [P]
+    rw [Polynomial.eval_finsetSum]
+    simp only [Polynomial.eval_smul]
+    simp only [Polynomial.eval_eq_smeval, Ring.descPochhammer_eq_factorial_smul_choose,
+      nsmul_eq_mul, zsmul_eq_mul, Finset.mul_sum]
+    apply Finset.sum_congr rfl
+    intro i _
+    have hfac : ((r.factorial / i.val.factorial : ℕ) : ℤ) * i.val.factorial =
+        (r.factorial : ℤ) := by
+      exact_mod_cast Nat.div_mul_cancel
+        (Nat.factorial_dvd_factorial (Nat.le_of_lt_succ i.isLt))
+    calc
+      (a i * ↑(r.factorial / i.val.factorial)) * (↑i.val.factorial * Ring.choose n i.val) =
+          (↑(r.factorial / i.val.factorial) * ↑i.val.factorial) *
+            (Ring.choose n i.val * a i) := by ring
+      _ = _ := by simp only [hfac, Int.cast_id]
+  have hP (n : ℤ) (hn : N ≤ n) :
+      P.eval n = (r.factorial : ℤ) *
+        (if n = 2 ∨ (0 ≤ n ∧ 3 ∣ n) then 1 else 0) := by
+    have hn' := hN n hn
+    dsimp only at hn'
+    rw [h_eval, ← hn', hilbertFunction_eq k n]
+  -- On the infinite progression 3n the polynomial is constant.
+  have hPconst : P = Polynomial.C (r.factorial : ℤ) := by
+    apply Polynomial.eq_of_infinite_eval_eq
+    have hinj : Function.Injective (fun n : ℤ ↦ 3 * n) := by
+      intro m n h
+      change 3 * m = 3 * n at h
+      omega
+    apply ((Set.Ici_infinite (max N 3)).image hinj.injOn).mono
+    rintro _ ⟨n, hn, rfl⟩
+    change max N 3 ≤ n at hn
+    change P.eval (3 * n) = (Polynomial.C (r.factorial : ℤ)).eval (3 * n)
+    rw [hP (3 * n) (by omega), if_pos (Or.inr ⟨by omega, dvd_mul_right 3 n⟩)]
+    simp
+  -- The progression 3n + 1 instead has value zero, which is impossible.
+  have h := hP (3 * max N 3 + 1) (by omega)
+  rw [hPconst, Polynomial.eval_C, if_neg (by omega), mul_zero] at h
+  exact (Int.natCast_ne_zero.mpr (Nat.factorial_ne_zero r)) h
 
 end MvPolynomial.Weights23Quotient

@@ -40,11 +40,13 @@ class ValuativeCriterion.DVR.Uniqueness {S : Scheme.{u}} {X Y : AlgebraicSpace S
 namespace ValuativeCriterion.DVR.Uniqueness
 
 /-- The identity morphism of an algebraic space satisfies DVR uniqueness. -/
-instance id {S : Scheme.{u}} {X : AlgebraicSpace S} : Uniqueness (𝟙 X) := sorry
+instance id {S : Scheme.{u}} {X : AlgebraicSpace S} : Uniqueness (𝟙 X) :=
+  ⟨fun _ _ => inferInstance⟩
 
 /-- Uniqueness for all valuation rings implies uniqueness for discrete valuation rings. -/
 instance of_uniqueness {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-    [ValuativeCriterion.Uniqueness f] : Uniqueness f := sorry
+    [ValuativeCriterion.Uniqueness f] : Uniqueness f :=
+  ⟨fun sq _ => ValuativeCriterion.Uniqueness.subsingleton_liftStruct sq⟩
 
 /-- A morphism satisfies DVR uniqueness if and only if every DVR valuative square
 has at most one lift. -/
@@ -52,7 +54,7 @@ theorem spec {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     Uniqueness f ↔
       ∀ sq : ValuativeCommSq f,
         IsDiscreteValuationRing sq.R → Subsingleton sq.commSq.LiftStruct :=
-  sorry
+  ⟨fun h => h.subsingleton_liftStruct, fun h => ⟨h⟩⟩
 
 end ValuativeCriterion.DVR.Uniqueness
 
@@ -69,7 +71,11 @@ class ValuativeCriterion.DVR.Existence {S : Scheme.{u}} {X Y : AlgebraicSpace S}
 namespace ValuativeCriterion.DVR.Existence
 
 /-- The identity morphism of an algebraic space satisfies DVR existence. -/
-instance id {S : Scheme.{u}} {X : AlgebraicSpace S} : Existence (𝟙 X) := sorry
+instance id {S : Scheme.{u}} {X : AlgebraicSpace S} : Existence (𝟙 X) where
+  nonempty_liftStruct sq _ := ⟨{
+    l := sq.i₂
+    fac_left := by simpa only [Category.comp_id] using sq.commSq.w.symm
+    fac_right := Category.comp_id _ }⟩
 
 /-- A morphism satisfies DVR existence if and only if every DVR valuative square
 has a lift. -/
@@ -77,7 +83,7 @@ theorem spec {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     Existence f ↔
       ∀ sq : ValuativeCommSq f,
         IsDiscreteValuationRing sq.R → Nonempty sq.commSq.LiftStruct :=
-  sorry
+  ⟨fun h => h.nonempty_liftStruct, fun h => ⟨h⟩⟩
 
 end ValuativeCriterion.DVR.Existence
 
@@ -94,14 +100,16 @@ namespace ValuativeCriterion.DVR
 /-- The identity morphism of an algebraic space satisfies the DVR valuative
 criterion. -/
 instance id {S : Scheme.{u}} {X : AlgebraicSpace S} :
-    ValuativeCriterion.DVR (𝟙 X) :=
-  sorry
+    ValuativeCriterion.DVR (𝟙 X) where
+  toUniqueness := Uniqueness.id
+  toExistence := Existence.id
 
 /-- A morphism satisfies the DVR valuative criterion if and only if it satisfies
 both the uniqueness and existence parts. -/
 theorem iff {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     ValuativeCriterion.DVR f ↔ Uniqueness f ∧ Existence f :=
-  sorry
+  ⟨fun h => ⟨h.toUniqueness, h.toExistence⟩,
+    fun h => { toUniqueness := h.1, toExistence := h.2 }⟩
 
 /-- A morphism satisfying the DVR valuative criterion has a unique dotted lift
 on every DVR valuative square. -/
@@ -109,7 +117,10 @@ theorem unique_liftStruct {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y
     [ValuativeCriterion.DVR f] (sq : ValuativeCommSq f)
     (hR : IsDiscreteValuationRing sq.R) :
     Nonempty (Unique sq.commSq.LiftStruct) :=
-  sorry
+  by
+    letI := Uniqueness.subsingleton_liftStruct sq hR
+    obtain ⟨l⟩ := Existence.nonempty_liftStruct sq hR
+    exact ⟨{ default := l, uniq := fun _ => Subsingleton.elim _ _ }⟩
 
 end ValuativeCriterion.DVR
 

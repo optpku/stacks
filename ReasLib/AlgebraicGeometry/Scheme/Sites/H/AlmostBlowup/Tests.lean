@@ -48,7 +48,7 @@ theorem isPrincipalCenter_iff {C : Type uC} [Category.{vC} C] (G : C ⥤ Scheme.
       ∀ (A : CommRingCat.{u}) (f : A) (J : Ideal A) (hJfg : J.FG)
           (hJ : ∃ n : ℕ, ∀ x ∈ J, f ^ n * x = 0) (sq : Square C),
         (sq.map G ≅ (Spec.quotientMap_isAlmostBlowupSquare A f J hJfg hJ).square) →
-          (sq.op.map F).IsPullback := sorry
+          (sq.op.map F).IsPullback := Iff.rfl
 
 /-- A presheaf satisfies two-generator descent when it sends every represented square
 isomorphic to a canonical two-generator projective square to a pullback square. -/
@@ -65,7 +65,7 @@ theorem isTwoGenerator_iff {C : Type uC} [Category.{vC} C] (G : C ⥤ Scheme.{u}
     IsTwoGenerator G F ↔
       ∀ (A : CommRingCat.{u}) (f₁ f₂ : A) (sq : Square C),
         (sq.map G ≅ (TwoGeneratorProj.toSpec_isAlmostBlowupSquare A f₁ f₂).square) →
-          (sq.op.map F).IsPullback := sorry
+          (sq.op.map F).IsPullback := Iff.rfl
 
 end AlmostBlowupDescent
 
@@ -114,7 +114,9 @@ theorem ofExampleDescent
       (ChosenBigSite.sliceToScheme Schh S) F)
     (h_twoGenerator : AlmostBlowupDescent.IsTwoGenerator
       (ChosenBigSite.sliceToScheme Schh S) F) :
-    Presheaf.IsSheaf (bigTopology Schh S) F := sorry
+    Presheaf.IsSheaf (bigTopology Schh S) F := by
+  exact ofZariskiAffineFlatProperAlmostBlowup Schh S F h_zariski h_flatProper
+    (AlmostBlowup.isAffineDescent_of_examples Schh S F h_zariski h_principal h_twoGenerator)
 
 /-- A type-valued presheaf on a chosen big h-site slice is an h-sheaf exactly when it
 satisfies Zariski descent, affine flat-proper-surjective equalizer descent,
@@ -128,7 +130,13 @@ theorem iffZariskiAndFlatProperExampleDescent
           AlmostBlowupDescent.IsPrincipalCenter
               (ChosenBigSite.sliceToScheme Schh S) F ∧
             AlmostBlowupDescent.IsTwoGenerator
-              (ChosenBigSite.sliceToScheme Schh S) F := sorry
+              (ChosenBigSite.sliceToScheme Schh S) F := by
+  constructor
+  · intro hF
+    exact ⟨zariskiOfIsSheaf Schh S F hF, affineFlatProperDescentOfIsSheaf Schh S F hF,
+      principalCenterDescentOfIsSheaf Schh S F hF, twoGeneratorDescentOfIsSheaf Schh S F hF⟩
+  · rintro ⟨h_zariski, h_flatProper, h_principal, h_twoGenerator⟩
+    exact ofExampleDescent Schh S F h_zariski h_flatProper h_principal h_twoGenerator
 
 end ChosenBigHSite.Sheaf
 

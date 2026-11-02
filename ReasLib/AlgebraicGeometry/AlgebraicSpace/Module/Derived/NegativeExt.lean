@@ -61,7 +61,12 @@ theorem mem_negativeExtVanishingSet_iff (f : X ⟶ Y)
     [Proper f] [Flat f] [FinitePresentation f] (K E : ModuleDerived X)
     (hK : IsPseudoCoherent X K) (hE : IsPerfectRelativeTo f E) (p : FieldValuedPoint Y) :
     Points.mk p ∈ negativeExtVanishingSet f K E ↔
-      fiberNegativeExtVanish f K E p := sorry
+      fiberNegativeExtVanish f K E p := by
+  constructor
+  · intro h
+    exact h p rfl
+  · intro h q hq
+    exact (fiberNegativeExtVanish_dependsOnlyOnPoint f K E hK hE hq).2 h
 
 /-- For a proper, flat, finitely presented morphism, the negative Ext vanishing
 set is open in `|Y|`. -/
@@ -84,7 +89,7 @@ theorem negativeExtVanishingOpen_carrier (f : X ⟶ Y)
     [Proper f] [Flat f]
     [FinitePresentation f] (K E : ModuleDerived X) (hK : IsPseudoCoherent X K)
     (hE : IsPerfectRelativeTo f E) :
-    (negativeExtVanishingOpen f K E hK hE).carrier = negativeExtVanishingSet f K E := sorry
+    (negativeExtVanishingOpen f K E hK hE).carrier = negativeExtVanishingSet f K E := rfl
 
 /-- The open subspace `W ⊂ Y` on which negative fibre Ext-groups of `(K, E)`
 vanish. -/
@@ -100,7 +105,8 @@ theorem negativeExtVanishing_pointsSet (f : X ⟶ Y)
     [Proper f] [Flat f]
     [FinitePresentation f] (K E : ModuleDerived X) (hK : IsPseudoCoherent X K)
     (hE : IsPerfectRelativeTo f E) :
-    (negativeExtVanishing f K E hK hE).pointsSet = negativeExtVanishingSet f K E := sorry
+    (negativeExtVanishing f K E hK hE).pointsSet = negativeExtVanishingSet f K E :=
+  OpenSubspace.fromOpens_pointsSet (negativeExtVanishingOpen f K E hK hE)
 
 variable (f : X ⟶ Y) [Proper f] [Flat f] [FinitePresentation f]
 variable (K E : ModuleDerived X) (hK : IsPseudoCoherent X K)
@@ -110,7 +116,8 @@ variable (hE : IsPerfectRelativeTo f E)
 the fibre Ext-groups `Ext⁽i⁾(K_y, E_y)` vanish for all `i < 0`. -/
 theorem mem_negativeExtVanishingOpen_iff (p : FieldValuedPoint Y) :
     Points.mk p ∈ negativeExtVanishingOpen f K E hK hE ↔
-      fiberNegativeExtVanish f K E p := sorry
+      fiberNegativeExtVanish f K E p :=
+  mem_negativeExtVanishingSet_iff f K E hK hE p
 
 /-- If `V ⟶ Y` factors through the negative Ext vanishing subspace, then the Ext-groups
 `Ext⁽i⁾(K_V, E_V)` vanish for all `i < 0`. -/

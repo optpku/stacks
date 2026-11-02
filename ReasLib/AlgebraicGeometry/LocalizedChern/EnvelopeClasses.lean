@@ -209,6 +209,12 @@ theorem mixedChernClass_of_ge {n : ℕ} (h : p ≤ n) :
 is the graph-defined mixed family. -/
 theorem mixedChernClass_eq (situation : Situation S δ X i E p .rankBound) :
     mixedChernClass i classes E perfect defined p rankBound =
-      LocalizedChern.mixedChernClass i classes E p situation := sorry
+      LocalizedChern.mixedChernClass i classes E p situation := by
+  funext n
+  by_cases h : n < p
+  · simp only [mixedChernClass, LocalizedChern.mixedChernClass, dif_pos h]
+  · simp only [mixedChernClass, LocalizedChern.mixedChernClass, dif_neg h]
+    congr 1
+    exact chernClass_eq i classes E perfect defined n _ situation.finiteness
 
 end AlgebraicGeometry.LocalizedChern.EnvelopeClasses

@@ -8,6 +8,7 @@ module
 
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.RestrictToScheme.ExtensionBaseChange
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.RestrictToScheme.ExtensionMonoidal
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Quasicoherent.Tensor
 
 /-!
 # The specified comparisons on quasi-coherent modules
@@ -123,6 +124,37 @@ def tensorPowerComparison (Z : Over S) (L : (ofOver Z).Modules) (n : ℕ) :
   Nat.rec (unitMap Z)
     (fun k rec ↦ (𝟙 _ ⊗ₘ rec) ≫ Modules.restrictTensorLax L (tensorPowerUnit L k)) n
 
+/-- The recursive tensor-power comparison is bijective on sections of quasi-coherent inputs. -/
+theorem tensorPowerComparison_bijective (Z : Over S) (L : (ofOver Z).Modules)
+    [L.IsQuasicoherent] (n : ℕ) (V : Z.left.Opensᵒᵖ) :
+    Function.Bijective ((tensorPowerComparison Z L n).val.app V).hom := by
+  have hqc : ∀ k, (tensorPowerUnit L k).IsQuasicoherent := by
+    intro k
+    induction k with
+    | zero =>
+        change (SheafOfModules.unit (structureSheaf (ofOver Z))).IsQuasicoherent
+        infer_instance
+    | succ k ih =>
+        letI := ih
+        change (L ⊗ tensorPowerUnit L k).IsQuasicoherent
+        infer_instance
+  have hiso : ∀ k, IsIso (tensorPowerComparison Z L k) := by
+    intro k
+    induction k with
+    | zero =>
+        change IsIso (unitMap Z)
+        infer_instance
+    | succ k ih =>
+        letI := ih
+        letI := hqc k
+        change IsIso ((𝟙 _ ⊗ₘ tensorPowerComparison Z L k) ≫
+          Modules.restrictTensorLax L (tensorPowerUnit L k))
+        exact ((Iso.refl _ ⊗ᵢ asIso (tensorPowerComparison Z L k)) ≪≫
+          Modules.restrictTensorIso L (tensorPowerUnit L k)).isIso_hom
+  letI := hiso n
+  exact ConcreteCategory.bijective_of_isIso
+    ((SheafOfModules.evaluation Z.left.ringCatSheaf V).map (tensorPowerComparison Z L n))
+
 /-- Sectionwise preimages of the canonical comparison, with zero fallback, define its inverse. -/
 def tensorPowerInverse (Z : Over S) (L : (ofOver Z).Modules) [L.IsQuasicoherent] (n : ℕ) :
     (Modules.restrictToScheme Z).obj (tensorPowerUnit L n) ⟶ RingedSpace.TensorPower.sheaf ((Modules.restrictToScheme Z).obj L) n := by
@@ -134,7 +166,33 @@ def tensorPowerInverse (Z : Over S) (L : (ofOver Z).Modules) [L.IsQuasicoherent]
       (∀ V (x y : B.val.obj V), inv V (x + y) = inv V x + inv V y) ∧
       (∀ V (r : Z.left.ringCatSheaf.obj.obj V) (x : B.val.obj V), inv V (r • x) = r • inv V x) ∧
       (∀ {V W : Z.left.Opensᵒᵖ} (i : V ⟶ W) (x : B.val.obj V),
-        A.val.map i (inv V x) = inv W (B.val.map i x)) := by sorry
+        A.val.map i (inv V x) = inv W (B.val.map i x)) := by
+    have hbij (V : Z.left.Opensᵒᵖ) : Function.Bijective (fun x ↦ (f.val.app V).hom x) :=
+      tensorPowerComparison_bijective Z L n V
+    have hright (V : Z.left.Opensᵒᵖ) :
+        Function.RightInverse (inv V) (fun x ↦ (f.val.app V).hom x) :=
+      preimageOr_rightInverse 0 _ (hbij V).2
+    refine ⟨?_, ?_, ?_⟩
+    · intro V x y
+      apply (hbij V).1
+      calc
+        (f.val.app V).hom (inv V (x + y)) = x + y := hright V _
+        _ = (f.val.app V).hom (inv V x) + (f.val.app V).hom (inv V y) :=
+          (congrArg₂ (· + ·) (hright V x) (hright V y)).symm
+        _ = (f.val.app V).hom (inv V x + inv V y) :=
+          ((f.val.app V).hom.map_add _ _).symm
+    · intro V r x
+      apply (hbij V).1
+      calc
+        (f.val.app V).hom (inv V (r • x)) = r • x := hright V _
+        _ = r • (f.val.app V).hom (inv V x) :=
+          (congrArg (r • ·) (hright V x)).symm
+        _ = (f.val.app V).hom (r • inv V x) :=
+          ((f.val.app V).hom.map_smul r _).symm
+    · intro V W i x
+      apply (hbij W).1
+      exact (PresheafOfModules.naturality_apply f.val i (inv V x)).trans
+        ((congrArg (fun y ↦ B.val.map i y) (hright V x)).trans (hright W _).symm)
   exact { val := {
     app := fun V ↦ @ModuleCat.ofHom (Z.left.ringCatSheaf.obj.obj V) _
       (B.val.obj V) (A.val.obj V)
@@ -152,7 +210,18 @@ def tensorPowerInverse (Z : Over S) (L : (ofOver Z).Modules) [L.IsQuasicoherent]
 def tensorPowerIso (Z : Over S) (L : (ofOver Z).Modules) [L.IsQuasicoherent] (n : ℕ) : RingedSpace.TensorPower.sheaf ((Modules.restrictToScheme Z).obj L) n ≅ (Modules.restrictToScheme Z).obj (tensorPowerUnit L n) := by
   let hom : RingedSpace.TensorPower.sheaf ((Modules.restrictToScheme Z).obj L) n ⟶ (Modules.restrictToScheme Z).obj (tensorPowerUnit L n) := tensorPowerComparison Z L n
   let inv : (Modules.restrictToScheme Z).obj (tensorPowerUnit L n) ⟶ RingedSpace.TensorPower.sheaf ((Modules.restrictToScheme Z).obj L) n := tensorPowerInverse Z L n
-  have laws : hom ≫ inv = 𝟙 _ ∧ inv ≫ hom = 𝟙 _ := by sorry
+  have laws : hom ≫ inv = 𝟙 _ ∧ inv ≫ hom = 𝟙 _ := by
+    constructor
+    · apply SheafOfModules.hom_ext
+      apply PresheafOfModules.hom_ext
+      intro V
+      ext x
+      exact preimageOr_apply 0 _ (tensorPowerComparison_bijective Z L n V).1 x
+    · apply SheafOfModules.hom_ext
+      apply PresheafOfModules.hom_ext
+      intro V
+      ext x
+      exact preimageOr_rightInverse 0 _ (tensorPowerComparison_bijective Z L n V).2 x
   exact ⟨hom, inv, laws.1, laws.2⟩
 
 /-- The recursive tensor-power comparison is invertible on quasi-coherent modules. -/
@@ -161,7 +230,9 @@ instance tensorPowerComparison_isIso (Z : Over S) (L : (ofOver Z).Modules) [L.Is
 
 /-- An invertible module on this small etale site is quasi-coherent. -/
 theorem invertible_isQuasicoherent (Z : Over S) (L : (ofOver Z).Modules)
-    (hL : isInvertibleObject L) : L.IsQuasicoherent := sorry
+    (hL : isInvertibleObject L) : L.IsQuasicoherent := by
+  letI := hL
+  exact Modules.isQuasicoherent_of_isInvertible L
 
 end AlgebraicGeometry.AlgebraicSpace.Modules.RestrictToScheme
 

@@ -28,6 +28,8 @@ variable (comparison :
   CategoryTheory.DerivedCategory.InternalHom.RHom.ClosedComparison (A := A))
 variable (ω : DerivedCategory (ModuleCat.{u} A))
 variable (hω : ω.IsNormalizedDualizingComplex comparison.closed)
+variable (C : CategoryTheory.DerivedCategory.CanonicalClosedPresentation (A := A))
+variable (hcanonical : ω.IsCanonicalNormalizedDualizingComplex C)
 variable (i : ℤ) (n : ℕ) (p : PrimeSpectrum A)
 
 /- Lemma 51.9.4 (1): finiteness of the negatively indexed Ext modules, expressed through the
@@ -40,25 +42,25 @@ canonical closed comparison. -/
 
 /- Lemma 51.9.4 (2): the degree bounds use cohomological degree `-i`, so the canonical
  signed inequalities `-(d : ℤ) ≤ -i ≤ 0` are the source inequalities `0 ≤ i ≤ d`. -/
-@[stacks 0DWZ] #check (CategoryTheory.DerivedCategory.IsNormalizedDualizingComplex.extDegreeBounds A M comparison.closed ω hω (-i) :
+@[stacks 0DWZ] #check (CategoryTheory.DerivedCategory.IsNormalizedDualizingComplex.extDegreeBounds A M C ω hcanonical (-i) :
     ¬ IsZero
       ((DerivedCategory.homologyFunctor (ModuleCat.{u} A) (-i)).obj
-        ((MonoidalClosed.ihomOf comparison.closed
-          (ModuleCat.single0 (ModuleCat.of A M))).obj ω)) →
+        (CategoryTheory.DerivedCategory.InternalHom.RHom.obj (A := A)
+          (ModuleCat.single0 (ModuleCat.of A M)) ω)) →
       ∃ d : ℕ, Module.supportDim A M = .some (d : ℕ∞) ∧
         -(d : ℤ) ≤ -i ∧ -i ≤ 0)
 
 /- Lemma 51.9.4 (3): the support-dimension bound includes the zero-module bottom case and is
  written for the canonical signed cohomological degree `-i`. -/
-@[stacks 0DWZ] #check (CategoryTheory.DerivedCategory.IsNormalizedDualizingComplex.supportDim_ext_le A M comparison.closed ω hω (-i) :
+@[stacks 0DWZ] #check (CategoryTheory.DerivedCategory.IsNormalizedDualizingComplex.supportDim_ext_le A M C ω hcanonical (-i) :
     Module.supportDim A
         ((DerivedCategory.homologyFunctor (ModuleCat.{u} A) (-i)).obj
-          ((MonoidalClosed.ihomOf comparison.closed
-            (ModuleCat.single0 (ModuleCat.of A M))).obj ω)) = ⊥ ∨
+          (CategoryTheory.DerivedCategory.InternalHom.RHom.obj (A := A)
+            (ModuleCat.single0 (ModuleCat.of A M)) ω)) = ⊥ ∨
       ∃ e : ℕ, Module.supportDim A
           ((DerivedCategory.homologyFunctor (ModuleCat.{u} A) (-i)).obj
-            ((MonoidalClosed.ihomOf comparison.closed
-              (ModuleCat.single0 (ModuleCat.of A M))).obj ω)) =
+            (CategoryTheory.DerivedCategory.InternalHom.RHom.obj (A := A)
+              (ModuleCat.single0 (ModuleCat.of A M)) ω)) =
         .some (e : ℕ∞) ∧ (e : ℤ) ≤ -(-i))
 
 /- Lemma 51.9.4 (4): depth is the infimum of the nonzero negatively indexed Ext degrees. -/

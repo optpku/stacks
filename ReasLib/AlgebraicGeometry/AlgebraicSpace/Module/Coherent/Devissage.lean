@@ -22,6 +22,7 @@ public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Reduced
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Coherent.Category
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Points.Topology
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.SchemeTheoreticSupport
+import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.Coherent.Closure
 
 /-!
 # Dévissage of coherent module sheaves on algebraic spaces
@@ -99,8 +100,57 @@ theorem coherent_property_of_shortExact_and_pushforward_ideal
           ∀ (I : IdealSubobject Z), IsQuasiCoherent I →
             P ((pushforward i).obj I.toModule))
     (F : X.Modules) [F.IsCoherent] :
-    P F :=
-  sorry
+    P F := by
+  obtain ⟨m, Fil, Z, I, e, hBot, hTop, hFil, hReduced, hIrreducible, hIdeal⟩ :=
+    exists_coherentSubobject_filtration_quotient_iso_pushforward_ideal F
+  let eBot : ((Fil 0 : Subobject F) : X.Modules) ≅ 0 :=
+    Subobject.isoOfEq _ _ hBot ≪≫ Subobject.botCoeIsoZero
+  haveI : ((Fil 0 : Subobject F) : X.Modules).IsCoherent := hFil 0 (Nat.zero_le m)
+  haveI : (0 : X.Modules).IsCoherent := SheafOfModules.IsCoherent.of_iso eBot
+  -- Extension closure also transports the property across coherent isomorphisms.
+  have h_iso : ∀ {A B : X.Modules}, A.IsCoherent → B.IsCoherent →
+      (A ≅ B) → P A → P B := by
+    intro A B hA hB φ hPA
+    let C : ShortComplex X.Modules := ShortComplex.mk φ.hom (0 : B ⟶ 0) (by simp)
+    have hC : C.ShortExact :=
+      (show C.Splitting from
+        { r := φ.inv
+          s := 0
+          f_r := by simp [C]
+          s_g := by simp [C]
+          id := by simp [C] }).shortExact
+    exact h_shortExact hC hA hB inferInstance hPA h_zero
+  have hFilP : ∀ n, n ≤ m → P ((Fil n : Subobject F) : X.Modules) := by
+    intro n
+    induction n with
+    | zero =>
+        intro hn
+        exact h_iso inferInstance (hFil 0 hn) eBot.symm h_zero
+    | succ n ih =>
+        intro hn
+        have hn' : n ≤ m := (Nat.le_succ n).trans hn
+        haveI : ((Fil n : Subobject F) : X.Modules).IsCoherent := hFil n hn'
+        haveI : ((Fil (n + 1) : Subobject F) : X.Modules).IsCoherent := hFil (n + 1) hn
+        let f := Subobject.ofLE (Fil n) (Fil (n + 1)) (Fil.monotone (Nat.le_succ n))
+        haveI : (cokernel f).IsCoherent := SheafOfModules.IsCoherent.cokernel f
+        let j : Fin m := ⟨n, Nat.lt_of_succ_le hn⟩
+        haveI : (I j).toModule.IsCoherent := hIdeal j
+        haveI : ((pushforward (Z j).ι).obj (I j).toModule).IsCoherent :=
+          SheafOfModules.IsCoherent.of_iso (e j)
+        have hQ : P (cokernel f) :=
+          h_iso inferInstance inferInstance (e j).symm
+            (h_pushforward_ideal (Z j).X (Z j).ι (Z j).isClosedImmersion
+              (hReduced j) (hIrreducible j) (I j) ⟨inferInstance⟩)
+        have hC : (ShortComplex.cokernelSequence f).ShortExact :=
+          { exact := ShortComplex.cokernelSequence_exact f
+            mono_f := by dsimp [ShortComplex.cokernelSequence, f]; infer_instance
+            epi_g := by dsimp [ShortComplex.cokernelSequence]; infer_instance }
+        exact h_shortExact hC
+          (by dsimp [ShortComplex.cokernelSequence]; infer_instance)
+          (by dsimp [ShortComplex.cokernelSequence]; infer_instance)
+          (by dsimp [ShortComplex.cokernelSequence]; infer_instance) (ih hn') hQ
+  exact h_iso (hFil m le_rfl) inferInstance
+    (Subobject.isoOfEq _ _ hTop ≪≫ Subobject.underlyingIso (𝟙 F)) (hFilP m le_rfl)
 
 /-- A property of module sheaves is preserved by short exact extensions of coherent
 modules. -/
@@ -252,7 +302,9 @@ theorem devissageTwoOutOfThree_iff {S : Scheme.{u}} {X : AlgebraicSpace S}
       (∀ {C : ShortComplex X.Modules}, C.ShortExact →
         C.X₁.IsCoherent → C.X₂.IsCoherent → C.X₃.IsCoherent →
         P C.X₂ → P C.X₃ → P C.X₁) :=
-  sorry
+  ⟨fun hP ↦ ⟨hP.right_of_left_middle, hP.middle_of_left_right,
+      hP.left_of_middle_right⟩,
+    fun ⟨h_right, h_middle, h_left⟩ ↦ DevissageTwoOutOfThree.of h_right h_middle h_left⟩
 
 /-- A scheme-theoretic support model for a property of coherent modules on `X` is a
 coherent sheaf `G` on `X` whose scheme-theoretic support is `i : Z ⟶ X` and which
@@ -267,7 +319,7 @@ theorem devissageSchemeTheoreticSupportModel_iff {S : Scheme.{u}}
     {X Z : AlgebraicSpace S} (i : Z ⟶ X) (P : X.Modules → Prop) :
     DevissageSchemeTheoreticSupportModel i P ↔
       ∃ G : X.Modules, G.IsCoherent ∧ IsSchemeTheoreticSupport G i ∧ P G :=
-  sorry
+  Iff.rfl
 
 /-- On a Noetherian algebraic space, a property of coherent modules which satisfies
 two-out-of-three on coherent short exact sequences, descends from nonempty finite

@@ -24,7 +24,12 @@ characteristic `p`. -/
 theorem derivative_respects_pPowerRelation (p : ℕ) (hp : p.Prime)
     (R : Type u) [CommRing R] [Algebra (ZMod p) R] (a : R) (f : R[X])
     (hf : AdjoinRoot.mk (X ^ p - C a) f = 0) :
-    AdjoinRoot.mk (X ^ p - C a) (derivative f) = 0 := sorry
+    AdjoinRoot.mk (X ^ p - C a) (derivative f) = 0 := by
+  have hpR : (p : R) = 0 := by
+    simpa only [map_natCast, map_zero] using
+      congrArg (algebraMap (ZMod p) R) (CharP.cast_eq_zero (ZMod p) p)
+  obtain ⟨g, rfl⟩ := AdjoinRoot.mk_eq_zero.mp hf
+  simp [derivative_mul, derivative_sub, derivative_X_pow, hpR]
 
 /-- The derivation of `R[x]/(x ^ p - a)` that sends the distinguished root to `1`. -/
 noncomputable def rootDerivation (p : ℕ) (hp : p.Prime)
@@ -37,7 +42,10 @@ noncomputable def rootDerivation (p : ℕ) (hp : p.Prime)
 /-- The distinguished-root value of `rootDerivation` is `1`. -/
 theorem rootDerivation_root (p : ℕ) (hp : p.Prime)
     (R : Type u) [CommRing R] [Algebra (ZMod p) R] (a : R) :
-    rootDerivation p hp R a (AdjoinRoot.root (X ^ p - C a)) = 1 := sorry
+    rootDerivation p hp R a (AdjoinRoot.root (X ^ p - C a)) = 1 := by
+  change rootDerivation p hp R a ((AdjoinRoot.mkₐ (X ^ p - C a)) X) = 1
+  rw [rootDerivation, Derivation.liftOfSurjective_apply]
+  simp [Polynomial.derivative']
 
 /-- The forward coordinate map sends a relative differential to its coefficient of the
 distinguished-root differential. -/
@@ -52,7 +60,9 @@ theorem differentialForward_D_root (p : ℕ) (hp : p.Prime)
     (R : Type u) [CommRing R] [Algebra (ZMod p) R] (a : R) :
     differentialForward p hp R a
         (KaehlerDifferential.D R (AdjoinRoot (X ^ p - C a))
-          (AdjoinRoot.root (X ^ p - C a))) = 1 := sorry
+          (AdjoinRoot.root (X ^ p - C a))) = 1 := by
+  simpa only [differentialForward, Derivation.liftKaehlerDifferential_comp_D] using
+    rootDerivation_root p hp R a
 
 /-- The inverse coordinate map sends `s` to `s • dx`. -/
 noncomputable def differentialInverse (p : ℕ) (R : Type u)
@@ -68,19 +78,34 @@ theorem differentialInverse_apply (p : ℕ) (R : Type u)
     [CommRing R] [Algebra (ZMod p) R] (a : R) (s : AdjoinRoot (X ^ p - C a)) :
     differentialInverse p R a s = s •
       KaehlerDifferential.D R (AdjoinRoot (X ^ p - C a))
-        (AdjoinRoot.root (X ^ p - C a)) := sorry
+        (AdjoinRoot.root (X ^ p - C a)) := rfl
 
 /-- The explicit inverse coordinate map is a left inverse to the forward map. -/
 theorem differentialInverse_forward (p : ℕ) (hp : p.Prime)
     (R : Type u) [CommRing R] [Algebra (ZMod p) R] (a : R)
     (ω : KaehlerDifferential R (AdjoinRoot (X ^ p - C a))) :
-    differentialInverse p R a (differentialForward p hp R a ω) = ω := sorry
+    differentialInverse p R a (differentialForward p hp R a ω) = ω := by
+  have h : (differentialInverse p R a).comp (differentialForward p hp R a) =
+      LinearMap.id := by
+    apply Derivation.liftKaehlerDifferential_unique
+    apply Derivation.ext_of_adjoin_eq_top
+      {AdjoinRoot.root (X ^ p - C a)} AdjoinRoot.adjoinRoot_eq_top
+    apply Set.eqOn_singleton.mpr
+    change differentialInverse p R a
+      (differentialForward p hp R a
+        (KaehlerDifferential.D R (AdjoinRoot (X ^ p - C a))
+          (AdjoinRoot.root (X ^ p - C a)))) =
+        KaehlerDifferential.D R (AdjoinRoot (X ^ p - C a))
+          (AdjoinRoot.root (X ^ p - C a))
+    rw [differentialForward_D_root, differentialInverse_apply, one_smul]
+  exact LinearMap.congr_fun h ω
 
 /-- The explicit inverse coordinate map is a right inverse to the forward map. -/
 theorem differentialForward_inverse (p : ℕ) (hp : p.Prime)
     (R : Type u) [CommRing R] [Algebra (ZMod p) R] (a : R)
     (s : AdjoinRoot (X ^ p - C a)) :
-    differentialForward p hp R a (differentialInverse p R a s) = s := sorry
+    differentialForward p hp R a (differentialInverse p R a s) = s := by
+  rw [differentialInverse_apply, map_smul, differentialForward_D_root, smul_eq_mul, mul_one]
 
 /-- The explicit equivalence identifying relative differentials with the quotient algebra by the
 coefficient of `dx`. -/
@@ -97,7 +122,7 @@ noncomputable def differentialEquiv (p : ℕ) (hp : p.Prime)
 theorem differentialEquiv_apply (p : ℕ) (hp : p.Prime)
     (R : Type u) [CommRing R] [Algebra (ZMod p) R] (a : R)
     (ω : KaehlerDifferential R (AdjoinRoot (X ^ p - C a))) :
-    differentialEquiv p hp R a ω = differentialForward p hp R a ω := sorry
+    differentialEquiv p hp R a ω = differentialForward p hp R a ω := rfl
 
 /-- The canonical `R`-basis `x ^ i • dx`, `0 ≤ i < p`, of the relative Kähler
 differentials of `R[x]/(x ^ p - a)`. -/
@@ -124,7 +149,20 @@ theorem differentialBasis_apply (p : ℕ) (hp : p.Prime)
     differentialBasis p hp R a i =
       AdjoinRoot.root (X ^ p - C a) ^ (i : ℕ) •
         KaehlerDifferential.D R (AdjoinRoot (X ^ p - C a))
-          (AdjoinRoot.root (X ^ p - C a)) := sorry
+          (AdjoinRoot.root (X ^ p - C a)) := by
+  classical
+  by_cases hR : Nontrivial R
+  · letI := hR
+    rw [differentialBasis, dif_pos hR, Basis.map_apply, Basis.reindex_apply,
+      PowerBasis.basis_eq_pow]
+    change (differentialEquiv p hp R a).symm
+      (AdjoinRoot.root (X ^ p - C a) ^ (i : ℕ)) = _
+    apply (differentialEquiv p hp R a).injective
+    rw [LinearEquiv.apply_symm_apply, differentialEquiv_apply, map_smul,
+      differentialForward_D_root, smul_eq_mul, mul_one]
+  · letI : Subsingleton R := not_nontrivial_iff_subsingleton.mp hR
+    letI := Module.subsingleton R (KaehlerDifferential R (AdjoinRoot (X ^ p - C a)))
+    exact Subsingleton.elim _ _
 
 /-- The positive-characteristic trace map on differentials for
 `R[x]/(x ^ p - a)`: it extracts the coefficient of `x ^ (p - 1) • dx` and
@@ -144,7 +182,10 @@ theorem trace_apply_rootPowD (p : ℕ) (hp : p.Prime)
         (AdjoinRoot.root (X ^ p - C a) ^ (i : ℕ) •
           KaehlerDifferential.D R (AdjoinRoot (X ^ p - C a))
             (AdjoinRoot.root (X ^ p - C a))) =
-      if (i : ℕ) = p - 1 then KaehlerDifferential.D (ZMod p) R a else 0 := sorry
+      if (i : ℕ) = p - 1 then KaehlerDifferential.D (ZMod p) R a else 0 := by
+  classical
+  rw [← differentialBasis_apply p hp R a i]
+  simp [trace, Basis.coord_apply, Finsupp.single_apply, Fin.ext_iff, ite_smul]
 
 /-- The map on relative Kähler differentials induced by an `R`-algebra homomorphism. -/
 noncomputable def mapOfAlgHom {R : Type u} {A : Type v} {B : Type w}
@@ -162,7 +203,11 @@ theorem mapOfAlgHom_D {R : Type u} {A : Type v} {B : Type w}
     [CommRing R] [CommRing A] [CommRing B] [Algebra R A] [Algebra R B]
     (φ : A →ₐ[R] B) (z : A) :
     mapOfAlgHom φ (KaehlerDifferential.D R A z) =
-      KaehlerDifferential.D R B (φ z) := sorry
+      KaehlerDifferential.D R B (φ z) := by
+  letI : Algebra A B := φ.toRingHom.toAlgebra
+  letI : IsScalarTower R A B :=
+    IsScalarTower.of_algebraMap_eq fun r ↦ (φ.commutes r).symm
+  exact KaehlerDifferential.map_D R R A B z
 
 /-- An `R`-algebra homomorphism between the quotients by `X ^ p - C a` and
 `X ^ p - C b` intertwines their positive-characteristic trace maps on relative

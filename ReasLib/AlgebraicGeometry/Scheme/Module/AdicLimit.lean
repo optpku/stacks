@@ -41,7 +41,7 @@ theorem powerTailSystem_obj (I : X.IdealSheafData)
     (F : SequentialInverseSystem X.Modules) (n m : ℕ) :
     (powerTailSystem I F n).obj (op m) =
       image (SheafOfModules.RingedSite.IdealSheaf.powerAction I.toSubobject
-        (F.obj (op (n + m))) (n + 1)) := sorry
+        (F.obj (op (n + m))) (n + 1)) := rfl
 
 /-- The cone obtained by applying the `I ^ (n + 1)` image functor to the canonical limit cone
 restricted to the tail beginning at `n`. -/
@@ -56,7 +56,7 @@ theorem powerTailCone_pt (I : X.IdealSheafData)
     (F : SequentialInverseSystem X.Modules) (n : ℕ) :
     (powerTailCone I F n).pt =
       image (SheafOfModules.RingedSite.IdealSheaf.powerAction I.toSubobject
-        (limit F : X.Modules) (n + 1)) := sorry
+        (limit F : X.Modules) (n + 1)) := rfl
 
 /-- The `m`th leg of `powerTailCone I F n` is the image of the corresponding limit
 projection. -/
@@ -64,7 +64,7 @@ theorem powerTailCone_π_app (I : X.IdealSheafData)
     (F : SequentialInverseSystem X.Modules) (n m : ℕ) :
     (powerTailCone I F n).π.app (op m) =
       (SheafOfModules.RingedSite.IdealSheaf.powerActionNat I.toSubobject
-        (n + 1)).imageFunctor.map (limit.π F (op (n + m))) := sorry
+        (n + 1)).imageFunctor.map (limit.π F (op (n + m))) := rfl
 
 /-- The canonical comparison from `I ^ (n + 1)` acting on `limit F` to the limit of the
 fixed-power tail system. -/
@@ -78,7 +78,8 @@ leg of `powerTailCone I F n`. -/
 theorem powerLimitComparison_fac (I : X.IdealSheafData)
     (F : SequentialInverseSystem X.Modules) (n m : ℕ) :
     powerLimitComparison I F n ≫ limit.π (powerTailSystem I F n) (op m) =
-      (powerTailCone I F n).π.app (op m) := sorry
+      (powerTailCone I F n).π.app (op m) := by
+  exact limit.lift_π (powerTailCone I F n) (op m)
 
 /-- The `I ^ (n + 1)`-action on `limit F` is killed by its projection to stage `n` when
 successor kernels are the prescribed ideal-power images. -/
@@ -89,7 +90,19 @@ theorem powerAction_comp_limitProjection (I : X.IdealSheafData)
         (F.obj (op (k + 1))) (k + 1))) (n : ℕ) :
     SheafOfModules.RingedSite.IdealSheaf.powerAction I.toSubobject
         (limit F : X.Modules) (n + 1) ≫
-      limit.π F (op n) = 0 := sorry
+      limit.π F (op n) = 0 := by
+  have hzero :
+      SheafOfModules.RingedSite.IdealSheaf.powerAction I.toSubobject
+          (F.obj (op (n + 1))) (n + 1) ≫ F.stepMap n = 0 := by
+    have h := kernelSubobject_arrow_comp (F.stepMap n)
+    rw [h_kernel n] at h
+    rw (config := { transparency := .all }) [← imageSubobject_arrow_comp
+      (SheafOfModules.RingedSite.IdealSheaf.powerAction I.toSubobject
+        (F.obj (op (n + 1))) (n + 1)), Category.assoc, h, comp_zero]
+  rw (config := { transparency := .all })
+    [← limit.w F (homOfLE (Nat.le_add_right n 1)).op, ← Category.assoc,
+    ← powerAction_naturality I.toSubobject (n + 1) (limit.π F (op (n + 1))),
+    Category.assoc, hzero, comp_zero]
 
 /-- The canonical map `(limit F) / I ^ (n + 1) (limit F) ⟶ F.obj (op n)` induced by the
 limit projection. -/
@@ -114,7 +127,8 @@ theorem stageComparison_fac (I : X.IdealSheafData)
         (F.obj (op (k + 1))) (k + 1))) (n : ℕ) :
     cokernel.π (SheafOfModules.RingedSite.IdealSheaf.powerAction I.toSubobject
         (limit F : X.Modules) (n + 1)) ≫ stageComparison I F h_kernel n =
-      limit.π F (op n) := sorry
+      limit.π F (op n) := by
+  exact cokernel.π_desc _ _ (powerAction_comp_limitProjection I F h_kernel n)
 
 variable (I : X.IdealSheafData) (F : SequentialInverseSystem X.Modules)
 

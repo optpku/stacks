@@ -72,7 +72,7 @@ theorem of_commSq {S : Scheme.{u}} {X Y : (Over S)ᵒᵖ ⥤ Type u}
     {u : U ⟶ X} {v : V ⟶ Y} {g : U ⟶ V}
     (h : CommSq g u v f) [Etale u] [Etale v] :
     AffineFormalAlgebraicSpace.Flat g :=
-  sorry
+  Flat.of_affineEtaleChart h inferInstance inferInstance
 
 /-- A morphism of locally Noetherian formal algebraic spaces is flat if and
 only if every affine étale chart square has a flat horizontal arrow of affine
@@ -87,7 +87,7 @@ theorem iff {S : Scheme.{u}} {X Y : (Over S)ᵒᵖ ⥤ Type u}
         {u : U ⟶ X} {v : V ⟶ Y} {g : U ⟶ V},
         CommSq g u v f → Etale u → Etale v →
           AffineFormalAlgebraicSpace.Flat g :=
-  sorry
+  ⟨fun hf ↦ hf.of_affineEtaleChart, fun h ↦ ⟨h⟩⟩
 
 
 /-- A representable morphism of locally Noetherian formal algebraic spaces

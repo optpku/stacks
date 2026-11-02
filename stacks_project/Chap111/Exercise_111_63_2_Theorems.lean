@@ -69,12 +69,11 @@ no embedded points is `((F.totalDegree - 1) * (F.totalDegree - 2)) / 2`. -/
     ∀ (k : Type u) [Field k]
     (Z : (ProjectiveSpace.scheme k 2).IdealSheafData)
     [Nonempty Z.subscheme]
-    (P : ProjTwistPresentation (ProjectiveSpace.grading k 2))
     [h_componentDim : Fact (∀ C : irreducibleComponents Z.subscheme,
       topologicalKrullDim (C : Set Z.subscheme) = 1)]
     [h_noEmbeddedPoints : Fact (Z.subscheme.embeddedPoints = (∅ : Set Z.subscheme))]
     (F : MvPolynomial (Fin 3) k)
-    (h_generator : (twistIdeal 2 Z P).toIdeal = Ideal.span {F}),
+    (h_generator : coordinateIdeal 2 Z = Ideal.span {F}),
     Scheme.Hom.cohomologyFinrank
       (Z.subschemeι ≫ ProjectiveSpace.toSpec k 2)
       (SheafOfModules.unit Z.subscheme.ringCatSheaf : Z.subscheme.Modules) 1 =

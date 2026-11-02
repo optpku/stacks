@@ -43,12 +43,12 @@ def fiber (T : Triplet f g) : Set (pullback f g : Scheme) :=
 its two projections are `T.x` and `T.y`. -/
 theorem mem_fiber_iff (T : Triplet f g) (w : (pullback f g : Scheme)) :
     w ∈ T.fiber ↔ pullback.fst f g w = T.x ∧ pullback.snd f g w = T.y :=
-  sorry
+  Iff.rfl
 
 /-- The canonical map from `Spec T.tensor` lands in the pair-fibre of `T`. -/
 theorem specTensorTo_mem_fiber (T : Triplet f g) (p : Spec T.tensor) :
     T.SpecTensorTo p ∈ T.fiber :=
-  sorry
+  ⟨T.fst_SpecTensorTo_apply p, T.snd_SpecTensorTo_apply p⟩
 
 /-- The concrete map from the pair-fibre of `T` to `Spec T.tensor`. -/
 noncomputable def fiberToSpec (T : Triplet f g) : T.fiber → Spec T.tensor :=
@@ -62,13 +62,20 @@ noncomputable def specToFiber (T : Triplet f g) : Spec T.tensor → T.fiber :=
 
 /-- The map `specToFiber` is a left inverse of `fiberToSpec`. -/
 theorem specToFiber_leftInverse (T : Triplet f g) :
-    Function.LeftInverse T.specToFiber T.fiberToSpec :=
-  sorry
+    Function.LeftInverse T.specToFiber T.fiberToSpec := by
+  intro w
+  apply Subtype.ext
+  change T.SpecTensorTo
+    (Spec.map (tensorCongr (Triplet.ext w.2.1 w.2.2)).inv (SpecOfPoint w.1)) = w.1
+  rw [tensorCongr_inv, ← Scheme.Hom.comp_apply, tensorCongr_SpecTensorTo]
+  exact SpecTensorTo_SpecOfPoint w.1
 
 /-- The map `specToFiber` is a right inverse of `fiberToSpec`. -/
 theorem specToFiber_rightInverse (T : Triplet f g) :
-    Function.RightInverse T.specToFiber T.fiberToSpec :=
-  sorry
+    Function.RightInverse T.specToFiber T.fiberToSpec := by
+  intro p
+  obtain ⟨e, he⟩ := carrierEquiv_eq_iff.mp (carrierEquiv.apply_symm_apply ⟨T, p⟩)
+  exact he
 
 /-- The canonical identification of the pair-fibre of `T` with `Spec T.tensor`. -/
 noncomputable def fiberEquiv (T : Triplet f g) : T.fiber ≃ Spec T.tensor where
@@ -80,35 +87,76 @@ noncomputable def fiberEquiv (T : Triplet f g) : T.fiber ≃ Spec T.tensor where
 /-- The inverse of `fiberEquiv` is the underlying point of `SpecTensorTo`. -/
 theorem fiberEquiv_symm_apply (T : Triplet f g) (p : Spec T.tensor) :
     (T.fiberEquiv.symm p).1 = T.SpecTensorTo p :=
-  sorry
+  rfl
 
 /-- The image of `SpecTensorTo` is exactly the pair-fibre of `T`. -/
 theorem range_specTensorTo (T : Triplet f g) :
-    Set.range T.SpecTensorTo = T.fiber :=
-  sorry
+    Set.range T.SpecTensorTo = T.fiber := by
+  ext w
+  constructor
+  · rintro ⟨p, rfl⟩
+    exact T.specTensorTo_mem_fiber p
+  · intro hw
+    exact ⟨T.fiberToSpec ⟨w, hw⟩,
+      congrArg Subtype.val (T.specToFiber_leftInverse ⟨w, hw⟩)⟩
 
 /-- The pair-fibre is finite if the residue-field extension along the first
 leg is finite. -/
 theorem finite_fiber_of_finiteAt_fst (T : Triplet f g)
-    (hfin : ResidueField.finiteAt f T.x) : T.fiber.Finite :=
-  sorry
+    (hfin : ResidueField.finiteAt f T.x) : T.fiber.Finite := by
+  have hf : (f.residueFieldMap T.x).hom.Finite := hfin
+  have hf' : ((S.residueFieldCongr T.hx).inv ≫ f.residueFieldMap T.x).hom.Finite := by
+    rcases T with ⟨x, y, s, hx, hy⟩
+    dsimp only at *
+    subst s
+    simpa using hf
+  haveI : IsFinite (Spec.map ((S.residueFieldCongr T.hx).inv ≫ f.residueFieldMap T.x)) :=
+    (IsFinite.SpecMap_iff _).mpr hf'
+  haveI : IsFinite (Spec.map T.tensorInr) :=
+    MorphismProperty.of_isPullback T.isPullback_SpecMap_tensor inferInstance
+  haveI : IsLocallyArtinian (Spec T.tensor) :=
+    IsLocallyArtinian.of_locallyQuasiFinite (Spec.map T.tensorInr)
+  haveI : Finite (Spec T.tensor) := finite_of_compact_of_discrete
+  rw [← T.range_specTensorTo]
+  exact Set.finite_range T.SpecTensorTo
 
 /-- The pair-fibre is finite if the residue-field extension along the second
 leg is finite. -/
 theorem finite_fiber_of_finiteAt_snd (T : Triplet f g)
-    (hfin : ResidueField.finiteAt g T.y) : T.fiber.Finite :=
-  sorry
+    (hfin : ResidueField.finiteAt g T.y) : T.fiber.Finite := by
+  have hg : (g.residueFieldMap T.y).hom.Finite := hfin
+  have hg' : ((S.residueFieldCongr T.hy).inv ≫ g.residueFieldMap T.y).hom.Finite := by
+    rcases T with ⟨x, y, s, hx, hy⟩
+    dsimp only at *
+    cases hy
+    simpa using hg
+  haveI : IsFinite (Spec.map ((S.residueFieldCongr T.hy).inv ≫ g.residueFieldMap T.y)) :=
+    (IsFinite.SpecMap_iff _).mpr hg'
+  haveI : IsFinite (Spec.map T.tensorInl) :=
+    MorphismProperty.of_isPullback T.isPullback_SpecMap_tensor.flip inferInstance
+  haveI : IsLocallyArtinian (Spec T.tensor) :=
+    IsLocallyArtinian.of_locallyQuasiFinite (Spec.map T.tensorInl)
+  haveI : Finite (Spec T.tensor) := finite_of_compact_of_discrete
+  rw [← T.range_specTensorTo]
+  exact Set.finite_range T.SpecTensorTo
 
 /-- The pair-fibre is finite if either residue-field extension is finite. -/
 theorem finite_fiber_of_finiteAt (T : Triplet f g)
     (hfin : ResidueField.finiteAt f T.x ∨ ResidueField.finiteAt g T.y) :
-    T.fiber.Finite :=
-  sorry
+    T.fiber.Finite := by
+  exact hfin.elim T.finite_fiber_of_finiteAt_fst T.finite_fiber_of_finiteAt_snd
 
 /-- The pair-fibre is finite if the second leg is quasi-finite at `T.y`. -/
 theorem finite_fiber_of_quasiFiniteAt (T : Triplet f g)
-    (hg : g.QuasiFiniteAt T.y) : T.fiber.Finite :=
-  sorry
+    (hg : g.QuasiFiniteAt T.y) : T.fiber.Finite := by
+  have hres : (Y.residue T.y).hom.Finite :=
+    RingHom.Finite.of_surjective _ IsLocalRing.residue_surjective
+  have hκ : (g.residueFieldMap T.y).hom.QuasiFinite := by
+    apply RingHom.QuasiFinite.of_comp (g := (S.residue (g T.y)).hom)
+    rw [← CommRingCat.hom_comp, residue_residueFieldMap, CommRingCat.hom_comp]
+    exact (RingHom.QuasiFinite.of_finite hres).comp hg
+  letI : Algebra.QuasiFinite (S.residueField (g T.y)) (Y.residueField T.y) := hκ
+  exact T.finite_fiber_of_finiteAt_snd Module.Finite.of_quasiFinite
 
 end Triplet
 

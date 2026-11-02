@@ -78,7 +78,83 @@ theorem stageCompareLeftHom_mk (I1 : Ideal A1) (I2 : Ideal A2) {c : ℕ} (hc : 1
     (B : TopologicallyFiniteType.{u} A1 I1) (n : ℕ+)
     (x : B.obj) :
     stageCompareLeftHom I1 I2 hc hI hI2 B n (Ideal.Quotient.mk _ x) =
-      Ideal.Quotient.mk _ (includeLeftToCompletion I2 B.obj x) := sorry
+      Ideal.Quotient.mk _ (includeLeftToCompletion I2 B.obj x) := by
+  rfl
+
+private theorem tensorOverLift_comp_includeLeft {R A B C : Type u}
+    [CommRing R] [CommRing A] [CommRing B] [CommRing C]
+    (f : R →+* A) (g : R →+* B) (hA : A →+* C) (hB : B →+* C)
+    (hfg : hA.comp f = hB.comp g) :
+    (tensorOverLift f g hA hB hfg).comp (tensorOverIncludeLeft f g) = hA := by
+  -- These local algebra structures are the supplied ring homomorphisms.
+  letI := f.toAlgebra
+  letI := g.toAlgebra
+  letI := (hA.comp f).toAlgebra
+  exact congrArg AlgHom.toRingHom
+    (Algebra.TensorProduct.lift_comp_includeLeft
+      ({ hA with commutes' := fun _ ↦ rfl } : A →ₐ[R] C)
+      ({ hB with commutes' := fun r ↦ (RingHom.congr_fun hfg r).symm } : B →ₐ[R] C)
+      (fun _ _ ↦ Commute.all _ _))
+
+private theorem tensorOverLift_comp_includeRight {R A B C : Type u}
+    [CommRing R] [CommRing A] [CommRing B] [CommRing C]
+    (f : R →+* A) (g : R →+* B) (hA : A →+* C) (hB : B →+* C)
+    (hfg : hA.comp f = hB.comp g) :
+    (tensorOverLift f g hA hB hfg).comp (tensorOverIncludeRight f g) = hB := by
+  -- These local algebra structures are the supplied ring homomorphisms.
+  letI := f.toAlgebra
+  letI := g.toAlgebra
+  letI := (hA.comp f).toAlgebra
+  exact congrArg AlgHom.toRingHom
+    (Algebra.TensorProduct.lift_comp_includeRight'
+      ({ hA with commutes' := fun _ ↦ rfl } : A →ₐ[R] C)
+      ({ hB with commutes' := fun r ↦ (RingHom.congr_fun hfg r).symm } : B →ₐ[R] C)
+      (fun _ _ ↦ Commute.all _ _))
+
+private theorem tensorOver_hom_ext {R A B C : Type u}
+    [CommRing R] [CommRing A] [CommRing B] [CommRing C]
+    (f : R →+* A) (g : R →+* B) {h k : AdicAlgebraSystem.tensorOver f g →+* C}
+    (hl : h.comp (tensorOverIncludeLeft f g) = k.comp (tensorOverIncludeLeft f g))
+    (hr : h.comp (tensorOverIncludeRight f g) = k.comp (tensorOverIncludeRight f g)) :
+    h = k := by
+  -- Extensionality uses the algebra structures of the two supplied scalar maps.
+  letI := f.toAlgebra
+  letI := g.toAlgebra
+  exact Algebra.TensorProduct.ringHom_ext hl hr
+
+private theorem tensorOverMap_comp_includeLeft {R A B A' B' : Type u}
+    [CommRing R] [CommRing A] [CommRing B] [CommRing A'] [CommRing B']
+    (f : R →+* A) (g : R →+* B) (f' : R →+* A') (g' : R →+* B')
+    (hA : A →+* A') (hB : B →+* B')
+    (hf : hA.comp f = f') (hg : hB.comp g = g') :
+    (AdicAlgebraSystem.tensorOverMap f g f' g' hA hB hf hg).comp
+        (tensorOverIncludeLeft f g) = (tensorOverIncludeLeft f' g').comp hA := by
+  -- Both tensors use the algebra structures of the four supplied scalar maps.
+  letI := f.toAlgebra
+  letI := g.toAlgebra
+  letI := f'.toAlgebra
+  letI := g'.toAlgebra
+  exact congrArg AlgHom.toRingHom
+    (Algebra.TensorProduct.map_comp_includeLeft
+      ({ hA with commutes' := fun r ↦ RingHom.congr_fun hf r } : A →ₐ[R] A')
+      ({ hB with commutes' := fun r ↦ RingHom.congr_fun hg r } : B →ₐ[R] B'))
+
+private theorem tensorOverMap_comp_includeRight {R A B A' B' : Type u}
+    [CommRing R] [CommRing A] [CommRing B] [CommRing A'] [CommRing B']
+    (f : R →+* A) (g : R →+* B) (f' : R →+* A') (g' : R →+* B')
+    (hA : A →+* A') (hB : B →+* B')
+    (hf : hA.comp f = f') (hg : hB.comp g = g') :
+    (AdicAlgebraSystem.tensorOverMap f g f' g' hA hB hf hg).comp
+        (tensorOverIncludeRight f g) = (tensorOverIncludeRight f' g').comp hB := by
+  -- Both tensors use the algebra structures of the four supplied scalar maps.
+  letI := f.toAlgebra
+  letI := g.toAlgebra
+  letI := f'.toAlgebra
+  letI := g'.toAlgebra
+  exact congrArg AlgHom.toRingHom
+    (Algebra.TensorProduct.map_comp_includeRight
+      ({ hA with commutes' := fun r ↦ RingHom.congr_fun hf r } : A →ₐ[R] A')
+      ({ hB with commutes' := fun r ↦ RingHom.congr_fun hg r } : B →ₐ[R] B'))
 
 /-- The stage comparison homomorphism from the systems tensor
 `B (c * n) ⊗[A1 ⧸ I1 ^ (c * n)] (A2 ⧸ I2 ^ n)` to the adic quotient of the
@@ -108,7 +184,8 @@ theorem stageCompareHom_includeLeft (I1 : Ideal A1) (I2 : Ideal A2) {c : ℕ}
       (tensorOverIncludeLeft
         (stageAlgebraMap I1 ((toAdicSystem I1).obj B).obj (stretchIndex hc n))
         (baseChangeHom (algebraMap A1 A2) I1 I2 hc (by exact map_pow_le_of_map_pow I1 I2 hI) n)) =
-      stageCompareLeftHom I1 I2 hc hI hI2 B n := sorry
+      stageCompareLeftHom I1 I2 hc hI hI2 B n := by
+  exact tensorOverLift_comp_includeLeft _ _ _ _ _
 
 /-- The right inclusion into the systems tensor is sent to the stage structure
 map of the completed system. -/
@@ -120,7 +197,8 @@ theorem stageCompareHom_includeRight (I1 : Ideal A1) (I2 : Ideal A2) {c : ℕ}
         (stageAlgebraMap I1 ((toAdicSystem I1).obj B).obj (stretchIndex hc n))
         (baseChangeHom (algebraMap A1 A2) I1 I2 hc (by exact map_pow_le_of_map_pow I1 I2 hI) n)) =
       stageAlgebraMap I2
-        ((toAdicSystem I2).obj ((baseChange I1 I2 hc hI hI2).obj B)).obj n := sorry
+        ((toAdicSystem I2).obj ((baseChange I1 I2 hc hI hI2).obj B)).obj n := by
+  exact tensorOverLift_comp_includeRight _ _ _ _ _
 
 private def quotientTensorOverEquiv {R B D : Type u}
     [CommRing R] [CommRing B] [CommRing D] [Algebra R B] [Algebra R D]
@@ -353,7 +431,86 @@ theorem stageCompareEquiv_toRingHom (I1 : Ideal A1) (I2 : Ideal A2) {c : ℕ}
     (hc : 1 ≤ c) (hI : I1.map (algebraMap A1 A2) ^ c ≤ I2) (hI2 : I2.FG)
     (B : TopologicallyFiniteType.{u} A1 I1) (n : ℕ+) :
     (stageCompareEquiv I1 I2 hc hI hI2 B n).toRingHom =
-      stageCompareHom I1 I2 hc hI hI2 B n := sorry
+      stageCompareHom I1 I2 hc hI hI2 B n := by
+  rfl
+
+set_option maxHeartbeats 800000 in
+private theorem stageCompareHom_transition (I1 : Ideal A1) (I2 : Ideal A2)
+    {c : ℕ} (hc : 1 ≤ c) (hI : I1.map (algebraMap A1 A2) ^ c ≤ I2) (hI2 : I2.FG)
+    (B : TopologicallyFiniteType.{u} A1 I1) {m n : ℕ+} (hmn : m ≤ n) :
+    (stageCompareHom I1 I2 hc hI hI2 B m).comp
+        (AdicAlgebraSystem.baseChangeStageMap (algebraMap A1 A2) I1 I2 hc
+          (by exact map_pow_le_of_map_pow I1 I2 hI) hmn ((toAdicSystem I1).obj B).obj).hom =
+      (Ideal.Quotient.factor (Ideal.map_mono (f := algebraMap A2
+          (completedBaseChange A1 I2 B.obj)) (Ideal.pow_le_pow_right hmn))).comp
+        (stageCompareHom I1 I2 hc hI hI2 B n) := by
+  let l := fun k ↦ tensorOverIncludeLeft
+    (stageAlgebraMap I1 ((toAdicSystem I1).obj B).obj (stretchIndex hc k))
+    (baseChangeHom (algebraMap A1 A2) I1 I2 hc
+      (by exact map_pow_le_of_map_pow I1 I2 hI) k)
+  let r := fun k ↦ tensorOverIncludeRight
+    (stageAlgebraMap I1 ((toAdicSystem I1).obj B).obj (stretchIndex hc k))
+    (baseChangeHom (algebraMap A1 A2) I1 I2 hc
+      (by exact map_pow_le_of_map_pow I1 I2 hI) k)
+  let t := (OrderDualInverseSystem.transitionMap ((toAdicSystem I1).obj B).obj.right
+    (AdicAlgebraSystem.stretchIndex_mono hc hmn)).hom
+  let q := Ideal.Quotient.factor (Ideal.map_mono (f := algebraMap A2
+    (completedBaseChange A1 I2 B.obj)) (Ideal.pow_le_pow_right (I := I2) hmn))
+  let a := Ideal.Quotient.factor
+    (Ideal.pow_le_pow_right (I := I2) (show (m : ℕ) ≤ n from hmn))
+  let s := (AdicAlgebraSystem.baseChangeStageMap (algebraMap A1 A2) I1 I2 hc
+    (by exact map_pow_le_of_map_pow I1 I2 hI) hmn ((toAdicSystem I1).obj B).obj).hom
+  have hfg : ((l m).comp t).comp
+      (stageAlgebraMap I1 ((toAdicSystem I1).obj B).obj (stretchIndex hc n)) =
+      ((r m).comp a).comp (baseChangeHom (algebraMap A1 A2) I1 I2 hc
+        (by exact map_pow_le_of_map_pow I1 I2 hI) n) := by
+    -- The balancing relation uses the explicit quotient scalar maps at stage m.
+    letI := (stageAlgebraMap I1 ((toAdicSystem I1).obj B).obj (stretchIndex hc m)).toAlgebra
+    letI := (baseChangeHom (algebraMap A1 A2) I1 I2 hc
+      (by exact map_pow_le_of_map_pow I1 I2 hI) m).toAlgebra
+    apply Ideal.Quotient.ringHom_ext
+    ext x
+    exact RingHom.congr_fun
+      (Algebra.TensorProduct.includeLeftRingHom_comp_algebraMap
+        (R := A1 ⧸ I1 ^ (stretchIndex hc m : ℕ))
+        (A := ((toAdicSystem I1).obj B).obj.right.stage (stretchIndex hc m))
+        (B := A2 ⧸ I2 ^ (m : ℕ))) (Ideal.Quotient.mk _ x)
+  have sl : s.comp (l n) = (l m).comp t :=
+    tensorOverLift_comp_includeLeft _ _ _ _ hfg
+  have sr : s.comp (r n) = (r m).comp a :=
+    tensorOverLift_comp_includeRight _ _ _ _ hfg
+  apply tensorOver_hom_ext
+    (stageAlgebraMap I1 ((toAdicSystem I1).obj B).obj (stretchIndex hc n))
+    (baseChangeHom (algebraMap A1 A2) I1 I2 hc
+      (by exact map_pow_le_of_map_pow I1 I2 hI) n)
+  · calc
+      _ = (stageCompareHom I1 I2 hc hI hI2 B m).comp (s.comp (l n)) := rfl
+      _ = (stageCompareHom I1 I2 hc hI hI2 B m).comp ((l m).comp t) :=
+        congrArg (fun k ↦ (stageCompareHom I1 I2 hc hI hI2 B m).comp k) sl
+      _ = ((stageCompareHom I1 I2 hc hI hI2 B m).comp (l m)).comp t := rfl
+      _ = (stageCompareLeftHom I1 I2 hc hI hI2 B m).comp t :=
+        congrArg (fun k ↦ k.comp t) (stageCompareHom_includeLeft I1 I2 hc hI hI2 B m)
+      _ = q.comp (stageCompareLeftHom I1 I2 hc hI hI2 B n) := by
+        apply Ideal.Quotient.ringHom_ext
+        ext b
+        rfl
+      _ = _ := congrArg (fun k ↦ q.comp k)
+        (stageCompareHom_includeLeft I1 I2 hc hI hI2 B n).symm
+  · calc
+      _ = (stageCompareHom I1 I2 hc hI hI2 B m).comp (s.comp (r n)) := rfl
+      _ = (stageCompareHom I1 I2 hc hI hI2 B m).comp ((r m).comp a) :=
+        congrArg (fun k ↦ (stageCompareHom I1 I2 hc hI hI2 B m).comp k) sr
+      _ = ((stageCompareHom I1 I2 hc hI hI2 B m).comp (r m)).comp a := rfl
+      _ = (stageAlgebraMap I2
+          ((toAdicSystem I2).obj ((baseChange I1 I2 hc hI hI2).obj B)).obj m).comp a :=
+        congrArg (fun k ↦ k.comp a) (stageCompareHom_includeRight I1 I2 hc hI hI2 B m)
+      _ = q.comp (stageAlgebraMap I2
+          ((toAdicSystem I2).obj ((baseChange I1 I2 hc hI hI2).obj B)).obj n) := by
+        apply Ideal.Quotient.ringHom_ext
+        ext x
+        rfl
+      _ = _ := congrArg (fun k ↦ q.comp k)
+        (stageCompareHom_includeRight I1 I2 hc hI hI2 B n).symm
 
 /-- The stage comparison equivalences commute with transition maps of the quotient systems. -/
 private theorem baseChangeRightIso_naturality (I1 : Ideal A1) (I2 : Ideal A2)
@@ -366,7 +523,10 @@ private theorem baseChangeRightIso_naturality (I1 : Ideal A1) (I2 : Ideal A2)
     let app := fun i : ℕ+ᵒᵈ ↦
       (stageCompareEquiv I1 I2 hc hI hI2 B (OrderDual.ofDual i)).toCommRingCatIso
     ∀ {i j : ℕ+ᵒᵈ} (f : i ⟶ j),
-      F.map f ≫ (app j).hom = (app i).hom ≫ G.map f := sorry
+      F.map f ≫ (app j).hom = (app i).hom ≫ G.map f := by
+  intro F G app i j f
+  apply CommRingCat.hom_ext
+  exact stageCompareHom_transition I1 I2 hc hI hI2 B (leOfHom f)
 
 -- Local declaration justification (metaprogramming implementation): expose the
 -- private quotient-system construction to the public object comparison.
@@ -391,7 +551,11 @@ private theorem baseChangeRightIso_under (I1 : Ideal A1) (I2 : Ideal A2)
       AdicAlgebraSystem.baseChange (algebraMap A1 A2) I1 I2 hc
         (by exact map_pow_le_of_map_pow I1 I2 hI)).obj B).obj.hom ≫
       (baseChangeRightIso I1 I2 hc hI hI2 B).hom =
-        ((baseChange I1 I2 hc hI hI2 ⋙ toAdicSystem I2).obj B).obj.hom := sorry
+        ((baseChange I1 I2 hc hI hI2 ⋙ toAdicSystem I2).obj B).obj.hom := by
+  apply NatTrans.ext
+  funext i
+  apply CommRingCat.hom_ext
+  exact stageCompareHom_includeRight I1 I2 hc hI hI2 B (OrderDual.ofDual i)
 
 -- Local declaration justification (metaprogramming implementation): the exposed
 -- object comparison uses its private, concretely constructed quotient-system isomorphism.
@@ -416,7 +580,92 @@ theorem baseChangeObjIso_stage (I1 : Ideal A1) (I2 : Ideal A2) {c : ℕ} (hc : 1
     (B : TopologicallyFiniteType.{u} A1 I1) (n : ℕ+) :
     (Under.Hom.right (baseChangeObjIso I1 I2 hc hI hI2 B).hom.hom).app
         (OrderDual.toDual n) =
-      (stageCompareEquiv I1 I2 hc hI hI2 B n).toCommRingCatIso.hom := sorry
+      (stageCompareEquiv I1 I2 hc hI hI2 B n).toCommRingCatIso.hom := by
+  rfl
+
+private theorem completedBaseChangeMap_includeLeft (I2 : Ideal A2)
+    {B B' : Type u} [CommRing B] [CommRing B'] [Algebra A1 B] [Algebra A1 B']
+    (f : B →ₐ[A1] B') (b : B) :
+    completedBaseChangeMap I2 f (includeLeftToCompletion I2 B b) =
+      includeLeftToCompletion I2 B' (f b) := by
+  apply AdicCompletion.ext_evalₐ
+  intro n
+  change AdicCompletion.evalₐ _ n
+      (AdicCompletion.liftRingHom _ (completedBaseChangeQuotientMap I2 f)
+        (completedBaseChangeQuotientMap_compatible I2 f)
+        (includeLeftToCompletion I2 B b)) = _
+  rw [AdicCompletion.evalₐ_liftRingHom]
+  change (Ideal.quotientMap (tensorExtensionIdeal I2 B' ^ n)
+      (Algebra.TensorProduct.map f (AlgHom.id A1 A2)).toRingHom
+      (tensorExtensionIdeal_map_le_comap I2 f n))
+      (AdicCompletion.evalₐ _ n (AdicCompletion.of _ _ (b ⊗ₜ[A1] (1 : A2)))) =
+    AdicCompletion.evalₐ _ n (AdicCompletion.of _ _ (f b ⊗ₜ[A1] (1 : A2)))
+  rw [AdicCompletion.evalₐ_of, AdicCompletion.evalₐ_of]
+  rfl
+
+private theorem stageCompareHom_naturality (I1 : Ideal A1) (I2 : Ideal A2)
+    {c : ℕ} (hc : 1 ≤ c) (hI : I1.map (algebraMap A1 A2) ^ c ≤ I2) (hI2 : I2.FG)
+    {B B' : TopologicallyFiniteType.{u} A1 I1} (f : B ⟶ B') (n : ℕ+) :
+    (stageCompareHom I1 I2 hc hI hI2 B' n).comp
+        ((Under.Hom.right ((toAdicSystem I1 ⋙
+          AdicAlgebraSystem.baseChange (algebraMap A1 A2) I1 I2 hc
+            (by exact map_pow_le_of_map_pow I1 I2 hI)).map f).hom).app
+          (OrderDual.toDual n)).hom =
+      (CommAlgCat.adicQuotientMap I2 (completedBaseChangeMap I2 f.hom.hom) n).comp
+        (stageCompareHom I1 I2 hc hI hI2 B n) := by
+  let l := fun X : TopologicallyFiniteType.{u} A1 I1 ↦ tensorOverIncludeLeft
+    (stageAlgebraMap I1 ((toAdicSystem I1).obj X).obj (stretchIndex hc n))
+    (baseChangeHom (algebraMap A1 A2) I1 I2 hc
+      (by exact map_pow_le_of_map_pow I1 I2 hI) n)
+  let r := fun X : TopologicallyFiniteType.{u} A1 I1 ↦ tensorOverIncludeRight
+    (stageAlgebraMap I1 ((toAdicSystem I1).obj X).obj (stretchIndex hc n))
+    (baseChangeHom (algebraMap A1 A2) I1 I2 hc
+      (by exact map_pow_le_of_map_pow I1 I2 hI) n)
+  let t := CommAlgCat.adicQuotientMap I1 f.hom.hom (stretchIndex hc n)
+  let q := CommAlgCat.adicQuotientMap I2 (completedBaseChangeMap I2 f.hom.hom) n
+  let s := ((Under.Hom.right ((toAdicSystem I1 ⋙
+    AdicAlgebraSystem.baseChange (algebraMap A1 A2) I1 I2 hc
+      (by exact map_pow_le_of_map_pow I1 I2 hI)).map f).hom).app
+    (OrderDual.toDual n)).hom
+  have hf : t.comp
+      (stageAlgebraMap I1 ((toAdicSystem I1).obj B).obj (stretchIndex hc n)) =
+      stageAlgebraMap I1 ((toAdicSystem I1).obj B').obj (stretchIndex hc n) := by
+    apply Ideal.Quotient.ringHom_ext
+    ext x
+    exact congrArg (Ideal.Quotient.mk _) (f.hom.hom.commutes x)
+  have sl : s.comp (l B) = (l B').comp t :=
+    tensorOverMap_comp_includeLeft _ _ _ _ t (RingHom.id _) hf (RingHom.id_comp _)
+  have sr : s.comp (r B) = (r B').comp (RingHom.id _) :=
+    tensorOverMap_comp_includeRight _ _ _ _ t (RingHom.id _) hf (RingHom.id_comp _)
+  have hqleft : (stageCompareLeftHom I1 I2 hc hI hI2 B' n).comp t =
+      q.comp (stageCompareLeftHom I1 I2 hc hI hI2 B n) := by
+    apply Ideal.Quotient.ringHom_ext
+    ext b
+    exact congrArg (Ideal.Quotient.mk _)
+      (completedBaseChangeMap_includeLeft I2 f.hom.hom b).symm
+  have hqright : (stageAlgebraMap I2
+      ((toAdicSystem I2).obj ((baseChange I1 I2 hc hI hI2).obj B')).obj n).comp
+        (RingHom.id _) =
+      q.comp (stageAlgebraMap I2
+        ((toAdicSystem I2).obj ((baseChange I1 I2 hc hI hI2).obj B)).obj n) := by
+    apply Ideal.Quotient.ringHom_ext
+    ext x
+    exact congrArg (Ideal.Quotient.mk _)
+      ((completedBaseChangeMap I2 f.hom.hom).commutes x).symm
+  apply tensorOver_hom_ext
+    (stageAlgebraMap I1 ((toAdicSystem I1).obj B).obj (stretchIndex hc n))
+    (baseChangeHom (algebraMap A1 A2) I1 I2 hc
+      (by exact map_pow_le_of_map_pow I1 I2 hI) n)
+  · exact (congrArg (fun k ↦ (stageCompareHom I1 I2 hc hI hI2 B' n).comp k) sl).trans
+      ((congrArg (fun k ↦ k.comp t)
+        (stageCompareHom_includeLeft I1 I2 hc hI hI2 B' n)).trans
+        (hqleft.trans (congrArg (fun k ↦ q.comp k)
+          (stageCompareHom_includeLeft I1 I2 hc hI hI2 B n).symm)))
+  · exact (congrArg (fun k ↦ (stageCompareHom I1 I2 hc hI hI2 B' n).comp k) sr).trans
+      ((congrArg (fun k ↦ k.comp (RingHom.id _))
+        (stageCompareHom_includeRight I1 I2 hc hI hI2 B' n)).trans
+        (hqright.trans (congrArg (fun k ↦ q.comp k)
+          (stageCompareHom_includeRight I1 I2 hc hI hI2 B n).symm)))
 
 /-- The objectwise comparison of adic systems is natural in complete algebras. -/
 private theorem baseChangeObjIso_naturality (I1 : Ideal A1) (I2 : Ideal A2)
@@ -427,7 +676,14 @@ private theorem baseChangeObjIso_naturality (I1 : Ideal A1) (I2 : Ideal A2)
           (by exact map_pow_le_of_map_pow I1 I2 hI)).map f ≫
         (baseChangeObjIso I1 I2 hc hI hI2 B').hom =
       (baseChangeObjIso I1 I2 hc hI hI2 B).hom ≫
-        (baseChange I1 I2 hc hI hI2 ⋙ toAdicSystem I2).map f := sorry
+        (baseChange I1 I2 hc hI hI2 ⋙ toAdicSystem I2).map f := by
+  intro B B' f
+  apply ObjectProperty.hom_ext
+  apply Under.UnderMorphism.ext
+  apply NatTrans.ext
+  funext i
+  apply CommRingCat.hom_ext
+  exact stageCompareHom_naturality I1 I2 hc hI hI2 f (OrderDual.ofDual i)
 
 /-- Natural isomorphism identifying systems base change of `toAdicSystem I1`
 with `toAdicSystem I2` of completed base change. -/
@@ -445,7 +701,8 @@ theorem baseChangeToAdicSystemIso_app (I1 : Ideal A1) (I2 : Ideal A2) {c : ℕ}
     (hc : 1 ≤ c) (hI : I1.map (algebraMap A1 A2) ^ c ≤ I2) (hI2 : I2.FG)
     (B : TopologicallyFiniteType.{u} A1 I1) :
     (baseChangeToAdicSystemIso I1 I2 hc hI hI2).app B =
-      baseChangeObjIso I1 I2 hc hI hI2 B := sorry
+      baseChangeObjIso I1 I2 hc hI hI2 B := by
+  rfl
 
 /-- Stage components of `baseChangeToAdicSystemIso` are `stageCompareEquiv`. -/
 theorem baseChangeToAdicSystemIso_stage (I1 : Ideal A1) (I2 : Ideal A2) {c : ℕ}
@@ -453,7 +710,8 @@ theorem baseChangeToAdicSystemIso_stage (I1 : Ideal A1) (I2 : Ideal A2) {c : ℕ
     (B : TopologicallyFiniteType.{u} A1 I1) (n : ℕ+) :
     (Under.Hom.right ((baseChangeToAdicSystemIso I1 I2 hc hI hI2).app B).hom.hom).app
         (OrderDual.toDual n) =
-      (stageCompareEquiv I1 I2 hc hI hI2 B n).toCommRingCatIso.hom := sorry
+      (stageCompareEquiv I1 I2 hc hI hI2 B n).toCommRingCatIso.hom := by
+  rfl
 
 /-- When both ideals are finitely generated, inverse limits transport the
 comparison isomorphism to an identification of completed base change with

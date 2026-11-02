@@ -42,7 +42,8 @@ theorem Pair.ofData_spec {S : Scheme.{u}} {n : ℕ} (lineBundle : S.Modules)
     (trivialization : TensorPower.sheaf lineBundle n ≅ SheafOfModules.unit S.ringCatSheaf) :
     (Pair.ofData lineBundle invertible_lineBundle trivialization).lineBundle = lineBundle ∧
       (Pair.ofData lineBundle invertible_lineBundle trivialization).trivialization =
-        trivialization := sorry
+        trivialization := by
+  exact ⟨rfl, rfl⟩
 
 /-- An isomorphism of equipped pairs preserves their chosen power trivializations. -/
 structure PairIso {S : Scheme.{u}} {n : ℕ} (P Q : Pair S n) where
@@ -64,21 +65,43 @@ theorem PairIso.ofHom_spec {S : Scheme.{u}} {n : ℕ} {P Q : Pair S n}
     (preserves_trivialization : hom ∈ isomorphisms n P.trivialization Q.trivialization) :
     (PairIso.ofHom hom preserves_trivialization).hom = hom ∧
       TensorPower.map (PairIso.ofHom hom preserves_trivialization).hom.hom n ≫
-        Q.trivialization.hom = P.trivialization.hom := sorry
+        Q.trivialization.hom = P.trivialization.hom := by
+  exact ⟨rfl, preserves_trivialization⟩
 
 /-- Identity module isomorphisms preserve power trivializations. -/
 theorem PairIso.refl_compatible {S : Scheme.{u}} {n : ℕ} (P : Pair S n) :
-    Iso.refl P.lineBundle ∈ isomorphisms n P.trivialization P.trivialization := sorry
+    Iso.refl P.lineBundle ∈ isomorphisms n P.trivialization P.trivialization := by
+  change TensorPower.map (𝟙 P.lineBundle) n ≫ P.trivialization.hom = P.trivialization.hom
+  rw [show TensorPower.map (𝟙 P.lineBundle) n = 𝟙 _ by
+    exact CategoryTheory.Functor.map_id (TensorPower.functor S.toRingedSpace n) _]
+  simp
 
 /-- Inversion preserves compatibility with power trivializations. -/
 theorem PairIso.symm_compatible {S : Scheme.{u}} {n : ℕ} {P Q : Pair S n}
     (e : PairIso P Q) :
-    e.hom.symm ∈ isomorphisms n Q.trivialization P.trivialization := sorry
+    e.hom.symm ∈ isomorphisms n Q.trivialization P.trivialization := by
+  change TensorPower.map e.hom.inv n ≫ P.trivialization.hom = Q.trivialization.hom
+  have he := e.preserves_trivialization
+  change TensorPower.map e.hom.hom n ≫ Q.trivialization.hom = P.trivialization.hom at he
+  have hi : TensorPower.map e.hom.inv n ≫ TensorPower.map e.hom.hom n = 𝟙 _ :=
+    ((TensorPower.functor S.toRingedSpace n).mapIso e.hom).inv_hom_id
+  rw [← he]
+  rw [← Category.assoc, hi, Category.id_comp]
 
 /-- Composition preserves compatibility with power trivializations. -/
 theorem PairIso.trans_compatible {S : Scheme.{u}} {n : ℕ} {P Q R : Pair S n}
     (e : PairIso P Q) (f : PairIso Q R) :
-    e.hom ≪≫ f.hom ∈ isomorphisms n P.trivialization R.trivialization := sorry
+    e.hom ≪≫ f.hom ∈ isomorphisms n P.trivialization R.trivialization := by
+  change TensorPower.map (e.hom.hom ≫ f.hom.hom) n ≫ R.trivialization.hom =
+    P.trivialization.hom
+  have he := e.preserves_trivialization
+  have hf := f.preserves_trivialization
+  change TensorPower.map e.hom.hom n ≫ Q.trivialization.hom = P.trivialization.hom at he
+  change TensorPower.map f.hom.hom n ≫ R.trivialization.hom = Q.trivialization.hom at hf
+  have hc : TensorPower.map (e.hom.hom ≫ f.hom.hom) n =
+      TensorPower.map e.hom.hom n ≫ TensorPower.map f.hom.hom n :=
+    (TensorPower.functor S.toRingedSpace n).map_comp _ _
+  rw [hc, Category.assoc, hf, he]
 
 /-- The identity isomorphism of an equipped pair. -/
 def PairIso.refl {S : Scheme.{u}} {n : ℕ} (P : Pair S n) : PairIso P P :=
@@ -157,7 +180,63 @@ def Pair.dual {S : Scheme.{u}} {n : ℕ} (P : Pair S n) : Pair S n :=
 /-- Tensor products of compatible-isomorphic equipped pairs are compatible-isomorphic. -/
 theorem Pair.tensor_respects_iso {S : Scheme.{u}} {n : ℕ} {P P' Q Q' : Pair S n}
     (e : PairIso P P') (f : PairIso Q Q') :
-    Nonempty (PairIso (P.tensor Q) (P'.tensor Q')) := sorry
+    Nonempty (PairIso (P.tensor Q) (P'.tensor Q')) := by
+  let F (k : ℕ) : S.Modules ⥤ S.Modules := TensorPower.functor S.toRingedSpace k
+  let interchange (A B C D : S.Modules) :
+      (A ⊗ B) ⊗ (C ⊗ D) ≅ (A ⊗ C) ⊗ (B ⊗ D) :=
+    α_ A B (C ⊗ D) ≪≫ (Iso.refl A ⊗ᵢ (α_ B C D).symm) ≪≫
+      (Iso.refl A ⊗ᵢ (β_ B C ⊗ᵢ Iso.refl D)) ≪≫
+      (Iso.refl A ⊗ᵢ α_ C B D) ≪≫ (α_ A C (B ⊗ D)).symm
+  let T (A B : Pair S n) (k : ℕ) :
+      (F k).obj (A.lineBundle ⊗ B.lineBundle) ≅
+        (F k).obj A.lineBundle ⊗ (F k).obj B.lineBundle :=
+    Pair.tensor.tensorPowerTensorIso A B interchange k
+  have hi {A B C D A' B' C' D' : S.Modules}
+      (a : A ⟶ A') (b : B ⟶ B') (c : C ⟶ C') (d : D ⟶ D') :
+      ((a ⊗ₘ b) ⊗ₘ (c ⊗ₘ d)) ≫ (interchange A' B' C' D').hom =
+        (interchange A B C D).hom ≫ ((a ⊗ₘ c) ⊗ₘ (b ⊗ₘ d)) := by
+    simpa [interchange, tensorμ] using tensorμ_natural a b c d
+  have hn (k : ℕ) :
+      (F k).map (e.hom.hom ⊗ₘ f.hom.hom) ≫ (T P' Q' k).hom =
+        (T P Q k).hom ≫ ((F k).map e.hom.hom ⊗ₘ (F k).map f.hom.hom) := by
+    induction k with
+    | zero =>
+      change 𝟙 _ ≫ (T P Q 0).hom = (T P Q 0).hom ≫ (𝟙 _ ⊗ₘ 𝟙 _)
+      simp
+    | succ k ih =>
+      change ((e.hom.hom ⊗ₘ f.hom.hom) ⊗ₘ (F k).map (e.hom.hom ⊗ₘ f.hom.hom)) ≫
+          ((𝟙 _ ⊗ₘ (T P' Q' k).hom) ≫
+            (interchange P'.lineBundle Q'.lineBundle ((F k).obj P'.lineBundle)
+              ((F k).obj Q'.lineBundle)).hom) =
+        ((𝟙 _ ⊗ₘ (T P Q k).hom) ≫
+          (interchange P.lineBundle Q.lineBundle ((F k).obj P.lineBundle)
+            ((F k).obj Q.lineBundle)).hom) ≫
+          ((e.hom.hom ⊗ₘ (F k).map e.hom.hom) ⊗ₘ
+            (f.hom.hom ⊗ₘ (F k).map f.hom.hom))
+      calc
+        _ = ((e.hom.hom ⊗ₘ f.hom.hom) ⊗ₘ
+            ((F k).map (e.hom.hom ⊗ₘ f.hom.hom) ≫ (T P' Q' k).hom)) ≫ _ := by
+          rw [← Category.assoc, tensorHom_comp_tensorHom, Category.comp_id]
+        _ = ((e.hom.hom ⊗ₘ f.hom.hom) ⊗ₘ
+            ((T P Q k).hom ≫ ((F k).map e.hom.hom ⊗ₘ (F k).map f.hom.hom))) ≫ _ := by
+          rw [ih]
+        _ = (𝟙 _ ⊗ₘ (T P Q k).hom) ≫
+            (((e.hom.hom ⊗ₘ f.hom.hom) ⊗ₘ
+              ((F k).map e.hom.hom ⊗ₘ (F k).map f.hom.hom)) ≫ _) := by
+          rw [← Category.assoc, tensorHom_comp_tensorHom, Category.id_comp]
+        _ = _ := by rw [hi, Category.assoc]
+  have he := e.preserves_trivialization
+  have hf := f.preserves_trivialization
+  change (F n).map e.hom.hom ≫ P'.trivialization.hom = P.trivialization.hom at he
+  change (F n).map f.hom.hom ≫ Q'.trivialization.hom = Q.trivialization.hom at hf
+  refine ⟨PairIso.ofHom (e.hom ⊗ᵢ f.hom) ?_⟩
+  change (F n).map (e.hom.hom ⊗ₘ f.hom.hom) ≫
+      ((T P' Q' n).hom ≫ (P'.trivialization.hom ⊗ₘ Q'.trivialization.hom) ≫ _) =
+    (T P Q n).hom ≫ (P.trivialization.hom ⊗ₘ Q.trivialization.hom) ≫ _
+  rw [← Category.assoc, hn]
+  rw [Category.assoc, ← Category.assoc
+    ((F n).map e.hom.hom ⊗ₘ (F n).map f.hom.hom)]
+  rw [tensorHom_comp_tensorHom, he, hf]
 
 /-- Dualization preserves compatible isomorphism of equipped pairs. -/
 theorem Pair.dual_respects_iso {S : Scheme.{u}} {n : ℕ} {P Q : Pair S n}

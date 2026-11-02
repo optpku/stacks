@@ -64,6 +64,14 @@ def mapExtendScalarsToResolution {R S : Type u} [CommRing R] [CommRing S] (φ : 
         (ModuleCat.extendScalars φ).projective_obj_of_projective (P.projective (n + 2))
       ⟨(Q.exact_succ n).liftFromProjective (K.d (n + 2) (n + 1) ≫ p.2.1) sorry, sorry⟩
 
+/-- The comparison of complexes extends the mapped augmentation. -/
+theorem mapExtendScalarsToResolution_comm {R S : Type u} [CommRing R] [CommRing S]
+    (φ : R →+* S) (M : ModuleCat.{u} R) :
+    (mapExtendScalarsToResolution φ M).f 0 ≫
+        (projectiveResolution ((ModuleCat.extendScalars φ).obj M)).π.f 0 =
+      (ModuleCat.extendScalars φ).map ((projectiveResolution M).π.f 0) := by
+  sorry
+
 /-- The canonical comparison from left-derived of a composite extension of scalars to the
 postcomposed left-derived functor. -/
 def leftDerivedCompToPostcomposed {R S T : Type u} [CommRing R] [CommRing S] [CommRing T]
@@ -77,5 +85,24 @@ def leftDerivedCompToPostcomposed {R S T : Type u} [CommRing R] [CommRing S] [Co
         (mapExtendScalarsToResolution φ M)) ≫
     ((projectiveResolution ((ModuleCat.extendScalars φ).obj M)).isoLeftDerivedObj
       (ModuleCat.extendScalars ψ) n).inv
+
+/-- The comparison is natural in the module. -/
+theorem leftDerivedCompToPostcomposed_naturality {R S T : Type u}
+    [CommRing R] [CommRing S] [CommRing T] (φ : R →+* S) (ψ : S →+* T) (n : ℕ)
+    {M N : ModuleCat.{u} R} (f : M ⟶ N) :
+    ((ModuleCat.extendScalars φ ⋙ ModuleCat.extendScalars ψ).leftDerived n).map f ≫
+        leftDerivedCompToPostcomposed φ ψ n N =
+      leftDerivedCompToPostcomposed φ ψ n M ≫
+        ((ModuleCat.extendScalars ψ).leftDerived n).map
+          ((ModuleCat.extendScalars φ).map f) := by
+  sorry
+
+/-- The natural comparison induced by extension of scalars on projective resolutions. -/
+def leftDerivedCompToPostcomposedNat {R S T : Type u} [CommRing R] [CommRing S] [CommRing T]
+    (φ : R →+* S) (ψ : S →+* T) (n : ℕ) :
+    (ModuleCat.extendScalars φ ⋙ ModuleCat.extendScalars ψ).leftDerived n ⟶
+      ModuleCat.extendScalars φ ⋙ (ModuleCat.extendScalars ψ).leftDerived n where
+  app M := leftDerivedCompToPostcomposed φ ψ n M
+  naturality _ _ f := leftDerivedCompToPostcomposed_naturality φ ψ n f
 
 end CommAlgCat.Over.Polynomial.Site

@@ -45,7 +45,7 @@ noncomputable def exteriorPowerObj (X : Scheme.{u})
 theorem exteriorPowerObj_obj (X : Scheme.{u})
     (E : ObjectProperty.FullSubcategory
       (SheafOfModules.IsFiniteLocallyFree : ObjectProperty X.Modules)) (r : ℕ) :
-    (exteriorPowerObj X E r).obj = RingedSpace.ExteriorPower.sheaf E.obj r := sorry
+    (exteriorPowerObj X E r).obj = RingedSpace.ExteriorPower.sheaf E.obj r := rfl
 
 /-- The total exterior-power series of a finite locally free module. -/
 noncomputable def totalExteriorPowerSeries (X : Scheme.{u})
@@ -64,13 +64,35 @@ theorem totalExteriorPowerSeries_coeff (X : Scheme.{u})
     PowerSeries.coeff r (totalExteriorPowerSeries X E) =
       ObjectProperty.GrothendieckGroup.of
         (SheafOfModules.IsFiniteLocallyFree : ObjectProperty X.Modules)
-        (exteriorPowerObj X E r) := sorry
+        (exteriorPowerObj X E r) := by
+  exact PowerSeries.coeff_mk r _
 
 /-- The constant coefficient of the total exterior-power series is one. -/
 theorem totalExteriorPowerSeries_constantCoeff (X : Scheme.{u})
     (E : ObjectProperty.FullSubcategory
       (SheafOfModules.IsFiniteLocallyFree : ObjectProperty X.Modules)) :
-    PowerSeries.constantCoeff (totalExteriorPowerSeries X E) = 1 := sorry
+    PowerSeries.constantCoeff (totalExteriorPowerSeries X E) = 1 := by
+  rw [← PowerSeries.coeff_zero_eq_constantCoeff_apply, totalExteriorPowerSeries_coeff]
+  change ObjectProperty.GrothendieckGroup.of
+    (SheafOfModules.IsFiniteLocallyFree : ObjectProperty X.Modules)
+      (exteriorPowerObj X E 0) =
+    ObjectProperty.GrothendieckGroup.of
+      (SheafOfModules.IsFiniteLocallyFree : ObjectProperty X.Modules) (unitObject X)
+  let M : X.Modules := Limits.terminal X.Modules
+  have hM : Limits.IsZero M := by
+    apply (Limits.IsZero.iff_id_eq_zero _).2
+    exact (Limits.terminalIsTerminal (C := X.Modules)).hom_ext _ _
+  letI : SheafOfModules.IsFiniteLocallyFree
+      (SheafOfModules.unit X.ringCatSheaf) := (unitObject X).property
+  let r : Retract M (SheafOfModules.unit X.ringCatSheaf) :=
+    { i := 0, r := 0, retract := hM.eq_of_src _ _ }
+  let Z : ObjectProperty.FullSubcategory
+      (SheafOfModules.IsFiniteLocallyFree : ObjectProperty X.Modules) :=
+    ⟨M, SheafOfModules.IsFiniteLocallyFree.ofRetract
+      (X := X.toLocallyRingedSpace) r⟩
+  exact ObjectProperty.GrothendieckGroup.of_iso Z hM
+    (ObjectProperty.isoMk _
+      (SheafOfModules.RingedSite.ExteriorPower.degreeZeroIso X.sheaf E.obj))
 
 /-- The total exterior-power series, bundled with its explicit formal inverse. -/
 noncomputable def totalExteriorPowerUnit (X : Scheme.{u})
@@ -88,7 +110,7 @@ noncomputable def totalExteriorPowerUnit (X : Scheme.{u})
 theorem totalExteriorPowerUnit_val (X : Scheme.{u})
     (E : ObjectProperty.FullSubcategory
       (SheafOfModules.IsFiniteLocallyFree : ObjectProperty X.Modules)) :
-    (totalExteriorPowerUnit X E).val = totalExteriorPowerSeries X E := sorry
+    (totalExteriorPowerUnit X E).val = totalExteriorPowerSeries X E := rfl
 
 /-- Total exterior-power units are multiplicative on ambient short exact sequences. -/
 theorem totalExteriorPowerUnit_shortExact (X : Scheme.{u})
@@ -107,7 +129,17 @@ theorem relations_le_ker_totalExteriorPower (X : Scheme.{u}) :
         (SheafOfModules.IsFiniteLocallyFree : ObjectProperty X.Modules) ≤
       (FreeAbelianGroup.lift fun E : ObjectProperty.FullSubcategory
           (SheafOfModules.IsFiniteLocallyFree : ObjectProperty X.Modules) ↦
-        Additive.ofMul (totalExteriorPowerUnit X E)).ker := sorry
+        Additive.ofMul (totalExteriorPowerUnit X E)).ker := by
+  apply (AddSubgroup.closure_le _).2
+  rintro _ ⟨⟨S, hS⟩, rfl⟩
+  change (FreeAbelianGroup.lift fun E : ObjectProperty.FullSubcategory
+      (SheafOfModules.IsFiniteLocallyFree : ObjectProperty X.Modules) ↦
+    Additive.ofMul (totalExteriorPowerUnit X E))
+      (FreeAbelianGroup.of S.X₂ - FreeAbelianGroup.of S.X₁ -
+        FreeAbelianGroup.of S.X₃) = 0
+  simp only [map_sub, FreeAbelianGroup.lift_apply_of]
+  rw [totalExteriorPowerUnit_shortExact X S hS, ofMul_mul]
+  simp
 
 /-- The total exterior-power operation on vector-bundle `K₀`, valued in additive
 power-series units. -/
@@ -124,7 +156,8 @@ theorem totalExteriorPower_of (X : Scheme.{u})
       (SheafOfModules.IsFiniteLocallyFree : ObjectProperty X.Modules)) :
     totalExteriorPower X (ObjectProperty.GrothendieckGroup.of
       (SheafOfModules.IsFiniteLocallyFree : ObjectProperty X.Modules) E) =
-      Additive.ofMul (totalExteriorPowerUnit X E) := sorry
+      Additive.ofMul (totalExteriorPowerUnit X E) := by
+  exact FreeAbelianGroup.lift_apply_of _ E
 
 /-- The `r`-th lambda operation on vector-bundle `K₀`. -/
 noncomputable def lambda (X : Scheme.{u}) (r : ℕ) : VectorBundleK0 X → VectorBundleK0 X :=
@@ -139,12 +172,18 @@ theorem lambda_of (X : Scheme.{u}) (r : ℕ)
       (SheafOfModules.IsFiniteLocallyFree : ObjectProperty X.Modules) E) =
       ObjectProperty.GrothendieckGroup.of
         (SheafOfModules.IsFiniteLocallyFree : ObjectProperty X.Modules)
-        (exteriorPowerObj X E r) := sorry
+        (exteriorPowerObj X E r) := by
+  unfold lambda
+  rw [totalExteriorPower_of]
+  exact totalExteriorPowerSeries_coeff X E r
 
 /-- Lambda operations turn addition into the Cauchy convolution of coefficients. -/
 theorem lambda_add (X : Scheme.{u}) (r : ℕ) (a b : VectorBundleK0 X) :
     lambda X r (a + b) =
-      ∑ ij : Finset.antidiagonal r, lambda X ij.1.1 a * lambda X ij.1.2 b := sorry
+      ∑ ij : Finset.antidiagonal r, lambda X ij.1.1 a * lambda X ij.1.2 b := by
+  unfold lambda
+  rw [map_add, toMul_add, Units.val_mul, PowerSeries.coeff_mul]
+  exact (Finset.sum_attach _ _).symm
 
 /-- Lambda operations on vector-bundle `K₀` commute with pullback of schemes. -/
 theorem lambda_pullback (f : X ⟶ Y) (r : ℕ) (a : VectorBundleK0 Y) :

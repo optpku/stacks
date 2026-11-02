@@ -14,7 +14,7 @@ public import ReasLib.CategoryTheory.Fibered.TwoFibreProduct.FullSubbicategory.B
 # Two-fibre products and the Rim-Schlessinger condition
 
 The Rim-Schlessinger condition is stable under canonical two-fibre products of
-categories fibred in groupoids over a locally Noetherian scheme.
+categories fibred in groupoids over an arbitrary scheme.
 -/
 
 @[expose] public section
@@ -26,11 +26,11 @@ universe u
 
 namespace AlgebraicGeometry.GroupoidsOver
 
-variable {S : Scheme.{u}} [IsLocallyNoetherian S]
+variable {S : Scheme.{u}}
 variable {X Y Z : GroupoidsOver S}
 
 /-- The canonical two-fibre product of a cospan of categories fibred in groupoids
-over a locally Noetherian scheme satisfies the Rim-Schlessinger condition when
+over a scheme satisfies the Rim-Schlessinger condition when
 all three categories satisfy it. -/
 instance instHasRimSchlessinger_twoFibreProduct
     (p : X ⟶ Y) (q : Z ⟶ Y)

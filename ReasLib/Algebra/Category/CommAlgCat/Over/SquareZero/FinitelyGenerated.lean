@@ -25,6 +25,7 @@ every `R[M]`.
 noncomputable section
 
 open CategoryTheory CategoryTheory.Limits ZeroObject
+open scoped ModuleCat.Algebra
 
 universe u
 

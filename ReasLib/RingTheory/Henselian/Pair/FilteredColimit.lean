@@ -26,14 +26,12 @@ universe u
 
 namespace RingPairCat
 
-/-- Local instance justification (instance diamond): select the canonical right-adjoint witness
-for the inclusion of henselian pairs only in this preservation statement. -/
-local instance : henselianPairInclusion.IsRightAdjoint :=
-  henselianPairInclusion_isRightAdjoint
-
-/-- Lemma 15.12.5: the pair-Henselization functor preserves filtered colimits. -/
+/-- Lemma 15.12.5: the pair-Henselization functor preserves filtered colimits.
+The right-adjoint witness is an explicit parameter so the statement does not select
+Henselization data from the deferred existence theorem. -/
 @[stacks 0A04 "Lemma 15.12.5"]
-instance pairHenselization_preservesFilteredColimits :
+instance pairHenselization_preservesFilteredColimits
+    [henselianPairInclusion.{u}.IsRightAdjoint] :
     PreservesFilteredColimits henselianPairInclusion.leftAdjoint := sorry
 
 end RingPairCat

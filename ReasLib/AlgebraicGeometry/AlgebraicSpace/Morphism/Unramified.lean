@@ -49,7 +49,7 @@ theorem unramified_iff {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
         (over (@AlgebraicGeometry.Etale)).presheaf a →
           (over (@AlgebraicGeometry.Etale)).presheaf b →
             a ≫ f = yoneda.map h ≫ b → AlgebraicGeometry.Unramified h.left :=
-  sorry
+  ⟨fun hf => hf.of_etale, fun hf => ⟨hf⟩⟩
 
 namespace Unramified
 
@@ -61,7 +61,7 @@ theorem spec {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
     (ha : (over (@AlgebraicGeometry.Etale)).presheaf a)
     (hb : (over (@AlgebraicGeometry.Etale)).presheaf b)
     (w : a ≫ f = yoneda.map h ≫ b) : AlgebraicGeometry.Unramified h.left :=
-  sorry
+  Unramified.of_etale a b h ha hb w
 
 /-- The identity morphism of an algebraic space is unramified. -/
 instance id {S : Scheme.{u}} {X : AlgebraicSpace S} : Unramified (𝟙 X) :=

@@ -7,6 +7,12 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import Mathlib.Algebra.DirectSum.Module
+public import ReasLib.AlgebraicGeometry.ChowCohomology
+public import ReasLib.AlgebraicGeometry.ChowGroup.Relative.Cycle
+public import ReasLib.AlgebraicGeometry.ChowGroup.Pushforward
+public import ReasLib.AlgebraicGeometry.CycleGroup.Point
+public import ReasLib.AlgebraicGeometry.Scheme.OverField.ClosedPoints
+public import ReasLib.AlgebraicGeometry.Scheme.Morphism.Projective.Proper
 public import ReasLib.AlgebraicGeometry.WeilCohomology.Trace
 public import ReasLib.Topology.KrullDimension.Equidimensional
 public import ReasLib.AlgebraicGeometry.Scheme.OverField.Local
@@ -22,6 +28,90 @@ namespace WeilCohomology
 
 open AlgebraicGeometry CategoryTheory TopologicalSpace
 open scoped TensorProduct
+
+/-- Comparisons with geometric Chow theory. The operational comparison covers all
+codimensions, including schemes with components of different dimensions. The top
+comparison supplies actual inverse data for zero cycles on equidimensional schemes;
+its compatibility with cap product is a separate proposition below. -/
+structure SchemeChowComparison
+    (k : Type u) [Field k] {V : Type w} [Category.{z} V]
+    (scheme : V ⥤ SchemeOverField k) (CH : V → Type y)
+    [∀ X, CommRing (CH X)] (CHgrade : ∀ X, ℤ → Submodule ℤ (CH X))
+    (IsNonemptyEquidimensional : V → ℕ → Prop)
+    [∀ X, LocallyOfFiniteType (scheme.obj X).hom] where
+  /-- Integral operational Chow cohomology, with its actual cap operations. -/
+  operational : ∀ X i, CHgrade X i ≃+
+    ChowCohomology.degree (fun _ ↦ 0) (scheme.obj X).hom i
+  /-- Integral zero cycles modulo rational equivalence. -/
+  top : ∀ {X d}, IsNonemptyEquidimensional X d →
+    CHgrade X d ≃+ RelativeChow (fun _ ↦ 0) (scheme.obj X) 0
+
+namespace SchemeChowComparison
+
+/-- Evaluation of an operational class on the geometric fundamental cycle. -/
+def capFundamental {k : Type u} [Field k]
+    (X : SchemeOverField k) [LocallyOfFiniteType X.hom]
+    (d : ℕ) (i : ℤ)
+    (a : ChowCohomology.degree (fun _ ↦ 0) X.hom i) :
+    RelativeChow (fun _ ↦ 0) X ((d : ℤ) - i) :=
+  a.cap (𝟙 (Over.mk X.hom)) (𝟙 (Over.mk X.hom)) (𝟙 (Over.mk X.hom))
+    CategoryTheory.IsPullback.of_id_snd d
+    (RelativeChow.fundamentalClass (fun _ ↦ 0) X d)
+
+/-- The genuine Chow class of a closed point, without a separability assumption. -/
+def pointCycleClass {k : Type u} [Field k]
+    (X : SchemeOverField k) [LocallyOfFiniteType X.hom]
+    (p : closedPoints X.left) : RelativeChow (fun _ ↦ 0) X 0 :=
+  @chowClass X.left
+    (@LocallyOfFiniteType.isLocallyNoetherian _ _ X.hom inferInstance
+      (@instIsLocallyNoetherianSpecOfIsNoetherianRingCarrier
+        (CommRingCat.of k) PrincipalIdealRing.isNoetherianRing))
+    (X.hom.relativeDimensionFunction (fun _ ↦ 0)) inferInstance 0
+    (CycleGroup.point (X.hom.relativeDimensionFunction (fun _ ↦ 0)) 0 p
+    (SchemeOverField.closedPoint_relativeDimensionFunction_eq_zero X p))
+
+/-- Geometric compatibility of a Chow comparison. These laws concern the actual
+intersection product, refined pullback and proper pushforward. They do not assume
+any cohomological generation or separation conclusion. -/
+structure RespectsOperations
+    {k : Type u} [Field k] {V : Type w} [Category.{z} V]
+    {scheme : V ⥤ SchemeOverField k} {CH : V → Type y}
+    [∀ X, CommRing (CH X)] {CHgrade : ∀ X, ℤ → Submodule ℤ (CH X)}
+    [∀ X, GradedAlgebra (CHgrade X)]
+    {IsNonemptyEquidimensional : V → ℕ → Prop}
+    [∀ X, LocallyOfFiniteType (scheme.obj X).hom]
+    (C : SchemeChowComparison k scheme CH CHgrade IsNonemptyEquidimensional)
+    (cyclePullback : ∀ {X Y : V}, (X ⟶ Y) → CHgrade Y →ₐᵍ[ℤ] CHgrade X)
+    (cyclePushforward : ∀ {X Y : V}, (X ⟶ Y) → CH X →+ CH Y) : Prop where
+  /-- The fundamental class corresponds to the operational unit. -/
+  unit : ∀ X, C.operational X 0 1 = ChowCohomology.one (fun _ ↦ 0) (scheme.obj X).hom
+  /-- Multiplication is the geometric intersection product. -/
+  mul : ∀ X i j (a : CHgrade X i) (b : CHgrade X j),
+    ((C.operational X (i + j)).symm
+      (ChowCohomology.mul (fun _ ↦ 0) (scheme.obj X).hom
+        (C.operational X i a) (C.operational X j b)) : CH X) = (a : CH X) * b
+  /-- Refined pullback is restriction of operational Chow classes. -/
+  pullback : ∀ {X Y : V} (f : X ⟶ Y) i (a : CHgrade Y i),
+    ((C.operational X i).symm
+      (BivariantClass.restrict (fun _ ↦ 0) (scheme.map f) (𝟙 _)
+        (scheme.map f) CategoryTheory.IsPullback.of_id_snd i
+        (C.operational Y i a)) : CH X) = cyclePullback f a
+  /-- Proper pushforward is geometric pushforward after capping with fundamental
+  cycles. The explicit homogeneous representative avoids choosing a grading proof. -/
+  pushforward : ∀ {X Y d e}
+      (hX : IsNonemptyEquidimensional X d) (hY : IsNonemptyEquidimensional Y e)
+      (f : X ⟶ Y) [IsProper (scheme.map f).left] i (a : CHgrade X i)
+      (b : CHgrade Y (i + ((e : ℤ) - d))),
+    (b : CH Y) = cyclePushforward f a →
+      HEq (capFundamental (scheme.obj Y) e _ (C.operational Y _ b))
+        (ChowGroup.map (fun _ ↦ 0) (scheme.obj X) (scheme.obj Y) (scheme.map f)
+          ((d : ℤ) - i) (capFundamental (scheme.obj X) d i (C.operational X i a)))
+  /-- The zero-cycle comparison is evaluation of the same operational comparison. -/
+  top_cap : ∀ {X d} (hX : IsNonemptyEquidimensional X d) (a : CHgrade X d),
+    C.top hX a = RelativeChow.castDegree (fun _ ↦ 0) (sub_self (d : ℤ))
+      (capFundamental (scheme.obj X) d d (C.operational X d a))
+
+end SchemeChowComparison
 
 namespace SchemeClassicalTheory
 
@@ -104,6 +194,16 @@ structure SchemeClassicalTheory
   /-- Pullback of the point fundamental class is the fundamental class of every object. -/
   fundamentalClass_pullback : ∀ X,
     cyclePullback (structureMorphism X) (1 : CHgrade point 0) = 1
+  /-- A uniform comparison with actual integral geometric Chow groups. -/
+  chowComparison :
+    letI : ∀ X, LocallyOfFiniteType (scheme.obj X).hom :=
+      fun X ↦ (projective X).isProper.toLocallyOfFiniteType
+    SchemeChowComparison k scheme CH CHgrade IsNonemptyEquidimensional
+  /-- The comparison preserves all geometric Chow operations. -/
+  chow_compatible :
+    letI : ∀ X, LocallyOfFiniteType (scheme.obj X).hom :=
+      fun X ↦ (projective X).isProper.toLocallyOfFiniteType
+    chowComparison.RespectsOperations cyclePullback cyclePushforward
   /-- The Chow class of a closed point on a nonempty equidimensional scheme. -/
   closedPointClass : ∀ {X d}, IsNonemptyEquidimensional X d →
     closedPoints (scheme.obj X).left → CHgrade X d
@@ -114,6 +214,15 @@ structure SchemeClassicalTheory
     cyclePushforward (structureMorphism X) (closedPointClass hX x) =
       (Module.finrank k ((scheme.obj X).left.residueField x) : ℤ) •
         (1 : CHgrade point 0)
+  /-- The specified class is the class of this particular geometric closed point,
+  including points with inseparable residue fields. -/
+  closedPointClass_comparison :
+    letI : ∀ X, LocallyOfFiniteType (scheme.obj X).hom :=
+      fun X ↦ (projective X).isProper.toLocallyOfFiniteType
+    ∀ {X d} (hX : IsNonemptyEquidimensional X d)
+      (p : closedPoints (scheme.obj X).left),
+      chowComparison.top hX (closedPointClass hX p) =
+        SchemeChowComparison.pointCycleClass (scheme.obj X) p
   /-- The chosen Tate line has dimension one. -/
   tateLine_rank : Module.finrank F TateLine = 1
   /-- The singly graded cohomology summands exhaust total cohomology. -/
@@ -145,23 +254,23 @@ structure SchemeClassicalTheory
   finiteDimensional : ∀ {X d}, IsNonemptyEquidimensional X d →
     ∀ p : ℤ, Module.Finite F (Hgrade X p)
   /-- The linear map associated to the Poincare pairing. -/
-  poincarePairing : ∀ {X d} (hX : IsNonemptyEquidimensional X d) (i j : ℤ),
+  poincarePairing : ∀ {X d} (hX : IsNonemptyEquidimensional X d) (i : ℤ),
     Hgrade X (2 * (d : ℤ) - i) →ₗ[F]
       (Hgrade X (i) →ₗ[F] F)
   /-- The Poincare pairing is cup product followed by the trace. -/
-  poincarePairing_apply : ∀ {X d} (hX : IsNonemptyEquidimensional X d) (i j : ℤ)
+  poincarePairing_apply : ∀ {X d} (hX : IsNonemptyEquidimensional X d) (i : ℤ)
       (a : Hgrade X (2 * (d : ℤ) - i))
       (b : Hgrade X (i)),
-    poincarePairing hX i j a b = integral hX ((b : H X) * a)
-  /-- The Poincare pairing is perfect in every bidegree. -/
+    poincarePairing hX i a b = integral hX ((b : H X) * a)
+  /-- The Poincare pairing is perfect in every cohomological degree. -/
   poincarePairing_bijective : ∀ {X d} (hX : IsNonemptyEquidimensional X d)
-      (i j : ℤ), Function.Bijective (poincarePairing hX i j)
+      (i : ℤ), Function.Bijective (poincarePairing hX i)
   /-- Cohomological pushforward between nonempty equidimensional schemes. -/
   pushforward : ∀ {X Y d e}, IsNonemptyEquidimensional X d →
     IsNonemptyEquidimensional Y e → (X ⟶ Y) → H X →ₗ[F] H Y
-  /-- Pushforward has the bidegree shift prescribed by dimensions. -/
+  /-- Pushforward has the cohomological degree shift prescribed by dimensions. -/
   pushforward_mem : ∀ {X Y d e} (hX : IsNonemptyEquidimensional X d)
-      (hY : IsNonemptyEquidimensional Y e) (f : X ⟶ Y) (i j : ℤ)
+      (hY : IsNonemptyEquidimensional Y e) (f : X ⟶ Y) (i : ℤ)
       (a : Hgrade X (i)),
     pushforward hX hY f a ∈
       Hgrade Y (i + 2 * ((e : ℤ) - d))
@@ -224,6 +333,30 @@ variable [∀ X, GradedAlgebra (Hgrade X)] [∀ X, GradedAlgebra (CHgrade X)]
 variable {cyclePullback : ∀ {X Y : V}, (X ⟶ Y) → CHgrade Y →ₐᵍ[ℤ] CHgrade X}
 variable {cyclePushforward : ∀ {X Y : V}, (X ⟶ Y) → CH X →+ CH Y}
 
+
+section GeometricChow
+
+variable (T : SchemeClassicalTheory k F TateLine V dimension product fst snd point
+  H CH Hgrade CHgrade cyclePullback cyclePushforward)
+
+local instance chowFiniteType (X : V) : LocallyOfFiniteType (T.scheme.obj X).hom :=
+  (T.projective X).isProper.toLocallyOfFiniteType
+
+/-- The uniform top Chow comparison supplied by the theory. -/
+abbrev chowTopEquiv {X : V} {d : ℕ} (hX : T.IsNonemptyEquidimensional X d) :
+    CHgrade X d ≃+ RelativeChow (fun _ ↦ 0) (T.scheme.obj X) 0 :=
+  T.chowComparison.top hX
+
+/-- The closed-point field is determined by its genuine geometric point cycle. -/
+theorem closedPointClass_eq_geometric {X : V} {d : ℕ}
+    (hX : T.IsNonemptyEquidimensional X d)
+    (p : closedPoints (T.scheme.obj X).left) :
+    T.closedPointClass hX p = (T.chowTopEquiv hX).symm
+      (SchemeChowComparison.pointCycleClass (T.scheme.obj X) p) :=
+  (T.chowTopEquiv hX).injective (by
+    rw [T.closedPointClass_comparison, AddEquiv.apply_symm_apply])
+
+end GeometricChow
 
 section ExternalTwists
 
@@ -299,7 +432,7 @@ def twistedPoincarePairing
     {X : V} {d : ℕ} (hX : T.IsNonemptyEquidimensional X d) (i n : ℤ) :
     T.twistedGrade X (2 * (d : ℤ) - i) ((d : ℤ) - n) →ₗ[F]
       (T.twistedGrade X i n →ₗ[F] F) :=
-  (T.poincarePairing hX i n).compl₁₂
+  (T.poincarePairing hX i).compl₁₂
     (Tate.trivialization T.tateLine_rank (Hgrade X (2 * (d : ℤ) - i))
       ((d : ℤ) - n)).toLinearMap
     (Tate.trivialization T.tateLine_rank (Hgrade X i) n).toLinearMap
@@ -331,11 +464,11 @@ theorem poincareDuality_spec
       H CH Hgrade CHgrade cyclePullback cyclePushforward) :
     (∀ {X d}, T.IsNonemptyEquidimensional X d → ∀ p : ℤ,
       Module.Finite F (Hgrade X p)) ∧
-    (∀ {X d} (hX : T.IsNonemptyEquidimensional X d) (i j : ℤ)
+    (∀ {X d} (hX : T.IsNonemptyEquidimensional X d) (i : ℤ)
       (a : Hgrade X (2 * (d : ℤ) - i)) (b : Hgrade X (i)),
-      T.poincarePairing hX i j a b = T.integral hX ((b : H X) * a)) ∧
-    (∀ {X d} (hX : T.IsNonemptyEquidimensional X d) (i j : ℤ),
-      Function.Bijective (T.poincarePairing hX i j)) := sorry
+      T.poincarePairing hX i a b = T.integral hX ((b : H X) * a)) ∧
+    (∀ {X d} (hX : T.IsNonemptyEquidimensional X d) (i : ℤ),
+      Function.Bijective (T.poincarePairing hX i)) := sorry
 
 /-- The Kunneth formula describes pure tensors, grading, fixed-twist isomorphisms,
 and integration of top-bidegree exterior products. -/

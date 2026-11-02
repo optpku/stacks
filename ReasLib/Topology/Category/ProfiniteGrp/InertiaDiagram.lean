@@ -47,33 +47,4 @@ structure InertiaDiagram
   /-- The diagonal map is trivial, as indicated by the label `1`. -/
   diagonalTrivial : ∀ g : pi1Ush, ushToXh g = 1
 
-/-- Construct a profinite fundamental-group diagram from its six maps and three laws. -/
-def InertiaDiagram.of
-    (pi1Ush pi1Uh pi1U pi1Xh pi1X : ProfiniteGrp.{u})
-    (ushToUh : pi1Ush ⟶ pi1Uh) (uhToU : pi1Uh ⟶ pi1U)
-    (uhToXh : pi1Uh ⟶ pi1Xh) (uToX : pi1U ⟶ pi1X)
-    (xhToX : pi1Xh ⟶ pi1X) (ushToXh : pi1Ush ⟶ pi1Xh)
-    (triangle : ushToUh ≫ uhToXh = ushToXh)
-    (square : CategoryTheory.CommSq uhToU uhToXh uToX xhToX)
-    (diagonalTrivial : ∀ g : pi1Ush, ushToXh g = 1) :
-    InertiaDiagram pi1Ush pi1Uh pi1U pi1Xh pi1X :=
-  { ushToUh := ushToUh
-    uhToU := uhToU
-    uhToXh := uhToXh
-    uToX := uToX
-    xhToX := xhToX
-    ushToXh := ushToXh
-    triangle := triangle
-    square := square
-    diagonalTrivial := diagonalTrivial }
-
-/-- The defining specification of an inertia diagram exposes its triangle, square, and trivial
-diagonal laws together. -/
-theorem InertiaDiagram.spec
-    {pi1Ush pi1Uh pi1U pi1Xh pi1X : ProfiniteGrp.{u}}
-    (D : InertiaDiagram pi1Ush pi1Uh pi1U pi1Xh pi1X) :
-    D.ushToUh ≫ D.uhToXh = D.ushToXh ∧
-      CategoryTheory.CommSq D.uhToU D.uhToXh D.uToX D.xhToX ∧
-        (∀ g : pi1Ush, D.ushToXh g = 1) := sorry
-
 end EtaleFundamentalGroup

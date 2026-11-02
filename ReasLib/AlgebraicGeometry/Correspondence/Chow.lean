@@ -7,6 +7,7 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import Mathlib.AlgebraicGeometry.Morphisms.Smooth
+public import ReasLib.AlgebraicGeometry.BivariantClass.OverField
 public import ReasLib.AlgebraicGeometry.BivariantClass.Composition
 public import ReasLib.AlgebraicGeometry.BivariantClass.ProperPushforward
 public import ReasLib.AlgebraicGeometry.BivariantClass.Rationalization
@@ -32,17 +33,9 @@ namespace AlgebraicGeometry.Correspondence
 variable {k : Type u} [Field k]
 
 /-- The field point is locally of finite type over itself. -/
-instance point_locallyOfFiniteType (k : Type u) [Field k] :
-    LocallyOfFiniteType (⊤_ (SchemeOverField k)).hom := by
-  let e : (⊤_ (SchemeOverField k)) ≅ Over.mk (𝟙 (Spec (CommRingCat.of k))) :=
-    terminalIsTerminal.uniqueUpToIso Over.mkIdTerminal
-  have h : e.hom.left = (⊤_ (SchemeOverField k)).hom := by
-    simpa only [Category.comp_id] using! e.hom.w
-  haveI : IsIso e.hom.left := by
-    change IsIso ((Over.forget _).map e.hom)
-    infer_instance
-  rw [← h]
-  exact MorphismProperty.of_isIso (P := @LocallyOfFiniteType) e.hom.left
+theorem point_locallyOfFiniteType (k : Type u) [Field k] :
+    LocallyOfFiniteType (⊤_ (SchemeOverField k)).hom :=
+  SchemeOverField.instTerminalLocallyOfFiniteType
 
 /-- The first product projection is proper when the second factor is proper over the field. -/
 instance productFst_isProper (X Y : SchemeOverField k) [IsProper Y.hom] :
@@ -169,10 +162,8 @@ private theorem properPushforwardToTarget_pointwiseAdd {X Y : SchemeOverField k}
 theorem pointProductIsPullback (X : SchemeOverField k) {Y : SchemeOverField k}
     (g : Y ⟶ SchemeOverField.point k) :
     IsPullback (Limits.prod.fst : X ⨯ Y ⟶ X).left
-      (Limits.prod.snd : X ⨯ Y ⟶ Y).left (terminal.from X).left g.left := by
-  have hg : g = terminal.from Y := terminal.hom_ext _ _
-  subst g
-  exact (IsPullback.of_hasBinaryProduct' X Y).map (Over.forget _)
+      (Limits.prod.snd : X ⨯ Y ⟶ Y).left (terminal.from X).left g.left :=
+  SchemeOverField.productIsPullback X g
 
 /-- The canonical pullback comparison with `X ⨯ Y` respects the structure maps. -/
 theorem pointProductIso_hom_base
@@ -180,10 +171,17 @@ theorem pointProductIso_hom_base
     (i : X' ⟶ X) (f' : X' ⟶ Y) (g : Y ⟶ SchemeOverField.point k)
     (square : IsPullback i.left f'.left (terminal.from X).left g.left) :
     (square.isoIsPullback X.left Y.left (pointProductIsPullback X g)).hom ≫
-        (X ⨯ Y).hom = X'.hom := by
-  rw [← (Limits.prod.fst : X ⨯ Y ⟶ X).w, ← Category.assoc,
-    square.isoIsPullback_hom_fst]
-  exact i.w
+        (X ⨯ Y).hom = X'.hom :=
+  SchemeOverField.productIsoOfIsPullback_hom_base X i f' g square
+
+/- The following complete Prop certificates preserve the names and binder lists
+recorded by compiled clients of the former comparison implementation. They reuse the
+chosen limits, and introduce neither product data nor competing instances. -/
+theorem pointProductIso._proof_1 : HasTerminal (Over (Spec (CommRingCat.of k))) :=
+  Over.instHasTerminal
+
+theorem pointProductIso._proof_2 (X : SchemeOverField k) {Y : SchemeOverField k} :
+    HasLimit (pair X Y) := hasLimitOfHasLimitsOfShape (pair X Y)
 
 /-- The canonical isomorphism from a cartesian representative over the point to a product. -/
 noncomputable def pointProductIso
@@ -191,8 +189,7 @@ noncomputable def pointProductIso
     (i : X' ⟶ X) (f' : X' ⟶ Y) (g : Y ⟶ SchemeOverField.point k)
     (square : IsPullback i.left f'.left (terminal.from X).left g.left) :
     X' ≅ X ⨯ Y :=
-  Over.isoMk (square.isoIsPullback X.left Y.left (pointProductIsPullback X g))
-    (pointProductIso_hom_base X i f' g square)
+  SchemeOverField.productIsoOfIsPullback X i f' g square
 
 /-- The point-product comparison followed by the first projection is the given map. -/
 theorem pointProductIso_hom_fst
@@ -201,22 +198,15 @@ theorem pointProductIso_hom_fst
     (square : IsPullback i.left f'.left (terminal.from X).left g.left) :
     (pointProductIso X i f' g square).hom ≫ Limits.prod.fst = i := by
   apply Over.OverMorphism.ext
+  change (SchemeOverField.productIsoOfIsPullback X i f' g square).hom.left ≫
+    (Limits.prod.fst : X ⨯ Y ⟶ X).left = i.left
+  rw [SchemeOverField.productIsoOfIsPullback_hom_left]
   exact square.isoIsPullback_hom_fst _ _ (pointProductIsPullback X g)
 
 /-- The degree-zero fundamental Chow class of the spectrum of the ground field. -/
 noncomputable def pointFundamentalClass (k : Type u) [Field k] :
     RelativeChow (fun _ ↦ 0) (SchemeOverField.point k) 0 :=
-  let hBase : IsLocallyNoetherian (Spec (CommRingCat.of k)) :=
-    @UniversallyCatenary.toIsLocallyNoetherian _
-      (@instUniversallyCatenarySpec k _
-        (@instUniversallyCatenaryRingOfField.{u, u} k _))
-  let hPoint : IsLocallyNoetherian (SchemeOverField.point k).left :=
-    @LocallyOfFiniteType.isLocallyNoetherian _ _ (SchemeOverField.point k).hom
-      inferInstance hBase
-  @chowClass (SchemeOverField.point k).left hPoint
-    ((SchemeOverField.point k).hom.relativeDimensionFunction (fun _ ↦ 0)) inferInstance 0
-    (@CycleGroup.fundamental (SchemeOverField.point k).left hPoint
-      ((SchemeOverField.point k).hom.relativeDimensionFunction (fun _ ↦ 0)) 0)
+  ChowGroup.specFundamentalClass k
 
 /-- The point fundamental class is represented by its degree-zero fundamental cycle. -/
 theorem pointFundamentalClass_def (k : Type u) [Field k] :
@@ -229,15 +219,15 @@ theorem pointFundamentalClass_def (k : Type u) [Field k] :
           (LocallyOfFiniteType.isLocallyNoetherian (SchemeOverField.point k).hom)
           ((SchemeOverField.point k).hom.relativeDimensionFunction (fun _ ↦ 0)) 0) := rfl
 
-/-- The cap family obtained by exterior product with a Chow class. -/
+/-! The point-Chow names below are compatibility facades for `BivariantClass.OverField`.
+The field owner supplies all six maps, the product comparison, and the point fundamental
+class. These aliases preserve the historical correspondence API without new instances. -/
+
+/-- Compatibility facade for the field owner's exterior-product cap family. -/
 noncomputable def ofChowCap (X : SchemeOverField k) [LocallyOfFiniteType X.hom]
     (p : ℤ) (alpha : RelativeChow (fun _ ↦ 0) X (-p)) :
     BivariantClass.CapFamily (fun _ ↦ 0) (terminal.from X) p :=
-  fun {X' Y'} _ _ i f' g _ square n ↦
-    (ChowGroup.map (fun _ ↦ 0) (X ⨯ Y') X'
-      (pointProductIso X i f' g square).inv (n - p)).comp
-      ((RelativeChow.castDegree (fun _ ↦ 0) (neg_add_eq_sub p n)).comp
-        (ChowGroup.exteriorProductPairing X Y' (-p) n alpha))
+  BivariantClass.ofChowCap X p alpha
 
 /-- Evaluation of the exterior-product cap family uses the point-product comparison. -/
 theorem ofChowCap_apply (X : SchemeOverField k) [LocallyOfFiniteType X.hom]
@@ -258,28 +248,28 @@ theorem ofChowCap_apply (X : SchemeOverField k) [LocallyOfFiniteType X.hom]
 theorem ofChowCap_mapProper (X : SchemeOverField k) [LocallyOfFiniteType X.hom]
     (p : ℤ) (alpha : RelativeChow (fun _ ↦ 0) X (-p)) :
     BivariantClass.CompatibleWithProperPushforward (fun _ ↦ 0)
-      (ofChowCap X p alpha) := sorry
+      (ofChowCap X p alpha) :=
+  BivariantClass.ofChowCap_mapProper X p alpha
 
 /-- Exterior-product cap families commute with flat pullback. -/
 theorem ofChowCap_pullbackFlat (X : SchemeOverField k) [LocallyOfFiniteType X.hom]
     (p : ℤ) (alpha : RelativeChow (fun _ ↦ 0) X (-p)) :
     BivariantClass.CompatibleWithFlatPullback (fun _ ↦ 0)
-      (ofChowCap X p alpha) := sorry
+      (ofChowCap X p alpha) :=
+  BivariantClass.ofChowCap_pullbackFlat X p alpha
 
 /-- Exterior-product cap families commute with effective-Cartier Gysin pullback. -/
 theorem ofChowCap_gysinCartier (X : SchemeOverField k) [LocallyOfFiniteType X.hom]
     (p : ℤ) (alpha : RelativeChow (fun _ ↦ 0) X (-p)) :
     BivariantClass.CompatibleWithCartierGysin (fun _ ↦ 0)
-      (ofChowCap X p alpha) := sorry
+      (ofChowCap X p alpha) :=
+  BivariantClass.ofChowCap_gysinCartier X p alpha
 
 /-- The bivariant class whose action is exterior product with a Chow class. -/
 noncomputable def ofChowClass (X : SchemeOverField k) [LocallyOfFiniteType X.hom]
     (p : ℤ) (alpha : RelativeChow (fun _ ↦ 0) X (-p)) :
-    BivariantClass (fun _ ↦ 0) (terminal.from X) p where
-  cap := ofChowCap X p alpha
-  map_proper := ofChowCap_mapProper X p alpha
-  pullback_flat := ofChowCap_pullbackFlat X p alpha
-  gysin_cartier := ofChowCap_gysinCartier X p alpha
+    BivariantClass (fun _ ↦ 0) (terminal.from X) p :=
+  BivariantClass.ofChowClass X p alpha
 
 /-- The cap field of `ofChowClass` is the exterior-product cap family. -/
 theorem ofChowClass_cap (X : SchemeOverField k) [LocallyOfFiniteType X.hom]
@@ -298,28 +288,7 @@ section PointComparison
 /-- Exterior product defines an additive map from Chow classes to bivariant classes. -/
 noncomputable def ofChow (X : SchemeOverField k) [LocallyOfFiniteType X.hom]
     (p : ℤ) :=
-  let targetAddZero : AddZero (BivariantClass (fun _ ↦ 0) (terminal.from X) p) :=
-    { zero := BivariantClass.pointwiseZero (fun _ ↦ 0) (terminal.from X) p
-      add := BivariantClass.pointwiseAdd (fun _ ↦ 0) (terminal.from X) p }
-  @AddMonoidHom.mk (RelativeChow (fun _ ↦ 0) X (-p))
-    (BivariantClass (fun _ ↦ 0) (terminal.from X) p) inferInstance targetAddZero
-    (@ZeroHom.mk _ _ inferInstance targetAddZero.toZero (ofChowClass X p) (by
-      change ofChowClass X p 0 =
-        BivariantClass.pointwiseZero (fun _ ↦ 0) (terminal.from X) p
-      apply capFamily_ext
-      funext X' Y' _ _ i f' g _ square n
-      apply AddMonoidHom.ext
-      intro beta
-      simp [ofChowClass, ofChowCap, BivariantClass.pointwiseZero])) (by
-      intro alpha beta
-      change ofChowClass X p (alpha + beta) =
-        BivariantClass.pointwiseAdd (fun _ ↦ 0) (terminal.from X) p
-          (ofChowClass X p alpha) (ofChowClass X p beta)
-      apply capFamily_ext
-      funext X' Y' _ _ i f' g _ square n
-      apply AddMonoidHom.ext
-      intro gamma
-      simp [ofChowClass, ofChowCap, BivariantClass.pointwiseAdd])
+  BivariantClass.ofChow X p
 
 /-- The additive map `ofChow` sends a class to its exterior-product bivariant class. -/
 theorem ofChow_apply (X : SchemeOverField k) [LocallyOfFiniteType X.hom]
@@ -330,9 +299,7 @@ theorem ofChow_apply (X : SchemeOverField k) [LocallyOfFiniteType X.hom]
 noncomputable def toChowValue (X : SchemeOverField k) [LocallyOfFiniteType X.hom]
     (p : ℤ) (c : BivariantClass (fun _ ↦ 0) (terminal.from X) p) :
     RelativeChow (fun _ ↦ 0) X (-p) :=
-  RelativeChow.castDegree (fun _ ↦ 0) (zero_sub p)
-    (c.cap (𝟙 X) (terminal.from X) (𝟙 (SchemeOverField.point k))
-      IsPullback.of_id_fst 0 (pointFundamentalClass k))
+  BivariantClass.toChowValue X p c
 
 /-- Evaluation on the field point is the formal cap product with its fundamental class. -/
 theorem toChowValue_def (X : SchemeOverField k) [LocallyOfFiniteType X.hom]
@@ -345,20 +312,7 @@ theorem toChowValue_def (X : SchemeOverField k) [LocallyOfFiniteType X.hom]
 /-- Evaluation on the field point as an additive map. -/
 noncomputable def toChow (X : SchemeOverField k) [LocallyOfFiniteType X.hom]
     (p : ℤ) :=
-  let sourceAddZero : AddZero (BivariantClass (fun _ ↦ 0) (terminal.from X) p) :=
-    { zero := BivariantClass.pointwiseZero (fun _ ↦ 0) (terminal.from X) p
-      add := BivariantClass.pointwiseAdd (fun _ ↦ 0) (terminal.from X) p }
-  @AddMonoidHom.mk (BivariantClass (fun _ ↦ 0) (terminal.from X) p)
-    (RelativeChow (fun _ ↦ 0) X (-p)) sourceAddZero inferInstance
-    (@ZeroHom.mk _ _ sourceAddZero.toZero inferInstance (toChowValue X p) (by
-      change toChowValue X p
-        (BivariantClass.pointwiseZero (fun _ ↦ 0) (terminal.from X) p) = 0
-      simp [toChowValue, BivariantClass.pointwiseZero])) (by
-      intro c d
-      change toChowValue X p
-        (BivariantClass.pointwiseAdd (fun _ ↦ 0) (terminal.from X) p c d) =
-          toChowValue X p c + toChowValue X p d
-      simp [toChowValue, BivariantClass.pointwiseAdd])
+  BivariantClass.toChow X p
 
 /-- The additive map `toChow` evaluates on the field-point fundamental class. -/
 theorem toChow_apply (X : SchemeOverField k) [LocallyOfFiniteType X.hom]
@@ -369,16 +323,7 @@ theorem toChow_apply (X : SchemeOverField k) [LocallyOfFiniteType X.hom]
 the field point. -/
 noncomputable def pointChowEquiv (X : SchemeOverField k) [LocallyOfFiniteType X.hom]
     (p : ℤ) :=
-  let sourceAdd : Add (BivariantClass (fun _ ↦ 0) (terminal.from X) p) :=
-    { add := BivariantClass.pointwiseAdd (fun _ ↦ 0) (terminal.from X) p }
-  @AddEquiv.mk (BivariantClass (fun _ ↦ 0) (terminal.from X) p)
-    (RelativeChow (fun _ ↦ 0) X (-p)) sourceAdd inferInstance
-    (@Equiv.mk _ _ (toChow X p) (ofChow X p) sorry sorry) (by
-      intro c d
-      letI : AddZero (BivariantClass (fun _ ↦ 0) (terminal.from X) p) :=
-        { zero := BivariantClass.pointwiseZero (fun _ ↦ 0) (terminal.from X) p
-          add := BivariantClass.pointwiseAdd (fun _ ↦ 0) (terminal.from X) p }
-      exact (toChow X p).map_add c d)
+  BivariantClass.chowEquiv X p
 
 /-- The forward map of `pointChowEquiv` is evaluation on the field point. -/
 theorem pointChowEquiv_apply (X : SchemeOverField k) [LocallyOfFiniteType X.hom]
@@ -386,6 +331,15 @@ theorem pointChowEquiv_apply (X : SchemeOverField k) [LocallyOfFiniteType X.hom]
     pointChowEquiv X p c = toChow X p c := rfl
 
 end PointComparison
+
+/-- Historical binary-product certificate for the integral carrier. -/
+theorem Integral._proof_1 (X Y : SchemeOverField k) : HasLimit (pair X Y) :=
+  hasLimitOfHasLimitsOfShape (pair X Y)
+
+/-- Historical product finite-type certificate for the integral carrier. -/
+theorem Integral._proof_2 (X Y : SchemeOverField k) [LocallyOfFiniteType X.hom]
+    [LocallyOfFiniteType Y.hom] : LocallyOfFiniteType (X ⨯ Y).hom :=
+  locallyOfFiniteType_overProd X Y
 
 /-- Integral Chow correspondences of degree `r` from `X` to `Y`, represented as
 bivariant Chow classes of the second projection `X ⨯ Y ⟶ Y`. -/
@@ -780,7 +734,8 @@ theorem castCohomologyDegree_apply {X : SchemeOverField k} [LocallyOfFiniteType 
           (BivariantClass.pointwiseAddCommGroup (fun _ ↦ 0) (𝟙 X) s)
           (BivariantClass.Nonnegative.castGrading (fun _ ↦ 0) h)) alpha := rfl
 
-private theorem castDegree_eq_transport {X Y : SchemeOverField k}
+/-- Rational grading transport is transport along equality of degrees. -/
+theorem castDegree_eq_transport {X Y : SchemeOverField k}
     [LocallyOfFiniteType X.hom] [LocallyOfFiniteType Y.hom]
     {r s : ℤ} (h : r = s) (c : Rational X Y r) : castDegree h c = h ▸ c := by
   cases h
@@ -791,11 +746,39 @@ private theorem castDegree_eq_transport {X Y : SchemeOverField k}
   | tmul a c => simp [castDegree, BivariantClass.Nonnegative.castGrading]
   | add c d hc hd => simp only [map_add, hc, hd]
 
-private theorem castDegree_symm_apply_apply {X Y : SchemeOverField k}
+/-- Transport followed by its inverse cancels. -/
+theorem castDegree_symm_apply_apply {X Y : SchemeOverField k}
     [LocallyOfFiniteType X.hom] [LocallyOfFiniteType Y.hom]
     {r s : ℤ} (h : r = s) (c : Rational X Y r) :
     castDegree h.symm (castDegree h c) = c := by
   cases h
+  simp only [castDegree_eq_transport]
+
+/-- Grading transport along reflexivity fixes every rational correspondence. -/
+theorem castDegree_rfl {X Y : SchemeOverField k}
+    [LocallyOfFiniteType X.hom] [LocallyOfFiniteType Y.hom]
+    {r : ℤ} (c : Rational X Y r) : castDegree rfl c = c :=
+  castDegree_eq_transport rfl c
+
+/-- Successive grading transports compose. -/
+theorem castDegree_trans {X Y : SchemeOverField k}
+    [LocallyOfFiniteType X.hom] [LocallyOfFiniteType Y.hom]
+    {r s t : ℤ} (h : r = s) (h' : s = t) (c : Rational X Y r) :
+    castDegree h' (castDegree h c) = castDegree (h.trans h') c := by
+  cases h
+  cases h'
+  simp only [castDegree_eq_transport]
+
+/-- Composition commutes with transport of the two grading indices. -/
+theorem composition_castDegree {X Y Z : SchemeOverField k}
+    [LocallyOfFiniteType X.hom] [LocallyOfFiniteType Y.hom]
+    [LocallyOfFiniteType Z.hom] [Projective Y.hom]
+    {r r' s s' : ℤ} (hr : r = r') (hs : s = s')
+    (f : Rational X Y r) (g : Rational Y Z s) :
+    composition X Y Z r' s' (castDegree hr f) (castDegree hs g) =
+      castDegree (congrArg₂ (· + ·) hr hs) (composition X Y Z r s f g) := by
+  cases hr
+  cases hs
   simp only [castDegree_eq_transport]
 
 private theorem castHomologyDegree_eq_transport {X : SchemeOverField k}
@@ -1068,9 +1051,9 @@ noncomputable def homologyEquiv (X : SchemeOverField k) [Smooth X.hom]
         BivariantClass.restrict (fun _ ↦ 0) Limits.prod.fst Limits.prod.snd
           (𝟙 (SchemeOverField.point k))
           (pointProductIsPullback X (𝟙 (SchemeOverField.point k))) r
-          ((pointChowEquiv X r).invFun alpha)
+          ((BivariantClass.chowEquiv X r).invFun alpha)
   let inverse := fun c : Integral X (SchemeOverField.point k) r ↦
-        pointChowEquiv X r
+        BivariantClass.chowEquiv X r
           (BivariantClass.properPushforward (fun _ ↦ 0)
             (Limits.prod.fst : X ⨯ SchemeOverField.point k ⟶ X)
             (terminal.from X) r (castHom (productFst_comp_toPoint X).symm r c))
@@ -1079,10 +1062,10 @@ noncomputable def homologyEquiv (X : SchemeOverField k) [Smooth X.hom]
     (@Equiv.mk _ _ forward inverse sorry sorry) (by
       intro alpha beta
       letI := BivariantClass.pointwiseAddCommGroup (fun _ ↦ 0) (terminal.from X) r
-      have h : (pointChowEquiv X r).invFun (alpha + beta) =
+      have h : (BivariantClass.chowEquiv X r).invFun (alpha + beta) =
           BivariantClass.pointwiseAdd (fun _ ↦ 0) (terminal.from X) r
-            ((pointChowEquiv X r).invFun alpha) ((pointChowEquiv X r).invFun beta) :=
-        (ofChow X r).map_add alpha beta
+            ((BivariantClass.chowEquiv X r).invFun alpha) ((BivariantClass.chowEquiv X r).invFun beta) :=
+        (BivariantClass.ofChow X r).map_add alpha beta
       change forward (alpha + beta) =
         BivariantClass.pointwiseAdd (fun _ ↦ 0) Limits.prod.snd r (forward alpha) (forward beta)
       simp only [forward, h]

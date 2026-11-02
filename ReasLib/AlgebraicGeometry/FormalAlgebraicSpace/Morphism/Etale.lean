@@ -46,7 +46,7 @@ instance id {S : Scheme.{u}} {X : (Over S)ᵒᵖ ⥤ Type u} : Etale (𝟙 X) :=
 /-- An étale morphism is representable by algebraic spaces. -/
 theorem relativelyRepresentable {S : Scheme.{u}} {X Y : (Over S)ᵒᵖ ⥤ Type u}
     (f : X ⟶ Y) [Etale f] : representableByAlgebraicSpaces f :=
-  sorry
+  Etale.representable
 
 /-- Yoneda pullbacks of an étale morphism are étale morphisms of algebraic
 spaces. -/
@@ -55,7 +55,7 @@ theorem spec {S : Scheme.{u}} {X Y : (Over S)ᵒᵖ ⥤ Type u} (f : X ⟶ Y)
     representableByAlgebraicSpaces f ∧
       AlgebraicSpace.Etale
         (representableByAlgebraicSpaces.pullbackHom hf.representable ξ) :=
-  sorry
+  ⟨hf.representable, hf.of_pullback ξ⟩
 
 end Etale
 

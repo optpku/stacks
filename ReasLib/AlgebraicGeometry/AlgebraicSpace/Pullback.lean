@@ -76,19 +76,16 @@ private theorem locallySurjective_baseChange {S : Scheme.{u}}
   exact ⟨z, hz⟩
 
 set_option backward.isDefEq.respectTransparency false in
-private theorem atlasPullback_properties {S : Scheme.{u}}
+private theorem atlasPullback_factorization {S : Scheme.{u}}
     {F G H : (Over S)ᵒᵖ ⥤ Type u} (f : F ⟶ H) (g : G ⟶ H)
     {U V W : Over S} (a : yoneda.obj U ⟶ F) (b : yoneda.obj V ⟶ G)
     (α : yoneda.obj W ⟶ yoneda.obj U) (β : yoneda.obj W ⟶ yoneda.obj V)
-    (sq : IsPullback α β (a ≫ f) (b ≫ g))
-    (ha : (MorphismProperty.over (@Etale)).presheaf a)
-    (hsa : Presheaf.IsLocallySurjective (Scheme.etaleTopology.over S) a)
-    (hb : (MorphismProperty.over (@Etale)).presheaf b)
-    (hsb : Presheaf.IsLocallySurjective (Scheme.etaleTopology.over S) b) :
-    let p := pullback.lift (α ≫ a) (β ≫ b)
-      (by simpa only [Category.assoc] using sq.w)
-    (MorphismProperty.over (@Etale)).presheaf p ∧
-      Presheaf.IsLocallySurjective (Scheme.etaleTopology.over S) p := by
+    (sq : IsPullback α β (a ≫ f) (b ≫ g)) :
+    ∃ (K : (Over S)ᵒᵖ ⥤ Type u) (j : yoneda.obj W ⟶ K)
+      (q : K ⟶ Limits.pullback f g) (r : K ⟶ yoneda.obj U) (s : K ⟶ G),
+      IsPullback β j b s ∧ IsPullback r q a (pullback.fst f g) ∧
+        j ≫ q = pullback.lift (α ≫ a) (β ≫ b)
+          (by simpa only [Category.assoc] using sq.w) := by
   let K := Limits.pullback (a ≫ f) g
   let q : K ⟶ Limits.pullback f g :=
     pullback.lift (pullback.fst (a ≫ f) g ≫ a) (pullback.snd (a ≫ f) g)
@@ -122,21 +119,32 @@ private theorem atlasPullback_properties {S : Scheme.{u}}
     · simpa only [pullback.lift_fst] using hm₁
     · have h := congrArg (fun k ↦ k ≫ pullback.snd f g) hm₂
       simpa only [Category.assoc, qsnd, pullback.lift_snd] using h
+  have hp : j ≫ q = pullback.lift (α ≫ a) (β ≫ b)
+      (by simpa only [Category.assoc] using sq.w) := by
+    apply pullback.hom_ext
+    · rw [Category.assoc, qfst, ← Category.assoc, jfst, pullback.lift_fst]
+    · rw [Category.assoc, qsnd, jsnd, pullback.lift_snd]
+  exact ⟨K, j, q, pullback.fst (a ≫ f) g, pullback.snd (a ≫ f) g, sqj, sqq, hp⟩
+
+set_option backward.isDefEq.respectTransparency false in
+private theorem atlasPullback_etale {S : Scheme.{u}}
+    {F G H : (Over S)ᵒᵖ ⥤ Type u} (f : F ⟶ H) (g : G ⟶ H)
+    {U V W : Over S} (a : yoneda.obj U ⟶ F) (b : yoneda.obj V ⟶ G)
+    (α : yoneda.obj W ⟶ yoneda.obj U) (β : yoneda.obj W ⟶ yoneda.obj V)
+    (sq : IsPullback α β (a ≫ f) (b ≫ g))
+    (ha : (MorphismProperty.over (@Etale)).presheaf a)
+    (hb : (MorphismProperty.over (@Etale)).presheaf b) :
+    (MorphismProperty.over (@Etale)).presheaf
+      (pullback.lift (α ≫ a) (β ≫ b)
+        (by simpa only [Category.assoc] using sq.w)) := by
+  obtain ⟨K, j, q, r, s, sqj, sqq, hp⟩ := atlasPullback_factorization f g a b α β sq
   have hj : (MorphismProperty.over (@Etale)).presheaf j :=
     (MorphismProperty.relative_isStableUnderBaseChange
       (MorphismProperty.over (@Etale))).of_isPullback sqj hb
   have hq : (MorphismProperty.over (@Etale)).presheaf q :=
     (MorphismProperty.relative_isStableUnderBaseChange
       (MorphismProperty.over (@Etale))).of_isPullback sqq ha
-  have hs_j := locallySurjective_baseChange (Scheme.etaleTopology.over S) sqj hsb
-  have hs_q := locallySurjective_baseChange (Scheme.etaleTopology.over S) sqq hsa
-  have hp : j ≫ q = pullback.lift (α ≫ a) (β ≫ b)
-      (by simpa only [Category.assoc] using sq.w) := by
-    apply pullback.hom_ext
-    · rw [Category.assoc, qfst, ← Category.assoc, jfst, pullback.lift_fst]
-    · rw [Category.assoc, qsnd, jsnd, pullback.lift_snd]
   rw [← hp]
-  refine ⟨?_, Presheaf.isLocallySurjective_comp (Scheme.etaleTopology.over S) j q⟩
   apply MorphismProperty.relative.of_exists
     (P := MorphismProperty.inverseImage (@Etale) (Over.forget S))
   intro A t
@@ -148,6 +156,39 @@ private theorem atlasPullback_properties {S : Scheme.{u}}
     have h₂ : Etale (hq.rep.snd t).left := hq.property_snd _
     change Etale ((hj.rep.snd (hq.rep.fst t)).left ≫ (hq.rep.snd t).left)
     infer_instance
+
+private theorem atlasPullback_locallySurjective {S : Scheme.{u}}
+    {F G H : (Over S)ᵒᵖ ⥤ Type u} (f : F ⟶ H) (g : G ⟶ H)
+    {U V W : Over S} (a : yoneda.obj U ⟶ F) (b : yoneda.obj V ⟶ G)
+    (α : yoneda.obj W ⟶ yoneda.obj U) (β : yoneda.obj W ⟶ yoneda.obj V)
+    (sq : IsPullback α β (a ≫ f) (b ≫ g))
+    (ha : Presheaf.IsLocallySurjective (Scheme.etaleTopology.over S) a)
+    (hb : Presheaf.IsLocallySurjective (Scheme.etaleTopology.over S) b) :
+    Presheaf.IsLocallySurjective (Scheme.etaleTopology.over S)
+      (pullback.lift (α ≫ a) (β ≫ b)
+        (by simpa only [Category.assoc] using sq.w)) := by
+  obtain ⟨K, j, q, r, s, sqj, sqq, hp⟩ := atlasPullback_factorization f g a b α β sq
+  have hs_j := locallySurjective_baseChange (Scheme.etaleTopology.over S) sqj hb
+  have hs_q := locallySurjective_baseChange (Scheme.etaleTopology.over S) sqq ha
+  rw [← hp]
+  exact Presheaf.isLocallySurjective_comp (Scheme.etaleTopology.over S) j q
+
+set_option backward.isDefEq.respectTransparency false in
+private theorem atlasPullback_properties {S : Scheme.{u}}
+    {F G H : (Over S)ᵒᵖ ⥤ Type u} (f : F ⟶ H) (g : G ⟶ H)
+    {U V W : Over S} (a : yoneda.obj U ⟶ F) (b : yoneda.obj V ⟶ G)
+    (α : yoneda.obj W ⟶ yoneda.obj U) (β : yoneda.obj W ⟶ yoneda.obj V)
+    (sq : IsPullback α β (a ≫ f) (b ≫ g))
+    (ha : (MorphismProperty.over (@Etale)).presheaf a)
+    (hsa : Presheaf.IsLocallySurjective (Scheme.etaleTopology.over S) a)
+    (hb : (MorphismProperty.over (@Etale)).presheaf b)
+    (hsb : Presheaf.IsLocallySurjective (Scheme.etaleTopology.over S) b) :
+    let p := pullback.lift (α ≫ a) (β ≫ b)
+      (by simpa only [Category.assoc] using sq.w)
+    (MorphismProperty.over (@Etale)).presheaf p ∧
+      Presheaf.IsLocallySurjective (Scheme.etaleTopology.over S) p :=
+  ⟨atlasPullback_etale f g a b α β sq ha hb,
+    atlasPullback_locallySurjective f g a b α β sq hsa hsb⟩
 
 /-- The presheaf fibre product of algebraic spaces over a presheaf with representable diagonal
 admits a representable étale locally-surjective atlas. -/
@@ -253,14 +294,21 @@ theorem pullbackOverSnd_eq {S : Scheme.{u}} {H : (Over S)ᵒᵖ ⥤ Type u}
     (hΔ : yoneda.relativelyRepresentable (Limits.diag H)) :
     pullbackOverSnd f g hH hΔ = pullbackOverSndNat f g := rfl
 
-/-- The functor-of-points projections exhibit `F ×_H G` as the fibre product of `f` and `g`.
--/
+/-- The presheaf projections exhibit the fibre product over any presheaf `H`.
+No sheaf or representability hypothesis on `H` is needed for this universal property. -/
+theorem pullbackOver_isPullback_presheaf {S : Scheme.{u}} {H : (Over S)ᵒᵖ ⥤ Type u}
+    {F G : AlgebraicSpace S} (f : F.functorOfPoints ⟶ H) (g : G.functorOfPoints ⟶ H) :
+    IsPullback (pullbackOverFstNat f g) (pullbackOverSndNat f g) f g :=
+  IsPullback.of_hasPullback f g
+
+/-- Compatibility wrapper for the presheaf universal property with the hypotheses used
+to construct `pullbackOver`. See `pullbackOver_isPullback_presheaf` for the weaker interface. -/
 theorem pullbackOver_isPullback {S : Scheme.{u}} {H : (Over S)ᵒᵖ ⥤ Type u}
     {F G : AlgebraicSpace S} (f : F.functorOfPoints ⟶ H) (g : G.functorOfPoints ⟶ H)
     (hH : Presheaf.IsSheaf (Scheme.fppfTopology.over S) H)
     (hΔ : yoneda.relativelyRepresentable (Limits.diag H)) :
     IsPullback (pullbackOverFstNat f g) (pullbackOverSndNat f g) f g :=
-  IsPullback.of_hasPullback f g
+  pullbackOver_isPullback_presheaf f g
 
 /-- The scheme `U ×_H V` obtained from Yoneda sections `a : yoneda.obj U ⟶ F.functorOfPoints`
 and `b : yoneda.obj V ⟶ G.functorOfPoints` by pulling back along the maps to `H`. -/
@@ -320,6 +368,33 @@ theorem pullbackOverAtlas_isPullback {S : Scheme.{u}} {H : (Over S)ᵒᵖ ⥤ Ty
       (yoneda.map (pullbackOverAtlasSnd f g hΔ a b)) (a ≫ f) (b ≫ g) :=
   (Functor.relativelyRepresentable.of_diag hΔ (a ≫ f)).isPullback (b ≫ g)
 
+/-- Étale Yoneda sections induce an étale atlas map; local surjectivity is not required. -/
+theorem pullbackOverAtlasHom_etale {S : Scheme.{u}} {H : (Over S)ᵒᵖ ⥤ Type u}
+    {F G : AlgebraicSpace S} (f : F.functorOfPoints ⟶ H) (g : G.functorOfPoints ⟶ H)
+    (hΔ : yoneda.relativelyRepresentable (Limits.diag H)) {U V : Over S}
+    (a : yoneda.obj U ⟶ F.functorOfPoints) (b : yoneda.obj V ⟶ G.functorOfPoints)
+    (ha_etale : MorphismProperty.presheaf (MorphismProperty.over (@Etale)) a)
+    (hb_etale : MorphismProperty.presheaf (MorphismProperty.over (@Etale)) b) :
+    MorphismProperty.presheaf (MorphismProperty.over (@Etale))
+      (pullbackOverAtlasHom f g hΔ a b) :=
+  atlasPullback_etale f g a b (pullbackOverAtlasFst f g hΔ a b)
+    (yoneda.map (pullbackOverAtlasSnd f g hΔ a b))
+    (pullbackOverAtlas_isPullback f g hΔ a b) ha_etale hb_etale
+
+/-- Étale-locally surjective Yoneda sections induce an étale-locally surjective atlas map;
+no étaleness assumption on the sections is required. -/
+theorem pullbackOverAtlasHom_locallySurjective {S : Scheme.{u}} {H : (Over S)ᵒᵖ ⥤ Type u}
+    {F G : AlgebraicSpace S} (f : F.functorOfPoints ⟶ H) (g : G.functorOfPoints ⟶ H)
+    (hΔ : yoneda.relativelyRepresentable (Limits.diag H)) {U V : Over S}
+    (a : yoneda.obj U ⟶ F.functorOfPoints) (b : yoneda.obj V ⟶ G.functorOfPoints)
+    (ha_surj : Presheaf.IsLocallySurjective (Scheme.etaleTopology.over S) a)
+    (hb_surj : Presheaf.IsLocallySurjective (Scheme.etaleTopology.over S) b) :
+    Presheaf.IsLocallySurjective (Scheme.etaleTopology.over S)
+      (pullbackOverAtlasHom f g hΔ a b) :=
+  atlasPullback_locallySurjective f g a b (pullbackOverAtlasFst f g hΔ a b)
+    (yoneda.map (pullbackOverAtlasSnd f g hΔ a b))
+    (pullbackOverAtlas_isPullback f g hΔ a b) ha_surj hb_surj
+
 /-- If `a` and `b` are étale and étale-locally surjective, then the induced atlas map is too. -/
 theorem pullbackOverAtlasHom_spec {S : Scheme.{u}} {H : (Over S)ᵒᵖ ⥤ Type u}
     {F G : AlgebraicSpace S} (f : F.functorOfPoints ⟶ H) (g : G.functorOfPoints ⟶ H)
@@ -333,9 +408,8 @@ theorem pullbackOverAtlasHom_spec {S : Scheme.{u}} {H : (Over S)ᵒᵖ ⥤ Type 
         (pullbackOverAtlasHom f g hΔ a b) ∧
       Presheaf.IsLocallySurjective (Scheme.etaleTopology.over S)
         (pullbackOverAtlasHom f g hΔ a b) :=
-  atlasPullback_properties f g a b (pullbackOverAtlasFst f g hΔ a b)
-    (yoneda.map (pullbackOverAtlasSnd f g hΔ a b))
-    (pullbackOverAtlas_isPullback f g hΔ a b) ha_etale ha_surj hb_etale hb_surj
+  ⟨pullbackOverAtlasHom_etale f g hΔ a b ha_etale hb_etale,
+    pullbackOverAtlasHom_locallySurjective f g hΔ a b ha_surj hb_surj⟩
 
 /-- The mediating morphism into the algebraic-space pullback induced by a commutative cone. -/
 def pullbackLift {S : Scheme.{u}} {W F G H : AlgebraicSpace S} (f : F ⟶ H) (g : G ⟶ H)

@@ -34,7 +34,14 @@ abbrev property : ObjectProperty TopCat.{u} :=
 /-- In a Hausdorff space, the locally compact and weakly locally compact formulations of
 `LCCat.property` agree. -/
 theorem iff_weaklyLocallyCompact (X : TopCat.{u}) :
-    property X ↔ T2Space X ∧ WeaklyLocallyCompactSpace X := sorry
+    property X ↔ T2Space X ∧ WeaklyLocallyCompactSpace X := by
+  constructor
+  · rintro ⟨hT2, hLC⟩
+    letI := hT2
+    exact ⟨hT2, locallyCompactSpace_iff_weaklyLocallyCompactSpace.mp hLC⟩
+  · rintro ⟨hT2, hLC⟩
+    letI := hT2
+    exact ⟨hT2, locallyCompactSpace_iff_weaklyLocallyCompactSpace.mpr hLC⟩
 
 end LCCat
 
@@ -57,10 +64,12 @@ abbrev toTopCat : LCCat.{u} ⥤ TopCat.{u} :=
 
 /-- The underlying space of an object of `LCCat` is Hausdorff. -/
 @[stacks 09WZ "Hausdorff instance on LCCat objects", instance]
-instance instT2SpaceObj (X : LCCat.{u}) : T2Space X.obj := sorry
+instance instT2SpaceObj (X : LCCat.{u}) : T2Space X.obj :=
+  X.2.1
 
 /-- The underlying space of an object of `LCCat` is locally compact. -/
 @[stacks 09WZ "locally compact instance on LCCat objects", instance]
-instance instLocallyCompactSpaceObj (X : LCCat.{u}) : LocallyCompactSpace X.obj := sorry
+instance instLocallyCompactSpaceObj (X : LCCat.{u}) : LocallyCompactSpace X.obj :=
+  X.2.2
 
 end LCCat

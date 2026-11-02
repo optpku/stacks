@@ -50,35 +50,39 @@ theorem selfHomRestrict_comp (f : X ⟶ Y) (E : ModuleDerived X)
 
 /-- The functor `V ↦ Hom_{𝒪_{X_V}}(E_V, E_V)` on algebraic spaces over `Y`. -/
 def selfHomFunctorOver (f : X ⟶ Y) (E : ModuleDerived X) :
-    (Over Y)ᵒᵖ ⥤ Type (u + 1) where
-  obj σ :=
-    baseChangePullback f σ.unop.hom E ⟶ baseChangePullback f σ.unop.hom E
-  map h := TypeCat.ofHom (selfHomRestrict f E h.unop)
-  map_id σ := selfHomRestrict_id f E σ.unop
-  map_comp h g := selfHomRestrict_comp f E h.unop g.unop
+    (Over Y)ᵒᵖ ⥤ Type (u + 1) :=
+  homPresheafOver f E E
+
+/-- The self-Hom presheaf is the diagonal specialization of derived Hom. -/
+theorem selfHomFunctorOver_eq_homPresheafOver (f : X ⟶ Y) (E : ModuleDerived X) :
+    selfHomFunctorOver f E = homPresheafOver f E E := rfl
 
 /-- Evaluating `selfHomFunctorOver` at an algebraic space over `Y` yields derived
 self-Hom of the base-changed complex. -/
 theorem selfHomFunctorOver_obj (f : X ⟶ Y) (E : ModuleDerived X) (σ : Over Y) :
     (selfHomFunctorOver f E).obj (op σ) =
-      (baseChangePullback f σ.hom E ⟶ baseChangePullback f σ.hom E) := sorry
+      (baseChangePullback f σ.hom E ⟶ baseChangePullback f σ.hom E) := rfl
 
 /-- `selfHomFunctorOver` acts on morphisms of algebraic spaces over `Y` by
 `selfHomRestrict`. -/
 theorem selfHomFunctorOver_map (f : X ⟶ Y) (E : ModuleDerived X)
     {σ τ : Over Y} (h : τ ⟶ σ) :
-    (selfHomFunctorOver f E).map h.op = TypeCat.ofHom (selfHomRestrict f E h) := sorry
+    (selfHomFunctorOver f E).map h.op = TypeCat.ofHom (selfHomRestrict f E h) := rfl
 
 /-- The restriction of `selfHomFunctorOver` to schemes over `Y`. -/
 def selfHomFunctor (f : X ⟶ Y) (E : ModuleDerived X) :
     (SchemeOver Y)ᵒᵖ ⥤ Type (u + 1) :=
   SchemeOver.toOver.op ⋙ selfHomFunctorOver f E
 
+/-- Scheme restriction commutes definitionally with diagonal specialization. -/
+theorem selfHomFunctor_eq_homPresheaf (f : X ⟶ Y) (E : ModuleDerived X) :
+    selfHomFunctor f E = homPresheaf f E E := rfl
+
 /-- Evaluating `selfHomFunctor` at a scheme over `Y` yields derived self-Hom of
 the base-changed complex. -/
 theorem selfHomFunctor_obj (f : X ⟶ Y) (E : ModuleDerived X) (σ : SchemeOver Y) :
     (selfHomFunctor f E).obj (op σ) =
-      (baseChangePullback f σ.hom E ⟶ baseChangePullback f σ.hom E) := sorry
+      (baseChangePullback f σ.hom E ⟶ baseChangePullback f σ.hom E) := rfl
 
 variable (f : X ⟶ Y) [Proper f] [Flat f] [FinitePresentation f]
 variable (E : ModuleDerived X)

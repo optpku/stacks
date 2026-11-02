@@ -36,7 +36,7 @@ finite-dimensional over `K`. -/
 @[stacks 07E1 "(2)"]
 instance finiteDimensional_of_finiteType
     {k : Type u} {K : Type v} [Field k] [Field K] [Algebra k K]
-    [Algebra.FiniteType k K] :
+    [Algebra.EssFiniteType k K] :
     FiniteDimensional K (H1Cotangent k K) := sorry
 
 end Algebra.H1Cotangent
@@ -49,7 +49,7 @@ the Euler characteristic of `H1Cotangent k K ⟶ Ω[K⁄k]`. -/
 @[stacks 07E1 "(3)"]
 theorem cartier_equality
     {k : Type u} {K : Type v} [Field k] [Field K] [Algebra k K]
-    [Algebra.FiniteType k K] :
+    [Algebra.EssFiniteType k K] :
     Int.ofNat (Cardinal.toNat (trdeg k K)) =
       Module.finrank K Ω[K⁄k] - Module.finrank K (H1Cotangent k K) := sorry
 
@@ -58,10 +58,10 @@ end Algebra
 section
 
 variable {k : Type u} {K : Type v}
-variable [Field k] [Field K] [Algebra k K] [Algebra.FiniteType k K]
+variable [Field k] [Field K] [Algebra k K] [Algebra.EssFiniteType k K]
 
 /- Lemma 15.34.1 (Cartier equality) (1), tag `07E1`:
-the canonical finite-type instance makes `Ω[K⁄k]` finite-dimensional. -/
+the canonical essentially-finite-type instance makes `Ω[K⁄k]` finite-dimensional. -/
 #synth FiniteDimensional K Ω[K⁄k]
 
 end

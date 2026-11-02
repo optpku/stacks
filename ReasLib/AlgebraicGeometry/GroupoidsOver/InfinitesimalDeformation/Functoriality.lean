@@ -19,6 +19,8 @@ same construction applies to a commutative square of first-order thickenings.
 
 @[expose] public section
 
+open scoped Module.CommOpposite
+
 open CategoryTheory AlgebraicGeometry Functor
 open AlgebraicGeometry.Deformation
 open FiberedCategoryOver.Groupoids (fiberFunctor)

@@ -66,7 +66,9 @@ theorem leg_d (f : R ⟶ S) (x : X) (U : (OpenNhds x)ᵒᵖ)
     (r : S.obj (op U.unop.1)) :
     leg f x U (CommRingCat.KaehlerDifferential.d r) =
       CommRingCat.KaehlerDifferential.d
-        (S.germ U.unop.1 x U.unop.2 r) := sorry
+        (S.germ U.unop.1 x U.unop.2 r) := by
+  exact CommRingCat.KaehlerDifferential.map_d
+    (TopCat.Presheaf.stalkFunctor_map_germ U.unop.1 x U.unop.2 f) r
 
 /-- The neighborhood differential comparisons are compatible with restriction. -/
 theorem leg_naturality (f : R ⟶ S) (x : X)
@@ -95,7 +97,8 @@ noncomputable def addMap (f : R ⟶ S) (x : X) :
 
 /-- The additive stalk comparison preserves addition. -/
 theorem addMap_add (f : R ⟶ S) (x : X) (m n : source f x) :
-    addMap f x (m + n) = addMap f x m + addMap f x n := sorry
+    addMap f x (m + n) = addMap f x m + addMap f x n := by
+  exact map_add (addMap f x).hom m n
 
 /-- The additive stalk comparison is linear over the target-ring stalk. -/
 theorem addMap_smul (f : R ⟶ S) (x : X) (r : S.stalk x) (m : source f x) :
@@ -133,7 +136,8 @@ derivation. -/
 @[simp]
 theorem comparisonInv_d (f : R ⟶ S) (x : X) (r : S.stalk x) :
     comparisonInv f x (CommRingCat.KaehlerDifferential.d r) =
-      (derivation f x).d r := sorry
+      (derivation f x).d r := by
+  exact ModuleCat.Derivation.desc_d (derivation f x) r
 
 /-- The stalk derivation sends the germ of a section to the germ of its objectwise universal
 differential. -/
@@ -141,7 +145,8 @@ theorem derivation_d_germ (f : R ⟶ S) (x : X)
     (U : Opens X) (hx : x ∈ U) (r : S.obj (op U)) :
     (derivation f x).d (S.germ U x hx r) =
       TopCat.Presheaf.germ (relativeDifferentials' f).presheaf U x hx
-        (CommRingCat.KaehlerDifferential.d r) := sorry
+        (CommRingCat.KaehlerDifferential.d r) := by
+  exact PresheafOfModules.Derivation'.stalk_d_germ (derivation' f) x U hx r
 
 /-- The comparison from stalk-ring differentials sends a differential of a germ to the germ of
 the corresponding objectwise differential. -/
@@ -151,7 +156,8 @@ theorem comparisonInv_d_germ (f : R ⟶ S) (x : X)
     comparisonInv f x
         (CommRingCat.KaehlerDifferential.d (S.germ U x hx r)) =
       TopCat.Presheaf.germ (relativeDifferentials' f).presheaf U x hx
-        (CommRingCat.KaehlerDifferential.d r) := sorry
+        (CommRingCat.KaehlerDifferential.d r) := by
+  rw [comparisonInv_d, derivation_d_germ]
 
 /-- The forward presheaf comparison followed by its inverse is the identity. -/
 @[simp]
@@ -161,7 +167,14 @@ theorem comparison_comp_comparisonInv (f : R ⟶ S) (x : X) :
 /-- The inverse presheaf comparison followed by the forward comparison is the identity. -/
 @[simp]
 theorem comparisonInv_comp_comparison (f : R ⟶ S) (x : X) :
-    comparisonInv f x ≫ comparison f x = 𝟙 (target f x) := sorry
+    comparisonInv f x ≫ comparison f x = 𝟙 (target f x) := by
+  apply CommRingCat.KaehlerDifferential.ext
+  intro r
+  obtain ⟨U, hx, localSection, rfl⟩ := S.exists_germ_eq r
+  change comparison f x (comparisonInv f x (CommRingCat.KaehlerDifferential.d
+    (S.germ U x hx localSection))) = _
+  rw [comparisonInv_d_germ, comparison_germ_d]
+  rfl
 
 /-- The stalk of the sectionwise relative-differentials presheaf is canonically isomorphic to
 the relative differentials of the morphism on stalk rings. -/
@@ -175,19 +188,21 @@ noncomputable def comparisonIso (f : R ⟶ S) (x : X) : source f x ≅ target f 
 /-- The forward map of the presheaf differential stalk isomorphism is the cocone comparison. -/
 @[simp]
 theorem comparisonIso_hom (f : R ⟶ S) (x : X) :
-    (comparisonIso f x).hom = comparison f x := sorry
+    (comparisonIso f x).hom = comparison f x := rfl
 
 /-- The inverse of the presheaf differential stalk isomorphism is induced by the universal stalk
 derivation. -/
 @[simp]
 theorem comparisonIso_inv (f : R ⟶ S) (x : X) :
-    (comparisonIso f x).inv = comparisonInv f x := sorry
+    (comparisonIso f x).inv = comparisonInv f x := rfl
 
 /-- The forward presheaf differential stalk comparison is an isomorphism. -/
-instance comparison_isIso (f : R ⟶ S) (x : X) : IsIso (comparison f x) := sorry
+instance comparison_isIso (f : R ⟶ S) (x : X) : IsIso (comparison f x) :=
+  (comparisonIso f x).isIso_hom
 
 /-- The inverse presheaf differential stalk comparison is an isomorphism. -/
-instance comparisonInv_isIso (f : R ⟶ S) (x : X) : IsIso (comparisonInv f x) := sorry
+instance comparisonInv_isIso (f : R ⟶ S) (x : X) : IsIso (comparisonInv f x) :=
+  (comparisonIso f x).isIso_inv
 
 end PresheafOfModules.RelativeDifferentials.Stalk
 

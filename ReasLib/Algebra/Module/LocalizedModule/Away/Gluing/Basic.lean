@@ -21,6 +21,8 @@ with pairwise overlap identifications.  The local pieces remain bundled
 `ModuleCat` objects over their own localization rings.  Opening Mathlib's
 scoped `ModuleCat.Algebra` instances supplies the canonical base-ring views
 without globally registering ambiguous scalar-restriction instances.
+Compatible families, their restriction maps and their projections are defined
+for `PreGluing`; local recovery is the step that needs the cocycle condition.
 -/
 
 @[expose] public section
@@ -143,6 +145,154 @@ def CocycleCondition : Prop :=
     (data.tripleOverlapMap23 i j k).comp (data.tripleOverlapMap12 i j k) =
       data.tripleOverlapMap13 i j k
 
+/-- Tag `00EK`: the first restriction map from local-section families to
+pairwise-overlap families. -/
+@[stacks 00EK "principal-open gluing first restriction map"]
+noncomputable def leftRestriction :
+    (∀ i : ι, data.localModule i) →ₗ[R]
+      ∀ i : ι, ∀ j : ι,
+        LocalizedModule.Away (f i * f j) (data.localModule i) :=
+  LinearMap.pi fun i ↦ LinearMap.pi fun j ↦
+    (LocalizedModule.mkLinearMap (Submonoid.powers (f i * f j))
+      (data.localModule i)).comp (LinearMap.proj i)
+
+/-- The `(i, j)` component of the first restriction map is the restriction
+of the `i`-th local section to the common overlap. -/
+@[simp, stacks 00EK "principal-open gluing first restriction component"]
+theorem leftRestriction_apply
+    (x : ∀ i : ι, data.localModule i) (i j : ι) :
+    data.leftRestriction x i j =
+      LocalizedModule.mkLinearMap (Submonoid.powers (f i * f j))
+        (data.localModule i) (x i) := by
+  rfl
+
+/-- Tag `00EK`: the second restriction map from local-section families to
+pairwise-overlap families, transported through the overlap identification. -/
+@[stacks 00EK "principal-open gluing second restriction map"]
+noncomputable def rightRestriction :
+    (∀ i : ι, data.localModule i) →ₗ[R]
+      ∀ i : ι, ∀ j : ι,
+        LocalizedModule.Away (f i * f j) (data.localModule i) :=
+  LinearMap.pi fun i ↦ LinearMap.pi fun j ↦
+    (((data.overlapIso i j).toLinearEquiv.restrictScalars R).symm.toLinearMap).comp
+      ((LocalizedModule.mkLinearMap (Submonoid.powers (f i * f j))
+        (data.localModule j)).comp (LinearMap.proj j))
+
+/-- The `(i, j)` component of the second restriction map is the restriction
+of the `j`-th local section, transported back to the `i`-th overlap module. -/
+@[simp, stacks 00EK "principal-open gluing second restriction component"]
+theorem rightRestriction_apply
+    (x : ∀ i : ι, data.localModule i) (i j : ι) :
+    data.rightRestriction x i j =
+      ((data.overlapIso i j).toLinearEquiv.restrictScalars R).symm
+        (LocalizedModule.mkLinearMap (Submonoid.powers (f i * f j))
+          (data.localModule j) (x j)) := by
+  rfl
+
+/-- Tag `00EK`: the difference of the two restriction maps for a
+principal-open module pregluing.  This is a linear-algebraic companion to the
+equalizer definition of `gluedModule`. -/
+@[stacks 00EK "principal-open module pregluing compatibility map"]
+noncomputable def compatibilityMap :
+    (∀ i : ι, data.localModule i) →ₗ[R]
+      ∀ i : ι, ∀ j : ι,
+        LocalizedModule.Away (f i * f j) (data.localModule i) :=
+  data.leftRestriction - data.rightRestriction
+
+/-- The `(i, j)` component of the pregluing compatibility map is the difference
+of the two restrictions to `D(f i * f j)`. -/
+@[simp, stacks 00EK "principal-open module gluing compatibility component"]
+theorem compatibilityMap_apply
+    (x : ∀ i : ι, data.localModule i) (i j : ι) :
+    data.compatibilityMap x i j =
+      LocalizedModule.mkLinearMap (Submonoid.powers (f i * f j))
+          (data.localModule i) (x i) -
+        ((data.overlapIso i j).toLinearEquiv.restrictScalars R).symm
+          (LocalizedModule.mkLinearMap (Submonoid.powers (f i * f j))
+            (data.localModule j) (x j)) := by
+  rfl
+
+/-- Tag `00EK`: the module of compatible families of local sections, defined
+as the equalizer of its two restrictions to pairwise overlaps.  This
+construction does not require the cocycle condition. -/
+@[stacks 00EK "principal-open glued module"]
+noncomputable def gluedModule : Submodule R (∀ i : ι, data.localModule i) :=
+  LinearMap.eqLocus data.leftRestriction data.rightRestriction
+
+/-- The equalizer definition of the glued module agrees with the kernel of
+the difference compatibility map. -/
+@[stacks 00EK "principal-open glued module kernel description"]
+theorem gluedModule_eq_ker_compatibilityMap :
+    data.gluedModule = LinearMap.ker data.compatibilityMap := by
+  exact LinearMap.eqLocus_eq_ker_sub data.leftRestriction data.rightRestriction
+
+/-- A family belongs to the glued module exactly when its two restrictions
+agree on every pairwise overlap. -/
+@[stacks 00EK "principal-open glued module membership"]
+theorem mem_gluedModule_iff (x : ∀ i : ι, data.localModule i) :
+    x ∈ data.gluedModule ↔
+      ∀ i j : ι,
+        LocalizedModule.mkLinearMap (Submonoid.powers (f i * f j))
+            (data.localModule i) (x i) =
+          ((data.overlapIso i j).toLinearEquiv.restrictScalars R).symm
+            (LocalizedModule.mkLinearMap (Submonoid.powers (f i * f j))
+            (data.localModule j) (x j)) := by
+  change data.leftRestriction x = data.rightRestriction x ↔ _
+  constructor
+  · intro hx i j
+    exact congrFun (congrFun hx i) j
+  · intro hx
+    exact funext fun i ↦ funext fun j ↦ hx i j
+
+/-- Tag `00EK`: the projection from compatible local sections to the local
+section on the principal open `D(f i)`. -/
+@[stacks 00EK "principal-open glued module projection"]
+noncomputable def projection (i : ι) : data.gluedModule →ₗ[R] data.localModule i :=
+  (LinearMap.proj i).comp data.gluedModule.subtype
+
+/-- The `i`-th projection of a compatible family is its `i`-th coordinate. -/
+@[simp, stacks 00EK "principal-open glued module projection application"]
+theorem projection_apply (i : ι) (m : data.gluedModule) :
+    data.projection i m = m.1 i := by
+  rfl
+
+/-- Tag `00EQ` (2): a compatible family has equal images on each pairwise
+principal overlap after applying the given overlap identification. -/
+@[stacks 00EQ "principal-open gluing overlap formula"]
+theorem overlapIso_projection_mk (i j : ι) (m : data.gluedModule) :
+    (data.overlapIso i j).toLinearEquiv
+        (LocalizedModule.mkLinearMap (Submonoid.powers (f i * f j))
+          (data.localModule i) (data.projection i m)) =
+      LocalizedModule.mkLinearMap (Submonoid.powers (f i * f j))
+        (data.localModule j) (data.projection j m) := by
+  have h := congrArg ((data.overlapIso i j).toLinearEquiv.restrictScalars R)
+    ((data.mem_gluedModule_iff m.1).mp m.2 i j)
+  simp only [LinearEquiv.apply_symm_apply] at h
+  simpa only [projection_apply, LinearEquiv.restrictScalars_apply] using h
+
+/-- Tag `00EK`: the localization of the `i`-th projection.  The target local
+piece carries the canonical localization instance supplied by the pregluing
+datum. -/
+@[stacks 00EK "principal-open glued module localized projection"]
+noncomputable def localizedProjection (i : ι) :
+    LocalizedModule.Away (f i) data.gluedModule →ₗ[Localization.Away (f i)]
+      data.localModule i :=
+  (IsLocalizedModule.map (Submonoid.powers (f i))
+      (LocalizedModule.mkLinearMap (Submonoid.powers (f i)) data.gluedModule)
+      (LinearMap.id : data.localModule i →ₗ[R] data.localModule i)
+      (data.projection i)).extendScalarsOfIsLocalization
+        (Submonoid.powers (f i)) (Localization.Away (f i))
+
+/-- The localized projection sends the canonical image of a compatible family
+to its `i`-th coordinate. -/
+@[simp, stacks 00EK "principal-open glued module localized projection application"]
+theorem localizedProjection_apply_mk (i : ι) (x : data.gluedModule) :
+    data.localizedProjection i
+        (LocalizedModule.mkLinearMap (Submonoid.powers (f i)) data.gluedModule x) =
+      data.projection i x := by
+  simp only [localizedProjection, LinearMap.extendScalarsOfIsLocalization_apply',
+    IsLocalizedModule.map_apply, LinearMap.id_apply]
+
 end PreGluing
 
 /-- Tag `00EK`: a principal-open module gluing datum.  Its local pieces and
@@ -219,9 +369,7 @@ noncomputable def leftRestriction :
     (∀ i : ι, glue.localModule i) →ₗ[R]
       ∀ i : ι, ∀ j : ι,
         LocalizedModule.Away (f i * f j) (glue.localModule i) :=
-  LinearMap.pi fun i ↦ LinearMap.pi fun j ↦
-    (LocalizedModule.mkLinearMap (Submonoid.powers (f i * f j))
-      (glue.localModule i)).comp (LinearMap.proj i)
+  glue.toPreGluing.leftRestriction
 
 /-- The `(i, j)` component of the first restriction map is the restriction
 of the `i`-th local section to the common overlap. -/
@@ -231,7 +379,7 @@ theorem leftRestriction_apply
     glue.leftRestriction x i j =
       LocalizedModule.mkLinearMap (Submonoid.powers (f i * f j))
         (glue.localModule i) (x i) := by
-  rfl
+  exact glue.toPreGluing.leftRestriction_apply x i j
 
 /-- Tag `00EK`: the second restriction map from local-section families to
 pairwise-overlap families, transported through the overlap identification. -/
@@ -240,10 +388,7 @@ noncomputable def rightRestriction :
     (∀ i : ι, glue.localModule i) →ₗ[R]
       ∀ i : ι, ∀ j : ι,
         LocalizedModule.Away (f i * f j) (glue.localModule i) :=
-  LinearMap.pi fun i ↦ LinearMap.pi fun j ↦
-    (((glue.overlapIso i j).toLinearEquiv.restrictScalars R).symm.toLinearMap).comp
-      ((LocalizedModule.mkLinearMap (Submonoid.powers (f i * f j))
-        (glue.localModule j)).comp (LinearMap.proj j))
+  glue.toPreGluing.rightRestriction
 
 /-- The `(i, j)` component of the second restriction map is the restriction
 of the `j`-th local section, transported back to the `i`-th overlap module. -/
@@ -254,7 +399,7 @@ theorem rightRestriction_apply
       ((glue.overlapIso i j).toLinearEquiv.restrictScalars R).symm
         (LocalizedModule.mkLinearMap (Submonoid.powers (f i * f j))
           (glue.localModule j) (x j)) := by
-  rfl
+  exact glue.toPreGluing.rightRestriction_apply x i j
 
 /-- Tag `00EK`: the difference of the two restriction maps for a
 principal-open module gluing.  This is a linear-algebraic companion to the
@@ -264,7 +409,7 @@ noncomputable def compatibilityMap :
     (∀ i : ι, glue.localModule i) →ₗ[R]
       ∀ i : ι, ∀ j : ι,
         LocalizedModule.Away (f i * f j) (glue.localModule i) :=
-  glue.leftRestriction - glue.rightRestriction
+  glue.toPreGluing.compatibilityMap
 
 /-- The `(i, j)` component of the gluing compatibility map is the difference
 of the two restrictions to `D(f i * f j)`. -/
@@ -277,20 +422,20 @@ theorem compatibilityMap_apply
         ((glue.overlapIso i j).toLinearEquiv.restrictScalars R).symm
           (LocalizedModule.mkLinearMap (Submonoid.powers (f i * f j))
             (glue.localModule j) (x j)) := by
-  rfl
+  exact glue.toPreGluing.compatibilityMap_apply x i j
 
 /-- Tag `00EK`: the module of compatible families of local sections, defined
 as the equalizer of its two restrictions to pairwise overlaps. -/
 @[stacks 00EK "principal-open glued module"]
 noncomputable def gluedModule : Submodule R (∀ i : ι, glue.localModule i) :=
-  LinearMap.eqLocus glue.leftRestriction glue.rightRestriction
+  glue.toPreGluing.gluedModule
 
 /-- The equalizer definition of the glued module agrees with the kernel of
 the difference compatibility map. -/
 @[stacks 00EK "principal-open glued module kernel description"]
 theorem gluedModule_eq_ker_compatibilityMap :
     glue.gluedModule = LinearMap.ker glue.compatibilityMap := by
-  exact LinearMap.eqLocus_eq_ker_sub glue.leftRestriction glue.rightRestriction
+  exact glue.toPreGluing.gluedModule_eq_ker_compatibilityMap
 
 /-- A family belongs to the glued module exactly when its two restrictions
 agree on every pairwise overlap. -/
@@ -303,24 +448,19 @@ theorem mem_gluedModule_iff (x : ∀ i : ι, glue.localModule i) :
           ((glue.overlapIso i j).toLinearEquiv.restrictScalars R).symm
             (LocalizedModule.mkLinearMap (Submonoid.powers (f i * f j))
             (glue.localModule j) (x j)) := by
-  change glue.leftRestriction x = glue.rightRestriction x ↔ _
-  constructor
-  · intro hx i j
-    exact congrFun (congrFun hx i) j
-  · intro hx
-    exact funext fun i ↦ funext fun j ↦ hx i j
+  exact glue.toPreGluing.mem_gluedModule_iff x
 
 /-- Tag `00EK`: the projection from compatible local sections to the local
 section on the principal open `D(f i)`. -/
 @[stacks 00EK "principal-open glued module projection"]
 noncomputable def projection (i : ι) : glue.gluedModule →ₗ[R] glue.localModule i :=
-  (LinearMap.proj i).comp glue.gluedModule.subtype
+  glue.toPreGluing.projection i
 
 /-- The `i`-th projection of a compatible family is its `i`-th coordinate. -/
 @[simp, stacks 00EK "principal-open glued module projection application"]
 theorem projection_apply (i : ι) (m : glue.gluedModule) :
     glue.projection i m = m.1 i := by
-  rfl
+  exact glue.toPreGluing.projection_apply i m
 
 /-- Tag `00EQ` (2): a compatible family has equal images on each pairwise
 principal overlap after applying the given overlap identification. -/
@@ -331,10 +471,7 @@ theorem overlapIso_projection_mk (i j : ι) (m : glue.gluedModule) :
           (glue.localModule i) (glue.projection i m)) =
       LocalizedModule.mkLinearMap (Submonoid.powers (f i * f j))
         (glue.localModule j) (glue.projection j m) := by
-  have h := congrArg ((glue.overlapIso i j).toLinearEquiv.restrictScalars R)
-    ((glue.mem_gluedModule_iff m.1).mp m.2 i j)
-  simp only [LinearEquiv.apply_symm_apply] at h
-  simpa only [projection_apply, LinearEquiv.restrictScalars_apply] using h
+  exact glue.toPreGluing.overlapIso_projection_mk i j m
 
 /-- Tag `00EK`: the localization of the `i`-th projection.  The target local
 piece carries the canonical localization instance supplied by the pregluing
@@ -343,11 +480,7 @@ datum. -/
 noncomputable def localizedProjection (i : ι) :
     LocalizedModule.Away (f i) glue.gluedModule →ₗ[Localization.Away (f i)]
       glue.localModule i :=
-  (IsLocalizedModule.map (Submonoid.powers (f i))
-      (LocalizedModule.mkLinearMap (Submonoid.powers (f i)) glue.gluedModule)
-      (LinearMap.id : glue.localModule i →ₗ[R] glue.localModule i)
-      (glue.projection i)).extendScalarsOfIsLocalization
-        (Submonoid.powers (f i)) (Localization.Away (f i))
+  glue.toPreGluing.localizedProjection i
 
 /-- The localized projection sends the canonical image of a compatible family
 to its `i`-th coordinate. -/
@@ -356,8 +489,7 @@ theorem localizedProjection_apply_mk (i : ι) (x : glue.gluedModule) :
     glue.localizedProjection i
         (LocalizedModule.mkLinearMap (Submonoid.powers (f i)) glue.gluedModule x) =
       glue.projection i x := by
-  simp only [localizedProjection, LinearMap.extendScalarsOfIsLocalization_apply',
-    IsLocalizedModule.map_apply, LinearMap.id_apply]
+  exact glue.toPreGluing.localizedProjection_apply_mk i x
 
 end Gluing
 

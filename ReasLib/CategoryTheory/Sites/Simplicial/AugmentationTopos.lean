@@ -12,6 +12,7 @@ public import Mathlib.CategoryTheory.Limits.Types.Limits
 public import Mathlib.CategoryTheory.Sites.Limits
 public import ReasLib.CategoryTheory.Sites.Topos.Composition
 public import ReasLib.CategoryTheory.Sites.Topos.TwoMorphism
+public import ReasLib.CategoryTheory.Sites.Topos.EqualizerFunctor
 public import ReasLib.CategoryTheory.Sites.Simplicial.Augmentation
 public import ReasLib.CategoryTheory.Sites.Simplicial.SheafComparison
 public import ReasLib.CategoryTheory.Sites.Simplicial.Stage
@@ -233,51 +234,48 @@ def pushforwardParallel (F : Sheaf (topology C J) (Type w)) (i : Fin 2) :
         (SimplexCategory.δ i : ⦋0⦌ ⟶ ⦋1⦌)).hom.app
       (((toSheafSystem C J).obj F).obj ⦋1⦌)
 
-/-- The degree-zero direct image of a morphism preserves the two coface equalities. -/
-private theorem pushforward_map_condition
-    {F G : Sheaf (topology C J) (Type w)} (α : F ⟶ G) :
-    (equalizer.ι (pushforwardParallel C J K u0 F 0)
-          (pushforwardParallel C J K u0 F 1) ≫
-        (stageTopos C J K u0 ⦋0⦌).pushforward.map
-          (((toSheafSystem C J).map α).app ⦋0⦌)) ≫ pushforwardParallel C J K u0 G 0 =
-      (equalizer.ι (pushforwardParallel C J K u0 F 0)
-          (pushforwardParallel C J K u0 F 1) ≫
-        (stageTopos C J K u0 ⦋0⦌).pushforward.map
-          (((toSheafSystem C J).map α).app ⦋0⦌)) ≫ pushforwardParallel C J K u0 G 1 := by
-  sorry
+/-- The stage direct image of the restriction to a fixed degree. -/
+private def pushforwardStage (n : SimplexCategory) :
+    Sheaf (topology C J) (Type w) ⥤ Sheaf K.toGrothendieck (Type w) :=
+  restrictToDegree C J n ⋙ (stageTopos C J K u0 n).pushforward
+
+set_option backward.isDefEq.respectTransparency false in
+/-- The adjunction unit followed by the mate recovers the system transition. -/
+private theorem pushforwardParallel_eq (F : Sheaf (topology C J) (Type w)) (i : Fin 2) :
+    pushforwardParallel C J K u0 F i =
+      (stageTopos C J K u0 ⦋0⦌).pushforward.map
+        (((toSheafSystem C J).obj F).map (SimplexCategory.δ i : ⦋0⦌ ⟶ ⦋1⦌)) ≫
+      (stageTopos_pushforward_comp C J K u0
+        (SimplexCategory.δ i : ⦋0⦌ ⟶ ⦋1⦌)).hom.app
+          (((toSheafSystem C J).obj F).obj ⦋1⦌) := by
+  unfold pushforwardParallel
+  rw [← Category.assoc, ← Functor.map_comp, ← Adjunction.homEquiv_unit,
+    SheafSystem.mapInverseImage_homEquiv]
+
+/-- The coface maps form natural transformations between the stage direct images. -/
+private def pushforwardCoface (i : Fin 2) :
+    pushforwardStage C J K u0 ⦋0⦌ ⟶ pushforwardStage C J K u0 ⦋1⦌ where
+  app F := pushforwardParallel C J K u0 F i
+  naturality := by
+    intro F G α
+    change (stageTopos C J K u0 ⦋0⦌).pushforward.map
+        (((toSheafSystem C J).map α).app ⦋0⦌) ≫ _ =
+      _ ≫ (stageTopos C J K u0 ⦋1⦌).pushforward.map
+        (((toSheafSystem C J).map α).app ⦋1⦌)
+    rw [pushforwardParallel_eq, pushforwardParallel_eq, ← Category.assoc,
+      ← Functor.map_comp, ← ((toSheafSystem C J).map α).naturality,
+      Functor.map_comp, Category.assoc, Category.assoc]
+    exact congrArg ((stageTopos C J K u0 ⦋0⦌).pushforward.map
+        (((toSheafSystem C J).obj F).map (SimplexCategory.δ i : ⦋0⦌ ⟶ ⦋1⦌)) ≫ ·)
+      ((stageTopos_pushforward_comp C J K u0
+        (SimplexCategory.δ i : ⦋0⦌ ⟶ ⦋1⦌)).hom.naturality
+          (((toSheafSystem C J).map α).app ⦋1⦌))
 
 /-- Direct image `a_*`, sending a sheaf on `C_total` to the equalizer of
 `a_{0,*} F_0 ⇉ a_{1,*} F_1`. -/
 def pushforward :
-    Sheaf (topology C J) (Type w) ⥤ Sheaf K.toGrothendieck (Type w) where
-  obj F :=
-    equalizer (pushforwardParallel C J K u0 F 0)
-      (pushforwardParallel C J K u0 F 1)
-  map {F G} α :=
-    equalizer.lift
-      (equalizer.ι (pushforwardParallel C J K u0 F 0)
-          (pushforwardParallel C J K u0 F 1) ≫
-        (stageTopos C J K u0 ⦋0⦌).pushforward.map
-          (((toSheafSystem C J).map α).app ⦋0⦌))
-      (pushforward_map_condition C J K u0 α)
-  map_id := by
-    intro F
-    apply equalizer.hom_ext
-    simp only [equalizer.lift_ι, Functor.map_id]
-    change _ ≫ (stageTopos C J K u0 ⦋0⦌).pushforward.map (𝟙 _) = _
-    simp
-  map_comp := by
-    intro F G L α β
-    apply equalizer.hom_ext
-    simp only [Category.assoc, equalizer.lift_ι]
-    change _ ≫ (stageTopos C J K u0 ⦋0⦌).pushforward.map
-        (((toSheafSystem C J).map (α ≫ β)).app ⦋0⦌) = _
-    rw [(toSheafSystem C J).map_comp]
-    change _ ≫ (stageTopos C J K u0 ⦋0⦌).pushforward.map
-        ((((toSheafSystem C J).map α).app ⦋0⦌) ≫
-          (((toSheafSystem C J).map β).app ⦋0⦌)) = _
-    rw [Functor.map_comp]
-    simp only [← Category.assoc, equalizer.lift_ι]
+    Sheaf (topology C J) (Type w) ⥤ Sheaf K.toGrothendieck (Type w) :=
+  pointwiseEqualizer (pushforwardCoface C J K u0 0) (pushforwardCoface C J K u0 1)
 
 /-- The object `a_* F` is the equalizer of the two coface maps. -/
 theorem pushforward_obj (F : Sheaf (topology C J) (Type w)) :
@@ -293,6 +291,15 @@ def pushforwardι (F : Sheaf (topology C J) (Type w)) :
         (((toSheafSystem C J).obj F).obj ⦋0⦌) :=
   equalizer.ι (pushforwardParallel C J K u0 F 0)
     (pushforwardParallel C J K u0 F 1)
+
+/-- The equalizer inclusion is natural in the total sheaf. -/
+@[reassoc (attr := simp)]
+theorem pushforward_map_ι {F G : Sheaf (topology C J) (Type w)} (α : F ⟶ G) :
+    (pushforward C J K u0).map α ≫ pushforwardι C J K u0 G =
+      pushforwardι C J K u0 F ≫ (stageTopos C J K u0 ⦋0⦌).pushforward.map
+        (((toSheafSystem C J).map α).app ⦋0⦌) :=
+  pointwiseEqualizer_map_ι (pushforwardCoface C J K u0 0)
+    (pushforwardCoface C J K u0 1) α
 
 /-- The fork presenting `a_* F` as equalizer of `a_{0,*} F_0 ⇉ a_{1,*} F_1`. -/
 def pushforwardFork (F : Sheaf (topology C J) (Type w)) :

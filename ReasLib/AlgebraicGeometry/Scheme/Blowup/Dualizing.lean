@@ -121,9 +121,18 @@ theorem canonicalDualizingPullbackMap_isLocallySurjective
       (dualizingGlobalSectionsFunctor A).obj
         ((RingedSpace.moduleDerivedPushforward f.toShHom).obj
           (((DerivedCategory.singleFunctor X.Modules 0).obj ωX)⟦(2 : ℤ)⟧)))
-    (targetComparison : (dualizingGlobalSectionsFunctor A).obj ωS ≅ ωA) :
+    (targetComparison : (dualizingGlobalSectionsFunctor A).obj ωS ≅ ωA)
+    (traceInverse : ωA ⟶ Scheme.Hom.globalSectionsMod f ωX)
+    (traceInverse_hom_id : traceInverse ≫
+      (dualizingTrace A f h_normal h_locallyNoetherian ωX hωX HA ωA hωA HS
+        ωS hωS hωS_affine HX h_relative a aAdjunction e sourceComparison targetComparison) = 𝟙 ωA)
+    (hom_traceInverse_id :
+      (dualizingTrace A f h_normal h_locallyNoetherian ωX hωX HA ωA hωA HS
+        ωS hωS hωS_affine HX h_relative a aAdjunction e sourceComparison targetComparison) ≫ traceInverse =
+        𝟙 (Scheme.Hom.globalSectionsMod f ωX)) :
     Sheaf.IsLocallySurjective ((SheafOfModules.toSheaf X.ringCatSheaf).map
       (canonicalDualizingPullbackMap A f h_normal h_locallyNoetherian ωX hωX HA ωA hωA HS
-        ωS hωS hωS_affine HX h_relative a aAdjunction e sourceComparison targetComparison)) := sorry
+        ωS hωS hωS_affine HX h_relative a aAdjunction e sourceComparison targetComparison
+        traceInverse traceInverse_hom_id hom_traceInverse_id)) := sorry
 
 end AlgebraicGeometry.IsBlowup

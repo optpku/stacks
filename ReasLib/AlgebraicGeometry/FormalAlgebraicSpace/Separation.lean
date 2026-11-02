@@ -51,43 +51,68 @@ class QuasiSeparated {S : Scheme.{u}} {X Y : (Over S)ᵒᵖ ⥤ Type u} (f : X �
     (over (@AlgebraicGeometry.QuasiCompact : MorphismProperty Scheme.{u})).presheaf
       (pullback.diagonal f)
 
+private theorem presheaf_over_of_isIso (P : MorphismProperty Scheme.{u})
+    [P.IsMultiplicative] [P.RespectsIso] {S : Scheme.{u}}
+    {X Y : (Over S)ᵒᵖ ⥤ Type u} (f : X ⟶ Y) [IsIso f] :
+    (P.over (X := S)).presheaf f := by
+  letI : (P.over (X := S)).IsMultiplicative := by
+    rw [over_eq_inverseImage]
+    infer_instance
+  letI : (P.over (X := S)).RespectsIso := by
+    rw [over_eq_inverseImage]
+    infer_instance
+  exact (P.over (X := S)).presheaf.of_isIso f
+
 namespace Separated
 
 /-- The identity morphism of presheaves over a scheme is separated. -/
-instance id {S : Scheme.{u}} {X : (Over S)ᵒᵖ ⥤ Type u} : Separated (𝟙 X) := sorry
+instance id {S : Scheme.{u}} {X : (Over S)ᵒᵖ ⥤ Type u} : Separated (𝟙 X) :=
+  ⟨presheaf_over_of_isIso _ _⟩
 
 /-- An isomorphism of presheaves over a scheme is separated. -/
 instance of_isIso {S : Scheme.{u}} {X Y : (Over S)ᵒᵖ ⥤ Type u} (f : X ⟶ Y) [IsIso f] :
-    Separated f := sorry
+    Separated f := ⟨presheaf_over_of_isIso _ _⟩
 
 /-- A morphism of presheaves over a scheme is separated if and only if its relative
 pullback diagonal is a representable closed immersion. -/
 theorem spec {S : Scheme.{u}} {X Y : (Over S)ᵒᵖ ⥤ Type u} (f : X ⟶ Y) :
     Separated f ↔
       (over (@AlgebraicGeometry.IsClosedImmersion : MorphismProperty Scheme.{u})).presheaf
-        (pullback.diagonal f) := sorry
+        (pullback.diagonal f) := by
+  constructor
+  · intro h; exact h.isClosedImmersion_diagonal
+  · intro h; exact ⟨h⟩
 
 end Separated
 
 namespace QuasiSeparated
 
 /-- The identity morphism of presheaves over a scheme is quasi-separated. -/
-instance id {S : Scheme.{u}} {X : (Over S)ᵒᵖ ⥤ Type u} : QuasiSeparated (𝟙 X) := sorry
+instance id {S : Scheme.{u}} {X : (Over S)ᵒᵖ ⥤ Type u} : QuasiSeparated (𝟙 X) :=
+  ⟨presheaf_over_of_isIso _ _⟩
 
 /-- An isomorphism of presheaves over a scheme is quasi-separated. -/
 instance of_isIso {S : Scheme.{u}} {X Y : (Over S)ᵒᵖ ⥤ Type u} (f : X ⟶ Y) [IsIso f] :
-    QuasiSeparated f := sorry
+    QuasiSeparated f := ⟨presheaf_over_of_isIso _ _⟩
 
 /-- A separated morphism of presheaves over a scheme is quasi-separated. -/
 instance (priority := 900) of_separated {S : Scheme.{u}} {X Y : (Over S)ᵒᵖ ⥤ Type u}
-    (f : X ⟶ Y) [Separated f] : QuasiSeparated f := sorry
+    (f : X ⟶ Y) [Separated f] : QuasiSeparated f := by
+  refine ⟨MorphismProperty.relative_monotone ?_ _ (Separated.isClosedImmersion_diagonal (f := f))⟩
+  intro A B g hg
+  letI : IsClosedImmersion g.left := hg
+  change QuasiCompact g.left
+  exact inferInstance
 
 /-- A morphism of presheaves over a scheme is quasi-separated if and only if its relative
 pullback diagonal is a representable quasi-compact morphism. -/
 theorem spec {S : Scheme.{u}} {X Y : (Over S)ᵒᵖ ⥤ Type u} (f : X ⟶ Y) :
     QuasiSeparated f ↔
       (over (@AlgebraicGeometry.QuasiCompact : MorphismProperty Scheme.{u})).presheaf
-        (pullback.diagonal f) := sorry
+        (pullback.diagonal f) := by
+  constructor
+  · intro h; exact h.quasiCompact_diagonal
+  · intro h; exact ⟨h⟩
 
 end QuasiSeparated
 

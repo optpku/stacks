@@ -8,8 +8,7 @@ module
 
 public import Mathlib.Algebra.Category.ModuleCat.Basic
 public import Mathlib.Algebra.Homology.ShortComplex.ShortExact
-public import Mathlib.Algebra.Module.RingHom
-public import Mathlib.Algebra.Ring.Opposite
+public import ReasLib.Algebra.Module.CommOpposite
 public import Mathlib.Algebra.TrivSqZeroExt.Basic
 public import Mathlib.RingTheory.Ideal.Quotient.Operations
 public import ReasLib.RingTheory.RingHom.SquareZero
@@ -26,6 +25,8 @@ extension `TrivSqZeroExt A I1`.
 
 @[expose] public section
 
+open scoped Module.CommOpposite
+
 open CategoryTheory TrivSqZeroExt
 
 noncomputable section
@@ -37,16 +38,6 @@ namespace AlgebraicGeometry.Deformation
 variable {A A' B' C' A1' A2' A3' : Type u}
 variable [CommRing A] [CommRing A'] [CommRing B'] [CommRing C']
 variable [CommRing A1'] [CommRing A2'] [CommRing A3']
-
-/-- Opposite scalars on an `A`-module, using that `A` is commutative. -/
-instance (priority := 100) instModuleOp {M : Type u} [AddCommGroup M] [Module A M] :
-    Module Aᵐᵒᵖ M :=
-  Module.compHom M ((RingHom.id A).fromOpposite mul_comm)
-
-/-- Scalar actions of `A` and `Aᵐᵒᵖ` agree on an `A`-module. -/
-instance (priority := 100) instIsCentralScalar {M : Type u} [AddCommGroup M] [Module A M] :
-    IsCentralScalar A M where
-  op_smul_eq_smul _ _ := rfl
 
 /-- The identity map of a commutative ring is a square-zero extension. -/
 instance instIsSquareZeroExtension_id : (RingHom.id A).IsSquareZeroExtension where

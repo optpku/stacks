@@ -24,6 +24,8 @@ sending a finite-dimensional `k`-vector space to the trivial square-zero extensi
 
 @[expose] public section
 
+open scoped Module.CommOpposite
+
 noncomputable section
 
 open CategoryTheory

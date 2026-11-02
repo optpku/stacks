@@ -25,6 +25,8 @@ If `F-bar` satisfies Schlessinger's (H2), the fibrewise isomorphism-class value
 
 @[expose] public section
 
+open scoped Module.CommOpposite
+
 noncomputable section
 
 open CategoryTheory hiding Linear

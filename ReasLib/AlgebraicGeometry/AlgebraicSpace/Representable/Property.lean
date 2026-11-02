@@ -7,6 +7,7 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Representable.Pullback
+public import ReasLib.CategoryTheory.MorphismProperty.RepresentedTests
 
 /-!
 # Relative morphism properties for maps representable by algebraic spaces
@@ -26,6 +27,30 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace
 
+/-- An arbitrary represented Yoneda pullback with its actual projections.
+The square has the universal property of the pullback; no chosen pullback
+object is used to define this type of models. -/
+structure PresheafRepresentedModel {S : Scheme.{u}}
+    {F G : (Over S)ᵒᵖ ⥤ Type u} (a : F ⟶ G)
+    {U : Over S} (ξ : yoneda.obj U ⟶ G) where
+  space : AlgebraicSpace S
+  hom : space ⟶ ofOver U
+  fst : space.functorOfPoints ⟶ F
+  isPullback : IsPullback fst hom a ξ
+
+/-- Yoneda tests with all algebraic-space pullback models, without selecting one. -/
+def presheafSpaceTests (S : Scheme.{u}) :
+    MorphismProperty.TestFamily (AlgebraicSpace S) ((Over S)ᵒᵖ ⥤ Type u) where
+  Test := fun {_ G} _ ↦ Σ U : Over S, yoneda.obj U ⟶ G
+  Model := fun a t ↦ PresheafRepresentedModel a t.2
+  projection := fun b ↦ Arrow.mk b.hom
+
+/-- All-model representability agrees with the existing chosen-pullback predicate. -/
+theorem presheafSpaceTests_representable_iff {S : Scheme.{u}}
+    {F G : (Over S)ᵒᵖ ⥤ Type u} (a : F ⟶ G) :
+    (presheafSpaceTests S).representable a ↔ representableByAlgebraicSpaces a := by
+  sorry
+
 namespace representableByAlgebraicSpaces
 
 /-- A morphism of presheaves representable by algebraic spaces has a morphism
@@ -42,6 +67,16 @@ theorem has_iff {S : Scheme.{u}} {F G : (Over S)ᵒᵖ ⥤ Type u} {a : F ⟶ G}
     (ha : representableByAlgebraicSpaces a)
     (P : MorphismProperty (AlgebraicSpace S)) :
     ha.has P ↔ ∀ ⦃U : Over S⦄ (ξ : yoneda.obj U ⟶ G), P (ha.pullbackHom ξ) :=
+  sorry
+
+/-- The chosen-pullback property agrees with testing every represented model
+when `P` respects isomorphisms. Without this hypothesis an arbitrary property
+can distinguish isomorphic pullback presentations. -/
+theorem has_iff_presheafSpaceTests {S : Scheme.{u}}
+    {F G : (Over S)ᵒᵖ ⥤ Type u} {a : F ⟶ G}
+    (ha : representableByAlgebraicSpaces a)
+    (P : MorphismProperty (AlgebraicSpace S)) [P.RespectsIso] :
+    ha.has P ↔ (presheafSpaceTests S).has P a := by
   sorry
 
 end representableByAlgebraicSpaces
@@ -70,6 +105,21 @@ theorem relativeAlgebraicSpaces_iff {S : Scheme.{u}}
         ∀ (ha : representableByAlgebraicSpaces a) ⦃U : Over S⦄
           (ξ : yoneda.obj U ⟶ G), P (ha.pullbackHom ξ) :=
   sorry
+
+/-- Compatibility view of the old predicate on chosen pullbacks as the generic
+all-model relative property. The iso hypothesis is essential for this comparison,
+but is not added to the old definition. -/
+theorem relativeAlgebraicSpaces_iff_presheafSpaceTests {S : Scheme.{u}}
+    {F G : (Over S)ᵒᵖ ⥤ Type u} (P : MorphismProperty (AlgebraicSpace S))
+    [P.RespectsIso] (a : F ⟶ G) :
+    relativeAlgebraicSpaces P a ↔ (presheafSpaceTests S).relative P a := by
+  constructor
+  · intro h
+    exact ⟨(presheafSpaceTests_representable_iff a).mpr h.1,
+      (h.1.has_iff_presheafSpaceTests P).mp (h.2 h.1)⟩
+  · intro h
+    have ha := (presheafSpaceTests_representable_iff a).mp h.1
+    exact ⟨ha, fun ha' ↦ (ha'.has_iff_presheafSpaceTests P).mpr h.2⟩
 
 namespace relativeAlgebraicSpaces
 

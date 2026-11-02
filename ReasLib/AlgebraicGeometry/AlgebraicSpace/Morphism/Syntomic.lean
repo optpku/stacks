@@ -12,6 +12,8 @@ public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Pullback
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Surjective
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.ZariskiCover.Basic
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.Syntomic
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Locality.Criteria
+public import ReasLib.AlgebraicGeometry.Scheme.Morphism.EtaleLocal.Syntomic
 
 /-!
 # Syntomic morphisms of algebraic spaces
@@ -86,51 +88,38 @@ theorem syntomicAt_iff {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
 namespace Syntomic
 
 /-- Every base change of `f` along a morphism from a scheme is syntomic. -/
-def baseChangeOnSchemes {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
+abbrev baseChangeOnSchemes {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     Prop :=
-  ∀ {Z : Over S} (g : ofOver Z ⟶ Y), Syntomic (pullbackAlongScheme.snd f g)
+  Locality.Criteria.forallScheme (@Syntomic S) f
 
 /-- Every base change of `f` along a morphism from an affine scheme is
 syntomic. -/
-def baseChangeOnAffineSchemes {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+abbrev baseChangeOnAffineSchemes {S : Scheme.{u}} {X Y : AlgebraicSpace S}
     (f : X ⟶ Y) : Prop :=
-  ∀ {Z : Over S} (g : ofOver Z ⟶ Y),
-    IsAffine Z.left → Syntomic (pullbackAlongScheme.snd f g)
+  Locality.Criteria.forallAffine (@Syntomic S) f
 
 /-- There is a surjective étale morphism from a scheme to `Y` along which the
 base change of `f` is syntomic. -/
-def existsSurjectiveEtaleTarget {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+abbrev existsSurjectiveEtaleTarget {S : Scheme.{u}} {X Y : AlgebraicSpace S}
     (f : X ⟶ Y) : Prop :=
-  ∃ (V : Over S) (b : ofOver V ⟶ Y),
-    (over (@AlgebraicGeometry.Etale)).presheaf b ∧
-      Surjective b ∧ Syntomic (pullbackAlongScheme.snd f b)
+  Locality.Criteria.existsSurjectiveEtaleTarget (@Syntomic S) f
 
 /-- There is a surjective étale morphism `φ` from a scheme to `X` such that
 `φ ≫ f` is syntomic. -/
-def existsSurjectiveEtaleSource {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+abbrev existsSurjectiveEtaleSource {S : Scheme.{u}} {X Y : AlgebraicSpace S}
     (f : X ⟶ Y) : Prop :=
-  ∃ (U : Over S) (φ : ofOver U ⟶ X),
-    (over (@AlgebraicGeometry.Etale)).presheaf φ ∧
-      Surjective φ ∧ Syntomic (φ ≫ f)
+  Locality.Criteria.existsSurjectiveEtaleSource (@Syntomic S) f
 
 /-- Every étale scheme square over `f` has syntomic top arrow. -/
-def forallEtaleSquare {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
+abbrev forallEtaleSquare {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     Prop :=
-  ∀ {U V : Over S} (a : yoneda.obj U ⟶ X.functorOfPoints)
-    (b : yoneda.obj V ⟶ Y.functorOfPoints) (h : U ⟶ V),
-    (over (@AlgebraicGeometry.Etale)).presheaf a →
-      (over (@AlgebraicGeometry.Etale)).presheaf b →
-        a ≫ f = yoneda.map h ≫ b → AlgebraicGeometry.Syntomic h.left
+  Locality.Criteria.forallEtaleSquare (@AlgebraicGeometry.Syntomic) f
 
 /-- There is an étale scheme square over `f` with surjective source cover and
 syntomic top arrow. -/
-def existsEtaleSquare {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
+abbrev existsEtaleSquare {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     Prop :=
-  ∃ (U V : Over S) (a : ofOver U ⟶ X) (b : ofOver V ⟶ Y) (h : U ⟶ V),
-    (over (@AlgebraicGeometry.Etale)).presheaf a ∧
-      (over (@AlgebraicGeometry.Etale)).presheaf b ∧
-        a ≫ f = ofOverMap h ≫ b ∧
-          Surjective a ∧ AlgebraicGeometry.Syntomic h.left
+  Locality.Criteria.existsEtaleSquare (@AlgebraicGeometry.Syntomic) f
 
 /-- There are Zariski coverings of `Y` and of the inverse images in `X` on which
 the pieces of `f` are syntomic. -/
@@ -144,6 +133,13 @@ def existsZariskiCover {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
           ∀ x : Points X,
             Points.map f x ∈ Set.range (Points.map (𝒱.f i)) →
               x ∈ Set.range (Points.map ι)
+
+/-- The original covering criterion specifies the full inverse image. -/
+theorem existsZariskiCover_iff {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+    (f : X ⟶ Y) :
+    existsZariskiCover.{u, v} f ↔
+      Locality.Criteria.existsZariskiCover.{u, v} (@Syntomic S) f := by
+  sorry
 
 end Syntomic
 
@@ -162,7 +158,30 @@ theorem syntomic_tfae {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
       , Syntomic.existsSurjectiveEtaleSource f
       , Syntomic.forallEtaleSquare f
       , Syntomic.existsEtaleSquare f
-      , Syntomic.existsZariskiCover f ] :=
-  sorry
+      , Syntomic.existsZariskiCover.{u, v} f ] :=
+  by
+    have hP : (@Syntomic S : MorphismProperty (AlgebraicSpace S)) =
+        etaleLocal (@AlgebraicGeometry.Syntomic) := by
+      funext U V g
+      exact propext (syntomic_iff g)
+    have hlocal := Locality.Criteria.etaleLocal_tfae.{u, v}
+      (@AlgebraicGeometry.Syntomic) f
+    have hbase : List.TFAE
+        [ Syntomic f, Syntomic.baseChangeOnSchemes f
+        , Syntomic.baseChangeOnAffineSchemes f
+        , Syntomic.existsSurjectiveEtaleTarget f
+        , Syntomic.existsSurjectiveEtaleSource f
+        , Syntomic.forallEtaleSquare f
+        , Syntomic.existsEtaleSquare f
+        , Syntomic.existsZariskiCover.{u, v} f ] := by
+      simpa only [Syntomic.baseChangeOnSchemes,
+        Syntomic.baseChangeOnAffineSchemes, Syntomic.existsSurjectiveEtaleTarget,
+        Syntomic.existsSurjectiveEtaleSource, Syntomic.forallEtaleSquare,
+        Syntomic.existsEtaleSquare, Syntomic.existsZariskiCover_iff, hP] using hlocal
+    have hpoint : Syntomic f ↔ ∀ x : Points X, SyntomicAt f x := by
+      sorry
+    exact List.tfae_cons_cons.mpr ⟨hpoint,
+      List.tfae_cons_cons.mpr ⟨hpoint.symm.trans (hbase.out 0 1),
+        (List.tfae_cons_cons.mp hbase).2⟩⟩
 
 end AlgebraicGeometry.AlgebraicSpace

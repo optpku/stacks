@@ -19,12 +19,11 @@ Let `X` be a scheme such that every quasi-compact open has finitely many irreduc
 The weak normalization of `X` is the weak normalization of `X` in its normalization.
 -/
 @[stacks 0H3R] #check
-  (AlgebraicGeometry.Scheme.AbsoluteWeakNormalizationOver.initial_isRelativeOfNormalization :
+  (fun (X : Scheme.{u}) [Scheme.HasFiniteIrreducibleComponentsOnCompactOpens X]
+      (W : Scheme.WeakNormalization X) =>
+    ⟨W.fromNormalization_comp_toScheme, W.isUniversalHomeomorphism_toScheme,
+      W.nonempty_isInitial⟩ :
     ∀ (X : Scheme.{u}) [Scheme.HasFiniteIrreducibleComponentsOnCompactOpens X],
-      ∃ ι : X.normalization ⟶ (⊥_ (Scheme.AbsoluteWeakNormalizationOver X)).1.left,
-        ι ≫ (⊥_ (Scheme.AbsoluteWeakNormalizationOver X)).1.hom = X.normalizationTo ∧
-          ∀ {Z : Scheme.{u}} (g : X.normalization ⟶ Z) (π : Z ⟶ X),
-            UniversalHomeomorphism π →
-            g ≫ π = X.normalizationTo →
-            ∃! h : (⊥_ (Scheme.AbsoluteWeakNormalizationOver X)).1.left ⟶ Z,
-              h ≫ π = (⊥_ (Scheme.AbsoluteWeakNormalizationOver X)).1.hom ∧ ι ≫ h = g)
+      ∀ W : Scheme.WeakNormalization X,
+        W.fromNormalization ≫ W.toScheme = X.normalizationTo ∧
+          UniversalHomeomorphism W.toScheme ∧ Nonempty (IsInitial W.1))

@@ -54,10 +54,10 @@ def ofScheme (X : Scheme.{u}) : FormalScheme.{u} :=
 /-- Forgetting topology in the formal scheme associated to a scheme recovers its section rings. -/
 theorem ofScheme_forget (X : Scheme.{u}) (U : X.Opens) :
     (forget₂ TopCommRingCat CommRingCat).obj ((ofScheme X).presheaf.obj (op U)) =
-      X.presheaf.obj (op U) := sorry
+      X.presheaf.obj (op U) := rfl
 
 /-- The formal scheme associated to a scheme has the same underlying space. -/
-theorem ofScheme_carrier (X : Scheme.{u}) : (ofScheme X).carrier = X.carrier := sorry
+theorem ofScheme_carrier (X : Scheme.{u}) : (ofScheme X).carrier = X.carrier := rfl
 
 end FormalScheme
 
@@ -130,11 +130,11 @@ instance instFaithfulToFormalScheme : toFormalScheme.{u}.Faithful := sorry
 
 /-- The comparison functor preserves underlying topological spaces. -/
 theorem toFormalScheme_obj_carrier (X : Scheme.{u}) :
-    (toFormalScheme.obj X).carrier = X.carrier := sorry
+    (toFormalScheme.obj X).carrier = X.carrier := rfl
 
 /-- The comparison functor preserves the original continuous base map of each scheme morphism. -/
 theorem toFormalScheme_map_base {X Y : Scheme.{u}} (f : X ⟶ Y) :
-    (FormalScheme.Hom.toLTRSHom (toFormalScheme.map f)).toSheafedHom.hom.base = f.base := sorry
+    (FormalScheme.Hom.toLTRSHom (toFormalScheme.map f)).toSheafedHom.hom.base = f.base := rfl
 
 end Scheme
 

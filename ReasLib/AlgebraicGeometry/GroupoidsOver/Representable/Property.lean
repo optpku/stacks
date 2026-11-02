@@ -8,6 +8,7 @@ module
 
 public import ReasLib.AlgebraicGeometry.GroupoidsOver.Representable
 public import Mathlib.CategoryTheory.MorphismProperty.Local
+public import ReasLib.CategoryTheory.MorphismProperty.RepresentedTests
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Cover.Fppf
 
 /-!
@@ -29,6 +30,34 @@ universe u
 
 namespace AlgebraicGeometry.Groupoids.Hom
 
+/-- A slice base-change model includes its actual projection and the full
+existing representation predicate, including the projection triangle. -/
+structure RepresentedModel {S : Scheme.{u}} {X Y : GroupoidsOver S} (f : X ⟶ Y)
+    {U : Over S} (y : GroupoidsOver.slice U ⟶ Y) where
+  space : AlgebraicSpace S
+  hom : space ⟶ AlgebraicSpace.ofOver U
+  represents : RepresentsBaseChange f y space hom
+
+/-- All scheme-slice tests and all algebraic-space representations of them.
+No representing space or equivalence is selected. -/
+def spaceTests (S : Scheme.{u}) :
+    MorphismProperty.TestFamily (AlgebraicSpace S) (GroupoidsOver S) where
+  Test := fun {_ Y} _ ↦ Σ U : Over S, GroupoidsOver.slice U ⟶ Y
+  Model := fun f a ↦ RepresentedModel f a.2
+  projection := fun b ↦ Arrow.mk b.hom
+
+/-- The generic existence predicate is precisely the existing representability. -/
+theorem spaceTests_representable_iff {S : Scheme.{u}} {X Y : GroupoidsOver S}
+    (f : X ⟶ Y) :
+    (spaceTests S).representable f ↔ relativelyRepresentableByAlgebraicSpaces f := by
+  constructor
+  · intro h U y
+    obtain ⟨b⟩ := h ⟨U, y⟩
+    exact ⟨b.space, b.hom, b.represents⟩
+  · rintro h ⟨U, y⟩
+    obtain ⟨F, p, hp⟩ := h y
+    exact ⟨⟨F, p, hp⟩⟩
+
 /-- A 1-morphism `f : X ⟶ Y` of categories fibred in groupoids over `Over S`
 has a morphism property `P` of algebraic spaces when every scheme-slice
 representing morphism `fy : Fy ⟶ AlgebraicSpace.ofOver U` satisfies `P`. -/
@@ -47,6 +76,24 @@ theorem has_iff {S : Scheme.{u}} {X Y : GroupoidsOver S}
         (fy : Fy ⟶ AlgebraicSpace.ofOver U),
         RepresentsBaseChange f y Fy fy → P fy :=
   sorry
+
+/-- A view of the original `has`, with the same vacuous behavior when a test
+has no model. No base-change or locality assumptions are needed. -/
+theorem has_iff_spaceTests {S : Scheme.{u}} {X Y : GroupoidsOver S}
+    (P : MorphismProperty (AlgebraicSpace S)) (f : X ⟶ Y) :
+    has P f ↔ (spaceTests S).has P f := by
+  constructor
+  · rintro h ⟨U, y⟩ b
+    exact h y b.space b.hom b.represents
+  · intro h U y F p hp
+    exact h ⟨U, y⟩ ⟨F, p, hp⟩
+
+/-- The relative core adds precisely representability to the old property. -/
+theorem spaceTests_relative_iff {S : Scheme.{u}} {X Y : GroupoidsOver S}
+    (P : MorphismProperty (AlgebraicSpace S)) (f : X ⟶ Y) :
+    (spaceTests S).relative P f ↔
+      relativelyRepresentableByAlgebraicSpaces f ∧ has P f := by
+  exact and_congr (spaceTests_representable_iff f) (has_iff_spaceTests P f).symm
 
 namespace has
 

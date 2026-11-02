@@ -129,6 +129,32 @@ theorem integral_comp_cycleClass_eq_degree
           chowTopEquiv.toAddMonoidHom) := sorry
 
 
+/-- The degree formula with the theory's uniform geometric Chow comparison.
+The older formula also allows a separately supplied comparison for interoperability. -/
+theorem integral_cycleClass_eq_geometric_degree
+    {X : V} {d : ℕ} (hX : T.IsNonemptyEquidimensional X d)
+    (alpha : CHgrade X d) :
+    T.integral hX (T.cycleClass X alpha) =
+      (@ChowGroup.degree k _ (T.scheme.obj X) (T.projective X).isProper
+        (T.chowTopEquiv hX alpha) : F) := by
+  exact integral_cycleClass_eq_degree.{u, v, w, x, y, z, 0, 0, 0}
+    T hX (T.chowTopEquiv hX)
+    (fun x _ ↦ T.closedPointClass_comparison hX x) alpha
+
+/-- The degree formula as an equality of additive maps, using the same uniform
+comparison in every occurrence. -/
+theorem integral_comp_cycleClass_eq_geometric_degree
+    {X : V} {d : ℕ} (hX : T.IsNonemptyEquidimensional X d) :
+    (T.integral hX).toAddMonoidHom.comp
+        ((T.cycleClass X).comp (CHgrade X (d : ℤ)).subtype.toAddMonoidHom) =
+      (Int.castAddHom F).comp
+        ((@ChowGroup.degree k _ (T.scheme.obj X) (T.projective X).isProper).comp
+          (T.chowTopEquiv hX).toAddMonoidHom) := by
+  exact integral_comp_cycleClass_eq_degree.{u, v, w, x, y, z, 0, 0, 0}
+    T hX (T.chowTopEquiv hX)
+    (fun x _ ↦ T.closedPointClass_comparison hX x)
+
+
 /-- For a geometrically irreducible smooth projective scheme over a finite separable
 extension `k'/k`, the top-degree cycle-class homomorphism factors through the
 integer-valued degree homomorphism on zero cycles. -/

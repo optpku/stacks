@@ -29,6 +29,76 @@ namespace AlgebraicGeometry.AlgebraicSpace.Quot
 
 variable {S : Scheme.{u}} {X B : AlgebraicSpace S}
 
+/-- A finitely presented quasi-coherent quotient of `F_T` that is flat over an
+algebraic space `T`. -/
+structure FpSpacePoint {T : AlgebraicSpace S} (f : X ⟶ B) (F : X.Modules)
+    (h : T ⟶ B) where
+  /-- The underlying space-level quotient point. -/
+  point : SpacePoint f F h
+  /-- The target is of finite presentation. -/
+  isFinitePresentation : point.module.IsFinitePresentation
+
+namespace FpSpacePoint
+
+/-- Construct an `FpSpacePoint` from an epimorphism `F_T ⟶ Q` with `Q` quasi-coherent
+of finite presentation and flat over `T`. -/
+def ofEpi {T : AlgebraicSpace S} (f : X ⟶ B) (F : X.Modules) (h : T ⟶ B)
+    (module : (pullback f h).Modules) (map : spaceFiberF f F h ⟶ module)
+    (map_epi : Epi map) (isQuasicoherent : module.IsQuasicoherent)
+    (isFlat : Modules.flatOver module (pullback.snd f h))
+    (isFinitePresentation : module.IsFinitePresentation) : FpSpacePoint f F h where
+  point := SpacePoint.ofEpi f F h module map map_epi isQuasicoherent isFlat
+  isFinitePresentation := isFinitePresentation
+
+/-- Convert a space-level quotient point whose target is of finite presentation into an
+`FpSpacePoint`. -/
+def ofPoint {T : AlgebraicSpace S} {f : X ⟶ B} {F : X.Modules} {h : T ⟶ B}
+    (Q : SpacePoint f F h) (isFinitePresentation : Q.module.IsFinitePresentation) :
+    FpSpacePoint f F h where
+  point := Q
+  isFinitePresentation := isFinitePresentation
+
+/-- The underlying space-level quotient point of a finitely presented quotient point. -/
+abbrev toPoint {T : AlgebraicSpace S} {f : X ⟶ B} {F : X.Modules} {h : T ⟶ B}
+    (Q : FpSpacePoint f F h) : SpacePoint f F h :=
+  Q.point
+
+/-- An `FpSpacePoint` is an epimorphism `F_T ⟶ Q` with `Q` quasi-coherent of finite
+presentation and flat over `T`. -/
+theorem spec {T : AlgebraicSpace S} {f : X ⟶ B} {F : X.Modules} {h : T ⟶ B}
+    (Q : FpSpacePoint f F h) :
+    Epi Q.point.map ∧ Q.point.module.IsQuasicoherent ∧
+      Q.point.module.IsFinitePresentation ∧
+      Modules.flatOver Q.point.module (pullback.snd f h) := sorry
+
+/-- Pullback preserves finite presentation of the target of a quotient. -/
+theorem pullback_isFinitePresentation {T T' : AlgebraicSpace S} {f : X ⟶ B}
+    {F : X.Modules} {h : T ⟶ B} (Q : FpSpacePoint f F h) (a : T' ⟶ T) :
+    (Q.point.pullback a).module.IsFinitePresentation := sorry
+
+/-- Pull back the property layer along a morphism over `B`. -/
+def pullbackOver {T T' : AlgebraicSpace S} {f : X ⟶ B} {F : X.Modules}
+    {h : T ⟶ B} {h' : T' ⟶ B} (Q : FpSpacePoint f F h)
+    (a : T' ⟶ T) (w : a ≫ h = h') : FpSpacePoint f F h' where
+  point := Q.point.pullbackOver a w
+  isFinitePresentation := by
+    subst h'
+    exact pullback_isFinitePresentation Q a
+
+/-- Pull back along a morphism of test algebraic spaces. -/
+def pullback {T T' : AlgebraicSpace S} {f : X ⟶ B} {F : X.Modules} {h : T ⟶ B}
+     (Q : FpSpacePoint f F h) (a : T' ⟶ T) : FpSpacePoint f F (a ≫ h) :=
+  Q.pullbackOver a rfl
+
+/-- The module of a pulled-back `FpSpacePoint` is the module pullback along
+`spaceFiberMap`. -/
+theorem pullback_module {T T' : AlgebraicSpace S} {f : X ⟶ B} {F : X.Modules}
+    {h : T ⟶ B} (Q : FpSpacePoint f F h) (a : T' ⟶ T) :
+    (Q.pullback a).point.module =
+      (Modules.pullback (spaceFiberMap f h a)).obj Q.point.module := sorry
+
+end FpSpacePoint
+
 /-- A finitely presented quasi-coherent quotient of `F_T` that is flat over `T`. -/
 structure FpPoint (f : X ⟶ B) (F : X.Modules) (σ : SchemeOver B) where
   /-- The underlying quotient representative before kernel identification. -/
@@ -56,6 +126,18 @@ def ofPoint {f : X ⟶ B} {F : X.Modules} {σ : SchemeOver B}
   point := Q
   isFinitePresentation := isFinitePresentation
 
+/-- The scheme facade preserves the underlying quotient and property fields. -/
+def toFpSpacePoint {f : X ⟶ B} {F : X.Modules} {σ : SchemeOver B}
+     (Q : FpPoint f F σ) : FpSpacePoint f F σ.hom where
+  point := Q.point.toSpacePoint
+  isFinitePresentation := Q.isFinitePresentation
+
+/-- Repackage common quotient data over a scheme, without choosing any data. -/
+def ofFpSpacePoint {f : X ⟶ B} {F : X.Modules} {σ : SchemeOver B}
+     (Q : FpSpacePoint f F σ.hom) : FpPoint f F σ where
+  point := Point.ofSpacePoint Q.point
+  isFinitePresentation := Q.isFinitePresentation
+
 /-- The underlying `Q_{F/X/B}`-point of a finitely presented quotient point. -/
 abbrev toPoint {f : X ⟶ B} {F : X.Modules} {σ : SchemeOver B}
     (Q : FpPoint f F σ) : Point f F σ :=
@@ -71,9 +153,11 @@ theorem spec {f : X ⟶ B} {F : X.Modules} {σ : SchemeOver B} (Q : FpPoint f F 
 /-- Pull back a finitely presented quotient point along a morphism of schemes
 over `B`. -/
 def pullback {f : X ⟶ B} {F : X.Modules} {σ τ : SchemeOver B}
-    (Q : FpPoint f F σ) (h : τ ⟶ σ) : FpPoint f F τ where
+     (Q : FpPoint f F σ) (h : τ ⟶ σ) : FpPoint f F τ where
   point := Q.point.pullback h
-  isFinitePresentation := sorry
+  isFinitePresentation :=
+    (FpSpacePoint.pullbackOver (h' := τ.hom) Q.toFpSpacePoint
+      ((ofOverFunctor S).map h.left) (CostructuredArrow.w h)).isFinitePresentation
 
 /-- The module of a pulled-back `FpPoint` is the module pullback along
 `fiberMap`. -/

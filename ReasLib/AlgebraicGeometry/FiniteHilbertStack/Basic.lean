@@ -379,6 +379,7 @@ private theorem idHom_a (ξ : Object F d) :
 
 end
 
+set_option maxHeartbeats 800000 in
 set_option backward.isDefEq.respectTransparency false in
 /-- Quintuples with finite locally free structure maps of rank `d`, together with
 pullback-compatible morphisms, form a bundled category. -/

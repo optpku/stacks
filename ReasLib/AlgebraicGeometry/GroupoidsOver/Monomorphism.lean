@@ -52,12 +52,12 @@ groupoid fibrations is a monomorphism. -/
 theorem spec {S : Scheme.{u}} {X Y : GroupoidsOver S} (f : X ⟶ Y) [Mono f]
     {U : Over S} (y : GroupoidsOver.slice U ⟶ Y) {Fy : AlgebraicSpace S}
     {fy : Fy ⟶ AlgebraicSpace.ofOver U} (h : RepresentsBaseChange f y Fy fy) :
-    CategoryTheory.Mono fy := sorry
+    CategoryTheory.Mono fy := Mono.of_represents y Fy fy h
 
 /-- A monomorphism of groupoid fibrations is representable by algebraic
 spaces. -/
 theorem relativelyRepresentable {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    (f : X ⟶ Y) [Mono f] : relativelyRepresentableByAlgebraicSpaces f := sorry
+    (f : X ⟶ Y) [Mono f] : relativelyRepresentableByAlgebraicSpaces f := Mono.representable
 
 /-- A 1-morphism is a monomorphism if and only if it is representable by
 algebraic spaces and every representing morphism of algebraic spaces is a
@@ -66,7 +66,8 @@ theorem iff {S : Scheme.{u}} {X Y : GroupoidsOver S} (f : X ⟶ Y) :
     Mono f ↔ relativelyRepresentableByAlgebraicSpaces f ∧
       ∀ ⦃U : Over S⦄ (y : GroupoidsOver.slice U ⟶ Y) (Fy : AlgebraicSpace S)
         (fy : Fy ⟶ AlgebraicSpace.ofOver U),
-        RepresentsBaseChange f y Fy fy → CategoryTheory.Mono fy := sorry
+        RepresentsBaseChange f y Fy fy → CategoryTheory.Mono fy :=
+  ⟨fun h ↦ ⟨h.representable, h.of_represents⟩, fun h ↦ ⟨h.1, h.2⟩⟩
 
 end Mono
 

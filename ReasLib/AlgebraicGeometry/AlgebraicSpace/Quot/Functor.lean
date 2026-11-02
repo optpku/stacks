@@ -17,8 +17,9 @@ public import Mathlib.CategoryTheory.Subobject.Limits
 # The functor of quotients of a quasi-coherent module
 
 This module constructs the contravariant functor of quasi-coherent quotients of a
-quasi-coherent module on an algebraic space, identified by kernels and required to be
-flat over the test scheme.
+quasi-coherent module on an algebraic space, identified by kernels. The common
+representative data and pullback are defined for algebraic-space test objects;
+scheme points retain a thin facade for their specialized pullback API.
 -/
 
 @[expose] public section
@@ -34,6 +35,184 @@ namespace AlgebraicGeometry.AlgebraicSpace.Quot
 
 variable {S : Scheme.{u}} {X B : AlgebraicSpace S}
 
+/-- The pullback `F_T` of a module `F` along the projection `X ×_{B,h} T ⟶ X`. -/
+def spaceFiberF {T : AlgebraicSpace S} (f : X ⟶ B) (F : X.Modules) (h : T ⟶ B) :
+    (pullback f h).Modules :=
+  (Modules.pullback (pullback.fst f h)).obj F
+
+/-- The canonical map `X_{T'} ⟶ X_T` induced by a morphism over `B` with its commutativity equality. -/
+def spaceFiberMapOver (f : X ⟶ B) {T T' : AlgebraicSpace S} {h : T ⟶ B} {h' : T' ⟶ B}
+    (a : T' ⟶ T) (w : a ≫ h = h') :
+    pullback f h' ⟶ pullback f h :=
+  pullback.map f h' f h (𝟙 X) a (𝟙 B)
+    ((Category.comp_id f).trans (Category.id_comp f).symm)
+    ((Category.comp_id h').trans w.symm)
+
+/-- The map of fibers over `B` preserves the projection to `X`. -/
+@[simp]
+theorem spaceFiberMapOver_fst (f : X ⟶ B) {T T' : AlgebraicSpace S}
+    {h : T ⟶ B} {h' : T' ⟶ B} (a : T' ⟶ T) (w : a ≫ h = h') :
+    spaceFiberMapOver f a w ≫ pullback.fst f h = pullback.fst f h' := by
+  unfold spaceFiberMapOver pullback.map
+  exact (pullback.lift_fst _ _ _).trans (Category.comp_id _)
+
+/-- The map of fibers over `B` preserves the projection to the test space. -/
+@[simp]
+theorem spaceFiberMapOver_snd (f : X ⟶ B) {T T' : AlgebraicSpace S}
+    {h : T ⟶ B} {h' : T' ⟶ B} (a : T' ⟶ T) (w : a ≫ h = h') :
+    spaceFiberMapOver f a w ≫ pullback.snd f h = pullback.snd f h' ≫ a := by
+  unfold spaceFiberMapOver pullback.map
+  exact pullback.lift_snd _ _ _
+
+/-- The comparison identifying `F_{T'}` with the pullback of `F_T` along `X_{T'} ⟶ X_T`. -/
+def spaceFiberFOverIso (f : X ⟶ B) (F : X.Modules) {T T' : AlgebraicSpace S}
+    {h : T ⟶ B} {h' : T' ⟶ B} (a : T' ⟶ T) (w : a ≫ h = h') :
+    spaceFiberF f F h' ≅ (Modules.pullback (spaceFiberMapOver f a w)).obj (spaceFiberF f F h) :=
+  eqToIso (congrArg (fun k ↦ (Modules.pullback k).obj F)
+      ((pullback.lift_fst (pullback.fst f h' ≫ 𝟙 X)
+          (pullback.snd f h' ≫ a)
+          (((Category.assoc (pullback.fst f h') (𝟙 X) f).trans
+              (congrArg (fun k ↦ pullback.fst f h' ≫ k) (Category.id_comp f))).trans
+            ((pullback.condition :
+                pullback.fst f h' ≫ f = pullback.snd f h' ≫ h').trans
+              ((congrArg (fun k ↦ pullback.snd f h' ≫ k)
+                  w.symm).trans
+                (Category.assoc (pullback.snd f h')
+                  a h).symm)))).trans
+        (Category.comp_id _)).symm) ≪≫
+    (Modules.pullbackCompIso (spaceFiberMapOver f a w) (pullback.fst f h)).symm.app F
+
+/-- The canonical map of fibers along a morphism of test algebraic spaces. -/
+def spaceFiberMap {T T' : AlgebraicSpace S} (f : X ⟶ B) (h : T ⟶ B) (a : T' ⟶ T) :
+    pullback f (a ≫ h) ⟶ pullback f h :=
+  spaceFiberMapOver f a rfl
+
+/-- The map `spaceFiberMap f h a` commutes with the projections to `X`. -/
+theorem spaceFiberMap_fst {T T' : AlgebraicSpace S} (f : X ⟶ B) (h : T ⟶ B)
+    (a : T' ⟶ T) :
+    spaceFiberMap f h a ≫ pullback.fst f h = pullback.fst f (a ≫ h) :=
+  spaceFiberMapOver_fst f a rfl
+
+/-- The map `spaceFiberMap f h a` commutes with the projections to the varying base. -/
+theorem spaceFiberMap_snd {T T' : AlgebraicSpace S} (f : X ⟶ B) (h : T ⟶ B)
+    (a : T' ⟶ T) :
+    spaceFiberMap f h a ≫ pullback.snd f h = pullback.snd f (a ≫ h) ≫ a :=
+  spaceFiberMapOver_snd f a rfl
+
+/-- Pullback comparison for the source module over test algebraic spaces. -/
+def spaceFiberFCompIso {T T' : AlgebraicSpace S} (f : X ⟶ B) (F : X.Modules)
+    (h : T ⟶ B) (a : T' ⟶ T) :
+    spaceFiberF f F (a ≫ h) ≅
+      (Modules.pullback (spaceFiberMap f h a)).obj (spaceFiberF f F h) :=
+  spaceFiberFOverIso f F a rfl
+
+/-- A quasi-coherent quotient of `F_T` that is flat over an algebraic space `T`. -/
+structure SpacePoint {T : AlgebraicSpace S} (f : X ⟶ B) (F : X.Modules) (h : T ⟶ B) where
+  /-- The target module sheaf of the quotient. -/
+  module : (pullback f h).Modules
+  /-- The quotient morphism from `F_T`. -/
+  map : spaceFiberF f F h ⟶ module
+  /-- The quotient morphism is an epimorphism. -/
+  map_epi : Epi map
+  /-- The target is quasi-coherent. -/
+  isQuasicoherent : module.IsQuasicoherent
+  /-- The target is flat over `T`. -/
+  isFlat : Modules.flatOver module (pullback.snd f h)
+
+namespace SpacePoint
+
+/-- Construct a space-level quotient point from an epimorphism `F_T ⟶ Q` with `Q`
+quasi-coherent and flat over `T`. -/
+def ofEpi {T : AlgebraicSpace S} (f : X ⟶ B) (F : X.Modules) (h : T ⟶ B)
+    (module : (pullback f h).Modules) (map : spaceFiberF f F h ⟶ module)
+    (map_epi : Epi map) (isQuasicoherent : module.IsQuasicoherent)
+    (isFlat : Modules.flatOver module (pullback.snd f h)) : SpacePoint f F h where
+  module := module
+  map := map
+  map_epi := map_epi
+  isQuasicoherent := isQuasicoherent
+  isFlat := isFlat
+
+/-- A space-level quotient point is an epimorphism `F_T ⟶ Q` with `Q` quasi-coherent
+and flat over `T`. -/
+theorem spec {T : AlgebraicSpace S} {f : X ⟶ B} {F : X.Modules} {h : T ⟶ B}
+    (Q : SpacePoint f F h) :
+    Epi Q.map ∧ Q.module.IsQuasicoherent ∧
+      Modules.flatOver Q.module (pullback.snd f h) := sorry
+
+/-- Base change preserves epimorphy, quasi-coherence and relative flatness. -/
+theorem pullbackOver_properties {T T' : AlgebraicSpace S} {f : X ⟶ B} {F : X.Modules}
+    {h : T ⟶ B} {h' : T' ⟶ B} (Q : SpacePoint f F h)
+    (a : T' ⟶ T) (w : a ≫ h = h') :
+    Epi ((spaceFiberFOverIso f F a w).hom ≫
+      (Modules.pullback (spaceFiberMapOver f a w)).map Q.map) ∧
+    ((Modules.pullback (spaceFiberMapOver f a w)).obj Q.module).IsQuasicoherent ∧
+    Modules.flatOver ((Modules.pullback (spaceFiberMapOver f a w)).obj Q.module)
+      (pullback.snd f h') := sorry
+
+/-- Pull back along a map over `B`, retaining the specified target structure map. -/
+def pullbackOver {T T' : AlgebraicSpace S} {f : X ⟶ B} {F : X.Modules}
+    {h : T ⟶ B} {h' : T' ⟶ B} (Q : SpacePoint f F h)
+    (a : T' ⟶ T) (w : a ≫ h = h') : SpacePoint f F h' where
+  module := (Modules.pullback (spaceFiberMapOver f a w)).obj Q.module
+  map := (spaceFiberFOverIso f F a w).hom ≫
+    (Modules.pullback (spaceFiberMapOver f a w)).map Q.map
+  map_epi := (pullbackOver_properties Q a w).1
+  isQuasicoherent := (pullbackOver_properties Q a w).2.1
+  isFlat := (pullbackOver_properties Q a w).2.2
+
+set_option maxHeartbeats 1000000 in
+/-- Pulling back a quotient preserves epimorphy, quasi-coherence and flatness. -/
+theorem pullback_properties {T T' : AlgebraicSpace S} {f : X ⟶ B} {F : X.Modules}
+    {h : T ⟶ B} (Q : SpacePoint f F h) (a : T' ⟶ T) :
+    Epi ((spaceFiberFCompIso f F h a).hom ≫
+      (Modules.pullback (spaceFiberMap f h a)).map Q.map) ∧
+    ((Modules.pullback (spaceFiberMap f h a)).obj Q.module).IsQuasicoherent ∧
+    Modules.flatOver ((Modules.pullback (spaceFiberMap f h a)).obj Q.module)
+      (pullback.snd f (a ≫ h)) := pullbackOver_properties Q a rfl
+
+/-- Pull back a space-level quotient point along a morphism of algebraic spaces. -/
+def pullback {T T' : AlgebraicSpace S} {f : X ⟶ B} {F : X.Modules} {h : T ⟶ B}
+    (Q : SpacePoint f F h) (a : T' ⟶ T) : SpacePoint f F (a ≫ h) :=
+  Q.pullbackOver a rfl
+
+/-- The module of a pulled-back space-level point is the module pullback along
+`spaceFiberMap`. -/
+theorem pullback_module {T T' : AlgebraicSpace S} {f : X ⟶ B} {F : X.Modules}
+    {h : T ⟶ B} (Q : SpacePoint f F h) (a : T' ⟶ T) :
+    (Q.pullback a).module = (Modules.pullback (spaceFiberMap f h a)).obj Q.module := rfl
+
+/-- Two space-level quotient points are identified when they have the same kernel. -/
+def Rel {T : AlgebraicSpace S} {f : X ⟶ B} {F : X.Modules} {h : T ⟶ B}
+    (Q₁ Q₂ : SpacePoint f F h) : Prop :=
+  kernelSubobject Q₁.map = kernelSubobject Q₂.map
+
+/-- Kernel equality is an equivalence relation on space-level quotient points. -/
+theorem rel_isEquivalence {T : AlgebraicSpace S} (f : X ⟶ B) (F : X.Modules)
+    (h : T ⟶ B) : Equivalence (fun Q₁ Q₂ : SpacePoint f F h ↦ Rel Q₁ Q₂) := sorry
+
+/-- Kernel identification of space-level quotient points is equivalent to an isomorphism
+of targets over `F_T`. -/
+theorem rel_iso_iff {T : AlgebraicSpace S} {f : X ⟶ B} {F : X.Modules} {h : T ⟶ B}
+    (Q₁ Q₂ : SpacePoint f F h) :
+    Rel Q₁ Q₂ ↔ ∃ e : Q₁.module ≅ Q₂.module, Q₁.map ≫ e.hom = Q₂.map := sorry
+
+set_option maxHeartbeats 1000000 in
+/-- Base change over `B` preserves kernel identification, via the induced target isomorphism. -/
+theorem rel_pullbackOver {T T' : AlgebraicSpace S} {f : X ⟶ B} {F : X.Modules}
+    {h : T ⟶ B} {h' : T' ⟶ B} (Q R : SpacePoint f F h) (hQ : Rel Q R)
+    (a : T' ⟶ T) (w : a ≫ h = h') : Rel (Q.pullbackOver a w) (R.pullbackOver a w) := by
+  obtain ⟨e, he⟩ := (rel_iso_iff Q R).1 hQ
+  refine (rel_iso_iff _ _).2 ⟨(Modules.pullback (spaceFiberMapOver f a w)).mapIso e, ?_⟩
+  change ((spaceFiberFOverIso f F a w).hom ≫
+    (Modules.pullback (spaceFiberMapOver f a w)).map Q.map) ≫
+      (Modules.pullback (spaceFiberMapOver f a w)).map e.hom =
+    (spaceFiberFOverIso f F a w).hom ≫
+      (Modules.pullback (spaceFiberMapOver f a w)).map R.map
+  rw [Category.assoc, ← Functor.map_comp, he]
+
+end SpacePoint
+
 /-- The base change `X_T = X ×_B T` of `X` along a scheme `T` over `B`. -/
 def fiber (f : X ⟶ B) (σ : SchemeOver B) : AlgebraicSpace S :=
   pullback f σ.hom
@@ -42,38 +221,26 @@ def fiber (f : X ⟶ B) (σ : SchemeOver B) : AlgebraicSpace S :=
 def fiberF (f : X ⟶ B) (F : X.Modules) (σ : SchemeOver B) : (fiber f σ).Modules :=
   (Modules.pullback (pullback.fst f σ.hom)).obj F
 
-/-- The canonical map `X_{T'} ⟶ X_T` induced by a morphism of schemes over `B`. -/
+/-- The map of fibers induced by a morphism of test schemes over `B`. -/
 def fiberMap (f : X ⟶ B) {σ τ : SchemeOver B} (h : τ ⟶ σ) :
     fiber f τ ⟶ fiber f σ :=
-  pullback.map f τ.hom f σ.hom (𝟙 X) ((ofOverFunctor S).map h.left) (𝟙 B)
-    ((Category.comp_id f).trans (Category.id_comp f).symm)
-    ((Category.comp_id τ.hom).trans (CostructuredArrow.w h).symm)
+  spaceFiberMapOver f ((ofOverFunctor S).map h.left) (CostructuredArrow.w h)
 
 /-- The map `fiberMap f h` commutes with the projections to `X`. -/
 theorem fiberMap_fst (f : X ⟶ B) {σ τ : SchemeOver B} (h : τ ⟶ σ) :
-    fiberMap f h ≫ pullback.fst f σ.hom = pullback.fst f τ.hom := sorry
+    fiberMap f h ≫ pullback.fst f σ.hom = pullback.fst f τ.hom :=
+  spaceFiberMapOver_fst f _ (CostructuredArrow.w h)
 
 /-- The map `fiberMap f h` commutes with the projections to the varying base. -/
 theorem fiberMap_snd (f : X ⟶ B) {σ τ : SchemeOver B} (h : τ ⟶ σ) :
     fiberMap f h ≫ pullback.snd f σ.hom =
-      pullback.snd f τ.hom ≫ (ofOverFunctor S).map h.left := sorry
+      pullback.snd f τ.hom ≫ (ofOverFunctor S).map h.left :=
+  spaceFiberMapOver_snd f _ (CostructuredArrow.w h)
 
-/-- The comparison identifying `F_{T'}` with the pullback of `F_T` along `X_{T'} ⟶ X_T`. -/
+/-- The source-module comparison for a morphism of test schemes over `B`. -/
 def fiberFCompIso (f : X ⟶ B) (F : X.Modules) {σ τ : SchemeOver B} (h : τ ⟶ σ) :
     fiberF f F τ ≅ (Modules.pullback (fiberMap f h)).obj (fiberF f F σ) :=
-  eqToIso (congrArg (fun k ↦ (Modules.pullback k).obj F)
-      ((pullback.lift_fst (pullback.fst f τ.hom ≫ 𝟙 X)
-          (pullback.snd f τ.hom ≫ (ofOverFunctor S).map h.left)
-          (((Category.assoc (pullback.fst f τ.hom) (𝟙 X) f).trans
-              (congrArg (fun k ↦ pullback.fst f τ.hom ≫ k) (Category.id_comp f))).trans
-            ((pullback.condition :
-                pullback.fst f τ.hom ≫ f = pullback.snd f τ.hom ≫ τ.hom).trans
-              ((congrArg (fun k ↦ pullback.snd f τ.hom ≫ k)
-                  (CostructuredArrow.w h).symm).trans
-                (Category.assoc (pullback.snd f τ.hom)
-                  ((ofOverFunctor S).map h.left) σ.hom).symm)))).trans
-        (Category.comp_id _)).symm) ≪≫
-    (Modules.pullbackCompIso (fiberMap f h) (pullback.fst f σ.hom)).symm.app F
+  spaceFiberFOverIso f F ((ofOverFunctor S).map h.left) (CostructuredArrow.w h)
 
 /-- A quasi-coherent quotient of `F_T` that is flat over `T`. -/
 structure Point (f : X ⟶ B) (F : X.Modules) (σ : SchemeOver B) where
@@ -87,6 +254,25 @@ structure Point (f : X ⟶ B) (F : X.Modules) (σ : SchemeOver B) where
   isQuasicoherent : module.IsQuasicoherent
   /-- The target is flat over `T`. -/
   isFlat : Modules.flatOver module (pullback.snd f σ.hom)
+
+/-- View a scheme-level quotient point as a space-level quotient point along `σ.hom`. -/
+def Point.toSpacePoint {f : X ⟶ B} {F : X.Modules} {σ : SchemeOver B}
+    (Q : Point f F σ) : SpacePoint f F σ.hom where
+  module := Q.module
+  map := Q.map
+  map_epi := Q.map_epi
+  isQuasicoherent := Q.isQuasicoherent
+  isFlat := Q.isFlat
+
+/-- Repackage a common quotient over a scheme, preserving its module and quotient map.
+The specialized record retains the original scheme projections and constructor API. -/
+def Point.ofSpacePoint {f : X ⟶ B} {F : X.Modules} {σ : SchemeOver B}
+    (Q : SpacePoint f F σ.hom) : Point f F σ where
+  module := Q.module
+  map := Q.map
+  map_epi := Q.map_epi
+  isQuasicoherent := Q.isQuasicoherent
+  isFlat := Q.isFlat
 
 namespace Point
 
@@ -110,7 +296,9 @@ def ofKernel (f : X ⟶ B) (F : X.Modules) (σ : SchemeOver B)
     Point f F σ where
   module := cokernel kernel.arrow
   map := cokernel.π kernel.arrow
-  map_epi := inferInstance
+  map_epi := by
+    change Epi (cokernel.π kernel.arrow)
+    infer_instance
   isQuasicoherent := isQuasicoherent
   isFlat := isFlat
 
@@ -119,6 +307,7 @@ theorem spec {f : X ⟶ B} {F : X.Modules} {σ : SchemeOver B} (Q : Point f F σ
     Epi Q.map ∧ Q.module.IsQuasicoherent ∧
       Modules.flatOver Q.module (pullback.snd f σ.hom) := sorry
 
+set_option maxHeartbeats 1000000 in
 /-- The pulled-back quotient map is an epimorphism, and its target is quasi-coherent
 and flat over the new base scheme. -/
 theorem pullback_properties {f : X ⟶ B} {F : X.Modules} {σ τ : SchemeOver B}
@@ -126,27 +315,25 @@ theorem pullback_properties {f : X ⟶ B} {F : X.Modules} {σ τ : SchemeOver B}
     Epi ((fiberFCompIso f F h).hom ≫ (Modules.pullback (fiberMap f h)).map Q.map) ∧
       ((Modules.pullback (fiberMap f h)).obj Q.module).IsQuasicoherent ∧
       Modules.flatOver ((Modules.pullback (fiberMap f h)).obj Q.module)
-        (pullback.snd f τ.hom) := sorry
+        (pullback.snd f τ.hom) :=
+  SpacePoint.pullbackOver_properties Q.toSpacePoint _ (CostructuredArrow.w h)
 
 /-- Pull back a quotient point along a morphism of schemes over `B`. -/
 def pullback {f : X ⟶ B} {F : X.Modules} {σ τ : SchemeOver B} (Q : Point f F σ)
-    (h : τ ⟶ σ) : Point f F τ where
-  module := (Modules.pullback (fiberMap f h)).obj Q.module
-  map := (fiberFCompIso f F h).hom ≫ (Modules.pullback (fiberMap f h)).map Q.map
-  map_epi := (pullback_properties Q h).1
-  isQuasicoherent := (pullback_properties Q h).2.1
-  isFlat := (pullback_properties Q h).2.2
+    (h : τ ⟶ σ) : Point f F τ :=
+  ofSpacePoint (SpacePoint.pullbackOver Q.toSpacePoint ((ofOverFunctor S).map h.left)
+    (CostructuredArrow.w h))
 
 /-- The module of a pulled-back point is the module pullback along `fiberMap`. -/
 theorem pullback_module {f : X ⟶ B} {F : X.Modules} {σ τ : SchemeOver B}
     (Q : Point f F σ) (h : τ ⟶ σ) :
-    (Q.pullback h).module = (Modules.pullback (fiberMap f h)).obj Q.module := sorry
+    (Q.pullback h).module = (Modules.pullback (fiberMap f h)).obj Q.module := rfl
 
 end Point
 
 /-- Two quotient points are identified when they have the same kernel. -/
 def Rel {f : X ⟶ B} {F : X.Modules} {σ : SchemeOver B} (Q₁ Q₂ : Point f F σ) : Prop :=
-  kernelSubobject Q₁.map = kernelSubobject Q₂.map
+  SpacePoint.Rel Q₁.toSpacePoint Q₂.toSpacePoint
 
 /-- Kernel equality is an equivalence relation on quotient points. -/
 theorem rel_isEquivalence (f : X ⟶ B) (F : X.Modules) (σ : SchemeOver B) :
@@ -163,6 +350,7 @@ def quotientSetoid (f : X ⟶ B) (F : X.Modules) (σ : SchemeOver B) :
   r := Rel
   iseqv := rel_isEquivalence f F σ
 
+set_option maxHeartbeats 1000000 in
 /-- Pullback preserves kernel identification of quotient points. -/
 theorem rel_pullback (f : X ⟶ B) (F : X.Modules) {σ τ : SchemeOver B} (h : τ ⟶ σ)
     {Q₁ Q₂ : Point f F σ} (hQ : Rel Q₁ Q₂) :

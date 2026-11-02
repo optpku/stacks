@@ -18,6 +18,8 @@ from the trivial square-zero extension by the module of Kähler differentials.
 
 @[expose] public section
 
+open scoped Module.CommOpposite
+
 open CategoryTheory AlgebraicGeometry Functor TrivSqZeroExt
 
 noncomputable section

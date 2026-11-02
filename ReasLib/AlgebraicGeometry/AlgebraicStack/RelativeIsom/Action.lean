@@ -246,8 +246,7 @@ private def Implementation.smulIsoLegsFst {S : Scheme.{u}} {X Y : GroupoidsOver 
       smulStructure f α ≫ diagonalAlpha α ≫
         TwoFibreProduct.fst.{u + 1, u, u + 1, u} (x1 ≫ f) (x2 ≫ f) :=
   whiskerLeftIso (Implementation.smulToPair f α)
-      (TwoFibreProduct.map.fstIso (pairComparisonCospan f x1 x2)) ≪≫
-    whiskerLeftIso (Implementation.smulToPair f α) (ρ_ _) ≪≫
+      (TwoFibreProduct.mapPostcompose_fst.{u + 1, u, u + 1, u} x1 x2 f) ≪≫
       Implementation.smulToPair_fst f α ≪≫
         (ρ_ (smulStructure f α)).symm ≪≫
           whiskerLeftIso (smulStructure f α) (diagonalAlpha_fst α).symm
@@ -262,8 +261,7 @@ private def Implementation.smulIsoLegsSnd {S : Scheme.{u}} {X Y : GroupoidsOver 
       smulStructure f α ≫ diagonalAlpha α ≫
         TwoFibreProduct.snd.{u + 1, u, u + 1, u} (x1 ≫ f) (x2 ≫ f) :=
   whiskerLeftIso (Implementation.smulToPair f α)
-      (TwoFibreProduct.map.sndIso (pairComparisonCospan f x1 x2)) ≪≫
-    whiskerLeftIso (Implementation.smulToPair f α) (ρ_ _) ≪≫
+      (TwoFibreProduct.mapPostcompose_snd.{u + 1, u, u + 1, u} x1 x2 f) ≪≫
       Implementation.smulToPair_snd f α ≪≫
         (ρ_ (smulStructure f α)).symm ≪≫
           whiskerLeftIso (smulStructure f α) (diagonalAlpha_snd α).symm

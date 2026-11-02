@@ -86,6 +86,31 @@ theorem representsClosedPoint_iff {P X : V}
     T.RepresentsClosedPoint p f e ↔
       T.scheme.map f = e.hom ≫ T.pointClosureInclusion X p := sorry
 
+/-- A represented point-closure inclusion pushes its unit to the genuine class
+of that point. Such a representation can only exist for a separable closed point,
+since every represented object is smooth over the base field. -/
+theorem closedPointClass_eq_pushforward_of_representsClosedPoint
+    {P X : V} {d : ℕ} (hX : T.IsNonemptyEquidimensional X d)
+    (p : closedPoints (T.scheme.obj X).left) (f : P ⟶ X)
+    (e : T.scheme.obj P ≅
+      Over.mk (@Scheme.PointClosure.ι (T.scheme.obj X).left p ≫
+        (T.scheme.obj X).hom))
+    (hf : T.RepresentsClosedPoint p f e) :
+    (T.closedPointClass hX p : CH X) = cyclePushforward f (1 : CHgrade P 0) := sorry
+
+/-- Adjointness identifies restriction to a represented closed point with
+pairing against the geometric cycle class of that point. -/
+theorem closedPointClass_pairing
+    {P X : V} {d : ℕ} (hX : T.IsNonemptyEquidimensional X d)
+    (hP : T.IsNonemptyEquidimensional P 0)
+    (p : closedPoints (T.scheme.obj X).left) (f : P ⟶ X)
+    (e : T.scheme.obj P ≅
+      Over.mk (@Scheme.PointClosure.ι (T.scheme.obj X).left p ≫
+        (T.scheme.obj X).hom))
+    (hf : T.RepresentsClosedPoint p f e) (a : H X) :
+    T.integral hX (a * T.cycleClass X (T.closedPointClass hX p)) =
+      T.integral hP (T.pullback f a) := sorry
+
 /-- The existence of finitely many separable closed points whose degree-zero
 cohomology restriction maps jointly detect classes. -/
 def HasSeparatingClosedPoints (X : V) : Prop :=
@@ -144,6 +169,23 @@ instance moduleHgrade_of_degreeZero (X : V) (i : ℤ) :
   smul_add a b c := Subtype.ext (mul_add (a : H X) (b : H X) (c : H X))
   add_smul a a' b := Subtype.ext (add_mul (a : H X) (a' : H X) (b : H X))
   zero_smul b := Subtype.ext (zero_mul (b : H X))
+
+/-- Moving zero cycles on a smooth scheme allows one to use only separable
+closed points when generating top cohomology. Inseparable points still have their
+own geometric Chow classes; no smooth presentation of them is postulated. -/
+theorem closedPointClasses_span_eq_separable_span
+    {X : V} {d : ℕ} (hX : T.IsNonemptyEquidimensional X d) :
+    @Submodule.span (Hgrade X 0) (Hgrade X (2 * (d : ℤ)))
+      (T.degreeZeroCommRing X).toSemiring _
+      (moduleHgrade_of_degreeZero X (2 * (d : ℤ)))
+      (Set.range (fun p : closedPoints (T.scheme.obj X).left ↦
+        T.gradedCycleClass X (d : ℤ) (T.closedPointClass hX p))) =
+    @Submodule.span (Hgrade X 0) (Hgrade X (2 * (d : ℤ)))
+      (T.degreeZeroCommRing X).toSemiring _
+      (moduleHgrade_of_degreeZero X (2 * (d : ℤ)))
+      (Set.range (fun p : {p : closedPoints (T.scheme.obj X).left //
+          Algebra.IsSeparable k ((T.scheme.obj X).left.residueField p)} ↦
+        T.gradedCycleClass X (d : ℤ) (T.closedPointClass hX p.1))) := sorry
 
 /-- For a nonempty equidimensional scheme, separable closed-point restrictions
 detect degree-zero classes exactly when closed-point cycle classes span top

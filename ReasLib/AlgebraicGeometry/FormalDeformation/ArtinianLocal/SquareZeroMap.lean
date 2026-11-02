@@ -17,6 +17,8 @@ trivial square-zero extensions.
 
 @[expose] public section
 
+open scoped Module.CommOpposite
+
 open CategoryTheory
 
 universe u

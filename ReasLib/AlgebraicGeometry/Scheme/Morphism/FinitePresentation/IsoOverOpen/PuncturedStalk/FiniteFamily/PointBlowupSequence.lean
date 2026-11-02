@@ -16,13 +16,45 @@ open scoped AlgebraicGeometry
 
 universe u
 
+namespace AlgebraicGeometry.Scheme.Hom
+
+/-- Realization by a finite point-blowup sequence supported over `T`.
+The terminal scheme may vary, and the endpoint is compared in the slice category. -/
+def IsPointBlowupSequenceOver {X S : Scheme.{u}} (f : X ⟶ S) (T : Set S) : Prop :=
+  ∃ (Z : Scheme.{u}) (q : Scheme.PointBlowupSequence S Z),
+    Nonempty (Over.mk q.toSource ≅ Over.mk f) ∧ q.EveryCenterOver T
+
+/-- Sequence realization depends only on the isomorphism class over the base. -/
+theorem isPointBlowupSequenceOver_iff_of_iso {X Y S : Scheme.{u}}
+    {f : X ⟶ S} {g : Y ⟶ S} (e : Over.mk f ≅ Over.mk g) (T : Set S) :
+    f.IsPointBlowupSequenceOver T ↔ g.IsPointBlowupSequenceOver T := by
+  constructor
+  · rintro ⟨Z, q, ⟨h⟩, hq⟩
+    exact ⟨Z, q, ⟨h ≪≫ e⟩, hq⟩
+  · rintro ⟨Z, q, ⟨h⟩, hq⟩
+    exact ⟨Z, q, ⟨h ≪≫ e.symm⟩, hq⟩
+
+/-- With no allowed centers, realization is precisely a slice isomorphism to the identity.
+This includes zero-length sequences and does not require a nonempty marked family. -/
+theorem isPointBlowupSequenceOver_empty_iff {X S : Scheme.{u}} (f : X ⟶ S) :
+    f.IsPointBlowupSequenceOver ∅ ↔ Nonempty (Over.mk (𝟙 S) ≅ Over.mk f) := by
+  constructor
+  · rintro ⟨Z, q, he, hq⟩
+    cases q with
+    | nil => exact he
+    | cons _ _ _ _ => exact False.elim hq.1
+  · intro he
+    exact ⟨S, .nil S, he, trivial⟩
+
+end AlgebraicGeometry.Scheme.Hom
+
 namespace AlgebraicGeometry.FinitePresentationIsoOverOpen.puncturedStalkBaseChange
 
 /-- Under punctured-stalk base change at a finite family of distinct closed points with
-quasi-compact open complement, a finite-presentation morphism that is an isomorphism over
-the complement factors as a finite sequence of point blowups over the family exactly when
-every corresponding local morphism factors as a finite sequence of point blowups over its
-distinguished closed point. -/
+quasi-compact open complement, point-blowup sequence realization is equivalent to realization
+of every corresponding local object. Endpoints are compared up to isomorphism over the base;
+in particular an empty sequence realizes every object isomorphic to the identity. There is
+no finite-presentation requirement on intermediate blowups or their reduced point centers. -/
 theorem existsPointBlowupSequence_iff
     {ι : Type u} [Finite ι] [Nonempty ι]
     (S : Scheme.{u}) (s : ι → S)
@@ -33,12 +65,8 @@ theorem existsPointBlowupSequence_iff
     (Y : (i : ι) → FinitePresentationIsoOverOpen
       (PuncturedSpectrum.puncturedOpen (S.presheaf.stalk (s i))))
     (e : (puncturedStalkBaseChange S s hs_closed hs_pairwise U hU).obj X ≅ Y) :
-    (∃ q : Scheme.PointBlowupSequence S X.obj.left,
-      q.toSource = X.obj.hom ∧ q.EveryCenterOver (Set.range s)) ↔
-      ∀ i, ∃ q : Scheme.PointBlowupSequence
-          (Spec (CommRingCat.of (S.presheaf.stalk (s i)))) (Y i).obj.left,
-        q.toSource = (Y i).obj.hom ∧
-          q.EveryCenterOver
-            ({IsLocalRing.closedPoint (S.presheaf.stalk (s i))} : Set _) := sorry
+    X.obj.hom.IsPointBlowupSequenceOver (Set.range s) ↔
+      ∀ i, (Y i).obj.hom.IsPointBlowupSequenceOver
+        ({IsLocalRing.closedPoint (S.presheaf.stalk (s i))} : Set _) := sorry
 
 end AlgebraicGeometry.FinitePresentationIsoOverOpen.puncturedStalkBaseChange

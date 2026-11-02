@@ -14,8 +14,7 @@ public import ReasLib.AlgebraicGeometry.Scheme.Morphism.UniversalHomeomorphism.S
 /-!
 # Weak normalization in the normalization
 
-This module describes weak normalizations as factorizations of normalization morphisms and
-identifies the absolute weak normalization by its relative universal property.
+This module describes weak normalizations as factorizations of normalization morphisms.
 -/
 
 @[expose] public section
@@ -70,21 +69,5 @@ theorem nonempty_isInitial (W : WeakNormalization X) : Nonempty (IsInitial W.1) 
 
 end WeakNormalization
 
-namespace AbsoluteWeakNormalizationOver
-
-/-- For a scheme with finitely many irreducible components on every compact open, its absolute
-weak normalization is initial among factorizations of its normalization morphism through a
-universal homeomorphism. -/
-theorem initial_isRelativeOfNormalization
-    (X : Scheme.{u}) [HasFiniteIrreducibleComponentsOnCompactOpens X] :
-    ∃ ι : X.normalization ⟶ (⊥_ (AbsoluteWeakNormalizationOver X)).1.left,
-      ι ≫ (⊥_ (AbsoluteWeakNormalizationOver X)).1.hom = X.normalizationTo ∧
-        ∀ {Z : Scheme.{u}} (g : X.normalization ⟶ Z) (π : Z ⟶ X),
-          UniversalHomeomorphism π →
-          g ≫ π = X.normalizationTo →
-          ∃! h : (⊥_ (AbsoluteWeakNormalizationOver X)).1.left ⟶ Z,
-            h ≫ π = (⊥_ (AbsoluteWeakNormalizationOver X)).1.hom ∧ ι ≫ h = g := sorry
-
-end AbsoluteWeakNormalizationOver
 
 end AlgebraicGeometry.Scheme

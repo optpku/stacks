@@ -9,6 +9,7 @@ module
 public import ReasLib.Algebra.Category.ModuleCat.Presheaf.Tensor.Restriction
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.SheafificationBaseChange
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.SheafificationMonoidal
+public import Mathlib.CategoryTheory.Sites.LocallySurjective
 import Mathlib.Tactic.CrossRefAttribute
 
 /-!
@@ -46,6 +47,18 @@ noncomputable def tensorComparison (b : O ⟶ O')
     ModuleSheafification.mapToRestriction b
       (PresheafOfModules.Restriction.tensorComparison b.hom F.val G.val) ≫
     (restrictionAlong b).map (ModuleSheafification.tensorObjIso O' F G).inv
+
+/-- Restriction of scalars along a locally surjective morphism of ring sheaves commutes
+with tensor products of modules over the target ring sheaf.
+
+The reverse pure-tensor assignment is balanced after locally lifting target scalars through
+`π`; equality then descends since the tensor product is a sheaf. Local surjectivity suffices:
+the maps on sections need not be surjective, and the kernel need not be square-zero. -/
+theorem tensorComparison_isIso_of_locallySurjective
+    (π : O ⟶ O') [Sheaf.IsLocallySurjective π]
+    (M N : ringedSiteModuleCategory.{u, v, w, w} J O') :
+    IsIso (tensorComparison π M N) := by
+  sorry
 
 /-- The tensor comparison for restriction of scalars is natural in both module-sheaf
 arguments. -/

@@ -10,6 +10,7 @@ public import Mathlib.RingTheory.AdicCompletion.Algebra
 public import Mathlib.RingTheory.Ideal.Quotient.Operations
 public import Mathlib.RingTheory.TensorProduct.Maps
 public import ReasLib.Algebra.Category.CommAlgCat.TopologicallyFiniteType
+public import ReasLib.RingTheory.AdicCompletion.Map
 
 @[expose] public section
 
@@ -61,7 +62,32 @@ theorem tensorExtensionIdeal_map_le_comap (I2 : Ideal A2)
     (f : B →ₐ[A1] B') (n : ℕ) :
     tensorExtensionIdeal I2 B ^ n ≤
       (tensorExtensionIdeal I2 B' ^ n).comap
-        (Algebra.TensorProduct.map f (AlgHom.id A1 A2)).toRingHom := sorry
+        (Algebra.TensorProduct.map f (AlgHom.id A1 A2)).toRingHom := by
+  apply Ideal.map_le_iff_le_comap.mp
+  rw [Ideal.map_pow]
+  have he : (tensorExtensionIdeal I2 B).map
+      (Algebra.TensorProduct.map f (AlgHom.id A1 A2)).toRingHom =
+      tensorExtensionIdeal I2 B' := by
+    unfold tensorExtensionIdeal
+    rw [Ideal.map_map]
+    have hc : (Algebra.TensorProduct.map f (AlgHom.id A1 A2)).toRingHom.comp
+        (Algebra.TensorProduct.includeRight : A2 →ₐ[A1] B ⊗[A1] A2).toRingHom =
+        (Algebra.TensorProduct.includeRight : A2 →ₐ[A1] B' ⊗[A1] A2).toRingHom := by
+      ext a
+      simp [Algebra.TensorProduct.includeRight]
+    rw [hc]
+  rw [he]
+
+/-- The tensor-product map is adically continuous, with explicit exponent one.
+This certificate is proved before any exponent is selected in the shared map. -/
+theorem tensorMap_adicContinuous (I2 : Ideal A2)
+    {B B' : Type u} [CommRing B] [CommRing B'] [Algebra A1 B] [Algebra A1 B']
+    (f : B →ₐ[A1] B') :
+    (Algebra.TensorProduct.map f (AlgHom.id A1 A2)).toRingHom.AdicContinuous
+      (tensorExtensionIdeal I2 B) (tensorExtensionIdeal I2 B') := by
+  refine ⟨1, ?_⟩
+  apply Ideal.map_le_iff_le_comap.mpr
+  simpa only [pow_one] using tensorExtensionIdeal_map_le_comap I2 f 1
 
 /-- The finite-stage quotient map induced by an `A1`-algebra homomorphism. -/
 def completedBaseChangeQuotientMap (I2 : Ideal A2)
@@ -79,17 +105,51 @@ theorem completedBaseChangeQuotientMap_compatible (I2 : Ideal A2)
     (f : B →ₐ[A1] B') {m n : ℕ} (hle : m ≤ n) :
     (Ideal.Quotient.factorPow (tensorExtensionIdeal I2 B') hle).comp
         (completedBaseChangeQuotientMap I2 f n) =
-      completedBaseChangeQuotientMap I2 f m := sorry
+      completedBaseChangeQuotientMap I2 f m := by
+  have he (k : ℕ) : (tensorMap_adicContinuous I2 f).quotientMap k =
+      completedBaseChangeQuotientMap I2 f k :=
+    (tensorMap_adicContinuous I2 f).quotientMap_eq_of_pow_le k k
+      (tensorExtensionIdeal_map_le_comap I2 f k)
+  rw [← he n, ← he m]
+  exact (tensorMap_adicContinuous I2 f).quotientMap_compatible hle
 
 /-- The completed base-change algebra map induced by an `A1`-algebra homomorphism. -/
 def completedBaseChangeMap (I2 : Ideal A2)
     {B B' : Type u} [CommRing B] [CommRing B'] [Algebra A1 B] [Algebra A1 B']
     (f : B →ₐ[A1] B') :
     completedBaseChange A1 I2 B →ₐ[A2] completedBaseChange A1 I2 B' where
-  __ := AdicCompletion.liftRingHom
-      (tensorExtensionIdeal I2 B' : Ideal (B' ⊗[A1] A2))
-      (completedBaseChangeQuotientMap I2 f) (completedBaseChangeQuotientMap_compatible I2 f)
-  commutes' := sorry
+  __ := (RingHom.AdicContinuous.completionAlgHom
+    (tensorExtensionIdeal I2 B) (tensorExtensionIdeal I2 B')
+    (Algebra.TensorProduct.map f (AlgHom.id A1 A2))
+    (tensorMap_adicContinuous I2 f)).toRingHom
+  commutes' a := by
+    change (tensorMap_adicContinuous I2 f).completionMap
+        (algebraMap (B ⊗[A1] A2) (completedBaseChange A1 I2 B)
+          (Algebra.TensorProduct.includeRight a)) =
+      algebraMap (B' ⊗[A1] A2) (completedBaseChange A1 I2 B')
+        (Algebra.TensorProduct.includeRight a)
+    simpa [Algebra.TensorProduct.includeRight] using
+      RingHom.congr_fun (tensorMap_adicContinuous I2 f).completionMap_comp
+        (Algebra.TensorProduct.includeRight a)
+
+/-- The underlying map is the canonical completion of the tensor-product map. -/
+theorem completedBaseChangeMap_toRingHom (I2 : Ideal A2)
+    {B B' : Type u} [CommRing B] [CommRing B'] [Algebra A1 B] [Algebra A1 B']
+    (f : B →ₐ[A1] B') :
+    (completedBaseChangeMap I2 f).toRingHom =
+      (tensorMap_adicContinuous I2 f).completionMap := rfl
+
+/-- Finite evaluation recovers the original, same-level tensor quotient formula. -/
+theorem eval_completedBaseChangeMap (I2 : Ideal A2)
+    {B B' : Type u} [CommRing B] [CommRing B'] [Algebra A1 B] [Algebra A1 B']
+    (f : B →ₐ[A1] B') (n : ℕ) :
+    (AdicCompletion.evalₐ (tensorExtensionIdeal I2 B') n).toRingHom.comp
+        (completedBaseChangeMap I2 f).toRingHom =
+      completedBaseChangeQuotientMap I2 f n := by
+  rw [completedBaseChangeMap_toRingHom,
+    RingHom.AdicContinuous.eval_completionMap]
+  exact (tensorMap_adicContinuous I2 f).quotientMap_eq_of_pow_le n n
+    (tensorExtensionIdeal_map_le_comap I2 f n)
 
 /-- Completed base change preserves topological finite type under the stated ideal
 containment and finite-generation hypotheses. -/

@@ -21,7 +21,8 @@ namespace AlgebraicGeometry.FinitePresentationIsoOverOpen.puncturedStalkBaseChan
 /- Lemma 54.6.4: under punctured-stalk base change, a morphism factors as a finite sequence
 of blowups at closed points over the marked family exactly when every corresponding local
 morphism factors as a finite sequence of blowups at closed points over its distinguished
-closed point. -/
+closed point. Sequence realization is up to isomorphism over the base, including the
+zero-length case. -/
 @[stacks 0BFY]
 #check (AlgebraicGeometry.FinitePresentationIsoOverOpen.puncturedStalkBaseChange.existsPointBlowupSequence_iff :
     ∀ {ι : Type u} [Finite ι] [Nonempty ι]
@@ -33,12 +34,8 @@ closed point. -/
     (Y : (i : ι) → FinitePresentationIsoOverOpen
       (PuncturedSpectrum.puncturedOpen (S.presheaf.stalk (s i))))
     (e : (puncturedStalkBaseChange S s hs_closed hs_pairwise U hU).obj X ≅ Y),
-    (∃ q : Scheme.PointBlowupSequence S X.obj.left,
-      q.toSource = X.obj.hom ∧ q.EveryCenterOver (Set.range s)) ↔
-      ∀ i, ∃ q : Scheme.PointBlowupSequence
-          (Spec (CommRingCat.of (S.presheaf.stalk (s i)))) (Y i).obj.left,
-        q.toSource = (Y i).obj.hom ∧
-          q.EveryCenterOver
-            ({IsLocalRing.closedPoint (S.presheaf.stalk (s i))} : Set _))
+    X.obj.hom.IsPointBlowupSequenceOver (Set.range s) ↔
+      ∀ i, (Y i).obj.hom.IsPointBlowupSequenceOver
+        ({IsLocalRing.closedPoint (S.presheaf.stalk (s i))} : Set _))
 
 end AlgebraicGeometry.FinitePresentationIsoOverOpen.puncturedStalkBaseChange

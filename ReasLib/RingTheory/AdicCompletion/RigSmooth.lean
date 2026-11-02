@@ -12,6 +12,8 @@ public import ReasLib.RingTheory.Topology.Adic.Complete
 public import ReasLib.RingTheory.Topology.Adic.Hom
 public import ReasLib.RingTheory.AdicCompletion.TopologicallyFiniteType
 public import ReasLib.RingTheory.AdicCompletion.NaiveCotangent
+public import ReasLib.RingTheory.AdicCompletion.NaiveCotangent.Derived
+public import ReasLib.Algebra.Homology.DerivedCategory.TwoTerm.ExtAnnihilation
 
 /-!
 # Rig-smooth algebras and continuous homomorphisms
@@ -60,6 +62,23 @@ theorem annihilatesExt1NaiveCotangent_iff (I : Ideal A) (B : Type u) [CommRing B
                   (algebraMap A B a) • f x =
                     k (NaiveCotangent.Adic.jacobian P x) :=
   Iff.rfl
+
+/-- For any finite completed presentation, the Hom-factorization condition at
+the specified exponent `c` is equivalent to derived Ext¹ annihilation by
+`(IB) ^ c`. In particular, the comparison preserves the exponent used in
+lifting bounds and approximation precision.
+
+This uses presentation independence of the completed naive cotangent complex
+and the Ext¹ factorization criterion for a two-term complex whose degree-zero
+term is projective. -/
+theorem annihilatesExt1NaiveCotangent_iff_derived
+    {B ι : Type u} [IsNoetherianRing A] [CommRing B] [Algebra A B]
+    (I : Ideal A) [TopologicallyFiniteType I B] [Fintype ι]
+    (P : NaiveCotangent.Adic.Presentation A B I ι) (c : ℕ) :
+    annihilatesExt1NaiveCotangent I B c ↔
+      CategoryTheory.twoTermExtOneAnnihilatedByIdeal
+        (NaiveCotangent.Adic.naiveCotangentObject I P) ((I.map (algebraMap A B)) ^ c) := by
+  sorry
 
 /-- An `A`-algebra `B` is rig-smooth over the pair `(A, I)` when it is
 topologically of finite type and some power of `I` annihilates

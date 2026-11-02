@@ -353,7 +353,7 @@ noncomputable def galoisInertiaDiagram
         (separableClosure (maximalIdeal A).ResidueField m.ResidueField))
       (profiniteGalGrp (Spec (CommRingCat.of A)).functionField
         (maximalUnramifiedExtension (Spec (CommRingCat.of A)) hX)) :=
-  InertiaDiagram.of _ _ _ _ _
+  InertiaDiagram.mk
     (inertiaToDecomposition (Spec (CommRingCat.of A)).functionField m)
     (decompositionToGal (Spec (CommRingCat.of A)).functionField m)
     (residueGaloisHomProfinite (Spec (CommRingCat.of A)).functionField m)
@@ -380,6 +380,8 @@ theorem galoisInertiaDiagram_spec
         (galoisInertiaDiagram hX m).uToX
         (galoisInertiaDiagram hX m).xhToX ∧
         (∀ g : inertiaProfinite (Spec (CommRingCat.of A)).functionField m,
-          (galoisInertiaDiagram hX m).ushToXh g = 1) := sorry
+          (galoisInertiaDiagram hX m).ushToXh g = 1) :=
+  ⟨(galoisInertiaDiagram hX m).triangle, (galoisInertiaDiagram hX m).square,
+    (galoisInertiaDiagram hX m).diagonalTrivial⟩
 
 end EtaleFundamentalGroup

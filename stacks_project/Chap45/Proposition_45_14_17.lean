@@ -34,8 +34,16 @@ axioms (A1)–(A8). Then we have a Weil cohomology theory. -/
       {pointCycle : CHgrade point 0} {H Picard : V → Type w}
       [∀ X, Ring (H X)] [∀ X, Algebra F (H X)] [∀ X, AddCommGroup (Picard X)]
       (T : WeilCohomology.SchemePreWeilTheory k F TateLine V dimension product fst snd
-        point CH CHgrade cyclePullback cyclePushforward pointCycle H Picard) [T.HasDiagonalClassRelation]
+        point CH CHgrade cyclePullback cyclePushforward pointCycle H Picard)
+      (C : @WeilCohomology.SchemeChowComparison k _ V _ T.scheme CH _ CHgrade
+        T.IsNonemptyEquidimensional
+        (fun X ↦ (T.projective X).isProper.toLocallyOfFiniteType))
+      [T.HasDiagonalClassRelation]
+      (hC : @WeilCohomology.SchemeChowComparison.RespectsOperations k _ V _
+        T.scheme CH _ CHgrade _ T.IsNonemptyEquidimensional
+        (fun X ↦ (T.projective X).isProper.toLocallyOfFiniteType)
+        C cyclePullback cyclePushforward)
       (hA8 : T.SatisfiesAxiomA8),
       -- Local instance justification (proof-local temporary data): SchemeClassicalTheory takes GradedAlgebra as a typeclass binder, while the graded algebra on T.Hgrade is constructed by gradedAlgebraHgrade
       letI : ∀ X, GradedAlgebra (T.Hgrade X) := T.gradedAlgebraHgrade
-      (T.toSchemeClassicalTheory hA8).IsWeil)
+      (T.toSchemeClassicalTheory (C := C) (hC := hC) (hA8 := hA8)).IsWeil)

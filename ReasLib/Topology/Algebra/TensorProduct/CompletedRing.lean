@@ -8,9 +8,11 @@ module
 
 public import Mathlib.Algebra.Ring.InjSurj
 public import Mathlib.Algebra.Ring.Pi
+public import Mathlib.Order.Filter.Bases.Finite
 public import Mathlib.RingTheory.Ideal.Quotient.Operations
 public import Mathlib.RingTheory.TensorProduct.Maps
 public import Mathlib.Topology.Algebra.LinearTopology
+public import Mathlib.Topology.Algebra.Ring.Ideal
 public import Mathlib.Topology.Constructions
 
 /-!
@@ -28,7 +30,7 @@ Open ideals are cofinal among open submodules, and the explicit comparison
 
 noncomputable section
 
-open scoped TensorProduct
+open scoped TensorProduct Topology
 
 universe u
 
@@ -219,36 +221,105 @@ theorem compatible (f : Completed R A B) (I I' : Ideal A) (J J' : Ideal B)
     (hJ : IsOpen (J : Set B)) (hJ' : IsOpen (J' : Set B))
     (hII' : I ≤ I') (hJJ' : J ≤ J') :
     map (Ideal.Quotient.factorₐ R hII') (Ideal.Quotient.factorₐ R hJJ')
-      (π R A B I J hI hJ f) = π R A B I' J' hI' hJ' f := sorry
+      (π R A B I J hI hJ f) = π R A B I' J' hI' hJ' f :=
+  f.2 ⟨I, hI⟩ ⟨I', hI'⟩ ⟨J, hJ⟩ ⟨J', hJ'⟩ hII' hJJ'
 
 /-- The canonical map to the completion, evaluated at a stage, is the stage quotient map. -/
 theorem π_of (I : Ideal A) (J : Ideal B)
     (hI : IsOpen (I : Set A)) (hJ : IsOpen (J : Set B)) (x : A ⊗[R] B) :
     π R A B I J hI hJ (of R A B x) =
-      map (Ideal.Quotient.mkₐ R I) (Ideal.Quotient.mkₐ R J) x := sorry
+      map (Ideal.Quotient.mkₐ R I) (Ideal.Quotient.mkₐ R J) x := rfl
 
 /-- The right inclusion sends `b` to the image of `1 ⊗ₜ b` under `Completed.of`. -/
 theorem includeRight_apply (b : B) :
-    includeRight R A B b = of R A B (1 ⊗ₜ b) := sorry
+    includeRight R A B b = of R A B (1 ⊗ₜ b) := rfl
+
+/-- Continuity into the inverse limit can be checked on its discrete stages. -/
+private theorem continuous_iff_stage {X : Type*} [TopologicalSpace X]
+    {f : X → Completed R A B} :
+    Continuous f ↔ ∀ (I : {I : Ideal A // IsOpen (I : Set A)})
+      (J : {J : Ideal B // IsOpen (J : Set B)}),
+      Continuous[inferInstance, ⊥] (fun x ↦ (f x).1 I J) := by
+  simp only [continuous_induced_rng, continuous_iInf_rng,
+    Function.comp_def]
 
 /-- If the left factor is a topological ring, its canonical map into the completed tensor
 product is continuous. -/
 theorem continuous_includeLeft [IsTopologicalRing A] :
-    Continuous (includeLeft R A B) := sorry
+    Continuous (includeLeft R A B) := by
+  apply (continuous_iff_stage R A B).mpr
+  intro I J
+  letI : TopologicalSpace ((A ⧸ I.1) ⊗[R] (B ⧸ J.1)) := ⊥
+  letI : DiscreteTopology (A ⧸ I.1) := QuotientAddGroup.discreteTopology I.2
+  change Continuous (fun a : A ↦ map (Ideal.Quotient.mkₐ R I.1)
+    (Ideal.Quotient.mkₐ R J.1) (a ⊗ₜ[R] (1 : B)))
+  simp only [map_tmul, map_one]
+  exact (continuous_of_discreteTopology :
+    Continuous (fun a : A ⧸ I.1 ↦ a ⊗ₜ[R] (1 : B ⧸ J.1))).comp continuous_quot_mk
 
 /-- If the right factor is a topological ring, its canonical map into the completed tensor
 product is continuous. -/
 theorem continuous_includeRight [IsTopologicalRing B] :
-    Continuous (includeRight R A B) := sorry
+    Continuous (includeRight R A B) := by
+  apply (continuous_iff_stage R A B).mpr
+  intro I J
+  letI : TopologicalSpace ((A ⧸ I.1) ⊗[R] (B ⧸ J.1)) := ⊥
+  letI : DiscreteTopology (B ⧸ J.1) := QuotientAddGroup.discreteTopology J.2
+  change Continuous (fun b : B ↦ map (Ideal.Quotient.mkₐ R I.1)
+    (Ideal.Quotient.mkₐ R J.1) ((1 : A) ⊗ₜ[R] b))
+  simp only [map_tmul, map_one]
+  exact (continuous_of_discreteTopology :
+    Continuous (fun b : B ⧸ J.1 ↦ (1 : A ⧸ I.1) ⊗ₜ[R] b)).comp continuous_quot_mk
 
 variable [IsTopologicalRing A] [IsTopologicalRing B]
 variable [IsLinearTopology A A] [IsLinearTopology B B]
 
 /-- Addition, multiplication, and negation are continuous on the completed tensor product. -/
-instance instIsTopologicalRing : IsTopologicalRing (Completed R A B) := sorry
+instance instIsTopologicalRing : IsTopologicalRing (Completed R A B) where
+  continuous_add := by
+    apply (continuous_iff_stage R A B).mpr
+    intro I J
+    letI : TopologicalSpace ((A ⧸ I.1) ⊗[R] (B ⧸ J.1)) := ⊥
+    letI : DiscreteTopology ((A ⧸ I.1) ⊗[R] (B ⧸ J.1)) := discreteTopology_bot _
+    have hπ := (continuous_iff_stage R A B).mp continuous_id I J
+    exact (hπ.comp continuous_fst).add (hπ.comp continuous_snd)
+  continuous_mul := by
+    apply (continuous_iff_stage R A B).mpr
+    intro I J
+    letI : TopologicalSpace ((A ⧸ I.1) ⊗[R] (B ⧸ J.1)) := ⊥
+    letI : DiscreteTopology ((A ⧸ I.1) ⊗[R] (B ⧸ J.1)) := discreteTopology_bot _
+    have hπ := (continuous_iff_stage R A B).mp continuous_id I J
+    exact (hπ.comp continuous_fst).mul (hπ.comp continuous_snd)
+  continuous_neg := by
+    apply (continuous_iff_stage R A B).mpr
+    intro I J
+    letI : TopologicalSpace ((A ⧸ I.1) ⊗[R] (B ⧸ J.1)) := ⊥
+    letI : DiscreteTopology ((A ⧸ I.1) ⊗[R] (B ⧸ J.1)) := discreteTopology_bot _
+    exact ((continuous_iff_stage R A B).mp continuous_id I J).neg
 
 /-- The completed tensor product is linearly topologized as a module over itself. -/
-instance instIsLinearTopology : IsLinearTopology (Completed R A B) (Completed R A B) := sorry
+instance instIsLinearTopology : IsLinearTopology (Completed R A B) (Completed R A B) := by
+  let ι := {I : Ideal A // IsOpen (I : Set A)} × {J : Ideal B // IsOpen (J : Set B)}
+  let K : ι → Ideal (Completed R A B) := fun i ↦
+    RingHom.ker (π R A B i.1.1 i.2.1 i.1.2 i.2.2)
+  have hnhds : nhds (0 : Completed R A B) =
+      ⨅ i : ι, Filter.principal (K i : Set (Completed R A B)) := by
+    change @nhds _ (TopologicalSpace.induced Subtype.val _) _ = _
+    simp only [ι, nhds_induced, nhds_iInf, Filter.comap_iInf, Filter.comap_comap,
+      iInf_prod]
+    apply iInf_congr
+    intro I
+    apply iInf_congr
+    intro J
+    rw [@nhds_discrete ((A ⧸ I.1) ⊗[R] (B ⧸ J.1)) ⊥ (discreteTopology_bot _)]
+    rw [← Filter.principal_singleton, Filter.comap_principal]
+    rfl
+  have hb := Filter.hasBasis_iInf_principal_finite
+    (fun i : ι ↦ (K i : Set (Completed R A B)))
+  rw [← hnhds] at hb
+  exact IsLinearTopology.mk_of_hasBasis (Completed R A B)
+    (s := fun t : Set ι ↦ ⨅ i ∈ t, K i)
+    (hb.congr (fun _ ↦ Iff.rfl) (fun _ _ ↦ by simp only [Submodule.coe_iInf]))
 
 end Completed
 

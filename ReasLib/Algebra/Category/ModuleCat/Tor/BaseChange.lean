@@ -73,20 +73,31 @@ noncomputable def rightRingHom (bMap : R' ⊗[R] B →ₐ[R'] B') :
 theorem leftRingHom_commutes (aMap : A ⊗[R] R' →ₐ[R'] A') (r : R) :
     leftRingHom (R := R) (R' := R') (A := A) (A' := A') (B' := B') aMap
         ((algebraMap R A) r) =
-      targetBaseRingHom (R := R) (R' := R') (A' := A') (B' := B') r := sorry
+      targetBaseRingHom (R := R) (R' := R') (A' := A') (B' := B') r := by
+  change (includeLeft : A' →ₐ[R'] A' ⊗[R'] B')
+      (aMap ((includeLeft : A →ₐ[R] A ⊗[R] R') ((algebraMap R A) r))) =
+    (algebraMap R' (A' ⊗[R'] B')) ((algebraMap R R') r)
+  rw [AlgHom.commutes, IsScalarTower.algebraMap_apply R R' (A ⊗[R] R'),
+    aMap.commutes, AlgHom.commutes]
 
 /-- The right-factor map agrees with the canonical base-ring map on `R`. -/
 theorem rightRingHom_commutes (bMap : R' ⊗[R] B →ₐ[R'] B') (r : R) :
     rightRingHom (R := R) (R' := R') (B := B) (A' := A') (B' := B') bMap
         ((algebraMap R B) r) =
-      targetBaseRingHom (R := R) (R' := R') (A' := A') (B' := B') r := sorry
+      targetBaseRingHom (R := R) (R' := R') (A' := A') (B' := B') r := by
+  change (includeRight : B' →ₐ[R'] A' ⊗[R'] B')
+      (bMap ((includeRight : B →ₐ[R] R' ⊗[R] B) ((algebraMap R B) r))) =
+    (algebraMap R' (A' ⊗[R'] B')) ((algebraMap R R') r)
+  rw [AlgHom.commutes, IsScalarTower.algebraMap_apply R R' (R' ⊗[R] B),
+    bMap.commutes, AlgHom.commutes]
 
 /-- The two factor maps into `A' ⊗[R'] B'` commute. -/
 theorem leftRingHom_commute_rightRingHom
     (aMap : A ⊗[R] R' →ₐ[R'] A') (bMap : R' ⊗[R] B →ₐ[R'] B') (a : A) (b : B) :
     Commute
       (leftRingHom (R := R) (R' := R') (A := A) (A' := A') (B' := B') aMap a)
-      (rightRingHom (R := R) (R' := R') (B := B) (A' := A') (B' := B') bMap b) := sorry
+      (rightRingHom (R := R) (R' := R') (B := B) (A' := A') (B' := B') bMap b) := by
+  exact Commute.all _ _
 
 /-- The source diagram induces the canonical tensor-product ring map
 `A ⊗[R] B → A' ⊗[R'] B'`. -/
@@ -115,7 +126,8 @@ theorem productMap_includeLeft
     (aMap : A ⊗[R] R' →ₐ[R'] A') (bMap : R' ⊗[R] B →ₐ[R'] B') (a : A) :
     productMap (R := R) (R' := R') (A := A) (B := B) (A' := A') (B' := B') aMap bMap
         ((includeLeft : A →ₐ[R] sourceRing (R := R) (A := A) (B := B)) a) =
-      leftRingHom (R := R) (R' := R') (A := A) (A' := A') (B' := B') aMap a := sorry
+      leftRingHom (R := R) (R' := R') (A := A) (A' := A') (B' := B') aMap a := by
+  simp [productMap]
 
 /-- The tensor-product base-change map restricts to the prescribed map on the
 right factor. -/
@@ -123,7 +135,8 @@ theorem productMap_includeRight
     (aMap : A ⊗[R] R' →ₐ[R'] A') (bMap : R' ⊗[R] B →ₐ[R'] B') (b : B) :
     productMap (R := R) (R' := R') (A := A) (B := B) (A' := A') (B' := B') aMap bMap
         ((includeRight : B →ₐ[R] sourceRing (R := R) (A := A) (B := B)) b) =
-      rightRingHom (R := R) (R' := R') (B := B) (A' := A') (B' := B') bMap b := sorry
+      rightRingHom (R := R) (R' := R') (B := B) (A' := A') (B' := B') bMap b := by
+  simp [productMap]
 
 /-- The first-variable map after flat extension from `R` to `R'`. -/
 @[stacks 08HW "first-variable Tor map after flat base change"]
@@ -202,7 +215,9 @@ theorem rawAdjoint_map_add
       rawAdjointFunction (R := R) (R' := R') (A := A) (B := B) (A' := A') (B' := B')
           hflat aMap bMap n x +
         rawAdjointFunction (R := R) (R' := R') (A := A) (B := B) (A' := A') (B' := B')
-          hflat aMap bMap n y := sorry
+          hflat aMap bMap n y := by
+  exact (rawAdjoint (R := R) (R' := R') (A := A) (B := B) (A' := A') (B' := B')
+    hflat aMap bMap n).hom.map_add x y
 
 /-- The raw adjoint is linear for the tensor-product algebra map. -/
 theorem rawAdjoint_map_smul

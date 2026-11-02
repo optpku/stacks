@@ -30,7 +30,7 @@ variable {S : Scheme.{u}} (G : GroupoidScheme S) {U' : Over S} (g : U' ⟶ G.U)
 
 /-- A morphism property stable under composition and base change descends to the source
 map of a restricted groupoid scheme. -/
-private lemma restrictedSource_ofStableUnderBaseChange
+lemma restrictedSource_ofStableUnderBaseChange
     {P : CategoryTheory.MorphismProperty Scheme.{u}} [P.IsStableUnderComposition]
     [P.IsStableUnderBaseChange] (hs : P G.s.left) (hg : P g.left) :
     P (G.pullback g).s.left := by
@@ -86,7 +86,7 @@ private lemma restrictedSource_ofStableUnderBaseChange
 
 /-- A morphism property stable under composition and base change descends to the target
 map of a restricted groupoid scheme. -/
-private lemma restrictedTarget_ofStableUnderBaseChange
+lemma restrictedTarget_ofStableUnderBaseChange
     {P : CategoryTheory.MorphismProperty Scheme.{u}} [P.IsStableUnderComposition]
     [P.IsStableUnderBaseChange] (ht : P G.t.left) (hg : P g.left) :
     P (G.pullback g).t.left := by

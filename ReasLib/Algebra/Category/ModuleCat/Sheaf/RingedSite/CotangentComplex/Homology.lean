@@ -37,6 +37,34 @@ universe u
 
 namespace SheafOfModules.RingedSite.CotangentComplex.Homology
 
+set_option backward.isDefEq.respectTransparency false in
+private theorem resolution_augmentation_zero {D E : Type*} [Category D] [Category E]
+    {L : D ⥤ E} {R : E ⥤ D} (adj : L ⊣ R) (Y : E) :
+    (((Adjunction.SimplicialResolution.eval adj).obj Y).hom.app (op ⦋0⦌)) =
+      adj.counit.app Y := by
+  change ((Comonad.simplicialResolution.augmentation adj.toComonad).app (op ⦋0⦌)).app Y = _
+  rw [Comonad.simplicialResolution.augmentation.app_zero]
+  rfl
+
+set_option backward.isDefEq.respectTransparency false in
+private theorem resolution_augmentation_succ {D E : Type*} [Category D] [Category E]
+    {L : D ⥤ E} {R : E ⥤ D} (adj : L ⊣ R) (Y : E) (n : ℕ) :
+    (((Adjunction.SimplicialResolution.eval adj).obj Y).hom.app (op ⦋n + 1⦌)) =
+      adj.counit.app (((Adjunction.SimplicialResolution.eval adj).obj Y).left.obj (op ⦋n⦌)) ≫
+        (((Adjunction.SimplicialResolution.eval adj).obj Y).hom.app (op ⦋n⦌)) := by
+  let V := (Adjunction.SimplicialResolution.eval adj).obj Y
+  have h := V.hom.naturality (SimplexCategory.δ (Fin.last (n + 1))).op
+  have hd : V.left.map (SimplexCategory.δ (Fin.last (n + 1))).op =
+      adj.counit.app (V.left.obj (op ⦋n⦌)) := by
+    change (adj.toComonad.simplicialResolution.δ (Fin.last (n + 1))).app Y = _
+    rw [Comonad.simplicialResolution.face]
+    cases n <;> simp only [IteratedEndofunctor.face, Fin.lastCases_last]
+    all_goals exact Category.comp_id _
+  change V.left.map (SimplexCategory.δ (Fin.last (n + 1))).op ≫
+    V.hom.app (op ⦋n⦌) = V.hom.app (op ⦋n + 1⦌) ≫ 𝟙 _ at h
+  rw [hd, Category.comp_id] at h
+  exact h.symm
+
 variable {C : Type u} [Category.{u} C] {J : GrothendieckTopology C}
 variable [J.HasSheafCompose (forget₂ CommRingCat RingCat.{u})]
 variable [J.HasSheafCompose (CategoryTheory.forget CommRingCat.{u})]
@@ -63,7 +91,11 @@ def complexMap (φ : A ⟶ B) {X Y : Cᵒᵖ} (f : X ⟶ Y) :
       ((Algebra.CotangentComplex.map (φ.hom.app X).hom (φ.hom.app Y).hom
           (A.obj.map f).hom (B.obj.map f).hom
           (congrArg CommRingCat.Hom.hom (φ.hom.naturality f))).f n)
-  comm' := sorry
+  comm' i j _ := by
+    exact ((ModuleCat.extendRestrictScalarsAdj (B.obj.map f).hom).homEquiv_naturality_left_square
+      _ _ _ _ ((Algebra.CotangentComplex.map (φ.hom.app X).hom (φ.hom.app Y).hom
+        (A.obj.map f).hom (B.obj.map f).hom
+        (congrArg CommRingCat.Hom.hom (φ.hom.naturality f))).comm i j).symm).symm
 
 /-- Identifying the short complex of a restricted cotangent complex with the restricted
 short complex of the original cotangent complex. -/
@@ -172,14 +204,71 @@ def standardTermUnderMap (φ : A ⟶ B) (X : Cᵒᵖ) :
           (standardTermUnderMap φ X n) ≫
         freeSectionsMap (standardTerm A (Under.mk φ) (op ⦋n⦌)) X
 
+set_option backward.isDefEq.respectTransparency false in
+omit [J.HasSheafCompose (forget₂ CommRingCat RingCat.{u})]
+  [HasWeakSheafify J AddCommGrpCat.{u}] [J.WEqualsLocallyBijective AddCommGrpCat.{u}]
+  [HasColimitsOfShape (Discrete WalkingPair) CommRingCat.{u}] in
+private theorem freeSectionsMap_comp_counit (Y : Under A) (X : Cᵒᵖ) :
+    freeSectionsMap Y X ≫
+      (Under.post (sheafToPresheaf J CommRingCat.{u} ⋙
+        (CategoryTheory.evaluation Cᵒᵖ CommRingCat.{u}).obj X)).map
+          ((freeForgetAdjunction A).counit.app Y) =
+      (CommRingCat.Under.FreeAlgebra.adjunction (A.obj.obj X)).counit.app
+        (Under.mk (Y.hom.hom.app X)) := by
+  apply ((CommRingCat.Under.FreeAlgebra.adjunction (A.obj.obj X)).homEquiv _ _).injective
+  erw [Adjunction.homEquiv_naturality_right, freeSectionsMap, Equiv.apply_symm_apply,
+    ← (CommRingCat.Under.FreeAlgebra.adjunction (A.obj.obj X)).homEquiv_symm_id
+      (Under.mk (Y.hom.hom.app X)), Equiv.apply_symm_apply]
+  exact congrArg (fun f => f.hom.app X)
+    ((freeForgetAdjunction A).right_triangle_components Y)
+
+set_option maxHeartbeats 800000 in
+set_option backward.isDefEq.respectTransparency false in
 /-- Ring-level and sheaf-level standard-resolution augmentations are compatible with
 `standardTermUnderMap`. -/
 theorem standardTermUnderMap_comp_augmentation (φ : A ⟶ B) (X : Cᵒᵖ) (n : ℕ) :
     (CommRingCat.Under.CotangentComplex.standardAugmentation
           (A.obj.obj X) (Under.mk (φ.hom.app X)) (op ⦋n⦌)).hom =
       ((standardAugmentation A (Under.mk φ) (op ⦋n⦌)).hom.app X).hom.comp
-        (standardTermUnderMap φ X n).right.hom :=
-  sorry
+        (standardTermUnderMap φ X n).right.hom := by
+  let E : Under A ⥤ Under (A.obj.obj X) :=
+    Under.post (sheafToPresheaf J CommRingCat.{u} ⋙
+      (CategoryTheory.evaluation Cᵒᵖ CommRingCat.{u}).obj X)
+  let adj := CommRingCat.Under.FreeAlgebra.adjunction (A.obj.obj X)
+  let adj' := freeForgetAdjunction A
+  have h : ∀ n : ℕ,
+      (((Adjunction.SimplicialResolution.eval adj).obj (Under.mk (φ.hom.app X))).hom.app (op ⦋n⦌)) =
+        standardTermUnderMap φ X n ≫
+          E.map (((Adjunction.SimplicialResolution.eval adj').obj (Under.mk φ)).hom.app (op ⦋n⦌)) := by
+    intro n
+    induction n with
+    | zero =>
+        rw [resolution_augmentation_zero, resolution_augmentation_zero]
+        exact (freeSectionsMap_comp_counit (Under.mk φ) X).symm
+    | succ n ih =>
+        rw [resolution_augmentation_succ, resolution_augmentation_succ,
+          standardTermUnderMap, E.map_comp]
+        simp only [Category.assoc]
+        have hc := freeSectionsMap_comp_counit
+          (standardTerm A (Under.mk φ) (op ⦋n⦌)) X
+        rw [← Category.assoc (freeSectionsMap _ X)]
+        erw [hc]
+        calc
+          _ = (adj.counit.app _ ≫ standardTermUnderMap φ X n) ≫
+              E.map (((Adjunction.SimplicialResolution.eval adj').obj
+                (Under.mk φ)).hom.app (op ⦋n⦌)) := by
+            exact (congrArg (fun k => adj.counit.app _ ≫ k) ih).trans
+              (Category.assoc _ _ _).symm
+          _ = (adj.toComonad.toFunctor.map (standardTermUnderMap φ X n) ≫
+                adj.counit.app _) ≫
+              E.map (((Adjunction.SimplicialResolution.eval adj').obj
+                (Under.mk φ)).hom.app (op ⦋n⦌)) :=
+            congrArg (fun k => k ≫ E.map
+              (((Adjunction.SimplicialResolution.eval adj').obj
+                (Under.mk φ)).hom.app (op ⦋n⦌)))
+              (adj.counit.naturality (standardTermUnderMap φ X n)).symm
+          _ = _ := Category.assoc _ _ _
+  exact congrArg (fun f => f.right.hom) (h n)
 
 /-- The objectwise unit from ring-level Kähler differentials of a sheaf homomorphism to
 the sections of the sheaf of relative differentials. -/
@@ -290,6 +379,7 @@ private def cyclesEvaluationIso (φ : A ⟶ B) (i : ℤ) (X : Cᵒᵖ) :
     (PreservesKernel.iso (SheafOfModules.evaluation.{u} (ringSheaf J B) X) ((SheafOfModules.RingedSite.CotangentComplex.obj A (Under.mk φ)).sc i).g).symm ≪≫
     (SheafOfModules.evaluation.{u} (ringSheaf J B) X).mapIso (ShortComplex.cyclesIsoKernel ((SheafOfModules.RingedSite.CotangentComplex.obj A (Under.mk φ)).sc i)).symm
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The evaluated homology projection annihilates the boundaries in the evaluated complex. -/
 private theorem homologyEvaluationComparison_condition (φ : A ⟶ B) (i : ℤ) (X : Cᵒᵖ) :
     ((@ShortComplex.map _ _ _ _ _ _
@@ -298,7 +388,28 @@ private theorem homologyEvaluationComparison_condition (φ : A ⟶ B) (i : ℤ) 
       ((cyclesEvaluationIso φ i X).hom ≫
         (SheafOfModules.evaluation.{u} (ringSheaf J B) X).map
           ((SheafOfModules.RingedSite.CotangentComplex.obj A (Under.mk φ)).sc i).homologyπ) = 0 :=
-  sorry
+  by
+    let S := (SheafOfModules.RingedSite.CotangentComplex.obj A (Under.mk φ)).sc i
+    letI : (SheafOfModules.evaluation.{u} (ringSheaf J B) X).PreservesZeroMorphisms :=
+      ⟨by intros; rfl⟩
+    have hi : (cyclesEvaluationIso φ i X).hom ≫
+        (SheafOfModules.evaluation.{u} (ringSheaf J B) X).map S.iCycles =
+        (S.map (SheafOfModules.evaluation.{u} (ringSheaf J B) X)).iCycles := by
+      simp [cyclesEvaluationIso, S, ← Functor.map_comp, Category.assoc]
+      exact kernel.lift_ι _ _ _
+    have hf : (S.map (SheafOfModules.evaluation.{u} (ringSheaf J B) X)).toCycles ≫
+        (cyclesEvaluationIso φ i X).hom =
+        (SheafOfModules.evaluation.{u} (ringSheaf J B) X).map S.toCycles := by
+      apply (cancel_mono
+        ((SheafOfModules.evaluation.{u} (ringSheaf J B) X).map S.iCycles)).1
+      rw [Category.assoc, hi, ShortComplex.toCycles_i, ← Functor.map_comp,
+        ShortComplex.toCycles_i]
+      rfl
+    change (S.map (SheafOfModules.evaluation.{u} (ringSheaf J B) X)).toCycles ≫
+      ((cyclesEvaluationIso φ i X).hom ≫
+        (SheafOfModules.evaluation.{u} (ringSheaf J B) X).map S.homologyπ) = 0
+    rw [← Category.assoc, hf, ← Functor.map_comp, ShortComplex.toCycles_comp_homologyπ,
+      Functor.map_zero]
 
 /-- Homology of the evaluated sheaf-level cotangent complex maps to the evaluation of
 sheaf homology. -/

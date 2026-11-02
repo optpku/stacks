@@ -12,6 +12,10 @@ public import Mathlib.CategoryTheory.Yoneda
 public import ReasLib.CategoryTheory.MorphismProperty.Representable.ChangeOfBase
 public import ReasLib.CategoryTheory.MorphismProperty.Representable.ChangeOfSource
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.RestrictToScheme.Pullback
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.Flat.BaseChange
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.LocallyOfFinitePresentation.BaseChange
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.UniversallyClosed
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Separation.Representable
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.SchemeFunctor
 public import ReasLib.AlgebraicGeometry.Polarized.SpaceOver
 public import ReasLib.CategoryTheory.Fibered.DiscreteFibration.PresheafEquivalence.OfPresheaf
@@ -109,35 +113,74 @@ def SpaceOver.pointLine {T X : AlgebraicSpace specZ} (f : X ⟶ T) (L : X.Module
   (AlgebraicSpace.Modules.restrictToScheme (SpaceOver.pointOver f L x)).obj
     ((AlgebraicSpace.Modules.pullback (SpaceOver.pointFst f L x)).obj L)
 
+/-- The represented fibre square is cartesian as a square of algebraic spaces. -/
+theorem SpaceOver.point_isPullback {T X : AlgebraicSpace specZ} (f : X ⟶ T)
+    (L : X.Modules) [AlgebraicSpace.RelativelyAmple f L] (x : (spaceStack T).total) :
+    IsPullback (SpaceOver.pointFst f L x) (ofOverMap (SpaceOver.pointSnd f L x)) f
+      (SpaceOver.pointHom x) := by
+  let F : AlgebraicSpace specZ ⥤ ((Over specZ)ᵒᵖ ⥤ Type _) :=
+    { obj := fun X ↦ X.functorOfPoints, map := fun φ ↦ φ }
+  -- The forgetful functor is the identity on each hom type.
+  letI : F.Full := ⟨fun h ↦ ⟨h, rfl⟩⟩
+  letI : F.Faithful := ⟨fun h ↦ h⟩
+  exact IsPullback.of_map F
+    ((relativelyRepresentableHom f L).w (SpaceOver.pointHom x))
+    ((relativelyRepresentableHom f L).isPullback (SpaceOver.pointHom x))
+
+/-- Local finite presentation passes to the representing scheme of a fibre. -/
+theorem SpaceOver.pointSchemeHom_locallyOfFinitePresentation {T X : AlgebraicSpace specZ}
+    (f : X ⟶ T) (L : X.Modules) [AlgebraicSpace.LocallyOfFinitePresentation f]
+    [AlgebraicSpace.RelativelyAmple f L] (x : (spaceStack T).total) :
+    AlgebraicGeometry.LocallyOfFinitePresentation (SpaceOver.pointSchemeHom f L x) := by
+  have hp : AlgebraicSpace.LocallyOfFinitePresentation
+      (ofOverMap (SpaceOver.pointSnd f L x)) :=
+    AlgebraicSpace.LocallyOfFinitePresentation.of_isPullback
+      (SpaceOver.point_isPullback f L x) inferInstance
+  exact hp.of_etale (𝟙 _) (𝟙 _) (SpaceOver.pointSnd f L x)
+    (ofOver_id_presheaf_etale _) (ofOver_id_presheaf_etale _) (by simp [ofOverMap])
+
 /-- The representing scheme morphism `X_U ⟶ U` is proper. -/
 instance SpaceOver.instIsProper_pointSchemeHom {T X : AlgebraicSpace specZ} (f : X ⟶ T)
     (L : X.Modules) [AlgebraicSpace.Proper f] [AlgebraicSpace.Flat f] [AlgebraicSpace.LocallyOfFinitePresentation f]
     [AlgebraicSpace.QuasiCompact f] [AlgebraicSpace.QuasiSeparated f] [AlgebraicSpace.RelativelyAmple f L]
-    (x : (spaceStack T).total) : IsProper (SpaceOver.pointSchemeHom f L x) :=
-  sorry
+    (x : (spaceStack T).total) : IsProper (SpaceOver.pointSchemeHom f L x) := by
+  haveI : IsSeparated (SpaceOver.pointSchemeHom f L x) :=
+    ((AlgebraicSpace.separated_presheaf_iff_separated (relativelyRepresentableHom f L)).mpr
+      inferInstance).2 (SpaceOver.pointHom x) (SpaceOver.pointFst f L x)
+        (SpaceOver.pointSnd f L x)
+        ((relativelyRepresentableHom f L).isPullback (SpaceOver.pointHom x))
+  haveI : AlgebraicGeometry.UniversallyClosed (SpaceOver.pointSchemeHom f L x) :=
+    (AlgebraicSpace.universallyClosed_presheaf_of_universallyClosed
+      (relativelyRepresentableHom f L) inferInstance).2
+        (SpaceOver.pointHom x) (SpaceOver.pointFst f L x) (SpaceOver.pointSnd f L x)
+        ((relativelyRepresentableHom f L).isPullback (SpaceOver.pointHom x))
+  haveI := SpaceOver.pointSchemeHom_locallyOfFinitePresentation f L x
+  exact {}
 
 /-- The representing scheme morphism `X_U ⟶ U` is flat. -/
 instance SpaceOver.instFlat_pointSchemeHom {T X : AlgebraicSpace specZ} (f : X ⟶ T)
     (L : X.Modules) [AlgebraicSpace.Proper f] [AlgebraicSpace.Flat f] [AlgebraicSpace.LocallyOfFinitePresentation f]
     [AlgebraicSpace.QuasiCompact f] [AlgebraicSpace.QuasiSeparated f] [AlgebraicSpace.RelativelyAmple f L]
-    (x : (spaceStack T).total) : AlgebraicGeometry.Flat (SpaceOver.pointSchemeHom f L x) :=
-  sorry
+    (x : (spaceStack T).total) : AlgebraicGeometry.Flat (SpaceOver.pointSchemeHom f L x) := by
+  apply (AlgebraicSpace.flat_ofOverMap_iff (SpaceOver.pointSnd f L x)).mp
+  exact AlgebraicSpace.Flat.of_isPullback (SpaceOver.point_isPullback f L x) inferInstance
 
 /-- The representing scheme morphism `X_U ⟶ U` is of finite presentation. -/
 instance SpaceOver.instFinitePresentation_pointSchemeHom {T X : AlgebraicSpace specZ}
     (f : X ⟶ T) (L : X.Modules) [AlgebraicSpace.Proper f] [AlgebraicSpace.Flat f] [AlgebraicSpace.LocallyOfFinitePresentation f]
     [AlgebraicSpace.QuasiCompact f] [AlgebraicSpace.QuasiSeparated f] [AlgebraicSpace.RelativelyAmple f L]
     (x : (spaceStack T).total) :
-    Scheme.Hom.FinitePresentation (SpaceOver.pointSchemeHom f L x) :=
-  sorry
+    Scheme.Hom.FinitePresentation (SpaceOver.pointSchemeHom f L x) := by
+  haveI := SpaceOver.pointSchemeHom_locallyOfFinitePresentation f L x
+  infer_instance
 
 /-- The restricted line bundle is relatively ample on `X_U ⟶ U`. -/
 instance SpaceOver.instRelativelyAmple_pointSchemeHom {T X : AlgebraicSpace specZ}
     (f : X ⟶ T) (L : X.Modules) [AlgebraicSpace.Proper f] [AlgebraicSpace.Flat f] [AlgebraicSpace.LocallyOfFinitePresentation f]
     [AlgebraicSpace.QuasiCompact f] [AlgebraicSpace.QuasiSeparated f] [AlgebraicSpace.RelativelyAmple f L]
     (x : (spaceStack T).total) :
-    RelativelyAmple (SpaceOver.pointSchemeHom f L x) (SpaceOver.pointLine f L x) :=
-  sorry
+    RelativelyAmple (SpaceOver.pointSchemeHom f L x) (SpaceOver.pointLine f L x) := by
+  exact AlgebraicSpace.RelativelyAmple.ofScheme (SpaceOver.point_isPullback f L x)
 
 /-- The Polarized object `(X_U ⟶ U, L|_U)`. -/
 def SpaceOver.pointObj {T X : AlgebraicSpace specZ} (f : X ⟶ T) (L : X.Modules)
@@ -224,8 +267,17 @@ def SpaceOver.baseChangeFunctor {T X : AlgebraicSpace specZ} (f : X ⟶ T) (L : 
 theorem SpaceOver.baseChange_w {T X : AlgebraicSpace specZ} (f : X ⟶ T) (L : X.Modules)
     [AlgebraicSpace.Proper f] [AlgebraicSpace.Flat f] [AlgebraicSpace.LocallyOfFinitePresentation f] [AlgebraicSpace.QuasiCompact f] [AlgebraicSpace.QuasiSeparated f]
     [AlgebraicSpace.RelativelyAmple f L] :
-    SpaceOver.baseChangeFunctor f L ⋙ overSpecZ.p = (spaceStack T).p :=
-  sorry
+    SpaceOver.baseChangeFunctor f L ⋙ overSpecZ.p = (spaceStack T).p := by
+  refine CategoryTheory.Functor.ext
+    (F := SpaceOver.baseChangeFunctor f L ⋙ overSpecZ.p) (G := (spaceStack T).p) ?_ ?_
+  · intro x
+    exact CostructuredArrow.obj_ext _ _ rfl (specULiftZIsTerminal.hom_ext _ _)
+  · intro x y φ
+    apply Over.OverMorphism.ext
+    simp only [Over.comp_left, Over.eqToHom_left]
+    change ((spaceStack T).p.map φ).left =
+      𝟙 _ ≫ ((spaceStack T).p.map φ).left ≫ 𝟙 _
+    simp only [Category.id_comp, Category.comp_id]
 
 /-- Base change of a polarized algebraic-space family `(X ⟶ T, L)` along scheme-points of `T`
 is a based functor `S_T ⥤ᵇ Polarized`. -/
@@ -324,8 +376,14 @@ theorem SpaceOver.yonedaApp_naturality {T : AlgebraicSpace specZ} {P Q : SpaceOv
 /-- Fibrewise comparison morphisms lift identities of the base. -/
 theorem SpaceOver.yonedaApp_isHomLift {T : AlgebraicSpace specZ} {P Q : SpaceOver T}
     (α : P ⟶ Q) (x : (spaceStack T).total) :
-    overSpecZ.p.IsHomLift (𝟙 ((spaceStack T).p.obj x)) (SpaceOver.yonedaApp α x) :=
-  sorry
+    overSpecZ.p.IsHomLift (𝟙 ((spaceStack T).p.obj x)) (SpaceOver.yonedaApp α x) := by
+  refine IsHomLift.of_fac overSpecZ.p _ _
+    (CategoryTheory.Functor.congr_obj (SpaceOver.baseChange_w P.hom P.line) x)
+    (CategoryTheory.Functor.congr_obj (SpaceOver.baseChange_w Q.hom Q.line) x) ?_
+  apply Over.OverMorphism.ext
+  simp only [Over.comp_left, Over.eqToHom_left]
+  change 𝟙 _ = 𝟙 _ ≫ 𝟙 _ ≫ 𝟙 _
+  simp only [Category.id_comp]
 
 /-- The based natural transformation induced by a morphism of polarized families over `T`. -/
 def SpaceOver.yonedaMap {T : AlgebraicSpace specZ} {P Q : SpaceOver T} (α : P ⟶ Q) :

@@ -11,6 +11,7 @@ public import ReasLib.AlgebraicGeometry.Scheme.Module.FiniteLocallyFree.Rank
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.LocallyOfType
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.RegularImmersion.Implications
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.RegularImmersion.Noetherian
+public import ReasLib.AlgebraicGeometry.Scheme.Morphism.RegularImmersion.Neighborhood
 public import ReasLib.RingTheory.Ideal.Regularity.ProjectiveDimension
 public import ReasLib.RingTheory.Ideal.Regularity.TorDimension
 public import ReasLib.RingTheory.RingHom.Perfect.Basic
@@ -65,13 +66,21 @@ end AlgebraicGeometry.IsImmersion
 
 namespace AlgebraicGeometry
 
-/-- If two composable morphisms are immersions, the target is locally Noetherian,
-the composite is a regular immersion, and the first morphism is perfect, then
-both morphisms are regular immersions. -/
-theorem regularImmersion_factors_of_perfect_of_comp
+/-- Under the factor hypotheses, the first immersion is regular everywhere and the second
+immersion is regular on a source-open neighborhood of every point in the image of the first. -/
+theorem regularImmersion_factors_of_perfect_of_comp_local
     {X Y Z : Scheme.{u}} (i : Z ⟶ Y) (j : Y ⟶ X)
     [IsLocallyNoetherian X] [IsImmersion i] [IsImmersion j]
     [IsRegularImmersion (i ≫ j)] [LocallyOfType RingHom.IsPerfectRingMap i] :
+    IsRegularImmersion i ∧ ∀ z : Z, IsRegularImmersionNear j (i.base z) := sorry
+
+/-- If the image of the first immersion covers the source of the second, the local factorization
+result gives global regularity of both factors. -/
+theorem regularImmersion_factors_of_perfect_of_comp
+    {X Y Z : Scheme.{u}} (i : Z ⟶ Y) (j : Y ⟶ X)
+    [IsLocallyNoetherian X] [IsImmersion i] [IsImmersion j]
+    [IsRegularImmersion (i ≫ j)] [LocallyOfType RingHom.IsPerfectRingMap i]
+    (hi : Function.Surjective i.base) :
     IsRegularImmersion i ∧ IsRegularImmersion j := sorry
 
 end AlgebraicGeometry

@@ -25,7 +25,7 @@ noncomputable section
 
 universe u
 
-namespace RingedSite.Cotangent.PolynomialTriple
+namespace StacksProject.Chap92.Remark_92_7_5
 
 /-- The algebra structure on the intermediate ring induced by the first augmentation of a polynomial square. -/
 @[reducible] def algebraPB {A B C : Type u} [CommRing A] [CommRing B] [CommRing C]
@@ -33,7 +33,7 @@ namespace RingedSite.Cotangent.PolynomialTriple
     (X : Algebra.PolynomialTower A B C) : Algebra X.P B :=
   X.toB.hom.toRingHom.toAlgebra
 
-end RingedSite.Cotangent.PolynomialTriple
+end StacksProject.Chap92.Remark_92_7_5
 
 variable (A B C : Type u) [CommRing A] [CommRing B] [CommRing C]
 variable [Algebra A B] [Algebra B C] [Algebra A C] [IsScalarTower A B C]

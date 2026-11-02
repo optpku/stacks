@@ -52,7 +52,8 @@ theorem moduleLinear_def (f : X ⟶ Spec (CommRingCat.of R)) :
     moduleLinear f =
       Linear.ofRingMorphism
         ((RingedSpace.GlobalSections.centerHom X.toRingedSpace).comp
-          (Scheme.Hom.globalSectionsMap f)) := sorry
+          (Scheme.Hom.globalSectionsMap f)) := by
+  rfl
 
 /-- The `R`-linear differential graded category of complexes of `𝒪_X`-modules induced
 by `f : X ⟶ Spec R`. -/
@@ -65,7 +66,8 @@ noncomputable def dgCategory (f : X ⟶ Spec (CommRingCat.of R)) :
 /-- Homogeneous morphisms in `dgCategory f` are homogeneous cochains. -/
 theorem dgCategory_hom (f : X ⟶ Spec (CommRingCat.of R))
     (K L : CochainComplex X.toRingedSpace.Modules ℤ) (n : ℤ) :
-    (dgCategory f).Hom K L n = CochainComplex.HomComplex.Cochain K L n := sorry
+    (dgCategory f).Hom K L n = CochainComplex.HomComplex.Cochain K L n := by
+  rfl
 
 /-- The endomorphism differential graded algebra over `R` of a complex of `𝒪_X`-modules,
 using the enrichment induced by `f : X ⟶ Spec R`. -/
@@ -78,7 +80,8 @@ of `K` in the relative enrichment. -/
 theorem endomorphismDGA_X (f : X ⟶ Spec (CommRingCat.of R))
     (K : CochainComplex X.toRingedSpace.Modules ℤ) (n : ℤ) :
     (endomorphismDGA f K).X n =
-      @DifferentialGradedCategory.homComponent R _ _ (dgCategory f) K K n := sorry
+      @DifferentialGradedCategory.homComponent R _ _ (dgCategory f) K K n := by
+  rfl
 
 /-- The relative cross-Hom complex `Hom(K, L)`, with its left `End_R(L)`-action and right
 `End_R(K)`-action. -/
@@ -91,7 +94,8 @@ noncomputable def bimodule (f : X ⟶ Spec (CommRingCat.of R))
 theorem bimodule_X (f : X ⟶ Spec (CommRingCat.of R))
     (K L : CochainComplex X.toRingedSpace.Modules ℤ) (n : ℤ) :
     (bimodule f K L).X n =
-      @DifferentialGradedCategory.homComponent R _ _ (dgCategory f) K L n := sorry
+      @DifferentialGradedCategory.homComponent R _ _ (dgCategory f) K L n := by
+  rfl
 
 /-- The `R`-linear structure on derived `𝒪_X`-modules with quasicoherent cohomology
 induced by `f : X ⟶ Spec R`. -/
@@ -110,7 +114,8 @@ theorem derivedQCohLinear_def (f : X ⟶ Spec (CommRingCat.of R)) :
       @CategoryTheory.Linear.fullSubcategory
         (RingedSpace.ModuleDerived X.toRingedSpace) _ _ R _
         (@DerivedCategory.instLinear R _ X.toRingedSpace.Modules _ _ (moduleLinear f) _)
-        (Scheme.ModuleDerived.quasicoherentProperty X) := sorry
+        (Scheme.ModuleDerived.quasicoherentProperty X) := by
+  rfl
 
 variable (f : X ⟶ Spec (CommRingCat.of R))
 variable (K : CochainComplex X.toRingedSpace.Modules ℤ) [K.IsKInjective]
@@ -120,14 +125,19 @@ quasicoherent homology. -/
 noncomputable def generatorObject
     (hKqc : ∀ n : ℤ, RingedSpace.quasiCoherentModuleProperty X.toRingedSpace
       (K.homology n)) : Scheme.ModuleDerived.Quasicoherent X :=
-  ⟨DerivedCategory.Q.obj K, sorry⟩
+  ⟨DerivedCategory.Q.obj K, by
+    intro n
+    exact (RingedSpace.quasiCoherentModuleProperty X.toRingedSpace).prop_of_iso
+      ((DerivedCategory.homologyFunctorFactors X.toRingedSpace.Modules n).app K).symm
+      (hKqc n)⟩
 
 /-- The underlying derived module of `generatorObject K hKqc` is represented by `K`. -/
 @[simp]
 theorem generatorObject_obj
     (hKqc : ∀ n : ℤ, RingedSpace.quasiCoherentModuleProperty X.toRingedSpace
       (K.homology n)) :
-    (generatorObject K hKqc).obj = DerivedCategory.Q.obj K := sorry
+    (generatorObject K hKqc).obj = DerivedCategory.Q.obj K := by
+  rfl
 
 /-- An explicit `R`-linear model of derived modules with quasicoherent cohomology arising from
 the relative endomorphism algebra of a K-injective complex. Its regular-object identification
@@ -218,7 +228,9 @@ theorem spec
                 (endomorphismDGA f K) n x))
             (Scheme.ModuleDerived.Quasicoherent.inclusion X) =
           @CategoryTheory.CochainComplex.Enriched.Over.RHom.derivedHomOfHomology
-            R _ _ _ _ (moduleLinear f) _ K K n x := sorry
+            R _ _ _ _ (moduleLinear f) _ K K n x := by
+  exact ⟨M.isEquivalence, ⟨M.commShift⟩, M.isTriangulated, M.linear,
+    ⟨M.regularIso⟩, M.regularAction⟩
 
 end GeneratorModel
 

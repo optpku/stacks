@@ -10,6 +10,7 @@ public import ReasLib.Algebra.Homology.CochainDGAlgebra.KFlat
 public import ReasLib.Algebra.Homology.DerivedCategory.ModuleCat.Tensor.KFlat
 public import ReasLib.Algebra.Homology.DifferentialGradedModule.Bimodule.TensorProduct.Derived.Composition.AlgebraTensor
 public import ReasLib.Algebra.Homology.DifferentialGradedModule.Bimodule.TensorProduct.Derived.Composition.GroundTensor
+public import ReasLib.Algebra.Homology.DifferentialGradedModule.Bimodule.PropertyP
 
 /-!
 # K-Flat Criteria for Composed Derived Tensor Functors
@@ -61,13 +62,15 @@ theorem existsComposite_of_isKFlat
     ∃ N'' : DifferentialGradedBimodule.{u, v, v, v} A C,
       RepresentsComposite N N' N'' := sorry
 
-/-- If the target DGA is K-flat over the ground ring, the explicit relative tensor bimodule
-itself represents the composite derived tensor functor. -/
+/-- For two bimodules with property P over their enveloping DGAs, K-flatness of the target DGA
+over the ground ring makes their explicit relative tensor represent the composite derived functor. -/
 @[stacks 09S4 "explicit K-flat composite represents derived composition"]
 theorem representsComposite_of_isKFlat
     {A B C : CochainDGAlgebra.{u, v} R}
     (N : DifferentialGradedBimodule.{u, v, v, v} A B)
-    (N' : DifferentialGradedBimodule.{u, v, v, v} B C) (hC : C.IsKFlat) :
+    (N' : DifferentialGradedBimodule.{u, v, v, v} B C) (hC : C.IsKFlat)
+    (hN : DifferentialGradedBimodule.HasPropertyP A B N)
+    (hN' : DifferentialGradedBimodule.HasPropertyP B C N') :
     RepresentsComposite N N' (bimodule N N') := sorry
 
 end DifferentialGradedBimodule.Tensor.Derived

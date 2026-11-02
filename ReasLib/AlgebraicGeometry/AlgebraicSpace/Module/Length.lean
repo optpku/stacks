@@ -37,7 +37,7 @@ abbrev etaleSchemeModule {U : Over S} (φ : ofOver U ⟶ X) (F : X.Modules) : U.
 /-- `etaleSchemeModule φ F` is the Zariski restriction of the étale pullback of `F`. -/
 theorem etaleSchemeModule_eq {U : Over S} (φ : ofOver U ⟶ X) (F : X.Modules) :
     etaleSchemeModule φ F = (restrictToScheme U).obj ((pullback φ).obj F) :=
-  sorry
+  rfl
 
 /-- The length of `F` at a point of an étale scheme chart, as the length of the Zariski stalk of
 `etaleSchemeModule φ F`. -/
@@ -50,7 +50,7 @@ theorem lengthOnEtaleChart_eq {U : Over S} (φ : ofOver U ⟶ X) (F : X.Modules)
     lengthOnEtaleChart φ F u =
       Module.length (U.left.presheaf.stalk u)
         (RingedSpace.stalkModuleCat (etaleSchemeModule φ F) u) :=
-  sorry
+  rfl
 
 /-- The length of `F` at `x ∈ |X|` is finite and nonzero: some étale scheme chart over `x` has
 strictly positive finite Zariski-stalk length. -/
@@ -68,14 +68,14 @@ theorem hasFiniteNonzeroLengthAt_iff (F : X.Modules) (x : Points X) :
         Etale φ ∧ ∃ u : U.left,
           Points.mapOfOver φ u = x ∧
             0 < lengthOnEtaleChart φ F u ∧ lengthOnEtaleChart φ F u < ⊤ :=
-  sorry
+  Iff.rfl
 
 /-- A given étale scheme chart with finite nonzero length witnesses `hasFiniteNonzeroLengthAt`. -/
 theorem hasFiniteNonzeroLengthAt_of_lengthOnEtaleChart {U : Over S} (φ : ofOver U ⟶ X) [Etale φ]
     (F : X.Modules) {u : U.left} {x : Points X} (hu : Points.mapOfOver φ u = x)
     (hpos : 0 < lengthOnEtaleChart φ F u) (htop : lengthOnEtaleChart φ F u < ⊤) :
     hasFiniteNonzeroLengthAt F x :=
-  sorry
+  ⟨U, φ, inferInstance, u, hu, hpos, htop⟩
 
 /-- An `𝒪_X`-module `F` has length `d` at `x ∈ |X|` if some étale scheme chart over `x`
 has Zariski-stalk length `d`. -/
@@ -91,20 +91,24 @@ theorem hasLengthAt_iff (F : X.Modules) (x : Points X) (d : ℕ∞) :
       ∃ (U : Over S) (φ : ofOver U ⟶ X),
         Etale φ ∧ ∃ u : U.left,
           Points.mapOfOver φ u = x ∧ lengthOnEtaleChart φ F u = d :=
-  sorry
+  Iff.rfl
 
 /-- A given étale scheme chart with Zariski-stalk length `d` witnesses `hasLengthAt`. -/
 theorem hasLengthAt_of_lengthOnEtaleChart {U : Over S} (φ : ofOver U ⟶ X) [Etale φ]
     (F : X.Modules) {u : U.left} {x : Points X} {d : ℕ∞}
     (hu : Points.mapOfOver φ u = x) (hd : lengthOnEtaleChart φ F u = d) :
     hasLengthAt F x d :=
-  sorry
+  ⟨U, φ, inferInstance, u, hu, hd⟩
 
 /-- Finite nonzero length at a point is the existence of a strictly positive finite
 length `d` at which `hasLengthAt` holds. -/
 theorem hasFiniteNonzeroLengthAt_iff_hasLengthAt (F : X.Modules) (x : Points X) :
-    hasFiniteNonzeroLengthAt F x ↔ ∃ d : ℕ∞, 0 < d ∧ d < ⊤ ∧ hasLengthAt F x d :=
-  sorry
+    hasFiniteNonzeroLengthAt F x ↔ ∃ d : ℕ∞, 0 < d ∧ d < ⊤ ∧ hasLengthAt F x d := by
+  constructor
+  · rintro ⟨U, φ, hφ, u, hu, hpos, htop⟩
+    exact ⟨lengthOnEtaleChart φ F u, hpos, htop, U, φ, hφ, u, hu, rfl⟩
+  · rintro ⟨d, hpos, htop, U, φ, hφ, u, hu, hd⟩
+    exact ⟨U, φ, hφ, u, hu, hd.symm ▸ hpos, hd.symm ▸ htop⟩
 
 
 end AlgebraicGeometry.AlgebraicSpace.Modules

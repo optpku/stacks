@@ -39,7 +39,8 @@ abbrev relativeWeakNormalizationFactorizationProperty {X Y : Scheme.{u}} (f : Y 
 universal homeomorphism. -/
 theorem relativeWeakNormalizationFactorizationProperty_iff
     {X Y : Scheme.{u}} (f : Y ⟶ X) (F : CategoryTheory.Factorisation f) :
-    relativeWeakNormalizationFactorizationProperty f F ↔ UniversalHomeomorphism F.π := sorry
+    relativeWeakNormalizationFactorizationProperty f F ↔ UniversalHomeomorphism F.π :=
+  Iff.rfl
 
 /-- The category of factorizations whose second map is a universal homeomorphism. -/
 abbrev RelativeWeakNormalizationFactorizations {X Y : Scheme.{u}} (f : Y ⟶ X) :
@@ -50,7 +51,8 @@ abbrev RelativeWeakNormalizationFactorizations {X Y : Scheme.{u}} (f : Y ⟶ X) 
 homeomorphism. -/
 theorem RelativeWeakNormalizationFactorizations.property
     {X Y : Scheme.{u}} {f : Y ⟶ X} (F : RelativeWeakNormalizationFactorizations f) :
-    UniversalHomeomorphism F.1.π := sorry
+    UniversalHomeomorphism F.1.π :=
+  CategoryTheory.ObjectProperty.FullSubcategory.property F
 
 /-- The property of a factorization whose second map is a universal homeomorphism inducing
 isomorphisms on all residue fields. -/
@@ -66,7 +68,8 @@ theorem relativeSeminormalizationFactorizationProperty_iff
     {X Y : Scheme.{u}} (f : Y ⟶ X) (F : CategoryTheory.Factorisation f) :
     relativeSeminormalizationFactorizationProperty f F ↔
       UniversalHomeomorphism F.π ∧
-        ∀ x : F.mid, IsIso (Scheme.Hom.residueFieldMap F.π x) := sorry
+        ∀ x : F.mid, IsIso (Scheme.Hom.residueFieldMap F.π x) :=
+  Iff.rfl
 
 /-- The category of factorizations whose second map is a universal homeomorphism inducing
 isomorphisms on all residue fields. -/
@@ -79,7 +82,8 @@ inducing isomorphisms on all residue fields. -/
 theorem RelativeSeminormalizationFactorizations.property
     {X Y : Scheme.{u}} {f : Y ⟶ X} (F : RelativeSeminormalizationFactorizations f) :
     UniversalHomeomorphism F.1.π ∧
-      ∀ x : F.1.mid, IsIso (Scheme.Hom.residueFieldMap F.1.π x) := sorry
+      ∀ x : F.1.mid, IsIso (Scheme.Hom.residueFieldMap F.1.π x) :=
+  CategoryTheory.ObjectProperty.FullSubcategory.property F
 
 /-- A relative weak normalization is an initial factorization whose map to the target is a
 universal homeomorphism. -/

@@ -47,7 +47,10 @@ noncomputable def leftUnitorSchemeIso (X : Category k) :
   let hom : (Category.product (Category.unit k) X).scheme ⟶ X.scheme := Limits.prod.snd
   let inv : X.scheme ⟶ (Category.product (Category.unit k) X).scheme :=
     Limits.prod.lift (terminal.from X.scheme) (𝟙 X.scheme)
-  let laws : hom ≫ inv = 𝟙 _ ∧ inv ≫ hom = 𝟙 _ := sorry
+  let laws : hom ≫ inv = 𝟙 _ ∧ inv ≫ hom = 𝟙 _ := by
+    constructor
+    · exact (Limits.prod.leftUnitor X.scheme).hom_inv_id
+    · exact (Limits.prod.leftUnitor X.scheme).inv_hom_id
   { hom := hom
     inv := inv
     hom_inv_id := laws.1
@@ -74,7 +77,10 @@ noncomputable def rightUnitorSchemeIso (X : Category k) :
   let hom : (Category.product X (Category.unit k)).scheme ⟶ X.scheme := Limits.prod.fst
   let inv : X.scheme ⟶ (Category.product X (Category.unit k)).scheme :=
     Limits.prod.lift (𝟙 X.scheme) (terminal.from X.scheme)
-  let laws : hom ≫ inv = 𝟙 _ ∧ inv ≫ hom = 𝟙 _ := sorry
+  let laws : hom ≫ inv = 𝟙 _ ∧ inv ≫ hom = 𝟙 _ := by
+    constructor
+    · exact (Limits.prod.rightUnitor X.scheme).hom_inv_id
+    · exact (Limits.prod.rightUnitor X.scheme).inv_hom_id
   { hom := hom
     inv := inv
     hom_inv_id := laws.1

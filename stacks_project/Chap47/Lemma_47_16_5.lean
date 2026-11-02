@@ -22,12 +22,14 @@ universe u
     ∀ (A M : Type u) [CommRing A] [IsNoetherianRing A] [IsLocalRing A]
       [AddCommGroup M] [Module A M] [Module.Finite A M]
       [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
-      (H : MonoidalClosed (DerivedCategory (ModuleCat.{u} A)))
-      (ω : DerivedCategory (ModuleCat.{u} A)) (hω : ω.IsNormalizedDualizingComplex H)
+      (C : CategoryTheory.DerivedCategory.CanonicalClosedPresentation (A := A))
+      (ω : DerivedCategory (ModuleCat.{u} A))
+      (hω : ω.IsCanonicalNormalizedDualizingComplex C)
       (i : ℤ),
       ¬ IsZero
         ((DerivedCategory.homologyFunctor (ModuleCat.{u} A) i).obj
-          ((MonoidalClosed.ihomOf H (ModuleCat.single0 (ModuleCat.of A M))).obj ω)) →
+          ((CategoryTheory.DerivedCategory.InternalHom.RHom.obj (A := A)
+            (ModuleCat.single0 (ModuleCat.of A M)) ω))) →
       ∃ d : ℕ, Module.supportDim A M = .some (d : ℕ∞) ∧ -(d : ℤ) ≤ i ∧ i ≤ 0)
 
 /- Lemma 47.16.5 (2) -/
@@ -36,15 +38,18 @@ universe u
     ∀ (A M : Type u) [CommRing A] [IsNoetherianRing A] [IsLocalRing A]
       [AddCommGroup M] [Module A M] [Module.Finite A M]
       [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
-      (H : MonoidalClosed (DerivedCategory (ModuleCat.{u} A)))
-      (ω : DerivedCategory (ModuleCat.{u} A)) (hω : ω.IsNormalizedDualizingComplex H)
+      (C : CategoryTheory.DerivedCategory.CanonicalClosedPresentation (A := A))
+      (ω : DerivedCategory (ModuleCat.{u} A))
+      (hω : ω.IsCanonicalNormalizedDualizingComplex C)
       (i : ℤ),
       Module.supportDim A
         ((DerivedCategory.homologyFunctor (ModuleCat.{u} A) i).obj
-          ((MonoidalClosed.ihomOf H (ModuleCat.single0 (ModuleCat.of A M))).obj ω)) = ⊥ ∨
+          ((CategoryTheory.DerivedCategory.InternalHom.RHom.obj (A := A)
+            (ModuleCat.single0 (ModuleCat.of A M)) ω))) = ⊥ ∨
         ∃ e : ℕ, Module.supportDim A
             ((DerivedCategory.homologyFunctor (ModuleCat.{u} A) i).obj
-              ((MonoidalClosed.ihomOf H (ModuleCat.single0 (ModuleCat.of A M))).obj ω)) =
+              ((CategoryTheory.DerivedCategory.InternalHom.RHom.obj (A := A)
+                (ModuleCat.single0 (ModuleCat.of A M)) ω))) =
           .some (e : ℕ∞) ∧ (e : ℤ) ≤ -i)
 
 /- Lemma 47.16.5 (3) -/

@@ -70,8 +70,16 @@ theorem sober_of_quasiCompact_diagonal {S : Scheme.{u}} (X : GroupoidsOver S)
     (h_quasiCompact :
       Groupoids.Hom.has (@AlgebraicSpace.QuasiCompact (Spec (.of (ULift.{u} ℤ))))
         (diagonal.{u + 1, u, u + 1} (viewedOverSpecZ X))) :
-    T0Space (Points X) ∧ QuasiSober (Points X) :=
-  sorry
+    T0Space (Points X) ∧ QuasiSober (Points X) := by
+  obtain ⟨ι, U, hU, hSpectral⟩ :=
+    exists_isOpenCover_spectral_of_quasiCompact_diagonal X h_quasiCompact
+  letI (i : ι) : SpectralSpace (U i) := hSpectral i
+  constructor
+  · apply T0Space.of_open_cover
+    intro x
+    obtain ⟨i, hi⟩ := hU.exists_mem x
+    exact ⟨U i, hi, (U i).isOpen, inferInstance⟩
+  · exact hU.quasiSober
 
 /-- Every irreducible closed subset of the space of points of an algebraic stack
 with quasi-compact absolute diagonal has a unique generic point. -/
@@ -81,8 +89,12 @@ theorem existsUnique_isGenericPoint_of_quasiCompact_diagonal {S : Scheme.{u}}
       Groupoids.Hom.has (@AlgebraicSpace.QuasiCompact (Spec (.of (ULift.{u} ℤ))))
         (diagonal.{u + 1, u, u + 1} (viewedOverSpecZ X)))
     {T : Set (Points X)} (hT_irred : IsIrreducible T) (hT_closed : IsClosed T) :
-    ∃! x : Points X, IsGenericPoint x T :=
-  sorry
+    ∃! x : Points X, IsGenericPoint x T := by
+  obtain ⟨hT0, hSober⟩ := sober_of_quasiCompact_diagonal X h_quasiCompact
+  letI : T0Space (Points X) := hT0
+  letI : QuasiSober (Points X) := hSober
+  obtain ⟨x, hx⟩ := QuasiSober.sober hT_irred hT_closed
+  exact ⟨x, hx, fun y hy ↦ hy.eq hx⟩
 
 namespace IsQuasiSeparated
 
@@ -92,17 +104,20 @@ theorem exists_isOpenCover_spectral {S : Scheme.{u}} (X : GroupoidsOver S)
     [AlgebraicStack X] [IsQuasiSeparated X] :
     ∃ (ι : Type (u + 1)) (U : ι → Opens (Points X)),
       IsOpenCover U ∧ ∀ i, SpectralSpace (U i) :=
-  sorry
+  exists_isOpenCover_spectral_of_quasiCompact_diagonal X
+    (IsQuasiSeparated.quasiCompact_diagonal (X := X))
 
 /-- The space of points of a quasi-separated algebraic stack is Kolmogorov. -/
 instance instT0SpacePoints {S : Scheme.{u}} (X : GroupoidsOver S)
     [AlgebraicStack X] [IsQuasiSeparated X] : T0Space (Points X) :=
-  sorry
+  (sober_of_quasiCompact_diagonal X
+    (IsQuasiSeparated.quasiCompact_diagonal (X := X))).1
 
 /-- The space of points of a quasi-separated algebraic stack is quasi-sober. -/
 instance instQuasiSoberPoints {S : Scheme.{u}} (X : GroupoidsOver S)
     [AlgebraicStack X] [IsQuasiSeparated X] : QuasiSober (Points X) :=
-  sorry
+  (sober_of_quasiCompact_diagonal X
+    (IsQuasiSeparated.quasiCompact_diagonal (X := X))).2
 
 end IsQuasiSeparated
 

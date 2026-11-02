@@ -48,7 +48,14 @@ variable (G : C ⥤ D) (η : G.op ⋙ OY.obj ⟶ OX.obj)
 compatible family. -/
 theorem sectionsPullback_naturality (s : sectionsRing OY) {U V : Cᵒᵖ} (i : U ⟶ V) :
     OX.obj.map i ((η.app U).hom (sectionsEval OY (G.op.obj U) s)) =
-      (η.app V).hom (sectionsEval OY (G.op.obj V) s) := sorry
+      (η.app V).hom (sectionsEval OY (G.op.obj V) s) := by
+  have hs : OY.obj.map (G.op.map i) (sectionsEval OY (G.op.obj U) s) =
+      sectionsEval OY (G.op.obj V) s := s.property (G.op.map i)
+  calc
+    _ = (η.app V).hom
+        (OY.obj.map (G.op.map i) (sectionsEval OY (G.op.obj U) s)) :=
+      (CategoryTheory.congr_fun (η.naturality i) _).symm
+    _ = _ := congrArg (η.app V).hom hs
 
 /-- The homomorphism on global sections induced by a morphism of ring presheaves
 over a functor of sites. -/
@@ -61,7 +68,7 @@ def sectionsPullback : sectionsRing OY →+* sectionsRing OX :=
 to the original section at the image object. -/
 theorem sectionsPullback_apply (s : sectionsRing OY) (U : Cᵒᵖ) :
     sectionsEval OX U (sectionsPullback OX OY G η s) =
-      (η.app U).hom (sectionsEval OY (G.op.obj U) s) := sorry
+      (η.app U).hom (sectionsEval OY (G.op.obj U) s) := rfl
 
 end Pullback
 
@@ -73,7 +80,14 @@ theorem scalarEndomorphism_naturality (s : sectionsRing O) {U V : Cᵒᵖ} (i : 
     F.val.presheaf.map i ≫
         AddCommGrpCat.ofHom (DistribSMul.toAddMonoidHom (F.val.obj V) (sectionsEval O V s)) =
       AddCommGrpCat.ofHom (DistribSMul.toAddMonoidHom (F.val.obj U) (sectionsEval O U s)) ≫
-        F.val.presheaf.map i := sorry
+        F.val.presheaf.map i := by
+  ext x
+  change F.val.obj U at x
+  change sectionsEval O V s • F.val.map i x =
+    F.val.map i (sectionsEval O U s • x)
+  rw [F.val.map_smul]
+  have hs : O.obj.map i (sectionsEval O U s) = sectionsEval O V s := s.property i
+  rw [hs]
 
 /-- Multiplication by a compatible global section as an additive sheaf endomorphism. -/
 def scalarEndomorphism (s : sectionsRing O) :
@@ -95,21 +109,54 @@ instance instSMul (q : ℕ) :
 /-- The global-section action on cohomology distributes over addition of classes. -/
 theorem smul_add (q : ℕ) (s : sectionsRing O)
     (x y : (Sheaf.functorH J q).obj ((toSheaf O).obj F)) :
-    s • (x + y) = s • x + s • y := sorry
+    s • (x + y) = s • x + s • y := by
+  exact map_add ((Sheaf.functorH J q).map (scalarEndomorphism O F s)).hom x y
 
 /-- Addition of global sections acts as addition of their actions on cohomology. -/
 theorem add_smul (q : ℕ) (s t : sectionsRing O)
     (x : (Sheaf.functorH J q).obj ((toSheaf O).obj F)) :
-    (s + t) • x = s • x + t • x := sorry
+    (s + t) • x = s • x + t • x := by
+  have h : scalarEndomorphism O F (s + t) =
+      scalarEndomorphism O F s + scalarEndomorphism O F t := by
+    ext U x
+    change F.val.obj U at x
+    change sectionsEval O U (s + t) • x =
+      sectionsEval O U s • x + sectionsEval O U t • x
+    rw [map_add, _root_.add_smul]
+  change (Sheaf.functorH J q).map (scalarEndomorphism O F (s + t)) x =
+    (Sheaf.functorH J q).map (scalarEndomorphism O F s) x +
+      (Sheaf.functorH J q).map (scalarEndomorphism O F t) x
+  rw [h, CategoryTheory.Functor.map_add]
+  rfl
 
 /-- Multiplication of global sections acts by composition on cohomology. -/
 theorem mul_smul (q : ℕ) (s t : sectionsRing O)
     (x : (Sheaf.functorH J q).obj ((toSheaf O).obj F)) :
-    (s * t) • x = s • (t • x) := sorry
+    (s * t) • x = s • (t • x) := by
+  have h : scalarEndomorphism O F (s * t) =
+      scalarEndomorphism O F t ≫ scalarEndomorphism O F s := by
+    ext U x
+    change F.val.obj U at x
+    change sectionsEval O U (s * t) • x =
+      sectionsEval O U s • (sectionsEval O U t • x)
+    rw [map_mul, SemigroupAction.mul_smul]
+  change (Sheaf.functorH J q).map (scalarEndomorphism O F (s * t)) x =
+    (Sheaf.functorH J q).map (scalarEndomorphism O F s)
+      ((Sheaf.functorH J q).map (scalarEndomorphism O F t) x)
+  rw [h, CategoryTheory.Functor.map_comp]
+  rfl
 
 /-- The unit global section acts as the identity on cohomology. -/
 theorem one_smul (q : ℕ) (x : (Sheaf.functorH J q).obj ((toSheaf O).obj F)) :
-    (1 : sectionsRing O) • x = x := sorry
+    (1 : sectionsRing O) • x = x := by
+  have h : scalarEndomorphism O F 1 = 𝟙 ((toSheaf O).obj F) := by
+    ext U x
+    change F.val.obj U at x
+    change sectionsEval O U 1 • x = x
+    rw [map_one, _root_.one_smul]
+  change (Sheaf.functorH J q).map (scalarEndomorphism O F 1) x = x
+  rw [h, CategoryTheory.Functor.map_id]
+  rfl
 
 /-- Cohomology of a module sheaf is canonically a module over its ring of global
 sections. -/
@@ -126,6 +173,6 @@ def obj (q : ℕ) : ModuleCat.{h} (sectionsRing O) :=
 scalar multiplication on the coefficient sheaf. -/
 theorem smul_def (q : ℕ) (s : sectionsRing O)
     (x : (Sheaf.functorH J q).obj ((toSheaf O).obj F)) :
-    s • x = (Sheaf.functorH J q).map (scalarEndomorphism O F s) x := sorry
+    s • x = (Sheaf.functorH J q).map (scalarEndomorphism O F s) x := rfl
 
 end SheafOfModules.GlobalCohomology

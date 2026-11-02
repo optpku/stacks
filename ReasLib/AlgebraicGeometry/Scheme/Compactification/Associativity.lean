@@ -156,17 +156,32 @@ theorem ιMid_comp_openMid :
     (Of.ι A.P_bar) (ιMid_fac X g h A)
 
 /-- The induced map `X ⟶ V` is an open immersion. -/
-theorem isOpenImmersion_ιMid : IsOpenImmersion (ιMid X g h A) :=
-  sorry
+theorem isOpenImmersion_ιMid : IsOpenImmersion (ιMid X g h A) := by
+  haveI : IsOpenImmersion (openMid X g h A) := by
+    change IsOpenImmersion (pullback.snd
+      (pullback.snd (Of.ι A.P_h) A.P_g.obj.right.hom) A.P_bar.obj.right.hom)
+    infer_instance
+  haveI : IsOpenImmersion (ιMid X g h A ≫ openMid X g h A) := by
+    rw [ιMid_comp_openMid]
+    exact A.P_bar.property.isOpenImmersion
+  exact IsOpenImmersion.of_comp (ιMid X g h A) (openMid X g h A)
 
 /-- The induced map `X ⟶ V` is quasi-compact. -/
-theorem quasiCompact_ιMid : QuasiCompact (ιMid X g h A) :=
-  sorry
+theorem quasiCompact_ιMid : QuasiCompact (ιMid X g h A) := by
+  haveI : Mono (openMid X g h A) := by
+    change Mono (pullback.snd
+      (pullback.snd (Of.ι A.P_h) A.P_g.obj.right.hom) A.P_bar.obj.right.hom)
+    infer_instance
+  haveI : IsSeparated (openMid X g h A) := IsSeparated.isSeparated_of_mono _
+  haveI : QuasiCompact (ιMid X g h A ≫ openMid X g h A) := by
+    rw [ιMid_comp_openMid]
+    exact A.P_bar.property.quasiCompact
+  exact QuasiCompact.of_comp (ιMid X g h A) (openMid X g h A)
 
 /-- The map `V ⟶ W` is proper, as a base change of the proper ambient map of
 `P_bar`. -/
 theorem isProper_toMidBase : IsProper (toMidBase X g h A) :=
-  sorry
+  inferInstanceAs (IsProper (pullback.fst (openBase X g h A) A.P_bar.obj.right.hom))
 
 /-- Compactification of `X` over `W` with ambient `V` and interior `X ⟶ V`. -/
 def ofMid :
@@ -212,7 +227,7 @@ theorem compositeBase_fac :
 /-- The composite ambient morphism `Ȳ ⟶ T` is proper. -/
 theorem isProper_P_g_comp_P_h :
     IsProper (A.P_g.obj.right.hom ≫ A.P_h.obj.right.hom) :=
-  sorry
+  inferInstanceAs (IsProper (A.P_g.obj.right.hom ≫ A.P_h.obj.right.hom))
 
 /-- Compactification of `g ≫ h : Y ⟶ T` with ambient `Ȳ` and interior
 `Of.ι P_g`. -/
@@ -261,7 +276,7 @@ theorem compositeOverBase_fac :
 /-- The composite ambient morphism `X̄ ⟶ Z̄` is proper. -/
 theorem isProper_P_bar_comp_P_g :
     IsProper (A.P_bar.obj.right.hom ≫ A.P_g.obj.right.hom) :=
-  sorry
+  inferInstanceAs (IsProper (A.P_bar.obj.right.hom ≫ A.P_g.obj.right.hom))
 
 /-- Compactification of `X` over `Z̄` with ambient `X̄` and interior
 `Of.ι P_bar`. -/
@@ -375,8 +390,28 @@ theorem midPasting_ι :
       (CompDiagram.ofInterior (h_f_separated := inferInstanceAs (IsSeparated (X.hom ≫ g)))
       (h_f_finiteType := inferInstanceAs (Scheme.Hom.FiniteType (X.hom ≫ g)))
       (h_X_compact := inferInstanceAs (CompactSpace X.left))
-      (h_X_quasiSeparated := inferInstanceAs (QuasiSeparatedSpace X.left)) (Over.mk (X.hom ≫ g)) h (compH X g h A)).obj.hom :=
-  sorry
+      (h_X_quasiSeparated := inferInstanceAs (QuasiSeparatedSpace X.left)) (Over.mk (X.hom ≫ g)) h (compH X g h A)).obj.hom := by
+  apply CostructuredArrow.hom_ext
+  change (CompDiagram.ιInterior X g (compFG X g h A) ≫
+      CompDiagram.openImmersion X g (compFG X g h A)) ≫
+      (𝟙 _ ≫ midPasting X g h A ≫ 𝟙 _) = _
+  simp only [Category.id_comp, Category.comp_id]
+  apply (cancel_mono
+    (CompDiagram.openImmersion (Over.mk (X.hom ≫ g)) h (compH X g h A))).mp
+  exact (Category.assoc _ _ _).trans
+    ((congrArg (fun t ↦
+        (CompDiagram.ιInterior X g (compFG X g h A) ≫
+          CompDiagram.openImmersion X g (compFG X g h A)) ≫ t)
+        (midPasting_open X g h A)).trans
+      ((congrArg (fun t ↦ t ≫ openMid X g h A)
+          (CompDiagram.ιInterior_comp_openImmersion X g (compFG X g h A))).trans
+        ((ιMid_comp_openMid X g h A).trans
+          (CompDiagram.ιInterior_comp_openImmersion
+            (h_f_separated := inferInstanceAs (IsSeparated (X.hom ≫ g)))
+            (h_f_finiteType := inferInstanceAs (Scheme.Hom.FiniteType (X.hom ≫ g)))
+            (h_X_compact := inferInstanceAs (CompactSpace X.left))
+            (h_X_quasiSeparated := inferInstanceAs (QuasiSeparatedSpace X.left))
+            (Over.mk (X.hom ≫ g)) h (compH X g h A)).symm)))
 
 /-- Compactification morphism from the `γ_A` composite model of `g ∘ f` to the
 interior model of `γ_{B+C}`. -/
@@ -441,8 +476,11 @@ def midPastingInv :
 theorem midPastingInv_over :
     midPastingInv X g h A ≫
         (CompDiagram.ofComposite X g (compFG X g h A)).obj.right.hom =
-      CompDiagram.toBase (Over.mk (X.hom ≫ g)) h (compH X g h A) :=
-  sorry
+      CompDiagram.toBase (Over.mk (X.hom ≫ g)) h (compH X g h A) := by
+  rw [ofCompositeFG_hom, ← Category.assoc]
+  change (pullback.lift _ _ _ ≫ pullback.fst _ _) ≫ pullback.fst _ _ = _
+  rw [pullback.lift_fst]
+  exact pullback.lift_fst _ _ _
 
 /-- Commutativity of interiors along the inverse pasting map. -/
 theorem midPastingInv_ι :
@@ -454,8 +492,27 @@ theorem midPastingInv_ι :
           (eqToHom (ofInteriorH_left X g h A) ≫
             midPastingInv X g h A ≫ eqToHom (ofCompositeFG_left X g h A).symm)
           (midPastingInv_over X g h A) =
-      (CompDiagram.ofComposite X g (compFG X g h A)).obj.hom :=
-  sorry
+      (CompDiagram.ofComposite X g (compFG X g h A)).obj.hom := by
+  apply CostructuredArrow.hom_ext
+  change _ ≫ (𝟙 _ ≫ midPastingInv X g h A ≫ 𝟙 _) =
+    CompDiagram.ιInterior X g (compFG X g h A) ≫
+      CompDiagram.openImmersion X g (compFG X g h A)
+  simp only [Category.id_comp, Category.comp_id]
+  rw [CompDiagram.ιInterior_comp_openImmersion]
+  haveI : Mono (openMid X g h A) := by
+    change Mono (pullback.snd
+      (pullback.snd (Of.ι A.P_h) A.P_g.obj.right.hom) A.P_bar.obj.right.hom)
+    infer_instance
+  apply (cancel_mono (openMid X g h A)).mp
+  rw [Category.assoc]
+  change _ ≫ (pullback.lift _ _ _ ≫ pullback.snd _ _) = _
+  rw [pullback.lift_snd]
+  exact (CompDiagram.ιInterior_comp_openImmersion
+    (h_f_separated := inferInstanceAs (IsSeparated (X.hom ≫ g)))
+    (h_f_finiteType := inferInstanceAs (Scheme.Hom.FiniteType (X.hom ≫ g)))
+    (h_X_compact := inferInstanceAs (CompactSpace X.left))
+    (h_X_quasiSeparated := inferInstanceAs (QuasiSeparatedSpace X.left))
+    (Over.mk (X.hom ≫ g)) h (compH X g h A)).trans (ιMid_comp_openMid X g h A).symm
 
 /-- Compactification morphism from the interior model of `γ_{B+C}` to the `γ_A`
 composite model of `g ∘ f`. -/

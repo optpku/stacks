@@ -42,7 +42,7 @@ noncomputable def closedPointCenter {S : Scheme.{u}} {X : AlgebraicSpace S} [IsD
 theorem closedPointCenter_ι {S : Scheme.{u}} {X : AlgebraicSpace S} [IsDecent X]
     (x : Points X) (hx : x ∈ closedPoints (Points X)) :
     (closedPointCenter x hx).ι = X.fromSpecResidueField x :=
-  sorry
+  rfl
 
 end NormalizedBlowup
 
@@ -87,7 +87,7 @@ theorem of_point {S : Scheme.{u}} {X : AlgebraicSpace S} [IsDecent X]
     (isBlowup : IsBlowup toBlowup (closedPointCenter point isClosedPoint))
     (finiteComponents : HasFiniteIrreducibleComponentsOnCompactOpens blowupSpace) :
     (of point isClosedPoint blowupSpace toBlowup isBlowup finiteComponents).point = point :=
-  sorry
+  rfl
 
 /-- The ordinary blowup morphism of a normalized blowup constructed by `of` is the supplied
 morphism. -/
@@ -99,7 +99,7 @@ theorem of_toBlowup {S : Scheme.{u}} {X : AlgebraicSpace S} [IsDecent X]
     (finiteComponents : HasFiniteIrreducibleComponentsOnCompactOpens blowupSpace) :
     (of point isClosedPoint blowupSpace toBlowup isBlowup finiteComponents).toBlowup =
       toBlowup :=
-  sorry
+  rfl
 
 /-- The source of a normalized blowup is the canonical normalization of the ordinary blowup
 space. -/
@@ -112,7 +112,7 @@ noncomputable def source {S : Scheme.{u}} {X : AlgebraicSpace S} [IsDecent X]
 theorem source_eq {S : Scheme.{u}} {X : AlgebraicSpace S} [IsDecent X]
     [HasFiniteIrreducibleComponentsOnCompactOpens X] (s : NormalizedBlowup X) :
     s.source = @normalization _ s.blowupSpace s.finiteComponents :=
-  sorry
+  rfl
 
 /-- The normalization morphism from the normalized source to the ordinary blowup space. -/
 noncomputable def toNormalization {S : Scheme.{u}} {X : AlgebraicSpace S} [IsDecent X]
@@ -124,7 +124,7 @@ noncomputable def toNormalization {S : Scheme.{u}} {X : AlgebraicSpace S} [IsDec
 theorem toNormalization_def {S : Scheme.{u}} {X : AlgebraicSpace S} [IsDecent X]
     [HasFiniteIrreducibleComponentsOnCompactOpens X] (s : NormalizedBlowup X) :
     s.toNormalization = @normalizationTo _ s.blowupSpace s.finiteComponents :=
-  sorry
+  rfl
 
 /-- The normalized blowup morphism, obtained by normalization followed by the ordinary blowup. -/
 noncomputable def hom {S : Scheme.{u}} {X : AlgebraicSpace S} [IsDecent X]
@@ -137,7 +137,7 @@ blowup. -/
 theorem hom_def {S : Scheme.{u}} {X : AlgebraicSpace S} [IsDecent X]
     [HasFiniteIrreducibleComponentsOnCompactOpens X] (s : NormalizedBlowup X) :
     s.hom = s.toNormalization ≫ s.toBlowup :=
-  sorry
+  rfl
 
 /-- A normalized blowup is a closed-point ordinary blowup of `X`, followed by absolute
 normalization of that blowup space. -/
@@ -147,7 +147,7 @@ theorem spec {S : Scheme.{u}} {X : AlgebraicSpace S} [IsDecent X]
       IsBlowup s.toBlowup (closedPointCenter s.point s.isClosedPoint) ∧
       s.source = @normalization _ s.blowupSpace s.finiteComponents ∧
       s.hom = s.toNormalization ≫ s.toBlowup :=
-  sorry
+  ⟨s.isClosedPoint, s.isBlowup, s.source_eq, s.hom_def⟩
 
 end NormalizedBlowup
 

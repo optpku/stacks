@@ -36,7 +36,8 @@ class IsPolynomial (A P : Type u) [CommRing A] [CommRing P] [Algebra A P] : Prop
 /-- Being a polynomial `A`-algebra is equivalent to the existence of a multivariate
 polynomial presentation. -/
 theorem IsPolynomial.iff (A P : Type u) [CommRing A] [CommRing P] [Algebra A P] :
-    IsPolynomial A P ↔ ∃ σ : Type u, Nonempty (P ≃ₐ[A] MvPolynomial σ A) := sorry
+    IsPolynomial A P ↔ ∃ σ : Type u, Nonempty (P ≃ₐ[A] MvPolynomial σ A) := by
+  exact ⟨fun h ↦ h.exists_repr, fun h ↦ ⟨h⟩⟩
 
 end Algebra
 
@@ -60,7 +61,7 @@ abbrev isPolynomialOver (A B : Type u) [CommRing A] [CommRing B] [Algebra A B] :
 /-- Unfolding `isPolynomialOver` recovers the polynomial-source property. -/
 theorem isPolynomialOver_iff {A B : Type u} [CommRing A] [CommRing B] [Algebra A B]
     (X : Over (CommAlgCat.of A B)) :
-    isPolynomialOver A B X ↔ IsPolynomial A X.left := sorry
+    isPolynomialOver A B X ↔ IsPolynomial A X.left := Iff.rfl
 
 /-- The category of `A`-algebra maps `P ⟶ B` with `P` a polynomial algebra over `A`. -/
 abbrev PolynomialOver (A B : Type u) [CommRing A] [CommRing B] [Algebra A B] :=
@@ -82,13 +83,18 @@ noncomputable def ofGenerators (A : Type u) {B : Type u} [CommRing A] [CommRing 
 /-- The underlying arrow of `ofGenerators A f` is evaluation of polynomials at `f`. -/
 theorem ofGenerators_obj (A : Type u) {B : Type u} [CommRing A] [CommRing B] [Algebra A B]
     {σ : Type u} (f : σ → B) :
-    (ofGenerators A f).obj = Over.mk (CommAlgCat.ofHom (MvPolynomial.aeval f)) := sorry
+    (ofGenerators A f).obj = Over.mk (CommAlgCat.ofHom (MvPolynomial.aeval f)) := rfl
 
 /-- Membership in `PolynomialOver A B` is the polynomial-source property on the over
 category of `B`. -/
 theorem mem_iff {A B : Type u} [CommRing A] [CommRing B] [Algebra A B]
     (X : Over (CommAlgCat.of A B)) :
-    IsPolynomial A X.left ↔ ∃ Y : PolynomialOver A B, Y.obj = X := sorry
+    IsPolynomial A X.left ↔ ∃ Y : PolynomialOver A B, Y.obj = X := by
+  constructor
+  · intro h
+    exact ⟨⟨X, h⟩, rfl⟩
+  · rintro ⟨Y, rfl⟩
+    exact Y.property
 
 /-- Every polynomial algebra map to `B` factors in the over category through a polynomial
 algebra on a generating set of cardinality at most that of `B`, as a retraction. -/
@@ -97,7 +103,38 @@ theorem exists_generating_set_cardinal_le {A B : Type u} [CommRing A] [CommRing 
     ∃ (ι : Type u) (g : ι → B)
       (r : (ofGenerators A f).obj ⟶ (ofGenerators A g).obj)
       (s : (ofGenerators A g).obj ⟶ (ofGenerators A f).obj),
-      Cardinal.mk ι ≤ Cardinal.mk B ∧ s ≫ r = 𝟙 (ofGenerators A g).obj := sorry
+      Cardinal.mk ι ≤ Cardinal.mk B ∧ s ≫ r = 𝟙 (ofGenerators A g).obj := by
+  classical
+  let q : σ → Set.range f := fun i ↦ ⟨f i, ⟨i, rfl⟩⟩
+  let t : Set.range f → σ := fun b ↦ Classical.choose b.property
+  have ht (b : Set.range f) : f (t b) = b := Classical.choose_spec b.property
+  let g : Set.range f → B := Subtype.val
+  let r : (ofGenerators A f).obj ⟶ (ofGenerators A g).obj :=
+    Over.homMk (CommAlgCat.ofHom (MvPolynomial.aeval (fun i ↦ MvPolynomial.X (q i))))
+      (by
+        apply CommAlgCat.hom_ext
+        change (MvPolynomial.aeval g).comp
+          (MvPolynomial.aeval (fun i ↦ MvPolynomial.X (q i))) = MvPolynomial.aeval f
+        ext i
+        simp [g, q])
+  let s : (ofGenerators A g).obj ⟶ (ofGenerators A f).obj :=
+    Over.homMk (CommAlgCat.ofHom (MvPolynomial.aeval (fun b ↦ MvPolynomial.X (t b))))
+      (by
+        apply CommAlgCat.hom_ext
+        change (MvPolynomial.aeval f).comp
+          (MvPolynomial.aeval (fun b ↦ MvPolynomial.X (t b))) = MvPolynomial.aeval g
+        ext b
+        simpa [g] using ht b)
+  refine ⟨Set.range f, g, r, s, Cardinal.mk_set_le _, ?_⟩
+  apply Over.OverMorphism.ext
+  apply CommAlgCat.hom_ext
+  change (MvPolynomial.aeval (fun i ↦ MvPolynomial.X (q i))).comp
+    (MvPolynomial.aeval (fun b ↦ MvPolynomial.X (t b))) = AlgHom.id A _
+  apply MvPolynomial.algHom_ext
+  intro b
+  simp only [AlgHom.comp_apply, MvPolynomial.aeval_X, AlgHom.id_apply]
+  have hqt : q (t b) = b := Subtype.ext (ht b)
+  exact congrArg (MvPolynomial.X : Set.range f → MvPolynomial (Set.range f) A) hqt
 
 end PolynomialOver
 
@@ -106,7 +143,7 @@ namespace PolynomialSite
 /-- The underlying source of an object of `PolynomialSite A B` is a polynomial `A`-algebra. -/
 theorem unop_isPolynomial {A B : Type u} [CommRing A] [CommRing B] [Algebra A B]
     (X : PolynomialSite A B) :
-    IsPolynomial A X.unop.obj.left := sorry
+    IsPolynomial A X.unop.obj.left := X.unop.property
 
 end PolynomialSite
 
@@ -126,6 +163,6 @@ noncomputable def ofMvPolynomial (ι : Type u) (aug : MvPolynomial ι A →ₐ[A
 /-- The underlying over-object of the polynomial algebra specified by an augmentation
 is that augmentation. -/
 theorem ofMvPolynomial_obj (ι : Type u) (aug : MvPolynomial ι A →ₐ[A] B) :
-    (ofMvPolynomial A B ι aug).obj = Over.mk (CommAlgCat.ofHom aug) := sorry
+    (ofMvPolynomial A B ι aug).obj = Over.mk (CommAlgCat.ofHom aug) := rfl
 
 end CommAlgCat.Over.Polynomial

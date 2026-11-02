@@ -60,20 +60,23 @@ abbrev arrow {p : F ⥤ ArtinianLocalAlgCat Λ k} {x : F} (a : SubringOver p x) 
 
 /-- The identity arrow of `x`, as an object of `SubringOver p x`. -/
 def id (p : F ⥤ ArtinianLocalAlgCat Λ k) (x : F) : SubringOver p x :=
-  mk (𝟙 x) sorry
+  mk (𝟙 x) (by
+    rw [p.map_id]
+    exact fun _ _ h => h)
 
 /-- An object of `S_x` is a packaged arrow over `x` whose image under `p` is injective. -/
 theorem spec {p : F ⥤ ArtinianLocalAlgCat Λ k} {x : F} (a : SubringOver p x) :
-    Function.Injective (p.map (arrow a)).hom ∧ a.obj = Over.mk (arrow a) := sorry
+    Function.Injective (p.map (arrow a)).hom ∧ a.obj = Over.mk (arrow a) :=
+  ⟨a.property, rfl⟩
 
 /-- The packaged constructor recovers the supplied arrow. -/
 theorem mk_arrow {x left : F} {p : F ⥤ ArtinianLocalAlgCat Λ k} (φ : left ⟶ x)
     (h : Function.Injective (p.map φ).hom) :
-    arrow (mk φ h) = φ := sorry
+    arrow (mk φ h) = φ := rfl
 
 /-- The forgetful functor sends an object of `SubringOver` to its underlying over-object. -/
 theorem forget_obj {p : F ⥤ ArtinianLocalAlgCat Λ k} {x : F} (a : SubringOver p x) :
-    (forget p x).obj a = a.obj := sorry
+    (forget p x).obj a = a.obj := rfl
 
 /-- An object of `S_x` is minimal when every incoming morphism of `S_x` is an isomorphism. -/
 def IsMinimal {p : F ⥤ ArtinianLocalAlgCat Λ k} {x : F} (a : SubringOver p x) : Prop :=
@@ -81,11 +84,11 @@ def IsMinimal {p : F ⥤ ArtinianLocalAlgCat Λ k} {x : F} (a : SubringOver p x)
 
 /-- Minimality is equivalent to every incoming morphism of `S_x` being an isomorphism. -/
 theorem isMinimal_iff {p : F ⥤ ArtinianLocalAlgCat Λ k} {x : F} (a : SubringOver p x) :
-    IsMinimal a ↔ ∀ ⦃b : SubringOver p x⦄ (f : b ⟶ a), IsIso f := sorry
+    IsMinimal a ↔ ∀ ⦃b : SubringOver p x⦄ (f : b ⟶ a), IsIso f := Iff.rfl
 
 /-- Incoming morphisms of `S_x` into a minimal object are isomorphisms. -/
 theorem isMinimal_isIso {p : F ⥤ ArtinianLocalAlgCat Λ k} {x : F} {a : SubringOver p x}
-    (ha : IsMinimal a) {b : SubringOver p x} (f : b ⟶ a) : IsIso f := sorry
+    (ha : IsMinimal a) {b : SubringOver p x} (f : b ⟶ a) : IsIso f := ha f
 
 /-- Minimal objects of `S_x` exist when `p` is cofibered in groupoids, since the base
 algebra of `x` has finite length. -/

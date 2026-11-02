@@ -56,31 +56,40 @@ theorem spec {S : Scheme.{u}} {X Y : GroupoidsOver S} (f : X ⟶ Y)
     [IsFirstOrderThickening f] {U : Over S} (y : GroupoidsOver.slice U ⟶ Y)
     {Fy : AlgebraicSpace S} {fy : Fy ⟶ AlgebraicSpace.ofOver U}
     (h : RepresentsBaseChange f y Fy fy) :
-    AlgebraicSpace.IsFirstOrderThickening fy := sorry
+    AlgebraicSpace.IsFirstOrderThickening fy :=
+  IsFirstOrderThickening.of_represents y Fy fy h
 
 /-- A first-order thickening of groupoid fibrations is representable by
 algebraic spaces. -/
 theorem relativelyRepresentable {S : Scheme.{u}} {X Y : GroupoidsOver S}
     (f : X ⟶ Y) [IsFirstOrderThickening f] :
-    relativelyRepresentableByAlgebraicSpaces f := sorry
+    relativelyRepresentableByAlgebraicSpaces f :=
+  IsFirstOrderThickening.representable
 
 /-- A 1-morphism is a first-order thickening if and only if it is representable
 by algebraic spaces and has the algebraic-space first-order-thickening
 property in the sense of scheme-slice tests. -/
 theorem iff {S : Scheme.{u}} {X Y : GroupoidsOver S} (f : X ⟶ Y) :
     IsFirstOrderThickening f ↔ relativelyRepresentableByAlgebraicSpaces f ∧
-      has (@AlgebraicSpace.IsFirstOrderThickening S) f := sorry
+      has (@AlgebraicSpace.IsFirstOrderThickening S) f := by
+  constructor
+  · intro h
+    exact ⟨h.representable, h.of_represents⟩
+  · rintro ⟨hrep, h⟩
+    exact ⟨hrep, h⟩
 
 /-- A first-order thickening of groupoid fibrations has the algebraic-space
 first-order-thickening property on scheme-slice representing morphisms. -/
 theorem has_isFirstOrderThickening {S : Scheme.{u}} {X Y : GroupoidsOver S}
     (f : X ⟶ Y) [IsFirstOrderThickening f] :
-    has (@AlgebraicSpace.IsFirstOrderThickening S) f := sorry
+    has (@AlgebraicSpace.IsFirstOrderThickening S) f :=
+  IsFirstOrderThickening.of_represents
 
 /-- A first-order thickening of groupoid fibrations is a closed immersion. -/
 instance instClosedImmersion {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    (f : X ⟶ Y) [IsFirstOrderThickening f] : ClosedImmersion f :=
-  sorry
+    (f : X ⟶ Y) [IsFirstOrderThickening f] : ClosedImmersion f where
+  representable := IsFirstOrderThickening.representable
+  of_represents {_} y _ _ h := (spec f y h).toIsClosedImmersion
 
 /-- A first-order thickening of algebraic spaces induces a first-order
 thickening of the associated groupoid fibrations. -/

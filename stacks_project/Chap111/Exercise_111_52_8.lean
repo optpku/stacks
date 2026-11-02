@@ -69,5 +69,8 @@ variable (k : Type u) [Field k]
 
 #check (AlgebraicGeometry.GluedCrossedAxes.originA_ne_originB k : originA k ≠ originB k)
 
-#check (AlgebraicGeometry.GluedCrossedAxes.componentsPullbackIso k :
-  pullback (firstComponent k) (secondComponent k) ≅ Spec (.of k) ⨿ Spec (.of k))
+#check (AlgebraicGeometry.GluedCrossedAxes.componentsIntersection k :
+  Spec (.of k) ⨿ Spec (.of k) ⟶
+    pullback (firstComponent k) (secondComponent k))
+
+#synth IsIso (AlgebraicGeometry.GluedCrossedAxes.componentsIntersection k)

@@ -50,7 +50,8 @@ instance inclusion_createsColimitsOfShape (X : GroupoidsOver S)
 instance hasColimitsOfShape (X : GroupoidsOver S)
     (J : Type u) [Category.{u} J] :
     HasColimitsOfShape J (QCoh X) :=
-  sorry
+  hasColimitsOfShape_of_hasColimitsOfShape_createsColimitsOfShape
+    (quasiCoherentModuleProperty X).ι
 
 /-- `toAssociatedModules` preserves colimits of diagrams computed in the
 associated Zariski module category. -/
@@ -70,20 +71,33 @@ instance toAssociatedModules_preservesColimitsOfShape_etale
 associated fppf module category. -/
 instance toAssociatedModules_preservesColimitsOfShape_fppf
     (X : GroupoidsOver S) (J : Type u) [Category.{u} J] :
-    PreservesColimitsOfShape J (toAssociatedModules X .fppf) :=
-  sorry
+    PreservesColimitsOfShape J (toAssociatedModules X .fppf) := by
+  let f : structureSheaf X ⟶ structureSheaf X :=
+    ⟨associatedToFppfStructurePresheaf X .fppf⟩
+  have hf : f = 𝟙 _ := by
+    ext x r
+    rfl
+  change PreservesColimitsOfShape J
+    ((quasiCoherentModuleProperty X).ι ⋙ SheafOfModules.restrictScalars f)
+  exact preservesColimitsOfShape_of_natIso
+    ((Functor.rightUnitor _).symm ≪≫
+      isoWhiskerLeft _ (SheafOfModules.Restriction.idIso' f hf))
 
 /-- `toEtaleModules` preserves colimits of every universe-compatible shape. -/
 instance toEtaleModules_preservesColimitsOfShape (X : GroupoidsOver S)
     (J : Type u) [Category.{u} J] :
     PreservesColimitsOfShape J (toEtaleModules X) :=
-  sorry
+  inferInstanceAs (PreservesColimitsOfShape J (toAssociatedModules X .etale))
 
 /-- `toLQCoh` preserves colimits of every universe-compatible shape. -/
 instance toLQCoh_preservesColimitsOfShape (X : GroupoidsOver S)
     (J : Type u) [Category.{u} J] :
-    PreservesColimitsOfShape J (toLQCoh X) :=
-  sorry
+    PreservesColimitsOfShape J (toLQCoh X) := by
+  haveI : PreservesColimitsOfShape J (toLQCoh X ⋙ LQCoh.inclusion X) := by
+    change PreservesColimitsOfShape J (toEtaleModules X)
+    infer_instance
+  exact preservesColimitsOfShape_of_reflects_of_preserves
+    (toLQCoh X) (LQCoh.inclusion X)
 
 end QCoh
 

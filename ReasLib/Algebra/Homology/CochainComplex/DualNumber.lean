@@ -67,7 +67,7 @@ theorem columnB_d :
     (columnB k).d 0 1 =
       (columnB_X_zero k).hom ≫
         epsEnd (ModuleCat.of (k[ε]) (k[ε])) ≫ (columnB_X_one k).inv :=
-  sorry
+  double_d _ _ zero_ne_one
 
 /-- The cochain complex over `k[ε]` with the regular module concentrated in degree 0. -/
 def columnC : CochainComplex (ModuleCat (k[ε])) ℤ :=
@@ -80,8 +80,9 @@ def columnC_X_zero : (columnC k).X 0 ≅ ModuleCat.of (k[ε]) (k[ε]) :=
 
 /-- The degree-1 identity into `columnB` vanishes after every outgoing differential. -/
 theorem toB_comp_d (i : ℤ) (hi : (up ℤ).Rel 1 i) :
-    (columnB_X_one k).inv ≫ (columnB k).d 1 i = 0 :=
-  sorry
+    (columnB_X_one k).inv ≫ (columnB k).d 1 i = 0 := by
+  rw [show (columnB k).d 1 i = 0 from
+    double_d_eq_zero₀ _ _ _ _ one_ne_zero, comp_zero]
 
 /-- The inclusion `columnA ⟶ columnB` induced by the identity in degree 1. -/
 def toB : columnA k ⟶ columnB k :=
@@ -90,12 +91,13 @@ def toB : columnA k ⟶ columnB k :=
 /-- In degree 1, `toB` is the identity after the endpoint identifications. -/
 theorem toB_f_one :
     (toB k).f 1 = (columnA_X_one k).hom ≫ (columnB_X_one k).inv :=
-  sorry
+  mkHomFromSingle_f _ _
 
 /-- Incoming differentials of `columnB` vanish after the degree-0 identity to `columnC`. -/
 theorem toC_comp_d (i : ℤ) (hi : (up ℤ).Rel i 0) :
-    (columnB k).d i 0 ≫ (columnB_X_zero k).hom = 0 :=
-  sorry
+    (columnB k).d i 0 ≫ (columnB_X_zero k).hom = 0 := by
+  rw [show (columnB k).d i 0 = 0 from
+    double_d_eq_zero₁ _ _ _ _ zero_ne_one, zero_comp]
 
 /-- The projection `columnB ⟶ columnC` induced by the identity in degree 0. -/
 def toC : columnB k ⟶ columnC k :=
@@ -104,7 +106,7 @@ def toC : columnB k ⟶ columnC k :=
 /-- In degree 0, `toC` is the identity after the endpoint identifications. -/
 theorem toC_f_zero :
     (toC k).f 0 = (columnB_X_zero k).hom ≫ (columnC_X_zero k).inv :=
-  sorry
+  mkHomToSingle_f _ _
 
 /-- The endomorphism of `columnA` induced by multiplication by `1 + ε`. -/
 def oneAddEps : columnA k ⟶ columnA k :=
@@ -117,7 +119,7 @@ theorem oneAddEps_f_one :
       (columnA_X_one k).hom ≫
         (𝟙 (ModuleCat.of (k[ε]) (k[ε])) + epsEnd (ModuleCat.of (k[ε]) (k[ε]))) ≫
           (columnA_X_one k).inv :=
-  sorry
+  single_map_f_self _ _ _
 
 /-- The homotopy operator with sole nonzero coordinate the identity `A^1 ⟶ B^0`. -/
 def leftHomotopyHom (i j : ℤ) : (columnA k).X i ⟶ (columnB k).X j :=
@@ -130,20 +132,31 @@ def leftHomotopyHom (i j : ℤ) : (columnA k).X i ⟶ (columnB k).X j :=
 /-- The unique nonzero homotopy coordinate is the identity `A^1 ⟶ B^0` after the
 endpoint identifications. -/
 theorem leftHomotopyHom_one_zero :
-    leftHomotopyHom k 1 0 = (columnA_X_one k).hom ≫ (columnB_X_zero k).inv :=
-  sorry
+    leftHomotopyHom k 1 0 = (columnA_X_one k).hom ≫ (columnB_X_zero k).inv := by
+  simp [leftHomotopyHom]
 
 /-- The homotopy operator vanishes off adjacent cochain degrees. -/
 theorem leftHomotopyHom_zero (i j : ℤ) (hij : ¬ (up ℤ).Rel j i) :
-    leftHomotopyHom k i j = 0 :=
-  sorry
+    leftHomotopyHom k i j = 0 := by
+  have h : ¬ (i = 1 ∧ j = 0) := by
+    rintro ⟨rfl, rfl⟩
+    exact hij (up_mk (0 : ℤ) 1 rfl)
+  simp [leftHomotopyHom, h]
 
 /-- The homotopy operator satisfies the chain-homotopy equation for
 `oneAddEps ≫ toB` and `toB`. -/
 theorem leftHomotopyHom_comm (i : ℤ) :
     (oneAddEps k ≫ toB k).f i =
-      dNext i (leftHomotopyHom k) + prevD i (leftHomotopyHom k) + (toB k).f i :=
-  sorry
+      dNext i (leftHomotopyHom k) + prevD i (leftHomotopyHom k) + (toB k).f i := by
+  by_cases hi : i = 1
+  · subst i
+    rw [comp_f, oneAddEps_f_one, toB_f_one,
+      dNext_eq _ (up_mk (1 : ℤ) 2 rfl), prevD_eq _ (up_mk (0 : ℤ) 1 rfl),
+      leftHomotopyHom_one_zero, columnB_d]
+    simp only [columnA, single_obj_d, zero_comp, Category.assoc, Iso.inv_hom_id_assoc,
+      Preadditive.add_comp, Preadditive.comp_add, Category.id_comp]
+    abel
+  · exact (isZero_single_obj_X (up ℤ) 1 (ModuleCat.of (k[ε]) (k[ε])) i hi).eq_of_src _ _
 
 /-- The homotopy from `oneAddEps ≫ toB` to `toB` whose degree-(1,0) coordinate is the
 identity on the regular dual-number module. -/
@@ -153,7 +166,7 @@ def leftHomotopy : Homotopy (oneAddEps k ≫ toB k) (toB k) :=
 /-- The components of `leftHomotopy` are `leftHomotopyHom`. -/
 theorem leftHomotopy_hom (i j : ℤ) :
     (leftHomotopy k).hom i j = leftHomotopyHom k i j :=
-  sorry
+  rfl
 
 /-- The endomorphisms `oneAddEps`, identity, and identity commute with the inclusion
 and projection of the dual-number complexes, up to homotopy for the inclusion and
@@ -161,8 +174,8 @@ strictly for the projection. -/
 theorem diagram_commutes :
     ((quotient (ModuleCat (k[ε])) (up ℤ)).map (oneAddEps k ≫ toB k) =
       (quotient (ModuleCat (k[ε])) (up ℤ)).map (toB k)) ∧
-      (𝟙 (columnB k) ≫ toC k = toC k ≫ 𝟙 (columnC k)) :=
-  sorry
+      (𝟙 (columnB k) ≫ toC k = toC k ≫ 𝟙 (columnC k)) := by
+  exact ⟨eq_of_homotopy _ _ (leftHomotopy k), by simp⟩
 
 end
 

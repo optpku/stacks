@@ -87,36 +87,36 @@ theorem targetDifferentials_isFreeOfSpecField {S : Scheme.{u}} (G : GroupoidSche
   have hConormal : SheafOfModules.IsFree (Scheme.Hom.conormalSheaf G.e.left) :=
     identityConormal_isFreeOfSpecField G eU
   -- Local instance justification (proof-local temporary data): conormal freeness is installed
-  -- only while pulling the sheaf back along the target map.
+  -- only while pulling the sheaf back along the source map.
   let _ : SheafOfModules.IsFree (Scheme.Hom.conormalSheaf G.e.left) := hConormal
   have hPullback :
       SheafOfModules.IsFree
-        ((Scheme.Modules.pullback G.t.left).obj (Scheme.Hom.conormalSheaf G.e.left)) := by
+        ((Scheme.Modules.pullback G.s.left).obj (Scheme.Hom.conormalSheaf G.e.left)) := by
     rcases SheafOfModules.IsFree.exists_iso_free
         (F := Scheme.Hom.conormalSheaf G.e.left) with ⟨I, ⟨e⟩⟩
     let eMap :
-        (SheafOfModules.pullback G.t.left.toRingCatSheafHom).obj
+        (SheafOfModules.pullback G.s.left.toRingCatSheafHom).obj
             (Scheme.Hom.conormalSheaf G.e.left) ≅
-          (SheafOfModules.pullback G.t.left.toRingCatSheafHom).obj
+          (SheafOfModules.pullback G.s.left.toRingCatSheafHom).obj
             (SheafOfModules.free I : G.U.left.Modules) :=
-      (SheafOfModules.pullback G.t.left.toRingCatSheafHom).mapIso e
+      (SheafOfModules.pullback G.s.left.toRingCatSheafHom).mapIso e
     let eFree :
-        (SheafOfModules.pullback G.t.left.toRingCatSheafHom).obj
+        (SheafOfModules.pullback G.s.left.toRingCatSheafHom).obj
             (SheafOfModules.free I : G.U.left.Modules) ≅
           (SheafOfModules.free I : G.R.left.Modules) :=
-      AlgebraicGeometry.RingedSpace.Hom.pullbackFreeIso G.t.left.toShHom I
+      AlgebraicGeometry.RingedSpace.Hom.pullbackFreeIso G.s.left.toShHom I
     change SheafOfModules.IsFree
-      ((SheafOfModules.pullback G.t.left.toRingCatSheafHom).obj
+      ((SheafOfModules.pullback G.s.left.toRingCatSheafHom).obj
         (Scheme.Hom.conormalSheaf G.e.left))
     exact SheafOfModules.IsFree.of_iso (eMap ≪≫ eFree).symm
   -- Local instance justification (proof-local temporary data): pullback freeness is installed
   -- only for transport across the groupoid conormal comparison.
   let _ : SheafOfModules.IsFree
-      ((Scheme.Modules.pullback G.t.left).obj (Scheme.Hom.conormalSheaf G.e.left)) := hPullback
+      ((Scheme.Modules.pullback G.s.left).obj (Scheme.Hom.conormalSheaf G.e.left)) := hPullback
   let hIso : IsIso (Differentials.conormalComparison G) :=
     Differentials.conormalComparison_isIso G
   let eComparison :
-      (Scheme.Modules.pullback G.t.left).obj (Scheme.Hom.conormalSheaf G.e.left) ≅
+      (Scheme.Modules.pullback G.s.left).obj (Scheme.Hom.conormalSheaf G.e.left) ≅
         Ω[G.t.left.toShHom] :=
     @asIso _ _ _ _ (Differentials.conormalComparison G) hIso
   exact SheafOfModules.IsFree.of_iso eComparison

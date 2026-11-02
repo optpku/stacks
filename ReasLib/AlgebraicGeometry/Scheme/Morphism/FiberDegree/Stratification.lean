@@ -83,7 +83,7 @@ theorem ofStages_closedStage (f : X ⟶ S) (bound : ℕ)
     (rank : ∀ {T : Scheme.{u}} (r : Fin (bound + 1)) (g : T ⟶ S),
       IsFiniteLocallyFreeOfRank (pullback.snd f g) (r : ℕ) ↔
         Set.range g.base ⊆ closedStage r.succ \ closedStage r.castSucc) :
-    (ofStages f bound closedStage isClosed monotone zero last rank).closedStage = closedStage := sorry
+    (ofStages f bound closedStage isClosed monotone zero last rank).closedStage = closedStage := rfl
 
 /-- The rank-`r` stratum `Zᵣ \ Zᵣ₋₁` of a degree stratification. -/
 def stratum {f : X ⟶ S} (D : DegreeStratification f) (r : Fin (D.bound + 1)) : Set S :=
@@ -92,11 +92,51 @@ def stratum {f : X ⟶ S} (D : DegreeStratification f) (r : Fin (D.bound + 1)) :
 /-- The rank stratum is the difference of its consecutive closed stages. -/
 theorem stratum_def {f : X ⟶ S} (D : DegreeStratification f)
     (r : Fin (D.bound + 1)) :
-    D.stratum r = D.closedStage r.succ \ D.closedStage r.castSucc := sorry
+    D.stratum r = D.closedStage r.succ \ D.closedStage r.castSucc := rfl
 
 /-- The rank strata form an indexed locally closed stratification of the target. -/
 theorem isStratification {f : X ⟶ S} (D : DegreeStratification f) :
-    IsStratification D.stratum := sorry
+    IsStratification D.stratum := by
+  classical
+  have mem_stage : ∀ (i : Fin (D.bound + 2)) {x : S}, x ∈ D.closedStage i →
+      ∃ r : Fin (D.bound + 1), r.succ ≤ i ∧ x ∈ D.stratum r := by
+    intro i
+    induction i using Fin.induction with
+    | zero =>
+        intro x hx
+        rw [D.closedStage_zero] at hx
+        exact hx.elim
+    | succ i ih =>
+        intro x hx
+        by_cases hx' : x ∈ D.closedStage i.castSucc
+        · obtain ⟨r, hr, hxr⟩ := ih hx'
+          exact ⟨r, hr.trans (le_of_lt i.castSucc_lt_succ), hxr⟩
+        · exact ⟨i, le_rfl, hx, hx'⟩
+  refine ⟨?_, ?_, ?_, ?_⟩
+  · intro i j hij
+    rw [Set.disjoint_left]
+    intro x hxi hxj
+    rcases lt_or_gt_of_ne hij with h | h
+    · exact hxj.2 (D.monotone_closedStage (Nat.succ_le_of_lt h) hxi.1)
+    · exact hxi.2 (D.monotone_closedStage (Nat.succ_le_of_lt h) hxj.1)
+  · apply Set.eq_univ_of_forall
+    intro x
+    have hx : x ∈ D.closedStage (Fin.last (D.bound + 1)) := by
+      rw [D.closedStage_last]
+      trivial
+    obtain ⟨r, _, hxr⟩ := mem_stage _ hx
+    exact Set.mem_iUnion.mpr ⟨r, hxr⟩
+  · intro r
+    refine ⟨(D.closedStage r.castSucc)ᶜ, D.closedStage r.succ,
+      (D.isClosed_closedStage _).isOpen_compl, D.isClosed_closedStage _, ?_⟩
+    ext x
+    exact and_comm
+  · intro j x hx
+    have hxj : x ∈ D.closedStage j.succ :=
+      closure_minimal (fun _ h ↦ h.1) (D.isClosed_closedStage _) hx
+    obtain ⟨i, hij, hxi⟩ := mem_stage _ hxj
+    refine Set.mem_iUnion.mpr ⟨i, Set.mem_iUnion.mpr ⟨?_, hxi⟩⟩
+    exact Nat.le_of_succ_le_succ hij
 
 /-- The finite indexed stratification underlying a degree stratification. -/
 def toFiniteStratification {f : X ⟶ S} (D : DegreeStratification f) :
@@ -106,13 +146,14 @@ def toFiniteStratification {f : X ⟶ S} (D : DegreeStratification f) :
 /-- The strata of the underlying finite stratification are the rank strata. -/
 theorem toFiniteStratification_strata {f : X ⟶ S} (D : DegreeStratification f)
     (r : Fin (D.bound + 1)) :
-    D.toFiniteStratification.strata r = D.stratum r := sorry
+    D.toFiniteStratification.strata r = D.stratum r := rfl
 
 /-- A base change has rank `r` exactly when its image lies in the rank-`r` stratum. -/
 theorem pullbackRank_iff {f : X ⟶ S} (D : DegreeStratification f)
     (r : Fin (D.bound + 1)) {T : Scheme.{u}} (g : T ⟶ S) :
     IsFiniteLocallyFreeOfRank (pullback.snd f g) (r : ℕ) ↔
-      Set.range g.base ⊆ D.stratum r := sorry
+      Set.range g.base ⊆ D.stratum r :=
+  D.pullbackRank_iff_range_subset r g
 
 /-- The closedness, order, endpoint, and universal rank conditions of a degree stratification. -/
 theorem spec {f : X ⟶ S} (D : DegreeStratification f) :
@@ -122,7 +163,9 @@ theorem spec {f : X ⟶ S} (D : DegreeStratification f) :
       D.closedStage (Fin.last (D.bound + 1)) = Set.univ ∧
       ∀ {T : Scheme.{u}} (r : Fin (D.bound + 1)) (g : T ⟶ S),
         IsFiniteLocallyFreeOfRank (pullback.snd f g) (r : ℕ) ↔
-          Set.range g.base ⊆ D.stratum r := sorry
+          Set.range g.base ⊆ D.stratum r :=
+  ⟨D.isClosed_closedStage, D.monotone_closedStage, D.closedStage_zero,
+    D.closedStage_last, fun r g ↦ D.pullbackRank_iff r g⟩
 
 end DegreeStratification
 

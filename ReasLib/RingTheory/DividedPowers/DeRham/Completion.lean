@@ -59,6 +59,59 @@ noncomputable def completedRingForm (i : ℕ) : ModuleCat.{u} A :=
     (KaehlerDifferential.DeRham.AForm A (completedRing A ι p) i ⧸
       completedRingRelation A ι p i)
 
+private theorem rawD_basic (B : Type u) [CommRing B] [Algebra A B]
+    (i : ℕ) (b₀ : B) (b : Fin i → B) :
+    KaehlerDifferential.DeRham.rawD A B i
+        (KaehlerDifferential.DeRham.aBasic A B i b₀ b) =
+      KaehlerDifferential.DeRham.aExact A B (i + 1) (Fin.cons b₀ b) := by
+  change Finsupp.lsum A (KaehlerDifferential.DeRham.coefficientTarget A B i)
+    (Finsupp.single (b₀, b) 1) = _
+  rw [Finsupp.lsum_single]
+  change KaehlerDifferential.DeRham.aExact A B (i + 1) (Fin.cons (1 * b₀) b) = _
+  rw [one_mul]
+
+private theorem aExact_cons_one_zero (B : Type u) [CommRing B] [Algebra A B]
+    (i : ℕ) (b : Fin i → B) :
+    KaehlerDifferential.DeRham.aExact A B (i + 1) (Fin.cons 1 b) = 0 := by
+  cases i with
+  | zero =>
+      apply (Submodule.Quotient.mk_eq_zero _).mpr
+      change Finsupp.linearCombination B
+        (fun q : B × (Fin 1 → B) ↦ q.1 • KaehlerDifferential.D A B (q.2 0))
+        (Finsupp.single (1, Fin.cons 1 b) 1) = 0
+      simp [Derivation.map_one_eq_zero]
+  | succ i =>
+      apply (Submodule.Quotient.mk_eq_zero _).mpr
+      change Finsupp.linearCombination B
+        (fun q : B × (Fin (i + 2) → B) ↦ q.1 •
+          exteriorPower.ιMulti B (i + 2) (M := Ω[B⁄A])
+            (fun j ↦ KaehlerDifferential.D A B (q.2 j)))
+        (Finsupp.single (1, Fin.cons 1 b) 1) = 0
+      rw [Finsupp.linearCombination_single, one_smul, one_smul]
+      exact (exteriorPower.ιMulti B (i + 2) (M := Ω[B⁄A])).map_coord_zero 0
+        (by simp only [Fin.cons_zero, Derivation.map_one_eq_zero])
+
+private theorem rawD_sq (B : Type u) [CommRing B] [Algebra A B] (i : ℕ) :
+    KaehlerDifferential.DeRham.rawD A B i ≫
+      KaehlerDifferential.DeRham.rawD A B (i + 1) = 0 := by
+  let f := (KaehlerDifferential.DeRham.rawD A B (i + 1)).hom.comp
+    (KaehlerDifferential.DeRham.rawD A B i).hom
+  have hf : f.comp (KaehlerDifferential.DeRham.aRelations A B i).mkQ = 0 := by
+    apply Finsupp.lhom_ext
+    rintro ⟨b₀, b⟩ c
+    change KaehlerDifferential.DeRham.rawD A B (i + 1)
+      (Finsupp.lsum A (KaehlerDifferential.DeRham.coefficientTarget A B i)
+        (Finsupp.single (b₀, b) c)) = 0
+    rw [Finsupp.lsum_single]
+    change KaehlerDifferential.DeRham.rawD A B (i + 1)
+      (KaehlerDifferential.DeRham.aBasic A B (i + 1) 1 (Fin.cons (c * b₀) b)) = 0
+    rw [rawD_basic]
+    exact aExact_cons_one_zero A B (i + 1) _
+  apply ModuleCat.hom_ext
+  apply LinearMap.ext
+  intro x
+  obtain ⟨z, rfl⟩ := (KaehlerDifferential.DeRham.aRelations A B i).mkQ_surjective x
+  exact LinearMap.congr_fun hf z
 /-- The relative de Rham differential descends through the polynomial divided-power relations
 in the completed ring. -/
 noncomputable def completedRingFormDifferential (i : ℕ) :
@@ -68,6 +121,21 @@ noncomputable def completedRingFormDifferential (i : ℕ) :
       ((completedRingRelation A ι p (i + 1)).mkQ.comp
         (KaehlerDifferential.DeRham.rawD A (completedRing A ι p) i).hom) (by sorry)
 
+private theorem completedRingFormDifferential_sq (i : ℕ) :
+    (completedRingFormDifferential A ι p (i + 1)).hom.comp
+      (completedRingFormDifferential A ι p i).hom = 0 := by
+  apply LinearMap.ext
+  intro x
+  obtain ⟨z, rfl⟩ := (completedRingRelation A ι p i).mkQ_surjective x
+  change (completedRingRelation A ι p (i + 1 + 1)).mkQ
+    ((KaehlerDifferential.DeRham.rawD A (completedRing A ι p) (i + 1)).hom
+      ((KaehlerDifferential.DeRham.rawD A (completedRing A ι p) i).hom z)) = 0
+  have hz := LinearMap.congr_fun
+    (congrArg ModuleCat.Hom.hom (rawD_sq A (completedRing A ι p) i)) z
+  change (KaehlerDifferential.DeRham.rawD A (completedRing A ι p) (i + 1)).hom
+    ((KaehlerDifferential.DeRham.rawD A (completedRing A ι p) i).hom z) = 0 at hz
+  rw [hz]
+  exact (completedRingRelation A ι p (i + 1 + 1)).mkQ.map_zero
 /-- The degree-zero completed form module is the completed ring itself; the positive-degree
 modules are the `p`-adic completions of its relative divided-power forms. -/
 noncomputable def completedForm : ℕ → ModuleCat.{u} A
@@ -90,6 +158,29 @@ noncomputable def completedCoefficientTerm
 noncomputable def completedFormUnit : completedForm A ι p 0 :=
   (1 : completedRing A ι p)
 
+private theorem zeroForm_add (x y : completedRing A ι p) :
+    KaehlerDifferential.DeRham.aBasic A (completedRing A ι p) 0 (x + y) Fin.elim0 =
+      KaehlerDifferential.DeRham.aBasic A (completedRing A ι p) 0 x Fin.elim0 +
+        KaehlerDifferential.DeRham.aBasic A (completedRing A ι p) 0 y Fin.elim0 := by
+  unfold KaehlerDifferential.DeRham.aBasic
+  rw [← map_add]
+  apply (Submodule.Quotient.eq _).mpr
+  change Finsupp.linearCombination (completedRing A ι p)
+    (fun q : completedRing A ι p × (Fin 0 → completedRing A ι p) ↦
+      q.1 • (1 : completedRing A ι p)) _ = 0
+  simp
+
+private theorem zeroForm_smul (r : A) (x : completedRing A ι p) :
+    KaehlerDifferential.DeRham.aBasic A (completedRing A ι p) 0 (r • x) Fin.elim0 =
+      r • KaehlerDifferential.DeRham.aBasic A (completedRing A ι p) 0 x Fin.elim0 := by
+  unfold KaehlerDifferential.DeRham.aBasic
+  rw [← map_smul]
+  apply (Submodule.Quotient.eq _).mpr
+  change Finsupp.linearCombination (completedRing A ι p)
+    (fun q : completedRing A ι p × (Fin 0 → completedRing A ι p) ↦
+      q.1 • (1 : completedRing A ι p)) _ = 0
+  simp [Algebra.smul_def]
+
 /-- The augmentation into the completed degree-zero coefficient term. -/
 noncomputable def completedAugmentation (M : Type u) [AddCommGroup M] [Module A M] :
     completedCoefficientTerm A ι p M 0 ⟶ completedCoefficientTerm A ι p M 1 :=
@@ -98,8 +189,13 @@ noncomputable def completedAugmentation (M : Type u) [AddCommGroup M] [Module A 
         AdicCompletion.of (principalIdealA A p)
           (M ⊗[A] (completedForm A ι p 0))
           (TensorProduct.tmul A m (completedFormUnit A ι p))
-      map_add' := by sorry
-      map_smul' := by sorry }
+      map_add' := by
+        intro x y
+        simp [TensorProduct.add_tmul]
+      map_smul' := by
+        intro r x
+        rw [← TensorProduct.smul_tmul']
+        exact (AdicCompletion.of (principalIdealA A p) _).map_smul r _ }
 
 /-- The completed divided-power differential on forms. -/
 noncomputable def completedFormDifferential :
@@ -111,13 +207,68 @@ noncomputable def completedFormDifferential :
             ((completedRingFormDifferential A ι p 0).hom
               ((completedRingRelation A ι p 0).mkQ
                 (KaehlerDifferential.DeRham.aBasic A (completedRing A ι p) 0 x Fin.elim0)))
-        map_add' := by sorry
-        map_smul' := by sorry }
+        map_add' := by
+          intro x y
+          let f := (AdicCompletion.of (principalIdealA A p) (completedRingForm A ι p 1)).comp
+            ((completedRingFormDifferential A ι p 0).hom.comp
+              (completedRingRelation A ι p 0).mkQ)
+          change f (KaehlerDifferential.DeRham.aBasic A (completedRing A ι p) 0
+            (x + y) Fin.elim0) = _
+          rw [zeroForm_add]
+          exact f.map_add _ _
+        map_smul' := by
+          intro r x
+          let f := (AdicCompletion.of (principalIdealA A p) (completedRingForm A ι p 1)).comp
+            ((completedRingFormDifferential A ι p 0).hom.comp
+              (completedRingRelation A ι p 0).mkQ)
+          change f (KaehlerDifferential.DeRham.aBasic A (completedRing A ι p) 0
+            (r • x) Fin.elim0) = _
+          rw [zeroForm_smul]
+          exact f.map_smul r _ }
   | i + 1 =>
     ModuleCat.ofHom
       ((AdicCompletion.map (principalIdealA A p)
         (completedRingFormDifferential A ι p (i + 1)).hom).restrictScalars A)
 
+private theorem completedFormDifferential_sq (i : ℕ) :
+    (completedFormDifferential A ι p (i + 1)).hom.comp
+      (completedFormDifferential A ι p i).hom = 0 := by
+  cases i with
+  | zero =>
+      apply LinearMap.ext
+      intro x
+      change AdicCompletion.map (principalIdealA A p)
+        (completedRingFormDifferential A ι p 1).hom
+        (AdicCompletion.of (principalIdealA A p) _
+          ((completedRingFormDifferential A ι p 0).hom
+            ((completedRingRelation A ι p 0).mkQ
+              (KaehlerDifferential.DeRham.aBasic A (completedRing A ι p) 0 x Fin.elim0)))) = 0
+      rw [AdicCompletion.map_of]
+      have hz := LinearMap.congr_fun (completedRingFormDifferential_sq A ι p 0)
+        ((completedRingRelation A ι p 0).mkQ
+          (KaehlerDifferential.DeRham.aBasic A (completedRing A ι p) 0 x Fin.elim0))
+      exact (congrArg
+        (AdicCompletion.of (principalIdealA A p) (completedRingForm A ι p 2)) hz).trans
+          ((AdicCompletion.of (principalIdealA A p) (completedRingForm A ι p 2)).map_zero)
+  | succ i =>
+      apply LinearMap.ext
+      intro x
+      change AdicCompletion.map (principalIdealA A p)
+        (completedRingFormDifferential A ι p (i + 1 + 1)).hom
+        (AdicCompletion.map (principalIdealA A p)
+          (completedRingFormDifferential A ι p (i + 1)).hom x) = 0
+      rw [AdicCompletion.map_comp_apply, completedRingFormDifferential_sq]
+      exact LinearMap.congr_fun (AdicCompletion.map_zero (principalIdealA A p)) x
+
+private theorem completedFormDifferential_unit :
+    completedFormDifferential A ι p 0 (completedFormUnit A ι p) = 0 := by
+  change AdicCompletion.of (principalIdealA A p) _
+    ((completedRingRelation A ι p 1).mkQ
+      (KaehlerDifferential.DeRham.rawD A (completedRing A ι p) 0
+        (KaehlerDifferential.DeRham.aBasic A (completedRing A ι p) 0 1 Fin.elim0))) = 0
+  rw [rawD_basic, aExact_cons_one_zero]
+  rw [(completedRingRelation A ι p 1).mkQ.map_zero]
+  exact (AdicCompletion.of (principalIdealA A p) _).map_zero
 /-- The differentials in the completed coefficient complex. -/
 noncomputable def completedCoefficientDifferential
     (M : Type u) [AddCommGroup M] [Module A M] :
@@ -130,26 +281,63 @@ noncomputable def completedCoefficientDifferential
           AdicCompletion.map (principalIdealA A p)
             (TensorProduct.map (LinearMap.id (R := A) (M := M))
               (completedFormDifferential A ι p n).hom) x
-        map_add' := by sorry
-        map_smul' := by sorry }
+        map_add' := by
+          intro x y
+          exact map_add _ x y
+        map_smul' := by
+          intro r x
+          exact (AdicCompletion.map (principalIdealA A p)
+            (TensorProduct.map (LinearMap.id (R := A) (M := M))
+              (completedFormDifferential A ι p n).hom)).restrictScalars A |>.map_smul r x }
 
+private theorem completedCoefficientDifferential_sq
+    (M : Type u) [AddCommGroup M] [Module A M] (n : ℕ) :
+    completedCoefficientDifferential A ι p M n ≫
+      completedCoefficientDifferential A ι p M (n + 1) = 0 := by
+  cases n with
+  | zero =>
+      apply ModuleCat.hom_ext
+      apply LinearMap.ext
+      intro m
+      change AdicCompletion.map (principalIdealA A p)
+        (TensorProduct.map (LinearMap.id (R := A) (M := M))
+          (completedFormDifferential A ι p 0).hom)
+        (AdicCompletion.of (principalIdealA A p) _
+          (TensorProduct.tmul A m (completedFormUnit A ι p))) = 0
+      rw [AdicCompletion.map_of, TensorProduct.map_tmul]
+      rw [completedFormDifferential_unit A ι p, TensorProduct.tmul_zero]
+      exact (AdicCompletion.of (principalIdealA A p) _).map_zero
+  | succ n =>
+      apply ModuleCat.hom_ext
+      apply LinearMap.ext
+      intro x
+      change AdicCompletion.map (principalIdealA A p)
+        (TensorProduct.map (LinearMap.id (R := A) (M := M))
+          (completedFormDifferential A ι p (n + 1)).hom)
+        (AdicCompletion.map (principalIdealA A p)
+          (TensorProduct.map (LinearMap.id (R := A) (M := M))
+            (completedFormDifferential A ι p n).hom) x) = 0
+      rw [AdicCompletion.map_comp_apply, ← TensorProduct.map_comp, LinearMap.id_comp,
+        completedFormDifferential_sq A ι p]
+      simp
 /-- The augmented completed divided-power de Rham complex. -/
 noncomputable def completedCoefficientComplex
     (M : Type u) [AddCommGroup M] [Module A M] :
     CochainComplex (ModuleCat.{u} A) ℕ :=
   CochainComplex.of (completedCoefficientTerm A ι p M)
-    (completedCoefficientDifferential A ι p M) (fun _ ↦ by sorry)
+    (completedCoefficientDifferential A ι p M)
+    (fun n ↦ by exact completedCoefficientDifferential_sq A ι p M n)
 
 /-- The degree-zero completed coefficient term is `M`. -/
 theorem completedCoefficientComplex_X_zero
     (M : Type u) [AddCommGroup M] [Module A M] :
-    (completedCoefficientComplex A ι p M).X 0 = ModuleCat.of A M := sorry
+    (completedCoefficientComplex A ι p M).X 0 = ModuleCat.of A M := rfl
 
 /-- A positive-degree completed coefficient term is a completed tensor with forms. -/
 theorem completedCoefficientComplex_X_succ
     (M : Type u) [AddCommGroup M] [Module A M] (n : ℕ) :
     (completedCoefficientComplex A ι p M).X (n + 1) =
-      ModuleCat.of A (completedTensor A p M (completedForm A ι p n)) := sorry
+      ModuleCat.of A (completedTensor A p M (completedForm A ι p n)) := rfl
 
 /-- The completed divided-power de Rham coefficient complex is acyclic for complete modules. -/
 theorem completedCoefficientComplex_acyclic

@@ -24,13 +24,16 @@ namespace AlgebraicGeometry.Scheme.EtaleNeighborhood
 schemes form the square inducing the map on fibres. -/
 theorem fiberCommSq {X S : Scheme.{u}} (f : X ⟶ S) {x : X}
     (U : EtaleNeighborhood X x) :
-    CommSq U.toEtale.hom (U.toEtale.hom ≫ f) f (𝟙 S) := sorry
+    CommSq U.toEtale.hom (U.toEtale.hom ≫ f) f (𝟙 S) :=
+  ⟨(Category.comp_id _).symm⟩
 
 /-- The selected point of an étale neighbourhood lies over the image point in
 the composite fibre. -/
 theorem fiberPoint_mem {X S : Scheme.{u}} (f : X ⟶ S) {x : X}
     (U : EtaleNeighborhood X x) :
-    U.point ∈ (U.toEtale.hom ≫ f) ⁻¹' ({f x} : Set S) := sorry
+    U.point ∈ (U.toEtale.hom ≫ f) ⁻¹' ({f x} : Set S) := by
+  change f (U.toEtale.hom U.point) = f x
+  rw [U.map_point]
 
 /-- The selected point of the fibre of an étale neighbourhood. -/
 noncomputable def fiberPoint {X S : Scheme.{u}} (f : X ⟶ S) {x : X}
@@ -43,7 +46,8 @@ noncomputable def fiberPoint {X S : Scheme.{u}} (f : X ⟶ S) {x : X}
 neighbourhood. -/
 theorem fiberPoint_fiberι {X S : Scheme.{u}} (f : X ⟶ S) {x : X}
     (U : EtaleNeighborhood X x) :
-    (U.toEtale.hom ≫ f).fiberι (f x) (fiberPoint f U) = U.point := sorry
+    (U.toEtale.hom ≫ f).fiberι (f x) (fiberPoint f U) = U.point :=
+  (U.toEtale.hom ≫ f).fiberι_fiberHomeo_symm (f x) ⟨U.point, fiberPoint_mem f U⟩
 
 /-- The canonical map on fibres sends the selected fibre point to the selected
 point of the fibre of the base morphism. -/
@@ -51,7 +55,31 @@ theorem fiberMap_fiberPoint {X S : Scheme.{u}} (f : X ⟶ S) {x : X}
     (U : EtaleNeighborhood X x) :
     Scheme.Hom.fiberMap (U.toEtale.hom ≫ f) U.toEtale.hom (𝟙 S) f
         (fiberCommSq f U) (f x) (fiberPoint f U) =
-      f.asFiber x := sorry
+      f.asFiber x := by
+  apply (f.fiberι (f x)).isEmbedding.injective
+  have hι : Scheme.Hom.fiberMap (U.toEtale.hom ≫ f) U.toEtale.hom (𝟙 S) f
+      (fiberCommSq f U) (f x) ≫ f.fiberι (f x) =
+        (U.toEtale.hom ≫ f).fiberι (f x) ≫ U.toEtale.hom := by
+    dsimp only [Scheme.Hom.fiberMap, Scheme.Hom.fiberι, Limits.pullback.map]
+    exact Limits.pullback.lift_fst _ _ _
+  have hι' := congrArg (fun q => q (fiberPoint f U)) hι
+  have hmap : U.toEtale.hom U.point = x := U.map_point
+  have hright : U.toEtale.hom ((U.toEtale.hom ≫ f).fiberι (f x) (fiberPoint f U)) = x := by
+    rw [fiberPoint_fiberι f U]
+    exact hmap
+  have hι'' :
+      (f.fiberι (f x))
+          (Scheme.Hom.fiberMap (U.toEtale.hom ≫ f) U.toEtale.hom (𝟙 S) f
+            (fiberCommSq f U) (f x) (fiberPoint f U)) =
+        U.toEtale.hom ((U.toEtale.hom ≫ f).fiberι (f x) (fiberPoint f U)) := by
+    exact (Scheme.Hom.comp_apply _ _ _).symm.trans
+      (hι'.trans (Scheme.Hom.comp_apply _ _ _))
+  calc
+    (f.fiberι (f x))
+        (Scheme.Hom.fiberMap (U.toEtale.hom ≫ f) U.toEtale.hom (𝟙 S) f
+          (fiberCommSq f U) (f x) (fiberPoint f U)) =
+        x := hι''.trans hright
+    _ = (f.fiberι (f x)) (f.asFiber x) := by rw [Scheme.Hom.fiberι_asFiber]
 
 /-- The canonical pointed étale neighbourhood on the fibre obtained from an
 étale neighbourhood of the original scheme. -/
@@ -71,7 +99,7 @@ noncomputable def fiber {X S : Scheme.{u}} (f : X ⟶ S) {x : X}
 structural morphism. -/
 theorem fiber_toEtale_left {X S : Scheme.{u}} (f : X ⟶ S) {x : X}
     (U : EtaleNeighborhood X x) :
-    (fiber f U).toEtale.left = (U.toEtale.hom ≫ f).fiber (f x) := sorry
+    (fiber f U).toEtale.left = (U.toEtale.hom ≫ f).fiber (f x) := rfl
 
 /-- The selected point and structural map of the fibre neighbourhood are
 compatible with the canonical projections to `U.toEtale.left` and `X`. -/
@@ -81,7 +109,15 @@ theorem fiber_spec {X S : Scheme.{u}} (f : X ⟶ S) {x : X}
         (eqToHom (fiber_toEtale_left f U) (fiber f U).point) = U.point ∧
       (fiber f U).toEtale.hom ≫ f.fiberι (f x) =
         eqToHom (fiber_toEtale_left f U) ≫
-          (U.toEtale.hom ≫ f).fiberι (f x) ≫ U.toEtale.hom := sorry
+          (U.toEtale.hom ≫ f).fiberι (f x) ≫ U.toEtale.hom := by
+  constructor
+  · change (U.toEtale.hom ≫ f).fiberι (f x) (fiberPoint f U) = U.point
+    exact fiberPoint_fiberι f U
+  · change Scheme.Hom.fiberMap (U.toEtale.hom ≫ f) U.toEtale.hom (𝟙 S) f
+        (fiberCommSq f U) (f x) ≫ f.fiberι (f x) =
+      (U.toEtale.hom ≫ f).fiberι (f x) ≫ U.toEtale.hom
+    dsimp only [Scheme.Hom.fiberMap, Scheme.Hom.fiberι, Limits.pullback.map]
+    exact Limits.pullback.lift_fst _ _ _
 
 /-- Every étale neighbourhood of the distinguished point in a fibre is
 dominated, by an open immersion of pointed étale neighbourhoods, by the fibre

@@ -30,7 +30,7 @@ namespace AlgebraicGeometry.GroupoidsOver
 fibred in groupoids over `(Sch/S)_fppf` and `X`, `Y`, `Z` all satisfy (RS), then
 the 2-fibre product `X ×_Y Z` satisfies (RS). -/
 @[stacks 07WR] #check (AlgebraicGeometry.GroupoidsOver.instHasRimSchlessinger_twoFibreProduct :
-  ∀ {S : Scheme.{u}} [IsLocallyNoetherian S] {X Y Z : GroupoidsOver S}
+  ∀ {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
     (p : X ⟶ Y) (q : Z ⟶ Y)
     [HasRimSchlessinger X] [HasRimSchlessinger Y] [HasRimSchlessinger Z],
     HasRimSchlessinger (TwoFibreProduct.apex.{u + 1, u, u + 1, u} p q))

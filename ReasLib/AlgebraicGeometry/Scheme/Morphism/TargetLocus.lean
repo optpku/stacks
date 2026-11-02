@@ -38,29 +38,66 @@ def targetLocus (f : X ⟶ Y) : Y.Opens :=
 /-- A point belongs to `P.targetLocus f` exactly when it belongs to some target
 open over which the restriction of `f` has property `P`. -/
 theorem mem_targetLocus (f : X ⟶ Y) (y : Y) :
-    y ∈ P.targetLocus f ↔ ∃ U : Y.Opens, y ∈ U ∧ P (f ∣_ U) := sorry
+    y ∈ P.targetLocus f ↔ ∃ U : Y.Opens, y ∈ U ∧ P (f ∣_ U) := by
+  simpa only [targetLocus, TopologicalSpace.Opens.mem_sSup, Set.mem_setOf_eq,
+    and_comm]
 
 /-- Every target open over which the restriction of `f` has property `P` is
 contained in `P.targetLocus f`. -/
 theorem targetLocus_maximal (f : X ⟶ Y) (U : Y.Opens)
-    (hU : P (f ∣_ U)) : U ≤ P.targetLocus f := sorry
+    (hU : P (f ∣_ U)) : U ≤ P.targetLocus f :=
+  le_sSup hU
 
 /-- For a Zariski-local target property, `P.targetLocus f` is the greatest
 target open over which the restriction of `f` has property `P`. -/
 theorem targetLocus_isGreatest [IsZariskiLocalAtTarget P] (f : X ⟶ Y) :
-    IsGreatest {U : Y.Opens | P (f ∣_ U)} (P.targetLocus f) := sorry
+    IsGreatest {U : Y.Opens | P (f ∣_ U)} (P.targetLocus f) := by
+  refine ⟨?_, fun U hU => P.targetLocus_maximal f U hU⟩
+  apply IsZariskiLocalAtTarget.of_forall_exists_morphismRestrict
+  intro y
+  obtain ⟨U, hyU, hU⟩ := (P.mem_targetLocus f y.val).mp y.property
+  refine ⟨(P.targetLocus f).ι ⁻¹ᵁ U, hyU, ?_⟩
+  apply (P.arrow_mk_iso_iff
+    (morphismRestrictRestrict f (P.targetLocus f) ((P.targetLocus f).ι ⁻¹ᵁ U))).mpr
+  have hImage : (P.targetLocus f).ι ''ᵁ ((P.targetLocus f).ι ⁻¹ᵁ U) = U := by
+    apply le_antisymm
+    · rintro z ⟨x, hx, rfl⟩
+      exact hx
+    · intro z hz
+      exact ⟨⟨z, P.targetLocus_maximal f U hU hz⟩, hz, rfl⟩
+  rw [hImage]
+  exact hU
 
 /-- For a Zariski-local target property, the target locus is all of the target
 exactly when the original morphism has the property. -/
 theorem targetLocus_eq_top_iff [IsZariskiLocalAtTarget P] (f : X ⟶ Y) :
-    P.targetLocus f = ⊤ ↔ P f := sorry
+    P.targetLocus f = ⊤ ↔ P f := by
+  constructor
+  · intro h
+    apply IsZariskiLocalAtTarget.of_forall_exists_morphismRestrict
+    intro y
+    exact (P.mem_targetLocus f y).mp (by rw [h]; trivial)
+  · intro hf
+    apply top_unique
+    exact P.targetLocus_maximal f ⊤ (IsZariskiLocalAtTarget.restrict hf ⊤)
 
 /-- For a non-Zariski standard topology, a target-local property has
 `P.targetLocus f` as its greatest good target open. -/
 theorem targetLocus_isGreatest_nonZariski
     (τ : StandardTopology) (h_tau : τ ≠ .zariski)
     [P.IsLocalAtTarget τ.precoverage] (f : X ⟶ Y) :
-    IsGreatest {U : Y.Opens | P (f ∣_ U)} (P.targetLocus f) := sorry
+    IsGreatest {U : Y.Opens | P (f ∣_ U)} (P.targetLocus f) := by
+  have hle : Scheme.zariskiPrecoverage ≤ τ.precoverage := by
+    cases τ with
+    | zariski => exact le_rfl
+    | fppf => exact Scheme.zariskiPrecoverage_le_fppfPrecoverage
+    | etale | smooth | syntomic =>
+      apply Scheme.precoverage_mono
+      intro S T g hg
+      letI := hg
+      infer_instance
+  letI : IsZariskiLocalAtTarget P := IsLocalAtTarget.of_le hle
+  exact P.targetLocus_isGreatest f
 
 /-- If `g` belongs to the morphism property of a non-Zariski standard
 topology and the pullback of `f` along `g` has `P`, then the range of `g` lies
@@ -87,7 +124,9 @@ theorem targetLocus_preimage_cover_nonZariski
     [P.IsLocalAtTarget τ.precoverage] (f : X ⟶ Y)
     (𝒰 : Scheme.Cover τ.precoverage Y) (i : 𝒰.I₀) :
     𝒰.f i ⁻¹ᵁ P.targetLocus f =
-      P.targetLocus (pullback.snd f (𝒰.f i)) := sorry
+      P.targetLocus (pullback.snd f (𝒰.f i)) := by
+  exact P.targetLocus_preimage_nonZariski τ h_tau f (𝒰.f i)
+    (𝒰.morphismProperty i)
 
 /-- Target loci are unchanged after precomposing by an isomorphism of source schemes. -/
 theorem targetLocus_eq_of_comp_left_iso

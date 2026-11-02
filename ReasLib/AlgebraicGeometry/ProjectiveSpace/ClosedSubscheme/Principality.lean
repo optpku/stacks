@@ -28,10 +28,23 @@ universe u
 
 namespace AlgebraicGeometry.ProjectiveSpace.ClosedSubscheme
 
-/-- Over a Noetherian unique factorization domain, the homogeneous twist ideal of a closed
+/-- Over a Noetherian unique factorization domain, the intrinsic homogeneous ideal of a closed
 subscheme of standard projective space is principal when the subscheme has no embedded points
 and every irreducible component has ambient codimension one. -/
 @[stacks 0BXL]
+theorem coordinateIdeal_isPrincipal_of_noEmbeddedPoints_of_codimensionOne
+    (R : Type u) [CommRing R] [IsDomain R] [IsNoetherianRing R]
+    [UniqueFactorizationMonoid R] (n : ℕ)
+    (Z : (ProjectiveSpace.scheme R n).IdealSheafData)
+    (h_noEmbeddedPoints : Z.subscheme.embeddedPoints = (∅ : Set Z.subscheme))
+    (h_codimensionOne :
+      ∀ ξ : Z.subscheme, ξ ∈ genericPoints Z.subscheme →
+        ringKrullDim ((ProjectiveSpace.scheme R n).presheaf.stalk
+          (Z.subschemeι.base ξ)) = 1) :
+    (coordinateIdeal n Z).IsPrincipal := sorry
+
+/-- Compatibility form of the intrinsic principality theorem. The presentation does not
+affect the ideal. -/
 theorem twistIdeal_isPrincipal_of_noEmbeddedPoints_of_codimensionOne
     (R : Type u) [CommRing R] [IsDomain R] [IsNoetherianRing R]
     [UniqueFactorizationMonoid R] (n : ℕ)
@@ -42,7 +55,9 @@ theorem twistIdeal_isPrincipal_of_noEmbeddedPoints_of_codimensionOne
       ∀ ξ : Z.subscheme, ξ ∈ genericPoints Z.subscheme →
         ringKrullDim ((ProjectiveSpace.scheme R n).presheaf.stalk
           (Z.subschemeι.base ξ)) = 1) :
-    (twistIdeal n Z P).toIdeal.IsPrincipal := sorry
+    (twistIdeal n Z P).toIdeal.IsPrincipal :=
+  coordinateIdeal_isPrincipal_of_noEmbeddedPoints_of_codimensionOne
+    R n Z h_noEmbeddedPoints h_codimensionOne
 
 /-- A closed subscheme of projective `n`-space has components of dimension `n - 1` if this
 holds for every irreducible component when `n` is positive; when `n = 0`, it has no irreducible
@@ -65,20 +80,43 @@ theorem codimensionOne_of_componentsHaveDimension
       ringKrullDim ((ProjectiveSpace.scheme k n).presheaf.stalk
         (Z.subschemeι.base ξ)) = 1 := sorry
 
-/-- The homogeneous twist ideal of a projective closed subscheme over a field is principal
+/-- The intrinsic homogeneous ideal of a projective closed subscheme over a field is principal
 when the subscheme has no embedded points and all its irreducible components have dimension
 one less than the ambient projective space. -/
 @[stacks 0BXU]
+theorem coordinateIdeal_isPrincipal_of_noEmbeddedPoints_of_componentsHaveDimension
+    (k : Type u) [Field k] (n : ℕ)
+    (Z : (ProjectiveSpace.scheme k n).IdealSheafData)
+    (h_noEmbeddedPoints : Z.subscheme.embeddedPoints = (∅ : Set Z.subscheme))
+    (h_componentDim : ComponentsHaveDimension k n Z) :
+    (coordinateIdeal n Z).IsPrincipal :=
+  coordinateIdeal_isPrincipal_of_noEmbeddedPoints_of_codimensionOne k n Z
+    h_noEmbeddedPoints (codimensionOne_of_componentsHaveDimension k n Z h_componentDim)
+
+/-- Compatibility form of the intrinsic field principality theorem. -/
 theorem twistIdeal_isPrincipal_of_noEmbeddedPoints_of_componentsHaveDimension
     (k : Type u) [Field k] (n : ℕ)
     (Z : (ProjectiveSpace.scheme k n).IdealSheafData)
     (P : ProjTwistPresentation (ProjectiveSpace.grading k n))
     (h_noEmbeddedPoints : Z.subscheme.embeddedPoints = (∅ : Set Z.subscheme))
     (h_componentDim : ComponentsHaveDimension k n Z) :
-    (twistIdeal n Z P).toIdeal.IsPrincipal := sorry
+    (twistIdeal n Z P).toIdeal.IsPrincipal :=
+  coordinateIdeal_isPrincipal_of_noEmbeddedPoints_of_componentsHaveDimension k n Z
+    h_noEmbeddedPoints h_componentDim
 
-/-- The homogeneous twist ideal of a closed subscheme of the projective plane is principal
+/-- The intrinsic homogeneous ideal of a closed subscheme of the projective plane is principal
 when every irreducible component has dimension one and the subscheme has no embedded points. -/
+theorem planeCurveCoordinateIdeal_isPrincipal
+    (k : Type u) [Field k]
+    (Z : (ProjectiveSpace.scheme k 2).IdealSheafData)
+    (h_noEmbeddedPoints : Z.subscheme.embeddedPoints = (∅ : Set Z.subscheme))
+    (h_componentDim : ∀ C : irreducibleComponents Z.subscheme,
+      topologicalKrullDim (C : Set Z.subscheme) = 1) :
+    (coordinateIdeal 2 Z).IsPrincipal :=
+  coordinateIdeal_isPrincipal_of_noEmbeddedPoints_of_componentsHaveDimension k 2 Z
+    h_noEmbeddedPoints (by simpa [ComponentsHaveDimension] using h_componentDim)
+
+/-- Compatibility form of the intrinsic plane-curve principality theorem. -/
 theorem planeCurveTwistIdeal_isPrincipal
     (k : Type u) [Field k]
     (Z : (ProjectiveSpace.scheme k 2).IdealSheafData)
@@ -86,6 +124,7 @@ theorem planeCurveTwistIdeal_isPrincipal
     (h_noEmbeddedPoints : Z.subscheme.embeddedPoints = (∅ : Set Z.subscheme))
     (h_componentDim : ∀ C : irreducibleComponents Z.subscheme,
       topologicalKrullDim (C : Set Z.subscheme) = 1) :
-    (twistIdeal 2 Z P).toIdeal.IsPrincipal := sorry
+    (twistIdeal 2 Z P).toIdeal.IsPrincipal :=
+  planeCurveCoordinateIdeal_isPrincipal k Z h_noEmbeddedPoints h_componentDim
 
 end AlgebraicGeometry.ProjectiveSpace.ClosedSubscheme

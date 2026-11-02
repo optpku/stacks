@@ -38,18 +38,24 @@ differential-operator order relative to the scalar action of `S`. -/
 @[stacks 0H95]
 def finiteOrderEndomorphisms : Subring (Module.End R M) where
   carrier := { D | ∃ k : ℕ, D.IsDifferentialOperatorOfOrder S k }
-  zero_mem' := sorry
-  one_mem' := sorry
-  add_mem' := sorry
-  neg_mem' := sorry
-  mul_mem' := sorry
+  zero_mem' := ⟨0, LinearMap.IsDifferentialOperatorOfOrder.zero 0⟩
+  one_mem' := ⟨0, LinearMap.IsDifferentialOperatorOfOrder.id⟩
+  add_mem' := by
+    rintro D E ⟨k, hD⟩ ⟨l, hE⟩
+    exact ⟨max k l, (hD.mono (le_max_left k l)).add (hE.mono (le_max_right k l))⟩
+  neg_mem' := by
+    rintro D ⟨k, hD⟩
+    exact ⟨k, hD.neg⟩
+  mul_mem' := by
+    rintro D E ⟨k, hD⟩ ⟨l, hE⟩
+    exact ⟨l + k, hE.comp hD⟩
 
 /-- Membership in the finite-order differential endomorphism ring is exactly the existence of
 an order bound. -/
 @[simp]
 theorem mem_finiteOrderEndomorphisms_iff (D : Module.End R M) :
     D ∈ finiteOrderEndomorphisms (R := R) (S := S) (M := M) ↔
-      ∃ k : ℕ, D.IsDifferentialOperatorOfOrder S k := sorry
+      ∃ k : ℕ, D.IsDifferentialOperatorOfOrder S k := Iff.rfl
 
 end FiniteOrderEndomorphisms
 
@@ -77,7 +83,7 @@ def smulRingHom : S →+* finiteOrderEndomorphisms (R := R) (S := S) (M := M) :=
 theorem coe_smulRingHom (s : S) :
     ((smulRingHom (R := R) (S := S) (M := M) s :
         finiteOrderEndomorphisms (R := R) (S := S) (M := M)) : Module.End R M) =
-      DistribSMul.toLinearMap R M s := sorry
+      DistribSMul.toLinearMap R M s := rfl
 
 end ScalarAction
 

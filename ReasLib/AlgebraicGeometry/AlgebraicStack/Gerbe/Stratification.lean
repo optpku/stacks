@@ -52,11 +52,12 @@ def remainder (U : I → Substack.LocallyClosed X) (i : I) : Set (Points X) :=
 /-- The remainder is the complement in the ambient point space of the union of earlier strata. -/
 theorem remainder_def (U : I → Substack.LocallyClosed X) (i : I) :
     remainder U i =
-      (Set.univ : Set (Points X)) \ ⋃ i', ⋃ (_ : i' < i), (U i').pointsSet := sorry
+      (Set.univ : Set (Points X)) \ ⋃ i', ⋃ (_ : i' < i), (U i').pointsSet := rfl
 
 /-- A point belongs to a remainder exactly when it belongs to none of the earlier strata. -/
 theorem mem_remainder (U : I → Substack.LocallyClosed X) {i : I} {x : Points X} :
-    x ∈ remainder U i ↔ ∀ i' < i, x ∉ (U i').pointsSet := sorry
+    x ∈ remainder U i ↔ ∀ i' < i, x ∉ (U i').pointsSet := by
+  simp [remainder]
 
 /-- A gerbe stratification consists of nonempty reduced gerbe strata covering the point
 space, each contained and relatively open in its closed successive remainder. -/
@@ -113,7 +114,8 @@ theorem isMaximalDense_iff {I : Type (u + 1)} [LinearOrder I] [WellFoundedLT I]
             (U i).val =
               (toFunctor (W.inclusion ≫ Substack.closedInclusion X Z.val Z.property)).essImage ∧
             (U i).pointsSet = Set.range
-              (Points.map (W.inclusion ≫ Substack.closedInclusion X Z.val Z.property))) := sorry
+              (Points.map (W.inclusion ≫ Substack.closedInclusion X Z.val Z.property))) := by
+  simp only [IsMaximalDense, IsStratification, and_assoc]
 
 /-- An algebraic stack with quasi-compact inertia admits a well-ordered gerbe
 stratification dense in every successive remainder. -/
@@ -161,7 +163,8 @@ theorem countableIndex_iff {S : Scheme.{u}} (X : GroupoidsOver S)
     [AlgebraicStack X] [QuasiCompact (forget.{u + 1, u, u, u + 1} X)] :
     countableIndex X ↔
       ∀ {I : Type (u + 1)} [LinearOrder I] [WellFoundedLT I]
-        (U : I → Substack.LocallyClosed X), IsMaximalDense U → Countable I := sorry
+        (U : I → Substack.LocallyClosed X), IsMaximalDense U → Countable I := by
+  rfl
 
 /-- The countable-index proposition is equivalent to bounding the cardinal of each
 maximal dense gerbe stratification index by `Cardinal.aleph0`. -/
@@ -170,6 +173,8 @@ theorem countableIndex_iff_mk_le_aleph0 {S : Scheme.{u}} (X : GroupoidsOver S)
     countableIndex X ↔
       ∀ {I : Type (u + 1)} [LinearOrder I] [WellFoundedLT I]
         (U : I → Substack.LocallyClosed X),
-        IsMaximalDense U → Cardinal.mk I ≤ Cardinal.aleph0 := sorry
+        IsMaximalDense U → Cardinal.mk I ≤ Cardinal.aleph0 := by
+  unfold countableIndex
+  simp only [Cardinal.mk_le_aleph0_iff]
 
 end AlgebraicGeometry.AlgebraicStack.GerbeStratification

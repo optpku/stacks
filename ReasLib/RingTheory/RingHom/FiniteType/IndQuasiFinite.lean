@@ -39,7 +39,9 @@ abbrev finiteTypeQuasiFinite : MorphismProperty CommRingCat.{u} :=
 /-- Finite-type quasi-finite morphisms of commutative rings are invariant
 under isomorphisms. -/
 instance finiteTypeQuasiFinite_respectsIso :
-    CommRingCat.finiteTypeQuasiFinite.RespectsIso := sorry
+    CommRingCat.finiteTypeQuasiFinite.RespectsIso := by
+  exact RingHom.toMorphismProperty_respectsIso_iff.mp
+    (RingHom.finiteType_respectsIso.and RingHom.QuasiFinite.respectsIso)
 
 end CommRingCat
 
@@ -77,12 +79,20 @@ theorem ofRaw (f : R →+* A) (h : RingHom.FiniteType.IndQuasiFinite.Raw.{u, v, 
 
 /-- A finite-type quasi-finite ring map is finite-type ind-quasi-finite. -/
 theorem ofQuasiFinite (f : R →+* A) (hf : RingHom.FiniteType.QuasiFinite f) :
-    RingHom.FiniteType.IndQuasiFinite f := sorry
+    RingHom.FiniteType.IndQuasiFinite f := by
+  let eR : ULift.{v} R ≃+* R := ULift.ringEquiv
+  let eA : A ≃+* ULift.{u} A := ULift.ringEquiv.symm
+  apply le_ind CommRingCat.finiteTypeQuasiFinite
+  exact ⟨eA.finite.finiteType.comp (hf.1.comp eR.finite.finiteType),
+    (RingHom.QuasiFinite.of_finite eA.finite).comp
+      (hf.2.comp (.of_finite eR.finite))⟩
 
 /-- Forgetting the finite-type condition on every stage gives Mathlib's core
 ind-quasi-finite predicate. -/
 theorem toIndQuasiFinite (f : R →+* A) (h : RingHom.FiniteType.IndQuasiFinite f) :
-    RingHom.IndQuasiFinite f := sorry
+    RingHom.IndQuasiFinite f := by
+  rcases h with ⟨J, hJ, hfiltered, D, t, s, hs, hst⟩
+  exact ⟨J, hJ, hfiltered, D, t, s, hs, fun j ↦ ⟨(hst j).1.2, (hst j).2⟩⟩
 
 end
 
@@ -97,7 +107,13 @@ variable {R : Type u} {A : Type v} [CommRing R] [CommRing A]
 /-- A finite-type quasi-finite ring map has an arbitrary-size finite-type
 ind-quasi-finite presentation. -/
 theorem ofQuasiFinite (f : R →+* A) (hf : RingHom.FiniteType.QuasiFinite f) :
-    RingHom.FiniteType.IndQuasiFinite.Raw f := sorry
+    RingHom.FiniteType.IndQuasiFinite.Raw f := by
+  let eR : ULift.{v} R ≃+* R := ULift.ringEquiv
+  let eA : A ≃+* ULift.{u} A := ULift.ringEquiv.symm
+  apply le_ind CommRingCat.finiteTypeQuasiFinite
+  exact ⟨eA.finite.finiteType.comp (hf.1.comp eR.finite.finiteType),
+    (RingHom.QuasiFinite.of_finite eA.finite).comp
+      (hf.2.comp (.of_finite eR.finite))⟩
 
 end
 
@@ -114,14 +130,20 @@ algebra map is equivalent to the representation-level ring-map predicate. -/
 theorem algebraMap_iff :
     ind.{v, u, u + 1} CommRingCat.finiteTypeQuasiFinite
         (CommRingCat.ofHom (algebraMap R A)) ↔
-      RingHom.FiniteType.IndQuasiFinite.Raw.{u, u, v} (algebraMap R A) := sorry
+      RingHom.FiniteType.IndQuasiFinite.Raw.{u, u, v} (algebraMap R A) := by
+  apply (ind.{v} CommRingCat.finiteTypeQuasiFinite).arrow_mk_iso_iff
+  exact Arrow.isoMk
+    (ULift.ringEquiv : ULift.{u} R ≃+* R).symm.toCommRingCatIso
+    (ULift.ringEquiv : ULift.{u} A ≃+* A).symm.toCommRingCatIso
+    (by ext; rfl)
 
 /-- An unlifted categorical finite-type ind-quasi-finite presentation of an
 algebra map induces the arbitrary-size ring-map presentation. -/
 theorem of_ind
     (h : ind.{v, u, u + 1} CommRingCat.finiteTypeQuasiFinite
       (CommRingCat.ofHom (algebraMap R A))) :
-    RingHom.FiniteType.IndQuasiFinite.Raw.{u, u, v} (algebraMap R A) := sorry
+    RingHom.FiniteType.IndQuasiFinite.Raw.{u, u, v} (algebraMap R A) := by
+  exact algebraMap_iff.mp h
 
 end
 

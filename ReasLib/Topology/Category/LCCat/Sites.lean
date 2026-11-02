@@ -23,16 +23,21 @@ without choosing a separate raw indexing presentation.
 
 @[expose] public section
 
-universe u w
+universe u w v
 
 open CategoryTheory CategoryTheory.Limits TopologicalSpace
+open scoped Topology
 
 namespace LCCat
 
 /-- Every open subspace of an object of `LCCat` is again Hausdorff and locally compact. -/
 @[stacks 09X3 "open subspaces remain in LCCat"]
 theorem opensToLCCat_obj_property (X : LCCat.{u}) (U : Opens X.obj) :
-    property ((Opens.toTopCat X.obj).obj U) := sorry
+    property ((Opens.toTopCat X.obj).obj U) := by
+  letI : T2Space X.obj := X.2.1
+  letI : LocallyCompactSpace X.obj := X.2.2
+  change T2Space U ∧ LocallyCompactSpace U
+  exact ⟨inferInstance, U.isOpen.locallyCompactSpace⟩
 
 /-- The functor sending an open subset of `X` to its open subspace, regarded as an object of
 `LCCat`. -/
@@ -50,7 +55,8 @@ def openInclusion (X : LCCat.{u}) (U : Opens X.obj) :
 @[stacks 09X3 "naturality of open-subspace inclusions"]
 theorem opensToLCCat_map_comp_openInclusion (X : LCCat.{u})
     {U V : Opens X.obj} (f : U ⟶ V) :
-    (opensToLCCat X).map f ≫ openInclusion X V = openInclusion X U := sorry
+    (opensToLCCat X).map f ≫ openInclusion X V = openInclusion X U := by
+  rfl
 
 /-- The canonical functor from the small Zariski site of `X` to the slice category `LCCat / X`. -/
 @[stacks 09X3 "small Zariski site functor"]
@@ -82,28 +88,95 @@ which generates the given presieve. -/
 @[stacks 09X2 "membership in the ambient qc precoverage"]
 theorem mem_qcPrecoverage_iff {X : LCCat.{u}} {R : Presieve X} :
     R ∈ qcPrecoverage X ↔ ∃ 𝒰 : SemiRepresentableFamily.Over.{u + 1} X,
-      𝒰.IsQuasiCompactCovering ∧ 𝒰.toPresieve = R := sorry
+      𝒰.IsQuasiCompactCovering ∧ 𝒰.toPresieve = R := Iff.rfl
+
+private theorem qc_of_presieve_le {X : LCCat.{u}}
+    {𝒰 : SemiRepresentableFamily.Over.{w} X}
+    {𝒱 : SemiRepresentableFamily.Over.{v} X}
+    (h : 𝒰.toPresieve ≤ 𝒱.toPresieve) (h𝒰 : 𝒰.IsQuasiCompactCovering) :
+    𝒱.IsQuasiCompactCovering := by
+  classical
+  intro x
+  obtain ⟨s, E, hE, hs⟩ := h𝒰 x
+  have hobj (i : s) : ∃ j, Nonempty (𝒰.obj i.1 ⟶ 𝒱.obj j) := by
+    obtain ⟨j, e, he⟩ := Presieve.ofArrows_surj _ _ (h _ _ (Presieve.ofArrows.mk i.1))
+    exact ⟨j, ⟨CategoryTheory.Over.homMk (eqToHom e.symm) he.symm⟩⟩
+  choose a ha using hobj
+  let t : Finset 𝒱.index := Finset.univ.image a
+  let m (i : s) {j : 𝒱.index} (e : a i = j) : 𝒰.obj i.1 ⟶ 𝒱.obj j :=
+    Classical.choice (ha i) ≫ eqToHom (congrArg 𝒱.obj e)
+  let F (j : t) : Set ((𝒱.obj j.1).left.obj) :=
+    ⋃ i : s, ⋃ e : a i = j.1, (m i e).left '' E i
+  refine ⟨t, F, ?_, Filter.mem_of_superset hs ?_⟩
+  · intro j
+    exact isCompact_iUnion fun i ↦ isCompact_iUnion fun e ↦
+      (hE i).image (m i e).left.hom.hom.continuous
+  · intro y hy
+    rcases Set.mem_iUnion.mp hy with ⟨i, z, hz, rfl⟩
+    refine Set.mem_iUnion.mpr ⟨⟨a i, Finset.mem_image.mpr ⟨i, Finset.mem_univ _, rfl⟩⟩,
+      (m i rfl).left z, ?_, ?_⟩
+    · exact Set.mem_iUnion.mpr ⟨i, Set.mem_iUnion.mpr ⟨rfl, z, hz, rfl⟩⟩
+    · exact congrArg (fun f : (𝒰.obj i.1).left ⟶ X ↦ f z)
+        (CategoryTheory.Over.w (m i rfl))
 
 /-- A bundled family covers for `qcPrecoverage` exactly when it satisfies the intrinsic
 quasi-compact covering predicate. -/
 @[stacks 09X2 "qc family membership criterion"]
 theorem isCovering_qcPrecoverage_iff {X : LCCat.{u}}
     (𝒰 : SemiRepresentableFamily.Over.{w} X) :
-    𝒰.IsCovering qcPrecoverage ↔ 𝒰.IsQuasiCompactCovering := sorry
+    𝒰.IsCovering qcPrecoverage ↔ 𝒰.IsQuasiCompactCovering := by
+  constructor
+  · rintro ⟨𝒱, h𝒱, h⟩
+    exact qc_of_presieve_le (le_of_eq h) h𝒱
+  · intro h𝒰
+    let g := Presieve.GeneratingFamily.ofUncurry 𝒰.toPresieve
+    exact ⟨g.family, qc_of_presieve_le (le_of_eq g.generates.symm) h𝒰, g.generates⟩
 
 /-- The quasi-compact precoverage contains singleton families induced by isomorphisms. -/
 @[stacks 09X2 "qc precoverage contains isomorphisms", instance]
-instance instQcPrecoverageHasIsos : qcPrecoverage.HasIsos := sorry
+instance instQcPrecoverageHasIsos : qcPrecoverage.HasIsos where
+  mem_coverings_of_isIso {S T} f _ := by
+    letI : LocallyCompactSpace S.obj := S.2.2
+    let e := TopCat.homeoOfIso (asIso f.hom)
+    have hf : (SemiRepresentableFamily.Over.singleton.{0} f).IsQuasiCompactCovering := by
+      intro x
+      obtain ⟨K, hK, hKx⟩ := exists_compact_mem_nhds (e.symm x)
+      refine ⟨{PUnit.unit}, fun _ ↦ K, fun _ ↦ hK, ?_⟩
+      have hx : f '' K ∈ 𝓝 x := by
+        have h : e '' K ∈ 𝓝 x := by
+          simpa only [Homeomorph.apply_symm_apply] using e.isOpenMap.image_mem_nhds hKx
+        have he : ⇑e = (f : S.obj → T.obj) := by rfl
+        rwa [he] at h
+      apply Filter.mem_of_superset hx
+      intro y hy
+      exact Set.mem_iUnion.mpr ⟨⟨PUnit.unit, Finset.mem_singleton_self _⟩, hy⟩
+    have h := (isCovering_qcPrecoverage_iff
+      (SemiRepresentableFamily.Over.singleton.{0} f)).2 hf
+    change Presieve.ofArrows (fun _ : PUnit ↦ S) (fun _ ↦ f) ∈ qcPrecoverage T at h
+    simpa only [Presieve.ofArrows_pUnit] using h
 
 /-- The quasi-compact precoverage is stable under base change. -/
 @[stacks 09X2 "qc precoverage is stable under base change", instance]
 instance instQcPrecoverageIsStableUnderBaseChange :
-    qcPrecoverage.IsStableUnderBaseChange := sorry
+    qcPrecoverage.IsStableUnderBaseChange where
+  mem_coverings_of_isPullback {ι S X} f hf {Y} g {P} p₁ p₂ hpb := by
+    apply (isCovering_qcPrecoverage_iff (SemiRepresentableFamily.Over.ofArrows _ p₁)).2
+    exact SemiRepresentableFamily.Over.IsQuasiCompactCovering.of_isPullback f
+      ((isCovering_qcPrecoverage_iff (SemiRepresentableFamily.Over.ofArrows _ f)).1 hf)
+      g p₁ p₂ hpb
 
 /-- The quasi-compact precoverage is stable under composition of covering families. -/
 @[stacks 09X2 "qc precoverage is stable under composition", instance]
 instance instQcPrecoverageIsStableUnderComposition :
-    qcPrecoverage.IsStableUnderComposition := sorry
+    qcPrecoverage.IsStableUnderComposition where
+  comp_mem_coverings {ι S X} f hf {σ Y} g hg := by
+    apply (isCovering_qcPrecoverage_iff
+      ((SemiRepresentableFamily.Over.ofArrows _ f).bind
+        (fun i ↦ SemiRepresentableFamily.Over.ofArrows _ (g i)))).2
+    exact SemiRepresentableFamily.Over.IsQuasiCompactCovering.bind _
+      ((isCovering_qcPrecoverage_iff (SemiRepresentableFamily.Over.ofArrows _ f)).1 hf)
+      (fun i ↦ (isCovering_qcPrecoverage_iff
+        (SemiRepresentableFamily.Over.ofArrows _ (g i))).1 (hg i))
 
 /-- The pretopology whose covering presieves are exactly the quasi-compact covering families. -/
 @[stacks 09X2 "ambient qc pretopology infrastructure"]
@@ -117,7 +190,43 @@ def qcTopology : GrothendieckTopology LCCat.{u} :=
 
 /-- Every Zariski covering of `LCCat` is a quasi-compact covering. -/
 @[stacks 09X3 "Zariski-to-qc topology comparison"]
-theorem zar_le_qc : zarTopology.{u} ≤ qcTopology.{u} := sorry
+theorem zar_le_qc : zarTopology.{u} ≤ qcTopology.{u} := by
+  apply Precoverage.toGrothendieck_le_iff_le_toPrecoverage.mpr
+  intro X R hR
+  let g := Presieve.GeneratingFamily.ofUncurry R
+  have hR' : g.family.toPresieve ∈ zarPrecoverage X := by
+    rwa [g.generates]
+  change g.family.toPresieve.map toTopCat ∈ TopCat.precoverage X.obj at hR'
+  have hsurj : ∀ x : X.obj, ∃ i : g.family.index,
+      x ∈ Set.range (g.family.obj i).hom := by
+    have h := hR'.1
+    change (g.family.toPresieve.map toTopCat).map (forget TopCat) ∈
+      Types.jointlySurjectivePrecoverage _ at h
+    simp only [SemiRepresentableFamily.Over.toPresieve, Presieve.map_ofArrows] at h
+    exact Types.ofArrows_mem_jointlySurjectivePrecoverage_iff.mp h
+  have hopen : ∀ i : g.family.index, Topology.IsOpenEmbedding (g.family.obj i).hom := by
+    have h := hR'.2
+    change g.family.toPresieve.map toTopCat ∈ TopCat.isOpenEmbedding.precoverage _ at h
+    simp only [SemiRepresentableFamily.Over.toPresieve, Presieve.map_ofArrows] at h
+    exact MorphismProperty.ofArrows_mem_precoverage.mp h
+  have hqc : g.family.IsQuasiCompactCovering := by
+    classical
+    intro x
+    obtain ⟨i, z, rfl⟩ := hsurj x
+    letI : LocallyCompactSpace (g.family.obj i).left.obj := (g.family.obj i).left.2.2
+    obtain ⟨K, hK, hKz⟩ := exists_compact_mem_nhds z
+    refine ⟨{i}, fun j ↦ (Finset.mem_singleton.mp j.2).symm ▸ K, ?_, ?_⟩
+    · rintro ⟨j, hj⟩
+      obtain rfl := Finset.mem_singleton.mp hj
+      exact hK
+    · apply Filter.mem_of_superset ((hopen i).isOpenMap.image_mem_nhds hKz)
+      intro y hy
+      exact Set.mem_iUnion.mpr ⟨⟨i, Finset.mem_singleton_self _⟩, hy⟩
+  change ∃ S ∈ qcPretopology X, S ≤ (Sieve.generate R : Presieve X)
+  refine ⟨R, ?_, Sieve.le_generate R⟩
+  change R ∈ qcPrecoverage X
+  rw [← g.generates]
+  exact (isCovering_qcPrecoverage_iff g.family).2 hqc
 
 end LCCat
 

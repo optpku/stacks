@@ -56,9 +56,8 @@ theorem ramificationPower_coe_apply
     (ramificationPower (A := A) (K := K) (L := L) (M := M) r ζ : Units r.ResidueField) =
       (ζ : Units r.ResidueField) ^
         (Ideal.ramificationIdxIn (maximalIdeal A) (integralClosure A M) /
-          Ideal.ramificationIdxIn (maximalIdeal A) (integralClosure A L)) := sorry
--- Proof strategy: unfold `ramificationPower` and apply `rootsOfUnity.powMap_coe_apply` to
--- `integralClosure.Tower.ramificationIdxIn_dvd`.
+          Ideal.ramificationIdxIn (maximalIdeal A) (integralClosure A L)) := by
+  rfl
 
 /-- The lower tame character, transported to the upper residue field. -/
 @[stacks 0BU7 "lower tame character transported to the upper residue field"]
@@ -94,9 +93,9 @@ theorem character_naturality_apply
     baseCharacter (A := A) (K := K) (L := L) (M := M) r
         (integralClosure.Tower.inertiaHom (A := A) (K := K) (L := L) (M := M) r σ) =
       ramificationPower (A := A) (K := K) (L := L) (M := M) r
-        (integralClosure.Tame.character (K := K) r σ) := sorry
--- Proof strategy: apply `DFunLike.congr_fun` to `character_naturality r` and reduce both
--- `MonoidHom.comp` evaluations.
+        (integralClosure.Tame.character (K := K) r σ) := by
+  exact DFunLike.congr_fun
+    (character_naturality (A := A) (K := K) (L := L) (M := M) r) σ
 
 /-- The lower quotient character, transported to the upper residue field. -/
 @[stacks 0BU7 "lower tame quotient map transported to the upper residue field"]
@@ -117,11 +116,11 @@ theorem quotientHom_naturality
     (baseQuotientHom (A := A) (K := K) (L := L) (M := M) r).comp
         (integralClosure.Tower.tameInertiaHom (A := A) (K := K) (L := L) (M := M) r) =
       (ramificationPower (A := A) (K := K) (L := L) (M := M) r).comp
-        (integralClosure.Tame.quotientHom (K := K) r) := sorry
--- Proof strategy: ext a tame quotient class and use `QuotientGroup.mk'_surjective` to choose an
--- inertia representative. Rewrite the induced restriction with `tameInertiaHom_mk`, both
--- quotient characters with `integralClosure.Tame.quotientHom_mk`, and finish with
--- `character_naturality_apply`.
+        (integralClosure.Tame.quotientHom (K := K) r) := by
+  refine MonoidHom.ext fun τ => ?_
+  obtain ⟨σ, rfl⟩ := QuotientGroup.mk'_surjective
+    ((r.wildInertia Gal(M / K)).subgroupOf (r.inertia Gal(M / K))) τ
+  exact character_naturality_apply (A := A) (K := K) (L := L) (M := M) r σ
 
 end Character
 
@@ -147,9 +146,8 @@ theorem tamePower_coe_apply
       (ζ : Units r.ResidueField) ^
         (integralClosure.Tame.tameCard (K := K) r /
           integralClosure.Tame.tameCard (K := K)
-            (integralClosure.Tower.under (A := A) (L := L) (M := M) r)) := sorry
--- Proof strategy: unfold `tamePower` and apply `rootsOfUnity.powMap_coe_apply` to
--- `integralClosure.Tower.tameInertiaCard_dvd`.
+            (integralClosure.Tower.under (A := A) (L := L) (M := M) r)) := by
+  rfl
 
 /-- The lower scaled tame character, transported to the upper residue field. -/
 @[stacks 0BU8 "lower scaled tame character transported to the upper residue field"]
@@ -172,11 +170,37 @@ theorem scaledCharacter_naturality
     (baseScaledCharacter (A := A) (K := K) (L := L) (M := M) r).comp
         (integralClosure.Tower.inertiaHom (A := A) (K := K) (L := L) (M := M) r) =
       (tamePower (A := A) (K := K) (L := L) (M := M) r).comp
-        (integralClosure.Tame.scaledCharacter (K := K) r) := sorry
--- Proof strategy: unfold `baseScaledCharacter`, `scaledCharacter`, and `tamePower`. Combine
--- `character_naturality` with `rootsOfUnity.powMap_comp`; the exponent identity follows from the
--- ramification-index/tame-card factorizations and the divisibilities used to define the three
--- power maps.
+        (integralClosure.Tame.scaledCharacter (K := K) r) := by
+  let q := integralClosure.Tower.under (A := A) (L := L) (M := M) r
+  let e := Ideal.ramificationIdxIn (maximalIdeal A) (integralClosure A L)
+  let e' := Ideal.ramificationIdxIn (maximalIdeal A) (integralClosure A M)
+  let t := integralClosure.Tame.tameCard (K := K) q
+  let t' := integralClosure.Tame.tameCard (K := K) r
+  let f := Units.map
+    (integralClosure.Tower.residueMap (A := A) (L := L) (M := M) r).toMonoidHom
+  have hte : t ∣ e := integralClosure.Tame.tameInertiaCard_dvd_ramificationIdx (K := K) q
+  have hte' : t' ∣ e' := integralClosure.Tame.tameInertiaCard_dvd_ramificationIdx (K := K) r
+  have hee' : e ∣ e' :=
+    integralClosure.Tower.ramificationIdxIn_dvd (A := A) (K := K) (L := L) (M := M)
+  have htt' : t ∣ t' :=
+    integralClosure.Tower.tameInertiaCard_dvd (A := A) (K := K) (L := L) (M := M) r
+  refine MonoidHom.ext fun σ => ?_
+  apply Subtype.ext
+  have h := congrArg Subtype.val
+    (character_naturality_apply (A := A) (K := K) (L := L) (M := M) r σ)
+  change f (integralClosure.Tame.character (K := K) q
+      (integralClosure.Tower.inertiaHom (A := A) (K := K) (L := L) (M := M) r σ) :
+      Units q.ResidueField) =
+    (integralClosure.Tame.character (K := K) r σ : Units r.ResidueField) ^ (e' / e) at h
+  change f ((integralClosure.Tame.character (K := K) q
+      (integralClosure.Tower.inertiaHom (A := A) (K := K) (L := L) (M := M) r σ) :
+      Units q.ResidueField) ^ (e / t)) =
+    ((integralClosure.Tame.character (K := K) r σ : Units r.ResidueField) ^ (e' / t')) ^
+      (t' / t)
+  rw [map_pow, h, ← pow_mul, ← pow_mul]
+  congr 1
+  rw [← Nat.mul_div_assoc _ hte, Nat.div_mul_cancel hee',
+    ← Nat.mul_div_assoc _ htt', Nat.div_mul_cancel hte']
 
 /-- Pointwise form of scaled tame-character naturality in a tower. -/
 @[simp, stacks 0BU8 "pointwise scaled tame character naturality in a tower"]
@@ -186,9 +210,9 @@ theorem scaledCharacter_naturality_apply
     baseScaledCharacter (A := A) (K := K) (L := L) (M := M) r
         (integralClosure.Tower.inertiaHom (A := A) (K := K) (L := L) (M := M) r σ) =
       tamePower (A := A) (K := K) (L := L) (M := M) r
-        (integralClosure.Tame.scaledCharacter (K := K) r σ) := sorry
--- Proof strategy: apply `DFunLike.congr_fun` to `scaledCharacter_naturality r` and simplify the
--- evaluations of the two composed monoid homomorphisms.
+        (integralClosure.Tame.scaledCharacter (K := K) r σ) := by
+  exact DFunLike.congr_fun
+    (scaledCharacter_naturality (A := A) (K := K) (L := L) (M := M) r) σ
 
 /-- The lower scaled quotient map, transported to the upper residue field. -/
 @[stacks 0BU8 "lower scaled quotient map transported to the upper residue field"]
@@ -211,11 +235,11 @@ theorem scaledQuotientMap_naturality
     (baseScaledQuotientMap (A := A) (K := K) (L := L) (M := M) r).comp
         (integralClosure.Tower.tameInertiaHom (A := A) (K := K) (L := L) (M := M) r) =
       (tamePower (A := A) (K := K) (L := L) (M := M) r).comp
-        (integralClosure.Tame.scaledQuotientMap (K := K) r) := sorry
--- Proof strategy: ext a quotient class, choose an inertia representative with
--- `QuotientGroup.mk'_surjective`, and rewrite by `tameInertiaHom_mk` and
--- `integralClosure.Tame.scaledQuotientMap_mk`; the resulting pointwise equality is
--- `scaledCharacter_naturality_apply`.
+        (integralClosure.Tame.scaledQuotientMap (K := K) r) := by
+  refine MonoidHom.ext fun τ => ?_
+  obtain ⟨σ, rfl⟩ := QuotientGroup.mk'_surjective
+    ((r.wildInertia Gal(M / K)).subgroupOf (r.inertia Gal(M / K))) τ
+  exact scaledCharacter_naturality_apply (A := A) (K := K) (L := L) (M := M) r σ
 
 end Scaled
 

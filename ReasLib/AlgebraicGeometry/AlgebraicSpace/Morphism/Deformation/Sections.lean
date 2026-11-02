@@ -47,7 +47,8 @@ abbrev toSource (iX : X ⟶ X') (U' : spacesEtaleSite X') : closedSpace iX U' �
 /-- Base change of a closed immersion along an étale map of algebraic spaces remains a
 closed immersion. -/
 instance closedι_isClosedImmersion (iX : X ⟶ X') (U' : spacesEtaleSite X')
-    [IsClosedImmersion iX] : IsClosedImmersion (closedι iX U') := sorry
+    [IsClosedImmersion iX] : IsClosedImmersion (closedι iX U') := by
+  exact MorphismProperty.pullback_fst U'.hom iX ‹IsClosedImmersion iX›
 
 /-- The cartesian commutative square of the fibre product `U = X ×_{X'} U'`. -/
 def thickeningPullbackSq (iX : X ⟶ X') (U' : spacesEtaleSite X') :
@@ -64,6 +65,7 @@ noncomputable def inducedConormalMap (iX : X ⟶ X') (iY : Y ⟶ Y') (a : X ⟶ 
       conormalSheaf (closedι iX U') :=
   (Modules.pullbackCompIso (toSource iX U') a).hom.app (conormalSheaf iY) ≫ Conormal.map sq
 
+set_option maxRecDepth 4096 in
 /-- The explicit composite defining `inducedConormalMap`. -/
 theorem inducedConormalMap_def (iX : X ⟶ X') (iY : Y ⟶ Y') (a : X ⟶ Y)
     [IsClosedImmersion iX] [IsImmersion iY] (U' : spacesEtaleSite X')
@@ -71,7 +73,10 @@ theorem inducedConormalMap_def (iX : X ⟶ X') (iY : Y ⟶ Y') (a : X ⟶ Y)
     (sq : CommSq (toSource iX U' ≫ a) (closedι iX U') iY a') :
     inducedConormalMap iX iY a U' a' sq =
       (Modules.pullbackCompIso (toSource iX U') a).hom.app (conormalSheaf iY) ≫
-        Conormal.map sq := sorry
+        Conormal.map sq := by
+  unfold inducedConormalMap
+  delta Functor.comp
+  with_reducible rfl
 
 /-- The restriction of a fixed conormal comparison to `U`, transported along the
 cartesian base-change square. -/
@@ -84,6 +89,7 @@ noncomputable def restrictedConormalMap (iX : X ⟶ X') (iY : Y ⟶ Y') (a : X �
       conormalSheaf (closedι iX U') :=
   (Modules.pullback (toSource iX U')).map A ≫ Conormal.map (thickeningPullbackSq iX U')
 
+set_option maxRecDepth 4096 in
 /-- The explicit composite defining `restrictedConormalMap`. -/
 theorem restrictedConormalMap_def (iX : X ⟶ X') (iY : Y ⟶ Y') (a : X ⟶ Y)
     [IsClosedImmersion iX] [IsImmersion iY]
@@ -91,7 +97,9 @@ theorem restrictedConormalMap_def (iX : X ⟶ X') (iY : Y ⟶ Y') (a : X ⟶ Y)
     (U' : spacesEtaleSite X') :
     restrictedConormalMap iX iY a A U' =
       (Modules.pullback (toSource iX U')).map A ≫
-        Conormal.map (thickeningPullbackSq iX U') := sorry
+        Conormal.map (thickeningPullbackSq iX U') := by
+  unfold restrictedConormalMap
+  with_reducible rfl
 
 /-- A local lift is compatible with the base, the given map on `U`, and the
 prescribed conormal comparison. -/
@@ -113,7 +121,7 @@ theorem isCompatible_iff (sX' : X' ⟶ B) (sY' : Y' ⟶ B) (iX : X ⟶ X') (iY :
       a' ≫ sY' = U'.hom ≫ sX' ∧
         ∃ sq : CommSq (toSource iX U' ≫ a) (closedι iX U') iY a',
           inducedConormalMap iX iY a U' a' sq =
-            restrictedConormalMap iX iY a A U' := sorry
+            restrictedConormalMap iX iY a A U' := Iff.rfl
 
 /-- The set of compatible local deformations of `a` on an object of the
 spaces-étale site of `X'`. -/
@@ -129,7 +137,7 @@ theorem mem_sections_iff (sX' : X' ⟶ B) (sY' : Y' ⟶ B) (iX : X ⟶ X') (iY :
     (A : (Modules.pullback a).obj (conormalSheaf iY) ⟶ conormalSheaf iX)
     (U' : spacesEtaleSite X') (a' : U'.left ⟶ Y') :
     a' ∈ sections sX' sY' iX iY a A U' ↔ IsCompatible sX' sY' iX iY a A U' a' :=
-  sorry
+  Iff.rfl
 
 /-- Restrict a candidate local deformation along a morphism of spaces-étale objects. -/
 def restrictHom {U' V' : spacesEtaleSite X'} (f : V' ⟶ U') (a' : U'.left ⟶ Y') :
@@ -138,12 +146,16 @@ def restrictHom {U' V' : spacesEtaleSite X'} (f : V' ⟶ U') (a' : U'.left ⟶ Y
 
 /-- Restriction of a candidate along the identity is unchanged. -/
 theorem restrictHom_id (U' : spacesEtaleSite X') (a' : U'.left ⟶ Y') :
-    restrictHom (𝟙 U') a' = a' := sorry
+    restrictHom (𝟙 U') a' = a' := by
+  change 𝟙 U'.left ≫ a' = a'
+  exact Category.id_comp a'
 
 /-- Successive restrictions agree with restriction along the composite. -/
 theorem restrictHom_comp {U' V' W' : spacesEtaleSite X'} (f : W' ⟶ V') (g : V' ⟶ U')
     (a' : U'.left ⟶ Y') :
-    restrictHom f (restrictHom g a') = restrictHom (f ≫ g) a' := sorry
+    restrictHom f (restrictHom g a') = restrictHom (f ≫ g) a' := by
+  change f.left ≫ (g.left ≫ a') = (f.left ≫ g.left) ≫ a'
+  exact (Category.assoc f.left g.left a').symm
 
 /-- Restricting a compatible local deformation yields a compatible local deformation. -/
 theorem mem_sections_restrictHom (sX' : X' ⟶ B) (sY' : Y' ⟶ B) (iX : X ⟶ X')

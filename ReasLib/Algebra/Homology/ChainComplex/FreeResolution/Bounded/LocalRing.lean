@@ -42,7 +42,12 @@ assumption is exactly the universe bridge from categorical to raw module project
 theorem HasLengthLE.ofProjectiveResolution
     {d : ℕ}
     (hM : CategoryTheory.ProjectiveResolution.HasLengthLE (ModuleCat.of R M) d) :
-    HasLengthLE R M d := sorry
+    HasLengthLE R M d := by
+  rcases hM with ⟨P, hP⟩
+  apply CategoryTheory.ProjectiveResolution.HasLengthLE.toFreeResolution P hP
+  intro n
+  apply Module.Projective.free_of_isLocalRing
+  exact (IsProjective.iff_projective (R := R) (P.complex.X n)).mpr (P.projective n)
 
 /-- Over a local ring, bounded free resolutions and canonical bounded projective resolutions are
 equivalent presentations of the same length condition. -/
@@ -50,7 +55,10 @@ equivalent presentations of the same length condition. -/
 theorem HasLengthLE.iffProjectiveResolution
     (d : ℕ) :
     HasLengthLE R M d ↔
-      CategoryTheory.ProjectiveResolution.HasLengthLE (ModuleCat.of R M) d := sorry
+      CategoryTheory.ProjectiveResolution.HasLengthLE (ModuleCat.of R M) d := by
+  constructor
+  · exact HasLengthLE.toProjectiveResolution
+  · exact HasLengthLE.ofProjectiveResolution
 
 /-- Over a local ring, a bounded coordinate projective resolution refines to a bounded free
 resolution of the same module and length.
@@ -64,7 +72,9 @@ theorem HasLengthLE.ofCoordinate
     (hM :
       ModuleCat.ProjectiveResolution.Coordinate.HasLengthLE
         (ModuleCat.of R M) d) :
-    HasLengthLE R M d := sorry
+    HasLengthLE R M d :=
+  HasLengthLE.ofProjectiveResolution
+      (ModuleCat.ProjectiveResolution.Coordinate.HasLengthLE.toCanonical hM)
 
 /-- Over a local ring, bounded free resolutions and bounded coordinate projective resolutions are
 equivalent presentations of the same length condition. -/
@@ -73,7 +83,10 @@ theorem HasLengthLE.iffCoordinate
     (d : ℕ) :
     HasLengthLE R M d ↔
       ModuleCat.ProjectiveResolution.Coordinate.HasLengthLE
-        (ModuleCat.of R M) d := sorry
+        (ModuleCat.of R M) d := by
+  constructor
+  · exact HasLengthLE.toCoordinate
+  · exact HasLengthLE.ofCoordinate
 
 /-- A projective-dimension bound over a local ring is equivalent to a bounded free resolution.
 
@@ -82,7 +95,14 @@ also exactly what is needed to convert categorical projectivity back to raw modu
 @[stacks 0CXD "projective dimension and free resolutions over local rings"]
 theorem hasProjectiveDimensionLE_iff_hasLengthLE
     (d : ℕ) :
-    HasProjectiveDimensionLE (ModuleCat.of R M) d ↔ HasLengthLE R M d := sorry
+    HasProjectiveDimensionLE (ModuleCat.of R M) d ↔ HasLengthLE R M d := by
+  constructor
+  · intro hM
+    apply HasLengthLE.ofProjectiveResolution
+    exact
+      ModuleCat.ProjectiveResolution.Coordinate.HasLengthLE.toCanonical
+        (ModuleCat.ProjectiveResolution.Coordinate.HasLengthLE.of_hasProjectiveDimensionLE hM)
+  · exact ChainComplex.FreeResolution.HasLengthLE.hasProjectiveDimensionLE
 
 end ChainComplex.FreeResolution
 
@@ -101,7 +121,21 @@ required finiteness. -/
 theorem HasLengthLE.ofFiniteProjectiveResolution
     {d : ℕ}
     (hM : ModuleCat.FiniteProjective.HasResolutionLE (ModuleCat.of R M) d) :
-    HasLengthLE R M d := sorry
+    HasLengthLE R M d := by
+  induction d generalizing M with
+  | zero =>
+      rw [ChainComplex.FiniteFreeResolution.HasLengthLE.zero_iff]
+      exact ⟨Module.FiniteProjective.free_of_isLocalRing ⟨hM.1, hM.2⟩,
+        hM.1⟩
+  | succ d ih =>
+      rcases (ModuleCat.FiniteProjective.HasResolutionLE.succ_iff
+        (ModuleCat.of R M) d).mp hM with ⟨P, π, hπ, hker⟩
+      apply ChainComplex.FiniteFreeResolution.HasLengthLE.succ_of_finiteFreePresentation
+        π hπ
+      · exact Module.FiniteProjective.free_of_isLocalRing
+          ⟨P.property.1, P.property.2⟩
+      · exact P.property.1
+      · exact ih hker
 
 /-- For a finite module over a local Noetherian ring, a projective-dimension bound is equivalent
 to the existence of a bounded finite free resolution.
@@ -111,6 +145,14 @@ finite-projective-to-finite-free conversion. -/
 @[stacks 0CXF "projective dimension and finite free resolutions over local rings"]
 theorem hasProjectiveDimensionLE_iff_hasLengthLE
     [IsNoetherianRing R] [Module.Finite R M] (d : ℕ) :
-    HasProjectiveDimensionLE (ModuleCat.of R M) d ↔ HasLengthLE R M d := sorry
+    HasProjectiveDimensionLE (ModuleCat.of R M) d ↔ HasLengthLE R M d := by
+  constructor
+  · intro hM
+    exact HasLengthLE.ofFiniteProjectiveResolution
+      ((ModuleCat.FiniteProjective.hasProjectiveDimensionLE_iff_hasResolutionLE
+        d).mp hM)
+  · intro hM
+    exact ChainComplex.FreeResolution.HasLengthLE.hasProjectiveDimensionLE
+      (ChainComplex.FiniteFreeResolution.HasLengthLE.forget hM)
 
 end ChainComplex.FiniteFreeResolution

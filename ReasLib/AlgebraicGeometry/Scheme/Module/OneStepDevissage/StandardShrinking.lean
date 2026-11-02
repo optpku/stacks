@@ -224,7 +224,8 @@ theorem ofRestriction_restricted (D : OneStepDevissageAtAmbientPoint X ℱ x)
       W.restrictedPi_eq W.restrictedLocallyOfFiniteType W.restrictedQuasicoherent
       W.restrictedFiniteType W.restricted W.restricted_Z W.restricted_Y
       W.restricted_i W.restricted_π W.restricted_G W.restricted_z W.restricted_y).restricted =
-        W.restricted := sorry
+        W.restricted := by
+  rfl
 
 /-- The four chosen opens of a standard shrinking are the basic opens of their
 chosen global sections. -/
@@ -232,12 +233,16 @@ theorem standardOpen_spec {D : OneStepDevissageAtAmbientPoint X ℱ x} (W : D.St
     (W.base = S.basicOpen W.baseSection ∧
       W.source = X.left.basicOpen W.sourceSection) ∧
     (W.auxiliary = D.toOneStepDevissage.Z.left.basicOpen W.auxiliarySection ∧
-      W.model = D.toOneStepDevissage.Y.left.basicOpen W.modelSection) := sorry
+      W.model = D.toOneStepDevissage.Y.left.basicOpen W.modelSection) := by
+  exact ⟨⟨W.base_eq_basicOpen, W.source_eq_basicOpen⟩,
+    ⟨W.auxiliary_eq_basicOpen, W.model_eq_basicOpen⟩⟩
 
 /-- The four distinguished points belong to the corresponding chosen opens. -/
 theorem point_mem_spec {D : OneStepDevissageAtAmbientPoint X ℱ x} (W : D.StandardShrinking) :
     (X.hom x ∈ W.base ∧ x ∈ W.source) ∧
-      (D.z ∈ W.auxiliary ∧ D.y ∈ W.model) := sorry
+      (D.z ∈ W.auxiliary ∧ D.y ∈ W.model) := by
+  exact ⟨⟨W.basePoint_mem, W.sourcePoint_mem⟩,
+    ⟨W.auxiliaryPoint_mem, W.modelPoint_mem⟩⟩
 
 /-- The restricted dévissage has exactly the restricted schemes, maps, module,
 and distinguished points specified by the shrinking. -/
@@ -336,7 +341,10 @@ theorem restriction_spec {D : OneStepDevissageAtAmbientPoint X ℱ x} (W : D.Sta
           (Scheme.Opens.instIsOpenImmersionι W.source))
         W.restrictedLocallyOfFiniteType W.restrictedQuasicoherent
         W.restrictedFiniteType ⟨x, W.sourcePoint_mem⟩ W.restricted)
-        (⟨D.y, W.modelPoint_mem⟩ : W.model.toScheme))) := sorry
+        (⟨D.y, W.modelPoint_mem⟩ : W.model.toScheme))) := by
+  exact ⟨⟨W.restricted_Z, W.restricted_Y⟩,
+    ⟨⟨W.restricted_i, W.restrictedI_eq⟩, ⟨W.restricted_π, W.restrictedPi_eq⟩⟩,
+    ⟨⟨W.restricted_G, W.restricted_z⟩, W.restricted_y⟩⟩
 
 end StandardShrinking
 
@@ -588,7 +596,8 @@ theorem ofRestriction_restricted (D : OneStepDevissageAt X ℱ x)
       W.restrictedPi_eq W.restrictedLocallyOfFiniteType W.restrictedQuasicoherent
       W.restrictedFiniteType W.restricted W.restricted_Z W.restricted_Y
       W.restricted_i W.restricted_π W.restricted_G W.restricted_z W.restricted_y).restricted =
-        W.restricted := sorry
+        W.restricted := by
+  rfl
 
 /-- The four chosen opens of a standard shrinking are the basic opens of their
 chosen global sections. -/
@@ -596,12 +605,16 @@ theorem standardOpen_spec {D : OneStepDevissageAt X ℱ x} (W : D.StandardShrink
     (W.base = S.basicOpen W.baseSection ∧
       W.source = X.left.basicOpen W.sourceSection) ∧
     (W.auxiliary = D.toOneStepDevissage.Z.left.basicOpen W.auxiliarySection ∧
-      W.model = D.toOneStepDevissage.Y.left.basicOpen W.modelSection) := sorry
+      W.model = D.toOneStepDevissage.Y.left.basicOpen W.modelSection) := by
+  exact ⟨⟨W.base_eq_basicOpen, W.source_eq_basicOpen⟩,
+    ⟨W.auxiliary_eq_basicOpen, W.model_eq_basicOpen⟩⟩
 
 /-- The four distinguished points belong to the corresponding chosen opens. -/
 theorem point_mem_spec {D : OneStepDevissageAt X ℱ x} (W : D.StandardShrinking) :
     (X.hom x ∈ W.base ∧ x ∈ W.source) ∧
-      (D.z ∈ W.auxiliary ∧ D.y ∈ W.model) := sorry
+      (D.z ∈ W.auxiliary ∧ D.y ∈ W.model) := by
+  exact ⟨⟨W.basePoint_mem, W.sourcePoint_mem⟩,
+    ⟨W.auxiliaryPoint_mem, W.modelPoint_mem⟩⟩
 
 /-- The restricted dévissage has exactly the restricted schemes, maps, module,
 and distinguished points specified by the shrinking. -/
@@ -700,7 +713,10 @@ theorem restriction_spec {D : OneStepDevissageAt X ℱ x} (W : D.StandardShrinki
           (Scheme.Opens.instIsOpenImmersionι W.source))
         W.restrictedLocallyOfFiniteType W.restrictedQuasicoherent
         W.restrictedFiniteType ⟨x, W.sourcePoint_mem⟩ W.restricted)
-        (⟨D.y, W.modelPoint_mem⟩ : W.model.toScheme))) := sorry
+        (⟨D.y, W.modelPoint_mem⟩ : W.model.toScheme))) := by
+  exact ⟨⟨W.restricted_Z, W.restricted_Y⟩,
+    ⟨⟨W.restricted_i, W.restrictedI_eq⟩, ⟨W.restricted_π, W.restrictedPi_eq⟩⟩,
+    ⟨⟨W.restricted_G, W.restricted_z⟩, W.restricted_y⟩⟩
 
 end StandardShrinking
 

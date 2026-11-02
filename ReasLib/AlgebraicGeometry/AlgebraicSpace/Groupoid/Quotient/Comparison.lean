@@ -96,21 +96,23 @@ def sourceTarget {S : Scheme.{u}} {B : AlgebraicSpace S} (G : GroupoidAlgebraicS
 theorem sourceTargetPre_app {S : Scheme.{u}} {B : AlgebraicSpace S}
     (G : GroupoidAlgebraicSpace B) (x : (stackInSets G.R.left).total) :
     (sourceTargetPreHom G x).fiber.arrow = spacePointArrow G x :=
-  sorry
+  rfl
 
 /-- The source endpoint of the fibre arrow of `sourceTargetPreHom` is the image under `s`. -/
 theorem sourceTargetPre_source {S : Scheme.{u}} {B : AlgebraicSpace S}
     (G : GroupoidAlgebraicSpace B) (x : (stackInSets G.R.left).total) :
     (sourceTargetPreHom G x).fiber.arrow ≫ G.s.left =
       ((preAtlasSource G).toFunctor.obj x).fiber :=
-  sorry
+  (sourceTargetPreHom G x).fiber.source
 
 /-- The target endpoint of the fibre arrow of `sourceTargetPreHom` is the image under `t`. -/
 theorem sourceTargetPre_target {S : Scheme.{u}} {B : AlgebraicSpace S}
     (G : GroupoidAlgebraicSpace B) (x : (stackInSets G.R.left).total) :
     (sourceTargetPreHom G x).fiber.arrow ≫ G.t.left =
-      ((preAtlasTarget G).toFunctor.obj x).fiber :=
-  sorry
+      ((preAtlasTarget G).toFunctor.obj x).fiber := by
+  change NatTrans.vcomp (yonedaEquiv.symm x.unop.snd) G.t.left =
+    yonedaEquiv.symm (G.t.left.app _ x.unop.snd)
+  exact yonedaEquiv_symm_naturality_right _ G.t.left _
 
 /-- A component of the stacked cell is the image of the corresponding prestack component under
 stackification. -/
@@ -118,7 +120,7 @@ theorem sourceTarget_app {S : Scheme.{u}} {B : AlgebraicSpace S}
     (G : GroupoidAlgebraicSpace B) (x : (stackInSets G.R.left).total) :
     (CartesianBasedFunctor.toBasedNatTrans (sourceTarget G)).toNatTrans.app x =
       (fppfQuotientStackPresentation G).comparison.toFunctor.map (sourceTargetPreHom G x) :=
-  sorry
+  rfl
 
 /-- The stacked cell is the image of the prestack cell under the stackification comparison. -/
 theorem sourceTarget_whisker {S : Scheme.{u}} {B : AlgebraicSpace S}
@@ -126,6 +128,6 @@ theorem sourceTarget_whisker {S : Scheme.{u}} {B : AlgebraicSpace S}
     (CartesianBasedFunctor.toBasedNatTrans (sourceTarget G)).toNatTrans.app x =
       (fppfQuotientStackPresentation G).comparison.toFunctor.map
         ((CartesianBasedFunctor.toBasedNatTrans (sourceTargetPre G)).toNatTrans.app x) :=
-  sorry
+  rfl
 
 end AlgebraicGeometry.GroupoidAlgebraicSpace

@@ -58,25 +58,40 @@ def liftEtaleAtlas_map : yoneda.obj (liftEtaleAtlas a pW q hq) ⟶ F.functorOfPo
 /-- The lifted square commutes: `p ≫ a = yoneda.map α ≫ q`. -/
 theorem liftEtaleAtlas_w :
     liftEtaleAtlas_map a pW q hq ≫ a =
-      yoneda.map (liftEtaleAtlas_fst a pW q hq) ≫ q := sorry
+      yoneda.map (liftEtaleAtlas_fst a pW q hq) ≫ q := by
+  simpa only [liftEtaleAtlas_map, liftEtaleAtlas_snd, liftEtaleAtlas_fst, liftEtaleAtlas,
+    Category.assoc]
+    using (hq.rep.isPullback' (pW ≫ a)).w.symm
 
 /-- The represented square of `q` and `pW ≫ a` is a pullback. -/
 theorem liftEtaleAtlas_isPullback :
     IsPullback (yoneda.map (liftEtaleAtlas_fst a pW q hq))
-      (yoneda.map (liftEtaleAtlas_snd a pW q hq)) q (pW ≫ a) := sorry
+      (yoneda.map (liftEtaleAtlas_snd a pW q hq)) q (pW ≫ a) :=
+  hq.rep.isPullback' (pW ≫ a)
 
 /-- The comparison square of the lifted atlas commutes. -/
 theorem liftEtaleAtlas_commSq :
     CommSq (yoneda.map (liftEtaleAtlas_fst a pW q hq))
-      (liftEtaleAtlas_map a pW q hq) q a := sorry
+      (liftEtaleAtlas_map a pW q hq) q a :=
+  ⟨(liftEtaleAtlas_w a pW q hq).symm⟩
 
 /-- The base-change projection `U ⟶ W` is étale. -/
-instance liftEtaleAtlas_snd_etale : Etale (liftEtaleAtlas_snd a pW q hq).left := sorry
+instance liftEtaleAtlas_snd_etale : Etale (liftEtaleAtlas_snd a pW q hq).left :=
+  hq.property_snd (pW ≫ a)
 
 /-- If `pW` is a representable étale atlas, then the lifted map `U ⟶ F` is representable and
 étale. -/
 theorem liftEtaleAtlas_map_etale (hpW_etale : (over (@Etale)).presheaf pW) :
-    (over (@Etale)).presheaf (liftEtaleAtlas_map a pW q hq) := sorry
+    (over (@Etale)).presheaf (liftEtaleAtlas_map a pW q hq) := by
+  letI : (over (X := S) (@Etale)).IsStableUnderComposition :=
+    inferInstanceAs ((MorphismProperty.inverseImage (@Etale)
+      (Over.forget S)).IsStableUnderComposition)
+  letI : (over (X := S) (@Etale)).IsStableUnderBaseChange :=
+    ⟨fun h hf ↦ MorphismProperty.of_isPullback (P := @Etale)
+      (h.map (Over.forget S)) hf⟩
+  exact MorphismProperty.comp_mem _ _ _
+    (MorphismProperty.relative_map (F := yoneda) (P := over (@Etale))
+      (liftEtaleAtlas_snd_etale a pW q hq)) hpW_etale
 
 /-- If `pW` and `q` are étale-locally surjective, then the lifted map `U ⟶ F` is
 étale-locally surjective. -/
@@ -84,7 +99,24 @@ theorem liftEtaleAtlas_map_locallySurjective
     (hpW_surj : Presheaf.IsLocallySurjective (Scheme.etaleTopology.over S) pW)
     (hq_surj : Presheaf.IsLocallySurjective (Scheme.etaleTopology.over S) q) :
     Presheaf.IsLocallySurjective (Scheme.etaleTopology.over S)
-      (liftEtaleAtlas_map a pW q hq) := sorry
+      (liftEtaleAtlas_map a pW q hq) := by
+  have hsnd : Presheaf.IsLocallySurjective (Scheme.etaleTopology.over S)
+      (yoneda.map (liftEtaleAtlas_snd a pW q hq)) := by
+    constructor
+    intro T s
+    refine (Scheme.etaleTopology.over S).superset_covering ?_
+      (hq_surj.imageSieve_mem ((pW ≫ a).app _ s))
+    intro T' f hf
+    obtain ⟨t, ht⟩ := hf
+    obtain ⟨z, _, hz⟩ := Types.exists_of_isPullback
+      ((liftEtaleAtlas_isPullback a pW q hq).map
+        ((evaluation _ _).obj (Opposite.op T'))) t ((yoneda.obj W).map f.op s)
+      (by change q.app _ t = (pW ≫ a).app _ ((yoneda.obj W).map f.op s)
+          rw [ht, (pW ≫ a).naturality_apply])
+    exact ⟨z, hz⟩
+  letI := hsnd
+  letI := hpW_surj
+  exact Presheaf.isLocallySurjective_comp (Scheme.etaleTopology.over S) _ pW
 
 /-- The constructed diagram is a commutative square whose vertical map `U ⟶ F` is a
 surjective étale atlas. -/
@@ -95,7 +127,10 @@ theorem liftEtaleAtlas_spec (hpW_etale : (over (@Etale)).presheaf pW)
       Presheaf.IsLocallySurjective (Scheme.etaleTopology.over S)
           (liftEtaleAtlas_map a pW q hq) ∧
         liftEtaleAtlas_map a pW q hq ≫ a =
-          yoneda.map (liftEtaleAtlas_fst a pW q hq) ≫ q := sorry
+          yoneda.map (liftEtaleAtlas_fst a pW q hq) ≫ q :=
+  ⟨liftEtaleAtlas_map_etale a pW q hq hpW_etale,
+    liftEtaleAtlas_map_locallySurjective a pW q hq hpW_surj hq_surj,
+    liftEtaleAtlas_w a pW q hq⟩
 
 /-- A surjective étale scheme atlas of `G` lifts along any morphism `F ⟶ G` to a
 surjective étale scheme atlas of `F` with a commuting comparison square. -/
@@ -106,6 +141,10 @@ theorem exists_etale_atlas_lift {S : Scheme.{u}} {F G : AlgebraicSpace S} (a : F
     ∃ (U : Over S) (α : U ⟶ V) (p : yoneda.obj U ⟶ F.functorOfPoints),
       (over (@Etale)).presheaf p ∧
         Presheaf.IsLocallySurjective (Scheme.etaleTopology.over S) p ∧
-          p ≫ a = yoneda.map α ≫ q := sorry
+          p ≫ a = yoneda.map α ≫ q := by
+  obtain ⟨W, pW, hpW_etale, hpW_surj⟩ := F.atlas
+  exact ⟨liftEtaleAtlas a pW q hq_etale, liftEtaleAtlas_fst a pW q hq_etale,
+    liftEtaleAtlas_map a pW q hq_etale,
+    liftEtaleAtlas_spec a pW q hq_etale hpW_etale hpW_surj hq_surj⟩
 
 end AlgebraicGeometry.AlgebraicSpace

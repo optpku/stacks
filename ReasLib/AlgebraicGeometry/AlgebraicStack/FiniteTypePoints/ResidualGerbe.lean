@@ -45,7 +45,7 @@ theorem existsSingletonLocallyOfFiniteType_iff :
       ∃ (Z : GroupoidsOver S) (hZ : AlgebraicStack Z) (f : Z ⟶ X),
         Nonempty (Points Z) ∧ Subsingleton (Points Z) ∧ LocallyOfFiniteType f ∧
           Set.range (Points.map f) = {x} :=
-  sorry
+  Iff.rfl
 
 /-- `existsSingletonLocallyOfFiniteType x` is equivalent to the existence of a
 locally-of-finite-type morphism from an algebraic stack whose underlying point
@@ -54,8 +54,17 @@ theorem existsSingletonLocallyOfFiniteType_iff_univ :
     existsSingletonLocallyOfFiniteType x ↔
       ∃ (Z : GroupoidsOver S) (hZ : AlgebraicStack Z) (f : Z ⟶ X) (z : Points Z),
         (Set.univ : Set (Points Z)) = {z} ∧ LocallyOfFiniteType f ∧
-          Set.range (Points.map f) = {x} :=
-  sorry
+          Set.range (Points.map f) = {x} := by
+  constructor
+  · rintro ⟨Z, hZ, f, ⟨z⟩, hs, hf, hx⟩
+    refine ⟨Z, hZ, f, z, ?_, hf, hx⟩
+    exact Set.ext fun w =>
+      ⟨fun _ => Set.mem_singleton_iff.mpr (hs.elim w z), fun _ => Set.mem_univ w⟩
+  · rintro ⟨Z, hZ, f, z, hz, hf, hx⟩
+    refine ⟨Z, hZ, f, ⟨z⟩, ⟨fun a b => ?_⟩, hf, hx⟩
+    have ha : a = z := Set.mem_singleton_iff.mp (hz ▸ Set.mem_univ a)
+    have hb : b = z := Set.mem_singleton_iff.mp (hz ▸ Set.mem_univ b)
+    exact ha.trans hb.symm
 
 namespace existsSingletonLocallyOfFiniteType
 
@@ -65,7 +74,7 @@ theorem of {Z : GroupoidsOver S} [AlgebraicStack Z] {f : Z ⟶ X}
     [Nonempty (Points Z)] [Subsingleton (Points Z)] [LocallyOfFiniteType f]
     (hx : Set.range (Points.map f) = {x}) :
     existsSingletonLocallyOfFiniteType x :=
-  sorry
+  ⟨Z, inferInstance, f, inferInstance, inferInstance, inferInstance, hx⟩
 
 /-- `existsSingletonLocallyOfFiniteType x` supplies a singleton algebraic stack
 over `S` and a locally-of-finite-type morphism to `X` with image `{x}`. -/
@@ -73,7 +82,7 @@ theorem spec (h : existsSingletonLocallyOfFiniteType x) :
     ∃ (Z : GroupoidsOver S) (hZ : AlgebraicStack Z) (f : Z ⟶ X),
       Nonempty (Points Z) ∧ Subsingleton (Points Z) ∧ LocallyOfFiniteType f ∧
         Set.range (Points.map f) = {x} :=
-  sorry
+  h
 
 end existsSingletonLocallyOfFiniteType
 
@@ -87,7 +96,7 @@ at `x` exists and `residualGerbeι X x` is locally of finite type. -/
 theorem existsResidualGerbeLocallyOfFiniteType_iff :
     existsResidualGerbeLocallyOfFiniteType x ↔
       ∃ hx : HasResidualGerbe X x, LocallyOfFiniteType (residualGerbeι X x) :=
-  sorry
+  Iff.rfl
 
 namespace existsResidualGerbeLocallyOfFiniteType
 
@@ -95,14 +104,14 @@ namespace existsResidualGerbeLocallyOfFiniteType
 finite type, then `existsResidualGerbeLocallyOfFiniteType x` holds. -/
 theorem of [HasResidualGerbe X x] [LocallyOfFiniteType (residualGerbeι X x)] :
     existsResidualGerbeLocallyOfFiniteType x :=
-  sorry
+  ⟨inferInstance, inferInstance⟩
 
 /-- `existsResidualGerbeLocallyOfFiniteType x` supplies existence of the
 residual gerbe of `X` at `x` together with local finite type of
 `residualGerbeι X x`. -/
 theorem spec (h : existsResidualGerbeLocallyOfFiniteType x) :
     ∃ hx : HasResidualGerbe X x, LocallyOfFiniteType (residualGerbeι X x) :=
-  sorry
+  h
 
 end existsResidualGerbeLocallyOfFiniteType
 
@@ -122,17 +131,18 @@ theorem isFiniteTypePoint_tfae :
 image of a locally-of-finite-type morphism from a singleton algebraic stack. -/
 theorem isFiniteTypePoint_iff_existsSingletonLocallyOfFiniteType :
     IsFiniteTypePoint x ↔ existsSingletonLocallyOfFiniteType x :=
-  sorry
+  (isFiniteTypePoint_tfae x).out 0 1
 
 /-- A point of an algebraic stack is of finite type if and only if the residual
 gerbe at that point exists and its inclusion is locally of finite type. -/
 theorem isFiniteTypePoint_iff_existsResidualGerbeLocallyOfFiniteType :
     IsFiniteTypePoint x ↔ existsResidualGerbeLocallyOfFiniteType x :=
-  sorry
+  (isFiniteTypePoint_tfae x).out 0 2
 
 /-- A finite-type point of an algebraic stack has a residual gerbe. -/
 theorem HasResidualGerbe.of_isFiniteTypePoint (hx : IsFiniteTypePoint x) :
-    HasResidualGerbe X x :=
-  sorry
+    HasResidualGerbe X x := by
+  obtain ⟨h, _⟩ := (isFiniteTypePoint_iff_existsResidualGerbeLocallyOfFiniteType x).mp hx
+  exact h
 
 end AlgebraicGeometry.AlgebraicStack

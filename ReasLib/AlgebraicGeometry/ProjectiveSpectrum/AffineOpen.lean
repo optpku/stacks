@@ -64,7 +64,40 @@ instance instGradedMonoid (U : (Spec (.of A)).Opens) :
 /-- The generated subalgebra is homogeneous for the standard grading of `A[T]`. -/
 theorem subalgebra_isHomogeneous (U : (Spec (.of A)).Opens) :
     (Subalgebra.toSubmodule (subalgebra U)).IsHomogeneous
-      (MvPolynomial.standardGrading Unit A) := sorry
+      (MvPolynomial.standardGrading Unit A) := by
+  classical
+  intro n p hp
+  change p ∈ Algebra.adjoin A (generatorSet U) at hp
+  change (DirectSum.decompose (MvPolynomial.standardGrading Unit A) p n :
+    MvPolynomial Unit A) ∈ subalgebra U
+  induction hp using Algebra.adjoin_induction generalizing n with
+  | mem p hp =>
+      obtain ⟨f, i, hf, rfl⟩ := hp
+      have h : MvPolynomial.C f * MvPolynomial.X () ^ i ∈
+          MvPolynomial.standardGrading Unit A i :=
+        MvPolynomial.isHomogeneous_C_mul_X_pow f () i
+      by_cases hn : i = n
+      · subst n
+        rw [DirectSum.decompose_of_mem_same _ h]
+        exact Algebra.subset_adjoin ⟨f, i, hf, rfl⟩
+      · rw [DirectSum.decompose_of_mem_ne _ h hn]
+        exact (subalgebra U).zero_mem
+  | algebraMap a =>
+      have h : algebraMap A (MvPolynomial Unit A) a ∈
+          MvPolynomial.standardGrading Unit A 0 := @MvPolynomial.isHomogeneous_C Unit A _ a
+      by_cases hn : 0 = n
+      · subst n
+        rw [DirectSum.decompose_of_mem_same _ h]
+        exact (subalgebra U).algebraMap_mem a
+      · rw [DirectSum.decompose_of_mem_ne _ h hn]
+        exact (subalgebra U).zero_mem
+  | add p q hp hq ihp ihq =>
+      simpa only [DirectSum.decompose_add, DirectSum.add_apply, Submodule.coe_add] using
+        (subalgebra U).add_mem (ihp n) (ihq n)
+  | mul p q hp hq ihp ihq =>
+      rw [DirectSum.decompose_mul, DirectSum.coe_mul_apply_eq_sum_antidiagonal]
+      exact (subalgebra U).sum_mem fun ij _ ↦
+        (subalgebra U).mul_mem (ihp ij.1) (ihq ij.2)
 
 /-- The homogeneous components of an element of the generated subalgebra, regarded as an
 element of the direct sum of its inherited graded pieces. -/
@@ -81,21 +114,90 @@ noncomputable def decomposition (U : (Spec (.of A)).Opens) (x : subalgebra U) :
   · exact (DirectSum.decompose (MvPolynomial.standardGrading Unit A)
       (x : MvPolynomial Unit A) n.1).2
 
+private theorem decomposition_apply_coe (U : (Spec (.of A)).Opens)
+    (x : subalgebra U) (n : ℕ) :
+    (((decomposition U x n : grading U n) : subalgebra U) : MvPolynomial Unit A) =
+      (DirectSum.decompose (MvPolynomial.standardGrading Unit A)
+        (x : MvPolynomial Unit A) n : MvPolynomial Unit A) := by
+  classical
+  by_cases hn : n ∈
+      (DirectSum.decompose (MvPolynomial.standardGrading Unit A)
+        (x : MvPolynomial Unit A)).support
+  · simp only [decomposition, DFinsupp.mk_of_mem hn]
+  · have hz := DFinsupp.notMem_support_iff.mp hn
+    simp only [decomposition, DFinsupp.mk_of_notMem hn, hz, Submodule.coe_zero,
+      Subalgebra.coe_zero]
+
+private theorem ambient_decompose_coeAlgHom (U : (Spec (.of A)).Opens)
+    (z : DirectSum ℕ (fun n ↦ grading U n)) (n : ℕ) :
+    (DirectSum.decompose (MvPolynomial.standardGrading Unit A)
+      ((DirectSum.coeAlgHom (grading U) z : subalgebra U) : MvPolynomial Unit A) n :
+        MvPolynomial Unit A) = ((z n : subalgebra U) : MvPolynomial Unit A) := by
+  classical
+  induction z using DirectSum.induction_on with
+  | zero => simp
+  | of i x =>
+      rw [DirectSum.coeAlgHom_of,
+        DirectSum.decompose_of_mem (MvPolynomial.standardGrading Unit A)
+          (show ((x : subalgebra U) : MvPolynomial Unit A) ∈
+            MvPolynomial.standardGrading Unit A i from x.2)]
+      by_cases h : n = i
+      · subst n
+        simp
+      · simp [DirectSum.of_eq_of_ne, h]
+  | add z w hz hw =>
+      simpa only [map_add, Subalgebra.coe_add, DirectSum.decompose_add,
+        DirectSum.add_apply, Submodule.coe_add] using congrArg₂ (· + ·) hz hw
+
 /-- Taking homogeneous components preserves addition. -/
 theorem decomposition_add (U : (Spec (.of A)).Opens) (x y : subalgebra U) :
-    decomposition U (x + y) = decomposition U x + decomposition U y := sorry
+    decomposition U (x + y) = decomposition U x + decomposition U y := by
+  apply DirectSum.ext
+  intro n
+  apply Subtype.ext
+  apply Subtype.ext
+  simp only [decomposition_apply_coe, DirectSum.add_apply, Submodule.coe_add,
+    Subalgebra.coe_add, DirectSum.decompose_add]
 
 /-- Taking homogeneous components preserves scalar multiplication. -/
 theorem decomposition_smul (U : (Spec (.of A)).Opens) (a : A) (x : subalgebra U) :
-    decomposition U (a • x) = a • decomposition U x := sorry
+    decomposition U (a • x) = a • decomposition U x := by
+  apply DirectSum.ext
+  intro n
+  apply Subtype.ext
+  apply Subtype.ext
+  simp only [decomposition_apply_coe, DirectSum.smul_apply, Submodule.coe_smul,
+    Subalgebra.coe_smul, DirectSum.decompose_smul]
 
 /-- The homogeneous decomposition sends one to one. -/
 theorem decomposition_one (U : (Spec (.of A)).Opens) :
-    decomposition U 1 = 1 := sorry
+    decomposition U 1 = 1 := by
+  apply DirectSum.ext
+  intro n
+  apply Subtype.ext
+  apply Subtype.ext
+  rw [decomposition_apply_coe]
+  change (DirectSum.decompose (MvPolynomial.standardGrading Unit A) 1 n :
+    MvPolynomial Unit A) = _
+  rw [DirectSum.decompose_one]
+  by_cases h : n = 0
+  · subst n
+    simp [DirectSum.one_def]
+  · simp [DirectSum.one_def, DirectSum.of_eq_of_ne, h]
 
 /-- Taking homogeneous components preserves multiplication. -/
 theorem decomposition_mul (U : (Spec (.of A)).Opens) (x y : subalgebra U) :
-    decomposition U (x * y) = decomposition U x * decomposition U y := sorry
+    decomposition U (x * y) = decomposition U x * decomposition U y := by
+  apply DirectSum.ext
+  intro n
+  apply Subtype.ext
+  apply Subtype.ext
+  rw [decomposition_apply_coe]
+  change (DirectSum.decompose (MvPolynomial.standardGrading Unit A)
+    ((x : MvPolynomial Unit A) * y) n : MvPolynomial Unit A) = _
+  rw [DirectSum.decompose_mul]
+  simp only [DirectSum.coe_mul_apply_eq_sum_antidiagonal, AddSubmonoidClass.coe_finsetSum,
+    Subalgebra.coe_mul, decomposition_apply_coe]
 
 /-- The inherited homogeneous decomposition as an algebra homomorphism. -/
 noncomputable def decompose (U : (Spec (.of A)).Opens) :
@@ -110,11 +212,34 @@ noncomputable def decompose (U : (Spec (.of A)).Opens) :
 /-- Recombining the inherited homogeneous decomposition recovers the original element. -/
 theorem coeAlgHom_comp_decompose (U : (Spec (.of A)).Opens) :
     (DirectSum.coeAlgHom (fun n ↦ grading U n)).comp (decompose U) =
-      AlgHom.id A (subalgebra U) := sorry
+      AlgHom.id A (subalgebra U) := by
+  apply DFunLike.ext
+  intro x
+  apply Subtype.ext
+  apply (DirectSum.decompose (MvPolynomial.standardGrading Unit A)).injective
+  apply DirectSum.ext
+  intro n
+  apply Subtype.ext
+  exact (ambient_decompose_coeAlgHom U (decomposition U x) n).trans
+    (decomposition_apply_coe U x n)
 
 /-- The inherited decomposition of a homogeneous element is concentrated in its given degree. -/
 theorem decompose_coe (U : (Spec (.of A)).Opens) (n : ℕ) (x : grading U n) :
-    decompose U (x : subalgebra U) = DirectSum.of (fun m ↦ grading U m) n x := sorry
+    decompose U (x : subalgebra U) = DirectSum.of (fun m ↦ grading U m) n x := by
+  apply DirectSum.ext
+  intro m
+  apply Subtype.ext
+  apply Subtype.ext
+  change (((decomposition U (x : subalgebra U) m).1 : subalgebra U) :
+    MvPolynomial Unit A) = _
+  rw [decomposition_apply_coe,
+    DirectSum.decompose_of_mem (MvPolynomial.standardGrading Unit A)
+      (show ((x : subalgebra U) : MvPolynomial Unit A) ∈
+        MvPolynomial.standardGrading Unit A n from x.2)]
+  by_cases h : m = n
+  · subst m
+    simp
+  · simp [DirectSum.of_eq_of_ne, h]
 
 /-- The generated subalgebra carries the canonical graded-algebra structure induced from
 `A[T]`. -/
@@ -125,7 +250,8 @@ noncomputable instance instGradedAlgebra (U : (Spec (.of A)).Opens) :
 
 /-- Scalars belong to the degree-zero piece of the inherited grading. -/
 theorem algebraMap_mem_degreeZero (U : (Spec (.of A)).Opens) (a : A) :
-    algebraMap A (subalgebra U) a ∈ grading U 0 := sorry
+    algebraMap A (subalgebra U) a ∈ grading U 0 := by
+  exact @MvPolynomial.isHomogeneous_C Unit A _ a
 
 /-- The canonical embedding of the coefficient ring in the degree-zero piece. -/
 noncomputable def degreeZeroC (U : (Spec (.of A)).Opens) (a : A) : grading U 0 :=
@@ -135,7 +261,13 @@ noncomputable def degreeZeroC (U : (Spec (.of A)).Opens) (a : A) : grading U 0 :
 degree-zero element. -/
 theorem degreeZero_leftInverse (U : (Spec (.of A)).Opens) :
     Function.LeftInverse (degreeZeroC U)
-      (fun p : grading U 0 ↦ MvPolynomial.constantCoeff p.1.1) := sorry
+      (fun p : grading U 0 ↦ MvPolynomial.constantCoeff p.1.1) := by
+  intro p
+  apply Subtype.ext
+  apply Subtype.ext
+  change MvPolynomial.C (MvPolynomial.constantCoeff p.1.1) = p.1.1
+  exact (MvPolynomial.homogeneousComponent_zero p.1.1).symm.trans
+    (MvPolynomial.homogeneousComponent_eq_self p.2)
 
 /-- The degree-zero piece of the generated subalgebra is canonically equivalent to the
 coefficient ring. -/
@@ -184,6 +316,8 @@ to the affine spectrum. -/
 theorem toOpen_comp_ι (U : (Spec (.of A)).Opens) :
     toOpen U ≫ U.ι =
       Proj.toSpecZero (grading U) ≫
-        (Scheme.Spec.mapIso ((degreeZeroRingEquiv U).toCommRingCatIso.op)).symm.hom := sorry
+        (Scheme.Spec.mapIso ((degreeZeroRingEquiv U).toCommRingCatIso.op)).symm.hom := by
+  change toOpen U ≫ U.ι = toSpec U
+  simp [toOpen, Category.assoc]
 
 end AlgebraicGeometry.AffineOpenProj

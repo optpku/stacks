@@ -186,6 +186,13 @@ variable {R : Type u} [CommRing R] {d : ℕ} [NeZero d]
 def mul (m : FreeDimAlgebra R d) :
     (Fin d → R) →ₗ[R] (Fin d → R) →ₗ[R] (Fin d → R) := m.multiplication
 
+/-- Distinguished algebra structures are determined by their multiplications. -/
+theorem object_ext {m n : FreeDimAlgebra R d} (h : mul m = mul n) : m = n := by
+  cases m
+  cases n
+  cases h
+  rfl
+
 /-- The multiplication of a distinguished algebra structure is associative. -/
 theorem mul_assoc (m : FreeDimAlgebra R d) (x y z : Fin d → R) :
     mul m (mul m x y) z = mul m x (mul m y z) := m.associative x y z
@@ -253,6 +260,10 @@ namespace Hom
 /-- The invertible linear map underlying an algebra arrow. -/
 def equiv {m m' : FreeDimAlgebra R d} (f : Hom m m') :
     LinearMap.GeneralLinearGroup R (Fin d → R) := f.automorphism
+
+/-- Algebra arrows are determined by their underlying linear automorphisms. -/
+theorem ext {m m' : FreeDimAlgebra R d} {f g : Hom m m'}
+    (h : f.equiv = g.equiv) : f = g := Arrow.ext h
 
 /-- An algebra arrow fixes the distinguished unit. -/
 theorem map_one {m m' : FreeDimAlgebra R d} (f : Hom m m') :
@@ -509,6 +520,18 @@ def baseChangeFunctor {S : Type u} [CommRing S] (f : R →+* S) :
 theorem baseChangeFunctor_obj {S : Type u} [CommRing S] (f : R →+* S)
     (m : FreeDimAlgebra R d) :
     (baseChangeFunctor f).obj m = baseChange f m := rfl
+
+/-- Base change along the identity ring homomorphism is the identity functor. -/
+theorem baseChangeFunctor_id (R : Type u) [CommRing R] (d : ℕ) [NeZero d] :
+    baseChangeFunctor (d := d) (RingHom.id R) = 𝟭 (FreeDimAlgebra R d) := by
+  sorry
+
+/-- Base change along a composite is the composite of the base change functors. -/
+theorem baseChangeFunctor_comp {S T : Type u} [CommRing S] [CommRing T]
+    (d : ℕ) [NeZero d] (f : R →+* S) (g : S →+* T) :
+    baseChangeFunctor (d := d) (g.comp f) =
+      baseChangeFunctor (d := d) f ⋙ baseChangeFunctor (d := d) g := by
+  sorry
 
 end FreeDimAlgebra
 end AlgebraicGeometry

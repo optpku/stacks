@@ -8,7 +8,10 @@ module
 
 public import Mathlib.Algebra.Category.Ring.Colimits
 public import Mathlib.CategoryTheory.Comma.Over.Pullback
+public import Mathlib.CategoryTheory.ConcreteCategory.EpiMono
+public import Mathlib.CategoryTheory.Limits.Types.Pullbacks
 public import Mathlib.CategoryTheory.ObjectProperty.FullSubcategory
+public import Mathlib.LinearAlgebra.TensorProduct.Prod
 public import Mathlib.RingTheory.RingHom.Etale
 public import Mathlib.RingTheory.RingHom.FinitePresentation
 public import Mathlib.RingTheory.RingHom.FiniteType
@@ -32,6 +35,7 @@ componentwise-flat algebra systems over `B` and `A'`.
 
 open CategoryTheory CategoryTheory.Limits CategoryTheory.ObjectProperty
 open CommRingCat
+open scoped TensorProduct
 
 universe u
 
@@ -88,7 +92,84 @@ changes by the canonical pullback comparison. -/
 @[stacks 08KQ "(6) flat algebra is recovered from its pullback system"]
 theorem tensorPullbackComparison_isIso_of_flat (S : Situation)
     [Module.Flat S.Bprime Dp] :
-    IsIso S.tensorPullbackComparison := sorry
+    IsIso S.tensorPullbackComparison := by
+  letI : Algebra B A := S.toA.toAlgebra
+  letI : Algebra A' A := S.fromAprime.toAlgebra
+  letI : IsScalarTower S.Bprime A' A := .of_algebraMap_eq' rfl
+  letI : IsScalarTower S.Bprime B A := .of_algebraMap_eq' (by
+    ext x
+    exact congrArg (fun f : S.Bprime ⟶ of A ↦ f x)
+      (pullback.condition (f := ofHom S.toA) (g := ofHom S.fromAprime)).symm)
+  -- The pullback identifies `B'` with the kernel of the difference map.
+  let p : S.Bprime →ₗ[S.Bprime] B × A' :=
+    (Algebra.linearMap S.Bprime B).prod (Algebra.linearMap S.Bprime A')
+  let q : B × A' →ₗ[S.Bprime] A :=
+    (IsScalarTower.toAlgHom S.Bprime B A).toLinearMap.comp (LinearMap.fst _ _ _) -
+      (IsScalarTower.toAlgHom S.Bprime A' A).toLinearMap.comp (LinearMap.snd _ _ _)
+  have hpb := (IsPullback.of_hasPullback (ofHom S.toA) (ofHom S.fromAprime)).map
+    (forget CommRingCat)
+  have hp : Function.Injective p := by
+    intro x y h
+    exact Types.ext_of_isPullback hpb (congrArg Prod.fst h) (congrArg Prod.snd h)
+  have hpq : Function.Exact p q := by
+    intro x
+    change S.toA x.1 - S.fromAprime x.2 = 0 ↔ ∃ r, p r = x
+    rw [sub_eq_zero]
+    constructor
+    · intro hx
+      obtain ⟨r, hr, hr'⟩ := Types.exists_of_isPullback hpb x.1 x.2 hx
+      exact ⟨r, Prod.ext hr hr'⟩
+    · rintro ⟨r, rfl⟩
+      exact congrArg (fun f : S.Bprime ⟶ of A ↦ f r)
+        (pullback.condition (f := ofHom S.toA) (g := ofHom S.fromAprime))
+  -- Tensoring this exact pair with the flat module `D'` preserves exactness.
+  let e := TensorProduct.prodRight S.Bprime S.Bprime Dp B A'
+  let r := TensorProduct.rid S.Bprime Dp
+  let t : Dp →ₗ[S.Bprime] S.D × S.CPrime :=
+    e.toLinearMap.comp ((p.lTensor Dp).comp r.symm.toLinearMap)
+  have ht (d : Dp) : t d = (S.dprimeToD d, S.dprimeToCPrime d) := by
+    simp [t, e, r, p, dprimeToD, dprimeToCPrime]
+  have hq (x : Dp ⊗[S.Bprime] (B × A')) :
+      q.lTensor Dp x = S.dToC (e x).1 - S.cprimeToC (e x).2 := by
+    induction x using TensorProduct.induction_on with
+    | zero => simp
+    | tmul d x => simp [q, e, dToC, cprimeToC]
+    | add x y hx hy => simp [map_add, hx, hy, sub_add_sub_comm]
+  have ht_inj : Function.Injective t :=
+    e.injective.comp ((Module.Flat.lTensor_preserves_injective_linearMap p hp).comp
+      r.symm.injective)
+  have hcomp (d : Dp) :
+      ((pullback.fst (ofHom S.dToC) (ofHom S.cprimeToC))
+          (S.tensorPullbackComparison d),
+        (pullback.snd (ofHom S.dToC) (ofHom S.cprimeToC))
+          (S.tensorPullbackComparison d)) = t d := by
+    rw [ht]
+    exact Prod.ext
+      (congrArg (fun f : of Dp ⟶ of S.D ↦ f d) (pullback.lift_fst _ _ _))
+      (congrArg (fun f : of Dp ⟶ of S.CPrime ↦ f d) (pullback.lift_snd _ _ _))
+  -- The resulting bijection is the prescribed ring pullback comparison.
+  apply (ConcreteCategory.isIso_iff_bijective _).mpr
+  constructor
+  · intro x y hxy
+    apply ht_inj
+    rw [← hcomp x, ← hcomp y, hxy]
+  · intro z
+    let x := (pullback.fst (ofHom S.dToC) (ofHom S.cprimeToC)) z
+    let y := (pullback.snd (ofHom S.dToC) (ofHom S.cprimeToC)) z
+    have hz : q.lTensor Dp (e.symm (x, y)) = 0 := by
+      rw [hq, e.apply_symm_apply, sub_eq_zero]
+      exact congrArg (fun f : pullback (ofHom S.dToC) (ofHom S.cprimeToC) ⟶ of S.C ↦
+        f z) (pullback.condition (f := ofHom S.dToC) (g := ofHom S.cprimeToC))
+    obtain ⟨w, hw⟩ := (Module.Flat.lTensor_exact Dp hpq (e.symm (x, y))).mp hz
+    have hw' : t (r w) = (x, y) := by
+      change e ((p.lTensor Dp) (r.symm (r w))) = (x, y)
+      rw [r.symm_apply_apply, hw, e.apply_symm_apply]
+    refine ⟨r w, ?_⟩
+    apply Types.ext_of_isPullback
+      ((IsPullback.of_hasPullback (ofHom S.dToC) (ofHom S.cprimeToC)).map
+        (forget CommRingCat))
+    · exact congrArg Prod.fst ((hcomp (r w)).trans hw')
+    · exact congrArg Prod.snd ((hcomp (r w)).trans hw')
 
 end FiberProductBaseChangeSituation
 
@@ -145,7 +226,8 @@ abbrev FlatAlgebraSystemCat (S : Situation) :=
 `CommRingCat`. -/
 theorem pushoutSquare_commutes (S : Situation) :
     ofHom S.bprimeToB ≫ ofHom S.toA =
-      ofHom S.bprimeToAprime ≫ ofHom S.fromAprime := sorry
+      ofHom S.bprimeToAprime ≫ ofHom S.fromAprime := by
+  exact pullback.condition
 
 /-- The comparison between the two iterated pushout functors from
 `B'`-algebras to `A`-algebras. -/
@@ -184,7 +266,10 @@ system. -/
 theorem algebraBaseChange_obj_mem_flatAlgebraSystemProperty
     (S : Situation) ⦃D' : Under S.Bprime⦄
     (hflat : flatAlgebraProperty S D') :
-    flatAlgebraSystemProperty S ((algebraBaseChangeFunctor S).obj D') := sorry
+    flatAlgebraSystemProperty S ((algebraBaseChangeFunctor S).obj D') := by
+  constructor
+  · exact CommRingCat.flat.pushout_inr D'.hom (ofHom S.bprimeToB) hflat
+  · exact CommRingCat.flat.pushout_inr D'.hom (ofHom S.bprimeToAprime) hflat
 
 /-- The canonical base-change functor on the flat full subcategories. -/
 @[stacks 08KQ "base-change functor on flat algebra subcategories"]

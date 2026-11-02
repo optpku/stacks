@@ -52,7 +52,8 @@ theorem spec (D : LocallyGiven O B) {W V U : B} (a : V ⟶ U) (b : W ⟶ V) :
     ((restrictionCompIso O (D.u.map a) (D.u.map b)).symm ≪≫
         restrictionDerivedCongr O (D.u.map_comp b a).symm).app (D.obj U) ≪≫
       D.iso (b ≫ a) =
-    (restrictionDerived O (D.u.map b)).mapIso (D.iso a) ≪≫ D.iso b := sorry
+    (restrictionDerived O (D.u.map b)).mapIso (D.iso a) ≪≫ D.iso b :=
+  D.iso_comp a b
 
 variable [abelian : Abelian (SheafOfModules.{z} O)]
 
@@ -77,12 +78,13 @@ def ofGlobal (E : Derived.{z} O) : LocallyGiven O C where
 theorem ofGlobal_spec (E : Derived.{z} O) :
     (∀ U : C, (ofGlobal O E).obj U = (localizedRestrictionDerived O U).obj E) ∧
       (∀ {V U : C} (a : V ⟶ U),
-        (ofGlobal O E).iso a = (restrictionDerivedIteratedIso O a).app E) := sorry
+        (ofGlobal O E).iso a = (restrictionDerivedIteratedIso O a).app E) := by
+  constructor <;> intros <;> rfl
 
 /-- On an identity arrow the transition of a global datum is the canonical comparison. -/
 theorem ofGlobal_iso_id (E : Derived.{z} O) (U : C) :
     ((ofGlobal O E).iso (𝟙 U)).hom =
-      (restrictionDerivedIteratedIso O (𝟙 U)).hom.app E := sorry
+      (restrictionDerivedIteratedIso O (𝟙 U)).hom.app E := rfl
 
 /-- A solution consists of a global derived module sheaf and local identifications compatible
 with the given invertible transitions. -/
@@ -103,7 +105,11 @@ theorem ofGlobal_iso_comp (E : Derived.{z} O) {V U : C} (a : V ⟶ U) :
     (restrictionDerived O a).map (Iso.refl ((localizedRestrictionDerived O U).obj E)).hom ≫
         ((ofGlobal O E).iso a).hom =
       (restrictionDerivedIteratedIso O a).hom.app E ≫
-        (Iso.refl ((localizedRestrictionDerived O V).obj E)).hom := sorry
+        (Iso.refl ((localizedRestrictionDerived O V).obj E)).hom := by
+  simp only [Iso.refl_hom]
+  rw [(restrictionDerived O a).map_id]
+  simp only [Category.id_comp, Category.comp_id]
+  rfl
 
 /-- The original global object with identity identifications solves its restriction datum. -/
 def ofGlobal (E : Derived.{z} O) : Solution O (Derived.ofGlobal O E) where
@@ -114,10 +120,11 @@ def ofGlobal (E : Derived.{z} O) : Solution O (Derived.ofGlobal O E) where
 /-- The tautological solution retains the global object and identity local identifications. -/
 theorem ofGlobal_spec (E : Derived.{z} O) :
     (ofGlobal O E).obj = E ∧
-      (∀ U : C, (ofGlobal O E).iso U = Iso.refl ((localizedRestrictionDerived O U).obj E)) := sorry
+      (∀ U : C, (ofGlobal O E).iso U = Iso.refl ((localizedRestrictionDerived O U).obj E)) :=
+  ⟨rfl, fun _ => rfl⟩
 
 /-- The global object of the tautological solution is the original object. -/
-theorem ofGlobal_obj (E : Derived.{z} O) : (ofGlobal O E).obj = E := sorry
+theorem ofGlobal_obj (E : Derived.{z} O) : (ofGlobal O E).obj = E := rfl
 
 end Solution
 end SheafOfModules.Derived

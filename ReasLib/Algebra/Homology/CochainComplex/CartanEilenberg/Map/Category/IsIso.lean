@@ -30,11 +30,17 @@ variable {A : Type u} [Category.{v} A] [Abelian A]
 
 /-- The double-complex component of a bundled resolution isomorphism is an isomorphism. -/
 @[stacks 015J "double-complex component of a Cartan-Eilenberg isomorphism"]
-instance hom_isIso {X Y : Bundled A} (f : X ⟶ Y) [IsIso f] : IsIso f.hom := sorry
+instance hom_isIso {X Y : Bundled A} (f : X ⟶ Y) [IsIso f] : IsIso f.hom := by
+  obtain ⟨g, hfg, hgf⟩ := (inferInstance : IsIso f).out
+  exact ⟨⟨g.hom, congrArg (fun k : X ⟶ X => k.hom) hfg,
+    congrArg (fun k : Y ⟶ Y => k.hom) hgf⟩⟩
 
 /-- The source-complex component of a bundled resolution isomorphism is an isomorphism. -/
 @[stacks 015J "source component of a Cartan-Eilenberg isomorphism"]
-instance base_isIso {X Y : Bundled A} (f : X ⟶ Y) [IsIso f] : IsIso f.base := sorry
+instance base_isIso {X Y : Bundled A} (f : X ⟶ Y) [IsIso f] : IsIso f.base := by
+  obtain ⟨g, hfg, hgf⟩ := (inferInstance : IsIso f).out
+  exact ⟨⟨g.base, congrArg (fun k : X ⟶ X => k.base) hfg,
+    congrArg (fun k : Y ⟶ Y => k.base) hgf⟩⟩
 
 section
 

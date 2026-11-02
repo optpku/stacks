@@ -31,6 +31,14 @@ def groupComposition {B : AlgebraicSpace S} (G : GroupAlgebraicSpace B) :
   lift (pullback.fst (toUnit G.X) (toUnit G.X))
     (pullback.snd (toUnit G.X) (toUnit G.X)) ≫ μ[G.X]
 
+private theorem lift_groupComposition {B : AlgebraicSpace S} (G : GroupAlgebraicSpace B)
+    {T : Over B} (a b : T ⟶ G.X)
+    (h : a ≫ toUnit G.X = b ≫ toUnit G.X) :
+    pullback.lift a b h ≫ groupComposition G = a * b := by
+  unfold groupComposition
+  rw [← Category.assoc, comp_lift, pullback.lift_fst, pullback.lift_snd]
+  rfl
+
 /-- Multiplication in a group algebraic space is associative on compatible points. -/
 theorem groupComposition_assoc {B : AlgebraicSpace S} (G : GroupAlgebraicSpace B) :
     ∀ {T : Over B} (a b d : T ⟶ G.X)
@@ -43,7 +51,10 @@ theorem groupComposition_assoc {B : AlgebraicSpace S} (G : GroupAlgebraicSpace B
       pullback.lift (pullback.lift a b h_ab ≫ groupComposition G) d h_ab_d ≫
           groupComposition G =
         pullback.lift a (pullback.lift b d h_bd ≫ groupComposition G) h_a_bd ≫
-          groupComposition G := sorry
+          groupComposition G := by
+  intro T a b d h_ab h_bd h_ab_d h_a_bd
+  simp only [lift_groupComposition]
+  exact _root_.mul_assoc a b d
 
 /-- Multiplication in a group algebraic space has a right identity. -/
 theorem groupComposition_right_identity {B : AlgebraicSpace S}
@@ -51,7 +62,13 @@ theorem groupComposition_right_identity {B : AlgebraicSpace S}
     ∀ {T : Over B} (a : T ⟶ G.X)
       (h : a ≫ toUnit G.X = ((a ≫ toUnit G.X) ≫ η[G.X]) ≫ toUnit G.X),
       pullback.lift a ((a ≫ toUnit G.X) ≫ η[G.X]) h ≫ groupComposition G = a :=
-  sorry
+  by
+    intro T a h
+    rw [lift_groupComposition]
+    have h_one : (a ≫ toUnit G.X) ≫ η[G.X] = (1 : T ⟶ G.X) := by
+      rw [Hom.one_def, SemiCartesianMonoidalCategory.comp_toUnit]
+    rw [h_one]
+    exact _root_.mul_one a
 
 /-- Multiplication in a group algebraic space has a left identity. -/
 theorem groupComposition_left_identity {B : AlgebraicSpace S}
@@ -59,7 +76,13 @@ theorem groupComposition_left_identity {B : AlgebraicSpace S}
     ∀ {T : Over B} (a : T ⟶ G.X)
       (h : ((a ≫ toUnit G.X) ≫ η[G.X]) ≫ toUnit G.X = a ≫ toUnit G.X),
       pullback.lift ((a ≫ toUnit G.X) ≫ η[G.X]) a h ≫ groupComposition G = a :=
-  sorry
+  by
+    intro T a h
+    rw [lift_groupComposition]
+    have h_one : (a ≫ toUnit G.X) ≫ η[G.X] = (1 : T ⟶ G.X) := by
+      rw [Hom.one_def, SemiCartesianMonoidalCategory.comp_toUnit]
+    rw [h_one]
+    exact _root_.one_mul a
 
 /-- Multiplication of an arrow with its inverse gives the identity. -/
 theorem groupComposition_inverse_comp {B : AlgebraicSpace S}
@@ -67,7 +90,13 @@ theorem groupComposition_inverse_comp {B : AlgebraicSpace S}
     ∀ {T : Over B} (a : T ⟶ G.X)
       (h : a ≫ toUnit G.X = (a ≫ ι[G.X]) ≫ toUnit G.X),
       pullback.lift a (a ≫ ι[G.X]) h ≫ groupComposition G =
-        (a ≫ toUnit G.X) ≫ η[G.X] := sorry
+        (a ≫ toUnit G.X) ≫ η[G.X] := by
+  intro T a h
+  rw [lift_groupComposition]
+  have h_one : (a ≫ toUnit G.X) ≫ η[G.X] = (1 : T ⟶ G.X) := by
+    rw [Hom.one_def, SemiCartesianMonoidalCategory.comp_toUnit]
+  rw [h_one, ← Hom.inv_def]
+  exact mul_inv_cancel a
 
 /-- Multiplication of the inverse of an arrow with it gives the identity. -/
 theorem groupComposition_comp_inverse {B : AlgebraicSpace S}
@@ -75,7 +104,13 @@ theorem groupComposition_comp_inverse {B : AlgebraicSpace S}
     ∀ {T : Over B} (a : T ⟶ G.X)
       (h : (a ≫ ι[G.X]) ≫ toUnit G.X = a ≫ toUnit G.X),
       pullback.lift (a ≫ ι[G.X]) a h ≫ groupComposition G =
-        (a ≫ toUnit G.X) ≫ η[G.X] := sorry
+        (a ≫ toUnit G.X) ≫ η[G.X] := by
+  intro T a h
+  rw [lift_groupComposition]
+  have h_one : (a ≫ toUnit G.X) ≫ η[G.X] = (1 : T ⟶ G.X) := by
+    rw [Hom.one_def, SemiCartesianMonoidalCategory.comp_toUnit]
+  rw [h_one, ← Hom.inv_def]
+  exact inv_mul_cancel a
 
 /-- The one-object groupoid associated to a group algebraic space. -/
 def ofGroup {B : AlgebraicSpace S} (G : GroupAlgebraicSpace B) :
@@ -101,34 +136,34 @@ def ofGroup {B : AlgebraicSpace S} (G : GroupAlgebraicSpace B) :
 
 /-- The object space of the one-object groupoid is the cartesian unit over `B`. -/
 theorem ofGroup_U {B : AlgebraicSpace S} (G : GroupAlgebraicSpace B) :
-    (ofGroup G).U = 𝟙_ (Over B) := sorry
+    (ofGroup G).U = 𝟙_ (Over B) := rfl
 
 /-- The arrow space of the one-object groupoid is the underlying object of `G`. -/
 theorem ofGroup_R {B : AlgebraicSpace S} (G : GroupAlgebraicSpace B) :
-    (ofGroup G).R = G.X := sorry
+    (ofGroup G).R = G.X := rfl
 
 /-- The source map of the one-object groupoid is the structure morphism of `G`. -/
 theorem ofGroup_s {B : AlgebraicSpace S} (G : GroupAlgebraicSpace B) :
-    (ofGroup G).s = toUnit G.X := sorry
+    (ofGroup G).s = toUnit G.X := rfl
 
 /-- The target map of the one-object groupoid is the structure morphism of `G`. -/
 theorem ofGroup_t {B : AlgebraicSpace S} (G : GroupAlgebraicSpace B) :
-    (ofGroup G).t = toUnit G.X := sorry
+    (ofGroup G).t = toUnit G.X := rfl
 
 /-- Source and target of the one-object groupoid coincide. -/
 theorem ofGroup_s_eq_t {B : AlgebraicSpace S} (G : GroupAlgebraicSpace B) :
-    (ofGroup G).s = (ofGroup G).t := sorry
+    (ofGroup G).s = (ofGroup G).t := rfl
 
 /-- The composition map of the one-object groupoid is the group law on `G ×_B G`. -/
 theorem ofGroup_c {B : AlgebraicSpace S} (G : GroupAlgebraicSpace B) :
-    (ofGroup G).c = groupComposition G := sorry
+    (ofGroup G).c = groupComposition G := rfl
 
 /-- The identity map of the one-object groupoid is the unit of `G`. -/
 theorem ofGroup_e {B : AlgebraicSpace S} (G : GroupAlgebraicSpace B) :
-    (ofGroup G).e = η[G.X] := sorry
+    (ofGroup G).e = η[G.X] := rfl
 
 /-- The inverse map of the one-object groupoid is the inversion of `G`. -/
 theorem ofGroup_i {B : AlgebraicSpace S} (G : GroupAlgebraicSpace B) :
-    (ofGroup G).i = ι[G.X] := sorry
+    (ofGroup G).i = ι[G.X] := rfl
 
 end AlgebraicGeometry.GroupoidAlgebraicSpace

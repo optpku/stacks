@@ -36,7 +36,7 @@ abbrev residueType {S : Scheme.{u}} (U : Over S) (u0 : U.left) : Type u :=
 
 /-- `residueType U u0` is the carrier of the residue field of `u0`. -/
 theorem residueType_eq {S : Scheme.{u}} (U : Over S) (u0 : U.left) :
-    residueType U u0 = U.left.residueField u0 := sorry
+    residueType U u0 = U.left.residueField u0 := rfl
 
 /-- The morphism `Spec κ(u0) ⟶ S` obtained by composing the canonical residue-field
 point of `u0` with `U ⟶ S`. -/
@@ -46,7 +46,7 @@ abbrev residuePointToS {S : Scheme.{u}} (U : Over S) (u0 : U.left) :
 
 /-- `residuePointToS` is the composite of `fromSpecResidueField` with `U.hom`. -/
 theorem residuePointToS_eq {S : Scheme.{u}} (U : Over S) (u0 : U.left) :
-    residuePointToS U u0 = U.left.fromSpecResidueField u0 ≫ U.hom := sorry
+    residuePointToS U u0 = U.left.fromSpecResidueField u0 ≫ U.hom := rfl
 
 variable {S : Scheme.{u}} [IsLocallyNoetherian S]
 variable {Λ : Type u} [CommRing Λ] [IsNoetherianRing Λ]
@@ -74,7 +74,7 @@ morphism of the finite type point. -/
 theorem residueFiber_spec [LocallyOfFiniteType U.hom] [IsFiniteTypePoint u0] :
     Fiber.fiberInclusion.obj (residueFiber U u0 kToS h_kToS) =
       Over.mk (Over.homMk (U.left.fromSpecResidueField u0)
-        h_kToS.symm : Over.mk kToS ⟶ U) := sorry
+        h_kToS.symm : Over.mk kToS ⟶ U) := rfl
 
 /-- The pullback `x0` of `x` along the canonical residue-field point of `u0`. -/
 def residueObject [LocallyOfFiniteType U.hom] [IsFiniteTypePoint u0] :
@@ -86,7 +86,7 @@ def residueObject [LocallyOfFiniteType U.hom] [IsFiniteTypePoint u0] :
 theorem residueObject_spec [LocallyOfFiniteType U.hom] [IsFiniteTypePoint u0] :
     residueObject U u0 kToS h_kToS X x =
       (fiberFunctor (representative x) (Over.mk kToS)).obj
-        (residueFiber U u0 kToS h_kToS) := sorry
+        (residueFiber U u0 kToS h_kToS) := rfl
 
 /-- The based functor induced by the 2-Yoneda representative of `x`. -/
 def hat [LocallyOfFiniteType U.hom] [IsFiniteTypePoint u0] :
@@ -105,7 +105,7 @@ theorem hat_obj [LocallyOfFiniteType U.hom] [IsFiniteTypePoint u0]
       ((hat openImmersion U u0 kToS h_factor h_kToS X x).obj ξ).target =
         (fiberFunctor (representative x) (specOver openImmersion ξ.base)).obj ξ.target ∧
       ((hat openImmersion U u0 kToS h_factor h_kToS X x).obj ξ).fromResidue =
-        (toFunctor (representative x)).map ξ.fromResidue := sorry
+        (toFunctor (representative x)).map ξ.fromResidue := ⟨rfl, rfl, rfl⟩
 
 /-- Applying `hat` preserves the Artinian base homomorphism and sends the reversed
 total-category arrow along the 2-Yoneda representative of `x`. -/
@@ -115,19 +115,19 @@ theorem hat_map [LocallyOfFiniteType U.hom] [IsFiniteTypePoint u0]
     (f : Hom ξ η) :
     ((hat openImmersion U u0 kToS h_factor h_kToS X x).map f).baseHom = f.baseHom ∧
       ((hat openImmersion U u0 kToS h_factor h_kToS X x).map f).hom =
-        (toFunctor (representative x)).map f.hom := sorry
+        (toFunctor (representative x)).map f.hom := ⟨rfl, rfl⟩
 
 /-- `hat` strictly commutes with the projections to Artinian local algebras. -/
 theorem hat_w [LocallyOfFiniteType U.hom] [IsFiniteTypePoint u0] :
     (hat openImmersion U u0 kToS h_factor h_kToS X x).toFunctor ⋙
         forget openImmersion kToS h_factor X (residueObject U u0 kToS h_kToS X x) =
       forget openImmersion kToS h_factor (slice U)
-        (residueFiber U u0 kToS h_kToS) := sorry
+        (residueFiber U u0 kToS h_kToS) := rfl
 
 /-- `hat` is the predeformation functor induced by the 2-Yoneda representative of `x`. -/
 theorem hat_spec [LocallyOfFiniteType U.hom] [IsFiniteTypePoint u0] :
     hat openImmersion U u0 kToS h_factor h_kToS X x =
       map openImmersion h_factor (representative x)
-        (residueFiber U u0 kToS h_kToS) := sorry
+        (residueFiber U u0 kToS h_kToS) := rfl
 
 end AlgebraicGeometry.GroupoidsOver.Predeformation

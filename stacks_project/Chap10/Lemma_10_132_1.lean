@@ -14,13 +14,22 @@ import StacksCheckRecall
 /-!
 # Kähler de Rham base change
 
-Lemma 10.132.1 is recalled through the reusable Kähler base-change owner.
+Lemma 10.132.1 is recalled through the degreewise canonical comparison,
+its differential compatibility, and its formula on basic forms.
 
 @stack 0H8Y
 -/
 
 @[stacks 0H8Y "base-change derivation"]
 #check @KaehlerDifferential.DeRham.baseChangeDerivation
+@[stacks 0H8Y "degreewise canonical isomorphism"]
+#check @KaehlerDifferential.DeRham.baseChangeTermEquiv
+@[stacks 0H8Y "compatibility with the de Rham differential"]
+#check @KaehlerDifferential.DeRham.baseChangeTermEquiv_d
+@[stacks 0H8Y "canonical comparison on basic forms"]
+#check @KaehlerDifferential.DeRham.baseChangeTermEquiv_basic
+@[stacks 0H8Y "canonical isomorphism of de Rham complexes"]
+#check @KaehlerDifferential.DeRham.exists_complex_baseChange
 @[stacks 0H8Y "base-change family"]
 #check @KaehlerDifferential.DeRham.baseChange
 @[stacks 0H8Y "descent comparison"]
@@ -34,3 +43,4 @@ Lemma 10.132.1 is recalled through the reusable Kähler base-change owner.
 
 #print axioms KaehlerDifferential.DeRham.baseChangeDerivation
 #print axioms KaehlerDifferential.DeRham.baseChange
+#print axioms KaehlerDifferential.DeRham.baseChangeTermEquiv

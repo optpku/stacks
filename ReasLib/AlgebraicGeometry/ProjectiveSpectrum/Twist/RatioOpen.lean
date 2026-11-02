@@ -8,6 +8,7 @@ module
 
 public import ReasLib.AlgebraicGeometry.ProjectiveSpectrum.Twist.Restriction
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Invertible.Basic
+public import ReasLib.AlgebraicGeometry.Scheme.Module.Restriction.Monoidal
 
 /-!
 # Ratio opens for twisting sheaves on projective spectra
@@ -45,7 +46,9 @@ def projTwistRatioOpen (d : ℕ) : (Proj 𝒜).Opens :=
 by `d` is contained in the ratio open of degree `d`. -/
 theorem basicOpen_mul_le_projTwistRatioOpen
     {d e : ℕ} {f g : A} (hf : f ∈ 𝒜 (e + d)) (hg : g ∈ 𝒜 e) :
-    Proj.basicOpen 𝒜 (f * g) ≤ projTwistRatioOpen 𝒜 d := sorry
+    Proj.basicOpen 𝒜 (f * g) ≤ projTwistRatioOpen 𝒜 d := by
+  exact le_iSup_of_le f <| le_iSup_of_le g <| le_iSup_of_le e <|
+    le_iSup_of_le hf <| le_iSup_of_le hg le_rfl
 
 end RatioOpen
 
@@ -100,7 +103,12 @@ theorem projTwistRatioOpen_isGreatest
     IsGreatest
       {W : (Proj 𝒜).Opens |
         Proj.AssociatedModule.TwistMultiplication.IsGoodOpen 𝒜 T d W}
-      (projTwistRatioOpen 𝒜 d) := sorry
+      (projTwistRatioOpen 𝒜 d) := by
+  refine ⟨⟨?_, ?_⟩, ?_⟩
+  · exact projTwist_restrict_ratioOpen_invertible 𝒜 hd
+  · exact projTwistMul_restrict_ratioOpen_isIso 𝒜 T hd
+  · intro W hW
+    exact le_projTwistRatioOpen_of_restrict_invertible_and_mul_isIso 𝒜 T hd W hW
 
 namespace Proj.AssociatedModule.ShiftComparison
 
@@ -115,6 +123,7 @@ theorem restrictRatioOpen_isIso
     IsIso
       (restrictOpenMap 𝒜 ℳ C (projTwistRatioOpen 𝒜 d) (n * (d : ℤ))) := sorry
 
+set_option backward.isDefEq.respectTransparency false in
 /-- If a graded ring is generated over its degree-zero part by finitely many homogeneous
 elements of positive degrees dividing `d`, then the comparison with every shifted associated
 module sheaf is an isomorphism in each degree divisible by `d`. -/
@@ -126,7 +135,51 @@ theorem hom_isIso_of_dvd_generatorDegrees
     (hpositive : ∀ x : {x // x ∈ generators}, 0 < generatorDegree x)
     (hd_dvd : ∀ x : {x // x ∈ generators}, generatorDegree x ∣ d)
     (n : ℤ) (hn : (d : ℤ) ∣ n) :
-    IsIso (C.hom n) := sorry
+    IsIso (C.hom n) := by
+  classical
+  have hrange : Set.range (fun x : {x // x ∈ generators} ↦ x.1) =
+      (generators : Set A) := by
+    ext x
+    exact ⟨fun ⟨y, h⟩ ↦ h ▸ y.2, fun h ↦ ⟨⟨x, h⟩, rfl⟩⟩
+  have hcover : (⨆ x : {x // x ∈ generators}, Proj.basicOpen 𝒜 x.1) = ⊤ := by
+    apply Proj.iSup_basicOpen_eq_top' 𝒜 (fun x : {x // x ∈ generators} ↦ x.1)
+    · exact fun x ↦ ⟨generatorDegree x, hhomogeneous x⟩
+    · rwa [hrange]
+  have hlocal (x : {x // x ∈ generators}) :
+      IsIso ((basicOpenRestrict 𝒜 x.1).map (C.hom n)) := by
+    have hdeg : (generatorDegree x : ℤ) ∣ n :=
+      (Int.natCast_dvd_natCast.mpr (hd_dvd x)).trans hn
+    obtain ⟨k, hk⟩ := hdeg
+    have hk' : k * (generatorDegree x : ℤ) = n := by
+      rw [mul_comm]
+      exact hk.symm
+    have h := restrictBasicOpen_isIso 𝒜 ℳ C
+      ⟨x.1, hhomogeneous x⟩ (hpositive x) k
+    rw [hk'] at h
+    exact (isIso_comp_left_iff _ _).mp h
+  have hstalk (x : Proj 𝒜) :
+      IsIso ((TopCat.Presheaf.stalkFunctor AddCommGrpCat x).map
+        ((Scheme.Modules.toPresheaf (Proj 𝒜)).map (C.hom n))) := by
+    have hx : x ∈ ⨆ x : {x // x ∈ generators}, Proj.basicOpen 𝒜 x.1 := by
+      rw [hcover]
+      trivial
+    obtain ⟨i, hi⟩ := TopologicalSpace.Opens.mem_iSup.mp hx
+    haveI := hlocal i
+    apply (NatIso.isIso_map_iff
+      (Scheme.Modules.restrictStalkNatIso (Proj.basicOpen 𝒜 i.1).ι ⟨x, hi⟩)
+      (C.hom n)).mp
+    change IsIso ((TopCat.Presheaf.stalkFunctor _ _).map
+      ((Scheme.Modules.toPresheaf _).map ((basicOpenRestrict 𝒜 i.1).map (C.hom n))))
+    infer_instance
+  apply Scheme.Modules.Hom.isIso_iff_isIso_app.mpr
+  intro U
+  letI : ∀ x : U,
+      IsIso ((TopCat.Presheaf.stalkFunctor AddCommGrpCat x.1).map
+        ((Scheme.Modules.toPresheaf (Proj 𝒜)).map (C.hom n))) := fun x ↦ hstalk x.1
+  exact TopCat.Presheaf.app_isIso_of_stalkFunctor_map_iso
+    (F := ⟨_, Scheme.Modules.isSheaf _⟩)
+    (G := ⟨_, Scheme.Modules.isSheaf _⟩)
+    ⟨(Scheme.Modules.toPresheaf (Proj 𝒜)).map (C.hom n)⟩ U
 
 end Proj.AssociatedModule.ShiftComparison
 

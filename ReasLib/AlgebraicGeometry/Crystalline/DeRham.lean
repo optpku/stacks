@@ -211,7 +211,24 @@ theorem crystalDeRhamDifferential_comp
       (smallCrystallineTopology p S I γ h_compatible s X x₀ h_p) AddCommGrpCat.{u}]
     (i : ℕ) :
     crystalDeRhamDifferential p s h_p F i ≫ crystalDeRhamDifferential p s h_p F (i + 1) = 0 :=
-  sorry
+  by
+    have h : crystalDeRhamDifferentialPresheaf F i ≫
+        crystalDeRhamDifferentialPresheaf F (i + 1) = 0 := by
+      apply NatTrans.ext
+      funext T
+      ext x
+      cases i with
+      | zero =>
+        exact congrArg (fun q => q.val.app (op ⊤) x)
+          (canonicalConnection_isIntegrable F T.unop)
+      | succ n =>
+        exact congrArg (fun q => q.val.app (op ⊤) x)
+          (SheafOfModules.RingedSite.Connection.squaresToZero_of_isIntegrable
+            (canonicalConnection F T.unop) (exteriorCalculus T.unop)
+            (canonicalConnection_isIntegrable F T.unop) (n + 1))
+    change (presheafToSheaf _ AddCommGrpCat.{u}).map _ ≫
+      (presheafToSheaf _ AddCommGrpCat.{u}).map _ = 0
+    rw [← Functor.map_comp, h, Functor.map_zero]
 
 /-- The crystalline de Rham complex of sheaves associated to a crystal in modules, with terms obtained by taking sections of the sheaf tensor
 with divided-power exterior forms before sheafification. -/
@@ -474,7 +491,24 @@ theorem crystalDeRhamTermPresheaf_tensorOmegaPower_hom_inv_id
     (hΩ : ∀ T, IsIso (crystallineDifferentialComparison p s h_p Ω T))
     {i : ℕ} (hi : 0 < i) :
     crystalDeRhamTermPresheaf_tensorOmegaPowerHom p s h_p F Ω hΩ hi ≫
-      crystalDeRhamTermPresheaf_tensorOmegaPowerInv p s h_p F Ω hΩ hi = 𝟙 _ := sorry
+      crystalDeRhamTermPresheaf_tensorOmegaPowerInv p s h_p F Ω hΩ hi = 𝟙 _ := by
+  apply NatTrans.ext
+  funext T
+  cases i with
+  | zero => exact False.elim (Nat.not_lt_zero 0 hi)
+  | succ n =>
+    let e := formIso
+      (CrystallineObject.DividedPowerFirstOrderThickening.differentials T.unop).module (n + 1) ≪≫
+      (ExteriorPower.functor T.unop.obj.1.thickening.sheaf (n + 1)).mapIso
+        (@asIso _ _ _ _ (crystallineDifferentialComparison p s h_p Ω T.unop) (hΩ T.unop)).symm
+    have htensor :
+        moduleTensorMap (𝒪 := T.unop.obj.1.thickening.sheaf) (𝟙 (F.obj T.unop))
+            (crystalFormToOmegaPowerHom p s h_p Ω T.unop (hΩ T.unop) (n + 1)) ≫
+          moduleTensorMap (𝒪 := T.unop.obj.1.thickening.sheaf) (𝟙 (F.obj T.unop))
+            (crystalOmegaPowerToFormHom p s h_p Ω T.unop (n + 1)) = 𝟙 _ :=
+      (MonoidalCategory.tensorIso (Iso.refl (F.obj T.unop)) e).hom_inv_id
+    ext x
+    exact congrArg (fun q => q.val.app (op ⊤) x) htensor
 
 /-- The two tensor comparisons compose to the identity on the crystalline tensor coefficient. -/
 theorem crystalDeRhamTermPresheaf_tensorOmegaPower_inv_hom_id
@@ -482,7 +516,24 @@ theorem crystalDeRhamTermPresheaf_tensorOmegaPower_inv_hom_id
     (hΩ : ∀ T, IsIso (crystallineDifferentialComparison p s h_p Ω T))
     {i : ℕ} (hi : 0 < i) :
     crystalDeRhamTermPresheaf_tensorOmegaPowerInv p s h_p F Ω hΩ hi ≫
-      crystalDeRhamTermPresheaf_tensorOmegaPowerHom p s h_p F Ω hΩ hi = 𝟙 _ := sorry
+      crystalDeRhamTermPresheaf_tensorOmegaPowerHom p s h_p F Ω hΩ hi = 𝟙 _ := by
+  apply NatTrans.ext
+  funext T
+  cases i with
+  | zero => exact False.elim (Nat.not_lt_zero 0 hi)
+  | succ n =>
+    let e := formIso
+      (CrystallineObject.DividedPowerFirstOrderThickening.differentials T.unop).module (n + 1) ≪≫
+      (ExteriorPower.functor T.unop.obj.1.thickening.sheaf (n + 1)).mapIso
+        (@asIso _ _ _ _ (crystallineDifferentialComparison p s h_p Ω T.unop) (hΩ T.unop)).symm
+    have htensor :
+        moduleTensorMap (𝒪 := T.unop.obj.1.thickening.sheaf) (𝟙 (F.obj T.unop))
+            (crystalOmegaPowerToFormHom p s h_p Ω T.unop (n + 1)) ≫
+          moduleTensorMap (𝒪 := T.unop.obj.1.thickening.sheaf) (𝟙 (F.obj T.unop))
+            (crystalFormToOmegaPowerHom p s h_p Ω T.unop (hΩ T.unop) (n + 1)) = 𝟙 _ :=
+      (MonoidalCategory.tensorIso (Iso.refl (F.obj T.unop)) e).inv_hom_id
+    ext x
+    exact congrArg (fun q => q.val.app (op ⊤) x) htensor
 
 /-- Positive-degree de Rham terms are canonically the sheaf tensor coefficients of crystalline differentials. -/
 def crystalDeRhamTermPresheaf_iso_tensorOmegaPower

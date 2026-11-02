@@ -29,7 +29,9 @@ namespace TripleProduct
 theorem firstSection_condition {X Y Z S : Scheme.{u}} (f : X ⟶ S) (g : Y ⟶ S)
     (k : Z ⟶ S) (σ : SplitEpi f) :
     (pullback.fst g k ≫ (σ.pullbackSnd g).section_) ≫
-        (pullback.fst f g ≫ f) = pullback.snd g k ≫ k := sorry
+        (pullback.fst f g ≫ f) = pullback.snd g k ≫ k := by
+  simpa only [SplitEpi.pullbackSnd, Category.assoc, pullback.lift_fst_assoc,
+    SplitEpi.id, Category.comp_id] using (pullback.condition (f := g) (g := k))
 
 /-- The map `x × id_Y × id_Z` into the chosen nested triple fibre product,
 induced by a chosen section `x` of `f : X ⟶ S`. -/
@@ -43,19 +45,23 @@ def firstSection {X Y Z S : Scheme.{u}} (f : X ⟶ S) (g : Y ⟶ S)
 theorem firstSection_fst {X Y Z S : Scheme.{u}} (f : X ⟶ S) (g : Y ⟶ S)
     (k : Z ⟶ S) (σ : SplitEpi f) :
     firstSection f g k σ ≫ pullback.fst (pullback.fst f g ≫ f) k =
-      pullback.fst g k ≫ (σ.pullbackSnd g).section_ := sorry
+      pullback.fst g k ≫ (σ.pullbackSnd g).section_ := by
+  exact pullback.lift_fst _ _ _
 
 /-- The second projection of `firstSection` is the projection to `Z`. -/
 theorem firstSection_snd {X Y Z S : Scheme.{u}} (f : X ⟶ S) (g : Y ⟶ S)
     (k : Z ⟶ S) (σ : SplitEpi f) :
     firstSection f g k σ ≫ pullback.snd (pullback.fst f g ≫ f) k =
-      pullback.snd g k := sorry
+      pullback.snd g k := by
+  exact pullback.lift_snd _ _ _
 
 /-- The compatibility condition for the face map induced by a section of `g : Y ⟶ S`. -/
 theorem secondSection_condition {X Y Z S : Scheme.{u}} (f : X ⟶ S) (g : Y ⟶ S)
     (k : Z ⟶ S) (τ : SplitEpi g) :
     (pullback.fst f k ≫ (τ.pullbackFst f).section_) ≫
-        (pullback.fst f g ≫ f) = pullback.snd f k ≫ k := sorry
+        (pullback.fst f g ≫ f) = pullback.snd f k ≫ k := by
+  simpa only [SplitEpi.pullbackFst, Category.assoc, pullback.lift_fst_assoc,
+    Category.id_comp] using (pullback.condition (f := f) (g := k))
 
 /-- The map `id_X × y × id_Z` into the chosen nested triple fibre product,
 induced by a chosen section `y` of `g : Y ⟶ S`. -/
@@ -69,13 +75,15 @@ def secondSection {X Y Z S : Scheme.{u}} (f : X ⟶ S) (g : Y ⟶ S)
 theorem secondSection_fst {X Y Z S : Scheme.{u}} (f : X ⟶ S) (g : Y ⟶ S)
     (k : Z ⟶ S) (τ : SplitEpi g) :
     secondSection f g k τ ≫ pullback.fst (pullback.fst f g ≫ f) k =
-      pullback.fst f k ≫ (τ.pullbackFst f).section_ := sorry
+      pullback.fst f k ≫ (τ.pullbackFst f).section_ := by
+  exact pullback.lift_fst _ _ _
 
 /-- The second projection of `secondSection` is the projection to `Z`. -/
 theorem secondSection_snd {X Y Z S : Scheme.{u}} (f : X ⟶ S) (g : Y ⟶ S)
     (k : Z ⟶ S) (τ : SplitEpi g) :
     secondSection f g k τ ≫ pullback.snd (pullback.fst f g ≫ f) k =
-      pullback.snd f k := sorry
+      pullback.snd f k := by
+  exact pullback.lift_snd _ _ _
 
 end TripleProduct
 

@@ -9,6 +9,8 @@ module
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Conormal.Basic
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.IdealPower
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.IdealSubobject.Pullback
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Quasicoherent.Tensor
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.ClosedImmersion
 
 /-!
 # Degree-n pieces of the conormal algebra of an immersion
@@ -21,6 +23,7 @@ immersion `Z ⟶ X \ ∂Z` has kernel ideal `I`. The degree-`n` piece
 @[expose] public section
 
 open CategoryTheory AlgebraicGeometry
+open CategoryTheory.Limits CategoryTheory.MonoidalCategory
 open SheafOfModules.RingedSite
 
 noncomputable section
@@ -51,7 +54,23 @@ theorem coborderIdealPower_eq (n : ℕ) :
 theorem coborderIdealPower_one :
     coborderIdealPower i 1 =
       Hom.idealSheafSubobject (IsImmersion.liftCoborder i) :=
-  sorry
+  by
+    let I := Hom.idealSheafSubobject (IsImmersion.liftCoborder i)
+    let O := SheafOfModules.unit (structureSheaf (Hom.coborder i))
+    let T : Subobject O := ⊤
+    let e := Modules.structureModuleIsoTensorUnit (Hom.coborder i)
+    haveI : IsIso T.arrow := by dsimp [T]; infer_instance
+    change imageSubobject (Modules.action I (T : (Hom.coborder i).Modules) ≫ T.arrow) = I
+    have h : Modules.action I (T : (Hom.coborder i).Modules) ≫ T.arrow =
+        ((I : (Hom.coborder i).Modules) ◁ (T.arrow ≫ e.hom)) ≫
+          (ρ_ (I : (Hom.coborder i).Modules)).hom ≫ I.arrow := by
+      apply (cancel_mono e.hom).1
+      dsimp [Modules.action]
+      simp only [Category.assoc]
+      rw [← leftUnitor_naturality, ← comp_whiskerRight_assoc,
+        ← whisker_exchange_assoc, unitors_equal, rightUnitor_naturality]
+    simp only [h, ← Category.assoc]
+    rw [imageSubobject_iso_comp, imageSubobject_mono, Subobject.mk_arrow]
 
 /-- The successive coborder quotient `I^n / I^{n+1}` as an
 `𝒪_{X \ ∂Z}`-module. -/
@@ -105,16 +124,55 @@ theorem piece_spec (n : ℕ) :
           (Hom.idealSheafSubobject (IsImmersion.liftCoborder i))
           (coborderIdealPower i n).toModule ∧
       IsClosedImmersion (IsImmersion.liftCoborder i) :=
-  sorry
+  ⟨rfl, rfl, inferInstance⟩
 
 /-- The successive coborder quotient `I^n / I^{n+1}` is quasi-coherent. -/
 instance instIsQuasicoherent_coborderQuotient (n : ℕ) :
     (coborderQuotient i n).IsQuasicoherent :=
-  sorry
+  by
+    let Y := Hom.coborder i
+    let I := Hom.idealSheafSubobject (IsImmersion.liftCoborder i)
+    haveI : I.toModule.IsQuasicoherent :=
+      (inferInstance : IsQuasiCoherent I).quasiCoherent
+    have himage {F G : Y.Modules} (hF : F.IsQuasicoherent) (hG : G.IsQuasicoherent)
+        (f : F ⟶ G) : (imageSubobject f : Y.Modules).IsQuasicoherent := by
+      letI := hF
+      letI := hG
+      haveI := Modules.isQuasicoherent_cokernel f
+      have hk : (Abelian.image f).IsQuasicoherent :=
+        Modules.isQuasicoherent_kernel (cokernel.π f)
+      exact (quasiCoherentModuleProperty Y).prop_of_iso
+        (Abelian.imageIsoImage f ≪≫ (imageSubobjectIso f).symm) hk
+    have hpower : ∀ m, (coborderIdealPower i m).toModule.IsQuasicoherent := by
+      intro m
+      induction m with
+      | zero =>
+        exact (quasiCoherentModuleProperty Y).prop_of_iso
+          (Subobject.underlyingIso (𝟙 (SheafOfModules.unit (structureSheaf Y)))).symm
+          inferInstance
+      | succ m ih =>
+        letI := ih
+        exact himage inferInstance inferInstance
+          (Modules.action I (coborderIdealPower i m).toModule ≫
+            (coborderIdealPower i m).arrow)
+    letI := hpower n
+    haveI : (Modules.toComm (coborderIdealPower i n).toModule).IsQuasicoherent := by
+      change (coborderIdealPower i n).toModule.IsQuasicoherent
+      exact hpower n
+    haveI : (Modules.toCommSubobject I : RingedSite.ModuleCat (commRingedSite Y)).IsQuasicoherent :=
+      (quasiCoherentModuleProperty Y).prop_of_iso
+        (Subobject.underlyingIso (Modules.toCommArrow I)).symm
+        (show I.toModule.IsQuasicoherent from inferInstance)
+    haveI : (Modules.ofComm
+        (tensorObj (Modules.toCommSubobject I : RingedSite.ModuleCat (commRingedSite Y))
+          (Modules.toComm (coborderIdealPower i n).toModule))).IsQuasicoherent :=
+      Modules.isQuasicoherent_tensor (X := Y) _ _
+    exact Modules.isQuasicoherent_cokernel
+      (Modules.idealAction I (coborderIdealPower i n).toModule)
 
 /-- The degree-`n` conormal piece is a quasi-coherent `𝒪_Z`-module. -/
 instance instIsQuasicoherent_piece (n : ℕ) : (piece i n).IsQuasicoherent :=
-  sorry
+  Modules.pullback_isQuasicoherent (IsImmersion.liftCoborder i) (coborderQuotient i n)
 
 /-- In degree one, the coborder successive quotient is `I / I²`. -/
 theorem coborderQuotient_one :
@@ -122,11 +180,15 @@ theorem coborderQuotient_one :
       Modules.quotientByIdeal
         (Hom.idealSheafSubobject (IsImmersion.liftCoborder i))
         (Hom.idealSheaf (IsImmersion.liftCoborder i)) :=
-  sorry
+  by
+    rw [coborderQuotient, coborderIdealPower_one]
 
 /-- The degree-one conormal piece is the conormal sheaf `C_{Z/X}`. -/
 theorem piece_one : piece i 1 = Hom.conormalSheaf i :=
-  sorry
+  by
+    change (Modules.pullback (IsImmersion.liftCoborder i)).obj (coborderQuotient i 1) = _
+    rw [coborderQuotient_one]
+    rfl
 
 /-- The degree-zero comparison `C_{Z/X, 0} ⟶ 𝒪_Z` obtained from the coborder
 quotient comparison `I^0 / I ⟶ j_* j^* I^0`, the adjunction counit, and the
@@ -168,7 +230,13 @@ as the adjunction unit `I^n / I^{n+1} ⟶ (liftCoborder i)_* C_{Z/X, n}`. -/
 @[stacks 09RP, instance]
 theorem piece_pushforward (n : ℕ) :
     IsIso (piecePushforwardComparison i n) :=
-  sorry
+  by
+    let j := IsImmersion.liftCoborder i
+    let adj := Modules.pullbackPushforwardAdjunction j
+    let e := asIso (Modules.quotientByIdealComparison j (coborderIdealPower i n).toModule)
+    letI := adj.fullyFaithfulROfIsIsoCounit.full
+    letI := adj.fullyFaithfulROfIsIsoCounit.faithful
+    exact adj.isIso_unit_app_of_iso e
 
 
 end AlgebraicGeometry.AlgebraicSpace.ConormalAlgebra

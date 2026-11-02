@@ -43,6 +43,25 @@ def fppfModuleInverseImageUnderlyingIso (f : X ⟶ Y) :
           (Y.associatedTopology StandardTopology.fppf) :=
   Iso.refl _
 
+private theorem underlying_map_injective {C : Type*} [Category* C]
+    {J : GrothendieckTopology C} [J.HasSheafCompose (forget RingCat.{u})]
+    (R : Sheaf J RingCat.{u}) {M N : SheafOfModules.{u} R} {g h : M ⟶ N}
+    (e : (ToInternal.underlying R).map g = (ToInternal.underlying R).map h) : g = h := by
+  ext U x
+  exact congrArg (fun k ↦ k.hom.app U x) e
+
+private theorem underlying_map_homOfUnderlying {C : Type*} [Category* C]
+    {J : GrothendieckTopology C} [J.HasSheafCompose (forget RingCat.{u})]
+    (R : Sheaf J RingCat.{u}) {M N : SheafOfModules.{u} R}
+    (α : (ToInternal.underlying R).obj M ⟶ (ToInternal.underlying R).obj N)
+    (ha : ∀ U (x y : M.val.obj U),
+      underlyingApp R α U (x + y) = underlyingApp R α U x + underlyingApp R α U y)
+    (hs : ∀ U (r : R.obj.obj U) (x : M.val.obj U),
+      underlyingApp R α U (r • x) = r • underlyingApp R α U x) :
+    (ToInternal.underlying R).map (homOfUnderlying R α ha hs) = α := by
+  ext U x
+  rfl
+
 namespace fppfModuleAdjunction
 
 variable (f : X ⟶ Y) [HasSmallAssociatedTypeSections f StandardTopology.fppf]
@@ -166,13 +185,31 @@ def unmate (M : fppfModules Y) (N : fppfModules X)
     (associatedRingedSite X StandardTopology.fppf).structureSheaf _ _ (unmateUnderlying f M N g)
     (unmateUnderlying_add f M N g) (unmateUnderlying_smul f M N g)
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Transposing a module map and transposing back recovers that map. -/
 theorem homEquiv_left_inv (M : fppfModules Y) (N : fppfModules X) :
-    Function.LeftInverse (unmate f M N) (mate f M N) := sorry
+    Function.LeftInverse (unmate f M N) (mate f M N) := by
+  intro h
+  apply @underlying_map_injective _ _ _
+    (associatedTopology_hasSheafCompose X StandardTopology.fppf)
+    (associatedRingedSite X StandardTopology.fppf).structureSheaf
+  simp only [unmate, mate, underlying_map_homOfUnderlying, unmateUnderlying,
+    mateUnderlying, Category.assoc]
+  erw [Iso.inv_hom_id_app, Category.comp_id, Equiv.symm_apply_apply,
+    Iso.hom_inv_id_app_assoc]
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Transposing back and then transposing a module map recovers that map. -/
 theorem homEquiv_right_inv (M : fppfModules Y) (N : fppfModules X) :
-    Function.RightInverse (unmate f M N) (mate f M N) := sorry
+    Function.RightInverse (unmate f M N) (mate f M N) := by
+  intro g
+  apply @underlying_map_injective _ _ _
+    (associatedTopology_hasSheafCompose Y StandardTopology.fppf)
+    (associatedRingedSite Y StandardTopology.fppf).structureSheaf
+  simp only [mate, unmate, underlying_map_homOfUnderlying, mateUnderlying,
+    unmateUnderlying]
+  erw [Iso.inv_hom_id_app_assoc, Equiv.apply_symm_apply, Category.assoc,
+    Iso.hom_inv_id_app, Category.comp_id]
 
 /-- Module inverse image and direct image have the canonical mate Hom equivalence. -/
 def homEquiv (M : fppfModules Y) (N : fppfModules X) :
@@ -182,17 +219,50 @@ def homEquiv (M : fppfModules Y) (N : fppfModules X) :
   left_inv := homEquiv_left_inv f M N
   right_inv := homEquiv_right_inv f M N
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The inverse module mate is natural in the source module. -/
 theorem homEquiv_naturality_left_symm {M M' : fppfModules Y}
     (g : M' ⟶ M) (N : fppfModules X) (h : M ⟶ (fppfModulePushforward f).obj N) :
     (homEquiv f M' N).symm (g ≫ h) =
-      (fppfModuleInverseImage f).map g ≫ (homEquiv f M N).symm h := sorry
+      (fppfModuleInverseImage f).map g ≫ (homEquiv f M N).symm h := by
+  apply @underlying_map_injective _ _ _
+    (associatedTopology_hasSheafCompose X StandardTopology.fppf)
+    (associatedRingedSite X StandardTopology.fppf).structureSheaf
+  let U := @ToInternal.underlying.{u + 1, u, u} _ _ _
+    (associatedTopology_hasSheafCompose X StandardTopology.fppf)
+    (associatedRingedSite X StandardTopology.fppf).structureSheaf
+  change U.map (unmate f M' N (g ≫ h)) =
+    U.map ((fppfModuleInverseImage f).map g ≫ unmate f M N h)
+  dsimp only [U]
+  simp only [unmate, underlying_map_homOfUnderlying, Functor.map_comp, unmateUnderlying,
+    Category.assoc, Adjunction.homEquiv_naturality_left_symm]
+  erw [← Category.assoc, ← (fppfModuleInverseImageUnderlyingIso f).hom.naturality g]
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The forward module mate is natural in the target module. -/
 theorem homEquiv_naturality_right (M : fppfModules Y) {N N' : fppfModules X}
     (h : (fppfModuleInverseImage f).obj M ⟶ N) (g : N ⟶ N') :
     homEquiv f M N' (h ≫ g) =
-      homEquiv f M N h ≫ (fppfModulePushforward f).map g := sorry
+      homEquiv f M N h ≫ (fppfModulePushforward f).map g := by
+  apply @underlying_map_injective _ _ _
+    (associatedTopology_hasSheafCompose Y StandardTopology.fppf)
+    (associatedRingedSite Y StandardTopology.fppf).structureSheaf
+  let U := @ToInternal.underlying.{u + 1, u, u} _ _ _
+    (associatedTopology_hasSheafCompose Y StandardTopology.fppf)
+    (associatedRingedSite Y StandardTopology.fppf).structureSheaf
+  change U.map (mate f M N' (h ≫ g)) =
+    U.map (mate f M N h ≫ (fppfModulePushforward f).map g)
+  dsimp only [U]
+  simp only [mate, underlying_map_homOfUnderlying, Functor.map_comp, mateUnderlying,
+    ← Category.assoc, Adjunction.homEquiv_naturality_right]
+  simp only [Category.assoc]
+  erw [(@RingedSite.ToposHom.ModulePushforward.forgetIso.{u + 1, u, u + 1, u, u}
+    (associatedRingedSite X StandardTopology.fppf)
+    (associatedRingedSite Y StandardTopology.fppf)
+    (associatedTopology_hasSheafCompose X StandardTopology.fppf)
+    (associatedTopology_hasSheafCompose Y StandardTopology.fppf)
+    (associatedRingedToposHom f StandardTopology.fppf)).inv.naturality g]
+  rfl
 
 end fppfModuleAdjunction
 

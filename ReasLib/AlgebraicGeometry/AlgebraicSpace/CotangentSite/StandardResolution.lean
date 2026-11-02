@@ -58,14 +58,14 @@ def standardGens {X : AlgebraicSpace (Spec Λ)} (U : smallEtaleSite X) (n : Simp
 
 /-- The degree-`n` standard polynomial algebra of `𝒪_X(U)` over `Λ`, as the free `Λ`-algebra
 on `standardGens Λ U n`. -/
-def standardTerm {X : AlgebraicSpace (Spec Λ)} (U : smallEtaleSite X) (n : SimplexCategory) :
+def standardSectionTerm {X : AlgebraicSpace (Spec Λ)} (U : smallEtaleSite X) (n : SimplexCategory) :
     Under Λ :=
   CommRingCat.Under.FreeAlgebra.algebraic Λ (standardGens Λ U n)
 
-/-- The iterate presentation of `standardTerm` agrees with the free-algebra presentation. -/
+/-- The iterate presentation of `standardSectionTerm` agrees with the free-algebra presentation. -/
 theorem standardTerm_eq_iterate {X : AlgebraicSpace (Spec Λ)} (U : smallEtaleSite X)
     (n : SimplexCategory) :
-    standardTerm Λ U n =
+    standardSectionTerm Λ U n =
       (Endofunctor.iterate (CommRingCat.Under.FreeAlgebra.comonadFunctor Λ) (n.len + 1)).obj (sectionsUnder Λ U) :=
   sorry
 
@@ -275,7 +275,7 @@ algebra resolution term. -/
 def standardAffineSpecIso (X : AlgebraicSpace (Spec Λ)) (U : smallEtaleSite X)
     (n : SimplexCategory) :
     (affineScheme Λ X).obj (((standardAffine Λ X).obj U).obj n) ≅
-      Spec (standardTerm Λ U n).right :=
+      Spec (standardSectionTerm Λ U n).right :=
   let ringIso := (Under.forget Λ).mapIso
     (CommRingCat.Under.FreeAlgebra.polynomialIso Λ (standardGens Λ U n))
   AffineSpace.SpecIso (standardGens Λ U n) Λ ≪≫ Scheme.Spec.mapIso ringIso.op

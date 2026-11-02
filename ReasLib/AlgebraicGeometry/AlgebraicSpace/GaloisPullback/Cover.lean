@@ -8,6 +8,7 @@ module
 
 public import Mathlib.AlgebraicGeometry.Limits
 public import Mathlib.AlgebraicGeometry.Pullbacks
+public import Mathlib.RingTheory.IntegralClosure.Algebra.Basic
 public import Mathlib.Topology.JacobsonSpace
 public import ReasLib.AlgebraicGeometry.ConstantGroup
 public import ReasLib.NumberTheory.AlgebraicNumbers
@@ -106,12 +107,31 @@ theorem actionLeft_w (σ : AlgebraicNumbers.gal) : actionLeft σ ≫ cover.hom =
     pullback.snd specMapQ specMapQ
   exact (pullback.lift_snd _ _ _).trans (Category.comp_id _)
 
+set_option backward.isDefEq.respectTransparency false in
+private theorem actionLeft_one : actionLeft 1 = 𝟙 cover.left := by
+  have h : (FieldExtension.Galois.specAut (1 : AlgebraicNumbers.gal)).hom = 𝟙 base :=
+    congrArg Iso.hom FieldExtension.Galois.specAut.map_one
+  apply pullback.hom_ext <;>
+    simp only [actionLeft, pullback.map, pullback.lift_fst, pullback.lift_snd,
+      h, Category.id_comp, Category.comp_id]
+
+set_option backward.isDefEq.respectTransparency false in
+private theorem actionLeft_mul (σ τ : AlgebraicNumbers.gal) :
+    actionLeft (σ * τ) = actionLeft τ ≫ actionLeft σ := by
+  have h : (FieldExtension.Galois.specAut (σ * τ)).hom =
+      (FieldExtension.Galois.specAut τ).hom ≫ (FieldExtension.Galois.specAut σ).hom :=
+    congrArg Iso.hom (FieldExtension.Galois.specAut.map_mul σ τ)
+  apply pullback.hom_ext <;>
+    simp only [actionLeft, pullback.map, Category.assoc, pullback.lift_fst,
+      pullback.lift_snd, pullback.lift_fst_assoc,
+      h, Category.comp_id]
+
 /-- The Galois action of `σ` as an automorphism of the scheme `U`. -/
 def actionIso (σ : AlgebraicNumbers.gal) : cover.left ≅ cover.left where
   hom := actionLeft σ
   inv := actionLeft σ⁻¹
-  hom_inv_id := sorry
-  inv_hom_id := sorry
+  hom_inv_id := by rw [← actionLeft_mul, inv_mul_cancel, actionLeft_one]
+  inv_hom_id := by rw [← actionLeft_mul, mul_inv_cancel, actionLeft_one]
 
 /-- The forward map of `actionIso σ` is `actionLeft σ`. -/
 theorem actionIso_hom (σ : AlgebraicNumbers.gal) : (actionIso σ).hom = actionLeft σ := rfl
@@ -123,8 +143,14 @@ theorem actionIso_inv (σ : AlgebraicNumbers.gal) : (actionIso σ).inv = actionL
 acting on the first factor by `FieldExtension.Galois.specAut`. -/
 def action : AlgebraicNumbers.gal →* Aut cover where
   toFun σ := Over.isoMk (actionIso σ) (actionLeft_w σ)
-  map_one' := sorry
-  map_mul' := sorry
+  map_one' := by
+    apply Aut.ext
+    apply Over.OverMorphism.ext
+    exact actionLeft_one
+  map_mul' σ τ := by
+    apply Aut.ext
+    apply Over.OverMorphism.ext
+    exact actionLeft_mul σ τ
 
 /-- The underlying scheme morphism of `action σ` is `actionLeft σ`. -/
 theorem action_hom (σ : AlgebraicNumbers.gal) : (action σ).hom.left = actionLeft σ := rfl
@@ -146,8 +172,24 @@ theorem exists_action_eq (u v : cover.left) :
     ∃ σ : AlgebraicNumbers.gal, (action σ).hom.left u = v := sorry
 
 /-- Every point of `U` is closed. -/
-theorem mem_closedPoints_cover (u : cover.left) : u ∈ closedPoints cover.left :=
-  sorry
+theorem mem_closedPoints_cover (u : cover.left) : u ∈ closedPoints cover.left := by
+  let inclusion : AlgebraicNumbers.algebraicQ →ₐ[ℚ] ℂ :=
+    { toRingHom := (algebraicClosure ℚ ℂ).val.toRingHom
+      commutes' := fun r ↦ RingHom.map_rat_algebraMap _ r }
+  letI : Algebra.IsIntegral ℚ AlgebraicNumbers.algebraicQ :=
+    ⟨fun x ↦ (isIntegral_algHom_iff inclusion inclusion.injective).mp x.property⟩
+  let e := pullbackSpecIso ℚ AlgebraicNumbers.algebraicQ AlgebraicNumbers.algebraicQ
+  let p : PrimeSpectrum (TensorProduct ℚ AlgebraicNumbers.algebraicQ
+      AlgebraicNumbers.algebraicQ) := e.hom u
+  letI : Algebra.IsIntegral AlgebraicNumbers.algebraicQ
+      (TensorProduct ℚ AlgebraicNumbers.algebraicQ AlgebraicNumbers.algebraicQ) :=
+    Algebra.IsIntegral.tensorProduct ℚ AlgebraicNumbers.algebraicQ AlgebraicNumbers.algebraicQ
+  apply preimage_closedPoints_subset e.hom.homeomorph.injective e.hom.continuous
+  change IsClosed ({p} : Set (PrimeSpectrum (TensorProduct ℚ
+    AlgebraicNumbers.algebraicQ AlgebraicNumbers.algebraicQ)))
+  apply (PrimeSpectrum.isClosed_singleton_iff_isMaximal _).mpr
+  exact Ideal.isMaximal_of_isIntegral_of_isMaximal_comap
+    (R := AlgebraicNumbers.algebraicQ) _ (p.isPrime.comap _).isMaximal'
 
 /-- The absolute Galois group with the discrete topology, viewed as a constant
 group scheme over `Spec AlgebraicNumbers.algebraicQ`. -/

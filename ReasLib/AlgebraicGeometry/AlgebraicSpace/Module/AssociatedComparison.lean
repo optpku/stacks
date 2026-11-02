@@ -115,7 +115,7 @@ theorem associatedFunctor_etale_map_id (X : AlgebraicSpace S)
     [(Etale.Atlas.etalePiRingedHom X).modulePushforward.{u}.IsRightAdjoint] (F : QCoh X) :
     (Etale.Atlas.etalePiRingedHom X).modulePullback.{u}.map (𝟙 F.obj) =
       𝟙 ((Etale.Atlas.etalePiRingedHom X).modulePullback.{u}.obj F.obj) :=
-  sorry
+  (Etale.Atlas.etalePiRingedHom X).modulePullback.{u}.map_id F.obj
 
 /-- Module pullback along the etale comparison preserves composition. -/
 theorem associatedFunctor_etale_map_comp (X : AlgebraicSpace S)
@@ -124,7 +124,7 @@ theorem associatedFunctor_etale_map_comp (X : AlgebraicSpace S)
     (Etale.Atlas.etalePiRingedHom X).modulePullback.{u}.map (φ.hom ≫ ψ.hom) =
       (Etale.Atlas.etalePiRingedHom X).modulePullback.{u}.map φ.hom ≫
         (Etale.Atlas.etalePiRingedHom X).modulePullback.{u}.map ψ.hom :=
-  sorry
+  (Etale.Atlas.etalePiRingedHom X).modulePullback.{u}.map_comp φ.hom ψ.hom
 
 /-- The functor sending a quasi-coherent `𝒪_X`-module to its associated
 quasi-coherent module `π_X^* F` on `((Spaces/X)_étale, 𝒪)`. -/
@@ -160,7 +160,7 @@ theorem associatedFunctor_fppf_map_id (X : AlgebraicSpace S)
     [(aRingedHom X).modulePushforward.{u}.IsRightAdjoint] (F : QCoh X) :
     (aRingedHom X).modulePullback.{u}.map (𝟙 F.obj) =
       𝟙 ((aRingedHom X).modulePullback.{u}.obj F.obj) :=
-  sorry
+  (aRingedHom X).modulePullback.{u}.map_id F.obj
 
 /-- Module pullback along the fppf comparison preserves composition. -/
 theorem associatedFunctor_fppf_map_comp (X : AlgebraicSpace S)
@@ -169,7 +169,7 @@ theorem associatedFunctor_fppf_map_comp (X : AlgebraicSpace S)
     (aRingedHom X).modulePullback.{u}.map (φ.hom ≫ ψ.hom) =
       (aRingedHom X).modulePullback.{u}.map φ.hom ≫
         (aRingedHom X).modulePullback.{u}.map ψ.hom :=
-  sorry
+  (aRingedHom X).modulePullback.{u}.map_comp φ.hom ψ.hom
 
 /-- The functor sending a quasi-coherent `𝒪_X`-module to its associated
 quasi-coherent module `a_X^* F` on `((Spaces/X)_fppf, 𝒪)`. -/

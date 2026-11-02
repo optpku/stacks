@@ -41,7 +41,7 @@ def fromResidueFieldOverHom {S U : Scheme.{u}} (hU : U ⟶ S) (u0 : U) :
 `fromResidueField`. -/
 theorem fromResidueFieldOverHom_left {S U : Scheme.{u}} (hU : U ⟶ S) (u0 : U) :
     (fromResidueFieldOverHom hU u0).left = fromResidueField u0 :=
-  sorry
+  rfl
 
 /-- Restriction of an object `x` of `X` over `U ⟶ S` along `Spec(κ(u0)) ⟶ U`. -/
 def restrictToResidueField {S : Scheme.{u}} {X : GroupoidsOver S} {U : Scheme.{u}}
@@ -56,7 +56,7 @@ theorem restrictToResidueField_eq {S : Scheme.{u}} {X : GroupoidsOver S}
     (hx : X.p.obj x = Over.mk hU) (u0 : U) :
     restrictToResidueField hU x hx u0 =
       IsPreFibered.pullbackObj hx (fromResidueFieldOverHom hU u0) :=
-  sorry
+  rfl
 
 /-- The restricted object lies over `Spec(κ(u0)) ⟶ S`. -/
 theorem restrictToResidueField_over {S : Scheme.{u}} {X : GroupoidsOver S}
@@ -64,7 +64,7 @@ theorem restrictToResidueField_over {S : Scheme.{u}} {X : GroupoidsOver S}
     (hx : X.p.obj x = Over.mk hU) (u0 : U) :
     X.p.obj (restrictToResidueField hU x hx u0) =
       Over.mk (fromResidueField u0 ≫ hU) :=
-  sorry
+  IsPreFibered.pullbackObj_proj hx (fromResidueFieldOverHom hU u0)
 
 /-- The restricted object `x|_{u0}` as an object of the fibre over
 `Spec(κ(u0)) ⟶ S`. -/
@@ -81,7 +81,7 @@ theorem restrictToResidueFieldFiber_eq {S : Scheme.{u}} {X : GroupoidsOver S}
     (hx : X.p.obj x = Over.mk hU) (u0 : U) :
     restrictToResidueFieldFiber hU x hx u0 =
       Fiber.mk (restrictToResidueField_over hU x hx u0) :=
-  sorry
+  rfl
 
 /-- Transport of `Spec(k) ⟶ S` along a residue-field identification
 `κ(u0) ≃+* k`, as a morphism in `Over S`. -/
@@ -105,7 +105,7 @@ theorem residueIsoOverHom_left {S : Scheme.{u}} {k : Type u} [Field k]
         Spec.map (CommRingCat.ofHom residueIso.symm.toRingHom) ≫ kToS) :
     (residueIsoOverHom kToS toS u0 residueIso residueIso_over).left =
       Spec.map (CommRingCat.ofHom residueIso.symm.toRingHom) :=
-  sorry
+  rfl
 
 /-- Finite-type smooth 2-Yoneda data approximating a residue object `x0` over
 `Spec(k) ⟶ S`: a finite type `U ⟶ S`, an object `x` over `U` whose 2-Yoneda
@@ -223,7 +223,7 @@ theorem spec (W : SmoothFiniteTypeObject kToS x0) :
                   (residueIsoOverHom kToS W.toS W.u0 W.residueIso
                     W.residueIso_over)
                   x0) :=
-  sorry
+  ⟨W.finiteType, W.smooth, W.isFiniteTypePoint, W.residueIso_over, ⟨W.restrictIso⟩⟩
 
 /-- The restricted object `x|_{u0}` is isomorphic to `x0` after transport
 along `residueIso`. -/
@@ -233,7 +233,7 @@ theorem exists_restrictIso (W : SmoothFiniteTypeObject kToS x0) :
         Chosen.reindexObj X.p
           (residueIsoOverHom kToS W.toS W.u0 W.residueIso W.residueIso_over)
           x0) :=
-  sorry
+  ⟨W.restrictIso⟩
 
 end SmoothFiniteTypeObject
 

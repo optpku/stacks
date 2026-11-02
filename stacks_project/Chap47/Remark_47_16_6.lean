@@ -26,8 +26,9 @@ Krull dimension `d` has injective amplitude in `[-d, 0]`. -/
   (CategoryTheory.DerivedCategory.IsNormalizedDualizingComplex.hasInjectiveAmplitudeIn :
     ∀ (A : Type u) [CommRing A] [IsNoetherianRing A] [IsLocalRing A]
     [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
-    (H : MonoidalClosed (DerivedCategory (ModuleCat.{u} A)))
-    (ω : DerivedCategory (ModuleCat.{u} A)), ω.IsNormalizedDualizingComplex H →
+    (C : CategoryTheory.DerivedCategory.CanonicalClosedPresentation (A := A))
+    (ω : DerivedCategory (ModuleCat.{u} A)),
+    ω.IsCanonicalNormalizedDualizingComplex C →
     ∀ (d : ℕ), ringKrullDim A = d → ω.HasInjectiveAmplitudeIn (-(d : ℤ)) 0)
 
 /- Consequently, derived Ext from every module vanishes outside that interval. -/
@@ -35,8 +36,9 @@ Krull dimension `d` has injective amplitude in `[-d, 0]`. -/
   (CategoryTheory.DerivedCategory.IsNormalizedDualizingComplex.ext_subsingleton :
     ∀ (A : Type u) [CommRing A] [IsNoetherianRing A] [IsLocalRing A]
     [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
-    (H : MonoidalClosed (DerivedCategory (ModuleCat.{u} A)))
-    (ω : DerivedCategory (ModuleCat.{u} A)), ω.IsNormalizedDualizingComplex H →
+    (C : CategoryTheory.DerivedCategory.CanonicalClosedPresentation (A := A))
+    (ω : DerivedCategory (ModuleCat.{u} A)),
+    ω.IsCanonicalNormalizedDualizingComplex C →
     ∀ (d : ℕ), ringKrullDim A = d → ∀ (M : ModuleCat.{u} A) (i : ℤ),
     i ∉ Set.Icc (-(d : ℤ)) 0 → Subsingleton (Ext⁽i⁾(ModuleCat.single0 M, ω)))
 

@@ -51,16 +51,20 @@ noncomputable def pushforwardRestrictionToPlus (f : Y ⟶ X) :
     (pushforwardRestrictionPlusAmbient_boundedBelow f)
 
 /-- Bounded-below derived restriction of scalars along `𝒪_X ⟶ f_*𝒪_Y` preserves
-quasi-coherent cohomology. -/
-theorem pushforwardRestrictionToPlus_quasicoherent (f : Y ⟶ X) :
+quasi-coherent cohomology for a quasi-compact, quasi-separated morphism. -/
+theorem pushforwardRestrictionToPlus_quasicoherent (f : Y ⟶ X)
+    [QuasiCompact f] [QuasiSeparated f] :
     ∀ K : PushforwardQCohPlus f,
       cohomologyIn
         (RingedSpace.quasiCoherentModuleProperty X.toRingedSpace)
-        ((pushforwardRestrictionToPlus f).obj K) := sorry
+        ((pushforwardRestrictionToPlus f).obj K) := by
+  intro K
+  exact pushforwardQCohRestrictionDerived.mapsTo f _ K.property
 
 /-- Bounded-below derived restriction of scalars along `𝒪_X ⟶ f_*𝒪_Y`, restricted to
-objects with quasi-coherent cohomology. -/
-noncomputable def pushforwardRestrictionPlus (f : Y ⟶ X) :
+objects with quasi-coherent cohomology for a quasi-compact, quasi-separated morphism. -/
+noncomputable def pushforwardRestrictionPlus (f : Y ⟶ X)
+    [QuasiCompact f] [QuasiSeparated f] :
     PushforwardQCohPlus f ⥤ Plus X :=
   (cohomologyIn
       (RingedSpace.quasiCoherentModuleProperty X.toRingedSpace)).lift

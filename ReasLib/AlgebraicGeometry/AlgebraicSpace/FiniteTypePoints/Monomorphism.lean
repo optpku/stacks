@@ -46,7 +46,7 @@ theorem existsSingletonLocallyOfFiniteType_iff :
       ∃ (Z : AlgebraicSpace S) (f : Z ⟶ X),
         Nonempty (Points Z) ∧ Subsingleton (Points Z) ∧ LocallyOfFiniteType f ∧
           Set.range (Points.map f) = {x} :=
-  sorry
+  Iff.rfl
 
 /-- `existsSingletonLocallyOfFiniteType x` is equivalent to the existence of a
 locally-of-finite-type morphism from an algebraic space whose underlying point
@@ -55,8 +55,22 @@ theorem existsSingletonLocallyOfFiniteType_iff_univ :
     existsSingletonLocallyOfFiniteType x ↔
       ∃ (Z : AlgebraicSpace S) (f : Z ⟶ X) (z : Points Z),
         (Set.univ : Set (Points Z)) = {z} ∧ LocallyOfFiniteType f ∧
-          Set.range (Points.map f) = {x} :=
-  sorry
+          Set.range (Points.map f) = {x} := by
+  constructor
+  · rintro ⟨Z, f, ⟨z⟩, hZ, hf, hx⟩
+    refine ⟨Z, f, z, ?_, hf, hx⟩
+    ext w
+    constructor
+    · intro _
+      exact Set.mem_singleton_iff.mpr (hZ.elim w z)
+    · intro _
+      exact Set.mem_univ w
+  · rintro ⟨Z, f, z, hZ, hf, hx⟩
+    refine ⟨Z, f, ⟨z⟩, ⟨?_⟩, hf, hx⟩
+    intro a b
+    have ha : a = z := Set.mem_singleton_iff.mp (hZ ▸ Set.mem_univ a)
+    have hb : b = z := Set.mem_singleton_iff.mp (hZ ▸ Set.mem_univ b)
+    exact ha.trans hb.symm
 
 namespace existsSingletonLocallyOfFiniteType
 
@@ -66,7 +80,7 @@ theorem of {Z : AlgebraicSpace S} {f : Z ⟶ X} [Nonempty (Points Z)]
     [Subsingleton (Points Z)] [LocallyOfFiniteType f]
     (hx : Set.range (Points.map f) = {x}) :
     existsSingletonLocallyOfFiniteType x :=
-  sorry
+  ⟨Z, f, inferInstance, inferInstance, inferInstance, hx⟩
 
 /-- `existsSingletonLocallyOfFiniteType x` supplies a singleton algebraic space
 over `S` and a locally-of-finite-type morphism to `X` with image `{x}`. -/
@@ -74,7 +88,7 @@ theorem spec (h : existsSingletonLocallyOfFiniteType x) :
     ∃ (Z : AlgebraicSpace S) (f : Z ⟶ X),
       Nonempty (Points Z) ∧ Subsingleton (Points Z) ∧ LocallyOfFiniteType f ∧
         Set.range (Points.map f) = {x} :=
-  sorry
+  h
 
 end existsSingletonLocallyOfFiniteType
 
@@ -94,7 +108,7 @@ theorem existsEtaleFieldMono_iff :
       ∃ (Z : AlgebraicSpace S) (f : Z ⟶ X) (p : FieldValuedPoint Z),
         Surjective p.hom ∧ Etale p.hom ∧ LocallyOfFiniteType f ∧ Mono f ∧
           Points.map f (Points.mk p) = x :=
-  sorry
+  Iff.rfl
 
 /-- `existsEtaleFieldMono x` expands the field-valued point to a morphism
 `Spec(k) ⟶ Z` over `S` from the spectrum of a field. -/
@@ -103,8 +117,13 @@ theorem existsEtaleFieldMono_iff_specField :
       ∃ (Z : AlgebraicSpace S) (f : Z ⟶ X) (k : Type u) (hk : Field k)
         (σ : Spec (.of k) ⟶ S) (zHom : ofOver (Over.mk σ) ⟶ Z),
         Surjective zHom ∧ Etale zHom ∧ LocallyOfFiniteType f ∧ Mono f ∧
-          Points.map f (Points.mk (FieldValuedPoint.of k σ zHom)) = x :=
-  sorry
+          Points.map f (Points.mk (FieldValuedPoint.of k σ zHom)) = x := by
+  constructor
+  · rintro ⟨Z, f, p, hs, he, hf, hm, hx⟩
+    exact ⟨Z, f, p.K, p.field, p.structureHom, p.hom, hs, he, hf, hm, hx⟩
+  · rintro ⟨Z, f, k, hk, σ, zHom, hs, he, hf, hm, hx⟩
+    letI := hk
+    exact ⟨Z, f, FieldValuedPoint.of k σ zHom, hs, he, hf, hm, hx⟩
 
 namespace existsEtaleFieldMono
 
@@ -113,7 +132,7 @@ namespace existsEtaleFieldMono
 theorem of {Z : AlgebraicSpace S} {f : Z ⟶ X} {p : FieldValuedPoint Z}
     [Surjective p.hom] [Etale p.hom] [LocallyOfFiniteType f] [Mono f]
     (hx : Points.map f (Points.mk p) = x) : existsEtaleFieldMono x :=
-  sorry
+  ⟨Z, f, p, inferInstance, inferInstance, inferInstance, inferInstance, hx⟩
 
 /-- A surjective étale morphism `Spec(k) ⟶ Z` from a field spectrum, together
 with a monomorphism `f : Z ⟶ X` that is locally of finite type sending that
@@ -123,7 +142,9 @@ theorem of_specField {Z : AlgebraicSpace S} {f : Z ⟶ X} (k : Type u) [Field k]
     [Etale zHom] [LocallyOfFiniteType f] [Mono f]
     (hx : Points.map f (Points.mk (FieldValuedPoint.of k σ zHom)) = x) :
     existsEtaleFieldMono x :=
-  sorry
+  ⟨Z, f, FieldValuedPoint.of k σ zHom,
+    (inferInstance : Surjective zHom), (inferInstance : Etale zHom),
+    inferInstance, inferInstance, hx⟩
 
 /-- `existsEtaleFieldMono x` supplies a monomorphism that is locally of finite
 type and a surjective étale field-valued point of the source mapping to `x`. -/
@@ -131,7 +152,7 @@ theorem spec (h : existsEtaleFieldMono x) :
     ∃ (Z : AlgebraicSpace S) (f : Z ⟶ X) (p : FieldValuedPoint Z),
       Surjective p.hom ∧ Etale p.hom ∧ LocallyOfFiniteType f ∧ Mono f ∧
         Points.map f (Points.mk p) = x :=
-  sorry
+  h
 
 end existsEtaleFieldMono
 
@@ -148,13 +169,13 @@ theorem isFiniteTypePoint_tfae :
 image of a locally-of-finite-type morphism from a singleton algebraic space. -/
 theorem isFiniteTypePoint_iff_existsSingletonLocallyOfFiniteType :
     IsFiniteTypePoint x ↔ existsSingletonLocallyOfFiniteType x :=
-  sorry
+  (isFiniteTypePoint_tfae x).out 0 1
 
 /-- A point of an algebraic space is of finite type if and only if it is the
 image of a monomorphism that is locally of finite type from an algebraic space
 admitting a surjective étale field-valued point. -/
 theorem isFiniteTypePoint_iff_existsEtaleFieldMono :
     IsFiniteTypePoint x ↔ existsEtaleFieldMono x :=
-  sorry
+  (isFiniteTypePoint_tfae x).out 0 2
 
 end AlgebraicGeometry.AlgebraicSpace

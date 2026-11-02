@@ -53,11 +53,11 @@ def toIntermediateField (L : FiniteIntermediateField k K) : IntermediateField k 
 
 /-- The underlying intermediate field of `of L` is `L`. -/
 theorem toIntermediateField_of (L : IntermediateField k K) [FiniteDimensional k L] :
-    toIntermediateField k K (of k K L) = L := sorry
+    toIntermediateField k K (of k K L) = L := rfl
 
 /-- Inclusion of finite intermediate fields is inclusion of their underlying fields. -/
 theorem le_iff (L M : FiniteIntermediateField k K) :
-    L ≤ M ↔ toIntermediateField k K L ≤ toIntermediateField k K M := sorry
+    L ≤ M ↔ toIntermediateField k K L ≤ toIntermediateField k K M := Iff.rfl
 
 end FiniteIntermediateField
 
@@ -72,13 +72,20 @@ noncomputable def finiteIntermediateSpecMap {L M : FiniteIntermediateField k K}
 
 /-- The spectrum map associated to an identity inclusion is the identity. -/
 theorem finiteIntermediateSpecMap_id (L : FiniteIntermediateField k K) :
-    finiteIntermediateSpecMap k K (le_refl L) = 𝟙 (finiteIntermediateSpec k K L) := sorry
+    finiteIntermediateSpecMap k K (le_refl L) = 𝟙 (finiteIntermediateSpec k K L) := by
+  simpa [finiteIntermediateSpecMap] using
+    (Comparison.baseMap_id (k := k) (K := L.toIntermediateField k K))
 
 /-- Spectrum maps associated to inclusions compose contravariantly. -/
 theorem finiteIntermediateSpecMap_comp {L M N : FiniteIntermediateField k K}
     (hLM : L ≤ M) (hMN : M ≤ N) :
     finiteIntermediateSpecMap k K hMN ≫ finiteIntermediateSpecMap k K hLM =
-      finiteIntermediateSpecMap k K (hLM.trans hMN) := sorry
+      finiteIntermediateSpecMap k K (hLM.trans hMN) := by
+  change Comparison.baseMap (IntermediateField.inclusion hMN) ≫
+      Comparison.baseMap (IntermediateField.inclusion hLM) =
+    Comparison.baseMap (IntermediateField.inclusion (hLM.trans hMN))
+  rw [← Comparison.baseMap_comp]
+  congr 1
 
 /-- The inverse system of spectra of the finite intermediate fields of `K / k`. -/
 noncomputable def finiteIntermediateSpecDiagram :
@@ -98,7 +105,10 @@ noncomputable def finiteIntermediateStructureMap (L : FiniteIntermediateField k 
 theorem finiteIntermediateStructureMap_naturality
     {L M : OrderDual (FiniteIntermediateField k K)} (f : L ⟶ M) :
     (finiteIntermediateSpecDiagram k K).map f ≫ finiteIntermediateStructureMap k K M =
-      finiteIntermediateStructureMap k K L := sorry
+      finiteIntermediateStructureMap k K L := by
+  change Comparison.baseMap (IntermediateField.inclusion (leOfHom f)) ≫
+      FieldExtension.specMap k M.1 = FieldExtension.specMap k L.1
+  exact Comparison.baseMap_over (IntermediateField.inclusion (leOfHom f))
 
 /-- The inverse system of finite intermediate spectra as schemes over `Spec k`. -/
 noncomputable def finiteIntermediateStructure :
@@ -118,7 +128,14 @@ theorem finiteIntermediateConeMap_naturality
     {L M : OrderDual (FiniteIntermediateField k K)} (f : L ⟶ M) :
     ((Functor.const (OrderDual (FiniteIntermediateField k K))).obj
           (Spec (CommRingCat.of K))).map f ≫ finiteIntermediateConeMap k K M =
-      finiteIntermediateConeMap k K L ≫ (finiteIntermediateSpecDiagram k K).map f := sorry
+      finiteIntermediateConeMap k K L ≫ (finiteIntermediateSpecDiagram k K).map f := by
+  change Spec.map (CommRingCat.ofHom (M.toIntermediateField k K).val.toRingHom) =
+    Spec.map (CommRingCat.ofHom (L.toIntermediateField k K).val.toRingHom) ≫
+      Spec.map (CommRingCat.ofHom
+        (IntermediateField.inclusion (leOfHom f)).toRingHom)
+  rw [← Spec.map_comp, ← CommRingCat.ofHom_comp]
+  exact congrArg (fun φ : M.toIntermediateField k K →+* K ↦
+      Spec.map (CommRingCat.ofHom φ)) (RingHom.ext fun x ↦ rfl)
 
 /-- The cone over the finite-intermediate-spectrum diagram with apex `Spec K`. -/
 noncomputable def finiteIntermediateCone : Cone (finiteIntermediateSpecDiagram k K) where
@@ -135,7 +152,15 @@ theorem finiteIntermediateCone_isLimit [Algebra.IsAlgebraic k K] :
 theorem finiteIntermediateCone_compatible :
     (finiteIntermediateCone k K).π ≫ finiteIntermediateStructure k K =
       (Functor.const (OrderDual (FiniteIntermediateField k K))).map
-        (FieldExtension.specMap k K) := sorry
+        (FieldExtension.specMap k K) := by
+  ext L
+  change Spec.map (CommRingCat.ofHom (L.toIntermediateField k K).val) ≫
+      Spec.map (CommRingCat.ofHom (algebraMap k (L.toIntermediateField k K))) =
+    Spec.map (CommRingCat.ofHom (algebraMap k K))
+  rw [← Spec.map_comp, ← CommRingCat.ofHom_comp]
+  exact congrArg (fun φ : k →+* K ↦ Spec.map (CommRingCat.ofHom φ))
+    (RingHom.ext fun x ↦
+      IntermediateField.coe_algebraMap_apply (L.toIntermediateField k K) x)
 
 /-- The finite intermediate fields form a nonempty indexing type. -/
 theorem finiteIntermediateField_nonempty : Nonempty (FiniteIntermediateField k K) :=
@@ -143,7 +168,18 @@ theorem finiteIntermediateField_nonempty : Nonempty (FiniteIntermediateField k K
 
 /-- Finite intermediate fields are directed by inclusion in an algebraic extension. -/
 theorem finiteIntermediateField_directed [Algebra.IsAlgebraic k K] :
-    IsDirected (FiniteIntermediateField k K) (· ≤ ·) := sorry
+    IsDirected (FiniteIntermediateField k K) (· ≤ ·) := by
+  constructor
+  intro L M
+  letI : FiniteDimensional k (L.toIntermediateField k K) := L.2
+  letI : FiniteDimensional k (M.toIntermediateField k K) := M.2
+  let U : FiniteIntermediateField k K :=
+    ⟨L.toIntermediateField k K ⊔ M.toIntermediateField k K, inferInstance⟩
+  refine ⟨U, ?_, ?_⟩
+  · change L.toIntermediateField k K ≤ U.toIntermediateField k K
+    exact le_sup_left
+  · change M.toIntermediateField k K ≤ U.toIntermediateField k K
+    exact le_sup_right
 
 /-- Every spectrum in the finite-intermediate-field diagram is universally catenary. -/
 theorem finiteIntermediateDiagram_universallyCatenary :
@@ -199,7 +235,9 @@ theorem finiteIntermediateTransition_compatible
       (fun _ : finiteIntermediateSpec k K L ↦ (0 : ℤ))
       (finiteIntermediateStageDimensions k K L)
       (fun _ : finiteIntermediateSpec k K M ↦ (0 : ℤ))
-      (finiteIntermediateStageDimensions k K M) 0 := sorry
+      (finiteIntermediateStageDimensions k K M) 0 := by
+  intro s s' hs'
+  simp
 
 /-- The constant-zero dimensions on a finite intermediate spectrum and `Spec K` are
 compatible with the canonical cone map. -/
@@ -210,6 +248,8 @@ theorem finiteIntermediateConeMap_compatible (L : FiniteIntermediateField k K) :
       (finiteIntermediateConeMap k K L) (finiteIntermediateConeMaps_flat k K L)
       (fun _ : finiteIntermediateSpec k K L ↦ (0 : ℤ))
       (finiteIntermediateStageDimensions k K L)
-      (fun _ : Spec (CommRingCat.of K) ↦ (0 : ℤ)) inferInstance 0 := sorry
+      (fun _ : Spec (CommRingCat.of K) ↦ (0 : ℤ)) inferInstance 0 := by
+  intro s s' hs'
+  simp
 
 end AlgebraicGeometry.FieldExtension

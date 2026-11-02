@@ -92,7 +92,27 @@ noncomputable def reverseAmbient (p q : ℕ) :
 /-- Ambient reverse multiplication lands in exterior degree `p + q`. -/
 theorem reverseAmbient_mem (p q : ℕ)
     (z : TensorProduct R (⋀[R]^p E) (⋀[R]^q E')) :
-    reverseAmbient (R := R) (E := E) (E' := E') p q z ∈ ⋀[R]^(p + q) (E × E') := sorry
+    reverseAmbient (R := R) (E := E) (E' := E') p q z ∈ ⋀[R]^(p + q) (E × E') := by
+  have hmap {M : Type u} [AddCommGroup M] [Module R M]
+      (f : M →ₗ[R] E × E') (k : ℕ) (x : ⋀[R]^k M) :
+      ExteriorAlgebra.map f x ∈ ⋀[R]^k (E × E') := by
+    have hle : (⋀[R]^k M).map (ExteriorAlgebra.map f).toLinearMap ≤
+        ⋀[R]^k (E × E') := by
+      simp only [ExteriorAlgebra.exteriorPower, Submodule.map_pow,
+        ExteriorAlgebra.ι_range_map_map]
+      refine pow_le_pow_left' ?_ k
+      rintro _ ⟨x, _, rfl⟩
+      exact LinearMap.mem_range_self _ _
+    exact hle (Submodule.mem_map_of_mem x.property)
+  induction z using TensorProduct.induction_on with
+  | zero => simp
+  | tmul x y =>
+      simp only [reverseAmbient, LinearMap.comp_apply, TensorProduct.map_tmul,
+        LinearMap.mul'_apply, Submodule.subtype_apply, AlgHom.toLinearMap_apply]
+      exact SetLike.mul_mem_graded (hmap (LinearMap.inl R E E') p x)
+        (hmap (LinearMap.inr R E E') q y)
+  | add x y hx hy =>
+      simpa only [map_add] using (⋀[R]^(p + q) (E × E')).add_mem hx hy
 
 /-- The explicit reverse map from the `(p,q)` tensor summand to exterior degree `p + q`. -/
 @[stacks 0664 "reverse summand of the direct-sum Koszul comparison"]
@@ -183,21 +203,40 @@ noncomputable def appendLinearEquiv (r s : ℕ) :
 @[simp]
 theorem appendLinearEquiv_apply {r s : ℕ}
     (x : (Fin r → R) × (Fin s → R)) :
-    appendLinearEquiv r s x = Fin.append x.1 x.2 := sorry
+    appendLinearEquiv r s x = Fin.append x.1 x.2 := by
+  ext i
+  refine Fin.addCases (fun j ↦ ?_) (fun j ↦ ?_) i
+  · simpa [appendLinearEquiv, LinearEquiv.piCongrLeft', Equiv.piCongrLeft'] using
+      (LinearEquiv.sumArrowLequivProdArrow_symm_apply_inl (R := R) (M := R)
+        x.1 x.2 j)
+  · simpa [appendLinearEquiv, LinearEquiv.piCongrLeft', Equiv.piCongrLeft'] using
+      (LinearEquiv.sumArrowLequivProdArrow_symm_apply_inr (R := R) (M := R)
+        x.1 x.2 j)
 
 /-- Splitting an appended-family linear form recovers the coproduct of its two linear forms. -/
 theorem linearForm_append_comp_symm {r s : ℕ}
     (f : Fin r → R) (g : Fin s → R) :
     ((koszulLinearForm f).coprod (koszulLinearForm g)).comp
         (appendLinearEquiv r s).symm.toLinearMap =
-      koszulLinearForm (Fin.append f g) := sorry
+      koszulLinearForm (Fin.append f g) := by
+  apply LinearMap.ext
+  intro x
+  obtain ⟨x, rfl⟩ := (appendLinearEquiv (R := R) r s).surjective x
+  change ((koszulLinearForm f).coprod (koszulLinearForm g))
+      ((appendLinearEquiv r s).symm (appendLinearEquiv r s x)) =
+    koszulLinearForm (Fin.append f g) (appendLinearEquiv r s x)
+  rw [LinearEquiv.symm_apply_apply, appendLinearEquiv_apply]
+  simp [LinearMap.coprod_apply, koszulLinearForm, Module.piEquiv_apply_apply,
+    Fin.sum_univ_add]
 
 /-- Concatenating coordinates carries the appended-family linear form to the coproduct linear
 form. -/
 theorem linearForm_append_comp {r s : ℕ}
     (f : Fin r → R) (g : Fin s → R) :
     (koszulLinearForm (Fin.append f g)).comp (appendLinearEquiv r s).toLinearMap =
-      (koszulLinearForm f).coprod (koszulLinearForm g) := sorry
+      (koszulLinearForm f).coprod (koszulLinearForm g) := by
+  rw [← linearForm_append_comp_symm f g, LinearMap.comp_assoc,
+    LinearEquiv.symm_comp, LinearMap.comp_id]
 
 /-- The forward Koszul map from an appended family to its coproduct presentation. -/
 @[stacks 0664 "forward appended-family Koszul comparison"]
@@ -219,13 +258,25 @@ noncomputable def appendCoprodInv {r s : ℕ}
 /-- The appended-family map followed by its explicit inverse is the identity. -/
 theorem appendCoprodHom_inv_id {r s : ℕ}
     (f : Fin r → R) (g : Fin s → R) :
-    appendCoprodHom f g ≫ appendCoprodInv f g = 𝟙 (family (Fin.append f g)) := sorry
+    appendCoprodHom f g ≫ appendCoprodInv f g = 𝟙 (family (Fin.append f g)) := by
+  apply HomologicalComplex.hom_ext
+  intro n
+  simp only [HomologicalComplex.comp_f, HomologicalComplex.id_f]
+  dsimp only [appendCoprodHom, appendCoprodInv, KoszulComplex.map, mapComponent]
+  exact ((ModuleCat.exteriorPower.functor R n).mapIso
+    (appendLinearEquiv (R := R) r s).toModuleIso.symm).hom_inv_id
 
 /-- The inverse appended-family map followed by the forward map is the identity. -/
 theorem appendCoprodInv_hom_id {r s : ℕ}
     (f : Fin r → R) (g : Fin s → R) :
     appendCoprodInv f g ≫ appendCoprodHom f g =
-      𝟙 (koszulComplex ((koszulLinearForm f).coprod (koszulLinearForm g))) := sorry
+      𝟙 (koszulComplex ((koszulLinearForm f).coprod (koszulLinearForm g))) := by
+  apply HomologicalComplex.hom_ext
+  intro n
+  simp only [HomologicalComplex.comp_f, HomologicalComplex.id_f]
+  dsimp only [appendCoprodHom, appendCoprodInv, KoszulComplex.map, mapComponent]
+  exact ((ModuleCat.exteriorPower.functor R n).mapIso
+    (appendLinearEquiv (R := R) r s).toModuleIso).hom_inv_id
 
 /-- The Koszul complex of an appended family is canonically isomorphic to the coproduct-linear
 form presentation. -/

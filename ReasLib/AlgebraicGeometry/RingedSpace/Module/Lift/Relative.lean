@@ -52,7 +52,7 @@ def sourceIdealTensorCompare (G' : T.right.Modules) :
 theorem sourceIdealTensorCompare_comp (G' : T.right.Modules) :
     sourceIdealTensorCompare g G' =
       (β_ ((T.hom^*).obj G') ((g.left^*).obj (idealModule U.hom))).hom ≫
-        sourceIdealMulMap g G' := sorry
+        sourceIdealMulMap g G' := rfl
 
 variable {F' G' : T.right.Modules}
 variable {φ : (T.hom^*).obj F' ⟶ (T.hom^*).obj G'}
@@ -74,18 +74,25 @@ theorem relativePerturb_hom
       (T.hom^*).obj G' ⊗ (g.left^*).obj (idealModule U.hom))
     (φ' : Lift F' G' φ) :
     (relativePerturb g α φ').hom =
-      (perturb (α ≫ sourceIdealTensorCompare g G') φ').hom := sorry
+      (perturb (α ≫ sourceIdealTensorCompare g G') φ').hom := rfl
 
 /-- Relative translation by zero leaves a lift unchanged. -/
 theorem relativePerturb_zero (φ' : Lift F' G' φ) :
-    relativePerturb g 0 φ' = φ' := sorry
+    relativePerturb g 0 φ' = φ' := by
+  unfold relativePerturb
+  rw [Limits.zero_comp]
+  exact perturb_zero (i := T.hom) φ'
 
 /-- Relative translation by a sum is successive translation by its summands. -/
 theorem relativePerturb_add
     (α β : (T.hom^*).obj F' ⟶
       (T.hom^*).obj G' ⊗ (g.left^*).obj (idealModule U.hom))
     (φ' : Lift F' G' φ) :
-    relativePerturb g (α + β) φ' = relativePerturb g α (relativePerturb g β φ') := sorry
+    relativePerturb g (α + β) φ' = relativePerturb g α (relativePerturb g β φ') := by
+  unfold relativePerturb
+  rw [Preadditive.add_comp]
+  exact perturb_add (i := T.hom)
+    (α ≫ sourceIdealTensorCompare g G') (β ≫ sourceIdealTensorCompare g G') φ'
 
 /-- When the source-ideal action is invertible, postcomposition with the tensor
 comparison identifies relative tensor-valued maps with ideal-valued maps. -/
@@ -106,7 +113,12 @@ theorem homSourceIdealMulEquiv_apply [IsIso (sourceIdealMulMap g G')]
     {F' : T.right.Modules}
     (α : (T.hom^*).obj F' ⟶
       (T.hom^*).obj G' ⊗ (g.left^*).obj (idealModule U.hom)) :
-    homSourceIdealMulEquiv g F' α = α ≫ sourceIdealTensorCompare g G' := sorry
+    homSourceIdealMulEquiv g F' α = α ≫ sourceIdealTensorCompare g G' := by
+  change (𝟙 _ ≫ (𝟙 _ ≫ α ≫
+      (β_ ((T.hom^*).obj G') ((g.left^*).obj (idealModule U.hom))).hom) ≫
+      sourceIdealMulMap g G') = _
+  simp only [Category.id_comp, Category.assoc, sourceIdealTensorCompare]
+  rfl
 
 /-- When the source-ideal action is invertible, relative translation from a supplied
 lift parametrizes all lifts of the same reduced module map. -/
@@ -125,7 +137,10 @@ theorem relativePerturbEquiv_apply [IsIso (sourceIdealMulMap g G')]
     (φ' : Lift F' G' φ)
     (α : (T.hom^*).obj F' ⟶
       (T.hom^*).obj G' ⊗ (g.left^*).obj (idealModule U.hom)) :
-    relativePerturbEquiv g φ' α = relativePerturb g α φ' := sorry
+    relativePerturbEquiv g φ' α = relativePerturb g α φ' := by
+  change perturb (homSourceIdealMulEquiv g F' α) φ' =
+    perturb (α ≫ sourceIdealTensorCompare g G') φ'
+  rw [homSourceIdealMulEquiv_apply]
 
 /-- Along a strict morphism of first-order thickenings, every pair of lifts into a
 module flat over the thickened base is related by exactly one relative translation. -/
@@ -133,7 +148,19 @@ theorem lift_principalHomogeneous [SheafOfModules.IsFlatOver G' g.right]
     (hg : IsStrict g) (φ' φ'' : Lift F' G' φ) :
     ∃! α : (T.hom^*).obj F' ⟶
         (T.hom^*).obj G' ⊗ (g.left^*).obj (idealModule U.hom),
-      relativePerturb g α φ' = φ'' := sorry
+      relativePerturb g α φ' = φ'' := by
+  letI := isIso_sourceIdealMulMap_of_isFlatOver g (G' := G') hg
+  let e := relativePerturbEquiv g φ'
+  refine ⟨e.symm φ'', ?_, ?_⟩
+  · change relativePerturb g (e.symm φ'') φ' = φ''
+    rw [← relativePerturbEquiv_apply]
+    exact e.apply_symm_apply φ''
+  · intro α hα
+    show α = e.symm φ''
+    apply e.injective
+    calc
+      e α = φ'' := (relativePerturbEquiv_apply g φ' α).trans hα
+      _ = e (e.symm φ'') := (e.apply_symm_apply φ'').symm
 
 end ModuleMap
 end AlgebraicGeometry.RingedSpace.Thickening.Hom

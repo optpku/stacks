@@ -7,7 +7,7 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 import StacksCheckRecall
-public import ReasLib.CategoryTheory.Action.SmallBoundClosed
+public import ReasLib.CategoryTheory.Action.VonNeumann
 
 @[expose] public section
 
@@ -15,12 +15,16 @@ universe u
 
 open CategoryTheory
 
-/- Lemma 3.10.1. A family `S0` of `G`-sets is contained in a small object property `P`
-containing the left-regular action, closed up to isomorphism under the bound
-`T.size ≤ Action.bound S.size`, and admitting countable limits and colimits that agree
-with the ambient action category through the canonical comparison isomorphisms.
-The limit-ordinal subcategory `G-Sets_α` is represented by this small object property. -/
-@[stacks 000U] #check (Action.exists_isSmallBoundClosed :
-  ∀ {G : Type u} [Group G] {ι : Type u} (S0 : ι → Action (Type u) G),
-    ∃ P : ObjectProperty (Action (Type u) G),
-      Action.IsSmallBoundClosed P ∧ ObjectProperty.ofObj S0 ≤ P)
+/- Lemma 3.10.1. For a group whose carrier is the small type of elements of a ZFC set,
+and a family of set-presented actions, an actual limit stage `G-Sets_α` contains the
+family and the left-regular action and satisfies the bound and countable comparison API.
+The ordinal is explicitly `Action.vonNeumannStageOrdinal` with the regular presentation.
+Arbitrary native actions have canonical isomorphic set representatives; this does not
+assert literal membership of every native isomorphic copy in the small stage. -/
+@[stacks 000U] #check (Action.exists_vonNeumannStage :
+  ∀ (A : ZFSet.{u}) [Group (Shrink A)] {ι : Type u}
+    (S0 : ι → Action.SetPresentation (Shrink A)),
+    ∃ α : Ordinal.{u}, Order.IsSuccLimit α ∧
+      Action.IsSmallBoundClosed
+        (Action.vonNeumannStage α : ObjectProperty (Action (Type u) (Shrink A))) ∧
+      ∀ i, Action.vonNeumannStage α (S0 i).toAction)

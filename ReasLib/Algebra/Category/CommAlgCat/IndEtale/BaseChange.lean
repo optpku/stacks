@@ -132,17 +132,7 @@ end BaseChangePresentation
 theorem baseChange_indEtale (R : Type u) [CommRing R] (S : Type w) [CommRing S] [Algebra R S]
     (A : IndEtale.{v} R) :
     (algebraMap S (S ⊗[R] A)).IndEtale := by
-  letI := Factorization.isFiltered
-    (A := BaseChangePresentation.Base.{v} S) (T := BaseChangePresentation.Target R S A)
-  refine ⟨BaseChangePresentation.Index R S A, inferInstance, inferInstance,
-    BaseChangePresentation.ringDiagram R S A,
-    { app := fun P ↦ CommRingCat.ofHom
-        (algebraMap (BaseChangePresentation.Base.{v} S) P.Ring)
-      naturality := by sorry },
-    (BaseChangePresentation.targetCocone R S A).ι,
-    BaseChangePresentation.isColimit R S A, ?_⟩
-  intro P
-  exact ⟨RingHom.etale_algebraMap.mpr P.etale, by sorry⟩
+  exact RingHom.IndEtale.baseChange A.property
 
 /-- Tensor-product base change on ind-étale algebras. -/
 def baseChange (R : Type u) [CommRing R] (S : Type w) [CommRing S] [Algebra R S] :

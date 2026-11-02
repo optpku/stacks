@@ -11,6 +11,7 @@ public import ReasLib.AlgebraicGeometry.Scheme.Module.FiniteLocallyFree.Dual
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.LocalCompleteIntersection
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.RegularImmersion
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.RelativeDimension
+import ReasLib.AlgebraicGeometry.Scheme.Morphism.Syntomic.LocalCompleteIntersection
 public import Mathlib.AlgebraicGeometry.Morphisms.FiniteType
 public import Mathlib.AlgebraicGeometry.Morphisms.Smooth
 public import Mathlib.CategoryTheory.Comma.Over.Basic
@@ -52,7 +53,9 @@ theorem centerOver_left {S : Scheme.{u}} {X : Over S} (I : X.left.IdealSheafData
 over `S`. -/
 instance centerOver_locallyOfFiniteType {S : Scheme.{u}} {X : Over S}
     [LocallyOfFiniteType X.hom] (I : X.left.IdealSheafData) :
-    LocallyOfFiniteType (centerOver I).hom := sorry
+    LocallyOfFiniteType (centerOver I).hom := by
+  change LocallyOfFiniteType (I.subschemeι ≫ X.hom)
+  infer_instance
 
 /-- The closed immersion of the center, as a morphism of `S`-schemes. -/
 def centerι {S : Scheme.{u}} {X : Over S} (I : X.left.IdealSheafData) :
@@ -71,7 +74,9 @@ theorem centerι_eq {S : Scheme.{u}} {X : Over S} (I : X.left.IdealSheafData) :
 /-- A regular closed center is locally of finite type over the ambient scheme. -/
 instance centerι_locallyOfFiniteType {S : Scheme.{u}} {X : Over S}
     (I : X.left.IdealSheafData) [IsRegularImmersion I.subschemeι] :
-    LocallyOfFiniteType (centerι I).left := sorry
+    LocallyOfFiniteType (centerι I).left := by
+  change LocallyOfFiniteType I.subschemeι
+  infer_instance
 
 /-- The exceptional divisor of a blowup, as a scheme over the same base. -/
 abbrev exceptionalOver {S : Scheme.{u}} {X X' : Over S} (I : X.left.IdealSheafData)
@@ -93,7 +98,9 @@ theorem exceptionalOver_left {S : Scheme.{u}} {X X' : Over S} (I : X.left.IdealS
 locally of finite type over `S`. -/
 instance exceptionalOver_locallyOfFiniteType {S : Scheme.{u}} {X X' : Over S}
     [LocallyOfFiniteType X'.hom] (I : X.left.IdealSheafData) (b : X' ⟶ X)
-    [IsBlowup b.left I] : LocallyOfFiniteType (exceptionalOver I b).hom := sorry
+    [IsBlowup b.left I] : LocallyOfFiniteType (exceptionalOver I b).hom := by
+  change LocallyOfFiniteType ((I.comap b.left).subschemeι ≫ X'.hom)
+  infer_instance
 
 /-- The closed immersion of the exceptional divisor, as a morphism of `S`-schemes. -/
 def exceptionalι {S : Scheme.{u}} {X X' : Over S} (I : X.left.IdealSheafData)
@@ -113,13 +120,18 @@ theorem exceptionalι_eq {S : Scheme.{u}} {X X' : Over S} (I : X.left.IdealSheaf
 /-- The exceptional immersion is locally of finite type. -/
 instance exceptionalι_locallyOfFiniteType {S : Scheme.{u}} {X X' : Over S}
     (I : X.left.IdealSheafData) (b : X' ⟶ X) [IsBlowup b.left I] :
-    LocallyOfFiniteType (exceptionalι I b).left := sorry
+    LocallyOfFiniteType (exceptionalι I b).left := by
+  change LocallyOfFiniteType (I.comap b.left).subschemeι
+  infer_instance
 
 /-- The exceptional projection commutes with the morphisms to the base. -/
 theorem exceptionalProjection_comp_base {S : Scheme.{u}} {X X' : Over S}
     (I : X.left.IdealSheafData) (b : X' ⟶ X) [IsBlowup b.left I] :
     exceptionalProjection I b.left ≫ (I.subschemeι ≫ X.hom) =
-      (I.comap b.left).subschemeι ≫ X'.hom := sorry
+      (I.comap b.left).subschemeι ≫ X'.hom := by
+  rw [← Category.assoc]
+  change (Scheme.IdealSheafData.subschemeMap _ _ _ _ ≫ I.subschemeι) ≫ X.hom = _
+  rw [Scheme.IdealSheafData.subschemeMap_subschemeι, Category.assoc, Over.w b]
 
 /-- The exceptional projection of a blowup, regarded as a morphism of `S`-schemes. -/
 abbrev exceptionalProjectionOverBase {S : Scheme.{u}} {X X' : Over S}
@@ -145,7 +157,12 @@ theorem exceptionalProjectionOverBase_eq {S : Scheme.{u}} {X X' : Over S}
 theorem exceptionalSquare_isPullback {S : Scheme.{u}} {X X' : Over S}
     (I : X.left.IdealSheafData) (b : X' ⟶ X) [IsBlowup b.left I] :
     IsPullback (exceptionalι I b).left (exceptionalProjectionOverBase I b).left b.left
-      (centerι I).left := sorry
+      (centerι I).left := by
+  change IsPullback (I.comap b.left).subschemeι (exceptionalProjection I b.left)
+    b.left I.subschemeι
+  apply isPullback_of_isClosedImmersion
+  · exact (Scheme.IdealSheafData.subschemeMap_subschemeι _ _ _ _).symm
+  · simp only [Scheme.IdealSheafData.ker_subschemeι]
 
 /-- The excess conormal sheaf of a blowup is the kernel of the canonical map
 `π^* C_{Z/X} ⟶ C_{E/X'}`. -/
@@ -195,7 +212,9 @@ morphism. -/
 instance exceptionalProjection_isLocalCompleteIntersection {X X' : Scheme.{u}}
     (I : X.IdealSheafData) (b : X' ⟶ X) [IsBlowup b I]
     [IsRegularImmersion I.subschemeι] :
-    LocallyOfType RingHom.IsLocalCompleteIntersection (exceptionalProjection I b) := sorry
+    LocallyOfType RingHom.IsLocalCompleteIntersection (exceptionalProjection I b) := by
+  exact ((Syntomic.iff_flat_and_isLocalCompleteIntersection
+    (exceptionalProjection I b)).mp inferInstance).2
 
 /-- For a regular closed center, the exceptional projection over the base is flat. -/
 instance exceptionalProjectionOverBase_flat {S : Scheme.{u}} {X X' : Over S}

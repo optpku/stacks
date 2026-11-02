@@ -49,25 +49,117 @@ def multiplicationToStructure (c : ℕ) : positive J c ⟶
     (positive J c ◁ (RingedSpace.unitIsoTensorUnit X.toRingedSpace).inv) ≫
     action J (SheafOfModules.unit X.ringCatSheaf) c
 
+/-- Multiplication by `c` ideal factors is zero in the quotient by `J ^ c`. -/
+private theorem multiplication_comp_quotient (c : ℕ) :
+    multiplicationToStructure J c ≫ SheafOfModules.unitToPushforwardObjUnit
+      (RingedSpace.Hom.toRingCatSheafHom (J ^ c).subschemeι.toShHom) = 0 := sorry
+
 /-- The multiplication morphism factors through the ordinary ideal power. -/
 theorem multiplication_factors (c : ℕ) :
-    (J ^ c).toSubobject.Factors (multiplicationToStructure J c) := sorry
+    (J ^ c).toSubobject.Factors (multiplicationToStructure J c) := by
+  exact kernelSubobject_factors _ _ (multiplication_comp_quotient J c)
 
-/-- The canonical factorization of multiplication through the ideal power. -/
+/-- The canonical factorization of multiplication through the ideal power, constructed by the
+kernel universal property of the defining quotient map. -/
 def multiplicationToPower (c : ℕ) : positive J c ⟶ (J ^ c).toModule :=
-  (J ^ c).toSubobject.factorThru (multiplicationToStructure J c) (multiplication_factors J c)
+  kernel.lift _ (multiplicationToStructure J c) (by exact multiplication_comp_quotient J c) ≫
+    (kernelSubobjectIso _).inv
 
 /-- The factorization through the ideal power composes to multiplication. -/
 theorem multiplicationToPower_spec (c : ℕ) :
     multiplicationToPower J c ≫ (J ^ c).toSubobject.arrow = multiplicationToStructure J c := by
-  exact Subobject.factorThru_arrow _ _ _
+  change (kernel.lift _ _ _ ≫ (kernelSubobjectIso _).inv) ≫
+    (kernelSubobject _).arrow = _
+  rw [Category.assoc, kernelSubobject_arrow', kernel.lift_ι]
 
 /-- The multiplication comparison is an isomorphism for an invertible ideal sheaf. -/
 instance multiplicationToPower_isIso (c : ℕ) : IsIso (multiplicationToPower J c) := sorry
 
+set_option backward.isDefEq.respectTransparency false in
+omit [Scheme.Modules.Invertible J.toModule] in
+private theorem powerAction_tensorRight (M N : X.Modules) (c : ℕ) :
+    (α_ (RingedSpace.TensorPower.sheaf J.toModule c) M N).hom ≫
+      powerAction J.toSubobject (M ⊗ N) c = powerAction J.toSubobject M c ▷ N := by
+  induction c with
+  | zero =>
+    dsimp only [powerAction]
+    simp only [Iso.trans_hom, whiskerRightIso]
+    monoidal
+  | succ c ih =>
+    have h : powerAction J.toSubobject (M ⊗ N) c =
+        (α_ (RingedSpace.TensorPower.sheaf J.toModule c) M N).inv ≫
+          (powerAction J.toSubobject M c ▷ N) := by
+      rw [← ih, Iso.inv_hom_id_assoc]
+    dsimp only [powerAction]
+    rw [h]
+    dsimp only [SheafOfModules.RingedSite.IdealSheaf.action]
+    simp only [Iso.trans_hom, whiskerRightIso, comp_whiskerRight]
+    monoidal
+
+set_option backward.isDefEq.respectTransparency false in
+omit [Scheme.Modules.Invertible J.toModule] in
+private theorem powerAction_via_unit (F : X.Modules) (c : ℕ) :
+    (((ρ_ (RingedSpace.TensorPower.sheaf J.toModule c)).inv ≫
+      (RingedSpace.TensorPower.sheaf J.toModule c ◁
+        (RingedSpace.unitIsoTensorUnit X.toRingedSpace).inv) ≫
+      powerAction J.toSubobject (SheafOfModules.unit X.ringCatSheaf) c) ▷ F) ≫
+      ((RingedSpace.unitIsoTensorUnit X.toRingedSpace).hom ▷ F) ≫
+      (λ_ F).hom = powerAction J.toSubobject F c := by
+  let P := RingedSpace.TensorPower.sheaf J.toModule c
+  let U : X.Modules := SheafOfModules.unit X.ringCatSheaf
+  let e : U ≅ 𝟙_ X.Modules := RingedSpace.unitIsoTensorUnit X.toRingedSpace
+  let r : U ⊗ F ≅ F := (e ▷ᵢ F) ≪≫ λ_ F
+  have ht := powerAction_tensorRight J U F c
+  have hn : P ◁ r.hom ≫ powerAction J.toSubobject F c =
+      powerAction J.toSubobject (U ⊗ F) c ≫ r.hom :=
+    powerAction_naturality J.toSubobject c r.hom
+  change (((ρ_ P).inv ≫ (P ◁ e.inv) ≫ powerAction J.toSubobject U c) ▷ F) ≫
+    (e.hom ▷ F) ≫ (λ_ F).hom = _
+  calc
+    _ = ((ρ_ P).inv ▷ F) ≫ ((P ◁ e.inv) ▷ F) ≫
+        (α_ P U F).hom ≫ powerAction J.toSubobject (U ⊗ F) c ≫ r.hom := by
+      rw [← Category.assoc (α_ P U F).hom, ht]
+      dsimp only [r]
+      simp only [comp_whiskerRight, Category.assoc, Iso.trans_hom, whiskerRightIso]
+    _ = ((ρ_ P).inv ▷ F) ≫ ((P ◁ e.inv) ▷ F) ≫
+        (α_ P U F).hom ≫ (P ◁ r.hom) ≫ powerAction J.toSubobject F c := by
+      rw [← hn]
+    _ = _ := by
+      dsimp only [r]
+      simp only [Iso.trans_hom, whiskerRightIso]
+      monoidal
+      simp only [whiskerLeftIso_refl, whiskerRightIso_refl, Iso.trans_refl, Iso.refl_trans,
+        Iso.trans_hom, whiskerRightIso_hom, Iso.symm_hom, triangle_assoc_comp_right_inv,
+        Iso.symm_self_id, Iso.refl_hom, whiskerLeftIso_hom, Category.comp_id, Category.assoc,
+        Category.id_comp, cancelIso, whiskerLeft_inv_hom_assoc]
+      exact Category.id_comp _
+
+set_option backward.isDefEq.respectTransparency false in
+private theorem action_via_multiplication (F : X.Modules) (c : ℕ) :
+    ((multiplicationToStructure J c ≫
+      (RingedSpace.unitIsoTensorUnit X.toRingedSpace).hom) ▷ F) ≫
+      (λ_ F).hom = action J F c := by
+  dsimp only [multiplicationToStructure, action]
+  simp only [Category.assoc]
+  rw [whisker_exchange_assoc, ← rightUnitor_inv_naturality_assoc]
+  rw [← powerAction_via_unit J F c]
+  simp only [comp_whiskerRight, Category.assoc]
+
+set_option backward.isDefEq.respectTransparency false in
 /-- The tensor-power action factors through the ordinary ideal-power action. -/
 theorem action_factors (F : X.Modules) (c : ℕ) :
-    (multiplicationToPower J c ▷ F) ≫ idealPowerAction J F c = action J F c := sorry
+    (multiplicationToPower J c ▷ F) ≫ idealPowerAction J F c = action J F c := by
+  calc
+    _ = ((multiplicationToPower J c ≫ (J ^ c).toSubobject.arrow ≫
+        (RingedSpace.unitIsoTensorUnit X.toRingedSpace).hom) ▷ F) ≫
+        (λ_ F).hom := by
+      dsimp only [idealPowerAction, SheafOfModules.RingedSite.IdealSheaf.action]
+      simp only [Iso.trans_hom, whiskerRightIso, comp_whiskerRight, Category.assoc]
+    _ = ((multiplicationToStructure J c ≫
+        (RingedSpace.unitIsoTensorUnit X.toRingedSpace).hom) ▷ F) ≫
+        (λ_ F).hom := by
+      rw [← Category.assoc, multiplicationToPower_spec]
+    _ = _ := action_via_multiplication J F c
 
 /-- Vanishing of the tensor-power action is equivalent to vanishing of the ideal-power action. -/
 theorem action_eq_zero_iff_idealPowerAction (F : X.Modules) (c : ℕ) :

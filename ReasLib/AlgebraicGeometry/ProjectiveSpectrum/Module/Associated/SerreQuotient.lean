@@ -43,16 +43,29 @@ noncomputable abbrev irrelevant :
 
 /-- The kernel definition of irrelevance says that its associated module sheaf is zero. -/
 theorem irrelevant_iff_isZero (M : GradedModule.Left.FG 𝒜 ℤ) :
-    irrelevant 𝒜 M ↔ IsZero ((fgFunctor 𝒜).obj M) := sorry
+    irrelevant 𝒜 M ↔ IsZero ((fgFunctor 𝒜).obj M) := Iff.rfl
+
+private theorem irrelevant_eq_coherentKernel [IsNoetherianRing A] :
+    irrelevant 𝒜 = (exactFunctor 𝒜).obj.kernel := by
+  ext M
+  constructor
+  · intro hM
+    exact IsZero.of_full_of_faithful_of_isZero (SheafOfModules.isCoherent _).ι
+      ((exactFunctor 𝒜).obj.obj M) hM
+  · intro hM
+    exact (SheafOfModules.isCoherent _).ι.map_isZero hM
 
 /-- 0BXE: Irrelevant finite graded modules form a Serre class over a Noetherian graded ring. -/
 @[stacks 0BXE]
-instance irrelevantIsSerre [IsNoetherianRing A] : (irrelevant 𝒜).IsSerreClass := sorry
+instance irrelevantIsSerre [IsNoetherianRing A] : (irrelevant 𝒜).IsSerreClass := by
+  rw [irrelevant_eq_coherentKernel 𝒜]
+  infer_instance
 
 /-- 0BXF: Irrelevance is contained in the kernel of coherent associated sheafification. -/
 @[stacks 0BXF]
 theorem irrelevant_le_coherentKernel [IsNoetherianRing A] :
-    irrelevant 𝒜 ≤ (exactFunctor 𝒜).obj.kernel := sorry
+    irrelevant 𝒜 ≤ (exactFunctor 𝒜).obj.kernel :=
+  (irrelevant_eq_coherentKernel 𝒜).le
 
 /-- A graded module is irrelevant for a positive generating family when its pieces in the
 positive-generator period eventually vanish. -/
@@ -70,13 +83,41 @@ theorem irrelevant_iff_isIrrelevantFor
 object property. -/
 theorem torsion_eq_irrelevant [Algebra.FiniteType (𝒜 0) A] [IsNoetherianRing (𝒜 0)]
     (hgenerated : GradedAlgebra.GeneratedBy 𝒜 1) :
-    GradedModule.Left.torsion 𝒜 = irrelevant 𝒜 := sorry
+    GradedModule.Left.torsion 𝒜 = irrelevant 𝒜 := by
+  classical
+  obtain ⟨s, hs, hdegree⟩ := GradedAlgebra.exists_finset_generated_by 𝒜 hgenerated
+  let G : GradedAlgebra.PositiveGenerators 𝒜 :=
+    { elems := s
+      degree := fun _ ↦ 1
+      generates := hs
+      homogeneous := fun x ↦ hdegree x.1 x.2
+      positive := fun _ ↦ Nat.zero_lt_one }
+  have hperiod : G.period = 1 := by
+    apply Nat.dvd_one.mp
+    exact Finset.lcm_dvd (fun _ _ ↦ dvd_rfl)
+  ext M
+  rw [irrelevant_iff_isIrrelevantFor 𝒜 G M]
+  change GradedModule.Left.IsTorsion M.obj ↔ IsIrrelevantFor 𝒜 G M.obj
+  simp only [GradedModule.Left.IsTorsion, IsIrrelevantFor, hperiod, Nat.mul_one]
+  constructor
+  · intro h
+    obtain ⟨b, hb⟩ := Filter.eventually_atTop.1 h
+    refine Filter.eventually_atTop.2 ⟨b.toNat, fun n hn ↦ hb n ?_⟩
+    omega
+  · intro h
+    obtain ⟨N, hN⟩ := Filter.eventually_atTop.1 h
+    refine Filter.eventually_atTop.2 ⟨(N : ℤ), fun n hn ↦ ?_⟩
+    have hn0 : 0 ≤ n := le_trans (Int.natCast_nonneg N) hn
+    simpa [Int.toNat_of_nonneg hn0] using hN n.toNat (by omega)
 
 /-- Under the degree-one finite-type hypotheses, torsion objects are in the kernel of coherent
 associated sheafification. -/
 theorem torsion_le_kernel [Algebra.FiniteType (𝒜 0) A] [IsNoetherianRing (𝒜 0)]
     (hgenerated : GradedAlgebra.GeneratedBy 𝒜 1) :
-    GradedModule.Left.torsion 𝒜 ≤ (FiniteType.exactFunctor 𝒜).obj.kernel := sorry
+    GradedModule.Left.torsion 𝒜 ≤ (FiniteType.exactFunctor 𝒜).obj.kernel := by
+  letI := Algebra.FiniteType.isNoetherianRing (𝒜 0) A
+  rw [torsion_eq_irrelevant 𝒜 hgenerated]
+  exact irrelevant_le_coherentKernel 𝒜
 
 namespace Irrelevant
 
@@ -110,7 +151,8 @@ theorem isQuasiInverse [IsNoetherianRing A] :
 /-- 0BXF: The canonical functor from the irrelevant Serre quotient to coherent sheaves is an
 equivalence. -/
 @[stacks 0BXF]
-theorem isEquivalence [IsNoetherianRing A] : (quotientFunctor 𝒜).IsEquivalence := sorry
+theorem isEquivalence [IsNoetherianRing A] : (quotientFunctor 𝒜).IsEquivalence :=
+  (isQuasiInverse 𝒜).isEquivalence
 
 end Irrelevant
 
@@ -175,14 +217,24 @@ twisted-sections quotient functor are quasi-inverse. -/
 @[stacks 0BXD]
 theorem isQuasiInverse [Algebra.FiniteType (𝒜 0) A] [IsNoetherianRing (𝒜 0)]
     (hgenerated : GradedAlgebra.GeneratedBy 𝒜 1) :
-    (quotientFunctor 𝒜 hgenerated).IsQuasiInverse (quasiInverse 𝒜) := sorry
+    (quotientFunctor 𝒜 hgenerated).IsQuasiInverse (quasiInverse 𝒜) := by
+  letI := Algebra.FiniteType.isNoetherianRing (𝒜 0) A
+  have htransport (P : ObjectProperty (GradedModule.Left.FG 𝒜 ℤ)) [P.IsSerreClass]
+      (hPker : P ≤ (exactFunctor 𝒜).obj.kernel) (hP : P = irrelevant 𝒜) :
+      (ObjectProperty.SerreClassLocalization.inducedExactFunctor P
+        (exactFunctor 𝒜) hPker).obj.IsQuasiInverse
+          (Proj.TwistedSections.Nonnegative.fgFunctor 𝒜 ⋙ P.isoModSerre.Q) := by
+    subst P
+    exact Irrelevant.isQuasiInverse 𝒜
+  exact htransport _ (torsion_le_kernel 𝒜 hgenerated) (torsion_eq_irrelevant 𝒜 hgenerated)
 
 /-- 0BXD: The canonical functor from the torsion Serre quotient to coherent sheaves is an
 equivalence. -/
 @[stacks 0BXD]
 theorem isEquivalence [Algebra.FiniteType (𝒜 0) A] [IsNoetherianRing (𝒜 0)]
     (hgenerated : GradedAlgebra.GeneratedBy 𝒜 1) :
-    (quotientFunctor 𝒜 hgenerated).IsEquivalence := sorry
+    (quotientFunctor 𝒜 hgenerated).IsEquivalence :=
+  (isQuasiInverse 𝒜 hgenerated).isEquivalence
 
 end Torsion
 

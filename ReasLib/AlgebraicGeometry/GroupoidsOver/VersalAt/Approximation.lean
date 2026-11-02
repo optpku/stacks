@@ -46,7 +46,7 @@ theorem fromSpecStalkPow_eq {U : Scheme.{u}} (u0 : U) (n : ℕ) :
       Spec.map (CommRingCat.ofHom
           (Ideal.Quotient.mk (maximalIdeal (U.presheaf.stalk u0) ^ (n + 1)))) ≫
         U.fromSpecStalk u0 :=
-  sorry
+  rfl
 
 /-- Restriction morphism `Spec(𝒪_{U,u0} ⧸ m_{u0}^{n+1}) ⟶ U` in `Over S`. -/
 def fromSpecStalkPowOverHom {S U : Scheme.{u}} (hU : U ⟶ S) (u0 : U) (n : ℕ) :
@@ -58,7 +58,7 @@ def fromSpecStalkPowOverHom {S U : Scheme.{u}} (hU : U ⟶ S) (u0 : U) (n : ℕ)
 theorem fromSpecStalkPowOverHom_left {S U : Scheme.{u}} (hU : U ⟶ S) (u0 : U)
     (n : ℕ) :
     (fromSpecStalkPowOverHom hU u0 n).left = fromSpecStalkPow u0 n :=
-  sorry
+  rfl
 
 /-- Restriction of `x` along `Spec(𝒪_{U,u0} ⧸ m_{u0}^{n+1}) ⟶ U`. -/
 def restrictToStalkPow {S : Scheme.{u}} {X : GroupoidsOver S} {U : Scheme.{u}}
@@ -73,7 +73,7 @@ theorem restrictToStalkPow_eq {S : Scheme.{u}} {X : GroupoidsOver S}
     (hx : X.p.obj x = Over.mk hU) (u0 : U) (n : ℕ) :
     restrictToStalkPow hU x hx u0 n =
       IsPreFibered.pullbackObj hx (fromSpecStalkPowOverHom hU u0 n) :=
-  sorry
+  rfl
 
 /-- The restricted object lies over `Spec(𝒪_{U,u0} ⧸ m_{u0}^{n+1}) ⟶ S`. -/
 theorem restrictToStalkPow_over {S : Scheme.{u}} {X : GroupoidsOver S}
@@ -81,7 +81,7 @@ theorem restrictToStalkPow_over {S : Scheme.{u}} {X : GroupoidsOver S}
     (hx : X.p.obj x = Over.mk hU) (u0 : U) (n : ℕ) :
     X.p.obj (restrictToStalkPow hU x hx u0 n) =
       Over.mk (fromSpecStalkPow u0 n ≫ hU) :=
-  sorry
+  IsPreFibered.pullbackObj_proj hx (fromSpecStalkPowOverHom hU u0 n)
 
 /-- Finite-type approximation data of a formal object: a finite type scheme
 `U ⟶ S`, a finite type point `u0` with residue field `κ(R)`, and an object `x`
@@ -169,15 +169,89 @@ theorem spec (W : ApproximateVersal ξ) :
             IsVersalAt W.toS W.object W.over_obj W.u0 ∧
               Nonempty
                 (associatedFormalObject W.toS W.object W.over_obj W.u0 ≅ ξ) :=
-  sorry
+  ⟨W.finiteType, W.isFiniteTypePoint, W.residueIso_over, W.over_obj,
+    W.isVersalAt, ⟨W.associatedIso⟩⟩
 
 /-- The approximating object restricted to
 `Spec(𝒪_{U,u0} ⧸ m_{u0}^{n+1})` is isomorphic to `ξ.objects n` over `S`. -/
 theorem exists_restrictIso (W : ApproximateVersal ξ) (n : ℕ) :
     ∃ (e : restrictToStalkPow W.toS W.object W.over_obj W.u0 n ≅ ξ.objects n)
       (f : Over.mk (fromSpecStalkPow W.u0 n ≫ W.toS) ⟶ ξ.base.stageOver n),
-      X.p.IsHomLift f e.hom :=
-  sorry
+      X.p.IsHomLift f e.hom := by
+  letI : Scheme.Hom.FiniteType W.toS := W.finiteType
+  letI : IsFiniteTypePoint W.u0 := W.isFiniteTypePoint
+  letI : IsLocallyNoetherian W.U := LocallyOfFiniteType.isLocallyNoetherian W.toS
+  let A : Type u := W.U.presheaf.stalk W.u0
+  let B := completionRing W.u0
+  -- Evaluation identifies the positive truncations of the stalk and its completion.
+  have hker : RingHom.ker (AdicCompletion.evalₐ (maximalIdeal A) (n + 1)).toRingHom =
+      maximalIdeal B ^ (n + 1) := by
+    ext z
+    rw [AdicCompletion.maximalIdeal_eq_map, ← Ideal.map_pow,
+      ← Submodule.restrictScalars_mem A
+        ((maximalIdeal A ^ (n + 1)).map (algebraMap A B)),
+      ← Ideal.smul_top_eq_map,
+      AdicCompletion.pow_smul_top_eq_ker_eval (maximalIdeal A).fg_of_isNoetherianRing]
+    change (Ideal.quotientEquivAlgOfEq A
+      (show (maximalIdeal A ^ (n + 1) • ⊤ : Ideal A) =
+        maximalIdeal A ^ (n + 1) by simp))
+          (AdicCompletion.eval (maximalIdeal A) A (n + 1) z) = 0 ↔ _
+    exact map_eq_zero_iff _ (Ideal.quotientEquivAlgOfEq A _).injective
+  let eB : (B ⧸ maximalIdeal B ^ (n + 1)) ≃ₐ[A] A ⧸ maximalIdeal A ^ (n + 1) :=
+    (Ideal.quotientEquivAlgOfEq A hker.symm).trans
+      (Ideal.quotientKerAlgEquivOfSurjective
+        (AdicCompletion.surjective_evalₐ (maximalIdeal A) (n + 1)))
+  let eSpec := Scheme.Spec.mapIso eB.toRingEquiv.toCommRingCatIso.op
+  let y := completeLocalObject W.toS W.object W.over_obj W.u0
+  have hfactor :
+      fromSpecStalkPow W.u0 n = eSpec.hom ≫
+        (y.base.truncationToSpec n ≫ fromSpecCompletion W.u0) := by
+    change Spec.map (CommRingCat.ofHom (Ideal.Quotient.mk _)) ≫ W.U.fromSpecStalk W.u0 =
+      Spec.map (CommRingCat.ofHom eB.toRingHom) ≫
+        (Spec.map (CommRingCat.ofHom (Ideal.Quotient.mk _)) ≫
+          (Spec.map (CommRingCat.ofHom (algebraMap A B)) ≫ W.U.fromSpecStalk W.u0))
+    rw [← Spec.map_comp_assoc, ← Spec.map_comp_assoc]
+    congr 2
+  let eOver : Over.mk (fromSpecStalkPow W.u0 n ≫ W.toS) ≅ y.base.stageOver n :=
+    Over.isoMk eSpec (by
+      change eSpec.hom ≫ (y.base.truncationToSpec n ≫
+        (fromSpecCompletion W.u0 ≫ W.toS)) = fromSpecStalkPow W.u0 n ≫ W.toS
+      simp only [← Category.assoc, ← hfactor]
+      rfl)
+  have hOver : fromSpecStalkPowOverHom W.toS W.u0 n =
+      eOver.hom ≫ (y.base.truncationOverHom n ≫
+        fromSpecCompletionOverHom W.toS W.u0) := by
+    apply Over.OverMorphism.ext
+    exact hfactor
+  -- Both restrictions are cartesian lifts of the same map after this base isomorphism.
+  let φ := FormalObject.restrictionHom y n ≫
+    IsPreFibered.pullbackMap W.over_obj (fromSpecCompletionOverHom W.toS W.u0)
+  have hpullback {R T : Over S} {a : X.total} (ha : X.p.obj a = T) (f : R ⟶ T) :
+      X.p.IsStronglyCartesian f (IsPreFibered.pullbackMap ha f) :=
+    @IsFibered.isStronglyCartesian_of_isCartesian _ _ _ _ X.p inferInstance _ _ f _ _
+      (IsPreFibered.pullbackMap ha f) (IsPreFibered.pullbackMap.IsCartesian ha f)
+  have hφ : X.p.IsStronglyCartesian (y.base.truncationOverHom n ≫
+      fromSpecCompletionOverHom W.toS W.u0) φ :=
+    @IsStronglyCartesian.comp _ _ _ _ X.p _ _ _ _ _ _ _ _ _ _
+      (FormalObject.restrictionHom_isStronglyCartesian y n)
+      (hpullback W.over_obj (fromSpecCompletionOverHom W.toS W.u0))
+  let e₁ : restrictToStalkPow W.toS W.object W.over_obj W.u0 n ≅
+      (associatedFormalObject W.toS W.object W.over_obj W.u0).objects n :=
+    @IsStronglyCartesian.domainIsoOfBaseIso _ _ _ _ X.p _ _ _ _ _ _ _ _ eOver hOver φ
+      (IsPreFibered.pullbackMap W.over_obj (fromSpecStalkPowOverHom W.toS W.u0 n))
+      hφ (hpullback W.over_obj (fromSpecStalkPowOverHom W.toS W.u0 n))
+  -- Compose with the given formal isomorphism at stage `n`.
+  let e₂ : (associatedFormalObject W.toS W.object W.over_obj W.u0).objects n ≅
+      ξ.objects n :=
+    { hom := W.associatedIso.hom.app n
+      inv := W.associatedIso.inv.app n
+      hom_inv_id := congrArg (fun f ↦ f.app n) W.associatedIso.hom_inv_id
+      inv_hom_id := congrArg (fun f ↦ f.app n) W.associatedIso.inv_hom_id }
+  let e := e₁ ≪≫ e₂
+  refine ⟨e, eqToHom (restrictToStalkPow_over W.toS W.object W.over_obj W.u0 n).symm ≫
+    X.p.map e.hom ≫ eqToHom (ξ.over_obj n), ?_⟩
+  exact IsHomLift.of_fac X.p _ e.hom
+    (restrictToStalkPow_over W.toS W.object W.over_obj W.u0 n) (ξ.over_obj n) rfl
 
 end ApproximateVersal
 

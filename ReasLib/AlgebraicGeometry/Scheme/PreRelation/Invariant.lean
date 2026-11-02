@@ -36,11 +36,11 @@ def IsSetInvariant (P : PreRelation U) (W : Set U.left) : Prop :=
 /-- Set invariance expressed pointwise on the underlying points of the relation scheme. -/
 theorem isSetInvariant_iff (P : PreRelation U) (W : Set U.left) :
     P.IsSetInvariant W ↔
-      ∀ r : P.left.left, P.s.left.base r ∈ W → P.t.left.base r ∈ W := sorry
+      ∀ r : P.left.left, P.s.left.base r ∈ W → P.t.left.base r ∈ W := Iff.rfl
 
 /-- Set invariance expressed as inclusion between the source and target preimages. -/
 theorem isSetInvariant_iff_preimage_subset (P : PreRelation U) (W : Set U.left) :
-    P.IsSetInvariant W ↔ P.s.left.base ⁻¹' W ⊆ P.t.left.base ⁻¹' W := sorry
+    P.IsSetInvariant W ↔ P.s.left.base ⁻¹' W ⊆ P.t.left.base ⁻¹' W := Iff.rfl
 
 /-- An open subset is invariant when its underlying set is invariant. -/
 def IsOpenInvariant (P : PreRelation U) (W : U.left.Opens) : Prop :=
@@ -48,7 +48,7 @@ def IsOpenInvariant (P : PreRelation U) (W : U.left.Opens) : Prop :=
 
 /-- Open invariance is set invariance of the underlying open subset. -/
 theorem isOpenInvariant_iff (P : PreRelation U) (W : U.left.Opens) :
-    P.IsOpenInvariant W ↔ P.IsSetInvariant W := sorry
+    P.IsOpenInvariant W ↔ P.IsSetInvariant W := Iff.rfl
 
 /-- A closed subscheme is invariant when its scheme-theoretic inverse images under the target
 and source maps agree. -/
@@ -57,7 +57,7 @@ def IsClosedInvariant (P : PreRelation U) (Z : U.left.IdealSheafData) : Prop :=
 
 /-- Closed invariance expressed as equality of the two pulled-back ideal sheaves. -/
 theorem isClosedInvariant_iff (P : PreRelation U) (Z : U.left.IdealSheafData) :
-    P.IsClosedInvariant Z ↔ Z.comap P.t.left = Z.comap P.s.left := sorry
+    P.IsClosedInvariant Z ↔ Z.comap P.t.left = Z.comap P.s.left := Iff.rfl
 
 /-- A subobject is invariant when its pullbacks under the target and source maps agree. -/
 def IsInvariant (P : PreRelation U) (Q : Subobject U.left) : Prop :=
@@ -66,7 +66,7 @@ def IsInvariant (P : PreRelation U) (Q : Subobject U.left) : Prop :=
 /-- Subobject invariance expressed as equality of the two categorical pullbacks. -/
 theorem isInvariant_iff (P : PreRelation U) (Q : Subobject U.left) :
     P.IsInvariant Q ↔
-      (Subobject.pullback P.t.left).obj Q = (Subobject.pullback P.s.left).obj Q := sorry
+      (Subobject.pullback P.t.left).obj Q = (Subobject.pullback P.s.left).obj Q := Iff.rfl
 
 /-- Invariance of a monomorphism is invariance of the subobject represented by that
 monomorphism. -/
@@ -74,12 +74,30 @@ theorem isInvariant_mk_iff {T : Scheme.{u}} (P : PreRelation U)
     (i : T ⟶ U.left) [Mono i] :
     P.IsInvariant (Subobject.mk i) ↔
       (Subobject.pullback P.t.left).obj (Subobject.mk i) =
-        (Subobject.pullback P.s.left).obj (Subobject.mk i) := sorry
+        (Subobject.pullback P.s.left).obj (Subobject.mk i) := Iff.rfl
 
 /-- Scheme-theoretic invariance of a closed subscheme agrees with invariance of its associated
 subobject. -/
 theorem isClosedInvariant_iff_isInvariant (P : PreRelation U)
     (Z : U.left.IdealSheafData) :
-    P.IsClosedInvariant Z ↔ P.IsInvariant (Subobject.mk Z.subschemeι) := sorry
+    P.IsClosedInvariant Z ↔ P.IsInvariant (Subobject.mk Z.subschemeι) := by
+  have hpull (f : P.left.left ⟶ U.left) :
+      (Subobject.pullback f).obj (Subobject.mk Z.subschemeι) =
+        Subobject.mk (Z.comap f).subschemeι := by
+    rw [Subobject.pullback_obj_mk (IsPullback.of_hasPullback f Z.subschemeι).flip]
+    exact Subobject.mk_eq_mk_of_comm _ _ (Z.comapIso f).symm
+      (Z.comapIso_inv_subschemeι f)
+  unfold IsClosedInvariant IsInvariant
+  rw [hpull P.t.left, hpull P.s.left]
+  constructor
+  · exact fun h ↦ congrArg (fun I : P.left.left.IdealSheafData ↦ Subobject.mk I.subschemeι) h
+  · intro h
+    let e := Subobject.isoOfMkEqMk (Z.comap P.t.left).subschemeι
+      (Z.comap P.s.left).subschemeι h
+    have he : e.hom ≫ (Z.comap P.s.left).subschemeι =
+        (Z.comap P.t.left).subschemeι :=
+      Subobject.ofMkLEMk_comp h.le
+    simpa only [he, Scheme.IdealSheafData.ker_subschemeι] using
+      (Scheme.Hom.ker_comp_of_isIso e.hom (Z.comap P.s.left).subschemeι)
 
 end AlgebraicGeometry.Scheme.PreRelation

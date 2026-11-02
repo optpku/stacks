@@ -10,6 +10,7 @@ public import Mathlib.CategoryTheory.IsomorphismClasses
 public import Mathlib.CategoryTheory.Types.Basic
 public import Mathlib.CategoryTheory.Limits.Shapes.BinaryProducts
 public import Mathlib.CategoryTheory.Limits.Shapes.Pullback.HasPullback
+public import Mathlib.CategoryTheory.Sites.Subsheaf
 public import ReasLib.CategoryTheory.Fibered.Stack.Prestack
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Product
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Points
@@ -58,7 +59,7 @@ theorem isomPullback_condition {S : Scheme.{u}} {B : AlgebraicSpace S}
     (G : GroupoidAlgebraicSpace B) {S' : Over S} (x' y' : ofOver S' ⟶ G.U.left) :
     isomPullback_fst G x' y' ≫ prod.lift y' x' =
       isomPullback_snd G x' y' ≫ prod.lift G.t.left G.s.left :=
-  sorry
+  pullback.condition
 
 /-- A morphism `T → R` over `S` is a `T`-point of `isomPullback G x' y'` over `S'` if and
 only if it has target `T → S' → U` given by `y'` and source given by `x'`. -/
@@ -69,7 +70,26 @@ theorem mem_isomPullback_iff {S : Scheme.{u}} {B : AlgebraicSpace S}
         f ≫ isomPullback_fst G x' y' = ofOverMap φ ∧
           f ≫ isomPullback_snd G x' y' = r) ↔
       r ≫ G.t.left = ofOverMap φ ≫ y' ∧ r ≫ G.s.left = ofOverMap φ ≫ x' :=
-  sorry
+  by
+    constructor
+    · rintro ⟨f, hf, hr⟩
+      have h : ofOverMap φ ≫ prod.lift y' x' =
+          r ≫ prod.lift G.t.left G.s.left := by
+        simpa only [← Category.assoc, hf, hr] using
+          congrArg (fun k ↦ f ≫ k) (isomPullback_condition G x' y')
+      constructor
+      · simpa only [Category.assoc, prod.lift_fst] using
+          (congrArg (fun k ↦ k ≫ prod.fst) h).symm
+      · simpa only [Category.assoc, prod.lift_snd] using
+          (congrArg (fun k ↦ k ≫ prod.snd) h).symm
+    · rintro ⟨ht, hs⟩
+      have h : ofOverMap φ ≫ prod.lift y' x' =
+          r ≫ prod.lift G.t.left G.s.left := by
+        apply prod.hom_ext
+        · simpa only [Category.assoc, prod.lift_fst] using ht.symm
+        · simpa only [Category.assoc, prod.lift_snd] using hs.symm
+      exact ⟨pullback.lift (ofOverMap φ) r h,
+        pullback.lift_fst _ _ _, pullback.lift_snd _ _ _⟩
 
 /-- A `T`-section of the relative points of `isomPullback G x' y'` over `S'`. -/
 def isomPullbackSection {S : Scheme.{u}} {B : AlgebraicSpace S}
@@ -85,7 +105,15 @@ theorem isomPullbackSection.restrict_endpoints {S : Scheme.{u}} {B : AlgebraicSp
     {T₁ T₂ : (Over S')ᵒᵖ} (φ : T₁ ⟶ T₂) (r : isomPullbackSection G x' y' T₁) :
     (ofOverMap φ.unop.left ≫ r.1) ≫ G.t.left = ofOverMap T₂.unop.hom ≫ y' ∧
       (ofOverMap φ.unop.left ≫ r.1) ≫ G.s.left = ofOverMap T₂.unop.hom ≫ x' :=
-  sorry
+  by
+    have hφ : ofOverMap φ.unop.left ≫ ofOverMap T₁.unop.hom =
+        ofOverMap T₂.unop.hom := by
+      change yoneda.map φ.unop.left ≫ yoneda.map T₁.unop.hom =
+        yoneda.map T₂.unop.hom
+      rw [← yoneda.map_comp, Over.w φ.unop]
+    constructor
+    · rw [Category.assoc, r.property.1, ← Category.assoc, hφ]
+    · rw [Category.assoc, r.property.2, ← Category.assoc, hφ]
 
 /-- Restrict a relative `R`-point along a morphism of schemes over `S'`. -/
 def isomPullbackSection.restrict {S : Scheme.{u}} {B : AlgebraicSpace S}
@@ -107,7 +135,10 @@ theorem isomPullbackSection.restrict_id {S : Scheme.{u}} {B : AlgebraicSpace S}
     (G : GroupoidAlgebraicSpace B) {S' : Over S} (x' y' : ofOver S' ⟶ G.U.left)
     (T : (Over S')ᵒᵖ) (r : isomPullbackSection G x' y' T) :
     isomPullbackSection.restrict G x' y' (𝟙 T) r = r :=
-  sorry
+  by
+    apply Subtype.ext
+    change yoneda.map (𝟙 T.unop.left) ≫ r.1 = r.1
+    rw [yoneda.map_id, Category.id_comp]
 
 /-- Restricting a relative arrow along a composite equals successive restriction. -/
 theorem isomPullbackSection.restrict_comp {S : Scheme.{u}} {B : AlgebraicSpace S}
@@ -116,7 +147,11 @@ theorem isomPullbackSection.restrict_comp {S : Scheme.{u}} {B : AlgebraicSpace S
     (r : isomPullbackSection G x' y' T₁) :
     isomPullbackSection.restrict G x' y' (φ ≫ ψ) r =
       isomPullbackSection.restrict G x' y' ψ (isomPullbackSection.restrict G x' y' φ r) :=
-  sorry
+  by
+    apply Subtype.ext
+    change yoneda.map (ψ.unop.left ≫ φ.unop.left) ≫ r.1 =
+      yoneda.map ψ.unop.left ≫ (yoneda.map φ.unop.left ≫ r.1)
+    rw [yoneda.map_comp, Category.assoc]
 
 /-- The presheaf on `(Sch/S')_fppf` whose value at `T → S'` is the type of morphisms
 `T → R` with target `T → S' → U` equal to `y'` and source equal to `x'`. -/
@@ -142,7 +177,48 @@ theorem isomPullbackPresheaf_isSheaf {S : Scheme.{u}} {B : AlgebraicSpace S}
     (G : GroupoidAlgebraicSpace B) {S' : Over S} (x' y' : ofOver S' ⟶ G.U.left) :
     Presheaf.IsSheaf ((Scheme.fppfTopology.over S).over S')
       (isomPullbackPresheaf G x' y') :=
-  sorry
+  by
+    let J := (Scheme.fppfTopology.over S).over S'
+    let H (X : AlgebraicSpace S) : (Over S')ᵒᵖ ⥤ Type (u + 1) :=
+      (Over.forget S' ⋙ ofOverFunctor S).op ⋙ yoneda.obj X
+    have hH (X : AlgebraicSpace S) : Presieve.IsSheaf J (H X) := by
+      let h := ((Scheme.fppfTopology.over S).overPullback (Type u) S').obj
+        (⟨X.functorOfPoints, X.isSheaf⟩ : Sheaf (Scheme.fppfTopology.over S) (Type u))
+      apply Presieve.isSheaf_of_nat_equiv
+        (P₁ := h.obj) (fun {T} ↦ by
+          change X.functorOfPoints.obj (op T.left) ≃
+            (yoneda.obj T.left ⟶ X.functorOfPoints)
+          exact yonedaEquiv.symm)
+        (by
+          intro V W f r
+          change X.functorOfPoints.obj (op W.left) at r
+          exact (yonedaEquiv_symm_naturality_left f.left X.functorOfPoints r).symm)
+      exact (isSheaf_iff_isSheaf_of_type _ _).mp h.property
+    let P : Subfunctor (H G.R.left) :=
+      { obj := fun T ↦ { r | r ≫ G.t.left = ofOverMap T.unop.hom ≫ y' ∧
+            r ≫ G.s.left = ofOverMap T.unop.hom ≫ x' }
+        map := fun φ r hr ↦ isomPullbackSection.restrict_endpoints G x' y' φ ⟨r, hr⟩ }
+    rw [isSheaf_iff_isSheaf_of_type]
+    change Presieve.IsSheaf J P.toFunctor
+    apply (P.isSheaf_iff (hH G.R.left)).mpr
+    intro T r hr
+    have hbase {V : Over S'} (f : V ⟶ T.unop) :
+        ofOverMap f.left ≫ ofOverMap T.unop.hom = ofOverMap V.hom := by
+      change yoneda.map f.left ≫ yoneda.map T.unop.hom = yoneda.map V.hom
+      rw [← yoneda.map_comp, Over.w f]
+    constructor
+    · apply ((hH G.U.left) _ hr).isSeparatedFor.ext
+      intro V f hf
+      have ht : (ofOverMap f.left ≫ r) ≫ G.t.left = ofOverMap V.hom ≫ y' := hf.1
+      change ofOverMap f.left ≫ (r ≫ G.t.left) =
+        ofOverMap f.left ≫ (ofOverMap T.unop.hom ≫ y')
+      simpa only [← Category.assoc, hbase f] using ht
+    · apply ((hH G.U.left) _ hr).isSeparatedFor.ext
+      intro V f hf
+      have hs : (ofOverMap f.left ≫ r) ≫ G.s.left = ofOverMap V.hom ≫ x' := hf.2
+      change ofOverMap f.left ≫ (r ≫ G.s.left) =
+        ofOverMap f.left ≫ (ofOverMap T.unop.hom ≫ x')
+      simpa only [← Category.assoc, hbase f] using hs
 
 /-- The sheaf of `S'`-points of `S' ×_{(y', x'), U ×_S U} R` on `(Sch/S')_fppf`. -/
 def isomPullbackSheaf {S : Scheme.{u}} {B : AlgebraicSpace S}
@@ -188,6 +264,32 @@ theorem sheafHom_atlas_isIsomorphic_isomPullback
         (((fppfAtlas G).fiberFunctor S').obj (objOfHom x'))
         (((fppfAtlas G).fiberFunctor S').obj (objOfHom y')))
       (isomPullbackSheaf G x' y') :=
-  sorry
+  by
+    obtain ⟨e⟩ := presheafHom_preQuotient_isIsomorphic_isomPullback G x' y'
+    let J := (Scheme.fppfTopology.over S).over S'
+    let a := ((atlasToPreQuotient G).fiberFunctor S').obj (objOfHom x')
+    let b := ((atlasToPreQuotient G).fiberFunctor S').obj (objOfHom y')
+    let F := (fppfQuotientStackPresentation G).comparison
+    let P := (Functor.fiberPseudofunctor (preQuotient G).p).presheafHom a b
+    let Q := (Functor.fiberPseudofunctor (fppfQuotientStack G).p).presheafHom
+      ((F.fiberFunctor S').obj a) ((F.fiberFunctor S').obj b)
+    let lP : P ⋙ uliftFunctor.{u + 1, u + 1} ≅ P :=
+      Functor.isoWhiskerLeft P uliftFunctorTrivial ≪≫ P.rightUnitor
+    let lQ : Q ⋙ uliftFunctor.{u + 1, u + 1} ≅ Q :=
+      Functor.isoWhiskerLeft Q uliftFunctorTrivial ≪≫ Q.rightUnitor
+    have hP : Presheaf.IsSheaf J P :=
+      (Presheaf.isSheaf_of_iso_iff e).mpr (isomPullbackPresheaf_isSheaf G x' y')
+    have hQ : Presheaf.IsSheaf J Q :=
+      ((Functor.fiberPseudofunctor (fppfQuotientStack G).p).sheafHom
+        (Scheme.fppfTopology.over S)
+        ((F.fiberFunctor S').obj a) ((F.fiberFunctor S').obj b)).property
+    let m := CartesianBasedFunctor.HomPresheaf.Chosen.map F a b
+    have hm : J.W m :=
+      (fppfQuotientStackPresentation G).isStackification.isLocalEquivalence.homPresheafMap_mem a b
+    haveI : IsIso m :=
+      (ObjectProperty.isLocal_iff_isIso _ _
+        ((Presheaf.isSheaf_of_iso_iff lP).mpr hP)
+        ((Presheaf.isSheaf_of_iso_iff lQ).mpr hQ)).mp hm
+    exact ⟨ObjectProperty.isoMk _ (lQ.symm ≪≫ (asIso m).symm ≪≫ lP ≪≫ e)⟩
 
 end AlgebraicGeometry.GroupoidAlgebraicSpace

@@ -22,7 +22,9 @@ namespace AlgebraicGeometry
 
 /-- The spectrum of the residue field of a scheme point is universally catenary. -/
 instance instUniversallyCatenary_specResidueField {X : Scheme.{u}} (x : X) :
-    UniversallyCatenary (Spec (X.residueField x)) := sorry
+    UniversallyCatenary (Spec (X.residueField x)) :=
+  @instUniversallyCatenarySpec (X.residueField x) _
+    (@instUniversallyCatenaryRingOfField.{u, u} (X.residueField x) _)
 
 /-- The spectrum of a residue field is locally Noetherian. -/
 instance instIsLocallyNoetherian_specResidueField {X : Scheme.{u}} (x : X) :

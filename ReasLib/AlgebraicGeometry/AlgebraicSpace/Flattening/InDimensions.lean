@@ -57,7 +57,7 @@ theorem mem_flatInDimensionsSubfunctor (T : SchemeOver Y) :
     PUnit.unit ∈ (flatInDimensionsSubfunctor f ℱ n).obj (op T) ↔
       Modules.flatOverInDimensionsGE
         (Modules.baseChangeModule f T.hom ℱ) (pullback.snd f T.hom) n :=
-  sorry
+  Iff.rfl
 
 /-- The contravariant subterminal functor recording flatness of the base-changed
 module in dimensions at least `n`. -/
@@ -70,7 +70,12 @@ theorem flatInDimensionsFunctor_nonempty_iff (T : SchemeOver Y) :
     Nonempty ((flatInDimensionsFunctor f ℱ n).obj (op T)) ↔
       Modules.flatOverInDimensionsGE
         (Modules.baseChangeModule f T.hom ℱ) (pullback.snd f T.hom) n :=
-  sorry
+  by
+    constructor
+    · rintro ⟨x⟩
+      exact x.property
+    · intro h
+      exact ⟨⟨PUnit.unit, h⟩⟩
 
 /-- An object value of the flat-in-dimensions functor is empty exactly when the
 base-changed module is not flat over the base in dimensions at least `n`. -/
@@ -78,12 +83,19 @@ theorem flatInDimensionsFunctor_isEmpty_iff (T : SchemeOver Y) :
     IsEmpty ((flatInDimensionsFunctor f ℱ n).obj (op T)) ↔
       ¬ Modules.flatOverInDimensionsGE
         (Modules.baseChangeModule f T.hom ℱ) (pullback.snd f T.hom) n :=
-  sorry
+  by
+    constructor
+    · intro h hflat
+      exact h.false ⟨PUnit.unit, hflat⟩
+    · intro h
+      exact ⟨fun x ↦ h x.property⟩
 
 /-- Every object value of the flat-in-dimensions functor has at most one element. -/
 instance flatInDimensionsFunctorObjSubsingleton (T : SchemeOver Y) :
     Subsingleton ((flatInDimensionsFunctor f ℱ n).obj (op T)) :=
-  sorry
+  inferInstanceAs (Subsingleton (Subtype (fun _ : (PUnit : Type u) ↦
+    Modules.flatOverInDimensionsGE
+      (Modules.baseChangeModule f T.hom ℱ) (pullback.snd f T.hom) n)))
 
 /-- The functor value at the test scheme specified by `a : ofOver T ⟶ Y` is
 inhabited exactly when the base change of `ℱ` along `a` is flat over `T` in
@@ -92,7 +104,7 @@ theorem flatInDimensionsFunctor_nonempty_iff_mk {T : Over S} (a : ofOver T ⟶ Y
     Nonempty ((flatInDimensionsFunctor f ℱ n).obj (op (SchemeOver.mk a))) ↔
       Modules.flatOverInDimensionsGE
         (Modules.baseChangeModule f a ℱ) (pullback.snd f a) n :=
-  sorry
+  flatInDimensionsFunctor_nonempty_iff f ℱ n (SchemeOver.mk a)
 
 /-- The functor value at the test scheme specified by `a : ofOver T ⟶ Y` is
 empty exactly when the base change of `ℱ` along `a` is not flat over `T` in
@@ -101,6 +113,6 @@ theorem flatInDimensionsFunctor_isEmpty_iff_mk {T : Over S} (a : ofOver T ⟶ Y)
     IsEmpty ((flatInDimensionsFunctor f ℱ n).obj (op (SchemeOver.mk a))) ↔
       ¬ Modules.flatOverInDimensionsGE
         (Modules.baseChangeModule f a ℱ) (pullback.snd f a) n :=
-  sorry
+  flatInDimensionsFunctor_isEmpty_iff f ℱ n (SchemeOver.mk a)
 
 end AlgebraicGeometry.AlgebraicSpace.Flattening

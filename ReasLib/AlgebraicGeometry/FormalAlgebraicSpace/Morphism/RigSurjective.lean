@@ -9,6 +9,7 @@ module
 public import ReasLib.AlgebraicGeometry.FormalAlgebraicSpace.AdicSpfSquare
 public import ReasLib.AlgebraicGeometry.FormalAlgebraicSpace.Morphism.FiniteType
 public import ReasLib.AlgebraicGeometry.FormalAlgebraicSpace.Pullback
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Representable.Composition
 
 /-!
 # Rig-surjective morphisms of formal algebraic spaces
@@ -46,11 +47,24 @@ class RigSurjective {S : Scheme.{u}} {X Y : (Over S)ᵒᵖ ⥤ Type u} (f : X �
 
 namespace RigSurjective
 
+private theorem exists_extension_of_lift {S : Scheme.{u}}
+    {X Y : (Over S)ᵒᵖ ⥤ Type u} {f : X ⟶ Y} (sq : AdicSpfSquare f)
+    (lift : sq.specSpf ⟶ X) (fac : lift ≫ f = sq.p) : Nonempty sq.Extension := by
+  letI := sq.commRing
+  letI := sq.domain
+  letI := sq.discreteValuationRing
+  letI := sq.completeLocalRing
+  letI : IsExtensionOfDiscreteValuationRings sq.R sq.R :=
+    { toIsLocalHom := ⟨fun _ h ↦ h⟩
+      algebraMap_injective := fun _ _ h ↦ h }
+  exact ⟨AdicSpfSquare.Extension.of sq sq.R
+    (spfMap sq.R sq.R sq.structureHom ≫ lift) (by rw [Category.assoc, fac])⟩
+
 /-- The identity morphism of a locally Noetherian formal algebraic space is
 rig-surjective. -/
 instance id {S : Scheme.{u}} {X : (Over S)ᵒᵖ ⥤ Type u} [IsFormalAlgebraicSpace X]
-    [IsLocallyNoetherian X] : RigSurjective (𝟙 X) :=
-  sorry
+    [IsLocallyNoetherian X] : RigSurjective (𝟙 X) where
+  exists_extension sq := exists_extension_of_lift sq sq.p (Category.comp_id sq.p)
 
 /-- A locally of finite type morphism of locally Noetherian formal algebraic
 spaces is rig-surjective if and only if every adic complete-DVR test map lifts
@@ -74,8 +88,14 @@ theorem iff_adicSpf_factors {S : Scheme.{u}} {X Y : (Over S)ᵒᵖ ⥤ Type u}
     [IsLocallyNoetherian X] [IsLocallyNoetherian Y] (f : X ⟶ Y)
     [LocallyOfFiniteType f] [Mono f] :
     RigSurjective f ↔
-      ∀ sq : AdicSpfSquare f, ∃ lift : sq.specSpf ⟶ X, lift ≫ f = sq.p :=
-  sorry
+      ∀ sq : AdicSpfSquare f, ∃ lift : sq.specSpf ⟶ X, lift ≫ f = sq.p := by
+  constructor
+  · sorry
+  · intro h
+    constructor
+    intro sq
+    obtain ⟨lift, fac⟩ := h sq
+    exact exists_extension_of_lift sq lift fac
 
 /-- In a pullback square of locally Noetherian formal algebraic spaces, the
 base-change leg of a rig-surjective morphism is rig-surjective when the two
@@ -88,8 +108,19 @@ theorem of_isPullback {S : Scheme.{u}} {X Y Z W : (Over S)ᵒᵖ ⥤ Type u}
     {f : X ⟶ Y} {g : Z ⟶ Y} {fst : W ⟶ X} {snd : W ⟶ Z}
     (sq : IsPullback fst snd f g) [LocallyOfFiniteType f]
     [LocallyOfFiniteType g] [RigSurjective f] [LocallyOfFiniteType snd] :
-    RigSurjective snd :=
-  sorry
+    RigSurjective snd where
+  exists_extension test := by
+    let test' : AdicSpfSquare f :=
+      { test with
+        p := test.p ≫ g
+        h_adic := AlgebraicSpace.representableByAlgebraicSpaces.comp _ _ test.h_adic
+          (LocallyOfFiniteType.representable (f := g)) }
+    obtain ⟨e⟩ := RigSurjective.exists_extension (f := f) test'
+    have fac : e.lift ≫ f = (e.verticalMap ≫ test.p) ≫ g := by
+      simpa only [Category.assoc] using e.fac
+    exact ⟨{ e with
+      lift := sq.lift e.lift (e.verticalMap ≫ test.p) fac
+      fac := sq.lift_snd e.lift (e.verticalMap ≫ test.p) fac }⟩
 
 /-- The base change of a rig-surjective morphism along a locally of finite type
 morphism of locally Noetherian formal algebraic spaces is rig-surjective. -/
@@ -110,8 +141,13 @@ theorem of_comp {S : Scheme.{u}} {X Y Z : (Over S)ᵒᵖ ⥤ Type u}
     [IsLocallyNoetherian X] [IsLocallyNoetherian Y] [IsLocallyNoetherian Z]
     (f : X ⟶ Y) (g : Y ⟶ Z)
     [LocallyOfFiniteType f] [LocallyOfFiniteType g] [RigSurjective (f ≫ g)] :
-    RigSurjective g :=
-  sorry
+    RigSurjective g where
+  exists_extension sq := by
+    let sq' : AdicSpfSquare (f ≫ g) := { sq with }
+    obtain ⟨e⟩ := RigSurjective.exists_extension (f := f ≫ g) sq'
+    exact ⟨{ e with
+      lift := e.lift ≫ f
+      fac := by simpa only [Category.assoc] using e.fac }⟩
 
 /-- The composite of two locally of finite type rig-surjective morphisms of
 locally Noetherian formal algebraic spaces is rig-surjective. -/
@@ -130,8 +166,16 @@ theorem of_comp_mono {S : Scheme.{u}} {X Y Z : (Over S)ᵒᵖ ⥤ Type u}
     [IsLocallyNoetherian X] [IsLocallyNoetherian Y] [IsLocallyNoetherian Z]
     (f : X ⟶ Y) (g : Y ⟶ Z)
     [LocallyOfFiniteType f] [LocallyOfFiniteType g] [RigSurjective (f ≫ g)] [Mono g] :
-    RigSurjective f :=
-  sorry
+    RigSurjective f where
+  exists_extension sq := by
+    let sq' : AdicSpfSquare (f ≫ g) :=
+      { sq with
+        p := sq.p ≫ g
+        h_adic := AlgebraicSpace.representableByAlgebraicSpaces.comp _ _ sq.h_adic
+          (LocallyOfFiniteType.representable (f := g)) }
+    obtain ⟨e⟩ := RigSurjective.exists_extension (f := f ≫ g) sq'
+    exact ⟨{ e with
+      fac := (cancel_mono g).mp (by simpa only [Category.assoc] using e.fac) }⟩
 
 end RigSurjective
 

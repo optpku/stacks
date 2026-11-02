@@ -53,6 +53,66 @@ def of
 
 end IsNormalizedDualizingComplex
 
+/-- A normalized dualizing complex for the canonical module `RHom` presentation.  The selected
+closed presentation remains available through `C.comparison.closed`; the normalization datum here
+is anchored to the canonical `RHom` object, so it cannot be changed by transporting a closed
+structure along an unrelated equivalence. -/
+structure IsCanonicalNormalizedDualizingComplex
+    (K : DerivedCategory (ModuleCat.{u} A))
+    (C : CanonicalClosedPresentation (A := A)) : Prop where
+  /-- The underlying complex is dualizing for the canonical `RHom` presentation. -/
+  isCanonicalDualizingComplex : K.IsCanonicalDualizingComplex C
+  /-- Canonical derived `RHom` from the residue field is concentrated in degree zero. -/
+  residueFieldRHom :
+    Nonempty
+      ((InternalHom.RHom.obj (A := A)
+        (ModuleCat.single0 (ModuleCat.of A (IsLocalRing.ResidueField A))) K) ≅
+          ModuleCat.single0 (ModuleCat.of A (IsLocalRing.ResidueField A)))
+
+namespace IsCanonicalNormalizedDualizingComplex
+
+/-- Construct the canonical normalized dualizing-complex property from its two defining data. -/
+def of
+    {K : DerivedCategory (ModuleCat.{u} A)}
+    {C : CanonicalClosedPresentation (A := A)}
+    (hdualizing : K.IsCanonicalDualizingComplex C)
+    (hnormalized :
+      Nonempty
+        ((InternalHom.RHom.obj (A := A)
+          (ModuleCat.single0 (ModuleCat.of A (IsLocalRing.ResidueField A))) K) ≅
+            ModuleCat.single0 (ModuleCat.of A (IsLocalRing.ResidueField A)))) :
+    K.IsCanonicalNormalizedDualizingComplex C :=
+  ⟨hdualizing, hnormalized⟩
+
+/-- Canonical normalization implies normalization for the selected closed presentation carried by
+the canonical comparison.  The comparison and the regular-unit isomorphism are the only bridge;
+the selected predicate itself is retained for APIs that intentionally work with a chosen
+presentation. -/
+theorem toSelected
+    {K : DerivedCategory (ModuleCat.{u} A)}
+    {C : CanonicalClosedPresentation (A := A)}
+    (hK : K.IsCanonicalNormalizedDualizingComplex C) :
+    K.IsNormalizedDualizingComplex C.comparison.closed := sorry
+
+end IsCanonicalNormalizedDualizingComplex
+
+/-- The canonical normalized property is equivalent to canonical duality together with canonical
+residue-field normalization. -/
+theorem isCanonicalNormalizedDualizingComplex_iff
+    (K : DerivedCategory (ModuleCat.{u} A))
+    (C : CanonicalClosedPresentation (A := A)) :
+    K.IsCanonicalNormalizedDualizingComplex C ↔
+      K.IsCanonicalDualizingComplex C ∧
+        Nonempty
+          ((InternalHom.RHom.obj (A := A)
+            (ModuleCat.single0 (ModuleCat.of A (IsLocalRing.ResidueField A))) K) ≅
+              ModuleCat.single0 (ModuleCat.of A (IsLocalRing.ResidueField A))) := by
+  constructor
+  · intro h
+    exact ⟨h.isCanonicalDualizingComplex, h.residueFieldRHom⟩
+  · rintro ⟨hdualizing, hnormalized⟩
+    exact ⟨hdualizing, hnormalized⟩
+
 /-- A complex is normalized dualizing exactly when it is dualizing and its derived internal Hom
 from the residue field is the residue field concentrated in degree zero. -/
 theorem isNormalizedDualizingComplex_iff

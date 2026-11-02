@@ -46,15 +46,6 @@ theorem unlocalized_iff_of_isUnit
       Algebra.FinitePresentation R S ∧ Module.FinitePresentation S M ∧
         Module.Free R S ∧ Module.Free R M := sorry
 
-/-- Associated principal parameters determine equivalent generic-flatness localization
-conditions. -/
-theorem associated_iff
-    {R : Type u} [CommSemiring R]
-    {S : Type v} [CommSemiring S] [Algebra R S]
-    {M : Type w} [AddCommMonoid M] [Module S M]
-    {f g : R} (hfg : Associated f g) :
-    LocalizationCondition R S M f ↔ LocalizationCondition R S M g := sorry
-
 /-- The condition at the product `f * g` is equivalent to the condition obtained by first
 localizing away from `f` and then at the image of `g`. -/
 theorem product_iff_away
@@ -66,6 +57,28 @@ theorem product_iff_away
       LocalizationCondition.away (R := R) (S := S) (M := M) f
         (algebraMap R (Localization.Away f) g) := sorry
 
+/-- A generic-flatness witness remains valid after multiplying its denominator by any element of
+the base ring. -/
+theorem mul
+    {R : Type u} [CommSemiring R]
+    {S : Type v} [CommSemiring S] [Algebra R S]
+    {M : Type w} [AddCommMonoid M] [Module S M]
+    (f g : R) (hf : LocalizationCondition R S M f) :
+    LocalizationCondition R S M (f * g) := by
+  apply (product_iff_away f g).mpr
+  letI : Algebra (Localization.Away f) (Localization.Away (algebraMap R S f)) :=
+    Localization.Away.Relative.algebraMapAlgebra f
+  letI : Module (Localization.Away f) (LocalizedModule.Away (algebraMap R S f) M) :=
+    Localization.Away.Relative.algebraMapModule f
+  letI : IsScalarTower (Localization.Away f) (Localization.Away (algebraMap R S f))
+      (LocalizedModule.Away (algebraMap R S f) M) :=
+    ⟨fun r s m => mul_smul _ _ _⟩
+  letI := hf.finitePresentationAlgebra
+  letI := hf.finitePresentationModule
+  letI := hf.freeAlgebra
+  letI := hf.freeModule
+  exact ofUnlocalized (algebraMap R (Localization.Away f) g)
+
 /-- A generic-flatness witness remains a witness after localizing the whole algebra-module pair
 away from an arbitrary base parameter. -/
 theorem mapAway
@@ -74,7 +87,25 @@ theorem mapAway
     {M : Type w} [AddCommMonoid M] [Module S M]
     (f g : R) (hg : LocalizationCondition R S M g) :
     LocalizationCondition.away (R := R) (S := S) (M := M) f
-      (algebraMap R (Localization.Away f) g) := sorry
+      (algebraMap R (Localization.Away f) g) := by
+  apply (product_iff_away f g).mp
+  simpa only [mul_comm] using mul g f hg
+
+/-- Associated principal parameters determine equivalent generic-flatness localization
+conditions. -/
+theorem associated_iff
+    {R : Type u} [CommSemiring R]
+    {S : Type v} [CommSemiring S] [Algebra R S]
+    {M : Type w} [AddCommMonoid M] [Module S M]
+    {f g : R} (hfg : Associated f g) :
+    LocalizationCondition R S M f ↔ LocalizationCondition R S M g := by
+  constructor
+  · intro hf
+    obtain ⟨a, rfl⟩ := hfg.dvd
+    exact mul f a hf
+  · intro hg
+    obtain ⟨a, rfl⟩ := hfg.symm.dvd
+    exact mul g a hg
 
 /-- A witness at an arbitrary point of `R_f` clears to an explicit principal witness over `R`. -/
 theorem ofLocalizedWitness
@@ -83,15 +114,12 @@ theorem ofLocalizedWitness
     {M : Type w} [AddCommMonoid M] [Module S M]
     (f : R) (u : Localization.Away f)
     (hu : LocalizationCondition.away (R := R) (S := S) (M := M) f u) :
-    LocalizationCondition R S M (f * (IsLocalization.Away.sec f u).1) := sorry
-
-/-- A generic-flatness witness remains valid after multiplying its denominator by any element of
-the base ring. -/
-theorem mul
-    {R : Type u} [CommSemiring R]
-    {S : Type v} [CommSemiring S] [Algebra R S]
-    {M : Type w} [AddCommMonoid M] [Module S M]
-    (f g : R) (hf : LocalizationCondition R S M f) :
-    LocalizationCondition R S M (f * g) := sorry
+    LocalizationCondition R S M (f * (IsLocalization.Away.sec f u).1) := by
+  apply (product_iff_away f (IsLocalization.Away.sec f u).1).mpr
+  letI : Algebra (Localization.Away f) (Localization.Away (algebraMap R S f)) :=
+    Localization.Away.Relative.algebraMapAlgebra f
+  exact (associated_iff (S := Localization.Away (algebraMap R S f))
+    (M := LocalizedModule.Away (algebraMap R S f) M)
+    (IsLocalization.Away.associated_sec_fst f u)).mpr hu
 
 end GenericFlatness.LocalizationCondition

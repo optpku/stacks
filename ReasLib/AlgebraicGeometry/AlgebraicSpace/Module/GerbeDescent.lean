@@ -38,13 +38,41 @@ def indices : (smallEtaleSite W)ᵒᵖ ⥤ Type (u + 1) :=
 
 /-- Local inhabitedness of the gerbe supplies local class representatives on small charts. -/
 instance indices_locallySurjective :
-    Presheaf.IsLocallySurjective (smallEtaleTopology W) (Limits.terminal.from (indices W p)) :=
-  sorry
+    Presheaf.IsLocallySurjective (smallEtaleTopology W) (Limits.terminal.from (indices W p)) := by
+  let η := (smallEtaleToSpaces W).op.whiskerLeft
+    (Limits.terminal.from (Functor.fiberIsoClassPresheaf p))
+  letI : Presheaf.IsLocallySurjective (smallEtaleTopology W) η :=
+    Presheaf.isLocallySurjective_whisker (smallEtaleTopology W) (spacesEtaleTopology W)
+      (smallEtaleToSpaces W) (Limits.terminal.from (Functor.fiberIsoClassPresheaf p))
+  let τ := Limits.terminal.from
+    ((smallEtaleToSpaces W).op ⋙ (⊤_ ((spacesEtaleSite W)ᵒᵖ ⥤ Type (u + 1))))
+  letI : IsIso τ := Limits.isIso_of_isTerminal
+    (Limits.isLimitOfHasTerminalOfPreservesLimit
+      ((Functor.whiskeringLeft (smallEtaleSite W)ᵒᵖ (spacesEtaleSite W)ᵒᵖ (Type (u + 1))).obj
+        (smallEtaleToSpaces W).op)) Limits.terminalIsTerminal τ
+  have hterminal : η ≫ τ = Limits.terminal.from (indices W p) :=
+    Limits.terminal.comp_from η
+  rw [← hterminal]
+  exact Presheaf.isLocallySurjective_comp (smallEtaleTopology W) η τ
 
 /-- Local connectedness of the gerbe identifies its local class representatives. -/
 instance indices_locallyInjective :
-    Presheaf.IsLocallyInjective (smallEtaleTopology W) (Limits.terminal.from (indices W p)) :=
-  sorry
+    Presheaf.IsLocallyInjective (smallEtaleTopology W) (Limits.terminal.from (indices W p)) := by
+  let η := (smallEtaleToSpaces W).op.whiskerLeft
+    (Limits.terminal.from (Functor.fiberIsoClassPresheaf p))
+  letI : Presheaf.IsLocallyInjective (smallEtaleTopology W) η :=
+    Presheaf.isLocallyInjective_whisker (smallEtaleTopology W) (spacesEtaleTopology W)
+      (smallEtaleToSpaces W) (Limits.terminal.from (Functor.fiberIsoClassPresheaf p))
+  let τ := Limits.terminal.from
+    ((smallEtaleToSpaces W).op ⋙ (⊤_ ((spacesEtaleSite W)ᵒᵖ ⥤ Type (u + 1))))
+  letI : IsIso τ := Limits.isIso_of_isTerminal
+    (Limits.isLimitOfHasTerminalOfPreservesLimit
+      ((Functor.whiskeringLeft (smallEtaleSite W)ᵒᵖ (spacesEtaleSite W)ᵒᵖ (Type (u + 1))).obj
+        (smallEtaleToSpaces W).op)) Limits.terminalIsTerminal τ
+  have hterminal : η ≫ τ = Limits.terminal.from (indices W p) :=
+    Limits.terminal.comp_from η
+  rw [← hterminal]
+  exact Presheaf.isLocallyInjective_comp (smallEtaleTopology W) η τ
 
 /-- Restrict the given global additive sheaf using the actual presentation inclusion. -/
 def additiveRestriction (G : Sheaf (spacesEtaleTopology W) AddCommGrpCat.{u + 1}) :
@@ -64,6 +92,30 @@ def additiveExtension :
   (smallEtaleToSpaces W).sheafPushforwardCocontinuous AddCommGrpCat.{u + 1}
     (smallEtaleTopology W) (spacesEtaleTopology W)
 
+private theorem additiveExtensionComparison_unit_comp
+    (G : Sheaf (spacesEtaleTopology W) AddCommGrpCat.{u + 1}) :
+    ((smallEtaleToSpaces W).sheafAdjunctionCocontinuous AddCommGrpCat.{u + 1}
+      (smallEtaleTopology W) (spacesEtaleTopology W)).unit.app G ≫
+      (⟨Functor.IsCoverDense.sheafHom
+        (((smallEtaleToSpaces W).sheafAdjunctionCocontinuous AddCommGrpCat.{u + 1}
+          (smallEtaleTopology W) (spacesEtaleTopology W)).counit.app
+            (additiveRestriction W G)).hom⟩ :
+        (additiveExtension W).obj (additiveRestriction W G) ⟶ G) = 𝟙 G := by
+  apply ((smallEtaleToSpaces W).sheafPushforwardContinuous AddCommGrpCat.{u + 1}
+    (smallEtaleTopology W) (spacesEtaleTopology W)).map_injective
+  apply Sheaf.hom_ext
+  change Functor.whiskerLeft (smallEtaleToSpaces W).op
+      (((smallEtaleToSpaces W).sheafAdjunctionCocontinuous AddCommGrpCat.{u + 1}
+        (smallEtaleTopology W) (spacesEtaleTopology W)).unit.app G).hom ≫
+    Functor.whiskerLeft (smallEtaleToSpaces W).op (Functor.IsCoverDense.sheafHom
+      (((smallEtaleToSpaces W).sheafAdjunctionCocontinuous AddCommGrpCat.{u + 1}
+        (smallEtaleTopology W) (spacesEtaleTopology W)).counit.app
+          (additiveRestriction W G)).hom) = 𝟙 _
+  rw [Functor.IsCoverDense.sheafHom_restrict_eq]
+  exact congrArg (fun f ↦ f.hom)
+    (((smallEtaleToSpaces W).sheafAdjunctionCocontinuous AddCommGrpCat.{u + 1}
+      (smallEtaleTopology W) (spacesEtaleTopology W)).left_triangle_components G)
+
 /-- Extension of the restriction has the actual chartwise counit glued into `G`. The reverse
 map is the native right-Kan adjunction unit, not an inverse chosen from an invertibility law. -/
 def additiveExtensionComparison
@@ -74,8 +126,20 @@ def additiveExtensionComparison
       (smallEtaleTopology W) (spacesEtaleTopology W)).counit.app (additiveRestriction W G)).hom⟩
   inv := ((smallEtaleToSpaces W).sheafAdjunctionCocontinuous AddCommGrpCat.{u + 1}
     (smallEtaleTopology W) (spacesEtaleTopology W)).unit.app G
-  hom_inv_id := sorry
-  inv_hom_id := sorry
+  hom_inv_id := by
+    have h := additiveExtensionComparison_unit_comp W G
+    haveI : IsSplitEpi
+        (((smallEtaleToSpaces W).sheafAdjunctionCocontinuous AddCommGrpCat.{u + 1}
+          (smallEtaleTopology W) (spacesEtaleTopology W)).unit.app G) :=
+      Adjunction.unit_isSplitEpi_of_L_full _ G
+    apply (cancel_epi
+      (((smallEtaleToSpaces W).sheafAdjunctionCocontinuous AddCommGrpCat.{u + 1}
+        (smallEtaleTopology W) (spacesEtaleTopology W)).unit.app G)).mp
+    exact (Category.assoc _ _ _).symm.trans
+      ((congrArg (fun f ↦ f ≫ _) h).trans
+        ((Category.id_comp _).trans (Category.comp_id _).symm))
+  inv_hom_id := by
+    exact additiveExtensionComparison_unit_comp W G
 
 /-- The local operations required for descent are functions on the actual restricted band
 sections, indexed by the gerbe's fiberwise classes. -/
@@ -118,12 +182,24 @@ def localActionOfComparisons
           ((additiveRestriction W G).obj.map f g)) : LocalAction W p G where
   smul := scalarFromComparison W p G V e
   naturality := h
-  one_smul := sorry
-  mul_smul := sorry
-  smul_add := sorry
-  smul_zero := sorry
-  add_smul := sorry
-  zero_smul := sorry
+  one_smul := by
+    intro T i g
+    simp [scalarFromComparison]
+  mul_smul := by
+    intro T i r s g
+    simp [scalarFromComparison, mul_smul]
+  smul_add := by
+    intro T i r g₁ g₂
+    simp [scalarFromComparison, smul_add]
+  smul_zero := by
+    intro T i r
+    simp [scalarFromComparison]
+  add_smul := by
+    intro T i r s g
+    simp [scalarFromComparison, add_smul]
+  zero_smul := by
+    intro T i g
+    simp [scalarFromComparison]
 
 end LocalComparisons
 

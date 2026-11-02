@@ -39,7 +39,19 @@ theorem degreeZeroIso_app_naturality
         (ModuleCat.restrictScalars ((RingPresheaf 𝒪).map f).hom).map
           (ModuleCat.symmetricPower.iso₀ (sectionObj 𝒪 F V)).hom =
       (ModuleCat.symmetricPower.iso₀ (sectionObj 𝒪 F U)).hom ≫
-        (𝟙_ (PresheafOfModules.{w} (RingPresheaf 𝒪))).map f := sorry
+        (𝟙_ (PresheafOfModules.{w} (RingPresheaf 𝒪))).map f := by
+  apply ModuleCat.hom_ext (R := 𝒪.obj U)
+  apply SymmetricPower.linearMap_ext (R := 𝒪.obj U)
+  intro m
+  change (ModuleCat.symmetricPower.iso₀ (sectionObj 𝒪 F V)).hom
+      (ModuleCat.symmetricPower.mapRestrictScalars (𝒪.map f).hom
+        (restriction 𝒪 F f) 0 (ModuleCat.symmetricPower.mk m)) =
+    (𝒪.map f).hom
+      ((ModuleCat.symmetricPower.iso₀ (sectionObj 𝒪 F U)).hom
+        (ModuleCat.symmetricPower.mk m))
+  rw [ModuleCat.symmetricPower.mapRestrictScalars_mk,
+    ModuleCat.symmetricPower.iso₀_hom_apply,
+    ModuleCat.symmetricPower.iso₀_hom_apply, map_one]
 
 /-- A module presheaf is canonically isomorphic to its zeroth symmetric power. -/
 @[stacks 01CF "zeroth symmetric power of module presheaves"]
@@ -61,24 +73,39 @@ noncomputable def degreeZero
 @[simp]
 theorem degreeZeroIso_hom
     (F : PresheafOfModules.{w} (RingPresheaf 𝒪)) :
-    (degreeZeroIso 𝒪 F).hom = degreeZero 𝒪 F := sorry
+    (degreeZeroIso 𝒪 F).hom = degreeZero 𝒪 F := by
+  rfl
 
 /-- The inverse degree-zero presheaf map is the existing symmetric unit. -/
 @[simp]
 theorem degreeZeroIso_inv
     (F : PresheafOfModules.{w} (RingPresheaf 𝒪)) :
-    (degreeZeroIso 𝒪 F).inv = oneHom 𝒪 F := sorry
+    (degreeZeroIso 𝒪 F).inv = oneHom 𝒪 F := by
+  rfl
 
 /-- The degree-zero symmetric unit is an isomorphism. -/
 instance oneHom_isIso
     (F : PresheafOfModules.{w} (RingPresheaf 𝒪)) :
-    IsIso (oneHom 𝒪 F) := sorry
+    IsIso (oneHom 𝒪 F) := by
+  rw [← degreeZeroIso_inv 𝒪 F]
+  infer_instance
 
 /-- Zeroth symmetric-power projections are natural in the module presheaf. -/
 @[reassoc]
 theorem degreeZero_naturality
     {F G : PresheafOfModules.{w} (RingPresheaf 𝒪)} (f : F ⟶ G) :
-    hom 𝒪 f 0 ≫ degreeZero 𝒪 G = degreeZero 𝒪 F := sorry
+    hom 𝒪 f 0 ≫ degreeZero 𝒪 G = degreeZero 𝒪 F := by
+  apply (cancel_epi (degreeZeroIso 𝒪 F).inv).1
+  have hF : oneHom 𝒪 F ≫ degreeZero 𝒪 F = 𝟙 _ := by
+    rw [← degreeZeroIso_inv 𝒪 F, ← degreeZeroIso_hom 𝒪 F]
+    exact (degreeZeroIso 𝒪 F).inv_hom_id
+  have hG : oneHom 𝒪 G ≫ degreeZero 𝒪 G = 𝟙 _ := by
+    rw [← degreeZeroIso_inv 𝒪 G, ← degreeZeroIso_hom 𝒪 G]
+    exact (degreeZeroIso 𝒪 G).inv_hom_id
+  simpa only [Category.assoc, degreeZeroIso_hom, degreeZeroIso_inv,
+    Iso.inv_hom_id_assoc, hF, hG] using
+    congrArg (fun k ↦ k ≫ (degreeZeroIso 𝒪 G).hom)
+      (oneHom_naturality 𝒪 f)
 
 /-- Naturality of the zeroth symmetric-power identification. -/
 theorem degreeZeroIso_naturality
@@ -86,7 +113,11 @@ theorem degreeZeroIso_naturality
     (functor 𝒪 0).map f ≫ (degreeZeroIso 𝒪 G).hom =
       (degreeZeroIso 𝒪 F).hom ≫
         ((Functor.const _).obj
-          (𝟙_ (PresheafOfModules.{w} (RingPresheaf 𝒪)))).map f := sorry
+          (𝟙_ (PresheafOfModules.{w} (RingPresheaf 𝒪)))).map f := by
+  change hom 𝒪 f 0 ≫ (degreeZeroIso 𝒪 G).hom =
+    (degreeZeroIso 𝒪 F).hom ≫ 𝟙 _
+  rw [degreeZeroIso_hom, degreeZeroIso_hom, Category.comp_id]
+  exact degreeZero_naturality 𝒪 f
 
 /-- Naturality of the inverse zeroth symmetric-power identification. -/
 theorem degreeZeroIso_inv_naturality
@@ -94,7 +125,11 @@ theorem degreeZeroIso_inv_naturality
     ((Functor.const _).obj
           (𝟙_ (PresheafOfModules.{w} (RingPresheaf 𝒪)))).map f ≫
         (degreeZeroIso 𝒪 G).inv =
-      (degreeZeroIso 𝒪 F).inv ≫ (functor 𝒪 0).map f := sorry
+      (degreeZeroIso 𝒪 F).inv ≫ (functor 𝒪 0).map f := by
+  change 𝟙 _ ≫ (degreeZeroIso 𝒪 G).inv =
+    (degreeZeroIso 𝒪 F).inv ≫ hom 𝒪 f 0
+  rw [Category.id_comp, degreeZeroIso_inv, degreeZeroIso_inv]
+  exact (oneHom_naturality 𝒪 f).symm
 
 /-- The degree-zero maps form the forward natural transformation to the tensor unit. -/
 @[stacks 01CF "forward zeroth symmetric power natural transformation"]
@@ -115,12 +150,20 @@ noncomputable def degreeZeroInvNatTrans :
 /-- The forward degree-zero natural transformation followed by its inverse is the identity. -/
 @[simp]
 theorem degreeZeroNatTrans_hom_inv_id :
-    degreeZeroNatTrans 𝒪 ≫ degreeZeroInvNatTrans 𝒪 = 𝟙 _ := sorry
+    degreeZeroNatTrans 𝒪 ≫ degreeZeroInvNatTrans 𝒪 = 𝟙 _ := by
+  apply NatTrans.ext
+  funext F
+  change (degreeZeroIso 𝒪 F).hom ≫ (degreeZeroIso 𝒪 F).inv = 𝟙 _
+  exact (degreeZeroIso 𝒪 F).hom_inv_id
 
 /-- The inverse degree-zero natural transformation followed by the forward one is the identity. -/
 @[simp]
 theorem degreeZeroNatTrans_inv_hom_id :
-    degreeZeroInvNatTrans 𝒪 ≫ degreeZeroNatTrans 𝒪 = 𝟙 _ := sorry
+    degreeZeroInvNatTrans 𝒪 ≫ degreeZeroNatTrans 𝒪 = 𝟙 _ := by
+  apply NatTrans.ext
+  funext F
+  change (degreeZeroIso 𝒪 F).inv ≫ (degreeZeroIso 𝒪 F).hom = 𝟙 _
+  exact (degreeZeroIso 𝒪 F).inv_hom_id
 
 /-- Zeroth symmetric powers are naturally the tensor-unit presheaf. -/
 @[stacks 01CF "natural zeroth symmetric power of module presheaves"]
@@ -136,28 +179,33 @@ noncomputable def degreeZeroNatIso :
 @[simp]
 theorem degreeZeroNatIso_app
     (F : PresheafOfModules.{w} (RingPresheaf 𝒪)) :
-    (degreeZeroNatIso 𝒪).app F = degreeZeroIso 𝒪 F := sorry
+    (degreeZeroNatIso 𝒪).app F = degreeZeroIso 𝒪 F := by
+  ext <;> rfl
 
 /-- The forward map of `degreeZeroNatIso` is explicit. -/
 @[simp]
 theorem degreeZeroNatIso_hom :
-    (degreeZeroNatIso 𝒪).hom = degreeZeroNatTrans 𝒪 := sorry
+    (degreeZeroNatIso 𝒪).hom = degreeZeroNatTrans 𝒪 := by
+  rfl
 
 /-- The inverse map of `degreeZeroNatIso` is explicit. -/
 @[simp]
 theorem degreeZeroNatIso_inv :
-    (degreeZeroNatIso 𝒪).inv = degreeZeroInvNatTrans 𝒪 := sorry
+    (degreeZeroNatIso 𝒪).inv = degreeZeroInvNatTrans 𝒪 := by
+  rfl
 
 /-- The forward component of `degreeZeroNatIso` is `degreeZero`. -/
 @[simp]
 theorem degreeZeroNatIso_hom_app
     (F : PresheafOfModules.{w} (RingPresheaf 𝒪)) :
-    (degreeZeroNatIso 𝒪).hom.app F = degreeZero 𝒪 F := sorry
+    (degreeZeroNatIso 𝒪).hom.app F = degreeZero 𝒪 F := by
+  rfl
 
 /-- The inverse component of `degreeZeroNatIso` is the symmetric unit. -/
 @[simp]
 theorem degreeZeroNatIso_inv_app
     (F : PresheafOfModules.{w} (RingPresheaf 𝒪)) :
-    (degreeZeroNatIso 𝒪).inv.app F = (degreeZeroIso 𝒪 F).inv := sorry
+    (degreeZeroNatIso 𝒪).inv.app F = (degreeZeroIso 𝒪 F).inv := by
+  rfl
 
 end PresheafOfModules.SymmetricPower

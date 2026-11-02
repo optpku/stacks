@@ -7,6 +7,7 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import Mathlib.AlgebraicGeometry.Scheme
+public import Mathlib.AlgebraicGeometry.OpenImmersion
 public import Mathlib.Topology.Category.TopCommRingCat
 public import Mathlib.Topology.Order
 
@@ -23,7 +24,7 @@ universe u
 
 noncomputable section
 
-open CategoryTheory Opposite TopCat TopologicalSpace
+open CategoryTheory Opposite TopCat TopologicalSpace Topology
 
 namespace AlgebraicGeometry
 
@@ -45,9 +46,49 @@ instance instCommRingPseudoDiscreteSection (X : Scheme.{u}) (U : X.Opens) :
 instance instTopologicalSpacePseudoDiscreteSection (X : Scheme.{u}) (U : X.Opens) :
     TopologicalSpace (PseudoDiscreteSection X U) := pseudoDiscreteSectionTopology X U
 
+private theorem continuous_pseudoDiscreteSection_iff {T : Type*} [TopologicalSpace T]
+    {X : Scheme.{u}} {U : X.Opens} {f : T → PseudoDiscreteSection X U} :
+    Continuous f ↔ ∀ (V : X.Opens) (_ : IsCompact (V : Set X)) (hVU : V ≤ U),
+      Continuous[inferInstance, ⊥] ((X.presheaf.map (homOfLE hVU).op).hom ∘ f) := by
+  change Continuous[inferInstance, pseudoDiscreteSectionTopology X U] f ↔ _
+  simp only [continuous_iInf_rng, continuous_induced_rng]
+
+private theorem continuous_pseudoDiscreteSection_to_discrete {X : Scheme.{u}}
+    {U V : X.Opens} (hV : IsCompact (V : Set X)) (hVU : V ≤ U) :
+    Continuous[instTopologicalSpacePseudoDiscreteSection X U, ⊥]
+      (X.presheaf.map (homOfLE hVU).op).hom := by
+  exact continuous_iff_le_induced.mpr
+    (iInf_le_of_le V (iInf_le_of_le hV (iInf_le _ hVU)))
+
 /-- The initial restriction topology makes sections a topological ring. -/
 instance instIsTopologicalRingPseudoDiscreteSection (X : Scheme.{u}) (U : X.Opens) :
-    IsTopologicalRing (PseudoDiscreteSection X U) := sorry
+    IsTopologicalRing (PseudoDiscreteSection X U) where
+  continuous_add := by
+    apply continuous_pseudoDiscreteSection_iff.mpr
+    intro V hV hVU
+    letI : TopologicalSpace Γ(X, V) := ⊥
+    letI : DiscreteTopology Γ(X, V) := ⟨rfl⟩
+    have hres := continuous_pseudoDiscreteSection_to_discrete hV hVU
+    convert (hres.comp continuous_fst).add (hres.comp continuous_snd) using 1
+    funext p
+    exact map_add (X.presheaf.map (homOfLE hVU).op).hom p.1 p.2
+  continuous_mul := by
+    apply continuous_pseudoDiscreteSection_iff.mpr
+    intro V hV hVU
+    letI : TopologicalSpace Γ(X, V) := ⊥
+    letI : DiscreteTopology Γ(X, V) := ⟨rfl⟩
+    have hres := continuous_pseudoDiscreteSection_to_discrete hV hVU
+    convert (hres.comp continuous_fst).mul (hres.comp continuous_snd) using 1
+    funext p
+    exact map_mul (X.presheaf.map (homOfLE hVU).op).hom p.1 p.2
+  continuous_neg := by
+    apply continuous_pseudoDiscreteSection_iff.mpr
+    intro V hV hVU
+    letI : TopologicalSpace Γ(X, V) := ⊥
+    letI : DiscreteTopology Γ(X, V) := ⟨rfl⟩
+    convert (continuous_pseudoDiscreteSection_to_discrete hV hVU).neg using 1
+    funext s
+    exact map_neg (X.presheaf.map (homOfLE hVU).op).hom s
 
 /-- Restriction of sections along an inclusion of opens, with the original ring homomorphism. -/
 def pseudoDiscreteRestriction {X : Scheme.{u}} {U V : X.Opens} (hVU : V ≤ U) :
@@ -56,11 +97,27 @@ def pseudoDiscreteRestriction {X : Scheme.{u}} {U V : X.Opens} (hVU : V ≤ U) :
 
 /-- Restriction homomorphisms are continuous for the initial restriction topologies. -/
 theorem continuous_pseudoDiscreteRestriction {X : Scheme.{u}} {U V : X.Opens} (hVU : V ≤ U) :
-    Continuous (pseudoDiscreteRestriction hVU) := sorry
+    Continuous (pseudoDiscreteRestriction hVU) := by
+  apply continuous_pseudoDiscreteSection_iff.mpr
+  intro W hW hWV
+  have heq : (X.presheaf.map (homOfLE hWV).op).hom ∘ pseudoDiscreteRestriction hVU =
+      (X.presheaf.map (homOfLE (hWV.trans hVU)).op).hom := by
+    funext s
+    exact (congrArg (fun k : Γ(X, U) ⟶ Γ(X, W) => k.hom s)
+      (X.presheaf.map_comp (homOfLE hVU).op (homOfLE hWV).op)).symm
+  rw [heq]
+  exact continuous_pseudoDiscreteSection_to_discrete hW (hWV.trans hVU)
 
 /-- Sections over a compact open have discrete pseudo-discrete topology. -/
 theorem isDiscrete_of_isCompact {X : Scheme.{u}} {U : X.Opens} (hU : IsCompact (U : Set X)) :
-    DiscreteTopology (PseudoDiscreteSection X U) := sorry
+    DiscreteTopology (PseudoDiscreteSection X U) := by
+  refine ⟨le_antisymm ?_ bot_le⟩
+  change pseudoDiscreteSectionTopology X U ≤ ⊥
+  simpa [induced_id] using
+    (iInf_le_of_le U (iInf_le_of_le hU (iInf_le _ (le_refl U))) :
+    pseudoDiscreteSectionTopology X U ≤
+      TopologicalSpace.induced (X.presheaf.map (homOfLE (le_refl U)).op).hom
+        (⊥ : TopologicalSpace Γ(X, U)))
 
 /-- Compactness of the open as a space supplies discrete topology on its section ring. -/
 instance instDiscreteTopologyPseudoDiscreteSection (X : Scheme.{u}) (U : X.Opens)
@@ -74,7 +131,16 @@ theorem pseudoDiscretePresheaf_laws (X : Scheme.{u}) :
     (∀ {U V W : (Opens X)ᵒᵖ} (f : U ⟶ V) (g : V ⟶ W),
       pseudoDiscreteRestriction (leOfHom (unop (f ≫ g))) =
         (pseudoDiscreteRestriction (leOfHom (unop g))).comp
-          (pseudoDiscreteRestriction (leOfHom (unop f)))) := sorry
+          (pseudoDiscreteRestriction (leOfHom (unop f)))) := by
+  constructor
+  · intro U
+    change (X.presheaf.map (𝟙 U)).hom = RingHom.id _
+    rw [X.presheaf.map_id]
+    rfl
+  · intro U V W f g
+    change (X.presheaf.map (f ≫ g)).hom = (X.presheaf.map g).hom.comp
+      (X.presheaf.map f).hom
+    exact congrArg CommRingCat.Hom.hom (X.presheaf.map_comp f g)
 
 /-- The presheaf with original section rings and continuous pseudo-discrete restrictions. -/
 def pseudoDiscretePresheaf (X : Scheme.{u}) : X.carrier.Presheaf TopCommRingCat.{u} where
@@ -84,9 +150,110 @@ def pseudoDiscretePresheaf (X : Scheme.{u}) : X.carrier.Presheaf TopCommRingCat.
   map_id U := Subtype.ext ((pseudoDiscretePresheaf_laws X).1 U)
   map_comp f g := Subtype.ext ((pseudoDiscretePresheaf_laws X).2 f g)
 
+private theorem exists_isCompact_open_mem_and_subset {X : Scheme.{u}} {x : X}
+    {U : X.Opens} (hxU : x ∈ U) :
+    ∃ V : X.Opens, IsCompact (V : Set X) ∧ x ∈ V ∧ V ≤ U := by
+  obtain ⟨R, f, hf, hx, hsub⟩ := Scheme.exists_affine_mem_range_and_range_subset hxU
+  letI := hf
+  letI : CompactSpace (Spec R) := inferInstanceAs (CompactSpace (PrimeSpectrum R))
+  exact ⟨f.opensRange, isCompact_range f.continuous, hx, hsub⟩
+
+private theorem continuous_discrete_of_locally_continuous_restriction
+    {T : Type*} [TopologicalSpace T] {X : Scheme.{u}} {U : X.Opens}
+    (hU : IsCompact (U : Set X)) {g : T → Γ(X, U)}
+    (hg : ∀ x ∈ U, ∃ (V : X.Opens) (hVU : V ≤ U), x ∈ V ∧
+      Continuous[inferInstance, ⊥] ((X.presheaf.map (homOfLE hVU).op).hom ∘ g)) :
+    Continuous[inferInstance, ⊥] g := by
+  classical
+  let I := { V : { V : X.Opens // V ≤ U } //
+    Continuous[inferInstance, ⊥] ((X.presheaf.map (homOfLE V.property).op).hom ∘ g) }
+  obtain ⟨s, hs⟩ := hU.elim_finite_subcover (fun i : I => (i.val.val : Set X))
+    (fun i => i.val.val.isOpen) (by
+      intro x hx
+      obtain ⟨V, hVU, hxV, hc⟩ := hg x hx
+      exact Set.mem_iUnion.mpr ⟨⟨⟨V, hVU⟩, hc⟩, hxV⟩)
+  letI : TopologicalSpace Γ(X, U) := ⊥
+  letI : DiscreteTopology Γ(X, U) := ⟨rfl⟩
+  apply continuous_discrete_rng.mpr
+  intro t
+  have hfiber : g ⁻¹' {t} = ⋂ i : s,
+      ((X.presheaf.map (homOfLE i.val.val.property).op).hom ∘ g) ⁻¹'
+        {(X.presheaf.map (homOfLE i.val.val.property).op).hom t} := by
+    ext a
+    simp only [Set.mem_preimage, Set.mem_singleton_iff, Set.mem_iInter, Function.comp_apply]
+    constructor
+    · intro h i
+      rw [h]
+    · intro h
+      apply TopCat.Presheaf.IsSheaf.section_ext (F := X.presheaf) X.sheaf.2
+      intro x hx
+      obtain ⟨i, hi, hxi⟩ := Set.mem_iUnion₂.mp (hs hx)
+      exact ⟨i.val.val, i.val.property, hxi, h ⟨i, hi⟩⟩
+  rw [hfiber]
+  apply isOpen_iInter_of_finite
+  intro i
+  letI : TopologicalSpace Γ(X, i.val.val.val) := ⊥
+  exact i.val.property.isOpen_preimage _ trivial
+
+private theorem continuous_pseudoDiscreteSection_of_cover
+    {T : Type*} [TopologicalSpace T] {X : Scheme.{u}} {U : X.Opens}
+    (S : Sieve U) (hS : S ∈ Opens.grothendieckTopology X U)
+    {g : T → PseudoDiscreteSection X U}
+    (hg : ∀ (V : X.Opens) (i : V ⟶ U) (_ : S i),
+      Continuous (pseudoDiscreteRestriction i.le ∘ g)) : Continuous g := by
+  apply continuous_pseudoDiscreteSection_iff.mpr
+  intro W hW hWU
+  apply continuous_discrete_of_locally_continuous_restriction hW
+  intro x hxW
+  obtain ⟨V, i, hi, hxV⟩ := hS x (hWU hxW)
+  obtain ⟨A, hA, hxA, hAVW⟩ :=
+    exists_isCompact_open_mem_and_subset (U := V ⊓ W) ⟨hxV, hxW⟩
+  have hAV : A ≤ V := hAVW.trans inf_le_left
+  have hAW : A ≤ W := hAVW.trans inf_le_right
+  have hAU : A ≤ U := hAV.trans i.le
+  have hAi : S (homOfLE hAU) := S.downward_closed hi (homOfLE hAV)
+  have hd := isDiscrete_of_isCompact hA
+  have hc : Continuous[inferInstance, ⊥] (pseudoDiscreteRestriction hAU ∘ g) := by
+    exact continuous_le_rng (le_of_eq hd.eq_bot) (hg A (homOfLE hAU) hAi)
+  refine ⟨A, hAW, hxA, ?_⟩
+  have heq : (X.presheaf.map (homOfLE hAW).op).hom ∘
+      ((X.presheaf.map (homOfLE hWU).op).hom ∘ g) =
+      pseudoDiscreteRestriction hAU ∘ g := by
+    funext t
+    exact (congrArg (fun k : Γ(X, U) ⟶ Γ(X, A) => k.hom (g t))
+      (X.presheaf.map_comp (homOfLE hWU).op (homOfLE hAW).op)).symm
+  rw [heq]
+  exact hc
+
 /-- The pseudo-discrete presheaf satisfies the sheaf condition. -/
 theorem pseudoDiscretePresheaf_isSheaf (X : Scheme.{u}) :
-    (pseudoDiscretePresheaf X).IsSheaf := sorry
+    (pseudoDiscretePresheaf X).IsSheaf := by
+  intro R U S hS a ha
+  let q : (pseudoDiscretePresheaf X ⋙ coyoneda.obj (op R)) ⟶
+      (X.presheaf ⋙ coyoneda.obj (op (CommRingCat.of R))) :=
+    { app := fun _ => ↾fun t => CommRingCat.ofHom t.val
+      naturality := fun _ _ _ => rfl }
+  obtain ⟨t, ht, huniq⟩ :=
+    X.sheaf.2 (CommRingCat.of R) S hS (a.map q) (ha.map q)
+  have hc : Continuous (show R → PseudoDiscreteSection X U from t.hom) := by
+    apply continuous_pseudoDiscreteSection_of_cover S hS
+    intro V i hi
+    have heq : pseudoDiscreteRestriction i.le ∘ (show R → PseudoDiscreteSection X U
+        from t.hom) = ((a i hi).val : R → PseudoDiscreteSection X V) := by
+      funext r
+      exact congrArg (fun k : CommRingCat.of R ⟶ Γ(X, V) => k.hom r) (ht i hi)
+    rw [heq]
+    exact (a i hi).property
+  refine ⟨⟨t.hom, hc⟩, ?_, ?_⟩
+  · intro V i hi
+    exact Subtype.ext (congrArg CommRingCat.Hom.hom (ht i hi))
+  · intro s hs
+    apply Subtype.ext
+    have hs' : (a.map q).IsAmalgamation (CommRingCat.ofHom s.val) := by
+      intro V i hi
+      apply CommRingCat.hom_ext
+      exact congrArg Subtype.val (hs i hi)
+    exact congrArg CommRingCat.Hom.hom (huniq _ hs')
 
 /-- The structure sheaf of topological rings with pseudo-discrete section topologies. -/
 def pseudoDiscrete (X : Scheme.{u}) : X.carrier.Sheaf TopCommRingCat.{u} :=
@@ -105,12 +272,12 @@ instance instIsPseudoDiscretePseudoDiscrete (X : Scheme.{u}) :
 
 /-- The type of pseudo-discrete sections is the original structure-sheaf section type. -/
 theorem coe_pseudoDiscrete_obj (X : Scheme.{u}) (U : X.Opens) :
-    ((pseudoDiscrete X).presheaf.obj (op U) : Type u) = Γ(X, U) := sorry
+    ((pseudoDiscrete X).presheaf.obj (op U) : Type u) = Γ(X, U) := rfl
 
 /-- Forgetting section topologies recovers the structure-sheaf rings. -/
 theorem pseudoDiscrete_forget (X : Scheme.{u}) (U : X.Opens) :
     (forget₂ TopCommRingCat CommRingCat).obj ((pseudoDiscrete X).presheaf.obj (op U)) =
-      X.presheaf.obj (op U) := sorry
+      X.presheaf.obj (op U) := rfl
 
 /-- The original scheme space equipped with its pseudo-discrete structure sheaf. -/
 def pseudoDiscreteSheafedSpace (X : Scheme.{u}) : SheafedSpace TopCommRingCat.{u} where
@@ -122,8 +289,35 @@ def pseudoDiscreteSheafedSpace (X : Scheme.{u}) : SheafedSpace TopCommRingCat.{u
 def pseudoDiscreteApp {X Y : Scheme.{u}} (f : X ⟶ Y) (U : Y.Opens) :
     PseudoDiscreteSection Y U →+* PseudoDiscreteSection X (f ⁻¹ᵁ U) := (f.app U).hom
 
+private theorem exists_isCompact_open_between {X : Scheme.{u}} {K : Set X}
+    (hK : IsCompact K) {U : X.Opens} (hKU : K ⊆ U) :
+    ∃ V : X.Opens, IsCompact (V : Set X) ∧ K ⊆ V ∧ V ≤ U := by
+  classical
+  let I := { V : X.Opens // IsCompact (V : Set X) ∧ V ≤ U }
+  obtain ⟨s, hs⟩ := hK.elim_finite_subcover (fun i : I => (i.val : Set X))
+    (fun i => i.val.isOpen) (by
+      intro x hx
+      obtain ⟨V, hV, hxV, hVU⟩ := exists_isCompact_open_mem_and_subset (hKU hx)
+      exact Set.mem_iUnion.mpr ⟨⟨V, hV, hVU⟩, hxV⟩)
+  refine ⟨⨆ i : s, i.val.val, ?_, ?_, iSup_le fun i => i.val.property.2⟩
+  · rw [Opens.coe_iSup]
+    exact isCompact_iUnion fun i : s => i.val.property.1
+  · intro x hx
+    obtain ⟨i, hi, hxi⟩ := Set.mem_iUnion₂.mp (hs hx)
+    exact Opens.mem_iSup.mpr ⟨⟨i, hi⟩, hxi⟩
+
 /-- All scheme-morphism component maps are continuous for pseudo-discrete topologies. -/
 theorem continuous_pseudoDiscreteApp {X Y : Scheme.{u}} (f : X ⟶ Y) (U : Y.Opens) :
-    Continuous (pseudoDiscreteApp f U) := sorry
+    Continuous (pseudoDiscreteApp f U) := by
+  apply continuous_pseudoDiscreteSection_iff.mpr
+  intro V hV hVU
+  obtain ⟨W, hW, himg, hWU⟩ := exists_isCompact_open_between (hV.image f.continuous)
+    (by rintro y ⟨x, hx, rfl⟩; exact hVU hx)
+  have hVW : V ≤ f ⁻¹ᵁ W := fun x hx => himg ⟨x, hx, rfl⟩
+  have hc : Continuous[⊥, ⊥] (f.appLE W V hVW).hom := continuous_bot
+  convert hc.comp (continuous_pseudoDiscreteSection_to_discrete hW hWU) using 1
+  funext s
+  exact (congrArg (fun k : Γ(Y, U) ⟶ Γ(X, V) => k.hom s)
+    (f.map_appLE hVW (homOfLE hWU).op)).symm
 
 end AlgebraicGeometry

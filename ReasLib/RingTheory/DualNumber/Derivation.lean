@@ -82,4 +82,31 @@ coefficient to the infinitesimal coefficient. -/
 theorem autOfDerivation_apply (D : Derivation Λ R R) (value : DualNumber R) :
     autOfDerivation D value = inl value.fst + inr (value.snd + D value.fst) := sorry
 
+/-- The zero derivation induces the identity endomorphism. -/
+theorem autOfDerivation_zero :
+    autOfDerivation (0 : Derivation Λ R R) = AlgHom.id Λ (DualNumber R) := sorry
+
+/-- Composition of derivation-induced endomorphisms corresponds to addition. -/
+theorem autOfDerivation_comp (D E : Derivation Λ R R) :
+    (autOfDerivation D).comp (autOfDerivation E) = autOfDerivation (D + E) := sorry
+
+/-- The automorphism induced by a derivation, with inverse induced by its negative. -/
+def equivOfDerivation (D : Derivation Λ R R) : DualNumber R ≃ₐ[Λ] DualNumber R :=
+  AlgEquiv.ofAlgHom (autOfDerivation D) (autOfDerivation (-D))
+    (by simpa only [add_neg_cancel, autOfDerivation_zero] using autOfDerivation_comp D (-D))
+    (by simpa only [neg_add_cancel, autOfDerivation_zero] using autOfDerivation_comp (-D) D)
+
+/-- The underlying algebra homomorphism is the derivation-induced endomorphism. -/
+theorem equivOfDerivation_toAlgHom (D : Derivation Λ R R) :
+    (equivOfDerivation D).toAlgHom = autOfDerivation D := by
+  exact AlgEquiv.toAlgHom_ofAlgHom _ _ _ _
+
+/-- The inverse automorphism is induced by the opposite derivation. -/
+theorem equivOfDerivation_symm (D : Derivation Λ R R) :
+    (equivOfDerivation D).symm = equivOfDerivation (-D) := sorry
+
+/-- Composition of the automorphisms corresponds to addition of derivations. -/
+theorem equivOfDerivation_trans (D E : Derivation Λ R R) :
+    (equivOfDerivation E).trans (equivOfDerivation D) = equivOfDerivation (D + E) := sorry
+
 end DualNumber

@@ -32,3 +32,12 @@ principal derived completion fit into the canonical comparison diagram. -/
 #check @CategoryTheory.DerivedCategory.PrincipalPower.CohomologyDiagram.Comparison.leftColumn
 #check @CategoryTheory.DerivedCategory.PrincipalPower.CohomologyDiagram.Comparison.middleColumn
 #check @CategoryTheory.DerivedCategory.PrincipalPower.CohomologyDiagram.Comparison.spec
+
+/- The source columns run from the derived-limit error terms upward.  These projection checks
+make the source-facing arrow directions explicit at the chapter facade. -/
+#check @CategoryTheory.DerivedCategory.PrincipalPower.CohomologyDiagram.Comparison.leftBottomMap
+#check @CategoryTheory.DerivedCategory.PrincipalPower.CohomologyDiagram.Comparison.leftTopMap
+#check @CategoryTheory.DerivedCategory.PrincipalPower.CohomologyDiagram.Comparison.middleBottomMap
+#check @CategoryTheory.DerivedCategory.PrincipalPower.CohomologyDiagram.Comparison.middleTopMap
+#check @CategoryTheory.DerivedCategory.PrincipalPower.CohomologyDiagram.Comparison.middleToTop
+#check @CategoryTheory.DerivedCategory.PrincipalPower.CohomologyDiagram.Comparison.bottomSquare

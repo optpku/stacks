@@ -43,14 +43,22 @@ theorem isSeparableOver_of_formallySmooth [Algebra.FormallySmooth k K] :
 to the vanishing of first cotangent homology. -/
 @[stacks 031Z]
 theorem formallySmooth_iff_subsingleton_h1Cotangent_of_field :
-    Algebra.FormallySmooth k K ↔ Subsingleton (Algebra.H1Cotangent k K) := sorry
+    Algebra.FormallySmooth k K ↔ Subsingleton (Algebra.H1Cotangent k K) := by
+  constructor
+  · intro h
+    exact h.subsingleton_h1Cotangent
+  · intro h
+    exact ⟨inferInstance, h⟩
 
 /-- Lemma 10.158.7 (1), tag `0320`: a purely transcendental field extension
 is formally smooth. -/
 @[stacks 0320 "(1)"]
 theorem formallySmooth_of_purelyTranscendental
     (hK : FieldExtension.IsPurelyTranscendental k K) :
-    Algebra.FormallySmooth k K := sorry
+    Algebra.FormallySmooth k K := by
+  obtain ⟨ι, x, hx, hx_top⟩ :=
+    FieldExtension.isPurelyTranscendental_iff_exists_algebraicIndependent.mp hK
+  exact FormallySmooth.of_algebraicIndependent hx hx_top
 
 /-- Lemma 10.158.7 (3), tag `0320`: a field extension separable over its
 base in the Stacks-project sense is formally smooth. -/
@@ -62,13 +70,20 @@ theorem formallySmooth_of_isSeparableOver [Algebra.IsSeparableOver k K] :
 characteristic-zero field is formally smooth. -/
 @[stacks 0322 "(3)"]
 theorem formallySmooth_of_charZero [CharZero k] :
-    Algebra.FormallySmooth k K := sorry
+    Algebra.FormallySmooth k K := by
+  obtain ⟨s, hs⟩ := exists_isTranscendenceBasis k K
+  letI : Algebra.IsAlgebraic
+      (IntermediateField.adjoin k (Set.range (Subtype.val : s → K))) K :=
+    hs.isAlgebraic_field
+  exact FormallySmooth.of_algebraicIndependent_of_isSeparable hs.1
 
 /-- Proposition 10.158.9 (4), tag `0322`: first cotangent homology of a
 field extension over a characteristic-zero field is subsingleton. -/
 @[stacks 0322 "(4)"]
 theorem subsingleton_h1Cotangent_of_charZero [CharZero k] :
-    Subsingleton (Algebra.H1Cotangent k K) := sorry
+    Subsingleton (Algebra.H1Cotangent k K) := by
+  letI : FormallySmooth k K := formallySmooth_of_charZero
+  infer_instance
 
 /-- Unrestricted companion to Lemma 10.158.8 (Tag `0321`): for field extensions,
 formal smoothness is equivalent to separability over the base in the Stacks-project sense.
@@ -76,7 +91,14 @@ The source-facing positive-characteristic specialization is
 `Algebra.FormallySmooth.CharP.iff_isSeparableOver`. -/
 @[stacks 0321 "all-characteristic field-extension companion"]
 theorem formallySmooth_iff_isSeparableOver :
-    Algebra.FormallySmooth k K ↔ Algebra.IsSeparableOver k K := sorry
+    Algebra.FormallySmooth k K ↔ Algebra.IsSeparableOver k K := by
+  constructor
+  · intro h
+    letI := h
+    exact isSeparableOver_of_formallySmooth
+  · intro h
+    letI := h
+    exact formallySmooth_of_isSeparableOver
 
 end Algebra
 
@@ -92,6 +114,7 @@ the unrestricted equivalence is `Algebra.formallySmooth_iff_isSeparableOver`.
 -/
 @[stacks 0321 "(2)"]
 theorem iff_isSeparableOver :
-    Algebra.FormallySmooth k K ↔ Algebra.IsSeparableOver k K := sorry
+    Algebra.FormallySmooth k K ↔ Algebra.IsSeparableOver k K := by
+  exact Algebra.formallySmooth_iff_isSeparableOver
 
 end Algebra.FormallySmooth.CharP

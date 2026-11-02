@@ -7,8 +7,10 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import Mathlib.Tactic.CrossRefAttribute
+public import Mathlib.RingTheory.Localization.Submodule
 public import ReasLib.RingTheory.Algebra.TensorProduct.Multiplication.Perfect
 public import ReasLib.RingTheory.EssentialFiniteness
+public import ReasLib.RingTheory.RingHom.PseudoCoherent.Noetherian
 public import ReasLib.RingTheory.Smooth.EssSmooth
 
 /-!
@@ -25,6 +27,8 @@ flatness and finite Tor dimension of tensor-square multiplication.
 
 universe u v
 
+open scoped TensorProduct
+
 namespace RingHom
 
 namespace DiagonalIsPerfect
@@ -35,7 +39,25 @@ variable [CommRing A] [CommRing B] [IsNoetherianRing B]
 /-- For an essentially finite-type map to a Noetherian target, perfectness of tensor-square
 multiplication is equivalent to finite Tor dimension: pseudo-coherence is automatic. -/
 theorem iff_hasFiniteTorDimension (f : A →+* B) (hfinite : f.EssFiniteType) :
-    f.DiagonalIsPerfect ↔ f.DiagonalHasFiniteTorDimension := sorry
+    f.DiagonalIsPerfect ↔ f.DiagonalHasFiniteTorDimension := by
+  letI : Algebra A B := f.toAlgebra
+  letI : Algebra.EssFiniteType A B := hfinite
+  haveI : IsNoetherianRing (B ⊗[A] B) :=
+    Algebra.EssFiniteType.isNoetherianRing B _
+  constructor
+  · intro hdiag
+    exact @IsPerfectRingMap.finiteTorDimension _ _ _ _ _ hdiag
+  · intro hdiag
+    -- Multiplication selects this scalar action; it is not a global instance.
+    letI : Algebra (B ⊗[A] B) B := (Algebra.tensorSquareMultiplication A B).toAlgebra
+    haveI : Algebra.FiniteType (B ⊗[A] B) B :=
+      RingHom.finiteType_algebraMap.mp <|
+        RingHom.FiniteType.of_surjective (Algebra.tensorSquareMultiplication A B)
+          Algebra.tensorSquareMultiplication.surjective
+    exact
+      { toIsPseudoCoherentRingMap :=
+          Algebra.isPseudoCoherentRingMap_of_finiteType_of_isNoetherianRing
+        finiteTorDimension := hdiag }
 
 end DiagonalIsPerfect
 
@@ -58,7 +80,9 @@ map of Noetherian local rings is essentially smooth when its diagonal has finite
 theorem EssSmooth.of_diagonal_hasFiniteTorDimension (f : A →+* B) [IsLocalHom f]
     (hfinite : f.EssFiniteType) (hflat : f.Flat)
     (hdiag : f.DiagonalHasFiniteTorDimension) :
-    f.EssSmooth := sorry
+    f.EssSmooth := by
+  exact EssSmooth.of_diagonal_isPerfect f hfinite hflat
+    ((DiagonalIsPerfect.iff_hasFiniteTorDimension f hfinite).mpr hdiag)
 
 end EssentiallySmooth
 
@@ -80,7 +104,9 @@ rings is smooth when its diagonal has finite Tor dimension. -/
 theorem Smooth.of_diagonal_hasFiniteTorDimension (f : A →+* B)
     (hfinite : f.FiniteType) (hflat : f.Flat)
     (hdiag : f.DiagonalHasFiniteTorDimension) :
-    f.Smooth := sorry
+    f.Smooth := by
+  exact Smooth.of_diagonal_isPerfect f hfinite hflat
+    ((DiagonalIsPerfect.iff_hasFiniteTorDimension f hfinite.essFiniteType).mpr hdiag)
 
 end Smooth
 
@@ -101,13 +127,29 @@ local rings is essentially smooth when tensor-square multiplication is a perfect
 @[stacks 0FCW]
 theorem EssSmooth.of_diagonal_isPerfect
     (hdiag : (tensorSquareMultiplication A B).IsPerfectRingMap) :
-    EssSmooth A B := sorry
+    EssSmooth A B := by
+  have hdiag' : (algebraMap A B).DiagonalIsPerfect := by
+    rw [RingHom.DiagonalIsPerfect, toAlgebra_algebraMap]
+    exact hdiag
+  have hs := RingHom.EssSmooth.of_diagonal_isPerfect (algebraMap A B)
+    (RingHom.essFiniteType_algebraMap.mpr inferInstance)
+    (RingHom.flat_algebraMap_iff.mpr inferInstance) hdiag'
+  rw [RingHom.EssSmooth, toAlgebra_algebraMap] at hs
+  exact hs
 
 /-- Lemma 23.10.1 (0FCW), algebra form with the source's finite-Tor hypothesis. -/
 @[stacks 0FCW "algebra finite-Tor diagonal criterion"]
 theorem EssSmooth.of_diagonal_hasFiniteTorDimension
     (hdiag : (tensorSquareMultiplication A B).HasFiniteTorDimension) :
-    EssSmooth A B := sorry
+    EssSmooth A B := by
+  have hdiag' : (algebraMap A B).DiagonalHasFiniteTorDimension := by
+    rw [RingHom.DiagonalHasFiniteTorDimension, toAlgebra_algebraMap]
+    exact hdiag
+  have hs := RingHom.EssSmooth.of_diagonal_hasFiniteTorDimension (algebraMap A B)
+    (RingHom.essFiniteType_algebraMap.mpr inferInstance)
+    (RingHom.flat_algebraMap_iff.mpr inferInstance) hdiag'
+  rw [RingHom.EssSmooth, toAlgebra_algebraMap] at hs
+  exact hs
 
 end EssentiallySmooth
 
@@ -123,13 +165,29 @@ tensor-square multiplication is a perfect ring map. -/
 @[stacks 0FCX]
 theorem Smooth.of_diagonal_isPerfect
     (hdiag : (tensorSquareMultiplication A B).IsPerfectRingMap) :
-    Smooth A B := sorry
+    Smooth A B := by
+  have hdiag' : (algebraMap A B).DiagonalIsPerfect := by
+    rw [RingHom.DiagonalIsPerfect, toAlgebra_algebraMap]
+    exact hdiag
+  have hs := RingHom.Smooth.of_diagonal_isPerfect (algebraMap A B)
+    (RingHom.finiteType_algebraMap.mpr inferInstance)
+    (RingHom.flat_algebraMap_iff.mpr inferInstance) hdiag'
+  rw [RingHom.Smooth, toAlgebra_algebraMap] at hs
+  exact hs
 
 /-- Lemma 23.10.2 (0FCX), algebra form with the source's finite-Tor hypothesis. -/
 @[stacks 0FCX "algebra finite-Tor diagonal criterion"]
 theorem Smooth.of_diagonal_hasFiniteTorDimension
     (hdiag : (tensorSquareMultiplication A B).HasFiniteTorDimension) :
-    Smooth A B := sorry
+    Smooth A B := by
+  have hdiag' : (algebraMap A B).DiagonalHasFiniteTorDimension := by
+    rw [RingHom.DiagonalHasFiniteTorDimension, toAlgebra_algebraMap]
+    exact hdiag
+  have hs := RingHom.Smooth.of_diagonal_hasFiniteTorDimension (algebraMap A B)
+    (RingHom.finiteType_algebraMap.mpr inferInstance)
+    (RingHom.flat_algebraMap_iff.mpr inferInstance) hdiag'
+  rw [RingHom.Smooth, toAlgebra_algebraMap] at hs
+  exact hs
 
 end Smooth
 

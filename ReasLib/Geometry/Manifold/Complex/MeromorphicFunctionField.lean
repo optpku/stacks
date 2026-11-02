@@ -153,26 +153,32 @@ theorem MeromorphicFunctionField.mk_eq_mk_iff {f g : X → ℂ}
     {hf : MeromorphicFunctionField.IsMeromorphic X f}
     {hg : MeromorphicFunctionField.IsMeromorphic X g} :
     MeromorphicFunctionField.mk X f hf = MeromorphicFunctionField.mk X g hg ↔
-      f =ᶠ[Filter.codiscrete X] g := sorry
+      f =ᶠ[Filter.codiscrete X] g := by
+  exact (MeromorphicFunctionField.Representative.con X).eq
 
 /-- Prove a property of a meromorphic class by proving it for every meromorphic representative. -/
 protected theorem MeromorphicFunctionField.inductionOn
     {P : MeromorphicFunctionField X → Prop} (a : MeromorphicFunctionField X)
     (h : ∀ f : X → ℂ, ∀ hf : MeromorphicFunctionField.IsMeromorphic X f,
       P (MeromorphicFunctionField.mk X f hf)) :
-    P a := sorry
+    P a := by
+  refine Quotient.inductionOn a ?_
+  intro f
+  exact h f f.property
 
 /-- The zero representative defines zero in the meromorphic function field. -/
 @[simp]
 theorem MeromorphicFunctionField.mk_zero :
     MeromorphicFunctionField.mk X 0
-      (MeromorphicFunctionField.IsMeromorphic.const X 0) = 0 := sorry
+      (MeromorphicFunctionField.IsMeromorphic.const X 0) = 0 := by
+  rfl
 
 /-- The one representative defines one in the meromorphic function field. -/
 @[simp]
 theorem MeromorphicFunctionField.mk_one :
     MeromorphicFunctionField.mk X 1
-      (MeromorphicFunctionField.IsMeromorphic.const X 1) = 1 := sorry
+      (MeromorphicFunctionField.IsMeromorphic.const X 1) = 1 := by
+  rfl
 
 /-- Taking quotient classes commutes with addition of meromorphic representatives. -/
 @[simp]
@@ -181,7 +187,8 @@ theorem MeromorphicFunctionField.mk_add {f g : X → ℂ}
     (hg : MeromorphicFunctionField.IsMeromorphic X g) :
     MeromorphicFunctionField.mk X (f + g)
       (MeromorphicFunctionField.IsMeromorphic.add X hf hg) =
-      MeromorphicFunctionField.mk X f hf + MeromorphicFunctionField.mk X g hg := sorry
+      MeromorphicFunctionField.mk X f hf + MeromorphicFunctionField.mk X g hg := by
+  rfl
 
 /-- Taking quotient classes commutes with multiplication of meromorphic representatives. -/
 @[simp]
@@ -190,7 +197,8 @@ theorem MeromorphicFunctionField.mk_mul {f g : X → ℂ}
     (hg : MeromorphicFunctionField.IsMeromorphic X g) :
     MeromorphicFunctionField.mk X (f * g)
       (MeromorphicFunctionField.IsMeromorphic.mul X hf hg) =
-      MeromorphicFunctionField.mk X f hf * MeromorphicFunctionField.mk X g hg := sorry
+      MeromorphicFunctionField.mk X f hf * MeromorphicFunctionField.mk X g hg := by
+  rfl
 
 omit [IsManifold 𝓘(ℂ) 1 X] in
 /-- Meromorphic representatives that agree on the codiscrete filter define the same element of
@@ -480,6 +488,20 @@ theorem MeromorphicFunctionField.mk_inv {f : X → ℂ}
     (hf : MeromorphicFunctionField.IsMeromorphic X f) :
     MeromorphicFunctionField.mk X f⁻¹
       (MeromorphicFunctionField.IsMeromorphic.inv X hf) =
-      (MeromorphicFunctionField.mk X f hf)⁻¹ := sorry
+      (MeromorphicFunctionField.mk X f hf)⁻¹ := by
+  rcases isMeromorphic_eq_zero_or_nonzero_mem_codiscrete X hf with hzero | hnonzero
+  · rw [MeromorphicFunctionField.mk_eq_zero_of_eventuallyEq_zero X hzero, inv_zero]
+    apply MeromorphicFunctionField.mk_eq_zero_of_eventuallyEq_zero X
+    filter_upwards [hzero] with x hx
+    change f x = 0 at hx
+    change (f x)⁻¹ = 0
+    rw [hx, inv_zero]
+  · symm
+    apply inv_eq_of_mul_eq_one_right
+    rw [← MeromorphicFunctionField.mk_mul X hf (MeromorphicFunctionField.IsMeromorphic.inv X hf),
+      ← MeromorphicFunctionField.mk_one X]
+    apply MeromorphicFunctionField.mk_eq_mk_of_eventuallyEq X
+    filter_upwards [hnonzero] with x hx
+    exact mul_inv_cancel₀ hx
 
 end

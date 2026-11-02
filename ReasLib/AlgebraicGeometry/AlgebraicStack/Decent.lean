@@ -46,7 +46,7 @@ theorem spec {S : Scheme.{u}} (X : GroupoidsOver S) [AlgebraicStack X]
     [IsDecent X] :
     ∀ x : Points X, ∃ p : FieldValuedPoint X,
       QuasiCompact p.hom ∧ Points.mk p = x :=
-  sorry
+  IsDecent.exists_quasiCompact
 
 /-- A choice of quasi-compact morphism `Spec(K) ⟶ X` at every point witnesses
 that the algebraic stack is decent. -/
@@ -54,7 +54,7 @@ theorem of {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X]
     (h : ∀ x : Points X, ∃ p : FieldValuedPoint X,
       QuasiCompact p.hom ∧ Points.mk p = x) :
     IsDecent X :=
-  sorry
+  ⟨h⟩
 
 end IsDecent
 
@@ -69,11 +69,6 @@ instance instIsDecent_of_toGroupoids {S : Scheme.{u}} (A : AlgebraicSpace S)
     [AlgebraicSpace.IsDecent A] : IsDecent A.toGroupoids :=
   sorry
 
-/-- A quasi-separated algebraic stack is decent. -/
-instance instIsDecent_of_isQuasiSeparated {S : Scheme.{u}} (X : GroupoidsOver S)
-    [AlgebraicStack X] [IsQuasiSeparated X] : IsDecent X :=
-  sorry
-
 /-- An algebraic stack with quasi-compact absolute diagonal is decent. -/
 theorem IsDecent.of_quasiCompact_diagonal {S : Scheme.{u}} {X : GroupoidsOver S}
     [AlgebraicStack X]
@@ -82,5 +77,10 @@ theorem IsDecent.of_quasiCompact_diagonal {S : Scheme.{u}} {X : GroupoidsOver S}
         (FiberedCategoryOver.Groupoids.diagonal.{u + 1, u, u + 1} (viewedOverSpecZ X))) :
     IsDecent X :=
   sorry
+
+/-- A quasi-separated algebraic stack is decent. -/
+instance instIsDecent_of_isQuasiSeparated {S : Scheme.{u}} (X : GroupoidsOver S)
+    [AlgebraicStack X] [IsQuasiSeparated X] : IsDecent X :=
+  IsDecent.of_quasiCompact_diagonal (IsQuasiSeparated.quasiCompact_diagonal (X := X))
 
 end AlgebraicGeometry.AlgebraicStack

@@ -36,29 +36,33 @@ applied after duality over `A` and derived extension of scalars. -/
 @[stacks 0E9L] #check
   (CategoryTheory.ModuleCat.UpperShriek.Presentation.isomorphicDualityExtension :
     ∀ (φ : A →+* B) (hφ : φ.FiniteType) (p : Presentation φ)
-      (HA : MonoidalClosed (DerivedCategory (ModuleCat.{u, u} A)))
-      (HB : MonoidalClosed (DerivedCategory (ModuleCat.{u, u} B)))
-      (ωA : DerivedCategory (ModuleCat.{u, u} A)) (hωA : ωA.IsDualizingComplex HA),
+      (CA : DerivedCategory.CanonicalClosedPresentation (A := A))
+      (CB : DerivedCategory.CanonicalClosedPresentation (A := B))
+      (ωA : DerivedCategory (ModuleCat.{u, u} A))
+      (hωA : ωA.IsDualizingComplex CA.comparison.closed),
       IsIsomorphic
         ((DerivedCategory.cohomologyIn (ModuleCat.isFG A)).ι ⋙ p.functor)
-        ((DerivedCategory.IsDualizingComplex.coherentDuality HA ωA hωA).rightOp ⋙
+        ((DerivedCategory.IsDualizingComplex.coherentDuality CA.comparison.closed ωA hωA).rightOp ⋙
           (DerivedCategory.cohomologyIn (ModuleCat.isFG A)).ι.op ⋙
           (derivedExtensionOfScalars φ).op ⋙
-          (RightInternalHom.ofBraidedClosedOf HB).dualFunctor (p.functor.obj ωA)))
+          (RightInternalHom.ofBraidedClosedOf CB.comparison.closed).dualFunctor
+            (p.functor.obj ωA)))
 
 /- The objectwise form of the functorial comparison. -/
 #check
   (CategoryTheory.ModuleCat.UpperShriek.Presentation.objIsomorphicDualityExtension :
     ∀ (φ : A →+* B) (hφ : φ.FiniteType) (p : Presentation φ)
-      (HA : MonoidalClosed (DerivedCategory (ModuleCat.{u, u} A)))
-      (HB : MonoidalClosed (DerivedCategory (ModuleCat.{u, u} B)))
-      (ωA : DerivedCategory (ModuleCat.{u, u} A)) (hωA : ωA.IsDualizingComplex HA)
+      (CA : DerivedCategory.CanonicalClosedPresentation (A := A))
+      (CB : DerivedCategory.CanonicalClosedPresentation (A := B))
+      (ωA : DerivedCategory (ModuleCat.{u, u} A))
+      (hωA : ωA.IsDualizingComplex CA.comparison.closed)
       (K : D[ModuleCat.isFG A]),
       IsIsomorphic (p.functor.obj K.obj)
-        (((DerivedCategory.IsDualizingComplex.coherentDuality HA ωA hωA).rightOp ⋙
+        (((DerivedCategory.IsDualizingComplex.coherentDuality CA.comparison.closed ωA hωA).rightOp ⋙
           (DerivedCategory.cohomologyIn (ModuleCat.isFG A)).ι.op ⋙
           (derivedExtensionOfScalars φ).op ⋙
-          (RightInternalHom.ofBraidedClosedOf HB).dualFunctor (p.functor.obj ωA)).obj K))
+          (RightInternalHom.ofBraidedClosedOf CB.comparison.closed).dualFunctor
+            (p.functor.obj ωA)).obj K))
 
 end Presentation
 end UpperShriek

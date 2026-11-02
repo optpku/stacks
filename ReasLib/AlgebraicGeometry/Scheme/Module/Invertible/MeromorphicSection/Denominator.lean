@@ -13,6 +13,7 @@ public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Support
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Invertible.Basic
 public import Mathlib.Algebra.Category.ModuleCat.Sheaf.PullbackFree
 public import Mathlib.Algebra.Category.ModuleCat.Sheaf.Quasicoherent
+public import Mathlib.CategoryTheory.Limits.Types.Pullbacks
 
 /-!
 # Denominator ideals of regular meromorphic sections
@@ -108,14 +109,24 @@ abbrev IsDenominatorSectionMap
   IsPullback sectionMap I.arrow (meromorphicSectionUnit ℒ)
     (restrictedMeromorphicSectionMap ℒ s)
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The canonical denominator section map exhibits the denominator ideal as
 the defining pullback. -/
 theorem denominatorSectionMap_isPullback
     (ℒ : X.Modules) [Scheme.Modules.Invertible ℒ]
     (s : X.toLocallyRingedSpace.meromorphicSections ℒ) :
     IsDenominatorSectionMap (denominatorIdealSheaf ℒ s) ℒ s
-      (denominatorSectionMap ℒ s) := sorry
+      (denominatorSectionMap ℒ s) := by
+  refine (Subobject.isPullback (restrictedMeromorphicSectionMap ℒ s)
+    (regularSectionSubobject ℒ)).of_iso
+      (Iso.refl _) (Subobject.underlyingIso (meromorphicSectionUnit ℒ))
+      (Iso.refl _) (Iso.refl _) ?_ ?_ ?_ ?_
+  · simp [denominatorSectionMap]
+  · simp [denominatorIdealSheaf]
+  · simp [regularSectionSubobject]
+  · simp
 
+set_option backward.isDefEq.respectTransparency false in
 /-- A local function belongs to the denominator ideal exactly when its product
 with the meromorphic section comes from a regular local section of `ℒ`. -/
 theorem denominatorIdealSheaf_mem_iff
@@ -125,7 +136,13 @@ theorem denominatorIdealSheaf_mem_iff
     (f : (SheafOfModules.unit X.ringCatSheaf).val.obj (op V)) :
     f ∈ SheafOfModules.Subobject.sections (denominatorIdealSheaf ℒ s) (op V) ↔
       (restrictedMeromorphicSectionMap ℒ s).val.app (op V) f ∈
-        SheafOfModules.Subobject.sections (regularSectionSubobject ℒ) (op V) := sorry
+        SheafOfModules.Subobject.sections (regularSectionSubobject ℒ) (op V) := by
+  let F := SheafOfModules.evaluation X.ringCatSheaf (op V) ⋙
+    CategoryTheory.forget (ModuleCat (X.ringCatSheaf.obj.obj (op V)))
+  exact Set.ext_iff.mp
+    (Types.range_snd_of_isPullback
+      ((Subobject.isPullback (restrictedMeromorphicSectionMap ℒ s)
+        (regularSectionSubobject ℒ)).map F)) f
 
 /-- The module underlying the denominator ideal of a regular meromorphic
 section is quasi-coherent. -/
@@ -135,13 +152,28 @@ theorem denominatorIdealModule_isQuasicoherent
     (hs : X.toLocallyRingedSpace.IsRegularMeromorphicSection ℒ s) :
     (Subobject.underlying.obj (denominatorIdealSheaf ℒ s)).IsQuasicoherent := sorry
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Multiplication by a regular meromorphic section is a monomorphism on its
 denominator ideal. -/
 theorem denominatorSectionMap_mono
     (ℒ : X.Modules) [Scheme.Modules.Invertible ℒ]
     (s : X.toLocallyRingedSpace.meromorphicSections ℒ)
     (hs : X.toLocallyRingedSpace.IsRegularMeromorphicSection ℒ s) :
-    Mono (denominatorSectionMap ℒ s) := sorry
+    Mono (denominatorSectionMap ℒ s) := by
+  letI : Mono (X.toLocallyRingedSpace.meromorphicSectionMap ℒ s) := hs
+  letI : Functor.PreservesMonomorphisms
+      (restrictionAlong.{u, u, u, u}
+        X.toLocallyRingedSpace.toMeromorphicFunctionSheafHom) :=
+    Functor.preservesMonomorphisms_of_adjunction
+      (extendRestrictAdj.{u, u, u}
+        X.toLocallyRingedSpace.toMeromorphicFunctionSheafHom)
+  letI : @Mono (SheafOfModules X.ringCatSheaf) _ _ _
+      (meromorphicSectionUnit (SheafOfModules.unit X.ringCatSheaf : X.Modules)) :=
+    meromorphicSectionUnit_mono _
+  letI : Mono (restrictedMeromorphicSectionMap ℒ s) := by
+    dsimp [restrictedMeromorphicSectionMap]
+    infer_instance
+  exact (denominatorSectionMap_isPullback ℒ s).mono_fst_of_mono
 
 /-- The cokernel of the denominator-ideal inclusion has closed nowhere-dense
 support. -/
@@ -214,6 +246,7 @@ abbrev idealSheafArrow
     h.idealModule ⟶ (SheafOfModules.unit X.ringCatSheaf : X.Modules) :=
   h.idealSheaf.arrow
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The defining pullback, quasi-coherence, injectivity, and support properties
 of a regular meromorphic section's denominator ideal. -/
 theorem spec
@@ -228,7 +261,13 @@ theorem spec
           SheafOfModules.supportedOn T (cokernel h.idealSheafArrow)) ∧
       ∃ T : Set X,
         IsClosed T ∧ IsNowhereDense T ∧
-          SheafOfModules.supportedOn T (cokernel h.sectionMap) := sorry
+          SheafOfModules.supportedOn T (cokernel h.sectionMap) := by
+  refine ⟨h.sectionMap_isPullback, h.idealModule_isQuasicoherent,
+    Subobject.arrow_mono h.idealSheaf, h.sectionMap_mono, ?_, ?_⟩
+  · exact ⟨_, h.inclusionCokernel_hasClosedNowhereDenseSupport.1,
+      h.inclusionCokernel_hasClosedNowhereDenseSupport.2, Set.Subset.rfl⟩
+  · exact ⟨_, h.sectionMapCokernel_hasClosedNowhereDenseSupport.1,
+      h.sectionMapCokernel_hasClosedNowhereDenseSupport.2, Set.Subset.rfl⟩
 
 end RegularMeromorphicSectionIdealSheaf
 

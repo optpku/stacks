@@ -50,10 +50,23 @@ noncomputable def rawFlippedIsoDirect : rawFlipped C ≅ rawDirect C :=
   totalFlipNatIso
 
 /-- Direct raw totalization preserves homotopies of double-complex maps. -/
-theorem rawDirectPreservesHomotopy : (rawDirect C).PreservesHomotopy := sorry
+theorem rawDirectPreservesHomotopy : (rawDirect C).PreservesHomotopy := by
+  rintro K L f g ⟨h⟩
+  exact ⟨Total.Homotopy.First.of h⟩
 
 /-- Flipped raw totalization preserves homotopies of double-complex maps. -/
-theorem rawFlippedPreservesHomotopy : (rawFlipped C).PreservesHomotopy := sorry
+theorem rawFlippedPreservesHomotopy : (rawFlipped C).PreservesHomotopy := by
+  intro K L f g h
+  obtain ⟨h⟩ := rawDirectPreservesHomotopy C h
+  let e := rawFlippedIsoDirect C
+  have conjugate (a : K ⟶ L) :
+      (e.hom.app K ≫ (rawDirect C).map a) ≫ e.inv.app L =
+        (rawFlipped C).map a := by
+    rw [← e.hom.naturality a]
+    simp
+  exact ⟨(Homotopy.ofEq (conjugate f).symm).trans
+    (((h.compLeft (e.hom.app K)).compRight (e.inv.app L)).trans
+      (Homotopy.ofEq (conjugate g)))⟩
 
 /-- Direct totalization descended to homotopy categories. -/
 @[stacks 0G6D "direct totalization on homotopy categories"]
@@ -100,25 +113,25 @@ noncomputable def flippedFactors :
 @[simp]
 theorem direct_obj (K : HomologicalComplex₂ C (up ℤ) (up ℤ)) :
     (direct C).obj ((HomotopyCategory.quotient (CochainComplex C ℤ) (up ℤ)).obj K) =
-      (HomotopyCategory.quotient C (up ℤ)).obj ((rawDirect C).obj K) := sorry
+      (HomotopyCategory.quotient C (up ℤ)).obj ((rawDirect C).obj K) := rfl
 
 /-- Direct totalization computes on quotient maps by raw totalization. -/
 @[simp]
 theorem direct_map {K L : HomologicalComplex₂ C (up ℤ) (up ℤ)} (f : K ⟶ L) :
     (direct C).map ((HomotopyCategory.quotient (CochainComplex C ℤ) (up ℤ)).map f) =
-      (HomotopyCategory.quotient C (up ℤ)).map ((rawDirect C).map f) := sorry
+      (HomotopyCategory.quotient C (up ℤ)).map ((rawDirect C).map f) := rfl
 
 /-- Flipped totalization computes on quotient objects by flipped raw totalization. -/
 @[simp]
 theorem flipped_obj (K : HomologicalComplex₂ C (up ℤ) (up ℤ)) :
     (flipped C).obj ((HomotopyCategory.quotient (CochainComplex C ℤ) (up ℤ)).obj K) =
-      (HomotopyCategory.quotient C (up ℤ)).obj ((rawFlipped C).obj K) := sorry
+      (HomotopyCategory.quotient C (up ℤ)).obj ((rawFlipped C).obj K) := rfl
 
 /-- Flipped totalization computes on quotient maps by flipped raw totalization. -/
 @[simp]
 theorem flipped_map {K L : HomologicalComplex₂ C (up ℤ) (up ℤ)} (f : K ⟶ L) :
     (flipped C).map ((HomotopyCategory.quotient (CochainComplex C ℤ) (up ℤ)).map f) =
-      (HomotopyCategory.quotient C (up ℤ)).map ((rawFlipped C).map f) := sorry
+      (HomotopyCategory.quotient C (up ℤ)).map ((rawFlipped C).map f) := rfl
 
 /-- On a quotient object, the comparison from flipped to direct totalization is induced by the
 canonical total-flip isomorphism. -/
@@ -126,6 +139,9 @@ canonical total-flip isomorphism. -/
 theorem flippedIsoDirect_hom_app (K : HomologicalComplex₂ C (up ℤ) (up ℤ)) :
     (flippedIsoDirect C).hom.app
         ((HomotopyCategory.quotient (CochainComplex C ℤ) (up ℤ)).obj K) =
-      (HomotopyCategory.quotient C (up ℤ)).map (K.totalFlipIso (up ℤ)).hom := sorry
+      (HomotopyCategory.quotient C (up ℤ)).map (K.totalFlipIso (up ℤ)).hom := by
+  change 𝟙 _ ≫ (HomotopyCategory.quotient C (up ℤ)).map
+    (K.totalFlipIso (up ℤ)).hom ≫ 𝟙 _ = _
+  simp only [Category.id_comp, Category.comp_id]
 
 end HomologicalComplex₂.HomotopyTotal

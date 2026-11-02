@@ -187,6 +187,52 @@ theorem baseChangeCompIso_hom_app_hom {T T' T'' : Scheme.{u}} (g : T' ⟶ T) (h 
     ((baseChangeCompIso g h).hom.app X).hom = (Over.pullbackComp h g).inv.app X.obj :=
   rfl
 
+private theorem pullbackId_app_left {T : Scheme.{u}} (X : Over T) :
+    (Over.pullbackId.hom.app X).left = pullback.fst X.hom (𝟙 T) := by
+  have H := congrArg Over.Hom.left (conjugateEquiv_counit
+    (Over.mapPullbackAdj (𝟙 T)) Adjunction.id (Over.mapId T).inv X)
+  change (Over.pullbackId.hom.app X).left ≫ 𝟙 _ =
+    𝟙 _ ≫ pullback.fst X.hom (𝟙 T) at H
+  simpa only [Category.comp_id, Category.id_comp] using H
+
+private theorem pullback_eqToHom_left_fst {T T' : Scheme.{u}} {f g : T' ⟶ T}
+    (h : f = g) (X : Over T) :
+    (eqToHom (congrArg (fun k ↦ (Over.pullback k).obj X) h)).left ≫
+      pullback.fst X.hom g = pullback.fst X.hom f := by
+  cases h
+  simp
+
+private theorem baseChangeCompIso_inv_app_fst_fst {T T' T'' : Scheme.{u}}
+    (g : T' ⟶ T) (h : T'' ⟶ T') (X : FinitePresentationOver T) :
+    ((baseChangeCompIso g h).inv.app X).hom.left ≫
+        pullback.fst (pullback.snd X.obj.hom g) h ≫ pullback.fst X.obj.hom g =
+      pullback.fst X.obj.hom (h ≫ g) := by
+  have H := congrArg Over.Hom.left (conjugateEquiv_counit
+    (Over.mapPullbackAdj (h ≫ g))
+    ((Over.mapPullbackAdj h).comp (Over.mapPullbackAdj g))
+    (Over.mapComp h g).inv X.obj)
+  change ((baseChangeCompIso g h).inv.app X).hom.left ≫
+      (pullback.fst (pullback.snd X.obj.hom g) h ≫ pullback.fst X.obj.hom g) =
+    𝟙 _ ≫ pullback.fst X.obj.hom (h ≫ g) at H
+  simpa only [Category.id_comp] using H
+
+private theorem baseChangeComparison_inv_app_fst_fst {T T' T'' : Scheme.{u}}
+    (g : T' ⟶ T) (h : T'' ⟶ T') (k : T'' ⟶ T) (hk : h ≫ g = k)
+    (X : FinitePresentationOver T) :
+    (((baseChangeCompIso g h ≪≫ eqToIso (congrArg baseChange hk)).app X).inv).hom.left ≫
+        pullback.fst (pullback.snd X.obj.hom g) h ≫ pullback.fst X.obj.hom g =
+      pullback.fst X.obj.hom k := by
+  cases hk
+  change (𝟙 _ ≫ ((baseChangeCompIso g h).inv.app X).hom).left ≫
+      pullback.fst (pullback.snd X.obj.hom g) h ≫ pullback.fst X.obj.hom g = _
+  simpa only [Category.id_comp] using baseChangeCompIso_inv_app_fst_fst g h X
+
+private theorem baseChange_map_left_fst {T T' : Scheme.{u}} (g : T' ⟶ T)
+    {X Y : FinitePresentationOver T} (f : X ⟶ Y) :
+    ((baseChange g).map f).hom.left ≫ pullback.fst Y.obj.hom g =
+      pullback.fst X.obj.hom g ≫ f.hom.left :=
+  pullback.lift_fst _ _ _
+
 end FinitePresentationOver
 
 /-- The canonical identification of the two restrictions of a finite-presentation scheme
@@ -237,6 +283,25 @@ theorem finitePresentationStalkGluingFunctor_obj_iso (S : Scheme.{u}) (U : S.Ope
 
 namespace FinitePresentationOver.OpenNeighborhood
 
+set_option backward.defeqAttrib.useBackward true in
+set_option backward.isDefEq.respectTransparency false in
+private theorem id_fiber_left (S : Scheme.{u}) (U : S.Opens) (s : S)
+    (X : Pseudofunctor.Grothendieck (pseudofunctor S U s)) :
+    (𝟙 X : X ⟶ X).fiber.hom.left =
+      pullback.fst X.fiber.obj.hom (S.homOfLE (leOfHom (𝟙 X.base).unop)) := by
+  change (((pseudofunctor S U s).mapId ⟨X.base⟩).hom.toNatTrans.app X.fiber).hom.left = _
+  unfold pseudofunctor
+  extract_lets Q R G F P
+  change ((F.mapId ⟨X.base⟩).hom.toNatTrans.app X.fiber.obj).left = _
+  change ((R.map₂ (G.toPseudofunctor.mapId ⟨X.base⟩).hom).toNatTrans.app X.fiber.obj ≫
+    (R.mapId (G.toPseudofunctor.obj ⟨X.base⟩)).hom.toNatTrans.app X.fiber.obj).left = _
+  simp only [Functor.toPseudofunctor_mapId, eqToIso,
+    PrelaxFunctor.map₂_eqToHom, Cat.eqToHom_app]
+  change (eqToHom (congrArg (fun f ↦ (Over.pullback f).obj X.fiber.obj)
+    (S.homOfLE_rfl X.base.toOpen))).left ≫ (Over.pullbackId.hom.app X.fiber.obj).left = _
+  rw [pullbackId_app_left]
+  exact pullback_eqToHom_left_fst (S.homOfLE_rfl X.base.toOpen) X.fiber.obj
+
 /-- Pull back neighborhood schemes along a compatible family of maps from a fixed scheme. -/
 noncomputable def restrictionFunctor
     (S : Scheme.{u}) (U : S.Opens) (s : S) (T : Scheme.{u})
@@ -248,7 +313,43 @@ noncomputable def restrictionFunctor
     ((baseChangeCompIso (S.homOfLE (leOfHom f.base.unop)) (ι Y.base) ≪≫
       eqToIso (congrArg baseChange (hι f.base))).app X.fiber).inv ≫
         (baseChange (ι Y.base)).map f.fiber
-  map_id := sorry
+  map_id := by
+    intro X
+    let φ : (baseChange (ι X.base)).obj X.fiber ⟶
+        (baseChange (ι X.base)).obj X.fiber :=
+      ((baseChangeCompIso (S.homOfLE (leOfHom (𝟙 X.base).unop)) (ι X.base) ≪≫
+        eqToIso (congrArg baseChange (hι (𝟙 X.base)))).app X.fiber).inv ≫
+          (baseChange (ι X.base)).map (𝟙 X : X ⟶ X).fiber
+    change φ = 𝟙 _
+    apply ObjectProperty.hom_ext
+    apply Over.OverMorphism.ext
+    apply pullback.hom_ext
+    · change
+        ((((baseChangeCompIso (S.homOfLE (leOfHom (𝟙 X.base).unop)) (ι X.base) ≪≫
+          eqToIso (congrArg baseChange (hι (𝟙 X.base)))).app X.fiber).inv).hom.left ≫
+            ((baseChange (ι X.base)).map (𝟙 X : X ⟶ X).fiber).hom.left) ≫
+              pullback.fst X.fiber.obj.hom (ι X.base) = 𝟙 _ ≫ _
+      let e := ((baseChangeCompIso (S.homOfLE (leOfHom (𝟙 X.base).unop)) (ι X.base) ≪≫
+        eqToIso (congrArg baseChange (hι (𝟙 X.base)))).app X.fiber).inv
+      calc
+        (e.hom.left ≫ ((baseChange (ι X.base)).map (𝟙 X : X ⟶ X).fiber).hom.left) ≫
+            pullback.fst X.fiber.obj.hom (ι X.base) =
+          e.hom.left ≫
+            (pullback.fst ((baseChange (S.homOfLE (leOfHom (𝟙 X.base).unop))).obj
+              X.fiber).obj.hom (ι X.base) ≫ (𝟙 X : X ⟶ X).fiber.hom.left) :=
+          (Category.assoc _ _ _).trans (congrArg (fun k ↦ e.hom.left ≫ k)
+            (baseChange_map_left_fst (ι X.base) (𝟙 X : X ⟶ X).fiber))
+        _ = e.hom.left ≫
+            (pullback.fst ((baseChange (S.homOfLE (leOfHom (𝟙 X.base).unop))).obj
+              X.fiber).obj.hom (ι X.base) ≫
+                pullback.fst X.fiber.obj.hom (S.homOfLE (leOfHom (𝟙 X.base).unop))) :=
+          congrArg (fun k ↦ e.hom.left ≫
+            (pullback.fst ((baseChange (S.homOfLE (leOfHom (𝟙 X.base).unop))).obj
+              X.fiber).obj.hom (ι X.base) ≫ k)) (id_fiber_left S U s X)
+        _ = pullback.fst X.fiber.obj.hom (ι X.base) :=
+          baseChangeComparison_inv_app_fst_fst _ _ _ (hι (𝟙 X.base)) X.fiber
+        _ = 𝟙 _ ≫ pullback.fst X.fiber.obj.hom (ι X.base) := (Category.id_comp _).symm
+    · exact (Over.w φ.hom).trans (Category.id_comp _).symm
   map_comp := sorry
 
 /-- Pullback along a compatible family sends an invertible fiber map to an isomorphism. -/
@@ -397,7 +498,20 @@ theorem stalkOpenIntersection_eq_puncturedOpen
     (X : Scheme.{u}) (U : X.Opens) (x : X) (hx : x ∈ closedPoints X)
     (hU : (U : Set X) = ({x} : Set X)ᶜ) :
     stalkOpenIntersection X U x =
-      PuncturedSpectrum.puncturedOpen (X.presheaf.stalk x) := sorry
+      PuncturedSpectrum.puncturedOpen (X.presheaf.stalk x) := by
+  ext p
+  change (X.fromSpecStalk x) p ∈ (U : Set X) ↔
+    p ∉ ({IsLocalRing.closedPoint (X.presheaf.stalk x)} : Set _)
+  rw [hU]
+  change (X.fromSpecStalk x) p ≠ x ↔ p ≠ IsLocalRing.closedPoint (X.presheaf.stalk x)
+  constructor
+  · intro hp heq
+    apply hp
+    simpa only [heq] using (Scheme.fromSpecStalk_closedPoint (X := X) (x := x))
+  · intro hp heq
+    apply hp
+    apply (X.fromSpecStalk x).isEmbedding.injective
+    exact heq.trans (Scheme.fromSpecStalk_closedPoint (X := X) (x := x)).symm
 
 /-- For a locally finitely presented target over a base scheme, a morphism from a scheme is
 determined uniquely by its restrictions to the complement of a closed point and to the local

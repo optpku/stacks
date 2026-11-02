@@ -83,7 +83,8 @@ scheme-theoretic fibre of the Abel map `γ_d` over the Picard point represented 
       CompleteLinearSystem.scheme X D))
 
 /- Remark 53.3.6 (Classical definition) (6): the effective divisors in `|D|` are exactly
-the `k`-rational Hilbert points lying in the Abel-map fibre over `𝒪_X(D)`. -/
+the `k`-rational Hilbert points lying in the Abel-map fibre over `𝒪_X(D)`, with the
+point representation classifying the same universal divisor as the Abel map. -/
 @[stacks 0CCT] #check
   (AlgebraicGeometry.Scheme.IdealSheafData.CompleteLinearSystem.points_iff :
   ∀ {k : Type u} [Field k] [IsAlgClosed k]
@@ -91,12 +92,15 @@ the `k`-rational Hilbert points lying in the Abel-map fibre over `𝒪_X(D)`. -/
     (D E : X.left.IdealSheafData)
     [IsEffectiveCartierDivisor D.subschemeι]
     [IsEffectiveCartierDivisor E.subschemeι] (d : ℕ)
+    (R : (Hilbert.functor X d).RepresentableBy (Hilbert.functor X d).reprX)
+    (hR : (R.homEquiv (𝟙 (Hilbert.functor X d).reprX)).ideal =
+      Hilbert.universalDivisor X d)
     (degree_eq : Scheme.Modules.curveDegreeOfInvertible X.hom
       (topologicalKrullDim_eq_one X).le D.associatedSheaf = (d : ℤ)),
     E ∈ completeLinearSystem X.left D ↔
       ∃ p : (Over.mk (FieldExtension.specMap k k) : SchemeOverField k) ⟶
           CompleteLinearSystem.abelFibre X D d degree_eq,
-        (Hilbert.rationalPointsEquiv X d
+        (Hilbert.rationalPointsEquiv X d (Hilbert.functor X d).reprX R
           (p ≫ pullback.fst (RelativePicard.abelMap X d)
             (CompleteLinearSystem.picardPoint X D d degree_eq))).ideal =
           E.comap (pullback.fst X.hom (FieldExtension.specMap k k)))

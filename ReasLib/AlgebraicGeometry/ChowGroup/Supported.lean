@@ -58,7 +58,15 @@ theorem restrictToClosed_locallyFiniteSupport {S X : Scheme.{u}} (p : X ⟶ S)
     (α : CycleGroup X (p.relativeDimensionFunction δ) k) :
     LocallyFiniteSupport fun z : (Scheme.IdealSheafData.vanishingIdeal T).subscheme ↦
       CycleGroup.toAlgebraicCycle (p.relativeDimensionFunction δ) k α
-        ((Scheme.IdealSheafData.vanishingIdeal T).subschemeι z) := sorry
+        ((Scheme.IdealSheafData.vanishingIdeal T).subschemeι z) := by
+  let i := (Scheme.IdealSheafData.vanishingIdeal T).subschemeι
+  intro z
+  obtain ⟨U, hU, hfinite⟩ :=
+    (toAlgebraicCycle (p.relativeDimensionFunction δ) k α).locallyFiniteSupport (i z)
+  refine ⟨i ⁻¹' U, i.continuous.continuousAt.preimage_mem_nhds hU, ?_⟩
+  change (i ⁻¹' (U ∩ Function.support
+    (toAlgebraicCycle (p.relativeDimensionFunction δ) k α))).Finite
+  exact hfinite.preimage i.isClosedEmbedding.injective.injOn
 
 /-- The algebraic cycle obtained by restricting ambient coefficients to the reduced closed
 subscheme associated to `T`. -/
@@ -84,7 +92,46 @@ theorem restrictToClosed_mem_dimensionSubgroup {S X : Scheme.{u}} (p : X ⟶ S)
     restrictToClosedAlgebraicCycle p δ T k α ∈
       AlgebraicCycle.dimensionSubgroup
         (((Scheme.IdealSheafData.vanishingIdeal T).subschemeι ≫ p).relativeDimensionFunction δ)
-        k := sorry
+        k := by
+  let Z := (Scheme.IdealSheafData.vanishingIdeal T).subscheme
+  let i : Z ⟶ X := (Scheme.IdealSheafData.vanishingIdeal T).subschemeι
+  rw [AlgebraicCycle.mem_dimensionSubgroup]
+  change ∀ z, toAlgebraicCycle (p.relativeDimensionFunction δ) k α (i z) ≠ 0 →
+    (i ≫ p).relativeDimensionFunction δ z = k
+  intro z hz
+  letI : Algebra (S.residueField (p (i z))) (X.residueField (i z)) :=
+    p.residueFieldAlgebra (i z)
+  letI : Algebra (S.residueField (p (i z))) (Z.residueField z) :=
+    (i ≫ p).residueFieldAlgebra z
+  let e : X.residueField (i z) →ₐ[S.residueField (p (i z))] Z.residueField z :=
+    { (i.residueFieldMap z).hom with
+      commutes' := fun r ↦ by
+        change (p.residueFieldMap (i z) ≫ i.residueFieldMap z) r =
+          ((i ≫ p).residueFieldMap z) r
+        rw [Scheme.residueFieldMap_comp]
+        rfl }
+  have hsurj : Function.Surjective e := by
+    intro a
+    obtain ⟨b, hb⟩ := (show Function.Surjective (Z.residue z) from
+      Ideal.Quotient.mk_surjective) a
+    obtain ⟨c, hc⟩ := i.stalkMap_surjective z b
+    refine ⟨X.residue (i z) c, ?_⟩
+    change (i.residueFieldMap z) (X.residue (i z) c) = a
+    have h := congrArg (fun f ↦ f c) (Scheme.residue_residueFieldMap i z)
+    simpa only [CommRingCat.comp_apply, hc, hb] using h
+  have htrdeg := (trdeg_le_of_injective e e.injective).antisymm
+    (trdeg_le_of_surjective e hsurj)
+  have hdim : (i ≫ p).relativeDimensionFunction δ z =
+      p.relativeDimensionFunction δ (i z) := by
+    change δ (p (i z)) +
+        (Cardinal.toENat (Algebra.trdeg (S.residueField (p (i z)))
+          (Z.residueField z))).toNat =
+      δ (p (i z)) +
+        (Cardinal.toENat (Algebra.trdeg (S.residueField (p (i z)))
+          (X.residueField (i z)))).toNat
+    rw [htrdeg]
+  exact hdim.trans ((AlgebraicCycle.mem_dimensionSubgroup
+    (p.relativeDimensionFunction δ) k α.1).mp α.property (i z) hz)
 
 /-- Restrict an ambient cycle to the reduced closed subscheme associated to `T`. -/
 noncomputable def restrictToClosed {S X : Scheme.{u}} (p : X ⟶ S)
@@ -100,7 +147,11 @@ theorem restrictToClosed_zero {S X : Scheme.{u}} (p : X ⟶ S)
     [UniversallyCatenary S] [LocallyOfFiniteType p]
     (δ : S → ℤ) [IsDimensionFunction δ]
     (T : TopologicalSpace.Closeds X) (k : ℤ) :
-    restrictToClosed p δ T k 0 = 0 := sorry
+    restrictToClosed p δ T k 0 = 0 := by
+  apply Subtype.ext
+  apply Function.locallyFinsuppWithin.ext
+  intro z
+  rfl
 
 /-- Restriction of ambient cycles to a reduced closed subscheme preserves addition. -/
 theorem restrictToClosed_add {S X : Scheme.{u}} (p : X ⟶ S)
@@ -109,7 +160,11 @@ theorem restrictToClosed_add {S X : Scheme.{u}} (p : X ⟶ S)
     (T : TopologicalSpace.Closeds X) (k : ℤ)
     (α β : CycleGroup X (p.relativeDimensionFunction δ) k) :
     restrictToClosed p δ T k (α + β) =
-      restrictToClosed p δ T k α + restrictToClosed p δ T k β := sorry
+      restrictToClosed p δ T k α + restrictToClosed p δ T k β := by
+  apply Subtype.ext
+  apply Function.locallyFinsuppWithin.ext
+  intro z
+  rfl
 
 /-- The additive restriction map from ambient cycles to cycles on a reduced closed
 subscheme. -/
@@ -157,7 +212,8 @@ theorem onClosedPushforward_apply {S X : Scheme.{u}} (p : X ⟶ S)
     (T : TopologicalSpace.Closeds X) (k : ℤ) (α : onClosed p δ T k) :
     onClosedPushforward p δ T k α =
       map δ (Over.mk ((Scheme.IdealSheafData.vanishingIdeal T).subschemeι ≫ p))
-        (Over.mk p) (Over.homMk (Scheme.IdealSheafData.vanishingIdeal T).subschemeι) k α := sorry
+        (Over.mk p) (Over.homMk (Scheme.IdealSheafData.vanishingIdeal T).subschemeι) k α := by
+  rfl
 
 /-- A Chow class together with a specified closed support whose reduced closed subscheme carries
 the class. Its ambient Chow class is obtained by proper pushforward. -/
@@ -187,7 +243,8 @@ theorem ofClosed_spec {S X : Scheme.{u}} (p : X ⟶ S)
     (δ : S → ℤ) [IsDimensionFunction δ]
     (T : TopologicalSpace.Closeds X) (k : ℤ) (class_ : onClosed p δ T k) :
     (ofClosed p δ T k class_).support = T ∧
-      (ofClosed p δ T k class_).class_ = class_ := sorry
+      (ofClosed p δ T k class_).class_ = class_ := by
+  exact ⟨rfl, rfl⟩
 
 /-- The ambient Chow class represented by a supported Chow class. -/
 noncomputable def toAmbient {S X : Scheme.{u}} {p : X ⟶ S}
@@ -204,7 +261,8 @@ theorem toAmbient_ofClosed {S X : Scheme.{u}} (p : X ⟶ S)
     [UniversallyCatenary S] [LocallyOfFiniteType p]
     (δ : S → ℤ) [IsDimensionFunction δ]
     (T : TopologicalSpace.Closeds X) (k : ℤ) (class_ : onClosed p δ T k) :
-    toAmbient (ofClosed p δ T k class_) = onClosedPushforward p δ T k class_ := sorry
+    toAmbient (ofClosed p δ T k class_) = onClosedPushforward p δ T k class_ := by
+  rfl
 
 end Supported
 

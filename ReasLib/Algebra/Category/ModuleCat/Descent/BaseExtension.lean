@@ -38,7 +38,7 @@ def descentFamily (f : R →+* S) :
 homomorphism. -/
 @[simp]
 theorem descentFamily_apply (f : R →+* S) (i : PUnit.{1}) :
-    descentFamily f i = (CommRingCat.ofHom f).op := sorry
+    descentFamily f i = (CommRingCat.ofHom f).op := rfl
 
 /-- The category of descent data for modules along `f : R →+* S`. -/
 abbrev DescentData (f : R →+* S) :=
@@ -52,7 +52,11 @@ abbrev DescentData (f : R →+* S) :=
 theorem DescentData.hom_ext (f : R →+* S)
     {D₁ D₂ : DescentData f} {φ φ' : D₁ ⟶ D₂}
     (h : φ.hom PUnit.unit = φ'.hom PUnit.unit) :
-    φ = φ' := sorry
+    φ = φ' := by
+  apply Pseudofunctor.DescentData.hom_ext
+  intro i
+  cases i
+  exact h
 
 /-- The canonical base-extension functor from `R`-modules to descent data along
 `f : R →+* S`. -/
@@ -66,12 +70,12 @@ abbrev baseExtension (f : R →+* S) :
 
 /-- The unique object component of base extension is ordinary extension of scalars. -/
 theorem baseExtension_obj_obj (f : R →+* S) (M : ModuleCat.{u} R) :
-    ((baseExtension f).obj M).obj PUnit.unit = (extendScalars f).obj M := sorry
+    ((baseExtension f).obj M).obj PUnit.unit = (extendScalars f).obj M := rfl
 
 /-- The unique morphism component of base extension is ordinary extension of scalars. -/
 theorem baseExtension_map_hom (f : R →+* S) {M N : ModuleCat.{u} R}
     (g : M ⟶ N) :
-    ((baseExtension f).map g).hom PUnit.unit = (extendScalars f).map g := sorry
+    ((baseExtension f).map g).hom PUnit.unit = (extendScalars f).map g := rfl
 
 end ModuleCat
 
@@ -87,7 +91,7 @@ abbrev DescentForModules (f : R →+* S) : Prop :=
 /-- Characterization of descent morphisms for modules by full faithfulness of base
 extension. -/
 theorem descentForModules_iff (f : R →+* S) :
-    f.DescentForModules ↔ Nonempty (ModuleCat.baseExtension f).FullyFaithful := sorry
+    f.DescentForModules ↔ Nonempty (ModuleCat.baseExtension f).FullyFaithful := Iff.rfl
 
 /-- A ring homomorphism is an effective descent morphism for modules when its base-extension
 functor is an equivalence of categories. -/
@@ -97,14 +101,16 @@ abbrev EffectiveDescentForModules (f : R →+* S) : Prop :=
 /-- Characterization of effective descent morphisms for modules by equivalence of the
 base-extension functor. -/
 theorem effectiveDescentForModules_iff (f : R →+* S) :
-    f.EffectiveDescentForModules ↔ (ModuleCat.baseExtension f).IsEquivalence := sorry
+    f.EffectiveDescentForModules ↔ (ModuleCat.baseExtension f).IsEquivalence := Iff.rfl
 
 namespace EffectiveDescentForModules
 
 /-- Effective descent for modules implies descent for modules. -/
 theorem descent {R S : Type u} [CommRing R] [CommRing S]
     (f : R →+* S) (h : f.EffectiveDescentForModules) :
-    f.DescentForModules := sorry
+    f.DescentForModules := by
+  letI : (ModuleCat.baseExtension f).IsEquivalence := h
+  exact ⟨Functor.FullyFaithful.ofFullyFaithful _⟩
 
 end EffectiveDescentForModules
 

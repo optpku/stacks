@@ -136,7 +136,8 @@ morphism `translateI ξ L`. -/
 theorem translate_spec (ξ : extOneNL t f) (L : FlatLift t f) :
     (translate ξ L).space = translateSpace ξ L ∧
       (translate ξ L).f' = translateF' ξ L ∧
-        (translate ξ L).i = translateI ξ L := sorry
+        (translate ξ L).i = translateI ξ L := by
+  exact ⟨rfl, rfl, rfl⟩
 
 end FlatLift
 end AlgebraicGeometry.Scheme.Thickening

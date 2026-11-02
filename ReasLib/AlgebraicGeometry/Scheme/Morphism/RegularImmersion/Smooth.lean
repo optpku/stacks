@@ -35,28 +35,52 @@ morphism a regular immersion. -/
 theorem isRegularImmersion_of_isRegularImmersion_over_smooth
     {Y X S : Scheme.{u}} (i : Y ⟶ X) (j : Y ⟶ S) (f : X ⟶ S)
     [IsImmersion i] [Smooth f] [IsRegularImmersion j] (hcomm : i ≫ f = j) :
-    IsRegularImmersion i := sorry
+    IsRegularImmersion i := by
+  let g := Limits.pullback.graph j f i hcomm
+  haveI : IsRegularImmersion g :=
+    Scheme.Hom.Section.isRegularImmersion (f := Limits.pullback.fst j f)
+      (by simp only [g, Limits.pullback.graph, Limits.pullback.lift_fst])
+  simpa only [g, Limits.pullback.graph, Limits.pullback.lift_snd] using
+    (isRegularImmersion_comp g (Limits.pullback.snd j f))
 
 /-- In a commutative triangle over a smooth morphism, a Koszul-regular composite makes the
 first morphism a Koszul-regular immersion. -/
 theorem isKoszulRegularImmersion_of_isKoszulRegularImmersion_over_smooth
     {Y X S : Scheme.{u}} (i : Y ⟶ X) (j : Y ⟶ S) (f : X ⟶ S)
     [IsImmersion i] [Smooth f] [IsKoszulRegularImmersion j] (hcomm : i ≫ f = j) :
-    IsKoszulRegularImmersion i := sorry
+    IsKoszulRegularImmersion i := by
+  let g := Limits.pullback.graph j f i hcomm
+  haveI : IsRegularImmersion g :=
+    Scheme.Hom.Section.isRegularImmersion (f := Limits.pullback.fst j f)
+      (by simp only [g, Limits.pullback.graph, Limits.pullback.lift_fst])
+  simpa only [g, Limits.pullback.graph, Limits.pullback.lift_snd] using
+    (isKoszulRegularImmersion_comp g (Limits.pullback.snd j f))
 
 /-- In a commutative triangle over a smooth morphism, an `H₁`-regular composite makes the
 first morphism an `H₁`-regular immersion. -/
 theorem isH1RegularImmersion_of_isH1RegularImmersion_over_smooth
     {Y X S : Scheme.{u}} (i : Y ⟶ X) (j : Y ⟶ S) (f : X ⟶ S)
     [IsImmersion i] [Smooth f] [IsH1RegularImmersion j] (hcomm : i ≫ f = j) :
-    IsH1RegularImmersion i := sorry
+    IsH1RegularImmersion i := by
+  let g := Limits.pullback.graph j f i hcomm
+  haveI : IsRegularImmersion g :=
+    Scheme.Hom.Section.isRegularImmersion (f := Limits.pullback.fst j f)
+      (by simp only [g, Limits.pullback.graph, Limits.pullback.lift_fst])
+  simpa only [g, Limits.pullback.graph, Limits.pullback.lift_snd] using
+    (isH1RegularImmersion_comp g (Limits.pullback.snd j f))
 
 /-- In a commutative triangle over a smooth morphism, a quasi-regular composite makes the
 first morphism a quasi-regular immersion. -/
 theorem isQuasiRegularImmersion_of_isQuasiRegularImmersion_over_smooth
     {Y X S : Scheme.{u}} (i : Y ⟶ X) (j : Y ⟶ S) (f : X ⟶ S)
     [IsImmersion i] [Smooth f] [IsQuasiRegularImmersion j] (hcomm : i ≫ f = j) :
-    IsQuasiRegularImmersion i := sorry
+    IsQuasiRegularImmersion i := by
+  let g := Limits.pullback.graph j f i hcomm
+  haveI : IsRegularImmersion g :=
+    Scheme.Hom.Section.isRegularImmersion (f := Limits.pullback.fst j f)
+      (by simp only [g, Limits.pullback.graph, Limits.pullback.lift_fst])
+  simpa only [g, Limits.pullback.graph, Limits.pullback.lift_snd] using
+    (isQuasiRegularImmersion_comp_of_isH1RegularImmersion g (Limits.pullback.snd j f))
 
 /-- In a commutative triangle, postcomposition with a smooth morphism preserves
 Koszul-regularity when the composite is an immersion. -/

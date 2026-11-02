@@ -42,4 +42,31 @@ theorem exists_awayAlgEquiv
     ∃ (g : S) (hg : g ∉ q), ∃ (g' : S') (hg' : g' ∉ q'),
       Nonempty (Localization.Away g ≃ₐ[R] Localization.Away g') := sorry
 
+/-- The canonical map from a principal-open localization to the localization
+at a prime not containing its defining element. -/
+noncomputable def awayToPrime
+    {A : Type v} [CommRing A] (q : Ideal A) [q.IsPrime]
+    (g : A) (hg : g ∉ q) : Localization.Away g →+* Localization.AtPrime q :=
+  IsLocalization.Away.lift g
+    (g := algebraMap A (Localization.AtPrime q))
+    (IsLocalization.map_units (M := q.primeCompl) (Localization.AtPrime q) ⟨g, hg⟩)
+
+/-- The comparison map extends the localization map from the original ring. -/
+theorem awayToPrime_comp
+    {A : Type v} [CommRing A] (q : Ideal A) [q.IsPrime]
+    (g : A) (hg : g ∉ q) :
+    (awayToPrime q g hg).comp (algebraMap A (Localization.Away g)) =
+      algebraMap A (Localization.AtPrime q) :=
+  IsLocalization.Away.lift_comp g _
+
+/-- An equivalence of prime localizations spreads to principal-open
+localizations compatibly with the given equivalence. -/
+theorem exists_compatible_awayAlgEquiv
+    (q : Ideal S) [q.IsPrime] (q' : Ideal S') [q'.IsPrime]
+    (h : Localization.AtPrime q ≃ₐ[R] Localization.AtPrime q') :
+    ∃ (g : S) (hg : g ∉ q), ∃ (g' : S') (hg' : g' ∉ q'),
+      ∃ e : Localization.Away g ≃ₐ[R] Localization.Away g',
+        (awayToPrime q' g' hg').comp e.toRingHom =
+          h.toRingHom.comp (awayToPrime q g hg) := sorry
+
 end Algebra.FinitePresentation.AtPrime

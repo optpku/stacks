@@ -14,10 +14,16 @@ public import Mathlib.RingTheory.TensorProduct.Maps
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.BeauvilleLaszlo.Affine
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Immersion
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Etale
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Etale.BaseChange
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.FiniteType
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.FiniteType.BaseChange
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Immersion.BaseChange
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.Finite
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.Finite.BaseChange
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.Flat
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.Flat.BaseChange
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.FinitePresentation
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.FinitePresentation.BaseChange
 
 /-!
 # Morphism properties under Beauville–Laszlo affine glueing
@@ -75,22 +81,22 @@ def property (P : AffineMorphismKind) {S : Scheme.{u}} :
 /-- `finite.property` is the finite morphism property of algebraic spaces. -/
 theorem property_finite {S : Scheme.{u}} {X Y : AlgebraicSpace S} (φ : X ⟶ Y) :
     property .finite φ ↔ AlgebraicSpace.IsFinite φ :=
-  sorry
+  Iff.rfl
 
 /-- `closedImmersion.property` is the closed-immersion property of algebraic spaces. -/
 theorem property_closedImmersion {S : Scheme.{u}} {X Y : AlgebraicSpace S} (φ : X ⟶ Y) :
     property .closedImmersion φ ↔ AlgebraicSpace.IsClosedImmersion φ :=
-  sorry
+  Iff.rfl
 
 /-- `flat.property` is the flat morphism property of algebraic spaces. -/
 theorem property_flat {S : Scheme.{u}} {X Y : AlgebraicSpace S} (φ : X ⟶ Y) :
     property .flat φ ↔ AlgebraicSpace.Flat φ :=
-  sorry
+  Iff.rfl
 
 /-- `finiteType.property` is the finite-type morphism property of algebraic spaces. -/
 theorem property_finiteType {S : Scheme.{u}} {X Y : AlgebraicSpace S} (φ : X ⟶ Y) :
     property .finiteType φ ↔ AlgebraicSpace.FiniteType φ :=
-  sorry
+  Iff.rfl
 
 /-- A morphism has `flatFinitePresentation.property` iff it is flat and of finite
 presentation. -/
@@ -98,12 +104,12 @@ theorem property_flatFinitePresentation_iff {S : Scheme.{u}} {X Y : AlgebraicSpa
     (φ : X ⟶ Y) :
     property .flatFinitePresentation φ ↔
       AlgebraicSpace.Flat φ ∧ AlgebraicSpace.FinitePresentation φ :=
-  sorry
+  Iff.rfl
 
 /-- `etale.property` is the étale morphism property of algebraic spaces. -/
 theorem property_etale {S : Scheme.{u}} {X Y : AlgebraicSpace S} (φ : X ⟶ Y) :
     property .etale φ ↔ AlgebraicSpace.Etale φ :=
-  sorry
+  Iff.rfl
 
 /-- The ring-homomorphism property associated to an affine morphism kind. -/
 def ringHom (P : AffineMorphismKind) {A B : Type u} [CommRing A] [CommRing B]
@@ -119,14 +125,14 @@ def ringHom (P : AffineMorphismKind) {A B : Type u} [CommRing A] [CommRing B]
 /-- `closedImmersion.ringHom` is surjectivity of a ring homomorphism. -/
 theorem ringHom_closedImmersion {A B : Type u} [CommRing A] [CommRing B] (φ : A →+* B) :
     ringHom .closedImmersion φ ↔ Function.Surjective φ :=
-  sorry
+  Iff.rfl
 
 /-- A ring homomorphism has `flatFinitePresentation.ringHom` iff it is flat and of
 finite presentation. -/
 theorem ringHom_flatFinitePresentation_iff {A B : Type u} [CommRing A] [CommRing B]
     (φ : A →+* B) :
     ringHom .flatFinitePresentation φ ↔ φ.Flat ∧ φ.FinitePresentation :=
-  sorry
+  Iff.rfl
 
 end AffineMorphismKind
 
@@ -139,7 +145,7 @@ def overlapMap {R R' : Type u} [CommRing R] [CommRing R'] [Algebra R R'] {f : R}
 theorem overlapMap_eq {R R' : Type u} [CommRing R] [CommRing R'] [Algebra R R'] {f : R}
     {X Y : category R' f} (g : X ⟶ Y) :
     overlapMap g = (Over.pullback (restrict R' f)).map g.fst :=
-  sorry
+  rfl
 
 /-- For a Beauville–Laszlo glueing pair, a morphism of affine glueable algebraic
 spaces over `space R` is finite, a closed immersion, flat, of finite type, flat
@@ -169,8 +175,13 @@ theorem functor_map_property_fst_snd_iff {R R' : Type u} [CommRing R] [CommRing 
         P.property (overlapMap ((functor R' f).map α)).left ∧
         P.property ((functor R' f).map α).snd.left ↔
       P.property ((functor R' f).map α).fst.left ∧
-        P.property ((functor R' f).map α).snd.left :=
-  sorry
+        P.property ((functor R' f).map α).snd.left := by
+  haveI : MorphismProperty.IsStableUnderBaseChange
+      (P.property (S := Spec (CommRingCat.of R))) := by
+    cases P <;> dsimp [AffineMorphismKind.property] <;> infer_instance
+  refine ⟨fun h ↦ ⟨h.1, h.2.2⟩, fun h ↦ ⟨h.1, ?_, h.2⟩⟩
+  exact MorphismProperty.overPullbackMap (P := P.property) (restrict R' f)
+    ((functor R' f).map α).fst h.1
 
 /-- On the full subcategory of affine glueable algebraic spaces, the canonical
 glueing equivalence detects each of the six morphism properties on all three
@@ -186,7 +197,8 @@ theorem affineGlueableFunctor_map_property_iff {R R' : Type u} [CommRing R]
           ((affineGlueableFunctor R' f).map α))).left ∧
         P.property ((affineTripleProperty R' f).ι.map
           ((affineGlueableFunctor R' f).map α)).snd.left :=
-  sorry
+  functor_map_property_iff f P Y.property Z.property
+    ((affineGlueableProperty R' f).ι.map α)
 
 /-- If `A → B` is an `R`-algebra homomorphism and `A`, `B` are glueable for
 `(algebraMap R R', f)`, then `algebraMap A B` has the ring-homomorphism property

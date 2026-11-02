@@ -48,7 +48,23 @@ when the source has finitely many irreducible components. -/
 theorem genericPointOfComponent_mem_domain {X Y : Scheme.{u}}
     [Finite (irreducibleComponents X)] (f : X.PartialMap Y)
     (Z : irreducibleComponents X) :
-    (genericPoints.ofComponent Z : X) ∈ f.domain := sorry
+    (genericPoints.ofComponent Z : X) ∈ f.domain := by
+  let U : Set X := (⋃₀ (irreducibleComponents X \ {Z.1}))ᶜ
+  have hfinite : (irreducibleComponents X).Finite := Set.toFinite _
+  have hU : IsOpen U := by
+    dsimp only [U]
+    rw [Set.sUnion_eq_biUnion, isOpen_compl_iff]
+    exact hfinite.sdiff.isClosed_biUnion fun W hW ↦
+      isClosed_of_mem_irreducibleComponents W hW.1
+  have hclosure : closure U = Z.1 :=
+    closure_sUnion_irreducibleComponents_sdiff_singleton hfinite Z.1 Z.2
+  have hne : U.Nonempty := by
+    rw [← closure_nonempty_iff, hclosure]
+    exact Z.2.1.nonempty
+  obtain ⟨x, hxU, hxf⟩ := f.dense_domain.inter_open_nonempty U hU hne
+  have hxZ : x ∈ Z.1 := hclosure ▸ (subset_closure hxU)
+  exact ((genericPoints.isGenericPoint_ofComponent Z).specializes hxZ).mem_open
+    f.domain.2 hxf
 
 /-- The map from the local spectrum at the generic point of a component induced by a partial
 map. -/
@@ -63,7 +79,13 @@ of each irreducible component. -/
 theorem fromSpecStalkOfComponent_eq_of_equiv {X Y : Scheme.{u}}
     [Finite (irreducibleComponents X)] {f g : X.PartialMap Y}
     (h : f.equiv g) (Z : irreducibleComponents X) :
-    f.fromSpecStalkOfComponent Z = g.fromSpecStalkOfComponent Z := sorry
+    f.fromSpecStalkOfComponent Z = g.fromSpecStalkOfComponent Z := by
+  obtain ⟨W, hW, hWf, hWg, e⟩ := h
+  have hx := (f.restrict W hW hWf).genericPointOfComponent_mem_domain Z
+  dsimp only [fromSpecStalkOfComponent]
+  rw [← f.fromSpecStalkOfMem_restrict hW hWf hx,
+    ← g.fromSpecStalkOfMem_restrict hW hWg hx]
+  exact congrArg (fun k : W.toScheme ⟶ Y ↦ W.fromSpecStalkOfMem _ hx ≫ k) e
 
 end PartialMap
 
@@ -83,7 +105,8 @@ partial map at each component generic point. -/
 theorem fromSpecStalkOfComponent_toRationalMap {X Y : Scheme.{u}}
     [Finite (irreducibleComponents X)] (f : X.PartialMap Y)
     (Z : irreducibleComponents X) :
-    f.toRationalMap.fromSpecStalkOfComponent Z = f.fromSpecStalkOfComponent Z := sorry
+    f.toRationalMap.fromSpecStalkOfComponent Z = f.fromSpecStalkOfComponent Z :=
+  rfl
 
 /-- Evaluation of a rational map over `S` at a component generic point commutes with the
 structure maps to `S`. -/
@@ -91,7 +114,14 @@ theorem fromSpecStalkOfComponent_isOver {S X Y : Scheme.{u}}
     [X.Over S] [Y.Over S] [Finite (irreducibleComponents X)]
     (f : X ⤏ Y) (hf : f.IsOver S) (Z : irreducibleComponents X) :
     f.fromSpecStalkOfComponent Z ≫ Y ↘ S =
-      X.fromSpecStalk (genericPoints.ofComponent Z) ≫ X ↘ S := sorry
+      X.fromSpecStalk (genericPoints.ofComponent Z) ≫ X ↘ S := by
+  obtain ⟨p, hp, rfl⟩ := hf.exists_partialMap_over
+  have hp' := PartialMap.isOver_iff.mp hp
+  change p.hom ≫ Y ↘ S = p.domain.ι ≫ X ↘ S at hp'
+  rw [fromSpecStalkOfComponent_toRationalMap]
+  dsimp only [PartialMap.fromSpecStalkOfComponent, PartialMap.fromSpecStalkOfMem]
+  rw [Category.assoc, hp', ← Category.assoc,
+    Opens.fromSpecStalkOfMem_ι]
 
 /-- Evaluation of rational maps over `S` on the local spectra at the generic points of the
 irreducible components of their source. -/
@@ -105,7 +135,8 @@ noncomputable def componentStalkMap (S X Y : Scheme.{u}) [X.Over S] [Y.Over S]
 theorem componentStalkMap_apply {S X Y : Scheme.{u}}
     [X.Over S] [Y.Over S] [Finite (irreducibleComponents X)]
     (f : { f : X ⤏ Y // f.IsOver S }) (Z : irreducibleComponents X) :
-    (componentStalkMap S X Y f Z).1 = f.1.fromSpecStalkOfComponent Z := sorry
+    (componentStalkMap S X Y f Z).1 = f.1.fromSpecStalkOfComponent Z :=
+  rfl
 
 /-- Component-stalk evaluation of rational maps over a locally finite type target is
 injective. -/

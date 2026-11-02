@@ -20,7 +20,8 @@ namespace DividedPowerScheme
 
 /-- The identity scheme morphism preserves the divided-power ideal. -/
 lemma Hom.id_ideal_compatible (X : DividedPowerScheme.{u}) :
-    X.ideal.comap (𝟙 X.scheme : X.scheme ⟶ X.scheme) ≤ X.ideal := sorry
+    X.ideal.comap (𝟙 X.scheme : X.scheme ⟶ X.scheme) ≤ X.ideal := by
+  simp only [Scheme.IdealSheafData.comap_id, le_refl]
 
 /-- The identity scheme morphism preserves divided powers on affine sections. -/
 lemma Hom.id_dividedPowers_compatible (X : DividedPowerScheme.{u}) :
@@ -32,7 +33,9 @@ lemma Hom.id_dividedPowers_compatible (X : DividedPowerScheme.{u}) :
 /-- Composition preserves the divided-power ideal. -/
 lemma Hom.comp_ideal_compatible {X Y Z : DividedPowerScheme.{u}}
     (f : Hom X Y) (g : Hom Y Z) :
-    Z.ideal.comap (f.base ≫ g.base) ≤ X.ideal := sorry
+    Z.ideal.comap (f.base ≫ g.base) ≤ X.ideal := by
+  rw [Scheme.IdealSheafData.comap_comp]
+  exact (Scheme.IdealSheafData.comap_mono f.base g.ideal_compatible).trans f.ideal_compatible
 
 /-- Composition preserves divided powers on affine sections. -/
 lemma Hom.comp_dividedPowers_compatible {X Y Z : DividedPowerScheme.{u}}
@@ -64,18 +67,33 @@ lemma Hom.comp_base {X Y Z : DividedPowerScheme.{u}}
     (f : Hom X Y) (g : Hom Y Z) :
     (Hom.comp f g).base = f.base ≫ g.base := rfl
 
+/-- Divided-power scheme morphisms are determined by their underlying scheme maps. -/
+@[ext]
+lemma Hom.ext {X Y : DividedPowerScheme.{u}} {f g : Hom X Y}
+    (h : f.base = g.base) : f = g := by
+  cases f
+  cases g
+  cases h
+  rfl
+
 /-- Left identity for composition of divided-power scheme morphisms. -/
 lemma Hom.id_comp {X Y : DividedPowerScheme.{u}} (f : Hom X Y) :
-    Hom.comp (Hom.id X) f = f := sorry
+    Hom.comp (Hom.id X) f = f := by
+  apply Hom.ext
+  exact Category.id_comp f.base
 
 /-- Right identity for composition of divided-power scheme morphisms. -/
 lemma Hom.comp_id {X Y : DividedPowerScheme.{u}} (f : Hom X Y) :
-    Hom.comp f (Hom.id Y) = f := sorry
+    Hom.comp f (Hom.id Y) = f := by
+  apply Hom.ext
+  exact Category.comp_id f.base
 
 /-- Associativity of composition of divided-power scheme morphisms. -/
 lemma Hom.assoc {W X Y Z : DividedPowerScheme.{u}}
     (f : Hom W X) (g : Hom X Y) (h : Hom Y Z) :
-    Hom.comp (Hom.comp f g) h = Hom.comp f (Hom.comp g h) := sorry
+    Hom.comp (Hom.comp f g) h = Hom.comp f (Hom.comp g h) := by
+  apply Hom.ext
+  exact Category.assoc f.base g.base h.base
 
 /-- The explicit category whose objects are divided-power schemes and whose arrows
 are divided-power scheme morphisms. -/
@@ -102,7 +120,15 @@ lemma Hom.zeroFiberMap_comm {X Y : DividedPowerScheme.{u}} (f : Hom X Y) :
 /-- The zero-fibre map respects composition of divided-power scheme morphisms. -/
 lemma Hom.zeroFiberMap_comp {X Y Z : DividedPowerScheme.{u}}
     (f : Hom X Y) (g : Hom Y Z) :
-    (Hom.comp f g).zeroFiberMap = f.zeroFiberMap ≫ g.zeroFiberMap := sorry
+    (Hom.comp f g).zeroFiberMap = f.zeroFiberMap ≫ g.zeroFiberMap := by
+  apply (cancel_mono Z.ideal.subschemeι).mp
+  calc
+    _ = X.ideal.subschemeι ≫ (f.base ≫ g.base) := (Hom.comp f g).zeroFiberMap_comm
+    _ = (f.zeroFiberMap ≫ Y.ideal.subschemeι) ≫ g.base := by
+      rw [f.zeroFiberMap_comm, Category.assoc]
+    _ = f.zeroFiberMap ≫ (g.zeroFiberMap ≫ Z.ideal.subschemeι) := by
+      rw [g.zeroFiberMap_comm, Category.assoc]
+    _ = _ := (Category.assoc _ _ _).symm
 
 /-- The canonical categorical pullback predicate for divided-power scheme morphisms. -/
 abbrev IsPullback {P X Y Z : DividedPowerScheme.{u}}

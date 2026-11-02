@@ -75,27 +75,32 @@ def toDerivedModuleSystem (K : Hom.ModuleDerived.{w} (totalRingedSite C J O)) :
 /-- The stage object of `toDerivedModuleSystem K` at `n` is `K_n = Lg_n^* K`. -/
 theorem toDerivedModuleSystem_obj
     (K : Hom.ModuleDerived.{w} (totalRingedSite C J O)) (n : SimplexCategory) :
-    (toDerivedModuleSystem C J O K).obj n = (moduleDerivedComponent C J O n).obj K := sorry
+    (toDerivedModuleSystem C J O K).obj n = (moduleDerivedComponent C J O n).obj K :=
+  rfl
 
 /-- The transition of `toDerivedModuleSystem K` at `φ` is the canonical comparison
 `K(φ) : Lf_φ^* K_m ⟶ K_n`. -/
 theorem toDerivedModuleSystem_map
     (K : Hom.ModuleDerived.{w} (totalRingedSite C J O))
     {m n : SimplexCategory} (φ : m ⟶ n) :
-    (toDerivedModuleSystem C J O K).map φ = moduleDerivedTransition C J O φ K := sorry
+    (toDerivedModuleSystem C J O K).map φ = moduleDerivedTransition C J O φ K :=
+  rfl
 
 /-- If `K` is cartesian in `D(O)`, then the extracted system `(K_n, K(φ))` is cartesian. -/
 theorem toDerivedModuleSystem_isCartesian
     (K : Hom.ModuleDerived.{w} (totalRingedSite C J O))
     (h_cartesian : ModuleDerived.IsCartesian C J O K) :
     RingedSite.Simplicial.DerivedModuleSystem.IsCartesian
-      (toDerivedModuleSystem C J O K) := sorry
+      (toDerivedModuleSystem C J O K) := by
+  intro m n φ
+  exact h_cartesian.isIso_transition φ
 
 /-- Cartesianness of the extracted system is equivalent to cartesianness of `K` in `D(O)`. -/
 theorem toDerivedModuleSystem_isCartesian_iff
     (K : Hom.ModuleDerived.{w} (totalRingedSite C J O)) :
     RingedSite.Simplicial.DerivedModuleSystem.IsCartesian (toDerivedModuleSystem C J O K) ↔
-      ModuleDerived.IsCartesian C J O K := sorry
+      ModuleDerived.IsCartesian C J O K :=
+  ⟨fun h ↦ ⟨h⟩, toDerivedModuleSystem_isCartesian C J O K⟩
 
 /-- Naturality of stagewise derived restriction in a morphism of `D(O)`. -/
 theorem toDerivedModuleSystemMap_naturality
@@ -104,7 +109,11 @@ theorem toDerivedModuleSystemMap_naturality
     (toDerivedModuleSystem C J O K).map φ ≫ (moduleDerivedComponent C J O n).map α =
       (ringedToposMap C J O φ).modulePullbackDerived.map
           ((moduleDerivedComponent C J O m).map α) ≫
-        (toDerivedModuleSystem C J O L).map φ := sorry
+        (toDerivedModuleSystem C J O L).map φ := by
+  change moduleDerivedTransition C J O φ K ≫ _ =
+    _ ≫ moduleDerivedTransition C J O φ L
+  unfold moduleDerivedTransition
+  exact (NatTrans.naturality _ α).symm
 
 /-- A morphism `α : K ⟶ L` in `D(O)` induces a morphism of the extracted derived-module
 systems, acting by `Lg_n^* α` at each stage. -/
@@ -120,6 +129,7 @@ theorem toDerivedModuleSystemMap_app
     {K L : Hom.ModuleDerived.{w} (totalRingedSite C J O)} (α : K ⟶ L)
     (n : SimplexCategory) :
     (toDerivedModuleSystemMap C J O α).app n =
-      (moduleDerivedComponent C J O n).map α := sorry
+      (moduleDerivedComponent C J O n).map α :=
+  rfl
 
 end CategoryTheory.SimplicialSites

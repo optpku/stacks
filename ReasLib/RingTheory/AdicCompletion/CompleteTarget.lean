@@ -35,7 +35,17 @@ variable {Q : Type v} [AddCommGroup Q] [Module R Q]
 /-- Tag `0BNG`: a module killed by a power of the defining ideal is adically complete. -/
 @[stacks 0BNG "power-annihilated target is adically complete"]
 theorem of_pow_smul_top_eq_bot (I : Ideal R) (c : ℕ)
-    (h : I ^ c • (⊤ : Submodule R Q) = ⊥) : IsAdicComplete I Q := sorry
+    (h : I ^ c • (⊤ : Submodule R Q) = ⊥) : IsAdicComplete I Q := by
+  refine { haus' := ?_, prec' := ?_ }
+  · intro x hx
+    simpa only [h, SModEq.bot] using hx c
+  · intro f hf
+    refine ⟨f c, fun n ↦ ?_⟩
+    rcases le_total n c with hn | hn
+    · exact hf hn
+    · have heq : f c = f n := by
+        simpa only [h, SModEq.bot] using hf hn
+      rw [heq]
 
 end IsAdicComplete
 
@@ -67,26 +77,35 @@ noncomputable def mapToPowSmulTopEqBot (I : Ideal R) (g : N →ₗ[R] Q) {c : �
 /-- Tag `0BNG`: `mapToComplete` extends its defining map on the canonical dense image. -/
 @[simp, stacks 0BNG "adic completion to a complete target"]
 theorem mapToComplete_of (I : Ideal R) (g : N →ₗ[R] Q) [IsAdicComplete I Q] (x : N) :
-    mapToComplete I g (of I N x) = g x := sorry
+    mapToComplete I g (of I N x) = g x := by
+  simp [mapToComplete, map_of]
 
 /-- The map to a power-annihilated target extends the original map on the canonical image. -/
 @[simp, stacks 0BNG "completion map to a power-annihilated target"]
 theorem mapToPowSmulTopEqBot_of (I : Ideal R) (g : N →ₗ[R] Q) {c : ℕ}
     (hc : I ^ c • (⊤ : Submodule R Q) = ⊥) (x : N) :
-    mapToPowSmulTopEqBot I g hc (of I N x) = g x := sorry
+    mapToPowSmulTopEqBot I g hc (of I N x) = g x := by
+  letI := IsAdicComplete.of_pow_smul_top_eq_bot I c hc
+  exact mapToComplete_of I g x
 
 /-- Tag `0BNG`: composing `mapToComplete` with the canonical map into the completion recovers
 the original map. -/
 @[simp, stacks 0BNG "adic completion to a complete target"]
 theorem mapToComplete_comp_of (I : Ideal R) (g : N →ₗ[R] Q) [IsAdicComplete I Q] :
-    (mapToComplete I g).comp (of I N) = g := sorry
+    (mapToComplete I g).comp (of I N) = g := by
+  exact LinearMap.ext (mapToComplete_of I g)
 
 /-- Tag `0BNG`: extension to a complete target commutes with completion functoriality. -/
 @[simp, stacks 0BNG "adic completion to a complete target"]
 theorem mapToComplete_comp_map
     (I : Ideal R) (f : M →ₗ[R] N) (g : N →ₗ[R] Q) [IsAdicComplete I Q] :
     (mapToComplete I g).comp ((map I f).restrictScalars R) =
-      mapToComplete I (g.comp f) := sorry
+      mapToComplete I (g.comp f) := by
+  apply LinearMap.ext
+  intro x
+  change (ofLinearEquiv I Q).symm (map I g (map I f x)) =
+    (ofLinearEquiv I Q).symm (map I (g.comp f) x)
+  rw [map_comp_apply]
 
 /-- Tag `0BNG`: an extended map to a complete target vanishes after a completed map whenever
 the original composite vanishes. -/
@@ -94,13 +113,19 @@ the original composite vanishes. -/
 theorem mapToComplete_comp_eq_zero
     (I : Ideal R) {f : M →ₗ[R] N} {g : N →ₗ[R] Q} [IsAdicComplete I Q]
     (h : g.comp f = 0) :
-    (mapToComplete I g).comp ((map I f).restrictScalars R) = 0 := sorry
+    (mapToComplete I g).comp ((map I f).restrictScalars R) = 0 := by
+  rw [mapToComplete_comp_map, h]
+  ext x
+  simp [mapToComplete]
 
 /-- Tag `0BNG`: extending a surjective map to an adically complete target remains surjective. -/
 @[stacks 0BNG "adic completion to a complete target"]
 theorem mapToComplete_surjective
     (I : Ideal R) {g : N →ₗ[R] Q} [IsAdicComplete I Q]
     (hg : Function.Surjective g) :
-    Function.Surjective (mapToComplete I g) := sorry
+    Function.Surjective (mapToComplete I g) := by
+  intro q
+  obtain ⟨n, hn⟩ := hg q
+  exact ⟨of I N n, (mapToComplete_of I g n).trans hn⟩
 
 end AdicCompletion

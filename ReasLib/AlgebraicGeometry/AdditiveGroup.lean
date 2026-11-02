@@ -52,7 +52,19 @@ def integralModelIso :
 theorem integralModelIso_hom_appTop_coord :
     integralModelIso.hom.appTop
         ((Scheme.ΓSpecIso (.of (Polynomial ℤ))).inv Polynomial.X) =
-      AffineSpace.coord (Spec (.of ℤ)) default := sorry
+      AffineSpace.coord (Spec (.of ℤ)) default := by
+  simp only [integralModelIso, Iso.trans_hom, Functor.mapIso_hom, Iso.op_hom,
+    Scheme.Spec_map, Quiver.Hom.unop_op, Scheme.Hom.comp_appTop, CommRingCat.comp_apply]
+  conv_lhs =>
+    enter [2]
+    rw [← CommRingCat.comp_apply, ← Scheme.ΓSpecIso_inv_naturality, CommRingCat.comp_apply]
+  erw [AffineSpace.SpecIso_hom_appTop]
+  simp only [CommRingCat.hom_comp, Iso.symm_hom, RingEquiv.toCommRingCatIso_inv,
+    RingEquiv.symm_mk, AlgEquiv.toEquiv_eq_coe, AlgEquiv.symm_toEquiv_eq_symm,
+    ConcreteCategory.hom_ofHom, RingHom.coe_coe, RingEquiv.coe_mk, EquivLike.coe_coe,
+    MvPolynomial.uniqueAlgEquiv_symm_apply, PUnit.default_eq_unit, Polynomial.eval₂_X]
+  erw [CommRingCat.comp_apply, CommRingCat.hom_inv_apply, ConcreteCategory.hom_ofHom,
+    MvPolynomial.coe_eval₂Hom, MvPolynomial.eval₂_X]
 
 /-- A point of the additive group scheme determines its value at the affine coordinate. -/
 def homToSection (S : Scheme.{u}) (T : Over S) (f : T ⟶ (groupScheme S).X) :
@@ -64,7 +76,8 @@ theorem homOfSection_w (S : Scheme.{u}) (T : Over S)
     (x : Multiplicative Γ(T.left, ⊤)) :
     AffineSpace.homOfVector T.hom (fun _ ↦ Multiplicative.toAdd x) ≫
         (groupScheme S).X.hom =
-      T.hom := sorry
+      T.hom := by
+  exact AffineSpace.homOfVector_over _ _
 
 /-- A global section determines a point of the additive group scheme. -/
 def homOfSection (S : Scheme.{u}) (T : Over S)
@@ -75,17 +88,43 @@ def homOfSection (S : Scheme.{u}) (T : Over S)
 /-- Constructing a point from the coordinate of a point recovers the original point. -/
 theorem homOfSection_homToSection (S : Scheme.{u}) (T : Over S)
     (f : T ⟶ (groupScheme S).X) :
-    homOfSection S T (homToSection S T f) = f := sorry
+    homOfSection S T (homToSection S T f) = f := by
+  apply Over.OverMorphism.ext
+  change AffineSpace.homOfVector T.hom
+    (fun _ ↦ f.left.appTop (AffineSpace.coord S default)) = f.left
+  apply AffineSpace.hom_ext
+  · exact (AffineSpace.homOfVector_over _ _).trans (Over.w f).symm
+  · intro i
+    cases i
+    exact AffineSpace.homOfVector_appTop_coord _ _ _
 
 /-- Evaluating the point associated to a section recovers that section. -/
 theorem homToSection_homOfSection (S : Scheme.{u}) (T : Over S)
     (x : Multiplicative Γ(T.left, ⊤)) :
-    homToSection S T (homOfSection S T x) = x := sorry
+    homToSection S T (homOfSection S T x) = x := by
+  change Multiplicative.ofAdd
+    ((AffineSpace.homOfVector T.hom
+      (fun _ : PUnit.{u + 1} ↦ Multiplicative.toAdd x)).appTop
+        (AffineSpace.coord S default)) = x
+  rw [AffineSpace.homOfVector_appTop_coord]
+  rfl
 
 /-- Evaluation at the affine coordinate sends pointwise multiplication to addition of sections. -/
 theorem homToSection_mul (S : Scheme.{u}) (T : Over S)
     (f g : T ⟶ (groupScheme S).X) :
-    homToSection S T (f * g) = homToSection S T f * homToSection S T g := sorry
+    homToSection S T (f * g) = homToSection S T f * homToSection S T g := by
+  change Multiplicative.ofAdd
+    ((lift f g).left.appTop ((AffineSpace.addLeft PUnit S).appTop
+      (AffineSpace.coord S default))) = _
+  simp only [AffineSpace.addLeft, AffineSpace.homOfVector_appTop_coord]
+  erw [map_add]
+  change Multiplicative.ofAdd
+    ((lift f g ≫ fst (groupScheme S).X (groupScheme S).X).left.appTop
+        (AffineSpace.coord S default) +
+      (lift f g ≫ snd (groupScheme S).X (groupScheme S).X).left.appTop
+        (AffineSpace.coord S default)) = _
+  rw [lift_fst, lift_snd]
+  rfl
 
 /-- Points of the additive group scheme are multiplicatively equivalent to additive global
 sections. -/
@@ -101,7 +140,8 @@ def homMulEquiv (S : Scheme.{u}) (T : Over S) :
 theorem homMulEquiv_apply (S : Scheme.{u}) (T : Over S)
     (f : T ⟶ (groupScheme S).X) :
     homMulEquiv S T f =
-      Multiplicative.ofAdd (f.left.appTop (AffineSpace.coord S default)) := sorry
+      Multiplicative.ofAdd (f.left.appTop (AffineSpace.coord S default)) := by
+  rfl
 
 /-- The group-valued functor of additive global sections over a base scheme. -/
 def points (S : Scheme.{u}) : (Over S)ᵒᵖ ⥤ GrpCat.{u} :=
@@ -120,7 +160,9 @@ theorem componentIso_naturality (S : Scheme.{u}) {T T' : (Over S)ᵒᵖ}
     (f : T ⟶ T') :
     (CategoryTheory.yonedaGrp.obj (groupScheme S).toGrp).map f ≫
         (componentIso S T').hom =
-      (componentIso S T).hom ≫ (points S).map f := sorry
+      (componentIso S T).hom ≫ (points S).map f := by
+  ext g
+  rfl
 
 /-- The additive group scheme represents the group-valued functor of global sections. -/
 def representingIso (S : Scheme.{u}) :
@@ -130,6 +172,7 @@ def representingIso (S : Scheme.{u}) :
 /-- A component of the representing isomorphism is evaluation at the affine coordinate. -/
 theorem representingIso_hom_app (S : Scheme.{u}) (T : Over S)
     (f : T ⟶ (groupScheme S).X) :
-    (representingIso S).hom.app (op T) f = homMulEquiv S T f := sorry
+    (representingIso S).hom.app (op T) f = homMulEquiv S T f := by
+  rfl
 
 end AlgebraicGeometry.AdditiveGroup

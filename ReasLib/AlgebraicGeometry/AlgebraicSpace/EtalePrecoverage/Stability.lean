@@ -31,18 +31,45 @@ morphism is étale and surjective on points. -/
 theorem singleton_mem_etalePrecoverage_iff {S : Scheme.{u}} {X Y : AlgebraicSpace S}
     (f : Y ⟶ X) :
     Presieve.singleton f ∈ etalePrecoverage.coverings X ↔
-      Function.Surjective (Points.map f) ∧ Etale f :=
-  sorry
+      Function.Surjective (Points.map f) ∧ Etale f := by
+  change (Presieve.singleton f ∈
+      Types.jointlySurjectivePrecoverage.comap pointsFunctor X ∧
+    Presieve.singleton f ∈ MorphismProperty.precoverage (@Etale S) X) ↔ _
+  rw [Precoverage.mem_comap_iff, Presieve.map_singleton,
+    Types.singleton_mem_jointlySurjectivePrecoverage_iff,
+    MorphismProperty.singleton_mem_precoverage]
+  rfl
 
 /-- Singleton isomorphisms are covering for the étale precoverage. -/
 instance etalePrecoverage.instHasIsos {S : Scheme.{u}} :
-    (etalePrecoverage : Precoverage (AlgebraicSpace S)).HasIsos :=
-  sorry
+    (etalePrecoverage : Precoverage (AlgebraicSpace S)).HasIsos where
+  mem_coverings_of_isIso {Y X} f _ := by
+    apply (singleton_mem_etalePrecoverage_iff f).2
+    refine ⟨surjective_of_epi (pointsFunctor.map f), ?_⟩
+    constructor
+    intro U φ hφ
+    let fi : X ⟶ Y := inv f
+    have hfi : f ≫ fi = 𝟙 Y := IsIso.hom_inv_id f
+    have hif : fi ≫ f = 𝟙 X := IsIso.inv_hom_id f
+    let fP : Y.functorOfPoints ⟶ X.functorOfPoints := f
+    let e : Y.functorOfPoints ≅ X.functorOfPoints :=
+      ⟨fP, fi, hfi, hif⟩
+    haveI : IsIso fP := e.isIso_hom
+    exact (MorphismProperty.cancel_right_of_respectsIso
+      (MorphismProperty.over (@AlgebraicGeometry.Etale)).presheaf φ fP).2 hφ
 
 /-- Indexed composition of étale covering families is covering. -/
 instance etalePrecoverage.instIsStableUnderComposition {S : Scheme.{u}} :
-    (etalePrecoverage : Precoverage (AlgebraicSpace S)).IsStableUnderComposition :=
-  sorry
+    (etalePrecoverage : Precoverage (AlgebraicSpace S)).IsStableUnderComposition := by
+  letI : MorphismProperty.IsStableUnderComposition
+      (@Etale S : MorphismProperty (AlgebraicSpace S)) := ⟨by
+    intro X Y Z f g hf hg
+    constructor
+    intro U φ hφ
+    exact hg.of_etale (φ ≫ f) (hf.of_etale φ hφ)⟩
+  change (Types.jointlySurjectivePrecoverage.comap pointsFunctor ⊓
+    MorphismProperty.precoverage (@Etale S)).IsStableUnderComposition
+  infer_instance
 
 /-- Base change of étale covering families along an arbitrary morphism is covering. -/
 instance etalePrecoverage.instIsStableUnderBaseChange {S : Scheme.{u}} :
@@ -53,8 +80,9 @@ instance etalePrecoverage.instIsStableUnderBaseChange {S : Scheme.{u}} :
 theorem etaleCovering_singleton_of_isIso {S : Scheme.{u}} {X X' : AlgebraicSpace S}
     (f : X' ⟶ X) [IsIso f] :
     Presieve.ofArrows (fun _ : Unit ↦ X') (fun _ : Unit ↦ f) ∈
-      etalePrecoverage.coverings X :=
-  sorry
+      etalePrecoverage.coverings X := by
+  rw [Presieve.ofArrows_of_unique]
+  exact Precoverage.mem_coverings_of_isIso f
 
 /-- Indexed composition of étale covering families is an étale covering. -/
 theorem etaleCovering_comp {S : Scheme.{u}} {ι : Type v} {κ : ι → Type w}
@@ -64,8 +92,8 @@ theorem etaleCovering_comp {S : Scheme.{u}} {ι : Type v} {κ : ι → Type w}
     (g : (i : ι) → (j : κ i) → Xᵢⱼ i j ⟶ Xᵢ i)
     (hg : ∀ i, Presieve.ofArrows (Xᵢⱼ i) (g i) ∈ etalePrecoverage.coverings (Xᵢ i)) :
     Presieve.ofArrows (fun ij : Sigma κ ↦ Xᵢⱼ ij.1 ij.2)
-      (fun ij : Sigma κ ↦ g ij.1 ij.2 ≫ f ij.1) ∈ etalePrecoverage.coverings X :=
-  sorry
+      (fun ij : Sigma κ ↦ g ij.1 ij.2 ≫ f ij.1) ∈ etalePrecoverage.coverings X := by
+  exact Precoverage.comp_mem_coverings f hf g hg
 
 /-- Pullback of an étale covering family along a morphism of algebraic spaces is an
 étale covering. -/
@@ -74,7 +102,9 @@ theorem etaleCovering_pullback {S : Scheme.{u}} {X X' : AlgebraicSpace S} {ι : 
     (hf : Presieve.ofArrows Xᵢ f ∈ etalePrecoverage.coverings X)
     (g : X' ⟶ X) :
     Presieve.ofArrows (fun i ↦ pullback g (f i))
-      (fun i ↦ pullback.fst g (f i)) ∈ etalePrecoverage.coverings X' :=
-  sorry
+      (fun i ↦ pullback.fst g (f i)) ∈ etalePrecoverage.coverings X' := by
+  exact Precoverage.mem_coverings_of_isPullback f hf g
+    (fun i ↦ pullback.fst g (f i)) (fun i ↦ pullback.snd g (f i))
+    (fun i ↦ IsPullback.of_hasPullback g (f i))
 
 end AlgebraicGeometry.AlgebraicSpace

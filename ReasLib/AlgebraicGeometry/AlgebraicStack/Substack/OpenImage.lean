@@ -82,19 +82,27 @@ def openImageι (p : U.toGroupoids ⟶ X) (i : V ⟶ U) [Groupoids.Hom.Smooth p]
   Substack.inclusion X (openImageObjects p i)
     (instIsFiberedInGroupoids_openImageObjects p i)
 
+/-- The objects with surjective pullback of an open of a smooth surjective
+atlas form a replete algebraic open substack. -/
+theorem openImage_spec (p : U.toGroupoids ⟶ X) (i : V ⟶ U)
+    [Groupoids.Hom.Smooth p] [Groupoids.Hom.Surjective p]
+    [AlgebraicSpace.IsOpenImmersion i] :
+    Substack.IsOpen X (openImageObjects p i) :=
+  sorry
+
 /-- The open image of an open of a smooth surjective atlas is an algebraic stack. -/
 instance instAlgebraicStack_openImage (p : U.toGroupoids ⟶ X) (i : V ⟶ U)
     [Groupoids.Hom.Smooth p] [Groupoids.Hom.Surjective p]
     [AlgebraicSpace.IsOpenImmersion i] :
     AlgebraicStack (openImage p i) :=
-  sorry
+  (openImage_spec p i).2.elim fun _ h ↦ h.1
 
 /-- The literal inclusion of the open image into its ambient stack is an open immersion. -/
 instance instOpenImmersion_openImage (p : U.toGroupoids ⟶ X) (i : V ⟶ U)
     [Groupoids.Hom.Smooth p] [Groupoids.Hom.Surjective p]
     [AlgebraicSpace.IsOpenImmersion i] :
     OpenImmersion (openImageι p i) :=
-  sorry
+  (openImage_spec p i).2.elim fun _ h ↦ h.2
 
 /-- The composite of an open immersion of algebraic spaces with a smooth
 morphism to a stack is smooth. -/
@@ -112,14 +120,6 @@ theorem toGroupoids_map_comp_obj_mem_openImageObjects (p : U.toGroupoids ⟶ X)
       ((toFunctor (AlgebraicSpace.toGroupoids.map i ≫ p)).obj y) :=
   sorry
 
-/-- The objects with surjective pullback of an open of a smooth surjective
-atlas form a replete algebraic open substack. -/
-theorem openImage_spec (p : U.toGroupoids ⟶ X) (i : V ⟶ U)
-    [Groupoids.Hom.Smooth p] [Groupoids.Hom.Surjective p]
-    [AlgebraicSpace.IsOpenImmersion i] :
-    Substack.IsOpen X (openImageObjects p i) :=
-  sorry
-
 /-- The lift of the composite `V ⟶ X` to the full subcategory defining its open image. -/
 def openImageHom (p : U.toGroupoids ⟶ X) (i : V ⟶ U)
     [Groupoids.Hom.Smooth p] [Groupoids.Hom.Surjective p]
@@ -129,15 +129,17 @@ def openImageHom (p : U.toGroupoids ⟶ X) (i : V ⟶ U)
     { toFunctor := (openImageObjects p i).lift
         (toFunctor (AlgebraicSpace.toGroupoids.map i ≫ p))
         fun y ↦ toGroupoids_map_comp_obj_mem_openImageObjects p i y
-      w := sorry }
+      w := by
+        change toFunctor (AlgebraicSpace.toGroupoids.map i ≫ p) ⋙ X.p = V.toGroupoids.p
+        exact comm (AlgebraicSpace.toGroupoids.map i ≫ p) }
 
 /-- Composing the lifted atlas with the open-image inclusion recovers `V ⟶ X`. -/
 theorem openImageHom_comp (p : U.toGroupoids ⟶ X) (i : V ⟶ U)
     [Groupoids.Hom.Smooth p] [Groupoids.Hom.Surjective p]
     [AlgebraicSpace.IsOpenImmersion i] :
     openImageHom p i ≫ openImageι p i =
-      AlgebraicSpace.toGroupoids.map i ≫ p :=
-  sorry
+      AlgebraicSpace.toGroupoids.map i ≫ p := by
+  rfl
 
 /-- The lifted atlas of the open image is smooth. -/
 instance instSmooth_openImageHom (p : U.toGroupoids ⟶ X) (i : V ⟶ U)
@@ -162,7 +164,8 @@ theorem exists_openSubstack_of_openImmersion {S : Scheme.{u}}
     ∃ (Y : GroupoidsOver S) (j : Y ⟶ X) (q : V.toGroupoids ⟶ Y),
       AlgebraicStack Y ∧ Groupoids.Hom.OpenImmersion j ∧
         Groupoids.Hom.Smooth q ∧ Groupoids.Hom.Surjective q ∧
-          q ≫ j = AlgebraicSpace.toGroupoids.map i ≫ p :=
-  sorry
+          q ≫ j = AlgebraicSpace.toGroupoids.map i ≫ p := by
+  exact ⟨openImage p i, openImageι p i, openImageHom p i,
+    inferInstance, inferInstance, inferInstance, inferInstance, openImageHom_comp p i⟩
 
 end AlgebraicGeometry.AlgebraicStack

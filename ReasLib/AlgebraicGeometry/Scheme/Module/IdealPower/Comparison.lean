@@ -69,7 +69,29 @@ theorem gluedSection_spec (C : IdealComplementStage G M) (n : ℕ)
     (x : C.stage n) (i : G.Index) :
     (tildePresheaf M).map (homOfLE (G.basicOpen_le_idealComplementOpens i)).op
         (C.gluedSection n x) =
-      C.localSection n x i := sorry
+      C.localSection n x i := by
+  let P := tildePresheaf M ⋙ CategoryTheory.forget (ModuleCat A)
+  have hP : TopCat.Presheaf.IsSheaf P :=
+    (TopCat.Presheaf.isSheaf_iff_isSheaf_comp' (CategoryTheory.forget (ModuleCat A))
+      (tildePresheaf M)).mp (tildeSheaf M).property
+  let t := (hP.isSheafPairwiseIntersections G.basicOpen).some
+  let s := TopCat.Presheaf.IsCompatible.sectionPairwise (F := P) (C.compatible n x)
+  let glued := t.lift (Types.coneOfSection s.property) PUnit.unit
+  have hglued :
+      (tildePresheaf M).map (TopologicalSpace.Opens.leSupr G.basicOpen i).op glued =
+        C.localSection n x i :=
+    ConcreteCategory.congr_hom
+      (t.fac (Types.coneOfSection s.property) (op (CategoryTheory.Pairwise.single i)))
+      PUnit.unit
+  let e : idealComplementOpens I = iSup G.basicOpen :=
+    le_antisymm G.idealComplementOpens_le_iSup_basicOpen
+      (iSup_le fun j ↦ G.basicOpen_le_idealComplementOpens j)
+  change (tildePresheaf M).map (homOfLE (G.basicOpen_le_idealComplementOpens i)).op
+    ((tildePresheaf M).map (eqToHom e).op glued) = C.localSection n x i
+  have he : (eqToHom e).op ≫ (homOfLE (G.basicOpen_le_idealComplementOpens i)).op =
+      (TopologicalSpace.Opens.leSupr G.basicOpen i).op := Subsingleton.elim _ _
+  rw [← ModuleCat.comp_apply, ← Functor.map_comp, he]
+  exact hglued
 
 end IdealComplementStage
 
@@ -94,23 +116,27 @@ variable {G : I.FiniteGeneratingFamily} {M : ModuleCat.{u} A}
 
 /-- A linear stage system sends zero to the zero section at every stage. -/
 theorem section_zero {C : IdealComplementStage G M} (hC : C.IsLinear) (n : ℕ) :
-    C.gluedSection n (0 : C.stage n) = 0 := sorry
+    C.gluedSection n (0 : C.stage n) = 0 :=
+  hC.1 n
 
 /-- A linear stage system sends sums to sums of sections at every stage. -/
 theorem section_add {C : IdealComplementStage G M} (hC : C.IsLinear)
     (n : ℕ) (x y : C.stage n) :
-    C.gluedSection n (x + y) = C.gluedSection n x + C.gluedSection n y := sorry
+    C.gluedSection n (x + y) = C.gluedSection n x + C.gluedSection n y :=
+  hC.2.1 n x y
 
 /-- A linear stage system preserves scalar multiplication at every stage. -/
 theorem section_smul {C : IdealComplementStage G M} (hC : C.IsLinear)
     (n : ℕ) (a : A) (x : C.stage n) :
     C.gluedSection n (((C.stage n).smul a).hom x) =
-      ((idealComplementTildeSections I M).smul a).hom (C.gluedSection n x) := sorry
+      ((idealComplementTildeSections I M).smul a).hom (C.gluedSection n x) :=
+  hC.2.2.1 n a x
 
 /-- The sections of a linear stage system commute with its transition maps. -/
 theorem section_naturality {C : IdealComplementStage G M} (hC : C.IsLinear)
     (n : ℕ) (x : C.stage n) :
-    C.gluedSection (n + 1) ((C.transition n).hom x) = C.gluedSection n x := sorry
+    C.gluedSection (n + 1) ((C.transition n).hom x) = C.gluedSection n x :=
+  hC.2.2.2 n x
 
 /-- The additive-group map induced by the canonical glued sections at one stage. -/
 noncomputable def stageAdditiveMap (C : IdealComplementStage G M) (hC : C.IsLinear) (n : ℕ) :
@@ -127,7 +153,10 @@ module objects. -/
 theorem stageAdditiveMap_smul (C : IdealComplementStage G M) (hC : C.IsLinear)
     (n : ℕ) (a : A) :
     stageAdditiveMap C hC n ≫ (idealComplementTildeSections I M).smul a =
-      (C.stage n).smul a ≫ stageAdditiveMap C hC n := sorry
+      (C.stage n).smul a ≫ stageAdditiveMap C hC n := by
+  apply AddCommGrpCat.ext
+  intro x
+  exact (hC.section_smul n a x).symm
 
 /-- The stage comparison map obtained from linear canonical glued sections. -/
 noncomputable def stageMap (C : IdealComplementStage G M) (hC : C.IsLinear) (n : ℕ) :
@@ -138,7 +167,11 @@ noncomputable def stageMap (C : IdealComplementStage G M) (hC : C.IsLinear) (n :
 
 /-- The stage comparison maps commute with the transition maps. -/
 theorem stageMap_naturality (C : IdealComplementStage G M) (hC : C.IsLinear) (n : ℕ) :
-    C.transition n ≫ stageMap C hC (n + 1) = stageMap C hC n := sorry
+    C.transition n ≫ stageMap C hC (n + 1) = stageMap C hC n := by
+  apply ModuleCat.hom_ext
+  apply LinearMap.ext
+  intro x
+  exact hC.section_naturality n x
 
 /-- The comparison map from the sequential colimit of the stages to sections on the ideal
 complement. -/
@@ -152,7 +185,9 @@ noncomputable def colimitMap (C : IdealComplementStage G M) (hC : C.IsLinear) :
 /-- The colimit comparison map restricts to its stage map on every inclusion. -/
 @[reassoc]
 theorem colimitMap_ι (C : IdealComplementStage G M) (hC : C.IsLinear) (n : ℕ) :
-    colimit.ι (Functor.ofSequence C.transition) n ≫ colimitMap C hC = stageMap C hC n := sorry
+    colimit.ι (Functor.ofSequence C.transition) n ≫ colimitMap C hC = stageMap C hC n := by
+  exact colimit.ι_desc
+    (Functor.ofSequence.constCocone C.transition (stageMap C hC) (stageMap_naturality C hC)) n
 
 end IdealComplementStage.IsLinear
 

@@ -72,17 +72,59 @@ instance Functor.LeftDerived.DefinedAt.Domain.definedAt
     (X : Functor.LeftDerived.DefinedAt.Domain F S) :
     Functor.LeftDerived.DefinedAt F S X.obj := X.property
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Essential constancy of the right-derived diagram implies Mathlib's pointwise-existence
 property. -/
 theorem Functor.RightDerived.DefinedAt.lePointwise :
     Functor.RightDerived.DefinedAt.objects F S ≤
-      Functor.RightDerived.Definedness.property F S := sorry
+      Functor.RightDerived.Definedness.property F S :=
+  by
+    intro X hX
+    rcases hX.isEssentiallyConstant with ⟨c, i, σ, hfac⟩
+    refine ⟨⟨⟨{ cocone := c, isColimit := ?_ }⟩⟩⟩
+    refine { desc := fun s ↦ σ.section_ ≫ s.ι.app i, fac := ?_, uniq := ?_ }
+    · intro s j
+      rcases hfac j with ⟨k, ik, jk, hjk⟩
+      calc
+        c.ι.app j ≫ (σ.section_ ≫ s.ι.app i) =
+            (c.ι.app j ≫ σ.section_ ≫
+              (CostructuredArrow.proj S.Q (S.Q.obj X) ⋙ F).map ik) ≫ s.ι.app k := by
+          simp only [Category.assoc, s.w ik]
+        _ = (CostructuredArrow.proj S.Q (S.Q.obj X) ⋙ F).map jk ≫ s.ι.app k := by
+          rw [← hjk]
+        _ = s.ι.app j := s.w jk
+    · intro s m hm
+      calc
+        m = (σ.section_ ≫ c.ι.app i) ≫ m := by rw [σ.id, Category.id_comp]
+        _ = σ.section_ ≫ s.ι.app i := by rw [Category.assoc, hm i]
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Essential constancy of the left-derived diagram implies Mathlib's pointwise-existence
 property. -/
 theorem Functor.LeftDerived.DefinedAt.lePointwise :
     Functor.LeftDerived.DefinedAt.objects F S ≤
-      Functor.LeftDerived.Definedness.property F S := sorry
+      Functor.LeftDerived.Definedness.property F S :=
+  by
+    intro X hX
+    rcases hX.isEssentiallyConstant with ⟨c, i, σ, hfac⟩
+    refine ⟨⟨⟨{ cone := c, isLimit := ?_ }⟩⟩⟩
+    refine { lift := fun s ↦ s.π.app i ≫ σ.retraction, fac := ?_, uniq := ?_ }
+    · intro s j
+      rcases hfac j with ⟨k, ki, kj, hkj⟩
+      calc
+        (s.π.app i ≫ σ.retraction) ≫ c.π.app j =
+            s.π.app k ≫
+              ((StructuredArrow.proj (S.Q.obj X) S.Q ⋙ F).map ki ≫
+                σ.retraction ≫ c.π.app j) := by
+          simp only [← Category.assoc, s.w ki]
+        _ = s.π.app k ≫ (StructuredArrow.proj (S.Q.obj X) S.Q ⋙ F).map kj := by
+          rw [← hkj]
+        _ = s.π.app j := s.w kj
+    · intro s m hm
+      have hσ : c.π.app i ≫ σ.retraction = 𝟙 c.pt := σ.id
+      calc
+        m = m ≫ (c.π.app i ≫ σ.retraction) := by rw [hσ, Category.comp_id]
+        _ = s.π.app i ≫ σ.retraction := by rw [← Category.assoc, hm i]
 
 /-- The canonical inclusion from the right essential-constancy domain into the pointwise-defined
 domain.  It retains the underlying object and morphism. -/

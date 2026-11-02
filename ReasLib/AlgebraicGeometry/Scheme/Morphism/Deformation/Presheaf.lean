@@ -40,7 +40,8 @@ theorem restrictSection_val (S : Scheme.{u}) (i : X ⟶ X') (j : Y ⟶ Y')
     (A : (Scheme.Modules.pullback a).obj (Scheme.Hom.conormalSheaf j) ⟶
       Scheme.Hom.conormalSheaf i)
     {U' V' : X'.Opens} (h : V' ≤ U') (s : sections S i j a A U') :
-    (restrictSection S i j a A h s).1 = restrictHom h s.1 := sorry
+    (restrictSection S i j a A h s).1 = restrictHom h s.1 := by
+  rfl
 
 /-- Restriction of compatible local deformations along the identity inclusion is the identity. -/
 theorem restrictSection_id (S : Scheme.{u}) (i : X ⟶ X') (j : Y ⟶ Y')
@@ -50,7 +51,12 @@ theorem restrictSection_id (S : Scheme.{u}) (i : X ⟶ X') (j : Y ⟶ Y')
     (A : (Scheme.Modules.pullback a).obj (Scheme.Hom.conormalSheaf j) ⟶
       Scheme.Hom.conormalSheaf i)
     (U' : X'.Opens) :
-    TypeCat.ofHom (restrictSection S i j a A (le_refl U')) = 𝟙 _ := sorry
+    TypeCat.ofHom (restrictSection S i j a A (le_refl U')) = 𝟙 _ := by
+  apply TypeCat.homEquiv.injective
+  funext s
+  apply Subtype.ext
+  change X'.homOfLE (le_refl U') ≫ s.1 = s.1
+  rw [Scheme.homOfLE_rfl, Category.id_comp]
 
 /-- Successive restrictions of compatible local deformations equal restriction along the
 composite inclusion. -/
@@ -63,7 +69,13 @@ theorem restrictSection_comp (S : Scheme.{u}) (i : X ⟶ X') (j : Y ⟶ Y')
     {U' V' W' : X'.Opens} (hVU : V' ≤ U') (hWV : W' ≤ V') :
     TypeCat.ofHom (restrictSection S i j a A (hWV.trans hVU)) =
       TypeCat.ofHom (restrictSection S i j a A hVU) ≫
-        TypeCat.ofHom (restrictSection S i j a A hWV) := sorry
+        TypeCat.ofHom (restrictSection S i j a A hWV) := by
+  apply TypeCat.homEquiv.injective
+  funext s
+  apply Subtype.ext
+  change X'.homOfLE (hWV.trans hVU) ≫ s.1 =
+    X'.homOfLE hWV ≫ X'.homOfLE hVU ≫ s.1
+  rw [← Category.assoc, Scheme.homOfLE_homOfLE]
 
 /-- The presheaf of compatible local deformations with prescribed conormal map. -/
 def presheaf (S : Scheme.{u}) (i : X ⟶ X') (j : Y ⟶ Y') (a : X ⟶ Y)
@@ -86,7 +98,8 @@ theorem presheaf_obj (S : Scheme.{u}) (i : X ⟶ X') (j : Y ⟶ Y') (a : X ⟶ Y
     (A : (Scheme.Modules.pullback a).obj (Scheme.Hom.conormalSheaf j) ⟶
       Scheme.Hom.conormalSheaf i)
     (U' : X'.Opens) :
-    (presheaf S i j a A).obj (op U') = sections S i j a A U' := sorry
+    (presheaf S i j a A).obj (op U') = sections S i j a A U' := by
+  rfl
 
 /-- The deformation presheaf restricts sections using `restrictHom`. -/
 theorem presheaf_map_apply (S : Scheme.{u}) (i : X ⟶ X') (j : Y ⟶ Y')
@@ -96,7 +109,8 @@ theorem presheaf_map_apply (S : Scheme.{u}) (i : X ⟶ X') (j : Y ⟶ Y')
     (A : (Scheme.Modules.pullback a).obj (Scheme.Hom.conormalSheaf j) ⟶
       Scheme.Hom.conormalSheaf i)
     {U' V' : (X'.Opens)ᵒᵖ} (h : U' ⟶ V') (s : (presheaf S i j a A).obj U') :
-    ((presheaf S i j a A).map h s).1 = restrictHom h.unop.le s.1 := sorry
+    ((presheaf S i j a A).map h s).1 = restrictHom h.unop.le s.1 := by
+  rfl
 
 /-- Compatible local deformations with a prescribed conormal map form a sheaf of sets. -/
 theorem presheaf_isSheaf (i : X ⟶ X') (j : Y ⟶ Y') (a : X ⟶ Y)
@@ -124,6 +138,7 @@ theorem sheaf_obj (S : Scheme.{u}) (i : X ⟶ X') (j : Y ⟶ Y') (a : X ⟶ Y)
     [i.IsOver S] [j.IsOver S] [a.IsOver S]
     (A : (Scheme.Modules.pullback a).obj (Scheme.Hom.conormalSheaf j) ⟶
       Scheme.Hom.conormalSheaf i) (U' : X'.Opens) :
-    (sheaf S i j a A).1.obj (op U') = sections S i j a A U' := sorry
+    (sheaf S i j a A).1.obj (op U') = sections S i j a A U' := by
+  rfl
 
 end AlgebraicGeometry.Scheme.Hom.Deformation

@@ -32,13 +32,13 @@ theorem localizedObj_isNormalizedDualizingComplex
     [MonoidalCategory (DerivedCategory (ModuleCat.{u, u} R))]
     [MonoidalCategory
       (DerivedCategory (ModuleCat.{u, u} (Localization.AtPrime m.asIdeal)))]
-    (HR : MonoidalClosed (DerivedCategory (ModuleCat.{u, u} R)))
-    (HAm : MonoidalClosed
-      (DerivedCategory (ModuleCat.{u, u} (Localization.AtPrime m.asIdeal))))
+    (CR : DerivedCategory.CanonicalClosedPresentation (A := R))
+    (CAm : DerivedCategory.CanonicalClosedPresentation
+      (A := Localization.AtPrime m.asIdeal))
     (ω : DerivedCategory (ModuleCat.{u, u} R))
-    (hω : ω.IsNormalizedDualizingComplex HR) :
+    (hω : ω.IsNormalizedDualizingComplex CR.comparison.closed) :
     ((ModuleCat.derivedExtensionOfScalars
       (algebraMap A (Localization.AtPrime m.asIdeal))).obj
-        (p.functor.obj ω)).IsNormalizedDualizingComplex HAm := sorry
+        (p.functor.obj ω)).IsNormalizedDualizingComplex CAm.comparison.closed := sorry
 
 end CategoryTheory.ModuleCat.UpperShriek.Presentation

@@ -10,6 +10,10 @@ public import ReasLib.AlgebraicGeometry.AlgebraicSpace.FunctorOfPoints
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Immersion
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Points
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.LocalCompleteIntersection
+import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.EtaleFromScheme
+import ReasLib.AlgebraicGeometry.Scheme.Morphism.LocalCompleteIntersection.Composition
+import ReasLib.AlgebraicGeometry.Scheme.Morphism.Syntomic.LocalCompleteIntersection
+import ReasLib.AlgebraicGeometry.Scheme.Morphism.Syntomic.Smooth
 
 /-!
 # Local complete intersection morphisms of algebraic spaces
@@ -52,7 +56,8 @@ theorem isLocalCompleteIntersection_iff {S : Scheme.{u}}
           (over (@AlgebraicGeometry.Etale)).presheaf b →
             a ≫ f = yoneda.map h ≫ b →
               AlgebraicGeometry.LocallyOfType
-                RingHom.IsLocalCompleteIntersection h.left := sorry
+                RingHom.IsLocalCompleteIntersection h.left :=
+  ⟨fun hf => hf.of_etale, fun hf => ⟨hf⟩⟩
 
 namespace IsLocalCompleteIntersection
 
@@ -65,12 +70,20 @@ theorem spec {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
     (ha : (over (@AlgebraicGeometry.Etale)).presheaf a)
     (hb : (over (@AlgebraicGeometry.Etale)).presheaf b)
     (w : a ≫ f = yoneda.map h ≫ b) :
-    AlgebraicGeometry.LocallyOfType RingHom.IsLocalCompleteIntersection h.left := sorry
+    AlgebraicGeometry.LocallyOfType RingHom.IsLocalCompleteIntersection h.left :=
+  of_etale a b h ha hb w
 
 /-- The identity morphism of an algebraic space is a local complete
 intersection. -/
 instance id {S : Scheme.{u}} {X : AlgebraicSpace S} :
-    IsLocalCompleteIntersection (𝟙 X) := sorry
+    IsLocalCompleteIntersection (𝟙 X) := by
+  refine ⟨fun a b h ha hb w => ?_⟩
+  haveI : AlgebraicGeometry.Etale h.left :=
+    etale_of_comp a b h ha hb (by
+      change a ≫ 𝟙 X.functorOfPoints = _ at w
+      simpa only [Category.comp_id] using w)
+  exact ((AlgebraicGeometry.Syntomic.iff_flat_and_isLocalCompleteIntersection h.left).mp
+    inferInstance).2
 
 /-- A representable morphism of algebraic spaces with the relative
 local-complete-intersection property is a local complete intersection. -/
@@ -78,8 +91,24 @@ theorem of_presheaf {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y}
     (hf : (over
         (@AlgebraicGeometry.LocallyOfType RingHom.IsLocalCompleteIntersection :
           MorphismProperty Scheme.{u})).presheaf f) :
-    IsLocalCompleteIntersection f :=
-  sorry
+    IsLocalCompleteIntersection f := by
+  refine ⟨fun a b h ha hb w => ?_⟩
+  -- The represented pullback of `f` along `b` is étale over `X`.
+  have hc : (over (@AlgebraicGeometry.Etale)).presheaf (hf.rep.fst b) :=
+    (relative_isStableUnderBaseChange (over (@AlgebraicGeometry.Etale))
+      (F := yoneda)).of_isPullback (hf.rep.isPullback b).flip hb
+  haveI : AlgebraicGeometry.Etale (hf.rep.lift a h w).left :=
+    etale_of_comp a (hf.rep.fst b) (hf.rep.lift a h w) ha hc
+      (hf.rep.lift_fst a h w).symm
+  haveI : AlgebraicGeometry.LocallyOfType RingHom.IsLocalCompleteIntersection
+      (hf.rep.lift a h w).left :=
+    ((AlgebraicGeometry.Syntomic.iff_flat_and_isLocalCompleteIntersection _).mp
+      inferInstance).2
+  haveI : AlgebraicGeometry.LocallyOfType RingHom.IsLocalCompleteIntersection
+      (hf.rep.snd b).left := hf.property_snd b
+  -- The scheme map factors through this pullback by an étale morphism.
+  rw [← hf.rep.lift_snd a h w]
+  exact AlgebraicGeometry.LocallyOfType.isLocalCompleteIntersection_comp _ _
 
 end IsLocalCompleteIntersection
 
@@ -100,7 +129,7 @@ theorem koszulAt_iff {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
       ∃ (X' : AlgebraicSpace S) (i : X' ⟶ X),
         IsOpenImmersion i ∧ x ∈ Set.range (Points.map i) ∧
           IsLocalCompleteIntersection (i ≫ f) :=
-  sorry
+  Iff.rfl
 
 namespace KoszulAt
 
@@ -111,7 +140,7 @@ theorem of {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y}
     {x : Points X} {X' : AlgebraicSpace S} {i : X' ⟶ X}
     [IsOpenImmersion i] (hx : x ∈ Set.range (Points.map i))
     [IsLocalCompleteIntersection (i ≫ f)] : KoszulAt f x :=
-  sorry
+  ⟨X', i, inferInstance, hx, inferInstance⟩
 
 end KoszulAt
 
@@ -119,7 +148,19 @@ end KoszulAt
 every point of its source. -/
 theorem koszulAt_of_isLocalCompleteIntersection {S : Scheme.{u}}
     {X Y : AlgebraicSpace S} (f : X ⟶ Y) [IsLocalCompleteIntersection f]
-    (x : Points X) : KoszulAt f x :=
-  sorry
+    (x : Points X) : KoszulAt f x := by
+  refine ⟨X, 𝟙 X, ?_, ?_, ?_⟩
+  · refine ⟨?_⟩
+    change (over (@AlgebraicGeometry.IsOpenImmersion)).presheaf (𝟙 X.functorOfPoints)
+    refine ⟨Functor.relativelyRepresentable.of_isIso yoneda _, ?_⟩
+    intro U V g fst snd sq
+    have : IsIso (yoneda.map snd) := sq.isIso_snd_of_isIso
+    have : IsIso snd := isIso_of_reflects_iso snd yoneda
+    have : IsIso snd.left := inferInstanceAs (IsIso ((Over.forget S).map snd))
+    change AlgebraicGeometry.IsOpenImmersion snd.left
+    infer_instance
+  · refine ⟨x, ?_⟩
+    exact Quotient.inductionOn x (fun _ => rfl)
+  · simpa only [Category.id_comp] using (inferInstance : IsLocalCompleteIntersection f)
 
 end AlgebraicGeometry.AlgebraicSpace

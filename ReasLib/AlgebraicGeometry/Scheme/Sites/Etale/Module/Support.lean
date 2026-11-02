@@ -42,13 +42,44 @@ theorem mem_sections_iff (Z : Closeds X)
     s ∈ sections Z F U ↔
       let W : U.left.Opens := U.hom ⁻¹ᵁ Z.compl
       F.val.map (MorphismProperty.Over.homMk W.ι :
-        Scheme.Etale.mk (W.ι ≫ U.hom) ⟶ U).op s = 0 := sorry
+        Scheme.Etale.mk (W.ι ≫ U.hom) ⟶ U).op s = 0 := by
+  exact LinearMap.mem_ker
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Restriction of a supported section is supported on the same closed subset. -/
 theorem sections_restrict (Z : Closeds X)
     (F : SheafOfModules.{u} (AssociatedModule.smallStructureSheaf .etale X))
     {U V : X.Etaleᵒᵖ} (f : U ⟶ V) :
-    sections Z F U.unop ≤ (sections Z F V.unop).comap (F.val.restrictₛₗ f) := sorry
+    sections Z F U.unop ≤ (sections Z F V.unop).comap (F.val.restrictₛₗ f) := by
+  intro s hs
+  let WU : U.unop.left.Opens := U.unop.hom ⁻¹ᵁ Z.compl
+  let WV : V.unop.left.Opens := V.unop.hom ⁻¹ᵁ Z.compl
+  let iU : Scheme.Etale.mk (WU.ι ≫ U.unop.hom) ⟶ U.unop :=
+    MorphismProperty.Over.homMk WU.ι
+  let iV : Scheme.Etale.mk (WV.ι ≫ V.unop.hom) ⟶ V.unop :=
+    MorphismProperty.Over.homMk WV.ι
+  have hf : f.unop.left ≫ U.unop.hom = V.unop.hom :=
+    MorphismProperty.Over.w (P := (@AlgebraicGeometry.Etale : MorphismProperty Scheme)) f.unop
+  have hWV : WV ≤ f.unop.left ⁻¹ᵁ WU := by
+    dsimp only [WV, WU]
+    rw [← Scheme.Hom.comp_preimage, hf]
+  obtain ⟨k, hk⟩ : ∃ k : Scheme.Etale.mk (WV.ι ≫ V.unop.hom) ⟶
+      Scheme.Etale.mk (WU.ι ≫ U.unop.hom), k ≫ iU = iV ≫ f.unop := by
+    let k : Scheme.Etale.mk (WV.ι ≫ V.unop.hom) ⟶
+        Scheme.Etale.mk (WU.ι ≫ U.unop.hom) :=
+      MorphismProperty.Over.homMk (f.unop.left.resLE WU WV hWV) (by
+        change f.unop.left.resLE WU WV hWV ≫ (WU.ι ≫ U.unop.hom) = WV.ι ≫ V.unop.hom
+        rw [← Category.assoc, Scheme.Hom.resLE_comp_ι, Category.assoc, hf])
+    refine ⟨k, ?_⟩
+    apply MorphismProperty.Over.Hom.ext (P := (@AlgebraicGeometry.Etale : MorphismProperty Scheme))
+    exact Scheme.Hom.resLE_comp_ι _ hWV
+  apply (mem_sections_iff Z F V.unop _).2
+  have hcomp := congrArg (fun a => F.val.presheaf.map a) (congrArg Quiver.Hom.op hk)
+  have hcomp' := CategoryTheory.congr_fun hcomp s
+  simp only [op_comp, Functor.map_comp, AddCommGrpCat.comp_apply] at hcomp'
+  change F.val.presheaf.map iV.op (F.val.presheaf.map f s) = 0
+  have hs0 : F.val.presheaf.map iU.op s = 0 := (mem_sections_iff Z F U.unop s).1 hs
+  exact hcomp'.symm.trans ((congrArg (F.val.presheaf.map k.op) hs0).trans (map_zero _))
 
 /-- The restriction-stable family of section submodules supported on a closed subset. -/
 def submodule (Z : Closeds X)
@@ -77,7 +108,18 @@ def sheaf (Z : Closeds X)
 theorem map_mem (Z : Closeds X)
     {F G : SheafOfModules.{u} (AssociatedModule.smallStructureSheaf .etale X)}
     (f : F ⟶ G) (U : X.Etale) (s : F.val.obj (op U)) (hs : s ∈ sections Z F U) :
-    f.val.app (op U) s ∈ sections Z G U := sorry
+    f.val.app (op U) s ∈ sections Z G U := by
+  let W : U.left.Opens := U.hom ⁻¹ᵁ Z.compl
+  let i : Scheme.Etale.mk (W.ι ≫ U.hom) ⟶ U := MorphismProperty.Over.homMk W.ι
+  apply (mem_sections_iff Z G U _).2
+  calc
+    G.val.map i.op (f.val.app (op U) s) =
+        f.val.app (op (Scheme.Etale.mk (W.ι ≫ U.hom))) (F.val.map i.op s) :=
+      (_root_.PresheafOfModules.naturality_apply f.val i.op s).symm
+    _ = f.val.app (op (Scheme.Etale.mk (W.ι ≫ U.hom))) 0 :=
+      congrArg (f.val.app (op (Scheme.Etale.mk (W.ι ≫ U.hom))))
+        ((mem_sections_iff Z F U s).1 hs)
+    _ = 0 := map_zero _
 
 /-- The linear map induced on supported sections by a module-sheaf morphism. -/
 def mapApp (Z : Closeds X)
@@ -92,7 +134,10 @@ theorem map_naturality (Z : Closeds X)
     (presheaf Z F).map g ≫
         (ModuleCat.restrictScalars
           ((AssociatedModule.smallStructureSheaf .etale X).obj.map g).hom).map (mapApp Z f V) =
-      mapApp Z f U ≫ (presheaf Z G).map g := sorry
+      mapApp Z f U ≫ (presheaf Z G).map g := by
+  ext s
+  apply Subtype.ext
+  exact _root_.PresheafOfModules.naturality_apply f.val g s.val
 
 /-- The module-sheaf morphism induced on sections with support. -/
 def map (Z : Closeds X)
@@ -103,12 +148,16 @@ def map (Z : Closeds X)
 /-- The supported-section map preserves identity morphisms. -/
 theorem map_id (Z : Closeds X)
     (F : SheafOfModules.{u} (AssociatedModule.smallStructureSheaf .etale X)) :
-    map Z (𝟙 F) = 𝟙 (sheaf Z F) := sorry
+    map Z (𝟙 F) = 𝟙 (sheaf Z F) := by
+  ext U s
+  rfl
 
 /-- The supported-section map preserves composition. -/
 theorem map_comp (Z : Closeds X)
     {F G H : SheafOfModules.{u} (AssociatedModule.smallStructureSheaf .etale X)}
-    (f : F ⟶ G) (g : G ⟶ H) : map Z (f ≫ g) = map Z f ≫ map Z g := sorry
+    (f : F ⟶ G) (g : G ⟶ H) : map Z (f ≫ g) = map Z f ≫ map Z g := by
+  ext U s
+  rfl
 
 /-- The module-valued étale sections-with-support functor. -/
 def sectionsFunctor (Z : Closeds X) :
@@ -120,7 +169,11 @@ def sectionsFunctor (Z : Closeds X) :
   map_comp := map_comp Z
 
 /-- Taking sections with support is additive. -/
-instance sectionsFunctor_additive (Z : Closeds X) : (sectionsFunctor Z).Additive := sorry
+instance sectionsFunctor_additive (Z : Closeds X) : (sectionsFunctor Z).Additive where
+  map_add := by
+    intro F G f g
+    ext U s
+    rfl
 
 variable [HasSheafify (SmallStandardTopology.etale.topology X) AddCommGrpCat.{u}]
   [(SmallStandardTopology.etale.topology X).WEqualsLocallyBijective AddCommGrpCat.{u}]

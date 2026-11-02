@@ -27,7 +27,8 @@ variable {σ : Type v}
 
 /-- Multivariate formal power series over a coherent ring are flat over the coefficient ring. -/
 @[stacks 059T "flatness of multivariate formal power series"]
-instance mvPowerSeries [IsCoherentRing R] : Module.Flat R (MvPowerSeries σ R) := sorry
+instance mvPowerSeries [IsCoherentRing R] : Module.Flat R (MvPowerSeries σ R) :=
+  inferInstanceAs (Module.Flat R ((σ →₀ ℕ) → R))
 
 end Module.Flat
 
@@ -39,7 +40,8 @@ variable {σ : Type v}
 /-- Multivariate formal power series over a Noetherian ring are Mittag-Leffler over the
 coefficient ring. -/
 @[stacks 059T "Mittag-Leffler multivariate formal power series"]
-instance mvPowerSeries [IsNoetherianRing R] : MittagLeffler R (MvPowerSeries σ R) := sorry
+instance mvPowerSeries [IsNoetherianRing R] : MittagLeffler R (MvPowerSeries σ R) :=
+  inferInstanceAs (MittagLeffler R ((σ →₀ ℕ) → R))
 
 end Module.MittagLeffler
 
@@ -48,19 +50,25 @@ namespace PowerSeries
 /-- The coefficient of multiplication by an integer constant is the corresponding integer
 multiple of the coefficient. -/
 theorem coeff_intCast_mul (n : ℤ) (f : ℤ⟦X⟧) (i : ℕ) :
-    coeff i ((n : ℤ⟦X⟧) * f) = n * coeff i f := sorry
+    coeff i ((n : ℤ⟦X⟧) * f) = n * coeff i f := by
+  simpa only [zsmul_eq_mul, Int.cast_id] using map_zsmul (coeff (R := ℤ) i) n f
 
 /-- Coefficients commute with the canonical integer scalar action on integer power series. -/
 theorem coeff_int_smul (n : ℤ) (f : ℤ⟦X⟧) (i : ℕ) :
-    coeff i (n • f) = n * coeff i f := sorry
+    coeff i (n • f) = n * coeff i f := by
+  rw [zsmul_eq_mul, coeff_intCast_mul]
 
 /-- The canonical integer-module structure on `ℤ⟦X⟧` is flat. -/
 @[stacks 059Y "flatness of integer power series"]
-instance intFlat : Module.Flat ℤ ℤ⟦X⟧ := sorry
+instance intFlat : Module.Flat ℤ ℤ⟦X⟧ := by
+  have h := Module.Flat.mvPowerSeries (R := ℤ) (σ := Unit)
+  convert h using 1 <;> rfl
 
 /-- The canonical integer-module structure on `ℤ⟦X⟧` is Mittag-Leffler. -/
 @[stacks 059Y "Mittag-Leffler integer power series"]
-instance intMittagLeffler : Module.MittagLeffler ℤ ℤ⟦X⟧ := sorry
+instance intMittagLeffler : Module.MittagLeffler ℤ ℤ⟦X⟧ := by
+  have h := Module.MittagLeffler.mvPowerSeries (R := ℤ) (σ := Unit)
+  convert h using 1 <;> rfl
 
 end PowerSeries
 
@@ -72,13 +80,15 @@ variable {R : Type u} [CommRing R]
 Mittag-Leffler over the coefficient ring. -/
 theorem flat_mittagLeffler [IsNoetherianRing R] (σ : Type v) :
     Module.Flat R (MvPowerSeries σ R) ∧
-      Module.MittagLeffler R (MvPowerSeries σ R) := sorry
+      Module.MittagLeffler R (MvPowerSeries σ R) :=
+  ⟨inferInstance, inferInstance⟩
 
 /-- Finite-variable formal power series over a Noetherian ring are flat
 and Mittag-Leffler over the coefficient ring. -/
 @[stacks 059T]
 theorem fin_flat_mittagLeffler [IsNoetherianRing R] (n : ℕ) :
     Module.Flat R (MvPowerSeries (Fin n) R) ∧
-      Module.MittagLeffler R (MvPowerSeries (Fin n) R) := sorry
+      Module.MittagLeffler R (MvPowerSeries (Fin n) R) :=
+  flat_mittagLeffler (Fin n)
 
 end MvPowerSeries

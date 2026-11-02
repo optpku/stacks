@@ -8,6 +8,8 @@ module
 
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Etale
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleAt
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Locality.Criteria
+public import ReasLib.AlgebraicGeometry.Scheme.Morphism.EtaleLocal.Etale
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Pullback
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.ZariskiCover.Basic
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.EtaleLocal
@@ -33,9 +35,9 @@ namespace AlgebraicGeometry.AlgebraicSpace
 namespace Etale
 
 /-- Every base change of a morphism along a morphism from a scheme is étale. -/
-def baseChangeOnSchemes {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
+abbrev baseChangeOnSchemes {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     Prop :=
-  ∀ {Z : Over S} (g : ofOver Z ⟶ Y), Etale (pullbackAlongScheme.snd f g)
+  Locality.Criteria.forallScheme (@Etale S) f
 
 /-- The scheme base-change test is equivalent to étaleness of every projection
 obtained by base change along a morphism from a scheme. -/
@@ -63,10 +65,9 @@ theorem of {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y}
 end baseChangeOnSchemes
 
 /-- Every base change of a morphism along a morphism from an affine scheme is étale. -/
-def baseChangeOnAffineSchemes {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+abbrev baseChangeOnAffineSchemes {S : Scheme.{u}} {X Y : AlgebraicSpace S}
     (f : X ⟶ Y) : Prop :=
-  ∀ {Z : Over S} (g : ofOver Z ⟶ Y),
-    IsAffine Z.left → Etale (pullbackAlongScheme.snd f g)
+  Locality.Criteria.forallAffine (@Etale S) f
 
 /-- The affine scheme base-change test is equivalent to étaleness of every
 projection obtained by base change along a morphism from an affine scheme. -/
@@ -131,6 +132,12 @@ theorem spec {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y}
 
 end existsZariskiCover
 
+/-- The pullback-cover presentation agrees with the generic Zariski criterion. -/
+theorem existsZariskiCover_iff_criteria {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+    (f : X ⟶ Y) : existsZariskiCover.{u, v} f ↔
+      Locality.Criteria.existsZariskiCover.{u, v} (@Etale S) f := by
+  sorry
+
 variable {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
 
 /-- There is a surjective étale morphism from a scheme to `X` whose composite
@@ -167,6 +174,11 @@ theorem spec (h : existsOnSource f) :
           Etale (φ ≫ f) := h
 
 end existsOnSource
+
+/-- This presentation agrees with the generic locality criterion. -/
+theorem existsOnSource_iff_criteria : existsOnSource f ↔
+    Locality.Criteria.existsSurjectiveEtaleSource (@Etale S) f := by
+  sorry
 
 /-- There is a surjective étale morphism from a scheme to `Y` and a pullback
 of `f` along it whose projection to that scheme is étale. -/
@@ -207,6 +219,11 @@ theorem spec (h : existsOnTarget f) :
             IsPullback pV pX ψ f ∧ Etale pV := h
 
 end existsOnTarget
+
+/-- This presentation agrees with the generic locality criterion. -/
+theorem existsOnTarget_iff_criteria : existsOnTarget f ↔
+    Locality.Criteria.existsSurjectiveEtaleTarget (@Etale S) f := by
+  sorry
 
 /-- There is a commutative square of schemes over `f` with étale vertical
 arrows, surjective left vertical arrow, and étale horizontal arrow. -/
@@ -252,6 +269,11 @@ theorem spec (h : existsSquare f) :
 
 end existsSquare
 
+/-- This presentation agrees with the generic locality criterion. -/
+theorem existsSquare_iff_criteria : existsSquare f ↔
+    Locality.Criteria.existsEtaleSquare (@AlgebraicGeometry.Etale) f := by
+  sorry
+
 /-- Étaleness of a morphism of algebraic spaces is equivalent to the source-atlas,
 target-atlas, and commutative-square tests. -/
 theorem tfae :
@@ -289,7 +311,25 @@ theorem etale_tfae {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
       , Etale.existsOnSource f
       , etaleLocal (fun _ _ h ↦ AlgebraicGeometry.Etale h) f
       , Etale.existsSquare f
-      , Etale.existsZariskiCover.{u, v} f ] :=
-  sorry
+      , Etale.existsZariskiCover.{u, v} f ] := by
+  have hP : (@Etale S : MorphismProperty (AlgebraicSpace S)) =
+      etaleLocal (@AlgebraicGeometry.Etale) := by
+    funext U V g
+    apply propext
+    sorry
+  have hlocal := Locality.Criteria.etaleLocal_tfae.{u, v} (@AlgebraicGeometry.Etale) f
+  have hbase : List.TFAE
+      [ Etale f, Etale.baseChangeOnSchemes f, Etale.baseChangeOnAffineSchemes f
+      , Etale.existsOnTarget f, Etale.existsOnSource f
+      , etaleLocal (fun _ _ h ↦ AlgebraicGeometry.Etale h) f
+      , Etale.existsSquare f, Etale.existsZariskiCover.{u, v} f ] := by
+    simpa only [Etale.baseChangeOnSchemes, Etale.baseChangeOnAffineSchemes,
+      Etale.existsOnTarget_iff_criteria, Etale.existsOnSource_iff_criteria,
+      Etale.existsSquare_iff_criteria, Etale.existsZariskiCover_iff_criteria, hP]
+      using hlocal
+  have hpoint : Etale f ↔ ∀ x : Points X, EtaleAt f x := by sorry
+  exact List.tfae_cons_cons.mpr ⟨hpoint,
+    List.tfae_cons_cons.mpr ⟨hpoint.symm.trans (hbase.out 0 1),
+      (List.tfae_cons_cons.mp hbase).2⟩⟩
 
 end AlgebraicGeometry.AlgebraicSpace

@@ -45,7 +45,8 @@ def complexFunctor (K : SimplicialObject (Over U)) :
 theorem complexFunctor_obj_X (K : SimplicialObject (Over U))
     (F : Sheaf J AddCommGrpCat.{w}) (n : ℕ) :
     ((complexFunctor K).obj F).X n =
-      F.obj.obj (op ((K.obj (op (SimplexCategory.mk n))).left)) := sorry
+      F.obj.obj (op ((K.obj (op (SimplexCategory.mk n))).left)) := by
+  rfl
 
 /-- The integer-indexed Čech row is the extension by zero of the nonnegative Čech complex. -/
 abbrev rowFunctor (K : SimplicialObject (Over U)) :
@@ -55,11 +56,21 @@ abbrev rowFunctor (K : SimplicialObject (Over U)) :
 /-- Evaluating the Čech row extends the nonnegative Čech complex by zero. -/
 theorem rowFunctor_obj (K : SimplicialObject (Over U))
     (F : Sheaf J AddCommGrpCat.{w}) :
-    (rowFunctor K).obj F = ((complexFunctor K).obj F).extend embeddingUpNat := sorry
+    (rowFunctor K).obj F = ((complexFunctor K).obj F).extend embeddingUpNat := by
+  rfl
 
 /-- The Čech row functor preserves zero morphisms. -/
 instance rowFunctor_preservesZeroMorphisms (K : SimplicialObject (Over U)) :
-    (rowFunctor (J := J) K).PreservesZeroMorphisms := sorry
+    (rowFunctor (J := J) K).PreservesZeroMorphisms := by
+  constructor
+  intro F G
+  apply HomologicalComplex.hom_ext
+  intro n
+  change HomologicalComplex.extend.mapX ((complexFunctor K).map (0 : F ⟶ G))
+    (embeddingUpNat.r n) = 0
+  cases embeddingUpNat.r n with
+  | none => rfl
+  | some m => rfl
 
 /-- Applying the Čech row degreewise gives the Čech double complex of a coefficient complex. -/
 abbrev doubleFunctor (K : SimplicialObject (Over U)) :
@@ -70,7 +81,8 @@ abbrev doubleFunctor (K : SimplicialObject (Over U)) :
 /-- The Čech double complex is obtained by applying the row functor degreewise. -/
 theorem doubleFunctor_obj (K : SimplicialObject (Over U))
     (ℰ : CochainComplex (Sheaf J AddCommGrpCat.{w}) ℤ) :
-    (doubleFunctor K).obj ℰ = ((rowFunctor K).mapHomologicalComplex (up ℤ)).obj ℰ := sorry
+    (doubleFunctor K).obj ℰ = ((rowFunctor K).mapHomologicalComplex (up ℤ)).obj ℰ := by
+  rfl
 
 /-- The total Čech complex functor totalizes the integer-indexed Čech double complex. -/
 abbrev totalFunctor (K : SimplicialObject (Over U)) :
@@ -82,13 +94,31 @@ abbrev totalFunctor (K : SimplicialObject (Over U)) :
 theorem totalFunctor_obj (K : SimplicialObject (Over U))
     (ℰ : CochainComplex (Sheaf J AddCommGrpCat.{w}) ℤ) :
     (totalFunctor K).obj ℰ =
-      HomologicalComplex₂.total ((doubleFunctor K).obj ℰ) (up ℤ) := sorry
+      HomologicalComplex₂.total ((doubleFunctor K).obj ℰ) (up ℤ) := by
+  rfl
 
 /-- The total Čech complex of a bounded-below coefficient complex is bounded below. -/
 theorem totalPlus_obj_mem (K : SimplicialObject (Over U))
     (ℰ : CochainComplex.Plus (Sheaf J AddCommGrpCat.{w})) :
     CochainComplex.plus AddCommGrpCat.{w}
-      ((CochainComplex.Plus.ι (Sheaf J AddCommGrpCat.{w}) ⋙ totalFunctor K).obj ℰ) := sorry
+      ((CochainComplex.Plus.ι (Sheaf J AddCommGrpCat.{w}) ⋙ totalFunctor K).obj ℰ) := by
+  obtain ⟨a, ha⟩ := ℰ.property
+  refine ⟨a, ?_⟩
+  rw [CochainComplex.isStrictlyGE_iff]
+  intro n hn
+  rw [IsZero.iff_id_eq_zero]
+  apply HomologicalComplex₂.total.hom_ext
+  intro p q hpq
+  have hz : IsZero ((((doubleFunctor K).obj ℰ.obj).X p).X q) := by
+    by_cases hp : p < a
+    · exact (HomologicalComplex.eval _ _ q).map_isZero
+        ((rowFunctor K).map_isZero
+          ((CochainComplex.isStrictlyGE_iff ℰ.obj a).mp ha p hp))
+    · change IsZero ((((complexFunctor K).obj (ℰ.obj.X p)).extend embeddingUpNat).X q)
+      exact CochainComplex.isZero_of_isStrictlyGE _ 0 q (by
+        change p + q = n at hpq
+        omega)
+  exact hz.eq_of_src _ _
 
 /-- The total Čech functor restricted to bounded-below coefficient complexes. -/
 def totalPlus (K : SimplicialObject (Over U)) :
@@ -100,6 +130,7 @@ def totalPlus (K : SimplicialObject (Over U)) :
 /-- Forgetting boundedness after the bounded-below total Čech functor recovers totalization. -/
 theorem totalPlus_comp_ι (K : SimplicialObject (Over U)) :
     totalPlus (J := J) K ⋙ CochainComplex.Plus.ι AddCommGrpCat.{w} =
-      CochainComplex.Plus.ι (Sheaf J AddCommGrpCat.{w}) ⋙ totalFunctor K := sorry
+      CochainComplex.Plus.ι (Sheaf J AddCommGrpCat.{w}) ⋙ totalFunctor K := by
+  rfl
 
 end CategoryTheory.SimplicialObject.Cech

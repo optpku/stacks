@@ -17,8 +17,8 @@ public import ReasLib.RingTheory.Polynomial.Numerical
 # Hilbert polynomials on standard projective space
 
 This file defines the Euler-characteristic function of the canonical twists of
-a coherent module on standard projective space. It also records the analogous
-function determined by an explicit projective-spectrum twist presentation.
+a coherent module on standard projective space. The older presentation argument is retained
+only in a compatibility name for this same function.
 -/
 
 @[expose] public section
@@ -42,7 +42,7 @@ theorem hilbertPolynomial_apply
     (k : Type u) [Field k] (n : ℕ)
     (ℱ : (scheme k n).Modules) [ℱ.IsCoherent] (d : ℤ) :
     hilbertPolynomial k n ℱ d =
-      Scheme.Hom.eulerCharacteristic (toSpec k n) (twist k n ℱ d) := sorry
+      Scheme.Hom.eulerCharacteristic (toSpec k n) (twist k n ℱ d) := rfl
 
 /-- The Euler-characteristic function of the canonical twists of a coherent module on standard
 projective space is a numerical polynomial. -/
@@ -83,30 +83,23 @@ end AlgebraicGeometry.ProjectiveSpace
 
 namespace AlgebraicGeometry
 
-/-- The signed cohomology-dimension function determined by an explicit twist presentation on
-standard projective space. -/
+/-- Compatibility name for the Hilbert polynomial, with an explicit twist presentation argument.
+
+The presentation does not define a second Hilbert function: the canonical integral twists are
+the owner of this invariant.  The argument is retained for source compatibility with older
+presentations of the API.
+-/
 noncomputable def projectiveSpaceHilbertPolynomial
     (k : Type u) [Field k] (n : ℕ)
     (P : ProjTwistPresentation (ProjectiveSpace.grading k n))
     (ℱ : (ProjectiveSpace.scheme k n).Modules) [ℱ.IsCoherent] : ℤ → ℤ :=
-  fun d ↦
-    ∑ᶠ i : ℕ,
-      (((i : ℤ).negOnePow : ℤ) *
-        Int.ofNat
-          (Scheme.Hom.cohomologyFinrank (ProjectiveSpace.toSpec k n)
-            (P.tensorTwist ℱ d) i))
+  ProjectiveSpace.hilbertPolynomial k n ℱ
 
-/-- The presentation-dependent Hilbert function unfolds as the signed finite sum of the
-dimensions of the cohomology of the presented twists. -/
+/-- The compatibility function evaluates to the canonical Hilbert polynomial. -/
 theorem projectiveSpaceHilbertPolynomial_spec
     (k : Type u) [Field k] (n : ℕ)
     (P : ProjTwistPresentation (ProjectiveSpace.grading k n))
     (ℱ : (ProjectiveSpace.scheme k n).Modules) [ℱ.IsCoherent] (d : ℤ) :
-    projectiveSpaceHilbertPolynomial k n P ℱ d =
-      ∑ᶠ i : ℕ,
-        (((i : ℤ).negOnePow : ℤ) *
-          Int.ofNat
-            (Scheme.Hom.cohomologyFinrank (ProjectiveSpace.toSpec k n)
-              (P.tensorTwist ℱ d) i)) := sorry
+    projectiveSpaceHilbertPolynomial k n P ℱ d = ProjectiveSpace.hilbertPolynomial k n ℱ d := rfl
 
 end AlgebraicGeometry

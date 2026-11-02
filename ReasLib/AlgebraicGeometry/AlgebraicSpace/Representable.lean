@@ -11,6 +11,7 @@ public import Mathlib.CategoryTheory.Limits.Shapes.Pullback.HasPullback
 public import Mathlib.CategoryTheory.Limits.Types.Limits
 public import Mathlib.CategoryTheory.MorphismProperty.Limits
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.FunctorOfPoints
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Pullback
 
 /-!
 # Morphisms of presheaves representable by algebraic spaces
@@ -41,34 +42,55 @@ fibre product along a Yoneda section from a scheme over `S` is an algebraic spac
 theorem representableByAlgebraicSpaces_iff {S : Scheme.{u}}
     {F G : (Over S)ᵒᵖ ⥤ Type u} (a : F ⟶ G) :
     representableByAlgebraicSpaces a ↔
-      ∀ ⦃U : Over S⦄ (ξ : yoneda.obj U ⟶ G), IsAlgebraicSpace (pullback ξ a) := sorry
+      ∀ ⦃U : Over S⦄ (ξ : yoneda.obj U ⟶ G), IsAlgebraicSpace (pullback ξ a) := Iff.rfl
 
 /-- The fibre product of a representable-by-algebraic-spaces morphism along a Yoneda
 section is an algebraic space. -/
 theorem representableByAlgebraicSpaces.isAlgebraicSpace_pullback {S : Scheme.{u}}
     {F G : (Over S)ᵒᵖ ⥤ Type u} {a : F ⟶ G} (ha : representableByAlgebraicSpaces a)
     {U : Over S} (ξ : yoneda.obj U ⟶ G) :
-    IsAlgebraicSpace (pullback ξ a) := sorry
+    IsAlgebraicSpace (pullback ξ a) := ha ξ
 
 /-- A morphism of presheaves is representable by algebraic spaces as soon as every fibre
 product along a Yoneda section is an algebraic space. -/
 theorem representableByAlgebraicSpaces.of_isAlgebraicSpace_pullback {S : Scheme.{u}}
     {F G : (Over S)ᵒᵖ ⥤ Type u} {a : F ⟶ G}
     (h : ∀ ⦃U : Over S⦄ (ξ : yoneda.obj U ⟶ G), IsAlgebraicSpace (pullback ξ a)) :
-    representableByAlgebraicSpaces a := sorry
+    representableByAlgebraicSpaces a := h
 
 /-- The fibre product of a representable-by-algebraic-spaces morphism along a Yoneda
 section is the functor of points of an algebraic space over `S`. -/
 theorem representableByAlgebraicSpaces.exists_algebraicSpace {S : Scheme.{u}}
     {F G : (Over S)ᵒᵖ ⥤ Type u} {a : F ⟶ G} (ha : representableByAlgebraicSpaces a)
     {U : Over S} (ξ : yoneda.obj U ⟶ G) :
-    ∃ X : AlgebraicSpace S, X.functorOfPoints = pullback ξ a := sorry
+    ∃ X : AlgebraicSpace S, X.functorOfPoints = pullback ξ a := by
+  letI := ha ξ
+  exact ⟨ofIsAlgebraicSpace (pullback ξ a), rfl⟩
+
+-- Prove transport here to avoid depending on the unfinished `IsAlgebraicSpace.of_iso`.
+private theorem isAlgebraicSpace_of_iso {S : Scheme.{u}}
+    {F G : (Over S)ᵒᵖ ⥤ Type u} (e : F ≅ G) (hG : IsAlgebraicSpace G) :
+    IsAlgebraicSpace F := by
+  refine ⟨(Presheaf.isSheaf_of_iso_iff e).mpr hG.isSheaf, ?_, ?_⟩
+  · apply Functor.relativelyRepresentable.diag_of_map_from_obj
+    intro U f
+    exact (yoneda.relativelyRepresentable.cancel_right_of_respectsIso f e.hom).mp
+      (Functor.relativelyRepresentable.of_diag hG.representableDiagonal (f ≫ e.hom))
+  · obtain ⟨U, p, hp, hs⟩ := hG.atlas
+    haveI := hs
+    refine ⟨U, p ≫ e.inv, ?_, inferInstance⟩
+    exact ((MorphismProperty.over (@Etale)).presheaf.cancel_right_of_respectsIso
+      p e.inv).mpr hp
 
 namespace representableByAlgebraicSpaces
 
 /-- The property of being representable by algebraic spaces is stable under base change. -/
 theorem isStableUnderBaseChange {S : Scheme.{u}} :
-    MorphismProperty.IsStableUnderBaseChange (@representableByAlgebraicSpaces S) := sorry
+    MorphismProperty.IsStableUnderBaseChange (@representableByAlgebraicSpaces S) := by
+  constructor
+  intro X Y Y' T f g f' g' sq hg U ξ
+  have hs := (IsPullback.of_hasPullback ξ g').flip.paste_horiz sq
+  exact isAlgebraicSpace_of_iso hs.flip.isoPullback (hg (ξ ≫ f))
 
 attribute [instance] isStableUnderBaseChange
 
@@ -76,7 +98,10 @@ end representableByAlgebraicSpaces
 
 /-- Every morphism between algebraic spaces over a scheme is representable by algebraic spaces. -/
 theorem representableByAlgebraicSpaces.of_hom {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (f : X ⟶ Y) : representableByAlgebraicSpaces f := sorry
+    (f : X ⟶ Y) : representableByAlgebraicSpaces f := by
+  intro U ξ
+  exact Obj.isAlgebraicSpace (ReasLibPullback.pullbackOver (F := ofOver U) (G := X)
+    ξ f Y.isSheaf Y.representableDiagonal)
 
 /-- The pullback of a morphism between algebraic spaces along a scheme-valued point is an algebraic space. -/
 def instIsAlgebraicSpace_pullback_hom {S : Scheme.{u}} {X Y : AlgebraicSpace S}
@@ -96,6 +121,7 @@ from an algebraic-space presheaf is an algebraic space. -/
 theorem IsAlgebraicSpace.pullback {S : Scheme.{u}} {F G X : (Over S)ᵒᵖ ⥤ Type u}
     (a : F ⟶ G) (ha : representableByAlgebraicSpaces a) [IsAlgebraicSpace X]
     (f : X ⟶ G) : IsAlgebraicSpace (pullback f a) :=
-  sorry
+  IsAlgebraicSpace.of_representableByAlgebraicSpaces (pullback.fst f a)
+    (MorphismProperty.pullback_fst f a ha)
 
 end AlgebraicGeometry.AlgebraicSpace

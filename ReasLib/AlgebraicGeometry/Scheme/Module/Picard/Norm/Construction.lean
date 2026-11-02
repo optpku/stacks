@@ -83,76 +83,6 @@ theorem finiteLocallyFree_pushforward_isFinitePresentation [h : IsFiniteLocallyF
 
 namespace FiniteLocallyFreeNormConstruction
 
-set_option backward.isDefEq.respectTransparency false in
-open SheafOfModules in
-private theorem freeEvaluationIso_freeSection
-    {C : Type v} [Category.{w} C] {J : GrothendieckTopology C}
-    (R : Sheaf J RingCat.{u}) [HasWeakSheafify J AddCommGrpCat.{u}]
-    [J.WEqualsLocallyBijective AddCommGrpCat.{u}]
-    (I : Type u) [Finite I] (U : Cᵒᵖ) (i : I) :
-    (freeEvaluationIso R I U).hom ((freeSection (R := R) i).val U) =
-      Pi.basisFun (R.obj.obj U) I i := by
-  classical
-  letI : CategoryTheory.Limits.HasFiniteBiproducts (SheafOfModules.{u} R) :=
-    CategoryTheory.Limits.HasFiniteBiproducts.of_hasFiniteProducts
-  have h (j : I) :
-      ιFree (R := R) i ≫ (CategoryTheory.Limits.biproductIso (fun _ : I ↦ unit R)).inv ≫
-          CategoryTheory.Limits.Pi.π (fun _ : I ↦ unit R) j =
-        if h : i = j then eqToHom (congrArg (fun _ : I ↦ unit R) h) else 0 := by
-    change CategoryTheory.Limits.Sigma.ι (fun _ : I ↦ unit R) i ≫
-        (CategoryTheory.Limits.biproduct.isoCoproduct (fun _ : I ↦ unit R)).inv ≫
-        (CategoryTheory.Limits.biproduct.isoProduct (fun _ : I ↦ unit R)).hom ≫
-        CategoryTheory.Limits.Pi.π (fun _ : I ↦ unit R) j = _
-    rw [CategoryTheory.Limits.biproduct.isoCoproduct_inv,
-      CategoryTheory.Limits.biproduct.isoProduct_hom, ← Category.assoc, ← Category.assoc,
-      CategoryTheory.Limits.Sigma.ι_desc, Category.assoc, CategoryTheory.Limits.Pi.lift_π,
-      CategoryTheory.Limits.biproduct.ι_π]
-  have hc (j : I) :
-      (SheafOfModules.evaluation R U).map (ιFree (R := R) i) ≫ (freeEvaluationIso R I U).hom ≫
-          ModuleCat.ofHom (LinearMap.proj j) =
-        (SheafOfModules.evaluation R U).map
-          (if h : i = j then eqToHom (congrArg (fun _ : I ↦ unit R) h) else 0) := by
-    simp only [freeEvaluationIso, Iso.trans_hom, Functor.mapIso_hom, Iso.symm_hom,
-      Category.assoc, ModuleCat.piIsoPi_hom_ker_subtype,
-      CategoryTheory.Limits.PreservesProduct.iso_hom, CategoryTheory.Limits.piComparison_comp_π]
-    simpa only [Functor.map_comp, Category.assoc] using congrArg ((SheafOfModules.evaluation R U).map) (h j)
-  ext j
-  have hj := congrArg (fun f ↦ f (1 : R.obj.obj U)) (hc j)
-  by_cases hij : i = j
-  · subst j
-    convert hj using 1 <;>
-      simp [freeSection, freeHomEquiv, Pi.basisFun_apply, SheafOfModules.evaluation] <;> rfl
-  · convert hj using 1 <;>
-      simp [freeSection, freeHomEquiv, Pi.basisFun_apply, SheafOfModules.evaluation,
-        hij, Ne.symm hij] <;> rfl
-
-open SheafOfModules in
-private theorem evaluated_generatingSections_basis_apply
-    {C : Type v} [Category.{w} C] {J : GrothendieckTopology C}
-    {R : Sheaf J RingCat.{u}} [HasWeakSheafify J AddCommGrpCat.{u}]
-    [J.WEqualsLocallyBijective AddCommGrpCat.{u}] {M : SheafOfModules.{u} R}
-    (s : M.GeneratingSections) [s.IsFiniteType] [IsIso s.π] (U : Cᵒᵖ) (i : s.I) :
-    s.basis U i = (s.s i).val U := by
-  classical
-  rw [GeneratingSections.basis, Module.Basis.map_apply,
-    ← freeEvaluationIso_freeSection R s.I U i]
-  change s.π.val.app U
-      ((freeEvaluationIso R s.I U).inv
-        ((freeEvaluationIso R s.I U).hom ((freeSection (R := R) i).val U))) = _
-  rw [← ModuleCat.comp_apply, Iso.hom_inv_id]
-  exact congrArg (fun t ↦ t.val U)
-    (sectionsMap_freeHomEquiv_symm_freeSection s.s i)
-
-private theorem map_generatingSections_basis
-    {C : Type v} [Category.{w} C] {J : GrothendieckTopology C}
-    {R : Sheaf J RingCat.{u}} [HasWeakSheafify J AddCommGrpCat.{u}]
-    [J.WEqualsLocallyBijective AddCommGrpCat.{u}] {M : SheafOfModules.{u} R}
-    (s : M.GeneratingSections) [s.IsFiniteType] [IsIso s.π]
-    {V W : Cᵒᵖ} (h : V ⟶ W) (j : s.I) :
-    M.val.map h (s.basis V j) = s.basis W j := by
-  rw [evaluated_generatingSections_basis_apply, evaluated_generatingSections_basis_apply]
-  exact PresheafOfModules.sections_property (s.s j) h
-
 private theorem norm_map_of_basis {R S A B : Type*} [CommRing R] [CommRing S]
     [CommRing A] [CommRing B] [Algebra R A] [Algebra S B]
     {I : Type*} [Finite I]
@@ -279,7 +209,7 @@ theorem chartBasis_restrict [IsFiniteLocallyFree π] (i : (cover π).I)
   letI := cover_isLocallyFree π
   letI := (cover_isFiniteType π).isFiniteType i
   let a : Over.mk (homOfLE hW) ⟶ Over.mk (homOfLE hV) := Over.homMk (homOfLE h)
-  exact map_generatingSections_basis ((cover π).generators i) a.op j
+  exact SheafOfModules.GeneratingSections.map_basis ((cover π).generators i) a.op j
 
 attribute [-instance] TopCat.addCommGrpHasWeakSheafifyOver
   TopCat.addCommGrpWEqualsLocallyBijectiveOver in

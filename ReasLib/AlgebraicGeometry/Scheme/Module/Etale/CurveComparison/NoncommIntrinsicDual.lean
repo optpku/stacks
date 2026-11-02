@@ -37,10 +37,62 @@ instance carrier_coefficientModule (U : Y.Etaleᵒᵖ) :
 def sectionAction (U : Y.Etaleᵒᵖ) : Rᵐᵒᵖ →+*
     Module.End (ActualRootsModule.Coeff.{u} (Nat.card R)) (Carrier R Y F U) where
   toFun r := ((NoncommFiniteCoefficient.dualScalarEnd R Y F r).hom.app U).hom
-  map_zero' := by sorry
-  map_one' := by sorry
-  map_add' := by sorry
-  map_mul' := by sorry
+  map_zero' := by
+    apply LinearMap.ext
+    intro φ
+    apply NatTrans.ext
+    funext V
+    apply ModuleCat.hom_ext
+    apply LinearMap.ext
+    intro m
+    change F.obj.obj ((Over.forget U.unop).op.obj V) at m
+    change (φ.app V).hom
+      ((0 : R) • (m : F.obj.obj ((Over.forget U.unop).op.obj V))) = 0
+    rw [zero_smul]
+    exact (φ.app V).hom.map_zero
+  map_one' := by
+    apply LinearMap.ext
+    intro φ
+    apply NatTrans.ext
+    funext V
+    apply ModuleCat.hom_ext
+    apply LinearMap.ext
+    intro m
+    change F.obj.obj ((Over.forget U.unop).op.obj V) at m
+    change (φ.app V).hom
+      ((1 : R) • (m : F.obj.obj ((Over.forget U.unop).op.obj V))) = (φ.app V).hom m
+    rw [one_smul]
+  map_add' := by
+    intro r s
+    apply LinearMap.ext
+    intro φ
+    apply NatTrans.ext
+    funext V
+    apply ModuleCat.hom_ext
+    apply LinearMap.ext
+    intro m
+    change F.obj.obj ((Over.forget U.unop).op.obj V) at m
+    change (φ.app V).hom
+      ((r.unop + s.unop) • (m : F.obj.obj ((Over.forget U.unop).op.obj V))) =
+      (φ.app V).hom (r.unop • (m : F.obj.obj ((Over.forget U.unop).op.obj V))) +
+        (φ.app V).hom (s.unop • (m : F.obj.obj ((Over.forget U.unop).op.obj V)))
+    rw [add_smul]
+    exact (φ.app V).hom.map_add _ _
+  map_mul' := by
+    intro r s
+    apply LinearMap.ext
+    intro φ
+    apply NatTrans.ext
+    funext V
+    apply ModuleCat.hom_ext
+    apply LinearMap.ext
+    intro m
+    change F.obj.obj ((Over.forget U.unop).op.obj V) at m
+    change (φ.app V).hom
+      ((s.unop * r.unop) • (m : F.obj.obj ((Over.forget U.unop).op.obj V))) =
+      (φ.app V).hom
+        (s.unop • (r.unop • (m : F.obj.obj ((Over.forget U.unop).op.obj V))))
+    rw [mul_smul]
 
 /-- The Rᵐᵒᵖ-module structure is specified by local source precomposition. -/
 instance carrier_rightModule (U : Y.Etaleᵒᵖ) : Module Rᵐᵒᵖ (Carrier R Y F U) :=
@@ -52,12 +104,42 @@ def presheaf : Y.Etaleᵒᵖ ⥤ ModuleCat.{u + 1} Rᵐᵒᵖ where
   map f := ModuleCat.ofHom
     { toFun := fun φ ↦ ((NoncommFiniteCoefficient.dual R Y F).obj.map f).hom φ
       map_add' := by intros; exact map_add _ _ _
-      map_smul' := by sorry }
-  map_id := by sorry
-  map_comp := by sorry
+      map_smul' := by
+        intro r φ
+        apply NatTrans.ext
+        funext V
+        apply ModuleCat.hom_ext
+        apply LinearMap.ext
+        intro m
+        rfl }
+  map_id := by
+    intro U
+    apply ModuleCat.hom_ext
+    apply LinearMap.ext
+    intro φ
+    change ((NoncommFiniteCoefficient.dual R Y F).obj.map (𝟙 U)).hom φ = φ
+    exact congrArg (fun e : (NoncommFiniteCoefficient.dual R Y F).obj.obj U ⟶
+      (NoncommFiniteCoefficient.dual R Y F).obj.obj U ↦ e.hom φ)
+      ((NoncommFiniteCoefficient.dual R Y F).obj.map_id U)
+  map_comp := by
+    intro U V W f g
+    apply ModuleCat.hom_ext
+    apply LinearMap.ext
+    intro φ
+    change ((NoncommFiniteCoefficient.dual R Y F).obj.map (f ≫ g)).hom φ =
+      ((NoncommFiniteCoefficient.dual R Y F).obj.map g).hom
+        (((NoncommFiniteCoefficient.dual R Y F).obj.map f).hom φ)
+    exact congrArg (fun e : (NoncommFiniteCoefficient.dual R Y F).obj.obj U ⟶
+      (NoncommFiniteCoefficient.dual R Y F).obj.obj W ↦ e.hom φ)
+      ((NoncommFiniteCoefficient.dual R Y F).obj.map_comp f g)
 
 /-- Gluing is the existing local-Hom sheaf gluing on exactly the same sections. -/
-theorem isSheaf : Presheaf.IsSheaf Y.smallEtaleTopology (presheaf R Y F) := by sorry
+theorem isSheaf : Presheaf.IsSheaf Y.smallEtaleTopology (presheaf R Y F) := by
+  apply (Presheaf.isSheaf_iff_isSheaf_forget Y.smallEtaleTopology _
+    (CategoryTheory.forget (ModuleCat.{u + 1} Rᵐᵒᵖ))).2
+  exact (Presheaf.isSheaf_iff_isSheaf_forget Y.smallEtaleTopology _
+    (CategoryTheory.forget (ModuleCat.{u + 1} (ActualRootsModule.Coeff.{u} (Nat.card R))))).1
+    (NoncommFiniteCoefficient.dual R Y F).property
 
 /-- The genuine intrinsic RIGHT R dual sheaf, including the roots-of-unity twist. -/
 def obj : Sheaf Y.smallEtaleTopology (ModuleCat.{u + 1} Rᵐᵒᵖ) :=

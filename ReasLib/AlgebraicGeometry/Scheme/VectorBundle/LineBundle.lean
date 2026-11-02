@@ -52,7 +52,8 @@ theorem associatedVectorBundleπ_locallyOfFiniteType {X : Scheme.{u}} (ℒ : X.M
     [Modules.Invertible ℒ]
     (P : RelativeSpectrumOver (SymmetricAlgebra.qcAlgebra ℒ))
     [IsRelativeSpectrumOver P] :
-    LocallyOfFiniteType (associatedVectorBundleπ ℒ P) := sorry
+    LocallyOfFiniteType (associatedVectorBundleπ ℒ P) :=
+  (associatedVectorBundleπ_relativeDimension ℒ P).toLocallyOfFiniteType
 
 /-- An invertible-module vector bundle is locally isomorphic over its base to relative affine
 one-space. -/
@@ -70,7 +71,9 @@ theorem associatedVectorBundleOver_locallyOfFiniteType {S : Scheme.{u}} (X : Ove
     [LocallyOfFiniteType X.hom] (ℒ : X.left.Modules) [Modules.Invertible ℒ]
     (P : RelativeSpectrumOver (SymmetricAlgebra.qcAlgebra ℒ))
     [IsRelativeSpectrumOver P] :
-    LocallyOfFiniteType (Over.mk (associatedVectorBundleπ ℒ P ≫ X.hom)).hom := sorry
+    LocallyOfFiniteType (Over.mk (associatedVectorBundleπ ℒ P ≫ X.hom)).hom :=
+  @locallyOfFiniteType_comp _ _ _ (associatedVectorBundleπ ℒ P) X.hom
+    (associatedVectorBundleπ_locallyOfFiniteType ℒ P) inferInstance
 
 /-- The morphism over the base induced by an associated vector-bundle projection is flat. -/
 theorem associatedVectorBundleOverHom_flat {S : Scheme.{u}} (X : Over S)
@@ -80,7 +83,8 @@ theorem associatedVectorBundleOverHom_flat {S : Scheme.{u}} (X : Over S)
     (w : associatedVectorBundleπ ℒ P ≫ X.hom =
       (Over.mk (associatedVectorBundleπ ℒ P ≫ X.hom)).hom) :
     Flat (Over.Hom.left (Over.homMk (associatedVectorBundleπ ℒ P) w :
-      Over.mk (associatedVectorBundleπ ℒ P ≫ X.hom) ⟶ X)) := sorry
+      Over.mk (associatedVectorBundleπ ℒ P ≫ X.hom) ⟶ X)) :=
+  associatedVectorBundleπ_flat ℒ P
 
 /-- The morphism over the base induced by an associated vector-bundle projection has relative
 dimension one. -/
@@ -92,6 +96,7 @@ theorem associatedVectorBundleOverHom_relativeDimension {S : Scheme.{u}} (X : Ov
       (Over.mk (associatedVectorBundleπ ℒ P ≫ X.hom)).hom) :
     Hom.RelativeDimension
       (Over.Hom.left (Over.homMk (associatedVectorBundleπ ℒ P) w :
-        Over.mk (associatedVectorBundleπ ℒ P ≫ X.hom) ⟶ X)) 1 := sorry
+        Over.mk (associatedVectorBundleπ ℒ P ≫ X.hom) ⟶ X)) 1 :=
+  associatedVectorBundleπ_relativeDimension ℒ P
 
 end AlgebraicGeometry.Scheme

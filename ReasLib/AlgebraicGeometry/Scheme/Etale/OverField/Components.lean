@@ -10,6 +10,7 @@ public import ReasLib.AlgebraicGeometry.Scheme.FiniteEtale.Fiber
 public import Mathlib.AlgebraicGeometry.Morphisms.FlatMono
 public import Mathlib.AlgebraicGeometry.Gluing
 public import Mathlib.AlgebraicGeometry.ResidueField
+public import Mathlib.RingTheory.Etale.Field
 
 @[expose] public section
 
@@ -26,9 +27,53 @@ variable {K : Type u} [Field K] (Y : (Spec (.of K)).Etale)
 def componentMap (y : Y.left) : Spec (Y.left.residueField y) ⟶ Spec (.of K) :=
   Y.left.fromSpecResidueField y ≫ Y.hom
 
+set_option backward.isDefEq.respectTransparency false in
+private theorem componentMap_finite_etale (y : Y.left) :
+    IsFinite (componentMap Y y) ∧ Etale (componentMap Y y) := by
+  letI : Etale Y.hom := Y.prop
+  have hbase (z : Spec (.of K)) :
+      ∃ e : (Spec (.of K)).presheaf.stalk z ≅ .of K,
+        Spec.map e.inv = (Spec (.of K)).fromSpecStalk z := by
+    obtain rfl : z = IsLocalRing.closedPoint K := Subsingleton.elim _ _
+    exact ⟨stalkClosedPointIso (.of K), Spec_stalkClosedPointIso (.of K)⟩
+  obtain ⟨e, he⟩ := hbase (Y.hom y)
+  let φ : .of K ⟶ Y.left.residueField y :=
+    e.inv ≫ Y.hom.stalkMap y ≫ Y.left.residue y
+  have hφ : Spec.map φ = componentMap Y y := by
+    simp only [φ, Spec.map_comp, Category.assoc, he, componentMap,
+      Scheme.fromSpecResidueField]
+    exact congrArg (Spec.map (Y.left.residue y) ≫ ·)
+      (Scheme.SpecMap_stalkMap_fromSpecStalk
+        (show Y.left ⟶ Spec (.of K) from Y.hom) (x := y))
+  have hfinite : φ.hom.EssFiniteType :=
+    (RingHom.FiniteType.of_surjective _
+      (ConcreteCategory.bijective_of_isIso e.inv).2).essFiniteType.comp
+      ((LocallyOfFiniteType.stalkMap Y.hom y).comp
+        (RingHom.FiniteType.of_surjective _ IsLocalRing.residue_surjective).essFiniteType)
+  have hunram : FormallyUnramified (Spec.map φ) := by
+    rw [hφ]
+    exact MorphismProperty.comp_mem @FormallyUnramified
+      (Y.left.fromSpecResidueField y) Y.hom inferInstance inferInstance
+  have hφunram : φ.hom.FormallyUnramified :=
+    (HasRingHomProperty.Spec_iff (P := @FormallyUnramified)).mp hunram
+  letI := φ.hom.toAlgebra
+  haveI : Algebra.EssFiniteType K (Y.left.residueField y) := hfinite
+  haveI : Algebra.FormallyUnramified K (Y.left.residueField y) := hφunram
+  haveI : Module.Finite K (Y.left.residueField y) :=
+    Algebra.FormallyUnramified.finite_of_free K (Y.left.residueField y)
+  haveI : Algebra.FormallyEtale K (Y.left.residueField y) :=
+    Algebra.FormallyEtale.of_formallyUnramified_of_field K (Y.left.residueField y)
+  constructor
+  · rw [← hφ, IsFinite.SpecMap_iff]
+    exact inferInstanceAs (Module.Finite K (Y.left.residueField y))
+  · rw [← hφ, HasRingHomProperty.Spec_iff (P := @Etale)]
+    exact ⟨inferInstance, Algebra.FinitePresentation.of_finiteType.mp inferInstance⟩
+
 /-- The coordinate maps of a residue-field component are finite. -/
 theorem componentMap_finite_app (y : Y.left) (U : (Spec (.of K)).Opens)
-    (hU : IsAffineOpen U) : ((componentMap Y y).app U).hom.Finite := sorry
+    (hU : IsAffineOpen U) : ((componentMap Y y).app U).hom.Finite := by
+  letI := (componentMap_finite_etale Y y).1
+  exact (componentMap Y y).finite_app U hU
 
 /-- The affine part is the native affine-spectrum structure; only finiteness is a property law. -/
 instance componentMap_isFinite (y : Y.left) : IsFinite (componentMap Y y) where
@@ -36,7 +81,8 @@ instance componentMap_isFinite (y : Y.left) : IsFinite (componentMap Y y) where
   finite_app := componentMap_finite_app Y y
 
 /-- A residue field of an étale scheme over a field is finite separable. -/
-instance componentMap_etale (y : Y.left) : Etale (componentMap Y y) := sorry
+instance componentMap_etale (y : Y.left) : Etale (componentMap Y y) :=
+  (componentMap_finite_etale Y y).2
 
 /-- The actual finite étale residue-field component. -/
 def component (y : Y.left) : FiniteEtale (Spec (.of K)) :=
@@ -93,7 +139,10 @@ def toComponents : Y.left ⟶ ∐ fun y : Y.left ↦ Spec (Y.left.residueField y
 def componentsIso : (∐ fun y : Y.left ↦ Spec (Y.left.residueField y)) ≅ Y.left where
   hom := fromComponents Y
   inv := toComponents Y
-  hom_inv_id := sorry
-  inv_hom_id := sorry
+  hom_inv_id := by
+    apply (cancel_mono (fromComponents Y)).1
+    simp only [Category.assoc, toComponents, IsOpenImmersion.lift_fac,
+      Category.comp_id, Category.id_comp]
+  inv_hom_id := IsOpenImmersion.lift_fac _ _ _
 
 end AlgebraicGeometry.Scheme.Etale.OverField

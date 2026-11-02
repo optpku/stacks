@@ -28,15 +28,15 @@ triangle with `ModuleCat.single0 (ModuleCat.of A (I →ₗ[A] E))`. -/
       [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
       [BraidedCategory (DerivedCategory (ModuleCat.{u} A))]
       [MonoidalCategory (DerivedCategory (ModuleCat.{u} (A ⧸ I)))]
-      (HA : MonoidalClosed (DerivedCategory (ModuleCat.{u} A)))
-      (HB : MonoidalClosed (DerivedCategory (ModuleCat.{u} (A ⧸ I))))
+      (CA : CategoryTheory.DerivedCategory.CanonicalClosedPresentation (A := A))
+      (CB : CategoryTheory.DerivedCategory.CanonicalClosedPresentation (A := A ⧸ I))
       (ωA : DerivedCategory (ModuleCat.{u} A))
-      (hωA : ωA.IsNormalizedDualizingComplex HA)
+      (hωA : ωA.IsCanonicalNormalizedDualizingComplex CA)
       (ι : IsLocalRing.ResidueField A →ₗ[A] E) (hι : ι.IsInjectiveHull),
       letI : IsLocalRing (A ⧸ I) := IsLocalRing.quotient_of_le_maximalIdeal I hImax
       let q := Ideal.Quotient.mk I
       let ωB := (ModuleCat.derivedCoextensionOfScalars q).obj ωA
-      ωB.IsNormalizedDualizingComplex HB ∧
+      ωB.IsCanonicalNormalizedDualizingComplex CB ∧
         ∃ β : ωA ⟶ ModuleCat.single0 (ModuleCat.of A (I →ₗ[A] E)),
           ∃ δ : ModuleCat.single0 (ModuleCat.of A (I →ₗ[A] E)) ⟶
             ((ModuleCat.derivedRestrictionOfScalars q).obj ωB)⟦(1 : ℤ)⟧,

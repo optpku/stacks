@@ -102,7 +102,14 @@ theorem inverseImageComparison_fac :
         (inverseImageComparison A u) ≫
       (categoryOverPointColimitToDerived C A).totalLeftDerivedCounit
         DerivedCategory.Qh (HomotopyCategory.quasiIso (Cᵒᵖ ⥤ A) (up ℤ)) =
-      inverseImageComparisonOnHomotopy A u := sorry
+      inverseImageComparisonOnHomotopy A u := by
+  exact (categoryOverPointDerivedColimit C A).leftDerived_fac
+    ((categoryOverPointColimitToDerived C A).totalLeftDerivedCounit
+      DerivedCategory.Qh (HomotopyCategory.quasiIso (Cᵒᵖ ⥤ A) (up ℤ)))
+    (HomotopyCategory.quasiIso (Cᵒᵖ ⥤ A) (up ℤ))
+    ((Functor.presheafInverseImage u A).mapDerivedCategory ⋙
+      categoryOverPointDerivedColimit C' A)
+    (inverseImageComparisonOnHomotopy A u)
 
 /-- A pointlike cosimplicial object before and after reindexing makes the canonical derived
 colimit comparison invertible. -/
@@ -122,7 +129,9 @@ theorem inverseImageComparison_isIso_of_exists_pointlike
       CosimplicialObject.Pointlike.HasHomSpaces Ubullet ∧
         CosimplicialObject.Pointlike.HasHomSpaces
           (((CosimplicialObject.whiskering C' C).obj u).obj Ubullet)) :
-    IsIso (inverseImageComparison A u) := sorry
+    IsIso (inverseImageComparison A u) := by
+  rcases hUbullet with ⟨Ubullet, hUbullet, huUbullet⟩
+  exact inverseImageComparison_isIso_of_pointlike A u Ubullet hUbullet huUbullet
 
 /-- Witness-level derived-colimit comparison: if `Ubullet` is pointlike before and after
 whiskering along `u`, presheaf inverse image followed by derived colimit is isomorphic to derived
@@ -138,7 +147,9 @@ theorem inverseImage_isomorphic_of_pointlike
         (categoryOverPointDerivedColimit C' A :
           DerivedCategory (C'ᵒᵖ ⥤ A) ⥤ DerivedCategory A))
       (categoryOverPointDerivedColimit C A :
-        DerivedCategory (Cᵒᵖ ⥤ A) ⥤ DerivedCategory A) := sorry
+        DerivedCategory (Cᵒᵖ ⥤ A) ⥤ DerivedCategory A) := by
+  letI := inverseImageComparison_isIso_of_pointlike A u Ubullet hUbullet huUbullet
+  exact ⟨asIso (inverseImageComparison A u)⟩
 
 /-- If a cosimplicial object of `C'` is pointlike both before and after whiskering along
 `u : C' ⥤ C`, then derived colimit after presheaf inverse image is isomorphic to derived colimit
@@ -154,7 +165,9 @@ theorem inverseImage_isomorphic_of_exists_pointlike
         (categoryOverPointDerivedColimit C' A :
           DerivedCategory (C'ᵒᵖ ⥤ A) ⥤ DerivedCategory A))
       (categoryOverPointDerivedColimit C A :
-        DerivedCategory (Cᵒᵖ ⥤ A) ⥤ DerivedCategory A) := sorry
+        DerivedCategory (Cᵒᵖ ⥤ A) ⥤ DerivedCategory A) := by
+  rcases hUbullet with ⟨Ubullet, hUbullet, huUbullet⟩
+  exact inverseImage_isomorphic_of_pointlike A u Ubullet hUbullet huUbullet
 
 end Abelian
 
@@ -195,7 +208,8 @@ theorem inverseImage_isomorphic_of_exists_pointlike_abelian
         (categoryOverPointDerivedColimit C' AddCommGrpCat :
           DerivedCategory (C'ᵒᵖ ⥤ AddCommGrpCat) ⥤ DerivedCategory AddCommGrpCat))
       (categoryOverPointDerivedColimit C AddCommGrpCat :
-        DerivedCategory (Cᵒᵖ ⥤ AddCommGrpCat) ⥤ DerivedCategory AddCommGrpCat) := sorry
+        DerivedCategory (Cᵒᵖ ⥤ AddCommGrpCat) ⥤ DerivedCategory AddCommGrpCat) := by
+  exact inverseImage_isomorphic_of_exists_pointlike AddCommGrpCat u hUbullet
 
 end AbelianGroups
 
@@ -230,7 +244,8 @@ theorem inverseImage_isomorphic_of_exists_pointlike_module
         (categoryOverPointDerivedColimit C' (ModuleCat B) :
           DerivedCategory (C'ᵒᵖ ⥤ ModuleCat B) ⥤ DerivedCategory (ModuleCat B)))
       (categoryOverPointDerivedColimit C (ModuleCat B) :
-        DerivedCategory (Cᵒᵖ ⥤ ModuleCat B) ⥤ DerivedCategory (ModuleCat B)) := sorry
+        DerivedCategory (Cᵒᵖ ⥤ ModuleCat B) ⥤ DerivedCategory (ModuleCat B)) := by
+  exact inverseImage_isomorphic_of_exists_pointlike (ModuleCat B) u hUbullet
 
 end Modules
 

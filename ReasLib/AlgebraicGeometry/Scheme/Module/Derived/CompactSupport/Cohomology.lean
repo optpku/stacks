@@ -48,7 +48,7 @@ theorem overField_def {k : Type u} [Field k] {X : Scheme.{u}}
     [IsLocallyNoetherian X] (p : X ⟶ Spec (CommRingCat.of k))
     [QuasiCompact p] [QuasiSeparated p]
     (K : Dᵇ[SheafOfModules.isCoherent X.ringCatSheaf]) (i : ℤ) :
-    overField p K i = (overFieldFunctor p i).obj K := sorry
+    overField p K i = (overFieldFunctor p i).obj K := rfl
 
 end AlgebraicGeometry.Scheme.ModuleDerived.Cohomology
 
@@ -70,7 +70,7 @@ theorem cohomologyDiagram_stage {k : Type u} [Field k] {X : Scheme.{u}}
     [QuasiCompact p] [QuasiSeparated p]
     (A : PNatInverseSystem Dᵇ[SheafOfModules.isCoherent X.ringCatSheaf])
     (i : ℤ) (n : ℕ+) :
-    (cohomologyDiagram p A i).stage n = Cohomology.overField p (A.stage n) i := sorry
+    (cohomologyDiagram p A i).stage n = Cohomology.overField p (A.stage n) i := rfl
 
 /-- Compactly supported cohomology represented by a chosen positive inverse system. -/
 noncomputable abbrev cohomology {k : Type u} [Field k] {X : Scheme.{u}}
@@ -85,7 +85,7 @@ theorem cohomology_def {k : Type u} [Field k] {X : Scheme.{u}}
     [IsLocallyNoetherian X] (p : X ⟶ Spec (CommRingCat.of k))
     [QuasiCompact p] [QuasiSeparated p]
     (A : PNatInverseSystem Dᵇ[SheafOfModules.isCoherent X.ringCatSheaf]) (i : ℤ) :
-    cohomology p A i = limit (cohomologyDiagram p A i) := sorry
+    cohomology p A i = limit (cohomologyDiagram p A i) := rfl
 
 /-- The inverse-limit topology on a chosen compact-support cohomology presentation. -/
 @[implicit_reducible]
@@ -103,7 +103,7 @@ theorem cohomologyTopology_def {k : Type u} [Field k] {X : Scheme.{u}}
     [QuasiCompact p] [QuasiSeparated p]
     (A : PNatInverseSystem Dᵇ[SheafOfModules.isCoherent X.ringCatSheaf]) (i : ℤ) :
     cohomologyTopology p A i =
-      CategoryTheory.Functor.limitTopology (cohomologyDiagram p A i) := sorry
+      CategoryTheory.Functor.limitTopology (cohomologyDiagram p A i) := rfl
 
 /-- A morphism of compact-support presentations induces the corresponding linear map on
 cohomology limits. -/
@@ -121,14 +121,18 @@ theorem cohomologyMap_def {k : Type u} [Field k] {X : Scheme.{u}}
     {A B : PNatInverseSystem Dᵇ[SheafOfModules.isCoherent X.ringCatSheaf]}
     (f : A ⟶ B) (i : ℤ) :
     cohomologyMap p f i =
-      (limMap (Functor.whiskerRight f (Cohomology.overFieldFunctor p i))).hom := sorry
+      (limMap (Functor.whiskerRight f (Cohomology.overFieldFunctor p i))).hom := rfl
 
 /-- Compact-support cohomology maps preserve identity morphisms. -/
 theorem cohomologyMap_id {k : Type u} [Field k] {X : Scheme.{u}}
     [IsLocallyNoetherian X] (p : X ⟶ Spec (CommRingCat.of k))
     [QuasiCompact p] [QuasiSeparated p]
     (A : PNatInverseSystem Dᵇ[SheafOfModules.isCoherent X.ringCatSheaf]) (i : ℤ) :
-    cohomologyMap p (𝟙 A) i = LinearMap.id := sorry
+    cohomologyMap p (𝟙 A) i = LinearMap.id := by
+  unfold cohomologyMap
+  rw [Functor.whiskerRight_id']
+  exact congrArg (fun f : cohomology p A i ⟶ cohomology p A i ↦ f.hom)
+    ((lim : (OrderDual ℕ+ ⥤ ModuleCat.{u} k) ⥤ ModuleCat.{u} k).map_id _)
 
 /-- Compact-support cohomology maps preserve composition. -/
 theorem cohomologyMap_comp {k : Type u} [Field k] {X : Scheme.{u}}
@@ -136,6 +140,12 @@ theorem cohomologyMap_comp {k : Type u} [Field k] {X : Scheme.{u}}
     [QuasiCompact p] [QuasiSeparated p]
     {A B C : PNatInverseSystem Dᵇ[SheafOfModules.isCoherent X.ringCatSheaf]}
     (f : A ⟶ B) (g : B ⟶ C) (i : ℤ) :
-    cohomologyMap p (f ≫ g) i = (cohomologyMap p g i).comp (cohomologyMap p f i) := sorry
+    cohomologyMap p (f ≫ g) i = (cohomologyMap p g i).comp (cohomologyMap p f i) := by
+  unfold cohomologyMap
+  rw [Functor.whiskerRight_comp]
+  exact congrArg (fun h : cohomology p A i ⟶ cohomology p C i ↦ h.hom)
+    ((lim : (OrderDual ℕ+ ⥤ ModuleCat.{u} k) ⥤ ModuleCat.{u} k).map_comp
+      (Functor.whiskerRight f (Cohomology.overFieldFunctor p i))
+      (Functor.whiskerRight g (Cohomology.overFieldFunctor p i)))
 
 end AlgebraicGeometry.Scheme.ModuleDerived.CompactSupport

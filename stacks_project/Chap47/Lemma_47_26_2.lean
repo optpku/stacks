@@ -18,8 +18,8 @@ noncomputable section
 universe u
 
 /- Lemma 47.26.2: under any of the stated syntomic, faithfully flat local complete
-intersection, or faithfully flat finite-type Gorenstein-fibre hypotheses, a complex is
-dualizing exactly when its derived extension of scalars is dualizing. -/
+intersection, or faithfully flat finite-type Gorenstein-fibre hypotheses, canonical
+dualizing is equivalent before and after derived extension of scalars. -/
 @[stacks 0E4D] #check
   (CategoryTheory.DerivedCategory.IsDualizingComplex.iff_derivedExtensionOfScalars :
     ∀ {A B : Type u} [CommRing A] [CommRing B]
@@ -31,8 +31,8 @@ dualizing exactly when its derived extension of scalars is dualizing. -/
         (φ.FaithfullyFlat ∧ φ.IsLocalCompleteIntersection) ∨
         (φ.FaithfullyFlat ∧ φ.FiniteType ∧
           ∀ p : PrimeSpectrum A, IsGorensteinRing (φ.Fiber p.asIdeal))) →
-      (HA : MonoidalClosed (DerivedCategory (ModuleCat.{u} A))) →
-      (HB : MonoidalClosed (DerivedCategory (ModuleCat.{u} B))) →
+      (CA : CategoryTheory.DerivedCategory.CanonicalClosedPresentation (A := A)) →
+      (CB : CategoryTheory.DerivedCategory.CanonicalClosedPresentation (A := B)) →
       (K : DerivedCategory (ModuleCat.{u} A)) →
-      K.IsDualizingComplex HA ↔
-        ((ModuleCat.derivedExtensionOfScalars φ).obj K).IsDualizingComplex HB)
+      K.IsCanonicalDualizingComplex CA ↔
+        ((ModuleCat.derivedExtensionOfScalars φ).obj K).IsCanonicalDualizingComplex CB)

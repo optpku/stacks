@@ -40,7 +40,8 @@ noncomputable def toObj (M : ModuleCat.{v} R[ε]) : ModuleCat.SquareZero.{v} R :
 square-zero endomorphisms. -/
 theorem toMap_comm {M N : ModuleCat.{v} R[ε]} (f : M ⟶ N) :
     restrictFunctor.map f ≫ SquareZero.d (toObj N) =
-      SquareZero.d (toObj M) ≫ restrictFunctor.map f := sorry
+      SquareZero.d (toObj M) ≫ restrictFunctor.map f := by
+  exact restrictedEpsEnd_naturality f
 
 /-- A morphism of dual-number modules as a morphism commuting with the associated square-zero
 differentials. -/
@@ -52,27 +53,42 @@ noncomputable def toMap {M N : ModuleCat.{v} R[ε]} (f : M ⟶ N) :
 /-- The differential model has the restricted module as its unique component. -/
 @[simp]
 theorem toObj_carrier (M : ModuleCat.{v} R[ε]) :
-    (toObj M).carrier = restrict M := sorry
+    (toObj M).carrier = restrict M := rfl
 
 /-- The differential in the differential model is restricted multiplication by `ε`. -/
 @[simp]
 theorem toObj_d (M : ModuleCat.{v} R[ε]) :
-    SquareZero.d (toObj M) = restrictedEpsEnd M := sorry
+    SquareZero.d (toObj M) = restrictedEpsEnd M := rfl
 
 /-- The unique component of the differential-model map is the restricted original map. -/
 @[simp]
 theorem toMap_component {M N : ModuleCat.{v} R[ε]} (f : M ⟶ N) :
-    SquareZero.component (toMap f) = restrictFunctor.map f := sorry
+    SquareZero.component (toMap f) = restrictFunctor.map f := by
+  simp only [toMap, SquareZero.component, SquareZero.homMk, SquareZero.homMkApp,
+    HomologicalComplex.XIsoOfEq_rfl, Iso.refl_hom, Category.id_comp, Category.comp_id]
 
 /-- The differential-model map associated to an identity is an identity. -/
 @[simp]
 theorem toMap_id (M : ModuleCat.{v} R[ε]) :
-    toMap (𝟙 M) = 𝟙 (toObj M) := sorry
+    toMap (𝟙 M) = 𝟙 (toObj M) := by
+  apply HomologicalComplex.hom_ext
+  intro i
+  cases i
+  change SquareZero.component (toMap (𝟙 M)) = 𝟙 (restrict M)
+  rw [toMap_component]
+  exact restrictFunctor.map_id M
 
 /-- The differential-model map preserves composition. -/
 @[simp]
 theorem toMap_comp {M N P : ModuleCat.{v} R[ε]} (f : M ⟶ N) (g : N ⟶ P) :
-    toMap (f ≫ g) = toMap f ≫ toMap g := sorry
+    toMap (f ≫ g) = toMap f ≫ toMap g := by
+  apply HomologicalComplex.hom_ext
+  intro i
+  cases i
+  change SquareZero.component (toMap (f ≫ g)) =
+    SquareZero.component (toMap f) ≫ SquareZero.component (toMap g)
+  rw [toMap_component, toMap_component, toMap_component]
+  exact restrictFunctor.map_comp f g
 
 /-- The functor from dual-number modules to square-zero differentials. -/
 @[stacks 05CS "dual-number differential functor"]
@@ -91,7 +107,8 @@ def ofObj (K : ModuleCat.SquareZero.{v} R) : ModuleCat.{v} R[ε] :=
 differentials. -/
 theorem ofMap_comm {K L : ModuleCat.SquareZero.{v} R} (f : K ⟶ L) :
     (SquareZero.component f).hom.comp (SquareZero.d K).hom =
-      (SquareZero.d L).hom.comp (SquareZero.component f).hom := sorry
+      (SquareZero.d L).hom.comp (SquareZero.component f).hom := by
+  exact congrArg ModuleCat.Hom.hom (f.comm PUnit.unit PUnit.unit).symm
 
 /-- A morphism of square-zero differentials as a morphism of dual-number modules. -/
 @[stacks 05CS "differential morphism as a dual-number morphism"]
@@ -105,17 +122,21 @@ map. -/
 @[simp]
 theorem ofMap_apply {K L : ModuleCat.SquareZero.{v} R} (f : K ⟶ L)
     (x : K.carrier) :
-    (ofMap f).hom x = (SquareZero.component f).hom x := sorry
+    (ofMap f).hom x = (SquareZero.component f).hom x := rfl
 
 /-- Passing an identity differential morphism to dual-number modules gives an identity. -/
 @[simp]
 theorem ofMap_id (K : ModuleCat.SquareZero.{v} R) :
-    ofMap (𝟙 K) = 𝟙 (ofObj K) := sorry
+    ofMap (𝟙 K) = 𝟙 (ofObj K) := by
+  ext x
+  rfl
 
 /-- Passing differential morphisms to dual-number modules preserves composition. -/
 @[simp]
 theorem ofMap_comp {K L N : ModuleCat.SquareZero.{v} R} (f : K ⟶ L) (g : L ⟶ N) :
-    ofMap (f ≫ g) = ofMap f ≫ ofMap g := sorry
+    ofMap (f ≫ g) = ofMap f ≫ ofMap g := by
+  ext x
+  rfl
 
 /-- The functor from square-zero differentials to dual-number modules. -/
 @[stacks 05CS "differential dual-number functor"]
@@ -134,7 +155,12 @@ noncomputable def reconstructedSmul (M : ModuleCat.{v} R[ε]) (a : R[ε]) (x : M
 /-- The identity additive equivalence respects the original and reconstructed dual-number
 actions. -/
 theorem unitEquiv_map_smul (M : ModuleCat.{v} R[ε]) (a : R[ε]) (x : M) :
-    AddEquiv.refl M (a • x) = reconstructedSmul M a x := sorry
+    AddEquiv.refl M (a • x) = reconstructedSmul M a x := by
+  change Reconstruction.originalSmul M a x =
+    (a • (show ofSquareZero (restrictedEpsEnd M).hom
+      (restrictedEpsEnd_hom_sq M) from x) :
+      ofSquareZero (restrictedEpsEnd M).hom (restrictedEpsEnd_hom_sq M))
+  exact (Reconstruction.smul M a x).symm
 
 /-- The explicit linear equivalence from a dual-number module to the module reconstructed from
 its square-zero differential. -/
@@ -152,7 +178,11 @@ noncomputable def unitApp (M : ModuleCat.{v} R[ε]) :
 /-- The reconstruction components are natural in the dual-number module. -/
 theorem unitApp_naturality {M N : ModuleCat.{v} R[ε]} (f : M ⟶ N) :
     f ≫ (unitApp N).hom =
-      (unitApp M).hom ≫ (toFunctor ⋙ ofFunctor).map f := sorry
+      (unitApp M).hom ≫ (toFunctor ⋙ ofFunctor).map f := by
+  ext x
+  change f.hom x = (SquareZero.component (toMap f)).hom x
+  rw [toMap_component]
+  rfl
 
 /-- Reconstructing a dual-number module from its differential is naturally isomorphic to the
 original module. -/
@@ -163,7 +193,7 @@ noncomputable def unitIso : 𝟭 (ModuleCat.{v} R[ε]) ≅ toFunctor ⋙ ofFunct
 /-- The unit natural isomorphism has the named reconstruction component. -/
 @[simp]
 theorem unitIso_hom_app (M : ModuleCat.{v} R[ε]) :
-    unitIso.hom.app M = (unitApp M).hom := sorry
+    unitIso.hom.app M = (unitApp M).hom := rfl
 
 /-- The unique component of the morphism from a reconstructed differential to the original
 differential. -/
@@ -179,12 +209,23 @@ noncomputable def counitInvComponent (K : ModuleCat.SquareZero.{v} R) :
 /-- The forward counit component commutes with the square-zero endomorphisms. -/
 theorem counitHomComponent_comm (K : ModuleCat.SquareZero.{v} R) :
     counitHomComponent K ≫ SquareZero.d K =
-      SquareZero.d (toObj (ofObj K)) ≫ counitHomComponent K := sorry
+      SquareZero.d (toObj (ofObj K)) ≫ counitHomComponent K := by
+  ext x
+  change (SquareZero.d K).hom x =
+    (restrictedEpsEnd (ofSquareZero (SquareZero.d K).hom (SquareZero.d_hom_sq K))).hom x
+  exact (restrictedEpsEnd_apply_ofSquareZero (SquareZero.d K).hom
+    (SquareZero.d_hom_sq K) x).symm
 
 /-- The inverse counit component commutes with the square-zero endomorphisms. -/
 theorem counitInvComponent_comm (K : ModuleCat.SquareZero.{v} R) :
     counitInvComponent K ≫ SquareZero.d (toObj (ofObj K)) =
-      SquareZero.d K ≫ counitInvComponent K := sorry
+      SquareZero.d K ≫ counitInvComponent K := by
+  ext x
+  change
+    (restrictedEpsEnd (ofSquareZero (SquareZero.d K).hom (SquareZero.d_hom_sq K))).hom x =
+      (SquareZero.d K).hom x
+  exact restrictedEpsEnd_apply_ofSquareZero (SquareZero.d K).hom
+    (SquareZero.d_hom_sq K) x
 
 /-- The forward morphism from the reconstructed differential to the original one. -/
 noncomputable def counitHom (K : ModuleCat.SquareZero.{v} R) : toObj (ofObj K) ⟶ K :=
@@ -197,20 +238,40 @@ noncomputable def counitInv (K : ModuleCat.SquareZero.{v} R) : K ⟶ toObj (ofOb
 /-- The forward counit morphism has the named unique component. -/
 @[simp]
 theorem counitHom_component (K : ModuleCat.SquareZero.{v} R) :
-    SquareZero.component (counitHom K) = counitHomComponent K := sorry
+    SquareZero.component (counitHom K) = counitHomComponent K := by
+  simp only [counitHom, SquareZero.component, SquareZero.homMk, SquareZero.homMkApp,
+    HomologicalComplex.XIsoOfEq_rfl, Iso.refl_hom, Category.id_comp, Category.comp_id]
 
 /-- The inverse counit morphism has the named unique component. -/
 @[simp]
 theorem counitInv_component (K : ModuleCat.SquareZero.{v} R) :
-    SquareZero.component (counitInv K) = counitInvComponent K := sorry
+    SquareZero.component (counitInv K) = counitInvComponent K := by
+  simp only [counitInv, SquareZero.component, SquareZero.homMk, SquareZero.homMkApp,
+    HomologicalComplex.XIsoOfEq_rfl, Iso.refl_hom, Category.id_comp, Category.comp_id]
 
 /-- The forward and inverse counit morphisms compose to the identity on the reconstruction. -/
 theorem counit_hom_inv_id (K : ModuleCat.SquareZero.{v} R) :
-    counitHom K ≫ counitInv K = 𝟙 (toObj (ofObj K)) := sorry
+    counitHom K ≫ counitInv K = 𝟙 (toObj (ofObj K)) := by
+  apply HomologicalComplex.hom_ext
+  intro i
+  cases i
+  change SquareZero.component (counitHom K) ≫ SquareZero.component (counitInv K) =
+    𝟙 ((toObj (ofObj K)).carrier)
+  rw [counitHom_component, counitInv_component]
+  ext x
+  rfl
 
 /-- The inverse and forward counit morphisms compose to the identity on the original complex. -/
 theorem counit_inv_hom_id (K : ModuleCat.SquareZero.{v} R) :
-    counitInv K ≫ counitHom K = 𝟙 K := sorry
+    counitInv K ≫ counitHom K = 𝟙 K := by
+  apply HomologicalComplex.hom_ext
+  intro i
+  cases i
+  change SquareZero.component (counitInv K) ≫ SquareZero.component (counitHom K) =
+    𝟙 K.carrier
+  rw [counitHom_component, counitInv_component]
+  ext x
+  rfl
 
 /-- The component identifying a reconstructed square-zero complex with the original complex. -/
 noncomputable def counitApp (K : ModuleCat.SquareZero.{v} R) :
@@ -223,7 +284,15 @@ noncomputable def counitApp (K : ModuleCat.SquareZero.{v} R) :
 /-- The differential reconstruction components are natural. -/
 theorem counitApp_naturality {K L : ModuleCat.SquareZero.{v} R} (f : K ⟶ L) :
     (ofFunctor ⋙ toFunctor).map f ≫ (counitApp L).hom =
-      (counitApp K).hom ≫ f := sorry
+      (counitApp K).hom ≫ f := by
+  apply HomologicalComplex.hom_ext
+  intro i
+  cases i
+  change SquareZero.component (toMap (ofMap f)) ≫ SquareZero.component (counitHom L) =
+    SquareZero.component (counitHom K) ≫ SquareZero.component f
+  rw [toMap_component, counitHom_component, counitHom_component]
+  ext x
+  rfl
 
 /-- Reconstructing a square-zero differential from its dual-number module is naturally
 isomorphic to the original differential. -/
@@ -235,12 +304,19 @@ noncomputable def counitIso :
 /-- The counit natural isomorphism has the named reconstruction component. -/
 @[simp]
 theorem counitIso_hom_app (K : ModuleCat.SquareZero.{v} R) :
-    counitIso.hom.app K = (counitApp K).hom := sorry
+    counitIso.hom.app K = (counitApp K).hom := rfl
 
 /-- The named unit and counit satisfy the triangle identity for the forward functor. -/
 theorem triangle (M : ModuleCat.{v} R[ε]) :
     toFunctor.map (unitIso.hom.app M) ≫
-      counitIso.hom.app (toFunctor.obj M) = 𝟙 (toFunctor.obj M) := sorry
+      counitIso.hom.app (toFunctor.obj M) = 𝟙 (toFunctor.obj M) := by
+  apply HomologicalComplex.hom_ext
+  intro i
+  cases i
+  change SquareZero.component (toMap (unitApp M).hom) ≫
+    SquareZero.component (counitHom (toObj M)) = 𝟙 (toObj M).carrier
+  ext x
+  rfl
 
 /-- The category of modules over the dual numbers is canonically equivalent to the category of
 modules equipped with a square-zero endomorphism. -/

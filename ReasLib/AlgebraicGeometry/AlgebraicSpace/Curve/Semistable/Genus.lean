@@ -40,24 +40,36 @@ theorem semistableOfGenus_iff (g : ℕ) {S : Scheme.{u}} (P : Obj S) :
     semistableOfGenus g S P ↔
       semistable S P ∧
         SheafOfModules.IsFiniteLocallyFreeOfRank g
-          (higherDirectImageOne (hom P)) := sorry
+          (higherDirectImageOne (hom P)) := Iff.rfl
 
 /-- A family in the semistable genus-`g` locus is semistable. -/
 theorem semistableOfGenus_le_semistable (g : ℕ) {S : Scheme.{u}} (P : Obj S) :
-    semistableOfGenus g S P → semistable S P := sorry
+    semistableOfGenus g S P → semistable S P := fun h => h.1
+
+private theorem semistableOfGenus_le_prestableOfGenus (g : ℕ) {S : Scheme.{u}}
+    (P : Obj S) (h : semistableOfGenus g S P) : prestableOfGenus g S P := by
+  letI : AlgebraicSpace.Semistable (hom P) := h.1
+  exact ⟨(inferInstance : Prestable (hom P)), h.2⟩
 
 /-- A semistable family over a nonempty base belongs to at most one
 fixed-genus locus. -/
 theorem eq_of_mem_semistableOfGenus {S : Scheme.{u}} {P : Obj S} {g g' : ℕ}
     (hbase : Nonempty (base P).left)
     (hg : semistableOfGenus g S P) (hg' : semistableOfGenus g' S P) :
-    g = g' := sorry
+    g = g' :=
+  eq_of_mem_prestableOfGenus hbase
+    (semistableOfGenus_le_prestableOfGenus g P hg)
+    (semistableOfGenus_le_prestableOfGenus g' P hg')
 
 /-- Membership in the semistable genus-`g` locus is invariant under
 isomorphisms of families. -/
 instance instIsClosedUnderIsomorphisms_semistableOfGenus
     (g : ℕ) (S : Scheme.{u}) :
-    (semistableOfGenus g S).IsClosedUnderIsomorphisms := sorry
+    (semistableOfGenus g S).IsClosedUnderIsomorphisms where
+  of_iso {P Q} e h := by
+    refine ⟨(semistable S).prop_of_iso e h.1, ?_⟩
+    exact ((prestableOfGenus g S).prop_of_iso e
+      (semistableOfGenus_le_prestableOfGenus g P h)).2
 
 /-- Every semistable family has a pairwise disjoint clopen cover of its base
 by positive-genus loci, representing fixed-genus semistability under every
@@ -83,7 +95,23 @@ theorem classifying_factorsThrough_semistableOfGenus_iff_scheme
         ∃ (hdim1 : topologicalKrullDim X.left = 1)
           (hΓ : Function.Bijective (Scheme.Hom.globalSectionsMap X.hom)),
           SchemeOverField.genus X hdim1 hΓ = g ∧
-            ¬ Nonempty (SchemeOverField.RationalTail X) := sorry
+            ¬ Nonempty (SchemeOverField.RationalTail X) := by
+  constructor
+  · intro h
+    obtain ⟨hnodal, hdim1, hΓ, hgenus⟩ :=
+      (classifying_factorsThrough_prestableOfGenus_iff_scheme X hdim g).mp
+        (semistableOfGenus_le_prestableOfGenus g _ h)
+    obtain ⟨_, _, _, _, htail⟩ :=
+      (classifying_factorsThrough_semistable_iff_scheme X hdim).mp h.1
+    exact ⟨hnodal, hdim1, hΓ, hgenus, htail⟩
+  · rintro ⟨hnodal, hdim1, hΓ, hgenus, htail⟩
+    have hsemistable :=
+      (classifying_factorsThrough_semistable_iff_scheme X hdim).mpr
+        ⟨hnodal, hdim1, hΓ, hgenus.symm ▸ hg, htail⟩
+    have hprestable :=
+      (classifying_factorsThrough_prestableOfGenus_iff_scheme X hdim g).mpr
+        ⟨hnodal, hdim1, hΓ, hgenus⟩
+    exact ⟨hsemistable, hprestable.2⟩
 
 /-- A proper scheme of dimension at most one over a field belongs to the
 semistable genus-`g` locus for `g ≥ 1` precisely when it is at-worst-nodal,
@@ -98,6 +126,21 @@ theorem classifying_factorsThrough_semistableOfGenus_iff_scheme_dualizing
         ∃ (hdim1 : topologicalKrullDim X.left = 1)
           (hΓ : Function.Bijective (Scheme.Hom.globalSectionsMap X.hom)),
           SchemeOverField.genus X hdim1 hΓ = g ∧
-            dualizingTensorPowersGloballyGenerated X := sorry
+            dualizingTensorPowersGloballyGenerated X := by
+  constructor
+  · intro h
+    obtain ⟨hnodal, hdim1, hΓ, hgenus, _⟩ :=
+      (classifying_factorsThrough_semistableOfGenus_iff_scheme X hdim g hg).mp h
+    have hdualizing :=
+      ((classifying_factorsThrough_semistable_iff_scheme_dualizing X hdim).mp h.1).2.2.2
+    exact ⟨hnodal, hdim1, hΓ, hgenus, hdualizing⟩
+  · rintro ⟨hnodal, hdim1, hΓ, hgenus, hdualizing⟩
+    have hsemistable :=
+      (classifying_factorsThrough_semistable_iff_scheme_dualizing X hdim).mpr
+        ⟨hnodal, hdim1, hΓ, hdualizing⟩
+    have hprestable :=
+      (classifying_factorsThrough_prestableOfGenus_iff_scheme X hdim g).mpr
+        ⟨hnodal, hdim1, hΓ, hgenus⟩
+    exact ⟨hsemistable, hprestable.2⟩
 
 end AlgebraicGeometry.AlgebraicSpace.Spaces.Curves

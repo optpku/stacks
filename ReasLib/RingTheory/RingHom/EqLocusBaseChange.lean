@@ -31,12 +31,12 @@ variable {A B C' : Type u} [CommRing A] [CommRing B] [CommRing C']
 /-- The source map restricts to the common equalizer action. -/
 theorem source_commutes (target source : A →+* B) (r : target.eqLocus source) :
     source (algebraMap (target.eqLocus source) A r) =
-      (source.comp (target.eqLocus source).subtype) r := sorry
+      (source.comp (target.eqLocus source).subtype) r := rfl
 
 /-- The target map restricts to the common equalizer action. -/
 theorem target_commutes (target source : A →+* B) (r : target.eqLocus source) :
     target (algebraMap (target.eqLocus source) A r) =
-      (source.comp (target.eqLocus source).subtype) r := sorry
+      (source.comp (target.eqLocus source).subtype) r := r.property
 
 /-- Base change of the source map along a map from the equalizer ring. -/
 def sourceComap (target source : A →+* B)
@@ -65,7 +65,7 @@ theorem sourceComap_tmul (target source : A →+* B)
     -- Local instance justification (defeq pin): use the coefficient action selected by the explicit map `γ` only in this tensor expression.
     letI : Algebra (target.eqLocus source) C' := γ.toAlgebra
     sourceComap target source γ (a ⊗ₜ[target.eqLocus source] c) =
-      source a ⊗ₜ[target.eqLocus source] c := sorry
+      source a ⊗ₜ[target.eqLocus source] c := rfl
 
 /-- Base change of the target map along a map from the equalizer ring. -/
 def targetComap (target source : A →+* B)
@@ -94,7 +94,7 @@ theorem targetComap_tmul (target source : A →+* B)
     -- Local instance justification (defeq pin): use the coefficient action selected by the explicit map `γ` only in this tensor expression.
     letI : Algebra (target.eqLocus source) C' := γ.toAlgebra
     targetComap target source γ (a ⊗ₜ[target.eqLocus source] c) =
-      target a ⊗ₜ[target.eqLocus source] c := sorry
+      target a ⊗ₜ[target.eqLocus source] c := rfl
 
 /-- The invariant ring after coefficient base change is the equalizer of the induced endpoint
 maps. -/
@@ -126,7 +126,7 @@ theorem mem_invariantRing (target source : A →+* B)
     -- Local instance justification (defeq pin): use the coefficient action selected by the explicit map `γ` only in this tensor expression.
     letI : Algebra (target.eqLocus source) C' := γ.toAlgebra
     x ∈ invariantRing target source γ ↔
-      targetComap target source γ x = sourceComap target source γ x := sorry
+      targetComap target source γ x = sourceComap target source γ x := Iff.rfl
 
 /-- The right tensor inclusion takes values in the base-changed invariant ring. -/
 theorem includeRight_mem_invariantRing (target source : A →+* B)
@@ -138,7 +138,9 @@ theorem includeRight_mem_invariantRing (target source : A →+* B)
     letI : Algebra (target.eqLocus source) C' := γ.toAlgebra
     (Algebra.TensorProduct.includeRight :
       C' →ₐ[target.eqLocus source] A ⊗[target.eqLocus source] C') c ∈
-        invariantRing target source γ := sorry
+        invariantRing target source γ := by
+  simp only [mem_invariantRing, Algebra.TensorProduct.includeRight_apply,
+    targetComap_tmul, sourceComap_tmul, map_one]
 
 /-- The canonical map from the new coefficient ring to the base-changed invariant ring. -/
 def toInvariant (target source : A →+* B)
@@ -166,7 +168,7 @@ theorem toInvariant_apply (target source : A →+* B)
     -- Local instance justification (defeq pin): use the coefficient action selected by the explicit map `γ` only in this tensor expression.
     letI : Algebra (target.eqLocus source) C' := γ.toAlgebra
     (toInvariant target source γ c : A ⊗[target.eqLocus source] C') =
-      1 ⊗ₜ[target.eqLocus source] c := sorry
+      1 ⊗ₜ[target.eqLocus source] c := rfl
 
 /-- Composing the canonical map with the invariant-subring inclusion gives the right tensor
 inclusion. -/
@@ -178,6 +180,8 @@ theorem val_comp_toInvariant (target source : A →+* B)
     -- Local instance justification (defeq pin): use the coefficient action selected by the explicit map `γ` only in this tensor expression.
     letI : Algebra (target.eqLocus source) C' := γ.toAlgebra
     (invariantRing target source γ).subtype.comp (toInvariant target source γ) =
-      Algebra.TensorProduct.includeRight.toRingHom := sorry
+      Algebra.TensorProduct.includeRight.toRingHom := by
+  ext c
+  rfl
 
 end RingHom.EqLocusBaseChange

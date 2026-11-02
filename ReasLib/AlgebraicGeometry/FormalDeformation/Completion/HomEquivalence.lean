@@ -15,7 +15,7 @@ open scoped BasedFunctor
 
 noncomputable section
 
-universe u v
+universe u v w
 
 variable {Λ k : Type u} [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra Λ k]
   [Module.Finite Λ k]
@@ -31,13 +31,46 @@ variable
 
 set_option backward.privateInPublic true
 
+
+private theorem completionMapHom_ext {S : Type w} [Category.{w} S]
+    {p : S ⥤ ArtinianLocalAlgCat Λ k} {ξ η : FormalObject p} {a b : ξ ⟶ η}
+    (hbase : a.base = b.base) (happ : ∀ n, a.app n = b.app n)
+    (htrunc : ∀ n, a.baseTrunc n = b.baseTrunc n) : a = b := by
+  rcases a with ⟨a₀, aₙ, aₜ, ha⟩
+  rcases b with ⟨b₀, bₙ, bₜ, hb⟩
+  change a₀ = b₀ at hbase
+  change ∀ n, aₙ n = bₙ n at happ
+  change ∀ n, aₜ n = bₜ n at htrunc
+  cases hbase
+  cases funext happ
+  cases funext htrunc
+  rcases ha with ⟨ha₁, ha₂, ha₃⟩
+  rcases hb with ⟨hb₁, hb₂, hb₃⟩
+  rfl
+
+private theorem completionMap_down_isHomLift
+    {A B : ArtinianLocalAlgCat Λ k}
+    {ξ η : RestrictInclusion.total G.toBasedCategory} {f : A ⟶ B} {a : ξ ⟶ η}
+    (h : (RestrictInclusion.projectionTotal G.toBasedCategory).IsHomLift f a) :
+    (restrictInclusion G).p.IsHomLift f (ULiftHom.down.map a) := by
+  cases h
+  exact Functor.IsHomLift.map _
+
 /-- Stagewise application of a based functor preserves truncation bases and transition lifts. -/
 theorem completionMap_obj_laws
     (φ : (restrictInclusion G).toBasedCategory ⥤ᵇ F.toBasedCategory)
     (ξ : FormalObject (RestrictInclusion.projectionTotal G.toBasedCategory)) :
     (∀ n, F.p.obj (φ.obj (ULiftHom.objDown (ξ.system.family n))) = ξ.base.truncation n) ∧
     (∀ n, F.p.IsHomLift (ξ.base.truncationMap n)
-      (φ.map (ULiftHom.down.map (ξ.system.stepMap n)))) := sorry
+      (φ.map (ULiftHom.down.map (ξ.system.stepMap n)))) := by
+  constructor
+  · intro n
+    exact (BasedFunctor.w_obj φ _).trans (ξ.over_obj n)
+  · intro n
+    letI : (restrictInclusion G).p.IsHomLift (ξ.base.truncationMap n)
+        (ULiftHom.down.map (ξ.system.stepMap n)) :=
+      completionMap_down_isHomLift G (ξ.over_step n)
+    exact BasedFunctor.preserves_isHomLift φ _ _
 private def completionMapObj
     (φ : (restrictInclusion G).toBasedCategory ⥤ᵇ F.toBasedCategory)
     (ξ : FormalObject (RestrictInclusion.projectionTotal G.toBasedCategory)) : FormalObject F.p :=
@@ -45,6 +78,13 @@ private def completionMapObj
     (fun n ↦ φ.obj (ULiftHom.objDown (ξ.system.family n)))
     (fun n ↦ φ.map (ULiftHom.down.map (ξ.system.stepMap n)))
     (completionMap_obj_laws F G φ ξ).1 (completionMap_obj_laws F G φ ξ).2
+
+private theorem completionMapObj_stepMap
+    (φ : (restrictInclusion G).toBasedCategory ⥤ᵇ F.toBasedCategory)
+    (ξ : FormalObject (RestrictInclusion.projectionTotal G.toBasedCategory)) (n : ℕ) :
+    (completionMapObj F G φ ξ).system.stepMap n =
+      φ.map (ULiftHom.down.map (ξ.system.stepMap n)) :=
+  Functor.ofOpSequence_map_homOfLE_succ _ n
 
 /-- Stagewise application preserves lifted arrows and their compatibility with transitions. -/
 theorem completionMap_map_laws
@@ -54,7 +94,19 @@ theorem completionMap_map_laws
     (∀ n, (completionMapObj F G φ ξ).system.stepMap n ≫
       φ.map (ULiftHom.down.map (a.app n)) =
       φ.map (ULiftHom.down.map (a.app (n + 1))) ≫
-        (completionMapObj F G φ η).system.stepMap n) := sorry
+        (completionMapObj F G φ η).system.stepMap n) := by
+  constructor
+  · intro n
+    letI : (restrictInclusion G).p.IsHomLift (a.baseTrunc n)
+        (ULiftHom.down.map (a.app n)) :=
+      completionMap_down_isHomLift G (a.over n)
+    exact BasedFunctor.preserves_isHomLift φ _ _
+  · intro n
+    let Φ : RestrictInclusion.total G.toBasedCategory ⥤ F.total :=
+      ULiftHom.down ⋙ φ.toFunctor
+    rw [completionMapObj_stepMap, completionMapObj_stepMap]
+    exact ((Φ.map_comp _ _).symm.trans
+      (congrArg (fun f ↦ Φ.map f) (a.naturality n))).trans (Φ.map_comp _ _)
 private def completionMapMap
     (φ : (restrictInclusion G).toBasedCategory ⥤ᵇ F.toBasedCategory)
     {ξ η : FormalObject (RestrictInclusion.projectionTotal G.toBasedCategory)} (a : ξ ⟶ η) :
@@ -68,7 +120,24 @@ theorem completionMap_functor_laws
     (∀ ξ, completionMapMap F G φ (𝟙 ξ) = 𝟙 (completionMapObj F G φ ξ)) ∧
     (∀ (ξ η ζ : FormalObject (RestrictInclusion.projectionTotal G.toBasedCategory))
       (a : ξ ⟶ η) (b : η ⟶ ζ),
-      completionMapMap F G φ (a ≫ b) = completionMapMap F G φ a ≫ completionMapMap F G φ b) := sorry
+      completionMapMap F G φ (a ≫ b) = completionMapMap F G φ a ≫ completionMapMap F G φ b) := by
+  constructor
+  · intro ξ
+    apply completionMapHom_ext
+    · rfl
+    · intro n
+      exact ((ULiftHom.down : RestrictInclusion.total G.toBasedCategory ⥤ _) ⋙
+        φ.toFunctor).map_id (ξ.system.family n)
+    · intro n
+      rfl
+  · intro ξ η ζ a b
+    apply completionMapHom_ext
+    · rfl
+    · intro n
+      exact ((ULiftHom.down : RestrictInclusion.total G.toBasedCategory ⥤ _) ⋙
+        φ.toFunctor).map_comp (a.app n) (b.app n)
+    · intro n
+      rfl
 private def completionMapFunctor
     (φ : (restrictInclusion G).toBasedCategory ⥤ᵇ F.toBasedCategory) :
     FormalObject (RestrictInclusion.projectionTotal G.toBasedCategory) ⥤ FormalObject F.p where
@@ -80,7 +149,8 @@ private def completionMapFunctor
 theorem completionMap_w
     (φ : (restrictInclusion G).toBasedCategory ⥤ᵇ F.toBasedCategory) :
     completionMapFunctor F G φ ⋙ Functor.completion F.p =
-      Functor.completion (RestrictInclusion.projectionTotal G.toBasedCategory) := sorry
+      Functor.completion (RestrictInclusion.projectionTotal G.toBasedCategory) := by
+  rfl
 /-- Apply a based functor stagewise to the completion of a lifted restriction. -/
 def completionMap (φ : (restrictInclusion G).toBasedCategory ⥤ᵇ F.toBasedCategory) :
     BasedCategory.ofFunctor
@@ -118,7 +188,32 @@ theorem completionMap₂_laws
       (∀ (ξ η : FormalObject (RestrictInclusion.projectionTotal G.toBasedCategory)) (a : ξ ⟶ η),
         (completionMap F G φ).map a ≫ completionMap₂AppRaw F G t h η =
           completionMap₂AppRaw F G t h ξ ≫ (completionMap F G ψ).map a) ∧
-      (∀ ξ, (Functor.completion F.p).IsHomLift (𝟙 ξ.base) (completionMap₂AppRaw F G t h ξ))) := sorry
+      (∀ ξ, (Functor.completion F.p).IsHomLift (𝟙 ξ.base) (completionMap₂AppRaw F G t h ξ))) := by
+  constructor
+  · intro ξ
+    refine ⟨?_, ?_, ?_⟩
+    · intro n
+      exact BasedNatTrans.isHomLift t (ξ.over_obj n)
+    · intro n
+      rfl
+    · intro n
+      change (completionMapObj F G φ ξ).system.stepMap n ≫ _ =
+        _ ≫ (completionMapObj F G ψ ξ).system.stepMap n
+      rw [completionMapObj_stepMap, completionMapObj_stepMap]
+      exact t.toNatTrans.naturality (ULiftHom.down.map (ξ.system.stepMap n))
+  · intro h
+    constructor
+    · intro ξ η a
+      apply completionMapHom_ext
+      · exact (Category.comp_id a.base).trans (Category.id_comp a.base).symm
+      · intro n
+        exact t.toNatTrans.naturality (ULiftHom.down.map (a.app n))
+      · intro n
+        exact (Category.comp_id (a.baseTrunc n)).trans
+          (Category.id_comp (a.baseTrunc n)).symm
+    · intro ξ
+      exact Functor.IsHomLift.map (p := Functor.completion F.p)
+        (completionMap₂AppRaw F G t h ξ)
 /-- Apply a vertical natural transformation stagewise to formal objects. -/
 def completionMap₂ {φ ψ : (restrictInclusion G).toBasedCategory ⥤ᵇ F.toBasedCategory}
     (t : φ ⟶ ψ) : completionMap F G φ ⟶ completionMap F G ψ where
@@ -137,7 +232,28 @@ theorem homEquivFunctor_laws :
       (t : φ ⟶ ψ) (s : ψ ⟶ χ),
       BasedCategory.whiskerLeft (completionUnit G) (completionMap₂ F G (t ≫ s)) =
         BasedCategory.whiskerLeft (completionUnit G) (completionMap₂ F G t) ≫
-          BasedCategory.whiskerLeft (completionUnit G) (completionMap₂ F G s)) := sorry
+          BasedCategory.whiskerLeft (completionUnit G) (completionMap₂ F G s)) := by
+  constructor
+  · intro φ
+    apply BasedNatTrans.ext
+    apply NatTrans.ext
+    funext ξ
+    apply completionMapHom_ext
+    · rfl
+    · intro n
+      rfl
+    · intro n
+      rfl
+  · intro φ ψ χ t s
+    apply BasedNatTrans.ext
+    apply NatTrans.ext
+    funext ξ
+    apply completionMapHom_ext
+    · exact (Category.id_comp _).symm
+    · intro n
+      rfl
+    · intro n
+      exact (Category.id_comp _).symm
 /-- Compose the truncation-pushforward unit with the stagewise completion of a based functor. -/
 def homEquivFunctor :
     ((restrictInclusion G).toBasedCategory ⥤ᵇ F.toBasedCategory) ⥤
@@ -161,7 +277,23 @@ theorem homEquivInverse_laws :
       (t : ψ ⟶ χ) (s : χ ⟶ ω),
       BasedCategory.whiskerRight (RestrictInclusion.map₂ (t ≫ s)) (completionCounit F) =
         BasedCategory.whiskerRight (RestrictInclusion.map₂ t) (completionCounit F) ≫
-          BasedCategory.whiskerRight (RestrictInclusion.map₂ s) (completionCounit F)) := sorry
+          BasedCategory.whiskerRight (RestrictInclusion.map₂ s) (completionCounit F)) := by
+  constructor
+  · intro ψ
+    apply BasedNatTrans.ext
+    apply NatTrans.ext
+    funext ξ
+    change (completionCounit F).map (𝟙 _) = 𝟙 _
+    exact (completionCounit F).toFunctor.map_id _
+  · intro ψ χ ω t s
+    apply BasedNatTrans.ext
+    apply NatTrans.ext
+    funext ξ
+    change (completionCounit F).map ((RestrictInclusion.map₂ (t ≫ s)).toNatTrans.app ξ) =
+      (completionCounit F).map ((RestrictInclusion.map₂ t).toNatTrans.app ξ) ≫
+        (completionCounit F).map ((RestrictInclusion.map₂ s).toNatTrans.app ξ)
+    rw [← (completionCounit F).toFunctor.map_comp]
+    rfl
 /-- Restrict a morphism to Artinian bases and then apply canonical evaluation. -/
 def homEquivInverse :
     (G.toBasedCategory ⥤ᵇ BasedCategory.ofFunctor (Functor.completion F.p)) ⥤

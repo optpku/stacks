@@ -40,9 +40,15 @@ def lowerLocalHom
     app := fun V ↦ ModuleCat.ofHom
         (X := (F.over T).val.obj V) (Y := (G.over T).val.obj V)
         { toFun := fun x ↦ ((θ.val.app V).hom (ULift.up x)).down
-          map_add' := sorry
-          map_smul' := sorry }
-    naturality := sorry }⟩
+          map_add' := fun x y ↦ congrArg ULift.down
+            ((θ.val.app V).hom.map_add (ULift.up x) (ULift.up y))
+          map_smul' := fun r x ↦ congrArg ULift.down
+            ((θ.val.app V).hom.map_smul (ULift.up r) (ULift.up x)) }
+    naturality := by
+      intro V W f
+      ext x
+      exact congrArg ULift.down
+        (PresheafOfModules.naturality_apply θ.val f (ULift.up x)) }⟩
 
 /-- Lift a local morphism by applying its supplied component map to `ULift.down x` and
 returning `ULift.up` of the result. -/
@@ -53,9 +59,15 @@ def liftLocalHom (θ : F.over T ⟶ G.over T) :
         (X := ((liftModule (X := X) F).over T).val.obj V)
         (Y := ((liftModule (X := X) G).over T).val.obj V)
         { toFun := fun x ↦ ULift.up ((θ.val.app V).hom x.down)
-          map_add' := sorry
-          map_smul' := sorry }
-    naturality := sorry }⟩
+          map_add' := fun x y ↦ congrArg ULift.up
+            ((θ.val.app V).hom.map_add x.down y.down)
+          map_smul' := fun r x ↦ congrArg ULift.up
+            ((θ.val.app V).hom.map_smul r.down x.down) }
+    naturality := by
+      intro V W f
+      ext x
+      exact congrArg ULift.up
+        (PresheafOfModules.naturality_apply θ.val f x.down) }⟩
 
 /-- The component of lowering a local parameter is the actual downward-lift formula. -/
 @[simp]
@@ -74,13 +86,23 @@ theorem liftLocalHom_apply (θ : F.over T ⟶ G.over T) (V : (Over T)ᵒᵖ)
 
 /-- Universe lifting and lowering recover the supplied local module morphism. -/
 theorem lowerLocalHom_liftLocalHom (θ : F.over T ⟶ G.over T) :
-    lowerLocalHom (X := X) F G T (liftLocalHom (X := X) F G T θ) = θ := sorry
+    lowerLocalHom (X := X) F G T (liftLocalHom (X := X) F G T θ) = θ := by
+  apply SheafOfModules.hom_ext
+  apply PresheafOfModules.hom_ext
+  intro V
+  ext x
+  rfl
 
 /-- Lowering and lifting recover the supplied local morphism of lifted modules. -/
 theorem liftLocalHom_lowerLocalHom
     (θ : InternalHom.LocalHom.{u + 1, u, u + 1} (commStructureSheafLift X) (liftModule (X := X) F) (liftModule (X := X) G)
       (op T)) :
-    liftLocalHom (X := X) F G T (lowerLocalHom (X := X) F G T θ) = θ := sorry
+    liftLocalHom (X := X) F G T (lowerLocalHom (X := X) F G T θ) = θ := by
+  apply SheafOfModules.hom_ext
+  apply PresheafOfModules.hom_ext
+  intro V
+  ext x
+  rfl
 
 /-- Internal-Hom sections and local morphisms on the original modules have specified maps
 in both directions. -/

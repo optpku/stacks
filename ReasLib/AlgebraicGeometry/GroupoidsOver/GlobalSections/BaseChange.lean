@@ -13,6 +13,7 @@ public import Mathlib.AlgebraicGeometry.Pullbacks
 public import Mathlib.CategoryTheory.Comma.Over.Basic
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.Thickening
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Sections
+public import ReasLib.AlgebraicGeometry.Scheme.Module.PullbackSections
 public import ReasLib.AlgebraicGeometry.Scheme.OverSpec
 public import ReasLib.RingTheory.RingHom.SquareZero
 
@@ -41,7 +42,11 @@ theorem specOverMap_w (Λ A A' : Type u) [CommRing Λ] [CommRing A] [CommRing A'
     [Algebra Λ A] [Algebra Λ A'] [Algebra A' A] [IsScalarTower Λ A' A] :
     Spec.map (CommRingCat.ofHom (algebraMap A' A)) ≫ (Scheme.OverSpec.affine (CommRingCat.ofHom (algebraMap Λ A'))).hom =
       (Scheme.OverSpec.affine (CommRingCat.ofHom (algebraMap Λ A))).hom :=
-  sorry
+  by
+    change Spec.map (CommRingCat.ofHom (algebraMap A' A)) ≫
+      Spec.map (CommRingCat.ofHom (algebraMap Λ A')) =
+        Spec.map (CommRingCat.ofHom (algebraMap Λ A))
+    rw [← Spec.map_comp, ← CommRingCat.ofHom_comp, ← IsScalarTower.algebraMap_eq Λ A' A]
 
 /-- The morphism `Spec(A) ⟶ Spec(A')` over `Spec(Λ)` induced by `algebraMap A' A`. -/
 def specOverMap (Λ A A' : Type u) [CommRing Λ] [CommRing A] [CommRing A']
@@ -80,12 +85,12 @@ def baseChangeMap {T T' : Over (Spec (CommRingCat.of Λ))} (f : T' ⟶ T) :
 /-- The first projection of `baseChangeMap f` is `f` on the test schemes. -/
 theorem baseChangeMap_fst {T T' : Over (Spec (CommRingCat.of Λ))} (f : T' ⟶ T) :
     baseChangeMap w f ≫ baseChangeFst w T = baseChangeFst w T' ≫ f.left :=
-  sorry
+  pullback.lift_fst _ _ _
 
 /-- The second projection of `baseChangeMap f` is the identity on `W`. -/
 theorem baseChangeMap_snd {T T' : Over (Spec (CommRingCat.of Λ))} (f : T' ⟶ T) :
     baseChangeMap w f ≫ baseChangeSnd w T = baseChangeSnd w T' :=
-  sorry
+  (pullback.lift_snd _ _ _).trans (Category.comp_id _)
 
 variable (F : W.Modules)
 
@@ -126,7 +131,38 @@ instance instIsFirstOrderThickening_specMap
     (A A' : Type u) [CommRing A] [CommRing A'] [Algebra A' A]
     [(algebraMap A' A).IsSquareZeroExtension] :
     IsFirstOrderThickening (Spec.map (CommRingCat.ofHom (algebraMap A' A))) :=
-  sorry
+  by
+    let f := CommRingCat.ofHom (algebraMap A' A)
+    have hclosed : IsClosedImmersion (Spec.map f) :=
+      IsClosedImmersion.spec_of_surjective f
+        (RingHom.IsSquareZeroExtension.surjective (f := algebraMap A' A))
+    letI := hclosed
+    have hker : RingHom.ker (Spec.map f).appTop.hom =
+        (RingHom.ker (algebraMap A' A)).comap (Scheme.ΓSpecIso (CommRingCat.of A')).hom.hom := by
+      calc
+        _ = RingHom.ker ((Scheme.ΓSpecIso (CommRingCat.of A)).hom.hom.comp
+            (Spec.map f).appTop.hom) :=
+          (RingHom.ker_comp_of_injective _
+            (ConcreteCategory.bijective_of_isIso (Scheme.ΓSpecIso (CommRingCat.of A)).hom).1).symm
+        _ = _ := by
+          rw [← CommRingCat.hom_comp, Scheme.ΓSpecIso_naturality, CommRingCat.hom_comp,
+            ← RingHom.comap_ker]
+          rfl
+    have hpow : (Spec.map f).ker ^ 2 = 0 := by
+      apply Scheme.IdealSheafData.ext_of_isAffine
+      change ((Spec.map f).ker.ideal ⟨⊤, isAffineOpen_top _⟩) ^ 2 = ⊥
+      rw [Scheme.Hom.ker_apply]
+      change (RingHom.ker (Spec.map f).appTop.hom) ^ 2 = ⊥
+      rw [hker]
+      apply le_bot_iff.mp
+      calc
+        _ ≤ ((RingHom.ker (algebraMap A' A)) ^ 2).comap
+            (Scheme.ΓSpecIso (CommRingCat.of A')).hom.hom := Ideal.le_comap_pow _ _
+        _ = ⊥ := by
+          rw [RingHom.IsSquareZeroExtension.ker_sq_eq_bot (f := algebraMap A' A)]
+          exact Ideal.comap_bot_of_injective _
+            (ConcreteCategory.bijective_of_isIso (Scheme.ΓSpecIso (CommRingCat.of A')).hom).1
+    exact { isClosedImmersion := hclosed, ker_isNilpotent := ⟨2, hpow⟩, ker_pow_succ := hpow }
 
 /-- The base change of a first-order thickening of spectra along `W` is a first-order thickening. -/
 instance instIsFirstOrderThickening_baseChange
@@ -147,13 +183,59 @@ def sectionsRestrict {T T' : Over (Spec (CommRingCat.of Λ))} (f : T' ⟶ T) :
         ((Scheme.Modules.globalSectionsPullback (baseChangeMap w f)
             (modulePullback w F T)).hom x))
 
+private theorem globalSectionsMap_pullbackCongr {X Y : Scheme.{u}}
+    {f g : X ⟶ Y} (h : f = g) (G : Y.Modules) :
+    Scheme.Modules.globalSectionsMap ((Scheme.Modules.pullbackCongr h).hom.app G) =
+      eqToHom (congrArg
+        (fun k ↦ Scheme.Modules.globalSections ((Scheme.Modules.pullback k).obj G)) h) := by
+  subst g
+  rfl
+
+set_option backward.isDefEq.respectTransparency false in
+private theorem sectionsRestrict_eq {T T' : Over (Spec (CommRingCat.of Λ))}
+    (f : T' ⟶ T) :
+    sectionsRestrict w F f =
+      (Scheme.Modules.PullbackSections.map F
+        (Over.homMk (U := Over.mk (baseChangeSnd w T'))
+          (V := Over.mk (baseChangeSnd w T))
+          (baseChangeMap w f) (baseChangeMap_snd w f))).hom := by
+  unfold Scheme.Modules.PullbackSections.map Scheme.Modules.globalSectionsPullbackComp
+  dsimp only
+  rw [← globalSectionsMap_pullbackCongr]
+  rfl
+
+set_option backward.isDefEq.respectTransparency false in
 /-- Restricting sections along an identity morphism is the identity function. -/
 theorem sectionsRestrict_id (T : Over (Spec (CommRingCat.of Λ))) :
-    sectionsRestrict w F (𝟙 T) = id := sorry
+    sectionsRestrict w F (𝟙 T) = id := by
+  have h : Over.homMk (U := Over.mk (baseChangeSnd w T))
+      (V := Over.mk (baseChangeSnd w T))
+      (baseChangeMap w (𝟙 T)) (baseChangeMap_snd w (𝟙 T)) =
+      𝟙 (Over.mk (baseChangeSnd w T)) := by
+    apply Over.OverMorphism.ext
+    exact pullback.map_id
+  rw [sectionsRestrict_eq, h, Scheme.Modules.PullbackSections.map_id]
+  rfl
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Restriction of sections respects composition of morphisms over the base. -/
 theorem sectionsRestrict_comp {T₁ T₂ T₃ : Over (Spec (CommRingCat.of Λ))}
     (f : T₁ ⟶ T₂) (g : T₂ ⟶ T₃) :
-    sectionsRestrict w F (f ≫ g) = sectionsRestrict w F f ∘ sectionsRestrict w F g := sorry
+    sectionsRestrict w F (f ≫ g) = sectionsRestrict w F f ∘ sectionsRestrict w F g := by
+  have h : Over.homMk (U := Over.mk (baseChangeSnd w T₁))
+      (V := Over.mk (baseChangeSnd w T₃))
+      (baseChangeMap w (f ≫ g)) (baseChangeMap_snd w (f ≫ g)) =
+      Over.homMk (U := Over.mk (baseChangeSnd w T₁))
+        (V := Over.mk (baseChangeSnd w T₂)) (baseChangeMap w f) (baseChangeMap_snd w f) ≫
+        Over.homMk (U := Over.mk (baseChangeSnd w T₂))
+          (V := Over.mk (baseChangeSnd w T₃))
+          (baseChangeMap w g) (baseChangeMap_snd w g) := by
+    apply Over.OverMorphism.ext
+    change baseChangeMap w (f ≫ g) = baseChangeMap w f ≫ baseChangeMap w g
+    apply pullback.hom_ext <;>
+      simp [baseChangeMap, pullback.map, Category.assoc]
+  rw [sectionsRestrict_eq, h, Scheme.Modules.PullbackSections.map_comp,
+    sectionsRestrict_eq, sectionsRestrict_eq]
+  rfl
 
 end AlgebraicGeometry.GroupoidsOver.GlobalSections

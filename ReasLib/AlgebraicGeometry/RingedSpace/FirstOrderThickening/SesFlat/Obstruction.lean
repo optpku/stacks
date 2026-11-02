@@ -49,7 +49,30 @@ variable [IsFirstOrderThickening t2] [IsFirstOrderThickening t3]
 /-- The two maps `f^* 𝒥₃ ⊗ F ⟶ f^* 𝒥₂ ⊗ F ⟶ f^* 𝒥₁ ⊗ F` compose to zero. -/
 theorem sourceIdealTensor_comp_zero (σ : SesFlatThickenings f i1 i2 i3 t1 t2 t3) :
     tensorHom ((f ^*).map σ.base'.idealMap) (𝟙 (moduleRestrict σ)) ≫
-      tensorHom ((f ^*).map σ.base.idealMap) (𝟙 (moduleRestrict σ)) = 0 := sorry
+      tensorHom ((f ^*).map σ.base.idealMap) (𝟙 (moduleRestrict σ)) = 0 := by
+  letI : (tensorRight (moduleRestrict σ)).PreservesZeroMorphisms := by
+    constructor
+    intro A B
+    change (0 : A ⟶ B) ▷ moduleRestrict σ = 0
+    apply (cancel_mono (β_ B (moduleRestrict σ)).hom).1
+    rw [BraidedCategory.braiding_naturality_left]
+    have hleft : moduleRestrict σ ◁ (0 : A ⟶ B) = 0 := by
+      change (tensorLeft (moduleRestrict σ)).map (0 : A ⟶ B) = 0
+      exact Functor.map_zero (tensorLeft (moduleRestrict σ)) A B
+    rw [hleft, comp_zero, zero_comp]
+  have hzero : ∀ {A B : X.Modules},
+      tensorHom (0 : A ⟶ B) (𝟙 (moduleRestrict σ)) = 0 := by
+    intro A B
+    rw [tensorHom_id]
+    change (tensorRight (moduleRestrict σ)).map (0 : A ⟶ B) = 0
+    exact Functor.map_zero (tensorRight (moduleRestrict σ)) A B
+  rw [tensorHom_comp_tensorHom, ← Functor.map_comp, σ.bot_ses.1,
+    Functor.map_zero]
+  change tensorHom (0 : (f ^*).obj (idealModule t3) ⟶
+      (f ^*).obj (idealModule t1)) (𝟙 (moduleRestrict σ)) ≫
+    𝟙 ((f ^*).obj (idealModule t1) ⊗ moduleRestrict σ) = 0
+  rw [hzero, zero_comp]
+
 
 /-- The short complex `f^* 𝒥₃ ⊗ F ⟶ f^* 𝒥₂ ⊗ F ⟶ f^* 𝒥₁ ⊗ F`. -/
 noncomputable def sourceIdealTensorShortComplex
@@ -62,7 +85,24 @@ noncomputable def sourceIdealTensorShortComplex
 
 /-- The tensored kernel sequence is short exact. -/
 theorem sourceIdealTensor_shortExact (σ : SesFlatThickenings f i1 i2 i3 t1 t2 t3) :
-    (sourceIdealTensorShortComplex σ).ShortExact := sorry
+    (sourceIdealTensorShortComplex σ).ShortExact := by
+  letI := moduleRestrict_isFlatOver σ
+  letI : (tensorRight (moduleRestrict σ)).PreservesZeroMorphisms := by
+    constructor
+    intro A B
+    change (0 : A ⟶ B) ▷ moduleRestrict σ = 0
+    apply (cancel_mono (β_ B (moduleRestrict σ)).hom).1
+    rw [BraidedCategory.braiding_naturality_left]
+    have hleft : moduleRestrict σ ◁ (0 : A ⟶ B) = 0 := by
+      change (tensorLeft (moduleRestrict σ)).map (0 : A ⟶ B) = 0
+      exact Functor.map_zero (tensorLeft (moduleRestrict σ)) A B
+    rw [hleft, comp_zero, zero_comp]
+  obtain ⟨_, hSE⟩ := σ.bot_ses
+  have h := hSE.map_of_exact (SheafOfModules.pullbackTensor f (moduleRestrict σ))
+  convert h using 1
+  all_goals simp only [sourceIdealTensorShortComplex, idealSheafShortComplex,
+    ShortComplex.map, SheafOfModules.pullbackTensor, Functor.comp, tensorRight,
+    Functor.flip, curriedTensor, tensorHom_id]
 
 /-- The relative infinitesimal extension of a flat lift along the first vertical pair,
 with the diagram's strictness and flatness proofs. -/
@@ -88,12 +128,13 @@ noncomputable def sourceIdealIsoClassEquiv1
 /-- The middle module of `toRelative1` is the lifted module. -/
 theorem toRelative1_module (σ : SesFlatThickenings f i1 i2 i3 t1 t2 t3)
     (L : FlatLift (thickeningHom1 σ) (moduleRestrict σ : X.Modules)) :
-    (toRelative1 σ L).module = L.module := sorry
+    (toRelative1 σ L).module = L.module := rfl
 
 /-- The zero class is sent to the relative infinitesimal extension of the chosen lift. -/
 theorem sourceIdealIsoClassEquiv1_zero (σ : SesFlatThickenings f i1 i2 i3 t1 t2 t3)
     (L0 : FlatLift (thickeningHom1 σ) (moduleRestrict σ : X.Modules)) :
-    sourceIdealIsoClassEquiv1 σ L0 0 = IsoClass.mk (toRelative1 σ L0) := sorry
+    sourceIdealIsoClassEquiv1 σ L0 0 = IsoClass.mk (toRelative1 σ L0) :=
+  InfinitesimalExtension.isoClassEquiv_zero (toRelative1 σ L0)
 
 /-- The relative infinitesimal extension attached to `h^* F'_2`. -/
 noncomputable def homPullbackRelative (σ : SesFlatThickenings f i1 i2 i3 t1 t2 t3) :=
@@ -101,7 +142,8 @@ noncomputable def homPullbackRelative (σ : SesFlatThickenings f i1 i2 i3 t1 t2 
 
 /-- The middle module of `homPullbackRelative` is `h^* F'_2`. -/
 theorem homPullbackRelative_module (σ : SesFlatThickenings f i1 i2 i3 t1 t2 t3) :
-    (homPullbackRelative σ).module = (homPullback σ).module := sorry
+    (homPullbackRelative σ).module = (homPullback σ).module :=
+  toRelative1_module σ (homPullback σ)
 
 /-- The relative infinitesimal extension attached to `π^* F`. -/
 noncomputable def splitPullbackRelative
@@ -115,7 +157,8 @@ theorem splitPullbackRelative_module
     [HasWeakSheafify (Opens.grothendieckTopology X3) CommRingCat.{u}]
     [(Opens.grothendieckTopology X3).WEqualsLocallyBijective CommRingCat.{u}]
     (σ : SesFlatThickenings f i1 i2 i3 t1 t2 t3) :
-    (splitPullbackRelative σ).module = (splitPullback σ).module := sorry
+    (splitPullbackRelative σ).module = (splitPullback σ).module :=
+  toRelative1_module σ (splitPullback σ)
 
 /-- The based chart with basepoint `π^* F`. -/
 noncomputable def sourceIdealIsoClassEquiv_split
@@ -139,7 +182,8 @@ theorem sourceIdealIsoClassEquiv_split_zero
     [(Opens.grothendieckTopology X3).WEqualsLocallyBijective CommRingCat.{u}]
     (σ : SesFlatThickenings f i1 i2 i3 t1 t2 t3) :
     sourceIdealIsoClassEquiv1 σ (splitPullback σ) 0 =
-      IsoClass.mk (toRelative1 σ (splitPullback σ)) := sorry
+      IsoClass.mk (toRelative1 σ (splitPullback σ)) :=
+  sourceIdealIsoClassEquiv1_zero σ (splitPullback σ)
 
 /-- The third relative identity comparison is the canonical identity comparison
 for the third vertical pair. -/
@@ -150,7 +194,7 @@ theorem relativeIdentityInfinitesimalMap3_eq
       let F := moduleRestrict σ
       @relativeIdentityInfinitesimalMap (Thickening.of i3) (Thickening.of t3)
         (isFirstOrderThickening_ofHom i3) (isFirstOrderThickening_ofHom t3)
-        g σ.strict3 σ.flat3 F := sorry
+        g σ.strict3 σ.flat3 F := rfl
 
 /-- The existence obstruction to lifting `F` to an `𝒪'_3`-module
 flat over `S'_3`, as a class in `Ext F (f^* 𝒥₃ ⊗ F) 2`. -/
@@ -171,7 +215,7 @@ theorem existenceObstruction3_eq [HasExt.{u} X.Modules]
       let F := moduleRestrict σ
       existenceObstruction (Thickening.of i3).hom F
         ((g.left ^*).obj (idealModule (Thickening.of t3).hom) ⊗ F)
-        (relativeIdentityInfinitesimalMap3 σ) := sorry
+        (relativeIdentityInfinitesimalMap3 σ) := rfl
 
 /-- The difference class `θ ∈ Ext F (f^* 𝒥₁ ⊗ F) 1` of `h^* F'_2` against `π^* F`. -/
 noncomputable def theta
@@ -192,7 +236,7 @@ theorem theta_eq
     theta σ =
       ExtensionClass.toExt
         ((sourceIdealIsoClassEquiv_split σ).symm
-          (IsoClass.mk (homPullbackRelative σ))) := sorry
+          (IsoClass.mk (homPullbackRelative σ))) := rfl
 
 /-- The Yoneda boundary of the difference class is the relative identity obstruction on the third thickening. -/
 theorem theta_comp_eq_existenceObstruction

@@ -49,15 +49,47 @@ theorem isAnnihilatedByIdealPowerOnAffineOpens_iff
       ∃ c : ℕ, 1 ≤ c ∧ ∀ n : ℕ, ∀ U : X.affineOpens,
         I.ideal U ^ c •
             (⊤ : Submodule Γ(X, U.1) (((E.obj).obj (op n)).obj.val.obj (op U.1))) = ⊥ :=
-  sorry
+  Iff.rfl
 
+open scoped ZeroObject in
 /-- A coherent formal module uniformly annihilated by a positive ideal power lies in the
 essential image of coherent completion. -/
 theorem mem_completion_essImage_of_isAnnihilatedByIdealPowerOnAffineOpens
     {X : Scheme.{u}} [IsNoetherian X] {I : X.IdealSheafData}
     (ctx : CoherentCompletionFunctor X I) (E : CoherentFormalModules X I)
     (hE : IsAnnihilatedByIdealPowerOnAffineOpens I E) :
-    ctx.toFunctor.essImage E := sorry
+    ctx.toFunctor.essImage E := by
+  letI : ctx.toFunctor.Additive :=
+    exactFunctor_le_additiveFunctor _ _ ctx.toFunctor (coherentCompletionFunctor_exact ctx)
+  let G : RingedSpace.Coh X.toRingedSpace := 0
+  have hzero : IsZero (ctx.obj G) := ctx.toFunctor.map_isZero (isZero_zero _)
+  have hid : 𝟙 (ctx.obj G) = 0 := hzero.eq_of_src _ _
+  have hsections (n : ℕ) (U : X.affineOpens)
+      (y : (((ctx.obj G).obj).obj (op n)).obj.val.obj (op U.1)) : y = 0 := by
+    have h := congrArg
+      (fun f : ctx.obj G ⟶ ctx.obj G ↦
+        (((f.hom.app (op n)).hom.val.app (op U.1)).hom) y) hid
+    change y = 0 at h
+    exact h
+  obtain ⟨c, hc, h⟩ := hE
+  -- The zero map to the completion of zero has uniformly annihilated stagewise
+  -- kernels and cokernels, so the existing map-algebraization theorem applies.
+  have halpha : CoherentFormalMap.StagesHaveUniformKernelCokernelAnnihilation I
+      (0 : E ⟶ ctx.obj G) := by
+    refine ⟨c, hc, ?_⟩
+    intro U n a ha
+    constructor
+    · intro x hx
+      have hm : a • x ∈ I.ideal U ^ c •
+          (⊤ : Submodule Γ(X, U.1) (((E.obj).obj (op (n : ℕ))).obj.val.obj (op U.1))) :=
+        Submodule.smul_mem_smul ha (Submodule.mem_top)
+      rw [h (n : ℕ) U] at hm
+      simpa using hm
+    · intro y
+      rw [hsections (n : ℕ) U y, smul_zero]
+      exact Submodule.zero_mem _
+  obtain ⟨z, _⟩ := existsUnique_algebraization_of_formalMap_to_completion ctx E G 0 halpha
+  exact ⟨z.F, ⟨z.beta.symm⟩⟩
 
 end AlgebraicGeometry.Scheme.CoherentFormalModules
 
@@ -130,7 +162,9 @@ theorem mem_essImage_of_isAnnihilatedByIdealPowerOnAffineOpens
     {X : Scheme.{u}} [IsNoetherian X] {I : X.IdealSheafData}
     (E : CoherentFormalModules X I)
     (hE : CoherentFormalModules.IsAnnihilatedByIdealPowerOnAffineOpens I E) :
-    (functor I).essImage E := sorry
+    (functor I).essImage E :=
+  CoherentFormalModules.mem_completion_essImage_of_isAnnihilatedByIdealPowerOnAffineOpens
+    (CoherentCompletionFunctor.canonical X I) E hE
 
 /-- Lemma 30.23.7 (0EHP) (2): canonical completion induces a bijection on morphisms when either
 coherent module is uniformly annihilated on affine opens by an ideal power. -/
@@ -140,7 +174,9 @@ theorem homMap_bijective_of_isAnnihilatedByIdealPowerOnAffineOpens
     (F G : RingedSpace.Coh X.toRingedSpace)
     (hFG : Modules.IsAnnihilatedByIdealPowerOnAffineOpens I F.obj ∨
       Modules.IsAnnihilatedByIdealPowerOnAffineOpens I G.obj) :
-    Function.Bijective (fun f : F ⟶ G ↦ (functor I).map f) := sorry
+    Function.Bijective (fun f : F ⟶ G ↦ (functor I).map f) :=
+  CoherentCompletionFunctor.homMap_bijective_of_isAnnihilatedByIdealPowerOnAffineOpens
+    (CoherentCompletionFunctor.canonical X I) F G hFG
 /-- The concrete degree-one Ext map induced by canonical completion. The internal instance
 pins are encapsulated by the reusable presentation-level map. -/
 @[stacks 0EHP "canonical degree-one Ext map"]
@@ -163,6 +199,8 @@ theorem extOneMap_bijective_of_isAnnihilatedByIdealPowerOnAffineOpens
     (F G : RingedSpace.Coh X.toRingedSpace)
     (hFG : Modules.IsAnnihilatedByIdealPowerOnAffineOpens I F.obj ∨
       Modules.IsAnnihilatedByIdealPowerOnAffineOpens I G.obj) :
-    Function.Bijective (extOneMap (I := I) F G) := sorry
+    Function.Bijective (extOneMap (I := I) F G) :=
+  CoherentCompletionFunctor.extOneMap_bijective_of_isAnnihilatedByIdealPowerOnAffineOpens
+    (CoherentCompletionFunctor.canonical X I) F G hFG
 
 end AlgebraicGeometry.Scheme.CoherentCompletion

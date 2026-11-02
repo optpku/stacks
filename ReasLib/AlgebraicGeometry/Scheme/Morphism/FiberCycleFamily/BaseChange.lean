@@ -39,7 +39,7 @@ noncomputable def fiberBaseChangeOfPoint {X S S' : Scheme.{u}}
   @Scheme.IdealSheafData.associatedCycle ((pullback.snd f g).fiber s')
     (@instIsLocallyNoetherianPullbackSchemeOfLocallyOfFiniteType _ _ _
       (pullback.snd f g) (S'.fromSpecResidueField s')
-      (instUniversallyCatenarySpecResidueField s').toIsLocallyNoetherian inferInstance)
+      (instUniversallyCatenary_specResidueField s').toIsLocallyNoetherian inferInstance)
     ((Scheme.PointClosure.reducedStructure x).ideal.comap
       (Scheme.Hom.baseChangeFiberMap f g (pullback.fst f g) (pullback.snd f g)
         (IsPullback.of_hasPullback f g) s'))

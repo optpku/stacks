@@ -41,6 +41,7 @@ theorem pullback_eq {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     pullback f = (smallEtaleMorphismOfTopoi f).inverseImage :=
   rfl
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Pullback of small étale sheaves along an identity is canonically the identity functor. -/
 noncomputable def pullbackId {S : Scheme.{u}} (X : AlgebraicSpace S) :
     pullback (𝟙 X) ≅ 𝟭 (Sheaf (smallEtaleTopology X) (Type (u + 1))) :=
@@ -51,11 +52,14 @@ noncomputable def pullbackId {S : Scheme.{u}} (X : AlgebraicSpace S) :
           { hom := Limits.pullback.fst V.hom (𝟙 X)
             inv := Limits.pullback.lift (𝟙 V.left) V.hom
               ((Category.id_comp V.hom).trans (Category.comp_id V.hom).symm)
-            hom_inv_id := sorry
-            inv_hom_id := sorry }
+            hom_inv_id := by
+              apply Limits.pullback.hom_ext <;> simp [Limits.pullback.condition]
+            inv_hom_id := by simp }
           ((Limits.pullback.condition (f := V.hom) (g := 𝟙 X)).trans
             (Category.comp_id _)))
-      (fun _ ↦ sorry)
+      (fun k ↦ by
+        apply MorphismProperty.Over.Hom.ext
+        simp [spacesEtalePullback, MorphismProperty.Over.pullback])
   let spacesId : (spacesEtaleMorphismOfTopoi (𝟙 X)).inverseImage ≅
       𝟭 (Sheaf (spacesEtaleTopology X) (Type (u + 1))) :=
     Adjunction.leftAdjointIdIso
@@ -92,12 +96,12 @@ noncomputable def pseudofunctor {S : Scheme.{u}} :
 theorem pseudofunctor_obj {S : Scheme.{u}} (X : AlgebraicSpace S) :
     pseudofunctor.obj (.mk (.op X)) =
       Cat.of (Sheaf (smallEtaleTopology X) (Type (u + 1))) :=
-  sorry
+  rfl
 
 /-- The action of `pseudofunctor` on a morphism of algebraic spaces is small étale sheaf
 pullback. -/
 theorem pseudofunctor_map {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     (pseudofunctor.map f.op.toLoc).toFunctor = pullback f :=
-  sorry
+  rfl
 
 end AlgebraicGeometry.AlgebraicSpace.EtaleSheaf

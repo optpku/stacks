@@ -50,33 +50,38 @@ namespace IsAdicStabilizationIndex
 theorem comparison_mono
     {T : Set (PrimeSpectrum A)} {I : Ideal A} {M : ModuleCat.{u} A}
     {s : ℤ} {m : ℕ} (h : IsAdicStabilizationIndex T I M s m) :
-    ∀ i : ℤ, i ≤ s → ∀ n : ℕ, m ≤ n → Mono (adicComparison T I M i n) := sorry
+    ∀ i : ℤ, i ≤ s → ∀ n : ℕ, m ≤ n → Mono (adicComparison T I M i n) :=
+  h.1
 
 /-- An adic stabilization index gives the Mittag-Leffler property for the ordinary quotient tower. -/
 theorem quotient_isMittagLeffler
     {T : Set (PrimeSpectrum A)} {I : Ideal A} {M : ModuleCat.{u} A}
     {s : ℤ} {m : ℕ} (h : IsAdicStabilizationIndex T I M s m) :
     ∀ i : ℤ, i < s →
-      SequentialInverseSystem.IsMittagLeffler (adicTower T I M i) := sorry
+      SequentialInverseSystem.IsMittagLeffler (adicTower T I M i) :=
+  h.2.1
 
 /-- An adic stabilization index gives the Mittag-Leffler property for the tail quotient tower. -/
 theorem tail_isMittagLeffler
     {T : Set (PrimeSpectrum A)} {I : Ideal A} {M : ModuleCat.{u} A}
     {s : ℤ} {m : ℕ} (h : IsAdicStabilizationIndex T I M s m) :
     ∀ i : ℤ, i ≤ s →
-      SequentialInverseSystem.IsMittagLeffler (adicTailTower T I M m i) := sorry
+      SequentialInverseSystem.IsMittagLeffler (adicTailTower T I M m i) :=
+  h.2.2.1
 
 /-- An adic stabilization index makes the ordinary limit comparison invertible below degree `s`. -/
 theorem limitComparison_isIso
     {T : Set (PrimeSpectrum A)} {I : Ideal A} {M : ModuleCat.{u} A}
     {s : ℤ} {m : ℕ} (h : IsAdicStabilizationIndex T I M s m) :
-    ∀ i : ℤ, i < s → IsIso (adicLimitComparison T I M i) := sorry
+    ∀ i : ℤ, i < s → IsIso (adicLimitComparison T I M i) :=
+  h.2.2.2.1
 
 /-- An adic stabilization index makes the degree-`s` tail limit comparison invertible. -/
 theorem tailLimitComparison_isIso
     {T : Set (PrimeSpectrum A)} {I : Ideal A} {M : ModuleCat.{u} A}
     {s : ℤ} {m : ℕ} (h : IsAdicStabilizationIndex T I M s m) :
-    IsIso (adicTailLimitComparison T I M m s) := sorry
+    IsIso (adicTailLimitComparison T I M m s) :=
+  h.2.2.2.2.1
 
 /-- The degree-`s` ordinary comparison is mono and has cokernel annihilated by `I ^ m`. -/
 theorem limitComparison_mono_and_cokernel
@@ -84,7 +89,8 @@ theorem limitComparison_mono_and_cokernel
     {s : ℤ} {m : ℕ} (h : IsAdicStabilizationIndex T I M s m) :
     Mono (adicLimitComparison T I M s) ∧
       I ^ m ≤ Module.annihilator A
-        ((cokernel (adicLimitComparison T I M s) : ModuleCat.{u} A) : Type u) := sorry
+        ((cokernel (adicLimitComparison T I M s) : ModuleCat.{u} A) : Type u) :=
+  h.2.2.2.2.2.1
 
 /-- The degree-`s` first derived limit is annihilated by `I ^ m`. -/
 theorem firstDerivedLimit_annihilated
@@ -92,7 +98,8 @@ theorem firstDerivedLimit_annihilated
     {s : ℤ} {m : ℕ} (h : IsAdicStabilizationIndex T I M s m) :
     I ^ m ≤ Module.annihilator A
       ((SequentialInverseSystem.Milnor.ProductCone.canonicalR1
-        (adicTower T I M s) : ModuleCat.{u} A) : Type u) := sorry
+        (adicTower T I M s) : ModuleCat.{u} A) : Type u) :=
+  h.2.2.2.2.2.2
 
 end IsAdicStabilizationIndex
 

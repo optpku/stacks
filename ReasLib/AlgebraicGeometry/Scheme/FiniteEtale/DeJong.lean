@@ -51,7 +51,8 @@ theorem hasFiniteGeometricMonodromy_iff {k : Type u} [Field k] {X : SchemeOverFi
     [ConnectedSpace X.left] [ConnectedSpace (geometricBaseChange X)] {n ℓ : ℕ}
     {xbar : GeometricPoint (geometricBaseChange X)} (ρ : GLPowerSeriesRep X n ℓ xbar) :
     HasFiniteGeometricMonodromy ρ ↔
-      Finite (MonoidHom.range (ρ.comp (geometricToArithmetic X xbar).hom).toMonoidHom) := sorry
+      Finite (MonoidHom.range (ρ.comp (geometricToArithmetic X xbar).hom).toMonoidHom) :=
+  Iff.rfl
 
 /-- De Jong's conjecture for rank `n` on a geometrically irreducible smooth projective curve
 over a finite field: all continuous power-series representations have finite geometric monodromy. -/
@@ -68,7 +69,8 @@ theorem deJongConjecture_iff {k : Type u} [Field k] [Finite k] (X : SchemeOverFi
     [ConnectedSpace (geometricBaseChange X)] (n : ℕ) :
     deJongConjecture X n ↔
       ∀ (ℓ : ℕ) [Fact ℓ.Prime] (xbar : GeometricPoint (geometricBaseChange X))
-        (ρ : GLPowerSeriesRep X n ℓ xbar), HasFiniteGeometricMonodromy ρ := sorry
+        (ρ : GLPowerSeriesRep X n ℓ xbar), HasFiniteGeometricMonodromy ρ :=
+  Iff.rfl
 
 /-- De Jong's conjecture holds in ranks at most two for a geometrically irreducible smooth
 projective curve over a finite field. -/
@@ -84,7 +86,8 @@ theorem hasFiniteGeometricMonodromy_of_nat_le_two
     [Curve X] [Smooth X.hom] [Projective X.hom] [GeometricallyIrreducible X.hom]
     [ConnectedSpace (geometricBaseChange X)] {n : ℕ} (hn : n ≤ 2) {ℓ : ℕ} [Fact ℓ.Prime]
     (xbar : GeometricPoint (geometricBaseChange X)) (ρ : GLPowerSeriesRep X n ℓ xbar) :
-    HasFiniteGeometricMonodromy ρ := sorry
+    HasFiniteGeometricMonodromy ρ :=
+  deJongConjecture_of_le_two X hn ℓ xbar ρ
 
 /-- de Jong's conjecture at a fixed prime `ℓ`, geometric base point `xbar`, and rank `n`
 asserts finite geometric monodromy for every continuous rank-`n` power-series representation. -/
@@ -102,7 +105,8 @@ theorem deJongConjectureAt_iff {k : Type u} [Field k] [Finite k] (X : SchemeOver
     deJongConjectureAt X xbar ℓ n ↔
       ∀ ρ : etaleFundamentalGroup X.left (arithmeticPoint X xbar) →ₜ*
           GL (Fin n) (PowerSeries (ZMod ℓ)),
-        HasFiniteGeometricMonodromy ρ := sorry
+        HasFiniteGeometricMonodromy ρ :=
+  Iff.rfl
 
 /-- De Jong's conjecture holds in rank `n` for a geometrically irreducible smooth
 projective curve over a finite field when the coefficient prime `ℓ` differs from the
@@ -124,6 +128,7 @@ theorem hasFiniteGeometricMonodromy_of_prime_gt_two_mul
     [ConnectedSpace (geometricBaseChange X)]
     (xbar : GeometricPoint (geometricBaseChange X)) {n ℓ : ℕ} [Fact ℓ.Prime]
     (hℓk : (ℓ : k) ≠ 0) (hℓ : 2 * n < ℓ) (ρ : GLPowerSeriesRep X n ℓ xbar) :
-    HasFiniteGeometricMonodromy ρ := sorry
+    HasFiniteGeometricMonodromy ρ :=
+  deJongConjectureAt_of_prime_gt_two_mul X xbar hℓk hℓ ρ
 
 end AlgebraicGeometry.SchemeOverField

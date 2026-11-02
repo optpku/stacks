@@ -92,7 +92,7 @@ theorem ofFamily_cover (cover : ZariskiCover X) (affine : cover.I₀ → Over S)
     (ofFamily cover affine isAffine atlas etale locallySurjective
         targetOpen isAffineOpen_targetOpen range_subset_targetOpen).cover =
       cover :=
-  sorry
+  rfl
 
 /-- The affine family of `ofFamily` is the given family of schemes over `S`. -/
 @[simp]
@@ -108,7 +108,7 @@ theorem ofFamily_affine (cover : ZariskiCover X) (affine : cover.I₀ → Over S
     (ofFamily cover affine isAffine atlas etale locallySurjective
         targetOpen isAffineOpen_targetOpen range_subset_targetOpen).affine =
       affine :=
-  sorry
+  rfl
 
 /-- The atlas family of `ofFamily` is the given family of morphisms. -/
 @[simp]
@@ -124,7 +124,7 @@ theorem ofFamily_atlas (cover : ZariskiCover X) (affine : cover.I₀ → Over S)
     (ofFamily cover affine isAffine atlas etale locallySurjective
         targetOpen isAffineOpen_targetOpen range_subset_targetOpen).atlas =
       atlas :=
-  sorry
+  rfl
 
 /-- An affine étale Zariski cover is a Zariski covering whose members each admit a single
 affine étale locally surjective atlas mapping into an affine open of `S`. -/
@@ -137,7 +137,9 @@ theorem spec (𝒰 : AffineEtaleZariskiCover X) :
           Presheaf.IsLocallySurjective (Scheme.etaleTopology.over S) (𝒰.atlas i) ∧
           IsAffineOpen (𝒰.targetOpen i) ∧
           Set.range (𝒰.affine i).hom ⊆ 𝒰.targetOpen i :=
-  sorry
+  ⟨𝒰.cover.isOpenImmersion, 𝒰.cover.covers, fun i ↦
+    ⟨𝒰.isAffine i, 𝒰.etale i, 𝒰.locallySurjective i,
+      𝒰.isAffineOpen_targetOpen i, 𝒰.range_subset_targetOpen i⟩⟩
 
 /-- The composite atlas of the `i`-th affine scheme into `X`. -/
 def atlasHom (𝒰 : AffineEtaleZariskiCover X) (i : 𝒰.cover.I₀) :
@@ -147,14 +149,29 @@ def atlasHom (𝒰 : AffineEtaleZariskiCover X) (i : 𝒰.cover.I₀) :
 /-- `atlasHom 𝒰 i` is the composite of the piece atlas with the open immersion. -/
 theorem atlasHom_eq (𝒰 : AffineEtaleZariskiCover X) (i : 𝒰.cover.I₀) :
     𝒰.atlasHom i = 𝒰.atlas i ≫ 𝒰.cover.f i :=
-  sorry
+  rfl
 
 /-- Every `T`-point of the `i`-th open subspace has structure morphism landing in the chosen
 affine open of `S`. -/
 theorem mapsInto_targetOpen (𝒰 : AffineEtaleZariskiCover X) (i : 𝒰.cover.I₀) {T : Over S}
     (x : (𝒰.cover.X i).functorOfPoints.obj (op T)) :
-    Set.range T.hom ⊆ 𝒰.targetOpen i :=
-  sorry
+    Set.range T.hom ⊆ 𝒰.targetOpen i := by
+  have hs : Sieve.overEquiv T (Presheaf.imageSieve (𝒰.atlas i) x) ∈
+      Scheme.etaleTopology T.left :=
+    (𝒰.locallySurjective i).imageSieve_mem x
+  obtain ⟨𝒱, h𝒱⟩ := Scheme.mem_grothendieckTopology_iff.mp hs
+  rintro _ ⟨t, rfl⟩
+  obtain ⟨j, y, hy⟩ := 𝒱.exists_eq t
+  let U : Over S := Over.mk (𝒱.f j ≫ T.hom)
+  let g : U ⟶ T := Over.homMk (𝒱.f j)
+  obtain ⟨a, _⟩ : Presheaf.imageSieve (𝒰.atlas i) x g :=
+    (Sieve.overEquiv_iff _ _).mp (h𝒱 _ _ ⟨j⟩)
+  have ha : T.hom t = (𝒰.affine i).hom (a.left y) := by
+    rw [← hy]
+    change (𝒱.f j ≫ T.hom) y = (a.left ≫ (𝒰.affine i).hom) y
+    exact congrArg (fun f : 𝒱.X j ⟶ S ↦ f y) (Over.w a).symm
+  rw [ha]
+  exact 𝒰.range_subset_targetOpen i ⟨a.left y, rfl⟩
 
 end AffineEtaleZariskiCover
 
@@ -169,6 +186,6 @@ theorem exists_affineEtaleZariskiCover (X : AlgebraicSpace S) :
 étale Zariski covering. -/
 theorem exists_of_affineEtaleCover {X : AlgebraicSpace S} (𝒰 : AffineEtaleCover X) :
     Nonempty (AffineEtaleZariskiCover.{u} X) :=
-  sorry
+  exists_affineEtaleZariskiCover X
 
 end AlgebraicGeometry.AlgebraicSpace

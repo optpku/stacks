@@ -32,7 +32,9 @@ namespace AlgebraicGeometry.Scheme.PreRelation
 theorem quotientDesc_respects {S : Scheme.{u}} {U M T : Over S}
     (P : PreRelation U) (q : U ⟶ M) (h_equalizes : P.t ≫ q = P.s ≫ q)
     {x y : T ⟶ U} (hxy : P.pointRel T x y) :
-    x ≫ q = y ≫ q := sorry
+    x ≫ q = y ≫ q := by
+  rcases hxy with ⟨r, rfl, rfl⟩
+  simp only [Category.assoc, h_equalizes]
 
 /-- The map on quotient-valued points induced by an equalizing morphism `q : U ⟶ M`. -/
 def quotientDescApp {S : Scheme.{u}} {U M T : Over S}
@@ -47,7 +49,13 @@ theorem quotientDesc_naturality {S : Scheme.{u}} {U M : Over S}
     {T T' : (Over S)ᵒᵖ} (f : T ⟶ T') :
     P.quotientPresheaf.map f ≫
         TypeCat.ofHom (quotientDescApp P q h_equalizes) =
-      TypeCat.ofHom (quotientDescApp P q h_equalizes) ≫ (yoneda.obj M).map f := sorry
+      TypeCat.ofHom (quotientDescApp P q h_equalizes) ≫ (yoneda.obj M).map f := by
+  apply ConcreteCategory.hom_ext
+  intro z
+  refine Quot.induction_on z ?_
+  intro x
+  change (f.unop ≫ x) ≫ q = f.unop ≫ (x ≫ q)
+  exact Category.assoc _ _ _
 
 /-- The canonical map from the quotient presheaf to the representable presheaf induced by an
 equalizing morphism `q : U ⟶ M`. -/
@@ -62,7 +70,8 @@ theorem quotientPresheafDesc_mk {S : Scheme.{u}} {U M T : Over S}
     (P : PreRelation U) (q : U ⟶ M) (h_equalizes : P.t ≫ q = P.s ≫ q)
     (x : T ⟶ U) :
     (P.quotientPresheafDesc q h_equalizes).app (op T)
-        (Quot.mk (P.pointRel T) x) = x ≫ q := sorry
+        (Quot.mk (P.pointRel T) x) = x ≫ q := by
+  rfl
 
 /-- The map `(P.t, P.s) : P.left ⟶ U ×_M U` induced by an equalizing morphism. -/
 noncomputable def kernelPairLift {S : Scheme.{u}} {U M : Over S}
@@ -73,12 +82,14 @@ noncomputable def kernelPairLift {S : Scheme.{u}} {U M : Over S}
 /-- The first projection of `kernelPairLift` is `P.t`. -/
 theorem kernelPairLift_fst {S : Scheme.{u}} {U M : Over S}
     (P : PreRelation U) (q : U ⟶ M) (h_equalizes : P.t ≫ q = P.s ≫ q) :
-    P.kernelPairLift q h_equalizes ≫ pullback.fst q q = P.t := sorry
+    P.kernelPairLift q h_equalizes ≫ pullback.fst q q = P.t := by
+  exact pullback.lift_fst P.t P.s h_equalizes
 
 /-- The second projection of `kernelPairLift` is `P.s`. -/
 theorem kernelPairLift_snd {S : Scheme.{u}} {U M : Over S}
     (P : PreRelation U) (q : U ⟶ M) (h_equalizes : P.t ≫ q = P.s ≫ q) :
-    P.kernelPairLift q h_equalizes ≫ pullback.snd q q = P.s := sorry
+    P.kernelPairLift q h_equalizes ≫ pullback.snd q q = P.s := by
+  exact pullback.lift_snd P.t P.s h_equalizes
 
 /-- The canonical comparison from the quotient sheaf to the representable sheaf induced by an
 equalizing morphism `q : U ⟶ M`. -/
@@ -97,7 +108,20 @@ theorem quotientSheafDesc_quotientMap {S : Scheme.{u}} {U M : Over S}
     (P : PreRelation U) (J : GrothendieckTopology (Over S)) [J.Subcanonical]
     (q : U ⟶ M) (h_equalizes : P.t ≫ q = P.s ≫ q) :
     P.quotientMap J ≫ P.quotientSheafDesc J q h_equalizes =
-      J.uliftYoneda.{u + 1}.map q := sorry
+      J.uliftYoneda.{u + 1}.map q := by
+  apply J.uliftYonedaEquiv.injective
+  change (P.quotientSheafDesc J q h_equalizes).hom.app (op U)
+    ((P.quotientMap J).hom.app (op U) (ULift.up (𝟙 U))) = ULift.up q
+  rw [quotientMap_app]
+  have h := congrArg
+    (fun f => f.app (op U) (ULift.up (Quot.mk (P.pointRel U) (𝟙 U))))
+    (toSheafify_sheafifyLift J
+      (Functor.whiskerRight (P.quotientPresheafDesc q h_equalizes)
+        uliftFunctor.{u + 1, u})
+      (J.uliftYoneda.{u + 1}.obj M).property)
+  change (P.quotientSheafDesc J q h_equalizes).hom.app (op U)
+    (P.quotientClass J (𝟙 U)) = ULift.up (𝟙 U ≫ q) at h
+  exact h.trans (congrArg ULift.up (Category.id_comp q))
 
 /-- If an equalizing morphism and its relation-to-kernel-pair map are locally surjective in a
 standard topology, then the canonical comparison from the quotient sheaf to the represented
@@ -110,7 +134,51 @@ theorem quotientSheafDesc_isIso_of_locallySurjective {S : Scheme.{u}}
     (h_kernel : Sheaf.IsLocallySurjective
       ((τ.overTopology S).uliftYoneda.{u + 1}.map
         (P.kernelPairLift q h_equalizes))) :
-    IsIso (P.quotientSheafDesc (τ.overTopology S) q h_equalizes) := sorry
+    IsIso (P.quotientSheafDesc (τ.overTopology S) q h_equalizes) := by
+  let J := τ.overTopology S
+  let φ : (P.quotientPresheaf ⋙ uliftFunctor.{u + 1, u}) ⟶
+      (J.uliftYoneda.{u + 1}.obj M).obj :=
+    Functor.whiskerRight (P.quotientPresheafDesc q h_equalizes) uliftFunctor.{u + 1, u}
+  letI := h_q
+  letI := h_kernel
+  letI : Presheaf.IsLocallySurjective J φ := ⟨by
+    intro T m
+    refine J.superset_covering ?_
+      (Presheaf.imageSieve_mem J (J.uliftYoneda.{u + 1}.map q).hom m)
+    rintro T' f ⟨a, ha⟩
+    exact ⟨ULift.up (Quot.mk (P.pointRel T') a.down), ha⟩⟩
+  letI : Presheaf.IsLocallyInjective J φ := ⟨by
+    intro T x y h
+    rcases x with ⟨x⟩
+    rcases y with ⟨y⟩
+    revert h
+    refine Quot.induction_on₂ x y ?_
+    intro a b h
+    have hab : a ≫ q = b ≫ q := congrArg ULift.down h
+    let k : T.unop ⟶ pullback q q := pullback.lift a b hab
+    refine J.superset_covering ?_
+      (h_kernel.imageSieve_mem (U := T.unop) (ULift.up k))
+    rintro T' f ⟨r, hr⟩
+    change ULift.up (Quot.mk (P.pointRel T') (f ≫ a)) =
+      ULift.up (Quot.mk (P.pointRel T') (f ≫ b))
+    apply congrArg ULift.up
+    apply Quot.sound
+    have hr' : r.down ≫ P.kernelPairLift q h_equalizes = f ≫ k :=
+      congrArg ULift.down hr
+    refine ⟨r.down, ?_, ?_⟩
+    · simpa only [Category.assoc, kernelPairLift_fst, k, pullback.lift_fst] using
+        congrArg (fun e => e ≫ pullback.fst q q) hr'
+    · simpa only [Category.assoc, kernelPairLift_snd, k, pullback.lift_snd] using
+        congrArg (fun e => e ≫ pullback.snd q q) hr'⟩
+  have hφ : IsIso ((presheafToSheaf J (Type (u + 1))).map φ) :=
+    (J.W_iff φ).mp (J.W_of_isLocallyBijective φ)
+  have hc : IsIso ((sheafificationAdjunction J (Type (u + 1))).counit.app
+      (J.uliftYoneda.{u + 1}.obj M)) := inferInstance
+  change IsIso ((sheafificationAdjunction J (Type (u + 1))).homEquiv
+    (P.quotientPresheaf ⋙ uliftFunctor.{u + 1, u})
+    (J.uliftYoneda.{u + 1}.obj M) |>.symm φ)
+  rw [Adjunction.homEquiv_counit]
+  exact IsIso.comp_isIso' hφ hc
 
 /-- Locally surjective comparison maps canonically make the quotient-sheaf comparison an
 isomorphism. -/

@@ -37,13 +37,13 @@ def affineSpaceOver {S : Scheme.{u}} (V : Over S) (n : ℕ) : Over S :=
 
 /-- The underlying scheme of `affineSpaceOver V n` is affine `n`-space over `V`. -/
 theorem affineSpaceOver_left {S : Scheme.{u}} (V : Over S) (n : ℕ) :
-    (affineSpaceOver V n).left = 𝔸(ULift.{u} (Fin n); V.left) := sorry
+    (affineSpaceOver V n).left = 𝔸(ULift.{u} (Fin n); V.left) := rfl
 
 /-- The structure morphism of `affineSpaceOver V n` is the composite of the
 relative affine-space projection with `V ⟶ S`. -/
 theorem affineSpaceOver_hom {S : Scheme.{u}} (V : Over S) (n : ℕ) :
     (affineSpaceOver V n).hom =
-      (𝔸(ULift.{u} (Fin n); V.left) ↘ V.left) ≫ V.hom := sorry
+      (𝔸(ULift.{u} (Fin n); V.left) ↘ V.left) ≫ V.hom := rfl
 
 namespace affineSpaceOver
 
@@ -54,7 +54,7 @@ def proj {S : Scheme.{u}} (V : Over S) (n : ℕ) : affineSpaceOver V n ⟶ V :=
 /-- The underlying scheme morphism of `proj V n` is the canonical affine-space
 structure map over `V`. -/
 theorem proj_left {S : Scheme.{u}} (V : Over S) (n : ℕ) :
-    (proj V n).left = (𝔸(ULift.{u} (Fin n); V.left) ↘ V.left) := sorry
+    (proj V n).left = (𝔸(ULift.{u} (Fin n); V.left) ↘ V.left) := rfl
 
 end affineSpaceOver
 
@@ -66,7 +66,7 @@ def affineOfScheme (n : Type u) (S : Scheme.{u}) : AlgebraicSpace S :=
 scheme-level affine space. -/
 theorem affineOfScheme_spec (n : Type u) (S : Scheme.{u}) :
     affineOfScheme n S = ofOver (Over.mk (AlgebraicGeometry.AffineSpace n S ↘ S)) :=
-  sorry
+  rfl
 
 /-- Affine `n`-space over an algebraic space `X` over `S`, as the fibre product
 `X ×_S A^n_S` of functors of points. -/
@@ -79,14 +79,14 @@ namespace AffineSpace
 over the base scheme. -/
 theorem spec (n : Type u) {S : Scheme.{u}} (X : AlgebraicSpace S) :
     AffineSpace n X = product X (affineOfScheme n S) :=
-  sorry
+  rfl
 
 /-- The functor of points of `AffineSpace n X` is the binary product of the functors of
 points of `X` and of `A^n_S`. -/
 theorem functorOfPoints_eq (n : Type u) {S : Scheme.{u}} (X : AlgebraicSpace S) :
     (AffineSpace n X).functorOfPoints =
       (X.functorOfPoints ⨯ (affineOfScheme n S).functorOfPoints) :=
-  sorry
+  rfl
 
 /-- The structure morphism `A^n_X ⟶ X`. -/
 def toBase (n : Type u) {S : Scheme.{u}} (X : AlgebraicSpace S) :
@@ -101,13 +101,13 @@ def toOfScheme (n : Type u) {S : Scheme.{u}} (X : AlgebraicSpace S) :
 /-- The structure morphism of `AffineSpace n X` is the first product projection. -/
 theorem toBase_eq (n : Type u) {S : Scheme.{u}} (X : AlgebraicSpace S) :
     toBase n X = productFst X (affineOfScheme n S) :=
-  sorry
+  rfl
 
 /-- The projection of `AffineSpace n X` to affine space over the base scheme is the
 second product projection. -/
 theorem toOfScheme_eq (n : Type u) {S : Scheme.{u}} (X : AlgebraicSpace S) :
     toOfScheme n X = productSnd X (affineOfScheme n S) :=
-  sorry
+  rfl
 
 end AffineSpace
 

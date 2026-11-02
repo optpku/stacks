@@ -68,6 +68,7 @@ noncomputable def indexEquivalence
     (forwardEquivalence (S := S) X n).counitIso.symm
     (forwardEquivalence (S := S) X n).unitIso.symm
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The left-comma equivalence projects to the source shift. -/
 @[stacks 05SU]
 noncomputable def forwardEquivalenceProj
@@ -76,8 +77,9 @@ noncomputable def forwardEquivalenceProj
         StructuredArrow.proj (S.Q.obj (X⟦n⟧)) S.Q ≅
       StructuredArrow.proj (S.Q.obj X) S.Q ⋙ shiftFunctor D n := by
   refine NatIso.ofComponents (fun _ ↦ Iso.refl _) ?_
-  intro X Y f
-  sorry
+  intro A B f
+  change (shiftFunctor D n).map f.right ≫ 𝟙 _ = 𝟙 _ ≫ (shiftFunctor D n).map f.right
+  simp only [Category.comp_id, Category.id_comp]
 
 /-- Reindexing the shifted left-comma diagram and then projecting agrees with shifting the
 original projection functor. -/

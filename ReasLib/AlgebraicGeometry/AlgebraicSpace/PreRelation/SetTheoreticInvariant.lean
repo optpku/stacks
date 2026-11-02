@@ -37,21 +37,25 @@ def IsSetTheoreticallyInvariant {S : Scheme.{u}} {B : AlgebraicSpace S} {U X : O
 /-- A morphism invariant under a pre-relation is set-theoretically invariant. -/
 theorem isSetTheoreticallyInvariant_of_isInvariant {S : Scheme.{u}} {B : AlgebraicSpace S}
     {U X : Over B} (P : PreRelation U) {φ : U ⟶ X} (h : P.IsInvariantHom φ) :
-    P.IsSetTheoreticallyInvariant φ := sorry
+    P.IsSetTheoreticallyInvariant φ := by
+  intro kbar r
+  exact congrArg (fun g => r ≫ g) h.symm
 
 /-- Set-theoretic invariance is equalization of the two projections on geometric points. -/
 theorem isSetTheoreticallyInvariant_iff {S : Scheme.{u}} {B : AlgebraicSpace S}
     {U X : Over B} (P : PreRelation U) (f : U ⟶ X) :
     IsSetTheoreticallyInvariant P f ↔
       ∀ (kbar : GeometricPoint B) (r : Over.mk kbar.hom ⟶ P.left),
-        r ≫ P.s ≫ f = r ≫ P.t ≫ f := sorry
+        r ≫ P.s ≫ f = r ≫ P.t ≫ f := Iff.rfl
 
 /-- On geometric points, relatedness for `P` implies equal images under a set-theoretically
 invariant morphism. -/
 theorem isSetTheoreticallyInvariant_pointRel {S : Scheme.{u}} {B : AlgebraicSpace S}
     {U X : Over B} {P : PreRelation U} {f : U ⟶ X} (hf : IsSetTheoreticallyInvariant P f)
     {kbar : GeometricPoint B} {x y : Over.mk kbar.hom ⟶ U}
-    (hxy : P.pointRel (Over.mk kbar.hom) x y) : x ≫ f = y ≫ f := sorry
+    (hxy : P.pointRel (Over.mk kbar.hom) x y) : x ≫ f = y ≫ f := by
+  obtain ⟨r, rfl, rfl⟩ := hxy
+  simpa only [Category.assoc] using (hf kbar r).symm
 
 /-- A morphism `f : U ⟶ X` over `B` separates orbits of a pre-relation `P` when it is
 set-theoretically invariant and equal images in `X(k)` imply the same geometric `R`-orbit on
@@ -80,7 +84,9 @@ theorem separatesOrbits_iff {S : Scheme.{u}} {B : AlgebraicSpace S} {U X : Over 
     SeparatesOrbits P f ↔
       IsSetTheoreticallyInvariant P f ∧
         ∀ (kbar : GeometricPoint B) (x y : Over.mk kbar.hom ⟶ U),
-          x ≫ f = y ≫ f → orbitEquivalent P kbar x y := sorry
+          x ≫ f = y ≫ f → orbitEquivalent P kbar x y :=
+  ⟨fun h => ⟨h.isSetTheoreticallyInvariant, h.eq_orbitEquivalent⟩,
+    fun h => SeparatesOrbits.of h.1 h.2⟩
 
 /-- A morphism that separates orbits is set-theoretically invariant and identifies equal images
 with membership in the same geometric `R`-orbit. -/
@@ -88,7 +94,8 @@ theorem separatesOrbits_spec {S : Scheme.{u}} {B : AlgebraicSpace S} {U X : Over
     {P : PreRelation U} {f : U ⟶ X} (h : SeparatesOrbits P f) :
     IsSetTheoreticallyInvariant P f ∧
       ∀ (kbar : GeometricPoint B) (x y : Over.mk kbar.hom ⟶ U),
-        x ≫ f = y ≫ f → y ∈ orbit P kbar x := sorry
+        x ≫ f = y ≫ f → y ∈ orbit P kbar x :=
+  ⟨h.isSetTheoreticallyInvariant, h.eq_orbitEquivalent⟩
 
 /-- A morphism over the base is set-theoretically invariant for a pre-relation if and only if
 its induced map on geometric points is constant on geometric orbits over every algebraically
@@ -99,14 +106,33 @@ theorem isSetTheoreticallyInvariant_iff_constantOnOrbits
     (P : PreRelation U) (φ : U ⟶ X) :
     P.IsSetTheoreticallyInvariant φ ↔
       ∀ (kbar : GeometricPoint B) (x y : Over.mk kbar.hom ⟶ U),
-        y ∈ P.orbit kbar x → x ≫ φ = y ≫ φ :=
-  sorry
+        y ∈ P.orbit kbar x → x ≫ φ = y ≫ φ := by
+  constructor
+  · intro hφ kbar x y hxy
+    sorry
+  · intro hφ kbar r
+    have hid : (FieldValuedPoint.Factorization.refl kbar.toFieldValuedPoint).sliceHom =
+        𝟙 (Over.mk kbar.hom) := by
+      apply Over.OverMorphism.ext
+      change yoneda.map (𝟙 kbar.overObj) = 𝟙 _
+      exact yoneda.map_id _
+    have horbit : (r ≫ P.s) ∈ P.orbit kbar (r ≫ P.t) := by
+      refine ⟨kbar.toFieldValuedPoint, FieldValuedPoint.Factorization.refl _, ?_⟩
+      change P.weaklyEquivalent (Over.mk kbar.hom)
+        ((FieldValuedPoint.Factorization.refl kbar.toFieldValuedPoint).sliceHom ≫ (r ≫ P.t))
+        ((FieldValuedPoint.Factorization.refl kbar.toFieldValuedPoint).sliceHom ≫ (r ≫ P.s))
+      refine _root_.Relation.EqvGen.rel _ _ ⟨r, ?_, ?_⟩
+      · rw [hid]
+        exact (Category.id_comp (r ≫ P.t)).symm
+      · rw [hid]
+        exact (Category.id_comp (r ≫ P.s)).symm
+    simpa only [Category.assoc] using (hφ kbar (r ≫ P.t) (r ≫ P.s) horbit).symm
 
 /-- A set-theoretically invariant morphism is constant on geometric `R`-orbits. -/
 theorem eq_comp_of_mem_orbit {S : Scheme.{u}} {B : AlgebraicSpace S} {U X : Over B}
     {P : PreRelation U} {φ : U ⟶ X} (hφ : P.IsSetTheoreticallyInvariant φ)
     {kbar : GeometricPoint B} {x y : Over.mk kbar.hom ⟶ U} (h : y ∈ P.orbit kbar x) :
     x ≫ φ = y ≫ φ :=
-  sorry
+  (isSetTheoreticallyInvariant_iff_constantOnOrbits P φ).mp hφ kbar x y h
 
 end AlgebraicGeometry.AlgebraicSpace.PreRelation

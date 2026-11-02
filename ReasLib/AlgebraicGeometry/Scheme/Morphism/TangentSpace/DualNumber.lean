@@ -54,14 +54,20 @@ by the residue-field homomorphism. -/
 theorem dualNumberPointInclusion_comp_toBasePoint
     {X S : Scheme.{u}} (f : X ⟶ S) (x : X) :
     dualNumberPointInclusion x ≫ dualNumberToBasePoint f x =
-      Spec.map (f.residueFieldMap x) := sorry
+      Spec.map (f.residueFieldMap x) := by
+  unfold dualNumberPointInclusion dualNumberToBasePoint
+  rw [← Spec.map_comp]
+  rfl
 
 /-- The canonical residue-field point maps and dual-number maps form a
 commutative square over a scheme morphism. -/
 @[stacks 0B2A]
 theorem dualNumberPointCommSq {X S : Scheme.{u}} (f : X ⟶ S) (x : X) :
     CommSq (X.fromSpecResidueField x) (dualNumberPointInclusion x) f
-      (dualNumberToBasePoint f x ≫ S.fromSpecResidueField (f x)) := sorry
+      (dualNumberToBasePoint f x ≫ S.fromSpecResidueField (f x)) := by
+  constructor
+  rw [← Category.assoc, dualNumberPointInclusion_comp_toBasePoint]
+  exact (f.SpecMap_residueFieldMap_fromSpecResidueField x).symm
 
 /-- The residue-field morphism `κ(f(x))[ε] ⟶ κ(x)[ε]` transports both dual-number
 coefficients through the canonical residue-field map. -/
@@ -71,16 +77,22 @@ noncomputable def dualNumberResidueFieldMap {X Y : Scheme.{u}} (f : X ⟶ Y) (x 
   CommRingCat.ofHom
     { toFun := fun z ↦
         ⟨(f.residueFieldMap x).hom z.fst, (f.residueFieldMap x).hom z.snd⟩
-      map_one' := sorry
-      map_mul' := sorry
-      map_zero' := sorry
-      map_add' := sorry }
+      map_one' := by
+        apply TrivSqZeroExt.ext <;> simp
+      map_mul' := by
+        intro a b
+        apply TrivSqZeroExt.ext <;> simp
+      map_zero' := by
+        apply TrivSqZeroExt.ext <;> simp
+      map_add' := by
+        intro a b
+        apply TrivSqZeroExt.ext <;> simp }
 
 /-- Applying `dualNumberResidueFieldMap` transports the two dual-number
 coefficients coefficientwise. -/
 theorem dualNumberResidueFieldMap_apply {X Y : Scheme.{u}} (f : X ⟶ Y) (x : X)
     (z : (Y.residueField (f x))[ε]) :
     dualNumberResidueFieldMap f x z =
-      ⟨(f.residueFieldMap x).hom z.fst, (f.residueFieldMap x).hom z.snd⟩ := sorry
+      ⟨(f.residueFieldMap x).hom z.fst, (f.residueFieldMap x).hom z.snd⟩ := rfl
 
 end AlgebraicGeometry.Scheme.Hom

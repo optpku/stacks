@@ -50,19 +50,19 @@ def cospan (f : X ⟶ X') (g : X' ⟶ Y) :
 @[simp]
 theorem cospan_left (f : X ⟶ X') (g : X' ⟶ Y) :
     (cospan f g).left = f :=
-  sorry
+  rfl
 
 /-- The right vertex of `cospan f g` is `f`. -/
 @[simp]
 theorem cospan_right (f : X ⟶ X') (g : X' ⟶ Y) :
     (cospan f g).right = f :=
-  sorry
+  rfl
 
 /-- The base vertex of `cospan f g` is `𝟙 Y`. -/
 @[simp]
 theorem cospan_base (f : X ⟶ X') (g : X' ⟶ Y) :
     (cospan f g).base = 𝟙 Y :=
-  sorry
+  rfl
 
 /-- The induced map `X ×_Y X ⟶ X' ×_Y X'` of chosen self 2-fibre products. -/
 def map (f : X ⟶ X') (g : X' ⟶ Y) :
@@ -74,7 +74,7 @@ def map (f : X ⟶ X') (g : X' ⟶ Y) :
 @[simp]
 theorem map_eq (f : X ⟶ X') (g : X' ⟶ Y) :
     map f g = TwoFibreProduct.map.{u + 1, u, u + 1, u} (cospan f g) :=
-  sorry
+  rfl
 
 /-- The cone over `g, g` with apex `X` and both legs equal to `f`. -/
 def commonCone (f : X ⟶ X') (g : X' ⟶ Y) : PseudoPullbackCone g g where
@@ -221,23 +221,23 @@ def cone (f : X ⟶ X') (g : X' ⟶ Y) :
 /-- The apex of `cone f g` is `X`. -/
 @[simp]
 theorem cone_pt (f : X ⟶ X') (g : X' ⟶ Y) : (cone f g).pt = X :=
-  sorry
+  rfl
 
 /-- The first leg of `cone f g` is the relative diagonal of `f ≫ g`. -/
 @[simp]
 theorem cone_fst (f : X ⟶ X') (g : X' ⟶ Y) :
     (cone f g).fst = Hom.diagonal.{u + 1, u, u + 1} (f ≫ g) :=
-  sorry
+  rfl
 
 /-- The second leg of `cone f g` is `f`. -/
 @[simp]
 theorem cone_snd (f : X ⟶ X') (g : X' ⟶ Y) : (cone f g).snd = f :=
-  sorry
+  rfl
 
 /-- The comparison cell of `cone f g` is `iso f g`. -/
 @[simp]
 theorem cone_iso (f : X ⟶ X') (g : X' ⟶ Y) : (cone f g).iso = iso f g :=
-  sorry
+  rfl
 
 /-- For morphisms of algebraic stacks `X ⟶ X' ⟶ Y`, if
 `X ⟶ X'` is a monomorphism then the canonical diagram of relative diagonals

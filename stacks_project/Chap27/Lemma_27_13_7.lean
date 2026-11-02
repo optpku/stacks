@@ -11,20 +11,34 @@ import StacksCheckRecall
 
 @[expose] public section
 
+open AlgebraicGeometry CategoryTheory
+open AlgebraicGeometry.ProjectiveSpace.ClosedSubscheme
+
 universe u
 
-/- Lemma 27.13.7: the degreewise kernels of restriction to a closed subscheme of standard
-projective space form a homogeneous ideal whose localizations recover the subscheme on every
-standard coordinate chart. -/
-@[stacks 03GL] #check
-  (AlgebraicGeometry.ProjectiveSpace.ClosedSubscheme.twistIdeal_spec :
-    ∀ {R : Type u} [CommRing R]
-      (n : ℕ)
-      (Z : (AlgebraicGeometry.ProjectiveSpace.scheme R n).IdealSheafData)
-      (P : AlgebraicGeometry.ProjTwistPresentation
-        (AlgebraicGeometry.ProjectiveSpace.grading R n)),
-      (∀ f : MvPolynomial (Fin (n + 1)) R,
-        f ∈ AlgebraicGeometry.ProjectiveSpace.ClosedSubscheme.twistIdeal n Z P ↔
-          AlgebraicGeometry.ProjectiveSpace.ClosedSubscheme.Vanishes n Z P f) ∧
-        AlgebraicGeometry.ProjectiveSpace.ClosedSubscheme.IdealSpec n Z
-          (AlgebraicGeometry.ProjectiveSpace.ClosedSubscheme.twistIdeal n Z P))
+/- Lemma 27.13.7: the canonical degreewise restriction kernels form the intrinsic
+homogeneous coordinate ideal, and its homogeneous quotient has projective spectrum Z
+as a closed subscheme of the ambient projective space. -/
+@[stacks 03GL] #check (coordinateIdeal_isHomogeneous :
+  ∀ {R : Type u} [CommRing R] (n : ℕ)
+    (Z : (ProjectiveSpace.scheme R n).IdealSheafData),
+    (coordinateIdeal n Z).IsHomogeneous (ProjectiveSpace.grading R n))
+
+@[stacks 03GL] #check (mem_coordinateIdeal_iff_canonicalVanishes :
+  ∀ {R : Type u} [CommRing R] (n : ℕ)
+    (Z : (ProjectiveSpace.scheme R n).IdealSheafData)
+    (f : MvPolynomial (Fin (n + 1)) R),
+    f ∈ coordinateIdeal n Z ↔ ∀ d : ℕ,
+      canonicalDegreeMap n Z d
+        (DirectSum.decompose (ProjectiveSpace.grading R n) f d) = 0)
+
+@[stacks 03GL] #check (coordinateIdeal_quotient_isomorphic :
+  ∀ {R : Type u} [CommRing R] (n : ℕ)
+    (Z : (ProjectiveSpace.scheme R n).IdealSheafData),
+    let I : HomogeneousIdeal (ProjectiveSpace.grading R n) :=
+      { toSubmodule := coordinateIdeal n Z
+        is_homogeneous' := coordinateIdeal_isHomogeneous n Z }
+    letI := GradedAlgebra.Quotient.gradedAlgebra
+      (ProjectiveSpace.grading R n) I.toIdeal I.isHomogeneous
+    Nonempty (Over.mk (projQuotientMap (ProjectiveSpace.grading R n) I) ≅
+      Over.mk Z.subschemeι))

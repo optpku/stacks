@@ -67,13 +67,24 @@ noncomputable def meromorphicSectionRestrictRep (F : X.Modules)
     ⟨((commStructureSheafLift X).obj.map i).hom p.2,
       (regularStructureSections X).map i p.2.property⟩
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Representative-wise restriction of localized sections is independent of the chosen
 fraction. -/
 theorem meromorphicSectionRestrictRep_wd (F : X.Modules)
     {U V : (smallEtaleSite X)ᵒᵖ} (i : U ⟶ V)
     (p p' : (liftModule F).val.obj U × (regularStructureSections X).obj U) (hp : p ≈ p') :
     meromorphicSectionRestrictRep X F i p = meromorphicSectionRestrictRep X F i p' :=
-  sorry
+  by
+    obtain ⟨s, hs⟩ := hp
+    let f : (liftModule F).val.obj U → (liftModule F).val.obj V :=
+      fun m ↦ (liftModule F).val.map i m
+    have hf (r : (commStructureSheafLift X).obj.obj U) (m : (liftModule F).val.obj U) :
+        f (r • m) = ((commStructureSheafLift X).obj.map i).hom r • f m :=
+      ((liftModule F).val.map i).hom.map_smul r m
+    apply LocalizedModule.mk_eq.mpr
+    refine ⟨⟨((commStructureSheafLift X).obj.map i).hom s,
+      (regularStructureSections X).map i s.property⟩, ?_⟩
+    simpa only [Submonoid.smul_def, hf] using congrArg f hs
 
 /-- Target of restriction of localized meromorphic sections. -/
 abbrev meromorphicSectionRestrictTarget (F : X.Modules)
@@ -92,6 +103,7 @@ theorem meromorphicSectionRestrictTarget_eq (F : X.Modules)
         (meromorphicSectionObj X F V) :=
   rfl
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Restriction of localized meromorphic sections along an étale morphism. -/
 noncomputable def meromorphicSectionRestrict (F : X.Modules)
     {U V : (smallEtaleSite X)ᵒᵖ} (i : U ⟶ V) :
@@ -102,8 +114,45 @@ noncomputable def meromorphicSectionRestrict (F : X.Modules)
     { toFun := fun x ↦
         LocalizedModule.liftOn x (meromorphicSectionRestrictRep X F i)
           (meromorphicSectionRestrictRep_wd X F i)
-      map_add' := sorry
-      map_smul' := sorry }
+      map_add' := by
+        intro x y
+        induction x, y using LocalizedModule.induction_on₂ with
+        | h m n s t =>
+          rw [LocalizedModule.mk_add_mk, LocalizedModule.liftOn_mk,
+            LocalizedModule.liftOn_mk, LocalizedModule.liftOn_mk]
+          change LocalizedModule.mk (M := (liftModule F).val.obj V)
+              ((liftModule F).val.map i (t • m + s • n)) _ =
+            LocalizedModule.mk (M := (liftModule F).val.obj V)
+                ((liftModule F).val.map i m) _ +
+              LocalizedModule.mk (M := (liftModule F).val.obj V)
+                ((liftModule F).val.map i n) _
+          rw [LocalizedModule.mk_add_mk]
+          simp only [map_add, Submonoid.smul_def, (liftModule F).val.map_smul i]
+          apply congrArg (LocalizedModule.mk (M := (liftModule F).val.obj V) _)
+          apply Subtype.ext
+          exact ((commStructureSheafLift X).obj.map i).hom.map_mul s t
+      map_smul' := by
+        intro r x
+        change LocalizedModule.liftOn (r • x) (meromorphicSectionRestrictRep X F i) _ =
+          ((regularStructureSections X).localizationPresheaf.map i).hom r •
+            LocalizedModule.liftOn x (meromorphicSectionRestrictRep X F i) _
+        obtain ⟨⟨a, s⟩, rfl⟩ :=
+          IsLocalization.mk'_surjective ((regularStructureSections X).obj U) r
+        induction x using LocalizedModule.induction_on with
+        | h m t =>
+          rw [LocalizedModule.mk'_smul_mk, LocalizedModule.liftOn_mk,
+            LocalizedModule.liftOn_mk]
+          change LocalizedModule.mk (M := (liftModule F).val.obj V)
+              ((liftModule F).val.map i (a • m)) _ =
+            IsLocalization.map _ ((commStructureSheafLift X).obj.map i).hom
+              ((regularStructureSections X).map i) (IsLocalization.mk' _ a s) •
+                LocalizedModule.mk (M := (liftModule F).val.obj V)
+                  ((liftModule F).val.map i m) _
+          rw [IsLocalization.map_mk', LocalizedModule.mk'_smul_mk]
+          simp only [(liftModule F).val.map_smul i]
+          apply congrArg (LocalizedModule.mk (M := (liftModule F).val.obj V) _)
+          apply Subtype.ext
+          exact ((commStructureSheafLift X).obj.map i).hom.map_mul s t }
 
 /-- Applying restriction of localized meromorphic sections recovers the representative-wise
 formula on fractions. -/
@@ -112,16 +161,54 @@ theorem meromorphicSectionRestrict_mk (F : X.Modules)
     (m : (liftModule F).val.obj U) (s : (regularStructureSections X).obj U) :
     meromorphicSectionRestrict X F i (LocalizedModule.mk m s) =
       meromorphicSectionRestrictRep X F i (m, s) :=
-  sorry
+  LocalizedModule.liftOn_mk (meromorphicSectionRestrictRep_wd X F i) m s
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The presheaf `U ↦ 𝒮_X(U)⁻¹ ℱ(U)` of localized modules of sections. -/
 noncomputable def meromorphicSectionPresheaf (F : X.Modules) :
     PresheafOfModules.{u + 1}
       (ringPresheaf (regularStructureSections X).localizationPresheaf) where
   obj := meromorphicSectionObj X F
   map := meromorphicSectionRestrict X F
-  map_id := sorry
-  map_comp := sorry
+  map_id U := by
+    apply ModuleCat.hom_ext
+    apply LinearMap.ext
+    intro x
+    induction x using LocalizedModule.induction_on with
+    | h m s =>
+      change meromorphicSectionRestrict X F (𝟙 U) (LocalizedModule.mk m s) =
+        LocalizedModule.mk m s
+      rw [meromorphicSectionRestrict_mk]
+      change LocalizedModule.mk (M := (liftModule F).val.obj U)
+          ((liftModule F).val.map (𝟙 U) m) _ =
+        LocalizedModule.mk m s
+      have hm : (liftModule F).val.map (𝟙 U) m = m := by
+        rw [(liftModule F).val.map_id]
+        rfl
+      rw [hm]
+      exact congrArg (LocalizedModule.mk m)
+        (Subtype.ext (ConcreteCategory.congr_hom
+          ((commStructureSheafLift X).obj.map_id U) s))
+  map_comp {U V W} i j := by
+    apply ModuleCat.hom_ext
+    apply LinearMap.ext
+    intro x
+    induction x using LocalizedModule.induction_on with
+    | h m s =>
+      change meromorphicSectionRestrict X F (i ≫ j) (LocalizedModule.mk m s) =
+        meromorphicSectionRestrict X F j
+          (meromorphicSectionRestrict X F i (LocalizedModule.mk m s))
+      rw [meromorphicSectionRestrict_mk X F (i ≫ j), meromorphicSectionRestrict_mk X F i]
+      dsimp only [meromorphicSectionRestrictRep]
+      rw [meromorphicSectionRestrict_mk X F j]
+      change LocalizedModule.mk (M := (liftModule F).val.obj W)
+          ((liftModule F).val.map (i ≫ j) m) _ =
+        LocalizedModule.mk (M := (liftModule F).val.obj W)
+          ((liftModule F).val.map j ((liftModule F).val.map i m)) _
+      rw [(liftModule F).val.map_comp_apply]
+      apply congrArg (LocalizedModule.mk (M := (liftModule F).val.obj W) _)
+      apply Subtype.ext
+      exact ConcreteCategory.congr_hom ((commStructureSheafLift X).obj.map_comp i j) s
 
 /-- The meromorphic-section presheaf evaluates by `meromorphicSectionObj`. -/
 theorem meromorphicSectionPresheaf_obj (F : X.Modules) (U : (smallEtaleSite X)ᵒᵖ) :
@@ -134,7 +221,13 @@ instance localizationPresheaf_sheafificationRingMap_isLocallyInjective :
     Presheaf.IsLocallyInjective (smallEtaleTopology X)
       (sheafificationRingMap (smallEtaleTopology X)
         (regularStructureSections X).localizationPresheaf) :=
-  sorry
+  by
+    letI := (PullbackFactory.CoefficientSheafification.commRing
+      (smallEtaleTopology X)).isRightAdjoint
+    letI := PullbackFactory.CoefficientSheafification.commRingW (smallEtaleTopology X)
+    have h := ((smallEtaleTopology X).W_toSheafify
+      (regularStructureSections X).localizationPresheaf).isLocallyInjective
+    exact ⟨h.equalizerSieve_mem⟩
 
 /-- The sheafification unit of the objectwise localization of `𝒪_X` at regular sections is
 locally surjective. -/
@@ -142,7 +235,13 @@ instance localizationPresheaf_sheafificationRingMap_isLocallySurjective :
     Presheaf.IsLocallySurjective (smallEtaleTopology X)
       (sheafificationRingMap (smallEtaleTopology X)
         (regularStructureSections X).localizationPresheaf) :=
-  sorry
+  by
+    letI := (PullbackFactory.CoefficientSheafification.commRing
+      (smallEtaleTopology X)).isRightAdjoint
+    letI := PullbackFactory.CoefficientSheafification.commRingW (smallEtaleTopology X)
+    have h := ((smallEtaleTopology X).W_toSheafify
+      (regularStructureSections X).localizationPresheaf).isLocallySurjective
+    exact ⟨h.imageSieve_mem⟩
 
 /-- For an `𝒪_X`-module sheaf `ℱ`, the sheaf of meromorphic sections `𝒦_X(ℱ)` is the
 sheafification of `U ↦ 𝒮_X(U)⁻¹ ℱ(U)`, equivalently `ℱ ⊗_{𝒪_X} 𝒦_X`. -/

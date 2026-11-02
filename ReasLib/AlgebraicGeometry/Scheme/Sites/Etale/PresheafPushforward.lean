@@ -41,14 +41,14 @@ noncomputable abbrev presheafPushforwardAb {Y Y' : Scheme.{u}} (g : Y' ⟶ Y) :
 theorem presheafPushforwardAb_obj {Y Y' : Scheme.{u}} (g : Y' ⟶ Y)
     (G' : Y'.Etaleᵒᵖ ⥤ AddCommGrpCat.{u}) :
     (presheafPushforwardAb g).obj G' = (smallEtalePullback g).op ⋙ G' :=
-  sorry
+  rfl
 
 /-- The value of `g_* G'` at an étale `V` over `Y` is `G'` at the base change of `V` along `g`. -/
 theorem presheafPushforwardAb_app {Y Y' : Scheme.{u}} (g : Y' ⟶ Y)
     (G' : Y'.Etaleᵒᵖ ⥤ AddCommGrpCat.{u}) (V : Y.Etale) :
     ((presheafPushforwardAb g).obj G').obj (op V) =
       G'.obj (op ((smallEtalePullback g).obj V)) :=
-  sorry
+  rfl
 
 /-- Sheaf-level abelian pushforward is the presheaf pushforward of the underlying presheaf. -/
 theorem sheafToPresheaf_presheafPushforwardAb {Y Y' : Scheme.{u}} (g : Y' ⟶ Y)
@@ -56,7 +56,7 @@ theorem sheafToPresheaf_presheafPushforwardAb {Y Y' : Scheme.{u}} (g : Y' ⟶ Y)
     (sheafToPresheaf Y.smallEtaleTopology AddCommGrpCat.{u}).obj
         ((smallEtalePushforwardAb g).obj F) =
       (presheafPushforwardAb g).obj F.obj :=
-  sorry
+  rfl
 
 /-- The unique sheaf map `α^# : G^# ⟶ g_* ((G')^#)` induced by a presheaf map
 `α : G ⟶ g_* G'`, obtained by sheafifying through the unit of `G'`. -/
@@ -81,7 +81,7 @@ theorem sheafifyPresheafPushforward_hom {Y Y' : Scheme.{u}} (g : Y' ⟶ Y)
         (α ≫ whiskerLeft (smallEtalePullback g).op (toSheafify Y'.smallEtaleTopology G'))
         ((smallEtalePushforwardAb g).obj
           ((presheafToSheaf Y'.smallEtaleTopology AddCommGrpCat.{u}).obj G')).property :=
-  sorry
+  rfl
 
 /-- The sheafification-unit square for `α^#` commutes. -/
 theorem sheafifyPresheafPushforward_commSq {Y Y' : Scheme.{u}} (g : Y' ⟶ Y)
@@ -89,8 +89,10 @@ theorem sheafifyPresheafPushforward_commSq {Y Y' : Scheme.{u}} (g : Y' ⟶ Y)
     (α : G ⟶ (presheafPushforwardAb g).obj G') :
     CommSq α (toSheafify Y.smallEtaleTopology G)
       (whiskerLeft (smallEtalePullback g).op (toSheafify Y'.smallEtaleTopology G'))
-      (sheafifyPresheafPushforward g α).hom :=
-  sorry
+      (sheafifyPresheafPushforward g α).hom := by
+  refine ⟨?_⟩
+  rw [sheafifyPresheafPushforward_hom]
+  exact (toSheafify_sheafifyLift Y.smallEtaleTopology _ _).symm
 
 /-- A sheaf map `G^# ⟶ g_* ((G')^#)` making the sheafification-unit square commute equals
 `sheafifyPresheafPushforward`. -/
@@ -102,8 +104,10 @@ theorem sheafifyPresheafPushforward_unique {Y Y' : Scheme.{u}} (g : Y' ⟶ Y)
         ((presheafToSheaf Y'.smallEtaleTopology AddCommGrpCat.{u}).obj G'))
     (hβ : CommSq α (toSheafify Y.smallEtaleTopology G)
       (whiskerLeft (smallEtalePullback g).op (toSheafify Y'.smallEtaleTopology G')) β.hom) :
-    β = sheafifyPresheafPushforward g α :=
-  sorry
+    β = sheafifyPresheafPushforward g α := by
+  apply Sheaf.hom_ext
+  rw [sheafifyPresheafPushforward_hom]
+  exact sheafifyLift_unique Y.smallEtaleTopology _ _ β.hom hβ.w.symm
 
 /-- The adjunct `α' : g⁻¹ G^# ⟶ (G')^#` of `α^#`. -/
 noncomputable def sheafifyPresheafPushforwardAdjoint {Y Y' : Scheme.{u}} (g : Y' ⟶ Y)
@@ -129,7 +133,8 @@ theorem sheafifyPresheafPushforwardAdjoint_homEquiv {Y Y' : Scheme.{u}} (g : Y' 
         ((presheafToSheaf Y.smallEtaleTopology AddCommGrpCat.{u}).obj G)
         ((presheafToSheaf Y'.smallEtaleTopology AddCommGrpCat.{u}).obj G')
         (sheafifyPresheafPushforwardAdjoint g α) =
-      sheafifyPresheafPushforward g α :=
-  sorry
+      sheafifyPresheafPushforward g α := by
+  unfold sheafifyPresheafPushforwardAdjoint
+  exact Equiv.apply_symm_apply _ _
 
 end AlgebraicGeometry.Scheme.Etale

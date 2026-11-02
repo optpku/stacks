@@ -46,7 +46,7 @@ noncomputable def baseChange :
 /-- `baseChange` is the canonical conormal map of the identity square on `X`. -/
 theorem baseChange_eq :
     baseChange iZ fZ iY fY i sq = conormalMap iZ fZ iY fY i (𝟙 X) sq :=
-  sorry
+  rfl
 
 /-- The second arrow `C_{Z/X} ⟶ C_{Z/Y}` of the transitivity sequence, as identity
 pullback transport of the canonical conormal map of the identity square on
@@ -69,6 +69,14 @@ noncomputable def projection [FormallyUnramified i] :
       (pullback.fst iY (comparison iZ fZ iY fY i (𝟙 X) sq)) iZ fZ (𝟙 Z)
       (iY ≫ fY) sqZ
 
+section
+
+-- Keep the concrete sheaf constructions opaque when checking the defining formula.
+attribute [local irreducible] Modules.pullback Hom.conormalSheafQCoh Hom.Conormal.map
+  SmallEtaleModuleGlueing.modulesPullbackId Modules.pullbackCompIso comparison
+
+set_option maxRecDepth 4096 in
+set_option maxHeartbeats 200000 in
 /-- `projection` is identity-pullback transport of the canonical conormal map of
 the identity square on `Z`. -/
 theorem projection_eq [FormallyUnramified i] :
@@ -82,7 +90,17 @@ theorem projection_eq [FormallyUnramified i] :
                 (congrArg (fun k ↦ k ≫ iY ≫ fY)
                   (pullback.lift_fst i iZ
                     (comparison_comp iZ fZ iY fY i (𝟙 X) sq)).symm))⟩ :=
-  sorry
+  by
+    refine (projection.eq_1 (S := S) (X := X) (Y := Y) (Z := Z)
+      (Z' := Z') (Y' := Y') iZ fZ iY fY i sq).trans ?_
+    apply congrArg (fun k ↦
+      (SmallEtaleModuleGlueing.modulesPullbackId Z).inv.app (Hom.conormalSheaf iZ) ≫ k)
+    apply congrArg (fun q ↦ conormalMap
+      (comparisonPullbackHom iZ fZ iY fY i sq)
+      (pullback.fst iY (comparison iZ fZ iY fY i (𝟙 X) sq)) iZ fZ (𝟙 Z) (iY ≫ fY) q)
+    exact Subsingleton.elim _ _
+
+end
 
 /-- The canonical transitivity maps have zero composite. -/
 theorem baseChange_comp_projection [FormallyUnramified i] :
@@ -100,7 +118,7 @@ theorem complex_eq [FormallyUnramified i] :
     complex iZ fZ iY fY i sq =
       ShortComplex.mk (baseChange iZ fZ iY fY i sq) (projection iZ fZ iY fY i sq)
         (baseChange_comp_projection iZ fZ iY fY i sq) :=
-  sorry
+  rfl
 
 /-- The canonical conormal transitivity short complex of formally unramified
 `Z ⟶ Y ⟶ X` is exact. -/
@@ -117,7 +135,7 @@ instance projection_epi [FormallyUnramified i] :
 `i^* C_{Y/X} ⟶ C_{Z/X} ⟶ C_{Z/Y} ⟶ 0` is exact. -/
 theorem exact_and_epi [FormallyUnramified i] :
     (complex iZ fZ iY fY i sq).Exact ∧ Epi (projection iZ fZ iY fY i sq) :=
-  sorry
+  ⟨exact iZ fZ iY fY i sq, projection_epi iZ fZ iY fY i sq⟩
 
 end Transitivity
 end AlgebraicGeometry.AlgebraicSpace.IsUniversalFirstOrder

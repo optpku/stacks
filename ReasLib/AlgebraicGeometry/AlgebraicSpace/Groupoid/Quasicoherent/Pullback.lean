@@ -84,6 +84,25 @@ def pullbackObj {S : Scheme.{u}} {B : AlgebraicSpace S} {G H : GroupoidAlgebraic
   of ((AlgebraicSpace.QCoh.pullback f.obj.left).obj A.obj) (pullbackAction f A)
     (pullbackAction_cocycle f A) (pullbackAction_unit f A)
 
+private theorem mapAction_compatibility
+    {C D E K : Type*} [Category* C] [Category* D] [Category* E] [Category* K]
+    (F : C ⥤ D) (R : E ⥤ K) (t s : C ⥤ E) (t' s' : D ⥤ K)
+    (α : F ⋙ t' ⟶ t ⋙ R) (β : s ⋙ R ⟶ F ⋙ s')
+    {M N : C} (a : M ⟶ N) (m : t.obj M ⟶ s.obj M) (n : t.obj N ⟶ s.obj N)
+    (h : t.map a ≫ n = m ≫ s.map a) :
+    t'.map (F.map a) ≫ (α.app N ≫ R.map n ≫ β.app N) =
+      (α.app M ≫ R.map m ≫ β.app M) ≫ s'.map (F.map a) := by
+  have ht := α.naturality a
+  have hs := β.naturality a
+  dsimp only [Functor.comp_map] at ht hs
+  have ha := congrArg R.map h
+  simp only [Functor.map_comp] at ha
+  erw [← Category.assoc, ht, Category.assoc (α.app M),
+    ← Category.assoc (R.map (t.map a)) (R.map n), ha,
+    Category.assoc (R.map m), hs,
+    ← Category.assoc (R.map m) (β.app M), ← Category.assoc]
+  rfl
+
 /-- Pullback of an underlying equivariant morphism remains compatible with equivariance. -/
 theorem pullbackMap_compatibility {S : Scheme.{u}} {B : AlgebraicSpace S}
     {G H : GroupoidAlgebraicSpace B} (f : Hom G H) {M N : H.QCoh} (a : M ⟶ N) :
@@ -92,8 +111,12 @@ theorem pullbackMap_compatibility {S : Scheme.{u}} {B : AlgebraicSpace S}
         (pullbackObj f N).action =
       (pullbackObj f M).action ≫
         (AlgebraicSpace.QCoh.pullback G.s.left).map
-          ((AlgebraicSpace.QCoh.pullback f.obj.left).map (hom a)) :=
-  sorry
+          ((AlgebraicSpace.QCoh.pullback f.obj.left).map (hom a)) := by
+  exact mapAction_compatibility
+    (AlgebraicSpace.QCoh.pullback f.obj.left) (AlgebraicSpace.QCoh.pullback f.arrow.left)
+    (AlgebraicSpace.QCoh.pullback H.t.left) (AlgebraicSpace.QCoh.pullback H.s.left)
+    (AlgebraicSpace.QCoh.pullback G.t.left) (AlgebraicSpace.QCoh.pullback G.s.left)
+    (targetSquareIso f).hom (sourceSquareIso f).inv (hom a) M.action N.action a.compatibility
 
 /-- Pullback of a morphism of equivariant quasi-coherent modules. -/
 def pullbackMap {S : Scheme.{u}} {B : AlgebraicSpace S} {G H : GroupoidAlgebraicSpace B}
@@ -104,12 +127,18 @@ def pullbackMap {S : Scheme.{u}} {B : AlgebraicSpace S} {G H : GroupoidAlgebraic
 /-- Pullback preserves identity equivariant morphisms. -/
 theorem pullbackMap_id {S : Scheme.{u}} {B : AlgebraicSpace S}
     {G H : GroupoidAlgebraicSpace B} (f : Hom G H) (A : H.QCoh) :
-    pullbackMap f (𝟙 A) = 𝟙 (pullbackObj f A) := sorry
+    pullbackMap f (𝟙 A) = 𝟙 (pullbackObj f A) := by
+  change System.Hom.mk _ _ = System.Hom.mk _ _
+  congr 1
+  exact (AlgebraicSpace.QCoh.pullback f.obj.left).map_id A.obj
 
 /-- Pullback preserves composition of equivariant morphisms. -/
 theorem pullbackMap_comp {S : Scheme.{u}} {B : AlgebraicSpace S}
     {G H : GroupoidAlgebraicSpace B} (f : Hom G H) {M N P : H.QCoh} (a : M ⟶ N) (b : N ⟶ P) :
-    pullbackMap f (a ≫ b) = pullbackMap f a ≫ pullbackMap f b := sorry
+    pullbackMap f (a ≫ b) = pullbackMap f a ≫ pullbackMap f b := by
+  change System.Hom.mk _ _ = System.Hom.mk _ _
+  congr 1
+  exact (AlgebraicSpace.QCoh.pullback f.obj.left).map_comp (hom a) (hom b)
 
 /-- Pullback along a morphism of groupoids in algebraic spaces is a functor on equivariant
 quasi-coherent modules. -/
@@ -124,19 +153,19 @@ def pullback {S : Scheme.{u}} {B : AlgebraicSpace S} {G H : GroupoidAlgebraicSpa
 object component. -/
 theorem pullback_obj {S : Scheme.{u}} {B : AlgebraicSpace S} {G H : GroupoidAlgebraicSpace B}
     (f : Hom G H) (A : H.QCoh) :
-    ((pullback f).obj A).obj = (AlgebraicSpace.QCoh.pullback f.obj.left).obj A.obj := sorry
+    ((pullback f).obj A).obj = (AlgebraicSpace.QCoh.pullback f.obj.left).obj A.obj := rfl
 
 /-- The equivariance map of a pulled-back object is the pullback of the original action,
 transported across the source and target squares. -/
 theorem pullback_action {S : Scheme.{u}} {B : AlgebraicSpace S}
     {G H : GroupoidAlgebraicSpace B} (f : Hom G H) (A : H.QCoh) :
-    ((pullback f).obj A).action = pullbackAction f A := sorry
+    ((pullback f).obj A).action = pullbackAction f A := rfl
 
 /-- The underlying map of a pulled-back equivariant morphism is ordinary pullback along the
 object component. -/
 theorem pullback_map {S : Scheme.{u}} {B : AlgebraicSpace S} {G H : GroupoidAlgebraicSpace B}
     (f : Hom G H) {M N : H.QCoh} (a : M ⟶ N) :
-    hom ((pullback f).map a) = (AlgebraicSpace.QCoh.pullback f.obj.left).map (hom a) := sorry
+    hom ((pullback f).map a) = (AlgebraicSpace.QCoh.pullback f.obj.left).map (hom a) := rfl
 
 end QCoh
 

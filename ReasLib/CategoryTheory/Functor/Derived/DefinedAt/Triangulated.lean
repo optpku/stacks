@@ -8,6 +8,8 @@ module
 
 public import Mathlib.CategoryTheory.Localization.Triangulated
 public import Mathlib.CategoryTheory.Triangulated.Subcategory
+public import ReasLib.CategoryTheory.ObjectProperty.Localization.Triangulated
+public import ReasLib.CategoryTheory.Functor.Derived.DefinedAt.Localization
 public import ReasLib.CategoryTheory.Functor.Derived.DefinedAt.Shift
 public import ReasLib.CategoryTheory.Functor.Derived.PointwiseValue.Triangle.Construction
 public import ReasLib.CategoryTheory.MorphismProperty.SaturatedMultiplicativeSystem
@@ -73,6 +75,40 @@ instance Functor.LeftDerived.DefinedAt.triangulated
     [F.CommShift ℤ] [F.IsTriangulated]
     [IsSaturatedMultiplicativeSystem S] [S.IsCompatibleWithTriangulation] :
     (Functor.LeftDerived.DefinedAt.objects F S).IsTriangulated := sorry
+
+/-- The right-derived functor on the essential-constancy domain is triangulated. -/
+@[stacks 05SE "right-derived functor on the essential-constancy domain"]
+instance Functor.RightDerived.DefinedAt.functor.isTriangulated
+    [CategoryTheory.IsTriangulated D] [CategoryTheory.IsTriangulated D']
+    [F.CommShift ℤ] [F.IsTriangulated]
+    [IsSaturatedMultiplicativeSystem S] [S.IsCompatibleWithTriangulation] :
+    (Functor.RightDerived.DefinedAt.functor F S).IsTriangulated := sorry
+
+/-- The left-derived functor on the essential-constancy domain is triangulated. -/
+@[stacks 05SE "left-derived functor on the essential-constancy domain"]
+instance Functor.LeftDerived.DefinedAt.functor.isTriangulated
+    [CategoryTheory.IsTriangulated D] [CategoryTheory.IsTriangulated D']
+    [F.CommShift ℤ] [F.IsTriangulated]
+    [IsSaturatedMultiplicativeSystem S] [S.IsCompatibleWithTriangulation] :
+    (Functor.LeftDerived.DefinedAt.functor F S).IsTriangulated := sorry
+
+/-- The localization factorization of the right-derived functor on the essential-constancy
+domain is triangulated. -/
+@[stacks 05SE "triangulated right-derived localization factorization"]
+instance Functor.RightDerived.DefinedAt.localizationFactorization.isTriangulated
+    [CategoryTheory.IsTriangulated D] [CategoryTheory.IsTriangulated D']
+    [F.CommShift ℤ] [F.IsTriangulated]
+    [IsSaturatedMultiplicativeSystem S] [S.IsCompatibleWithTriangulation] :
+    (Functor.RightDerived.DefinedAt.localizationFactorization F S).IsTriangulated := sorry
+
+/-- The localization factorization of the left-derived functor on the essential-constancy
+domain is triangulated. -/
+@[stacks 05SE "triangulated left-derived localization factorization"]
+instance Functor.LeftDerived.DefinedAt.localizationFactorization.isTriangulated
+    [CategoryTheory.IsTriangulated D] [CategoryTheory.IsTriangulated D']
+    [F.CommShift ℤ] [F.IsTriangulated]
+    [IsSaturatedMultiplicativeSystem S] [S.IsCompatibleWithTriangulation] :
+    (Functor.LeftDerived.DefinedAt.localizationFactorization F S).IsTriangulated := sorry
 
 section TwoOutOfThree
 

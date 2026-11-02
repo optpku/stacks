@@ -7,6 +7,8 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import Mathlib.CategoryTheory.Limits.Constructions.Over.Basic
+public import Mathlib.CategoryTheory.Limits.Constructions.Over.Products
+public import Mathlib.CategoryTheory.Limits.Constructions.FiniteProductsOfBinaryProducts
 
 /-!
 # Binary products in slice categories
@@ -30,11 +32,14 @@ variable {C : Type u} [Category.{v} C]
 
 /-- A slice category has binary products whenever the ambient category has pullbacks. -/
 instance instHasBinaryProductsOfHasPullbacks [HasPullbacks C] (X : C) :
-    HasBinaryProducts (Over X) := sorry
+    HasBinaryProducts (Over X) :=
+  ConstructProducts.over_binaryProduct_of_pullback
 
 /-- A slice category has all finite products whenever the ambient category has pullbacks. -/
 instance instHasFiniteProductsOfHasPullbacks [HasPullbacks C] (X : C) :
-    HasFiniteProducts (Over X) := sorry
+    HasFiniteProducts (Over X) := by
+  letI : HasTerminal (Over X) := over_hasTerminal X
+  exact hasFiniteProducts_of_has_binary_and_terminal
 
 end Over
 

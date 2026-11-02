@@ -63,7 +63,8 @@ noncomputable def kernelIdeal_ι (f : ToposHom X Y) :
 
 /-- The kernel-ideal inclusion followed by `i^♯` is zero. -/
 theorem kernelIdeal_ι_comp_kernelMap (f : ToposHom X Y) :
-    kernelIdeal_ι f ≫ kernelMap f = 0 := sorry
+    kernelIdeal_ι f ≫ kernelMap f = 0 :=
+  kernel.condition (kernelMap f)
 
 /-- A local section of `Ker(i^♯)` is locally nilpotent after restriction along some covering
 sieve. -/
@@ -81,7 +82,7 @@ theorem isLocallyNilpotent_iff (f : ToposHom X Y) :
         (f.directStructureMap.hom.app (op U)).hom s = 0 →
           ∃ S : Sieve U, S ∈ Y.siteTopology U ∧
             ∀ {V : Y.carrier} {h : V ⟶ U}, S h →
-              IsNilpotent ((Y.structureSheaf.obj.map h.op).hom s) := sorry
+              IsNilpotent ((Y.structureSheaf.obj.map h.op).hom s) := Iff.rfl
 
 /-- The kernel of `i^♯` is square zero sectionwise. -/
 def kernel_isSquareZero (f : ToposHom X Y) : Prop :=
@@ -90,7 +91,7 @@ def kernel_isSquareZero (f : ToposHom X Y) : Prop :=
 /-- Square-zeroness of `Ker(i^♯)` is sectionwise vanishing of products in the kernel ideal. -/
 theorem kernel_isSquareZero_iff (f : ToposHom X Y) :
     kernel_isSquareZero f ↔
-      ∀ U : Y.carrierᵒᵖ, RingHom.ker (f.directStructureMap.hom.app U).hom ^ 2 = ⊥ := sorry
+      ∀ U : Y.carrierᵒᵖ, RingHom.ker (f.directStructureMap.hom.app U).hom ^ 2 = ⊥ := Iff.rfl
 
 /-- A morphism of ringed topoi is a thickening when `i_*` is an equivalence, `i^♯` is locally
 surjective, and `Ker(i^♯)` is locally nilpotent. -/
@@ -111,7 +112,16 @@ theorem isThickening_iff (f : ToposHom X Y) :
     IsThickening f ↔
       Functor.IsEquivalence f.toTopos.pushforward ∧
         Sheaf.IsLocallySurjective f.directStructureMap ∧
-          IsLocallyNilpotent f := sorry
+          IsLocallyNilpotent f := by
+  constructor
+  · intro h
+    exact ⟨h.pushforward_isEquivalence, h.directStructureMap_isLocallySurjective,
+      h.kernel_isLocallyNilpotent⟩
+  · rintro ⟨h₁, h₂, h₃⟩
+    exact
+      { pushforward_isEquivalence := h₁
+        directStructureMap_isLocallySurjective := h₂
+        kernel_isLocallyNilpotent := h₃ }
 
 /-- A first-order thickening of ringed topoi is a thickening whose kernel ideal is square
 zero. -/
@@ -122,7 +132,14 @@ class IsFirstOrderThickening (f : ToposHom X Y) : Prop extends IsThickening f wh
 /-- A morphism of ringed topoi is a first-order thickening iff it is a thickening and its
 kernel ideal is square zero. -/
 theorem isFirstOrderThickening_iff (f : ToposHom X Y) :
-    IsFirstOrderThickening f ↔ IsThickening f ∧ kernel_isSquareZero f := sorry
+    IsFirstOrderThickening f ↔ IsThickening f ∧ kernel_isSquareZero f := by
+  constructor
+  · intro h
+    exact ⟨h.toIsThickening, h.kernel_squareZero⟩
+  · rintro ⟨h₁, h₂⟩
+    exact
+      { toIsThickening := h₁
+        kernel_squareZero := h₂ }
 
 /-- The kernel ideal of a first-order thickening, viewed as an `𝒪_X`-module by inverse
 image. -/
@@ -134,6 +151,6 @@ noncomputable def idealModule (f : ToposHom X Y) [IsFirstOrderThickening f]
 /-- Inverse image recovers the kernel ideal of a first-order thickening as an `𝒪_X`-module. -/
 theorem idealModule_eq (f : ToposHom X Y) [IsFirstOrderThickening f]
     [(SheafOfModules.restrictScalars.{w} f.structureMap).IsRightAdjoint] :
-    idealModule f = f.modulePullback.obj (kernelIdeal f) := sorry
+    idealModule f = f.modulePullback.obj (kernelIdeal f) := rfl
 
 end RingedSite.ToposHom

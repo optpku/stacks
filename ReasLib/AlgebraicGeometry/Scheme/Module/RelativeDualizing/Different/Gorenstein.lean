@@ -8,10 +8,12 @@ module
 
 public import ReasLib.AlgebraicGeometry.Scheme.AssociatedPoints
 public import ReasLib.AlgebraicGeometry.Scheme.Divisor.EffectiveCartier.IdealSheaf
+public import ReasLib.AlgebraicGeometry.Scheme.Divisor.StalkCriterion
 public import ReasLib.AlgebraicGeometry.Scheme.GlobalSections
 public import ReasLib.AlgebraicGeometry.Scheme.IdealSheafData.NoetherDifferent
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Picard.Norm.Discriminant
 public import ReasLib.AlgebraicGeometry.Scheme.Module.RelativeDualizing.Different
+public import ReasLib.AlgebraicGeometry.Scheme.Module.RelativeDualizing.Different.Invertible
 public import ReasLib.AlgebraicGeometry.Scheme.Module.RelativeDualizing.TraceSection
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.Etale.Basic
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.Gorenstein.QuasiFinite
@@ -45,7 +47,30 @@ theorem different_locallyPrincipalIdeal_of_gorenstein
     (hτ : W.IsTraceSection τ) :
     ∀ y : Y, ∃ V : Y.affineOpens, y ∈ (V : Y.Opens) ∧
       ∃ b : Γ(Y, V),
-        (W.different τ).ideal V = Ideal.span ({b} : Set Γ(Y, V)) := sorry
+        (W.different τ).ideal V = Ideal.span ({b} : Set Γ(Y, V)) := by
+  have hW : Flat f ∧ Scheme.Modules.Invertible W.module.obj :=
+    ((quasiFiniteGorenstein_tfae f W).out 0 2).mp
+      (inferInstance : AlgebraicGeometry.Gorenstein f)
+  haveI : Scheme.Modules.Invertible W.module.obj := hW.2
+  have hD := W.different_isLocallyPrincipalClosedSubscheme τ hτ
+  intro y
+  by_cases hy : y ∈ (W.different τ).support
+  · exact ((W.different τ).isLocallyPrincipalClosedSubscheme_subschemeι_iff.mp hD) y hy
+  · let U : Y.Opens := ⟨((W.different τ).support : Set Y)ᶜ,
+      (W.different τ).support.isClosed.isOpen_compl⟩
+    obtain ⟨V, hV, hyV, hVU⟩ := exists_isAffineOpen_mem_and_subset
+      (show y ∈ U from hy)
+    refine ⟨⟨V, hV⟩, hyV, 1, ?_⟩
+    rw [Ideal.span_singleton_one]
+    have hzero :
+        Y.zeroLocus (U := V) ((W.different τ).ideal ⟨V, hV⟩) ∩ V ⊆
+          (∅ : Set Y) := by
+      intro z hz
+      exact (hVU hz.2) (((W.different τ).mem_support_iff_of_mem hz.2).mpr hz.1)
+    have hempty :=
+      (hV.fromSpec_image_zeroLocus ((W.different τ).ideal ⟨V, hV⟩)).trans_subset hzero
+    simp only [Set.subset_empty_iff, Set.image_eq_empty] at hempty
+    exact PrimeSpectrum.zeroLocus_empty_iff_eq_top.mp hempty
 
 /-- The closed subscheme defined by the different of a quasi-finite Gorenstein
 morphism is locally principal. -/
@@ -54,7 +79,10 @@ theorem different_locallyPrincipalClosedSubscheme_of_gorenstein
     [Scheme.Hom.QuasiFinite f] [AlgebraicGeometry.Gorenstein f]
     (W : f.RelativeDualizingSheaf) (τ : sections W.module.obj)
     (hτ : W.IsTraceSection τ) :
-    IsLocallyPrincipalClosedSubscheme (W.different τ).subschemeι := sorry
+    IsLocallyPrincipalClosedSubscheme (W.different τ).subschemeι := by
+  apply (W.different τ).isLocallyPrincipalClosedSubscheme_subschemeι_iff.mpr
+  intro y _
+  exact W.different_locallyPrincipalIdeal_of_gorenstein τ hτ y
 
 /-- On compatible affine opens, the different of a quasi-finite Gorenstein
 morphism is the Noether different of the induced section algebra. -/
@@ -108,7 +136,12 @@ theorem different_cartierAssociatedSheaf_of_gorenstein
     (hτ : W.IsTraceSection τ)
     (h_assoc : ∀ y : Y, y ∈ Y.associatedPoints → f.EtaleAt y) :
     ∃ hD : IsEffectiveCartierDivisor (W.different τ).subschemeι,
-      Nonempty ((W.different τ).associatedSheaf (hD := hD) ≅ W.module.obj) := sorry
+      Nonempty ((W.different τ).associatedSheaf (hD := hD) ≅ W.module.obj) := by
+  have hW : Flat f ∧ Scheme.Modules.Invertible W.module.obj :=
+    ((quasiFiniteGorenstein_tfae f W).out 0 2).mp
+      (inferInstance : AlgebraicGeometry.Gorenstein f)
+  haveI : Scheme.Modules.Invertible W.module.obj := hW.2
+  exact W.nonempty_differentAssociatedSheafIso τ hτ h_assoc
 
 /-- The different obtained from a trace section is independent of the chosen
 relative dualizing sheaf and trace section. -/
@@ -118,6 +151,19 @@ theorem different_eq_of_gorenstein
     (W W' : f.RelativeDualizingSheaf)
     (τ : sections W.module.obj) (τ' : sections W'.module.obj)
     (hτ : W.IsTraceSection τ) (hτ' : W'.IsTraceSection τ') :
-    W.different τ = W'.different τ' := sorry
+    W.different τ = W'.different τ' := by
+  apply IdealSheafData.ext_of_iSup_eq_top
+    (fun p : Σ U : X.affineOpens, {V : Y.affineOpens // V ≤ f ⁻¹ᵁ U} ↦ p.2.1)
+  · apply top_unique
+    intro y _
+    obtain ⟨U, hU, hyU, _⟩ := exists_isAffineOpen_mem_and_subset
+      (show f y ∈ (⊤ : X.Opens) from trivial)
+    obtain ⟨V, hV, hyV, hVU⟩ := exists_isAffineOpen_mem_and_subset
+      (show y ∈ f ⁻¹ᵁ U from hyU)
+    exact TopologicalSpace.Opens.mem_iSup.mpr
+      ⟨⟨⟨U, hU⟩, ⟨⟨V, hV⟩, hVU⟩⟩, hyV⟩
+  · intro p
+    rw [W.different_eq_noetherDifferent_on_affine_of_gorenstein τ hτ p.1 p.2.1 p.2.2,
+      W'.different_eq_noetherDifferent_on_affine_of_gorenstein τ' hτ' p.1 p.2.1 p.2.2]
 
 end AlgebraicGeometry.Scheme.Hom.RelativeDualizingSheaf

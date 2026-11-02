@@ -43,23 +43,28 @@ def specialize (p : ℕ) : MvPolynomial Coord ℤ →+* MvPolynomial (Fin 2) (ZM
 /-- The Frobenius-graph specialization sends a constant polynomial to its
 coefficient reduced modulo `p`. -/
 theorem specialize_C (p : ℕ) (a : ℤ) :
-    specialize p (C a) = C (Int.castRingHom (ZMod p) a) := sorry
+    specialize p (C a) = C (Int.castRingHom (ZMod p) a) := by
+  simp [specialize]
 
 /-- The Frobenius-graph specialization sends the first source coordinate to
 the first target coordinate. -/
-theorem specialize_X_x (p : ℕ) : specialize p (X .x) = X (0 : Fin 2) := sorry
+theorem specialize_X_x (p : ℕ) : specialize p (X .x) = X (0 : Fin 2) := by
+  simp [specialize]
 
 /-- The Frobenius-graph specialization sends the second source coordinate to
 the second target coordinate. -/
-theorem specialize_X_y (p : ℕ) : specialize p (X .y) = X (1 : Fin 2) := sorry
+theorem specialize_X_y (p : ℕ) : specialize p (X .y) = X (1 : Fin 2) := by
+  simp [specialize]
 
 /-- The Frobenius-graph specialization sends the third source coordinate to
 the `p`-th power of the first target coordinate. -/
-theorem specialize_X_u (p : ℕ) : specialize p (X .u) = X (0 : Fin 2) ^ p := sorry
+theorem specialize_X_u (p : ℕ) : specialize p (X .u) = X (0 : Fin 2) ^ p := by
+  simp [specialize]
 
 /-- The Frobenius-graph specialization sends the fourth source coordinate to
 the `p`-th power of the second target coordinate. -/
-theorem specialize_X_v (p : ℕ) : specialize p (X .v) = X (1 : Fin 2) ^ p := sorry
+theorem specialize_X_v (p : ℕ) : specialize p (X .v) = X (1 : Fin 2) ^ p := by
+  simp [specialize]
 
 /-- Evaluation of a specialized polynomial is evaluation on the Frobenius
 graph after reducing its integer coefficients modulo `p`. -/
@@ -69,7 +74,13 @@ theorem specialize_apply (p : ℕ) (f : MvPolynomial Coord ℤ) (xy : Fin 2 → 
         | .x => xy 0
         | .y => xy 1
         | .u => xy 0 ^ p
-        | .v => xy 1 ^ p) f := sorry
+        | .v => xy 1 ^ p) f := by
+  simp only [specialize, coe_eval₂Hom, eval_eval₂]
+  congr 1
+  · ext a
+    simp
+  · funext i
+    cases i <;> simp
 
 /-- An irreducible integer polynomial in four coordinates has Frobenius-graph
 specializations factoring into two positive-total-degree plane polynomials at
@@ -86,6 +97,7 @@ theorem eventualPlaneFactorization_iff (f : MvPolynomial Coord ℤ) :
     eventualPlaneFactorization f ↔
       Irreducible f ∧ ∃ N : ℕ, ∀ p : ℕ, p.Prime → N ≤ p →
         ∃ g1 g2 : MvPolynomial (Fin 2) (ZMod p),
-          specialize p f = g1 * g2 ∧ 0 < g1.totalDegree ∧ 0 < g2.totalDegree := sorry
+          specialize p f = g1 * g2 ∧ 0 < g1.totalDegree ∧ 0 < g2.totalDegree := by
+  rfl
 
 end MvPolynomial.FrobeniusGraph

@@ -8,6 +8,7 @@ module
 
 public import ReasLib.AlgebraicGeometry.ProjectiveSpectrum.CoherentCohomology
 public import ReasLib.AlgebraicGeometry.ProjectiveSpectrum.GradedSections.Cohomology
+public import ReasLib.AlgebraicGeometry.ProjectiveSpectrum.Module.Associated.Category
 public import ReasLib.AlgebraicGeometry.ProjectiveSpectrum.Module.Associated.EventualSections
 public import ReasLib.AlgebraicGeometry.ProjectiveSpectrum.Module.Associated.ShiftComparison
 public import ReasLib.AlgebraicGeometry.ProjectiveSpectrum.Module.Associated.ShiftedSections.Cohomology
@@ -69,7 +70,7 @@ theorem cohomologyZeroSectionMap_apply
         (Opens.grothendieckTopology (Proj 𝒜).carrier)
         ((SheafOfModules.toSheaf (Proj 𝒜).toRingedSpace.ringCatSheaf).obj
           (P.associatedTwist n))
-        (⊤ : (Proj 𝒜).Opens)).symm (P.sectionMap n m) := sorry
+        (⊤ : (Proj 𝒜).Opens)).symm (P.sectionMap n m) := rfl
 
 end Proj.AssociatedModule.Presentation
 
@@ -121,7 +122,10 @@ theorem map_of [DirectSum.Decomposition ℳ]
       DirectSum.of
         (DirectSum.Gmodule.LowerBound.pieces k
           (Proj.AssociatedModule.ShiftedSections.Cohomology.degree 𝒜 ℳ)) n
-        ((RingedSpace.moduleCohomologyMap (C.hom n.1) 0).hom x) := sorry
+        ((RingedSpace.moduleCohomologyMap (C.hom n.1) 0).hom x) := by
+  exact DirectSum.map_of
+    (fun n : {n : ℤ // k ≤ n} ↦
+      (RingedSpace.moduleCohomologyMap (C.hom n.1) 0).hom) n x
 
 /-- The canonical truncated comparison, with the canonical shift comparison inferred from
 `𝒜` and `ℳ`. -/
@@ -148,7 +152,8 @@ theorem canonicalMap_of [DirectSum.Decomposition ℳ] (k : ℤ)
         (DirectSum.Gmodule.LowerBound.pieces k
           (Proj.AssociatedModule.ShiftedSections.Cohomology.degree 𝒜 ℳ)) n
         ((RingedSpace.moduleCohomologyMap
-          ((Proj.AssociatedModule.ShiftComparison.canonical 𝒜 ℳ).hom n.1) 0).hom x) := sorry
+          ((Proj.AssociatedModule.ShiftComparison.canonical 𝒜 ℳ).hom n.1) 0).hom x) :=
+  map_of 𝒜 ℳ (Proj.AssociatedModule.ShiftComparison.canonical 𝒜 ℳ) k n x
 
 end Proj.AssociatedModule.ShiftComparison.Truncated
 
@@ -167,13 +172,69 @@ noncomputable def mapAdd [DirectSum.Decomposition ℳ] (k : ℤ) :
         ((Proj.AssociatedModule.ShiftedSections.presentation 𝒜 ℳ).cohomologyZeroSectionMap n)
     else 0).comp (DirectSum.decomposeAddEquiv ℳ).toAddMonoidHom
 
+private theorem mapAdd_of [DirectSum.Decomposition ℳ] (k n : ℤ) (m : ℳ n) :
+    mapAdd 𝒜 ℳ k (m : M) =
+      if h : k ≤ n then
+        DirectSum.of
+          (DirectSum.Gmodule.LowerBound.pieces k (Cohomology.degree 𝒜 ℳ)) ⟨n, h⟩
+          ((presentation 𝒜 ℳ).cohomologyZeroSectionMap n m)
+      else 0 := by
+  change (DirectSum.toAddMonoid _) (DirectSum.decompose ℳ (m : M)) = _
+  rw [DirectSum.decompose_coe, DirectSum.toAddMonoid_of]
+  split_ifs <;> rfl
+
+private theorem cohomologyZeroSectionMap_smul [DirectSum.Decomposition ℳ]
+    {d : ℕ} {n : ℤ} (a : 𝒜 d) (m : ℳ n) :
+    (presentation 𝒜 ℳ).cohomologyZeroSectionMap ((d : ℤ) + n)
+        (GradedMonoid.GSMul.smul (A := fun i : ℕ ↦ 𝒜 i)
+          (M := fun j : ℤ ↦ (ℳ j : Type u)) a m) =
+      GradedMonoid.GSMul.smul (A := fun i : ℕ ↦ 𝒜 i)
+        (M := Cohomology.degree 𝒜 ℳ) a
+        ((presentation 𝒜 ℳ).cohomologyZeroSectionMap n m) := by
+  change (Cohomology.sectionsEquiv 𝒜 ℳ ((d : ℤ) + n)).symm
+      (sectionMap 𝒜 ℳ ((d : ℤ) + n) _) =
+    (Cohomology.sectionsEquiv 𝒜 ℳ ((d : ℤ) + n)).symm
+      (smul 𝒜 ℳ a ((Cohomology.sectionsEquiv 𝒜 ℳ n)
+        ((Cohomology.sectionsEquiv 𝒜 ℳ n).symm (sectionMap 𝒜 ℳ n m))))
+  rw [AddEquiv.apply_symm_apply]
+  congr 1
+  apply Subtype.ext
+  funext z
+  apply Subtype.ext
+  change LocalizedModule.mk ((a : A) • (m : M)) _ =
+    LocalizedModule.map _ (LinearMap.lsmul A M (a : A)) (LocalizedModule.mk (m : M) _)
+  rw [LocalizedModule.map_mk]
+  rfl
+
 /-- The additive truncated section map is `A`-linear when all discarded homogeneous pieces
 vanish. -/
 @[stacks 0B5R "linearity law for the truncated shifted-section map"]
 theorem map_smul [DirectSum.Decomposition ℳ] (k : ℤ)
     (lowerPiecesVanish : ∀ n : ℤ, n < k → IsZero (AddCommGrpCat.of (ℳ n)))
     (a : A) (m : M) :
-    mapAdd 𝒜 ℳ k (a • m) = a • mapAdd 𝒜 ℳ k m := sorry
+    mapAdd 𝒜 ℳ k (a • m) = a • mapAdd 𝒜 ℳ k m := by
+  induction a using DirectSum.Decomposition.inductionOn 𝒜 with
+  | zero => simp
+  | add a b ha hb => simp only [_root_.add_smul, _root_.map_add, ha, hb]
+  | homogeneous a =>
+    induction m using DirectSum.Decomposition.inductionOn ℳ with
+    | zero => simp
+    | add m m' hm hm' => simp only [_root_.smul_add, _root_.map_add, hm, hm']
+    | homogeneous m =>
+      rename_i d n
+      by_cases hn : k ≤ n
+      · have hdn : k ≤ (d : ℤ) + n := le_trans hn (by omega)
+        let am : ℳ ((d : ℤ) + n) :=
+          GradedMonoid.GSMul.smul (A := fun i : ℕ ↦ 𝒜 i)
+            (M := fun j : ℤ ↦ (ℳ j : Type u)) a m
+        change mapAdd 𝒜 ℳ k (am : M) = _
+        rw [mapAdd_of, dif_pos hdn, mapAdd_of, dif_pos hn,
+          Cohomology.smul_of, ← cohomologyZeroSectionMap_smul]
+        rfl
+      · letI : Subsingleton (ℳ n) :=
+          AddCommGrpCat.subsingleton_of_isZero (lowerPiecesVanish n (lt_of_not_ge hn))
+        have hm : m = 0 := Subsingleton.elim _ _
+        simp [hm]
 
 /-- The canonical linear map from a graded module to lower-truncated cohomology of its shifted
 associated sheaves. -/
@@ -196,7 +257,8 @@ theorem map_of [DirectSum.Decomposition ℳ] (k : ℤ)
           (DirectSum.Gmodule.LowerBound.pieces k
             (Proj.AssociatedModule.ShiftedSections.Cohomology.degree 𝒜 ℳ)) ⟨n, h⟩
           ((Proj.AssociatedModule.ShiftedSections.presentation 𝒜 ℳ).cohomologyZeroSectionMap n m)
-      else 0 := sorry
+      else 0 :=
+  mapAdd_of 𝒜 ℳ k n m
 
 end Proj.AssociatedModule.ShiftedSections.Truncated
 
@@ -212,7 +274,15 @@ theorem isIso_of_dvd_generatorDegrees
     (hpositive : ∀ x : {x // x ∈ generators}, 0 < generatorDegree x)
     (hd_dvd : ∀ x : {x // x ∈ generators}, generatorDegree x ∣ d)
     (n : ℤ) (hn : (d : ℤ) ∣ n) :
-    IsIso (RingedSpace.moduleCohomologyMap (C.hom n) 0) := sorry
+    IsIso (RingedSpace.moduleCohomologyMap (C.hom n) 0) := by
+  have h := ShiftComparison.hom_isIso_of_dvd_generatorDegrees 𝒜 ℳ C d generators
+    generatorDegree hgenerated hhomogeneous hpositive hd_dvd n hn
+  letI : @IsIso (SheafOfModules.{u} (Proj 𝒜).toRingedSpace.ringCatSheaf)
+      _ _ _ (C.hom n) := h
+  exact Functor.map_isIso
+    ((SheafOfModules.toSheaf (Proj 𝒜).toRingedSpace.ringCatSheaf) ⋙
+      Sheaf.cohomologyPresheafFunctor (Opens.grothendieckTopology (Proj 𝒜)) 0 ⋙
+      (evaluation _ _).obj (Opposite.op (⊤ : (Proj 𝒜).Opens))) (C.hom n)
 
 /-- The degree-zero cohomology comparison is an isomorphism in every degree divisible by the
 period of a chosen finite set of positive homogeneous generators. -/
@@ -220,7 +290,10 @@ period of a chosen finite set of positive homogeneous generators. -/
 theorem isIso_of_period
     (C : ShiftComparison 𝒜 ℳ) (G : GradedAlgebra.PositiveGenerators 𝒜)
     (n : ℤ) (hn : (G.period : ℤ) ∣ n) :
-    IsIso (RingedSpace.moduleCohomologyMap (C.hom n) 0) := sorry
+    IsIso (RingedSpace.moduleCohomologyMap (C.hom n) 0) := by
+  exact isIso_of_dvd_generatorDegrees 𝒜 ℳ C G.period G.elems G.degree
+    G.generates G.homogeneous G.positive
+    (fun x ↦ Finset.dvd_lcm (Finset.mem_attach _ x)) n hn
 
 /-- For the canonical shift comparison, the degree-zero cohomology map is an isomorphism in
 every degree divisible by the period of positive homogeneous generators. -/
@@ -230,7 +303,8 @@ theorem canonicalIsIso_of_period
     (G : GradedAlgebra.PositiveGenerators 𝒜)
     (n : ℤ) (hn : (G.period : ℤ) ∣ n) :
     IsIso (RingedSpace.moduleCohomologyMap
-      ((Proj.AssociatedModule.ShiftComparison.canonical 𝒜 ℳ).hom n) 0) := sorry
+      ((Proj.AssociatedModule.ShiftComparison.canonical 𝒜 ℳ).hom n) 0) :=
+  isIso_of_period 𝒜 ℳ (Proj.AssociatedModule.ShiftComparison.canonical 𝒜 ℳ) G n hn
 
 end Proj.AssociatedModule.ShiftComparison.CohomologyZero
 
@@ -244,7 +318,19 @@ theorem tensorTwist_finite
     [IsNoetherianRing A] [DirectSum.Decomposition ℳ] [Module.Finite A M]
     (k : ℤ) :
     Module.Finite A
-      (Proj.TwistedSections.Cohomology.truncated 𝒜 (sheaf 𝒜 ℳ) k) := sorry
+      (Proj.TwistedSections.Cohomology.truncated 𝒜 (sheaf 𝒜 ℳ) k) := by
+  let N : GradedModule.Left 𝒜 ℤ := { carrier := M, grading := ℳ }
+  let Nfg : GradedModule.Left.FG 𝒜 ℤ := ⟨N, inferInstanceAs (Module.Finite A M)⟩
+  have hgroup : GradedModule.Left.instAddCommGroup N = ‹AddCommGroup M› :=
+    AddCommGroup.ext rfl
+  have hs : Proj.Associated.obj 𝒜 N = sheaf 𝒜 ℳ := by
+    dsimp only [Proj.Associated.obj]
+    congr! (closePost := false) 1
+  have hcoh := Proj.Associated.isCoherent 𝒜 Nfg
+  change SheafOfModules.IsCoherent (Proj.Associated.obj 𝒜 N) at hcoh
+  rw [hs] at hcoh
+  letI : (sheaf 𝒜 ℳ).IsCoherent := hcoh
+  exact Proj.Coherent.truncatedSections_finite 𝒜 _ k
 
 /-- For a finite internally graded module over a Noetherian graded ring, every truncation of
 canonically acted-on degree-zero cohomology of the sheaves associated to its shifted gradings is

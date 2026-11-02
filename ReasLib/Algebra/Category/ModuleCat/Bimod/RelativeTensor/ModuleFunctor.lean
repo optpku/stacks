@@ -19,11 +19,11 @@ a functor to right `B`-modules.
 
 open CategoryTheory
 
-universe u
+universe u v w x
 
 namespace Module.Bimodule.RelativeTensor
 
-variable {R A B : Type u} (K : Type u)
+variable {R : Type u} {A : Type v} {B : Type w} (K : Type x)
 variable [CommRing R] [Ring A] [Algebra R A] [Ring B] [Algebra R B]
 variable [AddCommGroup K] [Module R K] [Module A K] [Module Bᵐᵒᵖ K]
 variable [IsScalarTower R A K] [IsScalarTower R Bᵐᵒᵖ K]
@@ -32,8 +32,7 @@ variable [SMulCommClass A Bᵐᵒᵖ K]
 /-- Tensoring right `A`-modules over `A` with a fixed `(A, B)`-bimodule `K`.
 -/
 noncomputable abbrev tensorModuleFunctor :
-    ModuleCat.{u} Aᵐᵒᵖ ⥤ ModuleCat.{u} Bᵐᵒᵖ :=
-  Ordinary.functor K ⋙
-    (@rightModuleEquivalence R B _ _ _).inverse
+    ModuleCat.{x} Aᵐᵒᵖ ⥤ ModuleCat.{x} Bᵐᵒᵖ :=
+  RelativeTensor.functor (R := R) (A := A) (B := B) K
 
 end Module.Bimodule.RelativeTensor

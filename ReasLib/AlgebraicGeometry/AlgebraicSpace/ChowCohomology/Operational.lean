@@ -171,7 +171,7 @@ theorem ofCap_cap {p : ℤ} (cap : CapFamily δ f p)
     {Y : AlgebraicSpace S} (g : Y ⟶ X)
     [QuasiSeparated (g ≫ f)] [LocallyOfFiniteType (g ≫ f)] (k : ℤ) :
     (ofCap δ f cap map_proper pullback_flat gysin_cartier).cap g k = cap g k :=
-  sorry
+  rfl
 
 /-- A degree-`p` identity class is a cap family compatible with proper
 pushforward, flat pullback, and Gysin pullback. -/
@@ -179,27 +179,43 @@ theorem spec {p : ℤ} (c : OperationalChow δ f p) :
     CompatibleWithProperPushforward δ f c.cap ∧
       CompatibleWithFlatPullback δ f c.cap ∧
       CompatibleWithCartierGysin δ f c.cap :=
-  sorry
+  ⟨c.map_proper, c.pullback_flat, c.gysin_cartier⟩
 
 /-- Two identity classes are equal when their cap families agree. -/
 theorem cap_ext {p : ℤ} {c d : OperationalChow δ f p}
     (h : ∀ {Y : AlgebraicSpace S} (g : Y ⟶ X)
       [QuasiSeparated (g ≫ f)] [LocallyOfFiniteType (g ≫ f)] (k : ℤ),
       c.cap g k = d.cap g k) :
-    c = d :=
-  sorry
+    c = d := by
+  cases c
+  cases d
+  congr 1
+  funext Y g hqs hlft k
+  exact h g k
 
 /-- The zero cap family commutes with proper pushforward. -/
 theorem zero_proper (p : ℤ) :
-    CompatibleWithProperPushforward δ f (p := p) (fun {_} _ _ _ _ ↦ 0) := sorry
+    CompatibleWithProperPushforward δ f (p := p) (fun {_} _ _ _ _ ↦ 0) := by
+  intro Y Y' g h _ _ _ _ _ _ _ k α
+  exact (ChowGroup.properPushforward (h ≫ g ≫ f) (g ≫ f) δ h rfl (k - p)).map_zero.symm
 
 /-- The zero cap family commutes with flat pullback. -/
 theorem zero_flat (p : ℤ) :
-    CompatibleWithFlatPullback δ f (p := p) (fun {_} _ _ _ _ ↦ 0) := sorry
+    CompatibleWithFlatPullback δ f (p := p) (fun {_} _ _ _ _ ↦ 0) := by
+  intro Y Y' g h _ _ _ _ _ _ r _ _ k α
+  let e := AddEquiv.cast (M := Hom.chowGroup (h ≫ g ≫ f) δ)
+    (show k + (r : ℤ) - p = k - p + (r : ℤ) by omega)
+  exact e.toAddMonoidHom.map_zero.trans
+    (ChowGroup.flatPullback (g ≫ f) (h ≫ g ≫ f) δ h r rfl (k - p)).map_zero.symm
 
 /-- The zero cap family commutes with refined Gysin. -/
 theorem zero_gysin (p : ℤ) :
-    CompatibleWithCartierGysin δ f (p := p) (fun {_} _ _ _ _ ↦ 0) := sorry
+    CompatibleWithCartierGysin δ f (p := p) (fun {_} _ _ _ _ ↦ 0) := by
+  intro Y g _ _ L _ s _ _ k α
+  let e := AddEquiv.cast (M := Hom.chowGroup (g ≫ f) δ)
+    (show k + 1 - p = k - p + 1 by omega)
+  let G := ChowGroup.RefinedGysin.gysin (g ≫ f) δ L s (k - p)
+  exact ((congrArg G e.toAddMonoidHom.map_zero).trans G.map_zero).symm
 
 /-- The operational class whose cap action is pointwise zero. -/
 def zero (p : ℤ) : OperationalChow δ f p :=
@@ -209,7 +225,7 @@ def zero (p : ℤ) : OperationalChow δ f p :=
 /-- The cap action of the zero operational class is zero. -/
 theorem zero_cap (p : ℤ) {Y : AlgebraicSpace S} (g : Y ⟶ X)
     [QuasiSeparated (g ≫ f)] [LocallyOfFiniteType (g ≫ f)] (k : ℤ) :
-    (zero δ f p).cap g k = 0 := sorry
+    (zero δ f p).cap g k = 0 := rfl
 
 end OperationalChow
 

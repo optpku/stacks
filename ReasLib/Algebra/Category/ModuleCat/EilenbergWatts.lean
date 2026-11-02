@@ -7,6 +7,7 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import Mathlib.Algebra.Category.ModuleCat.Monoidal.Closed
+public import Mathlib.Algebra.Module.FinitePresentation
 public import Mathlib.CategoryTheory.Monoidal.Closed.Braided
 public import Mathlib.CategoryTheory.Limits.Preserves.Finite
 public import Mathlib.LinearAlgebra.BilinearMap
@@ -49,13 +50,28 @@ def tensorRightComparisonApp (F : ModuleCat.{u} R ⥤ ModuleCat.{u} R)
 theorem tensorRightComparisonApp_tmul (F : ModuleCat.{u} R ⥤ ModuleCat.{u} R)
     [F.Additive] [F.Linear R] (M : ModuleCat.{u} R) (m : M) (x : F.obj (of R R)) :
     tensorRightComparisonApp F M (TensorProduct.tmul R m x) =
-      (F.map (ofHom (LinearMap.toSpanSingleton R M m))).hom x := sorry
+      (F.map (ofHom (LinearMap.toSpanSingleton R M m))).hom x := by
+  rfl
 
 /-- Naturality of the comparison components. -/
 theorem tensorRightComparisonApp_naturality (F : ModuleCat.{u} R ⥤ ModuleCat.{u} R)
     [F.Additive] [F.Linear R] {M M' : ModuleCat.{u} R} (f : M ⟶ M') :
     (tensorRight (F.obj (of R R))).map f ≫ tensorRightComparisonApp F M' =
-      tensorRightComparisonApp F M ≫ F.map f := sorry
+      tensorRightComparisonApp F M ≫ F.map f := by
+  apply ModuleCat.MonoidalCategory.tensor_ext
+  intro element vector
+  change tensorRightComparisonApp F M' (f element ⊗ₜ[R] vector) =
+    F.map f (tensorRightComparisonApp F M (element ⊗ₜ[R] vector))
+  rw [tensorRightComparisonApp_tmul, tensorRightComparisonApp_tmul]
+  have span_comp :
+      ofHom (LinearMap.toSpanSingleton R M element) ≫ f =
+        ofHom (LinearMap.toSpanSingleton R M' (f element)) := by
+    apply ModuleCat.hom_ext
+    apply LinearMap.ext
+    intro scalar
+    exact f.hom.map_smul scalar element
+  rw [← span_comp, F.map_comp]
+  rfl
 
 /-- The Eilenberg–Watts comparison natural transformation. -/
 def tensorRightComparison (F : ModuleCat.{u} R ⥤ ModuleCat.{u} R)
@@ -66,7 +82,16 @@ def tensorRightComparison (F : ModuleCat.{u} R ⥤ ModuleCat.{u} R)
 /-- The component of the comparison transformation at a module. -/
 theorem tensorRightComparison_app (F : ModuleCat.{u} R ⥤ ModuleCat.{u} R)
     [F.Additive] [F.Linear R] (M : ModuleCat.{u} R) :
-    (tensorRightComparison F).app M = tensorRightComparisonApp F M := sorry
+    (tensorRightComparison F).app M = tensorRightComparisonApp F M := rfl
+
+/-- At a finitely presented module the comparison only requires finite colimits,
+not preservation of arbitrary direct sums. -/
+theorem isIso_tensorRightComparisonApp_of_finitePresentation
+    (F : ModuleCat.{u} R ⥤ ModuleCat.{u} R) [F.Additive] [F.Linear R]
+    [PreservesFiniteColimits F] (M : ModuleCat.{u} R)
+    [Module.FinitePresentation R M] :
+    IsIso (tensorRightComparisonApp F M) := by
+  sorry
 
 /-- The comparison is invertible under the Eilenberg–Watts hypotheses. -/
 instance isIso_tensorRightComparison (F : ModuleCat.{u} R ⥤ ModuleCat.{u} R)

@@ -9,8 +9,8 @@ module
 public import Mathlib.AlgebraicGeometry.Fiber
 public import ReasLib.AlgebraicGeometry.CycleGroup
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.DimensionFunction
-public import ReasLib.AlgebraicGeometry.Scheme.UniversallyCatenary.Affine
-public import ReasLib.RingTheory.Catenary.Field
+public import ReasLib.AlgebraicGeometry.Scheme.Morphism.Fiber.ResidueField
+public import ReasLib.AlgebraicGeometry.Scheme.UniversallyCatenary.ResidueField
 
 /-!
 # Families of cycles on fibres
@@ -27,23 +27,6 @@ open CategoryTheory CategoryTheory.Limits AlgebraicGeometry
 noncomputable section
 
 universe u
-
-namespace AlgebraicGeometry
-
-/-- The spectrum of a residue field is universally catenary. -/
-instance instUniversallyCatenarySpecResidueField {X : Scheme.{u}} (x : X) :
-    UniversallyCatenary (Spec (X.residueField x)) :=
-  @instUniversallyCatenarySpec (X.residueField x) _
-    (@instUniversallyCatenaryRingOfField.{u, u} (X.residueField x) _)
-
-/-- The structure morphism of a scheme-theoretic fibre is locally of finite type when the
-ambient morphism is. -/
-instance instLocallyOfFiniteTypeFiberToSpecResidueField
-    {X S : Scheme.{u}} (f : X ⟶ S) [LocallyOfFiniteType f] (s : S) :
-    LocallyOfFiniteType (f.fiberToSpecResidueField s) :=
-  inferInstanceAs (LocallyOfFiniteType (pullback.snd f (S.fromSpecResidueField s)))
-
-end AlgebraicGeometry
 
 namespace AlgebraicGeometry.Scheme.Hom
 

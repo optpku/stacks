@@ -8,6 +8,11 @@ module
 
 public import ReasLib.AlgebraicGeometry.AlgebraicStack.SmoothChart
 public import ReasLib.AlgebraicGeometry.AlgebraicStack.Dimension.LocalRing
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleLocalRing.Noetherian
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.LocallyOfFiniteType.Noetherian
+public import ReasLib.AlgebraicGeometry.Scheme.Noetherian.Smooth
+public import ReasLib.RingTheory.Henselian.Henselization.KrullDimension
+public import Mathlib.RingTheory.Ideal.KrullsHeightTheorem
 
 /-!
 # Local-ring dimension differences of smooth scheme charts
@@ -48,7 +53,7 @@ theorem localRingDimDiff_eq {S : Scheme.{u}} {U : Over S} {R : AlgebraicSpace S}
           AlgebraicSpace.localRingDimAt (AlgebraicSpace.ofOver.pointsEquiv U u))
         (AlgebraicSpace.localRingDimAt
           (AlgebraicSpace.Points.map e (AlgebraicSpace.ofOver.pointsEquiv U u))) :=
-  sorry
+  rfl
 
 /-- The local-ring dimension difference equals the étale-local-ring form
 `dimensionDiff (dim 𝒪_{U, ū} + dim 𝒪_{U, ū}) (dim 𝒪_{R, e(ū)})`. -/
@@ -62,7 +67,24 @@ theorem localRingDimDiff_etale {S : Scheme.{u}} {U : Over S} {R : AlgebraicSpace
         (ringKrullDim
           (AlgebraicSpace.etaleLocalRing R
             ((AlgebraicSpace.GeometricPoint.ofScheme ubar).map e))) :=
-  sorry
+  by
+    have hU :
+        AlgebraicSpace.localRingDimAt (AlgebraicSpace.ofOver.pointsEquiv U u) =
+          ringKrullDim (Scheme.etaleLocalRing U.left ubar) := by
+      rw [AlgebraicSpace.localRingDimAt_ofOver, ← hu]
+      exact IsStrictHenselizationOf.ringKrullDim_eq
+        (R := U.left.presheaf.stalk ubar.image)
+        (S := Scheme.etaleLocalRing U.left ubar)
+    have hR :
+        ringKrullDim
+            (AlgebraicSpace.etaleLocalRing R
+              ((AlgebraicSpace.GeometricPoint.ofScheme ubar).map e)) =
+          AlgebraicSpace.localRingDimAt
+            (AlgebraicSpace.Points.map e (AlgebraicSpace.ofOver.pointsEquiv U u)) := by
+      rw [AlgebraicSpace.ringKrullDim_etaleLocalRing_eq,
+        AlgebraicSpace.GeometricPoint.map_image,
+        AlgebraicSpace.GeometricPoint.ofScheme_image, hu]
+    rw [localRingDimDiff_eq, hU, hR]
 
 /-- By the self-fibre identity, `localRingDimDiff` equals
 `dimensionDiff` of the local-ring dimension of `U` at `u` with the fibre
@@ -78,7 +100,7 @@ theorem localRingDimDiff_fiber {S : Scheme.{u}} {X : GroupoidsOver S}
         (AlgebraicSpace.localRingDimAt (AlgebraicSpace.ofOver.pointsEquiv U u))
         (AlgebraicSpace.fiberStalkDimAt s
           (AlgebraicSpace.Points.map e (AlgebraicSpace.ofOver.pointsEquiv U u))) :=
-  sorry
+  (smoothSelfFibre_localRingDimAt_eq p s t e hR u).symm
 
 namespace SmoothSchemeChart
 
@@ -101,7 +123,38 @@ theorem localRingDimDiff_eq_int {S : Scheme.{u}} {X : GroupoidsOver S}
     [AlgebraicStack X] [IsLocallyNoetherian X] {x : Points X}
     (hx : IsFiniteTypePoint x) (c : SmoothSchemeChart x) :
     ∃ n : ℤ, c.localRingDimDiff = n :=
-  sorry
+  by
+    letI : AlgebraicGeometry.IsLocallyNoetherian c.U.left :=
+      (existsSurjectiveSmooth_iff_forallSmooth
+        (AlgebraicGeometry.IsLocallyNoetherian : ObjectProperty Scheme.{u}) X).mp
+        (inferInstance : IsLocallyNoetherian X).exists_locallyNoetherian_smooth_cover
+        c.U c.hom c.smooth
+    letI : AlgebraicSpace.Smooth c.s :=
+      c.smooth.of_represents c.hom c.R c.s c.isSelfFibreProduct.representsBaseChange
+    letI : AlgebraicSpace.IsLocallyNoetherian c.R :=
+      AlgebraicSpace.LocallyOfFiniteType.isLocallyNoetherian c.s
+    have hfinite : ∀ {F : AlgebraicSpace S} [AlgebraicSpace.IsLocallyNoetherian F]
+        (y : AlgebraicSpace.Points F),
+        ∃ n : ℕ, AlgebraicSpace.localRingDimAt y = n := by
+      intro F hF y
+      obtain ⟨ybar, _, hybar⟩ :=
+        (AlgebraicSpace.localRingDimAt_eq_iff_exists_etaleLocalRing y
+          (AlgebraicSpace.localRingDimAt y)).mp rfl
+      letI := AlgebraicSpace.etaleLocalRing.instIsNoetherianRing ybar
+      letI := AlgebraicSpace.etaleLocalRing.instIsLocalRing ybar
+      have hbot := ringKrullDim_ne_bot (R := AlgebraicSpace.etaleLocalRing F ybar)
+      have htop := ringKrullDim_ne_top (R := AlgebraicSpace.etaleLocalRing F ybar)
+      rcases hdim : ringKrullDim (AlgebraicSpace.etaleLocalRing F ybar) with _ | (_ | n)
+      · exact (hbot hdim).elim
+      · exact (htop hdim).elim
+      · exact ⟨n, hybar.symm.trans hdim⟩
+    obtain ⟨n, hn⟩ := hfinite (AlgebraicSpace.ofOver.pointsEquiv c.U c.u)
+    obtain ⟨m, hm⟩ := hfinite
+      (AlgebraicSpace.Points.map c.e (AlgebraicSpace.ofOver.pointsEquiv c.U c.u))
+    refine ⟨(n : ℤ) + n - m, ?_⟩
+    change AlgebraicStack.localRingDimDiff c.e c.u = _
+    rw [AlgebraicStack.localRingDimDiff_eq, hn, hm, ← Nat.cast_add,
+      dimensionDiff_nat, Nat.cast_add]
 
 end SmoothSchemeChart
 
@@ -114,7 +167,13 @@ theorem exists_localRingDimDiff_eq_iff {S : Scheme.{u}} {X : GroupoidsOver S}
     (hx : IsFiniteTypePoint x) (d : ℤ) :
     (∃ c : SmoothSchemeChart x, c.localRingDimDiff = d) ↔
       ∀ c : SmoothSchemeChart x, c.localRingDimDiff = d :=
-  sorry
+  by
+    constructor
+    · rintro ⟨c, hc⟩ c'
+      exact (SmoothSchemeChart.localRingDimDiff_independent hx c' c).trans hc
+    · intro h
+      obtain ⟨c⟩ := exists_smoothSchemeChart hx
+      exact ⟨c, h c⟩
 
 /-- For a finite type point of a locally Noetherian algebraic stack, the
 existence of a smooth scheme neighbourhood with local-ring dimension
@@ -135,6 +194,21 @@ theorem exists_localRingDimDiff_eq_unbundled_iff {S : Scheme.{u}}
         Groupoids.Hom.Smooth hom → IsSelfFibreProduct hom s t e →
           AlgebraicGeometry.IsFiniteTypePoint u → Points.mapSlice hom u = x →
             localRingDimDiff e u = d :=
-  sorry
+  by
+    constructor
+    · rintro ⟨U, hom, R, s, t, e, u, hsm, hR, hu, hux, hd⟩
+      letI := hsm
+      have hc : ∃ c : SmoothSchemeChart x, c.localRingDimDiff = d :=
+        ⟨SmoothSchemeChart.of hom s t e hR u hu hux, hd⟩
+      intro U' hom' R' s' t' e' u' hsm' hR' hu' hux'
+      letI := hsm'
+      exact (exists_localRingDimDiff_eq_iff hx d).mp hc
+        (SmoothSchemeChart.of hom' s' t' e' hR' u' hu' hux')
+    · intro h
+      obtain ⟨c⟩ := exists_smoothSchemeChart hx
+      exact ⟨c.U, c.hom, c.R, c.s, c.t, c.e, c.u, c.smooth,
+        c.isSelfFibreProduct, c.isFiniteTypePoint, c.mapsTo,
+        h c.U c.hom c.R c.s c.t c.e c.u c.smooth c.isSelfFibreProduct
+          c.isFiniteTypePoint c.mapsTo⟩
 
 end AlgebraicGeometry.AlgebraicStack

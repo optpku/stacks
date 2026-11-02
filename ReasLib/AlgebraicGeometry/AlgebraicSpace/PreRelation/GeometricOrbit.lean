@@ -40,13 +40,13 @@ def weaklyEquivalent {S : Scheme.{u}} {B : AlgebraicSpace S} {U : Over B}
 theorem weaklyEquivalent_iff {S : Scheme.{u}} {B : AlgebraicSpace S} {U : Over B}
     (P : PreRelation U) (T : Over B) (x y : T ⟶ U) :
     weaklyEquivalent P T x y ↔ _root_.Relation.EqvGen (P.pointRel T) x y :=
-  sorry
+  Iff.rfl
 
 /-- Weak equivalence is an equivalence relation on `T`-valued points of `U`. -/
 theorem weaklyEquivalent_equivalence {S : Scheme.{u}} {B : AlgebraicSpace S} {U : Over B}
     (P : PreRelation U) (T : Over B) :
     Equivalence (weaklyEquivalent P T) :=
-  sorry
+  _root_.Relation.EqvGen.is_equivalence (P.pointRel T)
 
 /-- Two geometric `k`-points of `U` are equivalent for a pre-relation if their images in `U(Ω)`
 are weakly equivalent for some field-valued overpoint of the geometric point. -/
@@ -62,7 +62,7 @@ theorem orbitEquivalent_iff {S : Scheme.{u}} {B : AlgebraicSpace S} {U : Over B}
     orbitEquivalent P b x y ↔
       ∃ (q : FieldValuedPoint B) (φ : FieldValuedPoint.Factorization q b.toFieldValuedPoint),
         weaklyEquivalent P (Over.mk q.hom) (φ.sliceHom ≫ x) (φ.sliceHom ≫ y) :=
-  sorry
+  Iff.rfl
 
 /-- The weak orbit of a `T`-valued point is the set of `T`-valued points weakly equivalent to
 it. -/
@@ -74,7 +74,7 @@ def weakOrbit {S : Scheme.{u}} {B : AlgebraicSpace S} {U : Over B}
 theorem mem_weakOrbit {S : Scheme.{u}} {B : AlgebraicSpace S} {U : Over B}
     (P : PreRelation U) (T : Over B) (x y : T ⟶ U) :
     y ∈ weakOrbit P T x ↔ weaklyEquivalent P T x y :=
-  sorry
+  Iff.rfl
 
 /-- The orbit of a geometric `k`-point of `U` is the set of geometric `k`-points equivalent to it
 after passage to some overfield. -/
@@ -87,13 +87,30 @@ def orbit {S : Scheme.{u}} {B : AlgebraicSpace S} {U : Over B}
 theorem mem_orbit {S : Scheme.{u}} {B : AlgebraicSpace S} {U : Over B}
     (P : PreRelation U) (b : GeometricPoint B) (x y : Over.mk b.hom ⟶ U) :
     y ∈ orbit P b x ↔ orbitEquivalent P b x y :=
-  sorry
+  Iff.rfl
 
 /-- Weak equivalence of geometric `k`-points implies `R`-equivalence. -/
 theorem weaklyEquivalent_imp_orbitEquivalent {S : Scheme.{u}} {B : AlgebraicSpace S}
     {U : Over B} (P : PreRelation U) (b : GeometricPoint B) (x y : Over.mk b.hom ⟶ U) :
-    weaklyEquivalent P (Over.mk b.hom) x y → orbitEquivalent P b x y :=
-  sorry
+    weaklyEquivalent P (Over.mk b.hom) x y → orbitEquivalent P b x y := by
+  intro h
+  let φ := FieldValuedPoint.Factorization.refl b.toFieldValuedPoint
+  have hφ : φ.sliceHom = 𝟙 (Over.mk b.hom) := by
+    apply Over.OverMorphism.ext
+    have hid : Over.homMk (𝟙 b.toFieldValuedPoint.overObj.left)
+        (FieldValuedPoint.Factorization.refl_fac_structure b.toFieldValuedPoint) =
+          𝟙 b.toFieldValuedPoint.overObj := by
+      apply Over.OverMorphism.ext
+      rfl
+    exact (congrArg (fun f : b.toFieldValuedPoint.overObj ⟶ b.toFieldValuedPoint.overObj =>
+      yoneda.map f) hid).trans (yoneda.map_id _)
+  refine ⟨b.toFieldValuedPoint, φ, ?_⟩
+  change weaklyEquivalent P (Over.mk b.hom) (φ.sliceHom ≫ x) (φ.sliceHom ≫ y)
+  have hx : φ.sliceHom ≫ x = x :=
+    (congrArg (fun f : Over.mk b.hom ⟶ Over.mk b.hom => f ≫ x) hφ).trans (Category.id_comp x)
+  have hy : φ.sliceHom ≫ y = y :=
+    (congrArg (fun f : Over.mk b.hom ⟶ Over.mk b.hom => f ≫ y) hφ).trans (Category.id_comp y)
+  exact (congrArg₂ (weaklyEquivalent P (Over.mk b.hom)) hx hy).mpr h
 
 /-- For a pre-equivalence relation, the weak orbit of a geometric point consists exactly of
 the points joined to it by a point of the relation over the same field. -/
@@ -101,8 +118,17 @@ theorem weakOrbit_eq_of_isPreEquivalence {S : Scheme.{u}} {B : AlgebraicSpace S}
     {U : Over B} (P : PreRelation U) (hP : P.IsPreEquivalence)
     (bbar : GeometricPoint B) (u : Over.mk bbar.hom ⟶ U) :
     P.weakOrbit (Over.mk bbar.hom) u =
-      {u' | ∃ r : Over.mk bbar.hom ⟶ P.left, r ≫ P.s = u ∧ r ≫ P.t = u'} :=
-  sorry
+      {u' | ∃ r : Over.mk bbar.hom ⟶ P.left, r ≫ P.s = u ∧ r ≫ P.t = u'} := by
+  apply Set.ext
+  intro u'
+  change _root_.Relation.EqvGen (P.pointRel (Over.mk bbar.hom)) u u' ↔ _
+  have hE := hP bbar.overObj bbar.hom
+  constructor
+  · intro h
+    obtain ⟨r, ht, hs⟩ := hE.symm (hE.eqvGen_iff.mp h)
+    exact ⟨r, hs, ht⟩
+  · rintro ⟨r, hs, ht⟩
+    exact _root_.Relation.EqvGen.rel _ _ (hE.symm ⟨r, ht, hs⟩)
 
 /-- For a pre-equivalence relation, the orbit of a geometric point consists exactly of
 the points joined to it by a point of the relation after some field extension. -/
@@ -113,7 +139,17 @@ theorem orbit_eq_of_isPreEquivalence {S : Scheme.{u}} {B : AlgebraicSpace S}
       {u' | ∃ (q : FieldValuedPoint B)
           (φ : FieldValuedPoint.Factorization q bbar.toFieldValuedPoint)
           (r : Over.mk q.hom ⟶ P.left),
-        r ≫ P.s = φ.sliceHom ≫ u ∧ r ≫ P.t = φ.sliceHom ≫ u'} :=
-  sorry
+        r ≫ P.s = φ.sliceHom ≫ u ∧ r ≫ P.t = φ.sliceHom ≫ u'} := by
+  apply Set.ext
+  intro u'
+  change orbitEquivalent P bbar u u' ↔ _
+  constructor
+  · rintro ⟨q, φ, h⟩
+    have hE := hP q.overObj q.hom
+    obtain ⟨r, ht, hs⟩ := hE.symm (hE.eqvGen_iff.mp h)
+    exact ⟨q, φ, r, hs, ht⟩
+  · rintro ⟨q, φ, r, hs, ht⟩
+    refine ⟨q, φ, ?_⟩
+    exact _root_.Relation.EqvGen.rel _ _ ((hP q.overObj q.hom).symm ⟨r, ht, hs⟩)
 
 end AlgebraicGeometry.AlgebraicSpace.PreRelation

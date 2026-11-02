@@ -33,13 +33,13 @@ universe u
 
 namespace AlgebraicGeometry.GroupoidsOver
 
-/-- A category `Z` fibred in groupoids over `(Sch/S)_fppf`, for a
-locally Noetherian scheme `S`, satisfies condition (RS) if for every pushout
+/-- A category `Z` fibred in groupoids over `(Sch/S)_fppf` satisfies condition
+(RS) if for every pushout
 `Y' = Y ⨿_X X'` in `Over S` whose vertices are spectra of local Artinian rings, of
 finite type over `S`, and with `X ⟶ X'` a closed immersion, the functor of fibre
 categories `restrictionComparison Z.p hw : Z.p.Fiber Y' ⥤
 (Chosen.reindex Z.p toY) ⊡ (Chosen.reindex Z.p toX')` is an equivalence. -/
-class HasRimSchlessinger {S : Scheme.{u}} [IsLocallyNoetherian S]
+class HasRimSchlessinger {S : Scheme.{u}}
     (Z : GroupoidsOver S) : Prop where
   /-- Restriction along an Artinian finite-type closed-immersion pushout is an
   equivalence of fibre categories. -/
@@ -54,15 +54,15 @@ class HasRimSchlessinger {S : Scheme.{u}} [IsLocallyNoetherian S]
       (h : IsPushout toX' toY fromX' fromY),
       (restrictionComparison Z.p h.w).IsEquivalence
 
-/-- The canonical slice fibration of a scheme over a locally Noetherian base satisfies
+/-- The canonical slice fibration of a scheme over a base scheme satisfies
 condition (RS). -/
-instance instHasRimSchlessingerSlice {S : Scheme.{u}} [IsLocallyNoetherian S]
+instance instHasRimSchlessingerSlice {S : Scheme.{u}}
     (U : Over S) : HasRimSchlessinger (GroupoidsOver.slice U) := sorry
 
 /-- Under condition (RS), the restriction comparison along an Artinian finite-type
 closed-immersion pushout is an equivalence. -/
 instance restrictionComparison.instIsEquivalence_of_hasRimSchlessinger {S : Scheme.{u}}
-    [IsLocallyNoetherian S] {Z : GroupoidsOver S} [HasRimSchlessinger Z]
+    {Z : GroupoidsOver S} [HasRimSchlessinger Z]
     {X X' Y Y' : Over S}
     [IsSpecLocalArtinian X.left] [IsSpecLocalArtinian X'.left]
     [IsSpecLocalArtinian Y.left] [IsSpecLocalArtinian Y'.left]
@@ -76,7 +76,7 @@ instance restrictionComparison.instIsEquivalence_of_hasRimSchlessinger {S : Sche
 
 /-- Condition (RS) is equivalent to the restriction comparison being an equivalence
 on every Artinian finite-type closed-immersion pushout in `Over S`. -/
-theorem hasRimSchlessinger_iff {S : Scheme.{u}} [IsLocallyNoetherian S]
+theorem hasRimSchlessinger_iff {S : Scheme.{u}}
     (Z : GroupoidsOver S) :
     HasRimSchlessinger Z ↔
       ∀ {X X' Y Y' : Over S}
@@ -92,7 +92,7 @@ theorem hasRimSchlessinger_iff {S : Scheme.{u}} [IsLocallyNoetherian S]
 /-- Condition (RS) means that every pushout in `Over S` of spectra of local Artinian
 rings of finite type over `S`, with `X ⟶ X'` a closed immersion, induces an
 equivalence of fibre categories. -/
-theorem hasRimSchlessinger_spec {S : Scheme.{u}} [IsLocallyNoetherian S]
+theorem hasRimSchlessinger_spec {S : Scheme.{u}}
     (Z : GroupoidsOver S) :
     HasRimSchlessinger Z ↔
       ∀ {X X' Y Y' : Over S} (toX' : X ⟶ X') (toY : X ⟶ Y)

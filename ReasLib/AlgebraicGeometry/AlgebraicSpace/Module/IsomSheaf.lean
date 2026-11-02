@@ -32,12 +32,25 @@ namespace AlgebraicGeometry.AlgebraicSpace.Modules
 
 variable {S : Scheme.{u}} {X B : AlgebraicSpace S}
 
+private theorem spaceIsom_toSpaceHom_injective {T : AlgebraicSpace S}
+    {f : X ⟶ B} {F G : X.Modules} :
+    Function.Injective (fun (p : SpaceIsom f F G T) ↦ p.toSpaceHom) := by
+  intro p q h
+  cases p
+  cases q
+  cases h
+  rfl
+
 /-- Restricting invertible pairs along the identity of a test scheme is the identity map. -/
 private theorem isomOverFunctor_map_id (f : X ⟶ B) (F G : X.Modules)
     [F.IsQuasicoherent] [G.IsQuasicoherent] (U : (Over S)ᵒᵖ) :
     TypeCat.ofHom (fun (p : SpaceIsom f F G (ofOver U.unop)) ↦
       p.pullback (ofOverMap (𝟙 U).unop)) = 𝟙 (SpaceIsom f F G (ofOver U.unop)) :=
-  sorry
+  by
+    apply ConcreteCategory.hom_ext
+    intro p
+    apply spaceIsom_toSpaceHom_injective
+    exact ConcreteCategory.congr_hom ((overFunctor f F G).map_id U) p.toSpaceHom
 
 /-- Restricting invertible pairs along a composite of test-scheme maps is successive
 restriction. -/
@@ -50,7 +63,11 @@ private theorem isomOverFunctor_map_comp (f : X ⟶ B) (F G : X.Modules)
       p.pullback (ofOverMap φ.unop)) ≫
     TypeCat.ofHom (fun (p : SpaceIsom f F G (ofOver V.unop)) ↦
       p.pullback (ofOverMap ψ.unop)) :=
-  sorry
+  by
+    apply ConcreteCategory.hom_ext
+    intro p
+    apply spaceIsom_toSpaceHom_injective
+    exact ConcreteCategory.congr_hom ((overFunctor f F G).map_comp φ ψ) p.toSpaceHom
 
 /-- The presheaf on schemes over `S` sending `U` to pairs `(h, u)` with
 `h : ofOver U ⟶ B` and `u : F_U ⟶ G_U` an `𝒪_{X_U}`-module isomorphism. -/
@@ -68,7 +85,7 @@ pairs. -/
 theorem isomOverFunctor_obj (f : X ⟶ B) (F G : X.Modules) [F.IsQuasicoherent]
     [G.IsQuasicoherent] (U : Over S) :
     (isomOverFunctor f F G).obj (op U) = SpaceIsom f F G (ofOver U) :=
-  sorry
+  rfl
 
 /-- The presheaf `isomOverFunctor f F G` is an fppf sheaf on `Over S`. -/
 theorem isomOverFunctor_isSheaf (f : X ⟶ B) (F G : X.Modules) [F.IsQuasicoherent]
@@ -86,7 +103,7 @@ Isom pairs on `ofOver U`. -/
 theorem isomSheaf_obj (f : X ⟶ B) (F G : X.Modules) [F.IsQuasicoherent]
     [G.IsQuasicoherent] (U : Over S) :
     (isomSheaf f F G).obj.obj (op U) = SpaceIsom f F G (ofOver U) :=
-  sorry
+  rfl
 
 /-- The component of the canonical comparison at a scheme `U` over `S`, sending a
 `U`-point of `T` to the pulled-back invertible pair `(h ∘ a, a^* u)`. -/
@@ -104,7 +121,12 @@ private theorem toSheafIsom_naturality (f : X ⟶ B) (F G : X.Modules)
     (AlgebraicSpace.toSheaf.obj T).obj.map φ ≫
         TypeCat.ofHom (toSheafIsomApp f F G p V) =
       TypeCat.ofHom (toSheafIsomApp f F G p U) ≫ (isomOverFunctor f F G).map φ :=
-  sorry
+  by
+    apply ConcreteCategory.hom_ext
+    intro x
+    apply spaceIsom_toSpaceHom_injective
+    exact ConcreteCategory.congr_hom
+      ((toSheafHom f F G T p.toSpaceHom).hom.naturality φ) x
 
 /-- The canonical morphism of fppf sheaves `T ⟶ Isom(F, G)` associated to an
 invertible pair `(h, u)` over an algebraic space `T`. -/
@@ -121,7 +143,7 @@ theorem toSheafIsom_app (f : X ⟶ B) (F G : X.Modules) [F.IsQuasicoherent]
     [G.IsQuasicoherent] {T : AlgebraicSpace S} (p : SpaceIsom f F G T)
     (U : (Over S)ᵒᵖ) (x : (AlgebraicSpace.toSheaf.obj T).obj.obj U) :
     (toSheafIsom f F G T p).hom.app U x = toSheafIsomApp f F G p U x :=
-  sorry
+  rfl
 
 /-- The component of the inclusion `Isom(F, G) ⟶ Hom(F, G)` at a scheme `U` over
 `S`, sending an invertible pair to its underlying Hom pair. -/
@@ -135,7 +157,7 @@ private theorem isomSheafToHom_naturality (f : X ⟶ B) (F G : X.Modules)
     [F.IsQuasicoherent] [G.IsQuasicoherent] {U V : (Over S)ᵒᵖ} (φ : U ⟶ V) :
     (isomOverFunctor f F G).map φ ≫ TypeCat.ofHom (isomSheafToHomApp f F G V) =
       TypeCat.ofHom (isomSheafToHomApp f F G U) ≫ (overFunctor f F G).map φ :=
-  sorry
+  rfl
 
 /-- The inclusion of fppf sheaves `Isom(F, G) ⟶ Hom(F, G)` on `(Sch/S)_fppf`,
 sending an invertible pair `(h, u)` to the same pair as a Hom section. -/
@@ -151,7 +173,7 @@ theorem isomSheafToHom_app (f : X ⟶ B) (F G : X.Modules) [F.IsQuasicoherent]
     [G.IsQuasicoherent] (U : (Over S)ᵒᵖ)
     (q : SpaceIsom f F G (ofOver U.unop)) :
     (isomSheafToHom f F G).hom.app U q = isomSheafToHomApp f F G U q :=
-  sorry
+  rfl
 
 /-- The comparison `T ⟶ Isom(F, G)` composed with the inclusion into `Hom(F, G)`
 recovers the Hom comparison of the underlying pair. -/
@@ -160,7 +182,10 @@ theorem toSheafIsom_comp_isomSheafToHom (f : X ⟶ B) (F G : X.Modules)
     (p : SpaceIsom f F G T) :
     toSheafIsom f F G T p ≫ isomSheafToHom f F G =
       toSheafHom f F G T p.toSpaceHom :=
-  sorry
+  by
+    apply Sheaf.hom_ext
+    apply NatTrans.ext
+    rfl
 
 /-- The situation morphism `Isom(F, G) ⟶ B` of fppf sheaves on `(Sch/S)_fppf`,
 sending an invertible pair `(h, u)` to `h`. -/
@@ -173,7 +198,7 @@ the inclusion of invertible pairs. -/
 theorem isomSheafToBase_eq (f : X ⟶ B) (F G : X.Modules) [F.IsQuasicoherent]
     [G.IsQuasicoherent] :
     isomSheafToBase f F G = isomSheafToHom f F G ≫ homSheafToBase f F G :=
-  sorry
+  rfl
 
 /-- For any algebraic space `T` over `S`, the canonical pullback construction
 identifies pairs consisting of `h : T ⟶ B` and an invertible module morphism

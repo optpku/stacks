@@ -43,7 +43,7 @@ theorem ofStandardPhCoverMap_eq {S : Scheme.{u}} {Z : Over S}
     [IsAffine Z.left] (Φ : StandardPhCovering Z.left) (j : Fin Φ.m) :
     ofStandardPhCoverMap Φ j =
       ofOverMap (Over.homMk (Φ.map j) rfl : Over.mk (Φ.map j ≫ Z.hom) ⟶ Z) :=
-  sorry
+  rfl
 
 /-- A scheme-level standard ph covering of `Z`, viewed as a family of morphisms
 of algebraic spaces over `ofOver Z`. -/
@@ -59,7 +59,7 @@ algebraic spaces associated to `Φ.map j`. -/
 theorem ofStandardPhCover_obj {S : Scheme.{u}} {Z : Over S}
     [IsAffine Z.left] (Φ : StandardPhCovering Z.left) (j : Fin Φ.m) :
     (ofStandardPhCover Φ).obj j = Over.mk (ofStandardPhCoverMap Φ j) :=
-  sorry
+  rfl
 
 /-- The pullback family `{X_i ×_X U ⟶ U}` of an indexed family over `X` along a
 morphism `h : ofOver Z ⟶ X`. -/
@@ -77,7 +77,7 @@ theorem phCoveringPullback_obj {S : Scheme.{u}} {X : AlgebraicSpace S}
     {Z : Over S} (h : ofOver Z ⟶ X) (i : ι) :
     (phCoveringPullback Xi f h).obj i =
       Over.mk (overPullbackSnd h (Over.mk (f i))) :=
-  sorry
+  rfl
 
 /-- An indexed family of morphisms of algebraic spaces over `S` is a ph
 covering when each morphism is locally of finite type and every test morphism
@@ -101,7 +101,42 @@ namespace PhCovering
 /-- The identity family `{𝟙 X}` is a ph covering. -/
 instance instId {S : Scheme.{u}} {X : AlgebraicSpace S} :
     PhCovering (fun _ : PUnit ↦ X) (fun _ ↦ 𝟙 X) :=
-  sorry
+  by
+    constructor
+    · intro i
+      constructor
+      intro U V a b g ha hb w
+      change a ≫ 𝟙 X.functorOfPoints = yoneda.map g ≫ b at w
+      have hw : yoneda.map (𝟙 U) ≫ a = yoneda.map g ≫ b := by
+        simpa using w
+      let k : U ⟶ ha.rep.pullback b := ha.rep.lift' (𝟙 U) g hw
+      have hk : k ≫ ha.rep.fst' b = 𝟙 U := ha.rep.lift'_fst (𝟙 U) g hw
+      haveI : AlgebraicGeometry.LocallyOfFiniteType
+          (k.left ≫ (ha.rep.fst' b).left) := by
+        change AlgebraicGeometry.LocallyOfFiniteType (k ≫ ha.rep.fst' b).left
+        rw [hk]
+        infer_instance
+      haveI : AlgebraicGeometry.LocallyOfFiniteType k.left :=
+        AlgebraicGeometry.locallyOfFiniteType_of_comp k.left (ha.rep.fst' b).left
+      haveI : AlgebraicGeometry.Etale (ha.rep.snd b).left := ha.property_snd b
+      have hg : k ≫ ha.rep.snd b = g := ha.rep.lift'_snd (𝟙 U) g hw
+      rw [← hg]
+      change AlgebraicGeometry.LocallyOfFiniteType (k.left ≫ (ha.rep.snd b).left)
+      infer_instance
+    · intro Z _ h
+      let Φ : StandardPhCovering Z.left :=
+        { m := 1
+          source := Z.left
+          toBase := 𝟙 Z.left
+          isProper_toBase := inferInstance
+          surjective_toBase := inferInstance
+          cover := fun _ ↦ ⟨⊤, isAffineOpen_top Z.left⟩
+          cover_eq_top := by simp }
+      refine ⟨Φ, ⟨{ α := fun _ ↦ PUnit.unit, f := fun j ↦ ?_ }⟩⟩
+      exact Over.homMk
+        (ReasLibPullback.pullbackLift (𝟙 X) h
+          (ofStandardPhCoverMap Φ j ≫ h) (ofStandardPhCoverMap Φ j) (by simp))
+        (ReasLibPullback.pullbackLift_snd _ _ _ _ _)
 
 /-- Every member of a ph covering family is locally of finite type. -/
 instance instLocallyOfFiniteType {S : Scheme.{u}} {ι : Type v}
@@ -118,7 +153,7 @@ theorem source_spec {S : Scheme.{u}} {ι : Type v} {X : AlgebraicSpace S}
         ∃ Φ : StandardPhCovering Z.left,
           SemiRepresentableFamily.Over.Refines (ofStandardPhCover Φ)
             (phCoveringPullback Xi f h) :=
-  sorry
+  ⟨PhCovering.locallyOfFiniteType, PhCovering.exists_standardRefinement⟩
 
 /-- For a ph covering family of `X`, every morphism from an affine scheme to
 `X` admits a standard ph covering whose charts map to selected members of the
@@ -129,7 +164,21 @@ theorem exists_indices {S : Scheme.{u}} {ι : Type v} {X : AlgebraicSpace S}
     ∃ (Φ : StandardPhCovering Z.left) (α : Fin Φ.m → ι)
       (φ : ∀ j, ofOver (Over.mk (Φ.map j ≫ Z.hom)) ⟶ Xi (α j)),
       ∀ j, φ j ≫ f (α j) = ofStandardPhCoverMap Φ j ≫ h :=
-  sorry
+  by
+    obtain ⟨Φ, ⟨r⟩⟩ := PhCovering.exists_standardRefinement (Xi := Xi) (f := f) h
+    refine ⟨Φ, r.α,
+      fun j ↦ (r.f j).left ≫ overPullbackFst h (Over.mk (f (r.α j))), ?_⟩
+    intro j
+    calc
+      ((r.f j).left ≫ overPullbackFst h (Over.mk (f (r.α j)))) ≫ f (r.α j) =
+          (r.f j).left ≫ (overPullbackFst h (Over.mk (f (r.α j))) ≫ f (r.α j)) :=
+        Category.assoc _ _ _
+      _ = (r.f j).left ≫ (overPullbackSnd h (Over.mk (f (r.α j))) ≫ h) :=
+        congrArg (fun k ↦ (r.f j).left ≫ k) (ReasLibPullback.isPullback (f (r.α j)) h).w
+      _ = ((r.f j).left ≫ overPullbackSnd h (Over.mk (f (r.α j)))) ≫ h :=
+        (Category.assoc _ _ _).symm
+      _ = ofStandardPhCoverMap Φ j ≫ h :=
+        congrArg (fun k ↦ k ≫ h) (Over.w (r.f j))
 
 end PhCovering
 

@@ -156,7 +156,14 @@ theorem Action.ext
     {X Y : Over S} [LocallyOfFiniteType X.hom] [LocallyOfFiniteType Y.hom]
     {f : X ⟶ Y} [LocallyOfFiniteType f.left] {r : ℕ} {c d : Action δ f r}
     (h : (c.cap : CapFamily δ f r) = (d.cap : CapFamily δ f r)) : c = d :=
-  sorry
+  by
+    cases c with
+    | mk capc hc₁ hc₂ hc₃ =>
+      cases d with
+      | mk capd hd₁ hd₂ hd₃ =>
+        have hcap : @capc = @capd := h
+        cases hcap
+        rfl
 
 /-- The fibre product of `f : X ⟶ Y` along `g : Y' ⟶ Y`, as a scheme over `S`. -/
 noncomputable abbrev pullbackOver
@@ -169,7 +176,8 @@ theorem pullbackOverFst_w
     {S : Scheme.{u}} {X Y : Over S} (f : X ⟶ Y) {Y' : Over S} (g : Y' ⟶ Y) :
     pullback.fst f.left g.left ≫ X.hom =
       pullback.snd f.left g.left ≫ Y'.hom :=
-  sorry
+  by
+    rw [← f.w, ← g.w, ← Category.assoc, pullback.condition, Category.assoc]
 
 /-- The first projection of the fibre product `Y' ×_Y X` as a morphism over `S`. -/
 noncomputable def pullbackOverFst
@@ -188,7 +196,7 @@ theorem pullbackOver_isPullback
     {S : Scheme.{u}} {X Y : Over S} (f : X ⟶ Y) {Y' : Over S} (g : Y' ⟶ Y) :
     IsPullback (pullbackOverFst f g).left (pullbackOverSnd f g).left
       f.left g.left :=
-  sorry
+  IsPullback.of_hasPullback f.left g.left
 
 /-- The g-indexed operation of a cycle-level action, sending `Z_e(Y')` to
 `Z_{r+e}(Y' ×_Y X)`. -/
@@ -216,7 +224,7 @@ theorem capAlong_apply
     capAlong δ c g e β =
       c.cap (pullbackOverFst f g) (pullbackOverSnd f g) g
         (pullbackOver_isPullback f g) e β :=
-  sorry
+  rfl
 
 /-- The cap family of a fibre-cycle family applies fibre-cycle cap after base change
 along each cartesian square. -/
@@ -283,7 +291,7 @@ theorem ofRelativeCycle_cap
     (ofRelativeCycle δ f r α hα).cap i f' g hpb e =
       CyclesOnFibers.capHom Y'.hom f'.left δ
         (FiberCycleFamily.baseChange hpb α) e :=
-  sorry
+  rfl
 
 /-- `capAlong` of the action of a relative cycle is fibre-cycle cap of the base
 change of `α` along the chosen fibre product. -/
@@ -304,7 +312,7 @@ theorem ofRelativeCycle_capAlong
         (CyclesOnFibers.cap Y'.hom (pullback.snd f.left g.left) δ
           (FiberCycleFamily.baseChange (IsPullback.of_hasPullback f.left g.left) α)
           β) :=
-  sorry
+  rfl
 
 /-- Every nonnegative-degree cycle-level action compatible with proper pushforward,
 flat pullback, and trivial-restriction Gysin maps is induced by a relative cycle

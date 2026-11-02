@@ -98,7 +98,8 @@ theorem forallAffinePullbackAffineSurjective_iff
           e.hom ≫ (𝒮.bigTopology S).sheafifiedRepresentableMap
               ((𝒮.bigAffineInclusion S).map q) =
             pullback.snd u v ∧
-          Function.Surjective (sectionTensor p q) := sorry
+          Function.Surjective (sectionTensor p q) :=
+  Iff.rfl
 
 namespace forallAffinePullbackAffineSurjective
 
@@ -123,7 +124,8 @@ theorem of {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
             ((𝒮.bigAffineInclusion S).map q) =
           pullback.snd u v ∧
         Function.Surjective (sectionTensor p q)) :
-    forallAffinePullbackAffineSurjective X := sorry
+    forallAffinePullbackAffineSurjective X :=
+  h
 
 /-- If `forallAffinePullbackAffineSurjective X`, then the chosen fibre product
 of morphisms from affine schemes to `X` is affine with surjective
@@ -146,7 +148,8 @@ theorem apply {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
       e.hom ≫ (𝒮.bigTopology S).sheafifiedRepresentableMap
           ((𝒮.bigAffineInclusion S).map q) =
         pullback.snd u v ∧
-      Function.Surjective (sectionTensor p q) := sorry
+      Function.Surjective (sectionTensor p q) :=
+  h U V u v
 
 /-- If `forallAffinePullbackAffineSurjective X`, then any vertex of an
 `IsPullback` square of morphisms from affine schemes to `X` is affine with
@@ -174,7 +177,11 @@ theorem of_isPullback {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
       e.hom ≫ (𝒮.bigTopology S).sheafifiedRepresentableMap
           ((𝒮.bigAffineInclusion S).map qW) =
         q ∧
-      Function.Surjective (sectionTensor pW qW) := sorry
+      Function.Surjective (sectionTensor pW qW) := by
+  obtain ⟨W, pW, qW, e, hpW, hqW, hsurj⟩ := h U V u v
+  refine ⟨W, pW, qW, hpb.isoPullback ≪≫ e, ?_, ?_, hsurj⟩
+  · simpa only [Iso.trans_hom, Category.assoc, hpW] using hpb.isoPullback_hom_fst
+  · simpa only [Iso.trans_hom, Category.assoc, hqW] using hpb.isoPullback_hom_snd
 
 end forallAffinePullbackAffineSurjective
 
@@ -212,7 +219,9 @@ theorem iff {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
     [HasPullbacks (Sheaf (𝒮.bigTopology S) (Type (max u v)))]
     (X : Sheaf (𝒮.bigTopology S) (Type (max u v))) :
     IsSeparated X ↔
-      IsAlgebraicSpace X ∧ forallAffinePullbackAffineSurjective X := sorry
+      IsAlgebraicSpace X ∧ forallAffinePullbackAffineSurjective X := by
+  exact ⟨fun h => ⟨h.toIsAlgebraicSpace, h.affine_pullback_surjective⟩,
+    fun h => { toIsAlgebraicSpace := h.1, affine_pullback_surjective := h.2 }⟩
 
 /-- A separated algebraic space unpacks as an algebraic space together with
 affine fibre products of morphisms from affine schemes and surjective
@@ -221,7 +230,8 @@ theorem spec {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
     [HasWeakSheafify (𝒮.bigTopology S) (Type (max u v))]
     [HasPullbacks (Sheaf (𝒮.bigTopology S) (Type (max u v)))]
     (X : Sheaf (𝒮.bigTopology S) (Type (max u v))) [IsSeparated X] :
-    IsAlgebraicSpace X ∧ forallAffinePullbackAffineSurjective X := sorry
+    IsAlgebraicSpace X ∧ forallAffinePullbackAffineSurjective X :=
+  (iff X).mp inferInstance
 
 /-- Affine fibre products of morphisms from affine schemes with surjective
 `sectionTensor` witness that an algebraic space sheaf is separated. -/
@@ -229,7 +239,8 @@ theorem of {𝒮 : ChosenBigFppfSite.{u, v}} {S : 𝒮.carrier}
     [HasWeakSheafify (𝒮.bigTopology S) (Type (max u v))]
     [HasPullbacks (Sheaf (𝒮.bigTopology S) (Type (max u v)))]
     {X : Sheaf (𝒮.bigTopology S) (Type (max u v))} [IsAlgebraicSpace X]
-    (h : forallAffinePullbackAffineSurjective X) : IsSeparated X := sorry
+    (h : forallAffinePullbackAffineSurjective X) : IsSeparated X :=
+  { toIsAlgebraicSpace := inferInstance, affine_pullback_surjective := h }
 
 end IsSeparated
 

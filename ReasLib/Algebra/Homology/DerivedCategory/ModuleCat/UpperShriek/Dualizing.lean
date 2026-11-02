@@ -30,10 +30,11 @@ variable {R A : Type u} [CommRing R] [CommRing A]
 /-- A presentation-defined upper-shriek functor sends a dualizing complex over the source ring to a dualizing complex over the target ring. -/
 theorem mapsDualizingComplex
     (f : R →+* A) (hf : f.FiniteType) (p : Presentation f)
-    (HR : MonoidalClosed (DerivedCategory (ModuleCat.{u, u} R)))
-    (HA : MonoidalClosed (DerivedCategory (ModuleCat.{u, u} A)))
-    (ω : DerivedCategory (ModuleCat.{u, u} R)) (hω : ω.IsDualizingComplex HR) :
-    (p.functor.obj ω).IsDualizingComplex HA := sorry
+    (CR : DerivedCategory.CanonicalClosedPresentation (A := R))
+    (CA : DerivedCategory.CanonicalClosedPresentation (A := A))
+    (ω : DerivedCategory (ModuleCat.{u, u} R))
+    (hω : ω.IsDualizingComplex CR.comparison.closed) :
+    (p.functor.obj ω).IsDualizingComplex CA.comparison.closed := sorry
 
 variable {B : Type u} [CommRing B] [IsNoetherianRing B]
   [BraidedCategory (DerivedCategory (ModuleCat.{u, u} A))]
@@ -44,29 +45,31 @@ variable {B : Type u} [CommRing B] [IsNoetherianRing B]
 complexes is naturally isomorphic to scalar extension between the corresponding dualities. -/
 theorem isomorphicDualityExtension
     (φ : A →+* B) (hφ : φ.FiniteType) (p : Presentation φ)
-    (HA : MonoidalClosed (DerivedCategory (ModuleCat.{u, u} A)))
-    (HB : MonoidalClosed (DerivedCategory (ModuleCat.{u, u} B)))
+    (CA : DerivedCategory.CanonicalClosedPresentation (A := A))
+    (CB : DerivedCategory.CanonicalClosedPresentation (A := B))
     (ωA : DerivedCategory (ModuleCat.{u, u} A))
-    (hωA : ωA.IsDualizingComplex HA) :
+    (hωA : ωA.IsDualizingComplex CA.comparison.closed) :
     IsIsomorphic
       ((DerivedCategory.cohomologyIn (ModuleCat.isFG A)).ι ⋙ p.functor)
-      ((DerivedCategory.IsDualizingComplex.coherentDuality HA ωA hωA).rightOp ⋙
+      ((DerivedCategory.IsDualizingComplex.coherentDuality CA.comparison.closed ωA hωA).rightOp ⋙
         (DerivedCategory.cohomologyIn (ModuleCat.isFG A)).ι.op ⋙
         (derivedExtensionOfScalars φ).op ⋙
-        (RightInternalHom.ofBraidedClosedOf HB).dualFunctor (p.functor.obj ωA)) := sorry
+        (RightInternalHom.ofBraidedClosedOf CB.comparison.closed).dualFunctor
+          (p.functor.obj ωA)) := sorry
 
 /-- Evaluating the functorial upper-shriek comparison at `K` identifies `φ⁗(K)` with
 the dual over `B` of the scalar extension of the dual of `K` over `A`. -/
 theorem objIsomorphicDualityExtension
     (φ : A →+* B) (hφ : φ.FiniteType) (p : Presentation φ)
-    (HA : MonoidalClosed (DerivedCategory (ModuleCat.{u, u} A)))
-    (HB : MonoidalClosed (DerivedCategory (ModuleCat.{u, u} B)))
+    (CA : DerivedCategory.CanonicalClosedPresentation (A := A))
+    (CB : DerivedCategory.CanonicalClosedPresentation (A := B))
     (ωA : DerivedCategory (ModuleCat.{u, u} A))
-    (hωA : ωA.IsDualizingComplex HA) (K : D[ModuleCat.isFG A]) :
+    (hωA : ωA.IsDualizingComplex CA.comparison.closed) (K : D[ModuleCat.isFG A]) :
     IsIsomorphic (p.functor.obj K.obj)
-      (((DerivedCategory.IsDualizingComplex.coherentDuality HA ωA hωA).rightOp ⋙
+      (((DerivedCategory.IsDualizingComplex.coherentDuality CA.comparison.closed ωA hωA).rightOp ⋙
         (DerivedCategory.cohomologyIn (ModuleCat.isFG A)).ι.op ⋙
         (derivedExtensionOfScalars φ).op ⋙
-        (RightInternalHom.ofBraidedClosedOf HB).dualFunctor (p.functor.obj ωA)).obj K) := sorry
+        (RightInternalHom.ofBraidedClosedOf CB.comparison.closed).dualFunctor
+          (p.functor.obj ωA)).obj K) := sorry
 
 end CategoryTheory.ModuleCat.UpperShriek.Presentation

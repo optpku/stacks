@@ -41,7 +41,7 @@ def restrictionPow {X : GroupoidsOver S} (x : CompleteLocalObject X) (N : ℕ) :
 /-- The order-`N` restriction of `x` lies over `Spec(R ⧸ m_R ^ N) ⟶ S`. -/
 theorem restrictionPow_over {X : GroupoidsOver S} (x : CompleteLocalObject X) (N : ℕ) :
     X.p.obj (restrictionPow x N) = Over.mk (x.base.powToS N) :=
-  sorry
+  IsPreFibered.pullbackObj_proj x.over_obj (x.base.powOverHom N)
 
 /-- Restriction in `Over S` along `Spec(A ⧸ I ^ N) ⟶ Spec(A)`. -/
 def powOverHomOf {A : Type u} [CommRing A] (toS : Spec (CommRingCat.of A) ⟶ S)
@@ -55,7 +55,7 @@ theorem powOverHomOf_left {A : Type u} [CommRing A] (toS : Spec (CommRingCat.of 
     (I : Ideal A) (N : ℕ) :
     (powOverHomOf toS I N).left =
       Spec.map (CommRingCat.ofHom (Ideal.Quotient.mk (I ^ N))) :=
-  sorry
+  rfl
 
 /-- The `Over S` morphism induced by an `S`-isomorphism of order-`N` truncations. -/
 def isoNOverHom {X : GroupoidsOver S} (x : CompleteLocalObject X) {A : Type u} [CommRing A]
@@ -76,7 +76,7 @@ theorem isoNOverHom_left {X : GroupoidsOver S} (x : CompleteLocalObject X)
     (w : Spec.map (CommRingCat.ofHom e.toRingHom) ≫ x.base.powToS N =
       Spec.map (CommRingCat.ofHom (Ideal.Quotient.mk (mA ^ N))) ≫ toS) :
     (isoNOverHom x toS mA N e w).left = Spec.map (CommRingCat.ofHom e.toRingHom) :=
-  sorry
+  rfl
 
 /-- Residue identification `R ⧸ m_R ≃+* A ⧸ m_A` induced by an isomorphism of
 order-`N` truncations when `1 ≤ N`. -/
@@ -119,7 +119,7 @@ theorem residueIsoOf_eq {X : GroupoidsOver S} (x : CompleteLocalObject X) {A : T
               (Ideal.map (Ideal.Quotient.mk (mA ^ N)) mA) e hmap).trans
           (DoubleQuot.quotQuotEquivQuotOfLE
             (Ideal.pow_le_self (Nat.pos_iff_ne_zero.mp (Nat.succ_le_iff.mp hN))))) :=
-  sorry
+  rfl
 
 /-- Artin approximation data of an object over a complete local finite-type-residue
 spectrum, at a fixed positive order. -/
@@ -243,7 +243,7 @@ def powSpec (A : ArtinApproximation x N) : Scheme.{u} :=
 algebra. -/
 theorem powSpec_eq (A : ArtinApproximation x N) :
     A.powSpec = Spec (.of (A.carrier ⧸ A.maximalIdeal ^ N)) :=
-  sorry
+  rfl
 
 /-- Structure morphism `Spec(A ⧸ m_A ^ N) ⟶ S` of the approximating truncation. -/
 def powToS (A : ArtinApproximation x N) : A.powSpec ⟶ S :=
@@ -259,7 +259,7 @@ order-`N` quotient map. -/
 theorem powOverHom_left (A : ArtinApproximation x N) :
     A.powOverHom.left =
       Spec.map (CommRingCat.ofHom (Ideal.Quotient.mk (A.maximalIdeal ^ N))) :=
-  sorry
+  rfl
 
 /-- Restriction of the approximating object along `Spec(A ⧸ m_A ^ N) ⟶ Spec(A)`. -/
 def restrictionPow (A : ArtinApproximation x N) : X.total :=
@@ -269,7 +269,7 @@ def restrictionPow (A : ArtinApproximation x N) : X.total :=
 truncation. -/
 theorem restrictionPow_over (A : ArtinApproximation x N) :
     X.p.obj A.restrictionPow = Over.mk A.powToS :=
-  sorry
+  IsPreFibered.pullbackObj_proj A.over_obj A.powOverHom
 
 /-- Residue identification `R ⧸ m_R ≃+* A ⧸ m_A` induced by `isoN` when `1 ≤ N`. -/
 def residueIso (A : ArtinApproximation x N) (hN : 1 ≤ N) :
@@ -281,7 +281,7 @@ def residueIso (A : ArtinApproximation x N) (hN : 1 ≤ N) :
 by `isoN`. -/
 theorem residueIso_eq (A : ArtinApproximation x N) (hN : 1 ≤ N) :
     A.residueIso hN = residueIsoOf x A.maximalIdeal N A.isoN A.isoN_map_maximal hN :=
-  sorry
+  rfl
 
 /-- Artin approximation data specify a finite type structure
 morphism, maximal ideal, object over `Spec(A)`, `S`-isomorphism of truncations,
@@ -313,7 +313,8 @@ theorem spec (A : ArtinApproximation x N) :
                           (Ideal.AssociatedGraded.ring
                             (IsLocalRing.maximalIdeal x.base.carrier))
                           r) :=
-  sorry
+  ⟨A.finiteType, A.isMaximal, A.over_obj, A.isoN_over, A.restrictIso_isIso,
+    A.restrictIso_isHomLift, A.grIso_mem_grade, A.grIso_residue⟩
 
 /-- Existence of Artin approximation data is equivalent to the existence of a
 finite type `S`-algebra, a maximal ideal, an object over `Spec(A)`, an
@@ -351,7 +352,19 @@ theorem nonempty_iff :
               grIso
                 (algebraMap (x.base.carrier ⧸ IsLocalRing.maximalIdeal x.base.carrier)
                   (Ideal.AssociatedGraded.ring (IsLocalRing.maximalIdeal x.base.carrier)) r) :=
-  sorry
+  by
+    constructor
+    · rintro ⟨A⟩
+      exact ⟨A.carrier, inferInstance, A.toS, A.finiteType, A.maximalIdeal, A.isMaximal,
+        A.object, A.over_obj, A.isoN, A.isoN_over, A.isoN_map_maximal, A.restrictIso,
+        A.restrictIso_isIso, A.restrictIso_isHomLift, A.grIso, A.grIso_mem_grade,
+        A.grIso_residue⟩
+    · rintro ⟨A, inst, toS, finiteType, mA, isMaximal, xA, over_obj, isoN, isoN_over,
+        isoN_map_maximal, restrictIso, restrictIso_isIso, restrictIso_isHomLift, grIso,
+        grIso_mem_grade, grIso_residue⟩
+      letI := inst
+      exact ⟨of A toS finiteType mA isMaximal xA over_obj isoN isoN_over isoN_map_maximal
+        restrictIso restrictIso_isIso restrictIso_isHomLift grIso grIso_mem_grade grIso_residue⟩
 
 end ArtinApproximation
 

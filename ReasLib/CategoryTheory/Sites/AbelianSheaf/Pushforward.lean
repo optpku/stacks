@@ -43,7 +43,13 @@ theorem preservesEpi_of_underlying
     [K.HasSheafCompose (forget AddCommGrpCat.{w})]
     [(sheafCompose K (forget AddCommGrpCat.{w})).PreservesEpimorphisms]
     (h : (u.sheafPushforwardContinuous (Type w) J K).PreservesEpimorphisms) :
-    (u.sheafPushforwardContinuous AddCommGrpCat.{w} J K).PreservesEpimorphisms := sorry
+    (u.sheafPushforwardContinuous AddCommGrpCat.{w} J K).PreservesEpimorphisms := by
+  letI := h
+  refine ⟨fun {X Y} f _ => ?_⟩
+  apply (sheafCompose J (forget AddCommGrpCat.{w})).epi_of_epi_map
+  change Epi ((u.sheafPushforwardContinuous (Type w) J K).map
+    ((sheafCompose K (forget AddCommGrpCat.{w})).map f))
+  infer_instance
 
 /-- Explicit-evidence bridge for exactness of an additive continuous direct image which
 preserves epimorphisms. This form avoids forcing callers with a witness to introduce `letI`. -/
@@ -51,7 +57,18 @@ theorem exact_of_preservesEpimorphisms_of
     [Abelian (Sheaf K AddCommGrpCat.{w})] [Abelian (Sheaf J AddCommGrpCat.{w})]
     [(u.sheafPushforwardContinuous AddCommGrpCat.{w} J K).IsRightAdjoint]
     (h : (u.sheafPushforwardContinuous AddCommGrpCat.{w} J K).PreservesEpimorphisms) :
-    exactFunctor _ _ (u.sheafPushforwardContinuous AddCommGrpCat.{w} J K) := sorry
+    exactFunctor _ _ (u.sheafPushforwardContinuous AddCommGrpCat.{w} J K) := by
+  let R := u.sheafPushforwardContinuous AddCommGrpCat.{w} J K
+  letI : R.PreservesEpimorphisms := h
+  letI : R.PreservesZeroMorphisms :=
+    CategoryTheory.Functor.preservesZeroMorphisms_of_isRightAdjoint R
+  letI : R.Additive := CategoryTheory.Functor.additive_of_preserves_binary_products R
+  letI : R.PreservesHomology := by
+    convert CategoryTheory.Functor.preservesHomology_of_preservesEpis_and_kernels R using 1
+    all_goals apply Subsingleton.elim
+  exact (exactFunctor_iff R).2
+    ⟨CategoryTheory.Functor.preservesFiniteLimits_of_preservesHomology R,
+      CategoryTheory.Functor.preservesFiniteColimits_of_preservesHomology R⟩
 
 /-- Lemma 18.15.2 (2): an additive continuous direct image which preserves epimorphisms is
 exact. The canonical interface infers the coherent epimorphism-preservation property. -/
@@ -60,7 +77,8 @@ theorem exact_of_preservesEpimorphisms
     [Abelian (Sheaf K AddCommGrpCat.{w})] [Abelian (Sheaf J AddCommGrpCat.{w})]
     [(u.sheafPushforwardContinuous AddCommGrpCat.{w} J K).IsRightAdjoint]
     [(u.sheafPushforwardContinuous AddCommGrpCat.{w} J K).PreservesEpimorphisms] :
-    exactFunctor _ _ (u.sheafPushforwardContinuous AddCommGrpCat.{w} J K) := sorry
+    exactFunctor _ _ (u.sheafPushforwardContinuous AddCommGrpCat.{w} J K) := by
+  exact exact_of_preservesEpimorphisms_of u inferInstance
 
 /-- Lemma 18.15.2 (1): preservation of epimorphisms by the underlying type-valued direct image
 implies exactness of the additive direct image. -/
@@ -72,7 +90,8 @@ theorem exact_of_underlyingEpi
     [K.HasSheafCompose (forget AddCommGrpCat.{w})]
     [(sheafCompose K (forget AddCommGrpCat.{w})).PreservesEpimorphisms]
     (h : (u.sheafPushforwardContinuous (Type w) J K).PreservesEpimorphisms) :
-    exactFunctor _ _ (u.sheafPushforwardContinuous AddCommGrpCat.{w} J K) := sorry
+    exactFunctor _ _ (u.sheafPushforwardContinuous AddCommGrpCat.{w} J K) := by
+  exact exact_of_preservesEpimorphisms_of u (preservesEpi_of_underlying u h)
 
 /-- Lemma 18.15.2 (3): preservation of coequalizers by the underlying type-valued direct image
 implies exactness of the additive direct image. -/
@@ -86,7 +105,13 @@ theorem exact_of_underlyingCoequalizers
     [IsRegularEpiCategory (Sheaf K (Type w))]
     (h : PreservesColimitsOfShape WalkingParallelPair
       (u.sheafPushforwardContinuous (Type w) J K)) :
-    exactFunctor _ _ (u.sheafPushforwardContinuous AddCommGrpCat.{w} J K) := sorry
+    exactFunctor _ _ (u.sheafPushforwardContinuous AddCommGrpCat.{w} J K) := by
+  let F := u.sheafPushforwardContinuous (Type w) J K
+  letI : PreservesColimitsOfShape WalkingParallelPair F := h
+  apply exact_of_underlyingEpi u
+  refine ⟨fun {X Y} f _ => ?_⟩
+  obtain ⟨⟨r⟩⟩ := IsRegularEpiCategory.regularEpiOfEpi f
+  exact epi_of_isColimit_cofork (isColimitCoforkMapOfIsColimit F r.w r.isColimit)
 
 /-- Lemma 18.15.2 (4): preservation of pushouts by the underlying type-valued direct image
 implies exactness of the additive direct image. -/
@@ -99,7 +124,9 @@ theorem exact_of_underlyingPushouts
     [(sheafCompose K (forget AddCommGrpCat.{w})).PreservesEpimorphisms]
     (h : PreservesColimitsOfShape WalkingSpan
       (u.sheafPushforwardContinuous (Type w) J K)) :
-    exactFunctor _ _ (u.sheafPushforwardContinuous AddCommGrpCat.{w} J K) := sorry
+    exactFunctor _ _ (u.sheafPushforwardContinuous AddCommGrpCat.{w} J K) := by
+  letI := h
+  exact exact_of_underlyingEpi u inferInstance
 
 namespace Comparison
 
@@ -115,7 +142,9 @@ theorem exact_of_epi
     [(sheafCompose K (forget AddCommGrpCat.{w})).PreservesEpimorphisms]
     (e : u.sheafPushforwardContinuous (Type w) J K ≅ G)
     (h : G.PreservesEpimorphisms) :
-    exactFunctor _ _ (u.sheafPushforwardContinuous AddCommGrpCat.{w} J K) := sorry
+    exactFunctor _ _ (u.sheafPushforwardContinuous AddCommGrpCat.{w} J K) := by
+  letI := h
+  exact exact_of_underlyingEpi u (preservesEpimorphisms.of_iso e.symm)
 
 /-- Exactness transfers from coequalizer preservation by any functor canonically isomorphic to
 the underlying type-valued direct image. -/
@@ -128,7 +157,9 @@ theorem exact_of_coequalizers
     [IsRegularEpiCategory (Sheaf K (Type w))]
     (e : u.sheafPushforwardContinuous (Type w) J K ≅ G)
     (h : PreservesColimitsOfShape WalkingParallelPair G) :
-    exactFunctor _ _ (u.sheafPushforwardContinuous AddCommGrpCat.{w} J K) := sorry
+    exactFunctor _ _ (u.sheafPushforwardContinuous AddCommGrpCat.{w} J K) := by
+  letI := h
+  exact exact_of_underlyingCoequalizers u (preservesColimitsOfShape_of_natIso e.symm)
 
 /-- Exactness transfers from pushout preservation by any functor canonically isomorphic to the
 underlying type-valued direct image. -/
@@ -140,7 +171,9 @@ theorem exact_of_pushouts
     [(sheafCompose K (forget AddCommGrpCat.{w})).PreservesEpimorphisms]
     (e : u.sheafPushforwardContinuous (Type w) J K ≅ G)
     (h : PreservesColimitsOfShape WalkingSpan G) :
-    exactFunctor _ _ (u.sheafPushforwardContinuous AddCommGrpCat.{w} J K) := sorry
+    exactFunctor _ _ (u.sheafPushforwardContinuous AddCommGrpCat.{w} J K) := by
+  letI := h
+  exact exact_of_underlyingPushouts u (preservesColimitsOfShape_of_natIso e.symm)
 
 end Comparison
 

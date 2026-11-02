@@ -35,44 +35,90 @@ theorem AlgebraicGeometry.Scheme.hCovering_iff_phCovering
     {ι : Type v} (family : ι → Over X) :
     AlgebraicGeometry.Scheme.HCovering family ↔
       AlgebraicGeometry.PhCovering
-        (fun i ↦ (family i).left) (fun i ↦ (family i).hom) := sorry
+        (fun i ↦ (family i).left) (fun i ↦ (family i).hom) := by
+  constructor
+  · exact fun hfamily ↦ hfamily.toPhCovering
+  · intro hfamily
+    refine ⟨?_, hfamily⟩
+    intro i
+    letI : AlgebraicGeometry.LocallyOfFiniteType (family i).hom :=
+      hfamily.locallyOfFiniteType i
+    infer_instance
 
 /-- Every h covering family is a `V` covering family. -/
 theorem AlgebraicGeometry.Scheme.HCovering.isVCovering
     {family : ι → Over T} (hfamily : AlgebraicGeometry.Scheme.HCovering family) :
     AlgebraicGeometry.IsVCovering T
-      (fun i ↦ (family i).left) (fun i ↦ (family i).hom) := sorry
+      (fun i ↦ (family i).left) (fun i ↦ (family i).hom) :=
+  AlgebraicGeometry.isVCovering_of_phCovering hfamily.toPhCovering
 
 /-- Every fppf covering family is an h covering family. -/
 theorem AlgebraicGeometry.Scheme.FppfCovering.hCovering
     {family : ι → Over T} (hfamily : AlgebraicGeometry.Scheme.FppfCovering family) :
-    AlgebraicGeometry.Scheme.HCovering family := sorry
+    AlgebraicGeometry.Scheme.HCovering family :=
+  ⟨hfamily.locallyOfFinitePresentation, hfamily.phCovering⟩
 
 /-- Every syntomic covering family is an h covering family. -/
 theorem AlgebraicGeometry.Scheme.SyntomicCovering.hCovering
     {family : ι → Over T} (hfamily : AlgebraicGeometry.Scheme.SyntomicCovering family) :
-    AlgebraicGeometry.Scheme.HCovering family := sorry
+    AlgebraicGeometry.Scheme.HCovering family := by
+  apply AlgebraicGeometry.Scheme.FppfCovering.hCovering
+  have hle : AlgebraicGeometry.Scheme.precoverage @AlgebraicGeometry.Syntomic ≤
+      AlgebraicGeometry.Scheme.fppfPrecoverage := by
+    apply AlgebraicGeometry.Scheme.precoverage_mono
+    intro X Y f hf
+    constructor
+    · apply (AlgebraicGeometry.HasRingHomProperty.iff_exists_appLE
+        (P := @AlgebraicGeometry.Flat)
+        (RingHom.Flat.stableUnderComposition.stableUnderCompositionWithLocalizationAway
+          RingHom.Flat.holdsForLocalizationAway).left).mpr
+      intro x
+      obtain ⟨U, hx, V, e, h⟩ := hf.property x
+      exact ⟨V, U, hx, e, h.1⟩
+    · apply (AlgebraicGeometry.HasRingHomProperty.iff_exists_appLE
+        (P := @AlgebraicGeometry.LocallyOfFinitePresentation)
+        (RingHom.finitePresentation_stableUnderComposition.stableUnderCompositionWithLocalizationAway
+          RingHom.finitePresentation_holdsForLocalizationAway).left).mpr
+      intro x
+      obtain ⟨U, hx, V, e, h⟩ := hf.property x
+      exact ⟨V, U, hx, e, h.2.1⟩
+  exact hle T hfamily
 
 /-- Every smooth covering family is an h covering family. -/
 theorem AlgebraicGeometry.Scheme.SmoothCovering.hCovering
     {family : ι → Over T} (hfamily : AlgebraicGeometry.Scheme.SmoothCovering family) :
-    AlgebraicGeometry.Scheme.HCovering family := sorry
+    AlgebraicGeometry.Scheme.HCovering family := by
+  apply AlgebraicGeometry.Scheme.FppfCovering.hCovering
+  have hle : AlgebraicGeometry.Scheme.precoverage @AlgebraicGeometry.Smooth ≤
+      AlgebraicGeometry.Scheme.fppfPrecoverage :=
+    AlgebraicGeometry.Scheme.precoverage_mono fun _ _ f hf ↦
+      ⟨@AlgebraicGeometry.instFlatOfSmooth _ _ f hf,
+        @AlgebraicGeometry.instLocallyOfFinitePresentationOfSmooth _ _ f hf⟩
+  exact hle T hfamily
 
 /-- Every family in the étale precoverage is an h covering family. -/
 theorem AlgebraicGeometry.Scheme.hCovering_of_mem_etalePrecoverage
     {family : ι → Over T}
     (hfamily : Presieve.ofArrows (fun i ↦ (family i).left) (fun i ↦ (family i).hom) ∈
       AlgebraicGeometry.Scheme.etalePrecoverage.coverings T) :
-    AlgebraicGeometry.Scheme.HCovering family := sorry
+    AlgebraicGeometry.Scheme.HCovering family := by
+  apply AlgebraicGeometry.Scheme.SmoothCovering.hCovering
+  have hle : AlgebraicGeometry.Scheme.etalePrecoverage ≤
+      AlgebraicGeometry.Scheme.precoverage @AlgebraicGeometry.Smooth :=
+    AlgebraicGeometry.Scheme.precoverage_mono fun _ _ _ _ ↦ inferInstance
+  exact hle T hfamily
 
 /-- Every family in the Zariski precoverage is an h covering family. -/
 theorem AlgebraicGeometry.Scheme.hCovering_of_mem_zariskiPrecoverage
     {family : ι → Over T}
     (hfamily : Presieve.ofArrows (fun i ↦ (family i).left) (fun i ↦ (family i).hom) ∈
       AlgebraicGeometry.Scheme.zariskiPrecoverage.coverings T) :
-    AlgebraicGeometry.Scheme.HCovering family := sorry
+    AlgebraicGeometry.Scheme.HCovering family :=
+  AlgebraicGeometry.Scheme.FppfCovering.hCovering
+    (AlgebraicGeometry.Scheme.zariskiPrecoverage_le_fppfPrecoverage T hfamily)
 
 /-- A bundled fppf cover is canonically an h covering family. -/
 theorem AlgebraicGeometry.FppfCover.hCovering
     {T : AlgebraicGeometry.Scheme.{u}} (𝒰 : AlgebraicGeometry.FppfCover.{u, v} T) :
-    AlgebraicGeometry.Scheme.HCovering (fun i : 𝒰.I₀ ↦ Over.mk (𝒰.f i)) := sorry
+    AlgebraicGeometry.Scheme.HCovering (fun i : 𝒰.I₀ ↦ Over.mk (𝒰.f i)) :=
+  AlgebraicGeometry.Scheme.FppfCovering.hCovering 𝒰.mem₀

@@ -100,14 +100,6 @@ noncomputable def ofConstantRingSheaf_ringUnderlyingMap (f : MorphismOfTopoiIn J
       (ofCommRingSheaf JC (constantRingSheaf JC Λ)).structureSheaf ≫
     ofConstantRingSheaf_underlyingMap f Λ
 
-/-- The constant-ring inverse-image comparison preserves the multiplicative unit. -/
-theorem ofConstantRingSheaf_map_one (f : MorphismOfTopoiIn JC JD)
-    (Λ : Type u) [CommRing Λ] (U : Dᵒᵖ) :
-    (ofConstantRingSheaf_ringUnderlyingMap f Λ).hom.app U
-        (1 : (f.ringInverseImage.obj
-          (ofCommRingSheaf JC (constantRingSheaf JC Λ)).structureSheaf).obj.obj U) =
-      (1 : (ofCommRingSheaf JD (constantRingSheaf JD Λ)).structureSheaf.obj.obj U) := sorry
-
 /-- The constant-ring inverse-image comparison preserves multiplication. -/
 theorem ofConstantRingSheaf_map_mul (f : MorphismOfTopoiIn JC JD)
     (Λ : Type u) [CommRing Λ] (U : Dᵒᵖ)
@@ -117,13 +109,37 @@ theorem ofConstantRingSheaf_map_mul (f : MorphismOfTopoiIn JC JD)
       Mul.mul (α := (ofCommRingSheaf JD (constantRingSheaf JD Λ)).structureSheaf.obj.obj U)
         ((ofConstantRingSheaf_ringUnderlyingMap f Λ).hom.app U a) ((ofConstantRingSheaf_ringUnderlyingMap f Λ).hom.app U b) := sorry
 
-/-- The constant-ring inverse-image comparison preserves zero. -/
-theorem ofConstantRingSheaf_map_zero (f : MorphismOfTopoiIn JC JD)
+/-- The constant-ring inverse-image comparison preserves the multiplicative unit. -/
+theorem ofConstantRingSheaf_map_one (f : MorphismOfTopoiIn JC JD)
     (Λ : Type u) [CommRing Λ] (U : Dᵒᵖ) :
     (ofConstantRingSheaf_ringUnderlyingMap f Λ).hom.app U
-        (0 : (f.ringInverseImage.obj
+        (1 : (f.ringInverseImage.obj
           (ofCommRingSheaf JC (constantRingSheaf JC Λ)).structureSheaf).obj.obj U) =
-      (0 : (ofCommRingSheaf JD (constantRingSheaf JD Λ)).structureSheaf.obj.obj U) := sorry
+      (1 : (ofCommRingSheaf JD (constantRingSheaf JD Λ)).structureSheaf.obj.obj U) := by
+  letI : Ring ((underlyingStructureSheaf
+      (ofCommRingSheaf JD (constantRingSheaf JD Λ))).obj.obj U) :=
+    RingCat.ring ((ofCommRingSheaf JD (constantRingSheaf JD Λ)).structureSheaf.obj.obj U)
+  let e := f.ringInverseImageForgetIso.app
+      (ofCommRingSheaf JC (constantRingSheaf JC Λ)).structureSheaf ≪≫
+    f.inverseImage.mapIso (constantRingSheafUnderlyingIso JC Λ) ≪≫
+    (constantSheafCompInverseImageIso f).app Λ ≪≫
+    (constantRingSheafUnderlyingIso JD Λ).symm
+  let x := e.inv.hom.app U (1 : (underlyingStructureSheaf
+    (ofCommRingSheaf JD (constantRingSheaf JD Λ))).obj.obj U)
+  have hx : (ofConstantRingSheaf_ringUnderlyingMap f Λ).hom.app U x =
+      (1 : (ofCommRingSheaf JD (constantRingSheaf JD Λ)).structureSheaf.obj.obj U) := by
+    change e.hom.hom.app U (e.inv.hom.app U 1) = _
+    exact congrArg (fun h ↦ h.hom.app U
+      (1 : (underlyingStructureSheaf
+        (ofCommRingSheaf JD (constantRingSheaf JD Λ))).obj.obj U)) e.inv_hom_id
+  have hm := ofConstantRingSheaf_map_mul f Λ U 1 x
+  rw [one_mul, hx] at hm
+  exact (@mul_one
+    ((ofCommRingSheaf JD (constantRingSheaf JD Λ)).structureSheaf.obj.obj U)
+    inferInstance ((ofConstantRingSheaf_ringUnderlyingMap f Λ).hom.app U
+      (1 : (f.ringInverseImage.obj
+        (ofCommRingSheaf JC (constantRingSheaf JC Λ)).structureSheaf).obj.obj U))).symm.trans
+          hm.symm
 
 /-- The constant-ring inverse-image comparison preserves addition. -/
 theorem ofConstantRingSheaf_map_add (f : MorphismOfTopoiIn JC JD)
@@ -133,6 +149,20 @@ theorem ofConstantRingSheaf_map_add (f : MorphismOfTopoiIn JC JD)
     (ofConstantRingSheaf_ringUnderlyingMap f Λ).hom.app U (a + b) =
       Add.add (α := (ofCommRingSheaf JD (constantRingSheaf JD Λ)).structureSheaf.obj.obj U)
         ((ofConstantRingSheaf_ringUnderlyingMap f Λ).hom.app U a) ((ofConstantRingSheaf_ringUnderlyingMap f Λ).hom.app U b) := sorry
+
+/-- The constant-ring inverse-image comparison preserves zero. -/
+theorem ofConstantRingSheaf_map_zero (f : MorphismOfTopoiIn JC JD)
+    (Λ : Type u) [CommRing Λ] (U : Dᵒᵖ) :
+    (ofConstantRingSheaf_ringUnderlyingMap f Λ).hom.app U
+        (0 : (f.ringInverseImage.obj
+          (ofCommRingSheaf JC (constantRingSheaf JC Λ)).structureSheaf).obj.obj U) =
+      (0 : (ofCommRingSheaf JD (constantRingSheaf JD Λ)).structureSheaf.obj.obj U) := by
+  letI : Ring ((underlyingStructureSheaf
+      (ofCommRingSheaf JD (constantRingSheaf JD Λ))).obj.obj U) :=
+    RingCat.ring ((ofCommRingSheaf JD (constantRingSheaf JD Λ)).structureSheaf.obj.obj U)
+  have h := ofConstantRingSheaf_map_add f Λ U 0 0
+  rw [zero_add] at h
+  exact (add_eq_left.mp h.symm)
 
 /-- The component ring homomorphism of the constant-coefficient inverse-image comparison. -/
 noncomputable def ofConstantRingSheaf_structureMapApp (f : MorphismOfTopoiIn JC JD)
@@ -159,7 +189,10 @@ theorem ofConstantRingSheaf_structureMap_naturality (f : MorphismOfTopoiIn JC JD
         (ofCommRingSheaf JC (constantRingSheaf JC Λ)).structureSheaf).obj.map g ≫
         ofConstantRingSheaf_structureMapApp f Λ V =
       ofConstantRingSheaf_structureMapApp f Λ U ≫
-        (ofCommRingSheaf JD (constantRingSheaf JD Λ)).structureSheaf.obj.map g := sorry
+        (ofCommRingSheaf JD (constantRingSheaf JD Λ)).structureSheaf.obj.map g := by
+  ext x
+  exact congrArg (fun h ↦ h x)
+    ((ofConstantRingSheaf_ringUnderlyingMap f Λ).hom.naturality g)
 
 /-- The inverse-image structure map of constant ring sheaves as a morphism of ring sheaves. -/
 noncomputable def ofConstantRingSheaf_structureMap (f : MorphismOfTopoiIn JC JD)
@@ -182,14 +215,28 @@ noncomputable def ofConstantRingSheaf (f : MorphismOfTopoiIn JC JD) (Λ : Type u
 /-- The underlying morphism of topoi of `ofConstantRingSheaf` is the given morphism. -/
 theorem ofConstantRingSheaf_toTopos (f : MorphismOfTopoiIn JC JD) (Λ : Type u)
     [CommRing Λ] :
-    (ofConstantRingSheaf f Λ).toTopos = f := sorry
+    (ofConstantRingSheaf f Λ).toTopos = f := by rfl
 
 /-- Forgetting rings, the structure map of `ofConstantRingSheaf` is the type-valued constant
 sheaf comparison. -/
 theorem ofConstantRingSheaf_structureMap_spec (f : MorphismOfTopoiIn JC JD)
     (Λ : Type u) [CommRing Λ] :
     (ofConstantRingSheaf f Λ).underlyingMap =
-      ofConstantRingSheaf_underlyingMap f Λ := sorry
+      ofConstantRingSheaf_underlyingMap f Λ := by
+  have h :
+      (sheafCompose JD (forget RingCat.{u})).map
+          (ofConstantRingSheaf_structureMap f Λ) =
+        ofConstantRingSheaf_ringUnderlyingMap f Λ := by
+    ext U x
+    rfl
+  change f.ringInverseImageForgetIso.inv.app
+      (ofCommRingSheaf JC (constantRingSheaf JC Λ)).structureSheaf ≫
+    (sheafCompose JD (forget RingCat.{u})).map
+      (ofConstantRingSheaf_structureMap f Λ) = _
+  rw [h]
+  exact (f.ringInverseImageForgetIso.app
+    (ofCommRingSheaf JC (constantRingSheaf JC Λ)).structureSheaf).inv_hom_id_assoc
+      (ofConstantRingSheaf_underlyingMap f Λ)
 
 variable {Λ : Type u} [CommRing Λ] [IsNoetherianRing Λ]
 

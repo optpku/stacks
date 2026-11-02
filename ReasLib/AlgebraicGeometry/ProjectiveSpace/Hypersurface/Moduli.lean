@@ -67,7 +67,7 @@ theorem isFibreOverResidueField_iff {k : Type u} [Field k]
     {φ : ProjectiveSpace.scheme (V.left.residueField v) n ⟶ overProjectiveSpace V n} :
     IsFibreOverResidueField V n v φ ↔
       IsPullback φ (ProjectiveSpace.toSpec (V.left.residueField v) n)
-        (overProjectiveSpace_fst V n) (V.left.fromSpecResidueField v) := sorry
+        (overProjectiveSpace_fst V n) (V.left.fromSpecResidueField v) := Iff.rfl
 
 /-- A closed subscheme of `P^n_V` is a family of degree-`d` hypersurfaces if every
 scheme-theoretic fibre is a degree-`d` hypersurface over its residue field. -/
@@ -84,7 +84,7 @@ theorem isFamily_iff {k : Type u} [Field k] {n d : ℕ}
     IsFamily n d V Z ↔
       ∀ v : V.left,
         ∃ φ : ProjectiveSpace.scheme (V.left.residueField v) n ⟶ overProjectiveSpace V n,
-          IsFibreOverResidueField V n v φ ∧ IsOfDegree n d (Z.comap φ) := sorry
+          IsFibreOverResidueField V n v φ ∧ IsOfDegree n d (Z.comap φ) := Iff.rfl
 
 /-- Every fibre of a degree-`d` family is a degree-`d` hypersurface after a cartesian
 identification of its projective ambient space. -/
@@ -92,7 +92,7 @@ theorem fibre_isOfDegree {k : Type u} [Field k] {n d : ℕ}
     {V : Over (Spec (CommRingCat.of k))} {Z : (overProjectiveSpace V n).IdealSheafData}
     (hZ : IsFamily n d V Z) (v : V.left) :
     ∃ φ : ProjectiveSpace.scheme (V.left.residueField v) n ⟶ overProjectiveSpace V n,
-      IsFibreOverResidueField V n v φ ∧ IsOfDegree n d (Z.comap φ) := sorry
+      IsFibreOverResidueField V n v φ ∧ IsOfDegree n d (Z.comap φ) := hZ v
 
 /-- The moduli problem of degree-`d` hypersurfaces in `P^n` admits a finite covering by
 families over varieties of dimension at most `m`, with some base of dimension exactly `m`. -/
@@ -133,7 +133,7 @@ theorem admitsCovering_iff (k : Type u) [Field k] [IsAlgClosed k] {n d m : ℕ} 
                             ProjectiveSpace.toSpec k n ≫ σ ∧
                           φ ≫ overProjectiveSpace_snd (V i) n =
                             𝟙 (ProjectiveSpace.scheme k n) ∧
-                            IsLinearEquivalent n d Z ((X i).comap φ) := sorry
+                            IsLinearEquivalent n d Z ((X i).comap φ) := Iff.rfl
 
 /-- The number of moduli is the least `m` such that finitely many families over varieties
 of dimension at most `m` cover every degree-`d` hypersurface up to equivalence. -/
@@ -144,7 +144,7 @@ def HasNumberOfModuli (k : Type u) [Field k] [IsAlgClosed k] (n d m : ℕ) : Pro
 strictly smaller dimension. -/
 theorem hasNumberOfModuli_iff (k : Type u) [Field k] [IsAlgClosed k] {n d m : ℕ} :
     HasNumberOfModuli k n d m ↔
-      AdmitsCovering k n d m ∧ ∀ m' < m, ¬ AdmitsCovering k n d m' := sorry
+      AdmitsCovering k n d m ∧ ∀ m' < m, ¬ AdmitsCovering k n d m' := Iff.rfl
 
 /-- Positive-degree hypersurfaces in `P^1` have number of moduli `d - 3`. -/
 theorem hasNumberOfModuli_P1 {k : Type u} [Field k] [IsAlgClosed k] {d : ℕ} (hd : 1 ≤ d) :
@@ -154,13 +154,14 @@ theorem hasNumberOfModuli_P1 {k : Type u} [Field k] [IsAlgClosed k] {d : ℕ} (h
 theorem hasNumberOfModuli_planeLine {k : Type u} [Field k] [IsAlgClosed k] :
     HasNumberOfModuli k 2 1 0 := sorry
 
-/-- Plane conics have number of moduli `0`. -/
-theorem hasNumberOfModuli_planeConic {k : Type u} [Field k] [IsAlgClosed k] :
-    HasNumberOfModuli k 2 2 0 := sorry
-
 /-- Quadrics in `P^n` have number of moduli `0` for every positive `n`. -/
 theorem hasNumberOfModuli_quadric {k : Type u} [Field k] [IsAlgClosed k] {n : ℕ} (hn : 1 ≤ n) :
     HasNumberOfModuli k n 2 0 := sorry
+
+/-- Plane conics have number of moduli `0`. -/
+theorem hasNumberOfModuli_planeConic {k : Type u} [Field k] [IsAlgClosed k] :
+    HasNumberOfModuli k 2 2 0 :=
+  hasNumberOfModuli_quadric (k := k) (n := 2) (by decide)
 
 /-- Plane cubics have number of moduli `1`. -/
 theorem hasNumberOfModuli_planeCubic {k : Type u} [Field k] [IsAlgClosed k] :

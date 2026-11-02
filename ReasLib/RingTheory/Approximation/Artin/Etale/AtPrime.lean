@@ -70,7 +70,7 @@ theorem neighborhood_of
     (approximation : SolutionApproximation f
       (fun i ↦ U.completedLocalMap (aHat i)) U.toCompletedLocalRing
       (completedMaximalIdealPow U.point N)) :
-    (of U approximation).neighborhood = U := sorry
+    (of U approximation).neighborhood = U := rfl
 
 /-- The approximation carried by the primewise constructor is the supplied
 exact approximation. -/
@@ -83,7 +83,7 @@ theorem approximation_of
     (approximation : SolutionApproximation f
       (fun i ↦ U.completedLocalMap (aHat i)) U.toCompletedLocalRing
       (completedMaximalIdealPow U.point N)) :
-    (of U approximation).approximation = approximation := sorry
+    (of U approximation).approximation = approximation := rfl
 
 /-- The selected point of a primewise approximation lies over the original
 prime. -/
@@ -94,7 +94,9 @@ theorem comap_point
     {aHat : sigma → CompletedLocalRing p} {N : ℕ}
     (P : AtPrime.{u, v, w, x} p f aHat N) :
     PrimeSpectrum.comap (algebraMap R P.neighborhood.carrier)
-      P.neighborhood.point = p := sorry
+      P.neighborhood.point = p := by
+  apply PrimeSpectrum.ext
+  exact P.neighborhood.over.symm
 
 /-- The selected point of a primewise approximation has the same residue
 field as the original prime. -/
@@ -105,7 +107,11 @@ theorem residueFieldBijectiveAt
     {aHat : sigma → CompletedLocalRing p} {N : ℕ}
     (P : AtPrime.{u, v, w, x} p f aHat N) :
     RingHom.ResidueField.IsBijectiveAt
-      (algebraMap R P.neighborhood.carrier) P.neighborhood.point := sorry
+      (algebraMap R P.neighborhood.carrier) P.neighborhood.point := by
+  rcases p with ⟨p, hp⟩
+  rcases P with ⟨⟨S, q, hq, hres⟩, A⟩
+  cases hq
+  exact hres
 
 /-- The chosen tuple of a primewise approximation has the bundled exact
 approximation property. -/
@@ -119,7 +125,7 @@ theorem isApproximation
       (fun i ↦ P.neighborhood.completedLocalMap (aHat i))
       P.neighborhood.toCompletedLocalRing
       (completedMaximalIdealPow P.neighborhood.point N)
-      P.approximation.solution := sorry
+      P.approximation.solution := P.approximation.isApproximation
 
 /-- The chosen tuple of a primewise approximation is an exact solution of
 the original polynomial system. -/
@@ -129,7 +135,7 @@ theorem isSolution
     {sigma : Type w} {iota : Type x} {f : iota → MvPolynomial sigma R}
     {aHat : sigma → CompletedLocalRing p} {N : ℕ}
     (P : AtPrime.{u, v, w, x} p f aHat N) :
-    IsSolution f P.approximation.solution := sorry
+    IsSolution f P.approximation.solution := P.approximation.isSolution
 
 /-- Every coordinate of the chosen exact solution has the prescribed
 primewise congruence. -/
@@ -141,7 +147,7 @@ theorem modEq
     (P : AtPrime.{u, v, w, x} p f aHat N) (i : sigma) :
     P.neighborhood.completedLocalMap (aHat i) ≡
       P.neighborhood.toCompletedLocalRing (P.approximation.solution i)
-      [SMOD completedMaximalIdealPow P.neighborhood.point N] := sorry
+      [SMOD completedMaximalIdealPow P.neighborhood.point N] := P.approximation.modEq i
 
 /-- The etale-neighborhood and exact-approximation properties carried by a
 primewise approximation. -/
@@ -160,7 +166,8 @@ theorem spec
         (fun i ↦ P.neighborhood.completedLocalMap (aHat i))
         P.neighborhood.toCompletedLocalRing
         (completedMaximalIdealPow P.neighborhood.point N)
-        P.approximation.solution := sorry
+        P.approximation.solution := by
+  exact ⟨⟨inferInstance, P.comap_point, P.residueFieldBijectiveAt⟩, P.isApproximation⟩
 
 end AtPrime
 

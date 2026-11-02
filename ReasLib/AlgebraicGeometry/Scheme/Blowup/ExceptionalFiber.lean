@@ -34,7 +34,10 @@ instance instIsProperExceptionalFiber
     {X : Scheme.{u}} (f : X ⟶ Spec (.of A)) [h_modification : IsModification f]
     [h_blowup : IsBlowup f
       (Scheme.idealSheafDataOfIdealOnSpec (IsLocalRing.maximalIdeal A))] :
-    IsProper (f.fiberToSpecResidueField (IsLocalRing.closedPoint A)) := sorry
+    IsProper (f.fiberToSpecResidueField (IsLocalRing.closedPoint A)) := by
+  change IsProper (pullback.snd f ((Spec (.of A)).fromSpecResidueField
+    (IsLocalRing.closedPoint A)))
+  infer_instance
 
 /-- The exceptional closed fibre of the blowup is Cohen–Macaulay. -/
 instance instCohenMacaulayExceptionalFiber

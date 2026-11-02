@@ -48,7 +48,7 @@ as scalar annihilation of the identity morphism. -/
 theorem powSmulIdEqZero_iff [Fintype ι] (P : Presentation A B I ι) (c : ℕ) :
     P.powSmulIdEqZero c ↔
       ∀ a ∈ I ^ c, (algebraMap A B a) • 𝟙 (naiveCotangentObject I P) = 0 :=
-  sorry
+  by rfl
 
 /-- The extended power `I ^ c` annihilates homology of `naiveCotangent I P` in
 homological degrees `1` and `0`. -/
@@ -66,7 +66,7 @@ theorem homologyAnnihilated_iff [Fintype ι] (P : Presentation A B I ι) (c : �
           Module.annihilator B ((naiveCotangent I P).homology 1 : Type u) ∧
         (I ^ c).map (algebraMap A B) ≤
           Module.annihilator B ((naiveCotangent I P).homology 0 : Type u) :=
-  sorry
+  by rfl
 
 /-- Annihilation of chain-complex homology in degrees `1` and `0` is equivalent
 to annihilation of derived homology in degrees `-1` and `0`. -/
@@ -81,7 +81,24 @@ theorem homologyAnnihilated_iff_derived [Fintype ι] (P : Presentation A B I ι)
           Module.annihilator B
             ((DerivedCategory.homologyFunctor (ModuleCat B) 0).obj
               (naiveCotangentObject I P)) :=
-  sorry
+  by
+    let e₁ :=
+      (DerivedCategory.homologyFunctorFactors (ModuleCat B) (-1)).app
+          ((naiveCotangent I P).extend ComplexShape.embeddingDownNat) ≪≫
+        (HomologicalComplex.extendHomologyIso (naiveCotangent I P)
+          ComplexShape.embeddingDownNat (j := 1) (j' := (-1 : ℤ)) rfl)
+    let e₀ :=
+      (DerivedCategory.homologyFunctorFactors (ModuleCat B) (0 : ℤ)).app
+          ((naiveCotangent I P).extend ComplexShape.embeddingDownNat) ≪≫
+        (HomologicalComplex.extendHomologyIso (naiveCotangent I P)
+          ComplexShape.embeddingDownNat (j := 0) (j' := (0 : ℤ)) rfl)
+    change
+      ((I ^ c).map (algebraMap A B) ≤
+          Module.annihilator B ((naiveCotangent I P).homology 1 : Type u) ∧
+        (I ^ c).map (algebraMap A B) ≤
+          Module.annihilator B ((naiveCotangent I P).homology 0 : Type u)) ↔ _
+    rw [← e₁.toLinearEquiv.annihilator_eq, ← e₀.toLinearEquiv.annihilator_eq]
+    rfl
 
 /-- The extended power `I ^ c` annihilates homology in degrees `1` and `0`
 at every positive adic stage, with stage `n` taken modulo `I ^ (n + 1)`. -/
@@ -107,7 +124,7 @@ theorem stageHomologyAnnihilated_iff [Fintype ι] (P : Presentation A B I ι)
           (I ^ c).map (algebraMap A (B ⧸ stageIdeal I n)) ≤
             Module.annihilator (B ⧸ stageIdeal I n)
               ((stageComplex I P n).homology 0 : Type u) :=
-  sorry
+  by rfl
 
 /-- For every `a ∈ I`, some power `a ^ c` annihilates
 `H_0(naiveCotangent I P)` and `r = Fintype.card ι` kernel elements satisfy the
@@ -128,7 +145,7 @@ theorem existsRelationGenerators_iff [Fintype ι] (P : Presentation A B I ι) :
             Module.annihilator B ((naiveCotangent I P).homology 0 : Type u) ∧
           ∃ fs : Fin (Fintype.card ι) → P.ker,
             relationCondition P (algebraMap A B (a ^ c)) fs :=
-  sorry
+  by rfl
 
 /-- For every `a ∈ I`, some power `a ^ c` is elementary for a square completed
 Jacobian minor on `r = Fintype.card ι` relations and columns. -/
@@ -144,7 +161,7 @@ theorem existsElementarySquare_iff [Fintype ι] (P : Presentation A B I ι) :
       ∀ a ∈ I, ∃ (c : ℕ) (fs : Fin (Fintype.card ι) → P.ker)
           (cols : Fin (Fintype.card ι) ↪ ι),
         IsElementaryFor P (algebraMap A B (a ^ c)) fs cols :=
-  sorry
+  by rfl
 
 /-- Some extended power `I ^ c` is contained in both the Jacobian ideal and the
 Cramer ideal. -/
@@ -160,7 +177,7 @@ theorem fittingContainsPow_iff [Fintype ι] (P : Presentation A B I ι) :
       ∃ c : ℕ,
         (I ^ c).map (algebraMap A B) ≤ P.jacobianIdeal ∧
           (I ^ c).map (algebraMap A B) ≤ P.cramerIdeal :=
-  sorry
+  by rfl
 
 end Presentation
 end Algebra.NaiveCotangent.Adic

@@ -42,7 +42,8 @@ theorem pointwiseEquivalence.left.inv
     (baseHomIso : baseEquiv.hom ≅ ψ.base) :
     (pointwiseEquivalence ψ leftEquiv rightEquiv baseEquiv
       leftHomIso rightHomIso baseHomIso).invApp
-        (LocallyDiscrete.mk Limits.WalkingCospan.left) = leftEquiv.inv := sorry
+        (LocallyDiscrete.mk Limits.WalkingCospan.left) = leftEquiv.inv := by
+  rfl
 
 /-- The left unit of `pointwiseEquivalence` is obtained by changing the forward morphism along
 `leftHomIso`. -/
@@ -58,7 +59,8 @@ theorem pointwiseEquivalence.left.unit
         (LocallyDiscrete.mk Limits.WalkingCospan.left) =
       Bicategory.Equivalence.OnHom.changeHom.unitIso
         (Bicategory.Equivalence.OnHom.ofEquivalence leftEquiv)
-        leftHomIso := sorry
+        leftHomIso := by
+  rfl
 
 /-- The left counit of `pointwiseEquivalence` is obtained by changing the forward morphism along
 `leftHomIso`. -/
@@ -74,7 +76,8 @@ theorem pointwiseEquivalence.left.counit
         (LocallyDiscrete.mk Limits.WalkingCospan.left) =
       Bicategory.Equivalence.OnHom.changeHom.counitIso
         (Bicategory.Equivalence.OnHom.ofEquivalence leftEquiv)
-        leftHomIso := sorry
+        leftHomIso := by
+  rfl
 
 /-- The right inverse component of `pointwiseEquivalence` is the supplied inverse. -/
 @[simp]
@@ -86,7 +89,8 @@ theorem pointwiseEquivalence.right.inv
     (baseHomIso : baseEquiv.hom ≅ ψ.base) :
     (pointwiseEquivalence ψ leftEquiv rightEquiv baseEquiv
       leftHomIso rightHomIso baseHomIso).invApp
-        (LocallyDiscrete.mk Limits.WalkingCospan.right) = rightEquiv.inv := sorry
+        (LocallyDiscrete.mk Limits.WalkingCospan.right) = rightEquiv.inv := by
+  rfl
 
 /-- The right unit of `pointwiseEquivalence` is obtained by changing the forward morphism along
 `rightHomIso`. -/
@@ -102,7 +106,8 @@ theorem pointwiseEquivalence.right.unit
         (LocallyDiscrete.mk Limits.WalkingCospan.right) =
       Bicategory.Equivalence.OnHom.changeHom.unitIso
         (Bicategory.Equivalence.OnHom.ofEquivalence rightEquiv)
-        rightHomIso := sorry
+        rightHomIso := by
+  rfl
 
 /-- The right counit of `pointwiseEquivalence` is obtained by changing the forward morphism along
 `rightHomIso`. -/
@@ -118,7 +123,8 @@ theorem pointwiseEquivalence.right.counit
         (LocallyDiscrete.mk Limits.WalkingCospan.right) =
       Bicategory.Equivalence.OnHom.changeHom.counitIso
         (Bicategory.Equivalence.OnHom.ofEquivalence rightEquiv)
-        rightHomIso := sorry
+        rightHomIso := by
+  rfl
 
 /-- The base inverse component of `pointwiseEquivalence` is the supplied inverse. -/
 @[simp]
@@ -130,7 +136,8 @@ theorem pointwiseEquivalence.base.inv
     (baseHomIso : baseEquiv.hom ≅ ψ.base) :
     (pointwiseEquivalence ψ leftEquiv rightEquiv baseEquiv
       leftHomIso rightHomIso baseHomIso).invApp
-        (LocallyDiscrete.mk Limits.WalkingCospan.one) = baseEquiv.inv := sorry
+        (LocallyDiscrete.mk Limits.WalkingCospan.one) = baseEquiv.inv := by
+  rfl
 
 /-- The base unit of `pointwiseEquivalence` is obtained by changing the forward morphism along
 `baseHomIso`. -/
@@ -146,7 +153,8 @@ theorem pointwiseEquivalence.base.unit
         (LocallyDiscrete.mk Limits.WalkingCospan.one) =
       Bicategory.Equivalence.OnHom.changeHom.unitIso
         (Bicategory.Equivalence.OnHom.ofEquivalence baseEquiv)
-        baseHomIso := sorry
+        baseHomIso := by
+  rfl
 
 /-- The base counit of `pointwiseEquivalence` is obtained by changing the forward morphism along
 `baseHomIso`. -/
@@ -162,7 +170,8 @@ theorem pointwiseEquivalence.base.counit
         (LocallyDiscrete.mk Limits.WalkingCospan.one) =
       Bicategory.Equivalence.OnHom.changeHom.counitIso
         (Bicategory.Equivalence.OnHom.ofEquivalence baseEquiv)
-        baseHomIso := sorry
+        baseHomIso := by
+  rfl
 
 /- Data audit (mathlib 4.32): these readouts expose only the supplied vertex equivalences and
 the canonical `changeHom` unit/counit cells. They add no new non-`Prop` data. -/

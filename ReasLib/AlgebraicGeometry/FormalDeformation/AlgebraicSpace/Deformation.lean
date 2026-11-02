@@ -38,29 +38,54 @@ def residueBaseMap : Spec (CommRingCat.of k) ⟶ specBase Λ :=
 
 /-- The residue structure morphism is the spectrum of the algebra map to the residue field. -/
 theorem residueBaseMap_eq :
-    residueBaseMap Λ k = Spec.map (CommRingCat.ofHom (algebraMap Λ k)) := sorry
+    residueBaseMap Λ k = Spec.map (CommRingCat.ofHom (algebraMap Λ k)) := rfl
 
 /-- The structure morphism of a residue-field space extended to the base projects its coproduct index. -/
 def residueStructureHom (X : AlgebraicSpace (Spec (CommRingCat.of k))) :
     extendBase (residueBaseMap Λ k) X ⟶ specObj (ArtinianLocalAlgCat.residue Λ k) where
   app testScheme := ofHom fun sectionData ↦ sectionData.1
-  naturality := sorry
+  naturality := by intros; rfl
 
 /-- The component of the residue structure morphism returns the chosen lift of the base map. -/
 theorem residueStructureHom_app (X : AlgebraicSpace (Spec (CommRingCat.of k)))
     {testScheme : Over (specBase Λ)} (φ : testScheme ⟶ Over.mk (residueBaseMap Λ k))
     (sectionData : X.functorOfPoints.obj (op (Over.mk φ.left))) :
-    (residueStructureHom Λ k X).app (op testScheme) ⟨φ, sectionData⟩ = φ := sorry
+    (residueStructureHom Λ k X).app (op testScheme) ⟨φ, sectionData⟩ = φ := rfl
 
 /-- An algebraic space over the residue field, viewed as a flat space over the residue algebra. -/
 def ofResidue (X : AlgebraicSpace (Spec (CommRingCat.of k))) :
     FlatAlgebraicSpaceCat Λ k :=
   of (ArtinianLocalAlgCat.residue Λ k) (extendBase (residueBaseMap Λ k) X)
-    (residueStructureHom Λ k X) sorry
+    (residueStructureHom Λ k X) (by
+      -- An étale morphism has an open diagonal, so it cancels from a flat composite.
+      letI : MorphismProperty.HasOfPostcompProperty
+          (@AlgebraicGeometry.Flat : MorphismProperty Scheme.{u})
+          (@AlgebraicGeometry.Etale) :=
+        (MorphismProperty.hasOfPostcompProperty_iff_le_diagonal
+          (P := @AlgebraicGeometry.Flat) (Q := @AlgebraicGeometry.Etale)).mpr (by
+          intro U V f hf
+          letI := hf
+          change AlgebraicGeometry.Flat (Limits.pullback.diagonal f)
+          infer_instance)
+      constructor
+      intro U V _ b h _ hb _
+      let b' : V ⟶ Over.mk (specHom (ArtinianLocalAlgCat.residue Λ k)) :=
+        Yoneda.fullyFaithful.preimage b
+      have hb' : AlgebraicGeometry.Etale b'.left := by
+        have hb'' : (MorphismProperty.over (@AlgebraicGeometry.Etale)).presheaf
+            (yoneda.map b') := by
+          rw [show yoneda.map b' = b from Yoneda.fullyFaithful.map_preimage b]
+          simpa only [specObj, ofOver_functorOfPoints] using hb
+        exact MorphismProperty.of_relative_map
+          (P := MorphismProperty.over (@AlgebraicGeometry.Etale)) (F := yoneda) hb''
+      exact MorphismProperty.of_postcomp (@AlgebraicGeometry.Flat) h.left b'.left hb'
+        (by
+          change AlgebraicGeometry.Flat (Y := Spec (CommRingCat.of k)) _
+          infer_instance))
 
 /-- The base of a residue-field space is the canonical residue algebra. -/
 theorem ofResidue_base (X : AlgebraicSpace (Spec (CommRingCat.of k))) :
-    (ofResidue Λ k X).base = ArtinianLocalAlgCat.residue Λ k := sorry
+    (ofResidue Λ k X).base = ArtinianLocalAlgCat.residue Λ k := rfl
 
 /-- An algebraic space over the residue field defines an object of the residue fiber. -/
 def residueObj (X : AlgebraicSpace (Spec (CommRingCat.of k))) :
@@ -69,7 +94,7 @@ def residueObj (X : AlgebraicSpace (Spec (CommRingCat.of k))) :
 
 /-- The inclusion of the residue-fiber object is its underlying flat algebraic space. -/
 theorem residueObj_fiberInclusion (X : AlgebraicSpace (Spec (CommRingCat.of k))) :
-    Fiber.fiberInclusion.obj (residueObj Λ k X) = ofResidue Λ k X := sorry
+    Fiber.fiberInclusion.obj (residueObj Λ k X) = ofResidue Λ k X := rfl
 
 /-- The deformation category of a residue-field algebraic space is the category of arrows into it. -/
 abbrev deformation (X : AlgebraicSpace (Spec (CommRingCat.of k))) :=
@@ -77,6 +102,6 @@ abbrev deformation (X : AlgebraicSpace (Spec (CommRingCat.of k))) :=
 
 /-- The deformation category is the over category at the included residue-fiber object. -/
 theorem deformation_spec (X : AlgebraicSpace (Spec (CommRingCat.of k))) :
-    deformation Λ k X = Over (Fiber.fiberInclusion.obj (residueObj Λ k X)) := sorry
+    deformation Λ k X = Over (Fiber.fiberInclusion.obj (residueObj Λ k X)) := rfl
 
 end FlatAlgebraicSpaceCat

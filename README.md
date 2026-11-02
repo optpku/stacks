@@ -2,7 +2,7 @@
 
 We are formalizing the [Stacks Project](https://stacks.math.columbia.edu/) in Lean 4 and organizing its mathematical content into **ReasLib**, a shared library of definitions, theorem statements, proofs, and dependencies. **ReasLib currently contains 24,070 Lean source files.**
 
-Our work turns entries from the Stacks Project into reusable Lean definitions and results built on Mathlib. Shared mathematical content is organized by subject, with chapter-based modules retaining their correspondence to the source. The goal is a library that can support further formalization and mathematical work as proofs are completed and definitions and statements are refined. AI-assisted formalization and integration are organized through [Quokka](quokka.reaslab.io).
+Our work turns entries from the Stacks Project into reusable Lean definitions and results built on Mathlib. Shared mathematical content is organized by subject, with chapter-based modules retaining their correspondence to the source. The goal is a library that can support further formalization and mathematical work as proofs are completed and definitions and statements are refined. AI-assisted formalization and integration are organized through [Quokka](https://quokka.reaslab.io).
 
 The library is under active development and contains unfinished proofs marked with `sorry`. We welcome downstream use of ReasLib and contributions to fill in the remaining `sorry` placeholders along the way. See [pull requests and merging](#pull-requests-and-merging) to get started.
 

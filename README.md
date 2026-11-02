@@ -1,6 +1,6 @@
 # Formalizing the Stacks Project in Lean
 
-We are formalizing the [Stacks Project](https://stacks.math.columbia.edu/) in Lean 4 and organizing its mathematical content into **ReasLib**, a shared library of definitions, theorem statements, proofs, and dependencies. **ReasLib currently contains 24,070 Lean source files.**
+The [Stacks Project](https://stacks.math.columbia.edu/) is a collaborative, open-source textbook and reference work on algebraic geometry, covering topics from commutative algebra and scheme theory to cohomology and algebraic stacks. It systematically organizes mathematical definitions, lemmas, propositions, and theorems, together with detailed proofs. We are formalizing the [Stacks Project](https://stacks.math.columbia.edu/) in Lean 4 and organizing its mathematical content into **ReasLib**, a shared library of definitions, theorem statements, proofs, and dependencies. **ReasLib currently contains 24,070 Lean source files.**
 
 Our work turns entries from the Stacks Project into reusable Lean definitions and results built on Mathlib. Shared mathematical content is organized by subject, with chapter-based modules retaining their correspondence to the source. The goal is a library that can support further formalization and mathematical work as proofs are completed and definitions and statements are refined. AI-assisted formalization and integration are organized through [Quokka](https://quokka.reaslab.io).
 

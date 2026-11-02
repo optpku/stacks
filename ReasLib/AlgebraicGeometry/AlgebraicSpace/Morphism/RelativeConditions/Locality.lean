@@ -11,6 +11,7 @@ public import Mathlib.CategoryTheory.Limits.Shapes.Pullback.HasPullback
 public import Mathlib.CategoryTheory.Limits.Shapes.Pullback.IsPullback.Defs
 public import Mathlib.Data.List.TFAE
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.RelativeConditions
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Locality.Criteria
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.VeryReasonable
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.ZariskiCover.Basic
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Surjective
@@ -38,10 +39,13 @@ variable {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
 
 /-- The projection of every affine-scheme-valued base change of `f` has
 property (β). -/
-def forallAffine : Prop :=
-  ∀ {Z : Over S} [IsAffine Z.left] {W : AlgebraicSpace S} {g : ofOver Z ⟶ Y}
-    {pZ : W ⟶ ofOver Z} {pX : W ⟶ X},
-    IsPullback pZ pX g f → PropertyBeta pZ
+abbrev forallAffine : Prop :=
+  Locality.Criteria.forallAffineIsPullback (@PropertyBeta S) f
+
+/-- Comparison with the chosen scheme-pullback criterion. -/
+theorem forallAffine_iff_criteria : forallAffine f ↔
+    Locality.Criteria.forallAffine (@PropertyBeta S) f := by
+  exact (Locality.Criteria.forallAffine_iff_isPullback (@PropertyBeta S) f).symm
 
 /-- `forallAffine f` means every affine-scheme-valued pullback projection of `f`
 has property (β). -/
@@ -78,10 +82,8 @@ end forallAffine
 
 /-- Every affine-scheme-valued pullback of the source of `f` has property (β) as an
 algebraic space. -/
-def forallAffineObject : Prop :=
-  ∀ {Z : Over S} [IsAffine Z.left] {W : AlgebraicSpace S} {g : ofOver Z ⟶ Y}
-    {pZ : W ⟶ ofOver Z} {pX : W ⟶ X},
-    IsPullback pZ pX g f → HasPropertyBeta W
+abbrev forallAffineObject : Prop :=
+  Locality.Criteria.forallAffineObject (@HasPropertyBeta S) f
 
 /-- `forallAffineObject f` means every affine-scheme-valued pullback of the
 source of `f` has property (β). -/
@@ -118,10 +120,8 @@ end forallAffineObject
 
 /-- There is a Zariski covering of `Y` along which every inverse-image
 projection of `f` has property (β). -/
-def existsZariskiCover : Prop :=
-  ∃ (𝒰 : ZariskiCover.{u, u} Y),
-    ∀ i {W : AlgebraicSpace S} {pYi : W ⟶ 𝒰.X i} {pX : W ⟶ X},
-      IsPullback pYi pX (𝒰.f i) f → PropertyBeta pYi
+abbrev existsZariskiCover : Prop :=
+  Locality.Criteria.existsZariskiCoverOnTarget.{u, u} (@PropertyBeta S) f
 
 /-- `existsZariskiCover f` is the existence of a Zariski covering of `Y` whose
 inverse images under `f` have property (β) over the covering opens. -/
@@ -157,11 +157,8 @@ end existsZariskiCover
 
 /-- There is a surjective étale morphism from a scheme to `Y` along which every
 pullback of `f` has property (β). -/
-def existsEtaleOnTarget : Prop :=
-  ∃ (V : Over S) (ψ : ofOver V ⟶ Y),
-    Etale ψ ∧ Surjective ψ ∧
-      ∀ {W : AlgebraicSpace S} {pV : W ⟶ ofOver V} {pX : W ⟶ X},
-        IsPullback pV pX ψ f → PropertyBeta pV
+abbrev existsEtaleOnTarget : Prop :=
+  Locality.Criteria.existsEtaleOnTarget (@PropertyBeta S) f
 
 /-- `existsEtaleOnTarget f` is the existence of a surjective étale scheme atlas
 of `Y` along which pullbacks of `f` have property (β). -/
@@ -205,10 +202,13 @@ variable {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
 
 /-- The projection of every affine-scheme-valued base change of `f` is
 decent. -/
-def forallAffine : Prop :=
-  ∀ {Z : Over S} [IsAffine Z.left] {W : AlgebraicSpace S} {g : ofOver Z ⟶ Y}
-    {pZ : W ⟶ ofOver Z} {pX : W ⟶ X},
-    IsPullback pZ pX g f → Decent pZ
+abbrev forallAffine : Prop :=
+  Locality.Criteria.forallAffineIsPullback (@Decent S) f
+
+/-- Comparison with the chosen scheme-pullback criterion. -/
+theorem forallAffine_iff_criteria : forallAffine f ↔
+    Locality.Criteria.forallAffine (@Decent S) f := by
+  exact (Locality.Criteria.forallAffine_iff_isPullback (@Decent S) f).symm
 
 /-- `forallAffine f` means every affine-scheme-valued pullback projection of `f`
 is decent. -/
@@ -245,10 +245,8 @@ end forallAffine
 
 /-- Every affine-scheme-valued pullback of the source of `f` is decent as an
 algebraic space. -/
-def forallAffineObject : Prop :=
-  ∀ {Z : Over S} [IsAffine Z.left] {W : AlgebraicSpace S} {g : ofOver Z ⟶ Y}
-    {pZ : W ⟶ ofOver Z} {pX : W ⟶ X},
-    IsPullback pZ pX g f → IsDecent W
+abbrev forallAffineObject : Prop :=
+  Locality.Criteria.forallAffineObject (@IsDecent S) f
 
 /-- `forallAffineObject f` means every affine-scheme-valued pullback of the
 source of `f` is decent. -/
@@ -285,10 +283,8 @@ end forallAffineObject
 
 /-- There is a Zariski covering of `Y` along which every inverse-image
 projection of `f` is decent. -/
-def existsZariskiCover : Prop :=
-  ∃ (𝒰 : ZariskiCover.{u, u} Y),
-    ∀ i {W : AlgebraicSpace S} {pYi : W ⟶ 𝒰.X i} {pX : W ⟶ X},
-      IsPullback pYi pX (𝒰.f i) f → Decent pYi
+abbrev existsZariskiCover : Prop :=
+  Locality.Criteria.existsZariskiCoverOnTarget.{u, u} (@Decent S) f
 
 /-- `existsZariskiCover f` is the existence of a Zariski covering of `Y` whose
 inverse images under `f` are decent over the covering opens. -/
@@ -324,11 +320,8 @@ end existsZariskiCover
 
 /-- There is a surjective étale morphism from a scheme to `Y` along which every
 pullback of `f` is decent. -/
-def existsEtaleOnTarget : Prop :=
-  ∃ (V : Over S) (ψ : ofOver V ⟶ Y),
-    Etale ψ ∧ Surjective ψ ∧
-      ∀ {W : AlgebraicSpace S} {pV : W ⟶ ofOver V} {pX : W ⟶ X},
-        IsPullback pV pX ψ f → Decent pV
+abbrev existsEtaleOnTarget : Prop :=
+  Locality.Criteria.existsEtaleOnTarget (@Decent S) f
 
 /-- `existsEtaleOnTarget f` is the existence of a surjective étale scheme atlas
 of `Y` along which pullbacks of `f` are decent. -/
@@ -372,10 +365,13 @@ variable {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
 
 /-- The projection of every affine-scheme-valued base change of `f` is
 reasonable. -/
-def forallAffine : Prop :=
-  ∀ {Z : Over S} [IsAffine Z.left] {W : AlgebraicSpace S} {g : ofOver Z ⟶ Y}
-    {pZ : W ⟶ ofOver Z} {pX : W ⟶ X},
-    IsPullback pZ pX g f → Reasonable pZ
+abbrev forallAffine : Prop :=
+  Locality.Criteria.forallAffineIsPullback (@Reasonable S) f
+
+/-- Comparison with the chosen scheme-pullback criterion. -/
+theorem forallAffine_iff_criteria : forallAffine f ↔
+    Locality.Criteria.forallAffine (@Reasonable S) f := by
+  exact (Locality.Criteria.forallAffine_iff_isPullback (@Reasonable S) f).symm
 
 /-- `forallAffine f` means every affine-scheme-valued pullback projection of `f`
 is reasonable. -/
@@ -412,10 +408,8 @@ end forallAffine
 
 /-- Every affine-scheme-valued pullback of the source of `f` is reasonable as an
 algebraic space. -/
-def forallAffineObject : Prop :=
-  ∀ {Z : Over S} [IsAffine Z.left] {W : AlgebraicSpace S} {g : ofOver Z ⟶ Y}
-    {pZ : W ⟶ ofOver Z} {pX : W ⟶ X},
-    IsPullback pZ pX g f → IsReasonable W
+abbrev forallAffineObject : Prop :=
+  Locality.Criteria.forallAffineObject (@IsReasonable S) f
 
 /-- `forallAffineObject f` means every affine-scheme-valued pullback of the
 source of `f` is reasonable. -/
@@ -452,10 +446,8 @@ end forallAffineObject
 
 /-- There is a Zariski covering of `Y` along which every inverse-image
 projection of `f` is reasonable. -/
-def existsZariskiCover : Prop :=
-  ∃ (𝒰 : ZariskiCover.{u, u} Y),
-    ∀ i {W : AlgebraicSpace S} {pYi : W ⟶ 𝒰.X i} {pX : W ⟶ X},
-      IsPullback pYi pX (𝒰.f i) f → Reasonable pYi
+abbrev existsZariskiCover : Prop :=
+  Locality.Criteria.existsZariskiCoverOnTarget.{u, u} (@Reasonable S) f
 
 /-- `existsZariskiCover f` is the existence of a Zariski covering of `Y` whose
 inverse images under `f` are reasonable over the covering opens. -/
@@ -491,11 +483,8 @@ end existsZariskiCover
 
 /-- There is a surjective étale morphism from a scheme to `Y` along which every
 pullback of `f` is reasonable. -/
-def existsEtaleOnTarget : Prop :=
-  ∃ (V : Over S) (ψ : ofOver V ⟶ Y),
-    Etale ψ ∧ Surjective ψ ∧
-      ∀ {W : AlgebraicSpace S} {pV : W ⟶ ofOver V} {pX : W ⟶ X},
-        IsPullback pV pX ψ f → Reasonable pV
+abbrev existsEtaleOnTarget : Prop :=
+  Locality.Criteria.existsEtaleOnTarget (@Reasonable S) f
 
 /-- `existsEtaleOnTarget f` is the existence of a surjective étale scheme atlas
 of `Y` along which pullbacks of `f` are reasonable. -/
@@ -539,10 +528,14 @@ variable {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
 
 /-- The projection of every affine-scheme-valued base change of `f` is
 very reasonable. -/
-def forallAffine : Prop :=
-  ∀ {Z : Over S} [IsAffine Z.left] {W : AlgebraicSpace S} {g : ofOver Z ⟶ Y}
-    {pZ : W ⟶ ofOver Z} {pX : W ⟶ X},
-    IsPullback pZ pX g f → VeryReasonable pZ
+abbrev forallAffine : Prop :=
+  Locality.Criteria.forallAffineIsPullback (@VeryReasonable S) f
+
+/-- Comparison with the chosen scheme-pullback criterion. -/
+theorem forallAffine_iff_criteria : forallAffine f ↔
+    Locality.Criteria.forallAffine (@VeryReasonable S) f := by
+  letI : MorphismProperty.RespectsIso (@VeryReasonable S) := by sorry
+  exact (Locality.Criteria.forallAffine_iff_isPullback (@VeryReasonable S) f).symm
 
 /-- `forallAffine f` means every affine-scheme-valued pullback projection of `f`
 is very reasonable. -/
@@ -579,10 +572,8 @@ end forallAffine
 
 /-- Every affine-scheme-valued pullback of the source of `f` is very reasonable as an
 algebraic space. -/
-def forallAffineObject : Prop :=
-  ∀ {Z : Over S} [IsAffine Z.left] {W : AlgebraicSpace S} {g : ofOver Z ⟶ Y}
-    {pZ : W ⟶ ofOver Z} {pX : W ⟶ X},
-    IsPullback pZ pX g f → IsVeryReasonable W
+abbrev forallAffineObject : Prop :=
+  Locality.Criteria.forallAffineObject (@IsVeryReasonable S) f
 
 /-- `forallAffineObject f` means every affine-scheme-valued pullback of the
 source of `f` is very reasonable. -/
@@ -619,10 +610,8 @@ end forallAffineObject
 
 /-- There is a Zariski covering of `Y` along which every inverse-image
 projection of `f` is very reasonable. -/
-def existsZariskiCover : Prop :=
-  ∃ (𝒰 : ZariskiCover.{u, u} Y),
-    ∀ i {W : AlgebraicSpace S} {pYi : W ⟶ 𝒰.X i} {pX : W ⟶ X},
-      IsPullback pYi pX (𝒰.f i) f → VeryReasonable pYi
+abbrev existsZariskiCover : Prop :=
+  Locality.Criteria.existsZariskiCoverOnTarget.{u, u} (@VeryReasonable S) f
 
 /-- `existsZariskiCover f` is the existence of a Zariski covering of `Y` whose
 inverse images under `f` are very reasonable over the covering opens. -/
@@ -671,7 +660,35 @@ with property (β); and some surjective étale scheme atlas of `Y` has pullback 
 `f` with property (β). -/
 theorem tfae :
     List.TFAE [PropertyBeta f, forallAffine f, forallAffineObject f, existsZariskiCover f,
-      existsEtaleOnTarget f] := sorry
+      existsEtaleOnTarget f] := by
+  have hP : (@PropertyBeta S : MorphismProperty (AlgebraicSpace S)) =
+      Locality.Criteria.forallSchemeObject (@HasPropertyBeta S) := by
+    funext U V g
+    exact propext ⟨fun h => h.ofOver_isPullback, fun h => ⟨h⟩⟩
+  have hlocal : ∀ (W : AlgebraicSpace S) (𝒰 : ZariskiCover.{u, u} W),
+      (∀ i, HasPropertyBeta (𝒰.X i)) → HasPropertyBeta W := by
+    sorry
+  have hrepresentable : ∀ {W V : AlgebraicSpace S} (g : W ⟶ V),
+      yoneda.relativelyRepresentable g → HasPropertyBeta V → HasPropertyBeta W := by
+    sorry
+  have hgeneric := Locality.Criteria.relativeObject_tfae
+    (@HasPropertyBeta S) hlocal hrepresentable f
+  have hbase : List.TFAE
+      [PropertyBeta f, forallAffine f, forallAffineObject f, existsZariskiCover f] := by
+    simpa only [forallAffine, forallAffineObject, existsZariskiCover, hP] using hgeneric
+  letI : MorphismProperty.IsLocalAtTarget (@PropertyBeta S) (@etalePrecoverage S) := by
+    sorry
+  have hetale : PropertyBeta f ↔ existsEtaleOnTarget f :=
+    Locality.Criteria.iff_existsEtaleOnTarget (@PropertyBeta S) f
+  apply List.tfae_of_forall (PropertyBeta f)
+  intro condition hcondition
+  simp only [List.mem_cons, List.not_mem_nil, or_false] at hcondition
+  rcases hcondition with rfl | rfl | rfl | rfl | rfl
+  · exact Iff.rfl
+  · exact (hbase.out 0 1).symm
+  · exact (hbase.out 0 2).symm
+  · exact (hbase.out 0 3).symm
+  · exact hetale.symm
 
 /-- A morphism of algebraic spaces has property (β) iff every affine-scheme-valued
 base change has property (β). -/
@@ -702,7 +719,35 @@ covering of `Y` has each inverse-image projection `f⁻¹(Yᵢ) ⟶ Yᵢ` decent
 some surjective étale scheme atlas of `Y` has decent pullback of `f`. -/
 theorem tfae :
     List.TFAE [Decent f, forallAffine f, forallAffineObject f, existsZariskiCover f,
-      existsEtaleOnTarget f] := sorry
+      existsEtaleOnTarget f] := by
+  have hP : (@Decent S : MorphismProperty (AlgebraicSpace S)) =
+      Locality.Criteria.forallSchemeObject (@IsDecent S) := by
+    funext U V g
+    exact propext ⟨fun h => h.ofOver_isPullback, fun h => ⟨h⟩⟩
+  have hlocal : ∀ (W : AlgebraicSpace S) (𝒰 : ZariskiCover.{u, u} W),
+      (∀ i, IsDecent (𝒰.X i)) → IsDecent W := by
+    sorry
+  have hrepresentable : ∀ {W V : AlgebraicSpace S} (g : W ⟶ V),
+      yoneda.relativelyRepresentable g → IsDecent V → IsDecent W := by
+    sorry
+  have hgeneric := Locality.Criteria.relativeObject_tfae
+    (@IsDecent S) hlocal hrepresentable f
+  have hbase : List.TFAE
+      [Decent f, forallAffine f, forallAffineObject f, existsZariskiCover f] := by
+    simpa only [forallAffine, forallAffineObject, existsZariskiCover, hP] using hgeneric
+  letI : MorphismProperty.IsLocalAtTarget (@Decent S) (@etalePrecoverage S) := by
+    sorry
+  have hetale : Decent f ↔ existsEtaleOnTarget f :=
+    Locality.Criteria.iff_existsEtaleOnTarget (@Decent S) f
+  apply List.tfae_of_forall (Decent f)
+  intro condition hcondition
+  simp only [List.mem_cons, List.not_mem_nil, or_false] at hcondition
+  rcases hcondition with rfl | rfl | rfl | rfl | rfl
+  · exact Iff.rfl
+  · exact (hbase.out 0 1).symm
+  · exact (hbase.out 0 2).symm
+  · exact (hbase.out 0 3).symm
+  · exact hetale.symm
 
 /-- A morphism of algebraic spaces is decent iff every affine-scheme-valued base
 change is decent. -/
@@ -734,7 +779,35 @@ reasonable; and some surjective étale scheme atlas of `Y` has reasonable
 pullback of `f`. -/
 theorem tfae :
     List.TFAE [Reasonable f, forallAffine f, forallAffineObject f, existsZariskiCover f,
-      existsEtaleOnTarget f] := sorry
+      existsEtaleOnTarget f] := by
+  have hP : (@Reasonable S : MorphismProperty (AlgebraicSpace S)) =
+      Locality.Criteria.forallSchemeObject (@IsReasonable S) := by
+    funext U V g
+    exact propext ⟨fun h => h.ofOver_isPullback, fun h => ⟨h⟩⟩
+  have hlocal : ∀ (W : AlgebraicSpace S) (𝒰 : ZariskiCover.{u, u} W),
+      (∀ i, IsReasonable (𝒰.X i)) → IsReasonable W := by
+    sorry
+  have hrepresentable : ∀ {W V : AlgebraicSpace S} (g : W ⟶ V),
+      yoneda.relativelyRepresentable g → IsReasonable V → IsReasonable W := by
+    sorry
+  have hgeneric := Locality.Criteria.relativeObject_tfae
+    (@IsReasonable S) hlocal hrepresentable f
+  have hbase : List.TFAE
+      [Reasonable f, forallAffine f, forallAffineObject f, existsZariskiCover f] := by
+    simpa only [forallAffine, forallAffineObject, existsZariskiCover, hP] using hgeneric
+  letI : MorphismProperty.IsLocalAtTarget (@Reasonable S) (@etalePrecoverage S) := by
+    sorry
+  have hetale : Reasonable f ↔ existsEtaleOnTarget f :=
+    Locality.Criteria.iff_existsEtaleOnTarget (@Reasonable S) f
+  apply List.tfae_of_forall (Reasonable f)
+  intro condition hcondition
+  simp only [List.mem_cons, List.not_mem_nil, or_false] at hcondition
+  rcases hcondition with rfl | rfl | rfl | rfl | rfl
+  · exact Iff.rfl
+  · exact (hbase.out 0 1).symm
+  · exact (hbase.out 0 2).symm
+  · exact (hbase.out 0 3).symm
+  · exact hetale.symm
 
 /-- A morphism of algebraic spaces is reasonable iff every affine-scheme-valued
 base change is reasonable. -/
@@ -765,7 +838,20 @@ reasonable; and some Zariski covering of `Y` has each inverse-image projection
 `f⁻¹(Yᵢ) ⟶ Yᵢ` very reasonable. -/
 theorem tfae :
     List.TFAE [VeryReasonable f, forallAffine f, forallAffineObject f,
-      existsZariskiCover f] := sorry
+      existsZariskiCover f] := by
+  have hP : (@VeryReasonable S : MorphismProperty (AlgebraicSpace S)) =
+      Locality.Criteria.forallSchemeObject (@IsVeryReasonable S) := by
+    funext U V g
+    exact propext ⟨fun h => h.ofOver_isPullback, fun h => ⟨h⟩⟩
+  have hlocal : ∀ (W : AlgebraicSpace S) (𝒰 : ZariskiCover.{u, u} W),
+      (∀ i, IsVeryReasonable (𝒰.X i)) → IsVeryReasonable W := by
+    sorry
+  have hrepresentable : ∀ {W V : AlgebraicSpace S} (g : W ⟶ V),
+      yoneda.relativelyRepresentable g → IsVeryReasonable V → IsVeryReasonable W := by
+    sorry
+  have hgeneric := Locality.Criteria.relativeObject_tfae
+    (@IsVeryReasonable S) hlocal hrepresentable f
+  simpa only [forallAffine, forallAffineObject, existsZariskiCover, hP] using hgeneric
 
 /-- A morphism of algebraic spaces is very reasonable iff every
 affine-scheme-valued base change is very reasonable. -/

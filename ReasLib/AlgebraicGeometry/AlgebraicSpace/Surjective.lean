@@ -37,28 +37,37 @@ class Surjective {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) : Prop 
 namespace Surjective
 
 /-- The identity morphism of an algebraic space is surjective. -/
-instance id {S : Scheme.{u}} {X : AlgebraicSpace S} : Surjective (𝟙 X) := sorry
+instance id {S : Scheme.{u}} {X : AlgebraicSpace S} : Surjective (𝟙 X) :=
+  ⟨fun x => ⟨x, Points.map_id x⟩⟩
 
 /-- An isomorphism of algebraic spaces is surjective. -/
 instance of_isIso {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) [IsIso f] :
-    Surjective f := sorry
+    Surjective f := by
+  constructor
+  intro y
+  refine ⟨Points.map (inv f) y, ?_⟩
+  rw [← Points.map_comp, IsIso.inv_hom_id, Points.map_id]
 
 /-- A surjective morphism of algebraic spaces induces a surjective map of associated
 point spaces. -/
 theorem spec {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) [Surjective f] :
-    Function.Surjective (Points.map f) := sorry
+    Function.Surjective (Points.map f) := Surjective.map_surjective
 
 /-- A morphism of algebraic spaces is surjective as soon as the induced map of
 associated point spaces is surjective. -/
 theorem of {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y}
-    (hf : Function.Surjective (Points.map f)) : Surjective f := sorry
+    (hf : Function.Surjective (Points.map f)) : Surjective f := ⟨hf⟩
 
 end Surjective
 
 /-- Surjectivity of morphisms of algebraic spaces is stable under composition. -/
 instance surjective_isStableUnderComposition {S : Scheme.{u}} :
     MorphismProperty.IsStableUnderComposition
-      (@Surjective S : MorphismProperty (AlgebraicSpace S)) := sorry
+      (@Surjective S : MorphismProperty (AlgebraicSpace S)) where
+  comp_mem f g hf hg := ⟨fun z => by
+    obtain ⟨y, hy⟩ := hg.map_surjective z
+    obtain ⟨x, hx⟩ := hf.map_surjective y
+    exact ⟨x, by rw [Points.map_comp, hx, hy]⟩⟩
 
 /-- The composition of surjective morphisms of algebraic spaces is surjective. -/
 instance surjective_comp {S : Scheme.{u}} {X Y Z : AlgebraicSpace S}

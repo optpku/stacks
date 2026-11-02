@@ -26,6 +26,8 @@ Type-valued functors send `M` to `Inf(x'_M/x)` and to `Lift(x, A[M])`.
 
 @[expose] public section
 
+open scoped Module.CommOpposite
+
 -- Public concrete constructions use private implementation declarations.
 -- This visibility compatibility option keeps those declarations out of the public API.
 set_option backward.privateInPublic true

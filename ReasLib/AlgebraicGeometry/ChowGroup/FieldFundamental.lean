@@ -48,6 +48,6 @@ theorem specFundamentalClass_def (k : Type u) [Field k] :
           (@LocallyOfFiniteType.isLocallyNoetherian _ _ (⊤_ (SchemeOverField k)).hom
             inferInstance (@instIsLocallyNoetherianSpecOfIsNoetherianRingCarrier
               (CommRingCat.of k) PrincipalIdealRing.isNoetherianRing))
-          ((⊤_ (SchemeOverField k)).hom.relativeDimensionFunction (fun _ ↦ 0)) 0) := sorry
+          ((⊤_ (SchemeOverField k)).hom.relativeDimensionFunction (fun _ ↦ 0)) 0) := rfl
 
 end AlgebraicGeometry.ChowGroup

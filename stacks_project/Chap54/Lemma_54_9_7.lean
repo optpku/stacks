@@ -114,8 +114,17 @@ of the exceptional divisor is isomorphic to `ωX|_E ⊗ 𝒪_E(-1)`. -/
       (IsRationalSingularity.dualizingGlobalSectionsFunctor A).obj
         ((RingedSpace.moduleDerivedPushforward f.toShHom).obj
           (((DerivedCategory.singleFunctor X.Modules 0).obj ωX)⟦(2 : ℤ)⟧)))
-    (targetComparison : (IsRationalSingularity.dualizingGlobalSectionsFunctor A).obj ωS ≅ ωA),
+    (targetComparison : (IsRationalSingularity.dualizingGlobalSectionsFunctor A).obj ωS ≅ ωA)
+    (traceInverse : ωA ⟶ AlgebraicGeometry.Scheme.Hom.globalSectionsMod f ωX)
+    (traceInverse_hom_id : traceInverse ≫
+      (IsRationalSingularity.dualizingTrace A f h_normal h_locallyNoetherian ωX hωX HA ωA hωA HS
+        ωS hωS hωS_affine HX h_relative a aAdjunction e sourceComparison targetComparison) = 𝟙 ωA)
+    (hom_traceInverse_id :
+      (IsRationalSingularity.dualizingTrace A f h_normal h_locallyNoetherian ωX hωX HA ωA hωA HS
+        ωS hωS hωS_affine HX h_relative a aAdjunction e sourceComparison targetComparison) ≫ traceInverse =
+        𝟙 (AlgebraicGeometry.Scheme.Hom.globalSectionsMod f ωX)),
     Sheaf.IsLocallySurjective ((SheafOfModules.toSheaf X.ringCatSheaf).map
       (IsRationalSingularity.canonicalDualizingPullbackMap A f h_normal
         h_locallyNoetherian ωX hωX HA ωA hωA HS ωS hωS hωS_affine HX h_relative a
-        aAdjunction e sourceComparison targetComparison)))
+        aAdjunction e sourceComparison targetComparison
+        traceInverse traceInverse_hom_id hom_traceInverse_id)))

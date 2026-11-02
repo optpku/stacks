@@ -17,7 +17,8 @@ public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Definition
 /-!
 # Module stalks in the function field
 
-This file bundles the canonical specialization map from a module stalk to the stalk at the
+This file provides the linear section-to-stalk germ map and its affine quasicoherent localization
+property. It also bundles the canonical specialization map from a module stalk to the stalk at the
 generic point and records its functoriality and localization property.
 -/
 
@@ -33,7 +34,286 @@ universe u
 
 namespace AlgebraicGeometry.Scheme.Modules
 
-variable {X : Scheme.{u}} [IsIntegral X]
+variable {X : Scheme.{u}}
+
+/-- The canonical linear germ map on any open, with stalk scalars restricted along the
+structure-sheaf germ. -/
+noncomputable def sectionToStalk (ℱ : X.Modules) (U : X.Opens) (x : X) (hx : x ∈ U) :
+    Γ(ℱ, U) →ₗ[Γ(X, U)]
+      (ModuleCat.restrictScalars (X.presheaf.germ U x hx).hom).obj
+        (RingedSpace.stalkModuleCat ℱ x) :=
+  (PresheafOfModules.germToStalk ℱ.val x U hx).hom
+
+/-- The linear germ map uses the usual germ of the underlying additive presheaf. -/
+@[simp]
+theorem sectionToStalk_apply (ℱ : X.Modules) (U : X.Opens) (x : X) (hx : x ∈ U)
+    (m : Γ(ℱ, U)) :
+    sectionToStalk ℱ U x hx m = ℱ.presheaf.germ U x hx m := rfl
+
+set_option maxHeartbeats 800000 in
+/-- On an affine open, the germ map of a quasicoherent module sheaf is localization at
+the complement of the prime corresponding to the point. This holds on any scheme. -/
+theorem isLocalizedModule_sectionToStalk (ℱ : X.Modules) [ℱ.IsQuasicoherent]
+    {U : X.Opens} (hU : IsAffineOpen U) (p : PrimeSpectrum Γ(X, U))
+    (hp : hU.fromSpec p ∈ U) :
+    IsLocalizedModule p.asIdeal.primeCompl (sectionToStalk ℱ U (hU.fromSpec p) hp) := by
+  classical
+  -- Local instance justification (proof-local temporary data): expose the section-to-stalk
+  -- algebra map while comparing the affine tilde model with the given module sheaf.
+  letI : Algebra Γ(X, U) (X.presheaf.stalk (hU.fromSpec p)) :=
+    (X.presheaf.germ U (hU.fromSpec p) hp).hom.toAlgebra
+  let G : (Spec (.of Γ(X, U))).Modules := ℱ.restrict hU.fromSpec
+  let M₀ : ModuleCat Γ(X, U) := moduleSpecΓFunctor.obj G
+  let f₀ : M₀ →ₗ[Γ(X, U)]
+      (ModuleCat.of Γ(X, U) ((tilde M₀).presheaf.stalk p)) :=
+    (tilde.toStalk M₀ p).hom
+  let eIn : Γ(ℱ, U) ≃ₗ[Γ(X, U)] M₀ := by
+    let htop : hU.fromSpec ''ᵁ (⊤ : (Spec (.of Γ(X, U))).Opens) = U :=
+      hU.fromSpec.image_top_eq_opensRange.trans hU.opensRange_fromSpec
+    -- Local instance justification (defeq pin): expose the transported section module on the
+    -- image of the top open while constructing the canonical restriction equivalence.
+    letI imageModule : Module Γ(X, hU.fromSpec ''ᵁ
+        (⊤ : (Spec (.of Γ(X, U))).Opens))
+        Γ(ℱ, hU.fromSpec ''ᵁ (⊤ : (Spec (.of Γ(X, U))).Opens)) := inferInstance
+    let eEq := ℱ.val.presheaf.mapIso (eqToIso htop).op
+    let eIso := eEq ≪≫ (ℱ.restrictAppIso hU.fromSpec ⊤).symm
+    let eAdd : Γ(ℱ, U) ≃+ M₀ :=
+      { toFun := eIso.hom
+        invFun := eIso.inv
+        left_inv := eIso.hom_inv_id_apply
+        right_inv := eIso.inv_hom_id_apply
+        map_add' := fun a b ↦ eIso.hom.hom.map_add a b }
+    refine { eAdd with map_smul' := ?_ }
+    intro r m
+    change (ℱ.restrictAppIso hU.fromSpec ⊤).inv
+        (ℱ.val.map (eqToHom htop).op (r • m)) =
+      r • (ℱ.restrictAppIso hU.fromSpec ⊤).inv
+        (ℱ.val.map (eqToHom htop).op m)
+    apply (ConcreteCategory.bijective_of_isIso
+      (ℱ.restrictAppIso hU.fromSpec ⊤).hom).1
+    change ℱ.val.presheaf.map (eqToHom htop).op (r • m) =
+      imageModule.smul ((hU.fromSpec.appIso ⊤).inv
+          ((Spec Γ(X, U)).presheaf.map (homOfLE le_rfl).op
+            ((Scheme.ΓSpecIso Γ(X, U)).inv r)))
+        (ℱ.val.presheaf.map (eqToHom htop).op m)
+    have hmap :
+        ℱ.val.presheaf.map (eqToHom htop).op (r • m) =
+          imageModule.smul (X.presheaf.map (eqToHom htop).op r)
+            (ℱ.val.presheaf.map (eqToHom htop).op m) := by
+      exact ℱ.val.map_smul (eqToHom htop).op r m
+    rw [hmap]
+    congr 1
+    apply (ConcreteCategory.bijective_of_isIso
+      (hU.fromSpec.appIso ⊤).hom).1
+    rw [Iso.inv_hom_id_apply]
+    change (X.presheaf.map (eqToHom htop).op ≫
+        (hU.fromSpec.appIso ⊤).hom) r =
+      ((Scheme.ΓSpecIso Γ(X, U)).inv ≫
+        (Spec Γ(X, U)).presheaf.map (homOfLE le_rfl).op) r
+    simp only [Scheme.Hom.appIso_hom', Scheme.Hom.map_appLE]
+    simp [Scheme.Hom.appLE, hU.fromSpec_app_self]
+    convert rfl using 1
+    rw [← (Spec Γ(X, U)).presheaf.map_comp_apply]
+    simp only [Subsingleton.elim _
+        (𝟙 (Opposite.op (⊤ : (Spec Γ(X, U)).Opens)))]
+    exact (congrArg (fun k ↦ k ((Scheme.ΓSpecIso Γ(X, U)).inv r))
+      ((Spec Γ(X, U)).presheaf.map_id
+        (Opposite.op (⊤ : (Spec Γ(X, U)).Opens)))).symm
+  let eOut :
+      (ModuleCat.of Γ(X, U) ((tilde M₀).presheaf.stalk p)) ≃ₗ[Γ(X, U)]
+        (ModuleCat.restrictScalars
+          (algebraMap Γ(X, U) (X.presheaf.stalk (hU.fromSpec p)))).obj
+            (RingedSpace.stalkModuleCat ℱ (hU.fromSpec p)) := by
+    -- Local instance justification (proof-local temporary data): restriction preserves the
+    -- given quasicoherence while constructing the stalk comparison.
+    haveI : G.IsQuasicoherent := inferInstance
+    -- Local instance justification (proof-local temporary data): the affine tilde comparison
+    -- is invertible for the restricted quasicoherent module.
+    haveI hFrom : IsIso G.fromTildeΓ := inferInstance
+    let A := (Spec Γ(X, U)).presheaf.stalk p
+    let N₁ := RingedSpace.stalkModuleCat (tilde M₀) p
+    let N₀ := RingedSpace.stalkModuleCat G p
+    let N₂ := RingedSpace.stalkModuleCat ℱ (hU.fromSpec p)
+    let hAN₀ : Module A N₀ := inferInstance
+    let hXN₂ : Module (X.presheaf.stalk (hU.fromSpec p)) N₂ := inferInstance
+    -- Local instance justification (defeq pin): expose the canonical section-to-stalk algebra
+    -- map on the affine spectrum.
+    letI : Algebra Γ(X, U) A :=
+      ((Scheme.ΓSpecIso Γ(X, U)).inv ≫
+        (Spec Γ(X, U)).presheaf.germ ⊤ p (by simp)).hom.toAlgebra
+    -- Local instance justification (defeq pin): restrict the tilde stalk scalars along the
+    -- affine stalk algebra map.
+    letI : Module Γ(X, U) N₁ := Module.compHom N₁ (algebraMap Γ(X, U) A)
+    -- Local instance justification (defeq pin): restrict the module stalk scalars along the
+    -- affine stalk algebra map.
+    letI : Module Γ(X, U) N₀ := Module.compHom N₀ (algebraMap Γ(X, U) A)
+    -- Local instance justification (defeq pin): restrict the target stalk scalars along its
+    -- section algebra map.
+    letI : Module Γ(X, U) N₂ :=
+      Module.compHom N₂ (algebraMap Γ(X, U) (X.presheaf.stalk (hU.fromSpec p)))
+    -- Local instance justification (defeq pin): record the canonical scalar tower for the
+    -- tilde stalk.
+    letI : IsScalarTower Γ(X, U) A N₁ := .of_algebraMap_smul fun _ _ ↦ rfl
+    -- Local instance justification (defeq pin): record the canonical scalar tower for the
+    -- restricted module stalk.
+    letI : IsScalarTower Γ(X, U) A N₀ := .of_algebraMap_smul fun _ _ ↦ rfl
+    -- Local instance justification (defeq pin): record the canonical scalar tower for the
+    -- target stalk.
+    letI : IsScalarTower Γ(X, U) (X.presheaf.stalk (hU.fromSpec p)) N₂ :=
+      .of_algebraMap_smul fun _ _ ↦ rfl
+    let eFrom : tilde M₀ ≅ G := @asIso _ _ _ _ G.fromTildeΓ hFrom
+    let e₁ := ((RingedSpace.stalkModuleFunctor p).mapIso eFrom).toLinearEquiv
+      |>.restrictScalars Γ(X, U)
+    let e₂ :
+        (ModuleCat.of Γ(X, U) N₀) ≃ₗ[Γ(X, U)]
+          (ModuleCat.restrictScalars
+            (algebraMap Γ(X, U) (X.presheaf.stalk (hU.fromSpec p)))).obj
+              (RingedSpace.stalkModuleCat ℱ (hU.fromSpec p)) := by
+      let eIso := (Scheme.Modules.restrictStalkNatIso hU.fromSpec p).app ℱ
+      let eAdd : N₀ ≃+ RingedSpace.stalkModuleCat ℱ (hU.fromSpec p) :=
+        eIso.addCommGroupIsoToAddEquiv
+      refine { eAdd with map_smul' := ?_ }
+      intro r n
+      obtain ⟨V, hpV, s, rfl⟩ := G.presheaf.exists_germ_eq n
+      dsimp only [eAdd]
+      let rV : Γ(Spec (.of Γ(X, U)), V) :=
+        (Spec Γ(X, U)).presheaf.map (homOfLE le_top).op
+          ((Scheme.ΓSpecIso Γ(X, U)).inv r)
+      have hr : algebraMap Γ(X, U) A r =
+          (Spec Γ(X, U)).presheaf.germ V p hpV rV := by
+        change ((Scheme.ΓSpecIso Γ(X, U)).inv ≫
+          (Spec Γ(X, U)).presheaf.germ ⊤ p (by simp)) r = _
+        exact ((Spec Γ(X, U)).presheaf.germ_res_apply
+          (homOfLE le_top) p hpV ((Scheme.ΓSpecIso Γ(X, U)).inv r)).symm
+      have hleft : r • (show N₀ from G.presheaf.germ V p hpV s) =
+          (show N₀ from G.presheaf.germ V p hpV (rV • s)) := by
+        -- Local instance justification (defeq pin): restore the native stalk-module structure
+        -- for this scalar computation.
+        letI : Module ((Spec Γ(X, U)).presheaf.stalk p) N₀ := hAN₀
+        change (algebraMap Γ(X, U) ((Spec Γ(X, U)).presheaf.stalk p) r) •
+            (show N₀ from G.presheaf.germ V p hpV s) = _
+        rw [hr]
+        exact (PresheafOfModules.germ_smul G.val p V hpV rV s).symm
+      rw [hleft]
+      change eIso.hom (G.presheaf.germ V p hpV (rV • s)) = _
+      have hnat := ConcreteCategory.congr_hom
+        (Scheme.Modules.germ_restrictStalkNatIso_hom_app hU.fromSpec p ℱ hpV) (rV • s)
+      have hnat' : eIso.hom (G.presheaf.germ V p hpV (rV • s)) =
+          ℱ.presheaf.germ (hU.fromSpec ''ᵁ V) (hU.fromSpec p) (by simpa) (rV • s) := by
+        convert hnat using 1 <;> simp only [ConcreteCategory.comp_apply] <;> rfl
+      rw [hnat']
+      have hnat_s := ConcreteCategory.congr_hom
+        (Scheme.Modules.germ_restrictStalkNatIso_hom_app hU.fromSpec p ℱ hpV) s
+      have hnat_s' : eIso.hom (G.presheaf.germ V p hpV s) =
+          ℱ.presheaf.germ (hU.fromSpec ''ᵁ V) (hU.fromSpec p) (by simpa) s := by
+        convert hnat_s using 1 <;> simp only [ConcreteCategory.comp_apply] <;> rfl
+      have hsection :
+          ℱ.presheaf.germ (hU.fromSpec ''ᵁ V) (hU.fromSpec p) (by simpa)
+              ((ℱ.restrictAppIso hU.fromSpec V).hom s) =
+            eIso.hom (G.presheaf.germ V p hpV s) := by
+        convert hnat_s'.symm using 1 <;> rfl
+      have hscalar :
+          X.presheaf.germ (hU.fromSpec ''ᵁ V) (hU.fromSpec p) (by simpa)
+              ((hU.fromSpec.appIso V).inv rV) =
+            algebraMap Γ(X, U) (X.presheaf.stalk (hU.fromSpec p)) r := by
+        change X.presheaf.germ (hU.fromSpec ''ᵁ V) (hU.fromSpec p) _
+            ((hU.fromSpec.appIso V).inv rV) = X.presheaf.germ U (hU.fromSpec p) hp r
+        apply (ConcreteCategory.bijective_of_isIso (hU.fromSpec.stalkMap p)).1
+        rw [Scheme.Hom.germ_stalkMap_apply, Scheme.Hom.germ_stalkMap_apply]
+        change (((hU.fromSpec.appIso V).inv ≫ hU.fromSpec.app (hU.fromSpec ''ᵁ V) ≫
+            (Spec Γ(X, U)).presheaf.germ
+              (hU.fromSpec ⁻¹ᵁ hU.fromSpec ''ᵁ V) p _) rV) =
+          ((hU.fromSpec.app U ≫ (Spec Γ(X, U)).presheaf.germ
+              (hU.fromSpec ⁻¹ᵁ U) p _) r)
+        rw [Scheme.Hom.appIso_inv_app_assoc, hU.fromSpec_app_self]
+        simp only [Category.assoc]
+        rw [TopCat.Presheaf.germ_res, TopCat.Presheaf.germ_res]
+        exact hr.symm
+      have hfinal :
+          ℱ.presheaf.germ (hU.fromSpec ''ᵁ V) (hU.fromSpec p) (by simpa) (rV • s) =
+            r • (show N₂ from eIso.hom (G.presheaf.germ V p hpV s)) := by
+        -- Local instance justification (defeq pin): restore the native target-stalk module
+        -- structure for the final scalar calculation.
+        letI : Module (X.presheaf.stalk (hU.fromSpec p)) N₂ := hXN₂
+        change ℱ.presheaf.germ (hU.fromSpec ''ᵁ V) (hU.fromSpec p) _
+            ((ℱ.restrictAppIso hU.fromSpec V).hom (rV • s)) =
+          (algebraMap Γ(X, U) (X.presheaf.stalk (hU.fromSpec p)) r) •
+            (show N₂ from eIso.hom (G.presheaf.germ V p hpV s))
+        rw [Scheme.Modules.smul_restrictAppIso_hom_apply]
+        refine (PresheafOfModules.germ_smul ℱ.val (hU.fromSpec p)
+          (hU.fromSpec ''ᵁ V) _ ((hU.fromSpec.appIso V).inv rV)
+          ((ℱ.restrictAppIso hU.fromSpec V).hom s)).trans ?_
+        exact (congrArg (fun a : X.presheaf.stalk (hU.fromSpec p) ↦
+          a • (show N₂ from ℱ.presheaf.germ (hU.fromSpec ''ᵁ V)
+            (hU.fromSpec p) _ ((ℱ.restrictAppIso hU.fromSpec V).hom s))) hscalar).trans
+          (congrArg (fun m : N₂ ↦
+            (algebraMap Γ(X, U) (X.presheaf.stalk (hU.fromSpec p)) r) • m) hsection)
+      exact hfinal
+    exact e₁.trans e₂
+  let g := eOut.toLinearMap ∘ₗ f₀ ∘ₗ eIn.toLinearMap
+  -- Local instance justification (proof-local temporary data): transport localization across
+  -- the source linear equivalence.
+  haveI : IsLocalizedModule p.asIdeal.primeCompl (f₀ ∘ₗ eIn.toLinearMap) :=
+    IsLocalizedModule.of_linearEquiv_right p.asIdeal.primeCompl f₀ eIn
+  -- Local instance justification (proof-local temporary data): transport localization across
+  -- the target linear equivalence.
+  haveI : IsLocalizedModule p.asIdeal.primeCompl g :=
+    IsLocalizedModule.of_linearEquiv p.asIdeal.primeCompl
+      (f₀ ∘ₗ eIn.toLinearMap) eOut
+  have hgf : g =
+      sectionToStalk ℱ U (hU.fromSpec p) hp := by
+    apply LinearMap.ext
+    intro m
+    dsimp only [g, LinearMap.comp_apply]
+    change ((Scheme.Modules.restrictStalkNatIso hU.fromSpec p).hom.app ℱ)
+        ((RingedSpace.stalkModuleFunctor p).map G.fromTildeΓ
+          (tilde.toStalk M₀ p (eIn m))) = ℱ.presheaf.germ U (hU.fromSpec p) hp m
+    have hstalk :
+        (RingedSpace.stalkModuleFunctor p).map G.fromTildeΓ
+            (tilde.toStalk M₀ p (eIn m)) =
+          G.presheaf.germ ⊤ p (by simp) (eIn m) := by
+      calc
+        _ = G.presheaf.germ ⊤ p (by simp)
+              (((Scheme.Modules.toPresheaf (Spec (.of Γ(X, U)))).map G.fromTildeΓ).app
+                (Opposite.op ⊤) (tilde.toOpen M₀ ⊤ (eIn m))) := by
+            exact TopCat.Presheaf.stalkFunctor_map_germ_apply
+              (F := (tilde M₀).presheaf) (G := G.presheaf) ⊤ p (by simp)
+              ((Scheme.Modules.toPresheaf (Spec (.of Γ(X, U)))).map G.fromTildeΓ)
+              (tilde.toOpen M₀ ⊤ (eIn m))
+        _ = _ := by
+          change G.presheaf.germ ⊤ p _
+              (G.fromTildeΓ.val.app (Opposite.op ⊤) (tilde.toOpen M₀ ⊤ (eIn m))) = _
+          have happ : G.fromTildeΓ.val.app (Opposite.op ⊤)
+                  (tilde.toOpen M₀ ⊤ (eIn m)) =
+                G.val.map (homOfLE le_rfl).op (eIn m) := by
+            change (modulesSpecToSheaf.map G.fromTildeΓ).hom.app (Opposite.op ⊤)
+                  (tilde.toOpen ((modulesSpecToSheaf.obj G).presheaf.obj
+                    (Opposite.op ⊤)) ⊤ (eIn m)) =
+              (modulesSpecToSheaf.obj G).obj.map (homOfLE le_rfl).op (eIn m)
+            simpa only [ConcreteCategory.comp_apply] using ConcreteCategory.congr_hom
+              (Scheme.Modules.toOpen_fromTildeΓ_app G ⊤) (eIn m)
+          rw [happ]
+          exact G.presheaf.germ_res_apply (homOfLE le_rfl) p (by simp) (eIn m)
+    rw [hstalk]
+    have hnat := ConcreteCategory.congr_hom
+      (Scheme.Modules.germ_restrictStalkNatIso_hom_app hU.fromSpec p ℱ (by simp)) (eIn m)
+    rw [show ((Scheme.Modules.restrictStalkNatIso hU.fromSpec p).hom.app ℱ)
+          (G.presheaf.germ ⊤ p (by simp) (eIn m)) =
+        ℱ.presheaf.germ (hU.fromSpec ''ᵁ (⊤ : (Spec (.of Γ(X, U))).Opens))
+          (hU.fromSpec p) (by simpa) (eIn m) by
+      convert hnat using 1 <;> simp only [ConcreteCategory.comp_apply] <;> rfl]
+    let htop : hU.fromSpec ''ᵁ (⊤ : (Spec (.of Γ(X, U))).Opens) = U :=
+      hU.fromSpec.image_top_eq_opensRange.trans hU.opensRange_fromSpec
+    dsimp only [eIn]
+    change ℱ.presheaf.germ (hU.fromSpec ''ᵁ
+        (⊤ : (Spec (.of Γ(X, U))).Opens)) (hU.fromSpec p) _
+        (ℱ.val.presheaf.map (eqToHom htop).op m) =
+      ℱ.presheaf.germ U (hU.fromSpec p) hp m
+    exact ℱ.presheaf.germ_res_apply (eqToHom htop) (hU.fromSpec p) (by simpa) m
+  rw [← hgf]
+  infer_instance
+
+variable [IsIntegral X]
 
 /-- The canonical specialization map from a module stalk to the generic stalk respects scalar
 multiplication through the canonical map to the function field. -/
@@ -136,298 +416,10 @@ theorem isLocalizedModule_stalkToFunctionField (ℱ : X.Modules) [ℱ.IsQuasicoh
   classical
   obtain ⟨_, ⟨U, hU, rfl⟩, hxU, -⟩ :=
     X.isBasis_affineOpens.exists_subset_of_mem_open (Set.mem_univ x) isOpen_univ
-  have sectionToStalk_isLocalized (p : PrimeSpectrum Γ(X, U))
-      (hp : hU.fromSpec p ∈ U) :
-      IsLocalizedModule p.asIdeal.primeCompl
-        ({ toFun := fun m ↦ ℱ.presheaf.germ U (hU.fromSpec p) hp m
-           map_add' := fun a b ↦
-             (TopCat.Presheaf.germ ℱ.val.presheaf U (hU.fromSpec p) hp).hom.map_add a b
-           map_smul' := fun r m ↦ PresheafOfModules.germ_smul ℱ.val
-             (hU.fromSpec p) U hp r m } :
-          Γ(ℱ, U) →ₗ[Γ(X, U)]
-            (ModuleCat.restrictScalars
-              (X.presheaf.germ U (hU.fromSpec p) hp).hom).obj
-                (RingedSpace.stalkModuleCat ℱ (hU.fromSpec p))) := by
-    -- Local instance justification (proof-local temporary data): expose the section-to-stalk
-    -- algebra map while comparing the affine tilde model with the given module sheaf.
-    letI : Algebra Γ(X, U) (X.presheaf.stalk (hU.fromSpec p)) :=
-      (X.presheaf.germ U (hU.fromSpec p) hp).hom.toAlgebra
-    let G : (Spec (.of Γ(X, U))).Modules := ℱ.restrict hU.fromSpec
-    let M₀ : ModuleCat Γ(X, U) := moduleSpecΓFunctor.obj G
-    let f₀ : M₀ →ₗ[Γ(X, U)]
-        (ModuleCat.of Γ(X, U) ((tilde M₀).presheaf.stalk p)) :=
-      (tilde.toStalk M₀ p).hom
-    let eIn : Γ(ℱ, U) ≃ₗ[Γ(X, U)] M₀ := by
-      let htop : hU.fromSpec ''ᵁ (⊤ : (Spec (.of Γ(X, U))).Opens) = U :=
-        hU.fromSpec.image_top_eq_opensRange.trans hU.opensRange_fromSpec
-      -- Local instance justification (defeq pin): expose the transported section module on the
-      -- image of the top open while constructing the canonical restriction equivalence.
-      letI imageModule : Module Γ(X, hU.fromSpec ''ᵁ
-          (⊤ : (Spec (.of Γ(X, U))).Opens))
-          Γ(ℱ, hU.fromSpec ''ᵁ (⊤ : (Spec (.of Γ(X, U))).Opens)) := inferInstance
-      let eEq := ℱ.val.presheaf.mapIso (eqToIso htop).op
-      let eIso := eEq ≪≫ (ℱ.restrictAppIso hU.fromSpec ⊤).symm
-      let eAdd : Γ(ℱ, U) ≃+ M₀ :=
-        { toFun := eIso.hom
-          invFun := eIso.inv
-          left_inv := eIso.hom_inv_id_apply
-          right_inv := eIso.inv_hom_id_apply
-          map_add' := fun a b ↦ eIso.hom.hom.map_add a b }
-      refine { eAdd with map_smul' := ?_ }
-      intro r m
-      change (ℱ.restrictAppIso hU.fromSpec ⊤).inv
-          (ℱ.val.map (eqToHom htop).op (r • m)) =
-        r • (ℱ.restrictAppIso hU.fromSpec ⊤).inv
-          (ℱ.val.map (eqToHom htop).op m)
-      apply (ConcreteCategory.bijective_of_isIso
-        (ℱ.restrictAppIso hU.fromSpec ⊤).hom).1
-      change ℱ.val.presheaf.map (eqToHom htop).op (r • m) =
-        imageModule.smul ((hU.fromSpec.appIso ⊤).inv
-            ((Spec Γ(X, U)).presheaf.map (homOfLE le_rfl).op
-              ((Scheme.ΓSpecIso Γ(X, U)).inv r)))
-          (ℱ.val.presheaf.map (eqToHom htop).op m)
-      have hmap :
-          ℱ.val.presheaf.map (eqToHom htop).op (r • m) =
-            imageModule.smul (X.presheaf.map (eqToHom htop).op r)
-              (ℱ.val.presheaf.map (eqToHom htop).op m) := by
-        exact ℱ.val.map_smul (eqToHom htop).op r m
-      rw [hmap]
-      congr 1
-      apply (ConcreteCategory.bijective_of_isIso
-        (hU.fromSpec.appIso ⊤).hom).1
-      rw [Iso.inv_hom_id_apply]
-      change (X.presheaf.map (eqToHom htop).op ≫
-          (hU.fromSpec.appIso ⊤).hom) r =
-        ((Scheme.ΓSpecIso Γ(X, U)).inv ≫
-          (Spec Γ(X, U)).presheaf.map (homOfLE le_rfl).op) r
-      simp only [Scheme.Hom.appIso_hom', Scheme.Hom.map_appLE]
-      simp [Scheme.Hom.appLE, hU.fromSpec_app_self]
-      convert rfl using 1
-      rw [← (Spec Γ(X, U)).presheaf.map_comp_apply]
-      simp only [Subsingleton.elim _
-          (𝟙 (Opposite.op (⊤ : (Spec Γ(X, U)).Opens)))]
-      exact (congrArg (fun k ↦ k ((Scheme.ΓSpecIso Γ(X, U)).inv r))
-        ((Spec Γ(X, U)).presheaf.map_id
-          (Opposite.op (⊤ : (Spec Γ(X, U)).Opens)))).symm
-    let eOut :
-        (ModuleCat.of Γ(X, U) ((tilde M₀).presheaf.stalk p)) ≃ₗ[Γ(X, U)]
-          (ModuleCat.restrictScalars
-            (algebraMap Γ(X, U) (X.presheaf.stalk (hU.fromSpec p)))).obj
-              (RingedSpace.stalkModuleCat ℱ (hU.fromSpec p)) := by
-      -- Local instance justification (proof-local temporary data): restriction preserves the
-      -- given quasicoherence while constructing the stalk comparison.
-      haveI : G.IsQuasicoherent := inferInstance
-      -- Local instance justification (proof-local temporary data): the affine tilde comparison
-      -- is invertible for the restricted quasicoherent module.
-      haveI hFrom : IsIso G.fromTildeΓ := inferInstance
-      let A := (Spec Γ(X, U)).presheaf.stalk p
-      let N₁ := RingedSpace.stalkModuleCat (tilde M₀) p
-      let N₀ := RingedSpace.stalkModuleCat G p
-      let N₂ := RingedSpace.stalkModuleCat ℱ (hU.fromSpec p)
-      let hAN₀ : Module A N₀ := inferInstance
-      let hXN₂ : Module (X.presheaf.stalk (hU.fromSpec p)) N₂ := inferInstance
-      -- Local instance justification (defeq pin): expose the canonical section-to-stalk algebra
-      -- map on the affine spectrum.
-      letI : Algebra Γ(X, U) A :=
-        ((Scheme.ΓSpecIso Γ(X, U)).inv ≫
-          (Spec Γ(X, U)).presheaf.germ ⊤ p (by simp)).hom.toAlgebra
-      -- Local instance justification (defeq pin): restrict the tilde stalk scalars along the
-      -- affine stalk algebra map.
-      letI : Module Γ(X, U) N₁ := Module.compHom N₁ (algebraMap Γ(X, U) A)
-      -- Local instance justification (defeq pin): restrict the module stalk scalars along the
-      -- affine stalk algebra map.
-      letI : Module Γ(X, U) N₀ := Module.compHom N₀ (algebraMap Γ(X, U) A)
-      -- Local instance justification (defeq pin): restrict the target stalk scalars along its
-      -- section algebra map.
-      letI : Module Γ(X, U) N₂ :=
-        Module.compHom N₂ (algebraMap Γ(X, U) (X.presheaf.stalk (hU.fromSpec p)))
-      -- Local instance justification (defeq pin): record the canonical scalar tower for the
-      -- tilde stalk.
-      letI : IsScalarTower Γ(X, U) A N₁ := .of_algebraMap_smul fun _ _ ↦ rfl
-      -- Local instance justification (defeq pin): record the canonical scalar tower for the
-      -- restricted module stalk.
-      letI : IsScalarTower Γ(X, U) A N₀ := .of_algebraMap_smul fun _ _ ↦ rfl
-      -- Local instance justification (defeq pin): record the canonical scalar tower for the
-      -- target stalk.
-      letI : IsScalarTower Γ(X, U) (X.presheaf.stalk (hU.fromSpec p)) N₂ :=
-        .of_algebraMap_smul fun _ _ ↦ rfl
-      let eFrom : tilde M₀ ≅ G := @asIso _ _ _ _ G.fromTildeΓ hFrom
-      let e₁ := ((RingedSpace.stalkModuleFunctor p).mapIso eFrom).toLinearEquiv
-        |>.restrictScalars Γ(X, U)
-      let e₂ :
-          (ModuleCat.of Γ(X, U) N₀) ≃ₗ[Γ(X, U)]
-            (ModuleCat.restrictScalars
-              (algebraMap Γ(X, U) (X.presheaf.stalk (hU.fromSpec p)))).obj
-                (RingedSpace.stalkModuleCat ℱ (hU.fromSpec p)) := by
-        let eIso := (Scheme.Modules.restrictStalkNatIso hU.fromSpec p).app ℱ
-        let eAdd : N₀ ≃+ RingedSpace.stalkModuleCat ℱ (hU.fromSpec p) :=
-          eIso.addCommGroupIsoToAddEquiv
-        refine { eAdd with map_smul' := ?_ }
-        intro r n
-        obtain ⟨V, hpV, s, rfl⟩ := G.presheaf.exists_germ_eq n
-        dsimp only [eAdd]
-        let rV : Γ(Spec (.of Γ(X, U)), V) :=
-          (Spec Γ(X, U)).presheaf.map (homOfLE le_top).op
-            ((Scheme.ΓSpecIso Γ(X, U)).inv r)
-        have hr : algebraMap Γ(X, U) A r =
-            (Spec Γ(X, U)).presheaf.germ V p hpV rV := by
-          change ((Scheme.ΓSpecIso Γ(X, U)).inv ≫
-            (Spec Γ(X, U)).presheaf.germ ⊤ p (by simp)) r = _
-          exact ((Spec Γ(X, U)).presheaf.germ_res_apply
-            (homOfLE le_top) p hpV ((Scheme.ΓSpecIso Γ(X, U)).inv r)).symm
-        have hleft : r • (show N₀ from G.presheaf.germ V p hpV s) =
-            (show N₀ from G.presheaf.germ V p hpV (rV • s)) := by
-          -- Local instance justification (defeq pin): restore the native stalk-module structure
-          -- for this scalar computation.
-          letI : Module ((Spec Γ(X, U)).presheaf.stalk p) N₀ := hAN₀
-          change (algebraMap Γ(X, U) ((Spec Γ(X, U)).presheaf.stalk p) r) •
-              (show N₀ from G.presheaf.germ V p hpV s) = _
-          rw [hr]
-          exact (PresheafOfModules.germ_smul G.val p V hpV rV s).symm
-        rw [hleft]
-        change eIso.hom (G.presheaf.germ V p hpV (rV • s)) = _
-        have hnat := ConcreteCategory.congr_hom
-          (Scheme.Modules.germ_restrictStalkNatIso_hom_app hU.fromSpec p ℱ hpV) (rV • s)
-        have hnat' : eIso.hom (G.presheaf.germ V p hpV (rV • s)) =
-            ℱ.presheaf.germ (hU.fromSpec ''ᵁ V) (hU.fromSpec p) (by simpa) (rV • s) := by
-          convert hnat using 1 <;> simp only [ConcreteCategory.comp_apply] <;> rfl
-        rw [hnat']
-        have hnat_s := ConcreteCategory.congr_hom
-          (Scheme.Modules.germ_restrictStalkNatIso_hom_app hU.fromSpec p ℱ hpV) s
-        have hnat_s' : eIso.hom (G.presheaf.germ V p hpV s) =
-            ℱ.presheaf.germ (hU.fromSpec ''ᵁ V) (hU.fromSpec p) (by simpa) s := by
-          convert hnat_s using 1 <;> simp only [ConcreteCategory.comp_apply] <;> rfl
-        have hsection :
-            ℱ.presheaf.germ (hU.fromSpec ''ᵁ V) (hU.fromSpec p) (by simpa)
-                ((ℱ.restrictAppIso hU.fromSpec V).hom s) =
-              eIso.hom (G.presheaf.germ V p hpV s) := by
-          convert hnat_s'.symm using 1 <;> rfl
-        have hscalar :
-            X.presheaf.germ (hU.fromSpec ''ᵁ V) (hU.fromSpec p) (by simpa)
-                ((hU.fromSpec.appIso V).inv rV) =
-              algebraMap Γ(X, U) (X.presheaf.stalk (hU.fromSpec p)) r := by
-          change X.presheaf.germ (hU.fromSpec ''ᵁ V) (hU.fromSpec p) _
-              ((hU.fromSpec.appIso V).inv rV) = X.presheaf.germ U (hU.fromSpec p) hp r
-          apply (ConcreteCategory.bijective_of_isIso (hU.fromSpec.stalkMap p)).1
-          rw [Scheme.Hom.germ_stalkMap_apply, Scheme.Hom.germ_stalkMap_apply]
-          change (((hU.fromSpec.appIso V).inv ≫ hU.fromSpec.app (hU.fromSpec ''ᵁ V) ≫
-              (Spec Γ(X, U)).presheaf.germ
-                (hU.fromSpec ⁻¹ᵁ hU.fromSpec ''ᵁ V) p _) rV) =
-            ((hU.fromSpec.app U ≫ (Spec Γ(X, U)).presheaf.germ
-                (hU.fromSpec ⁻¹ᵁ U) p _) r)
-          rw [Scheme.Hom.appIso_inv_app_assoc, hU.fromSpec_app_self]
-          simp only [Category.assoc]
-          rw [TopCat.Presheaf.germ_res, TopCat.Presheaf.germ_res]
-          exact hr.symm
-        have hfinal :
-            ℱ.presheaf.germ (hU.fromSpec ''ᵁ V) (hU.fromSpec p) (by simpa) (rV • s) =
-              r • (show N₂ from eIso.hom (G.presheaf.germ V p hpV s)) := by
-          -- Local instance justification (defeq pin): restore the native target-stalk module
-          -- structure for the final scalar calculation.
-          letI : Module (X.presheaf.stalk (hU.fromSpec p)) N₂ := hXN₂
-          change ℱ.presheaf.germ (hU.fromSpec ''ᵁ V) (hU.fromSpec p) _
-              ((ℱ.restrictAppIso hU.fromSpec V).hom (rV • s)) =
-            (algebraMap Γ(X, U) (X.presheaf.stalk (hU.fromSpec p)) r) •
-              (show N₂ from eIso.hom (G.presheaf.germ V p hpV s))
-          rw [Scheme.Modules.smul_restrictAppIso_hom_apply]
-          refine (PresheafOfModules.germ_smul ℱ.val (hU.fromSpec p)
-            (hU.fromSpec ''ᵁ V) _ ((hU.fromSpec.appIso V).inv rV)
-            ((ℱ.restrictAppIso hU.fromSpec V).hom s)).trans ?_
-          exact (congrArg (fun a : X.presheaf.stalk (hU.fromSpec p) ↦
-            a • (show N₂ from ℱ.presheaf.germ (hU.fromSpec ''ᵁ V)
-              (hU.fromSpec p) _ ((ℱ.restrictAppIso hU.fromSpec V).hom s))) hscalar).trans
-            (congrArg (fun m : N₂ ↦
-              (algebraMap Γ(X, U) (X.presheaf.stalk (hU.fromSpec p)) r) • m) hsection)
-        exact hfinal
-      exact e₁.trans e₂
-    let g := eOut.toLinearMap ∘ₗ f₀ ∘ₗ eIn.toLinearMap
-    -- Local instance justification (proof-local temporary data): transport localization across
-    -- the source linear equivalence.
-    haveI : IsLocalizedModule p.asIdeal.primeCompl (f₀ ∘ₗ eIn.toLinearMap) :=
-      IsLocalizedModule.of_linearEquiv_right p.asIdeal.primeCompl f₀ eIn
-    -- Local instance justification (proof-local temporary data): transport localization across
-    -- the target linear equivalence.
-    haveI : IsLocalizedModule p.asIdeal.primeCompl g :=
-      IsLocalizedModule.of_linearEquiv p.asIdeal.primeCompl
-        (f₀ ∘ₗ eIn.toLinearMap) eOut
-    have hgf : g =
-        ({ toFun := fun m ↦ ℱ.presheaf.germ U (hU.fromSpec p) hp m
-           map_add' := fun a b ↦
-             (TopCat.Presheaf.germ ℱ.val.presheaf U (hU.fromSpec p) hp).hom.map_add a b
-           map_smul' := fun r m ↦ PresheafOfModules.germ_smul ℱ.val
-             (hU.fromSpec p) U hp r m } :
-          Γ(ℱ, U) →ₗ[Γ(X, U)]
-            (ModuleCat.restrictScalars
-              (X.presheaf.germ U (hU.fromSpec p) hp).hom).obj
-                (RingedSpace.stalkModuleCat ℱ (hU.fromSpec p))) := by
-      apply LinearMap.ext
-      intro m
-      dsimp only [g, LinearMap.comp_apply]
-      change ((Scheme.Modules.restrictStalkNatIso hU.fromSpec p).hom.app ℱ)
-          ((RingedSpace.stalkModuleFunctor p).map G.fromTildeΓ
-            (tilde.toStalk M₀ p (eIn m))) = ℱ.presheaf.germ U (hU.fromSpec p) hp m
-      have hstalk :
-          (RingedSpace.stalkModuleFunctor p).map G.fromTildeΓ
-              (tilde.toStalk M₀ p (eIn m)) =
-            G.presheaf.germ ⊤ p (by simp) (eIn m) := by
-        calc
-          _ = G.presheaf.germ ⊤ p (by simp)
-                (((Scheme.Modules.toPresheaf (Spec (.of Γ(X, U)))).map G.fromTildeΓ).app
-                  (Opposite.op ⊤) (tilde.toOpen M₀ ⊤ (eIn m))) := by
-              exact TopCat.Presheaf.stalkFunctor_map_germ_apply
-                (F := (tilde M₀).presheaf) (G := G.presheaf) ⊤ p (by simp)
-                ((Scheme.Modules.toPresheaf (Spec (.of Γ(X, U)))).map G.fromTildeΓ)
-                (tilde.toOpen M₀ ⊤ (eIn m))
-          _ = _ := by
-            change G.presheaf.germ ⊤ p _
-                (G.fromTildeΓ.val.app (Opposite.op ⊤) (tilde.toOpen M₀ ⊤ (eIn m))) = _
-            have happ : G.fromTildeΓ.val.app (Opposite.op ⊤)
-                    (tilde.toOpen M₀ ⊤ (eIn m)) =
-                  G.val.map (homOfLE le_rfl).op (eIn m) := by
-              change (modulesSpecToSheaf.map G.fromTildeΓ).hom.app (Opposite.op ⊤)
-                    (tilde.toOpen ((modulesSpecToSheaf.obj G).presheaf.obj
-                      (Opposite.op ⊤)) ⊤ (eIn m)) =
-                (modulesSpecToSheaf.obj G).obj.map (homOfLE le_rfl).op (eIn m)
-              simpa only [ConcreteCategory.comp_apply] using ConcreteCategory.congr_hom
-                (Scheme.Modules.toOpen_fromTildeΓ_app G ⊤) (eIn m)
-            rw [happ]
-            exact G.presheaf.germ_res_apply (homOfLE le_rfl) p (by simp) (eIn m)
-      rw [hstalk]
-      have hnat := ConcreteCategory.congr_hom
-        (Scheme.Modules.germ_restrictStalkNatIso_hom_app hU.fromSpec p ℱ (by simp)) (eIn m)
-      rw [show ((Scheme.Modules.restrictStalkNatIso hU.fromSpec p).hom.app ℱ)
-            (G.presheaf.germ ⊤ p (by simp) (eIn m)) =
-          ℱ.presheaf.germ (hU.fromSpec ''ᵁ (⊤ : (Spec (.of Γ(X, U))).Opens))
-            (hU.fromSpec p) (by simpa) (eIn m) by
-        convert hnat using 1 <;> simp only [ConcreteCategory.comp_apply] <;> rfl]
-      let htop : hU.fromSpec ''ᵁ (⊤ : (Spec (.of Γ(X, U))).Opens) = U :=
-        hU.fromSpec.image_top_eq_opensRange.trans hU.opensRange_fromSpec
-      dsimp only [eIn]
-      change ℱ.presheaf.germ (hU.fromSpec ''ᵁ
-          (⊤ : (Spec (.of Γ(X, U))).Opens)) (hU.fromSpec p) _
-          (ℱ.val.presheaf.map (eqToHom htop).op m) =
-        ℱ.presheaf.germ U (hU.fromSpec p) hp m
-      exact ℱ.presheaf.germ_res_apply (eqToHom htop) (hU.fromSpec p) (by simpa) m
-    rw [← hgf]
-    infer_instance
   have transportSectionLocalization (z y : X) (hz : z = y)
       (hzU : z ∈ U) (hyU : y ∈ U) (S : Submonoid Γ(X, U))
-      (h : IsLocalizedModule S
-        ({ toFun := fun m ↦ ℱ.presheaf.germ U z hzU m
-           map_add' := fun a b ↦
-             (TopCat.Presheaf.germ ℱ.val.presheaf U z hzU).hom.map_add a b
-           map_smul' := fun r m ↦ PresheafOfModules.germ_smul ℱ.val z U hzU r m } :
-          Γ(ℱ, U) →ₗ[Γ(X, U)]
-            (ModuleCat.restrictScalars (X.presheaf.germ U z hzU).hom).obj
-              (RingedSpace.stalkModuleCat ℱ z))) :
-      IsLocalizedModule S
-        ({ toFun := fun m ↦ ℱ.presheaf.germ U y hyU m
-           map_add' := fun a b ↦
-             (TopCat.Presheaf.germ ℱ.val.presheaf U y hyU).hom.map_add a b
-           map_smul' := fun r m ↦ PresheafOfModules.germ_smul ℱ.val y U hyU r m } :
-          Γ(ℱ, U) →ₗ[Γ(X, U)]
-            (ModuleCat.restrictScalars (X.presheaf.germ U y hyU).hom).obj
-              (RingedSpace.stalkModuleCat ℱ y)) := by
+      (h : IsLocalizedModule S (sectionToStalk ℱ U z hzU)) :
+      IsLocalizedModule S (sectionToStalk ℱ U y hyU) := by
     subst y
     exact h
   let p := hU.primeIdealOf ⟨x, hxU⟩
@@ -435,14 +427,11 @@ theorem isLocalizedModule_stalkToFunctionField (ℱ : X.Modules) [ℱ.IsQuasicoh
     simpa only [p] using hU.fromSpec_primeIdealOf ⟨x, hxU⟩
   have hpU : hU.fromSpec p ∈ U := hp.symm ▸ hxU
   have hfp := transportSectionLocalization (hU.fromSpec p) x hp hpU hxU
-    p.asIdeal.primeCompl (sectionToStalk_isLocalized p hpU)
+    p.asIdeal.primeCompl (isLocalizedModule_sectionToStalk ℱ hU p hpU)
   let f : Γ(ℱ, U) →ₗ[Γ(X, U)]
       (ModuleCat.restrictScalars (X.presheaf.germ U x hxU).hom).obj
         (RingedSpace.stalkModuleCat ℱ x) :=
-    { toFun := fun m ↦ ℱ.presheaf.germ U x hxU m
-      map_add' := fun a b ↦
-        (TopCat.Presheaf.germ ℱ.val.presheaf U x hxU).hom.map_add a b
-      map_smul' := fun r m ↦ PresheafOfModules.germ_smul ℱ.val x U hxU r m }
+    sectionToStalk ℱ U x hxU
   change IsLocalizedModule p.asIdeal.primeCompl f at hfp
   -- Local instance justification (proof-local temporary data): the chosen point supplies
   -- temporary nonemptiness of the affine open.
@@ -455,15 +444,11 @@ theorem isLocalizedModule_stalkToFunctionField (ℱ : X.Modules) [ℱ.IsQuasicoh
     simpa only [q, ηU] using hU.fromSpec_primeIdealOf ηU
   have hqU : hU.fromSpec q ∈ U := hq.symm ▸ hηU
   have hg := transportSectionLocalization (hU.fromSpec q) (genericPoint X) hq hqU hηU
-    q.asIdeal.primeCompl (sectionToStalk_isLocalized q hqU)
+    q.asIdeal.primeCompl (isLocalizedModule_sectionToStalk ℱ hU q hqU)
   let g : Γ(ℱ, U) →ₗ[Γ(X, U)]
       (ModuleCat.restrictScalars (X.germToFunctionField U).hom).obj
         (RingedSpace.stalkModuleCat ℱ (genericPoint X)) :=
-    { toFun := fun m ↦ ℱ.presheaf.germ U (genericPoint X) hηU m
-      map_add' := fun a b ↦
-        (TopCat.Presheaf.germ ℱ.val.presheaf U (genericPoint X) hηU).hom.map_add a b
-      map_smul' := fun r m ↦ PresheafOfModules.germ_smul ℱ.val
-        (genericPoint X) U hηU r m }
+    sectionToStalk ℱ U (genericPoint X) hηU
   change IsLocalizedModule q.asIdeal.primeCompl g at hg
   have hq0 : q = (⊥ : PrimeSpectrum Γ(X, U)) := by
     dsimp only [q, ηU]

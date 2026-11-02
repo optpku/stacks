@@ -252,6 +252,19 @@ theorem homFunctor_covering_equalizer {S : Scheme.{u}} {X B : AlgebraicSpace S}
         ∃! u, coveringHom f F G fi σ u = s) :=
   sorry
 
+/-- Restriction to an fppf covering is injective, without specifying covers of overlaps. -/
+theorem homFunctor_covering_injective_single {S : Scheme.{u}} {X B : AlgebraicSpace S}
+    (f : X ⟶ B) (F G : X.Modules) [F.IsQuasicoherent] [G.IsQuasicoherent]
+    {ι : Type v} {Xi : ι → AlgebraicSpace S} (fi : (i : ι) → Xi i ⟶ X)
+    [FppfCovering Xi fi] (σ : SchemeOver B) :
+    Function.Injective (coveringHom f F G fi σ) := by
+  let g : (i j : ι) → PUnit.{1} → (Limits.pullback (fi i) (fi j) ⟶
+      Limits.pullback (fi i) (fi j)) := fun i j _ ↦ 𝟙 _
+  have h := homFunctor_covering_equalizer f F G fi g σ
+  intro a b hab
+  obtain ⟨u, hu, unique⟩ := h.2 (coveringHom f F G fi σ a) (h.1 a)
+  exact (unique a rfl).trans (unique b hab.symm).symm
+
 /-- The restriction map `Hom(F, G)(T) ⟶ ∏_i Hom(F_i, G_i)(T)` is injective. -/
 theorem homFunctor_covering_injective {S : Scheme.{u}} {X B : AlgebraicSpace S}
     (f : X ⟶ B) (F G : X.Modules) [F.IsQuasicoherent] [G.IsQuasicoherent]
@@ -261,7 +274,7 @@ theorem homFunctor_covering_injective {S : Scheme.{u}} {X B : AlgebraicSpace S}
     (g : (i j : ι) → (k : κ i j) → Xijk i j k ⟶ Limits.pullback (fi i) (fi j))
     [∀ i j, FppfCovering (Xijk i j) (g i j)] (σ : SchemeOver B) :
     Function.Injective (coveringHom f F G fi σ) :=
-  sorry
+  homFunctor_covering_injective_single f F G fi σ
 
 /-- A family in `∏_i Hom(F_i, G_i)(T)` comes from `Hom(F, G)(T)` if and only if
 it is equalized by `pr₀^*` and `pr₁^*`. -/

@@ -6,8 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import Mathlib.Algebra.Module.RingHom
-public import Mathlib.Algebra.Ring.Opposite
+public import ReasLib.Algebra.Module.CommOpposite
 public import Mathlib.Algebra.TrivSqZeroExt.Basic
 public import Mathlib.Algebra.TrivSqZeroExt.Ideal
 public import Mathlib.RingTheory.Artinian.Module
@@ -24,6 +23,8 @@ as the object `k[I]` of `C_Λ`, together with the canonical projection onto the 
 
 @[expose] public section
 
+open scoped Module.CommOpposite
+
 open CategoryTheory IsLocalRing TrivSqZeroExt
 
 universe u
@@ -32,16 +33,6 @@ namespace ArtinianLocalAlgCat
 
 variable {Λ k : Type u} [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra Λ k]
   [Module.Finite Λ k]
-
-/-- Opposite scalars on a `k`-module, using that `k` is commutative. -/
-instance (priority := 100) instModuleOp {I : Type u} [AddCommGroup I] [Module k I] :
-    Module kᵐᵒᵖ I :=
-  Module.compHom I ((RingHom.id k).fromOpposite mul_comm)
-
-/-- Scalar actions of `k` and `kᵐᵒᵖ` agree on a `k`-module. -/
-instance (priority := 100) instIsCentralScalar {I : Type u} [AddCommGroup I] [Module k I] :
-    IsCentralScalar k I where
-  op_smul_eq_smul _ _ := rfl
 
 /-- The trivial square-zero extension is a `Λ`-algebra via the composite `Λ → k → k[I]`.
 Priority is below the canonical `k`-algebra instance `algebra' k k I`. -/

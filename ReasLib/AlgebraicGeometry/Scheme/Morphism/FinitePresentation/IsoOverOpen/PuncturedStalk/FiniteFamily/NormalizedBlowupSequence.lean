@@ -16,16 +16,59 @@ open scoped AlgebraicGeometry
 
 universe u
 
+namespace AlgebraicGeometry.Scheme.Hom
+
+/-- Realization by a finite absolute normalized point-blowup sequence supported over `T`.
+The terminal scheme may vary, and the endpoint is compared in the slice category. -/
+def IsNormalizedBlowupSequenceOver {X S : Scheme.{u}} (f : X ⟶ S) (T : Set S) : Prop :=
+  ∃ (Z : Scheme.{u}) (q : Scheme.NormalizedBlowupSequence S Z),
+    Nonempty (Over.mk q.toSource ≅ Over.mk f) ∧ q.EveryCenterOver T
+
+/-- Sequence realization depends only on the isomorphism class over the base. -/
+theorem isNormalizedBlowupSequenceOver_iff_of_iso {X Y S : Scheme.{u}}
+    {f : X ⟶ S} {g : Y ⟶ S} (e : Over.mk f ≅ Over.mk g) (T : Set S) :
+    f.IsNormalizedBlowupSequenceOver T ↔ g.IsNormalizedBlowupSequenceOver T := by
+  constructor
+  · rintro ⟨Z, q, ⟨h⟩, hq⟩
+    exact ⟨Z, q, ⟨h ≪≫ e⟩, hq⟩
+  · rintro ⟨Z, q, ⟨h⟩, hq⟩
+    exact ⟨Z, q, ⟨h ≪≫ e.symm⟩, hq⟩
+
+/-- With no allowed centers, realization is precisely a slice isomorphism to the identity.
+This includes zero-length sequences and does not require a nonempty marked family. -/
+theorem isNormalizedBlowupSequenceOver_empty_iff {X S : Scheme.{u}} (f : X ⟶ S) :
+    f.IsNormalizedBlowupSequenceOver ∅ ↔ Nonempty (Over.mk (𝟙 S) ≅ Over.mk f) := by
+  constructor
+  · rintro ⟨Z, q, he, hq⟩
+    cases q with
+    | nil => exact he
+    | cons _ _ => exact False.elim hq.1
+  · intro he
+    exact ⟨S, .nil S, he, trivial⟩
+
+end AlgebraicGeometry.Scheme.Hom
+
 namespace AlgebraicGeometry.FinitePresentationIsoOverOpen.puncturedStalkBaseChange
 
-/-- Under punctured-stalk base change at a finite family of distinct closed points with
-quasi-compact open complement, a finite-presentation morphism that is an isomorphism over
-the complement factors as a finite sequence of normalized blowups over the family exactly when
-every corresponding local morphism factors as a finite sequence of normalized blowups over its
-distinguished closed point. -/
+/-- Normal-base form of the normalized point-blowup locality statement: realization is
+invariant under slice isomorphism and can be checked at the marked stalks.
+
+The steps use the existing *absolute* normalization. Normality of `S` ensures that a step
+at one marked fiber induces an isomorphism at every other, unselected coordinate. Each
+subsequent stage is normal as well. No Noetherian, Nagata, or excellence hypothesis is used.
+
+Source discrepancy (Stacks 0BFZ): the printed statement assumes only finitely many
+irreducible components on quasi-compact opens. That generality is false for absolute
+normalization, even if the complement is normal. For example, take the disjoint union of
+a smooth affine surface and a cusp curve, mark the surface origin and the cusp, and blow up
+only the surface origin while leaving the cusp unchanged. The local objects admit a
+one-step sequence and an empty sequence, respectively; a nonempty global normalized
+sequence has normal terminal scheme and cannot realize this object. Thus `hS_normal` is
+an explicit correction to the source, not a consequence of its stated assumptions. -/
 theorem existsNormalizedBlowupSequence_iff
     {ι : Type u} [Finite ι] [Nonempty ι]
     (S : Scheme.{u}) [Scheme.HasFiniteIrreducibleComponentsOnCompactOpens S]
+    (hS_normal : S.isNormal)
     (s : ι → S)
     (hs_closed : ∀ i, s i ∈ closedPoints S)
     (hs_pairwise : Function.Injective s)
@@ -34,12 +77,8 @@ theorem existsNormalizedBlowupSequence_iff
     (Y : (i : ι) → FinitePresentationIsoOverOpen
       (PuncturedSpectrum.puncturedOpen (S.presheaf.stalk (s i))))
     (e : (puncturedStalkBaseChange S s hs_closed hs_pairwise U hU).obj X ≅ Y) :
-    (∃ q : Scheme.NormalizedBlowupSequence S X.obj.left,
-      q.toSource = X.obj.hom ∧ q.EveryCenterOver (Set.range s)) ↔
-      ∀ i, ∃ q : Scheme.NormalizedBlowupSequence
-          (Spec (CommRingCat.of (S.presheaf.stalk (s i)))) (Y i).obj.left,
-        q.toSource = (Y i).obj.hom ∧
-          q.EveryCenterOver
-            ({IsLocalRing.closedPoint (S.presheaf.stalk (s i))} : Set _) := sorry
+    X.obj.hom.IsNormalizedBlowupSequenceOver (Set.range s) ↔
+      ∀ i, (Y i).obj.hom.IsNormalizedBlowupSequenceOver
+        ({IsLocalRing.closedPoint (S.presheaf.stalk (s i))} : Set _) := sorry
 
 end AlgebraicGeometry.FinitePresentationIsoOverOpen.puncturedStalkBaseChange

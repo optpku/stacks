@@ -7,6 +7,8 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import Mathlib.Algebra.Module.Torsion.Basic
+public import Mathlib.FieldTheory.IsSepClosed
+public import ReasLib.AlgebraicGeometry.GroupScheme.AbelianVariety.BaseChange
 public import ReasLib.AlgebraicGeometry.GroupScheme.AbelianVariety.Etale
 public import ReasLib.AlgebraicGeometry.GroupScheme.AbelianVariety.Surjective
 public import ReasLib.AlgebraicGeometry.GroupScheme.Torsion
@@ -62,6 +64,66 @@ theorem rationalTorsion_equiv [IsAlgClosed k] (n : ℕ) [NeZero n] (hunit : IsUn
     Nonempty
       (AddSubgroup.torsionBy (SchemeOverField.rationalPoints A) (n : ℤ) ≃+
         (Fin (2 * dimension A) → ZMod n)) := sorry
+
+/-- Extension of scalars does not add points to the prime-to-characteristic multiplication
+kernel over a separably closed field. The map is actual precomposition with `Spec K → Spec k`,
+on the existing arbitrary-base kernel, rather than a comparison of cardinalities.
+
+Indeed, for nonzero invertible `n` this kernel is finite étale, also when `dimension A = 0`.
+A finite étale scheme over a separably closed field is a disjoint union of copies of the
+base spectrum, so every `K`-point descends uniquely. Precomposition preserves the represented
+group law (`MonObj.comp_mul`). -/
+theorem kernelPoints_fieldExtension_bijective [IsSepClosed k]
+    (K : Type u) [Field K] [Algebra k K] (n : ℕ) [NeZero n]
+    (hunit : IsUnit (n : k)) :
+    Function.Bijective
+      (fun x : (𝟙_ (SchemeOverField k) ⟶ Scheme.GroupObject.multiplicationKernel A n) =>
+        (Over.homMk (FieldExtension.specMap k K) :
+          Over.mk (FieldExtension.specMap k K) ⟶ 𝟙_ (SchemeOverField k)) ≫ x) := sorry
+
+/-- Over a separably closed field, prime-to-characteristic rational `n`-torsion has the full
+additive group classification. This extends the algebraically closed statement of Stacks
+03RP; the original source statement remains `rationalTorsion_equiv`.
+
+The finite étale kernel comparison `kernelPoints_fieldExtension_bijective`, together with
+the additive kernel point bridge, identifies torsion before and after extension to the
+algebraic closure. The classification there is `rationalTorsion_equiv`; dimension is unchanged
+by field extension. Only propositions about these comparisons remain proof obligations;
+no inverse map or classification data are defined by choosing from them. -/
+theorem rationalTorsion_equiv_of_isSepClosed [IsSepClosed k] (n : ℕ) [NeZero n]
+    (hunit : IsUnit (n : k)) :
+    Nonempty
+      (AddSubgroup.torsionBy (SchemeOverField.rationalPoints A) (n : ℤ) ≃+
+        (Fin (2 * dimension A) → ZMod n)) := by
+  let K := AlgebraicClosure k
+  let AK := FieldExtension.Over.baseChange k K A
+  have hunitK : IsUnit (n : K) := by
+    simpa only [map_natCast] using hunit.map (algebraMap k K)
+  obtain ⟨e⟩ := rationalTorsion_equiv AK n hunitK
+  have hdim : dimension AK = dimension A := by
+    sorry
+  have hcompare : Nonempty
+      (AddSubgroup.torsionBy (SchemeOverField.rationalPoints A) (n : ℤ) ≃+
+        AddSubgroup.torsionBy (SchemeOverField.rationalPoints AK) (n : ℤ)) := by
+    have hpoints := kernelPoints_fieldExtension_bijective A K n hunit
+    -- Use `torsionByAddEquivSchemeKerPoints` over both fields and the pullback universal
+    -- property. The resulting point comparison is additive by `MonObj.comp_mul`.
+    sorry
+  obtain ⟨c⟩ := hcompare
+  rw [hdim] at e
+  exact ⟨c.trans e⟩
+
+/-- The separably closed classification on the actual kernel's rational point group. -/
+theorem kernelRationalPoints_equiv_of_isSepClosed [IsSepClosed k] (n : ℕ) [NeZero n]
+    (hunit : IsUnit (n : k)) :
+    letI := Scheme.GroupObject.multiplicationKernelGrpObj A n
+    Nonempty
+      (Additive (𝟙_ (SchemeOverField k) ⟶ (SchemeOverField.torsionGroupScheme A n).X) ≃+
+        (Fin (2 * dimension A) → ZMod n)) := by
+  letI := Scheme.GroupObject.multiplicationKernelGrpObj A n
+  obtain ⟨e⟩ := rationalTorsion_equiv_of_isSepClosed A n hunit
+  exact ⟨(Scheme.GroupObject.torsionByAddEquivSchemeKerPoints A
+    (𝟙_ (SchemeOverField k)) n).symm.trans e⟩
 
 /-- The geometric torsion classification on the actual kernel's rational point group.
 The comparison is the general additive kernel API; the geometric classification

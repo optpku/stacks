@@ -39,7 +39,7 @@ instance instFaithfullyFlat : Module.FaithfullyFlat A (wLocalization A) :=
 
 /-- The structure map from a commutative ring to its w-localization is faithfully flat. -/
 theorem algebraMap_faithfullyFlat : (algebraMap A (wLocalization A)).FaithfullyFlat :=
-  sorry
+  RingHom.faithfullyFlat_algebraMap_iff.mpr (instFaithfullyFlat A)
 
 /-- The prime spectrum of the w-localization of a commutative ring is w-local. -/
 instance instWLocalSpace : WLocalSpace (PrimeSpectrum (wLocalization A)) :=

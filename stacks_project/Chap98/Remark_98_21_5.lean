@@ -20,6 +20,8 @@ extension `TrivSqZeroExt A I1`.
 
 @[expose] public section
 
+open scoped Module.CommOpposite
+
 open AlgebraicGeometry.Deformation
 
 /- Remark 98.21.5 (1): a short exact sequence of deformation situations

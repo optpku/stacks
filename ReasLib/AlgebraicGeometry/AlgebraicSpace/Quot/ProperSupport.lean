@@ -45,6 +45,82 @@ theorem supportProperOver_iff {Y Z : AlgebraicSpace S} (g : Y ⟶ Z) (F : Y.Modu
     supportProperOver g F ↔
       ∃ W : ClosedSubspace Y, Proper (W.ι ≫ g) ∧ Modules.moduleSupport F ⊆ W.pointsSet := sorry
 
+/-- A finitely presented quasi-coherent quotient of `F_T` that is flat over an
+algebraic space `T` and has support proper over `T`. -/
+structure QuotSpacePoint {T : AlgebraicSpace S} (f : X ⟶ B) (F : X.Modules)
+    (h : T ⟶ B) [FinitePresentation f] where
+  /-- The underlying space-level quotient point. -/
+  point : SpacePoint f F h
+  /-- The target is of finite presentation. -/
+  isFinitePresentation : point.module.IsFinitePresentation
+  /-- The support of the target is proper over `T`. -/
+  hasProperSupport : supportProperOver (pullback.snd f h) point.module
+
+namespace QuotSpacePoint
+
+/-- Construct a space-level Quot-point from an epimorphism `F_T ⟶ Q` with `Q`
+quasi-coherent of finite presentation, flat over `T`, and with support proper
+over `T`. -/
+def ofEpi {T : AlgebraicSpace S} (f : X ⟶ B) (F : X.Modules) (h : T ⟶ B)
+    [FinitePresentation f] (module : (pullback f h).Modules)
+    (map : spaceFiberF f F h ⟶ module) (map_epi : Epi map)
+    (isQuasicoherent : module.IsQuasicoherent)
+    (isFlat : Modules.flatOver module (pullback.snd f h))
+    (isFinitePresentation : module.IsFinitePresentation)
+    (hasProperSupport : supportProperOver (pullback.snd f h) module) :
+    QuotSpacePoint f F h where
+  point := SpacePoint.ofEpi f F h module map map_epi isQuasicoherent isFlat
+  isFinitePresentation := isFinitePresentation
+  hasProperSupport := hasProperSupport
+
+/-- A space-level Quot-point is an epimorphism `F_T ⟶ Q` with `Q` quasi-coherent
+of finite presentation, flat over `T`, and with support proper over `T`. -/
+theorem spec {T : AlgebraicSpace S} {f : X ⟶ B} {F : X.Modules} {h : T ⟶ B}
+    [FinitePresentation f] (Q : QuotSpacePoint f F h) :
+    Epi Q.point.map ∧ Q.point.module.IsQuasicoherent ∧
+      Q.point.module.IsFinitePresentation ∧
+      Modules.flatOver Q.point.module (pullback.snd f h) ∧
+      supportProperOver (pullback.snd f h) Q.point.module := sorry
+
+/-- The target module of a pulled-back proper-support quotient is finitely presented. -/
+theorem pullback_isFinitePresentation {T T' : AlgebraicSpace S} {f : X ⟶ B}
+    {F : X.Modules} {h : T ⟶ B} [FinitePresentation f]
+    (Q : QuotSpacePoint f F h) (a : T' ⟶ T) :
+    (Q.point.pullback a).module.IsFinitePresentation := sorry
+
+/-- The target module of a pulled-back proper-support quotient has proper support
+ over the new base. -/
+theorem pullback_supportProperOver {T T' : AlgebraicSpace S} {f : X ⟶ B}
+    {F : X.Modules} {h : T ⟶ B} [FinitePresentation f]
+    (Q : QuotSpacePoint f F h) (a : T' ⟶ T) :
+    supportProperOver (pullback.snd f (a ≫ h)) (Q.point.pullback a).module := sorry
+
+/-- Pull back the property layer along a morphism over `B`. -/
+def pullbackOver {T T' : AlgebraicSpace S} {f : X ⟶ B} {F : X.Modules}
+    {h : T ⟶ B} {h' : T' ⟶ B} [FinitePresentation f] (Q : QuotSpacePoint f F h)
+    (a : T' ⟶ T) (w : a ≫ h = h') : QuotSpacePoint f F h' where
+  point := Q.point.pullbackOver a w
+  isFinitePresentation := by
+    subst h'
+    exact pullback_isFinitePresentation Q a
+  hasProperSupport := by
+    subst h'
+    exact pullback_supportProperOver Q a
+
+/-- Pull back along a morphism of test algebraic spaces. -/
+def pullback {T T' : AlgebraicSpace S} {f : X ⟶ B} {F : X.Modules} {h : T ⟶ B}
+     [FinitePresentation f] (Q : QuotSpacePoint f F h) (a : T' ⟶ T) : QuotSpacePoint f F (a ≫ h) :=
+  Q.pullbackOver a rfl
+
+/-- The module of a pulled-back space-level Quot-point is the module pullback
+along `spaceFiberMap`. -/
+theorem pullback_module {T T' : AlgebraicSpace S} {f : X ⟶ B} {F : X.Modules}
+    {h : T ⟶ B} [FinitePresentation f] (Q : QuotSpacePoint f F h) (a : T' ⟶ T) :
+    (Q.pullback a).point.module =
+      (Modules.pullback (spaceFiberMap f h a)).obj Q.point.module := sorry
+
+end QuotSpacePoint
+
 /-- A finitely presented quasi-coherent quotient of `F_T` that is flat over `T`
 and has support proper over `T`. -/
 structure QuotPoint (f : X ⟶ B) (F : X.Modules) (σ : SchemeOver B)
@@ -72,6 +148,20 @@ def ofEpi (f : X ⟶ B) (F : X.Modules) (σ : SchemeOver B)
   isFinitePresentation := isFinitePresentation
   hasProperSupport := hasProperSupport
 
+/-- The scheme facade preserves the underlying quotient and property fields. -/
+def toQuotSpacePoint {f : X ⟶ B} {F : X.Modules} {σ : SchemeOver B}
+     [FinitePresentation f] (Q : QuotPoint f F σ) : QuotSpacePoint f F σ.hom where
+  point := Q.point.toSpacePoint
+  isFinitePresentation := Q.isFinitePresentation
+  hasProperSupport := Q.hasProperSupport
+
+/-- Repackage common quotient data over a scheme, without choosing any data. -/
+def ofQuotSpacePoint {f : X ⟶ B} {F : X.Modules} {σ : SchemeOver B}
+     [FinitePresentation f] (Q : QuotSpacePoint f F σ.hom) : QuotPoint f F σ where
+  point := Point.ofSpacePoint Q.point
+  isFinitePresentation := Q.isFinitePresentation
+  hasProperSupport := Q.hasProperSupport
+
 /-- The underlying `Q_{F/X/B}`-point of a Quot-point. -/
 abbrev toPoint {f : X ⟶ B} {F : X.Modules} {σ : SchemeOver B}
     [FinitePresentation f] (Q : QuotPoint f F σ) : Point f F σ :=
@@ -98,11 +188,14 @@ theorem pullback_supportProperOver {f : X ⟶ B} {F : X.Modules}
 
 /-- Pull back a Quot-point along a morphism of schemes over `B`. -/
 def pullback {f : X ⟶ B} {F : X.Modules} {σ τ : SchemeOver B}
-    [FinitePresentation f] (Q : QuotPoint f F σ) (h : τ ⟶ σ) :
-    QuotPoint f F τ where
+     [FinitePresentation f] (Q : QuotPoint f F σ) (h : τ ⟶ σ) : QuotPoint f F τ where
   point := Q.point.pullback h
-  isFinitePresentation := pullback_isFinitePresentation Q h
-  hasProperSupport := pullback_supportProperOver Q h
+  isFinitePresentation :=
+    (QuotSpacePoint.pullbackOver (h' := τ.hom) Q.toQuotSpacePoint
+      ((ofOverFunctor S).map h.left) (CostructuredArrow.w h)).isFinitePresentation
+  hasProperSupport :=
+    (QuotSpacePoint.pullbackOver (h' := τ.hom) Q.toQuotSpacePoint
+      ((ofOverFunctor S).map h.left) (CostructuredArrow.w h)).hasProperSupport
 
 /-- The module of a pulled-back Quot-point is the module pullback along
 `fiberMap`. -/

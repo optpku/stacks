@@ -75,7 +75,7 @@ def of (A : ArtinianLocalAlgCat Λ k) (X : Scheme.{u})
   Object.of Λ k A X structureHom isFlat
 
 /-- The structure morphism of an object in the flat-scheme category is flat. -/
-theorem spec (P : FlatSchemeCat Λ k) : AlgebraicGeometry.Flat P.structureHom := sorry
+theorem spec (P : FlatSchemeCat Λ k) : AlgebraicGeometry.Flat P.structureHom := P.flatness
 
 /-- The contravariant spectrum map induced by a morphism of Artinian local algebras. -/
 def specMap {A B : ArtinianLocalAlgCat Λ k} (f : A ⟶ B) :
@@ -84,11 +84,15 @@ def specMap {A B : ArtinianLocalAlgCat Λ k} (f : A ⟶ B) :
 
 /-- The spectrum map of an identity algebra morphism is the identity. -/
 theorem specMap_id (A : ArtinianLocalAlgCat Λ k) :
-    specMap (𝟙 A) = 𝟙 (Spec (CommRingCat.of A.carrier)) := sorry
+    specMap (𝟙 A) = 𝟙 (Spec (CommRingCat.of A.carrier)) := by
+  change Spec.map (𝟙 (CommRingCat.of A.carrier)) = _
+  exact Spec.map_id _
 
 /-- The spectrum map reverses composition of algebra morphisms. -/
 theorem specMap_comp {A B C : ArtinianLocalAlgCat Λ k} (f : A ⟶ B) (g : B ⟶ C) :
-    specMap (f ≫ g) = specMap g ≫ specMap f := sorry
+    specMap (f ≫ g) = specMap g ≫ specMap f := by
+  change Spec.map (CommRingCat.ofHom f.toRingHom ≫ CommRingCat.ofHom g.toRingHom) = _
+  exact Spec.map_comp _ _
 
 /-- A base-algebra map and a reversed scheme map forming a cartesian spectrum square. -/
 structure Arrow (src tgt : FlatSchemeCat Λ k) where
@@ -133,12 +137,16 @@ def of {src tgt : FlatSchemeCat Λ k} (baseHom : src.base ⟶ tgt.base)
 
 /-- Identity base and scheme maps form a cartesian spectrum square. -/
 theorem id_isPullback (P : FlatSchemeCat Λ k) :
-    IsPullback (𝟙 P.scheme) P.structureHom P.structureHom (specMap (𝟙 P.base)) := sorry
+    IsPullback (𝟙 P.scheme) P.structureHom P.structureHom (specMap (𝟙 P.base)) := by
+  rw [specMap_id]
+  exact IsPullback.id_horiz _
 
 /-- The composite of two cartesian spectrum squares is cartesian. -/
 theorem comp_isPullback {src mid tgt : FlatSchemeCat Λ k} (f : Hom src mid) (g : Hom mid tgt) :
     IsPullback (g.schemeHom ≫ f.schemeHom) tgt.structureHom src.structureHom
-      (specMap (f.baseHom ≫ g.baseHom)) := sorry
+      (specMap (f.baseHom ≫ g.baseHom)) := by
+  rw [specMap_comp]
+  exact g.isPullback.paste_horiz f.isPullback
 
 /-- The identity cartesian morphism of a flat scheme. -/
 def id (P : FlatSchemeCat Λ k) : Hom P P :=
@@ -151,25 +159,34 @@ def comp {src mid tgt : FlatSchemeCat Λ k} (f : Hom src mid) (g : Hom mid tgt) 
 /-- A cartesian flat-scheme morphism has a commuting and cartesian spectrum square. -/
 theorem spec {src tgt : FlatSchemeCat Λ k} (f : Hom src tgt) :
     f.schemeHom ≫ src.structureHom = tgt.structureHom ≫ specMap f.baseHom ∧
-      IsPullback f.schemeHom tgt.structureHom src.structureHom (specMap f.baseHom) := sorry
+      IsPullback f.schemeHom tgt.structureHom src.structureHom (specMap f.baseHom) :=
+  ⟨f.isPullback.w, f.isPullback⟩
 
 /-- The identity flat-scheme morphism has identity base map. -/
-theorem id_baseHom (P : FlatSchemeCat Λ k) : (id P).baseHom = 𝟙 P.base := sorry
+theorem id_baseHom (P : FlatSchemeCat Λ k) : (id P).baseHom = 𝟙 P.base := rfl
 
 /-- The base map of a composite is the composite of the base maps. -/
 theorem comp_baseHom {src mid tgt : FlatSchemeCat Λ k} (f : Hom src mid)
-    (g : Hom mid tgt) : (comp f g).baseHom = f.baseHom ≫ g.baseHom := sorry
+    (g : Hom mid tgt) : (comp f g).baseHom = f.baseHom ≫ g.baseHom := rfl
 
 /-- The identity cartesian morphism is a left identity for composition. -/
-theorem id_comp {src tgt : FlatSchemeCat Λ k} (f : Hom src tgt) : comp (id src) f = f := sorry
+theorem id_comp {src tgt : FlatSchemeCat Λ k} (f : Hom src tgt) : comp (id src) f = f := by
+  cases f
+  simp [comp, id, of, Arrow.of, baseHom, schemeHom]
 
 /-- The identity cartesian morphism is a right identity for composition. -/
-theorem comp_id {src tgt : FlatSchemeCat Λ k} (f : Hom src tgt) : comp f (id tgt) = f := sorry
+theorem comp_id {src tgt : FlatSchemeCat Λ k} (f : Hom src tgt) : comp f (id tgt) = f := by
+  cases f
+  simp [comp, id, of, Arrow.of, baseHom, schemeHom]
 
 /-- Composition of cartesian flat-scheme morphisms is associative. -/
 theorem assoc {first second third fourth : FlatSchemeCat Λ k}
     (f : Hom first second) (g : Hom second third) (h : Hom third fourth) :
-    comp (comp f g) h = comp f (comp g h) := sorry
+    comp (comp f g) h = comp f (comp g h) := by
+  cases f
+  cases g
+  cases h
+  simp [comp, of, Arrow.of, baseHom, schemeHom, Category.assoc]
 
 end Hom
 
@@ -194,11 +211,11 @@ def forget : FlatSchemeCat Λ k ⥤ ArtinianLocalAlgCat Λ k where
   map_comp := Hom.comp_baseHom
 
 /-- The projection functor selects the stored base algebra. -/
-theorem forget_obj (P : FlatSchemeCat Λ k) : (forget Λ k).obj P = P.base := sorry
+theorem forget_obj (P : FlatSchemeCat Λ k) : (forget Λ k).obj P = P.base := rfl
 
 /-- The projection functor selects the stored base morphism. -/
 theorem forget_map {src tgt : FlatSchemeCat Λ k} (f : src ⟶ tgt) :
-    (forget Λ k).map f = f.baseHom := sorry
+    (forget Λ k).map f = f.baseHom := rfl
 
 /-- The flat-scheme projection is cofibered in groupoids. -/
 instance instIsFiberedInGroupoids_forget : IsFibered.InGroupoids (forget Λ k).op := sorry

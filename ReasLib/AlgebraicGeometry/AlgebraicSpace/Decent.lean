@@ -42,14 +42,15 @@ namespace IsDecent
 the spectrum of a field representing that point. -/
 theorem spec {S : Scheme.{u}} (X : AlgebraicSpace S) [IsDecent X] :
     ∀ x : Points X, ∃ p : FieldValuedPoint X,
-      QuasiCompact p.hom ∧ Mono p.hom ∧ Points.mk p = x := sorry
+      QuasiCompact p.hom ∧ Mono p.hom ∧ Points.mk p = x :=
+  IsDecent.exists_quasiCompact_mono
 
 /-- A choice of quasi-compact monomorphism `Spec(K) ⟶ X` at every point witnesses
 that the algebraic space is decent. -/
 theorem of {S : Scheme.{u}} {X : AlgebraicSpace S}
     (h : ∀ x : Points X, ∃ p : FieldValuedPoint X,
       QuasiCompact p.hom ∧ Mono p.hom ∧ Points.mk p = x) :
-    IsDecent X := sorry
+    IsDecent X := ⟨h⟩
 
 end IsDecent
 

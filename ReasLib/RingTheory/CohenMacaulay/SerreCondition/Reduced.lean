@@ -44,6 +44,12 @@ theorem of_serre (hR : R ⊧ (R₀)) (hS : R ⊧ (S₁)) : IsReduced R := sorry
 /-- A Noetherian commutative ring is reduced exactly when it satisfies `(R₀)` and `(S₁)`. -/
 @[stacks 031R "reducedness and Serre conditions"]
 theorem iff_serre [IsNoetherianRing R] :
-    IsReduced R ↔ R ⊧ (R₀) ∧ R ⊧ (S₁) := sorry
+    IsReduced R ↔ R ⊧ (R₀) ∧ R ⊧ (S₁) := by
+  constructor
+  · intro h
+    letI : IsReduced R := h
+    exact ⟨inferInstance, inferInstance⟩
+  · rintro ⟨hR, hS⟩
+    exact of_serre hR hS
 
 end IsReduced

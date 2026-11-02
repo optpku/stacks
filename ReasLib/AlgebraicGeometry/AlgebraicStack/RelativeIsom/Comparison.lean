@@ -250,9 +250,8 @@ def relativeIsom.fst_fst {S : Scheme.{u}} {X Y : GroupoidsOver S}
     relativeIsom.fst f α ≫
         TwoFibreProduct.fst.{u + 1, u, u + 1, u} x1 x2 ≅
       relativeIsom.snd f α :=
-  whiskerLeftIso (relativeIsom.fst f α) (ρ_ _).symm ≪≫
-    whiskerLeftIso (relativeIsom.fst f α)
-        (TwoFibreProduct.map.fstIso (pairComparisonCospan f x1 x2)).symm ≪≫
+  whiskerLeftIso (relativeIsom.fst f α)
+        (TwoFibreProduct.mapPostcompose_fst.{u + 1, u, u + 1, u} x1 x2 f).symm ≪≫
       (α_ _ _ _).symm ≪≫
         whiskerRightIso
             (TwoFibreProduct.comparisonIso.{u + 1, u, u + 1, u}
@@ -271,9 +270,8 @@ def relativeIsom.fst_snd {S : Scheme.{u}} {X Y : GroupoidsOver S}
     relativeIsom.fst f α ≫
         TwoFibreProduct.snd.{u + 1, u, u + 1, u} x1 x2 ≅
       relativeIsom.snd f α :=
-  whiskerLeftIso (relativeIsom.fst f α) (ρ_ _).symm ≪≫
-    whiskerLeftIso (relativeIsom.fst f α)
-        (TwoFibreProduct.map.sndIso (pairComparisonCospan f x1 x2)).symm ≪≫
+  whiskerLeftIso (relativeIsom.fst f α)
+        (TwoFibreProduct.mapPostcompose_snd.{u + 1, u, u + 1, u} x1 x2 f).symm ≪≫
       (α_ _ _ _).symm ≪≫
         whiskerRightIso
             (TwoFibreProduct.comparisonIso.{u + 1, u, u + 1, u}

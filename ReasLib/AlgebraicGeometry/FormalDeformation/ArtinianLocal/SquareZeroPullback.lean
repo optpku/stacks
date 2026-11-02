@@ -20,6 +20,8 @@ The fibre product `A ×_k k[I]` is the algebra pullback of `toResidue A` and
 
 @[expose] public section
 
+open scoped Module.CommOpposite
+
 open CategoryTheory IsLocalRing TrivSqZeroExt
 
 universe u

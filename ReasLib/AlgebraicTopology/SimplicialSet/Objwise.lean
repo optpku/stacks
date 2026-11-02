@@ -33,7 +33,7 @@ namespace SSet
 term-level form of mathlib's degreewise nonemptiness instance. -/
 @[stacks 017I "degreewise nonemptiness from a vertex"]
 theorem Nonempty.obj (U : SSet.{u}) [U.Nonempty]
-    (Delta : SimplexCategoryᵒᵖ) : _root_.Nonempty (U.obj Delta) := sorry
+    (Delta : SimplexCategoryᵒᵖ) : _root_.Nonempty (U.obj Delta) := inferInstance
 
 namespace Finite
 
@@ -48,7 +48,8 @@ namespace ObjFinite
 
 /-- The tensor product of objectwise finite simplicial sets is objectwise finite. -/
 @[stacks 017I "objectwise finite simplicial-set tensor"]
-instance tensor (U V : SSet.{u}) [U.ObjFinite] [V.ObjFinite] : (U ⊗ V).ObjFinite := sorry
+instance tensor (U V : SSet.{u}) [U.ObjFinite] [V.ObjFinite] : (U ⊗ V).ObjFinite :=
+  ⟨fun _ ↦ inferInstance⟩
 
 end ObjFinite
 
@@ -57,11 +58,13 @@ namespace Nonempty
 /-- A simplicial set with a vertex is objectwise nonempty. This is a theorem rather than an
 instance to avoid a cycle with evaluation of `Functor.ObjNonempty` in degree zero. -/
 @[stacks 017E "nonempty simplicial sets are objectwise nonempty"]
-theorem objNonempty (U : SSet.{u}) [U.Nonempty] : U.ObjNonempty := sorry
+theorem objNonempty (U : SSet.{u}) [U.Nonempty] : U.ObjNonempty :=
+  ⟨fun Delta ↦ SSet.Nonempty.obj U Delta⟩
 
 /-- The tensor product of nonempty simplicial sets is nonempty. -/
 @[stacks 017I "nonempty simplicial-set tensor"]
-instance tensor (U V : SSet.{u}) [U.Nonempty] [V.Nonempty] : (U ⊗ V).Nonempty := sorry
+instance tensor (U V : SSet.{u}) [U.Nonempty] [V.Nonempty] : (U ⊗ V).Nonempty :=
+  inferInstanceAs (_root_.Nonempty (U _⦋0⦌ × V _⦋0⦌))
 
 end Nonempty
 

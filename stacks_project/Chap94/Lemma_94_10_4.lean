@@ -29,7 +29,27 @@ universe u
 
 namespace AlgebraicGeometry.Groupoids.Hom
 
-/- Lemma 94.10.4: let `S` be an object of `Sch_fppf`. Let `P` be as in
+/- Lemma 94.10.4, without a small-presentation assumption. The canonical
+isomorphism-class presheaves are `Type (u + 1)`-valued; their map is tested
+through its discrete Grothendieck construction. By 04SY its representability
+is equivalent to that of `f`. The `has` tests are precisely the representing
+scheme-slice morphisms, so this expresses the property of the induced map.
+The Stacks set conventions impose no `Type u` bound on its values. -/
+@[stacks 04TC] #check
+  (AlgebraicGeometry.Groupoids.Hom.has.iff_fiberIsoClassMap_groupoids :
+    ∀ {S : Scheme.{u}} {X Y : GroupoidsOver S}
+    [Functor.IsFibered.InSetoids X.p] [Functor.IsFibered.InSetoids Y.p]
+    (P : MorphismProperty (AlgebraicSpace S))
+    [P.IsStableUnderBaseChange]
+    [P.IsLocalAtTarget (AlgebraicSpace.fppfPrecoverage S)]
+    (f : X ⟶ Y) (hf : relativelyRepresentableByAlgebraicSpaces f),
+    AlgebraicGeometry.Groupoids.Hom.has P
+        ((Sets.toGroupoids (Over S)).map
+          ((Sets.ofPresheaf (Over S)).map
+            (BasedFunctor.fiberIsoClassMap (toBasedFunctor f)))) ↔
+      AlgebraicGeometry.Groupoids.Hom.has P f)
+
+/- Small-presentation specialization: let `S` be an object of `Sch_fppf`. Let `P` be as in
 Definition 94.10.1. Let `f : X ⟶ Y` be a 1-morphism of categories fibred in
 setoids over `(Sch/S)_fppf`. Let `F` and `G` be `Type u` presentations of the
 presheaves of fiberwise isomorphism classes `Functor.fiberIsoClassPresheaf X.p`

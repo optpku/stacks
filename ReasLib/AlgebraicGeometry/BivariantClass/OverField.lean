@@ -10,7 +10,7 @@ public import ReasLib.AlgebraicGeometry.Scheme.OverField.Cartesian
 public import ReasLib.AlgebraicGeometry.ChowGroup.FieldFundamental
 public import ReasLib.AlgebraicGeometry.BivariantClass.Additive
 public import ReasLib.AlgebraicGeometry.ChowGroup.ExteriorProduct
-public import ReasLib.AlgebraicGeometry.ChowGroup.Reindex
+public import ReasLib.AlgebraicGeometry.ChowGroup.Relative.Reindex
 
 @[expose] public section
 
@@ -26,6 +26,25 @@ variable {k : Type u} [Field k]
 
 namespace BivariantClass
 
+/-- Equality of cap families determines the class, independently of its compatibility proofs. -/
+private theorem capFamily_ext {X Y : SchemeOverField k}
+    [LocallyOfFiniteType X.hom] [LocallyOfFiniteType Y.hom]
+    {f : X ⟶ Y} {p : ℤ} {c d : BivariantClass (fun _ ↦ 0) f p}
+    (h : @c.cap = @d.cap) : c = d := by
+  cases c
+  cases d
+  cases h
+  rfl
+
+/-- Relative grading transport is the absolute Chow reindexing for the induced
+relative dimension function; local Noetherian certificates are proof irrelevant. -/
+theorem reindex_eq_castDegree (X : SchemeOverField k) [LocallyOfFiniteType X.hom]
+    {m n : ℤ} (h : m = n) :
+    (@ChowGroup.reindex X.left
+      (LocallyOfFiniteType.isLocallyNoetherian X.hom)
+      (X.hom.relativeDimensionFunction (fun _ ↦ 0)) inferInstance m n h).toAddMonoidHom =
+      RelativeChow.castDegree (fun _ ↦ 0) (X := X) h := rfl
+
 /-- The cap family determined by a Chow class: take exterior product and transport from
 `X ⨯ Y'` to the displayed cartesian representative. -/
 noncomputable def ofChowCap (X : SchemeOverField k) [LocallyOfFiniteType X.hom]
@@ -34,12 +53,7 @@ noncomputable def ofChowCap (X : SchemeOverField k) [LocallyOfFiniteType X.hom]
   fun {X' Y'} _ _ i f' g _ square n ↦
     (ChowGroup.map (fun _ ↦ 0) (X ⨯ Y') X'
       (SchemeOverField.productIsoOfIsPullback X i f' g square).inv (n - p)).comp
-      ((@ChowGroup.reindex (X ⨯ Y').left
-          (@LocallyOfFiniteType.isLocallyNoetherian _ _ (X ⨯ Y').hom inferInstance
-            (@instIsLocallyNoetherianSpecOfIsNoetherianRingCarrier
-              (CommRingCat.of k) PrincipalIdealRing.isNoetherianRing))
-          ((X ⨯ Y').hom.relativeDimensionFunction (fun _ ↦ 0)) inferInstance
-          _ _ (neg_add_eq_sub p n)).toAddMonoidHom.comp
+      ((RelativeChow.castDegree (fun _ ↦ 0) (neg_add_eq_sub p n)).comp
         (ChowGroup.exteriorProductPairing X Y' (-p) n alpha))
 
 /-- Evaluation of the cap family attached to `alpha` is exterior product followed by
@@ -61,7 +75,7 @@ theorem ofChowCap_apply (X : SchemeOverField k) [LocallyOfFiniteType X.hom]
               (CommRingCat.of k) PrincipalIdealRing.isNoetherianRing))
           ((X ⨯ Y').hom.relativeDimensionFunction (fun _ ↦ 0)) inferInstance
           _ _ (neg_add_eq_sub p n)
-          (ChowGroup.exteriorProductPairing X Y' (-p) n alpha beta)) := sorry
+          (ChowGroup.exteriorProductPairing X Y' (-p) n alpha beta)) := rfl
 
 /-- Exterior-product cap families commute with proper pushforward. -/
 theorem ofChowCap_mapProper (X : SchemeOverField k) [LocallyOfFiniteType X.hom]
@@ -97,19 +111,29 @@ theorem ofChowClass_cap (X : SchemeOverField k) [LocallyOfFiniteType X.hom]
     (square : IsPullback i.left f'.left (terminal.from X).left g.left)
     (n : ℤ) (beta : RelativeChow (fun _ ↦ 0) Y' n) :
     (ofChowClass X p alpha).cap i f' g square n beta =
-      ofChowCap X p alpha i f' g square n beta := sorry
+      ofChowCap X p alpha i f' g square n beta := rfl
 
 /-- The bivariant class associated to the zero Chow class is zero. -/
 theorem ofChowClass_zero (X : SchemeOverField k) [LocallyOfFiniteType X.hom]
     (p : ℤ) :
-    ofChowClass X p 0 = pointwiseZero (fun _ ↦ 0) (terminal.from X) p := sorry
+    ofChowClass X p 0 = pointwiseZero (fun _ ↦ 0) (terminal.from X) p := by
+  apply capFamily_ext
+  funext X' Y' _ _ i f' g _ square n
+  apply AddMonoidHom.ext
+  intro beta
+  simp [ofChowClass, ofChowCap, pointwiseZero]
 
 /-- The bivariant class construction preserves addition of Chow classes. -/
 theorem ofChowClass_add (X : SchemeOverField k) [LocallyOfFiniteType X.hom]
     (p : ℤ) (alpha beta : RelativeChow (fun _ ↦ 0) X (-p)) :
     ofChowClass X p (alpha + beta) =
       pointwiseAdd (fun _ ↦ 0) (terminal.from X) p
-        (ofChowClass X p alpha) (ofChowClass X p beta) := sorry
+        (ofChowClass X p alpha) (ofChowClass X p beta) := by
+  apply capFamily_ext
+  funext X' Y' _ _ i f' g _ square n
+  apply AddMonoidHom.ext
+  intro gamma
+  simp [ofChowClass, ofChowCap, pointwiseAdd]
 
 /-- Exterior product defines an additive map from Chow classes to bivariant classes. -/
 noncomputable def ofChow (X : SchemeOverField k) [LocallyOfFiniteType X.hom]
@@ -127,17 +151,13 @@ noncomputable def ofChow (X : SchemeOverField k) [LocallyOfFiniteType X.hom]
 /-- The additive map `ofChow` sends `alpha` to its exterior-product bivariant class. -/
 theorem ofChow_apply (X : SchemeOverField k) [LocallyOfFiniteType X.hom]
     (p : ℤ) (alpha : RelativeChow (fun _ ↦ 0) X (-p)) :
-    ofChow X p alpha = ofChowClass X p alpha := sorry
+    ofChow X p alpha = ofChowClass X p alpha := rfl
 
 /-- Evaluation of a bivariant class on the fundamental class of `Spec k`. -/
 noncomputable def toChowValue (X : SchemeOverField k) [LocallyOfFiniteType X.hom]
     (p : ℤ) (c : BivariantClass (fun _ ↦ 0) (terminal.from X) p) :
     RelativeChow (fun _ ↦ 0) X (-p) :=
-  @ChowGroup.reindex X.left
-    (@LocallyOfFiniteType.isLocallyNoetherian _ _ X.hom inferInstance
-      (@instIsLocallyNoetherianSpecOfIsNoetherianRingCarrier
-        (CommRingCat.of k) PrincipalIdealRing.isNoetherianRing))
-    (X.hom.relativeDimensionFunction (fun _ ↦ 0)) inferInstance _ _ (zero_sub p)
+  RelativeChow.castDegree (fun _ ↦ 0) (zero_sub p)
     (c.cap (𝟙 X) (terminal.from X) (𝟙 (⊤_ (SchemeOverField k)))
       IsPullback.of_id_fst 0 (ChowGroup.specFundamentalClass k))
 
@@ -151,18 +171,20 @@ theorem toChowValue_def (X : SchemeOverField k) [LocallyOfFiniteType X.hom]
             (CommRingCat.of k) PrincipalIdealRing.isNoetherianRing))
         (X.hom.relativeDimensionFunction (fun _ ↦ 0)) inferInstance _ _ (zero_sub p)
         (c.cap (𝟙 X) (terminal.from X) (𝟙 (⊤_ (SchemeOverField k)))
-          IsPullback.of_id_fst 0 (ChowGroup.specFundamentalClass k)) := sorry
+          IsPullback.of_id_fst 0 (ChowGroup.specFundamentalClass k)) := rfl
 
 /-- Evaluation on `[Spec k]` sends the zero bivariant class to zero. -/
 theorem toChowValue_zero (X : SchemeOverField k) [LocallyOfFiniteType X.hom]
     (p : ℤ) :
-    toChowValue X p (pointwiseZero (fun _ ↦ 0) (terminal.from X) p) = 0 := sorry
+    toChowValue X p (pointwiseZero (fun _ ↦ 0) (terminal.from X) p) = 0 := by
+  simp [toChowValue, pointwiseZero]
 
 /-- Evaluation on `[Spec k]` preserves addition of bivariant classes. -/
 theorem toChowValue_add (X : SchemeOverField k) [LocallyOfFiniteType X.hom]
     (p : ℤ) (c d : BivariantClass (fun _ ↦ 0) (terminal.from X) p) :
     toChowValue X p (pointwiseAdd (fun _ ↦ 0) (terminal.from X) p c d) =
-      toChowValue X p c + toChowValue X p d := sorry
+      toChowValue X p c + toChowValue X p d := by
+  simp [toChowValue, pointwiseAdd]
 
 /-- Capping with `[Spec k]` as an additive map from bivariant classes to Chow classes. -/
 noncomputable def toChow (X : SchemeOverField k) [LocallyOfFiniteType X.hom]
@@ -181,7 +203,7 @@ noncomputable def toChow (X : SchemeOverField k) [LocallyOfFiniteType X.hom]
 /-- The additive map `toChow` is evaluation on the fundamental class of `Spec k`. -/
 theorem toChow_apply (X : SchemeOverField k) [LocallyOfFiniteType X.hom]
     (p : ℤ) (c : BivariantClass (fun _ ↦ 0) (terminal.from X) p) :
-    toChow X p c = toChowValue X p c := sorry
+    toChow X p c = toChowValue X p c := rfl
 
 /-- Evaluation on `[Spec k]` recovers the Chow class used to define an exterior-product
 bivariant class. -/
@@ -215,12 +237,12 @@ noncomputable def chowEquiv (X : SchemeOverField k) [LocallyOfFiniteType X.hom]
 /-- The forward map of `chowEquiv` is capping with `[Spec k]`. -/
 theorem chowEquiv_apply (X : SchemeOverField k) [LocallyOfFiniteType X.hom]
     (p : ℤ) (c : BivariantClass (fun _ ↦ 0) (terminal.from X) p) :
-    chowEquiv X p c = toChow X p c := sorry
+    chowEquiv X p c = toChow X p c := rfl
 
 /-- The inverse map of `chowEquiv` sends a Chow class to its exterior-product class. -/
 theorem chowEquiv_symm_apply (X : SchemeOverField k) [LocallyOfFiniteType X.hom]
     (p : ℤ) (alpha : RelativeChow (fun _ ↦ 0) X (-p)) :
-    EquivLike.inv (chowEquiv X p) alpha = ofChow X p alpha := sorry
+    EquivLike.inv (chowEquiv X p) alpha = ofChow X p alpha := rfl
 
 end BivariantClass
 

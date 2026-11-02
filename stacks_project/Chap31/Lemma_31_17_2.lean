@@ -22,8 +22,8 @@ The norm homomorphism on Picard groups of schemes.
 universe u
 
 #check @AlgebraicGeometry.Scheme.normPullbackSectionAlgebra
-#check @AlgebraicGeometry.Scheme.FiniteMorphismNorm
-#check @AlgebraicGeometry.Scheme.IsFiniteMorphismNorm
+#check @AlgebraicGeometry.Scheme.OrdinaryFiniteMorphismNorm
+#check @AlgebraicGeometry.Scheme.IsOrdinaryFiniteMorphismNorm
 
 /- Lemma 31.17.2: A degree-`d` norm for a finite morphism induces a norm
 homomorphism on Picard groups, compatible with pullback and `d`-fold tensor power. -/
@@ -31,8 +31,8 @@ homomorphism on Picard groups, compatible with pullback and `d`-fold tensor powe
   (AlgebraicGeometry.Scheme.exists_picardNorm_of_exists_norm :
     ∀ {X Y : AlgebraicGeometry.Scheme.{u}} (π : X ⟶ Y) (d : ℕ)
       [AlgebraicGeometry.IsFinite π],
-      (∃ N : AlgebraicGeometry.Scheme.FiniteMorphismNorm π,
-        AlgebraicGeometry.Scheme.IsFiniteMorphismNorm π d N) →
+      (∃ N : AlgebraicGeometry.Scheme.OrdinaryFiniteMorphismNorm π,
+        AlgebraicGeometry.Scheme.IsOrdinaryFiniteMorphismNorm π d N) →
       ∃ normπ : X.PicardGroup →+ Y.PicardGroup,
         ∀ (𝒩 : Y.Modules)
           [CategoryTheory.MonoidalCategory.isInvertibleObject 𝒩],

@@ -48,6 +48,40 @@ def forallAffine {S : Scheme.{u}} (P : MorphismProperty (AlgebraicSpace S))
   ∀ {Z : Over S} (g : ofOver Z ⟶ Y),
     AlgebraicGeometry.IsAffine Z.left → P (pullbackAlongScheme.snd f g)
 
+/-- The affine criterion expressed using every presentation of a pullback.
+Stacks, Tag 03L3 (2), `tex/decent-spaces.tex:3952–3953`. -/
+def forallAffineIsPullback {S : Scheme.{u}}
+    (P : MorphismProperty (AlgebraicSpace S)) {X Y : AlgebraicSpace S}
+    (f : X ⟶ Y) : Prop :=
+  ∀ {Z : Over S} [AlgebraicGeometry.IsAffine Z.left] {W : AlgebraicSpace S}
+    {g : ofOver Z ⟶ Y} {pZ : W ⟶ ofOver Z} {pX : W ⟶ X},
+    IsPullback pZ pX g f → P pZ
+
+/-- Every scheme-valued pullback has an apex satisfying the object property `Q`.
+Stacks, Tag 03KZ, `tex/decent-spaces.tex:3673–3685`. -/
+def forallSchemeObject {S : Scheme.{u}} (Q : AlgebraicSpace S → Prop) :
+    MorphismProperty (AlgebraicSpace S) :=
+  fun X Y f ↦ ∀ {Z : Over S} {W : AlgebraicSpace S} {g : ofOver Z ⟶ Y}
+    {pZ : W ⟶ ofOver Z} {pX : W ⟶ X}, IsPullback pZ pX g f → Q W
+
+/-- Every affine-scheme-valued pullback has an apex satisfying `Q`.
+Stacks, Tag 03L3 (3), `tex/decent-spaces.tex:3954–3955`. -/
+def forallAffineObject {S : Scheme.{u}} (Q : AlgebraicSpace S → Prop)
+    {X Y : AlgebraicSpace S} (f : X ⟶ Y) : Prop :=
+  ∀ {Z : Over S} [AlgebraicGeometry.IsAffine Z.left] {W : AlgebraicSpace S}
+    {g : ofOver Z ⟶ Y} {pZ : W ⟶ ofOver Z} {pX : W ⟶ X},
+    IsPullback pZ pX g f → Q W
+
+/-- A single Zariski covering of the target has `P` on every inverse-image
+projection. Unlike `existsZariskiCover`, this imposes no source covering.
+Stacks, Tag 03L3 (4), `tex/decent-spaces.tex:3956–3957`. -/
+def existsZariskiCoverOnTarget {S : Scheme.{u}}
+    (P : MorphismProperty (AlgebraicSpace S)) {X Y : AlgebraicSpace S}
+    (f : X ⟶ Y) : Prop :=
+  ∃ (𝒰 : ZariskiCover.{u, v} Y),
+    ∀ i {W : AlgebraicSpace S} {pYi : W ⟶ 𝒰.X i} {pX : W ⟶ X},
+      IsPullback pYi pX (𝒰.f i) f → P pYi
+
 /-- Some surjective étale scheme atlas of the target gives a base change with `P`.
 Stacks, Tags 040Y (5), 03MM (5), `tex/spaces-morphisms.tex:4409–4410,5845–5846`. -/
 def existsSurjectiveEtaleTarget {S : Scheme.{u}}
@@ -130,6 +164,51 @@ theorem forallScheme_iff_isPullback {S : Scheme.{u}}
       ∀ {Z : Over S} {W : AlgebraicSpace S} {g : ofOver Z ⟶ Y}
         {pZ : W ⟶ ofOver Z} {pX : W ⟶ X},
         IsPullback pZ pX g f → P pZ :=
+  sorry
+
+/-- Chosen and arbitrary affine pullbacks agree for an isomorphism-invariant
+property. No source or target locality is needed for this comparison. -/
+theorem forallAffine_iff_isPullback {S : Scheme.{u}}
+    (P : MorphismProperty (AlgebraicSpace S)) [P.RespectsIso]
+    {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
+    forallAffine P f ↔ forallAffineIsPullback P f := by
+  constructor
+  · intro h Z hZ W g pZ pX sq
+    let e := sq.isoIsPullback _ _ (pullbackAlongScheme.isPullback f g).flip
+    have he : e.hom ≫ pullbackAlongScheme.snd f g = pZ :=
+      sq.isoIsPullback_hom_fst _ _ (pullbackAlongScheme.isPullback f g).flip
+    rw [← he]
+    exact (P.cancel_left_of_respectsIso _ _).mpr (h g hZ)
+  · intro h Z g hZ
+    letI := hZ
+    exact h (pullbackAlongScheme.isPullback f g).flip
+
+/-- The locality argument for relative object properties uses only Zariski
+locality of objects and preservation under representable morphisms. In
+particular it does not assume étale locality at the source.
+Stacks, Tags 03KE, 03KF and 03L3 (1)–(4),
+`tex/decent-spaces.tex:828–906,909–920,3945–3980`. -/
+theorem relativeObject_tfae {S : Scheme.{u}} (Q : AlgebraicSpace S → Prop)
+    (hlocal : ∀ (W : AlgebraicSpace S) (𝒰 : ZariskiCover.{u, u} W),
+      (∀ i, Q (𝒰.X i)) → Q W)
+    (hrepresentable : ∀ {W V : AlgebraicSpace S} (g : W ⟶ V),
+      yoneda.relativelyRepresentable g → Q V → Q W)
+    {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
+    List.TFAE
+      [ forallSchemeObject Q f
+      , forallAffineIsPullback (forallSchemeObject Q) f
+      , forallAffineObject Q f
+      , existsZariskiCoverOnTarget.{u, u} (forallSchemeObject Q) f ] :=
+  sorry
+
+/-- A target-local property can be tested on a surjective étale scheme atlas.
+Source locality is not needed.
+Stacks, Tag 03L3 (5), `tex/decent-spaces.tex:3959–3964,3983–4010`. -/
+theorem iff_existsEtaleOnTarget {S : Scheme.{u}}
+    (P : MorphismProperty (AlgebraicSpace S))
+    [P.IsLocalAtTarget (@etalePrecoverage S)] [P.IsStableUnderBaseChange]
+    {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
+    P f ↔ existsEtaleOnTarget P f :=
   sorry
 
 /-- Étale locality on the source and target, together with arbitrary base-change

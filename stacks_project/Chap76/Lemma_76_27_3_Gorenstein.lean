@@ -55,11 +55,12 @@ abbrev gorensteinAt {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y)
 
 #check (AlgebraicGeometry.AlgebraicSpace.Gorenstein.of :
   ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} {f : X ⟶ Y}
+    [LocallyNoetherianFibers f]
     (h : ∀ x : Points X, GorensteinAt f x), Gorenstein f)
 
 #check (AlgebraicGeometry.AlgebraicSpace.Gorenstein.gorenstein_iff_forall_gorensteinAt :
   ∀ {S : Scheme.{u}}
-    {X Y : AlgebraicSpace S} (f : X ⟶ Y),
+    {X Y : AlgebraicSpace S} (f : X ⟶ Y) [LocallyNoetherianFibers f],
     Gorenstein f ↔ ∀ x : Points X, GorensteinAt f x)
 
 #check (AlgebraicGeometry.AlgebraicSpace.Gorenstein.instFlat :

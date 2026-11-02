@@ -53,6 +53,8 @@ namespace IsRationalSingularity
     IsIso (IsRationalSingularity.dualizingTrace A f h_normal h_locallyNoetherian ωX hωX HA ωA hωA
       HS ωS hωS hωS_affine HX h_relative a aAdjunction e sourceComparison targetComparison))
 
+@[stacks 0BBU] #check @IsRationalSingularity.canonicalDualizingPullbackMap_existsUnique
+
 #check (IsRationalSingularity.canonicalDualizingPullbackMap :
   ∀ (A : Type u) [CommRing A] [IsDomain A] [IsRationalSingularity A]
     {X : AlgebraicGeometry.Scheme.{u}} (f : X ⟶ AlgebraicGeometry.Spec (.of A))
@@ -83,7 +85,15 @@ namespace IsRationalSingularity
       (IsRationalSingularity.dualizingGlobalSectionsFunctor A).obj
         ((RingedSpace.moduleDerivedPushforward f.toShHom).obj
           (((DerivedCategory.singleFunctor X.Modules 0).obj ωX)⟦(2 : ℤ)⟧)))
-    (targetComparison : (IsRationalSingularity.dualizingGlobalSectionsFunctor A).obj ωS ≅ ωA),
+    (targetComparison : (IsRationalSingularity.dualizingGlobalSectionsFunctor A).obj ωS ≅ ωA)
+    (traceInverse : ωA ⟶ AlgebraicGeometry.Scheme.Hom.globalSectionsMod f ωX)
+    (traceInverse_hom_id : traceInverse ≫
+      (IsRationalSingularity.dualizingTrace A f h_normal h_locallyNoetherian ωX hωX HA ωA hωA HS
+        ωS hωS hωS_affine HX h_relative a aAdjunction e sourceComparison targetComparison) = 𝟙 ωA)
+    (hom_traceInverse_id :
+      (IsRationalSingularity.dualizingTrace A f h_normal h_locallyNoetherian ωX hωX HA ωA hωA HS
+        ωS hωS hωS_affine HX h_relative a aAdjunction e sourceComparison targetComparison) ≫ traceInverse =
+        𝟙 (AlgebraicGeometry.Scheme.Hom.globalSectionsMod f ωX)),
     (AlgebraicGeometry.Scheme.Modules.pullback f).obj (AlgebraicGeometry.tilde ωA) ⟶ ωX)
 
 end IsRationalSingularity

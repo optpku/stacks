@@ -20,6 +20,7 @@ An `R`-module `M` determines the square-zero extension `R[M]` in
 @[expose] public section
 
 open CategoryTheory CategoryTheory.Limits
+open scoped ModuleCat.Algebra
 
 universe u
 
@@ -41,17 +42,6 @@ instance instCommRing (M : ModuleCat.{u} R) : CommRing (TrivSqZeroExt R M) :=
   inferInstance
 
 variable [Algebra S R]
-
-/-- Restriction of scalars along `S → R` on a bundled `R`-module. -/
-instance instModuleRestrictScalars (M : ModuleCat.{u} R) : Module S M :=
-  Module.compHom M (algebraMap S R)
-
-/-- Restriction of scalars along `S → R` is a scalar tower on a bundled `R`-module. -/
-instance instIsScalarTower_restrictScalars (M : ModuleCat.{u} R) :
-    IsScalarTower S R M where
-  smul_assoc _ _ _ := by
-    rw [Algebra.smul_def, mul_smul]
-    rfl
 
 /-- Restriction of scalars is a scalar tower with respect to the opposite `R`-action. -/
 instance instIsScalarTower_op (M : ModuleCat.{u} R) : IsScalarTower S Rᵐᵒᵖ M where

@@ -326,7 +326,7 @@ theorem sourceComparison_eq {S : Scheme.{u}} {B : AlgebraicSpace S}
   rfl
 
 /-- The canonical target comparison `π(t ∘ r) ≅ pr₁^* π(u)` from the target law. -/
-def targetComparison {S : Scheme.{u}} {B : AlgebraicSpace S} (G : GroupoidAlgebraicSpace B)
+def overlapTargetComparison {S : Scheme.{u}} {B : AlgebraicSpace S} (G : GroupoidAlgebraicSpace B)
     {T : Over S} {ι : Type u} (family : ι → Over T.left) {i j : ι}
     (u : ofOver (coverOver family j) ⟶ G.U.left)
     {r : ofOver (pairOver family i j) ⟶ G.R.left}
@@ -339,15 +339,15 @@ def targetComparison {S : Scheme.{u}} {B : AlgebraicSpace S} (G : GroupoidAlgebr
         eqToIso (congrArg objOfHom ht) ≪≫ objOfHomReindexIso (pr1 family i j) u) ≪≫
     (CartesianBasedFunctor.Reindex.mapIso (fppfAtlas G) (Cleavage.ofIsFibered (stackInSets G.U.left).p) (Cleavage.ofIsFibered (fppfQuotientStack G).p) (pr1 family i j) (objOfHom u)).symm
 
-/-- `targetComparison` is the composite of `atlasTargetFiberIso`, `objOfHomMapIso`, and
+/-- `overlapTargetComparison` is the composite of `atlasTargetFiberIso`, `objOfHomMapIso`, and
 `atlasObjReindexIso`. -/
-theorem targetComparison_eq {S : Scheme.{u}} {B : AlgebraicSpace S}
+theorem overlapTargetComparison_eq {S : Scheme.{u}} {B : AlgebraicSpace S}
     (G : GroupoidAlgebraicSpace B) {T : Over S} {ι : Type u}
     (family : ι → Over T.left) {i j : ι}
     (u : ofOver (coverOver family j) ⟶ G.U.left)
     {r : ofOver (pairOver family i j) ⟶ G.R.left}
     (ht : r ≫ G.t.left = ofOverMap (pr1 family i j) ≫ u) :
-    targetComparison G family u ht =
+    overlapTargetComparison G family u ht =
       atlasTargetFiberIso G r ≪≫
         ((fppfAtlas G).fiberFunctor (pairOver family i j)).mapIso
           (objOfHomMapIso G.t.left r ≪≫
@@ -752,7 +752,7 @@ def IsPiArrow {S : Scheme.{u}} {B : AlgebraicSpace S} (G : GroupoidAlgebraicSpac
         Chosen.reindexMap (fppfQuotientStack G).p (pr0 family i j) (e i).hom ≫
         (overlapAssociator G family x i j).hom ≫
         Chosen.reindexMap (fppfQuotientStack G).p (pr1 family i j) (e j).inv ≫
-        (targetComparison G family (u j) ht).inv =
+        (overlapTargetComparison G family (u j) ht).inv =
       atlasArrow G r
 
 /-- `IsPiArrow` records the source and target laws together with equality of `atlasArrow r`
@@ -770,7 +770,7 @@ theorem isPiArrow_spec {S : Scheme.{u}} {B : AlgebraicSpace S} (G : GroupoidAlge
             Chosen.reindexMap (fppfQuotientStack G).p (pr0 family i j) (e i).hom ≫
             (overlapAssociator G family x i j).hom ≫
             Chosen.reindexMap (fppfQuotientStack G).p (pr1 family i j) (e j).inv ≫
-            (targetComparison G family (u j) ht).inv =
+            (overlapTargetComparison G family (u j) ht).inv =
           atlasArrow G r := by
   unfold IsPiArrow
   with_reducible exact Iff.rfl

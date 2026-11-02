@@ -22,6 +22,8 @@ residue field form a finite-dimensional vector space over that field.
 
 @[expose] public section
 
+open scoped Module.CommOpposite
+
 open CategoryTheory TrivSqZeroExt
 
 universe u

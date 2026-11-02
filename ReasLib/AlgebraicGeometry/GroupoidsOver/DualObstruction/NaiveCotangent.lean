@@ -30,6 +30,8 @@ sequence of kernels and compatibility of obstruction classes with its connecting
 
 @[expose] public section
 
+open scoped Module.CommOpposite
+
 open CategoryTheory AlgebraicGeometry Functor
 open HomologicalComplex ComplexShape AlgebraicGeometry.Deformation
 open CategoryTheory.Pretriangulated

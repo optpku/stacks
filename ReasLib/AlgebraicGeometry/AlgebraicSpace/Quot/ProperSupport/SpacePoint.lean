@@ -31,70 +31,7 @@ namespace AlgebraicGeometry.AlgebraicSpace.Quot
 
 variable {S : Scheme.{u}} {X B : AlgebraicSpace S}
 
-/-- A finitely presented quasi-coherent quotient of `F_T` that is flat over an
-algebraic space `T` and has support proper over `T`. -/
-structure QuotSpacePoint {T : AlgebraicSpace S} (f : X ⟶ B) (F : X.Modules)
-    (h : T ⟶ B) [FinitePresentation f] where
-  /-- The underlying space-level quotient point. -/
-  point : SpacePoint f F h
-  /-- The target is of finite presentation. -/
-  isFinitePresentation : point.module.IsFinitePresentation
-  /-- The support of the target is proper over `T`. -/
-  hasProperSupport : supportProperOver (pullback.snd f h) point.module
-
 namespace QuotSpacePoint
-
-/-- Construct a space-level Quot-point from an epimorphism `F_T ⟶ Q` with `Q`
-quasi-coherent of finite presentation, flat over `T`, and with support proper
-over `T`. -/
-def ofEpi {T : AlgebraicSpace S} (f : X ⟶ B) (F : X.Modules) (h : T ⟶ B)
-    [FinitePresentation f] (module : (pullback f h).Modules)
-    (map : spaceFiberF f F h ⟶ module) (map_epi : Epi map)
-    (isQuasicoherent : module.IsQuasicoherent)
-    (isFlat : Modules.flatOver module (pullback.snd f h))
-    (isFinitePresentation : module.IsFinitePresentation)
-    (hasProperSupport : supportProperOver (pullback.snd f h) module) :
-    QuotSpacePoint f F h where
-  point := SpacePoint.ofEpi f F h module map map_epi isQuasicoherent isFlat
-  isFinitePresentation := isFinitePresentation
-  hasProperSupport := hasProperSupport
-
-/-- A space-level Quot-point is an epimorphism `F_T ⟶ Q` with `Q` quasi-coherent
-of finite presentation, flat over `T`, and with support proper over `T`. -/
-theorem spec {T : AlgebraicSpace S} {f : X ⟶ B} {F : X.Modules} {h : T ⟶ B}
-    [FinitePresentation f] (Q : QuotSpacePoint f F h) :
-    Epi Q.point.map ∧ Q.point.module.IsQuasicoherent ∧
-      Q.point.module.IsFinitePresentation ∧
-      Modules.flatOver Q.point.module (pullback.snd f h) ∧
-      supportProperOver (pullback.snd f h) Q.point.module := sorry
-
-/-- The target module of a pulled-back proper-support quotient is finitely presented. -/
-theorem pullback_isFinitePresentation {T T' : AlgebraicSpace S} {f : X ⟶ B}
-    {F : X.Modules} {h : T ⟶ B} [FinitePresentation f]
-    (Q : QuotSpacePoint f F h) (a : T' ⟶ T) :
-    (Q.point.pullback a).module.IsFinitePresentation := sorry
-
-/-- The target module of a pulled-back proper-support quotient has proper support
- over the new base. -/
-theorem pullback_supportProperOver {T T' : AlgebraicSpace S} {f : X ⟶ B}
-    {F : X.Modules} {h : T ⟶ B} [FinitePresentation f]
-    (Q : QuotSpacePoint f F h) (a : T' ⟶ T) :
-    supportProperOver (pullback.snd f (a ≫ h)) (Q.point.pullback a).module := sorry
-
-/-- Pull back a space-level Quot-point along a morphism of algebraic spaces. -/
-def pullback {T T' : AlgebraicSpace S} {f : X ⟶ B} {F : X.Modules} {h : T ⟶ B}
-    [FinitePresentation f] (Q : QuotSpacePoint f F h) (a : T' ⟶ T) :
-    QuotSpacePoint f F (a ≫ h) where
-  point := Q.point.pullback a
-  isFinitePresentation := pullback_isFinitePresentation Q a
-  hasProperSupport := pullback_supportProperOver Q a
-
-/-- The module of a pulled-back space-level Quot-point is the module pullback
-along `spaceFiberMap`. -/
-theorem pullback_module {T T' : AlgebraicSpace S} {f : X ⟶ B} {F : X.Modules}
-    {h : T ⟶ B} [FinitePresentation f] (Q : QuotSpacePoint f F h) (a : T' ⟶ T) :
-    (Q.pullback a).point.module =
-      (Modules.pullback (spaceFiberMap f h a)).obj Q.point.module := sorry
 
 /-- Forget proper support, sending a space-level Quot-point to the underlying
 finitely presented space-level quotient point of `Q^{fp}_{F/X/B}`. -/
@@ -111,25 +48,24 @@ theorem toFpSpacePoint_spec {T : AlgebraicSpace S} {f : X ⟶ B} {F : X.Modules}
 
 end QuotSpacePoint
 
-/-- View a scheme-level Quot-point as a space-level Quot-point along `σ.hom`. -/
-def QuotPoint.toQuotSpacePoint {f : X ⟶ B} {F : X.Modules} {σ : SchemeOver B}
-    [FinitePresentation f] (Q : QuotPoint f F σ) :
-    QuotSpacePoint f F σ.hom where
-  point := Q.point.toSpacePoint
-  isFinitePresentation := Q.isFinitePresentation
-  hasProperSupport := Q.hasProperSupport
-
 /-- The module of `QuotPoint.toQuotSpacePoint Q` is the underlying module of
 `Q`. -/
 theorem QuotPoint.toQuotSpacePoint_module {f : X ⟶ B} {F : X.Modules}
     {σ : SchemeOver B} [FinitePresentation f] (Q : QuotPoint f F σ) :
-    Q.toQuotSpacePoint.point.module = Q.point.module := sorry
+    Q.toQuotSpacePoint.point.module = Q.point.module := rfl
 
 /-- The quotient map of `QuotPoint.toQuotSpacePoint Q` is the underlying map of
 `Q`. -/
 theorem QuotPoint.toQuotSpacePoint_map {f : X ⟶ B} {F : X.Modules}
     {σ : SchemeOver B} [FinitePresentation f] (Q : QuotPoint f F σ) :
-    Q.toQuotSpacePoint.point.map = Q.point.map := sorry
+    Q.toQuotSpacePoint.point.map = Q.point.map := rfl
+
+set_option maxHeartbeats 1000000 in
+/-- Proper-support scheme pullback uses the same data as pullback over `B`. -/
+theorem QuotPoint.toQuotSpacePoint_pullback {f : X ⟶ B} {F : X.Modules}
+    {σ τ : SchemeOver B} [FinitePresentation f] (Q : QuotPoint f F σ) (h : τ ⟶ σ) :
+    (QuotPoint.pullback Q h).toQuotSpacePoint =
+      Q.toQuotSpacePoint.pullbackOver (h' := τ.hom) ((ofOverFunctor S).map h.left) (CostructuredArrow.w h) := rfl
 
 /-- Kernel identification is an equivalence relation on space-level Quot-points. -/
 theorem quotSpaceSetoid_isEquivalence {T : AlgebraicSpace S} (f : X ⟶ B)
@@ -142,6 +78,7 @@ def quotSpaceSetoid {T : AlgebraicSpace S} (f : X ⟶ B) [FinitePresentation f]
   r Q₁ Q₂ := SpacePoint.Rel Q₁.point Q₂.point
   iseqv := quotSpaceSetoid_isEquivalence f F h
 
+set_option maxHeartbeats 1000000 in
 /-- Pullback preserves the relation of the space-level Quot setoid. -/
 theorem quotSpaceSetoid_rel_pullback {T T' : AlgebraicSpace S} (f : X ⟶ B)
     [FinitePresentation f] (F : X.Modules) (h : T ⟶ B) (a : T' ⟶ T) :

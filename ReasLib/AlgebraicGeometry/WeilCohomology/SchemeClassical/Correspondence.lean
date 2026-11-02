@@ -41,7 +41,8 @@ structure Object
   point : V
   /-- The total cohomology algebra of each represented scheme. -/
   H : V → AlgCat.{max (u + 1) v} F
-  /-- The Chow ring of each represented scheme. -/
+  /-- A presentation of the integral Chow ring, identified with geometric Chow
+  theory by `theory.chowComparison` and `theory.chow_compatible`. -/
   CH : V → CommRingCat.{max (u + 1) v}
   /-- The cohomological and Tate bigrading. -/
   Hgrade : ∀ X, ℤ → Submodule F (H X)

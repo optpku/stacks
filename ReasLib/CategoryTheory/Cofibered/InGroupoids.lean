@@ -110,7 +110,7 @@ theorem ofFunctor_p {S : Type w} [Category.{vS} S] (p : S ⥤ C)
 /-- The total category of `ofFunctor p` is the source category of `p`. -/
 @[simp]
 theorem ofFunctor.total {S : Type w} [Category.{vS} S] (p : S ⥤ C)
-    [Functor.IsFibered.InGroupoids p.op] : (ofFunctor p).total = S := sorry
+    [Functor.IsFibered.InGroupoids p.op] : (ofFunctor p).total = S := rfl
 
 /-- A based category lies in `CofiberedCategoryOver.Groupoids C` precisely when its
 opposite projection is fibred in groupoids. -/
@@ -151,25 +151,25 @@ abbrev comm (F : X ⟶ Y) : toFunctor F ⋙ Y.p = X.p :=
 /-- The based-functor view of the identity morphism is the identity based functor. -/
 @[simp]
 theorem toBasedFunctor.id (X : CofiberedCategoryOver.Groupoids C) :
-    toBasedFunctor (𝟙 X) = 𝟙 X.toBasedCategory := sorry
+    toBasedFunctor (𝟙 X) = 𝟙 X.toBasedCategory := rfl
 
 /-- The based-functor view preserves composition. -/
 @[simp]
 theorem toBasedFunctor.comp
     {Z : CofiberedCategoryOver.Groupoids C} (F : X ⟶ Y) (G : Y ⟶ Z) :
     toBasedFunctor (F ≫ G) =
-      BasedFunctor.comp (toBasedFunctor F) (toBasedFunctor G) := sorry
+      BasedFunctor.comp (toBasedFunctor F) (toBasedFunctor G) := rfl
 
 /-- The total-category functor underlying the identity morphism is the identity functor. -/
 @[simp]
 theorem toFunctor.id (X : CofiberedCategoryOver.Groupoids C) :
-    toFunctor (𝟙 X) = 𝟭 X.total := sorry
+    toFunctor (𝟙 X) = 𝟭 X.total := rfl
 
 /-- Passing to total-category functors preserves composition. -/
 @[simp]
 theorem toFunctor.comp
     {Z : CofiberedCategoryOver.Groupoids C} (F : X ⟶ Y) (G : Y ⟶ Z) :
-    toFunctor (F ≫ G) = toFunctor F ⋙ toFunctor G := sorry
+    toFunctor (F ≫ G) = toFunctor F ⋙ toFunctor G := rfl
 
 /-- Build a morphism of categories cofibered in groupoids from a based functor over `C`. -/
 def ofBasedFunctor
@@ -217,7 +217,7 @@ abbrev toNatTrans {F G : X ⟶ Y} (eta : F ⟶ G) :
 /-- Every `2`-cell between cofibered morphisms lies over the identity of the source base object. -/
 theorem TwoCell.app.isHomLiftId
     {F G : X ⟶ Y} (eta : F ⟶ G) (a : X.total) :
-    Functor.IsHomLift Y.p (𝟙 (X.p.obj a)) ((toNatTrans eta).app a) := sorry
+    Functor.IsHomLift Y.p (𝟙 (X.p.obj a)) ((toNatTrans eta).app a) := (toBasedNatTrans eta).isHomLift' a
 
 /-- The canonical based functor from a cofibered category to the identity based category. -/
 def toBase (X : CofiberedCategoryOver.Groupoids C) :
@@ -239,12 +239,13 @@ def baseSection : C ⥤ (base.{u, v, w, vB} C).total :=
 /-- The identity-fibration section followed by the identity-fibration projection is the identity
 on `C`. -/
 theorem baseSection.comp_projection :
-    baseSection.{u, v, w, vB} C ⋙ (base.{u, v, w, vB} C).p = 𝟭 C := sorry
+    baseSection.{u, v, w, vB} C ⋙ (base.{u, v, w, vB} C).p = 𝟭 C := rfl
 
 /-- The equality over `C` used by the canonical morphism from `X` to `base C`. -/
 theorem baseProjection.comm
     (X : CofiberedCategoryOver.Groupoids.{u, v, max w (max u (max v vB)), max v vB} C) :
-    (X.p ⋙ baseSection.{u, v, w, vB} C) ⋙ (base.{u, v, w, vB} C).p = X.p := sorry
+    (X.p ⋙ baseSection.{u, v, w, vB} C) ⋙ (base.{u, v, w, vB} C).p = X.p := by
+  rw [Functor.assoc, baseSection.comp_projection, Functor.comp_id]
 
 /-- The canonical `1`-morphism from a category cofibered in groupoids to the universe-resized
 identity cofibered category. -/
@@ -264,7 +265,7 @@ noncomputable def product
 /-- The product is the chosen two-fibre-product apex over the identity cofibered category. -/
 theorem product_eq_apex
     (X Y : CofiberedCategoryOver.Groupoids.{u, v, max w (max u (max v vB)), max v vB} C) :
-    product X Y = TwoFibreProduct.apex (baseProjection X) (baseProjection Y) := sorry
+    product X Y = TwoFibreProduct.apex (baseProjection X) (baseProjection Y) := rfl
 
 end CofiberedCategoryOver.Groupoids
 

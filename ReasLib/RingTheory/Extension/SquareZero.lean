@@ -13,6 +13,7 @@ public import Mathlib.RingTheory.Extension.Generators
 public import Mathlib.RingTheory.Ideal.Quotient.Operations
 public import Mathlib.RingTheory.MvPolynomial.Basic
 public import ReasLib.RingTheory.RingHom.SquareZero.Solution
+public import ReasLib.RingTheory.RingHom.SquareZero.AlgebraExtension
 public import ReasLib.RingTheory.Extension.Cotangent.ExtOne
 
 /-!
@@ -128,6 +129,82 @@ def toHom (e : SquareZeroAlgExtension A B N) :
 /-- The cotangent cokernel class determined by a geometric extension. -/
 def toClass (e : SquareZeroAlgExtension A B N) : Exal A B N :=
   Exal.mk A B N (toHom e)
+
+section Classification
+
+open RingHom.SquareZeroExtension
+
+variable [Module A N] [IsScalarTower A B N]
+
+/-- Regard a geometric extension as a solution of the identity base diagram.
+The middle ring and projection are unchanged; the kernel identification is
+transported along the canonical map from a square-zero kernel to its conormal. -/
+def toSolution (e : SquareZeroAlgExtension A B N) :
+    Solution (B := B) (N := N) (RingHom.id A) (zeroKernelMap A B N) :=
+  -- Local instance justification (stored data): use the supplied middle ring.
+  letI := e.commRing
+  -- Local instance justification (stored data): use its supplied A-algebra structure.
+  letI := e.algebra
+  -- Local instance justification (stored data): use the supplied square-zero projection.
+  letI := e.isSquareZero
+  { carrier := e.carrier
+    commRing := e.commRing
+    fromA' := algebraMap A e.carrier
+    toB := e.toB.toRingHom
+    comm_right := by
+      ext a
+      exact e.toB.commutes a
+    isSquareZero := e.isSquareZero
+    kernelEquiv := (toCotangentEquiv e.toB.toRingHom).trans e.kernelEquiv
+    induces := by
+      intro x
+      have hx : x = 0 := Subtype.ext (show x.1 = 0 from x.2)
+      subst x
+      simp only [map_zero] }
+
+/-- The identity-diagram bridge preserves the middle ring. -/
+theorem toSolution_carrier (e : SquareZeroAlgExtension A B N) :
+    e.toSolution.carrier = e.carrier := rfl
+
+/-- The identity-diagram bridge uses the original algebra structure map. -/
+theorem toSolution_fromA' (e : SquareZeroAlgExtension A B N) :
+    letI := e.commRing
+    letI := e.algebra
+    e.toSolution.fromA' = algebraMap A e.carrier := rfl
+
+/-- The identity-diagram bridge preserves the projection. -/
+theorem toSolution_toB (e : SquareZeroAlgExtension A B N) :
+    letI := e.commRing
+    letI := e.algebra
+    e.toSolution.toB = e.toB.toRingHom := rfl
+
+/-- On the kernel, the bridge applies the given conormal identification. -/
+theorem toSolution_kernelEquiv_apply (e : SquareZeroAlgExtension A B N) :
+    letI := e.commRing
+    letI := e.algebra
+    letI := e.isSquareZero
+    ∀ x : KernelModule e.toB.toRingHom,
+      e.toSolution.kernelEquiv x = e.kernelEquiv (toCotangentEquiv e.toB.toRingHom x) :=
+  by intros; rfl
+
+/-- The concrete conormal class agrees with the classification based at the
+split extension (Stacks 0GPT). -/
+theorem toClass_eq_classification (e : SquareZeroAlgExtension A B N) :
+    e.toClass = (algebraExtensionEquiv A B N).symm (isoClassMk e.toSolution) := by
+  sorry
+
+/-- Equality of concrete extension classes is detected by a fitting map of the
+identity diagram, preserving both the quotient and the specified coefficients. -/
+theorem toClass_eq_iff (e f : SquareZeroAlgExtension A B N) :
+    e.toClass = f.toClass ↔ Nonempty (FittingMap (compare e.toSolution f.toSolution)) := by
+  rw [toClass_eq_classification, toClass_eq_classification]
+  constructor
+  · intro h
+    exact Quotient.exact ((algebraExtensionEquiv A B N).symm.injective h)
+  · intro h
+    exact congrArg (algebraExtensionEquiv A B N).symm (Quotient.sound h)
+
+end Classification
 
 private def ofHomGraph (f : (Generators.self A B).toExtension.Cotangent →ₗ[B] N) :
     Set (TrivSqZeroExt (Generators.self A B).toExtension.Ring N) :=

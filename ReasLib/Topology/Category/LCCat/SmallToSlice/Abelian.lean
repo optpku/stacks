@@ -114,7 +114,19 @@ variable [HasWeakSheafify (qcTopology.over X) AddCommGrpCat.{u + 1}]
 noncomputable abbrev aInverseAb :
     Sheaf (Opens.grothendieckTopology X.obj) AddCommGrpCat.{u + 1} ⥤
       Sheaf (qcTopology.over X) AddCommGrpCat.{u + 1} :=
-  abPullback X ⋙ comparisonTopologyPullbackAb zar_le_qc X
+  -- Supply the actual identity Kan extension rather than the unproved existence instance
+  -- captured by `comparisonTopologyPullbackAb`. Proof irrelevance preserves the same functor.
+  letI : ∀ F : (Over X)ᵒᵖ ⥤ AddCommGrpCat.{u + 1},
+      ((𝟭 (Over X)).op).HasLeftKanExtension F :=
+    fun F ↦ Functor.HasLeftKanExtension.mk F (Functor.leftUnitor F).inv
+  letI : Functor.IsContinuous (𝟭 (Over X)) (zarTopology.over X) (qcTopology.over X) :=
+    comparisonOver_id_isContinuous zar_le_qc X
+  letI : ((𝟭 (Over X)).sheafPushforwardContinuous AddCommGrpCat.{u + 1}
+      (zarTopology.over X) (qcTopology.over X)).IsRightAdjoint :=
+    (Functor.sheafPullbackConstruction.sheafAdjunctionContinuous
+      (𝟭 (Over X)) AddCommGrpCat.{u + 1} (zarTopology.over X) (qcTopology.over X)).isRightAdjoint
+  abPullback X ⋙ (𝟭 (Over X)).sheafPullback AddCommGrpCat.{u + 1}
+    (zarTopology.over X) (qcTopology.over X)
 
 end AInverse
 
@@ -137,7 +149,8 @@ abbrev essImageAb :
 @[stacks 0EZI "essential-image membership"]
 theorem obj_mem_essImageAb
     (F : Sheaf (Opens.grothendieckTopology X.obj) AddCommGrpCat.{u + 1}) :
-    essImageAb X ((abPullback X).obj F) := sorry
+    essImageAb X ((abPullback X).obj F) :=
+  (abPullback X).obj_mem_essImage F
 
 /-- Membership in the canonical essential image is detected by the adjunction counit. -/
 @[stacks 0EZI "essential image iff counit is invertible"]
@@ -346,8 +359,8 @@ theorem hypercohomology_isomorphic
 
 end RelativeHypercohomology
 
-/- `aInverseAb` is the explicit composite of the two canonical inverse-image functors; its
-reported `sorryAx` is inherited from their Prop-valued continuity and sheafification owners. -/
+/- `aInverseAb` supplies a proved identity-Kan existence certificate; its remaining `sorryAx`
+dependencies certify the topology and continuity properties of the supplied constructions. -/
 
 end LCCat.SmallToSlice
 

@@ -11,6 +11,7 @@ public import ReasLib.CategoryTheory.Bicategory.Limits.PseudoPullback.Bilimit.Li
 public import ReasLib.CategoryTheory.Fibered.Groupoids.Base
 public import ReasLib.CategoryTheory.Fibered.TwoFibreProduct.FullSubbicategory.Bilimit
 public import ReasLib.CategoryTheory.Fibered.TwoFibreProduct.FullSubbicategory.Functoriality.Map.Construction
+public import ReasLib.CategoryTheory.Fibered.TwoFibreProduct.Postcompose
 public import ReasLib.AlgebraicGeometry.AlgebraicStack.RelativeIsom.Automorphisms
 public import ReasLib.AlgebraicGeometry.GroupoidsOver.BaseProjection
 
@@ -39,22 +40,21 @@ namespace AlgebraicGeometry.AlgebraicStack.RelativeIsom
 def pairComparisonCospan {S : Scheme.{u}} {X Y : GroupoidsOver S} (f : X ⟶ Y)
     {Z : AlgebraicSpace S} (x1 x2 : Z.toGroupoids ⟶ X) :
     CospanTransform x1 x2 (x1 ≫ f) (x2 ≫ f) :=
-  CospanTransform.mk (𝟙 Z.toGroupoids) (𝟙 Z.toGroupoids) f
-    (λ_ (x1 ≫ f)) (λ_ (x2 ≫ f))
+  TwoFibreProduct.postcomposeCospan.{u + 1, u, u + 1, u} x1 x2 f
 
 /-- The comparison 1-morphism `Z ×_X Z ⟶ Z ×_Y Z` induced by `f`. -/
 def pairComparison {S : Scheme.{u}} {X Y : GroupoidsOver S} (f : X ⟶ Y)
     {Z : AlgebraicSpace S} (x1 x2 : Z.toGroupoids ⟶ X) :
     TwoFibreProduct.apex.{u + 1, u, u + 1, u} x1 x2 ⟶
       TwoFibreProduct.apex.{u + 1, u, u + 1, u} (x1 ≫ f) (x2 ≫ f) :=
-  TwoFibreProduct.map (pairComparisonCospan f x1 x2)
+  TwoFibreProduct.mapPostcompose.{u + 1, u, u + 1, u} x1 x2 f
 
 /-- `pairComparison f x1 x2` is the two-fibre-product map of
 `pairComparisonCospan f x1 x2`. -/
 theorem pairComparison_eq {S : Scheme.{u}} {X Y : GroupoidsOver S} (f : X ⟶ Y)
     {Z : AlgebraicSpace S} (x1 x2 : Z.toGroupoids ⟶ X) :
     pairComparison f x1 x2 = TwoFibreProduct.map (pairComparisonCospan f x1 x2) :=
-  sorry
+  rfl
 
 /-- The identity-leg cone presenting `Δ^α : Z ⟶ Z ×_{y1, Y, y2} Z`. -/
 def diagonalAlphaCone {S : Scheme.{u}} {Y : GroupoidsOver S}

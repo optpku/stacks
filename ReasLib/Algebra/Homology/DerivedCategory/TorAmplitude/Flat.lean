@@ -49,7 +49,10 @@ abbrev IsFlatInDegree (K : DerivedCategory (ModuleCat R)) (n : ℤ) : Prop :=
 derived category. -/
 @[stacks 0H85 "flat degree is invariant under derived isomorphism"]
 instance flatInDegree_isClosedUnderIsomorphisms (n : ℤ) :
-    (flatInDegree (R := R) n).IsClosedUnderIsomorphisms := sorry
+    (flatInDegree (R := R) n).IsClosedUnderIsomorphisms where
+  of_iso := by
+    rintro K L e ⟨N, hN, ⟨f⟩⟩
+    exact ⟨N, hN, ⟨e.symm ≪≫ f⟩⟩
 /- Proof strategy: transport the module-and-isomorphism witness through the supplied derived
 isomorphism, composing it with the witness isomorphism in `flatInDegree`. -/
 
@@ -77,7 +80,8 @@ flatness of that homology module.  Conversely tensor the displayed flat single-d
 @[stacks 0H85 "upper cohomological bounds give upper Tor-amplitude"]
 theorem IsLE.hasTorAmplitudeLE
     {K : DerivedCategory (ModuleCat R)} {b : ℤ} (hK : K.IsLE b) :
-    HasTorAmplitudeLE R K b := sorry
+    HasTorAmplitudeLE R K b :=
+  (hasTorAmplitudeLE_iff_isLE K b).mpr hK
 /- Proof strategy: apply the reverse implication of `hasTorAmplitudeLE_iff_isLE`. -/
 
 /-- An upper Tor-amplitude bound is already an upper cohomological bound in a
@@ -85,7 +89,8 @@ module category. -/
 @[stacks 0H85 "upper Tor-amplitude gives an upper cohomological bound"]
 theorem HasTorAmplitudeLE.isLE
     {K : DerivedCategory (ModuleCat R)} {b : ℤ}
-    (hK : HasTorAmplitudeLE R K b) : K.IsLE b := sorry
+    (hK : HasTorAmplitudeLE R K b) : K.IsLE b :=
+  (hasTorAmplitudeLE_iff_isLE K b).mp hK
 /- Proof strategy: apply the forward implication of `hasTorAmplitudeLE_iff_isLE`. -/
 
 /-- The canonical flat-degree witness extracted from a zero-width
@@ -93,7 +98,8 @@ Tor-amplitude interval. -/
 @[stacks 0H85 "zero-width Tor-amplitude gives a flat degree"]
 theorem HasTorAmplitudeIn.isFlatInDegree
     {K : DerivedCategory (ModuleCat R)} {n : ℤ}
-    (hK : HasTorAmplitudeIn R K n n) : IsFlatInDegree K n := sorry
+    (hK : HasTorAmplitudeIn R K n n) : IsFlatInDegree K n :=
+  (hasTorAmplitudeIn_self_iff_isFlatInDegree K n).mp hK
 /- Proof strategy: apply the forward implication of
 `hasTorAmplitudeIn_self_iff_isFlatInDegree`. -/
 
@@ -101,7 +107,8 @@ theorem HasTorAmplitudeIn.isFlatInDegree
 @[stacks 0H85 "a flat degree gives zero-width Tor-amplitude"]
 theorem IsFlatInDegree.hasTorAmplitudeIn
     {K : DerivedCategory (ModuleCat R)} {n : ℤ}
-    (hK : IsFlatInDegree K n) : HasTorAmplitudeIn R K n n := sorry
+    (hK : IsFlatInDegree K n) : HasTorAmplitudeIn R K n n :=
+  (hasTorAmplitudeIn_self_iff_isFlatInDegree K n).mpr hK
 /- Proof strategy: apply the reverse implication of
 `hasTorAmplitudeIn_self_iff_isFlatInDegree`. -/
 

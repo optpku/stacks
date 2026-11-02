@@ -26,7 +26,14 @@ def point (k : Type u) [Field k] : SchemeOverField k :=
   ⊤_ (SchemeOverField k)
 
 /-- The structure morphism of `point k` is an isomorphism to `Spec k`. -/
-instance pointHomIsIso (k : Type u) [Field k] : IsIso (point k).hom := sorry
+instance pointHomIsIso (k : Type u) [Field k] : IsIso (point k).hom := by
+  let e : point k ≅ Over.mk (𝟙 (Spec (CommRingCat.of k))) :=
+    terminalIsTerminal.uniqueUpToIso Over.mkIdTerminal
+  have h : e.hom.left = (point k).hom := by
+    simpa only [Category.comp_id] using! e.hom.w
+  rw [← h]
+  change IsIso ((Over.forget _).map e.hom)
+  infer_instance
 
 /-- The chosen spectrum of a field is terminal among schemes over that field. -/
 def pointIsTerminal (k : Type u) [Field k] : IsTerminal (point k) :=

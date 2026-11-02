@@ -12,6 +12,7 @@ import StacksCheckRecall
 @[expose] public section
 
 open AlgebraicGeometry CategoryTheory CategoryTheory.Limits
+open AlgebraicGeometry.RingedSpace.ModuleDerived.Koszul
 open AlgebraicGeometry.Scheme.ModuleDerived.InternalHom
 open AlgebraicGeometry.Scheme.Hom.NormalizedDualizingComplex
 open RingedSpace.Module.Derived
@@ -20,32 +21,20 @@ universe u
 
 namespace RationalSingularity
 
-/- Lemma 54.8.8: for a two-dimensional local normal Nagata domain with a dualizing complex,
+/- Lemma 54.8.8: for a two-dimensional local normal Nagata domain with a dualizing module,
 uniform annihilation of the cokernels of normalized duality trace maps from normal
 modifications implies that reduction to rational singularities is possible. -/
 @[stacks 0B4S] #check
   (RationalSingularity.ofTraceCokernelAnnihilatedBy :
     ∀ (A : Type u) [CommRing A] [IsDomain A] [IsLocalRing A] [NagataRing A]
     [IsNormalRing A] (h_dimension : ringKrullDim A = 2)
-    [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
-    (HA : MonoidalClosed (DerivedCategory (ModuleCat.{u} A)))
-    (ωAComplex : DerivedCategory (ModuleCat.{u} A))
-    (hωA : ωAComplex.IsDualizingComplex HA)
     (ωA : ModuleCat.{u} A)
+    (hωA : ModuleCat.IsDualizingModule ωA)
     (d : A) (hd : d ≠ 0)
     [MonoidalCategory
       (RingedSpace.ModuleDerived (Spec (CommRingCat.of A)).toRingedSpace)]
     (HS : MonoidalClosed
       (RingedSpace.ModuleDerived (Spec (CommRingCat.of A)).toRingedSpace))
-    (canonicalGlobalSectionsFunctor :
-      RingedSpace.ModuleDerived (Spec (CommRingCat.of A)).toRingedSpace ⥤ ModuleCat.{u} A)
-    (h_canonicalGlobalSectionsFunctor :
-      canonicalGlobalSectionsFunctor =
-        GlobalSections.functor
-            (Spec (CommRingCat.of A)).toRingedSpace ⋙
-          DerivedCategory.homologyFunctor
-            (ModuleCat (Scheme.globalSectionsRing (Spec (CommRingCat.of A)))) 0 ⋙
-          ModuleCat.restrictScalars (Scheme.ΓSpecIso (CommRingCat.of A)).inv.hom)
     (h_trace : ∀ (X : Scheme.{u}) (f : X ⟶ Spec (.of A)) [IsModification f],
       (h_normal : X.isNormal) →
         ∀ [MonoidalCategory (RingedSpace.ModuleDerived X.toRingedSpace)]
@@ -55,7 +44,7 @@ modifications implies that reduction to rational singularities is possible. -/
           (hωS : ωS.IsDualizingComplex HS)
           (hωS_affine :
             IsIsomorphic ωS
-              ((affineTildeDerived A).obj (ωAComplex⟦(2 : ℤ)⟧)))
+              ((affineDerivedTilde A).obj ((ModuleCat.single0 ωA)⟦(2 : ℤ)⟧)))
           (hωX : @Scheme.IsDualizingModule X hX ωX)
           (h_relative :
             @RelativeTo (Spec (CommRingCat.of A)) X inferInstance f inferInstance
@@ -75,14 +64,15 @@ modifications implies that reduction to rational singularities is possible. -/
                 aAdjunction.counit.app ωS)
           (sourceGlobalSectionsComparison :
             Scheme.Hom.globalSectionsMod f ωX ≅
-              canonicalGlobalSectionsFunctor.obj
+              (IsRationalSingularity.dualizingGlobalSectionsFunctor A).obj
                 ((RingedSpace.moduleDerivedPushforward f.toShHom).obj
                   (((DerivedCategory.singleFunctor X.Modules 0).obj ωX)⟦(2 : ℤ)⟧)))
           (targetGlobalSectionsComparison :
-            canonicalGlobalSectionsFunctor.obj ωS ≅ ωA)
+            (IsRationalSingularity.dualizingGlobalSectionsFunctor A).obj ωS ≅ ωA)
           (τ : Scheme.Hom.globalSectionsMod f ωX ⟶ ωA),
           τ = sourceGlobalSectionsComparison.hom ≫
-              canonicalGlobalSectionsFunctor.map normalizedDualizingTrace ≫
+              (IsRationalSingularity.dualizingGlobalSectionsFunctor A).map
+                normalizedDualizingTrace ≫
               targetGlobalSectionsComparison.hom ∧
             d ∈ Module.annihilator A
               (Limits.cokernel τ : ModuleCat.{u} A)),

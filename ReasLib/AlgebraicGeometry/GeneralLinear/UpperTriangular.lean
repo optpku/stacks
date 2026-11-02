@@ -33,20 +33,32 @@ namespace AlgebraicGeometry.GLTwo.UpperTriangular
 
 /-- The lower-left entry of an upper-triangular identity matrix is zero. -/
 theorem one_lowerLeft {A : Type u} [CommRing A] :
-    (1 : Matrix.GeneralLinearGroup (GLTwo.index) A) (ULift.up 1) (ULift.up 0) = 0 := sorry
+    (1 : Matrix.GeneralLinearGroup (GLTwo.index) A) (ULift.up 1) (ULift.up 0) = 0 := by
+  change (1 : Matrix (GLTwo.index) (GLTwo.index) A) (ULift.up 1) (ULift.up 0) = 0
+  simp
 
 /-- Upper-triangular invertible matrices are closed under multiplication. -/
 theorem mul_lowerLeft {A : Type u} [CommRing A]
     {M N : Matrix.GeneralLinearGroup (GLTwo.index) A}
     (hM : M (ULift.up 1) (ULift.up 0) = 0)
     (hN : N (ULift.up 1) (ULift.up 0) = 0) :
-    (M * N) (ULift.up 1) (ULift.up 0) = 0 := sorry
+    (M * N) (ULift.up 1) (ULift.up 0) = 0 := by
+  change (∑ i : GLTwo.index, M (ULift.up 1) i * N i (ULift.up 0)) = 0
+  rw [← (Equiv.ulift : GLTwo.index ≃ Fin 2).symm.sum_comp]
+  simp [Fin.sum_univ_two, hM, hN]
 
 /-- The inverse of an upper-triangular invertible matrix is upper triangular. -/
 theorem inv_lowerLeft {A : Type u} [CommRing A]
     {M : Matrix.GeneralLinearGroup (GLTwo.index) A}
     (hM : M (ULift.up 1) (ULift.up 0) = 0) :
-    M⁻¹ (ULift.up 1) (ULift.up 0) = 0 := sorry
+    M⁻¹ (ULift.up 1) (ULift.up 0) = 0 := by
+  let e : Fin 2 ≃ GLTwo.index := Equiv.ulift.symm
+  have h : ((M : Matrix (GLTwo.index) (GLTwo.index) A).submatrix e e)⁻¹ 1 0 = 0 := by
+    simp [Matrix.inv_def, Matrix.adjugate_fin_two, Matrix.submatrix_apply, e, hM]
+  change (↑M⁻¹ : Matrix (GLTwo.index) (GLTwo.index) A) (ULift.up 1) (ULift.up 0) = 0
+  rw [Matrix.GeneralLinearGroup.coe_inv]
+  rw [Matrix.inv_submatrix_equiv] at h
+  simpa [Matrix.submatrix_apply, e] using h
 
 /-- The subgroup of invertible `2 × 2` matrices with zero lower-left entry. -/
 def points (A : Type u) [CommRing A] :
@@ -59,7 +71,7 @@ def points (A : Type u) [CommRing A] :
 /-- Membership in `points A` is upper triangularity of the represented matrix. -/
 theorem mem_points {A : Type u} [CommRing A]
     (M : Matrix.GeneralLinearGroup (GLTwo.index) A) :
-    M ∈ points A ↔ M (ULift.up 1) (ULift.up 0) = 0 := sorry
+    M ∈ points A ↔ M (ULift.up 1) (ULift.up 0) = 0 := Iff.rfl
 
 /-- The coordinate ring of the rank-two upper-triangular group scheme. -/
 abbrev coordinateRing (k : Type u) [CommRing k] : Type u :=
@@ -77,11 +89,16 @@ def rawUniversalMatrix (k : Type u) [CommRing k] :
 theorem rawUniversalMatrix_apply (k : Type u) [CommRing k] (i j : Fin 2) :
     rawUniversalMatrix k (ULift.up i) (ULift.up j) =
       (RingTheory.Sequence.UpperTriangular.matrix :
-        Matrix (Fin 2) (Fin 2) (coordinateRing k)) i j := sorry
+        Matrix (Fin 2) (Fin 2) (coordinateRing k)) i j := rfl
 
 /-- The determinant of the universal upper-triangular matrix is a unit. -/
 theorem rawUniversalMatrix_det_isUnit (k : Type u) [CommRing k] :
-    IsUnit (Matrix.det (rawUniversalMatrix k)) := sorry
+    IsUnit (Matrix.det (rawUniversalMatrix k)) := by
+  rw [rawUniversalMatrix, Matrix.det_reindex_self, Matrix.det_fin_two]
+  simpa [RingTheory.Sequence.UpperTriangular.matrix, Fin.prod_univ_two, map_mul] using
+    (IsLocalization.Away.algebraMap_isUnit (S := coordinateRing k)
+      (∏ i : Fin 2, (MvPolynomial.X ⟨(i, i), le_rfl⟩ :
+        MvPolynomial (RingTheory.Sequence.UpperTriangular.Index 2) k)))
 
 /-- The universal upper-triangular matrix as an invertible matrix. -/
 def universalMatrix (k : Type u) [CommRing k] :
@@ -91,7 +108,9 @@ def universalMatrix (k : Type u) [CommRing k] :
 
 /-- The lower-left entry of the universal upper-triangular matrix is zero. -/
 theorem universalMatrix_lowerLeft (k : Type u) [CommRing k] :
-    universalMatrix k (ULift.up 1) (ULift.up 0) = 0 := sorry
+    universalMatrix k (ULift.up 1) (ULift.up 0) = 0 := by
+  change rawUniversalMatrix k (ULift.up 1) (ULift.up 0) = 0
+  simp [rawUniversalMatrix_apply, RingTheory.Sequence.UpperTriangular.matrix]
 
 /-- The coordinate-ring map defining the closed inclusion into `GL₂`. -/
 def inclusionRingHom (k : Type u) [CommRing k] :
@@ -102,7 +121,8 @@ def inclusionRingHom (k : Type u) [CommRing k] :
 /-- The inclusion coordinate-ring map respects the maps from the base ring. -/
 theorem inclusionRingHom_comp_algebraMap (k : Type u) [CommRing k] :
     (inclusionRingHom k).comp (algebraMap k (GLTwo.coordinateRing k)) =
-      algebraMap k (coordinateRing k) := sorry
+      algebraMap k (coordinateRing k) := by
+  exact GeneralLinear.CoordinateRing.homOfMatrix_comp_algebraMap _ _ _
 
 /-- The upper-triangular scheme over `Spec(k)`. -/
 abbrev schemeOver (k : Type u) [CommRing k] : Over (Spec (CommRingCat.of k)) :=
@@ -110,18 +130,23 @@ abbrev schemeOver (k : Type u) [CommRing k] : Over (Spec (CommRingCat.of k)) :=
 
 /-- The underlying scheme of `schemeOver k` is the spectrum of its coordinate ring. -/
 theorem schemeOver_left (k : Type u) [CommRing k] :
-    (schemeOver k).left = Spec (CommRingCat.of (coordinateRing k)) := sorry
+    (schemeOver k).left = Spec (CommRingCat.of (coordinateRing k)) := rfl
 
 /-- The structure morphism of `schemeOver k` is induced by its `k`-algebra structure. -/
 theorem schemeOver_hom (k : Type u) [CommRing k] :
     (schemeOver k).hom =
-      Spec.map (CommRingCat.ofHom (algebraMap k (coordinateRing k))) := sorry
+      Spec.map (CommRingCat.ofHom (algebraMap k (coordinateRing k))) := rfl
 
 /-- The spectrum map of the inclusion ring map respects the structure morphisms. -/
 theorem inclusion_over (k : Type u) [CommRing k] :
     Spec.map (CommRingCat.ofHom (inclusionRingHom k)) ≫
         (GeneralLinear.schemeOver k (GLTwo.index)).hom =
-      (schemeOver k).hom := sorry
+      (schemeOver k).hom := by
+  change Spec.map (CommRingCat.ofHom (inclusionRingHom k)) ≫
+    Spec.map (CommRingCat.ofHom (algebraMap k (GLTwo.coordinateRing k))) = _
+  rw [← Spec.map_comp]
+  exact congrArg (fun f ↦ Spec.map (CommRingCat.ofHom f))
+    (inclusionRingHom_comp_algebraMap k)
 
 /-- The closed immersion of the upper-triangular scheme into `GL₂`. -/
 def inclusion (k : Type u) [CommRing k] :
@@ -133,14 +158,30 @@ theorem inclusion_matrix (k : Type u) [CommRing k] :
     GeneralLinear.HomOver.matrixOfHom (GLTwo.index) (inclusion k) =
       Matrix.GeneralLinearGroup.map
         (Scheme.ΓSpecIso (CommRingCat.of (coordinateRing k))).inv.hom
-        (universalMatrix k) := sorry
+        (universalMatrix k) := by
+  apply Matrix.GeneralLinearGroup.ext
+  intro i j
+  rw [GeneralLinear.HomOver.matrixOfHom_apply]
+  change (Scheme.homToSpecGlobalSectionsEquiv
+    (Spec (CommRingCat.of (coordinateRing k)))
+    (CommRingCat.of (GLTwo.coordinateRing k))
+    (Spec.map (CommRingCat.ofHom (inclusionRingHom k))))
+      (GeneralLinear.localizedCoordinate k (GLTwo.index) i j) = _
+  rw [Scheme.homToSpecGlobalSectionsEquiv_apply, ← Scheme.ΓSpecIso_inv_naturality]
+  change (Scheme.ΓSpecIso (CommRingCat.of (coordinateRing k))).inv.hom
+    (inclusionRingHom k (GeneralLinear.localizedCoordinate k (GLTwo.index) i j)) =
+      (Scheme.ΓSpecIso (CommRingCat.of (coordinateRing k))).inv.hom
+        (universalMatrix k i j)
+  exact congrArg (Scheme.ΓSpecIso (CommRingCat.of (coordinateRing k))).inv.hom
+    (GeneralLinear.CoordinateRing.homOfMatrix_localizedCoordinate _ _ _ i j)
 
 /-- The upper-triangular inclusion is a closed immersion. -/
 instance inclusion_isClosedImmersion (k : Type u) [CommRing k] :
     IsClosedImmersion (inclusion k).left := sorry
 
 /-- The upper-triangular inclusion is a monomorphism in the slice category. -/
-instance inclusion_mono (k : Type u) [CommRing k] : Mono (inclusion k) := sorry
+instance inclusion_mono (k : Type u) [CommRing k] : Mono (inclusion k) :=
+  Over.mono_of_mono_left _
 
 /-- Polynomial evaluation at an upper-triangular invertible matrix. -/
 def polynomialEval {A : Type u} [CommRing A] (k : Type u) [CommRing k]
@@ -155,7 +196,17 @@ theorem polynomialEval_denominator_isUnit {A : Type u} [CommRing A]
     (hM : M (ULift.up 1) (ULift.up 0) = 0) :
     IsUnit (polynomialEval k φ M
       (∏ i : Fin 2, (MvPolynomial.X ⟨(i, i), le_rfl⟩ :
-        MvPolynomial (RingTheory.Sequence.UpperTriangular.Index 2) k))) := sorry
+        MvPolynomial (RingTheory.Sequence.UpperTriangular.Index 2) k))) := by
+  have hdet : Matrix.det (M : Matrix (GLTwo.index) (GLTwo.index) A) =
+      M (ULift.up 0) (ULift.up 0) * M (ULift.up 1) (ULift.up 1) := by
+    rw [← Matrix.det_submatrix_equiv_self
+      (Equiv.ulift : GLTwo.index ≃ Fin 2).symm
+      (M : Matrix (GLTwo.index) (GLTwo.index) A), Matrix.det_fin_two]
+    simp [Matrix.submatrix_apply, hM]
+  have hunit := (Matrix.GeneralLinearGroup.det M).isUnit
+  change IsUnit (Matrix.det (M : Matrix (GLTwo.index) (GLTwo.index) A)) at hunit
+  rw [hdet] at hunit
+  simpa [polynomialEval, Fin.prod_univ_two] using hunit
 
 /-- The coordinate-ring map classified by an upper-triangular invertible matrix. -/
 def coordinateRingHom {A : Type u} [CommRing A] (k : Type u) [CommRing k]
@@ -173,14 +224,20 @@ theorem coordinateRingHom_comp_algebraMap {A : Type u} [CommRing A]
     (hM : M (ULift.up 1) (ULift.up 0) = 0) :
     (coordinateRingHom k φ M hM).comp
         (algebraMap (MvPolynomial (RingTheory.Sequence.UpperTriangular.Index 2) k)
-          (coordinateRing k)) = polynomialEval k φ M := sorry
+          (coordinateRing k)) = polynomialEval k φ M := by
+  exact IsLocalization.Away.lift_comp _ _
 
 /-- The classified coordinate-ring map restricts to the prescribed map on `k`. -/
 theorem coordinateRingHom_comp_base {A : Type u} [CommRing A]
     (k : Type u) [CommRing k] (φ : k →+* A)
     (M : Matrix.GeneralLinearGroup (GLTwo.index) A)
     (hM : M (ULift.up 1) (ULift.up 0) = 0) :
-    (coordinateRingHom k φ M hM).comp (algebraMap k (coordinateRing k)) = φ := sorry
+    (coordinateRingHom k φ M hM).comp (algebraMap k (coordinateRing k)) = φ := by
+  rw [IsScalarTower.algebraMap_eq k
+    (MvPolynomial (RingTheory.Sequence.UpperTriangular.Index 2) k) (coordinateRing k),
+    ← RingHom.comp_assoc, coordinateRingHom_comp_algebraMap]
+  ext r
+  exact MvPolynomial.eval₂Hom_C _ _ r
 
 /-- The coordinate-ring map of an upper-triangular generalized point is compatible with the
 base map. -/
@@ -191,7 +248,9 @@ theorem compatibleRingHom_w (k : Type u) [CommRing k]
     CommRingCat.ofHom (algebraMap k (coordinateRing k)) ≫
         CommRingCat.ofHom
           (coordinateRingHom k (Scheme.OverSpec.baseRingHom T).hom M hM) =
-      Scheme.OverSpec.baseRingHom T := sorry
+      Scheme.OverSpec.baseRingHom T := by
+  exact congrArg CommRingCat.ofHom
+    (coordinateRingHom_comp_base k (Scheme.OverSpec.baseRingHom T).hom M hM)
 
 /-- The compatible ring map associated to an upper-triangular matrix-valued point. -/
 def compatibleRingHom (k : Type u) [CommRing k]
@@ -224,13 +283,20 @@ theorem ofMatrix_inclusion (k : Type u) [CommRing k]
 theorem matrixOfHom_inclusion_lowerLeft (k : Type u) [CommRing k]
     {T : Over (Spec (CommRingCat.of k))} (f : T ⟶ schemeOver k) :
     GeneralLinear.HomOver.matrixOfHom (GLTwo.index) (f ≫ inclusion k)
-        (ULift.up 1) (ULift.up 0) = 0 := sorry
+        (ULift.up 1) (ULift.up 0) = 0 := by
+  rw [GeneralLinear.HomOver.matrixOfHom_comp, inclusion_matrix]
+  change (Scheme.Γ.map f.left.op).hom
+    ((Scheme.ΓSpecIso (CommRingCat.of (coordinateRing k))).inv.hom
+      (universalMatrix k (ULift.up 1) (ULift.up 0))) = 0
+  rw [universalMatrix_lowerLeft, map_zero]
+  exact (Scheme.Γ.map f.left.op).hom.map_zero
 
 /-- The identity generalized point of `GL₂` is upper triangular. -/
 theorem onePoint_lowerLeft (k : Type u) [CommRing k] :
     (1 : Matrix.GeneralLinearGroup (GLTwo.index)
       Γ((𝟙_ (Over (Spec (CommRingCat.of.{u} k)))).left, ⊤))
-        (ULift.up 1) (ULift.up 0) = 0 := sorry
+        (ULift.up 1) (ULift.up 0) = 0 := by
+  exact one_lowerLeft
 
 /-- The identity map factored through the upper-triangular scheme. -/
 def one (k : Type u) [CommRing k] :
@@ -251,7 +317,9 @@ def mulMatrix (k : Type u) [CommRing k] :
 
 /-- The product matrix of the two projections remains upper triangular. -/
 theorem mulMatrix_lowerLeft (k : Type u) [CommRing k] :
-    mulMatrix k (ULift.up 1) (ULift.up 0) = 0 := sorry
+    mulMatrix k (ULift.up 1) (ULift.up 0) = 0 := by
+  exact mul_lowerLeft (matrixOfHom_inclusion_lowerLeft k _)
+    (matrixOfHom_inclusion_lowerLeft k _)
 
 /-- Multiplication on the upper-triangular scheme. -/
 def mul (k : Type u) [CommRing k] : schemeOver k ⊗ schemeOver k ⟶ schemeOver k :=
@@ -264,7 +332,9 @@ def invMatrix (k : Type u) [CommRing k] :
 
 /-- The inverse matrix of the universal upper-triangular point remains upper triangular. -/
 theorem invMatrix_lowerLeft (k : Type u) [CommRing k] :
-    invMatrix k (ULift.up 1) (ULift.up 0) = 0 := sorry
+    invMatrix k (ULift.up 1) (ULift.up 0) = 0 := by
+  apply inv_lowerLeft
+  simpa using matrixOfHom_inclusion_lowerLeft k (𝟙 (schemeOver k))
 
 /-- Inversion on the upper-triangular scheme. -/
 def inv (k : Type u) [CommRing k] : schemeOver k ⟶ schemeOver k :=
@@ -299,14 +369,16 @@ instance instGrpObjSchemeOver (k : Type u) [CommRing k] : GrpObj (schemeOver k) 
   (factorization k).toGrpObj
 
 /-- The upper-triangular inclusion is a morphism of group objects. -/
-instance inclusion_isMonHom (k : Type u) [CommRing k] : IsMonHom (inclusion k) := sorry
+instance inclusion_isMonHom (k : Type u) [CommRing k] : IsMonHom (inclusion k) where
+  one_hom := one_inclusion k
+  mul_hom := mul_inclusion k
 
 /-- The rank-two upper-triangular group scheme. -/
 def groupScheme (k : Type u) [CommRing k] : Grp (Over (Spec (CommRingCat.of k))) :=
   { X := schemeOver k }
 
 /-- The underlying object of the upper-triangular group scheme is `schemeOver k`. -/
-theorem groupScheme_X (k : Type u) [CommRing k] : (groupScheme k).X = schemeOver k := sorry
+theorem groupScheme_X (k : Type u) [CommRing k] : (groupScheme k).X = schemeOver k := rfl
 
 /-- The upper-triangular group scheme as a closed subgroup of `GL₂`. -/
 def closedSubgroup (k : Type u) [CommRing k] :
@@ -315,6 +387,6 @@ def closedSubgroup (k : Type u) [CommRing k] :
 
 /-- The underlying morphism of `closedSubgroup k` is the explicit inclusion. -/
 theorem closedSubgroup_inclusion (k : Type u) [CommRing k] :
-    (closedSubgroup k).hom.hom.hom = inclusion k := sorry
+    (closedSubgroup k).hom.hom.hom = inclusion k := rfl
 
 end AlgebraicGeometry.GLTwo.UpperTriangular

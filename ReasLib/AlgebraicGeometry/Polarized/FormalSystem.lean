@@ -132,7 +132,8 @@ theorem spec (ringSystem : SequentialInverseSystem CommRingCat.{u})
       ξ.kernelsLocallyNilpotent = kernelsLocallyNilpotent ∧
       ξ.isPullback = isPullback ∧ ξ.isProper = isProper ∧
       ξ.isFlat = isFlat ∧ ξ.finitePresentation = finitePresentation ∧
-      ξ.invertible = invertible ∧ ξ.isAmpleZero = isAmpleZero := sorry
+      ξ.invertible = invertible ∧ ξ.isAmpleZero = isAmpleZero := by
+  exact ⟨rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl⟩
 
 variable (ξ : FormalSystem.{u})
 
@@ -142,7 +143,7 @@ def stageSpec (n : ℕ) : Scheme.{u} :=
 
 /-- `stageSpec n` is `Spec` of the stage ring `R_n`. -/
 theorem stageSpec_eq (n : ℕ) :
-    ξ.stageSpec n = Spec (ξ.ringSystem.family n) := sorry
+    ξ.stageSpec n = Spec (ξ.ringSystem.family n) := rfl
 
 /-- Spectrum of the limit ring `R = lim R_n`. -/
 def limitSpec : Scheme.{u} :=
@@ -150,7 +151,7 @@ def limitSpec : Scheme.{u} :=
 
 /-- `limitSpec` is `Spec` of the limit ring `R = lim R_n`. -/
 theorem limitSpec_eq :
-    ξ.limitSpec = Spec ξ.limitCone.cone.pt := sorry
+    ξ.limitSpec = Spec ξ.limitCone.cone.pt := rfl
 
 /-- Comparison morphism `S_n ⟶ S` induced by the cone leg `R ⟶ R_n`. -/
 def stageToLimit (n : ℕ) : ξ.stageSpec n ⟶ ξ.limitSpec :=
@@ -158,7 +159,7 @@ def stageToLimit (n : ℕ) : ξ.stageSpec n ⟶ ξ.limitSpec :=
 
 /-- `stageToLimit n` is `Spec.map` of the cone leg `R ⟶ R_n`. -/
 theorem stageToLimit_eq (n : ℕ) :
-    ξ.stageToLimit n = Spec.map (ξ.limitCone.cone.stageMap n) := sorry
+    ξ.stageToLimit n = Spec.map (ξ.limitCone.cone.stageMap n) := rfl
 
 /-- Base successor morphism `S_n ⟶ S_{n+1}` induced by `R_{n+1} ⟶ R_n`. -/
 def stepBase (n : ℕ) : ξ.stageSpec n ⟶ ξ.stageSpec (n + 1) :=
@@ -166,7 +167,7 @@ def stepBase (n : ℕ) : ξ.stageSpec n ⟶ ξ.stageSpec (n + 1) :=
 
 /-- `stepBase n` is `Spec.map` of the successor transition `R_{n+1} ⟶ R_n`. -/
 theorem stepBase_eq (n : ℕ) :
-    ξ.stepBase n = Spec.map (ξ.ringSystem.stepMap n) := sorry
+    ξ.stepBase n = Spec.map (ξ.ringSystem.stepMap n) := rfl
 
 /-- The cartesian square identifies `X n` with the fibre product of
 `X (n + 1) ⟶ S_{n+1}` along `S_n ⟶ S_{n+1}`. -/
@@ -177,12 +178,14 @@ def isoRestrict (n : ℕ) :
 /-- The fibre-product comparison commutes with the successor morphism of schemes. -/
 theorem isoRestrict_hom_fst (n : ℕ) :
     (ξ.isoRestrict n).hom ≫ pullback.fst (ξ.hom (n + 1)) (ξ.stepBase n) =
-      ξ.step n := sorry
+      ξ.step n :=
+  (ξ.isPullback n).isoPullback_hom_fst
 
 /-- The fibre-product comparison commutes with the structure morphism of stage `n`. -/
 theorem isoRestrict_hom_snd (n : ℕ) :
     (ξ.isoRestrict n).hom ≫ pullback.snd (ξ.hom (n + 1)) (ξ.stepBase n) =
-      ξ.hom n := sorry
+      ξ.hom n :=
+  (ξ.isPullback n).isoPullback_hom_snd
 
 end FormalSystem
 

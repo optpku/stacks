@@ -7,6 +7,9 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Support.Proper
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Support.Proper.Closure
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.SchemeTheoreticSupport.Proper
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Coherent.Noetherian
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.CoherentFormalModule.Completion
 
 /-!
@@ -19,7 +22,7 @@ support over the same morphism.
 
 @[expose] public section
 
-open CategoryTheory Opposite AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
+open CategoryTheory Opposite CategoryTheory.Limits AlgebraicGeometry AlgebraicGeometry.AlgebraicSpace
 
 noncomputable section
 
@@ -37,7 +40,7 @@ def coherentProperSupportOver (f : X ⟶ Y) : ObjectProperty (Coh X) :=
 underlying module. -/
 theorem coherentProperSupportOver_iff (f : X ⟶ Y) (ℱ : Coh X) :
     coherentProperSupportOver f ℱ ↔ HasProperSupportOver f ℱ.obj :=
-  sorry
+  Iff.rfl
 
 /-- The full category of coherent modules on `X` whose support is proper over
 `f`. -/
@@ -49,7 +52,7 @@ abbrev CoherentProperSupportOver (f : X ⟶ Y) :=
 theorem coherentProperSupportOver_obj_property (f : X ⟶ Y)
     (ℱ : CoherentProperSupportOver f) :
     HasProperSupportOver f ℱ.obj.obj :=
-  sorry
+  ℱ.property
 
 /-- The stage indexed by `n` of a coherent formal module. -/
 abbrev coherentFormalModuleStage
@@ -62,7 +65,7 @@ abbrev coherentFormalModuleStage
 theorem coherentFormalModuleStage_eq {I : IdealSubobject X} [IsQuasiCoherent I]
     (M : CoherentFormalModules X I) (n : ℕ) :
     coherentFormalModuleStage M n = M.obj.obj (op n) :=
-  sorry
+  rfl
 
 /-- The object property of coherent formal modules whose first stage has proper
 support over `f`. -/
@@ -76,7 +79,7 @@ theorem coherentFormalProperSupportOver_iff (f : X ⟶ Y) (I : IdealSubobject X)
     [IsQuasiCoherent I] (M : CoherentFormalModules X I) :
     coherentFormalProperSupportOver f I M ↔
       HasProperSupportOver f (coherentFormalModuleStage M 1).obj :=
-  sorry
+  Iff.rfl
 
 /-- The full category of coherent formal modules whose first stage has proper
 support over `f`. -/
@@ -90,7 +93,7 @@ theorem coherentFormalProperSupportOver_obj_property (f : X ⟶ Y)
     (I : IdealSubobject X) [IsQuasiCoherent I]
     (M : CoherentFormalProperSupportOver f I) :
     HasProperSupportOver f (coherentFormalModuleStage M.obj 1).obj :=
-  sorry
+  M.property
 
 /-- Canonical completion preserves proper support at the first coherent stage,
 since the support of a quotient is contained in the support of the module. -/
@@ -101,7 +104,28 @@ theorem coherentCompletion_preservesProperSupportOver
     HasProperSupportOver f
       (coherentFormalModuleStage
         ((CoherentCompletion.functor I).obj ℱ.obj) 1).obj :=
-  sorry
+  by
+    change HasProperSupportOver f (CoherentCompletion.Stage I ℱ.obj 1)
+    have hFcoh :=
+      (isCoherent_iff_isQuasicoherent_and_isFiniteType ℱ.obj.obj).mp ℱ.obj.property
+    letI : ℱ.obj.obj.IsQuasicoherent := hFcoh.1
+    letI : ℱ.obj.obj.IsFiniteType := hFcoh.2
+    have hF : ClosedSubset.ProperOver f (closedSupport ℱ.obj.obj) :=
+      (closedSupport_isProperOver_iff_schemeTheoreticSupport f ℱ.obj.obj).mpr
+        ((hasProperSupportOver_iff f ℱ.obj.obj).mp ℱ.property)
+    have hQcoh :=
+      (isCoherent_iff_isQuasicoherent_and_isFiniteType
+        (CoherentCompletion.Stage I ℱ.obj 1)).mp
+        (CoherentCompletion.stage_isCoherent I ℱ.obj 1)
+    letI : (CoherentCompletion.Stage I ℱ.obj 1).IsQuasicoherent := hQcoh.1
+    letI : (CoherentCompletion.Stage I ℱ.obj 1).IsFiniteType := hQcoh.2
+    have hQ :
+        ClosedSubset.ProperOver f (closedSupport (CoherentCompletion.Stage I ℱ.obj 1)) :=
+      closedSupport_of_epi_isProperOver f hF
+        (cokernel.π (idealPowerProductSubobject I ℱ.obj.obj 1).arrow)
+    exact (hasProperSupportOver_iff f (CoherentCompletion.Stage I ℱ.obj 1)).mpr
+      ((closedSupport_isProperOver_iff_schemeTheoreticSupport f
+        (CoherentCompletion.Stage I ℱ.obj 1)).mp hQ)
 
 /-- Canonical completion restricted from coherent modules with proper support
 to coherent formal modules whose first stage has proper support. -/
@@ -121,6 +145,6 @@ theorem coherentProperSupportCompletionFunctor_obj
     (ℱ : CoherentProperSupportOver f) :
     ((coherentProperSupportCompletionFunctor f I).obj ℱ).obj =
       (CoherentCompletion.functor I).obj ℱ.obj :=
-  sorry
+  rfl
 
 end AlgebraicGeometry.AlgebraicSpace.Modules

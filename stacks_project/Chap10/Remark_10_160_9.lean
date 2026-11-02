@@ -46,7 +46,16 @@ instance mvPowerSeries_fin_isRegularLocalRing (R : Type u) [CommRing R]
 
 /-- The Krull dimension of the `d`-variable formal power series ring over a field is `d`. -/
 theorem ringKrullDim_mvPowerSeries_fin_field (k : Type u) [Field k] (d : ℕ) :
-    ringKrullDim (MvPowerSeries (Fin d) k) = d := sorry
+    ringKrullDim (MvPowerSeries (Fin d) k) = d :=
+  MvPowerSeries.ringKrullDim_fin_field k d
+
+/-- In particular, power series in `d` variables over a Cohen ring have dimension `d + 1`:
+the dimension formula holds over any discrete valuation ring. -/
+@[stacks 032C]
+theorem ringKrullDim_mvPowerSeries_fin_dvr (R : Type u) [CommRing R] [IsDomain R]
+    [IsDiscreteValuationRing R] (d : ℕ) :
+    ringKrullDim (MvPowerSeries (Fin d) R) = (d : WithBot ℕ∞) + 1 :=
+  MvPowerSeries.ringKrullDim_fin_dvr R d
 
 /-- Chap10 Remark 10 160 9 (1): every Noetherian complete local ring is a quotient of a regular
 local ring. -/
@@ -65,6 +74,7 @@ theorem universallyCatenaryRing_of_isCompleteLocalRing (R : Type u) [CommRing R]
 #check @mvPowerSeries_fin_isCompleteLocalRing
 #check @mvPowerSeries_fin_isRegularLocalRing
 #check @ringKrullDim_mvPowerSeries_fin_field
+#check @ringKrullDim_mvPowerSeries_fin_dvr
 #check @MvPowerSeries.ringKrullDim_fin_field
 #check @exists_regularLocalRing_quotient_of_isCompleteLocalRing
 #check @universallyCatenaryRing_of_isCompleteLocalRing

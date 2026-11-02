@@ -9,6 +9,7 @@ module
 public import Mathlib.CategoryTheory.Subobject.Limits
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Abelian
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.InverseImage
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.DirectImage
 
 /-!
 # Quasi-coherent quotients of a module on an algebraic space
@@ -55,7 +56,8 @@ def ofEpi (F : X.Modules) [F.IsQuasicoherent] (module : X.Modules) (map : F ⟶ 
 
 /-- A quasi-coherent quotient is an epimorphism onto a quasi-coherent module. -/
 theorem spec {F : X.Modules} [F.IsQuasicoherent] (Q : Quotient F) :
-    Epi Q.map ∧ Q.module.IsQuasicoherent := sorry
+    Epi Q.map ∧ Q.module.IsQuasicoherent :=
+  ⟨Q.map_epi, Q.isQuasicoherent⟩
 
 /-- Two quasi-coherent quotients of `F` are identified when they have the same kernel. -/
 def Rel {F : X.Modules} [F.IsQuasicoherent] (Q₁ Q₂ : Quotient F) : Prop :=
@@ -63,30 +65,58 @@ def Rel {F : X.Modules} [F.IsQuasicoherent] (Q₁ Q₂ : Quotient F) : Prop :=
 
 /-- Kernel equality is an equivalence relation on quasi-coherent quotients. -/
 theorem rel_isEquivalence (F : X.Modules) [F.IsQuasicoherent] :
-    Equivalence (fun Q₁ Q₂ : Quotient F ↦ Rel Q₁ Q₂) := sorry
+    Equivalence (fun Q₁ Q₂ : Quotient F ↦ Rel Q₁ Q₂) :=
+  ⟨fun _ ↦ rfl, fun h ↦ h.symm, fun h₁ h₂ ↦ h₁.trans h₂⟩
 
 /-- Kernel identification of quasi-coherent quotients is equivalent to an isomorphism of
 targets over `F`. -/
 theorem rel_iso_iff {F : X.Modules} [F.IsQuasicoherent] (Q₁ Q₂ : Quotient F) :
-    Rel Q₁ Q₂ ↔ ∃ e : Q₁.module ≅ Q₂.module, Q₁.map ≫ e.hom = Q₂.map := sorry
+    Rel Q₁ Q₂ ↔ ∃ e : Q₁.module ≅ Q₂.module, Q₁.map ≫ e.hom = Q₂.map := by
+  letI := Q₁.map_epi
+  letI := Q₂.map_epi
+  constructor
+  · intro h
+    change kernelSubobject Q₁.map = kernelSubobject Q₂.map at h
+    have h₁₂ : kernel.ι Q₁.map ≫ Q₂.map = 0 := by
+      apply (kernelSubobject_factors_iff Q₂.map _).mp
+      rw [← h]
+      exact kernelSubobject_factors Q₁.map _ (kernel.condition _)
+    have h₂₁ : kernel.ι Q₂.map ≫ Q₁.map = 0 := by
+      apply (kernelSubobject_factors_iff Q₁.map _).mp
+      rw [h]
+      exact kernelSubobject_factors Q₂.map _ (kernel.condition _)
+    refine ⟨
+      { hom := Abelian.epiDesc Q₁.map Q₂.map h₁₂
+        inv := Abelian.epiDesc Q₂.map Q₁.map h₂₁
+        hom_inv_id := ?_
+        inv_hom_id := ?_ }, Abelian.comp_epiDesc _ _ _⟩
+    · apply (cancel_epi Q₁.map).mp
+      simp only [← Category.assoc, Abelian.comp_epiDesc, Category.comp_id]
+    · apply (cancel_epi Q₂.map).mp
+      simp only [← Category.assoc, Abelian.comp_epiDesc, Category.comp_id]
+  · rintro ⟨e, he⟩
+    change kernelSubobject Q₁.map = kernelSubobject Q₂.map
+    rw [← he, kernelSubobject_comp_mono]
 
 /-- Precompose a quasi-coherent quotient with an isomorphism of its source. -/
 def precomposeIso {F F' : X.Modules} [F.IsQuasicoherent] [F'.IsQuasicoherent]
     (e : F ≅ F') (Q : Quotient F') : Quotient F where
   module := Q.module
   map := e.hom ≫ Q.map
-  map_epi := sorry
+  map_epi := by
+    letI := Q.map_epi
+    exact epi_comp _ _
   isQuasicoherent := Q.isQuasicoherent
 
 /-- The target of `precomposeIso e Q` is the target of `Q`. -/
 theorem precomposeIso_module {F F' : X.Modules} [F.IsQuasicoherent] [F'.IsQuasicoherent]
     (e : F ≅ F') (Q : Quotient F') :
-    (precomposeIso e Q).module = Q.module := sorry
+    (precomposeIso e Q).module = Q.module := rfl
 
 /-- The underlying map of `precomposeIso e Q` is `e.hom ≫ Q.map`. -/
 theorem precomposeIso_map {F F' : X.Modules} [F.IsQuasicoherent] [F'.IsQuasicoherent]
     (e : F ≅ F') (Q : Quotient F') :
-    (precomposeIso e Q).map = e.hom ≫ Q.map := sorry
+    (precomposeIso e Q).map = e.hom ≫ Q.map := rfl
 
 /-- Pull back a quasi-coherent quotient along a morphism of algebraic spaces. -/
 def pullback {F : X.Modules} [F.IsQuasicoherent] (Q : Quotient F)
@@ -94,18 +124,26 @@ def pullback {F : X.Modules} [F.IsQuasicoherent] (Q : Quotient F)
     Quotient ((Modules.pullback f).obj F) where
   module := (Modules.pullback f).obj Q.module
   map := (Modules.pullback f).map Q.map
-  map_epi := sorry
+  map_epi := by
+    letI := Q.map_epi
+    exact (Modules.pullback f).map_epi Q.map
   isQuasicoherent := Modules.pullback_quasiCoherentModuleProperty f Q.isQuasicoherent
 
 /-- The module of a pulled-back quotient is the module pullback of the original target. -/
 theorem pullback_module {F : X.Modules} [F.IsQuasicoherent] (Q : Quotient F)
     {Y : AlgebraicSpace S} (f : Y ⟶ X) :
-    (Q.pullback f).module = (Modules.pullback f).obj Q.module := sorry
+    (Q.pullback f).module = (Modules.pullback f).obj Q.module := rfl
 
 /-- Pullback preserves kernel identification of quasi-coherent quotients. -/
 theorem rel_pullback {F : X.Modules} [F.IsQuasicoherent] {Q₁ Q₂ : Quotient F}
     (hQ : Rel Q₁ Q₂) {Y : AlgebraicSpace S} (f : Y ⟶ X) :
-    Rel (Q₁.pullback f) (Q₂.pullback f) := sorry
+    Rel (Q₁.pullback f) (Q₂.pullback f) := by
+  obtain ⟨e, he⟩ := (rel_iso_iff Q₁ Q₂).mp hQ
+  apply (rel_iso_iff _ _).mpr
+  refine ⟨(Modules.pullback f).mapIso e, ?_⟩
+  change (Modules.pullback f).map Q₁.map ≫ (Modules.pullback f).map e.hom =
+    (Modules.pullback f).map Q₂.map
+  rw [← Functor.map_comp, he]
 
 end Quotient
 

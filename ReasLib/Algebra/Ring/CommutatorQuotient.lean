@@ -43,7 +43,8 @@ variable {R}
 
 /-- Every ring commutator lies in the additive commutator subgroup. -/
 theorem lie_mem_commutatorAddSubgroup (a b : R) :
-    ⁅a, b⁆ ∈ commutatorAddSubgroup R := sorry
+    ⁅a, b⁆ ∈ commutatorAddSubgroup R := by
+  exact AddSubgroup.subset_closure ⟨a, b, rfl⟩
 
 namespace CommutatorQuotient
 
@@ -52,10 +53,11 @@ abbrev mk : R →+ CommutatorQuotient R :=
   QuotientAddGroup.mk' (commutatorAddSubgroup R)
 
 /-- The canonical projection sends `x` to its class in the additive commutator quotient. -/
-theorem mk_apply (x : R) : mk x = QuotientAddGroup.mk x := sorry
+theorem mk_apply (x : R) : mk x = QuotientAddGroup.mk x := rfl
 
 /-- Ring commutators vanish in the additive commutator quotient. -/
-theorem mk_lie (a b : R) : mk ⁅a, b⁆ = 0 := sorry
+theorem mk_lie (a b : R) : mk ⁅a, b⁆ = 0 := by
+  exact (QuotientAddGroup.eq_zero_iff ⁅a, b⁆).2 (lie_mem_commutatorAddSubgroup a b)
 
 end CommutatorQuotient
 
@@ -67,7 +69,18 @@ variable {A : Type u} {Λ : Type v} [CommRing A] [Ring Λ] [Algebra A Λ]
 
 /-- Scalar multiplication by an element of `A` preserves the additive commutator subgroup of `Λ`. -/
 theorem smul_mem_commutatorAddSubgroup (a : A) {x : Λ}
-    (hx : x ∈ commutatorAddSubgroup Λ) : a • x ∈ commutatorAddSubgroup Λ := sorry
+    (hx : x ∈ commutatorAddSubgroup Λ) : a • x ∈ commutatorAddSubgroup Λ := by
+  induction hx using AddSubgroup.closure_induction with
+  | mem y hy =>
+      rcases hy with ⟨b, c, rfl⟩
+      simpa only [lie_def, smul_sub, Algebra.smul_mul_assoc, Algebra.mul_smul_comm] using
+        lie_mem_commutatorAddSubgroup (a • b) c
+  | zero =>
+      simpa only [smul_zero] using (commutatorAddSubgroup Λ).zero_mem
+  | add y z hy hz iy iz =>
+      simpa only [smul_add] using (commutatorAddSubgroup Λ).add_mem iy iz
+  | neg y hy iy =>
+      simpa only [smul_neg] using (commutatorAddSubgroup Λ).neg_mem iy
 
 namespace CommutatorQuotient
 
@@ -82,7 +95,7 @@ instance instSMul : SMul A (CommutatorQuotient Λ) where
         (smul_mem_commutatorAddSubgroup a hx))
 
 /-- Scalar multiplication on `Λ♮` is computed on representatives. -/
-theorem smul_mk (a : A) (x : Λ) : a • mk x = mk (a • x) := sorry
+theorem smul_mk (a : A) (x : Λ) : a • mk x = mk (a • x) := rfl
 
 /-- The `A`-module structure on the additive commutator quotient `Λ♮`. -/
 instance instModule : Module A (CommutatorQuotient Λ) :=
@@ -91,7 +104,8 @@ instance instModule : Module A (CommutatorQuotient Λ) :=
 
 /-- The action of `A` on `Λ♮` is multiplication by the image of `algebraMap A Λ`. -/
 theorem smul_mk_algebraMap (a : A) (x : Λ) :
-    a • mk x = mk (algebraMap A Λ a * x) := sorry
+    a • mk x = mk (algebraMap A Λ a * x) := by
+  rw [smul_mk, Algebra.smul_def]
 
 variable (A) in
 /-- The canonical `A`-linear projection from `Λ` to its additive commutator quotient. -/
@@ -102,7 +116,7 @@ def mkLinearMap : Λ →ₗ[A] CommutatorQuotient Λ where
 
 variable (A) in
 /-- The canonical `A`-linear projection sends each element to its quotient class. -/
-theorem mkLinearMap_apply (x : Λ) : mkLinearMap A x = mk x := sorry
+theorem mkLinearMap_apply (x : Λ) : mkLinearMap A x = mk x := rfl
 
 end CommutatorQuotient
 

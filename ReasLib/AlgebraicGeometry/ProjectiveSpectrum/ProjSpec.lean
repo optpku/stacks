@@ -388,11 +388,13 @@ theorem totalMapHom_spec (C : Construction) :
       (⟨C.integerSpectrum.π,
         (Scheme.QcAlgebraUnder.forget C.P).map C.totals.inclusion ≫
           C.integerSpectrum.universalMap⟩ :
-        Scheme.relativeSpectrumPair C.totals.nonnegative C.integerSpectrum.scheme) := sorry
+        Scheme.relativeSpectrumPair C.totals.nonnegative C.integerSpectrum.scheme) := by
+  exact C.nonnegativeSpectrum_valid.isRepresentedBy.representableBy.homEquiv.apply_symm_apply _
 
 /-- The canonical relative-spectrum morphism lies over `P`. -/
 theorem totalMapHom_over (C : Construction) :
-    C.totalMapHom ≫ C.nonnegativeSpectrum.π = C.integerSpectrum.π := sorry
+    C.totalMapHom ≫ C.nonnegativeSpectrum.π = C.integerSpectrum.π := by
+  exact congrArg Sigma.fst C.totalMapHom_spec
 
 /-- The morphism in `Over P` induced contravariantly by the inclusion of total twist
 algebras. -/
@@ -401,23 +403,112 @@ def totalMap (C : Construction) :
   Over.homMk C.totalMapHom C.totalMapHom_over
 
 /-- The underlying scheme morphism of `totalMap` is the universal-map construction. -/
-theorem totalMap_left (C : Construction) : C.totalMap.left = C.totalMapHom := sorry
+theorem totalMap_left (C : Construction) : C.totalMap.left = C.totalMapHom := rfl
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Transporting the relative-spectrum morphism through the two canonical identifications gives
 the distinguished morphism `U ⟶ L`. -/
 theorem totalMap_transport (C : Construction) :
     C.totalMap.left ≫ C.nonnegativeIsoProj.hom.left =
-      C.integerIsoOpen.hom.left ≫ C.openToTailProj := sorry
+      C.integerIsoOpen.hom.left ≫ C.openToTailProj := by
+  rw [totalMap_left]
+  apply (cancel_epi C.integerIsoOpen.inv.left).mp
+  apply (cancel_mono C.nonnegativeIsoProj.inv.left).mp
+  have hi : C.integerIsoOpen.inv.left ≫ C.integerIsoOpen.hom.left = 𝟙 _ :=
+    congrArg Over.Hom.left C.integerIsoOpen.inv_hom_id
+  have hn : C.nonnegativeIsoProj.hom.left ≫ C.nonnegativeIsoProj.inv.left = 𝟙 _ :=
+    congrArg Over.Hom.left C.nonnegativeIsoProj.hom_inv_id
+  simp only [Category.assoc, hn, Category.comp_id, reassoc_of% hi]
+  apply C.nonnegativeSpectrum_valid.isRepresentedBy.map_bijective.injective
+  change Scheme.relativeSpectrumPairPullbackMap C.totals.nonnegative
+      (C.integerIsoOpen.inv.left ≫ C.totalMapHom) _ =
+    Scheme.relativeSpectrumPairPullbackMap C.totals.nonnegative
+      (C.openToTailProj ≫ C.nonnegativeIsoProj.inv.left) _
+  have hcomp {S T T' T'' : Scheme} (A : S.QcAlgebraUnder)
+      (a : T'' ⟶ T') (b : T' ⟶ T) (x : Scheme.relativeSpectrumPair A T) :
+      Scheme.relativeSpectrumPairPullbackMap A (a ≫ b) x =
+        Scheme.relativeSpectrumPairPullbackMap A a
+          (Scheme.relativeSpectrumPairPullbackMap A b x) := by
+    rfl
+  rw [hcomp, hcomp, C.totalMapHom_spec, C.nonnegativeIsoProj_spec,
+    C.openToTailProj_point]
+  simpa only [Scheme.relativeSpectrumPairPullbackMap, Scheme.relativeSpectrumFunctorMap,
+    Scheme.relativeSpecPoint, Scheme.RelativeSpectrumOver.point, P, U, Over.mk_left,
+    Category.assoc] using
+    congrArg (fun x : Scheme.relativeSpectrumPair C.totals.integer C.U.toScheme ↦
+      (⟨x.1, (Scheme.QcAlgebraUnder.forget C.P).map C.totals.inclusion ≫ x.2⟩ :
+        Scheme.relativeSpectrumPair C.totals.nonnegative C.U.toScheme))
+      C.integerIsoOpen_spec
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The left square of the Proj--Spec diagram commutes. -/
 theorem left_comm (C : Construction) :
     C.totalMap.left ≫ C.nonnegativeIsoProj.hom.left ≫ C.σMap =
-      C.integerIsoOpen.hom.left ≫ C.U.ι := sorry
+      C.integerIsoOpen.hom.left ≫ C.U.ι := by
+  rw [← Category.assoc, C.totalMap_transport, Category.assoc]
+  simpa only [σMap, U, Category.id_comp] using
+    congrArg (C.integerIsoOpen.hom.left ≫ ·) C.openToTailProj_isPullback.w
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The right square of the Proj--Spec diagram commutes. -/
 theorem right_comm (C : Construction) :
     C.nonnegativeIsoProj.hom.left ≫ C.σMap ≫ C.toZero =
-      C.nonnegativeSpectrum.π ≫ C.projToZero := sorry
+      C.nonnegativeSpectrum.π ≫ C.projToZero := by
+  letI := C.A.gradeSetLike
+  letI := C.A.gradeAddSubgroupClass
+  letI := C.A.grading_inst
+  letI := C.B.gradeSetLike
+  letI := C.B.gradeAddSubgroupClass
+  letI := C.B.grading_inst
+  let φ : C.A.degreeZeroRing ⟶ C.B.degreeZeroRing :=
+    C.A.degreeZeroToRing ≫ C.degreeZeroIso.hom
+  have hφ (a : C.A.degreeZeroRing) : (φ a).1 = C.ψ a.1 := by
+    have hs := congrArg (fun f : C.A.ring ⟶ C.B.ring ↦ f a.1) C.degreeZeroIso_hom
+    change (φ a).1 = C.σ a.1 at hs
+    rw [hs]
+    symm
+    exact congrArg Subtype.val ((C.tailPieceIso 0).injective
+      (Subtype.ext ((C.tailPieceIso_ψ 0 a.1 a.2).trans (C.tailPieceIso_σ a.1).symm)))
+  have hdom : projMapMap C.ψ ≫ Proj.toSpecZero C.A.grading =
+      (projMapDomain C.ψ).ι ≫ Proj.toSpecZero C.B.grading ≫ Spec.map φ := by
+    apply (projMapOpenCover C.ψ).hom_ext
+    intro f
+    change PositiveHomogeneous C.A.grading at f
+    dsimp only [projMapMap]
+    rw [Scheme.Cover.ι_glueMorphisms_assoc]
+    change projMapBasicOpenMap C.ψ f ≫ Proj.toSpecZero C.A.grading =
+      C.B.proj.homOfLE (basicOpen_le_projMapDomain C.ψ f.degree_pos f.mem_degree) ≫
+        (projMapDomain C.ψ).ι ≫ Proj.toSpecZero C.B.grading ≫ Spec.map φ
+    rw [Scheme.homOfLE_ι_assoc]
+    apply (cancel_epi
+      (Proj.basicOpenIsoSpec C.B.grading (C.ψ f.val) (C.ψ.map_mem f.mem_degree)
+        f.degree_pos).inv).mp
+    simp only [projMapBasicOpenMap, Category.assoc, Iso.inv_hom_id_assoc,
+      Proj.awayι_toSpecZero, Proj.basicOpenIsoSpec_inv_ι_assoc,
+      Proj.awayι_toSpecZero_assoc, ← Spec.map_comp]
+    apply congrArg Spec.map
+    apply CommRingCat.hom_ext
+    apply RingHom.ext
+    intro a
+    apply HomogeneousLocalization.val_injective
+    simp [HomogeneousLocalization.fromZeroRingHom, HomogeneousLocalization.Away.map,
+      HomogeneousLocalization.map_mk]
+    exact congrArg (fun b : C.B.ring ↦
+      Localization.mk b (1 : Submonoid.powers (C.ψ f.val))) (hφ a).symm
+  have hnat : C.π ≫ C.projToZero = C.σMap ≫ C.toZero := by
+    change fullProjMap C.ψ C.ψ_domain ≫ Proj.toSpecZero C.A.grading =
+      Proj.toSpecZero C.B.grading ≫ Spec.map C.degreeZeroIso.hom ≫
+        Spec.map C.A.degreeZeroToRing
+    rw [← Spec.map_comp]
+    change fullProjMap C.ψ C.ψ_domain ≫ Proj.toSpecZero C.A.grading =
+      Proj.toSpecZero C.B.grading ≫ Spec.map φ
+    simp only [fullProjMap, Category.assoc]
+    rw [hdom]
+    rw [Scheme.isoOfEq_hom_ι_assoc, ← Category.assoc, Scheme.toIso_inv_ι,
+      Category.id_comp]
+  rw [← hnat]
+  simpa only [π, Over.mk_hom, ← Category.assoc] using
+    congrArg (· ≫ C.projToZero) (Over.w C.nonnegativeIsoProj.hom)
 
 end Construction
 
@@ -464,7 +555,8 @@ theorem spec (C : Construction) (D : Diagram C) :
     (D.top.left ≫ D.nonnegativeIsoProj.hom.left ≫ C.σMap =
       D.integerIsoOpen.hom.left ≫ C.U.ι) ∧
     (D.nonnegativeIsoProj.hom.left ≫ C.σMap ≫ C.toZero =
-      C.nonnegativeSpectrum.π ≫ C.projToZero) := sorry
+      C.nonnegativeSpectrum.π ≫ C.projToZero) :=
+  ⟨D.left_comm, D.right_comm⟩
 
 end Diagram
 

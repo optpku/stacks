@@ -29,19 +29,56 @@ variable {S : Type r} [Ring S]
 without commuting it with any coefficient of R. -/
 def coefficientHom (f : R →+* S) :
     completedGroupRing R G →+* completedGroupRing S G where
-  toFun x := ⟨fun N ↦ MonoidAlgebra.mapRingHom (G ⧸ N.toSubgroup) f (x.val N), by sorry⟩
-  map_zero' := by sorry
-  map_one' := by sorry
-  map_add' := by sorry
-  map_mul' := by sorry
+  toFun x := ⟨fun N ↦ MonoidAlgebra.mapRingHom (G ⧸ N.toSubgroup) f (x.val N), by
+    intro N N' h
+    calc
+      _ = MonoidAlgebra.mapRingHom (G ⧸ N'.toSubgroup) f
+          (CompletedGroupRing.transition R G h (x.val N)) :=
+        (DFunLike.congr_fun (MonoidAlgebra.mapRingHom_comp_mapDomainRingHom f
+          (QuotientGroup.map N.toSubgroup N'.toSubgroup (MonoidHom.id G) h))
+          (x.val N)).symm
+      _ = MonoidAlgebra.mapRingHom (G ⧸ N'.toSubgroup) f (x.val N') := by
+        rw [x.property h]⟩
+  map_zero' := by
+    apply completedGroupRing.ext
+    intro N
+    exact map_zero (MonoidAlgebra.mapRingHom (G ⧸ N.toSubgroup) f)
+  map_one' := by
+    apply completedGroupRing.ext
+    intro N
+    exact map_one (MonoidAlgebra.mapRingHom (G ⧸ N.toSubgroup) f)
+  map_add' := by
+    intro x y
+    apply completedGroupRing.ext
+    intro N
+    exact map_add (MonoidAlgebra.mapRingHom (G ⧸ N.toSubgroup) f) (x.val N) (y.val N)
+  map_mul' := by
+    intro x y
+    apply completedGroupRing.ext
+    intro N
+    exact map_mul (MonoidAlgebra.mapRingHom (G ⧸ N.toSubgroup) f) (x.val N) (y.val N)
 
 /-- Coefficient transport uses the specified ring equivalence on each quotient. -/
 def coefficientEquiv (f : R ≃+* S) :
     completedGroupRing R G ≃+* completedGroupRing S G where
   toFun := coefficientHom R f.toRingHom
   invFun := coefficientHom S f.symm.toRingHom
-  left_inv := by sorry
-  right_inv := by sorry
+  left_inv := by
+    intro x
+    apply completedGroupRing.ext
+    intro N
+    change MonoidAlgebra.mapRingHom _ f.symm.toRingHom
+      (MonoidAlgebra.mapRingHom _ f.toRingHom (x.val N)) = x.val N
+    ext g
+    simp
+  right_inv := by
+    intro x
+    apply completedGroupRing.ext
+    intro N
+    change MonoidAlgebra.mapRingHom _ f.toRingHom
+      (MonoidAlgebra.mapRingHom _ f.symm.toRingHom (x.val N)) = x.val N
+    ext g
+    simp
   map_add' := (coefficientHom R f.toRingHom).map_add
   map_mul' := (coefficientHom R f.toRingHom).map_mul
 

@@ -6,6 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
+public import Mathlib.Algebra.Category.Ring.Adjunctions
 public import Mathlib.AlgebraicGeometry.Sites.Fpqc
 public import Mathlib.CategoryTheory.Functor.OfSequence
 public import Mathlib.CategoryTheory.Sites.LeftExact
@@ -38,7 +39,26 @@ theorem additiveBigFppfStructurePresheaf_isSheaf (S : Scheme.{u}) :
     Presheaf.IsSheaf (Scheme.fppfTopology.over S)
       (Scheme.Over.commStructurePresheaf (Functor.id (Over S)) ⋙
         (forget₂ CommRingCat RingCat.{u + 1} ⋙ forget₂ RingCat AddCommGrpCat.{u + 1})) :=
-  sorry
+  by
+    have hΓ : Presheaf.IsSheaf Scheme.fppfTopology Scheme.Γ := by
+      intro R
+      letI := (ΓSpec.adjunction.representableBy (op R)).isRepresentable
+      let e : (Scheme.Γ.rightOp).op ⋙ yoneda.obj (op R) ≅
+          Scheme.Γ ⋙ coyoneda.obj (op R) :=
+        NatIso.ofComponents (fun _ => Quiver.Hom.opEquiv.symm.toIso) (by intros; rfl)
+      exact Presieve.isSheaf_iso _ e
+        (GrothendieckTopology.Subcanonical.isSheaf_of_isRepresentable _)
+    have hOver := (Over.forget S).op_comp_isSheaf_of_isSheaf
+      (Scheme.fppfTopology.over S) Scheme.fppfTopology Scheme.Γ hΓ
+    apply Presheaf.isSheaf_of_isSheaf_comp _ _ (CategoryTheory.forget AddCommGrpCat.{u + 1})
+    change Presheaf.IsSheaf (Scheme.fppfTopology.over S)
+      (((Over.forget S).op ⋙ Scheme.Γ ⋙ CategoryTheory.forget CommRingCat.{u}) ⋙
+        uliftFunctor.{u + 1})
+    rw [isSheaf_iff_isSheaf_of_type, Presieve.isSheaf_comp_uliftFunctor_iff,
+      ← isSheaf_iff_isSheaf_of_type]
+    letI : PreservesLimitsOfSize.{u, u + 1} (CategoryTheory.forget CommRingCat.{u}) :=
+      CommRingCat.adj.rightAdjoint_preservesLimits
+    exact Presheaf.isSheaf_comp_of_isSheaf _ _ (CategoryTheory.forget CommRingCat.{u}) hOver
 
 /-- Forget commutative rings to abelian groups through rings. -/
 def commRingToAddCommGrp : CommRingCat.{u + 1} ⥤ AddCommGrpCat.{u + 1} :=
@@ -54,13 +74,18 @@ def additiveBigFppfStructureSheaf (S : Scheme.{u}) :
 theorem additiveBigFppfStructureSheaf_obj (S : Scheme.{u}) :
     (additiveBigFppfStructureSheaf S).obj =
       Scheme.Over.commStructurePresheaf (Functor.id (Over S)) ⋙ commRingToAddCommGrp :=
-  sorry
+  rfl
 
 /-- The prime `p` vanishes in every lifted global-sections ring of a scheme of characteristic `p`. -/
 theorem commStructurePresheaf_prime_cast_eq_zero
     (p : ℕ) [Fact p.Prime] (S : Scheme.{u}) [S.IsCharP p] (U : (Over S)ᵒᵖ) :
     (p : (Scheme.Over.commStructurePresheaf (Functor.id (Over S))).obj U) = 0 :=
-  sorry
+  by
+    change (p : ULift.{u + 1} Γ(U.unop.left, ⊤)) = 0
+    apply ULift.ext
+    change (p : Γ(U.unop.left, ⊤)) = 0
+    exact RingHom.natCast_eq_zero_of_eq_zero p U.unop.hom.appTop.hom
+      (IsCharP.cast_eq_zero (X := S) (p := p) ⊤)
 
 /-- Section restriction commutes with the sectionwise Frobenius endomorphism. -/
 theorem structureSheafFrobeniusRing_naturality
@@ -72,7 +97,12 @@ theorem structureSheafFrobeniusRing_naturality
       CommRingCat.ofHom
           (RingHom.frobeniusOfPrime p (commStructurePresheaf_prime_cast_eq_zero p S U)) ≫
         (Scheme.Over.commStructurePresheaf (Functor.id (Over S))).map f :=
-  sorry
+  by
+    apply CommRingCat.hom_ext
+    apply RingHom.ext
+    intro x
+    exact (map_pow
+      ((Scheme.Over.commStructurePresheaf (Functor.id (Over S))).map f).hom x p).symm
 
 /-- The sectionwise Frobenius endomorphism of the lifted commutative structure presheaf. -/
 def structureSheafFrobeniusRing
@@ -95,7 +125,7 @@ theorem structureSheafFrobenius_app
     (p : ℕ) [Fact p.Prime] (S : Scheme.{u}) [S.IsCharP p] (U : (Over S)ᵒᵖ)
     (x : (Scheme.Over.commStructurePresheaf (Functor.id (Over S))).obj U) :
     commRingToAddCommGrp.map ((structureSheafFrobeniusRing p S).app U) x = x ^ p :=
-  sorry
+  rfl
 
 /-- The sequential diagram of the additive big fppf structure sheaf under Frobenius. -/
 def structureSheafFrobeniusIterate
@@ -107,14 +137,14 @@ def structureSheafFrobeniusIterate
 theorem structureSheafFrobeniusIterate_obj
     (p : ℕ) [Fact p.Prime] (S : Scheme.{u}) [S.IsCharP p] (n : ℕ) :
     (structureSheafFrobeniusIterate p S).obj n = additiveBigFppfStructureSheaf S :=
-  sorry
+  rfl
 
 /-- Every successor arrow of the Frobenius diagram is the Frobenius endomorphism. -/
 theorem structureSheafFrobeniusIterate_map_succ
     (p : ℕ) [Fact p.Prime] (S : Scheme.{u}) [S.IsCharP p] (n : ℕ) :
     (structureSheafFrobeniusIterate p S).map (homOfLE n.le_succ) =
       structureSheafFrobenius p S :=
-  sorry
+  Functor.ofSequence_map_homOfLE_succ _ n
 
 /-- The perfect structure sheaf is the sheaf colimit of the Frobenius diagram. -/
 def perfStructureSheaf (p : ℕ) [Fact p.Prime] (S : Scheme.{u}) [S.IsCharP p]
@@ -140,7 +170,14 @@ theorem perfStructureSheaf_ι_map
     [HasSheafify (Scheme.fppfTopology.over S) AddCommGrpCat.{u + 1}] (n : ℕ) :
     structureSheafFrobenius p S ≫ perfStructureSheaf_ι p S (n + 1) =
       perfStructureSheaf_ι p S n :=
-  sorry
+  by
+    set_option backward.isDefEq.respectTransparency false in
+    simpa only [structureSheafFrobeniusIterate_map_succ, perfStructureSheaf_ι] using
+      (Sheaf.sheafifyCocone
+        (colimit.cocone
+          (structureSheafFrobeniusIterate p S ⋙
+            sheafToPresheaf (Scheme.fppfTopology.over S) AddCommGrpCat.{u + 1}))).w
+        (homOfLE n.le_succ)
 
 end AlgebraicGeometry.Scheme
 

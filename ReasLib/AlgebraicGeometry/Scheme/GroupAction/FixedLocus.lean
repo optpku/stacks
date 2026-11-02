@@ -47,26 +47,51 @@ def inclusion {S : Scheme.{u}} {G : Type u} [Group G] {X : Over S}
 theorem fixedLocus_fst_eq_snd {S : Scheme.{u}} {G : Type u} [Group G] {X : Over S}
     (ρ : G →* Aut X) (g : G) :
     pullback.fst (diag X) (graph ρ g) = pullback.snd (diag X) (graph ρ g) :=
-  sorry
+  by
+    have h := congrArg (fun f => f ≫ prod.snd)
+      (pullback.condition (f := diag X) (g := graph ρ g))
+    simpa only [Category.assoc, diag, graph, prod.lift_snd, Category.comp_id] using h
 
 /-- The fixed-locus projection equalizes the chosen action automorphism and the identity. -/
 theorem inclusion_spec {S : Scheme.{u}} {G : Type u} [Group G] {X : Over S}
     (ρ : G →* Aut X) (g : G) :
     inclusion ρ g ≫ (ρ g).hom = inclusion ρ g :=
-  sorry
+  by
+    have h := congrArg (fun f => f ≫ prod.fst)
+      (pullback.condition (f := diag X) (g := graph ρ g))
+    change pullback.fst (diag X) (graph ρ g) ≫ (ρ g).hom =
+      pullback.fst (diag X) (graph ρ g)
+    have h' : pullback.snd (diag X) (graph ρ g) ≫ (ρ g).hom =
+        pullback.fst (diag X) (graph ρ g) := by
+      simpa only [Category.assoc, diag, graph, prod.lift_fst, Category.comp_id] using h.symm
+    rw [← fixedLocus_fst_eq_snd ρ g] at h'
+    exact h'
 
 /-- The fixed-locus projection has equal composites with the diagonal and the action graph. -/
 theorem fixedLocus_condition {S : Scheme.{u}} {G : Type u} [Group G] {X : Over S}
     (ρ : G →* Aut X) (g : G) :
     inclusion ρ g ≫ diag X = inclusion ρ g ≫ graph ρ g :=
-  sorry
+  by
+    change pullback.fst (diag X) (graph ρ g) ≫ diag X =
+      pullback.fst (diag X) (graph ρ g) ≫ graph ρ g
+    calc
+      _ = pullback.snd (diag X) (graph ρ g) ≫ graph ρ g := pullback.condition
+      _ = pullback.fst (diag X) (graph ρ g) ≫ graph ρ g := by
+        rw [← fixedLocus_fst_eq_snd ρ g]
 
 /-- A commuting action automorphism carries the fixed-locus projection into the same pullback. -/
 private theorem residualMap_condition {S : Scheme.{u}} {G : Type u} [CommGroup G]
     {X : Over S} (ρ : G →* Aut X) (g h : G) :
     (inclusion ρ g ≫ (ρ h).hom) ≫ diag X =
       (inclusion ρ g ≫ (ρ h).hom) ≫ graph ρ g :=
-  sorry
+  by
+    have hcomm : (ρ h).hom ≫ (ρ g).hom = (ρ g).hom ≫ (ρ h).hom := by
+      simpa only [map_mul, Aut.Aut_mul_def, Iso.trans_hom] using
+        congrArg (fun a : Aut X => a.hom) (congrArg ρ (mul_comm g h))
+    apply prod.hom_ext
+    · simp only [Category.assoc, diag, graph, prod.lift_fst, Category.comp_id]
+      rw [hcomm, ← Category.assoc, inclusion_spec]
+    · simp only [Category.assoc, diag, graph, prod.lift_snd]
 
 /-- The restriction of an action automorphism to a fixed locus for a commuting element. -/
 def residualMap {S : Scheme.{u}} {G : Type u} [CommGroup G] {X : Over S}
@@ -78,13 +103,27 @@ def residualMap {S : Scheme.{u}} {G : Type u} [CommGroup G] {X : Over S}
 private theorem residualMap_one {S : Scheme.{u}} {G : Type u} [CommGroup G]
     {X : Over S} (ρ : G →* Aut X) (g : G) :
     residualMap ρ g 1 = 𝟙 (fixedLocus ρ g) :=
-  sorry
+  by
+    apply pullback.hom_ext
+    · rw [residualMap, pullback.lift_fst, map_one]
+      change inclusion ρ g ≫ 𝟙 X = 𝟙 _ ≫ inclusion ρ g
+      simp only [Category.comp_id, Category.id_comp]
+    · rw [residualMap, pullback.lift_snd, map_one]
+      change pullback.fst (diag X) (graph ρ g) ≫ 𝟙 X =
+        𝟙 _ ≫ pullback.snd (diag X) (graph ρ g)
+      simpa only [Category.comp_id, Category.id_comp] using fixedLocus_fst_eq_snd ρ g
 
 /-- Restricted action maps respect multiplication in the order of automorphism multiplication. -/
 private theorem residualMap_mul {S : Scheme.{u}} {G : Type u} [CommGroup G]
     {X : Over S} (ρ : G →* Aut X) (g h k : G) :
     residualMap ρ g (h * k) = residualMap ρ g k ≫ residualMap ρ g h :=
-  sorry
+  by
+    dsimp only [residualMap, inclusion, fixedLocus]
+    apply pullback.hom_ext
+    · simp only [Category.assoc, pullback.lift_fst, pullback.lift_fst_assoc, map_mul,
+        Aut.Aut_mul_def, Iso.trans_hom]
+    · simp only [Category.assoc, pullback.lift_snd, pullback.lift_fst_assoc, map_mul,
+        Aut.Aut_mul_def, Iso.trans_hom]
 
 /-- An action automorphism and its inverse restrict to an automorphism of each fixed locus. -/
 def residualHom {S : Scheme.{u}} {G : Type u} [CommGroup G] {X : Over S}
@@ -109,7 +148,7 @@ def residual {S : Scheme.{u}} {G : Type u} [CommGroup G] {X : Over S}
 theorem residual_hom {S : Scheme.{u}} {G : Type u} [CommGroup G] {X : Over S}
     (ρ : G →* Aut X) (g h : G) :
     (residual ρ g h).hom ≫ inclusion ρ g = inclusion ρ g ≫ (ρ h).hom :=
-  sorry
+  pullback.lift_fst _ _ _
 
 /-- The residual action sends the identity element to the identity automorphism. -/
 theorem residual_one {S : Scheme.{u}} {G : Type u} [CommGroup G] {X : Over S}
@@ -131,6 +170,6 @@ def action {S : Scheme.{u}} {G : Type u} [Group G] {X : Over S}
 theorem action_ι {S : Scheme.{u}} {G : Type u} [Group G] {X : Over S}
     (ρ : G →* Aut X) (g : G) :
     Limits.Sigma.ι (fun _ : G ↦ X) g ≫ action ρ = (ρ g).hom :=
-  sorry
+  Limits.Sigma.ι_desc _ g
 
 end AlgebraicGeometry.Scheme.GroupAction.FixedLocus

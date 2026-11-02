@@ -22,7 +22,7 @@ consumer interface for commutative algebras.
 
 open scoped TensorProduct
 
-universe u v
+universe u v w
 
 namespace RingHom
 
@@ -69,10 +69,11 @@ end IndEtale.Raw
 
 namespace IndEtale
 
-/-- Tensor-product base change of an ind-etale algebra map is ind-etale. -/
+/-- Tensor-product base change of an ind-etale algebra map is ind-etale,
+with the base, algebra, and new base in independent universes. -/
 @[stacks 0BSH "ind-etale base change"]
 theorem baseChange
-    {R A R' : Type u} [CommRing R] [CommRing A] [CommRing R']
+    {R : Type u} {A : Type v} {R' : Type w} [CommRing R] [CommRing A] [CommRing R']
     [Algebra R A] [Algebra R R']
     (hA : (algebraMap R A).IndEtale) :
     (algebraMap R' (R' ⊗[R] A)).IndEtale := sorry

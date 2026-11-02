@@ -58,7 +58,7 @@ theorem smooth_and_stableOfGenus_iff_smoothH0OfGenus
     (g : ℕ) (hg : 2 ≤ g) {S : Scheme.{u}} (P : Obj S) :
     AlgebraicSpace.Smooth (hom P) ∧ stableOfGenus g S P ↔
       smoothH0OfGenus g S P :=
-  sorry
+  Iff.of_eq (congrFun (smooth_inf_stableOfGenus_eq g hg S) P)
 
 /-- The inclusion of `ℳ_g` into `ℳ̄_g`, as a 1-morphism of categories
 fibred in groupoids over `Over S`. -/
@@ -83,7 +83,7 @@ theorem inclusionSmoothStableOfGenus_comp_inclusionOf
     (g : ℕ) (hg : 2 ≤ g) (S : Scheme.{u}) :
     inclusionSmoothStableOfGenus g hg S ≫ inclusionOf (stableOfGenus g S) =
       inclusionOf (smoothH0OfGenus g S) :=
-  sorry
+  rfl
 
 /-- The inclusion of `ℳ_g` into `ℳ̄_g` is an open immersion. -/
 instance instOpenImmersion_inclusionSmoothStableOfGenus
@@ -118,13 +118,13 @@ theorem isOpenEmbedding_pointsMap_inclusionSmoothStableOfGenus
     (g : ℕ) (hg : 2 ≤ g) (S : Scheme.{u}) :
     Topology.IsOpenEmbedding
       (CohStack.Points.map (inclusionSmoothStableOfGenus g hg S)) :=
-  sorry
+  CohStack.Points.isOpenEmbedding_map (inclusionSmoothStableOfGenus g hg S)
 
 /-- For `g ≥ 2`, the image of smooth proper genus-`g` curves in the point
 space of stable genus-`g` curves is open. -/
 theorem isOpen_smoothH0OfGenusPointsSet (g : ℕ) (hg : 2 ≤ g) (S : Scheme.{u}) :
     IsOpen (Set.range (CohStack.Points.map (inclusionSmoothStableOfGenus g hg S))) :=
-  sorry
+  (isOpenEmbedding_pointsMap_inclusionSmoothStableOfGenus g hg S).isOpen_range
 
 /-- For `g ≥ 2`, the image of smooth proper genus-`g` curves in the point
 space of stable genus-`g` curves is dense. -/

@@ -7,6 +7,9 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import ReasLib.AlgebraicGeometry.AlgebraicStack.Separation.Object
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Separation.Cancellation
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Base
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.BaseProjection
 
 /-!
 # Absolute versus relative separation axioms
@@ -74,8 +77,11 @@ namespace DM
 is DM. -/
 instance of_isDMOver {S : Scheme.{u}} {X Y : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [IsDMOver X] :
-    DM f :=
-  sorry
+    DM f := by
+  letI : DM (f ≫ baseProjection.{u + 1, u, u + 1} Y) := by
+    rw [comp_baseProjection]
+    exact (IsDMOver.iff_baseProjection X).mp inferInstance
+  exact DM.of_comp f (baseProjection.{u + 1, u, u + 1} Y)
 
 end DM
 
@@ -85,8 +91,11 @@ namespace QuasiDM
 over `S` is quasi-DM. -/
 instance of_isQuasiDMOver {S : Scheme.{u}} {X Y : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [IsQuasiDMOver X] :
-    QuasiDM f :=
-  sorry
+    QuasiDM f := by
+  letI : QuasiDM (f ≫ baseProjection.{u + 1, u, u + 1} Y) := by
+    rw [comp_baseProjection]
+    exact (IsQuasiDMOver.iff_baseProjection X).mp inferInstance
+  exact QuasiDM.of_comp f (baseProjection.{u + 1, u, u + 1} Y)
 
 end QuasiDM
 
@@ -100,8 +109,11 @@ theorem of_isSeparatedOver {S : Scheme.{u}} {X Y : GroupoidsOver S}
     (h_separated :
       Groupoids.Hom.has (@AlgebraicSpace.Separated S)
         (diagonal.{u + 1, u, u + 1} Y)) :
-    Separated f :=
-  sorry
+    Separated f := by
+  letI : Separated (f ≫ baseProjection.{u + 1, u, u + 1} Y) := by
+    rw [comp_baseProjection]
+    exact (IsSeparatedOver.iff_baseProjection X).mp inferInstance
+  exact Separated.of_comp f (baseProjection.{u + 1, u, u + 1} Y) h_separated
 
 end Separated
 
@@ -116,8 +128,11 @@ theorem of_isQuasiSeparatedOver {S : Scheme.{u}} {X Y : GroupoidsOver S}
     (h_quasiSeparated :
       Groupoids.Hom.has (@AlgebraicSpace.QuasiSeparated S)
         (diagonal.{u + 1, u, u + 1} Y)) :
-    QuasiSeparated f :=
-  sorry
+    QuasiSeparated f := by
+  letI : QuasiSeparated (f ≫ baseProjection.{u + 1, u, u + 1} Y) := by
+    rw [comp_baseProjection]
+    exact (IsQuasiSeparatedOver.iff_baseProjection X).mp inferInstance
+  exact QuasiSeparated.of_comp f (baseProjection.{u + 1, u, u + 1} Y) h_quasiSeparated
 
 end QuasiSeparated
 

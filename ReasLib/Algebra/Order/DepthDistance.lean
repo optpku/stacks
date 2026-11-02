@@ -43,16 +43,18 @@ theorem depth_delta_lower_bound
     [Module R M] [Module R' M'] [Module.Finite R M] [Module.Finite R' M']
     (p : Ideal R) (p' : Ideal R') [p.IsPrime] [p'.IsPrime]
     (δ δ' : ℕ∞) (fiberDim trdeg : WithBot ℕ∞) (d : ℕ)
+    (hDepth :
+      (WithBot.some (moduleDepth (Localization.AtPrime p') (LocalizedModule.AtPrime p' M')) : WithBot ℕ∞) =
+        (WithBot.some (moduleDepth (Localization.AtPrime p) (LocalizedModule.AtPrime p M)) : WithBot ℕ∞) + fiberDim)
     (hDelta :
-      (δ : WithBot ℕ∞) ≤
-        WithBot.map₂ (fun a b : ℕ∞ ↦ a - b)
-          ((δ' : WithBot ℕ∞) + trdeg) ((d - 1 : ℕ) : WithBot ℕ∞)) :
+      (δ : WithBot ℕ∞) + trdeg ≤
+        (δ' : WithBot ℕ∞) + ((d - 1 : ℕ) : WithBot ℕ∞)) :
     (WithBot.some (moduleDepth (Localization.AtPrime p')
-        (LocalizedModule.AtPrime p' M')) : WithBot ℕ∞) + (δ' : WithBot ℕ∞) ≥
-      WithBot.map₂ (fun a b : ℕ∞ ↦ a - b)
-        ((WithBot.some (moduleDepth (Localization.AtPrime p)
-            (LocalizedModule.AtPrime p M)) : WithBot ℕ∞) + (δ : WithBot ℕ∞) +
-          fiberDim + trdeg) ((d - 1 : ℕ) : WithBot ℕ∞) := sorry
+        (LocalizedModule.AtPrime p' M')) : WithBot ℕ∞) + (δ' : WithBot ℕ∞) +
+          ((d - 1 : ℕ) : WithBot ℕ∞) ≥
+      (WithBot.some (moduleDepth (Localization.AtPrime p)
+          (LocalizedModule.AtPrime p M)) : WithBot ℕ∞) + (δ : WithBot ℕ∞) +
+        fiberDim + trdeg := sorry
 
 /-- The fibre-dimension and residue-transcendence terms equal the quotient-dimension difference. -/
 theorem depth_delta_dimension_eq
@@ -61,20 +63,15 @@ theorem depth_delta_dimension_eq
     {M : Type w} {M' : Type x} [AddCommGroup M] [AddCommGroup M']
     [Module R M] [Module R' M'] [Module.Finite R M] [Module.Finite R' M']
     (p : Ideal R) (p' : Ideal R') [p.IsPrime] [p'.IsPrime]
-    (δ : ℕ∞) (fiberDim trdeg : WithBot ℕ∞) (d : ℕ)
+    (δ : ℕ∞) (fiberDim trdeg : WithBot ℕ∞)
     (hDimension :
-      fiberDim + trdeg =
-        WithBot.map₂ (fun a b : ℕ∞ ↦ a - b)
-          (ringKrullDim (R ⧸ p)) (ringKrullDim (R' ⧸ p'))) :
-    WithBot.map₂ (fun a b : ℕ∞ ↦ a - b)
-        ((WithBot.some (moduleDepth (Localization.AtPrime p)
-            (LocalizedModule.AtPrime p M)) : WithBot ℕ∞) + (δ : WithBot ℕ∞) +
-          fiberDim + trdeg) ((d - 1 : ℕ) : WithBot ℕ∞) =
-      WithBot.map₂ (fun a b : ℕ∞ ↦ a - b)
-        ((WithBot.map₂ (fun a b : ℕ∞ ↦ a - b)
-            ((WithBot.some (moduleDepth (Localization.AtPrime p)
-                (LocalizedModule.AtPrime p M)) : WithBot ℕ∞) +
-              (δ : WithBot ℕ∞)) ((d - 1 : ℕ) : WithBot ℕ∞)) +
-          ringKrullDim (R ⧸ p)) (ringKrullDim (R' ⧸ p')) := sorry
+      fiberDim + trdeg + ringKrullDim (R' ⧸ p') =
+        ringKrullDim (R ⧸ p)) :
+    ((WithBot.some (moduleDepth (Localization.AtPrime p)
+        (LocalizedModule.AtPrime p M)) : WithBot ℕ∞) + (δ : WithBot ℕ∞) +
+        fiberDim + trdeg) + ringKrullDim (R' ⧸ p') =
+      ((WithBot.some (moduleDepth (Localization.AtPrime p)
+          (LocalizedModule.AtPrime p M)) : WithBot ℕ∞) + (δ : WithBot ℕ∞)) +
+        ringKrullDim (R ⧸ p) := sorry
 
 end DepthDistance

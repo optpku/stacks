@@ -201,7 +201,7 @@ theorem quotientMapAssociatedGradedToSections_stageClass (n : ℕ)
         (Ideal.AssociatedGraded.stageClassLinear I n x) =
       quotientMapAssociatedGradedToSections I n
         ((Ideal.AssociatedGraded.gradeEquivPiece I n).symm
-          (Submodule.Quotient.mk x)) := sorry
+          (Submodule.Quotient.mk x)) := rfl
 
 /-- The affine comparison carries the degree-zero unit of the associated graded ring to the
 degree-zero unit section of the conormal algebra. -/
@@ -256,7 +256,20 @@ theorem affinePullbackRingMap_comp (i : Z ⟶ X) (U : X.affineOpens) :
     ((RingedSpace.Hom.inverseImageStructureSheafHomComm i.toShHom).hom.app
       (Opposite.op (i ⁻¹ᵁ (U : X.Opens)))).hom.comp
         (affinePullbackRingMap i U) =
-      (i.app (U : X.Opens)).hom := sorry
+      (i.app (U : X.Opens)).hom := by
+  have hs :
+      (TopCat.Sheaf.pullbackPushforwardAdjunction
+          CommRingCat.{u} i.base).unit.app X.sheaf ≫
+        (TopCat.Sheaf.pushforward CommRingCat.{u} i.base).map
+          (RingedSpace.Hom.inverseImageStructureSheafHomComm i.toShHom) =
+        RingedSpace.Hom.commRingSheafPushforwardMap i.toShHom := by
+    simpa only [Functor.id_obj, Adjunction.homEquiv_unit,
+      RingedSpace.Hom.inverseImageStructureSheafHomComm] using!
+      (Equiv.apply_symm_apply
+        ((TopCat.Sheaf.pullbackPushforwardAdjunction
+          CommRingCat.{u} i.base).homEquiv X.sheaf Z.sheaf)
+        (RingedSpace.Hom.commRingSheafPushforwardMap i.toShHom))
+  exact congrArg (fun f ↦ (f.hom.app (Opposite.op (U : X.Opens))).hom) hs
 
 /-- The pullback-unit ring map carries the affine kernel ideal into the sectionwise kernel ideal
 of the inverse-image structure morphism. -/
@@ -265,7 +278,13 @@ theorem affinePullbackConormalIdeal_le_comap (i : Z ⟶ X) (U : X.affineOpens) :
       Ideal.comap (affinePullbackRingMap i U)
         (KernelIdeal.sectionIdeal
           (RingedSpace.Hom.inverseImageStructureSheafHomComm i.toShHom)
-          (Opposite.op (i ⁻¹ᵁ (U : X.Opens)))) := sorry
+          (Opposite.op (i ⁻¹ᵁ (U : X.Opens)))) := by
+  intro x hx
+  change ((RingedSpace.Hom.inverseImageStructureSheafHomComm i.toShHom).hom.app
+    (Opposite.op (i ⁻¹ᵁ (U : X.Opens)))).hom
+      (affinePullbackRingMap i U x) = 0
+  change (i.app (U : X.Opens)).hom x = 0 at hx
+  exact (congrArg (fun f ↦ f x) (affinePullbackRingMap_comp i U)).trans hx
 
 /-- The canonical degreewise map from an affine associated-graded class to the corresponding
 section of the conormal algebra on the inverse-image open. -/

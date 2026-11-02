@@ -53,7 +53,70 @@ noncomputable def prodAmbientMap :
 module. -/
 @[stacks 0FJB "ambient determinant product map lands in the determinant"]
 theorem range_prodAmbientMap_le :
-    LinearMap.range (prodAmbientMap R M N) ≤ det[R](M × N) := sorry
+    LinearMap.range (prodAmbientMap R M N) ≤ det[R](M × N) := by
+  rintro _ ⟨z, rfl⟩
+  induction z using TensorProduct.induction_on with
+  | zero =>
+      simpa using (det[R](M × N)).zero_mem
+  | add z w hz hw =>
+      simpa using (det[R](M × N)).add_mem hz hw
+  | tmul x y =>
+      change (ExteriorAlgebra.prodEquiv R M N).symm
+        ((x : ExteriorAlgebra R M) ⊗ₜ[R] (y : ExteriorAlgebra R N)) ∈ det[R](M × N)
+      rw [ExteriorAlgebra.prodEquiv_symm_apply_tmul]
+      have hx (m : M) : ExteriorAlgebra.ι R m * (x : ExteriorAlgebra R M) = 0 := by
+        exact (Submodule.mem_iInf _).mp x.property m
+      have hy (n : N) : ExteriorAlgebra.ι R n * (y : ExteriorAlgebra R N) = 0 := by
+        exact (Submodule.mem_iInf _).mp y.property n
+      apply (Submodule.mem_iInf _).mpr
+      intro p
+      change ExteriorAlgebra.ι R p *
+        (ExteriorAlgebra.map (LinearMap.inl R M N) (x : ExteriorAlgebra R M) *
+          ExteriorAlgebra.map (LinearMap.inr R M N) (y : ExteriorAlgebra R N)) = 0
+      have hl : ExteriorAlgebra.ι R (p.1, (0 : N)) *
+          (ExteriorAlgebra.map (LinearMap.inl R M N) (x : ExteriorAlgebra R M) *
+            ExteriorAlgebra.map (LinearMap.inr R M N) (y : ExteriorAlgebra R N)) = 0 := by
+        have hι : ExteriorAlgebra.map (LinearMap.inl R M N) (ExteriorAlgebra.ι R p.1) =
+            ExteriorAlgebra.ι R (p.1, (0 : N)) := by simp
+        rw [← hι, ← mul_assoc,
+          ← map_mul, hx, map_zero, zero_mul]
+      have hright (a : ExteriorAlgebra R M) : ∀ b : ExteriorAlgebra R (M × N),
+          ExteriorAlgebra.ι R ((0 : M), p.2) * b = 0 →
+            ExteriorAlgebra.ι R ((0 : M), p.2) *
+              (ExteriorAlgebra.map (LinearMap.inl R M N) a * b) = 0 := by
+        induction a using ExteriorAlgebra.induction with
+        | algebraMap r =>
+            intro b hb
+            rw [AlgHom.commutes, ← mul_assoc,
+              (Algebra.commutes r (ExteriorAlgebra.ι R ((0 : M), p.2))).symm,
+              mul_assoc, hb, mul_zero]
+        | ι m =>
+            intro b hb
+            have hswap : ExteriorAlgebra.ι R ((0 : M), p.2) *
+                ExteriorAlgebra.ι R (m, (0 : N)) =
+                  -(ExteriorAlgebra.ι R (m, (0 : N)) *
+                    ExteriorAlgebra.ι R ((0 : M), p.2)) :=
+              eq_neg_of_add_eq_zero_left (ExteriorAlgebra.ι_add_mul_swap _ _)
+            rw [ExteriorAlgebra.map_apply_ι, LinearMap.inl_apply, ← mul_assoc, hswap, neg_mul,
+              mul_assoc, hb, mul_zero, neg_zero]
+        | mul a b ha hb =>
+            intro c hc
+            rw [map_mul, mul_assoc]
+            exact ha _ (hb c hc)
+        | add a b ha hb =>
+            intro c hc
+            rw [map_add, add_mul, mul_add, ha c hc, hb c hc, add_zero]
+      have hr : ExteriorAlgebra.ι R ((0 : M), p.2) *
+          (ExteriorAlgebra.map (LinearMap.inl R M N) (x : ExteriorAlgebra R M) *
+            ExteriorAlgebra.map (LinearMap.inr R M N) (y : ExteriorAlgebra R N)) = 0 := by
+        apply hright
+        have hι : ExteriorAlgebra.map (LinearMap.inr R M N) (ExteriorAlgebra.ι R p.2) =
+            ExteriorAlgebra.ι R ((0 : M), p.2) := by simp
+        rw [← hι,
+          ← map_mul, hy, map_zero]
+      have hp : p = (p.1, (0 : N)) + ((0 : M), p.2) := by
+        ext <;> simp
+      rw [hp, map_add, add_mul, hl, hr, add_zero]
 
 /-- The canonical determinant product map, defined for arbitrary modules. -/
 @[stacks 0FJB "determinant product map"]
@@ -66,7 +129,8 @@ noncomputable def prodMap :
 /-- The determinant product map recovers its ambient exterior-algebra map after inclusion. -/
 @[stacks 0FJB "determinant product map inclusion equation"]
 theorem prodMap_ι :
-    (ι R (M × N)).comp (prodMap R M N) = prodAmbientMap R M N := sorry
+    (ι R (M × N)).comp (prodMap R M N) = prodAmbientMap R M N := by
+  rfl
 
 /-- The ambient image of a pure determinant tensor is the wedge product of the two canonical
 product inclusions. -/
@@ -74,7 +138,9 @@ product inclusions. -/
 theorem ι_prodMap_tmul (x : det[R](M)) (y : det[R](N)) :
     ι R (M × N) (prodMap R M N (x ⊗ₜ[R] y)) =
       ExteriorAlgebra.map (LinearMap.inl R M N) (x : ExteriorAlgebra R M) *
-        ExteriorAlgebra.map (LinearMap.inr R M N) (y : ExteriorAlgebra R N) := sorry
+        ExteriorAlgebra.map (LinearMap.inr R M N) (y : ExteriorAlgebra R N) := by
+  exact ExteriorAlgebra.prodEquiv_symm_apply_tmul R M N (x : ExteriorAlgebra R M)
+    (y : ExteriorAlgebra R N)
 
 /-- The image of the tensor product of determinant submodules in the ambient tensor product. -/
 @[stacks 0FJB "tensor range of determinant submodules"]
@@ -97,11 +163,17 @@ def tensorLift : det[R](M) ⊗[R] det[R](N) →ₗ[R] tensorRange R M N :=
 /-- The tensor-range lift recovers the canonical ambient tensor map after inclusion. -/
 @[stacks 0FJB "determinant tensor range lift equation"]
 theorem tensorLift_ι :
-    (tensorRangeι R M N).comp (tensorLift R M N) = tensorMap R M N := sorry
+    (tensorRangeι R M N).comp (tensorLift R M N) = tensorMap R M N := by
+  rfl
 
 /-- The canonical map from the tensor product of determinant submodules onto its range is
 surjective. -/
-theorem tensorLift_surjective : Function.Surjective (tensorLift R M N) := sorry
+theorem tensorLift_surjective : Function.Surjective (tensorLift R M N) := by
+  intro z
+  rcases z.property with ⟨x, hx⟩
+  refine ⟨x, ?_⟩
+  apply Subtype.ext
+  exact hx
 
 /-- For finite projective modules, the direct-sum exterior-algebra equivalence carries the
 determinant of `M × N` onto the tensor range of the two determinant submodules. -/
@@ -129,7 +201,8 @@ theorem prodRangeIso_ι
     [Module.Finite R M] [Module.Projective R M]
     [Module.Finite R N] [Module.Projective R N] :
     (tensorRangeι R M N).comp (prodRangeIso R M N).toLinearMap =
-      (ExteriorAlgebra.prodEquiv R M N).toLinearMap.comp (ι R (M × N)) := sorry
+      (ExteriorAlgebra.prodEquiv R M N).toLinearMap.comp (ι R (M × N)) := by
+  rfl
 
 /-- On pure determinant tensors, the inverse direct-sum comparison is characterized by the
 wedge product of the two canonical exterior-algebra inclusions. -/
@@ -140,6 +213,8 @@ theorem prodRangeIso_inv_tmul
     (x : det[R](M)) (y : det[R](N)) :
     ι R (M × N) ((prodRangeIso R M N).symm (tensorLift R M N (x ⊗ₜ[R] y))) =
       ExteriorAlgebra.map (LinearMap.inl R M N) (x : ExteriorAlgebra R M) *
-        ExteriorAlgebra.map (LinearMap.inr R M N) (y : ExteriorAlgebra R N) := sorry
+        ExteriorAlgebra.map (LinearMap.inr R M N) (y : ExteriorAlgebra R N) := by
+  exact ExteriorAlgebra.prodEquiv_symm_apply_tmul R M N (x : ExteriorAlgebra R M)
+    (y : ExteriorAlgebra R N)
 
 end Module.Determinant

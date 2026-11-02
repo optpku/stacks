@@ -7,7 +7,9 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import Mathlib.CategoryTheory.Limits.ExactFunctor
+public import Mathlib.CategoryTheory.Adjunction.FullyFaithful
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.ChangeOfRings
+public import ReasLib.Algebra.Category.ModuleCat.Sheaf.ChangeOfRings.Equivalence
 public import ReasLib.AlgebraicGeometry.RingedSite.Topos.Module
 
 /-!
@@ -67,7 +69,7 @@ theorem IsFlat.extendScalars_exact (f : ToposHom X Y)
       (SheafOfModules.{w} (f.toTopos.ringInverseImage.obj Y.structureSheaf))
       (SheafOfModules.{w} X.structureSheaf)
       (SheafOfModules.ChangeOfRings.extendScalars f.structureMap) :=
-  sorry
+  (inferInstance : IsFlat f).exact_extendScalars
 
 /-- Flatness of a morphism of ringed topoi is exactness of extension of scalars along
 `f.structureMap`. -/
@@ -78,7 +80,7 @@ theorem isFlat_iff_extendScalars_exact (f : ToposHom X Y)
         (SheafOfModules.{w} (f.toTopos.ringInverseImage.obj Y.structureSheaf))
         (SheafOfModules.{w} X.structureSheaf)
         (SheafOfModules.ChangeOfRings.extendScalars f.structureMap) :=
-  sorry
+  ⟨fun h ↦ h.exact_extendScalars, fun h ↦ ⟨h⟩⟩
 
 /-- Extension of scalars along the inverse-image structure map of a flat morphism
 preserves finite limits. -/
@@ -86,7 +88,7 @@ theorem IsFlat.preservesFiniteLimits (f : ToposHom X Y)
     [(SheafOfModules.restrictScalars.{w} f.structureMap).IsRightAdjoint] [IsFlat f] :
     PreservesFiniteLimits
       (SheafOfModules.ChangeOfRings.extendScalars f.structureMap) :=
-  sorry
+  (IsFlat.extendScalars_exact f).1
 
 /-- Extension of scalars along the inverse-image structure map of a flat morphism
 preserves finite colimits. -/
@@ -94,7 +96,7 @@ theorem IsFlat.preservesFiniteColimits (f : ToposHom X Y)
     [(SheafOfModules.restrictScalars.{w} f.structureMap).IsRightAdjoint] [IsFlat f] :
     PreservesFiniteColimits
       (SheafOfModules.ChangeOfRings.extendScalars f.structureMap) :=
-  sorry
+  (IsFlat.extendScalars_exact f).2
 
 /-- A flat morphism of ringed topoi has exact module pullback. -/
 theorem IsFlat.pullback_exact (f : ToposHom X Y)
@@ -117,8 +119,15 @@ end
 theorem IsFlat.id (X : RingedSite.{uX, vX, w})
     [X.siteTopology.HasSheafCompose (forget RingCat.{w})]
     [(SheafOfModules.restrictScalars.{w} (ToposHom.id X).structureMap).IsRightAdjoint] :
-    IsFlat (ToposHom.id X) :=
-  sorry
+    IsFlat (ToposHom.id X) := by
+  let e := (MorphismOfTopoiIn.ringInverseImageIdIso
+    (J₀ := X.siteTopology)).app X.structureSheaf
+  letI : (SheafOfModules.restrictScalars.{w}
+      (ToposHom.id X).structureMap).IsEquivalence :=
+    (SheafOfModules.ChangeOfRings.restrictScalarsEquivalence e).isEquivalence_inverse
+  letI := (SheafOfModules.ChangeOfRings.extendRestrictAdjunction
+    (ToposHom.id X).structureMap).isEquivalence_left_of_isEquivalence_right
+  exact ⟨(exactFunctor_iff _).2 ⟨inferInstance, inferInstance⟩⟩
 
 /-- The composite of flat morphisms of ringed topoi is flat. -/
 theorem IsFlat.comp {X : RingedSite.{uX, vX, w}} {Y : RingedSite.{uY, vY, w}}

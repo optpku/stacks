@@ -13,6 +13,7 @@ public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.LowerShriek
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.ExtensionComparison
 public import ReasLib.Algebra.Homology.CochainComplex.KInjective.Adjunction
 public import ReasLib.CategoryTheory.DerivedCategory.Functor.KInjectiveModel
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.Etale.Cancellation
 
 /-! # Étale base change from chart limits and K-injective complexes -/
 
@@ -55,7 +56,9 @@ private def chartLift (sq : IsPullback h f' f g) (V : smallEtaleSite Y')
 
 private theorem liftedChart_etale (sq : IsPullback h f' f g) (V : smallEtaleSite Y')
     (a : chartIndex f ((restrictPostcompose g).obj V)) :
-    Etale (chartLift sq V a) := sorry
+    Etale (chartLift sq V a) := by
+  exact Etale.of_comp_eq a.right.unop.hom h (chartLift sq V a)
+    (sq.lift_fst _ _ _)
 
 private def liftedChart (sq : IsPullback h f' f g) (V : smallEtaleSite Y')
     (a : chartIndex f ((restrictPostcompose g).obj V)) : smallEtaleSite X' :=
@@ -370,6 +373,23 @@ private def sectionInv (sq : IsPullback h f' f g) (F : X.Modules)
       (op ((restrictPostcompose g).obj V.unop)) ≫
     (((restrictUnderlyingIsoPostcompose g).inv.app ((pushforward f).obj F)).hom.app V)
 
+private theorem sectionInv_isIso (sq : IsPullback h f' f g) (F : X.Modules)
+    (V : (smallEtaleSite Y')ᵒᵖ) : IsIso (sectionInv sq F V) := by
+  have hs : IsLimit (sectionCone sq F V.unop) :=
+    (IsLimit.postcomposeHomEquiv (chartDiagramIso sq F V.unop) _).symm
+      ((EtaleTopos.allChartIsLimit X'
+        ((ToInternal.underlying (structureSheaf X')).obj ((restrictFunctor h).obj F))
+        ((etaleBaseChange f').obj V.unop)).whiskerEquivalence (chartEquivalence sq V.unop))
+  haveI : IsIso
+      ((EtaleTopos.allChartIsLimit X ((ToInternal.underlying (structureSheaf X)).obj F)
+        ((etaleBaseChange f).obj ((restrictPostcompose g).obj V.unop))).lift
+          (sectionCone sq F V.unop)) :=
+    (hs.conePointUniqueUpToIso (EtaleTopos.allChartIsLimit X
+      ((ToInternal.underlying (structureSheaf X)).obj F)
+      ((etaleBaseChange f).obj ((restrictPostcompose g).obj V.unop)))).isIso_hom
+  dsimp only [sectionInv]
+  infer_instance
+
 private theorem sectionInv_naturality (sq : IsPullback h f' f g) (F : X.Modules)
     {U V : (smallEtaleSite Y')ᵒᵖ} (a : U ⟶ V) :
     ((ToInternal.underlying (structureSheaf Y')).obj
@@ -416,7 +436,17 @@ private theorem moduleHom_inv_id (sq : IsPullback h f' f g) (F : X.Modules) :
     (moduleHom sq).app F ≫ moduleInv sq F = 𝟙 _ := sorry
 
 private theorem moduleInv_hom_id (sq : IsPullback h f' f g) (F : X.Modules) :
-    moduleInv sq F ≫ (moduleHom sq).app F = 𝟙 _ := sorry
+    moduleInv sq F ≫ (moduleHom sq).app F = 𝟙 _ := by
+  haveI : Mono (moduleInv sq F) := by
+    constructor
+    intro Z α β w
+    ext V x
+    haveI := sectionInv_isIso sq F V
+    apply (ConcreteCategory.bijective_of_isIso (sectionInv sq F V)).injective
+    exact congrArg (fun k ↦ (k.val.app V).hom x) w
+  apply (cancel_mono (moduleInv sq F)).1
+  rw [Category.assoc, moduleHom_inv_id]
+  exact (Category.comp_id _).trans (Category.id_comp _).symm
 
 private def moduleIso (sq : IsPullback h f' f g) (F : X.Modules) :
     (restrictFunctor g).obj ((pushforward f).obj F) ≅
@@ -458,7 +488,29 @@ private theorem restrictedPushforwardAugmentation_quasiIso
     let J := ((restrictFunctor h).mapHomologicalComplex (up ℤ)).obj I
     QuasiIso (((pushforward f').mapHomologicalComplex (up ℤ)).map
       ((CochainComplex.KInjectiveResolution.Construction.augmentation.{u} X'.Modules).app J)) :=
-  sorry
+  by
+    let I := (CochainComplex.KInjectiveResolution.Construction.replacement.{u} X.Modules).obj C
+    let J : CochainComplex X'.Modules ℤ :=
+      ((restrictFunctor h).mapHomologicalComplex (up ℤ)).obj I
+    letI : I.IsKInjective :=
+      CochainComplex.KInjectiveResolution.Construction.replacement_isKInjective X.Modules C
+    letI : J.IsKInjective :=
+      CochainComplex.IsKInjective.mapHomologicalComplex_of_exactLeftAdjoint I
+        (lowerShriekAdjunction h) (by
+          change PreservesFiniteLimits (lowerShriek h) ∧
+            PreservesFiniteColimits (lowerShriek h)
+          exact ⟨inferInstance, inferInstance⟩)
+    letI : ((CochainComplex.KInjectiveResolution.Construction.replacement.{u}
+        X'.Modules).obj J).IsKInjective :=
+      CochainComplex.KInjectiveResolution.Construction.replacement_isKInjective X'.Modules J
+    obtain ⟨e, he⟩ := (CochainComplex.IsKInjective.quasiIso_iff (K := J)
+      (L := (CochainComplex.KInjectiveResolution.Construction.replacement.{u} X'.Modules).obj J)
+      ((CochainComplex.KInjectiveResolution.Construction.augmentation.{u} X'.Modules).app J)).mp
+        (CochainComplex.KInjectiveResolution.Construction.augmentation_quasiIso X'.Modules J)
+    change QuasiIso (((pushforward f').mapHomologicalComplex (up ℤ)).map
+      ((CochainComplex.KInjectiveResolution.Construction.augmentation.{u} X'.Modules).app J))
+    rw [← he]
+    exact HomotopyEquiv.quasiIso_hom ((pushforward f').mapHomotopyEquiv e)
 
 private def restrictedPushforwardIso (C : CochainComplex X.Modules ℤ) :
     let I := (CochainComplex.KInjectiveResolution.Construction.replacement.{u} X.Modules).obj C

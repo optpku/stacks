@@ -53,7 +53,8 @@ theorem toKerCotangent_apply (Λ : Type u) (A : Type v) (k : Type w)
     (h : Function.Surjective (algebraMap A k)) (x : H1Cotangent Λ k) :
     toKerCotangent Λ A k h x =
       (Extension.ofSurjective (Algebra.ofId A k) h).h1CotangentEquivCotangent
-        (map Λ A k k x) := sorry
+        (map Λ A k k x) := by
+  rfl
 
 /-- The map on kernel cotangents induced by an algebra map between
 compatible surjections onto a common algebra. -/
@@ -102,7 +103,8 @@ theorem kerCotangentMap_toCotangent (B : Type u) (A : Type v) (k : Type w)
     (x : B) (hx : x ∈ RingHom.ker (algebraMap B k))
     (hxA : algebraMap B A x ∈ RingHom.ker (algebraMap A k)) :
     kerCotangentMap B A k hB hA (Cotangent.of (Ideal.toCotangent _ ⟨x, hx⟩)) =
-      Cotangent.of (Ideal.toCotangent _ ⟨algebraMap B A x, hxA⟩) := sorry
+      Cotangent.of (Ideal.toCotangent _ ⟨algebraMap B A x, hxA⟩) := by
+  rfl
 
 /-- The canonical maps from first cotangent homology to kernel cotangents
 commute with the map induced by compatible surjections onto a common algebra. -/
@@ -114,7 +116,34 @@ theorem toKerCotangent_naturality (Λ : Type u) (B : Type v) (A : Type w) (k : T
     [IsScalarTower Λ B A] [IsScalarTower Λ B k] [IsScalarTower Λ A k] [IsScalarTower B A k]
     (hB : Function.Surjective (algebraMap B k))
     (hA : Function.Surjective (algebraMap A k)) :
-    kerCotangentMap B A k hB hA ∘ₗ toKerCotangent Λ B k hB = toKerCotangent Λ A k hA := sorry
+    kerCotangentMap B A k hB hA ∘ₗ toKerCotangent Λ B k hB = toKerCotangent Λ A k hA := by
+  let PB := Extension.ofSurjective (IsScalarTower.toAlgHom Λ B k) hB
+  let PA := Extension.ofSurjective (IsScalarTower.toAlgHom Λ A k) hA
+  let f : PB.Hom PA := .ofAlgHom (IsScalarTower.toAlgHom Λ B A) (by
+    ext x
+    exact (IsScalarTower.algebraMap_apply B A k x).symm)
+  have hf : kerCotangentMap B A k hB hA = Cotangent.map f := by
+    ext x
+    obtain ⟨x, rfl⟩ := Cotangent.mk_surjective x
+    rfl
+  have hBcomp : toKerCotangent Λ B k hB =
+      PB.h1Cotangentι ∘ₗ Extension.H1Cotangent.map PB.defaultHom :=
+    PB.h1CotangentEquivCotangent_comp_map
+  have hAcomp : toKerCotangent Λ A k hA =
+      PA.h1Cotangentι ∘ₗ Extension.H1Cotangent.map PA.defaultHom :=
+    PA.h1CotangentEquivCotangent_comp_map
+  calc
+    _ = (Cotangent.map f ∘ₗ PB.h1Cotangentι) ∘ₗ
+        Extension.H1Cotangent.map PB.defaultHom := by
+      rw [hf, hBcomp]
+      ext x
+      rfl
+    _ = PA.h1Cotangentι ∘ₗ Extension.H1Cotangent.map (f.comp PB.defaultHom) := by
+      rw [Cotangent.map_comp_h1Cotangentι, Extension.H1Cotangent.map_comp]
+      rfl
+    _ = PA.h1Cotangentι ∘ₗ Extension.H1Cotangent.map PA.defaultHom := by
+      rw [Extension.H1Cotangent.map_eq (f.comp PB.defaultHom) PA.defaultHom]
+    _ = _ := hAcomp.symm
 
 end Algebra.H1Cotangent
 
@@ -146,7 +175,8 @@ theorem kerCotangentToTensor_extend_apply (Λ : Type u) (A : Type v) (k : Type w
     (h : Function.Surjective (algebraMap A k))
     (x : (Extension.ofSurjective (Algebra.ofId A k) h).Cotangent) :
     kerCotangentToTensor_extend Λ A k h x =
-      kerCotangentToTensor Λ A k (Cotangent.val x) := sorry
+      kerCotangentToTensor Λ A k (Cotangent.val x) := by
+  rfl
 
 /-- The extended conormal sequence is exact at the kernel cotangent. -/
 theorem exact_toKerCotangent_kerCotangentToTensor_extend
@@ -155,7 +185,30 @@ theorem exact_toKerCotangent_kerCotangentToTensor_extend
     [Algebra Λ A] [Algebra Λ k] [Algebra A k] [IsScalarTower Λ A k]
     (h : Function.Surjective (algebraMap A k)) :
     Function.Exact (Algebra.H1Cotangent.toKerCotangent Λ A k h)
-      (kerCotangentToTensor_extend Λ A k h) := sorry
+      (kerCotangentToTensor_extend Λ A k h) := by
+  let P : Extension Λ k :=
+    { Ring := A
+      commRing := ‹CommRing A›
+      algebra₁ := ‹Algebra Λ A›
+      algebra₂ := ‹Algebra A k›
+      isScalarTower := ‹IsScalarTower Λ A k›
+      σ := (Extension.ofSurjective (Algebra.ofId A k) h).σ
+      algebraMap_σ := (Extension.ofSurjective (Algebra.ofId A k) h).algebraMap_σ }
+  have hd : kerCotangentToTensor_extend Λ A k h = P.cotangentComplex := by
+    ext x
+    rfl
+  have hm : Algebra.H1Cotangent.toKerCotangent Λ A k h =
+      P.h1Cotangentι ∘ₗ Extension.H1Cotangent.map P.defaultHom :=
+    P.h1CotangentEquivCotangent_comp_map
+  rw [hd, hm]
+  intro x
+  exact (P.exact_hCotangentι_cotangentComplex x).trans (by
+    constructor
+    · rintro ⟨y, hy⟩
+      obtain ⟨z, rfl⟩ := Extension.H1Cotangent.map_defaultHom_surjective P y
+      exact ⟨z, hy⟩
+    · rintro ⟨y, hy⟩
+      exact ⟨Extension.H1Cotangent.map P.defaultHom y, hy⟩)
 
 /-- The extended conormal sequence is exact at the tensor product of
 Kähler differentials with the target algebra. -/
@@ -164,7 +217,8 @@ theorem exact_kerCotangentToTensor_extend_mapBaseChange
     [CommRing Λ] [CommRing A] [CommRing k]
     [Algebra Λ A] [Algebra Λ k] [Algebra A k] [IsScalarTower Λ A k]
     (h : Function.Surjective (algebraMap A k)) :
-    Function.Exact (kerCotangentToTensor_extend Λ A k h) (mapBaseChange Λ A k) := sorry
+    Function.Exact (kerCotangentToTensor_extend Λ A k h) (mapBaseChange Λ A k) := by
+  exact exact_kerCotangentToTensor_mapBaseChange Λ A k h
 
 /-- Tensor-extended base change intertwines the conormal maps of
 compatible surjections onto a common algebra. -/
@@ -178,7 +232,24 @@ theorem kerCotangentToTensor_naturality (Λ : Type u) (B : Type v) (A : Type w) 
     (hA : Function.Surjective (algebraMap A k)) :
     tensorMapBaseChange Λ B A k ∘ₗ kerCotangentToTensor_extend Λ B k hB =
       kerCotangentToTensor_extend Λ A k hA ∘ₗ
-        Algebra.H1Cotangent.kerCotangentMap B A k hB hA := sorry
+        Algebra.H1Cotangent.kerCotangentMap B A k hB hA := by
+  apply LinearMap.ext
+  intro x
+  obtain ⟨⟨b, hb⟩, rfl⟩ := Cotangent.mk_surjective x
+  have hbA : algebraMap B A b ∈ RingHom.ker (algebraMap A k) := by
+    change algebraMap A k (algebraMap B A b) = 0
+    rw [← IsScalarTower.algebraMap_apply B A k]
+    exact hb
+  change tensorMapBaseChange Λ B A k
+      (kerCotangentToTensor_extend Λ B k hB (Cotangent.of (Ideal.toCotangent _ ⟨b, hb⟩))) =
+    kerCotangentToTensor_extend Λ A k hA
+      (Algebra.H1Cotangent.kerCotangentMap B A k hB hA
+        (Cotangent.of (Ideal.toCotangent _ ⟨b, hb⟩)))
+  rw [Algebra.H1Cotangent.kerCotangentMap_toCotangent B A k hB hA b hb hbA,
+    kerCotangentToTensor_extend_apply, kerCotangentToTensor_extend_apply]
+  change tensorMapBaseChange Λ B A k (1 ⊗ₜ[B] D Λ B b) =
+    (1 : k) ⊗ₜ[A] D Λ A (algebraMap B A b)
+  simp only [tensorMapBaseChange_tmul, KaehlerDifferential.map_D]
 
 namespace ExtendedConormal
 

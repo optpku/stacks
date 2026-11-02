@@ -165,23 +165,66 @@ def of {Q P : FlatAlgebraCat Λ k} (baseHom : Q.base ⟶ P.base)
 /-- Identity base and ring maps commute with the algebra structure map. -/
 theorem id_commutes (P : FlatAlgebraCat Λ k) :
     (RingHom.id P.algebra).comp (algebraMap P.base.carrier P.algebra) =
-      (algebraMap P.base.carrier P.algebra).comp (𝟙 P.base : P.base ⟶ P.base).hom.toRingHom := sorry
+      (algebraMap P.base.carrier P.algebra).comp (𝟙 P.base : P.base ⟶ P.base).hom.toRingHom := by
+  rfl
 
 /-- The canonical tensor lift of identity base and ring maps is bijective. -/
 theorem id_isIsoTensor (P : FlatAlgebraCat Λ k) :
     Function.Bijective
-      (canonicalTensorMap (𝟙 P.base) (RingHom.id P.algebra) (id_commutes P)) := sorry
+      (canonicalTensorMap (𝟙 P.base) (RingHom.id P.algebra) (id_commutes P)) := by
+  change Function.Bijective (TensorProduct.lid P.base.carrier P.algebra)
+  exact (TensorProduct.lid P.base.carrier P.algebra).bijective
 
 /-- Composite scalar-compatible ring maps commute with the composite base map. -/
 theorem comp_commutes {Q P R : FlatAlgebraCat Λ k} (f : Hom Q P) (g : Hom P R) :
     (g.toRingHom.comp f.toRingHom).comp (algebraMap Q.base.carrier Q.algebra) =
       (algebraMap R.base.carrier R.algebra).comp
-        (f.baseHom ≫ g.baseHom).hom.toRingHom := sorry
+        (f.baseHom ≫ g.baseHom).hom.toRingHom := by
+  rw [RingHom.comp_assoc, f.commutes, ← RingHom.comp_assoc, g.commutes,
+    RingHom.comp_assoc]
+  rfl
 
 /-- The canonical tensor lift of a composite of base-change isomorphisms is bijective. -/
 theorem comp_isIsoTensor {Q P R : FlatAlgebraCat Λ k} (f : Hom Q P) (g : Hom P R) :
     Function.Bijective (canonicalTensorMap (f.baseHom ≫ g.baseHom)
-      (g.toRingHom.comp f.toRingHom) (comp_commutes f g)) := sorry
+      (g.toRingHom.comp f.toRingHom) (comp_commutes f g)) := by
+  letI := algebraAlong f.baseHom
+  letI := compAlgebraAlong f.baseHom
+  letI : IsScalarTower Q.base.carrier P.base.carrier P.algebra :=
+    IsScalarTower.of_algebraMap_eq' rfl
+  let fMap := AlgHom.liftEquiv Q.base.carrier P.base.carrier Q.algebra P.algebra
+    { f.toRingHom with commutes' := fun r ↦ RingHom.ext_iff.mp f.commutes r }
+  let e := LinearEquiv.ofBijective fMap.toLinearMap f.isIso_tensor
+  letI := algebraAlong g.baseHom
+  letI := compAlgebraAlong g.baseHom
+  letI : IsScalarTower P.base.carrier R.base.carrier R.algebra :=
+    IsScalarTower.of_algebraMap_eq' rfl
+  letI := algebraAlong (f.baseHom ≫ g.baseHom)
+  letI : IsScalarTower Q.base.carrier P.base.carrier R.base.carrier :=
+    IsScalarTower.of_algebraMap_eq' rfl
+  let gMap := AlgHom.liftEquiv P.base.carrier R.base.carrier P.algebra R.algebra
+    { g.toRingHom with commutes' := fun r ↦ RingHom.ext_iff.mp g.commutes r }
+  letI := compAlgebraAlong (f.baseHom ≫ g.baseHom)
+  letI : IsScalarTower Q.base.carrier R.base.carrier R.algebra :=
+    IsScalarTower.of_algebraMap_eq' rfl
+  let cancel := TensorProduct.AlgebraTensorModule.cancelBaseChange
+    Q.base.carrier P.base.carrier R.base.carrier R.base.carrier Q.algebra
+  let e' := e.baseChange P.base.carrier R.base.carrier
+  have h : canonicalTensorMap (f.baseHom ≫ g.baseHom)
+      (g.toRingHom.comp f.toRingHom) (comp_commutes f g) =
+      gMap ∘ e' ∘ cancel.symm := by
+    funext x
+    change (AlgHom.liftEquiv Q.base.carrier R.base.carrier Q.algebra R.algebra
+      { g.toRingHom.comp f.toRingHom with
+        commutes' := fun r ↦ RingHom.ext_iff.mp (comp_commutes f g) r }) x = _
+    induction x using TensorProduct.induction_on with
+    | zero => simp
+    | tmul a q =>
+      simp [cancel, e', e, fMap, gMap]
+    | add x y hx hy =>
+      simpa only [_root_.map_add, Function.comp_apply] using congrArg₂ (· + ·) hx hy
+  rw [h]
+  exact g.isIso_tensor.comp (e'.bijective.comp cancel.symm.bijective)
 
 /-- The identity morphism uses identity base and ring maps. -/
 def id (P : FlatAlgebraCat Λ k) : Hom P P :=
@@ -207,14 +250,19 @@ theorem comp_baseHom {Q P R : FlatAlgebraCat Λ k} (f : Hom Q P) (g : Hom P R) :
     (comp f g).baseHom = f.baseHom ≫ g.baseHom := rfl
 
 /-- The identity is a left identity for flat-algebra morphism composition. -/
-theorem id_comp {Q P : FlatAlgebraCat Λ k} (f : Hom Q P) : comp (id Q) f = f := sorry
+theorem id_comp {Q P : FlatAlgebraCat Λ k} (f : Hom Q P) : comp (id Q) f = f := by
+  rcases f with ⟨fb, fr, fc⟩
+  rfl
 
 /-- The identity is a right identity for flat-algebra morphism composition. -/
-theorem comp_id {Q P : FlatAlgebraCat Λ k} (f : Hom Q P) : comp f (id P) = f := sorry
+theorem comp_id {Q P : FlatAlgebraCat Λ k} (f : Hom Q P) : comp f (id P) = f := by
+  rcases f with ⟨fb, fr, fc⟩
+  rfl
 
 /-- Composition of flat-algebra morphisms is associative. -/
 theorem assoc {Q P R S : FlatAlgebraCat Λ k} (f : Hom Q P) (g : Hom P R)
-    (h : Hom R S) : comp (comp f g) h = comp f (comp g h) := sorry
+    (h : Hom R S) : comp (comp f g) h = comp f (comp g h) := by
+  rfl
 
 end Hom
 

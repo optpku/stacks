@@ -7,6 +7,8 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import ReasLib.Algebra.Category.CommRingCat.Under.ModuleValuedFunctor.Tangent
+public import ReasLib.Algebra.Category.ModuleCat.EilenbergWatts
+public import Mathlib.Algebra.Category.ModuleCat.Colimits
 public import Mathlib.Algebra.Module.FinitePresentation
 public import Mathlib.Algebra.Module.MinimalAxioms
 public import Mathlib.CategoryTheory.Preadditive.AdditiveFunctor
@@ -59,13 +61,35 @@ private noncomputable def additiveTangentPreservesBinaryBiproducts
 
 /-- A pointwise right-exact tangent functor carries a binary direct sum to the
 canonical binary direct sum of its tangent values. -/
-noncomputable def tangentBiprodIso (F : ModuleValuedFunctor.{u, u} A)
+@[expose] noncomputable def tangentBiprodIso (F : ModuleValuedFunctor.{u, u} A)
     (hF : ∀ B, rightExactFunctor (ModuleCat.{u} B.right) (ModuleCat.{u} B.right)
       (F.tangent.fixedBase B)) (B : Under A) (N₁ N₂ : ModuleCat.{u} B.right) :
-    F.tangentObj B (N₁ ⊞ N₂) ≅ F.tangentObj B N₁ ⊞ F.tangentObj B N₂ :=
-  -- Local instance justification (proof-local temporary data): `mapBiprod` requires the explicit named biproduct-preservation datum for this fixed-base additive tangent functor.
-  letI := F.additiveTangentPreservesBinaryBiproducts B (hF B)
-  (F.additiveTangent B (hF B)).obj.mapBiprod N₁ N₂
+    F.tangentObj B (N₁ ⊞ N₂) ≅ F.tangentObj B N₁ ⊞ F.tangentObj B N₂ where
+  hom := biprod.lift ((F.tangent.fixedBase B).map biprod.fst)
+    ((F.tangent.fixedBase B).map biprod.snd)
+  inv := biprod.desc ((F.tangent.fixedBase B).map biprod.inl)
+    ((F.tangent.fixedBase B).map biprod.inr)
+  hom_inv_id := by
+    letI : (F.tangent.fixedBase B).Additive :=
+      rightExactFunctor_le_additiveFunctor _ _ _ (hF B)
+    change biprod.lift ((F.tangent.fixedBase B).map (biprod.fst : N₁ ⊞ N₂ ⟶ N₁))
+        ((F.tangent.fixedBase B).map biprod.snd) ≫
+      biprod.desc ((F.tangent.fixedBase B).map biprod.inl)
+        ((F.tangent.fixedBase B).map biprod.inr) =
+      𝟙 ((F.tangent.fixedBase B).obj (N₁ ⊞ N₂))
+    rw [biprod.lift_desc, ← Functor.map_comp, ← Functor.map_comp,
+      ← Functor.map_add, biprod.total]
+    exact (F.tangent.fixedBase B).map_id _
+  inv_hom_id := by
+    letI : (F.tangent.fixedBase B).Additive :=
+      rightExactFunctor_le_additiveFunctor _ _ _ (hF B)
+    change biprod.desc ((F.tangent.fixedBase B).map (biprod.inl : N₁ ⟶ N₁ ⊞ N₂))
+        ((F.tangent.fixedBase B).map biprod.inr) ≫
+      biprod.lift ((F.tangent.fixedBase B).map biprod.fst)
+        ((F.tangent.fixedBase B).map biprod.snd) =
+      𝟙 ((F.tangent.fixedBase B).obj N₁ ⊞ (F.tangent.fixedBase B).obj N₂)
+    apply biprod.hom_ext <;> apply biprod.hom_ext' <;>
+      simp [Category.assoc, ← Functor.map_comp]
 
 /-- The first projection of `tangentBiprodIso` is induced by the first biproduct projection. -/
 theorem tangentBiprodIso_hom_fst (F : ModuleValuedFunctor.{u, u} A)
@@ -241,6 +265,49 @@ noncomputable def tangentArgument (F : ModuleValuedFunctor.{u, u} A)
   map_id N := tangentArgumentMap_id F hF B N
   map_comp f g := tangentArgumentMap_comp F hF B f g
 
+/-- The argument-action tangent functor is additive. -/
+instance tangentArgument_additive (F : ModuleValuedFunctor.{u, u} A)
+    (hF : ∀ B, rightExactFunctor (ModuleCat.{u} B.right) (ModuleCat.{u} B.right)
+      (F.tangent.fixedBase B)) (B : Under A) :
+    (F.tangentArgument hF B).Additive where
+  map_add {N N' f g} := by
+    letI : (F.tangent.fixedBase B).Additive :=
+      rightExactFunctor_le_additiveFunctor _ _ _ (hF B)
+    ext element
+    change ((F.tangent.fixedBase B).map (f + g)).hom element =
+      ((F.tangent.fixedBase B).map f).hom element +
+        ((F.tangent.fixedBase B).map g).hom element
+    exact congrArg
+      (fun morphism : (F.tangent.fixedBase B).obj N ⟶ (F.tangent.fixedBase B).obj N' =>
+        morphism.hom element)
+      ((F.tangent.fixedBase B).map_add (f := f) (g := g))
+
+/-- The argument-induced scalar action makes the tangent functor linear. -/
+instance tangentArgument_linear (F : ModuleValuedFunctor.{u, u} A)
+    (hF : ∀ B, rightExactFunctor (ModuleCat.{u} B.right) (ModuleCat.{u} B.right)
+      (F.tangent.fixedBase B)) (B : Under A) :
+    (F.tangentArgument hF B).Linear B.right := by
+  apply (Functor.linear_iff _ _).2
+  intro N scalar
+  ext element
+  rfl
+
+/-- Changing to the argument-induced action preserves right exactness. -/
+instance tangentArgument_preservesFiniteColimits (F : ModuleValuedFunctor.{u, u} A)
+    (hF : ∀ B, rightExactFunctor (ModuleCat.{u} B.right) (ModuleCat.{u} B.right)
+      (F.tangent.fixedBase B)) (B : Under A) :
+    PreservesFiniteColimits (F.tangentArgument hF B) := by
+  let forgetModule := forget₂ (ModuleCat.{u} B.right) AddCommGrpCat.{u}
+  letI : PreservesFiniteColimits (F.tangent.fixedBase B) := hF B
+  letI : PreservesFiniteColimits (F.tangent.fixedBase B ⋙ forgetModule) :=
+    comp_preservesFiniteColimits _ _
+  let comparison : F.tangent.fixedBase B ⋙ forgetModule ≅
+      F.tangentArgument hF B ⋙ forgetModule :=
+    NatIso.ofComponents (fun N => Iso.refl _) (by intro N N' f; rfl)
+  letI : PreservesFiniteColimits (F.tangentArgument hF B ⋙ forgetModule) :=
+    preservesFiniteColimits_of_natIso comparison
+  exact preservesFiniteColimits_of_reflects_of_preserves _ forgetModule
+
 /-- The argument-action tangent object has the same carrier as the original tangent object. -/
 theorem tangentArgument_obj (F : ModuleValuedFunctor.{u, u} A)
     (hF : ∀ B, rightExactFunctor (ModuleCat.{u} B.right) (ModuleCat.{u} B.right)
@@ -300,66 +367,23 @@ theorem tensorToTangentArgument_apply (F : ModuleValuedFunctor.{u, u} A)
     Eq.mp (F.tangentArgument_obj hF B N) (F.tensorToTangentArgument hF B N x) =
       F.tensorToTangentApp B N x := sorry
 
-/-- The comparison formula is additive in its tangent-vector argument. -/
-private theorem tangentTensorComparison_add_left (F : ModuleValuedFunctor.{u, u} A)
-    (hF : ∀ B, rightExactFunctor (ModuleCat.{u} B.right) (ModuleCat.{u} B.right)
-      (F.tangent.fixedBase B)) (B : Under A) (N : ModuleCat.{u} B.right)
-    (x y : (F.tangentArgument hF B).obj (ModuleCat.of B.right B.right)) (n : N) :
-    (F.tangentArgument hF B).map
-        (ModuleCat.ofHom (LinearMap.toSpanSingleton B.right N n)) (x + y) =
-      (F.tangentArgument hF B).map
-          (ModuleCat.ofHom (LinearMap.toSpanSingleton B.right N n)) x +
-        (F.tangentArgument hF B).map
-          (ModuleCat.ofHom (LinearMap.toSpanSingleton B.right N n)) y := sorry
-
-/-- The comparison formula is linear in its tangent-vector argument. -/
-private theorem tangentTensorComparison_smul_left (F : ModuleValuedFunctor.{u, u} A)
-    (hF : ∀ B, rightExactFunctor (ModuleCat.{u} B.right) (ModuleCat.{u} B.right)
-      (F.tangent.fixedBase B)) (B : Under A) (N : ModuleCat.{u} B.right)
-    (b : B.right) (x : (F.tangentArgument hF B).obj (ModuleCat.of B.right B.right))
-    (n : N) :
-    (F.tangentArgument hF B).map
-        (ModuleCat.ofHom (LinearMap.toSpanSingleton B.right N n)) (b • x) =
-      b • (F.tangentArgument hF B).map
-        (ModuleCat.ofHom (LinearMap.toSpanSingleton B.right N n)) x := sorry
-
-/-- The comparison formula is additive in the module argument. -/
-private theorem tangentTensorComparison_add_right (F : ModuleValuedFunctor.{u, u} A)
-    (hF : ∀ B, rightExactFunctor (ModuleCat.{u} B.right) (ModuleCat.{u} B.right)
-      (F.tangent.fixedBase B)) (B : Under A) (N : ModuleCat.{u} B.right)
-    (x : (F.tangentArgument hF B).obj (ModuleCat.of B.right B.right)) (n m : N) :
-    (F.tangentArgument hF B).map
-        (ModuleCat.ofHom (LinearMap.toSpanSingleton B.right N (n + m))) x =
-      (F.tangentArgument hF B).map
-          (ModuleCat.ofHom (LinearMap.toSpanSingleton B.right N n)) x +
-        (F.tangentArgument hF B).map
-          (ModuleCat.ofHom (LinearMap.toSpanSingleton B.right N m)) x := sorry
-
-/-- The comparison formula is linear in the module argument. -/
-private theorem tangentTensorComparison_smul_right (F : ModuleValuedFunctor.{u, u} A)
-    (hF : ∀ B, rightExactFunctor (ModuleCat.{u} B.right) (ModuleCat.{u} B.right)
-      (F.tangent.fixedBase B)) (B : Under A) (N : ModuleCat.{u} B.right)
-    (b : B.right) (x : (F.tangentArgument hF B).obj (ModuleCat.of B.right B.right))
-    (n : N) :
-    (F.tangentArgument hF B).map
-        (ModuleCat.ofHom (LinearMap.toSpanSingleton B.right N (b • n))) x =
-      b • (F.tangentArgument hF B).map
-        (ModuleCat.ofHom (LinearMap.toSpanSingleton B.right N n)) x := sorry
-
 /-- The canonical map `TF(B, B) ⊗[B] N ⟶ TF(B, N)` formed with the
 argument-induced scalar action on `TF(B, B)`. -/
-noncomputable def tangentTensorComparison (F : ModuleValuedFunctor.{u, u} A)
+@[expose] noncomputable def tangentTensorComparison (F : ModuleValuedFunctor.{u, u} A)
     (hF : ∀ B, rightExactFunctor (ModuleCat.{u} B.right) (ModuleCat.{u} B.right)
       (F.tangent.fixedBase B)) (B : Under A) (N : ModuleCat.{u} B.right) :
     (F.tangentArgument hF B).obj (ModuleCat.of B.right B.right) ⊗ N ⟶
       (F.tangentArgument hF B).obj N :=
-  ModuleCat.MonoidalCategory.tensorLift
-    (fun x n ↦ (F.tangentArgument hF B).map
-      (ModuleCat.ofHom (LinearMap.toSpanSingleton B.right N n)) x)
-    (tangentTensorComparison_add_left F hF B N)
-    (tangentTensorComparison_smul_left F hF B N)
-    (tangentTensorComparison_add_right F hF B N)
-    (tangentTensorComparison_smul_right F hF B N)
+  (β_ ((F.tangentArgument hF B).obj (ModuleCat.of B.right B.right)) N).hom ≫
+    ModuleCat.tensorRightComparisonApp (F.tangentArgument hF B) N
+
+/-- The tangent comparison is the general module-functor comparison after swapping factors. -/
+theorem tangentTensorComparison_eq (F : ModuleValuedFunctor.{u, u} A)
+    (hF : ∀ B, rightExactFunctor (ModuleCat.{u} B.right) (ModuleCat.{u} B.right)
+      (F.tangent.fixedBase B)) (B : Under A) (N : ModuleCat.{u} B.right) :
+    F.tangentTensorComparison hF B N =
+      (β_ ((F.tangentArgument hF B).obj (ModuleCat.of B.right B.right)) N).hom ≫
+        ModuleCat.tensorRightComparisonApp (F.tangentArgument hF B) N := rfl
 
 /-- The canonical comparison acts on pure tensors through the tangent map induced by `1 ↦ n`. -/
 theorem tangentTensorComparison_tmul (F : ModuleValuedFunctor.{u, u} A)
@@ -368,7 +392,10 @@ theorem tangentTensorComparison_tmul (F : ModuleValuedFunctor.{u, u} A)
     (x : (F.tangentArgument hF B).obj (ModuleCat.of B.right B.right)) (n : N) :
     F.tangentTensorComparison hF B N (x ⊗ₜ[B.right] n) =
       (F.tangentArgument hF B).map
-        (ModuleCat.ofHom (LinearMap.toSpanSingleton B.right N n)) x := sorry
+        (ModuleCat.ofHom (LinearMap.toSpanSingleton B.right N n)) x := by
+  change ModuleCat.tensorRightComparisonApp (F.tangentArgument hF B) N
+    (n ⊗ₜ[B.right] x) = _
+  exact ModuleCat.tensorRightComparisonApp_tmul (F.tangentArgument hF B) N n x
 
 /-- For a finitely presented `B`-module `N`, the canonical map
 `TF(B, B) ⊗[B] N ⟶ TF(B, N)` is an isomorphism. -/
@@ -376,6 +403,10 @@ theorem tangentTensorComparisonIsIso (F : ModuleValuedFunctor.{u, u} A)
     (hF : ∀ B, rightExactFunctor (ModuleCat.{u} B.right) (ModuleCat.{u} B.right)
       (F.tangent.fixedBase B)) (B : Under A) (N : ModuleCat.{u} B.right)
     [Module.FinitePresentation B.right N] :
-    IsIso (F.tangentTensorComparison hF B N) := sorry
+    IsIso (F.tangentTensorComparison hF B N) := by
+  rw [tangentTensorComparison_eq]
+  exact IsIso.comp_isIso' (Iso.isIso_hom (β_ _ _))
+    (ModuleCat.isIso_tensorRightComparisonApp_of_finitePresentation
+      (F.tangentArgument hF B) N)
 
 end ModuleValuedFunctor

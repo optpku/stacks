@@ -24,7 +24,7 @@ public import ReasLib.RingTheory.CotangentComplex.NaiveComparison.Explicit
 # Functoriality of Lichtenbaum–Schlessinger complexes
 
 A commutative square of algebras together with a factorization hom of polynomial
-presentations, with relation indices extended along `σ ⊕ τ`, induces a cochain map
+presentations, with a compatible map of relation indices, induces a cochain map
 of Lichtenbaum–Schlessinger complexes after extension of scalars along `B → B'`.
 -/
 
@@ -46,85 +46,112 @@ variable [CommRing A] [CommRing B] [CommRing A'] [CommRing B']
 variable [Algebra A B] [Algebra A' B'] [Algebra A A'] [Algebra B B'] [Algebra A B']
 variable [IsScalarTower A A' B'] [IsScalarTower A B B']
 
-/-- Coefficientwise application of a factorization hom, followed by the coproduct
-inclusion of relation indices, as a map `F →+ F'`. -/
-def mapFree (P : Presentation A B ι σ) (P' : Presentation A' B' ι' (σ ⊕ τ))
-    (f : P.toExtension.Hom P'.toExtension) : free P →+ free P' :=
-  (Finsupp.mapDomain.addMonoidHom Sum.inl).comp
+section RelationMaps
+
+omit [Algebra A B'] [IsScalarTower A A' B'] [IsScalarTower A B B']
+
+/-- Coefficientwise application of a factorization hom, followed by the given map
+of relation indices, as a map `F →+ F'`. -/
+def mapFree (P : Presentation A B ι σ) (P' : Presentation A' B' ι' τ)
+    (f : P.toExtension.Hom P'.toExtension) (ρ : σ → τ) : free P →+ free P' :=
+  (Finsupp.mapDomain.addMonoidHom ρ).comp
     (Finsupp.mapRange.addMonoidHom f.toRingHom.toAddMonoidHom)
 
-/-- `mapFree` sends a basis vector `single t p` to `single (Sum.inl t) (f.toRingHom p)`. -/
-theorem mapFree_single (P : Presentation A B ι σ) (P' : Presentation A' B' ι' (σ ⊕ τ))
-    (f : P.toExtension.Hom P'.toExtension) (t : σ) (p : P.Ring) :
-    mapFree P P' f (Finsupp.single t p) =
-      Finsupp.single (Sum.inl t) (f.toRingHom p) := sorry
+/-- `mapFree` sends a basis vector `single t p` to `single (ρ t) (f.toRingHom p)`. -/
+theorem mapFree_single (P : Presentation A B ι σ) (P' : Presentation A' B' ι' τ)
+    (f : P.toExtension.Hom P'.toExtension) (ρ : σ → τ) (t : σ) (p : P.Ring) :
+    mapFree P P' f ρ (Finsupp.single t p) =
+      Finsupp.single (ρ t) (f.toRingHom p) := by
+  simp [mapFree] <;> rfl
+
+/-- The identity map of a presentation acts identically on its free module. -/
+theorem mapFree_refl (P : Presentation A B ι σ) :
+    mapFree P P (.id P.toExtension) _root_.id = AddMonoidHom.id (free P) := by
+  ext index coefficient
+  simp [mapFree] <;> rfl
+
+variable {A'' B'' ι'' υ : Type u} [CommRing A''] [CommRing B'']
+  [Algebra A'' B''] [Algebra A' A''] [Algebra B' B'']
+  [Algebra A A''] [Algebra B B'']
+  [IsScalarTower A A' A''] [IsScalarTower B B' B''] in
+/-- Free-module comparisons compose along the composite relation-index map. -/
+theorem mapFree_comp (P : Presentation A B ι σ) (P' : Presentation A' B' ι' τ)
+    (P'' : Presentation A'' B'' ι'' υ)
+    (f : P.toExtension.Hom P'.toExtension) (g : P'.toExtension.Hom P''.toExtension)
+    (ρ : σ → τ) (ρ' : τ → υ) :
+    mapFree P P'' (g.comp f) (ρ' ∘ ρ) =
+      (mapFree P' P'' g ρ').comp (mapFree P P' f ρ) := by
+  ext index coefficient
+  simp [mapFree] <;> rfl
 
 /-- `mapFree` is semilinear on basis vectors with respect to the factorization hom. -/
 theorem mapFree_smul_single (P : Presentation A B ι σ)
-    (P' : Presentation A' B' ι' (σ ⊕ τ)) (f : P.toExtension.Hom P'.toExtension)
+    (P' : Presentation A' B' ι' τ) (f : P.toExtension.Hom P'.toExtension) (ρ : σ → τ)
     (r : P.Ring) (t : σ) :
-    mapFree P P' f (r • Finsupp.single t (1 : P.Ring)) =
-      Finsupp.single (Sum.inl t) (f.toRingHom r) := sorry
+    mapFree P P' f ρ (r • Finsupp.single t (1 : P.Ring)) =
+      Finsupp.single (ρ t) (f.toRingHom r) := sorry
 
-/-- If the original relations are sent to the coproduct-summand relations, then
+/-- If the original relations are sent to the specified target relations, then
 `mapFree` preserves `Rel`. -/
-theorem mapFree_mem_rel (P : Presentation A B ι σ) (P' : Presentation A' B' ι' (σ ⊕ τ))
-    (f : P.toExtension.Hom P'.toExtension)
-    (h_rel : ∀ t, f.toRingHom (P.relation t) = P'.relation (Sum.inl t))
-    {x : free P} (hx : x ∈ rel P) : mapFree P P' f x ∈ rel P' := sorry
+theorem mapFree_mem_rel (P : Presentation A B ι σ) (P' : Presentation A' B' ι' τ)
+    (f : P.toExtension.Hom P'.toExtension) (ρ : σ → τ)
+    (h_rel : ∀ t, f.toRingHom (P.relation t) = P'.relation (ρ t))
+    {x : free P} (hx : x ∈ rel P) : mapFree P P' f ρ x ∈ rel P' := sorry
 
-/-- If the original relations are sent to the coproduct-summand relations, then
+/-- If the original relations are sent to the specified target relations, then
 `mapFree` preserves trivial relations. -/
 theorem mapFree_mem_trivialRel (P : Presentation A B ι σ)
-    (P' : Presentation A' B' ι' (σ ⊕ τ)) (f : P.toExtension.Hom P'.toExtension)
-    (h_rel : ∀ t, f.toRingHom (P.relation t) = P'.relation (Sum.inl t))
-    {x : free P} (hx : x ∈ trivialRel P) : mapFree P P' f x ∈ trivialRel P' := sorry
+    (P' : Presentation A' B' ι' τ) (f : P.toExtension.Hom P'.toExtension) (ρ : σ → τ)
+    (h_rel : ∀ t, f.toRingHom (P.relation t) = P'.relation (ρ t))
+    {x : free P} (hx : x ∈ trivialRel P) : mapFree P P' f ρ x ∈ trivialRel P' := sorry
 
 /-- The induced map on relation modules `Rel →+ Rel'`. -/
-def mapRel (P : Presentation A B ι σ) (P' : Presentation A' B' ι' (σ ⊕ τ))
-    (f : P.toExtension.Hom P'.toExtension)
-    (h_rel : ∀ t, f.toRingHom (P.relation t) = P'.relation (Sum.inl t)) :
+def mapRel (P : Presentation A B ι σ) (P' : Presentation A' B' ι' τ)
+    (f : P.toExtension.Hom P'.toExtension) (ρ : σ → τ)
+    (h_rel : ∀ t, f.toRingHom (P.relation t) = P'.relation (ρ t)) :
     rel P →+ rel P' where
-  toFun x := ⟨mapFree P P' f (x : free P), mapFree_mem_rel P P' f h_rel x.property⟩
+  toFun x := ⟨mapFree P P' f ρ (x : free P), mapFree_mem_rel P P' f ρ h_rel x.property⟩
   map_zero' := sorry
   map_add' := sorry
 
 /-- Unfolding of `mapRel` on the underlying free modules. -/
-theorem mapRel_apply (P : Presentation A B ι σ) (P' : Presentation A' B' ι' (σ ⊕ τ))
-    (f : P.toExtension.Hom P'.toExtension)
-    (h_rel : ∀ t, f.toRingHom (P.relation t) = P'.relation (Sum.inl t)) (x : rel P) :
-    (mapRel P P' f h_rel x : free P') = mapFree P P' f (x : free P) := sorry
+theorem mapRel_apply (P : Presentation A B ι σ) (P' : Presentation A' B' ι' τ)
+    (f : P.toExtension.Hom P'.toExtension) (ρ : σ → τ)
+    (h_rel : ∀ t, f.toRingHom (P.relation t) = P'.relation (ρ t)) (x : rel P) :
+    (mapRel P P' f ρ h_rel x : free P') = mapFree P P' f ρ (x : free P) := sorry
 
 /-- `mapRel` sends the submodule of trivial relations into the corresponding
 submodule for `P'`. -/
 theorem mapRel_map_trivialRel (P : Presentation A B ι σ)
-    (P' : Presentation A' B' ι' (σ ⊕ τ)) (f : P.toExtension.Hom P'.toExtension)
-    (h_rel : ∀ t, f.toRingHom (P.relation t) = P'.relation (Sum.inl t)) :
+    (P' : Presentation A' B' ι' τ) (f : P.toExtension.Hom P'.toExtension) (ρ : σ → τ)
+    (h_rel : ∀ t, f.toRingHom (P.relation t) = P'.relation (ρ t)) :
     ((trivialRel P).comap (rel P).subtype).toAddSubgroup ≤
-      AddSubgroup.comap (mapRel P P' f h_rel)
+      AddSubgroup.comap (mapRel P P' f ρ h_rel)
         ((trivialRel P').comap (rel P').subtype).toAddSubgroup := sorry
 
 /-- The induced map on `Rel / TrivRel`. -/
-def mapRelModTrivial (P : Presentation A B ι σ) (P' : Presentation A' B' ι' (σ ⊕ τ))
-    (f : P.toExtension.Hom P'.toExtension)
-    (h_rel : ∀ t, f.toRingHom (P.relation t) = P'.relation (Sum.inl t)) :
+def mapRelModTrivial (P : Presentation A B ι σ) (P' : Presentation A' B' ι' τ)
+    (f : P.toExtension.Hom P'.toExtension) (ρ : σ → τ)
+    (h_rel : ∀ t, f.toRingHom (P.relation t) = P'.relation (ρ t)) :
     relModTrivial P →+ relModTrivial P' :=
   QuotientAddGroup.map
     ((trivialRel P).comap (rel P).subtype).toAddSubgroup
     ((trivialRel P').comap (rel P').subtype).toAddSubgroup
-    (mapRel P P' f h_rel) (mapRel_map_trivialRel P P' f h_rel)
+    (mapRel P P' f ρ h_rel) (mapRel_map_trivialRel P P' f ρ h_rel)
 
 /-- `mapRelModTrivial` sends the class of a relation to the class of its image. -/
 theorem mapRelModTrivial_mk (P : Presentation A B ι σ)
-    (P' : Presentation A' B' ι' (σ ⊕ τ)) (f : P.toExtension.Hom P'.toExtension)
-    (h_rel : ∀ t, f.toRingHom (P.relation t) = P'.relation (Sum.inl t)) (x : rel P) :
-    mapRelModTrivial P P' f h_rel (Submodule.Quotient.mk x) =
-      Submodule.Quotient.mk (mapRel P P' f h_rel x) := sorry
+    (P' : Presentation A' B' ι' τ) (f : P.toExtension.Hom P'.toExtension) (ρ : σ → τ)
+    (h_rel : ∀ t, f.toRingHom (P.relation t) = P'.relation (ρ t)) (x : rel P) :
+    mapRelModTrivial P P' f ρ h_rel (Submodule.Quotient.mk x) =
+      Submodule.Quotient.mk (mapRel P P' f ρ h_rel x) := sorry
+
+end RelationMaps
 
 /-- Degree-`0` comparison on cotangent spaces, as a map of `B`-modules into the
 restriction of scalars of `P'.toExtension.CotangentSpace`. -/
 def mapCotangentSpaceRestrict (P : Presentation A B ι σ)
-    (P' : Presentation A' B' ι' (σ ⊕ τ)) (f : P.toExtension.Hom P'.toExtension) :
+    (P' : Presentation A' B' ι' τ) (f : P.toExtension.Hom P'.toExtension) :
     ModuleCat.of B P.toExtension.CotangentSpace ⟶
       (ModuleCat.restrictScalars (algebraMap B B')).obj
         (ModuleCat.of B' P'.toExtension.CotangentSpace) :=
@@ -138,7 +165,7 @@ def mapCotangentSpaceRestrict (P : Presentation A B ι σ)
 
 /-- Degree-`0` cochain component: the scalar extension of `CotangentSpace.map`
 along `algebraMap B B'`. -/
-def mapCotangentSpace (P : Presentation A B ι σ) (P' : Presentation A' B' ι' (σ ⊕ τ))
+def mapCotangentSpace (P : Presentation A B ι σ) (P' : Presentation A' B' ι' τ)
     (f : P.toExtension.Hom P'.toExtension) :
     (ModuleCat.extendScalars (algebraMap B B')).obj
         (ModuleCat.of B P.toExtension.CotangentSpace) ⟶
@@ -148,7 +175,7 @@ def mapCotangentSpace (P : Presentation A B ι σ) (P' : Presentation A' B' ι' 
 
 /-- Unfolding of `mapCotangentSpace` through the extension-restriction adjunction. -/
 theorem mapCotangentSpace_eq (P : Presentation A B ι σ)
-    (P' : Presentation A' B' ι' (σ ⊕ τ)) (f : P.toExtension.Hom P'.toExtension) :
+    (P' : Presentation A' B' ι' τ) (f : P.toExtension.Hom P'.toExtension) :
     mapCotangentSpace P P' f =
       ((ModuleCat.extendRestrictScalarsAdj (algebraMap B B')).homEquiv _ _).symm
         (mapCotangentSpaceRestrict P P' f) := sorry
@@ -156,7 +183,7 @@ theorem mapCotangentSpace_eq (P : Presentation A B ι σ)
 /-- On pure tensors, the degree-`0` comparison sends `s ⊗ₜ D p` to
 `algebraMap B B' s ⊗ₜ D (f.toRingHom p)`. -/
 theorem mapCotangentSpace_tmul (P : Presentation A B ι σ)
-    (P' : Presentation A' B' ι' (σ ⊕ τ)) (f : P.toExtension.Hom P'.toExtension)
+    (P' : Presentation A' B' ι' τ) (f : P.toExtension.Hom P'.toExtension)
     (s : B) (p : P.toExtension.Ring) :
     (mapCotangentSpace P P' f).hom
         ((1 : B') ⊗ₜ[B, algebraMap B B']
@@ -167,7 +194,7 @@ theorem mapCotangentSpace_tmul (P : Presentation A B ι σ)
 /-- Degree-`-1` comparison on `F ⊗ B`, as a map of `B`-modules into the restriction
 of scalars of `F' ⊗ B'`. -/
 def mapFreeTensorRestrict (P : Presentation A B ι σ)
-    (P' : Presentation A' B' ι' (σ ⊕ τ)) (f : P.toExtension.Hom P'.toExtension) :
+    (P' : Presentation A' B' ι' τ) (f : P.toExtension.Hom P'.toExtension) (ρ : σ → τ) :
     ModuleCat.of B (B ⊗[P.Ring] free P) ⟶
       (ModuleCat.restrictScalars (algebraMap B B')).obj
         (ModuleCat.of B' (B' ⊗[P'.Ring] free P')) :=
@@ -181,32 +208,40 @@ def mapFreeTensorRestrict (P : Presentation A B ι σ)
     { toFun :=
         (_root_.TensorProduct.lift)
           (LinearMap.mk₂ P.Ring
-            (fun (b : B) (m : free P) ↦ algebraMap B B' b ⊗ₜ[P'.Ring] mapFree P P' f m)
+            (fun (b : B) (m : free P) ↦ algebraMap B B' b ⊗ₜ[P'.Ring] mapFree P P' f ρ m)
             sorry sorry sorry sorry)
       map_add' := sorry
       map_smul' := sorry }
 
 /-- Degree-`-1` cochain component after extension of scalars along `algebraMap B B'`. -/
-def mapFreeTensor (P : Presentation A B ι σ) (P' : Presentation A' B' ι' (σ ⊕ τ))
-    (f : P.toExtension.Hom P'.toExtension) :
+def mapFreeTensor (P : Presentation A B ι σ) (P' : Presentation A' B' ι' τ)
+    (f : P.toExtension.Hom P'.toExtension) (ρ : σ → τ) :
     (ModuleCat.extendScalars (algebraMap B B')).obj
         (ModuleCat.of B (B ⊗[P.Ring] free P)) ⟶
       ModuleCat.of B' (B' ⊗[P'.Ring] free P') :=
   ((ModuleCat.extendRestrictScalarsAdj (algebraMap B B')).homEquiv _ _).symm
-    (mapFreeTensorRestrict P P' f)
+    (mapFreeTensorRestrict P P' f ρ)
 
 /-- Unfolding of `mapFreeTensor` through the extension-restriction adjunction. -/
 theorem mapFreeTensor_eq (P : Presentation A B ι σ)
-    (P' : Presentation A' B' ι' (σ ⊕ τ)) (f : P.toExtension.Hom P'.toExtension) :
-    mapFreeTensor P P' f =
+    (P' : Presentation A' B' ι' τ) (f : P.toExtension.Hom P'.toExtension) (ρ : σ → τ) :
+    mapFreeTensor P P' f ρ =
       ((ModuleCat.extendRestrictScalarsAdj (algebraMap B B')).homEquiv _ _).symm
-        (mapFreeTensorRestrict P P' f) := sorry
+        (mapFreeTensorRestrict P P' f ρ) := sorry
+
+/-- The scalar-extended free-module comparison on pure tensors. -/
+theorem mapFreeTensor_tmul (P : Presentation A B ι σ)
+    (P' : Presentation A' B' ι' τ) (f : P.toExtension.Hom P'.toExtension) (ρ : σ → τ)
+    (scalar : B') (coefficient : B) (vector : free P) :
+    (mapFreeTensor P P' f ρ).hom
+        (scalar ⊗ₜ[B, algebraMap B B'] (coefficient ⊗ₜ[P.Ring] vector)) =
+      scalar • (algebraMap B B' coefficient ⊗ₜ[P'.Ring] mapFree P P' f ρ vector) := sorry
 
 /-- Degree-`-2` comparison on `S ⊗ Rel/TrivRel`, as a map of `B`-modules into the
 restriction of scalars of the corresponding `P'` term. -/
 def mapRelModTrivialTensorRestrict (P : Presentation A B ι σ)
-    (P' : Presentation A' B' ι' (σ ⊕ τ)) (f : P.toExtension.Hom P'.toExtension)
-    (h_rel : ∀ t, f.toRingHom (P.relation t) = P'.relation (Sum.inl t)) :
+    (P' : Presentation A' B' ι' τ) (f : P.toExtension.Hom P'.toExtension) (ρ : σ → τ)
+    (h_rel : ∀ t, f.toRingHom (P.relation t) = P'.relation (ρ t)) :
     ModuleCat.of B (B ⊗[P.Ring] relModTrivial P) ⟶
       (ModuleCat.restrictScalars (algebraMap B B')).obj
         (ModuleCat.of B' (B' ⊗[P'.Ring] relModTrivial P')) :=
@@ -221,33 +256,33 @@ def mapRelModTrivialTensorRestrict (P : Presentation A B ι σ)
         (_root_.TensorProduct.lift)
           (LinearMap.mk₂ P.Ring
             (fun (b : B) (x : relModTrivial P) ↦
-              algebraMap B B' b ⊗ₜ[P'.Ring] mapRelModTrivial P P' f h_rel x)
+              algebraMap B B' b ⊗ₜ[P'.Ring] mapRelModTrivial P P' f ρ h_rel x)
             sorry sorry sorry sorry)
       map_add' := sorry
       map_smul' := sorry }
 
 /-- Degree-`-2` cochain component after extension of scalars along `algebraMap B B'`. -/
 def mapRelModTrivialTensor (P : Presentation A B ι σ)
-    (P' : Presentation A' B' ι' (σ ⊕ τ)) (f : P.toExtension.Hom P'.toExtension)
-    (h_rel : ∀ t, f.toRingHom (P.relation t) = P'.relation (Sum.inl t)) :
+    (P' : Presentation A' B' ι' τ) (f : P.toExtension.Hom P'.toExtension) (ρ : σ → τ)
+    (h_rel : ∀ t, f.toRingHom (P.relation t) = P'.relation (ρ t)) :
     (ModuleCat.extendScalars (algebraMap B B')).obj
         (ModuleCat.of B (B ⊗[P.Ring] relModTrivial P)) ⟶
       ModuleCat.of B' (B' ⊗[P'.Ring] relModTrivial P') :=
   ((ModuleCat.extendRestrictScalarsAdj (algebraMap B B')).homEquiv _ _).symm
-    (mapRelModTrivialTensorRestrict P P' f h_rel)
+    (mapRelModTrivialTensorRestrict P P' f ρ h_rel)
 
 /-- Unfolding of `mapRelModTrivialTensor` through the extension-restriction adjunction. -/
 theorem mapRelModTrivialTensor_eq (P : Presentation A B ι σ)
-    (P' : Presentation A' B' ι' (σ ⊕ τ)) (f : P.toExtension.Hom P'.toExtension)
-    (h_rel : ∀ t, f.toRingHom (P.relation t) = P'.relation (Sum.inl t)) :
-    mapRelModTrivialTensor P P' f h_rel =
+    (P' : Presentation A' B' ι' τ) (f : P.toExtension.Hom P'.toExtension) (ρ : σ → τ)
+    (h_rel : ∀ t, f.toRingHom (P.relation t) = P'.relation (ρ t)) :
+    mapRelModTrivialTensor P P' f ρ h_rel =
       ((ModuleCat.extendRestrictScalarsAdj (algebraMap B B')).homEquiv _ _).symm
-        (mapRelModTrivialTensorRestrict P P' f h_rel) := sorry
+        (mapRelModTrivialTensorRestrict P P' f ρ h_rel) := sorry
 
 /-- Components of the cochain map of Lichtenbaum–Schlessinger complexes. -/
-def map_f (P : Presentation A B ι σ) (P' : Presentation A' B' ι' (σ ⊕ τ))
-    (f : P.toExtension.Hom P'.toExtension)
-    (h_rel : ∀ t, f.toRingHom (P.relation t) = P'.relation (Sum.inl t)) :
+def map_f (P : Presentation A B ι σ) (P' : Presentation A' B' ι' τ)
+    (f : P.toExtension.Hom P'.toExtension) (ρ : σ → τ)
+    (h_rel : ∀ t, f.toRingHom (P.relation t) = P'.relation (ρ t)) :
     ∀ i : ℤ,
       (((ModuleCat.extendScalars (algebraMap B B')).mapHomologicalComplex
             (ComplexShape.up ℤ)).obj (complex P)).X i ⟶
@@ -257,54 +292,104 @@ def map_f (P : Presentation A B ι σ) (P' : Presentation A' B' ι' (σ ⊕ τ))
         mapCotangentSpace P P' f ≫ (complex_X_zero P').inv
   | Int.negSucc 0 =>
       (ModuleCat.extendScalars (algebraMap B B')).map (complex_X_negOne P).hom ≫
-        mapFreeTensor P P' f ≫ (complex_X_negOne P').inv
+        mapFreeTensor P P' f ρ ≫ (complex_X_negOne P').inv
   | Int.negSucc 1 =>
       (ModuleCat.extendScalars (algebraMap B B')).map (complex_X_negTwo P).hom ≫
-        mapRelModTrivialTensor P P' f h_rel ≫ (complex_X_negTwo P').inv
+        mapRelModTrivialTensor P P' f ρ h_rel ≫ (complex_X_negTwo P').inv
   | Int.negSucc (_n + 2) => 0
   | Int.ofNat (_n + 1) => 0
 
 /-- The cochain map of Lichtenbaum–Schlessinger complexes induced by a commutative
-square of algebras and a coproduct relation-extension of polynomial presentations. -/
-def map (P : Presentation A B ι σ) (P' : Presentation A' B' ι' (σ ⊕ τ))
-    (f : P.toExtension.Hom P'.toExtension)
-    (h_rel : ∀ t, f.toRingHom (P.relation t) = P'.relation (Sum.inl t)) :
+square of algebras and a compatible map of relation indices. -/
+def map (P : Presentation A B ι σ) (P' : Presentation A' B' ι' τ)
+    (f : P.toExtension.Hom P'.toExtension) (ρ : σ → τ)
+    (h_rel : ∀ t, f.toRingHom (P.relation t) = P'.relation (ρ t)) :
     ((ModuleCat.extendScalars (algebraMap B B')).mapHomologicalComplex
         (ComplexShape.up ℤ)).obj (complex P) ⟶
       complex P' where
-  f := map_f P P' f h_rel
+  f := map_f P P' f ρ h_rel
   comm' := sorry
 
 /-- Unfolding of the components of `map`. -/
-theorem map_f_eq (P : Presentation A B ι σ) (P' : Presentation A' B' ι' (σ ⊕ τ))
-    (f : P.toExtension.Hom P'.toExtension)
-    (h_rel : ∀ t, f.toRingHom (P.relation t) = P'.relation (Sum.inl t)) (i : ℤ) :
-    (map P P' f h_rel).f i = map_f P P' f h_rel i := sorry
+theorem map_f_eq (P : Presentation A B ι σ) (P' : Presentation A' B' ι' τ)
+    (f : P.toExtension.Hom P'.toExtension) (ρ : σ → τ)
+    (h_rel : ∀ t, f.toRingHom (P.relation t) = P'.relation (ρ t)) (i : ℤ) :
+    (map P P' f ρ h_rel).f i = map_f P P' f ρ h_rel i := sorry
 
 /-- Degree `0` of `map` is `mapCotangentSpace` after the degree-`0` identifications. -/
-theorem map_f_zero (P : Presentation A B ι σ) (P' : Presentation A' B' ι' (σ ⊕ τ))
-    (f : P.toExtension.Hom P'.toExtension)
-    (h_rel : ∀ t, f.toRingHom (P.relation t) = P'.relation (Sum.inl t)) :
-    (map P P' f h_rel).f 0 =
+theorem map_f_zero (P : Presentation A B ι σ) (P' : Presentation A' B' ι' τ)
+    (f : P.toExtension.Hom P'.toExtension) (ρ : σ → τ)
+    (h_rel : ∀ t, f.toRingHom (P.relation t) = P'.relation (ρ t)) :
+    (map P P' f ρ h_rel).f 0 =
       (ModuleCat.extendScalars (algebraMap B B')).map (complex_X_zero P).hom ≫
         mapCotangentSpace P P' f ≫ (complex_X_zero P').inv := sorry
 
 /-- Degree `-1` of `map` is `mapFreeTensor` after the degree-`-1` identifications. -/
-theorem map_f_negOne (P : Presentation A B ι σ) (P' : Presentation A' B' ι' (σ ⊕ τ))
-    (f : P.toExtension.Hom P'.toExtension)
-    (h_rel : ∀ t, f.toRingHom (P.relation t) = P'.relation (Sum.inl t)) :
-    (map P P' f h_rel).f (-1) =
+theorem map_f_negOne (P : Presentation A B ι σ) (P' : Presentation A' B' ι' τ)
+    (f : P.toExtension.Hom P'.toExtension) (ρ : σ → τ)
+    (h_rel : ∀ t, f.toRingHom (P.relation t) = P'.relation (ρ t)) :
+    (map P P' f ρ h_rel).f (-1) =
       (ModuleCat.extendScalars (algebraMap B B')).map (complex_X_negOne P).hom ≫
-        mapFreeTensor P P' f ≫ (complex_X_negOne P').inv := sorry
+        mapFreeTensor P P' f ρ ≫ (complex_X_negOne P').inv := sorry
 
 /-- Degree `-2` of `map` is `mapRelModTrivialTensor` after the degree-`-2`
 identifications. -/
-theorem map_f_negTwo (P : Presentation A B ι σ) (P' : Presentation A' B' ι' (σ ⊕ τ))
-    (f : P.toExtension.Hom P'.toExtension)
-    (h_rel : ∀ t, f.toRingHom (P.relation t) = P'.relation (Sum.inl t)) :
-    (map P P' f h_rel).f (-2) =
+theorem map_f_negTwo (P : Presentation A B ι σ) (P' : Presentation A' B' ι' τ)
+    (f : P.toExtension.Hom P'.toExtension) (ρ : σ → τ)
+    (h_rel : ∀ t, f.toRingHom (P.relation t) = P'.relation (ρ t)) :
+    (map P P' f ρ h_rel).f (-2) =
       (ModuleCat.extendScalars (algebraMap B B')).map (complex_X_negTwo P).hom ≫
-        mapRelModTrivialTensor P P' f h_rel ≫ (complex_X_negTwo P').inv := sorry
+        mapRelModTrivialTensor P P' f ρ h_rel ≫ (complex_X_negTwo P').inv := sorry
+
+/-- The identity comparison agrees degreewise with the canonical scalar-unit map. -/
+theorem map_refl_f (P : Presentation A B ι σ) (degree : ℤ) :
+    (map P P (.id P.toExtension) _root_.id (fun _ => rfl)).f degree =
+      (ModuleCat.extendScalarsId B).hom.app ((complex P).X degree) := sorry
+
+section Composition
+
+variable {A'' B'' ι'' υ : Type u} [CommRing A''] [CommRing B'']
+variable [Algebra A'' B''] [Algebra A' A''] [Algebra B' B'']
+variable [Algebra A A''] [Algebra B B'']
+variable [IsScalarTower A A' A''] [IsScalarTower B B' B'']
+variable [Algebra A' B''] [Algebra A B'']
+variable [IsScalarTower A' A'' B''] [IsScalarTower A' B' B'']
+variable [IsScalarTower A A'' B''] [IsScalarTower A B B'']
+
+omit [Algebra A B'] [IsScalarTower A A' B'] [IsScalarTower A B B']
+  [Algebra A' B''] [Algebra A B''] [IsScalarTower A' A'' B'']
+  [IsScalarTower A' B' B''] [IsScalarTower A A'' B''] [IsScalarTower A B B''] in
+/-- Quotient comparisons compose with the given relation-index maps. -/
+theorem mapRelModTrivial_comp (P : Presentation A B ι σ)
+    (P' : Presentation A' B' ι' τ) (P'' : Presentation A'' B'' ι'' υ)
+    (f : P.toExtension.Hom P'.toExtension) (g : P'.toExtension.Hom P''.toExtension)
+    (ρ : σ → τ) (ρ' : τ → υ)
+    (h_rel : ∀ t, f.toRingHom (P.relation t) = P'.relation (ρ t))
+    (h_rel' : ∀ t, g.toRingHom (P'.relation t) = P''.relation (ρ' t)) :
+    mapRelModTrivial P P'' (g.comp f) (ρ' ∘ ρ)
+        (fun t => (congrArg g.toRingHom (h_rel t)).trans (h_rel' (ρ t))) =
+      (mapRelModTrivial P' P'' g ρ' h_rel').comp
+        (mapRelModTrivial P P' f ρ h_rel) := sorry
+
+/-- Complex comparisons compose degreewise via the canonical scalar-extension associator. -/
+theorem map_comp_f (P : Presentation A B ι σ)
+    (P' : Presentation A' B' ι' τ) (P'' : Presentation A'' B'' ι'' υ)
+    (f : P.toExtension.Hom P'.toExtension) (g : P'.toExtension.Hom P''.toExtension)
+    (ρ : σ → τ) (ρ' : τ → υ)
+    (h_rel : ∀ t, f.toRingHom (P.relation t) = P'.relation (ρ t))
+    (h_rel' : ∀ t, g.toRingHom (P'.relation t) = P''.relation (ρ' t)) (degree : ℤ) :
+    (map P P'' (g.comp f) (ρ' ∘ ρ)
+        (fun t => (congrArg g.toRingHom (h_rel t)).trans (h_rel' (ρ t)))).f degree =
+      eqToHom (congrArg (fun ringHom : B →+* B'' =>
+        (ModuleCat.extendScalars ringHom).obj ((complex P).X degree))
+          (IsScalarTower.algebraMap_eq B B' B'')) ≫
+        (ModuleCat.extendScalarsComp (algebraMap B B') (algebraMap B' B'')).hom.app
+          ((complex P).X degree) ≫
+        (ModuleCat.extendScalars (algebraMap B' B'')).map
+          ((map P P' f ρ h_rel).f degree) ≫
+        (map P' P'' g ρ' h_rel').f degree := sorry
+
+end Composition
 
 end Algebra.Presentation.LichtenbaumSchlessinger
 
@@ -324,8 +409,8 @@ theorem algebraMap_comp :
 category with the induced map of Lichtenbaum–Schlessinger complexes and
 cotangent-complex functoriality. -/
 theorem comparison_commSq (P : Presentation A B ι σ)
-    (P' : Presentation A' B' ι' (σ ⊕ τ)) (f : P.toExtension.Hom P'.toExtension)
-    (h_rel : ∀ t, f.toRingHom (P.relation t) = P'.relation (Sum.inl t)) :
+    (P' : Presentation A' B' ι' τ) (f : P.toExtension.Hom P'.toExtension) (ρ : σ → τ)
+    (h_rel : ∀ t, f.toRingHom (P.relation t) = P'.relation (ρ t)) :
     CommSq
       (DerivedCategory.Q.map
         (((ModuleCat.extendScalars (algebraMap B B')).mapHomologicalComplex
@@ -333,17 +418,17 @@ theorem comparison_commSq (P : Presentation A B ι σ)
       (DerivedCategory.Q.map
         (Algebra.CotangentComplex.map (algebraMap A B) (algebraMap A' B')
           (algebraMap A A') (algebraMap B B') algebraMap_comp))
-      (DerivedCategory.Q.map (map P P' f h_rel))
+      (DerivedCategory.Q.map (map P P' f ρ h_rel))
       (DerivedCategory.Q.map (toComplex P')) := sorry
 
 /-- The two composites around the derived comparison square agree. -/
 theorem comparison_commSq_w (P : Presentation A B ι σ)
-    (P' : Presentation A' B' ι' (σ ⊕ τ)) (f : P.toExtension.Hom P'.toExtension)
-    (h_rel : ∀ t, f.toRingHom (P.relation t) = P'.relation (Sum.inl t)) :
+    (P' : Presentation A' B' ι' τ) (f : P.toExtension.Hom P'.toExtension) (ρ : σ → τ)
+    (h_rel : ∀ t, f.toRingHom (P.relation t) = P'.relation (ρ t)) :
     DerivedCategory.Q.map
           (((ModuleCat.extendScalars (algebraMap B B')).mapHomologicalComplex
             (ComplexShape.up ℤ)).map (toComplex P)) ≫
-        DerivedCategory.Q.map (map P P' f h_rel) =
+        DerivedCategory.Q.map (map P P' f ρ h_rel) =
       DerivedCategory.Q.map
           (Algebra.CotangentComplex.map (algebraMap A B) (algebraMap A' B')
             (algebraMap A A') (algebraMap B B') algebraMap_comp) ≫

@@ -9,6 +9,7 @@ module
 public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Derived.CompactSupport
 public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Derived.HomologyBounds
 public import ReasLib.CategoryTheory.DerivedCategory.Functor.Unbounded.RightDerived.Bounds
+public import ReasLib.CategoryTheory.Sites.ModuleCat.Forget
 public import ReasLib.CategoryTheory.Triangulated.TStructure.Functor.Amplitude
 public import Mathlib.CategoryTheory.Triangulated.TStructure.TruncLEGT
 public import Mathlib.GroupTheory.Torsion
@@ -82,36 +83,6 @@ section PlusTorsion
 variable [GrothendieckTopology.HasSheafCompose (smallEtaleTopology X.left)
   (forget₂ (ModuleCat.{u} Λ) AddCommGrpCat.{u})]
 
-/-- Derived lower shriek sends the upper-truncation comparison to a homology
-isomorphism in every degree at most the cutoff, on bounded-below torsion objects
-or on arbitrary objects over a torsion coefficient ring. -/
-theorem truncLE_homologyMap_isIso
-    (E : DerivedCategory (Sheaf (smallEtaleTopology X.left) (ModuleCat.{u} Λ)))
-    (hE : AddMonoid.IsTorsion Λ ∨
-      (etaleDerivedIsTorsion E ∧ ∃ n, IsGE E n))
-    (a i : ℤ) (hi : i ≤ a) :
-    IsIso
-      ((homologyFunctor
-          (Sheaf (smallEtaleTopology Y) (ModuleCat.{u} Λ)) i).map
-        ((etaleDerivedLowerShriek X P).map
-          ((t.truncLEι a).app E))) :=
-  sorry
-
-/-- A uniform integer shift makes the lower-truncation comparison an
-isomorphism on derived lower-shriek homology in every degree above the cutoff,
-for bounded-below torsion objects or arbitrary objects over a torsion ring. -/
-theorem exists_truncGE_homologyMap_isIso :
-    ∃ N : ℤ, ∀ (E : DerivedCategory (Sheaf (smallEtaleTopology X.left) (ModuleCat.{u} Λ)))
-      (hE : AddMonoid.IsTorsion Λ ∨
-        (etaleDerivedIsTorsion E ∧ ∃ n, IsGE E n))
-      (b i : ℤ) (hi : b ≤ i),
-      IsIso
-        ((homologyFunctor
-            (Sheaf (smallEtaleTopology Y) (ModuleCat.{u} Λ)) i).map
-          ((etaleDerivedLowerShriek X P).map
-            ((t.truncGEπ (b - N)).app E))) :=
-  sorry
-
 /-- Derived lower shriek has one cohomological bound, independent of the
 compactification realization and of the admissible object. The same bound gives
 both truncation comparisons and sends homology supported in an extended integer
@@ -167,14 +138,61 @@ theorem exists_isGE_isLE :
               ((etaleDerivedLowerShriek X P).obj E))) :=
   sorry
 
+/-- Derived lower shriek sends the upper-truncation comparison to a homology
+isomorphism in every degree at most the cutoff, on bounded-below torsion objects
+or on arbitrary objects over a torsion coefficient ring. -/
+theorem truncLE_homologyMap_isIso
+    (E : DerivedCategory (Sheaf (smallEtaleTopology X.left) (ModuleCat.{u} Λ)))
+    (hE : AddMonoid.IsTorsion Λ ∨
+      (etaleDerivedIsTorsion E ∧ ∃ n, IsGE E n))
+    (a i : ℤ) (hi : i ≤ a) :
+    IsIso
+      ((homologyFunctor
+          (Sheaf (smallEtaleTopology Y) (ModuleCat.{u} Λ)) i).map
+        ((etaleDerivedLowerShriek X P).map
+          ((t.truncLEι a).app E))) := by
+  obtain ⟨N, hN⟩ := exists_isGE_isLE (Λ := Λ) X
+  exact (hN P E hE).1 a i hi
+
+/-- A uniform integer shift makes the lower-truncation comparison an
+isomorphism on derived lower-shriek homology in every degree above the cutoff,
+for bounded-below torsion objects or arbitrary objects over a torsion ring. -/
+theorem exists_truncGE_homologyMap_isIso :
+    ∃ N : ℤ, ∀ (E : DerivedCategory (Sheaf (smallEtaleTopology X.left) (ModuleCat.{u} Λ)))
+      (hE : AddMonoid.IsTorsion Λ ∨
+        (etaleDerivedIsTorsion E ∧ ∃ n, IsGE E n))
+      (b i : ℤ) (hi : b ≤ i),
+      IsIso
+        ((homologyFunctor
+            (Sheaf (smallEtaleTopology Y) (ModuleCat.{u} Λ)) i).map
+          ((etaleDerivedLowerShriek X P).map
+            ((t.truncGEπ (b - N)).app E))) := by
+  obtain ⟨N, hN⟩ := exists_isGE_isLE (Λ := Λ) X
+  exact ⟨N, fun E hE b i hi ↦ (hN P E hE).2.1 b i hi⟩
+
+private theorem isGE_of_admissible
+    (E : DerivedCategory (Sheaf (smallEtaleTopology X.left) (ModuleCat.{u} Λ)))
+    (hE : AddMonoid.IsTorsion Λ ∨
+      (etaleDerivedIsTorsion E ∧ ∃ n, IsGE E n))
+    (a : ℤ) (ha : IsGE E a) :
+    IsGE ((etaleDerivedLowerShriek X P).obj E) a := by
+  obtain ⟨N, hN⟩ := exists_isGE_isLE (Λ := Λ) X
+  apply (DerivedCategory.isGE_iff _ _).2
+  intro i hi
+  apply (hN P E hE).2.2 (a : EInt) ⊤ le_top
+  · intro j hj
+    exact (DerivedCategory.isGE_iff E a).1 ha j (by simpa using hj)
+  · intro h
+    exact (not_le_of_gt hi) (WithBotTop.coe_le_coe.1 h.1)
+
 /-- On objects with torsion cohomology sheaves, derived lower shriek preserves
 every lower t-structure bound. -/
 theorem isGE
     (E : DerivedCategory (Sheaf (smallEtaleTopology X.left) (ModuleCat.{u} Λ)))
     (h_tors : etaleDerivedIsTorsion E)
     (a : ℤ) (ha : IsGE E a) :
-    IsGE ((etaleDerivedLowerShriek X P).obj E) a :=
-  sorry
+    IsGE ((etaleDerivedLowerShriek X P).obj E) a := by
+  exact isGE_of_admissible X P E (Or.inr ⟨h_tors, a, ha⟩) a ha
 
 /-- On bounded-below torsion objects, or on arbitrary objects over a torsion
 ring, derived lower shriek shifts every upper t-structure bound by at most one
@@ -184,8 +202,18 @@ theorem exists_isLE :
       (hE : AddMonoid.IsTorsion Λ ∨
         (etaleDerivedIsTorsion E ∧ ∃ n, IsGE E n))
       (b : ℤ), IsLE E b →
-      IsLE ((etaleDerivedLowerShriek X P).obj E) (b + N) :=
-  sorry
+      IsLE ((etaleDerivedLowerShriek X P).obj E) (b + N) := by
+  obtain ⟨N, hN⟩ := exists_isGE_isLE (Λ := Λ) X
+  refine ⟨N, ?_⟩
+  intro E hE b hb
+  apply (DerivedCategory.isLE_iff _ _).2
+  intro i hi
+  apply (hN P E hE).2.2 ⊥ (b : EInt) bot_le
+  · intro j hj
+    exact (DerivedCategory.isLE_iff E b).1 hb j (by simpa using hj)
+  · intro h
+    have hbi : i - N ≤ b := WithBotTop.coe_le_coe.1 h.2
+    lia
 
 end PlusTorsion
 
@@ -198,8 +226,8 @@ theorem truncLE_homologyMap_isIso_of_isTorsion (hΛ : AddMonoid.IsTorsion Λ)
       ((homologyFunctor
           (Sheaf (smallEtaleTopology Y) (ModuleCat.{u} Λ)) i).map
         ((etaleDerivedLowerShriek X P).map
-          ((t.truncLEι a).app E))) :=
-  sorry
+          ((t.truncLEι a).app E))) := by
+  exact truncLE_homologyMap_isIso X P E (Or.inl hΛ) a i hi
 
 /-- Over a torsion coefficient ring, one integer shift makes the
 lower-truncation comparison an isomorphism on derived lower-shriek homology above
@@ -212,8 +240,9 @@ theorem exists_truncGE_homologyMap_isIso_of_isTorsion
         ((homologyFunctor
             (Sheaf (smallEtaleTopology Y) (ModuleCat.{u} Λ)) i).map
           ((etaleDerivedLowerShriek X P).map
-            ((t.truncGEπ (b - N)).app E))) :=
-  sorry
+            ((t.truncGEπ (b - N)).app E))) := by
+  obtain ⟨N, hN⟩ := exists_truncGE_homologyMap_isIso (Λ := Λ) X P
+  exact ⟨N, fun E b i hi ↦ hN E (Or.inl hΛ) b i hi⟩
 
 /-- Over a torsion coefficient ring, derived lower shriek sends every finite
 cohomological interval `[a, b]` into `[a, b + N]` for one uniform integer `N`. -/
@@ -222,16 +251,20 @@ theorem exists_isGE_isLE_of_isTorsion (hΛ : AddMonoid.IsTorsion Λ) :
       (a b : ℤ),
       IsGE E a → IsLE E b →
         IsGE ((etaleDerivedLowerShriek X P).obj E) a ∧
-          IsLE ((etaleDerivedLowerShriek X P).obj E) (b + N) :=
-  sorry
+          IsLE ((etaleDerivedLowerShriek X P).obj E) (b + N) := by
+  obtain ⟨N, hN⟩ := exists_isLE (Λ := Λ) X P
+  refine ⟨N, ?_⟩
+  intro E a b ha hb
+  exact ⟨isGE_of_admissible X P E (Or.inl hΛ) a ha, hN E (Or.inl hΛ) b hb⟩
 
 /-- Over a torsion coefficient ring, derived lower shriek preserves every
 lower t-structure bound. -/
 theorem mapsGE (hΛ : AddMonoid.IsTorsion Λ) :
     Functor.TStructure.MapsGE
       (etaleDerivedLowerShriek X P (Λ := Λ))
-      t t 0 :=
-  sorry
+      t t 0 := by
+  intro E a ha
+  simpa only [add_zero] using isGE_of_admissible X P E (Or.inl hΛ) a ha
 
 /-- Over a torsion coefficient ring, derived lower shriek has a uniform
 upper cohomological bound. -/
@@ -239,8 +272,9 @@ theorem mapsLE (hΛ : AddMonoid.IsTorsion Λ) :
     ∃ N : ℤ,
       Functor.TStructure.MapsLE
         (etaleDerivedLowerShriek X P (Λ := Λ))
-        t t N :=
-  sorry
+        t t N := by
+  obtain ⟨N, hN⟩ := exists_isLE (Λ := Λ) X P
+  exact ⟨N, fun E b hb ↦ hN E (Or.inl hΛ) b hb⟩
 
 /-- Over a torsion coefficient ring, derived lower shriek has cohomological
 amplitude `[0, N]` for some integer `N`. -/
@@ -248,8 +282,9 @@ theorem exists_hasAmplitude (hΛ : AddMonoid.IsTorsion Λ) :
     ∃ N : ℤ,
       Functor.TStructure.HasAmplitude
         (etaleDerivedLowerShriek X P (Λ := Λ))
-        t t 0 N :=
-  sorry
+        t t 0 N := by
+  obtain ⟨N, hN⟩ := mapsLE X P hΛ
+  exact ⟨N, mapsGE X P hΛ, hN⟩
 
 end etaleDerivedLowerShriek
 

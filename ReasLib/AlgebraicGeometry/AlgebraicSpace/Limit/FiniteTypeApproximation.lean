@@ -72,7 +72,7 @@ theorem baseChangeOverToTail_app {I : Type u} [Preorder I] {S : Scheme.{u}}
     (D : OrderDual I ⥤ AlgebraicSpace S) (i0 : I) {T : AlgebraicSpace S}
     (t : T ⟶ D.obj (OrderDual.toDual i0)) (j : Over (OrderDual.toDual i0)) :
     (baseChangeOverToTail D i0 t).app j = pullback.fst (D.map j.hom) t :=
-  sorry
+  rfl
 
 /-- A morphism of inverse systems over the same tail of the base system. -/
 abbrev InverseSystemMorphismOverBase {I : Type u} [Preorder I] {S : Scheme.{u}}
@@ -103,7 +103,7 @@ theorem over_base {I : Type u} [Preorder I] {S : Scheme.{u}}
     {yToBase : Ysys ⟶ tailBaseDiagram D i0}
     (φ : InverseSystemMorphismOverBase D i0 Xsys Ysys xToBase yToBase) :
     φ.hom ≫ yToBase = xToBase :=
-  sorry
+  φ.w
 
 /-- The identity morphism of an inverse system over a base. -/
 def id {I : Type u} [Preorder I] {S : Scheme.{u}}
@@ -206,7 +206,7 @@ theorem ofDiagram_approximation {I : Type u} [Preorder I] {S : Scheme.{u}}
     (ofDiagram D c i Xsys xCone toS approximation finiteType_toBi
         closedImmersion_toLimitBaseChange toImage image isLimit).approximation =
       approximation :=
-  sorry
+  rfl
 
 /-- The explicit constructor retains the supplied image factorization. -/
 theorem ofDiagram_toImage {I : Type u} [Preorder I] {S : Scheme.{u}}
@@ -226,7 +226,7 @@ theorem ofDiagram_toImage {I : Type u} [Preorder I] {S : Scheme.{u}}
     (ofDiagram D c i Xsys xCone toS approximation finiteType_toBi
         closedImmersion_toLimitBaseChange toImage image isLimit).toImage =
       toImage :=
-  sorry
+  rfl
 
 /-- The explicit constructor retains the supplied limit witness. -/
 theorem ofDiagram_isLimit {I : Type u} [Preorder I] {S : Scheme.{u}}
@@ -246,7 +246,7 @@ theorem ofDiagram_isLimit {I : Type u} [Preorder I] {S : Scheme.{u}}
     (ofDiagram D c i Xsys xCone toS approximation finiteType_toBi
         closedImmersion_toLimitBaseChange toImage image isLimit).isLimit =
       isLimit :=
-  sorry
+  rfl
 
 /-- A finite-type approximation limit system records finite type of `W ⟶ B_i`, a
 closed immersion into the limiting base change, and stagewise scheme-theoretic
@@ -263,7 +263,7 @@ theorem spec {I : Type u} [Preorder I] {S : Scheme.{u}}
         IsSchemeTheoreticImage
           ((sys.approximation.baseChangeCone D c).π.app j)
           (xCone.π.app j) (sys.toImage.app j) :=
-  sorry
+  ⟨sys.finiteType_toBi, sys.closedImmersion_toLimitBaseChange, sys.image⟩
 
 /-- The structural morphism from the image system to the tail of the base diagram. -/
 def toBase {I : Type u} [Preorder I] {S : Scheme.{u}}

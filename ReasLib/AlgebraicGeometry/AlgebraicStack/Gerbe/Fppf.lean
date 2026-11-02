@@ -30,36 +30,6 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicStack
 
-namespace Surjective
-
-/-- A gerbe morphism of algebraic stacks is surjective. -/
-instance of_gerbe {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [Gerbe f] :
-    Surjective f :=
-  sorry
-
-end Surjective
-
-namespace Flat
-
-/-- A gerbe morphism of algebraic stacks is flat. -/
-instance of_gerbe {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [Gerbe f] :
-    Flat f :=
-  sorry
-
-end Flat
-
-namespace LocallyOfFinitePresentation
-
-/-- A gerbe morphism of algebraic stacks is locally of finite presentation. -/
-instance of_gerbe {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [Gerbe f] :
-    LocallyOfFinitePresentation f :=
-  sorry
-
-end LocallyOfFinitePresentation
-
 /-- A morphism of algebraic stacks makes its source a gerbe over its target
 if and only if both the morphism and its relative 2-diagonal are surjective,
 flat, and locally of finite presentation. -/
@@ -72,6 +42,39 @@ theorem gerbe_iff_surjective_flat_locallyOfFinitePresentation_diagonal
           Flat (Hom.diagonal.{u + 1, u, u + 1} f) ∧
             LocallyOfFinitePresentation (Hom.diagonal.{u + 1, u, u + 1} f) :=
   sorry
+
+namespace Surjective
+
+/-- A gerbe morphism of algebraic stacks is surjective. -/
+instance of_gerbe {S : Scheme.{u}} {X Y : GroupoidsOver S}
+    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [Gerbe f] :
+    Surjective f :=
+  ((gerbe_iff_surjective_flat_locallyOfFinitePresentation_diagonal f).mp
+    inferInstance).1
+
+end Surjective
+
+namespace Flat
+
+/-- A gerbe morphism of algebraic stacks is flat. -/
+instance of_gerbe {S : Scheme.{u}} {X Y : GroupoidsOver S}
+    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [Gerbe f] :
+    Flat f :=
+  ((gerbe_iff_surjective_flat_locallyOfFinitePresentation_diagonal f).mp
+    inferInstance).2.1
+
+end Flat
+
+namespace LocallyOfFinitePresentation
+
+/-- A gerbe morphism of algebraic stacks is locally of finite presentation. -/
+instance of_gerbe {S : Scheme.{u}} {X Y : GroupoidsOver S}
+    [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y) [Gerbe f] :
+    LocallyOfFinitePresentation f :=
+  ((gerbe_iff_surjective_flat_locallyOfFinitePresentation_diagonal f).mp
+    inferInstance).2.2.1
+
+end LocallyOfFinitePresentation
 
 /-- A morphism of algebraic stacks that is surjective, flat, and locally of
 finite presentation, and whose relative 2-diagonal is likewise surjective,

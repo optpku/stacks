@@ -28,7 +28,7 @@ noncomputable section
 
 open CategoryTheory CategoryTheory.Limits CategoryTheory.Pretriangulated
 
-universe uR vA vB w
+universe uR vA vB v w
 
 namespace CochainDGAlgebra.DerivedMorita
 
@@ -144,25 +144,25 @@ weak generator with no nonzero-degree self-extensions and with degree-zero endom
 identified with that of the regular `A`-object. -/
 @[stacks 09S8]
 theorem nonempty_equivalence_iff_exists_tilting
-    (A : CochainDGAlgebra.{uR, vA} R) (B : CochainDGAlgebra.{uR, vB} R)
+    (A : CochainDGAlgebra.{uR, v} R) (B : CochainDGAlgebra.{uR, v} R)
     (hA : A.IsConcentratedInDegreeZero) :
     Nonempty (RLinear.TriangulatedEquivalence R
-      (DifferentialGradedModule.Derived.Category.{uR, vA} A)
-      (DifferentialGradedModule.Derived.Category.{uR, vB} B)) ↔
-      ∃ P : DifferentialGradedModule.Derived.Category.{uR, vB} B,
+      (DifferentialGradedModule.Derived.Category.{uR, v} A)
+      (DifferentialGradedModule.Derived.Category.{uR, v} B)) ↔
+      ∃ P : DifferentialGradedModule.Derived.Category.{uR, v} B,
         IsTiltingFor A P := sorry
 
 /-- Lemma 22.37.4 (2) (09S8): the equivalence constructed from a compact generator with the
 prescribed self-extensions sends the regular `A`-object to that generator. -/
 @[stacks 09S8 "the derived Morita equivalence sends the regular object to the generator"]
 theorem exists_equivalence_obj_regular
-    (A : CochainDGAlgebra.{uR, vA} R) (B : CochainDGAlgebra.{uR, vB} R)
+    (A : CochainDGAlgebra.{uR, v} R) (B : CochainDGAlgebra.{uR, v} R)
     (hA : A.IsConcentratedInDegreeZero)
-    (P : DifferentialGradedModule.Derived.Category.{uR, vB} B)
+    (P : DifferentialGradedModule.Derived.Category.{uR, v} B)
     (hP : IsTiltingFor A P) :
     ∃ e : RLinear.TriangulatedEquivalence R
-        (DifferentialGradedModule.Derived.Category.{uR, vA} A)
-        (DifferentialGradedModule.Derived.Category.{uR, vB} B),
+        (DifferentialGradedModule.Derived.Category.{uR, v} A)
+        (DifferentialGradedModule.Derived.Category.{uR, v} B),
       Nonempty (e.functor.obj (DifferentialGradedModule.Derived.regularObject A) ≅ P) := sorry
 
 end CochainDGAlgebra.DerivedMorita

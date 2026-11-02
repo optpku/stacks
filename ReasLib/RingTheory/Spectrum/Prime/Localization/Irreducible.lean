@@ -17,7 +17,7 @@ public import Mathlib.Tactic.CrossRefAttribute
 This leaf packages the canonical order isomorphisms behind the two
 correspondences of Lemma 10.26.3. The data is built from Mathlib's spectrum,
 irreducible-closed, and minimal-prime order isomorphisms; only the order-law
-transport remains proof debt.
+transport and component correspondence are proved below.
 
 @stack 00ET
 -/
@@ -41,7 +41,9 @@ theorem restrictOrderIso_map_rel_iff
     {α β : Type*} [Preorder α] [Preorder β]
     (e : α ≃o β) (P : α → Prop) (Q : β → Prop)
     (h : ∀ x, P x ↔ Q (e x)) (x y : {x // P x}) :
-    (e.toEquiv.subtypeEquiv h x : {y // Q y}) ≤ e.toEquiv.subtypeEquiv h y ↔ x ≤ y := sorry
+    (e.toEquiv.subtypeEquiv h x : {y // Q y}) ≤ e.toEquiv.subtypeEquiv h y ↔ x ≤ y := by
+  change e x.1 ≤ e y.1 ↔ x.1 ≤ y.1
+  exact e.map_rel_iff
 
 /-- Restrict an order isomorphism to predicates that it identifies. -/
 def restrictOrderIso
@@ -66,18 +68,22 @@ def swapSubtypeFrom
 /-- Swapping nested subtype predicates and swapping back is the identity. -/
 theorem swapSubtype_leftInverse
     {α : Type*} (P Q : α → Prop) :
-    Function.LeftInverse (swapSubtypeFrom P Q) (swapSubtypeTo P Q) := sorry
+    Function.LeftInverse (swapSubtypeFrom P Q) (swapSubtypeTo P Q) := by
+  intro x
+  rfl
 
 /-- Swapping nested subtype predicates is surjective with the evident inverse. -/
 theorem swapSubtype_rightInverse
     {α : Type*} (P Q : α → Prop) :
-    Function.RightInverse (swapSubtypeFrom P Q) (swapSubtypeTo P Q) := sorry
+    Function.RightInverse (swapSubtypeFrom P Q) (swapSubtypeTo P Q) := by
+  intro x
+  rfl
 
 /-- Swapping nested subtype predicates preserves the inherited order. -/
 theorem swapSubtype_map_rel_iff
     {α : Type*} [Preorder α] (P Q : α → Prop)
     (x y : {x : {a // P a} // Q x.1}) :
-    swapSubtypeTo P Q x ≤ swapSubtypeTo P Q y ↔ x ≤ y := sorry
+    swapSubtypeTo P Q x ≤ swapSubtypeTo P Q y ↔ x ≤ y := Iff.rfl
 
 /-- The order isomorphism exchanging two nested subtype predicates. -/
 def swapSubtypeOrderIso
@@ -96,7 +102,10 @@ specialization order. -/
 @[stacks 00ET "point and irreducible-closed incidence"]
 theorem mem_pointsEquivIrreducibleCloseds_iff_le (p q : PrimeSpectrum R) :
     p ∈ ((show IrreducibleCloseds (PrimeSpectrum R) from
-      PrimeSpectrum.pointsEquivIrreducibleCloseds R q) : Set (PrimeSpectrum R)) ↔ q ≤ p := sorry
+      PrimeSpectrum.pointsEquivIrreducibleCloseds R q) : Set (PrimeSpectrum R)) ↔ q ≤ p := by
+  change p ∈ closure ({q} : Set (PrimeSpectrum R)) ↔ q ≤ p
+  rw [PrimeSpectrum.closure_singleton]
+  rfl
 
 /-- Lemma 10.26.3 (1): primes of `R_p` are canonically order-isomorphic to
 irreducible closed subsets of `Spec R` containing `p`. -/
@@ -136,18 +145,22 @@ def irreducibleClosedToComponent
 theorem irreducibleComponentToClosed_leftInverse
     {X : Type*} [TopologicalSpace X] :
     Function.LeftInverse (@irreducibleClosedToComponent X _)
-      (@irreducibleComponentToClosed X _) := sorry
+      (@irreducibleComponentToClosed X _) := by
+  intro Z
+  rfl
 
 /-- The two component presentations are inverse in the reverse direction. -/
 theorem irreducibleComponentToClosed_rightInverse
     {X : Type*} [TopologicalSpace X] :
     Function.RightInverse (@irreducibleClosedToComponent X _)
-      (@irreducibleComponentToClosed X _) := sorry
+      (@irreducibleComponentToClosed X _) := by
+  intro Z
+  rfl
 
 /-- The two component presentations carry the same inclusion order. -/
 theorem irreducibleComponentToClosed_map_rel_iff
     {X : Type*} [TopologicalSpace X] (Z W : irreducibleComponents X) :
-    irreducibleComponentToClosed Z ≤ irreducibleComponentToClosed W ↔ Z ≤ W := sorry
+    irreducibleComponentToClosed Z ≤ irreducibleComponentToClosed W ↔ Z ≤ W := Iff.rfl
 
 /-- Irreducible components and irreducible closed subsets maximal among all
 irreducible closed subsets are the same ordered data. -/
@@ -181,7 +194,25 @@ theorem localizationAtPrimeIrreducibleClosedsOrderIso_mem_component_iff
     (Z : Set (PrimeSpectrum (Localization.AtPrime p.asIdeal))) ∈
         irreducibleComponents (PrimeSpectrum (Localization.AtPrime p.asIdeal)) ↔
       ((localizationAtPrimeIrreducibleClosedsOrderIso p Z).1 :
-        Set (PrimeSpectrum R)) ∈ irreducibleComponents (PrimeSpectrum R) := sorry
+        Set (PrimeSpectrum R)) ∈ irreducibleComponents (PrimeSpectrum R) := by
+  have hmax {X : Type u} [TopologicalSpace X] (W : IrreducibleCloseds X) :
+      (W : Set X) ∈ irreducibleComponents X ↔ IsMax W := by
+    rw [irreducibleComponents_eq_maximals_closed]
+    constructor
+    · intro h V hWV
+      exact h.2 ⟨V.isClosed, V.isIrreducible⟩ hWV
+    · intro h
+      refine ⟨⟨W.isClosed, W.isIrreducible⟩, ?_⟩
+      intro V hV hWV
+      exact h (b := ⟨V, hV.2, hV.1⟩) hWV
+  let e := localizationAtPrimeIrreducibleClosedsOrderIso p
+  rw [hmax, hmax, ← e.isMax_apply]
+  change IsMax (e Z) ↔ IsMax (e Z).1
+  constructor
+  · intro h W hZW
+    exact h (b := ⟨W, hZW (e Z).2⟩) hZW
+  · intro h W hZW
+    exact h (b := W.1) hZW
 
 /-- The component/irreducible-closed order isomorphism preserves membership
 of a point. -/
@@ -189,7 +220,7 @@ theorem irreducibleComponentsOrderIso_mem_iff
     (p : PrimeSpectrum R) (Z : irreducibleComponents (PrimeSpectrum R)) :
     p ∈ (Z.1 : Set (PrimeSpectrum R)) ↔
       p ∈ ((LocalizationIrreducible.irreducibleComponentsOrderIsoIrreducibleCloseds
-        (PrimeSpectrum R) Z).1 : Set (PrimeSpectrum R)) := sorry
+        (PrimeSpectrum R) Z).1 : Set (PrimeSpectrum R)) := Iff.rfl
 
 /-- Lemma 10.26.3 (2): minimal primes of `R_p` are canonically
 order-isomorphic to irreducible components of `Spec R` containing `p`. -/

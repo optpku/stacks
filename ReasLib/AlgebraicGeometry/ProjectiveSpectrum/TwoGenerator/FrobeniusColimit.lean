@@ -35,29 +35,42 @@ def almostBlowupSquare (A : CommRingCat.{u}) (f₁ f₂ : A) : Square Scheme.{u}
 
 namespace FrobeniusColimit
 
+private theorem isCharP_of_mapToSpec (p : ℕ) (A : CommRingCat.{u}) [CharP A p]
+    {X : Scheme.{u}} (f : X ⟶ Spec A) : Scheme.IsCharP X p where
+  cast_eq_zero U := by
+    let φ : A →+* Γ(X, U) :=
+      ((X.presheaf.map (homOfLE (show U ≤ ⊤ from le_top)).op).hom.comp
+        f.appTop.hom).comp (Scheme.ΓSpecIso A).inv.hom
+    simpa only [map_natCast, map_zero] using congrArg φ (CharP.cast_eq_zero A p)
+
 /-- The base vertex of the canonical two-generator almost blowup square has the characteristic
 of the coefficient ring. -/
 instance almostBlowupSquareX4IsCharP (p : ℕ) (A : CommRingCat.{u})
     [CharP A p] (f₁ f₂ : A) :
-    Scheme.IsCharP (almostBlowupSquare A f₁ f₂).X₄ p := sorry
+    Scheme.IsCharP (almostBlowupSquare A f₁ f₂).X₄ p := by
+  exact isCharP_of_mapToSpec p A (𝟙 (Spec A))
 
 /-- The projective vertex of the canonical two-generator almost blowup square inherits the
 characteristic of the base. -/
 instance almostBlowupSquareX2IsCharP (p : ℕ) (A : CommRingCat.{u})
     [CharP A p] (f₁ f₂ : A) :
-    Scheme.IsCharP (almostBlowupSquare A f₁ f₂).X₂ p := sorry
+    Scheme.IsCharP (almostBlowupSquare A f₁ f₂).X₂ p := by
+  exact isCharP_of_mapToSpec p A (almostBlowupSquare A f₁ f₂).f₂₄
 
 /-- The center vertex of the canonical two-generator almost blowup square inherits the
 characteristic of the base. -/
 instance almostBlowupSquareX3IsCharP (p : ℕ) (A : CommRingCat.{u})
     [CharP A p] (f₁ f₂ : A) :
-    Scheme.IsCharP (almostBlowupSquare A f₁ f₂).X₃ p := sorry
+    Scheme.IsCharP (almostBlowupSquare A f₁ f₂).X₃ p := by
+  exact isCharP_of_mapToSpec p A (almostBlowupSquare A f₁ f₂).f₃₄
 
 /-- The exceptional vertex of the canonical two-generator almost blowup square inherits the
 characteristic of the projective vertex. -/
 instance almostBlowupSquareX1IsCharP (p : ℕ) (A : CommRingCat.{u})
     [CharP A p] (f₁ f₂ : A) :
-    Scheme.IsCharP (almostBlowupSquare A f₁ f₂).X₁ p := sorry
+    Scheme.IsCharP (almostBlowupSquare A f₁ f₂).X₁ p := by
+  exact isCharP_of_mapToSpec p A
+    ((almostBlowupSquare A f₁ f₂).f₁₂ ≫ (almostBlowupSquare A f₁ f₂).f₂₄)
 
 open AlgebraicGeometry.Scheme.FrobeniusColimit
 
@@ -81,14 +94,16 @@ center. -/
 theorem restrictionSquare_fst (p : ℕ) [Fact p.Prime]
     (A : CommRingCat.{u}) [CharP A p] (f₁ f₂ : A) :
     (restrictionSquare p A f₁ f₂).fst =
-      ModuleModel.pullback p (almostBlowupSquare A f₁ f₂).f₃₄ := sorry
+      ModuleModel.pullback p (almostBlowupSquare A f₁ f₂).f₃₄ := by
+  rfl
 
 /-- The second projection of the canonical restriction square is pullback from the base to the
 projective vertex. -/
 theorem restrictionSquare_snd (p : ℕ) [Fact p.Prime]
     (A : CommRingCat.{u}) [CharP A p] (f₁ f₂ : A) :
     (restrictionSquare p A f₁ f₂).snd =
-      ModuleModel.pullback p (almostBlowupSquare A f₁ f₂).f₂₄ := sorry
+      ModuleModel.pullback p (almostBlowupSquare A f₁ f₂).f₂₄ := by
+  rfl
 
 /-- The structural isomorphism of the canonical restriction square is induced by the square
 equation and functoriality of pullback. -/
@@ -99,7 +114,8 @@ theorem restrictionSquare_iso (p : ℕ) [Fact p.Prime]
       (ModuleModel.pullbackCompIso p sq.f₁₃ sq.f₃₄).symm ≪≫
         eqToIso
           (congrArg (fun h : sq.X₁ ⟶ sq.X₄ ↦ ModuleModel.pullback p h) sq.fac.symm) ≪≫
-        ModuleModel.pullbackCompIso p sq.f₁₂ sq.f₂₄ := sorry
+        ModuleModel.pullbackCompIso p sq.f₁₂ sq.f₂₄ := by
+  rfl
 
 /-- The canonical comparison from the Frobenius-colimit module model on the base to the
 categorical pullback of the models on the center and projective vertices over the exceptional

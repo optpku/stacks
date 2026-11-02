@@ -39,7 +39,7 @@ theorem under_mk_comm {A B A' B' : CommRingCat.{u}}
     (α : A ⟶ B) (ρ : A ⟶ A') (β : A' ⟶ B') (φ : B ⟶ B')
     (h_comm : ρ ≫ β = α ≫ φ) :
     ρ ≫ (Under.mk β).hom = (Under.mk α).hom ≫ φ :=
-  sorry
+  h_comm
 
 /-- The map of standard resolutions, as simplicial rings, induced by a commutative square of
 ring maps. -/
@@ -48,7 +48,8 @@ def functorialitySimplicial {A A' : CommRingCat.{u}} {B : Under A} {B' : Under A
     (h_comm : ρ ≫ B'.hom = B.hom ≫ φ) :
     standardSimplicial A B ⟶ standardSimplicial A' B' where
   app n := ((functorialityMap ρ φ h_comm).app n).right
-  naturality _ _ _ := sorry
+  naturality _ _ f :=
+    congrArg (fun g => g.right) ((functorialityMap ρ φ h_comm).naturality f)
 
 /-- Components of `functorialitySimplicial` are the underlying ring maps of `functorialityMap`. -/
 theorem functorialitySimplicial_app {A A' : CommRingCat.{u}} {B : Under A} {B' : Under A'}
@@ -56,7 +57,7 @@ theorem functorialitySimplicial_app {A A' : CommRingCat.{u}} {B : Under A} {B' :
     (h_comm : ρ ≫ B'.hom = B.hom ≫ φ) (n : SimplexCategoryᵒᵖ) :
     (functorialitySimplicial ρ φ h_comm).app n =
       ((functorialityMap ρ φ h_comm).app n).right :=
-  sorry
+  rfl
 
 /-- The map of standard resolutions associated to a commutative square of ring maps. -/
 def functorialitySimplicial_mk {A B A' B' : CommRingCat.{u}}
@@ -72,7 +73,7 @@ theorem functorialitySimplicial_mk_eq {A B A' B' : CommRingCat.{u}}
     functorialitySimplicial_mk α ρ β φ h_comm =
       @functorialitySimplicial A A' (Under.mk α) (Under.mk β) ρ φ
         (under_mk_comm α ρ β φ h_comm) :=
-  sorry
+  rfl
 
 /-- The structure morphism of the identity-algebra standard resolution, as a map of simplicial
 rings from the constant object. -/
@@ -80,20 +81,26 @@ def structureSection (A : CommRingCat.{u}) :
     (SimplicialObject.const CommRingCat.{u}).obj A ⟶
       standardSimplicial A (Under.mk (𝟙 A)) where
   app n := (((evaluation A).obj (Under.mk (𝟙 A))).left.obj n).hom
-  naturality _ _ _ := sorry
+  naturality m n f := by
+    change 𝟙 A ≫ (((evaluation A).obj (Under.mk (𝟙 A))).left.obj n).hom =
+      (((evaluation A).obj (Under.mk (𝟙 A))).left.obj m).hom ≫
+        (((evaluation A).obj (Under.mk (𝟙 A))).left.map f).right
+    rw [Category.id_comp]
+    exact (((evaluation A).obj (Under.mk (𝟙 A))).left.map f).w.symm
 
 /-- Components of `structureSection` are the structure maps of the identity-algebra standard
 terms. -/
 theorem structureSection_app (A : CommRingCat.{u}) (n : SimplexCategoryᵒᵖ) :
     (structureSection A).app n =
       (((evaluation A).obj (Under.mk (𝟙 A))).left.obj n).hom :=
-  sorry
+  rfl
 
 /-- The forgotten augmentation of the standard resolution, as a map of simplicial rings. -/
 def forgottenAugmentation (A : CommRingCat.{u}) (B : Under A) :
     standardSimplicial A B ⟶ (SimplicialObject.const CommRingCat.{u}).obj B.right where
   app n := (((evaluation A).obj B).hom.app n).right
-  naturality _ _ _ := sorry
+  naturality _ _ f :=
+    congrArg (fun g => g.right) (((evaluation A).obj B).hom.naturality f)
 
 /-- Components of `forgottenAugmentation` are the underlying ring maps of the standard
 augmentations. -/
@@ -101,7 +108,7 @@ theorem forgottenAugmentation_app (A : CommRingCat.{u}) (B : Under A)
     (n : SimplexCategoryᵒᵖ) :
     (forgottenAugmentation A B).app n =
       (((evaluation A).obj B).hom.app n).right :=
-  sorry
+  rfl
 
 /-- The composite `P_• ⟶ B ⟶ A' ⟶ P'_•` of forgotten augmentation, the constant map on the
 diagonal, the identity-algebra structure section, and identity-algebra functoriality. -/
@@ -122,7 +129,7 @@ theorem throughDiagonal_eq {A B A' B' : CommRingCat.{u}}
         (SimplicialObject.const CommRingCat.{u}).map κ ≫
         structureSection A' ≫
         functorialitySimplicial_mk (𝟙 A') (𝟙 A') β β (Eq.refl (𝟙 A' ≫ β)) :=
-  sorry
+  rfl
 
 /-- A commutative square of ring maps with a diagonal making both triangles commute induces
 a map of standard resolutions homotopic to the composite through the diagonal and the

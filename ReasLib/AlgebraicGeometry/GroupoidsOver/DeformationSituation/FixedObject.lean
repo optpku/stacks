@@ -34,12 +34,12 @@ def IsOver (σ : DeformationSituation X) (ξ : ObjectOverSpec X) : Prop :=
 /-- Lying over a fixed object is equality of the underlying objects over spectra. -/
 theorem isOver_iff (σ : DeformationSituation X) (ξ : ObjectOverSpec X) :
     σ.IsOver ξ ↔ σ.toObjectOverSpec = ξ :=
-  sorry
+  Iff.rfl
 
 /-- A deformation situation over a fixed object has the same coefficient carrier. -/
 theorem carrier_eq {σ : DeformationSituation X} {ξ : ObjectOverSpec X}
     (hσ : σ.IsOver ξ) : σ.carrier = ξ.carrier :=
-  sorry
+  congrArg ObjectOverSpec.carrier hσ
 
 /-- The kernel of a square-zero extension, as a module over the fixed coefficient ring. -/
 def kernelOver {σ : DeformationSituation X} {ξ : ObjectOverSpec X}
@@ -77,8 +77,13 @@ def kernelMapOver {σ τ : DeformationSituation X} {ξ : ObjectOverSpec X}
 theorem kernelMapOver_apply {σ τ : DeformationSituation X} {ξ : ObjectOverSpec X}
     (hσ : σ.IsOver ξ) (hτ : τ.IsOver ξ) (f : Hom σ τ)
     (hf : f.toRingHom = ringHomIdOver hσ hτ) (i : kernelOver hσ) :
-    kernelMapOver hσ hτ f hf i = ⟨f.toSourceHom i.1, Hom.kernelMap_mem f i⟩ :=
-  sorry
+    kernelMapOver hσ hτ f hf i = ⟨f.toSourceHom i.1, Hom.kernelMap_mem f i⟩ := by
+  rcases σ with ⟨ξσ, sourceσ, extensionσ, toSσ, compσ⟩
+  rcases τ with ⟨ξτ, sourceτ, extensionτ, toSτ, compτ⟩
+  dsimp only [IsOver] at hσ hτ
+  cases hσ
+  cases hτ
+  rfl
 
 /-- The stored square-zero extension transported to the fixed coefficient ring. -/
 def toCarrierOverMap {σ : DeformationSituation X} {ξ : ObjectOverSpec X}
@@ -95,8 +100,9 @@ abbrev toCarrierOver {σ : DeformationSituation X} {ξ : ObjectOverSpec X}
 theorem toCarrierOver_apply {σ : DeformationSituation X} {ξ : ObjectOverSpec X}
     (hσ : σ.IsOver ξ) (a' : σ.source) :
     toCarrierOver hσ a' =
-      cast (congrArg ObjectOverSpec.carrier hσ) (σ.toCarrier a') :=
-  sorry
+      cast (congrArg ObjectOverSpec.carrier hσ) (σ.toCarrier a') := by
+  cases hσ
+  rfl
 
 /-- The transported homomorphism is a square-zero extension. -/
 theorem toCarrierOver_isSquareZero {σ : DeformationSituation X}
@@ -107,8 +113,13 @@ theorem toCarrierOver_isSquareZero {σ : DeformationSituation X}
 private theorem sourceHomOver_laws {σ τ : DeformationSituation X} {ξ : ObjectOverSpec X}
     (hσ : σ.IsOver ξ) (hτ : τ.IsOver ξ) (f : Hom σ τ)
     (hf : f.toRingHom = ringHomIdOver hσ hτ) :
-    (toCarrierOver hτ).comp f.toSourceHom = toCarrierOver hσ :=
-  sorry
+    (toCarrierOver hτ).comp f.toSourceHom = toCarrierOver hσ := by
+  rcases σ with ⟨ξσ, sourceσ, extensionσ, toSσ, compσ⟩
+  rcases τ with ⟨ξτ, sourceτ, extensionτ, toSτ, compτ⟩
+  dsimp only [IsOver] at hσ hτ
+  cases hσ
+  cases hτ
+  simpa only [toCarrierOver, toCarrierOverMap, hf, ringHomIdOver, RingHom.id_comp] using f.commSq
 
 /-- A morphism fixing the coefficient ring induces a morphism of transported extensions. -/
 def sourceHomOver {σ τ : DeformationSituation X} {ξ : ObjectOverSpec X}
@@ -122,7 +133,7 @@ theorem sourceHomOver_hom {σ τ : DeformationSituation X} {ξ : ObjectOverSpec 
     (hσ : σ.IsOver ξ) (hτ : τ.IsOver ξ) (f : Hom σ τ)
     (hf : f.toRingHom = ringHomIdOver hσ hτ) :
     (sourceHomOver hσ hτ f hf).hom = f.toSourceHom :=
-  sorry
+  rfl
 
 /-- Short exactness of transported extensions makes the fixed-object kernel maps compose to zero. -/
 theorem kernelMapOver_comp_eq_zero {σ1 σ2 σ3 : DeformationSituation X}
@@ -133,7 +144,14 @@ theorem kernelMapOver_comp_eq_zero {σ1 σ2 σ3 : DeformationSituation X}
     (hf32 : f32.toRingHom = ringHomIdOver h3 h2)
     (hses : AlgebraicGeometry.Deformation.IsShortExact
       (sourceHomOver h2 h1 f21 hf21) (sourceHomOver h3 h2 f32 hf32)) :
-    kernelMapOver h3 h2 f32 hf32 ≫ kernelMapOver h2 h1 f21 hf21 = 0 :=
-  sorry
+    kernelMapOver h3 h2 f32 hf32 ≫ kernelMapOver h2 h1 f21 hf21 = 0 := by
+  rcases σ1 with ⟨ξ1, source1, extension1, toS1, comp1⟩
+  rcases σ2 with ⟨ξ2, source2, extension2, toS2, comp2⟩
+  rcases σ3 with ⟨ξ3, source3, extension3, toS3, comp3⟩
+  dsimp only [IsOver] at h1 h2 h3
+  cases h1
+  cases h2
+  cases h3
+  exact hses.kernel_zero
 
 end AlgebraicGeometry.GroupoidsOver.DeformationSituation

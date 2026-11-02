@@ -81,7 +81,7 @@ theorem of_α {R : Type u} [CommRing R] {r : PrimeSpectrum R}
       (ModuleCat.restrictScalars toA.hom.toRingHom).obj M.obj)
     (p : PrimeSpectrum B)
     (prime_eq : p.asIdeal = Ideal.map (algebraMap R B) r.asIdeal) :
-    (Stage.of A B M toA rank α p prime_eq).α = α := sorry
+    (Stage.of A B M toA rank α p prime_eq).α = α := rfl
 
 /-- The residue-field base change of the free-module map in a dévissage stage. -/
 def fiberMap {R : Type u} [CommRing R] {r : PrimeSpectrum R} (D : Stage R r) :
@@ -94,7 +94,7 @@ def fiberMap {R : Type u} [CommRing R] {r : PrimeSpectrum R} (D : Stage R r) :
 /-- `fiberMap` is scalar extension of the stage map `α` to the residue field. -/
 theorem fiberMap_def {R : Type u} [CommRing R] {r : PrimeSpectrum R} (D : Stage R r) :
     D.fiberMap =
-      (ModuleCat.extendScalars (algebraMap D.B D.p.asIdeal.ResidueField)).map D.α := sorry
+      (ModuleCat.extendScalars (algebraMap D.B D.p.asIdeal.ResidueField)).map D.α := rfl
 
 end Stage
 
@@ -207,19 +207,21 @@ theorem ofStages_stage {R : Type u} [CommRing R] {S : FGAlgCat.{u} R}
     (Complete.ofStages last stage initial initial_surjective initial_finitePresentation
       transition transition_surjective transition_finitePresentation finite_toA smooth
       geometricallyIrreducible initialIso transitionIso fiber_bijective terminal_isZero).stage i =
-        stage i := sorry
+        stage i := rfl
 
 /-- The initial map in a complete dévissage is surjective and finitely presented. -/
 theorem initial_spec {R : Type u} [CommRing R] {S : FGAlgCat.{u} R}
     {N : FGModuleCat.{u} S.obj} {r : PrimeSpectrum R} (D : Complete R S N r) :
-    Function.Surjective D.initial ∧ D.initial.hom.toRingHom.FinitePresentation := sorry
+    Function.Surjective D.initial ∧ D.initial.hom.toRingHom.FinitePresentation :=
+  ⟨D.initial_surjective, D.initial_finitePresentation⟩
 
 /-- Every transition map in a complete dévissage is surjective and finitely presented. -/
 theorem transition_spec {R : Type u} [CommRing R] {S : FGAlgCat.{u} R}
     {N : FGModuleCat.{u} S.obj} {r : PrimeSpectrum R} (D : Complete R S N r)
     (i : Fin D.last) :
     Function.Surjective (D.transition i) ∧
-      (D.transition i).hom.toRingHom.FinitePresentation := sorry
+      (D.transition i).hom.toRingHom.FinitePresentation :=
+  ⟨D.transition_surjective i, D.transition_finitePresentation i⟩
 
 /-- At every stage, `R → Bᵢ` is smooth with geometrically irreducible fibres. -/
 theorem baseMap_spec {R : Type u} [CommRing R] {S : FGAlgCat.{u} R}
@@ -228,7 +230,8 @@ theorem baseMap_spec {R : Type u} [CommRing R] {S : FGAlgCat.{u} R}
     (algebraMap R (D.stage i).B).Smooth ∧
       AlgebraicGeometry.GeometricallyIrreducible
         (AlgebraicGeometry.Spec.map
-          (CommRingCat.ofHom (algebraMap R (D.stage i).B))) := sorry
+          (CommRingCat.ofHom (algebraMap R (D.stage i).B))) :=
+  ⟨D.smooth i, D.geometricallyIrreducible i⟩
 
 /-- At every stage, `pᵢ = rBᵢ` and the residue-field base change of `αᵢ` is bijective. -/
 theorem fiber_spec {R : Type u} [CommRing R] {S : FGAlgCat.{u} R}
@@ -236,7 +239,8 @@ theorem fiber_spec {R : Type u} [CommRing R] {S : FGAlgCat.{u} R}
     (i : Fin (D.last + 1)) :
     (D.stage i).p.asIdeal =
         Ideal.map (algebraMap R (D.stage i).B) r.asIdeal ∧
-      Function.Bijective (D.stage i).fiberMap := sorry
+      Function.Bijective (D.stage i).fiberMap :=
+  ⟨(D.stage i).prime_eq, D.fiber_bijective i⟩
 
 end Complete
 

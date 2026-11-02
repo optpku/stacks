@@ -45,13 +45,15 @@ noncomputable def nonzeroValuation (a : {a : A // a ≠ 0}) :
 theorem nonzeroValuation_coe (a : {a : A // a ≠ 0}) :
     ((nonzeroValuation A a : (ValueGroup A (FractionRing A))ˣ) :
         ValueGroup A (FractionRing A)) =
-      valuation A (FractionRing A) (algebraMap A (FractionRing A) (a : A)) := sorry
+      valuation A (FractionRing A) (algebraMap A (FractionRing A) (a : A)) := rfl
 
 /-- A nonzero element of the valuation ring has multiplicative value at most one. -/
 @[simp, stacks 00IF "valuation-ring bound"]
 theorem nonzeroValuation_le_one (a : {a : A // a ≠ 0}) :
     ((nonzeroValuation A a : (ValueGroup A (FractionRing A))ˣ) :
-        ValueGroup A (FractionRing A)) ≤ 1 := sorry
+        ValueGroup A (FractionRing A)) ≤ 1 := by
+  rw [nonzeroValuation_coe]
+  exact (mem_integer_iff A (FractionRing A) _).2 ⟨(a : A), rfl⟩
 
 /-- The additive normalization of `nonzeroValuation` is the canonical additive valuation. -/
 @[simp, stacks 00IF "additive normalization"]
@@ -61,31 +63,45 @@ theorem nonzeroValuation_toAdd (a : {a : A // a ≠ 0}) :
           (((nonzeroValuation A a : (ValueGroup A (FractionRing A))ˣ) :
             ValueGroup A (FractionRing A)))) =
       Valuation.toAddValuation (valuation A (FractionRing A))
-        (algebraMap A (FractionRing A) (a : A)) := sorry
+        (algebraMap A (FractionRing A) (a : A)) := rfl
 
 /-- The additive value of a nonzero element of a valuation ring is nonnegative. -/
 @[stacks 00IF "nonnegative additive value"]
 theorem nonzeroValuation_toAdd_nonneg (a : {a : A // a ≠ 0}) :
     0 ≤ Valuation.toAddValuation (valuation A (FractionRing A))
-      (algebraMap A (FractionRing A) (a : A)) := sorry
+      (algebraMap A (FractionRing A) (a : A)) := by
+  change valuation A (FractionRing A) (algebraMap A (FractionRing A) (a : A)) ≤ 1
+  exact nonzeroValuation_le_one A a
 
 /-- Lemma 10.50.14 (1): a nonzero element has value one exactly when it is a unit. -/
 @[stacks 00IF "(1)"]
 theorem nonzeroValuation_eq_one_iff_isUnit (a : {a : A // a ≠ 0}) :
-    nonzeroValuation A a = 1 ↔ IsUnit (a : A) := sorry
+    nonzeroValuation A a = 1 ↔ IsUnit (a : A) := by
+  have hv : (valuation A (FractionRing A)).Integers A := {
+    hom_inj := IsFractionRing.injective A (FractionRing A)
+    map_le_one x := (mem_integer_iff A (FractionRing A) _).2 ⟨x, rfl⟩
+    exists_of_le_one {x} hx := (mem_integer_iff A (FractionRing A) x).1 hx }
+  rw [← Units.val_eq_one, nonzeroValuation_coe]
+  exact hv.isUnit_iff_valuation_eq_one.symm
 
 /-- Lemma 10.50.14 (2): the nonzero valuation is multiplicative. -/
 @[stacks 00IF "(2)"]
 theorem nonzeroValuation_mul (a b : {a : A // a ≠ 0}) :
     nonzeroValuation A
         ⟨(a : A) * (b : A), mul_ne_zero a.2 b.2⟩ =
-      nonzeroValuation A a * nonzeroValuation A b := sorry
+      nonzeroValuation A a * nonzeroValuation A b := by
+  apply Units.ext
+  simp only [Units.val_mul, nonzeroValuation_coe, map_mul]
 
 /-- Lemma 10.50.14 (3): the nonzero valuation satisfies the ultrametric inequality. -/
 @[stacks 00IF "(3)"]
 theorem nonzeroValuation_add_le_max
     (a b : {a : A // a ≠ 0}) (hab : (a : A) + (b : A) ≠ 0) :
     nonzeroValuation A ⟨(a : A) + (b : A), hab⟩ ≤
-      max (nonzeroValuation A a) (nonzeroValuation A b) := sorry
+      max (nonzeroValuation A a) (nonzeroValuation A b) := by
+  apply Units.val_le_val.mp
+  simpa only [Units.max_val, nonzeroValuation_coe, map_add] using
+    (valuation A (FractionRing A)).map_add
+      (algebraMap A (FractionRing A) (a : A)) (algebraMap A (FractionRing A) (b : A))
 
 end ValuationRing

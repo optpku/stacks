@@ -11,6 +11,7 @@ public import Mathlib.Topology.Sober
 public import ReasLib.AlgebraicGeometry.AlgebraicStack.Decent
 public import ReasLib.AlgebraicGeometry.AlgebraicStack.Reduced
 public import ReasLib.AlgebraicGeometry.AlgebraicStack.Irreducible
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Points.Sober
 public import ReasLib.AlgebraicGeometry.AlgebraicStack.Inertia
 public import ReasLib.AlgebraicGeometry.GroupoidsOver.Immersion
 public import ReasLib.CategoryTheory.Fibered.Groupoids.GerbeMorphism
@@ -51,7 +52,8 @@ theorem spec {S : Scheme.{u}} (X : GroupoidsOver S) [AlgebraicStack X]
     [IsIntegral X] :
     IsReduced X ∧ IsDecent X ∧ QuasiCompact (forget.{u + 1, u, u, u + 1} X) ∧
       IsIrreducible X :=
-  sorry
+  ⟨inferInstance, inferInstance, (inferInstance : IsIntegral X).inertia_quasiCompact,
+    inferInstance⟩
 
 /-- Reducedness, decency, quasi-compact inertia, and irreducibility together
 witness that an algebraic stack is integral. -/
@@ -59,18 +61,30 @@ witness that an algebraic stack is integral. -/
 theorem of {S : Scheme.{u}} {X : GroupoidsOver S} [AlgebraicStack X]
     [IsReduced X] [IsDecent X] [IsIrreducible X]
     [QuasiCompact (forget.{u + 1, u, u, u + 1} X)] : IsIntegral X :=
-  sorry
+  { toIsReduced := inferInstance
+    toIsDecent := inferInstance
+    toIsIrreducible := inferInstance
+    inertia_quasiCompact := inferInstance }
 
 /-- The canonical point space of an integral algebraic stack is sober. -/
 theorem sober {S : Scheme.{u}} (X : GroupoidsOver S) [AlgebraicStack X]
-    [IsIntegral X] : T0Space (Points X) ∧ QuasiSober (Points X) :=
-  sorry
+    [IsIntegral X] : T0Space (Points X) ∧ QuasiSober (Points X) := by
+  letI := (spec X).2.2.1
+  exact IsDecent.sober_of_quasiCompact_inertia X
 
 /-- The canonical point space of an integral algebraic stack has a unique generic point. -/
 theorem existsUnique_genericPoint {S : Scheme.{u}} {X : GroupoidsOver S}
     [AlgebraicStack X] [IsIntegral X] :
-    ∃! x : Points X, IsGenericPoint x Set.univ :=
-  sorry
+    ∃! x : Points X, IsGenericPoint x Set.univ := by
+  obtain ⟨hT0, hSober⟩ := sober X
+  letI := hT0
+  letI := hSober
+  letI : IrreducibleSpace (Points X) :=
+    (inferInstance : IsIrreducible X).irreducibleSpace _
+      (isPointsTopology_pointsTopology X)
+  obtain ⟨x, hx⟩ := QuasiSober.sober
+    (IrreducibleSpace.isIrreducible_univ (Points X)) isClosed_univ
+  exact ⟨x, hx, fun y hy ↦ hy.eq hx⟩
 
 /-- An integral algebraic stack contains an open substack that is a gerbe over
 an integral scheme. -/
@@ -90,7 +104,38 @@ end IsIntegral
 stack. -/
 instance instIsIntegral_slice {S : Scheme.{u}} (U : Over S)
     [AlgebraicGeometry.IsIntegral U.left] :
-    IsIntegral (GroupoidsOver.slice U) :=
-  sorry
+    IsIntegral (GroupoidsOver.slice U) := by
+  have h_aut (x : (FiberedCategoryOver.Groupoids.inertia.{u + 1, u, u, u + 1}
+      (GroupoidsOver.slice U)).total) : x.aut = 1 := by
+    apply Iso.ext
+    apply (Over.forget U).map_injective
+    exact congrArg Iso.hom x.property
+  letI : IsIso (forget.{u + 1, u, u, u + 1} (GroupoidsOver.slice U)) := by
+    refine ⟨⟨FiberedCategoryOver.Groupoids.Inertia.identitySection.{u + 1, u, u, u + 1}
+      (GroupoidsOver.slice U), ?_, rfl⟩⟩
+    apply Bicategory.InducedBicategory.hom_ext
+    apply BasedFunctor.ext
+    refine CategoryTheory.Functor.hext ?_ ?_
+    · intro x
+      have h := h_aut x
+      apply Subtype.ext
+      cases x with
+      | mk a ha =>
+        cases a with
+        | mk obj aut =>
+          change aut = 1 at h
+          subst aut
+          rfl
+    · intro x y f
+      have hx := h_aut x
+      have hy := h_aut y
+      rcases x with ⟨⟨x, a⟩, ha⟩
+      rcases y with ⟨⟨y, b⟩, hb⟩
+      change a = 1 at hx
+      change b = 1 at hy
+      subst a
+      subst b
+      rfl
+  exact IsIntegral.of
 
 end AlgebraicGeometry.AlgebraicStack

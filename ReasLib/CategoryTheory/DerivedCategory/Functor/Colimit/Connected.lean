@@ -45,13 +45,23 @@ variable [HasColimitsOfShape Cᵒᵖ A]
 /-- The counit of the constant-diagram/colimit adjunction is invertible for a connected index. -/
 @[stacks 08Q7 "connected constant-colimit counit instance"]
 instance constantColimitCounit_isIso [IsConnected C] :
-    IsIso (Limits.colimConstAdj (J := Cᵒᵖ) (C := A)).counit := sorry
+    IsIso (Limits.colimConstAdj (J := Cᵒᵖ) (C := A)).counit := by
+  infer_instance
 
 /-- An initial or final object supplies the connectedness needed for the underived counit. -/
 @[stacks 08Q7 "initial-or-final underived lower-shriek counit"]
 theorem constantColimitCounit_isIso_of_hasInitial_or_hasTerminal
     (hC : Nonempty (Limits.HasInitial C) ∨ Nonempty (Limits.HasTerminal C)) :
-    IsIso (Limits.colimConstAdj (J := Cᵒᵖ) (C := A)).counit := sorry
+    IsIso (Limits.colimConstAdj (J := Cᵒᵖ) (C := A)).counit := by
+  rcases hC with hC | hC
+  · obtain ⟨hC⟩ := hC
+    letI : HasInitial C := hC
+    letI : IsConnected C := isConnected_of_hasInitial C
+    infer_instance
+  · obtain ⟨hC⟩ := hC
+    letI : HasTerminal C := hC
+    letI : IsConnected C := isConnected_of_hasTerminal C
+    infer_instance
 
 end Underived
 
@@ -81,7 +91,10 @@ noncomputable instance derivedConstant_isRightDerivedFunctor :
     Functor.IsRightDerivedFunctor
       ((Functor.const (Cᵒᵖ) : A ⥤ Cᵒᵖ ⥤ A).mapDerivedCategory)
       ((Functor.const (Cᵒᵖ) : A ⥤ Cᵒᵖ ⥤ A).mapDerivedCategoryFactorsh.inv)
-      (HomotopyCategory.quasiIso A (up ℤ)) := sorry
+      (HomotopyCategory.quasiIso A (up ℤ)) := by
+  exact Functor.isRightDerivedFunctor_of_inverts
+    (HomotopyCategory.quasiIso A (up ℤ)) _
+    (Functor.const (Cᵒᵖ) : A ⥤ Cᵒᵖ ⥤ A).mapDerivedCategoryFactorsh
 
 /-- The pointwise colimit owner supplies the canonical left-derived structure of `Lπ!`. -/
 @[stacks 08Q7 "derived colimit left-derived owner"]
@@ -93,7 +106,8 @@ noncomputable instance derivedColimit_isLeftDerivedFunctor :
         (DerivedCategory.Qh :
           HomotopyCategory (Cᵒᵖ ⥤ A) (up ℤ) ⥤ DerivedCategory (Cᵒᵖ ⥤ A))
         (HomotopyCategory.quasiIso (Cᵒᵖ ⥤ A) (up ℤ)))
-      (HomotopyCategory.quasiIso (Cᵒᵖ ⥤ A) (up ℤ)) := sorry
+      (HomotopyCategory.quasiIso (Cᵒᵖ ⥤ A) (up ℤ)) := by
+  infer_instance
 
 /-- The derived lower-shriek composite carries the right-derived structure needed for its
 canonical counit. -/
@@ -108,7 +122,16 @@ noncomputable instance derivedConstant_comp_derivedColimit_isRightDerivedFunctor
           (DerivedCategory.Qh : HomotopyCategory A (up ℤ) ⥤ DerivedCategory A)
           ((Functor.const (Cᵒᵖ) : A ⥤ Cᵒᵖ ⥤ A).mapDerivedCategory)
           (categoryOverPointDerivedColimit C A)).hom)
-      (HomotopyCategory.quasiIso A (up ℤ)) := sorry
+      (HomotopyCategory.quasiIso A (up ℤ)) := by
+  exact Functor.isRightDerivedFunctor_of_inverts
+    (HomotopyCategory.quasiIso A (up ℤ)) _
+    ((Functor.isoWhiskerRight
+        (Functor.const (Cᵒᵖ) : A ⥤ Cᵒᵖ ⥤ A).mapDerivedCategoryFactorsh.symm
+        (categoryOverPointDerivedColimit C A)) ≪≫
+      (Functor.associator
+        (DerivedCategory.Qh : HomotopyCategory A (up ℤ) ⥤ DerivedCategory A)
+        ((Functor.const (Cᵒᵖ) : A ⥤ Cᵒᵖ ⥤ A).mapDerivedCategory)
+        (categoryOverPointDerivedColimit C A))).symm
 
 /-- The canonical derived counit `π⁻¹ ⋙ Lπ! ⟶ 𝟭` for the projection to a point. -/
 @[stacks 08Q7 "derived constant-colimit counit"]
@@ -155,7 +178,8 @@ lower-shriek counit is invertible on the derived category of abelian groups. -/
 @[stacks 08Q7 "abelian initial-or-final derived lower-shriek counit"]
 theorem derivedColimitCounit_isIso_of_hasInitial_or_hasTerminal_abelian
     (hC : Nonempty (Limits.HasInitial C) ∨ Nonempty (Limits.HasTerminal C)) :
-    IsIso (derivedColimitCounit (C := C) (A := AddCommGrpCat)) := sorry
+    IsIso (derivedColimitCounit (C := C) (A := AddCommGrpCat)) := by
+  exact derivedColimitCounit_isIso_of_hasInitial_or_hasTerminal hC
 
 end AbelianGroups
 
@@ -176,7 +200,8 @@ derived lower-shriek counit is invertible on the derived category of `B`-modules
 @[stacks 08Q7 "module initial-or-final derived lower-shriek counit"]
 theorem derivedColimitCounit_isIso_of_hasInitial_or_hasTerminal_module
     (hC : Nonempty (Limits.HasInitial C) ∨ Nonempty (Limits.HasTerminal C)) :
-    IsIso (derivedColimitCounit (C := C) (A := ModuleCat B)) := sorry
+    IsIso (derivedColimitCounit (C := C) (A := ModuleCat B)) := by
+  exact derivedColimitCounit_isIso_of_hasInitial_or_hasTerminal hC
 
 end Modules
 

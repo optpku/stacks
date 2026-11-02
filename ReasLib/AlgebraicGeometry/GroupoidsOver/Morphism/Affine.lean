@@ -51,23 +51,28 @@ affine. -/
 theorem spec {S : Scheme.{u}} {X Y : GroupoidsOver S} (f : X ⟶ Y) [Affine f]
     {U : Over S} (y : GroupoidsOver.slice U ⟶ Y) {Fy : AlgebraicSpace S}
     {fy : Fy ⟶ AlgebraicSpace.ofOver U} (h : RepresentsBaseChange f y Fy fy) :
-    AlgebraicSpace.Affine fy := sorry
+    AlgebraicSpace.Affine fy :=
+  Affine.of_represents (f := f) y Fy fy h
 
 /-- An affine 1-morphism is representable by algebraic spaces. -/
 theorem relativelyRepresentable {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    (f : X ⟶ Y) [Affine f] : relativelyRepresentableByAlgebraicSpaces f := sorry
+    (f : X ⟶ Y) [Affine f] : relativelyRepresentableByAlgebraicSpaces f :=
+  Affine.representable (f := f)
 
 /-- A 1-morphism is affine if and only if it is representable by algebraic
 spaces and has the algebraic-space affine property in the sense of
 scheme-slice tests. -/
 theorem iff {S : Scheme.{u}} {X Y : GroupoidsOver S} (f : X ⟶ Y) :
     Affine f ↔ relativelyRepresentableByAlgebraicSpaces f ∧
-      has (@AlgebraicSpace.Affine S) f := sorry
+      has (@AlgebraicSpace.Affine S) f :=
+  ⟨fun hf ↦ ⟨hf.representable, hf.of_represents⟩,
+    fun ⟨hrep, h⟩ ↦ ⟨hrep, h⟩⟩
 
 /-- An affine 1-morphism has the algebraic-space affine property on
 scheme-slice representing morphisms. -/
 theorem has_affine {S : Scheme.{u}} {X Y : GroupoidsOver S} (f : X ⟶ Y)
-    [Affine f] : has (@AlgebraicSpace.Affine S) f := sorry
+    [Affine f] : has (@AlgebraicSpace.Affine S) f :=
+  Affine.of_represents (f := f)
 
 /-- An affine morphism of algebraic spaces induces an affine 1-morphism of the
 associated groupoid fibrations. -/

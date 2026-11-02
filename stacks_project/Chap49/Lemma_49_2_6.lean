@@ -38,7 +38,7 @@ dual base change before composing relative duals. -/
       (h_openC : IsOpenImmersion (Spec.map (CommRingCat.ofHom (algebraMap C' C)))),
       (Algebra.RelativeDualizingModule.of A B' B h_quasiFiniteAB h_openB ⊗[B]
           Algebra.RelativeDualizingModule.of B (B ⊗[B'] C') C h_quasiFiniteBC
-            (Algebra.RelativeDual.baseChange_isOpenImmersion B' B C' C h_openC)) →ₗ[C]
+            (Algebra.RelativeDual.baseChange_isOpenImmersion B' B C' C h_openB h_openC)) →ₗ[C]
         Algebra.RelativeDualizingModule.of A C' C
           (h_quasiFiniteAB.comp h_quasiFiniteBC) h_openC)
 

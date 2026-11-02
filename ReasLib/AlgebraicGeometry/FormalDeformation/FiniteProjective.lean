@@ -16,6 +16,7 @@ public import ReasLib.Algebra.Category.ModuleCat.FiniteProjective
 public import ReasLib.AlgebraicGeometry.FormalDeformation.ArtinianLocal
 public import ReasLib.AlgebraicGeometry.FormalDeformation.Predeformation.Over
 public import ReasLib.CategoryTheory.Cofibered.InGroupoids
+public import ReasLib.RingTheory.Finiteness.Projective.BaseChange
 
 /-!
 # Finite projective modules over Artinian local algebras
@@ -44,7 +45,9 @@ theorem extendScalars_mem {A B : ArtinianLocalAlgCat Λ k} (f : A ⟶ B)
     (M : ModuleCat.FiniteProjective.{u, u} A.carrier) :
     ModuleCat.finiteProjective.{u, u} B.carrier
       (((ModuleCat.finiteProjective.{u, u} A.carrier).ι ⋙
-        ModuleCat.extendScalars f.toRingHom).obj M) := sorry
+        ModuleCat.extendScalars f.toRingHom).obj M) := by
+  letI := f.toRingHom.toAlgebra
+  exact Module.FiniteProjective.baseChange (S := B.carrier) M.property
 
 /-- Pushforward of finite projective modules along a morphism of Artinian local algebras. -/
 def extendScalars {A B : ArtinianLocalAlgCat Λ k} (f : A ⟶ B) :
@@ -85,6 +88,8 @@ theorem extendScalarsComp_hom_app {A B C : ArtinianLocalAlgCat Λ k}
     ((extendScalarsComp f g).hom.app M).hom =
       (ModuleCat.extendScalarsComp f.toRingHom g.toRingHom).hom.app M.obj := rfl
 
+set_option backward.defeqAttrib.useBackward true in
+set_option backward.isDefEq.respectTransparency false in
 /-- Associativity coherence for the core-valued scalar-extension pseudofunctor. -/
 theorem coreExtendScalars_assoc {A B C D : ArtinianLocalAlgCat Λ k}
     (f : A ⟶ B) (g : B ⟶ C) (h : C ⟶ D) :
@@ -97,23 +102,54 @@ theorem coreExtendScalars_assoc {A B C D : ArtinianLocalAlgCat Λ k}
             (Functor.core (extendScalars f)).toCatHom ◁
               (Cat.Hom.isoMk (Iso.core (extendScalarsComp g h))).inv ≫
                 (Cat.Hom.isoMk (Iso.core (extendScalarsComp f (g ≫ h)))).inv =
-      eqToHom (by simp) := sorry
+      eqToHom (by simp) := by
+  apply Cat.Hom₂.ext
+  apply NatTrans.ext
+  funext M
+  apply Core.hom_ext
+  apply ObjectProperty.hom_ext
+  have hM := congrArg (fun η ↦ η.app M.of.obj)
+    (ModuleCat.extendScalars_assoc' f.toRingHom g.toRingHom h.toRingHom)
+  dsimp at hM
+  convert hM using 1 <;> rfl
 
+set_option backward.defeqAttrib.useBackward true in
+set_option backward.isDefEq.respectTransparency false in
 /-- Left-unit coherence for the core-valued scalar-extension pseudofunctor. -/
 theorem coreExtendScalars_id_comp {A B : ArtinianLocalAlgCat Λ k} (f : A ⟶ B) :
     (Cat.Hom.isoMk (Iso.core (extendScalarsComp (𝟙 A) f))).hom ≫
         (Cat.Hom.isoMk (Iso.core (extendScalarsId A) ≪≫ Functor.coreId _)).hom ▷
           (Functor.core (extendScalars f)).toCatHom ≫
             (λ_ ((Functor.core (extendScalars f)).toCatHom)).hom =
-      eqToHom (by simp) := sorry
+      eqToHom (by simp) := by
+  apply Cat.Hom₂.ext
+  apply NatTrans.ext
+  funext M
+  apply Core.hom_ext
+  apply ObjectProperty.hom_ext
+  have hM := congrArg (fun η ↦ η.app M.of.obj)
+    (ModuleCat.extendScalars_id_comp f.toRingHom)
+  dsimp at hM
+  convert hM using 1 <;> rfl
 
+set_option backward.defeqAttrib.useBackward true in
+set_option backward.isDefEq.respectTransparency false in
 /-- Right-unit coherence for the core-valued scalar-extension pseudofunctor. -/
 theorem coreExtendScalars_comp_id {A B : ArtinianLocalAlgCat Λ k} (f : A ⟶ B) :
     (Cat.Hom.isoMk (Iso.core (extendScalarsComp f (𝟙 B)))).hom ≫
         (Functor.core (extendScalars f)).toCatHom ◁
           (Cat.Hom.isoMk (Iso.core (extendScalarsId B) ≪≫ Functor.coreId _)).hom ≫
             (ρ_ ((Functor.core (extendScalars f)).toCatHom)).hom =
-      eqToHom (by simp) := sorry
+      eqToHom (by simp) := by
+  apply Cat.Hom₂.ext
+  apply NatTrans.ext
+  funext M
+  apply Core.hom_ext
+  apply ObjectProperty.hom_ext
+  have hM := congrArg (fun η ↦ η.app M.of.obj)
+    (ModuleCat.extendScalars_comp_id f.toRingHom)
+  dsimp at hM
+  convert hM using 1 <;> rfl
 
 /-- The core-valued pseudofunctor of finite projective scalar extension. -/
 def pseudofunctor (Λ k : Type u) [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra Λ k]
@@ -137,11 +173,53 @@ theorem pseudofunctor_obj (A : ArtinianLocalAlgCat Λ k) :
 theorem pseudofunctor_map {A B : ArtinianLocalAlgCat Λ k} (f : A ⟶ B) :
     ((pseudofunctor Λ k).map f.toLoc).toFunctor = Functor.core (extendScalars f) := rfl
 
+set_option backward.defeqAttrib.useBackward true in
+set_option backward.isDefEq.respectTransparency false in
+private theorem op_isStronglyCartesian
+    {X Y : Pseudofunctor.Grothendieck (pseudofunctor Λ k)} (φ : X ⟶ Y) :
+    (Pseudofunctor.Grothendieck.forget (pseudofunctor Λ k)).op.IsStronglyCartesian
+      φ.base.op φ.op := by
+  let F := pseudofunctor Λ k
+  refine { toIsHomLift := IsHomLift.map _ φ.op, universal_property' := ?_ }
+  intro Z g τ hτ
+  have hbase : τ.unop.base = φ.base ≫ g.unop := by
+    have ht := IsHomLift.eq_of_isHomLift
+      (Pseudofunctor.Grothendieck.forget F).op (g ≫ φ.base.op) τ
+    exact (congrArg Quiver.Hom.unop ht).symm
+  let χ : Y ⟶ Z.unop :=
+    { base := g.unop
+      fiber := inv ((F.map g.unop.toLoc).toFunctor.map φ.fiber) ≫
+        (F.mapComp φ.base.toLoc g.unop.toLoc).inv.toNatTrans.app X.fiber ≫
+          eqToHom (by rw [hbase]; rfl) ≫ τ.unop.fiber }
+  refine ⟨χ.op, ⟨IsHomLift.map _ χ.op, ?_⟩, ?_⟩
+  · apply Quiver.Hom.unop_inj
+    apply Pseudofunctor.Grothendieck.Hom.ext _ _ hbase.symm
+    simp [χ, F]
+  · rintro χ' ⟨hχ', rfl⟩
+    obtain rfl : g = χ'.unop.base.op :=
+      IsHomLift.eq_of_isHomLift
+        (Pseudofunctor.Grothendieck.forget F).op g χ'
+    apply Quiver.Hom.unop_inj
+    apply Pseudofunctor.Grothendieck.Hom.ext χ'.unop χ rfl
+    simp [χ, F]
+
+set_option backward.defeqAttrib.useBackward true in
+set_option backward.isDefEq.respectTransparency false in
 /-- The Grothendieck projection of finite projective modules is cofibered in groupoids. -/
 instance instInGroupoids_forget (Λ k : Type u) [CommRing Λ] [IsNoetherianRing Λ]
     [Field k] [Algebra Λ k] [Module.Finite Λ k] :
     Functor.IsFibered.InGroupoids
-      (Pseudofunctor.Grothendieck.forget (pseudofunctor Λ k)).op := sorry
+      (Pseudofunctor.Grothendieck.forget (pseudofunctor Λ k)).op where
+  toIsFibered := Functor.IsFibered.of_exists_isStronglyCartesian (by
+    intro X A f
+    let Y : Pseudofunctor.Grothendieck (pseudofunctor Λ k) :=
+      ⟨A.unop, ((pseudofunctor Λ k).map f.unop.toLoc).toFunctor.obj X.unop.fiber⟩
+    let φ : X.unop ⟶ Y := ⟨f.unop, 𝟙 _⟩
+    exact ⟨Opposite.op Y, φ.op, op_isStronglyCartesian φ⟩)
+  all_isCartesian φ := by
+    letI := op_isStronglyCartesian φ.unop
+    exact Functor.IsStronglyCartesian.isCartesian_of_isStronglyCartesian
+      _ φ.unop.base.op φ.unop.op
 
 /-- The category of finite projective modules over Artinian local algebras. -/
 def groupoids (Λ k : Type u) [CommRing Λ] [IsNoetherianRing Λ] [Field k] [Algebra Λ k]
@@ -207,6 +285,8 @@ def mkHomOfLinear {B A : ArtinianLocalAlgCat Λ k}
       (@asIso _ _ _ _ (((ModuleCat.extendRestrictScalarsAdj f.toRingHom).homEquiv
         N.obj M.obj).symm g) hg))
 
+set_option backward.defeqAttrib.useBackward true in
+set_option backward.isDefEq.respectTransparency false in
 /-- Every morphism is represented by a semilinear map with invertible transpose. -/
 theorem mkHomOfLinear_spec {B A : ArtinianLocalAlgCat Λ k}
     {N : ModuleCat.FiniteProjective.{u, u} B.carrier}
@@ -215,7 +295,19 @@ theorem mkHomOfLinear_spec {B A : ArtinianLocalAlgCat Λ k}
     ∃ (g : N.obj ⟶ (ModuleCat.restrictScalars φ.base.toRingHom).obj M.obj)
       (hg : IsIso (((ModuleCat.extendRestrictScalarsAdj φ.base.toRingHom).homEquiv
         N.obj M.obj).symm g)),
-      φ = mkHomOfLinear φ.base g hg := sorry
+      φ = mkHomOfLinear φ.base g hg := by
+  let e : (extendScalars φ.base).obj N ≅ M := φ.fiber.iso
+  let adj := (ModuleCat.extendRestrictScalarsAdj φ.base.toRingHom).homEquiv N.obj M.obj
+  let g := adj e.hom.hom
+  have hg : IsIso (adj.symm g) :=
+    (adj.symm_apply_apply e.hom.hom).symm ▸
+      (ModuleCat.finiteProjective A.carrier).ι.map_isIso e.hom
+  refine ⟨g, hg, ?_⟩
+  refine Pseudofunctor.Grothendieck.Hom.ext φ (mkHomOfLinear φ.base g hg) rfl ?_
+  simp only [eqToHom_refl, Category.id_comp]
+  apply Core.hom_ext
+  apply ObjectProperty.hom_ext
+  exact (adj.symm_apply_apply e.hom.hom).symm
 
 /-- Reconstruct a fibre object from a finite projective module. -/
 def coreToFiber (A : ArtinianLocalAlgCat Λ k)
@@ -231,7 +323,11 @@ def fiberToCore (A : ArtinianLocalAlgCat Λ k) (x : (groupoids Λ k).p.Fiber A) 
 /-- Reconstructing a fibre object from its extracted module returns the original object. -/
 theorem coreToFiber_fiberToCore (A : ArtinianLocalAlgCat Λ k)
     (x : (groupoids Λ k).p.Fiber A) :
-    coreToFiber A (fiberToCore A x) = x := sorry
+    coreToFiber A (fiberToCore A x) = x := by
+  rcases x with ⟨⟨B, M⟩, hx⟩
+  change B = A at hx
+  subst A
+  rfl
 
 /-- Extracting a module after reconstructing its fibre object returns the original module. -/
 theorem fiberToCore_coreToFiber (A : ArtinianLocalAlgCat Λ k)

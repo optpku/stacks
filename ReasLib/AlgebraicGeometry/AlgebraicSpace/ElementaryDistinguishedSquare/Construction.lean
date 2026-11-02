@@ -187,7 +187,13 @@ theorem gluePresheaf_map_id {U V V' : AlgebraicSpace S} (ι : V' ⟶ V) (f' : V'
     [Separated f'] (T : Over S) :
     (TypeCat.ofHom (Quot.map (uvPointMap (𝟙 T))
         (fun _ _ h ↦ glueRel_precomp ι f' (𝟙 T) h)) :
-      Quot (glueRel ι f' T) ⟶ Quot (glueRel ι f' T)) = 𝟙 _ := sorry
+      Quot (glueRel ι f' T) ⟶ Quot (glueRel ι f' T)) = 𝟙 _ := by
+  apply ConcreteCategory.hom_ext
+  intro q
+  refine Quot.inductionOn q fun x ↦ ?_
+  change Quot.mk _ (uvPointMap (𝟙 T) x) = Quot.mk _ x
+  congr 1
+  cases x <;> simp [uvPointMap]
 
 /-- The quotient restriction operation preserves composition of morphisms. -/
 theorem gluePresheaf_map_comp {U V V' : AlgebraicSpace S} (ι : V' ⟶ V) (f' : V' ⟶ U)
@@ -201,7 +207,11 @@ theorem gluePresheaf_map_comp {U V V' : AlgebraicSpace S} (ι : V' ⟶ V) (f' : 
       Quot (glueRel ι f' T) ⟶ Quot (glueRel ι f' T')) ≫
         (TypeCat.ofHom (Quot.map (uvPointMap f)
         (fun _ _ h ↦ glueRel_precomp ι f' f h)) :
-      Quot (glueRel ι f' T') ⟶ Quot (glueRel ι f' T'')) := sorry
+      Quot (glueRel ι f' T') ⟶ Quot (glueRel ι f' T'')) := by
+  apply ConcreteCategory.hom_ext
+  intro q
+  exact Quot.inductionOn q fun x ↦
+    congrArg (Quot.mk (glueRel ι f' T'')) (uvPointMap_comp g f x).symm
 
 /-- The Type `u` presheaf sending `T` to the quotient of the pointwise coproduct
 `(U ⊔ V)(T)` by the image of `R(T)`. This is not an fppf sheaf. -/
@@ -284,14 +294,67 @@ def toGlueSheaf {U V V' : AlgebraicSpace S} (ι : V' ⟶ V) (f' : V' ⟶ U)
 /-- The quotient unit is locally injective for the fppf topology. -/
 instance instIsLocallyInjective_toGlueSheaf {U V V' : AlgebraicSpace S}
     (ι : V' ⟶ V) (f' : V' ⟶ U) [IsOpenImmersion ι] [Etale f'] [Separated f'] :
-    Presheaf.IsLocallyInjective (Scheme.fppfTopology.over S) (toGlueSheaf ι f') :=
-  sorry
+    Presheaf.IsLocallyInjective (Scheme.fppfTopology.over S) (toGlueSheaf ι f') := by
+  constructor
+  intro X x y h
+  let T := X.unop
+  let E := Scheme.Etale.mk (𝟙 T.left)
+  let H := Scheme.EtaleSheafification.testFunctor T
+  let P := gluePresheaf ι f'
+  let e : H.obj E ≅ T := Over.isoMk (Iso.refl _) (by rfl)
+  let x₀ := P.map e.hom.op x
+  let y₀ := P.map e.hom.op y
+  have heq : (CategoryTheory.toSheafify T.left.smallEtaleTopology
+      (Scheme.EtaleSheafification.restriction P T)).app (op E) x₀ =
+      (CategoryTheory.toSheafify T.left.smallEtaleTopology
+        (Scheme.EtaleSheafification.restriction P T)).app (op E) y₀ := h
+  have hs := Presheaf.equalizerSieve_mem T.left.smallEtaleTopology
+    (CategoryTheory.toSheafify T.left.smallEtaleTopology
+      (Scheme.EtaleSheafification.restriction P T)) x₀ y₀ heq
+  have hcover := (CoverPreserving.of_isContinuous H T.left.smallEtaleTopology
+    (Scheme.etaleTopology.over S)).cover_preserve hs
+  apply (GrothendieckTopology.pullback_mem_iff_of_isIso (i := e.hom)).mp
+  apply Scheme.EtaleSheafification.etale_le_fppf_over S
+  apply (Scheme.etaleTopology.over S).superset_covering ?_ hcover
+  rw [Sieve.functorPushforward_le_iff_le_functorPullback]
+  intro E' g hg
+  change P.map (H.map g ≫ e.hom).op x = P.map (H.map g ≫ e.hom).op y
+  change P.map (H.map g).op (P.map e.hom.op x) =
+    P.map (H.map g).op (P.map e.hom.op y) at hg
+  rw [op_comp, P.map_comp]
+  exact hg
 
 /-- The quotient unit is locally surjective for the fppf topology. -/
 instance instIsLocallySurjective_toGlueSheaf {U V V' : AlgebraicSpace S}
     (ι : V' ⟶ V) (f' : V' ⟶ U) [IsOpenImmersion ι] [Etale f'] [Separated f'] :
-    Presheaf.IsLocallySurjective (Scheme.fppfTopology.over S) (toGlueSheaf ι f') :=
-  sorry
+    Presheaf.IsLocallySurjective (Scheme.fppfTopology.over S) (toGlueSheaf ι f') := by
+  -- Universality forces the étale sheafified image of the unit to be the entire target.
+  let P := gluePresheaf ι f'
+  let J := Scheme.etaleTopology.over S
+  let φ := toGlueSheaf ι f'
+  let I := (Subfunctor.range φ).sheafify J
+  have hW : Presheaf.IsSheaf J (glueSheaf ι f') :=
+    Scheme.EtaleSheafification.isSheaf P
+  have hI : Presheaf.IsSheaf J I.toFunctor :=
+    (isSheaf_iff_isSheaf_of_type _ _).2 <|
+      Subfunctor.sheafify_isSheaf _ ((isSheaf_iff_isSheaf_of_type _ _).1 hW)
+  let η : P ⟶ I.toFunctor :=
+    Subfunctor.lift φ ((Subfunctor.range φ).le_sheafify J)
+  obtain ⟨θ, hθ, _⟩ := Scheme.EtaleSheafification.universal P ⟨I.toFunctor, hI⟩ η
+  obtain ⟨ψ, _, hψ⟩ := Scheme.EtaleSheafification.universal P
+    ⟨glueSheaf ι f', hW⟩ φ
+  have hη : η ≫ I.ι = φ := Subfunctor.lift_ι _ _
+  have heq : θ ≫ I.ι = 𝟙 (glueSheaf ι f') := by
+    apply (hψ _ ?_).trans (hψ _ (Category.comp_id φ)).symm
+    rw [← Category.assoc, hθ]
+    exact hη
+  constructor
+  intro T x
+  apply Scheme.EtaleSheafification.etale_le_fppf_over S
+  change x ∈ I.obj (op T)
+  have hx : (θ.app (op T) x).val = x :=
+    ConcreteCategory.congr_hom (NatTrans.congr_app heq (op T)) x
+  exact hx ▸ (θ.app (op T) x).property
 
 /-- The diagonal of the sheafified quotient is representable by schemes. -/
 theorem glueSheaf_representableDiagonal {U V V' : AlgebraicSpace S}
@@ -319,7 +382,11 @@ theorem inl_naturality {U V V' : AlgebraicSpace S} (ι : V' ⟶ V) (f' : V' ⟶ 
         TypeCat.ofHom (fun v ↦ (toGlueSheaf ι f').app Y
           (Quot.mk (glueRel ι f' Y.unop) (Sum.inr v))) =
       TypeCat.ofHom (fun v ↦ (toGlueSheaf ι f').app X
-        (Quot.mk (glueRel ι f' X.unop) (Sum.inr v))) ≫ (glueSheaf ι f').map g := sorry
+        (Quot.mk (glueRel ι f' X.unop) (Sum.inr v))) ≫ (glueSheaf ι f').map g := by
+  apply ConcreteCategory.hom_ext
+  intro v
+  exact NatTrans.naturality_apply (toGlueSheaf ι f') g
+    (Quot.mk (glueRel ι f' X.unop) (Sum.inr v))
 
 /-- The canonical map from the V summand to the fppf quotient. -/
 def inl {U V V' : AlgebraicSpace S} (ι : V' ⟶ V) (f' : V' ⟶ U)
@@ -338,7 +405,11 @@ theorem inr_naturality {U V V' : AlgebraicSpace S} (ι : V' ⟶ V) (f' : V' ⟶ 
         TypeCat.ofHom (fun v ↦ (toGlueSheaf ι f').app Y
           (Quot.mk (glueRel ι f' Y.unop) (Sum.inl v))) =
       TypeCat.ofHom (fun v ↦ (toGlueSheaf ι f').app X
-        (Quot.mk (glueRel ι f' X.unop) (Sum.inl v))) ≫ (glueSheaf ι f').map g := sorry
+        (Quot.mk (glueRel ι f' X.unop) (Sum.inl v))) ≫ (glueSheaf ι f').map g := by
+  apply ConcreteCategory.hom_ext
+  intro v
+  exact NatTrans.naturality_apply (toGlueSheaf ι f') g
+    (Quot.mk (glueRel ι f' X.unop) (Sum.inl v))
 
 /-- The canonical map from the U summand to the fppf quotient. -/
 def inr {U V V' : AlgebraicSpace S} (ι : V' ⟶ V) (f' : V' ⟶ U)
@@ -420,7 +491,30 @@ def pushoutCocone {U V V' : AlgebraicSpace S} (ι : V' ⟶ V) (f' : V' ⟶ U)
 theorem pushout_hom_ext {U V V' B : AlgebraicSpace S} (ι : V' ⟶ V) (f' : V' ⟶ U)
     [IsOpenImmersion ι] [Etale f'] [Separated f']
     (h k : pushoutObj ι f' ⟶ B) (hV : inl ι f' ≫ h = inl ι f' ≫ k)
-    (hU : inr ι f' ≫ h = inr ι f' ≫ k) : h = k := sorry
+    (hU : inr ι f' ≫ h = inr ι f' ≫ k) : h = k := by
+  have hq : toGlueSheaf ι f' ≫ h = toGlueSheaf ι f' ≫ k := by
+    apply NatTrans.ext
+    funext T
+    apply ConcreteCategory.hom_ext
+    intro q
+    refine Quot.inductionOn q fun x ↦ ?_
+    cases x with
+    | inl u => exact ConcreteCategory.congr_hom (NatTrans.congr_app hU T) u
+    | inr v => exact ConcreteCategory.congr_hom (NatTrans.congr_app hV T) v
+  apply NatTrans.ext
+  funext T
+  apply ConcreteCategory.hom_ext
+  intro x
+  apply (((isSheaf_iff_isSheaf_of_type _ _).1 B.isSheaf).isSeparated _
+    (Presheaf.imageSieve_mem (Scheme.fppfTopology.over S) (toGlueSheaf ι f') x)).ext
+  rintro T' g ⟨q, hq'⟩
+  change B.functorOfPoints.map g.op (h.app T x) =
+    B.functorOfPoints.map g.op (k.app T x)
+  rw [← NatTrans.naturality_apply h, ← NatTrans.naturality_apply k]
+  change h.app (op T') ((glueSheaf ι f').map g.op x) =
+    k.app (op T') ((glueSheaf ι f').map g.op x)
+  rw [← hq']
+  exact ConcreteCategory.congr_hom (NatTrans.congr_app hq (op T')) q
 
 /-- The cocone on `pushoutObj` is a colimit cocone. -/
 def pushoutCoconeIsColimit {U V V' : AlgebraicSpace S} (ι : V' ⟶ V) (f' : V' ⟶ U)

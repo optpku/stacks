@@ -42,14 +42,16 @@ functor-composite form is intentional: it is the form exposed by `commShiftIso`.
 @[stacks 05SE "right-derived definedness at the source of the inclusion shift comparison"]
 instance inclusionShiftSourceHasPointwise (X : Domain F S) (n : ℤ) :
     F.HasPointwiseRightDerivedFunctorAt S
-      ((shiftFunctor (Domain F S) n ⋙ (property F S).ι).obj X) := sorry
+      ((shiftFunctor (Domain F S) n ⋙ (property F S).ι).obj X) :=
+  ((shiftFunctor (Domain F S) n).obj X).property
 
 /-- The target of the inclusion's shift comparison is pointwise right-derived-defined.  This
 bridge exposes ambient shift stability in the functor-composite form used by `commShiftIso`. -/
 @[stacks 05SE "right-derived definedness at the target of the inclusion shift comparison"]
 instance inclusionShiftTargetHasPointwise (X : Domain F S) (n : ℤ) :
     F.HasPointwiseRightDerivedFunctorAt S
-      (((property F S).ι ⋙ shiftFunctor D n).obj X) := sorry
+      (((property F S).ι ⋙ shiftFunctor D n).obj X) :=
+  Functor.RightDerived.Value.Shift.pointwiseAt_shift F S X.obj n
 
 end Domain
 

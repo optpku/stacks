@@ -75,7 +75,8 @@ theorem spec (c : EtaleBaseChangeChart g' f' f g) :
       c.V'.hom ≫ g = ofOverMap c.mapV' ≫ c.V.hom ∧
         Etale c.U.hom ∧ Etale c.V.hom ∧ Etale c.V'.hom ∧
           c.mapU.left ≫ c.V.left.hom = c.U.left.hom ∧
-            c.mapV'.left ≫ c.V.left.hom = c.V'.left.hom := sorry
+            c.mapV'.left ≫ c.V.left.hom = c.V'.left.hom :=
+  ⟨c.wU, c.wV', c.U.prop, c.V.prop, c.V'.prop, Over.w c.mapU, Over.w c.mapV'⟩
 
 /-- The chosen scheme fibre product `U' = V' ×_V U` of a chart. -/
 def schemeU' (c : EtaleBaseChangeChart g' f' f g) : Scheme.{u} :=
@@ -95,11 +96,14 @@ def overObj (c : EtaleBaseChangeChart g' f' f g) : Over S :=
 
 /-- The first fibre-product projection preserves the structure morphism to S. -/
 theorem fst_comp_structure (c : EtaleBaseChangeChart g' f' f g) :
-    c.fst ≫ c.U.left.hom = c.overObj.hom := sorry
+    c.fst ≫ c.U.left.hom = c.overObj.hom := rfl
 
 /-- The second fibre-product projection preserves the structure morphism to S. -/
 theorem snd_comp_structure (c : EtaleBaseChangeChart g' f' f g) :
-    c.snd ≫ c.V'.left.hom = c.overObj.hom := sorry
+    c.snd ≫ c.V'.left.hom = c.overObj.hom := by
+  change c.snd ≫ c.V'.left.hom = c.fst ≫ c.U.left.hom
+  rw [← Over.w c.mapV', ← Over.w c.mapU, ← Category.assoc, ← Category.assoc]
+  exact congrArg (fun k => k ≫ c.V.left.hom) pullback.condition.symm
 
 /-- The morphism `U' ⟶ U` in `Sch/S` induced by the first projection. -/
 def toUOver (c : EtaleBaseChangeChart g' f' f g) : c.overObj ⟶ c.U.left :=
@@ -113,7 +117,16 @@ def toV'Over (c : EtaleBaseChangeChart g' f' f g) : c.overObj ⟶ c.V'.left :=
 cartesian square. -/
 theorem toX'_lift_comm (c : EtaleBaseChangeChart g' f' f g) (sq : IsPullback g' f' f g) :
     (ofOverMap c.toUOver ≫ c.U.hom) ≫ f =
-      (ofOverMap c.toV'Over ≫ c.V'.hom) ≫ g := sorry
+      (ofOverMap c.toV'Over ≫ c.V'.hom) ≫ g := by
+  have w : c.toUOver ≫ c.mapU = c.toV'Over ≫ c.mapV' := by
+    apply Over.OverMorphism.ext
+    exact pullback.condition
+  erw [Category.assoc, c.wU, Category.assoc, c.wV']
+  change yoneda.map c.toUOver ≫ (yoneda.map c.mapU ≫
+      (c.V.hom : yoneda.obj c.V.left ⟶ Y.functorOfPoints)) =
+    yoneda.map c.toV'Over ≫ (yoneda.map c.mapV' ≫
+      (c.V.hom : yoneda.obj c.V.left ⟶ Y.functorOfPoints))
+  rw [← Category.assoc, ← Category.assoc, ← Functor.map_comp, ← Functor.map_comp, w]
 
 /-- The induced morphism `U' → X'` obtained by lifting the pair of étale charts of `X` and
 `Y'` along a cartesian square of algebraic spaces. -/
@@ -124,11 +137,13 @@ def toX' (c : EtaleBaseChangeChart g' f' f g) (sq : IsPullback g' f' f g) :
 
 /-- The first projection of `toX'` recovers the composite `U' → U → X`. -/
 theorem toX'_comp_g' (c : EtaleBaseChangeChart g' f' f g) (sq : IsPullback g' f' f g) :
-    c.toX' sq ≫ g' = ofOverMap c.toUOver ≫ c.U.hom := sorry
+    c.toX' sq ≫ g' = ofOverMap c.toUOver ≫ c.U.hom :=
+  sq.lift_fst _ _ _
 
 /-- The second projection of `toX'` recovers the composite `U' → V' → Y'`. -/
 theorem toX'_comp_f' (c : EtaleBaseChangeChart g' f' f g) (sq : IsPullback g' f' f g) :
-    c.toX' sq ≫ f' = ofOverMap c.toV'Over ≫ c.V'.hom := sorry
+    c.toX' sq ≫ f' = ofOverMap c.toV'Over ≫ c.V'.hom :=
+  sq.lift_snd _ _ _
 
 /-- The induced chart morphism `U' → X'` is étale. -/
 theorem etale_toX' (c : EtaleBaseChangeChart g' f' f g) (sq : IsPullback g' f' f g) :
@@ -136,7 +151,7 @@ theorem etale_toX' (c : EtaleBaseChangeChart g' f' f g) (sq : IsPullback g' f' f
 
 /-- `schemeU'` is the chosen pullback of the underlying scheme morphisms of the chart. -/
 theorem schemeU'_eq (c : EtaleBaseChangeChart g' f' f g) :
-    c.schemeU' = pullback c.mapU.left c.mapV'.left := sorry
+    c.schemeU' = pullback c.mapU.left c.mapV'.left := rfl
 
 end EtaleBaseChangeChart
 

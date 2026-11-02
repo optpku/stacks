@@ -48,7 +48,7 @@ theorem mem_support_baseChange {S X S' X' : Scheme.{u}} {f : X ⟶ S}
     letI : LocallyOfFiniteType f' :=
       MorphismProperty.of_isPullback (P := @LocallyOfFiniteType) hpb inferInstance
     x' ∈ support (FiberCycleFamily.baseChange hpb α) ↔ g' x' ∈ support α :=
-  sorry
+  Set.ext_iff.mp (support_baseChange hpb α) x'
 
 /-- Support of a family of fibre cycles after base change along the chosen
 pullback square of `f` and `g` is the preimage along `pullback.fst f g`. -/
@@ -56,7 +56,7 @@ theorem support_baseChange_pullback {S X S' : Scheme.{u}} {f : X ⟶ S}
     [LocallyOfFiniteType f] (g : S' ⟶ S) {r : ℤ} (α : CyclesOnFibers f r) :
     support (FiberCycleFamily.baseChange (IsPullback.of_hasPullback f g) α) =
       pullback.fst f g ⁻¹' support α :=
-  sorry
+  support_baseChange (IsPullback.of_hasPullback f g) α
 
 /-- The support of a family of fibre cycles restricted to compatible opens
 is the preimage of the original support along the open immersion. -/
@@ -72,7 +72,7 @@ theorem mem_support_restrict {X S : Scheme.{u}} {f : X ⟶ S}
     [LocallyOfFiniteType f] (U : X.Opens) (V : S.Opens) (hU : U ≤ f ⁻¹ᵁ V)
     {r : ℤ} (α : CyclesOnFibers f r) (u : U.toScheme) :
     u ∈ support (FiberCycleFamily.restrict U V hU α) ↔ U.ι u ∈ support α :=
-  sorry
+  Set.ext_iff.mp (support_restrict U V hU α) u
 
 /-- The image of the support of a restricted family of fibre cycles is the
 intersection of the original support with `U`. -/
@@ -80,7 +80,9 @@ theorem image_support_restrict {X S : Scheme.{u}} {f : X ⟶ S}
     [LocallyOfFiniteType f] (U : X.Opens) (V : S.Opens) (hU : U ≤ f ⁻¹ᵁ V)
     {r : ℤ} (α : CyclesOnFibers f r) :
     U.ι '' support (FiberCycleFamily.restrict U V hU α) = support α ∩ U :=
-  sorry
+  by
+    rw [support_restrict U V hU α, Set.image_preimage_eq_inter_range,
+      Scheme.Opens.range_ι]
 
 /-- The support of the flat pullback of a family of fibre cycles along a
 morphism of relative dimension `e` is the preimage of the original support. -/
@@ -98,7 +100,7 @@ theorem mem_support_flatPullback {X' X S : Scheme.{u}} {f : X ⟶ S}
     (h : X' ⟶ X) (hf : h ≫ f = f') (e : ℕ) [Flat h] [RelativeDimension h e]
     {r : ℤ} (α : CyclesOnFibers f r) (x' : X') :
     x' ∈ support (FiberCycleFamily.flatPullback h hf e α) ↔ h x' ∈ support α :=
-  sorry
+  Set.ext_iff.mp (support_flatPullback h hf e α) x'
 
 end CyclesOnFibers
 

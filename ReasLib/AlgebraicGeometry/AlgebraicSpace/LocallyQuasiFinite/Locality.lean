@@ -12,6 +12,8 @@ public import ReasLib.AlgebraicGeometry.AlgebraicSpace.FiniteType
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Pullback
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Surjective
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.ZariskiCover.Basic
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Locality.Criteria
+public import ReasLib.AlgebraicGeometry.Scheme.Morphism.EtaleLocal.QuasiFinite
 
 /-!
 # Locality of quasi-finiteness for algebraic spaces
@@ -52,60 +54,44 @@ namespace LocallyQuasiFinite
 
 /-- Every base change along a morphism from a scheme is locally of finite
 type and locally quasi-finite. -/
-def baseChangeOnSchemes {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
+abbrev baseChangeOnSchemes {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     Prop :=
-  ∀ {Z : Over S} (g : ofOver Z ⟶ Y),
-    LocallyOfFiniteType (pullbackAlongScheme.snd f g) ∧
-      LocallyQuasiFinite (pullbackAlongScheme.snd f g)
+  Locality.Criteria.forallScheme (@LocallyOfFiniteType S ⊓ @LocallyQuasiFinite S) f
 
 /-- Every base change along a morphism from an affine scheme is locally of
 finite type and locally quasi-finite. -/
-def baseChangeOnAffineSchemes {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+abbrev baseChangeOnAffineSchemes {S : Scheme.{u}} {X Y : AlgebraicSpace S}
     (f : X ⟶ Y) : Prop :=
-  ∀ {Z : Over S} (g : ofOver Z ⟶ Y),
-    IsAffine Z.left → LocallyOfFiniteType (pullbackAlongScheme.snd f g) ∧
-      LocallyQuasiFinite (pullbackAlongScheme.snd f g)
+  Locality.Criteria.forallAffine (@LocallyOfFiniteType S ⊓ @LocallyQuasiFinite S) f
 
 /-- There is a surjective étale scheme atlas of the target along which the
 base change is locally of finite type and locally quasi-finite. -/
-def existsSurjectiveEtaleTarget {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+abbrev existsSurjectiveEtaleTarget {S : Scheme.{u}} {X Y : AlgebraicSpace S}
     (f : X ⟶ Y) : Prop :=
-  ∃ (V : Over S) (b : ofOver V ⟶ Y),
-    (over (@AlgebraicGeometry.Etale)).presheaf b ∧
-      Surjective b ∧ LocallyOfFiniteType (pullbackAlongScheme.snd f b) ∧
-        LocallyQuasiFinite (pullbackAlongScheme.snd f b)
+  Locality.Criteria.existsSurjectiveEtaleTarget
+    (@LocallyOfFiniteType S ⊓ @LocallyQuasiFinite S) f
 
 /-- There is a surjective étale scheme atlas of the source whose composite
 with the morphism is locally of finite type and locally quasi-finite. -/
-def existsSurjectiveEtaleSource {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+abbrev existsSurjectiveEtaleSource {S : Scheme.{u}} {X Y : AlgebraicSpace S}
     (f : X ⟶ Y) : Prop :=
-  ∃ (U : Over S) (φ : ofOver U ⟶ X),
-    (over (@AlgebraicGeometry.Etale)).presheaf φ ∧
-      Surjective φ ∧ LocallyOfFiniteType (φ ≫ f) ∧ LocallyQuasiFinite (φ ≫ f)
+  Locality.Criteria.existsSurjectiveEtaleSource
+    (@LocallyOfFiniteType S ⊓ @LocallyQuasiFinite S) f
 
 /-- Every commutative scheme square with étale vertical arrows has locally
 of finite type and locally quasi-finite top arrow. -/
-def forallEtaleSquare {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
+abbrev forallEtaleSquare {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     Prop :=
-  ∀ {U V : Over S} (a : yoneda.obj U ⟶ X.functorOfPoints)
-    (b : yoneda.obj V ⟶ Y.functorOfPoints) (h : U ⟶ V),
-    (over (@AlgebraicGeometry.Etale)).presheaf a →
-      (over (@AlgebraicGeometry.Etale)).presheaf b →
-        a ≫ f = yoneda.map h ≫ b →
-          AlgebraicGeometry.LocallyOfFiniteType h.left ∧
-            AlgebraicGeometry.LocallyQuasiFinite h.left
+  Locality.Criteria.forallEtaleSquare
+    (@AlgebraicGeometry.LocallyOfFiniteType ⊓ @AlgebraicGeometry.LocallyQuasiFinite) f
 
 /-- There is a commutative scheme square with étale vertical arrows,
 surjective source vertical arrow, and locally of finite type and locally
 quasi-finite top arrow. -/
-def existsEtaleSquare {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
+abbrev existsEtaleSquare {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     Prop :=
-  ∃ (U V : Over S) (a : ofOver U ⟶ X) (b : ofOver V ⟶ Y) (h : U ⟶ V),
-    (over (@AlgebraicGeometry.Etale)).presheaf a ∧
-      (over (@AlgebraicGeometry.Etale)).presheaf b ∧
-        a ≫ f = ofOverMap h ≫ b ∧
-          Surjective a ∧ AlgebraicGeometry.LocallyOfFiniteType h.left ∧
-            AlgebraicGeometry.LocallyQuasiFinite h.left
+  Locality.Criteria.existsEtaleSquare
+    (@AlgebraicGeometry.LocallyOfFiniteType ⊓ @AlgebraicGeometry.LocallyQuasiFinite) f
 
 /-- There are Zariski coverings of the target and of each inverse image such
 that every restricted morphism is locally of finite type and locally
@@ -116,6 +102,14 @@ def existsZariskiCover {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     ∃ 𝒰 : ZariskiCover.{u, v} (Limits.pullback f (𝒱.f i)), ∀ j : 𝒰.I₀,
       LocallyOfFiniteType (𝒰.f j ≫ Limits.pullback.snd f (𝒱.f i)) ∧
         LocallyQuasiFinite (𝒰.f j ≫ Limits.pullback.snd f (𝒱.f i))
+
+/-- The chosen-pullback and presentation-independent Zariski criteria agree. -/
+theorem existsZariskiCover_iff_criteria {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+    (f : X ⟶ Y) :
+    existsZariskiCover.{u, v} f ↔
+      Locality.Criteria.existsZariskiCover.{u, v}
+        (@LocallyOfFiniteType S ⊓ @LocallyQuasiFinite S) f := by
+  sorry
 
 end LocallyQuasiFinite
 
@@ -138,6 +132,58 @@ theorem locallyQuasiFinite_tfae {S : Scheme.{u}} {X Y : AlgebraicSpace S}
       , LocallyQuasiFinite.forallEtaleSquare f
       , LocallyQuasiFinite.existsEtaleSquare f
       , LocallyQuasiFinite.existsZariskiCover.{u, v} f ] :=
-  sorry
+  by
+    let Q : MorphismProperty Scheme.{u} :=
+      @AlgebraicGeometry.LocallyOfFiniteType ⊓ @AlgebraicGeometry.LocallyQuasiFinite
+    let P : MorphismProperty (AlgebraicSpace S) :=
+      @LocallyOfFiniteType S ⊓ @LocallyQuasiFinite S
+    letI : IsEtaleLocalAtSourceAndTarget Q :=
+      Scheme.Hom.FiniteType.locallyQuasiFiniteIsEtaleLocalAtSourceAndTarget
+    letI : Q.IsStableUnderBaseChange := by
+      dsimp [Q]
+      infer_instance
+    have hP : P = etaleLocal Q := by
+      funext U V g
+      apply propext
+      change (LocallyOfFiniteType g ∧ LocallyQuasiFinite g) ↔ _
+      rw [locallyOfFiniteType_iff, locallyQuasiFinite_iff]
+      exact ⟨fun h _ _ a b k ha hb w => ⟨h.1 a b k ha hb w, h.2 a b k ha hb w⟩,
+        fun h => ⟨fun a b k ha hb w => (h a b k ha hb w).1,
+          fun a b k ha hb w => (h a b k ha hb w).2⟩⟩
+    have hlocal := Locality.Criteria.etaleLocal_tfae.{u, v} Q f
+    have hbase : List.TFAE
+        [ LocallyOfFiniteType f ∧ LocallyQuasiFinite f
+        , LocallyQuasiFinite.baseChangeOnSchemes f
+        , LocallyQuasiFinite.baseChangeOnAffineSchemes f
+        , LocallyQuasiFinite.existsSurjectiveEtaleTarget f
+        , LocallyQuasiFinite.existsSurjectiveEtaleSource f
+        , LocallyQuasiFinite.forallEtaleSquare f
+        , LocallyQuasiFinite.existsEtaleSquare f
+        , Locality.Criteria.existsZariskiCover.{u, v} P f ] := by
+      simpa only [LocallyQuasiFinite.baseChangeOnSchemes,
+        LocallyQuasiFinite.baseChangeOnAffineSchemes,
+        LocallyQuasiFinite.existsSurjectiveEtaleTarget,
+        LocallyQuasiFinite.existsSurjectiveEtaleSource,
+        LocallyQuasiFinite.forallEtaleSquare, LocallyQuasiFinite.existsEtaleSquare,
+        ← hP, P, Q, MorphismProperty.inf_iff] using hlocal
+    have hpoint : (LocallyOfFiniteType f ∧ LocallyQuasiFinite f) ↔
+        ∀ x : Points X, ∃ (X' : AlgebraicSpace S) (i : X' ⟶ X),
+          IsOpenImmersion i ∧ x ∈ Set.range (Points.map i) ∧
+            LocallyOfFiniteType (i ≫ f) ∧ LocallyQuasiFinite (i ≫ f) := by
+      sorry
+    have hzar := LocallyQuasiFinite.existsZariskiCover_iff_criteria.{u, v} f
+    have hbase' : List.TFAE
+        [ LocallyOfFiniteType f ∧ LocallyQuasiFinite f
+        , LocallyQuasiFinite.baseChangeOnSchemes f
+        , LocallyQuasiFinite.baseChangeOnAffineSchemes f
+        , LocallyQuasiFinite.existsSurjectiveEtaleTarget f
+        , LocallyQuasiFinite.existsSurjectiveEtaleSource f
+        , LocallyQuasiFinite.forallEtaleSquare f
+        , LocallyQuasiFinite.existsEtaleSquare f
+        , LocallyQuasiFinite.existsZariskiCover.{u, v} f ] := by
+      simpa only [hzar] using hbase
+    exact List.tfae_cons_cons.mpr ⟨hpoint,
+      List.tfae_cons_cons.mpr ⟨hpoint.symm.trans (hbase'.out 0 1),
+        (List.tfae_cons_cons.mp hbase').2⟩⟩
 
 end AlgebraicGeometry.AlgebraicSpace

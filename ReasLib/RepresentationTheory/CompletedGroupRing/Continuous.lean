@@ -35,26 +35,82 @@ def stageMap (N : OpenNormalSubgroup H) :
 
 theorem compatible (x : completedGroupRing Λ G) :
     CompletedGroupRing.IsCompatible Λ H
-      (fun N ↦ stageMap Λ e he N (x.val (N.comap e.toMonoidHom he))) := sorry
+      (fun N ↦ stageMap Λ e he N (x.val (N.comap e.toMonoidHom he))) := by
+  intro N N' h
+  have hc := OpenNormalSubgroup.comap_mono e.toMonoidHom he h
+  have hsquare :
+      (CompletedGroupRing.transition Λ H h).comp (stageMap Λ e he N) =
+        (stageMap Λ e he N').comp (CompletedGroupRing.transition Λ G hc) := by
+    unfold CompletedGroupRing.transition stageMap
+    rw [← MonoidAlgebra.mapDomainRingHom_comp, ← MonoidAlgebra.mapDomainRingHom_comp]
+    congr 1
+    apply MonoidHom.ext
+    intro q
+    exact QuotientGroup.induction_on q (fun _ ↦ rfl)
+  calc
+    _ = stageMap Λ e he N' (CompletedGroupRing.transition Λ G hc (x.val _)) :=
+      DFunLike.congr_fun hsquare _
+    _ = _ := congrArg (stageMap Λ e he N') (x.property hc)
 
 /-- The completed-ring map is specified at every open-normal quotient. -/
 def hom : completedGroupRing Λ G →+* completedGroupRing Λ H where
   toFun x :=
     ⟨fun N ↦ stageMap Λ e he N (x.val (N.comap e.toMonoidHom he)), compatible Λ e he x⟩
-  map_zero' := sorry
-  map_one' := sorry
-  map_add' := sorry
-  map_mul' := sorry
+  map_zero' := by
+    apply completedGroupRing.ext
+    intro N
+    exact (stageMap Λ e he N).map_zero
+  map_one' := by
+    apply completedGroupRing.ext
+    intro N
+    exact (stageMap Λ e he N).map_one
+  map_add' := by
+    intro x y
+    apply completedGroupRing.ext
+    intro N
+    exact (stageMap Λ e he N).map_add _ _
+  map_mul' := by
+    intro x y
+    apply completedGroupRing.ext
+    intro N
+    exact (stageMap Λ e he N).map_mul _ _
 
 variable (heinv : Continuous e.symm)
+
+/-- Applying the inverse continuous group equivalence recovers the compatible family. -/
+theorem hom_symm_hom (x : completedGroupRing Λ G) :
+    hom Λ e.symm heinv (hom Λ e he x) = x := by
+  apply completedGroupRing.ext
+  intro N
+  have h : (N.comap e.symm.toMonoidHom heinv).comap e.toMonoidHom he ≤ N := by
+    intro g hg
+    change e.symm (e g) ∈ N at hg
+    simpa using hg
+  have hcomp :
+      (stageMap Λ e.symm heinv N).comp
+          (stageMap Λ e he (N.comap e.symm.toMonoidHom heinv)) =
+        CompletedGroupRing.transition Λ G h := by
+    unfold stageMap CompletedGroupRing.transition
+    rw [← MonoidAlgebra.mapDomainRingHom_comp]
+    congr 1
+    apply MonoidHom.ext
+    intro q
+    refine QuotientGroup.induction_on q (fun g ↦ ?_)
+    change (QuotientGroup.mk (e.symm (e g)) : G ⧸ N.toSubgroup) = QuotientGroup.mk g
+    rw [e.symm_apply_apply]
+  change stageMap Λ e.symm heinv N
+    (stageMap Λ e he (N.comap e.symm.toMonoidHom heinv) (x.val _)) = x.val N
+  calc
+    _ = CompletedGroupRing.transition Λ G h (x.val _) := DFunLike.congr_fun hcomp _
+    _ = _ := x.property h
 
 /-- The inverse also uses the actual inverse continuous equivalence on all
 finite-stage projections. Mixed group/coefficient universes are retained. -/
 def ringEquiv : completedGroupRing Λ G ≃+* completedGroupRing Λ H where
   toFun := hom Λ e he
   invFun := hom Λ e.symm heinv
-  left_inv := sorry
-  right_inv := sorry
+  left_inv := hom_symm_hom Λ e he heinv
+  right_inv := hom_symm_hom Λ e.symm heinv he
   map_add' := (hom Λ e he).map_add
   map_mul' := (hom Λ e he).map_mul
 

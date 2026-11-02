@@ -69,12 +69,14 @@ theorem fiberBetti_apply (E : ModuleDerived X) (i : ℤ) (x : Points X) :
       Module.finrank
         (IsLocalRing.ResidueField
           (etaleLocalRing X (AlgebraicGeometry.AlgebraicSpace.geometricPointOver x)))
-        (fiberHomology E (AlgebraicGeometry.AlgebraicSpace.geometricPointOver x) i) := sorry
+        (fiberHomology E (AlgebraicGeometry.AlgebraicSpace.geometricPointOver x) i) :=
+  rfl
 
 /-- The derived-fiber Euler characteristic is the finsum of signed Betti numbers. -/
 theorem fiberEulerChar_apply (E : ModuleDerived X) (x : Points X) :
     fiberEulerChar E x =
-      ∑ᶠ i : ℤ, (Int.negOnePow i : ℤ) * fiberBetti E i x := sorry
+      ∑ᶠ i : ℤ, (Int.negOnePow i : ℤ) * fiberBetti E i x :=
+  rfl
 
 /-- The Euler characteristic at the image of a geometric point agrees with the value at
 that geometric point. -/
@@ -83,7 +85,23 @@ theorem fiberEulerChar_spec (E : ModuleDerived X) (xbar : GeometricPoint X) :
 
 /-- Isomorphic derived modules have the same derived-fiber Euler-characteristic function. -/
 theorem fiberEulerChar_eq_of_iso {E F : ModuleDerived X} (e : E ≅ F) :
-    fiberEulerChar E = fiberEulerChar F := sorry
+    fiberEulerChar E = fiberEulerChar F := by
+  funext x
+  rw [fiberEulerChar_apply, fiberEulerChar_apply]
+  apply finsum_congr
+  intro i
+  have hi : fiberBetti E i x = fiberBetti F i x := by
+    let xbar := AlgebraicGeometry.AlgebraicSpace.geometricPointOver x
+    let R := etaleLocalRing X xbar
+    let eStalk :=
+      ((GeometricPoint.toSmallEtalePoint xbar).sheafModuleStalkFunctor
+        (structureSheaf X)).mapDerivedCategory.mapIso e
+    let eFiber :=
+      (ModuleCat.derivedExtensionOfScalars
+        (algebraMap R (IsLocalRing.ResidueField R))).mapIso eStalk
+    exact ((DerivedCategory.homologyFunctor
+      (ModuleCat (IsLocalRing.ResidueField R)) i).mapIso eFiber).toLinearEquiv.finrank_eq
+  rw [hi]
 
 /-- Perfect derived modules have finite-dimensional residue-field fiber cohomology in every
 degree. -/

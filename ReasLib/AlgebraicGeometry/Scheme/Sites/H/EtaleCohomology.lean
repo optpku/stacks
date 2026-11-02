@@ -6,7 +6,10 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
+public import Mathlib.Algebra.Category.Grp.AB
 public import Mathlib.AlgebraicGeometry.Morphisms.Proper
+public import Mathlib.CategoryTheory.Abelian.GrothendieckAxioms.Sheaf
+public import Mathlib.CategoryTheory.Abelian.GrothendieckCategory.EnoughInjectives
 public import ReasLib.AlgebraicGeometry.Scheme.Sites.H.Presentation
 public import ReasLib.AlgebraicGeometry.Scheme.Sites.Fppf.EtaleCohomology
 public import ReasLib.CategoryTheory.Sites.AbelianSheaf.Torsion
@@ -41,7 +44,12 @@ theorem etale_le_h : etaleTopology.{u} ≤ hPrecoverage.toGrothendieck := sorry
 topology-comparison coefficient universe. -/
 instance etaleOver_hasInjectiveResolutions (X : Scheme.{u}) :
     HasInjectiveResolutions
-      (Sheaf (etaleTopology.over X) AddCommGrpCat.{u + 1}) := sorry
+      (Sheaf (etaleTopology.over X) AddCommGrpCat.{u + 1}) := by
+  letI : IsGrothendieckAbelian.{u + 1}
+      (Sheaf (etaleTopology.over X) AddCommGrpCat.{u + 1}) :=
+    Sheaf.isGrothendieckAbelian_of_essentiallySmall.{u + 1, u + 1, u, u + 2, u + 1}
+      (etaleTopology.over X) AddCommGrpCat.{u + 1}
+  exact { out := fun F ↦ { out := ⟨InjectiveResolution.of F⟩ } }
 
 /-- Inverse image along a morphism of schemes preserves the torsion-pullback
 coefficient family. -/

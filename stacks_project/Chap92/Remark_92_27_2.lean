@@ -45,7 +45,7 @@ standard-resolution term. -/
 #check (AlgebraicGeometry.AlgebraicSpace.Cotangent.standardAffineSpecIso Λ X :
   ∀ (U : smallEtaleSite X) (n : SimplexCategory),
     (affineScheme Λ X).obj (((standardAffine Λ X).obj U).obj n) ≅
-      Spec (standardTerm Λ U n).right)
+      Spec (standardSectionTerm Λ U n).right)
 
 /- Remark 92.27.2: the cosimplicial object is over the constant chart and hence lies in
 the actual projection fiber. -/

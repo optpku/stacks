@@ -30,6 +30,71 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace.Hom
 
+private theorem relativeCartier_associatedCycle_inverseImage_support {S : Scheme.{u}}
+    {X Y : AlgebraicSpace S} [IsLocallyNoetherian X] (q : X ⟶ Y)
+    (d : Points X → ℤ) (m : ℤ) (y : Points Y) :
+    (((ClosedSubspace.pointClosure y).inverseImageSubspace q).associatedCycle d m).support ⊆
+      Points.map q ⁻¹' closure ({y} : Set (Points Y)) := by
+  letI : IsClosedImmersion (ClosedSubspace.pointClosure y).ι :=
+    (ClosedSubspace.pointClosure y).isClosedImmersion
+  intro x hx
+  by_contra hmem
+  apply hx
+  rw [ClosedSubspace.associatedCycle_apply]
+  apply finsum_eq_zero_of_forall_eq_zero
+  intro η
+  have hne : x ≠ Points.map
+      ((ClosedSubspace.pointClosure y).inverseImageSubspace q).ι η.1 := by
+    intro heq
+    apply hmem
+    rw [heq]
+    change Points.map q (Points.map (inverseImageι q (ClosedSubspace.pointClosure y).ι) η.1) ∈
+      closure ({y} : Set (Points Y))
+    rw [← Points.map_comp, inverseImage_condition, Points.map_comp,
+      ← ClosedSubspace.pointClosure_pointsSet]
+    exact ⟨_, rfl⟩
+  simp [ClosedSubspace.componentCycle_apply, hne]
+
+private theorem relativeCartier_weightedSupports_locallyFinite
+    {T U : Type*} [TopologicalSpace T] [TopologicalSpace U]
+    (q : T → U) (hq : Continuous q) (c : U → Function.locallyFinsupp T ℤ)
+    (hc : ∀ y, (c y).support ⊆ q ⁻¹' closure ({y} : Set U))
+    (α : Function.locallyFinsupp U ℤ) :
+    LocallyFinite fun y : U ↦ (α y • c y).support := by
+  have hα := ((LocallyFiniteSupport.locallyFinite_support
+    (α : U → ℤ) α.locallyFiniteSupport).closure).preimage_continuous hq
+  intro x
+  obtain ⟨V, hV, hfin⟩ := hα x
+  refine ⟨V, hV, (hfin.image Subtype.val).subset ?_⟩
+  intro y hy
+  obtain ⟨z, hz, hzV⟩ := hy
+  change α y • c y z ≠ 0 at hz
+  have hmul : α y * c y z ≠ 0 := by simpa only [zsmul_eq_mul, Int.cast_id] using hz
+  refine ⟨⟨y, left_ne_zero_of_mul hmul⟩, ?_, rfl⟩
+  exact ⟨z, hc y (right_ne_zero_of_mul hmul), hzV⟩
+
+private theorem relativeCartier_finsum_locallyFiniteSupport
+    {T I : Type*} [TopologicalSpace T] (c : I → Function.locallyFinsupp T ℤ)
+    (hc : LocallyFinite fun i ↦ (c i).support) :
+    LocallyFiniteSupport fun x ↦ ∑ᶠ i, c i x := by
+  classical
+  intro x
+  obtain ⟨V, hV, hfin⟩ := hc x
+  let f : Function.locallyFinsupp T ℤ := ∑ i ∈ hfin.toFinset, c i
+  obtain ⟨W, hW, hWfin⟩ := f.locallyFiniteSupport x
+  refine ⟨V ∩ W, Filter.inter_mem hV hW, hWfin.subset ?_⟩
+  intro z hz
+  refine ⟨hz.1.2, ?_⟩
+  have hs : (fun i ↦ c i z).support ⊆ (hfin.toFinset : Set I) := by
+    intro i hi
+    exact hfin.mem_toFinset.mpr ⟨z, hi, hz.1.1⟩
+  have heq : f z = ∑ᶠ i, c i z := by
+    rw [finsum_eq_sum_of_support_subset _ hs]
+    simp [f]
+  change f z ≠ 0
+  rw [heq]
+  exact hz.2
+
 /-- The associated cycle of `Z(s) ∩ p⁻¹(closure({y}))` in degree `n + r - 1`,
 where `s = 1_D`. -/
 noncomputable def relativeCartierPullbackGenerator {S : Scheme.{u}}
@@ -67,7 +132,17 @@ theorem relativeCartierPullback_locallyFiniteSupport {S : Scheme.{u}}
         Points (zeroScheme D.associatedSheaf D.canonicalSection).X ↦
       ∑ᶠ y : Points Y,
         α y * relativeCartierPullbackGenerator pY pX δ p r hp D n y x :=
-  sorry
+  by
+    letI : IsLocallyNoetherian (zeroScheme D.associatedSheaf D.canonicalSection).X :=
+      LocallyOfFiniteType.isLocallyNoetherian
+        (zeroSchemeι D.associatedSheaf D.canonicalSection ≫ pX)
+    have hc := relativeCartier_weightedSupports_locallyFinite
+      (Points.map (zeroSchemeι D.associatedSheaf D.canonicalSection ≫ p))
+      (Points.continuous_map _) (relativeCartierPullbackGenerator pY pX δ p r hp D n)
+      (fun y ↦ relativeCartier_associatedCycle_inverseImage_support _ _ _ y) α
+    simpa only [Function.locallyFinsuppWithin.coe_zsmul, Pi.smul_apply, zsmul_eq_mul,
+      Int.cast_id] using
+      relativeCartier_finsum_locallyFiniteSupport _ hc
 
 /-- Coefficientwise pullback of a cycle along the restriction of a flat morphism
 to a relative effective Cartier divisor. -/
@@ -114,7 +189,9 @@ private theorem relativeCartierPullbackCycle_zero {S : Scheme.{u}}
     (p : X ⟶ Y) (r : ℕ) [Flat p] [RelativeDimension p r]
     (hp : p ≫ pY = pX) (D : ClosedSubspace X)
     [IsRelativeEffectiveCartierDivisor p D.ι] (n : ℤ) :
-    relativeCartierPullbackCycle pY pX δ p r hp D n 0 = 0 := by sorry
+    relativeCartierPullbackCycle pY pX δ p r hp D n 0 = 0 := by
+  ext x
+  simp [relativeCartierPullbackCycle_apply]
 
 private theorem relativeCartierPullbackCycle_add {S : Scheme.{u}}
     {B X Y : AlgebraicSpace S} [UniversallyCatenary B] [IsQuasiSeparated B]
@@ -127,7 +204,27 @@ private theorem relativeCartierPullbackCycle_add {S : Scheme.{u}}
     (α β : Function.locallyFinsupp (Points Y) ℤ) :
     relativeCartierPullbackCycle pY pX δ p r hp D n (α + β) =
       relativeCartierPullbackCycle pY pX δ p r hp D n α +
-        relativeCartierPullbackCycle pY pX δ p r hp D n β := by sorry
+        relativeCartierPullbackCycle pY pX δ p r hp D n β := by
+  letI : IsLocallyNoetherian (zeroScheme D.associatedSheaf D.canonicalSection).X :=
+    LocallyOfFiniteType.isLocallyNoetherian
+      (zeroSchemeι D.associatedSheaf D.canonicalSection ≫ pX)
+  ext x
+  have hfinite (γ : Function.locallyFinsupp (Points Y) ℤ) :
+      HasFiniteSupport fun y ↦ γ y * relativeCartierPullbackGenerator pY pX δ p r hp D n y x := by
+    have hc := relativeCartier_weightedSupports_locallyFinite
+      (Points.map (zeroSchemeι D.associatedSheaf D.canonicalSection ≫ p))
+      (Points.continuous_map _) (relativeCartierPullbackGenerator pY pX δ p r hp D n)
+      (fun y ↦ relativeCartier_associatedCycle_inverseImage_support _ _ _ y) γ
+    refine (hc.point_finite x).subset ?_
+    intro y hy
+    change γ y * relativeCartierPullbackGenerator pY pX δ p r hp D n y x ≠ 0 at hy
+    change γ y • relativeCartierPullbackGenerator pY pX δ p r hp D n y x ≠ 0
+    simpa only [zsmul_eq_mul, Int.cast_id] using hy
+  change (∑ᶠ y, (α y + β y) * relativeCartierPullbackGenerator pY pX δ p r hp D n y x) =
+    (∑ᶠ y, α y * relativeCartierPullbackGenerator pY pX δ p r hp D n y x) +
+      ∑ᶠ y, β y * relativeCartierPullbackGenerator pY pX δ p r hp D n y x
+  simp_rw [add_mul]
+  exact finsum_add_distrib (hfinite α) (hfinite β)
 
 /-- Relative Cartier pullback sends `n`-cycles on `Y` to `(n + r - 1)`-cycles on
 the zero scheme of `(O_X(D), 1_D)`. -/
@@ -144,7 +241,23 @@ theorem relativeCartierPullback_mem {S : Scheme.{u}}
     relativeCartierPullbackCycle pY pX δ p r hp D n α ∈
       cycleGroup (zeroSchemeι D.associatedSheaf D.canonicalSection ≫ pX) δ
         (n + (r : ℤ) - 1) :=
-  sorry
+  by
+    intro x hx
+    by_contra hdim
+    apply hx
+    rw [relativeCartierPullbackCycle_apply]
+    apply finsum_eq_zero_of_forall_eq_zero
+    intro y
+    have hzero := @ClosedSubspace.associatedCycle_eq_zero_of_dimension_ne S
+      (zeroScheme D.associatedSheaf D.canonicalSection).X
+      (LocallyOfFiniteType.isLocallyNoetherian
+        (zeroSchemeι D.associatedSheaf D.canonicalSection ≫ pX))
+      ((ClosedSubspace.pointClosure y).inverseImageSubspace
+        (zeroSchemeι D.associatedSheaf D.canonicalSection ≫ p))
+      (relativeDimensionFunction
+        (zeroSchemeι D.associatedSheaf D.canonicalSection ≫ pX) δ)
+      (n + (r : ℤ) - 1) x hdim
+    exact mul_eq_zero_of_right _ hzero
 
 /-- Cycle-level pullback along the restriction of a flat morphism of relative
 dimension `r` to a relative effective Cartier divisor. -/

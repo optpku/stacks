@@ -8,7 +8,9 @@ module
 
 public import Mathlib.Algebra.Category.ModuleCat.Presheaf.ChangeOfRings
 public import ReasLib.Algebra.Category.ModuleCat.Presheaf.CommRing
+public import ReasLib.Algebra.Category.ModuleCat.Presheaf.SameSiteTensorExtension
 public import Mathlib.LinearAlgebra.TensorProduct.Map
+public import Mathlib.CategoryTheory.Adjunction.Unique
 
 /-! # Actual tensor data for same-site scalar extension
 
@@ -324,6 +326,59 @@ def adjunction : functor α ⊣
         intro U
         exact (ModuleCat.extendRestrictScalarsAdj (α.app U).hom).homEquiv_naturality_right
           (f.app U) (g.app U) }
+
+/-- In the coefficient universe, the two concrete same-site tensor extensions
+are canonically isomorphic through their specified adjunctions. The mixed-universe
+functor above remains available without this specialization. -/
+def sameUniverseComparison :
+    PresheafOfModules.SameSiteTensorExtension.functor α ≅ functor.{u, v, w, w} α :=
+  Adjunction.leftAdjointUniq
+    (PresheafOfModules.SameSiteTensorExtension.adjunction α) (adjunction α)
+
+/-- The comparison identifies the two specified tensor-adjunction units. -/
+theorem sameUniverseComparison_unit
+    (M : PresheafOfModules.{w} (ringPresheafOfComm R)) :
+    (PresheafOfModules.SameSiteTensorExtension.adjunction α).unit.app M ≫
+        (PresheafOfModules.restrictScalars
+          (PresheafOfModules.SameSiteTensorExtension.ringMap α)).map
+            ((sameUniverseComparison α).hom.app M) =
+      (adjunction α).unit.app M :=
+  Adjunction.unit_leftAdjointUniq_hom_app
+    (PresheafOfModules.SameSiteTensorExtension.adjunction α) (adjunction α) M
+
+set_option backward.isDefEq.respectTransparency false in
+/-- On each section, the canonical comparison is the identity tensor map. -/
+@[simp]
+theorem sameUniverseComparison_hom_app_app
+    (M : PresheafOfModules.{w} (ringPresheafOfComm R)) (U : Cᵒᵖ) :
+    ((sameUniverseComparison α).hom.app M).app U =
+      𝟙 ((ModuleCat.extendScalars (α.app U).hom).obj (M.obj U)) := by
+  letI := (α.app U).hom.toAlgebra
+  apply ModuleCat.ExtendScalars.hom_ext
+  intro m
+  have h := congrArg (fun f ↦ f.app U m) (sameUniverseComparison_unit α M)
+  change ((sameUniverseComparison α).hom.app M).app U
+    ((1 : R'.obj U) ⊗ₜ[R.obj U] m) = (1 : R'.obj U) ⊗ₜ[R.obj U] m at h
+  exact h
+
+/-- The comparison preserves every tensor element, not only pure tensors. -/
+@[simp]
+theorem sameUniverseComparison_app_apply
+    (M : PresheafOfModules.{w} (ringPresheafOfComm R)) (U : Cᵒᵖ)
+    (m : (ModuleCat.extendScalars (α.app U).hom).obj (M.obj U)) :
+    (((sameUniverseComparison α).hom.app M).app U) m = m :=
+  congrArg (fun f ↦ f m) (sameUniverseComparison_hom_app_app α M U)
+
+/-- The inverse comparison also preserves every tensor element. -/
+@[simp]
+theorem sameUniverseComparison_inv_app_apply
+    (M : PresheafOfModules.{w} (ringPresheafOfComm R)) (U : Cᵒᵖ)
+    (m : (ModuleCat.extendScalars (α.app U).hom).obj (M.obj U)) :
+    (((sameUniverseComparison α).inv.app M).app U) m = m := by
+  have h := congrArg (fun f ↦ f.app U m) ((sameUniverseComparison α).hom_inv_id_app M)
+  change ((sameUniverseComparison α).inv.app M).app U
+    (((sameUniverseComparison α).hom.app M).app U m) = m at h
+  simpa only [sameUniverseComparison_app_apply] using h
 
 /-- A concrete witness now supplies this presheaf-level right-adjoint certificate. -/
 theorem restrictScalars_isRightAdjoint :

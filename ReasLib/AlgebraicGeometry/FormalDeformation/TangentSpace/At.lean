@@ -7,6 +7,7 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import ReasLib.AlgebraicGeometry.FormalDeformation.Predeformation.Over
+public import ReasLib.AlgebraicGeometry.FormalDeformation.Schlessinger.FiberIsoClass
 public import ReasLib.AlgebraicGeometry.FormalDeformation.Schlessinger.Localization
 public import ReasLib.AlgebraicGeometry.FormalDeformation.Differential
 
@@ -42,7 +43,7 @@ abbrev tangentSpaceAt (x : p.Fiber (residue Λ k)) :=
 /-- The tangent space at `x` is the dual-number value of the isomorphism-class functor of
 the residue slice. -/
 theorem tangentSpaceAt_def (x : p.Fiber (residue Λ k)) :
-    tangentSpaceAt p x = (fiberIsoClassFunctor (sliceAt p x)).obj (dualNumber Λ k) := sorry
+    tangentSpaceAt p x = (fiberIsoClassFunctor (sliceAt p x)).obj (dualNumber Λ k) := rfl
 
 /-- The isomorphism class of a dual-number fibre object of the residue slice. -/
 def tangentSpaceAt.mk (x : p.Fiber (residue Λ k))
@@ -52,13 +53,14 @@ def tangentSpaceAt.mk (x : p.Fiber (residue Λ k))
 /-- `tangentSpaceAt.mk` is the quotient class of a dual-number fibre object. -/
 theorem tangentSpaceAt.mk_eq (x : p.Fiber (residue Λ k))
     (y : (sliceAt p x).Fiber (dualNumber Λ k)) :
-    tangentSpaceAt.mk p x y = Quotient.mk'' y := sorry
+    tangentSpaceAt.mk p x y = Quotient.mk'' y := rfl
 
 /-- If `p` satisfies (S2), then the isomorphism-class functor of the residue slice satisfies
 (H2). -/
 instance instHasSchlessingerH2_fiberIsoClass_sliceAt [HasSchlessingerS2 p]
     (x : p.Fiber (residue Λ k)) :
-    HasSchlessingerH2 (fiberIsoClassFunctor (sliceAt p x)) := sorry
+    HasSchlessingerH2 (fiberIsoClassFunctor (sliceAt p x)) :=
+  instHasSchlessingerH2FiberIsoClassFunctor (sliceAt p x)
 
 /-- If `p` satisfies (S2), its tangent space at a residue-fibre object carries the canonical
 `k`-vector space structure of the residue slice. -/
@@ -85,7 +87,7 @@ fibre functor of `sliceMap φ x`. -/
 theorem differentialAt_apply (φ : BasedCategory.ofFunctor p ⥤ᵇ BasedCategory.ofFunctor q)
     (x : p.Fiber (residue Λ k)) (y : Functor.tangentSpaceAt p x) :
     differentialAt φ x y =
-      ((sliceMap φ x).fiberFunctor (dualNumber Λ k)).isoClassesMap y := sorry
+      ((sliceMap φ x).fiberFunctor (dualNumber Λ k)).isoClassesMap y := rfl
 
 /-- The differential at `x` sends the class of a dual-number fibre object of the slice to
 the class of its image. -/
@@ -93,13 +95,14 @@ theorem differentialAt_mk (φ : BasedCategory.ofFunctor p ⥤ᵇ BasedCategory.o
     (x : p.Fiber (residue Λ k)) (y : (Functor.sliceAt p x).Fiber (dualNumber Λ k)) :
     differentialAt φ x (Functor.tangentSpaceAt.mk p x y) =
       Functor.tangentSpaceAt.mk q (objAt φ x)
-        (((sliceMap φ x).fiberFunctor (dualNumber Λ k)).obj y) := sorry
+        (((sliceMap φ x).fiberFunctor (dualNumber Λ k)).obj y) := rfl
 
 /-- If both source and target satisfy (S2), then `differentialAt φ x` is `k`-linear. -/
 theorem isLinearMap_differentialAt [HasSchlessingerS2 p] [HasSchlessingerS2 q]
     (φ : BasedCategory.ofFunctor p ⥤ᵇ BasedCategory.ofFunctor q)
     (x : p.Fiber (residue Λ k)) :
-    IsLinearMap k (differentialAt φ x) := sorry
+    IsLinearMap k (differentialAt φ x) :=
+  isLinearMap_differential (sliceMap φ x)
 
 /-- The differential at a residue-fibre object as a bundled `k`-linear map, when both
 categories cofibered in groupoids satisfy (S2). -/
@@ -113,6 +116,6 @@ def differentialLinearMapAt [HasSchlessingerS2 p] [HasSchlessingerS2 q]
 theorem differentialLinearMapAt_apply [HasSchlessingerS2 p] [HasSchlessingerS2 q]
     (φ : BasedCategory.ofFunctor p ⥤ᵇ BasedCategory.ofFunctor q)
     (x : p.Fiber (residue Λ k)) (y : Functor.tangentSpaceAt p x) :
-    differentialLinearMapAt φ x y = differentialAt φ x y := sorry
+    differentialLinearMapAt φ x y = differentialAt φ x y := rfl
 
 end CategoryTheory.BasedFunctor

@@ -59,19 +59,19 @@ def of (arrow : T ⟶ X) (left : sq.fst ≫ arrow ≅ sq.snd)
 @[simp]
 theorem of_arrow (arrow : T ⟶ X) (left : sq.fst ≫ arrow ≅ sq.snd)
     (right : y ≅ arrow ≫ p) : (of arrow left right).arrow = arrow :=
-  sorry
+  rfl
 
 /-- The upper-left comparison of `Triangles.of` is the supplied 2-isomorphism. -/
 @[simp]
 theorem of_left (arrow : T ⟶ X) (left : sq.fst ≫ arrow ≅ sq.snd)
     (right : y ≅ arrow ≫ p) : (of arrow left right).left = left :=
-  sorry
+  rfl
 
 /-- The lower-right comparison of `Triangles.of` is the supplied 2-isomorphism. -/
 @[simp]
 theorem of_right (arrow : T ⟶ X) (left : sq.fst ≫ arrow ≅ sq.snd)
     (right : y ≅ arrow ≫ p) : (of arrow left right).right = right :=
-  sorry
+  rfl
 
 /-- The composite 2-isomorphism of the two triangles, obtained by whiskering
 the lower-right comparison, reassociating, and whiskering the upper-left
@@ -92,19 +92,19 @@ def toDottedArrow (A : Triangles sq) (h : A.outerIso = sq.iso) : DottedArrow sq 
 @[simp]
 theorem toDottedArrow_arrow (A : Triangles sq) (h : A.outerIso = sq.iso) :
     (toDottedArrow A h).arrow = A.arrow :=
-  sorry
+  rfl
 
 /-- The upper-left comparison of `toDottedArrow` is the original comparison. -/
 @[simp]
 theorem toDottedArrow_left (A : Triangles sq) (h : A.outerIso = sq.iso) :
     (toDottedArrow A h).left = A.left :=
-  sorry
+  rfl
 
 /-- The lower-right comparison of `toDottedArrow` is the original comparison. -/
 @[simp]
 theorem toDottedArrow_right (A : Triangles sq) (h : A.outerIso = sq.iso) :
     (toDottedArrow A h).right = A.right :=
-  sorry
+  rfl
 
 end Triangles
 
@@ -121,24 +121,24 @@ def toTriangles (A : DottedArrow sq) : Triangles sq where
 @[simp]
 theorem toTriangles_arrow (A : DottedArrow sq) :
     (toTriangles A).arrow = A.arrow :=
-  sorry
+  rfl
 
 /-- The upper-left comparison of `toTriangles` is the original comparison. -/
 @[simp]
 theorem toTriangles_left (A : DottedArrow sq) :
     (toTriangles A).left = A.left :=
-  sorry
+  rfl
 
 /-- The lower-right comparison of `toTriangles` is the original comparison. -/
 @[simp]
 theorem toTriangles_right (A : DottedArrow sq) :
     (toTriangles A).right = A.right :=
-  sorry
+  rfl
 
 /-- For a coherent dotted arrow, the composite of the two triangles is the
 chosen outer comparison. -/
 theorem outerIso_eq_iso_of_dottedArrow (A : DottedArrow sq) :
     (toTriangles A).outerIso = sq.iso :=
-  sorry
+  A.comm
 
 end CategoryTheory.DottedArrow

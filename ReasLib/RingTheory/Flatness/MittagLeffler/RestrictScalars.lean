@@ -55,7 +55,8 @@ theorem iff_of_surjective (f : R →+* S) [RingHomSurjective f]
       ((ModuleCat.restrictScalars f).obj (ModuleCat.of S S))]
     (N : ModuleCat.{w} S) :
     MittagLeffler R ((ModuleCat.restrictScalars f).obj N) ↔
-      MittagLeffler S N := sorry
+      MittagLeffler S N := by
+  exact Surjective.iff_of_finitePresentation f f.surjective inferInstance N
 
 end RingHom
 
@@ -77,13 +78,34 @@ theorem of_finitePresentation [Module.FinitePresentation R S]
 without requiring callers to install finite-presentation instances for the equivalence. -/
 @[stacks 05CQ "algebra equivalence"]
 theorem of_equiv (e : S ≃ₐ[R] R) (hM : MittagLeffler S M) :
-    MittagLeffler R M := sorry
+    MittagLeffler R M := by
+  letI : Module.FinitePresentation R S :=
+    Module.FinitePresentation.of_equiv e.symm.toLinearEquiv
+  exact of_finitePresentation hM
 
 /-- Restriction of scalars along an algebra equivalence preserves and reflects the
 Mittag-Leffler property. -/
 @[stacks 05CQ "algebra equivalence iff"]
 theorem iff_of_equiv (e : S ≃ₐ[R] R) :
-    MittagLeffler R M ↔ MittagLeffler S M := sorry
+    MittagLeffler R M ↔ MittagLeffler S M := by
+  letI : Module.FinitePresentation R S :=
+    Module.FinitePresentation.of_equiv e.symm.toLinearEquiv
+  have hf : Function.Surjective (algebraMap R S) := by
+    intro s
+    refine ⟨e s, e.injective ?_⟩
+    simp
+  have hmodule : Module.compHom M (algebraMap R S) = ‹Module R M› :=
+    Module.ext' _ _ (fun r m ↦ IsScalarTower.algebraMap_smul S r m)
+  have hfp : Module.FinitePresentation R
+      ((ModuleCat.restrictScalars (algebraMap R S)).obj (ModuleCat.of S S)) :=
+    Module.FinitePresentation.of_equiv
+      (ModuleCat.RestrictScalars.identityIso (R := R) (S := S) S).symm.toLinearEquiv
+  have h := Surjective.iff_of_finitePresentation (algebraMap R S) hf
+    hfp (ModuleCat.of S M)
+  change @MittagLeffler R M _ _ (Module.compHom M (algebraMap R S)) ↔
+    MittagLeffler S M at h
+  rw [hmodule] at h
+  exact h
 
 end RestrictScalars
 
@@ -91,7 +113,10 @@ end RestrictScalars
 scalars along a finite, finitely presented ring map. -/
 @[stacks 05CQ]
 theorem restrictScalars [Module.Finite R S] [Algebra.FinitePresentation R S]
-    (hM : MittagLeffler S M) : MittagLeffler R M := sorry
+    (hM : MittagLeffler S M) : MittagLeffler R M := by
+  letI : Module.FinitePresentation R S :=
+    Module.FinitePresentation.of_finite_of_finitePresentation R S
+  exact RestrictScalars.of_finitePresentation hM
 
 namespace RestrictScalars
 
@@ -101,7 +126,19 @@ quotient module is independent of whether scalars are taken over the ring or its
 theorem iff_quotient (I : Ideal R) (hI : I.FG) (N : ModuleCat.{w} (R ⧸ I)) :
     MittagLeffler R
         ((ModuleCat.restrictScalars (Ideal.Quotient.mk I)).obj N) ↔
-      MittagLeffler (R ⧸ I) N := sorry
+      MittagLeffler (R ⧸ I) N := by
+  letI : Module.FinitePresentation R (R ⧸ I) :=
+    Module.finitePresentation_of_surjective I.mkQ I.mkQ_surjective
+      (by simpa only [Submodule.ker_mkQ, Submodule.FG, Ideal.FG,
+        Ideal.submodule_span_eq] using hI)
+  have hfp : Module.FinitePresentation R
+      ((ModuleCat.restrictScalars (Ideal.Quotient.mk I)).obj
+        (ModuleCat.of (R ⧸ I) (R ⧸ I))) :=
+    Module.FinitePresentation.of_equiv
+      (ModuleCat.RestrictScalars.identityIso (R := R) (S := R ⧸ I)
+        (R ⧸ I)).symm.toLinearEquiv
+  exact Surjective.iff_of_finitePresentation (Ideal.Quotient.mk I)
+    Ideal.Quotient.mk_surjective hfp N
 
 end RestrictScalars
 

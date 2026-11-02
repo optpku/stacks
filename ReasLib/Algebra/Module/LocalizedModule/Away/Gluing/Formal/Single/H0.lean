@@ -179,13 +179,19 @@ theorem globalLocalizationMap_add (φ : R →+* S) (f : R) (X : Pullback φ f)
     (x y : ↑X.fst) :
     (mkLinearMap (Submonoid.powers (φ f)) ↑X.fst) (x + y) =
       (mkLinearMap (Submonoid.powers (φ f)) ↑X.fst) x +
-        (mkLinearMap (Submonoid.powers (φ f)) ↑X.fst) y := sorry
+        (mkLinearMap (Submonoid.powers (φ f)) ↑X.fst) y := by
+  exact (mkLinearMap (Submonoid.powers (φ f)) ↑X.fst).map_add x y
 
 /-- Compatibility with base scalars of the global localization map. -/
 theorem globalLocalizationMap_smul (φ : R →+* S) (f : R) (X : Pullback φ f)
     (r : R) (x : ↑X.fst) :
     (mkLinearMap (Submonoid.powers (φ f)) ↑X.fst) (r • x) =
-      r • (mkLinearMap (Submonoid.powers (φ f)) ↑X.fst) x := sorry
+      r • (mkLinearMap (Submonoid.powers (φ f)) ↑X.fst) x := by
+  change (mkLinearMap (Submonoid.powers (φ f)) ↑X.fst) (φ r • x) =
+    algebraMap S (Localization.Away (φ f)) (φ r) •
+      (mkLinearMap (Submonoid.powers (φ f)) ↑X.fst) x
+  rw [IsScalarTower.algebraMap_smul]
+  exact (mkLinearMap (Submonoid.powers (φ f)) ↑X.fst).map_smul (φ r) x
 
 /-- The global localization map viewed over the base ring. -/
 noncomputable def globalLocalizationMap (φ : R →+* S) (f : R)
@@ -223,7 +229,9 @@ abbrev localizedBaseRange (φ : R →+* S) (f : R) (X : Pullback φ f) :
 /-- The localized global range is stable under the base-ring action. -/
 theorem localizedBaseRange_smul_mem (φ : R →+* S) (f : R) (X : Pullback φ f)
     (r : R) {x : Away (φ f) ↑X.fst} (hx : x ∈ localizedBaseRange φ f X) :
-    r • x ∈ localizedBaseRange φ f X := sorry
+    r • x ∈ localizedBaseRange φ f X := by
+  obtain ⟨y, rfl⟩ := hx
+  exact ⟨r • y, globalLocalizationMap_smul φ f X r y⟩
 
 /-- The global image viewed as an `R`-submodule for the mod-torsion quotient. -/
 @[stacks 0BP4 "single-principal-open localized base range over the base ring"]
@@ -239,7 +247,14 @@ theorem h0Torsion_le_ker_snd (φ : R →+* S) (f : R) (X : Pullback φ f) :
     h0Torsion φ f X ≤
       LinearMap.ker
         ((LinearMap.snd R (↑(global φ f X)) (↑(localModuleCat φ f X))).comp
-          (h0 φ f X).subtype) := sorry
+          (h0 φ f X).subtype) := by
+  intro x hx
+  obtain ⟨s, hs⟩ := (Submodule.mem_torsion'_iff (Submonoid.powers f) x).mp hx
+  have hs' : (s : R) • x.val.2 = 0 :=
+    congrArg (fun y : h0 φ f X => y.val.2) hs
+  change x.val.2 = 0
+  change algebraMap R (Localization.Away f) (s : R) • x.val.2 = 0 at hs'
+  exact (IsLocalization.map_units (Localization.Away f) s).smul_eq_zero.mp hs'
 
 /-- The left map in the mod-torsion sequence, induced by the second projection of `H⁰`. -/
 @[stacks 0BP4 "single-principal-open mod-torsion left map"]
@@ -260,7 +275,18 @@ noncomputable abbrev h0TorsionRightMap (φ : R →+* S) (f : R) (X : Pullback φ
 /-- The quotient maps in the mod-torsion sequence form a complex. -/
 @[stacks 0BP4 "single-principal-open mod-torsion complex"]
 theorem h0Torsion_comp_eq_zero (φ : R →+* S) (f : R) (X : Pullback φ f) :
-    (h0TorsionRightMap φ f X).comp (h0TorsionLeftMap φ f X) = 0 := sorry
+    (h0TorsionRightMap φ f X).comp (h0TorsionLeftMap φ f X) = 0 := by
+  apply LinearMap.ext
+  intro q
+  refine Submodule.Quotient.induction_on _ q ?_
+  intro x
+  change (localizedBaseRangeR φ f X).mkQ (localizedSideMap φ f X x.val.2) = 0
+  apply (Submodule.Quotient.mk_eq_zero _).mpr
+  have hx : globalLocalizationMap φ f X x.val.1 = localizedSideMap φ f X x.val.2 := by
+    simpa only [h0, LinearMap.mem_ker, differential, LinearMap.coprod_apply,
+      LinearMap.neg_apply, ← sub_eq_add_neg, sub_eq_zero] using x.property
+  rw [← hx]
+  exact ⟨x.val.1, rfl⟩
 
 /-- The canonical mod-torsion short complex. -/
 @[stacks 0BP4 "single-principal-open mod-torsion sequence"]
@@ -285,7 +311,13 @@ abbrev Pullback (f : R) :=
 instance localizedGlobalTower (f : R)
     (X : @LocalizedModule.Away.FormalGluing.Single.Pullback R S _ _
       (algebraMap R S) f) :
-    IsScalarTower R S (LocalizedModule.Away (algebraMap R S f) ↑X.fst) := sorry
+    IsScalarTower R S (LocalizedModule.Away (algebraMap R S f) ↑X.fst) := by
+  apply IsScalarTower.of_algebraMap_smul
+  intro r x
+  change algebraMap R S r • x =
+    algebraMap S (Localization.Away (algebraMap R S f)) (algebraMap R S r) • x
+  exact (IsScalarTower.algebraMap_smul
+    (Localization.Away (algebraMap R S f)) (algebraMap R S r) x).symm
 
 /-- The quotient `H⁰/H⁰[f^∞]` maps canonically to the localized first component. -/
 @[stacks 0BP5 "base-changed mod-torsion comparison map"]
@@ -317,7 +349,15 @@ noncomputable abbrev rightMap (f : R) (X : Pullback (R := R) (S := S) f) :
 /-- The two base-changed quotient maps form a complex. -/
 @[stacks 0BP5 "base-changed mod-torsion complex"]
 theorem comp_eq_zero (f : R) (X : Pullback (R := R) (S := S) f) :
-    (rightMap f X).comp (leftMap f X) = 0 := sorry
+    (rightMap f X).comp (leftMap f X) = 0 := by
+  apply TensorProduct.AlgebraTensorModule.ext
+  intro s q
+  change (localizedBaseRange (algebraMap R S) f X).mkQ
+    (s • quotientToLocalizedGlobal f X q) = 0
+  apply (Submodule.Quotient.mk_eq_zero _).mpr
+  apply (localizedBaseRange (algebraMap R S) f X).smul_mem s
+  have hq := LinearMap.congr_fun (h0Torsion_comp_eq_zero (algebraMap R S) f X) q
+  exact (Submodule.Quotient.mk_eq_zero _).mp hq
 
 /-- The canonical base-changed mod-torsion short complex. -/
 @[stacks 0BP5 "base-changed mod-torsion sequence"]
@@ -344,6 +384,7 @@ theorem h0Sequence_shortExact_of_surjective
       (ModuleCat.extendScalars (algebraMap S (Localization.Away (φ f))))
       (ModuleCat.extendScalars (overlapMap φ f)))
     (hsurj : Function.Surjective (differential φ f X)) :
-    (h0Sequence φ f X).ShortExact := sorry
+    (h0Sequence φ f X).ShortExact := by
+  exact LinearMap.shortExact_shortComplexKer hsurj
 
 end LocalizedModule.Away.FormalGluing.Single

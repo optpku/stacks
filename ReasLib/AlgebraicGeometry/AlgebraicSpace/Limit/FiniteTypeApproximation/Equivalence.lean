@@ -9,6 +9,7 @@ module
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Limit.FiniteTypeApproximation
 public import Mathlib.CategoryTheory.ObjectProperty.FullSubcategory
 public import Mathlib.CategoryTheory.Equivalence
+public import Mathlib.CategoryTheory.Filtered.Final
 public import Mathlib.Order.Directed
 
 /-!
@@ -142,18 +143,48 @@ def EventuallyEq (f g : Representative X Y) : Prop :=
 
 /-- Eventual equality of comparisons is an equivalence relation. -/
 theorem eventuallyEq_equivalence : Equivalence (EventuallyEq (X := X) (Y := Y)) := by
-  sorry
+  refine ⟨?_, ?_, ?_⟩
+  · intro f
+    exact ⟨f.stage, le_rfl, le_rfl, fun _ _ => rfl⟩
+  · rintro f g ⟨k, hf, hg, h⟩
+    exact ⟨k, hg, hf, fun j hj => (h j hj).symm⟩
+  · rintro f g h ⟨k, hf, hg, hfg⟩ ⟨l, hg', hh, hgh⟩
+    obtain ⟨m, hkm, hlm⟩ := exists_ge_ge k l
+    refine ⟨m, le_trans hf hkm, le_trans hh hlm, ?_⟩
+    intro j hmj
+    exact (hfg j (le_trans hkm hmj)).trans (hgh j (le_trans hlm hmj))
 
 /-- Eventually equal comparisons induce equal morphisms of limits. -/
 theorem limitHom_eq_of_eventuallyEq {f g : Representative X Y} (h : EventuallyEq f g) :
     f.limitHom = g.limitHom := by
-  sorry
+  obtain ⟨k, hf, hg, hfg⟩ := h
+  apply Over.OverMorphism.ext
+  apply Y.approximation.isLimit.hom_ext
+  intro a
+  obtain ⟨j, hkj, haj⟩ := exists_ge_ge k (OrderDual.ofDual a.left)
+  let b := tailObject j (le_trans f.target_le (le_trans hf hkj))
+  let p : b ⟶ a := Over.homMk (homOfLE haj)
+  have hπ := Y.cone.w p
+  have he : f.map.left ≫ Y.cone.π.app b = g.map.left ≫ Y.cone.π.app b := by
+    erw [f.compatible (tailObject j (le_trans hf hkj)),
+      g.compatible (tailObject j (le_trans hg hkj)), hfg j hkj]
+    rfl
+  change f.map.left ≫ Y.cone.π.app a = g.map.left ≫ Y.cone.π.app a
+  erw [← hπ, ← Category.assoc, ← Category.assoc, he]
 
 /-- Composition respects eventual equality in both arguments. -/
 theorem comp_congr {f f' : Representative X Y} {g g' : Representative Y Z}
     (hf : EventuallyEq f f') (hg : EventuallyEq g g') :
     EventuallyEq (comp f g) (comp f' g') := by
-  sorry
+  obtain ⟨a, hfa, hf'a, ha⟩ := hf
+  obtain ⟨b, hgb, hg'b, hb⟩ := hg
+  obtain ⟨k, hk, hk'⟩ := exists_ge_ge (comp f g).stage (comp f' g').stage
+  obtain ⟨l, hal, hbl⟩ := exists_ge_ge a b
+  obtain ⟨m, hkm, hlm⟩ := exists_ge_ge k l
+  refine ⟨m, le_trans hk hkm, le_trans hk' hkm, ?_⟩
+  intro j hmj
+  exact congrArg₂ (fun a b => a ≫ b) (ha j (le_trans hal (le_trans hlm hmj)))
+    (hb j (le_trans hbl (le_trans hlm hmj)))
 
 end Representative
 
@@ -189,23 +220,46 @@ def comp (f : Hom X Y) (g : Hom Y Z) : Hom X Z :=
 
 /-- Two representatives have equal germs precisely when they are eventually equal. -/
 theorem mk_eq_iff (f g : Representative X Y) : mk f = mk g ↔ f.EventuallyEq g := by
-  sorry
+  exact Representative.eventuallyEq_equivalence.quot_mk_eq_iff f g
 
 /-- Passing a representative to its germ preserves its recorded limit map. -/
 theorem limitHom_mk (f : Representative X Y) : limitHom (mk f) = f.limitHom := rfl
 
 /-- The identity germ is a left identity for composition. -/
 theorem id_comp (f : Hom X Y) : comp (id X) f = f := by
-  sorry
+  induction f using Quot.inductionOn with | _ f =>
+    apply Quot.sound
+    obtain ⟨k, hk, hf⟩ := exists_ge_ge (Representative.comp (Representative.id X) f).stage
+      f.stage
+    refine ⟨k, hk, hf, ?_⟩
+    intro j hkj
+    change (𝟙 _) ≫ f.comparison.hom.app _ = f.comparison.hom.app _
+    exact Category.id_comp _
 
 /-- The identity germ is a right identity for composition. -/
 theorem comp_id (f : Hom X Y) : comp f (id Y) = f := by
-  sorry
+  induction f using Quot.inductionOn with | _ f =>
+    apply Quot.sound
+    obtain ⟨k, hk, hf⟩ := exists_ge_ge (Representative.comp f (Representative.id Y)).stage
+      f.stage
+    refine ⟨k, hk, hf, ?_⟩
+    intro j hkj
+    change f.comparison.hom.app _ ≫ (𝟙 _) = f.comparison.hom.app _
+    exact Category.comp_id _
 
 /-- Composition of comparison germs is associative. -/
 theorem assoc (f : Hom X Y) (g : Hom Y Z) (h : Hom Z W) :
     comp (comp f g) h = comp f (comp g h) := by
-  sorry
+  induction f using Quot.inductionOn with | _ f =>
+    induction g using Quot.inductionOn with | _ g =>
+      induction h using Quot.inductionOn with | _ h =>
+        apply Quot.sound
+        obtain ⟨k, hk, hk'⟩ := exists_ge_ge
+          (Representative.comp (Representative.comp f g) h).stage
+          (Representative.comp f (Representative.comp g h)).stage
+        refine ⟨k, hk, hk', ?_⟩
+        intro j hkj
+        exact Category.assoc _ _ _
 
 end Hom
 
@@ -257,7 +311,37 @@ include nonempty noetherian affine
 theorem Representative.eventuallyEq_of_limitHom_eq (hc : IsLimit c)
     {X Y : Obj D c} {f g : Representative X Y} (h : f.limitHom = g.limitHom) :
     f.EventuallyEq g := by
-  sorry
+  letI := X.quasiSeparated
+  letI := X.finiteType
+  letI := Y.quasiSeparated
+  letI := Y.finiteType
+  obtain ⟨k, hf, hg⟩ := exists_ge_ge f.stage g.stage
+  let hX := le_trans f.source_le hf
+  let hY := le_trans f.target_le hf
+  let F := Over.map (homOfLE hf : OrderDual.toDual k ⟶ OrderDual.toDual f.stage)
+  let G := Over.map (homOfLE hg : OrderDual.toDual k ⟶ OrderDual.toDual g.stage)
+  let φ : InverseSystemMorphismOverBase D k
+      (restrictTail hX X.diagram) (restrictTail hY Y.diagram)
+      (restrictTailToBase D hX X.toBase) (restrictTailToBase D hY Y.toBase) :=
+    Over.homMk (Functor.whiskerLeft F f.comparison.hom) (by
+      ext j
+      exact congrArg (fun η => η.app (F.obj j)) f.comparison.w)
+  let ψ : InverseSystemMorphismOverBase D k
+      (restrictTail hX X.diagram) (restrictTail hY Y.diagram)
+      (restrictTailToBase D hX X.toBase) (restrictTailToBase D hY Y.toBase) :=
+    Over.homMk (Functor.whiskerLeft G g.comparison.hom) (by
+      ext j
+      exact congrArg (fun η => η.app (G.obj j)) g.comparison.w)
+  have hleft : f.map.left = g.map.left := congrArg (fun a => a.left) h
+  obtain ⟨i, hki, hi⟩ := InverseSystemMorphismOverBase.eventually_eq_of_isLimitMorphism
+    D c hc X.cone Y.cone X.toS Y.toS X.approximation Y.approximation
+    f.map.left f.map.w hX hY φ ψ
+    (fun j => f.compatible (F.obj j))
+    (fun j => by
+      change f.map.left ≫ _ = _
+      rw [hleft]
+      exact g.compatible (G.obj j))
+  exact ⟨i, le_trans hf hki, le_trans hg hki, fun j hij => hi hij⟩
 
 /-- Every stagewise comparison has a unique compatible morphism of limits over the base. -/
 theorem Representative.existsUnique_limitMorphism (hc : IsLimit c)
@@ -269,7 +353,40 @@ theorem Representative.existsUnique_limitMorphism (hc : IsLimit c)
       φ.IsLimitMorphism
         (Cone.whisker (Over.map (homOfLE hX : OrderDual.toDual i ⟶ OrderDual.toDual X.initial)) X.cone)
         (Cone.whisker (Over.map (homOfLE hY : OrderDual.toDual i ⟶ OrderDual.toDual Y.initial)) Y.cone) f.left := by
-  sorry
+  let FX := Over.map (homOfLE hX : OrderDual.toDual i ⟶ OrderDual.toDual X.initial)
+  let FY := Over.map (homOfLE hY : OrderDual.toDual i ⟶ OrderDual.toDual Y.initial)
+  have hFY : FY.Initial := by
+    apply Functor.initial_of_exists_of_isCofiltered
+    · intro j
+      obtain ⟨k, hik, hjk⟩ := exists_ge_ge i (OrderDual.ofDual j.left)
+      exact ⟨tailObject k hik, ⟨Over.homMk (homOfLE hjk)⟩⟩
+    · intro j a p q
+      refine ⟨a, 𝟙 a, ?_⟩
+      apply Over.OverMorphism.ext
+      exact Subsingleton.elim _ _
+  letI := hFY
+  let hy := (Functor.Initial.isLimitWhiskerEquiv FY Y.cone).symm Y.approximation.isLimit
+  let t := (Cone.postcompose φ.hom).obj (X.cone.whisker FX)
+  let l : X.cone.pt ⟶ Y.cone.pt := hy.lift t
+  have hl (j : Over (OrderDual.toDual i)) :
+      l ≫ Y.cone.π.app (FY.obj j) = X.cone.π.app (FX.obj j) ≫ φ.hom.app j :=
+    hy.fac t j
+  have hover : l ≫ Y.toS = X.toS := by
+    apply ((Functor.Initial.isLimitWhiskerEquiv
+      (Over.forget (OrderDual.toDual i)) c).symm hc).hom_ext
+    intro j
+    change (l ≫ Y.toS) ≫ c.π.app j.left = X.toS ≫ c.π.app j.left
+    erw [Category.assoc, ← Y.cone_toBase (FY.obj j), ← Category.assoc,
+      hl j, Category.assoc]
+    erw [show φ.hom.app j ≫ Y.toBase.app (FY.obj j) = X.toBase.app (FX.obj j) from
+      congrArg (fun η => η.app j) φ.w]
+    exact X.cone_toBase (FX.obj j)
+  refine ⟨Over.homMk l hover, hl, ?_⟩
+  intro f hf
+  apply Over.OverMorphism.ext
+  apply hy.hom_ext
+  intro j
+  exact (hf j).trans (hl j).symm
 
 /-- Every quasi-separated finite-type space over the limit has an admissible approximation. -/
 theorem exists_presentation (hc : IsLimit c)
@@ -280,7 +397,22 @@ theorem exists_presentation (hc : IsLimit c)
 /-- The limit functor induces a bijection on morphisms for every pair of approximation systems. -/
 theorem limitFunctor_map_bijective (hc : IsLimit c) (X Y : Systems (D := D) (c := c)) :
     Function.Bijective ((limitFunctor (D := D) (c := c)).map (X := X) (Y := Y)) := by
-  sorry
+  constructor
+  · intro f g h
+    induction f using Quot.inductionOn with | _ f =>
+      induction g using Quot.inductionOn with | _ g =>
+        apply Quot.sound
+        apply Representative.eventuallyEq_of_limitHom_eq hc
+        exact congrArg (fun a => a.hom) h
+  · intro f
+    letI := X.quasiSeparated
+    letI := X.finiteType
+    letI := Y.quasiSeparated
+    letI := Y.finiteType
+    obtain ⟨i, hX, hY, φ, hφ⟩ := FiniteTypeApproximationLimitSystem.exists_morphism
+      D c hc X.cone Y.cone X.toS Y.toS X.approximation Y.approximation
+      f.hom.left f.hom.w
+    exact ⟨Hom.mk ⟨i, hX, hY, φ, f.hom, hφ⟩, rfl⟩
 
 end AlgebraicGeometry.AlgebraicSpace.FiniteTypeApproximation
 
@@ -294,7 +426,11 @@ theorem limitFunctor_isEquivalence
     [∀ j : I, IsNoetherian (D.obj j)]
     [∀ {j j' : I} (hjj' : j ≤ j'), Affine (D.map (homOfLE hjj'))] :
     (limitFunctor D c).IsEquivalence := by
-  sorry
+  exact {
+    faithful := ⟨fun {X Y} => (limitFunctor_map_bijective hc X Y).1⟩
+    full := ⟨fun {X Y} => (limitFunctor_map_bijective hc X Y).2⟩
+    essSurj := ⟨exists_presentation hc⟩
+  }
 
 end AlgebraicGeometry.AlgebraicSpace.FiniteTypeApproximation
 
@@ -347,7 +483,59 @@ theorem exists_morphisms_eventually_inverse
                 (tailObject j (le_trans hi₀i hij)) = 𝟙 _ ∧
             (InverseSystemMorphismOverBase.comp ψ φ).hom.app
                 (tailObject j (le_trans hi₀i hij)) = 𝟙 _ :=
-  sorry
+  by
+    obtain ⟨k, hk₁, hk₂, φ, hφ⟩ := exists_morphism D c hc
+      (⟨X, xπ⟩ : Cone Xsys) (⟨X, yπ⟩ : Cone Ysys) toS toS Xapprox Yapprox
+      (𝟙 X) (Category.id_comp _)
+    obtain ⟨l, hl₂, hl₁, ψ, hψ⟩ := exists_morphism D c hc
+      (⟨X, yπ⟩ : Cone Ysys) (⟨X, xπ⟩ : Cone Xsys) toS toS Yapprox Xapprox
+      (𝟙 X) (Category.id_comp _)
+    obtain ⟨i₀, hki₀, hli₀⟩ := exists_ge_ge k l
+    let hi₁ := le_trans hk₁ hki₀
+    let hi₂ := le_trans hk₂ hki₀
+    let F := Over.map (homOfLE hki₀ : OrderDual.toDual i₀ ⟶ OrderDual.toDual k)
+    let G := Over.map (homOfLE hli₀ : OrderDual.toDual i₀ ⟶ OrderDual.toDual l)
+    let φ' : InverseSystemMorphismOverBase D i₀
+        (restrictTail hi₁ Xsys) (restrictTail hi₂ Ysys)
+        (restrictTailToBase D hi₁ Xapprox.toBase)
+        (restrictTailToBase D hi₂ Yapprox.toBase) :=
+      Over.homMk (Functor.whiskerLeft F φ.hom) (by
+        ext j
+        exact congrArg (fun η => η.app (F.obj j)) φ.w)
+    let ψ' : InverseSystemMorphismOverBase D i₀
+        (restrictTail hi₂ Ysys) (restrictTail hi₁ Xsys)
+        (restrictTailToBase D hi₂ Yapprox.toBase)
+        (restrictTailToBase D hi₁ Xapprox.toBase) :=
+      Over.homMk (Functor.whiskerLeft G ψ.hom) (by
+        ext j
+        exact congrArg (fun η => η.app (G.obj j)) ψ.w)
+    let A : FiniteTypeApproximation.Obj D c :=
+      ⟨i₁, Xsys, ⟨X, xπ⟩, toS, inferInstance, inferInstance, Xapprox⟩
+    let B : FiniteTypeApproximation.Obj D c :=
+      ⟨i₂, Ysys, ⟨X, yπ⟩, toS, inferInstance, inferInstance, Yapprox⟩
+    let f : FiniteTypeApproximation.Representative A B :=
+      ⟨i₀, hi₁, hi₂, φ', 𝟙 (Over.mk toS), fun j => hφ (F.obj j)⟩
+    let g : FiniteTypeApproximation.Representative B A :=
+      ⟨i₀, hi₂, hi₁, ψ', 𝟙 (Over.mk toS), fun j => hψ (G.obj j)⟩
+    obtain ⟨a, ha, _, hfg⟩ :=
+      FiniteTypeApproximation.Representative.eventuallyEq_of_limitHom_eq hc
+        (f := FiniteTypeApproximation.Representative.comp f g)
+        (g := FiniteTypeApproximation.Representative.id A) (by
+          change (𝟙 (Over.mk toS)) ≫ (𝟙 _) = 𝟙 _
+          exact Category.id_comp _)
+    obtain ⟨b, hb, _, hgf⟩ :=
+      FiniteTypeApproximation.Representative.eventuallyEq_of_limitHom_eq hc
+        (f := FiniteTypeApproximation.Representative.comp g f)
+        (g := FiniteTypeApproximation.Representative.id B) (by
+          change (𝟙 (Over.mk toS)) ≫ (𝟙 _) = 𝟙 _
+          exact Category.id_comp _)
+    obtain ⟨m, ham, hbm⟩ := exists_ge_ge a b
+    have hi₀a : i₀ ≤ a :=
+      le_trans (Classical.choose_spec (exists_ge_ge f.stage g.stage)).1 ha
+    refine ⟨i₀, hi₁, hi₂, φ', (fun j => hφ (F.obj j)),
+      ψ', (fun j => hψ (G.obj j)), m, le_trans hi₀a ham, ?_⟩
+    intro j hmj
+    exact ⟨hfg j (le_trans ham hmj), hgf j (le_trans hbm hmj)⟩
 
 end FiniteTypeApproximationLimitSystem
 

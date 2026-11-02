@@ -7,6 +7,7 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import ReasLib.Algebra.Homology.DifferentialGradedModule.Bimodule.TensorProduct.Derived.Composition.Basic
+public import ReasLib.Algebra.Homology.DifferentialGradedModule.Bimodule.PropertyP
 
 /-!
 # Algebra-Tensor Comparisons for Composed Derived Tensor Functors
@@ -62,13 +63,15 @@ theorem AlgebraTensor.existsComposite_of_comparison
     ∃ N'' : DifferentialGradedBimodule.{u, v, v, v} A C,
       RepresentsComposite N N' N'' := sorry
 
-/-- Under the algebra-tensor comparison hypothesis, the explicit relative tensor bimodule itself
-represents the composite derived tensor functor. -/
+/-- For two bimodules with property P over their enveloping DGAs, the algebra-tensor comparison
+hypothesis makes their explicit relative tensor represent the composite derived tensor functor. -/
 @[stacks 0BZ5 "explicit algebra-tensor composite represents derived composition"]
 theorem AlgebraTensor.representsComposite_of_comparison
     {A B C : CochainDGAlgebra.{u, v} R}
     (N : DifferentialGradedBimodule.{u, v, v, v} A B)
     (N' : DifferentialGradedBimodule.{u, v, v, v} B C)
+    (hN : DifferentialGradedBimodule.HasPropertyP A B N)
+    (hN' : DifferentialGradedBimodule.HasPropertyP B C N')
     (h_comparison : IsIso (AlgebraTensor.comparison A B C)) :
     RepresentsComposite N N' (bimodule N N') := sorry
 

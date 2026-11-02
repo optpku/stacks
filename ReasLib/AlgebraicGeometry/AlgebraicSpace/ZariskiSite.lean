@@ -40,7 +40,8 @@ abbrev smallZariskiSite {S : Scheme.{u}} (F : AlgebraicSpace S) :=
 /-- The structural morphism of an object of the small Zariski site of `F` is an open immersion
 into `F`. -/
 theorem isOpenImmersion_smallZariskiSite {S : Scheme.{u}} {F : AlgebraicSpace S}
-    (U : smallZariskiSite F) : IsOpenImmersion U.hom := sorry
+    (U : smallZariskiSite F) : IsOpenImmersion U.hom :=
+  U.prop
 
 /-- The canonical forgetful functor from the small Zariski site of `F` to `Over F`. -/
 abbrev smallZariskiForget {S : Scheme.{u}} (F : AlgebraicSpace S) :
@@ -51,7 +52,8 @@ abbrev smallZariskiForget {S : Scheme.{u}} (F : AlgebraicSpace S) :
 /-- Forgetting the open-immersion condition on an object of the small Zariski site recovers the
 underlying object of `Over F`. -/
 theorem smallZariskiForget_obj {S : Scheme.{u}} {F : AlgebraicSpace S} (U : smallZariskiSite F) :
-    (smallZariskiForget F).obj U = CategoryTheory.Over.mk U.hom := sorry
+    (smallZariskiForget F).obj U = CategoryTheory.Over.mk U.hom :=
+  rfl
 
 /-- The canonical forgetful functor from the small Zariski site of `F` to algebraic spaces over
 `S`. -/
@@ -62,11 +64,31 @@ abbrev smallZariskiToSpace {S : Scheme.{u}} (F : AlgebraicSpace S) :
 /-- The underlying algebraic space of an open subspace is the domain of its structural open
 immersion. -/
 theorem smallZariskiToSpace_obj {S : Scheme.{u}} {F : AlgebraicSpace S} (U : smallZariskiSite F) :
-    (smallZariskiToSpace F).obj U = U.left := sorry
+    (smallZariskiToSpace F).obj U = U.left :=
+  rfl
 
+set_option backward.isDefEq.respectTransparency false in
 /-- A morphism in the small Zariski site of `F` is an open immersion of algebraic spaces. -/
 theorem isOpenImmersion_smallZariskiSite_map {S : Scheme.{u}} {F : AlgebraicSpace S}
-    {U V : smallZariskiSite F} (f : U ⟶ V) : IsOpenImmersion f.left := sorry
+    {U V : smallZariskiSite F} (f : U ⟶ V) : IsOpenImmersion f.left := by
+  haveI : @Mono ((Over S)ᵒᵖ ⥤ Type u) _
+      V.left.functorOfPoints F.functorOfPoints V.hom := by
+    apply MorphismProperty.presheaf_monomorphisms_le_monomorphisms _
+    apply MorphismProperty.relative_monotone (P :=
+      MorphismProperty.over (@AlgebraicGeometry.IsOpenImmersion)) ?_ _ V.prop.presheaf
+    intro A B g hg
+    haveI : AlgebraicGeometry.IsOpenImmersion g.left := hg
+    exact CategoryTheory.Over.mono_of_mono_left g
+  exact ⟨(MorphismProperty.relative_isStableUnderBaseChange
+    (MorphismProperty.over (@AlgebraicGeometry.IsOpenImmersion))).of_isPullback
+      (IsPullback.of_horiz_isIso_mono (C := (Over S)ᵒᵖ ⥤ Type u)
+        (fst := 𝟙 U.left.functorOfPoints)
+        (snd := f.left) (f := (U.hom : U.left.functorOfPoints ⟶ F.functorOfPoints))
+        (g := (V.hom : V.left.functorOfPoints ⟶ F.functorOfPoints))
+        ⟨by
+          change U.hom = f.left ≫ V.hom
+          exact (MorphismProperty.Over.w f).symm⟩)
+      U.prop.presheaf⟩
 
 /-- The Zariski precoverage on open subspaces of `F`: covering presieves are those presented by
 a small family of morphisms whose coproduct of functors of points is locally surjective as fppf
@@ -86,7 +108,36 @@ theorem ofArrows_mem_smallZariskiPrecoverage_iff {S : Scheme.{u}} {F : Algebraic
     {f : ∀ i, V i ⟶ U} :
     Presieve.ofArrows V f ∈ smallZariskiPrecoverage F U ↔
       Presheaf.IsLocallySurjective (Scheme.fppfTopology.over S)
-        (Sigma.desc fun i ↦ (f i).left) := sorry
+        (Sigma.desc fun i ↦ (f i).left) := by
+  constructor
+  · rintro ⟨K, hK, W, g, hR, hg⟩
+    have hlift : ∀ {T : smallZariskiSite F} (a : T ⟶ U),
+        Presieve.ofArrows V f a → ∀ (B : (Over S)ᵒᵖ)
+          (t : T.left.functorOfPoints.obj B),
+          ∃ y, (Sigma.desc (C := (Over S)ᵒᵖ ⥤ Type u)
+            fun i ↦ (f i).left).app B y = a.left.app B t := by
+      intro T a ha B t
+      cases ha with
+      | mk i =>
+        exact ⟨(Sigma.ι (fun i ↦ (V i).left.functorOfPoints) i).app B t,
+          ConcreteCategory.congr_hom
+            (congr_app (Sigma.ι_desc (C := (Over S)ᵒᵖ ⥤ Type u)
+              (fun i ↦ (f i).left) i) B) t⟩
+    constructor
+    intro T s
+    refine (Scheme.fppfTopology.over S).superset_covering ?_ (hg.imageSieve_mem s)
+    intro B a ha
+    obtain ⟨z, hz⟩ := ha
+    obtain ⟨⟨j⟩, t, rfl⟩ := Types.jointly_surjective_of_isColimit
+      (isColimitOfPreserves ((evaluation ((Over S)ᵒᵖ) (Type u)).obj (Opposite.op B))
+        (colimit.isColimit (Discrete.functor fun j ↦ (W j).left.functorOfPoints))) z
+    obtain ⟨y, hy⟩ := hlift (g j) (hR.symm ▸ Presieve.ofArrows.mk j) (Opposite.op B) t
+    refine ⟨y, hy.trans (?_ : (g j).left.app (Opposite.op B) t = _)⟩
+    exact (ConcreteCategory.congr_hom
+      (congr_app (Sigma.ι_desc (C := (Over S)ᵒᵖ ⥤ Type u)
+        (fun j ↦ (g j).left) j) (Opposite.op B)) t).symm.trans hz
+  · intro hf
+    exact ⟨I, inferInstance, V, f, rfl, hf⟩
 
 /-- The small Zariski topology of an algebraic space `F` is the Grothendieck topology generated
 by Zariski covering families of open subspaces of `F`. -/
@@ -96,7 +147,8 @@ def smallZariskiTopology {S : Scheme.{u}} (F : AlgebraicSpace S) :
 
 /-- The small Zariski topology is generated by its concrete precoverage. -/
 theorem smallZariskiTopology_def {S : Scheme.{u}} (F : AlgebraicSpace S) :
-    smallZariskiTopology F = (smallZariskiPrecoverage F).toGrothendieck := sorry
+    smallZariskiTopology F = (smallZariskiPrecoverage F).toGrothendieck :=
+  rfl
 
 /-- The four site axioms hold for the precoverage of open subspaces of an algebraic space. -/
 theorem smallZariskiPrecoverage_site_axioms {S : Scheme.{u}} (F : AlgebraicSpace S) :

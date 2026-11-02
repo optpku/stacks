@@ -47,8 +47,28 @@ def powerStageToLimitStage {S : Scheme.{u}} (structureHom : Spec (.of A) ⟶ S)
       stage (AdicCompletion.WithLimitTopology I) (completionStructureHom structureHom I)
         (evalWeakIdeal I n) :=
   Over.homMk (Spec.map (CommRingCat.ofHom
-    (RingHom.kerLift (AdicCompletion.evalₐ I (n + 1)).toRingHom))) sorry
+    (RingHom.kerLift (AdicCompletion.evalₐ I (n + 1)).toRingHom))) (by
+      change Spec.map _ ≫ (Spec.map _ ≫ (Spec.map _ ≫ structureHom)) =
+        Spec.map _ ≫ structureHom
+      simp only [← Category.assoc, ← Spec.map_comp]
+      rfl)
 
+set_option backward.isDefEq.respectTransparency false in
+private theorem adicCompletion_eval_factor {A : Type*} [CommRing A] (I : Ideal A) {m n : ℕ} (h : m ≤ n)
+    (x : AdicCompletion I A) :
+    Ideal.Quotient.factor (Ideal.pow_le_pow_right h) (AdicCompletion.evalₐ I n x) =
+      AdicCompletion.evalₐ I m x := by
+  rw [← AdicCompletion.factor_eval_eq_evalₐ I x (show I ^ n • (⊤ : Ideal A) ≤ I ^ n by simp),
+    ← AdicCompletion.factor_eval_eq_evalₐ I x (show I ^ m • (⊤ : Ideal A) ≤ I ^ m by simp)]
+  change Ideal.Quotient.factor (Ideal.pow_le_pow_right h)
+      (Ideal.Quotient.factor (show I ^ n • (⊤ : Ideal A) ≤ I ^ n by simp) (x.val n)) =
+    Ideal.Quotient.factor (show I ^ m • (⊤ : Ideal A) ≤ I ^ m by simp) (x.val m)
+  rw [← x.property h]
+  generalize x.val n = a
+  obtain ⟨a, rfl⟩ := Ideal.Quotient.mk_surjective a
+  rfl
+
+set_option backward.isDefEq.respectTransparency false in
 /-- The evaluation-induced stage maps form a cocone into the presheaf formal
 spectrum of the inverse-limit completion. -/
 def toSpfLimitCocone {S : Scheme.{u}} (structureHom : Spec (.of A) ⟶ S)
@@ -63,7 +83,38 @@ def toSpfLimitCocone {S : Scheme.{u}} (structureHom : Spec (.of A) ⟶ S)
             (thickenings (AdicCompletion.WithLimitTopology I)
               (completionStructureHom structureHom I) ⋙ yoneda)
             (evalWeakIdeal I n)
-      naturality := sorry }
+      naturality := by
+        intro m n φ
+        let f : evalWeakIdeal I m ⟶ evalWeakIdeal I n := homOfLE (by
+          change RingHom.ker (AdicCompletion.evalₐ I (n + 1)).toRingHom ≤
+            RingHom.ker (AdicCompletion.evalₐ I (m + 1)).toRingHom
+          intro x hx
+          change AdicCompletion.evalₐ I (n + 1) x = 0 at hx
+          change AdicCompletion.evalₐ I (m + 1) x = 0
+          rw [← adicCompletion_eval_factor I (Nat.succ_le_succ (leOfHom φ)) x, hx, map_zero])
+        have hcomp : (powerThickenings structureHom I).map φ ≫
+            powerStageToLimitStage structureHom I n =
+            powerStageToLimitStage structureHom I m ≫
+              (thickenings (AdicCompletion.WithLimitTopology I)
+                (completionStructureHom structureHom I)).map f := by
+          apply Over.OverMorphism.ext
+          change Spec.map _ ≫ Spec.map _ = Spec.map _ ≫ Spec.map _
+          rw [← Spec.map_comp, ← Spec.map_comp]
+          congr 1
+          ext x
+          change Ideal.Quotient.factor (Ideal.pow_le_pow_right
+              (Nat.succ_le_succ (leOfHom φ)))
+              ((AdicCompletion.evalₐ I (n + 1)).toRingHom.kerLift (Ideal.Quotient.mk _ x)) =
+            (AdicCompletion.evalₐ I (m + 1)).toRingHom.kerLift (Ideal.Quotient.mk _ x)
+          simp only [RingHom.kerLift_mk]
+          exact adicCompletion_eval_factor I (Nat.succ_le_succ (leOfHom φ)) x
+        change yoneda.map ((powerThickenings structureHom I).map φ) ≫ _ = _
+        dsimp only [Functor.const]
+        rw [Category.comp_id, ← Category.assoc, ← yoneda.map_comp, hcomp,
+          yoneda.map_comp, Category.assoc]
+        exact congrArg (fun g ↦ yoneda.map (powerStageToLimitStage structureHom I m) ≫ g)
+          (colimit.w (thickenings (AdicCompletion.WithLimitTopology I)
+            (completionStructureHom structureHom I) ⋙ yoneda) f) }
 
 /-- The quotient-power presheaf completion maps canonically to the presheaf
 formal spectrum of the inverse-limit completion ring. -/
@@ -84,7 +135,7 @@ theorem toSpfLimit_ι {S : Scheme.{u}} (structureHom : Spec (.of A) ⟶ S)
           (thickenings (AdicCompletion.WithLimitTopology I)
             (completionStructureHom structureHom I) ⋙ yoneda)
           (evalWeakIdeal I n) :=
-  sorry
+  colimit.ι_desc (toSpfLimitCocone structureHom I) n
 
 /-- The evaluation comparison with the inverse-limit presheaf formal spectrum
 is an isomorphism for every ideal. -/
@@ -104,6 +155,7 @@ def toSpfCompletion {S : Scheme.{u}}
       (spf_iso_sheafify_presheafColimit (AdicCompletion.WithLimitTopology I)
         (completionStructureHom structureHom I)).inv
 
+set_option backward.isDefEq.respectTransparency false in
 /-- On each sheafified quotient-power stage, the completion comparison is the
 sheafified kernel-lift map followed by the canonical formal-spectrum leg. -/
 theorem toSpfCompletion_ι {S : Scheme.{u}}
@@ -115,30 +167,92 @@ theorem toSpfCompletion_ι {S : Scheme.{u}}
         (yoneda.map (powerStageToLimitStage structureHom I n)) ≫
           spfι (AdicCompletion.WithLimitTopology I)
             (completionStructureHom structureHom I) (evalWeakIdeal I n) :=
-  sorry
+  by
+    let F := presheafToSheaf (Scheme.fppfTopology.over S) (Type u)
+    change F.map (spfAdicCompletionι structureHom I n) ≫
+        (F.map (toSpfLimit structureHom I) ≫ _) = _
+    rw [← Category.assoc, ← F.map_comp, toSpfLimit_ι, F.map_comp, Category.assoc]
+    exact congrArg (fun f ↦ F.map (yoneda.map (powerStageToLimitStage structureHom I n)) ≫ f)
+      (ι_preservesColimitIso_hom F
+        (thickenings (AdicCompletion.WithLimitTopology I)
+          (completionStructureHom structureHom I) ⋙ yoneda) (evalWeakIdeal I n))
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The canonical comparison from the sheafified quotient-power completion to
 the sheaf formal spectrum of the inverse-limit completion is an isomorphism. -/
 instance instIsIso_toSpfCompletion {S : Scheme.{u}}
     [HasWeakSheafify (Scheme.fppfTopology.over S) (Type u)]
     (structureHom : Spec (.of A) ⟶ S) (I : Ideal A) :
     IsIso (toSpfCompletion structureHom I) :=
-  sorry
+  by
+    unfold toSpfCompletion
+    infer_instance
 
+private theorem adicCompletion_colimit_target_iso {S : Scheme.{u}} {Λ : Type*}
+    [Preorder Λ] [IsDirected Λ (· ≤ ·)] {D : Λ ⥤ Over S}
+    {X Y : (Over S)ᵒᵖ ⥤ Type u} (e : X ≅ Y)
+    (h : IsDirectedAffineThickeningColimit D X) :
+    IsDirectedAffineThickeningColimit D Y := by
+  refine ⟨h.isAffine_obj, h.isThickening_map,
+    (Presheaf.isSheaf_of_iso_iff e).mp h.isSheaf, ?_⟩
+  obtain ⟨c, η, hc, hsurj, hinj⟩ := h.exists_colimit
+  letI := hsurj
+  letI := hinj
+  exact ⟨c, η ≫ e.hom, hc, inferInstance, inferInstance⟩
+
+private theorem adicCompletion_affine_target_iso {S : Scheme.{u}}
+    {X Y : (Over S)ᵒᵖ ⥤ Type u} (e : X ≅ Y)
+    (h : AffineFormalAlgebraicSpace.IsAffine X) :
+    AffineFormalAlgebraicSpace.IsAffine Y := by
+  obtain ⟨Λ, hΛ, hdir, D, hD⟩ := h.exists_colimit
+  letI := hΛ
+  letI := hdir
+  refine ⟨⟨Λ, hΛ, hdir, D, adicCompletion_colimit_target_iso e hD⟩, ?_⟩
+  obtain ⟨U, R, π, σ, hπ, hσ⟩ := h.exists_presentation
+  letI := hπ
+  letI := hσ
+  let p := pullback.map π π (π ≫ e.hom) (π ≫ e.hom)
+    (𝟙 _) (𝟙 _) e.hom (by simp) (by simp)
+  haveI : IsIso p := by dsimp [p]; infer_instance
+  exact ⟨U, R, π ≫ e.hom, σ ≫ p, inferInstance, inferInstance⟩
+
+set_option backward.isDefEq.respectTransparency false in
 /-- The sheafified completion of an affine scheme along any ideal is weakly adic. -/
 instance instIsWeaklyAdic_spfAdicCompletionSheaf {S : Scheme.{u}}
     [HasWeakSheafify (Scheme.fppfTopology.over S) (Type u)]
     (structureHom : Spec (.of A) ⟶ S) (I : Ideal A) :
     IsWeaklyAdic (spfAdicCompletionSheaf structureHom I).obj :=
-  sorry
+  by
+    let e := (sheafToPresheaf (Scheme.fppfTopology.over S) (Type u)).mapIso
+      (asIso (toSpfCompletion structureHom I))
+    have h : IsWeaklyAdic (spf (AdicCompletion.WithLimitTopology I)
+      (completionStructureHom structureHom I)).obj := inferInstance
+    refine { toIsAffine := adicCompletion_affine_target_iso e.symm h.toIsAffine
+             exists_weaklyAdic := ?_ }
+    obtain ⟨B, hB, hTop, hWeak, hAdm, σ, hcol⟩ := h.exists_weaklyAdic
+    exact ⟨B, hB, hTop, hWeak, hAdm, σ, adicCompletion_colimit_target_iso e.symm hcol⟩
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The sheafified completion along a finitely generated ideal is adic*. -/
 theorem isAdicStar_of_fg {S : Scheme.{u}}
     [HasWeakSheafify (Scheme.fppfTopology.over S) (Type u)]
     (structureHom : Spec (.of A) ⟶ S) (I : Ideal A) (hI : I.FG) :
     IsAdicStarAffine (spfAdicCompletionSheaf structureHom I).obj :=
-  sorry
+  by
+    letI := isIso_sheafifiedToCompletionAlong_of_fg structureHom I hI
+    let e := (sheafToPresheaf (Scheme.fppfTopology.over S) (Type u)).mapIso
+        (asIso (sheafifiedToCompletionAlong structureHom I)) ≪≫
+      (isoSheafify (Scheme.fppfTopology.over S)
+        (affineCompletionAlong_isSheaf structureHom (zeroLocusCloseds I))).symm
+    have hcomp : IsCompact (zeroLocusCloseds I : Set (Spec (.of A)))ᶜ :=
+      (PrimeSpectrum.isCompact_isOpen_iff_ideal.mpr ⟨I, hI, rfl⟩).1
+    obtain ⟨B, hB, hTop, hAdic, J, hJ, hdef, σ, hcol⟩ :=
+      (isAdicStar_completionAlong_of_isCompact_compl structureHom (zeroLocusCloseds I)
+        hcomp).exists_adicStar
+    exact ⟨⟨B, hB, hTop, hAdic, J, hJ, hdef, σ,
+      adicCompletion_colimit_target_iso e.symm hcol⟩⟩
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The sheafified completion of a Noetherian affine scheme along an ideal is
 Noetherian. -/
 instance instIsNoetherianAffine_spfAdicCompletionSheaf {S : Scheme.{u}}
@@ -146,7 +260,18 @@ instance instIsNoetherianAffine_spfAdicCompletionSheaf {S : Scheme.{u}}
     [AlgebraicGeometry.IsNoetherian (Spec (.of A))]
     (structureHom : Spec (.of A) ⟶ S) (I : Ideal A) :
     IsNoetherianAffine (spfAdicCompletionSheaf structureHom I).obj :=
-  sorry
+  by
+    haveI : IsNoetherianRing A := (isNoetherian_Spec (R := .of A)).mp inferInstance
+    have hI : I.FG := (isNoetherianRing_iff_ideal_fg A).mp inferInstance I
+    letI := isIso_sheafifiedToCompletionAlong_of_fg structureHom I hI
+    let e := (sheafToPresheaf (Scheme.fppfTopology.over S) (Type u)).mapIso
+        (asIso (sheafifiedToCompletionAlong structureHom I)) ≪≫
+      (isoSheafify (Scheme.fppfTopology.over S)
+        (affineCompletionAlong_isSheaf structureHom (zeroLocusCloseds I))).symm
+    obtain ⟨B, hB, hTop, hAdic, hN, J, hdef, σ, hcol⟩ :=
+      (isNoetherian_completionAlong structureHom (zeroLocusCloseds I)).exists_adicNoetherian
+    exact ⟨⟨B, hB, hTop, hAdic, hN, J, hdef, σ,
+      adicCompletion_colimit_target_iso e.symm hcol⟩⟩
 
 /-- Completion along an ideal is weakly adic; for a finitely generated ideal,
 the extended ideal defines its adic topology, the canonical formal-spectrum
@@ -162,6 +287,13 @@ theorem completionAlongIdeal_types {S : Scheme.{u}} {A : Type u} [CommRing A]
             IsAdicStarAffine (spfAdicCompletionSheaf structureHom I).obj) ∧
       (AlgebraicGeometry.IsNoetherian (Spec (.of A)) →
         IsNoetherianAffine (spfAdicCompletionSheaf structureHom I).obj) :=
-  sorry
+  by
+    refine ⟨inferInstance, ?_, ?_⟩
+    · intro hI
+      exact ⟨AdicCompletion.WithLimitTopology.isAdic_of_fg I hI, inferInstance,
+        isAdicStar_of_fg structureHom I hI⟩
+    · intro hA
+      letI := hA
+      infer_instance
 
 end AlgebraicGeometry.AffineFormalAlgebraicSpace

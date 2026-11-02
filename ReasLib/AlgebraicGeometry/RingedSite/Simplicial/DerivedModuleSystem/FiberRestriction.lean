@@ -81,27 +81,30 @@ def toDerivedModuleSystem (K : Hom.ModuleDerived.{w} (fiberTotalRingedSite F J O
 /-- The stage object of `toDerivedModuleSystem K` at `n` is `K_n = Lg_n^* K`. -/
 theorem toDerivedModuleSystem_obj
     (K : Hom.ModuleDerived.{w} (fiberTotalRingedSite F J O)) (n : SimplexCategory) :
-    (toDerivedModuleSystem F J O K).obj n = (moduleDerivedComponent F J O n).obj K := sorry
+    (toDerivedModuleSystem F J O K).obj n = (moduleDerivedComponent F J O n).obj K := rfl
 
 /-- The transition of `toDerivedModuleSystem K` at `φ` is the canonical comparison
 `K(φ) : Lf_φ^* K_m ⟶ K_n`. -/
 theorem toDerivedModuleSystem_map
     (K : Hom.ModuleDerived.{w} (fiberTotalRingedSite F J O))
     {m n : SimplexCategory} (φ : m ⟶ n) :
-    (toDerivedModuleSystem F J O K).map φ = moduleDerivedTransition F J O φ K := sorry
+    (toDerivedModuleSystem F J O K).map φ = moduleDerivedTransition F J O φ K := rfl
 
 /-- If `K` is cartesian in `D(O)`, then the extracted system `(K_n, K(φ))` is cartesian. -/
 theorem toDerivedModuleSystem_isCartesian
     (K : Hom.ModuleDerived.{w} (fiberTotalRingedSite F J O))
     (h_cartesian : ModuleDerived.IsCartesian F J O K) :
     RingedSite.Simplicial.DerivedModuleSystem.IsCartesian
-      (toDerivedModuleSystem F J O K) := sorry
+      (toDerivedModuleSystem F J O K) := by
+  intro m n φ
+  exact h_cartesian.isIso_transition φ
 
 /-- Cartesianness of the extracted system is equivalent to cartesianness of `K` in `D(O)`. -/
 theorem toDerivedModuleSystem_isCartesian_iff
     (K : Hom.ModuleDerived.{w} (fiberTotalRingedSite F J O)) :
     RingedSite.Simplicial.DerivedModuleSystem.IsCartesian (toDerivedModuleSystem F J O K) ↔
-      ModuleDerived.IsCartesian F J O K := sorry
+      ModuleDerived.IsCartesian F J O K :=
+  ⟨fun h ↦ ⟨h⟩, fun h ↦ h.isIso_transition⟩
 
 /-- Derived restriction to the fibers is natural in a morphism of total derived modules. -/
 theorem toDerivedModuleSystemMap_naturality
@@ -110,7 +113,10 @@ theorem toDerivedModuleSystemMap_naturality
     (toDerivedModuleSystem F J O K).map φ ≫ (moduleDerivedComponent F J O n).map α =
       (fiberRingedToposMap F J O φ).modulePullbackDerived.map
           ((moduleDerivedComponent F J O m).map α) ≫
-        (toDerivedModuleSystem F J O L).map φ := sorry
+        (toDerivedModuleSystem F J O L).map φ := by
+  change moduleDerivedTransition F J O φ K ≫ _ = _ ≫ moduleDerivedTransition F J O φ L
+  unfold moduleDerivedTransition
+  exact (NatTrans.naturality _ α).symm
 
 /-- A morphism of total derived modules induces a morphism of their fiberwise
 derived-module systems, with components given by derived restriction. -/
@@ -127,6 +133,6 @@ theorem toDerivedModuleSystemMap_app
     {K L : Hom.ModuleDerived.{w} (fiberTotalRingedSite F J O)} (α : K ⟶ L)
     (n : SimplexCategory) :
     (toDerivedModuleSystemMap F J O α).app n =
-      (moduleDerivedComponent F J O n).map α := sorry
+      (moduleDerivedComponent F J O n).map α := rfl
 
 end CategoryTheory.Grothendieck

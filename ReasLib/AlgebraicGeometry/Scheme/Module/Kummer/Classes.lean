@@ -27,11 +27,16 @@ def classOf {S : Scheme.{u}} {n : ℕ} (P : Pair S n) : Classes S n := Quotient.
 
 /-- Equality of equipped-pair classes is precisely compatible isomorphism. -/
 theorem class_eq_iff {S : Scheme.{u}} {n : ℕ} (P Q : Pair S n) :
-    classOf P = classOf Q ↔ Nonempty (PairIso P Q) := sorry
+    classOf P = classOf Q ↔ Nonempty (PairIso P Q) :=
+  Quotient.eq
 
 /-- Every equipped-pair class has a representative. -/
 theorem class_surjective {S : Scheme.{u}} {n : ℕ} :
-    Function.Surjective (classOf (S := S) (n := n)) := sorry
+    Function.Surjective (classOf (S := S) (n := n)) := by
+  intro x
+  refine Quotient.inductionOn x ?_
+  intro P
+  exact ⟨P, rfl⟩
 
 namespace Classes
 
@@ -57,11 +62,12 @@ theorem add_assoc (x y z : Classes S n) : add (add x y) z = add x (add y z) := s
 /-- The trivial-pair class is a left identity for tensor-product addition. -/
 theorem zero_add (x : Classes S n) : add (zero S n) x = x := sorry
 
-/-- The trivial-pair class is a right identity for tensor-product addition. -/
-theorem add_zero (x : Classes S n) : add x (zero S n) = x := sorry
-
 /-- Tensor-product addition is commutative on compatible-isomorphism classes. -/
 theorem add_comm (x y : Classes S n) : add x y = add y x := sorry
+
+/-- The trivial-pair class is a right identity for tensor-product addition. -/
+theorem add_zero (x : Classes S n) : add x (zero S n) = x := by
+  rw [add_comm, zero_add]
 
 /-- The dual-pair class is an additive inverse. -/
 theorem neg_add_cancel (x : Classes S n) : add (neg x) x = zero S n := sorry
@@ -85,6 +91,7 @@ end Classes
 /-- Tensor product has the tensor-product underlying module and represents addition of classes. -/
 theorem class_tensor_spec {S : Scheme.{u}} {n : ℕ} (P Q : Pair S n) :
     (P.tensor Q).lineBundle = P.lineBundle ⊗ Q.lineBundle ∧
-      classOf (P.tensor Q) = classOf P + classOf Q := sorry
+      classOf (P.tensor Q) = classOf P + classOf Q :=
+  ⟨rfl, rfl⟩
 
 end AlgebraicGeometry.Scheme.Modules.Kummer

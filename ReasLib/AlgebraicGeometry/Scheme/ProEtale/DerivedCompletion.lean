@@ -16,8 +16,8 @@ public import ReasLib.LinearAlgebra.QuotientByIdeal
 /-!
 # Completed constant complexes of finite projective adic modules
 
-This file provides the completed constant sheaf and complex constructions used
-for derived adic lisseness.
+This file retains the pro-étale application names for the shared completed
+constant sheaf and complex constructions on arbitrary sites.
 -/
 
 @[expose] public section
@@ -37,14 +37,7 @@ variable {Λ : Type w} [CommRing Λ]
 def moduleQuotientSystemMap (I : Ideal Λ) {M N : ModuleCat.{w} Λ} (f : M ⟶ N) :
     CategoryTheory.ConstantSheaf.AdicCompletion.moduleSystem I M ⟶
       CategoryTheory.ConstantSheaf.AdicCompletion.moduleSystem I N :=
-  NatTrans.ofOpSequence
-    (fun n ↦ ModuleCat.ofHom (f.hom.quotientMapByIdeal (I ^ n)))
-    (fun n ↦ by
-      simp only [CategoryTheory.ConstantSheaf.AdicCompletion.moduleSystem,
-        Functor.ofOpSequence_map_homOfLE_succ]
-      ext x
-      obtain ⟨x⟩ := x
-      rfl)
+  CategoryTheory.ConstantSheaf.AdicCompletion.moduleSystemMap I f
 
 /-- The identity induces the identity on the ideal-power quotient system. -/
 @[simp]
@@ -79,9 +72,7 @@ def constantAdicCompletionMap {C : Type u} [Category.{v} C]
     {M N : ModuleCat.{w} Λ} (f : M ⟶ N) :
     CategoryTheory.ConstantSheaf.AdicCompletion.ofModule J I M ⟶
       CategoryTheory.ConstantSheaf.AdicCompletion.ofModule J I N :=
-  lim.map
-    (Functor.whiskerRight (moduleQuotientSystemMap I f)
-      (constantSheaf J (ModuleCat.{w} Λ)))
+  CategoryTheory.ConstantSheaf.AdicCompletion.map J I f
 
 /-- Restriction of scalars along `Λ → Λ^∧`. -/
 abbrev restrictScalarsAdic (I : Ideal Λ) :
@@ -102,8 +93,7 @@ variable [HasWeakSheafify J (ModuleCat.{w} Λ)]
 `Λ`-modules: `underline{M}^∧ = lim_n underline{stage I M n}`. -/
 def constantAdicCompletionSheaf (M : ModuleCat.{w} (AdicCompletion I Λ)) :
     Sheaf J (ModuleCat.{w} Λ) :=
-  CategoryTheory.ConstantSheaf.AdicCompletion.ofModule J I
-    ((restrictScalarsAdic I).obj M)
+  CategoryTheory.ConstantSheaf.AdicCompletion.ofAdicModule J I M
 
 /-- `constantAdicCompletionSheaf` is the completed constant sheaf of the
 restriction of scalars of `M`. -/
@@ -125,18 +115,8 @@ def constantAdicCompletionSheaf_π (M : ModuleCat.{w} (AdicCompletion I Λ))
 /-- The functor sending a `Λ^∧`-module to its completed constant sheaf of
 `Λ`-modules. -/
 def constantAdicCompletionFunctor :
-    ModuleCat.{w} (AdicCompletion I Λ) ⥤ Sheaf J (ModuleCat.{w} Λ) where
-  obj M := constantAdicCompletionSheaf J I M
-  map f := constantAdicCompletionMap J I ((restrictScalarsAdic I).map f)
-  map_id M := by
-    simp only [constantAdicCompletionMap, (restrictScalarsAdic I).map_id,
-      moduleQuotientSystemMap_id,
-      Functor.whiskerRight_id']
-    exact lim.map_id _
-  map_comp f g := by
-    simp only [constantAdicCompletionMap, (restrictScalarsAdic I).map_comp,
-      moduleQuotientSystemMap_comp, Functor.whiskerRight_comp]
-    exact lim.map_comp _ _
+    ModuleCat.{w} (AdicCompletion I Λ) ⥤ Sheaf J (ModuleCat.{w} Λ) :=
+  CategoryTheory.ConstantSheaf.AdicCompletion.ofAdicModuleFunctor J I
 
 /-- The functor evaluates to `constantAdicCompletionSheaf` on objects. -/
 theorem constantAdicCompletionFunctor_obj
@@ -145,31 +125,19 @@ theorem constantAdicCompletionFunctor_obj
       constantAdicCompletionSheaf J I M :=
   rfl
 
-variable [∀ U : C, HasWeakSheafify (J.over U) (ModuleCat.{w} Λ)]
 variable [Abelian (Sheaf J (ModuleCat.{w} Λ))]
-variable [∀ U : C, Abelian (Sheaf (J.over U) (ModuleCat.{w} Λ))]
 
 /-- The completed-constant functor preserves zero morphisms. -/
 instance constantAdicCompletionFunctor_preservesZeroMorphisms :
-    (constantAdicCompletionFunctor J I).PreservesZeroMorphisms := by
-  letI : (presheafToSheaf J (ModuleCat.{w} Λ)).PreservesZeroMorphisms :=
-    Functor.preservesZeroMorphisms_of_isLeftAdjoint _
-  letI : (constantSheaf J (ModuleCat.{w} Λ)).PreservesZeroMorphisms :=
-    Functor.preservesZeroMorphisms_comp (Functor.const Cᵒᵖ) _
-  refine ⟨?_⟩
-  intro M N
-  change constantAdicCompletionMap J I ((restrictScalarsAdic I).map (0 : M ⟶ N)) = 0
-  simp only [constantAdicCompletionMap, (restrictScalarsAdic I).map_zero,
-    moduleQuotientSystemMap_zero,
-    Functor.whiskerRight_zero]
-  exact lim.map_zero _ _
+    (constantAdicCompletionFunctor J I).PreservesZeroMorphisms :=
+  CategoryTheory.ConstantSheaf.AdicCompletion.ofAdicModuleFunctor_preservesZeroMorphisms J I
 
 /-- Degreewise completed constant sheaves, with constant differentials, of a
 cochain complex of `Λ^∧`-modules. -/
 abbrev constantAdicCompletionComplex :
     CochainComplex (ModuleCat.{w} (AdicCompletion I Λ)) ℤ ⥤
       CochainComplex (Sheaf J (ModuleCat.{w} Λ)) ℤ :=
-  (constantAdicCompletionFunctor J I).mapHomologicalComplex (up ℤ)
+  CategoryTheory.ConstantSheaf.AdicCompletion.ofAdicModuleComplex J I
 
 /-- `constantAdicCompletionComplex` is `mapHomologicalComplex` of the completed
 constant sheaf functor. -/

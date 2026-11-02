@@ -42,12 +42,16 @@ def objOver (n : SimplexCategoryᵒᵖ) : Over S :=
 base projection. -/
 theorem objOver_hom (n : SimplexCategoryᵒᵖ) :
     (objOver f π n).hom = π.app n ≫ Arrow.cechNerve.base (Arrow.mk f) n :=
-  sorry
+  rfl
 
 /-- Each face map `Y.δ i` is a morphism over `S`. -/
 theorem face_comp_objOver (i : Fin 2) :
     Y.δ i ≫ (objOver f π (op ⦋0⦌)).hom = (objOver f π (op ⦋1⦌)).hom :=
-  sorry
+  by
+    change Y.δ i ≫ (π ≫ (Arrow.mk f).augmentedCechNerve.hom).app (op ⦋0⦌) =
+      (π ≫ (Arrow.mk f).augmentedCechNerve.hom).app (op ⦋1⦌)
+    exact ((π ≫ (Arrow.mk f).augmentedCechNerve.hom).naturality
+      (SimplexCategory.δ i).op).trans (Category.comp_id _)
 
 /-- The face map `Y.δ i` as a morphism of schemes over `S`. -/
 def faceOver (i : Fin 2) :
@@ -57,7 +61,7 @@ def faceOver (i : Fin 2) :
 /-- The underlying scheme morphism of `faceOver f π i` is `Y.δ i`. -/
 theorem faceOver_left (i : Fin 2) :
     (faceOver f π i).left = Y.δ i :=
-  sorry
+  rfl
 
 /-- The pair `j = (Y.δ 1, Y.δ 0)` as a morphism over `S` into the product
 `Y _⦋0⦌ ⨯_S Y _⦋0⦌`. -/
@@ -68,20 +72,21 @@ def facePair :
 /-- The first factor of `facePair f π` is the target face `Y.δ 1`. -/
 theorem facePair_fst :
     facePair f π ≫ prod.fst = faceOver f π 1 :=
-  sorry
+  prod.lift_fst _ _
 
 /-- The second factor of `facePair f π` is the source face `Y.δ 0`. -/
 theorem facePair_snd :
     facePair f π ≫ prod.snd = faceOver f π 0 :=
-  sorry
+  prod.lift_snd _ _
 
 /-- The two face maps `Y.δ 1` and `Y.δ 0` agree after composing with the structure map
 of `Y _⦋0⦌` over `S`. -/
 theorem facePair_comp :
     Y.δ (1 : Fin 2) ≫ (objOver f π (op ⦋0⦌)).hom =
       Y.δ (0 : Fin 2) ≫ (objOver f π (op ⦋0⦌)).hom :=
-  sorry
+  (face_comp_objOver f π 1).trans (face_comp_objOver f π 0).symm
 
+set_option backward.isDefEq.respectTransparency false in
 /-- After identifying the product in `Over S` with the fibre product over `S`,
 `facePair f π` recovers `j : Y _⦋1⦌ ⟶ Y _⦋0⦌ ×_S Y _⦋0⦌`. -/
 theorem facePair_left :
@@ -89,7 +94,12 @@ theorem facePair_left :
       (Over.prodLeftIsoPullback
         (objOver f π (op ⦋0⦌)) (objOver f π (op ⦋0⦌))).hom =
       pullback.lift (Y.δ (1 : Fin 2)) (Y.δ (0 : Fin 2)) (facePair_comp f π) :=
-  sorry
+  by
+    apply pullback.hom_ext
+    · rw [Category.assoc, Over.prodLeftIsoPullback_hom_fst, pullback.lift_fst,
+        ← Over.comp_left, facePair_fst, faceOver_left]
+    · rw [Category.assoc, Over.prodLeftIsoPullback_hom_snd, pullback.lift_snd,
+        ← Over.comp_left, facePair_snd, faceOver_left]
 
 /-- The pre-relation on `Y _⦋0⦌` over `S` with defining map `j = (Y.δ 1, Y.δ 0)`. -/
 def facePreRelation : Scheme.PreRelation (objOver f π (op ⦋0⦌)) :=
@@ -98,17 +108,17 @@ def facePreRelation : Scheme.PreRelation (objOver f π (op ⦋0⦌)) :=
 /-- The target projection of `facePreRelation f π` is the face `Y.δ 1`. -/
 theorem facePreRelation_t :
     (facePreRelation f π).t = faceOver f π 1 :=
-  sorry
+  facePair_fst f π
 
 /-- The source projection of `facePreRelation f π` is the face `Y.δ 0`. -/
 theorem facePreRelation_s :
     (facePreRelation f π).s = faceOver f π 0 :=
-  sorry
+  facePair_snd f π
 
 /-- The defining arrow of `facePreRelation f π` is `facePair f π`. -/
 theorem facePreRelation_hom :
     (facePreRelation f π).hom = facePair f π :=
-  sorry
+  rfl
 
 /-- A cartesian morphism of simplicial schemes to the Čech nerve of a scheme morphism
 makes the ordered pair of degree-one faces an equivalence relation over the base. -/

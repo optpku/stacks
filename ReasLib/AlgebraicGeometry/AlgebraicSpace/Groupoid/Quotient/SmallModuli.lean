@@ -46,14 +46,16 @@ theorem baseChangeSrc_fst {S : Scheme.{u}} {B : AlgebraicSpace S}
     (G : GroupoidAlgebraicSpace B) {Y Y' : AlgebraicSpace S}
     (φ : G.U.left ⟶ Y) (h : Y' ⟶ Y) :
     G.baseChangeSrc φ h ≫ CategoryTheory.Limits.pullback.fst φ h =
-      CategoryTheory.Limits.pullback.fst (G.s.left ≫ φ) h ≫ G.s.left := sorry
+      CategoryTheory.Limits.pullback.fst (G.s.left ≫ φ) h ≫ G.s.left := by
+  exact CategoryTheory.Limits.pullback.lift_fst _ _ _
 
 /-- `baseChangeSrc φ h` projects to `Y'` as the second pullback projection. -/
 theorem baseChangeSrc_snd {S : Scheme.{u}} {B : AlgebraicSpace S}
     (G : GroupoidAlgebraicSpace B) {Y Y' : AlgebraicSpace S}
     (φ : G.U.left ⟶ Y) (h : Y' ⟶ Y) :
     G.baseChangeSrc φ h ≫ CategoryTheory.Limits.pullback.snd φ h =
-      CategoryTheory.Limits.pullback.snd (G.s.left ≫ φ) h := sorry
+      CategoryTheory.Limits.pullback.snd (G.s.left ≫ φ) h := by
+  exact CategoryTheory.Limits.pullback.lift_snd _ _ _
 
 /-- The base-changed target map `R' ⟶ U'` of an invariant morphism `φ`, induced
 by `G.t.left` on the same chosen `R' = Y' ×_Y R` as `baseChangeSrc`. -/
@@ -72,14 +74,62 @@ theorem baseChangeTgt_fst {S : Scheme.{u}} {B : AlgebraicSpace S}
     (G : GroupoidAlgebraicSpace B) {Y Y' : AlgebraicSpace S}
     (φ : G.U.left ⟶ Y) (hφ : G.IsInvariantHom φ) (h : Y' ⟶ Y) :
     G.baseChangeTgt φ hφ h ≫ CategoryTheory.Limits.pullback.fst φ h =
-      CategoryTheory.Limits.pullback.fst (G.s.left ≫ φ) h ≫ G.t.left := sorry
+      CategoryTheory.Limits.pullback.fst (G.s.left ≫ φ) h ≫ G.t.left := by
+  exact CategoryTheory.Limits.pullback.lift_fst _ _ _
 
 /-- `baseChangeTgt φ hφ h` projects to `Y'` as the second pullback projection. -/
 theorem baseChangeTgt_snd {S : Scheme.{u}} {B : AlgebraicSpace S}
     (G : GroupoidAlgebraicSpace B) {Y Y' : AlgebraicSpace S}
     (φ : G.U.left ⟶ Y) (hφ : G.IsInvariantHom φ) (h : Y' ⟶ Y) :
     G.baseChangeTgt φ hφ h ≫ CategoryTheory.Limits.pullback.snd φ h =
-      CategoryTheory.Limits.pullback.snd (G.s.left ≫ φ) h := sorry
+      CategoryTheory.Limits.pullback.snd (G.s.left ≫ φ) h := by
+  exact CategoryTheory.Limits.pullback.lift_snd _ _ _
+
+/-- Taking the atlas composite commutes with postcomposition by a map of
+algebraic spaces. -/
+theorem atlasComp_comp {S : Scheme.{u}} {B : AlgebraicSpace S}
+    (G : GroupoidAlgebraicSpace B) {Y W : AlgebraicSpace S}
+    (f : SmallQuotient.quotientStack G ⟶ Y.toGroupoids) (χ : Y ⟶ W) :
+    G.atlasComp (f ≫ AlgebraicSpace.toGroupoids.map χ) = G.atlasComp f ≫ χ := by
+  obtain ⟨i⟩ : Nonempty (SmallQuotient.atlas G ≫ f ≅
+      AlgebraicSpace.toGroupoids.map (G.atlasComp f)) :=
+    (AlgebraicSpace.toGroupoids.eval.eq_iff_isomorphic _ _).mp
+      (AlgebraicSpace.toGroupoids.eval.map _).symm
+  change AlgebraicSpace.toGroupoids.eval
+    (SmallQuotient.atlas G ≫ (f ≫ AlgebraicSpace.toGroupoids.map χ)) = _
+  exact (AlgebraicSpace.toGroupoids.eval.eq_of_isomorphic
+    ⟨(α_ _ _ _).symm ≪≫ Bicategory.whiskerRightIso i _ ≪≫
+      eqToIso (AlgebraicSpace.toGroupoids.map_comp _ _).symm⟩).trans
+        (AlgebraicSpace.toGroupoids.eval.map _)
+
+/-- Maps out of the quotient stack to an algebraic space are isomorphic
+exactly when their atlas composites agree. -/
+theorem nonempty_iso_iff_atlasComp_eq {S : Scheme.{u}} {B : AlgebraicSpace S}
+    (G : GroupoidAlgebraicSpace B) [Flat G] [LocallyOfFinitePresentation G]
+    {W : AlgebraicSpace S} (f g : SmallQuotient.quotientStack G ⟶ W.toGroupoids) :
+    Nonempty (f ≅ g) ↔ G.atlasComp f = G.atlasComp g := by
+  constructor
+  · rintro ⟨i⟩
+    exact AlgebraicSpace.toGroupoids.eval.eq_of_isomorphic
+      ⟨Bicategory.whiskerLeftIso (SmallQuotient.atlas G) i⟩
+  · intro h
+    obtain ⟨k, hk, huniq⟩ := G.existsUnique_hom_of_isInvariantHom
+      (G.atlasComp f) (G.isInvariantHom_atlasComp f).1
+    obtain ⟨i⟩ := huniq f ((G.isInvariantHom_atlasComp f).2 _ |>.mpr rfl)
+    obtain ⟨j⟩ := huniq g ((G.isInvariantHom_atlasComp g).2 _ |>.mpr h)
+    exact ⟨i.symm ≪≫ j⟩
+
+/-- Unique factorization of a map out of the quotient stack can be checked
+on its atlas composite. -/
+theorem uniqueFactor_iff_atlasComp {S : Scheme.{u}} {B : AlgebraicSpace S}
+    (G : GroupoidAlgebraicSpace B) [Flat G] [LocallyOfFinitePresentation G]
+    {Y W : AlgebraicSpace S} (f : SmallQuotient.quotientStack G ⟶ Y.toGroupoids)
+    (g : SmallQuotient.quotientStack G ⟶ W.toGroupoids) :
+    (∃! χ : Y ⟶ W, Nonempty (f ≫ AlgebraicSpace.toGroupoids.map χ ≅ g)) ↔
+      ∃! χ : Y ⟶ W, G.atlasComp f ≫ χ = G.atlasComp g := by
+  apply existsUnique_congr
+  intro χ
+  rw [G.nonempty_iso_iff_atlasComp_eq, G.atlasComp_comp]
 
 /-- Let `G` be a groupoid in algebraic spaces with source
 and target flat and locally of finite presentation, and let `Y` be an algebraic
@@ -96,7 +146,20 @@ theorem isCategoricalModuliSpace_iff_isCategoricalQuotient
     AlgebraicStack.IsCategoricalModuliSpace f ↔
       G.IsInvariantHom (G.atlasComp f) ∧
         ∀ {W : AlgebraicSpace S} (ψ : G.U.left ⟶ W),
-          G.IsInvariantHom ψ → ∃! χ : Y ⟶ W, G.atlasComp f ≫ χ = ψ := sorry
+          G.IsInvariantHom ψ → ∃! χ : Y ⟶ W, G.atlasComp f ≫ χ = ψ := by
+  letI : AlgebraicStack (SmallQuotient.quotientStack G) :=
+    isAlgebraicStack_quotientStack_of_flat G inferInstance inferInstance
+  constructor
+  · intro hf
+    refine ⟨(G.isInvariantHom_atlasComp f).1, ?_⟩
+    intro W ψ hψ
+    obtain ⟨g, hg, _⟩ := G.existsUnique_hom_of_isInvariantHom ψ hψ
+    have hψg := ((G.isInvariantHom_atlasComp g).2 ψ).mp hg
+    rw [hψg]
+    exact (G.uniqueFactor_iff_atlasComp f g).mp (hf.unique_factor g)
+  · rintro ⟨_, hf⟩
+    exact ⟨fun g ↦ (G.uniqueFactor_iff_atlasComp f g).mpr
+      (hf _ (G.isInvariantHom_atlasComp g).1)⟩
 
 /-- Let `G` be a groupoid in algebraic spaces with source
 and target flat and locally of finite presentation, and let `Y` be an algebraic
@@ -137,7 +200,20 @@ theorem isCategoricalModuliSpaceIn_iff_isCategoricalQuotientIn
     AlgebraicStack.IsCategoricalModuliSpaceIn C f ↔
       C Y ∧ G.IsInvariantHom (G.atlasComp f) ∧
         ∀ {W : AlgebraicSpace S} (hW : C W) (ψ : G.U.left ⟶ W),
-          G.IsInvariantHom ψ → ∃! χ : Y ⟶ W, G.atlasComp f ≫ χ = ψ := sorry
+          G.IsInvariantHom ψ → ∃! χ : Y ⟶ W, G.atlasComp f ≫ χ = ψ := by
+  letI : AlgebraicStack (SmallQuotient.quotientStack G) :=
+    isAlgebraicStack_quotientStack_of_flat G inferInstance inferInstance
+  constructor
+  · intro hf
+    refine ⟨hf.obj_Y, (G.isInvariantHom_atlasComp f).1, ?_⟩
+    intro W hW ψ hψ
+    obtain ⟨g, hg, _⟩ := G.existsUnique_hom_of_isInvariantHom ψ hψ
+    have hψg := ((G.isInvariantHom_atlasComp g).2 ψ).mp hg
+    rw [hψg]
+    exact (G.uniqueFactor_iff_atlasComp f g).mp (hf.unique_factor hW g)
+  · rintro ⟨hY, _, hf⟩
+    exact ⟨hY, fun hW g ↦ (G.uniqueFactor_iff_atlasComp f g).mpr
+      (hf hW _ (G.isInvariantHom_atlasComp g).1)⟩
 
 /-- Let `G` be a groupoid in algebraic spaces with source
 and target flat and locally of finite presentation, let `Y` be an algebraic

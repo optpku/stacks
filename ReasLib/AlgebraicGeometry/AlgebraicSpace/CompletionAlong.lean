@@ -42,13 +42,40 @@ theorem mapsInto_iff {S : Scheme.{u}} {X : AlgebraicSpace S} (T : Set (Points X)
     {U : Over S} (x : X.functorOfPoints.obj (op U)) :
     mapsInto T x ↔
       Set.range (Points.mapOfOver (yonedaEquiv.symm x : ofOver U ⟶ X)) ⊆ T :=
-  sorry
+  Iff.rfl
 
 /-- `mapsInto` is stable under precomposition with a morphism of schemes over `S`. -/
 theorem mapsInto_map {S : Scheme.{u}} {X : AlgebraicSpace S} {T : Set (Points X)}
     {U V : (Over S)ᵒᵖ} (φ : U ⟶ V) {x : X.functorOfPoints.obj U}
-    (hx : mapsInto T x) : mapsInto T (X.functorOfPoints.map φ x) :=
-  sorry
+    (hx : mapsInto T x) : mapsInto T (X.functorOfPoints.map φ x) := by
+  rintro _ ⟨p, rfl⟩
+  change Points.map (yonedaEquiv.symm (X.functorOfPoints.map φ x))
+    (ofOver.pointsEquiv V.unop p) ∈ T
+  rw [yonedaEquiv_symm_map]
+  change Points.map (ofOverMap φ.unop ≫ yonedaEquiv.symm x)
+    (ofOver.pointsEquiv V.unop p) ∈ T
+  rw [Points.map_comp, ← ofOver.pointsEquiv_naturality]
+  exact hx ⟨φ.unop.left p, rfl⟩
+
+/-- A section maps into an inverse image exactly when its postcomposition maps into
+the original subset. -/
+theorem mapsInto_comp_iff {S : Scheme.{u}} {X' X : AlgebraicSpace S} (f : X' ⟶ X)
+    (T : Set (Points X)) {U : Over S} (x : X'.functorOfPoints.obj (op U)) :
+    mapsInto T (f.app (op U) x) ↔ mapsInto (Points.map f ⁻¹' T) x := by
+  have h (p : U.left) :
+      Points.mapOfOver (yonedaEquiv.symm (f.app (op U) x) : ofOver U ⟶ X) p =
+        Points.map f (Points.mapOfOver (yonedaEquiv.symm x : ofOver U ⟶ X') p) := by
+    exact (congrArg (fun k : ofOver U ⟶ X ↦ Points.map k (ofOver.pointsEquiv U p))
+      (yonedaEquiv_symm_naturality_right U f x).symm).trans
+        (@Points.map_comp S (ofOver U) X' X (yonedaEquiv.symm x) f
+          (ofOver.pointsEquiv U p))
+  constructor
+  · intro hx
+    rintro _ ⟨p, rfl⟩
+    exact (congrArg (fun q ↦ q ∈ T) (h p)).mp (hx ⟨p, rfl⟩)
+  · intro hx
+    rintro _ ⟨p, rfl⟩
+    exact (congrArg (fun q ↦ q ∈ T) (h p)).mpr (hx ⟨p, rfl⟩)
 
 /-- If a section of `X'` maps into the closed preimage of `T` along `f : X' ⟶ X`, then
 the postcomposition with `f` maps into `T`. -/
@@ -56,7 +83,7 @@ theorem mapsInto_comp {S : Scheme.{u}} {X' X : AlgebraicSpace S} (f : X' ⟶ X)
     (T : Closeds (Points X)) {U : Over S} {x : X'.functorOfPoints.obj (op U)}
     (hx : mapsInto (T.preimage (Points.continuous_map f) : Set (Points X')) x) :
     mapsInto (T : Set (Points X)) (f.app (op U) x) :=
-  sorry
+  (mapsInto_comp_iff f (T : Set (Points X)) x).mpr hx
 
 /-- The completion of an algebraic space `X` along a closed subset `T ⊆ Points X`,
 as the subfunctor of `X.functorOfPoints` classifying morphisms from schemes whose
@@ -95,14 +122,18 @@ def ι {S : Scheme.{u}} (X : AlgebraicSpace S) (T : Closeds (Points X)) :
 /-- Components of `ι X T` are the subtype projections of `completionAlong X T`. -/
 theorem ι_app {S : Scheme.{u}} (X : AlgebraicSpace S) (T : Closeds (Points X))
     (U : (Over S)ᵒᵖ) : (ι X T).app U = ofHom fun x ↦ x.1 :=
-  sorry
+  rfl
 
 /-- A Yoneda section of `X` maps into `T` if and only if it lifts through
 `ι X T`. -/
 theorem exists_lift {S : Scheme.{u}} {X : AlgebraicSpace S} (T : Closeds (Points X))
     {U : Over S} (x : X.functorOfPoints.obj (op U)) :
-    mapsInto (T : Set (Points X)) x ↔ ∃ y, (ι X T).app (op U) y = x :=
-  sorry
+    mapsInto (T : Set (Points X)) x ↔ ∃ y, (ι X T).app (op U) y = x := by
+  constructor
+  · intro hx
+    exact ⟨⟨x, hx⟩, rfl⟩
+  · rintro ⟨y, rfl⟩
+    exact y.2
 
 /-- A morphism `f : X' ⟶ X` induces a map from the completion of `X'` along the
 preimage of `T` into the completion of `X` along `T`. -/
@@ -125,7 +156,7 @@ theorem map_app {S : Scheme.{u}} {X' X : AlgebraicSpace S} (f : X' ⟶ X)
     (x : (completionAlong X' (T.preimage (Points.continuous_map f))).obj U) :
     (ι X T).app U ((map f T).app U x) =
       f.app U ((ι X' (T.preimage (Points.continuous_map f))).app U x) :=
-  sorry
+  rfl
 
 end completionAlong
 
@@ -138,15 +169,45 @@ end completionAlong
 theorem completionAlong_isPullback {S : Scheme.{u}} {X' X : AlgebraicSpace S}
     (f : X' ⟶ X) (T : Closeds (Points X)) :
     IsPullback (completionAlong.ι X' (T.preimage (Points.continuous_map f)))
-      (completionAlong.map f T) f (completionAlong.ι X T) :=
-  sorry
+      (completionAlong.map f T) f (completionAlong.ι X T) := by
+  have w : completionAlong.ι X' (T.preimage (Points.continuous_map f)) ≫ f =
+      completionAlong.map f T ≫ completionAlong.ι X T := by
+    ext U x
+    rfl
+  refine IsPullback.of_isLimit (PullbackCone.IsLimit.mk w (fun s ↦ ?_) ?_ ?_ ?_)
+  · exact {
+      app U := ofHom fun z ↦ ⟨s.fst.app U z, (mapsInto_comp_iff f (T : Set (Points X))
+        (s.fst.app U z)).mp (by
+          have heq := congrArg (fun k ↦ k.app U z) s.condition
+          change f.app U (s.fst.app U z) = (s.snd.app U z).1 at heq
+          rw [heq]
+          exact (s.snd.app U z).2)⟩
+      naturality := by
+        intro U V φ
+        apply ConcreteCategory.hom_ext
+        intro z
+        apply Subtype.ext
+        exact congrArg (fun k : s.pt.obj U ⟶ X'.functorOfPoints.obj V ↦ k z)
+          (s.fst.naturality φ) }
+  · intro s
+    ext U z
+    rfl
+  · intro s
+    ext U z
+    apply Subtype.ext
+    exact congrArg (fun k ↦ k.app U z) s.condition
+  · intro s m hm _
+    ext U z
+    apply Subtype.ext
+    exact congrArg (fun k ↦ k.app U z) hm
 
 /-- The map from the completion along the preimage of a closed subset to the
 completion along that subset is representable by algebraic spaces. -/
 theorem representableByAlgebraicSpaces_completionAlong_map
     {S : Scheme.{u}} {X' X : AlgebraicSpace S} (f : X' ⟶ X)
     (T : Closeds (Points X)) :
-    representableByAlgebraicSpaces (completionAlong.map f T) :=
-  sorry
+    representableByAlgebraicSpaces (completionAlong.map f T) := by
+  exact MorphismProperty.of_isPullback (completionAlong_isPullback f T)
+    (representableByAlgebraicSpaces.of_hom f)
 
 end AlgebraicGeometry.AlgebraicSpace

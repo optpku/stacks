@@ -36,24 +36,24 @@ def Algebra.RelativeDual.normalizationToSource
     C ⊗[C'] (Module.Dual B' C' ⊗[B'] Module.Dual A B') →ₗ[C]
       (Algebra.RelativeDualizingModule.of A B' B h_quasiFiniteAB h_openB ⊗[B]
         Algebra.RelativeDualizingModule.of B (B ⊗[B'] C') C h_quasiFiniteBC
-          (Algebra.RelativeDual.baseChange_isOpenImmersion B' B C' C h_openC)) :=
+          (Algebra.RelativeDual.baseChange_isOpenImmersion B' B C' C h_openB h_openC)) :=
   -- Local instance justification (defeq pin): the outer tensor lift needs the target `C'`-module induced by `algebraMap C' C`.
   letI : Module C'
       (Algebra.RelativeDualizingModule.of A B' B h_quasiFiniteAB h_openB ⊗[B]
         Algebra.RelativeDualizingModule.of B (B ⊗[B'] C') C h_quasiFiniteBC
-          (Algebra.RelativeDual.baseChange_isOpenImmersion B' B C' C h_openC)) :=
+          (Algebra.RelativeDual.baseChange_isOpenImmersion B' B C' C h_openB h_openC)) :=
     Module.compHom _ (algebraMap C' C)
   -- Local instance justification (defeq pin): the inner tensor lift needs the target `B'`-module induced by `algebraMap B' C'`.
   letI : Module B'
       (Algebra.RelativeDualizingModule.of A B' B h_quasiFiniteAB h_openB ⊗[B]
         Algebra.RelativeDualizingModule.of B (B ⊗[B'] C') C h_quasiFiniteBC
-          (Algebra.RelativeDual.baseChange_isOpenImmersion B' B C' C h_openC)) :=
+          (Algebra.RelativeDual.baseChange_isOpenImmersion B' B C' C h_openB h_openC)) :=
     Module.compHom _ (algebraMap B' C')
   let innerMap (c : C) :
       (Module.Dual B' C' ⊗[B'] Module.Dual A B') →ₗ[C']
         (Algebra.RelativeDualizingModule.of A B' B h_quasiFiniteAB h_openB ⊗[B]
           Algebra.RelativeDualizingModule.of B (B ⊗[B'] C') C h_quasiFiniteBC
-            (Algebra.RelativeDual.baseChange_isOpenImmersion B' B C' C h_openC)) :=
+            (Algebra.RelativeDual.baseChange_isOpenImmersion B' B C' C h_openB h_openC)) :=
     { toFun :=
         (_root_.TensorProduct.lift
             (LinearMap.mk₂ B' (fun g f ↦ TensorProduct.tmul B
@@ -61,12 +61,12 @@ def Algebra.RelativeDual.normalizationToSource
                   Algebra.RelativeDualizingModule.of A B' B h_quasiFiniteAB h_openB)
                 ((Module.Dual.baseChange B g ⊗ₜ[(B ⊗[B'] C')] c) :
                   Algebra.RelativeDualizingModule.of B (B ⊗[B'] C') C h_quasiFiniteBC
-                    (Algebra.RelativeDual.baseChange_isOpenImmersion B' B C' C h_openC)))
+                    (Algebra.RelativeDual.baseChange_isOpenImmersion B' B C' C h_openB h_openC)))
               sorry sorry sorry sorry) :
           (Module.Dual B' C' ⊗[B'] Module.Dual A B') →ₗ[B']
             (Algebra.RelativeDualizingModule.of A B' B h_quasiFiniteAB h_openB ⊗[B]
               Algebra.RelativeDualizingModule.of B (B ⊗[B'] C') C h_quasiFiniteBC
-                (Algebra.RelativeDual.baseChange_isOpenImmersion B' B C' C h_openC)))
+                (Algebra.RelativeDual.baseChange_isOpenImmersion B' B C' C h_openB h_openC)))
       map_add' := sorry
       map_smul' := sorry }
   { toFun :=
@@ -138,7 +138,7 @@ noncomputable def Algebra.RelativeDual.sourceToNormalization
     (h_openC : IsOpenImmersion (Spec.map (CommRingCat.ofHom (algebraMap C' C)))) :
     (Algebra.RelativeDualizingModule.of A B' B h_quasiFiniteAB h_openB ⊗[B]
       Algebra.RelativeDualizingModule.of B (B ⊗[B'] C') C h_quasiFiniteBC
-        (Algebra.RelativeDual.baseChange_isOpenImmersion B' B C' C h_openC)) →ₗ[C]
+        (Algebra.RelativeDual.baseChange_isOpenImmersion B' B C' C h_openB h_openC)) →ₗ[C]
       C ⊗[C'] (Module.Dual B' C' ⊗[B'] Module.Dual A B') :=
   let f := Algebra.RelativeDual.normalizationToSource A B B' C C'
     h_quasiFiniteAB h_quasiFiniteBC h_openB h_openC
@@ -324,7 +324,7 @@ noncomputable def Algebra.RelativeDualizingModule.transitivityMapOf
     (h_openC : IsOpenImmersion (Spec.map (CommRingCat.ofHom (algebraMap C' C)))) :
     (Algebra.RelativeDualizingModule.of A B' B h_quasiFiniteAB h_openB ⊗[B]
         Algebra.RelativeDualizingModule.of B (B ⊗[B'] C') C h_quasiFiniteBC
-          (Algebra.RelativeDual.baseChange_isOpenImmersion B' B C' C h_openC)) →ₗ[C]
+          (Algebra.RelativeDual.baseChange_isOpenImmersion B' B C' C h_openB h_openC)) →ₗ[C]
       Algebra.RelativeDualizingModule.of A C' C
         (h_quasiFiniteAB.comp h_quasiFiniteBC) h_openC :=
   (Algebra.RelativeDual.scalarExtensionComm C' C (Module.Dual A C')).comp

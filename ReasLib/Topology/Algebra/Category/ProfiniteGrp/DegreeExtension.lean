@@ -57,7 +57,15 @@ noncomputable def inl : S.G →ₜ* S.middle :=
 /-- The degree map is constant on conjugacy classes, since the profinite integers
 are abelian. -/
 theorem deg_eq_of_isConj {a b : S.middle} (h : IsConj a b) :
-    S.deg a = S.deg b := sorry
+    S.deg a = S.deg b := by
+  apply Subtype.ext
+  funext H
+  let π : hatZ.{u} →* (integerGroup.{u} ⧸ H.toSubgroup) :=
+    { toFun := fun z ↦ z.val H
+      map_one' := rfl
+      map_mul' _ _ := rfl }
+  exact (isConj_iff_eq (α := integerGroup.{u} ⧸ H.toSubgroup)).mp
+    ((π.comp S.deg.hom.toMonoidHom).map_isConj h)
 
 /-- The degree of a conjugacy class, well-defined because `hatZ` is abelian. -/
 noncomputable def degClass (c : ConjClasses S.middle) : hatZ.{u} :=
@@ -73,19 +81,39 @@ noncomputable def degreeOneLift : S.middle :=
 
 /-- The chosen degree-one lift maps to `1` in `hatZ`. -/
 theorem deg_degreeOneLift : S.deg S.degreeOneLift = hatZOne.{u} :=
-  sorry
+  Classical.choose_spec (S.deg_surjective hatZOne)
 
 /-- Any two degree-one lifts differ by an element of `G = ker(deg)`. -/
 theorem degreeOneLift_spec (γ : S.middle) :
-    S.deg γ = hatZOne.{u} ↔ ∃ g : S.G, γ = S.inl g * S.degreeOneLift :=
-  sorry
+    S.deg γ = hatZOne.{u} ↔ ∃ g : S.G, γ = S.inl g * S.degreeOneLift := by
+  constructor
+  · intro hγ
+    refine ⟨⟨γ * S.degreeOneLift⁻¹, ?_⟩, ?_⟩
+    · change S.deg.hom (γ * S.degreeOneLift⁻¹) = 1
+      rw [map_mul, map_inv, hγ, S.deg_degreeOneLift, mul_inv_cancel]
+    · change γ = γ * S.degreeOneLift⁻¹ * S.degreeOneLift
+      simp [mul_assoc]
+  · rintro ⟨g, rfl⟩
+    change S.deg.hom (g.val * S.degreeOneLift) = _
+    rw [map_mul, show S.deg.hom g.val = 1 from g.property,
+      one_mul, S.deg_degreeOneLift]
 
 /-- Conjugation by `γ` on the kernel of `deg`. -/
 noncomputable def conjHom (γ : S.middle) : S.G →ₜ* S.G :=
-  ⟨{ toFun := fun g => ⟨γ * g.val * γ⁻¹, sorry⟩
-     map_one' := sorry
-     map_mul' := sorry },
-    sorry⟩
+  ⟨{ toFun := fun g => ⟨γ * g.val * γ⁻¹, by
+       change S.deg.hom (γ * g.val * γ⁻¹) = 1
+       rw [map_mul, map_mul, map_inv, show S.deg.hom g.val = 1 from g.property]
+       simp⟩
+     map_one' := by
+       apply Subtype.ext
+       simp
+     map_mul' := by
+       intro a b
+       apply Subtype.ext
+       simp [mul_assoc] },
+    by
+      exact ((IsTopologicalGroup.continuous_conj γ).comp
+        continuous_subtype_val).subtype_mk _⟩
 
 /-- Conjugation has the specified ambient group operation as its actual value. -/
 @[simp]

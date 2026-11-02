@@ -52,7 +52,7 @@ theorem liftsAlgClosedTwoArrows_iff : liftsAlgClosedTwoArrows f ↔
     ∀ (k : Type u) [Field k] [IsAlgClosed k] (σ : Spec (.of k) ⟶ S)
       (x1 x2 : GroupoidsOver.slice (Over.mk σ) ⟶ X),
       Function.Surjective (fun α : x1 ≅ x2 ↦ whiskerRightIso α f) :=
-  sorry
+  ⟨fun h k _ _ σ x1 x2 ↦ h σ x1 x2, fun h k _ _ σ x1 x2 ↦ h k σ x1 x2⟩
 
 namespace liftsAlgClosedTwoArrows
 
@@ -63,7 +63,7 @@ theorem of
       (x1 x2 : GroupoidsOver.slice (Over.mk σ) ⟶ X),
       Function.Surjective (fun α : x1 ≅ x2 ↦ whiskerRightIso α f)) :
     liftsAlgClosedTwoArrows f :=
-  sorry
+  h
 
 /-- Under `liftsAlgClosedTwoArrows f`, whiskering 2-isos of algebraically closed
 slice maps along `f` is surjective. -/
@@ -71,7 +71,7 @@ theorem spec (h : liftsAlgClosedTwoArrows f) {k : Type u} [Field k]
     [IsAlgClosed k] (σ : Spec (.of k) ⟶ S)
     (x1 x2 : GroupoidsOver.slice (Over.mk σ) ⟶ X) :
     Function.Surjective (fun α : x1 ≅ x2 ↦ whiskerRightIso α f) :=
-  sorry
+  h σ x1 x2
 
 /-- Under `liftsAlgClosedTwoArrows f`, every 2-iso `β : x1 ≫ f ≅ x2 ≫ f` of
 algebraically closed slice maps is `whiskerRightIso α f` for some
@@ -80,8 +80,9 @@ theorem exists_whisker (h : liftsAlgClosedTwoArrows f) {k : Type u} [Field k]
     [IsAlgClosed k] (σ : Spec (.of k) ⟶ S)
     (x1 x2 : GroupoidsOver.slice (Over.mk σ) ⟶ X)
     (β : x1 ≫ f ≅ x2 ≫ f) :
-    ∃ α : x1 ≅ x2, β = whiskerRightIso α f :=
-  sorry
+    ∃ α : x1 ≅ x2, β = whiskerRightIso α f := by
+  obtain ⟨α, hα⟩ := h σ x1 x2 β
+  exact ⟨α, hα.symm⟩
 
 end liftsAlgClosedTwoArrows
 
@@ -109,19 +110,35 @@ theorem tfae (f : X ⟶ Y) :
 relative 2-diagonal is surjective on points. -/
 theorem iff_surjective_diagonal (f : X ⟶ Y) :
     UniversallyInjective f ↔ Surjective (Hom.diagonal.{u + 1, u, u + 1} f) :=
-  sorry
+  (tfae f).out 0 1
 
 /-- A morphism of algebraic stacks is universally injective if and only if it
 lifts 2-arrows between algebraically closed field-valued points. -/
 theorem iff_liftsAlgClosedTwoArrows (f : X ⟶ Y) :
     UniversallyInjective f ↔ liftsAlgClosedTwoArrows f :=
-  sorry
+  (tfae f).out 0 2
 
 /-- The relative 2-diagonal of a universally injective morphism of algebraic
 stacks is surjective on points. -/
 instance surjective_diagonal {f : X ⟶ Y} [UniversallyInjective f] :
-    Surjective (Hom.diagonal.{u + 1, u, u + 1} f) :=
-  sorry
+    Surjective (Hom.diagonal.{u + 1, u, u + 1} f) := by
+  apply Surjective.of
+  let δ := Hom.diagonal.{u + 1, u, u + 1} f
+  let π := TwoFibreProduct.snd.{u + 1, u, u + 1, u} f f
+  have h_section (x : Points X) : Points.map π (Points.map δ x) = x := by
+    rw [← Points.map_comp δ π]
+    have h_iso : Points.map (δ ≫ π) x = Points.map (𝟙 X) x := by
+      let e : δ ≫ π ≅ 𝟙 X := Hom.diagonal.sndIso f
+      refine Quotient.inductionOn x fun p ↦ ?_
+      apply Quotient.sound
+      refine ⟨⟨p.map (δ ≫ π), FieldValuedPoint.Factorization.refl (p.map (δ ≫ π)), ?_⟩⟩
+      refine ⟨𝟙 _, Category.id_comp _, ?_⟩
+      exact (FieldValuedPoint.Factorization.refl (p.map (𝟙 X))).fac_iso ≪≫
+        whiskerLeftIso p.hom e.symm
+    exact h_iso.trans (Points.map_id x)
+  intro p
+  exact ⟨Points.map π p,
+    (UniversallyInjective.twoFibreProduct_snd f) (h_section (Points.map π p))⟩
 
 end UniversallyInjective
 

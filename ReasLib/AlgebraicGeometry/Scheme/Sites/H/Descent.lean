@@ -51,7 +51,7 @@ theorem isAffineFlatProperSurjective_iff (Schh : ChosenBigHSite.{u, v})
           [Flat ((ChosenBigSite.sliceToScheme Schh S).map f)]
           [IsProper ((ChosenBigSite.sliceToScheme Schh S).map f)]
           [Scheme.Hom.FinitePresentation ((ChosenBigSite.sliceToScheme Schh S).map f)],
-        regularTopology.SingleEqualizerCondition F f := sorry
+        regularTopology.SingleEqualizerCondition F f := Iff.rfl
 
 end Equalizer
 
@@ -82,7 +82,7 @@ theorem isAffineDescent_iff (Schh : ChosenBigHSite.{u, v})
           IsAlmostBlowupSquare
             ((ChosenBigSite.sliceToScheme Schh S).map sq.f₂₄)
             ((ChosenBigSite.sliceToScheme Schh S).map sq.f₃₄).ker →
-          (sq.op.map F).IsPullback := sorry
+          (sq.op.map F).IsPullback := Iff.rfl
 
 end AlmostBlowup
 
@@ -93,7 +93,8 @@ restricted Zariski topology. -/
 theorem zariskiOfIsSheaf (Schh : ChosenBigHSite.{u, v}) (S : Schh.carrier)
     (F : (Over S)ᵒᵖ ⥤ Type w)
     (hF : Presheaf.IsSheaf (bigTopology Schh S) F) :
-    Presheaf.IsSheaf (bigZariskiTopology Schh S) F := sorry
+    Presheaf.IsSheaf (bigZariskiTopology Schh S) F := by
+  exact Presheaf.IsSheaf.of_le (bigZariskiTopology_le Schh S) hF
 
 /-- A sheaf for the h topology has equalizer descent along every flat, proper,
 surjective morphism of finite presentation with affine represented target. -/
@@ -101,7 +102,9 @@ theorem affineFlatProperDescentOfIsSheaf
     (Schh : ChosenBigHSite.{u, v}) (S : Schh.carrier)
     (F : (Over S)ᵒᵖ ⥤ Type w)
     (hF : Presheaf.IsSheaf (bigTopology Schh S) F) :
-    Equalizer.IsAffineFlatProperSurjective Schh S F := sorry
+    Equalizer.IsAffineFlatProperSurjective Schh S F := by
+  intro U V f _ _ _ _ _
+  exact ((iffZariskiAndEqualizer Schh S F).mp hF).2 f
 
 /-- A sheaf for the h topology sends every affine-base almost blowup square to
 a pullback square of types. -/
@@ -109,7 +112,9 @@ theorem almostBlowupDescentOfIsSheaf
     (Schh : ChosenBigHSite.{u, v}) (S : Schh.carrier)
     (F : (Over S)ᵒᵖ ⥤ Type w)
     (hF : Presheaf.IsSheaf (bigTopology Schh S) F) :
-    AlmostBlowup.IsAffineDescent Schh S F := sorry
+    AlmostBlowup.IsAffineDescent Schh S F := by
+  intro sq _ _ h_pullback h_almostBlowup
+  exact map_isPullback_of_isAlmostBlowup Schh S ⟨F, hF⟩ sq h_pullback h_almostBlowup
 
 /-- Zariski descent, affine flat-proper-surjective equalizer descent, and
 affine almost-blowup descent imply the sheaf condition for the h topology. -/
@@ -130,7 +135,14 @@ theorem iffZariskiAndFlatProperAlmostBlowup
     Presheaf.IsSheaf (bigTopology Schh S) F ↔
       Presheaf.IsSheaf (bigZariskiTopology Schh S) F ∧
         Equalizer.IsAffineFlatProperSurjective Schh S F ∧
-          AlmostBlowup.IsAffineDescent Schh S F := sorry
+          AlmostBlowup.IsAffineDescent Schh S F := by
+  constructor
+  · intro hF
+    exact ⟨zariskiOfIsSheaf Schh S F hF,
+      affineFlatProperDescentOfIsSheaf Schh S F hF,
+      almostBlowupDescentOfIsSheaf Schh S F hF⟩
+  · rintro ⟨h_zariski, h_flatProper, h_almostBlowup⟩
+    exact ofZariskiAffineFlatProperAlmostBlowup Schh S F h_zariski h_flatProper h_almostBlowup
 
 end Sheaf
 

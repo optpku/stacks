@@ -61,19 +61,34 @@ correspond to degree-`d` effective relative divisors on the base-changed curve. 
 def rationalPointsEquiv
     {k K : Type u} [Field k] [Field K] [Algebra k K]
     (X : SchemeOverField k) [Curve X] [GeometricallyIrreducible X.hom]
-    [SmoothOfRelativeDimension 1 X.hom] [IsProper X.hom] (d : ℕ) :
-    ((Over.mk (FieldExtension.specMap k K) : SchemeOverField k) ⟶ (functor X d).reprX) ≃
+    [SmoothOfRelativeDimension 1 X.hom] [IsProper X.hom] (d : ℕ)
+    (H : SchemeOverField k) (R : (functor X d).RepresentableBy H) :
+    ((Over.mk (FieldExtension.specMap k K) : SchemeOverField k) ⟶ H) ≃
       Point X d (Over.mk (FieldExtension.specMap k K)) :=
-  (functor X d).representableBy.homEquiv
+  R.homEquiv
 
 /-- The rational-point equivalence is the canonical equivalence supplied by representability. -/
 theorem rationalPointsEquiv_apply
     {k K : Type u} [Field k] [Field K] [Algebra k K]
     (X : SchemeOverField k) [Curve X] [GeometricallyIrreducible X.hom]
     [SmoothOfRelativeDimension 1 X.hom] [IsProper X.hom] (d : ℕ)
+    (H : SchemeOverField k) (R : (functor X d).RepresentableBy H)
     (f : (Over.mk (FieldExtension.specMap k K) : SchemeOverField k) ⟶
-      (functor X d).reprX) :
-    rationalPointsEquiv X d f = (functor X d).representableBy.homEquiv f := sorry
+      H) :
+    rationalPointsEquiv X d H R f = R.homEquiv f := rfl
+
+/-- A represented rational point classifies the pullback of the specified universal divisor. -/
+theorem rationalPointsEquiv_ideal_eq_comap
+    {k K : Type u} [Field k] [Field K] [Algebra k K]
+    (X : SchemeOverField k) [Curve X] [GeometricallyIrreducible X.hom]
+    [SmoothOfRelativeDimension 1 X.hom] [IsProper X.hom] (d : ℕ)
+    (H : SchemeOverField k) (R : (functor X d).RepresentableBy H)
+    (f : (Over.mk (FieldExtension.specMap k K) : SchemeOverField k) ⟶ H) :
+    (rationalPointsEquiv X d H R f).ideal =
+      (R.homEquiv (𝟙 H)).ideal.comap (fiberMap X f) := by
+  change (R.homEquiv f).ideal = _
+  rw [R.homEquiv_eq f]
+  rfl
 
 /-- Addition of effective divisors of degrees `d₁` and `d₂` induces a finite locally free
 morphism of rank `(d₁ + d₂).choose d₁` between their chosen Hilbert schemes. -/

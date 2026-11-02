@@ -103,12 +103,63 @@ theorem ofIso_f {ξ ξ' : Obj 𝒢} (f : ξ.U ⟶ ξ'.U)
     (g : (inverseImage f).obj ξ'.P.carrier ≅ ξ.P.carrier)
     (hg : IsEquivariant 𝒢 ξ ξ' f h g) : (ofIso 𝒢 f h g hg).f = f := rfl
 
+private theorem fiberPoint_ext {U : Over S} {b : ℬ.obj.obj (op U)}
+    {V : Over U.left} {x y : FiberPoint 𝒢 b V} (h : x.val = y.val) : x = y := by
+  cases x
+  cases y
+  cases h
+  rfl
+
+private theorem transport_val {U : Over S} {b b' : ℬ.obj.obj (op U)}
+    (h : b = b') {V : Over U.left} (x : FiberPoint 𝒢 b V) :
+    (FiberPoint.transport 𝒢 h x).val = x.val := by
+  cases h
+  rfl
+
+private theorem hom_ext {ξ ξ' : Obj 𝒢} {α β : Hom ξ ξ'} (hf : α.f = β.f)
+    (hg : ∀ (V : Over ξ.U.left)
+      (i : (Over.map β.f.left).obj V ⟶ (Over.map α.f.left).obj V),
+      i.left = 𝟙 V.left →
+      ∀ x, α.g.hom.hom.app (op V) x =
+        β.g.hom.hom.app (op V) (ξ'.P.carrier.obj.map i.op x)) : α = β := by
+  cases α with | mk f h g e =>
+    cases β with | mk f' h' g' e' =>
+      cases hf
+      have hg' : g = g' := by
+        apply Iso.ext
+        apply Sheaf.hom_ext
+        apply NatTrans.ext
+        funext V
+        apply ConcreteCategory.hom_ext
+        intro x
+        simpa using hg V.unop (𝟙 _) rfl x
+      cases hg'
+      rfl
+
 /-- Identity morphisms of `𝒢/ℬ-Torsors`. -/
 def idHom (ξ : Obj 𝒢) : Hom ξ ξ where
   f := 𝟙 ξ.U
-  comm := sorry
+  comm := by simp
   g := (inverseImageId ξ.U).app ξ.P.carrier
-  equivariant := sorry
+  equivariant := by
+    intro V gp x
+    change ξ.P.carrier.obj.map ((Over.mapId ξ.U.left).inv.app V).op
+        ((ξ.P.mulAction _).smul _ x) = _
+    rw [ξ.P.act_naturality]
+    congr 1
+    apply fiberPoint_ext
+    change 𝒢.X.left.obj.map _
+        (𝒢.X.left.obj.map _ (FiberPoint.transport 𝒢 _ gp).val) = gp.val
+    rw [transport_val, ← Functor.map_comp_apply]
+    calc
+      _ = 𝒢.X.left.obj.map (𝟙 _) gp.val := by
+        apply ConcreteCategory.congr_hom
+        apply 𝒢.X.left.obj.congr_map
+        apply Quiver.Hom.unop_inj
+        apply Over.OverMorphism.ext
+        change (𝟙 V.left ≫ 𝟙 V.left) = 𝟙 V.left
+        simp
+      _ = _ := by simp
 
 /-- The composite isomorphism of torsor carriers along a composite of scheme maps. -/
 def compIso {ξ ξ' ξ'' : Obj 𝒢} (α : Hom ξ ξ') (β : Hom ξ' ξ'') :
@@ -119,19 +170,124 @@ def compIso {ξ ξ' ξ'' : Obj 𝒢} (α : Hom ξ ξ') (β : Hom ξ' ξ'') :
 /-- Composition of morphisms of `𝒢/ℬ-Torsors`. -/
 def compHom {ξ ξ' ξ'' : Obj 𝒢} (α : Hom ξ ξ') (β : Hom ξ' ξ'') : Hom ξ ξ'' where
   f := α.f ≫ β.f
-  comm := sorry
+  comm := by
+    rw [α.comm, β.comm]
+    simp only [op_comp, Functor.map_comp, types_comp_apply]
   g := compIso 𝒢 α β
-  equivariant := sorry
+  equivariant := by
+    intro V gp x
+    change α.g.hom.hom.app (op V)
+        (β.g.hom.hom.app (op ((Over.map α.f.left).obj V))
+          (ξ''.P.carrier.obj.map ((Over.mapComp α.f.left β.f.left).inv.app V).op
+            ((ξ''.P.mulAction _).smul _ x))) = _
+    rw [ξ''.P.act_naturality]
+    have h : ξ.b = ℬ.obj.map (α.f ≫ β.f).op ξ''.b := by
+      rw [α.comm, β.comm]
+      simp only [op_comp, Functor.map_comp, types_comp_apply]
+    have hgp :
+        (baseChangeGroupSheaf 𝒢 ξ''.b).obj.map
+            ((Over.mapComp α.f.left β.f.left).inv.app V).op
+            (groupMulEquiv 𝒢 (α.f ≫ β.f) ξ''.b V
+              (FiberPoint.transport 𝒢 h gp)) =
+          groupMulEquiv 𝒢 β.f ξ''.b ((Over.map α.f.left).obj V)
+            (FiberPoint.transport 𝒢 β.comm
+              (groupMulEquiv 𝒢 α.f ξ'.b V (FiberPoint.transport 𝒢 α.comm gp))) := by
+      apply fiberPoint_ext
+      change 𝒢.X.left.obj.map _
+          (𝒢.X.left.obj.map _ (FiberPoint.transport 𝒢 _ gp).val) =
+        𝒢.X.left.obj.map _ (FiberPoint.transport 𝒢 β.comm _).val
+      rw [transport_val, transport_val]
+      change 𝒢.X.left.obj.map _ (𝒢.X.left.obj.map _ gp.val) =
+        𝒢.X.left.obj.map _
+          (𝒢.X.left.obj.map _ (FiberPoint.transport 𝒢 α.comm gp).val)
+      rw [transport_val, ← Functor.map_comp_apply, ← Functor.map_comp_apply]
+      apply ConcreteCategory.congr_hom
+      apply 𝒢.X.left.obj.congr_map
+      apply Quiver.Hom.unop_inj
+      apply Over.OverMorphism.ext
+      change (𝟙 V.left ≫ 𝟙 V.left) = (𝟙 V.left ≫ 𝟙 V.left)
+      rfl
+    rw [hgp]
+    exact (congrArg (fun y ↦ α.g.hom.hom.app (op V) y)
+      (β.equivariant ((Over.map α.f.left).obj V)
+        (groupMulEquiv 𝒢 α.f ξ'.b V (FiberPoint.transport 𝒢 α.comm gp)) _)).trans
+          (α.equivariant V gp _)
 
 /-- Left identity law for morphisms of `𝒢/ℬ-Torsors`. -/
-theorem idHom_comp {ξ ξ' : Obj 𝒢} (α : Hom ξ ξ') : compHom 𝒢 (idHom 𝒢 ξ) α = α := sorry
+theorem idHom_comp {ξ ξ' : Obj 𝒢} (α : Hom ξ ξ') : compHom 𝒢 (idHom 𝒢 ξ) α = α := by
+  apply hom_ext 𝒢 (α := compHom 𝒢 (idHom 𝒢 ξ) α) (β := α) (Category.id_comp α.f)
+  intro V i hi x
+  change ξ.P.carrier.obj.map ((Over.mapId ξ.U.left).inv.app V).op
+      (α.g.hom.hom.app (op ((Over.map (𝟙 ξ.U.left)).obj V))
+        (ξ'.P.carrier.obj.map ((Over.mapComp (𝟙 ξ.U.left) α.f.left).inv.app V).op x)) =
+    α.g.hom.hom.app (op V) (ξ'.P.carrier.obj.map i.op x)
+  rw [← NatTrans.naturality_apply]
+  change α.g.hom.hom.app (op V)
+      (ξ'.P.carrier.obj.map _ (ξ'.P.carrier.obj.map _ x)) = _
+  rw [← Functor.map_comp_apply]
+  congr 1
+  apply ConcreteCategory.congr_hom
+  apply ξ'.P.carrier.obj.congr_map
+  apply Quiver.Hom.unop_inj
+  apply Over.OverMorphism.ext
+  change (𝟙 V.left ≫ 𝟙 V.left) = i.left
+  simpa using hi.symm
 
 /-- Right identity law for morphisms of `𝒢/ℬ-Torsors`. -/
-theorem compHom_id {ξ ξ' : Obj 𝒢} (α : Hom ξ ξ') : compHom 𝒢 α (idHom 𝒢 ξ') = α := sorry
+theorem compHom_id {ξ ξ' : Obj 𝒢} (α : Hom ξ ξ') : compHom 𝒢 α (idHom 𝒢 ξ') = α := by
+  apply hom_ext 𝒢 (α := compHom 𝒢 α (idHom 𝒢 ξ')) (β := α) (Category.comp_id α.f)
+  intro V i hi x
+  change (Over.map α.f.left).obj V ⟶ (Over.map (α.f.left ≫ 𝟙 ξ'.U.left)).obj V at i
+  change ξ'.P.carrier.obj.obj (op ((Over.map (α.f.left ≫ 𝟙 ξ'.U.left)).obj V)) at x
+  change α.g.hom.hom.app (op V)
+      (ξ'.P.carrier.obj.map ((Over.mapId ξ'.U.left).inv.app
+          ((Over.map α.f.left).obj V)).op
+        (ξ'.P.carrier.obj.map ((Over.mapComp α.f.left (𝟙 ξ'.U.left)).inv.app V).op x)) =
+    α.g.hom.hom.app (op V) (ξ'.P.carrier.obj.map i.op x)
+  congr 1
+  erw [← Functor.map_comp_apply]
+  apply ConcreteCategory.congr_hom
+  apply ξ'.P.carrier.obj.congr_map
+  apply Quiver.Hom.unop_inj
+  apply Over.OverMorphism.ext
+  change (𝟙 V.left ≫ 𝟙 V.left) = i.left
+  simpa using hi.symm
 
 /-- Associativity of composition of morphisms of `𝒢/ℬ-Torsors`. -/
 theorem assocHom {ξ₁ ξ₂ ξ₃ ξ₄ : Obj 𝒢} (α : Hom ξ₁ ξ₂) (β : Hom ξ₂ ξ₃) (c : Hom ξ₃ ξ₄) :
-    compHom 𝒢 (compHom 𝒢 α β) c = compHom 𝒢 α (compHom 𝒢 β c) := sorry
+    compHom 𝒢 (compHom 𝒢 α β) c = compHom 𝒢 α (compHom 𝒢 β c) := by
+  apply hom_ext 𝒢 (Category.assoc α.f β.f c.f)
+  intro V i hi x
+  change (Over.map (α.f.left ≫ (β.f.left ≫ c.f.left))).obj V ⟶
+    (Over.map ((α.f.left ≫ β.f.left) ≫ c.f.left)).obj V at i
+  change ξ₄.P.carrier.obj.obj
+    (op ((Over.map ((α.f.left ≫ β.f.left) ≫ c.f.left)).obj V)) at x
+  change α.g.hom.hom.app (op V)
+      (β.g.hom.hom.app (op ((Over.map α.f.left).obj V))
+        (ξ₃.P.carrier.obj.map ((Over.mapComp α.f.left β.f.left).inv.app V).op
+          (c.g.hom.hom.app (op ((Over.map (α.f.left ≫ β.f.left)).obj V))
+            (ξ₄.P.carrier.obj.map
+              ((Over.mapComp (α.f.left ≫ β.f.left) c.f.left).inv.app V).op x)))) =
+    α.g.hom.hom.app (op V)
+      (β.g.hom.hom.app (op ((Over.map α.f.left).obj V))
+        (c.g.hom.hom.app (op ((Over.map β.f.left).obj ((Over.map α.f.left).obj V)))
+          (ξ₄.P.carrier.obj.map
+            ((Over.mapComp β.f.left c.f.left).inv.app ((Over.map α.f.left).obj V)).op
+            (ξ₄.P.carrier.obj.map
+              ((Over.mapComp α.f.left (β.f.left ≫ c.f.left)).inv.app V).op
+              (ξ₄.P.carrier.obj.map i.op x)))))
+  rw [← NatTrans.naturality_apply]
+  change α.g.hom.hom.app (op V)
+      (β.g.hom.hom.app (op ((Over.map α.f.left).obj V))
+        (c.g.hom.hom.app _ (ξ₄.P.carrier.obj.map _ (ξ₄.P.carrier.obj.map _ x)))) = _
+  congr 3
+  erw [← Functor.map_comp_apply, ← Functor.map_comp_apply, ← Functor.map_comp_apply]
+  apply ConcreteCategory.congr_hom
+  apply ξ₄.P.carrier.obj.congr_map
+  apply Quiver.Hom.unop_inj
+  apply Over.OverMorphism.ext
+  change (𝟙 V.left ≫ 𝟙 V.left) = ((i.left ≫ 𝟙 V.left) ≫ 𝟙 V.left)
+  simpa using hi.symm
 
 /-- The category of objects of `𝒢/ℬ-Torsors`. -/
 @[reducible]

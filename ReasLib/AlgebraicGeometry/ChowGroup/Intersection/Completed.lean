@@ -81,7 +81,12 @@ def sourceTargetDimensionMap (f : X ⟶ Y) (d e : ℕ) :
 
 /-- Restricting a source dimension component to any target dimension locus preserves its dimension. -/
 theorem sourceTargetDimensionLocus_relativeDimension (f : X ⟶ Y) (d e : ℕ) :
-    RelativeDimension (sourceTargetDimensionComponent f d e).hom d := sorry
+    RelativeDimension (sourceTargetDimensionComponent f d e).hom d := by
+  change RelativeDimension
+    ((sourceTargetDimensionLocus f d e).ι ≫ (dimensionComponent X d).hom) d
+  simpa using
+    (relativeDimension_comp_of_flat (d := 0) (e := d)
+      (sourceTargetDimensionLocus f d e).ι (dimensionComponent X d).hom)
 
 private theorem sourceTarget_closed (f : X ⟶ Y) (d e : ℕ) :
     IsClosed (sourceTargetDimensionLocus f d e : Set (dimensionComponent X d).left) :=
@@ -175,14 +180,65 @@ def mapDegreeCycleClass (f : X ⟶ Y) [IsProper f.left] (e : ℕ) (n : ℤ)
 
 /-- Homogeneous proper-image assembly sends zero cycles to the zero Chow class. -/
 theorem mapDegree_zero (f : X ⟶ Y) [IsProper f.left] (e : ℕ) (n : ℤ) :
-    mapDegreeCycleClass f e n 0 = 0 := sorry
+    mapDegreeCycleClass f e n 0 = 0 := by
+  have hzero : mapDegreeCycles f e n (fun _ ↦ 0) = 0 := by
+    unfold mapDegreeCycles
+    apply Subtype.ext
+    apply Function.locallyFinsuppWithin.ext
+    intro y
+    change ∑ᶠ d, CycleGroup.toAlgebraicCycle
+        ((dimensionComponent Y e).hom.relativeDimensionFunction (fun _ ↦ 0)) n
+        (componentPushCycles f e n d 0) y = 0
+    have hz (d : ℕ) : CycleGroup.toAlgebraicCycle
+        ((dimensionComponent Y e).hom.relativeDimensionFunction (fun _ ↦ 0)) n
+        (componentPushCycles f e n d 0) y = 0 := by
+      rw [(componentPushCycles f e n d).map_zero]
+      rfl
+    simp_rw [hz]
+    exact finsum_zero
+  have hzero' : mapDegreeCycles f e n 0 = 0 := by
+    exact hzero
+  unfold mapDegreeCycleClass
+  rw [hzero', map_zero]
 
 /-- Homogeneous proper-image assembly is additive on Chow classes of cycles. -/
 theorem mapDegree_add (f : X ⟶ Y) [IsProper f.left] (e : ℕ) (n : ℤ)
     (a b : ∀ d, CycleGroup (dimensionComponent X d).left
       ((dimensionComponent X d).hom.relativeDimensionFunction (fun _ ↦ 0)) n) :
     mapDegreeCycleClass f e n (a + b) =
-      mapDegreeCycleClass f e n a + mapDegreeCycleClass f e n b := sorry
+      mapDegreeCycleClass f e n a + mapDegreeCycleClass f e n b := by
+  have hadd : mapDegreeCycles f e n (a + b) =
+      mapDegreeCycles f e n a + mapDegreeCycles f e n b := by
+    unfold mapDegreeCycles
+    apply Subtype.ext
+    apply Function.locallyFinsuppWithin.ext
+    intro y
+    change (∑ᶠ d, CycleGroup.toAlgebraicCycle
+        ((dimensionComponent Y e).hom.relativeDimensionFunction (fun _ ↦ 0)) n
+        (componentPushCycles f e n d ((a + b) d)) y) =
+      (∑ᶠ d, CycleGroup.toAlgebraicCycle
+        ((dimensionComponent Y e).hom.relativeDimensionFunction (fun _ ↦ 0)) n
+        (componentPushCycles f e n d (a d)) y) +
+      (∑ᶠ d, CycleGroup.toAlgebraicCycle
+        ((dimensionComponent Y e).hom.relativeDimensionFunction (fun _ ↦ 0)) n
+        (componentPushCycles f e n d (b d)) y)
+    have hterm (d : ℕ) : CycleGroup.toAlgebraicCycle
+        ((dimensionComponent Y e).hom.relativeDimensionFunction (fun _ ↦ 0)) n
+        (componentPushCycles f e n d ((a + b) d)) y =
+      CycleGroup.toAlgebraicCycle
+        ((dimensionComponent Y e).hom.relativeDimensionFunction (fun _ ↦ 0)) n
+        (componentPushCycles f e n d (a d)) y +
+      CycleGroup.toAlgebraicCycle
+        ((dimensionComponent Y e).hom.relativeDimensionFunction (fun _ ↦ 0)) n
+        (componentPushCycles f e n d (b d)) y := by
+      rw [Pi.add_apply, (componentPushCycles f e n d).map_add]
+      rfl
+    simp_rw [hterm]
+    exact finsum_add_distrib
+      ((properComponentImages_locallyFinite f e n a).point_finite y)
+      ((properComponentImages_locallyFinite f e n b).point_finite y)
+  unfold mapDegreeCycleClass
+  rw [hadd, map_add]
 
 private def dimensionCycleQuotient (X : SchemeOverField k) [Smooth X.hom] (n : ℤ) :
     (∀ d, CycleGroup (dimensionComponent X d).left

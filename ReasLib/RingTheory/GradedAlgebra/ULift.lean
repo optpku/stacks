@@ -53,7 +53,8 @@ applying the canonical map `ULift.down`. -/
 @[simp, stacks 052N "universe-lifted submodule membership"]
 theorem mem_submoduleFamily_iff (𝒜 : ι → Submodule R A) (i : ι)
     (a : ULift.{x} A) :
-    a ∈ submoduleFamily 𝒜 i ↔ a.down ∈ 𝒜 i := sorry
+    a ∈ submoduleFamily 𝒜 i ↔ a.down ∈ 𝒜 i := by
+  exact Submodule.mem_map_equiv (𝒜 i)
 
 /-- The canonical linear map from an original homogeneous component to its
 universe-lifted component. -/
@@ -81,7 +82,7 @@ def componentDownMap (𝒜 : ι → Submodule R A) (i : ι) :
 elements. -/
 @[simp, stacks 052N "universe-lifted homogeneous component map application"]
 theorem coe_componentMap_apply (𝒜 : ι → Submodule R A) (i : ι) (a : 𝒜 i) :
-    (componentMap 𝒜 i a : ULift.{x} A) = ULift.up (a : A) := sorry
+    (componentMap 𝒜 i a : ULift.{x} A) = ULift.up (a : A) := rfl
 
 /-- Regard an element of a homogeneous component as an element of the
 corresponding component of the universe-lifted family. -/
@@ -119,7 +120,8 @@ variable {ι : Type w} [DecidableEq ι] [AddMonoid ι]
 @[stacks 052N "universe-lifted graded unit"]
 theorem one_mem_submoduleFamily (𝒜 : ι → Submodule R A)
     [SetLike.GradedMonoid 𝒜] :
-    (1 : ULift.{x} A) ∈ submoduleFamily 𝒜 0 := sorry
+    (1 : ULift.{x} A) ∈ submoduleFamily 𝒜 0 := by
+  exact (mem_submoduleFamily_iff 𝒜 0 1).2 (SetLike.one_mem_graded 𝒜)
 
 /-- Products of elements in lifted homogeneous components have the expected
 sum of degrees. -/
@@ -127,7 +129,10 @@ sum of degrees. -/
 theorem mul_mem_submoduleFamily (𝒜 : ι → Submodule R A)
     [SetLike.GradedMonoid 𝒜] {i j : ι} {a b : ULift.{x} A}
     (ha : a ∈ submoduleFamily 𝒜 i) (hb : b ∈ submoduleFamily 𝒜 j) :
-    a * b ∈ submoduleFamily 𝒜 (i + j) := sorry
+    a * b ∈ submoduleFamily 𝒜 (i + j) := by
+  exact (mem_submoduleFamily_iff 𝒜 (i + j) (a * b)).2
+    (SetLike.mul_mem_graded ((mem_submoduleFamily_iff 𝒜 i a).1 ha)
+      ((mem_submoduleFamily_iff 𝒜 j b).1 hb))
 
 /-- The multiplicative grading on the universe-lifted family. -/
 @[reducible, stacks 052N "universe-lifted graded monoid"]
@@ -155,25 +160,35 @@ noncomputable instance submoduleFamilyGradedAlgebra
 /-- The component maps are mutually inverse in degree zero. -/
 @[stacks 052N "universe-lifted degree-zero component inverse"]
 theorem componentMap_leftInverse (𝒜 : ι → Submodule R A) [GradedAlgebra 𝒜] :
-    Function.LeftInverse (componentDownMap 𝒜 0) (componentMap 𝒜 0) := sorry
+    Function.LeftInverse (componentDownMap 𝒜 0) (componentMap 𝒜 0) := by
+  intro a
+  apply Subtype.ext
+  rfl
 
 /-- The component maps are mutually inverse in degree zero after lifting. -/
 @[stacks 052N "universe-lifted degree-zero component right inverse"]
 theorem componentMap_rightInverse (𝒜 : ι → Submodule R A) [GradedAlgebra 𝒜] :
-    Function.RightInverse (componentDownMap 𝒜 0) (componentMap 𝒜 0) := sorry
+    Function.RightInverse (componentDownMap 𝒜 0) (componentMap 𝒜 0) := by
+  intro a
+  apply Subtype.ext
+  rfl
 
 /-- The degree-zero component map preserves multiplication. -/
 @[stacks 052N "universe-lifted degree-zero multiplication"]
 theorem componentMap_map_mul (𝒜 : ι → Submodule R A) [GradedAlgebra 𝒜]
     (a b : 𝒜 0) :
-    componentMap 𝒜 0 (a * b) = componentMap 𝒜 0 a * componentMap 𝒜 0 b := sorry
+    componentMap 𝒜 0 (a * b) = componentMap 𝒜 0 a * componentMap 𝒜 0 b := by
+  apply Subtype.ext
+  rfl
 
 /-- The degree-zero component map commutes with the base algebra map. -/
 @[stacks 052N "universe-lifted degree-zero algebra map"]
 theorem componentMap_commutes (𝒜 : ι → Submodule R A) [GradedAlgebra 𝒜]
     (r : R) :
     componentMap 𝒜 0 (algebraMap R (𝒜 0) r) =
-      algebraMap R (submoduleFamily 𝒜 0) r := sorry
+      algebraMap R (submoduleFamily 𝒜 0) r := by
+  apply Subtype.ext
+  rfl
 
 /-- The canonical algebra equivalence between the degree-zero components of
 a grading and its universe lift. -/
@@ -204,7 +219,10 @@ theorem smul_mem_submoduleFamily (𝒜 : ι → Submodule R A)
     (ℳ : ι → Submodule R M) [SetLike.GradedSMul 𝒜 ℳ]
     {i j : ι} {a : ULift.{x} A} {m : ULift.{y} M}
     (ha : a ∈ submoduleFamily 𝒜 i) (hm : m ∈ submoduleFamily ℳ j) :
-    a • m ∈ submoduleFamily ℳ (i + j) := sorry
+    a • m ∈ submoduleFamily ℳ (i + j) := by
+  exact (mem_submoduleFamily_iff ℳ (i + j) (a • m)).2
+    (SetLike.GradedSMul.smul_mem ((mem_submoduleFamily_iff 𝒜 i a).1 ha)
+      ((mem_submoduleFamily_iff ℳ j m).1 hm))
 
 /-- The graded scalar action on universe-lifted families. -/
 @[reducible, stacks 052N "universe-lifted graded scalar action"]
@@ -235,7 +253,8 @@ submodule family. -/
 @[stacks 052N "universe-lifted graded ring map"]
 theorem upGradedRingHom_map_mem (𝒜 : ι → Submodule R A)
     {i : ι} {a : A} (ha : a ∈ 𝒜 i) :
-    ULift.up a ∈ submoduleFamily 𝒜 i := sorry
+    ULift.up a ∈ submoduleFamily 𝒜 i := by
+  exact (mem_submoduleFamily_iff 𝒜 i (ULift.up a)).2 ha
 
 /-- The canonical upward ring map viewed as a graded ring homomorphism. -/
 @[stacks 052N "universe-lifted upward graded ring homomorphism"]
@@ -249,7 +268,8 @@ transported submodule family. -/
 @[stacks 052N "universe-lifted downward graded ring map"]
 theorem downGradedRingHom_map_mem (𝒜 : ι → Submodule R A)
     {i : ι} {a : ULift.{x} A} (ha : a ∈ submoduleFamily 𝒜 i) :
-    a.down ∈ 𝒜 i := sorry
+    a.down ∈ 𝒜 i := by
+  exact (mem_submoduleFamily_iff 𝒜 i a).1 ha
 
 /-- The canonical downward ring map viewed as a graded ring homomorphism. -/
 @[stacks 052N "universe-lifted downward graded ring homomorphism"]
@@ -261,13 +281,17 @@ noncomputable def downGradedRingHom (𝒜 : ι → Submodule R A) :
 /-- Projecting after the upward graded map is the identity. -/
 @[stacks 052N "universe-lifted graded ring map left inverse"]
 theorem down_comp_upGradedRingHom (𝒜 : ι → Submodule R A) :
-    (downGradedRingHom 𝒜).comp (upGradedRingHom 𝒜) = GradedRingHom.id 𝒜 := sorry
+    (downGradedRingHom 𝒜).comp (upGradedRingHom 𝒜) = GradedRingHom.id 𝒜 := by
+  ext a
+  rfl
 
 /-- Lifting after the downward graded map is the identity. -/
 @[stacks 052N "universe-lifted graded ring map right inverse"]
 theorem up_comp_downGradedRingHom (𝒜 : ι → Submodule R A) :
     (upGradedRingHom 𝒜).comp (downGradedRingHom 𝒜) =
-      GradedRingHom.id (submoduleFamily 𝒜) := sorry
+      GradedRingHom.id (submoduleFamily 𝒜) := by
+  ext a
+  rfl
 
 end GradedRingHom
 
@@ -300,13 +324,19 @@ noncomputable def awayDownMap (𝒜 : ι → Submodule R A) [GradedAlgebra 𝒜]
 @[stacks 052N "universe-lifted homogeneous away left inverse"]
 theorem awayDown_leftInverse (𝒜 : ι → Submodule R A) [GradedAlgebra 𝒜]
     {d : ι} (f : 𝒜 d) :
-    Function.LeftInverse (awayDownMap 𝒜 f) (awayUpMap 𝒜 f) := sorry
+    Function.LeftInverse (awayDownMap 𝒜 f) (awayUpMap 𝒜 f) := by
+  intro a
+  obtain ⟨a, rfl⟩ := HomogeneousLocalization.mk_surjective a
+  rfl
 
 /-- The downward homogeneous-away map is a right inverse to the upward map. -/
 @[stacks 052N "universe-lifted homogeneous away right inverse"]
 theorem awayDown_rightInverse (𝒜 : ι → Submodule R A) [GradedAlgebra 𝒜]
     {d : ι} (f : 𝒜 d) :
-    Function.RightInverse (awayDownMap 𝒜 f) (awayUpMap 𝒜 f) := sorry
+    Function.RightInverse (awayDownMap 𝒜 f) (awayUpMap 𝒜 f) := by
+  intro a
+  obtain ⟨a, rfl⟩ := HomogeneousLocalization.mk_surjective a
+  rfl
 
 /-- Homogeneous localization away from a homogeneous element commutes with
 the canonical universe lift of an internally graded ring. -/
@@ -328,7 +358,7 @@ theorem awayRingEquiv_commutes (𝒜 : ι → Submodule R A) [GradedAlgebra 𝒜
     {d : ι} (f : 𝒜 d) (r : R) :
     awayRingEquiv 𝒜 f (algebraMap R (Away 𝒜 (f : A)) r) =
       algebraMap R
-        (Away (submoduleFamily 𝒜) (ULift.up (f : A) : ULift.{x} A)) r := sorry
+        (Away (submoduleFamily 𝒜) (ULift.up (f : A) : ULift.{x} A)) r := rfl
 
 /-- Homogeneous localization away from a homogeneous element is preserved as
 an algebra by the canonical universe lift. -/

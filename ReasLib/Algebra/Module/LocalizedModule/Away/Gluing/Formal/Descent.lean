@@ -65,7 +65,8 @@ theorem mapToBaseChange_square_eq
     (e : (ModuleCat.extendScalars σ).obj M ≅ M')
     (hcomm : CommSq e.hom ((ModuleCat.extendScalars σ).map ψ) α (𝟙 _)) :
     (ModuleCat.extendScalars σ).map ψ ≫ (Iso.refl _).hom =
-      e.hom ≫ α := sorry
+      e.hom ≫ α := by
+  simpa using hcomm.w.symm
 
 /-- Flat base change identifies the base change of the descended kernel
 with the kernel of the original map into a base-changed module. -/
@@ -96,7 +97,11 @@ theorem mapToBaseChangeKernelIso_comm
     (hcomm : CommSq e.hom ((ModuleCat.extendScalars σ).map ψ) α (𝟙 _)) :
     CommSq ((ModuleCat.extendScalars σ).map (kernel.ι ψ))
       (mapToBaseChangeKernelIso σ hflat ψ α e hcomm).hom
-      e.hom (kernel.ι α) := sorry
+      e.hom (kernel.ι α) := by
+  constructor
+  symm
+  simp [mapToBaseChangeKernelIso, Category.assoc, PreservesKernel.iso_hom,
+    kernel.mapIso, kernel.map]
 
 /-- Extension of scalars identifies the base change of the descended
 cokernel with the cokernel of the original map into a base-changed module. -/
@@ -122,7 +127,10 @@ theorem mapToBaseChangeCokernelIso_comm
     (e : (ModuleCat.extendScalars σ).obj M ≅ M')
     (hcomm : CommSq e.hom ((ModuleCat.extendScalars σ).map ψ) α (𝟙 _)) :
     CommSq ((ModuleCat.extendScalars σ).map (cokernel.π ψ)) (𝟙 _)
-      (mapToBaseChangeCokernelIso σ ψ α e hcomm).hom (cokernel.π α) := sorry
+      (mapToBaseChangeCokernelIso σ ψ α e hcomm).hom (cokernel.π α) := by
+  constructor
+  simp [mapToBaseChangeCokernelIso, cokernel.mapIso, cokernel.map,
+    ← Category.assoc, PreservesCokernel.π_iso_hom]
 
 /-- Lemma 15.90.17 (2): a map from a base-changed `R`-module to an
 `S`-module descends when its kernel and cokernel are power torsion. -/
@@ -149,7 +157,8 @@ theorem mapFromBaseChange_square_eq
     (e : (ModuleCat.extendScalars σ).obj N ≅ N')
     (hcomm : CommSq ((ModuleCat.extendScalars σ).map ψ) α e.hom (𝟙 _)) :
     (ModuleCat.extendScalars σ).map ψ ≫ e.hom =
-      (Iso.refl _).hom ≫ α := sorry
+      (Iso.refl _).hom ≫ α := by
+  simpa using hcomm.w
 
 /-- Flat base change identifies the base change of the descended kernel
 with the kernel of the original map from a base-changed module. -/
@@ -179,7 +188,11 @@ theorem mapFromBaseChangeKernelIso_comm
     (hcomm : CommSq ((ModuleCat.extendScalars σ).map ψ) α e.hom (𝟙 _)) :
     CommSq ((ModuleCat.extendScalars σ).map (kernel.ι ψ))
       (mapFromBaseChangeKernelIso σ hflat ψ α e hcomm).hom
-      (𝟙 _) (kernel.ι α) := sorry
+      (𝟙 _) (kernel.ι α) := by
+  constructor
+  symm
+  simp [mapFromBaseChangeKernelIso, Category.assoc, PreservesKernel.iso_hom,
+    kernel.mapIso, kernel.map]
 
 /-- Extension of scalars identifies the base change of the descended
 cokernel with the cokernel of the original map from a base-changed module. -/
@@ -206,6 +219,9 @@ theorem mapFromBaseChangeCokernelIso_comm
     (e : (ModuleCat.extendScalars σ).obj N ≅ N')
     (hcomm : CommSq ((ModuleCat.extendScalars σ).map ψ) α e.hom (𝟙 _)) :
     CommSq ((ModuleCat.extendScalars σ).map (cokernel.π ψ)) e.hom
-      (mapFromBaseChangeCokernelIso σ ψ α e hcomm).hom (cokernel.π α) := sorry
+      (mapFromBaseChangeCokernelIso σ ψ α e hcomm).hom (cokernel.π α) := by
+  constructor
+  simp [mapFromBaseChangeCokernelIso, cokernel.mapIso, cokernel.map,
+    ← Category.assoc, PreservesCokernel.π_iso_hom]
 
 end LocalizedModule.Away.FormalGluing

@@ -38,7 +38,7 @@ def restrictObj {p : 𝒳 ⥤ 𝒮} [p.IsFibered] {U Z : 𝒮} (ξ : p.Fiber U) 
 /-- The underlying total object of `restrictObj` is the chosen cartesian pullback. -/
 theorem restrictObj_val {p : 𝒳 ⥤ 𝒮} [p.IsFibered] {U Z : 𝒮} (ξ : p.Fiber U)
     (f : Z ⟶ U) :
-    (restrictObj ξ f).1 = IsPreFibered.pullbackObj ξ.property f := sorry
+    (restrictObj ξ f).1 = IsPreFibered.pullbackObj ξ.property f := rfl
 
 /-- Restriction along equal base morphisms yields canonically isomorphic fibre objects. -/
 def restrictObj_eq {p : 𝒳 ⥤ 𝒮} [p.IsFibered] {U Z : 𝒮} (ξ : p.Fiber U)
@@ -70,13 +70,54 @@ def restrictHom {p : 𝒳 ⥤ 𝒮} [p.IsFibered] {U Z : 𝒮} {ξ ξ' : p.Fiber
     (cartesianMap f φY (IsPreFibered.pullbackMap.IsCartesian ξ'.property f) φ' hφ')
     (cartesianMap_isHomLift f φY (IsPreFibered.pullbackMap.IsCartesian ξ'.property f) φ' hφ')
 
+/-- The restricted morphism makes the square of chosen cartesian lifts commute. -/
+theorem restrictHom_fac {p : 𝒳 ⥤ 𝒮} [p.IsFibered] {U Z : 𝒮} {ξ ξ' : p.Fiber U}
+    (φ : ξ ⟶ ξ') (f : Z ⟶ U) :
+    (restrictHom φ f).1 ≫ IsPreFibered.pullbackMap ξ'.property f =
+      IsPreFibered.pullbackMap ξ.property f ≫ φ.1 := by
+  haveI := φ.2
+  exact IsCartesian.fac p f (IsPreFibered.pullbackMap ξ'.property f)
+    (IsPreFibered.pullbackMap ξ.property f ≫ φ.1)
+
+/-- Restriction preserves identity morphisms. -/
+theorem restrictHom_id {p : 𝒳 ⥤ 𝒮} [p.IsFibered] {U Z : 𝒮} (ξ : p.Fiber U)
+    (f : Z ⟶ U) : restrictHom (𝟙 ξ) f = 𝟙 (restrictObj ξ f) := by
+  apply Fiber.hom_ext
+  change (restrictHom (𝟙 ξ) f).1 = 𝟙 (restrictObj ξ f).1
+  refine @IsCartesian.ext _ _ _ _ p _ _ _ _ f
+    (IsPreFibered.pullbackMap ξ.property f)
+    (IsPreFibered.pullbackMap.IsCartesian ξ.property f) _ _ _
+    (restrictHom (𝟙 ξ) f).2 (IsHomLift.id (restrictObj ξ f).property) ?_
+  exact (restrictHom_fac (𝟙 ξ) f).trans
+    ((Category.comp_id _).trans (Category.id_comp _).symm)
+
+/-- Restriction preserves composition of morphisms. -/
+theorem restrictHom_comp {p : 𝒳 ⥤ 𝒮} [p.IsFibered] {U Z : 𝒮}
+    {ξ ξ' ξ'' : p.Fiber U} (φ : ξ ⟶ ξ') (ψ : ξ' ⟶ ξ'') (f : Z ⟶ U) :
+    restrictHom (φ ≫ ψ) f = restrictHom φ f ≫ restrictHom ψ f := by
+  apply Fiber.hom_ext
+  change (restrictHom (φ ≫ ψ) f).1 = (restrictHom φ f ≫ restrictHom ψ f).1
+  refine @IsCartesian.ext _ _ _ _ p _ _ _ _ f
+    (IsPreFibered.pullbackMap ξ''.property f)
+    (IsPreFibered.pullbackMap.IsCartesian ξ''.property f) _ _ _
+    (restrictHom (φ ≫ ψ) f).2 (restrictHom φ f ≫ restrictHom ψ f).2 ?_
+  change (restrictHom (φ ≫ ψ) f).1 ≫ IsPreFibered.pullbackMap ξ''.property f =
+    ((restrictHom φ f).1 ≫ (restrictHom ψ f).1) ≫
+      IsPreFibered.pullbackMap ξ''.property f
+  have h₁ := congrArg (fun k ↦ k ≫ ψ.1) (restrictHom_fac φ f)
+  have h₂ := congrArg (fun k ↦ (restrictHom φ f).1 ≫ k) (restrictHom_fac ψ f)
+  exact (restrictHom_fac (φ ≫ ψ) f).trans
+    ((Category.assoc _ _ _).symm.trans
+      (h₁.symm.trans ((Category.assoc _ _ _).trans
+        (h₂.symm.trans (Category.assoc _ _ _).symm))))
+
 /-- Restriction of a fibre isomorphism along a morphism of the base. -/
 def restrictIso {p : 𝒳 ⥤ 𝒮} [p.IsFibered] {U Z : 𝒮} {ξ ξ' : p.Fiber U}
     (e : ξ ≅ ξ') (f : Z ⟶ U) : restrictObj ξ f ≅ restrictObj ξ' f where
   hom := restrictHom e.hom f
   inv := restrictHom e.inv f
-  hom_inv_id := sorry
-  inv_hom_id := sorry
+  hom_inv_id := by rw [← restrictHom_comp, e.hom_inv_id, restrictHom_id]
+  inv_hom_id := by rw [← restrictHom_comp, e.inv_hom_id, restrictHom_id]
 
 /-- Restriction along the identity recovers the original fibre object. -/
 def restrictObj_id {p : 𝒳 ⥤ 𝒮} [p.IsFibered] {U : 𝒮} (ξ : p.Fiber U) :
@@ -87,8 +128,26 @@ def restrictObj_id {p : 𝒳 ⥤ 𝒮} [p.IsFibered] {U : 𝒮} (ξ : p.Fiber U)
   { hom := Fiber.Hom.mk φ hφ.toIsHomLift
     inv := Fiber.Hom.mk (cartesianMap (𝟙 U) φ hφ (𝟙 ξ.1) hid)
       (cartesianMap_isHomLift (𝟙 U) φ hφ (𝟙 ξ.1) hid)
-    hom_inv_id := sorry
-    inv_hom_id := sorry }
+    hom_inv_id := by
+      apply Fiber.hom_ext
+      change φ ≫ cartesianMap (𝟙 U) φ hφ (𝟙 ξ.1) hid =
+        𝟙 (restrictObj ξ (𝟙 U)).1
+      refine @IsCartesian.ext _ _ _ _ p U U _ _ (𝟙 U) φ hφ _ _ _
+        (@IsHomLift.comp_of_lift_id _ _ _ _ p U _ _ _ φ
+          (cartesianMap (𝟙 U) φ hφ (𝟙 ξ.1) hid) hφ.toIsHomLift
+          (cartesianMap_isHomLift (𝟙 U) φ hφ (𝟙 ξ.1) hid))
+        (IsHomLift.id (restrictObj ξ (𝟙 U)).property) ?_
+      calc
+        _ = φ ≫ (cartesianMap (𝟙 U) φ hφ (𝟙 ξ.1) hid ≫ φ) :=
+          Category.assoc _ _ _
+        _ = φ ≫ 𝟙 ξ.1 :=
+          congrArg (fun k ↦ φ ≫ k)
+            (@IsCartesian.fac _ _ _ _ p U U _ _ (𝟙 U) φ hφ _ (𝟙 ξ.1) hid)
+        _ = φ := Category.comp_id _
+        _ = _ := (Category.id_comp _).symm
+    inv_hom_id := by
+      apply Fiber.hom_ext
+      exact @IsCartesian.fac _ _ _ _ p U U _ _ (𝟙 U) φ hφ _ (𝟙 ξ.1) hid }
 
 /-- Successive restrictions along `f` then `g` agree with restriction along `g ≫ f`. -/
 def restrictObj_comp {p : 𝒳 ⥤ 𝒮} [p.IsFibered] {U V W : 𝒮} (ξ : p.Fiber U)
@@ -105,7 +164,11 @@ def restrictObj_comp {p : 𝒳 ⥤ 𝒮} [p.IsFibered] {U V W : 𝒮} (ξ : p.Fi
         (IsPreFibered.pullbackMap (IsPreFibered.pullbackObj_proj ξ.property f) g ≫
           IsPreFibered.pullbackMap ξ.property f)
         (IsPreFibered.pullbackMap ξ.property (g ≫ f)))
-    hom_inv_id := sorry
-    inv_hom_id := sorry }
+    hom_inv_id := by
+      apply Fiber.hom_ext
+      exact i.hom_inv_id
+    inv_hom_id := by
+      apply Fiber.hom_ext
+      exact i.inv_hom_id }
 
 end CategoryTheory.Functor.Fiber

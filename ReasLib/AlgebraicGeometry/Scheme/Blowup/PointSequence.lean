@@ -75,9 +75,9 @@ noncomputable def fromTower {T X : Scheme.{u}} (a : T ⟶ X) (t : T)
   baseIso := baseIso
   arc_zero := arc_zero
   arc_succ := arc_succ
-  point_eq := sorry
+  point_eq := fun _ ↦ rfl
   point_isClosed := point_isClosed
-  center_eq := sorry
+  center_eq := fun _ ↦ rfl
   step_isBlowup := step_isBlowup
 
 /-- The point of a sequence built by `fromTower` is the image of the marked source point. -/
@@ -90,7 +90,7 @@ theorem fromTower_point {T X : Scheme.{u}} (a : T ⟶ X) (t : T)
     (step_isBlowup : ∀ i, IsBlowup (step i)
       (Scheme.IdealSheafData.vanishingIdeal ⟨{arc i t}, point_isClosed i⟩)) (i : ℕ) :
     (fromTower a t stage step arc baseIso arc_zero arc_succ point_isClosed
-      step_isBlowup).point i = arc i t := sorry
+      step_isBlowup).point i = arc i t := rfl
 
 /-- The center of a sequence built by `fromTower` is the reduced vanishing ideal of its image
 point. -/
@@ -104,7 +104,7 @@ theorem fromTower_center {T X : Scheme.{u}} (a : T ⟶ X) (t : T)
       (Scheme.IdealSheafData.vanishingIdeal ⟨{arc i t}, point_isClosed i⟩)) (i : ℕ) :
     (fromTower a t stage step arc baseIso arc_zero arc_succ point_isClosed
       step_isBlowup).center i =
-      Scheme.IdealSheafData.vanishingIdeal ⟨{arc i t}, point_isClosed i⟩ := sorry
+      Scheme.IdealSheafData.vanishingIdeal ⟨{arc i t}, point_isClosed i⟩ := rfl
 
 /-- Discard the initial stage of a point blowup sequence. -/
 def tail {T X : Scheme.{u}} {a : T ⟶ X} {t : T} (S : PointBlowupSequence a t) :
@@ -115,24 +115,25 @@ def tail {T X : Scheme.{u}} {a : T ⟶ X} {t : T} (S : PointBlowupSequence a t) 
   point := fun i ↦ S.point (i + 1)
   center := fun i ↦ S.center (i + 1)
   baseIso := Iso.refl _
-  arc_zero := sorry
-  arc_succ := sorry
-  point_eq := sorry
+  arc_zero := Category.comp_id _
+  arc_succ := fun i ↦ S.arc_succ (i + 1)
+  point_eq := fun i ↦ S.point_eq (i + 1)
   point_isClosed := fun i ↦ S.point_isClosed (i + 1)
-  center_eq := sorry
+  center_eq := fun i ↦ S.center_eq (i + 1)
   step_isBlowup := fun i ↦ S.step_isBlowup (i + 1)
 
 /-- The stages of the tail are the stages of the original sequence shifted by one. -/
 theorem tail_stage {T X : Scheme.{u}} {a : T ⟶ X} {t : T}
-    (S : PointBlowupSequence a t) (i : ℕ) : S.tail.stage i = S.stage (i + 1) := sorry
+    (S : PointBlowupSequence a t) (i : ℕ) : S.tail.stage i = S.stage (i + 1) := rfl
 
 /-- The marked points of the tail are the marked points of the original sequence shifted by one. -/
 theorem tail_point {T X : Scheme.{u}} {a : T ⟶ X} {t : T}
-    (S : PointBlowupSequence a t) (i : ℕ) : S.tail.point i = S.point (i + 1) := sorry
+    (S : PointBlowupSequence a t) (i : ℕ) : S.tail.point i = S.point (i + 1) := rfl
 
 /-- Each transition in a point blowup sequence is a blowup in its stored reduced point center. -/
 theorem isBlowup_step {T X : Scheme.{u}} {a : T ⟶ X} {t : T}
-    (S : PointBlowupSequence a t) (i : ℕ) : IsBlowup (S.step i) (S.center i) := sorry
+    (S : PointBlowupSequence a t) (i : ℕ) : IsBlowup (S.step i) (S.center i) :=
+  S.step_isBlowup i
 
 end PointBlowupSequence
 

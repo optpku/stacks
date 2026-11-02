@@ -47,15 +47,17 @@ theorem specOver_obj (A : ArtinianLocalAlgCat Λ k) :
     (specOver openImmersion A).left = Spec (CommRingCat.of A.carrier) ∧
       (specOver openImmersion A).hom =
         Spec.map (CommRingCat.ofHom (algebraMap Λ A.carrier)) ≫ openImmersion :=
-  sorry
+  ⟨rfl, rfl⟩
 
 /-- A morphism `A ⟶ B` in `ArtinianLocalAlgCat` is compatible with the two
 structure morphisms `Spec(A) ⟶ S` and `Spec(B) ⟶ S`. -/
 theorem specOverMap_comp {A B : ArtinianLocalAlgCat Λ k} (f : A ⟶ B) :
     Spec.map (CommRingCat.ofHom f.hom.toRingHom) ≫
         (Spec.map (CommRingCat.ofHom (algebraMap Λ A.carrier)) ≫ openImmersion) =
-      Spec.map (CommRingCat.ofHom (algebraMap Λ B.carrier)) ≫ openImmersion :=
-  sorry
+      Spec.map (CommRingCat.ofHom (algebraMap Λ B.carrier)) ≫ openImmersion := by
+  rw [← Category.assoc, ← Spec.map_comp, ← CommRingCat.ofHom_comp]
+  exact congrArg (fun h : Λ →+* B.carrier => Spec.map (CommRingCat.ofHom h) ≫ openImmersion)
+    f.hom.comp_algebraMap
 
 /-- The morphism `Spec(B) ⟶ Spec(A)` over `S` induced by `f : A ⟶ B`. -/
 def specOverMap {A B : ArtinianLocalAlgCat Λ k} (f : A ⟶ B) :
@@ -68,7 +70,7 @@ theorem specOverMap_spec {A B : ArtinianLocalAlgCat Λ k} (f : A ⟶ B) :
     (specOverMap openImmersion f).left = Spec.map (CommRingCat.ofHom f.hom.toRingHom) ∧
       Spec.map (CommRingCat.ofHom f.hom.toRingHom) ≫ (specOver openImmersion A).hom =
         (specOver openImmersion B).hom :=
-  sorry
+  ⟨rfl, specOverMap_comp openImmersion f⟩
 
 variable (kToS : Spec (CommRingCat.of k) ⟶ S) [LocallyOfFiniteType kToS]
 
@@ -79,7 +81,7 @@ theorem specOver_toResidue_comp
     (A : ArtinianLocalAlgCat Λ k) :
     Spec.map (CommRingCat.ofHom (ArtinianLocalAlgCat.toResidue A).hom.toRingHom) ≫
         (specOver openImmersion A).hom = kToS :=
-  sorry
+  (specOverMap_comp openImmersion (ArtinianLocalAlgCat.toResidue A)).trans h_factor
 
 /-- The canonical morphism `Spec(k) ⟶ Spec(A)` over `S`, induced by
 `ArtinianLocalAlgCat.toResidue`. -/
@@ -99,19 +101,29 @@ theorem specOver_toResidue_spec
         Spec.map (CommRingCat.ofHom (ArtinianLocalAlgCat.toResidue A).hom.toRingHom) ∧
       Spec.map (CommRingCat.ofHom (ArtinianLocalAlgCat.toResidue A).hom.toRingHom) ≫
           (specOver openImmersion A).hom = kToS :=
-  sorry
+  ⟨rfl, specOver_toResidue_comp openImmersion kToS h_factor A⟩
 
 /-- The comparison `ArtinianLocalAlgCat Λ k ⥤ (Over S)ᵒᵖ` sending `A` to
 `Spec(A) ⟶ S` through the chosen affine open. -/
 def specFunctor : ArtinianLocalAlgCat Λ k ⥤ (Over S)ᵒᵖ where
   obj A := .op (specOver openImmersion A)
   map f := (specOverMap openImmersion f).op
-  map_id := sorry
-  map_comp := sorry
+  map_id A := by
+    apply Quiver.Hom.unop_inj
+    apply Over.OverMorphism.ext
+    change Spec.map (CommRingCat.ofHom (RingHom.id A.carrier)) = 𝟙 _
+    simp only [CommRingCat.ofHom_id, Spec.map_id]
+  map_comp f g := by
+    apply Quiver.Hom.unop_inj
+    apply Over.OverMorphism.ext
+    change Spec.map (CommRingCat.ofHom (g.hom.toRingHom.comp f.hom.toRingHom)) =
+      Spec.map (CommRingCat.ofHom g.hom.toRingHom) ≫
+        Spec.map (CommRingCat.ofHom f.hom.toRingHom)
+    rw [CommRingCat.ofHom_comp, Spec.map_comp]
 
 /-- The object map of `specFunctor` is `specOver`. -/
 theorem specFunctor_obj (A : ArtinianLocalAlgCat Λ k) :
     (specFunctor openImmersion).obj A = .op (specOver openImmersion A) :=
-  sorry
+  rfl
 
 end AlgebraicGeometry.GroupoidsOver.Predeformation

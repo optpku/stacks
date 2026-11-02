@@ -8,6 +8,7 @@ module
 
 public import ReasLib.RingTheory.Extension.Cotangent.Field.Cartier
 public import ReasLib.RingTheory.Extension.Cotangent.Field.JacobiZariski
+public import Mathlib.RingTheory.EssentialFiniteness
 import Mathlib.Tactic.CrossRefAttribute
 
 /-!
@@ -49,7 +50,7 @@ theorem finiteDimensional_ker_baseFieldComparison
     [Field k] [Field k'] [Field K] [Field K']
     [Algebra k k'] [Algebra k K] [Algebra k K'] [Algebra k' K'] [Algebra K K']
     [IsScalarTower k k' K'] [IsScalarTower k K K']
-    [Algebra.FiniteType k k'] [Algebra.FiniteType K K'] :
+    [Algebra.EssFiniteType k k'] [Algebra.EssFiniteType K K'] :
     FiniteDimensional K' (LinearMap.ker (baseFieldComparison k k' K K')) := sorry
 
 /-- Lemma 15.34.3 (2), tag `07E3`: the cokernel of
@@ -60,7 +61,7 @@ theorem finiteDimensional_cokernel_baseFieldComparison
     [Field k] [Field k'] [Field K] [Field K']
     [Algebra k k'] [Algebra k K] [Algebra k K'] [Algebra k' K'] [Algebra K K']
     [IsScalarTower k k' K'] [IsScalarTower k K K']
-    [Algebra.FiniteType k k'] [Algebra.FiniteType K K'] :
+    [Algebra.EssFiniteType k k'] [Algebra.EssFiniteType K K'] :
     FiniteDimensional K'
       (Ω[K'⁄k'] ⧸ LinearMap.range (baseFieldComparison k k' K K')) := sorry
 
@@ -88,7 +89,7 @@ theorem finiteDimensional_ker_baseFieldComparison
     [Field k] [Field k'] [Field K] [Field K']
     [Algebra k k'] [Algebra k K] [Algebra k K'] [Algebra k' K'] [Algebra K K']
     [IsScalarTower k k' K'] [IsScalarTower k K K']
-    [Algebra.FiniteType k k'] [Algebra.FiniteType K K'] :
+    [Algebra.EssFiniteType k k'] [Algebra.EssFiniteType K K'] :
     FiniteDimensional K' (LinearMap.ker (baseFieldComparison k k' K K')) := sorry
 
 /-- Lemma 15.34.3 (4), tag `07E3`: the cokernel of
@@ -99,7 +100,7 @@ theorem finiteDimensional_cokernel_baseFieldComparison
     [Field k] [Field k'] [Field K] [Field K']
     [Algebra k k'] [Algebra k K] [Algebra k K'] [Algebra k' K'] [Algebra K K']
     [IsScalarTower k k' K'] [IsScalarTower k K K']
-    [Algebra.FiniteType k k'] [Algebra.FiniteType K K'] :
+    [Algebra.EssFiniteType k k'] [Algebra.EssFiniteType K K'] :
     FiniteDimensional K'
       (H1Cotangent k' K' ⧸ LinearMap.range (baseFieldComparison k k' K K')) := sorry
 
@@ -116,7 +117,7 @@ theorem baseFieldComparison_eulerCharacteristic_eq_trdeg_sub_trdeg
     [Field k] [Field k'] [Field K] [Field K']
     [Algebra k k'] [Algebra k K] [Algebra k K'] [Algebra k' K'] [Algebra K K']
     [IsScalarTower k k' K'] [IsScalarTower k K K']
-    [Algebra.FiniteType k k'] [Algebra.FiniteType K K'] :
+    [Algebra.EssFiniteType k k'] [Algebra.EssFiniteType K K'] :
     Int.ofNat
           (Module.finrank K'
             (LinearMap.ker (KaehlerDifferential.baseFieldComparison k k' K K'))) -

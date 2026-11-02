@@ -63,7 +63,8 @@ noncomputable def baseChangeMap (T : DerivedTower A) (n : ℕ)
 @[simp]
 theorem baseChangeMap_untranspose (T : DerivedTower A) (n : ℕ)
     (E : DerivedExtension (A.stepMap n).hom) :
-    E.untranspose (T.baseChangeMap n E) = T.step n := sorry
+    E.untranspose (T.baseChangeMap n E) = T.step n := by
+  exact (E.homEquiv _ _).apply_symm_apply (T.step n)
 
 /-- Cartesianity at one transition, stated independently of the chosen derived extension model.
 The first clause rules out a vacuous universal statement when no model has yet been installed. -/
@@ -79,24 +80,51 @@ def IsCartesian (T : DerivedTower A) : Prop :=
 
 /-- A Cartesian tower guarantees that a derived extension model exists at every transition. -/
 theorem IsCartesian.nonemptyExtension {T : DerivedTower A} (h : T.IsCartesian) (n : ℕ) :
-    Nonempty (DerivedExtension (A.stepMap n).hom) := sorry
+    Nonempty (DerivedExtension (A.stepMap n).hom) := by
+  exact (h n).1
 
 /-- A Cartesian tower supplies invertibility of each comparison in every explicit derived
 extension model. -/
 theorem IsCartesian.isIso {T : DerivedTower A} (h : T.IsCartesian) (n : ℕ)
     (E : DerivedExtension (A.stepMap n).hom) :
-    IsIso (T.baseChangeMap n E) := sorry
+    IsIso (T.baseChangeMap n E) := by
+  exact (h n).2 E
 
 /-- Cartesianity at one transition can be checked in any one explicit derived extension model. -/
 theorem isCartesianAt_iff (T : DerivedTower A) (n : ℕ)
     (E : DerivedExtension (A.stepMap n).hom) :
-    T.IsCartesianAt n ↔ IsIso (T.baseChangeMap n E) := sorry
+    T.IsCartesianAt n ↔ IsIso (T.baseChangeMap n E) := by
+  constructor
+  · intro h
+    exact h.2 E
+  · intro h
+    refine ⟨⟨E⟩, ?_⟩
+    intro F
+    letI := h
+    have hcomp : (F.iso E).hom.app (T.obj (n + 1)) ≫ T.baseChangeMap n E =
+        T.baseChangeMap n F := by
+      apply (F.homEquiv _ _).injective
+      change F.adjunction.homEquiv _ _
+          ((F.adjunction.leftAdjointUniq E.adjunction).hom.app _ ≫
+            (E.adjunction.homEquiv _ _).symm (T.step n)) =
+        F.adjunction.homEquiv _ _ ((F.adjunction.homEquiv _ _).symm (T.step n))
+      rw [F.adjunction.homEquiv_naturality_right,
+        Adjunction.homEquiv_leftAdjointUniq_hom_app]
+      exact ((E.adjunction.homEquiv _ _).apply_symm_apply (T.step n)).trans
+        ((F.adjunction.homEquiv _ _).apply_symm_apply (T.step n)).symm
+    rw [← hcomp]
+    infer_instance
 
 /-- Cartesianity of a tower can be checked using any explicit family of derived extension
 models. -/
 theorem isCartesian_iff (T : DerivedTower A)
     (E : ∀ n : ℕ, DerivedExtension (A.stepMap n).hom) :
-    T.IsCartesian ↔ ∀ n : ℕ, IsIso (T.baseChangeMap n (E n)) := sorry
+    T.IsCartesian ↔ ∀ n : ℕ, IsIso (T.baseChangeMap n (E n)) := by
+  constructor
+  · intro h n
+    exact h.isIso n (E n)
+  · intro h n
+    exact (isCartesianAt_iff T n (E n)).2 (h n)
 
 /-- Build a derived module tower from successor maps written in the derived base-change
 direction relative to explicit derived extension models. -/
@@ -115,7 +143,8 @@ theorem ofBaseChange_obj
     (obj : (n : ℕ) → DerivedCategory (ModuleCat.{u, u} (A.family n : Type u)))
     (map : ∀ n : ℕ, (E n).obj (obj (n + 1)) ⟶ obj n)
     (n : ℕ) :
-    (ofBaseChange E obj map).obj n = obj n := sorry
+    (ofBaseChange E obj map).obj n = obj n := by
+  rfl
 
 /-- The successor morphism of a tower built from base-change maps is the adjoint of the supplied
 map. -/
@@ -124,7 +153,8 @@ theorem ofBaseChange_step
     (obj : (n : ℕ) → DerivedCategory (ModuleCat.{u, u} (A.family n : Type u)))
     (map : ∀ n : ℕ, (E n).obj (obj (n + 1)) ⟶ obj n)
     (n : ℕ) :
-    (ofBaseChange E obj map).step n = (E n).untranspose (map n) := sorry
+    (ofBaseChange E obj map).step n = (E n).untranspose (map n) := by
+  rfl
 
 /-- Transposing the successor morphism of `ofBaseChange` recovers the supplied base-change map. -/
 @[simp]
@@ -133,7 +163,8 @@ theorem baseChangeMap_ofBaseChange
     (obj : (n : ℕ) → DerivedCategory (ModuleCat.{u, u} (A.family n : Type u)))
     (map : ∀ n : ℕ, (E n).obj (obj (n + 1)) ⟶ obj n)
     (n : ℕ) :
-    (ofBaseChange E obj map).baseChangeMap n (E n) = map n := sorry
+    (ofBaseChange E obj map).baseChangeMap n (E n) = map n := by
+  exact ((E n).homEquiv _ _).symm_apply_apply (map n)
 
 end DerivedTower
 

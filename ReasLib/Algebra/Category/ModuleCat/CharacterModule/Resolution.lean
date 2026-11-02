@@ -68,9 +68,7 @@ noncomputable abbrev obj (M : ModuleCat.{max u v} R) :
 explicit module `J(M)`. -/
 @[simp]
 theorem functor_obj (M : ModuleCat.{max u v} R) :
-    (functor R).obj M = obj R M := sorry
-/- Proof strategy: unfold `functor`, `freeObj`, and `obj`; the two sides are
-definitionally equal. -/
+    (functor R).obj M = obj R M := rfl
 
 /-- The explicit value of the embedding at an element of `M`, as a
 character on the free `Rᵐᵒᵖ`-module. -/
@@ -91,7 +89,17 @@ def ιAppAdd (M : ModuleCat.{max u v} R) :
 
 /-- The explicit additive embedding commutes with the `R`-actions. -/
 theorem ιApp_smul_naturality (M : ModuleCat.{max u v} R) (r : R) :
-    ιAppAdd R M ≫ (obj R M).smul r = M.smul r ≫ ιAppAdd R M := sorry
+    ιAppAdd R M ≫ (obj R M).smul r = M.smul r ≫ ιAppAdd R M := by
+  ext m
+  apply CharacterModule.ext
+  intro z
+  let ε : freeObj R M ⟶ CharacterModule.oppositeObj R M :=
+    (ModuleCat.Free.counit.{u, v} Rᵐᵒᵖ).app
+      ((CharacterModule.opFunctor R).obj (Opposite.op M))
+  change (ε.hom (MulOpposite.op r • z) : CharacterModule M) m =
+    (ε.hom z : CharacterModule M) (r • (show M from m))
+  rw [ε.hom.map_smul]
+  rfl
 
 /-- The bundled map from `M` into its character-module injective target. -/
 @[stacks 01DD "canonical map into the character-module injective target"]
@@ -100,9 +108,12 @@ noncomputable def ιApp (M : ModuleCat.{max u v} R) : M ⟶ obj R M :=
 
 /-- The canonical maps `M ⟶ J(M)` are natural in `M`. -/
 theorem ι_naturality {M N : ModuleCat.{max u v} R} (f : M ⟶ N) :
-    f ≫ ιApp R N = ιApp R M ≫ (functor R).map f := sorry
-/- Proof strategy: expand `ιApp`; use naturality of character evaluation,
-naturality of the free-forget counit, and functoriality of character duality. -/
+    f ≫ ιApp R N = ιApp R M ≫ (functor R).map f := by
+  ext m z
+  have h := congr_arg (fun g : freeObj R N ⟶ CharacterModule.oppositeObj R M => g z m)
+    ((ModuleCat.Free.counit.{u, v} Rᵐᵒᵖ).naturality
+      (CharacterModule.dualOppositeMap R f))
+  exact h.symm
 
 /-- The canonical embeddings assemble into a natural transformation. -/
 @[stacks 01DD "functorial character-module embedding"]
@@ -121,40 +132,106 @@ noncomputable abbrev arrowFunctor :
 @[simp]
 theorem ιAppValue_freeMk (M : ModuleCat.{max u v} R) (m : M)
     (χ : CharacterModule M) :
-    ιAppValue R M m (ModuleCat.Free.mk Rᵐᵒᵖ χ) = χ m := sorry
-/- Proof strategy: unfold `ιAppValue`, use the application formula for
-`CharacterModule.dualOpposite`, and the free-forget counit formula on
-`ModuleCat.Free.mk`. -/
+    ιAppValue R M m (ModuleCat.Free.mk Rᵐᵒᵖ χ) = χ m := by
+  change CharacterModule.eval m
+      ((ModuleCat.Free.counit.{u, v} Rᵐᵒᵖ).app
+        ((CharacterModule.opFunctor R).obj (Opposite.op M))
+        (ModuleCat.Free.mk Rᵐᵒᵖ χ)) = χ m
+  rw [ModuleCat.Free.counit_mk]
+  exact CharacterModule.eval_apply m χ
 
 /-- Every canonical map `M ⟶ J(M)` is injective on elements. -/
 theorem ιApp_injective (M : ModuleCat.{max u v} R) :
-    Function.Injective (ιApp R M) := sorry
-/- Proof strategy: evaluate the target character on the free generator
-`ModuleCat.Free.mk Rᵐᵒᵖ χ`. Equality of images then implies equality under
-`CharacterModule.eval`, so `CharacterModule.eval_injective` concludes. The
-same argument is valid after the `Rᵐᵒᵖᵐᵒᵖ`-to-`R` scalar transport. -/
+    Function.Injective (ιApp R M) := by
+  intro m n h
+  apply sub_eq_zero.mp
+  apply CharacterModule.eq_zero_of_character_apply
+  intro χ
+  rw [map_sub]
+  apply sub_eq_zero.mpr
+  have hχ := congr_arg (fun x => x (ModuleCat.Free.mk Rᵐᵒᵖ χ)) h
+  change ιAppValue R M m (ModuleCat.Free.mk Rᵐᵒᵖ χ) =
+    ιAppValue R M n (ModuleCat.Free.mk Rᵐᵒᵖ χ) at hχ
+  exact (ιAppValue_freeMk R M m χ).symm.trans (hχ.trans (ιAppValue_freeMk R M n χ))
 
 /-- Every canonical map `M ⟶ J(M)` is a monomorphism. -/
 @[stacks 01DC "character-module embedding is monic"]
-instance mono_ιApp (M : ModuleCat.{max u v} R) : Mono (ιApp R M) := sorry
-/- Proof strategy: use `mono_opEvaluationApp`, the opposite-ring dual
-mono criterion, and `ModuleCat.Free.counit_app_epi`, together with
-preservation of monomorphisms by restriction of scalars. -/
+instance mono_ιApp (M : ModuleCat.{max u v} R) : Mono (ιApp R M) :=
+  (ModuleCat.mono_iff_injective _).mpr (ιApp_injective R M)
 
 /-- Lemma 15.55.8, tag `01DC`: the explicit module `J(M)` is injective. -/
 @[stacks 01DC "injectivity of the character-module target"]
 theorem injective (M : ModuleCat.{max u v} R) :
-    Module.Injective R (obj R M) := sorry
-/- Proof strategy: apply the injectivity criterion for the character dual of
-the free `Rᵐᵒᵖ`-module, then transport the resulting
-`Rᵐᵒᵖᵐᵒᵖ`-module along `RingEquiv.opOp R`. -/
+    Module.Injective R (obj R M) := by
+  classical
+  refine ⟨fun X Y _ _ _ _ f hf g => ?_⟩
+  -- First extend the values on the unit generators to a divisible abelian group.
+  let g₀ : X →+ (CharacterModule M → AddCircle (1 : ℚ)) :=
+    { toFun := fun x χ => g x (Finsupp.single χ (1 : Rᵐᵒᵖ))
+      map_zero' := by
+        ext χ
+        change (g (0 : X)) (Finsupp.single χ (1 : Rᵐᵒᵖ)) = 0
+        rw [map_zero]
+        rfl
+      map_add' := by
+        intro x x'
+        ext χ
+        change (g (x + x')) (Finsupp.single χ (1 : Rᵐᵒᵖ)) = _
+        rw [map_add]
+        rfl }
+  obtain ⟨h, hh⟩ :=
+    (Module.Baer.of_divisible (CharacterModule M → AddCircle (1 : ℚ))).extension_property_addMonoidHom
+      f.toAddMonoidHom hf g₀
+  -- Recover an R-linear extension using the opposite-ring coefficients of the free module.
+  let c (y : Y) : CharacterModule (freeObj R M) :=
+    Finsupp.liftAddHom fun χ =>
+      { toFun := fun a : Rᵐᵒᵖ => h (MulOpposite.unop a • y) χ
+        map_zero' := by
+          simp only [MulOpposite.unop_zero, zero_smul, map_zero]
+          rfl
+        map_add' := by
+          intro a b
+          rw [MulOpposite.unop_add, add_smul, map_add]
+          rfl }
+  have hc (y : Y) (χ : CharacterModule M) (a : Rᵐᵒᵖ) :
+      c y (Finsupp.single χ a) = h (MulOpposite.unop a • y) χ :=
+    Finsupp.liftAddHom_apply_single _ _ _
+  let k : Y →ₗ[R] obj R M :=
+    { toFun := c
+      map_add' := by
+        intro y y'
+        apply Finsupp.addHom_ext
+        intro χ a
+        change c (y + y') (Finsupp.single χ a) =
+          c y (Finsupp.single χ a) + c y' (Finsupp.single χ a)
+        rw [hc, hc, hc, smul_add, map_add]
+        rfl
+      map_smul' := by
+        intro r y
+        apply Finsupp.addHom_ext
+        intro χ a
+        change c (r • y) (Finsupp.single χ a) =
+          c y (MulOpposite.op r • Finsupp.single χ a)
+        rw [Finsupp.smul_single, hc, hc]
+        simp only [smul_eq_mul, MulOpposite.unop_mul, MulOpposite.unop_op, mul_smul] }
+  refine ⟨k, fun x => ?_⟩
+  apply Finsupp.addHom_ext
+  intro χ a
+  change c (f x) (Finsupp.single χ a) = g x (Finsupp.single χ a)
+  rw [hc, ← f.map_smul]
+  have hx := congr_arg (fun q : X →+ (CharacterModule M → AddCircle (1 : ℚ)) =>
+    q (MulOpposite.unop a • x) χ) hh
+  change h (f (MulOpposite.unop a • x)) χ = g (MulOpposite.unop a • x) (Finsupp.single χ 1) at hx
+  rw [hx, g.map_smul]
+  change g x (MulOpposite.op (MulOpposite.unop a) • Finsupp.single χ 1) = _
+  simp [Finsupp.smul_single]
 
 /-- The categorical form of injectivity of `J(M)`. -/
 @[stacks 01DC "character-module target is injective"]
 instance obj_injective (M : ModuleCat.{max u v} R) :
-    Injective (obj R M) := sorry
-/- Proof strategy: use `Module.injective_iff_injective_object` and
-`injective R M`. -/
+    Injective (obj R M) := by
+  apply (Module.injective_iff_injective_object R (obj R M)).mp
+  exact injective R M
 
 /-- The explicit target and embedding give an injective presentation of
 `M`. -/

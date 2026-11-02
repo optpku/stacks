@@ -33,7 +33,15 @@ functoriality in the derived category.
 Remark 92.13.4 (Functoriality of the Lichtenbaum-Schlessinger complex)
 -/
 @[stacks 09D7]
-#check (Algebra.Presentation.LichtenbaumSchlessinger.map :
+#check ((fun {A B A' B' ι ι' σ τ : Type u}
+    [CommRing A] [CommRing B] [CommRing A'] [CommRing B']
+    [Algebra A B] [Algebra A' B'] [Algebra A A'] [Algebra B B'] [Algebra A B']
+    [IsScalarTower A A' B'] [IsScalarTower A B B']
+    (P : Algebra.Presentation A B ι σ)
+    (P' : Algebra.Presentation A' B' ι' (σ ⊕ τ))
+    (f : P.toExtension.Hom P'.toExtension)
+    (h_rel : ∀ t, f.toRingHom (P.relation t) = P'.relation (Sum.inl t)) =>
+    Algebra.Presentation.LichtenbaumSchlessinger.map P P' f Sum.inl h_rel) :
   ∀ {A B A' B' ι ι' σ τ : Type u}
     [CommRing A] [CommRing B] [CommRing A'] [CommRing B']
     [Algebra A B] [Algebra A' B'] [Algebra A A'] [Algebra B B'] [Algebra A B']
@@ -48,7 +56,15 @@ Remark 92.13.4 (Functoriality of the Lichtenbaum-Schlessinger complex)
 
 /-! Remark 92.13.4 (Functoriality of the Lichtenbaum-Schlessinger complex) -/
 @[stacks 09D7]
-#check (Algebra.Presentation.LichtenbaumSchlessinger.comparison_commSq :
+#check ((fun {A B A' B' ι ι' σ τ : Type u}
+    [CommRing A] [CommRing B] [CommRing A'] [CommRing B']
+    [Algebra A B] [Algebra A' B'] [Algebra A A'] [Algebra B B'] [Algebra A B']
+    [IsScalarTower A A' B'] [IsScalarTower A B B']
+    (P : Algebra.Presentation A B ι σ)
+    (P' : Algebra.Presentation A' B' ι' (σ ⊕ τ))
+    (f : P.toExtension.Hom P'.toExtension)
+    (h_rel : ∀ t, f.toRingHom (P.relation t) = P'.relation (Sum.inl t)) =>
+    Algebra.Presentation.LichtenbaumSchlessinger.comparison_commSq P P' f Sum.inl h_rel) :
   ∀ {A B A' B' ι ι' σ τ : Type u}
     [CommRing A] [CommRing B] [CommRing A'] [CommRing B']
     [Algebra A B] [Algebra A' B'] [Algebra A A'] [Algebra B B'] [Algebra A B']
@@ -67,6 +83,6 @@ Remark 92.13.4 (Functoriality of the Lichtenbaum-Schlessinger complex)
           (algebraMap A A') (algebraMap B B')
             (Algebra.Presentation.LichtenbaumSchlessinger.algebraMap_comp)))
       (DerivedCategory.Q.map
-        (Algebra.Presentation.LichtenbaumSchlessinger.map P P' f h_rel))
+        (Algebra.Presentation.LichtenbaumSchlessinger.map P P' f Sum.inl h_rel))
       (DerivedCategory.Q.map
         (Algebra.Presentation.LichtenbaumSchlessinger.toComplex P')))

@@ -36,7 +36,8 @@ namespace Reduced
 
 /-- A reduced-scheme object carries its defining reducedness property as a canonical instance. -/
 @[stacks 0356, instance]
-instance instIsReducedObj (X : Reduced.{u}) : IsReduced X.obj := sorry
+instance instIsReducedObj (X : Reduced.{u}) : IsReduced X.obj := by
+  exact X.property
 
 /-- The inclusion of reduced schemes into schemes. -/
 @[stacks 0356 "reduced-scheme inclusion"]
@@ -46,7 +47,9 @@ abbrev ι : Reduced.{u} ⥤ Scheme.{u} :=
 /-- Every object of the reduction functor is reduced. -/
 @[stacks 0356 "reducedness of scheme-theoretic reduction"]
 theorem reductionFunctor_obj_isReduced (X : Scheme.{u}) :
-    IsReduced (reductionFunctor.obj X) := sorry
+    IsReduced (reductionFunctor.obj X) := by
+  change IsReduced (reduction X)
+  infer_instance
 
 /-- Reduction regarded as a functor to the full subcategory of reduced schemes. -/
 @[stacks 0356 "reduction coreflector"]
@@ -57,26 +60,35 @@ noncomputable def coreflector : Scheme.{u} ⥤ Reduced.{u} :=
 /-- The coreflector acts on objects by scheme-theoretic reduction. -/
 @[simp, stacks 0356 "reduction coreflector object"]
 theorem coreflector_obj (X : Scheme.{u}) :
-    (coreflector.obj X).obj = reduction X := sorry
+    (coreflector.obj X).obj = reduction X := by
+  rfl
 
 /-- The underlying morphism of a coreflector map is the canonical map on reductions. -/
 @[simp, stacks 0356 "reduction coreflector map"]
 theorem coreflector_map {X Y : Scheme.{u}} (f : X ⟶ Y) :
-    (coreflector.map f).hom = reductionMap f := sorry
+    (coreflector.map f).hom = reductionMap f := by
+  rfl
 
 /-- Left inverse law for the reduced-scheme coreflection hom equivalence. -/
 @[stacks 0356 "reduction coreflection left inverse"]
 theorem homEquiv_left_inv (X : Reduced.{u}) (Y : Scheme.{u})
     (f : ι.obj X ⟶ Y) :
     (ObjectProperty.homMk (Hom.reductionLift f) : X ⟶ coreflector.obj Y).hom ≫
-      reductionι Y = f := sorry
+      reductionι Y = f := by
+  letI : IsReduced (ι.obj X) := X.property
+  change Hom.reductionLift f ≫ reductionι Y = f
+  exact Hom.reductionLift_reductionι f
 
 /-- Right inverse law for the reduced-scheme coreflection hom equivalence. -/
 @[stacks 0356 "reduction coreflection right inverse"]
 theorem homEquiv_right_inv (X : Reduced.{u}) (Y : Scheme.{u})
     (g : X ⟶ coreflector.obj Y) :
     (ObjectProperty.homMk (Hom.reductionLift (g.hom ≫ reductionι Y)) :
-      X ⟶ coreflector.obj Y) = g := sorry
+      X ⟶ coreflector.obj Y) = g := by
+  letI : IsReduced (ι.obj X) := X.property
+  apply ObjectProperty.hom_ext
+  change Hom.reductionLift (g.hom ≫ reductionι Y) = g.hom
+  exact Hom.reductionLift_comp_reductionι g.hom
 
 /-- The universal property of reduction in the full subcategory of reduced schemes. -/
 @[stacks 0356 "reduction coreflection hom equivalence"]
@@ -93,13 +105,23 @@ theorem homEquiv_naturality_left_symm
     {X' X : Reduced.{u}} {Y : Scheme.{u}} (f : X' ⟶ X)
     (g : X ⟶ coreflector.obj Y) :
     (homEquiv X' Y).symm (f ≫ g) =
-      ι.map f ≫ (homEquiv X Y).symm g := sorry
+      ι.map f ≫ (homEquiv X Y).symm g := by
+  change (f.hom ≫ g.hom) ≫ reductionι Y =
+    f.hom ≫ (g.hom ≫ reductionι Y)
+  simp [Category.assoc]
 
 /-- Naturality on the scheme variable for the coreflection hom equivalence. -/
 @[stacks 0356 "reduction coreflection right naturality"]
 theorem homEquiv_naturality_right
     {X : Reduced.{u}} {Y Y' : Scheme.{u}} (f : ι.obj X ⟶ Y) (g : Y ⟶ Y') :
-    homEquiv X Y' (f ≫ g) = homEquiv X Y f ≫ coreflector.map g := sorry
+    homEquiv X Y' (f ≫ g) = homEquiv X Y f ≫ coreflector.map g := by
+  letI : IsReduced (ι.obj X) := X.property
+  apply ObjectProperty.hom_ext
+  change Hom.reductionLift (f ≫ g) =
+    Hom.reductionLift f ≫ reductionMap g
+  symm
+  apply Hom.eq_reductionLift (f := f ≫ g)
+  simp [Category.assoc]
 
 /-- The inclusion of reduced schemes is left adjoint to reduction. -/
 @[stacks 0356 "reduction coreflection"]
@@ -123,12 +145,20 @@ noncomputable def coreflectorCompιIso : coreflector ⋙ ι ≅ reductionFunctor
 /-- The counit of the reduction coreflection is the reduction inclusion. -/
 @[simp, stacks 0356 "reduction coreflection counit"]
 theorem adjunction_counit_app (Y : Scheme.{u}) :
-    adjunction.counit.app Y = reductionι Y := sorry
+    adjunction.counit.app Y = reductionι Y := by
+  rw [← Adjunction.homEquiv_symm_id]
+  change (homEquiv (coreflector.obj Y) Y).symm (𝟙 _) = reductionι Y
+  change ((𝟙 (coreflector.obj Y) : coreflector.obj Y ⟶ coreflector.obj Y).hom) ≫
+    reductionι Y = reductionι Y
+  simp
 
 /-- The reduction-inclusion natural transformation is the coreflection counit. -/
 @[simp, stacks 0356 "reduction inclusion is coreflection counit"]
 theorem reductionιNatTrans_eq_adjunction_counit :
-    reductionιNatTrans = adjunction.counit := sorry
+    reductionιNatTrans = adjunction.counit := by
+  ext Y
+  change reductionι Y = adjunction.counit.app Y
+  exact (adjunction_counit_app Y).symm
 
 end Reduced
 

@@ -73,13 +73,16 @@ def stageAtlas (i : I) (hi : i0 ≤ i) :
     atlasStage D i0 P i hi ⟶ toSheaf.obj (D.obj (OrderDual.toDual i)) :=
   pullback.fst (stageTransition D i0 i hi) (atlasToSheaf P)
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The compatibility equation used to lift a stage transition. -/
 theorem atlasStageHom_w {i j : I} (hi : i0 ≤ i) (hj : i0 ≤ j) (hij : j ≤ i) :
     stageAtlas D i0 P i hi ≫
         toSheaf.map (D.map (homOfLE hij)) ≫
         stageTransition D i0 j hj =
-      atlasStage_snd D i0 P i hi ≫ atlasToSheaf P :=
-  sorry
+      atlasStage_snd D i0 P i hi ≫ atlasToSheaf P := by
+  unfold stageTransition stageAtlas atlasStage_snd
+  rw [← Functor.map_comp, ← Functor.map_comp, homOfLE_comp]
+  exact pullback.condition
 
 /-- The transition `U_i ⟶ U_j` induced by a later-to-earlier map `X_i ⟶ X_j`. -/
 def atlasStageHom {i j : I} (hi : i0 ≤ i) (hj : i0 ≤ j) (hij : j ≤ i) :
@@ -97,17 +100,24 @@ theorem atlasStageHom_fst {i j : I} (hi : i0 ≤ i) (hj : i0 ≤ j) (hij : j ≤
         toSheaf.map (D.map (homOfLE hij)) :=
   pullback.lift_fst _ _ _
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Identity maps in the stage atlas diagram are identities. -/
 theorem atlasDiagram_map_id (i : OrderDual (Tail i0)) :
-    atlasStageHom D i0 P i.2 i.2 le_rfl = 𝟙 (atlasStage D i0 P i.1 i.2) :=
-  sorry
+    atlasStageHom D i0 P i.2 i.2 le_rfl = 𝟙 (atlasStage D i0 P i.1 i.2) := by
+  apply pullback.hom_ext <;>
+    simp [atlasStageHom, stageAtlas, atlasStage_snd, atlasStage]
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Composition in the stage atlas diagram agrees with categorical composition. -/
 theorem atlasDiagram_map_comp {i j k : OrderDual (Tail i0)} (f : i ⟶ j) (g : j ⟶ k) :
     atlasStageHom D i0 P i.2 k.2 (leOfHom (f ≫ g : i ⟶ k)) =
       atlasStageHom D i0 P i.2 j.2 (leOfHom f) ≫
-        atlasStageHom D i0 P j.2 k.2 (leOfHom g) :=
-  sorry
+        atlasStageHom D i0 P j.2 k.2 (leOfHom g) := by
+  apply pullback.hom_ext
+  · simp only [atlasStageHom, stageAtlas, Category.assoc,
+      pullback.lift_fst, pullback.lift_fst_assoc]
+    rw [← Functor.map_comp, ← Functor.map_comp, homOfLE_comp]
+  · simp [atlasStageHom, atlasStage_snd, Category.assoc]
 
 /-- The directed diagram of sheaf atlases on the cofinal tail. -/
 def atlasDiagram : OrderDual (Tail i0) ⥤ Sheaf (Scheme.fppfTopology.over S) (Type (u + 1)) where
@@ -141,18 +151,21 @@ def relationStageHom {i j : I} (hi : i0 ≤ i) (hj : i0 ≤ j) (hij : j ≤ i) :
     (atlasStageHom_fst D i0 P hi hj hij).symm
     (atlasStageHom_fst D i0 P hi hj hij).symm
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Identity maps in the relation diagram are identities. -/
 theorem relationDiagram_map_id (i : OrderDual (Tail i0)) :
     relationStageHom D i0 P i.2 i.2 le_rfl =
-      𝟙 (relationStage D i0 P i.1 i.2) :=
-  sorry
+      𝟙 (relationStage D i0 P i.1 i.2) := by
+  simp [relationStageHom, atlasDiagram_map_id D i0 P i, relationStage]
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Composition in the relation diagram agrees with categorical composition. -/
 theorem relationDiagram_map_comp {i j k : OrderDual (Tail i0)} (f : i ⟶ j) (g : j ⟶ k) :
     relationStageHom D i0 P i.2 k.2 (leOfHom (f ≫ g : i ⟶ k)) =
       relationStageHom D i0 P i.2 j.2 (leOfHom f) ≫
-        relationStageHom D i0 P j.2 k.2 (leOfHom g) :=
-  sorry
+        relationStageHom D i0 P j.2 k.2 (leOfHom g) := by
+  apply pullback.hom_ext <;>
+    simp [relationStageHom, atlasDiagram_map_comp D i0 P f g, Category.assoc]
 
 /-- The directed diagram of stagewise kernel pairs. -/
 def relationDiagram : OrderDual (Tail i0) ⥤ Sheaf (Scheme.fppfTopology.over S) (Type (u + 1)) where
@@ -164,12 +177,14 @@ def relationDiagram : OrderDual (Tail i0) ⥤ Sheaf (Scheme.fppfTopology.over S)
 /-- The first kernel-pair projections commute with transitions of atlas stages. -/
 theorem relationDiagramFst_naturality ⦃i j : OrderDual (Tail i0)⦄ (f : i ⟶ j) :
     (relationDiagram D i0 P).map f ≫ relationStageFst D i0 P j.1 j.2 =
-      relationStageFst D i0 P i.1 i.2 ≫ (atlasDiagram D i0 P).map f := sorry
+      relationStageFst D i0 P i.1 i.2 ≫ (atlasDiagram D i0 P).map f :=
+  pullback.lift_fst _ _ _
 
 /-- The second kernel-pair projections commute with transitions of atlas stages. -/
 theorem relationDiagramSnd_naturality ⦃i j : OrderDual (Tail i0)⦄ (f : i ⟶ j) :
     (relationDiagram D i0 P).map f ≫ relationStageSnd D i0 P j.1 j.2 =
-      relationStageSnd D i0 P i.1 i.2 ≫ (atlasDiagram D i0 P).map f := sorry
+      relationStageSnd D i0 P i.1 i.2 ≫ (atlasDiagram D i0 P).map f :=
+  pullback.lift_snd _ _ _
 
 /-- The first projection is a natural transformation of relation diagrams. -/
 def relationDiagramFst : relationDiagram D i0 P ⟶ atlasDiagram D i0 P where

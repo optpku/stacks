@@ -44,6 +44,62 @@ private def relativeQ (X : PolynomialTower A B C) : CommAlgCat X.P :=
 private def relativeB (X : PolynomialTower A B C) : CommAlgCat X.P :=
   @CommAlgCat.of X.P _ B _ X.toB.hom.toRingHom.toAlgebra
 
+open CategoryTheory.CommRingCat.Under.PolynomialResolution
+open CommRingCat.Under.FreeAlgebra
+
+private theorem freeAlgebraRightHom_naturality {R S : CommRingCat.{u}}
+    {E F E' F' : Type u} (α : R ⟶ S) (a : E ⟶ F) (b : E' ⟶ F')
+    (x : E → E') (y : F → F') (h : ∀ e, y (a e) = b (x e)) :
+    (CommRingCat.Under.FreeAlgebra.map R a).right ≫ freeAlgebraRightHom α y =
+      freeAlgebraRightHom α x ≫ (CommRingCat.Under.FreeAlgebra.map S b).right := by
+  have ha : (CommRingCat.Under.FreeAlgebra.map R a).right ≫ (toPolynomial R F).right =
+      (toPolynomial R E).right ≫ (polynomialMap R a).right :=
+    congrArg (fun f ↦ f.right) (toPolynomial_naturality R a)
+  have hb : (polynomialMap S b).right ≫ (fromPolynomial S F').right =
+      (fromPolynomial S E').right ≫ (CommRingCat.Under.FreeAlgebra.map S b).right :=
+    congrArg (fun f ↦ f.right) (fromPolynomial_naturality S b)
+  have hp : (polynomialMap R a).right ≫ CommRingCat.ofHom (mvPolynomialRingHom α.hom y) =
+      CommRingCat.ofHom (mvPolynomialRingHom α.hom x) ≫ (polynomialMap S b).right := by
+    apply CommRingCat.hom_ext
+    apply RingHom.ext
+    intro p
+    change MvPolynomial.rename y (MvPolynomial.map α.hom (MvPolynomial.rename a p)) =
+      MvPolynomial.rename b (MvPolynomial.rename x (MvPolynomial.map α.hom p))
+    simp only [MvPolynomial.map_rename, MvPolynomial.rename_rename]
+    exact congrArg (fun f : E → F' ↦ MvPolynomial.rename f (MvPolynomial.map α.hom p))
+      (funext h)
+  calc
+    _ = (toPolynomial R E).right ≫
+        ((polynomialMap R a).right ≫ CommRingCat.ofHom (mvPolynomialRingHom α.hom y)) ≫
+          (fromPolynomial S F').right := by
+      dsimp only [freeAlgebraRightHom]
+      rw [← Category.assoc, ← Category.assoc, ha]
+      simp only [Category.assoc]
+    _ = (toPolynomial R E).right ≫ CommRingCat.ofHom (mvPolynomialRingHom α.hom x) ≫
+        (fromPolynomial S E').right ≫ (CommRingCat.Under.FreeAlgebra.map S b).right := by
+      rw [hp]
+      exact (congrArg (fun k ↦ (toPolynomial R E).right ≫ k)
+        (Category.assoc (CommRingCat.ofHom (mvPolynomialRingHom α.hom x))
+          (polynomialMap S b).right (fromPolynomial S F').right)).trans
+        (congrArg (fun k ↦ (toPolynomial R E).right ≫
+          CommRingCat.ofHom (mvPolynomialRingHom α.hom x) ≫ k) hb)
+    _ = _ := by simp only [freeAlgebraRightHom, Category.assoc]
+
+private theorem iterateRightHom_naturality {R S : CommRingCat.{u}}
+    {X Y : Under R} {X' Y' : Under S} (α : R ⟶ S) (f : X ⟶ Y) (g : X' ⟶ Y')
+    (β : X.right ⟶ X'.right) (γ : Y.right ⟶ Y'.right)
+    (h : f.right ≫ γ = β ≫ g.right) (k : ℕ) :
+    ((Endofunctor.iterate (CategoryTheory.CommRingCat.Under.PolynomialResolution.functor R) k).map f).right ≫
+        iterateRightHom α γ k =
+      iterateRightHom α β k ≫
+        ((Endofunctor.iterate (CategoryTheory.CommRingCat.Under.PolynomialResolution.functor S) k).map g).right := by
+  induction k with
+  | zero => exact h
+  | succ k ih =>
+    apply freeAlgebraRightHom_naturality
+    intro e
+    exact congrArg (fun f ↦ f e) ih
+
 /-- Coefficient change commutes with functoriality of standard resolutions. -/
 private theorem functorialitySquare_comm (n : SimplexCategoryᵒᵖ) :
     (standardTermRightHom (B := (CommRingCat.of A).mkUnder C)
@@ -54,7 +110,12 @@ private theorem functorialitySquare_comm (n : SimplexCategoryᵒᵖ) :
       (standardTermRightHom (B := (CommRingCat.of A).mkUnder B)
         (B' := (CommRingCat.of B).mkUnder B)
         (CommRingCat.ofHom (algebraMap A B)) (CommRingCat.ofHom (RingHom.id B)) n).hom :=
-  sorry
+  by
+    exact congrArg (fun f ↦ f.hom)
+      (iterateRightHom_naturality (CommRingCat.ofHom (algebraMap A B))
+        (underHom A B C) (underHom B B C)
+        (CommRingCat.ofHom (RingHom.id B)) (CommRingCat.ofHom (RingHom.id C))
+        (by rfl) (n.unop.len + 1))
 
 private abbrev algebraPOnBarR (n : SimplexCategoryᵒᵖ)
     (h_inj : Function.Injective (algebraMap B C)) :
@@ -84,7 +145,30 @@ private theorem barQToBarRAlg_left_commutes (n : SimplexCategoryᵒᵖ)
     tensorLeftRingHom A B C n h_inj
       (algebraMap ((triple A B C n h_inj).P) (relativeQ A B C (triple A B C n h_inj)) p) =
         algebraMap ((triple A B C n h_inj).P) (targetOverP A B C n h_inj) p :=
-  sorry
+  by
+    let p' := (standardTermRightHom (B := (CommRingCat.of A).mkUnder B)
+      (B' := (CommRingCat.of B).mkUnder B)
+      (CommRingCat.ofHom (algebraMap A B)) (CommRingCat.ofHom (RingHom.id B)) n).hom p
+    have hpq := RingHom.congr_fun (functorialitySquare_comm A B C n) p
+    have hpb := RingHom.congr_fun
+      (standardTermRightHom_comp_augmentation
+        (B := (CommRingCat.of A).mkUnder B)
+        (B' := (CommRingCat.of B).mkUnder B)
+        (CommRingCat.ofHom (algebraMap A B)) (CommRingCat.ofHom (RingHom.id B))
+        (by ext a; rfl) n) p
+    simp only [RingHom.comp_apply] at hpq hpb
+    change (show relativeQ B B C (triple B B C n h_inj) from _) ⊗ₜ[_]
+      (1 : relativeB B B C (triple B B C n h_inj)) =
+        (1 : relativeQ B B C (triple B B C n h_inj)) ⊗ₜ[_]
+          (show relativeB B B C (triple B B C n h_inj) from _)
+    exact (congrArg (fun q : relativeQ B B C (triple B B C n h_inj) ↦
+      q ⊗ₜ[_] (1 : relativeB B B C (triple B B C n h_inj))) hpq).trans
+      ((Algebra.TensorProduct.tmul_one_eq_one_tmul
+      (R := (triple B B C n h_inj).P)
+      (A := relativeQ B B C (triple B B C n h_inj))
+      (B := relativeB B B C (triple B B C n h_inj)) p').trans
+        (congrArg (fun b : relativeB B B C (triple B B C n h_inj) ↦
+          (1 : relativeQ B B C (triple B B C n h_inj)) ⊗ₜ[_] b) hpb.symm))
 
 private def tensorLeft (n : SimplexCategoryᵒᵖ)
     (h_inj : Function.Injective (algebraMap B C)) :
@@ -99,7 +183,7 @@ private theorem barQToBarRAlg_right_commutes (n : SimplexCategoryᵒᵖ)
     algebraMap B (barQ B B C n h_inj)
       (algebraMap ((triple A B C n h_inj).P) (relativeB A B C (triple A B C n h_inj)) p) =
         algebraMap ((triple A B C n h_inj).P) (targetOverP A B C n h_inj) p :=
-  sorry
+  rfl
 
 private def tensorRight (n : SimplexCategoryᵒᵖ)
     (h_inj : Function.Injective (algebraMap B C)) :
@@ -119,7 +203,10 @@ private theorem barQToBarRAlg_commutes (n : SimplexCategoryᵒᵖ)
     (h_inj : Function.Injective (algebraMap B C)) (b : B) :
     tensorComparisonRingHom A B C n h_inj (algebraMap B (barQ A B C n h_inj) b) =
       algebraMap B (barQ B B C n h_inj) b :=
-  sorry
+  by
+    change tensorLeft A B C n h_inj 1 * tensorRight A B C n h_inj b = _
+    rw [map_one, one_mul]
+    rfl
 
 /-- Coefficient change and the identity on the right factor induce a map of tensor algebras. -/
 def barQToBarRAlg (n : SimplexCategoryᵒᵖ)
@@ -145,12 +232,44 @@ theorem barQToBarRAlg_tmul (n : SimplexCategoryᵒᵖ)
   rw [Algebra.TensorProduct.tmul_mul_tmul, mul_one, one_mul]
   rfl
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The over-`C` triangle of `barQToBarRAlg`. -/
 private theorem barQToBarROver_w (n : SimplexCategoryᵒᵖ)
     (h_inj : Function.Injective (algebraMap B C)) :
     CommAlgCat.ofHom (barQToBarRAlg A B C n h_inj) ≫ (barQOver B B C n h_inj).obj.hom =
       (barQOver A B C n h_inj).obj.hom :=
-  sorry
+  by
+    apply CommAlgCat.hom_ext
+    apply AlgHom.coe_ringHom_injective
+    apply Algebra.TensorProduct.ringHom_ext
+    · apply RingHom.ext
+      intro x
+      change (barQOver B B C n h_inj).obj.hom.hom
+          (barQToBarRAlg A B C n h_inj (x ⊗ₜ[_] 1)) = _
+      rw [barQToBarRAlg_tmul]
+      have h := RingHom.congr_fun
+        (standardTermRightHom_comp_augmentation
+          (B := (CommRingCat.of A).mkUnder C)
+          (B' := (CommRingCat.of B).mkUnder C)
+          (CommRingCat.ofHom (algebraMap A B)) (CommRingCat.ofHom (RingHom.id C))
+          (by ext a; exact (IsScalarTower.algebraMap_apply A B C a).symm) n) x
+      change (show C from ((standardHom B C).app n).hom
+          ((standardTermRightHom (B := (CommRingCat.of A).mkUnder C)
+            (B' := (CommRingCat.of B).mkUnder C)
+            (CommRingCat.ofHom (algebraMap A B)) (CommRingCat.ofHom (RingHom.id C)) n).hom x)) *
+            algebraMap B C 1 = (show C from ((standardHom A C).app n).hom x) * algebraMap B C 1
+      exact congrArg (fun c : C ↦ c * algebraMap B C 1) h.symm
+    · apply RingHom.ext
+      intro b
+      change (barQOver B B C n h_inj).obj.hom.hom
+          (barQToBarRAlg A B C n h_inj (1 ⊗ₜ[_] b)) = _
+      rw [barQToBarRAlg_tmul]
+      change (show C from ((standardHom B C).app n).hom
+          ((standardTermRightHom (B := (CommRingCat.of A).mkUnder C)
+            (B' := (CommRingCat.of B).mkUnder C)
+            (CommRingCat.ofHom (algebraMap A B)) (CommRingCat.ofHom (RingHom.id C)) n).hom 1)) *
+            algebraMap B C b = (show C from ((standardHom A C).app n).hom 1) * algebraMap B C b
+      simp
 
 /-- The morphism of polynomial `B`-algebras over `C` from `Q̄_n` to `R̄_n`. -/
 def barQToBarROver (n : SimplexCategoryᵒᵖ)
@@ -160,11 +279,63 @@ def barQToBarROver (n : SimplexCategoryᵒᵖ)
     (Over.homMk (CommAlgCat.ofHom (barQToBarRAlg A B C n h_inj))
       (barQToBarROver_w A B C n h_inj))
 
+private theorem coefficientChange_naturality {n m : SimplexCategoryᵒᵖ} (φ : n ⟶ m) :
+    (standardTermRightHom (B := (CommRingCat.of A).mkUnder C)
+      (B' := (CommRingCat.of B).mkUnder C)
+      (CommRingCat.ofHom (algebraMap A B)) (CommRingCat.ofHom (RingHom.id C)) m).hom.comp
+        ((standardAugmented A C).left.map φ).hom.toRingHom =
+      ((standardAugmented B C).left.map φ).hom.toRingHom.comp
+        (standardTermRightHom (B := (CommRingCat.of A).mkUnder C)
+          (B' := (CommRingCat.of B).mkUnder C)
+          (CommRingCat.ofHom (algebraMap A B)) (CommRingCat.ofHom (RingHom.id C)) n).hom := by
+  let F := functorialityMap (B := (CommRingCat.of A).mkUnder C)
+    (B' := (CommRingCat.of B).mkUnder C)
+    (CommRingCat.ofHom (algebraMap A B)) (CommRingCat.ofHom (RingHom.id C))
+    (by ext a; exact (IsScalarTower.algebraMap_apply A B C a).symm)
+  have h :
+      (F.app m).right.hom.comp
+          ((((evaluation (CommRingCat.of A)).obj ((CommRingCat.of A).mkUnder C)).left.map φ).right.hom) =
+        ((((evaluation (CommRingCat.of B)).obj ((CommRingCat.of B).mkUnder C)).left.map φ).right.hom).comp
+          (F.app n).right.hom :=
+    congrArg (fun f ↦ f.right.hom) (F.naturality φ)
+  simp only [F, functorialityMap_app_right] at h
+  exact h
+
+set_option backward.isDefEq.respectTransparency false in
 /-- The canonical simplicial `B`-algebra map `Q̄_• ⟶ R̄_•`. -/
 def barQToBarR (h_inj : Function.Injective (algebraMap B C)) :
     barQSimplicial A B C h_inj ⟶ barQSimplicial B B C h_inj where
   app n := (barQToBarROver A B C n h_inj).hom.left
-  naturality _ _ _ := sorry
+  naturality n m φ := by
+    apply CommAlgCat.hom_ext
+    apply AlgHom.coe_ringHom_injective
+    apply Algebra.TensorProduct.ringHom_ext
+    · apply RingHom.ext
+      intro x
+      change barQToBarRAlg A B C m h_inj
+          (((Algebra.PolynomialTower.forgetToOverB A B C).map
+            (tripleMap A B C φ h_inj)).hom.left.hom (x ⊗ₜ[_] 1)) =
+        ((Algebra.PolynomialTower.forgetToOverB B B C).map
+          (tripleMap B B C φ h_inj)).hom.left.hom
+            (barQToBarRAlg A B C n h_inj (x ⊗ₜ[_] 1))
+      rw [Algebra.PolynomialTower.forgetToOverB_map_tmul,
+        barQToBarRAlg_tmul, barQToBarRAlg_tmul,
+        Algebra.PolynomialTower.forgetToOverB_map_tmul]
+      exact congrArg (fun q : relativeQ B B C (triple B B C m h_inj) ↦
+        q ⊗ₜ[_] (1 : relativeB B B C (triple B B C m h_inj)))
+        (RingHom.congr_fun (coefficientChange_naturality A B C φ) x)
+    · apply RingHom.ext
+      intro b
+      change barQToBarRAlg A B C m h_inj
+          (((Algebra.PolynomialTower.forgetToOverB A B C).map
+            (tripleMap A B C φ h_inj)).hom.left.hom (1 ⊗ₜ[_] b)) =
+        ((Algebra.PolynomialTower.forgetToOverB B B C).map
+          (tripleMap B B C φ h_inj)).hom.left.hom
+            (barQToBarRAlg A B C n h_inj (1 ⊗ₜ[_] b))
+      rw [Algebra.PolynomialTower.forgetToOverB_map_tmul,
+        barQToBarRAlg_tmul, barQToBarRAlg_tmul,
+        Algebra.PolynomialTower.forgetToOverB_map_tmul]
+      simp
 
 /-- Components of `barQToBarR` are the left morphisms of `barQToBarROver`. -/
 theorem barQToBarR_app (h_inj : Function.Injective (algebraMap B C))
@@ -185,7 +356,21 @@ private theorem standardToBarRAlg_commutes (n : SimplexCategoryᵒᵖ)
           relativeB B B C (triple B B C n h_inj))
       (algebraMap B (standardROver B C n).obj.left b) =
         algebraMap B (barQ B B C n h_inj) b :=
-  sorry
+  by
+    have hpq := (functorialityApp B B C n).hom.commutes b
+    have hpb := ((standardHom B B).app n).hom.commutes b
+    change (algebraMap B (standardQ B C n) b) ⊗ₜ[(triple B B C n h_inj).P]
+      (1 : relativeB B B C (triple B B C n h_inj)) =
+        (1 : relativeQ B B C (triple B B C n h_inj)) ⊗ₜ[_]
+          (show relativeB B B C (triple B B C n h_inj) from b)
+    rw [← hpq]
+    exact (Algebra.TensorProduct.tmul_one_eq_one_tmul
+      (R := (triple B B C n h_inj).P)
+      (A := relativeQ B B C (triple B B C n h_inj))
+      (B := relativeB B B C (triple B B C n h_inj))
+      (algebraMap B (standardP B B n) b)).trans
+        (congrArg (fun b : relativeB B B C (triple B B C n h_inj) ↦
+          (1 : relativeQ B B C (triple B B C n h_inj)) ⊗ₜ[_] b) hpb)
 
 /-- The standard algebra maps to its tensor base change by the left tensor inclusion. -/
 def standardToBarRAlg (n : SimplexCategoryᵒᵖ)
@@ -211,7 +396,13 @@ private theorem standardToBarROver_w (n : SimplexCategoryᵒᵖ)
     (CommAlgCat.ofHom (X := (standardROver B C n).obj.left)
       (Y := (barQOver B B C n h_inj).obj.left) (standardToBarRAlg B C n h_inj)) ≫ (barQOver B B C n h_inj).obj.hom =
       (standardROver B C n).obj.hom :=
-  sorry
+  by
+    apply CommAlgCat.hom_ext
+    apply AlgHom.ext
+    intro x
+    change (show C from ((standardHom B C).app n).hom x) * algebraMap B C 1 =
+      (show C from ((standardHom B C).app n).hom x)
+    rw [map_one, mul_one]
 
 /-- The morphism of polynomial `B`-algebras over `C` from `R_n` to `R̄_n`. -/
 def standardToBarROver (n : SimplexCategoryᵒᵖ)
@@ -226,7 +417,17 @@ def standardToBarROver (n : SimplexCategoryᵒᵖ)
 def standardToBarR (h_inj : Function.Injective (algebraMap B C)) :
     (standardAugmented B C).left ⟶ barQSimplicial B B C h_inj where
   app n := (standardToBarROver B C n h_inj).hom.left
-  naturality _ _ _ := sorry
+  naturality n m φ := by
+    apply CommAlgCat.hom_ext
+    apply AlgHom.ext
+    intro x
+    change standardToBarRAlg B C m h_inj ((standardAugmented B C).left.map φ x) =
+      ((Algebra.PolynomialTower.forgetToOverB B B C).map
+        (tripleMap B B C φ h_inj)).hom.left.hom
+          (standardToBarRAlg B C n h_inj x)
+    rw [standardToBarRAlg_apply, standardToBarRAlg_apply]
+    exact (Algebra.PolynomialTower.forgetToOverB_map_tmul
+      (tripleMap B B C φ h_inj) x 1).symm
 
 /-- Components of `standardToBarR` are the left morphisms of `standardToBarROver`. -/
 theorem standardToBarR_app (h_inj : Function.Injective (algebraMap B C))
@@ -238,7 +439,18 @@ theorem standardToBarR_app (h_inj : Function.Injective (algebraMap B C))
 def omegaBarQToBarRSimplicial (h_inj : Function.Injective (algebraMap B C)) :
     omegaBarQSimplicial A B C h_inj ⟶ omegaBarQSimplicial B B C h_inj where
   app n := omegaSheafMap (barQToBarROver A B C n h_inj)
-  naturality _ _ _ := sorry
+  naturality n m φ := by
+    have h :
+        (Algebra.PolynomialTower.forgetToOverB A B C).map (tripleMap A B C φ h_inj) ≫
+            barQToBarROver A B C m h_inj =
+          barQToBarROver A B C n h_inj ≫
+            (Algebra.PolynomialTower.forgetToOverB B B C).map (tripleMap B B C φ h_inj) := by
+      apply ObjectProperty.hom_ext
+      apply Over.OverMorphism.ext
+      exact (barQToBarR A B C h_inj).naturality φ
+    change omegaSheafMap _ ≫ omegaSheafMap _ = omegaSheafMap _ ≫ omegaSheafMap _
+    rw [← omegaSheafMap_comp, ← omegaSheafMap_comp]
+    exact congrArg (fun f ↦ omegaSheafMap f) h
 
 /-- Components of `omegaBarQToBarRSimplicial` are `omegaSheafMap` of `barQToBarROver`. -/
 theorem omegaBarQToBarRSimplicial_app (h_inj : Function.Injective (algebraMap B C))
@@ -271,7 +483,18 @@ abbrev omegaEvalCochain : CochainComplex (ModuleCat.{u} C) ℤ :=
 def omegaEvalToBarRSimplicial (h_inj : Function.Injective (algebraMap B C)) :
     omegaEvalSimplicial B C ⟶ omegaBarQSimplicial B B C h_inj where
   app n := omegaSheafMap (standardToBarROver B C n h_inj)
-  naturality _ _ _ := sorry
+  naturality n m φ := by
+    have h :
+        (asPolynomialSimplicial (standardHom B C) (standard_isPolynomial B C)).map φ ≫
+            standardToBarROver B C m h_inj =
+          standardToBarROver B C n h_inj ≫
+            (Algebra.PolynomialTower.forgetToOverB B B C).map (tripleMap B B C φ h_inj) := by
+      apply ObjectProperty.hom_ext
+      apply Over.OverMorphism.ext
+      exact (standardToBarR B C h_inj).naturality φ
+    change omegaSheafMap _ ≫ omegaSheafMap _ = omegaSheafMap _ ≫ omegaSheafMap _
+    rw [← omegaSheafMap_comp, ← omegaSheafMap_comp]
+    exact congrArg (fun f ↦ omegaSheafMap f) h
 
 /-- Components of `omegaEvalToBarRSimplicial` are `omegaSheafMap` of `standardToBarROver`. -/
 theorem omegaEvalToBarRSimplicial_app (h_inj : Function.Injective (algebraMap B C))

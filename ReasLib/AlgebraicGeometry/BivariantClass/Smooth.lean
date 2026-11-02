@@ -21,6 +21,17 @@ universe u
 
 namespace AlgebraicGeometry.BivariantClass
 
+private theorem smooth_eq_of_cap_eq
+    {S : Scheme.{u}} [UniversallyCatenary S] (δ : S → ℤ) [IsDimensionFunction δ]
+    {X Y : Over S} [LocallyOfFiniteType X.hom] [LocallyOfFiniteType Y.hom]
+    {f : X ⟶ Y} {p : ℤ} {c c' : BivariantClass δ f p}
+    (h : (c.cap : CapFamily δ f p) = (c'.cap : CapFamily δ f p)) : c = c' := by
+  rcases c with ⟨cap, hproper, hflat, hcartier⟩
+  rcases c' with ⟨cap', hproper', hflat', hcartier'⟩
+  change @cap = @cap' at h
+  cases h
+  rfl
+
 /-- Composition with smooth flat pullback, transported to the shifted degree, preserves zero. -/
 theorem compSmooth_map_zero
     {S : Scheme.{u}} [UniversallyCatenary S] (δ : S → ℤ) [IsDimensionFunction δ]
@@ -29,7 +40,14 @@ theorem compSmooth_map_zero
     [Scheme.Hom.RelativeDimension g.left d] (p : ℤ) :
     Nonnegative.castGrading δ (sub_eq_add_neg p (d : ℤ)).symm
       (comp δ f g (0 : group δ f p) (flatPullback δ g d)) =
-        (0 : group δ (f ≫ g) (p - (d : ℤ))) := sorry
+        (0 : group δ (f ≫ g) (p - (d : ℤ))) := by
+  change comp δ f g (pointwiseZero δ f p) (flatPullback δ g d) =
+    pointwiseZero δ (f ≫ g) (p + -(d : ℤ))
+  apply smooth_eq_of_cap_eq δ
+  funext X' Z' hX' hZ' i fg' h hfinite square k
+  apply AddMonoidHom.ext
+  intro a
+  exact map_zero (RelativeChow.castDegree δ (X := X') (compDegree k p (-(d : ℤ))))
 
 /-- Composition with smooth flat pullback, transported to the shifted degree, preserves addition. -/
 theorem compSmooth_map_add
@@ -43,7 +61,15 @@ theorem compSmooth_map_add
           (Nonnegative.castGrading δ (sub_eq_add_neg p (d : ℤ)).symm
             (comp δ f g c (flatPullback δ g d)))
           (Nonnegative.castGrading δ (sub_eq_add_neg p (d : ℤ)).symm
-            (comp δ f g c' (flatPullback δ g d))) := sorry
+            (comp δ f g c' (flatPullback δ g d))) := by
+  change comp δ f g (pointwiseAdd δ f p c c') (flatPullback δ g d) =
+    pointwiseAdd δ (f ≫ g) (p + -(d : ℤ))
+      (comp δ f g c (flatPullback δ g d)) (comp δ f g c' (flatPullback δ g d))
+  apply smooth_eq_of_cap_eq δ
+  funext X' Z' hX' hZ' i fg' h hfinite square k
+  apply AddMonoidHom.ext
+  intro a
+  exact map_add (RelativeChow.castDegree δ (X := X') (compDegree k p (-(d : ℤ)))) _ _
 
 /-- Composition with the smooth flat-pullback class shifts homogeneous degree by `-d`. -/
 def compSmooth
@@ -80,7 +106,8 @@ theorem compSmooth_leftInverse
     {X Y Z : Over S} [LocallyOfFiniteType X.hom] [LocallyOfFiniteType Y.hom]
     [LocallyOfFiniteType Z.hom] (f : X ⟶ Y) (g : Y ⟶ Z) [Smooth g.left] (d : ℕ)
     [Scheme.Hom.RelativeDimension g.left d] (p : ℤ) :
-    Function.LeftInverse (compSmoothInv δ f g d p) (compSmooth δ f g d p) := sorry
+    Function.LeftInverse (compSmoothInv δ f g d p) (compSmooth δ f g d p) := by
+  exact Function.leftInverse_invFun (compSmooth_bijective δ f g d p).injective
 
 /-- Smooth composition recovers each class from its inverse image. -/
 theorem compSmooth_rightInverse
@@ -88,7 +115,8 @@ theorem compSmooth_rightInverse
     {X Y Z : Over S} [LocallyOfFiniteType X.hom] [LocallyOfFiniteType Y.hom]
     [LocallyOfFiniteType Z.hom] (f : X ⟶ Y) (g : Y ⟶ Z) [Smooth g.left] (d : ℕ)
     [Scheme.Hom.RelativeDimension g.left d] (p : ℤ) :
-    Function.RightInverse (compSmoothInv δ f g d p) (compSmooth δ f g d p) := sorry
+    Function.RightInverse (compSmoothInv δ f g d p) (compSmooth δ f g d p) := by
+  exact Function.rightInverse_invFun (compSmooth_bijective δ f g d p).surjective
 
 /-- Smooth composition identifies homogeneous bivariant groups with the relative-dimension shift. -/
 def compSmoothEquiv
@@ -111,7 +139,7 @@ theorem compSmoothEquiv_apply
     [Scheme.Hom.RelativeDimension g.left d] (p : ℤ) (c : group δ f p) :
     compSmoothEquiv δ f g d p c =
       Nonnegative.castGrading δ (sub_eq_add_neg p (d : ℤ)).symm
-        (comp δ f g c (flatPullback δ g d)) := sorry
+        (comp δ f g c (flatPullback δ g d)) := rfl
 
 /-- The inverse smooth-composition equivalence applies as the specified inverse function. -/
 theorem compSmoothEquiv_symm_eq
@@ -120,6 +148,6 @@ theorem compSmoothEquiv_symm_eq
     [LocallyOfFiniteType Z.hom] (f : X ⟶ Y) (g : Y ⟶ Z) [Smooth g.left] (d : ℕ)
     [Scheme.Hom.RelativeDimension g.left d] (p : ℤ)
     (c' : group δ (f ≫ g) (p - (d : ℤ))) :
-    (compSmoothEquiv δ f g d p).symm c' = compSmoothInv δ f g d p c' := sorry
+    (compSmoothEquiv δ f g d p).symm c' = compSmoothInv δ f g d p c' := rfl
 
 end AlgebraicGeometry.BivariantClass

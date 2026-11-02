@@ -10,6 +10,8 @@ public import Mathlib.CategoryTheory.Comma.Over.Basic
 public import Mathlib.CategoryTheory.Sites.Over
 public import ReasLib.CategoryTheory.Sites.MorphismOfSites
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.PresentationRestriction
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.Pullback
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.Etale.Cancellation
 
 /-!
 # Étale localization of spaces-étale sites
@@ -49,8 +51,9 @@ theorem spacesEtaleSite.mk_hom (f : X ⟶ Y) [Etale f] :
 /-- A morphism in the slice `Y_spaces,étale / X` remains étale over `X`. -/
 instance etale_of_spacesEtaleSlice (f : X ⟶ Y) [Etale f]
     (W : Over (spacesEtaleSite.mk f)) :
-    Etale (W.hom.left : W.left.left ⟶ X) :=
-  sorry
+    Etale (W.hom.left : W.left.left ⟶ X) := by
+  exact @Etale.of_comp_eq S W.left.left X Y W.left.hom f W.hom.left W.left.prop
+    inferInstance (MorphismProperty.Over.w W.hom)
 
 /-- The morphism in `Y_spaces,étale` from the postcomposition of `V` with `f` to `f` itself. -/
 def spacesEtaleLocalizationHom (f : X ⟶ Y) [Etale f] (V : spacesEtaleSite X) :
@@ -68,8 +71,9 @@ theorem spacesEtaleLocalizationHom_left (f : X ⟶ Y) [Etale f] (V : spacesEtale
 theorem spacesEtaleLocalizationHom_naturality (f : X ⟶ Y) [Etale f]
     {V W : spacesEtaleSite X} (g : V ⟶ W) :
     (spacesEtaleRestriction f).map g ≫ spacesEtaleLocalizationHom f W =
-      spacesEtaleLocalizationHom f V :=
-  sorry
+      spacesEtaleLocalizationHom f V := by
+  apply MorphismProperty.Over.Hom.ext
+  exact MorphismProperty.Over.w g
 
 /-- The site functor `X_spaces,étale ⥤ Y_spaces,étale / X` for an étale morphism of algebraic
 spaces. -/
@@ -186,44 +190,78 @@ theorem spacesEtaleLocalizationEquivalence_inverse (f : X ⟶ Y) [Etale f] :
 `Y_spaces,étale / X`. -/
 instance spacesEtaleLocalizationFunctor.instIsContinuous (f : X ⟶ Y) [Etale f] :
     (spacesEtaleLocalizationFunctor f).IsContinuous (spacesEtaleTopology X)
-      ((spacesEtaleTopology Y).over (spacesEtaleSite.mk f)) :=
-  sorry
+      ((spacesEtaleTopology Y).over (spacesEtaleSite.mk f)) := by
+  letI : (spacesEtaleLocalizationFunctor f).IsRightAdjoint :=
+    (spacesEtaleLocalizationEquivalence f).symm.toAdjunction.isRightAdjoint
+  apply Functor.isContinuous_of_coverPreserving (compatiblePreservingOfFlat _ _)
+  constructor
+  intro V R hR
+  change (R.functorPushforward (spacesEtaleLocalizationFunctor f)).functorPushforward
+      (Over.forget (spacesEtaleSite.mk f)) ∈
+        spacesEtaleTopology Y ((spacesEtaleRestriction f).obj V)
+  rw [← Sieve.functorPushforward_comp]
+  exact (CoverPreserving.of_isContinuous (spacesEtaleRestriction f) _ _).cover_preserve hR
 
 /-- `spacesEtaleLocalizationFunctor` is cocontinuous from `X_spaces,étale` to the slice topology on
 `Y_spaces,étale / X`. -/
 instance spacesEtaleLocalizationFunctor.instIsCocontinuous (f : X ⟶ Y) [Etale f] :
     (spacesEtaleLocalizationFunctor f).IsCocontinuous (spacesEtaleTopology X)
-      ((spacesEtaleTopology Y).over (spacesEtaleSite.mk f)) :=
-  sorry
+      ((spacesEtaleTopology Y).over (spacesEtaleSite.mk f)) := by
+  let adj : spacesEtaleRestriction f ⊣ spacesEtalePullback f :=
+    MorphismProperty.Over.mapPullbackAdj (@Etale S) ⊤ f inferInstance trivial
+  haveI : (spacesEtaleRestriction f).IsCocontinuous
+      (spacesEtaleTopology X) (spacesEtaleTopology Y) :=
+    (adj.isCocontinuous_iff_coverPreserving _ _).mpr
+      (CoverPreserving.of_isContinuous (spacesEtalePullback f) _ _)
+  constructor
+  intro V R hR
+  have hR' : R.functorPushforward (Over.forget (spacesEtaleSite.mk f)) ∈
+      spacesEtaleTopology Y ((spacesEtaleRestriction f).obj V) := hR
+  have h := (spacesEtaleRestriction f).cover_lift
+    (spacesEtaleTopology X) (spacesEtaleTopology Y) hR'
+  change (R.functorPushforward (Over.forget (spacesEtaleSite.mk f))).functorPullback
+      (spacesEtaleLocalizationFunctor f ⋙ Over.forget (spacesEtaleSite.mk f)) ∈
+        spacesEtaleTopology X V at h
+  simpa only [Sieve.functorPullback_comp,
+    Sieve.functorPullback_functorPushforward_overForget] using h
 
 /-- `spacesEtaleLocalizationFunctor` is a morphism of sites from the slice `Y_spaces,étale / X` to
 `X_spaces,étale`. -/
 instance spacesEtaleLocalizationFunctor.instIsMorphismOfSites (f : X ⟶ Y) [Etale f] :
     IsMorphismOfSites (spacesEtaleTopology X)
       ((spacesEtaleTopology Y).over (spacesEtaleSite.mk f))
-      (spacesEtaleLocalizationFunctor f) :=
-  sorry
+      (spacesEtaleLocalizationFunctor f) := by
+  letI : (spacesEtaleLocalizationFunctor f).IsRightAdjoint :=
+    (spacesEtaleLocalizationEquivalence f).symm.toAdjunction.isRightAdjoint
+  exact IsMorphismOfSites.mk' _ _ _
 
 /-- `spacesEtaleLocalizationInverse` is continuous from the slice `Y_spaces,étale / X` to
 `X_spaces,étale`. -/
 instance spacesEtaleLocalizationInverse.instIsContinuous (f : X ⟶ Y) [Etale f] :
     (spacesEtaleLocalizationInverse f).IsContinuous
-      ((spacesEtaleTopology Y).over (spacesEtaleSite.mk f)) (spacesEtaleTopology X) :=
-  sorry
+      ((spacesEtaleTopology Y).over (spacesEtaleSite.mk f)) (spacesEtaleTopology X) := by
+  let adj : spacesEtaleLocalizationFunctor f ⊣ spacesEtaleLocalizationInverse f :=
+    (spacesEtaleLocalizationEquivalence f).toAdjunction
+  exact adj.isContinuous_of_isCocontinuous _ _
 
 /-- `spacesEtaleLocalizationInverse` is cocontinuous from the slice `Y_spaces,étale / X` to
 `X_spaces,étale`. -/
 instance spacesEtaleLocalizationInverse.instIsCocontinuous (f : X ⟶ Y) [Etale f] :
     (spacesEtaleLocalizationInverse f).IsCocontinuous
-      ((spacesEtaleTopology Y).over (spacesEtaleSite.mk f)) (spacesEtaleTopology X) :=
-  sorry
+      ((spacesEtaleTopology Y).over (spacesEtaleSite.mk f)) (spacesEtaleTopology X) := by
+  let adj : spacesEtaleLocalizationInverse f ⊣ spacesEtaleLocalizationFunctor f :=
+    (spacesEtaleLocalizationEquivalence f).symm.toAdjunction
+  apply (adj.isCocontinuous_iff_coverPreserving _ _).mpr
+  exact CoverPreserving.of_isContinuous (spacesEtaleLocalizationFunctor f) _ _
 
 /-- `spacesEtaleLocalizationInverse` is a morphism of sites from `X_spaces,étale` to the slice
 `Y_spaces,étale / X`. -/
 instance spacesEtaleLocalizationInverse.instIsMorphismOfSites (f : X ⟶ Y) [Etale f] :
     IsMorphismOfSites ((spacesEtaleTopology Y).over (spacesEtaleSite.mk f))
-      (spacesEtaleTopology X) (spacesEtaleLocalizationInverse f) :=
-  sorry
+      (spacesEtaleTopology X) (spacesEtaleLocalizationInverse f) := by
+  letI : (spacesEtaleLocalizationInverse f).IsRightAdjoint :=
+    (spacesEtaleLocalizationEquivalence f).toAdjunction.isRightAdjoint
+  exact IsMorphismOfSites.mk' _ _ _
 
 /-- Forgetting the slice recovers spaces-étale restriction. -/
 def spacesEtaleLocalizationFunctor_comp_forget (f : X ⟶ Y) [Etale f] :

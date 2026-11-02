@@ -56,7 +56,12 @@ theorem discreteFieldFibers_iff {S : Scheme.{u}} {X Y : GroupoidsOver S}
         (c : PseudoPullbackCone f g) [AlgebraicStack c.pt],
         c.IsBilimit → ∀ (τ : TopologicalSpace (Points c.pt)),
           IsPointsTopology c.pt τ → @DiscreteTopology (Points c.pt) τ :=
-  sorry
+  by
+    constructor
+    · intro h k _ σ g c hC hc τ hτ
+      exact @h (FieldValuedPoint.of k σ g) c hC hc τ hτ
+    · intro h y c hC hc τ hτ
+      exact @h y.K y.field y.structureHom y.hom c hC hc τ hτ
 
 namespace discreteFieldFibers
 
@@ -69,7 +74,7 @@ theorem spec {S : Scheme.{u}} {X Y : GroupoidsOver S}
     (c : PseudoPullbackCone f y.hom) [AlgebraicStack c.pt] (hc : c.IsBilimit)
     (τ : TopologicalSpace (Points c.pt)) (hτ : IsPointsTopology c.pt τ) :
     @DiscreteTopology (Points c.pt) τ :=
-  sorry
+  h y c hc τ hτ
 
 end discreteFieldFibers
 
@@ -110,7 +115,7 @@ theorem spec {S : Scheme.{u}} {X Y : GroupoidsOver S}
     [AlgebraicStack X] [AlgebraicStack Y] (f : X ⟶ Y)
     [LocallyQuasiFinite f] :
     QuasiDM f ∧ LocallyOfFiniteType f ∧ discreteFieldFibers f :=
-  sorry
+  ⟨inferInstance, inferInstance, fieldFibersDiscrete (f := f)⟩
 
 /-- The chosen 2-fibre product of a locally quasi-finite morphism against a
 field-valued point has discrete space of points for every canonical
@@ -125,7 +130,12 @@ theorem twoFibreProduct_discrete {S : Scheme.{u}} {X Y : GroupoidsOver S}
       (TwoFibreProduct.apex.{u + 1, u, u + 1, u} f y.hom) τ) :
     @DiscreteTopology
       (Points (TwoFibreProduct.apex.{u + 1, u, u + 1, u} f y.hom)) τ :=
-  sorry
+  by
+    have h := fieldFibersDiscrete (f := f)
+    exact @h y (TwoFibreProduct.cone.{u + 1, u, u + 1, u} f y.hom)
+      (inferInstanceAs
+        (AlgebraicStack (TwoFibreProduct.apex.{u + 1, u, u + 1, u} f y.hom)))
+      (TwoFibreProduct.cone.isBilimit f y.hom) τ hτ
 
 end LocallyQuasiFinite
 

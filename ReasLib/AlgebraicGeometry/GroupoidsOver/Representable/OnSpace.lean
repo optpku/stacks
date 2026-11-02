@@ -7,6 +7,9 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import ReasLib.AlgebraicGeometry.GroupoidsOver.Representable
+import ReasLib.AlgebraicGeometry.AlgebraicSpace.Groupoids.Hom
+import ReasLib.AlgebraicGeometry.AlgebraicSpace.Groupoids.IsoClasses
+import ReasLib.CategoryTheory.Fibered.Setoids.Equivalence
 public import ReasLib.CategoryTheory.Fibered.FiberIsoClassPresheaf.GroupoidTarget
 
 /-!
@@ -54,7 +57,7 @@ theorem RepresentsTwoFibreProductOnSpace.iff {S : Scheme.{u}}
         Nonempty
           (eApex.hom ≫ toGroupoids.map f' ≅
             TwoFibreProduct.fst.{u + 1, u, u + 1, u} g f ≫ eZ.hom) :=
-  sorry
+  Iff.rfl
 
 /-- The base of a 2-fibre product represented on spaces is equivalent to the
 groupoid fibration of `G`. -/
@@ -63,7 +66,9 @@ theorem RepresentsTwoFibreProductOnSpace.exists_base {S : Scheme.{u}}
     {F G : AlgebraicSpace S} {f' : F ⟶ G}
     (h : RepresentsTwoFibreProductOnSpace f g F G f') :
     Nonempty (Z ≌ G.toGroupoids) :=
-  sorry
+  by
+    rcases h with ⟨eZ, eApex, h⟩
+    exact ⟨eZ⟩
 
 /-- The apex of a 2-fibre product represented on spaces is equivalent to the
 groupoid fibration of `F`. -/
@@ -73,7 +78,9 @@ theorem RepresentsTwoFibreProductOnSpace.exists_apex {S : Scheme.{u}}
     (h : RepresentsTwoFibreProductOnSpace f g F G f') :
     Nonempty
       (TwoFibreProduct.apex.{u + 1, u, u + 1, u} g f ≌ F.toGroupoids) :=
-  sorry
+  by
+    rcases h with ⟨eZ, eApex, h⟩
+    exact ⟨eApex⟩
 
 /-- The morphism of algebraic spaces recovers the first projection of the
 2-fibre product up to the representing equivalences. -/
@@ -86,7 +93,7 @@ theorem RepresentsTwoFibreProductOnSpace.projection_triangle {S : Scheme.{u}}
       Nonempty
         (eApex.hom ≫ toGroupoids.map f' ≅
           TwoFibreProduct.fst.{u + 1, u, u + 1, u} g f ≫ eZ.hom) :=
-  sorry
+  h
 
 /-- Chosen representing equivalences and a 2-isomorphic projection triangle
 yield a representation of the 2-fibre product on spaces. -/
@@ -98,7 +105,60 @@ theorem RepresentsTwoFibreProductOnSpace.of_equivalences {S : Scheme.{u}}
     (h : eApex.hom ≫ toGroupoids.map f' ≅
       TwoFibreProduct.fst.{u + 1, u, u + 1, u} g f ≫ eZ.hom) :
     RepresentsTwoFibreProductOnSpace f g F G f' :=
-  sorry
+  ⟨eZ, eApex, ⟨h⟩⟩
+
+/-- A supplied representing equivalence gives a comparison with explicit forward and inverse
+fiber maps; no representative or quasi-inverse is selected. -/
+private theorem exists_fiberIsoClassIso {S : Scheme.{u}}
+    {X : GroupoidsOver S} {F : AlgebraicSpace S} (e : X ≌ F.toGroupoids) :
+    ∃ i : Functor.fiberIsoClassPresheaf X.p ≅
+        F.functorOfPoints ⋙ uliftFunctor.{u + 1, u},
+      i.hom = BasedFunctor.fiberIsoClassMap (toBasedFunctor e.hom) ≫
+        isoClassToPoints F := by
+  letI : Functor.IsDiscreteFibration
+      ((FiberedCategoryOver.Groupoids.toBased (Over S)).obj F.toGroupoids).p := by
+    change Functor.IsDiscreteFibration ((CategoryOfElements.π F.functorOfPoints).leftOp)
+    infer_instance
+  let eB := (FiberedCategoryOver.Groupoids.toBased (Over S)).mapEquivalence e
+  let eU (U : (Over S)ᵒᵖ) :=
+    ((BasedCategory.Equivalence.fiberIsoClasses.equiv eB U.unop).trans
+      (FiberedCategoryOver.Sets.ofPresheaf.fiberEquiv F.functorOfPoints U.unop)).trans
+        Equiv.ulift.symm
+  have heU (U : (Over S)ᵒᵖ) :
+      (eU U).toIso.hom =
+        (BasedFunctor.fiberIsoClassMap (toBasedFunctor e.hom) ≫
+          isoClassToPoints F).app U := by
+    apply ConcreteCategory.hom_ext
+    intro q
+    refine Quotient.inductionOn q ?_
+    intro x
+    rfl
+  refine ⟨NatIso.ofComponents (fun U ↦ (eU U).toIso) ?_, ?_⟩
+  · intro U V f
+    simpa only [heU] using
+      (BasedFunctor.fiberIsoClassMap (toBasedFunctor e.hom) ≫
+        isoClassToPoints F).naturality f
+  · apply NatTrans.ext
+    funext U
+    exact heU U
+
+/-- Grothendieck fiber evaluation carries the induced map to the lifted morphism of spaces. -/
+private theorem isoClassToPoints_map {S : Scheme.{u}} {F G : AlgebraicSpace S}
+    (f : F ⟶ G) :
+    BasedFunctor.fiberIsoClassMap (toBasedFunctor (toGroupoids.map f)) ≫
+        isoClassToPoints G =
+      isoClassToPoints F ≫ Functor.whiskerRight f uliftFunctor.{u + 1, u} := by
+  apply NatTrans.ext
+  funext U
+  apply ConcreteCategory.hom_ext
+  intro q
+  refine Quotient.inductionOn q ?_
+  intro x
+  let t := eqToHom (congrArg Opposite.op x.2)
+  change ULift.up (G.functorOfPoints.map t (f.app _ x.1.unop.2)) =
+    ULift.up (f.app U (F.functorOfPoints.map t x.1.unop.2))
+  exact congrArg ULift.up
+    (congrArg (fun k ↦ k x.1.unop.2) (f.naturality t)).symm
 
 /-- The associated sheaves of isomorphism classes of the apex and of `Z` match
 the functors of points of `F` and `G` after `uliftFunctor`, and
@@ -116,7 +176,23 @@ theorem RepresentsTwoFibreProductOnSpace.fiberIsoClass_ulift {S : Scheme.{u}}
           (toBasedFunctor (TwoFibreProduct.fst.{u + 1, u, u + 1, u} g f)) =
         iApex.hom ≫ Functor.whiskerRight f' uliftFunctor.{u + 1, u} ≫
           iZ.inv :=
-  sorry
+  by
+    rcases h with ⟨eZ, eApex, ⟨i⟩⟩
+    obtain ⟨iZ, hiZ⟩ := exists_fiberIsoClassIso eZ
+    obtain ⟨iApex, hiApex⟩ := exists_fiberIsoClassIso eApex
+    refine ⟨iZ, iApex, ?_⟩
+    apply (cancel_mono iZ.hom).1
+    simp only [Category.assoc, Iso.inv_hom_id, Category.comp_id]
+    rw [hiZ, hiApex]
+    have hi :
+        BasedFunctor.fiberIsoClassMap (toBasedFunctor eApex.hom) ≫
+            BasedFunctor.fiberIsoClassMap (toBasedFunctor (toGroupoids.map f')) =
+          BasedFunctor.fiberIsoClassMap (toBasedFunctor (TwoFibreProduct.fst g f)) ≫
+            BasedFunctor.fiberIsoClassMap (toBasedFunctor eZ.hom) := by
+      simpa only [toBasedFunctor.comp, BasedFunctor.fiberIsoClassMap.comp] using
+        BasedFunctor.fiberIsoClassMap.eq_of_hom i.hom.hom
+    rw [← Category.assoc, ← hi, Category.assoc, isoClassToPoints_map,
+      ← Category.assoc]
 
 /-- A slice base change represented by an algebraic space over a scheme `U`
 specializes the on-space comparison, with base representative `ofOver U`. -/
@@ -125,7 +201,14 @@ theorem RepresentsTwoFibreProductOnSpace.of_representsBaseChange
     {y : GroupoidsOver.slice U ⟶ Y} {Fy : AlgebraicSpace S}
     {fy : Fy ⟶ ofOver U} (h : RepresentsBaseChange f y Fy fy) :
     RepresentsTwoFibreProductOnSpace f y Fy (ofOver U) fy :=
-  sorry
+  by
+    rcases h with ⟨e, ⟨h⟩⟩
+    let eU := ofOverSliceEquiv U
+    refine ⟨eU.symm, e, ⟨?_⟩⟩
+    exact (Bicategory.rightUnitor _).symm ≪≫
+      Bicategory.whiskerLeftIso _ eU.unit ≪≫
+      (Bicategory.associator _ _ _).symm ≪≫
+      Bicategory.whiskerRightIso ((Bicategory.associator _ _ _) ≪≫ h) eU.inv
 
 /-- Given algebraic-space representatives of the base and apex of a 2-fibre
 product, its first projection corresponds to a morphism between those spaces.
@@ -149,6 +232,10 @@ theorem RepresentsTwoFibreProductOnSpace.exists_morphism {S : Scheme.{u}}
             (FiberedCategoryOver.Groupoids.toBasedFunctor
               (TwoFibreProduct.fst.{u + 1, u, u + 1, u} g f)) =
           iApex.hom ≫ Functor.whiskerRight f' uliftFunctor.{u + 1, u} ≫ iZ.inv :=
-  sorry
+  by
+    let f' := toGroupoids.recover eApex eZ (TwoFibreProduct.fst g f)
+    obtain ⟨i⟩ := toGroupoids.InducesHom.recover eApex eZ (TwoFibreProduct.fst g f)
+    refine ⟨f', ⟨i.symm⟩, ?_⟩
+    exact fiberIsoClass_ulift ⟨eZ, eApex, ⟨i.symm⟩⟩
 
 end AlgebraicGeometry

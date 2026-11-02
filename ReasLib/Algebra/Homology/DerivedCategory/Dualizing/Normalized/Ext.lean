@@ -46,12 +46,14 @@ theorem extDegreeBounds
     (A M : Type u) [CommRing A] [IsNoetherianRing A] [IsLocalRing A]
     [AddCommGroup M] [Module A M] [Module.Finite A M]
     [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
-    (H : MonoidalClosed (DerivedCategory (ModuleCat.{u} A)))
-    (ω : DerivedCategory (ModuleCat.{u} A)) (hω : ω.IsNormalizedDualizingComplex H)
+    (C : CanonicalClosedPresentation (A := A))
+    (ω : DerivedCategory (ModuleCat.{u} A))
+    (hω : ω.IsCanonicalNormalizedDualizingComplex C)
     (i : ℤ)
     (hi : ¬ IsZero
       ((DerivedCategory.homologyFunctor (ModuleCat.{u} A) i).obj
-        ((MonoidalClosed.ihomOf H (ModuleCat.single0 (ModuleCat.of A M))).obj ω))) :
+        ((InternalHom.RHom.obj (A := A)
+          (ModuleCat.single0 (ModuleCat.of A M)) ω)))) :
     ∃ d : ℕ, Module.supportDim A M = .some (d : ℕ∞) ∧ -(d : ℤ) ≤ i ∧ i ≤ 0 := sorry
 
 /-- The support dimension of degree-`i` cohomology of derived internal Hom into a
@@ -60,15 +62,18 @@ theorem supportDim_ext_le
     (A M : Type u) [CommRing A] [IsNoetherianRing A] [IsLocalRing A]
     [AddCommGroup M] [Module A M] [Module.Finite A M]
     [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
-    (H : MonoidalClosed (DerivedCategory (ModuleCat.{u} A)))
-    (ω : DerivedCategory (ModuleCat.{u} A)) (hω : ω.IsNormalizedDualizingComplex H)
+    (C : CanonicalClosedPresentation (A := A))
+    (ω : DerivedCategory (ModuleCat.{u} A))
+    (hω : ω.IsCanonicalNormalizedDualizingComplex C)
     (i : ℤ) :
     Module.supportDim A
         ((DerivedCategory.homologyFunctor (ModuleCat.{u} A) i).obj
-          ((MonoidalClosed.ihomOf H (ModuleCat.single0 (ModuleCat.of A M))).obj ω)) = ⊥ ∨
+          ((InternalHom.RHom.obj (A := A)
+            (ModuleCat.single0 (ModuleCat.of A M)) ω))) = ⊥ ∨
       ∃ e : ℕ, Module.supportDim A
           ((DerivedCategory.homologyFunctor (ModuleCat.{u} A) i).obj
-            ((MonoidalClosed.ihomOf H (ModuleCat.single0 (ModuleCat.of A M))).obj ω)) =
+            ((InternalHom.RHom.obj (A := A)
+              (ModuleCat.single0 (ModuleCat.of A M)) ω))) =
         .some (e : ℕ∞) ∧ (e : ℤ) ≤ -i := sorry
 
 /-- The depth of a finite module over a Noetherian local ring is the infimum of the
@@ -90,8 +95,9 @@ has injective amplitude in `[-d, 0]`. -/
 theorem hasInjectiveAmplitudeIn
     (A : Type u) [CommRing A] [IsNoetherianRing A] [IsLocalRing A]
     [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
-    (H : MonoidalClosed (DerivedCategory (ModuleCat.{u} A)))
-    (ω : DerivedCategory (ModuleCat.{u} A)) (hω : ω.IsNormalizedDualizingComplex H)
+    (C : CanonicalClosedPresentation (A := A))
+    (ω : DerivedCategory (ModuleCat.{u} A))
+    (hω : ω.IsCanonicalNormalizedDualizingComplex C)
     (d : ℕ) (hd : ringKrullDim A = d) :
     ω.HasInjectiveAmplitudeIn (-(d : ℤ)) 0 := sorry
 
@@ -100,8 +106,9 @@ the interval determined by the Krull dimension of the ring. -/
 theorem ext_subsingleton
     (A : Type u) [CommRing A] [IsNoetherianRing A] [IsLocalRing A]
     [MonoidalCategory (DerivedCategory (ModuleCat.{u} A))]
-    (H : MonoidalClosed (DerivedCategory (ModuleCat.{u} A)))
-    (ω : DerivedCategory (ModuleCat.{u} A)) (hω : ω.IsNormalizedDualizingComplex H)
+    (C : CanonicalClosedPresentation (A := A))
+    (ω : DerivedCategory (ModuleCat.{u} A))
+    (hω : ω.IsCanonicalNormalizedDualizingComplex C)
     (d : ℕ) (hd : ringKrullDim A = d) (M : ModuleCat.{u} A) (i : ℤ)
     (hi : i ∉ Set.Icc (-(d : ℤ)) 0) :
     Subsingleton (Ext⁽i⁾(ModuleCat.single0 M, ω)) := sorry

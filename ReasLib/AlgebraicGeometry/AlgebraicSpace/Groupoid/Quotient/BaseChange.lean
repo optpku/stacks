@@ -54,7 +54,8 @@ def toSpaceHom {S : Scheme.{u}} {B : AlgebraicSpace S} (G : GroupoidAlgebraicSpa
 theorem toSpaceHom_eq {S : Scheme.{u}} {B : AlgebraicSpace S}
     (G : GroupoidAlgebraicSpace B) :
     StackOver.Groupoids.Hom.toCartesianBasedFunctor (toSpaceHom G) =
-      toSpaceHomCartesian G := sorry
+      toSpaceHomCartesian G := by
+  rfl
 
 /-- The cartesian top arrow `[U'/R'] ⟶ [U/R]` induced by the base-change projection. -/
 def baseChangeQuotientMapCartesian {S : Scheme.{u}} {B : AlgebraicSpace S}
@@ -81,7 +82,13 @@ private theorem baseChangeToSpace_invariant {S : Scheme.{u}} {B : AlgebraicSpace
     (hφ : G.toPreRelation.IsInvariantHom φ) (g : X' ⟶ X) :
     (changeBase g.left (baseChange g.left (over G φ hφ))).s.left ≫ (baseChange g.left (over G φ hφ)).U.hom =
       (changeBase g.left (baseChange g.left (over G φ hφ))).t.left ≫ (baseChange g.left (over G φ hφ)).U.hom
-        := sorry
+        := by
+  change (baseChange g.left (over G φ hφ)).s.left ≫
+      (baseChange g.left (over G φ hφ)).U.hom =
+    (baseChange g.left (over G φ hφ)).t.left ≫
+      (baseChange g.left (over G φ hφ)).U.hom
+  exact (Over.w (baseChange g.left (over G φ hφ)).s).trans
+    (Over.w (baseChange g.left (over G φ hφ)).t).symm
 
 /-- The cartesian left arrow `[U'/R'] ⟶ 𝒮_{X'}` induced by the structure morphism of `U'`
 over `X'`, on the transported quotient stack. -/
@@ -111,8 +118,13 @@ private theorem baseChangePrestackMap_obj {S : Scheme.{u}} {B : AlgebraicSpace S
     (x : (preQuotient (changeBase g.left (baseChange g.left (over G φ hφ)))).total) :
     ((Hom.prestackMap (baseChangeProjection g.left (over G φ hφ))).comp (preQuotientToBase (over G φ
       hφ))).toFunctor.obj x = (preQuotientToBase (changeBase g.left (baseChange g.left (over G φ
-      hφ)))).toFunctor.obj x := sorry
+      hφ)))).toFunctor.obj x := by
+  exact congrArg
+    (fun k ↦ (op ⟨op x.base, yonedaEquiv (x.fiber ≫ k)⟩ :
+      (stackInSets X.left).total))
+    (Over.w (baseChangeProjection g.left (over G φ hφ)).obj)
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Equality transport between the two prestack composites is natural. -/
 private theorem baseChangePrestackMapIso_naturality {S : Scheme.{u}} {B : AlgebraicSpace S}
     (G : GroupoidAlgebraicSpace B) {X X' : Over B} (φ : G.U ⟶ X)
@@ -122,7 +134,26 @@ private theorem baseChangePrestackMapIso_naturality {S : Scheme.{u}} {B : Algebr
     let H := (preQuotientToBase (changeBase g.left (baseChange g.left (over G φ hφ))))
     ∀ {x y : (preQuotient (changeBase g.left (baseChange g.left (over G φ hφ)))).total} (f : x ⟶ y),
       F.toFunctor.map f ≫ (eqToIso (baseChangePrestackMap_obj G φ hφ g y)).hom =
-        (eqToIso (baseChangePrestackMap_obj G φ hφ g x)).hom ≫ H.toFunctor.map f := sorry
+        (eqToIso (baseChangePrestackMap_obj G φ hφ g x)).hom ≫ H.toFunctor.map f := by
+  dsimp only
+  intro x y f
+  let F := (Hom.prestackMap (baseChangeProjection g.left (over G φ hφ))).comp
+    (preQuotientToBase (over G φ hφ))
+  let H := preQuotientToBase (changeBase g.left (baseChange g.left (over G φ hφ)))
+  let p := (CategoryOfElements.π X.left.functorOfPoints).leftOp
+  apply p.map_injective
+  calc
+    _ = p.map (F.toFunctor.map f) ≫
+        p.map (eqToHom (baseChangePrestackMap_obj G φ hφ g y)) := p.map_comp _ _
+    _ = f.base ≫ 𝟙 y.base :=
+      congrArg (fun k ↦ f.base ≫ k)
+        (eqToHom_map p (baseChangePrestackMap_obj G φ hφ g y))
+    _ = 𝟙 x.base ≫ f.base := by simp
+    _ = p.map (eqToHom (baseChangePrestackMap_obj G φ hφ g x)) ≫
+        p.map (H.toFunctor.map f) :=
+      (congrArg (fun k ↦ k ≫ f.base)
+        (eqToHom_map p (baseChangePrestackMap_obj G φ hφ g x))).symm
+    _ = _ := (p.map_comp _ _).symm
 
 /-- Equality transport between the two prestack composites lies over an identity. -/
 private theorem baseChangePrestackMapIso_isHomLift {S : Scheme.{u}} {B : AlgebraicSpace S}
@@ -131,7 +162,9 @@ private theorem baseChangePrestackMapIso_isHomLift {S : Scheme.{u}} {B : Algebra
     (x : (preQuotient (changeBase g.left (baseChange g.left (over G φ hφ)))).total) :
     (stackInSets X.left).p.IsHomLift
       (𝟙 ((preQuotient (changeBase g.left (baseChange g.left (over G φ hφ)))).p.obj x)) (eqToIso
-        (baseChangePrestackMap_obj G φ hφ g x)).hom := sorry
+        (baseChangePrestackMap_obj G φ hφ g x)).hom := by
+  exact IsHomLift.eqToHom_codomain_lift_id
+    (baseChangePrestackMap_obj G φ hφ g x) rfl
 
 /-- The two prestack composites are canonically isomorphic over the scheme base. -/
 private def baseChangePrestackMapIso {S : Scheme.{u}} {B : AlgebraicSpace S}
@@ -155,7 +188,13 @@ private theorem baseChangePrestackSpaceMap_obj {S : Scheme.{u}} {B : AlgebraicSp
     (x : (preQuotient (changeBase g.left (baseChange g.left (over G φ hφ)))).total) :
     ((prestackToSpace (changeBase g.left (baseChange g.left (over G φ hφ))) (baseChange g.left (over G φ
       hφ)).U.hom (baseChangeToSpace_invariant G φ hφ g)).comp (stackInSets.map g.left)).toFunctor.obj x =
-      (preQuotientToBase (changeBase g.left (baseChange g.left (over G φ hφ)))).toFunctor.obj x := sorry
+      (preQuotientToBase (changeBase g.left (baseChange g.left (over G φ hφ)))).toFunctor.obj x := by
+  change (op ⟨op x.base, yonedaEquiv
+      ((x.fiber ≫ (baseChange g.left (over G φ hφ)).U.hom) ≫ g.left)⟩ :
+      (stackInSets X.left).total) =
+    op ⟨op x.base, yonedaEquiv
+      (x.fiber ≫ ((baseChange g.left (over G φ hφ)).U.hom ≫ g.left))⟩
+  rw [Category.assoc]
 
 /-- Equality transport between the two prestack composites is natural. -/
 private theorem baseChangePrestackSpaceMapIso_naturality {S : Scheme.{u}} {B : AlgebraicSpace S}
@@ -166,7 +205,14 @@ private theorem baseChangePrestackSpaceMapIso_naturality {S : Scheme.{u}} {B : A
     let H := (preQuotientToBase (changeBase g.left (baseChange g.left (over G φ hφ))))
     ∀ {x y : (preQuotient (changeBase g.left (baseChange g.left (over G φ hφ)))).total} (f : x ⟶ y),
       F.toFunctor.map f ≫ (eqToIso (baseChangePrestackSpaceMap_obj G φ hφ g y)).hom =
-        (eqToIso (baseChangePrestackSpaceMap_obj G φ hφ g x)).hom ≫ H.toFunctor.map f := sorry
+        (eqToIso (baseChangePrestackSpaceMap_obj G φ hφ g x)).hom ≫ H.toFunctor.map f := by
+  dsimp only
+  intro x y f
+  apply ((CategoryOfElements.π X.left.functorOfPoints).leftOp).map_injective
+  simp only [eqToIso.hom]
+  change f.base ≫ eqToHom (rfl : y.base = y.base) =
+    eqToHom (rfl : x.base = x.base) ≫ f.base
+  simp
 
 /-- Equality transport between the two prestack composites lies over an identity. -/
 private theorem baseChangePrestackSpaceMapIso_isHomLift {S : Scheme.{u}} {B : AlgebraicSpace S}
@@ -175,7 +221,9 @@ private theorem baseChangePrestackSpaceMapIso_isHomLift {S : Scheme.{u}} {B : Al
     (x : (preQuotient (changeBase g.left (baseChange g.left (over G φ hφ)))).total) :
     (stackInSets X.left).p.IsHomLift
       (𝟙 ((preQuotient (changeBase g.left (baseChange g.left (over G φ hφ)))).p.obj x)) (eqToIso
-        (baseChangePrestackSpaceMap_obj G φ hφ g x)).hom := sorry
+        (baseChangePrestackSpaceMap_obj G φ hφ g x)).hom := by
+  exact IsHomLift.eqToHom_codomain_lift_id
+    (baseChangePrestackSpaceMap_obj G φ hφ g x) rfl
 
 /-- The two prestack composites are canonically isomorphic over the scheme base. -/
 private def baseChangePrestackSpaceMapIso {S : Scheme.{u}} {B : AlgebraicSpace S}
@@ -262,7 +310,12 @@ private theorem baseChangeQuotientIsoRightAlign_naturality {S : Scheme.{u}} {B :
           ((fppfToSpace (changeBase g.left (baseChange g.left (over G φ hφ))) (baseChange g.left (over G φ
             hφ)).U.hom (baseChangeToSpace_invariant G φ hφ g)).toFunctor.obj x))
     ∀ {x y : (fppfQuotientStack (changeBase g.left (baseChange g.left (over G φ hφ)))).total} (f : x ⟶ y),
-      F.toFunctor.map f ≫ (e y).hom = (e x).hom ≫ H.toFunctor.map f := sorry
+      F.toFunctor.map f ≫ (e y).hom = (e x).hom ≫ H.toFunctor.map f := by
+  dsimp only
+  intro x y f
+  change _ ≫ (𝟙 _) = (𝟙 _) ≫ _
+  simp only [Category.comp_id, Category.id_comp]
+  rfl
 
 /-- The universe-alignment comparison lies over the identity of each base scheme. -/
 private theorem baseChangeQuotientIsoRightAlign_isHomLift {S : Scheme.{u}} {B : AlgebraicSpace S}
@@ -275,7 +328,12 @@ private theorem baseChangeQuotientIsoRightAlign_isHomLift {S : Scheme.{u}} {B : 
         ((Cat.TwoULift.equiv.{u + 1, u, u + 1, u + 1}
           (stackInSets X'.left).total).unitIso.app
           ((fppfToSpace (changeBase g.left (baseChange g.left (over G φ hφ))) (baseChange g.left (over G φ
-            hφ)).U.hom (baseChangeToSpace_invariant G φ hφ g)).toFunctor.obj x))).hom := sorry
+            hφ)).U.hom (baseChangeToSpace_invariant G φ hφ g)).toFunctor.obj x))).hom := by
+  let F := ((fppfToSpace (changeBase g.left (baseChange g.left (over G φ hφ)))
+    (baseChange g.left (over G φ hφ)).U.hom (baseChangeToSpace_invariant G φ hφ g)).comp
+    (stackInSets.map g.left)).comp (stackInSetsULift.up X.left)
+  change (stackInSetsULift X.left).p.IsHomLift (𝟙 _) (𝟙 (F.toFunctor.obj x))
+  exact IsHomLift.id (Functor.congr_obj F.toBasedFunctor.w x)
 
 /-- The unit of the two-universe equivalence aligns the two quotient composites. -/
 private def baseChangeQuotientIsoRightAlign {S : Scheme.{u}} {B : AlgebraicSpace S}

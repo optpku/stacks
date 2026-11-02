@@ -44,7 +44,10 @@ abbrev nextPowerSubmodule (f : A) (K : CochainComplex (ModuleCat.{v} A) ℕ) (n 
 /-- The degree-`n` eta term is contained in `f^n K^n`. -/
 theorem term_le_powerSubmodule
     (f : A) (K : CochainComplex (ModuleCat.{v} A) ℕ) (n : ℕ) :
-    term f K n ≤ powerSubmodule f K n := sorry
+    term f K n ≤ powerSubmodule f K n := by
+  intro x hx
+  rcases hx.1 with ⟨y, rfl⟩
+  exact Submodule.smul_mem_smul (Ideal.subset_span (by simp)) (Submodule.mem_top)
 
 /-- The eta differential, with codomain restricted to `f^(n+1) K^(n+1)`. -/
 def differentialToNextPower
@@ -67,28 +70,33 @@ theorem pairLinear_apply (f : A) (K : CochainComplex (ModuleCat.{v} A) ℕ)
     (n : ℕ) (x : term f K n) :
     pairLinear f K n x =
       (Submodule.inclusion (term_le_powerSubmodule f K n) x,
-        differentialToNextPower f K n x) := sorry
+        differentialToNextPower f K n x) := rfl
 
 /-- First projection of the pair map is the inclusion into the visible power submodule. -/
 @[simp]
 theorem fst_comp_pairLinear (f : A) (K : CochainComplex (ModuleCat.{v} A) ℕ) (n : ℕ) :
     (LinearMap.fst A (powerSubmodule f K n) (nextPowerSubmodule f K n)).comp
         (pairLinear f K n) =
-      Submodule.inclusion (term_le_powerSubmodule f K n) := sorry
+      Submodule.inclusion (term_le_powerSubmodule f K n) := rfl
 
 /-- Second projection of the pair map is the eta differential with restricted codomain. -/
 @[simp]
 theorem snd_comp_pairLinear (f : A) (K : CochainComplex (ModuleCat.{v} A) ℕ) (n : ℕ) :
     (LinearMap.snd A (powerSubmodule f K n) (nextPowerSubmodule f K n)).comp
-        (pairLinear f K n) = differentialToNextPower f K n := sorry
+        (pairLinear f K n) = differentialToNextPower f K n := rfl
 
 /-- The visible-power pair map is injective. -/
 theorem pairLinear_injective (f : A) (K : CochainComplex (ModuleCat.{v} A) ℕ) (n : ℕ) :
-    Function.Injective (pairLinear f K n) := sorry
+    Function.Injective (pairLinear f K n) := by
+  intro x y h
+  apply Subtype.ext
+  exact congrArg (fun z : powerSubmodule f K n × nextPowerSubmodule f K n ↦
+    (z.1 : K.X n)) h
 
 /-- The visible-power pair map is a monomorphism in `ModuleCat`. -/
 instance pairLinear_mono (f : A) (K : CochainComplex (ModuleCat.{v} A) ℕ) (n : ℕ) :
-    Mono (ModuleCat.ofHom (pairLinear f K n)) := sorry
+    Mono (ModuleCat.ofHom (pairLinear f K n)) :=
+  (ModuleCat.mono_iff_injective _).2 (pairLinear_injective f K n)
 
 end CochainComplex.BerthelotOgus.Nat.Pair
 
@@ -125,12 +133,12 @@ noncomputable def reducedPairLinear
 theorem reducedPairLinear_fst_mk
     (f : A) (K : CochainComplex (ModuleCat.{v} A) ℕ) (n : ℕ) (x : term f K n) :
     (reducedPairLinear f K n (Submodule.Quotient.mk x)).1 =
-      Submodule.Quotient.mk (Submodule.inclusion (term_le_powerSubmodule f K n) x) := sorry
+      Submodule.Quotient.mk (Submodule.inclusion (term_le_powerSubmodule f K n) x) := rfl
 
 /-- On a quotient generator, the second coordinate is the eta differential modulo `f`. -/
 theorem reducedPairLinear_snd_mk
     (f : A) (K : CochainComplex (ModuleCat.{v} A) ℕ) (n : ℕ) (x : term f K n) :
     (reducedPairLinear f K n (Submodule.Quotient.mk x)).2 =
-      Submodule.Quotient.mk (differentialToNextPower f K n x) := sorry
+      Submodule.Quotient.mk (differentialToNextPower f K n x) := rfl
 
 end CochainComplex.BerthelotOgus.Nat.Reduction.Pair

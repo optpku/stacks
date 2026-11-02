@@ -12,6 +12,8 @@ public import Mathlib.AlgebraicGeometry.Morphisms.Finite
 public import Mathlib.AlgebraicGeometry.Morphisms.UnderlyingMap
 public import Mathlib.RingTheory.AdjoinRoot
 public import Mathlib.RingTheory.Localization.Away.Basic
+import Mathlib.Tactic.ComputeDegree
+import Mathlib.Tactic.Ring
 
 /-!
 # A golden-integer quasi-section of the localized affine line over `ℤ`
@@ -58,12 +60,41 @@ abbrev CoordinateRing : Type :=
 def evalAtCoord : ℤ[X] →+* Order :=
   (aeval coord).toRingHom
 
+/-- The defining quadratic relation of the golden-integer generator. -/
+theorem phi_sq : phi ^ 2 = phi + 1 := by
+  have h : (X ^ 2 - X - 1 : ℤ[X]).eval₂ (algebraMap ℤ Order) phi = 0 :=
+    AdjoinRoot.eval₂_root minpoly
+  simp only [eval₂_sub, eval₂_pow, eval₂_X, eval₂_one] at h
+  rw [sub_sub] at h
+  exact sub_eq_zero.mp h
+
+/-- The prescribed inverse of the evaluated denominator satisfies the inverse law. -/
+theorem denom_mul_inv : evalAtCoord denom * (phi - 1) ^ 6 = 1 := by
+  have hphi : phi * (phi - 1) = 1 := by
+    calc
+      phi * (phi - 1) = phi ^ 2 - phi := by ring
+      _ = 1 := by rw [phi_sq]; ring
+  have hcube : phi ^ 2 * phi = 2 * phi + 1 := by
+    calc
+      phi ^ 2 * phi = (phi + 1) * phi := by rw [phi_sq]
+      _ = phi ^ 2 + phi := by ring
+      _ = 2 * phi + 1 := by rw [phi_sq]; ring
+  have hdenom : evalAtCoord denom = phi ^ 6 := by
+    calc
+      evalAtCoord denom = (phi + 1) * phi * (2 * phi + 1) := by
+        change denom.eval₂ (algebraMap ℤ Order) coord = _
+        simp only [denom, eval₂_mul, eval₂_sub, eval₂_X, eval₂_one, eval₂_ofNat, coord]
+        ring
+      _ = phi ^ 2 * phi * (phi ^ 2 * phi) := by rw [← phi_sq, ← hcube]
+      _ = phi ^ 6 := by ring
+  rw [hdenom, ← mul_pow, hphi, one_pow]
+
 /-- The explicit unit with value `evalAtCoord denom` and inverse `(φ - 1) ^ 6`. -/
 def denomUnit : Orderˣ where
   val := evalAtCoord denom
   inv := (phi - 1) ^ 6
-  val_inv := sorry
-  inv_val := sorry
+  val_inv := denom_mul_inv
+  inv_val := by rw [mul_comm]; exact denom_mul_inv
 
 /-- The ring map of the closed immersion, sending `X` to `coord`. -/
 def coordinateRingHom : CoordinateRing →+* Order :=
@@ -92,20 +123,51 @@ def ambientToSpecInt : ambient ⟶ Spec (CommRingCat.of ℤ) :=
 
 /-- `coordinateRingHom` sends the affine coordinate `X` to `coord`. -/
 theorem coordinateRingHom_map_X :
-    coordinateRingHom (algebraMap ℤ[X] CoordinateRing X) = coord := sorry
+    coordinateRingHom (algebraMap ℤ[X] CoordinateRing X) = coord := by
+  simp [coordinateRingHom, Localization.awayLift, evalAtCoord]
 
 /-- The structure morphism of `scheme` factors as the closed immersion
 followed by the structure morphism of `ambient`. -/
 theorem toSpecInt_eq_comp :
-    toSpecInt = closedImmersion ≫ ambientToSpecInt := sorry
+    toSpecInt = closedImmersion ≫ ambientToSpecInt := by
+  unfold toSpecInt closedImmersion ambientToSpecInt scheme ambient
+  rw [← Spec.map_comp]
+  congr 1
+  apply CommRingCat.hom_ext
+  exact Subsingleton.elim _ _
 
 /-- `closedImmersion` is a closed immersion. -/
-instance instIsClosedImmersion : IsClosedImmersion closedImmersion := sorry
+instance instIsClosedImmersion : IsClosedImmersion closedImmersion := by
+  apply IsClosedImmersion.spec_of_surjective
+  intro x
+  obtain ⟨p, rfl⟩ := AdjoinRoot.mk_surjective x
+  refine ⟨algebraMap ℤ[X] CoordinateRing (p.comp (X - 1)), ?_⟩
+  simp [coordinateRingHom, Localization.awayLift, evalAtCoord, aeval_comp,
+    coord, phi, AdjoinRoot.aeval_eq]
+
+/-- The defining quadratic polynomial is monic. -/
+theorem minpoly_monic : minpoly.Monic := by
+  unfold minpoly
+  monicity!
 
 /-- The structure morphism `toSpecInt` is finite. -/
-instance instIsFinite_toSpecInt : IsFinite toSpecInt := sorry
+instance instIsFinite_toSpecInt : IsFinite toSpecInt := by
+  unfold toSpecInt scheme
+  rw [IsFinite.SpecMap_iff, CommRingCat.hom_ofHom, RingHom.finite_algebraMap]
+  exact minpoly_monic.finite_adjoinRoot
 
 /-- The structure morphism `toSpecInt` is surjective. -/
-instance instSurjective_toSpecInt : Surjective toSpecInt := sorry
+instance instSurjective_toSpecInt : Surjective toSpecInt := by
+  have hdeg : minpoly.degree ≠ 0 := by
+    have hd : minpoly.degree = 2 := by
+      unfold minpoly
+      compute_degree!
+    rw [hd]
+    decide
+  letI : Module.Finite ℤ Order := minpoly_monic.finite_adjoinRoot
+  letI : FaithfulSMul ℤ Order :=
+    (faithfulSMul_iff_algebraMap_injective ℤ Order).mpr
+      (AdjoinRoot.of.injective_of_degree_ne_zero hdeg)
+  exact ⟨Algebra.IsIntegral.comap_surjective ℤ Order⟩
 
 end AlgebraicGeometry.GoldenIntegerQuasiSection

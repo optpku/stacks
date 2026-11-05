@@ -1,0 +1,198 @@
+module
+
+public import Mathlib.Algebra.Category.Grp.EquivalenceGroupAddGroup
+public import Mathlib.CategoryTheory.Monoidal.Cartesian.Grp
+public import Mathlib.CategoryTheory.Sites.PreservesSheafification
+public import ReasLib.AlgebraicGeometry.GroupScheme.Subgroup.Factorization
+public import ReasLib.AlgebraicGeometry.Scheme.Module.Picard.Relative.Group.Basic
+public import ReasLib.AlgebraicGeometry.Scheme.Module.Picard.Relative.Components
+public import ReasLib.CategoryTheory.Sites.Sheafification.AddCommGrp
+
+/-!
+# Group structure on the relative Picard scheme
+
+This file retains the Picard functor's group structure and identifies the degree-zero
+component as an open and closed subgroup scheme.
+-/
+
+@[expose] public section
+
+noncomputable section
+
+open CategoryTheory CategoryTheory.Limits CategoryTheory.MonoidalCategory
+  CategoryTheory.MonObj Opposite
+open scoped MonoidalCategory
+
+universe u
+
+namespace AlgebraicGeometry.RelativePicard
+
+/-- Explicit closure laws required to regard the degree-zero locus as a group.
+For higher-dimensional schemes an Euler-characteristic difference need not be
+additive on line bundles, so this hypothesis must not be omitted. -/
+class DegreeZeroIsSubgroup {S : Scheme.{u}} (X : Over S) : Prop where
+  one_mem : ∀ T : (Over S)ᵒᵖ,
+    (groupFunctorForgetIso X).hom.app T 1 ∈ (degreeSubfunctor X 0).obj T
+  mul_mem : ∀ (T : (Over S)ᵒᵖ) (a b : (groupFunctor X).obj T),
+    (groupFunctorForgetIso X).hom.app T a ∈ (degreeSubfunctor X 0).obj T →
+    (groupFunctorForgetIso X).hom.app T b ∈ (degreeSubfunctor X 0).obj T →
+    (groupFunctorForgetIso X).hom.app T (a * b) ∈ (degreeSubfunctor X 0).obj T
+  inv_mem : ∀ (T : (Over S)ᵒᵖ) (a : (groupFunctor X).obj T),
+    (groupFunctorForgetIso X).hom.app T a ∈ (degreeSubfunctor X 0).obj T →
+    (groupFunctorForgetIso X).hom.app T a⁻¹ ∈ (degreeSubfunctor X 0).obj T
+
+/-- On proper curves, degree is additive under tensor product and changes sign
+under duality; these properties descend to the fppf Picard sheaf. -/
+instance degreeZeroIsSubgroup_of_properCurve {k : Type u} [Field k]
+    (X : SchemeOverField k) [Curve X] [IsProper X.hom] :
+    DegreeZeroIsSubgroup X := by
+  sorry
+
+/-- At every test scheme, the degree-zero sections form a subgroup of the Picard group. -/
+noncomputable def degreeZeroSectionSubgroup {S : Scheme.{u}} (X : Over S) [DegreeZeroIsSubgroup X]
+    (T : (Over S)ᵒᵖ) : Subgroup ((groupFunctor X).obj T) where
+  carrier := {x | (groupFunctorForgetIso X).hom.app T x ∈ (degreeSubfunctor X 0).obj T}
+  one_mem' := DegreeZeroIsSubgroup.one_mem T
+  mul_mem' := fun ha hb ↦ DegreeZeroIsSubgroup.mul_mem T _ _ ha hb
+  inv_mem' := fun ha ↦ DegreeZeroIsSubgroup.inv_mem T _ ha
+
+/-- The group-valued functor of degree-zero sections of the relative Picard functor. -/
+noncomputable def degreeZeroGroupFunctor {S : Scheme.{u}} (X : Over S) [DegreeZeroIsSubgroup X] :
+    (Over S)ᵒᵖ ⥤ GrpCat.{u + 1} where
+  obj T := GrpCat.of (degreeZeroSectionSubgroup X T)
+  map f := GrpCat.ofHom
+    { toFun := fun x ↦
+        ⟨(groupFunctor X).map f x.1, sorry⟩
+      map_one' := sorry
+      map_mul' := sorry }
+  map_id := sorry
+  map_comp := sorry
+
+/-- Forgetting the group structure on `degreeZeroGroupFunctor X` recovers the degree-zero
+Picard subfunctor. -/
+noncomputable def degreeZeroGroupFunctorForgetIso {S : Scheme.{u}} (X : Over S) [DegreeZeroIsSubgroup X] :
+    degreeZeroGroupFunctor X ⋙ forget GrpCat ≅ (degreeSubfunctor X 0).toFunctor :=
+  NatIso.ofComponents
+    (fun T ↦ Equiv.toIso
+      { toFun := fun x ↦ ⟨(groupFunctorForgetIso X).hom.app T x.1, x.2⟩
+        invFun := fun x ↦ ⟨(groupFunctorForgetIso X).inv.app T x.1, sorry⟩
+        left_inv := sorry
+        right_inv := sorry })
+    (fun _ ↦ sorry)
+
+/-- The degree-zero component represents the underlying functor of
+`degreeZeroGroupFunctor X`. -/
+noncomputable def degreeZeroGroupRepresentation {S : Scheme.{u}} (X : Over S) [DegreeZeroIsSubgroup X]
+    [(degreeSubfunctor X 0).toFunctor.IsRepresentable] :
+    (degreeZeroGroupFunctor X ⋙ forget GrpCat).RepresentableBy (component X 0) :=
+  (componentRepresentation X 0).ofIso (degreeZeroGroupFunctorForgetIso X).symm
+
+/-- The canonical group-object structure on the degree-zero Picard component. -/
+@[implicit_reducible]
+noncomputable def componentZeroGrpObj {S : Scheme.{u}} (X : Over S) [DegreeZeroIsSubgroup X]
+    [(degreeSubfunctor X 0).toFunctor.IsRepresentable] : GrpObj (component X 0) :=
+  GrpObj.ofRepresentableBy (component X 0) (degreeZeroGroupFunctor X)
+    (degreeZeroGroupRepresentation X)
+
+/-- The unit, multiplication, and inverse of the degree-zero component factor the
+corresponding operations on the Picard scheme through its component inclusion. -/
+noncomputable def componentZeroFactorization {S : Scheme.{u}} (X : Over S) [DegreeZeroIsSubgroup X]
+    [(degreeSubfunctor X 0).toFunctor.IsRepresentable]
+    [(functor X).obj.IsRepresentable] :
+    @GrpObj.Factorization (Over S) _ _ (component X 0) (scheme X)
+      (schemeGrpObj X) (componentInclusion X 0) := by
+  -- Local instance justification (proof-local temporary data): the explicit Picard group object is installed only while constructing its operation factorization.
+  letI := schemeGrpObj X
+  exact
+    { one := (componentZeroGrpObj X).toMonObj.one
+      mul := (componentZeroGrpObj X).toMonObj.mul
+      inv := (componentZeroGrpObj X).inv
+      one_hom := sorry
+      mul_hom := sorry
+      inv_hom := sorry }
+
+/-- The component-zero factorization satisfies the unit, multiplication, and inverse
+compatibility equations. -/
+theorem componentZeroFactorization_spec {S : Scheme.{u}} (X : Over S) [DegreeZeroIsSubgroup X]
+    [(degreeSubfunctor X 0).toFunctor.IsRepresentable]
+    [(functor X).obj.IsRepresentable] :
+    @GrpObj.Factorization.one (Over S) _ _ (component X 0) (scheme X)
+        (schemeGrpObj X) (componentInclusion X 0) (componentZeroFactorization X) ≫
+        componentInclusion X 0 =
+        (schemeGrpObj X).toMonObj.one ∧
+      @GrpObj.Factorization.mul (Over S) _ _ (component X 0) (scheme X)
+          (schemeGrpObj X) (componentInclusion X 0) (componentZeroFactorization X) ≫
+          componentInclusion X 0 =
+        (componentInclusion X 0 ⊗ₘ componentInclusion X 0) ≫
+          (schemeGrpObj X).toMonObj.mul ∧
+      @GrpObj.Factorization.inv (Over S) _ _ (component X 0) (scheme X)
+          (schemeGrpObj X) (componentInclusion X 0) (componentZeroFactorization X) ≫
+          componentInclusion X 0 =
+        componentInclusion X 0 ≫ (schemeGrpObj X).inv := sorry
+
+/-- The inclusion of the degree-zero component preserves the Picard group-object
+operations. -/
+theorem componentZeroInclusion_isMonHom {S : Scheme.{u}} (X : Over S) [DegreeZeroIsSubgroup X]
+    [(degreeSubfunctor X 0).toFunctor.IsRepresentable]
+    [(functor X).obj.IsRepresentable] :
+    @IsMonHom (Over S) _ _ (component X 0) (scheme X)
+      (componentZeroGrpObj X).toMonObj (schemeGrpObj X).toMonObj
+      (componentInclusion X 0) := sorry
+
+/-- The degree-zero component is the closed subgroup scheme of the Picard scheme whose
+inclusion is `componentInclusion X 0`. -/
+noncomputable def degreeZeroClosedSubgroup
+    {k : Type u} [Field k] [IsSepClosed k] (X : SchemeOverField k) [Curve X]
+    [Smooth X.hom] [Projective X.hom] :
+    @Scheme.ClosedSubgroup _ (scheme X) (schemeGrpObj X) := by
+  -- Local instance justification (proof-local temporary data): the explicit Picard group object is installed only for the closed-subgroup constructor.
+  letI := schemeGrpObj X
+  -- Local instance justification (proof-local temporary data): the explicit degree-zero group object is installed only for the closed-subgroup constructor.
+  letI := componentZeroGrpObj X
+  -- Local instance justification (proof-local temporary data): the named preservation theorem is installed only for the closed-subgroup constructor.
+  letI : IsMonHom (componentInclusion X 0) := componentZeroInclusion_isMonHom X
+  exact Scheme.ClosedSubgroup.mk (componentInclusion X 0)
+
+/-- The closed subgroup scheme's underlying inclusion is the degree-zero component
+inclusion. -/
+theorem degreeZeroClosedSubgroup_inclusion
+    {k : Type u} [Field k] [IsSepClosed k] (X : SchemeOverField k) [Curve X]
+    [Smooth X.hom] [Projective X.hom] :
+    @Scheme.ClosedSubgroup.inclusion _ (scheme X) (schemeGrpObj X)
+      (degreeZeroClosedSubgroup X) = componentInclusion X 0 := sorry
+
+/-- The inclusion of the degree-zero closed subgroup scheme is also an open immersion. -/
+instance degreeZeroClosedSubgroup_isOpenImmersion
+    {k : Type u} [Field k] [IsSepClosed k] (X : SchemeOverField k) [Curve X]
+    [Smooth X.hom] [Projective X.hom] :
+    IsOpenImmersion
+      (@Scheme.ClosedSubgroup.inclusion _ (scheme X) (schemeGrpObj X)
+        (degreeZeroClosedSubgroup X)).left := sorry
+
+/-- The additive subgroup of `k`-valued Picard classes carried by the degree-zero
+subgroup scheme. -/
+noncomputable def degreeZeroClasses
+    {k : Type u} [Field k] [IsSepClosed k] (X : SchemeOverField k) [Curve X]
+    [Smooth X.hom] [Projective X.hom] : AddSubgroup X.left.PicardGroup where
+  carrier := degreeClasses X 0
+  zero_mem' := sorry
+  add_mem' := sorry
+  neg_mem' := sorry
+
+/-- The degree-zero Picard subgroup has exactly the degree-zero Picard classes as elements. -/
+theorem mem_degreeZeroClasses
+    {k : Type u} [Field k] [IsSepClosed k] (X : SchemeOverField k) [Curve X]
+    [Smooth X.hom] [Projective X.hom] (x : X.left.PicardGroup) :
+    x ∈ degreeZeroClasses X ↔ x ∈ degreeClasses X 0 := sorry
+
+/-- The `k`-points of the degree-zero subgroup scheme are classified by degree-zero
+invertible-module classes. -/
+theorem degreeZeroClosedSubgroup_kPoints
+    {k : Type u} [Field k] [IsSepClosed k] (X : SchemeOverField k) [Curve X]
+    [Smooth X.hom] [Projective X.hom] :
+    Function.Bijective
+      (degreeClassToComponentPoint X 0 :
+        degreeClasses X 0 →
+          ((𝟙_ (SchemeOverField k)) ⟶ (degreeZeroClosedSubgroup X).left.X)) := sorry
+
+end AlgebraicGeometry.RelativePicard

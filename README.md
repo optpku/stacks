@@ -72,6 +72,10 @@ remain unproved. It also exposed a Picard/sheafification interface issue that
 led to a shared-interface repair. This is how a new paper can both use and improve
 the library.
 
+The [independent UML application](applications/uniform-mordell-lang/) is included
+with its own Lean 4.33.0-rc1 projects, ReasLib source snapshot, build instructions,
+and data-hole audit. Build it separately from the Stacks root project.
+
 ## Library overview
 
 ReasLib covers algebraic geometry, category theory, algebra, ring theory,

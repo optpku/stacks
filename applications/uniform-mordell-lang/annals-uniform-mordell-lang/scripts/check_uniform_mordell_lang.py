@@ -95,6 +95,10 @@ def main():
             ("reject-data-hole", "def forbiddenDataHole : Nat := by sorry\n"
              "#assert_no_data_sorries forbiddenDataHole\n",
              "Reachable non-Prop sorry holes: 1"),
+            ("reject-nested-data-hole", "theorem nestedProofTypeHole : True :=\n"
+             "  sorryAx (let n : Nat := sorryAx Nat false; True) false\n"
+             "#assert_no_data_sorries nestedProofTypeHole\n",
+             "Reachable non-Prop sorry holes: 1"),
             ("reject-unknown-root", "#assert_no_data_sorries absentAuditRoot\n",
              "Unknown audit root: absentAuditRoot"),
             ("allow-proof-hole", "theorem deferredProof : True := by sorry\n"

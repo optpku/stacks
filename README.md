@@ -180,18 +180,7 @@ Please include:
 
 ### Mathematics
 
-- Jiedong Jiang
-- Haoda Li
-- Yuefeng Wang
-- Yongle Hu
-- Ziheng Zhang
-- Ze Yuan
-- Yiming Fu
-- Yixiao Li
-- Zhenhua Wu
-- Nailin Guan
-- Tian Zhou
-- Yuze Sun
+Jiedong Jiang, Haoda Li, Yuefeng Wang, Yongle Hu, Ziheng Zhang, Ze Yuan, Yiming Fu, Yixiao Li, Zhenhua Wu, Nailin Guan, Tian Zhou, Yuze Sun.
 
 See [ATTRIBUTION.md](ATTRIBUTION.md) for the current team credits and how individual contributions are recorded.
 

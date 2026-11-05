@@ -12,8 +12,14 @@ open Lean Elab Command Meta
 
 partial def auditHoles (e : Expr) : MetaM (Array (Bool × String)) := do
   if e.isAppOf ``sorryAx then
-    let ty := e.getAppArgs[0]!
-    return #[(← isProp ty, (← ppExpr ty).pretty)]
+    let args := e.getAppArgs
+    let ty := args[0]!
+    -- A proof hole can itself contain a data hole in its type or flag argument.
+    -- Check those arguments before classifying the outer hole.
+    let mut nested := #[]
+    for arg in args do
+      nested := nested ++ (← auditHoles arg)
+    return nested.push (← isProp ty, (← ppExpr ty).pretty)
   match e with
   | .lam n ty b bi | .forallE n ty b bi =>
     let a ← auditHoles ty

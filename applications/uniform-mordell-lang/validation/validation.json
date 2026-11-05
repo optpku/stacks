@@ -38,6 +38,11 @@
       "passed": true
     },
     {
+      "name": "reject-nested-data-hole",
+      "exit_code": 1,
+      "passed": true
+    },
+    {
       "name": "reject-unknown-root",
       "exit_code": 1,
       "passed": true
@@ -111,7 +116,7 @@
     "annals/AnnalsChallenge/AnnalsOfMathematics/2021-194-1-UniformMordellLang.lean": "f1f21baeb15d6c06f8866ae7413df9270dc18483b3a71209442172b82af22471",
     "annals/AnnalsChallenge/Tests/UniformMordellLangSemantics.lean": "0c0091bdb33d668407e08b83ac56168f6e220dea3cbf8ef166de0e4ee090d39e",
     "annals/AnnalsChallenge/Tests/UniformMordellLangReasLib.lean": "e2cf031743cc4298453f9a23bc061f511e5a853e75cf0a1dd55f1e78d82d7b9c",
-    "annals/AnnalsChallenge/Tests/UniformMordellLang.lean": "7be8fa119a72f87795dbd2ba1f64060a77440ecfc13058a725d3c6eb9a340ccd",
+    "annals/AnnalsChallenge/Tests/UniformMordellLang.lean": "5cdb9084f090e8827c0e6b5317ae185a7706094308e1326f7e15813b50ea7159",
     "foundations/JacobianFoundations/Picard.lean": "e34d283b8e2a20bd1657261cba047914d4614a0df008cbbd5b795eae0c889ef6",
     "foundations/JacobianFoundations/Genus.lean": "49fc2b845ec1ec5715114a3bbbc8592c4b1abae980db6aabf504f8294594ae69"
   },
@@ -1122,8 +1127,8 @@
   "published_source_sha256": {
     ".gitignore": "62e463a750a16f190f39c774094837477d71b5e2c063010cbf6bfa246eace170",
     "INDEPENDENT_REVIEW.md": "eb81ab219e79133f85d33425042b35832e6142e8e48f7e160787d0ddd23d4a53",
-    "README.md": "8935ccbe0d8ef5116f155b33e834ff98a4c76ab32df303ef4bfe8e8969d2d57c",
-    "source-provenance.json": "a2ce16bbdb6e2858a42a39a876482887fcc15d53b7182b91a43208e5a81b012c",
+    "README.md": "45c09d98a91bec451ac683eee09fa6770251e0c7baea1f4955428146eb06fd2f",
+    "source-provenance.json": "b3c40a3bb8881da3f263c0ab9d5a3ebde45b53f4ab05e334c5cd40cdbb3bdfea",
     "annals-uniform-mordell-lang/AnnalsChallenge.lean": "981affea4d13d78b0a3dea358a882bde555164a0b8534198ec3dbb670fb04b77",
     "annals-uniform-mordell-lang/LICENSE": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
     "annals-uniform-mordell-lang/UniformMordellLangChecks.lean": "c6d32181cd7eb565de792b26f96e034a4a990189e670b47a4694c06c3f7cea5a",
@@ -1134,10 +1139,10 @@
     "annals-uniform-mordell-lang/AnnalsChallenge/Definitions/AlgebraicJacobian.lean": "5326329c876dc5c2e1c84f6a5639b903ac10b7aed5645f1372660be1f0fa70bb",
     "annals-uniform-mordell-lang/AnnalsChallenge/Definitions/Jacobian/Genus.lean": "3f889c3fff7aa5c2513c927c2366bfb6e2483aaae0da2b4bd1ad6fdb8e7ca7ae",
     "annals-uniform-mordell-lang/AnnalsChallenge/Definitions/Jacobian/Picard.lean": "c14fa3fc1befbcd7a1c340cee0d37c1957fc9b035fe06466d154e3820afbb0a0",
-    "annals-uniform-mordell-lang/AnnalsChallenge/Tests/UniformMordellLang.lean": "7be8fa119a72f87795dbd2ba1f64060a77440ecfc13058a725d3c6eb9a340ccd",
+    "annals-uniform-mordell-lang/AnnalsChallenge/Tests/UniformMordellLang.lean": "5cdb9084f090e8827c0e6b5317ae185a7706094308e1326f7e15813b50ea7159",
     "annals-uniform-mordell-lang/AnnalsChallenge/Tests/UniformMordellLangReasLib.lean": "e2cf031743cc4298453f9a23bc061f511e5a853e75cf0a1dd55f1e78d82d7b9c",
     "annals-uniform-mordell-lang/AnnalsChallenge/Tests/UniformMordellLangSemantics.lean": "0c0091bdb33d668407e08b83ac56168f6e220dea3cbf8ef166de0e4ee090d39e",
-    "annals-uniform-mordell-lang/scripts/check_uniform_mordell_lang.py": "5512e14745c184972b478d373ab8bda84eb4de2173d0a9f26886047bbf0f1af0",
+    "annals-uniform-mordell-lang/scripts/check_uniform_mordell_lang.py": "f2c687a5816e9b00670c5f1783bb492a12829b8023c0f9b68af84f2c383c9744",
     "jacobian-foundations/JacobianFoundations.lean": "28381931fb69509160881927d3cef52ee662858b5b629c5a1e985638d7223f2e",
     "jacobian-foundations/LICENSE": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
     "jacobian-foundations/lake-manifest.json": "3cf00d2e3ee02685a63e06fbbd03d9f8e1c83ef6cfbd22d114d900d15a4fb8ad",
@@ -2152,5 +2157,17 @@
   "bundled_reaslib_modules": 1002,
   "annals_lean_files": 9,
   "foundations_lean_files": 1005,
-  "migration_lean_source_changes": {}
+  "migration_lean_source_changes": {},
+  "review": {
+    "base_commit": "19565e132b35b390ffabbb23481130df1225563b",
+    "engineering_blockers_after_fixes": [],
+    "audit_fix": "Recursively audit sorryAx arguments before classifying the outer hole.",
+    "regression_fixture": "reject-nested-data-hole",
+    "pre_fix_regression_fixture_exit": 0,
+    "post_fix_regression_fixture_exit": 1,
+    "mathematical_statement_sources_changed": false,
+    "statement_reference": "https://ziyangjeremygao.github.io/articles/UnifML.pdf",
+    "curve_projectivity_reference": "https://stacks.math.columbia.edu/tag/0A26",
+    "mathematical_proofs_deferred": true
+  }
 }

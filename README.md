@@ -66,9 +66,9 @@ proofs.
 
 In a separate application, we have used ReasLib to formalize the statements and
 data interfaces needed for **Uniform Mordell–Lang for curves**, through
-`JacobianFoundations` and an AnnalsChallenge adapter. This application has no
-data-level `sorry`; the main theorem and other proposition-level obligations
-remain unproved. It also exposed a Picard/sheafification interface issue that
+`JacobianFoundations` and an AnnalsChallenge adapter. The six audited application
+entry points have no reachable non-`Prop` `sorry` holes; the main theorem and
+other proposition-level obligations remain unproved. It also exposed a Picard/sheafification interface issue that
 led to a shared-interface repair. This is how a new paper can both use and improve
 the library.
 
@@ -76,6 +76,24 @@ The [independent UML application](applications/uniform-mordell-lang/) is include
 with Lean 4.32.0 and the same Mathlib pin as the Stacks root project, a ReasLib
 source snapshot, build instructions, and a data-hole audit. It retains separate
 Lake projects and build targets.
+
+The [recorded validation](applications/uniform-mordell-lang/validation/validation.json)
+passes all nine checks:
+
+| Check | Result |
+|---|---|
+| Toolchain and Mathlib pins | Match the Stacks root project |
+| Bundled ReasLib snapshot and JacobianFoundations | All 1,002 ReasLib modules build |
+| UML application and representation guards | Build and interface checks pass |
+| Transitive audit of six application entry points | Zero reachable non-`Prop` `sorry` holes |
+| Audit regression fixtures | Direct and nested data holes and unknown roots are rejected; proof holes remain permitted |
+
+The audit checks declaration types and values, including opaque proof bodies
+and the arguments of proposition-valued holes. The application README gives
+[statement correspondence and review scope](applications/uniform-mordell-lang/#statement-correspondence-and-review-scope).
+These results cover the independent application snapshot; the full Stacks root
+library was not rebuilt. Deferred propositions can still supply data through
+existence statements, so the audit does not certify their mathematical truth.
 
 ## Library overview
 

@@ -1,28 +1,35 @@
 # Formalizing the Stacks Project in Lean
 
-We are building **ReasLib**, a shared Lean 4 library of mathematical definitions,
-theorem statements, proofs, and dependencies, based on Mathlib and the
-[Stacks Project](https://stacks.math.columbia.edu/). Our goal is to make this
-mathematics reusable across chapters, papers, and future research projects.
-AI-assisted formalization and library integration are organized through
-[Quokka](https://quokka.reaslab.io).
+The AI for Math team at Peking University is building **ReasLib**, a shared
+Lean 4 library of mathematical definitions, theorem statements, constructions,
+and proofs. Starting from the [Stacks Project](https://stacks.math.columbia.edu/)
+and building on Mathlib, we organize mathematical knowledge into interfaces
+that can be reused across chapters, papers, and future research projects.
 
 We have completed an initial Lean formalization of the Stacks mathematical
 statements and organized the results into ReasLib. **Many proofs remain unfinished
 and are marked with `sorry`.** Statement formalization, proof completion, and
 mathematical review are separate parts of the work.
 
-## Why this library
+## Statement design and library integration
 
-- **Shared mathematical interfaces.** Reusable definitions and results live in
-  subject-based modules. Several source entries can use the same declarations,
-  with their maps and compatibility properties maintained together.
-- **A clear link to the source.** Chapter-based files record how those declarations
-  correspond to the original Stacks entries. Readers can follow the textbook,
-  while library users work with the mathematical interfaces.
-- **Reuse beyond Stacks.** ReasLib remains independent of the chapter files.
-  Other papers and projects can import its modules directly, and new applications
-  help identify and improve the interfaces they need.
+Choices of definitions, assumptions, and abstraction level shape how a theorem
+can be stated, proved, and reused. Our statement design follows three principles:
+
+- **Build on Mathlib.** Reuse existing definitions, instances, constructions, and
+  theorems, and develop shared interfaces for mathematics that is still missing.
+- **Align representations.** Coordinate objects and assumptions across chapters
+  and papers. Connect alternative representations through equivalences and
+  compatibility results, while retaining the link to the original statements.
+- **Review the mathematics.** Mathematical reviewers check representations,
+  hypotheses, and conclusions against the source. AI-assisted generation and
+  compilation feedback support this work throughout library integration.
+
+Work proceeds through **Statement → Library Integration → Proof**: organize
+definitions, statements, and pending proof obligations; consolidate shared
+interfaces; then complete proofs. Fully verified modules must be assessed with
+their dependency closure. Work intended for upstream Mathlib must be `sorry`-free
+and meet [Mathlib's contribution standards](https://leanprover-community.github.io/contribute/index.html).
 
 ## Library organization
 
@@ -47,11 +54,13 @@ definitions, assumptions, and conclusions express the intended source content.
 
 ### An application beyond Stacks
 
-The [Uniform Mordell–Lang application](applications/uniform-mordell-lang/)
-uses ReasLib's cohomology and relative Picard interfaces through
+Building on Imperial College London's
+[AnnalsChallenge](https://github.com/ImperialCollegeLondon/AnnalsChallenge), the
+[Uniform Mordell–Lang application](applications/uniform-mordell-lang/)
+reuses ReasLib's cohomology and relative Picard interfaces through
 `JacobianFoundations` to construct genus, Jacobian, group structure, and
-pointed Abel–Jacobi data. It shares this repository's Lean/Mathlib pins and
-retains separate Lake projects; mathematical proofs remain deferred.
+pointed Abel–Jacobi data. The theorem statement is formalized; mathematical
+proofs remain deferred.
 
 See the application for [reuse and dependency tables](applications/uniform-mordell-lang/#reaslib-reuse)
 and [build and audit results](applications/uniform-mordell-lang/#build-and-validation).
@@ -150,6 +159,19 @@ Please include:
 - **Proof status:** remaining `sorry` placeholders, including known gaps in dependencies.
 - **Credits:** the people responsible for statements, proofs, mathematical review,
   and library integration; retain existing author notices and identify AI assistance.
+
+## Related projects
+
+[Quokka](https://quokka.reaslab.io/) coordinates AI-assisted formalization and
+library integration using M2F.
+[ReasBook](https://github.com/optpku/ReasBook), with its
+[reading and review interface](https://reasbook.reaslab.io/), supports reading
+formalized literature, exploring dependencies, and mathematical review.
+
+Our longer-term goal is to connect ReasLib with
+[ReasAtlas](https://atlas.reaslab.io/), a natural-language mathematical knowledge
+graph, and extend this shared infrastructure to more mathematical fields.
+We welcome mathematicians and research groups to help develop and review it.
 
 ## Contributors
 

@@ -4124,7 +4124,8 @@
     "Build verification rehashes source inputs before reusing copied build caches.",
     "ReasLib.+ replaces ReasLib.* in the foundations Lake glob because no ReasLib.lean root is present.",
     "Align both Lake projects with the Stacks Lean 4.32.0 and Mathlib v4.32.0 pins.",
-    "Retain the supported categorical elaboration compatibility options on Lean 4.32."
+    "Retain the supported categorical elaboration compatibility options on Lean 4.32.",
+    "The data-hole audit checks arguments of sorryAx recursively, including non-Prop holes nested in a proposition-valued hole type; add a negative regression fixture."
   ],
   "previous_publication_commit": "c0897cf98aa1681aeb91c93d44cb09057e5f8710",
   "lean_432_migration": {

@@ -83,12 +83,30 @@ power-torsion ideal. -/
 theorem exists_pow_smul_eq_bot [IsNoetherianRing R] :
     ∃ n : ℕ, (maximalIdeal R) ^ n • powerTorsionIdeal R = ⊥ := sorry
 
-/-- If the local power-torsion ideal vanishes, the maximal ideal is not an associated prime of the
-self-module. -/
+/-- If the maximal ideal is finitely generated and the local power-torsion ideal vanishes, the
+maximal ideal is not an associated prime of the self-module. Finite generation turns radical
+annihilation into annihilation by one ideal power. -/
+@[stacks 0BHZ "finitely generated maximal-ideal self-module associated-prime exclusion"]
+theorem maximalIdeal_not_mem_associatedPrimes_self_of_fg_of_eq_bot
+    (hfg : (maximalIdeal R).FG) (hJzero : powerTorsionIdeal R = ⊥) :
+    maximalIdeal R ∉ associatedPrimes R R := by
+  rintro ⟨hprime, x, hx⟩
+  rw [Ideal.colon_bot_singleton_eq_torsionOf] at hx
+  obtain ⟨n, hn⟩ := Ideal.exists_pow_le_of_le_radical_of_fg hx.le hfg
+  have hxJ : x ∈ powerTorsionIdeal R := ⟨n, hn⟩
+  have hxzero : x = 0 := by
+    simpa only [hJzero, Ideal.mem_bot] using hxJ
+  apply hprime.ne_top
+  simpa [hxzero, Ideal.radical_top] using hx
+
+/-- If the local power-torsion ideal of a Noetherian local ring vanishes, the maximal ideal is not
+an associated prime of the self-module. -/
 @[stacks 0BHZ "self-module associated-prime exclusion"]
-theorem maximalIdeal_not_mem_associatedPrimes_self_of_eq_bot
+theorem maximalIdeal_not_mem_associatedPrimes_self_of_eq_bot [IsNoetherianRing R]
     (hJzero : powerTorsionIdeal R = ⊥) :
-    maximalIdeal R ∉ associatedPrimes R R := sorry
+    maximalIdeal R ∉ associatedPrimes R R :=
+  maximalIdeal_not_mem_associatedPrimes_self_of_fg_of_eq_bot R
+    (maximalIdeal R).fg_of_isNoetherianRing hJzero
 
 /-- Quotienting a Noetherian local ring by its maximal-ideal power-torsion ideal removes the
 maximal ideal from the associated primes. -/

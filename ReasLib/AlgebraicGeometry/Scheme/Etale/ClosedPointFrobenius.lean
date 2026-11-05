@@ -18,6 +18,7 @@ public import ReasLib.CategoryTheory.Monoidal.Flat
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.Monoidal
 public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Constructible.Pullback
 public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Stalk
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Constructible.Stalk
 public import ReasLib.AlgebraicGeometry.Scheme.Etale.FrobeniusStalk
 
 /-!
@@ -72,7 +73,8 @@ field is finite-dimensional over the prime field. -/
 instance instFiniteDimensional_closedPointResidueField_zmod [Fintype k]
     (X : SchemeOverField k) [Scheme.Hom.FiniteType X.hom]
     (x : closedPoints X.left) :
-    FiniteDimensional (ZMod p) (X.left.residueField x.1) := sorry
+    FiniteDimensional (ZMod p) (X.left.residueField x.1) :=
+  Module.Finite.of_finite
 
 /-- Arithmetic Frobenius of `AlgebraicClosure κ(x)`, as the `#κ(x)`-power
 automorphism. -/
@@ -276,7 +278,10 @@ theorem finite_geometricStalkClosed {X : SchemeOverField k}
       (fun {Y} f ↦ (Sheaf.smallEtaleInverseImage f (ModuleCat.{u} Λ)).obj)
       (fun {Y} G ↦ Sheaf.IsFiniteTypeLocallyConstantModule G) F)
     (x : closedPoints X.left) :
-    Module.Finite Λ (geometricStalkClosed F x) := sorry
+    Module.Finite Λ (geometricStalkClosed F x) := by
+  letI := (geometricPointOverClosedPoint X x).isAlgClosed
+  exact Scheme.Etale.finite_stalk_of_isConstructibleModule F hcons
+    (geometricPointOverClosedPoint X x).hom
 
 /-- Geometric stalks of a constructible flat étale sheaf at closed points are
 projective modules. -/
@@ -288,7 +293,13 @@ theorem projective_geometricStalkClosed {X : SchemeOverField k}
       (fun {Y} f ↦ (Sheaf.smallEtaleInverseImage f (ModuleCat.{u} Λ)).obj)
       (fun {Y} G ↦ Sheaf.IsFiniteTypeLocallyConstantModule G) F)
     [MonoidalCategory.IsFlat F] (x : closedPoints X.left) :
-    Module.Projective Λ (geometricStalkClosed F x) := sorry
+    Module.Projective Λ (geometricStalkClosed F x) := by
+  letI := finite_geometricStalkClosed F hcons x
+  letI : Module.Flat Λ (geometricStalkClosed F x) :=
+    Scheme.Etale.flat_sheafFiber_of_isFlat F
+      (GeometricPoint.toSmallEtalePoint (geometricPointOverClosedPoint X x))
+  letI := Module.finitePresentation_of_finite Λ (geometricStalkClosed F x)
+  exact Module.Flat.projective_of_finitePresentation
 
 /-- A geometric point lying over a closed point has that closed point as its
 image. -/

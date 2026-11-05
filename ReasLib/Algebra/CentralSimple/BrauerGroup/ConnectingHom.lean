@@ -87,7 +87,7 @@ noncomputable def deltaEquiv : Br.{u, v} K ≃* Multiplicative (GaloisCohomology
 
 /-- The Brauer equivalence evaluates as the connecting homomorphism. -/
 theorem deltaEquiv_apply (brauerClass : Br.{u, v} K) :
-    deltaEquiv K Ksep brauerClass = delta K Ksep brauerClass := sorry
+    deltaEquiv K Ksep brauerClass = delta K Ksep brauerClass := rfl
 
 end BrauerGroup
 

@@ -8,6 +8,7 @@ module
 
 public import Mathlib.CategoryTheory.Sites.CoversTop.Basic
 public import ReasLib.CategoryTheory.Homology.SpectralSequence.Abutment
+public import ReasLib.CategoryTheory.Sites.Cech.Comparison
 public import ReasLib.CategoryTheory.Sites.Cech.Cohomology
 public import ReasLib.CategoryTheory.Sites.Cech.Sheaf
 public import ReasLib.CategoryTheory.Sites.Cohomology.Objectwise
@@ -76,6 +77,120 @@ abbrev pageTwoSource
     SpectralSequence.pageFunctor AddCommGrpCat.{z} _ 2 (2 : ℤ) ⋙
       HomologicalComplex.eval AddCommGrpCat.{z} _ (p, q)
 
+namespace FixedTarget
+
+/-- The selected-cover `E₂` target, using only the products of tuples in `family`. -/
+@[stacks 03AZ "fixed-target Cech spectral-sequence page-two target"]
+abbrev pageTwoFunctor (J : GrothendieckTopology C) (U : C)
+    {ι : Type w} (family : ι → Over U) [HasIteratedFiberProducts family]
+    [HasProducts.{w} AddCommGrpCat.{z}]
+    [HasSheafify J AddCommGrpCat.{v}]
+    [HasExt.{z} (Sheaf J AddCommGrpCat.{v})] (p q : ℕ) :
+    Sheaf J AddCommGrpCat.{v} ⥤ AddCommGrpCat.{z} :=
+  Sheaf.cohomologyPresheafFunctor.{z, v, u} J q ⋙
+    cochainOnPresheaves U family ⋙
+      HomologicalComplex.homologyFunctor AddCommGrpCat.{z} (ComplexShape.up ℕ) p
+
+omit [HasFiniteProducts (Over U)] in
+/-- Evaluation of the selected-cover second-page target is ordinary Čech cohomology of the
+cohomology presheaf, computed by the fixed-target cochain functor. -/
+@[simp]
+theorem pageTwoFunctor_obj (family : ι → Over U) [HasIteratedFiberProducts family]
+    (p q : ℕ) [HasProducts.{w} AddCommGrpCat.{z}]
+    [HasSheafify J AddCommGrpCat.{v}]
+    [HasExt.{z} (Sheaf J AddCommGrpCat.{v})]
+    (F : Sheaf J AddCommGrpCat.{v}) :
+    (pageTwoFunctor J U family p q).obj F =
+      ((cochainOnPresheaves U family).obj
+        ((Sheaf.cohomologyPresheafFunctor.{z, v, u} J q).obj F)).homology p := rfl
+
+/-- A coefficient-functorial Čech spectral sequence for one selected cover. The `E₂`
+identifications are natural transformations, and convergence has the same site-cohomology target
+as the finite-product interface. -/
+@[stacks 03AZ "fixed-target Cech spectral-sequence system"]
+structure SpectralSequenceSystem
+    (J : GrothendieckTopology C) (U : C) (family : ι → Over U)
+    [HasIteratedFiberProducts family]
+    [HasProducts.{w} AddCommGrpCat.{z}]
+    [HasSheafify J AddCommGrpCat.{v}]
+    [HasExt.{z} (Sheaf J AddCommGrpCat.{v})] where
+  /-- The spectral sequence, functorial in the coefficient sheaf. -/
+  functor :
+    Sheaf J AddCommGrpCat.{v} ⥤
+      E₂CohomologicalSpectralSequenceNat AddCommGrpCat.{z}
+  /-- Its second page is naturally Čech cohomology of the cohomology presheaf. -/
+  pageTwoComparison (p q : ℕ) :
+    Cech.pageTwoSource functor p q ≅ pageTwoFunctor J U family p q
+  /-- It converges to cohomology over `U` for every coefficient sheaf. -/
+  converges (F : Sheaf J AddCommGrpCat.{v}) :
+    E₂CohomologicalSpectralSequenceNat.ConvergesTo
+      (functor.obj F) (fun n ↦ (Cech.abutmentFunctor J U n).obj F)
+
+omit [HasFiniteProducts (Over U)] in
+/-- 03AZ for a selected covering family, without finite products of unrelated slice objects. -/
+@[stacks 03AZ "existence of a fixed-target Cech spectral-sequence system"]
+theorem spectralSequenceSystem_nonempty (family : ι → Over U)
+    [HasIteratedFiberProducts family]
+    [HasProducts.{w} AddCommGrpCat.{z}]
+    [HasSheafify J AddCommGrpCat.{v}]
+    [HasExt.{z} (Sheaf J AddCommGrpCat.{v})]
+    (hfamily : (J.over U).CoversTop family) :
+    Nonempty (SpectralSequenceSystem J U family) := sorry
+
+namespace SpectralSequenceSystem
+
+variable {family : ι → Over U} [HasIteratedFiberProducts family]
+variable [HasProducts.{w} AddCommGrpCat.{z}]
+variable [HasSheafify J AddCommGrpCat.{v}]
+variable [HasExt.{z} (Sheaf J AddCommGrpCat.{v})]
+
+/-- The natural `E₂` identification at one coefficient and bidegree. -/
+abbrev pageTwoIso (S : SpectralSequenceSystem J U family)
+    (p q : ℕ) (F : Sheaf J AddCommGrpCat.{v}) :
+    ((S.functor.obj F).page 2 le_rfl).X (p, q) ≅
+      (pageTwoFunctor J U family p q).obj F :=
+  (S.pageTwoComparison p q).app F
+
+omit [HasFiniteProducts (Over U)] in
+/-- Coefficient naturality of the selected-cover `E₂` identification. -/
+@[reassoc]
+theorem pageTwo_naturality (S : SpectralSequenceSystem J U family)
+    {F G : Sheaf J AddCommGrpCat.{v}} (φ : F ⟶ G) (p q : ℕ) :
+    (((S.functor.map φ).hom 2 le_rfl).f (p, q)) ≫
+        (S.pageTwoIso p q G).hom =
+      (S.pageTwoIso p q F).hom ≫
+        (pageTwoFunctor J U family p q).map φ :=
+  (S.pageTwoComparison p q).hom.naturality φ
+
+omit [HasFiniteProducts (Over U)] in
+/-- Coefficient naturality of the inverse selected-cover `E₂` identification. -/
+@[reassoc]
+theorem pageTwo_naturality_inv (S : SpectralSequenceSystem J U family)
+    {F G : Sheaf J AddCommGrpCat.{v}} (φ : F ⟶ G) (p q : ℕ) :
+    (pageTwoFunctor J U family p q).map φ ≫
+        (S.pageTwoIso p q G).inv =
+      (S.pageTwoIso p q F).inv ≫
+        ((S.functor.map φ).hom 2 le_rfl).f (p, q) :=
+  (S.pageTwoComparison p q).inv.naturality φ
+
+/-- Convergence for one coefficient, with the original site-cohomology abutment. -/
+abbrev converges_app (S : SpectralSequenceSystem J U family)
+    (F : Sheaf J AddCommGrpCat.{v}) :
+    E₂CohomologicalSpectralSequenceNat.ConvergesTo
+      (S.functor.obj F) (fun n ↦ (Cech.abutmentFunctor J U n).obj F) := S.converges F
+
+omit [HasFiniteProducts (Over U)] in
+/-- The selected-cover spectral sequence abuts to site cohomology. -/
+theorem abuts_app (S : SpectralSequenceSystem J U family)
+    (F : Sheaf J AddCommGrpCat.{v}) :
+    E₂CohomologicalSpectralSequenceNat.AbutsTo
+      (S.functor.obj F) (fun n ↦ (Cech.abutmentFunctor J U n).obj F) :=
+  CohomologicalSpectralSequenceNat.ConvergesTo.abuts (S.converges F)
+
+end SpectralSequenceSystem
+
+end FixedTarget
+
 /-- A coefficient-natural first-quadrant spectral sequence for a Cech covering family, with its
 canonical `E₂` page and site-cohomology abutment. -/
 @[stacks 03AZ "Cech spectral-sequence system"]
@@ -107,7 +222,12 @@ theorem spectralSequenceSystem_nonempty (family : ι → Over U)
     [HasSheafify J AddCommGrpCat.{v}]
     [HasExt.{z} (Sheaf J AddCommGrpCat.{v})]
     (hfamily : (J.over U).CoversTop family) :
-    Nonempty (SpectralSequenceSystem J U family) := sorry
+    Nonempty (SpectralSequenceSystem J U family) := by
+  obtain ⟨S⟩ := FixedTarget.spectralSequenceSystem_nonempty family hfamily
+  exact ⟨{
+    functor := S.functor
+    pageTwoComparison := S.pageTwoComparison
+    converges := S.converges }⟩
 
 namespace SpectralSequenceSystem
 

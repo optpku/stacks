@@ -8,6 +8,7 @@ module
 
 public import ReasLib.AlgebraicGeometry.Scheme.FunctionField.Meromorphic
 public import ReasLib.Algebra.Category.ModuleCat.Presheaf.Sections
+public import ReasLib.Algebra.Category.ModuleCat.Presheaf.OverSections
 
 /-!
 # Meromorphic sections determined by generic stalk vectors
@@ -37,10 +38,28 @@ def meromorphicSectionGenericGerm (ℱ : X.Modules) :
           (X.toLocallyRingedSpace.meromorphicSectionSheaf ℱ) :=
   fun s => SheafOfModules.sectionGermOfCommRing s (genericPoint X)
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Taking the generic germ bijects global meromorphic sections of a quasicoherent
 module with the generic stalk of its meromorphic scalar extension. -/
 theorem meromorphicSectionGenericGerm_bijective (ℱ : X.Modules) [ℱ.IsQuasicoherent] :
-    Function.Bijective (X.meromorphicSectionGenericGerm ℱ) := sorry
+    Function.Bijective (X.meromorphicSectionGenericGerm ℱ) := by
+  let htop : CategoryTheory.Limits.IsTerminal
+      (⊤ : TopologicalSpace.Opens X.toTopCat) :=
+    CategoryTheory.Limits.IsTerminal.ofUnique _
+  have hev : Function.Bijective
+      (fun s : X.toLocallyRingedSpace.meromorphicSections ℱ ↦
+        s.1 (Opposite.op ⊤)) := by
+    let ev := PresheafOfModules.sectionsEquivTerminal
+      (X.toLocallyRingedSpace.meromorphicSectionSheaf ℱ).val ⊤ htop
+    have he (s : X.toLocallyRingedSpace.meromorphicSections ℱ) :
+        ev s = s.1 (Opposite.op ⊤) :=
+      PresheafOfModules.sectionsEquivTerminal_apply _ ⊤ htop s
+    constructor
+    · intro s t h
+      exact ev.injective ((he s).trans (h.trans (he t).symm))
+    · intro m
+      exact ⟨ev.symm m, (he (ev.symm m)).symm.trans (ev.apply_symm_apply m)⟩
+  exact (meromorphicSectionSheaf_genericGerm_bijective ℱ).comp hev
 
 /-- Scalar extension to meromorphic sections is injective on the generic stalk. -/
 theorem meromorphicSectionStalkMap_generic_injective (ℱ : X.Modules)
@@ -63,6 +82,16 @@ theorem meromorphicSectionOfGenericStalk_germ (ℱ : X.Modules) [ℱ.IsQuasicohe
         (genericPoint X) =
       X.toLocallyRingedSpace.meromorphicSectionStalkMap ℱ (genericPoint X) v :=
   Function.rightInverse_invFun (X.meromorphicSectionGenericGerm_bijective ℱ).surjective _
+
+/-- A meromorphic section with the prescribed generic germ is the extension of that vector. -/
+theorem meromorphicSectionOfGenericStalk_unique (ℱ : X.Modules) [ℱ.IsQuasicoherent]
+    (v : RingedSpace.stalkModuleCat ℱ (genericPoint X))
+    (s : X.toLocallyRingedSpace.meromorphicSections ℱ)
+    (hs : SheafOfModules.sectionGermOfCommRing s (genericPoint X) =
+      X.toLocallyRingedSpace.meromorphicSectionStalkMap ℱ (genericPoint X) v) :
+    s = X.meromorphicSectionOfGenericStalk ℱ v := by
+  apply (X.meromorphicSectionGenericGerm_bijective ℱ).injective
+  exact hs.trans (X.meromorphicSectionOfGenericStalk_germ ℱ v).symm
 
 /-- The meromorphic extension of a nonzero generic module vector is nonzero. -/
 theorem meromorphicSectionOfGenericStalk_ne_zero (ℱ : X.Modules) [ℱ.IsQuasicoherent]

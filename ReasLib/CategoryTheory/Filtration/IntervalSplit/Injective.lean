@@ -8,6 +8,7 @@ module
 
 public import ReasLib.CategoryTheory.Filtration.Finite
 public import ReasLib.CategoryTheory.Filtration.Injective
+public import ReasLib.CategoryTheory.Filtration.FiniteInjective.Factor
 public import ReasLib.CategoryTheory.Filtration.IntervalSplit.Computation
 public import Mathlib.CategoryTheory.Abelian.Basic
 import Mathlib.Tactic.CrossRefAttribute
@@ -21,7 +22,7 @@ the classification of finite filtered-injective objects by such models.
 
 @[expose] public section
 
-open CategoryTheory
+open CategoryTheory CategoryTheory.Limits
 
 universe v u
 
@@ -40,7 +41,70 @@ attribute [local instance] Abelian.hasFiniteBiproducts
 injective. -/
 theorem Stage.injective (a b : ℤ) (J : Set.Icc a b → C)
     (hJ : ∀ i, Injective (J i)) (p : ℤ) :
-    Injective ((filteredObject a b J).obj.stage p) := sorry
+    Injective ((filteredObject a b J).obj.stage p) := by
+  letI (i : {i : Set.Icc a b // p ≤ i.1}) : Injective (J i.1) := hJ i.1
+  exact Injective.of_iso (Stage.iso a b J p).symm inferInstance
+
+/-- The graded quotient is a retract of the current injective stage. The section is
+cokernel descent of `1 - r i`, where `r` extends the identity of the next stage. -/
+def Stage.gradedRetract (a b : ℤ) (J : Set.Icc a b → C)
+    (hJ : ∀ i, Injective (J i)) (p : ℤ) :
+    Retract ((filteredObject a b J).obj.gradedPiece p)
+      ((filteredObject a b J).obj.stage p) := by
+  let I := (filteredObject a b J).obj
+  letI := Stage.injective a b J hJ (p + 1)
+  let f := I.succInclusion p
+  letI : Mono f := inferInstanceAs (Mono (Subobject.ofLE _ _ _))
+  let r := Injective.factorThru (𝟙 (I.stage (p + 1))) f
+  have hr : f ≫ r = 𝟙 _ := Injective.comp_factorThru _ _
+  refine ⟨cokernel.desc f (𝟙 _ - r ≫ f) ?_, cokernel.π f, ?_⟩
+  · simp only [Preadditive.comp_sub, Category.comp_id, ← Category.assoc, hr,
+      Category.id_comp, sub_self]
+  · apply (cancel_epi (cokernel.π f)).1
+    simp only [cokernel.π_desc_assoc, Preadditive.sub_comp, Category.id_comp,
+      Category.assoc, cokernel.condition, comp_zero, sub_zero]
+    exact (Category.comp_id (cokernel.π f)).symm
+
+/-- Extension into an interval model, computed summand by summand on the quotients by
+`F^(i+1)`. The primitive ambient extension tests monomorphy itself; only the original
+summand injectivity certificates are used to select maps. -/
+def extendHom (a b : ℤ) (J : Set.Icc a b → C) (hJ : ∀ i, Injective (J i))
+    (A B : FilteredObject C) (f : A.obj ⟶ ⨁ J) (u : A.obj ⟶ B.obj) :
+    B.obj ⟶ ⨁ J := by
+  letI (i : Set.Icc a b) := hJ i
+  exact biproduct.lift fun i ↦
+    cokernel.π (B.filtration.stage (i.1 + 1)).arrow ≫
+      Finite.FilteredInjective.ambientExtension
+        (Finite.FilteredInjective.cokernelDescOrZero
+          (A.filtration.stage (i.1 + 1)).arrow (f ≫ biproduct.π J i))
+        (Finite.FilteredInjective.quotientMapHom A B u (i.1 + 1))
+
+/-- The explicit quotient formula preserves filtration on strict-monomorphism inputs. -/
+theorem extendHom_preserves (a b : ℤ) (J : Set.Icc a b → C)
+    (hJ : ∀ i, Injective (J i)) {A B : FilteredObject C}
+    (f : A ⟶ (filteredObject a b J).obj) (u : A ⟶ B)
+    [Mono u.hom] (hu : Hom.Strict u) (p : ℤ) :
+    ((filteredObject a b J).obj.filtration.stage p).Factors
+      ((B.filtration.stage p).arrow ≫ extendHom a b J hJ A B f.hom u.hom) := sorry
+
+/-- The filtered extension into the canonical interval-split model. -/
+def extend (a b : ℤ) (J : Set.Icc a b → C) (hJ : ∀ i, Injective (J i))
+    {A B : FilteredObject C} (f : A ⟶ (filteredObject a b J).obj) (u : A ⟶ B)
+    [Mono u.hom] (hu : Hom.Strict u) : B ⟶ (filteredObject a b J).obj :=
+  Hom.mk (extendHom a b J hJ A B f.hom u.hom)
+    (extendHom_preserves a b J hJ f u hu)
+
+/-- The bundled extension has the displayed ambient quotient formula. -/
+@[simp]
+theorem extend_hom (a b : ℤ) (J : Set.Icc a b → C) (hJ : ∀ i, Injective (J i))
+    {A B : FilteredObject C} (f : A ⟶ (filteredObject a b J).obj) (u : A ⟶ B)
+    [Mono u.hom] (hu : Hom.Strict u) :
+    (extend a b J hJ f u hu).hom = extendHom a b J hJ A B f.hom u.hom := rfl
+
+/-- The extension restricts to the given map. -/
+theorem extend_fac (a b : ℤ) (J : Set.Icc a b → C) (hJ : ∀ i, Injective (J i))
+    {A B : FilteredObject C} (f : A ⟶ (filteredObject a b J).obj) (u : A ⟶ B)
+    [Mono u.hom] (hu : Hom.Strict u) : u ≫ extend a b J hJ f u hu = f := sorry
 
 namespace FilteredInjective
 
@@ -48,14 +112,17 @@ namespace FilteredInjective
 injective, with the component hypothesis supplied explicitly. -/
 theorem of_components (a b : ℤ) (J : Set.Icc a b → C)
     (hJ : ∀ i, Injective (J i)) :
-    FilteredObject.IsFilteredInjective (filteredObject a b J).obj := sorry
+    FilteredObject.IsFilteredInjective (filteredObject a b J).obj := by
+  letI (p : ℤ) := Stage.injective a b J hJ p
+  exact ⟨fun p ↦ (Stage.gradedRetract a b J hJ p).injective⟩
 
 end FilteredInjective
 
 /-- The interval-split filtered object associated to an injective family is filtered injective. -/
 instance filteredInjective (a b : ℤ) (J : Set.Icc a b → C)
     [∀ i, Injective (J i)] :
-    FilteredObject.IsFilteredInjective (filteredObject a b J).obj := sorry
+    FilteredObject.IsFilteredInjective (filteredObject a b J).obj :=
+  FilteredInjective.of_components a b J (fun _ ↦ inferInstance)
 
 /-- A finite filtered object has an injective interval presentation if it is isomorphic to the
 canonical interval-split object attached to a finite family of injective objects. -/
@@ -119,7 +186,8 @@ def ofIso {I J : FilteredObject.Finite.category C} (e : I ≅ J)
 @[stacks 05TP]
 theorem hasPresentation {I : FilteredObject.Finite.category C}
     (P : InjectivePresentation I) :
-    HasInjectivePresentation I := sorry
+    HasInjectivePresentation I :=
+  ⟨P.lower, P.upper, P.lower_le_upper, P.family, P.injective, ⟨P.iso⟩⟩
 
 /-- The underlying finite filtered object of an explicit presentation is filtered injective. -/
 @[stacks 05TP]
@@ -130,7 +198,8 @@ theorem isFilteredInjective {I : FilteredObject.Finite.category C}
 /-- Every explicit presentation satisfies its source-facing specification. -/
 @[stacks 05TP "injective interval presentation specification"]
 theorem spec {I : FilteredObject.Finite.category C}
-    (P : InjectivePresentation I) : Spec P := sorry
+    (P : InjectivePresentation I) : Spec P :=
+  ⟨P.lower_le_upper, P.injective, ⟨P.iso⟩⟩
 
 end InjectivePresentation
 
@@ -139,7 +208,12 @@ namespace HasInjectivePresentation
 /-- The proposition-level predicate is equivalent to nonempty explicit presentation data. -/
 @[stacks 05TP]
 theorem iff_nonempty (I : FilteredObject.Finite.category C) :
-    HasInjectivePresentation I ↔ Nonempty (InjectivePresentation I) := sorry
+    HasInjectivePresentation I ↔ Nonempty (InjectivePresentation I) := by
+  constructor
+  · rintro ⟨a, b, hab, J, hJ, ⟨e⟩⟩
+    exact ⟨⟨a, b, hab, J, hJ, e⟩⟩
+  · rintro ⟨P⟩
+    exact P.hasPresentation
 
 /-- Choose explicit presentation data from a proof of the proposition-level predicate.
 
@@ -154,7 +228,7 @@ noncomputable def choose {I : FilteredObject.Finite.category C}
 @[stacks 05TP "chosen injective interval presentation specification"]
 theorem choose_spec {I : FilteredObject.Finite.category C}
     (hI : HasInjectivePresentation I) :
-    InjectivePresentation.Spec (choose hI) := sorry
+    InjectivePresentation.Spec (choose hI) := (choose hI).spec
 
 end HasInjectivePresentation
 

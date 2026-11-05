@@ -9,7 +9,9 @@ module
 public import Mathlib.CategoryTheory.RepresentedBy
 public import ReasLib.AlgebraicGeometry.ProjectiveSpace.Coordinate
 public import ReasLib.AlgebraicGeometry.ProjectiveSpace.Datum
+public import ReasLib.AlgebraicGeometry.ProjectiveSpace.Twist.Invertible
 public import ReasLib.AlgebraicGeometry.ProjectiveSpectrum.Twist.MorphismDatum
+public import ReasLib.AlgebraicGeometry.ProjectiveSpectrum.Twist.Sections
 
 /-!
 # Representability of projective-space section data
@@ -28,6 +30,28 @@ noncomputable section
 namespace AlgebraicGeometry
 
 namespace ProjectiveSpace
+
+/-- The coordinate `T_i`, regarded as a global section of the actual Serre sheaf `O(1)`.
+The section is the homogeneous fraction `T_i / 1`, restricted to each open. -/
+noncomputable def universalSection (n : ℕ) (i : Fin (n + 1)) :
+    (twistingSheaf ℤ n 1).sections :=
+  RingedSpace.sectionFromTop (twistingSheaf ℤ n 1)
+    (Proj.AssociatedModule.twistSection (grading ℤ n)
+      ⟨coordinate (R := ℤ) n i, MvPolynomial.isHomogeneous_X ℤ i⟩)
+
+/-- The coordinate sections generate the actual Serre sheaf `O(1)`: on `D₊(T_i)`
+the section `T_i` trivializes this sheaf. -/
+theorem universalSections_generate (n : ℕ) :
+    Epi (ProjectiveSpaceDatum.sectionFamilyHom (twistingSheaf ℤ n 1) n
+      (universalSection n)) := sorry
+
+/-- The canonical universal projective-space datum `(O(1), T_0, ..., T_n)`.
+Both the module and its sections are constructed independently of representability. -/
+noncomputable def universalDatum (n : ℕ) : ProjectiveSpaceDatum n (scheme ℤ n) where
+  lineBundle := twistingSheaf ℤ n 1
+  invertible_lineBundle := inferInstance
+  sections := universalSection n
+  generates := universalSections_generate n
 
 /-- The standard coordinate sections extracted from degree-one projective-spectrum morphism
 data for integral projective space. -/
@@ -113,11 +137,21 @@ theorem existsUnique_projectiveSpaceDatumClass_of_projectiveSpaceMorphism
 
 namespace ProjectiveSpaceDatumClass
 
+/-- The class of the canonical datum `(O(1), T_0, ..., T_n)` on integral projective space. -/
+def universalClass (n : ℕ) : ProjectiveSpaceDatumClass n (ProjectiveSpace.scheme ℤ n) :=
+  ⟦ProjectiveSpace.universalDatum n⟧
+
+/-- The explicitly constructed coordinate datum represents projective-space section data.
+This is a proposition, not a choice of a classifying morphism or of an inverse bijection. -/
+theorem universalClass_isRepresentedBy (n : ℕ) :
+    (functor n).IsRepresentedBy (universalClass n) := sorry
+
 /-- Integral projective `n`-space represents the functor of invertible module sheaves equipped
 with `n + 1` generating global sections, modulo section-preserving isomorphism. -/
 theorem isRepresentedBy_projectiveSpace (n : ℕ) :
     ∃ x : (functor n).obj (Opposite.op (ProjectiveSpace.scheme ℤ n)),
-      (functor n).IsRepresentedBy x := sorry
+      (functor n).IsRepresentedBy x :=
+  ⟨universalClass n, universalClass_isRepresentedBy n⟩
 
 end ProjectiveSpaceDatumClass
 

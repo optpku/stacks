@@ -43,7 +43,9 @@ variable {KNext : Type uNext} [AddCommGroup KNext] [Module R KNext]
 
 /-- The boundary submodule lies in the cycle submodule for a two-step complex. -/
 theorem boundaries_le_cycles (dPrev : KPrev →ₗ[R] K) (dNext : K →ₗ[R] KNext)
-    (hcomp : dNext.comp dPrev = 0) : dPrev.range ≤ dNext.ker := sorry
+    (hcomp : dNext.comp dPrev = 0) : dPrev.range ≤ dNext.ker := by
+  rintro x ⟨y, rfl⟩
+  exact LinearMap.congr_fun hcomp y
 
 /-- The boundary submodule, regarded as a submodule of cycles. -/
 noncomputable abbrev boundariesInCycles (dPrev : KPrev →ₗ[R] K)
@@ -329,7 +331,47 @@ theorem denominator_le_ker (dPrev : KPrev →ₗ[R] K)
     (dNext : K →ₗ[R] KNext) (F : ℤ → Submodule R K)
     (hcomp : dNext.comp dPrev = 0) (hF : Antitone F) (p : ℤ) :
     denominator dPrev dNext F p ≤
-      LinearMap.ker (representativeToQuotient dPrev dNext F hcomp p) := sorry
+      LinearMap.ker (representativeToQuotient dPrev dNext F hcomp p) := by
+  rintro x hx
+  rcases Submodule.mem_sup.mp hx with ⟨y, hy, z, hz, rfl⟩
+  have hy0 : representativeToQuotient dPrev dNext F hcomp p y = 0 := by
+    apply (Submodule.Quotient.mk_eq_zero _).mpr
+    exact ⟨⟨(y : K), hy⟩, rfl⟩
+  have hz0 : representativeToStage dPrev dNext F hcomp p z = 0 := by
+    apply Subtype.ext
+    apply (Submodule.Quotient.mk_eq_zero _).mpr
+    obtain ⟨w, hw⟩ := hz.1
+    exact ⟨w, Subtype.ext hw⟩
+  change representativeToQuotient dPrev dNext F hcomp p (y + z) = 0
+  rw [map_add, hy0, zero_add]
+  change ((Stage.stageSubmodule dPrev dNext F hcomp (p + 1)).submoduleOf
+    (Stage.stageSubmodule dPrev dNext F hcomp p)).mkQ
+      (representativeToStage dPrev dNext F hcomp p z) = 0
+  rw [hz0, map_zero]
+
+/-- A filtered cycle mapping to the next cohomology stage differs from a next-stage cycle
+by a filtered boundary. -/
+theorem ker_representativeToQuotient_le (dPrev : KPrev →ₗ[R] K)
+    (dNext : K →ₗ[R] KNext) (F : ℤ → Submodule R K)
+    (hcomp : dNext.comp dPrev = 0) (hF : Antitone F) (p : ℤ) :
+    LinearMap.ker (representativeToQuotient dPrev dNext F hcomp p) ≤
+      denominator dPrev dNext F p := by
+  intro x hx
+  have hx' : representativeToStage dPrev dNext F hcomp p x ∈
+      (Stage.stageSubmodule dPrev dNext F hcomp (p + 1)).submoduleOf
+        (Stage.stageSubmodule dPrev dNext F hcomp p) :=
+    (Submodule.Quotient.mk_eq_zero _).mp hx
+  obtain ⟨y, hy⟩ := hx'
+  have hxy : (⟨(x : K), x.property.1⟩ - ⟨(y : K), y.property.1⟩ : dNext.ker) ∈
+      boundariesInCycles dPrev dNext hcomp :=
+    (Submodule.Quotient.eq _).mp hy.symm
+  obtain ⟨z, hz⟩ := hxy
+  have hz' : dPrev z = (x : K) - (y : K) := congrArg Subtype.val hz
+  let y' : representative dNext F p :=
+    ⟨y, y.property.1, hF (le_add_of_nonneg_right (by decide : (0 : ℤ) ≤ 1)) y.property.2⟩
+  apply Submodule.mem_sup.mpr
+  refine ⟨y', y.property, x - y', ?_, by simp⟩
+  exact ⟨⟨z, hz'⟩, (x - y').property.2⟩
 
 namespace Presentation
 
@@ -349,7 +391,21 @@ stages is bijective; this is the combined second and third isomorphism law. -/
 theorem toQuotient_bijective (dPrev : KPrev →ₗ[R] K)
     (dNext : K →ₗ[R] KNext) (F : ℤ → Submodule R K)
     (hcomp : dNext.comp dPrev = 0) (hF : Antitone F) (p : ℤ) :
-    Function.Bijective (toQuotient dPrev dNext F hcomp hF p) := sorry
+    Function.Bijective (toQuotient dPrev dNext F hcomp hF p) := by
+  constructor
+  · apply LinearMap.ker_eq_bot.mp
+    exact Submodule.ker_liftQ_eq_bot _ _
+      (denominator_le_ker dPrev dNext F hcomp hF p)
+      (ker_representativeToQuotient_le dPrev dNext F hcomp hF p)
+  · intro z
+    obtain ⟨y, rfl⟩ := Submodule.mkQ_surjective
+      ((Stage.stageSubmodule dPrev dNext F hcomp (p + 1)).submoduleOf
+        (Stage.stageSubmodule dPrev dNext F hcomp p)) z
+    obtain ⟨x, hx⟩ := y.property
+    refine ⟨Submodule.Quotient.mk x, ?_⟩
+    exact congrArg
+      ((Stage.stageSubmodule dPrev dNext F hcomp (p + 1)).submoduleOf
+        (Stage.stageSubmodule dPrev dNext F hcomp p)).mkQ (Subtype.ext hx)
 
 /-- The explicit graded-piece quotient is canonically equivalent to the quotient of consecutive
 induced cohomology stages. -/

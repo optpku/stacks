@@ -595,63 +595,10 @@ private noncomputable abbrev tensorKernelComplex
     CochainComplex (ringedSiteModuleCategory.{u, v, w, w} J 𝒪₀) ℤ :=
   HomologicalComplex.tensorObj K (kernelIdeal0SingleComplex π h_sq)
 
-/-- The underlying additive comparison from the restricted square-zero kernel module to the
-kernel ideal sheaf. -/
-private noncomputable def restrictKernelIdeal0ToPresheaf :
-    ((restrictionAlong π).obj (kernelIdeal0 π h_sq)).val.presheaf ⟶
-      (KernelIdeal.sheaf π).val.presheaf :=
-  (h_sq.targetModuleForgetIso inferInstance).hom.hom
-
-/-- The inverse underlying additive comparison from the kernel ideal sheaf to the restricted
-square-zero kernel module. -/
-private noncomputable def restrictKernelIdeal0InvToPresheaf :
-    (KernelIdeal.sheaf π).val.presheaf ⟶
-      ((restrictionAlong π).obj (kernelIdeal0 π h_sq)).val.presheaf :=
-  (h_sq.targetModuleForgetIso inferInstance).inv.hom
-
-/-- The underlying additive comparison `restrictKernelIdeal0ToPresheaf` is linear over `𝒪`. -/
-private theorem restrictKernelIdeal0ToPresheaf_smul (U : Cᵒᵖ)
-    (r : (ringSheaf J 𝒪).obj.obj U)
-    (m : ((restrictionAlong π).obj (kernelIdeal0 π h_sq)).val.obj U) :
-    (restrictKernelIdeal0ToPresheaf π h_sq).app U (r • m) =
-      r • (restrictKernelIdeal0ToPresheaf π h_sq).app U m := sorry
-
-/-- The inverse underlying additive comparison is linear over `𝒪`. -/
-private theorem restrictKernelIdeal0InvToPresheaf_smul (U : Cᵒᵖ)
-    (r : (ringSheaf J 𝒪).obj.obj U)
-    (m : (KernelIdeal.sheaf π).val.obj U) :
-    (restrictKernelIdeal0InvToPresheaf π h_sq).app U (r • m) =
-      r • (restrictKernelIdeal0InvToPresheaf π h_sq).app U m := sorry
-
-/-- The canonical linear comparison from the restricted descended kernel to the kernel ideal. -/
-private noncomputable def restrictKernelIdeal0Hom :
-    (restrictionAlong π).obj (kernelIdeal0 π h_sq) ⟶ KernelIdeal.sheaf π :=
-  ⟨PresheafOfModules.homMk
-    (restrictKernelIdeal0ToPresheaf π h_sq) (restrictKernelIdeal0ToPresheaf_smul π h_sq)⟩
-
-/-- The canonical linear comparison from the kernel ideal to its descended restriction. -/
-private noncomputable def restrictKernelIdeal0Inv :
-    KernelIdeal.sheaf π ⟶ (restrictionAlong π).obj (kernelIdeal0 π h_sq) :=
-  ⟨PresheafOfModules.homMk
-    (restrictKernelIdeal0InvToPresheaf π h_sq) (restrictKernelIdeal0InvToPresheaf_smul π h_sq)⟩
-
-/-- The comparison to the kernel ideal followed by its inverse is the identity. -/
-private theorem restrictKernelIdeal0_hom_inv_id :
-    restrictKernelIdeal0Hom π h_sq ≫ restrictKernelIdeal0Inv π h_sq =
-      𝟙 ((restrictionAlong π).obj (kernelIdeal0 π h_sq)) := sorry
-
-/-- The inverse comparison followed by the comparison to the kernel ideal is the identity. -/
-private theorem restrictKernelIdeal0_inv_hom_id :
-    restrictKernelIdeal0Inv π h_sq ≫ restrictKernelIdeal0Hom π h_sq =
-      𝟙 (KernelIdeal.sheaf π) := sorry
-
 /-- Restriction of scalars of the square-zero kernel module recovers the kernel ideal sheaf. -/
 private noncomputable def restrictKernelIdeal0Iso :
-    (restrictionAlong π).obj (kernelIdeal0 π h_sq) ≅ KernelIdeal.sheaf π where
-  hom := restrictKernelIdeal0Hom π h_sq
-  inv := restrictKernelIdeal0Inv π h_sq
-  hom_inv_id := restrictKernelIdeal0_hom_inv_id π h_sq
-  inv_hom_id := restrictKernelIdeal0_inv_hom_id π h_sq
+    (restrictionAlong π).obj (kernelIdeal0 π h_sq) ≅ KernelIdeal.sheaf π :=
+  h_sq.targetModuleRestrictIso inferInstance
 
 /-- The action of the kernel ideal on an `𝒪`-module, via inclusion into the structure sheaf
 and the left unitor. -/

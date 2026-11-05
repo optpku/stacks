@@ -123,4 +123,108 @@ theorem smul_apply (r : R) (D : Derivation A k) (i : ℤ) (x : A.X i) :
 
 end Derivation
 
+namespace HomogeneousMap
+
+variable {A B : ChainGradedAlgebra.{u, v} R} {k l : ℤ}
+
+/-- Change the homogeneous modules by explicit degreewise linear equivalences. -/
+def conj (e : ∀ i, A.X i ≃ₗ[R] B.X i) (D : HomogeneousMap A k) :
+    HomogeneousMap B k :=
+  fun i ↦ (e (i + k)).toLinearMap.comp ((D i).comp (e i).symm.toLinearMap)
+
+/-- Degreewise linear maps commute with transport between equal degrees. -/
+theorem equiv_reindex (e : ∀ i, A.X i ≃ₗ[R] B.X i) {i j : ℤ}
+    (h : i = j) (x : A.X i) :
+    e j (A.reindex h x) = B.reindex h (e i x) := by
+  cases h
+  rfl
+
+@[simp]
+theorem conj_apply (e : ∀ i, A.X i ≃ₗ[R] B.X i) (D : HomogeneousMap A k)
+    (i : ℤ) (x : B.X i) :
+    conj e D i x = e (i + k) (D i ((e i).symm x)) := rfl
+
+@[simp]
+theorem conj_symm_conj (e : ∀ i, A.X i ≃ₗ[R] B.X i) (D : HomogeneousMap A k) :
+    conj (fun i ↦ (e i).symm) (conj e D) = D := by
+  funext i
+  apply LinearMap.ext
+  intro x
+  simp only [conj_apply, LinearEquiv.symm_symm, LinearEquiv.symm_apply_apply]
+
+@[simp]
+theorem conj_units_smul (e : ∀ i, A.X i ≃ₗ[R] B.X i) (r : ℤˣ)
+    (D : HomogeneousMap A k) : conj e (r • D) = r • conj e D := by
+  funext i
+  apply LinearMap.ext
+  intro x
+  change e (i + k) ((r : ℤ) • D i ((e i).symm x)) =
+    (r : ℤ) • e (i + k) (D i ((e i).symm x))
+  exact map_zsmul (e (i + k)) (r : ℤ) (D i ((e i).symm x))
+
+/-- Conjugation commutes with composition, including the degree reassociation. -/
+theorem conj_comp (e : ∀ i, A.X i ≃ₗ[R] B.X i)
+    (D : HomogeneousMap A k) (E : HomogeneousMap A l) :
+    conj e (comp E D) = comp (conj e E) (conj e D) := by
+  funext i
+  apply LinearMap.ext
+  intro x
+  simp only [conj_apply, comp, LinearMap.comp_apply, LinearEquiv.symm_apply_apply,
+    equiv_reindex]
+
+/-- Conjugation commutes with a change of the homogeneous degree. -/
+theorem conj_castDegree (e : ∀ i, A.X i ≃ₗ[R] B.X i) (h : k = l)
+    (D : HomogeneousMap A k) :
+    conj e (castDegree h D) = castDegree h (conj e D) := by
+  cases h
+  rfl
+
+/-- Graded commutation is invariant under degreewise conjugation. -/
+theorem conj_gradedCommutes_iff (e : ∀ i, A.X i ≃ₗ[R] B.X i)
+    (D : HomogeneousMap A k) (E : HomogeneousMap A l) :
+    GradedCommutes (conj e D) (conj e E) ↔ GradedCommutes D E := by
+  have forward (h : GradedCommutes D E) :
+      GradedCommutes (conj e D) (conj e E) := by
+    unfold GradedCommutes at h ⊢
+    rw [← conj_comp, h, conj_units_smul, conj_castDegree, conj_comp]
+  refine ⟨fun h ↦ ?_, forward⟩
+  unfold GradedCommutes at h ⊢
+  have h' := congrArg (conj (fun i ↦ (e i).symm)) h
+  simpa only [← conj_comp, conj_units_smul, conj_castDegree,
+    conj_symm_conj] using h'
+
+end HomogeneousMap
+
+namespace Derivation
+
+variable {A B : ChainGradedAlgebra.{u, v} R} {k : ℤ}
+
+/-- Explicit transport of a derivation along multiplicative degreewise linear equivalences. -/
+def transport (e : ∀ i, A.X i ≃ₗ[R] B.X i)
+    (hmul : ∀ i j (x : A.X i) (y : A.X j),
+      e (i + j) (A.mul i j x y) = B.mul i j (e i x) (e j y))
+    (D : Derivation A k) : Derivation B k := by
+  refine ⟨HomogeneousMap.conj e (toHomogeneousMap D), ?_⟩
+  change SatisfiesLeibniz B k _
+  intro i j x y
+  have hm : (e (i + j)).symm (B.mul i j x y) =
+      A.mul i j ((e i).symm x) ((e j).symm y) := by
+    apply (e (i + j)).injective
+    simp only [LinearEquiv.apply_symm_apply, hmul]
+  simp only [HomogeneousMap.conj_apply, hm, toHomogeneousMap]
+  rw [D.2 i j ((e i).symm x) ((e j).symm y), map_add, Units.smul_def, map_zsmul,
+    HomogeneousMap.equiv_reindex, HomogeneousMap.equiv_reindex, hmul, hmul]
+  simp only [LinearEquiv.apply_symm_apply]
+  rfl
+
+/-- The transported derivation has the explicitly conjugated homogeneous map. -/
+theorem transport_toHomogeneousMap (e : ∀ i, A.X i ≃ₗ[R] B.X i)
+    (hmul : ∀ i j (x : A.X i) (y : A.X j),
+      e (i + j) (A.mul i j x y) = B.mul i j (e i x) (e j y))
+    (D : Derivation A k) :
+    toHomogeneousMap (transport e hmul D) =
+      HomogeneousMap.conj e (toHomogeneousMap D) := rfl
+
+end Derivation
+
 end ChainGradedAlgebra

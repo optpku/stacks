@@ -12,7 +12,7 @@ public import Mathlib.CategoryTheory.Limits.Types.Colimits
 public import Mathlib.CategoryTheory.MorphismProperty.Comma
 public import Mathlib.CategoryTheory.Sites.LocallySurjective
 public import Mathlib.CategoryTheory.Sites.PrecoverageToGrothendieck
-public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Immersion
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.ZariskiCover.Basic
 
 /-!
 # Small Zariski site of an algebraic space
@@ -91,15 +91,13 @@ theorem isOpenImmersion_smallZariskiSite_map {S : Scheme.{u}} {F : AlgebraicSpac
       U.prop.presheaf⟩
 
 /-- The Zariski precoverage on open subspaces of `F`: covering presieves are those presented by
-a small family of morphisms whose coproduct of functors of points is locally surjective as fppf
-sheaves. -/
+a small family whose underlying algebraic-space morphisms form a Zariski covering. -/
 def smallZariskiPrecoverage {S : Scheme.{u}} (F : AlgebraicSpace S) :
     Precoverage (smallZariskiSite F) where
   coverings U :=
     { R | ∃ (I : Type u) (_ : Small.{u} I) (V : I → smallZariskiSite F) (f : ∀ i, V i ⟶ U),
         R = Presieve.ofArrows V f ∧
-          Presheaf.IsLocallySurjective (Scheme.fppfTopology.over S)
-            (Sigma.desc fun i ↦ (f i).left) }
+          IsZariskiCover U.left (fun i ↦ (V i).left) (fun i ↦ (f i).left) }
 
 /-- A displayed family is a covering in the small Zariski precoverage of `F` if and only if the
 coproduct of the underlying functors of points is locally surjective as fppf sheaves. -/
@@ -125,7 +123,7 @@ theorem ofArrows_mem_smallZariskiPrecoverage_iff {S : Scheme.{u}} {F : Algebraic
               (fun i ↦ (f i).left) i) B) t⟩
     constructor
     intro T s
-    refine (Scheme.fppfTopology.over S).superset_covering ?_ (hg.imageSieve_mem s)
+    refine (Scheme.fppfTopology.over S).superset_covering ?_ (hg.2.imageSieve_mem s)
     intro B a ha
     obtain ⟨z, hz⟩ := ha
     obtain ⟨⟨j⟩, t, rfl⟩ := Types.jointly_surjective_of_isColimit
@@ -137,7 +135,19 @@ theorem ofArrows_mem_smallZariskiPrecoverage_iff {S : Scheme.{u}} {F : Algebraic
       (congr_app (Sigma.ι_desc (C := (Over S)ᵒᵖ ⥤ Type u)
         (fun j ↦ (g j).left) j) (Opposite.op B)) t).symm.trans hz
   · intro hf
-    exact ⟨I, inferInstance, V, f, rfl, hf⟩
+    exact ⟨I, inferInstance, V, f, rfl,
+      ⟨fun i ↦ (isOpenImmersion_smallZariskiSite_map (f i)).presheaf, hf⟩⟩
+
+/-- A displayed family covers in the small Zariski site precisely when its underlying
+family of algebraic spaces satisfies the canonical Zariski covering predicate. -/
+theorem ofArrows_mem_smallZariskiPrecoverage_iff_isZariskiCover
+    {S : Scheme.{u}} {F : AlgebraicSpace S} {I : Type u} [Small.{u} I]
+    {U : smallZariskiSite F} {V : I → smallZariskiSite F} {f : ∀ i, V i ⟶ U} :
+    Presieve.ofArrows V f ∈ smallZariskiPrecoverage F U ↔
+      IsZariskiCover U.left (fun i ↦ (V i).left) (fun i ↦ (f i).left) := by
+  rw [ofArrows_mem_smallZariskiPrecoverage_iff]
+  exact ⟨fun h ↦ ⟨fun i ↦ (isOpenImmersion_smallZariskiSite_map (f i)).presheaf, h⟩,
+    fun h ↦ h.2⟩
 
 /-- The small Zariski topology of an algebraic space `F` is the Grothendieck topology generated
 by Zariski covering families of open subspaces of `F`. -/

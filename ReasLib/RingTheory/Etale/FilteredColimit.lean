@@ -34,12 +34,13 @@ variable {J : Type vJ} [Category.{uJ} J] [IsFiltered J]
 /-- Lemma 10.143.3 (00U2), clause (9): an etale algebra over a filtered
 colimit is obtained by base change from an etale algebra at one stage.  The
 local `stageAlgebra` instance in the conclusion is the induced scalar
-structure required to type the displayed tensor product. -/
+structure required to type the displayed tensor product. The stage model's
+universe also accommodates the base rings, which may be larger than `B`. -/
 @[stacks 00U2 "etale filtered-colimit descent"]
 theorem exists_stage
     (F : J ⥤ CommRingCat.{u}) (c : Cocone F) (hc : IsColimit c)
     (B : Type w) [CommRing B] [Algebra c.pt B] [Algebra.Etale c.pt B] :
-    ∃ (j : J) (B_j : Type w) (_ : CommRing B_j) (_ : Algebra (F.obj j) B_j),
+    ∃ (j : J) (B_j : Type (max u w)) (_ : CommRing B_j) (_ : Algebra (F.obj j) B_j),
       letI : Algebra (F.obj j) c.pt := CommRingCat.FilteredColimit.stageAlgebra F c j
       Algebra.Etale (F.obj j) B_j ∧
         Nonempty (B ≃ₐ[c.pt] c.pt ⊗[F.obj j] B_j) := sorry

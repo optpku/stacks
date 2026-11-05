@@ -78,34 +78,9 @@ noncomputable def quotientMapAssociatedGradedToSections (n : ℕ) :
     (α.hom.app V).hom.comp F.hom
   let sectionsR : ModuleCat R :=
     (ModuleCat.restrictScalars AF).obj sectionsNative
-  have hF (r : R) : α.hom.app V (F r) = G (Ideal.Quotient.mk I r) := by
-    have hs :
-        (TopCat.Sheaf.pullbackPushforwardAdjunction
-              CommRingCat.{u} q.toShHom.hom.base).unit.app
-              (Spec (CommRingCat.of R)).sheaf ≫
-            (TopCat.Sheaf.pushforward CommRingCat.{u} q.toShHom.hom.base).map α =
-          RingedSpace.Hom.commRingSheafPushforwardMap q.toShHom := by
-      simpa only [Functor.id_obj, Adjunction.homEquiv_unit,
-        RingedSpace.Hom.inverseImageStructureSheafHomComm, α] using
-        (Equiv.apply_symm_apply
-          ((TopCat.Sheaf.pullbackPushforwardAdjunction
-            CommRingCat.{u} q.toShHom.hom.base).homEquiv
-            (Spec (CommRingCat.of R)).sheaf
-            (Spec (CommRingCat.of (R ⧸ I))).sheaf)
-          (RingedSpace.Hom.commRingSheafPushforwardMap q.toShHom))
-    have hsW := congrArg (fun f ↦ f.hom.app W) hs
-    change
-      (((TopCat.Sheaf.pullbackPushforwardAdjunction
-        CommRingCat.{u} q.toShHom.hom.base).unit.app
-        (Spec (CommRingCat.of R)).sheaf).hom.app W) ≫ α.hom.app V = q.appTop at hsW
-    have hsF : F ≫ α.hom.app V =
-        CommRingCat.ofHom (Ideal.Quotient.mk I) ≫ G := by
-      dsimp only [F, G]
-      rw [Category.assoc, hsW]
-      exact
-        (Scheme.ΓSpecIso_inv_naturality
-          (CommRingCat.ofHom (Ideal.Quotient.mk I))).symm
-    exact ConcreteCategory.congr_hom hsF r
+  have hF (r : R) : α.hom.app V (F r) = G (Ideal.Quotient.mk I r) :=
+    Scheme.Hom.specMap_pullbackStructureSheaf_apply
+      (CommRingCat.ofHom (Ideal.Quotient.mk I)) r
   have map_mem_pow (k : ℕ) {x : R} (hx : x ∈ I ^ k) : F.hom x ∈ J ^ k := by
     have hx' : F.hom x ∈ Ideal.map F.hom (I ^ k) :=
       Ideal.mem_map_of_mem F.hom hx

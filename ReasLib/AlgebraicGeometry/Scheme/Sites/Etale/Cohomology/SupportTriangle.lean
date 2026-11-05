@@ -73,8 +73,12 @@ def resolutionSequence :
 /-- The supported injective-resolution sequence is short exact. -/
 theorem resolutionSequence_shortExact : (resolutionSequence i F).ShortExact := sorry
 
-/-- The localized injective resolution is canonically isomorphic to the sheaf in degree zero. -/
-def resolutionIso : DerivedCategory.Q.obj (resolutionSequence i F).X₂ ≅
+/-- The localized injective resolution is canonically isomorphic to the sheaf in degree zero.
+The source is also the middle object of `resolutionSequence i F`; spelling out that object
+keeps this comparison independent of the support and open-complement constructions. -/
+def resolutionIso {X Z : Scheme.{u}} (i : Z ⟶ X) [IsClosedImmersion i]
+    (F : Sheaf X.smallEtaleTopology AddCommGrpCat.{u + 1}) :
+    DerivedCategory.Q.obj ((injectiveResolution F).cocomplex.extend embeddingUpNat) ≅
     (DerivedCategory.singleFunctor (Sheaf X.smallEtaleTopology AddCommGrpCat.{u + 1}) 0).obj F :=
   (asIso (DerivedCategory.Q.map
     (HomologicalComplex.extendMap (injectiveResolution F).ι embeddingUpNat))).symm ≪≫

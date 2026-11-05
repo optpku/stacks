@@ -70,7 +70,16 @@ theorem tensorMap_difference (n : ℕ) (i : ι) (j : Fin n) :
 /-- Tensor evaluation respects the divided powers of the base ideal. -/
 theorem tensorMap_isDPMorphism (n : ℕ) :
     DividedPowers.IsDPMorphism γ (DPPolynomial.dividedPowers EP.D.dividedPowers)
-      ((tensorMap EP n).comp (algebraMap A (MvPolynomial.TensorPower.carrier A ι n))) := sorry
+      ((tensorMap EP n).comp (algebraMap A (MvPolynomial.TensorPower.carrier A ι n))) := by
+  have hcomp :
+      (tensorMap EP n).comp (algebraMap A (MvPolynomial.TensorPower.carrier A ι n)) =
+      (algebraMap EP.D (DPPolynomial EP.D (ι × Fin n))).comp EP.base.toRingHom := by
+    rw [EP.base_toD]
+    ext a
+    exact (MvPolynomial.TensorPower.liftSlots A ι n (slotMap EP n)).commutes a
+  rw [hcomp]
+  exact (DPPolynomial.dividedPowers_algebraMap_isDPMorphism EP.D.dividedPowers).comp _
+    EP.base.isDPMorphism
 
 variable {C : Type u} [CommRing C] [Algebra A C]
 variable (π : MvPolynomial ι A →ₐ[A] C) (hJP : JP = RingHom.ker π.toRingHom)
@@ -82,7 +91,84 @@ variable (En : DividedPowerEnvelope I γ (algebraMap A (MvPolynomial.TensorPower
 include π hJP hJn in
 /-- Tensor evaluation takes the presentation kernel into the extended divided-power ideal. -/
 theorem tensorMap_map_ideal :
-    Ideal.map (tensorMap EP n) Jn ≤ DPPolynomial.ideal EP.D (ι × Fin n) EP.D.ideal := sorry
+    Ideal.map (tensorMap EP n) Jn ≤ DPPolynomial.ideal EP.D (ι × Fin n) EP.D.ideal := by
+  classical
+  letI : Algebra A (DPPolynomial EP.D (ι × Fin n)) := (polynomialAlgebra EP n).algebra
+  have heval {R : Type u} [CommRing R] [Algebra A R]
+      (fs : Fin (n + 1) → MvPolynomial ι A →ₐ[A] R)
+      (j : Fin (n + 1)) (f : MvPolynomial ι A) :
+      MvPolynomial.TensorPower.liftSlots A ι n fs
+        (MvPolynomial.TensorPower.slot A ι n j f) = fs j f := by
+    simp [MvPolynomial.TensorPower.liftSlots, MvPolynomial.TensorPower.slot,
+      MvPolynomial.TensorPower.liftMap, PiTensorProduct.liftAlgHom,
+      PiTensorProduct.singleAlgHom, MultilinearMap.compLinearMap_apply,
+      MultilinearMap.mkPiAlgebra_apply]
+    rw [Finset.prod_eq_single j]
+    · simp
+    · intro k _ hne
+      simp [Pi.mulSingle, hne]
+    · simp
+  let K : Ideal (DPPolynomial EP.D (ι × Fin n)) :=
+    DPPolynomial.ideal EP.D (ι × Fin n) EP.D.ideal
+  let q := Ideal.Quotient.mkₐ A K
+  let c := slotMap EP n 0
+  let t := MvPolynomial.TensorPower.liftSlots A ι n (slotMap EP n)
+  let δ := MvPolynomial.TensorPower.liftSlots A ι n
+    (fun _ ↦ AlgHom.id A (MvPolynomial ι A))
+  have hX (i : ι) (j : Fin n) : q (DPPolynomial.X EP.D (i, j)) = 0 := by
+    apply Ideal.Quotient.eq_zero_iff_mem.mpr
+    apply (show DPPolynomial.positiveIdeal EP.D (ι × Fin n) ≤ K from le_sup_right)
+    change DividedPowerAlgebra.dp EP.D 1 (Finsupp.single (i, j) 1) ∈
+      DPPolynomial.positiveIdeal EP.D (ι × Fin n)
+    exact Ideal.subset_span ⟨((i, j), ⟨1, Nat.zero_lt_one⟩), rfl⟩
+  have hslots (j : Fin (n + 1)) : q.comp (slotMap EP n j) = q.comp c := by
+    refine Fin.cases ?_ (fun k ↦ ?_) j
+    · rfl
+    · apply MvPolynomial.algHom_ext
+      intro i
+      change q (MvPolynomial.aeval (fun i ↦
+        coefficientMap EP n (MvPolynomial.X i) - DPPolynomial.X EP.D (i, k))
+          (MvPolynomial.X i)) = q (coefficientMap EP n (MvPolynomial.X i))
+      rw [MvPolynomial.aeval_X, map_sub, hX, sub_zero]
+  have hfactor : q.comp t = (q.comp c).comp δ := by
+    apply PiTensorProduct.algHom_ext
+    intro j
+    apply AlgHom.ext
+    intro f
+    change q (MvPolynomial.TensorPower.liftSlots A ι n (slotMap EP n)
+        (MvPolynomial.TensorPower.slot A ι n j f)) =
+      q (c (MvPolynomial.TensorPower.liftSlots A ι n
+        (fun _ ↦ AlgHom.id A (MvPolynomial ι A))
+          (MvPolynomial.TensorPower.slot A ι n j f)))
+    rw [heval, heval]
+    exact DFunLike.congr_fun (hslots j) f
+  have hdiag : MvPolynomial.TensorPower.diagonal A ι π n = π.comp δ := by
+    apply PiTensorProduct.algHom_ext
+    intro j
+    apply AlgHom.ext
+    intro f
+    change MvPolynomial.TensorPower.liftSlots A ι n (fun _ ↦ π)
+        (MvPolynomial.TensorPower.slot A ι n j f) =
+      π (MvPolynomial.TensorPower.liftSlots A ι n
+        (fun _ ↦ AlgHom.id A (MvPolynomial ι A))
+          (MvPolynomial.TensorPower.slot A ι n j f))
+    rw [heval, heval]
+    rfl
+  apply Ideal.map_le_iff_le_comap.mpr
+  intro x hx
+  have hδ : δ x ∈ JP := by
+    rw [hJP, RingHom.mem_ker]
+    exact (DFunLike.congr_fun hdiag x).symm.trans
+      (show x ∈ RingHom.ker (MvPolynomial.TensorPower.diagonal A ι π n).toRingHom from
+        hJn ▸ hx)
+  have hc : coefficientMap EP n (δ x) ∈ K :=
+    (show Ideal.map (algebraMap EP.D (DPPolynomial EP.D (ι × Fin n))) EP.D.ideal ≤ K
+      from le_sup_left) (Ideal.mem_map_of_mem _ (EP.ideal_map (Ideal.mem_map_of_mem _ hδ)))
+  change tensorMap EP n x ∈ K
+  apply Ideal.Quotient.eq_zero_iff_mem.mp
+  change (q.comp t) x = 0
+  rw [hfactor]
+  exact Ideal.Quotient.eq_zero_iff_mem.mpr hc
 
 variable (hEn : DividedPowerEnvelope.IsUniversal γ
   (algebraMap A (MvPolynomial.TensorPower.carrier A ι n)) hIJn En)
@@ -101,25 +187,59 @@ def toPolynomial : En.D →+* DPPolynomial EP.D (ι × Fin n) :=
 
 /-- The envelope comparison factors the specified tensor evaluation map. -/
 theorem toPolynomial_comp_toD :
-    (toPolynomial EP π hJP n hJn En hEn).comp En.toD = tensorMap EP n := sorry
+    (toPolynomial EP π hJP n hJn En hEn).comp En.toD = tensorMap EP n := by
+  exact (@hEn (DividedPowerRing.of (DPPolynomial EP.D (ι × Fin n))
+    (DPPolynomial.ideal EP.D (ι × Fin n) EP.D.ideal) (DPPolynomial.dividedPowers EP.D.dividedPowers))
+    (tensorMap EP n) (tensorMap_isDPMorphism EP n)
+    (tensorMap_map_ideal EP π hJP n hJn)).choose_spec.1
 
 /-- The envelope comparison is the unique compatible divided-power factorization. -/
 theorem toPolynomial_unique
     (f : En.D ⟶ DividedPowerRing.of (DPPolynomial EP.D (ι × Fin n))
       (DPPolynomial.ideal EP.D (ι × Fin n) EP.D.ideal) (DPPolynomial.dividedPowers EP.D.dividedPowers))
     (hf : f.toRingHom.comp En.toD = tensorMap EP n) :
-    f = toPolynomialDP EP π hJP n hJn En hEn := sorry
+    f = toPolynomialDP EP π hJP n hJn En hEn := by
+  exact (@hEn (DividedPowerRing.of (DPPolynomial EP.D (ι × Fin n))
+    (DPPolynomial.ideal EP.D (ι × Fin n) EP.D.ideal) (DPPolynomial.dividedPowers EP.D.dividedPowers))
+    (tensorMap EP n) (tensorMap_isDPMorphism EP n)
+    (tensorMap_map_ideal EP π hJP n hJn)).choose_spec.2 f hf
 
 /-- The zeroth-slot presentation map respects the base divided powers. -/
 theorem baseToTensor_isDPMorphism :
     DividedPowers.IsDPMorphism γ En.D.dividedPowers
       ((En.toD.comp (MvPolynomial.TensorPower.slot A ι n 0).toRingHom).comp
-        (algebraMap A (MvPolynomial ι A))) := sorry
+        (algebraMap A (MvPolynomial ι A))) := by
+  have hcomp :
+      (En.toD.comp (MvPolynomial.TensorPower.slot A ι n 0).toRingHom).comp
+        (algebraMap A (MvPolynomial ι A)) = En.base.toRingHom := by
+    rw [En.base_toD]
+    ext a
+    exact congrArg En.toD ((MvPolynomial.TensorPower.slot A ι n 0).commutes a)
+  rw [hcomp]
+  exact En.base.isDPMorphism
 
 include π hJP hJn in
 /-- The zeroth-slot presentation map sends the base presentation kernel into the tensor ideal. -/
 theorem baseToTensor_map_ideal :
-    Ideal.map (En.toD.comp (MvPolynomial.TensorPower.slot A ι n 0).toRingHom) JP ≤ En.D.ideal := sorry
+    Ideal.map (En.toD.comp (MvPolynomial.TensorPower.slot A ι n 0).toRingHom) JP ≤ En.D.ideal := by
+  apply Ideal.map_le_iff_le_comap.mpr
+  intro x hx
+  apply En.ideal_map
+  apply Ideal.mem_map_of_mem
+  rw [hJn, RingHom.mem_ker]
+  have heval : MvPolynomial.TensorPower.diagonal A ι π n
+      (MvPolynomial.TensorPower.slot A ι n 0 x) = π x := by
+    classical
+    simp [MvPolynomial.TensorPower.diagonal, MvPolynomial.TensorPower.liftSlots,
+      MvPolynomial.TensorPower.slot, MvPolynomial.TensorPower.liftMap,
+      PiTensorProduct.liftAlgHom, PiTensorProduct.singleAlgHom,
+      MultilinearMap.compLinearMap_apply, MultilinearMap.mkPiAlgebra_apply]
+    rw [Finset.prod_eq_single 0]
+    · simp
+    · intro j _ hne
+      simp [Pi.mulSingle, hne]
+    · simp
+  exact heval.trans (show π x = 0 from (show x ∈ RingHom.ker π.toRingHom from hJP ▸ hx))
 
 variable (hEP : DividedPowerEnvelope.IsUniversal γ (algebraMap A (MvPolynomial ι A)) hIJP EP)
 
@@ -134,12 +254,16 @@ def baseToTensor : EP.D →+* En.D := (baseToTensorDP EP π hJP n hJn En hEP).to
 /-- The base-envelope map factors the zeroth-slot presentation map. -/
 theorem baseToTensor_spec :
     (baseToTensor EP π hJP n hJn En hEP).comp EP.toD =
-      En.toD.comp (MvPolynomial.TensorPower.slot A ι n 0).toRingHom := sorry
+      En.toD.comp (MvPolynomial.TensorPower.slot A ι n 0).toRingHom := by
+  exact (@hEP En.D (En.toD.comp (MvPolynomial.TensorPower.slot A ι n 0).toRingHom)
+    (baseToTensor_isDPMorphism n En) (baseToTensor_map_ideal π hJP n hJn En)).choose_spec.1
 
 /-- The base-envelope map is unique among compatible divided-power factorizations. -/
 theorem baseToTensor_unique (f : EP.D ⟶ En.D)
     (hf : f.toRingHom.comp EP.toD = En.toD.comp (MvPolynomial.TensorPower.slot A ι n 0).toRingHom) :
-    f = baseToTensorDP EP π hJP n hJn En hEP := sorry
+    f = baseToTensorDP EP π hJP n hJn En hEP := by
+  exact (@hEP En.D (En.toD.comp (MvPolynomial.TensorPower.slot A ι n 0).toRingHom)
+    (baseToTensor_isDPMorphism n En) (baseToTensor_map_ideal π hJP n hJn En)).choose_spec.2 f hf
 
 /-- The tensor-envelope comparison sends the base-envelope map to coefficient inclusion. -/
 theorem toPolynomial_comp_baseToTensor :

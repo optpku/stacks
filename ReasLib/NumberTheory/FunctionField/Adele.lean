@@ -16,6 +16,7 @@ public import Mathlib.Topology.Algebra.RestrictedProduct.Basic
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.Projective.Basic
 public import ReasLib.AlgebraicGeometry.Scheme.OverField
 public import ReasLib.AlgebraicGeometry.Scheme.Variety.Curve
+public import ReasLib.AlgebraicGeometry.Scheme.Variety.Curve.ClosedPoint
 
 /-!
 # Function-field adeles of a smooth projective curve
@@ -43,12 +44,31 @@ variable (X : SchemeOverField k)
 /-- The stalk of a smooth curve at a closed point is a discrete valuation ring. -/
 instance instIsDiscreteValuationRing_closedPointStalk [Curve X] [Smooth X.hom]
     (v : closedPoints X.left) :
-    IsDiscreteValuationRing (X.left.presheaf.stalk v.1) := sorry
+    IsDiscreteValuationRing (X.left.presheaf.stalk v.1) := by
+  obtain ⟨U, hvU, hU⟩ :=
+    (Scheme.Hom.regular_of_smooth_over_field X.hom).out v.1
+  letI : IsRegularRing Γ(X.left, (U : X.left.Opens)) := hU
+  letI : Algebra Γ(X.left, (U : X.left.Opens)) (X.left.presheaf.stalk v.1) :=
+    TopCat.Presheaf.algebra_section_stalk X.left.presheaf ⟨v.1, hvU⟩
+  let p := U.2.primeIdealOf ⟨v.1, hvU⟩
+  letI : IsLocalization.AtPrime (X.left.presheaf.stalk v.1) p.asIdeal :=
+    U.2.isLocalization_stalk ⟨v.1, hvU⟩
+  haveI : IsRegularLocalRing (X.left.presheaf.stalk v.1) :=
+    IsRegularLocalRing.of_ringEquiv
+      (IsLocalization.algEquiv p.asIdeal.primeCompl
+        (Localization.AtPrime p.asIdeal) (X.left.presheaf.stalk v.1)).toRingEquiv
+  apply IsLocalRing.finrank_CotangentSpace_eq_one_iff.mp
+  have hdim := (IsRegularLocalRing.iff_finrank_cotangentSpace
+    (X.left.presheaf.stalk v.1)).mp inferInstance
+  rw [Curve.ClosedPoint.ringKrullDim_stalk_eq_one X v.1 v.2] at hdim
+  exact_mod_cast hdim
 
 /-- The stalk of a smooth curve at a closed point is a Dedekind domain. -/
 instance instIsDedekindDomain_closedPointStalk [Curve X] [Smooth X.hom]
     (v : closedPoints X.left) :
-    IsDedekindDomain (X.left.presheaf.stalk v.1) := sorry
+    IsDedekindDomain (X.left.presheaf.stalk v.1) := by
+  -- A DVR is a PID; use mathlib's canonical PID-to-Dedekind instance.
+  infer_instance
 
 /-- The height-one prime of the local ring at a closed point of a smooth curve. -/
 def place [Curve X] [Smooth X.hom] (v : closedPoints X.left) :
@@ -57,11 +77,11 @@ def place [Curve X] [Smooth X.hom] (v : closedPoints X.left) :
 
 /-- `place X v` is the maximal ideal of the stalk at `v`. -/
 theorem place_asIdeal [Curve X] [Smooth X.hom] (v : closedPoints X.left) :
-    (place X v).asIdeal = IsLocalRing.maximalIdeal (X.left.presheaf.stalk v.1) := sorry
+    (place X v).asIdeal = IsLocalRing.maximalIdeal (X.left.presheaf.stalk v.1) := rfl
 
 /-- The place at a closed point is a nonzero ideal. -/
 theorem place_ne_bot [Curve X] [Smooth X.hom] (v : closedPoints X.left) :
-    (place X v).asIdeal ≠ ⊥ := sorry
+    (place X v).asIdeal ≠ ⊥ := (place X v).ne_bot
 
 /-- The completion `K_v` of the function field at a closed point. -/
 abbrev completion [Curve X] [Smooth X.hom] (v : closedPoints X.left) :=

@@ -105,6 +105,46 @@ def sourceIdealTensorIso (hg : IsStrict g) [RingedSpace.Hom.IsFlat g.right]
 
 end AlgebraicGeometry.RingedSpace.Thickening.Hom.FlatLift
 
+namespace AlgebraicGeometry.RingedSpace.Thickening.Hom
+
+variable {T U : Thickening.{u}} [IsFirstOrderThickening T.hom] [IsFirstOrderThickening U.hom]
+variable {g : T ⟶ U}
+
+/-- Along a strict morphism of first-order thickenings with `f'` flat, the comparison
+`f^* 𝒥 ⟶ ℐ` is an isomorphism. -/
+theorem isIso_sourceIdealMap (hg : IsStrict g) [RingedSpace.Hom.IsFlat g.right] :
+    IsIso (sourceIdealMap g) :=
+  FlatLift.isIso_sourceIdealMap hg
+
+/-- The identification `ℐ = f^* 𝒥` of kernel ideals along a strict morphism of first-order
+thickenings with `f'` flat. -/
+def sourceIdealIso (hg : IsStrict g) [RingedSpace.Hom.IsFlat g.right] :
+    (g.left^*).obj (idealModule U.hom) ≅ idealModule T.hom :=
+  @asIso _ _ _ _ (sourceIdealMap g) (isIso_sourceIdealMap hg)
+
+/-- The underlying morphism of `sourceIdealIso` is `sourceIdealMap`. -/
+theorem sourceIdealIso_hom (hg : IsStrict g) [RingedSpace.Hom.IsFlat g.right] :
+    (sourceIdealIso hg).hom = sourceIdealMap g := rfl
+
+/-- Tensoring the identification `ℐ = f^* 𝒥` with an `𝒪_X`-module `F` yields an isomorphism
+`f^* 𝒥 ⊗ F ≅ ℐ ⊗ F`. -/
+theorem isIso_sourceIdealTensorMap (hg : IsStrict g) [RingedSpace.Hom.IsFlat g.right]
+    (F : T.left.Modules) : IsIso (sourceIdealTensorMap g F) :=
+  FlatLift.isIso_sourceIdealTensorMap hg F
+
+/-- The identification `f^* 𝒥 ⊗ F ≅ ℐ ⊗ F` obtained by tensoring `sourceIdealIso` with `F`. -/
+abbrev sourceIdealTensorIso (hg : IsStrict g) [RingedSpace.Hom.IsFlat g.right]
+    (F : T.left.Modules) :
+    (g.left^*).obj (idealModule U.hom) ⊗ F ≅ idealModule T.hom ⊗ F :=
+  FlatLift.sourceIdealTensorIso hg F
+
+/-- The underlying morphism of `sourceIdealTensorIso` is `sourceIdealTensorMap`. -/
+theorem sourceIdealTensorIso_hom (hg : IsStrict g) [RingedSpace.Hom.IsFlat g.right]
+    (F : T.left.Modules) :
+    (sourceIdealTensorIso hg F).hom = sourceIdealTensorMap g F := rfl
+
+end AlgebraicGeometry.RingedSpace.Thickening.Hom
+
 namespace AlgebraicGeometry.RingedSpace.Modules
 
 open AlgebraicGeometry.RingedSpace.Thickening
@@ -120,6 +160,14 @@ def relativeIdentityInfinitesimalMap (g : T ⟶ U) (hg : IsStrict g)
     kernelIdealSheaf T.hom ⊗ (T.hom _*).obj F ⟶
       (T.hom _*).obj ((g.left^*).obj (idealModule U.hom) ⊗ F) :=
   infinitesimalMap_ofRestrict T.hom (FlatLift.sourceIdealTensorIso hg F).inv
+
+/-- Restricting the relative identity infinitesimal comparison recovers the inverse of
+`sourceIdealTensorMap`. -/
+theorem relativeIdentityInfinitesimalMap_restrict (g : T ⟶ U) (hg : IsStrict g)
+    [RingedSpace.Hom.IsFlat g.right] (F : T.left.Modules) :
+    infinitesimalMap_restrict T.hom (relativeIdentityInfinitesimalMap g hg F) =
+      (sourceIdealTensorIso hg F).inv :=
+  infinitesimalMap_restrict_ofRestrict T.hom (sourceIdealTensorIso hg F).inv
 
 end AlgebraicGeometry.RingedSpace.Modules
 
@@ -207,6 +255,46 @@ def toRelativeInfinitesimalExtension (hg : IsStrict g)
     InfinitesimalExtension T.hom F ((g.left^*).obj (idealModule U.hom) ⊗ F)
       (relativeIdentityInfinitesimalMap g hg F) :=
   toRelativeInfinitesimalExtensionOf hg L (relativeExtension_certificate hg L)
+
+/-- The middle `𝒪_{X'}`-module of the relative 08L4 extension is the lifted module. -/
+theorem toRelativeInfinitesimalExtension_module (hg : IsStrict g)
+    [SheafOfModules.IsFlatOver F g.left] [RingedSpace.Hom.IsFlat g.right]
+    (L : FlatLift g F) :
+    (toRelativeInfinitesimalExtension hg L).module = L.module := rfl
+
+/-- The projection of the relative 08L4 extension is the adjunct of `α`. -/
+theorem toRelativeInfinitesimalExtension_π (hg : IsStrict g)
+    [SheafOfModules.IsFlatOver F g.left] [RingedSpace.Hom.IsFlat g.right]
+    (L : FlatLift g F) :
+    (toRelativeInfinitesimalExtension hg L).π = (toInfinitesimalExtension hg L).π := rfl
+
+/-- The braiding `f^* 𝒥 ⊗ F ≅ F ⊗ f^* 𝒥` of `𝒪_X`-modules. -/
+def sourceIdealBraid (F : T.left.Modules) :
+    (g.left^*).obj (idealModule U.hom) ⊗ F ≅
+      F ⊗ (g.left^*).obj (idealModule U.hom) :=
+  β_ ((g.left^*).obj (idealModule U.hom)) F
+
+/-- The underlying morphism of `sourceIdealBraid` is the braiding `β_`. -/
+theorem sourceIdealBraid_hom (F : T.left.Modules) :
+    (sourceIdealBraid F).hom =
+      (β_ ((g.left^*).obj (idealModule U.hom)) F).hom := rfl
+
+/-- Along a strict morphism of first-order thickenings, the comparison
+`f^* 𝒥 ⊗ i^* F' ⟶ ℐ F'` attached to a flat lift is an isomorphism. -/
+theorem isIso_sourceIdealMulMap (hg : IsStrict g) (L : FlatLift g F) :
+    IsIso (sourceIdealMulMap g L.module) := by
+  letI : SheafOfModules.IsFlatOver L.module g.right := L.isFlatOver
+  exact isIso_sourceIdealMulMap_of_isFlatOver g hg
+
+
+/-- The canonical relative inclusion is the original identity-extension inclusion
+transported along the shared ideal tensor comparison. -/
+theorem toRelativeInfinitesimalExtension_ι (hg : IsStrict g)
+    [SheafOfModules.IsFlatOver F g.left] [RingedSpace.Hom.IsFlat g.right]
+    (L : FlatLift g F) :
+    (toRelativeInfinitesimalExtension hg L).ι =
+      (T.hom _*).map (sourceIdealTensorIso hg F).hom ≫
+        (toInfinitesimalExtension hg L).ι := rfl
 
 /-- For a strict morphism of first-order thickenings with flat upper morphism,
 a relatively flat module admits a flat lift exactly when its relative identity

@@ -101,7 +101,8 @@ def addCommGrpToModule :
 private theorem addCommGrpToModuleCounitApp_map_zero (A : AddCommGrpCat.{u}) :
     ((forget₂ (ModuleCat.{u} ℤ) AddCommGrpCat.{u}).asEquivalence.counitIso.hom.app
         A).hom (0 : (forget₂ (ModuleCat.{u} (ULift.{u} ℤ)) AddCommGrpCat.{u}).obj
-      (addCommGrpToModule.obj A)) = 0 := sorry
+      (addCommGrpToModule.obj A)) = 0 := by
+  exact map_zero _
 
 /-- The coefficient counit preserves addition. -/
 private theorem addCommGrpToModuleCounitApp_map_add (A : AddCommGrpCat.{u})
@@ -110,7 +111,8 @@ private theorem addCommGrpToModuleCounitApp_map_add (A : AddCommGrpCat.{u})
     ((forget₂ (ModuleCat.{u} ℤ) AddCommGrpCat.{u}).asEquivalence.counitIso.hom.app
         A).hom (x + y) = ((forget₂ (ModuleCat.{u} ℤ) AddCommGrpCat.{u}).asEquivalence.counitIso.hom.app
         A).hom x + ((forget₂ (ModuleCat.{u} ℤ) AddCommGrpCat.{u}).asEquivalence.counitIso.hom.app
-        A).hom y := sorry
+        A).hom y := by
+  exact map_add _ x y
 
 /-- Component of the coefficient counit at an abelian group. -/
 def addCommGrpToModuleCounitApp (A : AddCommGrpCat.{u}) :
@@ -125,6 +127,17 @@ def addCommGrpToModuleCounitApp (A : AddCommGrpCat.{u}) :
               ((forget₂ (ModuleCat.{u} ℤ) AddCommGrpCat.{u}).inv.obj A))
       map_zero' := addCommGrpToModuleCounitApp_map_zero A
       map_add' := addCommGrpToModuleCounitApp_map_add A }
+
+/-- Restricting scalars along `ULift.ringEquiv` does not change the
+underlying abelian group, so this is the counit of the integer-module equivalence. -/
+instance addCommGrpToModuleCounitApp_isIso (A : AddCommGrpCat.{u}) :
+    IsIso (addCommGrpToModuleCounitApp A) := by
+  have h : addCommGrpToModuleCounitApp A =
+      (forget₂ (ModuleCat.{u} ℤ) AddCommGrpCat.{u}).asEquivalence.counitIso.hom.app A := by
+    ext x
+    rfl
+  rw [h]
+  exact ((forget₂ (ModuleCat.{u} ℤ) AddCommGrpCat.{u}).asEquivalence.counitIso.app A).isIso_hom
 
 /-- Composition with `addCommGrpToModule` preserves étale sheaves. -/
 public instance (priority := high) addCommGrpToModule_hasSheafCompose (S : Scheme.{u}) :
@@ -201,7 +214,9 @@ def forgetAbelianHom {S : Scheme.{u}}
     etaleModuleForget (ULift.{u} ℤ) (abelianToModule F) ⟶ F :=
   ObjectProperty.homMk
     { app := fun U ↦ addCommGrpToModuleCounitApp (F.obj.obj U)
-      naturality := sorry }
+      naturality := fun {_ _} g ↦
+        (forget₂ (ModuleCat.{u} ℤ) AddCommGrpCat.{u}).asEquivalence.counitIso.hom.naturality
+          (F.obj.map g) }
 
 /-- The sectionwise forgetful comparison is an isomorphism. -/
 instance forgetAbelianHom_isIso {S : Scheme.{u}}
@@ -209,8 +224,13 @@ instance forgetAbelianHom_isIso {S : Scheme.{u}}
     [S.smallEtaleTopology.HasSheafCompose
       (forget₂ (ModuleCat.{u} (ULift.{u} ℤ)) AddCommGrpCat.{u})]
     (F : Sheaf S.smallEtaleTopology AddCommGrpCat.{u}) :
-    IsIso (forgetAbelianHom F) :=
-  sorry
+    IsIso (forgetAbelianHom F) := by
+  haveI : ∀ U, IsIso ((forgetAbelianHom F).hom.app U) :=
+    fun U ↦ addCommGrpToModuleCounitApp_isIso (F.obj.obj U)
+  haveI : IsIso ((sheafToPresheaf S.smallEtaleTopology AddCommGrpCat.{u}).map
+      (forgetAbelianHom F)) := NatIso.isIso_of_isIso_app (forgetAbelianHom F).hom
+  exact isIso_of_reflects_iso (forgetAbelianHom F)
+    (sheafToPresheaf S.smallEtaleTopology AddCommGrpCat.{u})
 
 /-- Forgetting `ULift ℤ`-module coefficients recovers the original abelian
 étale sheaf. -/
@@ -298,7 +318,7 @@ def constantIntegerModuleIso
 groups. -/
 instance addCommGrpToModuleCounitApp_integerCoeff_isIso :
     IsIso (addCommGrpToModuleCounitApp integerCoeff) :=
-  sorry
+  inferInstance
 
 /-- The coefficient comparison to the integer module unit preserves addition. -/
 private theorem integerModuleCoeffToUnit_map_add (x y : integerModuleCoeff) :

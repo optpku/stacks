@@ -22,6 +22,12 @@ universe u
 The reusable reduced-Nagata-curve API is organized by global structure,
 local stalks, quotient modules, and completions.  This file preserves the
 source label and ordering without retaining source-specific aliases.
+
+Source caveat: Stacks 0C1R assumes only global dimension one, with no purity hypothesis.
+Its (6) dimension assertion and (8) DVR decomposition fail on an isolated zero-dimensional
+component, such as `Spec k` in `Spec (k[t] × k)`: the stalk and its completion are fields.
+Recall (14) and (16) therefore explicitly require a one-dimensional source stalk. The other
+recalls, including the Dedekind-domain decomposition, retain the zero-dimensional case.
 -/
 
 /- Lemma 33.41.2 (1): normalization of a reduced Nagata curve is finite. -/
@@ -131,11 +137,13 @@ Dedekind domains. -/
       (hdim : topologicalKrullDim X = 1) (x : X) (hx : x ∈ closedPoints X),
       _root_.IsCompleteLocalRing (Scheme.Normalization.Stalk.completion X x))
 
-/- Lemma 33.41.2 (14): a closed local-ring completion has Krull dimension one. -/
+/- Lemma 33.41.2 (14): a completion of a one-dimensional closed local ring has dimension one.
+The local dimension input corrects the zero-dimensional exception to source 0C1R (6). -/
 @[stacks 0C1R] #check
   (AlgebraicGeometry.Scheme.Normalization.Curve.Nagata.Completion.krullDimEqOne :
     ∀ {X : Scheme.{u}} [AlgebraicGeometry.IsReduced X] [Scheme.Nagata X]
-      (hdim : topologicalKrullDim X = 1) (x : X) (hx : x ∈ closedPoints X),
+      (hdim : topologicalKrullDim X = 1) (x : X) (hx : x ∈ closedPoints X)
+      (hlocalDim : ringKrullDim (X.presheaf.stalk x) = 1),
       ringKrullDim (Scheme.Normalization.Stalk.completion X x) = 1)
 
 /- Lemma 33.41.2 (15): a completed normalization pushforward stalk is an integral closure. -/
@@ -155,12 +163,14 @@ Dedekind domains. -/
             (Scheme.Normalization.Stalk.completion X x)
             (Localization (nonZeroDivisors (Scheme.Normalization.Stalk.completion X x))))
 
-/- Lemma 33.41.2 (16): a completed normalization pushforward stalk is a finite product of
-complete discrete valuation rings. -/
+/- Lemma 33.41.2 (16): at a one-dimensional closed-point local ring, the completed normalization
+pushforward stalk is a finite product of complete DVRs. The local dimension input corrects the
+zero-dimensional exception to source 0C1R (8). -/
 @[stacks 0C1R] #check
   (AlgebraicGeometry.Scheme.Normalization.Curve.Nagata.Completion.existsFiniteProductCompleteDVR :
     ∀ {X : Scheme.{u}} [AlgebraicGeometry.IsReduced X] [Scheme.Nagata X]
-      (hdim : topologicalKrullDim X = 1) (x : X) (hx : x ∈ closedPoints X),
+      (hdim : topologicalKrullDim X = 1) (x : X) (hx : x ∈ closedPoints X)
+      (hlocalDim : ringKrullDim (X.presheaf.stalk x) = 1),
       ∃ (ι : Type u) (_hι : Finite ι) (R : ι → Type u)
         (_hR : ∀ i, CommRing (R i)) (_hDomain : ∀ i, IsDomain (R i))
         (_hAlgebra : ∀ i, Algebra (Scheme.Normalization.Stalk.completion X x) (R i))

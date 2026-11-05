@@ -330,7 +330,9 @@ private theorem tensor_product_tmul_smul_apply
       tensor_product_module (k := k) (A := A) (B := B) (M := M)
     ((b ⊗ₜ[k] l : TensorProduct k B (Module.End A M)) • m) = (b : A) • l m := by
   -- Unfold the module structure only once and then use the pure-tensor evaluation lemma.
-  sorry -- TODO: simpa [tensor_product_module] using
+  change tensor_product_action_to_End (k := k) (A := A) (B := B) (M := M)
+    (b ⊗ₜ[k] l) m = (b : A) • l m
+  exact tensor_product_action_to_End_tmul_apply (k := k) (A := A) (B := B) b l m
 
 
 omit [IsSimpleRing B] in
@@ -485,8 +487,7 @@ private theorem tensor_linear_endomorphism_centralizes_subalgebra
           (k := k) (A := A) (B := B) (M := M) f b' m
     _ = e a (b • m) := by rw [ha_apply]
     _ = e (a * b) m := by
-      rw [← simple_module_double_centralizer_apply (k := k) (A := A) (M := M) b m]
-      sorry -- TODO: simpa using
+      simp only [e, simple_module_double_centralizer_apply, mul_smul]
 
 
 -- Tensor-linearity of a centralizing element is checked first on pure tensors and then extended

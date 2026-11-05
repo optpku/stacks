@@ -8,6 +8,7 @@ module
 
 public import ReasLib.RingTheory.DiscreteValuationRing.Extension.BaseChange.FormalSmooth
 public import ReasLib.RingTheory.DiscreteValuationRing.Extension.Tame
+public import ReasLib.FieldTheory.Separable.Generated.Properties
 import Mathlib.Tactic.CrossRefAttribute
 
 @[expose] public section
@@ -50,10 +51,11 @@ local notation "B₁" => integralClosure B L₁
 /-- Lemma 15.115.4 (Abhyankar's lemma) (0BRM): let `A ⊂ B` be a tame extension of discrete
 valuation rings and let `K1 / K` be finite.  If the ramification index of `A ⊂ B` divides the
 ramification index at a maximal branch `m` of `A₁`, then every branch above `m` is formally smooth
-for its maximal-ideal-adic topology. -/
+for its maximal-ideal-adic topology.  The residue-field extension may be nonalgebraic;
+`Algebra.IsSeparableOver.instOfIsSeparable` supplies the algebraic separable specialization. -/
 @[stacks 0BRM "Abhyankar formal smoothness after tame base change"]
 theorem formallySmoothAtOfTameAndDvd
-    (hsep : Algebra.IsSeparable (ResidueField A) (ResidueField B))
+    (hsep : Algebra.IsSeparableOver (ResidueField A) (ResidueField B))
     (hprime : PrimeToResidueChar A (ramificationIndex A B))
     (m : Ideal A₁) [m.IsMaximal]
     (n : Ideal B₁) [n.IsMaximal] [n.LiesOver m]

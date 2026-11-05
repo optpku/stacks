@@ -27,7 +27,7 @@ variable {X : Type u} [TopologicalSpace X]
 
 /-- Every irreducible closed subset of a Hausdorff space is a singleton. -/
 @[stacks 004Y "irreducible closed subsets of Hausdorff spaces are singletons"]
-theorem IrreducibleCloseds.exists_eq_singleton [T2Space X] (Z : IrreducibleCloseds X) :
+theorem TopologicalSpace.IrreducibleCloseds.exists_eq_singleton [T2Space X] (Z : IrreducibleCloseds X) :
     ∃ x : X, Z = {x} := by
   obtain ⟨x, hx⟩ := isIrreducible_iff_singleton.mp Z.isIrreducible
   exact ⟨x, IrreducibleCloseds.ext hx⟩

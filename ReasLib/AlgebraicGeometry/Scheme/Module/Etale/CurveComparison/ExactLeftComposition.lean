@@ -24,7 +24,10 @@ variable {M : A} (P : ProjectiveResolution M) (Q : ProjectiveResolution (F.obj M
 abbrev complex : ChainComplex B ℕ := (F.mapHomologicalComplex (ComplexShape.down ℕ)).obj P.complex
 
 /-- Exactness at the augmentation of the mapped projective resolution. -/
-theorem exactZero : (ShortComplex.mk ((complex F P).d 1 0) (F.map (P.π.f 0)) sorry).Exact := sorry
+theorem exactZero :
+    (ShortComplex.mk ((complex F P).d 1 0) (F.map (P.π.f 0)) (by
+      change F.map (P.complex.d 1 0) ≫ F.map (P.π.f 0) = 0
+      rw [← F.map_comp, P.complex_d_comp_π_f_zero, F.map_zero])).Exact := sorry
 
 /-- Exactness in the positive degrees of the mapped projective resolution. -/
 theorem exactSucc (n : ℕ) :

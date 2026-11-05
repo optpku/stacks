@@ -90,7 +90,9 @@ abbrev α : X.A ⟶ T.inverse.obj X.A :=
 
 /-- The page-one shifted differential squares to zero. -/
 @[stacks 0AMJ "shifted exact-couple page differential square"]
-theorem d_squared : X.d ≫ S.functor.map X.d = 0 := sorry
+theorem d_squared : X.d ≫ S.functor.map X.d = 0 := by
+  simp only [d, Functor.map_comp, Category.assoc]
+  rw [← Category.assoc X.g, X.g_comp_Sf, zero_comp, comp_zero]
 
 /-- The explicit page differential object associated to a supplied square-zero witness. -/
 @[stacks 0AMJ "page differential object with square-zero witness"]
@@ -280,18 +282,13 @@ comparison and exactness statements separately, so no concrete map is constructe
 unproved universal-property side condition. -/
 @[stacks 0AMJ "derived shifted exact-couple data"]
 structure Data (X : ShiftedExactCouple S T) where
-  /-- A square-zero witness retained by the page differential object. -/
-  dSquared : X.d ≫ S.functor.map X.d = 0
-  /-- The translated previous differential composes with the page differential to zero. -/
-  previousCompD :
-    ShiftedDifferentialObject.Differential.previous S.functor X.d ≫ X.d = 0
   /-- The map from page cycles to the derived outer object. -/
-  fCycles : (X.pageShortComplexOf previousCompD).cycles ⟶ outer X
+  fCycles : (X.page.shortComplex).cycles ⟶ outer X
   /-- The cycle map vanishes on page boundaries. -/
-  fCycles_zero : (X.pageShortComplexOf previousCompD).toCycles ≫ fCycles = 0
+  fCycles_zero : (X.page.shortComplex).toCycles ≫ fCycles = 0
   /-- The source-level representative of the derived connecting map. -/
   gFromOuter : T.functor.obj X.A ⟶
-    (S.trans T).functor.obj (X.pageShortComplexOf previousCompD).homology
+    (S.trans T).functor.obj (X.page.shortComplex).homology
   /-- The source representative vanishes after the translated map `f`. -/
   map_f_gFromOuter_zero : T.functor.map X.f ≫ gFromOuter = 0
 
@@ -299,15 +296,23 @@ namespace Data
 
 variable {S T : C ≌ C} {X : ShiftedExactCouple S T}
 
+/-- Square-zero is a property of the input shifted exact couple. -/
+theorem dSquared (D : Data X) : X.d ≫ S.functor.map X.d = 0 := X.d_squared
+
+/-- The previous differential composes to zero by the canonical shifted-page construction. -/
+theorem previousCompD (D : Data X) :
+    ShiftedDifferentialObject.Differential.previous S.functor X.d ≫ X.d = 0 :=
+  ShiftedDifferentialObject.Differential.comp S.functor X.d X.d_squared
+
 /-- The page differential object retained by a package of derived-couple data. -/
 @[stacks 0AMJ "derived shifted page differential object"]
 abbrev page (D : Data X) : ShiftedDifferentialObject S.functor :=
-  X.pageOf D.dSquared
+  X.page
 
 /-- The explicitly retained page short complex. -/
 @[stacks 0AMJ "derived shifted page short complex"]
 noncomputable abbrev shortComplex (D : Data X) : ShortComplex C :=
-  X.pageShortComplexOf D.previousCompD
+  X.page.shortComplex
 
 /-- The homology object used as the page object of the derived shifted exact couple. -/
 @[stacks 0AMJ "derived shifted page object"]
@@ -406,6 +411,83 @@ noncomputable def ofData (D : Data X) (hD : Laws D) :
   exact_tAlpha_g := hD.exact_tAlpha_g
   exact_g_Sf := hD.exact_g_map_f
 
+/-- Factor the original `f` on page cycles through `image (Tα) = kernel g`. -/
+noncomputable def cyclesToOuter (X : ShiftedExactCouple S T) :
+    X.page.shortComplex.cycles ⟶ outer X :=
+  X.exact_tAlpha_g.isLimitImage'.lift
+    (KernelFork.ofι (X.page.shortComplex.iCycles ≫ X.f) (by
+      rw [Category.assoc]
+      exact X.page.shortComplex.iCycles_g))
+
+/-- The image factorization retains the original map on cycle representatives. -/
+@[reassoc]
+theorem cyclesToOuter_comp_ι (X : ShiftedExactCouple S T) :
+    cyclesToOuter X ≫ image.ι X.tAlpha = X.page.shortComplex.iCycles ≫ X.f := by
+  exact Fork.IsLimit.lift_ι _
+
+/-- The translated original `g` is a cycle in the translated page short complex. -/
+theorem map_g_cycles (X : ShiftedExactCouple S T) :
+    T.functor.map X.g ≫
+      ((S.trans T).functor.mapShortComplex.obj X.page.shortComplex).g = 0 := by
+  change T.functor.map X.g ≫ T.functor.map (S.functor.map X.d) = 0
+  rw [← T.functor.map_comp]
+  change T.functor.map (X.g ≫ S.functor.map (X.f ≫ X.g)) = 0
+  rw [S.functor.map_comp, ← Category.assoc, X.g_comp_Sf, zero_comp,
+    Functor.map_zero]
+
+/-- The homology class of `T g`, transported through the homology preservation isomorphism
+of the supplied equivalences. -/
+noncomputable def outerToHomology (X : ShiftedExactCouple S T) :
+    T.functor.obj X.A ⟶ (S.trans T).functor.obj X.page.homology :=
+  ((S.trans T).functor.mapShortComplex.obj X.page.shortComplex).liftToHomology
+      (T.functor.map X.g) (map_g_cycles X) ≫
+    (X.page.shortComplex.mapHomologyIso (S.trans T).functor).hom
+
+/-- The previous page differential is killed by `f`. -/
+theorem previous_comp_f (X : ShiftedExactCouple S T) :
+    X.page.shortComplex.f ≫ X.f = 0 := by
+  apply S.functor.map_injective
+  rw [Functor.map_comp, Functor.map_zero, ShiftedDifferentialObject.Differential.map]
+  change (S.functor.asEquivalence.counit.app X.E ≫ (X.f ≫ X.g)) ≫
+    S.functor.map X.f = 0
+  simp only [Category.assoc, X.g_comp_Sf, comp_zero]
+
+/-- `T f ≫ T g` has an explicit boundary representative in the mapped page complex. -/
+theorem map_f_map_g_boundary (X : ShiftedExactCouple S T) :
+    T.functor.map X.f ≫ T.functor.map X.g =
+      T.functor.map (S.functor.asEquivalence.counitInv.app X.E) ≫
+        ((S.trans T).functor.mapShortComplex.obj X.page.shortComplex).f := by
+  change T.functor.map X.f ≫ T.functor.map X.g =
+    T.functor.map _ ≫ T.functor.map (S.functor.map
+      (ShiftedDifferentialObject.Differential.previous S.functor X.d))
+  erw [ShiftedDifferentialObject.Differential.map, ← T.functor.map_comp,
+    ← T.functor.map_comp, ← Category.assoc,
+    S.functor.asEquivalence.counitIso_inv_hom_id_app, Category.id_comp, T.functor.map_comp]
+
+/-- The canonical connecting representative kills the translated map `f`. -/
+theorem outerToHomology_zero (X : ShiftedExactCouple S T) :
+    T.functor.map X.f ≫ outerToHomology X = 0 := by
+  dsimp only [outerToHomology, ShortComplex.liftToHomology]
+  rw [← Category.assoc, ← Category.assoc, ShortComplex.comp_liftCycles]
+  rw [ShortComplex.liftCycles_homologyπ_eq_zero_of_boundary _ _ _
+    (map_f_map_g_boundary X), zero_comp]
+
+/-- Canonical maps and descent side conditions for the derived shifted exact couple. -/
+@[stacks 0AMJ "canonical derived shifted exact-couple data"]
+noncomputable def data (X : ShiftedExactCouple S T) : Data X where
+  fCycles := cyclesToOuter X
+  fCycles_zero := by
+    apply (cancel_mono (image.ι X.tAlpha)).1
+    rw [Category.assoc, cyclesToOuter_comp_ι, ← Category.assoc,
+      X.page.shortComplex.toCycles_i, zero_comp]
+    exact previous_comp_f X
+  gFromOuter := outerToHomology X
+  map_f_gFromOuter_zero := outerToHomology_zero X
+
+/-- The canonical induced maps form the derived shifted exact couple. -/
+@[stacks 0AMJ "canonical derived shifted exact-couple laws"]
+theorem laws (X : ShiftedExactCouple S T) : Laws (data X) := sorry
+
 /-- A coherent source of derived shifted-couple data for every first shift with fixed second
 shift `T`. -/
 @[stacks 0AMJ "iterable derived shifted exact-couple construction"]
@@ -414,6 +496,12 @@ structure Construction (T : C ≌ C) where
   data : {S : C ≌ C} → (X : ShiftedExactCouple S T) → Data X
   /-- Proposition-valued certification of the data for one derivation step. -/
   laws : {S : C ≌ C} → (X : ShiftedExactCouple S T) → Laws (data X)
+
+/-- Canonical derivation for every first shift, with the second shift fixed. -/
+@[stacks 0AMJ "canonical derived shifted exact-couple construction"]
+noncomputable def construction (T : C ≌ C) : Construction T where
+  data := data
+  laws := laws
 
 namespace Construction
 
@@ -466,26 +554,42 @@ noncomputable def associatedSpectralSequence
 
 end Construction
 
+/-- The canonical derived shifted exact couple. -/
+noncomputable abbrev derived (X : ShiftedExactCouple S T) :
+    ShiftedExactCouple (S.trans T) T :=
+  (construction T).derived X
+
+/-- Iteration of the canonical derived shifted exact couple. -/
+noncomputable abbrev iterate (X : ShiftedExactCouple S T) :
+    (n : ℕ) → ShiftedExactCouple (ShiftedSpectralSequence.pageShift S T ⟨n + 1, Nat.succ_pos _⟩) T :=
+  (construction T).iterate X
+
+/-- The spectral sequence canonically associated to a shifted exact couple. -/
+@[stacks 0AMJ "canonical associated shifted spectral sequence"]
+noncomputable abbrev associatedSpectralSequence (X : ShiftedExactCouple S T) :
+    ShiftedSpectralSequence (ShiftedSpectralSequence.pageShift S T) :=
+  (construction T).associatedSpectralSequence X
+
 namespace Page
 
 /-- Page `r + 1` is the page-one shifted differential object of the `r`-fold iterate. -/
 @[stacks 0AMJ "associated shifted page complex"]
-theorem complex (K : Construction T) (X : ShiftedExactCouple S T) (r : ℕ) :
-    (K.associatedSpectralSequence X).page ⟨r + 1, Nat.succ_pos _⟩ =
-      (K.data (K.iterate X r)).page := sorry
+theorem complex (X : ShiftedExactCouple S T) (r : ℕ) :
+    (associatedSpectralSequence X).page ⟨r + 1, Nat.succ_pos _⟩ =
+      (data (iterate X r)).page := sorry
 
 /-- The object on page `r + 1` is the page object of the `r`-fold iterate. -/
 @[stacks 0AMJ "associated shifted page object"]
-theorem obj (K : Construction T) (X : ShiftedExactCouple S T) (r : ℕ) :
-    ((K.associatedSpectralSequence X).page ⟨r + 1, Nat.succ_pos _⟩).obj =
-      (K.iterate X r).E := sorry
+theorem obj (X : ShiftedExactCouple S T) (r : ℕ) :
+    ((associatedSpectralSequence X).page ⟨r + 1, Nat.succ_pos _⟩).obj =
+      (iterate X r).E := sorry
 
 /-- The differential on page `r + 1` is the page-one differential of the `r`-fold shifted
 derived couple. -/
 @[stacks 0AMJ "associated shifted page differential"]
-theorem differential (K : Construction T) (X : ShiftedExactCouple S T) (r : ℕ) :
-    ((K.associatedSpectralSequence X).page ⟨r + 1, Nat.succ_pos _⟩).d =
-      (K.iterate X r).d := sorry
+theorem differential (X : ShiftedExactCouple S T) (r : ℕ) :
+    ((associatedSpectralSequence X).page ⟨r + 1, Nat.succ_pos _⟩).d =
+      (iterate X r).d := sorry
 
 end Page
 

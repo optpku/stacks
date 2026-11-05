@@ -16,7 +16,9 @@ import Mathlib.Tactic.CrossRefAttribute
 This leaf owns the explicit degreewise comparison between the associated
 graded modules of two cokernels.  The construction uses a common quotient
 presentation inside `I ^ n N`; its public endpoint is a degree-preserving
-linear equivalence over `Ideal.AssociatedGraded.ring I`.
+linear equivalence over `Ideal.AssociatedGraded.ring I`. The perturbed maps
+are required to form a complex; this supplies the perturbed Artin--Rees bound
+without Noetherian or Jacobson hypotheses.
 
 @stack 07VF
 -/
@@ -48,7 +50,8 @@ abbrev denominator (I : Ideal A) (g : M →ₗ[A] N) (n : ℕ) :
 /-- The quotient map `N → N ⧸ LinearMap.range g` sends the degree-`n`
 filtration stage into the corresponding stage of the cokernel. -/
 theorem stageMap_mem (I : Ideal A) (g : M →ₗ[A] N) (n : ℕ) (z : stage I N n) :
-    (LinearMap.range g).mkQ z.1 ∈ stage I (N ⧸ LinearMap.range g) n := sorry
+    (LinearMap.range g).mkQ z.1 ∈ stage I (N ⧸ LinearMap.range g) n := by
+  exact Ideal.PowerSubmodule.map_mem I (LinearMap.range g).mkQ n z.2
 
 /-- The stage map induced by `N → N ⧸ LinearMap.range g`. -/
 @[stacks 07VF "stage map to the cokernel filtration"]
@@ -68,12 +71,50 @@ def pieceMap (I : Ideal A) (g : M →ₗ[A] N) (n : ℕ) :
 
 /-- The kernel of `pieceMap` is its explicit ambient denominator. -/
 theorem pieceMap_ker (I : Ideal A) (g : M →ₗ[A] N) (n : ℕ) :
-    LinearMap.ker (pieceMap I g n) = denominator I g n := sorry
+    LinearMap.ker (pieceMap I g n) = denominator I g n := by
+  have hmap : (stage I N (n + 1)).map (LinearMap.range g).mkQ =
+      stage I (N ⧸ LinearMap.range g) (n + 1) := by
+    change (I ^ (n + 1) • (⊤ : Submodule A N)).map (LinearMap.range g).mkQ =
+      I ^ (n + 1) • (⊤ : Submodule A (N ⧸ LinearMap.range g))
+    rw [Submodule.map_smul'', Submodule.map_top, Submodule.range_mkQ]
+  have hpre : Submodule.comap (LinearMap.range g).mkQ
+      (stage I (N ⧸ LinearMap.range g) (n + 1)) =
+      LinearMap.range g ⊔ stage I N (n + 1) := by
+    rw [← hmap, Submodule.comap_map_mkQ]
+  ext z
+  change (Submodule.Quotient.mk (stageMap I g n z) :
+      piece I (N ⧸ LinearMap.range g) n) = 0 ↔
+    z.1 ∈ stage I N (n + 1) ⊔ LinearMap.range g ⊓ stage I N n
+  rw [Submodule.Quotient.mk_eq_zero]
+  change z.1 ∈ Submodule.comap (LinearMap.range g).mkQ
+      (stage I (N ⧸ LinearMap.range g) (n + 1)) ↔ _
+  rw [hpre]
+  constructor
+  · intro hz
+    obtain ⟨r, hr, s, hs, hrs⟩ := Submodule.mem_sup.mp hz
+    have hs' : s ∈ stage I N n :=
+      Ideal.PowerSubmodule.stage_antitone I (Nat.le_succ n) hs
+    have hr' : r ∈ stage I N n := by
+      have h : r = z.1 - s := by rw [← hrs, add_sub_cancel_right]
+      rw [h]
+      exact Submodule.sub_mem _ z.2 hs'
+    exact Submodule.mem_sup.mpr ⟨s, hs, r, ⟨hr, hr'⟩, by
+      simpa only [add_comm] using hrs⟩
+  · intro hz
+    obtain ⟨s, hs, r, hr, hsr⟩ := Submodule.mem_sup.mp hz
+    exact Submodule.mem_sup.mpr ⟨r, hr.1, s, hs, by
+      simpa only [add_comm] using hsr⟩
 
 /-- Every class in a cokernel's degree-`n` associated graded piece lifts
 from the ambient stage `I ^ n N`. -/
 theorem pieceMap_surjective (I : Ideal A) (g : M →ₗ[A] N) (n : ℕ) :
-    Function.Surjective (pieceMap I g n) := sorry
+    Function.Surjective (pieceMap I g n) := by
+  have hs : Function.Surjective (stageMap I g n) := by
+    intro y
+    obtain ⟨z, hz⟩ := Ideal.PowerSubmodule.map_surjective I
+      (LinearMap.range g).mkQ (Submodule.mkQ_surjective _) n y
+    exact ⟨z, hz⟩
+  exact (Submodule.mkQ_surjective _).comp hs
 
 /-- The explicit ambient quotient model of a cokernel's degree-`n`
 associated graded piece. -/
@@ -84,14 +125,16 @@ def internalPieceEquiv (I : Ideal A) (g : M →ₗ[A] N) (n : ℕ) :
   (Submodule.quotEquivOfEq _ _ (pieceMap_ker I g n).symm).trans
     ((pieceMap I g n).quotKerEquivOfSurjective (pieceMap_surjective I g n))
 
-/-- Congruent maps with a common Artin--Rees bound give the same ambient
-denominator in every associated graded degree. -/
+/-- A perturbation of an exact complex that remains a complex gives the same
+ambient denominator in every associated graded degree, under the stated
+Artin--Rees bounds. -/
 theorem denominator_eq_of_congr_mod_pow_and_artinRees
     (I : Ideal A) {c : ℕ} {f f' : L →ₗ[A] M} {g g' : M →ₗ[A] N}
     (hf : f.IsArtinReesBound I c) (hg : g.IsArtinReesBound I c)
     (hexact : Function.Exact f g)
     (hff' : LinearMap.range (f' - f) ≤ I ^ (c + 1) • (⊤ : Submodule A M))
     (hgg' : LinearMap.range (g' - g) ≤ I ^ (c + 1) • (⊤ : Submodule A N))
+    (hcomplex' : g'.comp f' = 0)
     (n : ℕ) :
     denominator I g n = denominator I g' n := sorry
 
@@ -104,13 +147,14 @@ def pieceEquiv
     (hexact : Function.Exact f g)
     (hff' : LinearMap.range (f' - f) ≤ I ^ (c + 1) • (⊤ : Submodule A M))
     (hgg' : LinearMap.range (g' - g) ≤ I ^ (c + 1) • (⊤ : Submodule A N))
+    (hcomplex' : g'.comp f' = 0)
     (n : ℕ) :
     piece I (N ⧸ LinearMap.range g) n ≃ₗ[A]
       piece I (N ⧸ LinearMap.range g') n :=
   (internalPieceEquiv I g n).symm.trans <|
     (Submodule.quotEquivOfEq _ _
       (denominator_eq_of_congr_mod_pow_and_artinRees
-        I hf hg hexact hff' hgg' n)).trans <|
+        I hf hg hexact hff' hgg' hcomplex' n)).trans <|
       internalPieceEquiv I g' n
 
 /-- The direct-sum map assembled from the degreewise cokernel equivalences. -/
@@ -120,10 +164,11 @@ def linearMap
     (hf : f.IsArtinReesBound I c) (hg : g.IsArtinReesBound I c)
     (hexact : Function.Exact f g)
     (hff' : LinearMap.range (f' - f) ≤ I ^ (c + 1) • (⊤ : Submodule A M))
-    (hgg' : LinearMap.range (g' - g) ≤ I ^ (c + 1) • (⊤ : Submodule A N)) :
+    (hgg' : LinearMap.range (g' - g) ≤ I ^ (c + 1) • (⊤ : Submodule A N))
+    (hcomplex' : g'.comp f' = 0) :
     gradedModule I (N ⧸ LinearMap.range g) →ₗ[A]
       gradedModule I (N ⧸ LinearMap.range g') :=
-  DirectSum.lmap fun n ↦ (pieceEquiv I hf hg hexact hff' hgg' n).toLinearMap
+  DirectSum.lmap fun n ↦ (pieceEquiv I hf hg hexact hff' hgg' hcomplex' n).toLinearMap
 
 /-- The direct-sum map assembled from the inverse degreewise equivalences. -/
 @[stacks 07VF "inverse direct-sum associated-graded comparison"]
@@ -132,10 +177,11 @@ def linearInvMap
     (hf : f.IsArtinReesBound I c) (hg : g.IsArtinReesBound I c)
     (hexact : Function.Exact f g)
     (hff' : LinearMap.range (f' - f) ≤ I ^ (c + 1) • (⊤ : Submodule A M))
-    (hgg' : LinearMap.range (g' - g) ≤ I ^ (c + 1) • (⊤ : Submodule A N)) :
+    (hgg' : LinearMap.range (g' - g) ≤ I ^ (c + 1) • (⊤ : Submodule A N))
+    (hcomplex' : g'.comp f' = 0) :
     gradedModule I (N ⧸ LinearMap.range g') →ₗ[A]
       gradedModule I (N ⧸ LinearMap.range g) :=
-  DirectSum.lmap fun n ↦ (pieceEquiv I hf hg hexact hff' hgg' n).symm.toLinearMap
+  DirectSum.lmap fun n ↦ (pieceEquiv I hf hg hexact hff' hgg' hcomplex' n).symm.toLinearMap
 
 /-- The inverse direct-sum map is a left inverse to the forward map. -/
 theorem linearInvMap_comp_linearMap
@@ -143,9 +189,10 @@ theorem linearInvMap_comp_linearMap
     (hf : f.IsArtinReesBound I c) (hg : g.IsArtinReesBound I c)
     (hexact : Function.Exact f g)
     (hff' : LinearMap.range (f' - f) ≤ I ^ (c + 1) • (⊤ : Submodule A M))
-    (hgg' : LinearMap.range (g' - g) ≤ I ^ (c + 1) • (⊤ : Submodule A N)) :
-    (linearInvMap I hf hg hexact hff' hgg').comp
-      (linearMap I hf hg hexact hff' hgg') = LinearMap.id := sorry
+    (hgg' : LinearMap.range (g' - g) ≤ I ^ (c + 1) • (⊤ : Submodule A N))
+    (hcomplex' : g'.comp f' = 0) :
+    (linearInvMap I hf hg hexact hff' hgg' hcomplex').comp
+      (linearMap I hf hg hexact hff' hgg' hcomplex') = LinearMap.id := sorry
 
 /-- The inverse direct-sum map is a right inverse to the forward map. -/
 theorem linearMap_comp_linearInvMap
@@ -153,9 +200,10 @@ theorem linearMap_comp_linearInvMap
     (hf : f.IsArtinReesBound I c) (hg : g.IsArtinReesBound I c)
     (hexact : Function.Exact f g)
     (hff' : LinearMap.range (f' - f) ≤ I ^ (c + 1) • (⊤ : Submodule A M))
-    (hgg' : LinearMap.range (g' - g) ≤ I ^ (c + 1) • (⊤ : Submodule A N)) :
-    (linearMap I hf hg hexact hff' hgg').comp
-      (linearInvMap I hf hg hexact hff' hgg') = LinearMap.id := sorry
+    (hgg' : LinearMap.range (g' - g) ≤ I ^ (c + 1) • (⊤ : Submodule A N))
+    (hcomplex' : g'.comp f' = 0) :
+    (linearMap I hf hg hexact hff' hgg' hcomplex').comp
+      (linearInvMap I hf hg hexact hff' hgg' hcomplex') = LinearMap.id := sorry
 
 /-- The underlying `A`-linear equivalence of the associated graded
 cokernels, assembled degreewise. -/
@@ -165,14 +213,15 @@ def linearEquiv
     (hf : f.IsArtinReesBound I c) (hg : g.IsArtinReesBound I c)
     (hexact : Function.Exact f g)
     (hff' : LinearMap.range (f' - f) ≤ I ^ (c + 1) • (⊤ : Submodule A M))
-    (hgg' : LinearMap.range (g' - g) ≤ I ^ (c + 1) • (⊤ : Submodule A N)) :
+    (hgg' : LinearMap.range (g' - g) ≤ I ^ (c + 1) • (⊤ : Submodule A N))
+    (hcomplex' : g'.comp f' = 0) :
     gradedModule I (N ⧸ LinearMap.range g) ≃ₗ[A]
       gradedModule I (N ⧸ LinearMap.range g') :=
   LinearEquiv.ofLinear
-    (linearMap I hf hg hexact hff' hgg')
-    (linearInvMap I hf hg hexact hff' hgg')
-    (linearMap_comp_linearInvMap I hf hg hexact hff' hgg')
-    (linearInvMap_comp_linearMap I hf hg hexact hff' hgg')
+    (linearMap I hf hg hexact hff' hgg' hcomplex')
+    (linearInvMap I hf hg hexact hff' hgg' hcomplex')
+    (linearMap_comp_linearInvMap I hf hg hexact hff' hgg' hcomplex')
+    (linearInvMap_comp_linearMap I hf hg hexact hff' hgg' hcomplex')
 
 /-- The underlying linear equivalence acts on each direct-sum generator by
 the corresponding degreewise equivalence. -/
@@ -183,11 +232,12 @@ theorem linearEquiv_lof
     (hexact : Function.Exact f g)
     (hff' : LinearMap.range (f' - f) ≤ I ^ (c + 1) • (⊤ : Submodule A M))
     (hgg' : LinearMap.range (g' - g) ≤ I ^ (c + 1) • (⊤ : Submodule A N))
+    (hcomplex' : g'.comp f' = 0)
     (n : ℕ) (z : piece I (N ⧸ LinearMap.range g) n) :
-    linearEquiv I hf hg hexact hff' hgg'
+    linearEquiv I hf hg hexact hff' hgg' hcomplex'
         (DirectSum.lof A ℕ (piece I (N ⧸ LinearMap.range g)) n z) =
       DirectSum.lof A ℕ (piece I (N ⧸ LinearMap.range g')) n
-        (pieceEquiv I hf hg hexact hff' hgg' n z) := sorry
+        (pieceEquiv I hf hg hexact hff' hgg' hcomplex' n z) := sorry
 
 /-- The direct-sum comparison commutes with the canonical action of
 `Ideal.AssociatedGraded.ring I`. -/
@@ -197,9 +247,10 @@ theorem linearMap_map_smul
     (hexact : Function.Exact f g)
     (hff' : LinearMap.range (f' - f) ≤ I ^ (c + 1) • (⊤ : Submodule A M))
     (hgg' : LinearMap.range (g' - g) ≤ I ^ (c + 1) • (⊤ : Submodule A N))
+    (hcomplex' : g'.comp f' = 0)
     (a : ring I) (z : gradedModule I (N ⧸ LinearMap.range g)) :
-    linearMap I hf hg hexact hff' hgg' (a • z) =
-      a • linearMap I hf hg hexact hff' hgg' z := sorry
+    linearMap I hf hg hexact hff' hgg' hcomplex' (a • z) =
+      a • linearMap I hf hg hexact hff' hgg' hcomplex' z := sorry
 
 /-- The inverse direct-sum comparison commutes with the canonical action of
 `Ideal.AssociatedGraded.ring I`. -/
@@ -209,9 +260,10 @@ theorem linearInvMap_map_smul
     (hexact : Function.Exact f g)
     (hff' : LinearMap.range (f' - f) ≤ I ^ (c + 1) • (⊤ : Submodule A M))
     (hgg' : LinearMap.range (g' - g) ≤ I ^ (c + 1) • (⊤ : Submodule A N))
+    (hcomplex' : g'.comp f' = 0)
     (a : ring I) (z : gradedModule I (N ⧸ LinearMap.range g')) :
-    linearInvMap I hf hg hexact hff' hgg' (a • z) =
-      a • linearInvMap I hf hg hexact hff' hgg' z := sorry
+    linearInvMap I hf hg hexact hff' hgg' hcomplex' (a • z) =
+      a • linearInvMap I hf hg hexact hff' hgg' hcomplex' z := sorry
 
 /-- The associated graded cokernel comparison as a linear map over
 `Ideal.AssociatedGraded.ring I`. -/
@@ -221,12 +273,13 @@ def map
     (hf : f.IsArtinReesBound I c) (hg : g.IsArtinReesBound I c)
     (hexact : Function.Exact f g)
     (hff' : LinearMap.range (f' - f) ≤ I ^ (c + 1) • (⊤ : Submodule A M))
-    (hgg' : LinearMap.range (g' - g) ≤ I ^ (c + 1) • (⊤ : Submodule A N)) :
+    (hgg' : LinearMap.range (g' - g) ≤ I ^ (c + 1) • (⊤ : Submodule A N))
+    (hcomplex' : g'.comp f' = 0) :
     gradedModule I (N ⧸ LinearMap.range g) →ₗ[ring I]
       gradedModule I (N ⧸ LinearMap.range g') where
-  toFun := linearMap I hf hg hexact hff' hgg'
-  map_add' := (linearMap I hf hg hexact hff' hgg').map_add
-  map_smul' := linearMap_map_smul I hf hg hexact hff' hgg'
+  toFun := linearMap I hf hg hexact hff' hgg' hcomplex'
+  map_add' := (linearMap I hf hg hexact hff' hgg' hcomplex').map_add
+  map_smul' := linearMap_map_smul I hf hg hexact hff' hgg' hcomplex'
 
 /-- The inverse associated graded cokernel comparison as a linear map over
 `Ideal.AssociatedGraded.ring I`. -/
@@ -236,12 +289,13 @@ def invMap
     (hf : f.IsArtinReesBound I c) (hg : g.IsArtinReesBound I c)
     (hexact : Function.Exact f g)
     (hff' : LinearMap.range (f' - f) ≤ I ^ (c + 1) • (⊤ : Submodule A M))
-    (hgg' : LinearMap.range (g' - g) ≤ I ^ (c + 1) • (⊤ : Submodule A N)) :
+    (hgg' : LinearMap.range (g' - g) ≤ I ^ (c + 1) • (⊤ : Submodule A N))
+    (hcomplex' : g'.comp f' = 0) :
     gradedModule I (N ⧸ LinearMap.range g') →ₗ[ring I]
       gradedModule I (N ⧸ LinearMap.range g) where
-  toFun := linearInvMap I hf hg hexact hff' hgg'
-  map_add' := (linearInvMap I hf hg hexact hff' hgg').map_add
-  map_smul' := linearInvMap_map_smul I hf hg hexact hff' hgg'
+  toFun := linearInvMap I hf hg hexact hff' hgg' hcomplex'
+  map_add' := (linearInvMap I hf hg hexact hff' hgg' hcomplex').map_add
+  map_smul' := linearInvMap_map_smul I hf hg hexact hff' hgg' hcomplex'
 
 /-- The forward `Gr_I(A)`-linear map followed by its inverse is the identity. -/
 theorem map_comp_invMap
@@ -249,9 +303,10 @@ theorem map_comp_invMap
     (hf : f.IsArtinReesBound I c) (hg : g.IsArtinReesBound I c)
     (hexact : Function.Exact f g)
     (hff' : LinearMap.range (f' - f) ≤ I ^ (c + 1) • (⊤ : Submodule A M))
-    (hgg' : LinearMap.range (g' - g) ≤ I ^ (c + 1) • (⊤ : Submodule A N)) :
-    (map I hf hg hexact hff' hgg').comp
-      (invMap I hf hg hexact hff' hgg') = LinearMap.id := sorry
+    (hgg' : LinearMap.range (g' - g) ≤ I ^ (c + 1) • (⊤ : Submodule A N))
+    (hcomplex' : g'.comp f' = 0) :
+    (map I hf hg hexact hff' hgg' hcomplex').comp
+      (invMap I hf hg hexact hff' hgg' hcomplex') = LinearMap.id := sorry
 
 /-- The inverse `Gr_I(A)`-linear map followed by the forward map is the identity. -/
 theorem invMap_comp_map
@@ -259,9 +314,10 @@ theorem invMap_comp_map
     (hf : f.IsArtinReesBound I c) (hg : g.IsArtinReesBound I c)
     (hexact : Function.Exact f g)
     (hff' : LinearMap.range (f' - f) ≤ I ^ (c + 1) • (⊤ : Submodule A M))
-    (hgg' : LinearMap.range (g' - g) ≤ I ^ (c + 1) • (⊤ : Submodule A N)) :
-    (invMap I hf hg hexact hff' hgg').comp
-      (map I hf hg hexact hff' hgg') = LinearMap.id := sorry
+    (hgg' : LinearMap.range (g' - g) ≤ I ^ (c + 1) • (⊤ : Submodule A N))
+    (hcomplex' : g'.comp f' = 0) :
+    (invMap I hf hg hexact hff' hgg' hcomplex').comp
+      (map I hf hg hexact hff' hgg' hcomplex') = LinearMap.id := sorry
 
 /-- Lemma 15.4.2: an Artin--Rees perturbation induces a degree-preserving
 `Gr_I(A)`-linear equivalence between the associated graded cokernels. -/
@@ -271,14 +327,15 @@ def equiv
     (hf : f.IsArtinReesBound I c) (hg : g.IsArtinReesBound I c)
     (hexact : Function.Exact f g)
     (hff' : LinearMap.range (f' - f) ≤ I ^ (c + 1) • (⊤ : Submodule A M))
-    (hgg' : LinearMap.range (g' - g) ≤ I ^ (c + 1) • (⊤ : Submodule A N)) :
+    (hgg' : LinearMap.range (g' - g) ≤ I ^ (c + 1) • (⊤ : Submodule A N))
+    (hcomplex' : g'.comp f' = 0) :
     gradedModule I (N ⧸ LinearMap.range g) ≃ₗ[ring I]
       gradedModule I (N ⧸ LinearMap.range g') :=
   LinearEquiv.ofLinear
-    (map I hf hg hexact hff' hgg')
-    (invMap I hf hg hexact hff' hgg')
-    (map_comp_invMap I hf hg hexact hff' hgg')
-    (invMap_comp_map I hf hg hexact hff' hgg')
+    (map I hf hg hexact hff' hgg' hcomplex')
+    (invMap I hf hg hexact hff' hgg' hcomplex')
+    (map_comp_invMap I hf hg hexact hff' hgg' hcomplex')
+    (invMap_comp_map I hf hg hexact hff' hgg' hcomplex')
 
 /-- The `Gr_I(A)`-linear equivalence acts degreewise on direct-sum
 generators. -/
@@ -289,10 +346,11 @@ theorem equiv_lof
     (hexact : Function.Exact f g)
     (hff' : LinearMap.range (f' - f) ≤ I ^ (c + 1) • (⊤ : Submodule A M))
     (hgg' : LinearMap.range (g' - g) ≤ I ^ (c + 1) • (⊤ : Submodule A N))
+    (hcomplex' : g'.comp f' = 0)
     (n : ℕ) (z : piece I (N ⧸ LinearMap.range g) n) :
-    equiv I hf hg hexact hff' hgg'
+    equiv I hf hg hexact hff' hgg' hcomplex'
         (DirectSum.lof A ℕ (piece I (N ⧸ LinearMap.range g)) n z) =
       DirectSum.lof A ℕ (piece I (N ⧸ LinearMap.range g')) n
-        (pieceEquiv I hf hg hexact hff' hgg' n z) := sorry
+        (pieceEquiv I hf hg hexact hff' hgg' hcomplex' n z) := sorry
 
 end Ideal.AssociatedGraded.Cokernel

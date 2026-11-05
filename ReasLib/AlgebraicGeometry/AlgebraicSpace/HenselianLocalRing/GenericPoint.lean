@@ -50,12 +50,34 @@ def elementaryProjection {X : AlgebraicSpace S} [IsDecent X] {x : Points X}
     (U : EtaleNeighborhood.Elementary X x) :=
   domainInfFst (X.fromSpecResidueField x) (EtaleNeighborhood.residueHom U.obj)
 
-/-- This fixed projection is invertible: elementary residue points are monomorphic,
-the two representatives have the same point, and a nonempty monomorphism to a field
-spectrum is an isomorphism. -/
+set_option backward.isDefEq.respectTransparency false in
+/-- The two residue points represent the same point. Their unique factorization
+gives a section of this monomorphic projection, hence an inverse. -/
 theorem elementaryProjection_isIso {X : AlgebraicSpace S} [IsDecent X] {x : Points X}
-    (U : EtaleNeighborhood.Elementary X x) : IsIso (elementaryProjection U) :=
-  sorry
+    (U : EtaleNeighborhood.Elementary X x) : IsIso (elementaryProjection U) := by
+  letI : Mono (EtaleNeighborhood.residueHom U.obj) := U.property
+  have hp : Points.mk (EtaleNeighborhood.residuePoint U.obj) = x := by
+    change Points.mapOfOver U.obj.hom U.obj.point = x
+    exact U.obj.2.2
+  have heq : Points.mk (FieldValuedPoint.residuePoint x) =
+      Points.mk (EtaleNeighborhood.residuePoint U.obj) :=
+    (FieldValuedPoint.mk_residuePoint x).trans hp.symm
+  obtain ⟨φ⟩ := (FieldValuedPoint.unique_factorization_of_mono
+    (p := FieldValuedPoint.residuePoint x)
+    (q := EtaleNeighborhood.residuePoint U.obj) U.property heq).1
+  let r : ofOver (FieldValuedPoint.residuePoint x).overObj ⟶
+      ofOver (EtaleNeighborhood.residuePoint U.obj).overObj :=
+    ofOverHomMk φ.schemeHom φ.fac_structure
+  have hr : r ≫ EtaleNeighborhood.residueHom U.obj = X.fromSpecResidueField x :=
+    φ.fac_hom
+  let s := ReasLibPullback.pullbackLift (X.fromSpecResidueField x)
+    (EtaleNeighborhood.residueHom U.obj) (𝟙 _) r (by rw [Category.id_comp]; exact hr.symm)
+  have hs : s ≫ elementaryProjection U = 𝟙 _ :=
+    ReasLibPullback.pullbackLift_fst _ _ _ _ _
+  letI : Mono (elementaryProjection U) :=
+    (ReasLibPullback.isPullback (X.fromSpecResidueField x)
+      (EtaleNeighborhood.residueHom U.obj)).mono_fst_of_mono
+  exact ⟨⟨s, (cancel_mono (elementaryProjection U)).mp (by rw [Category.assoc, hs, Category.comp_id, Category.id_comp]), hs⟩⟩
 
 /-- The isomorphism attached to the actual residue-point intersection projection. -/
 def elementaryProjectionIso {X : AlgebraicSpace S} [IsDecent X] {x : Points X}

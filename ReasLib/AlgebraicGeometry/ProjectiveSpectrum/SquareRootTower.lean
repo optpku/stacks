@@ -141,7 +141,10 @@ abbrev squareRootTowerDegreeZeroSubring : Subring squareRootTowerRing :=
 /-- Every scalar class lies in the degree-zero subring. -/
 theorem squareRootTowerConstantClass_mem_degreeZero (r : squareRootTowerBaseRing) :
     algebraMap squareRootTowerBaseRing squareRootTowerRing r ∈
-      squareRootTowerDegreeZeroSubring := sorry
+      squareRootTowerDegreeZeroSubring := by
+  exact GradedAlgebra.Quotient.mk_mem_grading
+    squareRootTowerPolynomialGrading squareRootTowerIdeal
+    (MvPolynomial.isWeightedHomogeneous_C squareRootTowerWeight r)
 
 /-- The scalar map from `ℂ[t]` to the degree-zero subring. -/
 def squareRootTowerDegreeZeroAlgebraMap :
@@ -149,20 +152,73 @@ def squareRootTowerDegreeZeroAlgebraMap :
   (algebraMap squareRootTowerBaseRing squareRootTowerRing).codRestrict
     squareRootTowerDegreeZeroSubring squareRootTowerConstantClass_mem_degreeZero
 
+/-- Set every tower variable to zero. The relations have zero constant coefficient,
+so this is a well-defined retraction of the scalar inclusion on the whole quotient. -/
+def squareRootTowerEvaluation : squareRootTowerRing →+* squareRootTowerBaseRing :=
+  Ideal.Quotient.lift squareRootTowerIdeal MvPolynomial.constantCoeff (by
+    intro a ha
+    have h : squareRootTowerIdeal ≤ RingHom.ker
+        (MvPolynomial.constantCoeff : squareRootTowerAmbientRing →+* squareRootTowerBaseRing) := by
+      apply Ideal.span_le.mpr
+      rintro _ ⟨i, rfl⟩
+      simp [RingHom.mem_ker, squareRootTowerRelation]
+    exact h ha)
+
+/-- Evaluation at zero fixes scalar classes. -/
+@[simp] theorem squareRootTowerEvaluation_algebraMap (r : squareRootTowerBaseRing) :
+    squareRootTowerEvaluation
+      (algebraMap squareRootTowerBaseRing squareRootTowerRing r) = r := by
+  change MvPolynomial.constantCoeff (MvPolynomial.C r) = r
+  exact MvPolynomial.constantCoeff_C _ _
+
 /-- The scalar map to the degree-zero subring is injective. -/
 theorem squareRootTowerDegreeZeroAlgebraMap_injective :
-    Function.Injective squareRootTowerDegreeZeroAlgebraMap := sorry
+    Function.Injective squareRootTowerDegreeZeroAlgebraMap := by
+  intro r s h
+  have h' := congrArg (fun x : squareRootTowerDegreeZeroSubring ↦
+    squareRootTowerEvaluation x.val) h
+  simpa [squareRootTowerDegreeZeroAlgebraMap] using h'
 
 /-- Every degree-zero element of the square-root tower is a scalar class. -/
 theorem squareRootTowerDegreeZeroAlgebraMap_surjective :
-    Function.Surjective squareRootTowerDegreeZeroAlgebraMap := sorry
+    Function.Surjective squareRootTowerDegreeZeroAlgebraMap := by
+  intro x
+  obtain ⟨p, hp, hx⟩ := x.property
+  have hconst : MvPolynomial.C (MvPolynomial.coeff 0 p) = p := by
+    calc
+      MvPolynomial.C (MvPolynomial.coeff 0 p) =
+          MvPolynomial.weightedHomogeneousComponent squareRootTowerWeight 0 p :=
+        (MvPolynomial.weightedHomogeneousComponent_zero p
+          (fun i ↦ pow_ne_zero i (by decide : (2 : ℕ) ≠ 0))).symm
+      _ = p := MvPolynomial.weightedHomogeneousComponent_eq_self hp
+  refine ⟨MvPolynomial.coeff 0 p, Subtype.ext ?_⟩
+  change Ideal.Quotient.mk squareRootTowerIdeal (MvPolynomial.C (MvPolynomial.coeff 0 p)) = _
+  rw [hconst]
+  exact hx
 
 /-- The degree-zero subring of the square-root tower is canonically isomorphic to `ℂ[t]`. -/
 noncomputable def squareRootTowerDegreeZeroRingEquiv :
     squareRootTowerDegreeZeroSubring ≃+* squareRootTowerBaseRing :=
-  (RingEquiv.ofBijective squareRootTowerDegreeZeroAlgebraMap
-    ⟨squareRootTowerDegreeZeroAlgebraMap_injective,
-      squareRootTowerDegreeZeroAlgebraMap_surjective⟩).symm
+  { squareRootTowerEvaluation.comp squareRootTowerDegreeZeroSubring.subtype with
+    invFun := squareRootTowerDegreeZeroAlgebraMap
+    left_inv := by
+      intro x
+      obtain ⟨r, rfl⟩ := squareRootTowerDegreeZeroAlgebraMap_surjective x
+      change squareRootTowerDegreeZeroAlgebraMap
+        (squareRootTowerEvaluation
+          (algebraMap squareRootTowerBaseRing squareRootTowerRing r)) = _
+      rw [squareRootTowerEvaluation_algebraMap]
+    right_inv := squareRootTowerEvaluation_algebraMap }
+
+/-- The equivalence computes by evaluating every tower variable at zero. -/
+@[simp] theorem squareRootTowerDegreeZeroRingEquiv_apply
+    (x : squareRootTowerDegreeZeroSubring) :
+    squareRootTowerDegreeZeroRingEquiv x = squareRootTowerEvaluation x.val := rfl
+
+/-- The inverse is the specified scalar inclusion, rather than a selected preimage. -/
+@[simp] theorem squareRootTowerDegreeZeroRingEquiv_symm_apply
+    (r : squareRootTowerBaseRing) :
+    squareRootTowerDegreeZeroRingEquiv.symm r = squareRootTowerDegreeZeroAlgebraMap r := rfl
 
 /-- The spectrum of the degree-zero subring is canonically isomorphic to `Spec(ℂ[t])`. -/
 noncomputable def squareRootTowerDegreeZeroSpecIso :

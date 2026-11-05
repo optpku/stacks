@@ -36,14 +36,12 @@ variable {C : Type u} [Category.{v} C] [HasZeroObject C] [Preadditive C]
 /-- An object property is localizing when it is stable under retracts and distinguished
 triangles and is closed under arbitrary coproducts. The closure witnesses are bundled as an
 explicit proposition rather than installed as argument-dependent local instances. -/
-@[stacks 0BZ3 "localizing object property"]
 def IsLocalizing (P : ObjectProperty C) : Prop :=
   P.IsStableUnderRetracts ∧ P.IsTriangulated ∧
     ∀ I : Type (max u v), P.IsClosedUnderColimitsOfShape (Discrete I)
 
 /-- The least localizing object property containing `P`, characterized by its elimination rule
 against every localizing object property containing `P`. -/
-@[stacks 0BZ5 "localizing closure of an object property"]
 def localizingClosure (P : ObjectProperty C) : ObjectProperty C :=
   fun X ↦ ∀ Q : ObjectProperty C, P ≤ Q → Q.IsLocalizing → Q X
 
@@ -66,7 +64,6 @@ theorem localizingClosure_eq_self (P : ObjectProperty C) (hP : P.IsLocalizing) :
 
 /-- An object property is a localizing generator when its localizing closure is the whole
 category. -/
-@[stacks 09R9 "localizing generation hypothesis"]
 def IsLocalizingGenerator (P : ObjectProperty C) : Prop :=
   P.localizingClosure = ⊤
 
@@ -98,7 +95,6 @@ variable {F G : C ⥤ D} (α : F ⟶ G)
 /-- Membership in a localizing closure propagates invertibility of a natural-transformation
 component from the generating family to the selected object. This is the pointwise induction
 principle used for semi-free and cellular filtrations. -/
-@[stacks 0BZ5 "isomorphism components along a localizing closure"]
 theorem isIso_app_of_mem_localizingClosure
     (P : ObjectProperty C) (X : C) (hX : P.localizingClosure X)
     (h_generator : P ≤ isomorphismLocus α)
@@ -109,7 +105,6 @@ theorem isIso_app_of_mem_localizingClosure
 transformation upgrades componentwise invertibility to invertibility of the whole natural
 transformation. Closure assumptions are explicit because they depend on the particular
 transformation rather than on the ambient category. -/
-@[stacks 0BZ3 "localizing-generator criterion for a natural isomorphism"]
 theorem isIso_of_localizingGenerator
     (P : ObjectProperty C) (h_generate : P.IsLocalizingGenerator)
     (h_generator : P ≤ isomorphismLocus α)

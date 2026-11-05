@@ -53,7 +53,8 @@ theorem equivTo_apply [IsDirectedOrder I]
     (colimitIso : Ring.DirectLimit G (fun i j h ↦ f i j h) ≃+* B)
     (x : Ring.DirectLimit (fun j : Set.Ici i0 ↦ G j.1)
       (fun j k h ↦ f j.1 k.1 h)) :
-    equivTo f i0 colimitIso x = colimitIso (toFull f i0 x) := sorry
+    equivTo f i0 colimitIso x = colimitIso (toFull f i0 x) := by
+  rfl
 
 /-- The inverse tail-colimit identification sends a full-stage generator to
 the same generator in the corresponding tail stage. -/
@@ -67,7 +68,9 @@ theorem equivTo_symm_apply_of [IsDirectedOrder I]
     (equivTo f i0 colimitIso).symm
         (colimitIso (Ring.DirectLimit.of G (fun i j h ↦ f i j h) j.1 x)) =
       Ring.DirectLimit.of (fun j : Set.Ici i0 ↦ G j.1)
-        (fun j k h ↦ f j.1 k.1 h) j x := sorry
+        (fun j k h ↦ f j.1 k.1 h) j x := by
+  change (equiv f i0).symm (colimitIso.symm (colimitIso _)) = _
+  rw [colimitIso.symm_apply_apply, equiv_symm_apply_of]
 
 end Tail
 

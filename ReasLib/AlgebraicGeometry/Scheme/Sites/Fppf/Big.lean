@@ -48,12 +48,18 @@ abbrev pullback (f : T ⟶ S) : Over S ⥤ Over T :=
 /-- The postcomposition functor is cocontinuous for the big fppf slice topologies. -/
 instance map_isCocontinuous (f : T ⟶ S) :
     Functor.IsCocontinuous (map f)
-      (Scheme.fppfTopology.over T) (Scheme.fppfTopology.over S) := sorry
+      (Scheme.fppfTopology.over T) (Scheme.fppfTopology.over S) := by
+  change Functor.IsCocontinuous (Over.map f)
+    (Scheme.fppfTopology.over T) (Scheme.fppfTopology.over S)
+  infer_instance
 
 /-- The postcomposition functor is continuous for the big fppf slice topologies. -/
 instance map_isContinuous (f : T ⟶ S) :
     Functor.IsContinuous (map f)
-      (Scheme.fppfTopology.over T) (Scheme.fppfTopology.over S) := sorry
+      (Scheme.fppfTopology.over T) (Scheme.fppfTopology.over S) :=
+  Functor.isContinuous_of_coverPreserving
+    (Scheme.fppfTopology.over_map_compatiblePreserving f)
+    (Scheme.fppfTopology.over_map_coverPreserving f)
 
 /-- The canonical postcomposition-pullback adjunction on big fppf slices. -/
 abbrev mapPullbackAdjunction (f : T ⟶ S) :
@@ -63,19 +69,26 @@ abbrev mapPullbackAdjunction (f : T ⟶ S) :
 /-- Pullback is continuous for the big fppf slice topologies. -/
 instance pullback_isContinuous (f : T ⟶ S) :
     Functor.IsContinuous (pullback f)
-      (Scheme.fppfTopology.over S) (Scheme.fppfTopology.over T) := sorry
+      (Scheme.fppfTopology.over S) (Scheme.fppfTopology.over T) :=
+  (Over.mapPullbackAdj f).isContinuous_of_isCocontinuous
+    (Scheme.fppfTopology.over T) (Scheme.fppfTopology.over S)
 
 /-- The postcomposition presentation has the left-Kan-extension hypotheses used by
 the sheaf-level lower-shriek construction. -/
 instance map_op_hasLeftKanExtension
     (f : T ⟶ S) (P : (Over T)ᵒᵖ ⥤ Type (u + 1)) :
-    (map f).op.HasLeftKanExtension P := sorry
+    (map f).op.HasLeftKanExtension P := by
+  letI : (map f).op.HasPointwiseLeftKanExtension P := fun _ => inferInstance
+  exact Functor.HasLeftKanExtension.mk
+    ((map f).op.pointwiseLeftKanExtension P)
+    ((map f).op.pointwiseLeftKanExtensionUnit P)
 
 /-- The postcomposition presentation has the pointwise right-Kan-extension hypotheses used by
 the sheaf-level direct-image construction. -/
 instance map_op_hasPointwiseRightKanExtension
     (f : T ⟶ S) (P : (Over T)ᵒᵖ ⥤ Type (u + 1)) :
-    (map f).op.HasPointwiseRightKanExtension P := sorry
+    (map f).op.HasPointwiseRightKanExtension P :=
+  fun Y => Types.hasLimit (StructuredArrow.proj Y (map f).op ⋙ P)
 
 /-- The inverse-image functor on sheaves induced by big fppf postcomposition. -/
 abbrev inverseImage (f : T ⟶ S) :

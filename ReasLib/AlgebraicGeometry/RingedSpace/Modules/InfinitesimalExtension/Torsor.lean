@@ -111,8 +111,8 @@ theorem infMap_vadd (S : Extension K F) (E : InfinitesimalExtension i F K c) :
 `c`, after descending the middle term along `i` using that it is annihilated by `ℐ`. -/
 def vsubExt (E₁ E₂ : InfinitesimalExtension i F K c) : Extension K F :=
   let D := Extension.baerSum (toExtension E₁) (Extension.neg (toExtension E₂))
-  let f := (asIso ((pullbackPushforwardAdjunction i).counit.app K)).inv ≫ (i ^*).map D.f
-  let g := (i ^*).map D.g ≫ (asIso ((pullbackPushforwardAdjunction i).counit.app F)).hom
+  let f := (thickeningCounitIso (i := i) K).inv ≫ (i ^*).map D.f
+  let g := (i ^*).map D.g ≫ (pullbackPushforwardAdjunction i).counit.app F
   have laws : f ≫ g = 0 ∧ ∀ h : f ≫ g = 0, (ShortComplex.mk f g h).ShortExact := by
     sorry
   { E := (i ^*).obj D.E

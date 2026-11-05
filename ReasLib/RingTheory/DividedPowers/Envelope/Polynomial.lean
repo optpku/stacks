@@ -35,7 +35,9 @@ theorem map_le_polynomialIdeal
     {A B : Type u} [CommRing A] [CommRing B] [Algebra A B]
     {I : Ideal A} {J : Ideal B}
     (hIJ : Ideal.map (algebraMap A B) I ≤ J) (ι : Type u) :
-    Ideal.map (algebraMap A (MvPolynomial ι B)) I ≤ polynomialIdeal J ι := sorry
+    Ideal.map (algebraMap A (MvPolynomial ι B)) I ≤ polynomialIdeal J ι := by
+  rw [IsScalarTower.algebraMap_eq A B (MvPolynomial ι B), ← Ideal.map_map]
+  exact (Ideal.map_mono hIJ).trans le_sup_left
 
 /-- Adjoin divided-power polynomial variables to the carrier of an envelope. -/
 noncomputable def adjoinVariables
@@ -102,7 +104,15 @@ theorem polynomialMap_isDPMorphism
     (hIJ : Ideal.map (algebraMap A B) I ≤ J)
     (E : DividedPowerEnvelope I γ (algebraMap A B) J hIJ) (ι : Type u) :
     IsDPMorphism γ (adjoinVariables hIJ E ι).dividedPowers
-      ((polynomialMap hIJ E ι).comp (algebraMap A (MvPolynomial ι B))) := sorry
+      ((polynomialMap hIJ E ι).comp (algebraMap A (MvPolynomial ι B))) := by
+  have hcomp : (polynomialMap hIJ E ι).comp (algebraMap A (MvPolynomial ι B)) =
+      (algebraMap E.D (DPPolynomial E.D ι)).comp E.base.toRingHom := by
+    rw [E.base_toD]
+    ext a
+    simp [polynomialMap, IsScalarTower.algebraMap_eq A B (MvPolynomial ι B)]
+  rw [hcomp]
+  exact (DPPolynomial.dividedPowers_algebraMap_isDPMorphism E.D.dividedPowers).comp _
+    E.base.isDPMorphism
 
 /-- The polynomial evaluation map sends the polynomial-envelope ideal into the canonical
 divided-power polynomial ideal. -/
@@ -112,7 +122,26 @@ theorem map_polynomialIdeal_le
     (hIJ : Ideal.map (algebraMap A B) I ≤ J)
     (E : DividedPowerEnvelope I γ (algebraMap A B) J hIJ) (ι : Type u) :
     Ideal.map (polynomialMap hIJ E ι) (polynomialIdeal J ι) ≤
-      (adjoinVariables hIJ E ι).ideal := sorry
+      (adjoinVariables hIJ E ι).ideal := by
+  change Ideal.map (polynomialMap hIJ E ι)
+    (Ideal.map (algebraMap B (MvPolynomial ι B)) J ⊔ Ideal.span (Set.range MvPolynomial.X)) ≤
+      DPPolynomial.ideal E.D ι E.D.ideal
+  rw [Ideal.map_sup, sup_le_iff, Ideal.map_map]
+  constructor
+  · have hcomp : (polynomialMap hIJ E ι).comp (algebraMap B (MvPolynomial ι B)) =
+        (algebraMap E.D (DPPolynomial E.D ι)).comp E.toD := by
+      ext b
+      simp [polynomialMap]
+    rw [hcomp, ← Ideal.map_map]
+    exact (Ideal.map_mono E.ideal_map).trans le_sup_left
+  · rw [Ideal.map_le_iff_le_comap, Ideal.span_le]
+    rintro _ ⟨i, rfl⟩
+    change polynomialMap hIJ E ι (MvPolynomial.X i) ∈ DPPolynomial.ideal E.D ι E.D.ideal
+    simp only [polynomialMap, MvPolynomial.eval₂Hom_X']
+    apply (show DPPolynomial.positiveIdeal E.D ι ≤
+      DPPolynomial.ideal E.D ι E.D.ideal from le_sup_right)
+    change DividedPowerAlgebra.dp E.D 1 (Finsupp.single i 1) ∈ DPPolynomial.positiveIdeal E.D ι
+    exact Ideal.subset_span ⟨(i, ⟨1, Nat.zero_lt_one⟩), rfl⟩
 
 /-- The coefficient map into a polynomial envelope is compatible with the divided powers on the
 base ideal. -/
@@ -124,7 +153,14 @@ theorem coefficientMap_isDPMorphism
       (polynomialIdeal J ι) (map_le_polynomialIdeal hIJ ι)) :
     IsDPMorphism γ Epoly.D.dividedPowers
       ((Epoly.toD.comp (MvPolynomial.C : B →+* MvPolynomial ι B)).comp
-        (algebraMap A B)) := sorry
+        (algebraMap A B)) := by
+  have hcomp :
+      (Epoly.toD.comp (MvPolynomial.C : B →+* MvPolynomial ι B)).comp
+        (algebraMap A B) = Epoly.base.toRingHom := by
+    rw [Epoly.base_toD, RingHom.comp_assoc]
+    rfl
+  rw [hcomp]
+  exact Epoly.base.isDPMorphism
 
 /-- The coefficient map into a polynomial envelope sends `J` into its distinguished ideal. -/
 theorem map_coefficientIdeal_le
@@ -134,7 +170,10 @@ theorem map_coefficientIdeal_le
     (Epoly : DividedPowerEnvelope I γ (algebraMap A (MvPolynomial ι B))
       (polynomialIdeal J ι) (map_le_polynomialIdeal hIJ ι)) :
     Ideal.map (Epoly.toD.comp (MvPolynomial.C : B →+* MvPolynomial ι B)) J ≤
-      Epoly.D.ideal := sorry
+      Epoly.D.ideal := by
+  rw [← Ideal.map_map]
+  exact (Ideal.map_mono (show Ideal.map (MvPolynomial.C : B →+* MvPolynomial ι B) J ≤
+    polynomialIdeal J ι from le_sup_left)).trans Epoly.ideal_map
 
 /-- The morphism from a base envelope to a polynomial envelope induced by constants. -/
 noncomputable def baseToPolynomial
@@ -160,7 +199,10 @@ theorem baseToPolynomial_spec
     (Epoly : DividedPowerEnvelope I γ (algebraMap A (MvPolynomial ι B))
       (polynomialIdeal J ι) (map_le_polynomialIdeal hIJ ι)) :
     (baseToPolynomial hIJ E hE ι Epoly).toRingHom.comp E.toD =
-      Epoly.toD.comp (MvPolynomial.C : B →+* MvPolynomial ι B) := sorry
+      Epoly.toD.comp (MvPolynomial.C : B →+* MvPolynomial ι B) := by
+  exact (hE (Epoly.toD.comp (MvPolynomial.C : B →+* MvPolynomial ι B))
+    (coefficientMap_isDPMorphism hIJ ι Epoly)
+    (map_coefficientIdeal_le hIJ ι Epoly)).choose_spec.1
 
 /-- A divided-power morphism from a universal base envelope to a polynomial envelope is uniquely
 determined by its composite with the envelope map. -/
@@ -175,7 +217,10 @@ theorem baseToPolynomial_unique
     (ψ : E.D ⟶ Epoly.D)
     (hψ : ψ.toRingHom.comp E.toD =
       Epoly.toD.comp (MvPolynomial.C : B →+* MvPolynomial ι B)) :
-    ψ = baseToPolynomial hIJ E hE ι Epoly := sorry
+    ψ = baseToPolynomial hIJ E hE ι Epoly := by
+  exact (hE (Epoly.toD.comp (MvPolynomial.C : B →+* MvPolynomial ι B))
+    (coefficientMap_isDPMorphism hIJ ι Epoly)
+    (map_coefficientIdeal_le hIJ ι Epoly)).choose_spec.2 ψ hψ
 
 /-- The morphism from a universal polynomial envelope to the divided-power polynomial extension
 of the base envelope. -/
@@ -204,7 +249,10 @@ theorem toAdjoinVariables_spec
     (hEpoly : IsUniversal γ (algebraMap A (MvPolynomial ι B))
       (map_le_polynomialIdeal hIJ ι) Epoly) :
     (toAdjoinVariables hIJ E ι Epoly hEpoly).toRingHom.comp Epoly.toD =
-      polynomialMap hIJ E ι := sorry
+      polynomialMap hIJ E ι := by
+  exact (hEpoly (T := adjoinVariables hIJ E ι) (polynomialMap hIJ E ι)
+    (polynomialMap_isDPMorphism hIJ E ι)
+    (map_polynomialIdeal_le hIJ E ι)).choose_spec.1
 
 /-- A divided-power morphism from a universal polynomial envelope to the polynomial extension is
 uniquely determined by its composite with the polynomial presentation map. -/
@@ -219,7 +267,10 @@ theorem toAdjoinVariables_unique
       (map_le_polynomialIdeal hIJ ι) Epoly)
     (ψ : Epoly.D ⟶ adjoinVariables hIJ E ι)
     (hψ : ψ.toRingHom.comp Epoly.toD = polynomialMap hIJ E ι) :
-    ψ = toAdjoinVariables hIJ E ι Epoly hEpoly := sorry
+    ψ = toAdjoinVariables hIJ E ι Epoly hEpoly := by
+  exact (hEpoly (T := adjoinVariables hIJ E ι) (polynomialMap hIJ E ι)
+    (polynomialMap_isDPMorphism hIJ E ι)
+    (map_polynomialIdeal_le hIJ E ι)).choose_spec.2 ψ hψ
 
 /-- Every polynomial variable maps into the distinguished ideal of a polynomial envelope. -/
 theorem variable_mem_polynomialEnvelope

@@ -41,6 +41,8 @@ theorem isRegularLocalRing
     [Algebra.EssFiniteType k S] (q : Ideal S) [q.IsPrime]
     (hSmooth : Algebra.IsSmoothAt k q) :
     IsRegularLocalRing (Localization.AtPrime q) := by
+  -- Local instance justification (proof-local temporary data): the explicit smooth-at-prime
+  -- hypothesis is the class fact required by the localized formal-smooth regularity theorem.
   letI : Algebra.FormallySmooth k (Localization.AtPrime q) := hSmooth
   exact Algebra.FormallySmooth.isRegularLocalRing
     (k := k) (A := Localization.AtPrime q)
@@ -91,8 +93,12 @@ smoothness at the corresponding prime is equivalent to regularity of its local r
 theorem iff_isRegularLocalRing_at_maximal (m : MaximalSpectrum S) :
     Algebra.SmoothAtPrime k S m.toPrimeSpectrum ↔
       IsRegularLocalRing (Localization.AtPrime m.asIdeal) := by
+  -- Local instance justification (proof-local temporary data): over the field `k`, finite type
+  -- yields finite presentation, required by the principal-open/local-predicate bridge below.
   letI : Algebra.FinitePresentation k S :=
     Algebra.FinitePresentation.of_finiteType.mp inferInstance
+  -- Local instance justification (proof-local temporary data): algebraic closedness makes `k`
+  -- perfect, supplying the residue separability class required by the regularity criterion.
   letI : Algebra.IsSeparableOver k m.asIdeal.ResidueField :=
     Algebra.IsSeparableOver.of_perfectField
   exact (Algebra.SmoothAtPrime.iff_isSmoothAt k S m.toPrimeSpectrum).trans
@@ -106,6 +112,8 @@ theorem iff_fiberFinrank_le_localDimension_at_maximal (m : MaximalSpectrum S) :
       Module.finrank m.asIdeal.ResidueField
           (m.asIdeal.ResidueField ⊗[S] Ω[S⁄k]) ≤
         ringKrullDim (Localization.AtPrime m.asIdeal) := by
+  -- Local instance justification (proof-local temporary data): over the field `k`, finite type
+  -- yields finite presentation, required by the principal-open/local-predicate bridge below.
   letI : Algebra.FinitePresentation k S :=
     Algebra.FinitePresentation.of_finiteType.mp inferInstance
   have hdim :=
@@ -125,6 +133,8 @@ theorem iff_fiberFinrank_eq_localDimension_at_maximal (m : MaximalSpectrum S) :
       Module.finrank m.asIdeal.ResidueField
           (m.asIdeal.ResidueField ⊗[S] Ω[S⁄k]) =
         ringKrullDim (Localization.AtPrime m.asIdeal) := by
+  -- Local instance justification (proof-local temporary data): over the field `k`, finite type
+  -- yields finite presentation, required by the principal-open/local-predicate bridge below.
   letI : Algebra.FinitePresentation k S :=
     Algebra.FinitePresentation.of_finiteType.mp inferInstance
   have hdim :=

@@ -28,23 +28,18 @@ section
 
 variable {R : Type u} [CommRing R] [TopologicalSpace R]
 
-/-- An element of a commutative topological ring is topologically nilpotent when
-its powers converge to zero. -/
-def IsTopologicallyNilpotent (f : R) : Prop :=
-  _root_.IsTopologicallyNilpotent f
-
 namespace Ideal
 
 /-- An ideal is a weak ideal of definition when it is open and every element is
 topologically nilpotent. -/
 def IsWeakIdealOfDefinition (I : Ideal R) : Prop :=
-  IsOpen (I : Set R) ∧ ∀ f ∈ I, IsTopologicallyNilpotent f
+  IsOpen (I : Set R) ∧ ∀ f ∈ I, _root_.IsTopologicallyNilpotent f
 
 /-- A weak ideal of definition is exactly an open ideal of topologically nilpotent
 elements. -/
 theorem isWeakIdealOfDefinition_iff (I : Ideal R) :
     IsWeakIdealOfDefinition I ↔
-      IsOpen (I : Set R) ∧ ∀ f ∈ I, IsTopologicallyNilpotent f := sorry
+      IsOpen (I : Set R) ∧ ∀ f ∈ I, _root_.IsTopologicallyNilpotent f := Iff.rfl
 
 /-- Under a linear topology, a weak ideal of definition is an open ideal contained
 in the topological nilradical. -/

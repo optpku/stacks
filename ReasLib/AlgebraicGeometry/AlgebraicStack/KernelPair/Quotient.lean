@@ -145,16 +145,12 @@ def fPreSourceUIso [AlgebraicStack X] (hU : IsRepresentableByAlgebraicSpace U)
     {a b : (SmallQuotient.preQuotient (groupoid f hU)).total} (φ : a ⟶ b) :
     kernelPairSource f hU φ ≅
       presentedPointToU f hU (coGrothendieckPoint f hU a)  :=
-  let e := IsRepresentableByAlgebraicSpace.representingEquiv hU
-  let P := (IsRepresentableByAlgebraicSpace.representingSpace hU).functorOfPoints
-  let x := kernelPairSource f hU φ
-  let y := presentedPointToU f hU (coGrothendieckPoint f hU a)
-  let unit := BasedNatIso.fiber (toBasedFunctorIso e.unit) a.base
-  unit.app x ≪≫ (fiberFunctor e.inv a.base).mapIso
-    ((PresheafKernelPair.pointValueIso P a.base ((fiberFunctor e.hom a.base).obj x)).symm ≪≫
-      eqToIso (congrArg (PresheafKernelPair.point P a.base) (fPreSource_value f hU φ)) ≪≫
-      PresheafKernelPair.pointValueIso P a.base ((fiberFunctor e.hom a.base).obj y)) ≪≫
-    (unit.app y).symm
+  PresheafKernelPair.isoOfPresentedValueEq
+    (IsRepresentableByAlgebraicSpace.representingSpace hU).functorOfPoints
+    (IsRepresentableByAlgebraicSpace.representingEquiv hU) a.base
+    (kernelPairSource f hU φ)
+    (presentedPointToU f hU (coGrothendieckPoint f hU a))
+    (fPreSource_value f hU φ)
 
 /-- The target object of `φ` over `a.base`, obtained by restricting the presented point of `b`. -/
 private def fPreRestrictedTarget [AlgebraicStack X] (hU : IsRepresentableByAlgebraicSpace U)
@@ -181,16 +177,12 @@ after transporting the groupoid target equality `t(r) = b|_{φ.base}`. -/
 private def fPreTargetRestrictIso [AlgebraicStack X] (hU : IsRepresentableByAlgebraicSpace U)
     {a b : (SmallQuotient.preQuotient (groupoid f hU)).total} (φ : a ⟶ b) :
     kernelPairTarget f hU φ ≅ fPreRestrictedTarget f hU φ  :=
-  let e := IsRepresentableByAlgebraicSpace.representingEquiv hU
-  let P := (IsRepresentableByAlgebraicSpace.representingSpace hU).functorOfPoints
-  let x := kernelPairTarget f hU φ
-  let y := fPreRestrictedTarget f hU φ
-  let unit := BasedNatIso.fiber (toBasedFunctorIso e.unit) a.base
-  unit.app x ≪≫ (fiberFunctor e.inv a.base).mapIso
-    ((PresheafKernelPair.pointValueIso P a.base ((fiberFunctor e.hom a.base).obj x)).symm ≪≫
-      eqToIso (congrArg (PresheafKernelPair.point P a.base) (fPreTarget_value f hU φ)) ≪≫
-      PresheafKernelPair.pointValueIso P a.base ((fiberFunctor e.hom a.base).obj y)) ≪≫
-    (unit.app y).symm
+  PresheafKernelPair.isoOfPresentedValueEq
+    (IsRepresentableByAlgebraicSpace.representingSpace hU).functorOfPoints
+    (IsRepresentableByAlgebraicSpace.representingEquiv hU) a.base
+    (kernelPairTarget f hU φ)
+    (fPreRestrictedTarget f hU φ)
+    (fPreTarget_value f hU φ)
 
 /-- Restriction and selected reindexing of a presented point have equal values in the
 representing presheaf. -/
@@ -212,17 +204,13 @@ private def fPreTargetReindexIso [AlgebraicStack X] (hU : IsRepresentableByAlgeb
     fPreRestrictedTarget f hU φ ≅
       Chosen.reindexObj U.p φ.base
         (presentedPointToU f hU (coGrothendieckPoint f hU b))  :=
-  let e := IsRepresentableByAlgebraicSpace.representingEquiv hU
-  let P := (IsRepresentableByAlgebraicSpace.representingSpace hU).functorOfPoints
-  let x := fPreRestrictedTarget f hU φ
-  let y := Chosen.reindexObj U.p φ.base
-      (presentedPointToU f hU (coGrothendieckPoint f hU b))
-  let unit := BasedNatIso.fiber (toBasedFunctorIso e.unit) a.base
-  unit.app x ≪≫ (fiberFunctor e.inv a.base).mapIso
-    ((PresheafKernelPair.pointValueIso P a.base ((fiberFunctor e.hom a.base).obj x)).symm ≪≫
-      eqToIso (congrArg (PresheafKernelPair.point P a.base) (fPreReindex_value f hU φ)) ≪≫
-      PresheafKernelPair.pointValueIso P a.base ((fiberFunctor e.hom a.base).obj y)) ≪≫
-    (unit.app y).symm
+  PresheafKernelPair.isoOfPresentedValueEq
+    (IsRepresentableByAlgebraicSpace.representingSpace hU).functorOfPoints
+    (IsRepresentableByAlgebraicSpace.representingEquiv hU) a.base
+    (fPreRestrictedTarget f hU φ)
+    (Chosen.reindexObj U.p φ.base
+      (presentedPointToU f hU (coGrothendieckPoint f hU b)))
+    (fPreReindex_value f hU φ)
 
 /-- Composite identification of `pr₀(r)` with the selected reindexing of the presented target. -/
 private def fPreTargetUIso [AlgebraicStack X] (hU : IsRepresentableByAlgebraicSpace U)

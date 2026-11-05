@@ -23,7 +23,8 @@ induced by compatible affine opens has property `P`. -/
   (AlgebraicGeometry.locallyOfType_iff_forall_affineOpen_appLE :
     ∀ {X S : Scheme.{u}} {f : X ⟶ S}
       (P : {R T : Type u} → [CommRing R] → [CommRing T] → (R →+* T) → Prop)
-      (hP : RingHom.PropertyIsLocal P),
+      (hP : RingHom.PropertyIsLocal P)
+      (hsource : RingHom.StableUnderCompositionWithLocalizationAwaySource P),
       AlgebraicGeometry.LocallyOfType P f ↔
         ∀ {V : S.Opens}, IsAffineOpen V →
           ∀ {U : X.Opens}, IsAffineOpen U → ∀ e : U ≤ f ⁻¹ᵁ V,
@@ -50,11 +51,12 @@ satisfying `P`. -/
   (AlgebraicGeometry.locallyOfType_iff_exists_affineOpenCover :
     ∀ {X S : Scheme.{u}} {f : X ⟶ S}
       (P : {R T : Type u} → [CommRing R] → [CommRing T] → (R →+* T) → Prop)
-      (hP : RingHom.PropertyIsLocal P),
+      (hP : RingHom.PropertyIsLocal P)
+      (hsource : RingHom.StableUnderCompositionWithLocalizationAwaySource P),
       AlgebraicGeometry.LocallyOfType P f ↔
-        ∃ 𝒱 : S.AffineOpenCover,
+        ∃ 𝒱 : S.AffineOpenCover.{u},
           ∀ j : 𝒱.I₀,
-            ∃ 𝒰 : ((𝒱.openCover.pullback₁ f).X j).AffineOpenCover,
+            ∃ 𝒰 : ((𝒱.openCover.pullback₁ f).X j).AffineOpenCover.{u},
               ∀ i : 𝒰.I₀,
                 P ((𝒰.f i ≫ 𝒱.openCover.pullbackHom f j).appTop).hom)
 

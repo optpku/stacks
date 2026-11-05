@@ -8,8 +8,6 @@ module
 
 import StacksCheckRecall
 import ReasLib.AlgebraicGeometry.Scheme.Sites.Presentation
-import Mathlib.AlgebraicGeometry.Sites.Etale
-import Mathlib.AlgebraicGeometry.Sites.Fpqc
 
 @[expose] public section
 
@@ -18,32 +16,38 @@ universe u v
 set_option pp.universes true in
 #check @AlgebraicGeometry.ChosenBigSite.IsContainedIn
 
-/- Lemma 34.12.1: Every universe-small family of chosen big Zariski-site
-presentations is contained in a common chosen presentation. -/
+/- Lemma 34.12.1: Every set of big Zariski sites constructed as in 000J
+is contained, on all objects and coverings, in a common big Zariski site.
+The same statement holds for fppf and étale sites. -/
 @[stacks 022J] #check
-  (AlgebraicGeometry.ChosenBigSite.exists_common.{u, v}
-      AlgebraicGeometry.Scheme.zariskiPrecoverage :
+  (AlgebraicGeometry.SchAlphaBigSite.exists_common.{u, v}
+      AlgebraicGeometry.Scheme.zariskiPrecoverage (Or.inl rfl) :
     ∀ {ι : Type u}
-      (X : ι → AlgebraicGeometry.ChosenBigZariskiSite.{u, v}),
-      ∃ Y : AlgebraicGeometry.ChosenBigZariskiSite.{u, u},
-        ∀ i, AlgebraicGeometry.ChosenBigSite.IsContainedIn.{u, v, u} (X i) Y)
+      (X : ι → AlgebraicGeometry.SchAlphaBigSite.{u, v}
+        AlgebraicGeometry.Scheme.zariskiPrecoverage),
+      ∃ Y : AlgebraicGeometry.SchAlphaBigSite.{u, max (u + 1) v}
+          AlgebraicGeometry.Scheme.zariskiPrecoverage,
+        ∀ i, AlgebraicGeometry.ChosenBigSite.IsContainedIn (X i).toChosenBigSite
+          Y.toChosenBigSite)
 
 #check
-  (AlgebraicGeometry.ChosenBigSite.exists_common.{u, v}
-      AlgebraicGeometry.Scheme.fppfPrecoverage :
+  (AlgebraicGeometry.SchAlphaBigSite.exists_common.{u, v}
+      AlgebraicGeometry.Scheme.fppfPrecoverage (Or.inr (Or.inl rfl)) :
     ∀ {ι : Type u}
-      (X : ι → AlgebraicGeometry.ChosenBigSite.{u, v}
+      (X : ι → AlgebraicGeometry.SchAlphaBigSite.{u, v}
         AlgebraicGeometry.Scheme.fppfPrecoverage),
-      ∃ Y : AlgebraicGeometry.ChosenBigSite.{u, u}
+      ∃ Y : AlgebraicGeometry.SchAlphaBigSite.{u, max (u + 1) v}
           AlgebraicGeometry.Scheme.fppfPrecoverage,
-        ∀ i, AlgebraicGeometry.ChosenBigSite.IsContainedIn.{u, v, u} (X i) Y)
+        ∀ i, AlgebraicGeometry.ChosenBigSite.IsContainedIn (X i).toChosenBigSite
+          Y.toChosenBigSite)
 
 #check
-  (AlgebraicGeometry.ChosenBigSite.exists_common.{u, v}
-      AlgebraicGeometry.Scheme.etalePrecoverage :
+  (AlgebraicGeometry.SchAlphaBigSite.exists_common.{u, v}
+      AlgebraicGeometry.Scheme.etalePrecoverage (Or.inr (Or.inr rfl)) :
     ∀ {ι : Type u}
-      (X : ι → AlgebraicGeometry.ChosenBigSite.{u, v}
+      (X : ι → AlgebraicGeometry.SchAlphaBigSite.{u, v}
         AlgebraicGeometry.Scheme.etalePrecoverage),
-      ∃ Y : AlgebraicGeometry.ChosenBigSite.{u, u}
+      ∃ Y : AlgebraicGeometry.SchAlphaBigSite.{u, max (u + 1) v}
           AlgebraicGeometry.Scheme.etalePrecoverage,
-        ∀ i, AlgebraicGeometry.ChosenBigSite.IsContainedIn.{u, v, u} (X i) Y)
+        ∀ i, AlgebraicGeometry.ChosenBigSite.IsContainedIn (X i).toChosenBigSite
+          Y.toChosenBigSite)

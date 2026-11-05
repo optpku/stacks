@@ -36,30 +36,24 @@ local notation "B'" => A' ⊗[A] B
 -- structures local to this source-facing pushout statement.
 attribute [local instance] Algebra.TensorProduct.leftAlgebra Algebra.TensorProduct.rightAlgebra
 
--- The kernel is a canonical `B'`-submodule; pin its inherited module structure for the
--- `Module.FiniteProjective` statement.
-/-- Local instance justification (defeq pin): use the comparison kernel's inherited module
-structure over the tensor-product base. -/
-local instance :
-    Module B'
-      ↥(LinearMap.ker
-        (baseChangeComparison (R := A) (R' := A') (S := B))) :=
-  Submodule.module
-    (LinearMap.ker (baseChangeComparison (R := A) (R' := A') (S := B)))
-
 /-- Lemma 15.86.5 (0FV1): in the canonical cocartesian square, if both vertical maps are local
-complete intersections, the kernel of the degree-minus-one naive-cotangent base-change
-comparison is a finite projective module over the pushout. -/
+complete intersections, the kernel of the comparison on degree-minus-one homology of the
+base-changed naive cotangent complex of any presentation is finite projective over the pushout.
+The source is the homology of the base-changed complex, so its differential is tensorized before
+taking the kernel. -/
 @[stacks 0FV1 "finite-projective kernel of H1 cotangent base change"]
 theorem baseChangeComparison_ker_finiteProjective
+    {ι σ : Type u}
     [RingHom.IsLocalCompleteIntersection (algebraMap A B)]
-    [RingHom.IsLocalCompleteIntersection (algebraMap A' B')] :
+    [RingHom.IsLocalCompleteIntersection (algebraMap A' B')]
+    (P : Algebra.Presentation A B ι σ) :
     Module.FiniteProjective B'
       ↥(LinearMap.ker
-        (baseChangeComparison (R := A) (R' := A') (S := B))) := sorry
-/- Proof strategy: compare the two Jacobi-Zariski triangles for the pushout square.  The two LCI
-hypotheses make the relevant naive cotangent objects perfect of Tor amplitude `[-1, 0]`; use the
-surjective `H1` comparison and the degree-zero base-change isomorphism to identify its kernel with
-a finite projective homology summand. -/
+        (Algebra.Presentation.naiveCotangentBaseChangeH1Comparison (R' := A') P)) := sorry
+/- Proof strategy: use the presentation-level comparison from 0FUZ. The two LCI hypotheses make
+the naive cotangent complexes perfect of Tor amplitude `[-1, 0]`, as is the base-changed source.
+The comparison's homotopy fibre has only degree-one homology, equal to this kernel; perfectness
+and Tor amplitude imply that this homology module is finitely presented and flat, hence finite
+projective. -/
 
 end Algebra.H1Cotangent

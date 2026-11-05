@@ -153,19 +153,40 @@ variable
       (Sheaf J AddCommGrpCat.{max w v}))]
 
 /-- Theorem 25.10.1 (Tag 01H0): a certified comparison between hypercovering Cech
-cohomology and objectwise sheaf cohomology exists in every nonnegative degree. -/
+cohomology and objectwise sheaf cohomology exists in every nonnegative degree.
+The smallness assumptions ensure that the covering refinements used to kill cohomology
+classes can be indexed in the family universe `w`. -/
 @[stacks 01H0 "comparison isomorphism"]
-theorem comparison_nonempty (i : ℕ) :
+theorem comparison_nonempty [Small.{w} C] [LocallySmall.{w} C] (i : ℕ) :
     Nonempty (Comparison (J := J) X i) := sorry
 
 /-- Forgetting stage compatibility from a certified comparison gives an isomorphism between
 hypercovering Cech cohomology and objectwise sheaf cohomology as coefficient functors. -/
 theorem isIsomorphic_objectwiseCohomology
-    (i : ℕ) :
+    [Small.{w} C] [LocallySmall.{w} C] (i : ℕ) :
     IsIsomorphic (cohomologyFunctor X i)
       (liftedObjectwiseCohomology (J := J) X i) := sorry
 
 end Comparison
+
+section SiteUniverse
+
+variable [HasSheafify J AddCommGrpCat.{max u v}]
+variable [HasExt.{max u v} (Sheaf J AddCommGrpCat.{max u v})]
+variable [HasDerivedCategory.{d} (Sheaf J AddCommGrpCat.{max u v})]
+variable [HasDerivedCategory.{d} AddCommGrpCat.{max u v}]
+
+/-- Tag 01H0 in the universes of the site: taking the family universe to be `max u v`
+automatically supplies enough small covering refinements. -/
+theorem comparison_nonempty_siteUniverse (X : C)
+    [(Sheaf.CohomologyOverPresheaf.homFunctor J
+        (uliftYoneda.{max u v}.obj X)).toBoundedBelowDerived.HasRightDerivedFunctor
+      (HomotopyCategory.Plus.quasiIso (Sheaf J AddCommGrpCat.{max u v}))]
+    (i : ℕ) :
+    Nonempty (Comparison.{d, max u v, v, u} (J := J) X i) :=
+  comparison_nonempty X i
+
+end SiteUniverse
 
 end Hypercovering.Cech
 

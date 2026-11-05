@@ -7,6 +7,7 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import Mathlib.Algebra.Homology.HomotopyCategory.KInjective
+public import Mathlib.CategoryTheory.Functor.Derived.PointwiseLeftDerived
 public import ReasLib.CategoryTheory.DerivedCategory.Functor.Exact.Bounded.Restriction
 public import ReasLib.CategoryTheory.DerivedCategory.Functor.Exact.Composition
 public import ReasLib.CategoryTheory.DerivedCategory.Functor.Exact.Homology
@@ -177,8 +178,32 @@ noncomputable def derivedPullbackComparison
 are canonically isomorphic. -/
 theorem derivedPullbackComparison_isIso
     (X : RingedSpace.{u}) (U : Opens X.carrier) :
-    IsIso (derivedPullbackComparison X U) := sorry
+    IsIso (derivedPullbackComparison X U) := by
+  letI : (derivedPullback X U).IsLeftDerivedFunctor
+      ((@RingedSpace.modulePullbackToDerived _ _ (X.ofRestrict U.isOpenEmbedding)
+        (additive X U)).totalLeftDerivedCounit DerivedCategory.Qh
+          (RingedSpace.ModuleQis X))
+      (HomotopyCategory.quasiIso (RingedSpace.Modules X) (up ℤ)) := by
+    dsimp only [derivedPullback, RingedSpace.modulePullbackDerived]
+    exact inferInstanceAs
+      (((@RingedSpace.modulePullbackToDerived _ _
+        (X.ofRestrict U.isOpenEmbedding) (additive X U)).totalLeftDerived
+          DerivedCategory.Qh (RingedSpace.ModuleQis X)).IsLeftDerivedFunctor
+        ((@RingedSpace.modulePullbackToDerived _ _
+          (X.ofRestrict U.isOpenEmbedding) (additive X U)).totalLeftDerivedCounit
+            DerivedCategory.Qh (RingedSpace.ModuleQis X))
+        (RingedSpace.ModuleQis X))
+  unfold derivedPullbackComparison ExactFunctor.LeftDerived.comparison
+  apply (Functor.isLeftDerivedFunctor_iff_isIso_leftDerivedLift
+    (derivedPullback X U)
+    ((@RingedSpace.modulePullbackToDerived _ _ (X.ofRestrict U.isOpenEmbedding)
+      (additive X U)).totalLeftDerivedCounit DerivedCategory.Qh (RingedSpace.ModuleQis X))
+    (HomotopyCategory.quasiIso (RingedSpace.Modules X) (up ℤ))
+    (exact X U).mapDerivedCategory (exact X U).obj.mapDerivedCategoryFactorsh.hom).mp
+  exact Functor.isLeftDerivedFunctor_of_inverts _ _
+    (exact X U).obj.mapDerivedCategoryFactorsh
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Restriction to an open subspace commutes canonically with derived-category homology. -/
 noncomputable def derivedPullbackHomologyIso
     (X : RingedSpace.{u}) (U : Opens X.carrier)
@@ -187,10 +212,45 @@ noncomputable def derivedPullbackHomologyIso
         ((DerivedCategory.homologyFunctor X.Modules q).obj K) ≅
       (DerivedCategory.homologyFunctor (openSubspaceModuleCategory X U) q).obj
         ((derivedPullback X U).obj K) :=
-  ((exact X U).homologyIso K q).symm ≪≫
-    (DerivedCategory.homologyFunctor (openSubspaceModuleCategory X U) q).mapIso
-        ((@asIso _ _ _ _ (derivedPullbackComparison X U)
-          (derivedPullbackComparison_isIso X U)).app K)
+  let F := exact X U
+  let LF := derivedPullback X U
+  let ε := (@RingedSpace.modulePullbackToDerived _ _ (X.ofRestrict U.isOpenEmbedding)
+    (additive X U)).totalLeftDerivedCounit DerivedCategory.Qh (RingedSpace.ModuleQis X)
+  let β := F.obj.mapDerivedCategoryFactorsh
+  -- Descend the counit followed by the inverse of the exact-model factorization.
+  -- This specifies the inverse map without extracting it from an `IsIso` proof.
+  let h := Localization.fullyFaithfulWhiskeringLeft DerivedCategory.Qh
+    (RingedSpace.ModuleQis X) (moduleDerivedOnOpen X U)
+  let δ : LF ⟶ F.mapDerivedCategory :=
+    h.preimage (ε ≫ β.inv)
+  have hδ (A : HomotopyCategory X.Modules (up ℤ)) :
+      δ.app (DerivedCategory.Qh.obj A) = ε.app A ≫ β.inv.app A :=
+    congr_app (h.map_preimage (ε ≫ β.inv)) A
+  let e : F.mapDerivedCategory ≅ LF :=
+    { hom := derivedPullbackComparison X U
+      inv := δ
+      hom_inv_id := by
+        apply Localization.natTrans_ext DerivedCategory.Qh (RingedSpace.ModuleQis X)
+        intro A
+        change (derivedPullbackComparison X U).app _ ≫ δ.app _ = 𝟙 _
+        rw [hδ, ← Category.assoc]
+        change ((LF.leftDerivedLift ε (RingedSpace.ModuleQis X)
+          F.mapDerivedCategory β.hom).app _ ≫ ε.app A) ≫ β.inv.app A = _
+        rw [Functor.leftDerived_fac_app]
+        exact β.hom_inv_id_app A
+      inv_hom_id := by
+        apply Functor.leftDerived_ext LF ε (RingedSpace.ModuleQis X) LF
+        ext A
+        change (δ.app _ ≫ (derivedPullbackComparison X U).app _) ≫ ε.app A =
+          (𝟙 _) ≫ ε.app A
+        rw [Category.id_comp, Category.assoc]
+        change δ.app _ ≫ (LF.leftDerivedLift ε (RingedSpace.ModuleQis X)
+          F.mapDerivedCategory β.hom).app _ ≫ ε.app A = ε.app A
+        rw [Functor.leftDerived_fac_app]
+        rw [hδ, Category.assoc, β.inv_hom_id_app]
+        exact Category.comp_id (ε.app A) }
+  (F.homologyIso K q).symm ≪≫
+    (DerivedCategory.homologyFunctor (openSubspaceModuleCategory X U) q).mapIso (e.app K)
 
 end OpenSubspace.Restriction
 

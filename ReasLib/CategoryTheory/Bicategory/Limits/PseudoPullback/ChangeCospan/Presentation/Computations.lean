@@ -12,8 +12,8 @@ public import ReasLib.CategoryTheory.Bicategory.Limits.Transport.PseudoCone.Post
 /-!
 # Computations for the readable/generic change-of-cospan presentation comparison
 
-This leaf identifies the generic pseudocone underlying readable change of cospan and records
-the vertex and component formulas for the presentation comparison.
+This leaf compares the generic pseudocone underlying readable change of cospan with
+postcomposition and records the vertex and component formulas for the presentation comparison.
 -/
 
 @[expose] public section
@@ -37,19 +37,16 @@ variable {B : Type u} [Bicategory.{w, v} B]
 variable {x y z x' y' z' : B}
 variable {f : x ⟶ z} {g : y ⟶ z} {f' : x' ⟶ z'} {g' : y' ⟶ z'}
 
-/-- The generic pseudocone underlying `changeCospan` is postcomposition by the
-corresponding strong transformation of walking-cospan diagrams. This bridge makes
-the readable construction an interface to the shape-independent
-`PseudoCone.postcompose` owner. -/
-@[simp]
-theorem changeCospan.toPseudoCone
+/-- The canonical invertible modification comparing readable change of cospan with
+generic postcomposition at their common apex. The central component is the explicit
+associator/naturality pasting of `changeCospan.presentation.modification.iso`; the
+pseudocones need not be equal in an arbitrary bicategory. -/
+abbrev changeCospan.toPseudoCone
     (S : PseudoPullbackCone f g)
     (ψ : CospanTransform f g f' g') :
-    (S.changeCospan ψ).toPseudoCone =
-      (PseudoCone.postcompose ψ).obj S.toPseudoCone := sorry
-/- Proof strategy: apply pseudocone extensionality. The apex is unchanged; on the three
-walking-cospan vertices, unfold `changeCospan` and compare its boundary pasting with vertical
-composition of the two strong transformations. -/
+    (S.changeCospan ψ).toPseudoCone.π ≅
+      ((PseudoCone.postcompose ψ).obj S.toPseudoCone).π :=
+  changeCospan.presentation.modification.iso S ψ
 
 /-- At the left vertex, the readable/generic presentation comparison is the identity
 isomorphism. -/
@@ -102,8 +99,8 @@ theorem changeCospan.presentation.modification.iso.inv_app
     (changeCospan.presentation.modification.iso S ψ).inv.as.app j =
       (changeCospan.presentation.iso S ψ j).inv := sorry
 
-/- The declarations in this leaf are proposition-valued readouts and introduce no additional
-presentation data. -/
+/- The comparison aliases the explicit presentation data; the remaining declarations are
+proposition-valued readouts. -/
 
 end Bicategory.PseudoPullbackCone
 

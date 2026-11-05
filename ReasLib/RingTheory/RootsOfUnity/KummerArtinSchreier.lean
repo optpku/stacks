@@ -219,18 +219,12 @@ namespace HasQuotientIdentity
 
 variable {A : Type u} [CommRing A] {p : ℕ} {ζ : A} {P : A[X]}
 
-/-- A quotient identity exposes its defining polynomial equality. -/
-@[stacks 09F2 "one-sub quotient identity specification"]
-theorem eq (hP : HasQuotientIdentity p ζ P) :
-    C ((1 - ζ) ^ p) * P = (C (1 : A) + C (1 - ζ) * X) ^ p - 1 := sorry
--- Proof strategy: unfold `HasQuotientIdentity`; this is its defining equality.
-
 /-- The quotient identity is preserved by arbitrary base change. -/
 @[stacks 09F2 "base change of the one-sub quotient identity"]
 theorem map {B : Type v} [CommRing B] (hP : HasQuotientIdentity p ζ P) (f : A →+* B) :
     HasQuotientIdentity p (f ζ) (P.map f) := sorry
--- Proof strategy: map `hP.eq` through `Polynomial.map f` and normalize `map_C`, `map_X`, powers,
--- subtraction, and multiplication.
+-- Proof strategy: map the defining equality `hP` through `Polynomial.map f` and normalize
+-- `map_C`, `map_X`, powers, subtraction, and multiplication.
 
 /-- A quotient identity determines the canonical polynomial when `1 - ζ` is regular. -/
 @[stacks 09F2 "uniqueness from the one-sub quotient identity"]
@@ -251,9 +245,9 @@ theorem addFormula_mul {B : Type v} [CommSemiring B] [Algebra A B]
       algebraMap A B (1 - ζ) ^ p *
         (aeval x P + aeval y P +
           algebraMap A B (1 - ζ) ^ p * aeval x P * aeval y P) := sorry
--- Proof strategy: evaluate `hP.eq` at `mulLaw (algebraMap A B (1 - ζ)) x y`, rewrite
--- `one_add_mulLaw`, and expand the resulting product.  Substitute the two evaluations of
--- `hP.eq` at `x` and `y`, then normalize without cancelling the common scalar factor.
+-- Proof strategy: evaluate the defining equality `hP` at `mulLaw (algebraMap A B (1 - ζ)) x y`,
+-- rewrite `one_add_mulLaw`, and expand the resulting product.  Substitute the two evaluations of
+-- `hP` at `x` and `y`, then normalize without cancelling the common scalar factor.
 
 /-- Regularity of `1 - ζ` cancels the common factor in the universal addition identity. -/
 @[stacks 09F2 "one-sub addition formula under regularity"]
@@ -289,27 +283,6 @@ theorem correctionCoeff_mem (hP : IsQuotient p ζ P) {i : ℕ} (hi : 0 < i) (hip
     correctionCoeff p P i ∈ Ideal.span ({1 - ζ} : Set A) := sorry
 -- Proof strategy: apply `hP.hasShape.correctionCoeff_mem hi hip`.
 
-/-- The defining quotient identity of a quotient polynomial. -/
-@[stacks 09F2 "one-sub quotient polynomial identity"]
-theorem quotient_eq (hP : IsQuotient p ζ P) :
-    C ((1 - ζ) ^ p) * P = (C (1 : A) + C (1 - ζ) * X) ^ p - 1 := sorry
--- Proof strategy: apply `hP.hasQuotientIdentity.eq`.
-
-/-- The canonical correction coefficients give the displayed source polynomial. -/
-@[stacks 09F2 "one-sub quotient polynomial displayed shape"]
-theorem shape_eq (hP : IsQuotient p ζ P) :
-    P = X ^ p - X +
-      ∑ i ∈ Finset.Icc 1 (p - 1), C (correctionCoeff p P i) * X ^ i := sorry
--- Proof strategy: apply `hP.hasShape.eq`.
-
-/-- A quotient polynomial admits the existential coefficient presentation used by the source
-statement. -/
-@[stacks 09F2 "one-sub quotient polynomial source shape"]
-theorem exists_shape (hP : IsQuotient p ζ P) :
-    ∃ a : ℕ → A,
-      P = X ^ p - X + ∑ i ∈ Finset.Icc 1 (p - 1), C (a i) * X ^ i := sorry
--- Proof strategy: choose `a := correctionCoeff p P` and use `hP.shape_eq`.
-
 /-- The canonical coefficients recover the existential coefficient presentation used in the
 source statement. -/
 @[stacks 09F2 "one-sub quotient polynomial coefficient presentation"]
@@ -319,7 +292,7 @@ theorem exists_coefficients (hP : IsQuotient p ζ P) :
         P = X ^ p - X + ∑ i ∈ Finset.Icc 1 (p - 1), C (a i) * X ^ i ∧
         C ((1 - ζ) ^ p) * P = (C (1 : A) + C (1 - ζ) * X) ^ p - 1 := sorry
 -- Proof strategy: choose `a := correctionCoeff p P`; combine `hP.correctionCoeff_mem`,
--- `hP.shape_eq`, and `hP.quotient_eq`.
+-- `hP.hasShape.eq`, and `hP.hasQuotientIdentity`.
 
 /-- Evaluating a quotient polynomial separates its `X ^ p - X` term from the canonical
 correction sum. -/
@@ -329,7 +302,7 @@ theorem aeval_sub_eq_sum {B : Type v} [CommRing B] [Algebra A B]
     aeval z P - (z ^ p - z) =
       ∑ i ∈ Finset.Icc 1 (p - 1),
         algebraMap A B (correctionCoeff p P i) * z ^ i := sorry
--- Proof strategy: evaluate `hP.shape_eq` at `z`, commute `aeval` with the finite sum, and simplify
+-- Proof strategy: evaluate `hP.hasShape.eq` at `z`, commute `aeval` with the finite sum, and simplify
 -- `aeval z (X ^ p - X)`, `aeval z (C a * X ^ i)`, and the final subtraction.
 
 /-- Quotient polynomials are preserved by arbitrary homomorphisms of commutative rings. -/
@@ -512,26 +485,7 @@ structure RootPresentation
   /-- The chosen root generates the ambient extension over `K`. -/
   adjoin_eq_top : Algebra.adjoin K ({toRootEquation.z} : Set L) = ⊤
 
-namespace RootEquation
-
-/-- The quotient-polynomial condition carried by a root equation. -/
-@[stacks 09F3 "root equation quotient condition"]
-theorem quotient (h : RootEquation A K L p) : IsQuotient p h.ζ h.P := sorry
--- Proof strategy: return the structure field `h.isQuotient`.
-
-/-- The evaluation equation carried by a root equation. -/
-@[stacks 09F3 "root equation evaluation condition"]
-theorem eval (h : RootEquation A K L p) :
-    aeval h.z (h.P.map (algebraMap A K)) = algebraMap K L h.ξ := sorry
--- Proof strategy: return the structure field `h.eval_eq`.
-
-end RootEquation
-
 namespace RootPresentation
-
-/-- The underlying root equation of a generating presentation. -/
-@[stacks 09F3 "underlying Kummer root equation"]
-abbrev equation (h : RootPresentation A K L p) : RootEquation A K L p := h.toRootEquation
 
 /-- Package a root equation together with the assertion that its chosen root generates the ambient
 field.  This is the canonical constructor used by source-facing lemmas that start from separate
@@ -540,23 +494,6 @@ polynomial, evaluation, and generation hypotheses. -/
 def ofEquation (h : RootEquation A K L p)
     (hgen : Algebra.adjoin K ({h.z} : Set L) = ⊤) : RootPresentation A K L p :=
   { h with adjoin_eq_top := hgen }
-
-/-- A generating presentation exposes its quotient-polynomial condition. -/
-@[stacks 09F3 "root presentation quotient condition"]
-theorem quotient (h : RootPresentation A K L p) : IsQuotient p h.ζ h.P := sorry
--- Proof strategy: apply `RootEquation.quotient h.toRootEquation`.
-
-/-- A generating presentation exposes its root equation. -/
-@[stacks 09F3 "root presentation evaluation condition"]
-theorem eval (h : RootPresentation A K L p) :
-    aeval h.z (h.P.map (algebraMap A K)) = algebraMap K L h.ξ := sorry
--- Proof strategy: apply `RootEquation.eval h.toRootEquation`.
-
-/-- A generating presentation exposes the field-generation condition. -/
-@[stacks 09F3 "root presentation generation condition"]
-theorem adjoin (h : RootPresentation A K L p) :
-    Algebra.adjoin K ({h.z} : Set L) = ⊤ := sorry
--- Proof strategy: return the structure field `h.adjoin_eq_top`.
 
 end RootPresentation
 

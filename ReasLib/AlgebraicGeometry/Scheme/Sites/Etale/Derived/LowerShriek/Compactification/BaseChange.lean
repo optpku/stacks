@@ -35,6 +35,9 @@ namespace etaleDerivedLowerShriek
 -- Local instance justification (search instability): prefer the existing strong-to-weak projection for base topologies instead of repeatedly matching the section's over-site families.
 attribute [local instance 10000] HasSheafify.isRightAdjoint
 
+-- Base-site weak sheafification is supplied by this existing mathlib projection.
+-- Keep the over-site hypotheses and the chosen derived-category data explicit.
+
 -- Local declaration justification (definitional transport): compare the chosen source
 -- localization with the identical source projected from the explicit over-object.
 set_option backward.isDefEq.respectTransparency false
@@ -54,34 +57,27 @@ variable {X Y X' Y' : Scheme.{u}}
   (Λ : Type u) [CommRing Λ]
 
   [HasSheafify X.smallEtaleTopology (ModuleCat.{u} Λ)]
-  [HasWeakSheafify X.smallEtaleTopology (ModuleCat.{u} Λ)]
   [∀ U : X.Etale,
   HasWeakSheafify (X.smallEtaleTopology.over U) (ModuleCat.{u} Λ)]
   [derivedX : HasDerivedCategory (Sheaf X.smallEtaleTopology (ModuleCat.{u} Λ))]
   [HasSheafify Y.smallEtaleTopology (ModuleCat.{u} Λ)]
-  [HasWeakSheafify Y.smallEtaleTopology (ModuleCat.{u} Λ)]
   [∀ U : Y.Etale,
   HasWeakSheafify (Y.smallEtaleTopology.over U) (ModuleCat.{u} Λ)]
   [derivedY : HasDerivedCategory (Sheaf Y.smallEtaleTopology (ModuleCat.{u} Λ))]
   [HasSheafify X'.smallEtaleTopology (ModuleCat.{u} Λ)]
-  [HasWeakSheafify X'.smallEtaleTopology (ModuleCat.{u} Λ)]
   [∀ U : X'.Etale,
   HasWeakSheafify (X'.smallEtaleTopology.over U) (ModuleCat.{u} Λ)]
   [derivedXPrime : HasDerivedCategory (Sheaf X'.smallEtaleTopology (ModuleCat.{u} Λ))]
   [HasSheafify Y'.smallEtaleTopology (ModuleCat.{u} Λ)]
-  [HasWeakSheafify Y'.smallEtaleTopology (ModuleCat.{u} Λ)]
   [∀ U : Y'.Etale,
   HasWeakSheafify (Y'.smallEtaleTopology.over U) (ModuleCat.{u} Λ)]
   [derivedYPrime : HasDerivedCategory (Sheaf Y'.smallEtaleTopology (ModuleCat.{u} Λ))]
   [HasSheafify P.obj.right.left.smallEtaleTopology (ModuleCat.{u} Λ)]
-  [HasWeakSheafify P.obj.right.left.smallEtaleTopology (ModuleCat.{u} Λ)]
   [∀ U : P.obj.right.left.Etale,
   HasWeakSheafify (P.obj.right.left.smallEtaleTopology.over U) (ModuleCat.{u} Λ)]
   [derivedP : HasDerivedCategory
   (Sheaf P.obj.right.left.smallEtaleTopology (ModuleCat.{u} Λ))]
   [HasSheafify (ambient f g f' g' h_cart P).smallEtaleTopology
-  (ModuleCat.{u} Λ)]
-  [HasWeakSheafify (ambient f g f' g' h_cart P).smallEtaleTopology
   (ModuleCat.{u} Λ)]
   [∀ U : (ambient f g f' g' h_cart P).Etale,
   HasWeakSheafify ((ambient f g f' g' h_cart P).smallEtaleTopology.over U)
@@ -95,13 +91,6 @@ variable {X Y X' Y' : Scheme.{u}}
   [HasSheafify Y'.smallEtaleTopology AddCommGrpCat.{u}]
   [HasSheafify P.obj.right.left.smallEtaleTopology AddCommGrpCat.{u}]
   [HasSheafify (ambient f g f' g' h_cart P).smallEtaleTopology
-  AddCommGrpCat.{u}]
-  [HasWeakSheafify X.smallEtaleTopology AddCommGrpCat.{u}]
-  [HasWeakSheafify Y.smallEtaleTopology AddCommGrpCat.{u}]
-  [HasWeakSheafify X'.smallEtaleTopology AddCommGrpCat.{u}]
-  [HasWeakSheafify Y'.smallEtaleTopology AddCommGrpCat.{u}]
-  [HasWeakSheafify P.obj.right.left.smallEtaleTopology AddCommGrpCat.{u}]
-  [HasWeakSheafify (ambient f g f' g' h_cart P).smallEtaleTopology
   AddCommGrpCat.{u}]
 
   [HasSheafCompose X.smallEtaleTopology
@@ -237,13 +226,13 @@ instance instHasSheafify_compactificationPullback :
     (HasSheafify (ambient f g f' g' h_cart P).smallEtaleTopology (ModuleCat.{u} Λ))
 
 /-- Weak sheafification of the base-changed ambient transfers from `ambient`. -/
-instance instHasWeakSheafify_compactificationPullback :
+instance instHasWeakSheafify_compactificationPullback
+    [hWeak : HasWeakSheafify (ambient f g f' g' h_cart P).smallEtaleTopology
+      (ModuleCat.{u} Λ)] :
     HasWeakSheafify
       (compactificationPullback f g f' g' h_cart P).obj.right.left.smallEtaleTopology
       (ModuleCat.{u} Λ) :=
-  inferInstanceAs
-    (HasWeakSheafify (ambient f g f' g' h_cart P).smallEtaleTopology
-      (ModuleCat.{u} Λ))
+  hWeak
 
 /-- Derived categories of the base-changed ambient transfer from `ambient`. -/
 instance instHasDerivedCategory_compactificationPullback
@@ -560,14 +549,11 @@ def baseChangeIso (hΛ : AddMonoid.IsTorsion Λ) :
 
 variable (Q : Of Y (Over.mk f))
   [HasSheafify Q.obj.right.left.smallEtaleTopology (ModuleCat.{u} Λ)]
-  [HasWeakSheafify Q.obj.right.left.smallEtaleTopology (ModuleCat.{u} Λ)]
   [∀ U : Q.obj.right.left.Etale,
   HasWeakSheafify (Q.obj.right.left.smallEtaleTopology.over U) (ModuleCat.{u} Λ)]
   [derivedQ : HasDerivedCategory
   (Sheaf Q.obj.right.left.smallEtaleTopology (ModuleCat.{u} Λ))]
   [HasSheafify (ambient f g f' g' h_cart Q).smallEtaleTopology
-  (ModuleCat.{u} Λ)]
-  [HasWeakSheafify (ambient f g f' g' h_cart Q).smallEtaleTopology
   (ModuleCat.{u} Λ)]
   [∀ U : (ambient f g f' g' h_cart Q).Etale,
   HasWeakSheafify ((ambient f g f' g' h_cart Q).smallEtaleTopology.over U)
@@ -576,9 +562,6 @@ variable (Q : Of Y (Over.mk f))
   (Sheaf (ambient f g f' g' h_cart Q).smallEtaleTopology (ModuleCat.{u} Λ))]
   [HasSheafify Q.obj.right.left.smallEtaleTopology AddCommGrpCat.{u}]
   [HasSheafify (ambient f g f' g' h_cart Q).smallEtaleTopology
-  AddCommGrpCat.{u}]
-  [HasWeakSheafify Q.obj.right.left.smallEtaleTopology AddCommGrpCat.{u}]
-  [HasWeakSheafify (ambient f g f' g' h_cart Q).smallEtaleTopology
   AddCommGrpCat.{u}]
   [HasSheafCompose Q.obj.right.left.smallEtaleTopology
   (forget₂ (ModuleCat.{u} Λ) AddCommGrpCat.{u})]

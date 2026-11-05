@@ -34,13 +34,15 @@ The canonical instance is `SheafOfModules.isGrothendieckAbelian`; this theorem i
 ringed-space-facing compatibility bridge, not another instance owner. -/
 @[stacks 0142]
 theorem isGrothendieckAbelian (X : RingedSpace.{u}) :
-    IsGrothendieckAbelian.{u} X.Modules := sorry
+    IsGrothendieckAbelian.{u} X.Modules :=
+  SheafOfModules.LargeSite.grothendieck _ X.ringCatSheaf
 
 /-- The module category of a ringed space has enough injectives for right-derived functors.
 This is a consequence of its Grothendieck-abelian structure and does not require a choice of
 base scheme or base field. -/
 instance hasInjectiveResolutions (X : RingedSpace.{u}) :
-    HasInjectiveResolutions X.Modules := sorry
+    HasInjectiveResolutions X.Modules :=
+  SheafOfModules.LargeSite.injectiveResolutions _ X.ringCatSheaf
 
 end Modules
 

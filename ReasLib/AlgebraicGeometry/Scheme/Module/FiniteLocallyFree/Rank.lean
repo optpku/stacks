@@ -57,12 +57,11 @@ instance pullback_isFiniteLocallyFreeOfRank
 instance pullback_isFiniteLocallyFree
     {X Y : Scheme.{u}} (f : X ⟶ Y) (F : Y.Modules) [IsFiniteLocallyFree F] :
     IsFiniteLocallyFree ((pullback f).obj F) := by
-  have h_final : (TopologicalSpace.Opens.map f.base).Final :=
-    CategoryTheory.final_of_representablyFlat (TopologicalSpace.Opens.map f.base)
+  letI : (SheafOfModules.pushforward.{u} f.toRingCatSheafHom).IsRightAdjoint :=
+    (pullbackPushforwardAdjunction f).isRightAdjoint
   change SheafOfModules.IsFiniteLocallyFree
     ((SheafOfModules.pullback f.toRingCatSheafHom).obj F)
-  exact @SheafOfModules.pullback_isFiniteLocallyFree _ _ _ _ _ _ _ _ _ _ _ _ _ _
-    f.toRingCatSheafHom inferInstance h_final F inferInstance
+  exact SheafOfModules.pullback_isFiniteLocallyFree f.toRingCatSheafHom F
 
 /-- An invertible scheme module has finite local rank one. This is an explicit theorem rather
 than a reverse instance, keeping typeclass search acyclic with the rank-one-to-invertible

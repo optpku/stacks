@@ -127,7 +127,7 @@ theorem map_evaluation_coevaluation
       simp
 
 /-- A strong monoidal functor sends explicit exact-pairing data to explicit exact-pairing data. -/
-@[stacks 0E8I "strong monoidal image of an exact pairing", implicit_reducible]
+@[implicit_reducible]
 def map {X Y : C} (p : ExactPairing X Y) (F : C ⥤ D) [F.Monoidal] :
     ExactPairing (F.obj X) (F.obj Y) where
   coevaluation' := p.mapCoevaluation F

@@ -44,12 +44,6 @@ variable {F : Type v} [Category.{w} F]
 
 namespace CategoryTheory.Functor
 
-/-- The Rim-Schlessinger condition includes being cofibered in groupoids. -/
-instance HasRimSchlessinger.toIsFiberedInGroupoids
-    (p : F ⥤ ArtinianLocalAlgCat Λ k) [HasRimSchlessinger p] :
-    IsFibered.InGroupoids p.op :=
-  HasRimSchlessinger.isCofiberedInGroupoids
-
 /-- For a category cofibered in groupoids satisfying (RS), the following are
 equivalent: its associated functor of isomorphism classes satisfies (RS); the
 two-fibre-product comparison is injective along cospans with surjective second

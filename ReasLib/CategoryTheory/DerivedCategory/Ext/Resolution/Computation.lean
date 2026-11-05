@@ -184,19 +184,22 @@ noncomputable def homotopyAddEquiv (I : InjectiveResolution Y) (X : CochainCompl
     (Q.obj X ⟶ Q.obj (I⟦i⟧)) ≃+ ((KQ).obj X ⟶ (KQ).obj (I⟦i⟧)) :=
   (AddEquiv.ofBijective
       (Qh.mapAddHom : ((KQ).obj X ⟶ (KQ).obj (I⟦i⟧)) →+ _)
-      (IsKInjective.Qh_map_bijective ((KQ).obj X) (I⟦i⟧))).symm
+      (@IsKInjective.Qh_map_bijective 𝒜 _ _ _ ((KQ).obj X) (I.complex⟦i⟧)
+        ((isKInjective_shift_iff I.complex i).2 (isKInjective_of_model I)))).symm
 
 /-- Evaluation of `homotopyAddEquiv` is the inverse of the additive `Qh.map` equivalence. -/
 @[simp, stacks 06XR]
 theorem homotopyAddEquiv_apply (I : InjectiveResolution Y) (X : CochainComplex 𝒜 ℤ) (i : ℤ)
     (f : Q.obj X ⟶ Q.obj (I⟦i⟧)) :
-    Qh.map (homotopyAddEquiv I X i f) = f := sorry
+    Qh.map (homotopyAddEquiv I X i f) = f := by
+  change (homotopyAddEquiv I X i).symm (homotopyAddEquiv I X i f) = f
+  exact (homotopyAddEquiv I X i).symm_apply_apply f
 
 /-- The inverse homotopy transport is characterized by mapping to the supplied derived morphism. -/
 @[simp, stacks 06XR]
 theorem homotopyAddEquiv_symm_apply (I : InjectiveResolution Y) (X : CochainComplex 𝒜 ℤ) (i : ℤ)
     (f : (KQ).obj X ⟶ (KQ).obj (I⟦i⟧)) :
-    (homotopyAddEquiv I X i).symm f = Qh.map f := sorry
+    (homotopyAddEquiv I X i).symm f = Qh.map f := rfl
 
 /-- The bundled resolution computation is the composite of the four named transports. -/
 @[stacks 06XR]

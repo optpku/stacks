@@ -26,7 +26,7 @@ open CategoryTheory
 
 noncomputable section
 
-universe u
+universe u v
 
 namespace CategoryTheory.DerivedCategory
 
@@ -40,7 +40,8 @@ theorem isPerfect_iff_isPseudoCoherent_and_hasFiniteTorDimension
     K.IsPerfect ↔ K.IsPseudoCoherent ∧ HasFiniteTorDimension R K := sorry
 
 /-- Every perfect derived module object is pseudo-coherent. -/
-theorem IsPerfect.isPseudoCoherent {K : DerivedCategory (ModuleCat R)}
+theorem IsPerfect.isPseudoCoherent [Small.{v} R]
+    {K : DerivedCategory (ModuleCat.{v, u} R)}
     (hK : K.IsPerfect) :
     K.IsPseudoCoherent := sorry
 

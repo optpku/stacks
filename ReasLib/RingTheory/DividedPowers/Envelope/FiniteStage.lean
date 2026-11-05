@@ -37,7 +37,10 @@ def stageMap (e : ℕ) : A →+* quotient p P e :=
 /-- The base divided-power ideal maps into the induced finite-stage ideal. -/
 theorem stageIdeal_contains_base
     (hIJ : Ideal.map (algebraMap A P) I ≤ J) (e : ℕ) :
-    Ideal.map (stageMap p A P e) I ≤ stageIdeal p P J e := sorry
+    Ideal.map (stageMap p A P e) I ≤ stageIdeal p P J e := by
+  unfold stageMap stageIdeal
+  rw [← Ideal.map_map]
+  exact Ideal.map_mono hIJ
 
 /-- The divided-power envelope of the finite presentation `(P_e, J_e)`. -/
 abbrev envelopeStage (hIJ : Ideal.map (algebraMap A P) I ≤ J) (e : ℕ) :=
@@ -48,7 +51,8 @@ abbrev envelopeStage (hIJ : Ideal.map (algebraMap A P) I ≤ J) (e : ℕ) :=
 theorem envelopeStage_base
     (hIJ : Ideal.map (algebraMap A P) I ≤ J) (e : ℕ)
     (Eₑ : envelopeStage p A P I γ J hIJ e) :
-    Eₑ.base.toRingHom = Eₑ.toD.comp (stageMap p A P e) := sorry
+    Eₑ.base.toRingHom = Eₑ.toD.comp (stageMap p A P e) := by
+  exact Eₑ.base_toD
 
 /-- The base divided-power ideal is contained in the kernel presentation ideal. -/
 theorem pAdicBaseIdealLeKernel
@@ -83,7 +87,11 @@ theorem envelopeStageFromP_ideal_le
     {hIJ : Ideal.map (algebraMap A P) I ≤ J}
     (e : ℕ)
     (EStage : envelopeStage p A P I γ J hIJ e) :
-    J ≤ Ideal.comap (envelopeStageFromP p e EStage) EStage.D.ideal := sorry
+    J ≤ Ideal.comap (envelopeStageFromP p e EStage) EStage.D.ideal := by
+  apply Ideal.map_le_iff_le_comap.mp
+  change Ideal.map (EStage.toD.comp _) J ≤ EStage.D.ideal
+  rw [← Ideal.map_map]
+  exact EStage.ideal_map
 
 /-- The quotient map from `C` to the finite envelope quotient induced by the presentation. -/
 noncomputable def envelopeStageQuotientMap
@@ -136,13 +144,30 @@ theorem envelopePresentationToC_isDPMorphism
     (π : P →+* C) {J : Ideal P} (hJ : J = RingHom.ker π)
     (hIJ : Ideal.map (algebraMap A P) I ≤ J) :
     DividedPowers.IsDPMorphism γ (dividedPowersBot C)
-      (π.comp (algebraMap A P)) := sorry
+      (π.comp (algebraMap A P)) := by
+  have hzero : ∀ a ∈ I, (π.comp (algebraMap A P)) a = 0 := by
+    intro a ha
+    exact show π (algebraMap A P a) = 0 from
+      (show algebraMap A P a ∈ RingHom.ker π from
+        hJ ▸ hIJ (Ideal.mem_map_of_mem _ ha))
+  refine ⟨?_, ?_⟩
+  · exact Ideal.map_le_iff_le_comap.mpr (fun a ha ↦ hzero a ha)
+  · intro n a ha
+    by_cases hn : n = 0
+    · subst n
+      rw [γ.dpow_zero ha, map_one, (dividedPowersBot C).dpow_zero]
+      exact Ideal.mem_bot.mpr (hzero a ha)
+    · rw [hzero a ha, (dividedPowersBot C).dpow_eval_zero hn,
+        hzero _ (γ.dpow_mem hn ha)]
 
 /-- The kernel presentation ideal maps to the zero ideal in `C`. -/
 theorem envelopePresentationToC_ideal
     {P C : Type u} [CommRing P] [CommRing C]
     (π : P →+* C) {J : Ideal P} (hJ : J = RingHom.ker π) :
-    Ideal.map π J ≤ (⊥ : Ideal C) := sorry
+    Ideal.map π J ≤ (⊥ : Ideal C) := by
+  apply Ideal.map_le_iff_le_comap.mpr
+  intro x hx
+  exact show π x = 0 from (show x ∈ RingHom.ker π from hJ ▸ hx)
 
 /-- The canonical divided-power quotient `D → C`, obtained from universality. -/
 noncomputable def envelopeToC
@@ -168,7 +193,11 @@ theorem envelopeToC_comp
     {hIJ : Ideal.map (algebraMap A P) I ≤ J}
     (E : DividedPowerEnvelope I γ (algebraMap A P) J hIJ)
     (hE : DividedPowerEnvelope.IsUniversal γ (algebraMap A P) hIJ E) :
-    (envelopeToC π hπ hJ E hE).comp E.toD = π := sorry
+    (envelopeToC π hπ hJ E hE).comp E.toD = π := by
+  exact (ExistsUnique.exists
+    (@hE (DividedPowerRing.of C ⊥ (dividedPowersBot C)) π
+      (envelopePresentationToC_isDPMorphism π hJ hIJ)
+      (envelopePresentationToC_ideal π hJ))).choose_spec
 
 /-- The envelope quotient map annihilates the distinguished ideal. -/
 theorem envelopeToC_ideal
@@ -179,6 +208,11 @@ theorem envelopeToC_ideal
     {hIJ : Ideal.map (algebraMap A P) I ≤ J}
     (E : DividedPowerEnvelope I γ (algebraMap A P) J hIJ)
     (hE : DividedPowerEnvelope.IsUniversal γ (algebraMap A P) hIJ E) :
-    E.D.ideal ≤ RingHom.ker (envelopeToC π hπ hJ E hE) := sorry
+    E.D.ideal ≤ RingHom.ker (envelopeToC π hπ hJ E hE) := by
+  exact Ideal.map_le_iff_le_comap.mp
+    (Classical.choose (ExistsUnique.exists
+      (@hE (DividedPowerRing.of C ⊥ (dividedPowersBot C)) π
+        (envelopePresentationToC_isDPMorphism π hJ hIJ)
+        (envelopePresentationToC_ideal π hJ)))).ideal_comp
 
 end DividedPowers.PAdic

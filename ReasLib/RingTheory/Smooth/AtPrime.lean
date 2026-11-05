@@ -62,6 +62,8 @@ theorem iff_isSmoothAt [FinitePresentation R S] (q : PrimeSpectrum S) :
     change q ∈ smoothLocus R S
     exact (basicOpen_subset_smoothLocus_iff_smooth.mpr hSmooth) (by simpa using hg)
   · intro hSmooth
+    -- Local instance justification (proof-local temporary data): the reverse implication gives
+    -- `hSmooth` explicitly, but `exists_notMem_smooth` consumes the local predicate as a class.
     letI : IsSmoothAt R q.asIdeal := hSmooth
     exact IsSmoothAt.exists_notMem_smooth R q.asIdeal
 

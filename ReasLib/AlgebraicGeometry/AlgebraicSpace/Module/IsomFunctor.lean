@@ -12,10 +12,11 @@ public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.HomFunctor
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Sites.Fpqc
 
 /-!
-# The Isom functor of quasi-coherent modules on an algebraic space
+# The Isom functor of modules on an algebraic space
 
 The invertible module maps form a subfunctor of the Hom presheaf on schemes
-over the base algebraic space. This presheaf satisfies fpqc descent.
+over the base algebraic space. For quasi-coherent modules this presheaf satisfies
+fpqc descent.
 -/
 
 @[expose] public section
@@ -39,20 +40,17 @@ theorem baseChangeHom_isIso (f : X ⟶ B) (F G : X.Modules) {σ τ : SchemeOver 
 
 /-- The subfunctor of `Hom(F, G)` whose value on a scheme `T` over `B` is the
 set of invertible `𝒪_{X_T}`-module maps `F_T ⟶ G_T`. -/
-def isomSubfunctor (f : X ⟶ B) (F G : X.Modules)
-    [F.IsQuasicoherent] [G.IsQuasicoherent] : Subfunctor (homFunctor f F G) where
+def isomSubfunctor (f : X ⟶ B) (F G : X.Modules) : Subfunctor (homFunctor f F G) where
   obj σ := {u | IsIso u}
   map h u hu := baseChangeHom_isIso f F G h.unop hu
 
 /-- The presheaf on schemes over `B` whose sections are invertible maps
 between the base changes of `F` and `G`. -/
-def isomFunctor (f : X ⟶ B) (F G : X.Modules)
-    [F.IsQuasicoherent] [G.IsQuasicoherent] : (SchemeOver B)ᵒᵖ ⥤ Type (u + 1) :=
+def isomFunctor (f : X ⟶ B) (F G : X.Modules) : (SchemeOver B)ᵒᵖ ⥤ Type (u + 1) :=
   (isomSubfunctor f F G).toFunctor
 
 /-- An invertible Hom-section determines a section of the Isom presheaf. -/
 def IsomFunctor.mk (f : X ⟶ B) (F G : X.Modules)
-    [F.IsQuasicoherent] [G.IsQuasicoherent]
     {σ : SchemeOver B} (u : (homFunctor f F G).obj (op σ)) [IsIso u] :
     (isomFunctor f F G).obj (op σ) :=
   ⟨u, ‹IsIso u›⟩
@@ -60,7 +58,7 @@ def IsomFunctor.mk (f : X ⟶ B) (F G : X.Modules)
 /-- Membership in the Isom subfunctor is invertibility of the corresponding
 Hom-section. -/
 theorem mem_isomSubfunctor (f : X ⟶ B) (F G : X.Modules)
-    [F.IsQuasicoherent] [G.IsQuasicoherent] {σ : SchemeOver B}
+    {σ : SchemeOver B}
     (u : (homFunctor f F G).obj (op σ)) :
     u ∈ (isomSubfunctor f F G).obj (op σ) ↔ IsIso u :=
   Iff.rfl

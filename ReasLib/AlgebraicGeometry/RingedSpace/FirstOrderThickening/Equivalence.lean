@@ -53,21 +53,32 @@ def unitHom {X : RingedSpace.{u}} (T : Trivialized X) :
       sorry)
     sorry
 
-/-- The inverse comparison from the square-zero model to a trivialized thickening. -/
+/-- The underlying-space identification uses the given inclusion as its inverse. -/
+def unitBaseIso {X : RingedSpace.{u}} (T : Trivialized X) :
+    T.ambient.carrier ≅ X.carrier where
+  hom := T.trivialization.retraction.hom.base
+  inv := T.inclusion.hom.base
+  hom_inv_id := by
+    have h : T.inclusion.hom.base ≫ T.trivialization.retraction.hom.base = 𝟙 _ :=
+      congrArg (fun f : X ⟶ X => f.hom.base) T.trivialization.id
+    apply (cancel_epi T.inclusion.hom.base).1
+    rw [← Category.assoc, h, Category.id_comp, Category.comp_id]
+  inv_hom_id :=
+    congrArg (fun f : X ⟶ X => f.hom.base) T.trivialization.id
+
+/-- The inverse comparison from the square-zero model to a trivialized thickening.
+Its underlying map is the given inclusion, rather than a chosen inverse. -/
 def unitInv {X : RingedSpace.{u}} (T : Trivialized X) :
     ofModule (RingedSpace.Hom.idealModule T.inclusion) ⟶ T :=
   Trivialized.Hom.mk
     (Hom.mk
       (InducedCategory.homMk
-        { base :=
-            @CategoryTheory.inv _ _ _ _ T.trivialization.retraction.hom.base
-              (@instIsIso_retraction_base _ _ T.inclusion T.isFirstOrder T.trivialization)
+        { base := T.inclusion.hom.base
           c :=
             TopCat.Presheaf.toPushforwardOfIso
-              (@asIso _ _ _ _ T.trivialization.retraction.hom.base
-                (@instIsIso_retraction_base _ _ T.inclusion T.isFirstOrder T.trivialization))
-              (@splittingIso _ _ T.inclusion T.isFirstOrder
-                T.trivialization.retraction T.trivialization.id).hom.hom })
+              (unitBaseIso T)
+              (@splittingHom _ _ T.inclusion T.isFirstOrder
+                T.trivialization.retraction T.trivialization.id).hom })
       sorry)
     sorry
 

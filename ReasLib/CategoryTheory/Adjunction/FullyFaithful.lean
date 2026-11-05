@@ -26,6 +26,36 @@ variable {C : Type uC} [Category.{vC} C]
 variable {D : Type uD} [Category.{vD} D]
 variable {L : C ⥤ D} {R : D ⥤ C}
 
+set_option backward.defeqAttrib.useBackward true in
+set_option backward.isDefEq.respectTransparency false in
+/-- The counit is an isomorphism when the right adjoint has an explicit inverse on
+morphisms. Its inverse is the preimage of the unit, without selecting an inverse from
+an `IsIso` proof. -/
+def counitIsoOfRFullyFaithful (adj : L ⊣ R) (hR : R.FullyFaithful) :
+    R ⋙ L ≅ 𝟭 D :=
+  NatIso.ofComponents (fun X =>
+    { hom := adj.counit.app X
+      inv := hR.preimage (adj.unit.app (R.obj X))
+      hom_inv_id := by
+        rw [← adj.counit_naturality (hR.preimage (adj.unit.app (R.obj X)))]
+        simp only [hR.map_preimage]
+        exact adj.left_triangle_components (R.obj X)
+      inv_hom_id := by
+        apply hR.map_injective
+        simp only [Functor.map_comp, hR.map_preimage, Functor.map_id]
+        exact adj.right_triangle_components X })
+    (fun f => adj.counit.naturality f)
+
+@[simp]
+theorem counitIsoOfRFullyFaithful_hom (adj : L ⊣ R) (hR : R.FullyFaithful) :
+    (adj.counitIsoOfRFullyFaithful hR).hom = adj.counit := rfl
+
+@[simp]
+theorem counitIsoOfRFullyFaithful_inv_app
+    (adj : L ⊣ R) (hR : R.FullyFaithful) (X : D) :
+    (adj.counitIsoOfRFullyFaithful hR).inv.app X =
+      hR.preimage (adj.unit.app (R.obj X)) := rfl
+
 namespace FullyFaithful
 
 /-- If `L ⋙ R` is fully faithful and `L ⊣ R`, then `L` is fully faithful. -/

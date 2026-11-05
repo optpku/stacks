@@ -24,8 +24,27 @@ plumbing.
 /- Lemma 10.137.17, tag 00TG: for a finitely presented map `R → S` and a
 flat base change `R → R'`, the smooth locus of `R' → R' ⊗[R] S` is the inverse
 image of the smooth locus of `R → S`. -/
+open scoped TensorProduct
+
+universe u v w
+
 @[stacks 00TG "flat base change of smooth loci"]
-#check @Algebra.smoothLocus_preimage_includeRight_eq_baseChange
+#check (@Algebra.smoothLocus_preimage_includeRight_eq_baseChange :
+  ∀ {R : Type u} {S : Type v} {R' : Type w} [CommRing R] [CommRing S] [CommRing R']
+    [Algebra R S] [Algebra R R']
+    [Algebra.FinitePresentation R S] [Module.Flat R R'],
+    PrimeSpectrum.comap
+        (Algebra.TensorProduct.includeRight : S →ₐ[R] R' ⊗[R] S).toRingHom ⁻¹'
+        Algebra.smoothLocus R S =
+      Algebra.smoothLocus R' (R' ⊗[R] S))
 
 @[stacks 00TG "pointwise smooth-locus base change"]
-#check @Algebra.mem_smoothLocus_baseChange_iff
+#check (@Algebra.mem_smoothLocus_baseChange_iff :
+  ∀ {R : Type u} {S : Type v} {R' : Type w} [CommRing R] [CommRing S] [CommRing R']
+    [Algebra R S] [Algebra R R']
+    [Algebra.FinitePresentation R S] [Module.Flat R R']
+    (q' : PrimeSpectrum (R' ⊗[R] S)),
+    PrimeSpectrum.comap
+        (Algebra.TensorProduct.includeRight : S →ₐ[R] R' ⊗[R] S).toRingHom q' ∈
+        Algebra.smoothLocus R S ↔
+      q' ∈ Algebra.smoothLocus R' (R' ⊗[R] S))

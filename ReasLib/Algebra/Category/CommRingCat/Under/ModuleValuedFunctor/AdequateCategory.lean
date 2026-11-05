@@ -17,6 +17,14 @@ universe u
 
 namespace ModuleValuedFunctor
 
+/-- The full category of adequate module-valued functors on `Alg_A`, using the
+canonical tensor-extension functor. -/
+abbrev Adeq (A : CommRingCat.{u}) := TensorAdeq A
+
+/-- Every object of `Adeq A` is adequate. -/
+theorem Adeq.adequate {A : CommRingCat.{u}} (F : Adeq A) :
+    TensorAdequate F.obj := F.property
+
 /-- Adequacy of the underlying additive functor implies tensor adequacy of the
 bundled module-valued functor. -/
 theorem tensorAdequate_of_underlyingAdequate {A : CommRingCat.{u}}

@@ -127,7 +127,7 @@ noncomputable def pushforwardToExceptional_center (I : X.IdealSheafData) (b : X'
   DerivedCategory.Plus.ι.map
     ((etaleDerivedPushforward I.subschemeι).map
         (unitApp (exceptionalProjection I b) L) ≫
-      (asIso (pushforwardCompComparison (exceptionalProjection I b) I.subschemeι)).inv.app
+      (pushforwardCompIso (exceptionalProjection I b) I.subschemeι).hom.app
         ((etaleDerivedInverseImage (exceptionalProjection I b)).obj L))
 
 /-- `pushforwardToExceptional_center` is derived pushforward of the exceptional-projection
@@ -153,7 +153,7 @@ noncomputable def pushforwardToExceptional_blowup (I : X.IdealSheafData) (b : X'
           ((etaleDerivedInverseImage (I.comap b).subschemeι).obj K')) :=
   DerivedCategory.Plus.ι.map
     ((etaleDerivedPushforward b).map (unitApp (I.comap b).subschemeι K') ≫
-      (asIso (pushforwardCompComparison (I.comap b).subschemeι b)).inv.app
+      (pushforwardCompIso (I.comap b).subschemeι b).hom.app
         ((etaleDerivedInverseImage (I.comap b).subschemeι).obj K') ≫
       (composite_pushforwardIso I b).hom.app
         ((etaleDerivedInverseImage (I.comap b).subschemeι).obj K'))

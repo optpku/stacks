@@ -58,7 +58,7 @@ Weil divisors and additive Weil divisor classes. -/
       (hs : s ≠ 0) (ht : t ≠ 0), meromorphicSectionTensor s t ≠ 0)
 
 #check (AlgebraicGeometry.AlgebraicSpace.isRegularMeromorphicSection_iff_ne_zero :
-    ∀ {S : Scheme.{u}} {X : AlgebraicSpace S}
+    ∀ {S : Scheme.{u}} (X : AlgebraicSpace S)
       [IsLocallyNoetherian X] [IsIntegral X]
       (L : X.Modules) [isInvertibleObject L] (s : meromorphicSections X L),
       IsRegularMeromorphicSection X L s ↔ s ≠ 0)

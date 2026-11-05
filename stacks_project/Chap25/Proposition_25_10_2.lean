@@ -20,9 +20,12 @@ open CategoryTheory
 
 /- Proposition 25.10.2 (09VZ): there is a refinement-natural comparison from the filtered
 colimit of Cech cohomology over terminal-presheaf hypercoverings to site cohomology whose map
-at every coefficient sheaf is an isomorphism. -/
+at every coefficient sheaf is an isomorphism. The family universe is `max u v`, which
+allows the covering refinements needed to represent site-cohomology classes. -/
 @[stacks 09VZ "colimit comparison"] #check
-  @HypercoveringOf.Cech.Terminal.comparison_nonempty
+  @HypercoveringOf.Cech.Terminal.comparison_nonempty_siteUniverse
+
+#check @HypercoveringOf.Cech.Terminal.comparison_nonempty
 
 /- Proposition 25.10.2 (1): relative to one fixed comparison with the filtered-colimit model,
 every site-cohomology class has a representative on one hypercovering. -/

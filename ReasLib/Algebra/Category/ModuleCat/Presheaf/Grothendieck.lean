@@ -28,11 +28,6 @@ universe u v
 
 namespace PresheafOfModules
 
-/-- Presheaves of modules over a ring-valued presheaf admit a separator. -/
-instance hasSeparator
-    {C : Type u} [Category.{v} C] (𝒪 : Cᵒᵖ ⥤ RingCat.{max u v}) :
-    HasSeparator (PresheafOfModules.{max u v} 𝒪) := sorry
-
 /-- Presheaves of modules over a ring-valued presheaf form a Grothendieck abelian category. This
 is the shared owner for their functorial injective embeddings. -/
 @[stacks 0142, stacks 01DV "Grothendieck-abelian owner"]
@@ -46,6 +41,9 @@ section
 
 variable {C : Type u} [Category.{v} C] (𝒪 : Cᵒᵖ ⥤ RingCat.{max u v})
 
+-- The Grothendieck instance supplies a separator; reserve `PresheafOfModules.hasSeparator`
+-- for the upstream instance in `Mathlib.Algebra.Category.ModuleCat.Presheaf.Generator`.
+#synth HasSeparator (PresheafOfModules.{max u v} 𝒪)
 #synth IsGrothendieckAbelian.{max u v} (PresheafOfModules.{max u v} 𝒪)
 #synth HasFunctorialInjectives (PresheafOfModules.{max u v} 𝒪)
 #synth EnoughInjectives (PresheafOfModules.{max u v} 𝒪)

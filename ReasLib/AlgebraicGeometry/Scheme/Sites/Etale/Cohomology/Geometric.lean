@@ -28,18 +28,18 @@ variable {k : Type u} [Field k]
 
 /-- Restriction of an abelian small-étale sheaf to the geometric fibre, as inverse
 image along `FieldExtension.toSource`. -/
-abbrev geometricRestriction (X : SchemeOverField k)
+abbrev geometricAbelianSheafRestriction (X : SchemeOverField k)
     (F : Sheaf X.left.smallEtaleTopology AddCommGrpCat.{u}) :
     Sheaf (FieldExtension.baseChange k (AlgebraicClosure k) X.hom).smallEtaleTopology
       AddCommGrpCat.{u} :=
   (etaleAbelianSheafPullback
       (FieldExtension.toSource k (AlgebraicClosure k) X.hom)).obj F
 
-/-- Unfolding of `geometricRestriction` as abelian small-étale inverse image along
+/-- Unfolding of `geometricAbelianSheafRestriction` as abelian small-étale inverse image along
 the projection `X_k̄ ⟶ X`. -/
-theorem geometricRestriction_eq (X : SchemeOverField k)
+theorem geometricAbelianSheafRestriction_eq (X : SchemeOverField k)
     (F : Sheaf X.left.smallEtaleTopology AddCommGrpCat.{u}) :
-    geometricRestriction X F =
+    geometricAbelianSheafRestriction X F =
       (etaleAbelianSheafPullback
           (FieldExtension.toSource k (AlgebraicClosure k) X.hom)).obj F :=
   rfl
@@ -50,16 +50,16 @@ abbrev geometricEtaleHq (X : SchemeOverField k)
     AddCommGrpCat.{u} :=
   (Sheaf.functorH
       (FieldExtension.baseChange k (AlgebraicClosure k) X.hom).smallEtaleTopology j).obj
-    (geometricRestriction X F)
+    (geometricAbelianSheafRestriction X F)
 
-/-- Unfolding of `geometricEtaleHq` as `Sheaf.functorH` of `geometricRestriction`. -/
+/-- Unfolding of `geometricEtaleHq` as `Sheaf.functorH` of `geometricAbelianSheafRestriction`. -/
 theorem geometricEtaleHq_eq (X : SchemeOverField k)
     (F : Sheaf X.left.smallEtaleTopology AddCommGrpCat.{u}) (j : ℕ) :
     geometricEtaleHq X F j =
       (Sheaf.functorH
           (FieldExtension.baseChange k (AlgebraicClosure k) X.hom).smallEtaleTopology
           j).obj
-        (geometricRestriction X F) :=
+        (geometricAbelianSheafRestriction X F) :=
   rfl
 
 variable [∀ Z : Scheme.{u},
@@ -72,7 +72,7 @@ def galoisSheafPastingIso (X : SchemeOverField k)
     (σ : Gal(AlgebraicClosure k / k)) :
     (etaleAbelianSheafPullback
         (FieldExtension.Galois.map k (AlgebraicClosure k) X.hom σ)).obj
-      (geometricRestriction X F) ≅ geometricRestriction X F :=
+      (geometricAbelianSheafRestriction X F) ≅ geometricAbelianSheafRestriction X F :=
   (etaleAbelianSheafPullback_comp
         (FieldExtension.toSource k (AlgebraicClosure k) X.hom)
         (FieldExtension.Galois.map k (AlgebraicClosure k) X.hom σ)).app F ≪≫
@@ -99,7 +99,7 @@ def galoisEtaleHq (X : SchemeOverField k)
     (σ : Gal(AlgebraicClosure k / k)) :
     geometricEtaleHq X F j ⟶ geometricEtaleHq X F j :=
   etaleHq_pullback (FieldExtension.Galois.map k (AlgebraicClosure k) X.hom σ)
-      (geometricRestriction X F) j ≫
+      (geometricAbelianSheafRestriction X F) j ≫
     (Sheaf.functorH
         (FieldExtension.baseChange k (AlgebraicClosure k) X.hom).smallEtaleTopology
         j).map
@@ -112,7 +112,7 @@ theorem galoisEtaleHq_spec (X : SchemeOverField k)
     (σ : Gal(AlgebraicClosure k / k)) :
     galoisEtaleHq X F j σ =
       etaleHq_pullback (FieldExtension.Galois.map k (AlgebraicClosure k) X.hom σ)
-          (geometricRestriction X F) j ≫
+          (geometricAbelianSheafRestriction X F) j ≫
         (Sheaf.functorH
             (FieldExtension.baseChange k (AlgebraicClosure k)
               X.hom).smallEtaleTopology

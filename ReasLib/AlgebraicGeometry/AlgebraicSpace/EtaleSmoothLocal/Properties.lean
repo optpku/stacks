@@ -7,6 +7,8 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSmoothLocal
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSmoothLocal.Etale
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSmoothLocal.Unramified
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.SmoothLocal
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.LocallyQuasiFinite
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.Unramified
@@ -25,16 +27,6 @@ universe u
 
 open CategoryTheory AlgebraicGeometry AlgebraicSpace
 
-namespace AlgebraicGeometry.AlgebraicSpace.Etale
-
-/-- Étaleness of morphisms of algebraic spaces is étale-smooth local on the
-source-and-target. -/
-instance isEtaleSmoothLocalAtSourceAndTarget {S : Scheme.{u}} :
-    IsEtaleSmoothLocalAtSourceAndTarget (@Etale S : MorphismProperty (AlgebraicSpace S)) :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace.Etale
-
 namespace AlgebraicGeometry.AlgebraicSpace.FiniteType
 
 /-- The conjunction of being locally of finite type and locally quasi-finite
@@ -46,17 +38,6 @@ instance locallyQuasiFiniteIsEtaleSmoothLocalAtSourceAndTarget {S : Scheme.{u}} 
   sorry
 
 end AlgebraicGeometry.AlgebraicSpace.FiniteType
-
-namespace AlgebraicGeometry.AlgebraicSpace.Unramified
-
-/-- Unramifiedness of morphisms of algebraic spaces is étale-smooth local on the
-source-and-target. -/
-instance isEtaleSmoothLocalAtSourceAndTarget {S : Scheme.{u}} :
-    IsEtaleSmoothLocalAtSourceAndTarget
-      (@Unramified S : MorphismProperty (AlgebraicSpace S)) :=
-  sorry
-
-end AlgebraicGeometry.AlgebraicSpace.Unramified
 
 namespace AlgebraicGeometry.AlgebraicSpace.IsEtaleSmoothLocalAtSourceAndTarget
 

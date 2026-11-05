@@ -24,7 +24,7 @@ open DerivedCategory.TStructure
 universe u v
 
 @[stacks 066E "Lemma 15.65.17 (1), Noetherian m-pseudo-coherence criterion"]
-#check fun {R : Type u} [Ring R] [IsNoetherianRing R]
+#check fun {R : Type u} [Ring R] [IsNoetherianRing R] [Small.{v} R]
     (K : DerivedCategory (ModuleCat.{v, u} R)) (m : ℤ) ↦
   (CategoryTheory.DerivedCategory.IsMPseudoCoherent.iff_boundedAbove_and_homology_finite_ge K m :
     K.IsMPseudoCoherent m ↔
@@ -33,7 +33,7 @@ universe u v
           Module.Finite R ((DerivedCategory.homologyFunctor (ModuleCat.{v, u} R) i).obj K))
 
 @[stacks 066E "Lemma 15.65.17 (2), Noetherian pseudo-coherence criterion"]
-#check fun {R : Type u} [Ring R] [IsNoetherianRing R]
+#check fun {R : Type u} [Ring R] [IsNoetherianRing R] [Small.{v} R]
     (K : DerivedCategory (ModuleCat.{v, u} R)) ↦
   (CategoryTheory.DerivedCategory.IsPseudoCoherent.iff_boundedAbove_and_homology_finite K :
     K.IsPseudoCoherent ↔
@@ -42,7 +42,7 @@ universe u v
           Module.Finite R ((DerivedCategory.homologyFunctor (ModuleCat.{v, u} R) i).obj K))
 
 @[stacks 066E "Lemma 15.65.17 (3), Noetherian pseudo-coherent module criterion"]
-#check fun {R : Type u} [Ring R] [IsNoetherianRing R]
+#check fun {R : Type u} [Ring R] [IsNoetherianRing R] [Small.{v} R]
     {M : Type v} [AddCommGroup M] [Module R M] ↦
   (Module.isPseudoCoherent_iff_finite (R := R) (M := M) :
     (ModuleCat.of R M).IsPseudoCoherent ↔ Module.Finite R M)

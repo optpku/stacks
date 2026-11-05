@@ -10,6 +10,7 @@ public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.Relocalization
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.SpacesPullback
 public import Mathlib.CategoryTheory.Whiskering
 public import Mathlib.CategoryTheory.Functor.FullyFaithful
+public import Mathlib.CategoryTheory.Adjunction.Triple
 public import ReasLib.CategoryTheory.Sites.MorphismOfSites
 public import ReasLib.CategoryTheory.Sites.FullyFaithful
 public import ReasLib.CategoryTheory.Sites.Topos.Continuous
@@ -157,6 +158,40 @@ theorem morphismOfTopoi_id_inverseImage_eq_siteMorphismOfTopoi_pushforward
     (morphismOfTopoi (𝟙 X))⁻¹ = (siteMorphismOfTopoi X).pushforward :=
   rfl
 
+/-- The identity-base continuous sheaf adjunction has invertible unit. This
+follows from the fully faithful right Kan extension counit and the adjoint
+triple, without using the general sites unit-isomorphism instance. -/
+theorem relocalizationFunctor_id_sheafAdjunctionContinuous_unit_isIso
+    [UnivLE.{u + 1, w}]
+    [HasWeakSheafify (overEtaleTopology X) (Type w)] :
+    IsIso ((relocalizationFunctor (𝟙 X)).sheafAdjunctionContinuous (Type w)
+      (spacesEtaleTopology X) (overEtaleTopology X)).unit := by
+  let G := relocalizationFunctor (𝟙 X)
+  letI : G.Full := relocalizationFunctor_id_full X
+  letI : G.Faithful := relocalizationFunctor_id_faithful X
+  letI : ∀ P : (spacesEtaleSite X)ᵒᵖ ⥤ Type w,
+      G.op.HasPointwiseRightKanExtension P :=
+    relocalizationFunctor_op_hasPointwiseRightKanExtension (𝟙 X)
+  let adj₁ := G.sheafAdjunctionContinuous (Type w)
+    (spacesEtaleTopology X) (overEtaleTopology X)
+  let adj₂ := G.sheafAdjunctionCocontinuous (Type w)
+    (spacesEtaleTopology X) (overEtaleTopology X)
+  apply (Adjunction.Triple.isIso_unit_iff_isIso_counit
+    (Adjunction.Triple.mk adj₁ adj₂)).2
+  have h (F : Sheaf (spacesEtaleTopology X) (Type w)) :
+      IsIso (adj₂.counit.app F) := by
+    haveI : IsIso ((sheafToPresheaf (spacesEtaleTopology X) (Type w)).map
+        (adj₂.counit.app F)) := by
+      change IsIso (adj₂.counit.app F).hom
+      rw [Functor.sheafAdjunctionCocontinuous_counit_app_hom]
+      rw [Functor.ranAdjunction_counit]
+      letI : ∀ V, IsIso ((G.op.ranCounit.app F.obj).app V) := fun V ↦
+        (G.op.isPointwiseRightKanExtensionRanCounit F.obj (G.op.obj V)).isIso_hom_app
+      exact NatIso.isIso_of_isIso_app (G.op.ranCounit.app F.obj)
+    exact isIso_of_reflects_iso _ (sheafToPresheaf (spacesEtaleTopology X) (Type w))
+  letI := h
+  exact NatIso.isIso_of_isIso_app adj₂.counit
+
 /-- The composite inverse image of the identity-base site morphism `π_X` and the
 relocalization morphism `i_{id_X}` is naturally isomorphic to the identity. -/
 noncomputable def siteMorphismOfTopoi_comp_morphismOfTopoi_id
@@ -164,8 +199,9 @@ noncomputable def siteMorphismOfTopoi_comp_morphismOfTopoi_id
     [HasWeakSheafify (overEtaleTopology X) (Type w)]
     [HasSheafify (spacesEtaleTopology X) (Type w)] :
     (MorphismOfTopoiIn.comp (siteMorphismOfTopoi X) (morphismOfTopoi (𝟙 X))).inverseImage ≅
-      (MorphismOfTopoiIn.id (spacesEtaleTopology X)).inverseImage :=
-  (asIso
+      (MorphismOfTopoiIn.id (spacesEtaleTopology X)).inverseImage := by
+  letI := relocalizationFunctor_id_sheafAdjunctionContinuous_unit_isIso X
+  exact (asIso
     ((relocalizationFunctor (𝟙 X)).sheafAdjunctionContinuous (Type w)
       (spacesEtaleTopology X) (overEtaleTopology X)).unit).symm
 

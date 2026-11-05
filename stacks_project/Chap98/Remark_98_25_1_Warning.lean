@@ -39,9 +39,8 @@ of left exactness of the associated sheaf pullback. -/
   (AlgebraicGeometry.not_preservesFiniteLimits_locallyNoetherianInclusion_fppf :
     ∀ (p : ℕ) [Fact p.Prime],
       let base := Spec (CommRingCat.of (ZMod p))
-      let noetherian : ObjectProperty (Over base) :=
-        fun object => IsLocallyNoetherian object.left
+      let noetherian := Scheme.Over.locallyNoetherian base
       let topology := Scheme.fppfTopology.over base
       ¬ PreservesFiniteLimits
         (noetherian.ι.sheafPullback (Type 1)
-          (noetherian.ι.restrictedTopology topology) topology))
+          (StandardTopology.locallyNoetherianTopology .fppf base) topology))

@@ -343,7 +343,10 @@ theorem multiplication_eq {ι : Type u} [Finite ι] (f : ι → R) {t n N : ℕ}
       (LeftDifferentialGradedModule.toDerived (powDGA f N)).map
         (multiplicationHom f h_tn h_nN) := sorry
 
-set_option maxHeartbeats 800000 in
+-- Avoid unfolding the Koszul and derived models while comparing the field types.
+attribute [local irreducible] CochainDGAlgebra.fromChainCommMon
+  stage restrictedStage tensor
+
 /-- The data witnessing a factorization of a powered Koszul transition through a later derived
 stage. The later exponent, comparison map, and factorization law travel together so downstream
 constructions do not repeatedly unpack a nested existential. -/

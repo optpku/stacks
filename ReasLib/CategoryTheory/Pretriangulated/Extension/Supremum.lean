@@ -56,12 +56,24 @@ theorem extensionProduct_iSup_left (P : ι → ObjectProperty C) (Q : ObjectProp
 theorem extensionProduct_iSup_right (P : ObjectProperty C) (Q : ι → ObjectProperty C) :
     extensionProduct P (⨆ i, Q i) = ⨆ i, extensionProduct P (Q i) := sorry
 
-/-- Extension product commutes with the diagonal supremum of two directed nonempty families. -/
+/-- Extension product commutes with the diagonal supremum when every pair of indices
+admits a common index dominating the left and right terms, respectively. -/
 @[stacks 0FX6]
 theorem extensionProduct_iSup_of_directed
-    {κ : Type*} [Nonempty κ] (P Q : κ → ObjectProperty C)
-    (hP : Directed (· ≤ ·) P) (hQ : Directed (· ≤ ·) Q) :
-    extensionProduct (⨆ i, P i) (⨆ i, Q i) = ⨆ i, extensionProduct (P i) (Q i) := sorry
+    {κ : Type*} (P Q : κ → ObjectProperty C)
+    (hPQ : ∀ i j, ∃ k, P i ≤ P k ∧ Q j ≤ Q k) :
+    extensionProduct (⨆ i, P i) (⨆ i, Q i) = ⨆ i, extensionProduct (P i) (Q i) := by
+  ext X
+  constructor
+  · rintro ⟨Y, Z, f, g, h, hT, hY, hZ⟩
+    obtain ⟨i, hi⟩ := (prop_iSup_iff P Y).mp hY
+    obtain ⟨j, hj⟩ := (prop_iSup_iff Q Z).mp hZ
+    obtain ⟨k, hPk, hQk⟩ := hPQ i j
+    exact (prop_iSup_iff _ X).mpr ⟨k, Y, Z, f, g, h, hT, hPk Y hi, hQk Z hj⟩
+  · intro hX
+    obtain ⟨i, Y, Z, f, g, h, hT, hY, hZ⟩ := (prop_iSup_iff _ X).mp hX
+    exact ⟨Y, Z, f, g, h, hT,
+      (prop_iSup_iff P Y).mpr ⟨i, hY⟩, (prop_iSup_iff Q Z).mpr ⟨i, hZ⟩⟩
 
 /-- Extension product commutes with the diagonal supremum of two monotone sequences. -/
 @[stacks 0FX6]

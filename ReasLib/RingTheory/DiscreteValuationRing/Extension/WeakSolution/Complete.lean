@@ -52,11 +52,14 @@ variable {p : ℕ} [Fact p.Prime] [CharP (ResidueField A) p] [IsAlgClosed (Resid
 
 /-- Lemma 15.116.17 (09F8): over complete DVRs with algebraically closed residue field, a
 weakly-unramified intermediate extension and the stable p-power intersection condition yield a
-finite weak solution for the composite extension. -/
+finite weak solution for the composite extension. The two scalar towers over `B` ensure that
+`FiniteDimensional L M` refers to the fraction-field map induced by `B → C`. -/
 @[stacks 09F8 "Lemma 15.116.17: complete weak-solution existence"]
 theorem exists_of_complete
     [Field L] [Algebra B L] [IsFractionRing B L] [Algebra K L]
-    [Algebra L M] [IsScalarTower K L M] [FiniteDimensional L M]
+    [Algebra B M] [Algebra L M]
+    [IsScalarTower B C M] [IsScalarTower B L M] [IsScalarTower K L M]
+    [FiniteDimensional L M]
     (hAB : WeaklyUnramified A B)
     (hκ :
       (Set.range (algebraMap (ResidueField A) (ResidueField B)) : Set (ResidueField B)) =
@@ -87,18 +90,17 @@ statement-level `let` while retaining the source theorem above for the tower-spe
 theorem exists_of_complete_of_extension
     [IsExtensionOfDiscreteValuationRings A C]
     [Field L] [Algebra B L] [IsFractionRing B L] [Algebra K L]
-    [Algebra L M] [IsScalarTower K L M] [FiniteDimensional L M]
+    [Algebra B M] [Algebra L M]
+    [IsScalarTower B C M] [IsScalarTower B L M] [IsScalarTower K L M]
+    [FiniteDimensional L M]
     (hAB : WeaklyUnramified A B)
     (hκ :
       (Set.range (algebraMap (ResidueField A) (ResidueField B)) : Set (ResidueField B)) =
         PerfectClosure.powerIntersection (ResidueField B) p) :
     ∃ (K1 : Type (max u v w x y z)) (_ : Field K1) (_ : Algebra A K1) (_ : Algebra K K1)
       (_ : IsScalarTower A K K1) (_ : FiniteDimensional K K1),
-      IsWeakSolutionFor A C K M K1 := sorry
--- Proof strategy: apply `exists_of_complete` with the tower-derived instance `of_tower A B C`;
--- identify that proposition-valued instance with the supplied composite DVR-extension instance by
--- proof irrelevance, and retain the same finite field, algebra, scalar-tower, and weak-solution
--- witnesses.
+      IsWeakSolutionFor A C K M K1 := by
+  exact exists_of_complete (L := L) hAB hκ
 
 end
 

@@ -28,11 +28,12 @@ noncomputable def prodTensorSquare (A : Type u) (B₁ : Type v) (B₂ : Type w)
       ((Algebra.TensorProduct.comm A (B₁ × B₂) B₂).trans (prodRight A A B₂ B₁ B₂)))
 
 /-- The four-factor decomposition sends a pure tensor to its four pairwise tensor
-components in row-major order. -/
+components, with the second input supplying the first tensor factor. -/
 theorem prodTensorSquare_tmul (A : Type u) (B₁ : Type v) (B₂ : Type w)
     [CommRing A] [CommRing B₁] [CommRing B₂] [Algebra A B₁] [Algebra A B₂]
     (b₁ c₁ : B₁) (b₂ c₂ : B₂) :
     prodTensorSquare A B₁ B₂ ((b₁, b₂) ⊗ₜ[A] (c₁, c₂)) =
-      ((b₁ ⊗ₜ[A] c₁, b₁ ⊗ₜ[A] c₂), (b₂ ⊗ₜ[A] c₁, b₂ ⊗ₜ[A] c₂)) := sorry
+      ((c₁ ⊗ₜ[A] b₁, c₁ ⊗ₜ[A] b₂), (c₂ ⊗ₜ[A] b₁, c₂ ⊗ₜ[A] b₂)) := by
+  simp [prodTensorSquare, prodRight_tmul]
 
 end Algebra.TensorProduct

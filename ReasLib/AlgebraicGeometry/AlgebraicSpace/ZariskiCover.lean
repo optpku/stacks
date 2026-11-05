@@ -11,7 +11,7 @@ public import Mathlib.CategoryTheory.Limits.FunctorCategory.Basic
 public import Mathlib.CategoryTheory.MorphismProperty.Representable
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Pullback
-public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Separation
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.ZariskiCover.Basic
 
 /-!
 # Zariski covering families of algebraic spaces

@@ -68,9 +68,11 @@ finite product of Dedekind domains. -/
 @[stacks 09EM "Remark 15.115.1 (4), Henselian source normalization"]
 #check @sourceIsDVR_of_henselian
 
-/- Remark 15.115.1 (5): a Henselian target has a unique branch over each source branch. -/
-@[stacks 09EM "Remark 15.115.1 (5), Henselian target branch uniqueness"]
-#check @targetExistsUnique_of_henselian
+/- Remark 15.115.1 (5): a Henselian target normalization is a finite product of DVRs.
+The source's further inference `mᵢ = 1` fails when multiple tensor-product field factors lie
+above the same source branch. -/
+@[stacks 09EM "Remark 15.115.1 (5), Henselian target normalization DVR factors"]
+#check @targetFiniteProductOfDVRs
 
 /- Remark 15.115.1 (6): purely inseparable base change preserves both DVR normalizations. -/
 @[stacks 09EM "Remark 15.115.1 (6), purely inseparable source normalization"]

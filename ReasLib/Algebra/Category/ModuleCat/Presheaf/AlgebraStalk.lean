@@ -144,10 +144,15 @@ noncomputable def stalkGenerator :
       (PresheafOfModules.TensorAlgebra.ι R F) x ≫
     (sourceLinearIso F x).hom
 
-/-- The universal tensor-algebra lift into the ring-valued tensor-algebra stalk. -/
+/-- The universal tensor-algebra lift, retaining its algebra-homomorphism structure. -/
+noncomputable def inverseAlgHom :
+    _root_.TensorAlgebra (R.stalk x)
+      (PresheafOfModules.stalkModuleCatOfCommRing F x) →ₐ[R.stalk x] sourceRing F x :=
+  _root_.TensorAlgebra.lift (R.stalk x) (stalkGenerator F x).hom
+
+/-- The underlying linear map of the universal tensor-algebra lift. -/
 noncomputable def comparisonInvLift : target F x ⟶ sourceModule F x :=
-  ModuleCat.ofHom
-    (TensorAlgebra.lift (R.stalk x) (stalkGenerator F x).hom).toLinearMap
+  ModuleCat.ofHom (inverseAlgHom F x).toLinearMap
 
 /-- The degree-one tensor-algebra generator determined by the germ of a section. -/
 def germGenerator (U : Opens X) (hx : x ∈ U) (m : F.obj (op U)) : target F x :=
@@ -282,6 +287,44 @@ noncomputable def comparisonIso : source F x ≅ target F x where
   inv := comparisonInv F x
   hom_inv_id := comparison_comp_comparisonInv F x
   inv_hom_id := comparisonInv_comp_comparison F x
+
+/-- The canonical algebra isomorphism from the ring-valued tensor-algebra stalk
+ to the tensor algebra of the stalk module. Both functions are the existing explicit
+comparisons; the inverse is the universal algebra lift, with no choice of an inverse. -/
+noncomputable def comparisonAlgEquiv :
+    sourceRing F x ≃ₐ[R.stalk x] _root_.TensorAlgebra (R.stalk x)
+      (PresheafOfModules.stalkModuleCatOfCommRing F x) :=
+  AlgEquiv.symm
+    { inverseAlgHom F x with
+      invFun := fun a ↦ comparison F x ((sourceLinearIso F x).inv a)
+      left_inv := by
+        intro a
+        exact congrArg (fun f : target F x ⟶ target F x ↦ f a)
+          (comparisonInv_comp_comparison F x)
+      right_inv := by
+        intro a
+        apply (sourceLinearIso F x).symm.toLinearEquiv.injective
+        exact congrArg (fun f : source F x ⟶ source F x ↦
+          f ((sourceLinearIso F x).inv a)) (comparison_comp_comparisonInv F x) }
+
+/-- The universal algebra lift is bijective, with the explicit comparison as its inverse. -/
+theorem inverseAlgHom_bijective : Function.Bijective (inverseAlgHom F x) :=
+  (comparisonAlgEquiv F x).symm.bijective
+
+/-- Forgetting the algebra structure recovers the existing canonical stalk comparison. -/
+@[simp]
+theorem comparisonAlgEquiv_toLinearMap :
+    (comparisonAlgEquiv F x).toLinearMap =
+      ((sourceLinearIso F x).inv ≫ comparison F x).hom := by
+  ext a
+  rfl
+
+/-- The inverse algebra homomorphism is the universal lift used by `comparisonInvLift`. -/
+@[simp]
+theorem comparisonAlgEquiv_symm_toAlgHom :
+    (comparisonAlgEquiv F x).symm.toAlgHom = inverseAlgHom F x := by
+  ext a
+  rfl
 
 /-- The forward map of `comparisonIso` is the explicit tensor-algebra comparison. -/
 @[simp, stacks 01CH "tensor algebra stalk comparison isomorphism forward projection"]
@@ -489,10 +532,15 @@ noncomputable def stalkGenerator :
       (PresheafOfModules.SymmetricAlgebra.ι R F) x ≫
     (sourceLinearIso F x).hom
 
-/-- The universal symmetric-algebra lift into the commutative-ring-valued algebra stalk. -/
+/-- The universal symmetric-algebra lift, retaining its algebra-homomorphism structure. -/
+noncomputable def inverseAlgHom :
+    _root_.SymmetricAlgebra (R.stalk x)
+      (PresheafOfModules.stalkModuleCatOfCommRing F x) →ₐ[R.stalk x] sourceRing F x :=
+  _root_.SymmetricAlgebra.lift (stalkGenerator F x).hom
+
+/-- The underlying linear map of the universal symmetric-algebra lift. -/
 noncomputable def comparisonInvLift : target F x ⟶ sourceModule F x :=
-  ModuleCat.ofHom
-    (_root_.SymmetricAlgebra.lift (stalkGenerator F x).hom).toLinearMap
+  ModuleCat.ofHom (inverseAlgHom F x).toLinearMap
 
 /-- The degree-one symmetric-algebra generator determined by the germ of a section. -/
 def germGenerator (U : Opens X) (hx : x ∈ U) (m : F.obj (op U)) : target F x :=
@@ -627,6 +675,44 @@ noncomputable def comparisonIso : source F x ≅ target F x where
   inv := comparisonInv F x
   hom_inv_id := comparison_comp_comparisonInv F x
   inv_hom_id := comparisonInv_comp_comparison F x
+
+/-- The canonical algebra isomorphism from the ring-valued symmetric-algebra stalk
+ to the symmetric algebra of the stalk module. Both functions are the existing explicit
+comparisons; the inverse is the universal algebra lift, with no choice of an inverse. -/
+noncomputable def comparisonAlgEquiv :
+    sourceRing F x ≃ₐ[R.stalk x] _root_.SymmetricAlgebra (R.stalk x)
+      (PresheafOfModules.stalkModuleCatOfCommRing F x) :=
+  AlgEquiv.symm
+    { inverseAlgHom F x with
+      invFun := fun a ↦ comparison F x ((sourceLinearIso F x).inv a)
+      left_inv := by
+        intro a
+        exact congrArg (fun f : target F x ⟶ target F x ↦ f a)
+          (comparisonInv_comp_comparison F x)
+      right_inv := by
+        intro a
+        apply (sourceLinearIso F x).symm.toLinearEquiv.injective
+        exact congrArg (fun f : source F x ⟶ source F x ↦
+          f ((sourceLinearIso F x).inv a)) (comparison_comp_comparisonInv F x) }
+
+/-- The universal algebra lift is bijective, with the explicit comparison as its inverse. -/
+theorem inverseAlgHom_bijective : Function.Bijective (inverseAlgHom F x) :=
+  (comparisonAlgEquiv F x).symm.bijective
+
+/-- Forgetting the algebra structure recovers the existing canonical stalk comparison. -/
+@[simp]
+theorem comparisonAlgEquiv_toLinearMap :
+    (comparisonAlgEquiv F x).toLinearMap =
+      ((sourceLinearIso F x).inv ≫ comparison F x).hom := by
+  ext a
+  rfl
+
+/-- The inverse algebra homomorphism is the universal lift used by `comparisonInvLift`. -/
+@[simp]
+theorem comparisonAlgEquiv_symm_toAlgHom :
+    (comparisonAlgEquiv F x).symm.toAlgHom = inverseAlgHom F x := by
+  ext a
+  rfl
 
 /-- The forward map of `comparisonIso` is the explicit symmetric-algebra comparison. -/
 @[simp, stacks 01CH "symmetric algebra stalk comparison isomorphism forward projection"]
@@ -845,11 +931,16 @@ theorem stalkGenerator_sq_zero
     (m : PresheafOfModules.stalkModuleCatOfCommRing F x) :
     stalkGenerator F x m * stalkGenerator F x m = 0 := sorry
 
-/-- The universal exterior-algebra lift into the ring-valued exterior-algebra stalk. -/
+/-- The universal exterior-algebra lift, retaining its algebra-homomorphism structure. -/
+noncomputable def inverseAlgHom :
+    _root_.ExteriorAlgebra (R.stalk x)
+      (PresheafOfModules.stalkModuleCatOfCommRing F x) →ₐ[R.stalk x] sourceRing F x :=
+  _root_.ExteriorAlgebra.lift (R.stalk x)
+    ⟨(stalkGenerator F x).hom, stalkGenerator_sq_zero F x⟩
+
+/-- The underlying linear map of the universal exterior-algebra lift. -/
 noncomputable def comparisonInvLift : target F x ⟶ sourceModule F x :=
-  ModuleCat.ofHom
-    (_root_.ExteriorAlgebra.lift (R.stalk x)
-      ⟨(stalkGenerator F x).hom, stalkGenerator_sq_zero F x⟩).toLinearMap
+  ModuleCat.ofHom (inverseAlgHom F x).toLinearMap
 
 /-- The degree-one exterior-algebra generator determined by the germ of a section. -/
 def germGenerator (U : Opens X) (hx : x ∈ U) (m : F.obj (op U)) : target F x :=
@@ -984,6 +1075,44 @@ noncomputable def comparisonIso : source F x ≅ target F x where
   inv := comparisonInv F x
   hom_inv_id := comparison_comp_comparisonInv F x
   inv_hom_id := comparisonInv_comp_comparison F x
+
+/-- The canonical algebra isomorphism from the ring-valued exterior-algebra stalk
+ to the exterior algebra of the stalk module. Both functions are the existing explicit
+comparisons; the inverse is the universal algebra lift, with no choice of an inverse. -/
+noncomputable def comparisonAlgEquiv :
+    sourceRing F x ≃ₐ[R.stalk x] _root_.ExteriorAlgebra (R.stalk x)
+      (PresheafOfModules.stalkModuleCatOfCommRing F x) :=
+  AlgEquiv.symm
+    { inverseAlgHom F x with
+      invFun := fun a ↦ comparison F x ((sourceLinearIso F x).inv a)
+      left_inv := by
+        intro a
+        exact congrArg (fun f : target F x ⟶ target F x ↦ f a)
+          (comparisonInv_comp_comparison F x)
+      right_inv := by
+        intro a
+        apply (sourceLinearIso F x).symm.toLinearEquiv.injective
+        exact congrArg (fun f : source F x ⟶ source F x ↦
+          f ((sourceLinearIso F x).inv a)) (comparison_comp_comparisonInv F x) }
+
+/-- The universal algebra lift is bijective, with the explicit comparison as its inverse. -/
+theorem inverseAlgHom_bijective : Function.Bijective (inverseAlgHom F x) :=
+  (comparisonAlgEquiv F x).symm.bijective
+
+/-- Forgetting the algebra structure recovers the existing canonical stalk comparison. -/
+@[simp]
+theorem comparisonAlgEquiv_toLinearMap :
+    (comparisonAlgEquiv F x).toLinearMap =
+      ((sourceLinearIso F x).inv ≫ comparison F x).hom := by
+  ext a
+  rfl
+
+/-- The inverse algebra homomorphism is the universal lift used by `comparisonInvLift`. -/
+@[simp]
+theorem comparisonAlgEquiv_symm_toAlgHom :
+    (comparisonAlgEquiv F x).symm.toAlgHom = inverseAlgHom F x := by
+  ext a
+  rfl
 
 /-- The forward map of `comparisonIso` is the explicit exterior-algebra comparison. -/
 @[simp, stacks 01CH "exterior algebra stalk comparison isomorphism forward projection"]

@@ -93,11 +93,13 @@ abbrev relativeSpecUniversalFamily (P : RelativeSpectrumOver A) :
 
 /-- The universal point of a relative-spectrum model represents the relative-spectrum functor. -/
 theorem relativeSpecPoint_isRepresentedBy (P : RelativeSpectrumOver A) [IsRelativeSpectrumOver P] :
-    (relativeSpectrumFunctor A).IsRepresentedBy (relativeSpecPoint P) := sorry
+    (relativeSpectrumFunctor A).IsRepresentedBy (relativeSpecPoint P) :=
+  IsRelativeSpectrumOver.isRepresentedBy
 
 /-- The structural morphism of a relative-spectrum model realizes the relative spectrum. -/
 theorem relativeSpecπ_realizesRelativeSpectrum (P : RelativeSpectrumOver A) [IsRelativeSpectrumOver P] :
-    realizesRelativeSpectrum A (relativeSpecπ P) := sorry
+    realizesRelativeSpectrum A (relativeSpecπ P) :=
+  IsRelativeSpectrumOver.realizes
 
 end
 

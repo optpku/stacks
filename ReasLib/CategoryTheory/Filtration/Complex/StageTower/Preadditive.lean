@@ -33,6 +33,4 @@ variable {C : Type u} [Category.{v} C] [Preadditive C]
 noncomputable instance functor_additive :
     (functor (C := C)).Additive := sorry
 
-#synth (functor (C := C)).Additive
-
 end CategoryTheory.FilteredComplex.StageTower

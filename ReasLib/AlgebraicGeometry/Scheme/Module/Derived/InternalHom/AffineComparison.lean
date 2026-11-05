@@ -47,27 +47,7 @@ noncomputable abbrev affineTildeDerived (A : Type u) [CommRing A] :
       RingedSpace.ModuleDerived (Spec (CommRingCat.of A)).toRingedSpace :=
   -- Local instance justification (search instability): affine-tilde Additive synthesis is unreliable after specializing `CommRingCat.of A`.
   letI : (AlgebraicGeometry.tilde.functor (CommRingCat.of A)).Additive :=
-    let hTildeLeft :
-        (AlgebraicGeometry.tilde.functor (CommRingCat.of A)).IsLeftAdjoint :=
-      (AlgebraicGeometry.tilde.adjunction (R := CommRingCat.of A)).isLeftAdjoint
-    let hTildeZero :
-        (AlgebraicGeometry.tilde.functor (CommRingCat.of A)).PreservesZeroMorphisms :=
-      @Functor.preservesZeroMorphisms_of_isLeftAdjoint _ _ _ _ _ _
-        (AlgebraicGeometry.tilde.functor (CommRingCat.of A)) hTildeLeft
-    let hTildeCoproducts :
-        PreservesColimitsOfShape (Discrete WalkingPair)
-          (AlgebraicGeometry.tilde.functor (CommRingCat.of A)) :=
-      (AlgebraicGeometry.tilde.adjunction
-        (R := CommRingCat.of A)).leftAdjoint_preservesColimits.preservesColimitsOfShape
-    let hTildeBiproducts :
-        PreservesBinaryBiproducts
-          (AlgebraicGeometry.tilde.functor (CommRingCat.of A)) :=
-      @preservesBinaryBiproducts_of_preservesBinaryCoproducts
-        _ _ _ _ _ _ (AlgebraicGeometry.tilde.functor (CommRingCat.of A))
-          hTildeZero hTildeCoproducts
-    @Functor.additive_of_preservesBinaryBiproducts
-      _ _ _ _ _ _ (AlgebraicGeometry.tilde.functor (CommRingCat.of A))
-        inferInstance hTildeZero hTildeBiproducts
+    AlgebraicGeometry.instAdditiveModuleCatCarrierModulesSpecOfFunctor (R := CommRingCat.of A)
   -- Local instance justification (search instability): explicitly specialize the canonical finite-limit preservation instance at `CommRingCat.of A`.
   letI : PreservesFiniteLimits
       (AlgebraicGeometry.tilde.functor (CommRingCat.of A)) :=

@@ -24,7 +24,7 @@ universe u v
 finitely presented commutative `R`-algebras. -/
 @[stacks 06UV] #check
   (CommAlgCat.Over.FinitePresentation.isFilteredColimit :
-    ∀ (R : Type u) [CommRing R] (A : Type v) [CommRing A] [Algebra R A],
+    ∀ (R : Type u) [CommRing R] [Small.{v} R] (A : Type v) [CommRing A] [Algebra R A],
       IsFiltered (CommAlgCat.Over.FinitePresentation.category R A) ∧
         Nonempty (IsColimit (CommAlgCat.Over.FinitePresentation.cocone R A)))
 

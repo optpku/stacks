@@ -22,7 +22,9 @@ triangle.  The presentation-level declarations below remain available when
 concrete cocone legs or the comparison map are needed.
 
 The tagged intrinsic result is
-`CategoryTheory.HomotopyColimit.IsOf.existsImageIsColimit`.
+`CategoryTheory.HomotopyColimit.IsOf.existsImageIsColimit`. Its local hypotheses require
+preservation of the coproducts of both the diagram terms and their shifts by one;
+commuting with all countable coproducts supplies these hypotheses in Stacks 0CRK.
 -/
 
 #check @CategoryTheory.HomotopyColimit.Presentation.imageCocone

@@ -159,7 +159,16 @@ def commProduct (a b : ℤ) :
 
 /-- The existing actual tensor comparison is a composite of canonical isomorphisms. -/
 theorem commTensorComparison_isIso (M N : (toAlgebraicSpace F hF).Modules) :
-    IsIso (commTensorComparison M N) := sorry
+    IsIso (commTensorComparison M N) := by
+  let P := toAlgebraicSpace F hF
+  let A := (Modules.toCommModules P).obj M
+  let B := (Modules.toCommModules P).obj N
+  exact ((Functor.Monoidal.μIso
+      (moduleSheafification.{u + 1, u, u, u} (commStructureSheaf P)) A.val B.val).symm ≪≫
+    tensorIso
+      (moduleSheafificationValIso.{u + 1, u, u, u} (commStructureSheaf P) A)
+      (moduleSheafificationValIso.{u + 1, u, u, u} (commStructureSheaf P) B) ≪≫
+    (Modules.commModulesEquivalence P).unitIso.app (A ⊗ B)).isIso_hom
 
 /-- Descend the bilinear product through the actual module-sheafification adjunction. -/
 def commMul (a b : ℤ) :

@@ -21,7 +21,9 @@ public import Mathlib.RingTheory.Noetherian.Defs
 
 This module constructs the homogeneous ideal recovered from the closed projective subscheme
 defined by a homogeneous ideal.  The construction uses the quotient projective-spectrum map and
-global sections of pullbacks of the ambient associated shifts.
+global sections of pullbacks of the ambient associated shifts in every degree. This all-degree
+operation is distinct from period closure in a general weighted grading. The latter is constructed
+separately by testing all multiples of an element against period-degree geometric sections.
 -/
 
 @[expose] public section
@@ -155,6 +157,52 @@ canonical restricted-twist section map. -/
 theorem mem_projClosedSubschemeIdeal_iff (I : HomogeneousIdeal 𝒜) (x : A) :
     x ∈ projClosedSubschemeIdeal 𝒜 I ↔ projClosedSubschemeSectionMap 𝒜 I x = 0 := sorry
 
+/-- Explicit name for the existing all-degree ambient pullback-twist recovery operation.
+No meaning of the ambient shifts is changed by passing to this name. -/
+abbrev projAllDegreeAmbientTwistIdeal (I : HomogeneousIdeal 𝒜) : HomogeneousIdeal 𝒜 :=
+  projClosedSubschemeIdeal 𝒜 I
+
+/-- The geometric section map retaining just the degrees `n * d`. The product target records
+these coordinates without changing any ambient twist. Its additive kernel alone need not be an
+ideal of `A`; the ideal below therefore tests all multiples of an element. -/
+noncomputable def projPeriodSectionMap (I : HomogeneousIdeal 𝒜) (d : ℕ) :
+    A →+ ∀ n : ℕ, projClosedSubschemeSections 𝒜 I (n * d) where
+  toFun a n := projClosedSubschemeDegreeMap 𝒜 I (n * d)
+    (DirectSum.decompose 𝒜 a (n * d))
+  map_zero' := by ext n; simp
+  map_add' a b := by ext n; simp [DirectSum.decompose_add]
+
+/-- Evaluation of the period section map is the canonical degree map on that component. -/
+@[simp] theorem projPeriodSectionMap_apply (I : HomogeneousIdeal 𝒜) (d : ℕ) (a : A) (n : ℕ) :
+    projPeriodSectionMap 𝒜 I d a n = projClosedSubschemeDegreeMap 𝒜 I (n * d)
+      (DirectSum.decompose 𝒜 a (n * d)) := rfl
+
+/-- The ideal of elements whose every multiple vanishes under the period-degree geometric
+section map. This is constructed from sections, independently of any algebraic closure formula. -/
+noncomputable def projPeriodVanishingIdeal (I : HomogeneousIdeal 𝒜) (d : ℕ) : Ideal A where
+  carrier := {x | ∀ a : A, projPeriodSectionMap 𝒜 I d (a * x) = 0}
+  zero_mem' := by intro a; simp
+  add_mem' := by
+    intro x y hx hy a
+    rw [mul_add, map_add, hx a, hy a, add_zero]
+  smul_mem' := by
+    intro r x hx a
+    change projPeriodSectionMap 𝒜 I d (a * (r * x)) = 0
+    rw [← mul_assoc, hx (a * r)]
+
+/-- Membership in the period vanishing ideal tests the actual geometric section map on
+all multiples, rather than membership in an algebraically prescribed closure. -/
+theorem mem_projPeriodVanishingIdeal_iff (I : HomogeneousIdeal 𝒜) (d : ℕ) (x : A) :
+    x ∈ projPeriodVanishingIdeal 𝒜 I d ↔
+      ∀ a : A, projPeriodSectionMap 𝒜 I d (a * x) = 0 := Iff.rfl
+
+/-- Period recovery of a homogeneous ideal: the homogeneous core of the ideal of principal
+ideals invisible to period-degree geometric sections. Unlike all-degree ambient-twist recovery,
+this may discard a nonzero section in a degree not divisible by `d`. -/
+noncomputable def projPeriodClosedSubschemeIdeal (I : HomogeneousIdeal 𝒜) (d : ℕ) :
+    HomogeneousIdeal 𝒜 :=
+  (projPeriodVanishingIdeal 𝒜 I d).homogeneousCore 𝒜
+
 /-- The saturation of a homogeneous ideal by powers of the irrelevant ideal. -/
 noncomputable def projSaturation (I : HomogeneousIdeal 𝒜) : Ideal A :=
   ⨆ n : ℕ, I.toIdeal.colon
@@ -214,11 +262,13 @@ section IntegerGrading
 variable {A : Type v} [CommRing A]
 variable (𝒜 : ℕ → Submodule ℤ A) [GradedAlgebra 𝒜]
 
-/-- For a finitely generated Noetherian graded ring, projective closure is detected in all
-sufficiently large degrees divisible by the period of chosen positive homogeneous generators. -/
-theorem projClosedSubschemeIdeal_eq_degreeMultipleClosure [IsNoetherianRing A]
+/-- For a Noetherian graded ring, period recovery from geometric sections is detected by
+componentwise eventual containment in degrees divisible by the generator period. This is the
+period/Veronese reading of the last formula in Stacks 0BXK; it is not a formula for the
+all-degree ambient pullback-twist operation `projClosedSubschemeIdeal`. -/
+theorem projPeriodClosedSubschemeIdeal_eq_degreeMultipleClosure [IsNoetherianRing A]
     (G : GradedAlgebra.PositiveGenerators 𝒜) (I : HomogeneousIdeal 𝒜) :
-    (projClosedSubschemeIdeal 𝒜 I : Set A) =
+    (projPeriodClosedSubschemeIdeal 𝒜 I G.period : Set A) =
       projDegreeMultipleClosureSet 𝒜 I.toIdeal G.period := sorry
 
 end IntegerGrading

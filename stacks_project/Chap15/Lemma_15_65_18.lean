@@ -28,7 +28,7 @@ open CategoryTheory
 universe u v
 
 @[stacks 0EWZ "Lemma 15.65.18, (1) iff (2)"]
-#check fun {R : Type u} [Ring R] [Module.Coherent R R]
+#check fun {R : Type u} [Ring R] [Module.Coherent R R] [Small.{v} R]
     (K : DerivedCategory.Minus (ModuleCat.{v, u} R)) (m : ℤ) ↦
   (DerivedCategory.IsMPseudoCoherent.iff_finite_coherent_tail K m :
     K.obj.IsMPseudoCoherent m ↔
@@ -39,7 +39,7 @@ universe u v
             ((DerivedCategory.homologyFunctor (ModuleCat.{v, u} R) i).obj K.obj))
 
 @[stacks 0EWZ "Lemma 15.65.18, (1) iff (3)"]
-#check fun {R : Type u} [Ring R] [Module.Coherent R R]
+#check fun {R : Type u} [Ring R] [Module.Coherent R R] [Small.{v} R]
     (K : DerivedCategory.Minus (ModuleCat.{v, u} R)) (m : ℤ) ↦
   (DerivedCategory.IsMPseudoCoherent.iff_finitePresentation_tail K m :
     K.obj.IsMPseudoCoherent m ↔
@@ -50,7 +50,7 @@ universe u v
             ((DerivedCategory.homologyFunctor (ModuleCat.{v, u} R) i).obj K.obj))
 
 @[stacks 0EWZ "Lemma 15.65.18, final assertion"]
-#check fun {R : Type u} [Ring R] [Module.Coherent R R]
+#check fun {R : Type u} [Ring R] [Module.Coherent R R] [Small.{v} R]
     (K : DerivedCategory.Minus (ModuleCat.{v, u} R)) ↦
   (DerivedCategory.IsPseudoCoherent.iff_homology_coherent K :
     K.obj.IsPseudoCoherent ↔
@@ -60,7 +60,7 @@ universe u v
 
 /- The module bridge is proof infrastructure for the source equivalences, not a numbered source
 clause. -/
-#check fun {R : Type u} [Ring R] [Module.Coherent R R]
+#check fun {R : Type u} [Ring R] [Module.Coherent R R] [Small.{v} R]
     {M : Type v} [AddCommGroup M] [Module R M] ↦
   (Module.isPseudoCoherent_iff_coherent (R := R) (M := M) :
     (ModuleCat.of R M).IsPseudoCoherent ↔ Module.Coherent R M)

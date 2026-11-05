@@ -7,6 +7,7 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import Mathlib.RingTheory.Support
+public import Mathlib.Algebra.Module.TransferInstance
 public import ReasLib.Algebra.Module.Devissage.Complete
 public import ReasLib.FieldTheory.Transcendence.PurelyTranscendental
 public import ReasLib.RingTheory.KrullDimension.Relative
@@ -24,25 +25,65 @@ namespace Module.Devissage
 
 namespace Stage
 
-/-- The stage module after base change from `R` to the residue field `κ(r)`, regarded as a
-module over the stage algebra `B`. -/
+/-- The stage module after base change from `R` to `κ(r)`, with the action of the
+actual fiber ring `κ(r) ⊗[R] B`.  The underlying tensor remains `M ⊗[R] κ(r)`;
+the residue-field action is transported across tensor symmetry. -/
 def residueBaseChange {R : Type u} [CommRing R] {r : PrimeSpectrum R} (D : Stage R r) :
-    ModuleCat.{u} D.B :=
+    ModuleCat.{u} (r.asIdeal.Fiber D.B) := by
   let MB := (ModuleCat.restrictScalars D.toA.hom.toRingHom).obj D.M.obj
   let MR := (ModuleCat.restrictScalars (algebraMap R D.B)).obj MB
-  @ModuleCat.of D.B inferInstance (MR ⊗[R] r.asIdeal.ResidueField) inferInstance
-    (@TensorProduct.leftModule R D.B inferInstance inferInstance MR
-      r.asIdeal.ResidueField inferInstance inferInstance inferInstance inferInstance inferInstance
-      (ModuleCat.sMulCommClass_mk (algebraMap R D.B) MB))
+  letI : SMulCommClass R D.B MR :=
+    ModuleCat.sMulCommClass_mk (algebraMap R D.B) MB
+  letI : IsScalarTower R D.B MR :=
+    IsScalarTower.of_algebraMap_smul fun _ _ => rfl
+  let T := MR ⊗[R] r.asIdeal.ResidueField
+  letI : Module r.asIdeal.ResidueField T :=
+    (TensorProduct.comm R MR r.asIdeal.ResidueField).toAddEquiv.module _
+  letI : IsScalarTower R r.asIdeal.ResidueField T :=
+    (TensorProduct.comm R MR r.asIdeal.ResidueField).isScalarTower
+      (A := r.asIdeal.ResidueField)
+  letI : SMulCommClass r.asIdeal.ResidueField D.B T := by
+    refine ⟨fun a b z => ?_⟩
+    induction z using TensorProduct.induction_on with
+    | zero => simp
+    | tmul m x => rfl
+    | add x y hx hy => simp only [smul_add, hx, hy]
+  exact @ModuleCat.of (r.asIdeal.Fiber D.B) inferInstance T inferInstance
+    TensorProduct.Algebra.module
 
-/-- The stage residue base change is the tensor product of the restricted stage module with
-`κ(r)` over `R`. -/
+/-- The underlying stage residue base change is the actual tensor product with `κ(r)`. -/
 theorem residueBaseChange_def {R : Type u} [CommRing R] {r : PrimeSpectrum R}
     (D : Stage R r) :
     (D.residueBaseChange : Type u) =
       ((ModuleCat.restrictScalars (algebraMap R D.B)).obj
           ((ModuleCat.restrictScalars D.toA.hom.toRingHom).obj D.M.obj)) ⊗[R]
-        r.asIdeal.ResidueField := sorry
+        r.asIdeal.ResidueField := rfl
+
+/-- Pure fiber scalars act on the two factors of the actual base-changed module. -/
+theorem residueBaseChange_tmul_smul {R : Type u} [CommRing R] {r : PrimeSpectrum R}
+    (D : Stage R r) (a x : r.asIdeal.ResidueField) (b : D.B)
+    (m : (ModuleCat.restrictScalars (algebraMap R D.B)).obj
+      ((ModuleCat.restrictScalars D.toA.hom.toRingHom).obj D.M.obj)) :
+    @SMul.smul (r.asIdeal.Fiber D.B) D.residueBaseChange inferInstance
+        (a ⊗ₜ[R] b) (m ⊗ₜ[R] x) =
+      (b • m) ⊗ₜ[R] (a * x) := rfl
+
+/-- The canonical point of the residue-field fiber corresponding to a stage prime over `r`. -/
+def residueFiberPrime {R : Type u} [CommRing R] {r : PrimeSpectrum R}
+    (D : Stage R r) (q : PrimeSpectrum D.B)
+    (hq : r.asIdeal = q.asIdeal.comap (algebraMap R D.B)) :
+    PrimeSpectrum (r.asIdeal.Fiber D.B) :=
+  PrimeSpectrum.fiberPrime r q (PrimeSpectrum.ext hq.symm)
+
+/-- The canonical fiber point contracts back to the specified stage prime. -/
+@[simp]
+theorem residueFiberPrime_comap {R : Type u} [CommRing R] {r : PrimeSpectrum R}
+    (D : Stage R r) (q : PrimeSpectrum D.B)
+    (hq : r.asIdeal = q.asIdeal.comap (algebraMap R D.B)) :
+    PrimeSpectrum.comap
+      (Algebra.TensorProduct.includeRight : D.B →ₐ[R] r.asIdeal.Fiber D.B).toRingHom
+      (D.residueFiberPrime q hq) = q :=
+  PrimeSpectrum.fiberPrime_comap_eq r q (PrimeSpectrum.ext hq.symm)
 
 end Stage
 
@@ -81,10 +122,10 @@ structure CompleteAt (R : Type u) [CommRing R] (S : FGAlgCat.{u} R)
     (stagePrime i.castSucc).asIdeal =
       (liftedPrime i.succ).asIdeal.comap
         (toComplete.transition i).hom.toRingHom
-  /-- The prime `qᵢ` belongs to the support of the residue base change. -/
+  /-- The canonical fiber point over `qᵢ` belongs to the support in the fiber ring. -/
   support_mem (i : Fin (toComplete.last + 1)) :
-    stagePrime i ∈
-      Module.support (toComplete.stage i).B (toComplete.stage i).residueBaseChange
+    (toComplete.stage i).residueFiberPrime (stagePrime i) (stagePrime_comap i) ∈
+      Module.support (r.asIdeal.Fiber (toComplete.stage i).B) (toComplete.stage i).residueBaseChange
   /-- The canonical residue-field map `κ(r) →+* κ(qᵢ)` is purely transcendental. -/
   residueField_purelyTranscendental (i : Fin (toComplete.last + 1)) :
     (Ideal.ResidueField.map r.asIdeal (stagePrime i).asIdeal
@@ -95,8 +136,9 @@ structure CompleteAt (R : Type u) [CommRing R] (S : FGAlgCat.{u} R)
   dimension_eq (i : Fin (toComplete.last + 1)) :
     relativeDimension R (toComplete.stage i).B =
       topologicalKrullDimAt
-        (⟨stagePrime i, support_mem i⟩ :
-          Module.support (toComplete.stage i).B
+        (⟨(toComplete.stage i).residueFiberPrime (stagePrime i) (stagePrime_comap i),
+            support_mem i⟩ :
+          Module.support (r.asIdeal.Fiber (toComplete.stage i).B)
             (toComplete.stage i).residueBaseChange)
 
 namespace CompleteAt
@@ -125,8 +167,8 @@ def ofComplete {R : Type u} [CommRing R] {S : FGAlgCat.{u} R}
       (stagePrime i.castSucc).asIdeal =
         (liftedPrime i.succ).asIdeal.comap (toComplete.transition i).hom.toRingHom)
     (support_mem : ∀ i,
-      stagePrime i ∈
-        Module.support (toComplete.stage i).B (toComplete.stage i).residueBaseChange)
+      (toComplete.stage i).residueFiberPrime (stagePrime i) (stagePrime_comap i) ∈
+        Module.support (r.asIdeal.Fiber (toComplete.stage i).B) (toComplete.stage i).residueBaseChange)
     (residueField_purelyTranscendental : ∀ i,
       (Ideal.ResidueField.map r.asIdeal (stagePrime i).asIdeal
         (algebraMap R (toComplete.stage i).B)
@@ -134,8 +176,9 @@ def ofComplete {R : Type u} [CommRing R] {S : FGAlgCat.{u} R}
     (dimension_eq : ∀ i,
       relativeDimension R (toComplete.stage i).B =
         topologicalKrullDimAt
-          (⟨stagePrime i, support_mem i⟩ :
-            Module.support (toComplete.stage i).B
+          (⟨(toComplete.stage i).residueFiberPrime (stagePrime i) (stagePrime_comap i),
+            support_mem i⟩ :
+            Module.support (r.asIdeal.Fiber (toComplete.stage i).B)
               (toComplete.stage i).residueBaseChange)) :
     CompleteAt R S N r q hq where
   toComplete := toComplete
@@ -150,22 +193,35 @@ def ofComplete {R : Type u} [CommRing R] {S : FGAlgCat.{u} R}
   residueField_purelyTranscendental := residueField_purelyTranscendental
   dimension_eq := dimension_eq
 
-/-- The prime `qᵢ` as a point of the support of the residue base change. -/
+/-- The canonical fiber prime over `qᵢ` as a point of the support in the fiber ring. -/
 def supportPoint {R : Type u} [CommRing R] {S : FGAlgCat.{u} R}
     {N : FGModuleCat.{u} S.obj} {r : PrimeSpectrum R} {q : PrimeSpectrum S.obj}
     {hq : r.asIdeal = q.asIdeal.comap (algebraMap R S.obj)}
     (D : CompleteAt R S N r q hq) (i : Fin (D.toComplete.last + 1)) :
-    Module.support (D.toComplete.stage i).B
+    Module.support (r.asIdeal.Fiber (D.toComplete.stage i).B)
       (D.toComplete.stage i).residueBaseChange :=
-  ⟨D.stagePrime i, D.support_mem i⟩
+  ⟨(D.toComplete.stage i).residueFiberPrime (D.stagePrime i) (D.stagePrime_comap i),
+    D.support_mem i⟩
 
-/-- The underlying prime of `supportPoint` is `qᵢ`. -/
+/-- The underlying prime of `supportPoint` is the canonical fiber prime over `qᵢ`. -/
 theorem supportPoint_coe {R : Type u} [CommRing R] {S : FGAlgCat.{u} R}
     {N : FGModuleCat.{u} S.obj} {r : PrimeSpectrum R} {q : PrimeSpectrum S.obj}
     {hq : r.asIdeal = q.asIdeal.comap (algebraMap R S.obj)}
     (D : CompleteAt R S N r q hq) (i : Fin (D.toComplete.last + 1)) :
-    (D.supportPoint i : PrimeSpectrum (D.toComplete.stage i).B) =
-      D.stagePrime i := sorry
+    (D.supportPoint i : PrimeSpectrum (r.asIdeal.Fiber (D.toComplete.stage i).B)) =
+      (D.toComplete.stage i).residueFiberPrime (D.stagePrime i) (D.stagePrime_comap i) := rfl
+
+/-- The support point in the fiber contracts to the original stage prime. -/
+@[simp]
+theorem supportPoint_comap {R : Type u} [CommRing R] {S : FGAlgCat.{u} R}
+    {N : FGModuleCat.{u} S.obj} {r : PrimeSpectrum R} {q : PrimeSpectrum S.obj}
+    {hq : r.asIdeal = q.asIdeal.comap (algebraMap R S.obj)}
+    (D : CompleteAt R S N r q hq) (i : Fin (D.toComplete.last + 1)) :
+    PrimeSpectrum.comap
+      (Algebra.TensorProduct.includeRight :
+        (D.toComplete.stage i).B →ₐ[R] r.asIdeal.Fiber (D.toComplete.stage i).B).toRingHom
+      (D.supportPoint i) = D.stagePrime i :=
+  (D.toComplete.stage i).residueFiberPrime_comap (D.stagePrime i) (D.stagePrime_comap i)
 
 /-- The canonical residue-field homomorphism from `κ(r)` to the residue field of the
 distinguished prime at a stage. -/
@@ -229,7 +285,7 @@ theorem dimension_spec {R : Type u} [CommRing R] {S : FGAlgCat.{u} R}
     {hq : r.asIdeal = q.asIdeal.comap (algebraMap R S.obj)}
     (D : CompleteAt R S N r q hq) (i : Fin (D.toComplete.last + 1)) :
     relativeDimension R (D.toComplete.stage i).B =
-      topologicalKrullDimAt (D.supportPoint i) := sorry
+      topologicalKrullDimAt (D.supportPoint i) := D.dimension_eq i
 
 end CompleteAt
 

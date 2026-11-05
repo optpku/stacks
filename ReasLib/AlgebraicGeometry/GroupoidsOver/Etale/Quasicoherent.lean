@@ -57,7 +57,10 @@ def etaleModuleOfPresheaf
     (F : PresheafOfModules.{u} (structureSheaf X).obj)
     (hF : Presheaf.IsSheaf X.etaleTopology F.presheaf) : etaleModules X where
   val := (PresheafOfModules.restrictScalars (fppfToEtaleStructurePresheafIso X).inv).obj F
-  isSheaf := hF
+  isSheaf :=
+    (Presheaf.isSheaf_of_iso_iff
+      ((PresheafOfModules.restrictScalarsCompToPresheaf
+        (fppfToEtaleStructurePresheafIso X).inv).app F)).2 hF
 
 /-- Transport to the étale structure presheaf and back recovers the original
 module presheaf. -/

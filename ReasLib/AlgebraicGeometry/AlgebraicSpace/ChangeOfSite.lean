@@ -60,13 +60,13 @@ def lanYonedaIso (U : Over X) :
 
 /-- Inverse image of sheaves of sets along the slice functor of a continuous functor of
 sites, given by sheaf pullback on the slice categories. -/
-abbrev inverseImage :
+abbrev ChangeOfSite.inverseImage :
     Sheaf (J.over X) (Type v) ⥤ Sheaf (K.over (u.obj X)) (Type v) :=
   (slicePost u X |>.morphismOfTopoiInOfContinuous (J.over X) (K.over (u.obj X)))⁻¹
 
 /-- Slice inverse image is sheaf pullback along `slicePost u X`. -/
 theorem inverseImage_eq_sheafPullback :
-    inverseImage u X J K =
+    ChangeOfSite.inverseImage u X J K =
       (slicePost u X).sheafPullback (Type v) (J.over X) (K.over (u.obj X)) := rfl
 
 variable [J.Subcanonical] [K.Subcanonical]
@@ -74,7 +74,7 @@ variable [J.Subcanonical] [K.Subcanonical]
 /-- The comparison identifying the inverse image of a representable sheaf on `Over X` with
 the Yoneda sheaf of the same object in the larger slice. -/
 def inverseImageYonedaIso [u.Full] [u.Faithful] (U : Over X) :
-    (inverseImage u X J K).obj ((J.over X).yoneda.obj U) ≅
+    (ChangeOfSite.inverseImage u X J K).obj ((J.over X).yoneda.obj U) ≅
       (K.over (u.obj X)).yoneda.obj ((slicePost u X).obj U) :=
   (Functor.sheafPullbackConstruction.sheafPullbackIso
         (slicePost u X) (Type v) (J.over X) (K.over (u.obj X))).app
@@ -86,14 +86,14 @@ def inverseImageYonedaIso [u.Full] [u.Faithful] (U : Over X) :
 
 /-- The forward comparison map `f⁻¹ h_U ⟶ h'_U`. -/
 def inverseImageYonedaHom [u.Full] [u.Faithful] (U : Over X) :
-    (inverseImage u X J K).obj ((J.over X).yoneda.obj U) ⟶
+    (ChangeOfSite.inverseImage u X J K).obj ((J.over X).yoneda.obj U) ⟶
       (K.over (u.obj X)).yoneda.obj ((slicePost u X).obj U) :=
   (inverseImageYonedaIso u X J K U).hom
 
 /-- The reverse comparison map `h'_U ⟶ f⁻¹ h_U`. -/
 def inverseImageYonedaInv [u.Full] [u.Faithful] (U : Over X) :
     (K.over (u.obj X)).yoneda.obj ((slicePost u X).obj U) ⟶
-      (inverseImage u X J K).obj ((J.over X).yoneda.obj U) :=
+      (ChangeOfSite.inverseImage u X J K).obj ((J.over X).yoneda.obj U) :=
   (inverseImageYonedaIso u X J K U).inv
 
 /-- The forward comparison of `inverseImageYonedaIso` is `inverseImageYonedaHom`. -/
@@ -110,9 +110,9 @@ inverse image and the Yoneda comparison. -/
 def inverseImageAtlasHom [u.Full] [u.Faithful] {U₀ : Over X}
     {F : Sheaf (J.over X) (Type v)}
     (p : yoneda.obj U₀ ⟶ F.obj) :
-    yoneda.obj ((slicePost u X).obj U₀) ⟶ ((inverseImage u X J K).obj F).obj :=
+    yoneda.obj ((slicePost u X).obj U₀) ⟶ ((ChangeOfSite.inverseImage u X J K).obj F).obj :=
   ((inverseImageYonedaIso u X J K U₀).inv ≫
-    (inverseImage u X J K).map (Sheaf.homEquiv.symm p)).hom
+    (ChangeOfSite.inverseImage u X J K).map (Sheaf.homEquiv.symm p)).hom
 
 end AlgebraicGeometry.AlgebraicSpace
 
@@ -137,7 +137,7 @@ theorem inverseImage_representableDiagonal [ι.Full] [ι.Faithful]
     [PreservesLimitsOfShape WalkingCospan ι]
     (hdiag : yoneda.relativelyRepresentable (Limits.diag F.obj)) :
     yoneda.relativelyRepresentable
-      (Limits.diag ((inverseImage ι X J Scheme.fppfTopology).obj F).obj) := sorry
+      (Limits.diag ((ChangeOfSite.inverseImage ι X J Scheme.fppfTopology).obj F).obj) := sorry
 
 /-- The inverse image of a representable atlas whose represented pullbacks are étale
 is a representable étale morphism. -/
@@ -176,8 +176,8 @@ def ofInverseImage [ι.Full] [ι.Faithful]
     (hp_surj : ∀ {V : Over X} (ξ : yoneda.obj V ⟶ F.obj),
       Surjective ((slicePost ι X).map (hp.snd ξ)).left) :
     AlgebraicSpace (ι.obj X) :=
-  ofFunctor ((inverseImage ι X J Scheme.fppfTopology).obj F).obj
-    ((inverseImage ι X J Scheme.fppfTopology).obj F).property
+  ofFunctor ((ChangeOfSite.inverseImage ι X J Scheme.fppfTopology).obj F).obj
+    ((ChangeOfSite.inverseImage ι X J Scheme.fppfTopology).obj F).property
     (inverseImage_representableDiagonal ι J X F hdiag)
     ⟨(slicePost ι X).obj U₀, inverseImageAtlasHom ι X J Scheme.fppfTopology p,
       inverseImageAtlasHom_etale ι J X F p hp hp_etale,
@@ -196,7 +196,7 @@ theorem ofInverseImage_functorOfPoints [ι.Full] [ι.Faithful]
     (hp_surj : ∀ {V : Over X} (ξ : yoneda.obj V ⟶ F.obj),
       Surjective ((slicePost ι X).map (hp.snd ξ)).left) :
     (ofInverseImage ι J X F hdiag p hp hp_etale hp_surj).functorOfPoints =
-      ((inverseImage ι X J Scheme.fppfTopology).obj F).obj := rfl
+      ((ChangeOfSite.inverseImage ι X J Scheme.fppfTopology).obj F).obj := rfl
 
 /-- The inverse image of an algebraic-space sheaf is an fppf sheaf on the larger slice. -/
 theorem ofInverseImage_isSheaf [ι.Full] [ι.Faithful]
@@ -238,7 +238,7 @@ theorem ofInverseImage_exists_atlas [ι.Full] [ι.Faithful]
     (hp_surj : ∀ {V : Over X} (ξ : yoneda.obj V ⟶ F.obj),
       Surjective ((slicePost ι X).map (hp.snd ξ)).left) :
     let U' : Over (ι.obj X) := (slicePost ι X).obj U₀
-    let q : yoneda.obj U' ⟶ ((inverseImage ι X J Scheme.fppfTopology).obj F).obj :=
+    let q : yoneda.obj U' ⟶ ((ChangeOfSite.inverseImage ι X J Scheme.fppfTopology).obj F).obj :=
       inverseImageAtlasHom ι X J Scheme.fppfTopology p
     (MorphismProperty.over (@Etale)).presheaf q ∧
       Presheaf.IsLocallySurjective (Scheme.etaleTopology.over (ι.obj X)) q :=

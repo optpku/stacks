@@ -281,24 +281,34 @@ private def sliceChartIso (htriangle : k ≫ toSource iU V' = T.hom) (W : Over T
     (@Modules.restrictPostcompose _ _ _ (toSource iU V') ((spacesEtalePullback iU).obj V').prop).obj (sliceChart iU V' T k htriangle W) ≅ W.left :=
   MorphismProperty.CostructuredArrow.isoMk (Iso.refl W.left.left) trivial trivial (by sorry)
 
+-- The chart and pullback comparisons produce deeply nested definitional equalities.
+set_option maxRecDepth 4096 in
+/-- Transport an actual section through the fixed slice chart, the pullback comparison,
+the recovered parameter, and the inverse comparisons, in that order. -/
+def rawLocalHomSection (δ : (autPresheaf iU iI p' Δ' Δ hΔ).obj (op V'))
+    (W : Over T)
+    (s : (((Modules.pullback Δ).obj (Hom.relativeDifferentials p)).over T).val.obj (op W)) :
+    ((Hom.conormalSheaf iU).over T).val.obj (op W) :=
+  let R := sliceChart iU V' T k hk W
+  let e := sliceChartIso iU V' T k hk W
+  let t : ((Modules.pullback Δ).obj (Hom.relativeDifferentials p)).val.obj
+      (op ((@Modules.restrictPostcompose _ _ _ (toSource iU V') ((spacesEtalePullback iU).obj V').prop).obj R)) :=
+    ((Modules.pullback Δ).obj (Hom.relativeDifferentials p)).val.map e.hom.op s
+  let t' := (((@Modules.restrictFunctorIsoPullback _ _ _ (toSource iU V') ((spacesEtalePullback iU).obj V').prop).hom.app
+    ((Modules.pullback Δ).obj (Hom.relativeDifferentials p))).val.app (op R)).hom t
+  let r := ((rawPullbackHom iU iI p' p Δ' Δ hΔ hp hsec V' δ).val.app (op R)).hom t'
+  let r' : (Hom.conormalSheaf iU).val.obj
+      (op ((@Modules.restrictPostcompose _ _ _ (toSource iU V') ((spacesEtalePullback iU).obj V').prop).obj R)) :=
+    (((@Modules.restrictFunctorIsoPullback _ _ _ (toSource iU V') ((spacesEtalePullback iU).obj V').prop).inv.app
+      (Hom.conormalSheaf iU)).val.app (op R)).hom r
+  (Hom.conormalSheaf iU).val.map e.inv.op r'
+
 /-- The specified component functions are additive and linear and commute with restriction. -/
 private theorem rawLocalHom_laws (δ : (autPresheaf iU iI p' Δ' Δ hΔ).obj (op V')) :
     let F := ((Modules.pullback Δ).obj (Hom.relativeDifferentials p)).over T
     let G := (Hom.conormalSheaf iU).over T
-    let f : ∀ R : (Over T)ᵒᵖ, F.val.obj R → G.val.obj R := fun W ↦ fun s ↦
-            let R := sliceChart iU V' T k hk W.unop
-            let e := sliceChartIso iU V' T k hk W.unop
-            let t : ((Modules.pullback Δ).obj (Hom.relativeDifferentials p)).val.obj
-                (op ((@Modules.restrictPostcompose _ _ _ (toSource iU V') ((spacesEtalePullback iU).obj V').prop).obj R)) :=
-              ((Modules.pullback Δ).obj (Hom.relativeDifferentials p)).val.map e.hom.op s
-            let t' := (((@Modules.restrictFunctorIsoPullback _ _ _ (toSource iU V') ((spacesEtalePullback iU).obj V').prop).hom.app
-              ((Modules.pullback Δ).obj (Hom.relativeDifferentials p))).val.app (op R)).hom t
-            let r := ((rawPullbackHom iU iI p' p Δ' Δ hΔ hp hsec V' δ).val.app (op R)).hom t'
-            let r' : (Hom.conormalSheaf iU).val.obj
-                (op ((@Modules.restrictPostcompose _ _ _ (toSource iU V') ((spacesEtalePullback iU).obj V').prop).obj R)) :=
-              (((@Modules.restrictFunctorIsoPullback _ _ _ (toSource iU V') ((spacesEtalePullback iU).obj V').prop).inv.app
-                (Hom.conormalSheaf iU)).val.app (op R)).hom r
-            (Hom.conormalSheaf iU).val.map e.inv.op r'
+    let f : ∀ R : (Over T)ᵒᵖ, F.val.obj R → G.val.obj R := fun W ↦
+      rawLocalHomSection iU iI p' p Δ' Δ hΔ hp hsec V' T k hk δ W.unop
     (∀ R x y, f R (x + y) = f R x + f R y) ∧
     (∀ R (r : ((structureSheaf U).over T).obj.obj R) x, f R (r • x) = r • f R x) ∧
     (∀ {R T : (Over T)ᵒᵖ} (g : R ⟶ T) (x : F.val.obj R),
@@ -308,25 +318,13 @@ private theorem rawLocalHom_laws (δ : (autPresheaf iU iI p' Δ' Δ hΔ).obj (op
 set_option maxRecDepth 4096 in
 /-- The recovered local Hom has actual component functions through the fixed chart
 isomorphism, pullback comparison, and recovered parameter. -/
+@[expose]
 def rawLocalHom (δ : (autPresheaf iU iI p' Δ' Δ hΔ).obj (op V')) :
     ((Modules.pullback Δ).obj (Hom.relativeDifferentials p)).over T ⟶ (Hom.conormalSheaf iU).over T :=
   ⟨{ app := fun W ↦ ModuleCat.ofHom
         (X := (((Modules.pullback Δ).obj (Hom.relativeDifferentials p)).over T).val.obj W)
         (Y := ((Hom.conormalSheaf iU).over T).val.obj W)
-        { toFun := fun s ↦
-            let R := sliceChart iU V' T k hk W.unop
-            let e := sliceChartIso iU V' T k hk W.unop
-            let t : ((Modules.pullback Δ).obj (Hom.relativeDifferentials p)).val.obj
-                (op ((@Modules.restrictPostcompose _ _ _ (toSource iU V') ((spacesEtalePullback iU).obj V').prop).obj R)) :=
-              ((Modules.pullback Δ).obj (Hom.relativeDifferentials p)).val.map e.hom.op s
-            let t' := (((@Modules.restrictFunctorIsoPullback _ _ _ (toSource iU V') ((spacesEtalePullback iU).obj V').prop).hom.app
-              ((Modules.pullback Δ).obj (Hom.relativeDifferentials p))).val.app (op R)).hom t
-            let r := ((rawPullbackHom iU iI p' p Δ' Δ hΔ hp hsec V' δ).val.app (op R)).hom t'
-            let r' : (Hom.conormalSheaf iU).val.obj
-                (op ((@Modules.restrictPostcompose _ _ _ (toSource iU V') ((spacesEtalePullback iU).obj V').prop).obj R)) :=
-              (((@Modules.restrictFunctorIsoPullback _ _ _ (toSource iU V') ((spacesEtalePullback iU).obj V').prop).inv.app
-                (Hom.conormalSheaf iU)).val.app (op R)).hom r
-            (Hom.conormalSheaf iU).val.map e.inv.op r'
+        { toFun := rawLocalHomSection iU iI p' p Δ' Δ hΔ hp hsec V' T k hk δ W.unop
           map_add' := by exact (rawLocalHom_laws iU iI p' p Δ' Δ hΔ hp hsec V' T k hk δ).1 W
           map_smul' := by exact (rawLocalHom_laws iU iI p' p Δ' Δ hΔ hp hsec V' T k hk δ).2.1 W }
      naturality := by
@@ -334,11 +332,29 @@ def rawLocalHom (δ : (autPresheaf iU iI p' Δ' Δ hΔ).obj (op V')) :
        ext x
        exact (rawLocalHom_laws iU iI p' p Δ' Δ hΔ hp hsec V' T k hk δ).2.2 g x }⟩
 
+set_option maxRecDepth 4096 in
+/-- The assembled local morphism evaluates by the specified section transport. -/
+theorem rawLocalHom_apply (δ : (autPresheaf iU iI p' Δ' Δ hΔ).obj (op V'))
+    (W : (Over T)ᵒᵖ)
+    (s : (((Modules.pullback Δ).obj (Hom.relativeDifferentials p)).over T).val.obj W) :
+    ((rawLocalHom iU iI p' p Δ' Δ hΔ hp hsec V' T k hk δ).val.app W).hom s =
+      rawLocalHomSection iU iI p' p Δ' Δ hΔ hp hsec V' T k hk δ W.unop s := rfl
+
 /-- Lift the recovered local Hom by its actual `ULift.up` component functions. -/
+@[expose]
 def rawLocalParameter (δ : (autPresheaf iU iI p' Δ' Δ hΔ).obj (op V')) :
     (parameterModule iU p Δ).val.obj (op T) :=
   Modules.liftLocalHom ((Modules.pullback Δ).obj (Hom.relativeDifferentials p)) (Hom.conormalSheaf iU) T
     (rawLocalHom iU iI p' p Δ' Δ hΔ hp hsec V' T k hk δ)
+
+set_option maxRecDepth 4096 in
+/-- Reading the lifted local parameter on an original section recovers the same transport. -/
+theorem rawLocalParameter_apply (δ : (autPresheaf iU iI p' Δ' Δ hΔ).obj (op V'))
+    (W : (Over T)ᵒᵖ)
+    (s : (((Modules.pullback Δ).obj (Hom.relativeDifferentials p)).over T).val.obj W) :
+    (((rawLocalParameter iU iI p' p Δ' Δ hΔ hp hsec V' T k hk δ).val.app W).hom
+      (ULift.up s)).down =
+        rawLocalHomSection iU iI p' p Δ' Δ hΔ hp hsec V' T k hk δ W.unop s := rfl
 
 /-- Each right-Kan index already stores its actual map into the reduced test and triangle. -/
 private theorem parameterIndex_triangle

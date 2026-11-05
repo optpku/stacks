@@ -48,7 +48,8 @@ theorem kFlatResolutionCounit_quasiIso (X : Scheme.{u})
     [HomotopyCategory.KFlat.HasResolutions X.Modules]
     (K : HomotopyCategory X.Modules (up ℤ)) :
     HomotopyCategory.quasiIso X.Modules (up ℤ)
-      (kFlatResolutionCounit X K) := sorry
+      (kFlatResolutionCounit X K) :=
+  (Classical.choice ((inferInstance : HomotopyCategory.KFlat.HasResolutions X.Modules) K)).hw
 
 /-- The selected K-flat replacement and its source have canonically isomorphic images in the
 derived category. -/

@@ -17,12 +17,14 @@ public import Mathlib.CategoryTheory.Sites.SubcanonicalOver
 public import ReasLib.AlgebraicGeometry.Scheme.PreRelation.QuotientPresheaf
 public import ReasLib.AlgebraicGeometry.Scheme.PreRelation.QuotientSheaf
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.InfiniteProduct.Presentation
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleQuotient
 
 /-!
 # The sheaf quotient of the infinite product presentation
 
-The quotient presheaf and fppf quotient sheaf of the infinite product pre-relation have a
-canonical atlas and a section induced by the zeroth coordinate evaluation.
+The algebraic space `space k` uses the canonical small étale quotient owner. Its specified
+atlas and section are actual morphisms of algebraic spaces. The universe-raised fppf sheaf
+and its maps are retained as auxiliary sheaf-level constructions.
 -/
 
 @[expose] public section
@@ -36,6 +38,38 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace.InfiniteProduct
 
+/-- The algebraic space `X = U/R` over `Spec(k)`. -/
+def space (k : Type u) [Field k] : AlgebraicSpace (base k) :=
+  (preRelation k).etaleQuotientSpace
+
+/-- The functor of points of `X` is the canonical Type-u étale quotient sheaf. -/
+@[simp]
+theorem spaceFunctorOfPoints_eq (k : Type u) [Field k] :
+    (space k).functorOfPoints = (preRelation k).smallEtaleQuotientSheaf.obj := rfl
+
+/-- The specified atlas `U ⟶ X`, without choosing from the atlas-existence assertion. -/
+def spaceAtlas (k : Type u) [Field k] : ofOver (cover k) ⟶ space k :=
+  (preRelation k).etaleQuotientMap
+
+/-- The specified atlas is representable and étale. -/
+theorem spaceAtlas_etale (k : Type u) [Field k] :
+    (MorphismProperty.over (@Etale)).presheaf (spaceAtlas k) :=
+  (preRelation k).smallEtaleQuotientSheafMk_etale
+
+/-- The specified atlas is étale-locally surjective. -/
+theorem spaceAtlas_locallySurjective (k : Type u) [Field k] :
+    Presheaf.IsLocallySurjective (Scheme.etaleTopology.over (base k)) (spaceAtlas k) :=
+  (preRelation k).smallEtaleQuotientSheafMk_locallySurjective
+
+/-- The section `Spec(k) ⟶ X` induced by the zeroth coordinate. -/
+def spaceSection (k : Type u) [Field k] :
+    ofOver (Over.mk (𝟙 (base k))) ⟶ space k :=
+  yoneda.map (immersionOver k 0) ≫ spaceAtlas k
+
+/-- The section is the specified zeroth-coordinate map followed by the specified atlas. -/
+theorem spaceSection_eq (k : Type u) [Field k] :
+    spaceSection k = yoneda.map (immersionOver k 0) ≫ spaceAtlas k := rfl
+
 /-- The presheaf of objectwise quotients of morphisms into the product spectrum by its
 pre-relation. -/
 def functorOfPoints (k : Type u) [Field k] : (Over (base k))ᵒᵖ ⥤ Type u :=
@@ -45,7 +79,8 @@ def functorOfPoints (k : Type u) [Field k] : (Over (base k))ᵒᵖ ⥤ Type u :=
 theorem functorOfPoints_eq (k : Type u) [Field k] :
     functorOfPoints k = (preRelation k).quotientPresheaf := sorry
 
-/-- The fppf sheaf `X = U / R`, obtained by sheafifying the universe-raised quotient presheaf. -/
+/-- The auxiliary fppf sheaf obtained by sheafifying the universe-raised quotient presheaf.
+The bundled algebraic space with Type-u values is `space k`. -/
 def sheafOfPoints (k : Type u) [Field k] :
     Sheaf (Scheme.fppfTopology.over (base k)) (Type (u + 1)) :=
   (preRelation k).quotientSheaf (Scheme.fppfTopology.over (base k))

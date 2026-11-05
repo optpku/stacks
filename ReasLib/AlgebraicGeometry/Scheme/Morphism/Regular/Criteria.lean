@@ -64,9 +64,9 @@ compatible affine covers induce regular maps on global sections. -/
 theorem regular_iff_exists_affineOpenCover (f : X ⟶ Y)
     (h_fibers : LocallyNoetherianFibers f) :
     Regular f ↔
-      ∃ 𝒱 : Y.AffineOpenCover,
+      ∃ 𝒱 : Y.AffineOpenCover.{u},
         ∀ j : 𝒱.I₀,
-          ∃ 𝒰 : ((𝒱.openCover.pullback₁ f).X j).AffineOpenCover,
+          ∃ 𝒰 : ((𝒱.openCover.pullback₁ f).X j).AffineOpenCover.{u},
             ∀ i : 𝒰.I₀,
               RingHom.Regular
                 ((𝒰.f i ≫ 𝒱.openCover.pullbackHom f j).appTop).hom := sorry
@@ -88,9 +88,9 @@ theorem regular_tfae (f : X ⟶ Y) (h_fibers : LocallyNoetherianFibers f) :
           ∃ 𝒰 : ((𝒱.pullback₁ f).X j).OpenCover,
             ∀ i : 𝒰.I₀,
               Regular (𝒰.f i ≫ 𝒱.pullbackHom f j),
-      ∃ 𝒱 : Y.AffineOpenCover,
+      ∃ 𝒱 : Y.AffineOpenCover.{u},
         ∀ j : 𝒱.I₀,
-          ∃ 𝒰 : ((𝒱.openCover.pullback₁ f).X j).AffineOpenCover,
+          ∃ 𝒰 : ((𝒱.openCover.pullback₁ f).X j).AffineOpenCover.{u},
             ∀ i : 𝒰.I₀,
               RingHom.Regular
                 ((𝒰.f i ≫ 𝒱.openCover.pullbackHom f j).appTop).hom

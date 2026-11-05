@@ -13,9 +13,10 @@ import Mathlib.Tactic.CrossRefAttribute
 /-!
 # Comparing extension by zero with open pushforward
 
-For an open immersion `j : U ⟶ X`, the inverse of the unit `F ⟶ j^*j_!F`, followed by the
-adjunction `j^* ⊣ j_*`, gives the canonical comparison `j_!F ⟶ j_*F`. This file owns that map at
-the underived and derived levels, so support theorems can refer to a stable natural transformation
+For an open immersion `j : U ⟶ X`, transpose the explicit inverse counit
+`F ⟶ j^*j_*F` along `j_! ⊣ j^*` to obtain the canonical comparison `j_!F ⟶ j_*F`.
+This file owns that map at the underived and derived levels, so support theorems can refer to a
+stable natural transformation
 instead of rebuilding its mate objectwise.
 -/
 
@@ -38,10 +39,10 @@ noncomputable def toPushforwardApp
       (forget₂ CommRingCat RingCat.{u})]
     (F : openSubspaceModuleCategory X U) :
     (moduleExtensionByZeroFromOpen X U).obj F ⟶ (modulePushforwardFromOpen U).obj F :=
-  (OpenSubspace.Pushforward.adjunction X U).homEquiv
-    ((moduleExtensionByZeroFromOpen X U).obj F) F
-    ((asIso ((adjunction X U).unit.app F)).inv)
+  ((adjunction X U).homEquiv F ((modulePushforwardFromOpen U).obj F)).symm
+    ((OpenSubspace.Pushforward.counitIso X U).inv.app F)
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The underived comparison components commute with morphisms of modules on the open
 subspace. -/
 theorem toPushforwardApp_naturality
@@ -50,7 +51,11 @@ theorem toPushforwardApp_naturality
       (forget₂ CommRingCat RingCat.{u})]
     {F G : openSubspaceModuleCategory X U} (f : F ⟶ G) :
     (moduleExtensionByZeroFromOpen X U).map f ≫ toPushforwardApp X U G =
-      toPushforwardApp X U F ≫ (modulePushforwardFromOpen U).map f := sorry
+      toPushforwardApp X U F ≫ (modulePushforwardFromOpen U).map f := by
+  unfold toPushforwardApp
+  apply (adjunction X U).homEquiv_naturality_right_square
+  simpa only [Functor.id_map, Functor.comp_map, Functor.id_obj, Functor.comp_obj] using
+    (OpenSubspace.Pushforward.counitIso X U).inv.naturality f
 
 /-- The canonical natural transformation `j_! ⟶ j_*` for modules on an open subspace. -/
 @[stacks 08DF "extension by zero to open pushforward natural transformation"]
@@ -71,10 +76,11 @@ noncomputable def derivedToPushforwardApp
     (F : moduleDerivedOnOpen X U) :
     (moduleExtensionByZeroFromOpenDerived X U).obj F ⟶
       (modulePushforwardFromOpenDerived U).obj F :=
-  (OpenSubspace.Pushforward.derivedAdjunction X U).homEquiv
-    ((moduleExtensionByZeroFromOpenDerived X U).obj F) F
-    ((asIso ((derivedAdjunction X U).unit.app F)).inv)
+  ((derivedAdjunction X U).homEquiv F
+    ((modulePushforwardFromOpenDerived U).obj F)).symm
+    ((OpenSubspace.Pushforward.derivedCounitIso X U).inv.app F)
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The derived comparison components commute with morphisms of derived modules on the open
 subspace. -/
 theorem derivedToPushforwardApp_naturality
@@ -83,7 +89,11 @@ theorem derivedToPushforwardApp_naturality
       (forget₂ CommRingCat RingCat.{u})]
     {F G : moduleDerivedOnOpen X U} (f : F ⟶ G) :
     (moduleExtensionByZeroFromOpenDerived X U).map f ≫ derivedToPushforwardApp X U G =
-      derivedToPushforwardApp X U F ≫ (modulePushforwardFromOpenDerived U).map f := sorry
+      derivedToPushforwardApp X U F ≫ (modulePushforwardFromOpenDerived U).map f := by
+  unfold derivedToPushforwardApp
+  apply (derivedAdjunction X U).homEquiv_naturality_right_square
+  simpa only [Functor.id_map, Functor.comp_map, Functor.id_obj, Functor.comp_obj] using
+    (OpenSubspace.Pushforward.derivedCounitIso X U).inv.naturality f
 
 /-- The canonical natural transformation `j_! ⟶ Rj_*` on unbounded derived categories. -/
 @[stacks 08DF "derived extension by zero to open pushforward natural transformation"]
@@ -95,7 +105,7 @@ noncomputable def derivedToPushforward
   app := derivedToPushforwardApp X U
   naturality := fun {_ _} f ↦ derivedToPushforwardApp_naturality X U f
 
--- Both natural transformations have explicit objectwise maps. Any `sorryAx` is confined to the
--- naturality laws and to the invertibility proof fields of the extension-restriction units.
+-- The comparison maps transpose the specified section-restriction inverse counits.
+-- No inverse is extracted from an unproved invertibility statement here.
 
 end AlgebraicGeometry.RingedSpace.OpenSubspace.ExtensionByZero

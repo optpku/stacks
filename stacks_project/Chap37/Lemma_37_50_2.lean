@@ -24,12 +24,22 @@ schemes over `S` to projective schemes over `S'`. -/
     ∀ {S S' : AlgebraicGeometry.Scheme.{u}} (g : S' ⟶ S),
       AlgebraicGeometry.ProjectiveOver S ⥤ AlgebraicGeometry.ProjectiveOver S')
 
-/- Lemma 37.50.2 (2): a composite of projective scheme morphisms is projective. -/
+/- Lemma 37.50.2 (2): over a base admitting an ample invertible module, a composite of
+projective scheme morphisms is projective. Ampleness supplies quasi-compactness and
+separatedness, so the qcqs composition theorem applies. -/
 @[stacks 0B46] #check
-  (AlgebraicGeometry.Projective.comp :
+  ((by
+    intro X Y S f g hS hf hg
+    letI : S.IsSeparated :=
+      AlgebraicGeometry.Scheme.Modules.isSeparated_of_exists_isAmple hS
+    obtain ⟨L, hL, hA⟩ := hS
+    letI : AlgebraicGeometry.Scheme.Modules.Invertible L := hL
+    letI : CompactSpace S := hA.toCompactSpace
+    exact AlgebraicGeometry.Projective.comp hf hg) :
     ∀ {X Y S : AlgebraicGeometry.Scheme.{u}} {f : Y ⟶ X} {g : X ⟶ S},
-      AlgebraicGeometry.Projective f → AlgebraicGeometry.Projective g →
-        AlgebraicGeometry.Projective (f ≫ g))
+      AlgebraicGeometry.Scheme.Modules.HasAmpleInvertibleModule S →
+        AlgebraicGeometry.Projective f → AlgebraicGeometry.Projective g →
+          AlgebraicGeometry.Projective (f ≫ g))
 
 /- Lemma 37.50.2 (3): the structural morphism from the fibre product of two projective
 schemes over the same base is projective. -/

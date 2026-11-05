@@ -11,9 +11,12 @@ import StacksCheckRecall
 
 universe u
 
-/- Definition 29.14.1 (1): locality for a property of commutative-ring maps. -/
-@[stacks 01SR] #check (RingHom.PropertyIsLocal :
-  ({R S : Type u} → [CommRing R] → [CommRing S] → (R →+* S) → Prop) → Prop)
+/- Definition 29.14.1 (1): full locality includes both mathlib's `PropertyIsLocal`
+and stability under precomposition with source localizations, as required by (1)(b). -/
+@[stacks 01SR] #check
+  (fun (P : {R S : Type u} → [CommRing R] → [CommRing S] → (R →+* S) → Prop) ↦
+    RingHom.PropertyIsLocal P ∧
+      RingHom.StableUnderCompositionWithLocalizationAwaySource P)
 
 /- Definition 29.14.1 (2): stability under base change for a property of
 commutative-ring maps. -/

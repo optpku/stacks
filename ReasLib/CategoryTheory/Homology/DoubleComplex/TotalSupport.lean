@@ -10,6 +10,7 @@ public import ReasLib.CategoryTheory.Homology.DoubleComplex.Support
 public import ReasLib.CategoryTheory.Homology.DoubleComplex.Total.FiniteSupport
 public import ReasLib.Algebra.Homology.HomologicalComplex.ObjectProperty
 public import ReasLib.CategoryTheory.ObjectProperty.FiniteCoproductClosure
+public import Mathlib.Data.Int.Interval
 public import Mathlib.Algebra.Homology.CochainComplexPlus
 public import Mathlib.Algebra.Homology.TotalComplex
 public import Mathlib.CategoryTheory.Abelian.Basic
@@ -38,23 +39,35 @@ namespace AntidiagonalSupport.Finite
 variable {C : Type u} [Category.{v} C] [Preadditive C]
 variable {K : HomologicalComplex₂ C (up ℤ) (up ℤ)}
 
-/-- In a category with finite coproducts, finite antidiagonal support suffices for the coproduct
-total complex to exist. -/
-@[stacks 0132 "existence of a finite-antidiagonal total complex"]
-theorem hasTotal [HasFiniteCoproducts C] (hfin : AntidiagonalSupport.Finite K) :
-    K.HasTotal (up ℤ) := sorry
-
 /-- A finite cohomological antidiagonal support predicate is the cohomological specialization of
 the shape-polymorphic finite total-degree support predicate. -/
 @[stacks 0132 "cohomological support as finite total support"]
 theorem toTotalSupport (hfin : AntidiagonalSupport.Finite K) :
-    Total.Support.Finite (c := up ℤ) K := sorry
+    Total.Support.Finite (c := up ℤ) K := by
+  intro n
+  apply ((hfin n).image (fun p : ℤ ↦ (p, n - p))).subset
+  rintro ⟨p, q⟩ ⟨hpq, h⟩
+  change p + q = n at hpq
+  have hq : n - p = q := by omega
+  exact ⟨p, by simpa only [antidiagonalSupport, Set.mem_setOf_eq, hq] using h,
+    by simp only [hq]⟩
 
 /-- For cohomological double complexes, finite total-degree support is equivalent to finite
 antidiagonal support. -/
 @[stacks 0132 "finite antidiagonal support characterization"]
 theorem iff_totalSupport :
-    AntidiagonalSupport.Finite K ↔ Total.Support.Finite (c := up ℤ) K := sorry
+    AntidiagonalSupport.Finite K ↔ Total.Support.Finite (c := up ℤ) K := by
+  refine ⟨toTotalSupport, fun h n ↦ ?_⟩
+  apply ((h n).image Prod.fst).subset
+  intro p hp
+  exact ⟨(p, n - p), ⟨by change p + (n - p) = n; omega, hp⟩, rfl⟩
+
+/-- In a category with finite coproducts, finite antidiagonal support suffices for the coproduct
+total complex to exist. -/
+@[stacks 0132 "existence of a finite-antidiagonal total complex"]
+theorem hasTotal [HasFiniteCoproducts C] (hfin : AntidiagonalSupport.Finite K) :
+    K.HasTotal (up ℤ) :=
+  Total.Support.Finite.hasTotal (toTotalSupport hfin)
 
 /-- A pair of lower bounds forces finite support on every cohomological antidiagonal.  The
 outer bound controls the first index, while the uniform inner bound controls the second one. -/
@@ -62,7 +75,18 @@ outer bound controls the first index, while the uniform inner bound controls the
 theorem of_isStrictlyGE {a b : ℤ}
     (h₁ : CochainComplex.IsStrictlyGE K a)
     (h₂ : ∀ p : ℤ, CochainComplex.IsStrictlyGE (K.X p) b) :
-    AntidiagonalSupport.Finite K := sorry
+    AntidiagonalSupport.Finite K := by
+  letI := h₁
+  letI := h₂
+  intro n
+  apply (Set.finite_Icc a (n - b)).subset
+  intro p hp
+  constructor
+  · by_contra! hpa
+    exact hp ((HomologicalComplex.eval C (up ℤ) (n - p)).map_isZero
+      (CochainComplex.isZero_of_isStrictlyGE K a p hpa))
+  · by_contra! hpb
+    exact hp (CochainComplex.isZero_of_isStrictlyGE (K.X p) b (n - p) (by omega))
 
 /-- In a category with finite coproducts, the lower-bound criterion directly supplies a total
 complex. -/
@@ -105,7 +129,8 @@ injective. This is the cohomological facade of `Total.Support.Finite.injective`.
 theorem injective_of_finite_support
     (hfin : AntidiagonalSupport.Finite K)
     (hinj : ∀ p q : ℤ, Injective ((K.X p).X q)) (n : ℤ) :
-    Injective ((K.total (up ℤ)).X n) := sorry
+    Injective ((K.total (up ℤ)).X n) :=
+  Support.Finite.injective (AntidiagonalSupport.Finite.toTotalSupport hfin) hinj n
 
 /-- A finite-support total complex inherits any object property stable under zero objects,
 isomorphisms, and finite coproducts from its bidegree terms. -/

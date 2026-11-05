@@ -84,7 +84,7 @@ F|_{X_k̄}`. -/
 def geometricFrobeniusRestrictionIso (X : SchemeOverField k)
     (F : Sheaf X.left.smallEtaleTopology AddCommGrpCat.{u}) :
     (etaleAbelianSheafPullback (geometricFrobeniusBaseChange X)).obj
-      (geometricRestriction X F) ≅ geometricRestriction X F :=
+      (geometricAbelianSheafRestriction X F) ≅ geometricAbelianSheafRestriction X F :=
   (etaleAbelianSheafPullback_comp
         (FieldExtension.toSource k (AlgebraicClosure k) X.hom)
         (geometricFrobeniusBaseChange X)).app F ≪≫
@@ -100,7 +100,7 @@ def geometricFrobeniusRestrictionIso (X : SchemeOverField k)
 def geometricFrobeniusEtaleHq (X : SchemeOverField k)
     (F : Sheaf X.left.smallEtaleTopology AddCommGrpCat.{u}) (j : ℕ) :
     geometricEtaleHq X F j ⟶ geometricEtaleHq X F j :=
-  etaleHq_pullback (geometricFrobeniusBaseChange X) (geometricRestriction X F) j ≫
+  etaleHq_pullback (geometricFrobeniusBaseChange X) (geometricAbelianSheafRestriction X F) j ≫
     (Sheaf.functorH
         (FieldExtension.baseChange k (AlgebraicClosure k) X.hom).smallEtaleTopology
         j).map
@@ -113,7 +113,7 @@ theorem geometricFrobeniusEtaleHq_spec (X : SchemeOverField k)
     (F : Sheaf X.left.smallEtaleTopology AddCommGrpCat.{u}) (j : ℕ) :
     geometricFrobeniusEtaleHq X F j =
       etaleHq_pullback (geometricFrobeniusBaseChange X)
-          (geometricRestriction X F) j ≫
+          (geometricAbelianSheafRestriction X F) j ≫
         (Sheaf.functorH
             (FieldExtension.baseChange k (AlgebraicClosure k)
               X.hom).smallEtaleTopology

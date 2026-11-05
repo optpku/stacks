@@ -31,11 +31,6 @@ instance quasiCoherentModuleProperty.containsZero (X : GroupoidsOver S) [Algebra
     (quasiCoherentModuleProperty X).ContainsZero :=
   sorry
 
-/-- Quasi-coherent modules are closed under kernels. -/
-instance quasiCoherentModuleProperty.isClosedUnderKernels (X : GroupoidsOver S) [AlgebraicStack X] :
-    (quasiCoherentModuleProperty X).IsClosedUnderKernels :=
-  sorry
-
 /-- Quasi-coherent modules are closed under cokernels. -/
 instance quasiCoherentModuleProperty.isClosedUnderCokernels (X : GroupoidsOver S) [AlgebraicStack X] :
     (quasiCoherentModuleProperty X).IsClosedUnderCokernels :=
@@ -46,10 +41,26 @@ instance quasiCoherentModuleProperty.isClosedUnderFiniteProducts (X : GroupoidsO
     (quasiCoherentModuleProperty X).IsClosedUnderFiniteProducts :=
   sorry
 
-/-- Quasi-coherent modules on an algebraic stack form an abelian category. -/
+/-- Intrinsic kernels and normality in the category of quasi-coherent modules.
+These follow by descent to a smooth presentation (Stacks, Tag 06WV (1)--(2)).
+The kernels here are taken in `QCoh X`: the ambient big-fppf kernel need not
+be quasi-coherent, since objects of that site need not be flat over `X`. -/
+theorem QCoh.abelian_criteria (X : GroupoidsOver S) [AlgebraicStack X] :
+    Limits.HasKernels (QCoh X) ∧
+      IsNormalMonoCategory (QCoh X) ∧ IsNormalEpiCategory (QCoh X) :=
+  sorry
+
+/-- Quasi-coherent modules on an algebraic stack form an abelian category.
+This uses intrinsic kernels, not closure under ambient big-fppf kernels;
+the inclusion into all module sheaves is in general only right exact. -/
 instance QCoh.instAbelian (X : GroupoidsOver S) [AlgebraicStack X] :
-    Abelian (QCoh X) :=
-  inferInstanceAs (Abelian (quasiCoherentModuleProperty X).FullSubcategory)
+    Abelian (QCoh X) where
+  toPreadditive := inferInstance
+  toIsNormalMonoCategory := (QCoh.abelian_criteria X).2.1
+  toIsNormalEpiCategory := (QCoh.abelian_criteria X).2.2
+  has_finite_products := inferInstance
+  has_kernels := (QCoh.abelian_criteria X).1
+  has_cokernels := inferInstance
 
 
 end AlgebraicGeometry.GroupoidsOver

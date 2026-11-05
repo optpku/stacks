@@ -124,17 +124,20 @@ finiteness. -/
 theorem isFiniteFreeResolution_iff (π : F ⟶ moduleSingle R M) :
     IsFiniteFreeResolution π ↔ IsFreeResolution π ∧ IsTermwiseFinite F := sorry
 
-/-- Lemma 10.71.1 (1), tag `00LP`: every module admits a resolution by free modules. -/
+/-- Lemma 10.71.1 (1), tag `00LP`: every module admits a resolution by free modules in
+`Type v`, provided the scalar ring is `v`-small. When the ring and module lie in the same
+universe, the smallness assumption is automatic. -/
 @[stacks 00LP "free resolutions"]
-theorem exists_freeResolution :
-    ∃ (F : ChainComplex (ModuleCat R) ℕ) (π : F ⟶ moduleSingle R M),
+theorem exists_freeResolution [Small.{v} R] :
+    ∃ (F : ChainComplex (ModuleCat.{v} R) ℕ) (π : F ⟶ moduleSingle R M),
       IsFreeResolution π := sorry
 
 /-- Lemma 10.71.1 (2), tag `00LP`: a finite module over a Noetherian ring admits a resolution
-by finite free modules. -/
+by finite free modules in `Type v`, provided the scalar ring is `v`-small. When the ring and
+module lie in the same universe, the smallness assumption is automatic. -/
 @[stacks 00LP "finite free resolutions"]
-theorem exists_finiteFreeResolution [IsNoetherianRing R] [Module.Finite R M] :
-    ∃ (F : ChainComplex (ModuleCat R) ℕ) (π : F ⟶ moduleSingle R M),
+theorem exists_finiteFreeResolution [Small.{v} R] [IsNoetherianRing R] [Module.Finite R M] :
+    ∃ (F : ChainComplex (ModuleCat.{v} R) ℕ) (π : F ⟶ moduleSingle R M),
       IsFiniteFreeResolution π := sorry
 
 end ChainComplex

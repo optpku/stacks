@@ -120,18 +120,109 @@ def constantSheafCompZariskiPullbackHom :
               ((Functor.const (zariskiSite Y)ᵒᵖ).obj M))))
   naturality := sorry
 
-/-- Inverse image of constant abelian sheaves along `zariskiMap a` is an isomorphism. -/
-instance constantSheafCompZariskiPullbackHom_isIso :
-    IsIso (constantSheafCompZariskiPullbackHom a) :=
+/-- A coefficient gives a section of the pullback constant sheaf on every stage open:
+use the sheafification unit on the whole stage of `X`, the pullback adjunction unit,
+and restriction to the given open of `Y`. -/
+def constantSheafCompZariskiPullbackSection (M : AddCommGrpCat.{u})
+    (V : (zariskiSite Y)ᵒᵖ) :
+    M ⟶ ((constantSheaf (zariskiTopology (constSpace X)) AddCommGrpCat.{u} ⋙
+      (zariskiMap a).sheafPullback AddCommGrpCat.{u}
+        (zariskiTopology (constSpace X)) (zariskiTopology Y)).obj M).obj.obj V :=
+  let T := DiagramOpens.ofOpens (constSpace X) V.unop.base ⊤
+  let i : V.unop ⟶ (zariskiMap a).obj T :=
+    DiagramOpens.homMk (𝟙 V.unop.base) (by intro x hx; trivial)
+  ((sheafificationAdjunction (zariskiTopology (constSpace X)) AddCommGrpCat.{u}).unit.app
+      ((Functor.const (zariskiSite (constSpace X))ᵒᵖ).obj M)).app (Opposite.op T) ≫
+    (((zariskiMap a).sheafAdjunctionContinuous AddCommGrpCat.{u}
+        (zariskiTopology (constSpace X)) (zariskiTopology Y)).unit.app
+      ((constantSheaf (zariskiTopology (constSpace X)) AddCommGrpCat.{u}).obj M)).hom.app
+        (Opposite.op T) ≫
+    ((constantSheaf (zariskiTopology (constSpace X)) AddCommGrpCat.{u} ⋙
+      (zariskiMap a).sheafPullback AddCommGrpCat.{u}
+        (zariskiTopology (constSpace X)) (zariskiTopology Y)).obj M).obj.map i.op
+
+set_option backward.isDefEq.respectTransparency false in
+/-- The whole-stage construction is compatible with restrictions and simplex operators. -/
+theorem constantSheafCompZariskiPullbackSection_naturality (M : AddCommGrpCat.{u})
+    {V W : (zariskiSite Y)ᵒᵖ} (f : V ⟶ W) :
+    ((Functor.const (zariskiSite Y)ᵒᵖ).obj M).map f ≫
+        constantSheafCompZariskiPullbackSection a M W =
+      constantSheafCompZariskiPullbackSection a M V ≫
+        ((constantSheaf (zariskiTopology (constSpace X)) AddCommGrpCat.{u} ⋙
+          (zariskiMap a).sheafPullback AddCommGrpCat.{u}
+            (zariskiTopology (constSpace X)) (zariskiTopology Y)).obj M).obj.map f := by
+  let F := (constantSheaf (zariskiTopology (constSpace X)) AddCommGrpCat.{u} ⋙
+    (zariskiMap a).sheafPullback AddCommGrpCat.{u}
+      (zariskiTopology (constSpace X)) (zariskiTopology Y)).obj M
+  let T := fun V : zariskiSite Y ↦ DiagramOpens.ofOpens (constSpace X) V.base ⊤
+  let i : (V : zariskiSite Y) → (V ⟶ (zariskiMap a).obj (T V)) := fun V ↦
+    DiagramOpens.homMk (𝟙 V.base) (by intro x hx; trivial)
+  let g : T W.unop ⟶ T V.unop :=
+    DiagramOpens.homMk f.unop.base (by intro x hx; trivial)
+  let η : (Functor.const (zariskiSite (constSpace X))ᵒᵖ).obj M ⟶
+      (zariskiMap a).op ⋙ F.obj :=
+    (sheafificationAdjunction (zariskiTopology (constSpace X)) AddCommGrpCat.{u}).unit.app
+      ((Functor.const (zariskiSite (constSpace X))ᵒᵖ).obj M) ≫
+    (((zariskiMap a).sheafAdjunctionContinuous AddCommGrpCat.{u}
+      (zariskiTopology (constSpace X)) (zariskiTopology Y)).unit.app
+      ((constantSheaf (zariskiTopology (constSpace X)) AddCommGrpCat.{u}).obj M)).hom
+  have hη : η.app (Opposite.op (T W.unop)) =
+      η.app (Opposite.op (T V.unop)) ≫ F.obj.map ((zariskiMap a).map g).op := by
+    have h := η.naturality g.op
+    change 𝟙 M ≫ η.app (Opposite.op (T W.unop)) =
+      η.app (Opposite.op (T V.unop)) ≫ F.obj.map ((zariskiMap a).map g).op at h
+    simpa only [Category.id_comp] using h
+  have hi : i W.unop ≫ (zariskiMap a).map g = f.unop ≫ i V.unop := by
+    apply DiagramOpens.Hom.ext
+    change (𝟙 W.unop.base) ≫ f.unop.base = f.unop.base ≫ (𝟙 V.unop.base)
+    simp only [Category.id_comp, Category.comp_id]
+  change 𝟙 M ≫ (η.app (Opposite.op (T W.unop)) ≫ F.obj.map (i W.unop).op) =
+    (η.app (Opposite.op (T V.unop)) ≫ F.obj.map (i V.unop).op) ≫ F.obj.map f
+  rw [Category.id_comp, hη]
+  simp only [Category.assoc]
+  apply congrArg (fun k ↦ η.app (Opposite.op (T V.unop)) ≫ k)
+  rw [← F.obj.map_comp, ← F.obj.map_comp]
+  exact congrArg (fun h ↦ F.obj.map h.op) hi
+
+/-- The explicit inverse comparison, obtained from whole-stage sections by the
+universal property of sheafification. No inverse is selected from an `IsIso` claim. -/
+def constantSheafCompZariskiPullbackInv (M : AddCommGrpCat.{u}) :
+    (constantSheaf (zariskiTopology Y) AddCommGrpCat.{u}).obj M ⟶
+      (constantSheaf (zariskiTopology (constSpace X)) AddCommGrpCat.{u} ⋙
+        (zariskiMap a).sheafPullback AddCommGrpCat.{u}
+          (zariskiTopology (constSpace X)) (zariskiTopology Y)).obj M :=
+  ((sheafificationAdjunction (zariskiTopology Y) AddCommGrpCat.{u}).homEquiv _ _).symm
+    { app := constantSheafCompZariskiPullbackSection a M
+      naturality := fun _ _ f ↦ constantSheafCompZariskiPullbackSection_naturality a M f }
+
+/-- The whole-stage inverse and the canonical comparison are mutually inverse. -/
+theorem constantSheafCompZariskiPullback_inverse_id (M : AddCommGrpCat.{u}) :
+    (constantSheafCompZariskiPullbackHom a).app M ≫
+        constantSheafCompZariskiPullbackInv a M = 𝟙 _ ∧
+      constantSheafCompZariskiPullbackInv a M ≫
+        (constantSheafCompZariskiPullbackHom a).app M = 𝟙 _ :=
   sorry
 
-/-- Inverse image along `zariskiMap a` preserves constant abelian sheaves. -/
+/-- Inverse image along `zariskiMap a` preserves constant abelian sheaves, with
+inverse constructed from the adjunction unit on whole-stage opens. -/
 def constantSheafCompZariskiPullbackIso :
     constantSheaf (zariskiTopology (constSpace X)) AddCommGrpCat.{u} ⋙
       (zariskiMap a).sheafPullback AddCommGrpCat.{u}
         (zariskiTopology (constSpace X)) (zariskiTopology Y) ≅
     constantSheaf (zariskiTopology Y) AddCommGrpCat.{u} :=
-  asIso (constantSheafCompZariskiPullbackHom a)
+  NatIso.ofComponents
+    (fun M ↦
+      { hom := (constantSheafCompZariskiPullbackHom a).app M
+        inv := constantSheafCompZariskiPullbackInv a M
+        hom_inv_id := (constantSheafCompZariskiPullback_inverse_id a M).1
+        inv_hom_id := (constantSheafCompZariskiPullback_inverse_id a M).2 })
+    (fun f ↦ (constantSheafCompZariskiPullbackHom a).naturality f)
+
+/-- Inverse image of constant abelian sheaves along `zariskiMap a` is an isomorphism. -/
+instance constantSheafCompZariskiPullbackHom_isIso :
+    IsIso (constantSheafCompZariskiPullbackHom a) := by
+  change IsIso (constantSheafCompZariskiPullbackIso a).hom
+  infer_instance
 
 /-- Inverse image along a Zariski augmentation preserves constant abelian sheaves. -/
 def constantSheafCompInverseImageIso :

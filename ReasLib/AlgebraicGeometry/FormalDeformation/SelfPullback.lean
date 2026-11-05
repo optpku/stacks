@@ -206,10 +206,6 @@ namespace CategoryTheory.Functor
 
 variable {A A' : ArtinianLocalAlgCat Λ k}
 
-/-- The Rim-Schlessinger condition includes cofiberedness in groupoids. -/
-instance instIsFiberedInGroupoids_ofHasRimSchlessinger [HasRimSchlessinger p] :
-    IsFibered.InGroupoids p.op :=
-  HasRimSchlessinger.isCofiberedInGroupoids
 /-- The inverse comparison sending a lift to `A' ×_A A'` to the pair of its
 pushforwards along the two projections. -/
 noncomputable def liftsSelfPullbackToProd [IsFibered.InGroupoids p.op]

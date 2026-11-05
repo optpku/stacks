@@ -40,11 +40,6 @@ theorem shiftPower {S : Scheme.{u}} (G : GroupoidScheme S)
     (h_target : eR.hom ≫ G.t.left = Spec.map (CommRingCat.ofHom target) ≫ eU.hom)
     [IsFiniteLocallyFree G.s.left] [IsFiniteLocallyFree G.t.left]
     (γ : target.eqLocus (algebraMap A B) →+* C') :
-    -- Local instance justification (defeq pin): use the source-induced equalizer action on `B` determined by `target`.
-    letI : Algebra (target.eqLocus (algebraMap A B)) B :=
-      ((algebraMap A B).comp (target.eqLocus (algebraMap A B)).subtype).toAlgebra
-    -- Local instance justification (defeq pin): use the coefficient action selected by the explicit map `γ` in this tensor statement.
-    letI : Algebra (target.eqLocus (algebraMap A B)) C' := γ.toAlgebra
     ∀ f : RingHom.EqLocusBaseChange.invariantRing target (algebraMap A B) γ,
       f ∈ RingHom.ShiftPower.generators
         (RingHom.EqLocusBaseChange.toInvariant target (algebraMap A B) γ) := sorry
@@ -60,11 +55,6 @@ theorem isGenerated {S : Scheme.{u}} (G : GroupoidScheme S)
     (h_target : eR.hom ≫ G.t.left = Spec.map (CommRingCat.ofHom target) ≫ eU.hom)
     [IsFiniteLocallyFree G.s.left] [IsFiniteLocallyFree G.t.left]
     (γ : target.eqLocus (algebraMap A B) →+* C') :
-    -- Local instance justification (defeq pin): use the source-induced equalizer action on `B` determined by `target`.
-    letI : Algebra (target.eqLocus (algebraMap A B)) B :=
-      ((algebraMap A B).comp (target.eqLocus (algebraMap A B)).subtype).toAlgebra
-    -- Local instance justification (defeq pin): use the coefficient action selected by the explicit map `γ` in this tensor statement.
-    letI : Algebra (target.eqLocus (algebraMap A B)) C' := γ.toAlgebra
     RingHom.ShiftPower.IsGenerated
       (RingHom.EqLocusBaseChange.toInvariant target (algebraMap A B) γ) := sorry
 
@@ -79,11 +69,6 @@ theorem kernel_nilpotent {S : Scheme.{u}} (G : GroupoidScheme S)
     (h_target : eR.hom ≫ G.t.left = Spec.map (CommRingCat.ofHom target) ≫ eU.hom)
     [IsFiniteLocallyFree G.s.left] [IsFiniteLocallyFree G.t.left]
     (γ : target.eqLocus (algebraMap A B) →+* C') :
-    -- Local instance justification (defeq pin): use the source-induced equalizer action on `B` determined by `target`.
-    letI : Algebra (target.eqLocus (algebraMap A B)) B :=
-      ((algebraMap A B).comp (target.eqLocus (algebraMap A B)).subtype).toAlgebra
-    -- Local instance justification (defeq pin): use the coefficient action selected by the explicit map `γ` in this tensor statement.
-    letI : Algebra (target.eqLocus (algebraMap A B)) C' := γ.toAlgebra
     ∀ f : C', RingHom.EqLocusBaseChange.toInvariant target (algebraMap A B) γ f = 0 →
       ∃ n : ℕ, 0 < n ∧ f ^ n = 0 := sorry
 
@@ -98,11 +83,6 @@ theorem ker_isLocallyNilpotent
     (h_target : eR.hom ≫ G.t.left = Spec.map (CommRingCat.ofHom target) ≫ eU.hom)
     [IsFiniteLocallyFree G.s.left] [IsFiniteLocallyFree G.t.left]
     (γ : target.eqLocus (algebraMap A B) →+* C') :
-    -- Local instance justification (defeq pin): use the source-induced equalizer action on `B` determined by `target`.
-    letI : Algebra (target.eqLocus (algebraMap A B)) B :=
-      ((algebraMap A B).comp (target.eqLocus (algebraMap A B)).subtype).toAlgebra
-    -- Local instance justification (defeq pin): use the coefficient action selected by the explicit map `γ` in this tensor statement.
-    letI : Algebra (target.eqLocus (algebraMap A B)) C' := γ.toAlgebra
     (RingHom.ker (RingHom.EqLocusBaseChange.toInvariant
       target (algebraMap A B) γ)).IsLocallyNilpotent := sorry
 
@@ -118,11 +98,6 @@ theorem bijective_of_flat
     (h_target : eR.hom ≫ G.t.left = Spec.map (CommRingCat.ofHom target) ≫ eU.hom)
     [IsFiniteLocallyFree G.s.left] [IsFiniteLocallyFree G.t.left]
     (γ : target.eqLocus (algebraMap A B) →+* C') (hγ : γ.Flat) :
-    -- Local instance justification (defeq pin): use the source-induced equalizer action on `B` determined by `target`.
-    letI : Algebra (target.eqLocus (algebraMap A B)) B :=
-      ((algebraMap A B).comp (target.eqLocus (algebraMap A B)).subtype).toAlgebra
-    -- Local instance justification (defeq pin): use the coefficient action selected by the explicit map `γ` in this tensor statement.
-    letI : Algebra (target.eqLocus (algebraMap A B)) C' := γ.toAlgebra
     Function.Bijective
       (RingHom.EqLocusBaseChange.toInvariant target (algebraMap A B) γ) := sorry
 

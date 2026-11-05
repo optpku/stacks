@@ -14,8 +14,8 @@ public import ReasLib.Algebra.Category.ModuleCat.Sheaf.PullbackContinuous.Locall
 # Pullback of Locally Free Sheaves of Modules
 
 Local freeness and finite local freeness are preserved by the canonical inverse-image functor
-attached to a continuous final functor and a morphism of ring sheaves. Neither property requires
-commutativity of the rings.
+attached to a continuous representably flat functor and a morphism of ring sheaves. Neither
+property requires commutativity of the rings.
 -/
 
 /-!

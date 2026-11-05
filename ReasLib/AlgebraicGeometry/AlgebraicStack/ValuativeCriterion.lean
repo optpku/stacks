@@ -47,8 +47,55 @@ theorem specK_compat_of (sq : ValuativeCommSq f) (R' : Type u) [CommRing R']
     Spec.map (CommRingCat.ofHom (algebraMap sq.K K')) ≫
         Spec.map (CommRingCat.ofHom (algebraMap sq.R sq.K)) ≫ sq.structureHom =
       Spec.map (CommRingCat.ofHom (algebraMap R' K')) ≫
-        Spec.map (CommRingCat.ofHom (algebraMap sq.R R')) ≫ sq.structureHom :=
-  sorry
+        Spec.map (CommRingCat.ofHom (algebraMap sq.R R')) ≫ sq.structureHom := by
+  rw [← Category.assoc, ← Category.assoc, ← Spec.map_comp, ← Spec.map_comp,
+    ← CommRingCat.ofHom_comp, ← CommRingCat.ofHom_comp,
+    ← IsScalarTower.algebraMap_eq sq.R sq.K K',
+    ← IsScalarTower.algebraMap_eq sq.R R' K']
+
+/- The schemes and solid arrows of an extension, before choosing a dotted arrow.
+The constructions use only the indicated ring maps; the valuation and
+fraction-field hypotheses remain on the valuative extension interface. -/
+namespace ExtensionBase
+
+/-- `Spec(R')` over the base, induced by `R → R'`. -/
+abbrev specR (sq : ValuativeCommSq f) (R' : Type u) [CommRing R']
+    [Algebra sq.R R'] : Over S :=
+  Over.mk (Spec.map (CommRingCat.ofHom (algebraMap sq.R R')) ≫ sq.structureHom)
+
+/-- `Spec(K')` over the base, with structure map through `R'`. -/
+abbrev specK (sq : ValuativeCommSq f) (R' : Type u) [CommRing R']
+    (K' : Type u) [Field K'] [Algebra sq.R R'] [Algebra R' K'] : Over S :=
+  Over.mk (Spec.map (CommRingCat.ofHom (algebraMap R' K')) ≫
+    Spec.map (CommRingCat.ofHom (algebraMap sq.R R')) ≫ sq.structureHom)
+
+/-- The solid arrow `Spec(R') ⟶ Spec(R)`. -/
+abbrev toSpecR (sq : ValuativeCommSq f) (R' : Type u) [CommRing R']
+    [Algebra sq.R R'] :
+    GroupoidsOver.slice (specR sq R') ⟶ GroupoidsOver.slice sq.specR :=
+  overMap (Over.homMk (U := specR sq R') (V := sq.specR)
+    (Spec.map (CommRingCat.ofHom (algebraMap sq.R R'))) rfl)
+
+/-- The solid arrow `Spec(K') ⟶ Spec(K)`, using compatibility over the base. -/
+abbrev toSpecK (sq : ValuativeCommSq f) (R' : Type u) [CommRing R']
+    (K' : Type u) [Field K'] [Algebra sq.R R'] [Algebra sq.K K'] [Algebra R' K']
+    (specK_compat :
+      Spec.map (CommRingCat.ofHom (algebraMap sq.K K')) ≫
+          Spec.map (CommRingCat.ofHom (algebraMap sq.R sq.K)) ≫ sq.structureHom =
+        Spec.map (CommRingCat.ofHom (algebraMap R' K')) ≫
+          Spec.map (CommRingCat.ofHom (algebraMap sq.R R')) ≫ sq.structureHom) :
+    GroupoidsOver.slice (specK sq R' K') ⟶ GroupoidsOver.slice sq.specK :=
+  overMap (Over.homMk (U := specK sq R' K') (V := sq.specK)
+    (Spec.map (CommRingCat.ofHom (algebraMap sq.K K'))) specK_compat)
+
+/-- The solid vertical arrow `Spec(K') ⟶ Spec(R')`. -/
+abbrev verticalMap (sq : ValuativeCommSq f) (R' : Type u) [CommRing R']
+    (K' : Type u) [Field K'] [Algebra sq.R R'] [Algebra R' K'] :
+    GroupoidsOver.slice (specK sq R' K') ⟶ GroupoidsOver.slice (specR sq R') :=
+  overMap (Over.homMk (U := specK sq R' K') (V := specR sq R')
+    (Spec.map (CommRingCat.ofHom (algebraMap R' K'))) rfl)
+
+end ExtensionBase
 
 /-- The two paths `Spec(K') ⟶ Spec(R)` of an extended valuative square agree. -/
 theorem verticalMap_comp_toSpecR_of (sq : ValuativeCommSq f) (R' : Type u)
@@ -61,16 +108,23 @@ theorem verticalMap_comp_toSpecR_of (sq : ValuativeCommSq f) (R' : Type u)
           Spec.map (CommRingCat.ofHom (algebraMap sq.R sq.K)) ≫ sq.structureHom =
         Spec.map (CommRingCat.ofHom (algebraMap R' K')) ≫
           Spec.map (CommRingCat.ofHom (algebraMap sq.R R')) ≫ sq.structureHom) :
-    overMap (Over.homMk (U := Over.mk (Spec.map (CommRingCat.ofHom (algebraMap R' K')) ≫
-        Spec.map (CommRingCat.ofHom (algebraMap sq.R R')) ≫ sq.structureHom)) (V := Over.mk (Spec.map (CommRingCat.ofHom (algebraMap sq.R R')) ≫ sq.structureHom))
-      (Spec.map (CommRingCat.ofHom (algebraMap R' K'))) rfl) ≫
-        overMap (Over.homMk (U := Over.mk (Spec.map (CommRingCat.ofHom (algebraMap sq.R R')) ≫ sq.structureHom)) (V := sq.specR)
-      (Spec.map (CommRingCat.ofHom (algebraMap sq.R R'))) rfl) =
-      overMap (Over.homMk (U := Over.mk (Spec.map (CommRingCat.ofHom (algebraMap R' K')) ≫
-        Spec.map (CommRingCat.ofHom (algebraMap sq.R R')) ≫ sq.structureHom)) (V := sq.specK)
-      (Spec.map (CommRingCat.ofHom (algebraMap sq.K K'))) specK_compat) ≫
-        sq.verticalMap :=
-  sorry
+    ExtensionBase.verticalMap sq R' K' ≫
+        ExtensionBase.toSpecR sq R' =
+      ExtensionBase.toSpecK sq R' K' specK_compat ≫
+        sq.verticalMap := by
+  unfold ExtensionBase.verticalMap ExtensionBase.toSpecR ExtensionBase.toSpecK
+    ValuativeCommSq.verticalMap
+  rw [← overMap.comp, ← overMap.comp]
+  congr 1
+  apply Over.OverMorphism.ext
+  change Spec.map (CommRingCat.ofHom (algebraMap R' K')) ≫
+      Spec.map (CommRingCat.ofHom (algebraMap sq.R R')) =
+    Spec.map (CommRingCat.ofHom (algebraMap sq.K K')) ≫
+      Spec.map (CommRingCat.ofHom (algebraMap sq.R sq.K))
+  rw [← Spec.map_comp, ← Spec.map_comp,
+    ← CommRingCat.ofHom_comp, ← CommRingCat.ofHom_comp,
+    ← IsScalarTower.algebraMap_eq sq.R R' K',
+    ← IsScalarTower.algebraMap_eq sq.R sq.K K']
 
 /-- The induced outer 2-cell of an extended valuative rectangle, obtained by
 whiskering the original 2-cell along `Spec(K') ⟶ Spec(K)` and reassociating
@@ -85,25 +139,15 @@ def inducedOuterIso (sq : ValuativeCommSq f) (R' : Type u) [CommRing R']
           Spec.map (CommRingCat.ofHom (algebraMap sq.R sq.K)) ≫ sq.structureHom =
         Spec.map (CommRingCat.ofHom (algebraMap R' K')) ≫
           Spec.map (CommRingCat.ofHom (algebraMap sq.R R')) ≫ sq.structureHom) :
-    overMap (Over.homMk (U := Over.mk (Spec.map (CommRingCat.ofHom (algebraMap R' K')) ≫
-        Spec.map (CommRingCat.ofHom (algebraMap sq.R R')) ≫ sq.structureHom)) (V := Over.mk (Spec.map (CommRingCat.ofHom (algebraMap sq.R R')) ≫ sq.structureHom))
-      (Spec.map (CommRingCat.ofHom (algebraMap R' K'))) rfl) ≫
-        (overMap (Over.homMk (U := Over.mk (Spec.map (CommRingCat.ofHom (algebraMap sq.R R')) ≫ sq.structureHom)) (V := sq.specR)
-      (Spec.map (CommRingCat.ofHom (algebraMap sq.R R'))) rfl) ≫ sq.i₂) ≅
-      (overMap (Over.homMk (U := Over.mk (Spec.map (CommRingCat.ofHom (algebraMap R' K')) ≫
-        Spec.map (CommRingCat.ofHom (algebraMap sq.R R')) ≫ sq.structureHom)) (V := sq.specK)
-      (Spec.map (CommRingCat.ofHom (algebraMap sq.K K'))) specK_compat) ≫
+    ExtensionBase.verticalMap sq R' K' ≫
+        (ExtensionBase.toSpecR sq R' ≫ sq.i₂) ≅
+      (ExtensionBase.toSpecK sq R' K' specK_compat ≫
           sq.i₁) ≫
         f :=
-  let j' := overMap (Over.homMk (U := Over.mk (Spec.map (CommRingCat.ofHom (algebraMap R' K')) ≫
-        Spec.map (CommRingCat.ofHom (algebraMap sq.R R')) ≫ sq.structureHom)) (V := Over.mk (Spec.map (CommRingCat.ofHom (algebraMap sq.R R')) ≫ sq.structureHom))
-      (Spec.map (CommRingCat.ofHom (algebraMap R' K'))) rfl)
-  let toSpecR := overMap (Over.homMk (U := Over.mk (Spec.map (CommRingCat.ofHom (algebraMap sq.R R')) ≫ sq.structureHom)) (V := sq.specR)
-      (Spec.map (CommRingCat.ofHom (algebraMap sq.R R'))) rfl)
+  let j' := ExtensionBase.verticalMap sq R' K'
+  let toSpecR := ExtensionBase.toSpecR sq R'
   let toSpecK :=
-    overMap (Over.homMk (U := Over.mk (Spec.map (CommRingCat.ofHom (algebraMap R' K')) ≫
-        Spec.map (CommRingCat.ofHom (algebraMap sq.R R')) ≫ sq.structureHom)) (V := sq.specK)
-      (Spec.map (CommRingCat.ofHom (algebraMap sq.K K'))) specK_compat)
+    ExtensionBase.toSpecK sq R' K' specK_compat
   (α_ j' toSpecR sq.i₂).symm ≪≫
     eqToIso (verticalMap_comp_toSpecR_of sq R' K' specK_compat) ▷ᵢ sq.i₂ ≪≫
     α_ toSpecK sq.verticalMap sq.i₂ ≪≫
@@ -124,20 +168,11 @@ def inducedOuterCone (sq : ValuativeCommSq f) (R' : Type u) [CommRing R']
         Spec.map (CommRingCat.ofHom (algebraMap R' K')) ≫
           Spec.map (CommRingCat.ofHom (algebraMap sq.R R')) ≫ sq.structureHom) :
     Bicategory.PseudoPullbackCone
-      (overMap (Over.homMk (U := Over.mk (Spec.map (CommRingCat.ofHom (algebraMap sq.R R')) ≫ sq.structureHom)) (V := sq.specR)
-      (Spec.map (CommRingCat.ofHom (algebraMap sq.R R'))) rfl) ≫ sq.i₂) f where
-  pt :=
-    GroupoidsOver.slice
-      (Over.mk
-        (Spec.map (CommRingCat.ofHom (algebraMap R' K')) ≫
-          Spec.map (CommRingCat.ofHom (algebraMap sq.R R')) ≫ sq.structureHom))
-  fst := overMap (Over.homMk (U := Over.mk (Spec.map (CommRingCat.ofHom (algebraMap R' K')) ≫
-        Spec.map (CommRingCat.ofHom (algebraMap sq.R R')) ≫ sq.structureHom)) (V := Over.mk (Spec.map (CommRingCat.ofHom (algebraMap sq.R R')) ≫ sq.structureHom))
-      (Spec.map (CommRingCat.ofHom (algebraMap R' K'))) rfl)
+      (ExtensionBase.toSpecR sq R' ≫ sq.i₂) f where
+  pt := GroupoidsOver.slice (ExtensionBase.specK sq R' K')
+  fst := ExtensionBase.verticalMap sq R' K'
   snd :=
-    overMap (Over.homMk (U := Over.mk (Spec.map (CommRingCat.ofHom (algebraMap R' K')) ≫
-        Spec.map (CommRingCat.ofHom (algebraMap sq.R R')) ≫ sq.structureHom)) (V := sq.specK)
-      (Spec.map (CommRingCat.ofHom (algebraMap sq.K K'))) specK_compat) ≫ sq.i₁
+    ExtensionBase.toSpecK sq R' K' specK_compat ≫ sq.i₁
   iso := inducedOuterIso sq R' K' specK_compat
 
 /-- The 2-cell of `inducedOuterCone` is the induced whiskering `inducedOuterIso`. -/
@@ -153,7 +188,7 @@ theorem inducedOuterCone_iso (sq : ValuativeCommSq f) (R' : Type u) [CommRing R'
           Spec.map (CommRingCat.ofHom (algebraMap sq.R R')) ≫ sq.structureHom) :
     (inducedOuterCone sq R' K' specK_compat).iso =
       inducedOuterIso sq R' K' specK_compat :=
-  sorry
+  rfl
 
 /-- An extension of a valuative commutative square is a field extension `K'/K`,
 a valuation ring `R'` of `K'` dominating `R`, and a dotted arrow filling the
@@ -214,34 +249,35 @@ def fractionMap {sq : ValuativeCommSq f} (e : Extension sq) :
 
 /-- `Spec(R')` as a scheme over `S`, via the algebra map `R → R'`. -/
 abbrev specR' {sq : ValuativeCommSq f} (e : Extension sq) : Over S :=
-  Over.mk (Spec.map e.ringMap ≫ sq.structureHom)
+  @ExtensionBase.specR S X Y _ _ f sq e.R' e.commRing e.algebra_R
 
 /-- `Spec(K')` as a scheme over `S`, via the algebra map `R' → K'`. -/
 abbrev specK' {sq : ValuativeCommSq f} (e : Extension sq) : Over S :=
-  Over.mk
-    (Spec.map e.fractionMap ≫
-      Spec.map e.ringMap ≫ sq.structureHom)
+  @ExtensionBase.specK S X Y _ _ f sq e.R' e.commRing e.K' e.field
+    e.algebra_R e.algebra
 
 /-- The morphism `Spec(R') ⟶ Spec(R)` of algebraic stacks over `S`. -/
 abbrev toSpecR {sq : ValuativeCommSq f} (e : Extension sq) :
     GroupoidsOver.slice e.specR' ⟶ GroupoidsOver.slice sq.specR :=
-  overMap (Over.homMk (U := e.specR') (V := sq.specR) (Spec.map e.ringMap) rfl)
+  @ExtensionBase.toSpecR S X Y _ _ f sq e.R' e.commRing e.algebra_R
 
 /-- The morphism `Spec(K') ⟶ Spec(K)` of algebraic stacks over `S`. -/
 abbrev toSpecK {sq : ValuativeCommSq f} (e : Extension sq) :
     GroupoidsOver.slice e.specK' ⟶ GroupoidsOver.slice sq.specK :=
-  overMap (Over.homMk (U := e.specK') (V := sq.specK) (Spec.map e.fieldMap) e.specK_compat)
+  @ExtensionBase.toSpecK S X Y _ _ f sq e.R' e.commRing e.K' e.field
+    e.algebra_R e.algebra_K e.algebra e.specK_compat
 
 /-- The vertical morphism `Spec(K') ⟶ Spec(R')` of algebraic stacks over `S`. -/
 abbrev verticalMap {sq : ValuativeCommSq f} (e : Extension sq) :
     GroupoidsOver.slice e.specK' ⟶ GroupoidsOver.slice e.specR' :=
-  overMap (Over.homMk (U := e.specK') (V := e.specR') (Spec.map e.fractionMap) rfl)
+  @ExtensionBase.verticalMap S X Y _ _ f sq e.R' e.commRing e.K' e.field
+    e.algebra_R e.algebra
 
 /-- `specR'` is `Over.mk` of the structure morphism of `Spec(R')`. -/
 theorem specR'_eq {sq : ValuativeCommSq f} (e : Extension sq) :
     e.specR' =
       Over.mk (Spec.map e.ringMap ≫ sq.structureHom) :=
-  sorry
+  rfl
 
 /-- `specK'` is `Over.mk` of the structure morphism of `Spec(K')` via `R'`. -/
 theorem specK'_eq {sq : ValuativeCommSq f} (e : Extension sq) :
@@ -249,28 +285,30 @@ theorem specK'_eq {sq : ValuativeCommSq f} (e : Extension sq) :
       Over.mk
         (Spec.map e.fractionMap ≫
           Spec.map e.ringMap ≫ sq.structureHom) :=
-  sorry
+  rfl
 
 /-- The map to the original ring spectrum is induced by the bundled ring extension. -/
 theorem toSpecR_eq {sq : ValuativeCommSq f} (e : Extension sq) :
     e.toSpecR = overMap (Over.homMk (U := e.specR') (V := sq.specR) (Spec.map e.ringMap) rfl) :=
-  sorry
+  rfl
 
 /-- The map to the original field spectrum is induced by the bundled field extension. -/
 theorem toSpecK_eq {sq : ValuativeCommSq f} (e : Extension sq) :
     e.toSpecK =
       overMap (Over.homMk (U := e.specK') (V := sq.specK) (Spec.map e.fieldMap) e.specK_compat) :=
-  sorry
+  rfl
 
 /-- The extended vertical map is induced by the bundled fraction-field map. -/
 theorem verticalMap_eq {sq : ValuativeCommSq f} (e : Extension sq) :
     e.verticalMap = overMap (Over.homMk (U := e.specK') (V := e.specR') (Spec.map e.fractionMap) rfl) :=
-  sorry
+  rfl
 
 /-- The two paths `Spec(K') ⟶ Spec(R)` of an extended valuative square agree. -/
 theorem verticalMap_comp_toSpecR {sq : ValuativeCommSq f} (e : Extension sq) :
     e.verticalMap ≫ e.toSpecR = e.toSpecK ≫ sq.verticalMap :=
-  sorry
+  @verticalMap_comp_toSpecR_of S X Y _ _ f sq e.R' e.commRing e.domain
+    e.valuationRing e.K' e.field e.algebra_R e.algebra_K e.algebra e.algebra_base
+    e.isFractionRing e.isExtension e.isScalarTower_K e.isScalarTower_R' e.specK_compat
 
 /-- The solid outer rectangle of an extended valuative square, as a
 2-commutative cospan cone. -/
@@ -284,7 +322,7 @@ abbrev outerCone {sq : ValuativeCommSq f} (e : Extension sq) :
 /-- The apex of `outerCone` is the slice of `Spec(K')`. -/
 theorem outerCone_pt {sq : ValuativeCommSq f} (e : Extension sq) :
     (outerCone e).pt = GroupoidsOver.slice e.specK' :=
-  sorry
+  rfl
 
 /-- Construct an extension of a valuative square from dominating valuation-ring
 data and a dotted arrow of the induced outer cone. -/
@@ -308,7 +346,7 @@ theorem of_R' (sq : ValuativeCommSq f) (R' : Type u) [CommRing R'] [IsDomain R']
     [IsScalarTower sq.R R' K']
     (lift : DottedArrow (inducedOuterCone sq R' K' (specK_compat_of sq R' K'))) :
     (of sq R' K' lift).R' = R' :=
-  sorry
+  rfl
 
 /-- The dotted morphism `Spec(R') ⟶ X` filling the extended valuative diagram. -/
 abbrev liftArrow {sq : ValuativeCommSq f} (e : Extension sq) :
@@ -318,7 +356,7 @@ abbrev liftArrow {sq : ValuativeCommSq f} (e : Extension sq) :
 /-- `liftArrow` is the dotted 1-morphism of the stored dotted arrow. -/
 theorem liftArrow_eq {sq : ValuativeCommSq f} (e : Extension sq) :
     e.liftArrow = e.lift.arrow :=
-  sorry
+  rfl
 
 /-- The upper-left triangle of an extended valuative square: `Spec(K') ⟶ Spec(R') ⟶ X`
 is 2-isomorphic to `Spec(K') ⟶ Spec(K) ⟶ X`. -/
@@ -336,13 +374,13 @@ def fac_right {sq : ValuativeCommSq f} (e : Extension sq) :
 arrow. -/
 theorem fac_left_eq {sq : ValuativeCommSq f} (e : Extension sq) :
     fac_left e = e.lift.left :=
-  sorry
+  rfl
 
 /-- The first projection of `fac_right` is the lower-right comparison of the
 dotted arrow. -/
 theorem fac_right_eq {sq : ValuativeCommSq f} (e : Extension sq) :
     fac_right e = e.lift.right :=
-  sorry
+  rfl
 
 end Extension
 

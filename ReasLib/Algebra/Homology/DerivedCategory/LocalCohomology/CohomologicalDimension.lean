@@ -71,9 +71,27 @@ theorem dimension_le_iff (I : Ideal A) (hI : I.FG) (d : ℤ) :
     dimension I hI ≤ d ↔ HasDimensionLE I d := sorry
 
 /-- The local-cohomological dimension of the sum of two finitely generated ideals
-is at most the sum of their local-cohomological dimensions. -/
+is at most the maximum of `-1` and the sum of their local-cohomological dimensions.
+This corrects the empty-support boundary in Stacks, Tag 0ECP: when both ideals
+are the unit ideal, their dimensions and the dimension of their sum are `-1`. -/
 theorem dimension_sup_le (I J : Ideal A) (hI : I.FG) (hJ : J.FG) :
-    dimension (I ⊔ J) (Submodule.FG.sup hI hJ) ≤ dimension I hI + dimension J hJ := sorry
+    dimension (I ⊔ J) (Submodule.FG.sup hI hJ) ≤
+      max (-1) (dimension I hI + dimension J hJ) := sorry
+
+/-- The ordinary additive bound holds when the sum of the dimensions is at least `-1`. -/
+theorem dimension_sup_le_add (I J : Ideal A) (hI : I.FG) (hJ : J.FG)
+    (hadd : -1 ≤ dimension I hI + dimension J hJ) :
+    dimension (I ⊔ J) (Submodule.FG.sup hI hJ) ≤ dimension I hI + dimension J hJ := by
+  simpa only [max_eq_right hadd] using dimension_sup_le I J hI hJ
+
+/-- The ordinary additive bound holds exactly when its right-hand side is at least `-1`. -/
+theorem dimension_sup_le_add_iff (I J : Ideal A) (hI : I.FG) (hJ : J.FG) :
+    dimension (I ⊔ J) (Submodule.FG.sup hI hJ) ≤ dimension I hI + dimension J hJ ↔
+      -1 ≤ dimension I hI + dimension J hJ := by
+  constructor
+  · intro h
+    exact (dimension_spec (I ⊔ J) (Submodule.FG.sup hI hJ)).1.trans h
+  · exact dimension_sup_le_add I J hI hJ
 
 variable {B : Type u} [CommRing B]
 

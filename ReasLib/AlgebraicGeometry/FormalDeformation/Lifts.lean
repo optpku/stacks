@@ -34,12 +34,6 @@ variable {p : F ⥤ ArtinianLocalAlgCat Λ k}
 
 namespace CategoryTheory.Functor
 
-/-- The Rim-Schlessinger condition includes cofiberedness in groupoids. -/
-instance instIsFiberedInGroupoids_hasRimSchlessinger [HasRimSchlessinger p] :
-    IsFibered.InGroupoids p.op :=
-  HasRimSchlessinger.isCofiberedInGroupoids
-
-
 /-- Reindex a lift along an equality of base morphisms. The underlying total morphism
 is unchanged. -/
 def objectLiftOfEq {R S : ArtinianLocalAlgCat Λ k} {f g : R ⟶ S} (h : f = g)

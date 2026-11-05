@@ -33,7 +33,15 @@ universe u
 namespace AlgebraicGeometry.RingedSpace
 
 variable {X : RingedSpace.{u}}
-variable [MonoidalCategory (DerivedCategory (Modules X))]
+variable [RingedSite.Hom.ModuleDerived.KFlat.HomotopyTensorDescends
+  (J := Opens.grothendieckTopology X) X.sheaf]
+variable [RingedSite.Hom.ModuleDerived.KFlat.TensorDescends
+  (J := Opens.grothendieckTopology X) X.sheaf]
+variable [RingedSite.Hom.ModuleDerived.KFlat.IsLocalization
+  (J := Opens.grothendieckTopology X) X.sheaf]
+
+-- Use the same canonical K-flat tensor as the reusable ringed-site theorem.
+attribute [local instance] RingedSite.Hom.ModuleDerived.monoidalCategory
 variable [MonoidalClosed (DerivedCategory (Modules X))]
 
 /- Lemma 20.46.11 (08I5): if `F` is bounded below, `E` is bounded above, and every term of `E`
@@ -45,14 +53,14 @@ Hom from `E` to `F`. -/
     (hE : ∃ b : ℤ, E.IsStrictlyLE b)
     (hterms : ∀ i : ℤ,
       SheafOfModules.finiteFreeRetractModuleProperty X.ringCatSheaf (E.X i)) ↦
-  RingedSite.CochainComplex.InternalHom.represents_of_bounds E F hF hE hterms
+  RingedSite.CochainComplex.InternalHom.Canonical.represents_of_bounds E F hF hE hterms
 
 /- The same result with chosen lower and upper bounds. -/
 #check fun (E F : CochainComplex (Modules X) ℤ) {a b : ℤ}
     (hF : F.IsStrictlyGE a) (hE : E.IsStrictlyLE b)
     (hterms : ∀ i : ℤ,
       SheafOfModules.finiteFreeRetractModuleProperty X.ringCatSheaf (E.X i)) ↦
-  RingedSite.CochainComplex.InternalHom.represents_of_strictBounds E F hF hE hterms
+  RingedSite.CochainComplex.InternalHom.Canonical.represents_of_strictBounds E F hF hE hterms
 
 /- The degreewise source condition is the shared finite-free-retract object property. -/
 #check @SheafOfModules.finiteFreeRetractModuleProperty

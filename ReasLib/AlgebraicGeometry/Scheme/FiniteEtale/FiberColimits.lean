@@ -93,7 +93,13 @@ theorem inclusion_injective (U : X.Opens) :
 
 /-- Finite coordinates over the base are integral over the intermediate equalizer ring. -/
 theorem inclusion_integral (U : X.affineOpens) :
-    (FiniteEtale.Coequalizer.inclusion a b U).hom.IsIntegral := sorry
+    (FiniteEtale.Coequalizer.inclusion a b U).hom.IsIntegral := by
+  letI : IsFinite Y.hom := Y.prop.1
+  have h := (FiniteEtale.Coequalizer.structureMap Y U).finite_appTop.to_isIntegral
+  intro x
+  apply RingHom.IsIntegralElem.of_comp
+    (f := (FiniteEtale.Coequalizer.algebra a b U).hom.hom)
+  exact h x
 
 /-- Select a base affine chart by its actual cover-index operation. -/
 def affineIndex : X.affineOpens :=
@@ -132,6 +138,15 @@ def sectionPrime (t : (fiber point).obj (FiniteEtale.Coequalizer.obj a b)) :
       (inclusion_injective a b (affineIndex point))
       ((affinePoint point a b t) default))
 
+/-- The selected prime lies over the specified affine quotient point. -/
+theorem sectionPrime_spec (t : (fiber point).obj (FiniteEtale.Coequalizer.obj a b)) :
+    PrimeSpectrum.comap (FiniteEtale.Coequalizer.inclusion a b (affineIndex point)).hom
+      (sectionPrime point a b t) = (affinePoint point a b t) default :=
+  Classical.choose_spec
+    ((inclusion_integral a b (affineIndex point)).comap_surjective
+      (inclusion_injective a b (affineIndex point))
+      ((affinePoint point a b t) default))
+
 /-- The lifted prime is an actual point of the finite étale source scheme. -/
 def sourcePoint (t : (fiber point).obj (FiniteEtale.Coequalizer.obj a b)) : Y.left :=
   (FiniteEtale.Coequalizer.preimage Y (affineIndex point)).ι
@@ -160,7 +175,35 @@ def representative (t : (fiber point).obj (FiniteEtale.Coequalizer.obj a b)) :
   let lift := Classical.choose
     (Scheme.exists_fac_of_etale_of_isSepClosed (FiniteEtale.Coequalizer.π a b).left
       t.left (sourcePoint point a b t) (sourcePoint_fac point a b t))
-  exact Over.homMk lift (w := sorry)
+  have hlift : lift ≫ (FiniteEtale.Coequalizer.π a b).left = t.left :=
+    (Classical.choose_spec
+      (Scheme.exists_fac_of_etale_of_isSepClosed (FiniteEtale.Coequalizer.π a b).left
+        t.left (sourcePoint point a b t) (sourcePoint_fac point a b t))).1
+  exact Over.homMk lift (w := by
+    calc
+      lift ≫ Y.hom =
+          lift ≫ (FiniteEtale.Coequalizer.π a b).left ≫
+            (FiniteEtale.Coequalizer.obj a b).hom := by rw [MorphismProperty.Over.w]
+      _ = t.left ≫ (FiniteEtale.Coequalizer.obj a b).hom := by
+        rw [← Category.assoc, hlift]
+      _ = point := Over.w t)
+
+/-- Every chosen geometric representative maps to the original quotient point. -/
+theorem representative_fac (t : (fiber point).obj (FiniteEtale.Coequalizer.obj a b)) :
+    (representative point a b t).left ≫ (FiniteEtale.Coequalizer.π a b).left = t.left := by
+  letI := quotient_etale a b
+  exact (Classical.choose_spec
+    (Scheme.exists_fac_of_etale_of_isSepClosed (FiniteEtale.Coequalizer.π a b).left
+      t.left (sourcePoint point a b t) (sourcePoint_fac point a b t))).1
+
+/-- The representative realizes the selected point above the affine quotient chart. -/
+theorem representative_apply (t : (fiber point).obj (FiniteEtale.Coequalizer.obj a b)) :
+    (representative point a b t).left (default : Spec (.of K)) =
+      sourcePoint point a b t := by
+  letI := quotient_etale a b
+  exact (Classical.choose_spec
+    (Scheme.exists_fac_of_etale_of_isSepClosed (FiniteEtale.Coequalizer.π a b).left
+      t.left (sourcePoint point a b t) (sourcePoint_fac point a b t))).2
 
 /-- Evaluate the input cofork on the explicitly lifted geometric representative. -/
 def desc (c : Cocone (parallelPair a b ⋙ finiteFiber point)) :

@@ -6,7 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-import ReasLib.CategoryTheory.Filtration.Derived.Finite.Compatibility
+import ReasLib.CategoryTheory.Filtration.Derived.LeftExact
 import StacksCheckRecall
 
 @[expose] public section
@@ -18,10 +18,8 @@ The source equation is the bounded-below homotopy functor induced by the reusabl
 filtration map functor.
 -/
 
-namespace CategoryTheory.FilteredComplex.RightDerived.Finite.LeftExact
+open CategoryTheory.FilteredObject.FiniteDerived.Plus.LeftExact
 
 /- Equation 13.26.13.1 (`05TZ`): a left-exact functor acts on bounded-below complexes of finite
 filtered objects. -/
 @[stacks 05TZ] #check @homotopy
-
-end CategoryTheory.FilteredComplex.RightDerived.Finite.LeftExact

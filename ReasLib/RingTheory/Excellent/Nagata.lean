@@ -15,8 +15,9 @@ public import ReasLib.RingTheory.Normal.Nagata
 /-!
 # Quasi-Excellent Rings Are Nagata
 
-The mathematical theorem is universe-polymorphic. The canonical instance is restricted to the
-same-universe owner so that its universe parameter is determined by the instance head.
+The J-2 test universe must contain the universe of the base ring, so that it covers all finite
+type algebras up to equivalence. The canonical instance uses the same-universe owner so that
+its universe parameter is determined by the instance head.
 
 @stack 07QV
 -/
@@ -25,15 +26,17 @@ universe u v
 
 namespace IsQuasiExcellentRing
 
-/-- Lemma 15.52.5 (Tag 07QV): every quasi-excellent ring is Nagata. -/
+/-- Lemma 15.52.5 (Tag 07QV): every quasi-excellent ring is Nagata, with the J-2
+test universe covering the base ring. -/
 @[stacks 07QV]
 theorem nagataRing
-    (R : Type u) [CommRing R] [IsQuasiExcellentRing.{u, v} R] : NagataRing R := sorry
+    (R : Type u) [CommRing R] [IsQuasiExcellentRing.{u, max u v} R] : NagataRing R := sorry
 
 /-- Quasi-excellence in the ring's universe canonically supplies the Nagata instance. -/
 @[stacks 07QV "same-universe Nagata instance"]
 instance toNagataRing
-    (R : Type u) [CommRing R] [IsQuasiExcellentRing.{u, u} R] : NagataRing R := sorry
+    (R : Type u) [CommRing R] [IsQuasiExcellentRing.{u, u} R] : NagataRing R :=
+  nagataRing.{u, u} R
 
 end IsQuasiExcellentRing
 

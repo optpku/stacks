@@ -46,12 +46,26 @@ def reindexCompareIso (F : X ⟶ Y) (x : X.p.Fiber (Over.mk σA))
     (M : ModuleCat.{u} A) :
     (fiberFunctor F (Over.mk (specTrivSqZero σA M))).obj (trivialDeformation x M) ≅
       trivialDeformation ((fiberFunctor F (Over.mk σA)).obj x) M :=
-  asIso (reindexCompare F (specOverInl σA M) x)
+  { hom := reindexCompare F (specOverInl σA M) x
+    inv := IsFibered.InGroupoids.fiberInverse _
+      (reindexCompare F (specOverInl σA M) x)
+    hom_inv_id := IsFibered.InGroupoids.comp_fiberInverse _ _
+    inv_hom_id := IsFibered.InGroupoids.fiberInverse_comp _ _ }
 
+omit [HasStrongRimSchlessinger X] [HasStrongRimSchlessinger Y] in
 /-- The forward component of `reindexCompareIso` is `reindexCompare`. -/
 theorem reindexCompareIso_hom (F : X ⟶ Y) (x : X.p.Fiber (Over.mk σA))
     (M : ModuleCat.{u} A) :
-    (reindexCompareIso F x M).hom = reindexCompare F (specOverInl σA M) x := sorry
+    (reindexCompareIso F x M).hom = reindexCompare F (specOverInl σA M) x := rfl
+
+omit [HasStrongRimSchlessinger X] [HasStrongRimSchlessinger Y] in
+/-- The inverse comparison is the Cartesian factor of the identity through the
+forward comparison, rather than a witness extracted from `IsIso`. -/
+theorem reindexCompareIso_inv (F : X ⟶ Y) (x : X.p.Fiber (Over.mk σA))
+    (M : ModuleCat.{u} A) :
+    (reindexCompareIso F x M).inv =
+      IsFibered.InGroupoids.fiberInverse _
+        (reindexCompare F (specOverInl σA M) x) := rfl
 
 /-- Push an infinitesimal automorphism of the trivial deformation of `x` along a
 1-morphism, using `fiberFunctor` on the automorphism and the identity-square

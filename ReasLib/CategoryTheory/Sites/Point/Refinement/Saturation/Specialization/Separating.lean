@@ -41,44 +41,37 @@ variable [HasColimitsOfShape (EssentiallySmallFiber.fiber S).Elementsᵒᵖ (Typ
 variable {P : Cᵒᵖ ⥤ Type q}
 variable {x y : (EssentiallySmallFiber.presheafFiber S).obj P}
 
-/-- Forget the chosen separating pair while retaining the target system and its original
-refinement. -/
-noncomputable def toRefinementStage (A : SeparatingStage.{u, v, q, r, r'} S P x y) :
-    RefinementStage.{u, v, q, r, r'} S where
-  target := A.target
-  refinement := A.toRefinement
-
 namespace toRefinementStage
 
 /-- Forgetting separation data retains the target stage. -/
 @[simp]
 theorem target (A : SeparatingStage.{u, v, q, r, r'} S P x y) :
-    A.toRefinementStage.target = A.target := sorry
+    A.toRefinementStage.target = A.target := rfl
 
 /-- The generic refinement of a forgotten separating stage is its original refinement. -/
 @[simp]
 theorem toRefinement (A : SeparatingStage.{u, v, q, r, r'} S P x y) :
-    A.toRefinementStage.toRefinement = A.toRefinement := sorry
+    A.toRefinementStage.toRefinement = A.toRefinement := rfl
 
 /-- Forgetting separation does not change transport of a request from the original system. -/
 @[simp]
 theorem mapRequest
     (A : SeparatingStage.{u, v, q, r, r'} S P x y)
     (request : EssentiallySmallFiber.CoverLift.Request J S) :
-    A.toRefinementStage.mapRequest request = A.mapRequest request := sorry
+    A.toRefinementStage.mapRequest request = A.mapRequest request := rfl
 
 /-- Forgetting separation does not change whether a source request is solved. -/
 @[simp]
 theorem solves_iff
     (A : SeparatingStage.{u, v, q, r, r'} S P x y)
     (request : EssentiallySmallFiber.CoverLift.Request J S) :
-    A.toRefinementStage.solves request ↔ A.solves request := sorry
+    A.toRefinementStage.solves request ↔ A.solves request := Iff.rfl
 
 /-- Forgetting separation preserves source completion. -/
 @[simp]
 theorem sourceComplete_iff
     (A : SeparatingStage.{u, v, q, r, r'} S P x y) :
-    A.toRefinementStage.sourceComplete J ↔ A.sourceComplete J := sorry
+    A.toRefinementStage.sourceComplete J ↔ A.sourceComplete J := Iff.rfl
 
 end toRefinementStage
 
@@ -88,26 +81,25 @@ variable {A B : SeparatingStage.{u, v, q, r, r'} S P x y}
 
 /-- Forget the separation-specific packaging of a separating-stage morphism. -/
 noncomputable def toRefinementStage (f : Hom A B) :
-    RefinementStage.Hom A.toRefinementStage B.toRefinementStage where
-  refinement := f.toRefinement
-  factorization := f.factorization
+    RefinementStage.Hom A.toRefinementStage B.toRefinementStage :=
+  f.toBase
 
 namespace toRefinementStage
 
 /-- The generic refinement of a forgotten separating-stage morphism is unchanged. -/
 @[simp]
 theorem toRefinement (f : Hom A B) :
-    f.toRefinementStage.toRefinement = f.toRefinement := sorry
+    f.toRefinementStage.toRefinement = f.toRefinement := rfl
 
 /-- Forgetting separation data does not change finite-cover request transport. -/
 @[simp]
 theorem mapRequest (f : Hom A B) (request : A.target.Request J) :
-    f.toRefinementStage.mapRequest request = f.mapRequest request := sorry
+    f.toRefinementStage.mapRequest request = f.mapRequest request := rfl
 
 /-- Forgetting separation preserves the all-request realization predicate. -/
 @[simp]
 theorem realizesAll_iff (f : Hom A B) :
-    f.toRefinementStage.realizesAll (J := J) ↔ f.realizesAll (J := J) := sorry
+    f.toRefinementStage.realizesAll (J := J) ↔ f.realizesAll (J := J) := Iff.rfl
 
 end toRefinementStage
 
@@ -115,7 +107,7 @@ end toRefinementStage
 morphism. -/
 @[simp]
 theorem id.toRefinementStage (A : SeparatingStage.{u, v, q, r, r'} S P x y) :
-    (id A).toRefinementStage = RefinementStage.Hom.id A.toRefinementStage := sorry
+    (id A).toRefinementStage = RefinementStage.Hom.id A.toRefinementStage := rfl
 
 /-- Forgetting a composite separating-stage morphism gives the composite refinement-stage
 morphism. -/
@@ -124,7 +116,7 @@ theorem comp.toRefinementStage
     {A B D : SeparatingStage.{u, v, q, r, r'} S P x y}
     (f : Hom A B) (g : Hom B D) :
     (comp f g).toRefinementStage =
-      RefinementStage.Hom.comp f.toRefinementStage g.toRefinementStage := sorry
+      RefinementStage.Hom.comp f.toRefinementStage g.toRefinementStage := rfl
 
 end Hom
 
@@ -141,13 +133,13 @@ namespace forget
 /-- The separation-forgetful functor sends a stage to its generic refinement stage. -/
 @[simp]
 theorem obj (A : SeparatingStage.{u, v, q, r, r'} S P x y) :
-    (forget (S := S) (P := P) (x := x) (y := y)).obj A = A.toRefinementStage := sorry
+    (forget (S := S) (P := P) (x := x) (y := y)).obj A = A.toRefinementStage := rfl
 
 /-- The separation-forgetful functor sends a morphism to its generic refinement-stage
 morphism. -/
 @[simp]
 theorem map {A B : SeparatingStage.{u, v, q, r, r'} S P x y} (f : Hom A B) :
-    (forget (S := S) (P := P) (x := x) (y := y)).map f = f.toRefinementStage := sorry
+    (forget (S := S) (P := P) (x := x) (y := y)).map f = f.toRefinementStage := rfl
 
 end forget
 end SeparatingStage

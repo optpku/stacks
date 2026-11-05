@@ -99,7 +99,9 @@ variable [IsLocalHom (algebraMap A A')] [IsLocalHom (algebraMap A' B)]
 
 /-- Remark 15.40.7 (1) (07NS): if `A → A'` identifies residue fields and the closed fiber of
 `A' → B` is adically formally smooth, there is an adically formally smooth complete local
-`A`-algebra `C` whose canonical completed base change maps surjectively to `B`. -/
+`A`-algebra `C` whose canonical completed base change maps surjectively to `B` and
+induces an isomorphism on closed fibers. The ideal containment records injectivity on the
+closed fiber of this same comparison map; its surjectivity supplies the other direction. -/
 @[stacks 07NS "Remark 15.40.7 (1)"]
 theorem existsFormallySmoothLift
     (hκ : Function.Bijective (ResidueField.map (algebraMap A A')))
@@ -110,7 +112,9 @@ theorem existsFormallySmoothLift
       (_ : IsCompleteLocalRing C) (_ : IsLocalHom (algebraMap A C)) (_ : Algebra C B)
       (_ : IsScalarTower A C B) (_ : IsLocalHom (algebraMap C B)),
       (algebraMap A C).formally_smooth_for_adic (maximalIdeal C) ∧
-        Function.Surjective (map A A' B C) := sorry
+        Function.Surjective (map A A' B C) ∧
+        (Ideal.map (algebraMap A' B) (maximalIdeal A')).comap (map A A' B C) ≤
+          Ideal.map (algebraMap (C ⊗[A] A') (ring A A' C)) (ideal A A' C) := sorry
 
 /-- Remark 15.40.7 (2) (07NS): if `A → A'` is surjective, surjectivity of the completed
 base-change map forces `C → B` to be surjective. -/
@@ -131,14 +135,19 @@ theorem targetFiniteOfBaseFinite
     (hmap : Function.Surjective (map A A' B C)) [Module.Finite A A'] :
     Module.Finite C B := sorry
 
-/-- Remark 15.40.7 (4) (07NS): flatness of `A' -> B` upgrades a surjective completed
-base-change map to a bijection. -/
+/-- Remark 15.40.7 (4) (07NS): flatness of `A' → B` upgrades a surjective completed
+base-change map that is injective on the closed fiber to a bijection. The closed-fiber condition
+is supplied by `existsFormallySmoothLift`, and refers to this same canonical comparison map.
+No formal smoothness assumption on `C` is needed for this implication. -/
 @[stacks 07NS "Remark 15.40.7 (4)"]
 theorem mapBijectiveOfFlat
     {C : Type x} [CommRing C] [Algebra A C] [IsNoetherianRing C] [IsCompleteLocalRing C]
     [IsLocalHom (algebraMap A C)] [Algebra C B] [IsScalarTower A C B]
     (hflat : (algebraMap A' B).Flat)
-    (hmap : Function.Surjective (map A A' B C)) :
+    (hmap : Function.Surjective (map A A' B C))
+    (hfiber :
+      (Ideal.map (algebraMap A' B) (maximalIdeal A')).comap (map A A' B C) ≤
+        Ideal.map (algebraMap (C ⊗[A] A') (ring A A' C)) (ideal A A' C)) :
     Function.Bijective (map A A' B C) := sorry
 
 end Source

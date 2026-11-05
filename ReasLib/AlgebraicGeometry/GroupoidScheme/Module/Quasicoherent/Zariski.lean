@@ -257,8 +257,8 @@ private def faceZeroComparison (F : SimplicialObject.QCoh G.simplicialScheme) :
     degreeOneModule G F ⟶
       (Scheme.QCoh.pullback (G.simplicialScheme.δ (0 : Fin 2))).obj (degreeZeroModule G F) :=
   ObjectProperty.homMk
-    ((@asIso _ _ _ _ (SimplicialObject.stageRestrictModules G.simplicialScheme (SimplexCategory.δ (0 : Fin 2)) F)
-        (SimplicialObject.stageRestrictModules_isIso G.simplicialScheme (SimplexCategory.δ (0 : Fin 2)) F)).inv ≫
+    (SimplicialObject.stageRestrictModulesInv G.simplicialScheme
+        (SimplexCategory.δ (0 : Fin 2)) F ≫
       eqToHom (Scheme.QCoh.pullback_obj (G.simplicialScheme.δ (0 : Fin 2))
         (degreeZeroModule G F)).symm)
 
@@ -489,9 +489,18 @@ private def zariskiQCohCounitInvApp (F : SimplicialObject.QCoh G.simplicialSchem
     (W : (CategoryTheory.SimplicialObject.zariskiSite
       (SimplicialObject.forgetToTop.obj G.simplicialScheme))ᵒᵖ) :
     (F.obj).val.obj W ⟶ (((toZariski G).obj ((ofZariski G).obj F)).obj).val.obj W :=
-  (@asIso _ _ _ _ (zariskiQCohCounitStage G F W.unop.base.unop)
-      (zariskiQCohCounitStage_isIso G F W.unop.base.unop)).inv.hom.val.app
-        (op W.unop.opens)
+  let n := W.unop.base.unop
+  let r : stageQCoh G F n ⟶
+      (Scheme.QCoh.pullback (vertex G n)).obj (ofZariskiModule G F) :=
+    ObjectProperty.homMk
+      (SimplicialObject.stageRestrictModulesInv G.simplicialScheme
+          (SimplexCategory.const ⦋0⦌ n (Fin.last n.len)) F ≫
+        eqToHom (Scheme.QCoh.pullback_obj
+          (G.simplicialScheme.map (op (SimplexCategory.const ⦋0⦌ n (Fin.last n.len))))
+          (degreeZeroModule G F)).symm) ≫
+      (pullbackEqIso (vertex_comp_degreeZero_inv G n)).inv.app (degreeZeroModule G F) ≫
+      (pullbackCompIso (vertex G n) (degreeZero.iso G).inv).hom.app (degreeZeroModule G F)
+  r.hom.val.app (op W.unop.opens)
 
 private theorem zariskiQCohCounitInv_naturality (F : SimplicialObject.QCoh G.simplicialScheme)
     {W Z : (CategoryTheory.SimplicialObject.zariskiSite

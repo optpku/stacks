@@ -31,14 +31,15 @@ variable {A : Type u} [CommRing A] [IsLocalRing A]
 
 /-- Proposition 15.110.5 (current Stacks numbering: Proposition 15.111.5,
 Ratliff, tag `0AW6`): a Noetherian local ring is universally catenary if and
-only if it is formally catenary. -/
+only if it is formally catenary. The test universe must contain the universe
+of the source ring. -/
 @[stacks 0AW6 "Ratliff formal/universal catenarity equivalence"]
 theorem iff_formallyCatenary :
-    UniversallyCatenaryRing.{u, v} A ↔ IsFormallyCatenaryRing A := by
+    UniversallyCatenaryRing.{u, max u v} A ↔ IsFormallyCatenaryRing A := by
   constructor
   · intro hA
     exact Classical.byContradiction fun hformal ↦
-      (IsFormallyCatenaryRing.not_universally hformal) hA
+      (IsFormallyCatenaryRing.not_universally.{u, v} hformal) hA
   · intro hA
     letI : IsFormallyCatenaryRing A := hA
     infer_instance

@@ -89,10 +89,10 @@ def connectingComparison
         (trivialDeformation (fstFiber p q w) M) ≅
       (fiberFunctor q (Over.mk (specTrivSqZero σA M))).obj
         (trivialDeformation (sndFiber p q w) M) :=
-  asIso (reindexCompare p (specOverInl σA M) (fstFiber p q w)) ≪≫
+  reindexCompareIso p (fstFiber p q w) M ≪≫
     α.1 ≪≫
     trivialDeformationCongr (comparisonFiber p q w) M ≪≫
-    (asIso (reindexCompare q (specOverInl σA M) (sndFiber p q w))).symm
+    (reindexCompareIso q (sndFiber p q w) M).symm
 
 /-- The fibre object of `X ×_Y Z` over `Spec(A[M])` with legs the trivial
 deformations of `x` and `z` and comparison `p(x') → y' -α→ y' → q(z')`. -/
@@ -207,9 +207,9 @@ theorem connecting_spec
       PseudoPullback.sndObj (connectingFiber p q w M α).1 =
           (trivialDeformation (sndFiber p q w) M).1 ∧
       connectingComparison p q w M α =
-        asIso (reindexCompare p (specOverInl σA M) (fstFiber p q w)) ≪≫
+        reindexCompareIso p (fstFiber p q w) M ≪≫
           α.1 ≪≫ trivialDeformationCongr (comparisonFiber p q w) M ≪≫
-          (asIso (reindexCompare q (specOverInl σA M) (sndFiber p q w))).symm := sorry
+          (reindexCompareIso q (sndFiber p q w) M).symm := sorry
 
 /-- The differential `T_w(M) ⟶ T_x(M) × T_z(M)` of the two projections. -/
 def tangentProd

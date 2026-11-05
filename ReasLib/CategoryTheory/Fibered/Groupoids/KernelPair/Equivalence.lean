@@ -85,6 +85,92 @@ def pointValueIso (T : C) (a : (ofPresheaf P).p.Fiber T) :
   hom_inv_id := sorry
   inv_hom_id := sorry
 
+/-- Transport equality of represented values back through the supplied equivalence.
+The only choices are the inverse and unit already stored in `e`; the middle
+comparison uses the two explicit presheaf normalizations and equality transport. -/
+def isoOfPresentedValueEq (e : X ≌ ofPresheaf P) (T : C)
+    (x y : X.p.Fiber T)
+    (h : value P T ((fiberFunctor e.hom T).obj x) =
+      value P T ((fiberFunctor e.hom T).obj y)) : x ≅ y :=
+  let unit := BasedNatIso.fiber (toBasedFunctorIso e.unit) T
+  unit.app x ≪≫ (fiberFunctor e.inv T).mapIso
+    ((pointValueIso P T ((fiberFunctor e.hom T).obj x)).symm ≪≫
+      eqToIso (congrArg (point P T) h) ≪≫
+      pointValueIso P T ((fiberFunctor e.hom T).obj y)) ≪≫
+    (unit.app y).symm
+
+/-- The forward map is the unit, the inverse functor applied to the normalized
+value equality, and the inverse unit at the target. -/
+theorem isoOfPresentedValueEq_hom (e : X ≌ ofPresheaf P) (T : C)
+    (x y : X.p.Fiber T)
+    (h : value P T ((fiberFunctor e.hom T).obj x) =
+      value P T ((fiberFunctor e.hom T).obj y)) :
+    (isoOfPresentedValueEq P e T x y h).hom =
+      (BasedNatIso.fiber (toBasedFunctorIso e.unit) T).hom.app x ≫
+        (fiberFunctor e.inv T).map
+          ((pointValueIso P T ((fiberFunctor e.hom T).obj x)).inv ≫
+            eqToHom (congrArg (point P T) h) ≫
+            (pointValueIso P T ((fiberFunctor e.hom T).obj y)).hom) ≫
+        (BasedNatIso.fiber (toBasedFunctorIso e.unit) T).inv.app y := rfl
+
+/-- The inverse map uses the same supplied data in reverse order. -/
+theorem isoOfPresentedValueEq_inv (e : X ≌ ofPresheaf P) (T : C)
+    (x y : X.p.Fiber T)
+    (h : value P T ((fiberFunctor e.hom T).obj x) =
+      value P T ((fiberFunctor e.hom T).obj y)) :
+    (isoOfPresentedValueEq P e T x y h).inv =
+      (BasedNatIso.fiber (toBasedFunctorIso e.unit) T).hom.app y ≫
+        (fiberFunctor e.inv T).map
+          ((pointValueIso P T ((fiberFunctor e.hom T).obj y)).inv ≫
+            eqToHom (congrArg (point P T) h).symm ≫
+            (pointValueIso P T ((fiberFunctor e.hom T).obj x)).hom) ≫
+        (BasedNatIso.fiber (toBasedFunctorIso e.unit) T).inv.app x := by
+  simp only [isoOfPresentedValueEq, Iso.trans_inv, Iso.symm_inv, Iso.app_hom,
+    Iso.app_inv, Functor.mapIso_inv, eqToIso.inv, Category.assoc]
+  rfl
+
+/-- Reflexive value equality gives the identity, for the specified presentation. -/
+@[simp]
+theorem isoOfPresentedValueEq_refl (e : X ≌ ofPresheaf P) (T : C)
+    (x : X.p.Fiber T) :
+    isoOfPresentedValueEq P e T x x rfl = Iso.refl x := by
+  let a := (fiberFunctor e.hom T).obj x
+  let F := fiberFunctor e.inv T
+  let unit : x ≅ F.obj a := (BasedNatIso.fiber (toBasedFunctorIso e.unit) T).app x
+  change unit ≪≫ F.mapIso
+    ((pointValueIso P T a).symm ≪≫ eqToIso _ ≪≫ pointValueIso P T a) ≪≫
+      unit.symm = Iso.refl x
+  simp
+
+/-- Transport respects composition of value equalities, with the intermediate
+normalization and unit cancelling. -/
+theorem isoOfPresentedValueEq_trans (e : X ≌ ofPresheaf P) (T : C)
+    (x y z : X.p.Fiber T)
+    (h : value P T ((fiberFunctor e.hom T).obj x) =
+      value P T ((fiberFunctor e.hom T).obj y))
+    (k : value P T ((fiberFunctor e.hom T).obj y) =
+      value P T ((fiberFunctor e.hom T).obj z)) :
+    isoOfPresentedValueEq P e T x y h ≪≫ isoOfPresentedValueEq P e T y z k =
+      isoOfPresentedValueEq P e T x z (h.trans k) := by
+  let a := (fiberFunctor e.hom T).obj x
+  let b := (fiberFunctor e.hom T).obj y
+  let c := (fiberFunctor e.hom T).obj z
+  let F := fiberFunctor e.inv T
+  let ux : x ≅ F.obj a := (BasedNatIso.fiber (toBasedFunctorIso e.unit) T).app x
+  let uy : y ≅ F.obj b := (BasedNatIso.fiber (toBasedFunctorIso e.unit) T).app y
+  let uz : z ≅ F.obj c := (BasedNatIso.fiber (toBasedFunctorIso e.unit) T).app z
+  change (ux ≪≫ F.mapIso
+      ((pointValueIso P T a).symm ≪≫ eqToIso _ ≪≫ pointValueIso P T b) ≪≫ uy.symm) ≪≫
+    (uy ≪≫ F.mapIso
+      ((pointValueIso P T b).symm ≪≫ eqToIso _ ≪≫ pointValueIso P T c) ≪≫ uz.symm) =
+    ux ≪≫ F.mapIso
+      ((pointValueIso P T a).symm ≪≫ eqToIso _ ≪≫ pointValueIso P T c) ≪≫ uz.symm
+  simp only [Functor.mapIso_trans, Functor.mapIso_symm, Iso.trans_assoc,
+    Iso.symm_self_id_assoc, Iso.self_symm_id_assoc]
+  rw [← Iso.trans_assoc (F.mapIso (eqToIso (congrArg (point P T) h)))
+    (F.mapIso (eqToIso (congrArg (point P T) k))),
+    ← Functor.mapIso_trans, eqToIso_trans]
+
 /-- Read the two actual fibre objects and conjugate their supplied comparison by normalization. -/
 def pointOfPullback (a : (BasedCategory.PseudoPullback f.hom f.hom).obj) :
     Point P f (BasedCategory.PseudoPullback.baseObj a) where

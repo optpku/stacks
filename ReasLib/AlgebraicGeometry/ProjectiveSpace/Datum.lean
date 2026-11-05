@@ -141,43 +141,6 @@ private theorem sectionsPullback_naturality {X Y : Scheme.{u}} (f : X ⟶ Y)
     ((Scheme.Modules.pullbackPushforwardAdjunction f).unit.naturality p).symm
 
 set_option backward.isDefEq.respectTransparency false in
-/-- The section pullback is the morphism pullback under the canonical unit comparison. -/
-private theorem sectionsPullback_eq_unitHomEquiv {X Y : Scheme.{u}} (f : X ⟶ Y)
-    [(TopologicalSpace.Opens.map f.base).Final] (M : Y.Modules) (s : M.sections) :
-    Scheme.Modules.sectionsPullback f M s =
-      ((Scheme.Modules.pullback f).obj M).unitHomEquiv
-        ((asIso (SheafOfModules.pullbackObjUnitToUnit f.toRingCatSheafHom)).inv ≫
-          (Scheme.Modules.pullback f).map (M.unitHomEquiv.symm s)) := by
-  let φ := f.toRingCatSheafHom
-  let adj := SheafOfModules.pullbackPushforwardAdjunction φ
-  let e := asIso (SheafOfModules.pullbackObjUnitToUnit φ)
-  let t := M.unitHomEquiv.symm s
-  have hs : SheafOfModules.pushforwardSections φ
-      (Scheme.Modules.sectionsPullback f M s) =
-      SheafOfModules.sectionsMap (adj.unit.app M) s := by
-    apply sections_ext_top
-    exact sectionsPullback_top f M s
-  apply (SheafOfModules.bijective_pushforwardSections φ _).injective
-  rw [hs, SheafOfModules.pushforwardSections_unitHomEquiv]
-  change SheafOfModules.sectionsMap (adj.unit.app M) s =
-    ((Scheme.Modules.pushforward f).obj ((Scheme.Modules.pullback f).obj M)).unitHomEquiv
-      (SheafOfModules.unitToPushforwardObjUnit φ ≫
-        (SheafOfModules.pushforward φ).map (e.inv ≫ (SheafOfModules.pullback φ).map t))
-  have h : SheafOfModules.unitToPushforwardObjUnit φ ≫
-      (SheafOfModules.pushforward φ).map (e.inv ≫ (SheafOfModules.pullback φ).map t) =
-      t ≫ adj.unit.app M := by
-    calc
-      _ = adj.homEquiv _ _ (e.hom ≫ e.inv ≫ (SheafOfModules.pullback φ).map t) := by
-        rw [Adjunction.homEquiv_naturality_right]
-        change _ = (SheafOfModules.pullbackPushforwardAdjunction φ).homEquiv _ _
-          (SheafOfModules.pullbackObjUnitToUnit φ) ≫ _
-        rw [SheafOfModules.pullbackPushforwardAdjunction_homEquiv_pullbackObjUnitToUnit]
-      _ = t ≫ adj.unit.app M := by
-        simp only [Iso.hom_inv_id_assoc]
-        rw [Adjunction.homEquiv_unit, ← adj.unit_naturality]
-  rw [h, SheafOfModules.unitHomEquiv_comp_apply, Equiv.apply_symm_apply]
-
-set_option backward.isDefEq.respectTransparency false in
 /-- Pullback preserves generation by a finite family of global sections. -/
 theorem pullback_generates {n : ℕ} {X Y : Scheme.{u}} (f : X ⟶ Y)
     (τ : ProjectiveSpaceDatum n Y) :
@@ -204,7 +167,7 @@ theorem pullback_generates {n : ℕ} {X Y : Scheme.{u}} (f : X ⟶ Y)
     rw [SheafOfModules.ιFree_mapFreeIso_hom_assoc, ← Functor.map_comp,
       ← SheafOfModules.unitHomEquiv_symm_freeHomEquiv_apply]
     simp only [Equiv.apply_symm_apply]
-    exact (sectionsPullback_eq_unitHomEquiv f τ.lineBundle (τ.sections i.down)).symm.trans
+    exact (Scheme.Modules.sectionsPullback_eq_unitHomEquiv f τ.lineBundle (τ.sections i.down)).symm.trans
       (congrFun (((Scheme.Modules.pullback f).obj τ.lineBundle).freeHomEquiv.apply_symm_apply
         (fun j : I ↦ Scheme.Modules.sectionsPullback f τ.lineBundle (τ.sections j.down))) i).symm
   rw [← h]

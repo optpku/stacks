@@ -49,28 +49,53 @@ theorem RightAcyclic.Bounded.of_mem
     (A : 𝒜) (hA : P A) :
     RightAcyclic.Bounded F A := sorry
 
-/-- A quotient-generating class closed under subobjects supplies bounded-above left-acyclic
-objects for an additive functor when the functor preserves the indicated short exact sequences. -/
+/-- A quotient-generating class closed under kernels of epimorphisms between its members
+supplies bounded-above left-acyclic objects when the functor preserves the indicated short exact
+sequences. This is the bounded-above form of Stacks 05T9. -/
 theorem LeftAcyclic.Bounded.of_mem
     (P : ObjectProperty 𝒜)
     [P.HasEpiCover]
-    [P.IsClosedUnderSubobjects]
+    (h_mem : ∀ ⦃S : ShortComplex 𝒜⦄, S.ShortExact → P S.X₂ → P S.X₃ → P S.X₁)
     (h_shortExact :
       ∀ ⦃S : ShortComplex 𝒜⦄, S.ShortExact → P S.X₂ → P S.X₃ → (S.map F).ShortExact)
     (A : 𝒜) (hA : P A) :
     LeftAcyclic.Bounded F A := sorry
 
-/-- Stacks 05T9: under the quotient-generating and short-exact hypotheses, every member of `P`
-is left acyclic for the unbounded derived functor of `F`. -/
-@[stacks 05T9]
-theorem LeftAcyclic.of_mem
+/-- The bounded-above criterion specialized to a class closed under all subobjects. -/
+theorem LeftAcyclic.Bounded.of_mem_of_subobjects
     (P : ObjectProperty 𝒜)
     [P.HasEpiCover]
     [P.IsClosedUnderSubobjects]
     (h_shortExact :
       ∀ ⦃S : ShortComplex 𝒜⦄, S.ShortExact → P S.X₂ → P S.X₃ → (S.map F).ShortExact)
     (A : 𝒜) (hA : P A) :
+    LeftAcyclic.Bounded F A := by
+  exact LeftAcyclic.Bounded.of_mem F P
+    (fun {_} hS h₂ _ => P.prop_X₁_of_shortExact hS h₂) h_shortExact A hA
+
+/-- Stacks 05T9: a quotient-generating class closed under kernels of epimorphisms between its
+members consists of left-acyclic objects when `F` preserves the indicated short exact sequences. -/
+@[stacks 05T9]
+theorem LeftAcyclic.of_mem
+    (P : ObjectProperty 𝒜)
+    [P.HasEpiCover]
+    (h_mem : ∀ ⦃S : ShortComplex 𝒜⦄, S.ShortExact → P S.X₂ → P S.X₃ → P S.X₁)
+    (h_shortExact :
+      ∀ ⦃S : ShortComplex 𝒜⦄, S.ShortExact → P S.X₂ → P S.X₃ → (S.map F).ShortExact)
+    (A : 𝒜) (hA : P A) :
     LeftAcyclic F A := sorry
+
+/-- The unbounded criterion specialized to a class closed under all subobjects. -/
+theorem LeftAcyclic.of_mem_of_subobjects
+    (P : ObjectProperty 𝒜)
+    [P.HasEpiCover]
+    [P.IsClosedUnderSubobjects]
+    (h_shortExact :
+      ∀ ⦃S : ShortComplex 𝒜⦄, S.ShortExact → P S.X₂ → P S.X₃ → (S.map F).ShortExact)
+    (A : 𝒜) (hA : P A) :
+    LeftAcyclic F A := by
+  exact LeftAcyclic.of_mem F P
+    (fun {_} hS h₂ _ => P.prop_X₁_of_shortExact hS h₂) h_shortExact A hA
 
 end
 

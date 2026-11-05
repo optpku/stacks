@@ -32,7 +32,15 @@ universe u
 namespace AlgebraicGeometry.RingedSpace
 
 variable {X : RingedSpace.{u}}
-variable [MonoidalCategory (DerivedCategory (Modules X))]
+variable [RingedSite.Hom.ModuleDerived.KFlat.HomotopyTensorDescends
+  (J := Opens.grothendieckTopology X) X.sheaf]
+variable [RingedSite.Hom.ModuleDerived.KFlat.TensorDescends
+  (J := Opens.grothendieckTopology X) X.sheaf]
+variable [RingedSite.Hom.ModuleDerived.KFlat.IsLocalization
+  (J := Opens.grothendieckTopology X) X.sheaf]
+
+-- Use the same canonical K-flat tensor as the reusable ringed-site theorem.
+attribute [local instance] RingedSite.Hom.ModuleDerived.monoidalCategory
 variable [MonoidalClosed (DerivedCategory (Modules X))]
 
 /- Lemma 20.46.9 (08DM): if `E` is strictly perfect, then the derived internal Hom from `E` to
@@ -41,11 +49,11 @@ variable [MonoidalClosed (DerivedCategory (Modules X))]
 #check fun (E F : CochainComplex (Modules X) ℤ)
     (hE : RingedSite.CochainComplex.IsStrictlyPerfect
       (X := opensRingedSite X) E) ↦
-  RingedSite.CochainComplex.InternalHom.represents_of_strictlyPerfect E F hE
+  RingedSite.CochainComplex.InternalHom.Canonical.represents_of_strictlyPerfect E F hE
 
 /- The canonical source property and the two internal-Hom objects remain visible for downstream
 users without exposing chapter-local notation. -/
-#check @RingedSite.CochainComplex.InternalHom.represents_of_strictlyPerfect
+#check @RingedSite.CochainComplex.InternalHom.Canonical.represents_of_strictlyPerfect
 #check @RingedSite.CochainComplex.IsStrictlyPerfect
 
 end AlgebraicGeometry.RingedSpace

@@ -50,12 +50,18 @@ def complement (U : CosimplicialObject A) :
 /-- The complementary endomorphism annihilates the source-facing degenerate inclusion. -/
 @[reassoc, stacks 019I "normalized quotient complementary projector annihilates degeneracies"]
 theorem degenerate_ι_comp_complement (U : CosimplicialObject A) :
-    degenerateCochainComplex.ι U ≫ complement U = 0 := sorry
+    degenerateCochainComplex.ι U ≫ complement U = 0 := by
+  simp only [complement, Preadditive.comp_sub, Category.comp_id,
+    ← Category.assoc, degenerateCochainComplex.ι_comp_ρ, Category.id_comp, sub_self]
 
 /-- The complementary normalized projector is idempotent. -/
 @[reassoc, stacks 019I "normalized quotient complementary projector idempotence"]
 theorem complement_comp_complement (U : CosimplicialObject A) :
-    complement U ≫ complement U = complement U := sorry
+    complement U ≫ complement U = complement U := by
+  change (𝟙 _ - degenerateCochainComplex.ρ U ≫ degenerateCochainComplex.ι U) ≫
+    complement U = complement U
+  simp only [Preadditive.sub_comp, Category.id_comp, Category.assoc,
+    degenerate_ι_comp_complement, comp_zero, sub_zero]
 
 end normalizedCochainComplex
 
@@ -89,12 +95,13 @@ def π (U : CosimplicialObject A) :
 
 /-- The normalized-cochain quotient map is an epimorphism. -/
 @[stacks 019I "normalized cochain quotient epimorphism"]
-instance π_epi (U : CosimplicialObject A) : Epi (π U) := sorry
+instance π_epi (U : CosimplicialObject A) : Epi (π U) where
+  left_cancellation _ _ h := coequalizer.hom_ext h
 
 /-- The degenerate inclusion is annihilated by the normalized-cochain quotient. -/
 @[reassoc, stacks 019I "normalized quotient annihilates degenerate cochains"]
 theorem degenerate_ι_comp_π (U : CosimplicialObject A) :
-    degenerateCochainComplex.ι U ≫ π U = 0 := sorry
+    degenerateCochainComplex.ι U ≫ π U = 0 := cokernel.condition _
 
 /-- Descend a morphism out of alternating cochains through the normalized quotient. -/
 @[stacks 019I "normalized cochain quotient descent"]
@@ -110,13 +117,14 @@ quotient map. -/
 theorem π_desc (U : CosimplicialObject A) {K : CochainComplex A ℕ}
     (f : (alternatingCofaceMapComplex A).obj U ⟶ K)
     (h : degenerateCochainComplex.ι U ≫ f = 0) :
-    π U ≫ desc U f h = f := sorry
+    π U ≫ desc U f h = f := cokernel.π_desc _ _ _
 
 /-- Morphisms out of normalized cochains are determined after precomposition with the quotient
 map. -/
 @[ext, stacks 019I "normalized cochain quotient hom extensionality"]
 theorem hom_ext (U : CosimplicialObject A) {K : CochainComplex A ℕ}
-    {f g : normalizedCochainComplex U ⟶ K} (h : π U ≫ f = π U ≫ g) : f = g := sorry
+    {f g : normalizedCochainComplex U ⟶ K} (h : π U ≫ f = π U ≫ g) : f = g :=
+  (cancel_epi (π U)).1 h
 
 /- The inclusion API below belongs to the quotient itself; it does not depend on a Moore model. -/
 
@@ -130,24 +138,29 @@ noncomputable def ι (U : CosimplicialObject A) :
 /-- The quotient followed by the canonical inclusion is the complementary projector. -/
 @[reassoc, stacks 019I "normalized quotient section projector formula"]
 theorem π_comp_ι (U : CosimplicialObject A) :
-    π U ≫ ι U = complement U := sorry
+    π U ≫ ι U = complement U := π_desc U _ _
 
 /-- The complementary normalized projector is unchanged after postcomposition with the quotient.
 -/
 @[reassoc, stacks 019I "normalized quotient complementary projector quotient formula"]
 theorem complement_comp_π (U : CosimplicialObject A) :
-    complement U ≫ π U = π U := sorry
+    complement U ≫ π U = π U := by
+  simp only [complement, Preadditive.sub_comp, Category.id_comp, Category.assoc,
+    degenerate_ι_comp_π, comp_zero, sub_zero]
 
 /-- The canonical normalized inclusion is a right inverse of the quotient map. -/
 @[reassoc, stacks 019I "normalized quotient section retract law"]
 theorem ι_comp_π (U : CosimplicialObject A) :
-    ι U ≫ π U = 𝟙 (normalizedCochainComplex U) := sorry
+    ι U ≫ π U = 𝟙 (normalizedCochainComplex U) := by
+  apply hom_ext U
+  rw [← Category.assoc, π_comp_ι, complement_comp_π, Category.comp_id]
 
 /-- Naturality of the canonical quotient map to normalized cochains. -/
 @[reassoc, stacks 019I "normalized cochain quotient naturality"]
 theorem π.naturality {U V : CosimplicialObject A} (f : U ⟶ V) :
     (alternatingCofaceMapComplex A).map f ≫ π V =
-      π U ≫ normalizedCochainComplex.functor.map f := sorry
+      π U ≫ normalizedCochainComplex.functor.map f := by
+  exact (cokernel.π_desc _ _ _).symm
 
 /-- The quotient maps form the canonical natural transformation from alternating to normalized
 cochains. -/
@@ -159,13 +172,21 @@ def π.natTrans : alternatingCofaceMapComplex A ⟶ normalizedCochainComplex.fun
 /-- The normalized quotient natural transformation has component `π U` at `U`. -/
 @[simp, stacks 019I "normalized cochain quotient natural transformation component"]
 theorem π.natTrans.app (U : CosimplicialObject A) :
-    (π.natTrans (A := A)).app U = π U := sorry
+    (π.natTrans (A := A)).app U = π U := rfl
 
 /-- Naturality of the canonical source-facing normalized quotient inclusion. -/
 @[reassoc, stacks 019I "normalized quotient section naturality"]
 theorem ι.naturality {U V : CosimplicialObject A} (f : U ⟶ V) :
     normalizedCochainComplex.functor.map f ≫ ι V =
-      ι U ≫ (alternatingCofaceMapComplex A).map f := sorry
+      ι U ≫ (alternatingCofaceMapComplex A).map f := by
+  apply hom_ext U
+  rw [← Category.assoc, ← π.naturality, Category.assoc, π_comp_ι,
+    ← Category.assoc, π_comp_ι]
+  simp only [complement, Preadditive.comp_sub, Preadditive.sub_comp,
+    Category.comp_id, Category.id_comp]
+  congr 1
+  rw [← Category.assoc, degenerateCochainComplex.ρ.naturality, Category.assoc,
+    degenerateCochainComplex.ι.naturality, Category.assoc]
 
 /-- The canonical source-facing normalized quotient inclusions form a natural transformation. -/
 @[stacks 019I "normalized quotient section natural transformation"]
@@ -177,13 +198,16 @@ noncomputable def ι.natTrans :
 /-- The component of the source-facing normalized quotient inclusion natural transformation. -/
 @[simp, stacks 019I "normalized quotient section natural transformation component"]
 theorem ι.natTrans.app (U : CosimplicialObject A) :
-    (ι.natTrans (A := A)).app U = ι U := sorry
+    (ι.natTrans (A := A)).app U = ι U := rfl
 
 /-- The source-facing normalized quotient inclusion and quotient form a natural retract. -/
 @[reassoc, stacks 019I "normalized quotient section natural retract law"]
 theorem ι.natTrans_comp_π :
     ι.natTrans (A := A) ≫ π.natTrans (A := A) =
-      𝟙 (normalizedCochainComplex.functor (A := A)) := sorry
+      𝟙 (normalizedCochainComplex.functor (A := A)) := by
+  apply NatTrans.ext
+  funext U
+  exact ι_comp_π U
 
 namespace ι
 
@@ -195,7 +219,8 @@ noncomputable def appSplitMono (U : CosimplicialObject A) : SplitMono (ι U) whe
 
 /-- Every normalized inclusion component is canonically split. -/
 @[instance, stacks 019I "normalized cochain component split monomorphism instance"]
-theorem appIsSplitMono (U : CosimplicialObject A) : IsSplitMono (ι U) := sorry
+theorem appIsSplitMono (U : CosimplicialObject A) : IsSplitMono (ι U) :=
+  ⟨⟨appSplitMono U⟩⟩
 
 /-- The natural normalized inclusion, equipped with its quotient retraction. -/
 @[stacks 019I "normalized cochain natural split monomorphism"]
@@ -205,7 +230,7 @@ noncomputable def splitMono : SplitMono (natTrans (A := A)) where
 
 /-- The natural normalized inclusion is canonically split. -/
 @[instance, stacks 019I "normalized cochain natural split monomorphism instance"]
-theorem isSplitMono : IsSplitMono (natTrans (A := A)) := sorry
+theorem isSplitMono : IsSplitMono (natTrans (A := A)) := ⟨⟨splitMono⟩⟩
 
 end ι
 
@@ -219,7 +244,8 @@ noncomputable def appSplitEpi (U : CosimplicialObject A) : SplitEpi (π U) where
 
 /-- Every normalized quotient component is canonically split. -/
 @[instance, stacks 019I "normalized cochain component split epimorphism instance"]
-theorem appIsSplitEpi (U : CosimplicialObject A) : IsSplitEpi (π U) := sorry
+theorem appIsSplitEpi (U : CosimplicialObject A) : IsSplitEpi (π U) :=
+  ⟨⟨appSplitEpi U⟩⟩
 
 /-- The natural normalized quotient, equipped with its canonical section. -/
 @[stacks 019I "normalized cochain natural split epimorphism"]
@@ -229,7 +255,7 @@ noncomputable def splitEpi : SplitEpi (natTrans (A := A)) where
 
 /-- The natural normalized quotient is canonically split. -/
 @[instance, stacks 019I "normalized cochain natural split epimorphism instance"]
-theorem isSplitEpi : IsSplitEpi (natTrans (A := A)) := sorry
+theorem isSplitEpi : IsSplitEpi (natTrans (A := A)) := ⟨⟨splitEpi⟩⟩
 
 end π
 

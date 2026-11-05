@@ -100,41 +100,41 @@ end ExactCouple
 /-- Definition 12.22.5: the zero-based Bockstein spectral sequence associated to `α`.  Its
 zeroth page is `cokernel α`, and its positive pages are those of `exactCouple α`. -/
 @[stacks 011Z]
-noncomputable def spectralSequence (h : (quotientShortComplex α).ShortExact) (K : Construction C) :
+noncomputable def spectralSequence (h : (quotientShortComplex α).ShortExact) :
     SpectralSequence C (fun _ : ℤ ↦ ComplexShape.refl PUnit.{1}) 0 :=
   SpectralSequence.Page.Zero.ofOne (cokernel α)
-    (K.associatedSpectralSequence (exactCouple α h)) (fun _ ↦ Iso.refl _)
+    (CategoryTheory.ExactCouple.Derived.associatedSpectralSequence (exactCouple α h)) (fun _ ↦ Iso.refl _)
 
 namespace Page
 
 /-- Every positive Bockstein page is the corresponding page of its associated exact-couple
 spectral sequence. -/
 @[stacks 011Z "positive-page comparison"]
-theorem eq_associated (h : (quotientShortComplex α).ShortExact) (K : Construction C)
+theorem eq_associated (h : (quotientShortComplex α).ShortExact)
     (r : ℤ) (hr : 1 ≤ r) :
-    (spectralSequence α h K).page r (zero_le_one.trans hr) =
-      (K.associatedSpectralSequence (exactCouple α h)).page r hr := sorry
+    (spectralSequence α h).page r (zero_le_one.trans hr) =
+      (CategoryTheory.ExactCouple.Derived.associatedSpectralSequence (exactCouple α h)).page r hr := sorry
 
 end Page
 
 section
 
-variable (h : (quotientShortComplex α).ShortExact) (K : Construction C)
+variable (h : (quotientShortComplex α).ShortExact)
 
 /-- The zeroth Bockstein page is the quotient differential object. -/
 @[simp]
 theorem page_zero :
-    (spectralSequence α h K).page 0 = cokernel α := sorry
+    (spectralSequence α h).page 0 = cokernel α := sorry
 
 /-- The unique object on the zeroth page is the quotient object. -/
 @[simp]
 theorem page_zero_obj :
-    ((spectralSequence α h K).page 0).X PUnit.unit = (cokernel α).X PUnit.unit := sorry
+    ((spectralSequence α h).page 0).X PUnit.unit = (cokernel α).X PUnit.unit := sorry
 
 /-- The zeroth differential is induced on the quotient complex. -/
 @[simp]
 theorem page_zero_d :
-    ((spectralSequence α h K).page 0).d PUnit.unit PUnit.unit =
+    ((spectralSequence α h).page 0).d PUnit.unit PUnit.unit =
       (cokernel α).d PUnit.unit PUnit.unit := sorry
 
 namespace ZeroPage
@@ -150,13 +150,13 @@ end ZeroPage
 /-- Definition 12.22.5: the zero-based Bockstein cycle filtration on the quotient page. -/
 @[stacks 011Z]
 noncomputable abbrev cycle : ℕ → Subobject ((cokernel α).X PUnit.unit) :=
-  ((K.associatedSpectralSequence (exactCouple α h)).homologyPageTower PUnit.unit).preimageCycle
+  ((CategoryTheory.ExactCouple.Derived.associatedSpectralSequence (exactCouple α h)).homologyPageTower PUnit.unit).preimageCycle
     ((cokernel α).sc PUnit.unit) (Iso.refl _)
 
 /-- Definition 12.22.5: the zero-based Bockstein boundary filtration on the quotient page. -/
 @[stacks 011Z]
 noncomputable abbrev boundary : ℕ → Subobject ((cokernel α).X PUnit.unit) :=
-  ((K.associatedSpectralSequence (exactCouple α h)).homologyPageTower PUnit.unit).preimageBoundary
+  ((CategoryTheory.ExactCouple.Derived.associatedSpectralSequence (exactCouple α h)).homologyPageTower PUnit.unit).preimageBoundary
     ((cokernel α).sc PUnit.unit) (Iso.refl _)
 
 namespace Cycle
@@ -165,9 +165,9 @@ namespace Cycle
 sequence. -/
 @[simp]
 theorem succ (r : ℕ) :
-    cycle α h K (r + 1) =
+    cycle α h (r + 1) =
       ShortComplex.Cycles.preimageOfIso ((cokernel α).sc PUnit.unit) (Iso.refl _)
-        ((K.associatedSpectralSequence (exactCouple α h)).cycle PUnit.unit
+        ((CategoryTheory.ExactCouple.Derived.associatedSpectralSequence (exactCouple α h)).cycle PUnit.unit
           (HomologyPageTower.pageIndex r)) := sorry
 
 end Cycle
@@ -178,24 +178,24 @@ namespace Boundary
 spectral sequence. -/
 @[simp]
 theorem succ (r : ℕ) :
-    boundary α h K (r + 1) =
+    boundary α h (r + 1) =
       ShortComplex.Cycles.preimageOfIso ((cokernel α).sc PUnit.unit) (Iso.refl _)
-        ((K.associatedSpectralSequence (exactCouple α h)).boundary PUnit.unit
+        ((CategoryTheory.ExactCouple.Derived.associatedSpectralSequence (exactCouple α h)).boundary PUnit.unit
           (HomologyPageTower.pageIndex r)) := sorry
 
 end Boundary
 
 /-- The zero-stage Bockstein cycle piece is the whole quotient object. -/
 @[simp]
-theorem cycle_zero : cycle α h K 0 = ⊤ := sorry
+theorem cycle_zero : cycle α h 0 = ⊤ := sorry
 
 /-- The zero-stage Bockstein boundary piece is zero. -/
 @[simp]
-theorem boundary_zero : boundary α h K 0 = ⊥ := sorry
+theorem boundary_zero : boundary α h 0 = ⊥ := sorry
 
 /-- The first Bockstein page is the homology of the quotient differential object. -/
 theorem page_one :
-    ((spectralSequence α h K).page 1).X PUnit.unit =
+    ((spectralSequence α h).page 1).X PUnit.unit =
       HomologicalComplex.homology (cokernel α) PUnit.unit := sorry
 
 end

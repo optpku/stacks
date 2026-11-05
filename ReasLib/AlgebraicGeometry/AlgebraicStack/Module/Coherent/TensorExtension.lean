@@ -6,9 +6,10 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import ReasLib.AlgebraicGeometry.AlgebraicStack.Module.Coherent.Tensor
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.Module.Coherent.Monoidal
 public import ReasLib.AlgebraicGeometry.AlgebraicStack.Module.Coherent.Abelian
 public import Mathlib.CategoryTheory.Limits.Preserves.Filtered
+public import Mathlib.CategoryTheory.Monoidal.NaturalTransformation
 
 /-! # Extension of right exact tensor functors from coherent modules
 
@@ -29,72 +30,89 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicStack
 
-/-- A right exact functor on coherent modules of Noetherian algebraic stacks
-with a natural tensor comparison extends to a colimit-preserving functor on
-quasi-coherent modules whose tensor comparison restricts to the given one. -/
+/-- The coherent inclusion inherits the canonical monoidal structure of the
+inclusion between full monoidal subcategories of fppf modules. -/
+instance Coh.toQCoh_monoidal {S : Scheme.{u}} {X : GroupoidsOver S}
+    [AlgebraicStack X] [IsLocallyNoetherian X] :
+    (Coh.toQCoh : Coh X ⥤ QCoh X).Monoidal := by
+  let h : coherentModuleProperty X ≤ quasiCoherentModuleProperty X := fun M hM ↦ by
+    rcases hM.toIsFinitePresentation with ⟨⟨q, _⟩⟩
+    exact q.isQuasicoherent
+  change (ObjectProperty.ιOfLE h).Monoidal
+  infer_instance
+
+/-- The coherent inclusion preserves the inherited symmetry. -/
+instance Coh.toQCoh_braided {S : Scheme.{u}} {X : GroupoidsOver S}
+    [AlgebraicStack X] [IsLocallyNoetherian X] :
+    (Coh.toQCoh : Coh X ⥤ QCoh X).Braided := by
+  let h : coherentModuleProperty X ≤ quasiCoherentModuleProperty X := fun M hM ↦ by
+    rcases hM.toIsFinitePresentation with ⟨⟨q, _⟩⟩
+    exact q.isQuasicoherent
+  change (ObjectProperty.ιOfLE h).Braided
+  infer_instance
+
+/-- A right exact symmetric tensor functor on coherent modules of Noetherian
+algebraic stacks extends to a symmetric monoidal functor preserving all colimits.
+The restriction isomorphism respects both the unit and the tensor constraints. -/
 theorem exists_extend_rightExactTensor
     {S₁ S₂ : Scheme.{u}} {X : GroupoidsOver S₁} {Y : GroupoidsOver S₂}
     [AlgebraicStack X] [IsNoetherian X] [AlgebraicStack Y] [IsNoetherian Y]
-    (F : Coh X ⥤ Coh Y) [PreservesFiniteColimits F]
-    (T : Coh.tensorBifunctor X ⋙ F ≅ Functor.prod F F ⋙ Coh.tensorBifunctor Y) :
-    ∃ G : QCoh X ⥤ QCoh Y,
+    (F : Coh X ⥤ Coh Y) [F.Braided] [PreservesFiniteColimits F] :
+    ∃ (G : QCoh X ⥤ QCoh Y) (m : G.Braided),
+      letI := m;
       PreservesColimitsOfSize.{u, u} G ∧
-        ∃ (e : (Coh.toQCoh : Coh X ⥤ QCoh X) ⋙ G ≅
-            F ⋙ (Coh.toQCoh : Coh Y ⥤ QCoh Y))
-          (U : QCoh.Fppf.tensorBifunctor X ⋙ G ≅
-            Functor.prod G G ⋙ QCoh.Fppf.tensorBifunctor Y),
-          ∀ A B : Coh X,
-            U.hom.app (Coh.toQCoh.obj A, Coh.toQCoh.obj B) ≫
-                QCoh.Fppf.tensorMap (e.hom.app A) (e.hom.app B) =
-              G.map (Coh.tensor_toQCohIso A B).inv ≫
-                e.hom.app (Coh.tensor A B) ≫
-                Coh.toQCoh.map (T.hom.app (A, B)) ≫
-                (Coh.tensor_toQCohIso (F.obj A) (F.obj B)).hom :=
+        ∃ e : (Coh.toQCoh : Coh X ⥤ QCoh X) ⋙ G ≅
+            F ⋙ (Coh.toQCoh : Coh Y ⥤ QCoh Y),
+          NatTrans.IsMonoidal e.hom :=
   sorry
 
-/-- Two filtered-colimit-preserving functors on quasi-coherent modules of
-Noetherian algebraic stacks are naturally isomorphic when their restrictions
-to coherent modules are identified with the same functor. -/
+/-- Two filtered-colimit-preserving monoidal extensions with specified monoidal
+restriction isomorphisms have a unique monoidal comparison inducing those
+isomorphisms. No braiding assumption is needed for this uniqueness statement. -/
 theorem extend_rightExactTensor_unique
     {S₁ S₂ : Scheme.{u}} {X : GroupoidsOver S₁} {Y : GroupoidsOver S₂}
     [AlgebraicStack X] [IsNoetherian X] [AlgebraicStack Y] [IsNoetherian Y]
-    (F : Coh X ⥤ Coh Y) (G G' : QCoh X ⥤ QCoh Y)
+    (F : Coh X ⥤ Coh Y) [F.Monoidal]
+    (G G' : QCoh X ⥤ QCoh Y) [G.Monoidal] [G'.Monoidal]
     (hG : PreservesFilteredColimitsOfSize.{u, u} G)
     (hG' : PreservesFilteredColimitsOfSize.{u, u} G')
     (e : (Coh.toQCoh : Coh X ⥤ QCoh X) ⋙ G ≅
       F ⋙ (Coh.toQCoh : Coh Y ⥤ QCoh Y))
     (e' : (Coh.toQCoh : Coh X ⥤ QCoh X) ⋙ G' ≅
-      F ⋙ (Coh.toQCoh : Coh Y ⥤ QCoh Y)) :
-    Nonempty (G ≅ G') :=
+      F ⋙ (Coh.toQCoh : Coh Y ⥤ QCoh Y))
+    [NatTrans.IsMonoidal e.hom] [NatTrans.IsMonoidal e'.hom] :
+    ∃! t : G ≅ G', NatTrans.IsMonoidal t.hom ∧
+      Functor.isoWhiskerLeft (Coh.toQCoh : Coh X ⥤ QCoh X) t ≪≫ e' = e :=
   sorry
 
-/-- A right exact tensor functor between coherent modules of Noetherian
-algebraic stacks extends to a tensor-compatible colimit-preserving functor on
-quasi-coherent modules, uniquely up to natural isomorphism among extensions
-preserving filtered colimits. -/
+/-- A right exact symmetric tensor functor between coherent modules of
+Noetherian algebraic stacks extends to a colimit-preserving symmetric monoidal
+functor. Among filtered-colimit-preserving monoidal extensions, the comparison
+respecting the specified monoidal restriction isomorphisms exists uniquely. -/
 theorem existsUnique_extend_rightExactTensor
     {S₁ S₂ : Scheme.{u}} {X : GroupoidsOver S₁} {Y : GroupoidsOver S₂}
     [AlgebraicStack X] [IsNoetherian X] [AlgebraicStack Y] [IsNoetherian Y]
-    (F : Coh X ⥤ Coh Y) [PreservesFiniteColimits F]
-    (T : Coh.tensorBifunctor X ⋙ F ≅ Functor.prod F F ⋙ Coh.tensorBifunctor Y) :
-    ∃ G : QCoh X ⥤ QCoh Y,
+    (F : Coh X ⥤ Coh Y) [F.Braided] [PreservesFiniteColimits F] :
+    ∃ (G : QCoh X ⥤ QCoh Y) (m : G.Braided),
+      letI := m;
       PreservesColimitsOfSize.{u, u} G ∧
-        ∃ (e : (Coh.toQCoh : Coh X ⥤ QCoh X) ⋙ G ≅
-            F ⋙ (Coh.toQCoh : Coh Y ⥤ QCoh Y))
-          (U : QCoh.Fppf.tensorBifunctor X ⋙ G ≅
-            Functor.prod G G ⋙ QCoh.Fppf.tensorBifunctor Y),
-          (∀ A B : Coh X,
-            U.hom.app (Coh.toQCoh.obj A, Coh.toQCoh.obj B) ≫
-                QCoh.Fppf.tensorMap (e.hom.app A) (e.hom.app B) =
-              G.map (Coh.tensor_toQCohIso A B).inv ≫
-                e.hom.app (Coh.tensor A B) ≫
-                Coh.toQCoh.map (T.hom.app (A, B)) ≫
-                (Coh.tensor_toQCohIso (F.obj A) (F.obj B)).hom) ∧
-          ∀ G' : QCoh X ⥤ QCoh Y,
+        ∃ e : (Coh.toQCoh : Coh X ⥤ QCoh X) ⋙ G ≅
+            F ⋙ (Coh.toQCoh : Coh Y ⥤ QCoh Y),
+          NatTrans.IsMonoidal e.hom ∧
+          ∀ (G' : QCoh X ⥤ QCoh Y) [G'.Monoidal],
             PreservesFilteredColimitsOfSize.{u, u} G' →
-              Nonempty ((Coh.toQCoh : Coh X ⥤ QCoh X) ⋙ G' ≅
-                F ⋙ (Coh.toQCoh : Coh Y ⥤ QCoh Y)) →
-              Nonempty (G ≅ G') :=
-  sorry
+            ∀ e' : (Coh.toQCoh : Coh X ⥤ QCoh X) ⋙ G' ≅
+                F ⋙ (Coh.toQCoh : Coh Y ⥤ QCoh Y),
+              NatTrans.IsMonoidal e'.hom →
+              ∃! t : G ≅ G', NatTrans.IsMonoidal t.hom ∧
+                Functor.isoWhiskerLeft (Coh.toQCoh : Coh X ⥤ QCoh X) t ≪≫ e' = e := by
+  obtain ⟨G, m, hG, e, he⟩ := exists_extend_rightExactTensor F
+  letI := m
+  letI := hG
+  letI := he
+  refine ⟨G, m, hG, e, he, ?_⟩
+  intro G' m' hG' e' he'
+  letI := he'
+  exact extend_rightExactTensor_unique F G G' (by infer_instance) hG' e e'
 
 end AlgebraicGeometry.AlgebraicStack

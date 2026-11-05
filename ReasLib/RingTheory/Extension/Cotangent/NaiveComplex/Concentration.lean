@@ -51,22 +51,39 @@ theorem cotangentSpaceIsZero (P : Extension.{w} R S) (hP : Subsingleton P.Cotang
 @[stacks 07BP "subsingleton cotangent-space concentration"]
 theorem cotangentComplex_eq_zero_of_subsingleton
     (P : Extension.{w} R S) (hP : Subsingleton P.CotangentSpace) :
-    P.cotangentComplex = 0 := sorry
+    P.cotangentComplex = 0 := by
+  letI := hP
+  exact Subsingleton.elim _ _
 
 /-- The canonical inclusion of first cotangent homology is bijective when the cotangent space is
 subsingleton. -/
 @[stacks 07BP "subsingleton cotangent-space concentration"]
 theorem h1Cotangentι_bijective_of_subsingleton
     (P : Extension.{w} R S) (hP : Subsingleton P.CotangentSpace) :
-    Function.Bijective P.h1Cotangentι := sorry
+    Function.Bijective P.h1Cotangentι := by
+  letI := hP
+  exact ⟨P.h1Cotangentι_injective, fun x ↦ ⟨⟨x, Subsingleton.elim _ _⟩, rfl⟩⟩
 
 /-- First cotangent homology identifies with the conormal module when the cotangent space is
 subsingleton. -/
 @[stacks 07BP "subsingleton cotangent-space concentration"]
 noncomputable def h1CotangentιEquivOfSubsingleton
     (P : Extension.{w} R S) (hP : Subsingleton P.CotangentSpace) :
-    P.H1Cotangent ≃ₗ[S] P.Cotangent :=
-  LinearEquiv.ofBijective P.h1Cotangentι (h1Cotangentι_bijective_of_subsingleton P hP)
+    P.H1Cotangent ≃ₗ[S] P.Cotangent where
+  __ := P.h1Cotangentι
+  invFun x := ⟨x, hP.elim _ _⟩
+
+/-- The conormal identification is the canonical inclusion on first homology. -/
+@[simp]
+theorem h1CotangentιEquivOfSubsingleton_apply
+    (P : Extension.{w} R S) (hP : Subsingleton P.CotangentSpace) (x : P.H1Cotangent) :
+    h1CotangentιEquivOfSubsingleton P hP x = P.h1Cotangentι x := rfl
+
+/-- The inverse keeps the conormal element and supplies its zero-differential proof. -/
+@[simp]
+theorem h1CotangentιEquivOfSubsingleton_symm_apply_val
+    (P : Extension.{w} R S) (hP : Subsingleton P.CotangentSpace) (x : P.Cotangent) :
+    ((h1CotangentιEquivOfSubsingleton P hP).symm x).val = x := rfl
 
 /-- The degree-zero component of the single complex on the lifted conormal module is zero. -/
 @[stacks 07BP "single-complex concentration"]

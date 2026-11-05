@@ -34,7 +34,7 @@ def primeToIndex (A : Type u) [CommRing A] [IsLocalRing A] : Set ℕ :=
 /-- The full prime-to-characteristic inverse limit of roots of unity in the residue
 separable closure. -/
 noncomputable abbrev tameRoots (m : Ideal (integralClosure A Ksep)) [m.IsMaximal] :=
-  TameRoots.limit (residueSep Ksep m) (primeToIndex A)
+  rootsOfUnity.limit (residueSep Ksep m) (primeToIndex A)
 
 /-- Every finite-level tame order is positive and prime to the base residue characteristic. -/
 theorem tameRootIndex_subset (m : Ideal (integralClosure A Ksep)) [m.IsMaximal] :
@@ -66,15 +66,15 @@ tame orders. -/
 theorem rootsRestrictionPi_mem (m : Ideal (integralClosure A Ksep)) [m.IsMaximal]
     (family : tameRoots Ksep m) :
     rootsRestrictionPi K Ksep m family ∈
-      TameRoots.limit m.ResidueField (integralClosure.tameRootIndex K m) := sorry
+      rootsOfUnity.limit m.ResidueField (integralClosure.tameRootIndex K m) := sorry
 
 /-- The comparison from the full prime-to-characteristic roots-of-unity limit to the
 finite-level tame roots-of-unity limit. -/
 noncomputable def rootsRestriction (m : Ideal (integralClosure A Ksep)) [m.IsMaximal] :
     tameRoots Ksep m →*
-      TameRoots.limit m.ResidueField (integralClosure.tameRootIndex K m) :=
+      rootsOfUnity.limit m.ResidueField (integralClosure.tameRootIndex K m) :=
   (rootsRestrictionPi K Ksep m).codRestrict
-    (TameRoots.limit m.ResidueField (integralClosure.tameRootIndex K m))
+    (rootsOfUnity.limit m.ResidueField (integralClosure.tameRootIndex K m))
     (rootsRestrictionPi_mem K Ksep m)
 
 /-- The full prime-to-characteristic limit and the finite-level tame limit are identified
@@ -84,13 +84,13 @@ theorem rootsRestriction_bijective (m : Ideal (integralClosure A Ksep)) [m.IsMax
 
 /-- The total inverse selection for the restriction map, bundled as a group homomorphism. -/
 noncomputable def rootsLift (m : Ideal (integralClosure A Ksep)) [m.IsMaximal] :
-    TameRoots.limit m.ResidueField (integralClosure.tameRootIndex K m) →*
+    rootsOfUnity.limit m.ResidueField (integralClosure.tameRootIndex K m) →*
       tameRoots Ksep m :=
   MonoidHom.mk' (Function.invFun (rootsRestriction K Ksep m)) sorry
 
 /-- Restricting the inverse selection recovers a finite-level compatible family. -/
 theorem rootsRestriction_rootsLift (m : Ideal (integralClosure A Ksep)) [m.IsMaximal]
-    (family : TameRoots.limit m.ResidueField (integralClosure.tameRootIndex K m)) :
+    (family : rootsOfUnity.limit m.ResidueField (integralClosure.tameRootIndex K m)) :
     rootsRestriction K Ksep m (rootsLift K Ksep m family) = family := sorry
 
 /-- Lifting the restriction recovers a full prime-to-characteristic compatible family. -/

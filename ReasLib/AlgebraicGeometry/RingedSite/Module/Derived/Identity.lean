@@ -10,7 +10,7 @@ public import ReasLib.Algebra.Category.ModuleCat.Sheaf.Restriction
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.ChangeOfRings
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Derived.ChangeOfRings
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Derived.ChangeOfRings.Cochain
-public import ReasLib.AlgebraicGeometry.Scheme.Module.Derived.Dualizing.NewUpperShriek.Assignment
+public import ReasLib.Algebra.Homology.HomotopyCategory.MapIdentity
 public import ReasLib.CategoryTheory.DerivedCategory.Functor.Composition
 public import ReasLib.CategoryTheory.Functor.Derived.Naturality.Left
 

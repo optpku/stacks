@@ -25,23 +25,23 @@ universe u
 
 namespace AlgebraicGeometry.AlgebraicSpace.Modules
 
-#check (AlgebraicGeometry.AlgebraicSpace.Modules.isomSubfunctor :
+#check ((fun {S} {X B} f F G _ _ => AlgebraicGeometry.AlgebraicSpace.Modules.isomSubfunctor f F G) :
     ∀ {S : Scheme.{u}} {X B : AlgebraicSpace S}
       (f : X ⟶ B) (F G : X.Modules) [F.IsQuasicoherent] [G.IsQuasicoherent],
       Subfunctor (homFunctor f F G))
 
-#check (AlgebraicGeometry.AlgebraicSpace.Modules.isomFunctor :
+#check ((fun {S} {X B} f F G _ _ => AlgebraicGeometry.AlgebraicSpace.Modules.isomFunctor f F G) :
     ∀ {S : Scheme.{u}} {X B : AlgebraicSpace S}
       (f : X ⟶ B) (F G : X.Modules) [F.IsQuasicoherent] [G.IsQuasicoherent],
       (SchemeOver B)ᵒᵖ ⥤ Type (u + 1))
 
-#check (AlgebraicGeometry.AlgebraicSpace.Modules.IsomFunctor.mk :
+#check ((fun {S} {X B} f F G _ _ {σ} u hu => @AlgebraicGeometry.AlgebraicSpace.Modules.IsomFunctor.mk S X B f F G σ u hu) :
     ∀ {S : Scheme.{u}} {X B : AlgebraicSpace S}
       (f : X ⟶ B) (F G : X.Modules) [F.IsQuasicoherent] [G.IsQuasicoherent]
       {σ : SchemeOver B} (u : (homFunctor f F G).obj (op σ)) [IsIso u],
       (isomFunctor f F G).obj (op σ))
 
-#check (AlgebraicGeometry.AlgebraicSpace.Modules.mem_isomSubfunctor :
+#check ((fun {S} {X B} f F G _ _ {σ} u => AlgebraicGeometry.AlgebraicSpace.Modules.mem_isomSubfunctor f F G u) :
     ∀ {S : Scheme.{u}} {X B : AlgebraicSpace S}
       (f : X ⟶ B) (F G : X.Modules) [F.IsQuasicoherent] [G.IsQuasicoherent]
       {σ : SchemeOver B} (u : (homFunctor f F G).obj (op σ)),

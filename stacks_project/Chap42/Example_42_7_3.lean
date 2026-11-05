@@ -28,7 +28,8 @@ catenary. -/
 exactly at maximal points. -/
 @[stacks 02QN] #check
   (PrimeSpectrum.quotientKrullDim.eq_zero_iff_isMaximal :
-    ∀ {A : Type u} [CommRing A] [IsDomain A], ringKrullDim A = 1 →
+    ∀ {A : Type u} [CommRing A] [IsDomain A], ∀ hdim : ringKrullDim A = 1,
+      letI := Ring.dimensionLEOne_of_ringKrullDim_eq_one hdim
       ∀ p : PrimeSpectrum A,
         PrimeSpectrum.quotientKrullDim p = 0 ↔ p.asIdeal.IsMaximal)
 
@@ -36,15 +37,17 @@ exactly at maximal points. -/
 exactly at the generic point. -/
 @[stacks 02QN] #check
   (PrimeSpectrum.quotientKrullDim.eq_one_iff_eq_bot :
-    ∀ {A : Type u} [CommRing A] [IsDomain A], ringKrullDim A = 1 →
+    ∀ {A : Type u} [CommRing A] [IsDomain A], ∀ hdim : ringKrullDim A = 1,
+      letI := Ring.dimensionLEOne_of_ringKrullDim_eq_one hdim
       ∀ p : PrimeSpectrum A, PrimeSpectrum.quotientKrullDim p = 1 ↔ p = ⊥)
 
 /- Example 42.7.3 (4): on a one-dimensional domain, the quotient Krull dimension is a
 dimension function. -/
 @[stacks 02QN] #check
   (PrimeSpectrum.quotientKrullDim.isDimensionFunctionOfDimOneDomain :
-    ∀ {A : Type u} [CommRing A] [IsDomain A], ringKrullDim A = 1 →
-      IsDimensionFunction (PrimeSpectrum.quotientKrullDim : PrimeSpectrum A → ℤ))
+    ∀ {A : Type u} [CommRing A] [IsDomain A], ∀ hdim : ringKrullDim A = 1,
+      letI := Ring.dimensionLEOne_of_ringKrullDim_eq_one hdim
+      IsDimensionFunction (fun p : PrimeSpectrum A ↦ PrimeSpectrum.quotientKrullDim p))
 
 /- The integers give the illustrative one-dimensional domain. -/
 #check

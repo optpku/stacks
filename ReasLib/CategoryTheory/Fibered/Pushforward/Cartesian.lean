@@ -12,16 +12,20 @@ import Mathlib.Tactic.CrossRefAttribute
 /-!
 # Strongly cartesian arrows in a pushforward localization
 
-This module characterizes the image of a prelocalized pushforward arrow under the localization
-functor.  Its image is strongly cartesian for the pushforward projection exactly when the
-arrow's second categorical-pullback component is strongly cartesian for the original
-projection.  The result is independent of any topology or stack condition.
+The image of a prelocalized pushforward arrow is strongly cartesian for the pushforward
+projection if its second categorical-pullback component is strongly cartesian for the original
+projection. The result is independent of any topology or stack condition.
+
+The converse claim in the proof of Stacks 04WG does not hold in general. For example, let
+`C` be the chain `0 < 1`, let `S` be the chain `a < b < c`, let `p` send `a` to `0` and
+`b, c` to `1`, and let `u` be the functor to the terminal category. The strongly cartesian
+arrows `a ⟶ b` and `a ⟶ c` are inverted by the localization, so the image of `b ⟶ c`
+is also invertible and hence strongly cartesian. But `b ⟶ c` is a noninvertible vertical
+arrow for `p`, so it is not strongly cartesian.
 
 ## Main declarations
 
 * `Functor.Pushforward.Q.map.isStronglyCartesian.ofSnd` -- the forward implication.
-* `Functor.Pushforward.Q.snd.isStronglyCartesian.ofMap` -- reflection to the second component.
-* `Functor.Pushforward.Q.map.isStronglyCartesian.iffSnd` -- the componentwise criterion.
 -/
 
 @[expose] public section
@@ -52,36 +56,6 @@ theorem map.isStronglyCartesian.ofSnd
     (u.pushforwardProjection p h).IsStronglyCartesian
       ((u.pushforwardProjection p h).map ((u.pushforwardFractions p).Q.map f))
       ((u.pushforwardFractions p).Q.map f) := sorry
-
-/-- Lemma 8.12.6 (tag 04WG): if the image of a prelocalized pushforward arrow is strongly
-cartesian in the pushforward localization, then its second component is strongly cartesian. -/
-@[stacks 04WG "pushforward strongly cartesian reflection criterion"]
-theorem snd.isStronglyCartesian.ofMap
-    (u : C ⥤ D) (p : S ⥤ C) [p.IsFibered]
-    [HasPullbacks C] [HasEqualizers C]
-    [PreservesLimitsOfShape WalkingCospan u]
-    [PreservesLimitsOfShape WalkingParallelPair u]
-    (h : ProjectionChoice u p)
-    {X Y : u ₚₚ p} (f : X ⟶ Y)
-    (hf : (u.pushforwardProjection p h).IsStronglyCartesian
-      ((u.pushforwardProjection p h).map ((u.pushforwardFractions p).Q.map f))
-      ((u.pushforwardFractions p).Q.map f)) :
-    p.IsStronglyCartesian (p.map f.snd) f.snd := sorry
-
-/-- Lemma 8.12.6 (tag 04WG): the image of a prelocalized pushforward arrow is strongly
-cartesian exactly when its second categorical-pullback component is strongly cartesian. -/
-@[stacks 04WG "pushforward strongly cartesian component criterion"]
-theorem map.isStronglyCartesian.iffSnd
-    (u : C ⥤ D) (p : S ⥤ C) [p.IsFibered]
-    [HasPullbacks C] [HasEqualizers C]
-    [PreservesLimitsOfShape WalkingCospan u]
-    [PreservesLimitsOfShape WalkingParallelPair u]
-    (h : ProjectionChoice u p)
-    {X Y : u ₚₚ p} (f : X ⟶ Y) :
-    (u.pushforwardProjection p h).IsStronglyCartesian
-      ((u.pushforwardProjection p h).map ((u.pushforwardFractions p).Q.map f))
-      ((u.pushforwardFractions p).Q.map f) ↔
-      p.IsStronglyCartesian (p.map f.snd) f.snd := sorry
 
 end Functor.Pushforward.Q
 

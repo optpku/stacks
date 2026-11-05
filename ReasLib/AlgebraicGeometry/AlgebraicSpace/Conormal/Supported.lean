@@ -8,14 +8,15 @@ module
 
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Conormal.Functorial
 public import ReasLib.LinearAlgebra.TensorProduct.Annihilated
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Points.Immersion
 
 /-!
 # Supported conormal quotient comparisons
 
 For a closed immersion, the ideal annihilates its conormal quotient. The module
 adjunction unit and the coborder comparison are therefore sectionwise bijective.
-Inverse components reconstruct the unique section in the actual map's fiber;
-the data do not depend on an admitted inverse-existence certificate.
+The inverse coborder comparison is induced by the reverse geometric square.
+The supported-unit inverse below still uses sectionwise inverse choice.
 -/
 
 @[expose] public section
@@ -53,25 +54,43 @@ theorem pullbackQuotientToConormal_section_bijective {X X' : AlgebraicSpace S}
     (i : X ⟶ X') [IsClosedImmersion i] (U : (smallEtaleSite X)ᵒᵖ) :
     Function.Bijective ((pullbackQuotientToConormal i).val.app U) := sorry
 
-/-- The inverse coborder comparison reconstructs the unique section in the actual fiber. -/
+/-- A closed immersion has empty image boundary, so the identity of the ambient
+space lands in its coborder open. -/
+theorem range_id_subset_coborder_of_closed {X X' : AlgebraicSpace S}
+    (i : X ⟶ X') [IsClosedImmersion i] :
+    Set.range (Points.map (𝟙 X')) ⊆
+      _root_.coborder (Set.range (Points.map i)) := by
+  simp only [_root_.coborder, (IsClosedImmersion.isClosed_range_points i).closure_eq,
+    Set.diff_self, Set.compl_empty]
+  exact Set.subset_univ _
+
+/-- The inverse coborder inclusion retains each ambient section in the open subtype. -/
+def closedCoborderRetraction {X X' : AlgebraicSpace S} (i : X ⟶ X')
+    [IsClosedImmersion i] : X' ⟶ (IsImmersion.coborderRange i).X :=
+  OpenSubspace.Construction.lift (𝟙 X') (range_id_subset_coborder_of_closed i)
+
+/-- The reverse coborder square for a closed immersion. -/
+theorem closedCoborderRetraction_square {X X' : AlgebraicSpace S}
+    (i : X ⟶ X') [IsClosedImmersion i] :
+    CommSq (𝟙 X) i (IsImmersion.liftCoborder i) (closedCoborderRetraction i) := ⟨by rfl⟩
+
+/-- The inverse coborder comparison is induced by the reverse square on actual ideal
+quotients. It uses the concrete open-subtype lift, without choosing inverse sections. -/
 def pullbackQuotientToConormalInv {X X' : AlgebraicSpace S} (i : X ⟶ X')
     [IsClosedImmersion i] :
     Hom.conormalSheaf i ⟶
       (Modules.pullback i).obj
-        (Modules.quotientByIdeal (Hom.idealSheafSubobject i) (Hom.idealSheaf i)) where
-  val :=
-    { app := fun U ↦ by
-        classical
-        let f := (pullbackQuotientToConormal i).val.app U
-        exact ModuleCat.ofHom (f.hom.inverse
-          (fun y ↦ if ∃ x, f x = y then Function.invFun f.hom y else 0)
-          (by
-            intro x
-            simp only [if_pos (show ∃ z, f z = f x from ⟨x, rfl⟩)]
-            exact Function.leftInverse_invFun
-              (pullbackQuotientToConormal_section_bijective i U).injective x)
-          (by sorry))
-      naturality := by intro U V f; sorry }
+        (Modules.quotientByIdeal (Hom.idealSheafSubobject i) (Hom.idealSheaf i)) :=
+  (eqToIso (congrArg Modules.pullback
+      (show IsImmersion.liftCoborder i = i ≫ closedCoborderRetraction i from
+        (Category.id_comp _).symm.trans (closedCoborderRetraction_square i).w))).hom.app
+      (Modules.quotientByIdeal (Hom.idealSheafSubobject (IsImmersion.liftCoborder i))
+        (Hom.idealSheaf (IsImmersion.liftCoborder i))) ≫
+    (Modules.pullbackCompIso i (closedCoborderRetraction i)).inv.app
+      (Modules.quotientByIdeal (Hom.idealSheafSubobject (IsImmersion.liftCoborder i))
+        (Hom.idealSheaf (IsImmersion.liftCoborder i))) ≫
+    (Modules.pullback i).map
+      (Hom.Conormal.idealQuotientMap (closedCoborderRetraction_square i))
 
 /-- The inverse recovers the section sent through the coborder comparison. -/
 @[simp]

@@ -20,7 +20,8 @@ import Mathlib.Tactic.CrossRefAttribute
 This module owns the existence statements for solutions of an essentially finite-type extension
 of discrete valuation rings. The source-facing Nagata disjunction remains explicit, while a
 separate specialization exposes the common downstream case in which the target is already known
-to be Nagata.
+to be Nagata. The input fraction-field extension may be transcendental; only the finite output
+extension is required to be algebraic separable.
 
 @stack 09II
 @stack 0BRP
@@ -63,7 +64,7 @@ the fraction-field extension is separable, then the extension has a separable so
 @[stacks 0BRP "Lemma 15.117.9: existence of a separable solution under the Nagata hypothesis"]
 theorem exists_separable_of_essFiniteType
     (hNagata : NagataRing A ∨ NagataRing B)
-    (hsepKL : Algebra.IsSeparable K L) :
+    (hsepKL : Algebra.IsSeparableOver K L) :
     ∃ (K1 : Type (max u v w x)) (_ : Field K1) (_ : Algebra A K1) (_ : Algebra K K1)
       (_ : IsScalarTower A K K1) (_ : FiniteDimensional K K1),
       IsSeparableSolutionFor A B K L K1 := sorry
@@ -76,7 +77,7 @@ theorem exists_separable_of_essFiniteType
 finite-type extension of discrete valuation rings. -/
 @[stacks 0BRP "Target-Nagata specialization of Lemma 15.117.9"]
 theorem exists_separable_of_essFiniteType_of_target [NagataRing B]
-    (hsepKL : Algebra.IsSeparable K L) :
+    (hsepKL : Algebra.IsSeparableOver K L) :
     ∃ (K1 : Type (max u v w x)) (_ : Field K1) (_ : Algebra A K1) (_ : Algebra K K1)
       (_ : IsScalarTower A K K1) (_ : FiniteDimensional K K1),
       IsSeparableSolutionFor A B K L K1 := sorry

@@ -14,12 +14,13 @@ public import ReasLib.CategoryTheory.Bicategory.Pseudofunctor.Naturality.StrongT
 
 Target-cell postcomposition reverses vertical composition. For
 `η : f ⟶ g` and `θ : g ⟶ h`, the strong transformation induced by
-`η ≫ θ` is the vertical composite of the transformation induced by `θ`
-followed by the transformation induced by `η`.
+`η ≫ θ` is canonically isomorphic to the vertical composite of the
+transformation induced by `θ` followed by the transformation induced by `η`.
 
-The bundled equality is accompanied by its object-component formula. This is
-the local `map_comp` API needed to package target-cell postcomposition as a
-functor out of the opposite target hom-category.
+The bundled invertible modification is accompanied by its object-component
+comparison. These are the `mapComp` data for the pseudofunctor on the locally
+discrete bicategory of the opposite target hom-category. No strict composition
+equality is asserted.
 -/
 
 @[expose] public section
@@ -45,67 +46,15 @@ variable {X Y : C}
 
 namespace postcompose
 
-/-- Target-cell postcomposition reverses vertical composition as vertical
-composition of strong transformations. -/
-@[simp]
-theorem cellStrongTrans.comp
-    (K : Pseudofunctor A C) {f g h : X ⟶ Y}
-    (η : f ⟶ g) (θ : g ⟶ h) :
-    cellStrongTrans K (η ≫ θ) =
-      Pseudofunctor.StrongTrans.vcomp
-        (cellStrongTrans K θ)
-        (cellStrongTrans K η) := sorry
-
-/-- Object components display the reversed vertical composition of target
-cells as ordinary composition of costructured-arrow morphisms. -/
-@[simp]
-theorem cellStrongTrans.comp.app
-    {f g h : X ⟶ Y} (η : f ⟶ g) (θ : g ⟶ h)
-    (S : ColaxCostructuredArrow K X) :
-    (cellStrongTrans K (η ≫ θ)).app S =
-      (cellStrongTrans K θ).app S ≫
-      (cellStrongTrans K η).app S := sorry
-
-namespace Implementation
-
-/-- The source-map comparison underlying the pointwise composition comparison
-for target-cell components. -/
-private def cellMapComp.app.sourceIso
-    {f g h : X ⟶ Y} (η : f ⟶ g) (θ : g ⟶ h)
-    (S : ColaxCostructuredArrow K X) :
-    ColaxCostructuredArrow.map (K := K) (X := Y)
-          (cellComponent (η ≫ θ) S) ≅
-      ColaxCostructuredArrow.map (K := K) (X := Y)
-        (cellComponent θ S ≫
-          cellComponent η S) :=
-  (ρ_ (𝟙 S.left)).symm
-
-/-- Compatibility of the source-map comparison with the normalized
-costructured-arrow comparison cells. -/
-private theorem cellMapComp.app.comm
-    {f g h : X ⟶ Y} (η : f ⟶ g) (θ : g ⟶ h)
-    (S : ColaxCostructuredArrow K X) :
-    ((obj f S).comparison S.left).map
-          (cellMapComp.app.sourceIso η θ S).hom ≫
-        ColaxCostructuredArrow.fac (K := K) (X := Y)
-          (cellComponent θ S ≫
-            cellComponent η S) =
-      ColaxCostructuredArrow.fac (K := K) (X := Y)
-        (cellComponent (η ≫ θ) S) := sorry
-
-end Implementation
-
 /-- The pointwise composition comparison for contravariant target-cell
-postcomposition. -/
-def cellMapComp.app
+postcomposition, reusing the component-level canonical comparison. -/
+abbrev cellMapComp.app
     {f g h : X ⟶ Y} (η : f ⟶ g) (θ : g ⟶ h)
     (S : ColaxCostructuredArrow K X) :
     cellComponent (η ≫ θ) S ≅
       cellComponent θ S ≫
         cellComponent η S :=
-  ColaxCostructuredArrow.iso₂Mk
-    (Implementation.cellMapComp.app.sourceIso η θ S)
-    (Implementation.cellMapComp.app.comm η θ S)
+  cellComponent.comp η θ S
 
 namespace Implementation
 
@@ -143,6 +92,30 @@ def cellMapComp
   Pseudofunctor.StrongTrans.isoMk
     (cellMapComp.app η θ)
     (Implementation.cellMapComp.naturality η θ)
+
+/-- Target-cell postcomposition reverses vertical composition up to the
+canonical invertible modification `cellMapComp`. -/
+abbrev cellStrongTrans.comp
+    (K : Pseudofunctor A C) {f g h : X ⟶ Y}
+    (η : f ⟶ g) (θ : g ⟶ h) :
+    @Iso
+      (postcompose K h ⟶ postcompose K f)
+      Pseudofunctor.StrongTrans.homCategoryOwner
+      (cellStrongTrans K (η ≫ θ))
+      (Pseudofunctor.StrongTrans.vcomp
+        (cellStrongTrans K θ)
+        (cellStrongTrans K η)) :=
+  cellMapComp K η θ
+
+/-- The object component of the invertible composition modification.
+The source maps are compared by a unitor, rather than a strict equality. -/
+abbrev cellStrongTrans.comp.app
+    {f g h : X ⟶ Y} (η : f ⟶ g) (θ : g ⟶ h)
+    (S : ColaxCostructuredArrow K X) :
+    (cellStrongTrans K (η ≫ θ)).app S ≅
+      (cellStrongTrans K θ).app S ≫
+        (cellStrongTrans K η).app S :=
+  cellMapComp.app η θ S
 
 /-- The forward component of the target-cell composition comparison is the
 explicit pointwise composition comparison. -/

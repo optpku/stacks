@@ -36,9 +36,26 @@ def resolutionInclusion {M : C} (I : InjectiveResolution M) :
     singleModel M ⟶ DerivedCategory.Plus.Q.obj ((CochainComplex.Plus.extendNat C).obj I.cocomplex) :=
   DerivedCategory.Plus.Q.map ((CochainComplex.Plus.extendNat C).map I.ι)
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Extension and localization turn the resolution augmentation into an isomorphism. -/
 instance resolutionInclusion_isIso {M : C} (I : InjectiveResolution M) :
-    IsIso (resolutionInclusion I) := sorry
+    IsIso (resolutionInclusion I) := by
+  haveI : IsIso ((CochainComplex.Plus.ι C ⋙ DerivedCategory.Q).map
+      ((CochainComplex.Plus.extendNat C).map I.ι)) := by
+    change IsIso (DerivedCategory.Q.map
+      (HomologicalComplex.extendMap I.ι ComplexShape.embeddingUpNat))
+    infer_instance
+  have h := NatIso.naturality_2 (DerivedCategory.Plus.Qh.compInclusionIso C)
+    ((CochainComplex.Plus.extendNat C).map I.ι)
+  have hIso : IsIso ((DerivedCategory.Plus.Q ⋙ DerivedCategory.Plus.ι).map
+      ((CochainComplex.Plus.extendNat C).map I.ι)) := by
+    rw [← h]
+    infer_instance
+  haveI : IsIso
+      ((DerivedCategory.Plus.ι : DerivedCategory.Plus C ⥤ DerivedCategory C).map
+        (resolutionInclusion I)) := hIso
+  exact isIso_of_reflects_iso (resolutionInclusion I)
+    (DerivedCategory.Plus.ι : DerivedCategory.Plus C ⥤ DerivedCategory C)
 
 /-- The coefficient/extension comparison is the actual degreewise map from the extension owner. -/
 def coefficientExtensionMap {M : C} (I : InjectiveResolution M) :
@@ -72,7 +89,9 @@ def ordinaryToBounded {M : C} (I : InjectiveResolution M) (n : ℕ) :
 
 /-- The ordinary-to-bounded map is an isomorphism of the actual resolution models. -/
 instance ordinaryToBounded_isIso {M : C} (I : InjectiveResolution M) (n : ℕ) :
-    IsIso (ordinaryToBounded F I n) := sorry
+    IsIso (ordinaryToBounded F I n) := by
+  unfold ordinaryToBounded
+  infer_instance
 
 /-- The canonical degree comparison inverts only the specified resolution map. -/
 def ordinaryToBoundedIso {M : C} (I : InjectiveResolution M) (n : ℕ) :=

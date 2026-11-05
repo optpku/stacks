@@ -112,8 +112,7 @@ theorem exists_residuePointFactor {S : Scheme.{u}} {X Y : AlgebraicSpace S}
     Nonempty (Factorization ((residuePoint x).map f)
       (residuePoint (Points.map f x))) :=
   (unique_factorization_residuePoint ((residuePoint x).map f)
-    ((Points.map_mk f (residuePoint x)).symm.trans
-      (congrArg (Points.map f) (mk_residuePoint x)))).1
+    (congrArg (Points.map f) (mk_residuePoint x))).1
 
 /-- A factorization of `Spec(κ(x)) ⟶ Y` through `Spec(κ(Points.map f x)) ⟶ Y` is
 unique. -/
@@ -122,8 +121,7 @@ theorem subsingleton_residuePointFactor {S : Scheme.{u}} {X Y : AlgebraicSpace S
     Subsingleton (Factorization ((residuePoint x).map f)
       (residuePoint (Points.map f x))) :=
   (unique_factorization_residuePoint ((residuePoint x).map f)
-    ((Points.map_mk f (residuePoint x)).symm.trans
-      (congrArg (Points.map f) (mk_residuePoint x)))).2
+    (congrArg (Points.map f) (mk_residuePoint x))).2
 
 /-- A morphism `f : X ⟶ Y` of decent algebraic spaces induces an isomorphism
 `κ(Points.map f x) ⟶ κ(x)` if and only if the composite `Spec(κ(x)) ⟶ Y` is a

@@ -12,9 +12,9 @@ public import ReasLib.CategoryTheory.Homology.SpectralSequence.PageFiltration
 /-!
 # Page Filtrations from Exact Couples
 
-The classical kernel-image filtration is compared with a spectral sequence assembled from an
-explicit `Derived.Construction`. Concrete quotient maps accept the comparison evidence they use;
-the comparison theorems themselves remain proposition-valued.
+The classical kernel-image filtration is compared with the canonical spectral sequence of an
+exact couple. Concrete quotient maps accept the comparison evidence they use; the comparison
+theorems themselves remain proposition-valued.
 -/
 
 @[expose] public section
@@ -97,31 +97,31 @@ namespace Derived.Page
 /-- The associated boundary filtration is the closed-form image of `Ker(α^r)`. -/
 @[stacks 011T]
 theorem boundary_eq
-    (K : Derived.Construction C) (X : ExactCouple C) (r : ℕ+) :
-    (K.associatedSpectralSequence X).boundary PUnit.unit r =
+    (X : ExactCouple C) (r : ℕ+) :
+    (Derived.associatedSpectralSequence X).boundary PUnit.unit r =
       X.boundariesSubobject r.natPred := sorry
 
 /-- The associated cycle filtration is the closed-form inverse image of `Im(α^r)`. -/
 @[stacks 011T]
 theorem cycle_eq
-    (K : Derived.Construction C) (X : ExactCouple C) (r : ℕ+) :
-    (K.associatedSpectralSequence X).cycle PUnit.unit r =
+    (X : ExactCouple C) (r : ℕ+) :
+    (Derived.associatedSpectralSequence X).cycle PUnit.unit r =
       X.cyclesSubobject r.natPred := sorry
 
 /-- The positive page at index `r + 1` is the middle object of the `r`-fold iterate. -/
 @[stacks 011S "derived page comparison"]
 theorem objPositive
-    (K : Derived.Construction C) (X : ExactCouple C) (r : ℕ) :
-    (K.associatedSpectralSequence X).pageObject PUnit.unit (Nat.succPNat r) =
-      (K.iterate X r).E := sorry
+    (X : ExactCouple C) (r : ℕ) :
+    (Derived.associatedSpectralSequence X).pageObject PUnit.unit (Nat.succPNat r) =
+      (Derived.iterate X r).E := sorry
 
 /-- The quotient class represented by `y ≫ g`, using an explicit class map and factorization. -/
 @[stacks 011T]
 noncomputable def boundaryClassMap
-    (K : Derived.Construction C) (X : ExactCouple C) {T : C} (r : ℕ)
-    (q : (X.cyclesSubobject r : C) ⟶ (K.iterate X r).E)
+    (X : ExactCouple C) {T : C} (r : ℕ)
+    (q : (X.cyclesSubobject r : C) ⟶ (Derived.iterate X r).E)
     (y : T ⟶ X.A) (hfactor : (X.cyclesSubobject r).Factors (y ≫ X.g)) :
-    T ⟶ (K.iterate X r).E :=
+    T ⟶ (Derived.iterate X r).E :=
   (X.cyclesSubobject r).factorThru (y ≫ X.g) hfactor ≫ q
 
 /- The representative formula is stated directly on the iterated page object, avoiding a
@@ -130,17 +130,17 @@ definitionally identical quotient wrapper. -/
 to the class represented by `y ≫ g`. -/
 @[stacks 011T]
 theorem differential_eq_on_representatives
-    (K : Derived.Construction C) (X : ExactCouple C) {T : C} (r : ℕ)
-    (q : (X.cyclesSubobject r : C) ⟶ (K.iterate X r).E)
+    (X : ExactCouple C) {T : C} (r : ℕ)
+    (q : (X.cyclesSubobject r : C) ⟶ (Derived.iterate X r).E)
     (hq : HomologyPageTower.Cycle.IsToPageOf
-      ((K.associatedSpectralSequence X).homologyPageTower PUnit.unit)
+      ((Derived.associatedSpectralSequence X).homologyPageTower PUnit.unit)
       (Nat.succPNat r)
       (X.cyclesSubobject r)
       q)
     (x : T ⟶ (X.cyclesSubobject r : C)) (y : T ⟶ X.A)
     (hfactor : (X.cyclesSubobject r).Factors (y ≫ X.g))
     (hy : x ≫ (X.cyclesSubobject r).arrow ≫ X.f = y ≫ X.alphaPow r) :
-    x ≫ q ≫ (K.iterate X r).d = boundaryClassMap K X r q y hfactor := sorry
+    x ≫ q ≫ (Derived.iterate X r).d = boundaryClassMap X r q y hfactor := sorry
 
 end Derived.Page
 

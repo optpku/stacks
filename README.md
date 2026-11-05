@@ -96,6 +96,39 @@ the table identifies concrete interface calls. The application README lists
 [all six direct imports and the interface owners](applications/uniform-mordell-lang/#reaslib-reuse),
 with a [source-based import manifest](applications/uniform-mordell-lang/validation/reaslib-reuse.json).
 
+#### Required imports
+
+The 968 modules form the current loaded import closure. To identify the parts
+used by the statement, we also traced elaborated declaration types, data
+definitions, and structure field specifications, excluding bodies of
+`Prop`-valued declarations:
+
+| Scope | ReasLib owner modules | Referenced ReasLib declarations |
+|---|---:|---:|
+| Final `UniformMordellLang.theorem_1_1` statement and its data definitions | **49** | **274** |
+| All six application interfaces, including the pointed Abel–Jacobi map | **79** | **460** |
+
+The [complete module lists and declaration witnesses](applications/uniform-mordell-lang/REASLIB_REQUIRED_MODULES.md)
+identify these owners. Their source files still load their own module dependencies.
+Inline proof references inside retained data definitions remain in this trace.
+
+Compile experiments also identify this fine-grained entry profile for the
+complete existing consumers:
+
+| Consumer | Required ReasLib entry in the tested profile | Reason |
+|---|---|---|
+| Genus | `ReasLib.AlgebraicGeometry.Scheme.Module.Cohomology.GlobalSections` | Canonical cohomology with the scalar action and finrank. |
+| Picard | `ReasLib.AlgebraicGeometry.Scheme.Module.Picard.Relative.Pointed` | The graph-section class used by the Abel–Jacobi construction. |
+| Picard | `ReasLib.AlgebraicGeometry.Scheme.Module.Picard.Relative.Group` | Degree-zero representation and Jacobian group structure. |
+| Picard compatibility helper | `ReasLib.AlgebraicGeometry.Hilbert.SmoothProperCurve` | Required by the retained `graphHilbertPoint` helper. |
+
+Every entry in this profile is required when the other entries and declarations
+are held fixed. A separate core-only probe omitting `graphHilbertPoint` compiles
+with the first three entries. The complete profile still loads **960 modules**
+through the existing library sources. See the [31 compile experiments and scope definitions](applications/uniform-mordell-lang/#required-imports)
+for the distinction between required entry points, referenced declaration owners,
+and the full source import closure. The published import lines remain unchanged.
+
 #### Build and audit results
 
 The [recorded validation](applications/uniform-mordell-lang/validation/validation.json)

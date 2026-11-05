@@ -59,23 +59,26 @@ and [build and audit results](applications/uniform-mordell-lang/#build-and-valid
 ## Library overview
 
 ReasLib covers algebraic geometry, category theory, algebra, ring theory,
-topology, and related subjects. The following repository statistics were
-reported on **5 November 2026** and cover `ReasLib/`.
+topology, and related subjects. These counts cover the top-level `ReasLib/`;
+see the [source snapshot and counting method](docs/reaslib-statistics.json).
 
-| Subject directory | Lean source files | Definitions | Theorem declarations | Source lines |
+| Subject | Lean source files | Other declarations | Theorems / lemmas | Source lines |
 | --- | ---: | ---: | ---: | ---: |
-| [AlgebraicGeometry](ReasLib/AlgebraicGeometry/) | 12,892 | 53,670 | 56,538 | 1,509,581 |
-| [CategoryTheory](ReasLib/CategoryTheory/) | 5,293 | 16,479 | 28,484 | 600,724 |
-| [Algebra](ReasLib/Algebra/) | 3,248 | 15,454 | 19,451 | 428,092 |
-| [RingTheory](ReasLib/RingTheory/) | 2,895 | 6,964 | 13,084 | 287,777 |
-| [Topology](ReasLib/Topology/) | 506 | 1,749 | 1,966 | 46,958 |
-| [AlgebraicTopology](ReasLib/AlgebraicTopology/) | 369 | 1,570 | 2,814 | 49,527 |
-| Other subject directories | 431 | 1,014 | 2,009 | 49,548 |
-| **Total** | **25,634** | **96,900** | **124,346** | **2,972,207** |
+| [AlgebraicGeometry](ReasLib/AlgebraicGeometry/) | 12,893 | 53,669 | 56,538 | 1,509,871 |
+| [CategoryTheory](ReasLib/CategoryTheory/) | 5,294 | 16,479 | 28,484 | 601,585 |
+| [Algebra](ReasLib/Algebra/) | 3,249 | 15,451 | 19,451 | 428,521 |
+| [RingTheory](ReasLib/RingTheory/) | 2,896 | 6,964 | 13,084 | 288,028 |
+| [Topology](ReasLib/Topology/) | 507 | 1,749 | 1,966 | 47,099 |
+| [AlgebraicTopology](ReasLib/AlgebraicTopology/) | 370 | 1,570 | 2,814 | 49,665 |
+| Other subjects | 425 | 1,014 | 2,009 | 47,438 |
+| **Total** | **25,634** | **96,896** | **124,346** | **2,972,207** |
 
-Theorem declaration counts include statements whose proofs contain `sorry`;
-they are not counts of completed proofs. The table does not include the
-chapter-check files or Mathlib.
+Each subject includes its matching umbrella file (for example,
+`ReasLib/Algebra.lean`). Source lines include comments and blank lines.
+Declaration counts are static source counts, excluding examples and generated
+declarations. “Other declarations” includes definitions, instances, and type
+declarations. Theorem/lemma counts include unfinished `sorry` proofs.
+Chapter checks, Mathlib, and bundled application snapshots are excluded.
 
 ## How to use
 

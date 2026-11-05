@@ -1127,7 +1127,7 @@
   "published_source_sha256": {
     ".gitignore": "62e463a750a16f190f39c774094837477d71b5e2c063010cbf6bfa246eace170",
     "INDEPENDENT_REVIEW.md": "eb81ab219e79133f85d33425042b35832e6142e8e48f7e160787d0ddd23d4a53",
-    "README.md": "476d1d8e7daa630014813a08c80093ff8767129fb1f96a2d647f541816c84f26",
+    "README.md": "59cdb74527140e023f4d53c0db49745093338d2fe9326df9d570a17755fd3fae",
     "source-provenance.json": "b3c40a3bb8881da3f263c0ab9d5a3ebde45b53f4ab05e334c5cd40cdbb3bdfea",
     "annals-uniform-mordell-lang/AnnalsChallenge.lean": "981affea4d13d78b0a3dea358a882bde555164a0b8534198ec3dbb670fb04b77",
     "annals-uniform-mordell-lang/LICENSE": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
@@ -2153,7 +2153,11 @@
     "jacobian-foundations/ReasLib/Topology/Sheaves/Ring/Pullback.lean": "5b021da42dad55c3e06740ab332081250b47056a5f0f039aeec3cc4d3db347b0",
     "jacobian-foundations/ReasLib/Topology/Sheaves/Stalks/Pullback.lean": "341ba4e09c2c35ef1e1b6db7a941d0dcbeb3f280a0368f5853973f00eb4cd98c",
     "jacobian-foundations/ReasLib/Topology/Sheaves/Stalks/Sheafification.lean": "95e063130c5d2c3ac5cdac4d0d7da7121edd392f0584d0bc7d634fa2f20b6459",
-    "validation/reaslib-reuse.json": "fa547727f6e94d42b55fb15c0f82306d829a387d7af043949d240f386dcd179d"
+    "validation/reaslib-reuse.json": "fa547727f6e94d42b55fb15c0f82306d829a387d7af043949d240f386dcd179d",
+    "REASLIB_REQUIRED_MODULES.md": "28302e8af96aa73003e5a5b0f1c5eafee72b1c7ac626d072ccfd4075e3b2771c",
+    "analysis/TraceReasLibDependencies.lean": "dbc28fb2cede6b13027e9eb73f68d66a89302ce98773cb27856c0d314e6a7810",
+    "validation/required-reaslib-dependencies.json": "c11e583938d9e54875f95d3e859fc2f0e3caf6c7f48ed3960690bafd384329ad",
+    "validation/import-necessity-experiments.json": "8fe54dd25af86aeb349aa61fc5920427c0ded59f8c0f938f39d5ea63089165d2"
   },
   "bundled_reaslib_modules": 1002,
   "annals_lean_files": 9,
@@ -2170,5 +2174,17 @@
     "statement_reference": "https://ziyangjeremygao.github.io/articles/UnifML.pdf",
     "curve_projectivity_reference": "https://stacks.math.columbia.edu/tag/0A26",
     "mathematical_proofs_deferred": true
+  },
+  "import_necessity_analysis": {
+    "source_import_lines_unchanged": true,
+    "mathematical_sources_unchanged": true,
+    "compile_probe_cases": 31,
+    "trace_tool_elaboration_passed": true,
+    "theorem_statement_owner_modules": 49,
+    "theorem_statement_reaslib_declarations": 274,
+    "six_interface_owner_modules": 79,
+    "six_interface_reaslib_declarations": 460,
+    "fine_grained_profile_transitive_modules": 960,
+    "analysis_lean_files": 1
   }
 }

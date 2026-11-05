@@ -44,6 +44,45 @@ All six directly imported modules are listed below. Paths are relative to `jacob
 
 The shared layers follow `Mathlib → ReasLib → JacobianFoundations → AnnalsChallenge`. Mathlib provides standard carriers and general APIs, ReasLib provides the reusable geometry and cohomology interfaces, and the application defines the paper-specific bound and final statement. Import and interface counts do not measure completed proofs.
 
+### Required imports
+
+The current 968-module import closure and the declaration dependencies answer different questions. We traced elaborated declaration types and data definitions, retaining the types of proposition-valued declarations while skipping those declarations' bodies. Inline proof references inside retained data definitions remain in the trace. Reached ReasLib inductive/structure types also contribute their constructor field specifications. Counts include generated declarations and exclude Mathlib modules.
+
+| Statement/data scope | ReasLib owner modules | ReasLib declarations |
+|---|---:|---:|
+| `UniformMordellLang.theorem_1_1` alone | **49** | **274** |
+| The six audited public application interfaces | **79** | **460** |
+
+The [full module tables](REASLIB_REQUIRED_MODULES.md) list all 49 theorem owners and the 30 additional owners used by the six-interface scope. The [dependency report](validation/required-reaslib-dependencies.json) provides every declaration witness and the separate counts obtained when current proof bodies are included. These lists describe the present statement/data representation. Building an owner module still requires its source imports and elaboration setup.
+
+We also ran compilation experiments on the pinned toolchain:
+
+| Experiment | Source scope | Result |
+|---|---|---|
+| All per-consumer subsets of the written ReasLib imports: 16 Genus + 4 Picard | Keep every declaration and all other imports fixed. | `Genus` needs only `Cohomology.GlobalSections`; `Picard` needs both of its existing broad imports. |
+| All per-consumer subsets of a `lake shake --explain` profile: 2 Genus + 8 Picard | Replace broad imports by the four entries listed below; keep all declarations and other imports fixed. | Each selected entry is required within this profile. |
+| One core-only Picard probe | Omit only the independent `graphHilbertPoint` compatibility helper. | `Relative.Group` and `Relative.Pointed` suffice for the remaining Picard declarations. |
+
+The tested fine-grained entry profile is:
+
+| Consumer | Entry module | Concrete use |
+|---|---|---|
+| `Genus.lean` | [ReasLib.AlgebraicGeometry.Scheme.Module.Cohomology.GlobalSections](jacobian-foundations/ReasLib/AlgebraicGeometry/Scheme/Module/Cohomology/GlobalSections.lean) | `Scheme.Hom.cohomologyFinrank`. |
+| `Picard.lean` | [ReasLib.AlgebraicGeometry.Scheme.Module.Picard.Relative.Pointed](jacobian-foundations/ReasLib/AlgebraicGeometry/Scheme/Module/Picard/Relative/Pointed.lean) | `RelativePicard.sectionClass`. |
+| `Picard.lean` | [ReasLib.AlgebraicGeometry.Scheme.Module.Picard.Relative.Group](jacobian-foundations/ReasLib/AlgebraicGeometry/Scheme/Module/Picard/Relative/Group.lean) | Degree-zero Picard representation and group structure. |
+| `Picard.lean` compatibility helper | [ReasLib.AlgebraicGeometry.Hilbert.SmoothProperCurve](jacobian-foundations/ReasLib/AlgebraicGeometry/Hilbert/SmoothProperCurve.lean) | Hilbert representability used by `graphHilbertPoint`; this helper is outside the six-root declaration dependency cone. |
+
+Simply removing the redundant written imports leaves the transitive closure at **968** modules. Using the tested fine-grained entries reduces it to **960** with all current declarations retained. Those 960 files still reflect the existing library's module organization; further reductions require changing or splitting shared-library imports. The 49/79 owner lists support that analysis and are not standalone build allowlists. The source import lines and mathematical declarations have been preserved; all variants were tested in private probes.
+
+The [experiment record](validation/import-necessity-experiments.json) includes all 31 compilation outcomes and exact retained import sets. After the normal application build, the declaration trace can be reproduced with:
+
+```sh
+cd annals-uniform-mordell-lang
+lake env lean ../analysis/TraceReasLibDependencies.lean
+```
+
+It writes `.work/reuse/declaration-use.json`.
+
 ## Build and validation
 
 From this directory, with Elan and Python 3 available:

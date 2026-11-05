@@ -1,0 +1,362 @@
+{
+  "existing_import_subsets": {
+    "method": "Enumerate every subset of the currently written direct ReasLib imports, retain all other imports and the complete source body, and elaborate each probe on the pinned toolchain. No published source is changed.",
+    "toolchain": "leanprover/lean4:v4.32.0",
+    "source": {
+      "Genus": {
+        "sha256": "49fc2b845ec1ec5715114a3bbbc8592c4b1abae980db6aabf504f8294594ae69",
+        "imports": [
+          "ReasLib.Algebra.Category.ModuleCat.Sheaf.GrothendieckLarge",
+          "ReasLib.AlgebraicGeometry.RingedSpace.Module.Sections.Basic",
+          "ReasLib.AlgebraicGeometry.Scheme.GlobalSections",
+          "ReasLib.AlgebraicGeometry.Scheme.Module.Cohomology.GlobalSections"
+        ]
+      },
+      "Picard": {
+        "sha256": "e34d283b8e2a20bd1657261cba047914d4614a0df008cbbd5b795eae0c889ef6",
+        "imports": [
+          "ReasLib.AlgebraicGeometry.Scheme.Module.Picard.Relative.AbelMap",
+          "ReasLib.AlgebraicGeometry.Scheme.Module.Picard.Relative.Pointed.Represented"
+        ]
+      }
+    },
+    "minimal_passing_subsets": {
+      "Genus": [
+        [
+          "ReasLib.AlgebraicGeometry.Scheme.Module.Cohomology.GlobalSections"
+        ]
+      ],
+      "Picard": [
+        [
+          "ReasLib.AlgebraicGeometry.Scheme.Module.Picard.Relative.AbelMap",
+          "ReasLib.AlgebraicGeometry.Scheme.Module.Picard.Relative.Pointed.Represented"
+        ]
+      ]
+    },
+    "cases": [
+      {
+        "module": "JacobianFoundations.Genus",
+        "mask": 0,
+        "retained_imports": [],
+        "passed": false,
+        "exit_code": 1
+      },
+      {
+        "module": "JacobianFoundations.Genus",
+        "mask": 1,
+        "retained_imports": [
+          "ReasLib.Algebra.Category.ModuleCat.Sheaf.GrothendieckLarge"
+        ],
+        "passed": false,
+        "exit_code": 1
+      },
+      {
+        "module": "JacobianFoundations.Genus",
+        "mask": 2,
+        "retained_imports": [
+          "ReasLib.AlgebraicGeometry.RingedSpace.Module.Sections.Basic"
+        ],
+        "passed": false,
+        "exit_code": 1
+      },
+      {
+        "module": "JacobianFoundations.Genus",
+        "mask": 3,
+        "retained_imports": [
+          "ReasLib.Algebra.Category.ModuleCat.Sheaf.GrothendieckLarge",
+          "ReasLib.AlgebraicGeometry.RingedSpace.Module.Sections.Basic"
+        ],
+        "passed": false,
+        "exit_code": 1
+      },
+      {
+        "module": "JacobianFoundations.Genus",
+        "mask": 4,
+        "retained_imports": [
+          "ReasLib.AlgebraicGeometry.Scheme.GlobalSections"
+        ],
+        "passed": false,
+        "exit_code": 1
+      },
+      {
+        "module": "JacobianFoundations.Genus",
+        "mask": 5,
+        "retained_imports": [
+          "ReasLib.Algebra.Category.ModuleCat.Sheaf.GrothendieckLarge",
+          "ReasLib.AlgebraicGeometry.Scheme.GlobalSections"
+        ],
+        "passed": false,
+        "exit_code": 1
+      },
+      {
+        "module": "JacobianFoundations.Genus",
+        "mask": 6,
+        "retained_imports": [
+          "ReasLib.AlgebraicGeometry.RingedSpace.Module.Sections.Basic",
+          "ReasLib.AlgebraicGeometry.Scheme.GlobalSections"
+        ],
+        "passed": false,
+        "exit_code": 1
+      },
+      {
+        "module": "JacobianFoundations.Genus",
+        "mask": 7,
+        "retained_imports": [
+          "ReasLib.Algebra.Category.ModuleCat.Sheaf.GrothendieckLarge",
+          "ReasLib.AlgebraicGeometry.RingedSpace.Module.Sections.Basic",
+          "ReasLib.AlgebraicGeometry.Scheme.GlobalSections"
+        ],
+        "passed": false,
+        "exit_code": 1
+      },
+      {
+        "module": "JacobianFoundations.Genus",
+        "mask": 8,
+        "retained_imports": [
+          "ReasLib.AlgebraicGeometry.Scheme.Module.Cohomology.GlobalSections"
+        ],
+        "passed": true,
+        "exit_code": 0
+      },
+      {
+        "module": "JacobianFoundations.Genus",
+        "mask": 9,
+        "retained_imports": [
+          "ReasLib.Algebra.Category.ModuleCat.Sheaf.GrothendieckLarge",
+          "ReasLib.AlgebraicGeometry.Scheme.Module.Cohomology.GlobalSections"
+        ],
+        "passed": true,
+        "exit_code": 0
+      },
+      {
+        "module": "JacobianFoundations.Genus",
+        "mask": 10,
+        "retained_imports": [
+          "ReasLib.AlgebraicGeometry.RingedSpace.Module.Sections.Basic",
+          "ReasLib.AlgebraicGeometry.Scheme.Module.Cohomology.GlobalSections"
+        ],
+        "passed": true,
+        "exit_code": 0
+      },
+      {
+        "module": "JacobianFoundations.Genus",
+        "mask": 11,
+        "retained_imports": [
+          "ReasLib.Algebra.Category.ModuleCat.Sheaf.GrothendieckLarge",
+          "ReasLib.AlgebraicGeometry.RingedSpace.Module.Sections.Basic",
+          "ReasLib.AlgebraicGeometry.Scheme.Module.Cohomology.GlobalSections"
+        ],
+        "passed": true,
+        "exit_code": 0
+      },
+      {
+        "module": "JacobianFoundations.Genus",
+        "mask": 12,
+        "retained_imports": [
+          "ReasLib.AlgebraicGeometry.Scheme.GlobalSections",
+          "ReasLib.AlgebraicGeometry.Scheme.Module.Cohomology.GlobalSections"
+        ],
+        "passed": true,
+        "exit_code": 0
+      },
+      {
+        "module": "JacobianFoundations.Genus",
+        "mask": 13,
+        "retained_imports": [
+          "ReasLib.Algebra.Category.ModuleCat.Sheaf.GrothendieckLarge",
+          "ReasLib.AlgebraicGeometry.Scheme.GlobalSections",
+          "ReasLib.AlgebraicGeometry.Scheme.Module.Cohomology.GlobalSections"
+        ],
+        "passed": true,
+        "exit_code": 0
+      },
+      {
+        "module": "JacobianFoundations.Genus",
+        "mask": 14,
+        "retained_imports": [
+          "ReasLib.AlgebraicGeometry.RingedSpace.Module.Sections.Basic",
+          "ReasLib.AlgebraicGeometry.Scheme.GlobalSections",
+          "ReasLib.AlgebraicGeometry.Scheme.Module.Cohomology.GlobalSections"
+        ],
+        "passed": true,
+        "exit_code": 0
+      },
+      {
+        "module": "JacobianFoundations.Genus",
+        "mask": 15,
+        "retained_imports": [
+          "ReasLib.Algebra.Category.ModuleCat.Sheaf.GrothendieckLarge",
+          "ReasLib.AlgebraicGeometry.RingedSpace.Module.Sections.Basic",
+          "ReasLib.AlgebraicGeometry.Scheme.GlobalSections",
+          "ReasLib.AlgebraicGeometry.Scheme.Module.Cohomology.GlobalSections"
+        ],
+        "passed": true,
+        "exit_code": 0
+      },
+      {
+        "module": "JacobianFoundations.Picard",
+        "mask": 0,
+        "retained_imports": [],
+        "passed": false,
+        "exit_code": 1
+      },
+      {
+        "module": "JacobianFoundations.Picard",
+        "mask": 1,
+        "retained_imports": [
+          "ReasLib.AlgebraicGeometry.Scheme.Module.Picard.Relative.AbelMap"
+        ],
+        "passed": false,
+        "exit_code": 1
+      },
+      {
+        "module": "JacobianFoundations.Picard",
+        "mask": 2,
+        "retained_imports": [
+          "ReasLib.AlgebraicGeometry.Scheme.Module.Picard.Relative.Pointed.Represented"
+        ],
+        "passed": false,
+        "exit_code": 1
+      },
+      {
+        "module": "JacobianFoundations.Picard",
+        "mask": 3,
+        "retained_imports": [
+          "ReasLib.AlgebraicGeometry.Scheme.Module.Picard.Relative.AbelMap",
+          "ReasLib.AlgebraicGeometry.Scheme.Module.Picard.Relative.Pointed.Represented"
+        ],
+        "passed": true,
+        "exit_code": 0
+      }
+    ]
+  },
+  "fine_grained_profile": {
+    "method": "Use lake shake --explain suggestions, keep all original declarations and non-ReasLib imports, then compile every subset of the selected fine-grained ReasLib imports. Each leaf is required within this profile.",
+    "profiles": {
+      "Genus": [
+        "ReasLib.AlgebraicGeometry.Scheme.Module.Cohomology.GlobalSections"
+      ],
+      "Picard": [
+        "ReasLib.AlgebraicGeometry.Scheme.Module.Picard.Relative.Pointed",
+        "ReasLib.AlgebraicGeometry.Scheme.Module.Picard.Relative.Group",
+        "ReasLib.AlgebraicGeometry.Hilbert.SmoothProperCurve"
+      ]
+    },
+    "cases": [
+      {
+        "module": "Genus",
+        "mask": 0,
+        "retained_imports": [],
+        "passed": false,
+        "exit_code": 1
+      },
+      {
+        "module": "Genus",
+        "mask": 1,
+        "retained_imports": [
+          "ReasLib.AlgebraicGeometry.Scheme.Module.Cohomology.GlobalSections"
+        ],
+        "passed": true,
+        "exit_code": 0
+      },
+      {
+        "module": "Picard",
+        "mask": 0,
+        "retained_imports": [],
+        "passed": false,
+        "exit_code": 1
+      },
+      {
+        "module": "Picard",
+        "mask": 1,
+        "retained_imports": [
+          "ReasLib.AlgebraicGeometry.Scheme.Module.Picard.Relative.Pointed"
+        ],
+        "passed": false,
+        "exit_code": 1
+      },
+      {
+        "module": "Picard",
+        "mask": 2,
+        "retained_imports": [
+          "ReasLib.AlgebraicGeometry.Scheme.Module.Picard.Relative.Group"
+        ],
+        "passed": false,
+        "exit_code": 1
+      },
+      {
+        "module": "Picard",
+        "mask": 3,
+        "retained_imports": [
+          "ReasLib.AlgebraicGeometry.Scheme.Module.Picard.Relative.Pointed",
+          "ReasLib.AlgebraicGeometry.Scheme.Module.Picard.Relative.Group"
+        ],
+        "passed": false,
+        "exit_code": 1
+      },
+      {
+        "module": "Picard",
+        "mask": 4,
+        "retained_imports": [
+          "ReasLib.AlgebraicGeometry.Hilbert.SmoothProperCurve"
+        ],
+        "passed": false,
+        "exit_code": 1
+      },
+      {
+        "module": "Picard",
+        "mask": 5,
+        "retained_imports": [
+          "ReasLib.AlgebraicGeometry.Scheme.Module.Picard.Relative.Pointed",
+          "ReasLib.AlgebraicGeometry.Hilbert.SmoothProperCurve"
+        ],
+        "passed": false,
+        "exit_code": 1
+      },
+      {
+        "module": "Picard",
+        "mask": 6,
+        "retained_imports": [
+          "ReasLib.AlgebraicGeometry.Scheme.Module.Picard.Relative.Group",
+          "ReasLib.AlgebraicGeometry.Hilbert.SmoothProperCurve"
+        ],
+        "passed": false,
+        "exit_code": 1
+      },
+      {
+        "module": "Picard",
+        "mask": 7,
+        "retained_imports": [
+          "ReasLib.AlgebraicGeometry.Scheme.Module.Picard.Relative.Pointed",
+          "ReasLib.AlgebraicGeometry.Scheme.Module.Picard.Relative.Group",
+          "ReasLib.AlgebraicGeometry.Hilbert.SmoothProperCurve"
+        ],
+        "passed": true,
+        "exit_code": 0
+      }
+    ],
+    "transitive_reaslib_module_count": 960,
+    "omitted_modules": [
+      "ReasLib.AlgebraicGeometry.Hilbert.UniversalDivisor",
+      "ReasLib.AlgebraicGeometry.RingedSpace.Module.Pullback.Sections",
+      "ReasLib.AlgebraicGeometry.Scheme.Divisor.EffectiveCartier.Pullback.AssociatedSheaf",
+      "ReasLib.AlgebraicGeometry.Scheme.GenericPoints",
+      "ReasLib.AlgebraicGeometry.Scheme.GenericPoints.FiniteComponents",
+      "ReasLib.AlgebraicGeometry.Scheme.Module.Picard.Relative.AbelMap",
+      "ReasLib.AlgebraicGeometry.Scheme.Module.Picard.Relative.Pointed.Represented",
+      "ReasLib.AlgebraicGeometry.Scheme.Morphism.Birational.GenericPoints"
+    ]
+  },
+  "core_only_profile": {
+    "passed": true,
+    "exit_code": 0,
+    "retained_imports": [
+      "ReasLib.AlgebraicGeometry.Scheme.Module.Picard.Relative.Pointed",
+      "ReasLib.AlgebraicGeometry.Scheme.Module.Picard.Relative.Group"
+    ],
+    "source_scope_change": "Omit only the independent graphHilbertPoint compatibility helper; retain every other declaration unchanged.",
+    "published_source_changed": false
+  },
+  "source_commit": "22268aa77f2fdada4bb868fe997603376894fe01",
+  "published_library_imports_changed": false
+}

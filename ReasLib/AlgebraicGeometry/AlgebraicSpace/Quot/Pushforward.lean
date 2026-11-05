@@ -45,22 +45,6 @@ instance isIso_affineFiberBaseChangeHom (π : X ⟶ Y) (y : Y ⟶ B)
     (fiberComparison π y σ) π (pullback.fst y σ.hom)
     (fiberComparison_isPullback_fst π y σ) F
 
-/-- The canonical identification `(π_* F)_T ≅ π_{T,*} F_T`. -/
-def affineFiberBaseChangeIso (π : X ⟶ Y) (y : Y ⟶ B) (σ : SchemeOver B)
-    (F : X.Modules) [Affine π] [F.IsQuasicoherent] :
-    fiberF y ((Modules.pushforward π).obj F) σ ≅
-      (Modules.pushforward (fiberComparison π y σ)).obj
-        (fiberF (π ≫ y) F σ) :=
-  asIso (affineFiberBaseChangeHom π y σ F)
-
-/-- The forward map of `affineFiberBaseChangeIso` is the canonical module
-base-change comparison. -/
-theorem affineFiberBaseChangeIso_hom (π : X ⟶ Y) (y : Y ⟶ B)
-    (σ : SchemeOver B) (F : X.Modules) [Affine π] [F.IsQuasicoherent] :
-    (affineFiberBaseChangeIso π y σ F).hom =
-      affineFiberBaseChangeHom π y σ F :=
-  sorry
-
 namespace QuotPoint
 
 /-- Fibrewise affine quasi-finite pushforward preserves epimorphisms, quasi-coherence,
@@ -70,7 +54,7 @@ private theorem pushforward_properties (π : X ⟶ Y) (y : Y ⟶ B)
     [Separated (π ≫ y)] [FinitePresentation (π ≫ y)] [Separated y]
     [FinitePresentation y] [F.IsQuasicoherent]
     (Q : QuotPoint (π ≫ y) F σ) :
-    Epi ((affineFiberBaseChangeIso π y σ F).hom ≫
+    Epi (affineFiberBaseChangeHom π y σ F ≫
         (Modules.pushforward (fiberComparison π y σ)).map Q.point.map) ∧
       ((Modules.pushforward (fiberComparison π y σ)).obj Q.point.module).IsQuasicoherent ∧
       Modules.flatOver ((Modules.pushforward (fiberComparison π y σ)).obj Q.point.module)
@@ -89,7 +73,7 @@ def pushforward (π : X ⟶ Y) (y : Y ⟶ B) {F : X.Modules}
     QuotPoint y ((Modules.pushforward π).obj F) σ :=
   QuotPoint.ofEpi y ((Modules.pushforward π).obj F) σ
     ((Modules.pushforward (fiberComparison π y σ)).obj Q.point.module)
-    ((affineFiberBaseChangeIso π y σ F).hom ≫
+    (affineFiberBaseChangeHom π y σ F ≫
       (Modules.pushforward (fiberComparison π y σ)).map Q.point.map)
     (by exact (pushforward_properties π y Q).1)
     (by exact (pushforward_properties π y Q).2.1)
@@ -105,22 +89,22 @@ theorem pushforward_module (π : X ⟶ Y) (y : Y ⟶ B) {F : X.Modules}
     (Q : QuotPoint (π ≫ y) F σ) :
     (pushforward π y Q).point.module =
       (Modules.pushforward (fiberComparison π y σ)).obj Q.point.module :=
-  sorry
+  rfl
 
-/-- The quotient map of a pushed Quot-point is the affine identification
-`(π_* F)_T ≅ π_{T,*} F_T` followed by `π_{T,*} (F_T ⟶ Q)`. -/
+/-- The quotient map of a pushed Quot-point is the canonical base-change comparison
+`(π_* F)_T ⟶ π_{T,*} F_T` followed by `π_{T,*} (F_T ⟶ Q)`. -/
 theorem pushforward_map (π : X ⟶ Y) (y : Y ⟶ B) {F : X.Modules}
     {σ : SchemeOver B} [Affine π] [QuasiFinite π]
     [Separated (π ≫ y)] [FinitePresentation (π ≫ y)] [Separated y]
     [FinitePresentation y] [F.IsQuasicoherent]
     (Q : QuotPoint (π ≫ y) F σ) :
     (pushforward π y Q).point.map =
-      (affineFiberBaseChangeIso π y σ F).hom ≫
+      affineFiberBaseChangeHom π y σ F ≫
         (Modules.pushforward (fiberComparison π y σ)).map Q.point.map :=
-  sorry
+  rfl
 
 /-- A pushed Quot-point is the epimorphism `(π_* F)_T ⟶ π_{T,*} Q` obtained from
-`F_T ⟶ Q` by affine base change and `π_{T,*}`. -/
+`F_T ⟶ Q` by the canonical base-change comparison and `π_{T,*}`. -/
 theorem pushforward_spec (π : X ⟶ Y) (y : Y ⟶ B) {F : X.Modules}
     {σ : SchemeOver B} [Affine π] [QuasiFinite π]
     [Separated (π ≫ y)] [FinitePresentation (π ≫ y)] [Separated y]
@@ -129,9 +113,9 @@ theorem pushforward_spec (π : X ⟶ Y) (y : Y ⟶ B) {F : X.Modules}
     (pushforward π y Q).point.module =
         (Modules.pushforward (fiberComparison π y σ)).obj Q.point.module ∧
       (pushforward π y Q).point.map =
-        (affineFiberBaseChangeIso π y σ F).hom ≫
+        affineFiberBaseChangeHom π y σ F ≫
           (Modules.pushforward (fiberComparison π y σ)).map Q.point.map :=
-  sorry
+  ⟨rfl, rfl⟩
 
 end QuotPoint
 

@@ -55,10 +55,11 @@ nonzero linear map from the residue field. -/
 theorem nonzero_zero_iff_exists_ne_zero_linearMap :
     Nonzero R M 0 ↔ ∃ f : ResidueField R →ₗ[R] M, f ≠ 0 := sorry
 
-/-- For a nonzero finite module over a local ring, degree-zero
+/-- For a nonzero finite module over a Noetherian local ring, degree-zero
 residue-field Ext is nonzero exactly when the module has depth zero. -/
 @[stacks 00LW "depth zero and residue-field Ext"]
-theorem nonzero_zero_iff_moduleDepth_eq_zero [Module.Finite R M] [Nontrivial M] :
+theorem nonzero_zero_iff_moduleDepth_eq_zero [IsNoetherianRing R]
+    [Module.Finite R M] [Nontrivial M] :
     Nonzero R M 0 ↔ moduleDepth R M = 0 := sorry
 
 /-- Some residue-field Ext group of a nonzero finite module over a Noetherian
@@ -119,11 +120,11 @@ theorem moduleDepth_eq_firstNonzeroIndex [IsNoetherianRing R]
 
 end ResidueFieldExt
 
-/-- A finite module of depth zero over a local ring contains a nonzero element annihilated by the
-maximal ideal. -/
+/-- A finite module of depth zero over a Noetherian local ring contains a nonzero element
+annihilated by the maximal ideal. -/
 @[stacks 00LW "annihilated element at depth zero"]
 theorem exists_nonzero_annihilated_by_maximalIdeal_of_depth_zero
-    [Module.Finite R M] (hdepth : moduleDepth R M = 0) :
+    [IsNoetherianRing R] [Module.Finite R M] (hdepth : moduleDepth R M = 0) :
     ∃ m : M, m ≠ 0 ∧ ∀ r ∈ maximalIdeal R, r • m = 0 := sorry
 
 end Module

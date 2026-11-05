@@ -34,8 +34,8 @@ theorem topologicalKrullDim_eq_zero_of_nonempty_t2 [T2Space X] [Nonempty X] :
   apply le_antisymm
   · rw [Order.krullDim_nonpos_iff_forall_isMax]
     intro Z Y hZY
-    obtain ⟨z, rfl⟩ := _root_.IrreducibleCloseds.exists_eq_singleton Z
-    obtain ⟨y, rfl⟩ := _root_.IrreducibleCloseds.exists_eq_singleton Y
+    obtain ⟨z, rfl⟩ := Z.exists_eq_singleton
+    obtain ⟨y, rfl⟩ := Y.exists_eq_singleton
     have hset : ({z} : Set X) ⊆ {y} := hZY
     have hzy : z = y := Set.mem_singleton_iff.mp (hset (Set.mem_singleton z))
     subst y

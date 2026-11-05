@@ -32,3 +32,15 @@ site cohomology over the covered object. -/
 #check @CategoryTheory.Cech.SpectralSequenceSystem.pageTwo_naturality_inv
 #check @CategoryTheory.Cech.SpectralSequenceSystem.converges_app
 #check @CategoryTheory.Cech.SpectralSequenceSystem.abuts_app
+
+/- The source-facing selected-cover specialization only assumes its iterated fibre products. -/
+#check @CategoryTheory.Cech.FixedTarget.pageTwoFunctor
+#check @CategoryTheory.Cech.FixedTarget.pageTwoFunctor_obj
+#check @CategoryTheory.Cech.FixedTarget.SpectralSequenceSystem
+@[stacks 03AZ "selected-cover specialization"]
+#check @CategoryTheory.Cech.FixedTarget.spectralSequenceSystem_nonempty
+#check @CategoryTheory.Cech.FixedTarget.SpectralSequenceSystem.pageTwoIso
+#check @CategoryTheory.Cech.FixedTarget.SpectralSequenceSystem.pageTwo_naturality
+#check @CategoryTheory.Cech.FixedTarget.SpectralSequenceSystem.pageTwo_naturality_inv
+#check @CategoryTheory.Cech.FixedTarget.SpectralSequenceSystem.converges_app
+#check @CategoryTheory.Cech.FixedTarget.SpectralSequenceSystem.abuts_app

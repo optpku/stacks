@@ -12,6 +12,10 @@ public import ReasLib.AlgebraicGeometry.Scheme.Module.Coherent.Finite
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.AlgebraSheaf.ExteriorPower
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Differentials
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.MorphismDifferentials
+public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Differentials.Stalk
+public import ReasLib.AlgebraicGeometry.RingedSpace.Module.AlgebraSheaf.ExteriorPower.Stalk
+public import ReasLib.Topology.Sheaves.Stalks.Pullback
+public import ReasLib.AlgebraicGeometry.Scheme.Module.Pushforward.Stalk
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.Birational.FunctionFieldDegree
 public import ReasLib.AlgebraicGeometry.Scheme.OverField
 public import ReasLib.AlgebraicGeometry.Scheme.OverField.Local
@@ -29,6 +33,158 @@ noncomputable section
 universe u
 
 namespace AlgebraicGeometry.Scheme.PurelyInseparableTrace
+
+/-!
+The constructions in `CanonicalStalk` below are independent of the trace and its extension.
+They fix comparison maps using germs and universal derivations. They are deliberately not yet
+used by `genericTrace`: that also requires the finite-pushforward comparison at the generic
+point and an explicit extension to the reflexive hull.
+-/
+
+namespace CanonicalStalk
+
+/-- Changing the base ring by a specified isomorphism acts on the actual form generators.
+The inverse uses the other direction of the same ring isomorphism. -/
+def formsBaseIso {A A' B : CommRingCat.{u}} (e : A ≅ A') (f : A' ⟶ B) (i : ℕ) :
+    CommRingCat.DeRham.form f i ≅ CommRingCat.DeRham.form (e.hom ≫ f) i := by
+  let forward : CommSq e.inv f (e.hom ≫ f) (𝟙 B) := ⟨by simp⟩
+  let backward : CommSq e.hom (e.hom ≫ f) f (𝟙 B) := ⟨by simp⟩
+  refine
+    { hom := CommRingCat.DeRham.formMapApp forward i ≫
+        (ModuleCat.restrictScalarsId B).hom.app _
+      inv := CommRingCat.DeRham.formMapApp backward i ≫
+        (ModuleCat.restrictScalarsId B).hom.app _
+      hom_inv_id := ?_
+      inv_hom_id := ?_ }
+  · ext x
+    change CommRingCat.DeRham.formMapApp backward i
+      (CommRingCat.DeRham.formMapApp forward i x) = x
+    rw [CommRingCat.DeRham.formMapApp_comp_apply]
+    simpa only [CommSq.horiz_comp, Iso.inv_hom_id, Category.id_comp] using
+      CommRingCat.DeRham.formMapApp_id_apply f i x
+  · ext x
+    change CommRingCat.DeRham.formMapApp forward i
+      (CommRingCat.DeRham.formMapApp backward i x) = x
+    rw [CommRingCat.DeRham.formMapApp_comp_apply]
+    simpa only [CommSq.horiz_comp, Iso.hom_inv_id, Category.id_comp] using
+      CommRingCat.DeRham.formMapApp_id_apply (e.hom ≫ f) i x
+
+/-- A change of the base-ring presentation fixes each basic form. -/
+theorem formsBaseIso_hom_basic {A A' B : CommRingCat.{u}}
+    (e : A ≅ A') (f : A' ⟶ B) (i : ℕ) (b : B) (bs : Fin i → B) :
+    (formsBaseIso e f i).hom (CommRingCat.DeRham.basic f i b bs) =
+      CommRingCat.DeRham.basic (e.hom ≫ f) i b bs := by
+  let sq : CommSq e.inv f (e.hom ≫ f) (𝟙 B) := ⟨by simp⟩
+  change CommRingCat.DeRham.formMapApp sq i (CommRingCat.DeRham.basic f i b bs) = _
+  exact CommRingCat.DeRham.formMapApp_basic sq i b bs
+
+/-- The reverse base-ring comparison fixes the same basic forms. -/
+theorem formsBaseIso_inv_basic {A A' B : CommRingCat.{u}}
+    (e : A ≅ A') (f : A' ⟶ B) (i : ℕ) (b : B) (bs : Fin i → B) :
+    (formsBaseIso e f i).inv (CommRingCat.DeRham.basic (e.hom ≫ f) i b bs) =
+      CommRingCat.DeRham.basic f i b bs := by
+  let sq : CommSq e.hom (e.hom ≫ f) f (𝟙 B) := ⟨by simp⟩
+  change CommRingCat.DeRham.formMapApp sq i
+    (CommRingCat.DeRham.basic (e.hom ≫ f) i b bs) = _
+  exact CommRingCat.DeRham.formMapApp_basic sq i b bs
+
+set_option backward.isDefEq.respectTransparency false in
+/-- The comparison for exterior powers of relative differentials, with both directions
+constructed by the stalk owners. In particular, it applies in every exterior degree. -/
+def relativeFormsIso (X : RingedSpace.{u}) {O : X.carrier.Sheaf CommRingCat.{u}}
+    (φ : O ⟶ X.sheaf) (x : X) (i : ℕ) :
+    RingedSpace.stalkModuleCat (Λ[i] TopCat.Sheaf.relativeDifferentials φ) x ≅
+      CommRingCat.DeRham.form (TopCat.Sheaf.RelativeDifferentials.Stalk.ringMap φ x) i := by
+  letI : Algebra (O.presheaf.stalk x) (X.presheaf.stalk x) :=
+    (TopCat.Sheaf.RelativeDifferentials.Stalk.ringMap φ x).hom.toAlgebra
+  exact RingedSpace.ExteriorPower.Stalk.comparisonIso
+      (TopCat.Sheaf.relativeDifferentials φ) x i ≪≫
+    (ModuleCat.exteriorPower.functor (X.presheaf.stalk x) i).mapIso
+      (TopCat.Sheaf.RelativeDifferentials.Stalk.iso φ x) ≪≫
+    (KaehlerDifferential.DeRham.exteriorPowerEquiv
+      (O.presheaf.stalk x) (X.presheaf.stalk x) i).symm.toModuleIso
+
+set_option backward.isDefEq.respectTransparency false in
+/-- The fixed comparison sends a local exterior product to the exterior product of its
+actual germs, followed by the differential comparison. This also specifies degree zero. -/
+theorem relativeFormsIso_germWedge (X : RingedSpace.{u})
+    {O : X.carrier.Sheaf CommRingCat.{u}} (φ : O ⟶ X.sheaf) (x : X) (i : ℕ)
+    (U : TopologicalSpace.Opens X) (hx : x ∈ U)
+    (m : Fin i → (TopCat.Sheaf.relativeDifferentials φ).val.obj (Opposite.op U)) :
+    letI : Algebra (O.presheaf.stalk x) (X.presheaf.stalk x) :=
+      (TopCat.Sheaf.RelativeDifferentials.Stalk.ringMap φ x).hom.toAlgebra
+    (relativeFormsIso X φ x i).hom
+        (RingedSpace.ExteriorPower.Stalk.germWedge
+          (TopCat.Sheaf.relativeDifferentials φ) x i U hx m) =
+      (KaehlerDifferential.DeRham.exteriorPowerEquiv
+        (O.presheaf.stalk x) (X.presheaf.stalk x) i).symm
+        (ModuleCat.exteriorPower.mk (fun j ↦
+          (TopCat.Sheaf.RelativeDifferentials.Stalk.iso φ x).hom
+            (TopCat.Presheaf.germ
+              (TopCat.Sheaf.relativeDifferentials φ).val.presheaf U x hx (m j)))) := by
+  letI : Algebra (O.presheaf.stalk x) (X.presheaf.stalk x) :=
+    (TopCat.Sheaf.RelativeDifferentials.Stalk.ringMap φ x).hom.toAlgebra
+  change (KaehlerDifferential.DeRham.exteriorPowerEquiv
+    (O.presheaf.stalk x) (X.presheaf.stalk x) i).symm
+      (ModuleCat.exteriorPower.map
+        (TopCat.Sheaf.RelativeDifferentials.Stalk.iso φ x).hom i
+        (RingedSpace.ExteriorPower.Stalk.comparison
+          (TopCat.Sheaf.relativeDifferentials φ) x i
+          (RingedSpace.ExteriorPower.Stalk.germWedge
+            (TopCat.Sheaf.relativeDifferentials φ) x i U hx m))) = _
+  have h := RingedSpace.ExteriorPower.Stalk.comparison_germ_mk
+    (TopCat.Sheaf.relativeDifferentials φ) x i U hx m
+  exact (congrArg (fun z ↦
+    (KaehlerDifferential.DeRham.exteriorPowerEquiv
+      (O.presheaf.stalk x) (X.presheaf.stalk x) i).symm
+        (ModuleCat.exteriorPower.map
+          (TopCat.Sheaf.RelativeDifferentials.Stalk.iso φ x).hom i z)) h).trans
+    (congrArg
+      (KaehlerDifferential.DeRham.exteriorPowerEquiv
+        (O.presheaf.stalk x) (X.presheaf.stalk x) i).symm
+      (ModuleCat.exteriorPower.map_mk
+        (TopCat.Sheaf.RelativeDifferentials.Stalk.iso φ x).hom _))
+
+/-- The coefficient-ring stalk comparison comes from the actual inverse image of the
+structure sheaf, rather than an unspecified ring equivalence. -/
+def baseRingIso {X S : RingedSpace.{u}} (f : X ⟶ S) (x : X) :
+    S.presheaf.stalk (f.hom.base x) ≅
+      ((TopCat.Sheaf.pullback CommRingCat.{u} f.hom.base).obj S.sheaf).presheaf.stalk x :=
+  TopCat.Sheaf.stalkPullbackIso f.hom.base S.sheaf x
+
+/-- The actual base-stalk action, formed from inverse-image germs and the given structure
+morphism. This fixes the coefficient map before any trace is considered. -/
+def baseRingMap {X S : RingedSpace.{u}} (f : X ⟶ S) (x : X) :
+    S.presheaf.stalk (f.hom.base x) ⟶ X.presheaf.stalk x :=
+  (baseRingIso f x).hom ≫
+    TopCat.Sheaf.RelativeDifferentials.Stalk.ringMap
+      (RingedSpace.Hom.inverseImageStructureSheafHomComm f) x
+
+/-- The fixed comparison for a morphism of ringed spaces, with the actual stalk of the base
+as coefficient ring. Neither its forward map nor its inverse is chosen from an existence
+or invertibility assertion. -/
+def morphismFormsIso {X S : RingedSpace.{u}} (f : X ⟶ S) (x : X) (i : ℕ) :
+    RingedSpace.stalkModuleCat (Λ[i] Ω[f]) x ≅
+      CommRingCat.DeRham.form (baseRingMap f x) i :=
+  relativeFormsIso X (RingedSpace.Hom.inverseImageStructureSheafHomComm f) x i ≪≫
+    formsBaseIso (baseRingIso f x)
+      (TopCat.Sheaf.RelativeDifferentials.Stalk.ringMap
+        (RingedSpace.Hom.inverseImageStructureSheafHomComm f) x) i
+
+/-- The forward source comparison uses the actual stalk-pushforward map. It is available
+without finiteness, normality or generic-point hypotheses; constructing an inverse at the
+generic point of a finite dominant morphism is a separate step. -/
+def pushforwardFormsMap {X Y S : Scheme.{u}} (f : Y ⟶ X) (g : Y ⟶ S)
+    (y : Y) (i : ℕ) :
+    RingedSpace.stalkModuleCat
+        ((Scheme.Modules.pushforward f).obj (Λ[i] Ω[g.toShHom])) (f y) ⟶
+      (ModuleCat.restrictScalars (f.stalkMap y).hom).obj
+        (CommRingCat.DeRham.form (baseRingMap g.toShHom y) i) :=
+  Scheme.Modules.stalkPushforward f (Λ[i] Ω[g.toShHom]) y ≫
+    (ModuleCat.restrictScalars (f.stalkMap y).hom).map
+      (morphismFormsIso g.toShHom y i).hom
+
+end CanonicalStalk
 
 
 /-- The pushforward of the relative exterior-power module on `Y` along a finite morphism. -/
@@ -131,7 +287,8 @@ theorem isCompatibleGenericStalkComparison_spec
     ∀ m, targetComparison (τ.hom m) =
       PurelyInseparableTrace.Higher.traceOfEquiv
         (Λ := Λ) (R := R) (S := K)
-        p (Fact.out : p.Prime) a e i (sourceComparison m) := sorry
+        p (Fact.out : p.Prime) a e i (sourceComparison m) :=
+  h.2.2.2
 
 /-- A specified comparison object transports field-level higher traces to generic stalks.
 Its comparison map is accompanied by the scalar-action and pointwise trace specifications used by

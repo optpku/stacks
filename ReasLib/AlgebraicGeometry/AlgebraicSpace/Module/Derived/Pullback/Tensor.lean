@@ -11,7 +11,14 @@ public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.Pullback.B
 public import ReasLib.Algebra.Homology.CochainComplex.Monoidal.Functor
 public import ReasLib.CategoryTheory.Homology.DoubleComplex.MapTotal.PreservesColimits
 
-/-! # Tensor comparison for unbounded derived pullback of étale modules -/
+/-! # Tensor comparison for unbounded derived pullback of étale modules
+
+This module owns the shared bicomplex and cochain comparisons. The `moduleTotalDerived`
+declarations use the homotopy-level total left derived functor of module pullback. They are
+kept distinct from the concrete cell-model `moduleDerived` declarations in `Pullback.Monoidal`:
+the two pullback functors are related by `ModuleDerived.pullbackIsoTotalLeftDerived`, rather
+than by definitional equality.
+-/
 
 @[expose] public section
 
@@ -137,21 +144,21 @@ noncomputable abbrev modulePullbackCochainTensorSource {X Y : AlgebraicSpace S} 
     (DerivedCategory.Q : CochainComplex (Modules X) ℤ ⥤ ModuleDerived X)
 
 /-- Derived functor `Lf^*(A ⊗^L B)` in two variables. -/
-noncomputable abbrev moduleDerivedTensorThenPullback {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
+noncomputable abbrev moduleTotalDerivedTensorThenPullback {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     ModuleDerived Y × ModuleDerived Y ⥤ ModuleDerived X :=
   DerivedTensor.Bifunctor.functor (C := Modules Y) ⋙ LeftDerived.Homotopy.functor (Modules.pullback f)
 
 /-- Derived functor `Lf^*A ⊗^L Lf^*B` in two variables. -/
-noncomputable abbrev moduleDerivedPullbackThenTensor {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
+noncomputable abbrev moduleTotalDerivedPullbackThenTensor {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     ModuleDerived Y × ModuleDerived Y ⥤ ModuleDerived X :=
   (LeftDerived.Homotopy.functor (Modules.pullback f)).prod (LeftDerived.Homotopy.functor (Modules.pullback f)) ⋙
     DerivedTensor.Bifunctor.functor (C := Modules X)
 
 /-- Counit of `Lf^*A ⊗^L Lf^*B` against the cochain-level source `Q(f^*K ⊗ f^*L)`. -/
-noncomputable def moduleDerivedPullbackThenTensorCounit {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
+noncomputable def moduleTotalDerivedPullbackThenTensorCounit {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     (DerivedCategory.Q : CochainComplex (Modules Y) ℤ ⥤ ModuleDerived Y).prod
         (DerivedCategory.Q : CochainComplex (Modules Y) ℤ ⥤ ModuleDerived Y) ⋙
-      moduleDerivedPullbackThenTensor f ⟶
+      moduleTotalDerivedPullbackThenTensor f ⟶
     modulePullbackCochainTensorSource f where
   app KL :=
     (DerivedTensor.Bifunctor.functor (C := Modules X)).map
@@ -163,11 +170,11 @@ noncomputable def moduleDerivedPullbackThenTensorCounit {X Y : AlgebraicSpace S}
         (((Modules.pullback f).mapHomologicalComplex (up ℤ)).obj KL.2)
   naturality _ _ _ := sorry
 
-/-- The component of `moduleDerivedPullbackThenTensorCounit` is the pair of cochain counits
+/-- The component of `moduleTotalDerivedPullbackThenTensorCounit` is the pair of cochain counits
 followed by the two-variable derived-tensor counit. -/
-theorem moduleDerivedPullbackThenTensorCounit_app {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+theorem moduleTotalDerivedPullbackThenTensorCounit_app {X Y : AlgebraicSpace S} (f : X ⟶ Y)
     (K L : CochainComplex (Modules Y) ℤ) :
-    (moduleDerivedPullbackThenTensorCounit f).app (K, L) =
+    (moduleTotalDerivedPullbackThenTensorCounit f).app (K, L) =
       (DerivedTensor.Bifunctor.functor (C := Modules X)).map
           (Prod.mkHom
             (modulePullbackDerived_cochainCounit f K)
@@ -178,10 +185,10 @@ theorem moduleDerivedPullbackThenTensorCounit_app {X Y : AlgebraicSpace S} (f : 
   by rfl
 
 /-- Counit of `Lf^*(A ⊗^L B)` against the cochain-level source `Q(f^*K ⊗ f^*L)`. -/
-noncomputable def moduleDerivedTensorThenPullbackCounit {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
+noncomputable def moduleTotalDerivedTensorThenPullbackCounit {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     (DerivedCategory.Q : CochainComplex (Modules Y) ℤ ⥤ ModuleDerived Y).prod
         (DerivedCategory.Q : CochainComplex (Modules Y) ℤ ⥤ ModuleDerived Y) ⋙
-      moduleDerivedTensorThenPullback f ⟶
+      moduleTotalDerivedTensorThenPullback f ⟶
     modulePullbackCochainTensorSource f where
   app KL :=
     (LeftDerived.Homotopy.functor (Modules.pullback f)).map (DerivedTensor.Bifunctor.counitAppOfQ KL.1 KL.2) ≫
@@ -189,11 +196,11 @@ noncomputable def moduleDerivedTensorThenPullbackCounit {X Y : AlgebraicSpace S}
       DerivedCategory.Q.map (modulesPullback_cochainTensorComparison f KL.1 KL.2)
   naturality _ _ _ := sorry
 
-/-- The component of `moduleDerivedTensorThenPullbackCounit` is derived pullback of the tensor
+/-- The component of `moduleTotalDerivedTensorThenPullbackCounit` is derived pullback of the tensor
 counit, followed by the cochain counit and the cochain-level pullback tensorator. -/
-theorem moduleDerivedTensorThenPullbackCounit_app {X Y : AlgebraicSpace S} (f : X ⟶ Y)
+theorem moduleTotalDerivedTensorThenPullbackCounit_app {X Y : AlgebraicSpace S} (f : X ⟶ Y)
     (K L : CochainComplex (Modules Y) ℤ) :
-    (moduleDerivedTensorThenPullbackCounit f).app (K, L) =
+    (moduleTotalDerivedTensorThenPullbackCounit f).app (K, L) =
       (LeftDerived.Homotopy.functor (Modules.pullback f)).map (DerivedTensor.Bifunctor.counitAppOfQ K L) ≫
         modulePullbackDerived_cochainCounit f (K ⊗ L) ≫
         DerivedCategory.Q.map (modulesPullback_cochainTensorComparison f K L) :=
@@ -233,7 +240,7 @@ of the specified tensor augmentation, with no inverse chosen for an abstract com
 def computationOnInput
     (h : ∀ A, QuasiIso (tensorAugmentation f A))
     (A : CochainComplex Y.Modules ℤ × CochainComplex Y.Modules ℤ) :
-    (moduleDerivedPullbackThenTensor f).obj
+    (moduleTotalDerivedPullbackThenTensor f).obj
         (DerivedCategory.Q.obj A.1, DerivedCategory.Q.obj A.2) ≅ (cochain f).obj A :=
   (DerivedTensor.Bifunctor.functor (C := X.Modules)).mapIso
       ((pullbackComputation f A.1).prod (pullbackComputation f A.2)) ≪≫
@@ -253,12 +260,12 @@ theorem model_laws :
     (∀ (h : ∀ A, QuasiIso (tensorAugmentation f A))
       {A B : CochainComplex Y.Modules ℤ × CochainComplex Y.Modules ℤ} (a : A ⟶ B),
       (((DerivedCategory.Q (C := Y.Modules)).prod (DerivedCategory.Q (C := Y.Modules))) ⋙
-        moduleDerivedPullbackThenTensor f).map a ≫ (computationOnInput f h B).hom =
+        moduleTotalDerivedPullbackThenTensor f).map a ≫ (computationOnInput f h B).hom =
       (computationOnInput f h A).hom ≫ (cochain f).map a) ∧
     (∀ (h : ∀ A, QuasiIso (tensorAugmentation f A)) A,
       (computationOnInput f h A).hom ≫ (modulePullbackCochainTensorSource f).map
         ((Modules.CellTensor.pairAugmentation Y).app A) =
-      (moduleDerivedPullbackThenTensorCounit f).app A) := sorry
+      (moduleTotalDerivedPullbackThenTensorCounit f).app A) := sorry
 
 /-- Native product localization of the specified pulled-back cell-tensor functor. -/
 def derived : ModuleDerived Y × ModuleDerived Y ⥤ ModuleDerived X :=
@@ -273,19 +280,19 @@ def fac : (DerivedCategory.Q (C := Y.Modules)).prod (DerivedCategory.Q (C := Y.M
 /-- The original pullback-then-tensor functor computes the specified pulled-back cell tensor. -/
 def computationIso :
     (DerivedCategory.Q (C := Y.Modules)).prod (DerivedCategory.Q (C := Y.Modules)) ⋙
-      moduleDerivedPullbackThenTensor f ≅ cochain f :=
+      moduleTotalDerivedPullbackThenTensor f ≅ cochain f :=
   NatIso.ofComponents (computationOnInput f (model_laws f).2.2.1)
     (fun a ↦ (model_laws f).2.2.2.1 (model_laws f).2.2.1 a)
 
 /-- The original functor and the native localization model are compared by descending
 both directions of the displayed cochain computation. -/
-def comparisonIso : moduleDerivedPullbackThenTensor f ≅ derived f :=
+def comparisonIso : moduleTotalDerivedPullbackThenTensor f ≅ derived f :=
   Localization.liftNatIso ((DerivedCategory.Q (C := Y.Modules)).prod (DerivedCategory.Q (C := Y.Modules)))
     (Modules.CellTensor.denominators Y)
     (((DerivedCategory.Q (C := Y.Modules)).prod (DerivedCategory.Q (C := Y.Modules))) ⋙
-      moduleDerivedPullbackThenTensor f)
+      moduleTotalDerivedPullbackThenTensor f)
     (((DerivedCategory.Q (C := Y.Modules)).prod (DerivedCategory.Q (C := Y.Modules))) ⋙ derived f)
-    (moduleDerivedPullbackThenTensor f) (derived f)
+    (moduleTotalDerivedPullbackThenTensor f) (derived f)
     (computationIso f ≪≫ (fac f).symm)
 
 /-- The native model counit applies ordinary pullback and tensor to the actual pair augmentation. -/
@@ -303,16 +310,16 @@ private theorem pairAugmentation_mem (A) :
 
 private theorem comparisonIso_counit :
     Functor.whiskerLeft ((DerivedCategory.Q (C := Y.Modules)).prod (DerivedCategory.Q (C := Y.Modules)))
-        (comparisonIso f).hom ≫ counit f = moduleDerivedPullbackThenTensorCounit f := by
+        (comparisonIso f).hom ≫ counit f = moduleTotalDerivedPullbackThenTensorCounit f := by
   ext A
   change (comparisonIso f).hom.app _ ≫ (counit f).app A = _
   have he := Localization.liftNatTrans_app
     ((DerivedCategory.Q (C := Y.Modules)).prod (DerivedCategory.Q (C := Y.Modules)))
     (Modules.CellTensor.denominators Y)
     (((DerivedCategory.Q (C := Y.Modules)).prod (DerivedCategory.Q (C := Y.Modules))) ⋙
-      moduleDerivedPullbackThenTensor f)
+      moduleTotalDerivedPullbackThenTensor f)
     (((DerivedCategory.Q (C := Y.Modules)).prod (DerivedCategory.Q (C := Y.Modules))) ⋙ derived f)
-    (moduleDerivedPullbackThenTensor f) (derived f)
+    (moduleTotalDerivedPullbackThenTensor f) (derived f)
     (computationIso f ≪≫ (fac f).symm).hom A
   rw [show (comparisonIso f).hom.app _ =
     (computationIso f).hom.app A ≫ (fac f).inv.app A by
@@ -337,7 +344,7 @@ def modelTerminalWitness : (RightExtension.mk (derived f) (counit f)).IsUniversa
 /-- The specified extension maps are the native cell-model lifts transported through computation. -/
 def extensionLift (G : ModuleDerived Y × ModuleDerived Y ⥤ ModuleDerived X)
     (β : (DerivedCategory.Q (C := Y.Modules)).prod (DerivedCategory.Q (C := Y.Modules)) ⋙ G ⟶
-      modulePullbackCochainTensorSource f) : G ⟶ moduleDerivedPullbackThenTensor f :=
+      modulePullbackCochainTensorSource f) : G ⟶ moduleTotalDerivedPullbackThenTensor f :=
   LeftDerived.Deformation.extensionLift
     ((DerivedCategory.Q (C := Y.Modules)).prod (DerivedCategory.Q (C := Y.Modules)))
     (Modules.CellTensor.denominators Y)
@@ -347,67 +354,67 @@ def extensionLift (G : ModuleDerived Y × ModuleDerived Y ⥤ ModuleDerived X)
 
 /-- The original counit retains the constructed universal maps after computation transport. -/
 def terminalWitness :
-    (RightExtension.mk (moduleDerivedPullbackThenTensor f)
-      (moduleDerivedPullbackThenTensorCounit f)).IsUniversal :=
+    (RightExtension.mk (moduleTotalDerivedPullbackThenTensor f)
+      (moduleTotalDerivedPullbackThenTensorCounit f)).IsUniversal :=
   (modelTerminalWitness f).ofIso
     (CostructuredArrow.isoMk (comparisonIso f).symm (by
       ext A
       have h := NatTrans.congr_app (comparisonIso_counit f) A
-      change (comparisonIso f).inv.app _ ≫ (moduleDerivedPullbackThenTensorCounit f).app A = _
+      change (comparisonIso f).inv.app _ ≫ (moduleTotalDerivedPullbackThenTensorCounit f).app A = _
       change (comparisonIso f).hom.app _ ≫ (counit f).app A =
-        (moduleDerivedPullbackThenTensorCounit f).app A at h
+        (moduleTotalDerivedPullbackThenTensorCounit f).app A at h
       rw [← h]
       simp))
 
 end CellTensorPullback
 
 /-- Pullback followed by tensor is left derived through its specified cochain counit. -/
-instance moduleDerivedPullbackThenTensor_isLeftDerived {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
-    (moduleDerivedPullbackThenTensor f).IsLeftDerivedFunctor
-      (moduleDerivedPullbackThenTensorCounit f) (Modules.CellTensor.denominators Y) where
+instance moduleTotalDerivedPullbackThenTensor_isLeftDerived {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
+    (moduleTotalDerivedPullbackThenTensor f).IsLeftDerivedFunctor
+      (moduleTotalDerivedPullbackThenTensorCounit f) (Modules.CellTensor.denominators Y) where
   isRightKanExtension :=
     { nonempty_isUniversal := ⟨CellTensorPullback.terminalWitness f⟩ }
 
 
 /-- The derived comparison `Lf^*(A ⊗^L B) ⟶ Lf^*A ⊗^L Lf^*B` as a natural transformation. -/
-noncomputable def moduleDerivedPullbackTensorComparisonNatTrans {X Y : AlgebraicSpace S}
+noncomputable def moduleTotalDerivedPullbackTensorComparisonNatTrans {X Y : AlgebraicSpace S}
     (f : X ⟶ Y) :
-    moduleDerivedTensorThenPullback f ⟶ moduleDerivedPullbackThenTensor f :=
-  (moduleDerivedPullbackThenTensor f).leftDerivedLift
-    (moduleDerivedPullbackThenTensorCounit f)
+    moduleTotalDerivedTensorThenPullback f ⟶ moduleTotalDerivedPullbackThenTensor f :=
+  (moduleTotalDerivedPullbackThenTensor f).leftDerivedLift
+    (moduleTotalDerivedPullbackThenTensorCounit f)
     ((HomologicalComplex.quasiIso (Modules Y) (up ℤ)).prod
       (HomologicalComplex.quasiIso (Modules Y) (up ℤ)))
-    (moduleDerivedTensorThenPullback f)
-    (moduleDerivedTensorThenPullbackCounit f)
+    (moduleTotalDerivedTensorThenPullback f)
+    (moduleTotalDerivedTensorThenPullbackCounit f)
 
-/-- `moduleDerivedPullbackTensorComparisonNatTrans` is the left-derived lift of the
+/-- `moduleTotalDerivedPullbackTensorComparisonNatTrans` is the left-derived lift of the
 tensor-then-pullback counit against the pullback-then-tensor model. -/
-theorem moduleDerivedPullbackTensorComparisonNatTrans_eq {X Y : AlgebraicSpace S}
+theorem moduleTotalDerivedPullbackTensorComparisonNatTrans_eq {X Y : AlgebraicSpace S}
     (f : X ⟶ Y) :
-    moduleDerivedPullbackTensorComparisonNatTrans f =
-      (moduleDerivedPullbackThenTensor f).leftDerivedLift
-        (moduleDerivedPullbackThenTensorCounit f)
+    moduleTotalDerivedPullbackTensorComparisonNatTrans f =
+      (moduleTotalDerivedPullbackThenTensor f).leftDerivedLift
+        (moduleTotalDerivedPullbackThenTensorCounit f)
         ((HomologicalComplex.quasiIso (Modules Y) (up ℤ)).prod
           (HomologicalComplex.quasiIso (Modules Y) (up ℤ)))
-        (moduleDerivedTensorThenPullback f)
-        (moduleDerivedTensorThenPullbackCounit f) :=
+        (moduleTotalDerivedTensorThenPullback f)
+        (moduleTotalDerivedTensorThenPullbackCounit f) :=
   by rfl
 
 /-- Ambient derived comparison `Lf^*(A ⊗^L B) ⟶ Lf^*A ⊗^L Lf^*B`. -/
-noncomputable def moduleDerivedPullbackTensorComparison {X Y : AlgebraicSpace S}
+noncomputable def moduleTotalDerivedPullbackTensorComparison {X Y : AlgebraicSpace S}
     (f : X ⟶ Y) (A B : ModuleDerived Y) :
     (LeftDerived.Homotopy.functor (Modules.pullback f)).obj
         ((DerivedTensor.Bifunctor.functor (C := Modules Y)).obj (A, B)) ⟶
       (DerivedTensor.Bifunctor.functor (C := Modules X)).obj
         ((LeftDerived.Homotopy.functor (Modules.pullback f)).obj A, (LeftDerived.Homotopy.functor (Modules.pullback f)).obj B) :=
-  (moduleDerivedPullbackTensorComparisonNatTrans f).app (A, B)
+  (moduleTotalDerivedPullbackTensorComparisonNatTrans f).app (A, B)
 
-/-- `moduleDerivedPullbackTensorComparison` is the component of the derived comparison
+/-- `moduleTotalDerivedPullbackTensorComparison` is the component of the derived comparison
 natural transformation. -/
-theorem moduleDerivedPullbackTensorComparison_eq {X Y : AlgebraicSpace S}
+theorem moduleTotalDerivedPullbackTensorComparison_eq {X Y : AlgebraicSpace S}
     (f : X ⟶ Y) (A B : ModuleDerived Y) :
-    moduleDerivedPullbackTensorComparison f A B =
-      (moduleDerivedPullbackTensorComparisonNatTrans f).app (A, B) :=
+    moduleTotalDerivedPullbackTensorComparison f A B =
+      (moduleTotalDerivedPullbackTensorComparisonNatTrans f).app (A, B) :=
   by rfl
 
 /-- Derived pullback comparison on the fixed-right tensor `Lf^*(A ⊗^L B) ⟶ Lf^* A ⊗^L Lf^* B`. -/
@@ -418,7 +425,7 @@ noncomputable def rightTensorComparison {X Y : AlgebraicSpace S} (f : X ⟶ Y)
         ((LeftDerived.Homotopy.functor (Modules.pullback f)).obj A) :=
   (LeftDerived.Homotopy.functor (Modules.pullback f)).map (DerivedTensor.Bifunctor.Right.isoAppOf B
       (Modules.hasDerivedTensorRightCompatible Y B) A).hom ≫
-    moduleDerivedPullbackTensorComparison f A B ≫
+    moduleTotalDerivedPullbackTensorComparison f A B ≫
       (DerivedTensor.Bifunctor.Right.isoAppOf
         ((LeftDerived.Homotopy.functor (Modules.pullback f)).obj B)
         (Modules.hasDerivedTensorRightCompatible X _)
@@ -431,7 +438,7 @@ theorem rightTensorComparison_eq {X Y : AlgebraicSpace S} (f : X ⟶ Y)
     rightTensorComparison f A B =
       (LeftDerived.Homotopy.functor (Modules.pullback f)).map (DerivedTensor.Bifunctor.Right.isoAppOf B
       (Modules.hasDerivedTensorRightCompatible Y B) A).hom ≫
-        moduleDerivedPullbackTensorComparison f A B ≫
+        moduleTotalDerivedPullbackTensorComparison f A B ≫
           (DerivedTensor.Bifunctor.Right.isoAppOf
             ((LeftDerived.Homotopy.functor (Modules.pullback f)).obj B)
             (Modules.hasDerivedTensorRightCompatible X _)

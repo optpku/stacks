@@ -69,16 +69,6 @@ def Base.of (p : ℕ) [Fact p.Prime] (scheme : Scheme.{u})
   sourceToClosed := sourceToClosed
   prime_nilpotent := prime_nilpotent
 
-/-- The quasi-coherence, restriction compatibility, and local nilpotence conditions of a
-prime-local relative crystalline base. -/
-theorem Base.spec (p : ℕ) [Fact p.Prime] (B : Base p) :
-    B.ideal.toModule.IsQuasicoherent ∧
-    (∀ (V : B.scheme.affineOpens) (f : Γ(B.scheme, V)),
-      (B.dividedPowers V).IsDPMorphism
-        (B.dividedPowers (B.scheme.affineBasicOpen f))
-        (B.scheme.presheaf.map (homOfLE (B.scheme.basicOpen_le f)).op).hom) ∧
-      ∀ U : B.source.affineOpens, IsNilpotent (p : Γ(B.source, U)) := sorry
-
 /-- Replace the source of a crystalline base while retaining its divided-power base. -/
 @[reducible]
 def Base.withSource {p : ℕ} [Fact p.Prime] (B : Base.{u} p)

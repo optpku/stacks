@@ -97,7 +97,9 @@ noncomputable def joint_universe_target_tail_data
   let tail : Type uR := Set.Ici i₀
   letI : Preorder tail := inferInstance
   letI : Nonempty tail := inferInstance
-  letI : IsDirectedOrder tail := inferInstance
+  letI : IsDirectedOrder tail := ⟨fun i j ↦ by
+    obtain ⟨k, hik, hjk⟩ := exists_ge_ge i.1 j.1
+    exact ⟨⟨k, le_trans i.2 hik⟩, hik, hjk⟩⟩
   let rawStage : tail → Type uR := descendedTailRawStage A₀ i₀ P₀
   let rawMap : ∀ j k : tail, j ≤ k → rawStage j →+* rawStage k := fun j k hjk ↦
     descendedTailRawMap A₀ i₀ P₀ j k hjk
@@ -286,8 +288,10 @@ noncomputable def joint_universe_target_tail_data
       RingHom.toAlgebra
         (Ring.DirectLimit.toLimitHom A₀.RStage (fun i j h ↦ A₀.map i j h) A₀.colimitIso j.1)
     letI : IsScalarTower (A₀.RStage i₀) (A₀.RStage j.1) R :=
-      Ring.DirectLimit.toLimit_isScalarTower_of_algebraMap_eq
-        A₀.RStage (fun i j h ↦ A₀.map i j h) A₀.colimitIso j.2 hRalg
+      IsScalarTower.of_algebraMap_eq' (by
+        rw [hRalg]
+        exact (Ring.DirectLimit.toLimitHom_comp_map A₀.RStage
+          (fun i j h ↦ A₀.map i j h) A₀.colimitIso j.2).symm)
     ext x
     -- Proof comment: evaluating the raw tensor-stage comparison on the right tensor generator
     -- recovers the image of `x` in `R`, then in `P`, and finally in `S`.
@@ -381,7 +385,23 @@ private theorem tail_target_colimit_isLocalHom_mixed
     [DirectedSystem G (fun i j h ↦ map i j h)]
     (σ : (i : Λ) → G i →+* S)
     (hσ : ∀ i j (hij : i ≤ j), σ i = (σ j).comp (map i j hij)) :
-    IsLocalHom (tail_target_colimit_to_ambient (S := S) G map σ hσ) := sorry
+    IsLocalHom (tail_target_colimit_to_ambient (S := S) G map σ hσ) := by
+  constructor
+  intro x hx
+  obtain ⟨i, y, rfl⟩ := Ring.DirectLimit.exists_of x
+  rw [tail_target_colimit_to_ambient_of] at hx
+  haveI := Localization.isLocalHom_localRingHom
+    (Ideal.comap (σ i) (IsLocalRing.maximalIdeal S))
+    (IsLocalRing.maximalIdeal S) (σ i) rfl
+  have hy : IsUnit y := isUnit_of_map_unit
+    (Localization.localRingHom (Ideal.comap (σ i) (IsLocalRing.maximalIdeal S))
+      (IsLocalRing.maximalIdeal S) (σ i) rfl) y
+    (isUnit_of_map_unit (maxLocalizationCollapse S).toRingEquiv _ hx)
+  exact hy.map (Ring.DirectLimit.of
+    (fun i ↦ Localization.AtPrime (Ideal.comap (σ i) (IsLocalRing.maximalIdeal S)))
+    (fun i j h ↦ Localization.localRingHom _ _ (map i j h)
+      ((comap_contracted_maximalIdeal_eq_of_comp
+        (S := S) (τ := map i j h) (σA := σ i) (σB := σ j) (hσ i j h)).symm)) i)
 
 /-- Helper for Lemma 10.127.13: a mixed-universe localized tail direct limit is canonically
 identified with the ambient local target ring once an inverse comparison map has been built. -/
@@ -530,7 +550,117 @@ private theorem joint_universe_target_colimit_inputs
       (fun j k h ↦ descendedTailTargetMapJointUniverse
         (S := S) A₀ i₀ P₀ hRalg e hσ_raw_comp j k h)]
     (bundle : JointUniverseTargetTailData (f := f) (S := S) A₀ i₀ P₀ hRalg e hσ_raw_comp) :
-    Nonempty (JointUniverseTargetColimitInputs (S := S) A₀ i₀ P₀ hRalg e hσ_raw_comp) := sorry
+    Nonempty (JointUniverseTargetColimitInputs (S := S) A₀ i₀ P₀ hRalg e hσ_raw_comp) := by
+  let C := descendedTailTargetLimitJointUniverse (S := S) A₀ i₀ P₀ hRalg e hσ_raw_comp
+  let b : Set.Ici i₀ := ⟨i₀, le_rfl⟩
+  let src : R →+* C := sourceToTargetDirectLimitOf A₀ i₀
+    (descendedTailSStageJointUniverse (S := S) A₀ i₀ P₀ hRalg e)
+    (descendedTailTargetMapJointUniverse (S := S) A₀ i₀ P₀ hRalg e hσ_raw_comp)
+    bundle.stageMapTail (fun {j} {k} h ↦ bundle.hcommTail h)
+  letI : Algebra (A₀.RStage i₀) C := (src.comp (algebraMap (A₀.RStage i₀) R)).toAlgebra
+  let srcAlg : R →ₐ[A₀.RStage i₀] C := { src with commutes' := fun _ ↦ rfl }
+  have hbalance (B : Type uR) [CommRing B] [Algebra (A₀.RStage i₀) B]
+      (r : A₀.RStage i₀) :
+      (algebraMap (A₀.RStage i₀) P₀ r) ⊗ₜ[A₀.RStage i₀] (1 : B) =
+        (1 : P₀) ⊗ₜ[A₀.RStage i₀] (algebraMap (A₀.RStage i₀) B r) := by
+    simpa only [Algebra.smul_def, mul_one] using
+      (TensorProduct.smul_tmul r (1 : P₀) (1 : B))
+  -- The base raw stage uses the self-transition algebra and its induced module action.
+  letI : Algebra (A₀.RStage i₀) (A₀.RStage i₀) := (A₀.map i₀ i₀ le_rfl).toAlgebra
+  letI : Module (A₀.RStage i₀) (A₀.RStage i₀) := Algebra.toModule
+  let p0Map : P₀ →+* C :=
+    (descendedTailTargetOfJointUniverse (S := S) A₀ i₀ P₀ hRalg e hσ_raw_comp b).comp
+      ((algebraMap (descendedTailRawStage A₀ i₀ P₀ b)
+        (descendedTailSStageJointUniverse (S := S) A₀ i₀ P₀ hRalg e b)).comp
+          (Algebra.TensorProduct.includeLeftRingHom (R := A₀.RStage i₀)))
+  have hp0Stage (i : Set.Ici i₀) (p : P₀) :
+      letI : Algebra (A₀.RStage i₀) (A₀.RStage i.1) := (A₀.map i₀ i.1 i.2).toAlgebra
+      p0Map p = descendedTailTargetOfJointUniverse (S := S) A₀ i₀ P₀ hRalg e hσ_raw_comp i
+        (algebraMap (descendedTailRawStage A₀ i₀ P₀ i)
+          (descendedTailSStageJointUniverse (S := S) A₀ i₀ P₀ hRalg e i)
+          (p ⊗ₜ[A₀.RStage i₀] (1 : A₀.RStage i.1))) := by
+    letI : Algebra (A₀.RStage i₀) (A₀.RStage i.1) := (A₀.map i₀ i.1 i.2).toAlgebra
+    symm
+    calc
+      _ = descendedTailTargetOfJointUniverse (S := S) A₀ i₀ P₀ hRalg e hσ_raw_comp i
+          (descendedTailTargetMapJointUniverse (S := S) A₀ i₀ P₀ hRalg e hσ_raw_comp b i i.2
+            (algebraMap (descendedTailRawStage A₀ i₀ P₀ b)
+              (descendedTailSStageJointUniverse (S := S) A₀ i₀ P₀ hRalg e b)
+              (p ⊗ₜ[A₀.RStage i₀] (1 : A₀.RStage i₀)))) := by
+        rw [descended_tail_target_map_joint_universe_algebra_map]
+        simp only [descendedTailRawMap, RingHom.coe_coe, Algebra.TensorProduct.map_tmul,
+          AlgHom.id_apply, map_one]
+      _ = p0Map p := Ring.DirectLimit.of_f (i := b) (j := i) i.2 _
+  let p0Alg : P₀ →ₐ[A₀.RStage i₀] C :=
+    { p0Map with
+      commutes' := fun r ↦ by
+        change p0Map (algebraMap (A₀.RStage i₀) P₀ r) = src (algebraMap (A₀.RStage i₀) R r)
+        rw [hp0Stage b, hRalg]
+        rw [show src (Ring.DirectLimit.toLimitHom A₀.RStage (fun i j h ↦ A₀.map i j h)
+            A₀.colimitIso i₀ r) = _ from bundle.hSourceStage b r]
+        rw [bundle.hstageMapTail_apply]
+        congr 2
+        change (algebraMap (A₀.RStage i₀) P₀ r) ⊗ₜ[A₀.RStage i₀] (1 : A₀.RStage i₀) =
+          (1 : P₀) ⊗ₜ[A₀.RStage i₀] r
+        have hr : algebraMap (A₀.RStage i₀) (A₀.RStage i₀) r = r :=
+          DirectedSystem.map_self (f := fun i j h ↦ A₀.map i j h) r
+        exact (hbalance (A₀.RStage i₀) r).trans
+          (congrArg (fun x ↦ (1 : P₀) ⊗ₜ[A₀.RStage i₀] x) hr) }
+  let psi := descentPsi e p0Alg srcAlg
+  have hfactB (i : Set.Ici i₀) (w : descendedTailRawStage A₀ i₀ P₀ i) :
+      psi (descendedTailPComp A₀ i₀ P₀ hRalg e i w) =
+        descendedTailTargetOfJointUniverse (S := S) A₀ i₀ P₀ hRalg e hσ_raw_comp i
+          (algebraMap (descendedTailRawStage A₀ i₀ P₀ i)
+            (descendedTailSStageJointUniverse (S := S) A₀ i₀ P₀ hRalg e i) w) := by
+    letI : Algebra (A₀.RStage i₀) (A₀.RStage i.1) := (A₀.map i₀ i.1 i.2).toAlgebra
+    induction w using TensorProduct.induction_on with
+    | zero => simp only [map_zero]
+    | add x y hx hy => simp only [map_add, hx, hy]
+    | tmul p r =>
+      change descentPsi e p0Alg srcAlg
+        (e (p ⊗ₜ[A₀.RStage i₀] (Ring.DirectLimit.toLimitHom A₀.RStage
+          (fun i j h ↦ A₀.map i j h) A₀.colimitIso i.1 r))) = _
+      rw [descentPsi_apply]
+      change p0Map p * src (Ring.DirectLimit.toLimitHom A₀.RStage
+        (fun i j h ↦ A₀.map i j h) A₀.colimitIso i.1 r) = _
+      rw [hp0Stage i, bundle.hSourceStage, bundle.hstageMapTail_apply]
+      change Ring.DirectLimit.of _ _ i (algebraMap _ _ (p ⊗ₜ[A₀.RStage i₀] (1 : A₀.RStage i.1))) *
+        Ring.DirectLimit.of _ _ i (algebraMap _ _ ((1 : P₀) ⊗ₜ[A₀.RStage i₀] r)) = _
+      rw [← map_mul, ← map_mul, Algebra.TensorProduct.tmul_mul_tmul, mul_one, one_mul]
+  have hpsi : (tail_target_colimit_to_ambient (S := S)
+      (descendedTailRawStage A₀ i₀ P₀) (descendedTailRawMap A₀ i₀ P₀)
+      (descendedTailSigmaJointUniverse (S := S) A₀ i₀ P₀ hRalg e) hσ_raw_comp).comp psi =
+        algebraMap P S := by
+    apply descentPsi_comp_eq_mixed e p0Alg srcAlg
+    · intro p
+      change (tail_target_colimit_to_ambient (S := S) _ _ _ _)
+        (p0Map p) = _
+      rw [hp0Stage b, tail_target_colimit_to_ambient_of, Localization.localRingHom_to_map]
+      simp only [RingHom.coe_coe, maxLocalizationCollapse_algebraMap]
+      change algebraMap P S (e (p ⊗ₜ[A₀.RStage i₀]
+        (Ring.DirectLimit.toLimitHom A₀.RStage (fun i j h ↦ A₀.map i j h) A₀.colimitIso i₀ 1))) = _
+      rw [map_one]
+    · intro r
+      have hr := DFunLike.congr_fun bundle.htargetColimitToAmbient_comm
+        ((Ring.DirectLimit.Tail.equivTo (fun i j h ↦ A₀.map i j h) i₀ A₀.colimitIso).symm r)
+      change (tail_target_colimit_to_ambient (S := S) _ _ _ _) (srcAlg r) = _
+      change (tail_target_colimit_to_ambient (S := S) _ _ _ _) (src r) = _
+      have hr' : (tail_target_colimit_to_ambient (S := S)
+          (descendedTailRawStage A₀ i₀ P₀) (descendedTailRawMap A₀ i₀ P₀)
+          (descendedTailSigmaJointUniverse (S := S) A₀ i₀ P₀ hRalg e) hσ_raw_comp)
+          (src r) = f r := by
+        simpa only [src, sourceToTargetDirectLimitOf, RingHom.comp_apply,
+          RingEquiv.toRingHom_eq_coe, RingEquiv.coe_toRingHom,
+          RingEquiv.apply_symm_apply] using hr
+      rw [hr', hfg, RingHom.comp_apply, ← hPalg]
+      exact congrArg (algebraMap P S) (e.commutes r).symm
+  exact ⟨{
+    instAlgTargetLimit := inferInstance
+    p0Alg := p0Alg
+    srcAlg := srcAlg
+    psi := psi
+    hpsi := hpsi
+    hfactB := hfactB }⟩
 
 /-- Helper for Lemma 10.127.13: the packaged mixed-universe target-tail data identifies the
 localized target colimit with the ambient local target ring. -/

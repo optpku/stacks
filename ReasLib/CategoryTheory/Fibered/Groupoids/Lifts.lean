@@ -37,11 +37,12 @@ variable {C : Type u} [Category.{v} C]
 variable {X Y : FiberedCategoryOver.Groupoids C}
 
 /-- The total morphism `y ⟶ F(x)` over `r` associated to a fibre morphism
-`φ : F(x)|_r ⟶ y`. -/
+`φ : F(x)|_r ⟶ y`. The inverse is constructed by Cartesian factorization
+in the fibre, without selecting it from the deferred `IsIso` proof. -/
 def ofHomLift (F : X ⟶ Y) {U V : C} (r : V ⟶ U) {x : X.p.Fiber U} {y : Y.p.Fiber V}
     (φ : Chosen.reindexObj Y.p r ((fiberFunctor F U).obj x) ⟶ y) :
     y.1 ⟶ ((fiberFunctor F U).obj x).1 :=
-  Fiber.fiberInclusion.map (inv φ) ≫
+  Fiber.fiberInclusion.map (IsFibered.InGroupoids.fiberInverse V φ) ≫
     Chosen.cartesianHom Y.p r ((fiberFunctor F U).obj x)
 
 /-- `ofHomLift F r φ` lies over the base arrow `r`. -/
@@ -50,12 +51,14 @@ instance ofHomLift.isHomLift (F : X ⟶ Y) {U V : C} (r : V ⟶ U)
     (φ : Chosen.reindexObj Y.p r ((fiberFunctor F U).obj x) ⟶ y) :
     Y.p.IsHomLift r (ofHomLift F r φ) := sorry
 
-/-- Recover a fibre morphism `F(x)|_r ⟶ y` from a total morphism `y ⟶ F(x)` over `r`. -/
+/-- Recover a fibre morphism `F(x)|_r ⟶ y` from a total morphism `y ⟶ F(x)` over `r`,
+using the Cartesian construction of the inverse of its vertical factor. -/
 def fiberHomOfHomLift (F : X ⟶ Y) {U V : C} (r : V ⟶ U)
     {x : X.p.Fiber U} {y : Y.p.Fiber V}
     (ψ : y.1 ⟶ ((fiberFunctor F U).obj x).1) [Y.p.IsHomLift r ψ] :
     Chosen.reindexObj Y.p r ((fiberFunctor F U).obj x) ⟶ y :=
-  inv ⟨Chosen.cartesianFactor Y.p r (𝟙 V) ((fiberFunctor F U).obj x) ψ, inferInstance⟩
+  IsFibered.InGroupoids.fiberInverse V
+    ⟨Chosen.cartesianFactor Y.p r (𝟙 V) ((fiberFunctor F U).obj x) ψ, inferInstance⟩
 
 /-- `fiberHomOfHomLift` inverts `ofHomLift` on fibre morphisms. -/
 theorem fiberHomOfHomLift_ofHomLift (F : X ⟶ Y) {U V : C} (r : V ⟶ U)
@@ -74,18 +77,24 @@ def cartesianFactorOf {𝒳 : Type w} [Category.{vS} 𝒳]
 instance cartesianFactorOf_isHomLift {𝒳 : Type w} [Category.{vS} 𝒳]
     (p : 𝒳 ⥤ C) [p.IsFibered] {U V W : C} (f : V ⟶ U) (g : W ⟶ V)
     (x : p.Fiber U) {a : 𝒳} (φ : a ⟶ x.1) (h : p.IsHomLift (g ≫ f) φ) :
-    p.IsHomLift g (cartesianFactorOf p f g x φ h) := sorry
+    p.IsHomLift g (cartesianFactorOf p f g x φ h) := by
+  letI := h
+  exact Chosen.cartesianFactor.isHomLift p f g x φ
 
 /-- Applying a based 1-morphism to a selected cartesian arrow still lifts `𝟙 V ≫ r`. -/
 private theorem map_cartesianHom_id_comp_isHomLift {Z : FiberedCategoryOver.Groupoids C}
     (G : Y ⟶ Z) {U V : C} (r : V ⟶ U) (y : Y.p.Fiber U) :
     Z.p.IsHomLift (𝟙 V ≫ r)
-      ((toBasedFunctor G).map (Chosen.cartesianHom Y.p r y)) := sorry
+      ((toBasedFunctor G).map (Chosen.cartesianHom Y.p r y)) := by
+  letI := Chosen.cartesianHom.isHomLift Y.p r y
+  infer_instance
 
 /-- A selected cartesian arrow still lifts `𝟙 V ≫ r`. -/
 private theorem cartesianHom_id_comp_isHomLift {Z : FiberedCategoryOver.Groupoids C}
     {U V : C} (r : V ⟶ U) (z : Z.p.Fiber U) :
-    Z.p.IsHomLift (𝟙 V ≫ r) (Chosen.cartesianHom Z.p r z) := sorry
+    Z.p.IsHomLift (𝟙 V ≫ r) (Chosen.cartesianHom Z.p r z) := by
+  letI := Chosen.cartesianHom.isHomLift Z.p r z
+  infer_instance
 
 /-- Comparison `G(y|_r) ⟶ G(y)|_r` obtained by cartesian factorization of
 `G` applied to the selected cartesian arrow of `y`. -/
@@ -184,7 +193,7 @@ def connect {Z : FiberedCategoryOver.Groupoids C} (F : X ⟶ Y) (G : Y ⟶ Z)
     Chosen.reindexObj Z.p r ((fiberFunctor (F ≫ G) U).obj x) ⟶
       (fiberFunctor G V).obj y :=
   reindexCompCompare F G r x ≫
-    inv (reindexCompare G r ((fiberFunctor F U).obj x)) ≫
+    IsFibered.InGroupoids.fiberInverse V (reindexCompare G r ((fiberFunctor F U).obj x)) ≫
     (fiberFunctor G V).map φ
 
 /-- The canonical fibre morphism `G(y)|_{𝟙 V} ⟶ G(y)` used when applying `G` on the same
@@ -226,7 +235,8 @@ def compFibre {Z : FiberedCategoryOver.Groupoids C} (F : X ⟶ Y) (G : Y ⟶ Z)
     ((liftFunctor (F ≫ G) i j r r' sq (connect F G r φ)).obj a).codomain ⟶
       ((liftFunctor F i j r r' sq φ ⋙ onId G j y).obj a).codomain :=
   ⟨(reindexCompCompare F G r' a.codomain).1 ≫
-      (inv (reindexCompare G r' ((fiberFunctor F U').obj a.codomain))).1 ≫
+      (IsFibered.InGroupoids.fiberInverse V'
+        (reindexCompare G r' ((fiberFunctor F U').obj a.codomain))).1 ≫
       (Cleavage.Reindex.idIsoApp (Cleavage.ofIsFibered Z.p) V'
         ((fiberFunctor G V').obj ((liftFunctor F i j r r' sq φ).obj a).codomain)).hom.1,
     sorry⟩
@@ -242,7 +252,7 @@ def compFibreInv {Z : FiberedCategoryOver.Groupoids C} (F : X ⟶ Y) (G : Y ⟶ 
   ⟨(Cleavage.Reindex.idIsoApp (Cleavage.ofIsFibered Z.p) V'
         ((fiberFunctor G V').obj ((liftFunctor F i j r r' sq φ).obj a).codomain)).inv.1 ≫
       (reindexCompare G r' ((fiberFunctor F U').obj a.codomain)).1 ≫
-      (inv (reindexCompCompare F G r' a.codomain)).1,
+      (IsFibered.InGroupoids.fiberInverse V' (reindexCompCompare F G r' a.codomain)).1,
     sorry⟩
 
 end liftFunctor
@@ -262,9 +272,10 @@ theorem liftFunctor.compFibre_spec {Z : FiberedCategoryOver.Groupoids C}
     (a : UnderLift X.p i x) :
     (liftFunctor.compFibre F G i j r r' sq φ a).1 =
       (reindexCompCompare F G r' a.codomain).1 ≫
-        (inv (reindexCompare G r' ((fiberFunctor F U').obj a.codomain))).1 ≫
+        (IsFibered.InGroupoids.fiberInverse V'
+          (reindexCompare G r' ((fiberFunctor F U').obj a.codomain))).1 ≫
         (Cleavage.Reindex.idIsoApp (Cleavage.ofIsFibered Z.p) V'
-          ((fiberFunctor G V').obj ((liftFunctor F i j r r' sq φ).obj a).codomain)).hom.1 := sorry
+          ((fiberFunctor G V').obj ((liftFunctor F i j r r' sq φ).obj a).codomain)).hom.1 := rfl
 
 /-- `idFibreInv` is the inverse selected identity-cleavage comparison. -/
 theorem liftFunctor.idFibreInv_spec (X : FiberedCategoryOver.Groupoids C)
@@ -283,7 +294,7 @@ theorem liftFunctor.compFibreInv_spec {Z : FiberedCategoryOver.Groupoids C}
       (Cleavage.Reindex.idIsoApp (Cleavage.ofIsFibered Z.p) V'
           ((fiberFunctor G V').obj ((liftFunctor F i j r r' sq φ).obj a).codomain)).inv.1 ≫
         (reindexCompare G r' ((fiberFunctor F U').obj a.codomain)).1 ≫
-        (inv (reindexCompCompare F G r' a.codomain)).1 := sorry
+        (IsFibered.InGroupoids.fiberInverse V' (reindexCompCompare F G r' a.codomain)).1 := rfl
 
 /-- The identity 1-morphism acts as the identity on lift categories, up to the selected
 identity cartesian arrow. -/

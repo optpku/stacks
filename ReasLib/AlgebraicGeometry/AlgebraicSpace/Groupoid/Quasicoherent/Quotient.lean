@@ -212,17 +212,81 @@ private def pullback_fromPreQuotient_evalIso (A : G.QCoh)
       have h := congrArg (fun f => f.val.app y) (pullback_fromPreQuotient_compιIso G A).inv_hom_id
       exact h }
 
+/-- Global sections on an atlas point, first restricted along
+`structureSheafToPushforward` and then along `structureSheafMap` of the object
+inclusion. The two coefficient actions are retained on the original carrier. -/
+def atlasGammaSectionObj (A : G.QCoh) (y : G.U.left.toGroupoids.totalᵒᵖ) :
+    ModuleCat.{u} ((structureSheaf G.U.left.toGroupoids).obj.obj y) :=
+  (ModuleCat.restrictScalars
+      ((structureSheafMap (SmallQuotient.atlasToPreQuotient G)).hom.app y).hom).obj
+    (fromPreQuotient_objModule G A (atlasToPreQuotientObj G y.unop))
+
+/-- Evaluation of the inverse-image module at the same atlas point. -/
+def atlasPiStarSectionObj (A : G.QCoh) (y : G.U.left.toGroupoids.totalᵒᵖ) :
+    ModuleCat.{u} ((structureSheaf G.U.left.toGroupoids).obj.obj y) :=
+  ((piStar (Bicategory.Equivalence.id G.U.left.toGroupoids)).obj A.obj).obj.val.obj y
+
+/-- The section object is exactly the scalar restriction of reconstructed
+prequotient evaluation, rather than a choice of an isomorphic module. -/
+theorem atlasGammaSectionObj_eq (A : G.QCoh) (y : G.U.left.toGroupoids.totalᵒᵖ) :
+    atlasGammaSectionObj G A y =
+      (ModuleCat.restrictScalars
+        ((structureSheafMap (SmallQuotient.atlasToPreQuotient G)).hom.app y).hom).obj
+        (((fromPreQuotient G).obj A).obj.val.obj
+          (op ((toCartesianBasedFunctor (SmallQuotient.atlasToPreQuotient G)).toFunctor.obj y.unop))) :=
+  rfl
+
+set_option maxHeartbeats 800000 in
+/-- Scalar multiplication applies the two specified ring homomorphisms in order. -/
+theorem atlasGammaSectionObj_smul (A : G.QCoh) (y : G.U.left.toGroupoids.totalᵒᵖ)
+    (r : (structureSheaf G.U.left.toGroupoids).obj.obj y) (t : atlasGammaSectionObj G A y) :
+    let x := (toCartesianBasedFunctor (SmallQuotient.atlasToPreQuotient G)).toFunctor.obj y.unop
+    let M := atlasGammaSectionObj G A y
+    let N := gammaObj G A x
+    @SMul.smul _ M M.isModule.toDistribMulAction.toMulAction.toSMul r t =
+      @SMul.smul _ N N.isModule.toDistribMulAction.toMulAction.toSMul
+        (((structureSheafToPushforward (SmallQuotient.preQuotient G)).hom.app
+          (op x)).hom
+          (((structureSheafMap (SmallQuotient.atlasToPreQuotient G)).hom.app y).hom r)) t :=
+  rfl
+
+/-- Equivariant-module morphisms act on the same atlas section objects by the
+original global-sections map with both scalar restrictions. -/
+def atlasGammaSectionMap {A A' : G.QCoh} (f : A ⟶ A')
+    (y : G.U.left.toGroupoids.totalᵒᵖ) :
+    atlasGammaSectionObj G A y ⟶ atlasGammaSectionObj G A' y :=
+  (ModuleCat.restrictScalars
+      ((structureSheafMap (SmallQuotient.atlasToPreQuotient G)).hom.app y).hom).map
+    ((ModuleCat.restrictScalars
+      ((structureSheafToPushforward (SmallQuotient.preQuotient G)).hom.app
+        (op (atlasToPreQuotientObj G y.unop))).hom).map
+      (gammaObjMap G f (atlasToPreQuotientObj G y.unop)))
+
+/-- The induced map retains the original global-sections function. -/
+theorem atlasGammaSectionMap_apply {A A' : G.QCoh} (f : A ⟶ A')
+    (y : G.U.left.toGroupoids.totalᵒᵖ) (t : atlasGammaSectionObj G A y) :
+    atlasGammaSectionMap G f y t =
+      gammaObjMap G f
+        ((toCartesianBasedFunctor (SmallQuotient.atlasToPreQuotient G)).toFunctor.obj y.unop) t :=
+  rfl
+
+/-- The atlas section map agrees with evaluation of the reconstructed morphism
+followed by the object-inclusion scalar restriction. -/
+theorem atlasGammaSectionMap_eq {A A' : G.QCoh} (f : A ⟶ A')
+    (y : G.U.left.toGroupoids.totalᵒᵖ) :
+    atlasGammaSectionMap G f y =
+      (ModuleCat.restrictScalars
+        ((structureSheafMap (SmallQuotient.atlasToPreQuotient G)).hom.app y).hom).map
+        (((fromPreQuotient G).map f).hom.val.app
+          (op ((toCartesianBasedFunctor (SmallQuotient.atlasToPreQuotient G)).toFunctor.obj y.unop))) :=
+  rfl
+
 /-- Object-inclusion pullback of the Γ-sheaf, evaluated and transported to
 `Γ(T, u_small^* A)` over `𝒪_{𝒮_U}`. -/
 private def fromPreQuotient_piStar_gammaIso (A : G.QCoh)
     (y : (objectGroupoids G).totalᵒᵖ) :
     ((pullback (SmallQuotient.atlasToPreQuotient G)).obj ((fromPreQuotient G).obj A)).obj.val.obj y ≅
-      (ModuleCat.restrictScalars
-          ((structureSheafMap (SmallQuotient.atlasToPreQuotient G)).hom.app y).hom).obj
-        ((ModuleCat.restrictScalars
-            ((structureSheafToPushforward (SmallQuotient.preQuotient G)).hom.app
-              (op (atlasToPreQuotientObj G y.unop))).hom).obj
-          (gammaObj G A (atlasToPreQuotientObj G y.unop))) :=
+      atlasGammaSectionObj G A y :=
   pullback_fromPreQuotient_evalIso G A y ≪≫
     modulePullback_evalIso (SmallQuotient.atlasToPreQuotient G)
       ((fromPreQuotient G).obj A).obj y.unop ≪≫
@@ -256,13 +320,8 @@ private def topPointIso (y : (objectGroupoids G).total) :
 /-- Global sections of the pulled-back module map to the inverse image at the
 original point through the chart adjunction and fppf sheafification comparison. -/
 private def piStar_gamma_forward (A : G.QCoh) (y : (objectGroupoids G).totalᵒᵖ) :
-    (ModuleCat.restrictScalars
-        ((structureSheafMap (SmallQuotient.atlasToPreQuotient G)).hom.app y).hom).obj
-      ((ModuleCat.restrictScalars
-          ((structureSheafToPushforward (SmallQuotient.preQuotient G)).hom.app
-            (op (atlasToPreQuotientObj G y.unop))).hom).obj
-        (gammaObj G A (atlasToPreQuotientObj G y.unop))) →
-      ((piStar (Bicategory.Equivalence.id G.U.left.toGroupoids)).obj A.obj).obj.val.obj y := by
+    atlasGammaSectionObj G A y →
+      atlasPiStarSectionObj G A y := by
   let x := atlasToPreQuotientObj G y.unop
   let f := pointHom G x
   let eT := Bicategory.Equivalence.id (ofOver x.base).toGroupoids
@@ -286,14 +345,9 @@ private theorem piStar_gamma_eval_bijective (A : G.QCoh)
 private theorem piStar_gamma_eval_laws (A : G.QCoh)
     (y : (objectGroupoids G).totalᵒᵖ) :
     let M : ModuleCat.{u} ((structureSheaf (objectGroupoids G)).obj.obj y) :=
-    (ModuleCat.restrictScalars
-        ((structureSheafMap (SmallQuotient.atlasToPreQuotient G)).hom.app y).hom).obj
-      ((ModuleCat.restrictScalars
-          ((structureSheafToPushforward (SmallQuotient.preQuotient G)).hom.app
-            (op (atlasToPreQuotientObj G y.unop))).hom).obj
-        (gammaObj G A (atlasToPreQuotientObj G y.unop)))
+      atlasGammaSectionObj G A y
     let N : ModuleCat.{u} ((structureSheaf (objectGroupoids G)).obj.obj y) :=
-      ((piStar (Bicategory.Equivalence.id G.U.left.toGroupoids)).obj A.obj).obj.val.obj y
+      atlasPiStarSectionObj G A y
     (∀ a b : M, piStar_gamma_forward G A y (a + b) =
       (piStar_gamma_forward G A y a : N) + (piStar_gamma_forward G A y b : N)) ∧
     (∀ (r : (structureSheaf (objectGroupoids G)).obj.obj y) (a : M),
@@ -302,22 +356,12 @@ private theorem piStar_gamma_eval_laws (A : G.QCoh)
 
 /-- The section comparison as a linear map over the original coefficient ring. -/
 private def piStar_gamma_linear (A : G.QCoh) (y : (objectGroupoids G).totalᵒᵖ) :
-    (ModuleCat.restrictScalars
-        ((structureSheafMap (SmallQuotient.atlasToPreQuotient G)).hom.app y).hom).obj
-      ((ModuleCat.restrictScalars
-          ((structureSheafToPushforward (SmallQuotient.preQuotient G)).hom.app
-            (op (atlasToPreQuotientObj G y.unop))).hom).obj
-        (gammaObj G A (atlasToPreQuotientObj G y.unop))) ⟶
-      ((piStar (Bicategory.Equivalence.id G.U.left.toGroupoids)).obj A.obj).obj.val.obj y := by
+    atlasGammaSectionObj G A y ⟶
+      atlasPiStarSectionObj G A y := by
   let M : ModuleCat.{u} ((structureSheaf (objectGroupoids G)).obj.obj y) :=
-    (ModuleCat.restrictScalars
-        ((structureSheafMap (SmallQuotient.atlasToPreQuotient G)).hom.app y).hom).obj
-      ((ModuleCat.restrictScalars
-          ((structureSheafToPushforward (SmallQuotient.preQuotient G)).hom.app
-            (op (atlasToPreQuotientObj G y.unop))).hom).obj
-        (gammaObj G A (atlasToPreQuotientObj G y.unop)))
+    atlasGammaSectionObj G A y
   let N : ModuleCat.{u} ((structureSheaf (objectGroupoids G)).obj.obj y) :=
-      ((piStar (Bicategory.Equivalence.id G.U.left.toGroupoids)).obj A.obj).obj.val.obj y
+    atlasPiStarSectionObj G A y
   exact @ModuleCat.ofHom _ _ M N M.isAddCommGroup M.isModule N.isAddCommGroup N.isModule
     { toFun := piStar_gamma_forward G A y
       map_add' := (piStar_gamma_eval_laws G A y).1
@@ -349,23 +393,13 @@ set_option maxHeartbeats 800000 in
 /-- The canonical comparison of scalar-transported global sections with
 inverse-image evaluation, with inverse in the fibres of its forward map. -/
 private def piStar_gamma_evalIso (A : G.QCoh) (y : (objectGroupoids G).totalᵒᵖ) :
-    (ModuleCat.restrictScalars
-        ((structureSheafMap (SmallQuotient.atlasToPreQuotient G)).hom.app y).hom).obj
-      ((ModuleCat.restrictScalars
-          ((structureSheafToPushforward (SmallQuotient.preQuotient G)).hom.app
-            (op (atlasToPreQuotientObj G y.unop))).hom).obj
-        (gammaObj G A (atlasToPreQuotientObj G y.unop))) ≅
-      ((piStar (Bicategory.Equivalence.id G.U.left.toGroupoids)).obj A.obj).obj.val.obj y := by
+    atlasGammaSectionObj G A y ≅
+      atlasPiStarSectionObj G A y := by
   let f := piStar_gamma_linear G A y
   let M : ModuleCat.{u} ((structureSheaf (objectGroupoids G)).obj.obj y) :=
-    (ModuleCat.restrictScalars
-        ((structureSheafMap (SmallQuotient.atlasToPreQuotient G)).hom.app y).hom).obj
-      ((ModuleCat.restrictScalars
-          ((structureSheafToPushforward (SmallQuotient.preQuotient G)).hom.app
-            (op (atlasToPreQuotientObj G y.unop))).hom).obj
-        (gammaObj G A (atlasToPreQuotientObj G y.unop)))
+    atlasGammaSectionObj G A y
   let N : ModuleCat.{u} ((structureSheaf (objectGroupoids G)).obj.obj y) :=
-      ((piStar (Bicategory.Equivalence.id G.U.left.toGroupoids)).obj A.obj).obj.val.obj y
+    atlasPiStarSectionObj G A y
   refine { hom := f, inv := ?_, hom_inv_id := ?_, inv_hom_id := ?_ }
   · exact @ModuleCat.ofHom _ _ N M N.isAddCommGroup N.isModule M.isAddCommGroup M.isModule
       ((piStar_gamma_linear G A y).hom.inverse
@@ -386,7 +420,7 @@ evaluation of `π_U^* A`. -/
 private def fromPreQuotient_piStar_evalIso (A : G.QCoh)
     (y : (objectGroupoids G).totalᵒᵖ) :
     ((pullback (SmallQuotient.atlasToPreQuotient G)).obj ((fromPreQuotient G).obj A)).obj.val.obj y ≅
-      ((piStar ((Bicategory.Equivalence.id G.U.left.toGroupoids))).obj A.obj).obj.val.obj y :=
+      atlasPiStarSectionObj G A y :=
   fromPreQuotient_piStar_gammaIso G A y ≪≫
     piStar_gamma_evalIso G A y
 

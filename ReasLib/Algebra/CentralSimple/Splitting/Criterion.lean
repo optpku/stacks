@@ -411,7 +411,7 @@ private theorem splitModelAction_injective {n : ℕ+}
   apply includeA.injective
   apply eEnd.injective
   apply restrictEndInjective (k := k) (K := K)
-  sorry -- TODO: fix simpa
+  exact hab
 
 private noncomputable def splitModelRange {n : ℕ+}
     (e : A.baseChange K ≃ₐ[K] Matrix (Fin n) (Fin n) K) :

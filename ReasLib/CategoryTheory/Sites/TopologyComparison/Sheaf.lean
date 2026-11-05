@@ -62,13 +62,20 @@ variable {A : Type w} [Category A]
 @[stacks 0EZ3 "identity slice pointwise left Kan extensions"]
 instance comparisonTopologyPullbackHasPointwiseLeftKanExtension
     (X : C) (F : (Over X)ᵒᵖ ⥤ A) :
-    ((𝟭 (Over X)).op).HasPointwiseLeftKanExtension F := sorry
+    ((𝟭 (Over X)).op).HasPointwiseLeftKanExtension F := by
+  intro Y
+  change HasColimit (CostructuredArrow.proj (𝟭 ((Over X)ᵒᵖ)) Y ⋙ F)
+  letI : HasTerminal (CostructuredArrow (𝟭 ((Over X)ᵒᵖ)) Y) :=
+    CostructuredArrow.mkIdTerminal.hasTerminal
+  infer_instance
 
 /-- The identity on `Over X` admits left Kan extensions for every coefficient functor. -/
 @[stacks 0EZ3 "identity slice left Kan extensions"]
 instance comparisonTopologyPullbackHasLeftKanExtension
     (X : C) (F : (Over X)ᵒᵖ ⥤ A) :
-    ((𝟭 (Over X)).op).HasLeftKanExtension F := sorry
+    ((𝟭 (Over X)).op).HasLeftKanExtension F := by
+  change (𝟭 ((Over X)ᵒᵖ)).HasLeftKanExtension F
+  exact Functor.HasLeftKanExtension.mk F F.leftUnitor.inv
 
 /-- The continuous direct image `ε_{X,*}` for a topology comparison. -/
 @[stacks 0EZ3 "topology comparison direct image"]
@@ -87,15 +94,8 @@ noncomputable abbrev comparisonTopologyPullback
     (A : Type w) [Category A] (hle : τ' ≤ τ) (X : C)
     [HasWeakSheafify (τ.over X) A] :
     Sheaf (τ'.over X) A ⥤ Sheaf (τ.over X) A :=
-  -- Both pins are presentation data for the continuous sheaf adjunction and depend on `hle`.
-  let _ : Functor.IsContinuous (𝟭 (Over X)) (τ'.over X) (τ.over X) :=
-    comparisonOver_id_isContinuous hle X
-  let _ :
-      ((𝟭 (Over X)).sheafPushforwardContinuous A
-        (τ'.over X) (τ.over X)).IsRightAdjoint :=
-    (Functor.sheafPullbackConstruction.sheafAdjunctionContinuous
-      (𝟭 (Over X)) A (τ'.over X) (τ.over X)).isRightAdjoint
-  (𝟭 (Over X)).sheafPullback A (τ'.over X) (τ.over X)
+  Functor.sheafPullbackConstruction.sheafPullback
+    (𝟭 (Over X)) A (τ'.over X) (τ.over X)
 
 /-- Reusable notation for the inverse image in a comparison `τ' ≤ τ` on the slice over `X`. -/
 scoped[GrothendieckTopology] notation "ε[" hle "]_(" X ")⁻¹" =>
@@ -110,7 +110,8 @@ noncomputable abbrev comparisonTopologyAdjunction
   -- The identity functor's continuity is order-indexed, so it must remain local to this adjunction.
   let _ : Functor.IsContinuous (𝟭 (Over X)) (τ'.over X) (τ.over X) :=
     comparisonOver_id_isContinuous hle X
-  (𝟭 (Over X)).sheafAdjunctionContinuous A (τ'.over X) (τ.over X)
+  Functor.sheafPullbackConstruction.sheafAdjunctionContinuous
+    (𝟭 (Over X)) A (τ'.over X) (τ.over X)
 
 section Relocalization
 
@@ -192,14 +193,7 @@ noncomputable def comparisonTopologyPullbackIsoOfIsSheaf
       (⟨F.1, hF⟩ : Sheaf (τ.over X) A) :=
   letI : Functor.IsContinuous (Functor.id (Over X)) (τ'.over X) (τ.over X) :=
     comparisonOver_id_isContinuous hle X
-  letI :
-      ((Functor.id (Over X)).sheafPushforwardContinuous A
-        (τ'.over X) (τ.over X)).IsRightAdjoint :=
-    (Functor.sheafPullbackConstruction.sheafAdjunctionContinuous
-      (Functor.id (Over X)) A (τ'.over X) (τ.over X)).isRightAdjoint
-  (Functor.sheafPullbackConstruction.sheafPullbackIso
-      (Functor.id (Over X)) A (τ'.over X) (τ.over X)).app F ≪≫
-    (presheafToSheaf (τ.over X) A).mapIso
+  (presheafToSheaf (τ.over X) A).mapIso
       ((((Functor.id (Over X)).op.lanAdjunction A).leftAdjointUniq
         Adjunction.id).app F.1) ≪≫
     (sheafificationIso (⟨F.1, hF⟩ : Sheaf (τ.over X) A)).symm

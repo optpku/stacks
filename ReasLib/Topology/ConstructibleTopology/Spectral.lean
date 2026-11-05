@@ -62,7 +62,12 @@ theorem constructibleTopology_t2Space [SpectralSpace X] :
 theorem constructibleTopology_totallyDisconnectedSpace [SpectralSpace X] :
     @TotallyDisconnectedSpace X (constructibleTopology X) := sorry
 
-/-- The constructible topology of a spectral space is compact. -/
-@[stacks 0901 "compactness"]
+/-- The constructible topology of a spectral space is compact.
+This adapter transfers Mathlib's `compactSpace_withConstructibleTopology` instance
+(the canonical owner of the quasi-compactness clause of tag 0901) from the type
+synonym to an explicit topology argument. -/
 theorem constructibleTopology_compactSpace [SpectralSpace X] :
-    @CompactSpace X (constructibleTopology X) := sorry
+    @CompactSpace X (constructibleTopology X) :=
+  @Function.Surjective.compactSpace (WithConstructibleTopology X) X _
+    (constructibleTopology X) _ (WithTopology.continuous_ofTopology _)
+    (compactSpace_withConstructibleTopology (X := X)) (WithTopology.ofTopology_surjective _)

@@ -32,8 +32,4 @@ variable {C : Type u} [Category.{v} C] [Preadditive C]
 noncomputable instance functor_additive (p : ℕ → ℤ) (hp : Antitone p) :
     (functor (C := C) p hp).Additive := sorry
 
-#synth (functor (C := C) (fun n => (0 : ℤ)) (by
-  intro a b hab
-  rfl)).Additive
-
 end CategoryTheory.FilteredComplex.StageSequence

@@ -29,14 +29,13 @@ namespace CategoryTheory
 variable {C : Type u} [Category.{v} C] [Abelian C]
 variable {A : HomologicalComplex C (ComplexShape.refl PUnit.{1})}
 variable (α : A ⟶ A) [Mono α]
-variable (K : ExactCouple.Derived.Construction C)
 
 /- Definition 12.22.5 [011Z]: the exact couple associated to the quotient short exact sequence
 `A ⟶ A ⟶ cokernel α`, its zero-based spectral sequence, and its zero-page cycle and boundary
 filtrations are provided by the generic Bockstein owner. -/
 @[stacks 011Z]
 #check (HomologicalComplex.Bockstein.spectralSequence α
-  (HomologicalComplex.Bockstein.quotientShortExact α) K :
+  (HomologicalComplex.Bockstein.quotientShortExact α) :
   SpectralSequence C (fun _ : ℤ ↦ ComplexShape.refl PUnit.{1}) 0)
 
 #check HomologicalComplex.Bockstein.quotientShortComplex
@@ -55,8 +54,8 @@ filtrations are provided by the generic Bockstein owner. -/
 #check @HomologyPageTower.preimageBoundary
 #check HomologyPageTower.pageIndex
 #check (HomologicalComplex.Bockstein.cycle α
-  (HomologicalComplex.Bockstein.quotientShortExact α) K)
+  (HomologicalComplex.Bockstein.quotientShortExact α))
 #check (HomologicalComplex.Bockstein.boundary α
-  (HomologicalComplex.Bockstein.quotientShortExact α) K)
+  (HomologicalComplex.Bockstein.quotientShortExact α))
 
 end CategoryTheory

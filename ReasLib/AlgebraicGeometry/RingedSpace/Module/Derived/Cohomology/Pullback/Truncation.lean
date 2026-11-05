@@ -91,8 +91,26 @@ theorem singlePullbackHomologyNatTrans_app {X Y : RingedSpace.{u}} (g : X ⟶ Y)
 instance truncationHomology_isIso {X : RingedSpace.{u}}
     (E : DerivedCategory X.Modules) (n : ℤ) :
     IsIso ((DerivedCategory.homologyFunctor X.Modules n).map
-      ((DerivedCategory.TStructure.t.truncLEι n).app E)) :=
-  CategoryTheory.DerivedCategory.TruncLT.homologyMap_isIso E (n + 1) n (by omega)
+      ((DerivedCategory.TStructure.t.truncLEι n).app E)) := by
+  let T := (DerivedCategory.TStructure.t.triangleLEGE n (n + 1) rfl).obj E
+  have hT : T ∈ distTriang _ :=
+    DerivedCategory.TStructure.t.triangleLEGE_distinguished n (n + 1) rfl E
+  haveI : T.obj₃.IsGE (n + 1) := by
+    change ((DerivedCategory.TStructure.t.truncGE (n + 1)).obj E).IsGE (n + 1)
+    infer_instance
+  have hz : CategoryTheory.Limits.IsZero
+      ((DerivedCategory.homologyFunctor X.Modules n).obj T.obj₃) :=
+    DerivedCategory.isZero_of_isGE _ (n + 1) n (by omega)
+  have hz' : CategoryTheory.Limits.IsZero
+      ((DerivedCategory.homologyFunctor X.Modules (n - 1)).obj T.obj₃) :=
+    DerivedCategory.isZero_of_isGE _ (n + 1) (n - 1) (by omega)
+  haveI : Epi ((DerivedCategory.homologyFunctor X.Modules n).map T.mor₁) :=
+    (DerivedCategory.HomologySequence.epi_homologyMap_mor₁_iff T hT n).2
+      (hz.eq_of_tgt _ _)
+  haveI : Mono ((DerivedCategory.homologyFunctor X.Modules n).map T.mor₁) :=
+    (DerivedCategory.HomologySequence.mono_homologyMap_mor₁_iff
+      T hT (n - 1) n (by omega)).2 (hz'.eq_of_src _ _)
+  exact isIso_of_mono_of_epi ((DerivedCategory.homologyFunctor X.Modules n).map T.mor₁)
 
 /-- The natural cohomology isomorphism induced by the upper-truncation inclusion. -/
 def truncationHomologyNatIso (X : RingedSpace.{u}) (n : ℤ) :

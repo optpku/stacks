@@ -37,6 +37,11 @@ private noncomputable def traceNaturalOnModel
     (P : CochainComplex (ModuleCat R) ℤ) [hP : P.IsBoundedFiniteProjective]
     {K : DerivedCategory (ModuleCat R)} (e : DerivedCategory.Q.obj P ≅ K)
     (f : End K) : R♮ :=
+  letI : P.IsKProjective := by
+    obtain ⟨a, b, ha, hb⟩ := hP.bounded
+    letI : P.IsStrictlyLE b := hb
+    letI : ∀ n : ℤ, Projective (P.X n) := fun n ↦ inferInstance
+    exact CochainComplex.isKProjective_of_projective P b
   let g := e.hom ≫ f ≫ e.inv
   let iso := DerivedCategory.quotientCompQhIso (ModuleCat R)
   let g' := iso.hom.app P ≫ g ≫ iso.inv.app P

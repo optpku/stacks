@@ -8,8 +8,6 @@ module
 
 public import ReasLib.CategoryTheory.Filtration.Complex.Realization
 public import ReasLib.CategoryTheory.Filtration.Complex.SpectralSequence.Association.Total
-public import ReasLib.CategoryTheory.Filtration.Complex.SpectralSequence.Association.Total.PageOne
-public import Mathlib.CategoryTheory.Whiskering
 
 /-!
 # Realization-to-total bridge
@@ -136,40 +134,6 @@ theorem totalFunctor_map_filteredMap {S T : Realization (C := C)} (f : S ⟶ T) 
 theorem totalFunctor_map_sequenceMap {S T : Realization (C := C)} (f : S ⟶ T) :
     FilteredComplex.AssociatedSpectralSequence.Total.Hom.sequenceMap
         ((totalFunctor (C := C)).map f) = f.sequenceMap := sorry
-
-/-- Pull back the neutral first-page source functor along the realization-to-total bridge. -/
-@[stacks 012O "totalized realization first-page source functor"]
-noncomputable abbrev totalPageOneSource (p q : ℤ) : Realization (C := C) ⥤ C :=
-  totalFunctor ⋙
-    FilteredComplex.AssociatedSpectralSequence.Total.pageOneSource p q
-
-/-- Pull back the neutral first-page target functor along the realization-to-total bridge. -/
-@[stacks 012O "totalized realization first-page target functor"]
-noncomputable abbrev totalPageOneTarget (p q : ℤ) : Realization (C := C) ⥤ C :=
-  totalFunctor ⋙
-    FilteredComplex.AssociatedSpectralSequence.Total.pageOneTarget p q
-
-/-- Pull back the neutral first-page comparison along the realization-to-total bridge. -/
-@[stacks 012O "totalized realization first-page comparison"]
-noncomputable def totalPageOneComparison (p q : ℤ) :
-    totalPageOneSource (C := C) p q ≅ totalPageOneTarget (C := C) p q :=
-  Functor.isoWhiskerLeft (totalFunctor (C := C))
-    (FilteredComplex.AssociatedSpectralSequence.Total.pageOneComparison p q)
-
-/-- The pulled-back comparison is the component of the neutral comparison at the totalized
-realization. -/
-@[simp, stacks 012O "component of the totalized realization first-page comparison"]
-theorem totalPageOneComparison_app (p q : ℤ) (S : Realization (C := C)) :
-    (totalPageOneComparison (C := C) p q).app S =
-      (FilteredComplex.AssociatedSpectralSequence.Total.pageOneComparison p q).app
-        ((totalFunctor (C := C)).obj S) := sorry
-
-/-- The pulled-back neutral first-page comparison is the association comparison stored in the
-realization. -/
-@[simp, stacks 012O "association component of the totalized first-page comparison"]
-theorem totalPageOneComparison_app_association (p q : ℤ) (S : Realization (C := C)) :
-    (totalPageOneComparison (C := C) p q).app S =
-      S.association.pageOneIso p q := sorry
 
 /-- The totalized realization has the same filtered-complex object. -/
 @[simp, stacks 012C "filtered-complex object of a totalized realization"]

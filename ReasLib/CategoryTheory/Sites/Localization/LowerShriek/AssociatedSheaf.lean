@@ -32,7 +32,11 @@ noncomputable instance localization_lowerShriek_toSheafify_map_isIso
     [HasWeakSheafify (J.over U) (Type w)]
     [HasWeakSheafify J (Type w)] :
     IsIso ((presheafToSheaf J (Type w)).map
-      (((Over.forget U).op.lan).map (toSheafify (J.over U) G))) := sorry
+      (((Over.forget U).op.lan).map (toSheafify (J.over U) G))) := by
+  exact (sheafificationAdjunction (J.over U) (Type w)).isIso_map_unit_of_isLeftAdjoint_comp
+    (S := (Over.forget U).sheafPushforwardContinuous (Type w) (J.over U) J)
+    (((Over.forget U).op.lanAdjunction (Type w)).comp
+      (sheafificationAdjunction J (Type w)))
 
 attribute [-instance]
   localization_lowerShriek_toSheafify_map_isIso

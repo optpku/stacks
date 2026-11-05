@@ -28,13 +28,13 @@ universe u
 
 namespace AlgebraicGeometry
 
-/-- Birationality over `S` via the generic-point schemes is equivalent to the existence of a
+/-- Isomorphism over `S` of the generic-point schemes is equivalent to the existence of a
 common image and a generic-point stalk isomorphism compatible with the two maps from the
 transported stalk of `S`. -/
-theorem birationalOver_iff_exists_genericPointStalkIso
+theorem hasIsomorphicGenericPointsOver_iff_exists_genericPointStalkIso
     (S X Y : Scheme.{u}) [X.Over S] [Y.Over S]
     [IrreducibleSpace X] [IrreducibleSpace Y] :
-    BirationalOver S X Y ↔
+    HasIsomorphicGenericPointsOver S X Y ↔
       ∃ (s : S) (hx : (X ↘ S) (genericPoint X) = s) (hy : (Y ↘ S) (genericPoint Y) = s)
         (e : X.presheaf.stalk (genericPoint X) ≅ Y.presheaf.stalk (genericPoint Y)),
           ((S.presheaf.stalkCongr (.of_eq hx.symm)).hom ≫
@@ -45,8 +45,9 @@ theorem birationalOver_iff_exists_genericPointStalkIso
 namespace Scheme
 
 /-- For irreducible schemes locally of finite presentation over `S`, birationality over `S`,
-isomorphic nonempty open subschemes over `S`, and compatible isomorphism of the generic-point
-stalks are equivalent. -/
+isomorphic nonempty open subschemes over `S`, and isomorphism of the generic-point schemes
+over `S` are equivalent. The last condition is expressed in terms of compatible stalk
+isomorphisms by `hasIsomorphicGenericPointsOver_iff_exists_genericPointStalkIso`. -/
 theorem birationalOver_tfae_of_locallyOfFinitePresentation
     (S X Y : Scheme.{u}) [X.Over S] [Y.Over S]
     [IrreducibleSpace X] [IrreducibleSpace Y]
@@ -54,7 +55,7 @@ theorem birationalOver_tfae_of_locallyOfFinitePresentation
     List.TFAE
       [ Scheme.BirationalOver (X ↘ S) (Y ↘ S)
       , HasIsomorphicNonemptyOpenSubschemesOver S X Y
-      , AlgebraicGeometry.BirationalOver S X Y
+      , HasIsomorphicGenericPointsOver S X Y
       ] := sorry
 
 end Scheme

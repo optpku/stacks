@@ -70,7 +70,7 @@ theorem toAwayQuotient_apply (f : A) (I : Ideal A) (a : A) :
     toAwayQuotient f I a =
       algebraMap (A ⧸ I) (Localization.Away (Ideal.Quotient.mk I f))
         (Ideal.Quotient.mk I a) :=
-  sorry
+  rfl
 
 /-- `toAwayQuotient` is the composite of `Ideal.Quotient.mk I` with the algebra
 map of `Localization.Away (Ideal.Quotient.mk I f)`. -/
@@ -78,7 +78,7 @@ theorem toAwayQuotient_comp (f : A) (I : Ideal A) :
     toAwayQuotient f I =
       (algebraMap (A ⧸ I) (Localization.Away (Ideal.Quotient.mk I f))).comp
         (Ideal.Quotient.mk I) :=
-  sorry
+  rfl
 
 /-- The multiplicative set of elements of `A` that become units in
 `(A ⧸ I)_f`. -/
@@ -90,7 +90,7 @@ def specializingSubmonoid (f : A) (I : Ideal A) : Submonoid A :=
 `(A ⧸ I)_f`. -/
 theorem mem_specializingSubmonoid_iff (f : A) (I : Ideal A) {a : A} :
     a ∈ specializingSubmonoid f I ↔ IsUnit (toAwayQuotient f I a) :=
-  sorry
+  Iff.rfl
 
 /-- An element of `A` lies in the specializing multiplicative set if and only
 if `D(f) ∩ V(I)` is contained in `D(a)`. -/

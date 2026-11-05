@@ -37,8 +37,4 @@ noncomputable instance map_app_isIso (f : K ⟶ L) (p : ℕ → ℤ) (hp : Antit
 noncomputable instance map_isIso (f : K ⟶ L) (p : ℕ → ℤ) (hp : Antitone p)
     [IsIso f] : IsIso (map f p hp) := sorry
 
-variable (f : K ⟶ L) [IsIso f]
-#synth IsIso ((map f (fun _ ↦ (0 : ℤ)) (fun _ _ _ ↦ le_rfl)).app 0)
-#synth IsIso (map f (fun _ ↦ (0 : ℤ)) (fun _ _ _ ↦ le_rfl))
-
 end CategoryTheory.FilteredComplex.StageSequence

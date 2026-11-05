@@ -107,6 +107,8 @@ inseparable over `k`. -/
 @[stacks 07EM "Example 15.40.2 (4): purely inseparable residue field"]
 theorem residueField_isPurelyInseparable (k : Type u) [Field k] [CharP k p] (a : k)
     (ha : a ∉ Set.range (fun b : k ↦ b ^ p)) :
+    -- Local instance justification (proof-local temporary data): `isLocalRing k a ha` supplies
+    -- the conditional local-ring fact needed to form this localization's canonical residue field.
     letI : IsLocalRing (Ring (p := p) k a) := isLocalRing (p := p) k a ha
     IsPurelyInseparable k (ResidueField (Ring (p := p) k a)) := sorry
 

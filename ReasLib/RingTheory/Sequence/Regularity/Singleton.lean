@@ -37,7 +37,8 @@ theorem isRegular_nil_iff : IsRegular M ([] : List R) ↔ Nontrivial M := by
     intro hsub
     exact hne (Subsingleton.elim _ _)
   · intro h
-    -- `IsRegular` consumes nontriviality as a class; this branch supplies the explicit iff input.
+    -- Local instance justification (proof-local temporary data): the reverse implication supplies
+    -- nontriviality explicitly, while `simp` needs it as a class to prove `⊤ ≠ ⊥` for the empty list.
     letI : Nontrivial M := h
     rw [isRegular_iff]
     constructor

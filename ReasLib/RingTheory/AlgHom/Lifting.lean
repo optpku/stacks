@@ -53,14 +53,70 @@ def toLiftingSquare {R : Type u} {S : Type v} {B' : Type w} {B : Type x}
     lower := f.toRingHom
     comm := (π.comp_algebraMap).trans f.comp_algebraMap.symm }
 
+section
+
+variable {R : Type u} {S : Type v} {B' : Type w} {B : Type x}
+    [CommSemiring R] [Semiring S] [Semiring B'] [Semiring B]
+    [Algebra R S] [Algebra R B'] [Algebra R B]
+    (π : B' →ₐ[R] B) (f : S →ₐ[R] B)
+
+/-- Forget the algebra structure of a specified lift, retaining both triangles. -/
+def toLiftingSquareLift (g : S →ₐ[R] B') (hg : π.comp g = f) :
+    (toLiftingSquare π f).Lift where
+  hom := g.toRingHom
+  facRight := congrArg AlgHom.toRingHom hg
+  facLeft := g.comp_algebraMap
+
+/-- The left triangle of the structural square makes its diagonal an algebra map. -/
+def ofLiftingSquareLift (l : (toLiftingSquare π f).Lift) : S →ₐ[R] B' :=
+  { l.hom with
+    commutes' := fun r => congrArg (fun h : R →+* B' => h r) l.facLeft }
+
+@[simp]
+theorem ofLiftingSquareLift_toRingHom (l : (toLiftingSquare π f).Lift) :
+    (ofLiftingSquareLift π f l).toRingHom = l.hom := rfl
+
+/-- The right triangle gives the factorization as algebra homomorphisms. -/
+@[simp]
+theorem ofLiftingSquareLift_fac (l : (toLiftingSquare π f).Lift) :
+    π.comp (ofLiftingSquareLift π f l) = f := by
+  apply AlgHom.ext
+  intro s
+  exact congrArg (fun h : S →+* B => h s) l.facRight
+
+/-- Algebra lifts and diagonals of the structural ring square have identical data. -/
+def liftingSquareLiftEquiv :
+    {g : S →ₐ[R] B' // π.comp g = f} ≃ (toLiftingSquare π f).Lift where
+  toFun g := toLiftingSquareLift π f g.val g.property
+  invFun l := ⟨ofLiftingSquareLift π f l, ofLiftingSquareLift_fac π f l⟩
+  left_inv g := by
+    apply Subtype.ext
+    apply AlgHom.ext
+    intro s
+    rfl
+  right_inv l := by
+    cases l
+    rfl
+
+/-- Existence of a lift is independent of its algebra or structural-square packaging. -/
+theorem hasLift_iff : HasLift π f ↔ (toLiftingSquare π f).HasLift := by
+  constructor
+  · rintro ⟨g, hg⟩
+    exact ⟨toLiftingSquareLift π f g hg⟩
+  · rintro ⟨l⟩
+    exact ⟨ofLiftingSquareLift π f l, ofLiftingSquareLift_fac π f l⟩
+
+end
+
 /-- An algebra lift gives a lift of the associated underlying ring square.
-The converse is intentionally not asserted: a ring-hom lift need not respect
-the fixed base algebra. -/
+For the converse, use `AlgHom.hasLift_iff`: its left triangle enforces
+compatibility with the fixed base algebra. -/
 theorem HasLift.toRingSquare {R : Type u} {S : Type v} {B' : Type w} {B : Type x}
     [CommSemiring R] [Semiring S] [Semiring B'] [Semiring B]
     [Algebra R S] [Algebra R B'] [Algebra R B]
     (π : B' →ₐ[R] B) (f : S →ₐ[R] B)
     (h : HasLift π f) :
-    (toLiftingSquare π f).HasLift := sorry
+    (toLiftingSquare π f).HasLift :=
+  (hasLift_iff π f).mp h
 
 end AlgHom

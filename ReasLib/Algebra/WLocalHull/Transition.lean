@@ -47,9 +47,9 @@ theorem stageMap_id (E : Finset A) :
       apply Subtype.ext
       exact Finset.inter_eq_right.mpr p.property
     have map_id (q : Pattern A E) (hq : q = p)
-        (hm : specializingSubmonoid A q.elem q.span ≤
-          (specializingSubmonoid A p.elem p.span).comap (RingHom.id A)) :
-        IsLocalization.map (specializingLocalization A p.elem p.span)
+        (hm : Localization.specializingSubmonoid q.elem q.span ≤
+          (Localization.specializingSubmonoid p.elem p.span).comap (RingHom.id A)) :
+        IsLocalization.map (Localization.specializing p.elem p.span)
           (RingHom.id A) hm (x q) = x p := by
       subst q
       exact IsLocalization.map_id _ _
@@ -75,9 +75,9 @@ theorem stageMap_comp {E₁ E₂ E₃ : Finset A} (h₁₂ : E₁ ⊆ E₂) (h�
     dsimp only [specializingMap]
     rw [IsLocalization.map_map]
     have map_congr (q : Pattern A E₁) (hq : q = Pattern.restrict A E₁ p)
-        (hm : specializingSubmonoid A q.elem q.span ≤
-          (specializingSubmonoid A p.elem p.span).comap (RingHom.id A)) :
-        IsLocalization.map (specializingLocalization A p.elem p.span)
+        (hm : Localization.specializingSubmonoid q.elem q.span ≤
+          (Localization.specializingSubmonoid p.elem p.span).comap (RingHom.id A)) :
+        IsLocalization.map (Localization.specializing p.elem p.span)
           (RingHom.id A) hm (x q) =
           specializingMap A (h₁₂.trans h₂₃) p (x (Pattern.restrict A E₁ p)) := by
       subst q
@@ -107,13 +107,13 @@ theorem algHom_commutes {E₁ E₂ : Finset A} (h : E₁ ⊆ E₂) :
 /-- Any algebra map between the specializing localizations of a pattern and its
 restriction equals the canonical localization transition. -/
 theorem specializingMap_unique {E₁ E₂ : Finset A} (h : E₁ ⊆ E₂) (p : Pattern A E₂)
-    (f : specializingLocalization A (Pattern.restrict A E₁ p).elem
+    (f : Localization.specializing (Pattern.restrict A E₁ p).elem
         (Pattern.restrict A E₁ p).span →ₐ[A]
-      specializingLocalization A p.elem p.span) :
+      Localization.specializing p.elem p.span) :
     f.toRingHom = specializingMap A h p :=
   by
     apply IsLocalization.ringHom_ext
-      (specializingSubmonoid A (Pattern.restrict A E₁ p).elem
+      (Localization.specializingSubmonoid (Pattern.restrict A E₁ p).elem
         (Pattern.restrict A E₁ p).span)
     apply RingHom.ext
     intro element

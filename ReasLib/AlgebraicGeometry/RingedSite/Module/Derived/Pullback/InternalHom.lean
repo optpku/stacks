@@ -95,36 +95,10 @@ private theorem strictPre_isIso
     (f : A ⟶ B) (N : max K O') (hf : QuasiIso f) :
     IsIso (DerivedCategory.Q.map
       ((strictInternalHom.map f.op).app (injectiveModel N))) := by
-  let tensorExists : ∀ X Y : GradedObject ℤ (ringedSiteModuleCategory K O'),
-      GradedObject.HasTensor X Y := fun _ _ _ ↦ HasColimitsOfShape.has_colimit _
-  let goodLeft : ∀ X Y Z : GradedObject ℤ (ringedSiteModuleCategory K O'),
-      GradedObject.HasGoodTensor₁₂Tensor X Y Z :=
-    fun _ _ _ _ _ ↦ PreservesColimitsOfShape.preservesColimit
-  let goodRight : ∀ X Y Z : GradedObject ℤ (ringedSiteModuleCategory K O'),
-      GradedObject.HasGoodTensorTensor₂₃ X Y Z :=
-    fun _ _ _ _ _ ↦ PreservesColimitsOfShape.preservesColimit
-  let tensorExt : ∀ X Y Z W : GradedObject ℤ (ringedSiteModuleCategory K O'),
-      GradedObject.HasTensor₄ObjExt X Y Z W :=
-    fun _ _ _ _ _ _ ↦ PreservesColimitsOfShape.preservesColimit
-  let preservesLeft : ∀ X, PreservesColimit (Functor.empty.{0} (ringedSiteModuleCategory K O'))
-      ((CategoryTheory.MonoidalCategory.curriedTensor (ringedSiteModuleCategory K O')).obj X) :=
-    fun _ ↦ PreservesColimitsOfShape.preservesColimit
-  let preservesRight : ∀ X, PreservesColimit (Functor.empty.{0} (ringedSiteModuleCategory K O'))
-      ((CategoryTheory.MonoidalCategory.curriedTensor (ringedSiteModuleCategory K O')).flip.obj X) :=
-    fun _ ↦ PreservesColimitsOfShape.preservesColimit
-  let closed := @CochainComplex.InternalHom.monoidalClosed
-    (ringedSiteModuleCategory K O')
-    inferInstance inferInstance inferInstance inferInstance inferInstance
-    inferInstance inferInstance tensorExists goodLeft goodRight tensorExt
-    preservesLeft preservesRight
   apply (DerivedCategory.isIso_Q_map_iff_quasiIso _ _).2
-  have hq := @SheafOfModules.RingedSite.IHom.quasiIso_map
-    _ inferInstance K inferInstance inferInstance inferInstance O' _ closed
-    _ _ _ _ inferInstance inferInstance f (𝟙 (injectiveModel N)) hf
-    (inferInstance : QuasiIso (𝟙 (injectiveModel N)))
-  unfold MonoidalClosed.Source.map at hq
-  rw [CategoryTheory.Functor.map_id, Category.id_comp] at hq
-  exact hq
+  -- Use canonical precomposition directly, without supplying an ambient closed structure.
+  exact RingedSite.Hom.ModuleDerived.InternalHom.strictInternalHom_quasiIso_precomp
+    f hf (injectiveModel N)
 
 private def strictPreIso
     {A B : CochainComplex (ringedSiteModuleCategory K O') ℤ}

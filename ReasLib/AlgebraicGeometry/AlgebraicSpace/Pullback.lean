@@ -10,6 +10,7 @@ public import ReasLib.CategoryTheory.MorphismProperty.Representable.PullbackDiag
 
 public import Mathlib.AlgebraicGeometry.Limits
 public import Mathlib.CategoryTheory.Comma.Over.Basic
+public import Mathlib.CategoryTheory.Comma.Over.Pullback
 public import Mathlib.AlgebraicGeometry.Pullbacks
 public import Mathlib.CategoryTheory.Limits.Constructions.Over.Basic
 public import Mathlib.CategoryTheory.Limits.FunctorCategory.Basic
@@ -581,12 +582,20 @@ def overPullbackSnd {S : Scheme.{u}} {V W : AlgebraicSpace S} (f : V ⟶ W)
     (g : Over W) : overPullbackObj f g ⟶ V :=
   ReasLibPullback.pullbackOverSnd g.hom f W.isSheaf W.representableDiagonal
 
+/-- The explicit fibre-product projections form a commutative square. -/
+@[reassoc]
+theorem overPullback_condition {S : Scheme.{u}} {V W : AlgebraicSpace S}
+    (f : V ⟶ W) (g : Over W) :
+    overPullbackFst f g ≫ g.hom = overPullbackSnd f g ≫ f :=
+  (ReasLibPullback.isPullback g.hom f).w
+
 /-- The pair `(overPullbackFst f g ≫ u.left, overPullbackSnd f g)` is a cone
 over `h.hom` and `f`. -/
 theorem overPullback_fst_comp {S : Scheme.{u}} {V W : AlgebraicSpace S}
     (f : V ⟶ W) {g h : Over W} (u : g ⟶ h) :
-    (overPullbackFst f g ≫ u.left) ≫ h.hom = overPullbackSnd f g ≫ f :=
-  sorry
+    (overPullbackFst f g ≫ u.left) ≫ h.hom = overPullbackSnd f g ≫ f := by
+  rw [Category.assoc, Over.w u]
+  exact (ReasLibPullback.isPullback g.hom f).w
 
 /-- The morphism `X ×_W V ⟶ X' ×_W V` induced by a morphism of objects of
 `Over W`. -/
@@ -596,23 +605,45 @@ def overPullbackMap {S : Scheme.{u}} {V W : AlgebraicSpace S} (f : V ⟶ W)
   ReasLibPullback.pullbackLift h.hom f (overPullbackFst f g ≫ u.left) (overPullbackSnd f g)
     (overPullback_fst_comp f u)
 
+/-- The induced map of fibre products commutes with the first projections. -/
+@[reassoc (attr := simp)]
+theorem overPullbackMap_fst {S : Scheme.{u}} {V W : AlgebraicSpace S}
+    (f : V ⟶ W) {g h : Over W} (a : g ⟶ h) :
+    overPullbackMap f a ≫ overPullbackFst f h = overPullbackFst f g ≫ a.left :=
+  ReasLibPullback.pullbackLift_fst _ _ _ _ _
+
 /-- The induced map of fibre products commutes with the projections to `V`. -/
 theorem overPullbackMap_snd {S : Scheme.{u}} {V W : AlgebraicSpace S}
     (f : V ⟶ W) {g h : Over W} (u : g ⟶ h) :
     overPullbackMap f u ≫ overPullbackSnd f h = overPullbackSnd f g :=
-  sorry
+  ReasLibPullback.pullbackLift_snd _ _ _ _ _
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The map of fibre products induced by an identity is the identity. -/
 theorem overPullbackMap_id {S : Scheme.{u}} {V W : AlgebraicSpace S}
     (f : V ⟶ W) (g : Over W) :
-    overPullbackMap f (𝟙 g) = 𝟙 (overPullbackObj f g) :=
-  sorry
+    overPullbackMap f (𝟙 g) = 𝟙 (overPullbackObj f g) := by
+  apply (ReasLibPullback.isPullback g.hom f).hom_ext
+  · change overPullbackMap f (𝟙 g) ≫ overPullbackFst f g =
+      𝟙 (overPullbackObj f g) ≫ overPullbackFst f g
+    rw [overPullbackMap_fst, Over.id_left, Category.comp_id, Category.id_comp]
+  · change overPullbackMap f (𝟙 g) ≫ overPullbackSnd f g =
+      𝟙 (overPullbackObj f g) ≫ overPullbackSnd f g
+    rw [overPullbackMap_snd, Category.id_comp]
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The map of fibre products induced by a composite is the composite of the induced maps. -/
 theorem overPullbackMap_comp {S : Scheme.{u}} {V W : AlgebraicSpace S}
     (f : V ⟶ W) {g h k : Over W} (a : g ⟶ h) (b : h ⟶ k) :
-    overPullbackMap f (a ≫ b) = overPullbackMap f a ≫ overPullbackMap f b :=
-  sorry
+    overPullbackMap f (a ≫ b) = overPullbackMap f a ≫ overPullbackMap f b := by
+  apply (ReasLibPullback.isPullback k.hom f).hom_ext
+  · change overPullbackMap f (a ≫ b) ≫ overPullbackFst f k =
+      (overPullbackMap f a ≫ overPullbackMap f b) ≫ overPullbackFst f k
+    simp only [Category.assoc, overPullbackMap_fst, overPullbackMap_fst_assoc,
+      Over.comp_left]
+  · change overPullbackMap f (a ≫ b) ≫ overPullbackSnd f k =
+      (overPullbackMap f a ≫ overPullbackMap f b) ≫ overPullbackSnd f k
+    simp only [Category.assoc, overPullbackMap_snd]
 
 /-- Slice base change along `f : V ⟶ W`, sending `g : X ⟶ W` to
 `X ×_W V ⟶ V`. -/
@@ -631,7 +662,66 @@ def overPullback {S : Scheme.{u}} {V W : AlgebraicSpace S} (f : V ⟶ W) :
 fibre product. -/
 theorem overPullback_obj_hom {S : Scheme.{u}} {V W : AlgebraicSpace S}
     (f : V ⟶ W) (g : Over W) :
-    ((overPullback f).obj g).hom = overPullbackSnd f g :=
-  sorry
+    ((overPullback f).obj g).hom = overPullbackSnd f g := rfl
+
+set_option backward.isDefEq.respectTransparency false in
+/-- The explicit sheaf fibre product and the standard slice pullback are canonically
+isomorphic. The comparison retains both fibre-product projections. -/
+def overPullbackIso {S : Scheme.{u}} {V W : AlgebraicSpace S} (f : V ⟶ W) :
+    overPullback f ≅ Over.pullback f :=
+  NatIso.ofComponents
+    (fun g ↦ Over.isoMk (ReasLibPullback.isPullback g.hom f).isoPullback
+      (ReasLibPullback.isPullback g.hom f).isoPullback_hom_snd)
+    (by
+      intro g h a
+      apply Over.OverMorphism.ext
+      apply pullback.hom_ext
+      · change (overPullbackMap f a ≫ (ReasLibPullback.isPullback h.hom f).isoPullback.hom) ≫
+            pullback.fst h.hom f =
+          ((ReasLibPullback.isPullback g.hom f).isoPullback.hom ≫
+            pullback.lift (pullback.fst g.hom f ≫ a.left) (pullback.snd g.hom f) _) ≫
+              pullback.fst h.hom f
+        simp only [Category.assoc, IsPullback.isoPullback_hom_fst,
+          pullback.lift_fst, IsPullback.isoPullback_hom_fst_assoc]
+        exact overPullbackMap_fst f a
+      · change (overPullbackMap f a ≫ (ReasLibPullback.isPullback h.hom f).isoPullback.hom) ≫
+            pullback.snd h.hom f =
+          ((ReasLibPullback.isPullback g.hom f).isoPullback.hom ≫
+            pullback.lift (pullback.fst g.hom f ≫ a.left) (pullback.snd g.hom f) _) ≫
+              pullback.snd h.hom f
+        simp only [Category.assoc, IsPullback.isoPullback_hom_snd, pullback.lift_snd]
+        exact overPullbackMap_snd f a)
+
+/-- The standard first projection recovers the explicit first projection. -/
+@[reassoc (attr := simp)]
+theorem overPullbackIso_hom_fst {S : Scheme.{u}} {V W : AlgebraicSpace S}
+    (f : V ⟶ W) (g : Over W) :
+    ((overPullbackIso f).hom.app g).left ≫ pullback.fst g.hom f =
+      overPullbackFst f g :=
+  (ReasLibPullback.isPullback g.hom f).isoPullback_hom_fst
+
+/-- The standard structure map recovers the explicit second projection. -/
+@[reassoc (attr := simp)]
+theorem overPullbackIso_hom_snd {S : Scheme.{u}} {V W : AlgebraicSpace S}
+    (f : V ⟶ W) (g : Over W) :
+    ((overPullbackIso f).hom.app g).left ≫ pullback.snd g.hom f =
+      overPullbackSnd f g :=
+  (ReasLibPullback.isPullback g.hom f).isoPullback_hom_snd
+
+/-- The inverse comparison retains the first projection as well. -/
+@[reassoc (attr := simp)]
+theorem overPullbackIso_inv_fst {S : Scheme.{u}} {V W : AlgebraicSpace S}
+    (f : V ⟶ W) (g : Over W) :
+    ((overPullbackIso f).inv.app g).left ≫ overPullbackFst f g =
+      pullback.fst g.hom f :=
+  (ReasLibPullback.isPullback g.hom f).isoPullback_inv_fst
+
+/-- The inverse comparison retains the second projection as well. -/
+@[reassoc (attr := simp)]
+theorem overPullbackIso_inv_snd {S : Scheme.{u}} {V W : AlgebraicSpace S}
+    (f : V ⟶ W) (g : Over W) :
+    ((overPullbackIso f).inv.app g).left ≫ overPullbackSnd f g =
+      pullback.snd g.hom f :=
+  (ReasLibPullback.isPullback g.hom f).isoPullback_inv_snd
 
 end AlgebraicGeometry.AlgebraicSpace

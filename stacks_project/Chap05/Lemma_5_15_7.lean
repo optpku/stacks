@@ -6,12 +6,19 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import ReasLib.Topology.Constructible.Subspace
+public import Mathlib.Topology.Constructible
 import StacksCheckRecall
 
 @[expose] public section
 
+universe u
+
+open scoped Set.Notation
+
 /- Lemma 5.15.7: constructible subsets restrict to closed subspaces with
 compact complement. -/
 @[stacks 09YE]
-#check Topology.IsConstructible.preimage_subtypeVal_of_isClosed_of_isCompact_compl
+#check fun {X : Type u} [TopologicalSpace X] {Z E : Set X}
+    (hE : Topology.IsConstructible E) (hZ : IsClosed Z) (hZc : IsCompact Zᶜ) ↦
+  (hE.preimage_of_isClosedEmbedding hZ.isClosedEmbedding_subtypeVal
+    (by simpa only [Subtype.range_coe] using hZc) : Topology.IsConstructible (Z ↓∩ E))

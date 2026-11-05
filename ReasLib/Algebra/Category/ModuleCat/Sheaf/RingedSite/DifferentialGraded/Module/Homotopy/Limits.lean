@@ -49,13 +49,15 @@ variable [HasSheafify J AddCommGrpCat.{max u v}]
 variable [J.WEqualsLocallyBijective AddCommGrpCat.{max u v}]
 variable {𝒪 : Sheaf J CommRingCat.{max u v}}
 
-/-- The intrinsic DG homotopy category has arbitrary coproducts. -/
-instance hasCoproducts (𝒜 : DGA(𝒪)) :
-    HasCoproducts (K ℤ Mod(𝒜, d)) := sorry
+/-- The intrinsic DG homotopy category has coproducts whose index types fit the coefficient
+universe. -/
+instance hasCoproducts [UnivLE.{w, max u v}] (𝒜 : DGA(𝒪)) :
+    HasCoproducts.{w} (K ℤ Mod(𝒜, d)) := sorry
 
-/-- The intrinsic DG homotopy category has arbitrary products. -/
-instance hasProducts (𝒜 : DGA(𝒪)) :
-    HasProducts (K ℤ Mod(𝒜, d)) := sorry
+/-- The intrinsic DG homotopy category has products whose index types fit the coefficient
+universe. -/
+instance hasProducts [UnivLE.{w, max u v}] (𝒜 : DGA(𝒪)) :
+    HasProducts.{w} (K ℤ Mod(𝒜, d)) := sorry
 
 /-- Passage from DG modules to the homotopy category preserves coproducts. -/
 instance toKPreservesCoproducts (𝒜 : DGA(𝒪)) (ι : Type w) :

@@ -32,7 +32,6 @@ namespace ExactCouple
 
 variable {C : Type u} [Category.{v} C] [Abelian C]
 variable (X : ExactCouple C)
-variable (K : Derived.Construction C)
 
 /- Iteration of `α` uses the canonical monoid structure on `End X.A`; the standard `^` notation
 is genuine exponentiation rather than a source-local notation. -/
@@ -54,14 +53,14 @@ variable (r : ℕ)
 
 /- Lemma 12.21.4 (3): the boundary piece on page `r + 1` is `g(Ker(α^r))`. -/
 @[stacks 011T]
-#check (Derived.Page.boundary_eq K X (Nat.succPNat r) :
-  (K.associatedSpectralSequence X).boundary PUnit.unit (Nat.succPNat r) =
+#check (Derived.Page.boundary_eq X (Nat.succPNat r) :
+  (Derived.associatedSpectralSequence X).boundary PUnit.unit (Nat.succPNat r) =
     X.boundariesSubobject r)
 
 /- Lemma 12.21.4 (4): the cycle piece on page `r + 1` is `f⁻¹(Im(α^r))`. -/
 @[stacks 011T]
-#check (Derived.Page.cycle_eq K X (Nat.succPNat r) :
-  (K.associatedSpectralSequence X).cycle PUnit.unit (Nat.succPNat r) =
+#check (Derived.Page.cycle_eq X (Nat.succPNat r) :
+  (Derived.associatedSpectralSequence X).cycle PUnit.unit (Nat.succPNat r) =
     X.cyclesSubobject r)
 
 section Monotonicity
@@ -90,42 +89,42 @@ sequence, which is directly the middle object of the iterated exact couple. A qu
 representative is explicit data, while `HomologyPageTower.Cycle.IsToPageOf` records its
 compatibility with the generic map from cycles to that page. -/
 @[stacks 011T "derived page comparison"]
-#check (Derived.Page.objPositive K X r :
-  (K.associatedSpectralSequence X).pageObject PUnit.unit (Nat.succPNat r) =
-    (K.iterate X r).E)
+#check (Derived.Page.objPositive X r :
+  (Derived.associatedSpectralSequence X).pageObject PUnit.unit (Nat.succPNat r) =
+    (Derived.iterate X r).E)
 
-variable (q : (X.cyclesSubobject r : C) ⟶ (K.iterate X r).E)
-variable (hcycle : (K.associatedSpectralSequence X).cycle PUnit.unit (Nat.succPNat r) =
+variable (q : (X.cyclesSubobject r : C) ⟶ (Derived.iterate X r).E)
+variable (hcycle : (Derived.associatedSpectralSequence X).cycle PUnit.unit (Nat.succPNat r) =
   X.cyclesSubobject r)
-variable (hcycle' : (K.associatedSpectralSequence X).cycle PUnit.unit (Nat.succPNat r) =
+variable (hcycle' : (Derived.associatedSpectralSequence X).cycle PUnit.unit (Nat.succPNat r) =
   X.cyclesSubobject r)
 
-#check (q : (X.cyclesSubobject r : C) ⟶ (K.iterate X r).E)
+#check (q : (X.cyclesSubobject r : C) ⟶ (Derived.iterate X r).E)
 #check (HomologyPageTower.Cycle.toPageOf
-  ((K.associatedSpectralSequence X).homologyPageTower PUnit.unit)
+  ((Derived.associatedSpectralSequence X).homologyPageTower PUnit.unit)
   (Nat.succPNat r)
-  hcycle : (X.cyclesSubobject r : C) ⟶ (K.iterate X r).E)
+  hcycle : (X.cyclesSubobject r : C) ⟶ (Derived.iterate X r).E)
 #check (HomologyPageTower.Cycle.toPageOf_proof_irrel
-  ((K.associatedSpectralSequence X).homologyPageTower PUnit.unit)
+  ((Derived.associatedSpectralSequence X).homologyPageTower PUnit.unit)
   (Nat.succPNat r)
   hcycle hcycle')
 #check (HomologyPageTower.Cycle.IsToPageOf
-  ((K.associatedSpectralSequence X).homologyPageTower PUnit.unit)
+  ((Derived.associatedSpectralSequence X).homologyPageTower PUnit.unit)
   (Nat.succPNat r)
   (X.cyclesSubobject r)
   q)
 #check (HomologyPageTower.Cycle.toPageOf_isToPageOf
-  ((K.associatedSpectralSequence X).homologyPageTower PUnit.unit)
+  ((Derived.associatedSpectralSequence X).homologyPageTower PUnit.unit)
   (Nat.succPNat r)
   hcycle)
 #check @HomologyPageTower.Cycle.IsToPageOf.unique
-#check ((K.iterate X r).d : (K.iterate X r).E ⟶ (K.iterate X r).E)
+#check ((Derived.iterate X r).d : (Derived.iterate X r).E ⟶ (Derived.iterate X r).E)
 
 section Representatives
 
 variable {T : C} (x : T ⟶ (X.cyclesSubobject r : C)) (y : T ⟶ X.A)
 variable (hq : HomologyPageTower.Cycle.IsToPageOf
-  ((K.associatedSpectralSequence X).homologyPageTower PUnit.unit)
+  ((Derived.associatedSpectralSequence X).homologyPageTower PUnit.unit)
   (Nat.succPNat r)
   (X.cyclesSubobject r)
   q)
@@ -136,8 +135,8 @@ variable (hy : x ≫ (X.cyclesSubobject r).arrow ≫ X.f = y ≫ X.alphaPow r)
 represented by `y ≫ g`. -/
 @[stacks 011T]
 #check (Derived.Page.differential_eq_on_representatives
-  K X r q hq x y hfactor hy :
-  x ≫ q ≫ (K.iterate X r).d = Derived.Page.boundaryClassMap K X r q y hfactor)
+  X r q hq x y hfactor hy :
+  x ≫ q ≫ (Derived.iterate X r).d = Derived.Page.boundaryClassMap X r q y hfactor)
 
 end Representatives
 

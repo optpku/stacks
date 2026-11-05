@@ -32,7 +32,7 @@ bridge, each at its corresponding mathematical owner.
 
 /- Example 5.8.13 (2): irreducible closed subsets of Hausdorff spaces are bundled singletons. -/
 @[stacks 004Y "irreducible closed subsets of Hausdorff spaces are singletons"]
-#check @IrreducibleCloseds.exists_eq_singleton
+#check @TopologicalSpace.IrreducibleCloseds.exists_eq_singleton
 
 /- Example 5.8.13 (3): every Hausdorff space is sober. -/
 @[stacks 004Y "Hausdorff spaces are sober"]

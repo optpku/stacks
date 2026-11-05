@@ -7,6 +7,7 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import Mathlib.RingTheory.FiniteType
+public import ReasLib.Algebra.AlgHom.ULift
 public import Mathlib.Tactic.CrossRefAttribute
 public import ReasLib.Algebra.Homology.DifferentialGradedAlgebra.Augmentation
 public import ReasLib.RingTheory.DividedPowers.DifferentialGraded.ChainAlgebra
@@ -158,10 +159,11 @@ variable {J : Type v} {pi0 : MvPolynomial J R →ₐ[R] S}
 def HasFinitePositiveGenerators (A : TateResolution.{u, v, w} pi0) : Prop :=
   ∀ n : ℕ+, Finite (A.positiveGenerators n)
 
-/-- If the polynomial presentation has no degree-zero variables, the structural scalar map
-identifies the base ring with degree zero of the resolving algebra. -/
+/-- If the polynomial presentation has no degree-zero variables and the base ring is small in
+the carrier universe, the structural scalar map identifies the base ring with degree zero of the
+resolving algebra. Smallness allows the free-presentation property to test the base-ring model. -/
 @[stacks 09PN "degree zero of a positive-generator Tate resolution"]
-theorem degreeZeroIsBase [IsEmpty J] (A : TateResolution.{u, v, w} pi0) :
+theorem degreeZeroIsBase [Small.{w} R] [IsEmpty J] (A : TateResolution.{u, v, w} pi0) :
     A.algebra.toChainDGAlgebra.DegreeZeroIsBase := sorry
 
 end Model
@@ -171,11 +173,55 @@ section Existence
 variable {R : Type u} {S : Type w} {J : Type v}
   [CommRing R] [CommRing S] [Algebra R S]
 
-/-- Lemma 23.6.9: every surjective polynomial presentation admits a Tate resolution with
-independent base, generator, and target universes. -/
+/-- Reindex a polynomial presentation into a universe large enough for its source and target.
+The lifted target also provides a carrier universe in which the Tate generators can live. -/
+@[stacks 09PN "common-universe lift of a polynomial presentation"]
+noncomputable def liftedPresentation (pi0 : MvPolynomial J R →ₐ[R] S) :
+    MvPolynomial (ULift.{max u w} J) R →ₐ[R] ULift.{max u v} S :=
+  (pi0.comp (MvPolynomial.renameEquiv R
+    (Equiv.ulift : ULift.{max u w} J ≃ J)).toAlgHom).uliftCodomain
+
+/-- Evaluation of the common-universe presentation lowers to the original presentation after
+the canonical polynomial renaming. -/
+@[simp, stacks 09PN "evaluation of the common-universe lifted presentation"]
+theorem liftedPresentation_down (pi0 : MvPolynomial J R →ₐ[R] S)
+    (f : MvPolynomial (ULift.{max u w} J) R) :
+    (liftedPresentation pi0 f).down =
+      pi0 (MvPolynomial.renameEquiv R
+        (Equiv.ulift : ULift.{max u w} J ≃ J) f) := rfl
+
+/-- A surjective polynomial presentation remains surjective after the canonical common-universe
+lift. -/
+@[stacks 09PN "surjectivity of the common-universe lifted presentation"]
+theorem liftedPresentation_surjective (pi0 : MvPolynomial J R →ₐ[R] S)
+    (hpi0 : Function.Surjective pi0) :
+    Function.Surjective (liftedPresentation pi0) := by
+  intro s
+  obtain ⟨f, hf⟩ := hpi0 s.down
+  let e := MvPolynomial.renameEquiv R (Equiv.ulift : ULift.{max u w} J ≃ J)
+  refine ⟨e.symm f, ?_⟩
+  apply ULift.ext
+  change pi0 (e (e.symm f)) = s.down
+  simpa only [e.apply_symm_apply] using hf
+
+/-- A surjective polynomial presentation admits a Tate resolution when the base fits in the
+positive-generator universe and the base and variables fit in the carrier universe. For arbitrary
+universes use `nonempty_lifted`. -/
 @[stacks 09PN "(1)"]
-theorem nonempty (pi0 : MvPolynomial J R →ₐ[R] S) (hpi0 : Function.Surjective pi0) :
+theorem nonempty [Small.{v} R] [Small.{w} R] [Small.{w} J]
+    (pi0 : MvPolynomial J R →ₐ[R] S) (hpi0 : Function.Surjective pi0) :
     Nonempty (TateResolution.{u, v, w} pi0) := sorry
+
+/-- A surjective polynomial presentation admits a Tate resolution after lifting the presentation
+and target to a common universe large enough for the base and polynomial variables. -/
+@[stacks 09PN "Tate resolution after common-universe lift"]
+theorem nonempty_lifted (pi0 : MvPolynomial J R →ₐ[R] S)
+    (hpi0 : Function.Surjective pi0) :
+    Nonempty (TateResolution.{u, max u (max v w), max u (max v w)}
+      (liftedPresentation pi0)) := by
+  letI : Small.{max u (max v w)} R :=
+    Small.mk' (Equiv.ulift : ULift.{max v w} R ≃ R).symm
+  exact nonempty (liftedPresentation pi0) (liftedPresentation_surjective pi0 hpi0)
 
 end Existence
 
@@ -200,6 +246,26 @@ theorem exists_finitePresentation [IsNoetherianRing R] [Algebra.FiniteType R S] 
     ∃ (n : ℕ) (pi0 : MvPolynomial (Fin n) R →ₐ[R] S),
       Function.Surjective pi0 ∧
         ∃ A : TateResolution.{u, 0, w} pi0, A.HasFinitePositiveGenerators := sorry
+
+/-- The finite-generator existence theorem for a fixed finite presentation in arbitrary
+universes, with the presentation and carrier lifted to their common universe. -/
+theorem exists_finite_lifted [IsNoetherianRing R] [Algebra.FiniteType R S] [Finite J]
+    (pi0 : MvPolynomial J R →ₐ[R] S) (hpi0 : Function.Surjective pi0) :
+    ∃ A : TateResolution.{u, max u (max v w), max u (max v w)}
+      (liftedPresentation pi0), A.HasFinitePositiveGenerators := by
+  letI : Algebra.FiniteType R (ULift.{max u v} S) :=
+    Algebra.FiniteType.equiv ‹Algebra.FiniteType R S› ULift.algEquiv.symm
+  exact exists_finite (liftedPresentation pi0) (liftedPresentation_surjective pi0 hpi0)
+
+/-- A finite-type algebra over a Noetherian base admits a finite-generator Tate resolution
+after lifting the target to a carrier universe containing the base. -/
+theorem exists_finitePresentation_lifted [IsNoetherianRing R] [Algebra.FiniteType R S] :
+    ∃ (n : ℕ) (pi0 : MvPolynomial (Fin n) R →ₐ[R] ULift.{u} S),
+      Function.Surjective pi0 ∧
+        ∃ A : TateResolution.{u, 0, max u w} pi0, A.HasFinitePositiveGenerators := by
+  letI : Algebra.FiniteType R (ULift.{u} S) :=
+    Algebra.FiniteType.equiv ‹Algebra.FiniteType R S› ULift.algEquiv.symm
+  exact exists_finitePresentation
 
 end FiniteExistence
 

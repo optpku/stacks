@@ -30,10 +30,10 @@ variable {R : Type u} [CommRing R] [IsLocalRing R]
 variable {S : ShortComplex (ModuleCat.{v} R)}
 variable [Module.Finite R S.X₁] [Module.Finite R S.X₃]
 
-/-- The middle depth is at least the minimum
+/-- Over a Noetherian local ring, the middle depth is at least the minimum
 of the two endpoint depths. -/
 @[stacks 00LX "middle term"]
-theorem moduleDepth_middle_ge_min (hS : S.ShortExact) :
+theorem moduleDepth_middle_ge_min [IsNoetherianRing R] (hS : S.ShortExact) :
     moduleDepth R S.X₂ ≥ min (moduleDepth R S.X₁) (moduleDepth R S.X₃) := sorry
 
 /-- The quotient depth is at least the

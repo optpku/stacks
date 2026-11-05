@@ -24,7 +24,8 @@ ring map out of it admits a retraction.
 universe u v
 
 /-- A commutative ring is w-contractible when every faithfully flat weakly étale
-ring map out of it admits a retraction. -/
+ring map out of it into a ring in the test universe `v` admits a retraction.
+Use `IsWContractibleRing.{u, u} A` for the usual same-universe property. -/
 @[mk_iff, stacks 0981]
 class IsWContractibleRing (A : Type u) [CommRing A] : Prop where
   /-- Every faithfully flat weakly étale ring map out of `A` has a retraction. -/
@@ -38,10 +39,17 @@ namespace IsWContractibleRing
 instance instIsSepClosed {K : Type v} [Field K] [IsSepClosed K] :
     IsWContractibleRing K := sorry
 
-/-- A faithfully flat weakly étale algebra over a w-contractible ring admits an
-`A`-algebra retraction. -/
+/-- A faithfully flat weakly étale algebra over a ring that is w-contractible
+for the universe of that algebra admits an `A`-algebra retraction. -/
 theorem nonempty_algHom {A : Type u} {B : Type v} [CommRing A] [CommRing B]
-    [Algebra A B] [IsWContractibleRing A] [Module.FaithfullyFlat A B]
-    [Algebra.WeaklyEtale A B] : Nonempty (B →ₐ[A] A) := sorry
+    [Algebra A B] [IsWContractibleRing.{u, v} A] [Module.FaithfullyFlat A B]
+    [Algebra.WeaklyEtale A B] : Nonempty (B →ₐ[A] A) := by
+  obtain ⟨r, hr⟩ := exists_retraction (algebraMap A B)
+    (RingHom.faithfullyFlat_algebraMap_iff.mpr inferInstance)
+    (by
+      change @Algebra.WeaklyEtale A B _ _ (algebraMap A B).toAlgebra
+      rw [toAlgebra_algebraMap]
+      infer_instance)
+  exact ⟨{ r with commutes' := fun a => congrArg (fun f : A →+* A => f a) hr }⟩
 
 end IsWContractibleRing

@@ -46,4 +46,4 @@ axioms (A1)–(A8). Then we have a Weil cohomology theory. -/
       (hA8 : T.SatisfiesAxiomA8),
       -- Local instance justification (proof-local temporary data): SchemeClassicalTheory takes GradedAlgebra as a typeclass binder, while the graded algebra on T.Hgrade is constructed by gradedAlgebraHgrade
       letI : ∀ X, GradedAlgebra (T.Hgrade X) := T.gradedAlgebraHgrade
-      (T.toSchemeClassicalTheory (C := C) (hC := hC) (hA8 := hA8)).IsWeil)
+      (T.toSchemeClassicalTheory C hC hA8).IsWeil)

@@ -85,7 +85,7 @@ affine. -/
 /- Lemma 27.4.6 (2): base change of a relative-spectrum model is a relative-spectrum model for
 the explicitly specified pulled-back algebra. -/
 @[stacks 01LX] #check
-  (AlgebraicGeometry.Scheme.nonempty_iso_over_pullback_relativeSpec :
+  (AlgebraicGeometry.Scheme.relativeSpecPullbackIso :
     ∀ {S S' : AlgebraicGeometry.Scheme.{u}} (A : S.QcAlgebraUnder)
       (P : AlgebraicGeometry.Scheme.RelativeSpectrumOver A)
       [AlgebraicGeometry.Scheme.IsRelativeSpectrumOver P]
@@ -97,6 +97,34 @@ the explicitly specified pulled-back algebra. -/
           (CategoryTheory.Limits.pullback.snd
             (AlgebraicGeometry.Scheme.relativeSpecπ P) g) ≅
         CategoryTheory.Over.mk (AlgebraicGeometry.Scheme.relativeSpecπ P'))
+
+/- The compatibility entry point retains the explicitly constructed inverse. -/
+#check
+  (AlgebraicGeometry.Scheme.nonempty_iso_over_pullback_relativeSpec_inv :
+    ∀ {S S' : AlgebraicGeometry.Scheme.{u}} (A : S.QcAlgebraUnder)
+      (P : AlgebraicGeometry.Scheme.RelativeSpectrumOver A)
+      [AlgebraicGeometry.Scheme.IsRelativeSpectrumOver P]
+      (g : S' ⟶ S) (A' : S'.QcAlgebraUnder)
+      (pullbackData : AlgebraicGeometry.Scheme.RelativeSpectrumPullback g A A')
+      (P' : AlgebraicGeometry.Scheme.RelativeSpectrumOver A')
+      [AlgebraicGeometry.Scheme.IsRelativeSpectrumOver P'],
+      (AlgebraicGeometry.Scheme.nonempty_iso_over_pullback_relativeSpec
+          A P g A' pullbackData P').inv.left =
+        AlgebraicGeometry.Scheme.relativeSpecPullbackComparisonInv A P g A' pullbackData P')
+
+/- The comparison is classified by the explicit pulled-back universal point. -/
+#check
+  (AlgebraicGeometry.Scheme.relativeSpecPullbackComparison_point :
+    ∀ {S S' : AlgebraicGeometry.Scheme.{u}} (A : S.QcAlgebraUnder)
+      (P : AlgebraicGeometry.Scheme.RelativeSpectrumOver A)
+      (g : S' ⟶ S) (A' : S'.QcAlgebraUnder)
+      (pullbackData : AlgebraicGeometry.Scheme.RelativeSpectrumPullback g A A')
+      (P' : AlgebraicGeometry.Scheme.RelativeSpectrumOver A')
+      [AlgebraicGeometry.Scheme.IsRelativeSpectrumOver P'],
+      AlgebraicGeometry.Scheme.relativeSpectrumPairPullbackMap A'
+          (AlgebraicGeometry.Scheme.relativeSpecPullbackComparison A P g A' pullbackData P')
+          P'.point =
+        AlgebraicGeometry.Scheme.relativeSpecPullbackPoint A P g A' pullbackData)
 
 /- Lemma 27.4.6 (3): the universal algebra map of a relative-spectrum model is an isomorphism. -/
 @[stacks 01LX] #check

@@ -10,29 +10,19 @@ public import Mathlib.RingTheory.Extension.Cotangent.BaseChange
 public import Mathlib.Tactic.CrossRefAttribute
 
 /-!
-# First cotangent homology under flat source change
+# Flat base change for first cotangent homology
 
-This leaf records the canonical invariance of first cotangent homology when
-the source algebra is changed along a flat map.
+For an `R`-algebra `S` and a flat `R`-algebra `T`, the canonical comparison is
+`T ⊗[R] Algebra.H1Cotangent R S ≃ₗ[T] Algebra.H1Cotangent T (T ⊗[R] S)`.
+Both the source ring and the target algebra change under base change, as in
+Stacks tag `00S4`.
+
+This module re-exports Mathlib's `Algebra.tensorH1CotangentOfFlat` and its
+pure-tensor computation rule `Algebra.tensorH1CotangentOfFlat_tmul`.
 -/
 
 @[expose] public section
 
-universe u v w
+#check @Algebra.tensorH1CotangentOfFlat
 
-namespace Algebra.H1Cotangent
-
-variable {R : Type u} {S : Type v} {T : Type w}
-variable [CommRing R] [CommRing S] [CommRing T]
-variable [Algebra R S] [Algebra R T] [Algebra S T] [IsScalarTower R S T]
-
-/-- Tag `00S4`: flat change of the source algebra induces a bijective
-canonical map on first cotangent homology.  Flatness is an explicit
-proposition so one-off base-change arguments need not install a local
-instance. -/
-@[stacks 00S4 "flat source change on first cotangent homology"]
-theorem map_bijective_of_flat
-    (hflat : Module.Flat R S) :
-    Function.Bijective (map R S T T) := sorry
-
-end Algebra.H1Cotangent
+#check @Algebra.tensorH1CotangentOfFlat_tmul

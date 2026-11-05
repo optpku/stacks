@@ -46,9 +46,37 @@ def degreeMap [F : RelativeProjFunctor S 𝒜] (d : {n : ℕ // 1 ≤ n}) :
   (F.toFunctor.reprW.app (op (F.degreeScheme d))).inv
     ((F.degreeToFunctor d).app (op (F.degreeScheme d)) (F.degreeFunctor d).toFunctor.reprx)
 
+/-- The chart morphism represents the specified map of functors. -/
+theorem degreeMap_yoneda [F : RelativeProjFunctor S 𝒜] (d : {n : ℕ // 1 ≤ n}) :
+    yoneda.map (degreeMap (F := F) d) =
+      (F.degreeFunctor d).toFunctor.reprW.hom ≫ F.degreeToFunctor d ≫
+        F.toFunctor.reprW.inv := by
+  apply yonedaEquiv.injective
+  change degreeMap (F := F) d =
+    F.toFunctor.reprW.inv.app (op (F.degreeScheme d))
+      ((F.degreeToFunctor d).app (op (F.degreeScheme d))
+        ((F.degreeFunctor d).toFunctor.reprW.hom.app
+          (op (F.degreeScheme d)) (𝟙 (F.degreeScheme d))))
+  have hx : (F.degreeFunctor d).toFunctor.reprW.hom.app
+      (op (F.degreeScheme d)) (𝟙 (F.degreeScheme d)) =
+        (F.degreeFunctor d).toFunctor.reprx := by
+    rw [Functor.reprW_hom_app]
+    change (F.degreeFunctor d).toFunctor.map (𝟙 (op (F.degreeScheme d)))
+      (F.degreeFunctor d).toFunctor.reprx = (F.degreeFunctor d).toFunctor.reprx
+    exact (F.degreeFunctor d).toFunctor.map_id_apply _ _
+  rw [hx]
+  rfl
+
 /-- The represented chart inclusions are open immersions. -/
 instance degreeMap_isOpenImmersion [F : RelativeProjFunctor S 𝒜]
-    (d : {n : ℕ // 1 ≤ n}) : IsOpenImmersion (degreeMap (F := F) d) := sorry
+    (d : {n : ℕ // 1 ≤ n}) : IsOpenImmersion (degreeMap (F := F) d) := by
+  apply MorphismProperty.of_relative_map (F := yoneda)
+  rw [degreeMap_yoneda]
+  exact MorphismProperty.comp_mem IsOpenImmersion.presheaf _ _
+    (MorphismProperty.of_isIso IsOpenImmersion.presheaf _)
+    (MorphismProperty.comp_mem IsOpenImmersion.presheaf _ _
+      (F.degreeToFunctor_isOpenImmersion d)
+      (MorphismProperty.of_isIso IsOpenImmersion.presheaf _))
 
 /-- A chart transition is represented by the explicit tensor/restriction
 transition on the universal point of the source chart. -/
@@ -68,11 +96,49 @@ theorem degreeMap_range_mono [F : RelativeProjFunctor S 𝒜]
     (d e : {n : ℕ // 1 ≤ n}) (h : d.1 ∣ e.1) :
     Set.range (degreeMap (F := F) d) ⊆ Set.range (degreeMap (F := F) e) := sorry
 
+/-- The specified positive-degree charts cover every point of the representing scheme. -/
+theorem degreeMap_covers [F : RelativeProjFunctor S 𝒜] (x : F.toFunctor.reprX) :
+    ∃ d y, degreeMap (F := F) d y = x := by
+  letI := F.coveredByDegree
+  have hs : Presheaf.imageSieve (Limits.Sigma.desc F.degreeToFunctor)
+      F.toFunctor.reprx ∈ Scheme.zariskiTopology F.toFunctor.reprX :=
+    Presheaf.imageSieve_mem Scheme.zariskiTopology
+      (Limits.Sigma.desc F.degreeToFunctor) F.toFunctor.reprx
+  obtain ⟨𝒰, h𝒰⟩ := Scheme.exists_cover_of_mem_grothendieckTopology
+    (P := @IsOpenImmersion) hs
+  obtain ⟨i, y, hy⟩ := 𝒰.exists_eq x
+  obtain ⟨t, ht⟩ := h𝒰 _ _ (Presieve.ofArrows.mk i)
+  obtain ⟨⟨d⟩, v, rfl⟩ :=
+    Limits.Types.jointly_surjective_of_isColimit (Limits.isColimitOfPreserves
+      ((evaluation Schemeᵒᵖ (Type u)).obj (op (𝒰.X i)))
+      (Limits.colimit.isColimit (Discrete.functor
+        (fun d : {n : ℕ // 1 ≤ n} ↦ (F.degreeFunctor d).toFunctor)))) t
+  have hv : (F.degreeToFunctor d).app (op (𝒰.X i)) v =
+      F.toFunctor.map (𝒰.f i).op F.toFunctor.reprx := by
+    change (Limits.Sigma.desc F.degreeToFunctor).app (op (𝒰.X i))
+      ((Limits.Sigma.ι (fun d ↦ (F.degreeFunctor d).toFunctor) d).app (op (𝒰.X i)) v) =
+        F.toFunctor.map (𝒰.f i).op F.toFunctor.reprx at ht
+    simpa only [← NatTrans.comp_app_apply, Limits.Sigma.ι_desc] using ht
+  let g : 𝒰.X i ⟶ F.degreeScheme d :=
+    (F.degreeFunctor d).toFunctor.reprW.inv.app (op (𝒰.X i)) v
+  have hg : g ≫ degreeMap (F := F) d = 𝒰.f i := by
+    rw [← Functor.reprW_hom_app] at hv
+    have h := ConcreteCategory.congr_hom
+      (NatTrans.congr_app (degreeMap_yoneda (F := F) d) (op (𝒰.X i))) g
+    change g ≫ degreeMap (F := F) d =
+      F.toFunctor.reprW.inv.app (op (𝒰.X i))
+        ((F.degreeToFunctor d).app (op (𝒰.X i))
+          ((F.degreeFunctor d).toFunctor.reprW.hom.app (op (𝒰.X i)) g)) at h
+    rw [h]
+    simp only [g, Iso.inv_hom_id_app_apply, hv, Iso.hom_inv_id_app_apply]
+  exact ⟨d, g y, by simpa only [← Scheme.Hom.comp_apply, hg] using hy⟩
+
 /-- The complete positive-degree cover of the representing scheme. -/
 def degreeCover [F : RelativeProjFunctor S 𝒜] :
     Scheme.OpenCover.{0} F.toFunctor.reprX :=
   Scheme.Cover.mkOfCovers {n : ℕ // 1 ≤ n} (degreeScheme F)
-    (degreeMap (F := F)) sorry (degreeMap_isOpenImmersion (F := F))
+    (degreeMap (F := F)) (degreeMap_covers (F := F))
+    (degreeMap_isOpenImmersion (F := F))
 
 /-- The whole degree cover pulled back to the test scheme. -/
 def testCover [F : RelativeProjFunctor S 𝒜] {T : Scheme.{u}}

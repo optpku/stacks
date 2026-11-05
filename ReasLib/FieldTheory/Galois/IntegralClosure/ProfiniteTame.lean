@@ -29,6 +29,15 @@ universe u v w
 
 namespace integralClosure
 
+namespace TameRoots
+
+/-- Compatibility alias for the former consumer-specific name of the roots-of-unity limit. -/
+@[deprecated rootsOfUnity.limit (since := "2026-11-04")]
+abbrev limit (κ : Type u) [CommMonoid κ] (S : Set ℕ) :
+    Subgroup ((n : S) → rootsOfUnity n.1 κ) := rootsOfUnity.limit κ S
+
+end TameRoots
+
 variable {A : Type u} [CommRing A] [IsDomain A] [IsDiscreteValuationRing A]
 variable (K : Type v) [Field K] [Algebra A K] [IsFractionRing A K]
 variable {L : Type w} [Field L] [Algebra A L] [Algebra K L]
@@ -145,14 +154,14 @@ noncomputable def thetaCanPi (m : Ideal (integralClosure A L)) [m.IsMaximal] :
 /-- The finite-level characters form a compatible roots-of-unity family. -/
 theorem thetaCanPi_mem_limit (m : Ideal (integralClosure A L)) [m.IsMaximal]
     (σ : m.inertia Gal(L/K)) :
-    thetaCanPi K m σ ∈ TameRoots.limit m.ResidueField (tameRootIndex K m) := sorry
+    thetaCanPi K m σ ∈ rootsOfUnity.limit m.ResidueField (tameRootIndex K m) := sorry
 
 /-- The canonical tame character into the compatible roots-of-unity limit. -/
 noncomputable def thetaCan (m : Ideal (integralClosure A L)) [m.IsMaximal] :
     m.inertia Gal(L/K) →*
-      TameRoots.limit m.ResidueField (tameRootIndex K m) :=
+      rootsOfUnity.limit m.ResidueField (tameRootIndex K m) :=
   MonoidHom.codRestrict (thetaCanPi K m)
-    (TameRoots.limit m.ResidueField (tameRootIndex K m))
+    (rootsOfUnity.limit m.ResidueField (tameRootIndex K m))
     (thetaCanPi_mem_limit K m)
 
 /-- Evaluation of the canonical tame character is componentwise evaluation. -/
@@ -210,7 +219,7 @@ theorem thetaCan_ker (m : Ideal (integralClosure A L)) [m.IsMaximal] :
 /-- The quotient homomorphism induced by the canonical tame character. -/
 noncomputable def tameQuotientHom (m : Ideal (integralClosure A L)) [m.IsMaximal] :
     profiniteTameInertia K m →*
-      TameRoots.limit m.ResidueField (tameRootIndex K m) :=
+      rootsOfUnity.limit m.ResidueField (tameRootIndex K m) :=
   QuotientGroup.lift
     (profiniteWildInertia K m)
     (thetaCan K m)
@@ -241,10 +250,10 @@ theorem thetaCan_surjective (m : Ideal (integralClosure A L)) [m.IsMaximal] :
 theorem thetaCan_conj (m : Ideal (integralClosure A L)) [m.IsMaximal]
     (τ : MulAction.stabilizer (Gal(L/K)) m) (σ : m.inertia (Gal(L/K)))
     (n : tameRootIndex K m) :
-    (TameRoots.limit m.ResidueField (tameRootIndex K m)).subtype
+    (rootsOfUnity.limit m.ResidueField (tameRootIndex K m)).subtype
         (thetaCan K m (Ideal.inertiaConjHom m τ σ)) n =
       rootsOfUnityHom (Gal(L/K)) (maximalIdeal A) m n.1 τ
-        ((TameRoots.limit m.ResidueField (tameRootIndex K m)).subtype
+        ((rootsOfUnity.limit m.ResidueField (tameRootIndex K m)).subtype
           (thetaCan K m σ) n) := sorry
 
 /-- The induced tame quotient homomorphism is bijective. -/

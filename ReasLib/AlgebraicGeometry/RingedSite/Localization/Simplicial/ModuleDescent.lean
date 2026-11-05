@@ -322,6 +322,83 @@ private theorem descentCounitEndpointIso_restrict {U : X.carrier}
     (overMap (K.simplicial.δ b)).map qr ≫ (descentCounitEndpointIso K x y f hf r b).hom =
       (descentCounitEndpointIso K x y f hf (s ≫ r) b).hom ≫ pr := sorry
 
+/-- Identify a module component with restriction of its underlying sheaf, using
+reverse scalar restriction along the displayed structure-ring isomorphism. -/
+private def descentCounitComponentIso (F : SheafOfModules.{w} (ringSheaf K.simplicial))
+    (n : SimplexCategory) :
+    (Sheaf.InternalModule.ToInternal.underlying
+        (AtSR.ringSheaf (K.simplicial.obj (op n)))).obj
+      ((moduleComponent K.simplicial n).obj F) ≅
+      (typeComponent K.simplicial n).obj
+        ((Sheaf.InternalModule.ToInternal.underlying (ringSheaf K.simplicial)).obj F) :=
+  let e := @Cocontinuous.structureMapIso (AtSR.site (K.simplicial.obj (op n)))
+    (site K.simplicial) (Grothendieck.ι (overSiteDiagram K.simplicial) (op n))
+    (stageIncl_isCocontinuous K.simplicial n)
+    inferInstance inferInstance inferInstance inferInstance
+    ((sheafToPresheaf (overTopology X.siteTopology (K.simplicial.obj (op n)))
+      RingCat.{w}).mapIso (stageRingIso K.simplicial n).symm)
+  let N := (moduleInverseImageComponent K.simplicial n).obj F
+  ((Sheaf.InternalModule.ToInternal.underlying
+      ((stageIncl K.simplicial n).toTopos.ringInverseImage.obj
+        (ringSheaf K.simplicial))).mapIso
+    (SheafOfModules.ChangeOfRings.extendRestrictUnitIso e N)).symm ≪≫
+      moduleInverseImage_underlyingIso K.simplicial F n
+
+/-- Identify module pullback along a simplex operator with continuous restriction
+of its underlying sheaf, using the actual reverse coefficient map. -/
+private def descentCounitPullbackIso {m n : SimplexCategory} (φ : m ⟶ n)
+    (M : SheafOfModules.{w} (AtSR.ringSheaf (K.simplicial.obj (op m)))) :
+    (Sheaf.InternalModule.ToInternal.underlying
+        (AtSR.ringSheaf (K.simplicial.obj (op n)))).obj
+      ((stageMap K.simplicial φ).modulePullback.obj M) ≅
+      ((overMap (K.simplicial.map φ.op)).sheafPushforwardContinuous (Type w)
+        (overTopology X.siteTopology (K.simplicial.obj (op n)))
+        (overTopology X.siteTopology (K.simplicial.obj (op m)))).obj
+          ((Sheaf.InternalModule.ToInternal.underlying
+            (AtSR.ringSheaf (K.simplicial.obj (op m)))).obj M) :=
+  let e := @Cocontinuous.structureMapIso (AtSR.site (K.simplicial.obj (op n)))
+    (AtSR.site (K.simplicial.obj (op m))) (overMap (K.simplicial.map φ.op))
+    (AtSR.overMap_isCocontinuous_site (K.simplicial.map φ.op))
+    inferInstance inferInstance inferInstance inferInstance
+    ((sheafToPresheaf (overTopology X.siteTopology (K.simplicial.obj (op n)))
+      RingCat.{w}).mapIso (AtSR.mapRingSheafIso (K.simplicial.map φ.op)).symm)
+  let N := ((stageMap K.simplicial φ).toTopos.moduleInverseImage
+    (AtSR.ringSheaf (K.simplicial.obj (op m)))).obj M
+  ((Sheaf.InternalModule.ToInternal.underlying
+      ((stageMap K.simplicial φ).toTopos.ringInverseImage.obj
+        (AtSR.ringSheaf (K.simplicial.obj (op m))))).mapIso
+    (SheafOfModules.ChangeOfRings.extendRestrictUnitIso e N)).symm ≪≫
+      ((stageMap K.simplicial φ).toTopos.moduleInverseImageForgetIso
+        (AtSR.ringSheaf (K.simplicial.obj (op m)))).app M ≪≫
+      (stageMap_cocontinuousContinuousIso K.simplicial φ).app
+        ((Sheaf.InternalModule.ToInternal.underlying
+          (AtSR.ringSheaf (K.simplicial.obj (op m)))).obj M)
+
+/-- Transport the module transition isomorphism supplied by cartesianness to
+underlying presheaves. Its inverse uses `G.property`, without extracting an
+inverse from the admitted `isCartesian_iff_underlying` bridge. -/
+private def descentCounitRawIso (G : Cartesian K.simplicial)
+    {m n : SimplexCategory} (φ : m ⟶ n) :
+    (overMap (K.simplicial.map φ.op)).op ⋙
+        ((typeComponent K.simplicial m).obj
+          ((Sheaf.InternalModule.ToInternal.underlying (ringSheaf K.simplicial)).obj
+            G.obj)).obj ≅
+      ((typeComponent K.simplicial n).obj
+        ((Sheaf.InternalModule.ToInternal.underlying (ringSheaf K.simplicial)).obj
+          G.obj)).obj :=
+  letI : IsCartesian K.simplicial G.obj := G.property
+  let u := (overMap (K.simplicial.map φ.op)).sheafPushforwardContinuous (Type w)
+    (overTopology X.siteTopology (K.simplicial.obj (op n)))
+    (overTopology X.siteTopology (K.simplicial.obj (op m)))
+  (sheafToPresheaf (overTopology X.siteTopology (K.simplicial.obj (op n)))
+    (Type w)).mapIso
+    (u.mapIso (descentCounitComponentIso K G.obj m).symm ≪≫
+      (descentCounitPullbackIso K φ ((moduleComponent K.simplicial m).obj G.obj)).symm ≪≫
+      (Sheaf.InternalModule.ToInternal.underlying
+        (AtSR.ringSheaf (K.simplicial.obj (op n)))).mapIso
+          (transitionIso K.simplicial G.obj φ) ≪≫
+      descentCounitComponentIso K G.obj n)
+
 /-- Evaluated Cartesian transitions and their inverses commute with fixed-lift endpoint
 transport and restriction, through the canonical sheafification comparison. -/
 private theorem descentCounitEndpointIso_transition
@@ -434,27 +511,7 @@ private def descentCounitInvFamily (G : Cartesian K.simplicial)
         ((Sheaf.InternalModule.ToInternal.underlying (ringSheaf K.simplicial)).obj G.obj)
     fun I ↦
     let rawIso := fun {m n : SimplexCategory} (φ : m ⟶ n) ↦
-      let Jm := (overSitePrecoverage X.siteTopology K.simplicial (op m)).toGrothendieck
-      let Jn := (overSitePrecoverage X.siteTopology K.simplicial (op n)).toGrothendieck
-      let u := overMap (K.simplicial.map φ.op)
-      let topEq := fun k : SimplexCategory ↦
-        (Coverage.toGrothendieck_toPrecoverage
-          (overTopology X.siteTopology (K.simplicial.obj (op k))).toCoverage).trans
-            ((Coverage.gi _).l_u_eq (overTopology X.siteTopology (K.simplicial.obj (op k))))
-      let hcont : u.IsContinuous Jn Jm :=
-        Eq.mpr (congrArg₂ (fun Tn Tm ↦ u.IsContinuous Tn Tm) (topEq n) (topEq m))
-          (overMap_isContinuous X.siteTopology (K.simplicial.map φ.op))
-      let Gm := (Grothendieck.fiberRestrict (overSiteDiagram K.simplicial)
-        (overSitePrecoverage X.siteTopology K.simplicial) (Type w) m).obj
-          ((Sheaf.InternalModule.ToInternal.underlying (ringSheaf K.simplicial)).obj G.obj)
-      let c := isoSheafify Jn
-        (@Functor.op_comp_isSheaf _ _ _ _ u (Type w) _ Jn Jm hcont Gm)
-      let τ := @asIso _ _ _ _
-        (Grothendieck.Sheaf.sheafTransition (overSiteDiagram K.simplicial)
-          (overSitePrecoverage X.siteTopology K.simplicial) (Type w) φ
-          ((Sheaf.InternalModule.ToInternal.underlying (ringSheaf K.simplicial)).obj G.obj))
-        (((isCartesian_iff_underlying K.simplicial G.obj).mp G.property).isIso_transition φ)
-      c ≪≫ (sheafToPresheaf Jn (Type w)).mapIso τ
+      descentCounitRawIso K G φ
     let q := descentCounitLocalPreimage K t I.f.left I.hf
     let Q : OverSite (K.simplicial.obj (op ⦋1⦌)) :=
       ⟨q.1, CategoryTheory.Over.mk (𝟙 I.Y.left ≫ q.2)⟩
@@ -539,27 +596,7 @@ private def descentCounitConeLeg (G : Cartesian K.simplicial)
     (overSitePrecoverage X.siteTopology K.simplicial) (Type w) ⦋0⦌).obj
       ((Sheaf.InternalModule.ToInternal.underlying (ringSheaf K.simplicial)).obj G.obj)
   let rawIso := fun {m n : SimplexCategory} (φ : m ⟶ n) ↦
-    let Jm := (overSitePrecoverage X.siteTopology K.simplicial (op m)).toGrothendieck
-    let Jn := (overSitePrecoverage X.siteTopology K.simplicial (op n)).toGrothendieck
-    let u := overMap (K.simplicial.map φ.op)
-    let topEq := fun k : SimplexCategory ↦
-      (Coverage.toGrothendieck_toPrecoverage
-        (overTopology X.siteTopology (K.simplicial.obj (op k))).toCoverage).trans
-          ((Coverage.gi _).l_u_eq (overTopology X.siteTopology (K.simplicial.obj (op k))))
-    let hcont : u.IsContinuous Jn Jm :=
-      Eq.mpr (congrArg₂ (fun Tn Tm ↦ u.IsContinuous Tn Tm) (topEq n) (topEq m))
-        (overMap_isContinuous X.siteTopology (K.simplicial.map φ.op))
-    let Gm := (Grothendieck.fiberRestrict (overSiteDiagram K.simplicial)
-      (overSitePrecoverage X.siteTopology K.simplicial) (Type w) m).obj
-        ((Sheaf.InternalModule.ToInternal.underlying (ringSheaf K.simplicial)).obj G.obj)
-    let c := isoSheafify Jn
-      (@Functor.op_comp_isSheaf _ _ _ _ u (Type w) _ Jn Jm hcont Gm)
-    let τ := @asIso _ _ _ _
-      (Grothendieck.Sheaf.sheafTransition (overSiteDiagram K.simplicial)
-        (overSitePrecoverage X.siteTopology K.simplicial) (Type w) φ
-          ((Sheaf.InternalModule.ToInternal.underlying (ringSheaf K.simplicial)).obj G.obj))
-        (((isCartesian_iff_underlying K.simplicial G.obj).mp G.property).isIso_transition φ)
-    c ≪≫ (sheafToPresheaf Jn (Type w)).mapIso τ
+    descentCounitRawIso K G φ
   let topEq := (Coverage.toGrothendieck_toPrecoverage
     (overTopology X.siteTopology (K.simplicial.obj (op ⦋0⦌))).toCoverage).trans
       ((Coverage.gi _).l_u_eq (overTopology X.siteTopology (K.simplicial.obj (op ⦋0⦌))))
@@ -585,6 +622,7 @@ private theorem descentCounitCone_naturality (G : Cartesian K.simplicial)
         ((Sheaf.InternalModule.ToInternal.underlying (ringSheaf K.simplicial)).obj G.obj).obj.map
           f.right := sorry
 
+set_option maxRecDepth 4000 in
 /-- The reconstructed transfers form a cone for the pointwise right Kan extension. -/
 private def descentCounitCone (G : Cartesian K.simplicial)
     (Z : Grothendieck (overSiteDiagram K.simplicial)) :

@@ -6,7 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-import ReasLib.CategoryTheory.Pretriangulated.BrownRepresentability
+import ReasLib.CategoryTheory.Pretriangulated.BrownRepresentability.SmallSet
 import StacksCheckRecall
 
 @[expose] public section
@@ -15,15 +15,15 @@ import StacksCheckRecall
 # Proposition 13.38.2
 
 Brown representability for compactly generated triangulated categories is exposed through the
-neutral functor-level API.
+neutral small-coproduct functor-level API.
 -/
 
-namespace CategoryTheory.Functor.Brown.Compact
+namespace CategoryTheory.Functor.Brown.SmallSet
 
 /- Proposition 13.38.2 (`0A8G`): the left-adjoint criterion. -/
-@[stacks 0A8G] #check @isLeftAdjoint
+@[stacks 0A8G] #check @isLeftAdjoint_ofCompactGeneration
 
 /- Exactness of a Brown right adjoint. -/
-#check @hasTriangulatedRightAdjoint
+#check @hasTriangulatedRightAdjoint_ofCompactGeneration
 
-end CategoryTheory.Functor.Brown.Compact
+end CategoryTheory.Functor.Brown.SmallSet

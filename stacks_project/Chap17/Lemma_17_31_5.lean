@@ -30,4 +30,4 @@ sequence. -/
 
 #check @SheafOfModules.RingedSite.NaiveCotangent.Transitivity.sixTerm_exact
 
-#check @SheafOfModules.RingedSite.NaiveCotangent.Transitivity.comparison_zero_epi
+#check @SheafOfModules.RingedSite.NaiveCotangent.comparison_zero_epi

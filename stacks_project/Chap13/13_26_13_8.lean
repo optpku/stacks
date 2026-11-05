@@ -6,13 +6,13 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-import ReasLib.CategoryTheory.Filtration.Derived.Finite.Compatibility
+import ReasLib.CategoryTheory.Filtration.Derived.BoundedFunctor.RightDerived
 import ReasLib.CategoryTheory.Filtration.Derived.LeftExact.Comparison
 import StacksCheckRecall
 
 @[expose] public section
 
-namespace CategoryTheory.FilteredComplex.RightDerived.Finite.Forget
+open CategoryTheory.FilteredObject.FiniteDerived.Plus.LeftExact.Forget
 
 /-!
 # Equation 13.26.13.8
@@ -23,7 +23,6 @@ generic right-derived uniqueness comparison remains available as its constructio
 
 /- Equation 13.26.13.8 (`015V`): forgetting a finite filtration commutes with the filtered
 right-derived functor. -/
-open CategoryTheory.FilteredObject.FiniteDerived.Plus.LeftExact.Forget
 @[stacks 015V] #check @forgetIso
 #check @forgetIso.fac
 #check @forgetIso.fac_app
@@ -34,5 +33,3 @@ open CategoryTheory.FilteredObject.FiniteDerived.Plus.LeftExact.Forget
 localization data. -/
 #check @CategoryTheory.FilteredObject.FiniteDerived.Plus.Forget.RightDerived.iso
 #check @CategoryTheory.FilteredObject.FiniteDerived.Plus.Forget.RightDerived.canonicalIso
-
-end CategoryTheory.FilteredComplex.RightDerived.Finite.Forget

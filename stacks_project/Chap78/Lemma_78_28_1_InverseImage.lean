@@ -90,7 +90,7 @@ def OnSlice.ofYoneda (T : Over S) : OnSlice ι J S where
 sheaf inverse image of `F`. -/
 theorem OnSlice.toAlgebraicSpace_functorOfPoints (F : OnSlice ι J S) :
     (F.toAlgebraicSpace).functorOfPoints =
-      ((inverseImage ι S J Scheme.fppfTopology).obj F.sheaf).obj := sorry
+      ((ChangeOfSite.inverseImage ι S J Scheme.fppfTopology).obj F.sheaf).obj := sorry
 
 /-- A section of a contained-site algebraic space over `T`, viewed as a point of its inverse
 image over the included scheme `slicePost.obj T`. -/
@@ -109,7 +109,7 @@ theorem OnSlice.sectionPoint_hom (F : OnSlice ι J S) (T : Over S)
 /-- Inverse image of a morphism of algebraic-space sheaves on the contained site. -/
 def inverseImageHom {F G : OnSlice ι J S} (f : F.sheaf ⟶ G.sheaf) :
     F.toAlgebraicSpace ⟶ G.toAlgebraicSpace :=
-  ((inverseImage ι S J Scheme.fppfTopology).map f).hom
+  ((ChangeOfSite.inverseImage ι S J Scheme.fppfTopology).map f).hom
 
 /-- Inverse image of an object of `Over` in algebraic-space sheaves. -/
 def inverseImageOver (B U : OnSlice ι J S) (f : U.sheaf ⟶ B.sheaf) :
@@ -125,31 +125,31 @@ def inverseImageOverHom (B U V : OnSlice ι J S)
 
 /-- Sheaf inverse image preserves fibre products of morphisms of algebraic-space sheaves. -/
 def inverseImage_pullbackIso {U R : OnSlice ι J S} (s t : R.sheaf ⟶ U.sheaf) :
-    (inverseImage ι S J Scheme.fppfTopology).obj (pullback s t) ≅
-      pullback ((inverseImage ι S J Scheme.fppfTopology).map s)
-        ((inverseImage ι S J Scheme.fppfTopology).map t) :=
-  PreservesPullback.iso (inverseImage ι S J Scheme.fppfTopology) s t
+    (ChangeOfSite.inverseImage ι S J Scheme.fppfTopology).obj (pullback s t) ≅
+      pullback ((ChangeOfSite.inverseImage ι S J Scheme.fppfTopology).map s)
+        ((ChangeOfSite.inverseImage ι S J Scheme.fppfTopology).map t) :=
+  PreservesPullback.iso (ChangeOfSite.inverseImage ι S J Scheme.fppfTopology) s t
 
 /-- Inverse image of a composition morphism as a sheaf morphism, transported along the
 preserved fibre product. -/
 def inverseImageCompHom {U R : OnSlice ι J S} {s t : R.sheaf ⟶ U.sheaf}
     (c : pullback s t ⟶ R.sheaf) :
-    pullback ((inverseImage ι S J Scheme.fppfTopology).map s)
-        ((inverseImage ι S J Scheme.fppfTopology).map t) ⟶
-      (inverseImage ι S J Scheme.fppfTopology).obj R.sheaf :=
+    pullback ((ChangeOfSite.inverseImage ι S J Scheme.fppfTopology).map s)
+        ((ChangeOfSite.inverseImage ι S J Scheme.fppfTopology).map t) ⟶
+      (ChangeOfSite.inverseImage ι S J Scheme.fppfTopology).obj R.sheaf :=
   (inverseImage_pullbackIso ι J S s t).inv ≫
-    (inverseImage ι S J Scheme.fppfTopology).map c
+    (ChangeOfSite.inverseImage ι S J Scheme.fppfTopology).map c
 
 /-- The underlying presheaf of the sheaf fibre product of inverse images is the fibre product
 of the underlying inverse-image morphisms. -/
 def inverseImagePullback_presheafIso {U R : OnSlice ι J S} (s t : R.sheaf ⟶ U.sheaf) :
-    (pullback ((inverseImage ι S J Scheme.fppfTopology).map s)
-        ((inverseImage ι S J Scheme.fppfTopology).map t)).obj ≅
+    (pullback ((ChangeOfSite.inverseImage ι S J Scheme.fppfTopology).map s)
+        ((ChangeOfSite.inverseImage ι S J Scheme.fppfTopology).map t)).obj ≅
       pullback (inverseImageHom ι J S s) (inverseImageHom ι J S t) :=
   PreservesPullback.iso
     (sheafToPresheaf (Scheme.fppfTopology.over (ι.obj S)) (Type u))
-    ((inverseImage ι S J Scheme.fppfTopology).map s)
-    ((inverseImage ι S J Scheme.fppfTopology).map t)
+    ((ChangeOfSite.inverseImage ι S J Scheme.fppfTopology).map s)
+    ((ChangeOfSite.inverseImage ι S J Scheme.fppfTopology).map t)
 
 /-- Inverse image of composition as a morphism of algebraic spaces: lift the AlgebraicSpace
 fibre product to the sheaf fibre product, then apply `inverseImageCompHom`. -/
@@ -163,7 +163,9 @@ def inverseImageCompHom_algebraic {U R : OnSlice ι J S} {s t : R.sheaf ⟶ U.sh
         (pullback.snd (inverseImageHom ι J S s) (inverseImageHom ι J S t) :
           (pullback (inverseImageHom ι J S s) (inverseImageHom ι J S t)).functorOfPoints ⟶
             R.toAlgebraicSpace.functorOfPoints)
-        sorry ≫
+        (by
+          exact pullback.condition (f := inverseImageHom ι J S s)
+            (g := inverseImageHom ι J S t)) ≫
       (inverseImagePullback_presheafIso ι J S s t).inv ≫
         Sheaf.homEquiv (inverseImageCompHom ι J S c) :
     (pullback (inverseImageHom ι J S s) (inverseImageHom ι J S t)).functorOfPoints ⟶
@@ -343,6 +345,6 @@ along the preserved fibre product. -/
 theorem inverseImage_c (G : GroupoidOnSlice ι J S) :
     inverseImageCompHom ι J S G.c =
       (inverseImage_pullbackIso ι J S G.s G.t).inv ≫
-        (inverseImage ι S J Scheme.fppfTopology).map G.c := sorry
+        (ChangeOfSite.inverseImage ι S J Scheme.fppfTopology).map G.c := sorry
 
 end AlgebraicGeometry.GroupoidAlgebraicSpace

@@ -61,6 +61,12 @@ theorem of_reesTwist {S : Scheme.{u}} {X : AlgebraicSpace S}
     (of P).reesTwist = P :=
   rfl
 
+/-- Passing to the Rees presentation and back preserves the chosen blowup. -/
+theorem reesTwist_of {S : Scheme.{u}} {X : AlgebraicSpace S}
+    {I : IdealSubobject X} [IsQuasiCoherent I] (π : Blowup X I) :
+    of π.reesTwist = π :=
+  rfl
+
 /-- The algebraic space `P = underline{Proj}_X(⊕_{n ≥ 0} I ^ n)`. -/
 abbrev space {S : Scheme.{u}} {X : AlgebraicSpace S} {I : IdealSubobject X}
     [IsQuasiCoherent I] (π : Blowup X I) : AlgebraicSpace S :=

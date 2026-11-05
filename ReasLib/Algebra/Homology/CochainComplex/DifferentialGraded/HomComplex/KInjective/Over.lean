@@ -62,14 +62,46 @@ theorem injectiveDerivedHomLinearMap_apply [HasDerivedCategory.{w} C]
     [IsIso (DerivedCategory.Q.map i)] (n : ℤ)
     (x : (homComplex (R := R) K I).homology n) :
     injectiveDerivedHomLinearMap (R := R) K i n x =
-      injectiveDerivedHomOfHomology (R := R) K i n x := sorry
+      injectiveDerivedHomOfHomology (R := R) K i n x := rfl
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Hom cohomology into a K-injective resolution is bijective onto shifted derived Hom. -/
 @[stacks 0CS6 "K-injective explicit-base-ring Hom comparison bijectivity"]
 theorem injectiveDerivedHomOfHomology_bijective [HasDerivedCategory.{w} C]
     (K : CochainComplex C ℤ) {M I : CochainComplex C ℤ} (i : M ⟶ I) [I.IsKInjective]
     [IsIso (DerivedCategory.Q.map i)] (n : ℤ) :
-    Function.Bijective (injectiveDerivedHomOfHomology (R := R) K i n) := sorry
+    Function.Bijective (injectiveDerivedHomOfHomology (R := R) K i n) := by
+  let q := HomotopyCategory.quotient C (ComplexShape.up ℤ)
+  let F : HomotopyCategory C (ComplexShape.up ℤ) ⥤ DerivedCategory C := DerivedCategory.Qh
+  let s : q.obj (I⟦n⟧) ≅ (q.obj I)⟦n⟧ := (q.commShiftIso n).app I
+  have hF : Function.Bijective (F.map : (q.obj K ⟶ (q.obj I)⟦n⟧) → _) := by
+    constructor
+    · intro f g hfg
+      have h : f ≫ s.inv = g ≫ s.inv :=
+        (CochainComplex.IsKInjective.Qh_map_bijective (q.obj K) (I⟦n⟧)).injective
+          (by
+            change F.map (f ≫ s.inv) = F.map (g ≫ s.inv)
+            simpa only [Functor.map_comp] using congrArg (fun z ↦ z ≫ F.map s.inv) hfg)
+      exact (cancel_mono s.inv).mp h
+    · intro f
+      obtain ⟨g, hg⟩ :=
+        (CochainComplex.IsKInjective.Qh_map_bijective (q.obj K) (I⟦n⟧)).surjective
+          (f ≫ F.map s.inv)
+      refine ⟨g ≫ s.hom, ?_⟩
+      rw [Functor.map_comp, hg, Category.assoc, ← F.map_comp, s.inv_hom_id]
+      simp only [F.map_id, Category.comp_id]
+  let e := Iso.homCongr ((DerivedCategory.quotientCompQhIso C).app K)
+    ((F.commShiftIso n).app (q.obj I) ≪≫
+      (shiftFunctor _ n).mapIso ((DerivedCategory.quotientCompQhIso C).app I))
+  let t := Iso.homCongr (Iso.refl (DerivedCategory.Q.obj K))
+    ((shiftFunctor _ n).mapIso (asIso (DerivedCategory.Q.map i)).symm)
+  have h := t.bijective.comp (e.bijective.comp
+    (hF.comp (homotopyHomLinearEquiv (R := R) K I n).bijective))
+  convert h using 1
+  ext x
+  simp [injectiveDerivedHomOfHomology, derivedHomOfHomology,
+    Functor.shiftedHomMap, ShiftedHom.map, homotopyHomOfHomology,
+    e, t, F, q, Iso.homCongr, Category.assoc]
 
 /-- The bundled `R`-linear comparison has the same bijectivity statement as its underlying
 function. -/
@@ -77,7 +109,8 @@ function. -/
 theorem injectiveDerivedHomLinearMap_bijective [HasDerivedCategory.{w} C]
     (K : CochainComplex C ℤ) {M I : CochainComplex C ℤ} (i : M ⟶ I) [I.IsKInjective]
     [IsIso (DerivedCategory.Q.map i)] (n : ℤ) :
-    Function.Bijective (injectiveDerivedHomLinearMap (R := R) K i n) := sorry
+    Function.Bijective (injectiveDerivedHomLinearMap (R := R) K i n) :=
+  injectiveDerivedHomOfHomology_bijective (R := R) K i n
 
 /-- The K-injective Hom-cohomology comparison as a linear equivalence. -/
 @[stacks 0CS6 "K-injective explicit-base-ring Hom cohomology linear equivalence"]
@@ -115,6 +148,6 @@ theorem injectiveDerivedHomLinearEquiv_apply [HasDerivedCategory.{w} C]
     [IsIso (DerivedCategory.Q.map i)] (n : ℤ)
     (x : (homComplex (R := R) K I).homology n) :
     injectiveDerivedHomLinearEquiv (R := R) K i n x =
-      injectiveDerivedHomLinearMap (R := R) K i n x := sorry
+      injectiveDerivedHomLinearMap (R := R) K i n x := rfl
 
 end CategoryTheory.CochainComplex.Enriched.Over.RHom

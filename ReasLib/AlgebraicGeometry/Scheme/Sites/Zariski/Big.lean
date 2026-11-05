@@ -79,7 +79,8 @@ instance map_op_hasLeftKanExtension
 computations. -/
 instance map_op_hasPointwiseRightKanExtension
     (f : T ⟶ S) (P : (Over T)ᵒᵖ ⥤ Type (u + 1)) :
-    (map f).op.HasPointwiseRightKanExtension P := sorry
+    (map f).op.HasPointwiseRightKanExtension P := by
+  infer_instance
 
 /-- The inverse-image functor on big Zariski sheaves. -/
 abbrev inverseImage (f : T ⟶ S) :

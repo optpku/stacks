@@ -60,6 +60,21 @@ theorem associatedInternalHomLift_ihom {X : GroupoidsOver S}
         ((commAssociatedModulesLiftFunctor X τ).obj G) :=
   rfl
 
+/-- Pure tensors in the lift of the module tensor: lower the two sections,
+apply the sheafification unit and the tensor comparison, then lift the result. -/
+def moduleTensorLiftPairing {X : GroupoidsOver S} {τ : StandardTopology}
+    (M N : commAssociatedModules X τ) (U : X.totalᵒᵖ)
+    (x : ((commAssociatedModulesLiftFunctor X τ).obj M).val.obj U)
+    (y : ((commAssociatedModulesLiftFunctor X τ).obj N).val.obj U) :
+    ((commAssociatedModulesLiftFunctor X τ).obj
+      (moduleTensorAssociated M N)).val.obj U :=
+  ULift.up
+    (((associatedModuleTensorIso M N).hom.val.app U).hom
+      ((moduleSheafificationUnitToVal.{u + 1, u, u, u}
+          (commAssociatedStructureSheaf X τ)
+          (PresheafOfModules.Monoidal.tensorObj M.val N.val)).app U
+        (x.down ⊗ₜ y.down)))
+
 /-- Pointwise tensor of universe lifts as a bilinear map into the lift of the
 module-category tensor. -/
 noncomputable def moduleTensorLiftBilinear {X : GroupoidsOver S}
@@ -71,15 +86,18 @@ noncomputable def moduleTensorLiftBilinear {X : GroupoidsOver S}
         (moduleTensorAssociated M N)) where
   app U :=
     LinearMap.mk₂ ((commAssociatedStructureSheafLift X τ).obj.obj U)
-      (fun x y ↦
-        ULift.up
-          (((associatedModuleTensorIso M N).hom.val.app U).hom
-            ((moduleSheafificationUnitToVal.{u + 1, u, u, u}
-                (commAssociatedStructureSheaf X τ)
-                (PresheafOfModules.Monoidal.tensorObj M.val N.val)).app U
-              (x.down ⊗ₜ y.down))))
+      (moduleTensorLiftPairing M N U)
       sorry sorry sorry sorry
   naturality := sorry
+
+/-- The bilinear map uses the named pure-tensor pairing on sections. -/
+@[simp]
+theorem moduleTensorLiftBilinear_app {X : GroupoidsOver S}
+    {τ : StandardTopology} (M N : commAssociatedModules X τ) (U : X.totalᵒᵖ)
+    (x : ((commAssociatedModulesLiftFunctor X τ).obj M).val.obj U)
+    (y : ((commAssociatedModulesLiftFunctor X τ).obj N).val.obj U) :
+    (moduleTensorLiftBilinear M N).app U x y =
+      moduleTensorLiftPairing M N U x y := rfl
 
 /-- Canonical comparison from the tensor product of universe lifts to the universe
 lift of the module-category tensor. -/
@@ -97,7 +115,7 @@ theorem moduleTensorLiftComparison_eq {X : GroupoidsOver S}
     {τ : StandardTopology} (M N : commAssociatedModules X τ) :
     moduleTensorLiftComparison M N =
       SectionBilinearMap.hom.{u + 1, u} (moduleTensorLiftBilinear M N) :=
-  sorry
+  rfl
 
 /-- Target (and, via currying, source) functoriality of the lifted internal Hom. -/
 def associatedInternalHomLiftCongr {X : GroupoidsOver S} {τ : StandardTopology}
@@ -135,6 +153,22 @@ theorem associatedInternalHomLiftCongr_eq {X : GroupoidsOver S}
           (commAssociatedModulesLiftFunctor X τ).map g) :=
   sorry
 
+/-- Curry an actual evaluation in commutative coefficients after the canonical
+comparison for universe lifts. This construction is shared by topology
+comparisons and the direct fppf presentation. -/
+def associatedInternalHomLiftComparison {X : GroupoidsOver S}
+    {τ : StandardTopology} (F G H : commAssociatedModules X τ)
+    (ev : moduleTensorAssociated F H ⟶ G) :
+    (commAssociatedModulesLiftFunctor X τ).obj H ⟶
+      associatedInternalHomLift F G :=
+  SheafOfModules.RingedSite.InternalHom.homEquiv.{u + 1, u}
+      (commAssociatedStructureSheafLift X τ)
+      ((commAssociatedModulesLiftFunctor X τ).obj F)
+      ((commAssociatedModulesLiftFunctor X τ).obj H)
+      ((commAssociatedModulesLiftFunctor X τ).obj G)
+    (moduleTensorLiftComparison F H ≫
+      (commAssociatedModulesLiftFunctor X τ).map ev)
+
 /-- The comparison determined by an evaluation `F ⊗ H ⟶ G`: transport to `τ`,
 lift universes, and curry into the actual sheaf of local morphisms. -/
 def internalHomComparison {X : GroupoidsOver S} (τ : StandardTopology)
@@ -144,19 +178,11 @@ def internalHomComparison {X : GroupoidsOver S} (τ : StandardTopology)
     associatedInternalHomLift
       ((toCommAssociatedModules X τ).obj F)
       ((toCommAssociatedModules X τ).obj G) :=
-  SheafOfModules.RingedSite.InternalHom.homEquiv.{u + 1, u}
-      (commAssociatedStructureSheafLift X τ)
-      ((commAssociatedModulesLiftFunctor X τ).obj
-        ((toCommAssociatedModules X τ).obj F))
-      ((commAssociatedModulesLiftFunctor X τ).obj
-        ((toCommAssociatedModules X τ).obj H))
-      ((commAssociatedModulesLiftFunctor X τ).obj
-        ((toCommAssociatedModules X τ).obj G))
-    (moduleTensorLiftComparison
-        ((toCommAssociatedModules X τ).obj F)
-        ((toCommAssociatedModules X τ).obj H) ≫
-      (commAssociatedModulesLiftFunctor X τ).map
-        (tensorComparison τ F H ≫ (toCommAssociatedModules X τ).map ev))
+  associatedInternalHomLiftComparison
+    ((toCommAssociatedModules X τ).obj F)
+    ((toCommAssociatedModules X τ).obj G)
+    ((toCommAssociatedModules X τ).obj H)
+    (tensorComparison τ F H ≫ (toCommAssociatedModules X τ).map ev)
 
 /-- `internalHomComparison` is the currying of the lifted tensor comparison
 followed by evaluation. -/

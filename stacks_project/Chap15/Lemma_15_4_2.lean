@@ -42,8 +42,7 @@ variable {N : Type x} [AddCommGroup N] [Module A N] [Module.Finite A N]
     (hgg' : LinearMap.range (g' - g) ≤ I ^ (c + 1) • (⊤ : Submodule A N))
     (hI : I ≤ Ring.jacobson A) (hcomplex' : g'.comp f' = 0) ↦
   let _ := hI
-  let _ := hcomplex'
-  (equiv I hf hg hexact hff' hgg' :
+  (equiv I hf hg hexact hff' hgg' hcomplex' :
     gradedModule I (N ⧸ LinearMap.range g) ≃ₗ[ring I]
       gradedModule I (N ⧸ LinearMap.range g'))
 

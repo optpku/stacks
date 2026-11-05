@@ -46,14 +46,6 @@ theorem radical_eq : (topologicalNilradical R).radical = topologicalNilradical R
 
 end
 
-/-- A continuous morphism of monoids with zero sends topologically nilpotent
-elements to topologically nilpotent elements. -/
-theorem map_isTopologicallyNilpotent {R : Type u} {S : Type v}
-    [TopologicalSpace R] [MonoidWithZero R] [MonoidWithZero S] [TopologicalSpace S]
-    {F : Type w} [FunLike F R S] [MonoidWithZeroHomClass F R S]
-    {φ : F} (hφ : Continuous φ) {a : R} (ha : IsTopologicallyNilpotent a) :
-    IsTopologicallyNilpotent (φ a) := sorry
-
 section
 
 variable {A : Type u} {B : Type v}

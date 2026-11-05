@@ -21,10 +21,34 @@ public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Representable.Pullback
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.Thickening
 
 /-!
-# Formal algebraic spaces
+# Formal algebraic spaces in the functor model
 
 The formal-space recognition predicates and the concrete atlas constructions
 used to describe them.
+
+The canonical source-facing owners of Stacks 0AI7 and 0AIM are, respectively,
+`AlgebraicGeometry.IsAffineFormalAlgebraicSpace` in
+`ReasLib.AlgebraicGeometry.FormalAlgebraicSpace.ChosenFppf.Affine` and
+`AlgebraicGeometry.IsFormalAlgebraicSpace` in
+`ReasLib.AlgebraicGeometry.FormalAlgebraicSpace.ChosenFppf.Basic`.
+The definition tag bridges use those chosen-site predicates, including the
+presentation condition on that same fixed site (Stacks 0AIS).
+
+This module retains the auxiliary functor model on all schemes over `S` for
+its existing callers. Its directed-colimit predicate alone imposes no
+fixed-site presentation condition and allows an empty directed index type.
+Its formal-space predicate includes a presentation on `Over S`, rather than
+on a chosen site. No comparison with the chosen-site predicates is asserted:
+using a result here in the canonical API requires a proved transport theorem,
+including compatibility of topologies, representables, atlases and size
+conditions. A categorical equivalence alone does not supply these facts.
+
+When discussing both models, use the fully qualified predicate names:
+`AlgebraicGeometry.FormalAlgebraicSpace.IsDirectedAffineThickeningColimit` and
+`AlgebraicGeometry.FormalAlgebraicSpace.IsFormalAlgebraicSpace` for this model,
+and `AlgebraicGeometry.IsDirectedAffineThickeningColimit`,
+`AlgebraicGeometry.IsAffineFormalAlgebraicSpace` and
+`AlgebraicGeometry.IsFormalAlgebraicSpace` for the canonical chosen-site model.
 -/
 
 @[expose] public section
@@ -80,7 +104,10 @@ theorem sigmaDesc_app {S : Scheme.{u}} {ι : Type u}
     (sigmaDesc π).app T p = (π p.fst).app T p.snd :=
   rfl
 
-/-- A diagram of schemes over `S` is a directed affine thickening colimit of `X`. -/
+/-- A diagram of schemes over `S` is a directed affine thickening colimit of `X`
+in the auxiliary functor model. This predicate does not include the fixed-site
+size condition of the canonical Stacks 0AI7 owner
+`AlgebraicGeometry.IsAffineFormalAlgebraicSpace`. -/
 @[mk_iff]
 class IsDirectedAffineThickeningColimit {S : Scheme.{u}} {Λ : Type v} [Preorder Λ]
     [IsDirected Λ (· ≤ ·)] (D : Λ ⥤ Over S) (X : (Over S)ᵒᵖ ⥤ Type u) : Prop where
@@ -124,7 +151,9 @@ instance instConst {S : Scheme.{u}} (U : Over S) [IsAffine U.left] :
 end IsDirectedAffineThickeningColimit
 
 /-- A sheaf of types on schemes over `S` is a formal algebraic space when it has
-an étale atlas by directed affine thickening colimits and a representable presentation. -/
+an étale atlas by directed affine thickening colimits and a representable presentation.
+This is the auxiliary functor-model predicate; the canonical Stacks 0AIM owner is
+`AlgebraicGeometry.IsFormalAlgebraicSpace` on a chosen big fppf site. -/
 @[mk_iff]
 class IsFormalAlgebraicSpace {S : Scheme.{u}} (X : (Over S)ᵒᵖ ⥤ Type u) : Prop where
   /-- `X` is a sheaf for the big fppf topology. -/

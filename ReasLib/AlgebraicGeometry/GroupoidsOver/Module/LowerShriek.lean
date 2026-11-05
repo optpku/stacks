@@ -13,6 +13,7 @@ public import Mathlib.CategoryTheory.Preadditive.Injective.Preserves
 public import Mathlib.CategoryTheory.Sites.Pullback
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.ChangeOfRings.Equivalence
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.Restriction
+public import ReasLib.Algebra.Category.ModuleCat.Presheaf.Pullback.Universe
 public import ReasLib.AlgebraicGeometry.GroupoidsOver.RingedTopos
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.LowerShriek
 public import ReasLib.CategoryTheory.Fibered.Groupoids.Hom.OneCell
@@ -20,8 +21,8 @@ public import ReasLib.CategoryTheory.Fibered.Groupoids.Hom.OneCell
 /-!
 # Module lower shriek on categories fibred in groupoids
 
-Module inverse image on associated sites has a chosen left adjoint and a canonical
-comparison with lower shriek on abelian sheaves. For faithful morphisms with source
+Module inverse image on associated sites has a left adjoint constructed from free
+presentations and a canonical comparison with lower shriek on abelian sheaves. For faithful morphisms with source
 equalizers, lower shriek is exact and inverse image preserves injective modules.
 -/
 
@@ -50,17 +51,45 @@ abbrev associatedModuleInverseImage :
     SheafOfModules.restrictScalars
       (associatedStructureSheafInverseImageIso f τ).inv
 
-/-- The module lower shriek `f_! : Mod(X_τ, O_X) ⥤ Mod(Y_τ, O_Y)`, the chosen
-left adjoint of `associatedModuleInverseImage`. -/
+/-- The module lower shriek `f_! : Mod(X_τ, O_X) ⥤ Mod(Y_τ, O_Y)`.
+Restrict scalars to the inverse-image ring, apply the free-presentation
+left adjoint on module presheaves, and sheafify. Source objects, arrows,
+and coefficients fit in the section universe `u + 1`. -/
 abbrev associatedModuleLowerShriek :
     SheafOfModules.{u + 1} (associatedStructureSheaf X τ) ⥤
-      SheafOfModules.{u + 1} (associatedStructureSheaf Y τ) :=
-  (associatedModuleInverseImage f τ).leftAdjoint
+      SheafOfModules.{u + 1} (associatedStructureSheaf Y τ) := by
+  let F := (toCartesianBasedFunctor f).toFunctor
+  let R := associatedStructureSheaf Y τ
+  letI : (PresheafOfModules.pushforward.{u + 1} (F := F)
+      (𝟙 (F.op ⋙ R.obj))).IsRightAdjoint := inferInstance
+  exact SheafOfModules.restrictScalars (associatedStructureSheafInverseImageIso f τ).hom ⋙
+    (SheafOfModules.forget (inverseImageRingSheaf F R) ⋙
+      PresheafOfModules.pullback.{u + 1} (𝟙 (F.op ⋙ R.obj)) ⋙
+      PresheafOfModules.sheafification (𝟙 R.obj))
 
 /-- The adjunction `f_! ⊣ f^*` of associated `τ`-module sheaves. -/
 def associatedModuleLowerShriek_adjunction :
-    associatedModuleLowerShriek f τ ⊣ associatedModuleInverseImage f τ :=
-  Adjunction.ofIsRightAdjoint (associatedModuleInverseImage f τ)
+    associatedModuleLowerShriek f τ ⊣ associatedModuleInverseImage f τ := by
+  let F := (toCartesianBasedFunctor f).toFunctor
+  let R := associatedStructureSheaf Y τ
+  letI : (PresheafOfModules.pushforward.{u + 1} (F := F)
+      (𝟙 (F.op ⋙ R.obj))).IsRightAdjoint := inferInstance
+  let adj := SheafOfModules.PullbackConstruction.adjunction.{u + 1}
+    (F := F) (J := X.associatedTopology τ) (K := Y.associatedTopology τ)
+    (𝟙 (inverseImageRingSheaf (J := X.associatedTopology τ) F R))
+  let adj' : SheafOfModules.restrictScalars.{u + 1}
+      (associatedStructureSheafInverseImageIso f τ).hom ⊣
+      SheafOfModules.restrictScalars.{u + 1}
+        (associatedStructureSheafInverseImageIso f τ).inv :=
+    (SheafOfModules.Restriction.equivalenceOfIso
+      (associatedStructureSheafInverseImageIso f τ).symm).toAdjunction
+  exact adj'.comp adj
+
+/-- The displayed lower shriek witnesses that associated module inverse image
+is a right adjoint in the section universe `u + 1`. -/
+instance associatedModuleInverseImage_isRightAdjoint :
+    (associatedModuleInverseImage f τ).IsRightAdjoint :=
+  (associatedModuleLowerShriek_adjunction f τ).isRightAdjoint
 
 /-- The Hom equivalence induced by the associated `τ`-module lower-shriek
 adjunction. -/

@@ -17,17 +17,11 @@ open SheafOfModules.RingedSite
 
 universe u v
 
-/- Example 31.31.2: for `ℚ[x, y]` with weights two and three, the projective closure of
-`(y ^ 2)` is `(y)`, but `(y)` is not the irrelevant-ideal saturation of `(y ^ 2)`. -/
-@[stacks 0BXK] #check (AlgebraicGeometry.WeightedProjExample.spec :
-  AlgebraicGeometry.projClosedSubschemeIdeal
-      AlgebraicGeometry.WeightedProjExample.grading
-      AlgebraicGeometry.WeightedProjExample.ideal =
-    AlgebraicGeometry.WeightedProjExample.lineIdeal ∧
-  AlgebraicGeometry.WeightedProjExample.lineIdeal.toIdeal ≠
-    AlgebraicGeometry.projSaturation
-      AlgebraicGeometry.WeightedProjExample.grading
-      AlgebraicGeometry.WeightedProjExample.ideal)
+/- Stacks 0BXK conflates two operations outside degree-one generation. Here all-degree
+ambient pullback twists recover `(y²)` and the degree-three section `y` is nonzero. The
+source's period-six computation instead describes period recovery, which gives `(y)`.
+The twists in the existing all-degree construction retain their ambient pullback meaning. -/
+@[stacks 0BXK] #check (AlgebraicGeometry.WeightedProjExample.spec)
 
 /- The degree-one formula for the ideal recovered from a homogeneous projective subscheme. -/
 #check (AlgebraicGeometry.projClosedSubschemeIdeal_eq_degreeOneSaturation :
@@ -45,13 +39,14 @@ universe u v
       AlgebraicGeometry.projClosedSubschemeIdeal 𝒜 I = I ↔
         I.toIdeal = AlgebraicGeometry.projSaturation 𝒜 I)
 
-/- The general formula applies the eventual degree-multiple condition separately to every
-homogeneous component, using the period of explicit positive homogeneous generators. -/
-#check (AlgebraicGeometry.projClosedSubschemeIdeal_eq_degreeMultipleClosure :
+/- The period/Veronese formula applies to the separately constructed period-degree
+geometric section operation, and tests every homogeneous component (including mixed inputs).
+It does not describe all-degree ambient pullback-twist recovery. -/
+#check (AlgebraicGeometry.projPeriodClosedSubschemeIdeal_eq_degreeMultipleClosure :
   ∀ {A : Type v} [CommRing A] (𝒜 : ℕ → Submodule ℤ A) [GradedAlgebra 𝒜]
     [IsNoetherianRing A] (G : GradedAlgebra.PositiveGenerators 𝒜)
       (I : HomogeneousIdeal 𝒜),
-        (AlgebraicGeometry.projClosedSubschemeIdeal 𝒜 I : Set A) =
+        (AlgebraicGeometry.projPeriodClosedSubschemeIdeal 𝒜 I G.period : Set A) =
           AlgebraicGeometry.projDegreeMultipleClosureSet 𝒜 I.toIdeal
             G.period)
 

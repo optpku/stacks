@@ -16,10 +16,12 @@ open AlgebraicGeometry.RingedSpace.ModuleDerived.Limit.Cohomology
 
 /- Lemma 20.37.11 (0BKU): let `(X, 𝒪_X)` be a ringed space, let `(K_n)` be an inverse system in
 `D(𝒪_X)`, and let `K = R lim_n K_n` be a chosen derived limit. Assume every open subset of `X`
-admits a covering by members of `ℬ`, that for every `U ∈ ℬ`, every `n`, and every `p > 0` one
-has `IsZero ((𝓗[q](X, K_n)).H' p U)`, and that for every `U ∈ ℬ` the inverse system
-`n ↦ (𝓗[q](X, K_n)).H' 0 U` has vanishing `R^1 lim`. Then the cohomology sheaf `𝓗[q](X, K)` is
-isomorphic to the inverse limit sheaf `limit (Ksys ⋙ H^q ⋙ moduleUnderlyingSheaf X)`. -/
+admits a covering by members of `ℬ`, that for every `U ∈ ℬ`, every `n`, every `r : ℤ`, and every
+`p > 0` one has `IsZero ((𝓗[r](X, K_n)).H' p U)`, and that for every `U ∈ ℬ` the inverse system
+`n ↦ (𝓗[q - 1](X, K_n)).H' 0 U` has vanishing `R^1 lim`. Then the cohomology sheaf `𝓗[q](X, K)`
+is isomorphic to the inverse limit sheaf `limit (Ksys ⋙ H^q ⋙ moduleUnderlyingSheaf X)`.
+For this fixed-`q` conclusion only the degree-`q - 1` vanishing is needed; the source assumes
+vanishing in every degree and obtains the conclusion for every `q : ℤ`. -/
 @[stacks 0BKU "basiswise derived-limit cohomology comparison"]
 #check @Comparison.isoLimitOfSheaves
 

@@ -26,8 +26,11 @@ namespace AlgebraicGeometry.SchemeOverField
 
 /-- A proper morphism of reduced Gorenstein one-dimensional schemes over a field that preserves
 the structure sheaf and has vanishing first higher direct image pulls back the target dualizing
-module isomorphically when a suitable tensor power of the source dualizing module is globally
-generated and has vanishing first cohomology. -/
+module isomorphically when a positive tensor power of the source dualizing module is globally
+generated and has vanishing first cohomology.
+
+The positivity condition corrects the unrestricted integer exponent in Stacks tag 0E7P:
+the argument using a tensor power of the comparison map requires a positive exponent. -/
 theorem curveDualizingModule_pullback_isomorphic
     {k : Type u} [Field k] (X Y : SchemeOverField k) (c : X ⟶ Y)
     [IsProper X.hom] [IsProper Y.hom] [IsReduced X.left] [IsReduced Y.left]
@@ -40,7 +43,7 @@ theorem curveDualizingModule_pullback_isomorphic
       IsZero (RingedSpace.Hom.higherDirectImageModule c.left.toShHom
         (SheafOfModules.unit X.left.ringCatSheaf) 1))
     (h_power :
-      ∃ m : ℤ,
+      ∃ m : ℤ, 0 < m ∧
         IsZero (Scheme.Hom.cohomology X.hom
           (Scheme.Modules.tensorPowerInt (curveDualizingModule X.hom) m) 1) ∧
           SheafOfModules.IsGloballyGenerated

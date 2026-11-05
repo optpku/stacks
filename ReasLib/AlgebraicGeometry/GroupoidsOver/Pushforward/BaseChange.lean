@@ -137,7 +137,15 @@ theorem moduleBaseChangeHom_toSheaf
       (moduleBaseChangeForgetIso f g τ F).hom := rfl
 
 /-- The canonical underived module base-change transformation is invertible. -/
-instance moduleBaseChangeHom_isIso : IsIso (moduleBaseChangeHom f g τ) := sorry
+instance moduleBaseChangeHom_isIso : IsIso (moduleBaseChangeHom f g τ) := by
+  haveI : ∀ F, IsIso ((moduleBaseChangeHom f g τ).app F) := by
+    intro F
+    haveI : IsIso ((SheafOfModules.toSheaf (associatedStructureSheaf Y' τ)).map
+        ((moduleBaseChangeHom f g τ).app F)) := by
+      rw [moduleBaseChangeHom_toSheaf]
+      infer_instance
+    exact isIso_of_reflects_iso _ (SheafOfModules.toSheaf (associatedStructureSheaf Y' τ))
+  exact NatIso.isIso_of_isIso_app _
 
 /-- The canonical underived module base-change isomorphism. -/
 def moduleBaseChangeIso :

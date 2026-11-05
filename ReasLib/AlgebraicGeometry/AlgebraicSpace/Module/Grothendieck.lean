@@ -69,17 +69,73 @@ def sectionFunctions {M N : X.Modules} (f : M ⟶ N) : MapCode X M N :=
 
 /-- Dense chart coverage and sheaf separation make the actual section code injective. -/
 theorem sectionFunctions_injective (M N : X.Modules) :
-    Function.Injective (sectionFunctions X (M := M) (N := N)) := sorry
+    Function.Injective (sectionFunctions X (M := M) (N := N)) := by
+  intro firstMap secondMap equality
+  let atlasInclusion := PullbackFactory.SmallAtlas.inclusion (AtlasInput.scheme X) (AtlasInput.map X)
+  letI := PullbackFactory.SmallAtlas.inclusion_coverDense
+    (AtlasInput.scheme X) (AtlasInput.map X) (AtlasInput.locallySurjective X)
+  ext chartObject sectionValue
+  apply Functor.IsCoverDense.ext atlasInclusion
+    ((sheafCompose (smallEtaleTopology X) (forget AddCommGrpCat.{u})).obj
+      ((SheafOfModules.toSheaf (structureSheaf X)).obj N)) chartObject.unop
+  intro index restrictionMap
+  have firstNaturality := CategoryTheory.congr_fun (firstMap.val.naturality restrictionMap.op) sectionValue
+  have secondNaturality := CategoryTheory.congr_fun (secondMap.val.naturality restrictionMap.op) sectionValue
+  exact firstNaturality.symm.trans
+    ((congrFun (congrFun equality index) (M.val.map restrictionMap.op sectionValue)).trans secondNaturality)
 
 /-- The actual small-atlas free generator separates maps on the full chart site. -/
-theorem generator_isSeparator : IsSeparator (generator X) := sorry
+theorem generator_isSeparator : IsSeparator (generator X) := by
+  classical
+  rw [isSeparator_def]
+  intro sourceModule targetModule firstMap secondMap equality
+  apply sectionFunctions_injective X sourceModule targetModule
+  funext index sectionValue
+  let freeMap := (representedHomEquiv X index sourceModule.val).symm sectionValue
+  let generatorMap := Sigma.desc (fun otherIndex ↦
+    if indexEquality : otherIndex = index then
+      eqToHom (congrArg (freeRepresentable X) indexEquality) ≫ freeMap else 0)
+  let sheafificationAdj := PresheafOfModules.sheafificationAdjunction.{u} (𝟙 (structureSheaf X).obj)
+  have mappedEquality := congrArg (sheafificationAdj.homEquiv _ targetModule)
+    (equality ((sheafificationAdj.homEquiv _ sourceModule).symm generatorMap))
+  have firstNaturality := sheafificationAdj.homEquiv_naturality_right
+    ((sheafificationAdj.homEquiv _ sourceModule).symm generatorMap) firstMap
+  have secondNaturality := sheafificationAdj.homEquiv_naturality_right
+    ((sheafificationAdj.homEquiv _ sourceModule).symm generatorMap) secondMap
+  have presheafEquality := firstNaturality.symm.trans (mappedEquality.trans secondNaturality)
+  rw [(sheafificationAdj.homEquiv _ sourceModule).apply_symm_apply generatorMap]
+    at presheafEquality
+  have componentEquality := congrArg (fun moduleMap ↦ Sigma.ι (freeRepresentable X) index ≫ moduleMap)
+    presheafEquality
+  dsimp only [generatorMap] at componentEquality
+  erw [Sigma.ι_desc_assoc, Sigma.ι_desc_assoc] at componentEquality
+  simp only [dif_pos rfl, eqToHom_refl, Category.id_comp] at componentEquality
+  change freeMap ≫ firstMap.val = freeMap ≫ secondMap.val at componentEquality
+  have valueEquality := congrArg (representedHomEquiv X index targetModule.val) componentEquality
+  change PresheafOfModules.freeYonedaEquiv (freeMap ≫ firstMap.val) =
+    PresheafOfModules.freeYonedaEquiv (freeMap ≫ secondMap.val) at valueEquality
+  rw [PresheafOfModules.freeYonedaEquiv_comp, PresheafOfModules.freeYonedaEquiv_comp] at valueEquality
+  have freeValue : PresheafOfModules.freeYonedaEquiv freeMap = sectionValue :=
+    (representedHomEquiv X index sourceModule.val).apply_symm_apply sectionValue
+  rw [freeValue] at valueEquality
+  exact valueEquality
 
 /-- Original module morphisms are small through their specified injective section encoding. -/
 theorem locallySmall : LocallySmall.{u} X.Modules where
   hom_small M N := small_of_injective (sectionFunctions_injective X M N)
 
 /-- Filtered sheaf colimits are exact in the original module universe. -/
-theorem ab5 : AB5OfSize.{u, u} X.Modules := sorry
+theorem ab5 : AB5OfSize.{u, u} X.Modules := by
+  letI : (PresheafOfModules.toPresheaf (structureSheaf X).obj).ReflectsIsomorphisms :=
+    reflectsIsomorphisms_of_reflectsMonomorphisms_of_reflectsEpimorphisms _
+  letI : ReflectsFiniteLimits (PresheafOfModules.toPresheaf (structureSheaf X).obj) :=
+    reflectsFiniteLimits_of_reflectsIsomorphisms _
+  letI : AB5OfSize.{u, u} (PresheafOfModules.{u} (structureSheaf X).obj) :=
+    ⟨fun diagramShape _ _ ↦ HasExactColimitsOfShape.domain_of_functor diagramShape
+      (PresheafOfModules.toPresheaf (structureSheaf X).obj)⟩
+  exact ⟨fun diagramShape _ _ ↦
+    (PresheafOfModules.sheafificationAdjunction.{u} (𝟙 (structureSheaf X).obj)).hasExactColimitsOfShape
+      diagramShape⟩
 
 end AlgebraicGeometry.AlgebraicSpace.Modules.AtlasGenerator
 

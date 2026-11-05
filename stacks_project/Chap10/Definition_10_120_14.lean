@@ -22,10 +22,9 @@ universe u
 variable (R : Type u) [CommRing R]
 
 /- Definition 10.120.14 (Stacks `034W`): the source's unique prime-ideal factorization
-formulation is the reusable `IsDedekindDomainByFactorization` owner.  Its two clauses are
-`IsDomain R` and `Ideal.HasUniquePrimeFactorization R`. -/
+formulation is a proved characterization of Mathlib's canonical `IsDedekindDomain` owner. -/
 @[stacks 034W]
-#check (IsDedekindDomainByFactorization R : Prop)
+#check (IsDedekindDomain R : Prop)
 
 @[stacks 034W "prime ideal factorization"]
 #check @Ideal.IsPrimeFactorization
@@ -34,4 +33,5 @@ formulation is the reusable `IsDedekindDomainByFactorization` owner.  Its two cl
 @[stacks 034W "Dedekind factorization owner"]
 #check @IsDedekindDomain.hasUniquePrimeFactorization
 @[stacks 034W "factorization characterization"]
-#check @isDedekindDomain_iff_isDedekindDomainByFactorization
+#check (isDedekindDomain_iff_hasUniquePrimeFactorization R :
+  IsDedekindDomain R ↔ IsDomain R ∧ Ideal.HasUniquePrimeFactorization R)

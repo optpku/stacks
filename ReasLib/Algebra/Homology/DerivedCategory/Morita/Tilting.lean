@@ -25,7 +25,7 @@ constituent conditions can be reused separately.
 
 noncomputable section
 
-universe uR uA uB
+universe uR uA uB v
 
 open CategoryTheory
 open CategoryTheory.Pretriangulated
@@ -119,14 +119,16 @@ theorem IsTiltingFor.nonempty_endEquiv
     Nonempty (End P ≃ₐ[R] A) := sorry
 
 /-- Lemma 22.37.8 (1) (09SC): the derived categories of two `R`-algebras are `R`-linearly
-triangulated-equivalent exactly when the target contains a tilting object for the source. -/
+triangulated-equivalent exactly when the target contains a tilting object for the source.
+Both module categories and the tilting object use the common universe `max uA uB v`. -/
 @[stacks 09SC]
 theorem nonempty_equivalence_iff_exists_tilting
     {A : Type uA} [Ring A] [Algebra R A]
     {B : Type uB} [Ring B] [Algebra R B] :
     Nonempty (RLinear.TriangulatedEquivalence R
-      (DerivedCategory (ModuleCat (Aᵐᵒᵖ)))
-      (DerivedCategory (ModuleCat (Bᵐᵒᵖ)))) ↔
-      ∃ P : DerivedCategory (ModuleCat (Bᵐᵒᵖ)), IsTiltingFor R A P := sorry
+      (DerivedCategory (ModuleCat.{max uA uB v} (Aᵐᵒᵖ)))
+      (DerivedCategory (ModuleCat.{max uA uB v} (Bᵐᵒᵖ)))) ↔
+      ∃ P : DerivedCategory (ModuleCat.{max uA uB v} (Bᵐᵒᵖ)),
+        IsTiltingFor R A P := sorry
 
 end DerivedCategory.Morita

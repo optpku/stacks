@@ -30,11 +30,30 @@ namespace RingedSite.Hom
 theorem moduleGlobalSectionsAdditiveFunctor_additive (X : RingedSite.{u, v, w})
     [HasWeakSheafify X.siteTopology AddCommGrpCat.{z}]
     [HasGlobalSectionsFunctor X.siteTopology AddCommGrpCat.{z}] :
-    (moduleGlobalSectionsAdditiveFunctor.{z} X).Additive := sorry
+    (moduleGlobalSectionsAdditiveFunctor.{z} X).Additive := by
+  letI : (Sheaf.Γ X.siteTopology AddCommGrpCat.{z}).Additive :=
+    Functor.additive_of_preserves_binary_products _
+  infer_instance
 
 /-- The module-valued global-sections functor on a ringed site is additive. -/
 @[instance] theorem moduleGlobalSectionsFunctor_additive (X : RingedSite.{u, v, w})
     [UnivLE.{u, w}] [UnivLE.{u, z}] :
-    (moduleGlobalSectionsFunctor.{z} X).Additive := sorry
+    (moduleGlobalSectionsFunctor.{z} X).Additive := by
+  letI := moduleGlobalSectionsHasLimitsOfShape.{z} X
+  letI : (moduleGlobalSectionsDiagramFunctor.{z} X).Additive := by
+    constructor
+    intro ℱ 𝒢 f g
+    ext U x
+    rfl
+  unfold moduleGlobalSectionsFunctor
+  constructor
+  intro ℱ 𝒢 f g
+  apply Limits.limit.hom_ext
+  intro U
+  change Limits.limMap _ ≫ _ = (Limits.limMap _ + Limits.limMap _) ≫ _
+  erw [Preadditive.add_comp]
+  simp only [Limits.limMap_π]
+  ext x
+  rfl
 
 end RingedSite.Hom

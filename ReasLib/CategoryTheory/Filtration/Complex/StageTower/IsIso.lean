@@ -37,8 +37,4 @@ noncomputable instance map_app_isIso (f : K ⟶ L) (i : ℤᵒᵖ) [IsIso f] :
 @[stacks 012L "isomorphism of integer filtration-stage tower maps"]
 noncomputable instance map_isIso (f : K ⟶ L) [IsIso f] : IsIso (map f) := sorry
 
-variable (f : K ⟶ L) [IsIso f]
-#synth IsIso ((map f).app (Opposite.op 0))
-#synth IsIso (map f)
-
 end CategoryTheory.FilteredComplex.StageTower

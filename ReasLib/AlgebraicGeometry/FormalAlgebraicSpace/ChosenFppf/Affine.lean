@@ -17,6 +17,17 @@ public import ReasLib.AlgebraicGeometry.Scheme.Morphism.Thickening
 Affine formal algebraic spaces are represented by directed systems of affine
 objects with thickening transitions and satisfy the fixed-site presentation
 condition.
+
+`AlgebraicGeometry.IsAffineFormalAlgebraicSpace` in this module is the
+canonical source-facing owner of Stacks 0AI7. Both
+`stacks_project/Chap87/Definition_87_9_1.lean` and its `_Affine` compatibility
+bridge use this API. The fixed-site presentation condition is the one in
+Stacks 0AIS; the directed-colimit predicate alone is only one part of 0AI7.
+
+The predicates in `AlgebraicGeometry.FormalAlgebraicSpace` on presheaves over
+`Over S` form a separate auxiliary model. There is no implicit identification
+or proved comparison with that model. Use fully qualified names when both
+models are in scope, and use this chosen-site API for source-facing statements.
 -/
 
 @[expose] public section
@@ -63,7 +74,8 @@ theorem IsDirectedAffineThickeningColimit_iff
                 (𝒮.bigTopology S).sheafifiedRepresentableFunctor)),
             Nonempty (IsColimit c) ∧ Nonempty (X ≅ c.pt) := sorry
 
-/-- A sheaf on the chosen big fppf site is an affine formal algebraic space if
+/-- The canonical Stacks 0AI7 predicate: a sheaf on the chosen big fppf site is
+an affine formal algebraic space if
 it is a directed affine thickening colimit satisfying the fixed-site
 presentation condition. -/
 class IsAffineFormalAlgebraicSpace

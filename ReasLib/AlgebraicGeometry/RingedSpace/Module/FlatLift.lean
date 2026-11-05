@@ -36,12 +36,14 @@ variable {X X' : RingedSpace.{u}} (i : X ⟶ X') [IsFirstOrderThickening i] (F :
 
 /-- The identity infinitesimal comparison `c = 1`, as the pushforward-level map
 `ℐ ⊗ i_* F ⟶ i_* (ℐ ⊗ F)` whose restriction is `𝟙 (ℐ ⊗ F)`. -/
-def infMapId : kernelIdealSheaf i ⊗ (i _*).obj F ⟶ (i _*).obj (idealModule i ⊗ F) :=
+def infMapId {X X' : RingedSpace.{u}} (i : X ⟶ X') [IsFirstOrderThickening i]
+    (F : X.Modules) :
+    kernelIdealSheaf i ⊗ (i _*).obj F ⟶ (i _*).obj (idealModule i ⊗ F) :=
   (pullbackPushforwardAdjunction i).homEquiv
     (kernelIdealSheaf i ⊗ (i _*).obj F) (idealModule i ⊗ F)
     ((Functor.Monoidal.μIso (pullback i) (kernelIdealSheaf i) ((i _*).obj F)).inv ≫
       tensorHom (𝟙 (idealModule i))
-        (asIso ((pullbackPushforwardAdjunction i).counit.app F)).hom)
+        ((pullbackPushforwardAdjunction i).counit.app F))
 
 /-- Restricting `infMapId` recovers `𝟙 (ℐ ⊗ F)`. -/
 theorem infMapId_restrict :

@@ -44,17 +44,27 @@ namespace InjectiveResolution
 
 variable {Y : CochainComplex 𝒜 ℤ}
 
+omit [HasDerivedCategory 𝒜] in
+/-- The injective model supplies both the lower bound and the termwise injectivity needed
+for Mathlib's K-injectivity criterion. -/
+theorem isKInjective_of_model (I : InjectiveResolution Y) : IsKInjective I.complex := by
+  obtain ⟨a, ha⟩ := I.model.obj.property
+  exact @isKInjective_of_injective 𝒜 _ _ I.complex a ha
+    (fun n ↦ I.model.property n)
+
 /-- The localization isomorphism induced by shifting the comparison map of an injective
 resolution. -/
 @[stacks 06XR]
 noncomputable def shiftedComparisonIso (I : InjectiveResolution Y) (i : ℤ) :
-    Q.obj (Y⟦i⟧) ≅ Q.obj (I.complex⟦i⟧) :=
-  asIso (Q.map (I.ι⟦i⟧'))
+    Q.obj (Y⟦i⟧) ≅ Q.obj (I.complex⟦i⟧) := by
+  -- Use the quasi-isomorphism certificate stored in the resolution itself.
+  letI : QuasiIso I.ι := I.hw
+  exact asIso (Q.map (I.ι⟦i⟧'))
 
 /-- The forward map of `shiftedComparisonIso` is the localized shifted comparison map. -/
 @[simp, stacks 06XR]
 theorem shiftedComparisonIso_hom (I : InjectiveResolution Y) (i : ℤ) :
-    (shiftedComparisonIso I i).hom = Q.map (I.ι⟦i⟧') := sorry
+    (shiftedComparisonIso I i).hom = Q.map (I.ι⟦i⟧') := rfl
 
 /-- Stacks 06XR: an injective resolution computes the derived extension group from `X` to `Y` by
 shifted Hom groups in the homotopy category. -/
@@ -70,7 +80,8 @@ noncomputable def extAddEquiv (I : InjectiveResolution Y) (X : CochainComplex �
   let hQhBijective :
       Function.Bijective
         (Qh.map : ((KQ).obj X ⟶ (KQ).obj (I⟦i⟧)) → _) :=
-    IsKInjective.Qh_map_bijective ((KQ).obj X) (I⟦i⟧)
+    @IsKInjective.Qh_map_bijective 𝒜 _ _ _ ((KQ).obj X) (I.complex⟦i⟧)
+      ((isKInjective_shift_iff I.complex i).2 (isKInjective_of_model I))
   let e₃ :
       (Q.obj X ⟶ Q.obj (I⟦i⟧)) ≃+ ((KQ).obj X ⟶ (KQ).obj (I⟦i⟧)) :=
     (AddEquiv.ofBijective

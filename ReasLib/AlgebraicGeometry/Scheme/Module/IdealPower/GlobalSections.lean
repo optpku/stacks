@@ -73,11 +73,42 @@ noncomputable def idealSheafPowerHomDiagram
     (I : X.IdealSheafData) (ℱ : X.Modules) : ℕ ⥤ AddCommGrpCat.{u} :=
   Functor.ofSequence (idealSheafPowerHomTransition I ℱ)
 
+set_option maxHeartbeats 800000 in
 /-- On the complement of the support, the inclusion of every ideal power into the structure
 sheaf is an isomorphism on sections. -/
 noncomputable instance idealSheafPowerSubobject_arrow_app_isIso
     (I : X.IdealSheafData) (n : ℕ) :
-    IsIso ((idealSheafPowerSubobject I n).arrow.val.app (op I.openComplement)) := sorry
+    IsIso ((idealSheafPowerSubobject I n).arrow.val.app (op I.openComplement)) := by
+  let i := (I ^ n).subschemeι
+  let π := RingedSpace.Hom.commRingSheafPushforwardMap i.toShHom
+  let f := SheafOfModules.RingedSite.KernelIdeal.map π
+  let E := SheafOfModules.evaluation X.ringCatSheaf (op I.openComplement)
+  have hU : (TopologicalSpace.Opens.map i.base).obj I.openComplement = ⊥ := by
+    ext x
+    change (i x ∉ I.support) ↔ False
+    have hx : i x ∈ (I ^ n).support := by
+      exact ((Set.ext_iff.mp (I ^ n).range_subschemeι) (i x)).mp ⟨x, rfl⟩
+    have hs : (I ^ n).support ≤ I.support := by
+      cases n <;> simp
+    have hx' : i x ∈ I.support := hs hx
+    simp [hx']
+  have hf : E.map f = 0 := by
+    change f.val.app (op I.openComplement) = 0
+    apply ModuleCat.hom_ext
+    apply LinearMap.ext
+    intro x
+    change (π.hom.app (op I.openComplement)) x = 0
+    haveI : Subsingleton ((I ^ n).subscheme.presheaf.obj
+        (op ((TopologicalSpace.Opens.map i.base).obj I.openComplement))) := by
+      rw [hU]
+      infer_instance
+    exact @Subsingleton.elim ((I ^ n).subscheme.presheaf.obj
+      (op ((TopologicalSpace.Opens.map i.base).obj I.openComplement))) inferInstance _ _
+  haveI : IsIso (E.map (kernel.ι f)) :=
+    KernelFork.IsLimit.isIso_ι _ (isLimitOfHasKernelOfPreservesLimit E f) hf
+  change IsIso (E.map (kernelSubobject f).arrow)
+  rw [← kernelSubobject_arrow, E.map_comp]
+  infer_instance
 
 /-- Evaluation of a morphism `I^n ⟶ ℱ` at the canonical unit section on the complement. -/
 noncomputable def idealSheafPowerHomToComplementSectionsStageMap

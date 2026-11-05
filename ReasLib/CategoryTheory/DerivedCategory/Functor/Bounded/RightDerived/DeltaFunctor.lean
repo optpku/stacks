@@ -6,7 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import ReasLib.CategoryTheory.DerivedCategory.Functor.Bounded.RightDerived.Comparison
+public import ReasLib.CategoryTheory.DerivedCategory.Functor.Bounded.RightDerived.Properties
 public import ReasLib.CategoryTheory.Pretriangulated.DeltaFunctor.Cohomological.Naturality
 public import ReasLib.CategoryTheory.Pretriangulated.DeltaFunctor.Composition
 public import ReasLib.CategoryTheory.Pretriangulated.DeltaFunctor.Transport
@@ -106,12 +106,30 @@ noncomputable def RightDerived.delta :
   ((DerivedCategory.Plus.singleFunctor.delta 𝒜).postcomposeExactFunctor
     RF).postcomposeExactFunctor (DerivedCategory.Plus.ι : DerivedCategory.Plus ℬ ⥤ DerivedCategory ℬ)
 
+/-- A structural specialization for an exact functor whose degree-zero
+images lie in the nonnegative part of the canonical t-structure. This API
+is separate from the actual right-derived-model construction below. -/
+noncomputable def RightDerived.cohomologicalOfNonnegative
+    (h : ∀ X : 𝒜, (RF.obj ((DerivedCategory.Plus.singleFunctor 𝒜 0).obj X)).IsGE 0) :
+    CohomologicalDeltaFunctor 𝒜 ℬ :=
+  DeltaFunctor.toCohomologicalDeltaFunctor
+    (RightDerived.delta RF) (DerivedCategory.homologyFunctor ℬ 0) (fun X ↦ by
+      letI := h X
+      change IsZero ((DerivedCategory.Plus.homologyFunctor ℬ (-1)).obj
+        (RF.obj ((DerivedCategory.Plus.singleFunctor 𝒜 0).obj X)))
+      exact DerivedCategory.Plus.isZero_homology_of_isGE _ 0 (-1) (by decide))
+
 /-- The degree `-1` homology of the bounded-below right-derived delta functor
 vanishes on degree-zero objects. -/
 @[stacks 05TE]
-theorem RightDerived.delta_hneg (X : 𝒜) :
+theorem RightDerived.delta_hneg
+    (F : 𝒜 ⥤ ℬ) [F.Additive]
+    (α : F.toBoundedBelowDerived ⟶ DerivedCategory.Plus.Qh ⋙ RF)
+    [RF.IsRightDerivedFunctor α (HomotopyCategory.Plus.quasiIso 𝒜)] (X : 𝒜) :
     IsZero (((DerivedCategory.homologyFunctor ℬ 0).shift (-1)).obj
-      ((RightDerived.delta RF).toFunctor.obj X)) := sorry
+      ((RightDerived.delta RF).toFunctor.obj X)) := by
+  change IsZero ((RightDerived.degree RF (-1)).obj X)
+  exact (RightDerived.degree.isZero_of_neg F RF α (-1) (by decide)).obj X
 
 end
 
@@ -126,6 +144,10 @@ variable {𝒜 : Type u₁} {ℬ : Type u₂}
   (RF : DerivedCategory.Plus 𝒜 ⥤ DerivedCategory.Plus ℬ)
   [RF.CommShift ℤ] [RF.IsTriangulated]
 
+variable (F : 𝒜 ⥤ ℬ) [F.Additive]
+  (α : F.toBoundedBelowDerived ⟶ DerivedCategory.Plus.Qh ⋙ RF)
+  [RF.IsRightDerivedFunctor α (HomotopyCategory.Plus.quasiIso 𝒜)]
+
 /-- Stacks 05TE: the cohomological delta functor formed by the bounded-below
 right derived functors of `RF`. -/
 @[stacks 05TE]
@@ -134,15 +156,45 @@ noncomputable def Functor.RightDerived.cohomological :
   DeltaFunctor.toCohomologicalDeltaFunctor
     (Functor.RightDerived.delta RF)
     (DerivedCategory.homologyFunctor ℬ 0)
-    (Functor.RightDerived.delta_hneg RF)
+    (Functor.RightDerived.delta_hneg RF F α)
 
 /-- The degree-`n` component of `Functor.RightDerived.cohomological RF` is
 the corresponding bounded-below right derived functor. -/
 @[simp, stacks 05TE]
 theorem Functor.RightDerived.cohomological_obj (n : ℕ) :
-    ((Functor.RightDerived.cohomological RF).F n).obj =
-      Functor.RightDerived.degree RF n := sorry
+    ((Functor.RightDerived.cohomological RF F α).F n).obj =
+      Functor.RightDerived.degree RF n := rfl
 
 end
+
+namespace Functor.RightDerived.Bounded
+
+variable {𝒜 : Type u₁} {ℬ : Type u₂}
+  [Category.{v₁} 𝒜] [Category.{v₂} ℬ]
+  [Abelian 𝒜] [Abelian ℬ]
+  [HasDerivedCategory.{w} 𝒜] [HasDerivedCategory.{w} ℬ]
+  (F : 𝒜 ⥤ ℬ) [F.Additive]
+
+/-- Stacks 05TE (1) for an additive functor with an everywhere defined
+canonical right-derived functor. No left exactness of `F` is required. -/
+@[stacks 05TE]
+noncomputable abbrev cohomological
+    [F.toBoundedBelowDerived.HasRightDerivedFunctor
+      (HomotopyCategory.Plus.quasiIso 𝒜)]
+    [(functor F).CommShift ℤ] [(functor F).IsTriangulated] :
+    CohomologicalDeltaFunctor 𝒜 ℬ :=
+  RightDerived.cohomological (functor F) F (unit F)
+
+/-- The source-facing 05TE specialization: an additive functor whose
+right-derived functor is everywhere defined has a canonical cohomological
+delta functor. Shift and triangle structure come from total derivation. -/
+@[stacks 05TE "everywhere-defined additive source specialization"]
+noncomputable abbrev cohomologicalOfEverywhereDefined
+    [Functor.RightDerived.EverywhereDefined F.toBoundedBelowDerived
+      (HomotopyCategory.Plus.quasiIso 𝒜)] :
+    CohomologicalDeltaFunctor 𝒜 ℬ :=
+  cohomological F
+
+end Functor.RightDerived.Bounded
 
 end CategoryTheory

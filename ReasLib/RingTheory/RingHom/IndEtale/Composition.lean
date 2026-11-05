@@ -18,7 +18,7 @@ This leaf owns both ordinary composition and the comparison map between two
 ind-etale algebras over a common base.
 -/
 
-universe u v w uA uB uC
+universe u v w uA uB
 
 namespace RingHom
 
@@ -29,12 +29,14 @@ section
 variable {A : Type u} {B : Type v} {C : Type w}
 variable [CommRing A] [CommRing B] [CommRing C]
 
-/-- Composition of arbitrary-size ind-etale presentations. -/
+/-- Composition of arbitrary-size ind-etale presentations. The input index
+universes are independent of the ring universes. Finite-presentation descent
+and flattening give an index universe bounded by their maximum. -/
 theorem comp
     (f : A →+* B) (g : B →+* C)
-    (hf : RingHom.IndEtale.Raw.{u, v, w} f)
-    (hg : RingHom.IndEtale.Raw.{v, w, u} g) :
-    RingHom.IndEtale.Raw.{u, w, v} (g.comp f) := sorry
+    (hf : RingHom.IndEtale.Raw.{u, v, uA} f)
+    (hg : RingHom.IndEtale.Raw.{v, w, uB} g) :
+    RingHom.IndEtale.Raw.{u, w, max uA uB} (g.comp f) := sorry
 
 end
 
@@ -102,10 +104,10 @@ variable {R A B : Type u} [CommRing R] [CommRing A] [CommRing B]
 variable [Algebra R A] [Algebra R B]
 
 /-- An arbitrary-size ind-etale presentation transports along an algebra
-equivalence of targets. -/
+equivalence of targets, keeping the same index universe. -/
 theorem mapAlgEquiv (e : A ≃ₐ[R] B)
-    (hA : RingHom.IndEtale.Raw (algebraMap R A)) :
-    RingHom.IndEtale.Raw (algebraMap R B) := sorry
+    (hA : RingHom.IndEtale.Raw.{u, u, uA} (algebraMap R A)) :
+    RingHom.IndEtale.Raw.{u, u, uA} (algebraMap R B) := sorry
 
 end
 
@@ -120,11 +122,13 @@ variable [CommRing R] [CommRing A] [CommRing B]
 variable [Algebra R A] [Algebra R B] [Algebra A B] [IsScalarTower R A B]
 
 /-- An arbitrary-size ind-etale presentation descends to the comparison map
-between two ind-etale algebras over a common base. -/
+between two ind-etale algebras over a common base. Choosing finite-stage
+factorizations and their compatibility refinements bounds the index universe
+by the maximum of the two input index universes. -/
 theorem of_over_common_base
     (hA : RingHom.IndEtale.Raw.{u, v, uA} (algebraMap R A))
     (hB : RingHom.IndEtale.Raw.{u, w, uB} (algebraMap R B)) :
-    RingHom.IndEtale.Raw.{v, w, uC} (algebraMap A B) := sorry
+    RingHom.IndEtale.Raw.{v, w, max uA uB} (algebraMap A B) := sorry
 
 end
 

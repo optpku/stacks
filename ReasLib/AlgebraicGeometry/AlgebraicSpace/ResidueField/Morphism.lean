@@ -45,7 +45,11 @@ theorem residueFieldMap_spec {S : Scheme.{u}} {X Y : AlgebraicSpace S}
     residueFieldMap f x =
       (Scheme.ΓSpecIso (Y.residueField (Points.map f x))).inv ≫
         φ.schemeHom.appTop ≫ (Scheme.ΓSpecIso (X.residueField x)).hom :=
-  sorry
+  by
+    have h := (subsingleton_residuePointFactor f x).elim
+      (Classical.choice (exists_residuePointFactor f x)) φ
+    dsimp only [residueFieldMap]
+    rw [h]
 
 /-- The residue-field morphism induced by a point of `f` over `y`. -/
 def PointsOver.residueFieldMap {S : Scheme.{u}} {X Y : AlgebraicSpace S}

@@ -76,7 +76,9 @@ def quotientInclusion (K L : Submodule R M) (hKL : K ≤ L) :
 /-- The identity of `M` carries `K` into `L` when `K ≤ L`. -/
 @[stacks 0FJD "identity map respects nested submodules"]
 theorem le_comap_id (K L : Submodule R M) (hKL : K ≤ L) :
-    K ≤ L.comap (LinearMap.id : M →ₗ[R] M) := sorry
+    K ≤ L.comap (LinearMap.id : M →ₗ[R] M) := by
+  intro m hm
+  exact hKL hm
 -- Proof strategy: intro an element of `K`, simplify membership in the identity comap, and apply
 -- `hKL`.
 
@@ -97,7 +99,7 @@ theorem quotientInclusion_mkQ (K L : Submodule R M) (hKL : K ≤ L) (x : L) :
 `M`. -/
 @[simp, stacks 0FJD "quotient-row projection on representatives"]
 theorem quotientProjection_mkQ (K L : Submodule R M) (hKL : K ≤ L) (x : M) :
-    quotientProjection K L hKL (K.mkQ x) = L.mkQ x := sorry
+    quotientProjection K L hKL (K.mkQ x) = L.mkQ x := rfl
 -- Proof strategy: unfold `quotientProjection`, apply the computation rule for `Submodule.mapQ`,
 -- and simplify `LinearMap.id_apply`.
 
@@ -112,7 +114,10 @@ theorem quotientInclusion_injective (K L : Submodule R M) (hKL : K ≤ L) :
 /-- The canonical map `M / K → M / L` is surjective. -/
 @[stacks 0FJD "surjectivity of the quotient-row projection"]
 theorem quotientProjection_surjective (K L : Submodule R M) (hKL : K ≤ L) :
-    Function.Surjective (quotientProjection K L hKL) := sorry
+    Function.Surjective (quotientProjection K L hKL) := by
+  intro y
+  obtain ⟨x, rfl⟩ := L.mkQ_surjective y
+  exact ⟨K.mkQ x, rfl⟩
 -- Proof strategy: lift a target class with `L.mkQ_surjective`, represent it by `x : M`, and use
 -- `quotientProjection_mkQ` on the class `K.mkQ x`.
 

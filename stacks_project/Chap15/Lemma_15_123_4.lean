@@ -33,6 +33,7 @@ open CategoryTheory
 #check @PerfectDerived.TorNegOneZero.Determinant.line
 #check @PerfectDerived.TorNegOneZero.Determinant.rankZero_iff
 #check @PerfectDerived.TorNegOneZero.Determinant.map_canonicalElement
+#check @PerfectDerived.TorNegOneZero.Determinant.representativeIso_naturality
 #check @PerfectDerived.TorNegOneZero.Determinant.representativeIso_hom_canonicalElement
 
 #print axioms PerfectDerived.TorNegOneZero.Determinant

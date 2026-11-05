@@ -175,25 +175,24 @@ theorem kernelIdealRestrictToPresheaf_smul (U : Cᵒᵖ)
     (r : (ringSheaf J 𝒪).obj.obj U)
     (m : ((sameSiteHom π).modulePushforward.{w}.obj (kernelIdeal0 π h_sq)).val.obj U) :
     (kernelIdealRestrictToPresheaf π h_sq).app U (r • m) =
-      r • (kernelIdealRestrictToPresheaf π h_sq).app U m := sorry
+      r • (kernelIdealRestrictToPresheaf π h_sq).app U m :=
+  h_sq.targetModuleRestrictHom_smul inferInstance U r m
 
 /-- The inverse underlying additive comparison is linear over `𝒪`. -/
 theorem kernelIdealRestrictInvToPresheaf_smul (U : Cᵒᵖ)
     (r : (ringSheaf J 𝒪).obj.obj U)
     (m : (KernelIdeal.sheaf π).val.obj U) :
     (kernelIdealRestrictInvToPresheaf π h_sq).app U (r • m) =
-      r • (kernelIdealRestrictInvToPresheaf π h_sq).app U m := sorry
+      r • (kernelIdealRestrictInvToPresheaf π h_sq).app U m :=
+  h_sq.targetModuleRestrictInv_smul inferInstance U r m
 
 /-- Restriction of scalars of the square-zero kernel module recovers the kernel ideal sheaf. -/
 noncomputable def kernelIdealRestrictIso :
     (sameSiteHom π).modulePushforward.{w}.obj (kernelIdeal0 π h_sq) ≅
-      KernelIdeal.sheaf π where
-  hom := ⟨PresheafOfModules.homMk
-    (kernelIdealRestrictToPresheaf π h_sq) (kernelIdealRestrictToPresheaf_smul π h_sq)⟩
-  inv := ⟨PresheafOfModules.homMk
-    (kernelIdealRestrictInvToPresheaf π h_sq) (kernelIdealRestrictInvToPresheaf_smul π h_sq)⟩
-  hom_inv_id := sorry
-  inv_hom_id := sorry
+      KernelIdeal.sheaf π :=
+  (SheafOfModules.ChangeOfRings.pushforwardIso (ringSheafMap π)).app
+      (kernelIdeal0 π h_sq) ≪≫
+    h_sq.targetModuleRestrictIso inferInstance
 
 /-- The degree-zero single of `kernelIdealRestrictIso`. -/
 noncomputable def kernelSheafSingleIso :

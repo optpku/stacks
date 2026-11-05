@@ -51,22 +51,67 @@ theorem rank_of_inclusion (r : ℕ) (x : Points (rankOpenSubspace E r).X) :
   rw [rankOpenSubspace_pointsSet] at hx
   exact hx
 
-/-- Every point lifts to the rank locus indexed by its fiber rank. -/
-theorem exists_rank_lift (x : Points X) :
-    ∃ y : Points (rankOpenSubspace E (fiberFinrank E x)).X,
-      Points.map (rankOpenSubspace E (fiberFinrank E x)).ι y = x := by
-  change x ∈ (rankOpenSubspace E (fiberFinrank E x)).pointsSet
-  rw [rankOpenSubspace_pointsSet]
-  exact (mem_rankClopen E _ _).mpr rfl
+/-- The field-valued representative of a point is a section of its actual rank open.
+Every point of its source field spectrum has the same image in the ambient space. -/
+theorem rankLift_mem (x : Points X) :
+    (Quotient.out x).elem ∈
+      (OpenSubspace.Construction.subfunctor X
+        (rankClopen E (fiberFinrank E x)).toOpens).obj
+          (Opposite.op (Quotient.out x).overObj) := by
+  let p := Quotient.out x
+  change Set.range (Points.map (X := ofOver p.overObj) (Y := X) (yonedaEquiv.symm p.elem)) ⊆
+    {z | fiberFinrank E z = fiberFinrank E x}
+  rw [show yonedaEquiv.symm p.elem = p.hom from yonedaEquiv.symm_apply_apply p.hom]
+  rintro _ ⟨q, rfl⟩
+  have hmap : Points.map p.hom q = x := by
+    induction q using Quotient.inductionOn with
+    | h q =>
+      change Points.mk (q.map p.hom) = x
+      have hqp : Points.mk (q.map p.hom) = Points.mk p := by
+        apply Quotient.sound
+        refine ⟨⟨q.map p.hom, FieldValuedPoint.Factorization.refl _, ?_⟩⟩
+        let a : q.overObj ⟶ p.overObj := Yoneda.fullyFaithful.preimage q.hom
+        refine ⟨a.left, Over.w a, ?_⟩
+        change yoneda.map (Over.homMk a.left (Over.w a)) ≫ p.hom = q.hom ≫ p.hom
+        have ha : Over.homMk a.left (Over.w a) = a := by ext; rfl
+        rw [ha]
+        exact congrArg (fun b : yoneda.obj q.overObj ⟶ yoneda.obj p.overObj ↦
+          b ≫ (p.hom : yoneda.obj p.overObj ⟶ X.functorOfPoints))
+            (Yoneda.fullyFaithful.map_preimage q.hom)
+      exact hqp.trans (Quotient.out_eq x)
+  change fiberFinrank E (Points.map p.hom q) = fiberFinrank E x
+  rw [hmap]
 
-/-- Choose a preimage of the specified point under its actual rank inclusion. -/
+/-- Lift the same field-valued representative by inserting its section into the
+rank-open subfunctor; no preimage is selected from an admitted existence theorem. -/
 def rankLift (x : Points X) : Points (rankOpenSubspace E (fiberFinrank E x)).X :=
-  Classical.choose (exists_rank_lift E x)
+  let p := Quotient.out x
+  Points.mk (FieldValuedPoint.of p.K p.structureHom
+    (yonedaEquiv.symm (⟨p.elem, rankLift_mem E x⟩ :
+      (rankOpenSubspace E (fiberFinrank E x)).X.functorOfPoints.obj (Opposite.op p.overObj))))
 
 /-- The lift to the point's rank locus maps back to that point. -/
 @[simp] theorem rankLift_spec (x : Points X) :
-    Points.map (rankOpenSubspace E (fiberFinrank E x)).ι (rankLift E x) = x :=
-  Classical.choose_spec (exists_rank_lift E x)
+    Points.map (rankOpenSubspace E (fiberFinrank E x)).ι (rankLift E x) = x := by
+  let p := Quotient.out x
+  have hhom :
+      yonedaEquiv.symm (⟨p.elem, rankLift_mem E x⟩ :
+      (rankOpenSubspace E (fiberFinrank E x)).X.functorOfPoints.obj (Opposite.op p.overObj)) ≫
+        (rankOpenSubspace E (fiberFinrank E x)).ι = p.hom := by
+    change yonedaEquiv.symm p.elem = p.hom
+    exact yonedaEquiv.symm_apply_apply p.hom
+  change Points.mk (FieldValuedPoint.of p.K p.structureHom
+    (yonedaEquiv.symm (⟨p.elem, rankLift_mem E x⟩ :
+      (rankOpenSubspace E (fiberFinrank E x)).X.functorOfPoints.obj (Opposite.op p.overObj)) ≫
+      (rankOpenSubspace E (fiberFinrank E x)).ι)) = x
+  exact (congrArg (fun h : ofOver p.overObj ⟶ X ↦
+    Points.mk (FieldValuedPoint.of p.K p.structureHom h)) hhom).trans (Quotient.out_eq x)
+
+/-- Every point lifts to the rank locus indexed by its fiber rank. -/
+theorem exists_rank_lift (x : Points X) :
+    ∃ y : Points (rankOpenSubspace E (fiberFinrank E x)).X,
+      Points.map (rankOpenSubspace E (fiberFinrank E x)).ι y = x :=
+  ⟨rankLift E x, rankLift_spec E x⟩
 
 /-- The point map from the disjoint union of the rank loci is injective. -/
 theorem rankPointMap_injective : Function.Injective (rankPointMap E) := by

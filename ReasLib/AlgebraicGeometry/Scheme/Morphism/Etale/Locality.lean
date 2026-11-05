@@ -24,6 +24,14 @@ open scoped AlgebraicGeometry
 
 universe u
 
+/-- Etale ring maps remain so after precomposition with a source localization. -/
+theorem RingHom.Etale.stableUnderCompositionWithLocalizationAwaySource :
+    RingHom.StableUnderCompositionWithLocalizationAwaySource RingHom.Etale := by
+  apply (RingHom.Etale.stableUnderComposition.stableUnderCompositionWithLocalizationAway
+    ?_).left
+  intro R T _ _ _ r _
+  exact RingHom.etale_algebraMap.mpr (Algebra.Etale.of_isLocalizationAway r)
+
 namespace AlgebraicGeometry
 namespace Scheme.Hom
 
@@ -33,7 +41,8 @@ variable {X S : Scheme.{u}}
 `RingHom.Etale`. -/
 theorem etale_iff_locallyOfType (f : X ⟶ S) :
     Etale f ↔ LocallyOfType RingHom.Etale f := by
-  rw [locallyOfType_iff_affineLocally RingHom.Etale f RingHom.Etale.propertyIsLocal]
+  rw [locallyOfType_iff_affineLocally RingHom.Etale f RingHom.Etale.propertyIsLocal
+    RingHom.Etale.stableUnderCompositionWithLocalizationAwaySource]
   rw [etale_iff, affineLocally_iff_forall_isAffineOpen]
 
 /-- An étale scheme morphism is locally induced by étale ring homomorphisms. -/
@@ -55,13 +64,14 @@ theorem etale_iff_exists_openCover (f : X ⟶ S) :
 pullbacks have affine open covers with étale induced maps on global sections. -/
 theorem etale_iff_exists_affineOpenCover (f : X ⟶ S) :
     Etale f ↔
-      ∃ 𝒱 : S.AffineOpenCover, ∀ j : 𝒱.I₀,
-        ∃ 𝒰 : ((𝒱.openCover.pullback₁ f).X j).AffineOpenCover,
+      ∃ 𝒱 : S.AffineOpenCover.{u}, ∀ j : 𝒱.I₀,
+        ∃ 𝒰 : ((𝒱.openCover.pullback₁ f).X j).AffineOpenCover.{u},
           ∀ i : 𝒰.I₀,
             RingHom.Etale (((𝒰.f i ≫ 𝒱.openCover.pullbackHom f j).appTop).hom) := by
   simpa [etale_iff_locallyOfType] using
     (locallyOfType_iff_exists_affineOpenCover
-      RingHom.Etale RingHom.Etale.propertyIsLocal)
+      RingHom.Etale RingHom.Etale.propertyIsLocal
+      RingHom.Etale.stableUnderCompositionWithLocalizationAwaySource)
 
 end Scheme.Hom
 end AlgebraicGeometry

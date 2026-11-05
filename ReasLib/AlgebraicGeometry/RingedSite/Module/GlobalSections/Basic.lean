@@ -63,7 +63,10 @@ private theorem moduleGlobalSectionsDiagram_map_id
     (X : RingedSite.{u, v, w}) [UnivLE.{u, w}]
     (ℱ : ModuleCat.{z} X) (U : X.carrierᵒᵖ) :
     ((moduleGlobalSectionsPresheaf X).obj ℱ).map (𝟙 U) =
-      𝟙 (((moduleGlobalSectionsPresheaf X).obj ℱ).obj U) := sorry
+      𝟙 (((moduleGlobalSectionsPresheaf X).obj ℱ).obj U) := by
+  ext x
+  simp
+  rfl
 
 /-- Restriction of sections over the global-sections ring respects composition. -/
 private theorem moduleGlobalSectionsDiagram_map_comp
@@ -71,7 +74,9 @@ private theorem moduleGlobalSectionsDiagram_map_comp
     (ℱ : ModuleCat.{z} X) {U V W : X.carrierᵒᵖ} (f : U ⟶ V) (g : V ⟶ W) :
     ((moduleGlobalSectionsPresheaf X).obj ℱ).map (f ≫ g) =
       ((moduleGlobalSectionsPresheaf X).obj ℱ).map f ≫
-        ((moduleGlobalSectionsPresheaf X).obj ℱ).map g := sorry
+        ((moduleGlobalSectionsPresheaf X).obj ℱ).map g := by
+  ext x
+  exact PresheafOfModules.map_comp_apply _ f g x
 
 /-- The diagram of local sections of a module sheaf, regarded as modules over the global-sections
 ring. -/
@@ -90,7 +95,9 @@ private theorem moduleGlobalSectionsDiagramMap_naturality
     (moduleGlobalSectionsDiagram X ℱ).map g ≫
         ((moduleGlobalSectionsPresheaf X).map f).app V =
       ((moduleGlobalSectionsPresheaf X).map f).app U ≫
-        (moduleGlobalSectionsDiagram X 𝒢).map g := sorry
+        (moduleGlobalSectionsDiagram X 𝒢).map g := by
+  ext x
+  exact PresheafOfModules.naturality_apply _ g x
 
 /-- A morphism of module sheaves induces the objectwise morphism between their diagrams of
 sections over the global-sections ring. -/
@@ -104,14 +111,18 @@ noncomputable def moduleGlobalSectionsDiagramMap
 /-- The identity module-sheaf morphism induces the identity section-diagram morphism. -/
 private theorem moduleGlobalSectionsDiagramFunctor_map_id
     (X : RingedSite.{u, v, w}) [UnivLE.{u, w}] (ℱ : ModuleCat.{z} X) :
-    moduleGlobalSectionsDiagramMap X (𝟙 ℱ) = 𝟙 (moduleGlobalSectionsDiagram X ℱ) := sorry
+    moduleGlobalSectionsDiagramMap X (𝟙 ℱ) = 𝟙 (moduleGlobalSectionsDiagram X ℱ) := by
+  ext U x
+  rfl
 
 /-- The section-diagram morphism of a composite is the composite of section-diagram morphisms. -/
 private theorem moduleGlobalSectionsDiagramFunctor_map_comp
     (X : RingedSite.{u, v, w}) [UnivLE.{u, w}]
     {ℱ 𝒢 ℋ : ModuleCat.{z} X} (f : ℱ ⟶ 𝒢) (g : 𝒢 ⟶ ℋ) :
     moduleGlobalSectionsDiagramMap X (f ≫ g) =
-      moduleGlobalSectionsDiagramMap X f ≫ moduleGlobalSectionsDiagramMap X g := sorry
+      moduleGlobalSectionsDiagramMap X f ≫ moduleGlobalSectionsDiagramMap X g := by
+  ext U x
+  rfl
 
 /-- Module sheaves map functorially to their diagrams of local sections over the global-sections
 ring. -/

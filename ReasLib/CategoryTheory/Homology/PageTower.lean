@@ -640,6 +640,20 @@ noncomputable def isoOf (P : HomologyPageTower C) (r : ℕ+)
     P.pageQuotient r ≅ P.page r :=
   @asIso C _ _ _ (toPage P r h_zero) h_iso
 
+/-- The canonical identification of the recursive quotient with its page.  The vanishing
+and invertibility proofs are supplied by the recursive construction. -/
+@[stacks 011O, stacks 0AMI "canonical recursive page quotient iso"]
+noncomputable def pageIso (P : HomologyPageTower C) (r : ℕ+) :
+    P.pageQuotient r ≅ P.page r :=
+  isoOf P r (Boundary.intersection_toPage_zero P r)
+    (toPage_isIso P r (Boundary.intersection_toPage_zero P r))
+
+/-- The canonical quotient identification recovers the specified map on cycles. -/
+@[reassoc (attr := simp)]
+theorem π_pageIso (P : HomologyPageTower C) (r : ℕ+) :
+    P.pageQuotientπ r ≫ (pageIso P r).hom = P.cycleToPage r := by
+  exact π_toPage P r (Boundary.intersection_toPage_zero P r)
+
 end PageQuotient
 
 /-! ## Filtration order -/
@@ -750,6 +764,155 @@ structure Hom (P Q : HomologyPageTower C) where
         Subobject.ofLE (Q.boundary r ⊓ Q.cycle r) (Q.cycle r) _root_.inf_le_right
 
 namespace Hom
+
+set_option backward.isDefEq.respectTransparency false in
+private theorem lift_cycleStage {P Q : HomologyPageTower C}
+    (app : ∀ r : ℕ+, P.page r ⟶ Q.page r)
+    (hC : ∀ r : ℕ+, (Q.pageCycle r).Factors ((P.pageCycle r).arrow ≫ app r))
+    (hnext : ∀ r : ℕ+,
+      (Q.pageCycle r).factorThru ((P.pageCycle r).arrow ≫ app r) (hC r) ≫ Q.toNext r =
+        P.toNext r ≫ app (r + 1)) (n : ℕ) :
+    ∃ g : ((P.cycleStage n).cycle : C) ⟶ ((Q.cycleStage n).cycle : C),
+      g ≫ (Q.cycleStage n).cycle.arrow = (P.cycleStage n).cycle.arrow ≫ app 1 ∧
+      g ≫ (Q.cycleStage n).toPage = (P.cycleStage n).toPage ≫ app (pageIndex n) := by
+  induction n with
+  | zero =>
+      refine ⟨(⊤ : Subobject (P.page 1)).arrow ≫ app 1 ≫
+        inv (⊤ : Subobject (Q.page 1)).arrow, ?_, ?_⟩ <;>
+        simp [cycleStage, pageIndex, Category.assoc] <;> rfl
+  | succ n ih =>
+      obtain ⟨g, hg, hcomm⟩ := ih
+      let S := P.cycleStage n
+      let T := Q.cycleStage n
+      let eP := Subobject.underlyingIso (S.pulledCycles.arrow ≫ S.cycle.arrow)
+      let eQ := Subobject.underlyingIso (T.pulledCycles.arrow ≫ T.cycle.arrow)
+      let c := (Q.pageCycle (pageIndex n)).factorThru
+        ((P.pageCycle (pageIndex n)).arrow ≫ app (pageIndex n)) (hC _)
+      let a := eP.hom ≫ Subobject.pullbackπ S.toPage (P.pageCycle (pageIndex n)) ≫ c
+      let b := eP.hom ≫ S.pulledCycles.arrow ≫ g
+      have hw : a ≫ (Q.pageCycle (pageIndex n)).arrow = b ≫ T.toPage := by
+        dsimp [a, b, c]
+        simp only [Category.assoc, Subobject.factorThru_arrow]
+        rw [hcomm]
+        have hp : Subobject.pullbackπ S.toPage (P.pageCycle (pageIndex n)) ≫
+            (P.pageCycle (pageIndex n)).arrow = S.pulledCycles.arrow ≫ S.toPage :=
+          (Subobject.isPullback S.toPage (P.pageCycle (pageIndex n))).w
+        simpa only [Category.assoc] using
+          congrArg (fun k => eP.hom ≫ k ≫ app (pageIndex n)) hp
+      let l := (Subobject.isPullback T.toPage (Q.pageCycle (pageIndex n))).lift a b hw
+      have hl_snd : l ≫ T.pulledCycles.arrow = b :=
+        (Subobject.isPullback T.toPage (Q.pageCycle (pageIndex n))).lift_snd a b hw
+      have hl_fst : l ≫ Subobject.pullbackπ T.toPage (Q.pageCycle (pageIndex n)) = a :=
+        (Subobject.isPullback T.toPage (Q.pageCycle (pageIndex n))).lift_fst a b hw
+      refine ⟨l ≫ eQ.inv, ?_, ?_⟩
+      · change (l ≫ eQ.inv) ≫ T.nextCycle.arrow = S.nextCycle.arrow ≫ app 1
+        have he : eQ.inv ≫ T.nextCycle.arrow = T.pulledCycles.arrow ≫ T.cycle.arrow := by
+          simp [eQ, CycleStage.nextCycle]
+        rw [Category.assoc, he, ← Category.assoc, hl_snd]
+        have hg' : g ≫ T.cycle.arrow = S.cycle.arrow ≫ app 1 := hg
+        dsimp only [b]
+        simp only [Category.assoc, hg']
+        have heP : eP.hom ≫ (S.pulledCycles.arrow ≫ S.cycle.arrow) = S.nextCycle.arrow :=
+          Subobject.underlyingIso_hom_comp_eq_mk _
+        simpa only [Category.assoc] using congrArg (fun k => k ≫ app 1) heP
+      · change (l ≫ eQ.inv) ≫ T.nextToPage = S.nextToPage ≫ app (pageIndex (n + 1))
+        change (l ≫ eQ.inv) ≫ (eQ.hom ≫
+            Subobject.pullbackπ T.toPage (Q.pageCycle (pageIndex n)) ≫ Q.toNext (pageIndex n)) =
+          (eP.hom ≫ Subobject.pullbackπ S.toPage (P.pageCycle (pageIndex n)) ≫
+            P.toNext (pageIndex n)) ≫ app (pageIndex (n + 1))
+        simp only [Category.assoc, Iso.inv_hom_id_assoc]
+        rw [← Category.assoc l, hl_fst]
+        dsimp only [a, c]
+        simp only [Category.assoc]
+        convert congrArg (fun k => eP.hom ≫
+          Subobject.pullbackπ S.toPage (P.pageCycle (pageIndex n)) ≫ k)
+          (hnext (pageIndex n)) using 1 <;> rfl
+
+/-- Compatible page maps preserve the recursively constructed cycles. -/
+theorem pageMaps_cycle_factors {P Q : HomologyPageTower C}
+    (app : ∀ r : ℕ+, P.page r ⟶ Q.page r)
+    (hC : ∀ r : ℕ+, (Q.pageCycle r).Factors ((P.pageCycle r).arrow ≫ app r))
+    (hnext : ∀ r : ℕ+,
+      (Q.pageCycle r).factorThru ((P.pageCycle r).arrow ≫ app r) (hC r) ≫ Q.toNext r =
+        P.toNext r ≫ app (r + 1)) (r : ℕ+) :
+    (Q.cycle r).Factors ((P.cycle r).arrow ≫ app 1) := by
+  obtain ⟨g, hg, _⟩ := lift_cycleStage app hC hnext r.natPred
+  exact (Subobject.factors_iff _ _).mpr ⟨g, hg⟩
+
+/-- Compatible page maps preserve the recursively constructed boundaries, the kernels of the
+maps from recursive cycle stages to pages. -/
+theorem pageMaps_boundary_factors {P Q : HomologyPageTower C}
+    (app : ∀ r : ℕ+, P.page r ⟶ Q.page r)
+    (hC : ∀ r : ℕ+, (Q.pageCycle r).Factors ((P.pageCycle r).arrow ≫ app r))
+    (hnext : ∀ r : ℕ+,
+      (Q.pageCycle r).factorThru ((P.pageCycle r).arrow ≫ app r) (hC r) ≫ Q.toNext r =
+        P.toNext r ≫ app (r + 1)) (r : ℕ+) :
+    (Q.boundary r).Factors ((P.boundary r).arrow ≫ app 1) := by
+  obtain ⟨g, hg, hcomm⟩ := lift_cycleStage app hC hnext r.natPred
+  let i := Subobject.ofLE (P.boundary r) (P.cycle r) (P.boundary_le_cycle r)
+  have hi : i ≫ (P.cycleStage r.natPred).toPage = 0 :=
+    (stageToPage_zero_iff P r.natPred i).mpr (by
+      simpa only [i, Subobject.ofLE_arrow] using Subobject.factors_self (P.boundary r))
+  have hz : (i ≫ g) ≫ (Q.cycleStage r.natPred).toPage = 0 := by
+    rw [Category.assoc, hcomm, ← Category.assoc, hi, zero_comp]
+  have hb := (stageToPage_zero_iff Q r.natPred (i ≫ g)).mp hz
+  simpa only [Category.assoc, hg, i, Subobject.ofLE_arrow_assoc] using hb
+
+/-- Construct a tower morphism from the pagewise maps and their local compatibility.  All
+recursive filtration laws and inclusion squares follow from these inputs. -/
+noncomputable def ofPageMaps {P Q : HomologyPageTower C}
+    (app : ∀ r : ℕ+, P.page r ⟶ Q.page r)
+    (hC : ∀ r : ℕ+, (Q.pageCycle r).Factors ((P.pageCycle r).arrow ≫ app r))
+    (hB : ∀ r : ℕ+, (Q.pageBoundary r).Factors ((P.pageBoundary r).arrow ≫ app r))
+    (hnext : ∀ r : ℕ+,
+      (Q.pageCycle r).factorThru ((P.pageCycle r).arrow ≫ app r) (hC r) ≫ Q.toNext r =
+        P.toNext r ≫ app (r + 1)) : Hom P Q where
+  app := app
+  pageCycle_factors := hC
+  pageBoundary_factors := hB
+  toNext_comm := hnext
+  pageBoundary_map_comp_ofLE r := by
+    apply (cancel_mono (Q.pageCycle r).arrow).mp
+    simp [Category.assoc]
+  cycle_factors := pageMaps_cycle_factors app hC hnext
+  boundary_factors := pageMaps_boundary_factors app hC hnext
+  boundary_map_comp_ofLE r := by
+    apply (cancel_mono (Q.cycle r).arrow).mp
+    simp [Category.assoc]
+  intersection_factors r := by
+    rw [inf_eq_left.mpr (Q.boundary_le_cycle r)]
+    simpa only [Subobject.ofLE_arrow_assoc] using
+      Subobject.factors_of_factors_right
+        (Subobject.ofLE (P.boundary r ⊓ P.cycle r) (P.boundary r) inf_le_left)
+        (pageMaps_boundary_factors app hC hnext r)
+  intersection_map_comp_ofLE r := by
+    apply (cancel_mono (Q.cycle r).arrow).mp
+    simp [Category.assoc]
+
+/-- The small constructor retains exactly the supplied page components. -/
+@[simp]
+theorem ofPageMaps_app {P Q : HomologyPageTower C}
+    (app : ∀ r : ℕ+, P.page r ⟶ Q.page r)
+    (hC : ∀ r : ℕ+, (Q.pageCycle r).Factors ((P.pageCycle r).arrow ≫ app r))
+    (hB : ∀ r : ℕ+, (Q.pageBoundary r).Factors ((P.pageBoundary r).arrow ≫ app r))
+    (hnext : ∀ r : ℕ+,
+      (Q.pageCycle r).factorThru ((P.pageCycle r).arrow ≫ app r) (hC r) ≫ Q.toNext r =
+        P.toNext r ≫ app (r + 1)) (r : ℕ+) :
+    (ofPageMaps app hC hB hnext).app r = app r := rfl
+
+/-- Compatible page components determine a unique tower morphism. -/
+theorem existsUnique_ofPageMaps {P Q : HomologyPageTower C}
+    (app : ∀ r : ℕ+, P.page r ⟶ Q.page r)
+    (hC : ∀ r : ℕ+, (Q.pageCycle r).Factors ((P.pageCycle r).arrow ≫ app r))
+    (hB : ∀ r : ℕ+, (Q.pageBoundary r).Factors ((P.pageBoundary r).arrow ≫ app r))
+    (hnext : ∀ r : ℕ+,
+      (Q.pageCycle r).factorThru ((P.pageCycle r).arrow ≫ app r) (hC r) ≫ Q.toNext r =
+        P.toNext r ≫ app (r + 1)) :
+    ∃! f : Hom P Q, ∀ r : ℕ+, f.app r = app r := by
+  refine ⟨ofPageMaps app hC hB hnext, fun _ => rfl, ?_⟩
+  intro f hf
+  ext r
+  exact hf r
 
 /-- The identity page map factors through the page cycles. -/
 theorem id_pageCycle_factors (P : HomologyPageTower C) (r : ℕ+) :

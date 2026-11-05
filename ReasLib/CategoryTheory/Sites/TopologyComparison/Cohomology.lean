@@ -82,8 +82,15 @@ noncomputable def generatorPullbackIso
   -- The identity-slice continuity certificate is indexed by `hle` and is intentionally scoped to
   -- the concrete pullback isomorphism.
   let _ := comparisonOver_id_isContinuous hle X
-  FreeAbelianYoneda.ULift.pullbackIso
-    (J := τ'.over X) (K := τ.over X) (Over.mk (𝟙 X))
+  let A := AddCommGrpCat.{max u v}
+  let G := 𝟭 (Over X)
+  let P := CategoryTheory.FreeAbelianYoneda.ULift.obj.{max u v, v, u} (Over.mk (𝟙 X))
+  let adj := Functor.sheafPullbackConstruction.sheafAdjunctionContinuous
+    G A (τ'.over X) (τ.over X)
+  (presheafToSheaf (τ.over X) A).mapIso (Functor.identityLanIso A P).symm ≪≫
+    (((G.op.lanAdjunction A).comp (sheafificationAdjunction (τ.over X) A)).leftAdjointUniq
+      (((sheafificationAdjunction (τ'.over X) A).comp adj).ofNatIsoRight
+        (G.sheafPushforwardContinuousCompSheafToPresheafIso A (τ'.over X) (τ.over X)))).app P
 
 /-- The canonical map from cohomology on the coarser topology to cohomology after exact inverse
 image to the finer topology.  It is the exact-pullback Ext map with identity coefficient

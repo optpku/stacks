@@ -47,7 +47,7 @@ theorem groupBaseChange_apply {X S S' : Scheme.{u}} (f : X ⟶ S) (g : S' ⟶ S)
     [IsLocallyNoetherian S] [IsLocallyNoetherian S'] [LocallyOfFiniteType f]
     (r : ℕ) (α : group f r) :
     (groupBaseChange f g r α : (pullback.snd f g).FiberCycleFamily r) =
-      FamilyOfCyclesOnFibres.baseChange f g r (α : f.FiberCycleFamily r) := sorry
+      FamilyOfCyclesOnFibres.baseChange f g r (α : f.FiberCycleFamily r) := rfl
 
 /-- A fibrewise family is relative if and only if its base change along a
 universal homeomorphism inducing residue-field isomorphisms is relative. -/
@@ -58,12 +58,40 @@ theorem isRelative_iff_baseChange {X S S' : Scheme.{u}} (f : X ⟶ S) (g : S' �
     IsRelative α ↔
       IsRelative (FamilyOfCyclesOnFibres.baseChange f g r α) := sorry
 
+/-- The explicit family inverse preserves relative cycles. -/
+theorem isRelative_baseChangeInverse {X S S' : Scheme.{u}}
+    (f : X ⟶ S) (g : S' ⟶ S)
+    [IsLocallyNoetherian S] [IsLocallyNoetherian S'] [LocallyOfFiniteType f]
+    [UniversalHomeomorphism g] (hg : Function.Bijective g)
+    (hκ : ∀ s', IsIso (g.residueFieldMap s')) (r : ℕ)
+    (α : (pullback.snd f g).FiberCycleFamily r) (hα : IsRelative α) :
+    IsRelative (FamilyOfCyclesOnFibres.baseChangeInverse f g hg hκ r α) := by
+  apply (isRelative_iff_baseChange f g hκ).mpr
+  simpa only [FamilyOfCyclesOnFibres.baseChange_baseChangeInverse] using hα
+
+/-- Base change with its explicit coefficient inverse, restricted to relative cycles. -/
+def groupBaseChangeEquiv {X S S' : Scheme.{u}} (f : X ⟶ S) (g : S' ⟶ S)
+    [IsLocallyNoetherian S] [IsLocallyNoetherian S'] [LocallyOfFiniteType f]
+    [UniversalHomeomorphism g]
+    (hκ : ∀ s', IsIso (g.residueFieldMap s')) (r : ℕ) :
+    group f r ≃+ group (pullback.snd f g) r where
+  toFun := groupBaseChange f g r
+  invFun α := ⟨FamilyOfCyclesOnFibres.baseChangeInverse f g g.isHomeomorph.bijective hκ r α.1,
+    isRelative_baseChangeInverse f g g.isHomeomorph.bijective hκ r α.1 α.2⟩
+  left_inv α := Subtype.ext
+    (FamilyOfCyclesOnFibres.baseChangeInverse_baseChange f g g.isHomeomorph.bijective hκ r α.1)
+  right_inv α := Subtype.ext
+    (FamilyOfCyclesOnFibres.baseChange_baseChangeInverse f g g.isHomeomorph.bijective hκ r α.1)
+  map_add' := (groupBaseChange f g r).map_add
+
+
 /-- If `g : S' ⟶ S` is a universal homeomorphism of locally Noetherian schemes
 inducing residue-field isomorphisms, base change bijects the relative `r`-cycle
 groups of a locally finite type morphism `f : X ⟶ S` and its pullback. -/
 theorem groupBaseChange_bijective {X S S' : Scheme.{u}} (f : X ⟶ S) (g : S' ⟶ S)
     [IsLocallyNoetherian S] [IsLocallyNoetherian S'] [LocallyOfFiniteType f]
     [UniversalHomeomorphism g] (hκ : ∀ s', IsIso (g.residueFieldMap s')) (r : ℕ) :
-    Function.Bijective (groupBaseChange f g r) := sorry
+    Function.Bijective (groupBaseChange f g r) :=
+  (groupBaseChangeEquiv f g hκ r).bijective
 
 end AlgebraicGeometry.RelativeCycle

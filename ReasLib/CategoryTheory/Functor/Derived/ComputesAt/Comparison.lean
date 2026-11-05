@@ -15,7 +15,8 @@ public import Mathlib.Tactic.CrossRefAttribute
 # Computing Arbitrary Models of Derived Functors
 
 This leaf relates the model-independent source predicate `ComputesAt` to the comparison map of
-any chosen derived-functor model. The forward implications need only computation at the object;
+any chosen derived-functor model. The right-derived forward implication explicitly requires the
+chosen model to be pointwise at the object;
 the converses additionally retain the source-level `DefinedAt` condition. Both orientations are
 provided so downstream applications do not have to replace a chosen model by Mathlib's total
 derived functor.
@@ -30,13 +31,16 @@ variable {C : Type uC} {D : Type uD} {H : Type uH}
 variable (F : C ⥤ H) (S : MorphismProperty C) [S.ContainsIdentities]
 variable (Q : C ⥤ D) [Q.IsLocalization S]
 
-/-- Stacks 0BYZ: if `X` computes the right-derived value of `F`, then the comparison component
-at `X` is invertible for every model of the right-derived functor. -/
-@[stacks 0BYZ "right-derived comparison on a computing object"]
+/-- Stacks 05SX: if `X` computes the right-derived value of `F`, then the comparison component
+at `X` is invertible for every right-derived model which is pointwise at `Q.obj X`.
+The global Kan-extension property alone does not ensure this local colimit property. -/
+@[stacks 05SX "right-derived comparison on a computing object"]
 theorem RightDerived.ComputesAt.isIso_app
     (RF : D ⥤ H) (α : F ⟶ Q ⋙ RF) (X : C)
     (hX : RightDerived.ComputesAt F S X)
-    (hRF : RF.IsRightDerivedFunctor α S) :
+    (hRF : RF.IsRightDerivedFunctor α S)
+    (hRFAt : Nonempty
+      ((LeftExtension.mk RF α).IsPointwiseLeftKanExtensionAt (Q.obj X))) :
     IsIso (α.app X) := sorry
 
 /-- Stacks 05SX: at an object where the source right-derived value is defined, computation is

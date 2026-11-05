@@ -24,7 +24,7 @@ by `RingHom.FlatModel`.
 @stack 02JO
 -/
 
-universe uR uS uI uStageR uStageS uM uStageM
+universe uR uS uI uStageR uM
 
 namespace Ring.DirectLimit
 
@@ -35,7 +35,9 @@ set_option linter.checkUnivs false in
 over the source of a finitely presented map descends to one stage of an
 arbitrary chosen directed ring colimit.  The stage map and stage module remain
 finitely presented, while the comparison square is returned as a reusable
-`RingHom.FlatModel`. -/
+`RingHom.FlatModel`. Both models live in the universe of the stage rings:
+finite polynomial and finite free presentations give models in that universe,
+but in general it cannot be independently lowered for either model. -/
 @[stacks 02JO "flat finite-presentation model at a directed stage"]
 theorem exists_atStage
     {R : Type uR} {S : Type uS} [CommRing R] [CommRing S]
@@ -50,8 +52,8 @@ theorem exists_atStage
     ∃ i : Λ,
       let r : RStage i →+* R :=
         Ring.DirectLimit.toLimitHom RStage (fun i j h ↦ map i j h) colimitIso i
-      ∃ (S₀ : Type uStageS) (_ : CommRing S₀) (stageMap : RStage i →+* S₀)
-        (M₀ : Type uStageM) (_ : AddCommGroup M₀) (_ : Module S₀ M₀),
+      ∃ (S₀ : Type uStageR) (_ : CommRing S₀) (stageMap : RStage i →+* S₀)
+        (M₀ : Type uStageR) (_ : AddCommGroup M₀) (_ : Module S₀ M₀),
         ∃ targetMap : S₀ →+* S,
           ∃ P : RingHom.FlatModel (M := M) (M₀ := M₀) f r stageMap targetMap,
             P.finitePresentation := sorry

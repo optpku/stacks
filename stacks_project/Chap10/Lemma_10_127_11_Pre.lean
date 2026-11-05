@@ -102,7 +102,8 @@ end DirectedLocalHomApproximation
 /-- The elements outside the maximal ideal of a local ring are units. -/
 theorem isUnit_of_mem_primeCompl_maximalIdeal
     (T : Type*) [CommRing T] [IsLocalRing T] (x : T)
-    (hx : x ∈ (IsLocalRing.maximalIdeal T).primeCompl) : IsUnit x := sorry
+    (hx : x ∈ (IsLocalRing.maximalIdeal T).primeCompl) : IsUnit x := by
+  exact IsLocalRing.notMem_maximalIdeal.mp hx
 
 /-- Helper for Lemma 10.127.11: the localization of a local ring at its maximal ideal collapses
 back to the ring itself. -/
@@ -116,7 +117,8 @@ local ring. -/
 @[simp] theorem maxLocalizationCollapse_algebraMap (T : Type*) [CommRing T] [IsLocalRing T]
     (t : T) :
     maxLocalizationCollapse T
-        (algebraMap T (Localization.AtPrime (IsLocalRing.maximalIdeal T)) t) = t := sorry
+        (algebraMap T (Localization.AtPrime (IsLocalRing.maximalIdeal T)) t) = t := by
+  exact (maxLocalizationCollapse T).commutes t
 /-- Helper for Lemma 10.127.11: if two stage comparisons to the final local target differ only by
 precomposition with a transition map, then the pulled-back maximal ideals differ by the same
 comap. -/
@@ -124,7 +126,8 @@ theorem comap_contracted_maximalIdeal_eq_of_comp
     {A : Type v} {B : Type w} [CommRing A] [CommRing B]
     (τ : A →+* B) (σA : A →+* S) (σB : B →+* S) (hcomp : σA = σB.comp τ) :
     Ideal.comap τ (Ideal.comap σB (IsLocalRing.maximalIdeal S)) =
-      Ideal.comap σA (IsLocalRing.maximalIdeal S) := sorry
+      Ideal.comap σA (IsLocalRing.maximalIdeal S) := by
+  rw [Ideal.comap_comap, ← hcomp]
 /-- Helper for Lemma 10.127.11: if a directed family of stage maps to a fixed local target is
 compatible with the transition maps, then the induced prime localizations at the contracted
 maximal ideals form a directed system. -/
@@ -140,7 +143,37 @@ theorem localized_contracted_maximalIdeal_directedSystem
       (fun i j hij ↦
         Localization.localRingHom (q i) (q j) (map i j hij)
           ((comap_contracted_maximalIdeal_eq_of_comp
-            (S := S) (τ := map i j hij) (σA := σ i) (σB := σ j) (hσ i j hij)).symm)) := sorry
+            (S := S) (τ := map i j hij) (σA := σ i) (σB := σ j) (hσ i j hij)).symm)) := by
+  dsimp only
+  constructor
+  · intro i x
+    have hself :
+        Localization.localRingHom (Ideal.comap (σ i) (IsLocalRing.maximalIdeal S))
+          (Ideal.comap (σ i) (IsLocalRing.maximalIdeal S)) (map i i le_rfl)
+          ((comap_contracted_maximalIdeal_eq_of_comp _ _ _ (hσ i i le_rfl)).symm) =
+            RingHom.id _ := by
+      apply Localization.localRingHom_unique
+      intro y
+      rw [DirectedSystem.map_self (f := fun i j h ↦ map i j h)]
+      rfl
+    exact DFunLike.congr_fun hself x
+  · intro k j i hij hjk x
+    have hcomp :
+        Localization.localRingHom (Ideal.comap (σ i) (IsLocalRing.maximalIdeal S))
+          (Ideal.comap (σ k) (IsLocalRing.maximalIdeal S)) (map i k (le_trans hij hjk))
+          ((comap_contracted_maximalIdeal_eq_of_comp _ _ _ (hσ i k (le_trans hij hjk))).symm) =
+        (Localization.localRingHom (Ideal.comap (σ j) (IsLocalRing.maximalIdeal S))
+          (Ideal.comap (σ k) (IsLocalRing.maximalIdeal S)) (map j k hjk)
+          ((comap_contracted_maximalIdeal_eq_of_comp _ _ _ (hσ j k hjk)).symm)).comp
+        (Localization.localRingHom (Ideal.comap (σ i) (IsLocalRing.maximalIdeal S))
+          (Ideal.comap (σ j) (IsLocalRing.maximalIdeal S)) (map i j hij)
+          ((comap_contracted_maximalIdeal_eq_of_comp _ _ _ (hσ i j hij)).symm)) := by
+      apply Localization.localRingHom_unique
+      intro y
+      simp only [RingHom.comp_apply, Localization.localRingHom_to_map]
+      exact congrArg (algebraMap (G k) _) (DirectedSystem.map_map
+        (f := fun i j h ↦ map i j h) hij hjk y)
+    exact DFunLike.congr_fun hcomp.symm x
 /-- Helper for Lemma 10.127.11: compatible stage maps to a fixed local target induce compatible
 maps from the corresponding prime localizations cut out by the target maximal ideal. -/
 theorem localized_stage_maps_to_ambient_compatible
@@ -160,7 +193,17 @@ theorem localized_stage_maps_to_ambient_compatible
       fun i ↦ (maxLocalizationCollapse S :
           Localization.AtPrime (IsLocalRing.maximalIdeal S) →+* S).comp
         (Localization.localRingHom (q i) (IsLocalRing.maximalIdeal S) (σ i) rfl)
-    ∀ i j (hij : i ≤ j), φ i = (φ j).comp (ρ i j hij) := sorry
+    ∀ i j (hij : i ≤ j), φ i = (φ j).comp (ρ i j hij) := by
+  dsimp only
+  intro i j hij
+  apply IsLocalization.ringHom_ext
+    (Ideal.comap (σ i) (IsLocalRing.maximalIdeal S)).primeCompl
+  ext x
+  simp only [RingHom.comp_apply, Localization.localRingHom_to_map]
+  change maxLocalizationCollapse S (algebraMap S _ (σ i x)) =
+    maxLocalizationCollapse S (algebraMap S _ (σ j (map i j hij x)))
+  rw [maxLocalizationCollapse_algebraMap, maxLocalizationCollapse_algebraMap]
+  exact DFunLike.congr_fun (hσ i j hij) x
 
 /-- Pointwise compatibility needed by the direct-limit lift of the localized stage maps. -/
 theorem localized_stage_maps_to_ambient_compatible_apply
@@ -181,7 +224,9 @@ theorem localized_stage_maps_to_ambient_compatible_apply
       fun i ↦ (maxLocalizationCollapse S :
           Localization.AtPrime (IsLocalRing.maximalIdeal S) →+* S).comp
         (Localization.localRingHom (q i) (IsLocalRing.maximalIdeal S) (σ i) rfl)
-    φ j (ρ i j hij x) = φ i x := sorry
+    φ j (ρ i j hij x) = φ i x := by
+  exact (DFunLike.congr_fun
+    (localized_stage_maps_to_ambient_compatible (S := S) G map σ hσ i j hij) x).symm
 
 /-- Helper for Lemma 10.127.11: the compatible localized stage maps to `S` lift to a map from the
 direct limit of the localized system. -/
@@ -249,7 +294,8 @@ stage map on each direct-limit generator. -/
           (IsLocalRing.maximalIdeal S)
           (σ i)
           rfl
-          x) := sorry
+          x) := by
+  simp only [tail_target_colimit_to_ambient, Ring.DirectLimit.lift_of, RingHom.comp_apply]
 end
 
 section SameUniverse
@@ -351,7 +397,8 @@ theorem descentPsi_apply
     {R₀ P₀ R' P' C : Type u} [CommRing R₀] [CommRing P₀] [CommRing R'] [CommRing P'] [CommRing C]
     [Algebra R₀ P₀] [Algebra R₀ R'] [Algebra R₀ C] [Algebra R' P']
     (e : P₀ ⊗[R₀] R' ≃ₐ[R'] P') (fP₀ : P₀ →ₐ[R₀] C) (fR : R' →ₐ[R₀] C) (p : P₀) (r : R') :
-    descentPsi e fP₀ fR (e (p ⊗ₜ[R₀] r)) = fP₀ p * fR r := sorry
+    descentPsi e fP₀ fR (e (p ⊗ₜ[R₀] r)) = fP₀ p * fR r := by
+  simp [descentPsi]
 /-- Helper for Lemma 10.127.11: two equal `R`-algebra structures on the left tensor factor give a
 ring isomorphism of the resulting base-change rings. (Used to bridge the record's
 `(stageMap).toAlgebra` view with the canonical localization algebra, which are equal as instances
@@ -477,8 +524,10 @@ noncomputable abbrev descendedTailPComp
     (Ring.DirectLimit.toLimitHom A₀.RStage (fun i j h ↦ A₀.map i j h)
       A₀.colimitIso j.1).toAlgebra
   letI : IsScalarTower (A₀.RStage i₀) (A₀.RStage j.1) R :=
-    Ring.DirectLimit.toLimit_isScalarTower_of_algebraMap_eq
-      A₀.RStage (fun i j h ↦ A₀.map i j h) A₀.colimitIso j.2 hRalg
+    IsScalarTower.of_algebraMap_eq' (by
+      rw [hRalg]
+      exact (Ring.DirectLimit.toLimitHom_comp_map A₀.RStage
+        (fun i j h ↦ A₀.map i j h) A₀.colimitIso j.2).symm)
   e.toRingHom.comp
     (Algebra.TensorProduct.map (AlgHom.id P₀ P₀)
       (IsScalarTower.toAlgHom (A₀.RStage i₀) (A₀.RStage j.1) R) :
@@ -599,5 +648,9 @@ theorem sourceToTargetDirectLimit_stage_of
       (fun {j} {k} hjk ↦ hcommTail hjk)
       (Ring.DirectLimit.toLimitHom A₀.RStage (fun i j h ↦ A₀.map i j h)
         A₀.colimitIso i.1 x) =
-    Ring.DirectLimit.of SStage (fun j k h ↦ targetMap j k h) i (stageMapTail i x) := sorry
+    Ring.DirectLimit.of SStage (fun j k h ↦ targetMap j k h) i (stageMapTail i x) := by
+  change Ring.DirectLimit.map stageMapTail (fun _ _ h ↦ hcommTail h)
+    ((Ring.DirectLimit.Tail.equivTo (fun i j h ↦ A₀.map i j h) i₀ A₀.colimitIso).symm
+      (A₀.colimitIso (Ring.DirectLimit.of _ _ i.1 x))) = _
+  rw [Ring.DirectLimit.Tail.equivTo_symm_apply_of, Ring.DirectLimit.map_apply_of]
 end SameUniverse

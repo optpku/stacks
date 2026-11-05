@@ -67,7 +67,9 @@ namespace Entry
 
 /-- The degree function of the fixed-exponent embedding is injective. -/
 theorem embedding_injective (d : ℕ+) (i : ℕ) :
-    Function.Injective (fun k : ℕ ↦ totalDegree d k i) := sorry
+    Function.Injective (fun k : ℕ ↦ totalDegree d k i) := by
+  intro k l h
+  simpa [totalDegree] using h
 
 /-- The fixed-exponent degree function sends chain adjacency to cochain adjacency. -/
 theorem embedding_rel (d : ℕ+) (i : ℕ) {k l : ℕ}
@@ -158,6 +160,87 @@ instance gradedPieceIsStrictlySupported (X : Even.Extension A d f) (i : ℕ) :
     ((filteredComplex X).gradedPiece (filtrationDegree i)).IsStrictlySupported
       (embedding d i) := sorry
 
+/-- Recover a base degree from its fixed-exponent cochain degree. -/
+theorem totalDegree_index (d : ℕ+) (k i : ℕ) :
+    (-totalDegree d k i).toNat - i * (d : ℕ) = k := by
+  simp only [totalDegree, neg_neg, Int.toNat_natCast]
+  simp
+
+/-- A degree failing the explicit inverse formula is outside the fixed-exponent image. -/
+theorem totalDegree_not_mem (d : ℕ+) (i : ℕ) (j : ℤ)
+    (h : totalDegree d ((-j).toNat - i * (d : ℕ)) i ≠ j) :
+    ∀ k, (embedding d i).f k ≠ j := by
+  intro k hk
+  apply h
+  change totalDegree d k i = j at hk
+  rw [← hk, totalDegree_index]
+
+/-- The component comparison at a specified embedded degree, with both directions given by
+transport along the degree equality. -/
+def restrictionExtensionComponentIsoOfDegree (X : Even.Extension A d f) (i k : ℕ) (j : ℤ)
+    (h : totalDegree d k i = j) :
+    ((complex X i).extend (embedding d i)).X j ≅
+      ((filteredComplex X).gradedPiece (filtrationDegree i)).X j :=
+  (complex X i).extendXIso (embedding d i) h ≪≫
+    eqToIso (congrArg
+      (fun t ↦ ((filteredComplex X).gradedPiece (filtrationDegree i)).X t) h)
+
+/-- Extend the restriction back by zero: in the image use the explicit inverse degree,
+and outside the image use the zero maps. No inverse of a truncation map is selected. -/
+def restrictionExtensionComponentIso (X : Even.Extension A d f) (i : ℕ) (j : ℤ) :
+    ((complex X i).extend (embedding d i)).X j ≅
+      ((filteredComplex X).gradedPiece (filtrationDegree i)).X j :=
+  if h : totalDegree d ((-j).toNat - i * (d : ℕ)) i = j then
+    restrictionExtensionComponentIsoOfDegree X i ((-j).toNat - i * (d : ℕ)) j h
+  else
+    { hom := 0
+      inv := 0
+      hom_inv_id := ((complex X i).isZero_extend_X (embedding d i) j
+        (totalDegree_not_mem d i j h)).eq_of_src _ _
+      inv_hom_id :=
+        (((filteredComplex X).gradedPiece (filtrationDegree i)).isZero_X_of_isStrictlySupported
+          (embedding d i) j (totalDegree_not_mem d i j h)).eq_of_src _ _ }
+
+set_option backward.isDefEq.respectTransparency false in
+/-- On an embedded degree, extension followed by restriction is the identity on coefficients. -/
+theorem restrictionExtensionComponentIso_at (X : Even.Extension A d f) (i k : ℕ) :
+    restrictionExtensionComponentIso X i (totalDegree d k i) =
+      (complex X i).extendXIso (embedding d i) (i := k) rfl := by
+  simp only [restrictionExtensionComponentIso, totalDegree_index, dite_true]
+  simp [restrictionExtensionComponentIsoOfDegree]
+
+set_option backward.isDefEq.respectTransparency false in
+/-- The explicit extension comparisons commute with the graded-piece differentials. -/
+theorem restrictionExtensionComponentIso_d (X : Even.Extension A d f) (i : ℕ)
+    (a b : ℤ) (_hab : (ComplexShape.up ℤ).Rel a b) :
+    (restrictionExtensionComponentIso X i a).hom ≫
+        ((filteredComplex X).gradedPiece (filtrationDegree i)).d a b =
+      ((complex X i).extend (embedding d i)).d a b ≫
+        (restrictionExtensionComponentIso X i b).hom := by
+  classical
+  by_cases ha : ∃ k, (embedding d i).f k = a
+  · obtain ⟨ka, rfl⟩ := ha
+    by_cases hb : ∃ k, (embedding d i).f k = b
+    · obtain ⟨kb, rfl⟩ := hb
+      change (restrictionExtensionComponentIso X i (totalDegree d ka i)).hom ≫ _ =
+        _ ≫ (restrictionExtensionComponentIso X i (totalDegree d kb i)).hom
+      rw [restrictionExtensionComponentIso_at, restrictionExtensionComponentIso_at]
+      rw [HomologicalComplex.extend_d_eq _ (embedding d i) (i := ka) (j := kb) rfl rfl]
+      simp [complex, Category.assoc]
+    · exact IsZero.eq_of_tgt
+        (((filteredComplex X).gradedPiece (filtrationDegree i)).isZero_X_of_isStrictlySupported
+          (embedding d i) b (by simpa using hb)) _ _
+  · exact IsZero.eq_of_src
+      ((complex X i).isZero_extend_X (embedding d i) a (by simpa using ha)) _ _
+
+/-- The full graded-piece complex is the extension by zero of its fixed-exponent restriction.
+Both directions are given componentwise by identity or zero maps. -/
+def restrictionExtensionIso (X : Even.Extension A d f) (i : ℕ) :
+    (complex X i).extend (embedding d i) ≅
+      (filteredComplex X).gradedPiece (filtrationDegree i) :=
+  HomologicalComplex.Hom.isoOfComponents
+    (restrictionExtensionComponentIso X i) (restrictionExtensionComponentIso_d X i)
+
 /-- Homology of the fixed-exponent restriction agrees canonically with homology of the full
 graded-piece complex in the corresponding total degree. -/
 @[stacks 0GZ6 "restriction-to-graded-piece homology comparison"]
@@ -165,18 +248,9 @@ def restrictionHomologyIso (X : Even.Extension A d f) (k i : ℕ) :
     (complex X i).homology k ≅
       ((filteredComplex X).gradedPiece (filtrationDegree i)).homology
         (totalDegree d k i) :=
-  (HomologicalComplex.homologyMapIso
-      (asIso (((filteredComplex X).gradedPiece (filtrationDegree i)).truncLE'ToRestriction
-        (embedding d i))) k).symm ≪≫
-    ((((filteredComplex X).gradedPiece (filtrationDegree i)).truncLE'
-      (embedding d i)).extendHomologyIso
+  ((complex X i).extendHomologyIso
       (embedding d i) (j := k) (j' := totalDegree d k i) rfl).symm ≪≫
-    HomologicalComplex.homologyMapIso
-      (((filteredComplex X).gradedPiece (filtrationDegree i)).truncLEIso
-        (embedding d i)).symm (totalDegree d k i) ≪≫
-    HomologicalComplex.homologyMapIso
-      (asIso (((filteredComplex X).gradedPiece (filtrationDegree i)).ιTruncLE
-        (embedding d i))) (totalDegree d k i)
+    HomologicalComplex.homologyMapIso (restrictionExtensionIso X i) (totalDegree d k i)
 
 /-- The cohomology of the exponent-`i` graded piece in total degree `-(k + i * d)` is
 canonically isomorphic to `H_k(A)`. -/

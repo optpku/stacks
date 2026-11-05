@@ -15,8 +15,8 @@ universe u
 
 /- Definition 87.4.8 (1): an element `f` of a linearly topologized ring is
 topologically nilpotent if `f ^ n` tends to `0` as `n` tends to infinity. -/
-@[stacks 0AMV] #check (TopologicalRing.IsTopologicallyNilpotent :
-  ∀ {R : Type u} [CommRing R] [TopologicalSpace R], R → Prop)
+@[stacks 0AMV] #check (_root_.IsTopologicallyNilpotent :
+  ∀ {R : Type u} [MonoidWithZero R] [TopologicalSpace R], R → Prop)
 
 /- Definition 87.4.8 (2): a weak ideal of definition is an open ideal consisting
 entirely of topologically nilpotent elements. -/

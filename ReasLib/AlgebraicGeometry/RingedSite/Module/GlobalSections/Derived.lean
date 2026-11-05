@@ -69,7 +69,12 @@ source module category is Grothendieck abelian. -/
     [UnivLE.{u, w}] [UnivLE.{u, z}] [UnivLE.{max u v, z}]
     [IsGrothendieckAbelian (ModuleCat.{z} X)] :
     Functor.HasRightDerivedFunctor
-      (moduleGlobalSectionsToModuleDerived.{z} X) (ModuleQis.{z} X) := sorry
+      (moduleGlobalSectionsToModuleDerived.{z} X) (ModuleQis.{z} X) := by
+  exact @Functor.RightDerived.KInjective.hasDerived
+    (ModuleCat.{z} X) inferInstance inferInstance
+    (_root_.ModuleCat.{z} (globalSectionsRing X)) inferInstance inferInstance
+    (ModuleCat.hasDerivedCategory (globalSectionsRing X))
+    (moduleGlobalSectionsFunctor.{z} X) (moduleGlobalSectionsFunctor_additive X) inferInstance
 
 /-- The unbounded module-valued derived global-sections functor on a ringed site. -/
 noncomputable abbrev moduleDerivedGlobalSections (X : RingedSite.{u, v, w})
@@ -101,7 +106,12 @@ module category is Grothendieck abelian. -/
     [HasGlobalSectionsFunctor X.siteTopology AddCommGrpCat.{z}]
     [IsGrothendieckAbelian (ModuleCat.{z} X)] :
     Functor.HasRightDerivedFunctor
-      (moduleGlobalSectionsToDerived.{z} X) (ModuleQis.{z} X) := sorry
+      (moduleGlobalSectionsToDerived.{z} X) (ModuleQis.{z} X) := by
+  exact @Functor.RightDerived.KInjective.hasDerived
+    (ModuleCat.{z} X) inferInstance inferInstance
+    AddCommGrpCat.{z} inferInstance inferInstance AddCommGrpCat.hasDerivedCategory
+    (moduleGlobalSectionsAdditiveFunctor.{z} X)
+    (moduleGlobalSectionsAdditiveFunctor_additive X) inferInstance
 
 /-- The unbounded right derived global-sections functor on module sheaves. -/
 @[stacks 0D6H "derived global sections"]
@@ -120,7 +130,9 @@ noncomputable abbrev moduleGlobalSectionsDerived (X : RingedSite.{u, v, w})
 
 /-- Evaluation of a module sheaf at a fixed object of a ringed site is additive. -/
 @[instance] theorem moduleSectionsEvaluation_additive (X : RingedSite.{u, v, w}) (U : X.carrier) :
-    (SheafOfModules.evaluation.{z} X.structureSheaf (op U)).Additive := sorry
+    (SheafOfModules.evaluation.{z} X.structureSheaf (op U)).Additive := by
+  unfold SheafOfModules.evaluation
+  infer_instance
 
 /-- The functor on homotopy categories induced by sections over a fixed object. -/
 abbrev moduleSectionsToDerived (X : RingedSite.{u, v, w}) (U : X.carrier) :
@@ -136,7 +148,13 @@ abbrev moduleSectionsToDerived (X : RingedSite.{u, v, w}) (U : X.carrier) :
 @[instance] theorem moduleSectionsToDerived_hasRightDerivedFunctor (X : RingedSite.{u, v, w})
     [UnivLE.{max u v, z}] [IsGrothendieckAbelian (ModuleCat.{z} X)] (U : X.carrier) :
     Functor.HasRightDerivedFunctor
-      (moduleSectionsToDerived.{z} X U) (ModuleQis.{z} X) := sorry
+      (moduleSectionsToDerived.{z} X U) (ModuleQis.{z} X) := by
+  exact @Functor.RightDerived.KInjective.hasDerived
+    (ModuleCat.{z} X) inferInstance inferInstance
+    (_root_.ModuleCat.{z} (X.structureSheaf.obj.obj (op U))) inferInstance inferInstance
+    (ModuleCat.hasDerivedCategory (X.structureSheaf.obj.obj (op U)))
+    (SheafOfModules.evaluation.{z} X.structureSheaf (op U))
+    (moduleSectionsEvaluation_additive X U) inferInstance
 
 /-- The unbounded right derived sections functor `RΓ(U, -)` on module sheaves. -/
 @[stacks 0D6H "derived sections over an object"]

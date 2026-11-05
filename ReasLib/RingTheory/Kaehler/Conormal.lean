@@ -8,6 +8,7 @@ module
 
 public import Mathlib.RingTheory.Smooth.Kaehler
 public import Mathlib.RingTheory.Smooth.Basic
+public import Mathlib.RingTheory.Etale.Basic
 public import Mathlib.Tactic.CrossRefAttribute
 
 /-!
@@ -93,5 +94,18 @@ theorem injective_of_formallySmooth
   intro x y hxy
   have h := congr_arg l hxy
   simpa [← LinearMap.comp_apply, hl] using h
+
+/-- For a surjective presentation of a formally étale algebra, the canonical
+conormal comparison is bijective. The target algebra may be an arbitrary ring. -/
+theorem bijective_of_formallyEtale
+    [Algebra.FormallyEtale R S]
+    (hPS : Function.Surjective (algebraMap P S)) :
+    Function.Bijective (kerCotangentToTensor R P S) := by
+  refine ⟨injective_of_formallySmooth hPS, ?_⟩
+  rw [← LinearMap.range_eq_top, range_kerCotangentToTensor R P S hPS]
+  apply top_unique
+  intro v _
+  change mapBaseChange R P S v = 0
+  exact Subsingleton.elim _ _
 
 end KaehlerDifferential.Conormal

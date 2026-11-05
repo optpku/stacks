@@ -37,7 +37,10 @@ noncomputable abbrev zeroObject : FilteredObject C where
       monotone' := fun _ _ _ ↦ le_rfl }
 
 /-- The canonical zero filtered object is a zero object. -/
-theorem isZero_zeroObject : IsZero (zeroObject : FilteredObject C) := sorry
+theorem isZero_zeroObject : IsZero (zeroObject : FilteredObject C) := by
+  rw [IsZero.iff_id_eq_zero]
+  apply Hom.ext
+  exact (isZero_zero C).eq_of_src _ _
 
 /-- The zero object structure on filtered objects is induced by the ambient zero object. -/
 @[reducible] noncomputable def hasZeroObject : HasZeroObject (FilteredObject C) :=
@@ -48,7 +51,13 @@ noncomputable instance instHasZeroObject : HasZeroObject (FilteredObject C) := h
 
 /-- The canonical zero filtered object has a finite filtration. -/
 @[stacks 015S]
-theorem isFinite_zero : (0 : FilteredObject C).IsFinite := sorry
+theorem isFinite_zero : (0 : FilteredObject C).IsFinite := by
+  let e : (0 : FilteredObject C) ≅ zeroObject :=
+    (isZero_zero (FilteredObject C)).iso isZero_zeroObject
+  have hZ : IsZero (0 : FilteredObject C).obj :=
+    IsZero.of_iso (isZero_zero C) (forget.mapIso e)
+  letI := Subobject.subsingleton_of_isZero hZ
+  exact ⟨0, 0, Subsingleton.elim _ _, Subsingleton.elim _ _⟩
 
 /-- Finite filtered objects contain a zero object, so their full subcategory has a canonical zero
 object. -/

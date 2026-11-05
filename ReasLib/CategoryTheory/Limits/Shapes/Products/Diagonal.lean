@@ -7,7 +7,6 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import Mathlib.CategoryTheory.Limits.Shapes.Products
-import Mathlib.Tactic.CrossRefAttribute
 
 /-!
 # Diagonal product functors
@@ -31,20 +30,19 @@ variable {C : Type u} [Category.{v} C]
 variable (J : Type w) [∀ X : C, HasProduct (fun _ : J ↦ X)]
 
 /-- The componentwise map on a constant product preserves identity morphisms. -/
-@[stacks 0190 "identity map on a constant coefficient product"]
 theorem diagonal.map_id (X : C) :
     Pi.map (fun _ : J ↦ 𝟙 X) =
-      𝟙 (∏ᶜ fun _ : J ↦ X) := sorry
+      𝟙 (∏ᶜ fun _ : J ↦ X) :=
+  Pi.map_id
 
 /-- The componentwise map on a constant product preserves composition. -/
-@[stacks 0190 "composition of maps on constant coefficient products"]
 theorem diagonal.map_comp {X Y Z : C} (f : X ⟶ Y) (g : Y ⟶ Z) :
     Pi.map (fun _ : J ↦ f ≫ g) =
       Pi.map (fun _ : J ↦ f) ≫
-        Pi.map (fun _ : J ↦ g) := sorry
+        Pi.map (fun _ : J ↦ g) :=
+  (Pi.map_comp_map (fun _ : J ↦ f) (fun _ : J ↦ g)).symm
 
 /-- The endofunctor taking an object to the product of a constant `J`-indexed family. -/
-@[stacks 0190 "constant coefficient product functor"]
 noncomputable def diagonal : C ⥤ C where
   obj X := ∏ᶜ fun _ : J ↦ X
   map f := Pi.map fun _ ↦ f
@@ -52,25 +50,24 @@ noncomputable def diagonal : C ⥤ C where
   map_comp f g := diagonal.map_comp J f g
 
 /-- The diagonal product functor has the expected object value. -/
-@[simp, stacks 0190 "constant coefficient product object formula"]
+@[simp]
 theorem diagonal_obj (X : C) :
-    (diagonal J).obj X = ∏ᶜ fun _ : J ↦ X := sorry
+    (diagonal J).obj X = ∏ᶜ fun _ : J ↦ X := rfl
 
 /-- The diagonal product functor acts componentwise on morphisms. -/
-@[simp, stacks 0190 "constant coefficient product map formula"]
+@[simp]
 theorem diagonal_map {X Y : C} (f : X ⟶ Y) :
-    (diagonal J).map f = Pi.map (fun _ : J ↦ f) := sorry
+    (diagonal J).map f = Pi.map (fun _ : J ↦ f) := rfl
 
 /-- Every projection from a constant product commutes with a morphism. -/
-@[stacks 0190 "naturality of a constant coefficient product projection"]
 theorem diagonal.π_naturality {K : Type w}
     [∀ X : C, HasProduct (fun _ : K ↦ X)]
     (i : K) {X Y : C} (f : X ⟶ Y) :
     (diagonal K).map f ≫ Pi.π (fun _ : K ↦ Y) i =
-      Pi.π (fun _ : K ↦ X) i ≫ f := sorry
+      Pi.π (fun _ : K ↦ X) i ≫ f :=
+  Pi.map_π (fun _ : K ↦ f) i
 
 /-- Projection onto one fixed factor, natural in the repeated object. -/
-@[stacks 0190 "natural projection from a constant coefficient product"]
 noncomputable def diagonal.π {K : Type w}
     [∀ X : C, HasProduct (fun _ : K ↦ X)] (i : K) :
     diagonal K ⟶ 𝟭 C where
@@ -78,10 +75,10 @@ noncomputable def diagonal.π {K : Type w}
   naturality _ _ f := diagonal.π_naturality i f
 
 /-- A component of the natural projection is the corresponding product projection. -/
-@[simp, stacks 0190 "component of a constant coefficient product projection"]
+@[simp]
 theorem diagonal.π_app {K : Type w}
     [∀ X : C, HasProduct (fun _ : K ↦ X)] (i : K) (X : C) :
     (diagonal.π i).app X =
-      Pi.π (fun _ : K ↦ X) i := sorry
+      Pi.π (fun _ : K ↦ X) i := rfl
 
 end CategoryTheory.Limits.Pi

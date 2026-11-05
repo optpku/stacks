@@ -24,12 +24,16 @@ universe u v
 namespace IsGRing
 
 /-- Lemma 15.50.4: a Noetherian ring is a G-ring exactly when every finite-free algebra over it
-has regular formal fibers. -/
+has regular formal fibers.
+
+The test universe contains the universe of `R`: finite `R`-modules are small in that universe
+by `Module.Finite.small`. An independently smaller test universe can miss all nonzero
+`R`-algebras. -/
 @[stacks 07PQ "finite-free formal-fiber criterion"]
 theorem iff_forall_finiteFree_formalFibers
     (R : Type u) [CommRing R] [IsNoetherianRing R] :
     IsGRing R ↔
-      ∀ (S : Type v) [CommRing S] [Algebra R S] [Module.Free R S] [Module.Finite R S]
+      ∀ (S : Type (max u v)) [CommRing S] [Algebra R S] [Module.Free R S] [Module.Finite R S]
         (p q : PrimeSpectrum S), q.asIdeal ≤ p.asIdeal →
           IsRegularRing (q.asIdeal.Fiber (PrimeSpectrum.CompletedLocalRing p)) := sorry
 

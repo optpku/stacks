@@ -62,16 +62,25 @@ evaluation. -/
 theorem polynomialIso_ker_le :
     RingHom.ker (selfHom (CommRingCat.of A) (Under.mk (CommRingCat.ofHom (algebraMap A B)))).right.hom ≤
       Ideal.comap (polynomialIso (CommRingCat.of A) B).hom.right.hom
-        (RingHom.ker (algebraMap (Generators.self A B).Ring B)) :=
-  sorry
+        (RingHom.ker (algebraMap (Generators.self A B).Ring B)) := by
+  intro x hx
+  change (algebraMap (Generators.self A B).Ring B)
+    ((polynomialIso (CommRingCat.of A) B).hom.right.hom x) = 0
+  change _ = 0 at hx
+  exact (RingHom.congr_fun (selfHom_comp_polynomialIso A B) x).symm.trans hx
 
 /-- `polynomialIso.inv` sends the kernel of polynomial evaluation into the kernel of the
 categorical counit. -/
 theorem polynomialIso_inv_ker_le :
     RingHom.ker (algebraMap (Generators.self A B).Ring B) ≤
       Ideal.comap (polynomialIso (CommRingCat.of A) B).inv.right.hom
-        (RingHom.ker (selfHom (CommRingCat.of A) (Under.mk (CommRingCat.ofHom (algebraMap A B)))).right.hom) :=
-  sorry
+        (RingHom.ker (selfHom (CommRingCat.of A) (Under.mk (CommRingCat.ofHom (algebraMap A B)))).right.hom) := by
+  intro x hx
+  change (selfHom (CommRingCat.of A)
+    (Under.mk (CommRingCat.ofHom (algebraMap A B)))).right.hom
+    ((polynomialIso (CommRingCat.of A) B).inv.right.hom x) = 0
+  change _ = 0 at hx
+  exact (RingHom.congr_fun (algebraMap_comp_polynomialIso_inv A B) x).symm.trans hx
 
 /-- The adjunction unit from polynomial Kähler differentials into the restricted
 scalar extension. -/
@@ -298,60 +307,215 @@ theorem selfNaiveConormalMap_comp_inv :
     selfNaiveConormalMap A B ≫ selfNaiveConormalInv A B = 𝟙 _ :=
   sorry
 
-/-- Components of the forward cochain comparison of `L_{B/A}` with the Under naive
-cotangent complex. -/
+set_option backward.isDefEq.respectTransparency false in
+/-- The scalar-extended polynomial Kähler object is the cotangent space of the
+canonical self-presentation. Both maps are the identity on tensors. -/
+def selfNaiveCotangentSpaceIso :
+    (ModuleCat.extendScalars (algebraMap (Generators.self A B).Ring B)).obj
+      (CommRingCat.KaehlerDifferential (polynomial (CommRingCat.of A) B).hom) ≅
+        ModuleCat.of B (Generators.self A B).toExtension.CotangentSpace :=
+  by
+    change
+      (letI := (algebraMap A (Generators.self A B).Ring).toAlgebra
+       letI := (algebraMap (Generators.self A B).Ring B).toAlgebra
+       ModuleCat.of B (B ⊗[(Generators.self A B).Ring]
+         Ω[(Generators.self A B).Ring⁄A])) ≅
+        ModuleCat.of B (Generators.self A B).toExtension.CotangentSpace
+    let F (a : Algebra A (Generators.self A B).Ring)
+        (b : Algebra (Generators.self A B).Ring B) : ModuleCat B :=
+      letI := a
+      letI := b
+      ModuleCat.of B (B ⊗[(Generators.self A B).Ring]
+        Ω[(Generators.self A B).Ring⁄A])
+    exact eqToIso (congrArg₂ F
+      (toAlgebra_algebraMap (R := A) (S := (Generators.self A B).Ring))
+      (toAlgebra_algebraMap (R := (Generators.self A B).Ring) (S := B)))
+
+/-- Components of the comparison with the shared canonical naive complex. -/
 def selfNaiveIsoCochainHom_f :
-    ∀ i : ℤ,
-      (selfNaiveComplex (CommRingCat.of A) (Under.mk (CommRingCat.ofHom (algebraMap A B)))).X i ⟶
-        (selfNaiveComplex (CommRingCat.of A) (Under.mk (CommRingCat.ofHom (algebraMap A B)))).X i
+    ∀ i : ℤ, (selfNaiveComplex (CommRingCat.of A) (Under.mk (CommRingCat.ofHom (algebraMap A B)))).X i ⟶ ((Algebra.naiveCotangent A B).extend embeddingDownNat).X i
   | Int.ofNat 0 =>
       (naiveComplex_X_zero (CommRingCat.of A) (Under.mk (CommRingCat.ofHom (algebraMap A B))) (Under.mk (CommRingCat.ofHom (algebraMap A B))).right
           (selfHom (CommRingCat.of A) (Under.mk (CommRingCat.ofHom (algebraMap A B))))).hom ≫
-        selfNaiveDifferentialsMap A B ≫
-          selfNaiveDifferentialsInv A B ≫
-            (naiveComplex_X_zero (CommRingCat.of A) (Under.mk (CommRingCat.ofHom (algebraMap A B))) (Under.mk (CommRingCat.ofHom (algebraMap A B))).right
-                (selfHom (CommRingCat.of A) (Under.mk (CommRingCat.ofHom (algebraMap A B))))).inv
+        selfNaiveDifferentialsMap A B ≫ (selfNaiveCotangentSpaceIso A B).hom ≫
+          ((Algebra.naiveCotangent A B).extendXIso embeddingDownNat
+            (rfl : embeddingDownNat.f 0 = 0)).inv
   | Int.negSucc 0 =>
       (naiveComplex_X_negOne (CommRingCat.of A) (Under.mk (CommRingCat.ofHom (algebraMap A B))) (Under.mk (CommRingCat.ofHom (algebraMap A B))).right
           (selfHom (CommRingCat.of A) (Under.mk (CommRingCat.ofHom (algebraMap A B))))).hom ≫
         selfNaiveConormalMap A B ≫
-          selfNaiveConormalInv A B ≫
-            (naiveComplex_X_negOne (CommRingCat.of A) (Under.mk (CommRingCat.ofHom (algebraMap A B))) (Under.mk (CommRingCat.ofHom (algebraMap A B))).right
-                (selfHom (CommRingCat.of A) (Under.mk (CommRingCat.ofHom (algebraMap A B))))).inv
+          ModuleCat.ofHom (Extension.NaiveCotangent.liftEquiv
+            (Generators.self A B).toExtension).symm.toLinearMap ≫
+          ((Algebra.naiveCotangent A B).extendXIso embeddingDownNat
+            (rfl : embeddingDownNat.f 1 = -1)).inv
   | Int.negSucc (_ + 1) => 0
   | Int.ofNat (_ + 1) => 0
 
-/-- The component comparisons commute with the naive cotangent differential. -/
+/-- The polynomial kernel and differential identifications respect the differential
+of the shared complex (in particular its lifted conormal term). -/
 theorem selfNaiveIsoCochainHom_comm (i j : ℤ) (h : (up ℤ).Rel i j) :
-    selfNaiveIsoCochainHom_f A B i ≫
-        (selfNaiveComplex (CommRingCat.of A) (Under.mk (CommRingCat.ofHom (algebraMap A B)))).d i j =
-      (selfNaiveComplex (CommRingCat.of A) (Under.mk (CommRingCat.ofHom (algebraMap A B)))).d i j ≫
-        selfNaiveIsoCochainHom_f A B j := sorry
+    selfNaiveIsoCochainHom_f A B i ≫ ((Algebra.naiveCotangent A B).extend embeddingDownNat).d i j =
+      (selfNaiveComplex (CommRingCat.of A) (Under.mk (CommRingCat.ofHom (algebraMap A B)))).d i j ≫ selfNaiveIsoCochainHom_f A B j := sorry
 
-/-- Forward cochain comparison on the Under naive cotangent complex, obtained by
-transporting along the Under-vs-Generators.self identifications. -/
+/-- The actual Under-to-canonical comparison, with polynomial differential and
+kernel maps in degrees zero and minus one. -/
 def selfNaiveIsoCochainHom :
-    selfNaiveComplex (CommRingCat.of A) (Under.mk (CommRingCat.ofHom (algebraMap A B))) ⟶
-      selfNaiveComplex (CommRingCat.of A) (Under.mk (CommRingCat.ofHom (algebraMap A B))) where
+    selfNaiveComplex (CommRingCat.of A) (Under.mk (CommRingCat.ofHom (algebraMap A B))) ⟶ ((Algebra.naiveCotangent A B).extend embeddingDownNat) where
   f := selfNaiveIsoCochainHom_f A B
   comm' := selfNaiveIsoCochainHom_comm A B
 
-/-- Inverse cochain comparison on the Under naive cotangent complex. -/
-def selfNaiveIsoCochainInv :
-    selfNaiveComplex (CommRingCat.of A) (Under.mk (CommRingCat.ofHom (algebraMap A B))) ⟶
-      selfNaiveComplex (CommRingCat.of A) (Under.mk (CommRingCat.ofHom (algebraMap A B))) :=
-  selfNaiveIsoCochainHom A B
+/-- Components of the explicit reverse comparison. -/
+def selfNaiveIsoCochainInv_f :
+    ∀ i : ℤ, ((Algebra.naiveCotangent A B).extend embeddingDownNat).X i ⟶ (selfNaiveComplex (CommRingCat.of A) (Under.mk (CommRingCat.ofHom (algebraMap A B)))).X i
+  | Int.ofNat 0 =>
+      ((Algebra.naiveCotangent A B).extendXIso embeddingDownNat
+        (rfl : embeddingDownNat.f 0 = 0)).hom ≫
+      (selfNaiveCotangentSpaceIso A B).inv ≫ selfNaiveDifferentialsInv A B ≫
+        (naiveComplex_X_zero (CommRingCat.of A) (Under.mk (CommRingCat.ofHom (algebraMap A B))) (Under.mk (CommRingCat.ofHom (algebraMap A B))).right
+          (selfHom (CommRingCat.of A) (Under.mk (CommRingCat.ofHom (algebraMap A B))))).inv
+  | Int.negSucc 0 =>
+      ((Algebra.naiveCotangent A B).extendXIso embeddingDownNat
+        (rfl : embeddingDownNat.f 1 = -1)).hom ≫
+      ModuleCat.ofHom (Extension.NaiveCotangent.liftEquiv
+        (Generators.self A B).toExtension).toLinearMap ≫
+      selfNaiveConormalInv A B ≫ (naiveComplex_X_negOne (CommRingCat.of A) (Under.mk (CommRingCat.ofHom (algebraMap A B))) (Under.mk (CommRingCat.ofHom (algebraMap A B))).right
+          (selfHom (CommRingCat.of A) (Under.mk (CommRingCat.ofHom (algebraMap A B))))).inv
+  | Int.negSucc (_ + 1) => 0
+  | Int.ofNat (_ + 1) => 0
 
+set_option backward.isDefEq.respectTransparency false in
+/-- The Under model vanishes outside its two displayed degrees. -/
+private theorem selfNaiveUnder_isZero (i : ℤ) (h0 : i ≠ 0) (h1 : i ≠ -1) :
+    CategoryTheory.Limits.IsZero
+      ((selfNaiveComplex (CommRingCat.of A)
+        (Under.mk (CommRingCat.ofHom (algebraMap A B)))).X i) := by
+  cases i with
+  | ofNat n =>
+    cases n with
+    | zero => exact (h0 rfl).elim
+    | succ n =>
+      apply HomologicalComplex.isZero_extend_X
+      intro k hk
+      change -(k : ℤ) = (n : ℤ) + 1 at hk
+      omega
+  | negSucc n =>
+    cases n with
+    | zero => exact (h1 rfl).elim
+    | succ n =>
+      let K := naiveChain (CommRingCat.of A)
+        (Under.mk (CommRingCat.ofHom (algebraMap A B))) B
+        (selfHom (CommRingCat.of A) (Under.mk (CommRingCat.ofHom (algebraMap A B))))
+      apply CategoryTheory.Limits.IsZero.of_iso _
+        (K.extendXIso embeddingDownNat (rfl : embeddingDownNat.f (n + 2) = _))
+      exact (CategoryTheory.Limits.isZero_zero (ModuleCat B)).of_iso
+        (ChainComplex.mk'XIso _ _ _ _ n)
+
+set_option backward.isDefEq.respectTransparency false in
+/-- The shared model vanishes outside its two displayed degrees. -/
+private theorem selfNaiveCanonical_isZero (i : ℤ) (h0 : i ≠ 0) (h1 : i ≠ -1) :
+    CategoryTheory.Limits.IsZero
+      (((Algebra.naiveCotangent A B).extend embeddingDownNat).X i) := by
+  cases i with
+  | ofNat n =>
+    cases n with
+    | zero => exact (h0 rfl).elim
+    | succ n =>
+      apply HomologicalComplex.isZero_extend_X
+      intro k hk
+      change -(k : ℤ) = (n : ℤ) + 1 at hk
+      omega
+  | negSucc n =>
+    cases n with
+    | zero => exact (h1 rfl).elim
+    | succ n =>
+      apply CategoryTheory.Limits.IsZero.of_iso _
+        ((Algebra.naiveCotangent A B).extendXIso embeddingDownNat
+          (rfl : embeddingDownNat.f (n + 2) = _))
+      exact (ModuleCat.isZero_of_subsingleton (ModuleCat.of B PUnit)).of_iso
+        (Extension.NaiveCotangent.componentSuccSuccIsoUnit
+          (Generators.self A B).toExtension n)
+
+set_option backward.isDefEq.respectTransparency false in
+/-- The explicit reverse components undo the forward components. -/
+private theorem selfNaiveIsoCochainHom_f_comp_inv_f (i : ℤ) :
+    selfNaiveIsoCochainHom_f A B i ≫ selfNaiveIsoCochainInv_f A B i = 𝟙 _ := by
+  by_cases h0 : i = 0
+  · subst i
+    simp only [selfNaiveIsoCochainHom_f, selfNaiveIsoCochainInv_f,
+      Category.assoc, Iso.inv_hom_id_assoc, Iso.hom_inv_id_assoc]
+    rw [← Category.assoc (selfNaiveDifferentialsMap A B),
+      selfNaiveDifferentialsMap_comp_inv]
+    simp only [Category.id_comp, Iso.hom_inv_id]
+  by_cases h1 : i = -1
+  · subst i
+    let U : CochainComplex (ModuleCat B) ℤ := selfNaiveComplex (CommRingCat.of A)
+      (Under.mk (CommRingCat.ofHom (algebraMap A B)))
+    let e := (Extension.NaiveCotangent.liftEquiv (Generators.self A B).toExtension).toModuleIso
+    let u : U.X (-1) ≅ (show ModuleCat B from naiveConormal (CommRingCat.of A)
+        (Under.mk (CommRingCat.ofHom (algebraMap A B))) B
+        (selfHom (CommRingCat.of A) (Under.mk (CommRingCat.ofHom (algebraMap A B))))) :=
+      naiveComplex_X_negOne (CommRingCat.of A)
+        (Under.mk (CommRingCat.ofHom (algebraMap A B))) B
+        (selfHom (CommRingCat.of A) (Under.mk (CommRingCat.ofHom (algebraMap A B))))
+    let c := (Algebra.naiveCotangent A B).extendXIso embeddingDownNat
+      (rfl : embeddingDownNat.f 1 = -1)
+    change (u.hom ≫ selfNaiveConormalMap A B ≫ e.inv ≫ c.inv) ≫
+      (c.hom ≫ e.hom ≫ selfNaiveConormalInv A B ≫ u.inv) = 𝟙 _
+    simp only [Category.assoc, Iso.inv_hom_id_assoc]
+    erw [← Category.assoc (selfNaiveConormalMap A B), selfNaiveConormalMap_comp_inv]
+    simp only [Category.id_comp, Iso.hom_inv_id]
+  exact (selfNaiveUnder_isZero A B i h0 h1).eq_of_src _ _
+
+set_option backward.isDefEq.respectTransparency false in
+/-- The reverse polynomial identifications respect the differential. -/
+theorem selfNaiveIsoCochainInv_comm (i j : ℤ) (h : (up ℤ).Rel i j) :
+    selfNaiveIsoCochainInv_f A B i ≫ (selfNaiveComplex (CommRingCat.of A) (Under.mk (CommRingCat.ofHom (algebraMap A B)))).d i j =
+      ((Algebra.naiveCotangent A B).extend embeddingDownNat).d i j ≫ selfNaiveIsoCochainInv_f A B j := by
+  have hi : Epi (selfNaiveIsoCochainHom_f A B i) := by
+    by_cases h0 : i = 0
+    · subst i
+      dsimp only [selfNaiveIsoCochainHom_f]
+      infer_instance
+    by_cases h1 : i = -1
+    · subst i
+      dsimp only [selfNaiveIsoCochainHom_f]
+      haveI : IsIso (show (show ModuleCat B from naiveConormal (CommRingCat.of A)
+          (Under.mk (CommRingCat.ofHom (algebraMap A B))) B
+          (selfHom (CommRingCat.of A) (Under.mk (CommRingCat.ofHom (algebraMap A B))))) ⟶
+          ModuleCat.of B (Generators.self A B).toExtension.Cotangent from
+          selfNaiveConormalMap A B) := selfNaiveConormalMap_isIso A B
+      change Epi (_ ≫ _ ≫ ((Extension.NaiveCotangent.liftEquiv
+        (Generators.self A B).toExtension).toModuleIso).inv ≫ _)
+      infer_instance
+    exact (selfNaiveCanonical_isZero A B i h0 h1).epi _
+  apply (cancel_epi (selfNaiveIsoCochainHom_f A B i)).1
+  rw [← Category.assoc, selfNaiveIsoCochainHom_f_comp_inv_f, Category.id_comp,
+    ← Category.assoc, selfNaiveIsoCochainHom_comm A B i j h,
+    Category.assoc, selfNaiveIsoCochainHom_f_comp_inv_f, Category.comp_id]
+
+/-- Explicit inverse comparison from the shared canonical model to the Under model. -/
+def selfNaiveIsoCochainInv :
+    ((Algebra.naiveCotangent A B).extend embeddingDownNat) ⟶ selfNaiveComplex (CommRingCat.of A) (Under.mk (CommRingCat.ofHom (algebraMap A B))) where
+  f := selfNaiveIsoCochainInv_f A B
+  comm' := selfNaiveIsoCochainInv_comm A B
+
+set_option backward.isDefEq.respectTransparency false in
 /-- The two cochain comparisons compose to the identity. -/
 private theorem selfNaiveIsoCochainHom_comp_inv :
-    selfNaiveIsoCochainHom A B ≫ selfNaiveIsoCochainInv A B = 𝟙 _ :=
-  sorry
+    selfNaiveIsoCochainHom A B ≫ selfNaiveIsoCochainInv A B = 𝟙 _ := by
+  ext i : 1
+  exact selfNaiveIsoCochainHom_f_comp_inv_f A B i
+
+/-- The degree minus one differential square compares the genuine two models. -/
+theorem selfNaiveIsoCochainHom_d_negOne_zero :
+    (selfNaiveIsoCochainHom A B).f (-1) ≫ ((Algebra.naiveCotangent A B).extend embeddingDownNat).d (-1) 0 =
+      (selfNaiveComplex (CommRingCat.of A) (Under.mk (CommRingCat.ofHom (algebraMap A B)))).d (-1) 0 ≫ (selfNaiveIsoCochainHom A B).f 0 :=
+  (selfNaiveIsoCochainHom A B).comm (-1) 0
 
 /-- The derived morphism `L_{B/A} ⟶ NL_{B/A}` of the self-presentation, transported
 along the Under-vs-Generators.self comparison. -/
 def derivedToNaiveObject :
-    derived A B ⟶
-      DerivedCategory.Q.obj (selfNaiveComplex (CommRingCat.of A) (Under.mk (CommRingCat.ofHom (algebraMap A B)))) :=
+    derived A B ⟶ Algebra.naiveCotangentObject A B :=
   DerivedCategory.Q.map
     (Algebra.NaiveCotangent.toNaive (CommRingCat.of A) (Under.mk (CommRingCat.ofHom (algebraMap A B))) ≫
       selfNaiveIsoCochainHom A B)
@@ -366,7 +530,7 @@ theorem derivedToNaiveObject_eq :
 
 /-- The section identifying the naive complex with the truncation in degrees at least minus one. -/
 def naiveTruncGESection :
-    DerivedCategory.Q.obj (selfNaiveComplex (CommRingCat.of A) (Under.mk (CommRingCat.ofHom (algebraMap A B)))) ⟶
+    Algebra.naiveCotangentObject A B ⟶
       (t.truncGE (-1)).obj (derived A B) :=
   DerivedCategory.Q.map (selfNaiveIsoCochainInv A B) ≫
     toTruncGE_self (CommRingCat.of A) (Under.mk (CommRingCat.ofHom (algebraMap A B)))
@@ -377,6 +541,55 @@ theorem naiveTruncGESection_eq :
       DerivedCategory.Q.map (selfNaiveIsoCochainInv A B) ≫
         toTruncGE_self (CommRingCat.of A) (Under.mk (CommRingCat.ofHom (algebraMap A B))) :=
   rfl
+
+set_option backward.isDefEq.respectTransparency false in
+/-- The shared comparison followed by the explicit section is the canonical
+truncation projection. This is the source-facing comparison of tag `08RB`. -/
+theorem derivedToNaiveObject_comp_naiveTruncGESection :
+    derivedToNaiveObject A B ≫ naiveTruncGESection A B =
+      (t.truncGEπ (-1)).app (derived A B) := by
+  let U : CochainComplex (ModuleCat B) ℤ := selfNaiveComplex (CommRingCat.of A)
+    (Under.mk (CommRingCat.ofHom (algebraMap A B)))
+  let a : derived A B ⟶ DerivedCategory.Q.obj U := DerivedCategory.Q.map
+    (Algebra.NaiveCotangent.toNaive (CommRingCat.of A)
+      (Under.mk (CommRingCat.ofHom (algebraMap A B))))
+  let s : DerivedCategory.Q.obj U ⟶ (t.truncGE (-1)).obj (derived A B) :=
+    toTruncGE_self (CommRingCat.of A)
+      (Under.mk (CommRingCat.ofHom (algebraMap A B)))
+  haveI : IsIso s := Algebra.NaiveCotangent.toTruncGE_self_isIso
+    (CommRingCat.of A) (Under.mk (CommRingCat.ofHom (algebraMap A B)))
+  have ha : (t.truncGE (-1)).map a =
+      inv s ≫ (t.truncGEπ (-1)).app (DerivedCategory.Q.obj U) :=
+    Algebra.NaiveCotangent.toNaive_inv_toTruncGE_self (CommRingCat.of A)
+      (Under.mk (CommRingCat.ofHom (algebraMap A B)))
+  calc
+    derivedToNaiveObject A B ≫ naiveTruncGESection A B = a ≫ s := by
+      dsimp only [derivedToNaiveObject, naiveTruncGESection, a, s]
+      rw [Functor.map_comp, Category.assoc, ← Category.assoc
+        (DerivedCategory.Q.map (selfNaiveIsoCochainHom A B)),
+        ← Functor.map_comp, selfNaiveIsoCochainHom_comp_inv,
+        CategoryTheory.Functor.map_id, Category.id_comp]
+    _ = (t.truncGEπ (-1)).app (derived A B) := by
+      apply (cancel_mono ((t.truncGEπ (-1)).app
+        ((t.truncGE (-1)).obj (derived A B)))).1
+      calc
+        (a ≫ s) ≫ (t.truncGEπ (-1)).app ((t.truncGE (-1)).obj (derived A B)) =
+            a ≫ (t.truncGEπ (-1)).app (DerivedCategory.Q.obj U) ≫
+              (t.truncGE (-1)).map s := by
+          rw [Category.assoc, ← t.truncGEπ_naturality (-1) s]
+        _ = (t.truncGEπ (-1)).app (derived A B) ≫ (t.truncGE (-1)).map a ≫
+            (t.truncGE (-1)).map s := by
+          rw [← t.truncGEπ_naturality_assoc (-1) a]
+        _ = (t.truncGEπ (-1)).app (derived A B) ≫ inv s ≫
+            (t.truncGEπ (-1)).app (DerivedCategory.Q.obj U) ≫
+              (t.truncGE (-1)).map s := by
+          rw [ha, Category.assoc]
+        _ = (t.truncGEπ (-1)).app (derived A B) ≫ inv s ≫ s ≫
+            (t.truncGEπ (-1)).app ((t.truncGE (-1)).obj (derived A B)) := by
+          rw [t.truncGEπ_naturality (-1) s]
+        _ = (t.truncGEπ (-1)).app (derived A B) ≫
+            (t.truncGEπ (-1)).app ((t.truncGE (-1)).obj (derived A B)) := by
+          simp only [IsIso.inv_hom_id_assoc]
 
 /-- A conormal functional annihilates the incoming differential in the naive chain complex. -/
 theorem extOneHomUnderChain_d_comp {N : Type u} [AddCommGroup N] [Module B N]
@@ -408,7 +621,7 @@ def tensorToNaiveTensor (C : Type u) [CommRing C] [Algebra B C] [Algebra A C]
   DerivedCategory.Q.map
     (((ModuleCat.extendScalars (algebraMap B C)).mapHomologicalComplex (up ℤ)).map
       (Algebra.NaiveCotangent.toNaive (CommRingCat.of A) (Under.mk (CommRingCat.ofHom (algebraMap A B))) ≫
-        selfNaiveIsoCochainHom A B))
+        selfNaiveIsoCochainHom A B ≫ selfNaiveIsoCochainInv A B))
 
 /-- Unfolding of `tensorToNaiveTensor`. -/
 theorem tensorToNaiveTensor_eq (C : Type u) [CommRing C] [Algebra B C] [Algebra A C]
@@ -417,7 +630,7 @@ theorem tensorToNaiveTensor_eq (C : Type u) [CommRing C] [Algebra B C] [Algebra 
       DerivedCategory.Q.map
         (((ModuleCat.extendScalars (algebraMap B C)).mapHomologicalComplex (up ℤ)).map
           (Algebra.NaiveCotangent.toNaive (CommRingCat.of A) (Under.mk (CommRingCat.ofHom (algebraMap A B))) ≫
-            selfNaiveIsoCochainHom A B)) :=
+            selfNaiveIsoCochainHom A B ≫ selfNaiveIsoCochainInv A B)) :=
   rfl
 
 end SquareZeroExtension

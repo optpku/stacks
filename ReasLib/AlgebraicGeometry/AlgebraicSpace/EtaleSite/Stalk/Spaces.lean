@@ -51,6 +51,66 @@ instance isIso_correspondingSpacesPresheaf_restrict (F : (smallEtaleSite X)ᵒ�
     IsIso (correspondingSpacesPresheaf_restrict F) :=
   inferInstanceAs (IsIso ((smallEtaleToSpaces X).op.ranCounit.app F))
 
+/-- Restriction along the actual Yoneda preimages of arrows into a scheme chart is natural. -/
+theorem correspondingSpacesPresheafSectionCone_naturality
+    (F : (smallEtaleSite X)ᵒᵖ ⥤ Type (u + 1)) (U : smallEtaleSite X)
+    {a b : StructuredArrow (op ((smallEtaleToSpaces X).obj U)) (smallEtaleToSpaces X).op}
+    (f : a ⟶ b) :
+    F.map (smallEtaleToSpacesPreimage X a.hom.unop).op ≫ F.map f.right =
+      𝟙 (F.obj (op U)) ≫ F.map (smallEtaleToSpacesPreimage X b.hom.unop).op := by
+  simp only [Category.id_comp, ← F.map_comp]
+  congr 1
+  apply Quiver.Hom.unop_inj
+  apply (smallEtaleToSpaces X).map_injective
+  simpa only [unop_comp, Functor.op_map, Quiver.Hom.unop_op, Functor.map_comp,
+    smallEtaleToSpaces_map_preimage] using! congrArg Quiver.Hom.unop f.w
+
+/-- A section on a scheme chart gives the compatible family of all its restrictions.
+The arrows are actual Yoneda preimages, rather than choices from fullness. -/
+def correspondingSpacesPresheafSectionCone
+    (F : (smallEtaleSite X)ᵒᵖ ⥤ Type (u + 1)) (U : smallEtaleSite X) :
+    Limits.Cone (StructuredArrow.proj (op ((smallEtaleToSpaces X).obj U))
+      (smallEtaleToSpaces X).op ⋙ F) where
+  pt := F.obj (op U)
+  π :=
+    { app := fun a ↦ F.map (smallEtaleToSpacesPreimage X a.hom.unop).op
+      naturality := by
+        intro a b f
+        exact (correspondingSpacesPresheafSectionCone_naturality F U f).symm }
+
+/-- Extend a section on a scheme chart by its explicit compatible family in the
+pointwise right Kan limit. This construction does not invert the restriction counit. -/
+def correspondingSpacesPresheafSection
+    (F : (smallEtaleSite X)ᵒᵖ ⥤ Type (u + 1)) (U : smallEtaleSite X) :
+    F.obj (op U) ⟶ (correspondingSpacesPresheaf F).obj (op ((smallEtaleToSpaces X).obj U)) :=
+  Limits.limit.lift _ (correspondingSpacesPresheafSectionCone F U) ≫
+    ((smallEtaleToSpaces X).op.ranObjObjIsoLimit F
+      (op ((smallEtaleToSpaces X).obj U))).inv
+
+/-- The compatible-family extension is the inverse of restriction to the scheme chart. -/
+theorem correspondingSpacesPresheafSection_eq_inv
+    (F : (smallEtaleSite X)ᵒᵖ ⥤ Type (u + 1)) (U : smallEtaleSite X) :
+    correspondingSpacesPresheafSection F U =
+      (inv (correspondingSpacesPresheaf_restrict F)).app (op U) := by
+  rw [NatIso.isIso_inv_app]
+  apply IsIso.eq_inv_of_inv_hom_id
+  have hpre : smallEtaleToSpacesPreimage X (𝟙 ((smallEtaleToSpaces X).obj U)) = 𝟙 U := by
+    apply (smallEtaleToSpaces X).map_injective
+    simp
+  have h := (smallEtaleToSpaces X).op.ranObjObjIsoLimit_inv_π F
+    (op ((smallEtaleToSpaces X).obj U))
+    (StructuredArrow.mk (Y := op U) (𝟙 (op ((smallEtaleToSpaces X).obj U))))
+  simp only [StructuredArrow.mk_hom_eq_self, StructuredArrow.mk_right] at h
+  erw [((smallEtaleToSpaces X).op.ran.obj F).map_id, Category.id_comp] at h
+  change (Limits.limit.lift _ (correspondingSpacesPresheafSectionCone F U) ≫
+    ((smallEtaleToSpaces X).op.ranObjObjIsoLimit F
+      (op ((smallEtaleToSpaces X).obj U))).inv) ≫
+    ((smallEtaleToSpaces X).op.ranCounit.app F).app (op U) = 𝟙 _
+  erw [Category.assoc, h, Limits.limit.lift_π]
+  change F.map (smallEtaleToSpacesPreimage X (𝟙 ((smallEtaleToSpaces X).obj U))).op = 𝟙 _
+  rw [hpre]
+  simp
+
 /-- On sheaves, the corresponding spaces-étale presheaf is the underlying presheaf of the
 cocontinuous pushforward along `smallEtaleToSpaces`. -/
 theorem correspondingSpacesSheaf (F : Sheaf (smallEtaleTopology X) (Type (u + 1))) :
@@ -71,7 +131,7 @@ underlying spaces-étale object. -/
 theorem spacesSectionsDiagram_obj (xbar : GeometricPoint X)
     (F' : (spacesEtaleSite X)ᵒᵖ ⥤ Type (u + 1)) (U : EtaleNeighborhood xbar) :
     (spacesSectionsDiagram xbar F').obj (op U) = F'.obj (op U.toSpacesEtale) :=
-  sorry
+  rfl
 
 /-- The colimit of a spaces-étale presheaf over all étale neighborhoods of a geometric point. -/
 def spacesEtaleStalk (xbar : GeometricPoint X)
@@ -83,7 +143,7 @@ neighborhoods. -/
 theorem spacesEtaleStalk_def (xbar : GeometricPoint X)
     (F' : (spacesEtaleSite X)ᵒᵖ ⥤ Type (u + 1)) :
     spacesEtaleStalk xbar F' = (spacesSectionsDiagram xbar F').ColimitType :=
-  sorry
+  rfl
 
 /-- The germ map from sections over an étale neighborhood to the spaces-étale stalk. -/
 def toSpacesEtaleStalk {xbar : GeometricPoint X} {F' : (spacesEtaleSite X)ᵒᵖ ⥤ Type (u + 1)}
@@ -96,7 +156,7 @@ theorem toSpacesEtaleStalk_apply {xbar : GeometricPoint X}
     {F' : (spacesEtaleSite X)ᵒᵖ ⥤ Type (u + 1)} (U : EtaleNeighborhood xbar)
     (σ : F'.obj (op U.toSpacesEtale)) :
     toSpacesEtaleStalk U σ = (spacesSectionsDiagram xbar F').ιColimitType (op U) σ :=
-  sorry
+  rfl
 
 /-- The component of the stalk comparison at a small étale neighborhood. -/
 def stalkToSpacesColimitι (xbar : GeometricPoint X)
@@ -104,8 +164,8 @@ def stalkToSpacesColimitι (xbar : GeometricPoint X)
     (σ : F.obj ((CategoryOfElements.π (smallLiftFunctor xbar)).op.obj j)) :
     spacesEtaleStalk xbar (correspondingSpacesPresheaf F) :=
   toSpacesEtaleStalk ((SmallEtaleNeighborhood.toEtaleNeighborhood xbar).obj j.unop)
-    ((inv (correspondingSpacesPresheaf_restrict F)).app
-      ((CategoryOfElements.π (smallLiftFunctor xbar)).op.obj j) σ)
+    (correspondingSpacesPresheafSection F
+      ((CategoryOfElements.π (smallLiftFunctor xbar)).obj j.unop) σ)
 
 /-- The comparison components are compatible with restriction along morphisms of small étale
 neighborhoods. -/

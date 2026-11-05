@@ -6,12 +6,19 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import ReasLib.Topology.Constructible.Subspace
+public import Mathlib.Topology.Constructible
 import StacksCheckRecall
 
 @[expose] public section
 
+universe u
+
+open scoped Set.Notation
+
 /- Lemma 5.15.9: constructible subsets of closed subspaces with retrocompact
 complement have constructible ambient image. -/
 @[stacks 09YG "constructible subsets of closed subspaces"]
-#check Topology.IsConstructible.image_subtypeVal_of_isRetrocompact_compl
+#check fun {X : Type u} [TopologicalSpace X] {Z : TopologicalSpace.Closeds X} {E : Set Z}
+    (hE : Topology.IsConstructible E) (hZc : IsRetrocompact ((Z : Set X)ᶜ)) ↦
+  hE.image_of_isClosedEmbedding Z.isClosed.isClosedEmbedding_subtypeVal
+    (by simpa only [Subtype.range_coe] using hZc)

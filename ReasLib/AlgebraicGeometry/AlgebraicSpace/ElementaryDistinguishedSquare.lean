@@ -71,7 +71,7 @@ abbrev closedComplement {S : Scheme.{u}} {U V W : AlgebraicSpace S} (j : U ⟶ W
 distinguished square `(j, f)`. -/
 abbrev preimage {S : Scheme.{u}} {U V W : AlgebraicSpace S} (j : U ⟶ W) (f : V ⟶ W)
     [IsElementaryDistinguishedSquare j f] : AlgebraicSpace S :=
-  OpenSubspace.preimage (toOpenSubspace j f) f
+  OpenSubspace.preimageReducedComplement (toOpenSubspace j f) f
 
 /-- The canonical comparison `f⁻¹(T) ⟶ T` of an elementary distinguished square. -/
 abbrev preimageTo {S : Scheme.{u}} {U V W : AlgebraicSpace S} (j : U ⟶ W) (f : V ⟶ W)

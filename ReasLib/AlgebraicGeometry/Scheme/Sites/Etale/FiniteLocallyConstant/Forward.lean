@@ -339,7 +339,8 @@ noncomputable def forgetFiniteTypeLocallyConstantModule (Λ : Type (u + 1)) [Rin
       exact Sheaf.IsFiniteTypeLocallyConstantModule.underlying_isFiniteLocallyConstant F.obj
 
 /-- The finite étale scheme representing the underlying finite locally constant sheaf of sets of
-a finite-type locally constant sheaf of `Λ`-modules. -/
+a finite-type locally constant sheaf of `Λ`-modules, constructed directly from its affine algebras.
+The geometric point is retained for compatibility; the construction is independent of it. -/
 noncomputable def finiteEtaleOfFiniteTypeLocallyConstantModule
     (Λ : Type (u + 1)) [Ring Λ] [Finite Λ]
     [HasWeakSheafify X.smallEtaleTopology (ModuleCat.{u + 1} Λ)]
@@ -347,13 +348,8 @@ noncomputable def finiteEtaleOfFiniteTypeLocallyConstantModule
     [ConnectedSpace X] (xbar : GeometricPoint X)
     (F : (Sheaf.finiteTypeLocallyConstantModule X.smallEtaleTopology Λ).FullSubcategory) :
     FiniteEtale X :=
-  -- Local instance justification (proof-local temporary data): reuse the named equivalence proof for this finite-module underlying-set inverse object, keeping the chosen geometric-fiber functor fixed.
-  letI : (GeometricPoint.fiberAction xbar).IsEquivalence :=
-    CategoryTheory.PreGaloisCategory.functorToContAction_isEquivalence
-      (GeometricPoint.finiteFiber xbar)
-  (GeometricPoint.fiberAction xbar).asEquivalence.inverse.obj
-    ((finiteLocallyConstant_equivalence_finitePi1Sets xbar).functor.obj
-      ((forgetFiniteTypeLocallyConstantModule Λ).obj F))
+  (finiteLocallyConstantToFiniteEtale (X := X)).obj
+    ((forgetFiniteTypeLocallyConstantModule Λ).obj F)
 
 /-- The actual geometric module stalk of a finite-type locally constant sheaf, with linear
 monodromy induced by natural automorphisms of the finite étale fiber functor. -/
@@ -379,7 +375,7 @@ noncomputable def finitePi1LambdaModuleOfModuleSheaf
     StalkRepresentation.module_finite Λ xbar F⟩
 
 /-- The finite étale morphism induced by a morphism of finite-type locally constant `Λ`-module
-sheaves via the set-level Galois equivalence on underlying sheaves of sets. -/
+sheaves by applying the representing-cover functor to the underlying sheaf map. -/
 noncomputable def inducedFiniteEtaleHomOfModuleSheaf
     (Λ : Type (u + 1)) [Ring Λ] [Finite Λ]
     [HasWeakSheafify X.smallEtaleTopology (ModuleCat.{u + 1} Λ)]
@@ -389,13 +385,8 @@ noncomputable def inducedFiniteEtaleHomOfModuleSheaf
     (f : F ⟶ G) :
     finiteEtaleOfFiniteTypeLocallyConstantModule Λ xbar F ⟶
       finiteEtaleOfFiniteTypeLocallyConstantModule Λ xbar G :=
-  -- Local instance justification (proof-local temporary data): the named proof supplies only this fixed inverse.map on the given module-sheaf morphism; no new equivalence or global instance is introduced.
-  letI : (GeometricPoint.fiberAction xbar).IsEquivalence :=
-    CategoryTheory.PreGaloisCategory.functorToContAction_isEquivalence
-      (GeometricPoint.finiteFiber xbar)
-  (GeometricPoint.fiberAction xbar).asEquivalence.inverse.map
-    ((finiteLocallyConstant_equivalence_finitePi1Sets xbar).functor.map
-      ((forgetFiniteTypeLocallyConstantModule Λ).map f))
+  (finiteLocallyConstantToFiniteEtale (X := X)).map
+    ((forgetFiniteTypeLocallyConstantModule Λ).map f)
 
 /-- The linear map on geometric stalks induced by a morphism of finite-type locally
 constant module sheaves. -/

@@ -13,9 +13,10 @@ public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleQuotient
 /-!
 # Dimension of the infinite-product quotient
 
-Over a finite field, the infinite-product quotient has étale-local dimension zero
-everywhere. Its presentation-level point space has topological Krull dimension one,
-with local dimension zero at its generic point and one elsewhere.
+Over a finite field, the infinite-product algebraic space has étale-local dimension zero
+everywhere. Its canonical point space has topological Krull dimension one, with local
+dimension zero at its generic point and one elsewhere. The presentation-model statements
+are retained alongside the statements about actual points.
 -/
 
 @[expose] public section
@@ -35,8 +36,23 @@ theorem topologicalKrullDimAt_cover_eq_zero (k : Type u) [Field k] [Fintype k]
 /-- The algebraic-space quotient of the infinite-product étale equivalence relation
 over a finite field has dimension zero at every point. -/
 theorem dimensionAt_eq_zero (k : Type u) [Field k] [Fintype k]
-    (x : Points ((preRelation k).etaleQuotientSpace)) : dimensionAt x = 0 :=
+    (x : Points (space k)) : dimensionAt x = 0 :=
   sorry
+
+/-- The canonical point space of the infinite-product algebraic space over a finite field
+has topological Krull dimension one. -/
+theorem topologicalKrullDim_points_eq_one (k : Type u) [Field k] [Fintype k] :
+    topologicalKrullDim (Points (space k)) = 1 := sorry
+
+/-- Away from the specified generic point, the canonical point space has local
+topological Krull dimension one. -/
+theorem topologicalKrullDimAt_points_eq_one (k : Type u) [Field k] [Fintype k]
+    {x : Points (space k)} (hx : x ≠ spaceGenericPoint k) :
+    topologicalKrullDimAt x = 1 := sorry
+
+/-- The generic point is open, so its local topological Krull dimension is zero. -/
+theorem topologicalKrullDimAt_spaceGenericPoint_eq_zero (k : Type u) [Field k] [Fintype k] :
+    topologicalKrullDimAt (spaceGenericPoint k) = 0 := sorry
 
 /-- The presentation-level point space of the infinite-product quotient over a finite
 field has topological Krull dimension one. -/

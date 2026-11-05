@@ -15,7 +15,7 @@ import StacksCheckRecall
 
 noncomputable section
 
-universe uR uA uB
+universe uR uA uB v
 
 open CategoryTheory
 open scoped ModuleCat.Algebra
@@ -30,9 +30,9 @@ weak generator with the prescribed shifted endomorphisms. -/
   (DerivedCategory.Morita.nonempty_equivalence_iff_exists_tilting
       (R := R) (A := A) (B := B) :
     Nonempty (RLinear.TriangulatedEquivalence R
-      (DerivedCategory (ModuleCat (Aᵐᵒᵖ)))
-      (DerivedCategory (ModuleCat (Bᵐᵒᵖ)))) ↔
-      ∃ P : DerivedCategory (ModuleCat (Bᵐᵒᵖ)),
+      (DerivedCategory (ModuleCat.{max uA uB v} (Aᵐᵒᵖ)))
+      (DerivedCategory (ModuleCat.{max uA uB v} (Bᵐᵒᵖ)))) ↔
+      ∃ P : DerivedCategory (ModuleCat.{max uA uB v} (Bᵐᵒᵖ)),
         DerivedCategory.Morita.IsTiltingFor R A P)
 
 #check @DerivedCategory.Morita.IsTiltingFor

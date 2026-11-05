@@ -31,20 +31,19 @@ namespace CategoryTheory.Limits
 variable {C : Type u} [Category.{v} C] [HasZeroMorphisms C]
 variable {I : Type w} (X : I → C) [HasCoproduct X] [HasProduct X]
 
--- Local instance justification (noncanonical choice): `Sigma.π` requires decidable equality on
--- the index type; the comparison is noncomputable and does not expose this choice.
-local instance indexDecidableEq : DecidableEq I := Classical.decEq I
-
 /-- The canonical diagonal morphism from the coproduct of a family to its product. -/
 @[stacks 02FT "canonical coproduct-to-product comparison"]
-def coproductToProduct : (∐ X) ⟶ ∏ᶜ X :=
-  Pi.lift fun i ↦ Sigma.π X i
+def coproductToProduct : (∐ X) ⟶ ∏ᶜ X := by
+  letI : DecidableEq I := Classical.decEq I
+  exact Pi.lift fun i ↦ Sigma.π X i
 
 /-- The `i`-th product component of `coproductToProduct X` is the canonical projection from the
 coproduct to `X i`. -/
 @[stacks 02FT "components of the coproduct-to-product comparison", reassoc (attr := simp)]
-theorem coproductToProduct_π (i : I) :
-    coproductToProduct X ≫ Pi.π X i = Sigma.π X i := sorry
+theorem coproductToProduct_π [d : DecidableEq I] (i : I) :
+    coproductToProduct X ≫ Pi.π X i = Sigma.π X i := by
+  cases Subsingleton.elim (Classical.decEq I) d
+  exact Pi.lift_π _ _
 
 /-- The diagonal summand-factor component of `coproductToProduct X` is the identity. -/
 @[stacks 02FT "diagonal component of the coproduct-to-product comparison", reassoc (attr := simp)]

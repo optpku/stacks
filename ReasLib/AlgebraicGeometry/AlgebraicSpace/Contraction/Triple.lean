@@ -24,15 +24,9 @@ namespace AlgebraicGeometry.AlgebraicSpace.ContractionSituation
 
 variable {S : Scheme.{u}} [AlgebraicGeometry.IsLocallyNoetherian S]
 
-/-- Data witnessing that `u'` and `hatx` are compatible: a proper morphism
-`toV : V' ⟶ ofOver V` which is an isomorphism over the open complement of `Z`,
-a cartesian square of `hatx'` against `σ.g` and `hatx`, and a morphism
-`x' : V' ⟶ σ.X'` restricting to `u'` and `hatx`. -/
-structure CompatibilityWitness (σ : ContractionSituation S) (V : Over S)
-    [AlgebraicGeometry.IsLocallyNoetherian V.left]
-    (Z : Closeds (Points (ofOver V)))
-    (u' : openComplementAlong (ofOver V) Z ⟶ σ.openComplement)
-    (hatx : completionAlong (ofOver V) Z ⟶ σ.W) where
+/-- Objects and morphisms interpolating a compatibility diagram. -/
+structure CompatibilityData (σ : ContractionSituation S) (V : Over S)
+    (Z : Closeds (Points (ofOver V))) where
   /-- The algebraic space `V'` supplying the dilatation of `V` along `Z`. -/
   V' : AlgebraicSpace S
   /-- The structure morphism `V' ⟶ V`. -/
@@ -43,20 +37,38 @@ structure CompatibilityWitness (σ : ContractionSituation S) (V : Over S)
   hatx' : completionAlong V' (Z.preimage (Points.continuous_map toV)) ⟶ σ.completion
   /-- The morphism `x' : V' ⟶ X'` restricting to `u'` and `hatx`. -/
   x' : V' ⟶ σ.X'
-  /-- `V' ⟶ V` is proper. -/
-  proper_toV : Proper toV
-  /-- `V' ⟶ V` is an isomorphism over `V \ Z`. -/
-  isoOverOpen_toV : IsIsoOverOpen toV (AlgebraicGeometry.AlgebraicSpace.openComplementι (ofOver V) Z)
-  /-- The open complement of `Z` includes into `V` through `V'`. -/
-  openToV'_comp_toV : openToV' ≫ toV = AlgebraicGeometry.AlgebraicSpace.openComplementι (ofOver V) Z
-  /-- The square of `hatx'` against `σ.g` and `hatx` is cartesian. -/
-  isPullback : IsPullback hatx' (completionAlong.map toV Z) σ.g hatx
-  /-- `x'` restricts to `u'` on `V \ Z`. -/
-  restricts_u' : openToV' ≫ x' = u' ≫ σ.openComplementι
-  /-- `x'` restricts to `hatx'` on the completion of `V'` along `Z`. -/
+
+/-- Properness, the cartesian square, and the two restrictions of fixed
+interpolating data. -/
+structure CompatibilityData.Properties {σ : ContractionSituation S} {V : Over S}
+    {Z : Closeds (Points (ofOver V))}
+    (D : CompatibilityData σ V Z)
+    (u' : openComplementAlong (ofOver V) Z ⟶ σ.openComplement)
+    (hatx : completionAlong (ofOver V) Z ⟶ σ.W) : Prop where
+  /-- `D.V' ⟶ V` is proper. -/
+  proper_toV : Proper D.toV
+  /-- `D.V' ⟶ V` is an isomorphism over `V \ Z`. -/
+  isoOverOpen_toV : IsIsoOverOpen D.toV (AlgebraicGeometry.AlgebraicSpace.openComplementι (ofOver V) Z)
+  /-- The open complement of `Z` includes into `V` through `D.V'`. -/
+  openToV'_comp_toV : D.openToV' ≫ D.toV = AlgebraicGeometry.AlgebraicSpace.openComplementι (ofOver V) Z
+  /-- The square of `D.hatx'` against `σ.g` and `hatx` is cartesian. -/
+  isPullback : IsPullback D.hatx' (completionAlong.map D.toV Z) σ.g hatx
+  /-- `D.x'` restricts to `u'` on `V \ Z`. -/
+  restricts_u' : D.openToV' ≫ D.x' = u' ≫ σ.openComplementι
+  /-- `D.x'` restricts to `D.hatx'` on the completion of `D.V'` along `Z`. -/
   restricts_hatx :
-    hatx' ≫ completionAlong.ι σ.X' σ.T' =
-      completionAlong.ι V' (Z.preimage (Points.continuous_map toV)) ≫ x'
+    D.hatx' ≫ completionAlong.ι σ.X' σ.T' =
+      completionAlong.ι D.V' (Z.preimage (Points.continuous_map D.toV)) ≫ D.x'
+
+/-- Compatibility consists of interpolating data satisfying the geometric
+and commutativity conditions, with the original inherited projections. -/
+structure CompatibilityWitness (σ : ContractionSituation S) (V : Over S)
+    [AlgebraicGeometry.IsLocallyNoetherian V.left]
+    (Z : Closeds (Points (ofOver V)))
+    (u' : openComplementAlong (ofOver V) Z ⟶ σ.openComplement)
+    (hatx : completionAlong (ofOver V) Z ⟶ σ.W)
+    extends CompatibilityData σ V Z,
+      CompatibilityData.Properties toCompatibilityData u' hatx
 
 /-- Package a proper isomorphism over `V \ Z`, a cartesian filling `hatx'`, and a
 morphism `x' : V' ⟶ X'` restricting to `u'` and `hatx`. -/

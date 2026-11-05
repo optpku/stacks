@@ -23,7 +23,6 @@ namespace ExactCouple
 
 variable {C : Type u} [Category.{v} C] [Abelian C]
 variable (X : ExactCouple C)
-variable (K : Derived.Construction C)
 
 /- Lemma 12.21.2 (1) (tag `011R`): `kernel d` is both the inverse image of `kernel g`
 and the inverse image of `image α` under `f`. -/
@@ -43,19 +42,19 @@ and the image under `g` of `kernel α`. -/
 #check (Image.d_eq_g_on_image_f X :
   imageSubobject X.d = imageSubobject ((imageSubobject X.f).arrow ≫ X.g))
 
-/- A coherent construction supplies the six pieces of the derived datum explicitly; the
-construction itself is an explicit parameter because this data is not a canonical typeclass
-choice. Its theorem-level laws are separate from the concrete objects and morphisms below. -/
+/- The derived datum is obtained canonically from the image, kernel, and homology universal
+properties. Its exactness laws are proved for this construction, rather than supplied by a caller. -/
 #check (X.d : X.E ⟶ X.E)
-#check ((K.data X).homology : C)
+#check ((Derived.data X).homology : C)
 #check (Derived.outer X : C)
 #check (Derived.alpha X : Derived.outer X ⟶ Derived.outer X)
-#check (Derived.f (K.data X) : (K.data X).homology ⟶ Derived.outer X)
-#check (Derived.g (K.data X) : Derived.outer X ⟶ (K.data X).homology)
+#check (Derived.f (Derived.data X) : (Derived.data X).homology ⟶ Derived.outer X)
+#check (Derived.g (Derived.data X) : Derived.outer X ⟶ (Derived.data X).homology)
 
 /- Lemma 12.21.2 (3) (tag `011R`): the six derived pieces form an exact couple. -/
 @[stacks 011R "(3)"]
-#check (K.derived X : ExactCouple C)
+#check (Derived.laws X : Derived.Laws (Derived.data X))
+#check (Derived.derived X : ExactCouple C)
 
 end ExactCouple
 end CategoryTheory

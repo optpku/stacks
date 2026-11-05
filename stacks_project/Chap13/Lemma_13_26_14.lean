@@ -6,7 +6,14 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-import ReasLib.CategoryTheory.Filtration.Derived.LeftExact.SpectralSequence.Compatibility
+import ReasLib.CategoryTheory.Filtration.Derived.LeftExact.Displayed
+import ReasLib.CategoryTheory.Filtration.Derived.LeftExact.SpectralSequence.Targets
+import ReasLib.CategoryTheory.Filtration.Derived.LeftExact.SpectralSequence.Model.Comparison.Total
+import ReasLib.CategoryTheory.Filtration.Derived.LeftExact.SpectralSequence.Realization
+import ReasLib.CategoryTheory.Filtration.Derived.LeftExact.SpectralSequence.Realization.Resolution
+import ReasLib.CategoryTheory.Filtration.Derived.LeftExact.SpectralSequence.Existence
+import ReasLib.CategoryTheory.Filtration.Derived.LeftExact.SpectralSequence.Total.Abutment
+import ReasLib.CategoryTheory.Filtration.Derived.LeftExact.SpectralSequence.Total.PageOne
 import ReasLib.CategoryTheory.Filtration.Complex.SpectralSequenceComparison
 import StacksCheckRecall
 
@@ -20,7 +27,7 @@ keeps boundedness and finiteness in the source type and leaves only enough injec
 source-side existence hypothesis.
 -/
 
-namespace CategoryTheory.FilteredComplex.RightDerived.Finite
+open CategoryTheory CategoryTheory.FilteredObject.Finite.RightDerived.SpectralSequence
 
 /- Lemma 13.26.14 (`015W`): the filtered right-derived spectral sequence. -/
 @[stacks 015W] #check @existsSpectralSequence
@@ -193,5 +200,3 @@ namespace CategoryTheory.FilteredComplex.RightDerived.Finite
 #check @Realization.existsIsoFromOne
 #check @CategoryTheory.FilteredComplex.Association.Hom.isIsoFrom
 #check @CategoryTheory.FilteredComplex.Association.Hom.existsIso
-
-end CategoryTheory.FilteredComplex.RightDerived.Finite

@@ -136,31 +136,50 @@ noncomputable def idealPowerProductHomDiagram {S : Scheme.{u}} {X : AlgebraicSpa
     (I : IdealSubobject X) (G F : X.Modules) : ℕ ⥤ AddCommGrpCat.{u + 1} :=
   Functor.ofSequence (idealPowerProductHomTransition I G F)
 
+/-- The restricted structure module is identified with the structure module of the source.
+Both maps are the identity on sections, since `restrictStructureMap` is the identity
+on each chart. -/
+noncomputable def restrictFunctorObjUnitIso {S : Scheme.{u}} {X Y : AlgebraicSpace S}
+    (f : X ⟶ Y) [Etale f] :
+    (restrictFunctor f).obj (SheafOfModules.unit (structureSheaf Y)) ≅
+      SheafOfModules.unit (structureSheaf X) where
+  hom :=
+    { val :=
+        { app := fun U ↦ ModuleCat.ofHom
+            (X := ((restrictFunctor f).obj
+              (SheafOfModules.unit (structureSheaf Y))).val.obj U)
+            (Y := (SheafOfModules.unit (structureSheaf X)).val.obj U)
+            { toFun := fun x ↦ x
+              map_add' := fun _ _ ↦ rfl
+              map_smul' := fun _ _ ↦ rfl }
+          naturality := fun _ ↦ by ext <;> rfl } }
+  inv := SheafOfModules.unitToPushforwardObjUnit (restrictStructureMap f)
+  hom_inv_id := by ext U <;> rfl
+  inv_hom_id := by ext U <;> rfl
+
 /-- Restriction of the structure module along an étale morphism is a monomorphism. -/
 instance restrictFunctorObjUnit_mono {S : Scheme.{u}} {X Y : AlgebraicSpace S}
     (f : X ⟶ Y) [Etale f] :
     Mono (SheafOfModules.unitToPushforwardObjUnit (restrictStructureMap f)) :=
-  sorry
+  by
+    letI : IsIso (SheafOfModules.unitToPushforwardObjUnit (restrictStructureMap f)) :=
+      (restrictFunctorObjUnitIso f).isIso_inv
+    infer_instance
 
 /-- Restriction of the structure module along an étale morphism is an epimorphism. -/
 instance restrictFunctorObjUnit_epi {S : Scheme.{u}} {X Y : AlgebraicSpace S}
     (f : X ⟶ Y) [Etale f] :
     Epi (SheafOfModules.unitToPushforwardObjUnit (restrictStructureMap f)) :=
-  sorry
+  by
+    letI : IsIso (SheafOfModules.unitToPushforwardObjUnit (restrictStructureMap f)) :=
+      (restrictFunctorObjUnitIso f).isIso_inv
+    infer_instance
 
 /-- The structure-module comparison under an étale restriction is an isomorphism. -/
 noncomputable instance restrictFunctorObjUnit_isIso {S : Scheme.{u}}
     {X Y : AlgebraicSpace S} (f : X ⟶ Y) [Etale f] :
     IsIso (SheafOfModules.unitToPushforwardObjUnit (restrictStructureMap f)) :=
-  isIso_of_mono_of_epi
-    (SheafOfModules.unitToPushforwardObjUnit (restrictStructureMap f))
-
-/-- The restricted structure module is identified with the structure module of the source. -/
-noncomputable def restrictFunctorObjUnitIso {S : Scheme.{u}} {X Y : AlgebraicSpace S}
-    (f : X ⟶ Y) [Etale f] :
-    (restrictFunctor f).obj (SheafOfModules.unit (structureSheaf Y)) ≅
-      SheafOfModules.unit (structureSheaf X) :=
-  (asIso (SheafOfModules.unitToPushforwardObjUnit (restrictStructureMap f))).symm
+  (restrictFunctorObjUnitIso f).isIso_inv
 
 /-- A stage Hom morphism restricts to a morphism on the ideal complement. -/
 noncomputable def idealPowerProductHomToRestrictionStageMap {S : Scheme.{u}}

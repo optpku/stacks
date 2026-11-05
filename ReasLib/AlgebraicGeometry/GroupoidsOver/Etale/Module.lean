@@ -16,6 +16,7 @@ public import ReasLib.AlgebraicGeometry.RingedSite.Module.Localization
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Pullback
 public import ReasLib.AlgebraicGeometry.Scheme.Sites.LiftedStructureSheaf
 public import ReasLib.AlgebraicGeometry.Scheme.Sites.Restriction
+public import ReasLib.AlgebraicGeometry.Scheme.Sites.Sheafification
 public import ReasLib.AlgebraicGeometry.Scheme.Sites.StructureSheaf
 public import ReasLib.CategoryTheory.Fibered.InheritedTopology.Projection
 public import ReasLib.AlgebraicGeometry.GroupoidsOver.Topology
@@ -41,15 +42,6 @@ noncomputable section
 universe u v w
 
 namespace AlgebraicGeometry.Scheme.Etale.Small
-
-/-- Weak sheafification exists on every slice of the small étale topology. -/
-instance over_hasWeakSheafify (U : Scheme.{u}) (V : U.Etale) :
-    HasWeakSheafify (U.smallEtaleTopology.over V) AddCommGrpCat.{u} := sorry
-
-/-- Sheafification equivalences on every small-étale slice are the locally bijective
-morphisms. -/
-instance over_wEqualsLocallyBijective (U : Scheme.{u}) (V : U.Etale) :
-    (U.smallEtaleTopology.over V).WEqualsLocallyBijective AddCommGrpCat.{u} := sorry
 
 /-- Ring-to-abelian-group sheaf composition exists on every small-étale slice. -/
 instance over_hasSheafCompose_ring_addCommGrp (U : Scheme.{u}) (V : U.Etale) :

@@ -7,7 +7,10 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import Mathlib.CategoryTheory.Adjunction.Limits
+public import Mathlib.CategoryTheory.Adjunction.Comma
+public import Mathlib.CategoryTheory.Adjunction.Opposites
 public import Mathlib.CategoryTheory.Limits.ExactFunctor
+public import Mathlib.CategoryTheory.Limits.MorphismProperty
 public import ReasLib.AlgebraicGeometry.RingedSite.Localization.Morphism
 public import ReasLib.CategoryTheory.Sites.Over.SheafCompose
 public import ReasLib.CategoryTheory.Sites.Over.Topos
@@ -37,21 +40,27 @@ namespace AlgebraicGeometry.AlgebraicSpace
 
 variable {S : Scheme.{u}}
 
-/-- Pointwise right Kan extensions exist for relocalization of ring-valued sheaves on spaces-étale
-slices. -/
+/-- Pointwise right Kan extensions exist for ring-valued presheaves on spaces-étale slices.
+The pullback adjunction supplies an initial object in each indexing category. -/
 instance instOverMap_hasPointwiseRightKanExtension_ringCat
     {Z : AlgebraicSpace S} {A B : spacesEtaleSite Z} (h : A ⟶ B)
     (P : (Over A)ᵒᵖ ⥤ RingCat.{u}) :
     (Over.map h).op.HasPointwiseRightKanExtension P :=
-  sorry
+  fun U ↦
+    let t := mkInitialOfLeftAdjoint (Over.map h).op (Over.mapPullbackAdj h).op U
+    ⟨⟨⟨coneOfDiagramInitial t (StructuredArrow.proj U (Over.map h).op ⋙ P),
+      limitOfDiagramInitial t (StructuredArrow.proj U (Over.map h).op ⋙ P)⟩⟩⟩
 
-/-- Pointwise right Kan extensions exist for relocalization of type-valued sheaves on spaces-étale
-slices. -/
+/-- Pointwise right Kan extensions exist for type-valued presheaves on spaces-étale slices.
+The pullback adjunction supplies an initial object in each indexing category. -/
 instance instOverMap_hasPointwiseRightKanExtension_type
     {Z : AlgebraicSpace S} {A B : spacesEtaleSite Z} (h : A ⟶ B)
     (P : (Over A)ᵒᵖ ⥤ Type u) :
     (Over.map h).op.HasPointwiseRightKanExtension P :=
-  sorry
+  fun U ↦
+    let t := mkInitialOfLeftAdjoint (Over.map h).op (Over.mapPullbackAdj h).op U
+    ⟨⟨⟨coneOfDiagramInitial t (StructuredArrow.proj U (Over.map h).op ⋙ P),
+      limitOfDiagramInitial t (StructuredArrow.proj U (Over.map h).op ⋙ P)⟩⟩⟩
 
 /-- Postcomposition on spaces-étale slices is cocontinuous. -/
 instance instOverMap_isCocontinuous {Z : AlgebraicSpace S} {A B : spacesEtaleSite Z}

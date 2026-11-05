@@ -114,18 +114,20 @@ open cover whose pullbacks have affine open covers on which every induced map on
 is of finite presentation. -/
 theorem locallyOfFinitePresentation_iff_exists_affineOpenCover :
     LocallyOfFinitePresentation f ↔
-      ∃ 𝒱 : S.AffineOpenCover, ∀ j : 𝒱.I₀,
-        ∃ 𝒰 : ((𝒱.openCover.pullback₁ f).X j).AffineOpenCover,
+      ∃ 𝒱 : S.AffineOpenCover.{u}, ∀ j : 𝒱.I₀,
+        ∃ 𝒰 : ((𝒱.openCover.pullback₁ f).X j).AffineOpenCover.{u},
           ∀ i : 𝒰.I₀,
             RingHom.FinitePresentation (((𝒰.f i ≫ 𝒱.openCover.pullbackHom f j).appTop).hom) := by
   have h :
       LocallyOfType RingHom.FinitePresentation f ↔
-        ∃ 𝒱 : S.AffineOpenCover, ∀ j : 𝒱.I₀,
-          ∃ 𝒰 : ((𝒱.openCover.pullback₁ f).X j).AffineOpenCover,
+        ∃ 𝒱 : S.AffineOpenCover.{u}, ∀ j : 𝒱.I₀,
+          ∃ 𝒰 : ((𝒱.openCover.pullback₁ f).X j).AffineOpenCover.{u},
             ∀ i : 𝒰.I₀,
               RingHom.FinitePresentation (((𝒰.f i ≫ 𝒱.openCover.pullbackHom f j).appTop).hom) :=
     locallyOfType_iff_exists_affineOpenCover
       RingHom.FinitePresentation RingHom.finitePresentation_isLocal
+      (RingHom.finitePresentation_stableUnderComposition.stableUnderCompositionWithLocalizationAway
+        RingHom.finitePresentation_holdsForLocalizationAway).left
   simpa [Scheme.Hom.locallyOfFinitePresentation_iff_locallyOfType f] using
     h
 

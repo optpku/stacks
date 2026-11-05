@@ -916,4 +916,55 @@ theorem meromorphicSectionSheaf_underlying_isIsomorphic_constantGenericStalk
         (fun x ↦ (genericPoint_spec X).specializes trivial)
   exact ⟨(@asIso _ _ _ _ φ hφ) ≪≫ e⟩
 
+set_option backward.isDefEq.respectTransparency false in
+/-- The generic germ of the underlying additive meromorphic-section sheaf is bijective.
+This follows from its constant-sheaf description and the skyscraper description of a
+constant sheaf at a point specializing to every point. -/
+theorem meromorphicSectionSheaf_genericGerm_bijective
+    (ℱ : X.Modules) [ℱ.IsQuasicoherent] :
+    Function.Bijective (TopCat.Presheaf.Γgerm
+      (X.meromorphicSectionSheaf ℱ).val.presheaf (genericPoint X)) := by
+  classical
+  let η := genericPoint X
+  let F : X.toTopCat.Sheaf AddCommGrpCat := (SheafOfModules.toSheaf
+    (SheafOfModules.RingedSite.ringSheaf
+      (Opens.grothendieckTopology X.toTopCat) X.meromorphicFunctionSheaf)).obj
+        (X.meromorphicSectionSheaf ℱ)
+  let A := AddCommGrpCat.of (RingedSpace.stalkModuleCat ℱ η)
+  let G := TopCat.Sheaf.Skyscraper.atPoint η A
+  obtain ⟨eF⟩ := meromorphicSectionSheaf_underlying_isIsomorphic_constantGenericStalk ℱ
+  obtain ⟨eG⟩ := skyscraper_isIsomorphic_constantSheaf_of_specializes
+    X.toTopCat AddCommGrpCat A η
+      (fun x ↦ (genericPoint_spec X).specializes trivial)
+  let e : F ≅ G := eF ≪≫ eG.symm
+  let eP := (TopCat.Sheaf.forget AddCommGrpCat X.toTopCat).mapIso e
+  letI : IsIso e.hom.hom := eP.isIso_hom
+  letI : IsIso (e.hom.hom.app (op ⊤)) := (eP.app (op ⊤)).isIso_hom
+  letI : IsIso ((TopCat.Presheaf.stalkFunctor AddCommGrpCat η).map e.hom.hom) :=
+    ((TopCat.Presheaf.stalkFunctor AddCommGrpCat η).mapIso eP).isIso_hom
+  let s := TopCat.Sheaf.Skyscraper.stalkIsoOfSpecializes η A (specializes_refl η)
+  have hG : IsIso (G.presheaf.Γgerm η) := by
+    have h : G.presheaf.Γgerm η ≫ s.hom =
+        (eqToIso (show G.presheaf.obj (op ⊤) = A from if_pos trivial)).hom := by
+      exact germ_skyscraperPresheafStalkOfSpecializes_hom η A
+        (specializes_refl η) ⊤ trivial
+    haveI : IsIso (G.presheaf.Γgerm η ≫ s.hom) := by
+      rw [h]
+      exact (eqToIso
+        (show G.presheaf.obj (op ⊤) = A from if_pos trivial)).isIso_hom
+    exact IsIso.of_isIso_comp_right _ s.hom
+  letI := hG
+  have hnat : F.presheaf.Γgerm η ≫
+        (TopCat.Presheaf.stalkFunctor AddCommGrpCat η).map e.hom.hom =
+      e.hom.hom.app (op ⊤) ≫ G.presheaf.Γgerm η :=
+    TopCat.Presheaf.stalkFunctor_map_germ ⊤ η trivial e.hom.hom
+  haveI : IsIso (F.presheaf.Γgerm η ≫
+      (TopCat.Presheaf.stalkFunctor AddCommGrpCat η).map e.hom.hom) := by
+    rw [hnat]
+    infer_instance
+  haveI : IsIso (F.presheaf.Γgerm η) :=
+    IsIso.of_isIso_comp_right _
+      ((TopCat.Presheaf.stalkFunctor AddCommGrpCat η).map e.hom.hom)
+  exact ConcreteCategory.bijective_of_isIso (F.presheaf.Γgerm η)
+
 end AlgebraicGeometry.Scheme

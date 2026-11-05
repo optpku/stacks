@@ -119,7 +119,7 @@ theorem exists_presentation :
         simp [P₀]
       _ = 0 := by
         simp [Algebra.Presentation.dimension]
-  refine ⟨P, le_rfl, fun p hp ↦ ?_⟩
+  refine ⟨P, fun p hp ↦ ⟨le_rfl, ?_⟩⟩
   have hfiber :
       ringKrullDim (p.asIdeal.Fiber (MvPolynomial (Fin m ⊕ Fin k) R)) = 0 :=
     fiber_ringKrullDim_eq_zero R m k p hp

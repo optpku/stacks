@@ -66,23 +66,23 @@ set_option backward.privateInPublic true
 
 namespace InfinitesimalExtension
 
-/-- A chosen flat module covering the pushforward of a module. -/
+/-- The canonical local-section cover of the pushforward of a module. -/
 private noncomputable def flatCover (F : X.Modules) : X'.Modules :=
-  (exists_epi_from_flat ((i _*).obj F)).choose
+  sectionFlatCover ((i _*).obj F)
 
-/-- The chosen covering module is flat. -/
+/-- The canonical covering module is flat. -/
 private instance flatCover_isFlat (F : X.Modules) : (flatCover i F).IsFlat :=
-  (exists_epi_from_flat ((i _*).obj F)).choose_spec.choose
+  sectionFlatCover_isFlat ((i _*).obj F)
 
-/-- The chosen covering epimorphism onto the pushforward module. -/
+/-- The canonical covering epimorphism onto the pushforward module. -/
 private noncomputable def flatCover_π (F : X.Modules) : flatCover i F ⟶ (i _*).obj F :=
-  (exists_epi_from_flat ((i _*).obj F)).choose_spec.choose_spec.choose
+  sectionFlatCoverπ ((i _*).obj F)
 
-/-- The chosen covering morphism is an epimorphism. -/
+/-- The canonical covering morphism is an epimorphism. -/
 private instance flatCover_π_epi (F : X.Modules) : Epi (flatCover_π i F) :=
-  (exists_epi_from_flat ((i _*).obj F)).choose_spec.choose_spec.choose_spec
+  sectionFlatCoverπ_epi ((i _*).obj F)
 
-/-- The kernel sequence of the chosen flat covering epimorphism. -/
+/-- The kernel sequence of the canonical flat covering epimorphism. -/
 private noncomputable def flatCoverKernelExtension (F : X.Modules) : ShortComplex X'.Modules :=
   ShortComplex.kernelSequence (flatCover_π i F)
 

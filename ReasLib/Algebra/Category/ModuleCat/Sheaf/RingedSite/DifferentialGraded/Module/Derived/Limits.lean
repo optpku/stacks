@@ -14,9 +14,10 @@ import Mathlib.Tactic.CrossRefAttribute
 /-!
 # Products and coproducts in the DG derived category
 
-The DG derived category has arbitrary coproducts and products.  Coproducts are computed directly
-on DG modules.  Products are computed on families of K-injective representatives; no claim is
-made that localization preserves arbitrary products before replacement.
+The DG derived category has coproducts and products indexed in a universe that fits the
+coefficient universe.  Coproducts are computed directly on DG modules.  Products are computed on
+families of K-injective representatives; no claim is made that localization preserves arbitrary
+products before replacement.
 -/
 
 @[expose] public section
@@ -50,10 +51,11 @@ variable {𝒪 : Sheaf J CommRingCat.{max u v}}
 
 namespace Coproduct
 
-/-- The intrinsic DG derived category has arbitrary coproducts. -/
+/-- The intrinsic DG derived category has coproducts whose index universe fits the coefficient
+universe. -/
 @[stacks 0FT9]
-instance hasCoproducts (𝒜 : DGA(𝒪)) :
-    HasCoproducts (DerivedCategory 𝒜) := sorry
+instance hasCoproducts [UnivLE.{w, max u v}] (𝒜 : DGA(𝒪)) :
+    HasCoproducts.{w} (DerivedCategory 𝒜) := sorry
 
 /-- Localization from the DG homotopy category preserves arbitrary coproducts. -/
 instance qhPreserves (𝒜 : DGA(𝒪)) (ι : Type w) :
@@ -69,10 +71,11 @@ end Coproduct
 
 namespace Product
 
-/-- The intrinsic DG derived category has arbitrary products. -/
+/-- The intrinsic DG derived category has products whose index universe fits the coefficient
+universe. -/
 @[stacks 0FT9]
-instance hasProducts (𝒜 : DGA(𝒪)) :
-    HasProducts (DerivedCategory 𝒜) := sorry
+instance hasProducts [UnivLE.{w, max u v}] (𝒜 : DGA(𝒪)) :
+    HasProducts.{w} (DerivedCategory 𝒜) := sorry
 
 /-- A product of K-injective DG homotopy objects computes their product after localization. -/
 theorem qhPreservesOfKInjective (𝒜 : DGA(𝒪)) {ι : Type w}

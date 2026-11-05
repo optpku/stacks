@@ -51,17 +51,20 @@ theorem overPolynomialPresentation (hM : Module.FinitePresentationRelativeTo R A
 direction of `iff_overEveryPolynomialPresentation` to `hM`, `α`, and `hα`. -/
 
 /-- Over a finite type algebra, relative finite presentation may be checked
-after restriction to every surjective finitely presented algebra cover. -/
+after restriction to every surjective finitely presented algebra cover in a universe
+at least as large as that of `R`. This includes `ULift` of every finite-variable
+polynomial algebra over `R`, so the reverse criterion cannot be vacuous. -/
 @[stacks 05GY "every finitely presented cover"]
 theorem iff_overAnyFinitelyPresentedCover [Algebra.FiniteType R A] :
     Module.FinitePresentationRelativeTo R A M ↔
-      ∀ (A' : Type x) [CommRing A'] [Algebra R A'] [Algebra.FinitePresentation R A']
+      ∀ (A' : Type (max u x)) [CommRing A'] [Algebra R A'] [Algebra.FinitePresentation R A']
         (f : A' →ₐ[R] A) (_ : Function.Surjective f),
           Module.FinitePresentationAlong f.toRingHom M := sorry
 /- Proof strategy: refine a finitely presented cover `A' → A` by a finite-variable polynomial
 presentation of `A'`, compose the two algebra maps, and use
 `iff_overEveryPolynomialPresentation`; for the reverse implication, specialize to a polynomial
-algebra cover of `A`. -/
+algebra cover of `A`, lifted to `Type (max u x)` using `ULift.algEquiv`.
+Transport finite presentation back along this genuine algebra equivalence. -/
 
 /-- A relatively finitely presented module is finitely presented after restriction to any
 surjective finitely presented algebra cover. -/
@@ -70,7 +73,10 @@ theorem overAnyFinitelyPresentedCover (hM : Module.FinitePresentationRelativeTo 
     (A' : Type x) [CommRing A'] [Algebra R A'] [Algebra.FinitePresentation R A']
     (f : A' →ₐ[R] A) (hf : Function.Surjective f) :
     Module.FinitePresentationAlong f.toRingHom M := sorry
-/- Proof strategy: obtain finite type of `A` from `hM.finiteType` and specialize the forward
-direction of `iff_overAnyFinitelyPresentedCover` to the chosen cover `f`. -/
+/- Proof strategy: choose a finite-variable polynomial presentation of `A'`. Its composite
+with `f` is surjective, so `overPolynomialPresentation` applies. Descend module finite
+presentation across the finitely presented quotient onto `A'`, as in Stacks tag 05GY.
+This argument works for every cover universe `x`, independently of the universe used
+in the reverse criterion. -/
 
 end Module.FinitePresentationRelativeTo

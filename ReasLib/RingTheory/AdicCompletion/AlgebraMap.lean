@@ -8,6 +8,7 @@ module
 
 public import Mathlib.RingTheory.AdicCompletion.Algebra
 public import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.RingTheory.AdicCompletion.Map
 
 @[expose] public section
 
@@ -58,6 +59,32 @@ noncomputable def extensionMap (I : Ideal R) :
   AdicCompletion.liftRingHom (extensionIdeal (S := S) I)
     (extensionQuotientMap (S := S) I)
     (extensionQuotientMap_compatible (S := S) I)
+
+/-- The extended-ideal completion map is the general completion map of the algebra map,
+independently of the supplied adic-continuity witness. -/
+theorem extensionMap_eq_completionMap (I : Ideal R)
+    (h : (algebraMap R S).AdicContinuous I (extensionIdeal (S := S) I)) :
+    extensionMap (S := S) I = h.completionMap := by
+  apply RingHom.ext
+  intro x
+  apply AdicCompletion.ext_evalₐ
+  intro n
+  have hfactor {a b : ℕ} (hab : a ≤ b) :
+      Ideal.Quotient.factorPow I hab (AdicCompletion.evalₐ I b x) =
+        AdicCompletion.evalₐ I a x := by
+    induction x using AdicCompletion.induction_on with
+    | _ r =>
+      simpa using AdicCompletion.Ideal.mk_eq_mk I hab r
+  let m := max n (h.exponent * n)
+  obtain ⟨r, hr⟩ := Ideal.Quotient.mk_surjective (AdicCompletion.evalₐ I m x)
+  have hn : AdicCompletion.evalₐ I n x = Ideal.Quotient.mk _ r := by
+    rw [← hfactor (le_max_left n (h.exponent * n)), ← hr]
+    rfl
+  have he : AdicCompletion.evalₐ I (h.exponent * n) x = Ideal.Quotient.mk _ r := by
+    rw [← hfactor (le_max_right n (h.exponent * n)), ← hr]
+    rfl
+  simp [extensionMap, RingHom.AdicContinuous.completionMap,
+    extensionQuotientMap, RingHom.AdicContinuous.quotientMap, hn, he]
 
 /-- The finite-stage map `extensionQuotientMap` commutes with the canonical maps out of the base
 ring. -/

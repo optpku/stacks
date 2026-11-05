@@ -87,15 +87,6 @@ structure Square where
   [algebraAprimeLprime : Algebra Aprime Lprime]
   [towerAprimeBprimeLprime : IsScalarTower Aprime Bprime Lprime]
   [towerAprimeKprimeLprime : IsScalarTower Aprime Kprime Lprime]
-  /-- The residue-field maps making the lower and upper squares compatible. -/
-  [residueAlgebraAAprime : Algebra (ResidueField A) (ResidueField Aprime)]
-  [residueAlgebraBBprime : Algebra (ResidueField B) (ResidueField Bprime)]
-  [residueAlgebraAprimeBprime : Algebra (ResidueField Aprime) (ResidueField Bprime)]
-  [residueAlgebraABprime : Algebra (ResidueField A) (ResidueField Bprime)]
-  [residueTowerAAprimeBprime :
-    IsScalarTower (ResidueField A) (ResidueField Aprime) (ResidueField Bprime)]
-  [residueTowerABBprime :
-    IsScalarTower (ResidueField A) (ResidueField B) (ResidueField Bprime)]
   /-- The new left fraction field is algebraic over the old one. -/
   algebraicKprime : Algebra.IsAlgebraic K Kprime
   /-- The new left fraction field is separable over the old one. -/
@@ -104,9 +95,9 @@ structure Square where
   algebraicLprime : Algebra.IsAlgebraic L Lprime
   /-- The new right fraction field is separable over the old one. -/
   separableLprime : Algebra.IsSeparable L Lprime
-  /-- The upper-left residue field is a separable closure of the lower-left residue field. -/
+  /-- The residue extension induced by `A → Aprime` is a separable closure. -/
   residueAprimeIsSepClosure : IsSepClosure (ResidueField A) (ResidueField Aprime)
-  /-- The upper-right residue field is a separable closure of the lower-right residue field. -/
+  /-- The residue extension induced by `B → Bprime` is a separable closure. -/
   residueBprimeIsSepClosure : IsSepClosure (ResidueField B) (ResidueField Bprime)
   /-- A weak solution for the upper square descends to the original extension. -/
   weakSolutionDescent :
@@ -139,11 +130,103 @@ structure Square where
         (_ : Algebra K K1) (_ : IsScalarTower A K K1) (_ : FiniteDimensional K K1),
         IsSeparableSolutionFor A B K L K1
 
+namespace Square
+
+-- A chosen square is installed only in this local scope. The residue algebras below are
+-- mathlib's quotient algebras for its actual local ring maps, not additional choices.
+attribute [local instance] commRingAprime isDomainAprime isDVRAprime algebraAAprime
+  extensionAAprime commRingBprime isDomainBprime isDVRBprime algebraBBprime
+  algebraAprimeBprime algebraABprime towerAAprimeBprime towerABBprime
+  extensionBBprime extensionAprimeBprime
+
+variable (s : Square (A := A) (B := B) (K := K) (L := L))
+
+/-- The composite edge of the DVR square is local. -/
+theorem isLocalHomABprime : IsLocalHom (algebraMap A s.Bprime) := by
+  rw [IsScalarTower.algebraMap_eq A B s.Bprime]
+  exact RingHom.isLocalHom_comp _ _
+
+/-- The residue algebra induced by the chosen map `A → Aprime`. -/
+abbrev residueAlgebraAAprime : Algebra (ResidueField A) (ResidueField s.Aprime) := inferInstance
+
+/-- The residue algebra induced by the chosen map `B → Bprime`. -/
+abbrev residueAlgebraBBprime : Algebra (ResidueField B) (ResidueField s.Bprime) := inferInstance
+
+/-- The residue algebra induced by the chosen map `Aprime → Bprime`. -/
+abbrev residueAlgebraAprimeBprime :
+    Algebra (ResidueField s.Aprime) (ResidueField s.Bprime) := by
+  letI : IsLocalHom (algebraMap s.Aprime s.Bprime) := s.extensionAprimeBprime.toIsLocalHom
+  infer_instance
+
+/-- The residue algebra induced by the composite map `A → Bprime`. -/
+abbrev residueAlgebraABprime : Algebra (ResidueField A) (ResidueField s.Bprime) := by
+  letI := s.isLocalHomABprime
+  infer_instance
+
+/-- Naturality identifies the left residue arrow with the induced quotient map. -/
+theorem residueAlgebraAAprime_map :
+    letI := s.residueAlgebraAAprime
+    algebraMap (ResidueField A) (ResidueField s.Aprime) =
+      ResidueField.map (algebraMap A s.Aprime) := rfl
+
+/-- Naturality identifies the right residue arrow with the induced quotient map. -/
+theorem residueAlgebraBBprime_map :
+    letI := s.residueAlgebraBBprime
+    algebraMap (ResidueField B) (ResidueField s.Bprime) =
+      ResidueField.map (algebraMap B s.Bprime) := rfl
+
+/-- Naturality identifies the upper residue arrow with the induced quotient map. -/
+theorem residueAlgebraAprimeBprime_map :
+    letI : IsLocalHom (algebraMap s.Aprime s.Bprime) := s.extensionAprimeBprime.toIsLocalHom
+    letI := s.residueAlgebraAprimeBprime
+    algebraMap (ResidueField s.Aprime) (ResidueField s.Bprime) =
+      ResidueField.map (algebraMap s.Aprime s.Bprime) := rfl
+
+/-- Naturality identifies the composite residue arrow with the induced quotient map. -/
+theorem residueAlgebraABprime_map :
+    letI := s.isLocalHomABprime
+    letI := s.residueAlgebraABprime
+    algebraMap (ResidueField A) (ResidueField s.Bprime) =
+      ResidueField.map (algebraMap A s.Bprime) := rfl
+
+/-- The left residue tower follows from the actual DVR tower. -/
+theorem residueTowerAAprimeBprime :
+    letI := s.residueAlgebraAAprime
+    letI := s.residueAlgebraAprimeBprime
+    letI := s.residueAlgebraABprime
+    IsScalarTower (ResidueField A) (ResidueField s.Aprime) (ResidueField s.Bprime) := by
+  letI := s.residueAlgebraAAprime
+  letI := s.residueAlgebraAprimeBprime
+  letI := s.residueAlgebraABprime
+  refine IsScalarTower.of_algebraMap_eq fun a => ?_
+  obtain ⟨a, rfl⟩ := residue_surjective a
+  change residue s.Bprime (algebraMap A s.Bprime a) =
+    residue s.Bprime (algebraMap s.Aprime s.Bprime (algebraMap A s.Aprime a))
+  rw [IsScalarTower.algebraMap_apply A s.Aprime s.Bprime]
+
+/-- The right residue tower follows from the actual DVR tower. -/
+theorem residueTowerABBprime :
+    letI := s.residueAlgebraBBprime
+    letI := s.residueAlgebraABprime
+    IsScalarTower (ResidueField A) (ResidueField B) (ResidueField s.Bprime) := by
+  letI := s.residueAlgebraBBprime
+  letI := s.residueAlgebraABprime
+  refine IsScalarTower.of_algebraMap_eq fun a => ?_
+  obtain ⟨a, rfl⟩ := residue_surjective a
+  change residue s.Bprime (algebraMap A s.Bprime a) =
+    residue s.Bprime (algebraMap B s.Bprime (algebraMap A B a))
+  rw [IsScalarTower.algebraMap_apply A B s.Bprime]
+
+end Square
+
 /-- Lemma 15.116.5 (09ET): every DVR extension admits a ramification-elimination square whose
 fraction-field extensions are separable algebraic, whose residue fields are separable closures,
-and along which weak, formal-smooth, and separable solutions descend. -/
+and along which weak, formal-smooth, and separable solutions descend. The four new carriers
+live in the common universe of the inputs; existence does not assert arbitrary shrinking. -/
 @[stacks 09ET "Lemma 15.116.5: ramification-elimination square"]
-theorem exists_square : Nonempty (Square (A := A) (B := B) (K := K) (L := L)) := sorry
+theorem exists_square :
+    Nonempty (Square.{u, v, w, x, max u v w x, max u v w x, max u v w x, max u v w x}
+      (A := A) (B := B) (K := K) (L := L)) := sorry
 -- Proof strategy: choose compatible strict henselizations of `A` and `B` by lifting the residue
 -- field map through canonical separable closures; identify their fraction fields through the
 -- zero-prime residue fields to obtain the algebraic and separable generic extensions.  Prove the

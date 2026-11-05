@@ -49,9 +49,14 @@ end AdicContinuous
 finitely generated completion. -/
 theorem formally_smooth_for_adic_tfae_completion_invariance
     (I : Ideal R) (hI : I.FG) (J : Ideal S) (hJ : J.FG) (f : R →+* S)
-    (hcont : letI : TopologicalSpace R := I.adicTopology
-             letI : TopologicalSpace S := J.adicTopology
-             Continuous f) :
+    (hcont :
+      -- Local instance justification (noncanonical choice): continuity for completion uses
+      -- the source topology determined by `I`, not the discrete source of adic formal smoothness.
+      letI : TopologicalSpace R := I.adicTopology
+      -- Local instance justification (noncanonical choice): use the `J`-adic topology whose
+      -- completion is `AdicCompletion J S`, so `hcont` has the type required by `adicCompletionMap`.
+      letI : TopologicalSpace S := J.adicTopology
+      Continuous f) :
     let K := Ideal.map (algebraMap S (AdicCompletion J S)) J
     List.TFAE [
       f.formally_smooth_for_adic J,

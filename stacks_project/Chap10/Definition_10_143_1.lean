@@ -16,9 +16,10 @@ import StacksCheckRecall
 /-!
 # Definition 10.143.1
 
-Mathlib owns the global and local etale predicates.  The basic-open
-characterization of local etaleness is a neutral ReasLib bridge, so this
-chapter file is limited to source-labelled recalls.
+Mathlib owns global etaleness and the formal stalk predicate. ReasLib
+specializes `RingHom.AtPrime` to etaleness on a principal-open neighborhood
+for arbitrary ring maps, as in the source. Finite presentation identifies
+this local condition with Mathlib's formal stalk predicate.
 -/
 
 /- Definition 10.143.1 (Tag 00U1), global etaleness. -/
@@ -30,4 +31,11 @@ chapter file is limited to source-labelled recalls.
 
 /- Definition 10.143.1 (Tag 00U1), etaleness at a prime. -/
 @[stacks 00U1 "(2)"]
+#check @Algebra.EtaleAtPrime
+
+@[stacks 00U1 "(2) principal-open criterion"]
+#check @Algebra.EtaleAtPrime.iff_exists_away
+
+/- Comparison with the formal stalk predicate under finite presentation. -/
+#check @Algebra.EtaleAtPrime.iff_isEtaleAt
 #check @Algebra.isEtaleAt_iff_exists_etale_away

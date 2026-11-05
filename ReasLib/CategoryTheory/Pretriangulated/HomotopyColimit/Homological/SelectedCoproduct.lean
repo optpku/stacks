@@ -54,9 +54,11 @@ namespace PreadditiveCoyoneda
 namespace ImageComparison
 
 /-- The representable generic image comparison is an isomorphism when the representable
-functor preserves the coproduct of the particular input sequence. -/
+functor preserves the coproducts of the particular input sequence and its shifts by one. -/
 theorem isIso (K₀ : D) {L : ℕ ⥤ D} [HasCoproduct L.obj] {Lhocolim : D}
     [PreservesColimit (Discrete.functor L.obj) (preadditiveCoyoneda.obj (op K₀))]
+    [PreservesColimit (Discrete.functor (fun n : ℕ ↦ (L.obj n)⟦(1 : ℤ)⟧))
+      (preadditiveCoyoneda.obj (op K₀))]
     (toCocone : ∐ L.obj ⟶ Lhocolim)
     (connecting : Lhocolim ⟶ (∐ L.obj)⟦(1 : ℤ)⟧)
     (h_triangle : Triangle.mk (Limits.Sequential.telescopeMap L)

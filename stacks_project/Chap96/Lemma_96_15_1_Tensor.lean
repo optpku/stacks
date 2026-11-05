@@ -54,20 +54,8 @@ abbrev moduleTensor [AlgebraicStack X] (F G : QCoh X) : commFppfModules X :=
 /-- The quasi-coherent tensor with its underlying ambient fppf module. -/
 abbrev tensor [AlgebraicStack X] (F G : QCoh X) : QCoh X := Fppf.tensor F G
 
-/-- The canonical direct fppf tensor comparison. -/
-abbrev tensorComparison [AlgebraicStack X] (F G : QCoh X) :
-    moduleTensor F G ⟶ (toCommFppfModules X).obj (tensor F G).obj :=
-  Fppf.tensorComparison F G
-
-/-- The pure-tensor pairing on universe-lifted fppf modules. -/
-abbrev moduleTensorLiftBilinear [AlgebraicStack X] (M N : commFppfModules X) :
-    SheafOfModules.RingedSite.SectionBilinearMap.{u + 1, u}
-      (commAssociatedStructureSheafLift X .fppf)
-      ((commAssociatedModulesLiftFunctor X .fppf).obj M)
-      ((commAssociatedModulesLiftFunctor X .fppf).obj N)
-      ((commAssociatedModulesLiftFunctor X .fppf).obj
-        (moduleTensorAssociated M N)) :=
-  Fppf.moduleTensorLiftBilinear M N
+-- The general `QCoh.tensorComparison` and `QCoh.moduleTensorLiftBilinear`
+-- are imported above. The direct comparison remains `QCoh.Fppf.tensorComparison`.
 
 end QCoh
 

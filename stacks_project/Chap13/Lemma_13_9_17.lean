@@ -31,16 +31,23 @@ import StacksCheckRecall
 - `source-facing`: the textbook identification of the triangle
   `(L^•, C(f)^•, K^•[1], i, p, f[1])`;
 - `core/canonical`: the cochain-level owner comparison
-  `CochainComplex.mappingCone.triangleRotateIsoTriangleOfDegreewiseSplit`;
-- `bridge/view`: no extra bridge is needed in this file, because the numbered lemma is already a
-  direct recall of the core owner rather than a new wrapper.
+  `CochainComplex.mappingCone.triangleRotateIsoTriangleOfDegreewiseSplit`, using the rotated
+  triangle `(L^•, C(f)^•, K^•[1], i, -p, -f[1])` and the short complex with maps `(i, -p)`;
+- `bridge/view`: the Mathlib and Stacks triangles are isomorphic, not literally identical.
+  The comparison has components `(𝟙 L^•, 𝟙 C(f)^•, -𝟙 K^•[1])`, i.e. `(1, 1, -1)`.
+  This immediate sign comparison is recorded here; the numbered lemma remains a direct recall
+  of the core owner without a new wrapper or bridge declaration.
 -/
 
 /- Lemma 13.9.17: for a morphism of cochain complexes `f : K^• ⟶ L^•` in an additive category,
-the termwise split short complex
-`0 ⟶ L^• ⟶ C(f)^• ⟶ K^•[1] ⟶ 0` coming from the definition of the cone has
-associated triangle
-the rotated mapping-cone triangle; this is the mathlib formalization of the book's triangle
-`(L^•, C(f)^•, K^•[1], i, p, f[1])`. The canonical identification is
-`CochainComplex.mappingCone.triangleRotateIsoTriangleOfDegreewiseSplit`. -/
+Stacks uses the cone inclusion `i` and projection `p`, so the termwise split sequence with
+maps `(i, p)` has associated triangle `(L^•, C(f)^•, K^•[1], i, p, f[1])`.
+Mathlib's standard cone triangle has last map `-p`; its rotation has maps `(i, -p, -f[1])`.
+The owner `CochainComplex.mappingCone.triangleRotateIsoTriangleOfDegreewiseSplit` identifies
+this rotation with the triangle associated to `triangleRotateShortComplex f`, whose maps
+are `(i, -p)` and whose connecting map is `-f[1]`.
+The isomorphism from this Mathlib triangle to the Stacks triangle has components
+`(𝟙 L^•, 𝟙 C(f)^•, -𝟙 K^•[1])`: using minus the identity on the third object changes
+both `-p` and `-f[1]` to the Stacks signs. Thus the recalled owner gives the categorical
+reformulation with this immediate `(1, 1, -1)` sign comparison. -/
 @[stacks 014O] #check @CochainComplex.mappingCone.triangleRotateIsoTriangleOfDegreewiseSplit

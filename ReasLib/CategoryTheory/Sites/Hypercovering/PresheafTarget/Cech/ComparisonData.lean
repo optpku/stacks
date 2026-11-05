@@ -82,17 +82,14 @@ variable
 
 namespace DerivedComparison
 
-/-- One derived comparison together with explicit source and target homology identifications in
-every nonnegative degree. -/
+/-- A supplied derived comparison with a supplied target homology identification in every
+nonnegative degree. The source identification is fixed by localization and extension by zero.
+This supplied-comparison API does not assert augmentation normalization of the comparison or
+of the target identification. -/
 @[stacks 09VX "degreewise comparison system"]
 structure DegreeSystem (K : HypercoveringOf.{w} J G) where
   /-- The comparison in the bounded-below derived category. -/
   comparison : DerivedComparison K
-  /-- Homology of the extended Cech source is identified with ordinary Cech cohomology. -/
-  sourceIso (i : ℕ) :
-    (derivedSource K ⋙
-      DerivedCategory.Plus.homologyFunctor AddCommGrpCat.{max u v w} i) ≅
-      degreeComparisonSource K i
   /-- Homology of the derived target is identified with presheaf cohomology. -/
   targetIso (i : ℕ) :
     (derivedTarget (J := J) (G := G) ⋙
@@ -101,22 +98,48 @@ structure DegreeSystem (K : HypercoveringOf.{w} J G) where
 
 namespace DegreeSystem
 
-/-- The ordinary degreewise comparison obtained from the fixed derived comparison and fixed
-homology identifications. -/
+/-- The source identification is the fixed localization/extension homology identification,
+independently of the supplied comparison and target identification. -/
+noncomputable def sourceIso {K : HypercoveringOf.{w} J G}
+    (_S : DegreeSystem K) (i : ℕ) :
+    (derivedSource K ⋙
+      DerivedCategory.Plus.homologyFunctor AddCommGrpCat.{max u v w} i) ≅
+      degreeComparisonSource K i :=
+  derivedSourceHomologyIso K i
+
+/-- Computation rule fixing the source identification used in every degree. -/
+@[simp]
+theorem sourceIso_eq {K : HypercoveringOf.{w} J G}
+    (S : DegreeSystem K) (i : ℕ) :
+    S.sourceIso i = derivedSourceHomologyIso K i := rfl
+
+/-- The ordinary degreewise comparison obtained from the supplied derived comparison and target
+identification, using the fixed source homology identification. -/
 noncomputable def degreeComparison {K : HypercoveringOf.{w} J G}
     (S : DegreeSystem K) (i : ℕ) : DegreeComparison K i :=
   (S.sourceIso i).inv ≫ S.comparison.homology i ≫ (S.targetIso i).hom
 
-/-- The degree-zero comparison of a normalized system is invertible at every coefficient
+/-- Computation rule exposing both the canonical source identification and the remaining
+supplied data in the degree comparison. -/
+theorem degreeComparison_eq {K : HypercoveringOf.{w} J G}
+    (S : DegreeSystem K) (i : ℕ) :
+    S.degreeComparison i =
+      (derivedSourceHomologyIso K i).inv ≫ S.comparison.homology i ≫
+        (S.targetIso i).hom := rfl
+
+/-- The degree-zero comparison of a supplied system is invertible at every coefficient
 sheaf. -/
 theorem degreeComparison_zero_isIso_app {K : HypercoveringOf.{w} J G}
     (S : DegreeSystem K) (I : Sheaf J AddCommGrpCat.{max w v}) :
-    IsIso ((S.degreeComparison 0).app I) := sorry
+    IsIso ((S.degreeComparison 0).app I) := by
+  letI : IsIso ((S.comparison.homology 0).app I) := S.comparison.homologyZero_isIso I
+  dsimp only [degreeComparison, NatTrans.comp_app]
+  infer_instance
 
 end DegreeSystem
 
-/-- Lemma 25.6.4 (09VX), degreewise clause: one normalized derived comparison supplies fixed
-ordinary comparisons simultaneously in every nonnegative degree. -/
+/-- Lemma 25.6.4 (09VX), degreewise clause: one supplied derived comparison and target
+identifications supply ordinary comparisons simultaneously in every nonnegative degree. -/
 @[stacks 09VX "degreewise comparison"]
 theorem degreeSystem_nonempty (K : HypercoveringOf.{w} J G) :
     Nonempty (DegreeSystem K) := sorry
@@ -129,7 +152,7 @@ namespace RefinementComparison
 comparison system at each hypercovering stage. -/
 @[stacks 09VX "derived refinement comparison"]
 structure Derived where
-  /-- The normalized derived comparison and homology identifications at each refinement stage. -/
+  /-- The supplied derived comparison and target identifications at each refinement stage. -/
   stage (K : HypercoveringOf.RefinementCategory J G) :
     DerivedComparison.DegreeSystem K.unop.as
   /-- The comparison in each degree, natural in refinements and coefficient sheaves. -/

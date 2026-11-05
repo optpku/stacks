@@ -24,6 +24,12 @@ open scoped AlgebraicGeometry
 
 universe u
 
+/-- Smooth ring maps remain so after precomposition with a source localization. -/
+theorem RingHom.Smooth.stableUnderCompositionWithLocalizationAwaySource :
+    RingHom.StableUnderCompositionWithLocalizationAwaySource RingHom.Smooth := by
+  exact (RingHom.Smooth.stableUnderComposition.stableUnderCompositionWithLocalizationAway
+    RingHom.Smooth.holdsForLocalizationAway).left
+
 namespace AlgebraicGeometry
 namespace Scheme.Hom
 
@@ -33,7 +39,8 @@ variable {X S : Scheme.{u}}
 `RingHom.Smooth`. -/
 theorem smooth_iff_locallyOfType (f : X ⟶ S) :
     Smooth f ↔ LocallyOfType RingHom.Smooth f := by
-  rw [locallyOfType_iff_affineLocally RingHom.Smooth f RingHom.Smooth.propertyIsLocal]
+  rw [locallyOfType_iff_affineLocally RingHom.Smooth f RingHom.Smooth.propertyIsLocal
+    RingHom.Smooth.stableUnderCompositionWithLocalizationAwaySource]
   rw [smooth_iff, affineLocally_iff_forall_isAffineOpen]
 
 /-- A scheme morphism is smooth if and only if the target has an open cover whose pullbacks
@@ -50,13 +57,14 @@ theorem smooth_iff_exists_openCover (f : X ⟶ S) :
 pullbacks have affine open covers with smooth induced maps on global sections. -/
 theorem smooth_iff_exists_affineOpenCover (f : X ⟶ S) :
     Smooth f ↔
-      ∃ 𝒱 : S.AffineOpenCover, ∀ j : 𝒱.I₀,
-        ∃ 𝒰 : ((𝒱.openCover.pullback₁ f).X j).AffineOpenCover,
+      ∃ 𝒱 : S.AffineOpenCover.{u}, ∀ j : 𝒱.I₀,
+        ∃ 𝒰 : ((𝒱.openCover.pullback₁ f).X j).AffineOpenCover.{u},
           ∀ i : 𝒰.I₀,
             RingHom.Smooth (((𝒰.f i ≫ 𝒱.openCover.pullbackHom f j).appTop).hom) := by
   simpa [smooth_iff_locallyOfType] using
     (locallyOfType_iff_exists_affineOpenCover
-      RingHom.Smooth RingHom.Smooth.propertyIsLocal)
+      RingHom.Smooth RingHom.Smooth.propertyIsLocal
+      RingHom.Smooth.stableUnderCompositionWithLocalizationAwaySource)
 
 end Scheme.Hom
 end AlgebraicGeometry

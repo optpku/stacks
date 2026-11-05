@@ -12,6 +12,7 @@ public import ReasLib.CategoryTheory.DerivedCategory.Monoidal.Tensor.Bifunctor
 public import Mathlib.CategoryTheory.Localization.Prod
 public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Module.Pullback
 public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Derived.Coefficients
+public import ReasLib.CategoryTheory.Adjunction.FullyFaithful
 
 @[expose] public section
 
@@ -37,8 +38,10 @@ def zmodSheafPushforwardTensorHom
       (zmodSheafPushforward p n).obj (F ⊗ G) :=
   let adj := sheafificationAdjunction B.smallEtaleTopology (ModuleCat.{u} (ZMod n))
   let R := zmodSheafPushforward p n
-  ((tensorIso (asIso (adj.counit.app (R.obj F))).symm
-      (asIso (adj.counit.app (R.obj G))).symm) ≪≫
+  let counitIso := adj.counitIsoOfRFullyFaithful
+    (fullyFaithfulSheafToPresheaf B.smallEtaleTopology (ModuleCat.{u} (ZMod n)))
+  ((tensorIso (counitIso.app (R.obj F)).symm
+      (counitIso.app (R.obj G)).symm) ≪≫
     Functor.Monoidal.μIso (presheafToSheaf B.smallEtaleTopology
       (ModuleCat.{u} (ZMod n))) (R.obj F).obj (R.obj G).obj).hom ≫
     ((sheafificationAdjunction B.smallEtaleTopology (ModuleCat.{u} (ZMod n))).homEquiv
@@ -307,8 +310,10 @@ def moduleTensorPushforward
       (etaleModulePushforward p Λ).obj (F ⊗ G) :=
   let adj := sheafificationAdjunction B.smallEtaleTopology (ModuleCat.{u} Λ)
   let R := etaleModulePushforward p Λ
-  ((tensorIso (asIso (adj.counit.app (R.obj F))).symm
-      (asIso (adj.counit.app (R.obj G))).symm) ≪≫
+  let counitIso := adj.counitIsoOfRFullyFaithful
+    (fullyFaithfulSheafToPresheaf B.smallEtaleTopology (ModuleCat.{u} Λ))
+  ((tensorIso (counitIso.app (R.obj F)).symm
+      (counitIso.app (R.obj G)).symm) ≪≫
     Functor.Monoidal.μIso (presheafToSheaf B.smallEtaleTopology
       (ModuleCat.{u} Λ)) (R.obj F).obj (R.obj G).obj).hom ≫
     ((sheafificationAdjunction B.smallEtaleTopology (ModuleCat.{u} Λ)).homEquiv

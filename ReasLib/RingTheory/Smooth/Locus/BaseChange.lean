@@ -30,11 +30,12 @@ namespace Algebra
 
 variable {R : Type u} {S : Type v} {R' : Type w}
 variable [CommRing R] [CommRing S] [CommRing R']
-variable [Algebra R S] [Algebra R R'] [FinitePresentation R S] [Module.Flat R R']
+variable [Algebra R S] [Algebra R R']
 
 /-- Membership in the smooth locus is preserved and reflected at every prime
-after a flat tensor-product base change. -/
+after a flat tensor-product base change of a finitely presented algebra. -/
 theorem mem_smoothLocus_baseChange_iff
+    [FinitePresentation R S] [Module.Flat R R']
     (q' : PrimeSpectrum (R' ⊗[R] S)) :
     PrimeSpectrum.comap
         (Algebra.TensorProduct.includeRight : S →ₐ[R] R' ⊗[R] S).toRingHom q' ∈
@@ -42,9 +43,11 @@ theorem mem_smoothLocus_baseChange_iff
       q' ∈ smoothLocus R' (R' ⊗[R] S) := sorry
 
 /-- Lemma 10.137.17, tag `00TG`: under a flat tensor-product base change, the
-smooth locus is exactly the inverse image of the original smooth locus. -/
+smooth locus of a finitely presented algebra is exactly the inverse image of
+the original smooth locus. -/
 @[stacks 00TG "flat base change of smooth loci"]
-theorem smoothLocus_preimage_includeRight_eq_baseChange :
+theorem smoothLocus_preimage_includeRight_eq_baseChange
+    [FinitePresentation R S] [Module.Flat R R'] :
     PrimeSpectrum.comap
         (Algebra.TensorProduct.includeRight : S →ₐ[R] R' ⊗[R] S).toRingHom ⁻¹'
         smoothLocus R S =

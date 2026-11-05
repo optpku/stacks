@@ -228,9 +228,10 @@ theorem inducedByValuation_spec {X S : Scheme.{u}} (f : X ⟶ S)
                       (Scheme.FiniteEtale (pullback f sbar'.hom))
                       (specialEquiv.inverse ⋙ Scheme.finiteEtaleBaseChange generalToVal) := sorry
 
-/-- The given specialization map is isomorphic to the map induced by a strictly henselian
-valuation ring over `S` that dominates the image of a strict henselization of `O_{S,s}` used
-to construct the original map. -/
+/-- Weak valuation comparison: the given homomorphism is isomorphic to a map induced
+through `Spec D.V → S`, with `D.V` strictly henselian and its fraction field algebraically
+closed. This predicate records the comparison in the statement of Stacks 0C0M; it does
+not specify domination of the image of a strict henselization used to construct `sp`. -/
 def valuationInduced {X S : Scheme.{u}} (f : X ⟶ S)
     (sbar' sbar : Scheme.GeometricPoint S)
     (hSpec : Specializes sbar'.image sbar.image)
@@ -241,23 +242,17 @@ def valuationInduced {X S : Scheme.{u}} (f : X ⟶ S)
     [GaloisCategory (Scheme.FiniteEtale (pullback f sbar.hom))]
     [FiberFunctor F]
     (sp : ContinuousMonoidHom (Aut F') (Aut F))
-    (hsp : IsSpecializationMap f sbar' sbar hSpec F' F sp)
     (D : _root_.Specializes.ValuationRealization sbar'.toFieldValuedPoint.image
       sbar.toFieldValuedPoint.image (sbar'.toFieldValuedPoint.residueFieldHom))
-    (Rsh : Type u) [CommRing Rsh]
-    [Algebra (S.presheaf.stalk sbar.image) Rsh]
-    [IsStrictHenselizationOf (S.presheaf.stalk sbar.image) Rsh]
-    (strictToField : Rsh →+* sbar'.toFieldValuedPoint.K)
     (e' : Aut F' ≃* Aut F') (e : Aut F ≃* Aut F) : Prop :=
   StrictHenselianLocalRing D.V ∧
     IsAlgClosed (FractionRing D.V) ∧
-      (strictToField.comp (algebraMap (S.presheaf.stalk sbar.image) Rsh)).range ≤ D.V.toSubring ∧
       ∃ (sp_R : ContinuousMonoidHom (Aut F') (Aut F)),
         inducedByValuation f sbar' sbar hSpec F' F D sp_R ∧
           e.toMonoidHom.comp sp.toMonoidHom = sp_R.toMonoidHom.comp e'.toMonoidHom
 
-/-- The defining strict-henselian, domination, induced-map, and conjugacy data of
-`valuationInduced`. -/
+/-- The defining strict-henselian, induced-map, and conjugacy properties of the weak
+comparison `valuationInduced`. No strict-henselization domination data is asserted. -/
 theorem valuationInduced_spec {X S : Scheme.{u}} (f : X ⟶ S)
     (sbar' sbar : Scheme.GeometricPoint S)
     (hSpec : Specializes sbar'.image sbar.image)
@@ -268,27 +263,22 @@ theorem valuationInduced_spec {X S : Scheme.{u}} (f : X ⟶ S)
     [GaloisCategory (Scheme.FiniteEtale (pullback f sbar.hom))]
     [FiberFunctor F]
     (sp : ContinuousMonoidHom (Aut F') (Aut F))
-    (hsp : IsSpecializationMap f sbar' sbar hSpec F' F sp)
     (D : _root_.Specializes.ValuationRealization sbar'.toFieldValuedPoint.image
       sbar.toFieldValuedPoint.image (sbar'.toFieldValuedPoint.residueFieldHom))
-    (Rsh : Type u) [CommRing Rsh]
-    [Algebra (S.presheaf.stalk sbar.image) Rsh]
-    [IsStrictHenselizationOf (S.presheaf.stalk sbar.image) Rsh]
-    (strictToField : Rsh →+* sbar'.toFieldValuedPoint.K)
     (e' : Aut F' ≃* Aut F') (e : Aut F ≃* Aut F) :
-    valuationInduced f sbar' sbar hSpec F' F sp hsp D Rsh strictToField e' e ↔
+    valuationInduced f sbar' sbar hSpec F' F sp D e' e ↔
       StrictHenselianLocalRing D.V ∧
         IsAlgClosed (FractionRing D.V) ∧
-          (strictToField.comp
-            (algebraMap (S.presheaf.stalk sbar.image) Rsh)).range ≤ D.V.toSubring ∧
           ∃ (sp_R : ContinuousMonoidHom (Aut F') (Aut F)),
             inducedByValuation f sbar' sbar hSpec F' F D sp_R ∧
               e.toMonoidHom.comp sp.toMonoidHom =
-                sp_R.toMonoidHom.comp e'.toMonoidHom := sorry
+                sp_R.toMonoidHom.comp e'.toMonoidHom := Iff.rfl
 
 /-- For a proper morphism with geometrically connected fibres, every
 specialization map along `sbar' ⤳ sbar` is isomorphic to the specialization map induced
-by a strictly henselian valuation ring over `S` with algebraically closed fraction field. -/
+by a strictly henselian valuation ring over `S` with algebraically closed fraction field.
+This is the existence statement of Stacks 0C0M, expressed by the weak comparison
+`valuationInduced`; it does not retain the domination witness from its proof. -/
 theorem exists_strictHenselianValuationRing {X S : Scheme.{u}} (f : X ⟶ S)
     [IsProper f] [GeometricallyConnected f]
     (sbar' sbar : Scheme.GeometricPoint S)
@@ -303,12 +293,8 @@ theorem exists_strictHenselianValuationRing {X S : Scheme.{u}} (f : X ⟶ S)
     (hsp : IsSpecializationMap f sbar' sbar hSpec F' F sp) :
     ∃ (D : _root_.Specializes.ValuationRealization sbar'.toFieldValuedPoint.image
         sbar.toFieldValuedPoint.image (sbar'.toFieldValuedPoint.residueFieldHom))
-      (Rsh : Type u) (_ : CommRing Rsh)
-      (_ : Algebra (S.presheaf.stalk sbar.image) Rsh)
-      (_ : IsStrictHenselizationOf (S.presheaf.stalk sbar.image) Rsh)
-      (strictToField : Rsh →+* sbar'.toFieldValuedPoint.K)
       (e' : Aut F' ≃* Aut F') (e : Aut F ≃* Aut F),
-      valuationInduced f sbar' sbar hSpec F' F sp hsp D Rsh strictToField e' e := sorry
+      valuationInduced f sbar' sbar hSpec F' F sp D e' e := sorry
 
 end IsSpecializationMap
 

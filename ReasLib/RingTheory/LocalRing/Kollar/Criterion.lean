@@ -6,6 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
+public import Mathlib.Data.Fin.VecNotation
 public import Mathlib.RingTheory.Artinian.Defs
 public import Mathlib.RingTheory.RegularLocalRing.Defs
 public import Mathlib.Tactic.CrossRefAttribute
@@ -26,16 +27,22 @@ universe u
 
 namespace IsLocalRing.Kollar
 
-variable {R : Type u} [CommRing R] [IsLocalRing R] [IsNoetherianRing R]
+/-- The four alternatives in Kollar's criterion, in their order in Stacks 0BHZ. -/
+def alternative (R : Type u) [CommRing R] [IsLocalRing R] : Fin 4 → Prop :=
+  ![IsArtinianRing R,
+    IsRegularLocalRing R ∧ ringKrullDim R = 1,
+    (2 : WithTop ℕ) ≤ moduleDepth R R,
+    HasExceptionalExtension R]
+
+variable {R : Type u} [CommRing R] [IsLocalRing R]
 
 /-- Kollar's local-ring criterion: exactly one of the Artinian,
 regular-dimension-one, depth-at-least-two, and exceptional-extension alternatives holds. -/
 @[stacks 0BHZ "Kollar local-ring criterion"]
-theorem exactlyOne :
-    Xor' (IsArtinianRing R)
-      (Xor' (IsRegularLocalRing R ∧ ringKrullDim R = 1)
-        (Xor' ((2 : WithTop ℕ) ≤ moduleDepth R R)
-          (HasExceptionalExtension R))) := sorry
+theorem exactlyOne [IsNoetherianRing R] :
+    ∃! i : Fin 4, alternative R i := sorry
+
+variable [IsNoetherianRing R]
 
 /-- Depth at least two excludes Kollar's exceptional finite-extension alternative. -/
 @[stacks 0BHZ "depth excludes Kollar exceptional extensions"]

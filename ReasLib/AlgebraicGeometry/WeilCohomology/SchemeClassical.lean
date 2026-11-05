@@ -137,48 +137,9 @@ structure SchemeClassicalTheory
     (CHgrade : ∀ X, ℤ → Submodule ℤ (CH X))
     [∀ X, GradedAlgebra (Hgrade X)] [∀ X, GradedAlgebra (CHgrade X)]
     (cyclePullback : ∀ {X Y : V}, (X ⟶ Y) → CHgrade Y →ₐᵍ[ℤ] CHgrade X)
-    (cyclePushforward : ∀ {X Y : V}, (X ⟶ Y) → CH X →+ CH Y) where
-  /-- The functor realizing the abstract domain as schemes over `k`. -/
-  scheme : V ⥤ SchemeOverField k
-  /-- Morphisms in the presentation are precisely morphisms of represented schemes. -/
-  scheme_fullyFaithful : scheme.FullyFaithful
-  /-- Every represented scheme is smooth over `k`. -/
-  smooth : ∀ X, Smooth (scheme.obj X).hom
-  /-- Every represented scheme is projective over `k`. -/
-  projective : ∀ X, Projective (scheme.obj X).hom
-  /-- The specified dimension agrees with geometric Krull dimension on nonempty objects. -/
-  dimension_eq : ∀ X, Nonempty (scheme.obj X).left →
-    topologicalKrullDim (scheme.obj X).left = (dimension X : WithBot ℕ∞)
-  /-- The specified product represents the fibre product over `Spec(k)`. -/
-  schemeProduct : ∀ X Y, scheme.obj (product X Y) ≅ scheme.obj X ⨯ scheme.obj Y
-  /-- The first product projection is represented by `fst`. -/
-  scheme_fst : ∀ X Y, scheme.map (fst X Y) =
-    (schemeProduct X Y).hom ≫ Limits.prod.fst
-  /-- The second product projection is represented by `snd`. -/
-  scheme_snd : ∀ X Y, scheme.map (snd X Y) =
-    (schemeProduct X Y).hom ≫ Limits.prod.snd
-  /-- The distinguished point represents `Spec(k)`. -/
-  schemePoint : scheme.obj point ≅ Over.mk (𝟙 (Spec (CommRingCat.of k)))
-  /-- The structure morphism from each represented scheme to the point. -/
-  structureMorphism : ∀ X, X ⟶ point
-  /-- The represented structure morphism is the canonical map to `Spec(k)`. -/
-  scheme_structureMorphism : ∀ X,
-    scheme.map (structureMorphism X) ≫ schemePoint.hom =
-      Over.homMk (scheme.obj X).hom
-  /-- Every smooth projective scheme over `k` is represented by an object of `V`. -/
-  scheme_essentiallySurjective : ∀ (S : SchemeOverField k)
-    [Smooth S.hom] [Projective S.hom],
-    ∃ X : V, Nonempty (scheme.obj X ≅ S)
-  /-- Chow pullback by an identity is the identity. -/
-  cyclePullback_id : ∀ X, cyclePullback (𝟙 X) = GradedAlgHom.id ℤ (CHgrade X)
-  /-- Chow pullback reverses composition. -/
-  cyclePullback_comp : ∀ {X Y Z : V} (f : X ⟶ Y) (g : Y ⟶ Z),
-    cyclePullback (f ≫ g) = (cyclePullback f).comp (cyclePullback g)
-  /-- Chow pushforward by an identity is the identity. -/
-  cyclePushforward_id : ∀ X, cyclePushforward (𝟙 X) = AddMonoidHom.id (CH X)
-  /-- Chow pushforward preserves composition. -/
-  cyclePushforward_comp : ∀ {X Y Z : V} (f : X ⟶ Y) (g : Y ⟶ Z),
-    cyclePushforward (f ≫ g) = (cyclePushforward g).comp (cyclePushforward f)
+    (cyclePushforward : ∀ {X Y : V}, (X ⟶ Y) → CH X →+ CH Y) extends
+      SmoothProjectivePresentation k V dimension product fst snd point CH CHgrade
+        cyclePullback cyclePushforward where
   /-- The predicate for nonempty equidimensional represented schemes of dimension `d`. -/
   IsNonemptyEquidimensional : V → ℕ → Prop
   /-- The nonempty-equidimensional predicate has its geometric meaning. -/
@@ -333,6 +294,39 @@ variable [∀ X, GradedAlgebra (Hgrade X)] [∀ X, GradedAlgebra (CHgrade X)]
 variable {cyclePullback : ∀ {X Y : V}, (X ⟶ Y) → CHgrade Y →ₐᵍ[ℤ] CHgrade X}
 variable {cyclePushforward : ∀ {X Y : V}, (X ⟶ Y) → CH X →+ CH Y}
 
+
+/- Source-compatible names for the inherited presentation projections.
+The stored data and laws belong only to `SmoothProjectivePresentation`. -/
+namespace PresentationProjection
+
+variable (T : SchemeClassicalTheory k F TateLine V dimension product fst snd point
+  H CH Hgrade CHgrade cyclePullback cyclePushforward)
+
+abbrev scheme := T.toSmoothProjectivePresentation.scheme
+abbrev scheme_fullyFaithful := T.toSmoothProjectivePresentation.scheme_fullyFaithful
+abbrev smooth := T.toSmoothProjectivePresentation.smooth
+abbrev projective := T.toSmoothProjectivePresentation.projective
+abbrev dimension_eq := T.toSmoothProjectivePresentation.dimension_eq
+abbrev schemeProduct := T.toSmoothProjectivePresentation.schemeProduct
+abbrev scheme_fst := T.toSmoothProjectivePresentation.scheme_fst
+abbrev scheme_snd := T.toSmoothProjectivePresentation.scheme_snd
+abbrev schemePoint := T.toSmoothProjectivePresentation.schemePoint
+abbrev structureMorphism := T.toSmoothProjectivePresentation.structureMorphism
+abbrev scheme_structureMorphism := T.toSmoothProjectivePresentation.scheme_structureMorphism
+abbrev scheme_essentiallySurjective := T.toSmoothProjectivePresentation.scheme_essentiallySurjective
+abbrev cyclePullback_id := T.toSmoothProjectivePresentation.cyclePullback_id
+abbrev cyclePullback_comp {X Y Z : V} (f : X ⟶ Y) (g : Y ⟶ Z) :=
+  T.toSmoothProjectivePresentation.cyclePullback_comp f g
+abbrev cyclePushforward_id := T.toSmoothProjectivePresentation.cyclePushforward_id
+abbrev cyclePushforward_comp {X Y Z : V} (f : X ⟶ Y) (g : Y ⟶ Z) :=
+  T.toSmoothProjectivePresentation.cyclePushforward_comp f g
+
+end PresentationProjection
+
+export PresentationProjection (scheme scheme_fullyFaithful smooth projective dimension_eq
+  schemeProduct scheme_fst scheme_snd schemePoint structureMorphism scheme_structureMorphism
+  scheme_essentiallySurjective cyclePullback_id cyclePullback_comp cyclePushforward_id
+  cyclePushforward_comp)
 
 section GeometricChow
 

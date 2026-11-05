@@ -123,9 +123,11 @@ theorem stageMap_comp_hom {i : ℕ} (c : Comparison (J := J) i)
 end Comparison
 
 /-- Proposition 25.10.2 (09VZ): a certified comparison with site cohomology exists in every
-nonnegative degree. -/
+nonnegative degree. The smallness assumptions ensure that covering refinements fit in
+the family universe `w`. -/
 @[stacks 09VZ "hypercovering colimit comparison isomorphism"]
 theorem comparison_nonempty
+    [Small.{w} C] [LocallySmall.{w} C]
     [Limits.HasPullbacks C] [Limits.HasBinaryProducts C] (i : ℕ) :
     Nonempty (Comparison (J := J) i) := sorry
 
@@ -152,6 +154,7 @@ identifies the site-cohomology functor with the filtered colimit over terminal-t
 hypercoverings. -/
 @[stacks 09VZ "site cohomology functor as a hypercovering Cech colimit"]
 theorem isIsomorphic_siteCohomologyFunctor
+    [Small.{w} C] [LocallySmall.{w} C]
     [Limits.HasPullbacks C] [Limits.HasBinaryProducts C] (i : ℕ) :
     IsIsomorphic (cohomologyFunctor (J := J) i)
       (liftedSiteCohomologyFunctor (J := J) i) := sorry
@@ -160,6 +163,7 @@ theorem isIsomorphic_siteCohomologyFunctor
 cohomology with the corresponding filtered colimit. -/
 @[stacks 09VZ "site cohomology as a hypercovering Cech colimit"]
 theorem isIsomorphic_siteCohomology
+    [Small.{w} C] [LocallySmall.{w} C]
     [Limits.HasPullbacks C] [Limits.HasBinaryProducts C]
     (I : Sheaf J AddCommGrpCat.{max w v}) (i : ℕ) :
     IsIsomorphic (cohomology I i)
@@ -188,5 +192,25 @@ theorem stageToSite_eq_iff
       EqualAfterRefinement xiK xiL := sorry
 
 end Comparison
+
+section SiteUniverse
+
+variable [HasSheafify J AddCommGrpCat.{max u v}]
+variable [HasExt.{max u v} (Sheaf J AddCommGrpCat.{max u v})]
+variable [HasDerivedCategory.{d} (Sheaf J AddCommGrpCat.{max u v})]
+variable [HasDerivedCategory.{d} AddCommGrpCat.{max u v}]
+variable
+  [(Sheaf.CohomologyOverPresheaf.homFunctor J
+      (Presheaf.terminal C)).toBoundedBelowDerived.HasRightDerivedFunctor
+    (HomotopyCategory.Plus.quasiIso (Sheaf J AddCommGrpCat.{max u v}))]
+
+/-- Tag 09VZ in the universes of the site: taking the family universe to be `max u v`
+automatically supplies enough small covering refinements. -/
+theorem comparison_nonempty_siteUniverse
+    [Limits.HasPullbacks C] [Limits.HasBinaryProducts C] (i : ℕ) :
+    Nonempty (Comparison.{d, max u v, v, u} (J := J) i) :=
+  comparison_nonempty i
+
+end SiteUniverse
 
 end CategoryTheory.HypercoveringOf.Cech.Terminal

@@ -20,11 +20,16 @@ namespace AlgebraicGeometry.IsThickening
 
 variable {X X' : Scheme.{u}} (i : X ⟶ X') [IsThickening i]
 
-/- Lemma 37.4.2: if `n` is invertible in `Γ(X, ⊤)`, pullback along a thickening
-bijects the `n`-torsion subgroups of the Picard groups of `X'` and `X`. -/
+/- Corrected Lemma 37.4.2 (tag 0C6S): the source statement omits the global-unit
+obstruction. In addition to invertibility of `n`, require that the canonical map
+on global units is surjective modulo `n`th powers. The source proof overlooks the
+image of the connecting map from global units in the units cohomology sequence;
+invertibility of `n` on ideal cohomology alone does not control its quotient. -/
 @[stacks 0C6S] #check
   (AlgebraicGeometry.IsThickening.picardPullback_bijOn_torsionBy i :
     ∀ n : ℤ, IsUnit (n : Γ(X, ⊤)) →
+      (∀ u : Γ(X, ⊤)ˣ, ∃ u' : Γ(X', ⊤)ˣ, ∃ v : Γ(X, ⊤)ˣ,
+        u = Units.map i.appTop.hom.toMonoidHom u' * v ^ n) →
       Set.BijOn (Scheme.Hom.picardPullback i) X'.PicardGroup[n] X.PicardGroup[n])
 
 end AlgebraicGeometry.IsThickening

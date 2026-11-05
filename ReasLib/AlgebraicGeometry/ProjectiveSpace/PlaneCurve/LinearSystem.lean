@@ -33,6 +33,30 @@ universe u
 
 namespace AlgebraicGeometry.ProjectiveSpace.PlaneCurve
 
+/-- For a nonsingular plane curve, the abstract curve has DVR stalks at prime
+divisors. This supplies the valuation hypothesis of the classical `L(D)` API
+without imposing regularity on the general notion of a curve. -/
+instance instPrimeDivisorDiscreteValuationRings_abstractCurve_of_regular
+    {k : Type u} [Field k] [IsAlgClosed k] (d : ℕ)
+    (F : MvPolynomial (Fin 3) k) (hF : F ∈ ProjectiveSpace.grading k 2 d)
+    [Curve (planeCurveOver d F hF)] [Scheme.Regular (Hypersurface.scheme 2 d F hF)] :
+    Scheme.PrimeDivisorDiscreteValuationRings (abstractCurve d F hF).left where
+  isDiscreteValuationRing Z := by
+    let e := (CategoryTheory.asIso ((toVanishing d F hF).stalkMap Z.genericPoint)).commRingCatIsoToRingEquiv
+    letI := Scheme.isRegularLocalRing_stalk (Hypersurface.scheme 2 d F hF)
+      (toVanishing d F hF Z.genericPoint)
+    have hreg : IsRegularLocalRing ((abstractCurve d F hF).left.presheaf.stalk Z.genericPoint) :=
+      IsRegularLocalRing.of_ringEquiv e
+    have hZ : Order.coheight Z.genericPoint = 1 := by
+      change Order.coheight ((irreducibleSetEquivPoints (α := (abstractCurve d F hF).left))
+        Z.support) = 1
+      rw [Order.coheight_orderIso, Z.coheight_eq_one]
+    apply IsLocalRing.finrank_CotangentSpace_eq_one_iff.mp
+    have hdim := ((IsRegularLocalRing.iff_finrank_cotangentSpace _).mp hreg).trans
+      ((ringKrullDim_stalk_eq_coheight Z.genericPoint).trans (congrArg
+        (fun n : ℕ∞ ↦ (n : WithBot ℕ∞)) hZ))
+    exact_mod_cast hdim
+
 /-- The image of a bivariate polynomial in the affine function field `K`. -/
 def polynomialFrac {k : Type u} [Field k] (F : MvPolynomial (Fin 3) k)
     [IsDomain (affineCoordinateRing F)] (h : MvPolynomial (Fin 2) k) :

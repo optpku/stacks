@@ -12,9 +12,10 @@ public import ReasLib.CategoryTheory.Filtration.Derived.LeftExact.SpectralSequen
 public import ReasLib.CategoryTheory.Filtration.Derived.LeftExact.SpectralSequence.Compatibility.Map
 
 /-!
-# Finite Filtered Right-Derived Spectral-Sequence Compatibility
+# Finite filtered right-derived spectral-sequence imports
 
-This aggregate retains the neutral `FilteredComplex.RightDerived.Finite` facade without
-introducing wrapper declarations.  Import the `Targets`, `Model`, `Realization`, or `Map` leaf
-directly when only one layer is needed.
+This aggregate imports the target, model, realization, and map layers.
+All declarations retain their canonical names in
+`FilteredObject.Finite.RightDerived.SpectralSequence`.
+Import a leaf directly when only one layer is needed.
 -/

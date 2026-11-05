@@ -13,7 +13,10 @@ open AlgebraicGeometry CategoryTheory WeilCohomology
 
 universe u v w x y z q w' x' y' z' q'
 
-/- Lemma 45.14.18 -/
+/- Lemma 45.14.18. The comparison bundle contains raw Tate/cohomology
+isomorphisms and first-Chern compatibility, together with their geometric
+presentations. Cycle-class compatibility is derived from the initial axioms
+by `ScalarExtension.cycleClass_commutes`; it is not an input field. -/
 @[stacks 0FVT] #check (WeilCohomology.ChernTheory.axiomsOfScalarExtension : ∀ {k : Type u} [Field k] {k' : Type u} [Field k'] [Algebra k k']
     {F : Type v} [Field F] [CharZero F]
     {F' : Type v} [Field F'] [CharZero F'] [Algebra F F']

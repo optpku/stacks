@@ -51,8 +51,9 @@ theorem rightActionHom_mul_smul (k : Type u) [CommRing k] :
           (GeneralLinear.groupScheme k (GLTwo.index)).X).hom ≫
         (groupScheme k).X ⊴ₗ rightActionHom k ≫ rightActionHom k := sorry
 
-/-- The canonical inverse-right module-object structure. -/
-instance instModObjRightAction (k : Type u) [CommRing k] :
+/-- The inverse-right module-object structure, kept explicit because `GL₂` also admits
+other actions of the upper-triangular group. -/
+def instModObjRightAction (k : Type u) [CommRing k] :
     ModObj (groupScheme k).X (GeneralLinear.groupScheme k (GLTwo.index)).X where
   smul := rightActionHom k
   one_smul := rightActionHom_one_smul k
@@ -62,10 +63,11 @@ instance instModObjRightAction (k : Type u) [CommRing k] :
 def rightAction (k : Type u) [CommRing k] :
     Mod (Over (Spec (CommRingCat.of k))) (groupScheme k).X where
   X := (GeneralLinear.groupScheme k (GLTwo.index)).X
+  mod := instModObjRightAction k
 
 /-- The generalized-point formula for the inverse-right action. -/
 theorem rightAction_smul (k : Type u) [CommRing k] :
-    (rightAction k).mod.smul = rightActionHom k := sorry
+    (rightAction k).mod.smul = rightActionHom k := rfl
 
 /-- The action groupoid presenting right upper-triangular cosets in `GL₂`. -/
 def relation (k : Type u) [CommRing k] : GroupoidScheme (Spec (CommRingCat.of k)) :=

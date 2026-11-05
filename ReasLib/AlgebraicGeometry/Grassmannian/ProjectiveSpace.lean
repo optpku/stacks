@@ -9,6 +9,7 @@ module
 public import ReasLib.AlgebraicGeometry.Grassmannian.Model
 public import ReasLib.AlgebraicGeometry.ProjectiveSpace.Basic
 public import ReasLib.AlgebraicGeometry.ProjectiveSpace.Datum
+public import ReasLib.AlgebraicGeometry.ProjectiveSpace.Representability
 
 /-!
 # Rank-one Grassmannian quotients and projective space
@@ -68,44 +69,6 @@ theorem rel_toProjectiveSpaceDatum (n : ℕ) {S : Scheme.{u}}
   rw [← SheafOfModules.freeHomEquiv_comp_apply, he]
 
 set_option backward.isDefEq.respectTransparency false in
-private theorem sectionsPullback_eq_unitHomEquiv {S T : Scheme.{u}} (f : T ⟶ S)
-    [(TopologicalSpace.Opens.map f.base).Final] (M : S.Modules) (s : M.sections) :
-    Scheme.Modules.sectionsPullback f M s =
-      ((Scheme.Modules.pullback f).obj M).unitHomEquiv
-        ((asIso (SheafOfModules.pullbackObjUnitToUnit f.toRingCatSheafHom)).inv ≫
-          (Scheme.Modules.pullback f).map (M.unitHomEquiv.symm s)) := by
-  let φ := f.toRingCatSheafHom
-  let adj := SheafOfModules.pullbackPushforwardAdjunction φ
-  let e := asIso (SheafOfModules.pullbackObjUnitToUnit φ)
-  let t := M.unitHomEquiv.symm s
-  have hs : SheafOfModules.pushforwardSections φ
-      (Scheme.Modules.sectionsPullback f M s) =
-      SheafOfModules.sectionsMap (adj.unit.app M) s := by
-    apply (RingedSpace.sectionsEquivTop _).injective
-    change (((Scheme.Modules.pullback f).obj M).presheaf.map (𝟙 _)) _ = _
-    simp
-    rfl
-  apply (SheafOfModules.bijective_pushforwardSections φ _).injective
-  rw [hs, SheafOfModules.pushforwardSections_unitHomEquiv]
-  change SheafOfModules.sectionsMap (adj.unit.app M) s =
-    ((Scheme.Modules.pushforward f).obj ((Scheme.Modules.pullback f).obj M)).unitHomEquiv
-      (SheafOfModules.unitToPushforwardObjUnit φ ≫
-        (SheafOfModules.pushforward φ).map (e.inv ≫ (SheafOfModules.pullback φ).map t))
-  have h : SheafOfModules.unitToPushforwardObjUnit φ ≫
-      (SheafOfModules.pushforward φ).map (e.inv ≫ (SheafOfModules.pullback φ).map t) =
-      t ≫ adj.unit.app M := by
-    calc
-      _ = adj.homEquiv _ _ (e.hom ≫ e.inv ≫ (SheafOfModules.pullback φ).map t) := by
-        rw [Adjunction.homEquiv_naturality_right]
-        change _ = (SheafOfModules.pullbackPushforwardAdjunction φ).homEquiv _ _
-          (SheafOfModules.pullbackObjUnitToUnit φ) ≫ _
-        rw [SheafOfModules.pullbackPushforwardAdjunction_homEquiv_pullbackObjUnitToUnit]
-      _ = t ≫ adj.unit.app M := by
-        simp only [Iso.hom_inv_id_assoc]
-        rw [Adjunction.homEquiv_unit, ← adj.unit_naturality]
-  rw [h, SheafOfModules.unitHomEquiv_comp_apply, Equiv.apply_symm_apply]
-
-set_option backward.isDefEq.respectTransparency false in
 /-- Conversion of a rank-one Grassmannian quotient to projective-space data commutes with
 pullback up to the defining equivalence of projective-space data. -/
 theorem toProjectiveSpaceDatum_pullback_equivalent (n : ℕ) {S T : Scheme.{u}}
@@ -131,8 +94,41 @@ theorem toProjectiveSpaceDatum_pullback_equivalent (n : ℕ) {S T : Scheme.{u}}
       Scheme.Modules.sectionsPullback f Q.module (Q.module.freeHomEquiv Q.map (ULift.up i))
   rw [← Category.assoc, h, Category.assoc, ← Functor.map_comp,
     ← SheafOfModules.unitHomEquiv_symm_freeHomEquiv_apply]
-  exact (sectionsPullback_eq_unitHomEquiv f Q.module
-    (Q.module.freeHomEquiv Q.map (ULift.up i))).symm
+  let s := Q.module.freeHomEquiv Q.map (ULift.up i)
+  let adj := SheafOfModules.pullbackPushforwardAdjunction φ
+  let t := Q.module.unitHomEquiv.symm s
+  have hs : SheafOfModules.pushforwardSections φ
+      (Scheme.Modules.sectionsPullback f Q.module s) =
+      SheafOfModules.sectionsMap (adj.unit.app Q.module) s := by
+    apply (RingedSpace.sectionsEquivTop _).injective
+    change (((Scheme.Modules.pullback f).obj Q.module).presheaf.map (𝟙 _)) _ = _
+    simp
+    rfl
+  symm
+  apply (SheafOfModules.bijective_pushforwardSections φ _).injective
+  rw [hs]
+  refine Eq.trans ?_ (SheafOfModules.pushforwardSections_unitHomEquiv φ
+    (M := (SheafOfModules.pullback φ).obj Q.module)
+    (ε.inv ≫ (SheafOfModules.pullback φ).map t)).symm
+  change SheafOfModules.sectionsMap (adj.unit.app Q.module) s =
+    ((Scheme.Modules.pushforward f).obj ((Scheme.Modules.pullback f).obj Q.module)).unitHomEquiv
+      (SheafOfModules.unitToPushforwardObjUnit φ ≫
+        (Scheme.Modules.pushforward f).map (ε.inv ≫ (Scheme.Modules.pullback f).map t))
+  have ht : SheafOfModules.unitToPushforwardObjUnit φ ≫
+      (Scheme.Modules.pushforward f).map (ε.inv ≫ (Scheme.Modules.pullback f).map t) =
+      t ≫ adj.unit.app Q.module := by
+    calc
+      _ = adj.homEquiv _ _ (ε.hom ≫ ε.inv ≫ (Scheme.Modules.pullback f).map t) := by
+        rw [Adjunction.homEquiv_naturality_right]
+        change _ = (SheafOfModules.pullbackPushforwardAdjunction φ).homEquiv _ _
+          (SheafOfModules.pullbackObjUnitToUnit φ) ≫ _
+        rw [SheafOfModules.pullbackPushforwardAdjunction_homEquiv_pullbackObjUnitToUnit]
+        rfl
+      _ = t ≫ adj.unit.app Q.module := by
+        simp only [Iso.hom_inv_id_assoc]
+        rw [Adjunction.homEquiv_unit, ← adj.unit_naturality]
+        rfl
+  rw [ht, SheafOfModules.unitHomEquiv_comp_apply, Equiv.apply_symm_apply]
 
 end Grassmannian.Quotient
 
@@ -269,12 +265,15 @@ def selfSuccFunctorIso (n : ℕ) :
 
 namespace Model
 
-/-- An explicit model of the Grassmannian functor in successive dimensions is isomorphic to
-integral projective space relative to an explicit representation of projective-space data. -/
+/-- Comparison with projective space using its canonical coordinate datum.
+The supplied inverse bijections must be normalized at `(O(1), T_0, ..., T_n)`.
+They remain explicit inputs: extracting them from the unproved representability
+proposition would introduce a data dependency on that proof. -/
 def selfSuccIsoProjectiveSpace (n : ℕ) (hn : 0 < n)
     (P : Model n (n + 1) hn (Nat.lt_succ_self n))
     (R : (ProjectiveSpaceDatumClass.functor n).RepresentableBy
-      (ProjectiveSpace.scheme ℤ n)) :
+      (ProjectiveSpace.scheme ℤ n))
+    (_hR : R.homEquiv (𝟙 _) = ProjectiveSpaceDatumClass.universalClass n) :
     P.scheme ≅ ProjectiveSpace.scheme ℤ n :=
   (P.isRepresentedBy.representableBy.ofIso (selfSuccFunctorIso n)).uniqueUpToIso R
 
@@ -283,14 +282,56 @@ obtained from the universal rank-one quotient. -/
 theorem selfSuccIsoProjectiveSpace_hom_classifies (n : ℕ) (hn : 0 < n)
     (P : Model n (n + 1) hn (Nat.lt_succ_self n))
     (R : (ProjectiveSpaceDatumClass.functor n).RepresentableBy
-      (ProjectiveSpace.scheme ℤ n)) :
-    R.homEquiv (selfSuccIsoProjectiveSpace n hn P R).hom =
+      (ProjectiveSpace.scheme ℤ n))
+    (hR : R.homEquiv (𝟙 _) = ProjectiveSpaceDatumClass.universalClass n) :
+    (ProjectiveSpaceDatumClass.functor n).map
+        (selfSuccIsoProjectiveSpace n hn P R hR).hom.op
+        (ProjectiveSpaceDatumClass.universalClass n) =
       (selfSuccFunctorIso n).hom.app (Opposite.op P.scheme) P.point := by
+  rw [← hR, ← R.homEquiv_eq]
   change R.homEquiv (R.homEquiv.symm
     ((selfSuccFunctorIso n).hom.app (Opposite.op P.scheme)
       (P.isRepresentedBy.representableBy.homEquiv (𝟙 P.scheme)))) = _
   rw [Equiv.apply_symm_apply, Functor.IsRepresentedBy.representableBy_homEquiv_apply]
   simp
+
+/-- Normalization at the canonical coordinate datum makes the comparison independent of
+the supplied representation and its normalization proof. -/
+theorem selfSuccIsoProjectiveSpace_eq (n : ℕ) (hn : 0 < n)
+    (P : Model n (n + 1) hn (Nat.lt_succ_self n))
+    (R R' : (ProjectiveSpaceDatumClass.functor n).RepresentableBy
+      (ProjectiveSpace.scheme ℤ n))
+    (hR : R.homEquiv (𝟙 _) = ProjectiveSpaceDatumClass.universalClass n)
+    (hR' : R'.homEquiv (𝟙 _) = ProjectiveSpaceDatumClass.universalClass n) :
+    selfSuccIsoProjectiveSpace n hn P R hR =
+      selfSuccIsoProjectiveSpace n hn P R' hR' := by
+  apply Iso.ext
+  apply R.homEquiv.injective
+  conv_lhs => rw [R.homEquiv_eq, hR]
+  conv_rhs => rw [R.homEquiv_eq, hR]
+  rw [selfSuccIsoProjectiveSpace_hom_classifies,
+    selfSuccIsoProjectiveSpace_hom_classifies]
+
+/-- The canonical comparison is the unique isomorphism pulling back the coordinate datum
+to the datum of the universal rank-one quotient. This statement needs no supplied
+projective-space representation. It asserts existence in `Prop` and does not choose
+isomorphism data from the admitted representability law. -/
+theorem existsUnique_selfSuccIsoProjectiveSpace (n : ℕ) (hn : 0 < n)
+    (P : Model n (n + 1) hn (Nat.lt_succ_self n)) :
+    ∃! e : P.scheme ≅ ProjectiveSpace.scheme ℤ n,
+      (ProjectiveSpaceDatumClass.functor n).map e.hom.op
+          (ProjectiveSpaceDatumClass.universalClass n) =
+        (selfSuccFunctorIso n).hom.app (Opposite.op P.scheme) P.point := by
+  obtain ⟨R, hR⟩ := Functor.IsRepresentedBy.iff_exists_representableBy.mp
+    (ProjectiveSpaceDatumClass.universalClass_isRepresentedBy n)
+  refine ⟨selfSuccIsoProjectiveSpace n hn P R hR,
+    selfSuccIsoProjectiveSpace_hom_classifies n hn P R hR, ?_⟩
+  intro e he
+  apply Iso.ext
+  apply R.homEquiv.injective
+  conv_lhs => rw [R.homEquiv_eq, hR]
+  conv_rhs => rw [R.homEquiv_eq, hR]
+  exact he.trans (selfSuccIsoProjectiveSpace_hom_classifies n hn P R hR).symm
 
 end Model
 

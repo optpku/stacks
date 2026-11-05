@@ -28,13 +28,15 @@ universe u v w
 namespace Algebra.Etale
 
 /-- Lemma 10.143.3 (00U2), clause (10): an etale algebra over an arbitrary
-localization `Aₛ` of `A` is the base change of an etale `A`-algebra. -/
+localization `Aₛ` of `A` is the base change of an etale `A`-algebra.
+The model lives in `Type (max u w)` because its size before localization can
+depend on the base ring `A`, even when `B'` is small. -/
 @[stacks 00U2 "etale localization descent"]
 theorem exists_model_of_localization
     {A : Type u} [CommRing A]
     (M : Submonoid A) {Aₛ : Type v} [CommRing Aₛ] [Algebra A Aₛ] [IsLocalization M Aₛ]
     (B' : Type w) [CommRing B'] [Algebra Aₛ B'] [Algebra.Etale Aₛ B'] :
-    ∃ (B : Type w) (_ : CommRing B) (_ : Algebra A B) (_ : Algebra.Etale A B),
+    ∃ (B : Type (max u w)) (_ : CommRing B) (_ : Algebra A B) (_ : Algebra.Etale A B),
       Nonempty (B' ≃ₐ[Aₛ] Aₛ ⊗[A] B) := sorry
 
 end Algebra.Etale

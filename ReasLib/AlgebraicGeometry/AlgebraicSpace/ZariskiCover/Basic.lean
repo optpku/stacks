@@ -57,6 +57,40 @@ structure ZariskiCover {S : Scheme.{u}} (F : AlgebraicSpace S) where
 
 namespace ZariskiCover
 
+/-- The underlying family of a bundled Zariski covering satisfies `IsZariskiCover`. -/
+theorem isZariskiCover {S : Scheme.{u}} {F : AlgebraicSpace S} (𝒰 : ZariskiCover F) :
+    @IsZariskiCover S 𝒰.I₀ 𝒰.small F 𝒰.X 𝒰.f :=
+  ⟨fun i ↦ (𝒰.isOpenImmersion i).presheaf, 𝒰.covers⟩
+
+/-- Bundle a family satisfying `IsZariskiCover`, retaining its index, spaces and maps. -/
+def ofIsZariskiCover {S : Scheme.{u}} {F : AlgebraicSpace S} {I : Type v} [Small.{u} I]
+    (X : I → AlgebraicSpace S) (f : ∀ i, X i ⟶ F) (hf : IsZariskiCover F X f) :
+    ZariskiCover F where
+  I₀ := I
+  X := X
+  f := f
+  isOpenImmersion := fun i ↦ ⟨hf.1 i⟩
+  small := inferInstance
+  covers := hf.2
+
+/-- Bundling a covering predicate retains the supplied index type. -/
+@[simp]
+theorem ofIsZariskiCover_I₀ {S : Scheme.{u}} {F : AlgebraicSpace S} {I : Type v}
+    [Small.{u} I] (X : I → AlgebraicSpace S) (f : ∀ i, X i ⟶ F)
+    (hf : IsZariskiCover F X f) : (ofIsZariskiCover X f hf).I₀ = I := rfl
+
+/-- Bundling a covering predicate retains the supplied spaces. -/
+@[simp]
+theorem ofIsZariskiCover_X {S : Scheme.{u}} {F : AlgebraicSpace S} {I : Type v}
+    [Small.{u} I] (X : I → AlgebraicSpace S) (f : ∀ i, X i ⟶ F)
+    (hf : IsZariskiCover F X f) : (ofIsZariskiCover X f hf).X = X := rfl
+
+/-- Bundling a covering predicate retains the supplied component maps. -/
+@[simp]
+theorem ofIsZariskiCover_f {S : Scheme.{u}} {F : AlgebraicSpace S} {I : Type v}
+    [Small.{u} I] (X : I → AlgebraicSpace S) (f : ∀ i, X i ⟶ F)
+    (hf : IsZariskiCover F X f) : (ofIsZariskiCover X f hf).f = f := rfl
+
 /-- Build a Zariski covering from a small family of open immersions whose coproduct map is
 locally surjective as fppf sheaves. -/
 def ofCovers {S : Scheme.{u}} {F : AlgebraicSpace S} {I : Type v} [Small.{u} I]

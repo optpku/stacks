@@ -680,13 +680,27 @@ def lciCoproduct.forgetToYDescentData (F : 𝒳 ⟶ 𝒴)
 /-- The clopen pieces of a coproduct object form an fppf cover of the test scheme. -/
 theorem lciCoproductObj.pieceHom_mem (F : 𝒳 ⟶ 𝒴) (a : lciCoproductObj F) :
     Sieve.ofArrows a.pieceOver a.pieceHom ∈
-      Scheme.fppfTopology.over S a.base :=
-  sorry
+      Scheme.fppfTopology.over S a.base := by
+  rw [GrothendieckTopology.mem_over_iff, Sieve.overEquiv_ofArrows]
+  apply Precoverage.generate_mem_toGrothendieck
+  change Presieve.ofArrows (fun i ↦ (a.piece i).toScheme) (fun i ↦ (a.piece i).ι) ∈
+    Scheme.fppfPrecoverage a.base.left
+  apply Scheme.zariskiPrecoverage_le_fppfPrecoverage
+  rw [Scheme.zariskiPrecoverage, Scheme.ofArrows_mem_precoverage_iff]
+  constructor
+  · intro x
+    have hx : x ∈ (⨆ i, a.piece i) := by rw [a.iSup_eq_top]; trivial
+    obtain ⟨i, hi⟩ := TopologicalSpace.Opens.mem_iSup.mp hx
+    exact ⟨i, ⟨⟨x, hi⟩, rfl⟩⟩
+  · intro i
+    infer_instance
 
 /-- Glue the `lciForgetToY` images of the clopen pieces of a coproduct object. -/
 def lciCoproduct.toYObj (F : 𝒳 ⟶ 𝒴)
     [GroupoidFlat (asGroupoidsOverMor F)]
     [GroupoidLocallyOfFinitePresentation (asGroupoidsOverMor F)] (a : lciCoproductObj F) : 𝒴.total :=
+  letI : Pseudofunctor.IsStack (fiberPseudofunctor 𝒴.p) (Scheme.fppfTopology.over S) :=
+    IsStack.OnSite.toIsStack (self := 𝒴.property)
   Fiber.fiberInclusion.obj
     (@objPreimage _ _ _ _ _
       (Pseudofunctor.isEquivalence_toDescentData
@@ -706,6 +720,8 @@ def lciCoproduct.forgetToYDescentEquiv (F : 𝒳 ⟶ 𝒴)
     [GroupoidFlat (asGroupoidsOverMor F)]
     [GroupoidLocallyOfFinitePresentation (asGroupoidsOverMor F)] (a : lciCoproductObj F) :
     𝒴.p.Fiber a.base ≌ (fiberPseudofunctor 𝒴.p).DescentData a.pieceHom :=
+  letI : Pseudofunctor.IsStack (fiberPseudofunctor 𝒴.p) (Scheme.fppfTopology.over S) :=
+    IsStack.OnSite.toIsStack (self := 𝒴.property)
   @asEquivalence _ _ _ _
     ((fiberPseudofunctor 𝒴.p).toDescentData a.pieceHom)
     (Pseudofunctor.isEquivalence_toDescentData

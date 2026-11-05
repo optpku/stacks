@@ -59,7 +59,7 @@ the resulting bounded-below cohomological delta functor is universal. -/
 theorem Functor.RightDerived.Universal.ofAcyclic
     (hacyclic : ∀ X : 𝒜, ∃ (Y : 𝒜) (i : X ⟶ Y), Mono i ∧
       RightAcyclic.Bounded F Y) :
-    CohomologicalDeltaFunctor.IsUniversal (Functor.RightDerived.cohomological RF) := sorry
+    CohomologicalDeltaFunctor.IsUniversal (Functor.RightDerived.cohomological RF F α) := sorry
 
 /-- A mono-embedding class of bounded right-acyclic objects supplies the
 universality hypothesis without exposing chosen embeddings downstream. -/
@@ -67,7 +67,7 @@ universality hypothesis without exposing chosen embeddings downstream. -/
 theorem Functor.RightDerived.Universal.ofHasMonoEmbedding
     [ObjectProperty.HasMonoEmbedding (Functor.RightAcyclic.Bounded F)] :
     CohomologicalDeltaFunctor.IsUniversal
-      (Functor.RightDerived.cohomological RF) := sorry
+      (Functor.RightDerived.cohomological RF F α) := sorry
 
 end
 
@@ -90,16 +90,14 @@ embeddings. -/
 @[stacks 05TE "universality of the canonical bounded-below right-derived delta functor"]
 theorem Functor.RightDerived.Bounded.cohomological_isUniversal :
     CohomologicalDeltaFunctor.IsUniversal
-      (Functor.RightDerived.cohomological
-        (Functor.RightDerived.Bounded.functor F)) := sorry
+      (Functor.RightDerived.Bounded.cohomological F) := sorry
 
 /-- Universality of the canonical bounded-below right-derived delta functor
 is available to typeclass search. -/
 @[stacks 05TE "canonical bounded-below right-derived universality instance"]
 instance Functor.RightDerived.Bounded.cohomological.isUniversal :
     CohomologicalDeltaFunctor.IsUniversal
-      (Functor.RightDerived.cohomological
-        (Functor.RightDerived.Bounded.functor F)) := sorry
+      (Functor.RightDerived.Bounded.cohomological F) := sorry
 
 end Canonical
 
@@ -130,7 +128,7 @@ universal. -/
 theorem Functor.RightDerived.Universal.ofComparison
     (hcompare : ∀ n : ℕ, IsIsomorphic (Functor.RightDerived.degree RF n) (F.rightDerived n))
     (hacyclic : ∀ X : 𝒜, ∃ (Y : 𝒜) (i : X ⟶ Y), Mono i ∧ RightAcyclic F Y) :
-    CohomologicalDeltaFunctor.IsUniversal (Functor.RightDerived.cohomological RF) := sorry
+    CohomologicalDeltaFunctor.IsUniversal (Functor.RightDerived.cohomological RF F α) := sorry
 
 end
 

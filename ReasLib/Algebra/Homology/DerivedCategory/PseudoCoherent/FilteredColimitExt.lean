@@ -38,12 +38,16 @@ namespace CategoryTheory.DerivedCategory
 variable {R : Type u} [Ring R]
 
 /-- The filtered-colimit Ext condition: comparison is invertible below degree `-m` and
-monic in degree `-m`. -/
+monic in degree `-m`.
+
+The module carriers and test categories share universe `max u v`. This includes the
+finite-subset diagrams needed to detect finite generation in the converse, and the
+ring universe `u` so that finite free modules fit in the ambient module category. -/
 @[stacks 0G8X "filtered-colimit Ext criterion"]
 abbrev FilteredColimitExtCriterion
-    (K : DerivedCategory (ModuleCat R)) (m : ℤ) : Prop :=
-  ∀ ⦃J : Type v⦄ [SmallCategory J] [IsFiltered J]
-    (F : J ⥤ ModuleCat R),
+    (K : DerivedCategory (ModuleCat.{max u v} R)) (m : ℤ) : Prop :=
+  ∀ ⦃J : Type (max u v)⦄ [SmallCategory J] [IsFiltered J]
+    (F : J ⥤ ModuleCat.{max u v} R),
       (∀ n : ℤ, n < -m →
         IsIso (colimit.post F (Ext.addCommGrpFunctor K n))) ∧
       Mono (colimit.post F (Ext.addCommGrpFunctor K (-m)))
@@ -78,9 +82,12 @@ theorem extFilteredColimitComparison_mono
 /-- An `m`-pseudo-coherent object satisfies the filtered-colimit Ext criterion. -/
 @[stacks 0G8W "filtered-colimit Ext criterion for pseudo-coherent objects"]
 theorem filteredColimitExtCriterion
-    {K : DerivedCategory (ModuleCat R)} {m : ℤ}
+    {K : DerivedCategory (ModuleCat.{max u v} R)} {m : ℤ}
     (hK : DerivedCategory.IsMPseudoCoherent K m) :
-    DerivedCategory.FilteredColimitExtCriterion K m := sorry
+    DerivedCategory.FilteredColimitExtCriterion K m := by
+  intro J _ _ F
+  exact ⟨fun _ hn ↦ extFilteredColimitComparison_isIso hK F hn,
+    extFilteredColimitComparison_mono hK F⟩
 -- Proof strategy: for each filtered module diagram, combine
 -- `extFilteredColimitComparison_isIso` in every degree below `-m` with
 -- `extFilteredColimitComparison_mono` in degree `-m`.
@@ -89,17 +96,18 @@ end IsMPseudoCoherent
 
 namespace Minus
 
-/-- The filtered-colimit Ext criterion for an object of the bounded-above derived category. -/
+/-- The filtered-colimit Ext criterion for an object of the bounded-above derived category,
+with module carriers and test categories in the common universe `max u v`. -/
 @[stacks 0G8X "bounded-above filtered-colimit Ext criterion"]
 abbrev FilteredColimitExtCriterion
-    (K : DerivedCategory.Minus (ModuleCat R)) (m : ℤ) : Prop :=
+    (K : DerivedCategory.Minus (ModuleCat.{max u v} R)) (m : ℤ) : Prop :=
   DerivedCategory.FilteredColimitExtCriterion K.obj m
 
 /-- Lemma 15.66.2: a bounded-above derived module is `m`-pseudo-coherent exactly when its
 derived Ext functors satisfy the filtered-colimit comparison criterion. -/
 @[stacks 0G8X "Lemma 15.66.2"]
 theorem isMPseudoCoherent_iff_filteredColimitExt
-    (K : DerivedCategory.Minus (ModuleCat R)) (m : ℤ) :
+    (K : DerivedCategory.Minus (ModuleCat.{max u v} R)) (m : ℤ) :
     DerivedCategory.IsMPseudoCoherent K.obj m ↔
       Minus.FilteredColimitExtCriterion K m := sorry
 -- Proof strategy: the forward implication is `IsMPseudoCoherent.filteredColimitExtCriterion`.

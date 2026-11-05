@@ -75,7 +75,11 @@ theorem IsIsoAt.underlyingApp
     {comparison : Comparison U (Opens.Cover.overFamily U 𝒰 h𝒰)}
     {F : X.Modules} (h : Comparison.IsIsoAt U
       (Opens.Cover.overFamily U 𝒰 h𝒰) comparison F) (p : ℕ) :
-    IsIso (underlyingApp U 𝒰 h𝒰 comparison F p) := sorry
+    IsIso (underlyingApp U 𝒰 h𝒰 comparison F p) := by
+  exact (((ModuleCech.Underlying.homologyIso U 𝒰 h𝒰 p).app F).symm ≪≫
+    (Module.Derived.Sections.forgetFunctor X U).mapIso
+      (Comparison.IsIsoAt.appIso U (Opens.Cover.overFamily U 𝒰 h𝒰) h p) ≪≫
+    (Module.Derived.Sections.boundedCohomologyForgetIso X U (p : ℤ)).app F).isIso_hom
 
 /-- The underlying additive component isomorphism, with the invertibility certificate consumed
 explicitly so callers do not need a proof-local `IsIso` instance. -/
@@ -86,8 +90,10 @@ noncomputable def IsIsoAt.underlyingAppIso
       (Opens.Cover.overFamily U 𝒰 h𝒰) comparison F) (p : ℕ) :
     moduleCechCohomology 𝒰 F p ≅
       (Module.Derived.Sections.boundedAbCohomologyFunctor X U (p : ℤ)).obj F :=
-  @asIso _ _ _ _ (Comparison.underlyingApp U 𝒰 h𝒰 comparison F p)
-    (Comparison.IsIsoAt.underlyingApp U 𝒰 h𝒰 h p)
+  ((ModuleCech.Underlying.homologyIso U 𝒰 h𝒰 p).app F).symm ≪≫
+    (Module.Derived.Sections.forgetFunctor X U).mapIso
+      (Comparison.IsIsoAt.appIso U (Opens.Cover.overFamily U 𝒰 h𝒰) h p) ≪≫
+    (Module.Derived.Sections.boundedCohomologyForgetIso X U (p : ℤ)).app F
 
 /-- The underlying additive component viewed as an `IsIsomorphic` proposition. -/
 @[stacks 01EQ "underlying additive Cech comparison isomorphic component"]
@@ -105,7 +111,11 @@ theorem IsNormalized.underlyingApp_zero
     {comparison : Comparison U (Opens.Cover.overFamily U 𝒰 h𝒰)}
     (h : Comparison.IsNormalized U
       (Opens.Cover.overFamily U 𝒰 h𝒰) comparison) (F : X.Modules) :
-    IsIso (underlyingApp U 𝒰 h𝒰 comparison F 0) := sorry
+    IsIso (underlyingApp U 𝒰 h𝒰 comparison F 0) := by
+  exact (((ModuleCech.Underlying.homologyIso U 𝒰 h𝒰 0).app F).symm ≪≫
+    (Module.Derived.Sections.forgetFunctor X U).mapIso
+      (Comparison.IsNormalized.zeroIso U (Opens.Cover.overFamily U 𝒰 h𝒰) h F) ≪≫
+    (Module.Derived.Sections.boundedCohomologyForgetIso X U 0).app F).isIso_hom
 
 /-- The degree-zero underlying additive isomorphism supplied by a normalized comparison. -/
 @[stacks 01EQ "normalized underlying additive Cech comparison isomorphism"]
@@ -115,8 +125,10 @@ noncomputable def IsNormalized.underlyingZeroIso
       (Opens.Cover.overFamily U 𝒰 h𝒰) comparison) (F : X.Modules) :
     moduleCechCohomology 𝒰 F 0 ≅
       (Module.Derived.Sections.boundedAbCohomologyFunctor X U 0).obj F :=
-  @asIso _ _ _ _ (Comparison.underlyingApp U 𝒰 h𝒰 comparison F 0)
-    (Comparison.IsNormalized.underlyingApp_zero U 𝒰 h𝒰 h F)
+  ((ModuleCech.Underlying.homologyIso U 𝒰 h𝒰 0).app F).symm ≪≫
+    (Module.Derived.Sections.forgetFunctor X U).mapIso
+      (Comparison.IsNormalized.zeroIso U (Opens.Cover.overFamily U 𝒰 h𝒰) h F) ≪≫
+    (Module.Derived.Sections.boundedCohomologyForgetIso X U 0).app F
 
 /-- The normalized degree-zero underlying additive component viewed as an `IsIsomorphic`
 proposition. -/

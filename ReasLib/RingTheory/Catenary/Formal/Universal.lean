@@ -21,7 +21,7 @@ keeping this direction separate gives downstream files a short, stable API.
 @stack 0AW3
 -/
 
-universe u
+universe u v
 
 namespace IsFormallyCatenaryRing
 
@@ -29,10 +29,10 @@ variable {A : Type u} [CommRing A] [IsLocalRing A]
 
 /-- Lemma 15.110.2 (current Stacks numbering: Lemma 15.111.2, tag `0AW3`):
 a Noetherian local ring which is not formally catenary is not universally
-catenary. -/
+catenary. The test universe must contain the universe of the source ring. -/
 @[stacks 0AW3 "failure of universal catenarity outside formal catenarity"]
 theorem not_universally (hA : ¬ IsFormallyCatenaryRing A) :
-    ¬ UniversallyCatenaryRing A := sorry
+    ¬ UniversallyCatenaryRing.{u, max u v} A := sorry
 -- Proof strategy: argue contrapositively; universal catenarity makes the required finite-type
 -- polynomial and quotient rings catenary, and the completion dimension criterion then supplies
 -- `IsFormallyCatenaryRing.iff`.

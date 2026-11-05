@@ -78,13 +78,14 @@ variable [∀ (U : C) (V : Over U),
   ((J.over U).over V).WEqualsLocallyBijective AddCommGrpCat.{max u v}]
 
 /-- A relation among finite free generators of `M` factors locally through a finite free module
-on which the relation vanishes. -/
+on which the relation vanishes. The covering family is indexed in the universe of `Over U`,
+so no smallness condition on the morphisms of the site is required. -/
 @[stacks 08FC "local factorization"]
 def FactorsLocally (M : ringedSiteModuleCategory J O) {U : C} {m n : ℕ}
     (A : FiniteFree (J.over U) (O.over U) m ⟶
       FiniteFree (J.over U) (O.over U) n)
     (s : FiniteFree (J.over U) (O.over U) n ⟶ M.over U) : Prop :=
-  ∃ (I : Type u) (Uᵢ : I → Over U), (J.over U).CoversTop Uᵢ ∧
+  ∃ (I : Type (max u v)) (Uᵢ : I → Over U), (J.over U).CoversTop Uᵢ ∧
     ∀ i : I,
       ∃ (l : ℕ)
         (B : (restriction J O (Uᵢ i)).obj (FiniteFree (J.over U) (O.over U) n) ⟶

@@ -10,6 +10,7 @@ public import Mathlib.Algebra.Ring.Defs
 public import Mathlib.Topology.Defs.Basic
 public import Mathlib.Topology.UniformSpace.Defs
 public import Mathlib.Topology.UniformSpace.CompleteSeparated
+public import Mathlib.Topology.UniformSpace.AbstractCompletion
 public import ReasLib.Topology.Algebra.TensorProduct.LinearTopology
 
 /-!
@@ -339,6 +340,20 @@ instance instCompleteSpace : CompleteSpace (Completed R M N) := sorry
 theorem isUniformInducing_of :
     IsUniformInducing (of R M N : Linear R M N → Completed R M N) := sorry
 
+/-- The explicit inverse limit as a Hausdorff completion of the linearly topologized tensor
+product. This exposes `AbstractCompletion.extend`, its computation and uniqueness rules, and
+`AbstractCompletion.compareEquiv` without changing the inverse-limit model. In particular,
+extension to a complete separated uniform space applies to uniformly continuous maps; linearity
+of such an extension is a separate property. -/
+def abstractCompletion : AbstractCompletion (Linear R M N) where
+  space := Completed R M N
+  coe := of R M N
+  uniformStruct := instUniformSpace R M N
+  complete := instCompleteSpace R M N
+  separation := instT0Space R M N
+  isUniformInducing := isUniformInducing_of R M N
+  dense := denseRange_of R M N
+
 /-- Scalar multiplication on the completed tensor product is continuous for topological additive
 group factors with continuous scalar actions. No linearity assumption on the factor topologies is
 needed. -/
@@ -350,7 +365,9 @@ instance instContinuousSMul [TopologicalSpace R]
 with `Completed.of`. -/
 theorem ext_of {P : Type u} [AddCommGroup P] [Module R P] [TopologicalSpace P] [T2Space P]
     {f g : Completed R M N →ₗ[R] P} (hf : Continuous f) (hg : Continuous g)
-    (h : f.comp (of R M N) = g.comp (of R M N)) : f = g := sorry
+    (h : f.comp (of R M N) = g.comp (of R M N)) : f = g := by
+  apply DFunLike.ext'
+  exact (abstractCompletion R M N).funext hf hg fun x => DFunLike.congr_fun h x
 
 end Completed
 

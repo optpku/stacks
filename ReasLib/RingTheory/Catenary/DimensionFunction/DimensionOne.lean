@@ -26,7 +26,7 @@ namespace PrimeSpectrum
 dimension at most one. -/
 instance instIsDimensionFunctionQuotientKrullDim
     {A : Type u} [CommRing A] [IsDomain A] [Ring.DimensionLEOne A] :
-    IsDimensionFunction (quotientKrullDim : PrimeSpectrum A → ℤ) := sorry
+    IsDimensionFunction (fun p : PrimeSpectrum A ↦ quotientKrullDim p) := sorry
 
 namespace quotientKrullDim
 
@@ -35,6 +35,7 @@ points. -/
 theorem eq_zero_iff_isMaximal
     {A : Type u} [CommRing A] [IsDomain A] (hdim : ringKrullDim A = 1)
     (p : PrimeSpectrum A) :
+    letI := Ring.dimensionLEOne_of_ringKrullDim_eq_one hdim
     PrimeSpectrum.quotientKrullDim p = 0 ↔ p.asIdeal.IsMaximal := sorry
 
 /-- On a one-dimensional domain, the quotient Krull dimension is one exactly at the generic
@@ -42,12 +43,14 @@ point. -/
 theorem eq_one_iff_eq_bot
     {A : Type u} [CommRing A] [IsDomain A] (hdim : ringKrullDim A = 1)
     (p : PrimeSpectrum A) :
+    letI := Ring.dimensionLEOne_of_ringKrullDim_eq_one hdim
     PrimeSpectrum.quotientKrullDim p = 1 ↔ p = ⊥ := sorry
 
 /-- On a one-dimensional domain, the quotient Krull dimension is a dimension function. -/
 theorem isDimensionFunctionOfDimOneDomain
     {A : Type u} [CommRing A] [IsDomain A] (hdim : ringKrullDim A = 1) :
-    IsDimensionFunction (PrimeSpectrum.quotientKrullDim : PrimeSpectrum A → ℤ) := sorry
+    letI := Ring.dimensionLEOne_of_ringKrullDim_eq_one hdim
+    IsDimensionFunction (fun p : PrimeSpectrum A ↦ PrimeSpectrum.quotientKrullDim p) := sorry
 
 end quotientKrullDim
 

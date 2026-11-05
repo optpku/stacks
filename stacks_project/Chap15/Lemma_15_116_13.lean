@@ -42,7 +42,7 @@ relation when the coefficient ring is a domain. -/
 #check (@KummerArtinSchreier.addFormula_of_isPrimitiveRoot)
 
 #check @KummerArtinSchreier.IsQuotient.exists_coefficients
-#check @KummerArtinSchreier.IsQuotient.quotient_eq
+#check @KummerArtinSchreier.IsQuotient.hasShape
 #check @KummerArtinSchreier.IsQuotient.hasQuotientIdentity
 #check @KummerArtinSchreier.HasQuotientIdentity.addFormula_mul
 #check @KummerArtinSchreier.IsQuotient.map

@@ -56,12 +56,14 @@ instance isLocalHom : IsLocalHom (algebraMap R S) :=
 
 /-- The structural map of a strict henselization is ind-etale. -/
 @[stacks 04GP "ind-etaleness of a strict henselization map"]
-theorem indEtale : RingHom.IndEtale (algebraMap R S) := sorry
+theorem indEtale : RingHom.IndEtale (algebraMap R S) :=
+  IsStrictHenselizationOf.isFilteredColimitOfEtale
 
-/-- The structural map of a strict henselization has the representation-level
-ind-etale presentation used by constructions with an explicit universe. -/
+/-- The structural map of a strict henselization has a representation-level
+ind-etale presentation in the canonical endpoint universe. -/
 @[stacks 04GP "raw ind-etale presentation of a strict henselization map"]
-theorem rawIndEtale : RingHom.IndEtale.Raw (algebraMap R S) := sorry
+theorem rawIndEtale : RingHom.IndEtale.Raw.{u, v, max u v} (algebraMap R S) :=
+  indEtale
 
 /-- The defining strictly-henselian, local, ind-etale, and closed-point conditions of a strict
 henselization. -/

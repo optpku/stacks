@@ -51,7 +51,7 @@ valuation rings. -/
 theorem exists_wedgeOf_dvrFamily_of_deltaInvariant_eq
     (h_dimension : ringKrullDim A = 1)
     (h_eq : deltaInvariant A = (minimalPrimes A).encard - 1) :
-    ∃ (m : ℕ) (As : LocalRing.Wedge.StrictHenselianDvrFamily m),
+    ∃ (m : ℕ) (As : LocalRing.Wedge.StrictHenselianDvrFamily.{max u v} m),
       As.IsWedgeOf A := sorry
 
 end StrictHenselian

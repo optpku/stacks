@@ -35,13 +35,13 @@ instance instIsGE_pullback_structureSheafDerived {Y X : AlgebraicSpace S} (f : Y
     ((pullback f).obj (structureSheafDerived X)).IsGE 0 := sorry
 
 /-- The canonical unit `𝒪_Y[0] ⟶ Lf^* 𝒪_X[0]`, from the underived structure-sheaf unit,
-the existing single-sheaf homology comparison, and `lowerCohomologyInclusion`. -/
+the explicit single-sheaf homology inverse, and `lowerCohomologyInclusion`. -/
 def structureSheafDerivedPullbackUnit {Y X : AlgebraicSpace S} (f : Y ⟶ X) :
     structureSheafDerived Y ⟶ (pullback f).obj (structureSheafDerived X) :=
   (DerivedCategory.singleFunctor (Modules Y) 0).map
       (structureModulePullbackInv f ≫
-        inv (singlePullbackHomologyComparison f
-          (SheafOfModules.unit (structureSheaf X)) 0)) ≫
+        singlePullbackHomologyInverse f
+          (SheafOfModules.unit (structureSheaf X)) 0) ≫
     lowerCohomologyInclusion ((pullback f).obj (structureSheafDerived X)) 0 inferInstance
 
 /-- `structureSheafDerivedPullbackUnit` is `singleFunctor` of `structureModulePullbackInv`
@@ -55,7 +55,8 @@ theorem structureSheafDerivedPullbackUnit_eq {Y X : AlgebraicSpace S} (f : Y ⟶
               (SheafOfModules.unit (structureSheaf X)) 0)) ≫
         lowerCohomologyInclusion ((pullback f).obj (structureSheafDerived X)) 0
           inferInstance :=
-  rfl
+  by
+    simp only [structureSheafDerivedPullbackUnit, singlePullbackHomologyComparison_inv]
 
 /-- The structure-sheaf derived pullback unit followed by its counit is the identity. -/
 theorem structureSheafDerivedPullbackUnit_hom_inv_id {Y X : AlgebraicSpace S} (f : Y ⟶ X) :

@@ -54,9 +54,9 @@ variable [AddCommGroup N] [Module B N]
 
 /-- The derived Ext¹ class of a Hom representative on `NL_{B/A}`. -/
 private def toNaiveExt (f : (Generators.self A B).toExtension.Cotangent →ₗ[B] N) :
-    Ext⁽(1 : ℤ)⁾(DerivedCategory.Q.obj
-        (selfNaiveComplex (CommRingCat.of A) (Under.mk (CommRingCat.ofHom (algebraMap A B)))), coeffSingle B N) :=
-  DerivedCategory.Q.map
+    Ext⁽(1 : ℤ)⁾(Algebra.naiveCotangentObject A B, coeffSingle B N) :=
+  DerivedCategory.Q.map (selfNaiveIsoCochainInv A B) ≫
+    DerivedCategory.Q.map
       (extendMap (extOneHomUnderChain A B f) embeddingDownNat) ≫
     DerivedCategory.Q.map
       (extendSingleIso embeddingDownNat (ModuleCat.of B N) 1 (-1 : ℤ) rfl).hom ≫

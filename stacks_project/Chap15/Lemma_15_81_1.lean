@@ -38,7 +38,7 @@ universe u v w x
     [AddCommGroup M] [Module A M] [Algebra.FiniteType R A] ↦
   (Module.FinitePresentationRelativeTo.iff_overAnyFinitelyPresentedCover :
     Module.FinitePresentationRelativeTo R A M ↔
-      ∀ (A' : Type x) [CommRing A'] [Algebra R A'] [Algebra.FinitePresentation R A']
+      ∀ (A' : Type (max u x)) [CommRing A'] [Algebra R A'] [Algebra.FinitePresentation R A']
         (f : A' →ₐ[R] A) (_ : Function.Surjective f),
           Module.FinitePresentationAlong f.toRingHom M)
 

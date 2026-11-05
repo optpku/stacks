@@ -7,6 +7,8 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import ReasLib.CategoryTheory.Filtration.Complex.Realization.ToTotal
+public import ReasLib.CategoryTheory.Filtration.Complex.SpectralSequence.Association.Total.PageOne
+public import Mathlib.CategoryTheory.Whiskering
 public import Mathlib.Tactic.CrossRefAttribute
 
 /-!
@@ -33,19 +35,22 @@ variable {C : Type u} [Category.{v} C] [Abelian C]
 @[stacks 012O "first-page source functor on filtered spectral-sequence realizations"]
 noncomputable abbrev pageOneSource (p q : ℤ) :
     Realization (C := C) ⥤ C :=
-  totalPageOneSource (C := C) p q
+  totalFunctor ⋙
+    FilteredComplex.AssociatedSpectralSequence.Total.pageOneSource p q
 
 /-- The `(p, q)` graded-piece homology target, functorial in a generic realization. -/
 @[stacks 012O "first-page target functor on filtered spectral-sequence realizations"]
 noncomputable abbrev pageOneTarget (p q : ℤ) :
     Realization (C := C) ⥤ C :=
-  totalPageOneTarget (C := C) p q
+  totalFunctor ⋙
+    FilteredComplex.AssociatedSpectralSequence.Total.pageOneTarget p q
 
 /-- The first-page comparison, natural in a generic filtered spectral-sequence realization. -/
 @[stacks 012O "first-page comparison on filtered spectral-sequence realizations"]
 noncomputable def pageOneComparison (p q : ℤ) :
     pageOneSource (C := C) p q ≅ pageOneTarget (C := C) p q :=
-  totalPageOneComparison (C := C) p q
+  Functor.isoWhiskerLeft (totalFunctor (C := C))
+    (FilteredComplex.AssociatedSpectralSequence.Total.pageOneComparison p q)
 
 /-- Evaluation of the generic first-page source returns the selected page entry. -/
 @[simp, stacks 012O "first-page source evaluation on filtered realizations"]

@@ -95,22 +95,24 @@ theorem postcomposeModificationMap_id
     postcomposeModificationMap (𝟙 α) S =
       𝟙 (postcomposeObj α S) := sorry
 
-/-- Components reverse vertical composition of diagram modifications, as forced by
-the colax orientation of pseudocone morphisms. -/
-@[simp]
-theorem postcomposeModificationMap_comp
+/-- Components reverse vertical composition of diagram modifications up to the
+canonical invertible comparison, with inverse right-unitor apex cell. -/
+abbrev postcomposeModificationMap_comp
     {α β γ : Pseudofunctor.StrongTrans E F}
     (Γ : α ⟶ β) (Δ : β ⟶ γ) (S : PseudoCone E) :
-    postcomposeModificationMap (Γ ≫ Δ) S =
+    postcomposeModificationMap (Γ ≫ Δ) S ≅
       postcomposeModificationMap Δ S ≫
-        postcomposeModificationMap Γ S := sorry
+        postcomposeModificationMap Γ S :=
+  ColaxCostructuredArrow.postcompose.cellComponent.comp
+    (K := Pseudofunctor.constDiagram J B) (X := E) (Y := F) Γ Δ S
 
 /- Data and axiom audit (mathlib 4.32):
 
 `postcomposeModificationMap` has the explicit identity apex map. Its comparison is the
 existing identity-cone comparison followed by `postcomposeModification`; no apex map,
 comparison modification, inverse, or witness is selected through a proof placeholder.
-The remaining declarations only expose its projections and contravariant functoriality. -/
+The composition comparison reuses the explicit inverse right-unitor comparison
+`cellComponent.comp`; the remaining theorems only expose projections and identities. -/
 
 end Bicategory.PseudoCone
 

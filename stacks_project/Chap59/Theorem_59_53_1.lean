@@ -29,6 +29,7 @@ variable (s : GeometricPoint S)
 variable (Rsh : Type u) [CommRing Rsh]
 variable [Algebra (S.presheaf.stalk s.image) Rsh]
 variable [IsStrictHenselizationOf (S.presheaf.stalk s.image) Rsh]
+variable (model : etaleLocalRing S s ≃ₐ[S.presheaf.stalk s.image] Rsh)
 
 #check (AlgebraicGeometry.Scheme.Etale.henselizedFiber f s Rsh : Scheme.{u})
 
@@ -40,6 +41,13 @@ variable [IsStrictHenselizationOf (S.presheaf.stalk s.image) Rsh]
 
 #check (AlgebraicGeometry.Scheme.Etale.henselizedFiberToX_def f s Rsh :
   henselizedFiberToX f s Rsh = pullback.fst f (strictHenselizationMap S s Rsh))
+
+#check (henselizedFiberModelIso f s Rsh model :
+  henselizedFiber f s Rsh ≅ henselizedFiber f s (etaleLocalRing S s))
+
+#check (henselizedFiberModelIso_hom_toX f s Rsh model :
+  (henselizedFiberModelIso f s Rsh model).hom ≫
+      henselizedFiberToX f s (etaleLocalRing S s) = henselizedFiberToX f s Rsh)
 
 variable [HasSheafify X.smallEtaleTopology AddCommGrpCat.{u}]
 variable [HasSheafify S.smallEtaleTopology AddCommGrpCat.{u}]
@@ -103,11 +111,12 @@ variable [Functor.HasRightDerivedFunctor
 
 /- Theorem 59.53.1: for a quasi-compact quasi-separated morphism of schemes,
 the geometric stalks of higher direct images are the étale cohomology groups
-of the strict-henselized fibre with inverse-image coefficients. The bounded-below
+of the strict-henselized fibre with inverse-image coefficients, using the
+explicit algebra identification `model` with the geometric étale stalk. The bounded-below
 derived variants identify all integer-degree cohomology groups and the derived
 stalk with derived global sections on that fibre. -/
 @[stacks 03Q9] #check
-  (AlgebraicGeometry.Scheme.Etale.higherDirectImage_stalk_eq_etaleCohomology f s Rsh :
+  (AlgebraicGeometry.Scheme.Etale.higherDirectImage_stalk_eq_etaleCohomology f s Rsh model :
     ∀ [QuasiCompact f] [QuasiSeparated f]
       (F : Sheaf X.smallEtaleTopology AddCommGrpCat.{u}) (n : ℕ),
     IsIsomorphic
@@ -117,7 +126,7 @@ stalk with derived global sections on that fibre. -/
         n (globalEtale (henselizedFiber f s Rsh))))
 
 #check
-  (AlgebraicGeometry.Scheme.Etale.derivedHigherDirectImage_stalk_eq_etaleCohomology f s Rsh :
+  (AlgebraicGeometry.Scheme.Etale.derivedHigherDirectImage_stalk_eq_etaleCohomology f s Rsh model :
     ∀ [QuasiCompact f] [QuasiSeparated f]
       (K : DerivedCategory.Plus (Sheaf X.smallEtaleTopology AddCommGrpCat.{u}))
       (n : ℤ),
@@ -132,7 +141,7 @@ stalk with derived global sections on that fibre. -/
           (henselizedDerivedPullback f s Rsh (DerivedCategory.Plus.ι.obj K)))))
 
 #check
-  (AlgebraicGeometry.Scheme.Etale.derivedPushforward_stalk_eq_derivedGlobalSections f s Rsh :
+  (AlgebraicGeometry.Scheme.Etale.derivedPushforward_stalk_eq_derivedGlobalSections f s Rsh model :
     ∀ [QuasiCompact f] [QuasiSeparated f]
       (K : DerivedCategory.Plus (Sheaf X.smallEtaleTopology AddCommGrpCat.{u})),
     IsIsomorphic

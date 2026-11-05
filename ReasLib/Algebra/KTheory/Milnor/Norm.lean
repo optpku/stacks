@@ -6,7 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import ReasLib.Algebra.KTheory.Milnor.Residue
+public import ReasLib.Algebra.KTheory.Milnor.RatFunc
 public import ReasLib.RingTheory.Localization.AtPrime.FractionRing
 public import Mathlib.FieldTheory.RatFunc.AsPolynomial
 public import Mathlib.RingTheory.AdjoinRoot
@@ -27,96 +27,13 @@ set_option backward.privateInPublic true
 
 namespace MilnorK
 
-private abbrev NormPrime (k : Type u) [Field k] :=
-  {p : Polynomial k // p.Monic ∧ Irreducible p}
+private abbrev NormPrime (k : Type u) [Field k] := RationalFunction.Prime k
 
-private instance primeFact (k : Type u) [Field k] (p : NormPrime k) : Fact (Irreducible p.1) :=
-  ⟨p.2.2⟩
+private noncomputable abbrev finiteResidues (k : Type u) [Field k] (i : ℕ) :=
+  RationalFunction.finiteResidues k i
 
-private noncomputable abbrev primeIdeal (k : Type u) [Field k] (p : NormPrime k) : Ideal (Polynomial k) :=
-  Ideal.span {p.1}
-
-private instance primeIdealPrime (k : Type u) [Field k] (p : NormPrime k) :
-    (primeIdeal k p).IsPrime :=
-  inferInstanceAs (Ideal.span {p.1}).IsPrime
-
-private instance primeDVR (k : Type u) [Field k] (p : NormPrime k) :
-    IsDiscreteValuationRing (Localization.AtPrime (primeIdeal k p)) :=
-  IsLocalization.AtPrime.isDiscreteValuationRing_of_dedekind_domain
-    (Polynomial k)
-    (fun (h : primeIdeal k p = ⊥) ↦ p.2.2.ne_zero (Ideal.span_singleton_eq_bot.mp h))
-    (Localization.AtPrime (primeIdeal k p))
-
-private noncomputable def primeEvaluation (k : Type u) [Field k] (p : NormPrime k) :
-    Localization.AtPrime (primeIdeal k p) →+* AdjoinRoot p.1 where
-  toFun a :=
-    let fraction := IsLocalization.sec (primeIdeal k p).primeCompl a
-    AdjoinRoot.mk p.1 fraction.1 / AdjoinRoot.mk p.1 fraction.2.1
-  map_zero' := sorry
-  map_one' := sorry
-  map_add' := sorry
-  map_mul' := sorry
-
-private instance primeEvaluationLocal (k : Type u) [Field k] (p : NormPrime k) :
-    IsLocalHom (primeEvaluation k p) := sorry
-
-private noncomputable def primeFractionMap (k : Type u) [Field k] (p : NormPrime k) :
-    RatFunc k →+* FractionRing (Localization.AtPrime (primeIdeal k p)) :=
-  -- Local instance justification (defeq pin): the fraction-ring comparison fixes this localization algebra in its result type.
-  letI : Algebra (Localization.AtPrime (primeIdeal k p)) (RatFunc k) :=
-    IsLocalization.localizationAlgebraOfSubmonoidLe
-      (Localization.AtPrime (primeIdeal k p)) (RatFunc k)
-      (primeIdeal k p).primeCompl (nonZeroDivisors (Polynomial k))
-      (primeIdeal k p).primeCompl_le_nonZeroDivisors
-  (Localization.AtPrime.fractionRingAlgEquiv (primeIdeal k p) :
-    FractionRing (Localization.AtPrime (primeIdeal k p)) ≃ₐ[
-      Localization.AtPrime (primeIdeal k p)] RatFunc k).symm.toRingHom
-
-private noncomputable def primeResidue (k : Type u) [Field k] (p : NormPrime k) (i : ℕ) :
-    Group (i + 1) (RatFunc k) →+ Group i (AdjoinRoot p.1) :=
-  (mapGroup (IsLocalRing.ResidueField.lift (primeEvaluation k p)) i).comp
-    ((dvrBoundary (Localization.AtPrime (primeIdeal k p))
-      (FractionRing (Localization.AtPrime (primeIdeal k p))) i).comp
-        (mapGroup (primeFractionMap k p) (i + 1)))
-
-
-private noncomputable def zeroPrime (k : Type u) [Field k] : NormPrime k :=
-  ⟨Polynomial.X, Polynomial.monic_X, Polynomial.irreducible_X⟩
-
-private noncomputable def zeroEvaluation (k : Type u) [Field k] :
-    Localization.AtPrime (primeIdeal k (zeroPrime k)) →+* k where
-  toFun a :=
-    let fraction := IsLocalization.sec (primeIdeal k (zeroPrime k)).primeCompl a
-    fraction.1.eval 0 / fraction.2.1.eval 0
-  map_zero' := sorry
-  map_one' := sorry
-  map_add' := sorry
-  map_mul' := sorry
-
-private instance zeroEvaluationLocal (k : Type u) [Field k] :
-    IsLocalHom (zeroEvaluation k) := sorry
-
-private noncomputable def invertVariable (k : Type u) [Field k] : RatFunc k →+* RatFunc k where
-  toFun a :=
-    a.num.eval₂ (RatFunc.C : k →+* RatFunc k) (RatFunc.X⁻¹) /
-      a.denom.eval₂ (RatFunc.C : k →+* RatFunc k) (RatFunc.X⁻¹)
-  map_zero' := sorry
-  map_one' := sorry
-  map_add' := sorry
-  map_mul' := sorry
-
-private noncomputable def infinityResidue (k : Type u) [Field k] (i : ℕ) :
-    Group (i + 1) (RatFunc k) →+ Group i k :=
-  ((mapGroup (IsLocalRing.ResidueField.lift (zeroEvaluation k)) i).comp
-    ((dvrBoundary (Localization.AtPrime (primeIdeal k (zeroPrime k)))
-      (FractionRing (Localization.AtPrime (primeIdeal k (zeroPrime k)))) i).comp
-        (mapGroup (primeFractionMap k (zeroPrime k)) (i + 1)))).comp
-      (mapGroup (invertVariable k) (i + 1))
-
-private noncomputable def finiteResidues (k : Type u) [Field k] (i : ℕ)
-    (a : Group (i + 1) (RatFunc k)) :
-    (p : NormPrime k) → Group i (AdjoinRoot p.1) :=
-  fun p ↦ primeResidue k p i a
+private noncomputable abbrev infinityResidue (k : Type u) [Field k] (i : ℕ) :=
+  RationalFunction.infinityResidue k i
 
 /-- Every residue class at one finite place has a rational-function lift vanishing at all
 other finite places. -/
@@ -129,39 +46,41 @@ private theorem finiteResidues_invFun_single (k : Type u) [Field k]
     (p : NormPrime k) (i : ℕ) (a : Group i (AdjoinRoot p.1)) :
     finiteResidues k i
       (Function.invFun (finiteResidues k i) (@Pi.single _ _ _ (Classical.decEq _) p a)) =
-        @Pi.single _ _ _ (Classical.decEq _) p a := sorry
+        @Pi.single _ _ _ (Classical.decEq _) p a :=
+  Function.invFun_eq (finiteResidues_single_mem_range k p i a)
 
-/-- The Bass–Tate norm is the negative infinity residue of a lift with the prescribed
-residue at one finite place and zero residues at all other finite places. -/
+/-- The polynomial norm computed by the explicit degree-recursive symbol formula. -/
 private noncomputable def simplePolynomialNorm (k : Type u) [Field k]
-    (p : NormPrime k) (i : ℕ) : Group i (AdjoinRoot p.1) →+ Group i k where
-  toFun a := -infinityResidue k i
-    (Function.invFun (finiteResidues k i) (@Pi.single _ _ _ (Classical.decEq _) p a))
-  map_zero' := sorry
-  map_add' := sorry
+    (p : NormPrime k) (i : ℕ) : Group i (AdjoinRoot p.1) →+ Group i k :=
+  RationalFunction.polynomialNorm k p i
 
-/-- Exactness of the rational-function residue sequence makes the norm independent
-of the selected lift. -/
+/-- Any lift of the prescribed finite residue family computes the same explicit norm. -/
 private theorem simplePolynomialNorm_spec (k : Type u) [Field k]
     (p : NormPrime k) (i : ℕ) (a : Group i (AdjoinRoot p.1))
     (lift : Group (i + 1) (RatFunc k))
     (hres : finiteResidues k i lift = @Pi.single _ _ _ (Classical.decEq _) p a) :
     simplePolynomialNorm k p i a = -infinityResidue k i lift := sorry
 
+/-- Transport the polynomial norm along the specified field isomorphism. A root in an
+arbitrary larger field does not suffice to identify that field with `AdjoinRoot p`. -/
 private noncomputable def simpleNormAt (k L : Type u) [Field k] [Field L]
-    (p : NormPrime k) (scalarMap : k →+* L) (generator : L)
-    (hroot : p.1.eval₂ scalarMap generator = 0) (i : ℕ) (a : Group i L) : Group i k :=
+    (p : NormPrime k) (e : AdjoinRoot p.1 ≃+* L) (i : ℕ) (a : Group i L) : Group i k :=
   simplePolynomialNorm k p i
-    (Function.invFun (mapGroup (AdjoinRoot.lift scalarMap generator hroot) i) a)
+    (mapGroup e.symm.toRingHom i a)
 
 private noncomputable def simpleNormValue (k L : Type u) [Field k] [Field L]
-    (scalarMap : k →+* L) (generator : L) (i : ℕ) (a : Group i L) : Group i k :=
+    (scalarMap : k →+* L) (generator : L)
+    (hgen : @IntermediateField.adjoin k _ L _ scalarMap.toAlgebra {generator} = ⊤)
+    (i : ℕ) (a : Group i L) : Group i k :=
   -- Local instance justification (noncanonical choice): this is the specified edge of the generating tower, not an alternative ambient algebra.
   letI : Algebra k L := scalarMap.toAlgebra
   @dite _ ((minpoly k generator).Monic ∧ Irreducible (minpoly k generator))
     (Classical.propDecidable _) (fun hp ↦
-      simpleNormAt k L ⟨minpoly k generator, hp⟩ scalarMap generator
-        (minpoly.aeval k generator) i a) (fun _ ↦ 0)
+      simpleNormAt k L ⟨minpoly k generator, hp⟩
+        (((IntermediateField.adjoinRootEquivAdjoin k
+            (minpoly.ne_zero_iff.mp hp.1.ne_zero)).trans
+          (IntermediateField.equivOfEq hgen)).trans
+            IntermediateField.topEquiv).toRingEquiv i a) (fun _ ↦ 0)
 
 private noncomputable def normStage (k L : Type u) [Field k] [Field L] [Algebra k L]
     [Module.Finite k L] (m : ℕ) : IntermediateField k L :=
@@ -169,7 +88,100 @@ private noncomputable def normStage (k L : Type u) [Field k] [Field L] [Algebra 
     {a | ∃ r : Fin (Module.finrank k L), r.1 < m ∧ a = Module.finBasis k L r}
 
 private theorem normStage_le (k L : Type u) [Field k] [Field L] [Algebra k L]
-    [Module.Finite k L] (m : ℕ) : normStage k L m ≤ normStage k L (m + 1) := sorry
+    [Module.Finite k L] (m : ℕ) : normStage k L m ≤ normStage k L (m + 1) := by
+  apply IntermediateField.adjoin.mono
+  rintro a ⟨r, hr, ha⟩
+  exact ⟨r, Nat.lt_succ_of_lt hr, ha⟩
+
+private theorem normStage_generator_mem (k L : Type u) [Field k] [Field L] [Algebra k L]
+    [Module.Finite k L] (m : ℕ) (hm : m < Module.finrank k L) :
+    Module.finBasis k L ⟨m, hm⟩ ∈ normStage k L (m + 1) :=
+  IntermediateField.subset_adjoin k _ ⟨⟨m, hm⟩, Nat.lt_succ_self m, rfl⟩
+
+/-- Each genuine step in the generating tower is generated by its new basis vector. -/
+private theorem normStage_next_generated (k L : Type u) [Field k] [Field L] [Algebra k L]
+    [Module.Finite k L] (m : ℕ) (hm : m < Module.finrank k L) :
+    letI : Algebra (normStage k L m) (normStage k L (m + 1)) :=
+      (IntermediateField.inclusion (normStage_le k L m)).toRingHom.toAlgebra
+    IntermediateField.adjoin (normStage k L m)
+      {(⟨Module.finBasis k L ⟨m, hm⟩, normStage_generator_mem k L m hm⟩ :
+        normStage k L (m + 1))} = ⊤ := by
+  let K := normStage k L m
+  let E := normStage k L (m + 1)
+  letI : Algebra K E :=
+    (IntermediateField.inclusion (normStage_le k L m)).toRingHom.toAlgebra
+  let g : E := ⟨Module.finBasis k L ⟨m, hm⟩, normStage_generator_mem k L m hm⟩
+  let T := IntermediateField.adjoin K {g}
+  apply top_unique
+  intro x _
+  change x ∈ T
+  refine IntermediateField.adjoin_induction (F := k)
+    (p := fun z hz => (⟨z, hz⟩ : E) ∈ T) ?_ ?_ ?_ ?_ ?_ x.property
+  · rintro z ⟨r, hr, rfl⟩
+    rcases lt_or_eq_of_le (Nat.le_of_lt_succ hr) with hr | hr
+    · exact T.algebraMap_mem
+        ⟨Module.finBasis k L r, IntermediateField.subset_adjoin k _ ⟨r, hr, rfl⟩⟩
+    · have heq : r = ⟨m, hm⟩ := Fin.ext hr
+      subst r
+      exact IntermediateField.subset_adjoin K {g} (Set.mem_singleton g)
+  · intro z
+    exact T.algebraMap_mem (algebraMap k K z)
+  · intro x y hx hy hxp hyp
+    exact T.add_mem hxp hyp
+  · intro x hx hxp
+    exact T.inv_mem hxp
+  · intro x y hx hy hxp hyp
+    exact T.mul_mem hxp hyp
+
+/-- No basis vector is adjoined at the bottom stage. -/
+private theorem normStage_zero_eq_bot (k L : Type u) [Field k] [Field L]
+    [Algebra k L] [Module.Finite k L] : normStage k L 0 = ⊥ := by
+  simp [normStage]
+
+/-- Once all basis vectors have been adjoined the stage is the whole field. -/
+private theorem normStage_eq_top (k L : Type u) [Field k] [Field L]
+    [Algebra k L] [Module.Finite k L] (m : ℕ) (hm : Module.finrank k L ≤ m) :
+    normStage k L m = ⊤ := by
+  apply top_unique
+  intro a _
+  have hspan : Submodule.span k (Set.range (Module.finBasis k L)) ≤
+      (normStage k L m).toSubalgebra.toSubmodule := by
+    apply Submodule.span_le.mpr
+    rintro x ⟨r, rfl⟩
+    exact IntermediateField.subset_adjoin k _ ⟨r, lt_of_lt_of_le r.isLt hm, rfl⟩
+  exact hspan ((Module.finBasis k L).mem_span a)
+
+/-- The inclusion between two stages after the full basis has been adjoined is an identity
+on their underlying field elements. -/
+private theorem normStage_stable (k L : Type u) [Field k] [Field L]
+    [Algebra k L] [Module.Finite k L] (m : ℕ) (hm : Module.finrank k L ≤ m) :
+    normStage k L m = normStage k L (m + 1) :=
+  (normStage_eq_top k L m hm).trans
+    (normStage_eq_top k L (m + 1) (Nat.le_succ_of_le hm)).symm
+
+/-- The stable-stage identification is exactly the transition inclusion. -/
+private theorem normStage_stable_equiv_toAlgHom (k L : Type u) [Field k] [Field L]
+    [Algebra k L] [Module.Finite k L] (m : ℕ) (hm : Module.finrank k L ≤ m) :
+    (IntermediateField.equivOfEq (normStage_stable k L m hm)).toAlgHom =
+      IntermediateField.inclusion (normStage_le k L m) := by
+  ext a
+  rfl
+
+/-- The bottom identification inverts the given scalar embedding. -/
+private theorem normStage_bottom_identification_algebraMap (k L : Type u) [Field k] [Field L]
+    [Algebra k L] [Module.Finite k L] (a : k) :
+    ((IntermediateField.equivOfEq (normStage_zero_eq_bot k L)).trans
+      (IntermediateField.botEquiv k L)) (algebraMap k (normStage k L 0) a) = a := by
+  simpa using (((IntermediateField.equivOfEq (normStage_zero_eq_bot k L)).trans
+    (IntermediateField.botEquiv k L)).commutes a)
+
+/-- The inverse top identification preserves the underlying element of the ambient field. -/
+private theorem normStage_top_identification_coe (k L : Type u) [Field k] [Field L]
+    [Algebra k L] [Module.Finite k L] (a : L) :
+    (((((IntermediateField.equivOfEq
+      (normStage_eq_top k L (Module.finrank k L) le_rfl)).trans
+        IntermediateField.topEquiv).symm a : normStage k L (Module.finrank k L)) : L)) = a := by
+  rfl
 
 /-- The bottom generating stage induces a bijection on Milnor groups. -/
 private theorem normStage_zero_map_bijective (k L : Type u) [Field k] [Field L]
@@ -188,9 +200,11 @@ private noncomputable def normStep (k L : Type u) [Field k] [Field L] [Algebra k
   toFun a := @dite _ (m < Module.finrank k L) (Classical.propDecidable _) (fun hm ↦
     simpleNormValue (normStage k L m) (normStage k L (m + 1))
       (IntermediateField.inclusion (normStage_le k L m)).toRingHom
-      ⟨Module.finBasis k L ⟨m, hm⟩, sorry⟩ i a)
-    (fun _ ↦ Function.invFun
-      (mapGroup (IntermediateField.inclusion (normStage_le k L m)).toRingHom i) a)
+      ⟨Module.finBasis k L ⟨m, hm⟩, normStage_generator_mem k L m hm⟩
+      (normStage_next_generated k L m hm) i a)
+    (fun hm ↦ mapGroup
+      (IntermediateField.equivOfEq
+        (normStage_stable k L m (Nat.le_of_not_gt hm))).symm.toRingHom i a)
   map_zero' := sorry
   map_add' := sorry
 
@@ -201,12 +215,17 @@ private noncomputable def normStages (k L : Type u) [Field k] [Field L] [Algebra
   | m + 1 => (normStages k L i m).comp (normStep k L i m)
 
 /-- Compose the simple-extension norms along the tower generated by a finite basis.
-The inverse functions only identify the bottom and top stages with the given fields. -/
+The endpoint maps are induced by the canonical field identifications of the bottom and top
+stages with the given fields. -/
 private noncomputable def finiteNorm (k L : Type u) [Field k] [Field L] [Algebra k L]
     [Module.Finite k L] (i : ℕ) : Group i L →+ Group i k where
-  toFun a := Function.invFun (mapGroup (algebraMap k (normStage k L 0)) i)
+  toFun a := mapGroup
+    (((IntermediateField.equivOfEq (normStage_zero_eq_bot k L)).trans
+      (IntermediateField.botEquiv k L)).toRingHom) i
     (normStages k L i (Module.finrank k L)
-      (Function.invFun (mapGroup (normStage k L (Module.finrank k L)).subtype i) a))
+      (mapGroup
+        (((IntermediateField.equivOfEq (normStage_eq_top k L (Module.finrank k L) le_rfl)).trans
+          IntermediateField.topEquiv).symm.toRingHom) i a))
   map_zero' := sorry
   map_add' := sorry
 

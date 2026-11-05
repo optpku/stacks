@@ -19,7 +19,7 @@ universe u v
     ∀ {S : AlgebraicGeometry.Scheme.{u}} (𝒰 : S.OpenCover.{v})
       (D : AlgebraicGeometry.Scheme.QCoh.DescentData
         (fun i : 𝒰.I₀ ↦ 𝒰.X i) (fun i ↦ 𝒰.f i)),
-      (AlgebraicGeometry.Scheme.QCoh.OpenCover.restriction 𝒰).essImage D)
+      D.IsEffective)
 
 /- Lemma 35.2.4 (2): restriction from global quasi-coherent modules to descent data on a scheme
 open cover is fully faithful. -/

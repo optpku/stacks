@@ -7,6 +7,7 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import Mathlib.Algebra.Category.Grp.Basic
+public import Mathlib.Algebra.Homology.ShortComplex.Ab
 public import Mathlib.Algebra.Homology.ShortComplex.ShortExact
 public import Mathlib.Algebra.Module.Equiv.Basic
 public import Mathlib.Algebra.MvPolynomial.Equiv
@@ -233,15 +234,18 @@ theorem overlapCocycle_isCocycle (α : Γ(scheme k 1, chartOverlap k)) :
 
 /-- The Čech class of an overlap section on the two-chart cover. -/
 def cechClassOfOverlapSection (α : Γ(scheme k 1, chartOverlap k)) : cechH1 k :=
-  (moduleCechComplex (chartCoverULift k)
-      (SheafOfModules.unit (scheme k 1).toRingedSpace.ringCatSheaf)).homologyπ 1
-    (Function.invFun (fun z ↦
-      (moduleCechComplex (chartCoverULift k)
-        (SheafOfModules.unit (scheme k 1).toRingedSpace.ringCatSheaf)).iCycles 1 z)
-      ((TopCat.Presheaf.Cech.termIso (chartCoverULift k)
+  let K := moduleCechComplex (chartCoverULift k)
+    (SheafOfModules.unit (scheme k 1).toRingedSpace.ringCatSheaf)
+  K.homologyπ 1
+    ((K.sc 1).abCyclesIso.inv
+      ⟨(TopCat.Presheaf.Cech.termIso (chartCoverULift k)
         ((moduleUnderlyingPresheaf (scheme k 1).toRingedSpace).obj
           (SheafOfModules.unit (scheme k 1).toRingedSpace.ringCatSheaf)) 1).inv
-        (overlapCocycle k α)))
+        (overlapCocycle k α), by
+          change K.d 1 ((ComplexShape.up ℕ).next 1) _ = 0
+          rw [(ComplexShape.up ℕ).next_eq'
+            (show (ComplexShape.up ℕ).Rel 1 2 from rfl)]
+          exact overlapCocycle_isCocycle k α⟩)
 
 /-- Every cycle representing the overlap cochain has the class assigned to that cochain. -/
 theorem cechClassOfOverlapSection_spec (α : Γ(scheme k 1, chartOverlap k)) :
@@ -253,7 +257,14 @@ theorem cechClassOfOverlapSection_spec (α : Γ(scheme k 1, chartOverlap k)) :
           (SheafOfModules.unit (scheme k 1).toRingedSpace.ringCatSheaf)) 1).inv
         (overlapCocycle k α) →
         cechClassOfOverlapSection k α = K.homologyπ 1 z := by
-  sorry
+  dsimp only [cechClassOfOverlapSection]
+  intro z hz
+  congr 1
+  apply (AddCommGrpCat.mono_iff_injective
+    ((moduleCechComplex (chartCoverULift k)
+      (SheafOfModules.unit (scheme k 1).toRingedSpace.ringCatSheaf)).iCycles 1)).mp
+    inferInstance
+  exact (ShortComplex.abCyclesIso_inv_apply_iCycles _ _).trans hz.symm
 
 /-- The zero overlap section gives the zero Čech class. -/
 theorem cechClassOfOverlapSection_zero :

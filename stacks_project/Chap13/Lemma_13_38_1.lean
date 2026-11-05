@@ -6,7 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-import ReasLib.CategoryTheory.Pretriangulated.BrownRepresentability
+import ReasLib.CategoryTheory.Pretriangulated.BrownRepresentability.SmallSet
 import StacksCheckRecall
 
 @[expose] public section
@@ -16,9 +16,9 @@ import StacksCheckRecall
 
 The compactly generated Brown theorem and its canonical `Type`-valued
 representability companion are owned by the neutral Brown-representability
-leaf.
+leaf, using only coproducts indexed in the Hom universe.
 -/
 
-@[stacks 0A8F] #check @CategoryTheory.BrownRepresentability.ofCompactGeneration
+@[stacks 0A8F] #check @CategoryTheory.BrownRepresentability.SmallSet.ofCompactGeneration
 
-#check @CategoryTheory.BrownRepresentability.isRepresentable_ofCompactGeneration
+#check @CategoryTheory.BrownRepresentability.SmallSet.isRepresentable_ofCompactGeneration

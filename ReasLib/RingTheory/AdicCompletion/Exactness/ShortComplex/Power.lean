@@ -12,14 +12,14 @@ public import ReasLib.RingTheory.AdicCompletion.CompleteTarget
 public import ReasLib.RingTheory.AdicCompletion.Exactness.ShortComplex
 
 /-!
-# Exactness after completion with a complete target
+# Exactness after completion with a power-annihilated target
 
 @stack 0BNG
 
 The target-side maps are expressed through the canonical `mapToComplete` and
-`mapToPowSmulTopEqBot` owners.  The reusable complete-target theorem and its
-power-annihilated source specialization live together without exposing a local
-completeness instance to consumers.
+`mapToPowSmulTopEqBot` owners.  The short exactness statements assume that a
+power of the ideal annihilates the target; completeness alone does not suffice.
+The source specialization supplies its own completeness witness.
 -/
 
 @[expose] public section
@@ -44,16 +44,23 @@ constructor remain a concrete expression in the public theorem below. -/
 theorem mapToComplete_comp_eq_zero_of_exact
     [IsAdicComplete I Q] {f : M →ₗ[R] N} {g : N →ₗ[R] Q}
     (hfg : Function.Exact f g) :
-    (mapToComplete I g).comp ((AdicCompletion.map I f).restrictScalars R) = 0 := sorry
+    (mapToComplete I g).comp ((AdicCompletion.map I f).restrictScalars R) = 0 := by
+  apply LinearMap.ext
+  intro x
+  change (ofLinearEquiv I Q).symm (map I g (map I f x)) = 0
+  rw [map_comp_apply, hfg.linearMap_comp_eq_zero]
+  simp
 
 /-- Lemma 10.96.4 (0BNG): an exact, injective, and surjective linear sequence
-remains short exact after `I`-adic completion when its target is already
-`I`-adically complete.  The target map is the canonical `mapToComplete` map;
+remains short exact after `I`-adic completion when its target is annihilated by
+a power of `I`.  The completeness instance expresses the canonical target map
+as `mapToComplete`; completeness alone does not imply short exactness.
 `completion_shortExact_of_pow_smul_top_eq_bot` supplies the source specialization. -/
-@[stacks 0BNG "completed short exact sequence with complete target"]
+@[stacks 0BNG "completed short exact sequence with power-annihilated complete target"]
 theorem completion_shortExact_of_complete_target
     [IsAdicComplete I Q] {f : M →ₗ[R] N} {g : N →ₗ[R] Q}
-    (hf : Function.Injective f) (hfg : Function.Exact f g) (hg : Function.Surjective g) :
+    (hf : Function.Injective f) (hfg : Function.Exact f g) (hg : Function.Surjective g)
+    {c : ℕ} (hc : I ^ c • (⊤ : Submodule R Q) = ⊥) :
     (ShortComplex.moduleCatMk
       ((AdicCompletion.map I f).restrictScalars R)
       (mapToComplete I g)

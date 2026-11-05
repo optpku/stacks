@@ -63,14 +63,18 @@ instance relocalizationFunctor_isCocontinuous (f : T ⟶ S) :
     Functor.IsCocontinuous (relocalizationFunctor f) T.smallZariskiTopology
       S.bigZariskiTopology := sorry
 
-/-- The opposite relocalization functor has the left Kan extensions used by lower shriek. -/
+/-- The opposite relocalization functor has the left Kan extensions used by lower shriek.
+The small Zariski site is essentially `u`-small (open subsets of `T`), and its
+comma categories have `u`-small hom sets. The coefficient universe must support
+these colimits; an arbitrary smaller `Type w` need not do so. -/
 instance relocalizationFunctor_op_hasLeftKanExtension
-    (f : T ⟶ S) (P : T.smallZariskiSiteᵒᵖ ⥤ Type w) :
+    (f : T ⟶ S) [UnivLE.{u, w}] (P : T.smallZariskiSiteᵒᵖ ⥤ Type w) :
     (relocalizationFunctor f).op.HasLeftKanExtension P := sorry
 
-/-- The opposite relocalization functor has the pointwise right Kan extensions used by direct image. -/
+/-- The opposite relocalization functor has the pointwise right Kan extensions used by direct image.
+As for left Kan extension, the coefficient universe must support `u`-small limits. -/
 instance relocalizationFunctor_op_hasPointwiseRightKanExtension
-    (f : T ⟶ S) (P : T.smallZariskiSiteᵒᵖ ⥤ Type w) :
+    (f : T ⟶ S) [UnivLE.{u, w}] (P : T.smallZariskiSiteᵒᵖ ⥤ Type w) :
     (relocalizationFunctor f).op.HasPointwiseRightKanExtension P := sorry
 
 /-- The inverse-image functor on sheaves induced by Zariski relocalization. -/
@@ -108,21 +112,21 @@ theorem inverseImage_objObjIso_naturality
 
 /-- The lower-shriek functor on small-to-big Zariski sheaves. -/
 abbrev lowerShriek (f : T ⟶ S)
-    [HasWeakSheafify S.bigZariskiTopology (Type w)] :
+    [HasWeakSheafify S.bigZariskiTopology (Type w)] [UnivLE.{u, w}] :
     Sheaf T.smallZariskiTopology (Type w) ⥤ Sheaf S.bigZariskiTopology (Type w) :=
   (relocalizationFunctor f).sheafPullback (Type w)
     T.smallZariskiTopology S.bigZariskiTopology
 
 /-- The canonical lower-shriek/inverse-image adjunction. -/
 noncomputable def lowerShriekAdjunction (f : T ⟶ S)
-    [HasWeakSheafify S.bigZariskiTopology (Type w)] :
+    [HasWeakSheafify S.bigZariskiTopology (Type w)] [UnivLE.{u, w}] :
     lowerShriek f ⊣ inverseImage f :=
   (relocalizationFunctor f).sheafAdjunctionContinuous (Type w)
     T.smallZariskiTopology S.bigZariskiTopology
 
 /-- The lower-shriek adjunction agrees with the canonical continuous-site adjunction. -/
 theorem lowerShriekAdjunction_def (f : T ⟶ S)
-    [HasWeakSheafify S.bigZariskiTopology (Type w)] :
+    [HasWeakSheafify S.bigZariskiTopology (Type w)] [UnivLE.{u, w}] :
     lowerShriekAdjunction f =
       (relocalizationFunctor f).sheafAdjunctionContinuous (Type w)
         T.smallZariskiTopology S.bigZariskiTopology := sorry
@@ -133,7 +137,7 @@ theorem inverseImage_isRightAdjoint (f : T ⟶ S)
     (inverseImage f).IsRightAdjoint := sorry
 
 /-- The direct-image functor presented by cocontinuous Zariski relocalization. -/
-abbrev directImage (f : T ⟶ S) :
+abbrev directImage (f : T ⟶ S) [UnivLE.{u, w}] :
     Sheaf T.smallZariskiTopology (Type w) ⥤ Sheaf S.bigZariskiTopology (Type w) :=
   (relocalizationFunctor f).sheafPushforwardCocontinuous (Type w)
     T.smallZariskiTopology S.bigZariskiTopology
@@ -144,7 +148,7 @@ instance inverseImage_preservesFiniteLimits (f : T ⟶ S) :
 
 /-- The bundled morphism of topoi presented by Zariski relocalization. -/
 noncomputable def morphismOfTopoi (f : T ⟶ S)
-    [HasSheafify T.smallZariskiTopology (Type w)] :
+    [HasSheafify T.smallZariskiTopology (Type w)] [UnivLE.{u, w}] :
     MorphismOfTopoiIn.{u + 1, u + 1, u, u, w}
       S.bigZariskiTopology T.smallZariskiTopology where
   inverseImageFunctor :=
@@ -157,18 +161,18 @@ noncomputable def morphismOfTopoi (f : T ⟶ S)
 /-- The inverse-image projection of the bundled Zariski relocalization morphism. -/
 @[simp]
 theorem morphismOfTopoi_inverseImage (f : T ⟶ S)
-    [HasSheafify T.smallZariskiTopology (Type w)] :
+    [HasSheafify T.smallZariskiTopology (Type w)] [UnivLE.{u, w}] :
     (morphismOfTopoi f)⁻¹ = inverseImage f := sorry
 
 /-- The direct-image projection of the bundled Zariski relocalization morphism. -/
 @[simp]
 theorem morphismOfTopoi_pushforward (f : T ⟶ S)
-    [HasSheafify T.smallZariskiTopology (Type w)] :
+    [HasSheafify T.smallZariskiTopology (Type w)] [UnivLE.{u, w}] :
     (morphismOfTopoi f).pushforward = directImage f := sorry
 
 /-- The inverse-image computation through the bundled relocalization morphism. -/
 noncomputable def morphismOfTopoi_inverseImage_objObjIso
-    (f : T ⟶ S) [HasSheafify T.smallZariskiTopology (Type w)]
+    (f : T ⟶ S) [HasSheafify T.smallZariskiTopology (Type w)] [UnivLE.{u, w}]
     (𝒢 : Sheaf S.bigZariskiTopology (Type w)) (U : T.smallZariskiSite) :
     (((morphismOfTopoi f)⁻¹).obj 𝒢).1.obj (op U) ≅
       𝒢.1.obj (op ((relocalizationFunctor f).obj U)) :=
@@ -177,7 +181,7 @@ noncomputable def morphismOfTopoi_inverseImage_objObjIso
 
 /-- The lower-shriek adjunction with the inverse-image projection of the bundled morphism. -/
 noncomputable def lowerShriekAdjunction_via_morphism (f : T ⟶ S)
-    [HasWeakSheafify S.bigZariskiTopology (Type w)]
+    [HasWeakSheafify S.bigZariskiTopology (Type w)] [UnivLE.{u, w}]
     [HasSheafify T.smallZariskiTopology (Type w)] :
     lowerShriek f ⊣ (morphismOfTopoi f)⁻¹ :=
   (lowerShriekAdjunction f).ofNatIsoRight
@@ -208,7 +212,7 @@ noncomputable def siteMorphismOfTopoi :
 /-- The identity-base small-to-big site morphism is a retraction of the
 relocalization morphism of topoi. -/
 theorem siteMorphismOfTopoi_comp_morphismOfTopoi_id :
-    MorphismOfTopoiIn.comp (siteMorphismOfTopoi S) (morphismOfTopoi (𝟙 S)) =
+    MorphismOfTopoiIn.comp (siteMorphismOfTopoi S) (morphismOfTopoi.{u, u + 1} (𝟙 S)) =
       MorphismOfTopoiIn.id S.smallZariskiTopology := sorry
 
 /-- The direct image of the identity-base site morphism is computed by evaluation on relocalized

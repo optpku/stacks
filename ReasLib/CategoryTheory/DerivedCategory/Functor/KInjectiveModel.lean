@@ -21,6 +21,8 @@ its factorization and uniqueness laws.
 @[expose] public section
 open CategoryTheory CategoryTheory.Limits
 noncomputable section
+
+set_option backward.isDefEq.respectTransparency false
 universe w uC vC uD vD wC wD
 namespace CategoryTheory.Functor.KInjectiveModel
 variable {C : Type uC} [Category.{vC} C] [Abelian C] [IsGrothendieckAbelian.{w} C]
@@ -43,7 +45,27 @@ additive direct image preserves their specified cochain maps up to quasi-isomorp
 theorem modelMap_quasiIso  {A B : CochainComplex C ℤ}
     (a : A ⟶ B) (ha : QuasiIso a) :
     QuasiIso ((F.mapHomologicalComplex (ComplexShape.up ℤ)).map
-      (((CochainComplex.KInjectiveResolution.Construction.replacement.{w} C)).map a)) := sorry
+      (((CochainComplex.KInjectiveResolution.Construction.replacement.{w} C)).map a)) := by
+  let R := CochainComplex.KInjectiveResolution.Construction.replacement.{w} C
+  let η := CochainComplex.KInjectiveResolution.Construction.augmentation.{w} C
+  haveI : QuasiIso a := ha
+  haveI : QuasiIso (η.app A) :=
+    CochainComplex.KInjectiveResolution.Construction.augmentation_quasiIso C A
+  haveI : QuasiIso (η.app B) :=
+    CochainComplex.KInjectiveResolution.Construction.augmentation_quasiIso C B
+  haveI : QuasiIso (R.map a) := by
+    haveI : QuasiIso (η.app A ≫ R.map a) := by
+      rw [← η.naturality a]
+      change QuasiIso (a ≫ η.app B)
+      infer_instance
+    exact quasiIso_of_comp_left (η.app A) (R.map a)
+  haveI : (R.obj A).IsKInjective :=
+    CochainComplex.KInjectiveResolution.Construction.replacement_isKInjective C A
+  haveI : (R.obj B).IsKInjective :=
+    CochainComplex.KInjectiveResolution.Construction.replacement_isKInjective C B
+  obtain ⟨e, he⟩ := (CochainComplex.IsKInjective.quasiIso_iff (R.map a)).mp inferInstance
+  exact homotopyEquivalences_le_quasiIso _ _ _
+    ⟨F.mapHomotopyEquiv e, congrArg (F.mapHomologicalComplex _).map he⟩
 
 /-- The specified cochain functor inverts original quasi-isomorphisms. -/
 theorem cochain_inverts  :
@@ -78,6 +100,36 @@ def inputAugmentationIso  (A : CochainComplex C ℤ) :
     (((CochainComplex.KInjectiveResolution.Construction.augmentation.{w} C)).app A)
     (CochainComplex.KInjectiveResolution.Construction.augmentation_quasiIso C A)
 
+/-- The two augmentations of a replacement agree after applying the additive functor.
+Their homotopy classes agree because the original augmentation is a quasi-isomorphism
+and the target is K-injective. -/
+theorem ordinaryCochain_augmentation_coherence (A : CochainComplex C ℤ) :
+    (ordinaryCochain F).map
+        ((CochainComplex.KInjectiveResolution.Construction.replacement.{w} C).map
+          ((CochainComplex.KInjectiveResolution.Construction.augmentation.{w} C).app A)) =
+      (ordinaryCochain F).map
+        ((CochainComplex.KInjectiveResolution.Construction.augmentation.{w} C).app
+          ((CochainComplex.KInjectiveResolution.Construction.replacement.{w} C).obj A)) := by
+  let R := CochainComplex.KInjectiveResolution.Construction.replacement.{w} C
+  let η := CochainComplex.KInjectiveResolution.Construction.augmentation.{w} C
+  haveI : (R.obj (R.obj A)).IsKInjective :=
+    CochainComplex.KInjectiveResolution.Construction.replacement_isKInjective C _
+  have hQ : DerivedCategory.Q.map (R.map (η.app A)) =
+      DerivedCategory.Q.map (η.app (R.obj A)) := by
+    apply (cancel_epi (inputAugmentationIso A).hom).mp
+    change DerivedCategory.Q.map (η.app A) ≫ _ = DerivedCategory.Q.map (η.app A) ≫ _
+    rw [← Functor.map_comp, ← Functor.map_comp]
+    exact congrArg DerivedCategory.Q.map (η.naturality (η.app A)).symm
+  have hq : (HomotopyCategory.quotient C (ComplexShape.up ℤ)).map (R.map (η.app A)) =
+      (HomotopyCategory.quotient C (ComplexShape.up ℤ)).map (η.app (R.obj A)) := by
+    apply (CochainComplex.IsKInjective.Qh_map_bijective _ _).injective
+    apply (cancel_mono ((DerivedCategory.quotientCompQhIso C).hom.app (R.obj (R.obj A)))).mp
+    rw [DerivedCategory.quotientCompQhIso_hom_naturality,
+      DerivedCategory.quotientCompQhIso_hom_naturality, hQ]
+    rfl
+  exact DerivedCategory.Q_map_eq_of_homotopy D
+    (F.mapHomotopy (HomotopyCategory.homotopyOfEq _ _ hq))
+
 /-- The universal map uses a supplied extension comparison at the actual model, then reverses
 only the formal localization of the specified original-input augmentation. -/
 def extensionDescOnInput
@@ -93,7 +145,28 @@ theorem extensionDescOnInput_naturality
     (β : ordinaryCochain F ⟶ DerivedCategory.Q ⋙ G)
     {A B : CochainComplex C ℤ} (a : A ⟶ B) :
     (DerivedCategory.Q ⋙ derived F).map a ≫ extensionDescOnInput F G β B =
-      extensionDescOnInput F G β A ≫ (DerivedCategory.Q ⋙ G).map a := sorry
+      extensionDescOnInput F G β A ≫ (DerivedCategory.Q ⋙ G).map a := by
+  let R := CochainComplex.KInjectiveResolution.Construction.replacement.{w} C
+  let η := CochainComplex.KInjectiveResolution.Construction.augmentation.{w} C
+  have hη : DerivedCategory.Q.map (R.map a) ≫ (inputAugmentationIso B).inv =
+      (inputAugmentationIso A).inv ≫ DerivedCategory.Q.map a := by
+    apply (cancel_mono (inputAugmentationIso B).hom).mp
+    simp only [Category.assoc, Iso.inv_hom_id, Category.comp_id]
+    apply (cancel_epi (inputAugmentationIso A).hom).mp
+    simp only [← Category.assoc, Iso.hom_inv_id, Category.id_comp]
+    change DerivedCategory.Q.map (η.app A) ≫ DerivedCategory.Q.map (R.map a) =
+      DerivedCategory.Q.map a ≫ DerivedCategory.Q.map (η.app B)
+    rw [← Functor.map_comp, ← Functor.map_comp, ← η.naturality a]
+    rfl
+  dsimp only [extensionDescOnInput]
+  simp only [← Category.assoc]
+  rw [(fac F).hom.naturality a]
+  dsimp only [cochain, Functor.comp_map]
+  simp only [Category.assoc]
+  rw [← Category.assoc ((ordinaryCochain F).map (R.map a)),
+    β.naturality (R.map a)]
+  simp only [Functor.comp_map, Category.assoc]
+  rw [← G.map_comp, hη, G.map_comp]
 
 /-- The actual natural transformation before localization descent. -/
 def extensionDescOnCochains
@@ -116,7 +189,21 @@ def extensionDesc
 theorem extensionDesc_fac
     (G : DerivedCategory C ⥤ DerivedCategory D)
     (β : ordinaryCochain F ⟶ DerivedCategory.Q ⋙ G) :
-    unit F ≫ Functor.whiskerLeft DerivedCategory.Q (extensionDesc F G β) = β := sorry
+    unit F ≫ Functor.whiskerLeft DerivedCategory.Q (extensionDesc F G β) = β := by
+  ext A
+  simp only [unit, NatTrans.comp_app, Functor.whiskerLeft_app,
+    Functor.leftUnitor_inv_app, Category.id_comp, Functor.whiskerRight_app,
+    extensionDesc, Localization.liftNatTrans_app,
+    Localization.Lifting.compLeft_iso, Iso.refl_hom, Iso.refl_inv,
+    NatTrans.id_app, Category.id_comp, Category.comp_id,
+    extensionDescOnCochains, extensionDescOnInput, Category.assoc,
+    Iso.inv_hom_id_app_assoc]
+  rw [← Category.assoc, β.naturality]
+  simp only [Functor.comp_map, Category.assoc, ← G.map_comp]
+  change β.app A ≫ G.map ((inputAugmentationIso A).hom ≫
+    (inputAugmentationIso A).inv) = β.app A
+  rw [Iso.hom_inv_id, G.map_id]
+  exact Category.comp_id _
 
 /-- The initial-extension arrow contains the actual cochain-model descent. -/
 def initialExtensionDesc
@@ -130,7 +217,41 @@ theorem initialExtensionDesc_unique
     (E : Functor.LeftExtension (DerivedCategory.Q (C := C))
       (ordinaryCochain F))
     (m : Functor.LeftExtension.mk (derived F) (unit F) ⟶ E) :
-    m = initialExtensionDesc F E := sorry
+    m = initialExtensionDesc F E := by
+  let R := CochainComplex.KInjectiveResolution.Construction.replacement.{w} C
+  let η := CochainComplex.KInjectiveResolution.Construction.augmentation.{w} C
+  apply StructuredArrow.hom_ext
+  apply Localization.natTrans_ext DerivedCategory.Q
+    (HomologicalComplex.quasiIso C (ComplexShape.up ℤ))
+  intro A
+  have hu : (derived F).map (DerivedCategory.Q.map (η.app A)) =
+      (fac F).hom.app A ≫ (unit F).app (R.obj A) := by
+    apply (cancel_mono ((fac F).hom.app (R.obj A))).mp
+    simp only [unit, NatTrans.comp_app, Functor.leftUnitor_inv_app,
+      Functor.whiskerRight_app, Category.id_comp, Category.assoc,
+      Iso.inv_hom_id_app, Category.comp_id]
+    calc
+      _ = (fac F).hom.app A ≫ (ordinaryCochain F).map (R.map (η.app A)) :=
+        (fac F).hom.naturality (η.app A)
+      _ = _ := congrArg ((fac F).hom.app A ≫ ·)
+        (ordinaryCochain_augmentation_coherence F A)
+  have hm := NatTrans.congr_app (StructuredArrow.w m) (R.obj A)
+  apply (cancel_mono (E.right.map (inputAugmentationIso A).hom)).mp
+  change m.right.app (DerivedCategory.Q.obj A) ≫ _ =
+    (extensionDesc F E.right E.hom).app (DerivedCategory.Q.obj A) ≫ _
+  simp only [extensionDesc, Localization.liftNatTrans_app,
+    Localization.Lifting.compLeft_iso, Iso.refl_hom, Iso.refl_inv,
+    NatTrans.id_app, Category.id_comp, Category.comp_id,
+    extensionDescOnCochains, extensionDescOnInput, Category.assoc,
+    ← E.right.map_comp, Iso.inv_hom_id, Functor.map_id]
+  change m.right.app (DerivedCategory.Q.obj A) ≫
+      E.right.map (DerivedCategory.Q.map (η.app A)) = _
+  rw [← m.right.naturality]
+  change (derived F).map (DerivedCategory.Q.map (η.app A)) ≫
+    m.right.app (DerivedCategory.Q.obj (R.obj A)) =
+    (fac F).hom.app A ≫ E.hom.app (R.obj A) ≫ 𝟙 _
+  rw [hu, Category.assoc, Category.comp_id]
+  exact congrArg ((fac F).hom.app A ≫ ·) hm
 
 /-- The universal witness stores its actual maps before their valid uniqueness laws. -/
 def initialWitness  :

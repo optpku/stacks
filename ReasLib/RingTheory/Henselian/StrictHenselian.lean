@@ -37,11 +37,11 @@ variable (R : Type u) [CommRing R]
 
 /-- A local ring is strictly henselian if it is henselian and its residue field is separably
 algebraically closed. -/
-@[stacks 04GK]
+@[stacks 04GF "Definition 10.153.1 (2)"]
 class StrictHenselianLocalRing : Prop extends HenselianLocalRing R, IsSepClosed (ResidueField R)
 
 /-- Strict henselianity supplies both henselianity and a separably closed residue field. -/
-@[stacks 04GK "strict henselian conditions"]
+@[stacks 04GF "Definition 10.153.1 (2), strict henselian conditions"]
 theorem StrictHenselianLocalRing.spec [StrictHenselianLocalRing R] :
     HenselianLocalRing R ∧ IsSepClosed (ResidueField R) := sorry
 

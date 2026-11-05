@@ -10,7 +10,7 @@ public import Mathlib.AlgebraicGeometry.Morphisms.FinitePresentation
 public import Mathlib.CategoryTheory.IsomorphismClasses
 public import ReasLib.CategoryTheory.Fibered.Groupoids.Base
 public import ReasLib.AlgebraicGeometry.GroupoidsOver.LimitPreservingOnObjects
-public import ReasLib.CategoryTheory.Fibered.Fiber.Restriction
+public import ReasLib.CategoryTheory.Fibered.Fiber.DirectedSystem
 
 /-!
 # Limit-preserving categories fibred in groupoids
@@ -18,6 +18,8 @@ public import ReasLib.CategoryTheory.Fibered.Fiber.Restriction
 A category fibred in groupoids over `(Sch/S)_fppf` is limit preserving when every directed
 inverse limit of affine schemes over `S` induces an equivalence of fibre categories, encoded
 operationally by descent of fibre objects up to isomorphism and by colimits of fibre Hom-types.
+The Hom diagrams and cocones below specialize `Functor.Fiber.DirectedSystem`; their
+objects, transition maps, and cocone legs retain the same chosen cartesian lifts.
 -/
 
 @[expose] public section
@@ -44,11 +46,7 @@ def restrictObj_stage {X : GroupoidsOver S} {I : Type u} [Preorder I]
     (hi : i ≤ i') (hi' : i' ≤ i'') (hii : i ≤ i'') :
     restrictObj (restrictObj x (stageHom hi)) (stageHom hi') ≅
       restrictObj x (stageHom hii) :=
-  restrictObj_comp x (stageHom hi) (stageHom hi') ≪≫
-    restrictObj_eq x
-      ((D.map_comp (homOfLE (OrderDual.toDual_le_toDual.mpr hi'))
-          (homOfLE (OrderDual.toDual_le_toDual.mpr hi))).symm.trans
-        (congrArg D.map (Subsingleton.elim _ _)))
+  DirectedSystem.restrictObj_stage X.p x hi hi' hii
 
 /-- The forward map of `restrictObj_stage` is the composite of `restrictObj_comp` with the
 identification of the composite bonding map. -/
@@ -60,7 +58,7 @@ theorem restrictObj_stage_hom {X : GroupoidsOver S} {I : Type u} [Preorder I]
         (restrictObj_eq x
           ((D.map_comp (homOfLE (OrderDual.toDual_le_toDual.mpr hi'))
               (homOfLE (OrderDual.toDual_le_toDual.mpr hi))).symm.trans
-            (congrArg D.map (Subsingleton.elim _ _)))).hom := sorry
+            (congrArg D.map (Subsingleton.elim _ _)))).hom := rfl
 
 /-- Restriction of a stage fibre object to the cone point agrees with restriction along the
 cone projection of that stage. -/
@@ -69,8 +67,7 @@ def restrictObj_cone {X : GroupoidsOver S} {I : Type u} [Preorder I]
     (hi : i ≤ i') :
     restrictObj (restrictObj x (stageHom hi)) (c.π.app i') ≅
       restrictObj x (c.π.app i) :=
-  restrictObj_comp x (stageHom hi) (c.π.app i') ≪≫
-    restrictObj_eq x (Cone.w c (homOfLE (OrderDual.toDual_le_toDual.mpr hi)))
+  DirectedSystem.restrictObj_cone X.p c x hi
 
 /-- The forward map of `restrictObj_cone` is the composite of `restrictObj_comp` with the
 cone-compatibility identification. -/
@@ -80,7 +77,7 @@ theorem restrictObj_cone_hom {X : GroupoidsOver S} {I : Type u} [Preorder I]
     (restrictObj_cone c x hi).hom =
       (restrictObj_comp x (stageHom hi) (c.π.app i')).hom ≫
         (restrictObj_eq x
-          (Cone.w c (homOfLE (OrderDual.toDual_le_toDual.mpr hi)))).hom := sorry
+          (Cone.w c (homOfLE (OrderDual.toDual_le_toDual.mpr hi)))).hom := rfl
 
 /-- The transition map of fibre Hom-types along a later bonding map of the inverse system. -/
 def restrictHomAlongStage {X : GroupoidsOver S} {I : Type u} [Preorder I]
@@ -88,9 +85,7 @@ def restrictHomAlongStage {X : GroupoidsOver S} {I : Type u} [Preorder I]
     {j j' : Set.Ici i} (f : j ⟶ j')
     (φ : restrictObj x (stageHom j.2) ⟶ restrictObj y (stageHom j.2)) :
     restrictObj x (stageHom j'.2) ⟶ restrictObj y (stageHom j'.2) :=
-  (restrictObj_stage x j.2 (leOfHom f) j'.2).inv ≫
-    restrictHom φ (stageHom (leOfHom f)) ≫
-    (restrictObj_stage y j.2 (leOfHom f) j'.2).hom
+  DirectedSystem.restrictHomAlongStage X.p x y f φ
 
 /-- `restrictHomAlongStage` transports a fibre morphism by restriction along the bonding map
 and the iterated-restriction comparison. -/
@@ -101,13 +96,16 @@ theorem restrictHomAlongStage_apply {X : GroupoidsOver S} {I : Type u} [Preorder
     restrictHomAlongStage x y f φ =
       (restrictObj_stage x j.2 (leOfHom f) j'.2).inv ≫
         restrictHom φ (stageHom (leOfHom f)) ≫
-        (restrictObj_stage y j.2 (leOfHom f) j'.2).hom := sorry
+        (restrictObj_stage y j.2 (leOfHom f) j'.2).hom := rfl
 
 /-- The transition map on fibre morphisms along an identity stage morphism is the identity. -/
 theorem homFunctor_map_id {X : GroupoidsOver S} {I : Type u} [Preorder I]
     {D : OrderDual I ⥤ Over S} {i : I} (x y : X.p.Fiber (D.obj i)) (j : Set.Ici i) :
     TypeCat.ofHom (restrictHomAlongStage x y (𝟙 j)) =
-      𝟙 (restrictObj x (stageHom j.2) ⟶ restrictObj y (stageHom j.2)) := sorry
+      𝟙 (restrictObj x (stageHom j.2) ⟶ restrictObj y (stageHom j.2)) := by
+  apply ConcreteCategory.hom_ext
+  intro φ
+  exact DirectedSystem.restrictHomAlongStage_id X.p x y j φ
 
 /-- Transition maps on fibre morphisms respect composition of stage morphisms. -/
 theorem homFunctor_map_comp {X : GroupoidsOver S} {I : Type u} [Preorder I]
@@ -115,24 +113,24 @@ theorem homFunctor_map_comp {X : GroupoidsOver S} {I : Type u} [Preorder I]
     {j j' j'' : Set.Ici i} (f : j ⟶ j') (g : j' ⟶ j'') :
     TypeCat.ofHom (restrictHomAlongStage x y (f ≫ g)) =
       TypeCat.ofHom (restrictHomAlongStage x y f) ≫
-        TypeCat.ofHom (restrictHomAlongStage x y g) := sorry
+        TypeCat.ofHom (restrictHomAlongStage x y g) := by
+  apply ConcreteCategory.hom_ext
+  intro φ
+  exact DirectedSystem.restrictHomAlongStage_comp X.p x y f g φ
 
 /-- The directed diagram of fibre Hom-types of restrictions of a stage pair `x, y` along
 bonding maps `T_{i'} ⟶ T_i`. -/
 def homFunctor {X : GroupoidsOver S} {I : Type u} [Preorder I]
     {D : OrderDual I ⥤ Over S} {i : I} (x y : X.p.Fiber (D.obj i)) :
-    Set.Ici i ⥤ Type u where
-  obj j := restrictObj x (stageHom j.2) ⟶ restrictObj y (stageHom j.2)
-  map f := TypeCat.ofHom (restrictHomAlongStage x y f)
-  map_id := homFunctor_map_id x y
-  map_comp := fun f g ↦ homFunctor_map_comp x y f g
+    Set.Ici i ⥤ Type u :=
+  DirectedSystem.homFunctor X.p x y
 
 /-- The object map of `homFunctor` is the fibre Hom-type after restriction along the bonding
 map of that stage. -/
 theorem homFunctor_obj {X : GroupoidsOver S} {I : Type u} [Preorder I]
     {D : OrderDual I ⥤ Over S} {i : I} (x y : X.p.Fiber (D.obj i)) (j : Set.Ici i) :
     (homFunctor x y).obj j =
-      (restrictObj x (stageHom j.2) ⟶ restrictObj y (stageHom j.2)) := sorry
+      (restrictObj x (stageHom j.2) ⟶ restrictObj y (stageHom j.2)) := rfl
 
 /-- The cocone leg sending a later-stage fibre morphism to its restriction along the cone
 projection. -/
@@ -141,8 +139,7 @@ def restrictHomToLimit {X : GroupoidsOver S} {I : Type u} [Preorder I]
     (j : Set.Ici i)
     (φ : restrictObj x (stageHom j.2) ⟶ restrictObj y (stageHom j.2)) :
     restrictObj x (c.π.app i) ⟶ restrictObj y (c.π.app i) :=
-  (restrictObj_cone c x j.2).inv ≫
-    restrictHom φ (c.π.app j.1) ≫ (restrictObj_cone c y j.2).hom
+  DirectedSystem.restrictHomToLimit X.p c x y j φ
 
 /-- `restrictHomToLimit` is restriction along the cone projection, transported by
 `restrictObj_cone`. -/
@@ -152,7 +149,7 @@ theorem restrictHomToLimit_apply {X : GroupoidsOver S} {I : Type u} [Preorder I]
     (φ : restrictObj x (stageHom j.2) ⟶ restrictObj y (stageHom j.2)) :
     restrictHomToLimit c x y j φ =
       (restrictObj_cone c x j.2).inv ≫
-        restrictHom φ (c.π.app j.1) ≫ (restrictObj_cone c y j.2).hom := sorry
+        restrictHom φ (c.π.app j.1) ≫ (restrictObj_cone c y j.2).hom := rfl
 
 /-- Restriction of fibre morphisms to the cone point commutes with stage transitions. -/
 theorem homCocone_naturality {X : GroupoidsOver S} {I : Type u} [Preorder I]
@@ -160,30 +157,30 @@ theorem homCocone_naturality {X : GroupoidsOver S} {I : Type u} [Preorder I]
     {j j' : Set.Ici i} (f : j ⟶ j') :
     (homFunctor x y).map f ≫ TypeCat.ofHom (restrictHomToLimit c x y j') =
       TypeCat.ofHom (restrictHomToLimit c x y j) ≫
-        𝟙 (restrictObj x (c.π.app i) ⟶ restrictObj y (c.π.app i)) := sorry
+        𝟙 (restrictObj x (c.π.app i) ⟶ restrictObj y (c.π.app i)) := by
+  apply ConcreteCategory.hom_ext
+  intro φ
+  exact DirectedSystem.restrictHomToLimit_naturality X.p c x y f φ
 
 /-- The canonical cocone from the directed Hom-diagram of a stage pair to the fibre Hom-type
 over the cone point. -/
 def homCocone {X : GroupoidsOver S} {I : Type u} [Preorder I]
     {D : OrderDual I ⥤ Over S} (c : Cone D) {i : I} (x y : X.p.Fiber (D.obj i)) :
-    Cocone (homFunctor x y) where
-  pt := restrictObj x (c.π.app i) ⟶ restrictObj y (c.π.app i)
-  ι :=
-    { app := fun j ↦ TypeCat.ofHom (restrictHomToLimit c x y j)
-      naturality := fun _ _ f ↦ homCocone_naturality c x y f }
+    Cocone (homFunctor x y) :=
+  DirectedSystem.homCocone X.p c x y
 
 /-- The vertex of `homCocone` is the fibre Hom-type of the restrictions of `x` and `y` to the
 cone point. -/
 theorem homCocone_pt {X : GroupoidsOver S} {I : Type u} [Preorder I]
     {D : OrderDual I ⥤ Over S} (c : Cone D) {i : I} (x y : X.p.Fiber (D.obj i)) :
     (homCocone c x y).pt =
-      (restrictObj x (c.π.app i) ⟶ restrictObj y (c.π.app i)) := sorry
+      (restrictObj x (c.π.app i) ⟶ restrictObj y (c.π.app i)) := rfl
 
 /-- The components of `homCocone.ι` are `restrictHomToLimit`. -/
 theorem homCocone_ι_app {X : GroupoidsOver S} {I : Type u} [Preorder I]
     {D : OrderDual I ⥤ Over S} (c : Cone D) {i : I} (x y : X.p.Fiber (D.obj i))
     (j : Set.Ici i) :
-    (homCocone c x y).ι.app j = TypeCat.ofHom (restrictHomToLimit c x y j) := sorry
+    (homCocone c x y).ι.app j = TypeCat.ofHom (restrictHomToLimit c x y j) := rfl
 
 /-- A category fibred in groupoids over `(Sch/S)_fppf` is limit preserving when directed
 affine inverse limits induce equivalences of fibre categories. -/

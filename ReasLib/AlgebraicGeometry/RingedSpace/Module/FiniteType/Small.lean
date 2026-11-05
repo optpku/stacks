@@ -26,10 +26,10 @@ namespace AlgebraicGeometry.RingedSpace
 
 variable (X : RingedSpace.{u})
 
-/-- Finite-type quasi-coherent module sheaves on a ringed space form an essentially small
-object property. -/
+/-- Finite-type quasi-coherent module sheaves on a ringed space admit representatives
+in the universe of the space and its coefficient rings. -/
 instance finiteTypeQuasicoherent_essentiallySmall :
-    ObjectProperty.EssentiallySmall.{u + 1}
+    ObjectProperty.EssentiallySmall.{u}
       ((SheafOfModules.IsFiniteType (R := X.ringCatSheaf) : ObjectProperty X.Modules) ⊓
         X.quasiCoherentModuleProperty) :=
   ObjectProperty.EssentiallySmall.of_le

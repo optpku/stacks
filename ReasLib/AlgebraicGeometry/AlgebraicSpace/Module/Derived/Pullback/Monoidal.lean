@@ -6,6 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.Pullback.Tensor
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.DirectTensorComparison
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.Tensor
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Derived.Pullback.Shift
@@ -51,79 +52,11 @@ abbrev modulesPullbackTensorBicomplexMap {X Y : AlgebraicSpace S} (f : X ⟶ Y)
     (((Modules.pullback f).mapHomologicalComplex (up ℤ)).obj K)
     (((Modules.pullback f).mapHomologicalComplex (up ℤ)).obj L)
 
-/-- Termwise pullback of a tensor bicomplex admits a total complex. -/
-instance modulesPullbackMappedTensorBicomplex_hasTotal {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-    (K L : CochainComplex (Modules Y) ℤ) :
-    (modulesPullbackMappedTensorBicomplex f K L).HasTotal (up ℤ) :=
-  sorry
+/- The shared bicomplex and cochain comparisons are owned by `Pullback.Tensor`.
+The declarations below use the concrete cell-model pullback; the distinct total-left-derived
+presentation is exported there with the `moduleTotalDerived` prefix. -/
 
-/-- The pointwise pullback tensor comparison commutes with the first bicomplex differential. -/
-theorem modulesPullback_tensorBicomplex_comm₁ {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-    (K L : CochainComplex (Modules Y) ℤ) (i₁ i₁' i₂ : ℤ) (differentialRelation : (up ℤ).Rel i₁ i₁') :
-    Modules.DirectTensorComparison.pullbackTensor f (K.X i₁) (L.X i₂) ≫
-        ((modulesPullbackTensorBicomplexMap f K L).d i₁ i₁').f i₂ =
-      ((modulesPullbackMappedTensorBicomplex f K L).d i₁ i₁').f i₂ ≫
-        Modules.DirectTensorComparison.pullbackTensor f (K.X i₁') (L.X i₂) :=
-  sorry
-
-/-- The pointwise pullback tensor comparison commutes with the second bicomplex differential. -/
-theorem modulesPullback_tensorBicomplex_comm₂ {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-    (K L : CochainComplex (Modules Y) ℤ) (i₁ i₂ i₂' : ℤ) (differentialRelation : (up ℤ).Rel i₂ i₂') :
-    Modules.DirectTensorComparison.pullbackTensor f (K.X i₁) (L.X i₂) ≫
-        ((modulesPullbackTensorBicomplexMap f K L).X i₁).d i₂ i₂' =
-      ((modulesPullbackMappedTensorBicomplex f K L).X i₁).d i₂ i₂' ≫
-        Modules.DirectTensorComparison.pullbackTensor f (K.X i₁) (L.X i₂') :=
-  sorry
-
-set_option maxRecDepth 4096 in
-/-- Pointwise `f^*(M ⊗ N) ⟶ f^* M ⊗ f^* N` as a morphism of tensor bicomplexes. -/
-noncomputable def modulesPullback_tensorBicomplexHom {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-    (K L : CochainComplex (Modules Y) ℤ) :
-    modulesPullbackMappedTensorBicomplex f K L ⟶ modulesPullbackTensorBicomplexMap f K L :=
-  HomologicalComplex₂.homMk
-    (fun pq ↦ Modules.DirectTensorComparison.pullbackTensor f (K.X pq.1) (L.X pq.2))
-    (modulesPullback_tensorBicomplex_comm₁ f K L)
-    (modulesPullback_tensorBicomplex_comm₂ f K L)
-
-/-- Additive-functor/total comparison for pullback of a tensor bicomplex is invertible. -/
-instance isIso_modulesPullback_totalComparison {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-    (K L : CochainComplex (Modules Y) ℤ) :
-    IsIso
-      (HomologicalComplex₂.Total.Map.Comparison.hom (Modules.pullback f)
-        (modulesTensorBicomplex K L) (up ℤ)) :=
-  sorry
-
-/-- Cochain-level oplax comparison `f^*(K ⊗ L) ⟶ f^* K ⊗ f^* L`. -/
-noncomputable def modulesPullback_cochainTensorComparison {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-    (K L : CochainComplex (Modules Y) ℤ) :
-    ((Modules.pullback f).mapHomologicalComplex (up ℤ)).obj (K ⊗ L) ⟶
-      ((Modules.pullback f).mapHomologicalComplex (up ℤ)).obj K ⊗
-        ((Modules.pullback f).mapHomologicalComplex (up ℤ)).obj L :=
-  (asIso
-      (HomologicalComplex₂.Total.Map.Comparison.hom (Modules.pullback f)
-        (modulesTensorBicomplex K L) (up ℤ))).inv ≫
-    HomologicalComplex₂.total.map (modulesPullback_tensorBicomplexHom f K L) (up ℤ)
-
-/-- `modulesPullback_cochainTensorComparison` is the inverted total comparison followed by the
-totalization of the pointwise pullback tensorator. -/
-theorem modulesPullback_cochainTensorComparison_eq {X Y : AlgebraicSpace S} (f : X ⟶ Y)
-    (K L : CochainComplex (Modules Y) ℤ) :
-    modulesPullback_cochainTensorComparison f K L =
-      (asIso
-          (HomologicalComplex₂.Total.Map.Comparison.hom (Modules.pullback f)
-            (modulesTensorBicomplex K L) (up ℤ))).inv ≫
-        HomologicalComplex₂.total.map (modulesPullback_tensorBicomplexHom f K L) (up ℤ) :=
-  sorry
-
-
-/-- Underived cochain-level source `Q(f^*K ⊗ f^*L)` of the derived pullback tensor comparison. -/
-noncomputable abbrev modulePullbackCochainTensorSource
-    {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
-    CochainComplex (Modules Y) ℤ × CochainComplex (Modules Y) ℤ ⥤ ModuleDerived X :=
-  ((Modules.pullback f).mapHomologicalComplex (up ℤ)).prod
-      ((Modules.pullback f).mapHomologicalComplex (up ℤ)) ⋙
-    tensor (CochainComplex (Modules X) ℤ) ⋙
-    (DerivedCategory.Q : CochainComplex (Modules X) ℤ ⥤ ModuleDerived X)
+attribute [instance] isIso_modulesPullback_totalComparison
 
 /-- Derived functor `Lf^*(A ⊗^L B)` in two variables. -/
 noncomputable abbrev moduleDerivedTensorThenPullback

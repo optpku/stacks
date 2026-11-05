@@ -8,6 +8,7 @@ module
 
 public import ReasLib.RingTheory.DiscreteValuationRing.Extension.WeakSolution
 public import ReasLib.FieldTheory.PurelyInseparable.FiniteTower
+public import ReasLib.FieldTheory.Separable.Generated.Properties
 public import ReasLib.RingTheory.Normal.Nagata
 import ReasLib.RingTheory.Localization.Away.FiniteExtension.PrincipalQuotient
 import Mathlib.Tactic.CrossRefAttribute
@@ -45,7 +46,7 @@ variable [Field K2] [Algebra K1 K2] [Algebra K K2] [Algebra A K2]
 variable [IsScalarTower K K1 K2] [IsScalarTower A K K2] [IsScalarTower A K1 K2]
 variable [FiniteDimensional K1 K2] [FiniteDimensional K K2]
 variable {p : ℕ} [Fact p.Prime] [CharP K p]
-variable [Algebra.IsSeparable K L] [NagataRing B] [IsPurelyInseparable K1 K2]
+variable [Algebra.IsSeparableOver K L] [NagataRing B] [IsPurelyInseparable K1 K2]
 
 /-- Lemma 15.117.5: a solution over a prime purely inseparable finite step can be replaced by a
 finite extension separable over the intermediate field while preserving the solution predicate.
@@ -72,12 +73,12 @@ theorem exists_separable_of_purelyInseparable_prime
 -- localized branches deeply enough for the adic formal-smoothness criterion to transport `hK2`
 -- to `K3`.  Finally assemble the algebra towers and finite-dimensional witnesses.
 
-omit [Algebra.IsSeparable K L] in
+omit [Algebra.IsSeparableOver K L] in
 /-- Lemma 15.117.6: for a Nagata extension of DVRs with separable fraction fields, any finite
 solution can be replaced by one that is separable over the base fraction field. -/
 @[stacks 0BRN "Lemma 15.117.6: separable refinement of a solution"]
 theorem exists_separable_of_exists
-    (hsepKL : Algebra.IsSeparable K L)
+    (hsepKL : Algebra.IsSeparableOver K L)
     (hsol :
       ∃ (K1 : Type (max u v w x)) (_ : Field K1) (_ : Algebra A K1) (_ : Algebra K K1)
         (_ : IsScalarTower A K K1) (_ : FiniteDimensional K K1),

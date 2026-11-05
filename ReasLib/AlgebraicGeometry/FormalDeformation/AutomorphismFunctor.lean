@@ -20,8 +20,6 @@ surjective algebra maps.
 
 @[expose] public section
 
-attribute [instance] CategoryTheory.Functor.HasRimSchlessinger.isCofiberedInGroupoids
-
 open CategoryTheory Limits Under
 
 universe u v w

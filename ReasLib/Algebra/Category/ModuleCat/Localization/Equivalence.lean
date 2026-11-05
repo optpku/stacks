@@ -93,17 +93,21 @@ noncomputable abbrev restrict :
 
 namespace restrict
 
-/-- Fullness is inherited from the algebra-epimorphism property of a localization. -/
+/-- An `R`-linear map between modules over a localization is automatically linear over
+the localization: it commutes with multiplication by fractions. -/
 @[stacks 07JY "fullness of localization restriction"]
 instance full : (restrict.{u, v, w} S A).Full where
   map_surjective := by
     intro M N f
-    obtain ⟨g, hg⟩ :=
-      (Algebra.IsEpi.restrictScalars_full
-        (Algebra.IsEpi.of_isLocalization S A)).map_surjective f.hom
-    refine ⟨g, ?_⟩
+    let fR : M →ₗ[R] N := f.hom.hom
+    letI : LinearMap.CompatibleSMul M N A R :=
+      IsLocalization.linearMap_compatibleSMul S A M N
+    refine ⟨ModuleCat.ofHom
+      { toFun := fR
+        map_add' := fR.map_add
+        map_smul' := fun a x ↦ LinearMap.CompatibleSMul.map_smul fR a x }, ?_⟩
     apply ObjectProperty.hom_ext
-    exact hg
+    rfl
 
 /-- Forgetting the invertibility witness recovers ordinary restriction of scalars. -/
 @[simp, stacks 07JY "restriction followed by inclusion"]

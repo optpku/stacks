@@ -40,9 +40,11 @@ variable {B C : Type u} [CommRing B] [CommRing C]
 variable [Algebra A B] [Algebra A C]
 
 /-- Unramifiedness of the base change of a finite-type algebra map to a filtered colimit
-is witnessed at one diagram object. -/
+is witnessed at one diagram object, provided the forgetful functor preserves this colimit.
+The preservation hypothesis is supplied by the shared instance when `UnivLE.{v, u}` holds. -/
 @[stacks 0C4F "unramified filtered-colimit descent"]
 theorem exists_stage
+    [PreservesColimit F (forget (CommAlgCat.{u} A))]
     (φ : B →ₐ[A] C) (hfiniteType : φ.FiniteType)
     (hunramified : RingHom.Unramified
       (Algebra.TensorProduct.map φ (AlgHom.id A (colimit F : CommAlgCat.{u} A))).toRingHom) :

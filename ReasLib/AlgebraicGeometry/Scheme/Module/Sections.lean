@@ -7,6 +7,7 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import Mathlib.AlgebraicGeometry.Modules.Sheaf
+public import Mathlib.Algebra.Category.ModuleCat.Sheaf.PullbackFree
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Sections.Basic
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Sections.Subobject
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.GlobalSections.Restriction
@@ -91,6 +92,52 @@ theorem sectionsPullback_apply_top
     (f : X ⟶ Y) (F : Y.Modules) (s : F.sections) :
     (sectionsPullback f F s).1 (Opposite.op (⊤ : X.Opens)) =
       (globalSectionsPullback f F).hom (s.1 (Opposite.op ⊤)) := sorry
+
+section UnitComparison
+
+attribute [local instance] CategoryTheory.final_of_representablyFlat
+
+set_option backward.isDefEq.respectTransparency false in
+/-- Pullback of a compatible section agrees with pullback of its classified unit morphism,
+using the inverse of the canonical structure-module comparison. The required finality of
+`Opens.map f.base` is supplied by its canonical representably flat structure. -/
+theorem sectionsPullback_eq_unitHomEquiv (f : X ⟶ Y) (M : Y.Modules) (s : M.sections) :
+    Scheme.Modules.sectionsPullback f M s =
+      ((Scheme.Modules.pullback f).obj M).unitHomEquiv
+        ((asIso (SheafOfModules.pullbackObjUnitToUnit f.toRingCatSheafHom)).inv ≫
+          (Scheme.Modules.pullback f).map (M.unitHomEquiv.symm s)) := by
+  let φ := f.toRingCatSheafHom
+  let adj := SheafOfModules.pullbackPushforwardAdjunction φ
+  let e := asIso (SheafOfModules.pullbackObjUnitToUnit φ)
+  let t := M.unitHomEquiv.symm s
+  have hs : SheafOfModules.pushforwardSections φ
+      (Scheme.Modules.sectionsPullback f M s) =
+      SheafOfModules.sectionsMap (adj.unit.app M) s := by
+    apply (RingedSpace.sectionsEquivTop _).injective
+    change (((Scheme.Modules.pullback f).obj M).presheaf.map (𝟙 _)) _ = _
+    simp
+    rfl
+  apply (SheafOfModules.bijective_pushforwardSections φ _).injective
+  rw [hs, SheafOfModules.pushforwardSections_unitHomEquiv]
+  change SheafOfModules.sectionsMap (adj.unit.app M) s =
+    ((Scheme.Modules.pushforward f).obj ((Scheme.Modules.pullback f).obj M)).unitHomEquiv
+      (SheafOfModules.unitToPushforwardObjUnit φ ≫
+        (SheafOfModules.pushforward φ).map (e.inv ≫ (SheafOfModules.pullback φ).map t))
+  have h : SheafOfModules.unitToPushforwardObjUnit φ ≫
+      (SheafOfModules.pushforward φ).map (e.inv ≫ (SheafOfModules.pullback φ).map t) =
+      t ≫ adj.unit.app M := by
+    calc
+      _ = adj.homEquiv _ _ (e.hom ≫ e.inv ≫ (SheafOfModules.pullback φ).map t) := by
+        rw [Adjunction.homEquiv_naturality_right]
+        change _ = (SheafOfModules.pullbackPushforwardAdjunction φ).homEquiv _ _
+          (SheafOfModules.pullbackObjUnitToUnit φ) ≫ _
+        rw [SheafOfModules.pullbackPushforwardAdjunction_homEquiv_pullbackObjUnitToUnit]
+      _ = t ≫ adj.unit.app M := by
+        simp only [Iso.hom_inv_id_assoc]
+        rw [Adjunction.homEquiv_unit, ← adj.unit_naturality]
+  rw [h, SheafOfModules.unitHomEquiv_comp_apply, Equiv.apply_symm_apply]
+
+end UnitComparison
 
 end AlgebraicGeometry.Scheme.Modules
 

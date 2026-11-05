@@ -32,6 +32,49 @@ namespace LocalizedModule.Away.Iterated
 
 variable {R : Type u} [CommSemiring R]
 
+/-- The named right action is compatible with the original base-ring action. -/
+theorem rightAction_isScalarTower (a b : R) (M : Type v)
+    [AddCommMonoid M] [Module R M] :
+    letI : Module (Localization.Away a)
+        (LocalizedModule.Away (a * b) M) := rightModule a b M
+    IsScalarTower R (Localization.Away a)
+      (LocalizedModule.Away (a * b) M) := by
+  letI : Module (Localization.Away a)
+      (LocalizedModule.Away (a * b) M) := rightModule a b M
+  apply IsScalarTower.of_algebraMap_smul
+  intro r x
+  change IsLocalization.Away.awayToAwayRight
+    (P := Localization.Away (a * b)) a b (algebraMap R (Localization.Away a) r) • x = r • x
+  rw [IsLocalization.Away.awayToAwayRight_eq]
+  exact IsScalarTower.algebraMap_smul (Localization.Away (a * b)) r x
+
+/-- The right action sends the second-stage denominators to invertible scalar actions. -/
+theorem rightDenominators_isUnit (a b : R) (M : Type v)
+    [AddCommMonoid M] [Module R M] :
+    letI : Module (Localization.Away a)
+        (LocalizedModule.Away (a * b) M) := rightModule a b M
+    IsUnitOn a b (LocalizedModule.Away (a * b) M) := by
+  letI : Module (Localization.Away a)
+      (LocalizedModule.Away (a * b) M) := rightModule a b M
+  letI : IsScalarTower R (Localization.Away a)
+      (LocalizedModule.Away (a * b) M) := rightAction_isScalarTower a b M
+  have hb : IsUnit
+      (algebraMap R (Module.End R (LocalizedModule.Away (a * b) M)) b) := by
+    rw [← (Algebra.lsmul R (A := Localization.Away (a * b)) R
+      (LocalizedModule.Away (a * b) M)).commutes]
+    exact (IsLocalization.Away.isUnit_of_dvd (S := Localization.Away (a * b))
+      (x := a * b) (show b ∣ a * b from ⟨a, mul_comm a b⟩)).map _
+  have hb' : IsUnit (algebraMap (Localization.Away a)
+      (Module.End (Localization.Away a) (LocalizedModule.Away (a * b) M))
+        (Localization.Away.Iterated.coefficient a b)) := by
+    rw [Module.End.isUnit_iff] at hb ⊢
+    change Function.Bijective (fun x : LocalizedModule.Away (a * b) M ↦
+      (algebraMap R (Localization.Away a) b) • x)
+    change Function.Bijective (fun x : LocalizedModule.Away (a * b) M ↦ b • x) at hb
+    simpa only [IsScalarTower.algebraMap_smul] using hb
+  rintro ⟨s, n, rfl⟩
+  simpa only [map_pow] using hb'.pow n
+
 /-- The canonical map from the correctly based iterated localization to
 localization away from `a * b`.  Its target uses the named right-handed
 `Localization.Away a`-module action. -/
@@ -46,8 +89,8 @@ noncomputable def toMul (a b : R) (M : Type v)
       (LocalizedModule.Away (a * b) M) := rightModule a b M
   letI : IsScalarTower R (Localization.Away a)
       (LocalizedModule.Away (a * b) M) :=
-    rightModule_isScalarTower a b M
-  toMulOfUnits a b (rightModule_isUnitOn a b M)
+    rightAction_isScalarTower a b M
+  toMulOfUnits a b (rightDenominators_isUnit a b M)
 
 /-- The canonical comparison from an iterated principal localization to the
 product localization is bijective. -/
@@ -57,6 +100,73 @@ theorem toMul_bijective (a b : R) (M : Type v)
     letI : Module (Localization.Away a)
         (LocalizedModule.Away (a * b) M) := rightModule a b M
     Function.Bijective (toMul a b M) := sorry
+
+/-- Both principal denominators act invertibly on the iterated localization. -/
+theorem product_isUnitOn (a b : R) (M : Type v)
+    [AddCommMonoid M] [Module R M] :
+    ∀ s : Submonoid.powers (a * b),
+      IsUnit (algebraMap R (Module.End R (Iterated a b M)) s) := by
+  have ha : IsUnit (algebraMap R (Module.End R (Iterated a b M)) a) := by
+    rw [← (Algebra.lsmul R (A := Localization.Away a) R (Iterated a b M)).commutes]
+    exact (IsLocalization.Away.algebraMap_isUnit a).map _
+  letI : IsLocalizedModule
+      (Submonoid.powers (Localization.Away.Iterated.coefficient a b)) (mk a b M) := by
+    dsimp [mk]
+    infer_instance
+  letI := IsLocalizedModule.restrictScalars_powers b (mk a b M)
+  have hb := IsLocalizedModule.Away.isUnit_algebraMap ((mk a b M).restrictScalars R) b
+  rintro ⟨s, n, rfl⟩
+  simpa only [map_pow, map_mul] using (ha.mul hb).pow n
+
+/-- The product-localization lift of the two successive canonical maps. -/
+noncomputable def fromMul (a b : R) (M : Type v)
+    [AddCommMonoid M] [Module R M] :
+    LocalizedModule.Away (a * b) M →ₗ[R] Iterated a b M :=
+  LocalizedModule.lift (Submonoid.powers (a * b))
+    (((mk a b M).restrictScalars R).comp
+      (LocalizedModule.mkLinearMap (Submonoid.powers a) M))
+    (product_isUnitOn a b M)
+
+/-- The inverse comparison sends an original element to its successive canonical images. -/
+@[simp] theorem fromMul_apply_mk (a b : R) (M : Type v)
+    [AddCommMonoid M] [Module R M] (m : M) :
+    fromMul a b M (LocalizedModule.mkLinearMap (Submonoid.powers (a * b)) M m) =
+      mk a b M (LocalizedModule.mkLinearMap (Submonoid.powers a) M m) := by
+  simp [fromMul, LocalizedModule.mkLinearMap_apply]
+
+/-- The explicit product-localization lift is a right inverse to the comparison. -/
+theorem toMul_fromMul (a b : R) (M : Type v)
+    [AddCommMonoid M] [Module R M] (x : LocalizedModule.Away (a * b) M) :
+    letI : Module (Localization.Away a)
+        (LocalizedModule.Away (a * b) M) := rightModule a b M
+    toMul a b M (fromMul a b M x) = x := by
+  letI : Module (Localization.Away a)
+      (LocalizedModule.Away (a * b) M) := rightModule a b M
+  letI : IsScalarTower R (Localization.Away a)
+      (LocalizedModule.Away (a * b) M) := rightAction_isScalarTower a b M
+  have h : ((toMul a b M).restrictScalars R).comp (fromMul a b M) =
+      LinearMap.id := by
+    apply IsLocalizedModule.ext (Submonoid.powers (a * b))
+      (LocalizedModule.mkLinearMap (Submonoid.powers (a * b)) M)
+      (IsLocalizedModule.map_units
+        (LocalizedModule.mkLinearMap (Submonoid.powers (a * b)) M))
+    ext m
+    change toMul a b M (fromMul a b M
+      (LocalizedModule.mkLinearMap (Submonoid.powers (a * b)) M m)) = _
+    rw [fromMul_apply_mk]
+    exact toMulOfUnits_apply_mk a b (rightDenominators_isUnit a b M) m
+  exact LinearMap.congr_fun h x
+
+/-- The explicit product-localization lift is a left inverse to the comparison. -/
+theorem fromMul_toMul (a b : R) (M : Type v)
+    [AddCommMonoid M] [Module R M] (x : Iterated a b M) :
+    letI : Module (Localization.Away a)
+        (LocalizedModule.Away (a * b) M) := rightModule a b M
+    fromMul a b M (toMul a b M x) = x := by
+  letI : Module (Localization.Away a)
+      (LocalizedModule.Away (a * b) M) := rightModule a b M
+  apply (toMul_bijective a b M).injective
+  exact toMul_fromMul a b M (toMul a b M x)
 
 /-- The canonical `Localization.Away a`-linear equivalence between the
 correctly based iterated localization and localization away from `a * b`. -/
@@ -69,7 +179,10 @@ noncomputable def mulEquiv (a b : R) (M : Type v)
       LocalizedModule.Away (a * b) M :=
   letI : Module (Localization.Away a)
       (LocalizedModule.Away (a * b) M) := rightModule a b M
-  LinearEquiv.ofBijective (toMul a b M) (toMul_bijective a b M)
+  { toMul a b M with
+    invFun := fromMul a b M
+    left_inv := fromMul_toMul a b M
+    right_inv := toMul_fromMul a b M }
 
 /-- The forward linear map of the canonical product equivalence is the
 canonical iterated-localization comparison. -/
@@ -78,7 +191,7 @@ theorem mulEquiv_toLinearMap (a b : R) (M : Type v)
     [AddCommMonoid M] [Module R M] :
     letI : Module (Localization.Away a)
         (LocalizedModule.Away (a * b) M) := rightModule a b M
-    (mulEquiv a b M).toLinearMap = toMul a b M := sorry
+    (mulEquiv a b M).toLinearMap = toMul a b M := rfl
 
 /-- The canonical product equivalence sends an original module element to
 its canonical image in `LocalizedModule.Away (a * b) M`. -/

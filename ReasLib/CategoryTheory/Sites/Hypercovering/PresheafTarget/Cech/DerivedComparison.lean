@@ -7,6 +7,7 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import ReasLib.Algebra.Homology.CochainComplex.Bounded.ExtendNat
+public import Mathlib.Algebra.Homology.Embedding.ExtendHomology
 public import ReasLib.CategoryTheory.Sites.Cohomology.Presheaf.Derived
 public import ReasLib.CategoryTheory.Sites.Hypercovering.PresheafTarget.Cech.Refinement
 
@@ -54,8 +55,9 @@ abbrev derivedTarget :
       DerivedCategory.Plus AddCommGrpCat.{max u v w} :=
   Sheaf.CohomologyOverPresheaf.coefficientFunctor J G
 
-/-- A coefficient-natural morphism in `D⁺` from the Cech complex of `K` to derived
-cohomology over its target presheaf, subject to the degree-zero augmentation condition. -/
+/-- A supplied coefficient-natural morphism in `D⁺` from the Cech complex of `K` to derived
+cohomology over its target presheaf, invertible on degree-zero homology. This general datum
+does not specify the augmentation-induced morphism. -/
 @[stacks 09VX "derived comparison datum"]
 structure DerivedComparison (K : HypercoveringOf.{w} J G) where
   /-- The comparison natural in the coefficient sheaf. -/
@@ -87,6 +89,35 @@ noncomputable def homology {K : HypercoveringOf.{w} J G}
 
 end DerivedComparison
 
+/-- The fixed source homology identification: localization homology followed by the
+homology identification for extension by zero. No degreewise isomorphism is selected from an
+existence statement. -/
+noncomputable def derivedSourceHomologyIso
+    (K : HypercoveringOf.{w} J G) (n : ℕ) :
+    (derivedSource K ⋙
+      DerivedCategory.Plus.homologyFunctor AddCommGrpCat.{max u v w} n) ≅
+      cohomologyInCoefficients K n :=
+  Functor.isoWhiskerLeft (complexInCoefficients K)
+    (Functor.isoWhiskerLeft (CochainComplex.Plus.extendNat AddCommGrpCat.{max u v w})
+        (Functor.isoWhiskerRight
+          (DerivedCategory.Plus.Qh.compInclusionIso AddCommGrpCat.{max u v w})
+          (DerivedCategory.homologyFunctor AddCommGrpCat.{max u v w} n)) ≪≫
+      Functor.isoWhiskerLeft
+        (CochainComplex.Plus.extendNat AddCommGrpCat.{max u v w} ⋙
+          CochainComplex.Plus.ι AddCommGrpCat.{max u v w})
+        (DerivedCategory.homologyFunctorFactors AddCommGrpCat.{max u v w} n) ≪≫
+      Functor.isoWhiskerRight
+        (CochainComplex.Plus.extendNatCompInclusionIso AddCommGrpCat.{max u v w})
+        (HomologicalComplex.homologyFunctor AddCommGrpCat.{max u v w}
+          (ComplexShape.up ℤ) n) ≪≫
+      NatIso.ofComponents
+        (G := HomologicalComplex.homologyFunctor AddCommGrpCat.{max u v w}
+          (ComplexShape.up ℕ) n)
+        (fun (L : CochainComplex AddCommGrpCat.{max u v w} ℕ) ↦
+          L.extendHomologyIso ComplexShape.embeddingUpNat (j := n) (j' := (n : ℤ)) rfl)
+        (fun f ↦ HomologicalComplex.extendHomologyIso_hom_naturality
+          f ComplexShape.embeddingUpNat (j := n) (j' := (n : ℤ)) rfl))
+
 /-- In nonnegative degree, homology of the derived Cech source recovers ordinary Cech
 cohomology, naturally in the coefficient sheaf. -/
 theorem derivedSource_homology_isIsomorphic
@@ -94,7 +125,8 @@ theorem derivedSource_homology_isIsomorphic
     IsIsomorphic
       (derivedSource K ⋙
         DerivedCategory.Plus.homologyFunctor AddCommGrpCat.{max u v w} n)
-      (cohomologyInCoefficients K n) := sorry
+      (cohomologyInCoefficients K n) :=
+  ⟨derivedSourceHomologyIso K n⟩
 
 /-- In nonnegative degree, homology of the derived target recovers cohomology over the target
 presheaf, naturally in the coefficient sheaf. -/

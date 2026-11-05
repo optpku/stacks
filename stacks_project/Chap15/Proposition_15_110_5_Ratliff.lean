@@ -22,5 +22,5 @@ Ratliff, tag `0AW6`): a Noetherian local ring is universally catenary if and
 only if it is formally catenary. -/
 @[stacks 0AW6 "Proposition 15.110.5 (Ratliff)"]
 #check fun (A : Type u) [CommRing A] [IsLocalRing A] ↦
-  (UniversallyCatenaryRing.iff_formallyCatenary (A := A) :
-    UniversallyCatenaryRing.{u, v} A ↔ IsFormallyCatenaryRing A)
+  (UniversallyCatenaryRing.iff_formallyCatenary.{u, v} (A := A) :
+    UniversallyCatenaryRing.{u, max u v} A ↔ IsFormallyCatenaryRing A)

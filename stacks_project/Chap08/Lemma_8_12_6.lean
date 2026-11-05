@@ -27,9 +27,7 @@ fibered and can be bundled without a local instance. -/
 #check @FiberedCategoryOver.pushforward.total
 #check @FiberedCategoryOver.pushforward.p
 
-/- The strongly-cartesian criterion underlying Lemma 8.12.6 (tag 04WG). -/
-#check @Functor.Pushforward.Q.map.isStronglyCartesian.iffSnd
+/- Preservation of strongly cartesian arrows in Lemma 8.12.6 (tag 04WG). -/
 #check @Functor.Pushforward.Q.map.isStronglyCartesian.ofSnd
-#check @Functor.Pushforward.Q.snd.isStronglyCartesian.ofMap
 
 end CategoryTheory

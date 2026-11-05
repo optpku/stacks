@@ -38,6 +38,22 @@ variable {C : Type uC} {D : Type uD}
 variable [Category.{vC} C] [Category.{vD} D]
 variable {J : GrothendieckTopology C} {K : GrothendieckTopology D}
 
+/-- Form the inverse image by the concrete stackification of the certified localized
+pushforward. The target and comparison are supplied by the local-descent construction,
+rather than selected from a stackification existence theorem. -/
+noncomputable def ofProjection
+    (u : C ⥤ D)
+    {S : StackOver.{uC, vC, uS, vS} J}
+    (hS : FiberedCategoryOver.Pushforward.ProjectionChoice u S.toFiberedCategoryOver) :
+    StackOver.InverseImage K u S where
+  sourceChoice := hS
+  target := Functor.StackificationConstruction.canonicalTarget K
+    (StackOver.inverseImageSource u S hS).p
+  comparison := Functor.StackificationConstruction.canonicalComparison K
+    (StackOver.inverseImageSource u S hS).p
+  isStackification := Functor.StackificationConstruction.canonicalIsStackification K
+    (StackOver.inverseImageSource u S hS).p
+
 /-- Definition 8.12.9 (tag 04WJ), existence: an inverse-image stack exists once a fibred
 pushforward projection is fixed. The source stack may live in arbitrary total-category
 universes; only the newly constructed target is placed in the common universe bound required by
@@ -51,7 +67,8 @@ theorem nonempty
     Nonempty (StackOver.InverseImage.{
       uC, uD, vC, vD, uS, vS,
       max uC (max uD (max uS (max vC (max vD vS)))),
-      max uC (max uD (max uS (max vC (max vD vS))))} K u S) := sorry
+      max uC (max uD (max uS (max vC (max vD vS))))} K u S) :=
+  ⟨ofProjection u hS⟩
 
 /-- Definition 8.12.9 (tag 04WJ), canonical existence: under the finite-limit hypotheses used
 to construct the fibred pushforward, an inverse-image stack exists without requiring callers to
@@ -67,18 +84,18 @@ theorem nonemptyCanonical
     Nonempty (StackOver.InverseImage.{
       uC, uD, vC, vD, uS, vS,
       max uC (max uD (max uS (max vC (max vD vS)))),
-      max uC (max uD (max uS (max vC (max vD vS))))} K u S) := sorry
+      max uC (max uD (max uS (max vC (max vD vS))))} K u S) :=
+  nonempty u (FiberedCategoryOver.Pushforward.ProjectionChoice.canonical u
+    S.toFiberedCategoryOver)
 
 /-!
-The existence theorem above deliberately remains proposition-valued: stackification is not
-canonical at the level of chosen target data.  The following owner is the single named choice
-boundary for consumers which nevertheless need an actual inverse-image stack.  Its specification
-and comparison API keep clients from reaching through the `Classical.choice` implementation.
+The existence theorems above remain proposition-valued. The following convenience value uses
+the same concrete stackification as `ofProjection`, with the standard pushforward certification.
+It does not eliminate an admitted inverse-image existence theorem to obtain its data.
 -/
 
-/-- The selected inverse-image stack supplied by the canonical finite-limit construction.  This is
-the designated choice boundary for consumers that need an actual target object; use `nonempty`
-when a particular localization presentation is required. -/
+/-- The inverse-image stack formed by concrete stackification of the finite-limit pushforward.
+Use `ofProjection` to supply a particular pushforward certification. -/
 @[stacks 04WJ "canonical inverse-image stack choice"]
 noncomputable def canonical
     (u : C ⥤ D) [Small.{wD} D]
@@ -87,7 +104,8 @@ noncomputable def canonical
     [PreservesLimitsOfShape WalkingParallelPair u]
     {S : StackOver.{uC, vC, uS, vS} J} :
     StackOver.InverseImage K u S :=
-  Classical.choice (nonemptyCanonical (K := K) (S := S) u)
+  ofProjection u (FiberedCategoryOver.Pushforward.ProjectionChoice.canonical u
+    S.toFiberedCategoryOver)
 
 /-- The canonical choice satisfies the defining stackification specification of an inverse-image
 stack.  Downstream code should use this named readout instead of unfolding `canonical`. -/
@@ -99,7 +117,8 @@ theorem canonical_spec
     [PreservesLimitsOfShape WalkingParallelPair u]
     {S : StackOver.{uC, vC, uS, vS} J} :
     CartesianBasedFunctor.IsStackification K
-      (canonical (K := K) (S := S) u).comparison := sorry
+      (canonical (K := K) (S := S) u).comparison :=
+  (canonical (K := K) (S := S) u).isStackification
 
 end Existence
 
@@ -142,7 +161,9 @@ theorem existsComparisonEquivalence
       e.toBasedFunctor.IsEquivalence ∧
         Nonempty
             ((CartesianBasedFunctor.precomp I'.target.p I.comparison).obj e ≅
-            I'.comparison) := sorry
+            I'.comparison) :=
+  CartesianBasedFunctor.IsStackification.existsComparisonEquivalence
+    I.comparison I'.comparison I.isStackification I'.isStackification
 
 /-- Explicit comparison data between two inverse-image stack presentations.
 
@@ -212,12 +233,16 @@ theorem ComparisonChoice.nonempty
     {S : StackOver.{uC, vC, uS, vS} J}
     {I : StackOver.InverseImage.{uC, uD, vC, vD, uS, vS, uT1, vT1} K u S}
     {I' : StackOver.InverseImage.{uC, uD, vC, vD, uS, vS, uT2, vT2} K u S} :
-    Nonempty (ComparisonChoice I I') := sorry
+    Nonempty (ComparisonChoice I I') := by
+  let A := CartesianBasedFunctor.IsStackification.comparisonChoice
+    I.isStackification I'.isStackification
+  exact ⟨⟨A.comparison, A.isEquivalence, A.iso⟩⟩
 
-/-- Select a convenient inverse-image comparison from the proposition-level uniqueness theorem.
+/-- Form an inverse-image comparison from the explicit stackification comparison.
 
-This value is noncanonical; downstream code should consume its fields and the uniqueness API
-below rather than unfold the underlying choice. -/
+The functor and structure isomorphism are the actual universal-property lift data. In particular,
+the admitted equivalence proof is only a Prop field, never part of a proposition from which these
+data are selected. Downstream code should use the fields and the uniqueness API below. -/
 @[stacks 04WJ "selected inverse-image comparison"]
 noncomputable def comparisonChoice
     {u : C ⥤ D}
@@ -225,7 +250,9 @@ noncomputable def comparisonChoice
     (I : StackOver.InverseImage.{uC, uD, vC, vD, uS, vS, uT1, vT1} K u S)
     (I' : StackOver.InverseImage.{uC, uD, vC, vD, uS, vS, uT2, vT2} K u S) :
     ComparisonChoice I I' :=
-  ComparisonChoice.ofExists (existsComparisonEquivalence I I')
+  let A := CartesianBasedFunctor.IsStackification.comparisonChoice
+    I.isStackification I'.isStackification
+  ⟨A.comparison, A.isEquivalence, A.iso⟩
 
 /-- Any two explicit inverse-image comparisons admit a unique compatible comparison isomorphism. -/
 @[stacks 04WJ "existence and uniqueness of inverse-image comparison isomorphisms"]
@@ -236,9 +263,13 @@ theorem ComparisonChoice.existsUniqueIso
     {I' : StackOver.InverseImage.{uC, uD, vC, vD, uS, vS, uT2, vT2} K u S}
     (A B : ComparisonChoice I I') :
     ∃! β : A.comparison ≅ B.comparison,
-      (CartesianBasedFunctor.precomp I'.target.p I.comparison).mapIso β ≪≫ B.iso = A.iso := sorry
+      (CartesianBasedFunctor.precomp I'.target.p I.comparison).mapIso β ≪≫ B.iso = A.iso :=
+  CartesianBasedFunctor.IsStackification.LiftChoice.existsUniqueComparisonIso
+    I.isStackification ⟨A.comparison, A.iso⟩ ⟨B.comparison, B.iso⟩
 
-/-- The selected compatible isomorphism between two explicit inverse-image comparisons. -/
+/-- The compatible isomorphism between two explicit inverse-image comparisons, formed by
+gluing their local components through the stackification universal property. This reuses the
+explicit descent construction rather than selecting data from `existsUniqueIso`. -/
 @[stacks 04WJ "selected inverse-image comparison isomorphism"]
 noncomputable def ComparisonChoice.comparisonIso
     {u : C ⥤ D}
@@ -246,7 +277,8 @@ noncomputable def ComparisonChoice.comparisonIso
     {I : StackOver.InverseImage.{uC, uD, vC, vD, uS, vS, uT1, vT1} K u S}
     {I' : StackOver.InverseImage.{uC, uD, vC, vD, uS, vS, uT2, vT2} K u S}
     (A B : ComparisonChoice I I') : A.comparison ≅ B.comparison :=
-  Classical.choose (ExistsUnique.exists (ComparisonChoice.existsUniqueIso A B))
+  CartesianBasedFunctor.IsStackification.LiftChoice.comparisonIso
+    I.isStackification ⟨A.comparison, A.iso⟩ ⟨B.comparison, B.iso⟩
 
 /-- The selected inverse-image comparison isomorphism has the expected compatibility equation. -/
 @[stacks 04WJ "specification of selected inverse-image comparison isomorphism"]
@@ -257,7 +289,9 @@ theorem ComparisonChoice.comparisonIso_spec
     {I' : StackOver.InverseImage.{uC, uD, vC, vD, uS, vS, uT2, vT2} K u S}
     (A B : ComparisonChoice I I') :
     (CartesianBasedFunctor.precomp I'.target.p I.comparison).mapIso
-        (ComparisonChoice.comparisonIso A B) ≪≫ B.iso = A.iso := sorry
+        (ComparisonChoice.comparisonIso A B) ≪≫ B.iso = A.iso :=
+  CartesianBasedFunctor.IsStackification.LiftChoice.comparisonIso_spec
+    I.isStackification ⟨A.comparison, A.iso⟩ ⟨B.comparison, B.iso⟩
 
 /-- Any compatible inverse-image comparison isomorphism equals the selected one. -/
 @[stacks 04WJ "uniqueness of selected inverse-image comparison isomorphism"]
@@ -269,7 +303,9 @@ theorem ComparisonChoice.comparisonIso_unique
     (A B : ComparisonChoice I I')
     (β : A.comparison ≅ B.comparison)
     (hβ : (CartesianBasedFunctor.precomp I'.target.p I.comparison).mapIso β ≪≫ B.iso = A.iso) :
-    β = ComparisonChoice.comparisonIso A B := sorry
+    β = ComparisonChoice.comparisonIso A B :=
+  CartesianBasedFunctor.IsStackification.LiftChoice.comparisonIso_unique
+    I.isStackification ⟨A.comparison, A.iso⟩ ⟨B.comparison, B.iso⟩ β hβ
 
 namespace canonical
 
@@ -289,7 +325,8 @@ theorem comparison
         Nonempty
           ((CartesianBasedFunctor.precomp I.target.p
             (canonical (K := K) (S := S) u).comparison).obj e ≅
-            I.comparison) := sorry
+            I.comparison) :=
+  existsComparisonEquivalence (canonical (K := K) (S := S) u) I
 
 /-- Package the canonical inverse-image comparison with an explicit presentation into the shared
 `ComparisonChoice` owner.  The source-facing existential `canonical.comparison` remains available
@@ -335,12 +372,13 @@ theorem existsComparisonHomEquivalence
 
 end Comparison
 
-/- Data audit: `canonical`, `ComparisonChoice.ofExists`, `comparisonChoice`, and
-`canonical.comparisonChoice` are named proposition-to-data boundaries. Their non-Prop fields come
-from selected inverse-image or comparison data. Any reported `sorryAx` for `ComparisonChoice` is
-inherited from Prop-valued category, functor, and coherence laws in those field types; no
-comparison functor or isomorphism is synthesized by a placeholder. Consumers should use the
-field/spec/uniqueness API rather than unfold any `Classical.choice`. -/
+/- Data audit: `ofProjection` and `canonical` use the concrete stackification target and
+comparison. The standard pushforward fibredness certification still has proof debt; its use by
+the construction's chosen cleavage must be audited separately. `ComparisonChoice.ofExists`
+and `LiftChoice.ofExists` select data satisfying caller-supplied comparison equations.
+`comparisonChoice` and `canonical.comparisonChoice` use the proved comparison existence
+projection of the explicit stackification lift; any remaining debt in its descent construction
+is inherited rather than a fresh admitted inverse-image comparison existence theorem. -/
 
 end StackOver.InverseImage
 

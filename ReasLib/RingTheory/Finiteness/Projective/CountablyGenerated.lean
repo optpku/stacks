@@ -70,11 +70,15 @@ namespace Projective
 variable {R : Type u} [Ring R]
 
 /-- Theorem 10.84.5 (Kaplansky): every projective module is an internal direct sum of countably
-generated projective submodules. -/
+generated projective submodules.
+
+The index lives in the universe of `P`: after discarding zero summands, choosing a nonzero
+element of each summand gives an injection into `P` by independence, so the remaining indices
+can be reindexed in this universe. For the zero module, the empty index suffices. -/
 @[stacks 058Y "Kaplansky decomposition"]
 theorem exists_countablyGenerated_decomposition
     {P : Type v} [AddCommGroup P] [Module R P] [Module.Projective R P] :
-    ∃ (ι : Type w) (summand : ι → Submodule R P),
+    ∃ (ι : Type v) (summand : ι → Submodule R P),
       iSupIndep summand ∧ iSup summand = ⊤ ∧
         ∀ i, Module.CountablyGeneratedProjective R (summand i) := sorry
 

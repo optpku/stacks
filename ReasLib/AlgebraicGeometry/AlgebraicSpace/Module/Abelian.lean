@@ -30,7 +30,9 @@ namespace AlgebraicGeometry.AlgebraicSpace
 /-- The specified atlas-site sheafification is left exact. -/
 instance modulesSheafification_preservesFiniteLimits {S : Scheme.{u}} (X : AlgebraicSpace S) :
     PreservesFiniteLimits (PullbackFactory.AdditiveSheafification.sheafify
-      (AtlasInput.scheme X) (AtlasInput.map X) (AtlasInput.locallySurjective X)) := sorry
+      (AtlasInput.scheme X) (AtlasInput.map X) (AtlasInput.locallySurjective X)) :=
+  PullbackFactory.AdditiveSheafification.sheafify_preservesFiniteLimits
+    (AtlasInput.scheme X) (AtlasInput.map X) (AtlasInput.locallySurjective X)
 
 /-- Strong sheafification uses the same actual small-atlas adjunction as the module data. -/
 instance modulesHasSheafify {S : Scheme.{u}} (X : AlgebraicSpace S) :

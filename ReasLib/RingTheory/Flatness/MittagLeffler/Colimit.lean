@@ -29,7 +29,10 @@ universe u v w x
 namespace Module.MittagLeffler
 
 /-- Lemma 10.89.9 (0AS7): a directed colimit of Mittag-Leffler modules along
-universally injective transition maps is Mittag-Leffler. -/
+universally injective transition maps is Mittag-Leffler.
+
+The tensor-test universe contains the ring and diagram universes. Testing only in an
+independent smaller universe can miss nontrivial modules over the ring. -/
 @[stacks 0AS7]
 theorem colimit_of_universallyInjective
     {R : Type u} [CommRing R]
@@ -37,7 +40,7 @@ theorem colimit_of_universallyInjective
     (F : I ⥤ ModuleCat.{max v w} R)
     [∀ i, Module.MittagLeffler R (F.obj i)]
     (hF : ∀ ⦃i j : I⦄ (hij : i ≤ j),
-      LinearMap.UniversallyInjective.{u, max v w, max v w, x}
+      LinearMap.UniversallyInjective.{u, max v w, max v w, max u v w x}
         ((F.map (homOfLE hij)).hom)) :
     Module.MittagLeffler R (colimit F : ModuleCat.{max v w} R) := sorry
 

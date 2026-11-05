@@ -89,9 +89,16 @@ def canonicalAutArrow
       Chosen.reindexObj X.p (specOverHom v rfl) y) :
     Aut (trivialDeformation (Chosen.reindexObj X.p (specOverHom v rfl) x)
       (CommRingCat.KaehlerDifferential v)) :=
-  asIso (canHomOverTriv v x y α) ≪≫
-    (asIso (Chosen.reindexMap X.p
-      (specOverInl (Spec.map v ≫ σA) (CommRingCat.KaehlerDifferential v)) α)).symm
+  { hom := canHomOverTriv v x y α
+    inv := IsFibered.InGroupoids.fiberInverse _ (canHomOverTriv v x y α)
+    hom_inv_id := IsFibered.InGroupoids.comp_fiberInverse _ _
+    inv_hom_id := IsFibered.InGroupoids.fiberInverse_comp _ _ } ≪≫
+    { hom := IsFibered.InGroupoids.fiberInverse _ (Chosen.reindexMap X.p
+        (specOverInl (Spec.map v ≫ σA) (CommRingCat.KaehlerDifferential v)) α)
+      inv := Chosen.reindexMap X.p
+        (specOverInl (Spec.map v ≫ σA) (CommRingCat.KaehlerDifferential v)) α
+      hom_inv_id := IsFibered.InGroupoids.fiberInverse_comp _ _
+      inv_hom_id := IsFibered.InGroupoids.comp_fiberInverse _ _ }
 
 /-- The difference automorphism composes the differential pullback with the inverse inclusion pullback. -/
 theorem canonicalAutArrow_hom
@@ -99,7 +106,9 @@ theorem canonicalAutArrow_hom
       Chosen.reindexObj X.p (specOverHom v rfl) y) :
     (canonicalAutArrow v x y α).hom =
       canHomOverTriv v x y α ≫ inv (Chosen.reindexMap X.p
-        (specOverInl (Spec.map v ≫ σA) (CommRingCat.KaehlerDifferential v)) α) := rfl
+        (specOverInl (Spec.map v ≫ σA) (CommRingCat.KaehlerDifferential v)) α) := by
+  exact congrArg (canHomOverTriv v x y α ≫ ·)
+    (IsIso.eq_inv_of_hom_inv_id (IsFibered.InGroupoids.comp_fiberInverse _ _))
 
 /-- The difference automorphism fixes the structural arrow of the trivial deformation lift. -/
 theorem canonicalAut_restrict (h_mapsIntoAffineOpen : σA.MapsIntoAffineOpen)
@@ -133,7 +142,11 @@ theorem canonicalAut_spec (h_mapsIntoAffineOpen : σA.MapsIntoAffineOpen)
       Chosen.reindexObj X.p (specOverHom v rfl) y) :
     (canonicalAutArrow v x y α).hom ≫ Chosen.reindexMap X.p
         (specOverInl (Spec.map v ≫ σA) (CommRingCat.KaehlerDifferential v)) α =
-      canHomOverTriv v x y α := sorry
+      canHomOverTriv v x y α := by
+  rw [canonicalAutArrow_hom]
+  exact (Category.assoc _ _ _).trans
+    ((congrArg (canHomOverTriv v x y α ≫ ·) (IsIso.inv_hom_id _)).trans
+      (Category.comp_id _))
 
 /-- The canonical infinitesimal automorphism of an identity morphism is zero. -/
 theorem canonicalAut_id [HasStrongRimSchlessinger X] [IsLocallyNoetherian S]

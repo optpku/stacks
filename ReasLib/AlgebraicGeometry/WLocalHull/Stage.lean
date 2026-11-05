@@ -35,19 +35,9 @@ noncomputable def spectrum (E : Finset A) : Scheme.{u} :=
 abbrev closedStage (E : Finset A) : Type u :=
   ∀ p : Pattern A E, stratumSections A p.elem p.span
 
-/-- The canonical map from a specializing localization to its stratum chart. -/
-noncomputable def toClosedStage {E : Finset A} (p : Pattern A E) :
-    specializingLocalization A p.elem p.span →+* stratumSections A p.elem p.span :=
-  IsLocalization.lift (M := specializingSubmonoid A p.elem p.span)
-    (g := toStratumSections A p.elem p.span) fun y ↦
-      (IsUnit.mem_submonoid_iff _).mp
-        (Submonoid.mem_comap.mp
-          (y.property : (y : A) ∈ (IsUnit.submonoid (stratumSections A p.elem p.span)).comap
-            (toStratumSections A p.elem p.span)))
-
 /-- The product of the canonical maps from specializing localizations to stratum charts. -/
 noncomputable def closedStageMap (E : Finset A) : stage A E →+* closedStage A E :=
-  RingHom.pi fun p ↦ (toClosedStage A p).comp (stage.eval A p)
+  RingHom.pi fun p ↦ (Localization.Specializing.toAwayQuotient p.elem p.span).comp (stage.eval A p)
 
 /-- The morphism from the spectrum of the closed-stage algebra to the stage spectrum. -/
 noncomputable def closedHom (E : Finset A) :

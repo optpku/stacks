@@ -11,6 +11,7 @@ public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Pullback
 public import ReasLib.CategoryTheory.Sites.Pullback.FiniteConnectedLimits
 public import ReasLib.CategoryTheory.Sites.Topos.Cocontinuous
 public import ReasLib.CategoryTheory.Sites.Topos.ContinuousRightAdjoint.Computations
+public import Mathlib.CategoryTheory.Limits.MorphismProperty
 
 /-!
 # Small-to-big étale relocalization
@@ -50,7 +51,17 @@ abbrev relocalizationFunctor (f : T ⟶ S) : T.Etale ⥤ Over S :=
 topologies. -/
 instance relocalizationFunctor_isContinuous (f : T ⟶ S) :
     Functor.IsContinuous (relocalizationFunctor f) T.smallEtaleTopology
-      (S.overGrothendieckTopology @Etale) := sorry
+      (S.overGrothendieckTopology @Etale) := by
+  letI : RepresentablyFlat (MorphismProperty.Over.forget @Etale ⊤ T) :=
+    flat_of_preservesFiniteLimits _
+  letI : Functor.IsContinuous (MorphismProperty.Over.forget @Etale ⊤ T)
+      T.smallEtaleTopology (T.overGrothendieckTopology @Etale) :=
+    Functor.isContinuous_of_coverPreserving
+      (compatiblePreservingOfFlat _ _)
+      (Functor.coverPreserving_restrictedTopology _ _)
+  exact Functor.isContinuous_comp (MorphismProperty.Over.forget @Etale ⊤ T) (Over.map f)
+    T.smallEtaleTopology (T.overGrothendieckTopology @Etale)
+    (S.overGrothendieckTopology @Etale)
 
 /-- The relocalization functor is cocontinuous for the small-to-big étale
 topologies. -/
@@ -66,17 +77,38 @@ instance hasFiniteConnectedLimits (T : Scheme.{u}) :
 instance Relocalization.preservesFiniteConnectedLimits (f : T ⟶ S) :
     PreservesFiniteConnectedLimits (relocalizationFunctor f) := sorry
 
-/-- The opposite relocalization functor has the left Kan extensions needed for
-the lower-shriek construction. -/
+/-- In a universe containing the objects of the site, the opposite
+relocalization functor has the left Kan extensions needed for lower shriek. -/
 instance relocalizationFunctor_op_hasLeftKanExtension
-    (f : T ⟶ S) (P : T.Etaleᵒᵖ ⥤ Type w) :
-    (relocalizationFunctor f).op.HasLeftKanExtension P := sorry
+    [UnivLE.{u + 1, w}] (f : T ⟶ S) (P : T.Etaleᵒᵖ ⥤ Type w) :
+    (relocalizationFunctor f).op.HasLeftKanExtension P := by
+  letI : (relocalizationFunctor f).op.HasPointwiseLeftKanExtension P :=
+    fun _ => inferInstance
+  exact Functor.HasLeftKanExtension.mk
+    ((relocalizationFunctor f).op.pointwiseLeftKanExtension P)
+    ((relocalizationFunctor f).op.pointwiseLeftKanExtensionUnit P)
 
-/-- The opposite relocalization functor has pointwise right Kan extensions
-needed for the cocontinuous direct-image presentation. -/
+/-- In a universe containing the objects of the site, relocalization has left Kan
+extensions by the usual pointwise colimit construction. This instance supplies
+the existence certificate used for `Type (u + 1)` sheaf pullback. -/
+instance (priority := 1100) relocalizationFunctor_op_hasLeftKanExtension_ofUnivLE
+    [UnivLE.{u + 1, w}] (f : T ⟶ S) (P : T.Etaleᵒᵖ ⥤ Type w) :
+    (relocalizationFunctor f).op.HasLeftKanExtension P :=
+  relocalizationFunctor_op_hasLeftKanExtension f P
+
+/-- In a universe containing the objects of the site, the opposite relocalization
+functor has pointwise right Kan extensions for the cocontinuous direct image. -/
 instance relocalizationFunctor_op_hasPointwiseRightKanExtension
-    (f : T ⟶ S) (P : T.Etaleᵒᵖ ⥤ Type w) :
-    (relocalizationFunctor f).op.HasPointwiseRightKanExtension P := sorry
+    [UnivLE.{u + 1, w}] (f : T ⟶ S) (P : T.Etaleᵒᵖ ⥤ Type w) :
+    (relocalizationFunctor f).op.HasPointwiseRightKanExtension P :=
+  fun Y => Types.hasLimit (StructuredArrow.proj Y (relocalizationFunctor f).op ⋙ P)
+
+/-- Pointwise right Kan extensions in a universe containing the objects of the
+site are computed by the standard limits over structured-arrow categories. -/
+instance (priority := 1100) relocalizationFunctor_op_hasPointwiseRightKanExtension_ofUnivLE
+    [UnivLE.{u + 1, w}] (f : T ⟶ S) (P : T.Etaleᵒᵖ ⥤ Type w) :
+    (relocalizationFunctor f).op.HasPointwiseRightKanExtension P :=
+  relocalizationFunctor_op_hasPointwiseRightKanExtension f P
 
 /-- The inverse-image functor on sheaves induced by étale relocalization. -/
 abbrev inverseImage (f : T ⟶ S) :
@@ -118,7 +150,7 @@ theorem inverseImage_objObjIso_naturality
         (inverseImage_objObjIso f 𝒢 U).hom := sorry
 
 /-- The lower-shriek functor on étale sheaves. -/
-abbrev lowerShriek (f : T ⟶ S)
+abbrev lowerShriek (f : T ⟶ S) [UnivLE.{u + 1, w}]
     [HasWeakSheafify (S.overGrothendieckTopology @Etale) (Type w)] :
     Sheaf T.smallEtaleTopology (Type w) ⥤
       Sheaf (S.overGrothendieckTopology @Etale) (Type w) :=
@@ -126,7 +158,7 @@ abbrev lowerShriek (f : T ⟶ S)
     (S.overGrothendieckTopology @Etale)
 
 /-- The canonical lower-shriek/inverse-image adjunction. -/
-noncomputable def lowerShriekAdjunction (f : T ⟶ S)
+noncomputable def lowerShriekAdjunction (f : T ⟶ S) [UnivLE.{u + 1, w}]
     [HasWeakSheafify (S.overGrothendieckTopology @Etale) (Type w)] :
     lowerShriek f ⊣ inverseImage f :=
   (relocalizationFunctor f).sheafAdjunctionContinuous (Type w)
@@ -134,20 +166,20 @@ noncomputable def lowerShriekAdjunction (f : T ⟶ S)
 
 /-- The lower-shriek adjunction agrees with the canonical continuous-site
 adjunction. -/
-theorem lowerShriekAdjunction_def (f : T ⟶ S)
+theorem lowerShriekAdjunction_def (f : T ⟶ S) [UnivLE.{u + 1, w}]
     [HasWeakSheafify (S.overGrothendieckTopology @Etale) (Type w)] :
     lowerShriekAdjunction f =
       (relocalizationFunctor f).sheafAdjunctionContinuous (Type w)
         T.smallEtaleTopology (S.overGrothendieckTopology @Etale) := sorry
 
 /-- The inverse image is a right adjoint whenever lower shriek is available. -/
-theorem inverseImage_isRightAdjoint (f : T ⟶ S)
+theorem inverseImage_isRightAdjoint (f : T ⟶ S) [UnivLE.{u + 1, w}]
     [HasWeakSheafify (S.overGrothendieckTopology @Etale) (Type w)] :
     (inverseImage f).IsRightAdjoint := sorry
 
 /-- The direct-image functor presented by the cocontinuous relocalization
 functor. -/
-abbrev directImage (f : T ⟶ S) :
+abbrev directImage (f : T ⟶ S) [UnivLE.{u + 1, w}] :
     Sheaf T.smallEtaleTopology (Type w) ⥤
       Sheaf (S.overGrothendieckTopology @Etale) (Type w) :=
   (relocalizationFunctor f).sheafPushforwardCocontinuous (Type w)
@@ -159,7 +191,7 @@ instance inverseImage_preservesFiniteLimits (f : T ⟶ S) :
 
 /-- The bundled morphism of topoi presented by étale relocalization. -/
 noncomputable def morphismOfTopoi (f : T ⟶ S)
-    [HasSheafify T.smallEtaleTopology (Type w)] :
+    [HasSheafify T.smallEtaleTopology (Type w)] [UnivLE.{u + 1, w}] :
     MorphismOfTopoiIn.{u + 1, u + 1, u, u, w}
       (S.overGrothendieckTopology @Etale) T.smallEtaleTopology where
   inverseImageFunctor :=
@@ -172,18 +204,18 @@ noncomputable def morphismOfTopoi (f : T ⟶ S)
 /-- The inverse-image projection of the cocontinuously presented morphism. -/
 @[simp]
 theorem morphismOfTopoi_inverseImage (f : T ⟶ S)
-    [HasSheafify T.smallEtaleTopology (Type w)] :
-    (morphismOfTopoi f)⁻¹ = inverseImage f := sorry
+    [HasSheafify T.smallEtaleTopology (Type w)] [UnivLE.{u + 1, w}] :
+    (morphismOfTopoi f)⁻¹ = inverseImage f := rfl
 
 /-- The direct-image projection of the cocontinuously presented morphism. -/
 @[simp]
 theorem morphismOfTopoi_pushforward (f : T ⟶ S)
-    [HasSheafify T.smallEtaleTopology (Type w)] :
-    (morphismOfTopoi f).pushforward = directImage f := sorry
+    [HasSheafify T.smallEtaleTopology (Type w)] [UnivLE.{u + 1, w}] :
+    (morphismOfTopoi f).pushforward = directImage f := rfl
 
 /-- The inverse-image computation through the bundled relocalization morphism. -/
 noncomputable def morphismOfTopoi_inverseImage_objObjIso
-    (f : T ⟶ S) [HasSheafify T.smallEtaleTopology (Type w)]
+    (f : T ⟶ S) [HasSheafify T.smallEtaleTopology (Type w)] [UnivLE.{u + 1, w}]
     (𝒢 : Sheaf (S.overGrothendieckTopology @Etale) (Type w)) (U : T.Etale) :
     (((morphismOfTopoi f)⁻¹).obj 𝒢).1.obj (op U) ≅
       𝒢.1.obj (op ((relocalizationFunctor f).obj U)) :=
@@ -191,7 +223,7 @@ noncomputable def morphismOfTopoi_inverseImage_objObjIso
     (morphismOfTopoi_inverseImage f)) ≪≫ inverseImage_objObjIso f 𝒢 U
 
 /-- The lower-shriek adjunction with the inverse-image projection of the bundled morphism. -/
-noncomputable def lowerShriekAdjunction_via_morphism (f : T ⟶ S)
+noncomputable def lowerShriekAdjunction_via_morphism (f : T ⟶ S) [UnivLE.{u + 1, w}]
     [HasWeakSheafify (S.overGrothendieckTopology @Etale) (Type w)]
     [HasSheafify T.smallEtaleTopology (Type w)] :
     lowerShriek f ⊣ (morphismOfTopoi f)⁻¹ :=
@@ -224,7 +256,7 @@ noncomputable def siteMorphismOfTopoi :
 /-- For identity-base étale relocalization, the inverse image of the
 relocalization morphism equals the direct image of the induced site morphism. -/
 theorem morphismOfTopoi_id_inverseImage_eq_siteMorphismOfTopoi_pushforward :
-    (morphismOfTopoi (𝟙 S))⁻¹ = (siteMorphismOfTopoi S).pushforward := sorry
+    (morphismOfTopoi.{u, u + 1} (𝟙 S))⁻¹ = (siteMorphismOfTopoi S).pushforward := sorry
 
 /-- The identity-base small-to-big site morphism is a retraction of the
 relocalization morphism of topoi. -/

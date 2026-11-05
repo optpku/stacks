@@ -43,14 +43,16 @@ variable (R R' S)
 
 /-- The source half of the degree-minus-one base-change map, from the tensorized cotangent
 homology of `S/R` to the cotangent homology of `S'/R`. -/
-@[stacks 0FUZ "source half of the H1 base-change comparison"]
 noncomputable abbrev baseChangeSourceMap :
     S' ⊗[S] H1Cotangent R S →ₗ[S'] H1Cotangent R S' :=
   LinearMap.liftBaseChange S' (H1Cotangent.map R R S S')
 
-/-- The canonical degree-minus-one base-change comparison
-`S' ⊗[S] H1Cotangent R S → H1Cotangent R' S'`. -/
-@[stacks 0FUZ "canonical H1 base-change comparison"]
+/-- The canonical comparison from tensorized first cotangent homology
+`S' ⊗[S] H1Cotangent R S → H1Cotangent R' S'`.
+
+This map need not be surjective for arbitrary base change. The surjective comparison of
+Stacks 0FUZ takes homology after tensoring the complex; it is supplied by
+`Algebra.Presentation.naiveCotangentBaseChangeH1Comparison`. -/
 noncomputable abbrev baseChangeComparison :
     S' ⊗[S] H1Cotangent R S →ₗ[S'] H1Cotangent R' S' :=
   (H1Cotangent.map R R' S' S').comp
@@ -73,15 +75,6 @@ theorem baseChangeDegreeZeroComparison_bijective :
 /- Proof strategy: expand the comparison as `KaehlerDifferential.map` after `mapBaseChange`; use
 the universal property of the tensor-product pushout to identify it with the standard
 Kähler-differential base-change equivalence, then take its injective and surjective components. -/
-
-/-- Lemma 15.86.2 (2), degree-minus-one clause (0FUZ): the canonical comparison on first
-cotangent homology is surjective. -/
-@[stacks 0FUZ "(2), H1 base-change surjectivity"]
-theorem baseChangeComparison_surjective :
-    Function.Surjective (baseChangeComparison (R := R) (R' := R') (S := S)) := sorry
-/- Proof strategy: choose a presentation of `S/R`, identify both first cotangent homology modules
-with kernels of the presentation differentials, and apply the presentation-level surjectivity
-theorem.  Transport through the canonical presentation-independence equivalences. -/
 
 end Algebra.H1Cotangent
 

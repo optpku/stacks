@@ -7,6 +7,8 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import Mathlib.Algebra.Module.FinitePresentation
+public import Mathlib.Algebra.Category.ModuleCat.Presheaf.Abelian
+public import Mathlib.CategoryTheory.Abelian.Transfer
 public import Mathlib.CategoryTheory.Abelian.Injective.Ext
 public import ReasLib.Algebra.Category.CommRingCat.Under.ModuleValuedFunctor.Category
 
@@ -52,16 +54,10 @@ variable {A : CommRingCat.{u}}
 def bundledHomZero (A : CommRingCat.{u}) (F G : bundled.{u, v} A) : Zero (F ⟶ G) where
   zero :=
     { app := fun _ ↦ 0
-      naturality := sorry }
-
-/-- Module-valued-functor morphisms are equal when all their components are equal. -/
-private theorem hom_ext {F G : ModuleValuedFunctor.{u, v} A} {f g : Hom F G}
-    (h : ∀ B, f.app B = g.app B) : f = g := by
-  rcases f with ⟨f, hf⟩
-  rcases g with ⟨g, hg⟩
-  congr
-  funext B
-  exact h B
+      naturality := by
+        intro B B' f x
+        change _ = (0 : G.obj B')
+        exact map_zero (G.map f).hom }
 
 /-- The pointwise additive commutative group structure on morphisms in the bundled
 category of module-valued functors. -/
@@ -112,18 +108,24 @@ category of module-valued functors. -/
 @[reducible]
 def bundledPreadditive (A : CommRingCat.{u}) : Preadditive (bundled.{u, v} A) where
   homGroup F G := bundledHomAddCommGroup A F G
-  add_comp := sorry
-  comp_add := sorry
+  add_comp F G H f g h := by
+    apply hom_ext
+    intro B
+    change (f.app B + g.app B) ≫ h.app B = f.app B ≫ h.app B + g.app B ≫ h.app B
+    exact Preadditive.add_comp _ _ _ _ _ _
+  comp_add F G H f g h := by
+    apply hom_ext
+    intro B
+    change f.app B ≫ (g.app B + h.app B) = f.app B ≫ g.app B + f.app B ≫ h.app B
+    exact Preadditive.comp_add _ _ _ _ _ _
 
 /-- The bundled module-valued-functor category is abelian. -/
 @[reducible]
-noncomputable def bundledAbelian (A : CommRingCat.{u}) : Abelian (bundled.{u, v} A) where
-  toPreadditive := bundledPreadditive A
-  toIsNormalMonoCategory := sorry
-  toIsNormalEpiCategory := sorry
-  has_finite_products := sorry
-  has_kernels := sorry
-  has_cokernels := sorry
+noncomputable def bundledAbelian (A : CommRingCat.{u}) : Abelian (bundled.{u, v} A) := by
+  letI := bundledPreadditive.{u, v} A
+  letI : HasFiniteProducts (bundled.{u, v} A) :=
+    ⟨fun _ ↦ Adjunction.hasLimitsOfShape_of_equivalence (presheafEquivalence A).functor⟩
+  exact abelianOfEquivalence (presheafEquivalence A).functor
 
 /-- The standard universe construction supplies Ext groups for the bundled
 module-valued-functor category. -/

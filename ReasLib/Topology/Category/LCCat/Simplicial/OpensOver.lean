@@ -46,17 +46,21 @@ instance opensOver_qc_sheafPullback_preservesFiniteLimits
     [HasWeakSheafify (qcTopology.over X) (Type u)]
     [∀ P : (Opens X.obj)ᵒᵖ ⥤ Type u, (opensOver X).op.HasLeftKanExtension P] :
     PreservesFiniteLimits
-      ((opensOver X).sheafPullback (Type u) (Opens.grothendieckTopology X.obj)
-        (qcTopology.over X)) :=
+      (SmallToSlice.qcTypePullback X) :=
   sorry
 
 /-- The morphism of topoi `h₋₁ : Sh(LC_qc / X) ⟶ Sh(X)` presented by `opensOver X`. -/
 def opensOverQcTopos
     [HasWeakSheafify (qcTopology.over X) (Type u)]
     [∀ P : (Opens X.obj)ᵒᵖ ⥤ Type u, (opensOver X).op.HasLeftKanExtension P] :
-    MorphismOfTopoiIn (Opens.grothendieckTopology X.obj) (qcTopology.over X) :=
-  (opensOver X).morphismOfTopoiInOfContinuous
-    (Opens.grothendieckTopology X.obj) (qcTopology.over X)
+    MorphismOfTopoiIn (Opens.grothendieckTopology X.obj) (qcTopology.over X) := by
+  exact
+    { inverseImageFunctor :=
+        ⟨SmallToSlice.qcTypePullback X, opensOver_qc_sheafPullback_preservesFiniteLimits X⟩
+      pushforward := (opensOver X).sheafPushforwardContinuous (Type u)
+        (Opens.grothendieckTopology X.obj) (qcTopology.over X)
+      adjunction := Functor.sheafPullbackConstruction.sheafAdjunctionContinuous
+        (opensOver X) (Type u) (Opens.grothendieckTopology X.obj) (qcTopology.over X) }
 
 /-- Inverse image of `opensOverQcTopos` is qc sheaf pullback along `opensOver`. -/
 theorem opensOverQcTopos_inverseImage

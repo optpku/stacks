@@ -43,7 +43,19 @@ derivation degree. -/
 theorem preservesDPIndex (k : ℤ) (n : ℕ+) (d : ℕ) :
     (((2 * (d + 1) : ℕ) : ℤ) + k) +
         ((2 * (((n : ℕ) - 1) * (d + 1)) : ℕ) : ℤ) =
-      ((2 * ((n : ℕ) * (d + 1)) : ℕ) : ℤ) + k := sorry
+      ((2 * ((n : ℕ) * (d + 1)) : ℕ) : ℤ) + k := by
+  have hp : 2 * (d + 1) + 2 * (((n : ℕ) - 1) * (d + 1)) =
+      2 * ((n : ℕ) * (d + 1)) := by
+    rw [← Nat.mul_add]
+    congr 1
+    calc
+      (d + 1) + ((n : ℕ) - 1) * (d + 1) =
+          (((n : ℕ) - 1) + 1) * (d + 1) := by
+        rw [Nat.add_mul, Nat.one_mul, Nat.add_comm]
+      _ = (n : ℕ) * (d + 1) := by rw [Nat.sub_add_cancel n.pos]
+  have hi := congrArg (fun m : ℕ ↦ (m : ℤ)) hp
+  simp only [Nat.cast_add] at hi
+  omega
 
 /-- Restrict a homogeneous derivation to a naturally indexed nonnegative piece. -/
 def derivationPiece (A : DividedPowerGradedAlgebra.{u, v} R) {k : ℤ}
@@ -56,7 +68,7 @@ def derivationPiece (A : DividedPowerGradedAlgebra.{u, v} R) {k : ℤ}
 theorem derivationPiece_apply (A : DividedPowerGradedAlgebra.{u, v} R) {k : ℤ}
     (D : Derivation A.toChainGradedAlgebra k) {n : ℕ}
     (x : A.toGradedAlgebra.piece n) :
-    A.derivationPiece D x = D (n : ℤ) x := sorry
+    A.derivationPiece D x = D (n : ℤ) x := rfl
 
 /-- Multiply an integer-graded homogeneous element by a naturally indexed nonnegative piece. -/
 def mulPieceRight (A : DividedPowerGradedAlgebra.{u, v} R) {i : ℤ} {n : ℕ} :
@@ -69,7 +81,7 @@ def mulPieceRight (A : DividedPowerGradedAlgebra.{u, v} R) {i : ℤ} {n : ℕ} :
 theorem mulPieceRight_apply (A : DividedPowerGradedAlgebra.{u, v} R)
     {i : ℤ} {n : ℕ} (x : A.toChainGradedAlgebra.X i)
     (y : A.toGradedAlgebra.piece n) :
-    A.mulPieceRight x y = A.toChainGradedAlgebra.mul i (n : ℤ) x y := sorry
+    A.mulPieceRight x y = A.toChainGradedAlgebra.mul i (n : ℤ) x y := rfl
 
 /-- A homogeneous derivation preserves divided powers when
 `D (γ n x) = D x * γ (n - 1) x` on positive-even homogeneous inputs. -/
@@ -123,22 +135,22 @@ def IsSquareZero (d : A.Predifferential) : Prop :=
 
 end Predifferential
 
-/-- A closed divided-power-compatible derivation relative to a specified divided-power
-predifferential. -/
+/-- A closed divided-power-compatible derivation relative to a specified predifferential.
+The reference predifferential need not itself preserve divided powers. -/
 @[stacks 09PS "closed divided-power derivation on a graded algebra"]
 structure DPDerivation (A : DividedPowerGradedAlgebra.{u, v} R)
-    (d : A.Predifferential) (k : ℤ) where
+    (d : ChainGradedAlgebra.Predifferential A.toChainGradedAlgebra) (k : ℤ) where
   /-- The underlying degree-`k` graded derivation. -/
   toDerivation : Derivation A.toChainGradedAlgebra k
   /-- The derivation is closed under the specified predifferential. -/
-  isClosed : ChainGradedAlgebra.Derivation.IsClosed toDerivation d.toPredifferential
+  isClosed : ChainGradedAlgebra.Derivation.IsClosed toDerivation d
   /-- The derivation preserves the divided powers. -/
   preservesDP : A.PreservesDP toDerivation
 
 namespace DPDerivation
 
 variable {A : DividedPowerGradedAlgebra.{u, v} R}
-variable {d : A.Predifferential} {k : ℤ}
+variable {d : ChainGradedAlgebra.Predifferential A.toChainGradedAlgebra} {k : ℤ}
 
 /-- A divided-power derivation acts on homogeneous elements. -/
 instance instCoeFun : CoeFun (A.DPDerivation d k) (fun _ ↦ ∀ i : ℤ,
@@ -151,10 +163,18 @@ theorem coe_apply (D : A.DPDerivation d k) (i : ℤ)
     (x : A.toChainGradedAlgebra.X i) :
     D i x = D.toDerivation i x := sorry
 
+/-- The underlying derivation determines a divided-power derivation. -/
+theorem ext_toDerivation {D E : A.DPDerivation d k}
+    (h : D.toDerivation = E.toDerivation) : D = E := by
+  cases D
+  cases E
+  cases h
+  rfl
+
 /-- The square of a divided-power-compatible predifferential is a closed degree-`-2`
 divided-power derivation. -/
 @[stacks 09PS "square of a lifted divided-power predifferential"]
-def square (d : A.Predifferential) : A.DPDerivation d (-2) where
+def square (d : A.Predifferential) : A.DPDerivation d.toPredifferential (-2) where
   toDerivation := ChainGradedAlgebra.Predifferential.square d.toPredifferential
   isClosed := ChainGradedAlgebra.Predifferential.square_isClosed d.toPredifferential
   preservesDP := PreservesDP.square d.toPredifferential d.preservesDP

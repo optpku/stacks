@@ -6,7 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import Mathlib.CategoryTheory.ObjectProperty.FullSubcategory
+public import ReasLib.Algebra.Category.CommRingCat.Under.ModuleValuedFunctor.AdequateCategory
 public import stacks_project.Chap46.Definition_46_3_2
 public import stacks_project.Chap46.Lemma_46_3_6_TensorExtension
 
@@ -16,18 +16,10 @@ open CategoryTheory
 
 universe u
 
-namespace ModuleValuedFunctor
+/- The category of adequate module-valued functors on `Alg_A`. -/
+#check (ModuleValuedFunctor.Adeq : CommRingCat.{u} → Type _)
 
-/-- The full category of adequate module-valued functors on `Alg_A`. -/
-abbrev Adeq (A : CommRingCat.{u}) :=
-  ObjectProperty.FullSubcategory (Adequate (tensorExtension A))
-
-namespace Adeq
-
-/-- Every object of `ModuleValuedFunctor.Adeq A` is adequate. -/
-theorem adequate {A : CommRingCat.{u}} (F : Adeq A) :
-    Adequate (tensorExtension A) F.obj := sorry
-
-end Adeq
-
-end ModuleValuedFunctor
+/- Objects of the adequate category satisfy the original adequacy predicate. -/
+#check (ModuleValuedFunctor.Adeq.adequate :
+  ∀ {A : CommRingCat.{u}} (F : ModuleValuedFunctor.Adeq A),
+    ModuleValuedFunctor.Adequate (ModuleValuedFunctor.tensorExtension A) F.obj)

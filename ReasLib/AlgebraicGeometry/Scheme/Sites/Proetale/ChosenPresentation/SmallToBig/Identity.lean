@@ -10,6 +10,7 @@ public import ReasLib.AlgebraicGeometry.Scheme.Sites.Proetale.ChosenPresentation
 public import ReasLib.CategoryTheory.Sites.MorphismOfSites
 public import ReasLib.CategoryTheory.Sites.FullyFaithful
 public import Mathlib.CategoryTheory.Whiskering
+public import Mathlib.CategoryTheory.Adjunction.Triple
 
 /-!
 # Identity-base pro-étale relocalization
@@ -87,6 +88,35 @@ theorem morphismOfTopoi_id_inverseImage_eq_siteMorphismOfTopoi_pushforward
     [HasSheafify (smallTopology X S) (Type w)] :
     (morphismOfTopoi (𝟙 S))⁻¹ = (siteMorphismOfTopoi X S).pushforward := rfl
 
+/-- The unit for identity-base relocalization is invertible, by the adjoint
+triple and the fully faithful right Kan extension counit. -/
+theorem relocalizationFunctor_id_sheafAdjunctionContinuous_unit_isIso
+    [UnivLE.{max u v, w}]
+    [HasWeakSheafify (bigTopology X S) (Type w)] :
+    IsIso (lowerShriekAdjunction (𝟙 S)).unit := by
+  letI := relocalizationFunctor_isContinuous (𝟙 S)
+  letI := relocalizationFunctor_isCocontinuous (𝟙 S)
+  letI := relocalizationFunctor_op_hasPointwiseRightKanExtension (𝟙 S)
+  letI := (relocalizationFunctor_id_fullyFaithful X S).full
+  letI := (relocalizationFunctor_id_fullyFaithful X S).faithful
+  let t : Adjunction.Triple _ _ _ :=
+    ⟨lowerShriekAdjunction (𝟙 S),
+      (relocalizationFunctor (𝟙 S)).sheafAdjunctionCocontinuous (Type w)
+        (smallTopology X S) (bigTopology X S)⟩
+  letI : ∀ P : (smallSite X S)ᵒᵖ ⥤ Type w,
+      (relocalizationFunctor (𝟙 S)).op.HasRightKanExtension P := fun P ↦ inferInstance
+  letI : ∀ F : Sheaf (smallTopology X S) (Type w), IsIso (t.adj₂.counit.app F) := by
+    intro F
+    letI : IsIso ((sheafToPresheaf (smallTopology X S) (Type w)).map
+        (t.adj₂.counit.app F)) := by
+      change IsIso (((relocalizationFunctor (𝟙 S)).sheafAdjunctionCocontinuous
+        (Type w) (smallTopology X S) (bigTopology X S)).counit.app F).hom
+      rw [Functor.sheafAdjunctionCocontinuous_counit_app_hom,
+      Functor.ranAdjunction_counit]
+      exact Functor.instIsIsoAppRanCounit_1 (L := (relocalizationFunctor (𝟙 S)).op) (F := F.obj)
+    exact isIso_of_reflects_iso _ (sheafToPresheaf (smallTopology X S) (Type w))
+  exact t.isIso_unit_iff_isIso_counit.mpr (NatIso.isIso_of_isIso_app _)
+
 /-- The composite of the small-site inclusion morphism and identity-base
 relocalization has inverse image canonically isomorphic to the identity. -/
 def siteMorphismOfTopoi_comp_morphismOfTopoi_id_iso
@@ -98,14 +128,7 @@ def siteMorphismOfTopoi_comp_morphismOfTopoi_id_iso
       (MorphismOfTopoiIn.id (smallTopology X S))⁻¹ :=
   (@asIso _ _ _ _
     (lowerShriekAdjunction (𝟙 S)).unit
-    (@Functor.FullyFaithful.sheafAdjunctionContinuous_unit_isIso _ _ _ _
-      (smallTopology X S) (bigTopology X S) (relocalizationFunctor (𝟙 S))
-      (Type w) _ (relocalizationFunctor_id_fullyFaithful X S)
-      (relocalizationFunctor_isContinuous (𝟙 S))
-      (relocalizationFunctor_isCocontinuous (𝟙 S)) inferInstance inferInstance
-      (relocalizationFunctor_op_hasLeftKanExtension (𝟙 S))
-      (relocalizationFunctor_op_hasPointwiseLeftKanExtension (𝟙 S))
-      (relocalizationFunctor_op_hasPointwiseRightKanExtension (𝟙 S)))).symm
+    (relocalizationFunctor_id_sheafAdjunctionContinuous_unit_isIso X S)).symm
 
 /-- Direct image along the small-site inclusion morphism evaluates a big
 pro-étale sheaf on the relocalized small-site object. -/

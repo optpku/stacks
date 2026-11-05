@@ -12,8 +12,8 @@ import StacksCheckRecall
 /-!
 # Lemma 27.4.4 compatibility entry point
 
-The comparison between affine-local realizations and representing schemes is
-owned by ReasLib.
+The canonical comparison from the explicitly glued relative spectrum to schemes
+with specified representing points is owned by ReasLib.
 -/
 
 @[expose] public section
@@ -22,16 +22,26 @@ open CategoryTheory
 
 universe u
 
-/- Lemma 27.4.4: a realization and a scheme representing the relative-spectrum functor are
-isomorphic over the base. -/
+/- Lemma 27.4.4: the constructed relative spectrum and a scheme with a specified
+representing point are canonically isomorphic over the base. -/
 @[stacks 01LV] #check
   (AlgebraicGeometry.Scheme.nonempty_iso_over_of_realizesRelativeSpectrum_and_isRepresentedBy :
     {S : AlgebraicGeometry.Scheme.{u}} → (A : S.QcAlgebraUnder) →
-      {X Y : AlgebraicGeometry.Scheme.{u}} → {πX : X ⟶ S} →
-      AlgebraicGeometry.Scheme.realizesRelativeSpectrum A πX →
+      {Y : AlgebraicGeometry.Scheme.{u}} →
       (x : AlgebraicGeometry.Scheme.relativeSpectrumPair A Y) →
       (AlgebraicGeometry.Scheme.relativeSpectrumFunctor A).IsRepresentedBy x →
-      (Over.mk πX ≅ Over.mk x.1))
+      (Over.mk (AlgebraicGeometry.Scheme.relativeSpectrumOver A).π ≅ Over.mk x.1))
+
+/- The canonical comparison is determined by the constructed universal point. -/
+#check
+  (AlgebraicGeometry.Scheme.relativeSpectrumComparison_point :
+    {S : AlgebraicGeometry.Scheme.{u}} → (A : S.QcAlgebraUnder) →
+      {Y : AlgebraicGeometry.Scheme.{u}} →
+      (x : AlgebraicGeometry.Scheme.relativeSpectrumPair A Y) →
+      (hx : (AlgebraicGeometry.Scheme.relativeSpectrumFunctor A).IsRepresentedBy x) →
+      AlgebraicGeometry.Scheme.relativeSpectrumPairPullbackMap A
+          (AlgebraicGeometry.Scheme.relativeSpectrumComparison A x hx) x =
+        (AlgebraicGeometry.Scheme.relativeSpectrumOver A).point)
 
 #check
   (AlgebraicGeometry.Scheme.relativeSpectrumFunctor_isRepresentedBySpecGlobalSections :

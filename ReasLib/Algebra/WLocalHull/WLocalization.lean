@@ -33,8 +33,8 @@ noncomputable def Pattern.restrict (E₁ : Finset A) {E₂ : Finset A} (p : Patt
 /-- The specializing submonoid of a restricted pattern is contained in the
 specializing submonoid of the finer pattern. -/
 theorem specializingSubmonoid_mono {E₁ E₂ : Finset A} (hE : E₁ ⊆ E₂) (p : Pattern A E₂) :
-    specializingSubmonoid A (Pattern.restrict A E₁ p).elem (Pattern.restrict A E₁ p).span ≤
-      (specializingSubmonoid A p.elem p.span).comap (RingHom.id A) := by
+    Localization.specializingSubmonoid (Pattern.restrict A E₁ p).elem (Pattern.restrict A E₁ p).span ≤
+      (Localization.specializingSubmonoid p.elem p.span).comap (RingHom.id A) := by
   classical
   have span_le : (Pattern.restrict A E₁ p).span ≤ p.span := by
     apply Ideal.span_mono
@@ -62,19 +62,19 @@ theorem specializingSubmonoid_mono {E₁ E₂ : Finset A} (hE : E₁ ⊆ E₂) (
       (Ideal.Quotient.mk (Pattern.restrict A E₁ p).span (Pattern.restrict A E₁ p).elem)
       generator_isUnit
   intro element element_mem
-  change IsUnit (toStratumSections A p.elem p.span element)
-  change IsUnit (toStratumSections A (Pattern.restrict A E₁ p).elem
+  change IsUnit (Localization.toAwayQuotient p.elem p.span element)
+  change IsUnit (Localization.toAwayQuotient (Pattern.restrict A E₁ p).elem
     (Pattern.restrict A E₁ p).span element) at element_mem
-  simpa only [toStratumSections, RingHom.comp_apply, localizationMap,
+  simpa only [Localization.toAwayQuotient, RingHom.comp_apply, localizationMap,
     IsLocalization.Away.lift_eq, stratumMap, quotientMap, Ideal.Quotient.factor_mk] using
     element_mem.map localizationMap
 
 /-- The localization map induced by refinement of finite subsets and the
 identity ring homomorphism. -/
 noncomputable def specializingMap {E₁ E₂ : Finset A} (hE : E₁ ⊆ E₂) (p : Pattern A E₂) :
-    specializingLocalization A (Pattern.restrict A E₁ p).elem (Pattern.restrict A E₁ p).span →+*
-      specializingLocalization A p.elem p.span :=
-  IsLocalization.map (specializingLocalization A p.elem p.span) (RingHom.id A)
+    Localization.specializing (Pattern.restrict A E₁ p).elem (Pattern.restrict A E₁ p).span →+*
+      Localization.specializing p.elem p.span :=
+  IsLocalization.map (Localization.specializing p.elem p.span) (RingHom.id A)
     (specializingSubmonoid_mono A hE p)
 
 /-- The transition ring homomorphism between finite-stage algebras for

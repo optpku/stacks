@@ -57,10 +57,13 @@ theorem padicInteger_tensor_self_moretBaillyIdempotent_isIdempotent
     [Invertible (2 : ℤ_[p])] (u : ℤ_[p]ˣ) (hu : (u : ℤ_[p]) ^ 2 = 1 + p) :
     IsIdempotentElem (padicInteger_tensor_self_moretBaillyIdempotent p u) := sorry
 
-/-- Moret-Bailly's tensor-square idempotent is nonzero. -/
+/-- Moret-Bailly's tensor-square idempotent is nonzero for `3 < p`.
+For `p = 3`, the square roots of `1 + p` are `±2`, and the displayed element is zero
+by the balancing relation over `ℤ`. For `3 < p`, `1 + p` is not a rational square. -/
 @[stacks 0FWU "nonvanishing of the Moret-Bailly idempotent"]
 theorem padicInteger_tensor_self_moretBaillyIdempotent_ne_zero
-    [Invertible (2 : ℤ_[p])] (u : ℤ_[p]ˣ) (hu : (u : ℤ_[p]) ^ 2 = 1 + p) :
+    [Invertible (2 : ℤ_[p])] (hp : 3 < p) (u : ℤ_[p]ˣ)
+    (hu : (u : ℤ_[p]) ^ 2 = 1 + p) :
     padicInteger_tensor_self_moretBaillyIdempotent p u ≠ 0 := sorry
 
 /-- Moret-Bailly's tensor-square idempotent is not one. -/
@@ -70,7 +73,8 @@ theorem padicInteger_tensor_self_moretBaillyIdempotent_ne_one
     padicInteger_tensor_self_moretBaillyIdempotent p u ≠ 1 := sorry
 
 /-- Example 15.11.14 (Moret-Bailly) (0FWU) (2): for odd primes `p`, the tensor square
-`ℤ_[p] ⊗[ℤ] ℤ_[p]` has a nontrivial idempotent. -/
+`ℤ_[p] ⊗[ℤ] ℤ_[p]` has a nontrivial idempotent.
+At `p = 3`, use a square root of `7` in the tensor-square formula instead of `1 + p`. -/
 @[stacks 0FWU "(2), explicit nontrivial idempotent"]
 theorem padicInteger_tensor_self_exists_nontrivial_idempotent_of_two_lt
     (hp_odd : 2 < p) :

@@ -35,18 +35,18 @@ theorem tensorInvertible_support_le
 /-- Tensor a bounded coherent module with an invertible module, retaining the same support
 bound. -/
 noncomputable def tensorInvertible
-    {X : Scheme.{u}} [IsLocallyNoetherian X] (d : X → ℤ) (n : ℤ)
+    {X : Scheme.{u}} (d : X → ℤ) (n : ℤ)
     (F : CohLE X.toRingedSpace d n) (L : X.Modules) [Scheme.Modules.Invertible L] :
     CohLE X.toRingedSpace d n :=
   ⟨⟨F.obj.obj ⊗ L,
-      @Scheme.Modules.isCoherent_tensor X F.obj.obj L inferInstance F.obj.property
-        (Scheme.Modules.isCoherent_of_isInvertible L)⟩,
+      @Scheme.Modules.isCoherent_tensor_of_isInvertible X F.obj.obj L F.obj.property
+        inferInstance⟩,
     (Coh.supportDimensionLE_iff d n _).2 (tensorInvertible_support_le d n F L)⟩
 
 /-- The module underlying an invertible tensor twist is the indicated tensor product. -/
 theorem tensorInvertible_obj
-    {X : Scheme.{u}} [IsLocallyNoetherian X] (d : X → ℤ) (n : ℤ)
+    {X : Scheme.{u}} (d : X → ℤ) (n : ℤ)
     (F : CohLE X.toRingedSpace d n) (L : X.Modules) [Scheme.Modules.Invertible L] :
-    (tensorInvertible d n F L).obj.obj = F.obj.obj ⊗ L := sorry
+    (tensorInvertible d n F L).obj.obj = F.obj.obj ⊗ L := rfl
 
 end AlgebraicGeometry.RingedSpace.CohLE

@@ -10,6 +10,9 @@ public import Mathlib.Tactic.CrossRefAttribute
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.ClosedImmersion
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.ClosedImmersion.Topos
 public import ReasLib.CategoryTheory.Adjunction.FullyFaithful
+public import Mathlib.CategoryTheory.Adjunction.Whiskering
+public import Mathlib.CategoryTheory.Adjunction.Opposites
+public import ReasLib.Algebra.Category.ModuleCat.Sheaf.ChangeOfRings
 
 /-!
 # Module pushforward along a closed immersion of ringed spaces
@@ -40,24 +43,118 @@ variable {X Z : RingedSpace.{u}} (i : Z ⟶ X)
 theorem exact (hi : Topology.IsClosedEmbedding i.hom.base) :
     exactFunctor Z.Modules X.Modules (pushforward i) := sorry
 
-/-- Pushforward of module sheaves is fully faithful for a closed embedding with locally
-surjective structure-sheaf map. The explicit closed-embedding witness is installed only inside
-this specialization because the ringed-site result exposes its topos hypothesis as a class. -/
+/-- Precomposition on additive presheaves along the map on opens of an inducing map is
+fully faithful. Its inverse on morphisms uses the explicit trace-hull isomorphism. -/
+noncomputable def presheafPushforwardFullyFaithful
+    (hi : Topology.IsInducing i.hom.base) :
+    ((Functor.whiskeringLeft _ _ AddCommGrpCat.{u}).obj
+      (TopologicalSpace.Opens.map i.hom.base).op).FullyFaithful := by
+  let e : hi.functor.op ⋙ (TopologicalSpace.Opens.map i.hom.base).op ≅ 𝟭 _ :=
+    NatIso.ofComponents (fun U ↦
+      eqToIso (congrArg op (hi.map_functorObj U.unop)))
+  let unitIso (M : (TopologicalSpace.Opens Z)ᵒᵖ ⥤ AddCommGrpCat.{u}) :
+      M ≅ (hi.functor.op ⋙ (TopologicalSpace.Opens.map i.hom.base).op) ⋙ M :=
+    (Functor.isoWhiskerRight e M).symm
+  let adj := (hi.adjunction.op).whiskerLeft AddCommGrpCat.{u}
+  have hunit (M : (TopologicalSpace.Opens Z)ᵒᵖ ⥤ AddCommGrpCat.{u}) :
+      (unitIso M).hom = adj.unit.app M := by
+    apply NatTrans.ext
+    funext U
+    change M.map _ = M.map _
+    congr 1
+  letI : IsIso adj.unit := by
+    rw [NatTrans.isIso_iff_isIso_app]
+    intro M
+    rw [← hunit M]
+    infer_instance
+  refine
+    { preimage := fun {M N} f ↦ adj.homEquiv M _ f ≫ (unitIso N).inv
+      map_preimage := ?_
+      preimage_map := ?_ }
+  · intro M N f
+    have heq : (unitIso N).inv = inv (adj.unit.app N) := by
+      apply IsIso.eq_inv_of_hom_inv_id (f := adj.unit.app N)
+      rw [← hunit N]
+      exact (unitIso N).hom_inv_id
+    rw [heq]
+    exact adj.fullyFaithfulLOfIsIsoUnit.map_preimage f
+  · intro M N f
+    have heq : (unitIso N).inv = inv (adj.unit.app N) := by
+      apply IsIso.eq_inv_of_hom_inv_id (f := adj.unit.app N)
+      rw [← hunit N]
+      exact (unitIso N).hom_inv_id
+    rw [heq]
+    exact adj.fullyFaithfulLOfIsIsoUnit.preimage_map f
+
+/-- Recover the additive presheaf morphism on each open of the source by using its
+largest ambient open extension. -/
+noncomputable def pushforwardPreimageAdditive
+    (hi : Topology.IsInducing i.hom.base) {F G : Z.Modules}
+    (f : (pushforward i).obj F ⟶ (pushforward i).obj G) :
+    F.val.presheaf ⟶ G.val.presheaf :=
+  (presheafPushforwardFullyFaithful i hi).preimage ((PresheafOfModules.toPresheaf _).map f.val)
+
+/-- The recovered additive morphism pushes forward to the given morphism. -/
+theorem pushforwardPreimageAdditive_map
+    (hi : Topology.IsInducing i.hom.base) {F G : Z.Modules}
+    (f : (pushforward i).obj F ⟶ (pushforward i).obj G) :
+    Functor.whiskerLeft (TopologicalSpace.Opens.map i.hom.base).op (pushforwardPreimageAdditive i hi f) =
+    (PresheafOfModules.toPresheaf _).map f.val :=
+  (presheafPushforwardFullyFaithful i hi).map_preimage _
+
+/-- Local surjectivity of the structure map makes the recovered additive morphism linear. -/
+theorem pushforwardPreimageAdditive_smul
+    (hi : Topology.IsInducing i.hom.base)
+    [Sheaf.IsLocallySurjective (RingedSpace.Hom.commRingSheafPushforwardMap i)]
+    {F G : Z.Modules} (f : (pushforward i).obj F ⟶ (pushforward i).obj G)
+    (U : (TopologicalSpace.Opens Z)ᵒᵖ) (r : Z.ringCatSheaf.obj.obj U) (m : F.val.obj U) :
+    (pushforwardPreimageAdditive i hi f).app U (r • m) = r • (pushforwardPreimageAdditive i hi f).app U m := by
+  letI : Sheaf.IsLocallySurjective (RingedSpace.Hom.toRingCatSheafHom i) :=
+    ⟨fun s ↦ Presheaf.imageSieve_mem _
+      (RingedSpace.Hom.commRingSheafPushforwardMap i).hom s⟩
+  let M := (PresheafOfModules.pushforward
+      (F := TopologicalSpace.Opens.map i.hom.base) (𝟙 _)).obj F.val
+  let N := (PresheafOfModules.pushforward
+      (F := TopologicalSpace.Opens.map i.hom.base) (𝟙 _)).obj G.val
+  let f' : M ⟶ N :=
+    (PresheafOfModules.restrictHomEquivOfIsLocallySurjective
+      (RingedSpace.Hom.toRingCatSheafHom i).hom
+        ((pushforward i).obj G).isSheaf).symm f.val
+  have linear (V : (TopologicalSpace.Opens X)ᵒᵖ) :
+      ∀ (r : Z.ringCatSheaf.obj.obj ((TopologicalSpace.Opens.map i.hom.base).op.obj V))
+        (m : F.val.obj ((TopologicalSpace.Opens.map i.hom.base).op.obj V)),
+      (pushforwardPreimageAdditive i hi f).app ((TopologicalSpace.Opens.map i.hom.base).op.obj V) (r • m) =
+        r • (pushforwardPreimageAdditive i hi f).app ((TopologicalSpace.Opens.map i.hom.base).op.obj V) m := by
+    intro r m
+    have h := congrArg (fun t => t.app V) (pushforwardPreimageAdditive_map i hi f)
+    change (pushforwardPreimageAdditive i hi f).app ((TopologicalSpace.Opens.map i.hom.base).op.obj V) = _ at h
+    rw [h]
+    exact (f'.app V).hom.map_smul r m
+  have hU : (TopologicalSpace.Opens.map i.hom.base).op.obj
+      (op (hi.functor.obj U.unop)) = U :=
+    congrArg op (hi.map_functorObj U.unop)
+  have h := linear (op (hi.functor.obj U.unop))
+  rw [hU] at h
+  exact h r m
+
+/-- The explicit inverse on Hom sets for module pushforward along a closed embedding with
+locally surjective structure-sheaf map. -/
 @[stacks 08KS "(2)"]
 noncomputable def fullyFaithful
     (hi : Topology.IsClosedEmbedding i.hom.base)
     [Sheaf.IsLocallySurjective (RingedSpace.Hom.commRingSheafPushforwardMap i)] :
-    (pushforward i).FullyFaithful :=
-  -- Local instance justification (proof-local temporary data): `hi` is an explicit witness for
-  -- this specialization, while the generic ringed-topos theorem consumes the same Prop as a class.
-  letI : CategoryTheory.MorphismOfTopoiIn.IsClosedImmersion
-      (RingedSpace.opensMorphismOfTopoi i) :=
-    RingedSpace.Hom.ClosedImmersion.of_isClosedEmbedding i hi
-  -- Local instance justification (proof-local temporary data): the generic ringed-site theorem consumes the explicit epimorphy theorem through typeclass syntax.
-  letI : Epi (RingedSpace.opensRingedSiteHom i).structureSheafMap :=
-    RingedSpace.Hom.ClosedImmersion.structureSheafMap_epi i
-  _root_.RingedSite.Hom.ModulePushforward.fullyFaithful_of_closedImmersion_of_epi
-    (RingedSpace.opensRingedSiteHom i)
+    (pushforward i).FullyFaithful where
+  preimage f :=
+    ⟨PresheafOfModules.homMk (pushforwardPreimageAdditive i hi.isInducing f)
+      (pushforwardPreimageAdditive_smul i hi.isInducing f)⟩
+  map_preimage f := by
+    ext U m
+    exact congrArg (fun t => t.app U m) (pushforwardPreimageAdditive_map i hi.isInducing f)
+  preimage_map f := by
+    apply (SheafOfModules.fullyFaithfulForget _).map_injective
+    apply (PresheafOfModules.toPresheaf _).map_injective
+    change pushforwardPreimageAdditive i hi.isInducing ((pushforward i).map f) = (PresheafOfModules.toPresheaf _).map f.val
+    exact (presheafPushforwardFullyFaithful i hi.isInducing).preimage_map ((PresheafOfModules.toPresheaf _).map f.val)
 
 /-- The counit of pullback followed by pushforward is invertible for a closed embedding with
 locally surjective structure-sheaf map. -/
@@ -65,7 +162,10 @@ theorem counitAppIsIso
     (hi : Topology.IsClosedEmbedding i.hom.base)
     [Sheaf.IsLocallySurjective (RingedSpace.Hom.commRingSheafPushforwardMap i)]
     (F : Z.Modules) :
-    IsIso ((RingedSpace.Hom.pullbackPushforwardAdjunction i).counit.app F) := sorry
+    IsIso ((RingedSpace.Hom.pullbackPushforwardAdjunction i).counit.app F) := by
+  letI := (fullyFaithful i hi).full
+  letI := (fullyFaithful i hi).faithful
+  infer_instance
 
 /-- The essential image of module pushforward consists exactly of modules annihilated by the
 kernel of the structure-sheaf map. -/
@@ -113,6 +213,8 @@ theorem pushforwardExact [RingedSpace.IsClosedImmersion i] :
 ringed spaces. -/
 noncomputable def pushforwardFullyFaithful [RingedSpace.IsClosedImmersion i] :
     (pushforward i).FullyFaithful :=
+  letI : Sheaf.IsLocallySurjective (RingedSpace.Hom.commRingSheafPushforwardMap i) :=
+    RingedSpace.IsClosedImmersion.toIsLocallySurjective (i := i)
   RingedSpace.Hom.ModulePushforward.ClosedImmersion.fullyFaithful i
     (RingedSpace.IsClosedImmersion.isClosedEmbedding (i := i))
 
@@ -127,7 +229,7 @@ noncomputable def pushforwardHomEquiv [RingedSpace.IsClosedImmersion i]
 @[simp]
 theorem pushforwardHomEquiv_apply [RingedSpace.IsClosedImmersion i]
     (F G : Z.Modules) (f : F ⟶ G) :
-    pushforwardHomEquiv (i := i) F G f = (pushforward i).map f := sorry
+    pushforwardHomEquiv (i := i) F G f = (pushforward i).map f := rfl
 
 /-- Module pushforward along a closed immersion is also a left adjoint, hence preserves all
 small colimits. -/

@@ -7,6 +7,7 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import Mathlib.Algebra.Homology.Localization
+public import Mathlib.Algebra.Homology.BifunctorHomotopy
 public import Mathlib.CategoryTheory.Localization.Monoidal.Braided
 public import ReasLib.Algebra.Homology.CochainComplex.Monoidal.Symmetric
 
@@ -58,15 +59,43 @@ abbrev TensorDescends : Prop :=
   (HomologicalComplex.homotopyEquivalences C (up ℤ) :
     MorphismProperty (CochainComplex C ℤ)).IsMonoidal
 
+omit [HasBinaryBiproducts C] [SymmetricCategory C] in
 /-- Homotopy equivalences of cochain complexes are closed under identities, composition, and
 tensoring on either side. -/
 @[stacks 0FP8 "homotopy equivalences are monoidal"]
-theorem homotopyEquivalencesIsMonoidal : TensorDescends (C := C) := sorry
+theorem homotopyEquivalencesIsMonoidal : TensorDescends (C := C) := by
+  refine { toIsMultiplicative := ?_, whiskerLeft := ?_, whiskerRight := ?_ }
+  · exact
+      { id_mem := fun X ↦ ⟨HomotopyEquiv.refl X, rfl⟩
+        comp_mem := by
+          rintro X Y Z f g ⟨e, rfl⟩ ⟨e', rfl⟩
+          exact ⟨e.trans e', rfl⟩ }
+  · rintro X Y₁ Y₂ g ⟨e, rfl⟩
+    refine ⟨⟨X ◁ e.hom, X ◁ e.inv, ?_, ?_⟩, rfl⟩
+    · have h := HomologicalComplex.mapBifunctorMapHomotopy₂
+        (𝟙 X) e.homotopyHomInvId (curriedTensor C) (up ℤ)
+      change Homotopy (X ◁ (e.hom ≫ e.inv)) (X ◁ 𝟙 Y₁) at h
+      simpa only [whiskerLeft_comp, whiskerLeft_id] using h
+    · have h := HomologicalComplex.mapBifunctorMapHomotopy₂
+        (𝟙 X) e.homotopyInvHomId (curriedTensor C) (up ℤ)
+      change Homotopy (X ◁ (e.inv ≫ e.hom)) (X ◁ 𝟙 Y₂) at h
+      simpa only [whiskerLeft_comp, whiskerLeft_id] using h
+  · rintro X₁ X₂ f ⟨e, rfl⟩ Y
+    refine ⟨⟨e.hom ▷ Y, e.inv ▷ Y, ?_, ?_⟩, rfl⟩
+    · have h := HomologicalComplex.mapBifunctorMapHomotopy₁
+        e.homotopyHomInvId (𝟙 Y) (curriedTensor C) (up ℤ)
+      change Homotopy ((e.hom ≫ e.inv) ▷ Y) (𝟙 X₁ ▷ Y) at h
+      simpa only [comp_whiskerRight, id_whiskerRight] using h
+    · have h := HomologicalComplex.mapBifunctorMapHomotopy₁
+        e.homotopyInvHomId (𝟙 Y) (curriedTensor C) (up ℤ)
+      change Homotopy ((e.inv ≫ e.hom) ▷ Y) (𝟙 X₂ ▷ Y) at h
+      simpa only [comp_whiskerRight, id_whiskerRight] using h
 
 /-- The canonical tensor-descends fact supplies the localization instances for the homotopy
 category. -/
 @[stacks 0FP8 "canonical tensor-descends instance"]
-instance tensorDescends : TensorDescends (C := C) := sorry
+instance tensorDescends : TensorDescends (C := C) :=
+  homotopyEquivalencesIsMonoidal
 
 section Descends
 

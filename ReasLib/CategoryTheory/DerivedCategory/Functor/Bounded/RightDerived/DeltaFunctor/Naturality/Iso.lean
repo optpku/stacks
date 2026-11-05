@@ -94,35 +94,50 @@ namespace cohomological
 induces an isomorphism of their cohomological delta functors. -/
 @[stacks 05TE "isomorphism of bounded-below right-derived cohomological delta functors"]
 noncomputable def mapIso
+    (F G : A ⥤ B) [F.Additive] [G.Additive]
     {RF RG : DerivedCategory.Plus A ⥤ DerivedCategory.Plus B}
     [RF.CommShift ℤ] [RF.IsTriangulated]
     [RG.CommShift ℤ] [RG.IsTriangulated]
+    (α : F.toBoundedBelowDerived ⟶ DerivedCategory.Plus.Qh ⋙ RF)
+    (β : G.toBoundedBelowDerived ⟶ DerivedCategory.Plus.Qh ⋙ RG)
+    [RF.IsRightDerivedFunctor α (HomotopyCategory.Plus.quasiIso A)]
+    [RG.IsRightDerivedFunctor β (HomotopyCategory.Plus.quasiIso A)]
     (e : RF ≅ RG) [NatTrans.CommShift e.hom ℤ] :
-    CohomologicalDeltaFunctor.HomIso (RightDerived.cohomological RF)
-      (RightDerived.cohomological RG) :=
+    CohomologicalDeltaFunctor.HomIso (RightDerived.cohomological RF F α)
+      (RightDerived.cohomological RG G β) :=
   DeltaFunctor.toCohomologicalDeltaFunctor.mapIso
     (DerivedCategory.homologyFunctor B 0) (delta.mapIso e)
-    (RightDerived.delta_hneg RF) (RightDerived.delta_hneg RG)
+    (RightDerived.delta_hneg RF F α) (RightDerived.delta_hneg RG G β)
 
 /-- The forward morphism of the cohomological model isomorphism is
 cohomological naturality for the forward model transformation. -/
 @[simp]
 theorem mapIso_hom
+    (F G : A ⥤ B) [F.Additive] [G.Additive]
     {RF RG : DerivedCategory.Plus A ⥤ DerivedCategory.Plus B}
     [RF.CommShift ℤ] [RF.IsTriangulated]
     [RG.CommShift ℤ] [RG.IsTriangulated]
+    (α : F.toBoundedBelowDerived ⟶ DerivedCategory.Plus.Qh ⋙ RF)
+    (β : G.toBoundedBelowDerived ⟶ DerivedCategory.Plus.Qh ⋙ RG)
+    [RF.IsRightDerivedFunctor α (HomotopyCategory.Plus.quasiIso A)]
+    [RG.IsRightDerivedFunctor β (HomotopyCategory.Plus.quasiIso A)]
     (e : RF ≅ RG) [NatTrans.CommShift e.hom ℤ] :
-    (mapIso e).hom = map e.hom := sorry
+    (mapIso F G α β e).hom = map F G α β e.hom := sorry
 
 /-- The inverse morphism of the cohomological model isomorphism is
 cohomological naturality for the inverse model transformation. -/
 @[simp]
 theorem mapIso_inv
+    (F G : A ⥤ B) [F.Additive] [G.Additive]
     {RF RG : DerivedCategory.Plus A ⥤ DerivedCategory.Plus B}
     [RF.CommShift ℤ] [RF.IsTriangulated]
     [RG.CommShift ℤ] [RG.IsTriangulated]
+    (α : F.toBoundedBelowDerived ⟶ DerivedCategory.Plus.Qh ⋙ RF)
+    (β : G.toBoundedBelowDerived ⟶ DerivedCategory.Plus.Qh ⋙ RG)
+    [RF.IsRightDerivedFunctor α (HomotopyCategory.Plus.quasiIso A)]
+    [RG.IsRightDerivedFunctor β (HomotopyCategory.Plus.quasiIso A)]
     (e : RF ≅ RG) [NatTrans.CommShift e.hom ℤ] :
-    (mapIso e).inv = map e.inv := sorry
+    (mapIso F G α β e).inv = map G F β α e.inv := sorry
 
 end cohomological
 

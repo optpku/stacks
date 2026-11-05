@@ -16,6 +16,17 @@ noncomputable section
 universe u
 
 namespace GeometricCharacterEndpoint
+
+private theorem character_map_left_inv
+    {S : Type*} [Ring S] {V W : ModuleCat S} (e : V ≅ W)
+    (χ : ActualOppositeCharacter.Carrier W) :
+    ActualOppositeCharacter.map S W e.inv.hom
+      (ActualOppositeCharacter.map S V e.hom.hom χ) = χ := by
+  apply AddMonoidHom.ext
+  intro x
+  change χ (e.hom (e.inv x)) = χ x
+  exact congrArg (fun y ↦ χ y) (e.inv_hom_id_apply x)
+
 variable {k : Type u} [Field k]
 variable (R : Type (u + 1)) [Ring R] [Finite R]
 variable (X : SchemeOverField k) [Curve X] [Smooth X.hom] [GeometricallyConnected X.hom]
@@ -82,13 +93,47 @@ def positiveEquiv (i : ℕ) :
   exact ep.toLinearEquiv.trans
     { toFun := fun χ ↦ ActualOppositeCharacter.map Rᵐᵒᵖ _ (inputIso R X η hR M i).hom.hom.hom.hom χ
       invFun := fun χ ↦ ActualOppositeCharacter.map Rᵐᵒᵖ _ (inputIso R X η hR M i).inv.hom.hom.hom χ
-      left_inv := by sorry
-      right_inv := by sorry
-      map_add' := by sorry
+      left_inv := by
+        intro χ
+        let forget := (openStabilizer Rᵐᵒᵖ Gal(AlgebraicClosure k/k)).ι ⋙
+          Action.forget (ModuleCat Rᵐᵒᵖ) Gal(AlgebraicClosure k/k)
+        exact character_map_left_inv (forget.mapIso (inputIso R X η hR M i)) χ
+      right_inv := by
+        intro χ
+        let forget := (openStabilizer Rᵐᵒᵖ Gal(AlgebraicClosure k/k)).ι ⋙
+          Action.forget (ModuleCat Rᵐᵒᵖ) Gal(AlgebraicClosure k/k)
+        exact character_map_left_inv (forget.mapIso (inputIso R X η hR M i)).symm χ
+      map_add' := by intros; rfl
       map_smul' := by sorry }
 
-theorem source_negative_zero (i : ℤ) (hi : i < 0) : IsZero ((source R X η hR M).X i) := by sorry
-theorem target_negative_zero (i : ℤ) (hi : i < 0) : IsZero ((target R X η hR M).X i) := by sorry
+theorem source_negative_zero (i : ℤ) (hi : i < 0) : IsZero ((source R X η hR M).X i) := by
+  letI := GeometricProjectiveChain.term_finite R X η hR M
+  exact (NoncommCompletedTransport.doubleOppositeModules R (G := Gal(AlgebraicClosure k/k))).map_isZero
+    ((NoncommPointwiseCompletedAction.functor Rᵐᵒᵖᵐᵒᵖ Gal(AlgebraicClosure k/k)).map_isZero
+      (CochainComplex.isZero_of_isStrictlyGE
+        ((FieldCharacterCochain.complex k (B R X η hR M)).extend ComplexShape.embeddingUpNat)
+        0 i hi))
+
+theorem target_negative_zero (i : ℤ) (hi : i < 0) : IsZero ((target R X η hR M).X i) := by
+  have hzero := (B R X η hR M).isZero_extend_X
+    CompactRepresentation.curveDegreeEmbedding (2 - i) (by
+      intro n
+      change 2 - (n : ℤ) ≠ 2 - i
+      omega)
+  rw [GeometricProjectiveChain.extend_eq] at hzero
+  let forget := (openStabilizer Rᵐᵒᵖ Gal(AlgebraicClosure k/k)).ι ⋙
+    Action.forget (ModuleCat Rᵐᵒᵖ) Gal(AlgebraicClosure k/k)
+  letI : Subsingleton
+      ((NoncommGeometricFiniteModel.projectiveCochain R X η hR M).X (2 - i)).obj.V :=
+    ModuleCat.subsingleton_of_isZero (forget.map_isZero hzero)
+  letI : Subsingleton ((target R X η hR M).X i) := by
+    change Subsingleton (CharacterModule
+      ((NoncommGeometricFiniteModel.projectiveCochain R X η hR M).X (2 - i)).obj.V)
+    refine ⟨fun χ ψ ↦ ?_⟩
+    apply AddMonoidHom.ext
+    intro x
+    rw [Subsingleton.elim x 0, map_zero, map_zero]
+  exact ModuleCat.isZero_of_subsingleton _
 
 /-- Positive degrees use character precomposition through the actual degree
 iso. Only genuinely out-of-support degrees use zero-object comparisons. -/

@@ -84,14 +84,74 @@ theorem effectivePushforward_apply {X X' S : Scheme.{u}} (fX : X ⟶ S)
       pushforward fX' i hc (α : fX.FiberCycleFamily r) :=
   rfl
 
+/-- Pulling back coefficients along a thickening preserves nonnegativity. -/
+theorem isEffective_thickeningInverse {X X' S : Scheme.{u}}
+    (fX : X ⟶ S) (fX' : X' ⟶ S)
+    [LocallyOfFiniteType fX] [LocallyOfFiniteType fX'] (i : X ⟶ X')
+    [IsThickening i] (hc : i ≫ fX' = fX) (r : ℕ)
+    (α : fX'.FiberCycleFamily r) (hα : IsEffective α) :
+    IsEffective (thickeningInverse fX fX' i hc r α) := by
+  apply (isEffective_iff _).mpr
+  intro s x
+  exact ((isEffective_iff _).mp hα) s (pushforwardFiberMap fX fX' i hc s x)
+
+/-- Effective thickening pushforward with its explicit coefficient inverse. -/
+def effectiveThickeningEquiv {X X' S : Scheme.{u}} (fX : X ⟶ S) (fX' : X' ⟶ S)
+    [IsLocallyNoetherian S] [LocallyOfFiniteType fX] [LocallyOfFiniteType fX']
+    (i : X ⟶ X') [IsThickening i] (hc : i ≫ fX' = fX) (r : ℕ) :
+    effective fX r ≃+ effective fX' r where
+  toFun := effectivePushforward fX fX' i hc r
+  invFun α := ⟨thickeningInverse fX fX' i hc r α.1,
+    isRelative_thickeningInverse fX fX' i hc r α.1 α.2.1,
+    isEffective_thickeningInverse fX fX' i hc r α.1 α.2.2⟩
+  left_inv α := Subtype.ext (thickeningInverse_pushforward fX fX' i hc r α.1)
+  right_inv α := Subtype.ext (pushforward_thickeningInverse fX fX' i hc r α.1)
+  map_add' := (effectivePushforward fX fX' i hc r).map_add
+
+/-- A sum of nonnegative coefficients over matching fibre points is nonnegative. -/
+theorem isEffective_baseChangeInverse {X S S' : Scheme.{u}}
+    (f : X ⟶ S) (g : S' ⟶ S) [LocallyOfFiniteType f]
+    (hg : Function.Bijective g) (hκ : ∀ s', IsIso (g.residueFieldMap s'))
+    (r : ℕ) (α : (pullback.snd f g).FiberCycleFamily r) (hα : IsEffective α) :
+    IsEffective (FamilyOfCyclesOnFibres.baseChangeInverse f g hg hκ r α) := by
+  classical
+  apply (isEffective_iff _).mpr
+  intro s x
+  change 0 ≤ FamilyOfCyclesOnFibres.baseChangeInverseCoeff f g r α s x
+  unfold FamilyOfCyclesOnFibres.baseChangeInverseCoeff
+  apply finsum_nonneg
+  intro p
+  split_ifs
+  · exact ((isEffective_iff _).mp hα) p.1 p.2
+  · exact le_rfl
+
+/-- Effective base change with an explicit inverse sum of matching coefficients. -/
+def effectiveBaseChangeEquiv {X S S' : Scheme.{u}} (f : X ⟶ S) (g : S' ⟶ S)
+    [IsLocallyNoetherian S] [IsLocallyNoetherian S'] [LocallyOfFiniteType f]
+    [UniversalHomeomorphism g]
+    (hκ : ∀ s', IsIso (g.residueFieldMap s')) (r : ℕ) :
+    effective f r ≃+ effective (pullback.snd f g) r where
+  toFun := effectiveBaseChange f g r
+  invFun α := ⟨FamilyOfCyclesOnFibres.baseChangeInverse f g g.isHomeomorph.bijective hκ r α.1,
+    isRelative_baseChangeInverse f g g.isHomeomorph.bijective hκ r α.1 α.2.1,
+    isEffective_baseChangeInverse f g g.isHomeomorph.bijective hκ r α.1 α.2.2⟩
+  left_inv α := Subtype.ext
+    (FamilyOfCyclesOnFibres.baseChangeInverse_baseChange f g g.isHomeomorph.bijective hκ r α.1)
+  right_inv α := Subtype.ext
+    (FamilyOfCyclesOnFibres.baseChange_baseChangeInverse f g g.isHomeomorph.bijective hκ r α.1)
+  map_add' := (effectiveBaseChange f g r).map_add
+
+
 /-- The inverse of pushforward along a thickening preserves effectiveness. -/
 theorem isEffective_of_isEffective_pushforward {X X' S : Scheme.{u}}
     (fX : X ⟶ S) (fX' : X' ⟶ S) [IsLocallyNoetherian S]
     [LocallyOfFiniteType fX] [LocallyOfFiniteType fX'] (i : X ⟶ X')
     [IsThickening i] (hc : i ≫ fX' = fX) {r : ℕ} {α : fX.FiberCycleFamily r}
     (hα : IsRelative α) :
-    IsEffective (pushforward fX' i hc α) → IsEffective α :=
-  sorry
+    IsEffective (pushforward fX' i hc α) → IsEffective α := by
+  intro h
+  have h' := isEffective_thickeningInverse fX fX' i hc r _ h
+  simpa only [thickeningInverse_pushforward] using h'
 
 /-- Pushforward of effective relative `r`-cycles along a thickening is
 bijective. -/
@@ -100,14 +160,15 @@ theorem effectivePushforward_bijective {X X' S : Scheme.{u}} (fX : X ⟶ S)
     [LocallyOfFiniteType fX'] (i : X ⟶ X') [IsThickening i]
     (hc : i ≫ fX' = fX) (r : ℕ) :
     Function.Bijective (effectivePushforward fX fX' i hc r) :=
-  sorry
+  (effectiveThickeningEquiv fX fX' i hc r).bijective
 
 /-- Base change of effective relative cycles along the reduction inclusion is
 bijective. -/
 theorem effectiveBaseChange_reductionι_bijective {X S : Scheme.{u}}
     (f : X ⟶ S) [IsLocallyNoetherian S] [LocallyOfFiniteType f] (r : ℕ) :
     Function.Bijective (effectiveBaseChange f (Scheme.reductionι S) r) :=
-  sorry
+  (effectiveBaseChangeEquiv f (Scheme.reductionι S)
+    (fun s' ↦ isIso_reductionι_residueFieldMap S s') r).bijective
 
 /-- Identification `z(X/S, r) ≃+ z(X_red / S_red, r)` of relative cycle groups,
 as base change along `reductionι` inverted through pushforward along the
@@ -115,16 +176,11 @@ thickening `reductionComparison`. -/
 def groupReductionEquiv {X S : Scheme.{u}} (f : X ⟶ S)
     [IsLocallyNoetherian S] [LocallyOfFiniteType f] (r : ℕ) :
     group f r ≃+ group (Scheme.reductionMap f) r :=
-  (AddEquiv.ofBijective (groupBaseChange f (Scheme.reductionι S) r)
-      (groupBaseChange_bijective f (Scheme.reductionι S)
-        (fun s' ↦ isIso_reductionι_residueFieldMap S s') r)).trans
-    (AddEquiv.ofBijective
-        (groupPushforward (Scheme.reductionMap f)
-          (pullback.snd f (Scheme.reductionι S))
-          (reductionComparison f) (reductionComparison_snd f) r)
-        (groupPushforward_bijective (Scheme.reductionMap f)
-          (pullback.snd f (Scheme.reductionι S))
-          (reductionComparison f) (reductionComparison_snd f) r)).symm
+  (groupBaseChangeEquiv f (Scheme.reductionι S)
+    (fun s' ↦ isIso_reductionι_residueFieldMap S s') r).trans
+    (groupThickeningEquiv (Scheme.reductionMap f)
+      (pullback.snd f (Scheme.reductionι S))
+      (reductionComparison f) (reductionComparison_snd f) r).symm
 
 /-- Pushforward along `reductionComparison` recovers base change along
 `reductionι` from `groupReductionEquiv`. -/
@@ -134,13 +190,9 @@ theorem groupReductionEquiv_apply {X S : Scheme.{u}} (f : X ⟶ S)
         (reductionComparison f) (reductionComparison_snd f) r
         (groupReductionEquiv f r α) =
       groupBaseChange f (Scheme.reductionι S) r α :=
-  by
-  exact (AddEquiv.ofBijective
-    (groupPushforward (Scheme.reductionMap f) (pullback.snd f (Scheme.reductionι S))
-      (reductionComparison f) (reductionComparison_snd f) r)
-    (groupPushforward_bijective (Scheme.reductionMap f)
-      (pullback.snd f (Scheme.reductionι S))
-      (reductionComparison f) (reductionComparison_snd f) r)).apply_symm_apply _
+  (groupThickeningEquiv (Scheme.reductionMap f)
+    (pullback.snd f (Scheme.reductionι S))
+    (reductionComparison f) (reductionComparison_snd f) r).apply_symm_apply _
 
 /-- Identification `z^{eff}(X/S, r) ≃+ z^{eff}(X_red / S_red, r)` of effective
 relative cycles, as effective base change along `reductionι` inverted through
@@ -148,15 +200,11 @@ effective pushforward along the thickening `reductionComparison`. -/
 def effectiveReductionEquiv {X S : Scheme.{u}} (f : X ⟶ S)
     [IsLocallyNoetherian S] [LocallyOfFiniteType f] (r : ℕ) :
     effective f r ≃+ effective (Scheme.reductionMap f) r :=
-  (AddEquiv.ofBijective (effectiveBaseChange f (Scheme.reductionι S) r)
-      (effectiveBaseChange_reductionι_bijective f r)).trans
-    (AddEquiv.ofBijective
-        (effectivePushforward (Scheme.reductionMap f)
-          (pullback.snd f (Scheme.reductionι S))
-          (reductionComparison f) (reductionComparison_snd f) r)
-        (effectivePushforward_bijective (Scheme.reductionMap f)
-          (pullback.snd f (Scheme.reductionι S))
-          (reductionComparison f) (reductionComparison_snd f) r)).symm
+  (effectiveBaseChangeEquiv f (Scheme.reductionι S)
+    (fun s' ↦ isIso_reductionι_residueFieldMap S s') r).trans
+    (effectiveThickeningEquiv (Scheme.reductionMap f)
+      (pullback.snd f (Scheme.reductionι S))
+      (reductionComparison f) (reductionComparison_snd f) r).symm
 
 /-- Effective pushforward along `reductionComparison` recovers effective base
 change along `reductionι` from `effectiveReductionEquiv`. -/
@@ -168,13 +216,8 @@ theorem effectiveReductionEquiv_apply {X S : Scheme.{u}} (f : X ⟶ S)
         (reductionComparison f) (reductionComparison_snd f) r
         (effectiveReductionEquiv f r α) =
       effectiveBaseChange f (Scheme.reductionι S) r α :=
-  by
-  exact (AddEquiv.ofBijective
-    (effectivePushforward (Scheme.reductionMap f)
-      (pullback.snd f (Scheme.reductionι S))
-      (reductionComparison f) (reductionComparison_snd f) r)
-    (effectivePushforward_bijective (Scheme.reductionMap f)
-      (pullback.snd f (Scheme.reductionι S))
-      (reductionComparison f) (reductionComparison_snd f) r)).apply_symm_apply _
+  (effectiveThickeningEquiv (Scheme.reductionMap f)
+    (pullback.snd f (Scheme.reductionι S))
+    (reductionComparison f) (reductionComparison_snd f) r).apply_symm_apply _
 
 end AlgebraicGeometry.RelativeCycle

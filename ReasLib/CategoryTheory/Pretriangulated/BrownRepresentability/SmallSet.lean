@@ -7,6 +7,8 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import Mathlib.Logic.Small.Set
+public import Mathlib.Algebra.DirectSum.Basic
+public import Mathlib.CategoryTheory.Adjunction.Additive
 public import ReasLib.CategoryTheory.Pretriangulated.BrownRepresentability
 public import Mathlib.Algebra.Homology.ShortComplex.Ab
 public import Mathlib.CategoryTheory.Limits.ConcreteCategory.Basic
@@ -35,6 +37,138 @@ universe w v u v₁ v₂ u₁ u₂
 namespace CategoryTheory.BrownRepresentability.SmallSet
 
 variable {D : Type u} [Category.{v} D]
+
+section Generators
+
+variable [HasZeroMorphisms D] [HasShift D ℤ]
+
+/-- The set of integer shifts of a specified family. Its witnesses are the given objects,
+rather than representatives chosen from an existence theorem. -/
+def shiftedGenerators {I : Type w} (E : I → D) : Set D :=
+  Set.range (fun p : I × ℤ ↦ E p.1⟦p.2⟧)
+
+instance small_shiftedGenerators {I : Type w} (E : I → D) :
+    Small.{w} (shiftedGenerators E) := by
+  unfold shiftedGenerators
+  infer_instance
+
+/-- The integer shifts of a generating family detect nonzero objects. This is the detecting
+clause of the Brown-set criterion, without any coproduct or compactness assumptions. -/
+theorem shiftedGenerators_detects_nonzero_objects {I : Type w} (E : I → D)
+    (hE : IsGeneratingFamily E) {X : D} (hX : ¬ IsZero X) :
+    ∃ K : D, K ∈ shiftedGenerators E ∧ ∃ f : K ⟶ X, f ≠ 0 := by
+  classical
+  by_contra h
+  apply hX
+  rw [← hE]
+  intro Y f hY
+  obtain ⟨Z, n, e, hZ⟩ := hY
+  obtain ⟨i, rfl⟩ := (ObjectProperty.ofObj_iff E Z).mp hZ
+  have hz : e.inv ≫ f = 0 := by
+    by_contra hf
+    exact h ⟨_, ⟨(i, n), rfl⟩, e.inv ≫ f, hf⟩
+  simpa using congrArg (fun g ↦ e.hom ≫ g) hz
+
+end Generators
+
+section CompactGenerators
+
+variable [Preadditive D] [HasShift D ℤ]
+  [∀ n : ℤ, (shiftFunctor D n).Additive]
+
+/-- Integer shifts preserve compactness, by the additive adjunction of the shift equivalence. -/
+theorem isCompactObject_shift (K : D) (hK : IsCompactObject K) (n : ℤ) :
+    IsCompactObject (K⟦n⟧) := by
+  let adj : shiftFunctor D n ⊣ shiftFunctor D (-n) := (shiftEquiv D n).toAdjunction
+  let e : preadditiveCoyoneda.obj (op (K⟦n⟧)) ≅
+      (shiftFunctor D (-n)) ⋙ preadditiveCoyoneda.obj (op K) :=
+    NatIso.ofComponents (fun Y ↦ (adj.homAddEquiv K Y).toAddCommGrpIso)
+      (by intro Y Z f; ext g; exact adj.homEquiv_naturality_right g f)
+  constructor
+  intro I
+  letI := hK.preservesCoproducts I
+  exact preservesColimitsOfShape_of_natIso e.symm
+
+omit [HasShift D ℤ] [∀ n : ℤ, (shiftFunctor D n).Additive] in
+set_option backward.isDefEq.respectTransparency false in
+/-- A map from a compact object to a small coproduct is a finite sum of maps into its
+summands. This uses the direct sum of abelian groups and its explicit universal maps. -/
+theorem compact_finite_sum (K : D) (hK : IsCompactObject K) {I : Type v}
+    (X : I → D) [HasCoproduct X] (f : K ⟶ ∐ X) :
+    ∃ (s : Finset I) (g : ∀ i, K ⟶ X i), ∑ i ∈ s, g i ≫ Sigma.ι X i = f := by
+  classical
+  let A := fun i ↦ K ⟶ X i
+  let c : Cofan (fun i ↦ AddCommGrpCat.of (A i)) :=
+    Cofan.mk (AddCommGrpCat.of (DirectSum I A))
+      (fun i ↦ AddCommGrpCat.ofHom (DirectSum.of A i))
+  let hc : IsColimit c :=
+    { desc := fun s ↦ AddCommGrpCat.ofHom
+        (DirectSum.toAddMonoid (β := A) (γ := s.pt) (fun i ↦ (s.ι.app ⟨i⟩).hom))
+      fac := by
+        rintro s ⟨i⟩
+        ext x
+        change DirectSum.toAddMonoid (β := A) (γ := s.pt) (fun j ↦ (s.ι.app ⟨j⟩).hom)
+          (DirectSum.of A i x) = _
+        exact DirectSum.toAddMonoid_of (β := A) (γ := s.pt)
+          (fun j ↦ (s.ι.app ⟨j⟩).hom) i x
+      uniq := by
+        intro s m hm
+        apply AddCommGrpCat.hom_ext
+        apply DirectSum.addHom_ext
+        intro i x
+        change m (DirectSum.of A i x) = DirectSum.toAddMonoid (β := A) (γ := s.pt)
+          (fun j ↦ (s.ι.app ⟨j⟩).hom) (DirectSum.of A i x)
+        rw [DirectSum.toAddMonoid_of]
+        exact congrArg (fun k ↦ k x) (hm ⟨i⟩) }
+  let F := preadditiveCoyoneda.obj (op K)
+  letI := hK.preservesCoproducts I
+  let hx := isColimitCofanMkObjOfIsColimit F X _ (coproductIsCoproduct X)
+  let e := hc.coconePointUniqueUpToIso hx
+  let x : DirectSum I A := e.inv f
+  have he (i : I) (a : A i) : e.hom (DirectSum.of A i a) = a ≫ Sigma.ι X i := by
+    exact congrArg (fun k ↦ k a) (hc.comp_coconePointUniqueUpToIso_hom hx ⟨i⟩)
+  refine ⟨x.support, fun i ↦ x i, ?_⟩
+  calc
+    ∑ i ∈ x.support, x i ≫ Sigma.ι X i =
+        ∑ i ∈ x.support, e.hom (DirectSum.of A i (x i)) := by simp only [he]
+    _ = e.hom (∑ i ∈ x.support, DirectSum.of A i (x i)) := by simp only [map_sum]
+    _ = e.hom x := by rw [DirectSum.sum_support_of]
+    _ = f := by exact congrArg (fun k ↦ k f) e.inv_hom_id
+
+set_option backward.isDefEq.respectTransparency false in
+/-- The small set of shifts of compact generators satisfies both Brown-set conditions. -/
+theorem shiftedGenerators_isSet [HasCoproducts.{v} D] {I : Type v} (E : I → D)
+    (hcompact : ∀ i, IsCompactObject (E i)) (hgen : IsGeneratingFamily E) :
+    BrownRepresentability.IsSet (shiftedGenerators E) := by
+  classical
+  constructor
+  · exact shiftedGenerators_detects_nonzero_objects E hgen
+  · intro X K hK α
+    obtain ⟨⟨i, n⟩, rfl⟩ := hK
+    let ε : ULift.{v} ℕ ≃ ℕ := Equiv.ulift
+    let Y := X ∘ ε
+    let e := Sigma.reindex ε X
+    obtain ⟨s, g, hg⟩ := compact_finite_sum (E i⟦n⟧)
+      (isCompactObject_shift (E i) (hcompact i) n) Y (α ≫ e.inv)
+    let β : ∀ k : ℕ, E i⟦n⟧ ⟶ X k := fun k ↦ g (ULift.up k)
+    have hr (k : ULift.{v} ℕ) : Sigma.ι Y k ≫ e.hom = Sigma.ι X (ε k) :=
+      Sigma.ι_reindex_hom ε X k
+    refine ⟨fun _ ↦ E i⟦n⟧, fun _ ↦ ⟨(i, n), rfl⟩,
+      β, ∑ k ∈ s, Sigma.ι (fun _ : ℕ ↦ E i⟦n⟧) (ε k), ?_⟩
+    calc
+      (∑ k ∈ s, Sigma.ι (fun _ : ℕ ↦ E i⟦n⟧) (ε k)) ≫
+          Limits.Sigma.map (f := fun _ : ℕ ↦ E i⟦n⟧) (g := X) β =
+          ∑ k ∈ s, g k ≫ Sigma.ι X (ε k) := by
+            simp only [Preadditive.sum_comp, Sigma.ι_map]
+            apply Finset.sum_congr rfl
+            intro k hk
+            cases k
+            rfl
+      _ = (∑ k ∈ s, g k ≫ Sigma.ι Y k) ≫ e.hom := by
+        simp only [Preadditive.sum_comp, Category.assoc, hr]
+      _ = α := by rw [hg]; simp [e]
+
+end CompactGenerators
 
 section CoproductElements
 
@@ -135,6 +269,20 @@ set_option backward.privateInPublic true in
 def kernelMap (X : D) (a : H.obj (op X)) : kernelObject H S X a ⟶ X :=
   Sigma.desc (fun i ↦ ((equivShrink (kernelPairs H S X a)).symm i).2.1)
 
+/-- Every generator morphism annihilating the current element occurs in the kernel coproduct.
+The witness is its indexed coproduct inclusion. -/
+theorem kernelMap_factors (X : D) (a : H.obj (op X)) (E : S) (f : E.1 ⟶ X)
+    (hf : H.map f.op a = 0) :
+    ∃ g : E.1 ⟶ kernelObject.{w} H S X a, g ≫ kernelMap H S X a = f := by
+  have h (i : Shrink.{w} (kernelPairs H S X a)) :
+      ∃ g : ((equivShrink (kernelPairs H S X a)).symm i).1.1 ⟶ kernelObject.{w} H S X a,
+        g ≫ kernelMap H S X a = ((equivShrink (kernelPairs H S X a)).symm i).2.1 := by
+    refine ⟨Sigma.ι (kernelFamily H S X a) i, ?_⟩
+    exact Sigma.ι_desc _ i
+  have h' := h (equivShrink (kernelPairs H S X a) ⟨E, f, hf⟩)
+  rw [(equivShrink (kernelPairs H S X a)).symm_apply_apply] at h'
+  exact h'
+
 variable [∀ J : Type w, PreservesLimitsOfShape (Discrete J) H]
 
 set_option backward.isDefEq.respectTransparency false in
@@ -190,6 +338,19 @@ def stage (n : ℕ) : D := (stagePair H S n).1
 set_option backward.privateInPublic true in
 /-- The compatible element of the functor at the `n`th approximation stage. -/
 def stageElement (n : ℕ) : H.obj (op (stage.{w} H S n)) := (stagePair H S n).2
+
+/-- Every element at a generator is the pullback of the seed element along its indexed
+coproduct inclusion. No final representability theorem is used here. -/
+theorem stage_zero_surjective (E : S) (a : H.obj (op E.1)) :
+    ∃ f : E.1 ⟶ stage.{w} H S 0, H.map f.op (stageElement.{w} H S 0) = a := by
+  have h (i : Shrink.{w} (seedPairs H S)) :
+      ∃ f : ((equivShrink (seedPairs H S)).symm i).1.1 ⟶ stage.{w} H S 0,
+        H.map f.op (stageElement.{w} H S 0) = ((equivShrink (seedPairs H S)).symm i).2 := by
+    refine ⟨Sigma.ι (seedFamily H S) i, ?_⟩
+    exact coproductElement_ι H (seedFamily H S) (seedValue H S) i
+  have h' := h (equivShrink (seedPairs H S) ⟨E, a⟩)
+  rw [(equivShrink (seedPairs H S)).symm_apply_apply] at h'
+  exact h'
 
 set_option backward.privateInPublic true in
 /-- The successor map obtained by taking the cone of the kernel-indexed coproduct map. -/
@@ -333,6 +494,27 @@ theorem kernelMap_comp_transition (n : ℕ) :
     kernelMap H S (stage.{w} H S n) (stageElement.{w} H S n) ≫ transition.{w} H S n = 0 :=
   comp_distTriang_mor_zero₁₂ _ (cone_distinguished _)
 
+/-- A generator morphism in the kernel at a stage is killed at the next stage. The
+factorization is through its actual summand of the kernel-indexed coproduct. -/
+theorem transition_kills_kernel (n : ℕ) (E : S) (f : E.1 ⟶ stage.{w} H S n)
+    (hf : H.map f.op (stageElement.{w} H S n) = 0) :
+    f ≫ transition.{w} H S n = 0 := by
+  obtain ⟨g, rfl⟩ := kernelMap_factors H S _ _ E f hf
+  rw [Category.assoc, kernelMap_comp_transition, comp_zero]
+
+set_option backward.isDefEq.respectTransparency false in
+/-- The explicitly constructed comparison is surjective at every generator. The witness
+comes from the seed summand followed by the telescope inclusion. -/
+theorem comparison_surjective_on_generators (E : S) :
+    Function.Surjective ((comparison.{w} H S).app (op E.1)) := by
+  intro a
+  obtain ⟨f, hf⟩ := stage_zero_surjective H S E a
+  refine ⟨f ≫ (approximationPresentation.{w} H S).ι 0, ?_⟩
+  change H.map (f ≫ (approximationPresentation.{w} H S).ι 0).op
+    (approximationElement.{w} H S) = a
+  rw [op_comp, H.map_comp, ConcreteCategory.comp_apply]
+  exact (congrArg (fun b ↦ H.map f.op b) (approximationElement_ι.{w} H S 0)).trans hf
+
 /-- Evaluation of the approximation comparison is pullback of the lifted element. -/
 @[simp]
 theorem comparison_app (Y : D) (f : Y ⟶ approximationObject.{w} H S) :
@@ -375,6 +557,35 @@ theorem isRepresentable
 
 end Criterion
 
+section CompactCriterion
+
+variable [HasZeroObject D] [HasShift D ℤ]
+  [Preadditive D] [∀ n : ℤ, (shiftFunctor D n).Additive]
+  [Pretriangulated D] [IsTriangulated D] [HasCoproducts.{v} D]
+
+/-- Brown representability for compact generators indexed in the Hom universe.
+Only coproducts indexed in that universe are required. -/
+theorem ofCompactGeneration
+    (H : Dᵒᵖ ⥤ AddCommGrpCat.{v}) (hD : IsCompactlyGenerated D)
+    (hH : H.rightOp.IsHomological)
+    [∀ J : Type v, PreservesLimitsOfShape (Discrete J) H] :
+    ∃ X : D, Nonempty (preadditiveYoneda.obj X ≅ H) := by
+  obtain ⟨I, E, hcompact, hgen⟩ := hD
+  exact existsRepresentation H hH (shiftedGenerators E)
+    (shiftedGenerators_isSet E hcompact hgen) (fun _ _ ↦ inferInstance)
+
+/-- Type-valued representability under the small-coproduct compact-generation hypotheses. -/
+theorem isRepresentable_ofCompactGeneration
+    (H : Dᵒᵖ ⥤ AddCommGrpCat.{v}) (hD : IsCompactlyGenerated D)
+    (hH : H.rightOp.IsHomological)
+    [∀ J : Type v, PreservesLimitsOfShape (Discrete J) H] :
+    (H ⋙ forget AddCommGrpCat).IsRepresentable := by
+  obtain ⟨I, E, hcompact, hgen⟩ := hD
+  exact isRepresentable H hH (shiftedGenerators E)
+    (shiftedGenerators_isSet E hcompact hgen) (fun _ _ ↦ inferInstance)
+
+end CompactCriterion
+
 end CategoryTheory.BrownRepresentability.SmallSet
 
 namespace CategoryTheory.Functor.Brown.SmallSet
@@ -415,5 +626,41 @@ theorem hasTriangulatedRightAdjoint
       Small.{w} (F.obj (E.1⟦n⟧) ⟶ Y)) :
     ∃ (G : D' ⥤ D) (adj : F ⊣ G),
       G.IsTriangulatedWith (adj.rightAdjointCommShift ℤ) := sorry
+
+end CategoryTheory.Functor.Brown.SmallSet
+
+namespace CategoryTheory.Functor.Brown.SmallSet
+
+variable {D : Type u₁} {D' : Type u₂}
+  [Category.{v₁} D] [Category.{v₂} D']
+  [HasZeroObject D] [HasZeroObject D'] [HasShift D ℤ] [HasShift D' ℤ]
+  [Preadditive D] [Preadditive D']
+  [∀ n : ℤ, (shiftFunctor D n).Additive]
+  [∀ n : ℤ, (shiftFunctor D' n).Additive]
+  [Pretriangulated D] [Pretriangulated D']
+  [_root_.CategoryTheory.IsTriangulated D]
+  [_root_.CategoryTheory.IsTriangulated D'] [HasCoproducts.{v₁} D]
+
+/-- A compactly generated source needs only Hom-universe coproducts for Brown's
+left-adjoint criterion. -/
+theorem isLeftAdjoint_ofCompactGeneration (hD : IsCompactlyGenerated D)
+    (F : D ⥤ D') [LocallySmall.{v₁} D'] [F.CommShift ℤ] [F.IsTriangulated]
+    [∀ J : Type v₁, PreservesColimitsOfShape (Discrete J) F] :
+    F.IsLeftAdjoint := by
+  obtain ⟨I, E, hcompact, hgen⟩ := hD
+  exact isLeftAdjoint F (BrownRepresentability.SmallSet.shiftedGenerators E)
+    (BrownRepresentability.SmallSet.shiftedGenerators_isSet E hcompact hgen)
+    (fun _ _ _ ↦ inferInstance)
+
+/-- Existence and exactness of the right adjoint with Hom-universe coproducts. -/
+theorem hasTriangulatedRightAdjoint_ofCompactGeneration (hD : IsCompactlyGenerated D)
+    (F : D ⥤ D') [LocallySmall.{v₁} D'] [F.CommShift ℤ] [F.IsTriangulated]
+    [∀ J : Type v₁, PreservesColimitsOfShape (Discrete J) F] :
+    ∃ (G : D' ⥤ D) (adj : F ⊣ G),
+      G.IsTriangulatedWith (adj.rightAdjointCommShift ℤ) := by
+  obtain ⟨I, E, hcompact, hgen⟩ := hD
+  exact hasTriangulatedRightAdjoint F (BrownRepresentability.SmallSet.shiftedGenerators E)
+    (BrownRepresentability.SmallSet.shiftedGenerators_isSet E hcompact hgen)
+    (fun _ _ _ ↦ inferInstance)
 
 end CategoryTheory.Functor.Brown.SmallSet

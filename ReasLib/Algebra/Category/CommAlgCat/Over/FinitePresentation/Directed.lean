@@ -17,6 +17,8 @@ import Mathlib.Tactic.CrossRefAttribute
 Every commutative algebra is a directed colimit of finitely presented algebras.  For a finite-type
 target, the system may be chosen with surjective transition maps.  The index universe matches the
 selected over-category, while the rings themselves need not live in the same universe.
+The stage carriers live in the target universe, so the base ring is assumed to be
+small in that universe. This is automatic when base and target share a universe.
 
 @stack 00QN
 -/
@@ -30,18 +32,19 @@ universe u v
 namespace CommAlgCat.Over.FinitePresentation
 
 /-- Lemma 10.127.2 (Tag 00QN) (1): every `R`-algebra is a directed colimit of finitely presented
-`R`-algebras. -/
+`R`-algebras, provided the base ring is small in the universe of the stages. -/
 @[stacks 00QN "(1)"]
-theorem exists_directedSystem (R : Type u) [CommRing R]
+theorem exists_directedSystem (R : Type u) [CommRing R] [Small.{v} R]
     (A : Type v) [CommRing A] [Algebra R A] :
     ∃ (I : Type (max u (v + 1))) (_ : Preorder I) (_ : Nonempty I) (_ : IsDirectedOrder I)
       (F : I ⥤ category R A),
       Nonempty (IsColimit ((cocone R A).whisker F)) := sorry
 
 /-- Lemma 10.127.2 (Tag 00QN) (2): if `A` is of finite type over `R`, its directed system of
-finitely presented models can be chosen with surjective transition maps. -/
+finitely presented models can be chosen with surjective transition maps, provided the base ring
+is small in the universe of the stages. -/
 @[stacks 00QN "(2)"]
-theorem exists_surjectiveSystem_of_finiteType (R : Type u) [CommRing R]
+theorem exists_surjectiveSystem_of_finiteType (R : Type u) [CommRing R] [Small.{v} R]
     (A : Type v) [CommRing A] [Algebra R A] [Algebra.FiniteType R A] :
     ∃ (I : Type (max u (v + 1))) (_ : Preorder I) (_ : Nonempty I) (_ : IsDirectedOrder I)
       (F : I ⥤ category R A),

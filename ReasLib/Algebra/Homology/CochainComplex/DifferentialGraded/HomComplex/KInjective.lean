@@ -63,21 +63,23 @@ theorem injectiveDerivedHomLinearMap_apply
     [IsIso (DerivedCategory.Q.map i)] (n : ℤ)
     (x : (DifferentialGradedCategory.homComplex K I).homology n) :
     injectiveDerivedHomLinearMap K M I i n x =
-      injectiveDerivedHomOfHomology K M I i n x := sorry
+      injectiveDerivedHomOfHomology K M I i n x := rfl
 
 /-- The historical integral K-injective function comparison is bijective. -/
 theorem injectiveDerivedHomOfHomology_bijective
     [Abelian C] [HasDerivedCategory.{w} C]
     (K M I : CochainComplex C ℤ) (i : M ⟶ I) [I.IsKInjective]
     [IsIso (DerivedCategory.Q.map i)] (n : ℤ) :
-    Function.Bijective (injectiveDerivedHomOfHomology K M I i n) := sorry
+    Function.Bijective (injectiveDerivedHomOfHomology K M I i n) :=
+  Over.RHom.injectiveDerivedHomOfHomology_bijective (R := ℤ) K i n
 
 /-- The historical integral bundled comparison is bijective. -/
 theorem injectiveDerivedHomLinearMap_bijective
     [Abelian C] [HasDerivedCategory.{w} C]
     (K M I : CochainComplex C ℤ) (i : M ⟶ I) [I.IsKInjective]
     [IsIso (DerivedCategory.Q.map i)] (n : ℤ) :
-    Function.Bijective (injectiveDerivedHomLinearMap K M I i n) := sorry
+    Function.Bijective (injectiveDerivedHomLinearMap K M I i n) :=
+  injectiveDerivedHomOfHomology_bijective K M I i n
 
 /-- The historical integral K-injective linear equivalence. -/
 noncomputable def injectiveDerivedHomLinearEquiv
@@ -97,6 +99,6 @@ theorem injectiveDerivedHomLinearEquiv_apply
     [IsIso (DerivedCategory.Q.map i)] (n : ℤ)
     (x : (DifferentialGradedCategory.homComplex K I).homology n) :
     injectiveDerivedHomLinearEquiv K M I i n x =
-      injectiveDerivedHomLinearMap K M I i n x := sorry
+      injectiveDerivedHomLinearMap K M I i n x := rfl
 
 end CategoryTheory.CochainComplex.Enriched

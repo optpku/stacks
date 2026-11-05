@@ -50,8 +50,9 @@ map is an isomorphism on `H⁰` and surjective on `H⁻¹`. -/
   (Presentation.naiveCotangentBaseChangeH1Comparison_surjective (R' := R') P :
     Function.Surjective (Presentation.naiveCotangentBaseChangeH1Comparison (R' := R') P))
 
-/- Lemma 15.86.2 (2) (0FUZ): the canonical comparison for `NL{S⁄R}` is bijective in degree
-zero and surjective in degree minus one. -/
+/- Lemma 15.86.2 (2) (0FUZ): the comparison from the tensor product of `NL{S⁄R}` is
+bijective in degree zero and surjective in degree minus one. A presentation computes the
+degree-minus-one source as the kernel of the tensorized differential. -/
 
 section
 
@@ -63,15 +64,16 @@ variable [Algebra R S] [Algebra R R']
   Function.Bijective (H1Cotangent.baseChangeDegreeZeroComparison
     (R := R) (R' := R') (S := S)))
 
-@[stacks 0FUZ "(2), H1 base-change comparison"]
-#check (H1Cotangent.baseChangeComparison (R := R) (R' := R') (S := S) :
-  R' ⊗[R] S ⊗[S] H1Cotangent R S →ₗ[R' ⊗[R] S]
-    H1Cotangent R' (R' ⊗[R] S))
+@[stacks 0FUZ "(2), H1 of the tensor complex, via a presentation"]
+#check fun {ι σ : Type u} (P : Presentation R S ι σ) =>
+  (Presentation.naiveCotangentBaseChangeH1Comparison (R' := R') P :
+    LinearMap.ker (LinearMap.baseChange (R' ⊗[R] S) P.toExtension.cotangentComplex) →ₗ[R' ⊗[R] S]
+      (P.baseChange R').toExtension.H1Cotangent)
 
-@[stacks 0FUZ "(2), H1 base-change surjectivity"]
-#check (H1Cotangent.baseChangeComparison_surjective R S R' :
-  Function.Surjective (H1Cotangent.baseChangeComparison
-    (R := R) (R' := R') (S := S)))
+@[stacks 0FUZ "(2), H1 of the tensor complex is surjective"]
+#check fun {ι σ : Type u} (P : Presentation R S ι σ) =>
+  (Presentation.naiveCotangentBaseChangeH1Comparison_surjective (R' := R') P :
+    Function.Surjective (Presentation.naiveCotangentBaseChangeH1Comparison (R' := R') P))
 
 end
 

@@ -75,6 +75,61 @@ noncomputable def pushforward {k : Type u} [Field k]
 
 end SmoothProjectiveChow
 
+/-- The common geometric presentation and Chow functoriality data of scheme-valued
+Weil theories. Geometric Chow comparisons are additional data, not part of this
+presentation. The dimension agreement is required only for nonempty schemes. -/
+structure SmoothProjectivePresentation
+    (k : Type u) [Field k] (V : Type w) [Category.{z} V]
+    (dimension : V → ℕ) (product : V → V → V)
+    (fst : ∀ X Y, product X Y ⟶ X) (snd : ∀ X Y, product X Y ⟶ Y)
+    (point : V) (CH : V → Type y) [∀ X, CommRing (CH X)]
+    (CHgrade : ∀ X, ℤ → Submodule ℤ (CH X)) [∀ X, GradedAlgebra (CHgrade X)]
+    (cyclePullback : ∀ {X Y : V}, (X ⟶ Y) → CHgrade Y →ₐᵍ[ℤ] CHgrade X)
+    (cyclePushforward : ∀ {X Y : V}, (X ⟶ Y) → CH X →+ CH Y) where
+  /-- The functor realizing the abstract domain as schemes over `k`. -/
+  scheme : V ⥤ SchemeOverField k
+  /-- Morphisms in the presentation are precisely morphisms of the represented schemes. -/
+  scheme_fullyFaithful : scheme.FullyFaithful
+  /-- Every represented scheme is smooth over `k`. -/
+  smooth : ∀ X, Smooth (scheme.obj X).hom
+  /-- Every represented scheme is projective over `k`. -/
+  projective : ∀ X, Projective (scheme.obj X).hom
+  /-- For nonempty schemes the specified dimension is the geometric Krull dimension. -/
+  dimension_eq : ∀ X, Nonempty (scheme.obj X).left →
+    topologicalKrullDim (scheme.obj X).left = (dimension X : WithBot ℕ∞)
+  /-- The specified binary product represents the fibre product over `Spec(k)`. -/
+  schemeProduct : ∀ X Y, scheme.obj (product X Y) ≅ scheme.obj X ⨯ scheme.obj Y
+  /-- The specified first projection is the geometric product projection. -/
+  scheme_fst : ∀ X Y, scheme.map (fst X Y) =
+    (schemeProduct X Y).hom ≫ Limits.prod.fst
+  /-- The specified second projection is the geometric product projection. -/
+  scheme_snd : ∀ X Y, scheme.map (snd X Y) =
+    (schemeProduct X Y).hom ≫ Limits.prod.snd
+  /-- The specified point represents `Spec(k)` over itself. -/
+  schemePoint : scheme.obj point ≅ Over.mk (𝟙 (Spec (CommRingCat.of k)))
+  /-- The structure morphism from each represented scheme to the point. -/
+  structureMorphism : ∀ X, X ⟶ point
+  /-- The represented structure morphism is the canonical map to `Spec(k)`. -/
+  scheme_structureMorphism : ∀ X,
+    scheme.map (structureMorphism X) ≫ schemePoint.hom =
+      Over.homMk (scheme.obj X).hom
+  /-- Every smooth projective scheme over `k` is represented by an object of `V`. -/
+  scheme_essentiallySurjective : ∀ (S : SchemeOverField k)
+    [Smooth S.hom] [Projective S.hom],
+    ∃ X : V, Nonempty (scheme.obj X ≅ S)
+  /-- Chow pullback by an identity is the identity. -/
+  cyclePullback_id : ∀ X,
+    cyclePullback (𝟙 X) = GradedAlgHom.id ℤ (CHgrade X)
+  /-- Chow pullback reverses composition. -/
+  cyclePullback_comp : ∀ {X Y Z : V} (f : X ⟶ Y) (g : Y ⟶ Z),
+    cyclePullback (f ≫ g) = (cyclePullback f).comp (cyclePullback g)
+  /-- Chow pushforward by an identity is the identity. -/
+  cyclePushforward_id : ∀ X,
+    cyclePushforward (𝟙 X) = AddMonoidHom.id (CH X)
+  /-- Chow pushforward preserves composition. -/
+  cyclePushforward_comp : ∀ {X Y Z : V} (f : X ⟶ Y) (g : Y ⟶ Z),
+    cyclePushforward (f ≫ g) = (cyclePushforward g).comp (cyclePushforward f)
+
 /-- A presentation of all smooth projective schemes over an arbitrary field `k`,
 including the empty scheme and finite disjoint unions. The supplied graded Chow
 rings and operations are identified with those of the represented schemes. -/
@@ -152,6 +207,89 @@ structure SmoothProjectiveContext
   /-- The point cycle is the operational unit, hence caps to the fundamental class. -/
   pointCycle_eq : letI := smooth point
     chowEquiv point (pointCycle : CH point) = 1
+
+namespace SmoothProjectivePresentation
+
+/-- The structure map is uniquely fixed by its geometric image. In particular it
+agrees with the preimage construction used before the presentation was shared. -/
+theorem structureMorphism_eq_preimage
+    {k : Type u} [Field k] {V : Type w} [Category.{z} V]
+    {dimension : V → ℕ} {product : V → V → V}
+    {fst : ∀ X Y, product X Y ⟶ X} {snd : ∀ X Y, product X Y ⟶ Y}
+    {point : V} {CH : V → Type y} [∀ X, CommRing (CH X)]
+    {CHgrade : ∀ X, ℤ → Submodule ℤ (CH X)} [∀ X, GradedAlgebra (CHgrade X)]
+    {cyclePullback : ∀ {X Y : V}, (X ⟶ Y) → CHgrade Y →ₐᵍ[ℤ] CHgrade X}
+    {cyclePushforward : ∀ {X Y : V}, (X ⟶ Y) → CH X →+ CH Y}
+    (P : SmoothProjectivePresentation k V dimension product fst snd point CH CHgrade
+      cyclePullback cyclePushforward) (X : V) :
+    P.structureMorphism X = P.scheme_fullyFaithful.preimage
+      (Over.homMk (P.scheme.obj X).hom ≫ P.schemePoint.inv) := by
+  apply P.scheme_fullyFaithful.map_injective
+  rw [P.scheme_fullyFaithful.map_preimage]
+  calc
+    P.scheme.map (P.structureMorphism X) =
+        (P.scheme.map (P.structureMorphism X) ≫ P.schemePoint.hom) ≫ P.schemePoint.inv := by
+      simp
+    _ = Over.homMk (P.scheme.obj X).hom ≫ P.schemePoint.inv := by
+      rw [P.scheme_structureMorphism]
+
+/-- Supply the geometric Chow comparison to obtain a smooth-projective context.
+All comparison data and compatibility laws are explicit inputs. -/
+def toSmoothProjectiveContext
+    {k : Type u} [Field k] {V : Type w} [Category.{z} V]
+    {dimension : V → ℕ} {product : V → V → V}
+    {fst : ∀ X Y, product X Y ⟶ X} {snd : ∀ X Y, product X Y ⟶ Y}
+    {point : V} {CH : V → Type y} [∀ X, CommRing (CH X)]
+    {CHgrade : ∀ X, ℤ → Submodule ℤ (CH X)} [∀ X, GradedAlgebra (CHgrade X)]
+    {cyclePullback : ∀ {X Y : V}, (X ⟶ Y) → CHgrade Y →ₐᵍ[ℤ] CHgrade X}
+    {cyclePushforward : ∀ {X Y : V}, (X ⟶ Y) → CH X →+ CH Y}
+    {pointCycle : CHgrade point 0}
+    (P : SmoothProjectivePresentation k V dimension product fst snd point CH CHgrade
+      cyclePullback cyclePushforward)
+    (chowEquiv : ∀ X, letI := P.smooth X
+      CH X ≃ₐ[ℤ] ChowCohomology.ring (fun _ ↦ 0) (P.scheme.obj X).hom)
+    (chowGrade_eq : ∀ X (i : ℤ), letI := P.smooth X
+      CHgrade X i = (LinearMap.range (DirectSum.lof ℤ ℤ
+        (ChowCohomology.degree (fun _ ↦ 0) (P.scheme.obj X).hom) i)).comap
+          (chowEquiv X).toLinearMap)
+    (chowPullback_eq : ∀ {X Y : V} (f : X ⟶ Y) (a : CH Y),
+      letI := P.smooth X
+      letI := P.smooth Y
+      chowEquiv X (cyclePullback f a) =
+        ChowCohomology.restrict (fun _ ↦ 0) (P.scheme.map f) (chowEquiv Y a))
+    (chowPushforward_eq : ∀ {X Y : V} (f : X ⟶ Y) (a : CH X),
+      letI := P.smooth X
+      letI := P.smooth Y
+      letI := P.projective X
+      letI := P.projective Y
+      SmoothProjectiveChow.capFundamental (P.scheme.obj Y) (chowEquiv Y (cyclePushforward f a)) =
+        SmoothProjectiveChow.pushforward (P.scheme.map f)
+          (SmoothProjectiveChow.capFundamental (P.scheme.obj X) (chowEquiv X a)))
+    (pointCycle_eq : letI := P.smooth point
+      chowEquiv point (pointCycle : CH point) = 1) :
+    SmoothProjectiveContext k V dimension product fst snd point CH CHgrade
+      cyclePullback cyclePushforward pointCycle where
+  scheme := P.scheme
+  scheme_fullyFaithful := P.scheme_fullyFaithful
+  smooth := P.smooth
+  projective := P.projective
+  dimension_eq := P.dimension_eq
+  schemeProduct := P.schemeProduct
+  scheme_fst := P.scheme_fst
+  scheme_snd := P.scheme_snd
+  schemePoint := P.schemePoint
+  scheme_essentiallySurjective := P.scheme_essentiallySurjective
+  cyclePullback_id := P.cyclePullback_id
+  cyclePullback_comp := P.cyclePullback_comp
+  cyclePushforward_id := P.cyclePushforward_id
+  cyclePushforward_comp := P.cyclePushforward_comp
+  chowEquiv := chowEquiv
+  chowGrade_eq := chowGrade_eq
+  chowPullback_eq := chowPullback_eq
+  chowPushforward_eq := chowPushforward_eq
+  pointCycle_eq := pointCycle_eq
+
+end SmoothProjectivePresentation
 
 namespace SmoothProjectiveContext
 

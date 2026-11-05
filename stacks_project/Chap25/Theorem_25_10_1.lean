@@ -21,8 +21,11 @@ open CategoryTheory
 
 /- Theorem 25.10.1: for every object `X` of a site with pullbacks and every `i : ℕ`, there is
 a refinement-natural comparison from hypercovering Cech cohomology to `H^i(X, -)` whose
-induced map on the refinement colimit is an isomorphism. -/
-@[stacks 01H0] #check @Hypercovering.Cech.comparison_nonempty
+induced map on the refinement colimit is an isomorphism. The family universe is `max u v`,
+so the required covering refinements are available without extra smallness assumptions. -/
+@[stacks 01H0] #check @Hypercovering.Cech.comparison_nonempty_siteUniverse
+
+#check @Hypercovering.Cech.comparison_nonempty
 
 #check @Hypercovering.HomotopyCategory
 #check @Hypercovering.RefinementCategory

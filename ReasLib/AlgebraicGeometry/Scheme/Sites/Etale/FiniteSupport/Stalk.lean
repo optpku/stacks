@@ -830,11 +830,29 @@ private theorem finiteToAmbient_purelyInseparable (x : Fiber f ybar) (U : X.Etal
           (finiteToAmbientPoint f ybar x U u)).hom.IsPurelyInseparable :=
   sorry
 
-/-- The finite étale morphism is an isomorphism on an open neighbourhood of the distinguished image point. -/
-@[irreducible]
-private def isoNeighborhoodExists (x : Fiber f ybar) (U : X.Etale)
-    (u : (toSmallEtalePoint x.point).fiber.obj U) :=
-  @AlgebraicGeometry.Etale.exists_isIso_morphismRestrict _ _
+/-- The actual rank-one locus of the finite étale morphism. Its construction
+does not use the singleton-fibre or marked-point rank laws. -/
+private def isoNeighborhoodOpen (x : Fiber f ybar) (U : X.Etale)
+    (u : (toSmallEtalePoint x.point).fiber.obj U) :
+    (sourceAmbientShrunk f ybar x U u).toScheme.Opens :=
+  @AlgebraicGeometry.Etale.rankOneOpen _ _
+    (finiteToAmbient f ybar x U u)
+    (finiteToAmbient_isFinite f ybar x U u)
+    (finiteToAmbient_isEtale f ybar x U u)
+
+/-- The marked-point law supplies membership in the rank-one locus; the
+isomorphism on that locus follows independently from the native rank criterion. -/
+private theorem isoNeighborhoodOpen_spec (x : Fiber f ybar) (U : X.Etale)
+    (u : (toSmallEtalePoint x.point).fiber.obj U) :
+    ambientImagePoint f ybar x U u ∈ isoNeighborhoodOpen f ybar x U u ∧
+      IsIso
+        (finiteToAmbient f ybar x U u ∣_
+          isoNeighborhoodOpen f ybar x U u) := by
+  refine ⟨?_, @AlgebraicGeometry.Etale.rankOne_isIso _ _
+    (finiteToAmbient f ybar x U u)
+    (finiteToAmbient_isFinite f ybar x U u)
+    (finiteToAmbient_isEtale f ybar x U u)⟩
+  exact @AlgebraicGeometry.Etale.rank_one_at_singleton_purelyInseparable _ _
     (finiteToAmbient f ybar x U u)
     (finiteToAmbient_isFinite f ybar x U u)
     (finiteToAmbient_isEtale f ybar x U u)
@@ -842,22 +860,6 @@ private def isoNeighborhoodExists (x : Fiber f ybar) (U : X.Etale)
     (finiteToAmbientPoint f ybar x U u) rfl
     (finiteToAmbient_uniqueFiber f ybar x U u)
     (finiteToAmbient_purelyInseparable f ybar x U u)
-
-/-- An open neighbourhood on which the finite étale morphism restricts to an isomorphism. -/
-private def isoNeighborhoodOpen (x : Fiber f ybar) (U : X.Etale)
-    (u : (toSmallEtalePoint x.point).fiber.obj U) :
-    (sourceAmbientShrunk f ybar x U u).toScheme.Opens :=
-  Classical.choose (isoNeighborhoodExists f ybar x U u)
-
-/-- The chosen open of `W'` contains the image of the pairing and makes the
-finite étale map an isomorphism. -/
-private theorem isoNeighborhoodOpen_spec (x : Fiber f ybar) (U : X.Etale)
-    (u : (toSmallEtalePoint x.point).fiber.obj U) :
-    ambientImagePoint f ybar x U u ∈ isoNeighborhoodOpen f ybar x U u ∧
-      IsIso
-        (finiteToAmbient f ybar x U u ∣_
-          isoNeighborhoodOpen f ybar x U u) :=
-  Classical.choose_spec (isoNeighborhoodExists f ybar x U u)
 
 /-- The image of the isomorphism neighbourhood in the once-shrunk base change. -/
 private def landingIsoAmbientOpen (x : Fiber f ybar) (U : X.Etale)
@@ -1045,7 +1047,9 @@ private def inverseFiniteToAmbientIso (x : Fiber f ybar) (U : X.Etale)
       (inverseAmbientOpen f ybar x U u).toScheme := by
   let g := finiteToAmbient f ybar x U u
   let O := isoNeighborhoodOpen f ybar x U u
-  let e := @asIso _ _ _ _ (g ∣_ O) (isoNeighborhoodOpen_spec f ybar x U u).2
+  let e := @AlgebraicGeometry.Etale.rankOneIso _ _ g
+    (finiteToAmbient_isFinite f ybar x U u)
+    (finiteToAmbient_isEtale f ybar x U u)
   let a : (inverseAmbientOpen f ybar x U u).toScheme ⟶ O.toScheme :=
     (isoBaseChangeMap f ybar x U u ∣_ landingIsoAmbientOpen f ybar x U u) ≫
     ((sourceAmbientShrunk f ybar x U u).ι.isoImage O).inv

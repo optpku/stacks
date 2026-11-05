@@ -8,10 +8,11 @@ module
 
 public import ReasLib.LinearAlgebra.ExteriorAlgebra.Determinant.ScalarChange
 public import ReasLib.Algebra.Homology.DerivedCategory.ScalarExtension.Adjunction
+public import ReasLib.Algebra.Homology.DerivedCategory.KProjective.Localization
 
 @[expose] public section
 
-open CategoryTheory
+open CategoryTheory CategoryTheory.Limits ComplexShape
 open scoped TensorProduct
 
 noncomputable section
@@ -36,10 +37,60 @@ def extendedModel (σ : R →+* S) (P : Model R) : Model S where
 def extendedObject (σ : R →+* S) (K : Object R) : Object S :=
   ⟨⟨(ModuleCat.derivedExtensionOfScalars σ).obj K.obj.obj, by sorry⟩, by sorry⟩
 
+set_option backward.defeqAttrib.useBackward true in
+set_option backward.isDefEq.respectTransparency false in
 /-- The specified derived-to-underived counit is invertible on the bounded
 projective representative; no arbitrary derived comparison is chosen. -/
 instance representativeCounit_isIso (σ : R →+* S) (P : Model R) :
-    IsIso ((ModuleCat.derivedExtensionComplexCounit σ).app P.complex) := by sorry
+    IsIso ((ModuleCat.derivedExtensionComplexCounit σ).app P.complex) := by
+  haveI (n : ℤ) : Projective (P.complex.X n) := by
+    by_cases hneg : n = -1
+    · subst n
+      infer_instance
+    by_cases hzero : n = 0
+    · subst n
+      infer_instance
+    by_cases hn : n < -1
+    · exact (P.complex.isZero_of_isStrictlyGE (-1) n hn).projective
+    · exact (P.complex.isZero_of_isStrictlyLE 0 n (by omega)).projective
+  letI : P.complex.IsKProjective := CochainComplex.isKProjective_of_projective P.complex 0
+  let X := (HomotopyCategory.quotient (ModuleCat R) (up ℤ)).obj P.complex
+  let hQ := CochainComplex.IsKProjective.fullyFaithfulFrom DerivedCategory.Qh P.complex
+  let hi : IsInitial (StructuredArrow.mk (𝟙 (DerivedCategory.Qh.obj X))) :=
+    IsInitial.ofUniqueHom
+      (fun j ↦ StructuredArrow.homMk (hQ.preimage j.hom) (by
+        change 𝟙 _ ≫ DerivedCategory.Qh.map (hQ.preimage j.hom) = j.hom
+        rw [Category.id_comp, hQ.map_preimage]))
+      (fun j f ↦ by
+        apply StructuredArrow.hom_ext
+        apply hQ.homEquiv.injective
+        change DerivedCategory.Qh.map f.right = DerivedCategory.Qh.map (hQ.preimage j.hom)
+        rw [hQ.map_preimage]
+        have hf := StructuredArrow.w f
+        change 𝟙 _ ≫ DerivedCategory.Qh.map f.right = j.hom at hf
+        simpa only [Category.id_comp] using hf)
+  haveI : IsIso ((ModuleCat.derivedExtensionOfScalarsCounit σ).app X) := by
+    let h := (Functor.isPointwiseRightKanExtensionOfHasPointwiseLeftDerivedFunctor
+      (F' := ModuleCat.derivedExtensionOfScalars σ)
+      (F := ModuleCat.extendScalarsToDerived σ)
+      (L := DerivedCategory.Qh)
+      (α := ModuleCat.derivedExtensionOfScalarsCounit σ)
+      (HomotopyCategory.quasiIso (ModuleCat R) (up ℤ))) (DerivedCategory.Qh.obj X)
+    have hh := h.isIso_π_app_of_isInitial _ hi
+    change IsIso ((ModuleCat.derivedExtensionOfScalars σ).map (𝟙 _) ≫
+      (ModuleCat.derivedExtensionOfScalarsCounit σ).app X) at hh
+    letI := hh
+    exact IsIso.of_isIso_comp_left
+      ((ModuleCat.derivedExtensionOfScalars σ).map (𝟙 (DerivedCategory.Qh.obj X)))
+      ((ModuleCat.derivedExtensionOfScalarsCounit σ).app X)
+  change IsIso
+    ((Functor.isoWhiskerRight (DerivedCategory.quotientCompQhIso (ModuleCat R))
+        (ModuleCat.derivedExtensionOfScalars σ)).inv.app P.complex ≫
+      (Functor.associator (HomotopyCategory.quotient (ModuleCat R) (up ℤ))
+        DerivedCategory.Qh (ModuleCat.derivedExtensionOfScalars σ)).inv.app P.complex ≫
+      (ModuleCat.derivedExtensionOfScalarsCounit σ).app X ≫
+      (Functor.Homotopy.cochainIso (ModuleCat.extendScalars σ)).hom.app P.complex)
+  infer_instance
 
 def extendedRealization (σ : R →+* S) (K : Object R) :
     (extendedObject σ K).obj.obj ≅ DerivedCategory.Q.obj (extendedModel σ (model R K)).complex := by

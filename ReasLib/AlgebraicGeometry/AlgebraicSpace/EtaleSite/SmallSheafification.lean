@@ -87,12 +87,64 @@ def homEquiv (P : (smallEtaleSite X)ᵒᵖ ⥤ AddCommGrpCat.{u})
     (((sheafificationAdjunction smallTop AddCommGrpCat.{u}).homEquiv _ _).trans
       (Functor.IsCoverDense.restrictHomEquivHom (G := chartInclusion)))
 
+theorem homEquiv_naturality_left
+    {P₁ P₂ : (smallEtaleSite X)ᵒᵖ ⥤ AddCommGrpCat.{u}} (f : P₁ ⟶ P₂)
+    {Q : Sheaf largeTop AddCommGrpCat.{u}}
+    (g : (sheafify U a ha).obj P₂ ⟶ Q) :
+    homEquiv U a ha P₁ Q ((sheafify U a ha).map f ≫ g) =
+      f ≫ homEquiv U a ha P₂ Q g := by
+  letI := dense U a ha
+  letI := Functor.IsDenseSubsite.isCoverDense smallTop largeTop chartInclusion
+  letI := Functor.IsDenseSubsite.isLocallyFull smallTop largeTop chartInclusion
+  letI : HasWeakSheafify smallTop AddCommGrpCat.{u} := (small_additive U a).isRightAdjoint
+  let comparisonAdj := (comparison U a ha).symm.toAdjunction
+  let sheafificationAdj := sheafificationAdjunction smallTop AddCommGrpCat.{u}
+  change Functor.IsCoverDense.restrictHomEquivHom
+      (sheafificationAdj.homEquiv _ _ (comparisonAdj.homEquiv _ _
+        ((sheafify U a ha).map f ≫ g))) =
+    f ≫ Functor.IsCoverDense.restrictHomEquivHom
+      (sheafificationAdj.homEquiv _ _ (comparisonAdj.homEquiv _ _ g))
+  rw [← Functor.IsCoverDense.restrictHomEquivHom_naturality_left]
+  congr 2
+  trans sheafificationAdj.homEquiv _ _
+    ((presheafToSheaf smallTop AddCommGrpCat.{u}).map ((chartInclusion).op.whiskerLeft f) ≫
+      comparisonAdj.homEquiv _ _ g)
+  · congr 1
+    apply comparisonAdj.homEquiv_naturality_left
+  · apply sheafificationAdj.homEquiv_naturality_left
+
 /-- Naturality of these specified maps is a law, not a witness selecting data. -/
 def adjunction : sheafify U a ha ⊣ sheafToPresheaf largeTop AddCommGrpCat.{u} :=
   Adjunction.mkOfHomEquiv
     { homEquiv := homEquiv U a ha
-      homEquiv_naturality_left_symm := by sorry
-      homEquiv_naturality_right := by sorry }
+      homEquiv_naturality_left_symm := fun {P₁ P₂ Q} f g ↦
+        (homEquiv U a ha P₁ Q).injective (by
+          rw [homEquiv_naturality_left U a ha f]
+          exact ((homEquiv U a ha P₁ Q).apply_symm_apply (f ≫ g)).trans
+            (congrArg (fun result ↦ f ≫ result)
+              ((homEquiv U a ha P₂ Q).apply_symm_apply g)).symm)
+      homEquiv_naturality_right := by
+        intro P Q₁ Q₂ f g
+        letI := dense U a ha
+        letI := Functor.IsDenseSubsite.isCoverDense smallTop largeTop chartInclusion
+        letI := Functor.IsDenseSubsite.isLocallyFull smallTop largeTop chartInclusion
+        letI : HasWeakSheafify smallTop AddCommGrpCat.{u} := (small_additive U a).isRightAdjoint
+        let comparisonAdj := (comparison U a ha).symm.toAdjunction
+        let sheafificationAdj := sheafificationAdjunction smallTop AddCommGrpCat.{u}
+        change Functor.IsCoverDense.restrictHomEquivHom
+            (sheafificationAdj.homEquiv _ _ (comparisonAdj.homEquiv _ _ (f ≫ g))) =
+          Functor.IsCoverDense.restrictHomEquivHom
+            (sheafificationAdj.homEquiv _ _ (comparisonAdj.homEquiv _ _ f)) ≫ g.hom
+        rw [comparisonAdj.homEquiv_naturality_right,
+          sheafificationAdj.homEquiv_naturality_right]
+        apply Functor.IsCoverDense.restrictHomEquivHom_naturality_right }
+
+/-- Restriction, small-site sheafification, and the inverse comparison preserve finite limits. -/
+theorem sheafify_preservesFiniteLimits : PreservesFiniteLimits (sheafify U a ha) := by
+  letI := dense U a ha
+  letI : HasSheafify smallTop AddCommGrpCat.{u} := small_additive U a
+  dsimp only [sheafify]
+  infer_instance
 
 include U a ha in
 /-- A certificate backed by the concrete original-universe adjunction. -/

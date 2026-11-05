@@ -20,3 +20,18 @@ universe u
 
 #check (AlgebraicGeometry.AlgebraicSpace.InfiniteProduct.spacePoints :
   ∀ (k : Type u) [Field k], Type u)
+
+#check (AlgebraicGeometry.AlgebraicSpace.InfiniteProduct.space :
+  ∀ (k : Type u) [Field k],
+    AlgebraicGeometry.AlgebraicSpace (AlgebraicGeometry.AlgebraicSpace.InfiniteProduct.base k))
+
+#check (AlgebraicGeometry.AlgebraicSpace.InfiniteProduct.pointsHomeomorphSpacePoints :
+  ∀ (k : Type u) [Field k],
+    AlgebraicGeometry.AlgebraicSpace.Points
+      (AlgebraicGeometry.AlgebraicSpace.InfiniteProduct.space k) ≃ₜ
+        AlgebraicGeometry.AlgebraicSpace.InfiniteProduct.spacePoints k)
+
+#check (AlgebraicGeometry.AlgebraicSpace.InfiniteProduct.pointsTopology_spec :
+  ∀ (k : Type u) [Field k],
+    AlgebraicGeometry.AlgebraicSpace.IsPointsTopology
+      (AlgebraicGeometry.AlgebraicSpace.InfiniteProduct.space k) inferInstance)

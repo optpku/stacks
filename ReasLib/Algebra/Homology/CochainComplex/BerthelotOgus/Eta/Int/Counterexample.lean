@@ -104,7 +104,17 @@ abbrev idealSelfMul (f : A) : idealObject f ⟶ idealObject f :=
 
 /-- Multiplication by a nonzerodivisor identifies `A` bijectively with `(f)`. -/
 theorem idealMul_bijective (f : A) (hf : f ∈ nonZeroDivisors A) :
-    Function.Bijective (idealMul f).hom := sorry
+    Function.Bijective (idealMul f).hom := by
+  constructor
+  · intro x y h
+    have h' := congrArg Subtype.val h
+    change x * f = y * f at h'
+    apply sub_eq_zero.mp
+    apply (mem_nonZeroDivisors_iff_right.mp hf) (x - y)
+    rw [sub_mul, h', sub_self]
+  · intro x
+    obtain ⟨a, ha⟩ := Ideal.mem_span_singleton'.mp x.property
+    exact ⟨a, Subtype.ext ha⟩
 
 /-- The canonical module isomorphism `A ≅ (f)` induced by multiplication by `f`. -/
 @[stacks 0GSN "multiplication identifies A with its principal ideal"]
@@ -115,12 +125,13 @@ noncomputable def idealMulIso (f : A) (hf : f ∈ nonZeroDivisors A) :
 /-- The forward map of `idealMulIso` is multiplication by `f`. -/
 @[stacks 0GSN "forward map of the principal-ideal isomorphism"]
 theorem idealMulIso_hom (f : A) (hf : f ∈ nonZeroDivisors A) :
-    (idealMulIso f hf).hom = idealMul f := sorry
+    (idealMulIso f hf).hom = idealMul f := rfl
 
 /-- The chosen inverse of `idealMulIso` is characterized by multiplication back into `(f)`. -/
 theorem idealMulIso_inv_spec (f : A) (hf : f ∈ nonZeroDivisors A)
     (x : idealObject f) :
-    (idealMul f).hom ((idealMulIso f hf).inv.hom x) = x := sorry
+    (idealMul f).hom ((idealMulIso f hf).inv.hom x) = x :=
+  (LinearEquiv.ofBijective (idealMul f).hom (idealMul_bijective f hf)).apply_symm_apply x
 
 /-- The free rank-one module satisfies the `f`-torsion-free property. -/
 theorem sourceModule_mem (f : A) (hf : f ∈ nonZeroDivisors A) :

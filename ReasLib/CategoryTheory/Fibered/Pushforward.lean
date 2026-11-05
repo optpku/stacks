@@ -133,7 +133,12 @@ namespace Pushforward
 /-- The prelocalized projection inverts the vertical strongly-cartesian fraction property. -/
 @[stacks 04WG "prelocalized pushforward projection inversion"]
 theorem sourceProjection.invertsFractions (u : C ⥤ D) (p : S ⥤ C) :
-    (u.pushforwardFractions p).IsInvertedBy (sourceProjection u p) := sorry
+    (u.pushforwardFractions p).IsInvertedBy (sourceProjection u p) := by
+  intro X Y f hf
+  rcases hf.1 with ⟨V, hV⟩
+  letI := hV
+  rw [IsHomLift.fac' (sourceProjection u p) (𝟙 V) f]
+  infer_instance
 
 /-- An explicit choice certifying that the prelocalized pushforward projection descends through
 the localization. Keeping this proof as an input prevents an unfinished existence theorem from
@@ -156,7 +161,8 @@ two proof presentations.
 -/
 @[stacks 04WG "canonical raw pushforward projection choice"]
 theorem ProjectionChoice.canonical (u : C ⥤ D) (p : S ⥤ C) :
-    ProjectionChoice u p := sorry
+    ProjectionChoice u p :=
+  ⟨sourceProjection.invertsFractions u p⟩
 
 /-- The projection from the localized pushforward induced by an explicit proof that the source
 projection inverts the pushforward fractions. The inversion proof remains an input so
@@ -298,7 +304,9 @@ theorem ProjectionChoice.canonical (u : C ⥤ D) (X : FiberedCategoryOver C)
     [HasPullbacks C] [HasEqualizers C]
     [PreservesLimitsOfShape WalkingCospan u]
     [PreservesLimitsOfShape WalkingParallelPair u] :
-    ProjectionChoice u X := sorry
+    ProjectionChoice u X where
+  inverts := Functor.Pushforward.sourceProjection.invertsFractions u X.p
+  isFibered := Functor.Pushforward.projection.isFibered u X.p _
 
 end Pushforward
 

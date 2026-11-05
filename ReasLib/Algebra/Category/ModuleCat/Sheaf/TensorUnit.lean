@@ -54,7 +54,6 @@ noncomputable abbrev sheafifiedUnitCounit :
     (𝟙 (R.obj))).counit.app (SheafOfModules.unit R)
 
 /-- The named inverse of the counit from the sheafification model of the structure module. -/
-@[stacks 03L6 "structure-module sheafification counit inverse"]
 noncomputable def sheafifiedUnitCounitInv :
     SheafOfModules.unit R ⟶ sheafifiedUnitModel R :=
   @CategoryTheory.inv _ _ _ _

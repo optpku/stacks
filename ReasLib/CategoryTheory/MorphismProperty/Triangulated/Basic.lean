@@ -45,37 +45,57 @@ section Completion
 variable {D : Type u} [Category.{v} D] [HasZeroObject D] [HasShift D ℤ]
   [Preadditive D] [∀ n : ℤ, (shiftFunctor D n).Additive] [Pretriangulated D]
 variable (S : MorphismProperty D)
-variable
-  (h_complete :
-    ∀ (T₁ T₂ : Triangle D) (_ : T₁ ∈ distTriang D) (_ : T₂ ∈ distTriang D)
-      (a : T₁.obj₁ ⟶ T₂.obj₁) (b : T₁.obj₂ ⟶ T₂.obj₂),
-        S a → S b → T₁.mor₁ ≫ b = a ≫ T₂.mor₁ →
-          ∃ c : T₁.obj₃ ⟶ T₂.obj₃, S c ∧
-            T₁.mor₂ ≫ c = b ≫ T₂.mor₂ ∧
-              T₁.mor₃ ≫ a⟦(1 : ℤ)⟧' = c ≫ T₂.mor₃)
 
 /-- Triangle completion and identity membership force every isomorphism to belong to the
 morphism property. -/
-@[stacks 0H30]
-theorem isomorphisms_le [S.ContainsIdentities] :
+@[stacks 05R3]
+theorem isomorphisms_le [S.ContainsIdentities]
+    (h_complete :
+      ∀ (T₁ T₂ : Triangle D) (_ : T₁ ∈ distTriang D) (_ : T₂ ∈ distTriang D)
+        (a : T₁.obj₁ ⟶ T₂.obj₁) (b : T₁.obj₂ ⟶ T₂.obj₂),
+          S a → S b → T₁.mor₁ ≫ b = a ≫ T₂.mor₁ →
+            ∃ c : T₁.obj₃ ⟶ T₂.obj₃, S c ∧
+              T₁.mor₂ ≫ c = b ≫ T₂.mor₂ ∧
+                T₁.mor₃ ≫ a⟦(1 : ℤ)⟧' = c ≫ T₂.mor₃) :
     isomorphisms D ≤ S := sorry
 
 /-- Stacks 0H30: one-shift invariance and triangle completion assemble the canonical
 triangulation-compatibility instance. -/
 @[stacks 0H30]
 theorem of_one [S.IsMultiplicative]
+    (h_complete :
+      ∀ (T₁ T₂ : Triangle D) (_ : T₁ ∈ distTriang D) (_ : T₂ ∈ distTriang D)
+        (a : T₁.obj₁ ⟶ T₂.obj₁) (b : T₁.obj₂ ⟶ T₂.obj₂),
+          S a → S b → T₁.mor₁ ≫ b = a ≫ T₂.mor₁ →
+            ∃ c : T₁.obj₃ ⟶ T₂.obj₃, S c ∧
+              T₁.mor₂ ≫ c = b ≫ T₂.mor₂ ∧
+                T₁.mor₃ ≫ a⟦(1 : ℤ)⟧' = c ≫ T₂.mor₃)
     (h_one : ∀ ⦃X Y : D⦄ (f : X ⟶ Y), S (f⟦(1 : ℤ)⟧') ↔ S f) :
     S.IsCompatibleWithTriangulation := sorry
 
 /-- With triangle completion fixed, one-shift invariance is equivalent to the canonical
 all-shifts compatibility class. -/
-theorem one_iff_compatibleShift [S.IsMultiplicative] :
+theorem one_iff_compatibleShift [S.IsMultiplicative]
+    (h_complete :
+      ∀ (T₁ T₂ : Triangle D) (_ : T₁ ∈ distTriang D) (_ : T₂ ∈ distTriang D)
+        (a : T₁.obj₁ ⟶ T₂.obj₁) (b : T₁.obj₂ ⟶ T₂.obj₂),
+          S a → S b → T₁.mor₁ ≫ b = a ≫ T₂.mor₁ →
+            ∃ c : T₁.obj₃ ⟶ T₂.obj₃, S c ∧
+              T₁.mor₂ ≫ c = b ≫ T₂.mor₂ ∧
+                T₁.mor₃ ≫ a⟦(1 : ℤ)⟧' = c ≫ T₂.mor₃) :
     (∀ ⦃X Y : D⦄ (f : X ⟶ Y), S (f⟦(1 : ℤ)⟧') ↔ S f) ↔
       S.IsCompatibleWithShift ℤ := sorry
 
 /-- With triangle completion fixed, invariance under the shift by `1` is equivalent to
 invariance under every integer shift. -/
-theorem one_iff_all [S.IsMultiplicative] :
+theorem one_iff_all [S.IsMultiplicative]
+    (h_complete :
+      ∀ (T₁ T₂ : Triangle D) (_ : T₁ ∈ distTriang D) (_ : T₂ ∈ distTriang D)
+        (a : T₁.obj₁ ⟶ T₂.obj₁) (b : T₁.obj₂ ⟶ T₂.obj₂),
+          S a → S b → T₁.mor₁ ≫ b = a ≫ T₂.mor₁ →
+            ∃ c : T₁.obj₃ ⟶ T₂.obj₃, S c ∧
+              T₁.mor₂ ≫ c = b ≫ T₂.mor₂ ∧
+                T₁.mor₃ ≫ a⟦(1 : ℤ)⟧' = c ≫ T₂.mor₃) :
     (∀ ⦃X Y : D⦄ (f : X ⟶ Y), S (f⟦(1 : ℤ)⟧') ↔ S f) ↔
       ∀ ⦃X Y : D⦄ (f : X ⟶ Y) (n : ℤ), S (f⟦n⟧') ↔ S f := sorry
 

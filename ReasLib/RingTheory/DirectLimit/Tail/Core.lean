@@ -42,7 +42,8 @@ noncomputable def upperBound [IsDirectedOrder I] (i0 i : I) : Set.Ici i0 :=
 
 /-- The selected tail upper bound lies above the original stage. -/
 theorem le_upperBound [IsDirectedOrder I] (i0 i : I) :
-    i ≤ (upperBound i0 i).1 := sorry
+    i ≤ (upperBound i0 i).1 := by
+  exact (exists_ge_ge i i0).choose_spec.1
 
 /-- The map from an arbitrary stage into the direct limit of the tail.  It is
 internal because its chosen upper bound is noncanonical. -/
@@ -60,7 +61,18 @@ theorem stageToTail_compatible [IsDirectedOrder I]
     (f : ∀ i j, i ≤ j → G i →+* G j)
     [DirectedSystem G (fun i j h ↦ f i j h)]
     (i0 : I) {i j : I} (hij : i ≤ j) (x : G i) :
-    stageToTail f i0 j (f i j hij x) = stageToTail f i0 i x := sorry
+    stageToTail f i0 j (f i j hij x) = stageToTail f i0 i x := by
+  obtain ⟨k, hik, hjk⟩ := exists_ge_ge (upperBound i0 i).1 (upperBound i0 j).1
+  let kt : Set.Ici i0 := ⟨k, le_trans (upperBound i0 i).2 hik⟩
+  change Ring.DirectLimit.of (fun j : Set.Ici i0 ↦ G j.1)
+      (fun j k h ↦ f j.1 k.1 h) (upperBound i0 j)
+      (f j (upperBound i0 j).1 (le_upperBound i0 j) (f i j hij x)) =
+    Ring.DirectLimit.of (fun j : Set.Ici i0 ↦ G j.1)
+      (fun j k h ↦ f j.1 k.1 h) (upperBound i0 i)
+      (f i (upperBound i0 i).1 (le_upperBound i0 i) x)
+  rw [← Ring.DirectLimit.of_f (i := upperBound i0 j) (j := kt) hjk,
+    ← Ring.DirectLimit.of_f (i := upperBound i0 i) (j := kt) hik]
+  simp only [DirectedSystem.map_map (f := fun i j h ↦ f i j h)]
 
 end Internal
 
@@ -91,7 +103,8 @@ theorem toFull_of
     toFull f i0
         (Ring.DirectLimit.of (fun j : Set.Ici i0 ↦ G j.1)
           (fun j k h ↦ f j.1 k.1 h) j x) =
-      Ring.DirectLimit.of G (fun i j h ↦ f i j h) j.1 x := sorry
+      Ring.DirectLimit.of G (fun i j h ↦ f i j h) j.1 x := by
+  simp only [toFull, Ring.DirectLimit.lift_of]
 
 /-- The canonical map from the full direct limit to the direct limit of the
 tail above `i0`. -/
@@ -117,14 +130,26 @@ theorem fromFull_of [IsDirectedOrder I]
     (j : Set.Ici i0) (x : G j.1) :
     fromFull f i0 (Ring.DirectLimit.of G (fun i j h ↦ f i j h) j.1 x) =
       Ring.DirectLimit.of (fun j : Set.Ici i0 ↦ G j.1)
-        (fun j k h ↦ f j.1 k.1 h) j x := sorry
+        (fun j k h ↦ f j.1 k.1 h) j x := by
+  rw [fromFull, Ring.DirectLimit.lift_of]
+  change Internal.stageToTail f i0 j.1 x = _
+  exact Ring.DirectLimit.of_f
+    (G := fun j : Set.Ici i0 ↦ G j.1) (f := fun j k h ↦ f j.1 k.1 h)
+    (i := j) (j := Internal.upperBound i0 j.1)
+    (Internal.le_upperBound i0 j.1) x
 
 /-- Passing from the full direct limit to its tail and back is the identity. -/
 @[stacks 00QV "direct-limit tail"]
 theorem toFull_comp_fromFull [IsDirectedOrder I]
     (f : ∀ i j, i ≤ j → G i →+* G j)
     [DirectedSystem G (fun i j h ↦ f i j h)] (i0 : I) :
-    (toFull f i0).comp (fromFull f i0) = RingHom.id _ := sorry
+    (toFull f i0).comp (fromFull f i0) = RingHom.id _ := by
+  apply Ring.DirectLimit.hom_ext
+  intro i
+  ext x
+  simp only [RingHom.comp_apply, RingHom.id_apply, fromFull, Ring.DirectLimit.lift_of]
+  change toFull f i0 (Internal.stageToTail f i0 i x) = Ring.DirectLimit.of G (fun i j h ↦ f i j h) i x
+  rw [Internal.stageToTail, RingHom.comp_apply, toFull_of, Ring.DirectLimit.of_f]
 
 /-- The tail-to-full comparison followed by the chosen inverse evaluates to the
 identity on every element of the full direct limit. -/
@@ -133,7 +158,8 @@ theorem toFull_comp_fromFull_apply [IsDirectedOrder I]
     (f : ∀ i j, i ≤ j → G i →+* G j)
     [DirectedSystem G (fun i j h ↦ f i j h)] (i0 : I)
     (x : Ring.DirectLimit G (fun i j h ↦ f i j h)) :
-    toFull f i0 (fromFull f i0 x) = x := sorry
+    toFull f i0 (fromFull f i0 x) = x := by
+  exact DFunLike.congr_fun (toFull_comp_fromFull f i0) x
 
 /-- Passing from the tail direct limit to the full direct limit and back is the
 identity. -/
@@ -141,7 +167,11 @@ identity. -/
 theorem fromFull_comp_toFull [IsDirectedOrder I]
     (f : ∀ i j, i ≤ j → G i →+* G j)
     [DirectedSystem G (fun i j h ↦ f i j h)] (i0 : I) :
-    (fromFull f i0).comp (toFull f i0) = RingHom.id _ := sorry
+    (fromFull f i0).comp (toFull f i0) = RingHom.id _ := by
+  apply Ring.DirectLimit.hom_ext
+  intro j
+  ext x
+  simp only [RingHom.comp_apply, RingHom.id_apply, toFull_of, fromFull_of]
 
 /-- The chosen inverse followed by the tail-to-full comparison evaluates to the
 identity on every element of the tail direct limit. -/
@@ -151,7 +181,8 @@ theorem fromFull_comp_toFull_apply [IsDirectedOrder I]
     [DirectedSystem G (fun i j h ↦ f i j h)] (i0 : I)
     (x : Ring.DirectLimit (fun j : Set.Ici i0 ↦ G j.1)
       (fun j k h ↦ f j.1 k.1 h)) :
-    fromFull f i0 (toFull f i0 x) = x := sorry
+    fromFull f i0 (toFull f i0 x) = x := by
+  exact DFunLike.congr_fun (fromFull_comp_toFull f i0) x
 
 /-- The direct limit of a directed ring system is canonically equivalent to the
 direct limit of the tail above `i0`. -/
@@ -175,7 +206,8 @@ theorem equiv_apply [IsDirectedOrder I]
     [DirectedSystem G (fun i j h ↦ f i j h)] (i0 : I)
     (x : Ring.DirectLimit (fun j : Set.Ici i0 ↦ G j.1)
       (fun j k h ↦ f j.1 k.1 h)) :
-    equiv f i0 x = toFull f i0 x := sorry
+    equiv f i0 x = toFull f i0 x := by
+  rfl
 
 /-- The inverse tail/full equivalence sends a full generator already indexed by
 the tail to the corresponding tail-stage generator. -/
@@ -187,7 +219,8 @@ theorem equiv_symm_apply_of [IsDirectedOrder I]
     (equiv f i0).symm
         (Ring.DirectLimit.of G (fun i j h ↦ f i j h) j.1 x) =
       Ring.DirectLimit.of (fun j : Set.Ici i0 ↦ G j.1)
-        (fun j k h ↦ f j.1 k.1 h) j x := sorry
+        (fun j k h ↦ f j.1 k.1 h) j x := by
+  exact fromFull_of f i0 j x
 
 end Tail
 

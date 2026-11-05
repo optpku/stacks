@@ -9,7 +9,7 @@ module
 public import Mathlib.Algebra.Torsor.Defs
 public import ReasLib.AlgebraicGeometry.RingedSpace.FirstOrderThickening.Solution
 public import ReasLib.AlgebraicGeometry.RingedSpace.FirstOrderThickening.MapObstruction
-public import ReasLib.AlgebraicGeometry.Scheme.Module.Derived.Dualizing.NewUpperShriek.Assignment
+public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Derived.Pullback.Identity
 
 /-!
 # Compatible isomorphism classes of first-order solutions

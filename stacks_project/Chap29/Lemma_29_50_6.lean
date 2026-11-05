@@ -25,5 +25,5 @@ their generic-point local rings over the stalk at their common image in `S` are 
       List.TFAE
         [ AlgebraicGeometry.Scheme.BirationalOver (X ↘ S) (Y ↘ S)
         , AlgebraicGeometry.HasIsomorphicNonemptyOpenSubschemesOver S X Y
-        , AlgebraicGeometry.BirationalOver S X Y
+        , AlgebraicGeometry.HasIsomorphicGenericPointsOver S X Y
         ])

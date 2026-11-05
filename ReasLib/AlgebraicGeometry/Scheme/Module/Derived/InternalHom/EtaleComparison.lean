@@ -377,24 +377,9 @@ def etaleAffineComparison {A : Type u} [CommRing A] [RHom.Has (A := A)]
           (J := StandardTopology.Small.topology .etale (Spec (CommRingCat.of A)))
           (O := StandardSmall.commStructureSheaf .etale (Spec (CommRingCat.of A)))
           (D.obj K)).hom)
-  let closed : MonoidalClosed (CochainComplex C ℤ) :=
-    @CochainComplex.InternalHom.monoidalClosed C
-      inferInstance inferInstance inferInstance inferInstance inferInstance
-      inferInstance inferInstance
-      (fun _ _ _ ↦ HasColimitsOfShape.has_colimit _)
-      (fun _ _ _ _ _ ↦ PreservesColimitsOfShape.preservesColimit)
-      (fun _ _ _ _ _ ↦ PreservesColimitsOfShape.preservesColimit)
-      (fun _ _ _ _ _ _ ↦ PreservesColimitsOfShape.preservesColimit)
-      (fun _ ↦ PreservesColimitsOfShape.preservesColimit)
-      (fun _ ↦ PreservesColimitsOfShape.preservesColimit)
   have hp : IsIso (S.map p) := by
     apply (DerivedCategory.isIso_Q_map_iff_quasiIso C p).mpr
-    have h := @SheafOfModules.RingedSite.IHom.quasiIso_map
-      _ _ _ _ _ _ _ _ closed _ _ IL IL
-      inferInstance inferInstance s (𝟙 IL) hs (by infer_instance)
-    dsimp only [CategoryTheory.MonoidalClosed.Source.map] at h
-    erw [CategoryTheory.Functor.map_id, Category.id_comp] at h
-    exact h
+    exact RingedSite.Hom.ModuleDerived.InternalHom.strictInternalHom_quasiIso_precomp s hs IL
   exact D.map eH.inv ≫ (affineEtaleModuleDerivedIso A).inv.app _ ≫
     F.mapDerivedCategoryFactors.hom.app _ ≫
     S.map (etaleAffineComparisonComplex M I.obj.obj) ≫

@@ -129,7 +129,8 @@ theorem restrictIdealModuleHom_smul (hπ : KernelIdeal.IsSquareZero π)
     (r : (ringSheaf J 𝒪').obj.obj U)
     (m : ((restrictionAlong π).obj (idealModule hπ)).val.obj U) :
     (restrictIdealModuleHom_toPresheaf hπ).app U (r • m) =
-      r • (restrictIdealModuleHom_toPresheaf hπ).app U m := sorry
+      r • (restrictIdealModuleHom_toPresheaf hπ).app U m :=
+  hπ.targetModuleRestrictHom_smul (KernelIdeal.quotientComparison_isIso π) U r m
 
 /-- The inverse additive comparison is linear over the source ring sheaf. -/
 theorem restrictIdealModuleInv_smul (hπ : KernelIdeal.IsSquareZero π)
@@ -137,40 +138,38 @@ theorem restrictIdealModuleInv_smul (hπ : KernelIdeal.IsSquareZero π)
     (r : (ringSheaf J 𝒪').obj.obj U)
     (m : (KernelIdeal.sheaf π).val.obj U) :
     (restrictIdealModuleInv_toPresheaf hπ).app U (r • m) =
-      r • (restrictIdealModuleInv_toPresheaf hπ).app U m := sorry
+      r • (restrictIdealModuleInv_toPresheaf hπ).app U m :=
+  hπ.targetModuleRestrictInv_smul (KernelIdeal.quotientComparison_isIso π) U r m
 
 /-- The source-ring-linear map from the descended kernel module to the kernel ideal sheaf. -/
 noncomputable def restrictIdealModuleHom (hπ : KernelIdeal.IsSquareZero π)
     [Sheaf.IsLocallySurjective π] :
     (restrictionAlong π).obj (idealModule hπ) ⟶ KernelIdeal.sheaf π :=
-  ⟨PresheafOfModules.homMk
-    (restrictIdealModuleHom_toPresheaf hπ) (restrictIdealModuleHom_smul hπ)⟩
+  (hπ.targetModuleRestrictIso (KernelIdeal.quotientComparison_isIso π)).hom
 
 /-- The inverse source-ring-linear map from the kernel ideal sheaf to the descended module. -/
 noncomputable def restrictIdealModuleInv (hπ : KernelIdeal.IsSquareZero π)
     [Sheaf.IsLocallySurjective π] :
     KernelIdeal.sheaf π ⟶ (restrictionAlong π).obj (idealModule hπ) :=
-  ⟨PresheafOfModules.homMk
-    (restrictIdealModuleInv_toPresheaf hπ) (restrictIdealModuleInv_smul hπ)⟩
+  (hπ.targetModuleRestrictIso (KernelIdeal.quotientComparison_isIso π)).inv
 
 /-- The forward and inverse comparisons compose to the identity on the restricted descended module. -/
 theorem restrictIdealModuleHom_inv_id (hπ : KernelIdeal.IsSquareZero π)
     [Sheaf.IsLocallySurjective π] :
-    restrictIdealModuleHom hπ ≫ restrictIdealModuleInv hπ = 𝟙 _ := sorry
+    restrictIdealModuleHom hπ ≫ restrictIdealModuleInv hπ = 𝟙 _ :=
+  (hπ.targetModuleRestrictIso (KernelIdeal.quotientComparison_isIso π)).hom_inv_id
 
 /-- The inverse and forward comparisons compose to the identity on the kernel ideal sheaf. -/
 theorem restrictIdealModuleInv_hom_id (hπ : KernelIdeal.IsSquareZero π)
     [Sheaf.IsLocallySurjective π] :
-    restrictIdealModuleInv hπ ≫ restrictIdealModuleHom hπ = 𝟙 _ := sorry
+    restrictIdealModuleInv hπ ≫ restrictIdealModuleHom hπ = 𝟙 _ :=
+  (hπ.targetModuleRestrictIso (KernelIdeal.quotientComparison_isIso π)).inv_hom_id
 
 /-- Restriction of scalars of the descended kernel module recovers the kernel ideal sheaf. -/
 noncomputable def restrictIdealModuleIso (hπ : KernelIdeal.IsSquareZero π)
     [Sheaf.IsLocallySurjective π] :
-    (restrictionAlong π).obj (idealModule hπ) ≅ KernelIdeal.sheaf π where
-  hom := restrictIdealModuleHom hπ
-  inv := restrictIdealModuleInv hπ
-  hom_inv_id := restrictIdealModuleHom_inv_id hπ
-  inv_hom_id := restrictIdealModuleInv_hom_id hπ
+    (restrictionAlong π).obj (idealModule hπ) ≅ KernelIdeal.sheaf π :=
+  hπ.targetModuleRestrictIso (KernelIdeal.quotientComparison_isIso π)
 
 end KernelModule
 

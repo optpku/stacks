@@ -41,7 +41,8 @@ theorem canonicalCap_eq
     [Scheme.Modules.IsFiniteLocallyFreeOfRank r E] (k : ℤ)
     (α : CycleGroup X (p.relativeDimensionFunction δ) k)
     (c : ChowGroup.ChernClassCap δ p E r k α) :
-    canonicalCap δ p E r k α = c := sorry
+    canonicalCap δ p E r k α = c :=
+  ChowGroup.ChernClassCap.unique δ p E r k α _ c
 
 /-- The zeroth component of the canonical Chern-class cap is the Chow class of
 the input cycle. -/

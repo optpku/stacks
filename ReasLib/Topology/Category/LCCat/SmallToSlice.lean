@@ -109,14 +109,14 @@ instance opensOver_isContinuous_qc :
 noncomputable abbrev typePullback
     [HasWeakSheafify (zarTopology.over X) (Type u)] :
     X.obj.Sheaf (Type u) ⥤ Sheaf (zarTopology.over X) (Type u) :=
-  (opensOver X).sheafPullback (Type u)
+  Functor.sheafPullbackConstruction.sheafPullback (opensOver X) (Type u)
     (Opens.grothendieckTopology X.obj) (zarTopology.over X)
 
 /-- The Type-valued inverse image from the small open site to the qc slice site. -/
 @[stacks 0D92 "small-to-qc Type inverse image"]
 noncomputable abbrev qcTypePullback [HasWeakSheafify (qcTopology.over X) (Type u)] :
     X.obj.Sheaf (Type u) ⥤ Sheaf (qcTopology.over X) (Type u) :=
-  (opensOver X).sheafPullback (Type u)
+  Functor.sheafPullbackConstruction.sheafPullback (opensOver X) (Type u)
     (Opens.grothendieckTopology X.obj) (qcTopology.over X)
 
 /-- The restriction-level comparison between the pullback-section rule and the original small
@@ -160,9 +160,9 @@ noncomputable def restrictionHom (F : X.obj.Sheaf (Type u)) :
 noncomputable def sectionsComparison
     [HasWeakSheafify (zarTopology.over X) (Type u)]
     (F : X.obj.Sheaf (Type u)) :
-    ((opensOver X).sheafPullback (Type u)
+    (Functor.sheafPullbackConstruction.sheafPullback (opensOver X) (Type u)
       (Opens.grothendieckTopology X.obj) (zarTopology.over X)).obj F ⟶ (zar X).obj F :=
-  (((opensOver X).sheafAdjunctionContinuous (Type u)
+  ((Functor.sheafPullbackConstruction.sheafAdjunctionContinuous (opensOver X) (Type u)
       (Opens.grothendieckTopology X.obj) (zarTopology.over X)).homEquiv F ((zar X).obj F)).symm
     (restrictionHom X F)
 

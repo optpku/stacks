@@ -41,28 +41,35 @@ end
 
 section
 
-variable (D : Type u) [Category.{v} D] [Preadditive D] [HasShift D ℤ]
-  [HasCoproducts.{max u v} D]
-
-/-- A category is compactly generated when it has a universe-sized family of compact objects
-whose coproduct is a weak generator. -/
+/-- A category is compactly generated when it has a family of compact generators indexed
+in its morphism universe. This predicate does not require a choice of coproducts.
+When small coproducts exist, `isWeakGenerator_coproduct_iff_isGeneratingFamily` recovers
+the coproduct formulation. -/
 @[stacks 09SQ]
-def IsCompactlyGenerated : Prop :=
-  ∃ (I : Type (max u v)) (E : I → D),
-    (∀ i, IsCompactObject (E i)) ∧ IsWeakGenerator (∐ E)
+def IsCompactlyGenerated (D : Type u) [Category.{v} D] [Preadditive D]
+    [HasShift D ℤ] : Prop :=
+  ∃ (I : Type v) (E : I → D),
+    (∀ i, IsCompactObject (E i)) ∧ IsGeneratingFamily E
+
+variable (D : Type u) [Category.{v} D] [Preadditive D] [HasShift D ℤ]
 
 /-- Compact generation is equivalent to the existence of a compact generating family. -/
 theorem isCompactlyGenerated_iff_exists_compact_generatingFamily :
     IsCompactlyGenerated D ↔
-      ∃ (I : Type (max u v)) (E : I → D),
-        (∀ i, IsCompactObject (E i)) ∧ IsGeneratingFamily E := sorry
+      ∃ (I : Type v) (E : I → D),
+        (∀ i, IsCompactObject (E i)) ∧ IsGeneratingFamily E := Iff.rfl
 
 /-- Compact generation is equivalent to a generating family valued in the compact full
 subcategory. -/
 theorem isCompactlyGenerated_iff_exists_compactSubcategory_generatingFamily :
     IsCompactlyGenerated D ↔
-      ∃ (I : Type (max u v)) (E : I → compactObjectSubcategory D),
-        IsGeneratingFamily (fun i ↦ (E i).obj) := sorry
+      ∃ (I : Type v) (E : I → compactObjectSubcategory D),
+        IsGeneratingFamily (fun i ↦ (E i).obj) := by
+  constructor
+  · rintro ⟨I, E, hcompact, hgen⟩
+    exact ⟨I, fun i ↦ ⟨E i, hcompact i⟩, hgen⟩
+  · rintro ⟨I, E, hgen⟩
+    exact ⟨I, fun i ↦ (E i).obj, fun i ↦ (E i).property, hgen⟩
 
 end
 

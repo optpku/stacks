@@ -53,7 +53,12 @@ theorem IdealSubobject.toModule_eq {S : Scheme.{u}} {X : AlgebraicSpace S}
   rfl
 
 /-- A quasi-coherent ideal sheaf on an algebraic space is a quasi-coherent
-`𝒪_X`-submodule of `𝒪_X`. -/
+`𝒪_X`-submodule of `𝒪_X`.
+
+This class is a thin specialization of `SheafOfModules.IsQuasicoherent` along
+`IdealSubobject.toModule`. Its historical spelling is retained for compatibility;
+`IsQuasiCoherent.quasiCoherent` and `IsQuasiCoherent.of_isQuasicoherent` provide
+the two instance bridges, and `IsQuasiCoherent.spec` states their equivalence. -/
 @[mk_iff]
 class IsQuasiCoherent {S : Scheme.{u}} {X : AlgebraicSpace S}
     (I : IdealSubobject X) : Prop where
@@ -61,6 +66,15 @@ class IsQuasiCoherent {S : Scheme.{u}} {X : AlgebraicSpace S}
   quasiCoherent : quasiCoherentModuleProperty X I.toModule
 
 namespace IsQuasiCoherent
+
+attribute [instance] quasiCoherent
+
+/-- Quasi-coherence of the underlying module gives quasi-coherence of the ideal.
+Together with the field instance `quasiCoherent`, this identifies the ideal
+specialization with mathlib's module predicate. -/
+instance (priority := low) of_isQuasicoherent {S : Scheme.{u}} {X : AlgebraicSpace S}
+    (I : IdealSubobject X) [I.toModule.IsQuasicoherent] : IsQuasiCoherent I :=
+  ⟨inferInstance⟩
 
 /-- The zero ideal sheaf on an algebraic space is quasi-coherent. -/
 instance bot {S : Scheme.{u}} {X : AlgebraicSpace S} :

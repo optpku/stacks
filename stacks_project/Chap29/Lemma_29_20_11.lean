@@ -44,9 +44,9 @@ has open-cover and affine-open-cover criteria and is preserved by restriction. -
   (AlgebraicGeometry.Scheme.Hom.FiniteType.locallyQuasiFinite_iff_exists_affineOpenCover :
     ∀ {X S : Scheme.{u}} (f : X ⟶ S),
       LocallyOfFiniteType f ∧ LocallyQuasiFinite f ↔
-        ∃ 𝒱 : S.AffineOpenCover,
+        ∃ 𝒱 : S.AffineOpenCover.{u},
           ∀ j : 𝒱.I₀,
-            ∃ 𝒰 : ((𝒱.openCover.pullback₁ f).X j).AffineOpenCover,
+            ∃ 𝒰 : ((𝒱.openCover.pullback₁ f).X j).AffineOpenCover.{u},
               ∀ i : 𝒰.I₀,
                 RingHom.FiniteType.QuasiFinite
                   (𝒰.f i ≫ 𝒱.openCover.pullbackHom f j).appTop.hom)

@@ -8,6 +8,7 @@ module
 
 public import Mathlib.Algebra.Homology.DerivedCategory.Ext.Map
 public import Mathlib.CategoryTheory.Sites.SheafCohomology.Basic
+public import Mathlib.CategoryTheory.Limits.Preserves.Shapes.Terminal
 public import ReasLib.AlgebraicGeometry.Scheme.OverField
 public import ReasLib.AlgebraicGeometry.Scheme.Sites.AssociatedModule.CommRing
 public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Pullback
@@ -126,7 +127,11 @@ noncomputable def rootsOfUnityAddSheafPullbackHom :
 /-- The pullback of the terminal object of `Y.Etale` is isomorphic to the
 terminal object of `X.Etale`. -/
 instance smallEtalePullback_obj_terminal_isIso :
-    IsIso (terminal.from ((Scheme.smallEtalePullback π).obj (⊤_ Y.Etale))) := sorry
+    IsIso (terminal.from ((Scheme.smallEtalePullback π).obj (⊤_ Y.Etale))) := by
+  letI : PreservesFiniteLimits (Scheme.smallEtalePullback π) :=
+    inferInstanceAs (PreservesFiniteLimits (MorphismProperty.Over.pullback @Etale ⊤ π))
+  change IsIso (terminalComparison (Scheme.smallEtalePullback π))
+  infer_instance
 
 /-- Canonical identification of the pulled-back constant sheaf of integers, as the
 unit of small étale sheaf pullback against the constant sheaf adjunction. -/

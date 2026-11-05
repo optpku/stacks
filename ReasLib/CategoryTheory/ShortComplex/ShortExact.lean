@@ -17,22 +17,29 @@ public import Mathlib.Tactic.CrossRefAttribute
 
 This file supplies the neutral object-property owner used when a construction
 is functorial in short exact complexes rather than merely defined pointwise.
+
+`CategoryTheory.ShortComplex.shortExact` is vendored verbatim from
+`Mathlib.Algebra.Homology.ShortComplex.ShortExact` at commit
+`d0207795ac79006da92d98544e1ce915ae386160`. When bumping mathlib to include
+that declaration, remove this copy and use the upstream declaration; any
+compatibility alias must point to it. Pending that bump, this in-place copy
+needs a vendored-allowlist entry (COLLAB.md §11).
 -/
 
 universe v u
 
 namespace CategoryTheory.ShortComplex
 
-variable (A : Type u) [Category.{v} A] [Preadditive A]
+/-- `ShortComplex.ShortExact` as an object property. -/
+abbrev shortExact (C : Type*) [Category* C] [Limits.HasZeroMorphisms C] :
+    ObjectProperty (ShortComplex C) :=
+  ShortComplex.ShortExact
 
-/-- Short exact complexes, regarded as an object property on `ShortComplex A`. -/
-@[stacks 010L "short exact complexes as an object property"]
-def shortExact : ObjectProperty (ShortComplex A) :=
-  fun S ↦ S.ShortExact
+variable (A : Type u) [Category.{v} A] [Limits.HasZeroMorphisms A]
 
 /-- Membership in `shortExact A` is the usual short-exactness predicate. -/
 @[simp]
 theorem mem_shortExact (S : ShortComplex A) :
-    shortExact A S ↔ S.ShortExact := sorry
+    shortExact A S ↔ S.ShortExact := Iff.rfl
 
 end CategoryTheory.ShortComplex

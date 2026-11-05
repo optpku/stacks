@@ -8,12 +8,14 @@ module
 
 public import ReasLib.RingTheory.Etale.Category
 public import ReasLib.RingTheory.Ideal.LocallyNilpotent
+public import ReasLib.RingTheory.Henselian.LocallyNilpotent
 import Mathlib.Tactic.CrossRefAttribute
 
 /-!
 # Etale algebras over locally nilpotent quotients
 
 Reduction modulo a locally nilpotent ideal is an equivalence on the category of etale algebras.
+The same local-nilpotence hypothesis also makes the pair henselian.
 
 @stack 0ALI
 -/
@@ -34,5 +36,12 @@ for the ideal and is not determined by the reduction functor's type. -/
 theorem reduction_isEquivalence_of_isLocallyNilpotent
     {A : Type u} [CommRing A] (I : Ideal A) (hI : I.IsLocallyNilpotent) :
     Functor.IsEquivalence (reduction I) := sorry
+
+/-- Both conclusions of Stacks 0ALI under the same explicit local-nilpotence hypothesis. -/
+@[stacks 0ALI "etale equivalence and henselian pair over a locally nilpotent quotient"]
+theorem reduction_isEquivalence_and_henselianRing_of_isLocallyNilpotent
+    {A : Type u} [CommRing A] (I : Ideal A) (hI : I.IsLocallyNilpotent) :
+    Functor.IsEquivalence (reduction I) ∧ HenselianRing A I :=
+  ⟨reduction_isEquivalence_of_isLocallyNilpotent I hI, hI.henselianRing⟩
 
 end CommAlgCat.Etale

@@ -39,184 +39,10 @@ namespace AlgebraicGeometry.Groupoids.Hom
 open LimitPreservingOnObjects
 open AlgebraicGeometry.Groupoids (homFunctor homCocone)
 
+open CategoryTheory.FiberedCategoryOver.Groupoids.Restriction
+
 -- Rewriting these comparisons requires reducing the fibre and bicategory wrappers.
 set_option backward.isDefEq.respectTransparency false
-
-@[reassoc] private theorem comparison_hom_fac {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    (f : X ⟶ Y) {U V : Over S} (x : X.p.Fiber U) (g : V ⟶ U) :
-    (fiberFunctor_restrictObj f x g).hom.1 ≫
-        IsPreFibered.pullbackMap ((fiberFunctor f U).obj x).property g =
-      (toFunctor f).map (IsPreFibered.pullbackMap x.property g) := by
-  exact @IsCartesian.fac _ _ _ _ Y.p _ _ _ _ g
-    (IsPreFibered.pullbackMap ((fiberFunctor f U).obj x).property g)
-    (IsPreFibered.pullbackMap.IsCartesian _ _) _
-    ((toFunctor f).map (IsPreFibered.pullbackMap x.property g))
-    (map_restrict_isCartesian f x g).toIsHomLift
-
-@[reassoc] private theorem restriction_hom_fac {S : Scheme.{u}} {X : GroupoidsOver S}
-    {U V : Over S} {x y : X.p.Fiber U} (φ : x ⟶ y) (g : V ⟶ U) :
-    (restrictHom φ g).1 ≫ IsPreFibered.pullbackMap y.property g =
-      IsPreFibered.pullbackMap x.property g ≫ φ.1 := by
-  exact @IsCartesian.fac _ _ _ _ X.p _ _ _ _ g
-    (IsPreFibered.pullbackMap y.property g)
-    (IsPreFibered.pullbackMap.IsCartesian _ _) _
-    (IsPreFibered.pullbackMap x.property g ≫ φ.1)
-    (@IsHomLift.comp_lift_id_right _ _ _ _ X.p _ _ _ _ _ g
-      (IsPreFibered.pullbackMap x.property g)
-      (IsPreFibered.pullbackMap.IsCartesian _ _).toIsHomLift φ.1 φ.2)
-
-@[reassoc] private theorem restriction_comp_hom_fac {S : Scheme.{u}} {X : GroupoidsOver S}
-    {U V W : Over S} (x : X.p.Fiber U) (a : V ⟶ U) (b : W ⟶ V) :
-    (restrictObj_comp x a b).hom.1 ≫
-        IsPreFibered.pullbackMap x.property (b ≫ a) =
-      IsPreFibered.pullbackMap (restrictObj x a).property b ≫
-        IsPreFibered.pullbackMap x.property a := by
-  letI : X.p.IsCartesian (b ≫ a)
-      (IsPreFibered.pullbackMap (restrictObj x a).property b ≫
-        IsPreFibered.pullbackMap x.property a) :=
-    @IsFibered.comp _ _ _ _ X.p inferInstance _ _ _ b a _ _ _
-      (IsPreFibered.pullbackMap (restrictObj x a).property b)
-      (IsPreFibered.pullbackMap x.property a)
-      (IsPreFibered.pullbackMap.IsCartesian _ _)
-      (IsPreFibered.pullbackMap.IsCartesian _ _)
-  change IsCartesian.map X.p (b ≫ a)
-    (IsPreFibered.pullbackMap x.property (b ≫ a))
-    (IsPreFibered.pullbackMap (restrictObj x a).property b ≫
-      IsPreFibered.pullbackMap x.property a) ≫ _ = _
-  exact
-    (@IsCartesian.fac _ _ _ _ X.p _ _ _ _ (b ≫ a)
-      (IsPreFibered.pullbackMap x.property (b ≫ a))
-      (IsPreFibered.pullbackMap.IsCartesian _ _) _
-      (IsPreFibered.pullbackMap (restrictObj x a).property b ≫
-        IsPreFibered.pullbackMap x.property a) inferInstance)
-
-private theorem restriction_ext {S : Scheme.{u}} {X : GroupoidsOver S}
-    {U V : Over S} (y : X.p.Fiber U) (g : V ⟶ U) {z : X.p.Fiber V}
-    {φ ψ : z ⟶ restrictObj y g}
-    (h : φ.1 ≫ IsPreFibered.pullbackMap y.property g =
-      ψ.1 ≫ IsPreFibered.pullbackMap y.property g) : φ = ψ := by
-  apply Subtype.ext
-  exact @IsCartesian.ext _ _ _ _ X.p _ _ _ _ g
-    (IsPreFibered.pullbackMap y.property g)
-    (IsPreFibered.pullbackMap.IsCartesian _ _) _ φ.1 ψ.1 φ.2 ψ.2 h
-
-private theorem comparison_comp {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
-    (p : X ⟶ Y) (q : Y ⟶ Z) {U V : Over S} (x : X.p.Fiber U) (g : V ⟶ U) :
-    fiberFunctor_restrictObj (p ≫ q) x g =
-      (fiberFunctor q V).mapIso (fiberFunctor_restrictObj p x g) ≪≫
-        fiberFunctor_restrictObj q ((fiberFunctor p U).obj x) g := by
-  apply Iso.ext
-  apply restriction_ext
-  change (fiberFunctor_restrictObj (p ≫ q) x g).hom.1 ≫ _ =
-    ((toFunctor q).map (fiberFunctor_restrictObj p x g).hom.1 ≫
-      (fiberFunctor_restrictObj q ((fiberFunctor p U).obj x) g).hom.1) ≫ _
-  rw [Category.assoc, comparison_hom_fac, comparison_hom_fac,
-    ← Functor.map_comp, comparison_hom_fac]
-  rfl
-
-private theorem comparison_id {S : Scheme.{u}} {X : GroupoidsOver S}
-    {U V : Over S} (x : X.p.Fiber U) (g : V ⟶ U) :
-    fiberFunctor_restrictObj (𝟙 X) x g = Iso.refl (restrictObj x g) := by
-  apply Iso.ext
-  apply restriction_ext
-  rw [comparison_hom_fac]
-  exact (Category.id_comp _).symm
-
-private theorem restriction_comp {S : Scheme.{u}} {X : GroupoidsOver S}
-    {U V : Over S} {x y z : X.p.Fiber U} (φ : x ⟶ y) (ψ : y ⟶ z) (g : V ⟶ U) :
-    restrictHom (φ ≫ ψ) g = restrictHom φ g ≫ restrictHom ψ g := by
-  apply restriction_ext
-  change (restrictHom (φ ≫ ψ) g).1 ≫ _ =
-    ((restrictHom φ g).1 ≫ (restrictHom ψ g).1) ≫ _
-  simp only [Category.assoc, restriction_hom_fac, restriction_hom_fac_assoc]
-  rfl
-
-@[reassoc] private theorem comparison_restriction {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    (f : X ⟶ Y) {U V : Over S} {x y : X.p.Fiber U} (φ : x ⟶ y) (g : V ⟶ U) :
-    (fiberFunctor_restrictObj f x g).inv ≫
-        (fiberFunctor f V).map (restrictHom φ g) ≫
-        (fiberFunctor_restrictObj f y g).hom =
-      restrictHom ((fiberFunctor f U).map φ) g := by
-  apply (Iso.inv_comp_eq _).mpr
-  apply restriction_ext
-  change ((toFunctor f).map (restrictHom φ g).1 ≫
-    (fiberFunctor_restrictObj f y g).hom.1) ≫ _ =
-    ((fiberFunctor_restrictObj f x g).hom.1 ≫
-      (restrictHom ((fiberFunctor f U).map φ) g).1) ≫ _
-  simp only [Category.assoc, comparison_hom_fac, comparison_hom_fac_assoc,
-    restriction_hom_fac]
-  change (toFunctor f).map (restrictHom φ g).1 ≫
-      (toFunctor f).map (IsPreFibered.pullbackMap y.property g) =
-    (toFunctor f).map (IsPreFibered.pullbackMap x.property g) ≫ (toFunctor f).map φ.1
-  simpa only [Functor.map_comp] using
-    congrArg (toFunctor f).map (restriction_hom_fac φ g)
-
-private theorem comparison_base_comp {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    (f : X ⟶ Y) {U V W : Over S} (x : X.p.Fiber U) (a : V ⟶ U) (b : W ⟶ V) :
-    (fiberFunctor f W).mapIso (restrictObj_comp x a b) ≪≫
-        fiberFunctor_restrictObj f x (b ≫ a) =
-      fiberFunctor_restrictObj f (restrictObj x a) b ≪≫
-        restrictIso (fiberFunctor_restrictObj f x a) b ≪≫
-        restrictObj_comp ((fiberFunctor f U).obj x) a b := by
-  apply Iso.ext
-  apply restriction_ext
-  change ((toFunctor f).map (restrictObj_comp x a b).hom.1 ≫
-      (fiberFunctor_restrictObj f x (b ≫ a)).hom.1) ≫ _ =
-    ((fiberFunctor_restrictObj f (restrictObj x a) b).hom.1 ≫
-      (restrictHom (fiberFunctor_restrictObj f x a).hom b).1 ≫
-      (restrictObj_comp ((fiberFunctor f U).obj x) a b).hom.1) ≫ _
-  have hx := restriction_comp_hom_fac x a b
-  have hy := restriction_comp_hom_fac ((fiberFunctor f U).obj x) a b
-  simp only [Category.assoc, comparison_hom_fac, comparison_hom_fac_assoc,
-    hy, restriction_hom_fac_assoc, ← Functor.map_comp, hx]
-
-private theorem hom_transport_base_comp {S : Scheme.{u}} {X Y : GroupoidsOver S}
-    (f : X ⟶ Y) {U V W : Over S} (x y : X.p.Fiber U) (a : V ⟶ U) (b : W ⟶ V)
-    {d : W ⟶ U} (h : b ≫ a = d) (φ : restrictObj x a ⟶ restrictObj y a) :
-    (fiberFunctor_restrictObj f x d).inv ≫
-        (fiberFunctor f W).map
-          ((restrictObj_comp x a b ≪≫ restrictObj_eq x h).inv ≫
-            restrictHom φ b ≫ (restrictObj_comp y a b ≪≫ restrictObj_eq y h).hom) ≫
-        (fiberFunctor_restrictObj f y d).hom =
-      (restrictObj_comp ((fiberFunctor f U).obj x) a b ≪≫
-          restrictObj_eq ((fiberFunctor f U).obj x) h).inv ≫
-        restrictHom ((fiberFunctor_restrictObj f x a).inv ≫
-          (fiberFunctor f V).map φ ≫ (fiberFunctor_restrictObj f y a).hom) b ≫
-        (restrictObj_comp ((fiberFunctor f U).obj y) a b ≪≫
-          restrictObj_eq ((fiberFunctor f U).obj y) h).hom := by
-  subst d
-  simp only [restrictObj_eq, eqToIso_refl, Iso.trans_hom, Iso.trans_inv,
-    Iso.refl_hom, Iso.refl_inv, Category.comp_id, Category.id_comp]
-  have he (z : X.p.Fiber U) :
-      fiberFunctor_restrictObj f z (b ≫ a) =
-        ((fiberFunctor f W).mapIso (restrictObj_comp z a b)).symm ≪≫
-          fiberFunctor_restrictObj f (restrictObj z a) b ≪≫
-            restrictIso (fiberFunctor_restrictObj f z a) b ≪≫
-              restrictObj_comp ((fiberFunctor f U).obj z) a b := by
-    apply Iso.ext
-    apply (Iso.eq_inv_comp _).mpr
-    exact congrArg Iso.hom (comparison_base_comp f z a b)
-  rw [he x, he y]
-  simp only [Iso.trans_hom, Iso.trans_inv, Iso.symm_hom, Iso.symm_inv,
-    Functor.mapIso_hom, Functor.mapIso_inv, Functor.map_comp, restriction_comp,
-    Category.assoc, Iso.map_hom_inv_id_assoc,
-    comparison_restriction_assoc]
-  rfl
-
-private theorem hom_transport_comp {S : Scheme.{u}} {X Y Z : GroupoidsOver S}
-    (p : X ⟶ Y) (q : Y ⟶ Z) {U V : Over S} (x y : X.p.Fiber U) (g : V ⟶ U)
-    (φ : restrictObj x g ⟶ restrictObj y g) :
-    (fiberFunctor_restrictObj (p ≫ q) x g).inv ≫
-        (fiberFunctor (p ≫ q) V).map φ ≫
-        (fiberFunctor_restrictObj (p ≫ q) y g).hom =
-      (fiberFunctor_restrictObj q ((fiberFunctor p U).obj x) g).inv ≫
-        (fiberFunctor q V).map ((fiberFunctor_restrictObj p x g).inv ≫
-          (fiberFunctor p V).map φ ≫ (fiberFunctor_restrictObj p y g).hom) ≫
-        (fiberFunctor_restrictObj q ((fiberFunctor p U).obj y) g).hom := by
-  rw [comparison_comp, comparison_comp]
-  simp only [Iso.trans_hom, Iso.trans_inv, Functor.mapIso_hom, Functor.mapIso_inv,
-    Functor.map_comp, Category.assoc]
-  rfl
 
 /-- The natural map of directed fibre Hom-diagrams induced by a 1-morphism,
 objectwise by the fibre functor and the cartesian comparison
@@ -279,6 +105,36 @@ theorem fiberHomToLimit_apply {S : Scheme.{u}} {X Y : GroupoidsOver S}
       (fiberFunctor_restrictObj f x (c.π.app i)).inv ≫
         (fiberFunctor f c.pt).map φ ≫
         (fiberFunctor_restrictObj f y (c.π.app i)).hom := rfl
+
+/-- The stage comparison and the cone-point comparison commute with each cocone leg. -/
+theorem fiberHomToLimit_naturality {S : Scheme.{u}} {X Y : GroupoidsOver S}
+    (f : X ⟶ Y) {I : Type u} [Preorder I] {D : OrderDual I ⥤ Over S}
+    (c : Cone D) {i : I} (x y : X.p.Fiber (D.obj i)) (j : Set.Ici i) :
+    (homCocone c x y).ι.app j ≫ fiberHomToLimit f c x y =
+      (fiberHomFunctor f x y).app j ≫
+        (homCocone c ((fiberFunctor f (D.obj i)).obj x)
+          ((fiberFunctor f (D.obj i)).obj y)).ι.app j := by
+  apply ConcreteCategory.hom_ext
+  intro φ
+  exact hom_transport_base_comp f x y (stageHom j.2) (c.π.app j.1)
+    (Cone.w c (homOfLE (OrderDual.toDual_le_toDual.mpr j.2))) φ
+
+/-- The actual colimit comparison square is induced by the commuting stage squares. -/
+theorem fiberHom_colimit_w {S : Scheme.{u}} {X Y : GroupoidsOver S}
+    (f : X ⟶ Y) {I : Type u} [Preorder I] {D : OrderDual I ⥤ Over S}
+    (c : Cone D) {i : I} (x y : X.p.Fiber (D.obj i))
+    [HasColimit (homFunctor x y)]
+    [HasColimit (homFunctor ((fiberFunctor f (D.obj i)).obj x)
+      ((fiberFunctor f (D.obj i)).obj y))] :
+    colimit.desc (homFunctor x y) (homCocone c x y) ≫ fiberHomToLimit f c x y =
+      colimMap (fiberHomFunctor f x y) ≫
+        colimit.desc (homFunctor ((fiberFunctor f (D.obj i)).obj x)
+          ((fiberFunctor f (D.obj i)).obj y))
+          (homCocone c ((fiberFunctor f (D.obj i)).obj x)
+            ((fiberFunctor f (D.obj i)).obj y)) := by
+  apply colimit.hom_ext
+  intro j
+  simpa using fiberHomToLimit_naturality f c x y j
 
 /-- A 1-morphism of categories fibred in groupoids over `(Sch/S)_fppf` is limit
 preserving when every directed affine inverse limit yields a 2-cartesian square

@@ -40,10 +40,10 @@ polynomial chart whose contraction is the base prime together with the tail coor
     (R := R) (S := S) q n hdim r htr :
     ∃ f : R, f ∉ q.asIdeal.under R ∧
       ∃ g : S, g ∉ q.asIdeal ∧
-        ∃ φ : MvPolynomial (Fin n) (Localization.Away f) →+*
+        ∃ φ : MvPolynomial (Fin n) (Localization.Away f) →ₐ[R]
             Localization.Away g,
-          φ.QuasiFinite ∧
-            Ideal.comap φ
+          φ.toRingHom.QuasiFinite ∧
+            Ideal.comap φ.toRingHom
                 (Ideal.map (algebraMap S (Localization.Away g)) q.asIdeal) =
               Ideal.map
                   (algebraMap R (MvPolynomial (Fin n) (Localization.Away f)))
@@ -56,10 +56,10 @@ polynomial chart whose contraction is the base prime together with the tail coor
     (R := R) (S := S) q n hdim :
     ∃ f : R, f ∉ q.asIdeal.under R ∧
       ∃ g : S, g ∉ q.asIdeal ∧
-        ∃ φ : MvPolynomial (Fin n) (Localization.Away f) →+*
+        ∃ φ : MvPolynomial (Fin n) (Localization.Away f) →ₐ[R]
             Localization.Away g,
-          φ.QuasiFinite ∧
-            Ideal.comap φ
+          φ.toRingHom.QuasiFinite ∧
+            Ideal.comap φ.toRingHom
                 (Ideal.map (algebraMap S (Localization.Away g)) q.asIdeal) =
               Ideal.map
                   (algebraMap R (MvPolynomial (Fin n) (Localization.Away f)))

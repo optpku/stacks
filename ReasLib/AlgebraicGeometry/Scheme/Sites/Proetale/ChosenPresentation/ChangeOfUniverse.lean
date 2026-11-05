@@ -11,6 +11,7 @@ public import ReasLib.AlgebraicGeometry.Scheme.Sites.Proetale.ChosenPresentation
 public import ReasLib.AlgebraicGeometry.Scheme.Sites.ChosenPresentation.Covering
 public import ReasLib.CategoryTheory.Sites.Topos.Retraction
 public import ReasLib.CategoryTheory.Sites.Derived.SectionsComparison
+public import Mathlib.CategoryTheory.Adjunction.Triple
 public import Mathlib.CategoryTheory.Limits.Constructions.EpiMono
 public import ReasLib.CategoryTheory.Sites.Topos.Continuous
 public import ReasLib.CategoryTheory.Sites.Topos.Cocontinuous
@@ -106,12 +107,27 @@ def smallNestedInclusion_obj_smallTerminalObject (S : X.carrier)
 /-- The scheme-compatible nested small inclusion is full. -/
 theorem smallNestedInclusion_full (S : X.carrier) (ι : X.carrier ⥤ Y.carrier)
     (e : ι ⋙ Y.toScheme ≅ X.toScheme) :
-    (smallNestedInclusion S ι e).Full := sorry
+    (smallNestedInclusion S ι e).Full := by
+  letI := X.fullyFaithful.full
+  letI := X.fullyFaithful.faithful
+  letI := Y.fullyFaithful.faithful
+  letI : (smallInclusion X S).Full := (smallObjects X S).fullyFaithfulι.full
+  letI : (smallInclusion Y (ι.obj S)).Faithful :=
+    (smallObjects Y (ι.obj S)).fullyFaithfulι.faithful
+  letI : ι.Full := Functor.Full.of_comp_faithful_iso e
+  letI : ι.Faithful := Functor.Faithful.of_comp_iso e
+  exact Functor.Full.of_comp_faithful_iso
+    (smallNestedInclusion_comp_smallInclusion S ι e)
 
 /-- The scheme-compatible nested small inclusion is faithful. -/
 theorem smallNestedInclusion_faithful (S : X.carrier) (ι : X.carrier ⥤ Y.carrier)
     (e : ι ⋙ Y.toScheme ≅ X.toScheme) :
-    (smallNestedInclusion S ι e).Faithful := sorry
+    (smallNestedInclusion S ι e).Faithful := by
+  letI := X.fullyFaithful.faithful
+  letI : (smallInclusion X S).Faithful := (smallObjects X S).fullyFaithfulι.faithful
+  letI : ι.Faithful := Functor.Faithful.of_comp_iso e
+  exact Functor.Faithful.of_comp_iso
+    (smallNestedInclusion_comp_smallInclusion S ι e)
 
 /-- The nested small inclusion is continuous for the chosen small pro-étale
 topologies inherited from the scheme covering specifications. -/
@@ -369,6 +385,37 @@ theorem smallNestedInclusion_cohomology_restrict_eq (S : X.carrier) (ι : X.carr
       (smallNestedInclusion_obj_smallTerminalObject S ι e)).app F') :=
   rfl
 
+/-- The restriction of the right Kan extension recovers the original sheaf.
+The counit is the presheaf right Kan extension counit, which is invertible
+because the nested inclusion is fully faithful. -/
+theorem smallNestedInclusion_sheafAdjunctionCocontinuous_counit_app_isIso
+    (S : X.carrier) (ι : X.carrier ⥤ Y.carrier)
+    (e : ι ⋙ Y.toScheme ≅ X.toScheme)
+    {A : Type w} [Category A]
+    [∀ P : (smallSite X S)ᵒᵖ ⥤ A,
+      (smallNestedInclusion S ι e).op.HasPointwiseRightKanExtension P]
+    (F : Sheaf (smallTopology X S) A) :
+    IsIso ((@Functor.sheafAdjunctionCocontinuous _ _ _ _
+      (smallNestedInclusion S ι e) A _
+      (smallTopology X S) (smallTopology Y (ι.obj S))
+      (smallNestedInclusion_isCocontinuous S ι e) inferInstance
+      (smallNestedInclusion_isContinuous S ι e)).counit.app F) := by
+  letI := smallNestedInclusion_full S ι e
+  letI := smallNestedInclusion_faithful S ι e
+  letI := smallNestedInclusion_isContinuous S ι e
+  letI := smallNestedInclusion_isCocontinuous S ι e
+  letI : ∀ P : (smallSite X S)ᵒᵖ ⥤ A,
+      (smallNestedInclusion S ι e).op.HasRightKanExtension P := fun P ↦ inferInstance
+  letI : IsIso ((sheafToPresheaf (smallTopology X S) A).map
+      (((smallNestedInclusion S ι e).sheafAdjunctionCocontinuous
+        A (smallTopology X S) (smallTopology Y (ι.obj S))).counit.app F)) := by
+    change IsIso (((smallNestedInclusion S ι e).sheafAdjunctionCocontinuous
+      A (smallTopology X S) (smallTopology Y (ι.obj S))).counit.app F).hom
+    rw [Functor.sheafAdjunctionCocontinuous_counit_app_hom,
+      Functor.ranAdjunction_counit]
+    exact Functor.instIsIsoAppRanCounit_1 (L := (smallNestedInclusion S ι e).op) (F := F.obj)
+  exact isIso_of_reflects_iso _ (sheafToPresheaf (smallTopology X S) A)
+
 /-- Derived global sections agree with those of the canonical pushforward of an abelian sheaf. -/
 def smallNestedInclusion_cohomology_pushforward (S : X.carrier) (ι : X.carrier ⥤ Y.carrier)
     (e : ι ⋙ Y.toScheme ≅ X.toScheme)
@@ -392,12 +439,7 @@ def smallNestedInclusion_cohomology_pushforward (S : X.carrier) (ι : X.carrier 
       ((@Functor.sheafAdjunctionCocontinuous _ _ _ _ (smallNestedInclusion S ι e) AddCommGrpCat.{w} _
       (smallTopology X S) (smallTopology Y (ι.obj S)) (smallNestedInclusion_isCocontinuous S ι e)
       inferInstance (smallNestedInclusion_isContinuous S ι e)).counit.app F)
-        (@Functor.FullyFaithful.sheafAdjunctionCocontinuous_counit_app_isIso
-          _ _ _ _ (smallTopology X S) (smallTopology Y (ι.obj S)) (smallNestedInclusion S ι e)
-              AddCommGrpCat.{w} _ (@Functor.FullyFaithful.ofFullyFaithful _ _ _ _ (smallNestedInclusion S ι
-              e) (smallNestedInclusion_full S ι e) (smallNestedInclusion_faithful S ι e))
-              (smallNestedInclusion_isContinuous S ι e) (smallNestedInclusion_isCocontinuous S ι e)
-              inferInstance F)).symm ≪≫
+        (smallNestedInclusion_sheafAdjunctionCocontinuous_counit_app_isIso S ι e F)).symm ≪≫
     smallNestedInclusion_cohomology_restrict S ι e p ((smallNestedInclusion_abelianPushforward.{u, v, w} S ι
         e).obj F)
 
@@ -423,15 +465,40 @@ theorem smallNestedInclusion_cohomology_pushforward_hom (S : X.carrier) (ι : X.
           ((@Functor.sheafAdjunctionCocontinuous _ _ _ _ (smallNestedInclusion S ι e) AddCommGrpCat.{w} _
           (smallTopology X S) (smallTopology Y (ι.obj S)) (smallNestedInclusion_isCocontinuous S ι e)
           inferInstance (smallNestedInclusion_isContinuous S ι e)).counit.app F)
-        (@Functor.FullyFaithful.sheafAdjunctionCocontinuous_counit_app_isIso
-          _ _ _ _ (smallTopology X S) (smallTopology Y (ι.obj S)) (smallNestedInclusion S ι e)
-              AddCommGrpCat.{w} _ (@Functor.FullyFaithful.ofFullyFaithful _ _ _ _ (smallNestedInclusion S ι
-              e) (smallNestedInclusion_full S ι e) (smallNestedInclusion_faithful S ι e))
-              (smallNestedInclusion_isContinuous S ι e) (smallNestedInclusion_isCocontinuous S ι e)
-              inferInstance F)).symm ≪≫
+        (smallNestedInclusion_sheafAdjunctionCocontinuous_counit_app_isIso S ι e F)).symm ≪≫
     smallNestedInclusion_cohomology_restrict S ι e p ((smallNestedInclusion_abelianPushforward.{u, v, w} S ι
         e).obj F)).hom :=
   rfl
+
+/-- The continuous sheaf adjunction has invertible unit: in the adjoint
+triple, this is equivalent to invertibility of the right Kan extension counit. -/
+theorem smallNestedInclusion_sheafAdjunctionContinuous_unit_isIso
+    (S : X.carrier) (ι : X.carrier ⥤ Y.carrier)
+    (e : ι ⋙ Y.toScheme ≅ X.toScheme)
+    {A : Type w} [Category A]
+    [HasWeakSheafify (smallTopology Y (ι.obj S)) A]
+    [∀ P : (smallSite X S)ᵒᵖ ⥤ A,
+      (smallNestedInclusion S ι e).op.HasLeftKanExtension P]
+    [∀ P : (smallSite X S)ᵒᵖ ⥤ A,
+      (smallNestedInclusion S ι e).op.HasPointwiseRightKanExtension P] :
+    IsIso ((@Functor.sheafAdjunctionContinuous _ _ _ _
+      (smallNestedInclusion S ι e) A _
+      (smallTopology X S) (smallTopology Y (ι.obj S))
+      (smallNestedInclusion_isContinuous S ι e)
+      (@Functor.sheafPullbackConstruction.sheafAdjunctionContinuous _ _ _ _
+        (smallNestedInclusion S ι e) A _
+        (smallTopology X S) (smallTopology Y (ι.obj S))
+        (smallNestedInclusion_isContinuous S ι e) inferInstance inferInstance).isRightAdjoint).unit) := by
+  letI := smallNestedInclusion_isContinuous S ι e
+  letI := smallNestedInclusion_isCocontinuous S ι e
+  let t : Adjunction.Triple _ _ _ :=
+    ⟨(smallNestedInclusion S ι e).sheafAdjunctionContinuous A
+        (smallTopology X S) (smallTopology Y (ι.obj S)),
+      (smallNestedInclusion S ι e).sheafAdjunctionCocontinuous A
+        (smallTopology X S) (smallTopology Y (ι.obj S))⟩
+  letI : ∀ F : Sheaf (smallTopology X S) A, IsIso (t.adj₂.counit.app F) :=
+    fun F ↦ smallNestedInclusion_sheafAdjunctionCocontinuous_counit_app_isIso S ι e F
+  exact t.isIso_unit_iff_isIso_counit.mpr (NatIso.isIso_of_isIso_app _)
 
 /-- Derived global sections agree with those of the canonical pullback of an abelian sheaf. -/
 def smallNestedInclusion_cohomology_pullback (S : X.carrier) (ι : X.carrier ⥤ Y.carrier)
@@ -460,12 +527,10 @@ def smallNestedInclusion_cohomology_pullback (S : X.carrier) (ι : X.carrier ⥤
       (@Functor.sheafPullbackConstruction.sheafAdjunctionContinuous _ _ _ _ (smallNestedInclusion S ι e)
       AddCommGrpCat.{w} _ (smallTopology X S) (smallTopology Y (ι.obj S)) (smallNestedInclusion_isContinuous
       S ι e) inferInstance inferInstance).isRightAdjoint).unit.app F)
-        (@Functor.FullyFaithful.sheafAdjunctionContinuous_unit_app_isIso
-          _ _ _ _ (smallTopology X S) (smallTopology Y (ι.obj S)) (smallNestedInclusion S ι e)
-              AddCommGrpCat.{w} _ (@Functor.FullyFaithful.ofFullyFaithful _ _ _ _ (smallNestedInclusion S ι
-              e) (smallNestedInclusion_full S ι e) (smallNestedInclusion_faithful S ι e))
-              (smallNestedInclusion_isContinuous S ι e) (smallNestedInclusion_isCocontinuous S ι e)
-              inferInstance inferInstance inferInstance F inferInstance inferInstance)) ≪≫
+        (by
+          letI := smallNestedInclusion_sheafAdjunctionContinuous_unit_isIso S ι e
+            (A := AddCommGrpCat.{w})
+          exact NatIso.isIso_app_of_isIso _ F)) ≪≫
     smallNestedInclusion_cohomology_restrict S ι e p ((smallNestedInclusion_abelianPullback.{u, v, w} S ι
         e).obj F)
 
@@ -494,12 +559,10 @@ theorem smallNestedInclusion_cohomology_pullback_hom (S : X.carrier) (ι : X.car
           (@Functor.sheafPullbackConstruction.sheafAdjunctionContinuous _ _ _ _ (smallNestedInclusion S ι e)
           AddCommGrpCat.{w} _ (smallTopology X S) (smallTopology Y (ι.obj S))
           (smallNestedInclusion_isContinuous S ι e) inferInstance inferInstance).isRightAdjoint).unit.app F)
-        (@Functor.FullyFaithful.sheafAdjunctionContinuous_unit_app_isIso
-          _ _ _ _ (smallTopology X S) (smallTopology Y (ι.obj S)) (smallNestedInclusion S ι e)
-              AddCommGrpCat.{w} _ (@Functor.FullyFaithful.ofFullyFaithful _ _ _ _ (smallNestedInclusion S ι
-              e) (smallNestedInclusion_full S ι e) (smallNestedInclusion_faithful S ι e))
-              (smallNestedInclusion_isContinuous S ι e) (smallNestedInclusion_isCocontinuous S ι e)
-              inferInstance inferInstance inferInstance F inferInstance inferInstance)) ≪≫
+        (by
+          letI := smallNestedInclusion_sheafAdjunctionContinuous_unit_isIso S ι e
+            (A := AddCommGrpCat.{w})
+          exact NatIso.isIso_app_of_isIso _ F)) ≪≫
     smallNestedInclusion_cohomology_restrict S ι e p ((smallNestedInclusion_abelianPullback.{u, v, w} S ι
         e).obj F)).hom :=
   rfl

@@ -51,14 +51,14 @@ def reducedComplement_isClosedImmersion {S : Scheme.{u}}
   U.reducedComplement.isClosedImmersion
 
 /-- The inverse image `f⁻¹(T)` of the reduced complement `T` of `U ⊂ W`. -/
-abbrev preimage {S : Scheme.{u}} {V W : AlgebraicSpace S} (U : OpenSubspace W)
+abbrev preimageReducedComplement {S : Scheme.{u}} {V W : AlgebraicSpace S} (U : OpenSubspace W)
     (f : V ⟶ W) : AlgebraicSpace S :=
   @inverseImage S W V U.reducedComplement.X f U.reducedComplement.ι
     U.reducedComplement_isClosedImmersion
 
 /-- The canonical comparison `f⁻¹(T) ⟶ T` for the reduced complement of `U ⊂ W`. -/
 abbrev preimageTo {S : Scheme.{u}} {V W : AlgebraicSpace S} (U : OpenSubspace W)
-    (f : V ⟶ W) : U.preimage f ⟶ U.reducedComplement.X :=
+    (f : V ⟶ W) : U.preimageReducedComplement f ⟶ U.reducedComplement.X :=
   @inverseImageTo S W V U.reducedComplement.X f U.reducedComplement.ι
     U.reducedComplement_isClosedImmersion
 

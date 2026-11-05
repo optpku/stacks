@@ -131,7 +131,6 @@ theorem siteModuleCohomology_one_smul
     (1 : A) • x = x := sorry
 
 /-- Site cohomology of a sheaf of `A`-modules has its canonical `A`-module structure. -/
-@[stacks 0GYM "module structure on cohomology of module sheaves"]
 instance siteModuleCohomologyModule
     (p : ℕ) (ℱ : Sheaf J (ModuleCat A)) :
     Module A ((siteModuleCohomologyFunctor p).obj ℱ) :=
@@ -193,7 +192,6 @@ theorem siteModuleCohomologyModuleMap_comp
         ModuleCat.ofHom (siteModuleCohomologyMapLinear p ψ) := sorry
 
 /-- Site cohomology of sheaves of `A`-modules as a functor valued in `ModuleCat A`. -/
-@[stacks 0GYM "module-valued cohomology functor"]
 noncomputable def siteModuleCohomologyModuleFunctor (p : ℕ) :
     Sheaf J (ModuleCat A) ⥤ ModuleCat A where
   obj ℱ := ModuleCat.of A ((siteModuleCohomologyFunctor p).obj ℱ)
@@ -210,7 +208,6 @@ theorem siteModuleCohomologyModuleFunctor_map_apply
       ((siteModuleCohomologyFunctor p).map φ).hom x := sorry
 
 /-- The sequential module-valued cohomology system of a module-sheaf inverse system. -/
-@[stacks 0GYM "module-valued cohomology inverse system"]
 abbrev siteModuleCohomologyModuleTower
     (ℱ : SequentialInverseSystem (Sheaf J (ModuleCat A))) (p : ℕ) :
     SequentialInverseSystem (ModuleCat A) :=
@@ -236,19 +233,16 @@ theorem siteModuleCohomologyModuleTower_transitionMap_apply
 namespace SiteModuleCohomology
 
 /-- The exact degree-`q` cohomology group of the `n`-th member of a family of module sheaves. -/
-@[stacks 0GYM "graded ideal-power cohomology piece"]
 abbrev piece
     (K : ℕ → Sheaf J (ModuleCat A)) (q n : ℕ) : Type (max u v w) :=
   ((siteModuleCohomologyModuleFunctor q).obj (K n) : Type (max u v w))
 
 /-- The direct sum of exact degree-`q` cohomology groups of a family of module sheaves. -/
-@[stacks 0GYM "graded direct sum of ideal-power cohomology"]
 abbrev directSum
     (K : ℕ → Sheaf J (ModuleCat A)) (q : ℕ) : Type (max u v w) :=
   DirectSum ℕ (piece K q)
 
 /-- The degree-`n` homogeneous subgroup in the direct sum of exact degree-`q` cohomology. -/
-@[stacks 0GYM "grading on ideal-power cohomology"]
 abbrev grade
     (K : ℕ → Sheaf J (ModuleCat A)) (q n : ℕ) :
     AddSubgroup (directSum K q) :=

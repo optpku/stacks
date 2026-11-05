@@ -103,7 +103,7 @@ def splittingHomSnd {X X' : RingedSpace.{u}} {i : X ⟶ X'} [IsFirstOrderThicken
     (π : X' ⟶ X) (hπ : i ≫ π = 𝟙 X) (U : (Opens X)ᵒᵖ)
     (s : (pushforwardSheaf π).obj.obj U) :
     (idealModule i).val.obj U :=
-  (kernelPushforwardIso π hπ).hom.val.app U
+  (kernelPushforwardHom π hπ).val.app U
     ((KernelIdeal.sectionsIso (commRingSheafPushforwardMap i) (preimageOp π U)).inv
       ⟨s - (commRingSheafPushforwardMap π).hom.app U
           ((transportedISharp i π hπ).hom.app U s),

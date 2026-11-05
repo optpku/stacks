@@ -7,6 +7,7 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.RelativeProj.Functor
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.RelativeProj.CanonicalTwists.SchemeComparison
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.RestrictToScheme.PresentationComparison
 public import ReasLib.AlgebraicGeometry.ProjectiveSpectrum.Twist.Sections
 public import ReasLib.AlgebraicGeometry.ProjectiveSpectrum.Twist.CanonicalAlgebra
@@ -532,6 +533,37 @@ theorem chartFibreCoverHom_eq {S : Scheme.{u}} {X : AlgebraicSpace S}
       ofOverMap (chartFibreOverHom localπ V) ≫ localCoverHom :=
   rfl
 
+/-- Homogeneous elements of an affine chart model in any nonnegative degree, as
+universe-unlifted sections of `deg.obj n` on the corresponding étale open. -/
+def degreeUnliftedChartSection {S : Scheme.{u}} {X : AlgebraicSpace S}
+    {𝒜 : GradedAlgebraSheaf.{u + 1, u} (commStructureSheafLift X)}
+    (deg : DegreePieces 𝒜)
+    {atlas : smallEtaleSite X} {localScheme : Scheme.{u}}
+    {localπ : localScheme ⟶ atlas.left.left}
+    {V : atlas.left.left.affineOpens}
+    (data : AtlasAffineProjData 𝒜 atlas localScheme localπ V)
+    {n : ℕ} (f : data.grading n) :
+    (deg.obj n).val.obj
+      (op (openImmersionSite atlas (V : atlas.left.left.Opens))) :=
+  (((deg.iso n).inv.val.app
+      (op (openImmersionSite atlas (V : atlas.left.left.Opens)))).hom
+    ((data.model n).symm (ULift.up f))).down
+
+/-- `degreeUnliftedChartSection` is the universe-down of the inverse chart model. -/
+theorem degreeUnliftedChartSection_eq {S : Scheme.{u}} {X : AlgebraicSpace S}
+    {𝒜 : GradedAlgebraSheaf.{u + 1, u} (commStructureSheafLift X)}
+    (deg : DegreePieces 𝒜)
+    {atlas : smallEtaleSite X} {localScheme : Scheme.{u}}
+    {localπ : localScheme ⟶ atlas.left.left}
+    {V : atlas.left.left.affineOpens}
+    (data : AtlasAffineProjData 𝒜 atlas localScheme localπ V)
+    {n : ℕ} (f : data.grading n) :
+    degreeUnliftedChartSection deg data f =
+      (((deg.iso n).inv.val.app
+          (op (openImmersionSite atlas (V : atlas.left.left.Opens)))).hom
+        ((data.model n).symm (ULift.up f))).down :=
+  rfl
+
 /-- Homogeneous degree-one elements of an affine chart model, as universe-unlifted sections of
 `deg.obj 1` on the corresponding étale open. -/
 def degreeOneUnliftedChartSection {S : Scheme.{u}} {X : AlgebraicSpace S}
@@ -544,9 +576,7 @@ def degreeOneUnliftedChartSection {S : Scheme.{u}} {X : AlgebraicSpace S}
     (f : data.grading 1) :
     (deg.obj 1).val.obj
       (op (openImmersionSite atlas (V : atlas.left.left.Opens))) :=
-  (((deg.iso 1).inv.val.app
-      (op (openImmersionSite atlas (V : atlas.left.left.Opens)))).hom
-    ((data.model 1).symm (ULift.up f))).down
+  degreeUnliftedChartSection deg data f
 
 /-- `degreeOneUnliftedChartSection` is the universe-down of the inverse chart model. -/
 theorem degreeOneUnliftedChartSection_eq {S : Scheme.{u}} {X : AlgebraicSpace S}
@@ -621,6 +651,42 @@ theorem chartFibreSite_eq {S : Scheme.{u}} {X : AlgebraicSpace S}
       smallEtaleSite.mk (chartFibreCoverHom localπ localCoverHom V) :=
   rfl
 
+/-- Transport of a homogeneous chart-model section along the chart fibre of `π`, as the
+adjunction-unit section of `π_* π^* 𝒜_n` on the affine chart open. -/
+def chartFibreDegreeUnliftedSection {S : Scheme.{u}} {X : AlgebraicSpace S}
+    {𝒜 : GradedAlgebraSheaf.{u + 1, u} (commStructureSheafLift X)}
+    (deg : DegreePieces 𝒜)
+    {space : AlgebraicSpace S} (π : space ⟶ X)
+    {atlas : smallEtaleSite X} {localScheme : Scheme.{u}}
+    (localπ : localScheme ⟶ atlas.left.left)
+    (localCoverHom : ofOver (localCoverOver atlas localScheme localπ) ⟶ space)
+    {V : atlas.left.left.affineOpens}
+    (data : AtlasAffineProjData 𝒜 atlas localScheme localπ V)
+    {n : ℕ} (f : data.grading n) :
+    ((Modules.pushforward π).obj ((Modules.pullback π).obj (deg.obj n))).val.obj
+      (op (openImmersionSite atlas (V : atlas.left.left.Opens))) :=
+  (((Modules.pullbackPushforwardAdjunction π).unit.app (deg.obj n)).val.app
+      (op (openImmersionSite atlas (V : atlas.left.left.Opens)))).hom
+    (degreeUnliftedChartSection deg data f)
+
+/-- `chartFibreDegreeUnliftedSection` is the adjunction-unit image of the unlifted
+chart-model section. -/
+theorem chartFibreDegreeUnliftedSection_eq {S : Scheme.{u}} {X : AlgebraicSpace S}
+    {𝒜 : GradedAlgebraSheaf.{u + 1, u} (commStructureSheafLift X)}
+    (deg : DegreePieces 𝒜)
+    {space : AlgebraicSpace S} (π : space ⟶ X)
+    {atlas : smallEtaleSite X} {localScheme : Scheme.{u}}
+    (localπ : localScheme ⟶ atlas.left.left)
+    (localCoverHom : ofOver (localCoverOver atlas localScheme localπ) ⟶ space)
+    {V : atlas.left.left.affineOpens}
+    (data : AtlasAffineProjData 𝒜 atlas localScheme localπ V)
+    {n : ℕ} (f : data.grading n) :
+    chartFibreDegreeUnliftedSection deg π localπ localCoverHom data f =
+      (((Modules.pullbackPushforwardAdjunction π).unit.app (deg.obj n)).val.app
+          (op (openImmersionSite atlas (V : atlas.left.left.Opens)))).hom
+        (degreeUnliftedChartSection deg data f) :=
+  rfl
+
 /-- Transport of a degree-one chart-model section along the chart fibre of `π`, as the
 adjunction-unit section of `π_* π^* 𝒜_1` on the affine chart open. -/
 def chartFibreDegreeOneUnliftedSection {S : Scheme.{u}} {X : AlgebraicSpace S}
@@ -635,9 +701,7 @@ def chartFibreDegreeOneUnliftedSection {S : Scheme.{u}} {X : AlgebraicSpace S}
     (f : data.grading 1) :
     ((Modules.pushforward π).obj ((Modules.pullback π).obj (deg.obj 1))).val.obj
       (op (openImmersionSite atlas (V : atlas.left.left.Opens))) :=
-  (((Modules.pullbackPushforwardAdjunction π).unit.app (deg.obj 1)).val.app
-      (op (openImmersionSite atlas (V : atlas.left.left.Opens)))).hom
-    (degreeOneUnliftedChartSection deg data f)
+  chartFibreDegreeUnliftedSection deg π localπ localCoverHom data f
 
 /-- `chartFibreDegreeOneUnliftedSection` is the adjunction-unit image of the unlifted
 chart-model section. -/
@@ -910,458 +974,168 @@ theorem chartFibreAlgebraMul_eq {atlas : smallEtaleSite X} {localScheme : Scheme
            (asLiftedSection (twistModule (n + m)) U result).down)) := rfl
 
 set_option backward.privateInPublic true in
-/-- An explicitly supplied twist presentation for a quasi-coherent graded algebra sheaf.
-The local affine-Proj identifications and their coherence are witnesses, not an existence
-theorem or a construction of relative Proj by gluing. -/
+/-- The relative Proj of a quasi-coherent commutative graded `𝒪_X`-algebra, anchored to the
+quadruple functor. The space, projection, Serre twists, and universal map are the canonical
+objects `toAlgebraicSpace`, `CanonicalTwists.algebra` / `obj` / `psi`; they are not supplied
+by the caller. Stacks 084C, 084D, 01NR, and 01O0.
+
+The referenced descent constructions still carry proof debts; this wrapper does not
+discharge their existing proof obligations. -/
 structure Twist {S : Scheme.{u}} {X : AlgebraicSpace S}
     (𝒜 : GradedAlgebraSheaf.{u + 1, u} (commStructureSheafLift X))
-    (deg : DegreePieces 𝒜) where
-  /-- The source algebra satisfies the quasi-coherence hypothesis of Stacks 01NN. -/
-  algebra_isQuasicoherent : 𝒜.IsQuasicoherent
-  /-- The algebraic space `P = underline{Proj}_X(𝒜)`. -/
-  space : AlgebraicSpace S
-  /-- The structure morphism `π : P ⟶ X`. -/
-  π : space ⟶ X
-  /-- The graded twist algebra whose degree-`n` piece is `𝒪_P(n)`. -/
-  twistAlgebra : GradedAlgebraSheaf.{u + 1, u} (commStructureSheafLift space)
-  /-- The family of twist modules `𝒪_P(n)` on `P`. -/
-  twistModule : ℤ → space.Modules
-  /-- Universe lift identifies `𝒪_P(n)` with the degree-`n` piece of the twist algebra. -/
-  twistModuleIso :
-    ∀ n : ℤ, Modules.liftModule (twistModule n) ≅ twistAlgebra n
-  /-- Degreewise components of the canonical graded map `π^* 𝒜 ⟶ ⊕_{n ≥ 0} 𝒪_P(n)`. -/
-  canonicalHom : ∀ n : ℕ,
-    (Modules.pullback π).obj (deg.obj n) ⟶ twistModule n
-  /-- The canonical map sends the pulled-back unit of `𝒜` to the unit of the twist
-  algebra. -/
-  canonicalHom_map_one :
-    ∀ U : smallEtaleSite space,
-      (((Modules.liftModuleMap (canonicalHom 0)).val.app (op U)).hom)
-          (psiSourceOneSection π deg (op U)) =
-        ((twistModuleIso 0).inv.val.app (op U)).hom (twistAlgebra.one (op U))
-  /-- The canonical map preserves multiplication, compared with `twistAlgebra.mul`. -/
-  canonicalHom_map_mul :
-    ∀ (U : smallEtaleSite space) (i j : ℕ)
-      (x : (psiSource π deg i).val.obj (op U))
-      (y : (psiSource π deg j).val.obj (op U)),
-      (((Modules.liftModuleMap (canonicalHom (i + j))).val.app (op U)).hom)
-          (psiSourceMulSection π deg (op U) i j x y) =
-        ((twistModuleIso (Int.ofNat (i + j))).inv.val.app (op U)).hom
-          (twistAlgebra.mul (op U) (Int.ofNat i) (Int.ofNat j)
-            (((twistModuleIso (Int.ofNat i)).hom.val.app (op U)).hom
-              (((Modules.liftModuleMap (canonicalHom i)).val.app (op U)).hom x))
-            (((twistModuleIso (Int.ofNat j)).hom.val.app (op U)).hom
-              (((Modules.liftModuleMap (canonicalHom j)).val.app (op U)).hom y)))
-  /-- A scheme étale over `X` giving a surjective atlas. -/
-  atlas : smallEtaleSite X
-  /-- The atlas morphism is étale-locally surjective. -/
-  atlas_locallySurjective :
-    Presheaf.IsLocallySurjective (Scheme.etaleTopology.over S) atlas.hom
-  /-- The scheme `underline{Proj}_U(𝒜_U)` covering `P` étale-locally. -/
-  localScheme : Scheme.{u}
-  /-- The structure morphism of the local scheme relative Proj. -/
-  localπ : localScheme ⟶ atlas.left.left
-  /-- Base change of `P` along the atlas is the local scheme relative Proj. -/
-  localIso :
-    etaleBaseChangeSpace π atlas ≅ ofOver (localCoverOver atlas localScheme localπ)
-  /-- The comparison identifies the projection to the atlas with the local structure
-  morphism. -/
-  localIso_snd :
-    localIso.hom ≫ ofOverMap (Over.homMk localπ rfl) = etaleBaseChangeSnd π atlas
-  /-- The étale morphism `underline{Proj}_U(𝒜_U) ⟶ P` from the local scheme. -/
-  localCoverHom : ofOver (localCoverOver atlas localScheme localπ) ⟶ space
-  /-- The covering morphism is the base-change projection after the local identification. -/
-  localCoverHom_eq :
-    localCoverHom = localIso.inv ≫ etaleBaseChangeHom π atlas
-  /-- Supplied coherent affine-Proj witnesses, independently of the twist modules. -/
-  localCharts : AtlasAffineProjAtlasWitness 𝒜 algebra_isQuasicoherent atlas localScheme localπ
-  /-- Restriction of `𝒪_P(n)` to each affine chart recovers Serre's twisting sheaf. -/
-  serreTwistIso :
-    ∀ (V : atlas.left.left.affineOpens) (n : ℤ),
-      (Scheme.Modules.pullback (localCharts.chart V).projIso.hom).obj
-          (AtlasAffineProjData.serreTwist (localCharts.chart V) n) ≅
-        chartFibreRestrictModule localπ localCoverHom V (twistModule n)
-  /-- On each affine chart the actual evaluation of the pushed-forward degree-one map
-  is Serre's canonical homogeneous section. -/
-  canonicalHom_agrees_with_twistSection :
-    ∀ (V : atlas.left.left.affineOpens) (f : (localCharts.chart V).grading 1),
-      let hf : Etale localCoverHom := by
-        rw [localCoverHom_eq]
-        infer_instance
-      let cover := chartFibreCoverHom localπ localCoverHom V
-      let hf' := @etale_chartFibreCoverHom S X atlas localScheme localπ space localCoverHom hf V
-      let c := fibreEvaluationChart π atlas localScheme localπ localIso localIso_snd
-        localCoverHom localCoverHom_eq V
-      ofUnderlyingSection (twistModule 1)
-        (moduleChartValue π (twistModule 1)
-          (openImmersionSite atlas (V : atlas.left.left.Opens)) c
-          ((((Modules.pushforward π).map (canonicalHom 1)).val.app
-            (op (openImmersionSite atlas (V : atlas.left.left.Opens)))).hom
-              (chartFibreDegreeOneUnliftedSection deg π localπ localCoverHom
-                (localCharts.chart V) f))) =
-        @fibreSectionToEtale S (chartFibreOver localπ V) space cover hf' (twistModule 1) ⊤
-          (chartFibreTransportedTwistSection localπ localCoverHom twistModule
-            localCharts.chart serreTwistIso V f)
-  /-- The actual graded multiplication is canonical Serre multiplication in every pair
-  of integral degrees and over every open of each projective chart. -/
-  twistMul_agrees_with_serreMul :
-    ∀ (V : atlas.left.left.affineOpens) (n m : ℤ)
-      (W : (@Proj (localCharts.chart V).A _ (localCharts.chart V).instCommRing
-        inferInstance inferInstance (localCharts.chart V).grading
-          (localCharts.chart V).instGradedAlgebra).Opens)
-      (s : (AtlasAffineProjData.serreTwist (localCharts.chart V) n).val.obj (op W))
-      (t : (AtlasAffineProjData.serreTwist (localCharts.chart V) m).val.obj (op W)),
-      let hf : Etale localCoverHom := by
-        rw [localCoverHom_eq]
-        infer_instance
-      let W' := (localCharts.chart V).projIso.hom ⁻¹ᵁ W
-      let transport := fun (k : ℤ)
-          (x : (AtlasAffineProjData.serreTwist (localCharts.chart V) k).val.obj (op W)) ↦
-        ((serreTwistIso V k).hom.val.app (op W')).hom
-          ((Scheme.Modules.Hom.app
-            ((Scheme.Modules.pullbackPushforwardAdjunction (localCharts.chart V).projIso.hom).unit.app
-              (AtlasAffineProjData.serreTwist (localCharts.chart V) k)) W).hom x)
-      @chartFibreAlgebraMul S X atlas localScheme localπ space localCoverHom hf
-        twistAlgebra twistModule twistModuleIso V W' n m (transport n s) (transport m t) =
-      transport (n + m)
-        (@Proj.AssociatedModule.CanonicalAlgebra.mulSection ℤ (localCharts.chart V).A
-          inferInstance (localCharts.chart V).instCommRing
-          (@Ring.toIntAlgebra (localCharts.chart V).A (localCharts.chart V).instCommRing.toRing)
-          (localCharts.chart V).grading (localCharts.chart V).instGradedAlgebra (op W) n m s t)
+    (deg : DegreePieces 𝒜) : Type (u + 2) where
+  /-- The relative Proj functor. Its fields record quasi-coherence and ordinary commutativity
+  of `𝒜`. -/
+  functor : ProjFunctor X 𝒜
+  /-- `functor` classifies equivalence classes of relative projective quadruples. -/
+  associated : functor.IsAssociatedToQuadruples deg
 
 namespace Twist
 
 variable {𝒜 : GradedAlgebraSheaf.{u + 1, u} (commStructureSheafLift X)}
     {deg : DegreePieces 𝒜}
 
-/-- Compatibility projection of the supplied affine charts from their coherent owner. -/
-abbrev localSectionData (P : Twist 𝒜 deg) := P.localCharts.chart
+/-- Package a quadruple functor as the relative Proj it represents. -/
+def ofFunctor (F : ProjFunctor X 𝒜) (hF : F.IsAssociatedToQuadruples deg) :
+    Twist 𝒜 deg where
+  functor := F
+  associated := hF
 
-/-- The old restriction API now computes from actual sheaf restriction. -/
-def sectionRestrict (P : Twist 𝒜 deg) (V V' : P.atlas.left.left.affineOpens)
-    (h : (V : P.atlas.left.left.Opens) ≤ (V' : P.atlas.left.left.Opens)) :=
-  AtlasAffineProjWitness.sectionRestrict (P.localSectionData V) (P.localSectionData V') h
-
-/-- Model restriction agrees with the given layer of the algebra sheaf. -/
-theorem sectionRestrict_spec (P : Twist 𝒜 deg) (V V' : P.atlas.left.left.affineOpens)
-    (h : (V : P.atlas.left.left.Opens) ≤ (V' : P.atlas.left.left.Opens))
-    (d : ℕ) (x : (P.localSectionData V').grading d) :
-    letI := (P.localSectionData V).instCommRing
-    letI := (P.localSectionData V').instCommRing
-    (((P.localSectionData V).model d
-      (((𝒜 (Int.ofNat d)).val.map (atlasOpenLe P.atlas h).op).hom
-        (((P.localSectionData V').model d).symm (ULift.up x)))).down :
-          (P.localSectionData V).A) = (P.sectionRestrict V V' h).toRingHom x :=
-  AtlasAffineProjWitness.sectionRestrict_spec (P.localSectionData V) (P.localSectionData V') h d x
-
-/-- The old chart restriction API is the actual Proj map of the section restriction. -/
-def chartRestrict (P : Twist 𝒜 deg) (V V' : P.atlas.left.left.affineOpens)
-    (h : (V : P.atlas.left.left.Opens) ≤ (V' : P.atlas.left.left.Opens)) :=
-  AtlasAffineProjWitness.chartRestrict P.algebra_isQuasicoherent
-    (P.localSectionData V) (P.localSectionData V') h
-
-/-- The actual chart restriction commutes with the affine base maps. -/
-theorem chartRestrict_over (P : Twist 𝒜 deg) (V V' : P.atlas.left.left.affineOpens)
-    (h : (V : P.atlas.left.left.Opens) ≤ (V' : P.atlas.left.left.Opens)) :
-    @atlasToAffineOpen S X 𝒜 P.atlas V (P.localSectionData V).A
-        (P.localSectionData V).instCommRing (P.localSectionData V).grading
-        (P.localSectionData V).instGradedAlgebra (P.localSectionData V).model
-        (P.localSectionData V).isModel ≫ Scheme.homOfLE P.atlas.left.left h =
-      P.chartRestrict V V' h ≫
-        @atlasToAffineOpen S X 𝒜 P.atlas V' (P.localSectionData V').A
-          (P.localSectionData V').instCommRing (P.localSectionData V').grading
-          (P.localSectionData V').instGradedAlgebra (P.localSectionData V').model
-          (P.localSectionData V').isModel :=
-  AtlasAffineProjWitness.chartRestrict_over P.algebra_isQuasicoherent
-    (P.localSectionData V) (P.localSectionData V') h
-
-/-- Nested-open coherence is supplied by the chart owner, independently of twists. -/
-theorem projIso_restrict (P : Twist 𝒜 deg) (V V' : P.atlas.left.left.affineOpens)
-    (h : (V : P.atlas.left.left.Opens) ≤ (V' : P.atlas.left.left.Opens)) :
-    (P.localSectionData V).projIso.hom ≫ P.chartRestrict V V' h =
-      atlasFibreRestrict P.localπ h ≫ (P.localSectionData V').projIso.hom :=
-  P.localCharts.coherent V V' h
-
-/-- Serre's twist section of a homogeneous element of an affine chart model. -/
-def chartTwistSection {S : Scheme.{u}} {X : AlgebraicSpace S}
-    {𝒜 : GradedAlgebraSheaf.{u + 1, u} (commStructureSheafLift X)}
-    {deg : DegreePieces 𝒜} (P : Twist 𝒜 deg)
-    (V : P.atlas.left.left.affineOpens) {n : ℕ}
-    (f : (P.localSectionData V).grading n) :
-    Γ(AtlasAffineProjData.serreTwist (P.localSectionData V) n, ⊤) :=
-  @Proj.AssociatedModule.twistSection (P.localSectionData V).A
-    (P.localSectionData V).instCommRing
-    (P.localSectionData V).grading (P.localSectionData V).instGradedAlgebra
-    (n := n) f
-
-/-- `chartTwistSection` is Serre's canonical global section of the chartwise twisting
-sheaf. -/
-theorem chartTwistSection_eq {S : Scheme.{u}} {X : AlgebraicSpace S}
-    {𝒜 : GradedAlgebraSheaf.{u + 1, u} (commStructureSheafLift X)}
-    {deg : DegreePieces 𝒜} (P : Twist 𝒜 deg)
-    (V : P.atlas.left.left.affineOpens) {n : ℕ}
-    (f : (P.localSectionData V).grading n) :
-    chartTwistSection P V f =
-      @Proj.AssociatedModule.twistSection (P.localSectionData V).A
-        (P.localSectionData V).instCommRing
-        (P.localSectionData V).grading (P.localSectionData V).instGradedAlgebra
-        (n := n) f :=
+/-- `ofFunctor` stores the given functor. -/
+theorem ofFunctor_functor (F : ProjFunctor X 𝒜) (hF : F.IsAssociatedToQuadruples deg) :
+    (ofFunctor F hF).functor = F :=
   rfl
 
-/-- The sheaf map on the affine-chart fibre induced by `Proj.AssociatedModule.twistSection`
-after `projIso` and `serreTwistIso`, as a map on global sections of the fibre restriction
-of `𝒪_P(n)`. -/
-def chartFibreTwistSectionOnGlobal {S : Scheme.{u}} {X : AlgebraicSpace S}
-    {𝒜 : GradedAlgebraSheaf.{u + 1, u} (commStructureSheafLift X)}
-    {deg : DegreePieces 𝒜} (P : Twist 𝒜 deg)
-    (V : P.atlas.left.left.affineOpens) {n : ℕ}
-    (f : (P.localSectionData V).grading n) :
-    (chartFibreRestrictModule P.localπ P.localCoverHom V (P.twistModule n)).val.obj
-      (op ⊤) :=
-  ((P.serreTwistIso V n).hom.val.app (op ⊤)).hom
-    ((Scheme.Modules.globalSectionsPullback
-        (P.localSectionData V).projIso.hom
-        (AtlasAffineProjData.serreTwist (P.localSectionData V) n)).hom
-      (chartTwistSection P V f))
-
-/-- `chartFibreTwistSectionOnGlobal` is `twistSection` transported along `projIso` and
-`serreTwistIso`. -/
-theorem chartFibreTwistSectionOnGlobal_eq {S : Scheme.{u}} {X : AlgebraicSpace S}
-    {𝒜 : GradedAlgebraSheaf.{u + 1, u} (commStructureSheafLift X)}
-    {deg : DegreePieces 𝒜} (P : Twist 𝒜 deg)
-    (V : P.atlas.left.left.affineOpens) {n : ℕ}
-    (f : (P.localSectionData V).grading n) :
-    chartFibreTwistSectionOnGlobal P V f =
-      ((P.serreTwistIso V n).hom.val.app (op ⊤)).hom
-        ((Scheme.Modules.globalSectionsPullback
-            (P.localSectionData V).projIso.hom
-            (AtlasAffineProjData.serreTwist (P.localSectionData V) n)).hom
-          (chartTwistSection P V f)) :=
+/-- `ofFunctor` stores the given quadruple association. -/
+theorem ofFunctor_associated (F : ProjFunctor X 𝒜) (hF : F.IsAssociatedToQuadruples deg) :
+    (ofFunctor F hF).associated = hF :=
   rfl
 
-/-- Universe-unlifted degree-one section of `deg.obj 1` associated to a homogeneous
-chart-model element. -/
-def chartDegreeOneUnliftedSection {S : Scheme.{u}} {X : AlgebraicSpace S}
-    {𝒜 : GradedAlgebraSheaf.{u + 1, u} (commStructureSheafLift X)}
-    {deg : DegreePieces 𝒜} (P : Twist 𝒜 deg)
-    (V : P.atlas.left.left.affineOpens)
-    (f : (P.localSectionData V).grading 1) :
-    (deg.obj 1).val.obj
-      (op (openImmersionSite P.atlas (V : P.atlas.left.left.Opens))) :=
-  degreeOneUnliftedChartSection deg (P.localSectionData V) f
+/-- The source algebra of a relative Proj is quasi-coherent. -/
+theorem algebra_isQuasicoherent (P : Twist 𝒜 deg) : 𝒜.IsQuasicoherent :=
+  P.functor.algebra_isQuasicoherent
 
-/-- `chartDegreeOneUnliftedSection` is the universe-down of the model section via
-`deg.iso 1`. -/
-theorem chartDegreeOneUnliftedSection_eq {S : Scheme.{u}} {X : AlgebraicSpace S}
-    {𝒜 : GradedAlgebraSheaf.{u + 1, u} (commStructureSheafLift X)}
-    {deg : DegreePieces 𝒜} (P : Twist 𝒜 deg)
-    (V : P.atlas.left.left.affineOpens)
-    (f : (P.localSectionData V).grading 1) :
-    chartDegreeOneUnliftedSection P V f =
-      degreeOneUnliftedChartSection deg (P.localSectionData V) f :=
+/-- The source algebra of a relative Proj is ordinarily commutative. -/
+theorem algebra_isCommutative (P : Twist 𝒜 deg) : 𝒜.IsCommutative :=
+  P.functor.algebra_isCommutative
+
+/-- The algebraic space `P = underline{Proj}_X(𝒜)`. -/
+abbrev space (P : Twist 𝒜 deg) : AlgebraicSpace S :=
+  toAlgebraicSpace P.functor P.associated
+
+/-- The structure morphism `π : P ⟶ X`. -/
+abbrev π (P : Twist 𝒜 deg) : P.space ⟶ X :=
+  toAlgebraicSpace_hom P.functor P.associated
+
+/-- The canonical family of Serre twists `𝒪_P(n)`. -/
+abbrev twistModule (P : Twist 𝒜 deg) : ℤ → P.space.Modules :=
+  CanonicalTwists.obj P.functor P.associated
+
+/-- The quasi-coherent `ℤ`-graded twist algebra `⊕_n 𝒪_P(n)`. -/
+abbrev twistAlgebra (P : Twist 𝒜 deg) :
+    GradedAlgebraSheaf.{u + 1, u} (commStructureSheafLift P.space) :=
+  CanonicalTwists.algebra P.functor P.associated
+
+/-- Universe lift identifies `𝒪_P(n)` with the degree-`n` piece of the twist algebra. -/
+def twistModuleIso (P : Twist 𝒜 deg) (n : ℤ) :
+    Modules.liftModule (P.twistModule n) ≅ P.twistAlgebra n :=
+  (CanonicalTwists.family P.functor P.associated).iso n
+
+/-- `twistModuleIso` is the comparison stored on the canonical twist family. -/
+theorem twistModuleIso_eq (P : Twist 𝒜 deg) (n : ℤ) :
+    twistModuleIso P n = (CanonicalTwists.family P.functor P.associated).iso n :=
   rfl
 
-/-- Restriction of `π^* 𝒜_1` to the affine-chart fibre of the local relative Proj. -/
-abbrev chartFibreDegreeOneModule {S : Scheme.{u}} {X : AlgebraicSpace S}
-    {𝒜 : GradedAlgebraSheaf.{u + 1, u} (commStructureSheafLift X)}
-    {deg : DegreePieces 𝒜} (P : Twist 𝒜 deg)
-    (V : P.atlas.left.left.affineOpens) :
-    (chartFibreOver P.localπ V).left.Modules :=
-  chartFibreRestrictModule P.localπ P.localCoverHom V
-    ((Modules.pullback P.π).obj (deg.obj 1))
+/-- Degree-`n` component of the canonical graded map `ψ : π^* 𝒜 ⟶ ⊕_{n ≥ 0} 𝒪_P(n)`. -/
+abbrev canonicalHom (P : Twist 𝒜 deg) (n : ℕ) :
+    (Modules.pullback P.π).obj (deg.obj n) ⟶ P.twistModule n :=
+  (CanonicalTwists.psi P.functor P.associated).hom n
 
-/-- `chartFibreDegreeOneModule` is the fibre restriction of `π^* 𝒜_1`. -/
-theorem chartFibreDegreeOneModule_eq {S : Scheme.{u}} {X : AlgebraicSpace S}
-    {𝒜 : GradedAlgebraSheaf.{u + 1, u} (commStructureSheafLift X)}
-    {deg : DegreePieces 𝒜} (P : Twist 𝒜 deg)
-    (V : P.atlas.left.left.affineOpens) :
-    chartFibreDegreeOneModule P V =
-      chartFibreRestrictModule P.localπ P.localCoverHom V
-        ((Modules.pullback P.π).obj (deg.obj 1)) :=
+/-- `canonicalHom` is the degree-`n` component of `CanonicalTwists.psi`. -/
+theorem canonicalHom_eq (P : Twist 𝒜 deg) (n : ℕ) :
+    canonicalHom P n = (CanonicalTwists.psi P.functor P.associated).hom n :=
   rfl
 
-/-- Restriction of `𝒪_P(n)` to the affine-chart fibre of the local relative Proj. -/
-abbrev chartFibreTwistModuleAt {S : Scheme.{u}} {X : AlgebraicSpace S}
-    {𝒜 : GradedAlgebraSheaf.{u + 1, u} (commStructureSheafLift X)}
-    {deg : DegreePieces 𝒜} (P : Twist 𝒜 deg)
-    (V : P.atlas.left.left.affineOpens) (n : ℤ) :
-    (chartFibreOver P.localπ V).left.Modules :=
-  chartFibreRestrictModule P.localπ P.localCoverHom V (P.twistModule n)
+/-- The degree-zero component sends the pulled-back unit of `𝒜` to the unit of `𝒪_P`. -/
+theorem canonicalHom_map_one (P : Twist 𝒜 deg) :
+    Modules.structureModulePullbackInv P.π ≫
+        (Modules.pullback P.π).map (degreeZeroUnit deg) ≫
+          P.canonicalHom 0 =
+      CanonicalTwists.unit P.functor P.associated :=
+  (CanonicalTwists.psi P.functor P.associated).map_one
 
-/-- `chartFibreTwistModuleAt` is the fibre restriction of `𝒪_P(n)`. -/
-theorem chartFibreTwistModuleAt_eq {S : Scheme.{u}} {X : AlgebraicSpace S}
-    {𝒜 : GradedAlgebraSheaf.{u + 1, u} (commStructureSheafLift X)}
-    {deg : DegreePieces 𝒜} (P : Twist 𝒜 deg)
-    (V : P.atlas.left.left.affineOpens) (n : ℤ) :
-    chartFibreTwistModuleAt P V n =
-      chartFibreRestrictModule P.localπ P.localCoverHom V (P.twistModule n) :=
-  rfl
+/-- Homogeneous components of `ψ` preserve multiplication. -/
+theorem canonicalHom_map_mul (P : Twist 𝒜 deg) (i j : ℕ) :
+    pullbackTensorLax P.π (deg.obj i) (deg.obj j) ≫
+        (Modules.pullback P.π).map (deg.mul i j) ≫
+          P.canonicalHom (i + j) =
+      CategoryTheory.MonoidalCategory.tensorHom (P.canonicalHom i) (P.canonicalHom j) ≫
+        CanonicalTwists.mul P.functor P.associated (Int.ofNat i) (Int.ofNat j) ≫
+          eqToHom (congrArg (CanonicalTwists.obj P.functor P.associated) (Int.natCast_add i j)) :=
+  (CanonicalTwists.psi P.functor P.associated).map_mul i j
 
-/-- Restriction of `𝒪_P(1)` to the affine-chart fibre of the local relative Proj. -/
-abbrev chartFibreTwistModule {S : Scheme.{u}} {X : AlgebraicSpace S}
-    {𝒜 : GradedAlgebraSheaf.{u + 1, u} (commStructureSheafLift X)}
-    {deg : DegreePieces 𝒜} (P : Twist 𝒜 deg)
-    (V : P.atlas.left.left.affineOpens) :
-    (chartFibreOver P.localπ V).left.Modules :=
-  chartFibreTwistModuleAt P V 1
+/-- The canonical integer-graded twist algebra is quasi-coherent. -/
+theorem twistAlgebra_isQuasicoherent (P : Twist 𝒜 deg) : P.twistAlgebra.IsQuasicoherent :=
+  _root_.AlgebraicGeometry.AlgebraicSpace.RelativeProj.algebra_isQuasicoherent P.functor P.associated
 
-/-- `chartFibreTwistModule` is the fibre restriction of `𝒪_P(1)`. -/
-theorem chartFibreTwistModule_eq {S : Scheme.{u}} {X : AlgebraicSpace S}
-    {𝒜 : GradedAlgebraSheaf.{u + 1, u} (commStructureSheafLift X)}
-    {deg : DegreePieces 𝒜} (P : Twist 𝒜 deg)
-    (V : P.atlas.left.left.affineOpens) :
-    chartFibreTwistModule P V = chartFibreTwistModuleAt P V 1 :=
-  rfl
-
-/-- `canonicalHom 1` pulled back to the affine-chart fibre. -/
-def chartFibreCanonicalHom {S : Scheme.{u}} {X : AlgebraicSpace S}
-    {𝒜 : GradedAlgebraSheaf.{u + 1, u} (commStructureSheafLift X)}
-    {deg : DegreePieces 𝒜} (P : Twist 𝒜 deg)
-    (V : P.atlas.left.left.affineOpens) :
-    chartFibreDegreeOneModule P V ⟶ chartFibreTwistModule P V :=
-  (Modules.restrictToScheme (chartFibreOver P.localπ V)).map
-    ((Modules.pullback (chartFibreCoverHom P.localπ P.localCoverHom V)).map
-      (P.canonicalHom 1))
-
-/-- `chartFibreCanonicalHom` is the fibre pullback of `canonicalHom 1`. -/
-theorem chartFibreCanonicalHom_eq {S : Scheme.{u}} {X : AlgebraicSpace S}
-    {𝒜 : GradedAlgebraSheaf.{u + 1, u} (commStructureSheafLift X)}
-    {deg : DegreePieces 𝒜} (P : Twist 𝒜 deg)
-    (V : P.atlas.left.left.affineOpens) :
-    chartFibreCanonicalHom P V =
-      (Modules.restrictToScheme (chartFibreOver P.localπ V)).map
-        ((Modules.pullback (chartFibreCoverHom P.localπ P.localCoverHom V)).map
-          (P.canonicalHom 1)) :=
-  rfl
-
-/-- The canonical degree-one fibre section associated to a homogeneous chart-model
-element. -/
-def chartFibreDegreeOneSection {S : Scheme.{u}} {X : AlgebraicSpace S}
-    {𝒜 : GradedAlgebraSheaf.{u + 1, u} (commStructureSheafLift X)}
-    {deg : DegreePieces 𝒜} (P : Twist 𝒜 deg)
-    (V : P.atlas.left.left.affineOpens)
-    (f : (P.localSectionData V).grading 1) :
-    ((Modules.pushforward P.π).obj ((Modules.pullback P.π).obj (deg.obj 1))).val.obj
-      (op (openImmersionSite P.atlas (V : P.atlas.left.left.Opens))) :=
-  chartFibreDegreeOneUnliftedSection deg P.π P.localπ P.localCoverHom
-    (P.localSectionData V) f
-
-/-- `chartFibreDegreeOneSection` is the fibre transport of the unlifted chart-model
-section. -/
-theorem chartFibreDegreeOneSection_eq {S : Scheme.{u}} {X : AlgebraicSpace S}
-    {𝒜 : GradedAlgebraSheaf.{u + 1, u} (commStructureSheafLift X)}
-    {deg : DegreePieces 𝒜} (P : Twist 𝒜 deg)
-    (V : P.atlas.left.left.affineOpens)
-    (f : (P.localSectionData V).grading 1) :
-    chartFibreDegreeOneSection P V f =
-      chartFibreDegreeOneUnliftedSection deg P.π P.localπ P.localCoverHom
-        (P.localSectionData V) f :=
-  rfl
-
-set_option backward.privateInPublic true in
-/-- The canonical degree-one map is the Serre homogeneous-section map on every affine chart. -/
-def CanonicalHomAgreesWithTwistSection {S : Scheme.{u}} {X : AlgebraicSpace S}
-    {𝒜 : GradedAlgebraSheaf.{u + 1, u} (commStructureSheafLift X)}
-    {deg : DegreePieces 𝒜} (P : Twist 𝒜 deg) : Prop :=
-    ∀ (V : P.atlas.left.left.affineOpens) (f : (P.localSectionData V).grading 1),
-      let hf : Etale P.localCoverHom := by
-        rw [P.localCoverHom_eq]
-        infer_instance
-      let cover := chartFibreCoverHom P.localπ P.localCoverHom V
-      let hf' := @etale_chartFibreCoverHom S X P.atlas P.localScheme P.localπ P.space P.localCoverHom hf V
-      let c := fibreEvaluationChart P.π P.atlas P.localScheme P.localπ P.localIso P.localIso_snd
-        P.localCoverHom P.localCoverHom_eq V
-      ofUnderlyingSection (P.twistModule 1)
-        (moduleChartValue P.π (P.twistModule 1)
-          (openImmersionSite P.atlas (V : P.atlas.left.left.Opens)) c
-          ((((Modules.pushforward P.π).map (P.canonicalHom 1)).val.app
-            (op (openImmersionSite P.atlas (V : P.atlas.left.left.Opens)))).hom
-              (chartFibreDegreeOneUnliftedSection deg P.π P.localπ P.localCoverHom
-                (P.localSectionData V) f))) =
-        @fibreSectionToEtale S (chartFibreOver P.localπ V) P.space cover hf' (P.twistModule 1) ⊤
-          (chartFibreTransportedTwistSection P.localπ P.localCoverHom P.twistModule
-            P.localSectionData P.serreTwistIso V f)
-
-set_option backward.privateInPublic true in
-/-- The canonical-section condition compares evaluated sections in the same module. -/
-theorem CanonicalHomAgreesWithTwistSection_iff {S : Scheme.{u}} {X : AlgebraicSpace S}
-    {𝒜 : GradedAlgebraSheaf.{u + 1, u} (commStructureSheafLift X)}
-    {deg : DegreePieces 𝒜} (P : Twist 𝒜 deg) :
-    CanonicalHomAgreesWithTwistSection P ↔
-    ∀ (V : P.atlas.left.left.affineOpens) (f : (P.localSectionData V).grading 1),
-      let hf : Etale P.localCoverHom := by
-        rw [P.localCoverHom_eq]
-        infer_instance
-      let cover := chartFibreCoverHom P.localπ P.localCoverHom V
-      let hf' := @etale_chartFibreCoverHom S X P.atlas P.localScheme P.localπ P.space P.localCoverHom hf V
-      let c := fibreEvaluationChart P.π P.atlas P.localScheme P.localπ P.localIso P.localIso_snd
-        P.localCoverHom P.localCoverHom_eq V
-      ofUnderlyingSection (P.twistModule 1)
-        (moduleChartValue P.π (P.twistModule 1)
-          (openImmersionSite P.atlas (V : P.atlas.left.left.Opens)) c
-          ((((Modules.pushforward P.π).map (P.canonicalHom 1)).val.app
-            (op (openImmersionSite P.atlas (V : P.atlas.left.left.Opens)))).hom
-              (chartFibreDegreeOneUnliftedSection deg P.π P.localπ P.localCoverHom
-                (P.localSectionData V) f))) =
-        @fibreSectionToEtale S (chartFibreOver P.localπ V) P.space cover hf' (P.twistModule 1) ⊤
-          (chartFibreTransportedTwistSection P.localπ P.localCoverHom P.twistModule
-            P.localSectionData P.serreTwistIso V f) := Iff.rfl
-
-/-- The canonical map `π^* 𝒜_1 ⟶ 𝒪_P(1)` on the pullback side. -/
-def canonicalMap {S : Scheme.{u}} {X : AlgebraicSpace S}
-    {𝒜 : GradedAlgebraSheaf.{u + 1, u} (commStructureSheafLift X)}
-    {deg : DegreePieces 𝒜} (P : Twist 𝒜 deg) :
+/-- The canonical degree-one map `π^* 𝒜_1 ⟶ 𝒪_P(1)`. -/
+abbrev canonicalMap (P : Twist 𝒜 deg) :
     (Modules.pullback P.π).obj (deg.obj 1) ⟶ P.twistModule 1 :=
   P.canonicalHom 1
 
 /-- `canonicalMap P` is the degree-one component of `canonicalHom`. -/
-theorem canonicalMap_spec {S : Scheme.{u}} {X : AlgebraicSpace S}
-    {𝒜 : GradedAlgebraSheaf.{u + 1, u} (commStructureSheafLift X)}
-    {deg : DegreePieces 𝒜} (P : Twist 𝒜 deg) :
+theorem canonicalMap_spec (P : Twist 𝒜 deg) :
     canonicalMap P = P.canonicalHom 1 :=
   rfl
 
-set_option backward.privateInPublic true in
-/-- The atlas realization, canonical degree-one section comparison, and integral
-multiplication comparison hold simultaneously. -/
-theorem conditions_spec {S : Scheme.{u}} {X : AlgebraicSpace S}
-    {𝒜 : GradedAlgebraSheaf.{u + 1, u} (commStructureSheafLift X)}
-    {deg : DegreePieces 𝒜} (P : Twist 𝒜 deg) :
-    Presheaf.IsLocallySurjective (Scheme.etaleTopology.over S) P.atlas.hom ∧
-    P.localIso.hom ≫ ofOverMap (Over.homMk P.localπ rfl) =
-      etaleBaseChangeSnd P.π P.atlas ∧
-    P.localCoverHom = P.localIso.inv ≫ etaleBaseChangeHom P.π P.atlas ∧
-    (∀ V : P.atlas.left.left.affineOpens,
-      (P.localSectionData V).projIso.hom ≫
-        @atlasToAffineOpen S X 𝒜 P.atlas V (P.localSectionData V).A
-          (P.localSectionData V).instCommRing (P.localSectionData V).grading
-          (P.localSectionData V).instGradedAlgebra (P.localSectionData V).model
-          (P.localSectionData V).isModel =
-        pullback.snd P.localπ (V : P.atlas.left.left.Opens).ι) ∧
-    CanonicalHomAgreesWithTwistSection P ∧
-    (    ∀ (V : P.atlas.left.left.affineOpens) (n m : ℤ)
-      (W : (@Proj (P.localSectionData V).A _ (P.localSectionData V).instCommRing
-        inferInstance inferInstance (P.localSectionData V).grading
-          (P.localSectionData V).instGradedAlgebra).Opens)
-      (s : (AtlasAffineProjData.serreTwist (P.localSectionData V) n).val.obj (op W))
-      (t : (AtlasAffineProjData.serreTwist (P.localSectionData V) m).val.obj (op W)),
-      let hf : Etale P.localCoverHom := by
-        rw [P.localCoverHom_eq]
-        infer_instance
-      let W' := (P.localSectionData V).projIso.hom ⁻¹ᵁ W
-      let transport := fun (k : ℤ)
-          (x : (AtlasAffineProjData.serreTwist (P.localSectionData V) k).val.obj (op W)) ↦
-        ((P.serreTwistIso V k).hom.val.app (op W')).hom
-          ((Scheme.Modules.Hom.app
-            ((Scheme.Modules.pullbackPushforwardAdjunction (P.localSectionData V).projIso.hom).unit.app
-              (AtlasAffineProjData.serreTwist (P.localSectionData V) k)) W).hom x)
-      @chartFibreAlgebraMul S X P.atlas P.localScheme P.localπ P.space P.localCoverHom hf
-        P.twistAlgebra P.twistModule P.twistModuleIso V W' n m (transport n s) (transport m t) =
-      transport (n + m)
-        (@Proj.AssociatedModule.CanonicalAlgebra.mulSection ℤ (P.localSectionData V).A
-          inferInstance (P.localSectionData V).instCommRing
-          (@Ring.toIntAlgebra (P.localSectionData V).A (P.localSectionData V).instCommRing.toRing)
-          (P.localSectionData V).grading (P.localSectionData V).instGradedAlgebra (op W) n m s t)) := sorry
+/-- After every scheme base change, on every affine open and every positive-degree chart,
+every nonnegative component of `ψ` agrees with Serre's homogeneous section map.
+Stacks 01NR requires the square for each `A_n`, not only `A_1`. -/
+def CanonicalHomAgreesWithTwistSection (P : Twist 𝒜 deg) : Prop :=
+  ∀ {Z : Over S} (g : ofOver Z ⟶ X) (U : Z.left.affineOpens)
+    (d : {k : ℕ // 1 ≤ k}) (n : ℕ),
+    CanonicalTwists.affineChartPsiComparison g P.functor P.associated U
+        (hA := CanonicalTwists.affineOpenAlgebra_isCommutative g deg P.functor U) d n =
+      CanonicalTwists.affineChartPsiModel g P.functor P.associated U
+        (hA := CanonicalTwists.affineOpenAlgebra_isCommutative g deg P.functor U) d n
+
+/-- Every nonnegative degree of `ψ` agrees with the affine Serre model. -/
+theorem canonicalHom_agrees_with_twistSection (P : Twist 𝒜 deg) {Z : Over S}
+    (g : ofOver Z ⟶ X) (U : Z.left.affineOpens) (d : {k : ℕ // 1 ≤ k}) (n : ℕ) :
+    CanonicalTwists.affineChartPsiComparison g P.functor P.associated U
+        (hA := CanonicalTwists.affineOpenAlgebra_isCommutative g deg P.functor U) d n =
+      CanonicalTwists.affineChartPsiModel g P.functor P.associated U
+        (hA := CanonicalTwists.affineOpenAlgebra_isCommutative g deg P.functor U) d n :=
+  psi_baseChange P.functor P.associated g U d n
+
+/-- The local Serre comparison holds for every nonnegative degree, and the global components
+are those of `CanonicalTwists.psi`. -/
+theorem CanonicalHomAgreesWithTwistSection_iff (P : Twist 𝒜 deg) :
+    CanonicalHomAgreesWithTwistSection P ↔
+      (∀ n : ℕ,
+          P.canonicalHom n = (CanonicalTwists.psi P.functor P.associated).hom n) ∧
+        ∀ {Z : Over S} (g : ofOver Z ⟶ X) (U : Z.left.affineOpens)
+          (d : {k : ℕ // 1 ≤ k}) (n : ℕ),
+          CanonicalTwists.affineChartPsiComparison g P.functor P.associated U
+              (hA := CanonicalTwists.affineOpenAlgebra_isCommutative g deg P.functor U) d n =
+            CanonicalTwists.affineChartPsiModel g P.functor P.associated U
+              (hA := CanonicalTwists.affineOpenAlgebra_isCommutative g deg P.functor U) d n := by
+  constructor
+  · intro h
+    exact ⟨fun n => canonicalHom_eq P n, h⟩
+  · intro h
+    exact h.2
+
+/-- The input hypotheses, quasi-coherence, and local formula of Stacks 01NR/01O0
+hold for the canonical twists and every nonnegative component of `ψ`. -/
+theorem conditions_spec (P : Twist 𝒜 deg) :
+    𝒜.IsQuasicoherent ∧ 𝒜.IsCommutative ∧ P.twistAlgebra.IsQuasicoherent ∧
+      (∀ n : ℤ, (CanonicalTwists.obj P.functor P.associated n).IsQuasicoherent) ∧
+      (∀ n : ℕ, P.canonicalHom n = (CanonicalTwists.psi P.functor P.associated).hom n) ∧
+      CanonicalHomAgreesWithTwistSection P :=
+  ⟨algebra_isQuasicoherent P, algebra_isCommutative P, twistAlgebra_isQuasicoherent P,
+    fun n => CanonicalTwists.obj_isQuasicoherent P.functor P.associated n,
+    fun n => canonicalHom_eq P n, fun g U d n => canonicalHom_agrees_with_twistSection P g U d n⟩
 
 end Twist
 

@@ -72,6 +72,15 @@ def forallAffineObject {S : Scheme.{u}} (Q : AlgebraicSpace S → Prop)
     {g : ofOver Z ⟶ Y} {pZ : W ⟶ ofOver Z} {pX : W ⟶ X},
     IsPullback pZ pX g f → Q W
 
+/-- Every étale pullback from an affine scheme has apex satisfying `Q`.
+This only tests target charts, and imposes no source-locality condition.
+Stacks, Tag 03WG (3), `tex/spaces-morphisms.tex:3699–3700`. -/
+def forallAffineEtaleObject {S : Scheme.{u}} (Q : AlgebraicSpace S → Prop)
+    {X Y : AlgebraicSpace S} (f : X ⟶ Y) : Prop :=
+  ∀ {V : Over S} [AlgebraicGeometry.IsAffine V.left] {W : AlgebraicSpace S}
+    {g : ofOver V ⟶ Y} {pV : W ⟶ ofOver V} {pX : W ⟶ X},
+    Etale g → IsPullback pV pX g f → Q W
+
 /-- A single Zariski covering of the target has `P` on every inverse-image
 projection. Unlike `existsZariskiCover`, this imposes no source covering.
 Stacks, Tag 03L3 (4), `tex/decent-spaces.tex:3956–3957`. -/
@@ -209,6 +218,20 @@ theorem iff_existsEtaleOnTarget {S : Scheme.{u}}
     [P.IsLocalAtTarget (@etalePrecoverage S)] [P.IsStableUnderBaseChange]
     {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
     P f ↔ existsEtaleOnTarget P f :=
+  sorry
+
+/-- Target locality and arbitrary base-change stability give scheme, affine,
+étale-atlas and single target-Zariski-cover tests. No source locality is assumed;
+in particular this applies to affine morphisms.
+Stacks, Tag 03WG (2), (4), (5), `tex/spaces-morphisms.tex:3698–3704,3728–3730`,
+and Tags 040Y (3), (4), 03MM (3), (4). -/
+theorem targetLocal_tfae {S : Scheme.{u}}
+    (P : MorphismProperty (AlgebraicSpace S))
+    [P.IsLocalAtTarget (@etalePrecoverage S)] [P.IsStableUnderBaseChange]
+    {X Y : AlgebraicSpace S} (f : X ⟶ Y) :
+    List.TFAE
+      [ P f, forallScheme P f, forallAffine P f
+      , existsEtaleOnTarget P f, existsZariskiCoverOnTarget.{u, v} P f ] :=
   sorry
 
 /-- Étale locality on the source and target, together with arbitrary base-change

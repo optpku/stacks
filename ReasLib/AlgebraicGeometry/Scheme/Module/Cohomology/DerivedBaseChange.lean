@@ -47,32 +47,13 @@ abbrev affineBaseModuleGlobalSectionsFunctor
     (moduleSpecΓFunctor (R := CommRingCat.of A) :
       (Spec (CommRingCat.of A)).Modules ⥤ ModuleCat A)
 
-/-- Affine tilde sheafification is additive. -/
-private theorem affineTildeFunctorAdditive
-    (A : Type u) [CommRing A] : (tilde.functor (CommRingCat.of A)).Additive :=
-  let hTildeLeft : (tilde.functor (CommRingCat.of A)).IsLeftAdjoint :=
-    (tilde.adjunction (R := CommRingCat.of A)).isLeftAdjoint
-  let hTildeZero : (tilde.functor (CommRingCat.of A)).PreservesZeroMorphisms :=
-    @Functor.preservesZeroMorphisms_of_isLeftAdjoint _ _ _ _ _ _
-      (tilde.functor (CommRingCat.of A)) hTildeLeft
-  let hTildeCoproducts :
-      Limits.PreservesColimitsOfShape (Discrete Limits.WalkingPair)
-        (tilde.functor (CommRingCat.of A)) :=
-    (tilde.adjunction (R := CommRingCat.of A)).leftAdjoint_preservesColimits.preservesColimitsOfShape
-  let hTildeBiproducts :
-      Limits.PreservesBinaryBiproducts (tilde.functor (CommRingCat.of A)) :=
-    @Limits.preservesBinaryBiproducts_of_preservesBinaryCoproducts
-      _ _ _ _ _ _ (tilde.functor (CommRingCat.of A)) hTildeZero hTildeCoproducts
-  @Functor.additive_of_preservesBinaryBiproducts
-    _ _ _ _ _ _ (tilde.functor (CommRingCat.of A)) inferInstance
-      hTildeZero hTildeBiproducts
-
 /-- Affine associated-module formation is additive. -/
 noncomputable instance affineBaseModuleAssociatedFunctorAdditive
     (A : Type u) [CommRing A] {X : Scheme.{u}}
     (f : X ⟶ Spec (CommRingCat.of A)) :
     (affineBaseModuleAssociatedFunctor A f).Additive :=
-  let hTilde := affineTildeFunctorAdditive A
+  let hTilde :=
+    AlgebraicGeometry.instAdditiveModuleCatCarrierModulesSpecOfFunctor (R := CommRingCat.of A)
   let hPullback : (Scheme.Modules.pullback f).Additive := inferInstance
   { map_add := by
       intro M N g h
@@ -96,7 +77,8 @@ noncomputable instance affineBaseModuleGlobalSectionsFunctorAdditive
   let hPushforward : (Scheme.Modules.pushforward f).Additive := inferInstance
   let hSections : (moduleSpecΓFunctor (R := CommRingCat.of A)).Additive :=
     @Adjunction.right_adjoint_additive _ _ _ _ _ _ _ _
-      (tilde.adjunction (R := CommRingCat.of A)) (affineTildeFunctorAdditive A)
+      (tilde.adjunction (R := CommRingCat.of A))
+      (AlgebraicGeometry.instAdditiveModuleCatCarrierModulesSpecOfFunctor (R := CommRingCat.of A))
   { map_add := by
       intro M N g h
       change
@@ -127,54 +109,7 @@ noncomputable def affineBaseModuleComplexAdjunction
     (f : X ⟶ Spec (CommRingCat.of A)) :
     (affineBaseModuleAssociatedFunctor A f).mapHomologicalComplex (up ℤ) ⊣
       (affineBaseModuleGlobalSectionsFunctor A f).mapHomologicalComplex (up ℤ) :=
-  let G := affineBaseModuleAssociatedFunctor A f
-  let F := affineBaseModuleGlobalSectionsFunctor A f
-  let adj := affineBaseModuleAdjunction A f
-  let unit : 𝟭 (HomologicalComplex (ModuleCat A) (up ℤ)) ⟶
-      G.mapHomologicalComplex (up ℤ) ⋙ F.mapHomologicalComplex (up ℤ) :=
-    { app := fun K =>
-        { f := fun i => adj.unit.app (K.X i)
-          comm' := by
-            intro i j hij
-            change adj.unit.app (K.X i) ≫ F.map (G.map (K.d i j)) =
-              K.d i j ≫ adj.unit.app (K.X j)
-            exact (adj.unit.naturality (K.d i j)).symm }
-      naturality := by
-        intro K L g
-        apply HomologicalComplex.hom_ext
-        intro i
-        exact adj.unit.naturality (g.f i) }
-  let counit : F.mapHomologicalComplex (up ℤ) ⋙ G.mapHomologicalComplex (up ℤ) ⟶
-      𝟭 (HomologicalComplex X.Modules (up ℤ)) :=
-    { app := fun K =>
-        { f := fun i => adj.counit.app (K.X i)
-          comm' := by
-            intro i j hij
-            change adj.counit.app (K.X i) ≫ K.d i j =
-              G.map (F.map (K.d i j)) ≫ adj.counit.app (K.X j)
-            exact (adj.counit.naturality (K.d i j)).symm }
-      naturality := by
-        intro K L g
-        apply HomologicalComplex.hom_ext
-        intro i
-        exact adj.counit.naturality (g.f i) }
-  {
-    unit := unit
-    counit := counit
-    left_triangle_components := by
-      intro K
-      apply HomologicalComplex.hom_ext
-      intro i
-      change G.map (adj.unit.app (K.X i)) ≫
-        adj.counit.app (G.obj (K.X i)) = 𝟙 _
-      exact adj.left_triangle_components (K.X i)
-    right_triangle_components := by
-      intro K
-      apply HomologicalComplex.hom_ext
-      intro i
-      change adj.unit.app (F.obj (K.X i)) ≫
-        F.map (adj.counit.app (K.X i)) = 𝟙 _
-      exact adj.right_triangle_components (K.X i) }
+  Adjunction.mapHomologicalComplexAdjunction (affineBaseModuleAdjunction A f) (up ℤ)
 
 /-- The affine associated-module/global-sections adjunction transported to cochain homotopy
 categories. -/
@@ -183,79 +118,7 @@ noncomputable def affineBaseModuleHomotopyAdjunction
     (f : X ⟶ Spec (CommRingCat.of A)) :
     (affineBaseModuleAssociatedFunctor A f).mapHomotopyCategory (up ℤ) ⊣
       (affineBaseModuleGlobalSectionsFunctor A f).mapHomotopyCategory (up ℤ) :=
-  let G := affineBaseModuleAssociatedFunctor A f
-  let F := affineBaseModuleGlobalSectionsFunctor A f
-  let adj := affineBaseModuleComplexAdjunction A f
-  let unit : 𝟭 (HomotopyCategory (ModuleCat A) (up ℤ)) ⟶
-      G.mapHomotopyCategory (up ℤ) ⋙ F.mapHomotopyCategory (up ℤ) :=
-    { app := fun K =>
-        (HomotopyCategory.quotient (ModuleCat A) (up ℤ)).map (adj.unit.app K.as)
-      naturality := by
-        rintro ⟨K⟩ ⟨L⟩ ⟨g⟩
-        change
-          (HomotopyCategory.quotient (ModuleCat A) (up ℤ)).map
-              (g ≫ adj.unit.app L) =
-            (HomotopyCategory.quotient (ModuleCat A) (up ℤ)).map
-              (adj.unit.app K ≫
-                (G.mapHomologicalComplex (up ℤ) ⋙
-                  F.mapHomologicalComplex (up ℤ)).map g)
-        exact congrArg
-          (fun k => (HomotopyCategory.quotient (ModuleCat A) (up ℤ)).map k)
-          (adj.unit.naturality g) }
-  let counit : F.mapHomotopyCategory (up ℤ) ⋙ G.mapHomotopyCategory (up ℤ) ⟶
-      𝟭 (HomotopyCategory X.Modules (up ℤ)) :=
-    { app := fun K =>
-        (HomotopyCategory.quotient X.Modules (up ℤ)).map (adj.counit.app K.as)
-      naturality := by
-        rintro ⟨K⟩ ⟨L⟩ ⟨g⟩
-        change
-          (HomotopyCategory.quotient X.Modules (up ℤ)).map
-              ((F.mapHomologicalComplex (up ℤ) ⋙
-                G.mapHomologicalComplex (up ℤ)).map g ≫ adj.counit.app L) =
-            (HomotopyCategory.quotient X.Modules (up ℤ)).map
-              (adj.counit.app K ≫ g)
-        exact congrArg
-          (fun k => (HomotopyCategory.quotient X.Modules (up ℤ)).map k)
-          (adj.counit.naturality g) }
-  {
-    unit := unit
-    counit := counit
-    left_triangle_components := by
-      intro K
-      obtain ⟨K, rfl⟩ := HomotopyCategory.quotient_obj_surjective K
-      dsimp [unit, counit]
-      change
-        (HomotopyCategory.quotient X.Modules (up ℤ)).map
-              (((affineBaseModuleAssociatedFunctor A f).mapHomologicalComplex (up ℤ)).map
-                (adj.unit.app K)) ≫
-            (HomotopyCategory.quotient X.Modules (up ℤ)).map
-              (adj.counit.app
-                (((affineBaseModuleAssociatedFunctor A f).mapHomologicalComplex (up ℤ)).obj K)) =
-          𝟙 ((HomotopyCategory.quotient X.Modules (up ℤ)).obj
-            (((affineBaseModuleAssociatedFunctor A f).mapHomologicalComplex (up ℤ)).obj K))
-      have h := congrArg
-        (fun k => (HomotopyCategory.quotient X.Modules (up ℤ)).map k)
-        (adj.left_triangle_components K)
-      rw [Functor.map_comp] at h
-      exact h.trans ((HomotopyCategory.quotient X.Modules (up ℤ)).map_id _)
-    right_triangle_components := by
-      intro K
-      obtain ⟨K, rfl⟩ := HomotopyCategory.quotient_obj_surjective K
-      dsimp [unit, counit]
-      change
-        (HomotopyCategory.quotient (ModuleCat A) (up ℤ)).map
-              (adj.unit.app
-                (((affineBaseModuleGlobalSectionsFunctor A f).mapHomologicalComplex (up ℤ)).obj K)) ≫
-            (HomotopyCategory.quotient (ModuleCat A) (up ℤ)).map
-              (((affineBaseModuleGlobalSectionsFunctor A f).mapHomologicalComplex (up ℤ)).map
-                (adj.counit.app K)) =
-          𝟙 ((HomotopyCategory.quotient (ModuleCat A) (up ℤ)).obj
-            (((affineBaseModuleGlobalSectionsFunctor A f).mapHomologicalComplex (up ℤ)).obj K))
-      have h := congrArg
-        (fun k => (HomotopyCategory.quotient (ModuleCat A) (up ℤ)).map k)
-        (adj.right_triangle_components K)
-      rw [Functor.map_comp] at h
-      exact h.trans ((HomotopyCategory.quotient (ModuleCat A) (up ℤ)).map_id _) }
+  Adjunction.mapHomotopyCategoryAdjunction (affineBaseModuleAdjunction A f)
 
 namespace AffineBaseModuleDerivedAdjunction
 

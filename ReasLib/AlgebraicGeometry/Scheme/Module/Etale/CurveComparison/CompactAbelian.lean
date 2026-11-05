@@ -8,6 +8,7 @@ module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.CompactRepresentationDuality
 public import Mathlib.CategoryTheory.Abelian.Projective.Resolution
+public import Mathlib.Topology.Algebra.Module.ContinuousLinearMap.PiProd
 
 @[expose] public section
 
@@ -21,8 +22,31 @@ namespace CompactModule
 
 variable (Λ : Type u) [CommRing Λ] [Finite Λ]
 
-/-- Finite products are transported through the specified character equivalence. -/
-instance : HasFiniteProducts (CompactModule Λ) := by sorry
+/-- Finite products carry the product topology and pointwise module structure.
+This construction does not require character duality or finite coefficients. -/
+instance : HasFiniteProducts (CompactModule Λ) where
+  out n :=
+    { has_limit := fun F ↦ by
+        let P : CompactModule Λ :=
+          { toModule := ModuleCat.of Λ (∀ i : Fin n, (F.obj ⟨i⟩).toModule) }
+        let c : Cone F :=
+          { pt := P
+            π := Discrete.natTrans (fun i ↦ ContinuousLinearMap.proj i.as) }
+        exact HasLimit.mk
+          { cone := c
+            isLimit :=
+              { lift := fun s ↦ ContinuousLinearMap.pi (fun i ↦ s.π.app ⟨i⟩)
+                fac := by
+                  intro s i
+                  apply ContinuousLinearMap.ext
+                  intro x
+                  rfl
+                uniq := by
+                  intro s m hm
+                  apply ContinuousLinearMap.ext
+                  intro x
+                  funext i
+                  exact congrArg (fun f ↦ CompactModule.linear Λ f x) (hm ⟨i⟩) } } }
 
 instance : ((characterEquivalence Λ).inverse).IsEquivalence :=
   (characterEquivalence Λ).isEquivalence_inverse
@@ -42,7 +66,74 @@ variable [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
 instance : Preadditive (Cat Λ G) := inferInstanceAs
   (Preadditive ((continuousAction Λ G).FullSubcategory))
 
-instance : HasFiniteProducts (Cat Λ G) := by sorry
+/-- Products use the coordinatewise action, which remains jointly continuous.
+Neither finiteness of the coefficients nor continuity of group multiplication
+is needed for this construction. -/
+instance : HasFiniteProducts (Cat Λ G) where
+  out n :=
+    { has_limit := fun F ↦ by
+        let P : CompactModule Λ :=
+          { toModule := ModuleCat.of Λ (∀ i : Fin n, (F.obj ⟨i⟩).obj.V.toModule) }
+        let A : Action (CompactModule Λ) G :=
+          { V := P
+            ρ :=
+              { toFun := fun g ↦ ContinuousLinearMap.piMap
+                  (fun i ↦ (F.obj ⟨i⟩).obj.ρ g)
+                map_one' := by
+                  apply ContinuousLinearMap.ext
+                  intro x
+                  funext i
+                  exact congrArg (fun f ↦ CompactModule.linear Λ f (x i))
+                    (F.obj ⟨i⟩).obj.ρ.map_one
+                map_mul' := by
+                  intro g h
+                  apply ContinuousLinearMap.ext
+                  intro x
+                  funext i
+                  exact congrArg (fun f ↦ CompactModule.linear Λ f (x i))
+                    ((F.obj ⟨i⟩).obj.ρ.map_mul g h) } }
+        have hA : continuousAction Λ G A := by
+          apply continuous_pi
+          intro i
+          exact (F.obj ⟨i⟩).property.comp
+            (continuous_fst.prodMk ((continuous_apply i).comp continuous_snd))
+        let c : Cone F :=
+          { pt := ⟨A, hA⟩
+            π := Discrete.natTrans (fun i ↦ ObjectProperty.homMk
+              { hom := ContinuousLinearMap.proj i.as
+                comm := by
+                  intro g
+                  apply ContinuousLinearMap.ext
+                  intro x
+                  rfl }) }
+        exact HasLimit.mk
+          { cone := c
+            isLimit :=
+              { lift := fun s ↦ ObjectProperty.homMk
+                  { hom := ContinuousLinearMap.pi (fun i ↦ (s.π.app ⟨i⟩).hom.hom)
+                    comm := by
+                      intro g
+                      apply ContinuousLinearMap.ext
+                      intro x
+                      funext i
+                      exact congrArg (fun f ↦ CompactModule.linear Λ f x)
+                        ((s.π.app ⟨i⟩).hom.comm g) }
+                fac := by
+                  intro s i
+                  apply ObjectProperty.hom_ext
+                  apply Action.hom_ext
+                  apply ContinuousLinearMap.ext
+                  intro x
+                  rfl
+                uniq := by
+                  intro s m hm
+                  apply ObjectProperty.hom_ext
+                  apply Action.hom_ext
+                  apply ContinuousLinearMap.ext
+                  intro x
+                  funext i
+                  exact congrArg (fun f ↦ CompactModule.linear Λ f.hom.hom x)
+                    (hm ⟨i⟩) } } }
 
 instance : ((equivalence Λ G).inverse).IsEquivalence :=
   (equivalence Λ G).isEquivalence_inverse

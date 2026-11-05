@@ -6,6 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.DerivedResolutionComparison
+public import Mathlib.Algebra.Homology.DerivedCategory.RightDerivedFunctorPlus
 
 @[expose] public section
 open CategoryTheory CategoryTheory.Limits
@@ -24,7 +25,16 @@ def unit : DerivedCategory.Plus.Q.obj (F.mapCochainComplexPlus.obj K) ⟶
   Functor.RightDerived.Bounded.fromCochainMap F (K := K) (𝟙 _)
 
 /-- Bounded-below complexes of actual injective objects compute RF. -/
-theorem unit_isIso [∀ i : ℤ, Injective (K.obj.X i)] : IsIso (unit F K) := by sorry
+theorem unit_isIso [∀ i : ℤ, Injective (K.obj.X i)] : IsIso (unit F K) := by
+  have hunit : IsIso ((Functor.RightDerived.Bounded.unit F).app
+      ((HomotopyCategory.Plus.quotient C).obj K)) := by
+    change IsIso (F.rightDerivedFunctorPlusUnit.app ((HomotopyCategory.Plus.quotient C).obj K))
+    infer_instance
+  exact (DerivedCategory.Plus.Qh.mapIso
+      ((HomotopyCategory.Plus.quotient D).mapIso (Iso.refl (F.mapCochainComplexPlus.obj K))) ≪≫
+    DerivedCategory.Plus.Qh.mapIso ((Functor.Homotopy.Plus.quotientIso F).app K) ≪≫
+    (@asIso _ _ _ _ ((Functor.RightDerived.Bounded.unit F).app
+      ((HomotopyCategory.Plus.quotient C).obj K)) hunit)).isIso_hom
 
 variable (M : C) (f : ActualResolutionComparison.singleModel M ⟶ DerivedCategory.Plus.Q.obj K)
 variable [∀ i : ℤ, Injective (K.obj.X i)]

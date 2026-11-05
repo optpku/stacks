@@ -42,10 +42,12 @@ theorem ElementsBoundedBy.mono {κ κ' : Cardinal.{u}}
     F.ElementsBoundedBy κ' := sorry
 
 /-- A bounded-source condition supplies a small family which generates every functor element by
-functorial images. -/
+functorial images. The index type lies in the universe of morphisms, so the family can be
+used by `isCorepresentable_of_preservesLimits_of_generating_family` without any further
+smallness hypothesis. No limit-preservation assumption is needed for this step. -/
 theorem ElementsBoundedBy.exists_generating_family {κ : Cardinal.{u}}
     (h : F.ElementsBoundedBy κ) :
-    ∃ (ι : Type (u + 1)) (X : ι → DividedPowerRing.{u}) (x : ∀ i, F.obj (X i)),
+    ∃ (ι : Type u) (X : ι → DividedPowerRing.{u}) (x : ∀ i, F.obj (X i)),
       ∀ ⦃A : DividedPowerRing.{u}⦄ (y : F.obj A),
         ∃ (i : ι) (φ : X i ⟶ A), F.map φ (x i) = y := sorry
 
@@ -61,7 +63,10 @@ variable [PreservesLimits F]
 corepresentable when its elements have uniformly bounded sources. -/
 @[stacks 07GW]
 theorem isCorepresentable (h : F.HasBoundedElementSources) :
-    F.IsCorepresentable := sorry
+    F.IsCorepresentable := by
+  obtain ⟨κ, hκ⟩ := h
+  obtain ⟨ι, X, x, h_generate⟩ := hκ.exists_generating_family F
+  exact F.isCorepresentable_of_preservesLimits_of_generating_family X x h_generate
 
 end HasBoundedElementSources
 

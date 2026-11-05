@@ -92,17 +92,24 @@ theorem ker_hasProjectiveDimensionLE_of_surjective
     {n : ℕ} (hM : HasProjectiveDimensionLE (ModuleCat.of R M) (n + 1)) :
     HasProjectiveDimensionLE (ModuleCat.of R (ker pi)) n := sorry
 
-/-- The raw linear-map form of projectivity of the first syzygy of a projective presentation. -/
+/-- The raw linear-map form of projectivity of the first syzygy of a projective presentation.
+
+The ring must be small in the modules' universe to convert categorical projectivity into
+module projectivity. The bundled version has no such restriction. -/
 @[stacks 00O5 "linear-map projective kernel"]
-theorem ker_projective_of_surjective
+theorem ker_projective_of_surjective [Small.{v} R]
     {F M : Type v} [AddCommGroup F] [Module R F] [AddCommGroup M] [Module R M]
     (pi : F →ₗ[R] M) (hpi : Function.Surjective pi) [Module.Projective R F]
     (hM : HasProjectiveDimensionLE (ModuleCat.of R M) 1) :
-    Module.Projective R (ker pi) := sorry
+    Module.Projective R (ker pi) := by
+  exact (IsProjective.iff_projective (R := R) _).2
+    (CategoryTheory.ModuleCat.ker_projective_of_surjective (ModuleCat.ofHom pi) hpi hM)
 
-/-- The raw linear-map form of the top syzygy criterion with an explicit dimension bound. -/
+/-- The raw linear-map form of the top syzygy criterion with an explicit dimension bound.
+
+Smallness of the ring permits the passage from categorical to module projectivity. -/
 @[stacks 00O5 "linear-map top syzygy projectivity from a dimension bound"]
-theorem topKernel_projective_of_exact_of_dimLE
+theorem topKernel_projective_of_exact_of_dimLE [Small.{v} R]
     {e : ℕ} {M : Type v} [AddCommGroup M] [Module R M]
     {F : Fin (e + 2) → Type v}
     [∀ i, AddCommGroup (F i)] [∀ i, Module R (F i)]
@@ -112,11 +119,18 @@ theorem topKernel_projective_of_exact_of_dimLE
     (hExactZero : Function.Exact (d 0) pi)
     (hExact : ∀ i : Fin e, Function.Exact (d i.succ) (d i.castSucc))
     {n : ℕ} (hM : HasProjectiveDimensionLE (ModuleCat.of R M) n) (hn : n ≤ e + 2) :
-    Module.Projective R (ker (d (Fin.last e))) := sorry
+    Module.Projective R (ker (d (Fin.last e))) := by
+  exact (IsProjective.iff_projective (R := R) _).2
+    (CategoryTheory.ModuleCat.topKernel_projective_of_exact_of_dimLE
+      (F := fun i => ModuleCat.of R (F i))
+      (fun i => (IsProjective.iff_projective (R := R) (F i)).1 (hF i))
+      (fun i => ModuleCat.ofHom (d i)) (ModuleCat.ofHom pi) hpi hExactZero hExact hM hn)
 
-/-- The raw linear-map top syzygy criterion at its natural `e + 2` bound. -/
+/-- The raw linear-map top syzygy criterion at its natural `e + 2` bound.
+
+Smallness of the ring permits the passage from categorical to module projectivity. -/
 @[stacks 00O5 "linear-map top syzygy projectivity"]
-theorem topKernel_projective_of_exact
+theorem topKernel_projective_of_exact [Small.{v} R]
     {e : ℕ} {M : Type v} [AddCommGroup M] [Module R M]
     {F : Fin (e + 2) → Type v}
     [∀ i, AddCommGroup (F i)] [∀ i, Module R (F i)]
@@ -126,6 +140,7 @@ theorem topKernel_projective_of_exact
     (hExactZero : Function.Exact (d 0) pi)
     (hExact : ∀ i : Fin e, Function.Exact (d i.succ) (d i.castSucc))
     (hM : HasProjectiveDimensionLE (ModuleCat.of R M) (e + 2)) :
-    Module.Projective R (ker (d (Fin.last e))) := sorry
+    Module.Projective R (ker (d (Fin.last e))) := by
+  exact topKernel_projective_of_exact_of_dimLE hF d pi hpi hExactZero hExact hM le_rfl
 
 end LinearMap

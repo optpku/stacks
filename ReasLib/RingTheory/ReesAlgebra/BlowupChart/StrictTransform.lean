@@ -60,27 +60,8 @@ abbrev strictTransform
   let J : Ideal A := principalIdeal (AffineBlowupChart.algebraMap I a a)
   T ⧸ J.primaryComponent T
 
-/-- The strict transform inherits its additive group from the quotient module. -/
-@[stacks 053H "additive group on the strict transform", instance]
-instance instAddCommGroupStrictTransform
-    {R : Type u} [CommRing R] (I : Ideal R) (a : I)
-    (M : Type v) [AddCommGroup M] [Module R M] :
-    AddCommGroup (strictTransform I a M) := inferInstance
-
-/-- The strict transform is canonically a module over its affine blowup chart. -/
-@[stacks 053H "affine-chart module structure on the strict transform", instance]
-instance instModuleStrictTransform
-    {R : Type u} [CommRing R] (I : Ideal R) (a : I)
-    (M : Type v) [AddCommGroup M] [Module R M] :
-    Module R[I / a] (strictTransform I a M) := inferInstance
-
-/-- Restriction along the affine-chart algebra map makes the strict transform an `R`-module. -/
-@[stacks 053H "base-ring module structure on the strict transform", instance]
-instance instModuleBaseStrictTransform
-    {R : Type u} [CommRing R] (I : Ideal R) (a : I)
-    (M : Type v) [AddCommGroup M] [Module R M] :
-    Module R (strictTransform I a M) :=
-  Module.compHom (strictTransform I a M) (algebraMap R R[I / a])
+-- The additive group and the chart- and base-ring module structures are supplied by mathlib's
+-- quotient instances. The base-ring action descends from the tensor product via its scalar tower.
 
 namespace StrictTransform
 

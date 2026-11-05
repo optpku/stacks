@@ -29,19 +29,6 @@ universe u
 
 namespace AlgebraicGeometry.Scheme.Hom
 
-private theorem isNormalRing_of_ringEquiv {R S : Type*} [CommRing R] [CommRing S]
-    [IsNormalRing R] (e : R ≃+* S) : IsNormalRing S := by
-  have hloc (p : PrimeSpectrum S) :
-      IsDomain (Localization.AtPrime p.asIdeal) ∧
-        IsIntegrallyClosed (Localization.AtPrime p.asIdeal) := by
-    let q : Ideal R := p.asIdeal.comap e.toRingHom
-    haveI : q.IsPrime := inferInstance
-    let h : Localization.AtPrime q ≃+* Localization.AtPrime p.asIdeal :=
-      IsLocalization.ringEquivOfRingEquiv (M := q.primeCompl)
-        (T := p.asIdeal.primeCompl) _ _ e (e.map_primeCompl_comap_eq p.asIdeal)
-    exact ⟨h.symm.injective.isDomain h.symm.toRingHom, IsIntegrallyClosed.of_equiv h⟩
-  exact ⟨fun p ↦ (hloc p).1, fun p ↦ (hloc p).2⟩
-
 /-- The relative normalization of a quasi-compact and quasi-separated morphism from a normal
 scheme with finitely many irreducible components on quasi-compact opens admits a pairwise disjoint
 open cover by normal integral schemes. -/
@@ -62,7 +49,7 @@ theorem normalization_isNormal_of_isNormal
   obtain ⟨i, hix⟩ := hcover.exists_mem x
   let y : (U i).toScheme := ⟨x, hix⟩
   haveI : IsNormalRing ((U i).toScheme.presheaf.stalk y) := (hnormal i).2 y
-  exact isNormalRing_of_ringEquiv
+  exact IsNormalRing.of_ringEquiv
     (asIso ((U i).ι.stalkMap y)).commRingCatIsoToRingEquiv.symm
 
 /-- The canonical map to the relative normalization of a quasi-compact and quasi-separated

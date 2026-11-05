@@ -149,19 +149,39 @@ def compactSupportGerm (x : Fiber f ybar)
   compactSupportToPullbackStalk f ybar x F ≫ pullbackStalkToStalk f ybar x F
 
 /-- The residue-field map of the geometric-fibre projection is an isomorphism,
-since residue fields on `X_ȳ` equal `ybar.K`. -/
-instance isIso_geometricFiber_residueFieldMap
+since its finite residue-field extensions are over an algebraically closed field. -/
+instance isIso_geometricFiber_residueFieldMap [LocallyQuasiFinite f]
     (z : (pullback ybar.hom f : Scheme.{u})) :
-    IsIso ((pullback.fst ybar.hom f).residueFieldMap z) :=
-  sorry
+    IsIso ((pullback.fst ybar.hom f).residueFieldMap z) := by
+  let p := pullback.fst ybar.hom f
+  let x := p z
+  letI : IsAlgClosed ybar.K := ybar.isAlgClosed
+  letI : IsAlgClosed ((Spec (.of ybar.K)).residueField x) :=
+    IsAlgClosed.of_ringEquiv ybar.K _
+      (x.asIdeal.algEquivResidueFieldOfField.toRingEquiv.trans
+        (Spec.residueFieldIso (.of ybar.K) x).commRingCatIsoToRingEquiv.symm)
+  have hq : (p.residueFieldMap z).hom.QuasiFinite := by
+    apply RingHom.QuasiFinite.of_comp
+      (g := ((Spec (.of ybar.K)).residue x).hom)
+    rw [← CommRingCat.hom_comp, residue_residueFieldMap]
+    exact (RingHom.QuasiFinite.of_finite
+      (RingHom.Finite.of_surjective _ ((pullback ybar.hom f).residue_surjective z))).comp
+        (p.quasiFiniteAt z)
+  letI := (p.residueFieldMap z).hom.toAlgebra
+  haveI : Algebra.QuasiFinite ((Spec (.of ybar.K)).residueField x)
+      ((pullback ybar.hom f).residueField z) := hq
+  haveI : Module.Finite ((Spec (.of ybar.K)).residueField x)
+      ((pullback ybar.hom f).residueField z) := .of_quasiFinite
+  apply (ConcreteCategory.isIso_iff_bijective _).mpr
+  exact IsAlgClosed.algebraMap_bijective_of_isIntegral
 
 /-- The structure morphism of the spectrum of a field induces an isomorphism
 from the residue field of any point to the field. -/
 instance isIso_specField_algebraMap (x : Spec (.of ybar.K)) :
     IsIso
       (CommRingCat.ofHom
-        (algebraMap ybar.K (x.asIdeal.ResidueField : Type u))) :=
-  sorry
+        (algebraMap ybar.K (x.asIdeal.ResidueField : Type u))) := by
+  exact x.asIdeal.algEquivResidueFieldOfField.toRingEquiv.toCommRingCatIso.isIso_hom
 
 /-- Identify a residue field of `Spec ybar.K` with `ybar.K`. -/
 def specResidueToField (x : Spec (.of ybar.K)) :
@@ -185,9 +205,9 @@ def overOfFiberPoint (z : (pullback ybar.hom f : Scheme.{u})) : Fiber f ybar whe
   fac := by sorry
 
 /-- The geometric fibre is locally quasi-finite over `Spec ybar.K`. -/
-instance locallyQuasiFinite_geometricFiberOverField_hom :
+instance locallyQuasiFinite_geometricFiberOverField_hom [LocallyQuasiFinite f] :
     LocallyQuasiFinite (geometricFiberOverField f ybar).hom :=
-  sorry
+  MorphismProperty.pullback_fst ybar.hom f inferInstance
 
 /-- Reduced support of a compactly supported fibre section, as a closed
 subscheme of `X_ȳ`. -/
@@ -209,8 +229,15 @@ theorem locallyQuasiFinite_fiberCompactSupportSectionStructure
       (abelianPullbackAlong (pullback.snd ybar.hom f) F)) :
     LocallyQuasiFinite
       ((fiberCompactSupportSectionStructure f ybar F σ).ι ≫
-        (geometricFiberOverField f ybar).hom) :=
-  sorry
+        (geometricFiberOverField f ybar).hom) := by
+  change LocallyQuasiFinite
+    ((Scheme.IdealSheafData.vanishingIdeal
+        (abelianSheafSectionSupport
+          (abelianPullbackAlong (pullback.snd ybar.hom f) F)
+          (globalEtale (pullback ybar.hom f)) σ.1)).subschemeι ≫
+      pullback.fst ybar.hom f)
+  exact MorphismProperty.comp_mem (@LocallyQuasiFinite) _ _ inferInstance
+    (MorphismProperty.pullback_fst ybar.hom f inferInstance)
 
 /-- The reduced support of a compactly supported fibre section is quasicompact
 over `Spec ybar.K`. -/
@@ -220,14 +247,20 @@ theorem quasiCompact_fiberCompactSupportSectionStructure
       (abelianPullbackAlong (pullback.snd ybar.hom f) F)) :
     QuasiCompact
       ((fiberCompactSupportSectionStructure f ybar F σ).ι ≫
-        (geometricFiberOverField f ybar).hom) :=
-  sorry
+        (geometricFiberOverField f ybar).hom) := by
+  haveI : IsProper
+      ((fiberCompactSupportSectionStructure f ybar F σ).ι ≫
+        (geometricFiberOverField f ybar).hom) := σ.property
+  infer_instance
 
-/-- The geometric fibre `ȳ ×_Y X` is discrete, as `f` is locally quasi-finite and
-locally of finite type. -/
-instance discreteTopology_geometricFiber :
-    DiscreteTopology (pullback ybar.hom f : Scheme.{u}) :=
-  sorry
+/-- The geometric fibre `ȳ ×_Y X` is discrete, as `f` is locally quasi-finite. -/
+instance discreteTopology_geometricFiber [LocallyQuasiFinite f] :
+    DiscreteTopology (pullback ybar.hom f : Scheme.{u}) := by
+  letI : LocallyQuasiFinite (pullback.fst ybar.hom f) :=
+    MorphismProperty.pullback_fst ybar.hom f inferInstance
+  letI : IsLocallyArtinian (pullback ybar.hom f) :=
+    IsLocallyArtinian.of_locallyQuasiFinite (pullback.fst ybar.hom f)
+  infer_instance
 
 /-- Finite set of points of the reduced support of a compactly supported fibre
 section, lying over the unique point of `Spec ybar.K`. -/

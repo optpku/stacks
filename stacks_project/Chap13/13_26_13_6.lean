@@ -6,12 +6,12 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-import ReasLib.CategoryTheory.Filtration.Derived.Finite.Compatibility
+import ReasLib.CategoryTheory.Filtration.Derived.Injective
 import StacksCheckRecall
 
 @[expose] public section
 
-namespace CategoryTheory.FilteredComplex.RightDerived.Finite.Injective.RightDerived
+open CategoryTheory.FilteredObject.FiniteDerived.Plus.FilteredInjective.RightDerived
 
 /-!
 # Equation 13.26.13.6
@@ -33,7 +33,7 @@ filtered-injective equivalence. -/
 
 /- Under enough injectives, the filtered-injective model equivalence required by the preceding
 comparison is supplied canonically. -/
-#check @isEquivalence
+#check @CategoryTheory.FilteredObject.FiniteDerived.Plus.FilteredInjective.isEquivalence
 
 /- The comparison is characterized by its compatibility with the two right-derived
 factorizations, both globally and componentwise. -/
@@ -41,5 +41,3 @@ factorizations, both globally and componentwise. -/
 #check @isoOfEnoughInjectives.fac_app
 #check @isoOfEnoughInjectives.inv_fac
 #check @isoOfEnoughInjectives.inv_fac_app
-
-end CategoryTheory.FilteredComplex.RightDerived.Finite.Injective.RightDerived

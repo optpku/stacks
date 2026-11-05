@@ -39,7 +39,21 @@ degree `a` induces an isomorphism on cohomology in every degree `i ≥ a`. -/
 @[stacks 08J5, stacks 0H72]
 theorem homologyMap_isIso
     (K : DerivedCategory 𝒜) (a i : ℤ) (h : a ≤ i) :
-    IsIso ((DerivedCategory.homologyFunctor 𝒜 i).map ((t.truncGEπ a).app K)) := sorry
+    IsIso ((DerivedCategory.homologyFunctor 𝒜 i).map ((t.truncGEπ a).app K)) := by
+  have h₀ := DerivedCategory.isZero_of_isLE ((t.truncLT a).obj K) (a - 1) i (by omega)
+  have h₁ := DerivedCategory.isZero_of_isLE ((t.truncLT a).obj K) (a - 1) (i + 1)
+    (by omega)
+  haveI : Mono ((DerivedCategory.homologyFunctor 𝒜 i).map
+      ((t.truncGEπ a).app K)) :=
+    (DerivedCategory.HomologySequence.mono_homologyMap_mor₂_iff
+      ((t.triangleLTGE a).obj K) (t.triangleLTGE_distinguished a K) i).2
+      (h₀.eq_of_src _ _)
+  haveI : Epi ((DerivedCategory.homologyFunctor 𝒜 i).map
+      ((t.truncGEπ a).app K)) :=
+    (DerivedCategory.HomologySequence.epi_homologyMap_mor₂_iff
+      ((t.triangleLTGE a).obj K) (t.triangleLTGE_distinguished a K) i (i + 1)).2
+      (h₁.eq_of_tgt _ _)
+  exact isIso_of_mono_of_epi _
 
 /-- In the stable degree range, lower truncation has canonically isomorphic homology to the
 original derived object. -/
@@ -58,7 +72,7 @@ projection. -/
 theorem homologyIso_inv
     (K : DerivedCategory 𝒜) (a i : ℤ) (h : a ≤ i) :
     (homologyIso K a i h).inv =
-      (DerivedCategory.homologyFunctor 𝒜 i).map ((t.truncGEπ a).app K) := sorry
+      (DerivedCategory.homologyFunctor 𝒜 i).map ((t.truncGEπ a).app K) := rfl
 
 /-- Naturality of the homology maps induced by the canonical lower-truncation
 projections, in the forward direction used by natural transformations. -/

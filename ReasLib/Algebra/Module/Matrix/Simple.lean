@@ -30,11 +30,23 @@ variable {ι : Type v} [Fintype ι] [DecidableEq ι]
 The explicit element `i` records the nonemptiness needed to recover every coordinate from a
 nonzero vector. -/
 theorem matrix_fun (i : ι) :
-    IsSimpleModule (Matrix ι ι K) (ι → K) := sorry
+    IsSimpleModule (Matrix ι ι K) (ι → K) := by
+  classical
+  letI : Nonempty ι := ⟨i⟩
+  refine isSimpleModule_iff_toSpanSingleton_surjective.mpr ⟨inferInstance, ?_⟩
+  intro x hx y
+  have hx' : ¬ ∀ j, x j = 0 := fun h ↦ hx (funext h)
+  obtain ⟨j, hj⟩ := not_forall.mp hx'
+  let M : Matrix ι ι K := fun r c ↦ if c = j then y r * (x j)⁻¹ else 0
+  refine ⟨M, ?_⟩
+  change M • x = y
+  ext r
+  simp [M, Matrix.Module.smul_apply, smul_eq_mul, mul_assoc, hj]
 
 /-- The standard module over `Matrix (Fin n) (Fin n) K` is simple whenever `n` is positive.
 This is the `Fin n` convenience specialization of `matrix_fun`. -/
 theorem matrix_fin_fun {n : ℕ} (hn : 1 ≤ n) :
-    IsSimpleModule (Matrix (Fin n) (Fin n) K) (Fin n → K) := sorry
+    IsSimpleModule (Matrix (Fin n) (Fin n) K) (Fin n → K) :=
+  matrix_fun ⟨0, hn⟩
 
 end IsSimpleModule

@@ -256,6 +256,59 @@ noncomputable def tmul
     (y : Y) (z : Z) : square.tensor :=
   square.span.tmul y z
 
+/-- The tensor-product map induced by a commutative square of commutative
+semirings, using Mathlib's `Algebra.TensorProduct.productMap` with the algebra
+structures selected by the square. -/
+@[stacks 0GIP "raw tensor-product comparison map"]
+noncomputable def map
+    (square : Square (X := X) (Y := Y) (Z := Z) (W := W)) :
+    square.tensor →+* W :=
+  -- Local instance justification (instance diamond): this square selects
+  -- the left algebra structure used by its tensor-product carrier.
+  letI : Algebra X Y := square.leftAlgebra
+  -- Local instance justification (instance diamond): this square selects
+  -- the right algebra structure used by its tensor-product carrier.
+  letI : Algebra X Z := square.rightAlgebra
+  -- Local instance justification (instance diamond): the diagonal of this
+  -- square selects the target algebra structure, compatibly with both edges.
+  letI : Algebra X W := square.targetAlgebra
+  let f : Y →ₐ[X] W :=
+    { square.leftTarget with commutes' := fun _ => rfl }
+  let g : Z →ₐ[X] W :=
+    { square.rightTarget with
+      commutes' := fun a => (congrArg (fun h : X →+* W => h a) square.comm).symm }
+  (Algebra.TensorProduct.productMap f g).toRingHom
+
+/-- The tensor map of a raw square evaluates a pure tensor by multiplying the
+two lower-edge images. -/
+@[stacks 0GIP "raw square tensor map on pure tensors", simp]
+theorem map_tmul
+    (square : Square (X := X) (Y := Y) (Z := Z) (W := W))
+    (y : Y) (z : Z) :
+    square.map (square.tmul y z) = square.leftTarget y * square.rightTarget z := rfl
+
+/-- The tensor map of a raw square restricts along the left inclusion to the
+lower-left edge. -/
+@[stacks 0GIP "raw square tensor map left restriction", simp]
+theorem map_comp_includeLeft
+    (square : Square (X := X) (Y := Y) (Z := Z) (W := W)) :
+    square.map.comp square.includeLeft = square.leftTarget := by
+  apply RingHom.ext
+  intro y
+  change square.map (square.tmul y 1) = square.leftTarget y
+  rw [map_tmul, map_one, mul_one]
+
+/-- The tensor map of a raw square restricts along the right inclusion to the
+lower-right edge. -/
+@[stacks 0GIP "raw square tensor map right restriction", simp]
+theorem map_comp_includeRight
+    (square : Square (X := X) (Y := Y) (Z := Z) (W := W)) :
+    square.map.comp square.includeRight = square.rightTarget := by
+  apply RingHom.ext
+  intro z
+  change square.map (square.tmul 1 z) = square.rightTarget z
+  rw [map_tmul, map_one, one_mul]
+
 end Square
 
 end RawSquare
@@ -266,60 +319,6 @@ variable {X : Type u} {Y : Type v} {Z : Type w} {W : Type x}
 variable [CommRing X] [CommRing Y] [CommRing Z] [CommRing W]
 
 namespace Square
-
-/-- The tensor-product map induced by a commutative square of rings.  It is
-Mathlib's explicit pushout descent map in `CommRingCat`. -/
-@[stacks 0GIP "raw tensor-product comparison map"]
-noncomputable def map
-    (square : Square (X := X) (Y := Y) (Z := Z) (W := W)) :
-    square.tensor →+* W :=
-  -- Local instance justification (instance diamond): Mathlib's explicit tensor-product
-  -- pushout needs the left algebra structure selected by this particular square.
-  letI : Algebra X Y := square.leftAlgebra
-  -- Local instance justification (instance diamond): Mathlib's explicit tensor-product
-  -- pushout needs the right algebra structure selected by this particular square.
-  letI : Algebra X Z := square.rightAlgebra
-  -- Local instance justification (defeq pin): Mathlib's pushout theorem is universe-uniform;
-  -- this canonical left ULift structure transports the square to one common universe.
-  letI : Algebra (ULift.{max u v w x} X) (ULift.{max u v w x} Y) :=
-    ULift.algebra' X (ULift.{max u v w x} Y)
-  -- Local instance justification (defeq pin): Mathlib's pushout theorem is universe-uniform;
-  -- this canonical right ULift structure transports the square to one common universe.
-  letI : Algebra (ULift.{max u v w x} X) (ULift.{max u v w x} Z) :=
-    ULift.algebra' X (ULift.{max u v w x} Z)
-  ULift.ringEquiv.toRingHom.comp <|
-    (((CommRingCat.pushoutCoconeIsColimit
-      (ULift.{max u v w x} X) (ULift.{max u v w x} Y) (ULift.{max u v w x} Z)).desc
-        (CategoryTheory.Limits.PushoutCocone.mk
-          (CommRingCat.ofHom square.leftTarget.ulift.{max u v w x, max u v w x})
-          (CommRingCat.ofHom square.rightTarget.ulift.{max u v w x, max u v w x})
-          (CommRingCat.hom_ext
-            (congrArg (RingHom.ulift.{max u v w x, max u v w x}) square.comm)))).hom.comp
-      ((Algebra.TensorProduct.uliftEquiv.{max u v w x, max u v w x,
-          max u v w x, max u v w x} X X Y Z).toRingHom.comp
-        ULift.ringEquiv.symm.toRingHom))
-
-/-- The tensor map of a raw square evaluates a pure tensor by multiplying the
-two lower-edge images. -/
-@[stacks 0GIP "raw square tensor map on pure tensors", simp]
-theorem map_tmul
-    (square : Square (X := X) (Y := Y) (Z := Z) (W := W))
-    (y : Y) (z : Z) :
-    square.map (square.tmul y z) = square.leftTarget y * square.rightTarget z := sorry
-
-/-- The tensor map of a raw square restricts along the left inclusion to the
-lower-left edge. -/
-@[stacks 0GIP "raw square tensor map left restriction", simp]
-theorem map_comp_includeLeft
-    (square : Square (X := X) (Y := Y) (Z := Z) (W := W)) :
-    square.map.comp square.includeLeft = square.leftTarget := sorry
-
-/-- The tensor map of a raw square restricts along the right inclusion to the
-lower-right edge. -/
-@[stacks 0GIP "raw square tensor map right restriction", simp]
-theorem map_comp_includeRight
-    (square : Square (X := X) (Y := Y) (Z := Z) (W := W)) :
-    square.map.comp square.includeRight = square.rightTarget := sorry
 
 /-- Promote the tensor map of a raw square to a ring equivalence once its
 bijectivity is available. -/

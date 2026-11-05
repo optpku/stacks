@@ -371,7 +371,12 @@ instance diagramDescentAction_isIso {X Y : AlgebraicSpace S} {U V : Over S}
     (f : X ⟶ Y) (ψ : U ⟶ V) (a : ofOver U ⟶ X) (b : ofOver V ⟶ Y)
     [Etale a] [Etale b] (sq : CommSq a (ofOverMap ψ) f b) :
     IsIso (diagramDescentAction f ψ a b sq) :=
-  sorry
+  by
+    let e := @asIso _ _ _ _ (diagramComparisonScheme f ψ a b sq)
+      (diagramComparisonScheme_isIso f ψ a b sq)
+    exact ((Scheme.QCoh.pullback (atlasGroupoid a).t.left).mapIso e.symm ≪≫
+      QCoh.actionIso a (packedRelativeDifferentials f) ≪≫
+      (Scheme.QCoh.pullback (atlasGroupoid a).s.left).mapIso e).isIso_hom
 
 /-- The descent isomorphism `s* Ω_{U/V} ⟶ t* Ω_{U/V}` opposite to the conjugated
 kernel-pair action. -/
@@ -387,7 +392,9 @@ instance diagramDescentIso_isIso {X Y : AlgebraicSpace S} {U V : Over S}
     (f : X ⟶ Y) (ψ : U ⟶ V) (a : ofOver U ⟶ X) (b : ofOver V ⟶ Y)
     [Etale a] [Etale b] (sq : CommSq a (ofOverMap ψ) f b) :
     IsIso (diagramDescentIso f ψ a b sq) :=
-  sorry
+  by
+    unfold diagramDescentIso
+    infer_instance
 
 /-- The action on `Ω_{U/V}` satisfies the cocycle condition. -/
 theorem diagramDescentAction_cocycle {X Y : AlgebraicSpace S} {U V : Over S}
@@ -584,14 +591,32 @@ def cokerSourceModules {X Y : AlgebraicSpace S} {U : Over S}
     (f : X ⟶ Y) (φ : ofOver U ⟶ X) [Etale φ] :
     (Modules.pullback (ofOverMap (atlasGroupoid φ).s)).obj (cokerModule f φ) ⟶
       cokerRelationModule f φ :=
-  inv (cokernelComparison (cokerComparison f φ)
-      (Modules.pullback (ofOverMap (atlasGroupoid φ).s)))
-    (I := inferInstanceAs (IsIso (cokernelComparison (cokerComparison f φ)
-      (Modules.pullback (ofOverMap (atlasGroupoid φ).s))))) ≫
-    cokernel.desc
-      ((Modules.pullback (ofOverMap (atlasGroupoid φ).s)).map (cokerComparison f φ))
-      (cokerPullbackBase f φ ≫ cokernel.π (cokerRelationComparison f φ))
-      (cokerSourceModules_zero f φ)
+  let adj := Modules.pullbackPushforwardAdjunction (ofOverMap (atlasGroupoid φ).s)
+  (adj.homEquiv _ _).symm
+    (cokernel.desc (cokerComparison f φ)
+      (adj.homEquiv _ _ (cokerPullbackBase f φ ≫ cokernel.π (cokerRelationComparison f φ)))
+      (by
+        erw [← adj.homEquiv_naturality_left, cokerSourceModules_zero f φ]
+        letI : (Modules.pushforward (ofOverMap (atlasGroupoid φ).s)).IsRightAdjoint :=
+          adj.isRightAdjoint
+        letI : (Modules.pushforward (ofOverMap (atlasGroupoid φ).s)).PreservesZeroMorphisms :=
+          Functor.preservesZeroMorphisms_of_isRightAdjoint _
+        simp only [Adjunction.homEquiv_unit]
+        erw [Functor.map_zero]
+        exact comp_zero))
+
+/-- The source comparison is characterized by its composite with the pulled-back
+cokernel projection. -/
+@[reassoc (attr := simp)]
+theorem cokerSourceModules_π {X Y : AlgebraicSpace S} {U : Over S}
+    (f : X ⟶ Y) (φ : ofOver U ⟶ X) [Etale φ] :
+    (Modules.pullback (ofOverMap (atlasGroupoid φ).s)).map
+        (cokernel.π (C := (ofOver U).Modules) (cokerComparison f φ)) ≫ cokerSourceModules f φ =
+      cokerPullbackBase f φ ≫ cokernel.π (cokerRelationComparison f φ) := by
+  dsimp only [cokerSourceModules]
+  erw [← Adjunction.homEquiv_naturality_left_symm, cokernel.π_desc (C := (ofOver U).Modules),
+    Equiv.symm_apply_apply]
+  rfl
 
 /-- The source comparison of the packed cokernel modules. -/
 def cokerSourceQCoh {X Y : AlgebraicSpace S} {U : Over S}
@@ -645,14 +670,32 @@ def cokerTargetModules {X Y : AlgebraicSpace S} {U : Over S}
     (f : X ⟶ Y) (φ : ofOver U ⟶ X) [Etale φ] :
     (Modules.pullback (ofOverMap (atlasGroupoid φ).t)).obj (cokerModule f φ) ⟶
       cokerRelationModule f φ :=
-  inv (cokernelComparison (cokerComparison f φ)
-      (Modules.pullback (ofOverMap (atlasGroupoid φ).t)))
-    (I := inferInstanceAs (IsIso (cokernelComparison (cokerComparison f φ)
-      (Modules.pullback (ofOverMap (atlasGroupoid φ).t))))) ≫
-    cokernel.desc
-      ((Modules.pullback (ofOverMap (atlasGroupoid φ).t)).map (cokerComparison f φ))
-      (cokerPullbackBase_t f φ ≫ cokernel.π (cokerRelationComparison f φ))
-      (cokerTargetModules_zero f φ)
+  let adj := Modules.pullbackPushforwardAdjunction (ofOverMap (atlasGroupoid φ).t)
+  (adj.homEquiv _ _).symm
+    (cokernel.desc (cokerComparison f φ)
+      (adj.homEquiv _ _ (cokerPullbackBase_t f φ ≫ cokernel.π (cokerRelationComparison f φ)))
+      (by
+        erw [← adj.homEquiv_naturality_left, cokerTargetModules_zero f φ]
+        letI : (Modules.pushforward (ofOverMap (atlasGroupoid φ).t)).IsRightAdjoint :=
+          adj.isRightAdjoint
+        letI : (Modules.pushforward (ofOverMap (atlasGroupoid φ).t)).PreservesZeroMorphisms :=
+          Functor.preservesZeroMorphisms_of_isRightAdjoint _
+        simp only [Adjunction.homEquiv_unit]
+        erw [Functor.map_zero]
+        exact comp_zero))
+
+/-- The target comparison is characterized by its composite with the pulled-back
+cokernel projection. -/
+@[reassoc (attr := simp)]
+theorem cokerTargetModules_π {X Y : AlgebraicSpace S} {U : Over S}
+    (f : X ⟶ Y) (φ : ofOver U ⟶ X) [Etale φ] :
+    (Modules.pullback (ofOverMap (atlasGroupoid φ).t)).map
+        (cokernel.π (C := (ofOver U).Modules) (cokerComparison f φ)) ≫ cokerTargetModules f φ =
+      cokerPullbackBase_t f φ ≫ cokernel.π (cokerRelationComparison f φ) := by
+  dsimp only [cokerTargetModules]
+  erw [← Adjunction.homEquiv_naturality_left_symm, cokernel.π_desc (C := (ofOver U).Modules),
+    Equiv.symm_apply_apply]
+  rfl
 
 /-- The target comparison of the packed cokernel modules. -/
 def cokerTargetQCoh {X Y : AlgebraicSpace S} {U : Over S}
@@ -694,7 +737,9 @@ theorem cokerDescentIso_spec {X Y : AlgebraicSpace S} {U : Over S}
 instance cokerDescentIso_isIso {X Y : AlgebraicSpace S} {U : Over S}
     (f : X ⟶ Y) (φ : ofOver U ⟶ X) [Etale φ] :
     IsIso (cokerDescentIso f φ) :=
-  sorry
+  by
+    unfold cokerDescentIso
+    infer_instance
 
 /-- The groupoid action on the cokernel presentation of `Ω_{U/Y}`. -/
 def cokerDescentAction {X Y : AlgebraicSpace S} {U : Over S}

@@ -34,3 +34,14 @@ its Čech complex to derived sections. Applying homology gives the usual degreew
 #check @CategoryTheory.Cech.DerivedComparison.degreeSystem_nonempty
 #check @CategoryTheory.Cech.IsComparison
 #check @CategoryTheory.Cech.comparison_exists
+
+/- The source-facing selected-cover specialization only assumes its iterated fibre products. -/
+#check @CategoryTheory.Cech.FixedTarget.derivedSource
+#check @CategoryTheory.Cech.FixedTarget.cohomologyOnSheaves
+#check @CategoryTheory.Cech.FixedTarget.DerivedComparison
+@[stacks 03AX "selected-cover specialization"]
+#check @CategoryTheory.Cech.FixedTarget.derivedComparison_nonempty
+#check @CategoryTheory.Cech.FixedTarget.derivedSourceHomologyIso
+#check @CategoryTheory.Cech.FixedTarget.DerivedComparison.homology
+#check @CategoryTheory.Cech.FixedTarget.DerivedComparison.degreeComparison
+#check @CategoryTheory.Cech.FixedTarget.DerivedComparison.degreeComparison_zero_isIso_app

@@ -21,6 +21,7 @@ map on sections induced by compatible affine opens `U ⊆ X` and `V ⊆ S` has p
     ∀ (P : {R T : Type u} → [CommRing R] → [CommRing T] → (R →+* T) → Prop)
       {X S : AlgebraicGeometry.Scheme.{u}} {f : X ⟶ S},
       AlgebraicGeometry.LocallyOfType P f → RingHom.PropertyIsLocal P →
+        RingHom.StableUnderCompositionWithLocalizationAwaySource P →
         ∀ {U : X.Opens}, AlgebraicGeometry.IsAffineOpen U →
           ∀ {V : S.Opens}, AlgebraicGeometry.IsAffineOpen V →
             ∀ e : U ≤ f ⁻¹ᵁ V,

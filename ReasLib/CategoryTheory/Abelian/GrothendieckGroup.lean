@@ -21,7 +21,7 @@ universal lift, and additivity on short exact sequences.
 
 @[expose] public section
 
-universe v u
+universe v u w
 
 namespace CategoryTheory
 
@@ -65,10 +65,49 @@ def lift {M : Type*} [AddCommGroup M] (f : A → M)
   QuotientAddGroup.lift (relations A) (FreeAbelianGroup.lift f) hf
 
 /-- The descended invariant evaluates on an object class as the original invariant. -/
-@[simp]
+@[simp↓]
 theorem lift_of {M : Type*} [AddCommGroup M] (f : A → M)
     (hf : relations A ≤ (FreeAbelianGroup.lift f).ker) (X : A) :
-    lift f hf (of X) = f X := sorry
+    lift f hf (of X) = f X := by
+  exact FreeAbelianGroup.lift_apply_of f X
+
+/-- Additivity on short exact sequences kills the subgroup of Grothendieck relations. -/
+theorem relations_le_ker_of_shortExact {M : Type w} [AddCommGroup M] (f : A → M)
+    (hf : ∀ (S : ShortComplex A), S.ShortExact → f S.X₂ = f S.X₁ + f S.X₃) :
+    relations A ≤ (FreeAbelianGroup.lift f).ker := by
+  apply (AddSubgroup.closure_le _).2
+  rintro _ ⟨⟨S, hS⟩, rfl⟩
+  change FreeAbelianGroup.lift f (relation A ⟨S, hS⟩) = 0
+  simp only [relation, map_sub, FreeAbelianGroup.lift_apply_of]
+  rw [hf S hS, add_sub_cancel_left, sub_self]
+
+/-- Descend an invariant additive on short exact sequences to the Grothendieck group. -/
+def liftShortExact {M : Type w} [AddCommGroup M] (f : A → M)
+    (hf : ∀ (S : ShortComplex A), S.ShortExact → f S.X₂ = f S.X₁ + f S.X₃) :
+    AbelianK0 A →+ M :=
+  lift f (relations_le_ker_of_shortExact f hf)
+
+/-- The short-exact lift evaluates on an object class as the original invariant. -/
+@[simp↓]
+theorem liftShortExact_of {M : Type w} [AddCommGroup M] (f : A → M)
+    (hf : ∀ (S : ShortComplex A), S.ShortExact → f S.X₂ = f S.X₁ + f S.X₃) (X : A) :
+    liftShortExact f hf (of X) = f X :=
+  lift_of f (relations_le_ker_of_shortExact f hf) X
+
+/-- Homomorphisms out of the Grothendieck group are determined by object classes. -/
+@[ext]
+theorem hom_ext {M : Type w} [AddCommGroup M] {f g : AbelianK0 A →+ M}
+    (h : ∀ X : A, f (of X) = g (of X)) : f = g := by
+  apply QuotientAddGroup.addMonoidHom_ext
+  exact FreeAbelianGroup.lift_ext _ _ h
+
+/-- An invariant additive on short exact sequences extends uniquely to the Grothendieck group. -/
+theorem existsUnique_lift_shortExact {M : Type w} [AddCommGroup M] (f : A → M)
+    (hf : ∀ (S : ShortComplex A), S.ShortExact → f S.X₂ = f S.X₁ + f S.X₃) :
+    ∃! g : AbelianK0 A →+ M, ∀ X : A, g (of X) = f X := by
+  refine ⟨liftShortExact f hf, liftShortExact_of f hf, ?_⟩
+  intro g hg
+  exact hom_ext fun X ↦ (hg X).trans (liftShortExact_of f hf X).symm
 
 /-- Notation for the class of an object in an abelian Grothendieck group. -/
 notation:max "K₀[" X "]" => AbelianK0.of X

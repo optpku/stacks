@@ -8,6 +8,8 @@ module
 
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Invertible.Basic
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.Invertible
+public import ReasLib.AlgebraicGeometry.Scheme.Divisor.EffectiveCartier
+public import ReasLib.AlgebraicGeometry.Scheme.Module.Picard
 
 /-!
 # Sheaves associated to effective Cartier divisors
@@ -57,14 +59,39 @@ instance effectiveCartierDivisorAssociatedSheaf_evaluationIso
     (I : Subobject (SheafOfModules.unit X.ringCatSheaf :
       SheafOfModules X.ringCatSheaf))
     [Fact (Functor.IsEquivalence (tensorRight (Subobject.underlying.obj I)))] :
-    IsIso (effectiveCartierDivisorEvaluationHom (X := X) I) := sorry
+    IsIso (effectiveCartierDivisorEvaluationHom (X := X) I) := by
+  let L := Subobject.underlying.obj I
+  letI : MonoidalCategory.isInvertibleObject L :=
+    MonoidalCategory.isInvertibleObject.ofTensorRight L Fact.out
+  let η : (SheafOfModules.unit X.ringCatSheaf : SheafOfModules X.ringCatSheaf) ≅
+      𝟙_ (SheafOfModules X.ringCatSheaf) :=
+    SheafOfModules.RingedSite.unitIsoTensorUnit
+      (J := Opens.grothendieckTopology X.toTopCat) (𝒪 := X.𝒪)
+  haveI : IsIso η.hom := η.isIso_hom
+  have hwhisk : IsIso (L ◁ (ihom L).map η.hom) := by infer_instance
+  have heval : IsIso ((ihom.ev L).app (𝟙_ (SheafOfModules X.ringCatSheaf))) :=
+    MonoidalCategory.isInvertibleObject.evaluationIsIso L
+  haveI : IsIso ((ihom.ev L).app (SheafOfModules.unit X.ringCatSheaf) ≫ η.hom) := by
+    rw [← ihom.ev_naturality (A := L) η.hom]
+    exact IsIso.comp_isIso' hwhisk heval
+  exact IsIso.of_isIso_comp_right
+    ((ihom.ev L).app (SheafOfModules.unit X.ringCatSheaf)) η.hom
 
 /-- The sheaf associated to an invertible ideal sheaf is invertible. -/
 instance effectiveCartierDivisorAssociatedSheaf_isInvertible
     (I : Subobject (SheafOfModules.unit X.ringCatSheaf :
       SheafOfModules X.ringCatSheaf))
     [Fact (Functor.IsEquivalence (tensorRight (Subobject.underlying.obj I)))] :
-    Modules.Invertible (effectiveCartierDivisorAssociatedSheaf I) := sorry
+    Modules.Invertible (effectiveCartierDivisorAssociatedSheaf I) := by
+  let L := Subobject.underlying.obj I
+  letI : MonoidalCategory.isInvertibleObject L :=
+    MonoidalCategory.isInvertibleObject.ofTensorRight L Fact.out
+  let η : (SheafOfModules.unit X.ringCatSheaf : SheafOfModules X.ringCatSheaf) ≅
+      𝟙_ (SheafOfModules X.ringCatSheaf) :=
+    SheafOfModules.RingedSite.unitIsoTensorUnit
+      (J := Opens.grothendieckTopology X.toTopCat) (𝒪 := X.𝒪)
+  exact MonoidalCategory.isInvertibleObject.of_iso ((ihom L).mapIso η.symm)
+    (MonoidalCategory.isInvertibleObject.ihomUnit L)
 
 /-- The canonical morphism from the structure sheaf to the sheaf associated to an invertible
 ideal sheaf. -/
@@ -121,3 +148,21 @@ theorem effectiveCartierDivisorDifferenceSheaf_def
         (effectiveCartierDivisorNegSheaf I') := rfl
 
 end AlgebraicGeometry.Scheme
+
+/- Legacy namespace retained for source compatibility; the sheaf module owns O(D). -/
+namespace WeilCohomology
+
+/-- The Picard class of the invertible scheme module associated to an effective Cartier divisor. -/
+noncomputable def effectiveCartierDivisorPicardClass
+    {Y X : Scheme.{u}} (i : Y ⟶ X) (hi : IsEffectiveCartierDivisor i) :
+    X.PicardGroup :=
+  @AlgebraicGeometry.Scheme.Modules.picardClass X
+    (@Scheme.effectiveCartierDivisorAssociatedSheaf X inferInstance
+      (RingedSpace.Hom.idealSheafSubobject i.toShHom)
+      ⟨Scheme.Modules.Invertible.tensorRight_isEquivalence hi.invertibleIdealSheaf⟩)
+    (@Scheme.effectiveCartierDivisorAssociatedSheaf_isInvertible X inferInstance
+      (RingedSpace.Hom.idealSheafSubobject i.toShHom)
+      ⟨Scheme.Modules.Invertible.tensorRight_isEquivalence hi.invertibleIdealSheaf⟩)
+
+
+end WeilCohomology

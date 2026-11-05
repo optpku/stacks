@@ -12,7 +12,7 @@ public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Pullback.Equality
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Pullback
 
 /-!
-# The Hom functor of quasi-coherent modules on an algebraic space
+# The Hom functor of modules on an algebraic space
 
 This module constructs the contravariant functor on schemes over `B` sending a
 test scheme `T` to the type of `𝒪_{X_T}`-module maps `F_T ⟶ G_T`.
@@ -92,7 +92,7 @@ theorem baseChangeHom_comp (f : X ⟶ B) (F G : X.Modules) {σ τ ρ : SchemeOve
 
 /-- The contravariant Hom functor on schemes over `B`, sending `T` to the type of
 `𝒪_{X_T}`-module morphisms `F_T ⟶ G_T`. -/
-def homFunctor (f : X ⟶ B) (F G : X.Modules) [F.IsQuasicoherent] [G.IsQuasicoherent] :
+def homFunctor (f : X ⟶ B) (F G : X.Modules) :
     (SchemeOver B)ᵒᵖ ⥤ Type (u + 1) where
   obj σ := baseChangeModule f σ.unop.hom F ⟶ baseChangeModule f σ.unop.hom G
   map h := TypeCat.ofHom (baseChangeHom f F G h.unop)
@@ -102,14 +102,14 @@ def homFunctor (f : X ⟶ B) (F G : X.Modules) [F.IsQuasicoherent] [G.IsQuasicoh
 
 /-- The value of the Hom functor at a scheme over `B` is the Hom-type of the base-changed
 modules. -/
-theorem homFunctor_obj (f : X ⟶ B) (F G : X.Modules) [F.IsQuasicoherent] [G.IsQuasicoherent]
+theorem homFunctor_obj (f : X ⟶ B) (F G : X.Modules)
     (σ : SchemeOver B) :
     (homFunctor f F G).obj (op σ) =
       (baseChangeModule f σ.hom F ⟶ baseChangeModule f σ.hom G) :=
   rfl
 
 /-- The Hom functor acts on a morphism of schemes over `B` by restriction of module maps. -/
-theorem homFunctor_map (f : X ⟶ B) (F G : X.Modules) [F.IsQuasicoherent] [G.IsQuasicoherent]
+theorem homFunctor_map (f : X ⟶ B) (F G : X.Modules)
     {σ τ : SchemeOver B} (h : τ ⟶ σ) :
     (homFunctor f F G).map h.op = TypeCat.ofHom (baseChangeHom f F G h) :=
   rfl

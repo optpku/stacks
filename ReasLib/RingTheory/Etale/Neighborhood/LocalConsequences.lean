@@ -7,6 +7,8 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import Mathlib.RingTheory.Etale.Locus
+public import Mathlib.RingTheory.RingHom.Etale
+public import ReasLib.RingTheory.RingHom.AtPrime
 public import Mathlib.RingTheory.Unramified.LocalRing
 public import ReasLib.RingTheory.LocalRing.ResidueField.Map
 public import Mathlib.Tactic.CrossRefAttribute
@@ -19,9 +21,10 @@ public import Mathlib.Tactic.CrossRefAttribute
 Mathlib's `Algebra.IsEtaleAt R q` records formal etaleness of the stalk
 `Localization.AtPrime q`.  A basic-open etale neighborhood additionally
 supplies the finite-presentation information needed for finite residue-field
-extensions.  The canonical owners remain `Algebra.IsEtaleAt` and
-`Algebra.IsUnramifiedAt`; the basic-open condition is accepted directly only
-at the bridge theorems that need it.
+extensions.  `Algebra.EtaleAtPrime` specializes `RingHom.AtPrime` to
+`RingHom.Etale` for the source-facing local definition.  Mathlib's
+`Algebra.IsEtaleAt` remains the formal stalk predicate; the two agree under
+finite presentation.
 
 @stack 00U1
 @stack 00U4
@@ -34,6 +37,33 @@ open IsLocalRing
 namespace Algebra
 
 variable {R : Type u} {S : Type v} [CommRing R] [CommRing S] [Algebra R S]
+
+/-- An algebra is étale at a prime in the sense of Stacks 00U1 when it is étale on
+some principal-open neighborhood of that prime. No global finite presentation is required. -/
+@[stacks 00U1 "etaleness at a prime"]
+def EtaleAtPrime (R : Type u) (S : Type v) [CommRing R] [CommRing S] [Algebra R S]
+    (q : PrimeSpectrum S) : Prop :=
+  RingHom.AtPrime (fun f ↦ f.Etale) (algebraMap R S) q
+
+namespace EtaleAtPrime
+
+/-- The principal-open witness form of Stacks-style local étaleness. -/
+@[stacks 00U1 "etaleness on a principal-open neighborhood of a prime"]
+theorem iff_exists_away (q : PrimeSpectrum S) :
+    EtaleAtPrime R S q ↔
+      ∃ g : S, g ∉ q.asIdeal ∧ Etale R (Localization.Away g) := by
+  unfold EtaleAtPrime RingHom.AtPrime
+  constructor
+  · rintro ⟨g, hg, hEtale⟩
+    refine ⟨g, hg, ?_⟩
+    rw [← RingHom.etale_algebraMap]
+    convert hEtale using 1 <;> ext <;> rfl
+  · rintro ⟨g, hg, hEtale⟩
+    refine ⟨g, hg, ?_⟩
+    rw [← RingHom.etale_algebraMap] at hEtale
+    convert hEtale using 1 <;> ext <;> rfl
+
+end EtaleAtPrime
 
 /-- For a finitely presented algebra, formal étaleness at a prime is equivalent to the existence
 of an étale basic-open neighborhood of that prime. -/
@@ -48,6 +78,12 @@ theorem isEtaleAt_iff_exists_etale_away [FinitePresentation R S] (q : PrimeSpect
   · rintro ⟨g, hg, h⟩
     letI := h
     exact (basicOpen_subset_etaleLocus_iff (R := R) (f := g)).mpr inferInstance hg
+
+/-- Under finite presentation, Stacks-style local étaleness agrees with Mathlib's
+formal stalk predicate. -/
+theorem EtaleAtPrime.iff_isEtaleAt [FinitePresentation R S] (q : PrimeSpectrum S) :
+    EtaleAtPrime R S q ↔ IsEtaleAt R q.asIdeal := by
+  rw [EtaleAtPrime.iff_exists_away, isEtaleAt_iff_exists_etale_away]
 
 namespace IsEtaleAt
 

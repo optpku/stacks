@@ -100,14 +100,6 @@ instance inclusion_functor_isContinuous (U : Opens X) :
       (Opens.grothendieckTopology X) :=
   U.isOpenEmbedding.functor_isContinuous
 
-/-- The inverse-image functor on opens induced by an inclusion is continuous for the canonical
-Grothendieck topologies. This is an instance because restriction, sheaf pullback, and module
-pullback use it as their canonical site-continuity input. -/
-instance restrictionFunctor_isContinuous {W U : Opens X} (h : W ≤ U) :
-    (restrictionFunctor h).IsContinuous
-      (Opens.grothendieckTopology (space U))
-      (Opens.grothendieckTopology (space W)) := sorry
-
 end OpenEmbedding
 
 section Intersection

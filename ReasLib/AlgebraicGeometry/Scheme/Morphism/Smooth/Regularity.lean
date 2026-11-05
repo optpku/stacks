@@ -13,6 +13,7 @@ public import ReasLib.AlgebraicGeometry.Scheme.Morphism.Regular
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.Smooth.Basic
 public import ReasLib.AlgebraicGeometry.Scheme.Regular
 public import ReasLib.RingTheory.Normal.RegularLocal
+public import ReasLib.RingTheory.Smooth.Local.Regularity
 
 /-!
 # Regularity properties of smooth schemes over fields
@@ -43,7 +44,24 @@ theorem geometricallyRegularAt_iff_smoothAt
 
 /-- A scheme smooth over a field is regular. -/
 theorem regular_of_smooth_over_field
-    (f : X ⟶ Spec (CommRingCat.of k)) [Smooth f] : Scheme.Regular X := sorry
+    (f : X ⟶ Spec (CommRingCat.of k)) [Smooth f] : Scheme.Regular X := by
+  constructor
+  intro x
+  obtain ⟨U, hU, hx, _⟩ := exists_isAffineOpen_mem_and_subset
+    (X := X) (U := ⊤) (x := x) (by simp)
+  refine ⟨⟨U, hU⟩, hx, ?_⟩
+  let R := Γ(Spec (CommRingCat.of k), ⊤)
+  let S := Γ(X, U)
+  letI : Field R :=
+    ((Scheme.ΓSpecIso (CommRingCat.of k)).commRingCatIsoToRingEquiv.toMulEquiv.isField
+      (Field.toIsField k)).toField
+  letI : Algebra R S := (f.appLE ⊤ U (by simp)).hom.toAlgebra
+  haveI : Algebra.Smooth R S :=
+    (f.smooth_appLE (isAffineOpen_top _) hU (by simp)).toAlgebra
+  haveI : IsNoetherianRing S := Algebra.FiniteType.isNoetherianRing R S
+  constructor
+  intro p hp
+  exact Algebra.FormallySmooth.isRegularLocalRing (k := R) (A := Localization.AtPrime p)
 
 /-- A morphism to the spectrum of a field is geometrically regular when it is smooth. -/
 @[stacks 056T]

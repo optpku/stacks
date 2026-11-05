@@ -12,8 +12,9 @@ public import Mathlib.Tactic.CrossRefAttribute
 /-!
 # Injective objects detected by a separator
 
-The subobjects of a separator form a canonical set-sized family of monomorphisms.  Lifting
-against this family detects injective objects.  The construction belongs at the category level:
+The subobjects of a separator form a canonical family of monomorphisms. In a Grothendieck
+abelian category, lifting against this family detects injective objects. The construction belongs
+at the category level:
 graded modules, sheaves of modules, and other Grothendieck categories use the same owner.
 -/
 
@@ -23,7 +24,7 @@ open CategoryTheory.Limits
 
 noncomputable section
 
-universe u v
+universe u v w
 
 namespace CategoryTheory.InjectiveTest
 
@@ -46,19 +47,53 @@ abbrev arrow (t : index C) : source t ⟶ target t := t.arrow
 instance arrow_mono (t : index C) : Mono (arrow t) :=
   Subobject.arrow_mono t
 
-/-- An object is injective exactly when every map from a separator subobject extends to the
-separator. -/
+/-- In a Grothendieck abelian category, an object is injective exactly when every map from a
+separator subobject extends to the separator. -/
 @[stacks 0FSN]
-theorem injective_iff_lifts (I : C) :
+theorem injective_iff_lifts [Abelian C] [IsGrothendieckAbelian.{w} C] (I : C) :
     Injective I ↔
       ∀ t : index C, ∀ f : source t ⟶ I,
-        ∃ g : target t ⟶ I, arrow t ≫ g = f := sorry
+        ∃ g : target t ⟶ I, arrow t ≫ g = f := by
+  constructor
+  · intro hI t f
+    exact @Injective.factors C _ I hI _ _ f (arrow t) inferInstance
+  · intro h
+    apply (injective_iff_rlp_monomorphisms_zero I).2
+    rw [← IsGrothendieckAbelian.generatingMonomorphisms_rlp (isSeparator_separator C)]
+    rintro _ _ _ ⟨t⟩
+    constructor
+    intro f g sq
+    obtain ⟨l, hl⟩ := h t f
+    exact ⟨⟨{ l := l, fac_left := hl, fac_right := (isZero_zero C).eq_of_tgt _ _ }⟩⟩
 
-/-- The canonical separator-subobject data realizes the existential test-family formulation. -/
-theorem exists_family :
+omit [HasSeparator C] in
+/-- A (noncanonical) test family indexed by the noninjective objects. Classically choose one
+failed monomorphism extension for each such object. This construction works in any category;
+it does not identify this family with the separator-subobject family. -/
+theorem exists_family [HasSeparator C] :
     ∃ (T : Type u) (N N' : T → C) (ι : ∀ t, N t ⟶ N' t),
       (∀ t, Mono (ι t)) ∧
         ∀ I : C, Injective I ↔
-          ∀ t (f : N t ⟶ I), ∃ g : N' t ⟶ I, ι t ≫ g = f := sorry
+          ∀ t (f : N t ⟶ I), ∃ g : N' t ⟶ I, ι t ≫ g = f := by
+  classical
+  have hfailed : ∀ I : { I : C // ¬ Injective I },
+      ∃ (A B : C) (i : A ⟶ B) (f : A ⟶ I.val),
+        Mono i ∧ ¬ ∃ g : B ⟶ I.val, i ≫ g = f := by
+    intro I
+    by_contra h
+    apply I.property
+    constructor
+    intro A B f i hi
+    by_contra hf
+    exact h ⟨A, B, i, f, hi, hf⟩
+  choose A B i f hi hf using hfailed
+  refine ⟨{ I : C // ¬ Injective I }, A, B, i, hi, ?_⟩
+  intro I
+  constructor
+  · intro hI t f
+    exact @Injective.factors C _ I hI _ _ f (i t) (hi t)
+  · intro h
+    by_contra hI
+    exact hf ⟨I, hI⟩ (h ⟨I, hI⟩ (f ⟨I, hI⟩))
 
 end CategoryTheory.InjectiveTest

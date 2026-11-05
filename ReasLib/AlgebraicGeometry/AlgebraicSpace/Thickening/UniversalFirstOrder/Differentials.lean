@@ -50,7 +50,9 @@ noncomputable def pullbackDifferentialsComparison :
 /-- Pulling the canonical relative-differentials comparison of a universal
 first-order thickening of a formally unramified morphism back to `Z` is an
 isomorphism. -/
-instance pullbackDifferentialsComparison_isIso :
+instance pullbackDifferentialsComparison_isIso
+    (i : Z ⟶ Z') (h' : Z' ⟶ X) (h : Z ⟶ X) (f : X ⟶ B)
+    [IsUniversalFirstOrder i h'] [FormallyUnramified h] (w : i ≫ h' = h) :
     IsIso (pullbackDifferentialsComparison i h' h f w) :=
   sorry
 

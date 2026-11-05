@@ -67,10 +67,12 @@ structure Horseshoe
   comparison_right : comparison.τ₃ = c
 
 /-- A horseshoe exists for prescribed degree-zero associated-graded quasi-isomorphisms from the
-outer terms of a short exact sequence of finite filtered objects. -/
+outer terms of a short exact sequence of finite filtered objects. Exactness here is
+measured on associated graded objects, as stipulated in the source's exact-category convention. -/
 @[stacks 05TV "filtered-injective horseshoe"]
 theorem exists_horseshoe [EnoughInjectives C]
-    (S : ShortComplex (FilteredObject.Finite.category C)) (hS : S.ShortExact)
+    (S : ShortComplex (FilteredObject.Finite.category C))
+    (hS : (S.map (FilteredObject.Finite.AssociatedGraded.functor C)).ShortExact)
     {I J : FilteredInjectivePlus C}
     (a : (CochainComplex.singleFunctor (FilteredObject.Finite.category C) (0 : ℤ)).obj S.X₁ ⟶
       (FilteredInjectivePlus.ι C).obj I)
@@ -127,7 +129,8 @@ def HasQuasiIso
 comparison maps are associated-graded quasi-isomorphisms. -/
 @[stacks 05TV "filtered-injective horseshoe"]
 theorem exists_withQuasiIso [EnoughInjectives C]
-    (S : ShortComplex (FilteredObject.Finite.category C)) (hS : S.ShortExact)
+    (S : ShortComplex (FilteredObject.Finite.category C))
+    (hS : (S.map (FilteredObject.Finite.AssociatedGraded.functor C)).ShortExact)
     {I J : FilteredInjectivePlus C}
     (a : (CochainComplex.singleFunctor (FilteredObject.Finite.category C) (0 : ℤ)).obj S.X₁ ⟶
       (FilteredInjectivePlus.ι C).obj I)

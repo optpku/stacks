@@ -38,13 +38,12 @@ open etaleLocalRing_etaleNeighborhood
 
 variable {S : Scheme.{u}}
 
-/-- An étale neighbourhood of `ȳ` extracted from the germ of `1` in `O_{Y,ȳ}`. -/
+/-- Use the supplied scheme atlas with its geometric-point lift as an étale neighbourhood.
+This does not select a representative using the admitted site-point cofilteredness proof. -/
 private def chosenNeighborhood {Y : AlgebraicSpace S} (ybar : GeometricPoint Y) :
     SmallEtaleNeighborhood ybar :=
-  let h :=
-    (toSmallEtalePoint ybar).toPresheafFiber_jointly_surjective
-      (P := (structureSheaf Y).obj) (1 : etaleLocalRing Y ybar)
-  SmallEtaleNeighborhood.of h.choose h.choose_spec.choose.hom h.choose_spec.choose.fac
+  SmallEtaleNeighborhood.of (SmallEtale.AtlasCharts.atlasObject Y)
+    (atlasLiftHom ybar) (atlasLiftHom_fac ybar)
 
 /-- The scheme morphism `Spec(O_{Y,ȳ}) ⟶ U` through the Zariski stalk of a chosen étale
 neighbourhood scheme `U` of `ȳ`. -/

@@ -11,6 +11,7 @@ public import Mathlib.Algebra.Category.ModuleCat.Sheaf.PullbackFree
 public import Mathlib.Algebra.Homology.QuasiIso
 public import Mathlib.AlgebraicTopology.AlternatingFaceMapComplex
 public import ReasLib.AlgebraicGeometry.RingedSite.Simplicial.LowerShriek
+public import ReasLib.AlgebraicGeometry.RingedSite.Topos.Module.Unit
 
 /-!
 # Alternating-face complex of `g_{n!} O_n` on a morphism diagram of sites
@@ -69,22 +70,47 @@ def facePullback_unit_counit {n m : SimplexCategory} (φ : n ⟶ m) :
       componentUnit C J O m :=
   SheafOfModules.pullbackObjUnitToUnit (ringedToposMapDirectStructure C J O φ)
 
-/-- The comparison `f_φ^* O_n ⟶ O_m` is an isomorphism. -/
-instance facePullback_unit_counit_isIso {n m : SimplexCategory} (φ : n ⟶ m) :
-    IsIso (facePullback_unit_counit C J O φ) :=
+/-- The continuous-site unit comparison agrees with the canonical ringed-topos comparison. -/
+theorem facePullback_unit_counit_eq {n m : SimplexCategory} (φ : n ⟶ m) :
+    facePullback_unit_counit C J O φ =
+      (ringedToposMap_pullbackIso C J O φ).hom.app (componentUnit C J O n) ≫
+        ToposHom.modulePullbackObjUnitToUnit (ringedToposMap C J O φ) :=
   sorry
 
-/-- The comparison `O_m ⟶ f_φ^* O_n` of rank-one modules along a simplex operator. -/
+/-- The comparison `f_φ^* O_n ⟶ O_m` is an isomorphism. -/
+instance facePullback_unit_counit_isIso {n m : SimplexCategory} (φ : n ⟶ m) :
+    IsIso (facePullback_unit_counit C J O φ) := by
+  rw [facePullback_unit_counit_eq]
+  change IsIso ((ringedToposMap_pullbackIso C J O φ).hom.app _ ≫
+    (ToposHom.modulePullbackUnitIso (ringedToposMap C J O φ)).hom)
+  infer_instance
+
+/-- The comparison `O_m ⟶ f_φ^* O_n`, constructed by the global-section/adjunction
+equivalence for unit modules, independently of `facePullback_unit_counit_isIso`. -/
 def facePullback_unit {n m : SimplexCategory} (φ : n ⟶ m) :
     componentUnit C J O m ⟶
       (ringedToposMap C J O φ).modulePullback.obj (componentUnit C J O n) :=
-  CategoryTheory.inv (facePullback_unit_counit C J O φ) ≫
-    (ringedToposMap_pullbackIso C J O φ).hom.app (componentUnit C J O n)
+  (ToposHom.modulePullbackUnitIso (ringedToposMap C J O φ)).inv
 
 /-- The comparison `O_m ⟶ f_φ^* O_n` is an isomorphism. -/
 instance facePullback_unit_isIso {n m : SimplexCategory} (φ : n ⟶ m) :
-    IsIso (facePullback_unit C J O φ) :=
-  sorry
+    IsIso (facePullback_unit C J O φ) := by
+  unfold facePullback_unit
+  infer_instance
+
+/-- The constructed unit comparison is inverse to the canonical ringed-topos unit map. -/
+@[simp]
+theorem facePullback_unit_comp {n m : SimplexCategory} (φ : n ⟶ m) :
+    facePullback_unit C J O φ ≫
+      ToposHom.modulePullbackObjUnitToUnit (ringedToposMap C J O φ) = 𝟙 _ :=
+  (ToposHom.modulePullbackUnitIso (ringedToposMap C J O φ)).inv_hom_id
+
+/-- The canonical ringed-topos unit map is inverse to the constructed unit comparison. -/
+@[simp]
+theorem comp_facePullback_unit {n m : SimplexCategory} (φ : n ⟶ m) :
+    ToposHom.modulePullbackObjUnitToUnit (ringedToposMap C J O φ) ≫
+      facePullback_unit C J O φ = 𝟙 _ :=
+  (ToposHom.modulePullbackUnitIso (ringedToposMap C J O φ)).hom_inv_id
 
 /-- The identity comparison `O_n ⟶ (ofStage C n)_* O` of ring sheaves, pinning
 the site functor to `ofStage C n` rather than the identity on `C_n`. -/

@@ -44,12 +44,12 @@ noncomputable def Pattern.span {E : Finset A} (p : Pattern A E) : Ideal A :=
 /-- The finite-stage `A`-algebra attached to `E`, as the product of
 specializing localizations over vanishing patterns of `E`. -/
 abbrev stage (E : Finset A) : Type u :=
-  ∀ p : Pattern A E, specializingLocalization A p.elem p.span
+  ∀ p : Pattern A E, Localization.specializing p.elem p.span
 
 /-- Projection from the finite-stage algebra onto the factor indexed by a
 vanishing pattern. -/
 noncomputable def stage.eval {E : Finset A} (p : Pattern A E) :
-    stage A E →+* specializingLocalization A p.elem p.span :=
-  Pi.evalRingHom (fun q : Pattern A E ↦ specializingLocalization A q.elem q.span) p
+    stage A E →+* Localization.specializing p.elem p.span :=
+  Pi.evalRingHom (fun q : Pattern A E ↦ Localization.specializing q.elem q.span) p
 
 end Algebra.WLocalHull

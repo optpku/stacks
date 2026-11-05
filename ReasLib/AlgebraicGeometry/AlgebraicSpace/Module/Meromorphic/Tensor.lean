@@ -17,7 +17,7 @@ public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.UniverseLift.Compa
 public import ReasLib.Algebra.Category.ModuleCat.Presheaf.Sections
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Noetherian
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Integral
-public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Meromorphic.Regular
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Meromorphic.Integral
 
 /-!
 # Tensor products of meromorphic sections on algebraic spaces
@@ -407,12 +407,6 @@ theorem meromorphicSectionTensor_app_of_representatives {L N : X.Modules}
             (regularStructureSections X).localizationPresheaf)).unit.app
         (meromorphicSectionPresheaf X (L ⊗ N))).app U)
         (LocalizedModule.mk (RelativeProj.liftModuleTensorSection L N U m n) (a * b)) := sorry
-
-/-- On a locally Noetherian integral algebraic space, a meromorphic section of an
-invertible module is regular exactly when it is nonzero. -/
-theorem isRegularMeromorphicSection_iff_ne_zero [IsLocallyNoetherian X] [IsIntegral X]
-    (L : X.Modules) [isInvertibleObject L] (s : meromorphicSections X L) :
-    IsRegularMeromorphicSection X L s ↔ s ≠ 0 := sorry
 
 /-- The tensor product of nonzero meromorphic sections of invertible modules is
 nonzero. -/

@@ -15,7 +15,9 @@ import StacksCheckRecall
 universe u
 
 /- Definition 27.22.2: for `0 < k < n`, an explicit representing model supplies the
-Grassmannian scheme over `ℤ`. -/
+Grassmannian scheme over `ℤ`. The surface is up to the unique isomorphism preserving
+the universal point. Tag 089T constructs a realization by gluing affine spaces of
+dimension `k(n-k)`; this interface does not supply that chart construction. -/
 @[stacks 089U] #check (AlgebraicGeometry.Grassmannian.Model.scheme :
   ∀ {k n : ℕ} {hk : 0 < k} {hkn : k < n},
     AlgebraicGeometry.Grassmannian.Model.{u} k n hk hkn → AlgebraicGeometry.Scheme.{u})

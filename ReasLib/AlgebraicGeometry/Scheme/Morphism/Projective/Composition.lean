@@ -28,21 +28,21 @@ universe u
 
 namespace AlgebraicGeometry
 
-/-- Projective morphisms are stable under composition. -/
-instance projective_isStableUnderComposition :
-    MorphismProperty.IsStableUnderComposition @Projective := sorry
-
-/-- The composite of two projective morphisms is projective. -/
+/-- The composite of two projective morphisms is projective when the final target is
+quasi-compact and quasi-separated (Stacks, Tag 0C4P). -/
 theorem Projective.comp
     {X Y Z : Scheme.{u}} {f : X ⟶ Y} {g : Y ⟶ Z}
+    [CompactSpace Z] [QuasiSeparatedSpace Z]
     (hf : Projective f) (hg : Projective g) :
     Projective (f ≫ g) := sorry
 
-/-- Typeclass form of closure of projective morphisms under composition. -/
+/-- Typeclass form of projective composition over a quasi-compact, quasi-separated target. -/
 instance projective_comp
     {X Y Z : Scheme.{u}} (f : X ⟶ Y) (g : Y ⟶ Z)
+    [CompactSpace Z] [QuasiSeparatedSpace Z]
     [Projective f] [Projective g] :
-    Projective (f ≫ g) := sorry
+    Projective (f ≫ g) :=
+  Projective.comp inferInstance inferInstance
 
 /-- H-projective morphisms are stable under composition. -/
 instance hProjective_isStableUnderComposition :

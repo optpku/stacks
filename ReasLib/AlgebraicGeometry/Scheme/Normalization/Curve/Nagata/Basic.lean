@@ -80,9 +80,16 @@ theorem normalizationMapInjective (x : X) :
       (algebraMap (X.presheaf.stalk x)
         (Normalization.normalizationRing (X.presheaf.stalk x))) := sorry
 
-/-- The local ring at a closed point of a reduced Nagata curve has Krull dimension one. -/
+/-- The local ring at a closed point of a reduced Nagata curve has Krull dimension one
+provided the point has a strict generization.
+
+Global dimension one alone permits isolated zero-dimensional components. For example, the
+closed point on the `Spec k` component of `Spec (k[t] × k)` has a field as its local ring.
+The strict-generization hypothesis excludes this case without imposing purity on `X`.
+This is a local helper; Stacks 0C1R does not state it separately. -/
 theorem krullDimEqOne (hdim : topologicalKrullDim X = 1)
-    (x : X) (hx : x ∈ closedPoints X) :
+    (x : X) (hx : x ∈ closedPoints X)
+    (hgenerization : ∃ y : X, y ≠ x ∧ y ⤳ x) :
     ringKrullDim (X.presheaf.stalk x) = 1 := sorry
 
 /-- The normalization pushforward stalk at a closed point is equivalent to the canonical ring

@@ -10,7 +10,7 @@ public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.SpaceHom
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.IsomFunctor
 
 /-!
-# Space-level invertible Hom pairs of quasi-coherent modules
+# Space-level invertible Hom pairs of modules
 
 This module restricts space-level Hom pairs to those pairs `(h, u)` for which
 `u : F_T ⟶ G_T` is an `𝒪_{X_T}`-module isomorphism.
@@ -80,7 +80,7 @@ theorem pullback_hom {T T' : AlgebraicSpace S} {f : X ⟶ B} {F G : X.Modules}
 
 /-- Convert an Isom-functor section over a scheme `σ` over `B` into a space-level
 invertible pair with structural morphism `σ.hom`. -/
-def ofScheme {f : X ⟶ B} {F G : X.Modules} [F.IsQuasicoherent] [G.IsQuasicoherent]
+def ofScheme {f : X ⟶ B} {F G : X.Modules}
     {σ : SchemeOver B} (u : (isomFunctor f F G).obj (op σ)) :
     SpaceIsom f F G (ofOver σ.left) :=
   of σ.hom u.1 u.2
@@ -88,14 +88,14 @@ def ofScheme {f : X ⟶ B} {F G : X.Modules} [F.IsQuasicoherent] [G.IsQuasicoher
 /-- Transporting an invertible pair's module map to its scheme section preserves
 invertibility. -/
 private theorem toScheme_isIso {f : X ⟶ B} {F G : X.Modules}
-    [F.IsQuasicoherent] [G.IsQuasicoherent] {σ : SchemeOver B}
+    {σ : SchemeOver B}
     (p : SpaceIsom f F G (ofOver σ.left)) (hp : p.hom = σ.hom) :
     IsIso (SpaceHom.toScheme p.toSpaceHom hp) :=
   sorry
 
 /-- Recover an Isom-functor section from a space-level invertible pair over
 `ofOver σ.left` whose structural morphism is `σ.hom`. -/
-def toScheme {f : X ⟶ B} {F G : X.Modules} [F.IsQuasicoherent] [G.IsQuasicoherent]
+def toScheme {f : X ⟶ B} {F G : X.Modules}
     {σ : SchemeOver B} (p : SpaceIsom f F G (ofOver σ.left))
     (hp : p.hom = σ.hom) : (isomFunctor f F G).obj (op σ) :=
   ⟨SpaceHom.toScheme p.toSpaceHom hp, by exact toScheme_isIso p hp⟩

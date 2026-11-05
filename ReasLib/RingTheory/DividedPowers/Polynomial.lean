@@ -319,7 +319,36 @@ theorem dividedPowers_dpow_X {I : Ideal A} (γ : DividedPowers I) (n : ℕ) (i :
 
 /-- The base algebra map is a divided-power morphism into the explicit canonical structure. -/
 theorem dividedPowers_algebraMap_isDPMorphism {I : Ideal A} (γ : DividedPowers I) :
-    IsDPMorphism γ (dividedPowers γ) (algebraMap A (DPPolynomial A ι)) := sorry
+    IsDPMorphism γ (dividedPowers γ) (algebraMap A (DPPolynomial A ι)) := by
+  classical
+  refine ⟨le_sup_left, ?_⟩
+  intro n a ha
+  change Canonical.dpow γ n (algebraMap A (DPPolynomial A ι) a) = _
+  rw [← DividedPowerAlgebra.coe_C a]
+  change Canonical.rawDpow γ n (MvPolynomial.C a) = _
+  have hnorm : Canonical.normalize (MvPolynomial.C a :
+      MvPolynomial (ℕ × (ι →₀ A)) A) = MvPolynomial.C a := by
+    simp [Canonical.normalize]
+  have hs : Canonical.positiveSupport (MvPolynomial.C a :
+      MvPolynomial (ℕ+ × (ι →₀ A)) A) = ∅ := by
+    by_cases h : a = 0 <;> simp [Canonical.positiveSupport, MvPolynomial.support_C, h]
+  have hpos (k : ℕ) : Canonical.positiveDpow (ι := ι) k
+      (MvPolynomial.C a) = if k = 0 then 1 else 0 := by
+    cases k with
+    | zero => simp [Canonical.positiveDpow, hs]
+    | succ k => simp [Canonical.positiveDpow, hs]
+  simp [Canonical.rawDpow, hnorm, hpos]
+  rw [Finset.sum_eq_single (n, 0)]
+  · simp
+  · intro k hk hne
+    split_ifs with hkzero
+    · have hfirst : k.1 = n := by
+        simpa [hkzero] using Finset.mem_antidiagonal.mp hk
+      exact False.elim (hne (Prod.ext hfirst hkzero))
+    · rfl
+  · intro hnot
+    exact False.elim (hnot (by simp))
+
 
 /-- The base algebra map bundled as a morphism into the canonical divided-power polynomial
 structure. -/

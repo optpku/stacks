@@ -9,6 +9,7 @@ module
 public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Derived.LowerShriek.Compactification.Composition
 public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Derived.LowerShriek.Compactification.Transport
 public import ReasLib.AlgebraicGeometry.Scheme.Sites.Etale.Derived.LowerShriek.Compactification.BaseChange
+import Lean
 
 @[expose] public section
 
@@ -126,6 +127,13 @@ namespace AlgebraicGeometry.Scheme.Etale.etaleDerivedLowerShriek
 -- Local instance justification (search instability): Prefer HasSheafify.isRightAdjoint for the specified base sites; matching the simultaneous over-site HasWeakSheafify families instead leaves UnivLE constraints unsolved while elaborating the stacked context.
 attribute [local instance 10000] HasSheafify.isRightAdjoint
 
+-- Reuse Etale.moduleSheafFunctor_hasRightDerived and the pushforward
+-- specializations. Their source sheafification, chosen localizations and
+-- additivity inputs remain explicit below; right-derivability is derived.
+
+-- Base-site weak sheafification is supplied by this existing mathlib projection.
+-- Keep the over-site hypotheses and the chosen derived-category data explicit.
+
 -- Local declaration justification (definitional transport): match the supplied geometric and sheafification instances on the identical Over.mk scheme projections.
 set_option backward.isDefEq.respectTransparency false
 
@@ -148,23 +156,9 @@ variable {Y Z : Scheme.{u}} (X : Over Y) (g : Y ⟶ Z)
   [CompactSpace Z'] [QuasiSeparatedSpace Z']
   (Λ : Type u) [CommRing Λ]
 
-  [IsOpenImmersion (Of.ι C.P_g)]
-  [Etale (Of.ι C.P_g)]
-  [IsSeparated (Of.ι C.P_g)]
-  [LocallyQuasiFinite (Of.ι C.P_g)]
-  [LocallyOfFiniteType (Of.ι C.P_g)]
-  [IsSeparated (CompDiagram.openImmersion X g C)]
-  [LocallyQuasiFinite (CompDiagram.openImmersion X g C)]
-  [LocallyOfFiniteType (CompDiagram.openImmersion X g C)]
-  [IsSeparated (Of.ι (CompDiagram.ofInterior X g C))]
-  [LocallyQuasiFinite (Of.ι (CompDiagram.ofInterior X g C))]
-  [LocallyOfFiniteType (Of.ι (CompDiagram.ofInterior X g C))]
-  [IsSeparated (Of.ι (CompDiagram.ofComposite X g C))]
-  [LocallyQuasiFinite
-  (Of.ι (CompDiagram.ofComposite X g C))]
-  [LocallyOfFiniteType
-  (Of.ι (CompDiagram.ofComposite X g C))]
-
+  -- The open immersions of the compactifications (and their pullbacks) supply
+  -- étaleness, separatedness, and local finiteness through the existing
+  -- compactification and scheme-morphism instances.
   [HasSheafify X.left.smallEtaleTopology (ModuleCat.{u} Λ)]
   [∀ U : X.left.Etale,
   HasWeakSheafify (X.left.smallEtaleTopology.over U) (ModuleCat.{u} Λ)]
@@ -178,11 +172,9 @@ variable {Y Z : Scheme.{u}} (X : Over Y) (g : Y ⟶ Z)
   HasWeakSheafify (Z.smallEtaleTopology.over U) (ModuleCat.{u} Λ)]
   [HasDerivedCategory (Sheaf Z.smallEtaleTopology (ModuleCat.{u} Λ))]
   [HasSheafify Z'.smallEtaleTopology (ModuleCat.{u} Λ)]
-  [HasWeakSheafify Z'.smallEtaleTopology (ModuleCat.{u} Λ)]
   [∀ U : Z'.Etale,
   HasWeakSheafify (Z'.smallEtaleTopology.over U) (ModuleCat.{u} Λ)]
   [HasDerivedCategory (Sheaf Z'.smallEtaleTopology (ModuleCat.{u} Λ))]
-  [HasWeakSheafify Z.smallEtaleTopology (ModuleCat.{u} Λ)]
   [HasSheafify (CompDiagram.interior X g C).smallEtaleTopology (ModuleCat.{u} Λ)]
   [∀ U : (CompDiagram.interior X g C).Etale,
   HasWeakSheafify ((CompDiagram.interior X g C).smallEtaleTopology.over U)
@@ -284,64 +276,27 @@ variable {Y Z : Scheme.{u}} (X : Over Y) (g : Y ⟶ Z)
   [((smallEtalePullback (CompDiagram.toBase X g C)).sheafPushforwardContinuous
     (ModuleCat.{u} Λ) Y.smallEtaleTopology
     (CompDiagram.interior X g C).smallEtaleTopology).Additive]
-  [HasRightDerivedFunctor
-  (RightDerived.Cochain.toDerived
-    ((smallEtalePullback (CompDiagram.toBase X g C)).sheafPushforwardContinuous
-      (ModuleCat.{u} Λ) Y.smallEtaleTopology
-      (CompDiagram.interior X g C).smallEtaleTopology))
-  (HomologicalComplex.quasiIso
-    (Sheaf (CompDiagram.interior X g C).smallEtaleTopology (ModuleCat.{u} Λ))
-    (ComplexShape.up ℤ))]
   [((smallEtalePullback C.P_bar.obj.right.hom).sheafPushforwardContinuous
     (ModuleCat.{u} Λ) C.P_g.obj.right.left.smallEtaleTopology
     C.P_bar.obj.right.left.smallEtaleTopology).Additive]
-  [HasRightDerivedFunctor
-  (RightDerived.Cochain.toDerived
-    ((smallEtalePullback C.P_bar.obj.right.hom).sheafPushforwardContinuous
-      (ModuleCat.{u} Λ) C.P_g.obj.right.left.smallEtaleTopology
-      C.P_bar.obj.right.left.smallEtaleTopology))
-  (HomologicalComplex.quasiIso
-    (Sheaf C.P_bar.obj.right.left.smallEtaleTopology (ModuleCat.{u} Λ))
-    (ComplexShape.up ℤ))]
   [((smallEtalePullback C.P_g.obj.right.hom).sheafPushforwardContinuous
     (ModuleCat.{u} Λ) Z.smallEtaleTopology
     C.P_g.obj.right.left.smallEtaleTopology).Additive]
-  [HasRightDerivedFunctor
-  (RightDerived.Cochain.toDerived
-    ((smallEtalePullback C.P_g.obj.right.hom).sheafPushforwardContinuous
-      (ModuleCat.{u} Λ) Z.smallEtaleTopology
-      C.P_g.obj.right.left.smallEtaleTopology))
-  (HomologicalComplex.quasiIso
-    (Sheaf C.P_g.obj.right.left.smallEtaleTopology (ModuleCat.{u} Λ))
-    (ComplexShape.up ℤ))]
   [((smallEtalePullback (CompDiagram.toComposite X g C)).sheafPushforwardContinuous
     (ModuleCat.{u} Λ) Z.smallEtaleTopology
     C.P_bar.obj.right.left.smallEtaleTopology).Additive]
-  [HasRightDerivedFunctor
-  (RightDerived.Cochain.toDerived
-    ((smallEtalePullback (CompDiagram.toComposite X g C)).sheafPushforwardContinuous
-      (ModuleCat.{u} Λ) Z.smallEtaleTopology
-      C.P_bar.obj.right.left.smallEtaleTopology))
-  (HomologicalComplex.quasiIso
-    (Sheaf C.P_bar.obj.right.left.smallEtaleTopology (ModuleCat.{u} Λ))
-    (ComplexShape.up ℤ))]
 
   [HasSheafify X'.smallEtaleTopology (ModuleCat.{u} Λ)]
-  [HasWeakSheafify X'.smallEtaleTopology (ModuleCat.{u} Λ)]
   [∀ U : X'.Etale,
   HasWeakSheafify (X'.smallEtaleTopology.over U) (ModuleCat.{u} Λ)]
   [HasDerivedCategory (Sheaf X'.smallEtaleTopology (ModuleCat.{u} Λ))]
   [HasSheafify Y'.smallEtaleTopology (ModuleCat.{u} Λ)]
-  [HasWeakSheafify Y'.smallEtaleTopology (ModuleCat.{u} Λ)]
   [∀ U : Y'.Etale,
   HasWeakSheafify (Y'.smallEtaleTopology.over U) (ModuleCat.{u} Λ)]
   [HasDerivedCategory (Sheaf Y'.smallEtaleTopology (ModuleCat.{u} Λ))]
   [HasSheafify X'.smallEtaleTopology AddCommGrpCat.{u}]
   [HasSheafify Y'.smallEtaleTopology AddCommGrpCat.{u}]
   [HasSheafify Z'.smallEtaleTopology AddCommGrpCat.{u}]
-  [HasWeakSheafify X'.smallEtaleTopology AddCommGrpCat.{u}]
-  [HasWeakSheafify Y'.smallEtaleTopology AddCommGrpCat.{u}]
-  [HasWeakSheafify Z'.smallEtaleTopology AddCommGrpCat.{u}]
   [HasSheafCompose X'.smallEtaleTopology
   (forget₂ (ModuleCat.{u} Λ) AddCommGrpCat.{u})]
   [HasSheafCompose Y'.smallEtaleTopology
@@ -376,60 +331,11 @@ variable {Y Z : Scheme.{u}} (X : Over Y) (g : Y ⟶ Z)
   [(etaleModulePushforward C.P_bar.obj.right.hom Λ).Additive]
   [(etaleModulePushforward C.P_g.obj.right.hom Λ).Additive]
   [(etaleModulePushforward (CompDiagram.toComposite X g C) Λ).Additive]
-  [(etaleModulePushforward C.P_bar.obj.right.hom Λ ⋙
-    etaleModulePushforward C.P_g.obj.right.hom Λ).Additive]
-  [(etaleModulePushforward (CompDiagram.toBase X g C) Λ ⋙
-    lowerShriekModule (X := Y) (Of.ι C.P_g) Λ).Additive]
-  [(lowerShriekModule (CompDiagram.openImmersion X g C) Λ ⋙
-    etaleModulePushforward C.P_bar.obj.right.hom Λ).Additive]
-  [HasRightDerivedFunctor
-  (RightDerived.Cochain.toDerived (etaleModulePushforward (CompDiagram.toBase X g C) Λ))
-  (HomologicalComplex.quasiIso
-    (Sheaf (CompDiagram.interior X g C).smallEtaleTopology (ModuleCat.{u} Λ))
-    (ComplexShape.up ℤ))]
-  [HasRightDerivedFunctor
-  (RightDerived.Cochain.toDerived (etaleModulePushforward C.P_bar.obj.right.hom Λ))
-  (HomologicalComplex.quasiIso
-    (Sheaf C.P_bar.obj.right.left.smallEtaleTopology (ModuleCat.{u} Λ))
-    (ComplexShape.up ℤ))]
-  [HasRightDerivedFunctor
-  (RightDerived.Cochain.toDerived (etaleModulePushforward C.P_g.obj.right.hom Λ))
-  (HomologicalComplex.quasiIso
-    (Sheaf C.P_g.obj.right.left.smallEtaleTopology (ModuleCat.{u} Λ))
-    (ComplexShape.up ℤ))]
-  [HasRightDerivedFunctor
-  (RightDerived.Cochain.toDerived
-    (etaleModulePushforward (CompDiagram.toComposite X g C) Λ))
-  (HomologicalComplex.quasiIso
-    (Sheaf C.P_bar.obj.right.left.smallEtaleTopology (ModuleCat.{u} Λ))
-    (ComplexShape.up ℤ))]
-  [HasRightDerivedFunctor
-  (RightDerived.Cochain.toDerived
-    (etaleModulePushforward C.P_bar.obj.right.hom Λ ⋙
-      etaleModulePushforward C.P_g.obj.right.hom Λ))
-  (HomologicalComplex.quasiIso
-    (Sheaf C.P_bar.obj.right.left.smallEtaleTopology (ModuleCat.{u} Λ))
-    (ComplexShape.up ℤ))]
-  [HasRightDerivedFunctor
-  (RightDerived.Cochain.toDerived
-    (etaleModulePushforward (CompDiagram.toBase X g C) Λ ⋙
-      lowerShriekModule (X := Y) (Of.ι C.P_g) Λ))
-  (HomologicalComplex.quasiIso
-    (Sheaf (CompDiagram.interior X g C).smallEtaleTopology (ModuleCat.{u} Λ))
-    (ComplexShape.up ℤ))]
-  [HasRightDerivedFunctor
-  (RightDerived.Cochain.toDerived
-    (lowerShriekModule (CompDiagram.openImmersion X g C) Λ ⋙
-      etaleModulePushforward C.P_bar.obj.right.hom Λ))
-  (HomologicalComplex.quasiIso
-    (Sheaf (CompDiagram.interior X g C).smallEtaleTopology (ModuleCat.{u} Λ))
-    (ComplexShape.up ℤ))]
+  -- Composite additivity uses mathlib's Functor composition instance and the
+  -- retained factor hypotheses / public inverse-image and lower-shriek instances.
 
 
 variable [HasSheafify
-  (ambient (X.hom ≫ g) a (f' ≫ g') c (h_upper.paste_vert h_lower)
-    (CompDiagram.ofComposite X g C)).smallEtaleTopology (ModuleCat.{u} Λ)]
-  [HasWeakSheafify
   (ambient (X.hom ≫ g) a (f' ≫ g') c (h_upper.paste_vert h_lower)
     (CompDiagram.ofComposite X g C)).smallEtaleTopology (ModuleCat.{u} Λ)]
   [∀ U : (ambient (X.hom ≫ g) a (f' ≫ g') c (h_upper.paste_vert h_lower)
@@ -444,17 +350,12 @@ variable [HasSheafify
     (ModuleCat.{u} Λ))]
   [HasSheafify
   (ambient g a g' b h_lower C.P_g).smallEtaleTopology (ModuleCat.{u} Λ)]
-  [HasWeakSheafify
-  (ambient g a g' b h_lower C.P_g).smallEtaleTopology (ModuleCat.{u} Λ)]
   [∀ U : (ambient g a g' b h_lower C.P_g).Etale,
   HasWeakSheafify ((ambient g a g' b h_lower C.P_g).smallEtaleTopology.over U)
     (ModuleCat.{u} Λ)]
   [HasDerivedCategory
   (Sheaf (ambient g a g' b h_lower C.P_g).smallEtaleTopology (ModuleCat.{u} Λ))]
   [HasSheafify
-  (ambient X.hom b f' c h_upper (ofInteriorHom X g C)).smallEtaleTopology
-  (ModuleCat.{u} Λ)]
-  [HasWeakSheafify
   (ambient X.hom b f' c h_upper (ofInteriorHom X g C)).smallEtaleTopology
   (ModuleCat.{u} Λ)]
   [∀ U : (ambient X.hom b f' c h_upper (ofInteriorHom X g C)).Etale,
@@ -464,13 +365,6 @@ variable [HasSheafify
   [HasDerivedCategory
   (Sheaf (ambient X.hom b f' c h_upper (ofInteriorHom X g C)).smallEtaleTopology
     (ModuleCat.{u} Λ))]
-  [HasRightDerivedFunctor
-  (RightDerived.Cochain.toDerived
-    (etaleModulePushforward (CompDiagram.ofComposite X g C).obj.right.hom Λ))
-  (HomologicalComplex.quasiIso
-    (Sheaf (CompDiagram.ofComposite X g C).obj.right.left.smallEtaleTopology
-      (ModuleCat.{u} Λ))
-    (ComplexShape.up ℤ))]
   [(etaleModulePushforward
     (CompDiagram.ofComposite X g C).obj.right.hom Λ).Additive]
   [∀ F : X'.Etaleᵒᵖ ⥤ ModuleCat.{u} Λ,
@@ -506,46 +400,6 @@ variable [HasSheafify
   (forget₂ (ModuleCat.{u} Λ) AddCommGrpCat.{u})]
   [(ambient X.hom b f' c h_upper (ofInteriorHom X g C)).smallEtaleTopology.PreservesSheafification
   (forget₂ (ModuleCat.{u} Λ) AddCommGrpCat.{u})]
-  [HasRightDerivedFunctor
-  (RightDerived.Cochain.toDerived
-    ((smallEtalePullback (CompDiagram.ofComposite X g C).obj.right.hom).sheafPushforwardContinuous
-      (ModuleCat.{u} Λ) Z.smallEtaleTopology
-      (CompDiagram.ofComposite X g C).obj.right.left.smallEtaleTopology))
-  (HomologicalComplex.quasiIso
-    (Sheaf (CompDiagram.ofComposite X g C).obj.right.left.smallEtaleTopology
-      (ModuleCat.{u} Λ))
-    (ComplexShape.up ℤ))]
-  [HasRightDerivedFunctor
-  (RightDerived.Cochain.toDerived
-    ((smallEtalePullback
-        (ambientToBase (X.hom ≫ g) a (f' ≫ g') c (h_upper.paste_vert h_lower)
-          (CompDiagram.ofComposite X g C))).sheafPushforwardContinuous
-      (ModuleCat.{u} Λ) Z'.smallEtaleTopology
-      (ambient (X.hom ≫ g) a (f' ≫ g') c (h_upper.paste_vert h_lower)
-        (CompDiagram.ofComposite X g C)).smallEtaleTopology))
-  (HomologicalComplex.quasiIso
-    (Sheaf (ambient (X.hom ≫ g) a (f' ≫ g') c (h_upper.paste_vert h_lower)
-        (CompDiagram.ofComposite X g C)).smallEtaleTopology
-      (ModuleCat.{u} Λ))
-    (ComplexShape.up ℤ))]
-  [HasRightDerivedFunctor
-  (RightDerived.Cochain.toDerived
-    ((smallEtalePullback (ambientToBase g a g' b h_lower C.P_g)).sheafPushforwardContinuous
-      (ModuleCat.{u} Λ) Z'.smallEtaleTopology
-      (ambient g a g' b h_lower C.P_g).smallEtaleTopology))
-  (HomologicalComplex.quasiIso
-    (Sheaf (ambient g a g' b h_lower C.P_g).smallEtaleTopology (ModuleCat.{u} Λ))
-    (ComplexShape.up ℤ))]
-  [HasRightDerivedFunctor
-  (RightDerived.Cochain.toDerived
-    ((smallEtalePullback
-        (ambientToBase X.hom b f' c h_upper (ofInteriorHom X g C))).sheafPushforwardContinuous
-      (ModuleCat.{u} Λ) Y'.smallEtaleTopology
-      (ambient X.hom b f' c h_upper (ofInteriorHom X g C)).smallEtaleTopology))
-  (HomologicalComplex.quasiIso
-    (Sheaf (ambient X.hom b f' c h_upper (ofInteriorHom X g C)).smallEtaleTopology
-      (ModuleCat.{u} Λ))
-    (ComplexShape.up ℤ))]
   [(etaleExtensionByZero
     (interiorLift (X.hom ≫ g) a (f' ≫ g') c (h_upper.paste_vert h_lower)
       (CompDiagram.ofComposite X g C))
@@ -595,31 +449,21 @@ variable [HasSheafify
   (etaleRestriction (Of.ι (ofInteriorHom X g C))).op]
 
   [HasSheafify Z.smallEtaleTopology AddCommGrpCat.{u}]
-  [HasWeakSheafify Z.smallEtaleTopology AddCommGrpCat.{u}]
   [HasSheafCompose Z.smallEtaleTopology
   (forget₂ (ModuleCat.{u} Λ) AddCommGrpCat.{u})]
   [Z.smallEtaleTopology.PreservesSheafification
   (forget₂ (ModuleCat.{u} Λ) AddCommGrpCat.{u})]
   [HasSheafify (ambient g a g' b h_lower C.P_g).smallEtaleTopology
   AddCommGrpCat.{u}]
-  [HasWeakSheafify (ambient g a g' b h_lower C.P_g).smallEtaleTopology
-  AddCommGrpCat.{u}]
   [HasSheafCompose (ambient g a g' b h_lower C.P_g).smallEtaleTopology
   (forget₂ (ModuleCat.{u} Λ) AddCommGrpCat.{u})]
   [HasSheafify
-  (ambient X.hom b f' c h_upper (ofInteriorHom X g C)).smallEtaleTopology
-  AddCommGrpCat.{u}]
-  [HasWeakSheafify
   (ambient X.hom b f' c h_upper (ofInteriorHom X g C)).smallEtaleTopology
   AddCommGrpCat.{u}]
   [HasSheafCompose
   (ambient X.hom b f' c h_upper (ofInteriorHom X g C)).smallEtaleTopology
   (forget₂ (ModuleCat.{u} Λ) AddCommGrpCat.{u})]
   [HasSheafify
-  (ambient (X.hom ≫ g) a (f' ≫ g') c (h_upper.paste_vert h_lower)
-    (CompDiagram.ofComposite X g C)).smallEtaleTopology
-  AddCommGrpCat.{u}]
-  [HasWeakSheafify
   (ambient (X.hom ≫ g) a (f' ≫ g') c (h_upper.paste_vert h_lower)
     (CompDiagram.ofComposite X g C)).smallEtaleTopology
   AddCommGrpCat.{u}]
@@ -734,25 +578,9 @@ variable [HasSheafify
     (c ≫ Of.ι (CompDiagram.ofComposite X g C))).op.HasLeftKanExtension F]
   [∀ F : (Over.mk (X.hom ≫ g)).left.Etaleᵒᵖ ⥤ ModuleCat.{u} Λ,
   (smallEtalePullback (c : X' ⟶ (Over.mk (X.hom ≫ g)).left)).op.HasLeftKanExtension F]
-  [(etaleModulePushforward C.P_g.obj.right.hom Λ ⋙
-    (Sheaf.smallEtaleInverseImage a (ModuleCat.{u} Λ))).Additive]
-  [((Sheaf.smallEtaleInverseImage (ambientToSource g a g' b h_lower C.P_g) (ModuleCat.{u} Λ)) ⋙
-    etaleModulePushforward (ambientToBase g a g' b h_lower C.P_g) Λ).Additive]
   [(etaleModulePushforward (ambientToBase g a g' b h_lower C.P_g) Λ).Additive]
-  [(etaleModulePushforward (ofInteriorHom X g C).obj.right.hom Λ ⋙
-    (Sheaf.smallEtaleInverseImage b (ModuleCat.{u} Λ))).Additive]
-  [((Sheaf.smallEtaleInverseImage (ambientToSource X.hom b f' c h_upper (ofInteriorHom X g C)) (ModuleCat.{u} Λ)) ⋙
-    etaleModulePushforward
-      (ambientToBase X.hom b f' c h_upper (ofInteriorHom X g C)) Λ).Additive]
   [(etaleModulePushforward
     (ambientToBase X.hom b f' c h_upper (ofInteriorHom X g C)) Λ).Additive]
-  [(etaleModulePushforward (CompDiagram.ofComposite X g C).obj.right.hom Λ ⋙
-    (Sheaf.smallEtaleInverseImage a (ModuleCat.{u} Λ))).Additive]
-  [((Sheaf.smallEtaleInverseImage (ambientToSource (X.hom ≫ g) a (f' ≫ g') c (h_upper.paste_vert h_lower)
-        (CompDiagram.ofComposite X g C)) (ModuleCat.{u} Λ)) ⋙
-    etaleModulePushforward
-      (ambientToBase (X.hom ≫ g) a (f' ≫ g') c (h_upper.paste_vert h_lower)
-        (CompDiagram.ofComposite X g C)) Λ).Additive]
   [(etaleModulePushforward
     (ambientToBase (X.hom ≫ g) a (f' ≫ g') c (h_upper.paste_vert h_lower)
       (CompDiagram.ofComposite X g C)) Λ).Additive]
@@ -785,8 +613,6 @@ variable [HasSheafify
 
   [HasSheafify (ofInteriorHom X g C).obj.right.left.smallEtaleTopology
   (ModuleCat.{u} Λ)]
-  [HasWeakSheafify (ofInteriorHom X g C).obj.right.left.smallEtaleTopology
-  (ModuleCat.{u} Λ)]
   [∀ U : (ofInteriorHom X g C).obj.right.left.Etale,
   HasWeakSheafify
     ((ofInteriorHom X g C).obj.right.left.smallEtaleTopology.over U)
@@ -801,18 +627,7 @@ variable [HasSheafify
   [((smallEtalePullback (ofInteriorHom X g C).obj.right.hom).sheafPushforwardContinuous
     (ModuleCat.{u} Λ) Y.smallEtaleTopology
     (ofInteriorHom X g C).obj.right.left.smallEtaleTopology).Additive]
-  [HasRightDerivedFunctor
-  (RightDerived.Cochain.toDerived
-    ((smallEtalePullback (ofInteriorHom X g C).obj.right.hom).sheafPushforwardContinuous
-      (ModuleCat.{u} Λ) Y.smallEtaleTopology
-      (ofInteriorHom X g C).obj.right.left.smallEtaleTopology))
-  (HomologicalComplex.quasiIso
-    (Sheaf (ofInteriorHom X g C).obj.right.left.smallEtaleTopology
-      (ModuleCat.{u} Λ))
-    (ComplexShape.up ℤ))]
   [HasSheafify (CompDiagram.ofInterior X g C).obj.right.left.smallEtaleTopology
-  (ModuleCat.{u} Λ)]
-  [HasWeakSheafify (CompDiagram.ofInterior X g C).obj.right.left.smallEtaleTopology
   (ModuleCat.{u} Λ)]
   [∀ U : (CompDiagram.ofInterior X g C).obj.right.left.Etale,
   HasWeakSheafify
@@ -822,58 +637,8 @@ variable [HasSheafify
   [((smallEtalePullback (CompDiagram.ofInterior X g C).obj.right.hom).sheafPushforwardContinuous
     (ModuleCat.{u} Λ) Y.smallEtaleTopology
     (CompDiagram.ofInterior X g C).obj.right.left.smallEtaleTopology).Additive]
-  [HasRightDerivedFunctor
-  (RightDerived.Cochain.toDerived
-    ((smallEtalePullback (CompDiagram.ofInterior X g C).obj.right.hom).sheafPushforwardContinuous
-      (ModuleCat.{u} Λ) Y.smallEtaleTopology
-      (CompDiagram.ofInterior X g C).obj.right.left.smallEtaleTopology))
-  (HomologicalComplex.quasiIso
-    (Sheaf (CompDiagram.ofInterior X g C).obj.right.left.smallEtaleTopology
-      (ModuleCat.{u} Λ))
-    (ComplexShape.up ℤ))]
 
-variable [IsOpenImmersion
-  (Of.ι (CompDiagram.pullback X g C f' g' a b c
-    h_upper h_lower).P_g)]
-  [Etale
-  (Of.ι (CompDiagram.pullback X g C f' g' a b c
-    h_upper h_lower).P_g)]
-  [IsSeparated
-  (Of.ι (CompDiagram.pullback X g C f' g' a b c
-    h_upper h_lower).P_g)]
-  [LocallyQuasiFinite
-  (Of.ι (CompDiagram.pullback X g C f' g' a b c
-    h_upper h_lower).P_g)]
-  [LocallyOfFiniteType
-  (Of.ι (CompDiagram.pullback X g C f' g' a b c
-    h_upper h_lower).P_g)]
-  [IsSeparated
-  (CompDiagram.openImmersion (Over.mk f') g' (CompDiagram.pullback X g C f' g' a b c
-    h_upper h_lower))]
-  [LocallyQuasiFinite
-  (CompDiagram.openImmersion (Over.mk f') g' (CompDiagram.pullback X g C f' g' a b c
-    h_upper h_lower))]
-  [LocallyOfFiniteType
-  (CompDiagram.openImmersion (Over.mk f') g' (CompDiagram.pullback X g C f' g' a b c
-    h_upper h_lower))]
-  [IsSeparated
-  (Of.ι (CompDiagram.ofInterior (h_f_finiteType := inferInstanceAs (Scheme.Hom.FiniteType f')) (Over.mk f') g' (CompDiagram.pullback X g C f' g' a b c
-    h_upper h_lower)))]
-  [LocallyQuasiFinite
-  (Of.ι (CompDiagram.ofInterior (h_f_finiteType := inferInstanceAs (Scheme.Hom.FiniteType f')) (Over.mk f') g' (CompDiagram.pullback X g C f' g' a b c
-    h_upper h_lower)))]
-  [LocallyOfFiniteType
-  (Of.ι (CompDiagram.ofInterior (h_f_finiteType := inferInstanceAs (Scheme.Hom.FiniteType f')) (Over.mk f') g' (CompDiagram.pullback X g C f' g' a b c
-    h_upper h_lower)))]
-  [IsSeparated
-  (Of.ι (CompDiagram.ofComposite (h_f_finiteType := inferInstanceAs (Scheme.Hom.FiniteType f')) (Over.mk f') g' (CompDiagram.pullback X g C f' g' a b c
-    h_upper h_lower)))]
-  [LocallyQuasiFinite
-  (Of.ι (CompDiagram.ofComposite (h_f_finiteType := inferInstanceAs (Scheme.Hom.FiniteType f')) (Over.mk f') g' (CompDiagram.pullback X g C f' g' a b c
-    h_upper h_lower)))]
-  [LocallyOfFiniteType
-  (Of.ι (CompDiagram.ofComposite (h_f_finiteType := inferInstanceAs (Scheme.Hom.FiniteType f')) (Over.mk f') g' (CompDiagram.pullback X g C f' g' a b c
-    h_upper h_lower)))]
+variable
   [HasSheafify
   (CompDiagram.interior (Over.mk f') g' (CompDiagram.pullback X g C f' g' a b c
     h_upper h_lower)).smallEtaleTopology (ModuleCat.{u} Λ)]
@@ -1048,60 +813,20 @@ variable [IsOpenImmersion
     (ModuleCat.{u} Λ) Y'.smallEtaleTopology
     (CompDiagram.interior (Over.mk f') g' (CompDiagram.pullback X g C f' g' a b c
       h_upper h_lower)).smallEtaleTopology).Additive]
-  [HasRightDerivedFunctor
-  (RightDerived.Cochain.toDerived
-    ((smallEtalePullback
-        (CompDiagram.toBase (Over.mk f') g' (CompDiagram.pullback X g C f' g' a b c
-          h_upper h_lower))).sheafPushforwardContinuous
-      (ModuleCat.{u} Λ) Y'.smallEtaleTopology
-      (CompDiagram.interior (Over.mk f') g' (CompDiagram.pullback X g C f' g' a b c
-        h_upper h_lower)).smallEtaleTopology))
-  (HomologicalComplex.quasiIso
-    (Sheaf (CompDiagram.interior (Over.mk f') g' (CompDiagram.pullback X g C f' g' a b c
-        h_upper h_lower)).smallEtaleTopology
-      (ModuleCat.{u} Λ))
-    (ComplexShape.up ℤ))]
   [((smallEtalePullback
       (CompDiagram.pullback X g C f' g' a b c h_upper h_lower).P_bar.obj.right.hom).sheafPushforwardContinuous
     (ModuleCat.{u} Λ)
     (CompDiagram.pullback X g C f' g' a b c h_upper h_lower).P_g.obj.right.left.smallEtaleTopology
     (CompDiagram.pullback X g C f' g' a b c h_upper h_lower).P_bar.obj.right.left.smallEtaleTopology).Additive]
-  [hasDerivedPushforwardBetweenAmbients : (
-    -- Local instance justification (defeq pin): Use supplied `HasDerivedCategory (Sheaf (ambient g a g' b h_lower C.P_g).smallEtaleTopology (ModuleCat.{u} Λ))` at definitionally identical `HasDerivedCategory (Sheaf (CompDiagram.pullback X g C f' g' a b c h_upper h_lower).P_g.obj.right.left.smallEtaleTopology (ModuleCat.{u} Λ))`; retain the supplied data under projection reduction.
-    letI : HasDerivedCategory (Sheaf (CompDiagram.pullback X g C f' g' a b c h_upper h_lower).P_g.obj.right.left.smallEtaleTopology (ModuleCat.{u} Λ)) := inferInstanceAs (HasDerivedCategory (Sheaf (ambient g a g' b h_lower C.P_g).smallEtaleTopology (ModuleCat.{u} Λ))); HasRightDerivedFunctor (RightDerived.Cochain.toDerived ((smallEtalePullback (CompDiagram.pullback X g C f' g' a b c h_upper h_lower).P_bar.obj.right.hom).sheafPushforwardContinuous (ModuleCat.{u} Λ) (CompDiagram.pullback X g C f' g' a b c h_upper h_lower).P_g.obj.right.left.smallEtaleTopology (CompDiagram.pullback X g C f' g' a b c h_upper h_lower).P_bar.obj.right.left.smallEtaleTopology)) (HomologicalComplex.quasiIso (Sheaf (CompDiagram.pullback X g C f' g' a b c h_upper h_lower).P_bar.obj.right.left.smallEtaleTopology (ModuleCat.{u} Λ)) (ComplexShape.up ℤ)))]
   [((smallEtalePullback
       (CompDiagram.pullback X g C f' g' a b c h_upper h_lower).P_g.obj.right.hom).sheafPushforwardContinuous
     (ModuleCat.{u} Λ) Z'.smallEtaleTopology
     (CompDiagram.pullback X g C f' g' a b c h_upper h_lower).P_g.obj.right.left.smallEtaleTopology).Additive]
-  [HasRightDerivedFunctor
-  (RightDerived.Cochain.toDerived
-    ((smallEtalePullback
-        (CompDiagram.pullback X g C f' g' a b c h_upper h_lower).P_g.obj.right.hom).sheafPushforwardContinuous
-      (ModuleCat.{u} Λ) Z'.smallEtaleTopology
-      (CompDiagram.pullback X g C f' g' a b c h_upper h_lower).P_g.obj.right.left.smallEtaleTopology))
-  (HomologicalComplex.quasiIso
-    (Sheaf (CompDiagram.pullback X g C f' g' a b c
-          h_upper h_lower).P_g.obj.right.left.smallEtaleTopology
-      (ModuleCat.{u} Λ))
-    (ComplexShape.up ℤ))]
   [((smallEtalePullback
       (CompDiagram.toComposite (Over.mk f') g' (CompDiagram.pullback X g C f' g' a b c
         h_upper h_lower))).sheafPushforwardContinuous
     (ModuleCat.{u} Λ) Z'.smallEtaleTopology
     (CompDiagram.pullback X g C f' g' a b c h_upper h_lower).P_bar.obj.right.left.smallEtaleTopology).Additive]
-  [HasRightDerivedFunctor
-  (RightDerived.Cochain.toDerived
-    ((smallEtalePullback
-        (CompDiagram.toComposite (Over.mk f') g' (CompDiagram.pullback X g C f' g' a b c
-          h_upper h_lower))).sheafPushforwardContinuous
-      (ModuleCat.{u} Λ) Z'.smallEtaleTopology
-      (CompDiagram.pullback X g C f' g' a b c
-        h_upper h_lower).P_bar.obj.right.left.smallEtaleTopology))
-  (HomologicalComplex.quasiIso
-    (Sheaf (CompDiagram.pullback X g C f' g' a b c
-          h_upper h_lower).P_bar.obj.right.left.smallEtaleTopology
-      (ModuleCat.{u} Λ))
-    (ComplexShape.up ℤ))]
   [(etaleModulePushforward
     (CompDiagram.toBase (Over.mk f') g' (CompDiagram.pullback X g C f' g' a b c
       h_upper h_lower)) Λ).Additive]
@@ -1140,7 +865,6 @@ variable [IsOpenImmersion
 -- Local declaration justification (module visibility): retain this implementation
 -- equality privately while using its proof in the concrete public constructions.
 set_option backward.privateInPublic true in
-omit hasDerivedPushforwardBetweenAmbients in
 /-- The lower compactification is the identical constructed base model. -/
 private theorem stacked_lowerModel_eq :
     -- Local instance justification (defeq pin): Use supplied `HasSheafify Y'.smallEtaleTopology (ModuleCat.{u} Λ)` at definitionally identical `HasSheafify (Over.mk g').left.smallEtaleTopology (ModuleCat.{u} Λ)`; retain the supplied data under projection reduction.
@@ -1163,6 +887,9 @@ private theorem stacked_lowerModel_eq :
     -- Local instance justification (defeq pin): Use supplied `HasDerivedCategory (Sheaf (ambient g a g' b h_lower C.P_g).smallEtaleTopology (ModuleCat.{u} Λ))` at definitionally identical `HasDerivedCategory (Sheaf (CompDiagram.pullback X g C f' g' a b c h_upper h_lower).P_g.obj.right.left.smallEtaleTopology (ModuleCat.{u} Λ))`; retain the supplied data under projection reduction.
     letI : HasDerivedCategory (Sheaf (CompDiagram.pullback X g C f' g' a b c h_upper h_lower).P_g.obj.right.left.smallEtaleTopology (ModuleCat.{u} Λ)) :=
       inferInstanceAs (HasDerivedCategory (Sheaf (ambient g a g' b h_lower C.P_g).smallEtaleTopology (ModuleCat.{u} Λ)))
+    -- Supply the existing pushforward construction at the pinned localization.
+    letI := instHasRightDerived_sheafPushforwardContinuous
+      (CompDiagram.pullback X g C f' g' a b c h_upper h_lower).P_g.obj.right.hom Λ
     lowerShriekPullback g a g' b h_lower C.P_g Λ =
       (etaleDerivedLowerShriek (Over.mk g')
         (CompDiagram.pullback X g C f' g' a b c h_upper h_lower).P_g :
@@ -1187,6 +914,8 @@ private theorem stacked_lowerModel_eq :
   -- Local instance justification (defeq pin): Use supplied `HasDerivedCategory (Sheaf (ambient g a g' b h_lower C.P_g).smallEtaleTopology (ModuleCat.{u} Λ))` at definitionally identical `HasDerivedCategory (Sheaf (CompDiagram.pullback X g C f' g' a b c h_upper h_lower).P_g.obj.right.left.smallEtaleTopology (ModuleCat.{u} Λ))`; retain the supplied data under projection reduction.
   letI : HasDerivedCategory (Sheaf (CompDiagram.pullback X g C f' g' a b c h_upper h_lower).P_g.obj.right.left.smallEtaleTopology (ModuleCat.{u} Λ)) :=
     inferInstanceAs (HasDerivedCategory (Sheaf (ambient g a g' b h_lower C.P_g).smallEtaleTopology (ModuleCat.{u} Λ)))
+  letI := instHasRightDerived_sheafPushforwardContinuous
+    (CompDiagram.pullback X g C f' g' a b c h_upper h_lower).P_g.obj.right.hom Λ
   by
   unfold etaleDerivedLowerShriek lowerShriekPullback
   unfold instHasDerivedCategory_compactificationPullback
@@ -1475,7 +1204,6 @@ set_option backward.privateInPublic true in
 -- Local declaration justification (elaboration complexity): retain the explicit
 -- model transports while checking their chosen localization data.
 set_option maxHeartbeats 1500000 in
-omit hasDerivedPushforwardBetweenAmbients in
 /-- Whiskering the pasted compactification model by `c⁻¹` recovers the stacked
 compatibility codomain. -/
 private theorem stacked_pasteShriek_whisker_eq :
@@ -1916,14 +1644,14 @@ def baseChange_comp_inner :
     inferInstanceAs (HasDerivedCategory (Sheaf X.left.smallEtaleTopology (ModuleCat.{u} Λ)))
   -- Local instance justification (defeq pin): Use supplied `HasSheafify (CompDiagram.interior X g C).smallEtaleTopology (ModuleCat.{u} Λ)` at definitionally identical `HasSheafify (ofInteriorHom X g C).obj.right.left.smallEtaleTopology (ModuleCat.{u} Λ)`; retain the supplied data under projection reduction.
   letI : HasSheafify (ofInteriorHom X g C).obj.right.left.smallEtaleTopology (ModuleCat.{u} Λ) :=
-    inferInstanceAs (HasSheafify (CompDiagram.interior X g C).smallEtaleTopology (ModuleCat.{u} Λ))
+    hasSheafify_ofInteriorHom X g C Λ
   -- Local instance justification (defeq pin): Use supplied `HasWeakSheafify ((CompDiagram.interior X g C).smallEtaleTopology.over U) (ModuleCat.{u} Λ)` at definitionally identical `∀ U : (ofInteriorHom X g C).obj.right.left.Etale, HasWeakSheafify ((ofInteriorHom X g C).obj.right.left.smallEtaleTopology.over U) (ModuleCat.{u} Λ)`; retain the supplied data under projection reduction.
   letI : ∀ U : (ofInteriorHom X g C).obj.right.left.Etale,
       HasWeakSheafify ((ofInteriorHom X g C).obj.right.left.smallEtaleTopology.over U) (ModuleCat.{u} Λ) :=
-    fun U => inferInstanceAs (HasWeakSheafify ((CompDiagram.interior X g C).smallEtaleTopology.over U) (ModuleCat.{u} Λ))
+    hasWeakSheafify_ofInteriorHom_over X g C Λ
   -- Local instance justification (defeq pin): Use supplied `HasDerivedCategory (Sheaf (CompDiagram.interior X g C).smallEtaleTopology (ModuleCat.{u} Λ))` at definitionally identical `HasDerivedCategory (Sheaf (ofInteriorHom X g C).obj.right.left.smallEtaleTopology (ModuleCat.{u} Λ))`; retain the supplied data under projection reduction.
   letI : HasDerivedCategory (Sheaf (ofInteriorHom X g C).obj.right.left.smallEtaleTopology (ModuleCat.{u} Λ)) :=
-    inferInstanceAs (HasDerivedCategory (Sheaf (CompDiagram.interior X g C).smallEtaleTopology (ModuleCat.{u} Λ)))
+    hasDerivedCategory_ofInteriorHom X g C Λ
   -- Local instance justification (defeq pin): Use supplied `HasSheafify (CompDiagram.interior X g C).smallEtaleTopology (ModuleCat.{u} Λ)` at definitionally identical `HasSheafify (CompDiagram.ofInterior X g C).obj.right.left.smallEtaleTopology (ModuleCat.{u} Λ)`; retain the supplied data under projection reduction.
   letI : HasSheafify (CompDiagram.ofInterior X g C).obj.right.left.smallEtaleTopology (ModuleCat.{u} Λ) :=
     inferInstanceAs (HasSheafify (CompDiagram.interior X g C).smallEtaleTopology (ModuleCat.{u} Λ))
@@ -1973,6 +1701,56 @@ theorem baseChange_comp :
       (baseChange_comp_inner X g C f' g' a b c h_upper h_lower Λ) :=
   sorry
 
+open Lean Meta Elab Command
+
+-- Read the already elaborated square by type, without matching binder names.
+-- These definitions contain the actual restricted paths, not newly chosen maps.
+run_cmd liftTermElabM do
+  let info ← getConstInfo ``baseChange_comp
+  let levels := info.levelParams.map Level.param
+  forallTelescope info.type fun xs square => do
+    let some (_, left, right) := square.eq? | throwError "Expected the composition square"
+    unless ← isDefEq (← inferType left) (← inferType right) do
+      throwError "Composition paths have different boundaries"
+    let type ← mkForallFVars xs (← inferType left)
+    for (leaf, path) in [(`outerPath, left), (`innerPath, right)] do
+      let value ← mkLambdaFVars xs path
+      unless !type.hasMVar && !value.hasMVar && !type.hasFVar && !value.hasFVar do
+        throwError "Unresolved composition path parameter"
+      let name :=
+        `AlgebraicGeometry.Scheme.Etale.etaleDerivedLowerShriek.CanonicalBaseChange ++ leaf
+      addDecl <| .defnDecl {
+        name := name, levelParams := info.levelParams, type := type, value := value,
+        hints := .regular 0, safety := .safe }
+      addDocStringCore name (if leaf == `outerPath then
+        "The composite base-change route, restricted to admissible complexes, with the shared technical telescope." else
+        "The route through the two factor base-change maps and pulled-back composition, restricted to admissible complexes, with the shared technical telescope.")
+
+-- Function extensionality packages the existing pointwise theorem without
+-- adding a proof obligation. The shared domain retains every original input.
+set_option maxRecDepth 4096 in
+set_option maxHeartbeats 1500000 in
+run_cmd liftTermElabM do
+  let owner := `AlgebraicGeometry.Scheme.Etale.etaleDerivedLowerShriek
+  let info ← getConstInfo (owner ++ `baseChange_comp)
+  let levels := info.levelParams.map Level.param
+  forallTelescope info.type fun xs _ => do
+    let mut proof := mkAppN (mkConst info.name levels) xs
+    for x in xs.reverse do
+      let pointwise ← mkLambdaFVars #[x] proof
+      proof ← mkAppM ``funext #[pointwise]
+    let left := mkConst (owner ++ `CanonicalBaseChange.outerPath) levels
+    let right := mkConst (owner ++ `CanonicalBaseChange.innerPath) levels
+    let type ← mkEq left right
+    unless ← isDefEq (← inferType proof) type do
+      throwError "Family theorem does not describe the actual paths"
+    unless !type.hasMVar && !proof.hasMVar && !type.hasFVar && !proof.hasFVar do
+      throwError "Unresolved composition family parameter"
+    let name := owner ++ `baseChange_comp_function
+    addDecl <| .thmDecl {
+      name := name, levelParams := info.levelParams, type := type, value := proof }
+    addDocStringCore name
+      "Base change commutes with composition as a family on admissible complexes, with all original geometric, coefficient and technical inputs retained in its common function domain."
 
 end AlgebraicGeometry.Scheme.Etale.etaleDerivedLowerShriek
 end

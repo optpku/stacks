@@ -6,7 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import Mathlib.CategoryTheory.Quotient
+public import ReasLib.Algebra.Homology.HomotopyCategory.MapIdentity
 public import Mathlib.CategoryTheory.Functor.Derived.PointwiseLeftDerived
 public import ReasLib.CategoryTheory.DerivedCategory.Functor.Exact.Identity
 public import ReasLib.CategoryTheory.DerivedCategory.Functor.Induced.Preadditive
@@ -28,15 +28,6 @@ namespace AlgebraicGeometry.AlgebraicSpace.ModuleDerived
 
 variable {S : Scheme.{u}}
 
-/-- The functor on homotopy categories induced by the identity functor is the
-identity of the homotopy category. -/
-private def mapHomotopyCategoryIdIso (A : Type u) [Category A] [Preadditive A] :
-    (𝟭 A).mapHomotopyCategory (up ℤ) ≅ 𝟭 (HomotopyCategory A (up ℤ)) :=
-  Quotient.natIsoLift _
-    (Functor.isoWhiskerRight
-      (Functor.mapHomologicalComplexIdIso A (up ℤ))
-      (HomotopyCategory.quotient A (up ℤ)))
-
 /-- Homotopy-to-derived pullback along `𝟙 Y` is the derived localization functor. -/
 @[no_expose] def homotopyPullbackIdIso (Y : AlgebraicSpace S) :
     (Modules.pullback (𝟙 Y)).mapHomotopyCategory (up ℤ) ⋙
@@ -46,7 +37,7 @@ private def mapHomotopyCategoryIdIso (A : Type u) [Category A] [Preadditive A] :
         HomotopyCategory Y.Modules (up ℤ) ⥤ ModuleDerived Y) :=
   Functor.isoWhiskerRight
       (Functor.mapHomotopyCategoryIso (modulesPullbackId Y) ≪≫
-        mapHomotopyCategoryIdIso Y.Modules)
+        Functor.mapHomotopyCategoryIdIso Y.Modules)
       DerivedCategory.Qh ≪≫
     Functor.leftUnitor _
 
@@ -57,7 +48,7 @@ private def mapHomotopyCategoryIdIso (A : Type u) [Category A] [Preadditive A] :
         (ExactFunctor.id Y.Modules).mapDerivedCategory ≅
       Functor.Homotopy.toDerived (Modules.pullback (𝟙 Y)) :=
   (𝟭 Y.Modules).mapDerivedCategoryFactorsh ≪≫
-    Functor.isoWhiskerRight (mapHomotopyCategoryIdIso Y.Modules) DerivedCategory.Qh ≪≫
+    Functor.isoWhiskerRight (Functor.mapHomotopyCategoryIdIso Y.Modules) DerivedCategory.Qh ≪≫
     Functor.leftUnitor _ ≪≫ (homotopyPullbackIdIso Y).symm
 
 /-- The exact identity factorization satisfies the left-derived universal property. -/

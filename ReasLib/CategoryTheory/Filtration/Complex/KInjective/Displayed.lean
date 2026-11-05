@@ -75,12 +75,4 @@ theorem Map.reindex_eq_cast {K L : FilteredComplex A} {f g : K ⟶ L}
     Map.reindex h m =
       DisplayedCategory.Hom.cast (displayedCategory A) h m := sorry
 
-/-- The generic displayed transport can be converted back to the owner-level reindexing. -/
-@[stacks 0BKI "owner-level transport of filtered K-injective resolution maps"]
-theorem Map.cast_eq_reindex {K L : FilteredComplex A} {f g : K ⟶ L}
-    {R : KInjectiveResolution K} {S : KInjectiveResolution L}
-    (h : f = g) (m : Map f R S) :
-    DisplayedCategory.Hom.cast (displayedCategory A) h m = Map.reindex h m :=
-  (Map.reindex_eq_cast h m).symm
-
 end CategoryTheory.FilteredComplex.KInjectiveResolution

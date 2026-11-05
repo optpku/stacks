@@ -76,6 +76,25 @@ structure Determinant where
       [Module.Finite R (P.X (-1))] [Module.Projective R (P.X (-1))]
       [Module.Finite R (P.X 0)] [Module.Projective R (P.X 0)],
         (det.obj ⟨K⟩).of.obj ≅ ModuleCat.of R (CochainComplex.Determinant.line P)
+  /-- Representative comparison computes the action of the specified derived isomorphism
+  using any admissible chain map representing it. -/
+  representativeIso_naturality :
+    ∀ {K L : PerfectDerived.TorNegOneZero R}
+      (P Q : CochainComplex (ModuleCat R) Int)
+      (eP : K.obj.obj ≅ DerivedCategory.Q.obj P)
+      (eQ : L.obj.obj ≅ DerivedCategory.Q.obj Q)
+      [P.IsStrictlyGE (-1)] [P.IsStrictlyLE 0]
+      [Module.Finite R (P.X (-1))] [Module.Projective R (P.X (-1))]
+      [Module.Finite R (P.X 0)] [Module.Projective R (P.X 0)]
+      [Q.IsStrictlyGE (-1)] [Q.IsStrictlyLE 0]
+      [Module.Finite R (Q.X (-1))] [Module.Projective R (Q.X (-1))]
+      [Module.Finite R (Q.X 0)] [Module.Projective R (Q.X 0)]
+      (u : CategoryTheory.Iso K L) (a : P ⟶ Q)
+      (ha : CochainComplex.Determinant.IsAdmissible a)
+      (_ : eP.hom ≫ DerivedCategory.Q.map a = u.hom.hom.hom ≫ eQ.hom),
+        (representativeIso K P eP).hom ≫
+            (CochainComplex.Determinant.equiv a ha).toModuleIso.hom =
+          (det.map ⟨u⟩).iso.hom.hom ≫ (representativeIso L Q eQ).hom
   /-- A representative computes the intrinsic rank-zero predicate. -/
   rankZero_iff :
     ∀ (K : PerfectDerived.TorNegOneZero R)

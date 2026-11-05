@@ -18,7 +18,7 @@ noncomputable section
 universe u v
 
 variable {C : Type u} [Category.{v} C] [Abelian C]
-variable (K : ExactCouple.Derived.Construction C) (X : ExactCouple C)
+variable (X : ExactCouple C)
 
 /-!
 # Compatibility entry for Definition 12.21.3
@@ -30,17 +30,23 @@ The reusable construction of derived exact couples and their associated spectral
 /- Definition 12.21.3 (011S): deriving an exact couple replaces its outer object by the image of
 its endomorphism and its page object by the homology of the page differential. Iterating this
 construction gives the successive pages of the associated spectral sequence. -/
-@[stacks 011S "(1)"]
-#check (K.derived X : ExactCouple C)
+#check (ExactCouple.Derived.construction C : ExactCouple.Derived.Construction C)
 
-#check (K.iterate X : ℕ → ExactCouple C)
-#check ExactCouple.Derived.Construction.Iteration.zero
-#check ExactCouple.Derived.Construction.Iteration.zero_E
-#check ExactCouple.Derived.Construction.Iteration.zero_d
-#check ExactCouple.Derived.Construction.Iteration.succ
+@[stacks 011S "(1)"]
+#check (ExactCouple.Derived.derived X : ExactCouple C)
+
+#check (ExactCouple.Derived.iterate X : ℕ → ExactCouple C)
+#check (ExactCouple.Derived.Construction.Iteration.zero
+  (ExactCouple.Derived.construction C) X)
+#check (ExactCouple.Derived.Construction.Iteration.zero_E
+  (ExactCouple.Derived.construction C) X)
+#check (ExactCouple.Derived.Construction.Iteration.zero_d
+  (ExactCouple.Derived.construction C) X)
+#check (ExactCouple.Derived.Construction.Iteration.succ
+  (ExactCouple.Derived.construction C) X)
 
 @[stacks 011S "(2)"]
-#check (K.associatedSpectralSequence X :
+#check (ExactCouple.Derived.associatedSpectralSequence X :
   SpectralSequence C (fun _ : ℤ ↦ ComplexShape.refl PUnit.{1}) 1)
 
 #check ExactCouple.Derived.Page.complex

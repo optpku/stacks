@@ -32,7 +32,7 @@ variable (I : Ideal A) [HenselianRing A I]
 #check (HenselianRing A I : Prop)
 
 -- Definition 15.11.1 (1): the ideal of a henselian pair lies in `Ring.jacobson A`.
-@[stacks 09XE "Definition 15.11.1 (2)"]
+@[stacks 09XE "Definition 15.11.1 (1)"]
 #check
   (le_ring_jacobson_of_henselianRing (A := A) I :
     I ≤ Ring.jacobson A)

@@ -8,6 +8,7 @@ module
 
 public import Mathlib.Algebra.Torsor.Defs
 public import Mathlib.LinearAlgebra.BilinearMap
+public import Mathlib.LinearAlgebra.Dimension.Free
 public import Mathlib.LinearAlgebra.TensorProduct.Basic
 public import Mathlib.LinearAlgebra.TensorProduct.Map
 public import ReasLib.AlgebraicGeometry.FormalDeformation.InfinitesimalAutomorphisms.TangentComparison
@@ -247,12 +248,75 @@ theorem idAutSquareZeroTensorBilin_apply (x' : p.Fiber A')
       pushforwardAut p (infAutSpanUnder f hI x' v)
         (ofObj p (fiberInclusion.obj x')) α.val := rfl
 
+/-- A coefficient functional induces the corresponding map from `k[I]` to the
+dual numbers, over `p.obj x'`. -/
+def infAutCoordinateUnder (x' : p.Fiber A') (ℓ : kerModule f hI →ₗ[k] k) :
+    infAutSquareZeroUnder f hI x' ⟶ dualNumberUnder (p.obj (fiberInclusion.obj x')) :=
+  Under.homMk (squareZeroMap ℓ ≫ (dualNumberIsoSquareZero Λ k).inv) (by
+    apply ArtinianLocalAlgCat.hom_ext
+    apply AlgHom.ext
+    intro a
+    change (dualNumberIsoSquareZeroInvHom Λ k)
+      ((TrivSqZeroExt.map ℓ) (TrivSqZeroExt.inl
+        ((toResidue (p.obj (fiberInclusion.obj x'))).hom a))) = _
+    simp only [TrivSqZeroExt.map_inl]
+    rfl)
+
+/-- Restriction along a coefficient functional, before imposing the
+identity-restriction condition. -/
+def idAutSquareZeroCoordinate (x' : p.Fiber A') (α : idAutSquareZero f hI x')
+    (ℓ : kerModule f hI →ₗ[k] k) : Aut (idTangentSpaceObj p (fiberInclusion.obj x')) :=
+  pushforwardAut p (infAutCoordinateUnder f hI x' ℓ)
+    (ofObj p (fiberInclusion.obj x')) α.val
+
+/-- Coordinate reconstruction of a tensor, using a proved finite basis of `ker f`.
+The argument `h` only certifies that the explicitly given coordinates restrict to
+the identity; it supplies no data. -/
+def idAutSquareZeroTensorReconstruct (x' : p.Fiber A')
+    (h : ∀ (α : idAutSquareZero f hI x') (ℓ : kerModule f hI →ₗ[k] k),
+      idAutSquareZeroCoordinate f hI x' α ℓ ∈
+        idTangentSpace p (fiberInclusion.obj x'))
+    (α : idAutSquareZero f hI x') :
+    idTangentSpace p (fiberInclusion.obj x') ⊗[k] kerModule f hI :=
+  ∑ i, (⟨idAutSquareZeroCoordinate f hI x' α
+      ((Module.finBasis k (kerModule f hI)).coord i), h α _⟩ :
+        idTangentSpace p (fiberInclusion.obj x')) ⊗ₜ[k]
+      (Module.finBasis k (kerModule f hI)) i
+
+/-- Coefficient restrictions lie in the identity tangent space, and their tensor
+sum is a two-sided inverse of the span-singleton comparison. These are the
+well-definedness and reconstruction identities furnished by (RS). -/
+theorem idAutSquareZeroTensorReconstruct_laws (x' : p.Fiber A') :
+    (∀ (α : idAutSquareZero f hI x') (ℓ : kerModule f hI →ₗ[k] k),
+      idAutSquareZeroCoordinate f hI x' α ℓ ∈
+        idTangentSpace p (fiberInclusion.obj x')) ∧
+    ∀ h, Function.LeftInverse (idAutSquareZeroTensorReconstruct f hI x' h)
+        (TensorProduct.lift (idAutSquareZeroTensorBilin f hI x')) ∧
+      Function.RightInverse (idAutSquareZeroTensorReconstruct f hI x' h)
+        (TensorProduct.lift (idAutSquareZeroTensorBilin f hI x')) := sorry
+
 /-- Canonical `k`-linear identification of `Lift(id, k[I])` with
-`T_id Aut(x') ⊗[k] I`. -/
+`T_id Aut(x') ⊗[k] I`. The map to tensors is the finite coordinate sum, and the
+inverse is induced by the span-singleton maps. In particular, neither direction
+is selected from an unproved bijectivity assertion. -/
 def idAutSquareZeroTensor (x' : p.Fiber A') :
     idAutSquareZero f hI x' ≃ₗ[k]
-      idTangentSpace p (fiberInclusion.obj x') ⊗[k] kerModule f hI :=
-  (LinearEquiv.ofBijective (TensorProduct.lift (idAutSquareZeroTensorBilin f hI x')) sorry).symm
+      idTangentSpace p (fiberInclusion.obj x') ⊗[k] kerModule f hI := by
+  let laws := idAutSquareZeroTensorReconstruct_laws f hI x'
+  let e : (idTangentSpace p (fiberInclusion.obj x') ⊗[k] kerModule f hI) ≃ₗ[k]
+      idAutSquareZero f hI x' :=
+    { toLinearMap := TensorProduct.lift (idAutSquareZeroTensorBilin f hI x')
+      invFun := idAutSquareZeroTensorReconstruct f hI x' laws.1
+      left_inv := (laws.2 laws.1).1
+      right_inv := (laws.2 laws.1).2 }
+  exact e.symm
+
+/-- The tensor comparison is computed by restricting to each basis coordinate
+and summing the resulting pure tensors. -/
+theorem idAutSquareZeroTensor_apply (x' : p.Fiber A') (α : idAutSquareZero f hI x') :
+    idAutSquareZeroTensor f hI x' α =
+      idAutSquareZeroTensorReconstruct f hI x'
+        (idAutSquareZeroTensorReconstruct_laws f hI x').1 α := rfl
 
 /-- The inverse tensor comparison is the lift of the span-singleton bilinear map. -/
 theorem idAutSquareZeroTensor_spec (x' : p.Fiber A')

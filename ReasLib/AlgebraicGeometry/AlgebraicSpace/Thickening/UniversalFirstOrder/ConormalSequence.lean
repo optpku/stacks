@@ -48,7 +48,8 @@ theorem conormalMap_comp_pullbackDifferentialsComparison
     (i : Z ⟶ Z') (h' : Z' ⟶ X) (h : Z ⟶ X) (f : X ⟶ B)
     [IsUniversalFirstOrder i h'] [FormallyUnramified h] (w : i ≫ h' = h) :
     conormalMap i h' h f w ≫ pullbackDifferentialsComparison i h' h f w =
-      Hom.Conormal.Differentials.map i (h' ≫ f) := sorry
+      Hom.Conormal.Differentials.map i (h' ≫ f) := by
+  simp [conormalMap, Category.assoc]
 
 /-- The transported conormal map followed by the canonical differential
 comparison has zero composite. -/

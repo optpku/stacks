@@ -52,82 +52,16 @@ noncomputable instance addCommGrpHasSheafify (X : TopCat.{u}) :
 locally bijective morphisms. -/
 noncomputable instance addCommGrpWEqualsLocallyBijective (X : TopCat.{u}) :
     (Opens.grothendieckTopology X).WEqualsLocallyBijective AddCommGrpCat.{max u w} := by
-  -- Local instance justification (proof-local temporary data): The weak-equivalence characterization consumes local injectivity of every abelian sheafification unit, transported here from its underlying type-valued unit.
-  letI : ∀ P : (Opens X)ᵒᵖ ⥤ AddCommGrpCat.{max u w},
-      Presheaf.IsLocallyInjective (Opens.grothendieckTopology X)
-        (toSheafify (Opens.grothendieckTopology X) P) := by
-    intro P
-    rw [← Presheaf.isLocallyInjective_forget_iff]
-    rw [← sheafComposeIso_hom_fac,
-      ← toSheafify_plusPlusIsoSheafify_hom]
-    -- Local instance justification (proof-local temporary data): Local injectivity of the underlying type-valued sheafification unit feeds composition through the plus-plus and forgetful comparison isomorphisms.
-    letI := GrothendieckTopology.toSheafify_isLocallyInjective_type_of_univLE
-      (Opens.grothendieckTopology X) (P ⋙ forget AddCommGrpCat.{max u w})
-    infer_instance
-  -- Local instance justification (proof-local temporary data): The weak-equivalence characterization consumes local surjectivity of every abelian sheafification unit, established by factoring its underlying map through two plus stages and the comparison isomorphisms.
-  letI : ∀ P : (Opens X)ᵒᵖ ⥤ AddCommGrpCat.{max u w},
-      Presheaf.IsLocallySurjective (Opens.grothendieckTopology X)
-        (toSheafify (Opens.grothendieckTopology X) P) := by
-    intro P
-    rw [Presheaf.isLocallySurjective_iff_whisker_forget]
-    rw [← sheafComposeIso_hom_fac,
-      ← toSheafify_plusPlusIsoSheafify_hom]
-    dsimp [GrothendieckTopology.toSheafify]
-    rw [GrothendieckTopology.plusMap_toPlus]
-    -- Local instance justification (proof-local temporary data): Local surjectivity of the first type-valued plus unit is the first factor in the displayed two-stage sheafification map.
-    letI h₁ : Presheaf.IsLocallySurjective (Opens.grothendieckTopology X)
-        ((Opens.grothendieckTopology X).toPlus
-          (P ⋙ forget AddCommGrpCat.{max u w})) :=
-      GrothendieckTopology.toPlus_isLocallySurjective_type
-        (Opens.grothendieckTopology X) (P ⋙ forget AddCommGrpCat.{max u w})
-    -- Local instance justification (proof-local temporary data): Local surjectivity of the plus unit on the first plus object is the second factor in the displayed two-stage sheafification map.
-    letI h₂ : Presheaf.IsLocallySurjective (Opens.grothendieckTopology X)
-        ((Opens.grothendieckTopology X).toPlus
-          ((Opens.grothendieckTopology X).plusObj
-            (P ⋙ forget AddCommGrpCat.{max u w}))) :=
-      GrothendieckTopology.toPlus_isLocallySurjective_type
-        (Opens.grothendieckTopology X)
-          ((Opens.grothendieckTopology X).plusObj
-            (P ⋙ forget AddCommGrpCat.{max u w}))
-    -- Local instance justification (proof-local temporary data): The composite of the two locally surjective plus units supplies the premise for transporting surjectivity to type-valued sheafification.
-    letI h₁₂ := Presheaf.isLocallySurjective_comp
-      (Opens.grothendieckTopology X)
-      ((Opens.grothendieckTopology X).toPlus
-        (P ⋙ forget AddCommGrpCat.{max u w}))
-      ((Opens.grothendieckTopology X).toPlus
-        ((Opens.grothendieckTopology X).plusObj
-          (P ⋙ forget AddCommGrpCat.{max u w})))
-    -- Local instance justification (proof-local temporary data): The plus-plus-to-sheafification comparison isomorphism is locally surjective and is the next factor after the two plus units.
-    letI h₃ : Presheaf.IsLocallySurjective (Opens.grothendieckTopology X)
-        (plusPlusIsoSheafify (Opens.grothendieckTopology X)
-          (Type (max u w)) (P ⋙ forget AddCommGrpCat.{max u w})).hom :=
-      Presheaf.isLocallySurjective_of_iso _ _
-    -- Local instance justification (proof-local temporary data): Composing the two plus units with their sheafification comparison supplies local surjectivity of the underlying type-valued unit for the final transport.
-    letI h₁₃ : Presheaf.IsLocallySurjective (Opens.grothendieckTopology X)
-        (((Opens.grothendieckTopology X).toPlus (P ⋙ forget AddCommGrpCat.{max u w}) ≫
-          (Opens.grothendieckTopology X).toPlus
-            ((Opens.grothendieckTopology X).plusObj
-              (P ⋙ forget AddCommGrpCat.{max u w}))) ≫
-          (plusPlusIsoSheafify (Opens.grothendieckTopology X)
-            (Type (max u w)) (P ⋙ forget AddCommGrpCat.{max u w})).hom) :=
-      Presheaf.isLocallySurjective_comp _ _ _
-    -- Local instance justification (proof-local temporary data): The forgetful sheafification comparison isomorphism is locally surjective, allowing the final composite to recover the abelian sheafification unit.
-    letI h₄ : Presheaf.IsLocallySurjective (Opens.grothendieckTopology X)
-        (sheafifyComposeIso (Opens.grothendieckTopology X)
-          (forget AddCommGrpCat.{max u w}) P).hom :=
-      Presheaf.isLocallySurjective_of_iso _ _
-    exact Presheaf.isLocallySurjective_comp
-      (Opens.grothendieckTopology X)
-      (((Opens.grothendieckTopology X).toPlus (P ⋙ forget AddCommGrpCat.{max u w}) ≫
-          (Opens.grothendieckTopology X).toPlus
-            ((Opens.grothendieckTopology X).plusObj
-              (P ⋙ forget AddCommGrpCat.{max u w}))) ≫
-        (plusPlusIsoSheafify (Opens.grothendieckTopology X)
-          (Type (max u w)) (P ⋙ forget AddCommGrpCat.{max u w})).hom)
-      (sheafifyComposeIso (Opens.grothendieckTopology X)
-        (forget AddCommGrpCat.{max u w}) P).hom
-  exact GrothendieckTopology.WEqualsLocallyBijective.mk'
-    (Opens.grothendieckTopology X) (AddCommGrpCat.{max u w})
+  let J := Opens.grothendieckTopology X
+  let K := (equivSmallModel.{max u w} (Opens X)).inverse.inducedTopology J
+  letI : ∀ V : SmallModel.{max u w} (Opens X), PreservesColimitsOfShape
+      (K.Cover V)ᵒᵖ (forget AddCommGrpCat.{max u w}) := fun V => by
+    letI : FinallySmall.{max u w} (K.Cover V)ᵒᵖ :=
+      finallySmall_of_essentiallySmall _
+    exact FinallySmall.preservesColimitsOfShape_of_isFiltered
+      (K.Cover V)ᵒᵖ (forget AddCommGrpCat.{max u w})
+  letI : K.WEqualsLocallyBijective AddCommGrpCat.{max u w} := inferInstance
+  exact GrothendieckTopology.WEqualsLocallyBijective.ofEssentiallySmall J
 
 /-- Equal-universe specialization of the canonical construction.  Its direct universe pattern
 lets typeclass inference determine a space universe from the coefficient universe. -/

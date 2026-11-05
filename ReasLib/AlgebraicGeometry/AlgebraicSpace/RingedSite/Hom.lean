@@ -24,6 +24,7 @@ public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Points
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Pullback
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.RingedSite.Basic
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.InverseImage
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.Grothendieck
 public import ReasLib.AlgebraicGeometry.RingedSite.Basic
 public import ReasLib.AlgebraicGeometry.RingedSite.Topos.Hom
 public import ReasLib.AlgebraicGeometry.RingedSite.Topos.Module
@@ -55,9 +56,14 @@ open MorphismProperty
 
 variable {S : Scheme.{u}}
 
-/-- Injective resolutions exist for module sheaves on the small étale site. -/
+/-- Injective resolutions exist for module sheaves in the original section universe.
+The proved small-atlas generator and exact sheaf colimits give the native Grothendieck
+abelian certificate; Mathlib constructs enough injectives and then injective resolutions. -/
 instance modules_hasInjectiveResolutions (X : AlgebraicSpace S) :
-    HasInjectiveResolutions (Modules X) := sorry
+    HasInjectiveResolutions (Modules X) := by
+  letI : EnoughInjectives (Modules X) :=
+    IsGrothendieckAbelian.enoughInjectives (C := Modules X)
+  infer_instance
 
 /-- The type-valued sheaf underlying the structure module `𝒪_X` compares with the
 underlying structure sheaf of the small étale ringed site. -/

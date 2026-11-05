@@ -531,7 +531,6 @@ theorem homEquiv_naturality_right (O : X.Presheaf CommRingCat.{u}) (x : X)
 
 /-- The stalk functor for module presheaves over a commutative-ring presheaf is left adjoint to
 the skyscraper functor. -/
-@[stacks 007K "module-presheaf stalk-skyscraper adjunction"]
 noncomputable def adjunctionOfCommRing (O : X.Presheaf CommRingCat.{u}) (x : X) :
     PresheafOfModules.stalkFunctorOfCommRing O x ⊣ functorOfCommRing O x :=
   Adjunction.mkOfHomEquiv

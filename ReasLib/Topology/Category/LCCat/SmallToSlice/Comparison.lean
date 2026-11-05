@@ -47,12 +47,16 @@ noncomputable def zarPullbackIso (f : X ⟶ Y)
     [HasWeakSheafify (zarTopology.over Y) (Type u)] :
     TopCat.Sheaf.pullback (Type u) f.hom ⋙ typePullback X ≅
       typePullback Y ⋙ zarTopology.overMapPullback (Type u) f :=
-  -- `isContinuous_comp` is kept explicit by the site API to avoid global search loops.
+  -- Local instance (search instability): use the named bridge `Functor.isContinuous_comp`
+  -- with the small open topology on X as intermediate topology; it is a lemma, not a
+  -- global instance, since composition search would have to infer that topology.
   letI : Functor.IsContinuous (Opens.map f.hom ⋙ opensOver X)
       (Opens.grothendieckTopology Y.obj) (zarTopology.over X) :=
     Functor.isContinuous_comp (Opens.map f.hom) (opensOver X)
       (Opens.grothendieckTopology Y.obj) (Opens.grothendieckTopology X.obj)
       (zarTopology.over X)
+  -- Local instance (search instability): the same named composition bridge now uses
+  -- `zarTopology.over Y` as intermediate topology for the other side of the square.
   letI : Functor.IsContinuous (opensOver Y ⋙ Over.pullback f)
       (Opens.grothendieckTopology Y.obj) (zarTopology.over X) :=
     Functor.isContinuous_comp (opensOver Y) (Over.pullback f)
@@ -60,7 +64,7 @@ noncomputable def zarPullbackIso (f : X ⟶ Y)
   Adjunction.leftAdjointUniq
     ((Adjunction.comp
       (TopCat.Sheaf.pullbackPushforwardAdjunction (Type u) f.hom)
-      ((opensOver X).sheafAdjunctionContinuous (Type u)
+      (Functor.sheafPullbackConstruction.sheafAdjunctionContinuous (opensOver X) (Type u)
         (Opens.grothendieckTopology X.obj) (zarTopology.over X))).ofNatIsoRight
       (Functor.sheafPushforwardContinuousComp'
         (F := Opens.map f.hom) (G := opensOver X)
@@ -73,7 +77,7 @@ noncomputable def zarPullbackIso (f : X ⟶ Y)
         (Type u) (Opens.grothendieckTopology Y.obj)
         (zarTopology.over Y) (zarTopology.over X)).symm))
     (Adjunction.comp
-      ((opensOver Y).sheafAdjunctionContinuous (Type u)
+      (Functor.sheafPullbackConstruction.sheafAdjunctionContinuous (opensOver Y) (Type u)
         (Opens.grothendieckTopology Y.obj) (zarTopology.over Y))
       (zarTopology.overMapPushforwardAdjunction (Type u) f))
 
@@ -85,12 +89,14 @@ noncomputable def qcTypePullbackComparisonIso (X : LCCat.{u})
     [HasWeakSheafify (qcTopology.over X) (Type u)] :
     typePullback X ⋙ comparisonTopologyPullback (Type u) zar_le_qc X ≅
       qcTypePullback X :=
-  -- The comparison identity is a Prop-valued, topology-specific continuity pin.
+  -- Local instance (defeq pin): use the named bridge `comparisonOver_id_isContinuous`
+  -- for `zar_le_qc`, matching the witness in `comparisonTopologyAdjunction` when
+  -- elaborating `sheafPushforwardContinuousComp'` for these two slice topologies.
   letI : Functor.IsContinuous (𝟭 (Over X)) (zarTopology.over X) (qcTopology.over X) :=
     comparisonOver_id_isContinuous zar_le_qc X
   Adjunction.leftAdjointUniq
     ((Adjunction.comp
-      ((opensOver X).sheafAdjunctionContinuous (Type u)
+      (Functor.sheafPullbackConstruction.sheafAdjunctionContinuous (opensOver X) (Type u)
         (Opens.grothendieckTopology X.obj) (zarTopology.over X))
       (comparisonTopologyAdjunction (Type u) zar_le_qc X)).ofNatIsoRight
       (Functor.sheafPushforwardContinuousComp'
@@ -98,7 +104,7 @@ noncomputable def qcTypePullbackComparisonIso (X : LCCat.{u})
         (Functor.rightUnitor (opensOver X)) (Type u)
         (Opens.grothendieckTopology X.obj) (zarTopology.over X)
         (qcTopology.over X)))
-    ((opensOver X).sheafAdjunctionContinuous (Type u)
+    (Functor.sheafPullbackConstruction.sheafAdjunctionContinuous (opensOver X) (Type u)
       (Opens.grothendieckTopology X.obj) (qcTopology.over X))
 
 /-- Lemma 21.31.8 (0D92): the inverse images from the small topoi to the qc slice topoi
@@ -111,14 +117,40 @@ noncomputable def qcPullbackIso (f : X ⟶ Y)
     [HasWeakSheafify (qcTopology.over Y) (Type u)] :
     TopCat.Sheaf.pullback (Type u) f.hom ⋙ qcTypePullback X ≅
       qcTypePullback Y ⋙ qcTopology.overMapPullback (Type u) f :=
-  Functor.isoWhiskerLeft (TopCat.Sheaf.pullback (Type u) f.hom)
-      (qcTypePullbackComparisonIso X).symm ≪≫
-    Functor.isoWhiskerRight (zarPullbackIso f)
-      (comparisonTopologyPullback (Type u) zar_le_qc X) ≪≫
-    Functor.isoWhiskerLeft (typePullback Y)
-      (overMapPullbackComparisonIso (A := Type u) zar_le_qc f) ≪≫
-    Functor.isoWhiskerRight (qcTypePullbackComparisonIso Y)
-      (qcTopology.overMapPullback (Type u) f)
+  -- Construct the qc square directly from its adjunctions and the site-functor square.
+  -- Local instance (search instability): use the named bridge `Functor.isContinuous_comp`
+  -- with the small open topology on X as intermediate topology; it is a lemma, not a
+  -- global instance, since composition search would have to infer that topology.
+  letI : Functor.IsContinuous (Opens.map f.hom ⋙ opensOver X)
+      (Opens.grothendieckTopology Y.obj) (qcTopology.over X) :=
+    Functor.isContinuous_comp (Opens.map f.hom) (opensOver X)
+      (Opens.grothendieckTopology Y.obj) (Opens.grothendieckTopology X.obj)
+      (qcTopology.over X)
+  -- Local instance (search instability): the same named composition bridge now uses
+  -- `qcTopology.over Y` as intermediate topology for the other side of the square.
+  letI : Functor.IsContinuous (opensOver Y ⋙ Over.pullback f)
+      (Opens.grothendieckTopology Y.obj) (qcTopology.over X) :=
+    Functor.isContinuous_comp (opensOver Y) (Over.pullback f)
+      (Opens.grothendieckTopology Y.obj) (qcTopology.over Y) (qcTopology.over X)
+  Adjunction.leftAdjointUniq
+    ((Adjunction.comp
+      (TopCat.Sheaf.pullbackPushforwardAdjunction (Type u) f.hom)
+      (Functor.sheafPullbackConstruction.sheafAdjunctionContinuous (opensOver X) (Type u)
+        (Opens.grothendieckTopology X.obj) (qcTopology.over X))).ofNatIsoRight
+      (Functor.sheafPushforwardContinuousComp'
+        (F := Opens.map f.hom) (G := opensOver X)
+        (FG := opensOver Y ⋙ Over.pullback f) (opensOver_compIso f).symm
+        (Type u) (Opens.grothendieckTopology Y.obj)
+        (Opens.grothendieckTopology X.obj) (qcTopology.over X) ≪≫
+      (Functor.sheafPushforwardContinuousComp'
+        (F := opensOver Y) (G := Over.pullback f)
+        (FG := opensOver Y ⋙ Over.pullback f) (Iso.refl _)
+        (Type u) (Opens.grothendieckTopology Y.obj)
+        (qcTopology.over Y) (qcTopology.over X)).symm))
+    (Adjunction.comp
+      (Functor.sheafPullbackConstruction.sheafAdjunctionContinuous (opensOver Y) (Type u)
+        (Opens.grothendieckTopology Y.obj) (qcTopology.over Y))
+      (qcTopology.overMapPushforwardAdjunction (Type u) f))
 
 /-- The canonical direct-image comparison is the right mate of `qcPullbackIso`. It is
 defined for every map; properness is used only to prove that it is invertible. -/

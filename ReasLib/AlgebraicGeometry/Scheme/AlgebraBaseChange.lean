@@ -32,7 +32,18 @@ def fromBase [HasColimit B] : A ⟶ colimit B :=
 omit [IsDirected I (· ≤ ·)] in
 /-- Every stage structure map induces the same map into the directed colimit. -/
 theorem fromBase_ι [IsDirected I (· ≤ ·)] [HasColimit B] (i : I) :
-    σ.app i ≫ colimit.ι B i = fromBase A B σ := sorry
+    σ.app i ≫ colimit.ι B i = fromBase A B σ := by
+  obtain ⟨k, hik, hjk⟩ := exists_ge_ge i (Classical.arbitrary I)
+  have stage_eq (j : I) (hjk : j ≤ k) :
+      σ.app j ≫ colimit.ι B j = σ.app k ≫ colimit.ι B k := by
+    rw [← colimit.w B (homOfLE hjk), ← Category.assoc]
+    have hσ : σ.app j ≫ B.map (homOfLE hjk) = σ.app k := by
+      have h := σ.naturality (homOfLE hjk)
+      change 𝟙 A ≫ σ.app k = σ.app j ≫ B.map (homOfLE hjk) at h
+      rw [Category.id_comp] at h
+      exact h.symm
+    exact congrArg (fun h ↦ h ≫ colimit.ι B k) hσ
+  exact (stage_eq i hik).trans (stage_eq _ hjk).symm
 
 /-- The structure morphism from the spectrum of a stage algebra to the base spectrum. -/
 def specMap (i : I) :

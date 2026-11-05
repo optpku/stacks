@@ -23,10 +23,13 @@ variable (j : U ⟶ C) (j' : U ⟶ D) (f : D ⟶ C)
 variable [IsOpenImmersion j] [IsOpenImmersion j']
 variable (hcart : IsPullback (𝟙 U) j' j f)
 
+set_option backward.isDefEq.respectTransparency false in
 include hcart in
 /-- The interior cartesian square commutes after precomposition with V. -/
 theorem site_condition (V : U.Etale) :
-    (𝟙 V.left) ≫ (V.hom ≫ j) = (V.hom ≫ j') ≫ f := sorry
+    (𝟙 V.left) ≫ (V.hom ≫ j) = (V.hom ≫ j') ≫ f := by
+  simpa only [Category.id_comp, Category.assoc] using
+    congrArg (fun k : U ⟶ C ↦ V.hom ≫ k) hcart.w
 
 /-- The explicit site map embeds V into its cartesian pullback by identity
 on V and its given map to the second compactification. -/
@@ -36,9 +39,24 @@ def siteMap (V : U.Etale) :
   let p : V.left ⟶ pullback (V.hom ≫ j) f := pullback.lift (𝟙 V.left) (V.hom ≫ j') w
   exact MorphismProperty.Over.homMk p (pullback.lift_snd _ _ w)
 
+set_option backward.isDefEq.respectTransparency false in
 include hcart in
 /-- The cartesian interior square makes this specified site map invertible. -/
-instance siteMap_isIso (V : U.Etale) : IsIso (siteMap j j' f hcart V) := sorry
+instance siteMap_isIso (V : U.Etale) : IsIso (siteMap j j' f hcart V) := by
+  have h : IsPullback (𝟙 V.left) (V.hom ≫ j') (V.hom ≫ j) f :=
+    (IsPullback.of_id_fst (f := V.hom)).paste_vert hcart
+  let e : (etaleRestriction j').obj V ≅
+      ((etaleRestriction j ⋙ smallEtalePullback f).obj V) :=
+    MorphismProperty.Over.isoMk h.isoPullback (by
+      change h.isoPullback.hom ≫ pullback.snd (V.hom ≫ j) f = V.hom ≫ j'
+      exact h.isoPullback_hom_snd)
+  have heq : siteMap j j' f hcart V = e.hom := by
+    apply MorphismProperty.Over.Hom.ext
+    change pullback.lift (𝟙 V.left) (V.hom ≫ j') (site_condition j j' f hcart V) =
+      h.isoPullback.hom
+    apply pullback.hom_ext <;> simp
+  rw [heq]
+  infer_instance
 
 def siteIso : etaleRestriction j' ≅ etaleRestriction j ⋙ smallEtalePullback f :=
   NatIso.ofComponents (fun V ↦ asIso (siteMap j j' f hcart V)) (fun _ ↦ sorry)

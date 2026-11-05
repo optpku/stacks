@@ -24,7 +24,7 @@ open TopologicalSpace Topology
 
 variable {X : Type u} [TopologicalSpace X]
 
-namespace IrreducibleCloseds
+namespace TopologicalSpace.IrreducibleCloseds
 
 /-- Lemma 5.23.15 (1): the irreducible-closed soberification of a compact
 space is compact. -/
@@ -44,4 +44,4 @@ space is Noetherian. -/
 instance noetherianSpaceSoberification [NoetherianSpace X] :
     NoetherianSpace (IrreducibleCloseds X) := sorry
 
-end IrreducibleCloseds
+end TopologicalSpace.IrreducibleCloseds

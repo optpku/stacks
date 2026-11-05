@@ -41,6 +41,51 @@ theorem exists_smul_eq_zero_of_localization [Module.Finite R M]
 
 end Module.Finite
 
+namespace LinearMap
+
+variable {R : Type u} [CommSemiring R]
+variable {M : Type v} [AddCommMonoid M] [Module R M]
+
+/-- If a map with finitely generated range vanishes after localization, one
+element of the localizing submonoid annihilates the whole map. The source need
+not be finite. -/
+theorem exists_smul_eq_zero_of_localization_of_finite_range
+    {N : Type w} [AddCommMonoid N] [Module R N]
+    {N' : Type*} [AddCommMonoid N'] [Module R N']
+    (S : Submonoid R) (f : N →ₗ[R] N') [IsLocalizedModule S f]
+    (g : M →ₗ[R] N) [Module.Finite R g.range] (h : f.comp g = 0) :
+    ∃ s : S, s • g = 0 := by
+  have h_range : f.comp g.range.subtype = 0 := by
+    ext x
+    rcases x with ⟨_, m, rfl⟩
+    exact DFunLike.congr_fun h m
+  obtain ⟨s, hs⟩ :=
+    Module.Finite.exists_smul_eq_zero_of_localization S f g.range.subtype h_range
+  refine ⟨s, ?_⟩
+  ext m
+  exact DFunLike.congr_fun hs (g.rangeRestrict m)
+
+/-- Maps which agree after localization agree after multiplication by one
+denominator if their difference has finitely generated range. Neither the
+source nor the ranges of the individual maps need be finite. -/
+theorem exists_smul_eq_of_localization_of_finite_range_sub
+    {N : Type w} [AddCommGroup N] [Module R N]
+    {N' : Type*} [AddCommGroup N'] [Module R N']
+    (S : Submonoid R) (f : N →ₗ[R] N') [IsLocalizedModule S f]
+    (g h : M →ₗ[R] N) [Module.Finite R (g - h).range]
+    (hlocal : f.comp g = f.comp h) :
+    ∃ s : S, s • g = s • h := by
+  have hzero : f.comp (g - h) = 0 := by
+    ext m
+    change f (g m - h m) = 0
+    rw [map_sub]
+    exact sub_eq_zero.mpr (DFunLike.congr_fun hlocal m)
+  obtain ⟨s, hs⟩ :=
+    exists_smul_eq_zero_of_localization_of_finite_range S f (g - h) hzero
+  exact ⟨s, sub_eq_zero.mp (by simpa only [smul_sub] using hs)⟩
+
+end LinearMap
+
 namespace Module.Finite
 
 variable {R : Type u} [CommRing R]

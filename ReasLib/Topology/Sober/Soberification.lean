@@ -109,12 +109,12 @@ noncomputable def irreducibleSetHomeomorphPoints : IrreducibleCloseds Y ≃ₜ Y
 
 /-- The underlying function of the canonical factorization of a continuous map through the
 soberification. -/
-noncomputable def IrreducibleCloseds.soberificationLiftFun (f : C(X, Y))
+noncomputable def TopologicalSpace.IrreducibleCloseds.soberificationLiftFun (f : C(X, Y))
     (T : IrreducibleCloseds X) : Y :=
   irreducibleSetEquivPoints (IrreducibleCloseds.map f f.continuous T)
 
 /-- The canonical factorization through the soberification is continuous. -/
-theorem IrreducibleCloseds.continuous_soberificationLiftFun (f : C(X, Y)) :
+theorem TopologicalSpace.IrreducibleCloseds.continuous_soberificationLiftFun (f : C(X, Y)) :
     Continuous (IrreducibleCloseds.soberificationLiftFun f) := by
   refine continuous_def.2 fun U hU ↦ ?_
   have hpre : IrreducibleCloseds.soberificationLiftFun f ⁻¹' U =
@@ -136,21 +136,21 @@ theorem IrreducibleCloseds.continuous_soberificationLiftFun (f : C(X, Y)) :
   exact isOpen_generateFrom_of_mem ⟨⟨f ⁻¹' U, hU.preimage f.continuous⟩, rfl⟩
 
 /-- The canonical continuous factorization of a map from `X` to a sober space. -/
-noncomputable def IrreducibleCloseds.soberificationLift (f : C(X, Y)) :
+noncomputable def TopologicalSpace.IrreducibleCloseds.soberificationLift (f : C(X, Y)) :
     C(IrreducibleCloseds X, Y) :=
   ⟨IrreducibleCloseds.soberificationLiftFun f,
     IrreducibleCloseds.continuous_soberificationLiftFun f⟩
 
 /-- Evaluation of the canonical factor map through soberification. -/
 @[simp]
-theorem IrreducibleCloseds.soberificationLift_apply (f : C(X, Y))
+theorem TopologicalSpace.IrreducibleCloseds.soberificationLift_apply (f : C(X, Y))
     (T : IrreducibleCloseds X) :
     IrreducibleCloseds.soberificationLift f T =
       irreducibleSetEquivPoints (IrreducibleCloseds.map f f.continuous T) := rfl
 
 /-- The canonical soberification factor extends the original continuous map. -/
 @[simp]
-theorem IrreducibleCloseds.soberificationLift_comp (f : C(X, Y)) :
+theorem TopologicalSpace.IrreducibleCloseds.soberificationLift_comp (f : C(X, Y)) :
     (IrreducibleCloseds.soberificationLift f).comp toIrreducibleCloseds = f := by
   apply ContinuousMap.ext
   intro x
@@ -166,7 +166,7 @@ theorem IrreducibleCloseds.soberificationLift_comp (f : C(X, Y)) :
 
 /-- A continuous map out of the soberification is determined by its composite with the canonical
 map from `X`. -/
-theorem IrreducibleCloseds.soberificationLift_unique (f : C(X, Y))
+theorem TopologicalSpace.IrreducibleCloseds.soberificationLift_unique (f : C(X, Y))
     (g : C(IrreducibleCloseds X, Y))
     (hg : g.comp toIrreducibleCloseds = f) :
     g = IrreducibleCloseds.soberificationLift f := by

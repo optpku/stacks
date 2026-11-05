@@ -31,6 +31,9 @@ universe wA wBC vA vB vC uA uB uC
 
 namespace CategoryTheory.Functor.RightDerived.Composition.BoundedBelow
 
+-- Select Mathlib's proved injective derivability structure when forming the derived functors.
+attribute [local instance 2000] Functor.hasRightDerivedFunctor_of_hasPointwiseRightDerivedFunctor
+
 variable {A : Type uA} {B : Type uB} {C : Type uC}
 variable [Category.{vA} A] [Category.{vB} B] [Category.{vC} C]
 variable [Abelian A] [Abelian B] [Abelian C]

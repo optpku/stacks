@@ -64,90 +64,14 @@ proofs.
 
 ### An application beyond Stacks
 
-In a separate application, we have used ReasLib to formalize the statements and
-data interfaces needed for **Uniform Mordell–Lang for curves**, through
-`JacobianFoundations` and an AnnalsChallenge adapter. The six audited application
-entry points have no reachable non-`Prop` `sorry` holes; the main theorem and
-other proposition-level obligations remain unproved. It also exposed a Picard/sheafification interface issue that
-led to a shared-interface repair. This is how a new paper can both use and improve
-the library.
+The [Uniform Mordell–Lang application](applications/uniform-mordell-lang/)
+uses ReasLib's cohomology and relative Picard interfaces through
+`JacobianFoundations` to construct genus, Jacobian, group structure, and
+pointed Abel–Jacobi data. It shares this repository's Lean/Mathlib pins and
+retains separate Lake projects; mathematical proofs remain deferred.
 
-The [independent UML application](applications/uniform-mordell-lang/) is included
-with Lean 4.32.0 and the same Mathlib pin as the Stacks root project, a ReasLib
-source snapshot, build instructions, and a data-hole audit. It retains separate
-Lake projects and build targets.
-
-#### ReasLib reuse
-
-The two JacobianFoundations entry modules contain **6 direct ReasLib imports**.
-The UML statement's deduplicated transitive import closure contains **968 ReasLib
-modules**, within the bundled 1,002-module snapshot. These figures exclude
-Mathlib modules.
-
-| Application consumer | Direct ReasLib imports | Interfaces called in the consumer | Mathematical role |
-|---|---:|---|---|
-| [Genus.lean](applications/uniform-mordell-lang/jacobian-foundations/JacobianFoundations/Genus.lean) | 4 | `Scheme.Hom.cohomologyFinrank`; `SheafOfModules.LargeSite.injectiveResolutions` | Structure-sheaf cohomology and the scalar action used for genus. |
-| [Picard.lean](applications/uniform-mordell-lang/jacobian-foundations/JacobianFoundations/Picard.lean) | 2 | `RelativePicard.component`; `RelativePicard.componentZeroGrpObj`; `RelativePicard.sectionClass`; `RelativePicard.degreeZeroGroupRepresentation` | Degree-zero Picard representation, Jacobian group structure, and the normalized graph class defining the pointed Abel–Jacobi map. |
-
-Mathlib supplies the underlying objects and general mathematical APIs; ReasLib
-organizes the shared cohomology and Picard interfaces; the application adapters
-assemble these into the paper's statement. The 968-module count measures imports;
-the table identifies concrete interface calls. The application README lists
-[all six direct imports and the interface owners](applications/uniform-mordell-lang/#reaslib-reuse),
-with a [source-based import manifest](applications/uniform-mordell-lang/validation/reaslib-reuse.json).
-
-#### Required imports
-
-The 968 modules form the current loaded import closure. To identify the parts
-used by the statement, we also traced elaborated declaration types, data
-definitions, and structure field specifications, excluding bodies of
-`Prop`-valued declarations:
-
-| Scope | ReasLib owner modules | Referenced ReasLib declarations |
-|---|---:|---:|
-| Final `UniformMordellLang.theorem_1_1` statement and its data definitions | **49** | **274** |
-| All six application interfaces, including the pointed Abel–Jacobi map | **79** | **460** |
-
-The [complete module lists and declaration witnesses](applications/uniform-mordell-lang/REASLIB_REQUIRED_MODULES.md)
-identify these owners. Their source files still load their own module dependencies.
-Inline proof references inside retained data definitions remain in this trace.
-
-Compile experiments also identify this fine-grained entry profile for the
-complete existing consumers:
-
-| Consumer | Required ReasLib entry in the tested profile | Reason |
-|---|---|---|
-| Genus | `ReasLib.AlgebraicGeometry.Scheme.Module.Cohomology.GlobalSections` | Canonical cohomology with the scalar action and finrank. |
-| Picard | `ReasLib.AlgebraicGeometry.Scheme.Module.Picard.Relative.Pointed` | The graph-section class used by the Abel–Jacobi construction. |
-| Picard | `ReasLib.AlgebraicGeometry.Scheme.Module.Picard.Relative.Group` | Degree-zero representation and Jacobian group structure. |
-| Picard compatibility helper | `ReasLib.AlgebraicGeometry.Hilbert.SmoothProperCurve` | Required by the retained `graphHilbertPoint` helper. |
-
-Every entry in this profile is required when the other entries and declarations
-are held fixed. A separate core-only probe omitting `graphHilbertPoint` compiles
-with the first three entries. The complete profile still loads **960 modules**
-through the existing library sources. See the [31 compile experiments and scope definitions](applications/uniform-mordell-lang/#required-imports)
-for the distinction between required entry points, referenced declaration owners,
-and the full source import closure. The published import lines remain unchanged.
-
-#### Build and audit results
-
-The [recorded validation](applications/uniform-mordell-lang/validation/validation.json)
-passes all nine checks:
-
-| Check | Result |
-|---|---|
-| Toolchain and Mathlib pins | Match the Stacks root project |
-| Bundled ReasLib snapshot and JacobianFoundations | All 1,002 ReasLib modules build |
-| UML application and representation guards | Build and interface checks pass |
-| Transitive audit of six application entry points | Zero reachable non-`Prop` `sorry` holes |
-| Audit regression fixtures | Direct and nested data holes and unknown roots are rejected; proof holes remain permitted |
-
-The audit checks declaration types and values, including opaque proof bodies
-and the arguments of proposition-valued holes. The application README gives
-[statement correspondence and review scope](applications/uniform-mordell-lang/#statement-correspondence-and-review-scope).
-These results cover the independent application snapshot; the full Stacks root
-library was not rebuilt. Deferred propositions can still supply data through
-existence statements, so the audit does not certify their mathematical truth.
+See the application for [reuse and dependency tables](applications/uniform-mordell-lang/#reaslib-reuse)
+and [build and audit results](applications/uniform-mordell-lang/#build-and-validation).
 
 ## Library overview
 

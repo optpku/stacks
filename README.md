@@ -1,23 +1,24 @@
 # Formalizing the Stacks Project in Lean
 
-The AI for Math team at Peking University is building **ReasLib**, a shared
-Lean 4 library of mathematical definitions, theorem statements, constructions,
-and proofs. Starting from the [Stacks Project](https://stacks.math.columbia.edu/)
-and building on Mathlib, we organize mathematical knowledge into interfaces
-that can be reused across chapters, papers, and future research projects.
+We are formalizing the [Stacks Project](https://stacks.math.columbia.edu/) in
+Lean 4, building on Mathlib, and organizing the resulting mathematical
+definitions, statements, and proofs into **ReasLib**, a shared and reusable
+library. The Stacks Project is a comprehensive open-source reference that
+systematically organizes knowledge in algebraic geometry. We have completed an
+initial large-scale formalization of its mathematical statements in Lean 4 and
+integrated the results into ReasLib.
 
-We have completed an initial Lean formalization of the Stacks mathematical
-statements and organized the results into ReasLib. **Many proofs remain unfinished
-and are marked with `sorry`.** Statement formalization, proof completion, and
-mathematical review are separate parts of the work.
+Beyond formalizing individual statements, we consolidate shared mathematical
+definitions across chapters and organize dependencies between mathematical
+concepts and results, making the library easier to maintain, extend, and reuse.
 
 ## Statement design and library integration
 
-Choices of definitions, assumptions, and abstraction level shape how a theorem
+Choices of definitions and abstraction level shape how a theorem
 can be stated, proved, and reused. Our statement design follows three principles:
 
-- **Build on Mathlib.** Reuse existing definitions, instances, constructions, and
-  theorems, and develop shared interfaces for mathematics that is still missing.
+- **Build on Mathlib.** Reuse existing definitions, instances, and theorems,
+  and build a shared library for mathematics that is still missing.
 - **Align representations.** Coordinate objects and assumptions across chapters
   and papers. Connect alternative representations through equivalences and
   compatibility results, while retaining the link to the original statements.
@@ -26,10 +27,8 @@ can be stated, proved, and reused. Our statement design follows three principles
   compilation feedback support this work throughout library integration.
 
 Work proceeds through **Statement → Library Integration → Proof**: organize
-definitions, statements, and pending proof obligations; consolidate shared
-interfaces; then complete proofs. Fully verified modules must be assessed with
-their dependency closure. Work intended for upstream Mathlib must be `sorry`-free
-and meet [Mathlib's contribution standards](https://leanprover-community.github.io/contribute/index.html).
+definitions, statements, and pending proof obligations, and consolidate shared
+statements.
 
 ## Library organization
 
@@ -37,8 +36,6 @@ and meet [Mathlib's contribution standards](https://leanprover-community.github.
 | --- | --- |
 | [`ReasLib/`](ReasLib/) | Shared mathematical definitions, statements, and proofs, organized by subject. |
 | [`stacks_project/`](stacks_project/) | Chapter-based checks linking shared declarations to the original Stacks entries. |
-| [`lakefile.toml`](lakefile.toml) | Library targets and dependency revisions. |
-| [`lean-toolchain`](lean-toolchain) | Lean version used by the project. |
 
 The dependency direction is:
 
@@ -57,7 +54,7 @@ definitions, assumptions, and conclusions express the intended source content.
 Building on Imperial College London's
 [AnnalsChallenge](https://github.com/ImperialCollegeLondon/AnnalsChallenge), the
 [Uniform Mordell–Lang application](applications/uniform-mordell-lang/)
-reuses ReasLib's cohomology and relative Picard interfaces through
+reuses ReasLib's cohomology and relative Picard declarations through
 `JacobianFoundations` to construct genus, Jacobian, group structure, and
 pointed Abel–Jacobi data. The theorem statement is formalized; mathematical
 proofs remain deferred.
@@ -132,7 +129,7 @@ include:
 1. **Review a statement.** Choose a Stacks tag and check its definitions,
    assumptions, and conclusion against the source. Propose a correction or a
    clearer mathematical expression.
-2. **Improve a shared interface.** Reuse existing Mathlib and ReasLib objects,
+2. **Improve a shared statement.** Reuse existing Mathlib and ReasLib objects,
    connect equivalent representations, or make an interface useful to more
    downstream results.
 3. **Adapt an existing proof or fill a genuine gap.** First look for suitable
@@ -141,24 +138,6 @@ include:
 4. **Bring a new application.** Try using the library for a paper, textbook, or
    another mathematical domain. A small example showing a missing or awkward
    interface is a useful contribution.
-
-### Preparing a pull request
-
-1. Work on a focused change in your own branch or fork.
-2. Put reusable mathematical content in `ReasLib/`. When changing a Stacks
-   formalization, update its chapter correspondence too. ReasLib modules should
-   remain independent of `stacks_project` chapter modules.
-3. Open a [pull request](https://github.com/optpku/stacks/pulls) explaining the
-   mathematical source, your change, and its effect on existing users.
-
-Please include:
-
-- **Source:** the Stacks tag or other reference, with its version where relevant.
-- **Change:** the statement, proof, definition, or interface being added or fixed.
-- **Dependencies:** changed public declarations and affected downstream uses.
-- **Proof status:** remaining `sorry` placeholders, including known gaps in dependencies.
-- **Credits:** the people responsible for statements, proofs, mathematical review,
-  and library integration; retain existing author notices and identify AI assistance.
 
 ## Related projects
 
@@ -208,6 +187,6 @@ The mathematical source is the [Stacks Project](https://stacks.math.columbia.edu
 
 ## Copyright
 
-Copyright (c) 2026 Zichen Wang, Zaiwen Wen. All rights reserved.
+Copyright © 2026 Zichen Wang, Zaiwen Wen. All rights reserved.
 
 Released under the [Apache License 2.0](LICENSE).

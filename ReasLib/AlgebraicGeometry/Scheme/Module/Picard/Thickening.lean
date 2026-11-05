@@ -162,16 +162,18 @@ noncomputable def presentationPicardMap :
         (Opens.grothendieckTopology X.toTopCat) (presentationSheaf i) :=
   Scheme.Hom.picardPullback (reconstructionHom i)
 
-/-- The underlying inverse function to the Picard comparison. -/
+/-- Pullback along the explicit inverse reconstruction morphism gives the inverse
+to the Picard comparison. -/
 noncomputable def presentationPicardInverseFunction :
     SheafOfModules.RingedSite.PicardGroup
         (Opens.grothendieckTopology X.toTopCat) (presentationSheaf i) →
       X'.PicardGroup :=
-  Function.invFun (presentationPicardMap i)
+  Scheme.Hom.picardPullback (reconstructionInverseHom i)
 
 /-- The inverse Picard comparison sends zero to zero. -/
 theorem presentationPicardInverseFunction_zero :
-    presentationPicardInverseFunction i 0 = 0 := sorry
+    presentationPicardInverseFunction i 0 = 0 :=
+  (Scheme.Hom.picardPullback (reconstructionInverseHom i)).map_zero
 
 /-- The inverse Picard comparison preserves addition. -/
 theorem presentationPicardInverseFunction_add
@@ -179,7 +181,8 @@ theorem presentationPicardInverseFunction_add
       (Opens.grothendieckTopology X.toTopCat) (presentationSheaf i)) :
     presentationPicardInverseFunction i (x + y) =
       presentationPicardInverseFunction i x +
-        presentationPicardInverseFunction i y := sorry
+        presentationPicardInverseFunction i y :=
+  (Scheme.Hom.picardPullback (reconstructionInverseHom i)).map_add x y
 
 /-- Pullback to the presentation followed by its inverse recovers an ambient
 Picard class. -/

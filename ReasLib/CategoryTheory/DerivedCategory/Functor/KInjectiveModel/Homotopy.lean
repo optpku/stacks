@@ -22,6 +22,8 @@ open CategoryTheory CategoryTheory.Limits
 
 noncomputable section
 
+set_option backward.isDefEq.respectTransparency false
+
 universe w uC vC uD vD wC wD
 
 namespace CategoryTheory.Functor.KInjectiveModel.Homotopy
@@ -72,7 +74,32 @@ def extensionDesc
 theorem extensionDesc_fac
     (G : DerivedCategory C ⥤ DerivedCategory D)
     (β : Functor.Homotopy.toDerived F ⟶ DerivedCategory.Qh ⋙ G) :
-    unit F ≫ whiskerLeft DerivedCategory.Qh (extensionDesc F G β) = β := sorry
+    unit F ≫ whiskerLeft DerivedCategory.Qh (extensionDesc F G β) = β := by
+  apply CategoryTheory.Quotient.natTrans_ext
+  ext A
+  let δ := KInjectiveModel.extensionDesc F G (extensionOnCochains F G β)
+  have h := NatTrans.congr_app
+    (KInjectiveModel.extensionDesc_fac F G (extensionOnCochains F G β)) A
+  simp only [extensionOnCochains, NatTrans.comp_app, Functor.whiskerLeft_app,
+    Functor.associator_inv_app, isoWhiskerRight_hom, Functor.whiskerRight_app,
+    Category.comp_id, Category.id_comp, Category.assoc] at h
+  change (KInjectiveModel.unit F).app A ≫ δ.app (DerivedCategory.Q.obj A) =
+    (Functor.Homotopy.cochainIso F).inv.app A ≫
+      β.app ((HomotopyCategory.quotient C (ComplexShape.up ℤ)).obj A) ≫
+      G.map ((DerivedCategory.quotientCompQhIso C).hom.app A) at h
+  change (unitOnCochains F).app A ≫
+    δ.app (DerivedCategory.Qh.obj
+      ((HomotopyCategory.quotient C (ComplexShape.up ℤ)).obj A)) =
+      β.app ((HomotopyCategory.quotient C (ComplexShape.up ℤ)).obj A)
+  simp only [unitOnCochains, NatTrans.comp_app, isoWhiskerRight_inv,
+    Functor.whiskerRight_app, Functor.associator_hom_app,
+    Category.comp_id, Category.id_comp, Category.assoc]
+  erw [δ.naturality ((DerivedCategory.quotientCompQhIso C).inv.app A)]
+  rw [← Category.assoc ((KInjectiveModel.unit F).app A), h]
+  simp only [Category.assoc, Iso.hom_inv_id_app_assoc, ← G.map_comp,
+    Iso.hom_inv_id_app, Functor.map_id, Category.comp_id]
+  erw [G.map_id]
+  exact Category.comp_id _
 
 /-- The initial-extension arrow stores the same actual universal map. -/
 def initialExtensionDesc
@@ -81,11 +108,40 @@ def initialExtensionDesc
   StructuredArrow.homMk (extensionDesc F E.right E.hom)
     (extensionDesc_fac F E.right E.hom)
 
+/-- Transport of the homotopy unit and a derived morphism recovers the cochain unit
+and the same morphism. -/
+theorem extensionOnCochains_unit
+    (G : DerivedCategory C ⥤ DerivedCategory D) (γ : derived F ⟶ G) :
+    extensionOnCochains F G (unit F ≫ whiskerLeft DerivedCategory.Qh γ) =
+      KInjectiveModel.unit F ≫ whiskerLeft DerivedCategory.Q γ := by
+  ext A
+  simp only [extensionOnCochains, NatTrans.comp_app, Functor.whiskerLeft_app,
+    Functor.associator_inv_app, isoWhiskerRight_hom, Functor.whiskerRight_app,
+    unit_app_quotient, Category.comp_id, Category.id_comp, Category.assoc]
+  simp only [unitOnCochains, NatTrans.comp_app, Functor.associator_hom_app,
+    isoWhiskerRight_inv, Functor.whiskerRight_app,
+    Category.comp_id, Category.id_comp, Category.assoc, Iso.inv_hom_id_app_assoc]
+  erw [reassoc_of% γ.naturality ((DerivedCategory.quotientCompQhIso C).inv.app A)]
+  simp only [Category.assoc, ← G.map_comp, Iso.inv_hom_id_app,
+    Functor.map_id, Category.comp_id]
+
 /-- The comparison with the descended augmentation determines the universal arrow. -/
 theorem initialExtensionDesc_unique
     (E : Functor.LeftExtension (DerivedCategory.Qh (C := C)) (Functor.Homotopy.toDerived F))
     (m : Functor.LeftExtension.mk (derived F) (unit F) ⟶ E) :
-    m = initialExtensionDesc F E := sorry
+    m = initialExtensionDesc F E := by
+  let E' := Functor.LeftExtension.mk E.right (extensionOnCochains F E.right E.hom)
+  have hm : KInjectiveModel.unit F ≫ whiskerLeft DerivedCategory.Q m.right =
+      extensionOnCochains F E.right E.hom := by
+    rw [← extensionOnCochains_unit]
+    exact congrArg (extensionOnCochains F E.right) (StructuredArrow.w m)
+  let m' : Functor.LeftExtension.mk (derived F) (KInjectiveModel.unit F) ⟶ E' :=
+    StructuredArrow.homMk m.right hm
+  apply StructuredArrow.hom_ext
+  have h := congrArg (fun f : Functor.LeftExtension.mk (derived F)
+      (KInjectiveModel.unit F) ⟶ E' => f.right)
+    (KInjectiveModel.initialExtensionDesc_unique F E' m')
+  exact h
 
 /-- The actual homotopy-source universal witness. -/
 def initialWitness :

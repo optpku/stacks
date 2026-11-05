@@ -247,6 +247,39 @@ def coproductTriangle.isColimitCofan (T : I → Triangle D)
     (fun S i ↦ coproductTriangle.cofan_fac T S i)
     (fun S f h ↦ coproductTriangle.cofan_uniq T S f h)
 
+/-- Three objectwise coproducts supply a coproduct in the category of triangles. -/
+instance coproductTriangle.hasCoproduct (T : I → Triangle D)
+    [HasCoproduct (fun i ↦ (T i).obj₁)] [HasCoproduct (fun i ↦ (T i).obj₂)]
+    [HasCoproduct (fun i ↦ (T i).obj₃)] : HasCoproduct T :=
+  HasColimit.mk ⟨coproductTriangle.cofan T, coproductTriangle.isColimitCofan T⟩
+
+/-- The standard coproduct of triangles is canonically isomorphic to the
+objectwise construction, for any choice of the standard coproduct. -/
+def coproductTriangle.iso (T : I → Triangle D)
+    [HasCoproduct (fun i ↦ (T i).obj₁)] [HasCoproduct (fun i ↦ (T i).obj₂)]
+    [HasCoproduct (fun i ↦ (T i).obj₃)] [HasCoproduct T] :
+    ∐ T ≅ coproductTriangle T :=
+  colimit.isoColimitCocone
+    ⟨coproductTriangle.cofan T, coproductTriangle.isColimitCofan T⟩
+
+/-- The comparison identifies the standard and objectwise coproduct inclusions. -/
+@[reassoc (attr := simp)]
+theorem coproductTriangle.ι_iso_hom (T : I → Triangle D)
+    [HasCoproduct (fun i ↦ (T i).obj₁)] [HasCoproduct (fun i ↦ (T i).obj₂)]
+    [HasCoproduct (fun i ↦ (T i).obj₃)] [HasCoproduct T] (i : I) :
+    Sigma.ι T i ≫ (coproductTriangle.iso T).hom = coproductTriangle.ι T i := by
+  exact colimit.isoColimitCocone_ι_hom
+    ⟨coproductTriangle.cofan T, coproductTriangle.isColimitCofan T⟩ (Discrete.mk i)
+
+/-- The inverse comparison identifies the objectwise and standard inclusions. -/
+@[reassoc (attr := simp)]
+theorem coproductTriangle.ι_iso_inv (T : I → Triangle D)
+    [HasCoproduct (fun i ↦ (T i).obj₁)] [HasCoproduct (fun i ↦ (T i).obj₂)]
+    [HasCoproduct (fun i ↦ (T i).obj₃)] [HasCoproduct T] (i : I) :
+    coproductTriangle.ι T i ≫ (coproductTriangle.iso T).inv = Sigma.ι T i := by
+  exact colimit.isoColimitCocone_ι_inv
+    ⟨coproductTriangle.cofan T, coproductTriangle.isColimitCofan T⟩ (Discrete.mk i)
+
 section Distinguished
 
 variable [HasZeroObject D] [Preadditive D] [∀ n : ℤ, (shiftFunctor D n).Additive]

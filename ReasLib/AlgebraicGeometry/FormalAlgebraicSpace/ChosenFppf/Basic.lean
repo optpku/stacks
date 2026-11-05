@@ -17,6 +17,19 @@ A sheaf on a chosen big fppf site `(Sch/S)_fppf` is a formal algebraic space whe
 it admits an étale jointly surjective atlas by affine formal algebraic spaces,
 with each chart representable by algebraic spaces, and it satisfies the
 coequalizer size condition on that same site.
+
+`AlgebraicGeometry.IsFormalAlgebraicSpace` in this module is the canonical
+source-facing owner of Stacks 0AIM. Both
+`stacks_project/Chap87/Definition_87_11_1.lean` and its `_Formal` compatibility
+bridge use this API, with the canonical Stacks 0AI7 charts from
+`ReasLib.AlgebraicGeometry.FormalAlgebraicSpace.ChosenFppf.Affine` and the
+fixed-site presentation condition of Stacks 0AIS.
+
+`AlgebraicGeometry.FormalAlgebraicSpace.IsFormalAlgebraicSpace` is a separate
+auxiliary predicate on presheaves over all schemes over `S`. No transport
+equivalence is asserted here. Results for that predicate require a proved
+comparison before use with this canonical API. Use fully qualified names
+when both models are in scope.
 -/
 
 @[expose] public section
@@ -30,7 +43,8 @@ universe u v
 
 namespace AlgebraicGeometry
 
-/-- A sheaf on `(Sch/S)_fppf` is a formal algebraic space when it admits an
+/-- The canonical Stacks 0AIM predicate: a sheaf on `(Sch/S)_fppf` is a formal
+algebraic space when it admits an
 étale jointly surjective atlas by affine formal algebraic spaces, each chart
 representable by algebraic spaces, and it satisfies the coequalizer size
 condition. -/

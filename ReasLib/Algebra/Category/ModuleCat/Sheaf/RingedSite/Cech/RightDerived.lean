@@ -64,7 +64,7 @@ abbrev rightDerived :
 abbrev derivedDeltaFunctor :
     CohomologicalDeltaFunctor (PresheafOfModules.{w} 𝒪.obj)
       (ModuleCat.{w} (𝒪.obj.obj (op U))) :=
-  Functor.RightDerived.cohomological (rightDerived 𝒪 U family)
+  Functor.RightDerived.Bounded.cohomological (degreeZero 𝒪 U family)
 
 /-- The canonical degree-zero comparison from Cech cohomology to its bounded right-derived
 degree-zero functor. -/

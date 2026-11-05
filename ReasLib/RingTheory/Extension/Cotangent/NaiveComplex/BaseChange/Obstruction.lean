@@ -7,6 +7,7 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 public import Mathlib.Algebra.Homology.Embedding.Extend
 public import Mathlib.Algebra.Homology.Single
+public import ReasLib.Algebra.Category.ModuleCat.ChangeOfRings.Restrict
 public import Mathlib.CategoryTheory.Triangulated.Pretriangulated
 public import ReasLib.Algebra.Homology.Embedding.Functor
 public import ReasLib.CategoryTheory.DerivedCategory.Ext
@@ -75,15 +76,6 @@ def extOne_adjunction (π : A' →+* A) [π.IsSquareZeroExtension]
     ((singleFunctor (ModuleCat B) (0 : ℤ)).obj (ModuleCat.of B N))
     (1 : ℤ)).toAddEquiv
 
-/-- The adjunction identification sends the zero class to zero. -/
-theorem extOne_adjunction_apply :
-    -- Local instance justification (noncanonical choice): Algebra A' A is determined by the explicit square-zero π; a global instance cannot infer π among competing ring homs.
-    letI := algebraOfSquareZero π
-    extOne_adjunction π B
-      (0 : Ext⁽(1 : ℤ)⁾(Algebra.naiveCotangentObject A' A,
-        (ModuleCat.derivedRestrictionOfScalars (algebraMap A B)).obj
-          ((singleFunctor (ModuleCat B) (0 : ℤ)).obj (ModuleCat.of B N)))) = 0 := sorry
-
 /-- The derived-to-underived comparison of `NL{A⁄A'}` along `A → B`. -/
 def underivedComparison :
     -- Local instance justification (noncanonical choice): Algebra A' A is determined by the explicit square-zero π; a global instance cannot infer π among competing ring homs.
@@ -136,14 +128,6 @@ def extOne_underived_precomp :
     -- Local instance justification (noncanonical choice): Algebra A' A is determined by the explicit square-zero π; a global instance cannot infer π among competing ring homs.
     letI := algebraOfSquareZero π
     underivedComparison π B ≫ ξ
-
-/-- Precomposition with `underivedComparison` sends the zero class to zero. -/
-theorem extOne_underived_precomp_zero :
-    -- Local instance justification (noncanonical choice): Algebra A' A is determined by the explicit square-zero π; a global instance cannot infer π among competing ring homs.
-    letI := algebraOfSquareZero π
-    extOne_underived_precomp π B
-      (0 : Ext⁽(1 : ℤ)⁾(underivedTensorObject π B,
-        (singleFunctor (ModuleCat B) (0 : ℤ)).obj (ModuleCat.of B N))) = 0 := sorry
 
 /-- Precomposition with the derived-to-underived comparison identifies Ext¹ of the
 underived tensor object with Ext¹ of the derived base change. -/
@@ -313,28 +297,8 @@ theorem connectingExtTwo_spec
         (singleFunctor (ModuleCat B) (0 : ℤ)).obj (ModuleCat.of B N))) :
     connectingExtTwo π B γ ξ = ShiftedHom.comp γ ξ rfl := sorry
 
-set_option backward.privateInPublic true in
-/-- The identity-on-carriers comparison between `N` as an `A`-module and the
-restriction of scalars of `N` along `A → B`. -/
-private def restrictCoeffIso :
-    ModuleCat.of A N ≅
-      (ModuleCat.restrictScalars (algebraMap A B)).obj (ModuleCat.of B N) :=
-  (@AddEquiv.toLinearEquiv A N
-      ((ModuleCat.restrictScalars (algebraMap A B)).obj (ModuleCat.of B N))
-      _ _ _
-      inferInstance
-      ((ModuleCat.restrictScalars (algebraMap A B)).obj (ModuleCat.of B N)).isModule
-      (AddEquiv.refl N)
-      (fun r x ↦ by
-        simp [ModuleCat.restrictScalars.smul_def]
-        rfl)).toModuleIso
-
-/-- `restrictCoeffIso` is the identity on the underlying additive group of `N`. -/
-private theorem restrictCoeffIso_apply (x : ModuleCat.of A N) :
-    (restrictCoeffIso B).hom x = x := sorry
-
 /-- The degree-one component of a Hom representative of Ext¹_A(NL{A⁄A'}, N). -/
-private def extOne_cotangentHom_one
+def extOne_cotangentHom_one
     (f :
       -- Local instance justification (noncanonical choice): Algebra A' A is determined by the explicit square-zero π; a global instance cannot infer π among competing ring homs.
       letI := algebraOfSquareZero π
@@ -350,7 +314,7 @@ private def extOne_cotangentHom_one
       (f ∘ₗ (liftEquiv P).toLinearMap)
 
 /-- `extOne_cotangentHom_one` is the component-one iso followed by the lifted conormal map. -/
-private theorem extOne_cotangentHom_one_eq
+theorem extOne_cotangentHom_one_eq
     (f :
       -- Local instance justification (noncanonical choice): Algebra A' A is determined by the explicit square-zero π; a global instance cannot infer π among competing ring homs.
       letI := algebraOfSquareZero π
@@ -362,10 +326,10 @@ private theorem extOne_cotangentHom_one_eq
           (Generators.self A' A).toExtension).hom ≫
         ModuleCat.ofHom
           (f ∘ₗ (liftEquiv
-              (Generators.self A' A).toExtension).toLinearMap) := sorry
+              (Generators.self A' A).toExtension).toLinearMap) := rfl
 
 /-- Differentials into degree one vanish after `extOne_cotangentHom_one`. -/
-private theorem extOne_cotangentHom_d_comp
+theorem extOne_cotangentHom_d_comp
     (f :
       -- Local instance justification (noncanonical choice): Algebra A' A is determined by the explicit square-zero π; a global instance cannot infer π among competing ring homs.
       letI := algebraOfSquareZero π
@@ -375,10 +339,9 @@ private theorem extOne_cotangentHom_d_comp
     letI := algebraOfSquareZero π
     (Algebra.naiveCotangent A' A).d i 1 ≫ extOne_cotangentHom_one π f = 0 := sorry
 
-set_option backward.privateInPublic true in
 /-- The chain map `NL{A⁄A'} ⟶ N[1]` attached to a Hom representative of
 Ext¹_A(NL{A⁄A'}, N). -/
-private def extOne_cotangentHom
+def extOne_cotangentHom
     (f :
       -- Local instance justification (noncanonical choice): Algebra A' A is determined by the explicit square-zero π; a global instance cannot infer π among competing ring homs.
       letI := algebraOfSquareZero π
@@ -394,7 +357,7 @@ private def extOne_cotangentHom
     (extOne_cotangentHom_d_comp π f)
 
 /-- `extOne_cotangentHom` is `mkHomToSingle` of the degree-one Hom representative. -/
-private theorem extOne_cotangentHom_eq
+theorem extOne_cotangentHom_eq
     (f :
       -- Local instance justification (noncanonical choice): Algebra A' A is determined by the explicit square-zero π; a global instance cannot infer π among competing ring homs.
       letI := algebraOfSquareZero π
@@ -403,9 +366,8 @@ private theorem extOne_cotangentHom_eq
     letI := algebraOfSquareZero π
     extOne_cotangentHom π f =
       HomologicalComplex.mkHomToSingle (extOne_cotangentHom_one π f)
-        (extOne_cotangentHom_d_comp π f) := sorry
+        (extOne_cotangentHom_d_comp π f) := rfl
 
-set_option backward.privateInPublic true in
 /-- The derived Ext¹ class of a Hom representative of Ext¹_A(NL{A⁄A'}, N), aligned
 with restriction of scalars of `N[0]` along `A → B`. -/
 def toDerived
@@ -426,11 +388,10 @@ def toDerived
     ((DerivedCategory.singleFunctors (ModuleCat A)).shiftIso (1 : ℤ) (-1) 0
         (add_neg_cancel (1 : ℤ))).inv.app (ModuleCat.of A N) ≫
       (((singleFunctor (ModuleCat A) (0 : ℤ)).map
-          (restrictCoeffIso B).hom)⟦(1 : ℤ)⟧') ≫
+          (ModuleCat.RestrictScalars.identityIso (R := A) (S := B) N).inv)⟦(1 : ℤ)⟧') ≫
         ((ModuleCat.DerivedRestriction.singleIso (algebraMap A B) (0 : ℤ)
             (ModuleCat.of B N)).inv⟦(1 : ℤ)⟧')
 
-set_option backward.privateInPublic true in
 /-- `toDerived` is the derived image of `extOne_cotangentHom`, transported to the
 restriction of `N[0]`. -/
 theorem toDerived_eq
@@ -447,9 +408,9 @@ theorem toDerived_eq
         ((DerivedCategory.singleFunctors (ModuleCat A)).shiftIso (1 : ℤ) (-1) 0
             (add_neg_cancel (1 : ℤ))).inv.app (ModuleCat.of A N) ≫
           (((singleFunctor (ModuleCat A) (0 : ℤ)).map
-              (restrictCoeffIso B).hom)⟦(1 : ℤ)⟧') ≫
+              (ModuleCat.RestrictScalars.identityIso (R := A) (S := B) N).inv)⟦(1 : ℤ)⟧') ≫
             ((ModuleCat.DerivedRestriction.singleIso (algebraMap A B) (0 : ℤ)
-                (ModuleCat.of B N)).inv⟦(1 : ℤ)⟧') := sorry
+                (ModuleCat.of B N)).inv⟦(1 : ℤ)⟧') := rfl
 
 /-- If the displayed maps complete to a distinguished triangle, vanishing of the
 connecting class characterizes the existence of a solution. -/

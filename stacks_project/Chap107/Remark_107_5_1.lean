@@ -70,36 +70,36 @@ dimension `0` at each of its points. -/
 @[stacks 0DRF] #check
   (AlgebraicGeometry.AlgebraicSpace.InfiniteProduct.dimensionAt_eq_zero :
     ∀ (k : Type u) [Field k] [Fintype k]
-    (x : Points ((preRelation k).etaleQuotientSpace)), dimensionAt x = 0)
+    (x : Points (space k)), dimensionAt x = 0)
 
-/- Remark 107.5.1 (6): the presentation-level space of points `spacePoints k` is of
+/- Remark 107.5.1 (6): the canonical point space `Points (space k)` is of
 topological Krull dimension `1`. -/
 @[stacks 0DRF] #check
-  (AlgebraicGeometry.AlgebraicSpace.InfiniteProduct.topologicalKrullDim_spacePoints_eq_one :
-    ∀ (k : Type u) [Field k] [Fintype k], topologicalKrullDim (spacePoints k) = 1)
+  (AlgebraicGeometry.AlgebraicSpace.InfiniteProduct.topologicalKrullDim_points_eq_one :
+    ∀ (k : Type u) [Field k] [Fintype k], topologicalKrullDim (Points (space k)) = 1)
 
 /- Remark 107.5.1 (7): off the generic point, the local topological Krull dimension of
-`spacePoints k` is `1`. -/
+`Points (space k)` is `1`. -/
 @[stacks 0DRF] #check
-  (AlgebraicGeometry.AlgebraicSpace.InfiniteProduct.topologicalKrullDimAt_spacePoints_eq_one :
+  (AlgebraicGeometry.AlgebraicSpace.InfiniteProduct.topologicalKrullDimAt_points_eq_one :
     ∀ (k : Type u) [Field k] [Fintype k]
-    {x : spacePoints k} (hx : x ≠ genericPoint k), topologicalKrullDimAt x = 1)
+    {x : Points (space k)} (hx : x ≠ spaceGenericPoint k), topologicalKrullDimAt x = 1)
 
 /- Remark 107.5.1 (7), corrected generic-point case: the local topological Krull
 dimension at the generic point is zero. -/
 @[stacks 0DRF] #check
-  (AlgebraicGeometry.AlgebraicSpace.InfiniteProduct.topologicalKrullDimAt_genericPoint_eq_zero :
-    ∀ (k : Type u) [Field k] [Fintype k], topologicalKrullDimAt (genericPoint k) = 0)
+  (AlgebraicGeometry.AlgebraicSpace.InfiniteProduct.topologicalKrullDimAt_spaceGenericPoint_eq_zero :
+    ∀ (k : Type u) [Field k] [Fintype k], topologicalKrullDimAt (spaceGenericPoint k) = 0)
 
 /- Remark 107.5.1 (8): `|X|` is irreducible. -/
 @[stacks 0DRF] #check
-  (AlgebraicGeometry.AlgebraicSpace.InfiniteProduct.instIrreducibleSpace_spacePoints :
-    ∀ (k : Type u) [Field k] [Fintype k], IrreducibleSpace (spacePoints k))
+  (AlgebraicGeometry.AlgebraicSpace.InfiniteProduct.instIrreducibleSpace_points :
+    ∀ (k : Type u) [Field k] [Fintype k], IrreducibleSpace (Points (space k)))
 
 /- Remark 107.5.1 (9): `|X|` admits a generic point. -/
 @[stacks 0DRF] #check
-  (AlgebraicGeometry.AlgebraicSpace.InfiniteProduct.isGenericPoint_genericPoint :
-    ∀ (k : Type u) [Field k] [Fintype k], IsGenericPoint (genericPoint k) Set.univ)
+  (AlgebraicGeometry.AlgebraicSpace.InfiniteProduct.isGenericPoint_spaceGenericPoint :
+    ∀ (k : Type u) [Field k] [Fintype k], IsGenericPoint (spaceGenericPoint k) Set.univ)
 
 end AlgebraicGeometry.AlgebraicSpace.InfiniteProduct
 

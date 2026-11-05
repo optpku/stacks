@@ -229,18 +229,6 @@ theorem forgetFiltered_obj (S : Realization (C := C)) :
 theorem forgetFiltered_map {S T : Realization (C := C)} (f : S ⟶ T) :
     (forgetFiltered (C := C)).map f = f.filteredMap := sorry
 
-/-- The filtered-complex forgetful functor maps an identity to an identity. -/
-@[simp, stacks 012C "identity computation for the filtered-complex forgetful functor"]
-theorem forgetFiltered_map_id (S : Realization (C := C)) :
-    (forgetFiltered (C := C)).map (𝟙 S) = 𝟙 S.filtered := sorry
-
-/-- The filtered-complex forgetful functor preserves composition. -/
-@[simp, reassoc, stacks 012C "composition computation for the filtered-complex forgetful functor"]
-theorem forgetFiltered_map_comp
-    {S T U : Realization (C := C)} (f : S ⟶ T) (g : T ⟶ U) :
-    (forgetFiltered (C := C)).map (f ≫ g) =
-      (forgetFiltered (C := C)).map f ≫ (forgetFiltered (C := C)).map g := sorry
-
 /-- Forgetting a chosen realization to its filtered complex is faithful: association-induced
 spectral-sequence maps are determined by their filtered-complex component. -/
 @[stacks 012C "faithful forgetful functor from filtered spectral-sequence realizations"]
@@ -265,18 +253,6 @@ theorem forgetSequence_obj (S : Realization (C := C)) :
 @[simp, stacks 012C "forgetful functor from filtered spectral-sequence realizations"]
 theorem forgetSequence_map {S T : Realization (C := C)} (f : S ⟶ T) :
     (forgetSequence (C := C)).map f = f.sequenceMap := sorry
-
-/-- The spectral-sequence forgetful functor maps an identity to an identity. -/
-@[simp, stacks 012C "identity computation for the spectral-sequence forgetful functor"]
-theorem forgetSequence_map_id (S : Realization (C := C)) :
-    (forgetSequence (C := C)).map (𝟙 S) = 𝟙 S.sequence := sorry
-
-/-- The spectral-sequence forgetful functor preserves composition. -/
-@[simp, reassoc, stacks 012C "composition computation for the spectral-sequence forgetful functor"]
-theorem forgetSequence_map_comp
-    {S T U : Realization (C := C)} (f : S ⟶ T) (g : T ⟶ U) :
-    (forgetSequence (C := C)).map (f ≫ g) =
-      (forgetSequence (C := C)).map f ≫ (forgetSequence (C := C)).map g := sorry
 
 end Realization
 

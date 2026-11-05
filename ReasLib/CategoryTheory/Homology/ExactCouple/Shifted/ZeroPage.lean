@@ -34,7 +34,6 @@ section ZeroPage
 variable {C : Type u} [Category.{v} C] [Abelian C]
 variable {S T : C ≌ C}
 
-variable (K : Derived.Construction T)
 variable (X : ShiftedExactCouple (S.trans T) T)
 variable (Q : ShiftedDifferentialObject S.functor)
 
@@ -44,40 +43,40 @@ positive pages of an exact couple with initial shift `T ∘ S`. -/
 def page (r : ℕ) : ShiftedDifferentialObject ((ShiftedSpectralSequence.zeroPageShift S T r).functor) :=
   match r with
   | 0 => Q.previousPage
-  | r + 1 => (K.associatedSpectralSequence X).page ⟨r + 1, Nat.succ_pos _⟩
+  | r + 1 => (Derived.associatedSpectralSequence X).page ⟨r + 1, Nat.succ_pos _⟩
 
 /-- The zeroth page is `Q.previousPage`. -/
 @[simp]
-theorem page_zero : page K X Q 0 = Q.previousPage := sorry
+theorem page_zero : page X Q 0 = Q.previousPage := rfl
 
 /-- Positive pages agree with the associated shifted spectral sequence. -/
 @[simp]
 theorem page_succ (r : ℕ) :
-    page K X Q (r + 1) = (K.associatedSpectralSequence X).page ⟨r + 1, Nat.succ_pos _⟩ := sorry
+    page X Q (r + 1) = (Derived.associatedSpectralSequence X).page ⟨r + 1, Nat.succ_pos _⟩ := rfl
 
 /-- The object on the zeroth page is the previous-page object. -/
 @[simp]
-theorem page_zero_obj : (page K X Q 0).obj = Q.previousPage.obj := sorry
+theorem page_zero_obj : (page X Q 0).obj = Q.previousPage.obj := rfl
 
 /-- The zeroth differential is the previous-page differential. -/
 @[simp]
-theorem page_zero_d : (page K X Q 0).d = Q.previousPage.d := sorry
+theorem page_zero_d : (page X Q 0).d = Q.previousPage.d := rfl
 
 /-- The object on page `r + 1` is the page object of the `r`-fold derived exact couple. -/
 theorem page_succ_obj (r : ℕ) :
-    (page K X Q (r + 1)).obj = (K.iterate X r).E := sorry
+    (page X Q (r + 1)).obj = (Derived.iterate X r).E := rfl
 
 /-- The differential on page `r + 1` is induced by the `r`-fold derived exact couple. -/
 theorem page_succ_d (r : ℕ) :
-    (page K X Q (r + 1)).d = (K.iterate X r).d := sorry
+    (page X Q (r + 1)).d = (Derived.iterate X r).d := rfl
 
 /-- The first positive page is the page object of the original exact couple. -/
 @[simp]
-theorem page_one_obj : (page K X Q 1).obj = X.E := sorry
+theorem page_one_obj : (page X Q 1).obj = X.E := rfl
 
 /-- The first positive differential is the differential of the original exact couple. -/
 @[simp]
-theorem page_one_d : (page K X Q 1).d = X.d := sorry
+theorem page_one_d : (page X Q 1).d = X.d := rfl
 
 /-- The identification of the initial exact-couple page object with the inverse shift of
 `Q.homology`.  The zero-based page family supplies the source-facing page-one bridge separately. -/
@@ -89,34 +88,34 @@ abbrev homologyIso (e : X.E ≅ Q.previousPage.homology) :
 /-- The zero-based cycle filtration pulled back from the associated shifted spectral sequence. -/
 @[stacks 0AMK]
 noncomputable abbrev cycle (e : X.E ≅ Q.previousPage.homology) : ℕ → Subobject Q.previousPage.obj :=
-  (K.associatedSpectralSequence X).homologyPageTower.preimageCycle Q.previousPage.shortComplex e
+  (Derived.associatedSpectralSequence X).homologyPageTower.preimageCycle Q.previousPage.shortComplex e
 
 /-- The zero-based boundary filtration pulled back from the associated shifted spectral sequence. -/
 @[stacks 0AMK]
 noncomputable abbrev boundary (e : X.E ≅ Q.previousPage.homology) : ℕ → Subobject Q.previousPage.obj :=
-  (K.associatedSpectralSequence X).homologyPageTower.preimageBoundary Q.previousPage.shortComplex e
+  (Derived.associatedSpectralSequence X).homologyPageTower.preimageBoundary Q.previousPage.shortComplex e
 
 /-- The positive cycle stages are the pullbacks of the owner cycle stages. -/
 @[simp]
 theorem cycle_succ (e : X.E ≅ Q.previousPage.homology) (r : ℕ) :
-    cycle K X Q e (r + 1) =
+    cycle X Q e (r + 1) =
       ShortComplex.Cycles.preimageOfIso Q.previousPage.shortComplex e
-        ((K.associatedSpectralSequence X).cycle ⟨r + 1, Nat.succ_pos _⟩) := sorry
+        ((Derived.associatedSpectralSequence X).cycle ⟨r + 1, Nat.succ_pos _⟩) := rfl
 
 /-- The positive boundary stages are the pullbacks of the owner boundary stages. -/
 @[simp]
 theorem boundary_succ (e : X.E ≅ Q.previousPage.homology) (r : ℕ) :
-    boundary K X Q e (r + 1) =
+    boundary X Q e (r + 1) =
       ShortComplex.Cycles.preimageOfIso Q.previousPage.shortComplex e
-        ((K.associatedSpectralSequence X).boundary ⟨r + 1, Nat.succ_pos _⟩) := sorry
+        ((Derived.associatedSpectralSequence X).boundary ⟨r + 1, Nat.succ_pos _⟩) := rfl
 
 /-- The zeroth cycle stage is the whole zeroth-page object. -/
 @[simp]
-theorem cycle_zero (e : X.E ≅ Q.previousPage.homology) : cycle K X Q e 0 = ⊤ := sorry
+theorem cycle_zero (e : X.E ≅ Q.previousPage.homology) : cycle X Q e 0 = ⊤ := rfl
 
 /-- The zeroth boundary stage is zero. -/
 @[simp]
-theorem boundary_zero (e : X.E ≅ Q.previousPage.homology) : boundary K X Q e 0 = ⊥ := sorry
+theorem boundary_zero (e : X.E ≅ Q.previousPage.homology) : boundary X Q e 0 = ⊥ := rfl
 
 end ZeroPage
 

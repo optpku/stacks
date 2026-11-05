@@ -28,9 +28,4 @@ namespace TopCat.Sheaf
 variable {C : Type u} [Category.{v} C]
 variable {X : TopCat.{w}}
 
-/-- Sheaves valued in an abelian category carry the canonical homology structure. This named
-instance fixes the universe parameters hidden by the `TopCat.Sheaf` abbreviation. -/
-instance categoryWithHomology [Abelian (X.Sheaf C)] [HasZeroMorphisms (X.Sheaf C)] :
-    CategoryWithHomology (X.Sheaf C) := sorry
-
 end TopCat.Sheaf

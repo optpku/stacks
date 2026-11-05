@@ -9,7 +9,7 @@ module
 public import Mathlib.Tactic.CrossRefAttribute
 public import Mathlib.Data.Int.Interval
 public import Mathlib.Algebra.Homology.DerivedCategory.TStructure
-public import Mathlib.Algebra.Homology.DerivedCategory.Ext.EnoughProjectives
+public import ReasLib.CategoryTheory.Abelian.Injective.Dimension.Ext
 public import Mathlib.CategoryTheory.Triangulated.TStructure.TruncLEGT
 public import ReasLib.CategoryTheory.DerivedCategory.Ext
 
@@ -89,14 +89,17 @@ theorem bounded
 /-- Stacks 0EWX: uniform vanishing of degree-two Ext groups gives the bounded splitting without
 requiring callers to reconstruct the higher-Ext hypothesis.
 
-The `[EnoughProjectives 𝒜]` hypothesis is the derived-`Ext` bridge that supplies the dimension
-shifting used to pass from degree two to all higher degrees. -/
+The general Ext-vanishing criterion supplies all higher degrees in any abelian category. -/
 @[stacks 0EWX]
 theorem ofExtTwo
-    [EnoughProjectives 𝒜]
     (K : DerivedCategory.Bounded 𝒜)
     (hExt₂ : ∀ A B : 𝒜, Subsingleton (Ext B A 2)) :
-    ∃ a b : ℤ, Nonempty (K.obj ≅ ⨁ on 𝒜 K.obj a b) := sorry
+    ∃ a b : ℤ, Nonempty (K.obj ≅ ⨁ on 𝒜 K.obj a b) := by
+  apply bounded 𝒜 K
+  intro n hn i j hij
+  letI := HasInjectiveDimensionLT.of_uniform_ext 2 hExt₂
+    ((homologyFunctor 𝒜 j).obj K.obj)
+  exact HasInjectiveDimensionLT.subsingleton _ 2 n hn _
 
 end Split
 

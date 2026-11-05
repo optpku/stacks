@@ -49,6 +49,24 @@ namespace ObjectOverAffineOpen
 
 variable {X : GroupoidsOver S}
 
+/-- Build the basic affine-open object from a specified chart and coefficient algebra.
+This construction requires no finiteness or obstruction-theory data. -/
+abbrev ofChart (base : CommRingCat.{u}) (coefficient : CommAlgCat.{u} base)
+    (affineOpen : S.Opens) (chart : Spec base ≅ affineOpen.toScheme)
+    (obj : X.total)
+    (over_obj : X.p.obj obj = Over.mk
+      (Spec.map (CommRingCat.ofHom (algebraMap base coefficient)) ≫
+        (chart.hom ≫ affineOpen.ι))) : ObjectOverAffineOpen X where
+  base := base
+  coefficient := coefficient
+  openImmersion := chart.hom ≫ affineOpen.ι
+  isOpenImmersion := inferInstance
+  toS := Spec.map (CommRingCat.ofHom (algebraMap base coefficient)) ≫
+    (chart.hom ≫ affineOpen.ι)
+  factor := rfl
+  obj := obj
+  over_obj := over_obj
+
 /-- The underlying coefficient ring. -/
 abbrev carrier (ξ : ObjectOverAffineOpen X) : Type u := ξ.coefficient
 
@@ -141,27 +159,24 @@ def Hom.comp {ξ η ζ : ObjectOverAffineOpen X} (f : Hom ξ η) (g : Hom η ζ)
   toHom := ObjectOverSpec.Hom.comp f.toHom g.toHom
   chartEq := g.chartEq.trans f.chartEq
 
-/-- The comparison fibre arrow induced by cartesian factorization of a restriction arrow. -/
+/-- The comparison fibre arrow induced by cartesian factorization of a restriction arrow.
+Both the factor and its inverse are constructed from Cartesian universal properties. -/
 def Hom.fiberArrow {ξ η : ObjectOverAffineOpen X} (f : Hom ξ η) :
     Chosen.reindexObj X.p
       (specOverHom (CommRingCat.ofHom f.toRingHom) f.toS_comp)
       ξ.toObjectOverSpec.toFiber ⟶ η.toObjectOverSpec.toFiber := by
-  have laws :
-      (X.p.IsHomLift
-        (𝟙 (Over.mk η.toS) ≫ specOverHom (CommRingCat.ofHom f.toRingHom) f.toS_comp)
-        f.restriction) ∧
-      (∀ h : X.p.IsHomLift
-          (𝟙 (Over.mk η.toS) ≫ specOverHom (CommRingCat.ofHom f.toRingHom) f.toS_comp)
-          f.restriction,
-        X.p.IsHomLift (𝟙 (Over.mk η.toS))
-          (FiberedCategoryOver.Groupoids.cartesianFactorOf X.p
-            (specOverHom (CommRingCat.ofHom f.toRingHom) f.toS_comp)
-            (𝟙 (Over.mk η.toS)) ξ.toObjectOverSpec.toFiber f.restriction h)) := by sorry
+  let h : X.p.IsHomLift
+      (𝟙 (Over.mk η.toS) ≫ specOverHom (CommRingCat.ofHom f.toRingHom) f.toS_comp)
+      f.restriction := by
+    simpa only [Category.id_comp, ObjectOverSpec.specOverMap, specOverHom] using f.isHomLift
   let arrow := FiberedCategoryOver.Groupoids.cartesianFactorOf X.p
     (specOverHom (CommRingCat.ofHom f.toRingHom) f.toS_comp)
-    (𝟙 (Over.mk η.toS)) ξ.toObjectOverSpec.toFiber f.restriction laws.1
-  have vertical : X.p.IsHomLift (𝟙 (Over.mk η.toS)) arrow := laws.2 laws.1
-  exact CategoryTheory.inv
+    (𝟙 (Over.mk η.toS)) ξ.toObjectOverSpec.toFiber f.restriction h
+  have vertical : X.p.IsHomLift (𝟙 (Over.mk η.toS)) arrow :=
+    @Chosen.cartesianFactor.isHomLift _ _ _ _ X.p _ _ _ _
+      (specOverHom (CommRingCat.ofHom f.toRingHom) f.toS_comp)
+      (𝟙 (Over.mk η.toS)) ξ.toObjectOverSpec.toFiber _ f.restriction h
+  exact Functor.IsFibered.InGroupoids.fiberInverse (Over.mk η.toS)
     (⟨arrow, vertical⟩ : η.toObjectOverSpec.toFiber ⟶
       Chosen.reindexObj X.p
         (specOverHom (CommRingCat.ofHom f.toRingHom) f.toS_comp)

@@ -27,7 +27,7 @@ linearly topologized ring is a radical ideal. -/
 
 /- Lemma 87.4.10 (3): a continuous map of linearly topologized rings sends
 topologically nilpotent elements to topologically nilpotent elements. -/
-@[stacks 0AMW] #check (topologicalNilradical.map_isTopologicallyNilpotent :
+@[stacks 0AMW] #check (IsTopologicallyNilpotent.map :
   ∀ {R : Type u} {S : Type v} [TopologicalSpace R] [MonoidWithZero R]
     [MonoidWithZero S] [TopologicalSpace S] {F : Type w} [FunLike F R S]
     [MonoidWithZeroHomClass F R S] {φ : F}, Continuous φ → ∀ {a : R},

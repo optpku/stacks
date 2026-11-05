@@ -40,7 +40,9 @@ theorem objectPullbackMap_left {S : Scheme.{u}} (G : GroupoidScheme S)
     (γ : target.eqLocus (algebraMap A B) →+* C') :
     invariantSpectrumMap G target eU ≫ 𝟙 _ =
       eU.inv ≫ Spec.map (CommRingCat.ofHom
-        (algebraMap (target.eqLocus (algebraMap A B)) A)) := sorry
+        (algebraMap (target.eqLocus (algebraMap A B)) A)) := by
+  simp only [invariantSpectrumMap, Category.comp_id]
+  rfl
 
 /-- The coefficient-side map is unchanged in the comparison of object pullbacks. -/
 theorem objectPullbackMap_right {S : Scheme.{u}} (G : GroupoidScheme S)
@@ -52,9 +54,11 @@ theorem objectPullbackMap_right {S : Scheme.{u}} (G : GroupoidScheme S)
     (h_target : eR.hom ≫ G.t.left = Spec.map (CommRingCat.ofHom target) ≫ eU.hom)
     (γ : target.eqLocus (algebraMap A B) →+* C') :
     Spec.map (CommRingCat.ofHom γ) ≫ 𝟙 _ =
-      𝟙 _ ≫ Spec.map (CommRingCat.ofHom γ) := sorry
+      𝟙 _ ≫ Spec.map (CommRingCat.ofHom γ) := by
+  simp only [Category.comp_id, Category.id_comp]
 
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The canonical isomorphism between the geometric object pullback and its standard affine
 presentation. -/
 def objectPullbackIso {S : Scheme.{u}} (G : GroupoidScheme S)
@@ -71,10 +75,19 @@ def objectPullbackIso {S : Scheme.{u}} (G : GroupoidScheme S)
         (Spec.map (CommRingCat.ofHom γ)) :=
   let C := target.eqLocus (algebraMap A B)
   let f := Spec.map (CommRingCat.ofHom γ)
-  asIso (pullback.map (invariantSpectrumMap G target eU) f
-    (Spec.map (CommRingCat.ofHom (algebraMap C A))) f eU.inv (𝟙 _) (𝟙 _)
-    (objectPullbackMap_left G target eU eR h_source h_target γ)
-    (objectPullbackMap_right G target eU eR h_source h_target γ))
+  { hom := pullback.map (invariantSpectrumMap G target eU) f
+      (Spec.map (CommRingCat.ofHom (algebraMap C A))) f eU.inv (𝟙 _) (𝟙 _)
+      (objectPullbackMap_left G target eU eR h_source h_target γ)
+      (objectPullbackMap_right G target eU eR h_source h_target γ)
+    inv := pullback.map (Spec.map (CommRingCat.ofHom (algebraMap C A))) f
+      (invariantSpectrumMap G target eU) f eU.hom (𝟙 _) (𝟙 _)
+      (by simp [invariantSpectrumMap]; rfl) (by simp)
+    hom_inv_id := by
+      dsimp only [f, C]
+      apply pullback.hom_ext <;> simp [pullback.map, Category.assoc]
+    inv_hom_id := by
+      dsimp only [f, C]
+      apply pullback.hom_ext <;> simp [pullback.map, Category.assoc] }
 
 /-- The object scheme of invariant base change is canonically the spectrum of
 `A ⊗[target.eqLocus (algebraMap A B)] C'`. -/
@@ -87,12 +100,11 @@ noncomputable def objectIso {S : Scheme.{u}} (G : GroupoidScheme S)
     (h_target : eR.hom ≫ G.t.left = Spec.map (CommRingCat.ofHom target) ≫ eU.hom)
     (γ : target.eqLocus (algebraMap A B) →+* C') :
     (invariantBaseChange G target eU eR h_source h_target γ).U.left ≅
-      -- Local instance justification (defeq pin): use the coefficient action selected by the explicit map `γ` only in this tensor expression.
-      letI : Algebra (target.eqLocus (algebraMap A B)) C' := γ.toAlgebra
-      Spec (CommRingCat.of (A ⊗[target.eqLocus (algebraMap A B)] C')) :=
+      Spec (CommRingCat.of (RingHom.EqLocusBaseChange.objectSpan target (algebraMap A B) γ).tensor) :=
   let C := target.eqLocus (algebraMap A B)
-  -- Local instance justification (defeq pin): use the coefficient action selected by the explicit map `γ` only in this tensor expression.
-  letI : Algebra C C' := γ.toAlgebra
+  -- Local instances: the object span selects the actions for Mathlib's comparison.
+  letI := (RingHom.EqLocusBaseChange.objectSpan target (algebraMap A B) γ).leftAlgebra
+  letI := (RingHom.EqLocusBaseChange.objectSpan target (algebraMap A B) γ).rightAlgebra
   objectPullbackIso G target eU eR h_source h_target γ ≪≫ pullbackSpecIso C A C'
 
 /-- The object comparison isomorphism is the canonical comparison with the affine pullback. -/
@@ -104,11 +116,20 @@ theorem objectIso_spec {S : Scheme.{u}} (G : GroupoidScheme S)
       Spec.map (CommRingCat.ofHom (algebraMap A B)) ≫ eU.hom)
     (h_target : eR.hom ≫ G.t.left = Spec.map (CommRingCat.ofHom target) ≫ eU.hom)
     (γ : target.eqLocus (algebraMap A B) →+* C') :
-    -- Local instance justification (defeq pin): use the coefficient action selected by the explicit map `γ` only in this tensor expression.
-    letI : Algebra (target.eqLocus (algebraMap A B)) C' := γ.toAlgebra
     (objectIso G target eU eR h_source h_target γ).hom ≫
-        Spec.map (CommRingCat.ofHom (Algebra.TensorProduct.includeLeftRingHom)) =
-      invariantBaseChangeObjectProjection G target eU eR h_source h_target γ ≫ eU.inv := sorry
+        Spec.map (CommRingCat.ofHom
+          (RingHom.EqLocusBaseChange.objectSpan target (algebraMap A B) γ).includeLeft) =
+      invariantBaseChangeObjectProjection G target eU eR h_source h_target γ ≫ eU.inv := by
+  let C := target.eqLocus (algebraMap A B)
+  -- Local instances: use the same span as the affine comparison.
+  letI := (RingHom.EqLocusBaseChange.objectSpan target (algebraMap A B) γ).leftAlgebra
+  letI := (RingHom.EqLocusBaseChange.objectSpan target (algebraMap A B) γ).rightAlgebra
+  change ((objectPullbackIso G target eU eR h_source h_target γ).hom ≫
+    (pullbackSpecIso C A C').hom) ≫
+      Spec.map (CommRingCat.ofHom Algebra.TensorProduct.includeLeftRingHom) = _
+  erw [Category.assoc, pullbackSpecIso_hom_fst]
+  dsimp only [objectPullbackIso, pullback.map, invariantBaseChangeObjectProjection]
+  exact pullback.lift_fst _ _ _
 
 /-- The arrow pullback comparison commutes on the affine-arrow side. -/
 theorem arrowPullbackMap_left {S : Scheme.{u}} (G : GroupoidScheme S)
@@ -121,7 +142,15 @@ theorem arrowPullbackMap_left {S : Scheme.{u}} (G : GroupoidScheme S)
     (γ : target.eqLocus (algebraMap A B) →+* C') :
     (overInvariantSpectrum G target eU eR h_source h_target).R.hom ≫ 𝟙 _ =
       eR.inv ≫ Spec.map (CommRingCat.ofHom
-        ((algebraMap A B).comp (target.eqLocus (algebraMap A B)).subtype)) := sorry
+        ((algebraMap A B).comp (target.eqLocus (algebraMap A B)).subtype)) := by
+  have hs : G.s.left ≫ eU.inv =
+      eR.inv ≫ Spec.map (CommRingCat.ofHom (algebraMap A B)) := by
+    apply (cancel_mono eU.hom).1
+    simpa [Category.assoc] using congrArg (fun k ↦ eR.inv ≫ k) h_source
+  change (G.s.left ≫ invariantSpectrumMap G target eU) ≫ 𝟙 _ = _
+  simp only [invariantSpectrumMap, Category.comp_id, ← Category.assoc, hs]
+  rw [Category.assoc, ← Spec.map_comp]
+  rfl
 
 /-- The coefficient-side map is unchanged in the comparison of arrow pullbacks. -/
 theorem arrowPullbackMap_right {S : Scheme.{u}} (G : GroupoidScheme S)
@@ -133,9 +162,11 @@ theorem arrowPullbackMap_right {S : Scheme.{u}} (G : GroupoidScheme S)
     (h_target : eR.hom ≫ G.t.left = Spec.map (CommRingCat.ofHom target) ≫ eU.hom)
     (γ : target.eqLocus (algebraMap A B) →+* C') :
     Spec.map (CommRingCat.ofHom γ) ≫ 𝟙 _ =
-      𝟙 _ ≫ Spec.map (CommRingCat.ofHom γ) := sorry
+      𝟙 _ ≫ Spec.map (CommRingCat.ofHom γ) := by
+  simp only [Category.comp_id, Category.id_comp]
 
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The canonical isomorphism between the geometric arrow pullback and its standard affine
 presentation. -/
 def arrowPullbackIso {S : Scheme.{u}} (G : GroupoidScheme S)
@@ -154,10 +185,22 @@ def arrowPullbackIso {S : Scheme.{u}} (G : GroupoidScheme S)
   let C := target.eqLocus (algebraMap A B)
   let f := Spec.map (CommRingCat.ofHom γ)
   let bMap := (algebraMap A B).comp C.subtype
-  asIso (pullback.map (overInvariantSpectrum G target eU eR h_source h_target).R.hom f
-    (Spec.map (CommRingCat.ofHom bMap)) f eR.inv (𝟙 _) (𝟙 _)
-    (arrowPullbackMap_left G target eU eR h_source h_target γ)
-    (arrowPullbackMap_right G target eU eR h_source h_target γ))
+  let h := arrowPullbackMap_left G target eU eR h_source h_target γ
+  { hom := pullback.map (overInvariantSpectrum G target eU eR h_source h_target).R.hom f
+      (Spec.map (CommRingCat.ofHom bMap)) f eR.inv (𝟙 _) (𝟙 _) h
+      (arrowPullbackMap_right G target eU eR h_source h_target γ)
+    inv := pullback.map (Spec.map (CommRingCat.ofHom bMap)) f
+      (overInvariantSpectrum G target eU eR h_source h_target).R.hom f
+      eR.hom (𝟙 _) (𝟙 _)
+      (by simpa only [bMap, C, Category.comp_id, Category.assoc, Iso.hom_inv_id_assoc] using
+        (congrArg (fun k ↦ eR.hom ≫ k) h).symm)
+      (by simp)
+    hom_inv_id := by
+      dsimp only [f, bMap, C]
+      apply pullback.hom_ext <;> simp [pullback.map, Category.assoc]
+    inv_hom_id := by
+      dsimp only [f, bMap, C]
+      apply pullback.hom_ext <;> simp [pullback.map, Category.assoc] }
 
 /-- The arrow scheme of invariant base change is canonically the spectrum of
 `B ⊗[target.eqLocus (algebraMap A B)] C'`. -/
@@ -170,17 +213,11 @@ noncomputable def arrowIso {S : Scheme.{u}} (G : GroupoidScheme S)
     (h_target : eR.hom ≫ G.t.left = Spec.map (CommRingCat.ofHom target) ≫ eU.hom)
     (γ : target.eqLocus (algebraMap A B) →+* C') :
     (invariantBaseChange G target eU eR h_source h_target γ).R.left ≅
-      -- Local instance justification (defeq pin): use the source-induced equalizer action on `B` without registering a parameterized global instance.
-      letI : Algebra (target.eqLocus (algebraMap A B)) B :=
-        ((algebraMap A B).comp (target.eqLocus (algebraMap A B)).subtype).toAlgebra
-      -- Local instance justification (defeq pin): use the coefficient action selected by the explicit map `γ` only in this tensor expression.
-      letI : Algebra (target.eqLocus (algebraMap A B)) C' := γ.toAlgebra
-      Spec (CommRingCat.of (B ⊗[target.eqLocus (algebraMap A B)] C')) :=
+      Spec (CommRingCat.of (RingHom.EqLocusBaseChange.arrowSpan target (algebraMap A B) γ).tensor) :=
   let C := target.eqLocus (algebraMap A B)
-  -- Local instance justification (defeq pin): use the source-induced equalizer action on `B` without registering a parameterized global instance.
-  letI : Algebra C B := ((algebraMap A B).comp C.subtype).toAlgebra
-  -- Local instance justification (defeq pin): use the coefficient action selected by the explicit map `γ` only in this tensor expression.
-  letI : Algebra C C' := γ.toAlgebra
+  -- Local instances: the arrow span selects the actions for Mathlib's comparison.
+  letI := (RingHom.EqLocusBaseChange.arrowSpan target (algebraMap A B) γ).leftAlgebra
+  letI := (RingHom.EqLocusBaseChange.arrowSpan target (algebraMap A B) γ).rightAlgebra
   arrowPullbackIso G target eU eR h_source h_target γ ≪≫ pullbackSpecIso C B C'
 
 /-- The arrow comparison isomorphism is the canonical comparison with the affine pullback. -/
@@ -192,14 +229,20 @@ theorem arrowIso_spec {S : Scheme.{u}} (G : GroupoidScheme S)
       Spec.map (CommRingCat.ofHom (algebraMap A B)) ≫ eU.hom)
     (h_target : eR.hom ≫ G.t.left = Spec.map (CommRingCat.ofHom target) ≫ eU.hom)
     (γ : target.eqLocus (algebraMap A B) →+* C') :
-    -- Local instance justification (defeq pin): use the source-induced equalizer action on `B` without registering a parameterized global instance.
-    letI : Algebra (target.eqLocus (algebraMap A B)) B :=
-      ((algebraMap A B).comp (target.eqLocus (algebraMap A B)).subtype).toAlgebra
-    -- Local instance justification (defeq pin): use the coefficient action selected by the explicit map `γ` only in this tensor expression.
-    letI : Algebra (target.eqLocus (algebraMap A B)) C' := γ.toAlgebra
     (arrowIso G target eU eR h_source h_target γ).hom ≫
-        Spec.map (CommRingCat.ofHom (Algebra.TensorProduct.includeLeftRingHom)) =
-      invariantBaseChangeArrowProjection G target eU eR h_source h_target γ ≫ eR.inv := sorry
+        Spec.map (CommRingCat.ofHom
+          (RingHom.EqLocusBaseChange.arrowSpan target (algebraMap A B) γ).includeLeft) =
+      invariantBaseChangeArrowProjection G target eU eR h_source h_target γ ≫ eR.inv := by
+  let C := target.eqLocus (algebraMap A B)
+  -- Local instances: use the same span as the affine comparison.
+  letI := (RingHom.EqLocusBaseChange.arrowSpan target (algebraMap A B) γ).leftAlgebra
+  letI := (RingHom.EqLocusBaseChange.arrowSpan target (algebraMap A B) γ).rightAlgebra
+  change ((arrowPullbackIso G target eU eR h_source h_target γ).hom ≫
+    (pullbackSpecIso C B C').hom) ≫
+      Spec.map (CommRingCat.ofHom Algebra.TensorProduct.includeLeftRingHom) = _
+  erw [Category.assoc, pullbackSpecIso_hom_fst]
+  dsimp only [arrowPullbackIso, pullback.map, invariantBaseChangeArrowProjection]
+  exact pullback.lift_fst _ _ _
 
 /-- The object projection is a morphism over `S`. -/
 theorem projection_obj_condition {S : Scheme.{u}} (G : GroupoidScheme S)
@@ -329,11 +372,6 @@ theorem source_eq {S : Scheme.{u}} (G : GroupoidScheme S)
       Spec.map (CommRingCat.ofHom (algebraMap A B)) ≫ eU.hom)
     (h_target : eR.hom ≫ G.t.left = Spec.map (CommRingCat.ofHom target) ≫ eU.hom)
     (γ : target.eqLocus (algebraMap A B) →+* C') :
-    -- Local instance justification (defeq pin): use the source-induced equalizer action on `B` without registering a parameterized global instance.
-    letI : Algebra (target.eqLocus (algebraMap A B)) B :=
-      ((algebraMap A B).comp (target.eqLocus (algebraMap A B)).subtype).toAlgebra
-    -- Local instance justification (defeq pin): use the coefficient action selected by the explicit map `γ` only in this tensor expression.
-    letI : Algebra (target.eqLocus (algebraMap A B)) C' := γ.toAlgebra
     (arrowIso G target eU eR h_source h_target γ).hom ≫
         Spec.map (CommRingCat.ofHom
           (RingHom.EqLocusBaseChange.sourceComap target (algebraMap A B) γ)) =
@@ -350,11 +388,6 @@ theorem target_eq {S : Scheme.{u}} (G : GroupoidScheme S)
       Spec.map (CommRingCat.ofHom (algebraMap A B)) ≫ eU.hom)
     (h_target : eR.hom ≫ G.t.left = Spec.map (CommRingCat.ofHom target) ≫ eU.hom)
     (γ : target.eqLocus (algebraMap A B) →+* C') :
-    -- Local instance justification (defeq pin): use the source-induced equalizer action on `B` without registering a parameterized global instance.
-    letI : Algebra (target.eqLocus (algebraMap A B)) B :=
-      ((algebraMap A B).comp (target.eqLocus (algebraMap A B)).subtype).toAlgebra
-    -- Local instance justification (defeq pin): use the coefficient action selected by the explicit map `γ` only in this tensor expression.
-    letI : Algebra (target.eqLocus (algebraMap A B)) C' := γ.toAlgebra
     (arrowIso G target eU eR h_source h_target γ).hom ≫
         Spec.map (CommRingCat.ofHom
           (RingHom.EqLocusBaseChange.targetComap target (algebraMap A B) γ)) =

@@ -7,7 +7,6 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import ReasLib.Algebra.Module.Graded.Shift.NatInt
-public import ReasLib.AlgebraicGeometry.ProjectiveSpectrum.Module.Associated
 public import ReasLib.RingTheory.GradedAlgebra.HomogeneousLocalization.Away.Module
 
 /-!
@@ -33,10 +32,10 @@ variable (ℳ : ℤ → Submodule ℤ M) [SetLike.GradedSMul 𝒜 ℳ]
 /-- Multiplication by the `n`-th integral power of an inverted homogeneous element sends the
 degree-zero localization of `ℳ` to that of the grading translated by `n * d`. -/
 noncomputable def shiftAction {d : ℕ} (f : 𝒜 d) (n : ℤ) :
-    AlgebraicGeometry.Proj.AssociatedModule.away 𝒜 ℳ f →ₗ[
+    degreeZeroPart 𝒜 (HomogeneousLocalization.Module.nonnegativeGrading ℳ) f →ₗ[
       HomogeneousLocalization.Away 𝒜 (f : A)]
-        AlgebraicGeometry.Proj.AssociatedModule.away 𝒜
-          (GradedModule.shiftGrading ℳ (n * (d : ℤ))) f where
+        degreeZeroPart 𝒜 (HomogeneousLocalization.Module.nonnegativeGrading
+          (GradedModule.shiftGrading ℳ (n * (d : ℤ)))) f where
   toFun x :=
     ⟨((((IsLocalization.Away.algebraMap_isUnit (f : A)).unit ^ n :
           (Localization.Away (f : A))ˣ) : Localization.Away (f : A)) •
@@ -52,6 +51,14 @@ noncomputable def shiftAction {d : ℕ} (f : 𝒜 d) (n : ℤ) :
     change u • (r.val • (x : LocalizedModule.Away (f : A) M)) =
       r.val • (u • (x : LocalizedModule.Away (f : A) M))
     rw [← smul_assoc, ← smul_assoc, smul_eq_mul, smul_eq_mul, mul_comm]
+
+/-- The shift comparison acts on the ordinary localized module by multiplication by `f^n`. -/
+theorem shiftAction_val {d : ℕ} (f : 𝒜 d) (n : ℤ)
+    (x : degreeZeroPart 𝒜 (HomogeneousLocalization.Module.nonnegativeGrading ℳ) f) :
+    (shiftAction 𝒜 ℳ f n x : LocalizedModule.Away (f : A) M) =
+      ((((IsLocalization.Away.algebraMap_isUnit (f : A)).unit ^ n :
+          (Localization.Away (f : A))ˣ) : Localization.Away (f : A)) •
+        (x : LocalizedModule.Away (f : A) M)) := rfl
 
 /-- Multiplication by an integral power of the inverted homogeneous element is a bijection
 between the corresponding degree-zero homogeneous localizations. -/

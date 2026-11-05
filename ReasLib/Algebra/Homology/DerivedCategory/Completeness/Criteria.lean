@@ -20,6 +20,10 @@ atomic equivalences.  It deliberately does not package them as one large conjunc
 Milnor product map is defined from an explicit product cone, so its data does not depend on a
 locally selected `HasProduct` instance.
 
+Only comparisons of the selected closed object with canonical cohomology, Ext, or Milnor
+mathematics require a braiding and an explicit canonical fixed-right tensor model.  The primitive
+predicates and the definitional internal-Hom comparison retain their weaker assumptions.
+
 @stack 091P
 -/
 
@@ -119,7 +123,9 @@ theorem extVanishing_iff_derivedHomVanishing (f : A)
 @[stacks 091P "T vanishing and cohomologywise T vanishing"]
 theorem t_isZero_iff_cohomologyTVanishing
     [MonoidalCategory (DerivedCategory (ModuleCat A))]
+    [BraidedCategory (DerivedCategory (ModuleCat A))]
     (H : MonoidalClosed (DerivedCategory (ModuleCat A)))
+    (T : DerivedTensor.Right.Monoidal.Model (C := ModuleCat A))
     (f : A) (K : DerivedCategory (ModuleCat A)) :
     IsZero (localizationAwayT H f K) ↔ cohomologyTVanishing H f K := sorry
 
@@ -128,12 +134,14 @@ every cohomology module. -/
 @[stacks 091P "cohomologywise T and low-Ext criteria"]
 theorem cohomologyTVanishing_iff_lowExtVanishing
     [MonoidalCategory (DerivedCategory (ModuleCat A))]
+    [BraidedCategory (DerivedCategory (ModuleCat A))]
     (H : MonoidalClosed (DerivedCategory (ModuleCat A)))
+    (T : DerivedTensor.Right.Monoidal.Model (C := ModuleCat A))
     (f : A) (K : DerivedCategory (ModuleCat A)) :
     cohomologyTVanishing H f K ↔ cohomologyLowExtVanishing f K := sorry
 
-/-- The source-facing object `T(K, f)` vanishes exactly when the canonical derived internal Hom
-`RHom_A(A_f[0], K)` vanishes. -/
+/-- The source-facing object `T(K, f)` vanishes exactly when the internal Hom selected by `H`
+vanishes.  This is a definitional comparison and requires no tensor compatibility. -/
 @[stacks 091P "T vanishing and derived internal-Hom vanishing"]
 theorem t_isZero_iff_rhom_isZero
     [MonoidalCategory (DerivedCategory (ModuleCat A))]
@@ -143,14 +151,16 @@ theorem t_isZero_iff_rhom_isZero
       IsZero
         (InternalHom.obj H
           ((DerivedCategory.singleFunctor (ModuleCat A) (0 : ℤ)).obj
-            (ModuleCat.of A (Localization.Away f))) K) := sorry
+            (ModuleCat.of A (Localization.Away f))) K) := Iff.rfl
 
 /-- For any explicit product cone of the multiplication tower, the general homotopy-limit
 vanishing criterion specializes to `T(K, f)`. -/
 @[stacks 091P "T vanishing and Milnor product-difference criterion"]
 theorem t_isZero_iff_productDifference_isIso
     [MonoidalCategory (DerivedCategory (ModuleCat A))]
+    [BraidedCategory (DerivedCategory (ModuleCat A))]
     (H : MonoidalClosed (DerivedCategory (ModuleCat A)))
+    (T : DerivedTensor.Right.Monoidal.Model (C := ModuleCat A))
     (f : A) (K : DerivedCategory (ModuleCat A))
     (P : ProductCone f K) :
     IsZero (localizationAwayT H f K) ↔ productDifferenceIsIsoAt f K P := sorry
@@ -160,7 +170,9 @@ explicit. -/
 @[stacks 091P "T vanishing and product-difference isomorphism criterion"]
 theorem t_isZero_iff_productDifferenceIsIso
     [MonoidalCategory (DerivedCategory (ModuleCat A))]
+    [BraidedCategory (DerivedCategory (ModuleCat A))]
     (H : MonoidalClosed (DerivedCategory (ModuleCat A)))
+    (T : DerivedTensor.Right.Monoidal.Model (C := ModuleCat A))
     (f : A) (K : DerivedCategory (ModuleCat A)) :
     (IsZero (localizationAwayT H f K) ∧ Nonempty (ProductCone f K)) ↔
       productDifferenceIsIso f K := sorry

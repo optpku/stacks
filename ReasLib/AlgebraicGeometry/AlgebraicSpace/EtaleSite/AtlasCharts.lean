@@ -6,6 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.Sheafification
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.EtaleSite.SmallAtlas
 public import Mathlib.CategoryTheory.EssentiallySmall
 public import Mathlib.CategoryTheory.Sites.DenseSubsite.Basic
 public import Mathlib.CategoryTheory.Sites.Equivalence
@@ -20,43 +21,44 @@ namespace AlgebraicGeometry.AlgebraicSpace.SmallEtale.AtlasCharts
 variable {S : Scheme.{u}} (X : AlgebraicSpace S)
 
 /-- A scheme atlas obtained from the supplied algebraic-space object's atlas witness. -/
-def atlasOver : Over S := X.atlas.choose
+def atlasOver : Over S := AtlasInput.scheme X
 
 /-- The atlas map carried by the algebraic-space object. -/
-def atlasMap : yoneda.obj (atlasOver X) ⟶ X.functorOfPoints := X.atlas.choose_spec.choose
+def atlasMap : yoneda.obj (atlasOver X) ⟶ X.functorOfPoints := AtlasInput.map X
 
 /-- The stored atlas has the required representable étale property. -/
 theorem atlasMap_etale :
     (MorphismProperty.over (@AlgebraicGeometry.Etale)).presheaf (atlasMap X) :=
-  X.atlas.choose_spec.choose_spec.1
+  AtlasInput.representableEtale X
 
 /-- The stored atlas is locally surjective. -/
 theorem atlasMap_surjective :
     Presheaf.IsLocallySurjective (Scheme.etaleTopology.over S) (atlasMap X) :=
-  X.atlas.choose_spec.choose_spec.2
+  AtlasInput.locallySurjective X
 
 /-- The atlas as an object of the small étale site. -/
 def atlasObject : smallEtaleSite X :=
-  smallEtaleSite.mk (atlasMap X) ((SmallEtale.etale_iff _).mpr (atlasMap_etale X))
+  smallEtaleSite.mk (atlasMap X) (AtlasInput.etale X)
 
 /-- A small family of affine charts over the supplied scheme atlas. -/
-abbrev Index := SmallModel.{u} (atlasOver X).left.AffineEtale
+abbrev Index := PullbackFactory.SmallAtlas.Index (AtlasInput.scheme X)
 
 /-- Interpret a small affine-chart index as a chart over the algebraic space. -/
 def object (i : Index X) : smallEtaleSite X :=
-  (AlgebraicGeometry.AlgebraicSpace.SmallEtale.Sheafification.charts (atlasObject X)).obj
-    ((Scheme.AffineEtale.Spec (atlasOver X).left).obj
-      ((equivSmallModel.{u} (atlasOver X).left.AffineEtale).inverse.obj i))
+  PullbackFactory.SmallAtlas.object (AtlasInput.scheme X) (AtlasInput.map X) i
 
-/-- Retain all morphisms over the algebraic space between the small chart family. -/
-def Site : Type u := InducedCategory (smallEtaleSite X) (object X)
+/-- The canonical atlas site, shared with the small-square construction.
+All morphisms over the algebraic space between the affine charts are retained. -/
+abbrev Site : Type u :=
+  PullbackFactory.SmallAtlas.Site (AtlasInput.scheme X) (AtlasInput.map X)
 
 /-- Morphisms retain the actual scheme maps from the original chart category. -/
 instance : SmallCategory (Site X) :=
   inferInstanceAs (Category (InducedCategory (smallEtaleSite X) (object X)))
 
 /-- The fully faithful inclusion of the explicit small chart family. -/
-def inclusion : Site X ⥤ smallEtaleSite X := inducedFunctor (object X)
+def inclusion : Site X ⥤ smallEtaleSite X :=
+  PullbackFactory.SmallAtlas.inclusion (AtlasInput.scheme X) (AtlasInput.map X)
 
 /-- The small chart inclusion has explicit preimages on Hom sets. -/
 def fullyFaithful : (inclusion X).FullyFaithful := fullyFaithfulInducedFunctor (object X)
@@ -66,15 +68,17 @@ instance : (inclusion X).Faithful := (fullyFaithful X).faithful
 
 /-- The topology inherited by the small chart family. -/
 def topology : GrothendieckTopology (Site X) :=
-  (inclusion X).inducedTopology (smallEtaleTopology X)
+  PullbackFactory.SmallAtlas.topology (AtlasInput.scheme X) (AtlasInput.map X)
 
 /-- Every scheme chart is covered by affine charts of its pullback of the stored atlas. -/
-instance coverDense : (inclusion X).IsCoverDense (smallEtaleTopology X) := sorry
+instance coverDense : (inclusion X).IsCoverDense (smallEtaleTopology X) :=
+  PullbackFactory.SmallAtlas.inclusion_coverDense (AtlasInput.scheme X) (AtlasInput.map X)
+    (AtlasInput.locallySurjective X)
 
 /-- Full faithfulness and the induced topology give the dense-subsite structure. -/
-instance dense : (inclusion X).IsDenseSubsite (topology X) (smallEtaleTopology X) := by
-  dsimp [topology]
-  infer_instance
+instance dense : (inclusion X).IsDenseSubsite (topology X) (smallEtaleTopology X) :=
+  PullbackFactory.SmallAtlas.denseSubsite (AtlasInput.scheme X) (AtlasInput.map X)
+    (AtlasInput.locallySurjective X)
 
 /-- Small-site right Kan extensions exist by actual small limits. -/
 instance hasRightKan (P : (Site X)ᵒᵖ ⥤ Type u) :

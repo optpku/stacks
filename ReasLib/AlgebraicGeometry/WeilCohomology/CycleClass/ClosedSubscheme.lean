@@ -21,17 +21,6 @@ universe u v w x y z
 
 namespace WeilCohomology
 
-/-- The Picard class of the invertible scheme module associated to an effective Cartier divisor. -/
-noncomputable def effectiveCartierDivisorPicardClass
-    {Y X : Scheme.{u}} (i : Y ⟶ X) (hi : IsEffectiveCartierDivisor i) :
-    X.PicardGroup :=
-  @AlgebraicGeometry.Scheme.Modules.picardClass X
-    (@Scheme.effectiveCartierDivisorAssociatedSheaf X inferInstance
-      (RingedSpace.Hom.idealSheafSubobject i.toShHom)
-      ⟨Scheme.Modules.Invertible.tensorRight_isEquivalence hi.invertibleIdealSheaf⟩)
-    (@Scheme.effectiveCartierDivisorAssociatedSheaf_isInvertible X inferInstance
-      (RingedSpace.Hom.idealSheafSubobject i.toShHom)
-      ⟨Scheme.Modules.Invertible.tensorRight_isEquivalence hi.invertibleIdealSheaf⟩)
 
 namespace CycleClass
 

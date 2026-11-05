@@ -137,11 +137,13 @@ section Representatives
 variable [∀ X : C, HasWeakSheafify (J.over X) AddCommGrpCat.{u}]
   [∀ X : C, (J.over X).WEqualsLocallyBijective AddCommGrpCat.{u}]
 
-/-- Finite-type module sheaves form an essentially small object property at the natural
-universe of the module-sheaf category. -/
+/-- Finite-type module sheaves admit representatives in the maximum of the coefficient,
+site-object and site-morphism universes, without the successor needed for the ambient
+module-sheaf category. In particular, when all three universes are `u`, the bound is `u`.
+The site universes remain in the bound for a general, possibly larger site. -/
 @[stacks 01BC "essential smallness"]
 instance IsFiniteType.essentiallySmall :
-    ObjectProperty.EssentiallySmall.{max u v u' + 1}
+    ObjectProperty.EssentiallySmall.{max u v u'}
       (IsFiniteType : ObjectProperty (SheafOfModules.{u} R)) := sorry
 
 end Representatives

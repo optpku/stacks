@@ -10,6 +10,7 @@ public import ReasLib.Algebra.CentralSimple.Splitting.TFAE
 public import ReasLib.Algebra.CentralSimple.SkolemNoether
 public import ReasLib.Algebra.CentralSimple.BrauerGroup.Degree
 public import ReasLib.Algebra.GroupCohomology.ProjectiveLinearBoundary
+public import Mathlib.LinearAlgebra.GeneralLinearGroup.AlgEquiv
 public import Mathlib.Topology.LocallyConstant.Basic
 
 @[expose] public section
@@ -73,18 +74,39 @@ noncomputable def descentAutomorphism (σ : Gal(Ksep / K)) :
         e.toRingEquiv))
     (descentAutomorphism_commutes Ksep A n e σ)
 
-/-- A fixed implementing matrix for an automorphism of a full matrix algebra. -/
+/-- Every matrix algebra automorphism is implemented by an invertible matrix. -/
+theorem matrixInnerLift_exists
+    (automorphism : Matrix (Fin n) (Fin n) Ksep ≃ₐ[Ksep] Matrix (Fin n) (Fin n) Ksep) :
+    ∃ x : GL (Fin n) Ksep, ∀ M : Matrix (Fin n) (Fin n) Ksep,
+      automorphism M = x.val * M * (x⁻¹).val := by
+  let e : Matrix (Fin n) (Fin n) Ksep ≃ₐ[Ksep] Module.End Ksep (Fin n → Ksep) :=
+    Matrix.toLinAlgEquiv'
+  obtain ⟨T, hT⟩ := (e.symm.trans (automorphism.trans e)).eq_linearEquivConjAlgEquiv
+  let x : GL (Fin n) Ksep :=
+    Units.mapEquiv e.symm.toMulEquiv (LinearMap.GeneralLinearGroup.ofLinearEquiv T)
+  refine ⟨x, fun M ↦ ?_⟩
+  apply e.injective
+  have h := DFunLike.congr_fun hT (e M)
+  change e (automorphism M) =
+    e (e.symm T.toLinearMap * M * e.symm T.symm.toLinearMap)
+  rw [map_mul, map_mul, e.apply_symm_apply, e.apply_symm_apply]
+  simpa only [AlgEquiv.trans_apply, AlgEquiv.symm_apply_apply,
+    LinearEquiv.conjAlgEquiv_apply, ← Module.End.mul_eq_comp, mul_assoc] using h
+
+/-- A fixed implementing matrix for an automorphism of a full matrix algebra,
+chosen using the proved innerness theorem for endomorphism algebras. -/
 noncomputable def matrixInnerLift
     (automorphism : Matrix (Fin n) (Fin n) Ksep ≃ₐ[Ksep] Matrix (Fin n) (Fin n) Ksep) :
     GL (Fin n) Ksep :=
-  Classical.choose (CSA.matrix_algEquiv_isInner n automorphism)
+  Classical.choose (matrixInnerLift_exists Ksep n automorphism)
 
 /-- The chosen implementing matrix realizes its automorphism by conjugation. -/
 theorem matrixInnerLift_spec
     (automorphism : Matrix (Fin n) (Fin n) Ksep ≃ₐ[Ksep] Matrix (Fin n) (Fin n) Ksep)
     (matrix : Matrix (Fin n) (Fin n) Ksep) :
     automorphism matrix = (matrixInnerLift Ksep n automorphism).val * matrix *
-      (matrixInnerLift Ksep n automorphism)⁻¹.val := sorry
+      (matrixInnerLift Ksep n automorphism)⁻¹.val :=
+  Classical.choose_spec (matrixInnerLift_exists Ksep n automorphism) matrix
 
 /-- The lift of matrix descent obtained by composing descent with a fixed inner-automorphism section. -/
 noncomputable def descentLift (σ : Gal(Ksep / K)) : GL (Fin n) Ksep :=

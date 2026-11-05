@@ -32,7 +32,7 @@ variable {M : Type v} [AddCommGroup M] [Module R M]
 
 /-- Over a coherent ring, a module is pseudo-coherent exactly when it is coherent. -/
 @[stacks 0EWZ "coherent module bridge for pseudo-coherence"]
-theorem isPseudoCoherent_iff_coherent :
+theorem isPseudoCoherent_iff_coherent [Small.{v} R] :
     (ModuleCat.of R M).IsPseudoCoherent ↔ Module.Coherent R M := sorry
 -- Proof strategy: evaluate pseudo-coherence at degree `-1`, use the finite-presentation
 -- characterization there, and convert finite presentation to coherence; conversely build a

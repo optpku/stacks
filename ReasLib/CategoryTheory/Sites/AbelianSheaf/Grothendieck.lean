@@ -35,7 +35,8 @@ variable {C : Type u} [Category.{v} C] (J : GrothendieckTopology C)
 both the objects and morphisms of the site. -/
 @[stacks 01DP "Grothendieck-abelian owner"]
 noncomputable instance isGrothendieckAbelian :
-    IsGrothendieckAbelian.{max u v} (Sheaf J AddCommGrpCat.{max u v}) := sorry
+    IsGrothendieckAbelian.{max u v} (Sheaf J AddCommGrpCat.{max u v}) := by
+  exact Sheaf.isGrothendieckAbelian_of_essentiallySmall J AddCommGrpCat.{max u v}
 
 /-- Abelian sheaves on a site admit a functorial choice of monomorphisms into injective objects.
 In particular, the category has enough injectives. -/

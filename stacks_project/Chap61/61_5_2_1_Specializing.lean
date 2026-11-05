@@ -23,17 +23,17 @@ universe u
 #check (Algebra.WLocalHull.stratumSections :
   ∀ (ring : Type u) [CommRing ring], ring → Ideal ring → Type u)
 
-#check (Algebra.WLocalHull.toStratumSections :
+#check (@Localization.toAwayQuotient :
   ∀ (ring : Type u) [CommRing ring] (element : ring) (ideal : Ideal ring),
     ring →+* Algebra.WLocalHull.stratumSections ring element ideal)
 
-#check (Algebra.WLocalHull.specializingSubmonoid :
+#check (@Localization.specializingSubmonoid :
   ∀ (ring : Type u) [CommRing ring], ring → Ideal ring → Submonoid ring)
 
-#check (Algebra.WLocalHull.specializingLocalization :
+#check (@Localization.specializing :
   ∀ (ring : Type u) [CommRing ring], ring → Ideal ring → Type u)
 
-#check (Algebra.WLocalHull.specializingSubmonoid_mem_iff :
+#check (@Localization.mem_specializingSubmonoid_iff :
   ∀ (ring : Type u) [CommRing ring] (element : ring) (ideal : Ideal ring)
-    {value : ring}, value ∈ Algebra.WLocalHull.specializingSubmonoid ring element ideal ↔
-      IsUnit (Algebra.WLocalHull.toStratumSections ring element ideal value))
+    {value : ring}, value ∈ Localization.specializingSubmonoid element ideal ↔
+      IsUnit (Localization.toAwayQuotient element ideal value))

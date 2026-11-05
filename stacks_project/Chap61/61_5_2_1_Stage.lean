@@ -37,4 +37,4 @@ universe u
   ∀ (ring : Type u) [CommRing ring] {subset : Finset ring}
     (pattern : Algebra.WLocalHull.Pattern ring subset),
       Algebra.WLocalHull.stage ring subset →+*
-        Algebra.WLocalHull.specializingLocalization ring pattern.elem pattern.span)
+        Localization.specializing pattern.elem pattern.span)

@@ -6,7 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import ReasLib.AlgebraicGeometry.GroupoidsOver.Module.Associated
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.Module.CommFppf
 public import ReasLib.Algebra.Category.ModuleCat.Presheaf.Tensor.Restriction
 
 /-!
@@ -35,10 +35,10 @@ namespace QCoh
 tensor on the commutative fppf presentation and transported back to `QCoh`. -/
 def quasicoherentTensor {X : GroupoidsOver S} (F G : QCoh X) : QCoh X where
   obj :=
-    (fromCommAssociatedModules X).obj
+    (fromCommFppfModules X).obj
       (moduleTensorAssociated
-        ((toCommAssociatedModules X .fppf).obj F)
-        ((toCommAssociatedModules X .fppf).obj G))
+        ((toCommFppfModules X).obj F.obj)
+        ((toCommFppfModules X).obj G.obj))
   property := sorry
 
 /-- The underlying fppf module of `quasicoherentTensor` is the transport of the
@@ -50,6 +50,15 @@ theorem quasicoherentTensor_obj {X : GroupoidsOver S} (F G : QCoh X) :
           ((toCommAssociatedModules X .fppf).obj F)
           ((toCommAssociatedModules X .fppf).obj G)) :=
   rfl
+
+/-- The common tensor has the same underlying module in the direct fppf
+coefficient presentation; the two coefficient transports agree definitionally. -/
+theorem quasicoherentTensor_obj_commFppf {X : GroupoidsOver S} (F G : QCoh X) :
+    (quasicoherentTensor F G).obj =
+      (fromCommFppfModules X).obj
+        (moduleTensorAssociated
+          ((toCommFppfModules X).obj F.obj)
+          ((toCommFppfModules X).obj G.obj)) := rfl
 
 /-- Identity-on-Γ tensor comparison on restricted commutative fppf presentations,
 built from restriction-of-scalars tensor comparison and the sheafification unit

@@ -8,6 +8,7 @@ module
 
 public import Mathlib.Algebra.Category.ModuleCat.ExteriorPower
 public import Mathlib.Algebra.Homology.HomologicalComplex
+public import Mathlib.LinearAlgebra.Alternating.Uncurry.Fin
 public import Mathlib.LinearAlgebra.CliffordAlgebra.Contraction
 public import Mathlib.LinearAlgebra.ExteriorAlgebra.Grading
 public import Mathlib.Tactic.CrossRefAttribute
@@ -83,6 +84,25 @@ theorem koszulDifferentialLinearMap_apply_ιMulti_eq_sum
     koszulDifferentialLinearMap φ n (exteriorPower.ιMulti R (n + 1) v) =
       ∑ k : Fin (n + 1), ((-1 : R) ^ (k : ℕ) * φ (v k)) •
         exteriorPower.ιMulti R n (fun i ↦ v (Fin.succAbove k i)) := sorry
+
+/-- The contraction differential agrees with the alternating construction on the same exterior
+powers. Thus comparison of the underlying complexes uses the identity in each degree, while the
+exterior multiplication and its contraction homotopy remain available on the original model. -/
+theorem koszulDifferentialLinearMap_eq_alternatizeUncurryFin
+    (φ : E →ₗ[R] R) (n : ℕ) :
+    koszulDifferentialLinearMap φ n =
+      exteriorPower.alternatingMapLinearEquiv
+        (AlternatingMap.alternatizeUncurryFin
+          (φ.smulRight (exteriorPower.ιMulti R n))) := by
+  apply exteriorPower.linearMap_ext
+  ext v
+  simp only [LinearMap.compAlternatingMap_apply,
+    exteriorPower.alternatingMapLinearEquiv_apply_ιMulti,
+    koszulDifferentialLinearMap_apply_ιMulti_eq_sum,
+    AlternatingMap.alternatizeUncurryFin_apply, LinearMap.smulRight_apply,
+    AlternatingMap.smul_apply, mul_smul, ← Int.cast_smul_eq_zsmul R,
+    Int.cast_pow, Int.cast_neg, Int.cast_one]
+  rfl
 
 /-- Consecutive Koszul differentials compose to zero. -/
 theorem koszulDifferential_sq (φ : E →ₗ[R] R) (n : ℕ) :

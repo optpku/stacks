@@ -320,6 +320,24 @@ theorem targetIsDVR_of_finitePurelyInseparable [IsPurelyInseparable K K1] :
 -- single field factor, identify the target with the corresponding integral closure, and combine
 -- its valuation-ring and finite Noetherian properties to construct the domain and DVR witnesses.
 
+
+/-- Remark 15.115.1 (5): over a Henselian DVR, the target normalization is a nonempty
+finite product of DVRs, obtained by normalizing the field factors of the reduced tensor product.
+The subsequent assertion `mᵢ = 1` in the source is false: different field factors can have maximal
+ideals lying over the same source maximal ideal. -/
+@[stacks 09EM "Henselian target normalization as a finite product of DVRs"]
+theorem targetFiniteProductOfDVRs [HenselianLocalRing B] :
+    ∃ D : RingProduct.Decomposition.Finite
+        (integralClosure B (FieldExtension.TensorProduct.reduced K L K1)),
+      Nonempty D.index ∧
+        ∀ i, ∃ h : IsDomain (D.factor i),
+          @IsDiscreteValuationRing (D.factor i) inferInstance h := sorry
+-- Proof strategy: use `FieldExtension.TensorProduct.reduced_finiteProductOfFields`, take the
+-- integral closure of `B` in each finite field factor, and assemble the finite product using
+-- `RingProduct.Decomposition.Finite.of`.  Each closure is Henselian local by
+-- `integralClosure.instHenselianLocalRing` and Dedekind by the finite field-extension theorem;
+-- integrality over the faithfully embedded DVR ensures that each local factor is not a field.
+
 end TargetFinite
 
 section Henselian
@@ -341,15 +359,5 @@ theorem sourceIsDVR_of_henselian [FiniteDimensional K K1] [HenselianLocalRing A]
 -- with `sourceIsDedekindDomain`; a local Dedekind domain that is not a field is a DVR by the
 -- localization-at-its-maximal-ideal characterization.
 
-/-- Remark 15.115.1: Henselianity of the target gives a unique branch over each source point. -/
-@[stacks 09EM "Henselian target branch uniqueness"]
-theorem targetExistsUnique_of_henselian [FiniteDimensional K K1] [HenselianLocalRing B]
-    (p : Ideal (integralClosure A K1)) [p.IsMaximal] :
-    ∃! q : Ideal (integralClosure B (FieldExtension.TensorProduct.reduced K L K1)),
-      q.IsMaximal ∧ q.LiesOver p := sorry
--- Proof strategy: obtain existence from `DVR.BaseChange.spectrum_comap_surjective`; decompose the
--- reduced generic fiber into field factors, apply
--- `integralClosure.Henselian.primesOver_eq_singleton` in the selected factor, and transport the
--- resulting uniqueness through the target normalization product equivalence.
 
 end Henselian

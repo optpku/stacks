@@ -159,8 +159,8 @@ abbrev shiftedBoundariesSubobject (X : ShiftedExactCouple S T) (r : ℕ) :
 is the inverse-image filtration defined by the forward translated outer maps. -/
 @[stacks 0AMJ]
 theorem Associated.cycle_eq
-    (K : Derived.Construction T) (X : ShiftedExactCouple S T) (r : ℕ) :
-    (K.associatedSpectralSequence X).cycle (Nat.succPNat r) =
+    (X : ShiftedExactCouple S T) (r : ℕ) :
+    (Derived.associatedSpectralSequence X).cycle (Nat.succPNat r) =
       X.cyclesSubobject r := sorry
 
 /-- 0AMJ (Remark 12.21.5, Variant) (2): after applying the shift `S`, the boundary filtration is
@@ -168,10 +168,10 @@ the image under `g` of the kernels of the backward translated outer maps. The le
 image of the mapped subobject inclusion as the canonical formalization of `S B_{r+1}`. -/
 @[stacks 0AMJ]
 theorem Associated.boundary_map_eq
-    (K : Derived.Construction T) (X : ShiftedExactCouple S T) (r : ℕ) :
+    (X : ShiftedExactCouple S T) (r : ℕ) :
     imageSubobject
         (S.functor.map
-          ((K.associatedSpectralSequence X).boundary (Nat.succPNat r)).arrow) =
+          ((Derived.associatedSpectralSequence X).boundary (Nat.succPNat r)).arrow) =
       X.shiftedBoundariesSubobject r := sorry
 
 end Filtration

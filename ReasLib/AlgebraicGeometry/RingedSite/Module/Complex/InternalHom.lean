@@ -6,7 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.InternalHom
+public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.InternalHom.Complex
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.Tensor.Exact
 public import Mathlib.Algebra.Category.ModuleCat.Sheaf.Colimits
 public import Mathlib.Algebra.Category.ModuleCat.Sheaf.Limits
@@ -350,36 +350,6 @@ variable [J.HasSheafCompose (forget₂ CommRingCat.{max u v} RingCat.{max u v})]
 variable [HasWeakSheafify J AddCommGrpCat.{max u v}]
 variable [J.WEqualsLocallyBijective AddCommGrpCat.{max u v}]
 variable {O : Sheaf J CommRingCat.{max u v}}
-
-/-- The actual product-valued cochain internal-Hom bifunctor on module sheaves. -/
-def strictInternalHom :
-    (CochainComplex (ringedSiteModuleCategory J O) ℤ)ᵒᵖ ⥤
-      CochainComplex (ringedSiteModuleCategory J O) ℤ ⥤
-        CochainComplex (ringedSiteModuleCategory J O) ℤ := by
-  let tensorExists : ∀ X Y : GradedObject ℤ (ringedSiteModuleCategory J O),
-      GradedObject.HasTensor X Y :=
-    fun _ _ _ ↦ HasColimitsOfShape.has_colimit _
-  let goodLeft : ∀ X Y Z : GradedObject ℤ (ringedSiteModuleCategory J O),
-      GradedObject.HasGoodTensor₁₂Tensor X Y Z :=
-    fun _ _ _ _ _ ↦ PreservesColimitsOfShape.preservesColimit
-  let goodRight : ∀ X Y Z : GradedObject ℤ (ringedSiteModuleCategory J O),
-      GradedObject.HasGoodTensorTensor₂₃ X Y Z :=
-    fun _ _ _ _ _ ↦ PreservesColimitsOfShape.preservesColimit
-  let tensorExt : ∀ X Y Z W : GradedObject ℤ (ringedSiteModuleCategory J O),
-      GradedObject.HasTensor₄ObjExt X Y Z W :=
-    fun _ _ _ _ _ _ ↦ PreservesColimitsOfShape.preservesColimit
-  let preservesLeft : ∀ X, PreservesColimit (Functor.empty.{0} (ringedSiteModuleCategory J O))
-      ((curriedTensor (ringedSiteModuleCategory J O)).obj X) :=
-    fun _ ↦ PreservesColimitsOfShape.preservesColimit
-  let preservesRight : ∀ X, PreservesColimit (Functor.empty.{0} (ringedSiteModuleCategory J O))
-      ((curriedTensor (ringedSiteModuleCategory J O)).flip.obj X) :=
-    fun _ ↦ PreservesColimitsOfShape.preservesColimit
-  let closed := @CochainComplex.InternalHom.monoidalClosed
-    (ringedSiteModuleCategory J O)
-    inferInstance inferInstance inferInstance inferInstance inferInstance
-    inferInstance inferInstance tensorExists goodLeft goodRight tensorExt
-    preservesLeft preservesRight
-  exact @MonoidalClosed.internalHom _ inferInstance _ closed
 
 set_option maxHeartbeats 2000000 in
 /-- Precomposition by a quasi-isomorphism induces a quasi-isomorphism of strict

@@ -11,7 +11,7 @@ public import Mathlib.CategoryTheory.Limits.Shapes.Pullback.Pasting
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.HomFunctor
 
 /-!
-# Base change of the Hom functor of quasi-coherent modules
+# Base change of the Hom functor of modules
 -/
 
 @[expose] public section
@@ -56,7 +56,7 @@ def homFunctorBaseChangeModuleIsoInv (f : X ⟶ B) (φ : B' ⟶ B) (F : X.Module
 /-- Transport to the original base and back fixes every morphism of the
 base-changed modules. -/
 theorem homFunctorBaseChangeEquiv_left_inv (f : X ⟶ B) (φ : B' ⟶ B)
-    (F G : X.Modules) [F.IsQuasicoherent] [G.IsQuasicoherent] (σ : SchemeOver B') :
+    (F G : X.Modules) (σ : SchemeOver B') :
     Function.LeftInverse
       (fun v ↦
         (homFunctorBaseChangeModuleIsoInv f φ F σ).homCongr
@@ -71,7 +71,7 @@ theorem homFunctorBaseChangeEquiv_left_inv (f : X ⟶ B) (φ : B' ⟶ B)
 /-- Transport to the changed base and back fixes every morphism of the
 original base-changed modules. -/
 theorem homFunctorBaseChangeEquiv_right_inv (f : X ⟶ B) (φ : B' ⟶ B)
-    (F G : X.Modules) [F.IsQuasicoherent] [G.IsQuasicoherent] (σ : SchemeOver B') :
+    (F G : X.Modules) (σ : SchemeOver B') :
     Function.RightInverse
       (fun v ↦
         (homFunctorBaseChangeModuleIsoInv f φ F σ).homCongr
@@ -84,9 +84,9 @@ theorem homFunctorBaseChangeEquiv_right_inv (f : X ⟶ B) (φ : B' ⟶ B)
   sorry
 
 /-- Base change of the base algebraic space canonically identifies the Hom sets of
-quasi-coherent modules at every scheme over the new base. -/
+modules at every scheme over the new base. -/
 def homFunctorBaseChangeEquiv (f : X ⟶ B) (φ : B' ⟶ B) (F G : X.Modules)
-    [F.IsQuasicoherent] [G.IsQuasicoherent] (σ : SchemeOver B') :
+    (σ : SchemeOver B') :
     (homFunctor (pullback.snd f φ) ((pullback (pullback.fst f φ)).obj F)
         ((pullback (pullback.fst f φ)).obj G)).obj (op σ) ≃
       (homFunctor f F G).obj (op ((CostructuredArrow.map φ).obj σ)) where
@@ -105,7 +105,7 @@ def homFunctorBaseChangeEquiv (f : X ⟶ B) (φ : B' ⟶ B) (F G : X.Modules)
 `𝒪_{X'_T}`-modules along the inverse pasting isomorphism and the module
 comparison. -/
 theorem homFunctorBaseChangeEquiv_apply (f : X ⟶ B) (φ : B' ⟶ B) (F G : X.Modules)
-    [F.IsQuasicoherent] [G.IsQuasicoherent] (σ : SchemeOver B')
+    (σ : SchemeOver B')
     (u : (homFunctor (pullback.snd f φ) ((pullback (pullback.fst f φ)).obj F)
         ((pullback (pullback.fst f φ)).obj G)).obj (op σ)) :
     homFunctorBaseChangeEquiv f φ F G σ u =
@@ -117,7 +117,7 @@ theorem homFunctorBaseChangeEquiv_apply (f : X ⟶ B) (φ : B' ⟶ B) (F G : X.M
 /-- The inverse base-change equivalence transports a morphism of
 `𝒪_{X_T}`-modules along the pasting isomorphism and the module comparison. -/
 theorem homFunctorBaseChangeEquiv_symm_apply (f : X ⟶ B) (φ : B' ⟶ B)
-    (F G : X.Modules) [F.IsQuasicoherent] [G.IsQuasicoherent] (σ : SchemeOver B')
+    (F G : X.Modules) (σ : SchemeOver B')
     (v : (homFunctor f F G).obj (op ((CostructuredArrow.map φ).obj σ))) :
     (homFunctorBaseChangeEquiv f φ F G σ).symm v =
       (homFunctorBaseChangeModuleIsoInv f φ F σ).homCongr
@@ -128,8 +128,7 @@ theorem homFunctorBaseChangeEquiv_symm_apply (f : X ⟶ B) (φ : B' ⟶ B)
 /-- As functors on `(SchemeOver B')ᵒᵖ`, `Hom(F', G')` is canonically isomorphic
 to `Hom(F, G)` precomposed with viewing a scheme over `B'` as a scheme over `B`
 via `φ`. -/
-def homFunctor_baseChange (f : X ⟶ B) (φ : B' ⟶ B) (F G : X.Modules)
-    [F.IsQuasicoherent] [G.IsQuasicoherent] :
+def homFunctor_baseChange (f : X ⟶ B) (φ : B' ⟶ B) (F G : X.Modules) :
     homFunctor (pullback.snd f φ) ((pullback (pullback.fst f φ)).obj F)
         ((pullback (pullback.fst f φ)).obj G) ≅
       (CostructuredArrow.map φ).op ⋙ homFunctor f F G :=

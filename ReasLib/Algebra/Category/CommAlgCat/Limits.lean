@@ -10,7 +10,10 @@ public import Mathlib.Algebra.Category.CommAlgCat.Basic
 public import Mathlib.Algebra.Algebra.Pi
 public import Mathlib.Algebra.Algebra.Shrink
 public import Mathlib.Algebra.Category.Ring.Limits
+public import Mathlib.Algebra.Category.ModuleCat.Limits
+public import Mathlib.CategoryTheory.Limits.Preserves.Limits
 public import Mathlib.Tactic.CrossRefAttribute
+public import ReasLib.Algebra.Category.CommAlgCat.Module
 
 /-!
 # Limits of commutative algebras
@@ -20,6 +23,8 @@ bounded by the algebra universe), the limit is the subalgebra of compatible fami
 `∀ j, F.obj j`, shrunk to universe `w`; the cone maps are the evaluations and the universal map
 is the tuple of cone components.  The same carrier is a limit of the underlying commutative
 rings, so the forgetful functor to `CommRingCat` preserves these limits.
+The forgetful functor to modules also preserves these limits; its standard
+comparison is a linear equivalence commuting with every projection.
 
 Mathlib's same-universe `HasLimits (CommAlgCat.{u} R)` (via `commAlgCatEquivUnder`) stays
 canonical; the universe-polymorphic instances here have lower priority.  This file does not
@@ -173,5 +178,52 @@ instance forget₂CommRing_preservesLimitsOfSize [UnivLE.{v, w}] :
     PreservesLimitsOfSize.{t, v}
       (forget₂ (CommAlgCat.{w} R) CommRingCat.{w}) :=
   forgetToCommRing_preservesLimitsOfSize_of_univLE
+
+/-- Forgetting commutative algebras to modules preserves limits when the algebra
+universe bounds the indexing category's object universe. -/
+theorem forgetToModule_preservesLimitsOfSize_of_univLE [UnivLE.{v, w}] :
+    PreservesLimitsOfSize.{t, v} (forgetToModule.{u, w} R) := by
+  letI : HasLimitsOfSize.{t, v} (ModuleCat.{w} R) := ModuleCat.hasLimitsOfSize
+  letI : ReflectsLimitsOfSize.{t, v} (forget (ModuleCat.{w} R)) :=
+    reflectsLimits_of_reflectsIsomorphisms
+  letI : PreservesLimitsOfSize.{t, v}
+      (forgetToModule.{u, w} R ⋙ forget (ModuleCat.{w} R)) := by
+    change PreservesLimitsOfSize.{t, v}
+      (forget₂ (CommAlgCat.{w} R) CommRingCat.{w} ⋙ forget CommRingCat.{w})
+    infer_instance
+  exact preservesLimits_of_reflects_of_preserves
+    (forgetToModule R) (forget (ModuleCat.{w} R))
+
+/-- The forgetful functor to modules preserves every limit whose indexing
+object universe is bounded by the algebra universe. -/
+instance forgetToModule_preservesLimitsOfSize [UnivLE.{v, w}] :
+    PreservesLimitsOfSize.{t, v} (forgetToModule.{u, w} R) :=
+  forgetToModule_preservesLimitsOfSize_of_univLE
+
+/-- The standard comparison between the underlying module of an algebra limit
+and the limit of its underlying module diagram. -/
+def limitModuleEquiv {J : Type v} [Category.{t} J] [UnivLE.{v, w}]
+    (F : J ⥤ CommAlgCat.{w} R) [HasLimit F] :
+    (limit F : CommAlgCat.{w} R) ≃ₗ[R]
+      (limit (F ⋙ forgetToModule R) : ModuleCat.{w} R) :=
+  (preservesLimitIso (forgetToModule R) F).toLinearEquiv
+
+/-- The standard module comparison commutes with all limit projections. -/
+@[simp]
+theorem limitModuleEquiv_π {J : Type v} [Category.{t} J] [UnivLE.{v, w}]
+    (F : J ⥤ CommAlgCat.{w} R) [HasLimit F]
+    (j : J) (x : (limit F : CommAlgCat.{w} R)) :
+    (limit.π (F ⋙ forgetToModule R) j).hom (limitModuleEquiv F x) =
+      (limit.π F j).hom x :=
+  ConcreteCategory.congr_hom (preservesLimitIso_hom_π (forgetToModule R) F j) x
+
+/-- The inverse standard module comparison also commutes with all projections. -/
+@[simp]
+theorem limitModuleEquiv_symm_π {J : Type v} [Category.{t} J] [UnivLE.{v, w}]
+    (F : J ⥤ CommAlgCat.{w} R) [HasLimit F]
+    (j : J) (x : (limit (F ⋙ forgetToModule R) : ModuleCat.{w} R)) :
+    (limit.π F j).hom ((limitModuleEquiv F).symm x) =
+      (limit.π (F ⋙ forgetToModule R) j).hom x :=
+  ConcreteCategory.congr_hom (preservesLimitIso_inv_π (forgetToModule R) F j) x
 
 end CommAlgCat

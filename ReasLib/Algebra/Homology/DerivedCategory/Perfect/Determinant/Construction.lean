@@ -9,6 +9,8 @@ module
 public import ReasLib.Algebra.Homology.DerivedCategory.Perfect.Determinant
 public import ReasLib.Algebra.Homology.CochainComplex.TwoTerm
 public import Mathlib.RingTheory.Finiteness.Prod
+public import Mathlib.Algebra.Homology.DerivedCategory.KProjective
+public import Mathlib.Algebra.Category.ModuleCat.Projective
 
 @[expose] public section
 
@@ -51,8 +53,8 @@ def realization (K : Object R) : K.obj.obj ≅ DerivedCategory.Q.obj (model R K)
 def underlyingIso {K L : Object R} (a : K ≅ L) : K.obj.obj ≅ L.obj.obj where
   hom := a.hom.hom.hom
   inv := a.inv.hom.hom
-  hom_inv_id := by sorry
-  inv_hom_id := by sorry
+  hom_inv_id := congrArg (fun f => f.hom.hom) a.hom_inv_id
+  inv_hom_id := congrArg (fun f => f.hom.hom) a.inv_hom_id
 
 def realizedIso {K L : Object R} (a : K ≅ L) :
     DerivedCategory.Q.obj (model R K).complex ≅ DerivedCategory.Q.obj (model R L).complex :=
@@ -74,11 +76,41 @@ structure Roof (P Q : Model R)
 a chain map representing the prescribed derived morphism. -/
 theorem exists_chainMap (P Q : Model R)
     (a : DerivedCategory.Q.obj P.complex ≅ DerivedCategory.Q.obj Q.complex) :
-    ∃ f : P.complex ⟶ Q.complex, DerivedCategory.Q.map f = a.hom := by sorry
+    ∃ f : P.complex ⟶ Q.complex, DerivedCategory.Q.map f = a.hom := by
+  haveI (n : ℤ) : Projective (P.complex.X n) := by
+    by_cases hneg : n = -1
+    · subst n
+      infer_instance
+    by_cases hzero : n = 0
+    · subst n
+      infer_instance
+    by_cases hn : n < -1
+    · exact (P.complex.isZero_of_isStrictlyGE (-1) n hn).projective
+    · exact (P.complex.isZero_of_isStrictlyLE 0 n (by omega)).projective
+  letI : P.complex.IsKProjective := CochainComplex.isKProjective_of_projective P.complex 0
+  let iso := DerivedCategory.quotientCompQhIso (ModuleCat R)
+  obtain ⟨g, hg⟩ := (CochainComplex.IsKProjective.Qh_map_bijective P.complex
+    ((HomotopyCategory.quotient _ _).obj Q.complex)).surjective
+      (iso.hom.app P.complex ≫ a.hom ≫ iso.inv.app Q.complex)
+  let f := (HomotopyCategory.quotient _ _).preimage g
+  have hf : (HomotopyCategory.quotient _ _).map f = g := Functor.map_preimage _ _
+  refine ⟨f, ?_⟩
+  have h := DerivedCategory.quotientCompQhIso_hom_naturality f
+  rw [hf, hg] at h
+  change (iso.hom.app P.complex ≫ a.hom ≫ iso.inv.app Q.complex) ≫
+    iso.hom.app Q.complex = iso.hom.app P.complex ≫ DerivedCategory.Q.map f at h
+  simp only [Category.assoc, Iso.inv_hom_id_app, Category.comp_id] at h
+  exact (cancel_epi (iso.hom.app P.complex)).mp h.symm
 
 def chainMap (P Q : Model R)
     (a : DerivedCategory.Q.obj P.complex ≅ DerivedCategory.Q.obj Q.complex) :
     P.complex ⟶ Q.complex := (exists_chainMap R P Q a).choose
+
+/-- The selected chain map represents the specified derived isomorphism. -/
+theorem chainMap_spec (P Q : Model R)
+    (a : DerivedCategory.Q.obj P.complex ≅ DerivedCategory.Q.obj Q.complex) :
+    DerivedCategory.Q.map (chainMap R P Q a) = a.hom :=
+  (exists_chainMap R P Q a).choose_spec
 
 /-- Add the contractible summand [Q⁻¹ --id--> Q⁻¹] to P. -/
 def refinementDifferential (P Q : Model R) :
@@ -186,6 +218,27 @@ def representativeIso (K : Object R) (P : CochainComplex (ModuleCat.{u} R) ℤ)
     ((determinantFunctor R).obj ⟨K⟩).of.obj ≅ ModuleCat.of R (CochainComplex.Determinant.line P) :=
   (comparison R (model R K) ⟨P⟩ ((realization R K).symm ≪≫ e)).toModuleIso
 
+/-- The roof comparisons intertwine the specified derived map with its actual admissible
+chain-map representative. This is a law of the existing comparison, with no new line data. -/
+theorem representativeIso_naturality {K L : Object R}
+    (P Q : CochainComplex (ModuleCat.{u} R) ℤ)
+    (eP : K.obj.obj ≅ DerivedCategory.Q.obj P)
+    (eQ : L.obj.obj ≅ DerivedCategory.Q.obj Q)
+    [P.IsStrictlyGE (-1)] [P.IsStrictlyLE 0]
+    [Module.Finite R (P.X (-1))] [Module.Projective R (P.X (-1))]
+    [Module.Finite R (P.X 0)] [Module.Projective R (P.X 0)]
+    [Q.IsStrictlyGE (-1)] [Q.IsStrictlyLE 0]
+    [Module.Finite R (Q.X (-1))] [Module.Projective R (Q.X (-1))]
+    [Module.Finite R (Q.X 0)] [Module.Projective R (Q.X 0)]
+    (u : K ≅ L) (a : P ⟶ Q) (ha : CochainComplex.Determinant.IsAdmissible a)
+    (h : eP.hom ≫ DerivedCategory.Q.map a = u.hom.hom.hom ≫ eQ.hom) :
+    (representativeIso R K P eP).hom ≫
+        (CochainComplex.Determinant.equiv a ha).toModuleIso.hom =
+      ((determinantFunctor R).map ⟨u⟩).iso.hom.hom ≫
+        (representativeIso R L Q eQ).hom := by sorry
+-- Proof strategy: use `h` to identify the realized derived isomorphisms, compose their
+-- admissible roofs, and apply `roof_independent` and the complex-level `map_comp`.
+
 /-- Concrete construction of the EXISTING ring-level determinant interface.
 No use of nonemptyDeterminant, and no arbitrary determinant parameter. -/
 def determinant : PerfectDerived.TorNegOneZero.Determinant R where
@@ -195,6 +248,7 @@ def determinant : PerfectDerived.TorNegOneZero.Determinant R where
   canonicalElement := canonicalElement R
   map_canonicalElement := by sorry
   representativeIso := representativeIso R
+  representativeIso_naturality := representativeIso_naturality R
   rankZero_iff := by sorry
   representativeIso_hom_canonicalElement := by sorry
 

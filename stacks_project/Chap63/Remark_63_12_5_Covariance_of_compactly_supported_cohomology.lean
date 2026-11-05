@@ -21,7 +21,8 @@ noncomputable section
 
 universe u
 
-section Covariance
+-- The covariance and field-extension statements use the same categorical data.
+section
 
 variable {k : Type u} [Field k] {Λ : Type u} [Ring Λ]
 variable {X Y : SchemeOverField k} (f : X ⟶ Y)
@@ -33,23 +34,8 @@ variable [CompactSpace Y.left] [QuasiSeparatedSpace Y.left]
 variable [CompactSpace (Spec (CommRingCat.of k))]
 variable [QuasiSeparatedSpace (Spec (CommRingCat.of k))]
 variable (C : CompDiagram ({ left := X.left, right := ⟨⟨⟩⟩, hom := f.left } : Over Y.left) Y.hom)
-variable [IsOpenImmersion (Of.ι C.P_g)]
-variable [Etale (Of.ι C.P_g)]
-variable [IsSeparated (Of.ι C.P_g)]
-variable [LocallyQuasiFinite (Of.ι C.P_g)]
-variable [LocallyOfFiniteType (Of.ι C.P_g)]
-variable [IsSeparated (CompDiagram.openImmersion ({ left := X.left, right := ⟨⟨⟩⟩, hom := f.left } : Over Y.left) Y.hom C)]
-variable [LocallyQuasiFinite (CompDiagram.openImmersion ({ left := X.left, right := ⟨⟨⟩⟩, hom := f.left } : Over Y.left) Y.hom C)]
-variable [LocallyOfFiniteType (CompDiagram.openImmersion ({ left := X.left, right := ⟨⟨⟩⟩, hom := f.left } : Over Y.left) Y.hom C)]
-variable [IsSeparated (Of.ι (CompDiagram.ofInterior (h_f_separated := (inferInstance : IsSeparated f.left)) (h_f_finiteType := (inferInstance : Scheme.Hom.FiniteType f.left)) ({ left := X.left, right := ⟨⟨⟩⟩, hom := f.left } : Over Y.left) Y.hom C))]
-variable [LocallyQuasiFinite (Of.ι (CompDiagram.ofInterior (h_f_separated := (inferInstance : IsSeparated f.left)) (h_f_finiteType := (inferInstance : Scheme.Hom.FiniteType f.left)) ({ left := X.left, right := ⟨⟨⟩⟩, hom := f.left } : Over Y.left) Y.hom C))]
-variable [LocallyOfFiniteType (Of.ι (CompDiagram.ofInterior (h_f_separated := (inferInstance : IsSeparated f.left)) (h_f_finiteType := (inferInstance : Scheme.Hom.FiniteType f.left)) ({ left := X.left, right := ⟨⟨⟩⟩, hom := f.left } : Over Y.left) Y.hom C))]
-variable [IsSeparated
-  (Of.ι (CompDiagram.ofComposite (h_f_separated := (inferInstance : IsSeparated f.left)) (h_f_finiteType := (inferInstance : Scheme.Hom.FiniteType f.left)) ({ left := X.left, right := ⟨⟨⟩⟩, hom := f.left } : Over Y.left) Y.hom C))]
-variable [LocallyQuasiFinite
-  (Of.ι (CompDiagram.ofComposite (h_f_separated := (inferInstance : IsSeparated f.left)) (h_f_finiteType := (inferInstance : Scheme.Hom.FiniteType f.left)) ({ left := X.left, right := ⟨⟨⟩⟩, hom := f.left } : Over Y.left) Y.hom C))]
-variable [LocallyOfFiniteType
-  (Of.ι (CompDiagram.ofComposite (h_f_separated := (inferInstance : IsSeparated f.left)) (h_f_finiteType := (inferInstance : Scheme.Hom.FiniteType f.left)) ({ left := X.left, right := ⟨⟨⟩⟩, hom := f.left } : Over Y.left) Y.hom C))]
+-- The compactification interiors and their base changes inherit their geometric
+-- properties from `Of.instIsOpenImmersion` and the standard morphism instances.
 
 variable [HasSheafify X.left.smallEtaleTopology (ModuleCat.{u} Λ)]
 variable [∀ U : X.left.Etale,
@@ -241,12 +227,22 @@ variable [PreservesFiniteColimits
     (CompDiagram.interior ({ left := X.left, right := ⟨⟨⟩⟩, hom := f.left } : Over Y.left) Y.hom C).smallEtaleTopology)]
 variable [(etaleModulePushforward
     (CompDiagram.ofInterior (h_f_separated := (inferInstance : IsSeparated f.left)) (h_f_finiteType := (inferInstance : Scheme.Hom.FiniteType f.left)) ({ left := X.left, right := ⟨⟨⟩⟩, hom := f.left } : Over Y.left) Y.hom C).obj.right.hom Λ).Additive]
-variable [HasWeakSheafify
+
+-- Cache the sheafification implication without adding separate hypotheses.
+local instance covarianceWeakSheafify1 : HasWeakSheafify
   (CompDiagram.interior ({ left := X.left, right := ⟨⟨⟩⟩, hom := f.left } : Over Y.left) Y.hom C).smallEtaleTopology
-    AddCommGrpCat.{u}]
-variable [HasWeakSheafify X.left.smallEtaleTopology (ModuleCat.{u} Λ)]
-variable [HasWeakSheafify Y.left.smallEtaleTopology (ModuleCat.{u} Λ)]
-variable [HasWeakSheafify X.left.smallEtaleTopology AddCommGrpCat.{u}]
+    AddCommGrpCat.{u} :=
+  HasSheafify.isRightAdjoint
+
+local instance covarianceWeakSheafify2 : HasWeakSheafify X.left.smallEtaleTopology (ModuleCat.{u} Λ) :=
+  HasSheafify.isRightAdjoint
+
+local instance covarianceWeakSheafify3 : HasWeakSheafify Y.left.smallEtaleTopology (ModuleCat.{u} Λ) :=
+  HasSheafify.isRightAdjoint
+
+local instance covarianceWeakSheafify4 : HasWeakSheafify X.left.smallEtaleTopology AddCommGrpCat.{u} :=
+  HasSheafify.isRightAdjoint
+
 variable [∀ P : Y.left.Etaleᵒᵖ ⥤ ModuleCat.{u} Λ,
   (smallEtalePullback f.left).op.HasLeftKanExtension P]
 variable [∀ P : Y.left.Etaleᵒᵖ ⥤ AddCommGrpCat.{u},
@@ -272,6 +268,8 @@ variable [HasRightDerivedFunctor
   (HomologicalComplex.quasiIso
     (Sheaf (Spec (CommRingCat.of k)).smallEtaleTopology (ModuleCat.{u} Λ))
     (ComplexShape.up ℤ))]
+
+section Covariance
 
 variable {w : X.left → ℤ} (hw : f.left.IsWeighting w)
 
@@ -322,273 +320,8 @@ end Flat
 
 end Covariance
 
-section Unibranch
-
-variable {X Y : Scheme.{u}} (f : X ⟶ Y)
-variable [LocallyOfFiniteType f] [LocallyQuasiFinite f] [IsLocallyNoetherian Y]
-
-/- Geometrically unibranch targets supply a nonnegative generic-separable-degree weighting. -/
-#check
-  (AlgebraicGeometry.Scheme.Hom.exists_genericSepDegreeWeighting f :
-    Y.isGeometricallyUnibranch →
-    ∃ w : X → ℕ, f.IsWeighting (fun x ↦ (w x : ℤ)) ∧
-      ∀ x : X, RingHom.IsGenericSepDegree (f.stalkMap x).hom
-        (LocallyOfFiniteType.stalkMap f x) (f.quasiFiniteAt x) (w x))
-
-end Unibranch
 
 section FieldExtension
-
-variable {k : Type u} [Field k] {Λ : Type u} [Ring Λ]
-variable {X Y : SchemeOverField k} (f : X ⟶ Y)
-variable [IsSeparated X.hom] [Scheme.Hom.FiniteType X.hom]
-variable [IsSeparated Y.hom] [Scheme.Hom.FiniteType Y.hom]
-variable [IsSeparated f.left] [Scheme.Hom.QuasiFinite f.left]
-variable [CompactSpace X.left] [QuasiSeparatedSpace X.left]
-variable [CompactSpace Y.left] [QuasiSeparatedSpace Y.left]
-variable [CompactSpace (Spec (CommRingCat.of k))]
-variable [QuasiSeparatedSpace (Spec (CommRingCat.of k))]
-variable (C : CompDiagram ({ left := X.left, right := ⟨⟨⟩⟩, hom := f.left } : Over Y.left) Y.hom)
-variable [IsOpenImmersion (Of.ι C.P_g)]
-variable [Etale (Of.ι C.P_g)]
-variable [IsSeparated (Of.ι C.P_g)]
-variable [LocallyQuasiFinite (Of.ι C.P_g)]
-variable [LocallyOfFiniteType (Of.ι C.P_g)]
-variable [IsSeparated (CompDiagram.openImmersion ({ left := X.left, right := ⟨⟨⟩⟩, hom := f.left } : Over Y.left) Y.hom C)]
-variable [LocallyQuasiFinite (CompDiagram.openImmersion ({ left := X.left, right := ⟨⟨⟩⟩, hom := f.left } : Over Y.left) Y.hom C)]
-variable [LocallyOfFiniteType (CompDiagram.openImmersion ({ left := X.left, right := ⟨⟨⟩⟩, hom := f.left } : Over Y.left) Y.hom C)]
-variable [IsSeparated (Of.ι (CompDiagram.ofInterior (h_f_separated := (inferInstance : IsSeparated f.left)) (h_f_finiteType := (inferInstance : Scheme.Hom.FiniteType f.left)) ({ left := X.left, right := ⟨⟨⟩⟩, hom := f.left } : Over Y.left) Y.hom C))]
-variable [LocallyQuasiFinite (Of.ι (CompDiagram.ofInterior (h_f_separated := (inferInstance : IsSeparated f.left)) (h_f_finiteType := (inferInstance : Scheme.Hom.FiniteType f.left)) ({ left := X.left, right := ⟨⟨⟩⟩, hom := f.left } : Over Y.left) Y.hom C))]
-variable [LocallyOfFiniteType (Of.ι (CompDiagram.ofInterior (h_f_separated := (inferInstance : IsSeparated f.left)) (h_f_finiteType := (inferInstance : Scheme.Hom.FiniteType f.left)) ({ left := X.left, right := ⟨⟨⟩⟩, hom := f.left } : Over Y.left) Y.hom C))]
-variable [IsSeparated
-  (Of.ι (CompDiagram.ofComposite (h_f_separated := (inferInstance : IsSeparated f.left)) (h_f_finiteType := (inferInstance : Scheme.Hom.FiniteType f.left)) ({ left := X.left, right := ⟨⟨⟩⟩, hom := f.left } : Over Y.left) Y.hom C))]
-variable [LocallyQuasiFinite
-  (Of.ι (CompDiagram.ofComposite (h_f_separated := (inferInstance : IsSeparated f.left)) (h_f_finiteType := (inferInstance : Scheme.Hom.FiniteType f.left)) ({ left := X.left, right := ⟨⟨⟩⟩, hom := f.left } : Over Y.left) Y.hom C))]
-variable [LocallyOfFiniteType
-  (Of.ι (CompDiagram.ofComposite (h_f_separated := (inferInstance : IsSeparated f.left)) (h_f_finiteType := (inferInstance : Scheme.Hom.FiniteType f.left)) ({ left := X.left, right := ⟨⟨⟩⟩, hom := f.left } : Over Y.left) Y.hom C))]
-
-variable [HasSheafify X.left.smallEtaleTopology (ModuleCat.{u} Λ)]
-variable [∀ U : X.left.Etale,
-  HasWeakSheafify (X.left.smallEtaleTopology.over U) (ModuleCat.{u} Λ)]
-variable [HasDerivedCategory (Sheaf X.left.smallEtaleTopology (ModuleCat.{u} Λ))]
-variable [HasSheafify Y.left.smallEtaleTopology (ModuleCat.{u} Λ)]
-variable [∀ U : Y.left.Etale,
-  HasWeakSheafify (Y.left.smallEtaleTopology.over U) (ModuleCat.{u} Λ)]
-variable [HasDerivedCategory (Sheaf Y.left.smallEtaleTopology (ModuleCat.{u} Λ))]
-variable [HasSheafify (Spec (CommRingCat.of k)).smallEtaleTopology
-  (ModuleCat.{u} Λ)]
-variable [∀ U : (Spec (CommRingCat.of k)).Etale,
-  HasWeakSheafify ((Spec (CommRingCat.of k)).smallEtaleTopology.over U)
-    (ModuleCat.{u} Λ)]
-variable [HasDerivedCategory
-  (Sheaf (Spec (CommRingCat.of k)).smallEtaleTopology (ModuleCat.{u} Λ))]
-variable [HasSheafify
-  (CompDiagram.interior ({ left := X.left, right := ⟨⟨⟩⟩, hom := f.left } : Over Y.left) Y.hom C).smallEtaleTopology
-    (ModuleCat.{u} Λ)]
-variable [∀ U : (CompDiagram.interior ({ left := X.left, right := ⟨⟨⟩⟩, hom := f.left } : Over Y.left) Y.hom C).Etale,
-  HasWeakSheafify
-    ((CompDiagram.interior ({ left := X.left, right := ⟨⟨⟩⟩, hom := f.left } : Over Y.left) Y.hom C).smallEtaleTopology.over U)
-      (ModuleCat.{u} Λ)]
-variable [HasDerivedCategory
-  (Sheaf (CompDiagram.interior ({ left := X.left, right := ⟨⟨⟩⟩, hom := f.left } : Over Y.left) Y.hom C).smallEtaleTopology
-    (ModuleCat.{u} Λ))]
-variable [HasSheafify C.P_bar.obj.right.left.smallEtaleTopology
-  (ModuleCat.{u} Λ)]
-variable [∀ U : C.P_bar.obj.right.left.Etale,
-  HasWeakSheafify (C.P_bar.obj.right.left.smallEtaleTopology.over U)
-    (ModuleCat.{u} Λ)]
-variable [HasDerivedCategory
-  (Sheaf C.P_bar.obj.right.left.smallEtaleTopology (ModuleCat.{u} Λ))]
-variable [HasSheafify C.P_g.obj.right.left.smallEtaleTopology (ModuleCat.{u} Λ)]
-variable [∀ U : C.P_g.obj.right.left.Etale,
-  HasWeakSheafify (C.P_g.obj.right.left.smallEtaleTopology.over U)
-    (ModuleCat.{u} Λ)]
-variable [HasDerivedCategory
-  (Sheaf C.P_g.obj.right.left.smallEtaleTopology (ModuleCat.{u} Λ))]
-
-variable [HasSheafify X.left.smallEtaleTopology AddCommGrpCat.{u}]
-variable [HasSheafify Y.left.smallEtaleTopology AddCommGrpCat.{u}]
-variable [HasSheafify
-  (CompDiagram.interior ({ left := X.left, right := ⟨⟨⟩⟩, hom := f.left } : Over Y.left) Y.hom C).smallEtaleTopology
-    AddCommGrpCat.{u}]
-variable [HasSheafify C.P_bar.obj.right.left.smallEtaleTopology
-  AddCommGrpCat.{u}]
-variable [HasSheafify C.P_g.obj.right.left.smallEtaleTopology AddCommGrpCat.{u}]
-variable [X.left.smallEtaleTopology.HasSheafCompose
-  (forget₂ (ModuleCat.{u} Λ) AddCommGrpCat.{u})]
-variable [Y.left.smallEtaleTopology.HasSheafCompose
-  (forget₂ (ModuleCat.{u} Λ) AddCommGrpCat.{u})]
-variable [(CompDiagram.interior ({ left := X.left, right := ⟨⟨⟩⟩, hom := f.left } : Over Y.left) Y.hom C).smallEtaleTopology.HasSheafCompose
-  (forget₂ (ModuleCat.{u} Λ) AddCommGrpCat.{u})]
-variable [C.P_bar.obj.right.left.smallEtaleTopology.HasSheafCompose
-  (forget₂ (ModuleCat.{u} Λ) AddCommGrpCat.{u})]
-variable [C.P_g.obj.right.left.smallEtaleTopology.HasSheafCompose
-  (forget₂ (ModuleCat.{u} Λ) AddCommGrpCat.{u})]
-variable [Y.left.smallEtaleTopology.PreservesSheafification
-  (forget₂ (ModuleCat.{u} Λ) AddCommGrpCat.{u})]
-variable [X.left.smallEtaleTopology.PreservesSheafification
-  (forget₂ (ModuleCat.{u} Λ) AddCommGrpCat.{u})]
-variable [(CompDiagram.interior ({ left := X.left, right := ⟨⟨⟩⟩, hom := f.left } : Over Y.left) Y.hom C).smallEtaleTopology.PreservesSheafification
-  (forget₂ (ModuleCat.{u} Λ) AddCommGrpCat.{u})]
-variable [C.P_bar.obj.right.left.smallEtaleTopology.PreservesSheafification
-  (forget₂ (ModuleCat.{u} Λ) AddCommGrpCat.{u})]
-variable [C.P_g.obj.right.left.smallEtaleTopology.PreservesSheafification
-  (forget₂ (ModuleCat.{u} Λ) AddCommGrpCat.{u})]
-
-variable [∀ F : X.left.Etaleᵒᵖ ⥤ ModuleCat.{u} Λ,
-  (etaleRestriction (Of.ι (CompDiagram.ofInterior (h_f_separated := (inferInstance : IsSeparated f.left)) (h_f_finiteType := (inferInstance : Scheme.Hom.FiniteType f.left)) ({ left := X.left, right := ⟨⟨⟩⟩, hom := f.left } : Over Y.left) Y.hom C))).op.HasLeftKanExtension F]
-variable [∀ F : (CompDiagram.interior ({ left := X.left, right := ⟨⟨⟩⟩, hom := f.left } : Over Y.left) Y.hom C).Etaleᵒᵖ ⥤ ModuleCat.{u} Λ,
-  (etaleRestriction (CompDiagram.openImmersion ({ left := X.left, right := ⟨⟨⟩⟩, hom := f.left } : Over Y.left) Y.hom C)).op.HasLeftKanExtension F]
-variable [hC_compKanModule : ∀ F : X.left.Etaleᵒᵖ ⥤ ModuleCat.{u} Λ,
-  (etaleRestriction
-    (Of.ι (CompDiagram.ofComposite (h_f_separated := (inferInstance : IsSeparated f.left)) (h_f_finiteType := (inferInstance : Scheme.Hom.FiniteType f.left)) ({ left := X.left, right := ⟨⟨⟩⟩, hom := f.left } : Over Y.left) Y.hom C))).op.HasLeftKanExtension F]
-variable [hC_baseKanModule : ∀ F : Y.left.Etaleᵒᵖ ⥤ ModuleCat.{u} Λ,
-  (etaleRestriction (Of.ι C.P_g)).op.HasLeftKanExtension F]
-variable [∀ F : X.left.Etaleᵒᵖ ⥤ AddCommGrpCat.{u},
-  (etaleRestriction (Of.ι (CompDiagram.ofInterior (h_f_separated := (inferInstance : IsSeparated f.left)) (h_f_finiteType := (inferInstance : Scheme.Hom.FiniteType f.left)) ({ left := X.left, right := ⟨⟨⟩⟩, hom := f.left } : Over Y.left) Y.hom C))).op.HasLeftKanExtension F]
-variable [∀ F : (CompDiagram.interior ({ left := X.left, right := ⟨⟨⟩⟩, hom := f.left } : Over Y.left) Y.hom C).Etaleᵒᵖ ⥤ AddCommGrpCat.{u},
-  (etaleRestriction (CompDiagram.openImmersion ({ left := X.left, right := ⟨⟨⟩⟩, hom := f.left } : Over Y.left) Y.hom C)).op.HasLeftKanExtension F]
-variable [hC_compKanAdd : ∀ F : X.left.Etaleᵒᵖ ⥤ AddCommGrpCat.{u},
-  (etaleRestriction
-    (Of.ι (CompDiagram.ofComposite (h_f_separated := (inferInstance : IsSeparated f.left)) (h_f_finiteType := (inferInstance : Scheme.Hom.FiniteType f.left)) ({ left := X.left, right := ⟨⟨⟩⟩, hom := f.left } : Over Y.left) Y.hom C))).op.HasLeftKanExtension F]
-variable [hC_baseKanAdd : ∀ F : Y.left.Etaleᵒᵖ ⥤ AddCommGrpCat.{u},
-  (etaleRestriction (Of.ι C.P_g)).op.HasLeftKanExtension F]
-variable [(forget₂ (ModuleCat.{u} Λ) AddCommGrpCat.{u}).PreservesLeftKanExtensions
-  (etaleRestriction (Of.ι (CompDiagram.ofInterior (h_f_separated := (inferInstance : IsSeparated f.left)) (h_f_finiteType := (inferInstance : Scheme.Hom.FiniteType f.left)) ({ left := X.left, right := ⟨⟨⟩⟩, hom := f.left } : Over Y.left) Y.hom C))).op]
-variable [(forget₂ (ModuleCat.{u} Λ) AddCommGrpCat.{u}).PreservesLeftKanExtensions
-  (etaleRestriction (CompDiagram.openImmersion ({ left := X.left, right := ⟨⟨⟩⟩, hom := f.left } : Over Y.left) Y.hom C)).op]
-variable [hC_compPreservesKan : (forget₂ (ModuleCat.{u} Λ) AddCommGrpCat.{u}).PreservesLeftKanExtensions
-  (etaleRestriction
-    (Of.ι (CompDiagram.ofComposite (h_f_separated := (inferInstance : IsSeparated f.left)) (h_f_finiteType := (inferInstance : Scheme.Hom.FiniteType f.left)) ({ left := X.left, right := ⟨⟨⟩⟩, hom := f.left } : Over Y.left) Y.hom C))).op]
-variable [hC_basePreservesKan : (forget₂ (ModuleCat.{u} Λ) AddCommGrpCat.{u}).PreservesLeftKanExtensions
-  (etaleRestriction (Of.ι C.P_g)).op]
-
-variable [(etaleExtensionByZero (Of.ι (CompDiagram.ofInterior (h_f_separated := (inferInstance : IsSeparated f.left)) (h_f_finiteType := (inferInstance : Scheme.Hom.FiniteType f.left)) ({ left := X.left, right := ⟨⟨⟩⟩, hom := f.left } : Over Y.left) Y.hom C))
-    (ModuleCat.{u} Λ)).Additive]
-variable [PreservesFiniteLimits
-  (etaleExtensionByZero (Of.ι (CompDiagram.ofInterior (h_f_separated := (inferInstance : IsSeparated f.left)) (h_f_finiteType := (inferInstance : Scheme.Hom.FiniteType f.left)) ({ left := X.left, right := ⟨⟨⟩⟩, hom := f.left } : Over Y.left) Y.hom C))
-    (ModuleCat.{u} Λ))]
-variable [PreservesFiniteColimits
-  (etaleExtensionByZero (Of.ι (CompDiagram.ofInterior (h_f_separated := (inferInstance : IsSeparated f.left)) (h_f_finiteType := (inferInstance : Scheme.Hom.FiniteType f.left)) ({ left := X.left, right := ⟨⟨⟩⟩, hom := f.left } : Over Y.left) Y.hom C))
-    (ModuleCat.{u} Λ))]
-variable [(etaleExtensionByZero (Of.ι C.P_g)
-    (ModuleCat.{u} Λ)).Additive]
-variable [PreservesFiniteLimits
-  (etaleExtensionByZero (Of.ι C.P_g)
-    (ModuleCat.{u} Λ))]
-variable [PreservesFiniteColimits
-  (etaleExtensionByZero (Of.ι C.P_g)
-    (ModuleCat.{u} Λ))]
-variable [(etaleExtensionByZero (CompDiagram.openImmersion ({ left := X.left, right := ⟨⟨⟩⟩, hom := f.left } : Over Y.left) Y.hom C)
-    (ModuleCat.{u} Λ)).Additive]
-variable [PreservesFiniteLimits
-  (etaleExtensionByZero (CompDiagram.openImmersion ({ left := X.left, right := ⟨⟨⟩⟩, hom := f.left } : Over Y.left) Y.hom C)
-    (ModuleCat.{u} Λ))]
-variable [PreservesFiniteColimits
-  (etaleExtensionByZero (CompDiagram.openImmersion ({ left := X.left, right := ⟨⟨⟩⟩, hom := f.left } : Over Y.left) Y.hom C)
-    (ModuleCat.{u} Λ))]
-variable [(etaleExtensionByZero
-    (Of.ι (CompDiagram.ofComposite (h_f_separated := (inferInstance : IsSeparated f.left)) (h_f_finiteType := (inferInstance : Scheme.Hom.FiniteType f.left)) ({ left := X.left, right := ⟨⟨⟩⟩, hom := f.left } : Over Y.left) Y.hom C))
-    (ModuleCat.{u} Λ)).Additive]
-variable [PreservesFiniteLimits (etaleExtensionByZero
-    (Of.ι (CompDiagram.ofComposite (h_f_separated := (inferInstance : IsSeparated f.left)) (h_f_finiteType := (inferInstance : Scheme.Hom.FiniteType f.left)) ({ left := X.left, right := ⟨⟨⟩⟩, hom := f.left } : Over Y.left) Y.hom C))
-    (ModuleCat.{u} Λ))]
-variable [PreservesFiniteColimits (etaleExtensionByZero
-    (Of.ι (CompDiagram.ofComposite (h_f_separated := (inferInstance : IsSeparated f.left)) (h_f_finiteType := (inferInstance : Scheme.Hom.FiniteType f.left)) ({ left := X.left, right := ⟨⟨⟩⟩, hom := f.left } : Over Y.left) Y.hom C))
-    (ModuleCat.{u} Λ))]
-
-variable [((smallEtalePullback
-    (CompDiagram.toBase ({ left := X.left, right := ⟨⟨⟩⟩, hom := f.left } : Over Y.left) Y.hom C)).sheafPushforwardContinuous
-      (ModuleCat.{u} Λ) Y.left.smallEtaleTopology
-      (CompDiagram.interior ({ left := X.left, right := ⟨⟨⟩⟩, hom := f.left } : Over Y.left) Y.hom C).smallEtaleTopology).Additive]
-variable [HasRightDerivedFunctor
-  (RightDerived.Cochain.toDerived
-    ((smallEtalePullback (CompDiagram.toBase ({ left := X.left, right := ⟨⟨⟩⟩, hom := f.left } : Over Y.left) Y.hom C)).sheafPushforwardContinuous
-      (ModuleCat.{u} Λ) Y.left.smallEtaleTopology
-      (CompDiagram.interior ({ left := X.left, right := ⟨⟨⟩⟩, hom := f.left } : Over Y.left) Y.hom C).smallEtaleTopology))
-  (HomologicalComplex.quasiIso
-    (Sheaf (CompDiagram.interior ({ left := X.left, right := ⟨⟨⟩⟩, hom := f.left } : Over Y.left) Y.hom C).smallEtaleTopology
-      (ModuleCat.{u} Λ))
-    (ComplexShape.up ℤ))]
-variable [((smallEtalePullback C.P_bar.obj.right.hom).sheafPushforwardContinuous
-    (ModuleCat.{u} Λ) C.P_g.obj.right.left.smallEtaleTopology
-    C.P_bar.obj.right.left.smallEtaleTopology).Additive]
-variable [HasRightDerivedFunctor
-  (RightDerived.Cochain.toDerived
-    ((smallEtalePullback C.P_bar.obj.right.hom).sheafPushforwardContinuous
-      (ModuleCat.{u} Λ) C.P_g.obj.right.left.smallEtaleTopology
-      C.P_bar.obj.right.left.smallEtaleTopology))
-  (HomologicalComplex.quasiIso
-    (Sheaf C.P_bar.obj.right.left.smallEtaleTopology (ModuleCat.{u} Λ))
-    (ComplexShape.up ℤ))]
-variable [((smallEtalePullback C.P_g.obj.right.hom).sheafPushforwardContinuous
-    (ModuleCat.{u} Λ) (Spec (CommRingCat.of k)).smallEtaleTopology
-    C.P_g.obj.right.left.smallEtaleTopology).Additive]
-variable [HasRightDerivedFunctor
-  (RightDerived.Cochain.toDerived
-    ((smallEtalePullback C.P_g.obj.right.hom).sheafPushforwardContinuous
-      (ModuleCat.{u} Λ) (Spec (CommRingCat.of k)).smallEtaleTopology
-      C.P_g.obj.right.left.smallEtaleTopology))
-  (HomologicalComplex.quasiIso
-    (Sheaf C.P_g.obj.right.left.smallEtaleTopology (ModuleCat.{u} Λ))
-    (ComplexShape.up ℤ))]
-variable [((smallEtalePullback
-    (CompDiagram.toComposite ({ left := X.left, right := ⟨⟨⟩⟩, hom := f.left } : Over Y.left) Y.hom C)).sheafPushforwardContinuous
-      (ModuleCat.{u} Λ) (Spec (CommRingCat.of k)).smallEtaleTopology
-      C.P_bar.obj.right.left.smallEtaleTopology).Additive]
-variable [HasRightDerivedFunctor
-  (RightDerived.Cochain.toDerived
-    ((smallEtalePullback
-        (CompDiagram.toComposite ({ left := X.left, right := ⟨⟨⟩⟩, hom := f.left } : Over Y.left) Y.hom C)).sheafPushforwardContinuous
-      (ModuleCat.{u} Λ) (Spec (CommRingCat.of k)).smallEtaleTopology
-      C.P_bar.obj.right.left.smallEtaleTopology))
-  (HomologicalComplex.quasiIso
-    (Sheaf C.P_bar.obj.right.left.smallEtaleTopology (ModuleCat.{u} Λ))
-    (ComplexShape.up ℤ))]
-variable [PreservesFiniteLimits
-  ((smallEtalePullback
-      (CompDiagram.toBase ({ left := X.left, right := ⟨⟨⟩⟩, hom := f.left } : Over Y.left) Y.hom C)).sheafPushforwardContinuous
-    (ModuleCat.{u} Λ) Y.left.smallEtaleTopology
-    (CompDiagram.interior ({ left := X.left, right := ⟨⟨⟩⟩, hom := f.left } : Over Y.left) Y.hom C).smallEtaleTopology)]
-variable [PreservesFiniteColimits
-  ((smallEtalePullback
-      (CompDiagram.toBase ({ left := X.left, right := ⟨⟨⟩⟩, hom := f.left } : Over Y.left) Y.hom C)).sheafPushforwardContinuous
-    (ModuleCat.{u} Λ) Y.left.smallEtaleTopology
-    (CompDiagram.interior ({ left := X.left, right := ⟨⟨⟩⟩, hom := f.left } : Over Y.left) Y.hom C).smallEtaleTopology)]
-variable [(etaleModulePushforward
-    (CompDiagram.ofInterior (h_f_separated := (inferInstance : IsSeparated f.left)) (h_f_finiteType := (inferInstance : Scheme.Hom.FiniteType f.left)) ({ left := X.left, right := ⟨⟨⟩⟩, hom := f.left } : Over Y.left) Y.hom C).obj.right.hom Λ).Additive]
-variable [HasWeakSheafify
-  (CompDiagram.interior ({ left := X.left, right := ⟨⟨⟩⟩, hom := f.left } : Over Y.left) Y.hom C).smallEtaleTopology
-    AddCommGrpCat.{u}]
-variable [HasWeakSheafify X.left.smallEtaleTopology (ModuleCat.{u} Λ)]
-variable [HasWeakSheafify Y.left.smallEtaleTopology (ModuleCat.{u} Λ)]
-variable [HasWeakSheafify X.left.smallEtaleTopology AddCommGrpCat.{u}]
-variable [∀ P : Y.left.Etaleᵒᵖ ⥤ ModuleCat.{u} Λ,
-  (smallEtalePullback f.left).op.HasLeftKanExtension P]
-variable [∀ P : Y.left.Etaleᵒᵖ ⥤ AddCommGrpCat.{u},
-  (smallEtalePullback f.left).op.HasLeftKanExtension P]
-variable [(forget₂ (ModuleCat.{u} Λ) AddCommGrpCat.{u}).PreservesLeftKanExtensions
-  (smallEtalePullback f.left).op]
-variable [((smallEtalePullback f.left).sheafPushforwardContinuous
-    (ModuleCat.{u} Λ) Y.left.smallEtaleTopology
-    X.left.smallEtaleTopology).IsRightAdjoint]
-variable [(Sheaf.smallEtaleInverseImage f.left (ModuleCat.{u} Λ)).Additive]
-variable [PreservesFiniteLimits (Sheaf.smallEtaleInverseImage f.left (ModuleCat.{u} Λ))]
-variable [PreservesFiniteColimits (Sheaf.smallEtaleInverseImage f.left (ModuleCat.{u} Λ))]
-
-variable [HasDerivedCategory (ModuleCat.{u} Λ)]
-variable [((sheafSections (Spec (CommRingCat.of k)).smallEtaleTopology
-    (ModuleCat.{u} Λ)).obj
-    (op (globalEtale (Spec (CommRingCat.of k))))).Additive]
-variable [HasRightDerivedFunctor
-  (RightDerived.Cochain.toDerived
-    ((sheafSections (Spec (CommRingCat.of k)).smallEtaleTopology
-        (ModuleCat.{u} Λ)).obj
-      (op (globalEtale (Spec (CommRingCat.of k))))))
-  (HomologicalComplex.quasiIso
-    (Sheaf (Spec (CommRingCat.of k)).smallEtaleTopology (ModuleCat.{u} Λ))
-    (ComplexShape.up ℤ))]
-
 
 variable {l : Type u} [Field l]
 variable {X' Y' : SchemeOverField l} (f' : X' ⟶ Y')
@@ -600,23 +333,8 @@ variable [CompactSpace Y'.left] [QuasiSeparatedSpace Y'.left]
 variable [CompactSpace (Spec (CommRingCat.of l))]
 variable [QuasiSeparatedSpace (Spec (CommRingCat.of l))]
 variable (C' : CompDiagram ({ left := X'.left, right := ⟨⟨⟩⟩, hom := f'.left } : Over Y'.left) Y'.hom)
-variable [IsOpenImmersion (Of.ι C'.P_g)]
-variable [Etale (Of.ι C'.P_g)]
-variable [IsSeparated (Of.ι C'.P_g)]
-variable [LocallyQuasiFinite (Of.ι C'.P_g)]
-variable [LocallyOfFiniteType (Of.ι C'.P_g)]
-variable [IsSeparated (CompDiagram.openImmersion ({ left := X'.left, right := ⟨⟨⟩⟩, hom := f'.left } : Over Y'.left) Y'.hom C')]
-variable [LocallyQuasiFinite (CompDiagram.openImmersion ({ left := X'.left, right := ⟨⟨⟩⟩, hom := f'.left } : Over Y'.left) Y'.hom C')]
-variable [LocallyOfFiniteType (CompDiagram.openImmersion ({ left := X'.left, right := ⟨⟨⟩⟩, hom := f'.left } : Over Y'.left) Y'.hom C')]
-variable [IsSeparated (Of.ι (CompDiagram.ofInterior (h_f_separated := (inferInstance : IsSeparated f'.left)) (h_f_finiteType := (inferInstance : Scheme.Hom.FiniteType f'.left)) ({ left := X'.left, right := ⟨⟨⟩⟩, hom := f'.left } : Over Y'.left) Y'.hom C'))]
-variable [LocallyQuasiFinite (Of.ι (CompDiagram.ofInterior (h_f_separated := (inferInstance : IsSeparated f'.left)) (h_f_finiteType := (inferInstance : Scheme.Hom.FiniteType f'.left)) ({ left := X'.left, right := ⟨⟨⟩⟩, hom := f'.left } : Over Y'.left) Y'.hom C'))]
-variable [LocallyOfFiniteType (Of.ι (CompDiagram.ofInterior (h_f_separated := (inferInstance : IsSeparated f'.left)) (h_f_finiteType := (inferInstance : Scheme.Hom.FiniteType f'.left)) ({ left := X'.left, right := ⟨⟨⟩⟩, hom := f'.left } : Over Y'.left) Y'.hom C'))]
-variable [IsSeparated
-  (Of.ι (CompDiagram.ofComposite (h_f_separated := (inferInstance : IsSeparated f'.left)) (h_f_finiteType := (inferInstance : Scheme.Hom.FiniteType f'.left)) ({ left := X'.left, right := ⟨⟨⟩⟩, hom := f'.left } : Over Y'.left) Y'.hom C'))]
-variable [LocallyQuasiFinite
-  (Of.ι (CompDiagram.ofComposite (h_f_separated := (inferInstance : IsSeparated f'.left)) (h_f_finiteType := (inferInstance : Scheme.Hom.FiniteType f'.left)) ({ left := X'.left, right := ⟨⟨⟩⟩, hom := f'.left } : Over Y'.left) Y'.hom C'))]
-variable [LocallyOfFiniteType
-  (Of.ι (CompDiagram.ofComposite (h_f_separated := (inferInstance : IsSeparated f'.left)) (h_f_finiteType := (inferInstance : Scheme.Hom.FiniteType f'.left)) ({ left := X'.left, right := ⟨⟨⟩⟩, hom := f'.left } : Over Y'.left) Y'.hom C'))]
+-- The compactification interiors and their base changes inherit their geometric
+-- properties from `Of.instIsOpenImmersion` and the standard morphism instances.
 
 variable [HasSheafify X'.left.smallEtaleTopology (ModuleCat.{u} Λ)]
 variable [∀ U : X'.left.Etale,
@@ -808,12 +526,22 @@ variable [PreservesFiniteColimits
     (CompDiagram.interior ({ left := X'.left, right := ⟨⟨⟩⟩, hom := f'.left } : Over Y'.left) Y'.hom C').smallEtaleTopology)]
 variable [(etaleModulePushforward
     (CompDiagram.ofInterior (h_f_separated := (inferInstance : IsSeparated f'.left)) (h_f_finiteType := (inferInstance : Scheme.Hom.FiniteType f'.left)) ({ left := X'.left, right := ⟨⟨⟩⟩, hom := f'.left } : Over Y'.left) Y'.hom C').obj.right.hom Λ).Additive]
-variable [HasWeakSheafify
+
+-- Cache the sheafification implication without adding separate hypotheses.
+local instance covarianceWeakSheafify5 : HasWeakSheafify
   (CompDiagram.interior ({ left := X'.left, right := ⟨⟨⟩⟩, hom := f'.left } : Over Y'.left) Y'.hom C').smallEtaleTopology
-    AddCommGrpCat.{u}]
-variable [HasWeakSheafify X'.left.smallEtaleTopology (ModuleCat.{u} Λ)]
-variable [HasWeakSheafify Y'.left.smallEtaleTopology (ModuleCat.{u} Λ)]
-variable [HasWeakSheafify X'.left.smallEtaleTopology AddCommGrpCat.{u}]
+    AddCommGrpCat.{u} :=
+  HasSheafify.isRightAdjoint
+
+local instance covarianceWeakSheafify6 : HasWeakSheafify X'.left.smallEtaleTopology (ModuleCat.{u} Λ) :=
+  HasSheafify.isRightAdjoint
+
+local instance covarianceWeakSheafify7 : HasWeakSheafify Y'.left.smallEtaleTopology (ModuleCat.{u} Λ) :=
+  HasSheafify.isRightAdjoint
+
+local instance covarianceWeakSheafify8 : HasWeakSheafify X'.left.smallEtaleTopology AddCommGrpCat.{u} :=
+  HasSheafify.isRightAdjoint
+
 variable [∀ P : Y'.left.Etaleᵒᵖ ⥤ ModuleCat.{u} Λ,
   (smallEtalePullback f'.left).op.HasLeftKanExtension P]
 variable [∀ P : Y'.left.Etaleᵒᵖ ⥤ AddCommGrpCat.{u},
@@ -989,5 +717,22 @@ set_option maxHeartbeats 800000 in
       (etaleModuleDerivedInverseImage_isGE b Λ K n (hK := hGE))))
 
 end FieldExtension
+
+end
+
+section Unibranch
+
+variable {X Y : Scheme.{u}} (f : X ⟶ Y)
+variable [LocallyOfFiniteType f] [LocallyQuasiFinite f] [IsLocallyNoetherian Y]
+
+/- Geometrically unibranch targets supply a nonnegative generic-separable-degree weighting. -/
+#check
+  (AlgebraicGeometry.Scheme.Hom.exists_genericSepDegreeWeighting f :
+    Y.isGeometricallyUnibranch →
+    ∃ w : X → ℕ, f.IsWeighting (fun x ↦ (w x : ℤ)) ∧
+      ∀ x : X, RingHom.IsGenericSepDegree (f.stalkMap x).hom
+        (LocallyOfFiniteType.stalkMap f x) (f.quasiFiniteAt x) (w x))
+
+end Unibranch
 
 end

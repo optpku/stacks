@@ -27,12 +27,21 @@ namespace CommRingCat.FilteredColimits
 variable {J : Type v} [SmallCategory J] [IsFiltered J]
 
 /-- A chosen filtered colimit cocone of nontrivial commutative rings has a
-nontrivial cocone point, with no restriction relating the index and carrier
-universes. -/
+nontrivial cocone point if the forgetful functor preserves this colimit.
+This allows unrelated index and carrier universes; preservation is automatic
+for filtered diagrams small relative to the carrier universe. -/
 theorem nontrivial_of_isColimit
     (F : J ⥤ CommRingCat.{u}) (c : Cocone F) (hc : IsColimit c)
+    [PreservesColimit F (forget CommRingCat.{u})]
     [∀ j, Nontrivial (F.obj j)] :
-    Nontrivial c.pt := sorry
+    Nontrivial c.pt := by
+  classical
+  let i := (IsFiltered.nonempty (C := J)).some
+  refine ⟨c.ι.app i 0, c.ι.app i 1, fun h ↦ ?_⟩
+  obtain ⟨k, f, e⟩ :=
+    (Types.FilteredColimit.isColimit_eq_iff'
+      (isColimitOfPreserves (forget CommRingCat.{u}) hc) _ _).mp h
+  exact zero_ne_one (((F.map f).hom.map_zero.symm.trans e).trans (F.map f).hom.map_one)
 
 variable (F : J ⥤ CommRingCat.{max v u})
 

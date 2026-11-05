@@ -11,6 +11,7 @@ public import Mathlib.Tactic.CrossRefAttribute
 public import ReasLib.RingTheory.FormalFiber.PRing
 public import ReasLib.RingTheory.FormalFiber.FieldProperty.Laws
 public import ReasLib.RingTheory.RingHom.Syntomic.Basic
+public import ReasLib.RingTheory.FormalFiber.LocalCompleteIntersection
 
 /-!
 # Local complete-intersection formal fibers
@@ -30,29 +31,29 @@ namespace FieldAlgebraProperty
 
 /- The canonical field-algebra property underlying local-complete-intersection formal fibers. -/
 
-/-- Local complete-intersection algebras over fields, viewed as a reusable field-algebra property.
-This is intentionally the local-on-the-spectrum predicate, rather than the stronger global
-complete-intersection condition on the whole algebra. -/
+/-- The intrinsic local-complete-intersection ring property, retained under the legacy
+formal-fiber name. It is independent of the displayed ground field and imposes no finite
+presentation condition over that field. -/
 @[stacks 09QC "local complete-intersection field-algebra property"]
 abbrev localCompleteIntersection : FieldAlgebraProperty.{u, v} :=
-  fun k A ↦ fun [Field k] [CommRing A] [Algebra k A] ↦
-    _root_.IsLocalCompleteIntersection k A
+  localCompleteIntersectionRing
 
-/-- Local complete intersections over fields satisfy the permanence laws used by the formal-fiber
-machine.  The individual law classes remain available through this bundled instance. -/
+/-- Intrinsic local complete intersections satisfy the permanence laws used by the formal-fiber
+machine, by the canonical ring-property instance. -/
 @[stacks 09QC "complete-intersection formal-fiber laws"]
 instance localCompleteIntersection.formalFiberLaws :
-    (localCompleteIntersection : FieldAlgebraProperty.{u, u}).FormalFiberLaws := sorry
+    (localCompleteIntersection : FieldAlgebraProperty.{u, u}).FormalFiberLaws :=
+  localCompleteIntersectionRing.formalFiberLaws
 
 end FieldAlgebraProperty
 
 namespace IsLocalRing
 
 /-- A local ring has LCI formal fibers when every fiber of its maximal-ideal
-completion map is a local complete intersection. -/
+completion map is intrinsically a local complete-intersection ring. -/
 @[stacks 09QC "local complete-intersection formal fibers"]
 abbrev HasLciFormalFibers (A : Type u) [CommRing A] [IsLocalRing A] : Prop :=
-  (algebraMap A (AdicCompletion (maximalIdeal A) A)).HasLocalCompleteIntersectionFibers
+  FieldAlgebraProperty.localCompleteIntersectionRing.HoldsOnFormalFibers A
 
 /- This bridge keeps the chapter-facing name while exposing the generic formal-fiber API. -/
 
@@ -61,7 +62,7 @@ complete-intersection field-algebra property. -/
 @[stacks 09QC "formal fibers as a field-algebra property"]
 theorem hasLciFormalFibers_iff (A : Type u) [CommRing A] [IsLocalRing A] :
     HasLciFormalFibers A ↔
-      FieldAlgebraProperty.localCompleteIntersection.HoldsOnFormalFibers A := sorry
+      FieldAlgebraProperty.localCompleteIntersection.HoldsOnFormalFibers A := Iff.rfl
 
 /-- Remark 23.9.3 (Tag 09QC): there is a Noetherian local ring whose formal
 fibers are not all local complete intersections. -/

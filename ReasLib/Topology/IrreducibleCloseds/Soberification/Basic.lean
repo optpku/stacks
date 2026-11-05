@@ -24,7 +24,7 @@ open Set TopologicalSpace
 
 variable {X : Type u} [TopologicalSpace X]
 
-namespace IrreducibleCloseds
+namespace TopologicalSpace.IrreducibleCloseds
 
 /-- The basic open of the soberification attached to an open subset `U ⊆ X` consists of the
 irreducible closed subsets of `X` that meet `U`. -/
@@ -51,7 +51,7 @@ theorem basicOpen_inf (U V : Opens X) :
 theorem basicOpen_sSup (S : Set (Opens X)) :
     basicOpen (sSup S) = ⋃ U ∈ S, basicOpen U := sorry
 
-end IrreducibleCloseds
+end TopologicalSpace.IrreducibleCloseds
 
 /-- The pointwise map sending `x` to the irreducible closed subset `closure {x}`. -/
 def toIrreducibleClosedsFun (x : X) : IrreducibleCloseds X :=
@@ -134,7 +134,7 @@ theorem isTopologicalBasis_basicOpen :
 theorem isOpen_iff_exists_basicOpen {s : Set (IrreducibleCloseds X)} :
     IsOpen s ↔ ∃ U : Opens X, s = IrreducibleCloseds.basicOpen U := sorry
 
-namespace IrreducibleCloseds
+namespace TopologicalSpace.IrreducibleCloseds
 
 /-- The basic subset associated to an open subset of `X` is open in the soberification. -/
 theorem isOpen_basicOpen (U : Opens X) : IsOpen (basicOpen U) := sorry
@@ -189,7 +189,7 @@ def opensOrderIso : Opens X ≃o Opens (IrreducibleCloseds X) where
   right_inv := basicOpenFrameHom_comap
   map_rel_iff' := basicOpenFrameHom_le_iff
 
-end IrreducibleCloseds
+end TopologicalSpace.IrreducibleCloseds
 
 /-- Inverse image along the soberification map is a bijection on opens. -/
 @[stacks 0A2N "bijection and frame operations on opens"]
@@ -198,7 +198,7 @@ theorem toIrreducibleCloseds_opensComap_bijective :
       (Opens.comap (toIrreducibleCloseds : C(X, IrreducibleCloseds X))) := sorry
 
 /-- The soberification carried by irreducible closed subsets is quasi-sober. -/
-instance IrreducibleCloseds.quasiSoberSoberification : QuasiSober (IrreducibleCloseds X) := sorry
+instance TopologicalSpace.IrreducibleCloseds.quasiSoberSoberification : QuasiSober (IrreducibleCloseds X) := sorry
 
 /-- The soberification carried by irreducible closed subsets is Kolmogorov. -/
-instance IrreducibleCloseds.t0SpaceSoberification : T0Space (IrreducibleCloseds X) := sorry
+instance TopologicalSpace.IrreducibleCloseds.t0SpaceSoberification : T0Space (IrreducibleCloseds X) := sorry

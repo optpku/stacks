@@ -11,6 +11,8 @@ public import ReasLib.AlgebraicGeometry.RingedSpace.Module.PullbackStalk
 public import ReasLib.AlgebraicGeometry.Scheme.ClosedSubscheme.PointClosure.GenericPoint
 public import ReasLib.AlgebraicGeometry.Scheme.Divisor.Dimension
 public import ReasLib.AlgebraicGeometry.Scheme.Divisor.OrderOfVanishing.MeromorphicSection
+public import ReasLib.AlgebraicGeometry.Scheme.Module.MeromorphicSection.GenericStalk
+public import ReasLib.AlgebraicGeometry.Scheme.Module.Invertible.Pullback
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.FiniteType.Immersion
 public import ReasLib.RingTheory.LocalRing.TameSymbol.Determinant
 
@@ -160,7 +162,10 @@ theorem restrictToPointClosure_genericGerm {X : Scheme.{u}}
       (Scheme.PointClosure.scheme Z.genericPoint).toLocallyRingedSpace.meromorphicSectionStalkMap
         ((Scheme.Modules.pullback (Scheme.PointClosure.ι Z.genericPoint)).obj ℒ)
         (_root_.genericPoint (Scheme.PointClosure.scheme Z.genericPoint))
-        (generatorOnPointClosure data) := sorry
+        (generatorOnPointClosure data) :=
+  Function.rightInverse_invFun
+    ((Scheme.PointClosure.scheme Z.genericPoint).meromorphicSectionGenericGerm_bijective
+      ((Scheme.Modules.pullback (Scheme.PointClosure.ι Z.genericPoint)).obj ℒ)).surjective _
 
 /-- A meromorphic section with the prescribed generic germ is the restricted section, so the
 construction is independent of the choice made by `Function.invFun`. -/
@@ -179,7 +184,10 @@ theorem restrictToPointClosure_unique {X : Scheme.{u}}
         ((Scheme.Modules.pullback (Scheme.PointClosure.ι Z.genericPoint)).obj ℒ)
         (_root_.genericPoint (Scheme.PointClosure.scheme Z.genericPoint))
         (generatorOnPointClosure data)) :
-    section_ = restrictToPointClosure data := sorry
+    section_ = restrictToPointClosure data := by
+  apply ((Scheme.PointClosure.scheme Z.genericPoint).meromorphicSectionGenericGerm_bijective
+    ((Scheme.Modules.pullback (Scheme.PointClosure.ι Z.genericPoint)).obj ℒ)).injective
+  exact hsection.trans (restrictToPointClosure_genericGerm data).symm
 
 /-- The meromorphic section induced by a stalk generator on the reduced point closure is
 nonzero. -/

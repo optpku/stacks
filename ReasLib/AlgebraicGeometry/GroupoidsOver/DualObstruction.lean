@@ -14,6 +14,7 @@ public import ReasLib.Algebra.Homology.DerivedCategory.ModuleEmbedding
 public import ReasLib.Algebra.Homology.DerivedCategory.TensorProduct
 public import ReasLib.AlgebraicGeometry.GroupoidsOver.DeformationSituation.FixedObject
 public import ReasLib.AlgebraicGeometry.GroupoidsOver.InfinitesimalDeformation
+public import ReasLib.AlgebraicGeometry.GroupoidsOver.ObjectOverAffineOpen
 
 /-!
 # Dual obstruction data at a finite-type object
@@ -101,26 +102,14 @@ structure DualObstruction (X : GroupoidsOver S) [HasStrongRimSchlessinger X] whe
   tangentIso : tangentFunctor (Functor.Fiber.mk over_obj) ≅ homologyTensorUlift complex 1
   /-- The obstruction class of each deformation situation over the fixed object. -/
   obstruction :
-    let ξ : ObjectOverSpec X := {
-      toCommRingCat := CommRingCat.of coefficientAlgebra
-      toS := Spec.map (CommRingCat.ofHom (algebraMap base coefficientAlgebra)) ≫
-        (chart.hom ≫ affineOpen.ι)
-      mapsIntoAffineOpen := ⟨Spec base, inferInstance, chart.hom ≫ affineOpen.ι,
-        inferInstance, Spec.map (CommRingCat.ofHom (algebraMap base coefficientAlgebra)), rfl⟩
-      obj := obj
-      over_obj := over_obj }
+    let ξ := (ObjectOverAffineOpen.ofChart base coefficientAlgebra affineOpen chart
+      obj over_obj).toObjectOverSpec
     {σ : DeformationSituation X} → (hσ : σ.IsOver ξ) →
       (homologyTensor complex 2).obj (DeformationSituation.kernelOver hσ)
   /-- Obstruction classes are natural along every morphism fixing the coefficient ring. -/
   map_obstruction :
-    let ξ : ObjectOverSpec X := {
-      toCommRingCat := CommRingCat.of coefficientAlgebra
-      toS := Spec.map (CommRingCat.ofHom (algebraMap base coefficientAlgebra)) ≫
-        (chart.hom ≫ affineOpen.ι)
-      mapsIntoAffineOpen := ⟨Spec base, inferInstance, chart.hom ≫ affineOpen.ι,
-        inferInstance, Spec.map (CommRingCat.ofHom (algebraMap base coefficientAlgebra)), rfl⟩
-      obj := obj
-      over_obj := over_obj }
+    let ξ := (ObjectOverAffineOpen.ofChart base coefficientAlgebra affineOpen chart
+      obj over_obj).toObjectOverSpec
     ∀ {σ τ : DeformationSituation X}
       (hσ : σ.IsOver ξ) (hτ : τ.IsOver ξ)
       (f : DeformationSituation.Hom σ τ)
@@ -130,14 +119,8 @@ structure DualObstruction (X : GroupoidsOver S) [HasStrongRimSchlessinger X] whe
         obstruction hτ
   /-- A lift exists exactly when the obstruction vanishes. -/
   lifts_iff :
-    let ξ : ObjectOverSpec X := {
-      toCommRingCat := CommRingCat.of coefficientAlgebra
-      toS := Spec.map (CommRingCat.ofHom (algebraMap base coefficientAlgebra)) ≫
-        (chart.hom ≫ affineOpen.ι)
-      mapsIntoAffineOpen := ⟨Spec base, inferInstance, chart.hom ≫ affineOpen.ι,
-        inferInstance, Spec.map (CommRingCat.ofHom (algebraMap base coefficientAlgebra)), rfl⟩
-      obj := obj
-      over_obj := over_obj }
+    let ξ := (ObjectOverAffineOpen.ofChart base coefficientAlgebra affineOpen chart
+      obj over_obj).toObjectOverSpec
     ∀ {σ : DeformationSituation X} (hσ : σ.IsOver ξ),
       Nonempty (DeformationSituation.ObjectLift σ) ↔ obstruction hσ = 0
 
@@ -159,13 +142,18 @@ abbrev baseCommRing (𝒟 : DualObstruction X) : CommRing 𝒟.base := 𝒟.base
 abbrev algebra (𝒟 : DualObstruction X) : Algebra 𝒟.base 𝒟.carrier :=
   𝒟.coefficientAlgebra.algebra
 
+/-- The basic affine-open object, forgetting all obstruction-theory data. -/
+abbrev toObjectOverAffineOpen (𝒟 : DualObstruction X) : ObjectOverAffineOpen X :=
+  ObjectOverAffineOpen.ofChart 𝒟.base 𝒟.coefficientAlgebra 𝒟.affineOpen 𝒟.chart
+    𝒟.obj 𝒟.over_obj
+
 /-- The open immersion obtained by composing the affine chart with the open inclusion. -/
 abbrev openImmersion (𝒟 : DualObstruction X) : Spec 𝒟.base ⟶ S :=
-  𝒟.chart.hom ≫ 𝒟.affineOpen.ι
+  𝒟.toObjectOverAffineOpen.openImmersion
 
 /-- The structure morphism of the affine coefficient spectrum. -/
 abbrev toS (𝒟 : DualObstruction X) : Spec (CommRingCat.of 𝒟.carrier) ⟶ S :=
-  Spec.map (CommRingCat.ofHom (algebraMap 𝒟.base 𝒟.carrier)) ≫ 𝒟.openImmersion
+  𝒟.toObjectOverAffineOpen.toS
 
 /-- The structure morphism factors through the specified affine open chart. -/
 theorem factor (𝒟 : DualObstruction X) :
@@ -173,13 +161,12 @@ theorem factor (𝒟 : DualObstruction X) :
       𝒟.openImmersion = 𝒟.toS := rfl
 
 /-- The object over the coefficient spectrum, with its chart-induced structure morphism. -/
-abbrev toObjectOverSpec (𝒟 : DualObstruction X) : ObjectOverSpec X where
-  toCommRingCat := CommRingCat.of 𝒟.carrier
-  toS := 𝒟.toS
-  mapsIntoAffineOpen := ⟨Spec 𝒟.base, inferInstance, 𝒟.openImmersion, inferInstance,
-    Spec.map (CommRingCat.ofHom (algebraMap 𝒟.base 𝒟.carrier)), rfl⟩
-  obj := 𝒟.obj
-  over_obj := 𝒟.over_obj
+abbrev toObjectOverSpec (𝒟 : DualObstruction X) : ObjectOverSpec X :=
+  𝒟.toObjectOverAffineOpen.toObjectOverSpec
+
+/-- Forgetting the affine chart agrees with the existing spectrum accessor. -/
+@[simp] theorem toObjectOverAffineOpen_toObjectOverSpec (𝒟 : DualObstruction X) :
+    𝒟.toObjectOverAffineOpen.toObjectOverSpec = 𝒟.toObjectOverSpec := rfl
 
 /-- Dual obstruction data specifies finite type, an affine-open factorization,
 a tangent isomorphism, natural obstruction classes, and the lifting criterion. -/

@@ -194,8 +194,8 @@ theorem zero_smul {A B : Type u} [CommRing A] [CommRing B] [Algebra A B]
     smul 𝒜 σA f pullbackData F p (0 : 𝒜 m) x = 0 :=
   sorry
 
-/-- The graded action on cohomology induced by canonical homogeneous sections of a pullback
-affine tilde algebra and multiplication on the graded module. -/
+/-- The graded action on cohomology induced by the transported homogeneous sections of a supplied
+affine tilde presentation and multiplication on the graded module. -/
 @[reducible]
 def gmodule {A B : Type u} [CommRing A] [CommRing B] [Algebra A B]
     (𝒜 : ℕ → Submodule A B) [GradedAlgebra 𝒜] {X : AlgebraicSpace S}
@@ -242,7 +242,7 @@ theorem module_smul_of {A B : Type u} [CommRing A] [CommRing B] [Algebra A B]
 `f : X ⟶ ofOver (Over.mk σA)` is a proper morphism of algebraic spaces to `Spec(A)` over a
 scheme `S`, `𝓑` is identified with `f^*(tilde B)` by a pullback-tilde comparison, and `F` is a
 quasi-coherent graded `𝓑`-module of finite type, then for every `p : ℕ` the graded `B`-module
-`carrier σA f F p` is a finite `B`-module under the canonical action `module`. Here
+`carrier σA f F p` is a finite `B`-module under the action `module` determined by the supplied presentation. Here
 `ofOver (Over.mk σA)` is `Spec(A)` as an algebraic space over `S`, and `carrier` is the
 graded `B`-module `H^p(X, F)`. -/
 @[stacks 08AT]

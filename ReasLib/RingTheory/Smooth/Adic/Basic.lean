@@ -34,7 +34,11 @@ variable [CommRing R] [CommRing S]
 when it is topologically formally smooth from the discrete source topology. -/
 @[stacks 07NI "adic formal smoothness"]
 abbrev formally_smooth_for_adic (f : R →+* S) (𝔫 : Ideal S) : Prop :=
+  -- Local instance justification (noncanonical choice): the adic predicate fixes the discrete
+  -- source topology, independently of any other topology on the underlying ring.
   letI : TopologicalSpace R := ⊥
+  -- Local instance justification (noncanonical choice): the target topology must be the one
+  -- determined by the explicit ideal `𝔫`, which varies with the predicate argument.
   letI : TopologicalSpace S := Ideal.adicTopology 𝔫
   FormallySmoothTopologically.{u, v, max u v} f
 
@@ -42,7 +46,11 @@ abbrev formally_smooth_for_adic (f : R →+* S) (𝔫 : Ideal S) : Prop :=
 source and the target adic topology. -/
 theorem formally_smooth_for_adic_iff (f : R →+* S) (𝔫 : Ideal S) :
     formally_smooth_for_adic f 𝔫 ↔
-      (letI : TopologicalSpace R := ⊥
+      (-- Local instance justification (noncanonical choice): pin the discrete source topology
+       -- used in the definition being unfolded, rather than introducing a topology assumption.
+       letI : TopologicalSpace R := ⊥
+       -- Local instance justification (noncanonical choice): pin exactly the `𝔫`-adic target
+       -- topology used by `formally_smooth_for_adic`.
        letI : TopologicalSpace S := Ideal.adicTopology 𝔫
        FormallySmoothTopologically.{u, v, max u v} f) := sorry
 

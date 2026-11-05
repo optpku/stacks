@@ -64,7 +64,11 @@ noncomputable def quotientTowerStageIsoEnvelopeQuotient
 theorem stagePresentationToEnvelopeQuotient_ker
     (E : DividedPowerEnvelope I γ (algebraMap A P) J hIJ) (e : ℕ) :
     Ideal.span {((p : P) ^ e)} ≤
-      RingHom.ker ((Ideal.Quotient.mk (Ideal.span {(p : E.D)} ^ e)).comp E.toD) := sorry
+      RingHom.ker ((Ideal.Quotient.mk (Ideal.span {(p : E.D)} ^ e)).comp E.toD) := by
+  rw [Ideal.span_singleton_le_iff_mem, RingHom.mem_ker]
+  simp only [RingHom.comp_apply, map_pow, map_natCast]
+  exact Ideal.Quotient.eq_zero_iff_mem.mpr
+    (Ideal.pow_mem_pow (Ideal.subset_span (Set.mem_singleton _)) e)
 
 /-- The presentation `P_e → D / p^e D` induced by the envelope. -/
 noncomputable def stagePresentationToEnvelopeQuotient
@@ -84,7 +88,16 @@ theorem stagePresentationToEnvelopeQuotient_isDPMorphism
     DividedPowers.IsDPMorphism γ
       (envelopeQuotient p A P I γ J hIJ E e hstable).dividedPowers
       ((stagePresentationToEnvelopeQuotient p A P I γ J hIJ E e hstable).comp
-        (stageMap p A P e)) := sorry
+        (stageMap p A P e)) := by
+  have hcomp :
+      (stagePresentationToEnvelopeQuotient p A P I γ J hIJ E e hstable).comp
+        (stageMap p A P e) =
+      (Ideal.Quotient.mk (Ideal.span {(p : E.D)} ^ e)).comp E.base.toRingHom := by
+    rw [E.base_toD]
+    rfl
+  rw [hcomp]
+  exact (DividedPowers.Quotient.isDPMorphism E.D.dividedPowers hstable).comp _
+    E.base.isDPMorphism
 
 /-- The image of `J_e` lands in the distinguished ideal of `D / p^e D`. -/
 theorem stagePresentationToEnvelopeQuotient_ideal
@@ -93,7 +106,13 @@ theorem stagePresentationToEnvelopeQuotient_ideal
       (Ideal.span {(p : E.D)} ^ e ⊓ E.D.ideal)) :
     Ideal.map (stagePresentationToEnvelopeQuotient p A P I γ J hIJ E e hstable)
         (stageIdeal p P J e) ≤
-      (envelopeQuotient p A P I γ J hIJ E e hstable).ideal := sorry
+      (envelopeQuotient p A P I γ J hIJ E e hstable).ideal := by
+  change Ideal.map _ (Ideal.map _ J) ≤ Ideal.map _ E.D.ideal
+  rw [Ideal.map_map]
+  change Ideal.map
+    ((Ideal.Quotient.mk (Ideal.span {(p : E.D)} ^ e)).comp E.toD) J ≤ _
+  rw [← Ideal.map_map]
+  exact Ideal.map_mono E.ideal_map
 
 /-- The unique envelope map `D_e ⟶ D / p^e D`. -/
 noncomputable def stageToEnvelopeQuotient
@@ -114,13 +133,20 @@ theorem presentationToStage_isDPMorphism
     (hIJ : Ideal.map (algebraMap A P) I ≤ J) (e : ℕ)
     (EStage : envelopeStage p A P I γ J hIJ e) :
     DividedPowers.IsDPMorphism γ EStage.D.dividedPowers
-      ((envelopeStageFromP p e EStage).comp (algebraMap A P)) := sorry
+      ((envelopeStageFromP p e EStage).comp (algebraMap A P)) := by
+  change DividedPowers.IsDPMorphism γ EStage.D.dividedPowers
+    (EStage.toD.comp (stageMap p A P e))
+  rw [← EStage.base_toD]
+  exact EStage.base.isDPMorphism
 
 /-- The image of `J` lands in the distinguished ideal of `D_e`. -/
 theorem presentationToStage_ideal
     (hIJ : Ideal.map (algebraMap A P) I ≤ J) (e : ℕ)
     (EStage : envelopeStage p A P I γ J hIJ e) :
-    Ideal.map (envelopeStageFromP p e EStage) J ≤ EStage.D.ideal := sorry
+    Ideal.map (envelopeStageFromP p e EStage) J ≤ EStage.D.ideal := by
+  change Ideal.map (EStage.toD.comp _) J ≤ EStage.D.ideal
+  rw [← Ideal.map_map]
+  exact EStage.ideal_map
 
 /-- The unique envelope map `D ⟶ D_e`. -/
 noncomputable def envelopeToStage
@@ -230,7 +256,12 @@ variable (hEStage : ∀ e : ℕ,
 /-- The presentation of a lower envelope stage annihilates every higher power of `p`. -/
 theorem envelopeStageTransition_ker (higher lower : ℕ) (hle : lower ≤ higher) :
     Ideal.span {((p : P) ^ higher)} ≤
-      RingHom.ker (envelopeStageFromP p lower (EStage lower)) := sorry
+      RingHom.ker (envelopeStageFromP p lower (EStage lower)) := by
+  rw [Ideal.span_singleton_le_iff_mem, RingHom.mem_ker]
+  change (EStage lower).toD
+    (Ideal.Quotient.mk (Ideal.span {((p : P) ^ lower)}) ((p : P) ^ higher)) = 0
+  rw [Ideal.Quotient.eq_zero_iff_mem.mpr
+    (Ideal.mem_span_singleton.mpr (pow_dvd_pow (p : P) hle)), map_zero]
 
 /-- The presentation of a higher finite quotient in a lower envelope stage. -/
 noncomputable def envelopeStageTransitionPresentation
@@ -245,14 +276,26 @@ theorem envelopeStageTransitionPresentation_isDPMorphism
     (higher lower : ℕ) (hle : lower ≤ higher) :
     DividedPowers.IsDPMorphism γ (EStage lower).D.dividedPowers
       ((envelopeStageTransitionPresentation p A P I γ J hIJ EStage
-        higher lower hle).comp (stageMap p A P higher)) := sorry
+        higher lower hle).comp (stageMap p A P higher)) := by
+  have hcomp :
+      (envelopeStageTransitionPresentation p A P I γ J hIJ EStage
+        higher lower hle).comp (stageMap p A P higher) =
+      (EStage lower).base.toRingHom := by
+    rw [(EStage lower).base_toD]
+    rfl
+  rw [hcomp]
+  exact (EStage lower).base.isDPMorphism
 
 /-- The transition presentation carries the higher presentation ideal into the lower ideal. -/
 theorem envelopeStageTransitionPresentation_ideal
     (higher lower : ℕ) (hle : lower ≤ higher) :
     Ideal.map
       (envelopeStageTransitionPresentation p A P I γ J hIJ EStage higher lower hle)
-      (stageIdeal p P J higher) ≤ (EStage lower).D.ideal := sorry
+      (stageIdeal p P J higher) ≤ (EStage lower).D.ideal := by
+  change Ideal.map _ (Ideal.map _ J) ≤ (EStage lower).D.ideal
+  rw [Ideal.map_map]
+  change Ideal.map (envelopeStageFromP p lower (EStage lower)) J ≤ _
+  exact presentationToStage_ideal p A P I γ J hIJ lower (EStage lower)
 
 /-- The canonical finite-envelope transition, induced by the quotient of presentations. -/
 noncomputable def envelopeStageTransition
@@ -272,7 +315,14 @@ theorem envelopeStageTransition_comp
     (envelopeStageTransition p A P I γ J hIJ EStage hEStage
       higher lower hle).toRingHom.comp (EStage higher).toD =
         envelopeStageTransitionPresentation p A P I γ J hIJ EStage
-          higher lower hle := sorry
+          higher lower hle := by
+  exact (ExistsUnique.exists
+    (hEStage higher
+      (envelopeStageTransitionPresentation p A P I γ J hIJ EStage higher lower hle)
+      (envelopeStageTransitionPresentation_isDPMorphism p A P I γ J hIJ EStage
+        higher lower hle)
+      (envelopeStageTransitionPresentation_ideal p A P I γ J hIJ EStage
+        higher lower hle))).choose_spec
 
 /-- The inverse system of the specified finite envelopes on the tail starting at `N`. -/
 noncomputable def envelopeStageDiagram (N : ℕ) : ℕᵒᵖ ⥤ DividedPowerRing :=

@@ -12,6 +12,15 @@ public import ReasLib.AlgebraicGeometry.Grassmannian.Representability
 # Explicit models of the Grassmannian functor
 
 A model records a representing scheme and its universal point as explicit data.
+
+Stacks Tag `089T` proves representability by gluing the subfunctors indexed by the
+`(n - k)`-element subsets of `{1, ..., n}`. Each is represented by
+`A^{k(n-k)}_ℤ`; Tag `089U` then names a scheme representing the functor, without
+specifying a particular choice of gluing data. `Model` is the interface for any
+such realization together with its universal point, hence for a representing
+object up to the unique isomorphism preserving that point. It does not implement
+the affine charts or their gluing. In particular, `model_nonempty` is only an
+existence assertion, and is not used to choose scheme data for base change.
 -/
 
 @[expose] public section
@@ -43,6 +52,9 @@ end Model
 
 /-- A representing model of the Grassmannian functor exists for indices `0 < k < n`. -/
 theorem model_nonempty (k n : ℕ) (hk : 0 < k) (hkn : k < n) :
-    Nonempty (Model.{u} k n hk hkn) := sorry
+    Nonempty (Model.{u} k n hk hkn) := by
+  letI := functor_isRepresentable k n hk hkn
+  exact ⟨Model.ofPoint hk hkn (functor k n).reprX (functor k n).reprx
+    CategoryTheory.Functor.IsRepresentedBy.of_isRepresentable⟩
 
 end AlgebraicGeometry.Grassmannian

@@ -48,12 +48,6 @@ theorem isPredeformationFunctor_iff (F : ArtinianLocalAlgCat Λ k ⥤ Type v) :
     IsPredeformationFunctor F ↔
       Nonempty (Unique (F.obj (ArtinianLocalAlgCat.residue Λ k))) := sorry
 
-/-- A predeformation category has a cofibered-in-groupoids opposite projection. -/
-instance isFiberedInGroupoids_op
-    {F : Type v} [Category.{w} F] (p : F ⥤ ArtinianLocalAlgCat Λ k)
-    [IsPredeformationCategory p] :
-    IsFibered.InGroupoids p.op := sorry
-
 /-- A functor is predeformation exactly when its category-of-elements projection is a
 predeformation category. -/
 theorem isPredeformationFunctor_iff_isPredeformationCategory

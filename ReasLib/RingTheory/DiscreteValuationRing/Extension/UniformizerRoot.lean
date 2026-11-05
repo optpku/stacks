@@ -249,37 +249,30 @@ theorem ramificationIndex_eq [IsDomain A] [IsDiscreteValuationRing A]
 -- `map (maximalIdeal A) = maximalIdeal (RootRing π n) ^ n`; apply
 -- `IsExtensionOfDiscreteValuationRings.ramificationIndex_eq_of_map_maximalIdeal_eq_pow`.
 
-/-- The fraction-field root extension is totally ramified. -/
+/-- The fraction-field root extension, with its canonical coefficient maps, is totally ramified. -/
 @[stacks 09EV "(5) total ramification of the uniformizer-root extension"]
 theorem isTotallyRamified [IsDomain A] [IsDiscreteValuationRing A]
     {π : A} {n : ℕ}
-    {hField : Field (RootExtension π n)}
-    {hA : Algebra A (RootExtension π n)}
-    {hK : Algebra (FractionRing A) (RootExtension π n)}
-    {hTower : @IsScalarTower A (FractionRing A) (RootExtension π n)
-      _ hK.toSMul hA.toSMul}
-    (hπ : Irreducible π) (hn : 2 ≤ n) :
+    [Fact (Irreducible π)] [NeZero n] :
     @DVR.Field.IsTotallyRamified A (FractionRing A) (RootExtension π n)
-      _ _ _ _ _ _ hField hA hK hTower := sorry
+      _ _ _ _ _ _ _ baseAlgebra fractionAlgebra
+      (IsScalarTower.of_algebraMap_eq' rfl) := sorry
 -- Proof strategy: transport `rootRing_isIntegralClosure` to identify the integral closure with the
 -- explicit local root ring, giving the unique branch.  Modulo its root-generated maximal ideal the
 -- distinguished root vanishes and only the constant coefficient remains, so the residue-field map
 -- is the base DVR residue map and is bijective.  Package branch uniqueness and this bijection in
--- `DVR.Field.IsTotallyRamified` for the supplied compatible scalar structures.
+-- `DVR.Field.IsTotallyRamified` for the canonical scalar structures.  For `n = 1`, the quotient
+-- by `X - C π` is the original fraction field, so the same conclusion holds.
 
 /-- A root extension of degree prime to the residue characteristic is tamely ramified. -/
 @[stacks 09EV "(6a) tame ramification of the uniformizer-root extension"]
 theorem isTamelyRamified [IsDomain A] [IsDiscreteValuationRing A]
     {π : A} {n : ℕ}
-    {hField : Field (RootExtension π n)}
-    {hA : Algebra A (RootExtension π n)}
-    {hK : Algebra (FractionRing A) (RootExtension π n)}
-    {hTower : @IsScalarTower A (FractionRing A) (RootExtension π n)
-      _ hK.toSMul hA.toSMul}
-    (hπ : Irreducible π) (hn : 2 ≤ n)
+    [Fact (Irreducible π)] [NeZero n]
     (hprime : DVR.Field.PrimeToResidueChar A n) :
     @DVR.Field.IsTamelyRamified A (FractionRing A) (RootExtension π n)
-      _ _ _ _ _ _ hField hA hK hTower := sorry
+      _ _ _ _ _ _ _ baseAlgebra fractionAlgebra
+      (IsScalarTower.of_algebraMap_eq' rfl) := sorry
 -- Proof strategy: use `isTotallyRamified` to obtain the unique branch and a residue-field
 -- equivalence, hence residue separability.  Rewrite its ramification index with
 -- `ramificationIndex_eq`; `hprime` is exactly the required coprimality with every residue
@@ -290,14 +283,11 @@ distinguished root. -/
 @[stacks 09EV "(6b) intermediate fields of a tame uniformizer-root extension"]
 theorem exists_eq_adjoin_root_pow [IsDomain A] [IsDiscreteValuationRing A]
     {π : A} {n : ℕ}
-    {hField : Field (RootExtension π n)}
-    {hK : Algebra (FractionRing A) (RootExtension π n)}
-    (hπ : Irreducible π) (hn : 2 ≤ n)
+    [Fact (Irreducible π)] [NeZero n]
     (hprime : DVR.Field.PrimeToResidueChar A n)
-    (S : @IntermediateField (FractionRing A) (RootExtension π n) _ hField hK) :
+    (S : IntermediateField (FractionRing A) (RootExtension π n)) :
     ∃ d : ℕ, d ∣ n ∧
-      S = @IntermediateField.adjoin (FractionRing A) _ (RootExtension π n)
-        hField hK {root π n ^ (n / d)} := sorry
+      S = IntermediateField.adjoin (FractionRing A) {root π n ^ (n / d)} := sorry
 -- Proof strategy: attach to `S` the ramification index `d` of its integral closure over `A`.
 -- Tower multiplicativity and total ramification give `d ∣ n`; tameness rules out defect and
 -- inseparable residue contributions.  Compare the valuation of `root^(n/d)` with the value group
@@ -311,7 +301,9 @@ section TameCriterion
 /-- An unramified field extension after adjoining an `e`th root of a chosen uniformizer.
 
 The witnesses retain the finite separable extension over the fraction field of the explicit
-root ring and the embedding of the original fraction-field extension. -/
+root ring and the embedding of the original fraction-field extension.  The coefficient-map
+equality requires the chosen fraction-field action to extend the canonical map into the root ring.
+-/
 @[stacks 0EXW "unramified uniformizer-root cover"]
 def HasUnramifiedCover
     (A : Type u) [CommRing A] [IsDomain A]
@@ -325,7 +317,9 @@ def HasUnramifiedCover
     (_ : Algebra.IsSeparable K1 L') (_ : Algebra (FractionRing A) K1)
     (_ : Algebra (FractionRing A) L') (_ : IsScalarTower (FractionRing A) K1 L')
     (_ : Algebra L L') (_ : IsScalarTower (FractionRing A) L L'),
-    DVR.Field.IsUnramified B K1 L'
+    (algebraMap (FractionRing A) K1).comp (algebraMap A (FractionRing A)) =
+        (algebraMap B K1).comp (algebraMap A B) ∧
+      DVR.Field.IsUnramified B K1 L'
 
 variable {A : Type u} [CommRing A] [IsDomain A] [IsDiscreteValuationRing A]
 variable {L : Type v} [Field L] [Algebra A L] [Algebra (FractionRing A) L]

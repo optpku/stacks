@@ -49,7 +49,7 @@ def IsAmpleOnBasePreimage (f : X ⟶ S) (L : X.Modules) (V : S.Opens) : Prop :=
 
 /-- A module is relatively ample over `f` when `f` is quasi-compact and its restriction to the
 preimage of every affine base open is ample. -/
-@[stacks 01VN "relatively ample module"]
+@[stacks 01VH "relatively ample module"]
 class RelativelyAmple (f : X ⟶ S) (L : X.Modules) : Prop where
   /-- The module is invertible on the source. -/
   invertible : Scheme.Modules.Invertible L
@@ -69,20 +69,20 @@ theorem RelativelyAmple.iff :
         ∀ U : S.affineOpens, IsAmpleOnBasePreimage f L (U : S.Opens) := sorry
 
 /-- A relatively ample module is invertible for the canonical tensor product. -/
-@[stacks 01VN "explicit invertibility of a relatively ample module"]
+@[stacks 01VH "explicit invertibility of a relatively ample module"]
 theorem RelativelyAmple.isInvertible
     (h : RelativelyAmple f L) :
     Scheme.Modules.Invertible L := sorry
 
 /-- The restriction over a bundled affine open of the base is ample. -/
-@[stacks 01VN "relative ampleness on an affine base open"]
+@[stacks 01VH "relative ampleness on an affine base open"]
 theorem RelativelyAmple.isAmpleOnAffineOpen
     (h : RelativelyAmple f L) (U : S.affineOpens) :
     IsAmpleOnBasePreimage f L U.1 := sorry
 
 /-- The restriction of a relatively ample module to a specified affine base-open preimage is
 ample. -/
-@[stacks 01VN "relative ampleness on an affine preimage"]
+@[stacks 01VH "relative ampleness on an affine preimage"]
 theorem RelativelyAmple.isAmpleOnPreimage
     (h : RelativelyAmple f L) (U : S.Opens) (hU : IsAffineOpen U) :
     IsAmpleOnBasePreimage f L U := sorry

@@ -25,6 +25,17 @@ the power-torsion primary component of the distinguished chart parameter. -/
 @[stacks 053H "Definition 15.26.1"]
 #check @AffineBlowupChart.strictTransform
 
-#check @AffineBlowupChart.instAddCommGroupStrictTransform
-#check @AffineBlowupChart.instModuleStrictTransform
-#check @AffineBlowupChart.instModuleBaseStrictTransform
+open scoped AffineBlowupChart
+
+noncomputable section
+
+universe u v
+
+variable {R : Type u} [CommRing R] (I : Ideal R) (a : I)
+  (M : Type v) [AddCommGroup M] [Module R M]
+
+example : AddCommGroup (AffineBlowupChart.strictTransform I a M) := inferInstance
+example : Module R[I / a] (AffineBlowupChart.strictTransform I a M) := inferInstance
+example : Module R (AffineBlowupChart.strictTransform I a M) := inferInstance
+
+end

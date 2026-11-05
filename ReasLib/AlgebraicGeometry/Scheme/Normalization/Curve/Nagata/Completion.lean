@@ -48,10 +48,15 @@ theorem isCompleteLocal (hdim : topologicalKrullDim X = 1)
     (x : X) (hx : x ∈ closedPoints X) :
     _root_.IsCompleteLocalRing (Normalization.Stalk.completion X x) := sorry
 
-/-- The completion of the local ring at a closed point of a reduced Nagata curve has Krull
-dimension one. -/
-theorem krullDimEqOne (hdim : topologicalKrullDim X = 1)
-    (x : X) (hx : x ∈ closedPoints X) :
+omit [IsReduced X] [Nagata X] in
+/-- The completion of a one-dimensional closed-point local ring has Krull dimension one.
+
+Stacks 0C1R (6) states this using only global dimension one, with no purity hypothesis.
+An isolated zero-dimensional component gives a field stalk whose completion has dimension zero;
+the local dimension hypothesis below supplies the missing restriction. -/
+theorem krullDimEqOne [IsReduced X] [Nagata X] (hdim : topologicalKrullDim X = 1)
+    (x : X) (hx : x ∈ closedPoints X)
+    (hlocalDim : ringKrullDim (X.presheaf.stalk x) = 1) :
     ringKrullDim (Normalization.Stalk.completion X x) = 1 := sorry
 
 /-- Base change of the ring normalization to the completed source stalk agrees with the
@@ -90,10 +95,18 @@ theorem existsIsIntegralClosure (hdim : topologicalKrullDim X = 1)
           (Normalization.Stalk.completion X x)
           (Localization (nonZeroDivisors (Normalization.Stalk.completion X x))) := sorry
 
-/-- A completed normalization pushforward stalk at a closed point is a finite product of complete
-discrete valuation rings. -/
-theorem existsFiniteProductCompleteDVR (hdim : topologicalKrullDim X = 1)
-    (x : X) (hx : x ∈ closedPoints X) :
+omit [IsReduced X] [Nagata X] in
+/-- A completed normalization pushforward stalk at a closed point with one-dimensional local
+ring is a finite product of complete discrete valuation rings.
+
+Stacks 0C1R (8), like (6), omits this local dimension restriction and has no purity hypothesis.
+On the isolated `Spec k` component of `Spec (k[t] × k)`, this completion is `k`, whereas
+`IsDiscreteValuationRing` excludes fields. The Dedekind-domain statement in `Local` still allows
+fields and needs no such restriction. -/
+theorem existsFiniteProductCompleteDVR [IsReduced X] [Nagata X]
+    (hdim : topologicalKrullDim X = 1)
+    (x : X) (hx : x ∈ closedPoints X)
+    (hlocalDim : ringKrullDim (X.presheaf.stalk x) = 1) :
     ∃ (ι : Type u) (_hι : Finite ι) (R : ι → Type u)
       (_hR : ∀ i, CommRing (R i)) (_hDomain : ∀ i, IsDomain (R i))
       (_hAlgebra : ∀ i, Algebra (Normalization.Stalk.completion X x) (R i))

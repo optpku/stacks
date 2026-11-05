@@ -9,6 +9,7 @@ module
 public import Mathlib.CategoryTheory.Monoidal.Functor
 public import ReasLib.Algebra.Category.Ring.Sheaf.LocallyRinged
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Derived.Localization
+public import ReasLib.AlgebraicGeometry.RingedSite.Module.Derived.Monoidal
 public import ReasLib.CategoryTheory.Monoidal.Invertible
 import Mathlib.Tactic.CrossRefAttribute
 
@@ -84,7 +85,7 @@ theorem IsLocallyShiftedInvertible.exists_cover
           IsIsomorphic
             ((localizedRestrictionDerived.{z} X I.Y).obj M)
             (((DerivedCategory.singleFunctor
-              (ModuleCat.{z} (X.localization I.Y)) (0 : ℤ)).obj L)⟦-n⟧) := sorry
+              (ModuleCat.{z} (X.localization I.Y)) (0 : ℤ)).obj L)⟦-n⟧) := hM U
 
 /-- Local shifted invertibility is invariant under isomorphisms of derived module sheaves. -/
 instance locallyShiftedInvertible_isClosedUnderIsomorphisms :
@@ -108,15 +109,23 @@ variable [HasWeakSheafify J AddCommGrpCat.{max u v}]
 variable [J.WEqualsLocallyBijective AddCommGrpCat.{max u v}]
 variable [∀ U : C, (J.over U).WEqualsLocallyBijective AddCommGrpCat.{max u v}]
 variable {O : Sheaf J CommRingCat.{max u v}} [O.IsLocallyRinged]
-variable [MonoidalCategory
-  (ModuleDerived (RingedSite.ofCommRingSheaf J O))]
-variable [∀ U : C,
-  MonoidalCategory (ModuleCat ((RingedSite.ofCommRingSheaf J O).localization U))]
 
-/-- On a locally ringed site, a derived module sheaf is invertible exactly when it is locally a shift of an invertible module. -/
+/-- On a locally ringed site, a derived module sheaf is invertible exactly when it is locally a
+shift of an invertible module. Both tensor products are the canonical ones: K-flat derived
+tensor globally and the ordinary module-sheaf tensor on every localization. -/
 @[stacks 0FPY "(3)"]
 theorem isInvertible_iff_isLocallyShiftedInvertible
+    [RingedSite.Hom.ModuleDerived.KFlat.HomotopyTensorDescends
+      (C := C) (J := J) O]
+    [RingedSite.Hom.ModuleDerived.KFlat.TensorDescends
+      (C := C) (J := J) O]
+    [RingedSite.Hom.ModuleDerived.KFlat.IsLocalization
+      (C := C) (J := J) O]
     (M : ModuleDerived (RingedSite.ofCommRingSheaf J O)) :
+    letI := RingedSite.Hom.ModuleDerived.monoidalCategory (C := C) (J := J) O
+    letI : ∀ U : C,
+        MonoidalCategory (ModuleCat ((RingedSite.ofCommRingSheaf J O).localization U)) :=
+      fun U ↦ ModuleOver.monoidalCategory O U
     isInvertibleObject M ↔
       RingedSite.Hom.ModuleDerived.IsLocallyShiftedInvertible M := sorry
 

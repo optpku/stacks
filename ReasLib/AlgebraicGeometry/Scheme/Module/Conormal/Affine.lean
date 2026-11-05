@@ -20,6 +20,69 @@ set_option backward.isDefEq.respectTransparency false
 
 universe u
 
+namespace AlgebraicGeometry.Scheme.Hom
+
+/-- The pullback unit and inverse-image structure map for an affine scheme morphism
+recover the ring map under the canonical global-section identifications. -/
+theorem specMap_pullbackStructureSheaf_comp {R S : CommRingCat.{u}} (f : R ⟶ S) :
+    let q := Spec.map f
+    ((Scheme.ΓSpecIso R).inv ≫
+        (((TopCat.Sheaf.pullbackPushforwardAdjunction
+          CommRingCat.{u} q.toShHom.hom.base).unit.app (Spec R).sheaf).hom.app
+          (Opposite.op ⊤))) ≫
+        (RingedSpace.Hom.inverseImageStructureSheafHomComm q.toShHom).hom.app
+          (Opposite.op ⊤) =
+      f ≫ (Scheme.ΓSpecIso S).inv := by
+  let q := Spec.map f
+  let α := RingedSpace.Hom.inverseImageStructureSheafHomComm q.toShHom
+  let W : (Opens (Spec R))ᵒᵖ := Opposite.op ⊤
+  let V : (Opens (Spec S))ᵒᵖ := Opposite.op ⊤
+  let F : R ⟶
+      ((TopCat.Sheaf.pullback CommRingCat.{u} q.toShHom.hom.base).obj
+        (Spec R).sheaf).obj.obj V :=
+    (Scheme.ΓSpecIso R).inv ≫
+      (((TopCat.Sheaf.pullbackPushforwardAdjunction
+        CommRingCat.{u} q.toShHom.hom.base).unit.app (Spec R).sheaf).hom.app W)
+  let G := (Scheme.ΓSpecIso S).inv
+  change F ≫ α.hom.app V = f ≫ G
+  have hs :
+      (TopCat.Sheaf.pullbackPushforwardAdjunction
+            CommRingCat.{u} q.toShHom.hom.base).unit.app
+            (Spec R).sheaf ≫
+          (TopCat.Sheaf.pushforward CommRingCat.{u} q.toShHom.hom.base).map α =
+        RingedSpace.Hom.commRingSheafPushforwardMap q.toShHom := by
+    simpa only [Functor.id_obj, Adjunction.homEquiv_unit,
+      RingedSpace.Hom.inverseImageStructureSheafHomComm, α] using
+      (Equiv.apply_symm_apply
+        ((TopCat.Sheaf.pullbackPushforwardAdjunction
+          CommRingCat.{u} q.toShHom.hom.base).homEquiv
+          (Spec R).sheaf
+          (Spec S).sheaf)
+        (RingedSpace.Hom.commRingSheafPushforwardMap q.toShHom))
+  have hsW := congrArg (fun f ↦ f.hom.app W) hs
+  change
+    (((TopCat.Sheaf.pullbackPushforwardAdjunction
+      CommRingCat.{u} q.toShHom.hom.base).unit.app
+      (Spec R).sheaf).hom.app W) ≫ α.hom.app V = q.appTop at hsW
+  dsimp only [F, G]
+  rw [Category.assoc, hsW]
+  exact (Scheme.ΓSpecIso_inv_naturality f).symm
+
+/-- Elementwise compatibility of the affine pullback unit with the structure-sheaf map. -/
+theorem specMap_pullbackStructureSheaf_apply {R S : CommRingCat.{u}}
+    (f : R ⟶ S) (r : R) :
+    let q := Spec.map f
+    (RingedSpace.Hom.inverseImageStructureSheafHomComm q.toShHom).hom.app
+        (Opposite.op ⊤)
+        (((Scheme.ΓSpecIso R).inv ≫
+          (((TopCat.Sheaf.pullbackPushforwardAdjunction
+            CommRingCat.{u} q.toShHom.hom.base).unit.app (Spec R).sheaf).hom.app
+            (Opposite.op ⊤))) r) =
+      (Scheme.ΓSpecIso S).inv (f r) := by
+  exact ConcreteCategory.congr_hom (specMap_pullbackStructureSheaf_comp f) r
+
+end AlgebraicGeometry.Scheme.Hom
+
 namespace AlgebraicGeometry.Scheme.Hom.Conormal
 
 variable {R : Type u} [CommRing R] (I : Ideal R)
@@ -66,34 +129,9 @@ noncomputable def quotientMapCotangentToSections :
       (Scheme.Hom.conormalSheaf q)
   let targetR : ModuleCat R :=
     (ModuleCat.restrictScalars (Ideal.Quotient.mk I)).obj target
-  have hF (r : R) : α.hom.app V (F r) = G (Ideal.Quotient.mk I r) := by
-    have hs :
-        (TopCat.Sheaf.pullbackPushforwardAdjunction
-              CommRingCat.{u} q.toShHom.hom.base).unit.app
-              (Spec (CommRingCat.of R)).sheaf ≫
-            (TopCat.Sheaf.pushforward CommRingCat.{u} q.toShHom.hom.base).map α =
-          RingedSpace.Hom.commRingSheafPushforwardMap q.toShHom := by
-      simpa only [Functor.id_obj, Adjunction.homEquiv_unit,
-        RingedSpace.Hom.inverseImageStructureSheafHomComm, α] using
-        (Equiv.apply_symm_apply
-          ((TopCat.Sheaf.pullbackPushforwardAdjunction
-            CommRingCat.{u} q.toShHom.hom.base).homEquiv
-            (Spec (CommRingCat.of R)).sheaf
-            (Spec (CommRingCat.of (R ⧸ I))).sheaf)
-          (RingedSpace.Hom.commRingSheafPushforwardMap q.toShHom))
-    have hsW := congrArg (fun f ↦ f.hom.app W) hs
-    change
-      (((TopCat.Sheaf.pullbackPushforwardAdjunction
-        CommRingCat.{u} q.toShHom.hom.base).unit.app
-        (Spec (CommRingCat.of R)).sheaf).hom.app W) ≫ α.hom.app V = q.appTop at hsW
-    have hsF : F ≫ α.hom.app V =
-        CommRingCat.ofHom (Ideal.Quotient.mk I) ≫ G := by
-      dsimp only [F, G]
-      rw [Category.assoc, hsW]
-      exact
-        (Scheme.ΓSpecIso_inv_naturality
-          (CommRingCat.ofHom (Ideal.Quotient.mk I))).symm
-    exact ConcreteCategory.congr_hom hsF r
+  have hF (r : R) : α.hom.app V (F r) = G (Ideal.Quotient.mk I r) :=
+    Scheme.Hom.specMap_pullbackStructureSheaf_apply
+      (CommRingCat.ofHom (Ideal.Quotient.mk I)) r
   let conormalNative := (conormalPresheaf α).obj V
   let sectionsNative :=
     ((restrictionAlong α).obj

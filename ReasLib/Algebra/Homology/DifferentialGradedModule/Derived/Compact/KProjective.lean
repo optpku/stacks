@@ -8,15 +8,26 @@ module
 
 public import ReasLib.Algebra.Homology.CochainDGAlgebra.Bounded
 public import ReasLib.Algebra.Homology.DifferentialGradedModule.Derived.Limits
+public import ReasLib.Algebra.Homology.DifferentialGradedModule.Derived.Compact.FiniteCell
 public import ReasLib.Algebra.Homology.DifferentialGradedModule.Graded.FiniteProjective
 public import ReasLib.Algebra.Homology.DifferentialGradedModule.Homotopy.KProjective
+public import ReasLib.Algebra.Homology.DifferentialGradedModule.PropertyP.KProjective
 public import ReasLib.CategoryTheory.Preadditive.CompactObject
 
 /-!
-# Finite K-Projective Models of Compact Derived Objects
+# Retracts of Finite K-Projective Derived Objects
 
-This leaf owns the finite K-projective object property and its compactness comparison.  Over a
-bounded cochain DGA, compact derived objects form precisely the essential image of this property.
+This leaf owns the finite K-projective object property and its compactness comparison.  For any
+cochain DGA, compact derived objects form the retract closure of its essential image, by the
+finite-cell criterion (09R3).
+
+The bounded-only representative converse in 09RB is false: the DGA in 09R5 is already bounded
+in degrees [-1, 0].  Over a field of characteristic two it is
+`k[x,y]/(y^2)`, with `|x| = 0`, `|y| = -1`, and `d(y) = x^2 + x`.
+Its compact summand corresponding to `(k,0)` over `k[x]/(x^2+x) = k × k` has no finite graded
+projective representative: such modules are graded free, and base change would force equal
+Euler characteristics in the two factors.  Retracts in the derived category must therefore be
+retained; stability under actual DG-module retracts does not remove them.
 -/
 
 @[expose] public section
@@ -67,6 +78,22 @@ instance isStableUnderRetracts :
 
 end FiniteKProjective
 
+/-- A finite-cell filtration has finite graded-projective underlying module: its finite free
+graded successive quotients split after forgetting the differential. -/
+@[stacks 09R3 "finite-cell modules are finite graded projective"]
+theorem isFiniteGradedProjective_of_hasFiniteCellFiltration
+    {P : DifferentialGradedModule.{u, v} A}
+    (hP : PropertyP.HasFiniteCellFiltration A P) : IsFiniteGradedProjective A P := sorry
+
+/-- Finite-cell modules are finite K-projective; property P supplies K-projectivity. -/
+@[stacks 09R3 "finite-cell modules are finite K-projective"]
+theorem finiteKProjective_of_hasFiniteCellFiltration
+    {P : DifferentialGradedModule.{u, v} A}
+    (hP : PropertyP.HasFiniteCellFiltration A P) : finiteKProjective A P := by
+  refine ⟨isFiniteGradedProjective_of_hasFiniteCellFiltration A hP, ?_⟩
+  obtain ⟨F⟩ := hP
+  exact HasPropertyP.kProjective (F.hasPropertyP A)
+
 namespace Derived.FiniteKProjective
 
 /-- Remark 22.36.2 (09R1): a finite graded K-projective DG-module has compact image in the
@@ -75,20 +102,44 @@ derived category. -/
 theorem isCompactObject {P : DifferentialGradedModule.{u, v} A}
     (hP : finiteKProjective A P) : IsCompactObject ((Derived.fromModules A).obj P) := sorry
 
-/-- Lemma 22.36.6 (09RB): over a bounded DGA, compact derived objects are precisely the essential
-image of finite graded K-projective DG-modules. -/
-@[stacks 09RB]
-theorem isCompactObject_iff (hA : A.IsBounded) (E : Derived.Category.{u, v} A) :
-    IsCompactObject E ↔ (finiteKProjective A).map (Derived.fromModules A) E := sorry
+/-- For any DGA, compact objects are exactly the retract closure of the essential image of
+finite graded K-projective modules.  This follows from 09R3, and replaces the false bounded-only
+representative converse of 09RB. -/
+@[stacks 09R3 "compactness as the retract closure of finite K-projective images"]
+theorem isCompactObject_iff (E : Derived.Category.{u, v} A) :
+    IsCompactObject E ↔
+      ((finiteKProjective A).map (Derived.fromModules A)).retractClosure E := by
+  constructor
+  · intro hE
+    apply ObjectProperty.monotone_retractClosure
+      (ObjectProperty.map_monotone
+        (fun _ hP ↦ finiteKProjective_of_hasFiniteCellFiltration A hP)
+        (Derived.fromModules A))
+    exact Derived.FiniteCell.mem_retractClosure_of_isCompactObject A hE
+  · rintro ⟨Y, ⟨P, hP, ⟨e⟩⟩, ⟨r⟩⟩
+    apply Derived.FiniteCell.isCompactObject_of_mem_retractClosure A
+    exact ((Derived.finiteCell A).retractClosure).prop_of_retract
+      (r.trans e.symm.retract)
+      (Derived.FiniteCell.mem_retractClosure_of_isCompactObject A (isCompactObject A hP))
 
-/-- The representative formulation of compactness by finite graded K-projective DG-modules over
-a bounded DGA. -/
-@[stacks 09RB "compactness represented by a finite K-projective module"]
-theorem isCompactObject_iff_exists (hA : A.IsBounded) (E : Derived.Category.{u, v} A) :
+/-- Explicit retract formulation: the identity of a compact object factors through the derived
+image of a finite graded K-projective module.  No boundedness assumption is needed, and no
+isomorphism with that image is asserted. -/
+@[stacks 09R3 "compactness by explicit finite K-projective retract maps"]
+theorem isCompactObject_iff_exists (E : Derived.Category.{u, v} A) :
     IsCompactObject E ↔
       ∃ (P : DifferentialGradedModule.{u, v} A),
         IsFiniteGradedProjective A P ∧ IsKProjective A P ∧
-          Nonempty ((Derived.fromModules A).obj P ≅ E) := sorry
+          ∃ (i : E ⟶ (Derived.fromModules A).obj P)
+            (r : (Derived.fromModules A).obj P ⟶ E), i ≫ r = 𝟙 E := by
+  rw [isCompactObject_iff A E]
+  constructor
+  · rintro ⟨Y, ⟨P, hP, ⟨e⟩⟩, ⟨s⟩⟩
+    let t := s.trans e.symm.retract
+    exact ⟨P, hP.1, hP.2, t.i, t.r, t.retract⟩
+  · rintro ⟨P, hfin, hK, i, r, hir⟩
+    exact ⟨(Derived.fromModules A).obj P,
+      ⟨P, ⟨hfin, hK⟩, ⟨Iso.refl _⟩⟩, ⟨⟨i, r, hir⟩⟩⟩
 
 end Derived.FiniteKProjective
 

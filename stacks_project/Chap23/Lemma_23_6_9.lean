@@ -24,8 +24,9 @@ The reusable owner uses a strictly commutative chain DGA, genuine divided powers
 even part, a free graded divided-power presentation, and a quasi-isomorphic augmentation to `S`.
 -/
 @[stacks 09PN "(1)"]
-#check (TateResolution.nonempty pi0 hpi0 :
-  Nonempty (TateResolution.{u, v, w} pi0))
+#check (TateResolution.nonempty_lifted pi0 hpi0 :
+  Nonempty (TateResolution.{u, max u (max v w), max u (max v w)}
+    (TateResolution.liftedPresentation pi0)))
 
 end Existence
 
@@ -39,10 +40,10 @@ variable [IsNoetherianRing R] [Algebra.FiniteType R S]
 presentation and its Tate resolution can be chosen with finitely many generators in every degree.
 -/
 @[stacks 09PN "(2)"]
-#check (TateResolution.exists_finitePresentation (R := R) (S := S) :
-  ∃ (n : ℕ) (pi0 : MvPolynomial (Fin n) R →ₐ[R] S),
+#check (TateResolution.exists_finitePresentation_lifted (R := R) (S := S) :
+  ∃ (n : ℕ) (pi0 : MvPolynomial (Fin n) R →ₐ[R] ULift.{u} S),
     Function.Surjective pi0 ∧
-      ∃ A : TateResolution.{u, 0, w} pi0, A.HasFinitePositiveGenerators)
+      ∃ A : TateResolution.{u, 0, max u w} pi0, A.HasFinitePositiveGenerators)
 
 end Finite
 

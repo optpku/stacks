@@ -48,7 +48,7 @@ def kernelTorObj (n : ℕ) (X : Algebra.PolynomialOver A B) : ModuleCat.{u} B :=
 /-- Unfolding `kernelTorObj` recovers the unbundled left-derived extension of scalars. -/
 theorem kernelTorObj_eq (n : ℕ) (X : Algebra.PolynomialOver A B) :
     kernelTorObj n X = @kernelTorObjWith A B _ _ _ n X (algebraToBase X) :=
-  sorry
+  rfl
 
 /-- The `P`-linear map `Ker(P ⟶ B) ⟶ Ker(P' ⟶ B)` induced by a morphism of polynomial arrows,
 after restriction of scalars along `P ⟶ P'`. -/
@@ -172,10 +172,92 @@ def kernelTorZeroHomWith (X : Algebra.PolynomialOver A B) [Algebra X.obj.left B]
     (ModuleCat.ExtendScalars.tensorIso
       (ModuleCat.of X.obj.left (RingHom.ker (algebraMap X.obj.left B)).Cotangent)).hom
 
+/-- Products in the kernel vanish after tensoring with the target algebra. -/
+theorem kernelTensor_product {R T : Type u} [CommRing R] [CommRing T] [Algebra R T]
+    (t : T) (x y : RingHom.ker (algebraMap R T)) :
+    t ⊗ₜ[R] (x * y) = (0 : T ⊗[R] RingHom.ker (algebraMap R T)) := by
+  have hxy : x * y = (x : R) • y := by ext; rfl
+  rw [hxy, ← TensorProduct.smul_tmul, Algebra.smul_def, x.property, zero_mul,
+    TensorProduct.zero_tmul]
+
+/-- The inverse sends a pure tensor with a conormal class to the same kernel tensor.
+It descends through the quotient because products of kernel elements tensor to zero. -/
+def kernelTensorCotangentInv {R T : Type u} [CommRing R] [CommRing T] [Algebra R T] :
+    T ⊗[R] (RingHom.ker (algebraMap R T)).Cotangent →ₗ[T]
+      T ⊗[R] RingHom.ker (algebraMap R T) :=
+  TensorProduct.AlgebraTensorModule.lift
+    { toFun := fun t ↦ Ideal.Cotangent.lift (TensorProduct.mk R T _ t)
+        (kernelTensor_product t)
+      map_add' := by
+        intro t t'
+        apply LinearMap.ext
+        intro q
+        obtain ⟨x, rfl⟩ := Ideal.toCotangent_surjective _ q
+        simp
+      map_smul' := by
+        intro t t'
+        apply LinearMap.ext
+        intro q
+        obtain ⟨x, rfl⟩ := Ideal.toCotangent_surjective _ q
+        simp [TensorProduct.smul_tmul'] }
+
+/-- Tensoring the kernel-to-conormal quotient with the target algebra is an isomorphism.
+No flatness or surjectivity assumption is needed for this degree-zero comparison. -/
+def kernelTensorCotangentIso {R T : Type u} [CommRing R] [CommRing T] [Algebra R T] :
+    ModuleCat.of T (T ⊗[R] RingHom.ker (algebraMap R T)) ≅
+      ModuleCat.of T (T ⊗[R] (RingHom.ker (algebraMap R T)).Cotangent) :=
+  LinearEquiv.toModuleIso
+    { toLinearMap := (RingHom.ker (algebraMap R T)).toCotangent.baseChange T
+      invFun := kernelTensorCotangentInv
+      left_inv := by
+        intro z
+        induction z using TensorProduct.induction_on with
+        | zero => simp
+        | tmul t x => rfl
+        | add x y hx hy =>
+            change kernelTensorCotangentInv
+              (((RingHom.ker (algebraMap R T)).toCotangent.baseChange T) (x + y)) = _
+            rw [map_add, map_add]
+            exact congrArg₂ (· + ·) hx hy
+      right_inv := by
+        intro z
+        induction z using TensorProduct.induction_on with
+        | zero => simp
+        | tmul t q =>
+            obtain ⟨x, rfl⟩ := Ideal.toCotangent_surjective _ q
+            rfl
+        | add x y hx hy =>
+            change ((RingHom.ker (algebraMap R T)).toCotangent.baseChange T)
+              (kernelTensorCotangentInv (x + y)) = _
+            rw [map_add, map_add]
+            exact congrArg₂ (· + ·) hx hy }
+
 /-- The canonical morphism `kernelTorZeroHomWith` is an isomorphism. -/
 instance kernelTorZeroHomWith_isIso (X : Algebra.PolynomialOver A B) [Algebra X.obj.left B] :
-    IsIso (kernelTorZeroHomWith X) :=
-  sorry
+    IsIso (kernelTorZeroHomWith X) := by
+  let F := ModuleCat.extendScalars (algebraMap X.obj.left B)
+  let I := RingHom.ker (algebraMap X.obj.left B)
+  have h : F.map (ModuleCat.ofHom I.toCotangent) =
+      (ModuleCat.ExtendScalars.tensorIso (ModuleCat.of X.obj.left I)).hom ≫
+        (kernelTensorCotangentIso (R := X.obj.left) (T := B)).hom ≫
+        (ModuleCat.ExtendScalars.tensorIso (ModuleCat.of X.obj.left I.Cotangent)).inv := by
+    apply (cancel_mono
+      (ModuleCat.ExtendScalars.tensorIso (ModuleCat.of X.obj.left I.Cotangent)).hom).1
+    simpa [F, kernelTensorCotangentIso] using
+      (ModuleCat.ExtendScalars.tensorIso_naturality (ModuleCat.ofHom I.toCotangent))
+  let e : kernelTorObjWith 0 X ≅ conormalObjWith X :=
+    F.leftDerivedZeroIsoSelf.app (ModuleCat.of X.obj.left I) ≪≫
+      ModuleCat.ExtendScalars.tensorIso (ModuleCat.of X.obj.left I) ≪≫
+      kernelTensorCotangentIso
+  have he : kernelTorZeroHomWith X = e.hom := by
+    unfold kernelTorZeroHomWith
+    dsimp only [F, I] at h
+    rw [h]
+    simp only [Category.assoc]
+    erw [Iso.inv_hom_id, Category.comp_id]
+    rfl
+  rw [he]
+  exact e.isIso_hom
 
 /-- The objectwise identification `Tor_0^P(Ker(P ⟶ B), B) ≅ J/J² ⊗_P B`. -/
 def kernelTorZeroIsoAppWith (X : Algebra.PolynomialOver A B) [Algebra X.obj.left B] :
@@ -190,7 +272,7 @@ def kernelTorZeroIsoApp (X : Algebra.PolynomialOver A B) :
 /-- The forward morphism of `kernelTorZeroIsoAppWith` is `kernelTorZeroHomWith`. -/
 theorem kernelTorZeroIsoAppWith_hom (X : Algebra.PolynomialOver A B) [Algebra X.obj.left B] :
     (kernelTorZeroIsoAppWith X).hom = kernelTorZeroHomWith X :=
-  sorry
+  rfl
 
 variable (A B) in
 /-- The identification `Tor_0^O(𝒥, underline{B}) ≅ 𝒥/𝒥²` of sheaves on `C_{B/A}`. -/

@@ -209,21 +209,9 @@ noncomputable def pullbackTangentInl
   let h := pullback.fst f g ≫ f
   let q := pullbackFiberInl f g x y hxy hx hy
   let hq := pullbackFiberInl_asFiber f g x y hxy hx hy
-  let hqκ := pullbackFiberInl_residueFieldMap_bijective f g x y hxy hx hy
-  let sourceValue : (f.fiber (f x)).residueField (f.asFiber x) ≃+* X.residueField x :=
-    (fiberResidueFieldAlgEquiv f x).toRingEquiv
-  let mapValue :
-      (h.fiber (h xy)).residueField (q (f.asFiber x)) ≃+*
-        (f.fiber (f x)).residueField (f.asFiber x) :=
-    RingEquiv.ofBijective (q.residueFieldMap (f.asFiber x)).hom hqκ
-  let targetCongr :
-      (h.fiber (h xy)).residueField (q (f.asFiber x)) ≃+*
-        (h.fiber (h xy)).residueField (h.asFiber xy) :=
-    ((h.fiber (h xy)).residueFieldCongr hq).commRingCatIsoToRingEquiv
-  let targetValue : (h.fiber (h xy)).residueField (h.asFiber xy) ≃+*
-      (pullback f g : Scheme).residueField xy :=
-    (fiberResidueFieldAlgEquiv h xy).toRingEquiv
-  let valueEquiv := sourceValue.symm.trans (mapValue.symm.trans (targetCongr.trans targetValue))
+  -- The projection supplies the value-field map in the required direction;
+  -- no inverse of the fixed-fibre inclusion's residue-field map is needed.
+  let valueMap := (pointFstResidueFieldMap f g x y hxy hx hy).hom
   let stalkMap : (h.fiber (h xy)).presheaf.stalk (h.asFiber xy) ⟶
       (f.fiber (f x)).presheaf.stalk (f.asFiber x) :=
     ((h.fiber (h xy)).presheaf.stalkCongr (.of_eq hq.symm)).hom ≫
@@ -234,7 +222,7 @@ noncomputable def pullbackTangentInl
     Module.compHom _ (pointFstResidueFieldMap f g x y hxy hx hy).hom
   { toFun := fun D ↦
       (relativeTangentSpaceAt_eq_fiberRelativeTangentSpaceAt h xy).symm
-        { toFun := fun a ↦ valueEquiv
+        { toFun := fun a ↦ valueMap
             ((relativeTangentSpaceAt_eq_fiberRelativeTangentSpaceAt f x D) (stalkMap.hom a))
           map_add' := sorry
           map_smul' := sorry
@@ -264,21 +252,11 @@ noncomputable def pullbackTangentInr
   let h := pullback.fst f g ≫ f
   let q := pullbackFiberInr f g x y hxy hx hy
   let hq := pullbackFiberInr_asFiber f g x y hxy hx hy
-  let hqκ := pullbackFiberInr_residueFieldMap_bijective f g x y hxy hx hy
-  let sourceValue : (g.fiber (g y)).residueField (g.asFiber y) ≃+* Y.residueField y :=
-    (fiberResidueFieldAlgEquiv g y).toRingEquiv
-  let mapValue :
-      (h.fiber (h xy)).residueField (q (g.asFiber y)) ≃+*
-        (g.fiber (g y)).residueField (g.asFiber y) :=
-    RingEquiv.ofBijective (q.residueFieldMap (g.asFiber y)).hom hqκ
-  let targetCongr :
-      (h.fiber (h xy)).residueField (q (g.asFiber y)) ≃+*
-        (h.fiber (h xy)).residueField (h.asFiber xy) :=
-    ((h.fiber (h xy)).residueFieldCongr hq).commRingCatIsoToRingEquiv
-  let targetValue : (h.fiber (h xy)).residueField (h.asFiber xy) ≃+*
-      (pullback f g : Scheme).residueField xy :=
-    (fiberResidueFieldAlgEquiv h xy).toRingEquiv
-  let valueEquiv := sourceValue.symm.trans (mapValue.symm.trans (targetCongr.trans targetValue))
+  -- Use the second projection directly on values, after identifying its
+  -- image point with `y`, rather than inverting the inclusion's residue map.
+  let hsndxy := pointOfBaseResidueFieldMapBijective_snd f g x y hxy hx hy
+  let valueMap :=
+    ((Y.residueFieldCongr hsndxy).inv ≫ (pullback.snd f g).residueFieldMap xy).hom
   let stalkMap : (h.fiber (h xy)).presheaf.stalk (h.asFiber xy) ⟶
       (g.fiber (g y)).presheaf.stalk (g.asFiber y) :=
     ((h.fiber (h xy)).presheaf.stalkCongr (.of_eq hq.symm)).hom ≫
@@ -293,7 +271,7 @@ noncomputable def pullbackTangentInr
     Module.compHom _ (pointFstResidueFieldMap f g x y hxy hx hy).hom
   { toFun := fun D ↦
       (relativeTangentSpaceAt_eq_fiberRelativeTangentSpaceAt h xy).symm
-        { toFun := fun a ↦ valueEquiv
+        { toFun := fun a ↦ valueMap
             ((relativeTangentSpaceAt_eq_fiberRelativeTangentSpaceAt g y D) (stalkMap.hom a))
           map_add' := sorry
           map_smul' := sorry

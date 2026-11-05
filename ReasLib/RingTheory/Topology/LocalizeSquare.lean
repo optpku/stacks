@@ -55,20 +55,6 @@ variable [CommRing B] [TopologicalSpace B] [IsWeaklyAdmissibleRing B] [IsCountab
 variable [CommRing A'] [Algebra A A'] [Algebra.Etale A A']
 variable [CommRing B'] [Algebra B B'] [Algebra.Etale B B']
 
-/-- Construct a localization square from continuous vertical maps whose composites
-with the canonical completion maps agree. -/
-def of (φ : B →+* A) (continuous_φ : Continuous φ)
-    (φ' : weakIdealCompletion B B' →+* weakIdealCompletion A A')
-    (continuous_φ' : Continuous φ')
-    (w : φ'.comp (algebraMap B (weakIdealCompletion B B')) =
-      (algebraMap A (weakIdealCompletion A A')).comp φ) :
-    LocalizeSquare A B A' B' where
-  φ := φ
-  continuous_φ := continuous_φ
-  φ' := φ'
-  continuous_φ' := continuous_φ'
-  w := w
-
 /-- The underlying commutative square in `CommRingCat`. -/
 theorem commSq (sq : LocalizeSquare A B A' B') :
     CommSq
@@ -81,13 +67,6 @@ theorem commSq (sq : LocalizeSquare A B A' B') :
 theorem w_apply (sq : LocalizeSquare A B A' B') (b : B) :
     sq.φ' (algebraMap B (weakIdealCompletion B B') b) =
       algebraMap A (weakIdealCompletion A A') (sq.φ b) := sorry
-
-/-- The vertical maps of a localization square are continuous and commute with the
-canonical maps into the weak-ideal completions. -/
-theorem spec (sq : LocalizeSquare A B A' B') :
-    Continuous sq.φ ∧ Continuous sq.φ' ∧
-      sq.φ'.comp (algebraMap B (weakIdealCompletion B B')) =
-        (algebraMap A (weakIdealCompletion A A')).comp sq.φ := sorry
 
 end LocalizeSquare
 

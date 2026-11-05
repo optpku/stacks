@@ -7,7 +7,9 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import Mathlib.LinearAlgebra.FiniteDimensional.Basic
+public import Mathlib.AlgebraicGeometry.Morphisms.Finite
 public import Mathlib.RingTheory.Finiteness.Cardinality
+public import ReasLib.AlgebraicGeometry.Scheme.Morphism.ResidueField.RationalPoint
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.DimensionFunction
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.FiniteType.Point.Jacobson
 public import ReasLib.AlgebraicGeometry.Scheme.OverField.Local
@@ -35,7 +37,19 @@ variable {k : Type u} [Field k]
 finite-dimensional over the base field. -/
 instance closedPointResidueFieldFiniteDimensional
     (X : SchemeOverField k) [LocallyOfFiniteType X.hom] (x : closedPoints X.left) :
-    FiniteDimensional k (X.left.residueField x.1) := sorry
+    FiniteDimensional k (X.left.residueField x.1) := by
+  haveI : IsClosedImmersion (X.left.fromSpecResidueField x.1) :=
+    isClosed_singleton_iff_isClosedImmersion.mp x.2
+  haveI : LocallyOfFiniteType
+      (Spec.map (CommRingCat.ofHom (algebraMap k (X.left.residueField x.1)))) := by
+    rw [Scheme.Hom.ResidueField.specMap_mapOfSpec X.hom x.1]
+    infer_instance
+  have hfinite : (algebraMap k (X.left.residueField x.1)).Finite := by
+    apply (IsFinite.SpecMap_iff
+      (CommRingCat.ofHom (algebraMap k (X.left.residueField x.1)))).mp
+    rw [isFinite_iff_locallyOfFiniteType_of_jacobsonSpace]
+    infer_instance
+  exact RingHom.finite_algebraMap.mp hfinite
 
 /-- The residue field at a closed point of a scheme locally of finite type over a finite field
 is finite. -/

@@ -25,7 +25,36 @@ and its actual colimit eliminator.
 @[expose] public section
 open CategoryTheory CategoryTheory.Limits TensorProduct
 noncomputable section
-universe u v w
+universe u v w x
+
+namespace Algebra.Presentation
+
+variable {A : Type u} {B : Type v} {ι : Type w} {σ : Type x}
+    [CommRing A] [CommRing B] [Algebra A B]
+
+/-- The quotient by the displayed relations is the presented algebra.
+The inverse retains the presentation's designated polynomial section.
+No finiteness or smoothness assumptions are needed. -/
+def relationQuotientEquiv (P : Algebra.Presentation A B ι σ) :
+    (MvPolynomial ι A ⧸ Ideal.span (Set.range P.relation)) ≃ₐ[A] B :=
+  (Ideal.quotientEquivAlgOfEq A P.span_range_relation_eq_ker).trans
+    (P.quotientEquiv.restrictScalars A)
+
+/-- The comparison evaluates polynomial representatives at the given generators. -/
+@[simp]
+theorem relationQuotientEquiv_mk (P : Algebra.Presentation A B ι σ)
+    (p : MvPolynomial ι A) :
+    P.relationQuotientEquiv (Ideal.Quotient.mk _ p) = MvPolynomial.aeval P.val p := by
+  simp [relationQuotientEquiv]
+
+/-- The inverse comparison reduces the supplied polynomial section modulo the relations. -/
+@[simp]
+theorem relationQuotientEquiv_symm_apply (P : Algebra.Presentation A B ι σ) (b : B) :
+    P.relationQuotientEquiv.symm b = Ideal.Quotient.mk _ (P.σ b) := by
+  simp [relationQuotientEquiv]
+
+end Algebra.Presentation
+
 namespace CommAlgCat.IndEtale
 
 /-- The presented ring of a relative-dimension-zero standard-étale relation family. -/
@@ -315,20 +344,57 @@ def ofSubmersive {A T : Type u} {B : Type v} [CommRing A] [CommRing B] [CommRing
   n := n
   relations := P.relation
   jacobian_isUnit := sorry
-  toTarget := f.comp (Ideal.Quotient.liftₐ _ (MvPolynomial.aeval P.val) (by
-    sorry))
+  toTarget := f.comp P.toPresentation.relationQuotientEquiv.toAlgHom
+
+/-- The target map factors through the canonical relation-quotient comparison. -/
+theorem ofSubmersive_toTarget {A T : Type u} {B : Type v}
+    [CommRing A] [CommRing B] [CommRing T] [Algebra A B] [Algebra A T] {n : ℕ}
+    (P : Algebra.SubmersivePresentation A B (Fin n) (Fin n)) (f : B →ₐ[A] T) :
+    (ofSubmersive P f).toTarget =
+      f.comp P.toPresentation.relationQuotientEquiv.toAlgHom := rfl
+
+/-- On polynomial representatives the target map is the original evaluation followed by `f`. -/
+@[simp]
+theorem ofSubmersive_toTarget_mk {A T : Type u} {B : Type v}
+    [CommRing A] [CommRing B] [CommRing T] [Algebra A B] [Algebra A T] {n : ℕ}
+    (P : Algebra.SubmersivePresentation A B (Fin n) (Fin n)) (f : B →ₐ[A] T)
+    (p : MvPolynomial (Fin n) A) :
+    (ofSubmersive P f).toTarget (Ideal.Quotient.mk (Ideal.span (Set.range P.relation)) p) =
+      f (MvPolynomial.aeval P.val p) := by
+  change f (P.toPresentation.relationQuotientEquiv (Ideal.Quotient.mk _ p)) = _
+  rw [Algebra.Presentation.relationQuotientEquiv_mk]
 
 /-- The polynomial section of a presentation induces the inverse of its
 quotient evaluation map. -/
 def presentationSection {A : Type u} {B : Type v} [CommRing A] [CommRing B] [Algebra A B]
     {n : ℕ} (P : Algebra.SubmersivePresentation A B (Fin n) (Fin n)) :
-    B →ₐ[A] presentationRing n P.relation where
-  toFun b := Ideal.Quotient.mk _ (P.σ b)
-  map_zero' := sorry
-  map_one' := sorry
-  map_add' := sorry
-  map_mul' := sorry
-  commutes' := sorry
+    B →ₐ[A] presentationRing n P.relation :=
+  P.toPresentation.relationQuotientEquiv.symm.toAlgHom
+
+/-- The section is the inverse of the canonical relation-quotient comparison. -/
+theorem presentationSection_eq {A : Type u} {B : Type v}
+    [CommRing A] [CommRing B] [Algebra A B] {n : ℕ}
+    (P : Algebra.SubmersivePresentation A B (Fin n) (Fin n)) :
+    presentationSection P = P.toPresentation.relationQuotientEquiv.symm.toAlgHom := rfl
+
+/-- The section retains the original polynomial representative chosen by the presentation. -/
+@[simp]
+theorem presentationSection_apply {A : Type u} {B : Type v}
+    [CommRing A] [CommRing B] [Algebra A B] {n : ℕ}
+    (P : Algebra.SubmersivePresentation A B (Fin n) (Fin n)) (b : B) :
+    presentationSection P b = Ideal.Quotient.mk _ (P.σ b) := by
+  simp [presentationSection]
+
+/-- Passing through the presented factorization recovers the supplied map to the target. -/
+@[simp]
+theorem ofSubmersive_toTarget_comp_presentationSection {A T : Type u} {B : Type v}
+    [CommRing A] [CommRing B] [CommRing T] [Algebra A B] [Algebra A T] {n : ℕ}
+    (P : Algebra.SubmersivePresentation A B (Fin n) (Fin n)) (f : B →ₐ[A] T) :
+    (ofSubmersive P f).toTarget.comp (presentationSection P) = f := by
+  ext b
+  change f (P.toPresentation.relationQuotientEquiv
+    (P.toPresentation.relationQuotientEquiv.symm b)) = f b
+  rw [AlgEquiv.apply_symm_apply]
 
 end Factorization
 

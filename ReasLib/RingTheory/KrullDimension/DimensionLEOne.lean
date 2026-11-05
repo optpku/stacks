@@ -28,6 +28,19 @@ namespace Ring
 theorem dimensionLEOne_of_ringKrullDim_eq_one
     {R : Type u} [CommRing R] [IsDomain R]
     (hdim : ringKrullDim R = 1) :
-    Ring.DimensionLEOne R := sorry
+    Ring.DimensionLEOne R := by
+  letI : Ring.KrullDimLE 1 R := Ring.krullDimLE_iff.mpr (by simp [hdim])
+  exact ⟨fun hne hp ↦ hp.isMaximal_of_ne_bot hne⟩
+
+/-- A nontrivial ring of dimension at most one has finite Krull dimension. -/
+instance finiteRingKrullDim_of_dimensionLEOne
+    {R : Type u} [CommRing R] [Nontrivial R] [Ring.DimensionLEOne R] :
+    FiniteRingKrullDim R := by
+  apply finiteRingKrullDim_iff_ne_bot_and_top.mpr
+  constructor
+  · exact ne_of_gt (lt_of_lt_of_le (WithBot.bot_lt_coe (0 : ℕ∞))
+      ringKrullDim_nonneg_of_nontrivial)
+  · exact ne_of_lt ((Ring.krullDimLE_iff.mp (inferInstance : Ring.KrullDimLE 1 R)).trans_lt
+      (WithBot.coe_lt_coe.mpr (ENat.coe_lt_top 1)))
 
 end Ring

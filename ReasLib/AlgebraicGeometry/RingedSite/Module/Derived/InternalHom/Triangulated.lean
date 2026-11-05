@@ -29,6 +29,118 @@ noncomputable section
 
 universe u v
 
+set_option backward.isDefEq.respectTransparency false
+
+namespace CategoryTheory.CochainComplex.InternalHom
+
+section Homotopies
+
+variable {A : Type*} [Category* A] [Preadditive A]
+variable [MonoidalCategory A] [MonoidalPreadditive A] [MonoidalClosed A]
+variable [HasZeroObject A] [HasProductsOfShape ℤ A]
+variable [∀ X Y : GradedObject ℤ A, GradedObject.HasTensor X Y]
+variable [∀ X Y Z : GradedObject ℤ A, GradedObject.HasGoodTensor₁₂Tensor X Y Z]
+variable [∀ X Y Z : GradedObject ℤ A, GradedObject.HasGoodTensorTensor₂₃ X Y Z]
+variable [∀ X Y Z W : GradedObject ℤ A, GradedObject.HasTensor₄ObjExt X Y Z W]
+variable [∀ X, PreservesColimit (Functor.empty.{0} A) ((curriedTensor A).obj X)]
+variable [∀ X, PreservesColimit (Functor.empty.{0} A) ((curriedTensor A).flip.obj X)]
+
+/-- Postcomposition transports a homotopy through the explicit product-valued Hom complex. -/
+def mapHomotopy (F : CochainComplex A ℤ)
+    {I I' : CochainComplex A ℤ} {f g : I ⟶ I'} (h : Homotopy f g) :
+    Homotopy (map F f) (map F g) where
+  hom n m := Pi.lift fun i ↦
+    Pi.π (family F I n) i ≫ (ihom (F.X i)).map (h.hom (i + n) (i + m))
+  zero n m hnm := by
+    apply Pi.hom_ext
+    intro i
+    simp only [Pi.lift_π, zero_comp]
+    rw [h.zero _ _ (by
+      intro hh
+      apply hnm
+      simp only [ComplexShape.up_Rel] at *
+      omega)]
+    simp
+  comm n := by
+    obtain ⟨m, rfl⟩ : ∃ m : ℤ, n = m + 1 := ⟨n - 1, by omega⟩
+    rw [dNext_eq _ (show (ComplexShape.up ℤ).Rel (m + 1) (m + 1 + 1) from rfl),
+      prevD_eq _ (show (ComplexShape.up ℤ).Rel m (m + 1) from rfl)]
+    apply Pi.hom_ext
+    intro i
+    simp only [map, obj, CochainComplex.of_d, GradedObject.InternalHom.map,
+      differential, Category.assoc, Pi.lift_π, Pi.lift_π_assoc,
+      Preadditive.add_comp, Preadditive.comp_add, Linear.units_smul_comp,
+      Linear.comp_units_smul]
+    simp only [postDifferential, Category.assoc, ← Functor.map_comp_assoc,
+      ← CategoryTheory.MonoidalClosed.curry_natural_right,
+      ← CategoryTheory.MonoidalClosed.curry_natural_left,
+      preDifferential, Category.assoc, Pi.lift_π_assoc]
+    rw [MonoidalCategory.whisker_exchange_assoc]
+    simp only [← MonoidalCategory.whiskerLeft_comp_assoc, Pi.lift_π]
+    simp only [MonoidalCategory.whiskerLeft_comp, Category.assoc]
+    rw [ihom.ev_naturality_assoc]
+    have hleft (a b c : ℤ) (hab : a = b) :
+        eqToHom (congrArg I.X hab) ≫ h.hom b c = h.hom a c := by
+      subst b
+      simp
+    have hright (a b c : ℤ) (hbc : b = c) :
+        h.hom a b ≫ eqToHom (congrArg I'.X hbc) = h.hom a c := by
+      subst c
+      simp
+    rw [← eqToHom_map (ihom (F.X i)) (congrArg I.X (postDegree i (m + 1))),
+      ← eqToHom_map (ihom (F.X i)) (congrArg I'.X (postDegree i m))]
+    rw [← Functor.map_comp, ← Functor.map_comp]
+    rw [hleft _ _ _ (postDegree i (m + 1)),
+      hleft _ _ _ (preDegree i (m + 1)), hright _ _ _ (preDegree i m)]
+    rw [← Functor.map_comp, Category.assoc]
+    rw [HomologicalComplex.d_comp_eqToHom I'
+      (show (ComplexShape.up ℤ).Rel (i + m) (i + (m + 1)) from by
+        simp only [ComplexShape.up_Rel]; omega) rfl]
+    have hh := h.comm (i + (m + 1))
+    rw [dNext_eq _ (show (ComplexShape.up ℤ).Rel (i + (m + 1))
+        (i + (m + 1) + 1) from rfl),
+      prevD_eq _ (show (ComplexShape.up ℤ).Rel (i + m) (i + (m + 1)) from by
+        simp only [ComplexShape.up_Rel]; omega)] at hh
+    rw [Int.negOnePow_succ, Units.neg_smul, hh]
+    haveI := (ihom.adjunction (F.X i)).right_adjoint_additive
+    rw [Functor.map_add, Functor.map_add, Preadditive.comp_add, Preadditive.comp_add]
+    abel
+
+end Homotopies
+
+section QuasiIsomorphisms
+
+variable {A : Type*} [Category* A] [Abelian A]
+variable [MonoidalCategory A] [MonoidalPreadditive A] [MonoidalClosed A]
+variable [HasZeroObject A] [HasProductsOfShape ℤ A]
+variable [∀ X Y : GradedObject ℤ A, GradedObject.HasTensor X Y]
+variable [∀ X Y Z : GradedObject ℤ A, GradedObject.HasGoodTensor₁₂Tensor X Y Z]
+variable [∀ X Y Z : GradedObject ℤ A, GradedObject.HasGoodTensorTensor₂₃ X Y Z]
+variable [∀ X Y Z W : GradedObject ℤ A, GradedObject.HasTensor₄ObjExt X Y Z W]
+variable [∀ X, PreservesColimit (Functor.empty.{0} A) ((curriedTensor A).obj X)]
+variable [∀ X, PreservesColimit (Functor.empty.{0} A) ((curriedTensor A).flip.obj X)]
+
+/-- Strict internal Hom preserves quasi-isomorphisms between K-injective targets. -/
+theorem quasiIso_map_of_isKInjective (F : CochainComplex A ℤ)
+    {I I' : CochainComplex A ℤ} [I.IsKInjective] [I'.IsKInjective]
+    (f : I ⟶ I') (hf : QuasiIso f) : QuasiIso (map F f) := by
+  obtain ⟨e, rfl⟩ := (_root_.CochainComplex.IsKInjective.quasiIso_iff f).mp hf
+  let E : HomotopyEquiv (obj F I) (obj F I') := {
+    hom := (functor F).map e.hom
+    inv := (functor F).map e.inv
+    homotopyHomInvId := by
+      have hh : Homotopy ((functor F).map (e.hom ≫ e.inv))
+          ((functor F).map (𝟙 I)) := mapHomotopy F e.homotopyHomInvId
+      simpa only [Functor.map_comp, Functor.map_id, functor] using hh
+    homotopyInvHomId := by
+      have hh : Homotopy ((functor F).map (e.inv ≫ e.hom))
+          ((functor F).map (𝟙 I')) := mapHomotopy F e.homotopyInvHomId
+      simpa only [Functor.map_comp, Functor.map_id, functor] using hh }
+  exact E.quasiIso_hom
+end QuasiIsomorphisms
+
+end CategoryTheory.CochainComplex.InternalHom
+
 namespace RingedSite.Hom.ModuleDerived.InternalHom
 
 variable {C : Type u} [Category.{v} C] {J : GrothendieckTopology C}
@@ -59,9 +171,26 @@ def modelShiftMap (N : max J O) (n : ℤ) :
         (injectiveModel N) ≫
       (shiftFunctor (max J O) n).map (injectiveModelIso N).hom)
 
+set_option backward.isDefEq.respectTransparency false in
 /-- The model-shift comparison has its displayed canonical isomorphism as derived image. -/
 instance modelShiftMap_quasiIso (N : max J O) (n : ℤ) :
-    QuasiIso (modelShiftMap N n) := sorry
+    QuasiIso (modelShiftMap N n) := by
+  apply (DerivedCategory.isIso_Q_map_iff_quasiIso _ _).1
+  let e : (DerivedCategory.Q :
+      CochainComplex (ringedSiteModuleCategory J O) ℤ ⥤ max J O).obj
+        ((injectiveModel N)⟦n⟧) ≅ N⟦n⟧ :=
+    (Functor.commShiftIso
+      (DerivedCategory.Q : CochainComplex (ringedSiteModuleCategory J O) ℤ ⥤ max J O) n).app
+        (injectiveModel N) ≪≫
+      (shiftFunctor (max J O) n).mapIso (injectiveModelIso N)
+  have h : DerivedCategory.Q.map (modelShiftMap N n) =
+      e.hom ≫ (injectiveModelIso (N⟦n⟧)).inv := by
+    apply (cancel_mono (injectiveModelIso (N⟦n⟧)).hom).1
+    simpa only [modelShiftMap, e, Iso.trans_hom, Functor.mapIso_hom, Iso.app_hom,
+      Category.assoc, Iso.inv_hom_id, Category.comp_id] using
+      (liftToInjectiveModel_fac ((injectiveModel N)⟦n⟧) (N⟦n⟧) e.hom)
+  rw [h]
+  infer_instance
 
 /-- Actual postcomposition by the target model-shift comparison. -/
 def targetModelShiftMap (M N : max J O) (n : ℤ) :
@@ -70,10 +199,46 @@ def targetModelShiftMap (M N : max J O) (n : ℤ) :
   DerivedCategory.Q.map
     ((strictInternalHom.obj (op (injectiveModel M))).map (modelShiftMap N n))
 
+/-- Postcomposition by a quasi-isomorphism between K-injective targets induces a
+quasi-isomorphism of strict sheaf internal-Hom complexes. -/
+theorem strictInternalHom_quasiIso_postcomp
+    (F : CochainComplex (ringedSiteModuleCategory J O) ℤ)
+    {I I' : CochainComplex (ringedSiteModuleCategory J O) ℤ}
+    [I.IsKInjective] [I'.IsKInjective] (f : I ⟶ I') (hf : QuasiIso f) :
+    QuasiIso ((strictInternalHom.obj (op F)).map f) := by
+  letI tensorExists : ∀ X Y : GradedObject ℤ (ringedSiteModuleCategory J O),
+      GradedObject.HasTensor X Y :=
+    fun _ _ _ ↦ HasColimitsOfShape.has_colimit _
+  -- Local instance justification (defeq pin): Select the same left iterated-tensor certificate as strictInternalHom for its explicit closed structure.
+  letI goodLeft : ∀ X Y Z : GradedObject ℤ (ringedSiteModuleCategory J O),
+      GradedObject.HasGoodTensor₁₂Tensor X Y Z :=
+    fun _ _ _ _ _ ↦ PreservesColimitsOfShape.preservesColimit
+  -- Local instance justification (defeq pin): Select the same right iterated-tensor certificate as strictInternalHom for its explicit closed structure.
+  letI goodRight : ∀ X Y Z : GradedObject ℤ (ringedSiteModuleCategory J O),
+      GradedObject.HasGoodTensorTensor₂₃ X Y Z :=
+    fun _ _ _ _ _ ↦ PreservesColimitsOfShape.preservesColimit
+  -- Local instance justification (defeq pin): Select the same fourfold tensor-extensionality certificate as strictInternalHom for its explicit closed structure.
+  letI tensorExt : ∀ X Y Z W : GradedObject ℤ (ringedSiteModuleCategory J O),
+      GradedObject.HasTensor₄ObjExt X Y Z W :=
+    fun _ _ _ _ _ _ ↦ PreservesColimitsOfShape.preservesColimit
+  -- Local instance justification (defeq pin): Select the same left-tensor empty-colimit certificate as strictInternalHom for its explicit closed structure.
+  letI preservesLeft : ∀ X, PreservesColimit (Functor.empty.{0} (ringedSiteModuleCategory J O))
+      ((curriedTensor (ringedSiteModuleCategory J O)).obj X) :=
+    fun _ ↦ PreservesColimitsOfShape.preservesColimit
+  -- Local instance justification (defeq pin): Select the same right-tensor empty-colimit certificate as strictInternalHom for its explicit closed structure.
+  letI preservesRight : ∀ X, PreservesColimit (Functor.empty.{0} (ringedSiteModuleCategory J O))
+      ((curriedTensor (ringedSiteModuleCategory J O)).flip.obj X) :=
+    fun _ ↦ PreservesColimitsOfShape.preservesColimit
+  change QuasiIso (CochainComplex.InternalHom.map F f)
+  exact CochainComplex.InternalHom.quasiIso_map_of_isKInjective F f hf
+
 /-- A quasi-isomorphism between K-injective targets is a homotopy equivalence, so this
 actual postcomposition map is invertible after passing to the derived category. -/
 instance targetModelShiftMap_isIso (M N : max J O) (n : ℤ) :
-    IsIso (targetModelShiftMap M N n) := sorry
+    IsIso (targetModelShiftMap M N n) := by
+  apply (DerivedCategory.isIso_Q_map_iff_quasiIso _ _).2
+  exact strictInternalHom_quasiIso_postcomp
+    (injectiveModel M) (modelShiftMap N n) (modelShiftMap_quasiIso N n)
 
 /-- Actual precomposition by the negative-source model-shift comparison. -/
 def sourceModelShiftMap (M N : max J O) (n : ℤ) :
@@ -85,7 +250,10 @@ def sourceModelShiftMap (M N : max J O) (n : ℤ) :
 /-- The actual source-model shift comparison is a homotopy equivalence between K-injective
 complexes, and precomposition preserves that equivalence. -/
 instance sourceModelShiftMap_isIso (M N : max J O) (n : ℤ) :
-    IsIso (sourceModelShiftMap M N n) := sorry
+    IsIso (sourceModelShiftMap M N n) := by
+  apply (DerivedCategory.isIso_Q_map_iff_quasiIso _ _).2
+  exact strictInternalHom_quasiIso_precomp
+    (modelShiftMap M (-n)) (modelShiftMap_quasiIso M (-n)) (injectiveModel N)
 
 /-- The target-variable derived shift comparison, with all maps fixed by actual cochain
 postcomposition, strict shift matrices and derived localization. -/

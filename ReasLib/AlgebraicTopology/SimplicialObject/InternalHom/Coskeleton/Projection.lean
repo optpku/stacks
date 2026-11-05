@@ -282,7 +282,7 @@ power. -/
 def app (k n : ℕ) [HasFiniteProducts C]
     [Truncated.HasCoskeletons C n] (T : C) :
     (matchingFunctor (C := C) k n).obj T ⟶
-      (Power.functor (C := C) (BoundaryIndex k (n + 1))).obj T :=
+      (Pi.diagonal (C := C) (BoundaryIndex k (n + 1))).obj T :=
   Pi.lift (fun alpha : BoundaryIndex k (n + 1) ↦
     matchingProjection k n T ((rankTopEquiv k n).symm alpha))
 
@@ -302,7 +302,7 @@ theorem naturality (k n : ℕ) [HasFiniteProducts C]
     [Truncated.HasCoskeletons C n] {T T' : C} (f : T ⟶ T') :
     (matchingFunctor (C := C) k n).map f ≫ app k n T' =
       app k n T ≫
-        (Power.functor (C := C) (BoundaryIndex k (n + 1))).map f := sorry
+        (Pi.diagonal (C := C) (BoundaryIndex k (n + 1))).map f := sorry
 
 end MatchingHom
 
@@ -311,7 +311,7 @@ end MatchingHom
 def matchingHom (k n : ℕ) [HasFiniteProducts C]
     [Truncated.HasCoskeletons C n] :
     matchingFunctor (C := C) k n ⟶
-      Power.functor (C := C) (BoundaryIndex k (n + 1)) where
+      Pi.diagonal (C := C) (BoundaryIndex k (n + 1)) where
   app := MatchingHom.app k n
   naturality := fun _ _ f ↦ MatchingHom.naturality k n f
 
@@ -322,16 +322,16 @@ uses the right-Kan comparison from the bounded-rank power. -/
 @[stacks 01GJ "boundary power to matching object component"]
 noncomputable def app (k n : ℕ) [HasFiniteProducts C]
     [Truncated.HasCoskeletons C n] (T : C) :
-    (Power.functor (C := C) (BoundaryIndex k (n + 1))).obj T ⟶
+    (Pi.diagonal (C := C) (BoundaryIndex k (n + 1))).obj T ⟶
       (matchingFunctor (C := C) k n).obj T :=
-  (Power.reindex (C := C) (rankTopEquiv k n)).app T ≫
+  (Pi.diagonal.reindex (C := C) (rankTopEquiv k n)).app T ≫
     (rankComparison k n T).app (op ⦋n + 1⦌)
 
 /-- The inverse matching comparison is natural in the repeated object. -/
 @[stacks 01GJ "boundary power to matching object naturality"]
 theorem naturality (k n : ℕ) [HasFiniteProducts C]
     [Truncated.HasCoskeletons C n] {T T' : C} (f : T ⟶ T') :
-    (Power.functor (C := C) (BoundaryIndex k (n + 1))).map f ≫
+    (Pi.diagonal (C := C) (BoundaryIndex k (n + 1))).map f ≫
         app k n T' =
       app k n T ≫ (matchingFunctor (C := C) k n).map f := sorry
 
@@ -341,7 +341,7 @@ end MatchingInv
 @[stacks 01GJ "boundary power to matching object"]
 noncomputable def matchingInv (k n : ℕ) [HasFiniteProducts C]
     [Truncated.HasCoskeletons C n] :
-    Power.functor (C := C) (BoundaryIndex k (n + 1)) ⟶
+    Pi.diagonal (C := C) (BoundaryIndex k (n + 1)) ⟶
       matchingFunctor (C := C) k n where
   app := MatchingInv.app k n
   naturality := fun _ _ f ↦ MatchingInv.naturality k n f
@@ -360,7 +360,7 @@ theorem hom_inv (k n : ℕ) [HasFiniteProducts C]
 theorem inv_hom (k n : ℕ) [HasFiniteProducts C]
     [Truncated.HasCoskeletons C n] :
     matchingInv (C := C) k n ≫ matchingHom (C := C) k n =
-      𝟙 (Power.functor (C := C) (BoundaryIndex k (n + 1))) := sorry
+      𝟙 (Pi.diagonal (C := C) (BoundaryIndex k (n + 1))) := sorry
 
 end MatchingIso
 
@@ -371,7 +371,7 @@ image factorizations, and the inverse uses the bounded-rank right-Kan comparison
 noncomputable def matchingIso (k n : ℕ) [HasFiniteProducts C]
     [Truncated.HasCoskeletons C n] :
     matchingFunctor (C := C) k n ≅
-      Power.functor (C := C) (BoundaryIndex k (n + 1)) where
+      Pi.diagonal (C := C) (BoundaryIndex k (n + 1)) where
   hom := matchingHom k n
   inv := matchingInv k n
   hom_inv_id := MatchingIso.hom_inv k n
@@ -397,7 +397,7 @@ costandard indices to the nonsurjective indices. -/
 theorem unit (k n : ℕ) [HasFiniteProducts C]
     [Truncated.HasCoskeletons C n] (T : C) :
     unitComponent k n T ≫ (matchingIso (C := C) k n).hom.app T =
-      (Power.reindex (C := C) (boundaryInclusion k (n + 1))).app T := sorry
+      (Pi.diagonal.reindex (C := C) (boundaryInclusion k (n + 1))).app T := sorry
 
 end MatchingIso
 
@@ -407,7 +407,7 @@ the degree-`n + 1` coskeleton unit with the boundary-index projection. -/
 def IsProjection (k n : ℕ) [HasFiniteProducts C]
     [Truncated.HasCoskeletons C n] : Prop :=
   ∀ T : C, unitComponent k n T ≫ (matchingIso (C := C) k n).hom.app T =
-      (Power.reindex (C := C) (boundaryInclusion k (n + 1))).app T
+      (Pi.diagonal.reindex (C := C) (boundaryInclusion k (n + 1))).app T
 
 /-- Equation 25.7.3.1 (Tag 01GJ): the degree-`n + 1` coskeleton unit of a costandard
 simplicial power is functorially the projection onto the finite family of nonsurjective

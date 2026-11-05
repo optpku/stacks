@@ -7,6 +7,7 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import ReasLib.RingTheory.GradedAlgebra.HomogeneousLocalization.Module.Basic
+public import ReasLib.Algebra.Group.Action.NatInt
 public import Mathlib.Tactic.CrossRefAttribute
 
 /-!
@@ -21,6 +22,24 @@ localized module construction.
 noncomputable section
 
 universe u v w z
+
+namespace HomogeneousLocalization.Module
+
+/-- Restrict an integer-indexed family of homogeneous pieces to nonnegative degrees. -/
+abbrev nonnegativeGrading {τ : Type*} (ℳ : ℤ → τ) : ℕ → τ := fun n ↦ ℳ (n : ℤ)
+
+/-- The nonnegative pieces retain the graded action of a naturally graded scalar family. -/
+instance instGradedSMulNonnegativeGrading
+    {S M σ τ : Type*} [SetLike σ S] [SetLike τ M] [SMul S M]
+    (𝒜 : ℕ → σ) (ℳ : ℤ → τ) [SetLike.GradedSMul 𝒜 ℳ] :
+    SetLike.GradedSMul 𝒜 (nonnegativeGrading ℳ) where
+  smul_mem := fun {i j a m} ha hm ↦ by
+    have h := SetLike.GradedSMul.smul_mem (A := 𝒜) (B := ℳ) ha hm
+    change a • m ∈ ℳ ((i : ℤ) + (j : ℤ)) at h
+    change a • m ∈ ℳ ((i + j : ℕ) : ℤ)
+    simpa only [Nat.cast_add] using h
+
+end HomogeneousLocalization.Module
 
 namespace HomogeneousLocalization.Away.Module
 

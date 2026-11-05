@@ -17,6 +17,11 @@ public import ReasLib.CategoryTheory.ObjectProperty.Over.FinitelyPresentable
 This leaf specializes the generic selected-over-object colimit API to
 finitely presented commutative algebras over a fixed target algebra.
 
+The stage carriers live in the universe of the target. The filtered-colimit
+results assume `Small.{v} R` so that the base ring and finite polynomial algebras
+can be used as stages in that universe. This is automatic for a base and target
+in the same universe; the category and canonical cocone need no size assumption.
+
 @stack 0BUF
 @stack 07C3
 -/
@@ -62,37 +67,41 @@ abbrev cocone (R : Type u) [CommRing R]
 /-- Stacks `0BUF`: finitely presented `R`-algebras over `A` form a filtered
 category and their canonical cocone has colimit `A`. -/
 @[stacks 0BUF]
-theorem isFilteredColimit (R : Type u) [CommRing R]
+theorem isFilteredColimit (R : Type u) [CommRing R] [Small.{v} R]
     (A : Type v) [CommRing A] [Algebra R A] :
     IsFiltered (category R A) ∧ Nonempty (IsColimit (cocone R A)) := sorry
 
 /-- Finitely presented `R`-algebras equipped with a map to `A` form a
 filtered category. -/
 @[stacks 0BUF "finitely presented algebras over a target form a filtered category"]
-theorem isFiltered (R : Type u) [CommRing R]
+theorem isFiltered (R : Type u) [CommRing R] [Small.{v} R]
     (A : Type v) [CommRing A] [Algebra R A] :
-    IsFiltered (category R A) := sorry
+    IsFiltered (category R A) :=
+  (isFilteredColimit R A).1
 
 /-- Typeclass form of `isFiltered` for the canonical category of finitely
 presented algebras over a target. -/
 @[stacks 0BUF "finitely presented algebras over a target form a filtered category"]
-instance instIsFiltered (R : Type u) [CommRing R]
+instance instIsFiltered (R : Type u) [CommRing R] [Small.{v} R]
     (A : Type v) [CommRing A] [Algebra R A] :
-    IsFiltered (category R A) := sorry
+    IsFiltered (category R A) :=
+  isFiltered R A
 
 /-- The canonical cocone of finitely presented `R`-algebras over `A` admits a
 colimit witness. -/
 @[stacks 0BUF]
-theorem cocone_hasColimit (R : Type u) [CommRing R]
+theorem cocone_hasColimit (R : Type u) [CommRing R] [Small.{v} R]
     (A : Type v) [CommRing A] [Algebra R A] :
-    Nonempty (IsColimit (cocone R A)) := sorry
+    Nonempty (IsColimit (cocone R A)) :=
+  (isFilteredColimit R A).2
 
 /-- Stacks `07C3`: a family of finitely presented `R`-algebras over `A`
 forms a filtered colimit presentation precisely when every finitely presented
 `R`-algebra over `A` factors through one member of the family. -/
 @[stacks 07C3]
 theorem isFilteredColimit_iff_factorization
-    {R : Type u} [CommRing R] {A : Type v} [CommRing A] [Algebra R A]
+    {R : Type u} [CommRing R] [Small.{v} R]
+    {A : Type v} [CommRing A] [Algebra R A]
     (P : ObjectProperty (CategoryTheory.Over (CommAlgCat.of R A)))
     (hfinitePresentation : ∀ B : CategoryTheory.Over (CommAlgCat.of R A),
       P B → Algebra.FinitePresentation R B.left) :

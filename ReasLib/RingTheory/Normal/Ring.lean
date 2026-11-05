@@ -59,7 +59,21 @@ theorem of_isIntegrallyClosed {R : Type u} [CommRing R] [IsDomain R] [IsIntegral
 /-- A ring equivalence transports normality to its target, including across carrier universes. -/
 @[stacks 00GV "normal rings under ring equivalence"]
 theorem of_ringEquiv {R : Type u} {S : Type v} [CommRing R] [CommRing S]
-    [IsNormalRing R] (e : R ≃+* S) : IsNormalRing S := sorry
+    [IsNormalRing R] (e : R ≃+* S) : IsNormalRing S := by
+  have hloc (p : PrimeSpectrum S) :
+      IsDomain (Localization.AtPrime p.asIdeal) ∧
+        IsIntegrallyClosed (Localization.AtPrime p.asIdeal) := by
+    let q : Ideal R := p.asIdeal.comap e.toRingHom
+    haveI : q.IsPrime := inferInstance
+    haveI : IsDomain (Localization.AtPrime q) :=
+      isDomain_localizationAtPrime ⟨q, inferInstance⟩
+    haveI : IsIntegrallyClosed (Localization.AtPrime q) :=
+      isIntegrallyClosed_localizationAtPrime ⟨q, inferInstance⟩
+    let h : Localization.AtPrime q ≃+* Localization.AtPrime p.asIdeal :=
+      IsLocalization.ringEquivOfRingEquiv (M := q.primeCompl)
+        (T := p.asIdeal.primeCompl) _ _ e (e.map_primeCompl_comap_eq p.asIdeal)
+    exact ⟨h.symm.injective.isDomain h.symm.toRingHom, IsIntegrallyClosed.of_equiv h⟩
+  exact ⟨fun p ↦ (hloc p).1, fun p ↦ (hloc p).2⟩
 
 /-- Normality is invariant under a ring equivalence. -/
 @[stacks 00GV "normality and ring equivalence"]

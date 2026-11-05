@@ -39,19 +39,18 @@ complex `S⁻¹Q ⟶ Q ⟶ SQ`. -/
 @[stacks 0AMK "(3)"]
 #check (Q.homology : C)
 
-variable (K : ShiftedExactCouple.Derived.Construction T)
 variable (X : ShiftedExactCouple (S.trans T) T)
 
 /- Remark 12.22.6 (Variant) (4) [0AMK]: the exact couple has shifts `T ∘ S` and `T`, so its
 positive pages carry shifts `T^r ∘ S`. -/
 @[stacks 0AMK "(4)"]
-#check (K.associatedSpectralSequence X :
+#check (ShiftedExactCouple.Derived.associatedSpectralSequence X :
   ShiftedSpectralSequence (ShiftedSpectralSequence.pageShift (S.trans T) T))
 
 /- Remark 12.22.6 (Variant) (5) [0AMK]: a specified `S⁻¹Q` zeroth page can be adjoined to
 the associated shifted spectral sequence. -/
 @[stacks 0AMK "(5)"]
-#check (ShiftedExactCouple.ZeroPage.page K X Q :
+#check (ShiftedExactCouple.ZeroPage.page X Q :
   (r : ℕ) → ShiftedDifferentialObject
     ((ShiftedSpectralSequence.zeroPageShift S T r).functor))
 #check (ShiftedSpectralSequence.ZeroPageShift.zero S T :
@@ -66,19 +65,19 @@ variable (e : X.E ≅ Q.previousPage.homology)
 /- Remark 12.22.6 (Variant) (6) [0AMK]: the page-one comparison identifies `E₁` with the
 inverse shift of `H(Q)`. -/
 @[stacks 0AMK "(6)"]
-#check (ShiftedExactCouple.ZeroPage.page_one_obj K X Q :
-  (ShiftedExactCouple.ZeroPage.page K X Q 1).obj = X.E)
+#check (ShiftedExactCouple.ZeroPage.page_one_obj X Q :
+  (ShiftedExactCouple.ZeroPage.page X Q 1).obj = X.E)
 #check (ShiftedExactCouple.ZeroPage.homologyIso X Q e :
   X.E ≅ S.functor.inv.obj Q.homology)
 
 /- Remark 12.22.6 (Variant) (7) [0AMK]: the cycle filtration on the zeroth page is pulled back
 from the canonical positive-page filtration. -/
 @[stacks 0AMK "(7)"]
-#check ShiftedExactCouple.ZeroPage.cycle K X Q e
+#check ShiftedExactCouple.ZeroPage.cycle X Q e
 
 /- Remark 12.22.6 (Variant) (8) [0AMK]: the boundary filtration on the zeroth page is pulled back
 from the canonical positive-page filtration. -/
 @[stacks 0AMK "(8)"]
-#check ShiftedExactCouple.ZeroPage.boundary K X Q e
+#check ShiftedExactCouple.ZeroPage.boundary X Q e
 
 end CategoryTheory

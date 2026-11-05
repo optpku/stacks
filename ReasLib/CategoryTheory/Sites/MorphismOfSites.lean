@@ -110,7 +110,8 @@ instance IsMorphismOfSites.mk'
 /-- The identity functor is a morphism of sites. -/
 @[stacks 04WJ "identity morphism of sites"]
 instance IsMorphismOfSites.id (J : GrothendieckTopology C) :
-    IsMorphismOfSites J J (𝟭 C) := sorry
+    IsMorphismOfSites J J (𝟭 C) := by
+  constructor <;> infer_instance
 
 /-- Composition of morphisms of sites with an explicitly supplied middle topology. The middle
 topology cannot be recovered from the composite alone, so this is a theorem rather than a global
@@ -119,7 +120,9 @@ typeclass instance. -/
 theorem IsMorphismOfSites.comp {E : Type*} [Category E]
     {J : GrothendieckTopology C} (K : GrothendieckTopology D) {L : GrothendieckTopology E}
     (u : C ⥤ D) (v : D ⥤ E) [IsMorphismOfSites J K u] [IsMorphismOfSites K L v] :
-    IsMorphismOfSites J L (u ⋙ v) := sorry
+    IsMorphismOfSites J L (u ⋙ v) := by
+  exact { toIsContinuous := Functor.isContinuous_comp u v J K L
+          toRepresentablyFlat := inferInstance }
 
 /-- The key theorem: a morphism of sites induces a morphism of topoi `Sh(K) → Sh(J)`.
 The inverse image is the sheaf pullback `u.sheafPullback`, which is left-exact

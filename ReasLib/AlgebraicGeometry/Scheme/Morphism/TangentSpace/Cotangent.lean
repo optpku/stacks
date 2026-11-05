@@ -7,9 +7,13 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import Mathlib.FieldTheory.Separable
+public import Mathlib.RingTheory.Etale.Field
+public import ReasLib.RingTheory.Kaehler.Conormal
 public import Mathlib.LinearAlgebra.TensorProduct.Tower
 public import Mathlib.RingTheory.Ideal.Cotangent
 public import Mathlib.RingTheory.Kaehler.Basic
+public import Mathlib.RingTheory.Kaehler.TensorProduct
+public import ReasLib.AlgebraicGeometry.Scheme.Morphism.Fiber.StalkQuotient
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.Fiber.Stalk
 public import ReasLib.AlgebraicGeometry.Scheme.Morphism.TangentSpace.Differentials
 
@@ -52,7 +56,20 @@ theorem fiberCotangentToKaehlerLinearMap_bijective_of_isSeparable
     {X S : Scheme.{u}} (f : X ⟶ S) (x : X)
     (h_sep : Algebra.IsSeparable
       (S.residueField (f x)) (fiberResidueFieldAt f x)) :
-    Function.Bijective (fiberCotangentToKaehlerLinearMap f x) := sorry
+    Function.Bijective (fiberCotangentToKaehlerLinearMap f x) := by
+  letI := h_sep
+  letI : Algebra.FormallyEtale (S.residueField (f x)) (fiberResidueFieldAt f x) :=
+    Algebra.FormallyEtale.of_isSeparable _ _
+  have hsurj : Function.Surjective
+      (algebraMap (fiberStalkAt f x) (fiberResidueFieldAt f x)) :=
+    (f.fiber (f x)).residue_surjective (f.asFiber x)
+  have hconormal := KaehlerDifferential.Conormal.bijective_of_formallyEtale
+    (R := S.residueField (f x)) hsurj
+  let e := Ideal.Cotangent.equivOfEq
+    (IsLocalRing.maximalIdeal (fiberStalkAt f x))
+    (RingHom.ker (algebraMap (fiberStalkAt f x) (fiberResidueFieldAt f x)))
+    IsLocalRing.ker_residue.symm
+  exact hconormal.comp e.bijective
 
 /-- The canonical `κ(x)`-module structure on the cotangent space of the
 distinguished fibre stalk, transported across its residue-field equivalence. -/
@@ -73,7 +90,29 @@ noncomputable instance fiberCotangentSpaceSourceResidueFieldModule
 instance fiberCotangentSpaceSourceResidueFieldIsScalarTower
     {X S : Scheme.{u}} (f : X ⟶ S) (x : X) :
     IsScalarTower (fiberStalkAt f x) (X.residueField x)
-      (IsLocalRing.CotangentSpace (fiberStalkAt f x)) := sorry
+      (IsLocalRing.CotangentSpace (fiberStalkAt f x)) := by
+  letI : Module (fiberResidueFieldAt f x)
+      (IsLocalRing.CotangentSpace (fiberStalkAt f x)) := by
+    change Module (IsLocalRing.ResidueField (fiberStalkAt f x))
+      (IsLocalRing.CotangentSpace (fiberStalkAt f x))
+    infer_instance
+  letI : IsScalarTower (fiberStalkAt f x) (fiberResidueFieldAt f x)
+      (IsLocalRing.CotangentSpace (fiberStalkAt f x)) := by
+    change IsScalarTower (fiberStalkAt f x) (IsLocalRing.ResidueField (fiberStalkAt f x))
+      (IsLocalRing.CotangentSpace (fiberStalkAt f x))
+    infer_instance
+  apply IsScalarTower.of_algebraMap_smul
+  intro a v
+  change (fiberResidueFieldAlgEquiv f x).symm
+    (algebraMap (fiberStalkAt f x) (X.residueField x) a) • v = a • v
+  have h : (fiberResidueFieldAlgEquiv f x).symm
+      (algebraMap (fiberStalkAt f x) (X.residueField x) a) =
+        algebraMap (fiberStalkAt f x) (fiberResidueFieldAt f x) a := by
+    apply (fiberResidueFieldAlgEquiv f x).injective
+    rw [AlgEquiv.apply_symm_apply]
+    exact (congrArg (fun φ : fiberStalkAt f x ⟶ X.residueField x => φ a)
+      (fiberStalkToSourceResidueField_factor f x)).symm
+  rw [h, IsScalarTower.algebraMap_smul]
 
 /-- Restriction of `κ(x)`-linear forms on the fibre cotangent space along the
 fibre stalk is compatible with scalar multiplication. -/
@@ -81,7 +120,8 @@ instance fiberCotangentSpaceSourceResidueFieldCompatibleSMul
     {X S : Scheme.{u}} (f : X ⟶ S) (x : X) :
     LinearMap.CompatibleSMul
       (IsLocalRing.CotangentSpace (fiberStalkAt f x)) (X.residueField x)
-      (fiberStalkAt f x) (X.residueField x) := sorry
+      (fiberStalkAt f x) (X.residueField x) := by
+  infer_instance
 
 /-- The canonical comparison from the residue-field fibre of the source-stalk
 Kähler differentials to the corresponding fibre-stalk Kähler differentials. -/
@@ -140,13 +180,68 @@ noncomputable def sourceKaehlerTensorToFiberLinearMap
       (X.residueField x) (X.residueField x) toFiber
   collapse.comp widen
 
+set_option maxHeartbeats 1000000 in
 /-- For a separable residue-field extension, the source-to-fibre Kähler
 tensor comparison is bijective. -/
 theorem sourceKaehlerTensorToFiberLinearMap_bijective_of_isSeparable
     {X S : Scheme.{u}} (f : X ⟶ S) (x : X)
     (h_sep : Algebra.IsSeparable
       (S.residueField (f x)) (X.residueField x)) :
-    Function.Bijective (sourceKaehlerTensorToFiberLinearMap f x) := sorry
+    Function.Bijective (sourceKaehlerTensorToFiberLinearMap f x) := by
+  -- Local instance justification (defeq pin): use the target-to-source stalk map
+  -- defining the source Kähler differential.
+  let _ : Algebra (S.presheaf.stalk (f x)) (X.presheaf.stalk x) := stalkAlgebra f x
+  -- Local instance justification (defeq pin): use the composite target-to-fibre
+  -- stalk map determined by the fixed morphism and distinguished fibre point.
+  let _ : Algebra (S.presheaf.stalk (f x)) (fiberStalkAt f x) :=
+    ((sourceStalkToFiberStalk f x).hom.comp (f.stalkMap x).hom).toAlgebra
+  -- Local instance justification (defeq pin): identify the preceding composite
+  -- algebra map with scalar restriction through the source stalk.
+  let _ : IsScalarTower (S.presheaf.stalk (f x)) (X.presheaf.stalk x)
+      (fiberStalkAt f x) := IsScalarTower.of_algebraMap_eq' rfl
+  -- Local instance justification (defeq pin): identify the same composite map
+  -- with scalar restriction through the base-point residue field.
+  let _ : IsScalarTower (S.presheaf.stalk (f x)) (S.residueField (f x))
+      (fiberStalkAt f x) :=
+    IsScalarTower.of_algebraMap_eq' <|
+      congrArg CommRingCat.Hom.hom (fiberBaseResidueFieldToStalk_fac f x).symm
+  letI : Algebra.IsPushout (S.presheaf.stalk (f x)) (S.residueField (f x))
+      (X.presheaf.stalk x) (fiberStalkAt f x) := (fiberStalk_isPushout f x).symm
+  let e := KaehlerDifferential.tensorKaehlerEquiv
+    (S.presheaf.stalk (f x)) (S.residueField (f x))
+    (X.presheaf.stalk x) (fiberStalkAt f x)
+  have heq : (KaehlerDifferential.map (S.presheaf.stalk (f x)) (S.residueField (f x))
+      (fiberStalkAt f x) (fiberStalkAt f x)).comp
+        (KaehlerDifferential.mapBaseChange (S.presheaf.stalk (f x))
+          (X.presheaf.stalk x) (fiberStalkAt f x)) = e.toLinearMap := by
+    apply TensorProduct.AlgebraTensorModule.ext
+    intro a m
+    obtain ⟨m, rfl⟩ := KaehlerDifferential.tensorProductTo_surjective
+      (S.presheaf.stalk (f x)) (X.presheaf.stalk x) m
+    induction m using TensorProduct.induction_on with
+    | zero => simp
+    | add m n hm hn => simpa only [map_add, TensorProduct.tmul_add] using congrArg₂ (· + ·) hm hn
+    | tmul r s =>
+      simp only [Derivation.tensorProductTo_tmul, TensorProduct.tmul_smul,
+        LinearMap.comp_apply, LinearMap.map_smul_of_tower,
+        KaehlerDifferential.mapBaseChange_tmul, KaehlerDifferential.map_D,
+        e, LinearEquiv.coe_coe, KaehlerDifferential.tensorKaehlerEquiv_tmul_D,
+        map_smul, Algebra.algebraMap_self, RingHom.id_apply]
+  change Function.Bijective
+    ((TensorProduct.AlgebraTensorModule.lTensor (X.residueField x) (X.residueField x)
+      ((KaehlerDifferential.map (S.presheaf.stalk (f x)) (S.residueField (f x))
+        (fiberStalkAt f x) (fiberStalkAt f x)).comp
+          (KaehlerDifferential.mapBaseChange (S.presheaf.stalk (f x))
+            (X.presheaf.stalk x) (fiberStalkAt f x)))).comp
+      (TensorProduct.AlgebraTensorModule.cancelBaseChange (X.presheaf.stalk x)
+        (fiberStalkAt f x) (X.residueField x) (X.residueField x)
+        (CommRingCat.KaehlerDifferential (f.stalkMap x))).symm.toLinearMap)
+  rw [heq]
+  exact (TensorProduct.AlgebraTensorModule.congr
+    (LinearEquiv.refl (X.residueField x) (X.residueField x)) e).bijective.comp
+      (TensorProduct.AlgebraTensorModule.cancelBaseChange (X.presheaf.stalk x)
+        (fiberStalkAt f x) (X.residueField x) (X.residueField x)
+        (CommRingCat.KaehlerDifferential (f.stalkMap x))).symm.bijective
 
 /-- The fibre-stalk conormal map followed by transport of the fibre residue
 field tensor factor to `κ(x)`. -/
@@ -171,7 +266,17 @@ theorem fiberCotangentToKaehlerResidueTensorLinearMap_bijective_of_isSeparable
     (h_sep : Algebra.IsSeparable
       (S.residueField (f x)) (fiberResidueFieldAt f x)) :
     Function.Bijective
-      (fiberCotangentToKaehlerResidueTensorLinearMap f x) := sorry
+      (fiberCotangentToKaehlerResidueTensorLinearMap f x) := by
+  let e : fiberResidueFieldAt f x ≃ₐ[fiberStalkAt f x] X.residueField x :=
+    @AlgEquiv.ofRingEquiv (fiberStalkAt f x) (fiberResidueFieldAt f x)
+      (X.residueField x) _ _ _ _ _ (fiberResidueFieldAlgEquiv f x).toRingEquiv (by
+      intro a
+      exact congrArg (fun φ : fiberStalkAt f x ⟶ X.residueField x => φ a)
+        (fiberStalkToSourceResidueField_factor f x))
+  have he := (TensorProduct.congr e.toLinearEquiv
+    (LinearEquiv.refl (fiberStalkAt f x)
+      Ω[fiberStalkAt f x⁄S.residueField (f x)])).bijective
+  exact he.comp (fiberCotangentToKaehlerLinearMap_bijective_of_isSeparable f x h_sep)
 
 namespace FiberCotangent
 
@@ -192,7 +297,12 @@ theorem kaehlerComparison_bijective_of_isSeparable
     {X S : Scheme.{u}} (f : X ⟶ S) (x : X)
     (h_sep : Algebra.IsSeparable
       (S.residueField (f x)) (X.residueField x)) :
-    Function.Bijective (kaehlerComparison f x) := sorry
+    Function.Bijective (kaehlerComparison f x) := by
+  letI := h_sep
+  have h_sep' : Algebra.IsSeparable
+      (S.residueField (f x)) (fiberResidueFieldAt f x) :=
+    AlgEquiv.Algebra.isSeparable (fiberResidueFieldAlgEquiv f x).symm
+  exact fiberCotangentToKaehlerResidueTensorLinearMap_bijective_of_isSeparable f x h_sep'
 
 end FiberCotangent
 
@@ -216,7 +326,7 @@ theorem fiberCotangentToKaehlerEquivOfIsSeparable_apply
       (S.residueField (f x)) (X.residueField x))
     (v : IsLocalRing.CotangentSpace (fiberStalkAt f x)) :
     fiberCotangentToKaehlerEquivOfIsSeparable f x h_sep v =
-      FiberCotangent.kaehlerComparison f x v := sorry
+      FiberCotangent.kaehlerComparison f x v := rfl
 
 /-- If `κ(x)` is separable over `κ(f(x))`, the cotangent space of the
 distinguished fibre stalk is canonically equivalent to the residue-field
@@ -244,7 +354,7 @@ theorem cotangentSpaceToKaehlerTensorEquivOfIsSeparable_apply
       ((LinearEquiv.ofBijective (sourceKaehlerTensorToFiberLinearMap f x)
         (sourceKaehlerTensorToFiberLinearMap_bijective_of_isSeparable
           f x h_sep)).symm)
-        (fiberCotangentToKaehlerEquivOfIsSeparable f x h_sep v) := sorry
+        (fiberCotangentToKaehlerEquivOfIsSeparable f x h_sep v) := rfl
 
 /-- If the canonical map `κ(f(x)) → κ(x)` is bijective, the cotangent space
 of the distinguished fibre stalk is canonically equivalent to the fibre of
@@ -266,7 +376,7 @@ theorem cotangentSpaceToKaehlerTensorEquiv_apply
     (v : IsLocalRing.CotangentSpace (fiberStalkAt f x)) :
     cotangentSpaceToKaehlerTensorEquiv f x h v =
       cotangentSpaceToKaehlerTensorEquivOfIsSeparable f x
-        (AlgEquiv.Algebra.isSeparable (residueFieldAlgEquivOfBijective f x h)) v := sorry
+        (AlgEquiv.Algebra.isSeparable (residueFieldAlgEquivOfBijective f x h)) v := rfl
 
 /-- For a separable residue-field extension, the relative tangent space is
 canonically the `κ(x)`-linear dual of the fibre cotangent space. -/

@@ -7,6 +7,7 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import Mathlib.CategoryTheory.FiberedCategory.Fiber
+public import Mathlib.CategoryTheory.ConcreteCategory.EpiMono
 public import ReasLib.CategoryTheory.Fibered.BasedCategory.Equivalence.Basic
 public import ReasLib.AlgebraicGeometry.FormalDeformation.Completion
 public import ReasLib.AlgebraicGeometry.FormalDeformation.Along
@@ -255,7 +256,214 @@ noncomputable def canPush (ξ : Restrict p) :
     (truncationNilpotencyIso ξ.base).hom
 
 /-- Evaluation at the nilpotency stage lies over the stored Artinian base. -/
-private theorem canObj_over (ξ : Restrict p) : p.obj (canObj ξ) = ξ.base := sorry
+private theorem canObj_over (ξ : Restrict p) : p.obj (canObj ξ) = ξ.base := by
+  exact congrArg Opposite.unop (Functor.IsPreFibered.pullbackObj_proj
+    (p := p.op) (ha := congrArg Opposite.op (stageOver ξ (nilpotencyIndex ξ.base)))
+    (Quiver.Hom.op (truncationNilpotencyIso ξ.base).hom))
+
+section
+
+-- These explicit storage wrappers require full definitional equality when checking
+-- the transported morphisms. This option only affects elaboration in this section.
+set_option backward.isDefEq.respectTransparency false
+
+/-- Forget the Artinian algebra structure while retaining the actual underlying ring maps. -/
+private def artinianRingForget : ArtinianLocalAlgCat Λ k ⥤ CommRingCat.{u} where
+  obj A := A.carrier
+  map f := CommRingCat.ofHom (ArtinianLocalAlgCat.Hom.toRingHom f)
+  map_id _ := rfl
+  map_comp _ _ := rfl
+
+/-- Forget the complete-local algebra structure while retaining the actual underlying ring maps. -/
+private def completeRingForget : CompleteLocalAlgCat Λ k ⥤ CommRingCat.{u} where
+  obj A := A.carrier
+  map f := CommRingCat.ofHom (CompleteLocalAlgCat.Hom.toRingHom f)
+  map_id _ := rfl
+  map_comp _ _ := rfl
+
+/-- The quotient map from the complete base to the actual base of a system stage. -/
+private def stageQuotient (ξ : FormalObject p) (n : ℕ) :
+    completeRingForget.obj ξ.base ⟶ artinianRingForget.obj (p.obj (ξ.system.family n)) :=
+  CommRingCat.ofHom (Ideal.Quotient.mk (CompleteLocalAlgCat.maximalIdeal ξ.base ^ (n + 1))) ≫
+    artinianRingForget.map (eqToHom (ξ.over_obj n).symm)
+
+omit [Functor.IsFibered.InGroupoids p.op] in
+/-- A successor transition commutes with the quotient maps from the complete base. -/
+private theorem stageQuotient_step (ξ : FormalObject p) (n : ℕ) :
+    stageQuotient ξ (n+1) ≫ artinianRingForget.map (p.map (ξ.system.stepMap n)) =
+      stageQuotient ξ n := by
+  letI := ξ.over_step n
+  have hmap : eqToHom (ξ.over_obj (n+1)).symm ≫ p.map (ξ.system.stepMap n) ≫
+      eqToHom (ξ.over_obj n) = ξ.base.truncationMap n :=
+    (IsHomLift.fac p (ξ.base.truncationMap n) (ξ.system.stepMap n)).symm
+  calc
+    stageQuotient ξ (n+1) ≫ artinianRingForget.map (p.map (ξ.system.stepMap n)) =
+        CommRingCat.ofHom (Ideal.Quotient.mk
+            (CompleteLocalAlgCat.maximalIdeal ξ.base ^ (n + 1 + 1))) ≫
+          artinianRingForget.map
+            (eqToHom (ξ.over_obj (n+1)).symm ≫ p.map (ξ.system.stepMap n) ≫
+              eqToHom (ξ.over_obj n)) ≫
+          artinianRingForget.map (eqToHom (ξ.over_obj n).symm) := by
+      simp [stageQuotient, Functor.map_comp, eqToHom_map, Category.assoc]
+    _ = CommRingCat.ofHom (Ideal.Quotient.mk
+            (CompleteLocalAlgCat.maximalIdeal ξ.base ^ (n + 1 + 1))) ≫
+          artinianRingForget.map (ξ.base.truncationMap n) ≫
+          artinianRingForget.map (eqToHom (ξ.over_obj n).symm) := by rw [hmap]
+    _ = stageQuotient ξ n := by
+      dsimp [stageQuotient]
+      rw [← Category.assoc]
+      congr 1
+
+omit [Functor.IsFibered.InGroupoids p.op] in
+/-- Every transition commutes with the quotient maps from the complete base. -/
+private theorem stageQuotient_transition (ξ : FormalObject p) {i j : ℕ} (h : i ≤ j) :
+    stageQuotient ξ j ≫ artinianRingForget.map (p.map (ξ.system.transitionMap h)) =
+      stageQuotient ξ i := by
+  induction j, h using Nat.le_induction with
+  | base =>
+    have hi : ξ.system.transitionMap (le_refl i) = 𝟙 (ξ.system.family i) :=
+      ξ.system.map_id _
+    simp only [hi, p.map_id, artinianRingForget.map_id, Category.comp_id]
+  | succ j h ih =>
+    have hfactor : ξ.system.transitionMap (Nat.le_succ_of_le h) =
+        ξ.system.stepMap j ≫ ξ.system.transitionMap h := by
+      rw [← ξ.system.map_comp]
+      congr 1
+    rw [hfactor, p.map_comp, artinianRingForget.map_comp, ← Category.assoc,
+      stageQuotient_step, ih]
+
+omit [Functor.IsFibered.InGroupoids p.op] in
+/-- The quotient squares stored in a formal morphism commute before identifying stage bases. -/
+private theorem stageQuotient_naturality {ξ η : FormalObject p} (a : ξ ⟶ η) (n : ℕ) :
+    stageQuotient ξ n ≫ artinianRingForget.map (p.map (a.app n)) =
+      completeRingForget.map a.base ≫ stageQuotient η n := by
+  letI := a.over n
+  have hmap : eqToHom (ξ.over_obj n).symm ≫ p.map (a.app n) ≫
+      eqToHom (η.over_obj n) = a.baseTrunc n :=
+    (IsHomLift.fac p (a.baseTrunc n) (a.app n)).symm
+  calc
+    stageQuotient ξ n ≫ artinianRingForget.map (p.map (a.app n)) =
+        CommRingCat.ofHom (Ideal.Quotient.mk
+            (CompleteLocalAlgCat.maximalIdeal ξ.base ^ (n + 1))) ≫
+          artinianRingForget.map
+            (eqToHom (ξ.over_obj n).symm ≫ p.map (a.app n) ≫
+              eqToHom (η.over_obj n)) ≫
+          artinianRingForget.map (eqToHom (η.over_obj n).symm) := by
+      simp [stageQuotient, Functor.map_comp, eqToHom_map, Category.assoc]
+    _ = CommRingCat.ofHom (Ideal.Quotient.mk
+            (CompleteLocalAlgCat.maximalIdeal ξ.base ^ (n + 1))) ≫
+          artinianRingForget.map (a.baseTrunc n) ≫
+          artinianRingForget.map (eqToHom (η.over_obj n).symm) := by rw [hmap]
+    _ = completeRingForget.map a.base ≫ stageQuotient η n := by
+      rw [stageQuotient]
+      simp only [← Category.assoc]
+      apply congrArg (fun f => f ≫ artinianRingForget.map (eqToHom (η.over_obj n).symm))
+      apply CommRingCat.hom_ext
+      exact a.baseTrunc_spec n
+
+omit [Functor.IsFibered.InGroupoids p.op] in
+/-- An Artinian algebra morphism is determined by its underlying ring map. -/
+private theorem artinianRingForget_injective {A B : ArtinianLocalAlgCat Λ k}
+    {f g : A ⟶ B} (h : artinianRingForget.map f = artinianRingForget.map g) : f = g := by
+  letI := A.algebra
+  letI := B.algebra
+  have h' : f.hom = g.hom := by
+    apply AlgHom.ext
+    intro x
+    exact congrArg (fun q : A.carrier ⟶ B.carrier => q.hom x) h
+  rcases f with ⟨f, hf, hfc⟩
+  rcases g with ⟨g, hg, hgc⟩
+  cases h'
+  rfl
+
+omit [Functor.IsFibered.InGroupoids p.op] in
+/-- The transported quotient map to each stage is an epimorphism. -/
+private theorem stageQuotient_epi (ξ : FormalObject p) (n : ℕ) :
+    Epi (stageQuotient ξ n) := by
+  change Epi (CommRingCat.ofHom (Ideal.Quotient.mk
+      (CompleteLocalAlgCat.maximalIdeal ξ.base ^ (n + 1))) ≫
+      artinianRingForget.map (eqToHom (ξ.over_obj n).symm))
+  haveI : Epi (CommRingCat.ofHom (Ideal.Quotient.mk
+      (CompleteLocalAlgCat.maximalIdeal ξ.base ^ (n + 1)))) :=
+    ConcreteCategory.epi_of_surjective _ Ideal.Quotient.mk_surjective
+  haveI : IsIso (artinianRingForget.map (eqToHom (ξ.over_obj n).symm)) := inferInstance
+  infer_instance
+
+omit [Functor.IsFibered.InGroupoids p.op] in
+/-- At the nilpotency stage the quotient identification recovers the stored Artinian base. -/
+private theorem nilStageQuotient (ξ : FormalObject.Restrict p) :
+    stageQuotient ξ.formal (nilpotencyIndex ξ.base) ≫
+      artinianRingForget.map (eqToHom (FormalObject.stageOver ξ (nilpotencyIndex ξ.base)) ≫
+        (truncationNilpotencyIso ξ.base).hom) =
+      completeRingForget.map (eqToHom ξ.over) := by
+  rcases ξ with ⟨⟨R, s, ho, hs⟩, A, hR⟩
+  change R = toComplete A at hR
+  subst R
+  change (CommRingCat.ofHom (Ideal.Quotient.mk
+      (CompleteLocalAlgCat.maximalIdeal (toComplete A) ^ (nilpotencyIndex A + 1))) ≫
+      artinianRingForget.map (eqToHom (ho (nilpotencyIndex A)).symm)) ≫
+      artinianRingForget.map (eqToHom (ho (nilpotencyIndex A)) ≫
+        (truncationNilpotencyIso A).hom) = completeRingForget.map (𝟙 (toComplete A))
+  simp only [Functor.map_comp, eqToHom_map, Category.assoc,
+    eqToHom_trans_assoc, eqToHom_refl, Category.id_comp, Functor.map_id]
+  apply CommRingCat.hom_ext
+  apply RingHom.ext
+  intro x
+  change truncationNilpotencyAlgEquiv A (Ideal.Quotient.mk _ x) = x
+  rfl
+
+omit [Functor.IsFibered.InGroupoids p.op] in
+/-- A lift in the opposite category gives a lift in the original category. -/
+private theorem unopLift {R S : (ArtinianLocalAlgCat Λ k)ᵒᵖ} {x y : Fᵒᵖ}
+    {f : R ⟶ S} {φ : x ⟶ y} (h : p.op.IsHomLift f φ) :
+    p.IsHomLift f.unop φ.unop := by
+  cases h
+  exact IsHomLift.map (p := p) _
+
+/-- The evaluation pushforward lifts the actual nilpotency quotient isomorphism. -/
+private theorem canPush_lift (ξ : FormalObject.Restrict p) :
+    p.IsHomLift (truncationNilpotencyIso ξ.base).hom (FormalObject.canPush ξ) := by
+  let φ := Functor.IsPreFibered.pullbackMap (p := p.op)
+    (a := Opposite.op (ξ.formal.system.family (nilpotencyIndex ξ.base)))
+    (ha := congrArg Opposite.op (FormalObject.stageOver ξ (nilpotencyIndex ξ.base)))
+    (Quiver.Hom.op (truncationNilpotencyIso ξ.base).hom)
+  have h : p.op.IsHomLift (truncationNilpotencyIso ξ.base).hom.op φ := inferInstance
+  exact unopLift h
+
+/-- Evaluation cancels the nilpotency-stage quotient map. -/
+private theorem stageQuotient_canPush (ξ : FormalObject.Restrict p) :
+    stageQuotient ξ.formal (nilpotencyIndex ξ.base) ≫
+      artinianRingForget.map (p.map (FormalObject.canPush ξ)) =
+      completeRingForget.map (eqToHom ξ.over) ≫
+        artinianRingForget.map (eqToHom (FormalObject.canObj_over ξ).symm) := by
+  letI := canPush_lift ξ
+  have hmap : p.map (FormalObject.canPush ξ) =
+      eqToHom (FormalObject.stageOver ξ (nilpotencyIndex ξ.base)) ≫
+        (truncationNilpotencyIso ξ.base).hom ≫ eqToHom (FormalObject.canObj_over ξ).symm :=
+    IsHomLift.fac' p (truncationNilpotencyIso ξ.base).hom (FormalObject.canPush ξ)
+  rw [hmap, ← Category.assoc, artinianRingForget.map_comp, ← Category.assoc,
+    nilStageQuotient]
+
+omit [Functor.IsFibered.InGroupoids p.op] in
+/-- The nilpotency quotient identity with the transport and quotient isomorphism separated. -/
+private theorem nilStageQuotient_split (ξ : FormalObject.Restrict p) :
+    (stageQuotient ξ.formal (nilpotencyIndex ξ.base) ≫
+      artinianRingForget.map (eqToHom (FormalObject.stageOver ξ (nilpotencyIndex ξ.base)))) ≫
+      artinianRingForget.map (truncationNilpotencyIso ξ.base).hom =
+      completeRingForget.map (eqToHom ξ.over) := by
+  simpa only [Functor.map_comp, ← Category.assoc] using nilStageQuotient ξ
+
+omit [Functor.IsFibered.InGroupoids p.op] in
+/-- The formal and Artinian base maps of a restricted morphism agree on underlying rings. -/
+private theorem restricted_base_naturality {ξ η : FormalObject.Restrict p} (a : ξ ⟶ η) :
+    completeRingForget.map a.formal.base ≫ completeRingForget.map (eqToHom η.over) =
+      completeRingForget.map (eqToHom ξ.over) ≫ artinianRingForget.map a.base := by
+  have hh : a.formal.base ≫ eqToHom η.over =
+      eqToHom ξ.over ≫ inclusion.map a.base := by
+    rw [a.over]
+    simp [Category.assoc]
+  have hf : completeRingForget.map (inclusion.map a.base) = artinianRingForget.map a.base := rfl
+  simpa only [Functor.map_comp, hf] using congrArg completeRingForget.map hh
 
 /-- The increasing-index factorization lies over its actual varying base map. -/
 private theorem canAppAux_lift {ξ η : Restrict p} (a : ξ ⟶ η)
@@ -266,7 +474,29 @@ private theorem canAppAux_lift {ξ η : Restrict p} (a : ξ ⟶ η)
     let g := Quiver.Hom.op
       (eqToHom (stageOver ξ m) ≫ (truncationNilpotencyIso ξ.base).hom ≫ a.base ≫
         eqToHom (canObj_over η).symm)
-    p.op.IsHomLift (g ≫ p.op.map φ) (Quiver.Hom.op (a.formal.app m' ≫ canPush η)) := sorry
+    p.op.IsHomLift (g ≫ p.op.map φ) (Quiver.Hom.op (a.formal.app m' ≫ canPush η)) := by
+  let m := nilpotencyIndex ξ.base
+  let m' := nilpotencyIndex η.base
+  let τ := ξ.formal.system.transitionMap (le_of_not_ge h)
+  let b := eqToHom (FormalObject.stageOver ξ m) ≫ (truncationNilpotencyIso ξ.base).hom ≫
+    a.base ≫ eqToHom (FormalObject.canObj_over η).symm
+  have hbase : p.map (a.formal.app m' ≫ FormalObject.canPush η) = p.map τ ≫ b := by
+    apply artinianRingForget_injective
+    letI := stageQuotient_epi ξ.formal m'
+    apply (cancel_epi (stageQuotient ξ.formal m')).mp
+    dsimp only [τ]
+    simp only [Functor.map_comp, ← Category.assoc]
+    rw [stageQuotient_naturality, stageQuotient_transition]
+    simp only [Category.assoc]
+    rw [stageQuotient_canPush]
+    dsimp only [b]
+    simp only [Functor.map_comp, ← Category.assoc]
+    rw [nilStageQuotient_split, restricted_base_naturality]
+  have H : p.IsHomLift (p.map τ ≫ b) (a.formal.app m' ≫ FormalObject.canPush η) :=
+    IsHomLift.of_fac' p _ _ rfl rfl (by simpa using hbase)
+  exact FormalObject.Along.isHomLift_op H
+
+end
 
 /-- The stagewise map into the target evaluation is obtained by strongly cartesian factorization. -/
 private noncomputable def canAppAux {ξ η : Restrict p} (a : ξ ⟶ η) :
@@ -284,22 +514,29 @@ private noncomputable def canAppAux {ξ η : Restrict p} (a : ξ ⟶ η) :
     Along.stronglyCartesianUnop (p := p) f φ g (g ≫ f) rfl
       (Quiver.Hom.op (a.formal.app m' ≫ canPush η)) inferInstance (canAppAux_lift a h)
 
-/-- The evaluation-stage map factors over the given Artinian base map. -/
-private theorem canMap_lift {ξ η : Restrict p} (a : ξ ⟶ η) :
-    let f := Quiver.Hom.op (truncationNilpotencyIso ξ.base).hom
-    let g := Quiver.Hom.op a.base
-    p.op.IsHomLift (g ≫ f) (Quiver.Hom.op (canAppAux a)) := sorry
-
-/-- The map of evaluations induced by a restricted formal morphism. -/
-private noncomputable def canMap {ξ η : Restrict p} (a : ξ ⟶ η) : canObj ξ ⟶ canObj η :=
-  let m := nilpotencyIndex ξ.base
-  let f := Quiver.Hom.op (truncationNilpotencyIso ξ.base).hom
+/-- The evaluation pushforward is invertible because its base map is the
+nilpotency-stage quotient isomorphism. -/
+private theorem canPush_isIso (ξ : Restrict p) : IsIso (canPush ξ) := by
   let φ := Functor.IsPreFibered.pullbackMap (p := p.op)
-    (a := Opposite.op (ξ.formal.system.family m))
-    (ha := congrArg Opposite.op (stageOver ξ m)) f
-  let g := Quiver.Hom.op a.base
-  Along.stronglyCartesianUnop (p := p) f φ g (g ≫ f) rfl (Quiver.Hom.op (canAppAux a))
-    inferInstance (canMap_lift a)
+    (a := Opposite.op (ξ.formal.system.family (nilpotencyIndex ξ.base)))
+    (ha := congrArg Opposite.op (stageOver ξ (nilpotencyIndex ξ.base)))
+    (Quiver.Hom.op (truncationNilpotencyIso ξ.base).hom)
+  haveI : IsIso φ := Functor.IsStronglyCartesian.isIso_of_base_isIso
+    (p := p.op) (f := Quiver.Hom.op (truncationNilpotencyIso ξ.base).hom) φ
+  exact inferInstanceAs (IsIso φ.unop)
+
+/-- The map of evaluations induced by a restricted formal morphism, obtained by
+inverting the nilpotency-stage evaluation pushforward. -/
+private noncomputable def canMap {ξ η : Restrict p} (a : ξ ⟶ η) : canObj ξ ⟶ canObj η :=
+  letI := canPush_isIso ξ
+  inv (canPush ξ) ≫ canAppAux a
+
+/-- Evaluation of a morphism agrees with its stagewise map after the evaluation
+pushforward from the source nilpotency stage. -/
+private theorem canMap_fac {ξ η : Restrict p} (a : ξ ⟶ η) :
+    canPush ξ ≫ canMap a = canAppAux a := by
+  letI := canPush_isIso ξ
+  simp [canMap, ← Category.assoc]
 
 /-- Evaluation maps preserve identity morphisms. -/
 private theorem can_map_id (ξ : Restrict p) : canMap (𝟙 ξ) = 𝟙 (canObj ξ) := sorry

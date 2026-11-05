@@ -20,8 +20,9 @@ namespace AlgebraicGeometry.SchemeOverField
 
 /- Lemma 53.25.1: for a morphism of proper reduced Gorenstein one-dimensional schemes over a
 field satisfying the structure-sheaf and first higher-direct-image vanishing conditions, and
-with a globally generated tensor power having vanishing first cohomology, the pullback of the
-target curve dualizing module is isomorphic to the source curve dualizing module. -/
+with a globally generated positive tensor power having vanishing first cohomology, the pullback
+of the target curve dualizing module is isomorphic to the source curve dualizing module.
+The positive exponent corrects the unrestricted integer exponent in the source statement. -/
 @[stacks 0E7P] #check
   (AlgebraicGeometry.SchemeOverField.curveDualizingModule_pullback_isomorphic :
     ∀ {k : Type u} [Field k] (X Y : SchemeOverField k) (c : X ⟶ Y)
@@ -34,7 +35,7 @@ target curve dualizing module is isomorphic to the source curve dualizing module
       (h_R1 :
         IsZero (RingedSpace.Hom.higherDirectImageModule c.left.toShHom
           (SheafOfModules.unit X.left.ringCatSheaf) 1)),
-    (∃ m : ℤ,
+    (∃ m : ℤ, 0 < m ∧
         IsZero (Scheme.Hom.cohomology X.hom
           (Scheme.Modules.tensorPowerInt (curveDualizingModule X.hom) m) 1) ∧
           SheafOfModules.IsGloballyGenerated

@@ -68,7 +68,7 @@ theorem isZariskiCover_spec {S : Scheme.{u}} {I : Type w} [Small.{u} I] {F : Alg
       (∀ i, (MorphismProperty.over (@IsOpenImmersion)).presheaf (ι i)) ∧
         Presheaf.IsLocallySurjective (Scheme.fppfTopology.over S)
           (Sigma.desc fun i ↦ (ι i : (Fi i).functorOfPoints ⟶ F.functorOfPoints)) :=
-  sorry
+  Iff.rfl
 
 /-- The identity family on an algebraic space is a Zariski covering. -/
 theorem isZariskiCover_id {S : Scheme.{u}} (F : AlgebraicSpace S) :

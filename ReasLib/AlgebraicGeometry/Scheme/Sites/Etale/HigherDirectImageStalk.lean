@@ -40,9 +40,9 @@ variable (Rsh : Type u) [CommRing Rsh]
 variable [Algebra (S.presheaf.stalk s.image) Rsh]
 variable [IsStrictHenselizationOf (S.presheaf.stalk s.image) Rsh]
 
-/-- The henselized fibre `X ×_S Spec(Rsh)` of `f` at a geometric point, for a chosen
-strict henselization `Rsh` of the Zariski stalk `𝒪_{S,s}`. When `Rsh` is
-`etaleLocalRing`, this recovers `X ×_S Spec(𝒪_{S,s̄}^{sh})`. -/
+/-- Base change to a chosen intrinsic strict henselization of the Zariski stalk.
+To compare with the stalk at the specified geometric point, a compatible model
+identification with `etaleLocalRing S s` must also be supplied. -/
 abbrev henselizedFiber : Scheme.{u} :=
   pullback f (strictHenselizationMap S s Rsh)
 
@@ -60,6 +60,57 @@ def henselizedFiberToX : henselizedFiber f s Rsh ⟶ X :=
 theorem henselizedFiberToX_def :
     henselizedFiberToX f s Rsh = pullback.fst f (strictHenselizationMap S s Rsh) :=
   rfl
+
+/-- A supplied algebra identification with the actual étale stalk induces an
+identification of spectra. Both directions come from the supplied equivalence;
+no isomorphism is selected from an existence statement. -/
+def henselizationModelSchemeIso
+    (model : etaleLocalRing S s ≃ₐ[S.presheaf.stalk s.image] Rsh) :
+    strictHenselizationScheme S s Rsh ≅
+      strictHenselizationScheme S s (etaleLocalRing S s) :=
+  Scheme.Spec.mapIso model.toRingEquiv.toCommRingCatIso.op
+
+/-- The model identification respects the structural maps to the base scheme. -/
+theorem henselizationModelSchemeIso_over
+    (model : etaleLocalRing S s ≃ₐ[S.presheaf.stalk s.image] Rsh) :
+    (henselizationModelSchemeIso s Rsh model).hom ≫
+        strictHenselizationMap S s (etaleLocalRing S s) =
+      strictHenselizationMap S s Rsh := by
+  change Spec.map (CommRingCat.ofHom model.toRingHom) ≫
+      (Spec.map (CommRingCat.ofHom (algebraMap (S.presheaf.stalk s.image) (etaleLocalRing S s))) ≫
+        S.fromSpecStalk s.image) = _
+  rw [← Spec.map_comp_assoc]
+  congr 1
+  congr 1
+  ext a
+  exact model.commutes a
+
+set_option backward.isDefEq.respectTransparency false in
+/-- Transport from a compatible strict-henselization model to the fiber formed
+using the actual étale stalk of the specified geometric point. -/
+def henselizedFiberModelIso
+    (model : etaleLocalRing S s ≃ₐ[S.presheaf.stalk s.image] Rsh) :
+    henselizedFiber f s Rsh ≅ henselizedFiber f s (etaleLocalRing S s) where
+  hom := pullback.map _ _ _ _ (𝟙 X)
+    (henselizationModelSchemeIso s Rsh model).hom (𝟙 S)
+    (by simp) (by simpa using (henselizationModelSchemeIso_over s Rsh model).symm)
+  inv := pullback.map _ _ _ _ (𝟙 X)
+    (henselizationModelSchemeIso s Rsh model).inv (𝟙 S)
+    (by simp) (by
+      simpa using
+        ((henselizationModelSchemeIso s Rsh model).inv_comp_eq.mpr
+          (henselizationModelSchemeIso_over s Rsh model).symm).symm)
+  hom_inv_id := by ext <;> simp
+  inv_hom_id := by ext <;> simp
+
+/-- Compatible model transport preserves the projection to the original scheme. -/
+@[reassoc (attr := simp)]
+theorem henselizedFiberModelIso_hom_toX
+    (model : etaleLocalRing S s ≃ₐ[S.presheaf.stalk s.image] Rsh) :
+    (henselizedFiberModelIso f s Rsh model).hom ≫
+        henselizedFiberToX f s (etaleLocalRing S s) =
+      henselizedFiberToX f s Rsh := by
+  exact (pullback.lift_fst _ _ _).trans (Category.comp_id _)
 
 variable [HasSheafify X.smallEtaleTopology AddCommGrpCat.{u}]
 variable [HasSheafify S.smallEtaleTopology AddCommGrpCat.{u}]
@@ -139,6 +190,7 @@ noncomputable def henselizedDerivedGlobalSections :
 higher direct image of an abelian étale sheaf is isomorphic to étale cohomology
 of its inverse image on the strict-henselized fibre. -/
 theorem higherDirectImage_stalk_eq_etaleCohomology
+    (_model : etaleLocalRing S s ≃ₐ[S.presheaf.stalk s.image] Rsh)
     [QuasiCompact f] [QuasiSeparated f]
     (F : Sheaf X.smallEtaleTopology AddCommGrpCat.{u}) (n : ℕ) :
     IsIsomorphic
@@ -152,6 +204,7 @@ derived étale sheaf, the geometric stalk of the degree-`n` derived direct image
 is isomorphic to degree-`n` étale cohomology of its inverse image on the
 strict-henselized fibre. -/
 theorem derivedHigherDirectImage_stalk_eq_etaleCohomology
+    (_model : etaleLocalRing S s ≃ₐ[S.presheaf.stalk s.image] Rsh)
     [QuasiCompact f] [QuasiSeparated f]
     (K : DerivedCategory.Plus (Sheaf X.smallEtaleTopology AddCommGrpCat.{u}))
     (n : ℤ) :
@@ -170,6 +223,7 @@ derived étale sheaf, the derived geometric stalk of its derived direct image is
 isomorphic to derived étale global sections of its inverse image on the
 strict-henselized fibre, viewed in the ambient derived category. -/
 theorem derivedPushforward_stalk_eq_derivedGlobalSections
+    (_model : etaleLocalRing S s ≃ₐ[S.presheaf.stalk s.image] Rsh)
     [QuasiCompact f] [QuasiSeparated f]
     (K : DerivedCategory.Plus (Sheaf X.smallEtaleTopology AddCommGrpCat.{u})) :
     IsIsomorphic

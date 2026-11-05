@@ -57,7 +57,7 @@ def tensorDual (E F : X.Modules) : (E ⊗ F) ⊗ dual E ⟶ F :=
 /-- Sheaf-level generalized trace `Hom(E, E ⊗ F) ⟶ F`. -/
 def sheaf (E F : X.Modules) [E.IsFiniteLocallyFree] :
     (ihom E).obj (E ⊗ F) ⟶ F :=
-  inv (Dual.tensorComparison E (E ⊗ F)) ≫ tensorDual E F
+  ((Dual.tensorIsoIhom E).app (E ⊗ F)).inv ≫ tensorDual E F
 
 /-- Sheaf-level endomorphism trace `Hom(E, E) ⟶ 𝟙_ X.Modules`. -/
 def sheaf_end (E : X.Modules) [E.IsFiniteLocallyFree] :
@@ -70,7 +70,9 @@ def identitySection (E : X.Modules) : 𝟙_ X.Modules ⟶ (ihom E).obj E :=
 
 /-- `sheaf` is the evaluation contraction after inverting `Dual.tensorComparison`. -/
 theorem sheaf_spec (E F : X.Modules) [E.IsFiniteLocallyFree] :
-    Dual.tensorComparison E (E ⊗ F) ≫ sheaf E F = tensorDual E F := sorry
+    Dual.tensorComparison E (E ⊗ F) ≫ sheaf E F = tensorDual E F := by
+  rw [← Dual.tensorIsoIhom_hom_app E (E ⊗ F), sheaf]
+  exact ((Dual.tensorIsoIhom E).app (E ⊗ F)).hom_inv_id_assoc (tensorDual E F)
 
 /-- The sheaf-level trace is natural in the second module. -/
 theorem sheaf_natural (E : X.Modules) [E.IsFiniteLocallyFree]

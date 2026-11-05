@@ -10,6 +10,7 @@ public import Mathlib.Algebra.Category.ModuleCat.Presheaf.Sheafification
 public import ReasLib.Algebra.Category.ModuleCat.Presheaf.Restriction
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.HigherDirectImage
 public import ReasLib.CategoryTheory.Abelian.Injective.RightDerived.Composition
+public import ReasLib.CategoryTheory.Adjunction.FullyFaithful
 import Mathlib.Tactic.CrossRefAttribute
 
 /-!
@@ -99,8 +100,12 @@ noncomputable def underivedAppIso
       ((PresheafOfModules.Restriction.idIso Y.structureSheaf.obj).app
         ((SheafOfModules.forget Y.structureSheaf).obj
           (f.modulePushforward.obj M))) ≪≫
-    (asIso (PresheafOfModules.sheafificationAdjunction
-      (𝟙 Y.structureSheaf.obj)).counit).app (f.modulePushforward.obj M)
+    ((PresheafOfModules.sheafificationAdjunction
+      (𝟙 Y.structureSheaf.obj)).counitIsoOfRFullyFaithful
+        ((SheafOfModules.fullyFaithfulForget Y.structureSheaf).comp
+          ((Functor.FullyFaithful.id _).ofIso
+            (PresheafOfModules.Restriction.idIso Y.structureSheaf.obj)))).app
+      (f.modulePushforward.obj M)
 
 /-- Naturality of the explicit underived comparison component. -/
 @[stacks 072W "naturality of the underived module pushforward comparison component"]

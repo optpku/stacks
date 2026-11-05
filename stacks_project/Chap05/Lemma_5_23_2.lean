@@ -11,6 +11,8 @@ import StacksCheckRecall
 
 @[expose] public section
 
+universe u
+
 /- Lemma 5.23.2 (1): the constructible topology of a spectral space is
 Hausdorff. -/
 @[stacks 0901 "Hausdorffness"]
@@ -24,4 +26,5 @@ disconnected. -/
 /- Lemma 5.23.2 (3): the constructible topology of a spectral space is
 compact. -/
 @[stacks 0901 "quasi-compactness"]
-#check constructibleTopology_compactSpace
+#check fun {X : Type u} [TopologicalSpace X] [SpectralSpace X] ↦
+  (compactSpace_withConstructibleTopology (X := X) : CompactSpace (WithConstructibleTopology X))

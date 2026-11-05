@@ -59,18 +59,47 @@ noncomputable abbrev abelianInverseImage (u : C' ⟶ C)
 namespace abelianInverseImage
 
 /-- Lemma 21.38.5 (08PC), ordinary part: inverse image on abelian sheaves for a morphism of
-fibered categories admits a left adjoint. -/
+fibered categories admits a left adjoint when both total categories are essentially small
+in the coefficient universe. The adjunction is transported from left Kan extension and
+sheafification on small models; cocontinuity is only needed for its geometric interpretation. -/
 @[stacks 08PC "(1) abelian lower-shriek existence", instance]
 theorem isRightAdjoint (u : C' ⟶ C)
+    [EssentiallySmall.{z} C.total] [EssentiallySmall.{z} C'.total]
     [Functor.IsContinuous (toFunctor u) (sourceTopology D C') (sourceTopology D C)]
     [Functor.IsCocontinuous (toFunctor u) (sourceTopology D C') (sourceTopology D C)] :
-    Functor.IsRightAdjoint (abelianInverseImage u) := sorry
+    Functor.IsRightAdjoint (abelianInverseImage u :
+      Sheaf (sourceTopology D C) AddCommGrpCat.{z} ⥤
+        Sheaf (sourceTopology D C') AddCommGrpCat.{z}) := by
+  let c := equivSmallModel.{z} C.total
+  let c' := equivSmallModel.{z} C'.total
+  let J := sourceTopology D C
+  let J' := sourceTopology D C'
+  let K := c.inverse.inducedTopology J
+  let K' := c'.inverse.inducedTopology J'
+  letI : (toFunctor u ⋙ c.functor).IsContinuous J' K :=
+    Functor.isContinuous_comp (toFunctor u) c.functor J' J K
+  let H := c'.inverse ⋙ toFunctor u ⋙ c.functor
+  letI : H.IsContinuous K' K :=
+    Functor.isContinuous_comp c'.inverse (toFunctor u ⋙ c.functor) K' J' K
+  let E := c.sheafCongr J K AddCommGrpCat.{z}
+  let E' := c'.sheafCongr J' K' AddCommGrpCat.{z}
+  let comparison :
+      (E.inverse ⋙ abelianInverseImage u) ⋙ E'.functor ≅
+        H.sheafPushforwardContinuous AddCommGrpCat.{z} K' K := Iso.refl _
+  letI : (H.sheafPushforwardContinuous AddCommGrpCat.{z} K' K).IsRightAdjoint :=
+    inferInstance
+  letI : ((E.inverse ⋙ abelianInverseImage u) ⋙ E'.functor).IsRightAdjoint :=
+    Functor.isRightAdjoint_of_iso comparison.symm
+  letI : (E.inverse ⋙ abelianInverseImage u).IsRightAdjoint :=
+    (Functor.isRightAdjoint_comp_iff_left _ E'.functor).mp inferInstance
+  exact (Functor.isRightAdjoint_comp_iff_right E.inverse _).mp inferInstance
 
 end abelianInverseImage
 
 /-- The abelian lower-shriek functor, once its inverse image is a right adjoint. -/
 @[stacks 08PC "(1) abelian lower shriek for a fibered-category morphism"]
 noncomputable abbrev abelianLowerShriek (u : C' ⟶ C)
+    [EssentiallySmall.{z} C.total] [EssentiallySmall.{z} C'.total]
     [Functor.IsContinuous (toFunctor u) (sourceTopology D C') (sourceTopology D C)]
     [Functor.IsCocontinuous (toFunctor u) (sourceTopology D C') (sourceTopology D C)] :
     Sheaf (sourceTopology D C') AddCommGrpCat.{z} ⥤
@@ -100,9 +129,11 @@ def moduleInverseImage (u : C' ⟶ C)
 namespace moduleInverseImage
 
 /-- Lemma 21.38.5 (08PC), ordinary part: inverse image on module sheaves for a morphism of
-fibered categories admits a left adjoint. -/
+fibered categories admits a left adjoint when the site and coefficient universes
+fit in the module section universe. -/
 @[stacks 08PC "(1) module lower-shriek existence", instance]
 theorem isRightAdjoint (u : C' ⟶ C)
+    [UnivLE.{max u v, z}]
     [IsMorphismOfSites
       (C'.p.inheritedTopology D.siteTopology)
       (C.p.inheritedTopology D.siteTopology)
@@ -111,7 +142,7 @@ theorem isRightAdjoint (u : C' ⟶ C)
       (toFunctor u)
       (C'.p.inheritedTopology D.siteTopology)
       (C.p.inheritedTopology D.siteTopology)] :
-    Functor.IsRightAdjoint (moduleInverseImage u) := sorry
+    Functor.IsRightAdjoint (moduleInverseImage.{u, v, z} u) := sorry
 
 end moduleInverseImage
 
@@ -143,6 +174,7 @@ noncomputable def moduleInverseImageUnderlyingIso (u : C' ⟶ C)
 /-- The module lower-shriek functor, once the module inverse image is a right adjoint. -/
 @[stacks 08PC "(1) module lower shriek for a fibered-category morphism"]
 def moduleLowerShriek (u : C' ⟶ C)
+    [UnivLE.{max u v, z}]
     [IsMorphismOfSites
       (C'.p.inheritedTopology D.siteTopology)
       (C.p.inheritedTopology D.siteTopology)
@@ -151,14 +183,16 @@ def moduleLowerShriek (u : C' ⟶ C)
       (toFunctor u)
       (C'.p.inheritedTopology D.siteTopology)
       (C.p.inheritedTopology D.siteTopology)] :
-    SheafOfModules C'.p.inheritedRingedSite.structureSheaf ⥤
-      SheafOfModules C.p.inheritedRingedSite.structureSheaf :=
+    SheafOfModules.{z} C'.p.inheritedRingedSite.structureSheaf ⥤
+      SheafOfModules.{z} C.p.inheritedRingedSite.structureSheaf :=
   Functor.leftAdjoint (moduleInverseImage u)
 
 /-- The mate comparison between the abelian and module lower shrieks after forgetting module
 structure. -/
 @[stacks 08PC "(2) module and abelian lower-shriek comparison"]
 noncomputable def lowerShriekForgetComparison (u : C' ⟶ C)
+    [UnivLE.{max u v, z}]
+    [EssentiallySmall.{z} C.total] [EssentiallySmall.{z} C'.total]
     [IsMorphismOfSites
       (C'.p.inheritedTopology D.siteTopology)
       (C.p.inheritedTopology D.siteTopology)
@@ -167,20 +201,20 @@ noncomputable def lowerShriekForgetComparison (u : C' ⟶ C)
       (toFunctor u)
       (C'.p.inheritedTopology D.siteTopology)
       (C.p.inheritedTopology D.siteTopology)] :
-    underlyingAbelianSheafFunctor C'.p.inheritedRingedSite ⋙
+    underlyingAbelianSheafFunctor.{z} C'.p.inheritedRingedSite ⋙
         abelianLowerShriek u ⟶
       moduleLowerShriek u ⋙
-        underlyingAbelianSheafFunctor C.p.inheritedRingedSite :=
+        underlyingAbelianSheafFunctor.{z} C.p.inheritedRingedSite :=
   let square :
       TwoSquare
         (moduleInverseImage u)
-        (underlyingAbelianSheafFunctor C.p.inheritedRingedSite)
-        (underlyingAbelianSheafFunctor C'.p.inheritedRingedSite)
+        (underlyingAbelianSheafFunctor.{z} C.p.inheritedRingedSite)
+        (underlyingAbelianSheafFunctor.{z} C'.p.inheritedRingedSite)
         (abelianInverseImage u) :=
     TwoSquare.mk
       (moduleInverseImage u)
-      (underlyingAbelianSheafFunctor C.p.inheritedRingedSite)
-      (underlyingAbelianSheafFunctor C'.p.inheritedRingedSite)
+      (underlyingAbelianSheafFunctor.{z} C.p.inheritedRingedSite)
+      (underlyingAbelianSheafFunctor.{z} C'.p.inheritedRingedSite)
       (abelianInverseImage u)
       (moduleInverseImageUnderlyingIso u).hom
   ((mateEquiv
@@ -191,6 +225,8 @@ noncomputable def lowerShriekForgetComparison (u : C' ⟶ C)
 /-- The module/abelian lower-shriek comparison is an isomorphism. -/
 @[stacks 08PC "(2) commutation with the forgetful functor"]
 instance lowerShriekForgetComparison_isIso (u : C' ⟶ C)
+    [UnivLE.{max u v, z}]
+    [EssentiallySmall.{z} C.total] [EssentiallySmall.{z} C'.total]
     [IsMorphismOfSites
       (C'.p.inheritedTopology D.siteTopology)
       (C.p.inheritedTopology D.siteTopology)
@@ -199,7 +235,7 @@ instance lowerShriekForgetComparison_isIso (u : C' ⟶ C)
       (toFunctor u)
       (C'.p.inheritedTopology D.siteTopology)
       (C.p.inheritedTopology D.siteTopology)] :
-    IsIso (lowerShriekForgetComparison u) := sorry
+    IsIso (lowerShriekForgetComparison.{u, v, z} u) := sorry
 
 end Module
 

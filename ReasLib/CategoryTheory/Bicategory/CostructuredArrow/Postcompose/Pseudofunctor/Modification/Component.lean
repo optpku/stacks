@@ -21,7 +21,7 @@ Its source map is the identity of `S.left`. Its normalized comparison first
 uses the comparison of the identity morphism of `postcompose.obj f S` and then
 applies the target cell through `postcompose.cell`.
 
-This file contains only the component data and its elementary functoriality.
+This file contains the component data and its canonical composition comparison.
 Naturality in costructured-arrow morphisms and assembly into a strong
 transformation belong in separate downstream modules.
 -/
@@ -94,15 +94,47 @@ theorem cellComponent.id
     cellComponent (𝟙 f) S =
       𝟙 (obj f S) := sorry
 
-/-- Components reverse vertical composition of target cells, as forced by the
-colax orientation of costructured-arrow morphisms. -/
-@[simp]
-theorem cellComponent.comp
+namespace Implementation
+
+/-- The source-map comparison underlying the pointwise composition comparison
+for target-cell components. -/
+private def cellMapComp.app.sourceIso
     {f g h : X ⟶ Y} (η : f ⟶ g) (θ : g ⟶ h)
     (S : ColaxCostructuredArrow K X) :
-    cellComponent (η ≫ θ) S =
+    ColaxCostructuredArrow.map (K := K) (X := Y)
+          (cellComponent (η ≫ θ) S) ≅
+      ColaxCostructuredArrow.map (K := K) (X := Y)
+        (cellComponent θ S ≫
+          cellComponent η S) :=
+  (ρ_ (𝟙 S.left)).symm
+
+/-- Compatibility of the source-map comparison with the normalized
+costructured-arrow comparison cells. -/
+private theorem cellMapComp.app.comm
+    {f g h : X ⟶ Y} (η : f ⟶ g) (θ : g ⟶ h)
+    (S : ColaxCostructuredArrow K X) :
+    ((obj f S).comparison S.left).map
+          (cellMapComp.app.sourceIso η θ S).hom ≫
+        ColaxCostructuredArrow.fac (K := K) (X := Y)
+          (cellComponent θ S ≫
+            cellComponent η S) =
+      ColaxCostructuredArrow.fac (K := K) (X := Y)
+        (cellComponent (η ≫ θ) S) := sorry
+
+end Implementation
+
+/-- Components reverse vertical composition up to the canonical invertible
+comparison. Its source cell is the inverse right unitor on `𝟙 S.left`;
+no strict unit law for `1`-morphisms is assumed. -/
+def cellComponent.comp
+    {f g h : X ⟶ Y} (η : f ⟶ g) (θ : g ⟶ h)
+    (S : ColaxCostructuredArrow K X) :
+    cellComponent (η ≫ θ) S ≅
       cellComponent θ S ≫
-        cellComponent η S := sorry
+        cellComponent η S :=
+  ColaxCostructuredArrow.iso₂Mk
+    (Implementation.cellMapComp.app.sourceIso η θ S)
+    (Implementation.cellMapComp.app.comm η θ S)
 
 /- Data and axiom audit (mathlib 4.32):
 
@@ -111,7 +143,8 @@ normalized comparison is the existing identity comparison followed by
 `postcompose.cell η S`, whose data are inherited from mathlib's postcomposition
 functor. No source map, structural cell, or comparison is selected through a
 proof placeholder. The remaining declarations are `Prop`-valued projection
-and functoriality statements. -/
+and identity statements. The composition comparison lifts the explicit inverse
+right unitor through `iso₂Mk`; its compatibility obligation is Prop-valued. -/
 
 end postcompose
 

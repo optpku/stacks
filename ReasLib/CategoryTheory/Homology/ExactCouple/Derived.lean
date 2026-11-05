@@ -19,8 +19,8 @@ public import Mathlib.CategoryTheory.Abelian.Refinements
 
 This module separates the concrete data used to assemble a derived exact couple from the
 proposition-valued laws which certify its relation to an input exact couple.  A
-`Derived.Construction` supplies that data coherently at every iterate and hence produces an
-associated spectral sequence without choosing data from an existential theorem.
+`Derived.construction` canonically supplies that data at every iterate, using the kernel, image,
+and homology universal properties. Thus an exact couple determines its associated spectral sequence.
 -/
 
 open CategoryTheory
@@ -54,14 +54,12 @@ The proof fields are exactly the side conditions needed by the universal-propert
 the semantic comparison with the original exact couple belongs to `Laws`. -/
 @[stacks 011S "derived exact-couple data"]
 structure Data (X : ExactCouple C) where
-  /-- A square-zero witness retained by the explicitly parameterized page complex. -/
-  dSquared : X.d ≫ X.d = 0
   /-- The map from page cycles to the derived outer object. -/
-  fCycles : ((X.pageOf dSquared).sc PUnit.unit).cycles ⟶ outer X
+  fCycles : (X.page.sc PUnit.unit).cycles ⟶ outer X
   /-- The cycle map vanishes on page boundaries. -/
-  fCycles_zero : ((X.pageOf dSquared).sc PUnit.unit).toCycles ≫ fCycles = 0
+  fCycles_zero : (X.page.sc PUnit.unit).toCycles ≫ fCycles = 0
   /-- The source-level representative of the derived map from the outer object to homology. -/
-  gFromOuter : X.A ⟶ (X.pageOf dSquared).homology PUnit.unit
+  gFromOuter : X.A ⟶ X.page.homology PUnit.unit
   /-- The source-level representative vanishes after the original map `f`. -/
   f_gFromOuter_zero : X.f ≫ gFromOuter = 0
 
@@ -69,10 +67,13 @@ namespace Data
 
 variable {X : ExactCouple C}
 
+/-- Square-zero is intrinsic to the input exact couple, rather than additional data. -/
+theorem dSquared (D : Data X) : X.d ≫ X.d = 0 := X.d_comp_d
+
 /-- The page complex retained by a package of derived-couple data. -/
 @[stacks 011S "derived page complex"]
 noncomputable abbrev page (D : Data X) : HomologicalComplex C (ComplexShape.refl PUnit.{1}) :=
-  X.pageOf D.dSquared
+  X.page
 
 /-- The short complex at the unique degree of the retained page complex. -/
 @[stacks 011S "derived page short complex"]
@@ -156,6 +157,50 @@ noncomputable def ofData {X : ExactCouple C} (D : Data X) (hD : Laws D) : ExactC
   exact_g_f := hD.exact_g_f
   exact_α_g := hD.exact_α_g
 
+/-- Factor the original `f` on page cycles through `image α = kernel g`. -/
+noncomputable def cyclesToOuter (X : ExactCouple C) :
+    (X.page.sc PUnit.unit).cycles ⟶ outer X :=
+  X.exact_α_g.isLimitImage'.lift
+    (KernelFork.ofι ((X.page.sc PUnit.unit).iCycles ≫ X.f) (by
+      rw [Category.assoc]
+      exact (X.page.sc PUnit.unit).iCycles_g))
+
+/-- The factorization through the image retains the original cycle representative. -/
+@[reassoc]
+theorem cyclesToOuter_comp_ι (X : ExactCouple C) :
+    cyclesToOuter X ≫ image.ι X.α = (X.page.sc PUnit.unit).iCycles ≫ X.f := by
+  exact Fork.IsLimit.lift_ι _
+
+/-- The original `g` defines a homology class since `g ≫ d = 0`. -/
+noncomputable def outerToHomology (X : ExactCouple C) :
+    X.A ⟶ X.page.homology PUnit.unit :=
+  (X.page.sc PUnit.unit).liftToHomology X.g X.g_comp_d
+
+/-- The class of `g` kills `f`, because their composite is the page differential. -/
+theorem outerToHomology_zero (X : ExactCouple C) : X.f ≫ outerToHomology X = 0 := by
+  change X.f ≫ X.pageShortComplex.liftToHomology X.g X.g_comp_d = 0
+  dsimp only [ShortComplex.liftToHomology]
+  rw [← Category.assoc, ShortComplex.comp_liftCycles]
+  exact X.pageShortComplex.liftCycles_homologyπ_eq_zero_of_boundary
+    X.d (𝟙 _) (Category.id_comp X.d).symm
+
+/-- The canonical maps and their descent side conditions for one derivation step. -/
+@[stacks 011R "canonical derived exact-couple data"]
+noncomputable def data (X : ExactCouple C) : Data X where
+  fCycles := cyclesToOuter X
+  fCycles_zero := by
+    apply (cancel_mono (image.ι X.α)).1
+    rw [Category.assoc, cyclesToOuter_comp_ι, ← Category.assoc,
+      ShortComplex.toCycles_i]
+    change X.d ≫ X.f = 0 ≫ image.ι X.α
+    rw [X.d_comp_f, zero_comp]
+  gFromOuter := outerToHomology X
+  f_gFromOuter_zero := outerToHomology_zero X
+
+/-- The canonical induced maps form the derived exact couple of 011R(3). -/
+@[stacks 011R "canonical derived exact-couple laws"]
+theorem laws (X : ExactCouple C) : Laws (data X) := sorry
+
 /-- A coherent source of derived-couple data for every exact couple in the ambient category. -/
 @[stacks 011S "iterable derived exact-couple construction"]
 structure Construction (C : Type u) [Category.{v} C] [Abelian C] where
@@ -163,6 +208,12 @@ structure Construction (C : Type u) [Category.{v} C] [Abelian C] where
   data : (X : ExactCouple C) → Data X
   /-- Proposition-valued certification of the data for one derivation step. -/
   laws : (X : ExactCouple C) → Laws (data X)
+
+/-- The canonical derived-couple construction, with no data supplied by the caller. -/
+@[stacks 011R "canonical derived exact-couple construction"]
+noncomputable def construction (C : Type u) [Category.{v} C] [Abelian C] : Construction C where
+  data := data
+  laws := laws
 
 namespace Construction
 
@@ -215,25 +266,39 @@ noncomputable def associatedSpectralSequence (K : Construction C) (X : ExactCoup
 
 end Construction
 
+/-- The canonical derived exact couple. -/
+noncomputable abbrev derived (X : ExactCouple C) : ExactCouple C :=
+  (construction C).derived X
+
+/-- Iteration of the canonical derived exact couple. -/
+noncomputable abbrev iterate (X : ExactCouple C) : ℕ → ExactCouple C :=
+  (construction C).iterate X
+
+/-- The spectral sequence canonically associated to an exact couple. -/
+@[stacks 011S "canonical associated spectral sequence"]
+noncomputable abbrev associatedSpectralSequence (X : ExactCouple C) :
+    SpectralSequence C (fun _ ↦ ComplexShape.refl PUnit.{1}) 1 :=
+  (construction C).associatedSpectralSequence X
+
 namespace Page
 
 /-- The page at index `r + 1` is the explicitly retained page complex of the `r`-fold iterate. -/
 @[stacks 011S "associated page complex"]
-theorem complex (K : Construction C) (X : ExactCouple C) (r : ℕ) :
-    (K.associatedSpectralSequence X).page (Nat.succ r : ℤ) =
-      (K.data (K.iterate X r)).page := sorry
+theorem complex (X : ExactCouple C) (r : ℕ) :
+    (associatedSpectralSequence X).page (Nat.succ r : ℤ) =
+      (data (iterate X r)).page := sorry
 
 /-- The page object at index `r + 1` is the middle object of the `r`-fold iterate. -/
 @[stacks 011S "associated page object"]
-theorem obj (K : Construction C) (X : ExactCouple C) (r : ℕ) :
-    ((K.associatedSpectralSequence X).page (Nat.succ r : ℤ)).X PUnit.unit =
-      (K.iterate X r).E := sorry
+theorem obj (X : ExactCouple C) (r : ℕ) :
+    ((associatedSpectralSequence X).page (Nat.succ r : ℤ)).X PUnit.unit =
+      (iterate X r).E := sorry
 
 /-- The page differential at index `r + 1` is the differential of the `r`-fold iterate. -/
 @[stacks 011S "associated page differential"]
-theorem differential (K : Construction C) (X : ExactCouple C) (r : ℕ) :
-    ((K.associatedSpectralSequence X).page (Nat.succ r : ℤ)).d PUnit.unit PUnit.unit =
-      (K.iterate X r).d := sorry
+theorem differential (X : ExactCouple C) (r : ℕ) :
+    ((associatedSpectralSequence X).page (Nat.succ r : ℤ)).d PUnit.unit PUnit.unit =
+      (iterate X r).d := sorry
 
 end Page
 

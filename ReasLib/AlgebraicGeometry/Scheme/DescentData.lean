@@ -134,11 +134,27 @@ chosen overlap. -/
 noncomputable def iso (D : Chosen X f sq sq₃) (i j : I) :
     (overPseudofunctor.map (sq i j).p₁.op.toLoc).toFunctor.obj (D.obj i) ≅
       (overPseudofunctor.map (sq i j).p₂.op.toLoc).toFunctor.obj (D.obj j) :=
-  asIso (D.hom i j)
+  { hom := D.hom i j
+    inv := Pseudofunctor.DescentData'.pullHom' D.hom
+      (sq i j).p (sq i j).p₂ (sq i j).p₁
+    hom_inv_id := by
+      simpa only [Pseudofunctor.DescentData'.pullHom'_p₁_p₂] using
+        (D.comp_pullHom' (sq i j).p (sq i j).p₁ (sq i j).p₂ (sq i j).p₁).trans
+          (D.pullHom'_self (sq i j).p (sq i j).p₁)
+    inv_hom_id := by
+      simpa only [Pseudofunctor.DescentData'.pullHom'_p₁_p₂] using
+        (D.comp_pullHom' (sq i j).p (sq i j).p₂ (sq i j).p₁ (sq i j).p₂).trans
+          (D.pullHom'_self (sq i j).p (sq i j).p₂) }
 
 /-- The forward map of `iso D i j` is the pairwise comparison map of `D`. -/
 theorem iso_hom (D : Chosen X f sq sq₃) (i j : I) :
-    (iso X f sq sq₃ D i j).hom = D.hom i j := sorry
+    (iso X f sq sq₃ D i j).hom = D.hom i j := rfl
+
+/-- The inverse comparison is the reversed overlap map transported to the same pullback. -/
+theorem iso_inv (D : Chosen X f sq sq₃) (i j : I) :
+    (iso X f sq sq₃ D i j).inv =
+      Pseudofunctor.DescentData'.pullHom' D.hom
+        (sq i j).p (sq i j).p₂ (sq i j).p₁ := rfl
 
 /-- The pairwise comparison isomorphisms satisfy the cocycle condition after pullback to every
 chosen triple overlap. -/

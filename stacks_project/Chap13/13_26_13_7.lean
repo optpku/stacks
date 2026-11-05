@@ -6,13 +6,13 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-import ReasLib.CategoryTheory.Filtration.Derived.Finite.Compatibility
+import ReasLib.CategoryTheory.Filtration.Derived.BoundedFunctor.RightDerived
 import ReasLib.CategoryTheory.Filtration.Derived.LeftExact.Comparison
 import StacksCheckRecall
 
 @[expose] public section
 
-namespace CategoryTheory.FilteredComplex.RightDerived.Finite.Graded
+open CategoryTheory.FilteredObject.FiniteDerived.Plus.LeftExact.GradedPiece
 
 /-!
 # Equation 13.26.13.7
@@ -23,7 +23,6 @@ right-derived uniqueness comparison remains available as its construction tool.
 
 /- Equation 13.26.13.7 (`015U`): the `p`-th associated-graded piece commutes with the filtered
 right-derived functor. -/
-open CategoryTheory.FilteredObject.FiniteDerived.Plus.LeftExact.GradedPiece
 @[stacks 015U] #check @gradedPieceIso
 #check @gradedPieceIso.fac
 #check @gradedPieceIso.fac_app
@@ -34,5 +33,3 @@ open CategoryTheory.FilteredObject.FiniteDerived.Plus.LeftExact.GradedPiece
 localization data. -/
 #check @CategoryTheory.FilteredObject.FiniteDerived.Plus.GradedPiece.RightDerived.iso
 #check @CategoryTheory.FilteredObject.FiniteDerived.Plus.GradedPiece.RightDerived.canonicalIso
-
-end CategoryTheory.FilteredComplex.RightDerived.Finite.Graded

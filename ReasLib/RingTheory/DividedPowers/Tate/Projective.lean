@@ -81,10 +81,11 @@ theorem naturalAugmentation_f_zero (A : TateResolution.{u, v, w} pi0) :
 theorem naturalAugmentation_f_succ (A : TateResolution.{u, v, w} pi0) (n : ℕ) :
     A.naturalAugmentation.f (n + 1) = 0 := sorry
 
-/-- Every term of the natural-degree complex underlying a Tate resolution is a free
-`R`-module. -/
+/-- If the base ring is small in the carrier universe, every term of the natural-degree
+complex underlying a Tate resolution is a free `R`-module. Smallness lets the relative
+free-presentation property test the ordinary free algebra over `R`. -/
 @[stacks 09PQ "termwise freeness of the natural Tate complex"]
-theorem naturalComplex_isTermwiseFree (A : TateResolution.{u, v, w} pi0) :
+theorem naturalComplex_isTermwiseFree [Small.{w} R] (A : TateResolution.{u, v, w} pi0) :
     A.naturalComplex.IsTermwiseFree := sorry
 
 /-- Every term of the natural-degree complex underlying a Tate resolution is projective. -/
@@ -98,28 +99,29 @@ quasi-isomorphism. -/
 theorem naturalAugmentation_quasiIso (A : TateResolution.{u, v, w} pi0) :
     QuasiIso A.naturalAugmentation := sorry
 
-/-- The natural-degree augmentation of a Tate resolution is canonically a free resolution. -/
+/-- The natural-degree augmentation of a Tate resolution is canonically a free resolution when
+its base ring is small in the carrier universe. -/
 @[stacks 09PQ "free-resolution instance for a Tate augmentation"]
-instance naturalAugmentationIsFreeResolution (A : TateResolution.{u, v, w} pi0) :
+instance naturalAugmentationIsFreeResolution [Small.{w} R] (A : TateResolution.{u, v, w} pi0) :
     ChainComplex.IsFreeResolution A.naturalAugmentation := sorry
 
 /-- The projective resolution of the underlying `R`-module supplied explicitly by a Tate
 resolution. -/
 @[stacks 09PQ "Tate resolution as a projective resolution"]
-def toProjectiveResolution (A : TateResolution.{u, v, w} pi0) :
+def toProjectiveResolution [Small.{w} R] (A : TateResolution.{u, v, w} pi0) :
     ProjectiveResolution (ModuleCat.of R T) :=
   ChainComplex.IsFreeResolution.toProjectiveResolution A.naturalAugmentation
 
 /-- The chain complex of the projective resolution underlying a Tate resolution is its
 natural-degree restriction. -/
 @[stacks 09PQ "complex of the Tate projective resolution", simp]
-theorem toProjectiveResolution_complex (A : TateResolution.{u, v, w} pi0) :
+theorem toProjectiveResolution_complex [Small.{w} R] (A : TateResolution.{u, v, w} pi0) :
     A.toProjectiveResolution.complex = A.naturalComplex := sorry
 
 /-- The augmentation of the projective resolution underlying a Tate resolution is the
 natural-degree Tate augmentation. -/
 @[stacks 09PQ "augmentation of the Tate projective resolution", simp]
-theorem toProjectiveResolution_π (A : TateResolution.{u, v, w} pi0) :
+theorem toProjectiveResolution_π [Small.{w} R] (A : TateResolution.{u, v, w} pi0) :
     A.toProjectiveResolution.π = A.naturalAugmentation := sorry
 
 end TateResolution

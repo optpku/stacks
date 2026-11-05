@@ -40,9 +40,12 @@ private theorem model_flat (K : RingedSiteDerived J O) : (model O K).IsKFlat :=
 
 private def flatModelIso (K : RingedSiteDerived J O) :
     DerivedCategory.Q.obj (model O K) ≅ K :=
-  @asIso _ _ _ _ (DerivedCategory.Q.map (SheafOfModules.CellReplacement.augmentation _))
-    ((DerivedCategory.isIso_Q_map_iff_quasiIso _ _).mpr
-      (SheafOfModules.CellReplacement.augmentation_quasiIso _)) ≪≫
+  -- This derived category uses the standard localization. Its inverse is the formal
+  -- inverse edge of the actual augmentation; quasi-isomorphy supplies its membership proof.
+  Localization.Construction.wIso
+    (W := HomologicalComplex.quasiIso (ringedSiteModuleCategory J O) (up ℤ))
+    (SheafOfModules.CellReplacement.augmentation _)
+    (SheafOfModules.CellReplacement.augmentation_quasiIso _) ≪≫
     (DerivedCategory.Q : CochainComplex (ringedSiteModuleCategory J O) ℤ ⥤
       RingedSiteDerived J O).objObjPreimageIso K
 
@@ -101,10 +104,6 @@ private def tensorModelIso (K L : RingedSiteDerived J O) :
     e ≪≫
     DerivedCategory.DerivedTensor.Bifunctor.sourceFunctorObjIso (model O K) (model O L)
 
-@[implicit_reducible] private def strictClosed :
-    MonoidalClosed (CochainComplex (ringedSiteModuleCategory J O) ℤ) :=
-  CochainComplex.InternalHom.monoidalClosed
-
 private def homModelIso (L M : RingedSiteDerived J O) :
     InternalHom.obj L M ≅
       DerivedCategory.Q.obj
@@ -112,17 +111,12 @@ private def homModelIso (L M : RingedSiteDerived J O) :
   let f := SheafOfModules.CellReplacement.augmentation
     ((DerivedCategory.Q : CochainComplex (ringedSiteModuleCategory J O) ℤ ⥤
       RingedSiteDerived J O).objPreimage L)
-  have hq := @SheafOfModules.RingedSite.IHom.quasiIso_map
-    _ inferInstance J inferInstance inferInstance inferInstance O _ (strictClosed O)
-    _ _ _ _ inferInstance inferInstance f (𝟙 (InternalHom.injectiveModel M))
-    (SheafOfModules.CellReplacement.augmentation_quasiIso _)
-    (inferInstance : QuasiIso (𝟙 (InternalHom.injectiveModel M)))
-  unfold MonoidalClosed.Source.map at hq
-  rw [CategoryTheory.Functor.map_id, Category.id_comp] at hq
-  exact @asIso _ _ _ _
-    (DerivedCategory.Q.map
-      ((InternalHom.strictInternalHom.map f.op).app (InternalHom.injectiveModel M)))
-    ((DerivedCategory.isIso_Q_map_iff_quasiIso _ _).mpr hq)
+  have hq := InternalHom.strictInternalHom_quasiIso_precomp f
+    (SheafOfModules.CellReplacement.augmentation_quasiIso _) (InternalHom.injectiveModel M)
+  -- As above, use the specified inverse edge of this internal-Hom map.
+  exact Localization.Construction.wIso
+    (W := HomologicalComplex.quasiIso (ringedSiteModuleCategory J O) (up ℤ))
+    ((InternalHom.strictInternalHom.map f.op).app (InternalHom.injectiveModel M)) hq
 
 private def liftToInjective
     (F I : CochainComplex (ringedSiteModuleCategory J O) ℤ) (hI : I.IsKInjective)
@@ -147,10 +141,9 @@ def curry (K L M : RingedSiteDerived J O) (f : obj O K L ⟶ M) :
 /-- Uncurrying a morphism into derived sheaf internal Hom gives a derived tensor morphism. -/
 def uncurry (K L M : RingedSiteDerived J O) (f : K ⟶ InternalHom.obj L M) :
     obj O K L ⟶ M := by
-  have hI := @SheafOfModules.RingedSite.IHom.isKInjective_of_isKFlat
-    _ inferInstance J inferInstance inferInstance inferInstance O _ (strictClosed O)
-    _ _ (model O L) (InternalHom.injectiveModel M)
-    (SheafOfModules.RingedSite.CellReplacement.model_isKFlat _) inferInstance
+  have hI := SheafOfModules.RingedSite.IHom.isKInjective_of_isKFlat
+    (L := model O L) (I := InternalHom.injectiveModel M)
+    (SheafOfModules.RingedSite.CellReplacement.model_isKFlat _)
   exact (tensorModelIso O K L).hom ≫
     DerivedCategory.Q.map
       ((β_ (model O K) (model O L)).hom ≫

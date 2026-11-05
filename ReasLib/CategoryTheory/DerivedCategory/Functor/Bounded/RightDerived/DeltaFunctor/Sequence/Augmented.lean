@@ -47,9 +47,12 @@ def augmentedWindow
 /-- The augmented low-degree right-derived window is exact. -/
 @[stacks 05TE "exactness of the augmented low-degree right-derived window"]
 theorem augmentedWindow_exact
+    (F : A ⥤ B) [F.Additive]
     (RF : DerivedCategory.Plus A ⥤ DerivedCategory.Plus B)
     [RF.CommShift ℤ] [RF.IsTriangulated]
-    {S : ShortComplex A} (hS : S.ShortExact) :
+    {S : ShortComplex A} (hS : S.ShortExact)
+    (α : F.toBoundedBelowDerived ⟶ DerivedCategory.Plus.Qh ⋙ RF)
+    [RF.IsRightDerivedFunctor α (HomotopyCategory.Plus.quasiIso A)] :
     (augmentedWindow RF hS).Exact := sorry
 
 namespace augmentedWindow

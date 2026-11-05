@@ -20,6 +20,7 @@ import Mathlib.Tactic.CrossRefAttribute
 Over a Noetherian ring, the bounded-above finite-homology description is the natural derived
 category interface for pseudo-coherence.  The final module statement is kept unbundled so it can
 be used without choosing a category presentation.
+The size assumption on `R` ensures that free modules can be represented in the module universe.
 -/
 
 open CategoryTheory
@@ -36,7 +37,7 @@ variable {R : Type u} [Ring R] [IsNoetherianRing R]
 /-- Lemma 15.65.17 (1): `m`-pseudo-coherence is bounded above with finite homology in degrees
 `≥ m`. -/
 @[stacks 066E "m-pseudo-coherence over a Noetherian ring"]
-theorem iff_boundedAbove_and_homology_finite_ge
+theorem iff_boundedAbove_and_homology_finite_ge [Small.{v} R]
     (K : DerivedCategory (ModuleCat.{v, u} R)) (m : ℤ) :
     K.IsMPseudoCoherent m ↔
       (t.minus : ObjectProperty (DerivedCategory (ModuleCat.{v, u} R))) K ∧
@@ -55,7 +56,7 @@ variable {R : Type u} [Ring R] [IsNoetherianRing R]
 /-- Lemma 15.65.17 (2): pseudo-coherence over a Noetherian ring is bounded above with finite
 homology in every degree. -/
 @[stacks 066E "pseudo-coherence over a Noetherian ring"]
-theorem iff_boundedAbove_and_homology_finite
+theorem iff_boundedAbove_and_homology_finite [Small.{v} R]
     (K : DerivedCategory (ModuleCat.{v, u} R)) :
     K.IsPseudoCoherent ↔
       (t.minus : ObjectProperty (DerivedCategory (ModuleCat.{v, u} R))) K ∧
@@ -74,7 +75,7 @@ variable {M : Type v} [AddCommGroup M] [Module R M]
 /-- Lemma 15.65.17 (3): a module over a Noetherian ring is pseudo-coherent exactly when it is
 finite. -/
 @[stacks 066E "Noetherian pseudo-coherent modules"]
-theorem isPseudoCoherent_iff_finite :
+theorem isPseudoCoherent_iff_finite [Small.{v} R] :
     (ModuleCat.of R M).IsPseudoCoherent ↔ Module.Finite R M := sorry
 -- Proof strategy: a finite module admits a bounded-above finite-free resolution over a
 -- Noetherian ring; in the reverse direction, take degree-zero homology of a pseudo-coherent

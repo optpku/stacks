@@ -29,14 +29,15 @@ universe u v
 #check @CategoryTheory.DerivedCategory.Minus.FilteredColimitExtCriterion
 
 /- Lemma 15.66.2: for `K ∈ D^-(R)`, the filtered-colimit Ext criterion is
-equivalent to `m`-pseudo-coherence. -/
+equivalent to `m`-pseudo-coherence. Module carriers and test categories share
+universe `max u v`, which also contains the ring. -/
 @[stacks 0G8X "Lemma 15.66.2"]
 #check fun {R : Type u} [Ring R]
-    (K : DerivedCategory.Minus (ModuleCat R)) (m : ℤ) ↦
+    (K : DerivedCategory.Minus (ModuleCat.{max u v} R)) (m : ℤ) ↦
   (DerivedCategory.Minus.isMPseudoCoherent_iff_filteredColimitExt K m :
     K.obj.IsMPseudoCoherent m ↔
-      ∀ ⦃J : Type v⦄ [SmallCategory J] [IsFiltered J]
-        (F : J ⥤ ModuleCat R),
+      ∀ ⦃J : Type (max u v)⦄ [SmallCategory J] [IsFiltered J]
+        (F : J ⥤ ModuleCat.{max u v} R),
           (∀ n : ℤ, n < -m →
             IsIso (colimit.post F (DerivedCategory.Ext.addCommGrpFunctor K.obj n))) ∧
           Mono (colimit.post F (DerivedCategory.Ext.addCommGrpFunctor K.obj (-m))))

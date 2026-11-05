@@ -9,6 +9,7 @@ module
 public import Mathlib.LinearAlgebra.Matrix.Notation
 public import Mathlib.RingTheory.LocalRing.ResidueField.Basic
 public import ReasLib.NumberTheory.Automorphic.CuspForms
+public import ReasLib.NumberTheory.FunctionField.LocalAdele
 public import ReasLib.AlgebraicGeometry.Scheme.OverField.ClosedPoints
 
 /-! # Hecke operators on fixed-character cusp forms -/
@@ -32,11 +33,24 @@ variable [Curve X] [Smooth X.hom] [Projective X.hom] [GeometricallyIrreducible X
 def uniformizer (place : closedPoints X.left) : (completion X place)ˣ :=
   let parameter := Classical.choose
     ((SchemeOverField.place X place).valuation_exists_uniformizer X.left.functionField)
-  Units.mk0 (parameter : completion X place) sorry
+  Units.mk0 (parameter : completion X place) (by
+    apply (Valuation.ne_zero_iff
+      (Valued.v : Valuation (completion X place) (WithZero (Multiplicative ℤ)))).mp
+    rw [IsDedekindDomain.HeightOneSpectrum.adicCompletion.valued_coe]
+    exact ne_of_eq_of_ne (Classical.choose_spec
+      ((SchemeOverField.place X place).valuation_exists_uniformizer X.left.functionField))
+      WithZero.coe_ne_zero)
 
+omit [Fintype k] [Projective X.hom] [GeometricallyIrreducible X.hom] in
 /-- The chosen local parameter has valuation `exp (-1)`. -/
 theorem uniformizer_isUniformizer (place : closedPoints X.left) :
-    IsUniformizer X place (uniformizer X place).val := sorry
+    IsUniformizer X place (uniformizer X place).val := by
+  change Valued.v ((Classical.choose
+    ((SchemeOverField.place X place).valuation_exists_uniformizer X.left.functionField) :
+      X.left.functionField) : completion X place) = WithZero.exp (-1 : ℤ)
+  rw [IsDedekindDomain.HeightOneSpectrum.adicCompletion.valued_coe]
+  exact Classical.choose_spec
+    ((SchemeOverField.place X place).valuation_exists_uniformizer X.left.functionField)
 
 /-- A stalk-valued section of the residue map at a closed point. -/
 def residueSection (place : closedPoints X.left)

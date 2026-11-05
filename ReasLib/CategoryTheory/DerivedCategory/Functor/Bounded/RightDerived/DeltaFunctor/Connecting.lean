@@ -36,11 +36,12 @@ variable {A : Type uA} {B : Type uB}
   (RF : DerivedCategory.Plus A ⥤ DerivedCategory.Plus B)
   [RF.CommShift ℤ] [RF.IsTriangulated]
 
-/-- The degree of the cohomological delta functor is explicitly isomorphic
+/-- The degree of the underlying cohomology family is explicitly isomorphic
 to the corresponding bounded-below right-derived degree functor. -/
 @[stacks 05TE "explicit degree comparison for a right-derived delta functor"]
 noncomputable def degreeIso (n : ℕ) :
-    ((RightDerived.cohomological RF).F n).obj ≅
+    ((RightDerived.delta RF).cohomologyFunctor
+      (DerivedCategory.homologyFunctor B 0) (n : ℤ)).obj ≅
       RightDerived.degree RF (n : ℤ) :=
   Functor.associator
       (DerivedCategory.Plus.singleFunctor A 0 ⋙ RF)

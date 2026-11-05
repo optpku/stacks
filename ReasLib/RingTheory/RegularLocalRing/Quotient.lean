@@ -45,7 +45,7 @@ theorem of_quotient_span_singleton_of_isRegular
 
 /-- Killing an element outside the square of the maximal ideal of a regular
 local ring again gives a regular local ring. -/
-@[stacks 07DX "regular local cotangent-direction quotient"]
+@[stacks 00NQ "singleton quotient after extending to a minimal generating set"]
 theorem quotient_span_singleton_of_not_mem_sq
     {R : Type u} [CommRing R] [IsRegularLocalRing R]
     (x : IsLocalRing.maximalIdeal R)

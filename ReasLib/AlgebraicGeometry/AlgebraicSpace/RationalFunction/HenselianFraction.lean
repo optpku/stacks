@@ -84,7 +84,20 @@ def rationalFunctionToHenselianFraction (x : Points X) :
       (IsHenselianFractionValue x f)
   have laws : value 1 = 1 ∧ (∀ a b, value (a * b) = value a * value b) ∧
       value 0 = 0 ∧ (∀ a b, value (a + b) = value a + value b) := by
-    sorry
+    have hvalue (f : RationalFunction X) : IsHenselianFractionValue x f (value f) :=
+      Classical.epsilon_spec (existsUnique_henselianFractionValue x f).exists
+    obtain ⟨U, hAffine, _, hElementary⟩ := EtaleNeighborhood.exists_affine_elementary X x
+    let E := EtaleNeighborhood.Elementary.of U hElementary
+    letI : IsAffine E.obj.scheme := hAffine
+    have heval (f : RationalFunction X) :
+        value f = rationalFunctionHenselianChartMap x E f := hvalue f E
+    refine ⟨?_, ?_, ?_, ?_⟩
+    · rw [heval, map_one]
+    · intro a b
+      rw [heval, heval, heval, map_mul]
+    · rw [heval, map_zero]
+    · intro a b
+      rw [heval, heval, heval, map_add]
   exact
     { toFun := value
       map_one' := laws.1
@@ -98,7 +111,7 @@ theorem rationalFunctionToHenselianFraction_spec (x : Points X)
     (U : EtaleNeighborhood.Elementary X x) [IsAffine U.obj.scheme]
     (f : RationalFunction X) :
     rationalFunctionToHenselianFraction x f = rationalFunctionHenselianChartMap x U f :=
-  sorry
+  (Classical.epsilon_spec (existsUnique_henselianFractionValue x f).exists) U
 
 /-- The canonical comparison embeds the function field into the henselian total quotient
 ring at every point of a locally Noetherian integral algebraic space. -/

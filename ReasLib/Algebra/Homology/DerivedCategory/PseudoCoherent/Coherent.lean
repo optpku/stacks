@@ -39,7 +39,7 @@ variable {R : Type u} [Ring R] [Module.Coherent R R]
 /-- Lemma 15.65.18, `(1) ↔ (2)`: finite cutoff homology and a coherent tail characterize
 `m`-pseudo-coherence. -/
 @[stacks 0EWZ "coherent-tail criterion for m-pseudo-coherence"]
-theorem iff_finite_coherent_tail
+theorem iff_finite_coherent_tail [Small.{v} R]
     (K : DerivedCategory.Minus (ModuleCat.{v, u} R)) (m : ℤ) :
     K.obj.IsMPseudoCoherent m ↔
       Module.Finite R
@@ -54,7 +54,7 @@ theorem iff_finite_coherent_tail
 /-- Lemma 15.65.18, `(1) ↔ (3)`: finite presentation can replace coherence in the homology
 tail. -/
 @[stacks 0EWZ "finite-presentation tail criterion for m-pseudo-coherence"]
-theorem iff_finitePresentation_tail
+theorem iff_finitePresentation_tail [Small.{v} R]
     (K : DerivedCategory.Minus (ModuleCat.{v, u} R)) (m : ℤ) :
     K.obj.IsMPseudoCoherent m ↔
       Module.Finite R
@@ -74,7 +74,8 @@ variable {R : Type u} [Ring R] [Module.Coherent R R]
 /-- Lemma 15.65.18, final assertion: a bounded-above derived object is pseudo-coherent exactly
 when all homology modules are coherent. -/
 @[stacks 0EWZ "coherent homology criterion for pseudo-coherence"]
-theorem iff_homology_coherent (K : DerivedCategory.Minus (ModuleCat.{v, u} R)) :
+theorem iff_homology_coherent [Small.{v} R]
+    (K : DerivedCategory.Minus (ModuleCat.{v, u} R)) :
     K.obj.IsPseudoCoherent ↔
       ∀ i : ℤ,
         Module.Coherent R

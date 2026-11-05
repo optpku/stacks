@@ -220,6 +220,16 @@ noncomputable def comparison (f : X ⟶ Y) (g : Y ⟶ Z) :
     SheafOfModules.RingedSite.NaiveCotangent.Presentation.comparison
       (Tower.first f g) (Tower.second f)
 
+/-- Lemma 17.31.7 (0E1Z): the degree-zero homology map of the canonical comparison is epic. -/
+@[stacks 0E1Z "degree-zero comparison epimorphism for ringed spaces"]
+theorem comparison_zero_epi (f : X ⟶ Y) (g : Y ⟶ Z) :
+    Epi (HomologicalComplex.homologyMap (comparison f g) 0) := by
+  rw [comparison, HomologicalComplex.homologyMap_comp]
+  exact epi_comp'
+    (inferInstanceAs (Epi (HomologicalComplex.homologyMapIso (compositionIso f g) 0).inv))
+    (SheafOfModules.RingedSite.NaiveCotangent.comparison_zero_epi
+      (Tower.first f g) (Tower.second f))
+
 /-- The composite of the ringed-space transitivity maps is the site-level composite after
 transporting the coefficient source. -/
 theorem left_comp_comparison (f : X ⟶ Y) (g : Y ⟶ Z) :
@@ -255,7 +265,7 @@ theorem toCocone_fst (f : X ⟶ Y) (g : Y ⟶ Z) :
 structure Transitivity (f : X ⟶ Y) (g : Y ⟶ Z) where
   /-- The comparison `NL(X/Z) ⟶ NL(X/Y)`. -/
   comparison : RingedSpace.naiveCotangent (f ≫ g) ⟶ RingedSpace.naiveCotangent f
-  /-- The canonical map from `f^* NL(Y/Z)` to the shifted cone of `comparison`. -/
+  /-- A map from `f^* NL(Y/Z)` to the shifted cone of `comparison`. -/
   toCocone : pullbackComplex f g ⟶ CochainComplex.mappingCocone comparison
   /-- The transitivity map is an isomorphism on degree-zero homology. -/
   zeroIsIso : IsIso (HomologicalComplex.homologyMap toCocone 0)
@@ -276,9 +286,12 @@ noncomputable def sixTerm {f : X ⟶ Y} {g : Y ⟶ Z} (t : Transitivity f g) :
 theorem sixTerm_exact {f : X ⟶ Y} {g : Y ⟶ Z}
     (t : Transitivity f g) : t.sixTerm.Exact := sorry
 
-/-- The degree-zero comparison `H⁰(NL(f ≫ g)) ⟶ H⁰(NL(f))` is epic. -/
-theorem comparison_zero_epi {f : X ⟶ Y} {g : Y ⟶ Z} (t : Transitivity f g) :
-    Epi (HomologicalComplex.homologyMap t.comparison 0) := sorry
+/-- The degree-zero comparison is epic if degree-one homology of its mapping cocone vanishes.
+The four fields of a transitivity datum alone only give the internal exact segment. -/
+theorem comparison_zero_epi {f : X ⟶ Y} {g : Y ⟶ Z} (t : Transitivity f g)
+    (hH1 : IsZero (HomologicalComplex.homology (CochainComplex.mappingCocone t.comparison) 1)) :
+    Epi (HomologicalComplex.homologyMap t.comparison 0) :=
+  CochainComplex.mappingCocone.h0_epi t.comparison hH1
 
 end Transitivity
 

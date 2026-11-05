@@ -12,13 +12,16 @@ public import Mathlib.Topology.Irreducible
 public import Mathlib.Topology.JacobsonSpace
 public import Mathlib.Topology.Sober
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.InfiniteProduct.Quotient
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.UniversalHomeomorphism
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Points.Topology
 
 /-!
 # Points of the infinite product quotient
 
-The point space is the quotient of the product spectrum by the relation induced by the
-presentation. Over a finite field it is irreducible, with a generic point given by the
-common image of the coordinate points.
+The presentation model `spacePoints k` is the quotient of the product spectrum by the
+relation induced by the presentation. `pointsHomeomorphSpacePoints` identifies it with
+the canonical points of the actual algebraic space `space k`. Over a finite field this
+space is irreducible, with generic point `spaceGenericPoint k`.
 -/
 
 @[expose] public section
@@ -43,7 +46,8 @@ theorem spaceRel_iff_exists (k : Type u) [Field k] (x y : (cover k).left) :
       ∃ r : (preRelation k).left.left,
         (preRelation k).t.left r = x ∧ (preRelation k).s.left r = y := sorry
 
-/-- The presentation-level point space `|X| = |U| / |R|`. -/
+/-- The presentation model `|U| / |R|`, compared with actual points by
+`pointsHomeomorphSpacePoints`. -/
 def spacePoints (k : Type u) [Field k] : Type u :=
   Quot (spaceRel k)
 
@@ -152,5 +156,130 @@ theorem genericPoint_eq_image_section (k : Type u) [Field k] [Fintype k] :
           atlas k ∧
       genericPoint k =
         quotientMap k ((immersionOver k 0).left (IsLocalRing.closedPoint k)) := sorry
+
+/-- The map from scheme points of the specified atlas to actual points of `X`. -/
+def atlasPointMap (k : Type u) [Field k] : (cover k).left → Points (space k) :=
+  Points.mapOfOver (spaceAtlas k)
+
+/-- The atlas identifies exactly the pairs in the presenting point relation. -/
+theorem atlasPointMap_eq_iff (k : Type u) [Field k] (x y : (cover k).left) :
+    atlasPointMap k x = atlasPointMap k y ↔ spaceRel k x y := sorry
+
+/-- The map from the presentation model to actual points is induced by the specified atlas. -/
+def spacePointsToPoints (k : Type u) [Field k] : spacePoints k → Points (space k) :=
+  Quot.lift (atlasPointMap k) (fun x y h ↦ (atlasPointMap_eq_iff k x y).mpr h)
+
+/-- The model-to-points map sends a quotient class to its atlas image. -/
+@[simp]
+theorem spacePointsToPoints_quotientMap (k : Type u) [Field k] (x : (cover k).left) :
+    spacePointsToPoints k (quotientMap k x) = atlasPointMap k x := rfl
+
+/-- A field-valued point gives a model point by taking a genuine local representative
+of its sheaf section near the unique point of its source field spectrum. -/
+def fieldPointToSpacePoints (k : Type u) [Field k] (p : FieldValuedPoint (space k)) :
+    spacePoints k :=
+  quotientMap k ((preRelation k).localRepresentativePoint p.overObj
+    (IsLocalRing.closedPoint p.K) p.elem)
+
+/-- Different common-extension representatives give the same presentation-model point. -/
+theorem fieldPointToSpacePoints_equivalent (k : Type u) [Field k]
+    (p q : FieldValuedPoint (space k)) (h : equivalentSetoid (space k) p q) :
+    fieldPointToSpacePoints k p = fieldPointToSpacePoints k q := sorry
+
+/-- The map from actual points to the presentation model, descended from local representatives.
+The only selected data come from the proved `exists_localRepresentative` certificate. -/
+def pointsToSpacePoints (k : Type u) [Field k] : Points (space k) → spacePoints k :=
+  Quotient.lift (fieldPointToSpacePoints k) (fieldPointToSpacePoints_equivalent k)
+
+/-- The actual-points comparison has the specified formula on field-valued representatives. -/
+@[simp]
+theorem pointsToSpacePoints_mk (k : Type u) [Field k] (p : FieldValuedPoint (space k)) :
+    pointsToSpacePoints k (Points.mk p) = fieldPointToSpacePoints k p := rfl
+
+/-- The two explicit comparison maps are inverse on actual points. -/
+theorem spacePointsToPoints_pointsToSpacePoints (k : Type u) [Field k]
+    (x : Points (space k)) : spacePointsToPoints k (pointsToSpacePoints k x) = x := sorry
+
+/-- The two explicit comparison maps are inverse on presentation-model points. -/
+theorem pointsToSpacePoints_spacePointsToPoints (k : Type u) [Field k]
+    (x : spacePoints k) : pointsToSpacePoints k (spacePointsToPoints k x) = x := sorry
+
+/-- Actual algebraic-space points and the presentation model, with both maps specified.
+Neither map is obtained by inverting a map whose bijectivity is unproved. -/
+def pointsEquivSpacePoints (k : Type u) [Field k] : Points (space k) ≃ spacePoints k where
+  toFun := pointsToSpacePoints k
+  invFun := spacePointsToPoints k
+  left_inv := spacePointsToPoints_pointsToSpacePoints k
+  right_inv := pointsToSpacePoints_spacePointsToPoints k
+
+/-- The comparison respects the two maps from the atlas. -/
+@[simp]
+theorem pointsEquivSpacePoints_atlasPointMap (k : Type u) [Field k]
+    (x : (cover k).left) :
+    pointsEquivSpacePoints k (atlasPointMap k x) = quotientMap k x :=
+  pointsToSpacePoints_spacePointsToPoints k (quotientMap k x)
+
+/-- The canonical points topology is the quotient topology of the specified atlas. -/
+theorem pointsTopology_eq_coinduced (k : Type u) [Field k] :
+    instTopologicalSpacePoints (space k) =
+      TopologicalSpace.coinduced (atlasPointMap k) inferInstance :=
+  Points.eq_coinduced_mapOfOver (spaceAtlas k) (spaceAtlas_etale k)
+    (spaceAtlas_locallySurjective k)
+
+/-- The actual-points topology satisfies the atlas characterization `IsPointsTopology`. -/
+theorem pointsTopology_spec (k : Type u) [Field k] :
+    IsPointsTopology (space k) (instTopologicalSpacePoints (space k)) := by
+  intro V p hp hs
+  exact (Points.isOpenQuotientMap_mapOfOver p hp hs).isQuotientMap
+
+/-- The actual-to-model comparison is continuous for the canonical points topology. -/
+theorem continuous_pointsToSpacePoints (k : Type u) [Field k] :
+    Continuous (pointsToSpacePoints k) := sorry
+
+/-- The atlas-induced model-to-actual comparison is continuous. -/
+theorem continuous_spacePointsToPoints (k : Type u) [Field k] :
+    Continuous (spacePointsToPoints k) := sorry
+
+/-- The specified comparison with the presentation model preserves the canonical topology. -/
+def pointsHomeomorphSpacePoints (k : Type u) [Field k] :
+    Points (space k) ≃ₜ spacePoints k where
+  toEquiv := pointsEquivSpacePoints k
+  continuous_toFun := continuous_pointsToSpacePoints k
+  continuous_invFun := continuous_spacePointsToPoints k
+
+/-- The map `|U| → |X|` is surjective on actual algebraic-space points. -/
+theorem atlasPointMap_surjective (k : Type u) [Field k] :
+    Function.Surjective (atlasPointMap k) := sorry
+
+/-- The map `|U| → |X|` is continuous for the canonical topology. -/
+theorem continuous_atlasPointMap (k : Type u) [Field k] :
+    Continuous (atlasPointMap k) :=
+  Points.continuous_mapOfOver (spaceAtlas k) (spaceAtlas_etale k)
+
+/-- The common image of the coordinate points, as an actual point of the algebraic space. -/
+def spaceGenericPoint (k : Type u) [Field k] : Points (space k) :=
+  atlasPointMap k (openPoint k 0)
+
+/-- The comparison carries the specified actual generic point to the model generic point. -/
+theorem pointsEquivSpacePoints_spaceGenericPoint (k : Type u) [Field k] :
+    pointsEquivSpacePoints k (spaceGenericPoint k) = genericPoint k :=
+  pointsEquivSpacePoints_atlasPointMap k (openPoint k 0)
+
+/-- All coordinate points have the same image in the actual algebraic-space point set. -/
+theorem spaceGenericPoint_eq_atlasPointMap_openPoint (k : Type u) [Field k] (n : ℕ) :
+    spaceGenericPoint k = atlasPointMap k (openPoint k n) := sorry
+
+/-- The canonical point space of the infinite-product algebraic space is irreducible. -/
+instance instIrreducibleSpace_points (k : Type u) [Field k] [Fintype k] :
+    IrreducibleSpace (Points (space k)) := sorry
+
+/-- The specified actual point is generic for the canonical point space. -/
+theorem isGenericPoint_spaceGenericPoint (k : Type u) [Field k] [Fintype k] :
+    IsGenericPoint (spaceGenericPoint k) Set.univ := sorry
+
+/-- The actual generic point is the image of the point of `Spec(k)` under the section. -/
+theorem spaceGenericPoint_eq_image_spaceSection (k : Type u) [Field k] :
+    spaceGenericPoint k = Points.mapOfOver (spaceSection k) (IsLocalRing.closedPoint k) :=
+  sorry
 
 end AlgebraicGeometry.AlgebraicSpace.InfiniteProduct

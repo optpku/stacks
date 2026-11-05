@@ -6,6 +6,7 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
+public import ReasLib.Algebra.Homology.HomotopyCategory.MapIdentity
 public import ReasLib.AlgebraicGeometry.RingedSite.Topos.Module.Comparison
 public import ReasLib.AlgebraicGeometry.RingedSite.Topos.Module.Derived.Pullback
 public import ReasLib.CategoryTheory.DerivedCategory.Functor.TotalLeftDerived.Composition
@@ -13,9 +14,6 @@ public import ReasLib.CategoryTheory.DerivedCategory.Functor.TotalLeftDerived.Co
 /-!
 # Comparisons of derived module pullbacks
 -/
-
--- Private comparison constructions supply the explicit public isomorphisms.
-set_option backward.privateInPublic true
 
 @[expose] public section
 
@@ -25,17 +23,9 @@ open Sheaf.InternalModule (underlyingApp)
 
 noncomputable section
 
-universe u v w uA vA
+universe u v w
 
 namespace CategoryTheory.SimplicialSites
-
-/-- Identity on cochain complexes induces the identity on the homotopy category. -/
-private def mapHomotopyCategoryIdIso {A : Type uA} [Category.{vA} A] [Preadditive A] :
-    (𝟭 A).mapHomotopyCategory (up ℤ) ≅ 𝟭 (HomotopyCategory A (up ℤ)) :=
-  Quotient.natIsoLift _
-    (Functor.isoWhiskerRight
-      (Functor.mapHomologicalComplexIdIso A (up ℤ))
-      (HomotopyCategory.quotient A (up ℤ)))
 
 section ToposHomComparisons
 
@@ -128,7 +118,7 @@ def derivedPullbackIdSourceIsoOf :
   Functor.isoWhiskerRight
       (@Functor.mapHomotopyCategoryIso _ _ _ _ _ _ _ _
           (ToposHom.modulePullback_additive h) inferInstance hid ≪≫
-        mapHomotopyCategoryIdIso)
+        Functor.mapHomotopyCategoryIdIso _)
       (Hom.moduleLocalization X) ≪≫
     Functor.leftUnitor _
 

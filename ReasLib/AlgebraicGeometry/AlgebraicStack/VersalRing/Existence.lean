@@ -6,7 +6,8 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import ReasLib.AlgebraicGeometry.AlgebraicStack.FormalBranches
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.VersalRing
+public import ReasLib.RingTheory.PowerSeriesExtension
 
 /-!
 # Existence and comparison of versal rings
@@ -25,6 +26,20 @@ open scoped Bicategory
 universe u
 
 namespace AlgebraicGeometry.AlgebraicStack
+
+/-- A morphism of complete local `S`-algebras is a power-series extension when
+its underlying ring map is a finite-variable coefficient inclusion up to a ring
+isomorphism. The convention for `Hom A' A` is a ring map `A → A'`. -/
+def IsPowerSeriesExtension {S : Scheme.{u}} {A A' : CompleteLocalSAlgebra S}
+    (φ : CompleteLocalSAlgebra.Hom A' A) : Prop :=
+  RingHom.IsPowerSeriesExtension φ.hom
+
+/-- The geometric wrapper retains the specified coefficient inclusion. -/
+theorem isPowerSeriesExtension_iff {S : Scheme.{u}} {A A' : CompleteLocalSAlgebra S}
+    (φ : CompleteLocalSAlgebra.Hom A' A) :
+    IsPowerSeriesExtension φ ↔
+      ∃ n : ℕ, ∃ e : A'.carrier ≃+* MvPowerSeries (Fin n) A.carrier,
+        e.toRingHom.comp φ.hom = MvPowerSeries.C := Iff.rfl
 
 /-- A finite-type field-valued point of a locally finite type algebraic stack
 over a locally Noetherian scheme admits a versal ring. -/

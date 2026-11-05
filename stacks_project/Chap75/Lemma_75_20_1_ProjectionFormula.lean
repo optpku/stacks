@@ -40,7 +40,7 @@ universe u
       DerivedCategory.Q.obj
         (((Modules.pullback f).mapHomologicalComplex (ComplexShape.up ℤ)).obj K))
 
-#check (AlgebraicGeometry.AlgebraicSpace.DerivedQCoh.moduleDerivedPullbackTensorComparison :
+#check (AlgebraicGeometry.AlgebraicSpace.DerivedQCoh.moduleTotalDerivedPullbackTensorComparison :
   ∀ {S : Scheme.{u}} {X Y : AlgebraicSpace S} (f : X ⟶ Y) (A B : ModuleDerived Y),
     (modulePullbackDerived f).obj
         ((DerivedTensor.Bifunctor.functor (C := Modules Y)).obj (A, B)) ⟶

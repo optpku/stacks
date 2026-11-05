@@ -8,6 +8,7 @@ module
 
 public import Mathlib.RingTheory.Ideal.Quotient.Operations
 public import Mathlib.RingTheory.Kaehler.Basic
+public import Mathlib.RingTheory.Extension.Cotangent.Basic
 public import Mathlib.LinearAlgebra.TensorProduct.Tower
 public import Mathlib.RingTheory.LocalRing.MaximalIdeal.Basic
 public import Mathlib.RingTheory.Spectrum.Prime.Defs
@@ -60,7 +61,7 @@ namespace SurjectivePresentation
 
 variable {R : Type u} {A : Type v} {L : Type w}
 variable [CommRing R] [CommRing A] [CommRing L] [Algebra R A] [Algebra R L]
-variable {φ : A →ₐ[R] L} (P : φ.SurjectivePresentation)
+variable {φ : A →ₐ[R] L} (P : SurjectivePresentation.{u, v, w, x} φ)
 
 /-- Bundle an explicit surjective `R`-algebra map as a surjective presentation. -/
 def of {B : Type x} [CommRing B] [Algebra R B]
@@ -77,6 +78,30 @@ map. -/
 theorem toA_of {B : Type x} [CommRing B] [Algebra R B]
     (f : B →ₐ[R] A) {hf : Function.Surjective f} :
     (of (φ := φ) f hf).toA = f := sorry
+
+/-- Regard the same surjection as a mathlib algebra extension. -/
+noncomputable def toExtension : Algebra.Extension.{x} R A :=
+  Algebra.Extension.ofSurjective P.toA P.surjective
+
+/-- An algebra extension presents the source of any map `A →ₐ[R] L`. -/
+noncomputable def ofExtension (E : Algebra.Extension.{x} R A) :
+    SurjectivePresentation.{u, v, w, x} φ :=
+  of (IsScalarTower.toAlgHom R E.Ring A) E.algebraMap_surjective
+
+/-- Passing through the extension bundle preserves the original presentation map. -/
+@[simp]
+theorem ofExtension_toExtension_toA :
+    (ofExtension (φ := φ) P.toExtension).toA = P.toA := rfl
+
+/-- The extension has the original presentation map as its algebra map. -/
+@[simp]
+theorem toExtension_algebraMap (b : P.B) :
+    algebraMap P.toExtension.Ring A b = P.toA b := rfl
+
+/-- Bundling an extension retains its algebra map to the presented algebra. -/
+@[simp]
+theorem ofExtension_toA (E : Algebra.Extension.{x} R A) :
+    (ofExtension (φ := φ) E).toA = IsScalarTower.toAlgHom R E.Ring A := rfl
 
 /-- The composite map from the presenting algebra to the target. -/
 def toTarget : P.B →ₐ[R] L :=
@@ -254,12 +279,97 @@ theorem kaehlerBaseChangeEquiv_tmul
     (l : L) (x : Ω[A⁄R]) :
     P.kaehlerBaseChangeEquiv hφ (l ⊗ₜ x) = l ⊗ₜ x := sorry
 
+/-- The cotangent type synonym of the extension retains the quotient scalar action. -/
+noncomputable def cotangentEquivExtension :
+    P.kernel.Cotangent ≃ₗ[P.quotient] P.toExtension.Cotangent where
+  toFun := fun z => Algebra.Extension.Cotangent.of (P := P.toExtension) z
+  invFun := fun z => Algebra.Extension.Cotangent.val z
+  left_inv _ := rfl
+  right_inv _ := rfl
+  map_add' _ _ := rfl
+  map_smul' := by sorry
+
+/-- Comparison with the standard base change of the extension's cotangent module. -/
+noncomputable def conormalSourceEquiv
+    [Algebra A L] (hφ : φ.toRingHom = algebraMap A L) :
+    P.ConormalSource ≃ₗ[L] L ⊗[A] P.toExtension.Cotangent :=
+  (LinearEquiv.baseChange P.quotient L _ _ P.cotangentEquivExtension).trans <|
+    TensorProduct.baseRingEquiv P.quotientEquiv.toRingEquiv
+      (P.quotient_smul_target hφ) (by sorry)
+
+@[simp]
+theorem conormalSourceEquiv_tmul
+    [Algebra A L] (hφ : φ.toRingHom = algebraMap A L)
+    (l : L) (z : P.kernel) :
+    P.conormalSourceEquiv hφ (l ⊗ₜ Ideal.toCotangent P.kernel z) =
+      l ⊗ₜ Algebra.Extension.Cotangent.mk (P := P.toExtension) z := by
+  sorry
+
+/-- Tensor cancellation compares the targets of the two conormal maps. -/
+noncomputable def conormalTargetEquiv
+    [Algebra A L] (hφ : φ.toRingHom = algebraMap A L) :
+    P.ConormalTarget ≃ₗ[L] L ⊗[A] P.toExtension.CotangentSpace := by
+  letI : Algebra P.B A := P.toA.toAlgebra
+  letI : IsScalarTower P.B A L := by sorry
+  exact (TensorProduct.AlgebraTensorModule.cancelBaseChange P.B A L L Ω[P.B⁄R]).symm
+
+@[simp]
+theorem conormalTargetEquiv_tmul
+    [Algebra A L] (hφ : φ.toRingHom = algebraMap A L)
+    (l : L) (d : Ω[P.toExtension.Ring⁄R]) :
+    P.conormalTargetEquiv hφ (l ⊗ₜ d) = l ⊗ₜ (1 ⊗ₜ d) := rfl
+
+/-- The comparison preserves the original conormal map, not just its cokernel. -/
+theorem conormalTargetEquiv_comp_conormalBaseChangeMap
+    [Algebra A L] (hφ : φ.toRingHom = algebraMap A L) :
+    P.conormalTargetEquiv hφ ∘ₗ P.conormalBaseChangeMap =
+      P.toExtension.cotangentComplex.baseChange L ∘ₗ P.conormalSourceEquiv hφ := by
+  sorry
+
+/-- The conormal cokernel is canonically the base change of the differentials of `A/R`.
+No smoothness, flatness or finiteness hypothesis is needed. -/
+noncomputable def conormalCokernelEquiv
+    [Algebra A L] (hφ : φ.toRingHom = algebraMap A L) :
+    P.ConormalCokernel ≃ₗ[L] L ⊗[A] Ω[A⁄R] := by
+  -- The inverse is supplied by mathlib's proved exactness and surjectivity.
+  let e := _root_.lTensor.equiv L
+    (Algebra.Extension.exact_cotangentComplex_toKaehler (P := P.toExtension))
+    (Algebra.Extension.toKaehler_surjective (P := P.toExtension))
+  let eL : ((L ⊗[A] P.toExtension.CotangentSpace) ⧸
+      LinearMap.range (P.toExtension.cotangentComplex.baseChange L)) ≃ₗ[L]
+        L ⊗[A] Ω[A⁄R] :=
+    { toFun := e
+      invFun := e.symm
+      left_inv := e.left_inv
+      right_inv := e.right_inv
+      map_add' := e.map_add
+      map_smul' := by sorry }
+  exact (Submodule.Quotient.equiv _
+    (LinearMap.range (P.toExtension.cotangentComplex.baseChange L))
+    (P.conormalTargetEquiv hφ) (by sorry)).trans eL
+
+@[simp]
+theorem conormalCokernelEquiv_mk_tmul_D
+    [Algebra A L] (hφ : φ.toRingHom = algebraMap A L)
+    (l : L) (b : P.B) :
+    P.conormalCokernelEquiv hφ
+        (Submodule.Quotient.mk (l ⊗ₜ KaehlerDifferential.D R P.B b)) =
+      l ⊗ₜ KaehlerDifferential.D R A (P.toA b) := by
+  sorry
+
 /-- Freeness of the conormal cokernel is equivalent to freeness of the standard base change
 `L ⊗[ A ] Ω[A/R]`. -/
 @[stacks 0BJ5]
 theorem conormalCokernel_free_iff
     [Algebra A L] (hφ : φ.toRingHom = algebraMap A L) :
-    Module.Free L P.ConormalCokernel ↔ Module.Free L (L ⊗[A] Ω[A⁄R]) := sorry
+    Module.Free L P.ConormalCokernel ↔ Module.Free L (L ⊗[A] Ω[A⁄R]) := by
+  constructor
+  · intro h
+    letI := h
+    exact Module.Free.of_equiv (P.conormalCokernelEquiv hφ)
+  · intro h
+    letI := h
+    exact Module.Free.of_equiv (P.conormalCokernelEquiv hφ).symm
 
 end SurjectivePresentation
 

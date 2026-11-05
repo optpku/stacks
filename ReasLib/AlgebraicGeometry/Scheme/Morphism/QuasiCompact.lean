@@ -33,12 +33,24 @@ theorem quasiCompact_iff_pullback_compactSpace
     (𝒰 : S.OpenCover) [∀ i, IsAffine (𝒰.X i)] :
     QuasiCompact f ↔ ∀ i, CompactSpace ((𝒰.pullback₁ f).X i) := sorry
 
-/-- A morphism is quasi-compact exactly when this holds on some affine open cover of the target. -/
+/-- A morphism is quasi-compact exactly when this holds on some affine open cover of the target.
+The cover-index universe may be the scheme universe or any larger universe. -/
 @[stacks 01K4]
 theorem quasiCompact_iff_exists_affineOpenCover :
     QuasiCompact f ↔
-      ∃ 𝒰 : Scheme.AffineOpenCover.{v} S,
-        ∀ i : 𝒰.I₀, CompactSpace ((𝒰.openCover.pullback₁ f).X i) := sorry
+      ∃ 𝒰 : Scheme.AffineOpenCover.{max u v} S,
+        ∀ i : 𝒰.I₀, CompactSpace ((𝒰.openCover.pullback₁ f).X i) := by
+  constructor
+  · intro hf
+    let 𝒰 : Scheme.AffineOpenCover.{max u v} S :=
+      { I₀ := ULift.{v} S.affineOpenCover.I₀
+        X := fun i ↦ S.affineOpenCover.X i.down
+        f := fun i ↦ S.affineOpenCover.f i.down
+        idx := fun x ↦ ULift.up (S.affineOpenCover.idx x)
+        covers := fun x ↦ S.affineOpenCover.covers x }
+    exact ⟨𝒰, (quasiCompact_iff_pullback_compactSpace f 𝒰.openCover).mp hf⟩
+  · rintro ⟨𝒰, h𝒰⟩
+    exact (quasiCompact_iff_pullback_compactSpace f 𝒰.openCover).mpr h𝒰
 
 /-- The image of a quasi-compact scheme morphism is closed when stable under specialization. -/
 @[stacks 05JL "closed image from stability under specialization"]

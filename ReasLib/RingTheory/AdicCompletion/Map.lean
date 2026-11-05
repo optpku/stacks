@@ -146,6 +146,60 @@ theorem quotientMap_eq_of_pow_le
       simpa only [smul_eq_mul, Ideal.mul_top] using
         SModEq.sub_mem.mp (a.property hle).symm
 
+/-- Completion preserves the identity ring homomorphism. -/
+theorem completionMap_id (I : Ideal R) :
+    (id I).completionMap = RingHom.id (AdicCompletion I R) := by
+  apply RingHom.ext
+  intro x
+  apply AdicCompletion.ext_evalₐ
+  intro n
+  have he := RingHom.congr_fun ((id I).eval_completionMap n) x
+  change evalₐ I n ((id I).completionMap x) = (id I).quotientMap n x at he
+  change evalₐ I n ((id I).completionMap x) = evalₐ I n x
+  rw [he, (id I).quotientMap_eq_of_pow_le n n (by simp)]
+  change Ideal.quotientMap (I ^ n) (RingHom.id R) (by simp) (evalₐ I n x) = evalₐ I n x
+  obtain ⟨r, hr⟩ := Ideal.Quotient.mk_surjective (evalₐ I n x)
+  rw [← hr]
+  simp only [Ideal.quotientMap_mk, RingHom.id_apply]
+
+/-- Completion preserves composites of adically continuous ring maps.
+Only power containment is required; neither map need preserve the defining
+ideal at the first power. -/
+theorem completionMap_comp_completionMap
+    {T : Type w} [CommRing T]
+    {I : Ideal R} {J : Ideal S} {K : Ideal T}
+    {f : R →+* S} {g : S →+* T}
+    (hf : f.AdicContinuous I J) (hg : g.AdicContinuous J K) :
+    (hf.comp hg).completionMap = hg.completionMap.comp hf.completionMap := by
+  apply RingHom.ext
+  intro x
+  apply AdicCompletion.ext_evalₐ
+  intro n
+  let m := hg.exponent * n
+  have hl : I ^ (hf.exponent * m) ≤ (K ^ n).comap (g.comp f) := by
+    intro r hr
+    exact hg.pow_le_comap n (hf.pow_le_comap m hr)
+  have he := RingHom.congr_fun ((hf.comp hg).eval_completionMap n) x
+  change evalₐ K n ((hf.comp hg).completionMap x) =
+    (hf.comp hg).quotientMap n x at he
+  have hg_eval := RingHom.congr_fun (hg.eval_completionMap n) (hf.completionMap x)
+  change evalₐ K n (hg.completionMap (hf.completionMap x)) =
+    hg.quotientMap n (hf.completionMap x) at hg_eval
+  change evalₐ K n ((hf.comp hg).completionMap x) =
+    evalₐ K n (hg.completionMap (hf.completionMap x))
+  rw [he, hg_eval, (hf.comp hg).quotientMap_eq_of_pow_le n (hf.exponent * m) hl]
+  change Ideal.quotientMap (K ^ n) (g.comp f) hl (evalₐ I (hf.exponent * m) x) =
+    Ideal.quotientMap (K ^ n) g (hg.pow_le_comap n) (evalₐ J m (hf.completionMap x))
+  have hf_eval := RingHom.congr_fun (hf.eval_completionMap m) x
+  change evalₐ J m (hf.completionMap x) = hf.quotientMap m x at hf_eval
+  rw [hf_eval]
+  change Ideal.quotientMap (K ^ n) (g.comp f) hl (evalₐ I (hf.exponent * m) x) =
+    Ideal.quotientMap (K ^ n) g (hg.pow_le_comap n)
+      (Ideal.quotientMap (J ^ m) f (hf.pow_le_comap m) (evalₐ I (hf.exponent * m) x))
+  obtain ⟨r, hr⟩ := Ideal.Quotient.mk_surjective (evalₐ I (hf.exponent * m) x)
+  rw [← hr]
+  rfl
+
 /-- The algebra homomorphism on completions induced by a continuous algebra
 homomorphism. The underlying ring map is the shared completion construction. -/
 noncomputable def completionAlgHom

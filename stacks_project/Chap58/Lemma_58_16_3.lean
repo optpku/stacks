@@ -35,9 +35,5 @@ by a strictly henselian valuation ring over `S` with algebraically closed fracti
     (hsp : EtaleFundamentalGroup.IsSpecializationMap f sbar' sbar hSpec F' F sp),
     ∃ (D : _root_.Specializes.ValuationRealization sbar'.toFieldValuedPoint.image
         sbar.toFieldValuedPoint.image (sbar'.toFieldValuedPoint.residueFieldHom))
-      (Rsh : Type u) (_ : CommRing Rsh)
-      (_ : Algebra (S.presheaf.stalk sbar.image) Rsh)
-      (_ : IsStrictHenselizationOf (S.presheaf.stalk sbar.image) Rsh)
-      (strictToField : Rsh →+* sbar'.toFieldValuedPoint.K)
       (e' : Aut F' ≃* Aut F') (e : Aut F ≃* Aut F),
-      EtaleFundamentalGroup.IsSpecializationMap.valuationInduced f sbar' sbar hSpec F' F sp hsp D Rsh strictToField e' e)
+      EtaleFundamentalGroup.IsSpecializationMap.valuationInduced f sbar' sbar hSpec F' F sp D e' e)

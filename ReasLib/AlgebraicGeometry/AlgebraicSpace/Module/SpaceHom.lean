@@ -9,7 +9,7 @@ module
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Module.HomFunctor
 
 /-!
-# Space-level Hom pairs of quasi-coherent modules
+# Space-level Hom pairs of modules
 
 A Hom pair over an algebraic space `T` over `S` consists of a morphism
 `h : T ⟶ B` and an
@@ -132,14 +132,14 @@ theorem pullback_hom {T T' : AlgebraicSpace S} {f : X ⟶ B} {F G : X.Modules}
 
 /-- Convert a Hom-functor section over a scheme `σ` over `B` into a space-level
 pair with structural morphism `σ.hom`. -/
-def ofScheme {f : X ⟶ B} {F G : X.Modules} [F.IsQuasicoherent] [G.IsQuasicoherent]
+def ofScheme {f : X ⟶ B} {F G : X.Modules}
     {σ : SchemeOver B} (u : (homFunctor f F G).obj (op σ)) :
     SpaceHom f F G (ofOver σ.left) :=
   of σ.hom u
 
 /-- Recover a Hom-functor section from a space-level pair over `ofOver σ.left`
 whose structural morphism is `σ.hom`. -/
-def toScheme {f : X ⟶ B} {F G : X.Modules} [F.IsQuasicoherent] [G.IsQuasicoherent]
+def toScheme {f : X ⟶ B} {F G : X.Modules}
     {σ : SchemeOver B} (p : SpaceHom f F G (ofOver σ.left))
     (hp : p.hom = σ.hom) : (homFunctor f F G).obj (op σ) :=
   cast (congrArg

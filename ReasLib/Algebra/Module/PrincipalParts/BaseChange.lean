@@ -62,10 +62,9 @@ theorem isScalarTowerToIntermediateTarget
   sorry
 
 /-- The source module map, regarded as `A`-linear through the lower scalar path of the square. -/
-def sourceMap (f : M →ₗ[B] M') : M →ₗ[A] M' where
-  toFun := f
-  map_add' := f.map_add
-  map_smul' := sorry
+def sourceMap [IsScalarTower A B M']
+    (f : M →ₗ[B] M') : M →ₗ[A] M' :=
+  f.restrictScalars A
 
 /-- The target universal differential, regarded as an `A`-linear map through `A → A'`. -/
 def targetMap (k : ℕ) :
@@ -75,7 +74,7 @@ def targetMap (k : ℕ) :
 /-- The composite of the target universal differential with the source map is an order-`k`
 operator over `A → B`.  Its proof factors through the generic differential-operator restriction
 lemmas, rather than through a quotient presentation of principal parts. -/
-theorem operatorMem (k : ℕ) (f : M →ₗ[B] M') :
+theorem operatorMem [IsScalarTower A B M'] (k : ℕ) (f : M →ₗ[B] M') :
     LinearMap.IsDifferentialOperatorOfOrder
       ((targetMap (A := A) (A' := A') (B' := B') (M' := M') k).comp
         (sourceMap (A := A) (B := B) f)) B k :=

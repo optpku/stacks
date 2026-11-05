@@ -10,6 +10,7 @@ public import ReasLib.AlgebraicGeometry.FormalDeformation.FormalHomotopy
 public import ReasLib.AlgebraicGeometry.FormalDeformation.CompleteLocal.Instances
 public import ReasLib.AlgebraicGeometry.FormalDeformation.TypesCompletion
 public import ReasLib.RingTheory.LocalRing.IdealQuotient
+public import ReasLib.RingTheory.PowerSeriesExtension
 public import Mathlib.LinearAlgebra.LinearIndependent.Basic
 public import Mathlib.Order.Disjoint
 
@@ -43,20 +44,104 @@ canonical coefficient inclusion. -/
 theorem isPowerSeriesOver_iff {R S : CompleteLocalAlgCat Λ k} (f : R ⟶ S) :
     IsPowerSeriesOver f ↔
       ∃ n : ℕ, ∃ e : S ≅ R.mvPowerSeries n, f ≫ e.hom = R.mvPowerSeriesC n :=
-  sorry
+  Iff.rfl
 
 /-- An isomorphism onto `R.mvPowerSeries n` over `R.mvPowerSeriesC n` exhibits a
 power series morphism. -/
 theorem IsPowerSeriesOver.of_iso {R S : CompleteLocalAlgCat Λ k} {n : ℕ} {f : R ⟶ S}
     (e : S ≅ R.mvPowerSeries n) (h : f ≫ e.hom = R.mvPowerSeriesC n) :
     IsPowerSeriesOver f :=
-  sorry
+  ⟨n, e, h⟩
 
 /-- The canonical coefficient inclusion `R.mvPowerSeriesC n` is a power series
 morphism over `R`. -/
 theorem isPowerSeriesOver_mvPowerSeriesC (R : CompleteLocalAlgCat Λ k) (n : ℕ) :
     IsPowerSeriesOver (R.mvPowerSeriesC n) :=
-  sorry
+  ⟨n, Iso.refl _, Category.comp_id _⟩
+
+/-- Morphisms with the same algebra map are equal, including their proof fields. -/
+theorem Hom.ext {source target : CompleteLocalAlgCat Λ k} {first second : source ⟶ target}
+    (equalMaps : first.hom = second.hom) : first = second := by
+  rcases first with ⟨first, firstLocal, firstResidue⟩
+  rcases second with ⟨second, secondLocal, secondResidue⟩
+  cases equalMaps
+  rfl
+
+/-- Forget a marked isomorphism using its supplied forward and inverse maps. -/
+def isoRingEquiv {source target : CompleteLocalAlgCat Λ k} (iso : source ≅ target) :
+    source.carrier ≃+* target.carrier where
+  __ := iso.hom.toRingHom
+  invFun := iso.inv.hom
+  left_inv value := congrArg (fun map : source ⟶ source => map.hom value) iso.hom_inv_id
+  right_inv value := congrArg (fun map : target ⟶ target => map.hom value) iso.inv_hom_id
+
+/-- Forgetting a marked isomorphism preserves its forward ring map. -/
+theorem isoRingEquiv_toRingHom {source target : CompleteLocalAlgCat Λ k}
+    (iso : source ≅ target) : (isoRingEquiv iso).toRingHom = iso.hom.toRingHom := rfl
+
+/-- Lift an explicit ring isomorphism over a marked coefficient map. Its scalar
+action is forced by `map`; the residue identifications are those stored in the
+source, target and canonical power-series object. Both maps are supplied by `equiv`. -/
+noncomputable def powerSeriesIsoOfRingEquiv {source target : CompleteLocalAlgCat Λ k}
+    (map : source ⟶ target) (numVars : ℕ)
+    (equiv : target.carrier ≃+* MvPowerSeries (Fin numVars) source.carrier)
+    (compat : equiv.toRingHom.comp map.toRingHom = MvPowerSeries.C) :
+    target ≅ source.mvPowerSeries numVars := by
+  let algEquiv : target.carrier ≃ₐ[Λ] (source.mvPowerSeries numVars).carrier :=
+    AlgEquiv.ofRingEquiv (f := equiv) (by
+      intro scalar
+      calc
+        equiv (algebraMap Λ target.carrier scalar) =
+            equiv (map.hom (algebraMap Λ source.carrier scalar)) := by rw [map.hom.commutes]
+        _ = MvPowerSeries.C (algebraMap Λ source.carrier scalar) :=
+          DFunLike.congr_fun compat _
+        _ = algebraMap Λ (source.mvPowerSeries numVars).carrier scalar :=
+          MvPowerSeries.algebraMap_apply.symm)
+  exact
+    { hom := Hom.of (A := target) (B := source.mvPowerSeries numVars)
+        algEquiv.toAlgHom inferInstance (by sorry)
+      inv := Hom.of (A := source.mvPowerSeries numVars) (B := target)
+        algEquiv.symm.toAlgHom inferInstance (by sorry)
+      hom_inv_id := by
+        apply Hom.ext
+        apply AlgHom.ext
+        intro value
+        exact algEquiv.left_inv value
+      inv_hom_id := by
+        apply Hom.ext
+        apply AlgHom.ext
+        intro value
+        exact algEquiv.right_inv value }
+
+/-- The marked lift uses the original forward ring map. -/
+theorem powerSeriesIsoOfRingEquiv_hom {source target : CompleteLocalAlgCat Λ k}
+    (map : source ⟶ target) (numVars : ℕ)
+    (equiv : target.carrier ≃+* MvPowerSeries (Fin numVars) source.carrier)
+    (compat : equiv.toRingHom.comp map.toRingHom = MvPowerSeries.C) :
+    (powerSeriesIsoOfRingEquiv map numVars equiv compat).hom.toRingHom = equiv.toRingHom := rfl
+
+/-- The marked lift uses the original inverse ring map. -/
+theorem powerSeriesIsoOfRingEquiv_inv {source target : CompleteLocalAlgCat Λ k}
+    (map : source ⟶ target) (numVars : ℕ)
+    (equiv : target.carrier ≃+* MvPowerSeries (Fin numVars) source.carrier)
+    (compat : equiv.toRingHom.comp map.toRingHom = MvPowerSeries.C) :
+    (powerSeriesIsoOfRingEquiv map numVars equiv compat).inv.toRingHom = equiv.symm.toRingHom := rfl
+
+/-- For a morphism already preserving the chosen scalars and residue field, the
+underlying coefficient-inclusion property lifts to the marked category. -/
+theorem isPowerSeriesOver_iff_toRingHom {source target : CompleteLocalAlgCat Λ k}
+    (map : source ⟶ target) :
+    IsPowerSeriesOver map ↔ RingHom.IsPowerSeriesExtension map.toRingHom := by
+  constructor
+  · rintro ⟨numVars, iso, compat⟩
+    exact ⟨numVars, isoRingEquiv iso,
+      congrArg (fun other : source ⟶ source.mvPowerSeries numVars => other.toRingHom) compat⟩
+  · rintro ⟨numVars, equiv, compat⟩
+    refine ⟨numVars, powerSeriesIsoOfRingEquiv map numVars equiv compat, ?_⟩
+    apply Hom.ext
+    apply AlgHom.ext
+    intro value
+    exact DFunLike.congr_fun compat value
 
 /-- `I ⧸ m_R I` is a `k`-vector space via the residue identification of `R`. -/
 noncomputable instance instModule_idealSmulQuot {R : CompleteLocalAlgCat Λ k}

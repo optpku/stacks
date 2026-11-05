@@ -8,14 +8,16 @@ module
 
 public import Mathlib.Algebra.Category.ModuleCat.Sheaf.PullbackContinuous
 public import Mathlib.Algebra.Category.ModuleCat.Sheaf.Quasicoherent
+public import Mathlib.CategoryTheory.Functor.Flat
 import Mathlib.Tactic.CrossRefAttribute
 
 /-!
 # Pullback of Quasi-coherent Sheaves of Modules
 
-The canonical inverse-image functor associated to a continuous final functor preserves
-quasi-coherence over arbitrary sheaves of rings. Commutativity and pullbacks in the sites are not
-part of this property-preservation interface.
+The canonical inverse-image functor associated to a continuous representably flat functor
+preserves quasi-coherence over arbitrary sheaves of rings. Representable flatness supplies the
+geometric inverse-image condition; finality alone does not suffice. Commutativity and pullbacks
+in the sites are not part of this property-preservation interface.
 -/
 
 @[expose] public section
@@ -39,10 +41,11 @@ variable [∀ U : D, (K.over U).WEqualsLocallyBijective AddCommGrpCat.{w}]
 variable (f : S ⟶ (F.sheafPushforwardContinuous RingCat.{w} K J).obj R)
 variable [(SheafOfModules.pushforward f).IsRightAdjoint]
 
-/-- Inverse image preserves quasi-coherent sheaves of modules. -/
+/-- Inverse image along a continuous representably flat functor preserves quasi-coherent
+sheaves of modules. -/
 @[stacks 03DO "(6)", stacks 01BG]
 instance pullback_isQuasicoherent
-    [F.Final] (M : SheafOfModules.{w} S) [M.IsQuasicoherent] :
+    [RepresentablyFlat F] (M : SheafOfModules.{w} S) [M.IsQuasicoherent] :
     ((SheafOfModules.pullback f).obj M).IsQuasicoherent := sorry
 
 end SheafOfModules

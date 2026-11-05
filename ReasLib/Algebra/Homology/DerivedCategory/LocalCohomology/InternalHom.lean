@@ -61,7 +61,7 @@ theorem rHomComparison_def
         RHom.map (toDerivedCompletion I hI (RΓZ.obj K).obj)
           (𝟙 (derivedCompletionOf I hI (RΓZ.obj L).obj)) ≫
         inv (RHom.map (𝟙 (RΓZ.obj K).obj)
-          (toDerivedCompletion I hI (RΓZ.obj L).obj)) := sorry
+          (toDerivedCompletion I hI (RΓZ.obj L).obj)) := rfl
 
 /-- The canonical comparison from derived Hom between derived completions to derived Hom between
 the corresponding closed-support local-cohomology objects is an isomorphism. -/

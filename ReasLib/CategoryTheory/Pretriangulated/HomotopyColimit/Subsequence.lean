@@ -108,14 +108,17 @@ end Presentation.Subsequence
 namespace IsOf
 
 /-- A homotopy-colimit presentation for a sequential diagram also presents the same object as
-a homotopy colimit of any strictly increasing subsequence. -/
+a homotopy colimit of any strictly increasing subsequence whose coproduct exists. -/
 theorem subsequence {K : ℕ ⥤ D} {s : ℕ → ℕ} (hs : StrictMono s) {X : D}
+    [HasCoproduct (SequentialDiagram.subsequence K hs).obj]
     (h : HomotopyColimit.IsOf K X) :
     HomotopyColimit.IsOf (SequentialDiagram.subsequence K hs) X := sorry
 
 /-- A homotopy-colimit presentation for a strictly increasing subsequence also presents the
-same object as a homotopy colimit of the full sequential diagram. -/
+same object as a homotopy colimit of the full sequential diagram, provided its coproduct
+exists. -/
 theorem ofSubsequence {K : ℕ ⥤ D} {s : ℕ → ℕ} (hs : StrictMono s) {X : D}
+    [HasCoproduct K.obj]
     (h : HomotopyColimit.IsOf (SequentialDiagram.subsequence K hs) X) :
     HomotopyColimit.IsOf K X := sorry
 
@@ -135,11 +138,14 @@ theorem nonemptyIsoOfSubsequence (K : ℕ ⥤ D) (s : ℕ → ℕ) (hs : StrictM
     (hfull : HomotopyColimit.IsOf K Xfull) : Nonempty (Xsub ≅ Xfull) := sorry
 
 /-- Lemma 13.33.4: passing to a strictly increasing subsequence does not change whether a fixed
-object is a homotopy colimit. -/
+object is a homotopy colimit, provided both coproducts exist. -/
 @[stacks 0CRJ]
-theorem subsequence_iff (K : ℕ ⥤ D) (s : ℕ → ℕ) (hs : StrictMono s) {X : D} :
+theorem subsequence_iff (K : ℕ ⥤ D) (s : ℕ → ℕ) (hs : StrictMono s) {X : D}
+    [HasCoproduct K.obj]
+    [HasCoproduct (SequentialDiagram.subsequence K hs).obj] :
     HomotopyColimit.IsOf (SequentialDiagram.subsequence K hs) X ↔
-      HomotopyColimit.IsOf K X := sorry
+      HomotopyColimit.IsOf K X := by
+  exact ⟨ofSubsequence hs, subsequence hs⟩
 
 end IsOf
 

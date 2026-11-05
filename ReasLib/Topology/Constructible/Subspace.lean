@@ -15,6 +15,9 @@ public import ReasLib.Topology.Constructible.Retrocompact
 
 The canonical subtype inclusion is used directly, with bridges for
 retrocompact and constructible subspaces that Mathlib does not package.
+The open and closed subtype lemmas below are untagged adapters to Mathlib's
+embedding lemmas: they expose the trace notation `U ↓∩ E` and accept hypotheses
+on the subset itself instead of on `Set.range Subtype.val`.
 -/
 
 @[expose] public section
@@ -27,35 +30,42 @@ open scoped Set.Notation
 namespace Topology
 
 /-- Lemma 5.15.4: a constructible subset has constructible trace on an open
-subspace. -/
-@[stacks 005J "constructible traces on open subspaces"]
+subspace. This trace-notation adapter specializes
+`IsConstructible.preimage_of_isOpenEmbedding`, the canonical owner of tag 005J. -/
 theorem IsConstructible.preimage_subtypeVal_of_isOpen
     {X : Type u} [TopologicalSpace X] {U E : Set X}
     (hE : IsConstructible E) (hU : IsOpen U) :
-    IsConstructible (U ↓∩ E) := sorry
+    IsConstructible (U ↓∩ E) :=
+  hE.preimage_of_isOpenEmbedding hU.isOpenEmbedding_subtypeVal
 
 /-- Lemma 5.15.5: a constructible subset of a retrocompact open subspace has
-constructible image in the ambient space. -/
-@[stacks 09YD]
+constructible image in the ambient space. This bundled-open adapter specializes
+`IsConstructible.image_of_isOpenEmbedding`, the canonical owner of tag 09YD. -/
 theorem IsConstructible.image_subtypeVal_of_isRetrocompact
     {X : Type u} [TopologicalSpace X] {U : Opens X} {E : Set U}
     (hE : IsConstructible E) (hU : IsRetrocompact (U : Set X)) :
-    IsConstructible (Subtype.val '' E : Set X) := sorry
+    IsConstructible (Subtype.val '' E : Set X) :=
+  hE.image_of_isOpenEmbedding U.isOpen.isOpenEmbedding_subtypeVal
+    (by simpa using hU)
 
 /-- Lemma 5.15.7: a constructible subset has constructible trace on a closed
-subspace with compact complement. -/
-@[stacks 09YE]
+subspace with compact complement. This trace-notation adapter specializes
+`IsConstructible.preimage_of_isClosedEmbedding`, the canonical owner of tag 09YE. -/
 theorem IsConstructible.preimage_subtypeVal_of_isClosed_of_isCompact_compl
     {X : Type u} [TopologicalSpace X] {Z E : Set X} (hE : IsConstructible E)
-    (hZ : IsClosed Z) (hZc : IsCompact Zᶜ) : IsConstructible (Z ↓∩ E) := sorry
+    (hZ : IsClosed Z) (hZc : IsCompact Zᶜ) : IsConstructible (Z ↓∩ E) :=
+  hE.preimage_of_isClosedEmbedding hZ.isClosedEmbedding_subtypeVal
+    (by simpa using hZc)
 
 /-- Lemma 5.15.9: a constructible subset of a closed subspace with
-retrocompact complement has constructible ambient image. -/
-@[stacks 09YG "constructible subsets of closed subspaces"]
+retrocompact complement has constructible ambient image. This bundled-closed adapter specializes
+`IsConstructible.image_of_isClosedEmbedding`, the canonical owner of tag 09YG. -/
 theorem IsConstructible.image_subtypeVal_of_isRetrocompact_compl
     {X : Type u} [TopologicalSpace X] {Z : Closeds X} {E : Set Z}
     (hE : IsConstructible E) (hZc : IsRetrocompact ((Z : Set X)ᶜ)) :
-    IsConstructible (Subtype.val '' E : Set X) := sorry
+    IsConstructible (Subtype.val '' E : Set X) :=
+  hE.image_of_isClosedEmbedding Z.isClosed.isClosedEmbedding_subtypeVal
+    (by simpa using hZc)
 
 variable {X : Type u} [TopologicalSpace X] [PrespectralSpace X]
 variable {T E : Set X}

@@ -9,7 +9,8 @@ module
 public import Mathlib.Data.List.TFAE
 public import Mathlib.CategoryTheory.MorphismProperty.Comma
 public import Mathlib.CategoryTheory.MorphismProperty.Representable
-public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Affine
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Affine.BaseChange
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Locality.Criteria
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Etale
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Surjective
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.ZariskiCover.Basic
@@ -65,10 +66,8 @@ end representableAffine
 
 /-- For every affine scheme `V` and étale morphism `V ⟶ Y`, the fibre product
 `X ×_Y V` is an affine algebraic space. -/
-def forallAffineEtale : Prop :=
-  ∀ {V : Over S} [AlgebraicGeometry.IsAffine V.left] {P : AlgebraicSpace S}
-    {g : ofOver V ⟶ Y} {pV : P ⟶ ofOver V} {pX : P ⟶ X},
-    Etale g → IsPullback pV pX g f → IsAffine P
+abbrev forallAffineEtale : Prop :=
+  Locality.Criteria.forallAffineEtaleObject (@IsAffine S) f
 
 /-- `forallAffineEtale f` means every étale morphism from an affine scheme to `Y`
 has affine fibre product with `X`. -/
@@ -96,11 +95,8 @@ end forallAffineEtale
 
 /-- There exists a scheme `V` and a surjective étale morphism `V ⟶ Y` such that
 `V ×_Y X ⟶ V` is affine. -/
-def existsSurjectiveEtaleTarget : Prop :=
-  ∃ (V : Over S) (ψ : ofOver V ⟶ Y),
-    Etale ψ ∧ Surjective ψ ∧
-      ∀ {P : AlgebraicSpace S} {pV : P ⟶ ofOver V} {pX : P ⟶ X},
-        IsPullback pV pX ψ f → Affine pV
+abbrev existsSurjectiveEtaleTarget : Prop :=
+  Locality.Criteria.existsEtaleOnTarget (@Affine S) f
 
 /-- `existsSurjectiveEtaleTarget f` is the existence of a surjective étale scheme
 atlas of `Y` along which the projection `V ×_Y X ⟶ V` is affine. -/
@@ -130,10 +126,8 @@ end existsSurjectiveEtaleTarget
 
 /-- There exists a Zariski covering `Y = ⋃ Yᵢ` such that each inverse-image
 morphism `f⁻¹(Yᵢ) ⟶ Yᵢ` is affine. -/
-def existsZariskiCover : Prop :=
-  ∃ (𝒰 : ZariskiCover.{u, u} Y),
-    ∀ i {P : AlgebraicSpace S} {pYi : P ⟶ 𝒰.X i} {pX : P ⟶ X},
-      IsPullback pYi pX (𝒰.f i) f → Affine pYi
+abbrev existsZariskiCover : Prop :=
+  Locality.Criteria.existsZariskiCoverOnTarget.{u, u} (@Affine S) f
 
 /-- `existsZariskiCover f` is the existence of a Zariski covering of `Y` whose
 inverse images under `f` map affinely to the covering opens. -/
@@ -160,13 +154,31 @@ theorem spec (h : existsZariskiCover f) :
 
 end existsZariskiCover
 
+/-- Affineness descends along étale coverings of the target.
+Stacks, Tag 03WG, `tex/spaces-morphisms.tex:3716–3730`. -/
+instance isLocalAtTargetEtale {S : Scheme.{u}} :
+    MorphismProperty.IsLocalAtTarget
+      (@Affine S : MorphismProperty (AlgebraicSpace S)) (@etalePrecoverage S) :=
+  sorry
+
 /-- For a morphism of algebraic spaces over a scheme, representable affineness,
 affineness, affineness of all affine-scheme étale pullbacks, affineness after
 some surjective étale scheme atlas, and affineness over some Zariski covering
 of the target are equivalent. -/
 theorem tfae :
     List.TFAE [representableAffine f, Affine f, forallAffineEtale f,
-      existsSurjectiveEtaleTarget f, existsZariskiCover f] := sorry
+      existsSurjectiveEtaleTarget f, existsZariskiCover f] := by
+  have hlocal := Locality.Criteria.targetLocal_tfae.{u, u} (@Affine S) f
+  -- Tag 03WG (1) iff (2) retains relative representability explicitly.
+  have hrepr : representableAffine f ↔ Affine f := by sorry
+  -- The affine object condition on étale affine charts is specific to affineness.
+  have hchart : Affine f ↔ forallAffineEtale f := by sorry
+  have htail : List.TFAE
+      [forallAffineEtale f, existsSurjectiveEtaleTarget f, existsZariskiCover f] :=
+    List.tfae_cons_cons.mpr ⟨hchart.symm.trans (hlocal.out 0 3),
+      List.tfae_cons_cons.mpr ⟨(hlocal.out 3 4), by simp⟩⟩
+  exact List.tfae_cons_cons.mpr ⟨hrepr,
+    List.tfae_cons_cons.mpr ⟨hchart, htail⟩⟩
 
 /-- A morphism of algebraic spaces is affine iff it is representable and affine
 as a presheaf morphism. -/

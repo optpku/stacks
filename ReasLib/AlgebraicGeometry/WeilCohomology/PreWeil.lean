@@ -452,44 +452,9 @@ structure SchemePreWeilTheory
     (pointCycle : CHgrade point 0)
     (H Picard : V → Type x)
     [∀ X, Ring (H X)] [∀ X, Algebra F (H X)]
-    [∀ X, AddCommGroup (Picard X)] where
-  /-- The functor realizing the abstract domain as schemes over `k`. -/
-  scheme : V ⥤ SchemeOverField k
-  /-- Morphisms in the presentation are precisely morphisms of the represented schemes. -/
-  scheme_fullyFaithful : scheme.FullyFaithful
-  /-- Every represented scheme is smooth over `k`. -/
-  smooth : ∀ X, Smooth (scheme.obj X).hom
-  /-- Every represented scheme is projective over `k`. -/
-  projective : ∀ X, Projective (scheme.obj X).hom
-  /-- The specified dimension is the geometric Krull dimension. -/
-  dimension_eq : ∀ X, Nonempty (scheme.obj X).left →
-    topologicalKrullDim (scheme.obj X).left = (dimension X : WithBot ℕ∞)
-  /-- The specified binary product represents the fibre product over `Spec(k)`. -/
-  schemeProduct : ∀ X Y, scheme.obj (product X Y) ≅ scheme.obj X ⨯ scheme.obj Y
-  /-- The specified first projection is the geometric product projection. -/
-  scheme_fst : ∀ X Y, scheme.map (fst X Y) =
-    (schemeProduct X Y).hom ≫ Limits.prod.fst
-  /-- The specified second projection is the geometric product projection. -/
-  scheme_snd : ∀ X Y, scheme.map (snd X Y) =
-    (schemeProduct X Y).hom ≫ Limits.prod.snd
-  /-- The specified point represents `Spec(k)` over itself. -/
-  schemePoint : scheme.obj point ≅ Over.mk (𝟙 (Spec (CommRingCat.of k)))
-  /-- Every smooth projective scheme over `k` is represented by an object of `V`. -/
-  scheme_essentiallySurjective : ∀ (S : SchemeOverField k)
-    [Smooth S.hom] [Projective S.hom],
-    ∃ X : V, Nonempty (scheme.obj X ≅ S)
-  /-- Chow pullback by an identity is the identity. -/
-  cyclePullback_id : ∀ X,
-    cyclePullback (𝟙 X) = GradedAlgHom.id ℤ (CHgrade X)
-  /-- Chow pullback reverses composition. -/
-  cyclePullback_comp : ∀ {X Y Z : V} (f : X ⟶ Y) (g : Y ⟶ Z),
-    cyclePullback (f ≫ g) = (cyclePullback f).comp (cyclePullback g)
-  /-- Chow pushforward by an identity is the identity. -/
-  cyclePushforward_id : ∀ X,
-    cyclePushforward (𝟙 X) = AddMonoidHom.id (CH X)
-  /-- Chow pushforward preserves composition. -/
-  cyclePushforward_comp : ∀ {X Y Z : V} (f : X ⟶ Y) (g : Y ⟶ Z),
-    cyclePushforward (f ≫ g) = (cyclePushforward g).comp (cyclePushforward f)
+    [∀ X, AddCommGroup (Picard X)] extends
+      SmoothProjectivePresentation k V dimension product fst snd point CH CHgrade
+        cyclePullback cyclePushforward where
   /-- The predicate that a represented scheme is nonempty and equidimensional of
   dimension `d`. -/
   IsNonemptyEquidimensional : V → ℕ → Prop
@@ -667,6 +632,57 @@ structure SchemePreWeilTheory
     IsBlowupOfSmoothCenter b → Function.Injective (pullback b)
 
 namespace SchemePreWeilTheory
+
+section LegacyProjections
+
+variable {k : Type u} [Field k]
+variable {F : Type v} [Field F] [CharZero F]
+variable {TateLine : Type x} [AddCommGroup TateLine] [Module F TateLine]
+variable {V : Type w} [Category.{z} V]
+variable {dimension : V → ℕ} {product : V → V → V}
+variable {fst : ∀ X Y, product X Y ⟶ X} {snd : ∀ X Y, product X Y ⟶ Y}
+variable {point : V} {CH : V → Type y} [∀ X, CommRing (CH X)]
+variable {CHgrade : ∀ X, ℤ → Submodule ℤ (CH X)} [∀ X, GradedAlgebra (CHgrade X)]
+variable {cyclePullback : ∀ {X Y : V}, (X ⟶ Y) → CHgrade Y →ₐᵍ[ℤ] CHgrade X}
+variable {cyclePushforward : ∀ {X Y : V}, (X ⟶ Y) → CH X →+ CH Y}
+variable {pointCycle : CHgrade point 0} {H Picard : V → Type x}
+variable [∀ X, Ring (H X)] [∀ X, Algebra F (H X)] [∀ X, AddCommGroup (Picard X)]
+
+
+/- Source-compatible names for the inherited presentation projections.
+The stored data and laws belong only to `SmoothProjectivePresentation`. -/
+namespace PresentationProjection
+
+variable (T : SchemePreWeilTheory k F TateLine V dimension product fst snd point CH CHgrade
+  cyclePullback cyclePushforward pointCycle H Picard)
+
+abbrev scheme := T.toSmoothProjectivePresentation.scheme
+abbrev scheme_fullyFaithful := T.toSmoothProjectivePresentation.scheme_fullyFaithful
+abbrev smooth := T.toSmoothProjectivePresentation.smooth
+abbrev projective := T.toSmoothProjectivePresentation.projective
+abbrev dimension_eq := T.toSmoothProjectivePresentation.dimension_eq
+abbrev schemeProduct := T.toSmoothProjectivePresentation.schemeProduct
+abbrev scheme_fst := T.toSmoothProjectivePresentation.scheme_fst
+abbrev scheme_snd := T.toSmoothProjectivePresentation.scheme_snd
+abbrev schemePoint := T.toSmoothProjectivePresentation.schemePoint
+abbrev structureMorphism := T.toSmoothProjectivePresentation.structureMorphism
+abbrev scheme_structureMorphism := T.toSmoothProjectivePresentation.scheme_structureMorphism
+abbrev scheme_essentiallySurjective := T.toSmoothProjectivePresentation.scheme_essentiallySurjective
+abbrev cyclePullback_id := T.toSmoothProjectivePresentation.cyclePullback_id
+abbrev cyclePullback_comp {X Y Z : V} (f : X ⟶ Y) (g : Y ⟶ Z) :=
+  T.toSmoothProjectivePresentation.cyclePullback_comp f g
+abbrev cyclePushforward_id := T.toSmoothProjectivePresentation.cyclePushforward_id
+abbrev cyclePushforward_comp {X Y Z : V} (f : X ⟶ Y) (g : Y ⟶ Z) :=
+  T.toSmoothProjectivePresentation.cyclePushforward_comp f g
+
+end PresentationProjection
+
+export PresentationProjection (scheme scheme_fullyFaithful smooth projective dimension_eq
+  schemeProduct scheme_fst scheme_snd schemePoint structureMorphism scheme_structureMorphism
+  scheme_essentiallySurjective cyclePullback_id cyclePullback_comp cyclePushforward_id
+  cyclePushforward_comp)
+
+end LegacyProjections
 
 /-- The source diagonal-class relation (Stacks, lines 55516-55533).
 It records the balanced class identity and the canonical point diagonal.

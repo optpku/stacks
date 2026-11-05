@@ -61,4 +61,4 @@ map from `f^* NL(Y/Z)` to the mapping cocone of `NL(X/Z) ⟶ NL(X/Y)`.  It is an
 
 #check @AlgebraicGeometry.RingedSpace.NaiveCotangent.Transitivity.sixTerm_exact
 
-#check @AlgebraicGeometry.RingedSpace.NaiveCotangent.Transitivity.comparison_zero_epi
+#check @AlgebraicGeometry.RingedSpace.NaiveCotangent.comparison_zero_epi

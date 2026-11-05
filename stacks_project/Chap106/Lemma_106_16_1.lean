@@ -38,23 +38,17 @@ uniquely to colimit-preserving tensor functors on quasi-coherent modules. -/
 @[stacks 0GRJ] #check (AlgebraicGeometry.AlgebraicStack.existsUnique_extend_rightExactTensor :
   ∀ {S₁ S₂ : Scheme.{u}} {X : GroupoidsOver S₁} {Y : GroupoidsOver S₂}
     [AlgebraicStack X] [IsNoetherian X] [AlgebraicStack Y] [IsNoetherian Y]
-    (F : Coh X ⥤ Coh Y) [PreservesFiniteColimits F]
-    (T : Coh.tensorBifunctor X ⋙ F ≅ Functor.prod F F ⋙ Coh.tensorBifunctor Y),
-    ∃ G : QCoh X ⥤ QCoh Y,
+    (F : Coh X ⥤ Coh Y) [F.Braided] [PreservesFiniteColimits F],
+    ∃ (G : QCoh X ⥤ QCoh Y) (m : G.Braided),
+      letI := m;
       PreservesColimitsOfSize.{u, u} G ∧
-        ∃ (e : (Coh.toQCoh : Coh X ⥤ QCoh X) ⋙ G ≅
-            F ⋙ (Coh.toQCoh : Coh Y ⥤ QCoh Y))
-          (U : QCoh.Fppf.tensorBifunctor X ⋙ G ≅
-            Functor.prod G G ⋙ QCoh.Fppf.tensorBifunctor Y),
-          (∀ A B : Coh X,
-            U.hom.app (Coh.toQCoh.obj A, Coh.toQCoh.obj B) ≫
-                QCoh.Fppf.tensorMap (e.hom.app A) (e.hom.app B) =
-              G.map (Coh.tensor_toQCohIso A B).inv ≫
-                e.hom.app (Coh.tensor A B) ≫
-                Coh.toQCoh.map (T.hom.app (A, B)) ≫
-                (Coh.tensor_toQCohIso (F.obj A) (F.obj B)).hom) ∧
-          ∀ G' : QCoh X ⥤ QCoh Y,
+        ∃ e : (Coh.toQCoh : Coh X ⥤ QCoh X) ⋙ G ≅
+            F ⋙ (Coh.toQCoh : Coh Y ⥤ QCoh Y),
+          NatTrans.IsMonoidal e.hom ∧
+          ∀ (G' : QCoh X ⥤ QCoh Y) [G'.Monoidal],
             PreservesFilteredColimitsOfSize.{u, u} G' →
-              Nonempty ((Coh.toQCoh : Coh X ⥤ QCoh X) ⋙ G' ≅
-                F ⋙ (Coh.toQCoh : Coh Y ⥤ QCoh Y)) →
-              Nonempty (G ≅ G'))
+            ∀ e' : (Coh.toQCoh : Coh X ⥤ QCoh X) ⋙ G' ≅
+                F ⋙ (Coh.toQCoh : Coh Y ⥤ QCoh Y),
+              NatTrans.IsMonoidal e'.hom →
+              ∃! t : G ≅ G', NatTrans.IsMonoidal t.hom ∧
+                Functor.isoWhiskerLeft (Coh.toQCoh : Coh X ⥤ QCoh X) t ≪≫ e' = e)

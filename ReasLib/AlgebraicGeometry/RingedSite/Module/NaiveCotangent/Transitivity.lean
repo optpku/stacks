@@ -90,10 +90,13 @@ noncomputable def sixTerm {phi : O₁ ⟶ O₂} {alpha : O₂ ⟶ O₃}
 theorem sixTerm_exact {phi : O₁ ⟶ O₂} {alpha : O₂ ⟶ O₃}
     (t : Transitivity phi alpha) : t.sixTerm.Exact := sorry
 
-/-- The final degree-zero comparison in the Jacobi-Zariski sequence is epic. -/
+/-- The final degree-zero comparison is epic if degree-one homology of its mapping cocone
+vanishes.  The four fields of a transitivity datum alone only give the internal exact segment. -/
 theorem comparison_zero_epi {phi : O₁ ⟶ O₂} {alpha : O₂ ⟶ O₃}
-    (t : Transitivity phi alpha) :
-    Epi (HomologicalComplex.homologyMap t.comparison 0) := sorry
+    (t : Transitivity phi alpha)
+    (hH1 : IsZero (HomologicalComplex.homology (CochainComplex.mappingCocone t.comparison) 1)) :
+    Epi (HomologicalComplex.homologyMap t.comparison 0) :=
+  CochainComplex.mappingCocone.h0_epi t.comparison hH1
 
 end Transitivity
 

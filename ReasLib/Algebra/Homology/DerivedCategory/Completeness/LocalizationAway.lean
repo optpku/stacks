@@ -7,7 +7,7 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import ReasLib.Algebra.Homology.DerivedCategory.Completeness
-public import ReasLib.Algebra.Homology.DerivedCategory.InternalHom.Model
+public import ReasLib.Algebra.Homology.DerivedCategory.InternalHom.Functoriality
 public import ReasLib.CategoryTheory.DerivedCategory.Limit.Compatibility
 import Mathlib.Tactic.CrossRefAttribute
 
@@ -19,6 +19,12 @@ the fine-grained vanishing bridges used in the principal form of derived complet
 homotopy-limit assertion is stated through the presentation-independent predicate
 `HomotopyLimit.IsOf`; consumers needing the legacy data-bearing `IsDerivedLimit` interface should
 construct or retain an explicit Milnor presentation.
+
+The selected closed object is defined for any ambient monoidal structure.  Comparisons with the
+canonical multiplication tower and derived localization predicate additionally require a braiding
+and an explicit `DerivedTensor.Right.Monoidal.Model`.  The latter identifies ambient right
+tensoring with canonical fixed-right derived tensoring; the braiding and
+`InternalHom.adjunctionOf H T` then identify the selected internal Hom as its right adjoint.
 
 @stack 091P
 -/
@@ -64,7 +70,9 @@ noncomputable abbrev localizationAwayT
 property for the multiplication-by-`f` tower. -/
 @[stacks 091P "the homotopy-limit presentation of T(K, f)"]
 theorem localizationAwayT_isHomotopyLimit
+    [BraidedCategory (DerivedCategory (ModuleCat A))]
     (H : MonoidalClosed (DerivedCategory (ModuleCat A)))
+    (T : DerivedTensor.Right.Monoidal.Model (C := ModuleCat A))
     (f : A) (K : DerivedCategory (ModuleCat A)) :
     HomotopyLimit.IsOf (localizationAwayTower f K) (localizationAwayT H f K) := sorry
 
@@ -72,7 +80,9 @@ theorem localizationAwayT_isHomotopyLimit
 an `A_f`-complex to `K` vanishes after restriction of scalars. -/
 @[stacks 091P "vanishing of the localization-away object"]
 theorem localizationAwayT_isZero_iff
+    [BraidedCategory (DerivedCategory (ModuleCat A))]
     (H : MonoidalClosed (DerivedCategory (ModuleCat A)))
+    (T : DerivedTensor.Right.Monoidal.Model (C := ModuleCat A))
     (f : A) (K : DerivedCategory (ModuleCat A)) :
     IsZero (localizationAwayT H f K) ↔
       _root_.DerivedCategory.localizationAwayDerivedHomVanishingCondition f K := sorry
@@ -81,7 +91,9 @@ theorem localizationAwayT_isZero_iff
 vanishing of `T(K, f)`. -/
 @[stacks 091P "the derived localization vanishing criterion"]
 theorem localizationAwayDerivedHomVanishingCondition_iff
+    [BraidedCategory (DerivedCategory (ModuleCat A))]
     (H : MonoidalClosed (DerivedCategory (ModuleCat A)))
+    (T : DerivedTensor.Right.Monoidal.Model (C := ModuleCat A))
     (f : A) (K : DerivedCategory (ModuleCat A)) :
     _root_.DerivedCategory.localizationAwayDerivedHomVanishingCondition f K ↔
       IsZero (localizationAwayT H f K) := sorry
@@ -109,7 +121,9 @@ variable [MonoidalCategory (DerivedCategory (ModuleCat A))]
 degree-zero specialization of `T(K, f)`. -/
 @[stacks 091P "the module localization-away vanishing criterion"]
 theorem moduleLocalizationAwayTVanishing_iff
+    [BraidedCategory (DerivedCategory (ModuleCat A))]
     (H : MonoidalClosed (DerivedCategory (ModuleCat A)))
+    (T : CategoryTheory.DerivedCategory.DerivedTensor.Right.Monoidal.Model (C := ModuleCat A))
     (M : ModuleCat A) (f : A) :
     moduleLocalizationAwayTVanishing M f ↔
       IsZero (CategoryTheory.DerivedCategory.localizationAwayT H f

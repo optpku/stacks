@@ -7,6 +7,7 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import ReasLib.Algebra.Category.ModuleCat.Sheaf.FinitePresentation
+public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.InternalHom
 public import ReasLib.CategoryTheory.Sites.FilteredColimit.GlobalSections
 public import Mathlib.CategoryTheory.Monoidal.Closed.Basic
 public import Mathlib.CategoryTheory.Presentable.Finite
@@ -18,6 +19,9 @@ import Mathlib.Tactic.CrossRefAttribute
 This file separates the internal-Hom comparison from the global-Hom consequence.  The former is
 local to module sheaves; the latter additionally uses the quasi-compact test-set criterion for
 global sections.
+
+The comparison API is available for any supplied closed structure. The isomorphism theorem
+`ihom_isIso` uses the explicit local-Hom functor on a commutative ringed site.
 -/
 
 @[expose] public section
@@ -50,14 +54,19 @@ noncomputable abbrev ihomComparison
     colimit (G ⋙ ihom F) ⟶ (ihom F).obj (colimit G) :=
   colimit.post G (ihom F)
 
-/-- Lemma 18.27.11 (0GMZ): internal Hom from a finitely presented module sheaf commutes with a
-filtered colimit. -/
+/-- Lemma 18.27.11 (0GMZ): the usual sheaf of local module morphisms from a finitely presented
+module sheaf commutes with a filtered colimit. The functor is fixed explicitly, independently
+of any other monoidal or closed structure on the module-sheaf category. -/
 @[stacks 0GMZ, instance]
 theorem ihom_isIso
-    (F : SheafOfModules.{max u v} R) [F.IsFinitePresentation]
-    (G : Λ ⥤ SheafOfModules.{max u v} R)
-    [HasColimit G] [HasColimit (G ⋙ ihom F)] :
-    IsIso (ihomComparison F G) := sorry
+    [J.HasSheafCompose (forget₂ CommRingCat.{max u v} RingCat.{max u v})]
+    (O : Sheaf J CommRingCat.{max u v})
+    {Λ : Type w} [SmallCategory Λ] [IsFiltered Λ]
+    (F : RingedSite.ringedSiteModuleCategory.{u, v, max u v, max u v} J O)
+    [F.IsFinitePresentation]
+    (G : Λ ⥤ RingedSite.ringedSiteModuleCategory.{u, v, max u v, max u v} J O)
+    [HasColimit G] [HasColimit (G ⋙ RingedSite.InternalHom.functor O F)] :
+    IsIso (colimit.post G (RingedSite.InternalHom.functor O F)) := sorry
 
 /-- The internal-Hom comparison is characterized on each colimit coprojection. -/
 @[reassoc (attr := simp), stacks 0GMZ "internal-Hom comparison coprojection"]

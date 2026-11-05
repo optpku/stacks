@@ -103,22 +103,28 @@ structure DualityPresentation.Hom {k : Type u} [Field k]
     {K L : Dᵇ[SheafOfModules.isCoherent (Over.left U.obj).ringCatSheaf]}
     (f : K ⟶ L) (i : ℤ) (Pₖ : DualityPresentation D U K i)
     (Pₗ : DualityPresentation D U L i) where
-  /-- The map of compact-support systems induced contravariantly by `f`. -/
-  compactMap : Pₗ.compactSystem ⟶ Pₖ.compactSystem
-  /-- The map of finite-stage ordinary-cohomology systems induced by `f`. -/
-  ordinaryMap : Pₖ.ordinarySystem ⟶ Pₗ.ordinarySystem
-  /-- The ordinary comparison commutes with the map induced by `f`. -/
-  ordinary_naturality :
-    colimMap ordinaryMap ≫ Pₗ.ordinaryComparison.hom =
-      Pₖ.ordinaryComparison.hom ≫
+  /-- A morphism may move to later finite stages (e.g. multiplication by a coordinate). -/
+  reindex : ℕ+ →o ℕ+
+  /-- The reindexing is cofinal: every stage is bounded by its image. -/
+  le_reindex : ∀ n, n ≤ reindex n
+  /-- The compact map runs from the reindexed target tower to the source tower. -/
+  compactMap : reindex.dual.monotone.functor ⋙ Pₗ.compactSystem ⟶ Pₖ.compactSystem
+  /-- The ordinary map may increase the finite-stage index. -/
+  ordinaryMap : Pₖ.ordinarySystem ⟶ reindex.monotone.functor ⋙ Pₗ.ordinarySystem
+  /-- Each stage map induces the actual coefficient map on ordinary cohomology. -/
+  ordinary_naturality : ∀ n,
+    ordinaryMap.app n ≫ colimit.ι Pₗ.ordinarySystem (reindex n) ≫
+        Pₗ.ordinaryComparison.hom =
+      colimit.ι Pₖ.ordinarySystem n ≫ Pₖ.ordinaryComparison.hom ≫
         (Cohomology.overFieldFunctor (Over.hom U.obj) i).map f
-  /-- Stagewise proper duality commutes with the maps induced by `f`. -/
-  stage_naturality :
-    Pₗ.stageDuality.hom ≫ FiniteDual.diagramMap ordinaryMap =
-      Functor.whiskerRight compactMap
-          (Cohomology.overFieldFunctor
-            (Over.hom (base (Spec (CommRingCat.of k))).obj) (-i)) ≫
-        Pₖ.stageDuality.hom
+  /-- Proper duality commutes with the two maps at their respective indices. -/
+  stage_naturality : ∀ n : ℕ+,
+    Pₗ.stageDuality.hom.app (OrderDual.toDual (reindex n)) ≫
+        ModuleCat.ofHom (ordinaryMap.app n).hom.dualMap =
+      (Cohomology.overFieldFunctor
+          (Over.hom (base (Spec (CommRingCat.of k))).obj) (-i)).map
+          (compactMap.app (OrderDual.toDual n)) ≫
+        Pₖ.stageDuality.hom.app (OrderDual.toDual n)
 
 /-- Assemble a compact-support duality presentation from its presentation system,
 ordinary cohomology system, comparison isomorphisms, and finite-dimensionality proofs. -/
@@ -164,19 +170,24 @@ def DualityPresentation.Hom.ofMaps {k : Type u} [Field k]
     {K L : Dᵇ[SheafOfModules.isCoherent (Over.left U.obj).ringCatSheaf]}
     {f : K ⟶ L} {i : ℤ} {Pₖ : _root_.AlgebraicGeometry.Scheme.ModuleDerived.CompactSupport.DualityPresentation D U K i}
     {Pₗ : _root_.AlgebraicGeometry.Scheme.ModuleDerived.CompactSupport.DualityPresentation D U L i}
-    (compactMap : Pₗ.compactSystem ⟶ Pₖ.compactSystem)
-    (ordinaryMap : Pₖ.ordinarySystem ⟶ Pₗ.ordinarySystem)
-    (ordinary_naturality :
-      colimMap ordinaryMap ≫ Pₗ.ordinaryComparison.hom =
-        Pₖ.ordinaryComparison.hom ≫
+    (reindex : ℕ+ →o ℕ+) (le_reindex : ∀ n, n ≤ reindex n)
+    (compactMap : reindex.dual.monotone.functor ⋙ Pₗ.compactSystem ⟶ Pₖ.compactSystem)
+    (ordinaryMap : Pₖ.ordinarySystem ⟶ reindex.monotone.functor ⋙ Pₗ.ordinarySystem)
+    (ordinary_naturality : ∀ n,
+      ordinaryMap.app n ≫ colimit.ι Pₗ.ordinarySystem (reindex n) ≫
+          Pₗ.ordinaryComparison.hom =
+        colimit.ι Pₖ.ordinarySystem n ≫ Pₖ.ordinaryComparison.hom ≫
           (Cohomology.overFieldFunctor (Over.hom U.obj) i).map f)
-    (stage_naturality :
-      Pₗ.stageDuality.hom ≫ FiniteDual.diagramMap ordinaryMap =
-        Functor.whiskerRight compactMap
-            (Cohomology.overFieldFunctor
-              (Over.hom (base (Spec (CommRingCat.of k))).obj) (-i)) ≫
-          Pₖ.stageDuality.hom) :
+    (stage_naturality : ∀ n : ℕ+,
+      Pₗ.stageDuality.hom.app (OrderDual.toDual (reindex n)) ≫
+          ModuleCat.ofHom (ordinaryMap.app n).hom.dualMap =
+        (Cohomology.overFieldFunctor
+            (Over.hom (base (Spec (CommRingCat.of k))).obj) (-i)).map
+            (compactMap.app (OrderDual.toDual n)) ≫
+          Pₖ.stageDuality.hom.app (OrderDual.toDual n)) :
     _root_.AlgebraicGeometry.Scheme.ModuleDerived.CompactSupport.DualityPresentation.Hom f i Pₖ Pₗ where
+  reindex := reindex
+  le_reindex := le_reindex
   compactMap := compactMap
   ordinaryMap := ordinaryMap
   ordinary_naturality := ordinary_naturality
@@ -194,6 +205,8 @@ def DualityPresentation.Hom.id {k : Type u} [Field k]
     {K : Dᵇ[SheafOfModules.isCoherent (Over.left U.obj).ringCatSheaf]}
     {i : ℤ} {P : _root_.AlgebraicGeometry.Scheme.ModuleDerived.CompactSupport.DualityPresentation D U K i} :
     _root_.AlgebraicGeometry.Scheme.ModuleDerived.CompactSupport.DualityPresentation.Hom (𝟙 K) i P P where
+  reindex := OrderHom.id
+  le_reindex := fun _ => le_rfl
   compactMap := 𝟙 _
   ordinaryMap := 𝟙 _
   ordinary_naturality := sorry
@@ -216,10 +229,75 @@ def DualityPresentation.Hom.comp {k : Type u} [Field k]
     (α : _root_.AlgebraicGeometry.Scheme.ModuleDerived.CompactSupport.DualityPresentation.Hom f i Pₖ Pₗ)
     (β : _root_.AlgebraicGeometry.Scheme.ModuleDerived.CompactSupport.DualityPresentation.Hom g i Pₗ Pₘ) :
     _root_.AlgebraicGeometry.Scheme.ModuleDerived.CompactSupport.DualityPresentation.Hom (f ≫ g) i Pₖ Pₘ where
-  compactMap := β.compactMap ≫ α.compactMap
-  ordinaryMap := α.ordinaryMap ≫ β.ordinaryMap
+  reindex := β.reindex.comp α.reindex
+  le_reindex := fun n => (α.le_reindex n).trans (β.le_reindex (α.reindex n))
+  compactMap := Functor.whiskerLeft α.reindex.dual.monotone.functor β.compactMap ≫
+    α.compactMap
+  ordinaryMap := α.ordinaryMap ≫
+    Functor.whiskerLeft α.reindex.monotone.functor β.ordinaryMap
   ordinary_naturality := sorry
   stage_naturality := sorry
+
+/-- Realize a reindexed presentation morphism on compact cohomology by restricting
+limit coordinates along its index map and then applying its compact-system map. -/
+noncomputable def DualityPresentation.Hom.cohomologyMap {k : Type u} [Field k]
+    [MonoidalCategory (RingedSpace.ModuleDerived (Spec (CommRingCat.of k)).toRingedSpace)]
+    {H : MonoidalClosed
+      (RingedSpace.ModuleDerived (Spec (CommRingCat.of k)).toRingedSpace)}
+    {ωk : RingedSpace.ModuleDerived (Spec (CommRingCat.of k)).toRingedSpace}
+    {hωk : ωk.IsDualizingComplex H}
+    {D : NewUpperShriekAssignment (Spec (CommRingCat.of k)) H ωk hωk}
+    {U : FiniteTypeSeparatedOver (Spec (CommRingCat.of k))}
+    {K L : Dᵇ[SheafOfModules.isCoherent (Over.left U.obj).ringCatSheaf]}
+    {f : K ⟶ L} {i : ℤ} {Pₖ : _root_.AlgebraicGeometry.Scheme.ModuleDerived.CompactSupport.DualityPresentation D U K i}
+    {Pₗ : _root_.AlgebraicGeometry.Scheme.ModuleDerived.CompactSupport.DualityPresentation D U L i}
+    (α : _root_.AlgebraicGeometry.Scheme.ModuleDerived.CompactSupport.DualityPresentation.Hom f i Pₖ Pₗ) :
+    cohomology (Over.hom (base (Spec (CommRingCat.of k))).obj) Pₗ.compactSystem (-i) →ₗ[k]
+      cohomology (Over.hom (base (Spec (CommRingCat.of k))).obj) Pₖ.compactSystem (-i) :=
+  (limit.pre (cohomologyDiagram
+      (Over.hom (base (Spec (CommRingCat.of k))).obj) Pₗ.compactSystem (-i))
+      α.reindex.dual.monotone.functor ≫
+    limMap (Functor.whiskerRight α.compactMap
+      (Cohomology.overFieldFunctor
+        (Over.hom (base (Spec (CommRingCat.of k))).obj) (-i)))).hom
+
+/-- Descend a reindexed ordinary-system map to its colimit. -/
+noncomputable def DualityPresentation.Hom.ordinaryCohomologyMap {k : Type u} [Field k]
+    [MonoidalCategory (RingedSpace.ModuleDerived (Spec (CommRingCat.of k)).toRingedSpace)]
+    {H : MonoidalClosed
+      (RingedSpace.ModuleDerived (Spec (CommRingCat.of k)).toRingedSpace)}
+    {ωk : RingedSpace.ModuleDerived (Spec (CommRingCat.of k)).toRingedSpace}
+    {hωk : ωk.IsDualizingComplex H}
+    {D : NewUpperShriekAssignment (Spec (CommRingCat.of k)) H ωk hωk}
+    {U : FiniteTypeSeparatedOver (Spec (CommRingCat.of k))}
+    {K L : Dᵇ[SheafOfModules.isCoherent (Over.left U.obj).ringCatSheaf]}
+    {f : K ⟶ L} {i : ℤ} {Pₖ : _root_.AlgebraicGeometry.Scheme.ModuleDerived.CompactSupport.DualityPresentation D U K i}
+    {Pₗ : _root_.AlgebraicGeometry.Scheme.ModuleDerived.CompactSupport.DualityPresentation D U L i}
+    (α : _root_.AlgebraicGeometry.Scheme.ModuleDerived.CompactSupport.DualityPresentation.Hom f i Pₖ Pₗ) :
+    colimit Pₖ.ordinarySystem ⟶ colimit Pₗ.ordinarySystem :=
+  colimMap α.ordinaryMap ≫ colimit.pre Pₗ.ordinarySystem α.reindex.monotone.functor
+
+/-- The map on ordinary colimits is the actual coefficient map under the presentation
+comparisons. -/
+theorem DualityPresentation.Hom.ordinaryCohomologyMap_naturality {k : Type u} [Field k]
+    [MonoidalCategory (RingedSpace.ModuleDerived (Spec (CommRingCat.of k)).toRingedSpace)]
+    {H : MonoidalClosed
+      (RingedSpace.ModuleDerived (Spec (CommRingCat.of k)).toRingedSpace)}
+    {ωk : RingedSpace.ModuleDerived (Spec (CommRingCat.of k)).toRingedSpace}
+    {hωk : ωk.IsDualizingComplex H}
+    {D : NewUpperShriekAssignment (Spec (CommRingCat.of k)) H ωk hωk}
+    {U : FiniteTypeSeparatedOver (Spec (CommRingCat.of k))}
+    {K L : Dᵇ[SheafOfModules.isCoherent (Over.left U.obj).ringCatSheaf]}
+    {f : K ⟶ L} {i : ℤ} {Pₖ : _root_.AlgebraicGeometry.Scheme.ModuleDerived.CompactSupport.DualityPresentation D U K i}
+    {Pₗ : _root_.AlgebraicGeometry.Scheme.ModuleDerived.CompactSupport.DualityPresentation D U L i}
+    (α : _root_.AlgebraicGeometry.Scheme.ModuleDerived.CompactSupport.DualityPresentation.Hom f i Pₖ Pₗ) :
+    α.ordinaryCohomologyMap ≫ Pₗ.ordinaryComparison.hom =
+      Pₖ.ordinaryComparison.hom ≫
+        (Cohomology.overFieldFunctor (Over.hom U.obj) i).map f := by
+  apply colimit.hom_ext
+  intro n
+  simpa [DualityPresentation.Hom.ordinaryCohomologyMap, Category.assoc]
+    using α.ordinary_naturality n
 
 /-- A coherent compact-support duality construction for the normalized upper-shriek
 assignment `D`. It supplies one presentation for every bounded coherent object and the
@@ -338,8 +416,7 @@ noncomputable def dualityCohomologyMap {k : Type u} [Field k]
     {K L : Dᵇ[SheafOfModules.isCoherent (Over.left U.obj).ringCatSheaf]}
     (f : K ⟶ L) (i : ℤ) :
     dualityCohomology A U L i →ₗ[k] dualityCohomology A U K i :=
-  cohomologyMap (Over.hom (base (Spec (CommRingCat.of k))).obj)
-    (A.presentationMap U f i).compactMap (-i)
+  (A.presentationMap U f i).cohomologyMap
 
 /-- Compactly supported cohomology maps preserve identity morphisms. -/
 theorem dualityCohomologyMap_id {k : Type u} [Field k]
@@ -406,6 +483,122 @@ theorem dualityComparisonWith_def {k : Type u} [Field k]
       ((P.ordinaryComparison.inv).hom.dualMap).comp
         ((FiniteDual.limitToDualColimit P.ordinarySystem).comp
           (limMap P.stageDuality.hom).hom) := sorry
+
+section ReindexedNaturality
+
+variable {k : Type u} [Field k]
+    [MonoidalCategory (RingedSpace.ModuleDerived (Spec (CommRingCat.of k)).toRingedSpace)]
+    {H : MonoidalClosed
+      (RingedSpace.ModuleDerived (Spec (CommRingCat.of k)).toRingedSpace)}
+    {ωk : RingedSpace.ModuleDerived (Spec (CommRingCat.of k)).toRingedSpace}
+    {hωk : ωk.IsDualizingComplex H}
+    {D : NewUpperShriekAssignment (Spec (CommRingCat.of k)) H ωk hωk}
+    {U : FiniteTypeSeparatedOver (Spec (CommRingCat.of k))}
+    {K L : Dᵇ[SheafOfModules.isCoherent (Over.left U.obj).ringCatSheaf]}
+    {f : K ⟶ L} {i : ℤ} {Pₖ : _root_.AlgebraicGeometry.Scheme.ModuleDerived.CompactSupport.DualityPresentation D U K i}
+    {Pₗ : _root_.AlgebraicGeometry.Scheme.ModuleDerived.CompactSupport.DualityPresentation D U L i}
+
+/-- Evaluation of the duality comparison on an ordinary stage is the proper-duality
+pairing at that stage. -/
+theorem dualityComparisonWith_stage
+    {K : Dᵇ[SheafOfModules.isCoherent (Over.left U.obj).ringCatSheaf]}
+    (P : DualityPresentation D U K i)
+    (x : cohomology (Over.hom (base (Spec (CommRingCat.of k))).obj)
+      P.compactSystem (-i)) (n : ℕ+) (v : P.ordinarySystem.obj n) :
+    dualityComparisonWith D U K i P x
+        ((colimit.ι P.ordinarySystem n ≫ P.ordinaryComparison.hom).hom v) =
+      (show Module.Dual k (P.ordinarySystem.obj n) from
+        (P.stageDuality.hom.app (OrderDual.toDual n)).hom
+          ((limit.π (cohomologyDiagram
+            (Over.hom (base (Spec (CommRingCat.of k))).obj)
+            P.compactSystem (-i)) (OrderDual.toDual n)).hom x)) v := by
+  let C := cohomologyDiagram (Over.hom (base (Spec (CommRingCat.of k))).obj)
+    P.compactSystem (-i)
+  have hi : P.ordinaryComparison.inv.hom
+      (P.ordinaryComparison.hom.hom ((colimit.ι P.ordinarySystem n).hom v)) =
+        (colimit.ι P.ordinarySystem n).hom v := by
+    change ((P.ordinaryComparison.hom ≫ P.ordinaryComparison.inv).hom)
+      ((colimit.ι P.ordinarySystem n).hom v) = _
+    rw [P.ordinaryComparison.hom_inv_id]
+    rfl
+  change FiniteDual.limitToDualColimit P.ordinarySystem
+      ((limMap P.stageDuality.hom).hom x)
+      (P.ordinaryComparison.inv.hom
+        (P.ordinaryComparison.hom.hom ((colimit.ι P.ordinarySystem n).hom v))) = _
+  rw [hi]
+  have he := congrArg (fun m => m ((limMap P.stageDuality.hom).hom x) v)
+    (FiniteDual.limitToDualColimit_comp_ι P.ordinarySystem n)
+  have hp := congrArg
+    (fun m : limit C ⟶ (FiniteDual.diagram P.ordinarySystem).obj (OrderDual.toDual n) =>
+      (show Module.Dual k (P.ordinarySystem.obj n) from m.hom x) v)
+    (limMap_π P.stageDuality.hom (OrderDual.toDual n))
+  exact he.trans hp
+
+set_option backward.isDefEq.respectTransparency false in
+/-- Reindexed morphisms of presentations induce the dual of the actual coefficient map
+on the final ordinary/compact cohomology pairings. -/
+theorem DualityPresentation.Hom.duality_naturality
+    (α : _root_.AlgebraicGeometry.Scheme.ModuleDerived.CompactSupport.DualityPresentation.Hom f i Pₖ Pₗ) :
+    ((Cohomology.overFieldFunctor (Over.hom U.obj) i).map f).hom.dualMap.comp
+        (dualityComparisonWith D U L i Pₗ) =
+      (dualityComparisonWith D U K i Pₖ).comp α.cohomologyMap := by
+  ext x y
+  let a := ((Cohomology.overFieldFunctor (Over.hom U.obj) i).map f).hom.dualMap
+    (dualityComparisonWith D U L i Pₗ x)
+  let b := dualityComparisonWith D U K i Pₖ (α.cohomologyMap x)
+  have hab : ModuleCat.ofHom (a.comp Pₖ.ordinaryComparison.hom.hom) =
+      ModuleCat.ofHom (b.comp Pₖ.ordinaryComparison.hom.hom) := by
+    apply colimit.hom_ext
+    intro n
+    apply ModuleCat.hom_ext
+    ext v
+    have ho := congrArg (fun m => m.hom v) (α.ordinary_naturality n)
+    simp only [ModuleCat.hom_comp, LinearMap.comp_apply] at ho
+    change dualityComparisonWith D U L i Pₗ x
+        (((Cohomology.overFieldFunctor (Over.hom U.obj) i).map f).hom
+          (Pₖ.ordinaryComparison.hom.hom ((colimit.ι Pₖ.ordinarySystem n).hom v))) =
+      dualityComparisonWith D U K i Pₖ (α.cohomologyMap x)
+        ((colimit.ι Pₖ.ordinarySystem n ≫ Pₖ.ordinaryComparison.hom).hom v)
+    rw [← ho]
+    change dualityComparisonWith D U L i Pₗ x
+        ((colimit.ι Pₗ.ordinarySystem (α.reindex n) ≫ Pₗ.ordinaryComparison.hom).hom
+          ((α.ordinaryMap.app n).hom v)) = _
+    rw [dualityComparisonWith_stage, dualityComparisonWith_stage]
+    have hc :
+        (limit.π (cohomologyDiagram
+          (Over.hom (base (Spec (CommRingCat.of k))).obj) Pₖ.compactSystem (-i))
+          (OrderDual.toDual n)).hom (α.cohomologyMap x) =
+        ((Cohomology.overFieldFunctor
+          (Over.hom (base (Spec (CommRingCat.of k))).obj) (-i)).map
+          (α.compactMap.app (OrderDual.toDual n))).hom
+          ((limit.π (cohomologyDiagram
+            (Over.hom (base (Spec (CommRingCat.of k))).obj) Pₗ.compactSystem (-i))
+            (OrderDual.toDual (α.reindex n))).hom x) := by
+      change ((limit.pre (cohomologyDiagram
+          (Over.hom (base (Spec (CommRingCat.of k))).obj) Pₗ.compactSystem (-i))
+          α.reindex.dual.monotone.functor ≫
+        limMap (Functor.whiskerRight α.compactMap
+          (Cohomology.overFieldFunctor
+            (Over.hom (base (Spec (CommRingCat.of k))).obj) (-i))) ≫
+        limit.π (cohomologyDiagram
+          (Over.hom (base (Spec (CommRingCat.of k))).obj) Pₖ.compactSystem (-i))
+          (OrderDual.toDual n)).hom) x = _
+      simp only [cohomologyDiagram, Category.assoc, limMap_π, limit.pre_π_assoc]
+      rfl
+    rw [hc]
+    exact congrArg (fun m =>
+      (show Module.Dual k (Pₖ.ordinarySystem.obj n) from m.hom
+        ((limit.π (cohomologyDiagram
+          (Over.hom (base (Spec (CommRingCat.of k))).obj) Pₗ.compactSystem (-i))
+          (OrderDual.toDual (α.reindex n))).hom x)) v) (α.stage_naturality n)
+  have hy : Pₖ.ordinaryComparison.hom.hom (Pₖ.ordinaryComparison.inv.hom y) = y := by
+    change ((Pₖ.ordinaryComparison.inv ≫ Pₖ.ordinaryComparison.hom).hom) y = y
+    rw [Pₖ.ordinaryComparison.inv_hom_id]
+    rfl
+  have h := congrArg (fun m => m.hom (Pₖ.ordinaryComparison.inv.hom y)) hab
+  simpa only [ModuleCat.hom_ofHom, LinearMap.comp_apply, hy] using h
+
+end ReindexedNaturality
 
 /-- The compact-support duality comparison attached to a coherent functorial
 presentation assignment. -/
@@ -509,8 +702,7 @@ noncomputable def assignmentComparison {k : Type u} [Field k]
     (U : FiniteTypeSeparatedOver (Spec (CommRingCat.of k)))
     (K : Dᵇ[SheafOfModules.isCoherent (Over.left U.obj).ringCatSheaf]) (i : ℤ) :
     dualityCohomology A U K i →ₗ[k] dualityCohomology B U K i :=
-  cohomologyMap (Over.hom (base (Spec (CommRingCat.of k))).obj)
-    (C.app U K i).compactMap (-i)
+  (C.app U K i).cohomologyMap
 
 /-- The carrier comparison induced by a comparison of duality assignments is bijective. -/
 theorem assignmentComparison_bijective {k : Type u} [Field k]
@@ -617,6 +809,7 @@ theorem dualityComparison_naturality {k : Type u} [Field k]
     (i : ℤ) :
     ((Cohomology.overFieldFunctor (Over.hom U.obj) i).map f).hom.dualMap.comp
         (dualityComparison A U L i) =
-      (dualityComparison A U K i).comp (dualityCohomologyMap A U f i) := sorry
+      (dualityComparison A U K i).comp (dualityCohomologyMap A U f i) := by
+  exact (A.presentationMap U f i).duality_naturality
 
 end AlgebraicGeometry.Scheme.ModuleDerived.CompactSupport

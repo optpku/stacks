@@ -46,7 +46,8 @@ noncomputable def comparison (f : X ⟶ Y) (V : Opens Y.carrier) :
 /-- The sections/direct-image natural transformation is invertible. -/
 @[stacks 0D6H "sections and direct image"]
 noncomputable instance comparison_isIso (f : X ⟶ Y) (V : Opens Y.carrier) :
-    IsIso (comparison f V) := sorry
+    IsIso (comparison f V) :=
+  RingedSite.Hom.ModuleSections.objectPushforwardNat_isIso (opensRingedSiteHom f) V
 
 /-- Sections over `f ⁻¹ᵁ V`, restricted to `Γ(V, 𝒪_Y)`, agree with sections over `V` after
 direct image. -/
@@ -63,7 +64,7 @@ noncomputable def comparisonIso (f : X ⟶ Y) (V : Opens Y.carrier) :
     moduleSectionsEvaluationFunctor X (preimageOpen f V) ⋙
         moduleSectionsRestrictionFunctor f V ≅
       RingedSpace.Hom.pushforward f ⋙ moduleSectionsEvaluationFunctor Y V :=
-  asIso (comparison f V)
+  RingedSite.Hom.ModuleSections.objectPushforwardIso (opensRingedSiteHom f) V
 
 /-- The objectwise sections/direct-image isomorphism over an open subset. -/
 @[stacks 0D6H "objectwise sections and direct image"]

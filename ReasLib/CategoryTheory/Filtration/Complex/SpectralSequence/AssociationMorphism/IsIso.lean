@@ -44,8 +44,4 @@ noncomputable instance hom_isIso (φ : Association.Hom A B α) [IsIso α] : IsIs
 noncomputable instance hom_f_isIso (φ : Association.Hom A B α) (r : ℤ) (hr : 0 ≤ r)
     (p q : ℤ) [IsIso α] : IsIso ((φ.hom.hom r hr).f (p, q)) := sorry
 
-variable (φ : Association.Hom A B α) [IsIso α]
-#synth IsIso φ.hom
-#synth IsIso ((φ.hom.hom 1).f (0, 0))
-
 end CategoryTheory.FilteredComplex.Association.Hom

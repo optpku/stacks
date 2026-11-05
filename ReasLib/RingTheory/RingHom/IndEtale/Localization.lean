@@ -18,7 +18,7 @@ This leaf provides ind-etale constructors for arbitrary localizations and
 their common away-localization specialization, without exposing a chosen
 filtered presentation.
 
-@stack 04GV
+@stack 00CR
 -/
 
 universe u v w
@@ -37,10 +37,11 @@ namespace RingHom.IndEtale.Raw
 
 variable {R : Type u} {A : Type v} [CommRing R] [CommRing A] [Algebra R A]
 
-/-- A localization at an arbitrary submonoid has an ind-etale presentation at any
-presentation universe. -/
+/-- A localization at an arbitrary submonoid has an ind-etale presentation in
+any universe at least as large as the source ring's universe. The filtered
+system is indexed by the submonoid, ordered by divisibility. -/
 theorem of_isLocalization (M : Submonoid R) [IsLocalization M A] :
-    RingHom.IndEtale.Raw.{u, v, w} (algebraMap R A) := sorry
+    RingHom.IndEtale.Raw.{u, v, max u w} (algebraMap R A) := sorry
 
 end RingHom.IndEtale.Raw
 

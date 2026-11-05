@@ -39,9 +39,13 @@ variable {B C : Type u} [CommRing B] [CommRing C]
 variable [Algebra A B] [Algebra A C]
 
 /-- Stacks tag `07RI`: étaleness of the base change of a finitely presented
-algebra map to a filtered colimit is witnessed at one diagram object. -/
+algebra map to a filtered colimit is witnessed at one diagram object.
+The forgetful functor must preserve this colimit, so that it is also the
+filtered colimit of the underlying types. This holds, in particular, when
+`UnivLE.{v, u}`. -/
 @[stacks 07RI "etale filtered-colimit descent"]
 theorem exists_stage
+    [PreservesColimit F (forget (CommAlgCat.{u} A))]
     (φ : B →ₐ[A] C) (hfinitePresentation : φ.FinitePresentation)
     (hetale : (Algebra.TensorProduct.map φ (AlgHom.id A (colimit F : CommAlgCat.{u} A))).Etale) :
     ∃ j : J, (Algebra.TensorProduct.map φ (AlgHom.id A (F.obj j))).Etale := sorry

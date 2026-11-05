@@ -14,8 +14,8 @@ import StacksCheckRecall
 /- Proposition 23.9.2 (09QB): for a local homomorphism of Noetherian local
 rings, the target is a complete intersection with eventually vanishing Tor
 against the source residue field if and only if the source is a complete
-intersection and the induced map on completions is a local complete
-intersection. -/
+intersection and the induced map on completions is a complete-intersection
+homomorphism in the good-factorization sense of Tag 09QA. -/
 universe u v
 
 section
@@ -29,7 +29,7 @@ variable (f : A →+* B) [IsLocalHom f]
 #check (RingHom.CompleteIntersection.target_and_tor_iff_source_and_completion f :
   (IsCompleteIntersectionLocalRing B ∧ f.torEventuallyIsZeroAtResidueField) ↔
     (IsCompleteIntersectionLocalRing A ∧
-      (AdicCompletion.mapLocal f).IsLocalCompleteIntersection))
+      (AdicCompletion.mapLocal f).IsCompleteIntersection))
 
 end
 

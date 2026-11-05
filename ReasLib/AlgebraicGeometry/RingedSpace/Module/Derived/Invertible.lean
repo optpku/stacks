@@ -8,7 +8,7 @@ module
 
 public import ReasLib.AlgebraicGeometry.RingedSite.Module.Derived.Invertible
 public import ReasLib.AlgebraicGeometry.RingedSpace.LocallyRinged
-public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Derived.Basic
+public import ReasLib.AlgebraicGeometry.RingedSpace.Module.Derived.Tensor
 public import ReasLib.AlgebraicGeometry.RingedSpace.Module.OpensRingedSite.Basic
 import Mathlib.Tactic.CrossRefAttribute
 
@@ -35,14 +35,16 @@ universe u
 namespace AlgebraicGeometry.RingedSpace
 
 variable {X : RingedSpace.{u}}
-variable [∀ U : Opens X,
-  MonoidalCategory (ModuleCat ((opensRingedSite X).localization U))]
 
 namespace ModuleDerived
 
-/-- Locally shifted invertible objects of `D(𝒪_X)`, as an object property. -/
+/-- Locally shifted invertible objects of `D(𝒪_X)` for the canonical ordinary module-sheaf
+tensor on the localized opens sites, as an object property. -/
 @[stacks 0FPG "local shifted-invertibility on a ringed space"]
 abbrev locallyShiftedInvertible : ObjectProperty (ModuleDerived X) :=
+  letI : ∀ U : Opens X,
+      MonoidalCategory (ModuleCat ((opensRingedSite X).localization U)) :=
+    fun U ↦ SheafOfModules.RingedSite.ModuleOver.monoidalCategory X.sheaf U
   RingedSite.Hom.ModuleDerived.locallyShiftedInvertible (X := opensRingedSite X)
 
 /-- An object of `D(𝒪_X)` is locally shifted invertible when it belongs to
@@ -67,21 +69,25 @@ end LocallyShiftedInvertible
 
 end ModuleDerived
 
-variable [MonoidalCategory (ModuleDerived X)]
-
-/-- Ambient-instance form of Lemma 20.52.2: on a ringed space with local stalk rings,
-invertibility is equivalent to local shifted invertibility. -/
-@[stacks 0FPG "ambient-instance local criterion for derived invertibility"]
+/-- Lemma 20.52.2 with local stalk-ring instances: invertibility for the canonical K-flat
+derived tensor is equivalent to local shifted invertibility for the ordinary module tensor. -/
+@[stacks 0FPG "local criterion for canonical derived invertibility"]
 theorem isInvertible_iff_isLocallyShiftedInvertible
+    [ModuleDerived.KFlat.HomotopyTensorDescends X] [ModuleDerived.KFlat.TensorDescends X]
+    [ModuleDerived.KFlat.IsLocalization X]
     [∀ x : X, IsLocalRing (X.presheaf.stalk x)] (M : ModuleDerived X) :
+    letI := ModuleDerived.monoidalCategory X
     Functor.IsEquivalence (tensorRight M) ↔ M.IsLocallyShiftedInvertible := sorry
 
 /-- Lemma 20.52.2: if all stalk rings of `X` are local, an object of `D(𝒪_X)` is
 invertible exactly when it is locally a shift of an invertible module. -/
 @[stacks 0FPG]
 theorem isInvertible_iff_isLocallyShiftedInvertible_of_stalk_isLocalRing
+    [ModuleDerived.KFlat.HomotopyTensorDescends X] [ModuleDerived.KFlat.TensorDescends X]
+    [ModuleDerived.KFlat.IsLocalization X]
     (M : ModuleDerived X)
     (h_local : ∀ x : X, IsLocalRing (X.presheaf.stalk x)) :
+    letI := ModuleDerived.monoidalCategory X
     Functor.IsEquivalence (tensorRight M) ↔ M.IsLocallyShiftedInvertible := sorry
 
 end AlgebraicGeometry.RingedSpace

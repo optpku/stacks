@@ -41,7 +41,54 @@ instance instIsLeftAdjoint_pullbackSheafFunctor {Y W : AlgebraicSpace S} (f : Y 
     (pullbackSheafFunctor f).IsLeftAdjoint :=
   (ConormalAlgebra.commRingInverseImageAdjunction f).isLeftAdjoint
 
-/-- Forward sheaf of successive algebra pullbacks, compared with pullback along the composite. -/
+/-- Descent from an inverse-image pushout, using the given adjunction on both legs. -/
+def inverseImagePushoutDesc {Y W : AlgebraicSpace S} (f : Y ⟶ W)
+    {R A B : Sheaf (smallEtaleTopology W) CommRingCat.{u}}
+    {Q : Sheaf (smallEtaleTopology Y) CommRingCat.{u}}
+    (a : R ⟶ A) (b : R ⟶ B)
+    (h : (pullbackSheafFunctor f).obj A ⟶ Q)
+    (k : (pullbackSheafFunctor f).obj B ⟶ Q)
+    (w : (pullbackSheafFunctor f).map a ≫ h = (pullbackSheafFunctor f).map b ≫ k) :
+    (pullbackSheafFunctor f).obj (pushout a b) ⟶ Q :=
+  let adj := ConormalAlgebra.commRingInverseImageAdjunction f
+  (adj.homEquiv _ _).symm
+    (pushout.desc ((adj.homEquiv _ _) h) ((adj.homEquiv _ _) k) (by
+      rw [← adj.homEquiv_naturality_left, ← adj.homEquiv_naturality_left]
+      exact congrArg (adj.homEquiv R Q) w))
+
+/-- Descent through the given adjunction has the prescribed right leg. -/
+theorem inverseImagePushoutDesc_inr {Y W : AlgebraicSpace S} (f : Y ⟶ W)
+    {R A B : Sheaf (smallEtaleTopology W) CommRingCat.{u}}
+    {Q : Sheaf (smallEtaleTopology Y) CommRingCat.{u}}
+    (a : R ⟶ A) (b : R ⟶ B)
+    (h : (pullbackSheafFunctor f).obj A ⟶ Q)
+    (k : (pullbackSheafFunctor f).obj B ⟶ Q)
+    (w : (pullbackSheafFunctor f).map a ≫ h = (pullbackSheafFunctor f).map b ≫ k) :
+    (pullbackSheafFunctor f).map (pushout.inr a b) ≫
+        inverseImagePushoutDesc f a b h k w = k := by
+  change (commRingInverseImage f).map (pushout.inr a b) ≫ _ = _
+  apply ((ConormalAlgebra.commRingInverseImageAdjunction f).homEquiv _ _).injective
+  rw [Adjunction.homEquiv_naturality_left]
+  simp only [inverseImagePushoutDesc,
+    Equiv.apply_symm_apply, pushout.inr_desc]
+
+/-- The two scalar-extension legs agree before descent through the inner pushout. -/
+theorem pullbackCompSheafCocone_w {Y W T : AlgebraicSpace S} (f : Y ⟶ W) (g : W ⟶ T)
+    (A : T.QcAlgebraUnder) :
+    let F := pullbackSheafFunctor f
+    let Gfun := pullbackSheafFunctor g
+    let Fg := pullbackSheafFunctor (f ≫ g)
+    let composite := (pullbackUnder (f ≫ g)).obj A.obj
+    F.map (Gfun.map A.obj.hom) ≫
+        ((ConormalAlgebra.commRingInverseImageCompIso f g).hom.app A.obj.right ≫
+          pushout.inl (Fg.map A.obj.hom)
+            (AlgebraicSpace.commInverseImageStructureSheafMap (f ≫ g))) =
+      F.map (AlgebraicSpace.commInverseImageStructureSheafMap g) ≫
+        (AlgebraicSpace.commInverseImageStructureSheafMap f ≫ composite.hom) :=
+  sorry
+
+/-- Forward sheaf of successive algebra pullbacks, using the given inverse-image
+adjunction and pushout descent rather than selecting an inverse comparison. -/
 def pullbackCompSheafHom {Y W T : AlgebraicSpace S} (f : Y ⟶ W) (g : W ⟶ T)
     (A : T.QcAlgebraUnder) :
     ((pullback f).obj ((pullback g).obj A)).obj.right ⟶
@@ -53,16 +100,15 @@ def pullbackCompSheafHom {Y W T : AlgebraicSpace S} (f : Y ⟶ W) (g : W ⟶ T)
     let inner := (pullbackUnder g).obj A.obj
     let composite := (pullbackUnder (f ≫ g)).obj A.obj
     pushout.desc
-      ((asIso (pushoutComparison F (Gfun.map A.obj.hom)
-            (AlgebraicSpace.commInverseImageStructureSheafMap g))).inv ≫
-        pushout.desc
+      (inverseImagePushoutDesc f (Gfun.map A.obj.hom)
+          (AlgebraicSpace.commInverseImageStructureSheafMap g)
           ((ConormalAlgebra.commRingInverseImageCompIso f g).hom.app A.obj.right ≫
             pushout.inl (Fg.map A.obj.hom) (AlgebraicSpace.commInverseImageStructureSheafMap (f ≫ g)))
           (AlgebraicSpace.commInverseImageStructureSheafMap f ≫ composite.hom)
-          ?_)
+          (pullbackCompSheafCocone_w f g A))
       composite.hom
       ?_
-  all_goals sorry
+  exact inverseImagePushoutDesc_inr f _ _ _ _ _
 
 /-- Reverse sheaf of pullback along a composite, compared with successive algebra pullbacks. -/
 def pullbackCompSheafInv {Y W T : AlgebraicSpace S} (f : Y ⟶ W) (g : W ⟶ T)
@@ -89,7 +135,9 @@ theorem pullbackCompSheafHom_w {Y W T : AlgebraicSpace S} (f : Y ⟶ W) (g : W �
     ((pullback f).obj ((pullback g).obj A)).obj.hom ≫
         pullbackCompSheafHom f g A =
       ((pullback (f ≫ g)).obj A).obj.hom :=
-  sorry
+  by
+    change pushout.inr _ _ ≫ pushout.desc _ _ _ = _
+    exact pushout.inr_desc _ _ _
 
 /-- The reverse sheaf comparison of successive algebra pullbacks commutes with structure maps. -/
 theorem pullbackCompSheafInv_w {Y W T : AlgebraicSpace S} (f : Y ⟶ W) (g : W ⟶ T)

@@ -38,8 +38,17 @@ namespace AlgebraicGeometry.Scheme.Etale.SmallToBig
 /-- The identity on `Over S` is continuous from the big étale topology to the big fppf topology. -/
 instance etaleToFppf_id_isContinuous (S : Scheme.{u}) :
     Functor.IsContinuous (𝟭 (Over S))
-      (S.overGrothendieckTopology @Etale) (Scheme.fppfTopology.over S) :=
-  (StandardTopology.toFppf_isMorphismOfSites .etale S).toIsContinuous
+      (S.overGrothendieckTopology @Etale) (Scheme.fppfTopology.over S) := by
+  have h : Scheme.etalePrecoverage.{u} ≤ Scheme.fppfPrecoverage.{u} :=
+    Scheme.precoverage_mono fun _ _ _ hf =>
+      ⟨(Etale.iff_flat_and_formallyUnramified.mp hf).1,
+        (Etale.iff_flat_and_formallyUnramified.mp hf).2.2⟩
+  have htop : S.overGrothendieckTopology @Etale ≤ Scheme.fppfTopology.over S := by
+    intro U R hR
+    exact (Precoverage.toGrothendieck_mono h) _ hR
+  constructor
+  intro G
+  exact (isSheaf_iff_isSheaf_of_type _ _).1 (G.property.of_le htop)
 
 /-- Relocalization from the small étale site of `S` is continuous for the big fppf topology,
 as the composite of étale relocalization with the identity site functor to fppf. -/
@@ -65,12 +74,15 @@ small-to-big étale morphism `π_S = siteMorphismOfTopoi S` with the fppf-to-ét
 `ε_S = StandardTopology.toFppf .etale S`. -/
 abbrev fppfComparison (S : Scheme.{u}) :
     MorphismOfTopoiIn S.smallEtaleTopology (Scheme.fppfTopology.over S) :=
-  MorphismOfTopoiIn.comp (siteMorphismOfTopoi S) (StandardTopology.toFppf .etale S)
+  letI := StandardTopology.toFppfSheafPullback_preservesFiniteLimits .etale S
+  MorphismOfTopoiIn.comp (siteMorphismOfTopoi S)
+    (Functor.morphismOfTopoiInOfContinuous.{u + 1, u + 1, u + 1, u, u}
+      (𝟭 (Over S)) (S.overGrothendieckTopology @Etale) (Scheme.fppfTopology.over S))
 
 /-- Inverse image along `fppfComparison S` is the composite `π_S⁻¹ ⋙ ε_S⁻¹`. -/
 theorem fppfComparison_inverseImage (S : Scheme.{u}) :
     (fppfComparison S)⁻¹ =
-      (siteMorphismOfTopoi S)⁻¹ ⋙ (StandardTopology.toFppf .etale S)⁻¹ := sorry
+      (siteMorphismOfTopoi S)⁻¹ ⋙ (StandardTopology.toFppf .etale S)⁻¹ := rfl
 
 /-- Inverse image along `a_S` is sheaf pullback along étale-to-fppf relocalization. -/
 noncomputable def fppfComparisonInverseImageIso (S : Scheme.{u}) :
@@ -119,7 +131,8 @@ noncomputable def fppfBigInverseImageIsoPullback :
       (Over.pullback f).sheafPullback (Type (u + 1))
         (Scheme.fppfTopology.over Y) (Scheme.fppfTopology.over X) :=
   Adjunction.leftAdjointUniq
-    (Scheme.fppfTopology.overMapPushforwardAdjunction (Type (u + 1)) f)
+    (Adjunction.sheafPushforwardContinuous (E := Type (u + 1))
+      (Over.mapPullbackAdj f) (Scheme.fppfTopology.over X) (Scheme.fppfTopology.over Y))
     ((Over.pullback f).sheafAdjunctionContinuous (Type (u + 1))
       (Scheme.fppfTopology.over Y) (Scheme.fppfTopology.over X))
 

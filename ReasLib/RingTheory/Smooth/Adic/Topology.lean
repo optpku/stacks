@@ -60,10 +60,19 @@ topology. -/
 @[stacks 07EC "(2), independence of the source adic topology"]
 theorem formallySmoothTopologically_adicSource_iff_discreteSource
     (f : R →+* S) (𝔪 : Ideal R) (𝔫 : Ideal S)
-    (hcont : letI : TopologicalSpace R := 𝔪.adicTopology
-             letI : TopologicalSpace S := 𝔫.adicTopology
-             Continuous f) :
-    (letI : TopologicalSpace R := 𝔪.adicTopology
+    (hcont :
+      -- Local instance justification (noncanonical choice): this hypothesis tests continuity
+      -- for the source `𝔪`-adic topology which the conclusion compares with the discrete one.
+      letI : TopologicalSpace R := 𝔪.adicTopology
+      -- Local instance justification (noncanonical choice): continuity must use the same
+      -- `𝔫`-adic target topology on both sides of the equivalence.
+      letI : TopologicalSpace S := 𝔫.adicTopology
+      Continuous f) :
+    (-- Local instance justification (noncanonical choice): the left side specifically uses
+     -- the `𝔪`-adic source topology; the right side uses the discrete source topology.
+     letI : TopologicalSpace R := 𝔪.adicTopology
+     -- Local instance justification (noncanonical choice): retain exactly the target topology
+     -- from `hcont` and the right-hand adic formal-smoothness predicate.
      letI : TopologicalSpace S := 𝔫.adicTopology
      FormallySmoothTopologically.{u, v, max u v} f) ↔
       formally_smooth_for_adic f 𝔫 := sorry

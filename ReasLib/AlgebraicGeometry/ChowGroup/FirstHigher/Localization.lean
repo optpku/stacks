@@ -57,16 +57,65 @@ def openResidueFieldHom (U : X.Opens) (u : U.toScheme) :
     U.toScheme.residueField u →+* X.residueField (U.ι u) :=
   (inv (U.ι.residueFieldMap u)).hom
 
-/-- The residue-field map of the reduced closed complement, inverted so as to send `κ(y)`
-into `κ(ι y)`. -/
+/-- The closed complement induces a bijection on residue fields: its stalk maps are
+surjective, and a homomorphism between fields is injective. -/
+theorem closedResidueFieldMap_bijective (U : X.Opens) (y : reducedClosedComplement U) :
+    Function.Bijective ((reducedClosedComplementι U).residueFieldMap y).hom := by
+  refine ⟨((reducedClosedComplementι U).residueFieldMap y).hom.injective, ?_⟩
+  intro a
+  obtain ⟨b, rfl⟩ := (reducedClosedComplement U).residue_surjective y a
+  obtain ⟨c, hc⟩ := (reducedClosedComplementι U).stalkMap_surjective y b
+  refine ⟨X.residue (reducedClosedComplementι U y) c, ?_⟩
+  change IsLocalRing.ResidueField.map ((reducedClosedComplementι U).stalkMap y).hom
+    (IsLocalRing.residue _ c) = _
+  rw [IsLocalRing.ResidueField.map_residue]
+  change (reducedClosedComplement U).residue y
+    (((reducedClosedComplementι U).stalkMap y) c) = _
+  rw [hc]
+
+/-- The unique inverse of the residue-field map of the reduced closed complement.
+Surjectivity proved above ensures that `invFun` always selects an actual preimage;
+injectivity makes that preimage unique. -/
 def closedResidueFieldHom (U : X.Opens) (y : reducedClosedComplement U) :
     (reducedClosedComplement U).residueField y →+*
       X.residueField (reducedClosedComplementι U y) where
   toFun := Function.invFun ((reducedClosedComplementι U).residueFieldMap y).hom
-  map_one' := sorry
-  map_mul' := sorry
-  map_zero' := sorry
-  map_add' := sorry
+  map_one' := by
+    apply ((reducedClosedComplementι U).residueFieldMap y).hom.injective
+    simpa only [map_one] using
+      Function.rightInverse_invFun (closedResidueFieldMap_bijective U y).2 1
+  map_mul' := by
+    intro a b
+    apply ((reducedClosedComplementι U).residueFieldMap y).hom.injective
+    simp only [map_mul]
+    rw [Function.rightInverse_invFun (closedResidueFieldMap_bijective U y).2 (a * b),
+      Function.rightInverse_invFun (closedResidueFieldMap_bijective U y).2 a,
+      Function.rightInverse_invFun (closedResidueFieldMap_bijective U y).2 b]
+  map_zero' := by
+    apply ((reducedClosedComplementι U).residueFieldMap y).hom.injective
+    simpa only [map_zero] using
+      Function.rightInverse_invFun (closedResidueFieldMap_bijective U y).2 0
+  map_add' := by
+    intro a b
+    apply ((reducedClosedComplementι U).residueFieldMap y).hom.injective
+    simp only [map_add]
+    rw [Function.rightInverse_invFun (closedResidueFieldMap_bijective U y).2 (a + b),
+      Function.rightInverse_invFun (closedResidueFieldMap_bijective U y).2 a,
+      Function.rightInverse_invFun (closedResidueFieldMap_bijective U y).2 b]
+
+/-- Transport to the ambient scheme and back is the identity on the residue field. -/
+@[simp]
+theorem residueFieldMap_closedResidueFieldHom (U : X.Opens) (y : reducedClosedComplement U)
+    (a : (reducedClosedComplement U).residueField y) :
+    (reducedClosedComplementι U).residueFieldMap y (closedResidueFieldHom U y a) = a :=
+  Function.rightInverse_invFun (closedResidueFieldMap_bijective U y).2 a
+
+/-- Transport from the ambient scheme and back is the identity on the residue field. -/
+@[simp]
+theorem closedResidueFieldHom_residueFieldMap (U : X.Opens) (y : reducedClosedComplement U)
+    (a : X.residueField (reducedClosedComplementι U y)) :
+    closedResidueFieldHom U y ((reducedClosedComplementι U).residueFieldMap y a) = a :=
+  Function.leftInverse_invFun (closedResidueFieldMap_bijective U y).1 a
 
 /-- Transport of a Milnor K-class along the open immersion of `U`, from `κ(u)` to `κ(ι u)`. -/
 def mapAlongOpen (U : X.Opens) (n : ℕ) (u : U.toScheme) (x : X) (h : U.ι u = x) :

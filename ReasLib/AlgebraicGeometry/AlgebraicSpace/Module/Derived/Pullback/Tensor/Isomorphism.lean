@@ -61,7 +61,7 @@ private def cochainTensorIso (f : X ⟶ Y)
 set_option backward.privateInPublic true in
 private def tensorThenPullbackComputation (f : X ⟶ Y)
     (K L : _root_.CochainComplex Y.Modules ℤ) :
-    (moduleDerivedTensorThenPullback f).obj (DerivedCategory.Q.obj K, DerivedCategory.Q.obj L) ≅
+    (moduleTotalDerivedTensorThenPullback f).obj (DerivedCategory.Q.obj K, DerivedCategory.Q.obj L) ≅
       (cochain f).obj (K, L) :=
   (LeftDerived.Homotopy.functor (Modules.pullback f)).mapIso
       (Modules.CellTensor.computationIso Y K L) ≪≫
@@ -78,20 +78,20 @@ private def tensorThenPullbackComputation (f : X ⟶ Y)
 set_option backward.privateInPublic true in
 private def reverseOnInput (f : X ⟶ Y)
     (K L : _root_.CochainComplex Y.Modules ℤ) :
-    (moduleDerivedPullbackThenTensor f).obj (DerivedCategory.Q.obj K, DerivedCategory.Q.obj L) ⟶
-      (moduleDerivedTensorThenPullback f).obj (DerivedCategory.Q.obj K, DerivedCategory.Q.obj L) :=
+    (moduleTotalDerivedPullbackThenTensor f).obj (DerivedCategory.Q.obj K, DerivedCategory.Q.obj L) ⟶
+      (moduleTotalDerivedTensorThenPullback f).obj (DerivedCategory.Q.obj K, DerivedCategory.Q.obj L) :=
   (computationOnInput f (model_laws f).2.2.1 (K, L)).hom ≫
     (tensorThenPullbackComputation f K L).inv
 
 set_option backward.privateInPublic true in
 private def reverseComparison (f : X ⟶ Y) (A B : ModuleDerived Y) :
-    (moduleDerivedPullbackThenTensor f).obj (A, B) ⟶
-      (moduleDerivedTensorThenPullback f).obj (A, B) :=
-  (moduleDerivedPullbackThenTensor f).map
+    (moduleTotalDerivedPullbackThenTensor f).obj (A, B) ⟶
+      (moduleTotalDerivedTensorThenPullback f).obj (A, B) :=
+  (moduleTotalDerivedPullbackThenTensor f).map
       ((DerivedCategory.Q.objObjPreimageIso A).prod
         (DerivedCategory.Q.objObjPreimageIso B)).inv ≫
     reverseOnInput f (DerivedCategory.Q.objPreimage A) (DerivedCategory.Q.objPreimage B) ≫
-    (moduleDerivedTensorThenPullback f).map
+    (moduleTotalDerivedTensorThenPullback f).map
       ((DerivedCategory.Q.objObjPreimageIso A).prod
         (DerivedCategory.Q.objObjPreimageIso B)).hom
 

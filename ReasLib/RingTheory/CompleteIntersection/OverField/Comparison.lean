@@ -56,23 +56,24 @@ variable [Algebra.EssFiniteType k T]
 
 /-- Lemma 10.135.7 (00SF): for a local algebra essentially of finite type over a field, complete
 intersection over the field, regular kernels of regular-local presentations, and realization as
-a prime localization of a global or local complete intersection are equivalent. -/
+a prime localization of a global or local complete intersection are equivalent. The presentation
+and neighborhood rings live in a universe containing both `k` and `T`; `w` permits further lifting. -/
 @[stacks 00SF "local complete-intersection presentation criteria over a field"]
 theorem local_tfae :
     List.TFAE
       [ IsCompleteIntersectionOver k T
-      , ∀ (R : Type w) [CommRing R] [Algebra k R] [Algebra.EssFinitePresentation k R]
+      , ∀ (R : Type (max u v w)) [CommRing R] [Algebra k R] [Algebra.EssFinitePresentation k R]
           [IsRegularLocalRing R] (pi : R →ₐ[k] T),
           Function.Surjective pi → pi.toRingHom.KernelIsGeneratedByRegularSequence
-      , ∃ (R : Type w) (_ : CommRing R) (_ : Algebra k R)
+      , ∃ (R : Type (max u v w)) (_ : CommRing R) (_ : Algebra k R)
           (_ : Algebra.EssFinitePresentation k R) (_ : IsRegularLocalRing R) (pi : R →ₐ[k] T),
           Function.Surjective pi ∧
             ∃ (d : ℕ) (_ : ringKrullDim T + d = ringKrullDim R) (x : Fin d → R),
               Ideal.span (Set.range x) = RingHom.ker pi.toRingHom
-      , ∃ (A : Type w) (_ : CommRing A) (_ : Algebra k A) (a : PrimeSpectrum A)
+      , ∃ (A : Type (max u v w)) (_ : CommRing A) (_ : Algebra k A) (a : PrimeSpectrum A)
           (_ : T ≃ₐ[k] Localization.AtPrime a.asIdeal),
           IsGlobalCompleteIntersection k A
-      , ∃ (A : Type w) (_ : CommRing A) (_ : Algebra k A) (a : PrimeSpectrum A)
+      , ∃ (A : Type (max u v w)) (_ : CommRing A) (_ : Algebra k A) (a : PrimeSpectrum A)
           (_ : T ≃ₐ[k] Localization.AtPrime a.asIdeal),
           IsLocalCompleteIntersection k A
       ] := sorry

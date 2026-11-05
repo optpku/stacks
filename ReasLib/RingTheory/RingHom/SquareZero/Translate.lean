@@ -80,8 +80,8 @@ theorem isCentralScalarMvPolynomial (π : A' →+* A) :
       evalToB π r • n
     rfl⟩
 
-/-- The canonical projection of `A'[B] ⊕ N` onto `A'[B]`. -/
-def fstRingHom (π : A' →+* A) :
+/-- Compatibility abbreviation for mathlib's canonical first projection. -/
+abbrev fstRingHom (π : A' →+* A) :
     -- Local instance justification (instance diamond): TrivSqZeroExt needs the presentation module structures keyed by π.
     letI : Module (MvPolynomial B A') N := moduleMvPolynomial π
     -- Local instance justification (instance diamond): TrivSqZeroExt needs the opposite presentation module structures keyed by π.
@@ -95,11 +95,7 @@ def fstRingHom (π : A' →+* A) :
   letI : Module (MvPolynomial B A')ᵐᵒᵖ N := moduleMvPolynomialOp π
   -- Local instance justification (instance diamond): TrivSqZeroExt.commRing needs centrality of the presentation actions.
   letI : IsCentralScalar (MvPolynomial B A') N := isCentralScalarMvPolynomial π
-  { toFun := TrivSqZeroExt.fst
-    map_one' := TrivSqZeroExt.fst_one
-    map_mul' := TrivSqZeroExt.fst_mul
-    map_zero' := TrivSqZeroExt.fst_zero
-    map_add' := TrivSqZeroExt.fst_add }
+  (TrivSqZeroExt.fstHom (MvPolynomial B A') (MvPolynomial B A') N).toRingHom
 
 /-- `fstRingHom` acts by the first projection of the trivial square-zero extension. -/
 theorem fstRingHom_apply (π : A' →+* A)
@@ -226,6 +222,17 @@ theorem translateKerMap_spec (δ : (Generators.self A B).toExtension.Cotangent �
         rw [MvPolynomial.aeval_def, MvPolynomial.eval₂_map]
         exact hj⟩) := rfl
 
+/-- The source map of the pushout sends zero to zero. -/
+@[simp]
+theorem translateKerMap_zero (δ : (Generators.self A B).toExtension.Cotangent →ₗ[B] N)
+    (S : Solution (B := B) (N := N) π c) (h : evalToB π 0 = 0) :
+    translateKerMap δ S 0 h = 0 := by
+  letI := S.commRing
+  letI := S.isSquareZero
+  simp only [translateKerMap, evalPolyKerMap, map_zero]
+  change S.kernelEquiv 0 + δ 0 = 0
+  simp
+
 /-- The graph ideal of ψ in the trivial square-zero extension A'[B] ⊕ N. -/
 def translateGraphIdeal (δ : (Generators.self A B).toExtension.Cotangent →ₗ[B] N)
     (S : Solution (B := B) (N := N) π c) :
@@ -245,6 +252,37 @@ def translateGraphIdeal (δ : (Generators.self A B).toExtension.Cotangent →ₗ
   Ideal.span <| Set.range fun j : ker (evalToB π) =>
     TrivSqZeroExt.inl j.1 - TrivSqZeroExt.inr (translateKerMap δ S j.1 (Iff.mp (mem_ker (f := evalToB π)) j.2))
 
+/-- The pushout kernel formula is constant on cosets of the graph ideal.
+This is the well-definedness statement for the map on the preimage of the kernel. -/
+theorem translateKernelValue_wellDefined
+    (δ : (Generators.self A B).toExtension.Cotangent →ₗ[B] N)
+    (S : Solution (B := B) (N := N) π c) :
+    letI : Module (MvPolynomial B A') N := moduleMvPolynomial π
+    letI : Module (MvPolynomial B A')ᵐᵒᵖ N := moduleMvPolynomialOp π
+    letI : IsCentralScalar (MvPolynomial B A') N := isCentralScalarMvPolynomial π
+    ∀ (r s : TrivSqZeroExt (MvPolynomial B A') N),
+      r - s ∈ translateGraphIdeal δ S →
+      ∀ (hr : evalToB π (TrivSqZeroExt.fst r) = 0)
+        (hs : evalToB π (TrivSqZeroExt.fst s) = 0),
+      TrivSqZeroExt.snd r + translateKerMap δ S (TrivSqZeroExt.fst r) hr =
+        TrivSqZeroExt.snd s + translateKerMap δ S (TrivSqZeroExt.fst s) hs := sorry
+
+/-- Dependent quotient lift on the preimage of a kernel. Using the quotient eliminator
+keeps the kernel-membership proof as an argument and computes on representatives. -/
+def quotientKernelLift {R T M : Type u} [CommRing R] [CommRing T]
+    (I : Ideal R) (f : R →+* T) (hI : ∀ r ∈ I, f r = 0)
+    (g : (r : R) → f r = 0 → M)
+    (hg : ∀ r s, r - s ∈ I → ∀ hr hs, g r hr = g s hs)
+    (x : R ⧸ I) (hx : Ideal.Quotient.lift I f hI x = 0) : M :=
+  Quotient.hrecOn x (fun r hr => g r hr) (by
+    intro r s hrs
+    have hrs' : r - s ∈ I := Ideal.Quotient.eq.mp (Quotient.sound hrs)
+    have he : f r = f s := sub_eq_zero.mp (by
+      simpa only [map_sub] using hI _ hrs')
+    apply Function.hfunext (congrArg (fun t => t = 0) he)
+    intro hr hs _
+    exact heq_of_eq (hg r s hrs' hr hs)) hx
+
 /-- Pushout translation of a solution along a cotangent representative. -/
 def translate (δ : (Generators.self A B).toExtension.Cotangent →ₗ[B] N)
     (S : Solution (B := B) (N := N) π c) : Solution (B := B) (N := N) π c :=
@@ -260,7 +298,7 @@ def translate (δ : (Generators.self A B).toExtension.Cotangent →ₗ[B] N)
   letI : IsCentralScalar (MvPolynomial B A') N := isCentralScalarMvPolynomial π
   let I := translateGraphIdeal δ S
   let fromA' := (Ideal.Quotient.mk I).comp ((TrivSqZeroExt.inlHom (MvPolynomial B A') N).comp C)
-  let toB := Ideal.Quotient.lift I ((evalToB π).comp (fstRingHom π)) (by
+  have hI : ∀ x ∈ I, ((evalToB π).comp (fstRingHom π)) x = 0 := by
     intro x hx
     let hmap : TrivSqZeroExt (MvPolynomial B A') N →+* B :=
       (evalToB π).comp (fstRingHom π)
@@ -273,7 +311,8 @@ def translate (δ : (Generators.self A B).toExtension.Cotangent →ₗ[B] N)
           (translateKerMap δ S j.1 (RingHom.mem_ker.mp j.2)))) = 0
       simpa only [TrivSqZeroExt.fst_sub, TrivSqZeroExt.fst_inl,
         TrivSqZeroExt.fst_inr, sub_zero] using RingHom.mem_ker.mp j.2
-    exact RingHom.mem_ker.mp (hI hx))
+    exact RingHom.mem_ker.mp (hI hx)
+  let toB := Ideal.Quotient.lift I ((evalToB π).comp (fstRingHom π)) hI
   have hgraph (p : MvPolynomial B A') (hp : evalToB π p = 0) :
       Ideal.Quotient.mk I (TrivSqZeroExt.inl p) =
         Ideal.Quotient.mk I (TrivSqZeroExt.inr (translateKerMap δ S p hp)) := by
@@ -288,14 +327,18 @@ def translate (δ : (Generators.self A B).toExtension.Cotangent →ₗ[B] N)
     congr 1
     rw [add_comm]
     exact TrivSqZeroExt.inl_fst_add_inr_snd_eq r
+  let kernelLift := quotientKernelLift I ((evalToB π).comp (fstRingHom π)) hI
+    (fun r hr => TrivSqZeroExt.snd r +
+      translateKerMap δ S (TrivSqZeroExt.fst r) hr)
+    (translateKernelValue_wellDefined δ S)
   have hkernel (x : (TrivSqZeroExt (MvPolynomial B A') N) ⧸ I) (hx : toB x = 0) :
       ∃ n : N, Ideal.Quotient.mk I (TrivSqZeroExt.inr n) = x := by
-    let r := Quotient.out x
-    have hr : evalToB π (TrivSqZeroExt.fst r) = 0 := by
-      have hx' := hx
-      rw [← Ideal.Quotient.mk_out x] at hx'
-      exact hx'
-    exact ⟨_, (hrepr r hr).trans (Ideal.Quotient.mk_out x)⟩
+    induction x using Quotient.inductionOn with
+    | h r => exact ⟨_, hrepr r hx⟩
+  have hkernelLift (x : (TrivSqZeroExt (MvPolynomial B A') N) ⧸ I) (hx : toB x = 0) :
+      Ideal.Quotient.mk I (TrivSqZeroExt.inr (kernelLift x hx)) = x := by
+    induction x using Quotient.inductionOn with
+    | h r => exact hrepr r hx
   -- Local instance justification (proof-local temporary data): the pushout projection is a square-zero extension by construction.
   letI : toB.IsSquareZeroExtension := ⟨by
     intro b
@@ -309,32 +352,60 @@ def translate (δ : (Generators.self A B).toExtension.Cotangent →ₗ[B] N)
     obtain ⟨m, hm⟩ := hkernel y (RingHom.mem_ker.mp hy)
     rw [← hn, ← hm, ← map_mul, TrivSqZeroExt.inr_mul_inr, map_zero]
     exact (⊥ : Ideal ((TrivSqZeroExt (MvPolynomial B A') N) ⧸ I)).zero_mem⟩
-  Solution.of π c fromA' toB (by
-    ext a
-    simp [fromA', toB, fstRingHom, evalToB, structureMap])
-    { toFun := fun x =>
-        let r := Quotient.out x.1
-        TrivSqZeroExt.snd r +
-          translateKerMap δ S (TrivSqZeroExt.fst r) (by
-            have hx : toB x.1 = 0 := RingHom.mem_ker.mp x.2
-            have hr : Ideal.Quotient.mk I r = x.1 := Quotient.out_eq x.1
-            rw [← hr] at hx
-            exact hx)
+  let e : KernelModule toB ≃ N :=
+    { toFun := fun x => kernelLift x.1 (RingHom.mem_ker.mp x.2)
       invFun := fun n => ofMem (x := Ideal.Quotient.mk I (TrivSqZeroExt.inr n)) (by
         apply RingHom.mem_ker.mpr
         simp [toB, fstRingHom])
       left_inv := by
         intro x
         apply Subtype.ext
-        have hr : evalToB π (TrivSqZeroExt.fst (Quotient.out x.1)) = 0 := by
-          have hx : toB x.1 = 0 := RingHom.mem_ker.mp x.2
-          rw [← Ideal.Quotient.mk_out x.1] at hx
-          exact hx
-        exact (hrepr (Quotient.out x.1) hr).trans (Ideal.Quotient.mk_out x.1)
-      right_inv := sorry
-      map_add' := sorry
+        exact hkernelLift x.1 (RingHom.mem_ker.mp x.2)
+      right_inv := by
+        intro n
+        change n + translateKerMap δ S 0 _ = n
+        rw [translateKerMap_zero, add_zero] }
+  Solution.of π c fromA' toB (by
+    ext a
+    simp [fromA', toB, fstRingHom, evalToB, structureMap])
+    { toFun := e
+      invFun := e.symm
+      left_inv := e.symm_apply_apply
+      right_inv := e.apply_symm_apply
+      map_add' := by
+        intro x y
+        apply e.symm.injective
+        apply Subtype.ext
+        change Ideal.Quotient.mk I (TrivSqZeroExt.inr (kernelLift (x + y).1 _)) =
+          Ideal.Quotient.mk I (TrivSqZeroExt.inr
+            (kernelLift x.1 _ + kernelLift y.1 _))
+        rw [TrivSqZeroExt.inr_add, map_add, hkernelLift, hkernelLift, hkernelLift]
+        rfl
       map_smul' := sorry }
     sorry
+
+/-- The canonical pushout kernel map computes on every kernel representative. -/
+@[simp]
+theorem translate_kernelEquiv_mk
+    (δ : (Generators.self A B).toExtension.Cotangent →ₗ[B] N)
+    (S : Solution (B := B) (N := N) π c) (j : ker (evalToB π)) (n : N) :
+    letI := (translate δ S).commRing
+    letI := (translate δ S).isSquareZero
+    letI : Module (MvPolynomial B A') N := moduleMvPolynomial π
+    letI : Module (MvPolynomial B A')ᵐᵒᵖ N := moduleMvPolynomialOp π
+    letI : IsCentralScalar (MvPolynomial B A') N := isCentralScalarMvPolynomial π
+    (translate δ S).kernelEquiv
+      (ofMem (x := Ideal.Quotient.mk (translateGraphIdeal δ S)
+        (TrivSqZeroExt.inl j.1 + TrivSqZeroExt.inr n)) (by
+          apply RingHom.mem_ker.mpr
+          change evalToB π (TrivSqZeroExt.fst
+            (TrivSqZeroExt.inl j.1 + TrivSqZeroExt.inr n)) = 0
+          simpa using RingHom.mem_ker.mp j.2)) =
+        n + translateKerMap δ S j.1 (RingHom.mem_ker.mp j.2) := by
+  change TrivSqZeroExt.snd (TrivSqZeroExt.inl j.1 + TrivSqZeroExt.inr n) +
+    translateKerMap δ S (TrivSqZeroExt.fst (TrivSqZeroExt.inl j.1 + TrivSqZeroExt.inr n)) _ = _
+  simp only [TrivSqZeroExt.fst_add, TrivSqZeroExt.fst_inl, TrivSqZeroExt.fst_inr,
+    TrivSqZeroExt.snd_add, TrivSqZeroExt.snd_inl, TrivSqZeroExt.snd_inr, add_zero, zero_add]
 
 /-- The class of `inr n` in the pushout kernel is identified with `n`. -/
 theorem translate_spec (δ : (Generators.self A B).toExtension.Cotangent →ₗ[B] N)

@@ -7,6 +7,7 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import ReasLib.RingTheory.DiscreteValuationRing.Extension.Basic
+public import ReasLib.FieldTheory.Separable.Generated.Properties
 public import ReasLib.RingTheory.Normal.Nagata.CharZero
 public import ReasLib.RingTheory.Normal.Nagata.DVR
 public import ReasLib.RingTheory.Normal.Nagata.PurelyInseparable
@@ -18,7 +19,8 @@ import Mathlib.Tactic.CrossRefAttribute
 # Nagata descent along a separable fraction-field extension
 
 The canonical `IsN2Ring` companion and the source-facing Nagata statement are kept in this leaf;
-the chapter entry is only a traceable recall.
+the chapter entry is only a traceable recall. Separability here allows transcendental extensions
+(`Algebra.IsSeparableOver`), as in Stacks Definition 030O.
 
 @stack 0GLS
 -/
@@ -40,7 +42,7 @@ attribute [local instance]
   FractionRing.isScalarTower_liftAlgebra
 
 variable [hAB : IsExtensionOfDiscreteValuationRings A B]
-variable [hsep : Algebra.IsSeparable (FractionRing A) (FractionRing B)]
+variable [hsep : Algebra.IsSeparableOver (FractionRing A) (FractionRing B)]
 
 include hAB hsep
 

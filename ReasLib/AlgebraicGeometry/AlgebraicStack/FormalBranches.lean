@@ -11,7 +11,7 @@ public import Mathlib.RingTheory.Ideal.MinimalPrime.Basic
 public import Mathlib.RingTheory.MvPowerSeries.Basic
 public import Mathlib.RingTheory.Spectrum.Prime.Topology
 public import Mathlib.Topology.Irreducible
-public import ReasLib.AlgebraicGeometry.AlgebraicStack.VersalRing
+public import ReasLib.AlgebraicGeometry.AlgebraicStack.VersalRing.Existence
 public import Mathlib.RingTheory.MvPowerSeries.Inverse
 public import Mathlib.RingTheory.LocalRing.RingHom.Basic
 
@@ -36,23 +36,6 @@ universe u
 namespace AlgebraicGeometry.AlgebraicStack
 
 variable {S : Scheme.{u}} [IsLocallyNoetherian S]
-
-/-- A morphism of complete local `S`-algebras is a power-series extension when
-the target is isomorphic to a finite-variable power series ring over the
-source, identifying the underlying ring map with the canonical coefficient
-inclusion. Source maps `φ : A → A'` are `CompleteLocalSAlgebra.Hom A' A`. -/
-def IsPowerSeriesExtension {A A' : CompleteLocalSAlgebra S}
-    (φ : CompleteLocalSAlgebra.Hom A' A) : Prop :=
-  ∃ n : ℕ, ∃ e : A'.carrier ≃+* MvPowerSeries (Fin n) A.carrier,
-    e.toRingHom.comp φ.hom = MvPowerSeries.C
-
-/-- A power-series extension is a ring isomorphism to a finite-variable power
-series ring carrying the underlying local map to the coefficient inclusion. -/
-theorem isPowerSeriesExtension_iff {A A' : CompleteLocalSAlgebra S}
-    (φ : CompleteLocalSAlgebra.Hom A' A) :
-    IsPowerSeriesExtension φ ↔
-      ∃ n : ℕ, ∃ e : A'.carrier ≃+* MvPowerSeries (Fin n) A.carrier,
-        e.toRingHom.comp φ.hom = MvPowerSeries.C := Iff.rfl
 
 /-- A morphism of complete local `S`-algebras extends the minimal prime of an
 irreducible component of `Spec(A)` to that of an irreducible component of

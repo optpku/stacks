@@ -6,12 +6,19 @@ Authors: Zichen Wang, Zaiwen Wen
 
 module
 
-public import ReasLib.Topology.Constructible.Subspace
+public import Mathlib.Topology.Constructible
 import StacksCheckRecall
 
 @[expose] public section
 
+universe u
+
+open scoped Set.Notation
+
 /- Lemma 5.15.5: constructible subsets of retrocompact open subspaces are
 constructible in the ambient space. -/
 @[stacks 09YD]
-#check Topology.IsConstructible.image_subtypeVal_of_isRetrocompact
+#check fun {X : Type u} [TopologicalSpace X] {U : TopologicalSpace.Opens X} {E : Set U}
+    (hE : Topology.IsConstructible E) (hU : IsRetrocompact (U : Set X)) ↦
+  hE.image_of_isOpenEmbedding U.isOpen.isOpenEmbedding_subtypeVal
+    (by simpa only [Subtype.range_coe] using hU)

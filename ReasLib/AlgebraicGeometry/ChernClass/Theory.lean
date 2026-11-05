@@ -7,14 +7,8 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 
 public import Mathlib.Algebra.DirectSum.Module
-public import Mathlib.AlgebraicGeometry.Morphisms.QuasiSeparated
 public import Mathlib.RingTheory.GradedAlgebra.Basic
-public import Mathlib.Topology.Clopen
-public import ReasLib.AlgebraicGeometry.ChernClass.ProjectiveBundle
-public import ReasLib.AlgebraicGeometry.Scheme.Divisor.EffectiveCartier
-public import ReasLib.AlgebraicGeometry.Scheme.Divisor.EffectiveCartier.AssociatedSheaf
-public import ReasLib.AlgebraicGeometry.Scheme.K0.VectorBundle.Pullback
-public import ReasLib.AlgebraicGeometry.Scheme.Module.Picard.Pullback
+public import ReasLib.AlgebraicGeometry.ChernClass.Domain
 
 @[expose] public section
 
@@ -28,251 +22,190 @@ universe u v w x
 
 namespace AlgebraicGeometry.ChernClass
 
-/-- The open complement of a clopen subscheme. -/
-def clopenComplement {X : Scheme.{u}} (U : X.Opens)
-    (hU : IsClopen (U : Set X)) : X.Opens :=
-  ⟨(U : Set X)ᶜ, hU.compl.isOpen⟩
-
-/-- The carrier of `clopenComplement U hU` is the complement of the carrier of `U`. -/
-theorem coe_clopenComplement {X : Scheme.{u}} (U : X.Opens)
-    (hU : IsClopen (U : Set X)) :
-    (clopenComplement U hU : Set X) = (U : Set X)ᶜ := sorry
-
-/-- The Picard class of the tautological invertible module of a projective bundle. -/
-noncomputable def tautologicalPicardClass {X P : Scheme.{u}} (p : P ⟶ X)
-    (E : X.Modules) (hP : Scheme.ProjectiveBundle.Representation p E) :
-    P.PicardGroup :=
-  @Scheme.Modules.picardClass P
-    (Scheme.ProjectiveBundle.tautologicalSheaf p hP)
-    (Scheme.ProjectiveBundle.tautologicalSheaf_isInvertible p hP)
-
-/-- The tautological Picard class is represented by the tautological invertible module. -/
-theorem tautologicalPicardClass_eq {X P : Scheme.{u}} (p : P ⟶ X)
-    (E : X.Modules) (hP : Scheme.ProjectiveBundle.Representation p E) :
-    tautologicalPicardClass p E hP =
-      @Scheme.Modules.picardClass P
-        (Scheme.ProjectiveBundle.tautologicalSheaf p hP)
-        (Scheme.ProjectiveBundle.tautologicalSheaf_isInvertible p hP) := sorry
-
-/-- The geometric and cohomological data of a category of qcqs schemes closed under clopen
-restrictions and the required projective-bundle morphisms, together with a contravariant
-nonnegatively graded ring theory and a first Chern class satisfying the Chern-class axioms. -/
+/-- A graded cohomology theory on a geometric `Domain`, satisfying Stacks 0FI4 (1)--(5).
+The `domain` field preserves the existing three-argument API. The other seven fields are
+cohomological data and properties; the projective-bundle equivalence and O(P′) class are
+computed, rather than supplied as redundant caches. -/
 structure CohomologyTheory
     {C : Type u} [Category.{v} C] (toScheme : C ⥤ Scheme.{w})
     (A : Cᵒᵖ ⥤ RingCat.{x})
     (Agrade : ∀ X, ℕ → Submodule ℤ (A.obj (Opposite.op X)))
     [∀ X, GradedAlgebra (Agrade X)] where
-  /-- Every scheme in the source category is quasi-compact. -/
-  compactSpace : ∀ X, CompactSpace (toScheme.obj X)
-  /-- Every scheme in the source category is quasi-separated. -/
-  quasiSeparatedSpace : ∀ X, QuasiSeparatedSpace (toScheme.obj X)
-  /-- The homogeneous pieces exhaust the cohomology ring. -/
-  grading_isInternal : ∀ X, DirectSum.IsInternal (Agrade X)
+  /-- The supplied category of schemes and its geometric closure data. -/
+  domain : Domain toScheme
   /-- Pullback preserves every homogeneous degree. -/
   pullback_mem : ∀ {X' X : C} (f : X' ⟶ X) (i : ℕ) (a : Agrade X i),
     A.map f.op a ∈ Agrade X' i
-  /-- The object of the category presenting a clopen subscheme. -/
-  clopenObject : ∀ (X : C) (U : (toScheme.obj X).Opens),
-    IsClopen (U : Set (toScheme.obj X)) → C
-  /-- The chosen category object really presents the clopen subscheme. -/
-  clopenIso : ∀ (X : C) (U : (toScheme.obj X).Opens)
-      (hU : IsClopen (U : Set (toScheme.obj X))),
-    toScheme.obj (clopenObject X U hU) ≅ U.toScheme
-  /-- The clopen inclusion is a morphism of the source category. -/
-  clopenInclusion : ∀ (X : C) (U : (toScheme.obj X).Opens)
-      (hU : IsClopen (U : Set (toScheme.obj X))),
-    clopenObject X U hU ⟶ X
-  /-- The chosen clopen inclusion maps to the usual scheme inclusion. -/
-  clopenInclusion_map : ∀ (X : C) (U : (toScheme.obj X).Opens)
-      (hU : IsClopen (U : Set (toScheme.obj X))),
-    toScheme.map (clopenInclusion X U hU) = (clopenIso X U hU).hom ≫ U.ι
-  /-- A source-category morphism factoring through a clopen subscheme has a factor in the
-  source category. -/
-  clopenFactor : ∀ {X' X : C} (f : X' ⟶ X) (U : (toScheme.obj X).Opens)
-      (hU : IsClopen (U : Set (toScheme.obj X)))
-      (g : toScheme.obj X' ⟶ U.toScheme),
-    g ≫ U.ι = toScheme.map f → (X' ⟶ clopenObject X U hU)
-  /-- The chosen categorical factor maps to the given factor through the clopen subscheme. -/
-  clopenFactor_map : ∀ {X' X : C} (f : X' ⟶ X)
-      (U : (toScheme.obj X).Opens) (hU : IsClopen (U : Set (toScheme.obj X)))
-      (g : toScheme.obj X' ⟶ U.toScheme) (h_g : g ≫ U.ι = toScheme.map f),
-    toScheme.map (clopenFactor f U hU g h_g) = g ≫ (clopenIso X U hU).inv
-  /-- Cohomology takes a decomposition into complementary clopen subschemes to a product. -/
+  /-- Stacks 0FI4 (2): cohomology takes a decomposition into complementary clopen subschemes to a product. -/
   clopenProduct : ∀ (X : C) (U : (toScheme.obj X).Opens)
       (hU : IsClopen (U : Set (toScheme.obj X))),
     Function.Bijective fun a : A.obj (Opposite.op X) ↦
-      (A.map (clopenInclusion X U hU).op a,
-        A.map (clopenInclusion X (clopenComplement U hU) hU.compl).op a)
-  /-- The object presenting the projective bundle of a finite locally free module. -/
-  projectiveBundle : ∀ (X : C),
-    ObjectProperty.FullSubcategory
-      (SheafOfModules.IsFiniteLocallyFree : ObjectProperty (toScheme.obj X).Modules) → C
-  /-- The projection from the chosen projective bundle. -/
-  projectiveBundleProjection : ∀ (X : C)
-      (E : ObjectProperty.FullSubcategory
-        (SheafOfModules.IsFiniteLocallyFree : ObjectProperty (toScheme.obj X).Modules)),
-    projectiveBundle X E ⟶ X
-  /-- The chosen projection represents the projective bundle of `E`. -/
-  projectiveBundleRepresentation : ∀ (X : C)
-      (E : ObjectProperty.FullSubcategory
-        (SheafOfModules.IsFiniteLocallyFree : ObjectProperty (toScheme.obj X).Modules)),
-    Scheme.ProjectiveBundle.Representation
-      (toScheme.map (projectiveBundleProjection X E)) E.obj
-  /-- Base change of a projective bundle is a morphism in the source category. -/
-  projectiveBundlePullback : ∀ {X' X : C} (f : X' ⟶ X)
-      (E : ObjectProperty.FullSubcategory
-        (SheafOfModules.IsFiniteLocallyFree : ObjectProperty (toScheme.obj X).Modules)),
-    projectiveBundle X'
-        (Scheme.VectorBundleK0.pullbackObj (toScheme.map f) E) ⟶
-      projectiveBundle X E
-  /-- The chosen base-change arrow classifies the tautological quotient of the pulled-back
-  bundle, transported along the canonical comparison for composite pullback. -/
-  projectiveBundlePullback_map : ∀ {X' X : C} (f : X' ⟶ X)
-      (E : ObjectProperty.FullSubcategory
-        (SheafOfModules.IsFiniteLocallyFree : ObjectProperty (toScheme.obj X).Modules)),
-    let E' := Scheme.VectorBundleK0.pullbackObj (toScheme.map f) E
-    let p' := toScheme.map (projectiveBundleProjection X' E')
-    toScheme.map (projectiveBundlePullback f E) =
-      (((projectiveBundleRepresentation X E).liftEquiv (p' ≫ toScheme.map f)).symm
-        (InvertibleQuotient.IsoClass.mk (InvertibleQuotient.precomposeIso
-          ((Scheme.Modules.pullbackComp p' (toScheme.map f)).app E.obj).symm
-          (Scheme.ProjectiveBundle.tautologicalQuotient p'
-            (projectiveBundleRepresentation X' E'))))).hom
-  /-- The projective-bundle base-change morphism lies over the original morphism. -/
-  projectiveBundlePullback_comm : ∀ {X' X : C} (f : X' ⟶ X)
-      (E : ObjectProperty.FullSubcategory
-        (SheafOfModules.IsFiniteLocallyFree : ObjectProperty (toScheme.obj X).Modules)),
-    toScheme.map (projectiveBundlePullback f E) ≫
-        toScheme.map (projectiveBundleProjection X E) =
-      toScheme.map (projectiveBundleProjection X'
-        (Scheme.VectorBundleK0.pullbackObj (toScheme.map f) E)) ≫ toScheme.map f
-  /-- The square defining projective-bundle base change is cartesian. -/
-  projectiveBundlePullback_isPullback : ∀ {X' X : C} (f : X' ⟶ X)
-      (E : ObjectProperty.FullSubcategory
-        (SheafOfModules.IsFiniteLocallyFree : ObjectProperty (toScheme.obj X).Modules)),
-    IsPullback (toScheme.map (projectiveBundlePullback f E))
-      (toScheme.map (projectiveBundleProjection X'
-        (Scheme.VectorBundleK0.pullbackObj (toScheme.map f) E)))
-      (toScheme.map (projectiveBundleProjection X E)) (toScheme.map f)
-  /-- A quotient of finite locally free modules induces a morphism of projective bundles in
-  the source category. -/
-  projectiveBundleQuotient : ∀ {X : C}
-      {E F : ObjectProperty.FullSubcategory
-        (SheafOfModules.IsFiniteLocallyFree : ObjectProperty (toScheme.obj X).Modules)}
-      (q : E ⟶ F), Epi q.hom → (projectiveBundle X F ⟶ projectiveBundle X E)
-  /-- The chosen quotient arrow classifies the pullback of the supplied surjection followed
-  by the tautological quotient of `F`. Surjectivity is in the category of module sheaves. -/
-  projectiveBundleQuotient_map : ∀ {X : C}
-      {E F : ObjectProperty.FullSubcategory
-        (SheafOfModules.IsFiniteLocallyFree : ObjectProperty (toScheme.obj X).Modules)}
-      (q : E ⟶ F) (h_q : Epi q.hom),
-    let p' := toScheme.map (projectiveBundleProjection X F)
-    let t := Scheme.ProjectiveBundle.tautologicalQuotient p'
-      (projectiveBundleRepresentation X F)
-    toScheme.map (projectiveBundleQuotient q h_q) =
-      (((projectiveBundleRepresentation X E).liftEquiv p').symm
-        (InvertibleQuotient.IsoClass.mk
-          { object := t.object
-            isInvertible := t.isInvertible
-            hom := (Scheme.Modules.pullback p').map q.hom ≫ t.hom
-            hom_epi := epi_comp'
-              (@Functor.map_epi _ _ _ _ (Scheme.Modules.pullback p') inferInstance
-                _ _ q.hom h_q) t.hom_epi })).hom
-  /-- The projective-bundle morphism induced by a quotient is a closed immersion. -/
-  projectiveBundleQuotient_isClosed : ∀ {X : C}
-      {E F : ObjectProperty.FullSubcategory
-        (SheafOfModules.IsFiniteLocallyFree : ObjectProperty (toScheme.obj X).Modules)}
-      (q : E ⟶ F) (h_q : Epi q.hom),
-    IsClosedImmersion (toScheme.map (projectiveBundleQuotient q h_q))
+      (A.map (domain.clopenInclusion X U hU).op a,
+        A.map (domain.clopenInclusion X (clopenComplement U hU) hU.compl).op a)
   /-- The additive first Chern class with values in degree one. -/
   firstChernClass : ∀ X, (toScheme.obj X).PicardGroup →+ Agrade X 1
-  /-- First Chern classes are central in the cohomology algebra. -/
+  /-- Stacks 0FI4 (1): first Chern classes are central in the cohomology algebra. -/
   firstChernClass_central : ∀ (X : C) (L : (toScheme.obj X).PicardGroup)
       (a : A.obj (Opposite.op X)),
     (firstChernClass X L : A.obj (Opposite.op X)) * a =
       a * (firstChernClass X L : A.obj (Opposite.op X))
-  /-- First Chern classes commute with pullback. -/
+  /-- Stacks 0FI4 (3): first Chern classes commute with pullback. -/
   firstChernClass_naturality : ∀ {X' X : C} (f : X' ⟶ X)
       (L : (toScheme.obj X).PicardGroup),
     A.map f.op (firstChernClass X L : A.obj (Opposite.op X)) =
       (firstChernClass X'
         (Scheme.Hom.picardPullback (toScheme.map f) L) : A.obj (Opposite.op X'))
-  /-- The projective-bundle map for a rank-`r` bundle. -/
-  projectiveBundleEquiv : ∀ (X : C)
+  /-- Stacks 0FI4 (4): the displayed projective-bundle map is bijective. -/
+  projectiveBundleMap_bijective : ∀ (X : C)
       (E : ObjectProperty.FullSubcategory
         (SheafOfModules.IsFiniteLocallyFree : ObjectProperty (toScheme.obj X).Modules))
-      (r : ℕ), Scheme.Modules.IsFiniteLocallyFreeOfRank r E.obj →
-    (Fin r → A.obj (Opposite.op X)) ≃
-      A.obj (Opposite.op (projectiveBundle X E))
-  /-- The projective-bundle equivalence is the sum of pullbacks multiplied by powers of the
-  tautological first Chern class. -/
-  projectiveBundleEquiv_apply : ∀ (X : C)
-      (E : ObjectProperty.FullSubcategory
-        (SheafOfModules.IsFiniteLocallyFree : ObjectProperty (toScheme.obj X).Modules))
-      (r : ℕ) (h_E : Scheme.Modules.IsFiniteLocallyFreeOfRank r E.obj)
-      (a : Fin r → A.obj (Opposite.op X)),
-    projectiveBundleEquiv X E r h_E a =
+      (r : ℕ) (h_E : Scheme.Modules.IsFiniteLocallyFreeOfRank r E.obj),
+    Function.Bijective fun a : Fin r → A.obj (Opposite.op X) ↦
       ∑ i : Fin r,
-        (firstChernClass (projectiveBundle X E)
+        (firstChernClass (domain.projectiveBundle X E)
           (tautologicalPicardClass
-            (toScheme.map (projectiveBundleProjection X E)) E.obj
-            (projectiveBundleRepresentation X E)) :
-              A.obj (Opposite.op (projectiveBundle X E))) ^ i.1 *
-          A.map (projectiveBundleProjection X E).op (a i)
-  /-- The Picard class of the effective Cartier divisor induced by a quotient of ranks
-  `r + 1` and `r`. -/
-  quotientDivisorClass : ∀ (X : C)
-      (E F : ObjectProperty.FullSubcategory
-        (SheafOfModules.IsFiniteLocallyFree : ObjectProperty (toScheme.obj X).Modules))
-      (r : ℕ) (h_E : Scheme.Modules.IsFiniteLocallyFreeOfRank (r + 1) E.obj)
-      (h_F : Scheme.Modules.IsFiniteLocallyFreeOfRank r F.obj)
-      (q : E ⟶ F), Epi q.hom →
-    (toScheme.obj (projectiveBundle X E)).PicardGroup
-  /-- The projective-bundle inclusion induced by a rank-one quotient is an effective Cartier
-  divisor. -/
-  quotient_isEffectiveCartier : ∀ (X : C)
-      (E F : ObjectProperty.FullSubcategory
-        (SheafOfModules.IsFiniteLocallyFree : ObjectProperty (toScheme.obj X).Modules))
-      (r : ℕ) (h_E : Scheme.Modules.IsFiniteLocallyFreeOfRank (r + 1) E.obj)
-      (h_F : Scheme.Modules.IsFiniteLocallyFreeOfRank r F.obj)
-      (q : E ⟶ F) (h_q : Epi q.hom),
-    IsEffectiveCartierDivisor (toScheme.map (projectiveBundleQuotient q h_q))
-  /-- The chosen quotient-divisor class is the Picard class of the associated invertible
-  sheaf of the actual projective-bundle divisor. -/
-  quotientDivisorClass_spec : ∀ (X : C)
-      (E F : ObjectProperty.FullSubcategory
-        (SheafOfModules.IsFiniteLocallyFree : ObjectProperty (toScheme.obj X).Modules))
-      (r : ℕ) (h_E : Scheme.Modules.IsFiniteLocallyFreeOfRank (r + 1) E.obj)
-      (h_F : Scheme.Modules.IsFiniteLocallyFreeOfRank r F.obj)
-      (q : E ⟶ F) (h_q : Epi q.hom),
-    quotientDivisorClass X E F r h_E h_F q h_q =
-      @Scheme.Modules.picardClass (toScheme.obj (projectiveBundle X E))
-        (@Scheme.effectiveCartierDivisorAssociatedSheaf
-          (toScheme.obj (projectiveBundle X E)) inferInstance
-          (RingedSpace.Hom.idealSheafSubobject
-            (toScheme.map (projectiveBundleQuotient q h_q)).toShHom)
-          ⟨Scheme.Modules.Invertible.tensorRight_isEquivalence
-            (quotient_isEffectiveCartier X E F r h_E h_F q h_q).invertibleIdealSheaf⟩)
-        (@Scheme.effectiveCartierDivisorAssociatedSheaf_isInvertible
-          (toScheme.obj (projectiveBundle X E)) inferInstance
-          (RingedSpace.Hom.idealSheafSubobject
-            (toScheme.map (projectiveBundleQuotient q h_q)).toShHom)
-          ⟨Scheme.Modules.Invertible.tensorRight_isEquivalence
-            (quotient_isEffectiveCartier X E F r h_E h_F q h_q).invertibleIdealSheaf⟩)
-  /-- A class vanishing on the quotient divisor is annihilated by its first Chern class. -/
+            (toScheme.map (domain.projectiveBundleProjection X E)) E.obj
+            (domain.projectiveBundleRepresentation X E)) :
+              A.obj (Opposite.op (domain.projectiveBundle X E))) ^ i.1 *
+          A.map (domain.projectiveBundleProjection X E).op (a i)
+  /-- Stacks 0FI4 (5): a class vanishing on the quotient divisor is annihilated by its first Chern class. -/
   cartierVanishing : ∀ (X : C)
       (E F : ObjectProperty.FullSubcategory
         (SheafOfModules.IsFiniteLocallyFree : ObjectProperty (toScheme.obj X).Modules))
       (r : ℕ) (h_E : Scheme.Modules.IsFiniteLocallyFreeOfRank (r + 1) E.obj)
       (h_F : Scheme.Modules.IsFiniteLocallyFreeOfRank r F.obj)
       (q : E ⟶ F) (h_q : Epi q.hom)
-      (a : A.obj (Opposite.op (projectiveBundle X E))),
-    A.map (projectiveBundleQuotient q h_q).op a = 0 →
-      a * (firstChernClass (projectiveBundle X E)
-        (quotientDivisorClass X E F r h_E h_F q h_q) :
-          A.obj (Opposite.op (projectiveBundle X E))) = 0
+      (a : A.obj (Opposite.op (domain.projectiveBundle X E))),
+    A.map (domain.projectiveBundleQuotient q h_q).op a = 0 →
+      a * (firstChernClass (domain.projectiveBundle X E)
+        (domain.quotientDivisorClass X E F r h_E h_F q h_q) :
+          A.obj (Opposite.op (domain.projectiveBundle X E))) = 0
 
 namespace CohomologyTheory
+
+variable {C : Type u} [Category.{v} C] {toScheme : C ⥤ Scheme.{w}}
+variable {A : Cᵒᵖ ⥤ RingCat.{x}}
+    {Agrade : ∀ X, ℕ → Submodule ℤ (A.obj (Opposite.op X))}
+    [∀ X, GradedAlgebra (Agrade X)]
+
+/-- Compatibility projection to the geometric domain. -/
+abbrev compactSpace (S : CohomologyTheory toScheme A Agrade) := @Domain.compactSpace _ _ toScheme S.domain
+
+/-- Compatibility projection to the geometric domain. -/
+abbrev quasiSeparatedSpace (S : CohomologyTheory toScheme A Agrade) := @Domain.quasiSeparatedSpace _ _ toScheme S.domain
+
+/-- Compatibility projection to the geometric domain. -/
+abbrev clopenObject (S : CohomologyTheory toScheme A Agrade) := @Domain.clopenObject _ _ toScheme S.domain
+
+/-- Compatibility projection to the geometric domain. -/
+abbrev clopenIso (S : CohomologyTheory toScheme A Agrade) := @Domain.clopenIso _ _ toScheme S.domain
+
+/-- Compatibility projection to the geometric domain. -/
+abbrev clopenInclusion (S : CohomologyTheory toScheme A Agrade) := @Domain.clopenInclusion _ _ toScheme S.domain
+
+/-- Compatibility projection to the geometric domain. -/
+abbrev clopenInclusion_map (S : CohomologyTheory toScheme A Agrade) := @Domain.clopenInclusion_map _ _ toScheme S.domain
+
+/-- Compatibility projection to the geometric domain. -/
+abbrev clopenFactor (S : CohomologyTheory toScheme A Agrade) := @Domain.clopenFactor _ _ toScheme S.domain
+
+/-- Compatibility projection to the geometric domain. -/
+abbrev clopenFactor_map (S : CohomologyTheory toScheme A Agrade) := @Domain.clopenFactor_map _ _ toScheme S.domain
+
+/-- Compatibility projection to the geometric domain. -/
+abbrev projectiveBundle (S : CohomologyTheory toScheme A Agrade) := @Domain.projectiveBundle _ _ toScheme S.domain
+
+/-- Compatibility projection to the geometric domain. -/
+abbrev projectiveBundleProjection (S : CohomologyTheory toScheme A Agrade) := @Domain.projectiveBundleProjection _ _ toScheme S.domain
+
+/-- Compatibility projection to the geometric domain. -/
+abbrev projectiveBundleRepresentation (S : CohomologyTheory toScheme A Agrade) := @Domain.projectiveBundleRepresentation _ _ toScheme S.domain
+
+/-- Compatibility projection to the geometric domain. -/
+abbrev projectiveBundlePullback (S : CohomologyTheory toScheme A Agrade) := @Domain.projectiveBundlePullback _ _ toScheme S.domain
+
+/-- Compatibility projection to the geometric domain. -/
+abbrev projectiveBundlePullback_map (S : CohomologyTheory toScheme A Agrade) := @Domain.projectiveBundlePullback_map _ _ toScheme S.domain
+
+/-- Compatibility projection to the geometric domain. -/
+abbrev projectiveBundlePullback_comm (S : CohomologyTheory toScheme A Agrade) := @Domain.projectiveBundlePullback_comm _ _ toScheme S.domain
+
+/-- Compatibility projection to the geometric domain. -/
+abbrev projectiveBundlePullback_isPullback (S : CohomologyTheory toScheme A Agrade) := @Domain.projectiveBundlePullback_isPullback _ _ toScheme S.domain
+
+/-- Compatibility projection to the geometric domain. -/
+abbrev projectiveBundleQuotient (S : CohomologyTheory toScheme A Agrade) := @Domain.projectiveBundleQuotient _ _ toScheme S.domain
+
+/-- Compatibility projection to the geometric domain. -/
+abbrev projectiveBundleQuotient_map (S : CohomologyTheory toScheme A Agrade) := @Domain.projectiveBundleQuotient_map _ _ toScheme S.domain
+
+/-- Compatibility projection to the geometric domain. -/
+abbrev projectiveBundleQuotient_isClosed (S : CohomologyTheory toScheme A Agrade) := @Domain.projectiveBundleQuotient_isClosed _ _ toScheme S.domain
+
+/-- Compatibility projection to the geometric domain. -/
+abbrev quotient_isEffectiveCartier (S : CohomologyTheory toScheme A Agrade) := @Domain.quotient_isEffectiveCartier _ _ toScheme S.domain
+
+/-- Compatibility projection to the geometric domain. -/
+abbrev quotientDivisorClass (S : CohomologyTheory toScheme A Agrade) := @Domain.quotientDivisorClass _ _ toScheme S.domain
+
+/-- Internal grading follows from the supplied `GradedAlgebra`, without an extra axiom. -/
+theorem grading_isInternal (S : CohomologyTheory toScheme A Agrade) (X : C) :
+    DirectSum.IsInternal (Agrade X) :=
+  DirectSum.Decomposition.isInternal (Agrade X)
+
+/-- The equivalence derived from the explicit map and axiom 0FI4 (4). -/
+def projectiveBundleEquiv (S : CohomologyTheory toScheme A Agrade) (X : C)
+      (E : ObjectProperty.FullSubcategory
+        (SheafOfModules.IsFiniteLocallyFree : ObjectProperty (toScheme.obj X).Modules))
+      (r : ℕ) (h_E : Scheme.Modules.IsFiniteLocallyFreeOfRank r E.obj) :
+    (Fin r → A.obj (Opposite.op X)) ≃
+      A.obj (Opposite.op (S.projectiveBundle X E)) :=
+  Equiv.ofBijective (fun a ↦
+      ∑ i : Fin r,
+        (S.firstChernClass (S.projectiveBundle X E)
+          (tautologicalPicardClass
+            (toScheme.map (S.projectiveBundleProjection X E)) E.obj
+            (S.projectiveBundleRepresentation X E)) :
+              A.obj (Opposite.op (S.projectiveBundle X E))) ^ i.1 *
+          A.map (S.projectiveBundleProjection X E).op (a i)
+    ) (S.projectiveBundleMap_bijective X E r h_E)
+
+/-- The derived equivalence evaluates to the displayed sum. -/
+theorem projectiveBundleEquiv_apply (S : CohomologyTheory toScheme A Agrade) (X : C)
+      (E : ObjectProperty.FullSubcategory
+        (SheafOfModules.IsFiniteLocallyFree : ObjectProperty (toScheme.obj X).Modules))
+      (r : ℕ) (h_E : Scheme.Modules.IsFiniteLocallyFreeOfRank r E.obj)
+      (a : Fin r → A.obj (Opposite.op X)) :
+    S.projectiveBundleEquiv X E r h_E a =
+      ∑ i : Fin r,
+        (S.firstChernClass (S.projectiveBundle X E)
+          (tautologicalPicardClass
+            (toScheme.map (S.projectiveBundleProjection X E)) E.obj
+            (S.projectiveBundleRepresentation X E)) :
+              A.obj (Opposite.op (S.projectiveBundle X E))) ^ i.1 *
+          A.map (S.projectiveBundleProjection X E).op (a i) := rfl
+
+/-- The quotient class is the Picard class of the actual associated divisor sheaf. -/
+theorem quotientDivisorClass_spec (S : CohomologyTheory toScheme A Agrade) (X : C)
+      (E F : ObjectProperty.FullSubcategory
+        (SheafOfModules.IsFiniteLocallyFree : ObjectProperty (toScheme.obj X).Modules))
+      (r : ℕ) (h_E : Scheme.Modules.IsFiniteLocallyFreeOfRank (r + 1) E.obj)
+      (h_F : Scheme.Modules.IsFiniteLocallyFreeOfRank r F.obj)
+      (q : E ⟶ F) (h_q : Epi q.hom) :
+    S.quotientDivisorClass X E F r h_E h_F q h_q =
+      @Scheme.Modules.picardClass (toScheme.obj (S.projectiveBundle X E))
+        (@Scheme.effectiveCartierDivisorAssociatedSheaf
+          (toScheme.obj (S.projectiveBundle X E)) inferInstance
+          (RingedSpace.Hom.idealSheafSubobject
+            (toScheme.map (S.projectiveBundleQuotient q h_q)).toShHom)
+          ⟨Scheme.Modules.Invertible.tensorRight_isEquivalence
+            (S.quotient_isEffectiveCartier X E F r h_E h_F q h_q).invertibleIdealSheaf⟩)
+        (@Scheme.effectiveCartierDivisorAssociatedSheaf_isInvertible
+          (toScheme.obj (S.projectiveBundle X E)) inferInstance
+          (RingedSpace.Hom.idealSheafSubobject
+            (toScheme.map (S.projectiveBundleQuotient q h_q)).toShHom)
+          ⟨Scheme.Modules.Invertible.tensorRight_isEquivalence
+            (S.quotient_isEffectiveCartier X E F r h_E h_F q h_q).invertibleIdealSheaf⟩) := rfl
 
 /-- The quotient-divisor class in a theory is canonically the Picard class of the associated
 invertible sheaf of the effective Cartier divisor. -/
@@ -300,7 +233,7 @@ theorem quotientDivisorClass_eq
           (RingedSpace.Hom.idealSheafSubobject
             (toScheme.map (S.projectiveBundleQuotient q h_q)).toShHom)
           ⟨Scheme.Modules.Invertible.tensorRight_isEquivalence
-            (S.quotient_isEffectiveCartier X E F r h_E h_F q h_q).invertibleIdealSheaf⟩) := sorry
+            (S.quotient_isEffectiveCartier X E F r h_E h_F q h_q).invertibleIdealSheaf⟩) := rfl
 
 end CohomologyTheory
 

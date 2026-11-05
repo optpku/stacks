@@ -29,18 +29,6 @@ namespace CategoryTheory.Functor.KInjective
 variable {𝒜 : Type u₁} {𝒟' : Type u₂}
   [Category.{v₁} 𝒜] [Abelian 𝒜] [Category.{v₂} 𝒟']
 
-/-- Stacks 070Y: localization at quasi-isomorphisms is bijective on morphisms into the image of
-a K-injective cochain complex. -/
-@[stacks 070Y]
-theorem Localization.map_bijective
-    (K : HomotopyCategory 𝒜 (up ℤ)) (I : CochainComplex 𝒜 ℤ) [I.IsKInjective] :
-    Function.Bijective
-      ((MorphismProperty.Q (HomotopyCategory.quasiIso 𝒜 (up ℤ))).map :
-        (K ⟶ (HomotopyCategory.quotient 𝒜 (up ℤ)).obj I) →
-          ((MorphismProperty.Q (HomotopyCategory.quasiIso 𝒜 (up ℤ))).obj K ⟶
-            (MorphismProperty.Q (HomotopyCategory.quasiIso 𝒜 (up ℤ))).obj
-              ((HomotopyCategory.quotient 𝒜 (up ℤ)).obj I))) := sorry
-
 /-- Stacks 070Y: a K-injective cochain complex computes the pointwise right-derived value of
 every functor out of the homotopy category, with respect to quasi-isomorphisms. -/
 @[stacks 070Y]

@@ -131,6 +131,25 @@ composition of derived pushforwards on `D⁺` of abelian small-étale sheaves. -
 instance pushforwardCompComparison_isIso {A B C : Scheme.{u}} (f : A ⟶ B) (g : B ⟶ C) :
     IsIso (pushforwardCompComparison f g) := sorry
 
+/-- Composition of derived direct images, constructed as the mate of the inverse-image
+composition isomorphism. Both directions are supplied by the adjunctions; this construction
+does not extract an inverse from `pushforwardCompComparison_isIso`. -/
+noncomputable def pushforwardCompIso {A B C : Scheme.{u}} (f : A ⟶ B) (g : B ⟶ C) :
+    etaleDerivedPushforward f ⋙ etaleDerivedPushforward g ≅
+      etaleDerivedPushforward (f ≫ g) :=
+  conjugateIsoEquiv
+    ((Adjunction.Derived.Plus.adjunction (etalePullbackExact g) (abelianPushforwardAlong g)
+        ((smallEtalePullback g).sheafAdjunctionContinuous AddCommGrpCat.{u}
+          C.smallEtaleTopology B.smallEtaleTopology)).comp
+      (Adjunction.Derived.Plus.adjunction (etalePullbackExact f) (abelianPushforwardAlong f)
+        ((smallEtalePullback f).sheafAdjunctionContinuous AddCommGrpCat.{u}
+          B.smallEtaleTopology A.smallEtaleTopology)))
+    (Adjunction.Derived.Plus.adjunction (etalePullbackExact (f ≫ g))
+      (abelianPushforwardAlong (f ≫ g))
+      ((smallEtalePullback (f ≫ g)).sheafAdjunctionContinuous AddCommGrpCat.{u}
+        C.smallEtaleTopology A.smallEtaleTopology))
+    (inverseImageCompIso g f).symm
+
 /-- The unit of the bounded-below derived adjunction `p⁻¹ ⊣ Rp_*` at `K`. -/
 noncomputable def unitApp {A B : Scheme.{u}} (p : A ⟶ B)
     (K : DerivedCategory.Plus (Sheaf B.smallEtaleTopology AddCommGrpCat.{u})) :
@@ -221,7 +240,7 @@ noncomputable def centerToExceptional (I : X.IdealSheafData) (b : X' ⟶ X) [IsB
     ((etaleDerivedPushforward I.subschemeι).map
         (unitApp (exceptionalProjection I b)
           ((etaleDerivedInverseImage I.subschemeι).obj K)) ≫
-      (asIso (pushforwardCompComparison (exceptionalProjection I b) I.subschemeι)).inv.app
+      (pushforwardCompIso (exceptionalProjection I b) I.subschemeι).hom.app
         ((etaleDerivedInverseImage (exceptionalProjection I b)).obj
           ((etaleDerivedInverseImage I.subschemeι).obj K)) ≫
       (etaleDerivedPushforward (composite I b)).map
@@ -254,7 +273,7 @@ noncomputable def blowupToExceptional (I : X.IdealSheafData) (b : X' ⟶ X) [IsB
   DerivedCategory.Plus.ι.map
     ((etaleDerivedPushforward b).map
         (unitApp (I.comap b).subschemeι ((etaleDerivedInverseImage b).obj K)) ≫
-      (asIso (pushforwardCompComparison (I.comap b).subschemeι b)).inv.app
+      (pushforwardCompIso (I.comap b).subschemeι b).hom.app
         ((etaleDerivedInverseImage (I.comap b).subschemeι).obj
           ((etaleDerivedInverseImage b).obj K)) ≫
       (etaleDerivedPushforward ((I.comap b).subschemeι ≫ b)).map

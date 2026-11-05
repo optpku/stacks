@@ -12,7 +12,8 @@ import StacksCheckRecall
 @[expose] public section
 
 /- Lemma 23.9.5 (tag `09QE`): a finite-type map from a Noetherian ring is a local complete
-intersection exactly when every induced map on completed local rings is one. -/
+intersection exactly when every induced map on completed local rings is a complete-intersection
+homomorphism in the good-factorization sense of 09QA. -/
 universe u v
 
 section
@@ -23,8 +24,9 @@ variable (f : A →+* B) (hfinite : f.FiniteType)
 
 @[stacks 09QE]
 #check (RingHom.isLocalCompleteIntersection_iff_completedLocalMap f hfinite :
+  letI : IsNoetherianRing B := hfinite.isNoetherianRing
   f.IsLocalCompleteIntersection ↔
-    ∀ q : PrimeSpectrum B, (f.completedLocalMap q).IsLocalCompleteIntersection)
+    ∀ q : PrimeSpectrum B, (f.completedLocalMap q).IsCompleteIntersection)
 
 end
 

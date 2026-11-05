@@ -62,34 +62,34 @@ theorem basiswiseAcyclic_iff_sheafwiseAcyclic
 
 namespace Comparison
 
-/-- Basiswise acyclicity and vanishing of the section `R¹ lim` identify the degree-`q`
-cohomology sheaf of a sequential derived limit with the inverse limit of the stage cohomology
-sheaves. -/
+/-- Basiswise acyclicity in every degree and vanishing of the degree-`q - 1` section `R¹ lim`
+identify the degree-`q` cohomology sheaf of a sequential derived limit with the inverse limit
+of the stage cohomology sheaves. -/
 @[stacks 0BKU "basiswise derived-limit cohomology comparison"]
 theorem isoLimit
     (Ksys : SequentialInverseSystem (ModuleDerived X)) (K : ModuleDerived X)
     (hK : IsDerivedLimit Ksys K) {𝓑 : Set (Opens X.carrier)}
     (h𝓑 : Opens.IsBasis 𝓑) (q : ℤ)
-    (hacyclic : BasiswiseAcyclic Ksys 𝓑 q)
+    (hacyclic : ∀ r : ℤ, BasiswiseAcyclic Ksys 𝓑 r)
     (hR1lim :
       ∀ U : Opens X.carrier, U ∈ 𝓑 →
-        IsZero (sectionCohomologyTower Ksys U q).firstDerivedLimit) :
+        IsZero (sectionCohomologyTower Ksys U (q - 1)).firstDerivedLimit) :
     IsIsomorphic (Cohomology.sheaf X K q)
       (limit (cohomologySheafTower Ksys q)) := sorry
 
-/-- Basiswise acyclicity of the underlying additive cohomology sheaves and vanishing of the
-section `R¹ lim` identify the degree-`q` cohomology sheaf of a derived limit with the inverse
-limit of the stage cohomology sheaves. -/
+/-- Basiswise acyclicity of the underlying additive cohomology sheaves in every degree and
+vanishing of the degree-`q - 1` section `R¹ lim` identify the degree-`q` cohomology sheaf of a
+derived limit with the inverse limit of the stage cohomology sheaves. -/
 @[stacks 0BKU "underlying-sheaf basiswise derived-limit comparison"]
 theorem isoLimitOfSheaves
     (Ksys : SequentialInverseSystem (ModuleDerived X)) (K : ModuleDerived X)
     (hK : IsDerivedLimit Ksys K) {𝓑 : Set (Opens X.carrier)}
     (h𝓑 : Opens.IsBasis 𝓑) (q : ℤ)
     [HasExt (Sheaf (Opens.grothendieckTopology X.carrier) AddCommGrpCat.{u})]
-    (hacyclic : SheafwiseAcyclic Ksys 𝓑 q)
+    (hacyclic : ∀ r : ℤ, SheafwiseAcyclic Ksys 𝓑 r)
     (hR1lim :
       ∀ U : Opens X.carrier, U ∈ 𝓑 →
-        IsZero (sectionCohomologyTower Ksys U q).firstDerivedLimit) :
+        IsZero (sectionCohomologyTower Ksys U (q - 1)).firstDerivedLimit) :
     IsIsomorphic (Cohomology.sheaf X K q)
       (limit (cohomologySheafTower Ksys q)) := sorry
 

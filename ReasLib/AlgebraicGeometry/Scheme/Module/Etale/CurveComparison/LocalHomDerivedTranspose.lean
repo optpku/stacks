@@ -7,6 +7,7 @@ Authors: Zichen Wang, Zaiwen Wen
 module
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.LocalHomCurveTranspose
 public import ReasLib.AlgebraicGeometry.Scheme.Module.Etale.CurveComparison.ExactDerivedUnit
+public import Mathlib.Algebra.Homology.Embedding.ExtendHomology
 
 @[expose] public section
 open CategoryTheory CategoryTheory.Limits
@@ -29,7 +30,7 @@ variable (J : CochainComplex (Sheaf Y.smallEtaleTopology (ModuleCat.{u + 1} A)) 
 variable (e : B.extend CompactRepresentation.curveDegreeEmbedding ⟶
   NoncommLocalHomComplex.integerComplex h hc Y L J)
 variable {F : Sheaf Y.smallEtaleTopology (ModuleCat.{u + 1} R)}
-variable (α : L ⟶ (ChainComplex.single₀ _).obj F) [QuasiIso α]
+variable (α : L ⟶ (ChainComplex.single₀ _).obj F)
 
 /-- Extend the specified source augmentation to negative cochain degrees,
 then use the canonical single-complex extension identification. -/
@@ -38,7 +39,9 @@ def sourceMap : L.extend ComplexShape.embeddingDownNat ⟶
   HomologicalComplex.extendMap α ComplexShape.embeddingDownNat ≫
     (HomologicalComplex.extendSingleIso ComplexShape.embeddingDownNat F 0 0 rfl).hom
 
-instance sourceMap_quasiIso : QuasiIso (sourceMap Y L α) := by sorry
+instance sourceMap_quasiIso [QuasiIso α] : QuasiIso (sourceMap Y L α) := by
+  dsimp only [sourceMap]
+  infer_instance
 
 instance target_bounded : CochainComplex.IsStrictlyGE (LocalHomCurveTranspose.target h hc Y B J) (-2) := by sorry
 
@@ -50,7 +53,7 @@ variable [HasDerivedCategory (Sheaf Y.smallEtaleTopology (ModuleCat.{u + 1} R))]
 
 /-- Actual derived roof: invert ONLY the concrete source-resolution augmentation,
 then apply the explicit Koszul-transposed cochain map. -/
-def map :
+def map [QuasiIso α] :
     DerivedCategory.Q.obj ((CochainComplex.singleFunctor
       (Sheaf Y.smallEtaleTopology (ModuleCat.{u + 1} R)) 0).obj F) ⟶
     DerivedCategory.Q.obj (LocalHomCurveTranspose.target h hc Y B J) :=
@@ -69,7 +72,7 @@ def sourceFactor :
 
 /-- Lift this specified roof through the fully faithful bounded-below inclusion.
 No arbitrary extension of a D(Ab) map to residual coefficients is involved. -/
-def plusMap : ActualResolutionComparison.singleModel F ⟶ DerivedCategory.Plus.Q.obj (targetPlus h hc Y B J) :=
+def plusMap [QuasiIso α] : ActualResolutionComparison.singleModel F ⟶ DerivedCategory.Plus.Q.obj (targetPlus h hc Y B J) :=
   (DerivedCategory.Plus.ι : DerivedCategory.Plus (Sheaf Y.smallEtaleTopology (ModuleCat.{u + 1} R)) ⥤ _).preimage
     ((sourceFactor Y (F := F)).hom ≫ map h hc Y L B J e α ≫
       ((DerivedCategory.Plus.Qh.compInclusionIso (Sheaf Y.smallEtaleTopology (ModuleCat.{u + 1} R))).app

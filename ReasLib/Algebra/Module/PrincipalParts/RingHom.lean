@@ -10,6 +10,7 @@ public import Mathlib.Algebra.Category.ModuleCat.ChangeOfRings
 public import Mathlib.CategoryTheory.Linear.Yoneda
 public import ReasLib.Algebra.Category.ModuleCat.DifferentialOperator
 public import ReasLib.Algebra.Module.PrincipalParts.Functorial
+public import ReasLib.Algebra.Module.PrincipalParts.ZerothOrder
 public import Mathlib.Tactic.CrossRefAttribute
 
 /-!
@@ -226,8 +227,49 @@ namespace functor
 /-- The principal-parts functor preserves addition of module morphisms. -/
 instance additive (σ : R →+* S) (k : ℕ) : (functor σ k).Additive := sorry
 
-/-- The principal-parts functor is linear over the target ring. -/
-instance linear (σ : R →+* S) (k : ℕ) : Functor.Linear S (functor σ k) := sorry
+/-- The principal-parts functor is linear over the base ring for the scalar action selected
+by `σ`. This is a named fact rather than a global choice of a base action on `ModuleCat S`. -/
+theorem linear_base (σ : R →+* S) (k : ℕ) :
+    letI : Algebra R S := algebra σ
+    letI : CategoryTheory.Linear R (ModuleCat.{u} S) := ModuleCat.Algebra.instLinear
+    Functor.Linear R (functor σ k) := by
+  letI : Algebra R S := algebra σ
+  letI : CategoryTheory.Linear R (ModuleCat.{u} S) := ModuleCat.Algebra.instLinear
+  refine ⟨?_⟩
+  intro M N f r
+  letI : Module R M := sourceModule σ M
+  letI : IsScalarTower R S M := IsScalarTower.of_compHom R S M
+  letI : Module R N := sourceModule σ N
+  letI : IsScalarTower R S N := IsScalarTower.of_compHom R S N
+  apply ModuleCat.hom_ext
+  apply PrincipalParts.linearMap_ext (R := R) (S := S) k
+  intro m
+  change (map σ k (σ r • f)).hom (universalClass σ M k m) =
+    σ r • (map σ k f).hom (universalClass σ M k m)
+  rw [map_universalClass, map_universalClass]
+  change PrincipalParts.universalDifferential (R := R) (S := S) (M := N) k
+      (algebraMap R S r • f.hom m) =
+    algebraMap R S r • PrincipalParts.universalDifferential (R := R) (S := S) (M := N) k
+      (f.hom m)
+  simpa only [IsScalarTower.algebraMap_smul] using
+    (PrincipalParts.universalDifferential (R := R) (S := S) (M := N) k).map_smul r (f.hom m)
+
+/-- Zeroth principal parts are linear over the target ring. In positive order the universal
+class is generally only base-ring linear, so there is no corresponding all-order instance. -/
+instance linear (σ : R →+* S) : Functor.Linear S (functor σ 0) where
+  map_smul {M N} f s := by
+    letI : Algebra R S := algebra σ
+    letI : Module R M := sourceModule σ M
+    letI : IsScalarTower R S M := IsScalarTower.of_compHom R S M
+    letI : Module R N := sourceModule σ N
+    letI : IsScalarTower R S N := IsScalarTower.of_compHom R S N
+    apply ModuleCat.hom_ext
+    apply PrincipalParts.linearMap_ext (R := R) (S := S) 0
+    intro m
+    change (map σ 0 (s • f)).hom (universalClass σ M 0 m) =
+      s • (map σ 0 f).hom (universalClass σ M 0 m)
+    rw [map_universalClass, map_universalClass]
+    exact PrincipalParts.ZerothOrder.universalDifferential_smul s (f.hom m)
 
 end functor
 

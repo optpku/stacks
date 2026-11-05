@@ -26,7 +26,7 @@ does not select a model from the existence statement.
 -/
 @[stacks 09PL]
 #check (DividedPowerChainAlgebra.nonemptyBaseChange (R' := R') A :
-  Nonempty (DividedPowerChainAlgebra.BaseChange (R' := R') A))
+  Nonempty (DividedPowerChainAlgebra.BaseChange.{uR, uR', uA, max uR' uA} (R' := R') A))
 
 end
 

@@ -36,41 +36,37 @@ universe u
   (AlgebraicGeometry.AlgebraicSpace.InfiniteProduct.instIsEtaleEquivalenceRelation_preRelation :
     ∀ (k : Type u) [Field k], (preRelation k).IsEtaleEquivalenceRelation)
 
-/- Example 65.14.9 (4): the quotient `X = U / R` is the fppf sheaf of the étale equivalence
-relation, an algebraic space over `S` via `uliftYoneda`, with section induced by `f_0`. -/
+/- Example 65.14.9 (4): the quotient `X = U / R` is an actual algebraic space over `S`,
+with the specified atlas from `U` and section induced by `f_0`. -/
 @[stacks 02Z8]
 #check
-  (AlgebraicGeometry.AlgebraicSpace.InfiniteProduct.sheafOfPoints :
-    ∀ (k : Type u) [Field k],
-      Sheaf (Scheme.fppfTopology.over (base k)) (Type (u + 1)))
+  (AlgebraicGeometry.AlgebraicSpace.InfiniteProduct.space :
+    ∀ (k : Type u) [Field k], AlgebraicSpace (base k))
 
 #check
-  (AlgebraicGeometry.AlgebraicSpace.InfiniteProduct.sheafOfPoints_spec :
+  (AlgebraicGeometry.AlgebraicSpace.InfiniteProduct.spaceFunctorOfPoints_eq :
     ∀ (k : Type u) [Field k],
-      (MorphismProperty.over (@Etale)).relative uliftYoneda.{u + 1} (atlas k).hom ∧
-        Presheaf.IsLocallySurjective (Scheme.etaleTopology.over (base k)) (atlas k).hom ∧
-          uliftYoneda.{u + 1}.relativelyRepresentable (diag (sheafOfPoints k).obj))
+      (space k).functorOfPoints = (preRelation k).smallEtaleQuotientSheaf.obj)
 
 #check
-  (AlgebraicGeometry.AlgebraicSpace.InfiniteProduct.atlas_etale :
+  (AlgebraicGeometry.AlgebraicSpace.InfiniteProduct.spaceAtlas_etale :
     ∀ (k : Type u) [Field k],
-      (MorphismProperty.over (@Etale)).relative uliftYoneda.{u + 1} (atlas k).hom)
+      (MorphismProperty.over (@Etale)).presheaf (spaceAtlas k))
 
 #check
-  (AlgebraicGeometry.AlgebraicSpace.InfiniteProduct.atlas_locallySurjective :
+  (AlgebraicGeometry.AlgebraicSpace.InfiniteProduct.spaceAtlas_locallySurjective :
     ∀ (k : Type u) [Field k],
-      Presheaf.IsLocallySurjective (Scheme.etaleTopology.over (base k)) (atlas k).hom)
+      Presheaf.IsLocallySurjective (Scheme.etaleTopology.over (base k)) (spaceAtlas k))
 
 #check
-  (AlgebraicGeometry.AlgebraicSpace.InfiniteProduct.representableDiagonal_sheafOfPoints :
+  (AlgebraicGeometry.AlgebraicSpace.InfiniteProduct.pointsHomeomorphSpacePoints :
     ∀ (k : Type u) [Field k],
-      uliftYoneda.{u + 1}.relativelyRepresentable (diag (sheafOfPoints k).obj))
+      AlgebraicSpace.Points (space k) ≃ₜ spacePoints k)
 
 #check
-  (AlgebraicGeometry.AlgebraicSpace.InfiniteProduct.sectionHom :
+  (AlgebraicGeometry.AlgebraicSpace.InfiniteProduct.spaceSection :
     ∀ (k : Type u) [Field k],
-      (Scheme.fppfTopology.over (base k)).uliftYoneda.{u + 1}.obj (Over.mk (𝟙 (base k))) ⟶
-        sheafOfPoints k)
+      AlgebraicSpace.ofOver (Over.mk (𝟙 (base k))) ⟶ space k)
 
 /- Example 65.14.9 (5): if `k` is finite with `q` elements, then every `x : A` satisfies
 `x ^ q = x`. -/
@@ -135,12 +131,17 @@ quasi-compact and the proper finite-support ideal is contained in a maximal idea
 `u_n` map to the same point of `|X|`, and no other points are identified. -/
 @[stacks 02Z8]
 #check
-  (AlgebraicGeometry.AlgebraicSpace.InfiniteProduct.quotientMap_surjective :
-    ∀ (k : Type u) [Field k], Function.Surjective (quotientMap k))
+  (AlgebraicGeometry.AlgebraicSpace.InfiniteProduct.atlasPointMap_surjective :
+    ∀ (k : Type u) [Field k], Function.Surjective (atlasPointMap k))
 
 #check
-  (AlgebraicGeometry.AlgebraicSpace.InfiniteProduct.continuous_quotientMap :
-    ∀ (k : Type u) [Field k], Continuous (quotientMap k))
+  (AlgebraicGeometry.AlgebraicSpace.InfiniteProduct.continuous_atlasPointMap :
+    ∀ (k : Type u) [Field k], Continuous (atlasPointMap k))
+
+#check
+  (AlgebraicGeometry.AlgebraicSpace.InfiniteProduct.atlasPointMap_eq_iff :
+    ∀ (k : Type u) [Field k] (x y : (cover k).left),
+      atlasPointMap k x = atlasPointMap k y ↔ spaceRel k x y)
 
 #check
   (AlgebraicGeometry.AlgebraicSpace.InfiniteProduct.spaceRel_iff :
@@ -152,18 +153,15 @@ quasi-compact and the proper finite-support ideal is contained in a maximal idea
 the image of a section `S ⟶ X`. -/
 @[stacks 02Z8]
 #check
-  (AlgebraicGeometry.AlgebraicSpace.InfiniteProduct.instIrreducibleSpace_spacePoints :
-    ∀ (k : Type u) [Field k] [Fintype k], IrreducibleSpace (spacePoints k))
+  (AlgebraicGeometry.AlgebraicSpace.InfiniteProduct.instIrreducibleSpace_points :
+    ∀ (k : Type u) [Field k] [Fintype k], IrreducibleSpace (AlgebraicSpace.Points (space k)))
 
 #check
-  (AlgebraicGeometry.AlgebraicSpace.InfiniteProduct.isGenericPoint_genericPoint :
-    ∀ (k : Type u) [Field k] [Fintype k], IsGenericPoint (genericPoint k) Set.univ)
+  (AlgebraicGeometry.AlgebraicSpace.InfiniteProduct.isGenericPoint_spaceGenericPoint :
+    ∀ (k : Type u) [Field k] [Fintype k], IsGenericPoint (spaceGenericPoint k) Set.univ)
 
 #check
-  (AlgebraicGeometry.AlgebraicSpace.InfiniteProduct.genericPoint_eq_image_section :
-    ∀ (k : Type u) [Field k] [Fintype k],
-      sectionHom k =
-          (Scheme.fppfTopology.over (base k)).uliftYoneda.{u + 1}.map (immersionOver k 0) ≫
-            atlas k ∧
-        genericPoint k =
-          quotientMap k ((immersionOver k 0).left (IsLocalRing.closedPoint k)))
+  (AlgebraicGeometry.AlgebraicSpace.InfiniteProduct.spaceGenericPoint_eq_image_spaceSection :
+    ∀ (k : Type u) [Field k],
+      spaceGenericPoint k =
+        AlgebraicSpace.Points.mapOfOver (spaceSection k) (IsLocalRing.closedPoint k))

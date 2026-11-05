@@ -14,6 +14,7 @@ public import Mathlib.CategoryTheory.Limits.HasLimits
 public import Mathlib.LinearAlgebra.Quotient.Basic
 public import Mathlib.RingTheory.AdicCompletion.Algebra
 public import ReasLib.Algebra.Category.CommAlgCat.Module
+public import ReasLib.Algebra.Category.CommAlgCat.Limits
 public import ReasLib.CategoryTheory.Functor.Equivalence.QuasiInverse.Basic
 public import ReasLib.RingTheory.AdicCompletion.InverseSystem
 public import ReasLib.Algebra.Category.CommAlgCat.TopologicallyFiniteType.AdicSystem
@@ -48,7 +49,9 @@ instance instAlgebraObj (I : Ideal A) (B : Under (quotientSystem I))
 private theorem transitionAlgHom_laws (I : Ideal A) (B : Under (quotientSystem I)) {i j : OrderDual ℕ+} (f : i ⟶ j) :
     ∀ a : A, (B.right.map f).hom (algebraMap A (B.right.obj i) a) =
       algebraMap A (B.right.obj j) a := by
-  sorry
+  intro a
+  exact (ConcreteCategory.congr_hom (B.hom.naturality f)
+    (Ideal.Quotient.mk (I ^ ((OrderDual.ofDual i : ℕ+) : ℕ)) a)).symm
 
 /-- The transition `B i ⟶ B j` of an inverse system over `quotientSystem I`,
 as an `A`-algebra map. -/
@@ -73,7 +76,13 @@ private theorem stageDiagram_laws (I : Ideal A) (B : AdicAlgebraSystem A I) :
       CommAlgCat.ofHom (transitionAlgHom I B.obj (f ≫ g)) =
         CommAlgCat.ofHom (transitionAlgHom I B.obj f) ≫
           CommAlgCat.ofHom (transitionAlgHom I B.obj g)) := by
-  sorry
+  constructor
+  · intro i
+    ext x
+    exact ConcreteCategory.congr_hom (B.obj.right.map_id i) x
+  · intro i j k f g
+    ext x
+    exact ConcreteCategory.congr_hom (B.obj.right.map_comp f g) x
 
 /-- The diagram `n ↦ B n` of a finite-type adic system, valued in commutative
 `A`-algebras. -/
@@ -461,25 +470,11 @@ theorem fromRingLimitAlgHom_eq (I : Ideal A) (B : AdicAlgebraSystem A I) :
       (limit.lift (stageDiagram I B) (ringLimitAlgebraCone I B)).hom := by
   rfl
 
-/-- The forgotten algebra-limit projections form a compatible cone. -/
-private theorem limitObjModuleCone_naturality (I : Ideal A) (B : AdicAlgebraSystem A I) :
-    ∀ {i j : OrderDual ℕ+} (f : i ⟶ j),
-      ((Functor.const (OrderDual ℕ+)).obj (ModuleCat.of A (limitObj I B))).map f ≫
-        (CommAlgCat.forgetToModule A).map (limit.π (stageDiagram I B) j) =
-      (CommAlgCat.forgetToModule A).map (limit.π (stageDiagram I B) i) ≫
-        (stageModuleDiagram I B).map f := by
-  sorry
-
 /-- The forgotten limit cone of `stageDiagram`, as a cone on
 `stageModuleDiagram`. -/
 def limitObjModuleCone (I : Ideal A) (B : AdicAlgebraSystem A I) :
-    Cone (stageModuleDiagram I B) where
-  pt := ModuleCat.of A (limitObj I B)
-  π.app i :=
-    (CommAlgCat.forgetToModule A).map (limit.π (stageDiagram I B) i)
-  π.naturality := by
-        intro first second transition
-        exact limitObjModuleCone_naturality I B transition
+    Cone (stageModuleDiagram I B) :=
+  (CommAlgCat.forgetToModule A).mapCone (limit.cone (stageDiagram I B))
 
 /-- The canonical `A`-linear comparison from the algebra limit to the module
 limit. -/
@@ -575,28 +570,36 @@ theorem fromModuleLimit_eq (I : Ideal A) (B : AdicAlgebraSystem A I)
       fromRingLimitAlgHom I B (moduleLimitToRingLimitEquiv I B x) := by
   rfl
 
-/-- The explicit module-limit comparison and its inverse are mutually inverse. -/
-private theorem limitObjModuleLinearEquiv_laws (I : Ideal A) (B : AdicAlgebraSystem A I) :
-    Function.LeftInverse (fromModuleLimit I B) (toModuleLimitLinearMap I B) ∧
-    Function.RightInverse (fromModuleLimit I B) (toModuleLimitLinearMap I B) := by
-  sorry
-
 /-- Named identification of the inverse limit in `CommAlgCat` with the inverse
-limit of the underlying `A`-module diagram. -/
+limit of the underlying `A`-module diagram, using preservation of limits. -/
 def limitObjModuleLinearEquiv (I : Ideal A) (B : AdicAlgebraSystem A I) :
     (limitObj I B : Type u) ≃ₗ[A]
       (limit (stageModuleDiagram I B) : ModuleCat A) :=
-  { toModuleLimitLinearMap I B with
-    invFun := fromModuleLimit I B
-    left_inv := by exact (limitObjModuleLinearEquiv_laws I B).1
-    right_inv := by exact (limitObjModuleLinearEquiv_laws I B).2 }
+  CommAlgCat.limitModuleEquiv (stageDiagram I B)
 
 /-- The forward map of `limitObjModuleLinearEquiv` is
 `toModuleLimitLinearMap`. -/
 theorem limitObjModuleLinearEquiv_apply (I : Ideal A)
     (B : AdicAlgebraSystem A I) (x : limitObj I B) :
     limitObjModuleLinearEquiv I B x = toModuleLimitLinearMap I B x := by
-  rfl
+  have h : (preservesLimitIso (CommAlgCat.forgetToModule A)
+      (stageDiagram I B)).hom =
+      limit.lift (stageModuleDiagram I B) (limitObjModuleCone I B) := by
+    apply limit.hom_ext
+    intro j
+    exact (preservesLimitIso_hom_π (CommAlgCat.forgetToModule A)
+      (stageDiagram I B) j).trans
+        (limit.lift_π (limitObjModuleCone I B) j).symm
+  exact ConcreteCategory.congr_hom h x
+
+/-- The module comparison identifies each algebra-limit projection with the
+corresponding module-limit projection. -/
+@[simp]
+theorem limitObjModuleLinearEquiv_π (I : Ideal A) (B : AdicAlgebraSystem A I)
+    (i : OrderDual ℕ+) (x : limitObj I B) :
+    (limit.π (stageModuleDiagram I B) i).hom (limitObjModuleLinearEquiv I B x) =
+      (limit.π (stageDiagram I B) i).hom x :=
+  CommAlgCat.limitModuleEquiv_π (stageDiagram I B) i x
 
 /-- Named identification of the extended power `(I ^ n).map (algebraMap A B)`
 with the submodule `I ^ n • ⊤`, after restriction of scalars to `A`. -/

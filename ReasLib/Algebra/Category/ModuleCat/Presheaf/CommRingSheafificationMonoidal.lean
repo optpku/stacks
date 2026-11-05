@@ -37,7 +37,21 @@ variable [HasWeakSheafify J CommRingCat.{max u v}]
 variable [HasWeakSheafify J AddCommGrpCat.{max u v}]
 variable [J.WEqualsLocallyBijective AddCommGrpCat.{max u v}]
 variable (𝒪 : Cᵒᵖ ⥤ CommRingCat.{max u v})
-variable [Functor.Monoidal (moduleSheafification J 𝒪)]
+variable [Presheaf.IsLocallyInjective J (sheafificationRingMap J 𝒪)]
+variable [Presheaf.IsLocallySurjective J (sheafificationRingMap J 𝒪)]
+
+set_option backward.isDefEq.respectTransparency false in
+/-- The canonical monoidal structure is induced by scalar extension along `𝒪 → 𝒪#`
+and ordinary sheafification, with the identification normalized by the adjunction unit. -/
+@[implicit_reducible]
+noncomputable def moduleSheafificationMonoidal :
+    Functor.Monoidal (moduleSheafification J 𝒪) :=
+  sheafificationMonoidalOfComm (J := J) (S := commRingSheafification J 𝒪)
+    (CategoryTheory.toSheafify J 𝒪)
+
+-- All comparisons below use this specified structure, even if another structure is in scope.
+local instance : Functor.Monoidal (moduleSheafification J 𝒪) :=
+  moduleSheafificationMonoidal J 𝒪
 
 /-- Lemma 18.26.1 (0GMW): module sheafification intertwines the tensor bifunctors through the
 canonical monoidal natural isomorphism. -/
@@ -87,7 +101,7 @@ noncomputable abbrev moduleSheafificationTensorLeftIso
         CategoryTheory.MonoidalCategory.tensorLeft ((moduleSheafification J 𝒪).obj ℱ) :=
   sheafificationTensorLeftIso (sheafificationRingMap J 𝒪) ℱ
 
-/- Any `sorryAx` below is inherited from proof-law fields of the supplied monoidal structures;
-the comparison data is the canonical generic monoidal natural isomorphism. -/
+/- Any `sorryAx` below is inherited from proof-law fields of the canonical scalar-extension
+and localization constructions; no comparison data is supplied by callers. -/
 
 end PresheafOfModules

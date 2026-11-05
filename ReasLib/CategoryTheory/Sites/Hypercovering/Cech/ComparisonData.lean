@@ -105,15 +105,16 @@ noncomputable abbrev degreeComparison {K : Hypercovering.{w} J X}
     (S : DegreeSystem K) (i : ℕ) : DegreeComparison K i :=
   HypercoveringOf.Cech.DerivedComparison.DegreeSystem.degreeComparison S i
 
-/-- The degree-zero comparison of a normalized fixed-target system is invertible at every
+/-- The degree-zero comparison of a supplied fixed-target system is invertible at every
 coefficient sheaf. -/
 theorem degreeComparison_zero_isIso_app {K : Hypercovering.{w} J X}
     (S : DegreeSystem K) (I : Sheaf J AddCommGrpCat.{max w v}) :
-    IsIso ((S.degreeComparison 0).app I) := sorry
+    IsIso ((S.degreeComparison 0).app I) :=
+  HypercoveringOf.Cech.DerivedComparison.DegreeSystem.degreeComparison_zero_isIso_app S I
 
 end DegreeSystem
 
-/-- Lemma 25.5.3 (01GY), degreewise clause: one normalized derived comparison supplies fixed
+/-- Lemma 25.5.3 (01GY), degreewise clause: one supplied derived comparison supplies fixed
 ordinary comparisons simultaneously in every nonnegative degree. -/
 @[stacks 01GY "degreewise comparison"]
 theorem degreeSystem_nonempty (K : Hypercovering.{w} J X) :
@@ -127,7 +128,7 @@ namespace RefinementComparison
 comparison system at each hypercovering stage. -/
 @[stacks 01GY "derived refinement comparison"]
 structure Derived where
-  /-- The generic normalized degree system at the represented image of each fixed-target
+  /-- The generic supplied degree system at the represented image of each fixed-target
   refinement stage. -/
   stage (K : Hypercovering.RefinementCategory.{w} J X) :
     HypercoveringOf.Cech.DerivedComparison.DegreeSystem

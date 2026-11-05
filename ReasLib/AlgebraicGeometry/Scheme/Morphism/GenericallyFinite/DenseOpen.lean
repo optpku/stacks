@@ -26,12 +26,12 @@ namespace AlgebraicGeometry.Scheme.Hom
 
 /-- A locally finite type morphism that is generically finite on the target is finite over a
 dense open of the target, provided the target has finitely many generic points and the morphism
-is either quasi-compact or separated. -/
+is quasi-compact. -/
 theorem GenericallyFiniteOnTarget.exists_dense_open_isFinite_restrict
     {X Y : Scheme.{u}} (f : X ⟶ Y) [LocallyOfFiniteType f]
     (hf : f.GenericallyFiniteOnTarget)
     (hY : (genericPoints Y).Finite)
-    (hqc_or_sep : QuasiCompact f ∨ IsSeparated f) :
+    (hqc : QuasiCompact f) :
     ∃ V : Y.Opens, Dense (V : Set Y) ∧ IsFinite (f ∣_ V) := sorry
 
 /-- A locally finite type morphism is finite over a dense open of the target when the source and

@@ -142,6 +142,98 @@ theorem targetModule_smul_projection (hπ : KernelIdeal.IsSquareZero π)
         (((targetModule hπ h).val.obj U).isModule.smul (π.hom.app U r)
           ((targetModuleForgetIso hπ h).inv.hom.app U m)) = r • m := sorry
 
+/-- The additive target comparison is linear for the original source action. -/
+theorem targetModuleRestrictHom_smul (hπ : KernelIdeal.IsSquareZero π)
+    (h : IsIso (KernelIdeal.quotientComparison π)) (U : Cᵒᵖ)
+    (r : A.obj.obj U) (m : ((restrictionAlong π).obj (targetModule hπ h)).val.obj U) :
+    (targetModuleForgetIso hπ h).hom.hom.app U
+        ((((restrictionAlong π).obj (targetModule hπ h)).val.obj U).isModule.smul r m) =
+      ((KernelIdeal.sheaf π).val.obj U).isModule.smul r
+        ((targetModuleForgetIso hπ h).hom.hom.app U m) := by
+  have hi : (targetModuleForgetIso hπ h).inv.hom.app U
+      ((targetModuleForgetIso hπ h).hom.hom.app U m) = m :=
+    congrArg (fun f ↦ f.hom.app U m) (targetModuleForgetIso hπ h).hom_inv_id
+  change (targetModuleForgetIso hπ h).hom.hom.app U
+      (((targetModule hπ h).val.obj U).isModule.smul (π.hom.app U r) m) = _
+  have hs := targetModule_smul_projection hπ h U r
+    ((targetModuleForgetIso hπ h).hom.hom.app U m)
+  rw [hi] at hs
+  exact hs
+
+/-- The inverse additive target comparison is linear for the original source action. -/
+theorem targetModuleRestrictInv_smul (hπ : KernelIdeal.IsSquareZero π)
+    (h : IsIso (KernelIdeal.quotientComparison π)) (U : Cᵒᵖ)
+    (r : A.obj.obj U) (m : (KernelIdeal.sheaf π).val.obj U) :
+    (targetModuleForgetIso hπ h).inv.hom.app U
+        (((KernelIdeal.sheaf π).val.obj U).isModule.smul r m) =
+      (((restrictionAlong π).obj (targetModule hπ h)).val.obj U).isModule.smul r
+        ((targetModuleForgetIso hπ h).inv.hom.app U m) := by
+  have hi (x : (targetModule hπ h).val.obj U) :
+      (targetModuleForgetIso hπ h).inv.hom.app U
+        ((targetModuleForgetIso hπ h).hom.hom.app U x) = x :=
+    congrArg (fun f ↦ f.hom.app U x) (targetModuleForgetIso hπ h).hom_inv_id
+  have hs := congrArg ((targetModuleForgetIso hπ h).inv.hom.app U)
+    (targetModule_smul_projection hπ h U r m)
+  change (targetModuleForgetIso hπ h).inv.hom.app U
+      (((KernelIdeal.sheaf π).val.obj U).isModule.smul r m) =
+    ((targetModule hπ h).val.obj U).isModule.smul (π.hom.app U r)
+      ((targetModuleForgetIso hπ h).inv.hom.app U m)
+  rw [hi] at hs
+  exact hs.symm
+
+/-- Restricting the descended target module recovers the original kernel module. Both maps are
+exactly those of `targetModuleForgetIso`; linearity uses the source scalar projection formula. -/
+@[stacks 0B8S "source-linear restriction of the descended square-zero kernel"]
+noncomputable def targetModuleRestrictIso (hπ : KernelIdeal.IsSquareZero π)
+    (h : IsIso (KernelIdeal.quotientComparison π)) :
+    (restrictionAlong π).obj (targetModule hπ h) ≅ KernelIdeal.sheaf π where
+  hom := ⟨PresheafOfModules.homMk (targetModuleForgetIso hπ h).hom.hom
+    (targetModuleRestrictHom_smul hπ h)⟩
+  inv := ⟨PresheafOfModules.homMk (targetModuleForgetIso hπ h).inv.hom
+    (targetModuleRestrictInv_smul hπ h)⟩
+  hom_inv_id := by
+    apply SheafOfModules.hom_ext
+    ext U m
+    exact congrArg (fun f ↦ f.hom.app U m) (targetModuleForgetIso hπ h).hom_inv_id
+  inv_hom_id := by
+    apply SheafOfModules.hom_ext
+    ext U m
+    exact congrArg (fun f ↦ f.hom.app U m) (targetModuleForgetIso hπ h).inv_hom_id
+
+/-- Forgetting the linear comparison gives precisely the original additive forward map. -/
+@[simp]
+theorem targetModuleRestrictIso_hom_toPresheaf (hπ : KernelIdeal.IsSquareZero π)
+    (h : IsIso (KernelIdeal.quotientComparison π)) :
+    ((SheafOfModules.toSheaf (ringSheaf J A)).map
+      (targetModuleRestrictIso hπ h).hom).hom =
+      (targetModuleForgetIso hπ h).hom.hom := rfl
+
+/-- Forgetting the linear comparison gives precisely the original additive inverse map. -/
+@[simp]
+theorem targetModuleRestrictIso_inv_toPresheaf (hπ : KernelIdeal.IsSquareZero π)
+    (h : IsIso (KernelIdeal.quotientComparison π)) :
+    ((SheafOfModules.toSheaf (ringSheaf J A)).map
+      (targetModuleRestrictIso hπ h).inv).hom =
+      (targetModuleForgetIso hπ h).inv.hom := rfl
+
+/-- The full additive comparison agrees with the existing forgetful isomorphism, after the
+canonical identity comparison for restriction of scalars. -/
+theorem targetModuleRestrictIso_toSheaf (hπ : KernelIdeal.IsSquareZero π)
+    (h : IsIso (KernelIdeal.quotientComparison π)) :
+    (SheafOfModules.toSheaf (ringSheaf J A)).mapIso (targetModuleRestrictIso hπ h) =
+      (SheafOfModules.restrictScalarsCompToSheaf (ringSheafMap π)).app
+        (targetModule hπ h) ≪≫ targetModuleForgetIso hπ h := by
+  apply Iso.ext
+  rfl
+
+/-- The source-linear comparison retains the original projected-scalar formula. -/
+theorem targetModuleRestrictIso_smul_projection (hπ : KernelIdeal.IsSquareZero π)
+    (h : IsIso (KernelIdeal.quotientComparison π)) (U : Cᵒᵖ)
+    (r : A.obj.obj U) (m : (KernelIdeal.sheaf π).val.obj U) :
+    ((targetModuleRestrictIso hπ h).hom.val.app U).hom
+      (r • ((targetModuleRestrictIso hπ h).inv.val.app U).hom m) = r • m :=
+  targetModule_smul_projection hπ h U r m
+
 end Sheafification
 
 end SheafOfModules.RingedSite.KernelIdeal.IsSquareZero

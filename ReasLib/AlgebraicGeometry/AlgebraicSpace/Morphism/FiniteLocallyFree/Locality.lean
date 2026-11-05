@@ -17,6 +17,7 @@ public import ReasLib.AlgebraicGeometry.AlgebraicSpace.FunctorOfPoints
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Etale
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Surjective
 public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Morphism.FiniteLocallyFree
+public import ReasLib.AlgebraicGeometry.AlgebraicSpace.Locality.Criteria
 
 /-!
 # Characterizations of finite locally free morphisms of algebraic spaces
@@ -70,12 +71,11 @@ theorem spec (h : representable f) :
 end representable
 
 /-- There exists a scheme `V` and a surjective étale morphism `V ⟶ Y` such that
-`V ×_Y X ⟶ V` is finite locally free. -/
-def existsSurjectiveEtaleTarget : Prop :=
-  ∃ (V : Over S) (ψ : ofOver V ⟶ Y),
-    Etale ψ ∧ Surjective ψ ∧
-      ∀ {P : AlgebraicSpace S} {pV : P ⟶ ofOver V} {pX : P ⟶ X},
-        IsPullback pV pX ψ f → FiniteLocallyFree pV
+`V ×_Y X ⟶ V` is finite locally free.
+This is the presentation-independent generic target-atlas criterion.
+Stacks, Tag 03ZW (3), `tex/spaces-morphisms.tex:9412–9413`. -/
+abbrev existsSurjectiveEtaleTarget : Prop :=
+  Locality.Criteria.existsEtaleOnTarget (@FiniteLocallyFree S) f
 
 /-- `existsSurjectiveEtaleTarget f` is the existence of a surjective étale scheme
 atlas of `Y` along which the projection `V ×_Y X ⟶ V` is finite locally free. -/

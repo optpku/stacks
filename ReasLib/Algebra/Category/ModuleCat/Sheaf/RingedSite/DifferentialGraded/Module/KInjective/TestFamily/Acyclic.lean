@@ -11,7 +11,8 @@ public import ReasLib.Algebra.Category.ModuleCat.Sheaf.RingedSite.DifferentialGr
 /-!
 # Set-sized test families of acyclic differential graded modules
 
-An acyclic test family is cofinal for monomorphisms into nonzero acyclic DG modules.  It is
+An acyclic test family consists of nonzero acyclic DG modules and is cofinal for
+monomorphisms into nonzero acyclic DG modules. It is
 packaged as explicit data so later small-object and K-injective constructions can carry a
 single reusable value.
 -/
@@ -40,7 +41,7 @@ variable [J.WEqualsLocallyBijective AddCommGrpCat.{max u v}]
 variable {𝒪 : Sheaf J CommRingCat.{max u v}}
 
 /-- A set-indexed family detecting nonzero acyclic DG modules by monomorphisms from its
-members. -/
+nonzero members. The nonzero condition ensures strict growth in acyclic filtrations. -/
 @[stacks 0FST]
 structure AcyclicTestFamily (𝒜 : DGA(𝒪)) where
   /-- The set-sized index type. -/
@@ -49,6 +50,8 @@ structure AcyclicTestFamily (𝒜 : DGA(𝒪)) where
   obj : index → Mod(𝒜, d)
   /-- Every family member has acyclic underlying cochain complex. -/
   obj_acyclic (r : index) : Module.acyclic 𝒜 (obj r)
+  /-- Every family member is nonzero. -/
+  nonzero_obj (r : index) : ¬ IsZero (obj r)
   /-- Every nonzero acyclic DG module receives a monomorphism from a family member. -/
   exists_mono {M : Mod(𝒜, d)} (hM : Module.acyclic 𝒜 M)
       (hM_zero : ¬ IsZero M) :
@@ -56,10 +59,11 @@ structure AcyclicTestFamily (𝒜 : DGA(𝒪)) where
 
 namespace AcyclicTestFamily
 
-/-- A set-sized acyclic test family exists for every sheaf of differential graded algebras. -/
+/-- A nonzero acyclic test family, indexed in the coefficient universe, exists for every
+sheaf of differential graded algebras. -/
 @[stacks 0FST "existence"]
 theorem nonempty (𝒜 : DGA(𝒪)) :
-    Nonempty (AcyclicTestFamily.{u, v, max (u + 1) (v + 1)} 𝒜) := sorry
+    Nonempty (AcyclicTestFamily.{u, v, max u v} 𝒜) := sorry
 
 end AcyclicTestFamily
 

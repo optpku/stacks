@@ -155,7 +155,11 @@ noncomputable def objectAction (K : DerivedCategory (ModuleCat A)) :
 /-- The regular-module derived action on an arbitrary derived object is invertible. -/
 @[stacks 064M "regular-module action isomorphism instance"]
 noncomputable instance objectAction_isIso (K : DerivedCategory (ModuleCat A)) :
-    IsIso (objectAction K) := sorry
+    IsIso (objectAction K) := by
+  let e := (DerivedCategory.Q : CochainComplex (ModuleCat A) ℤ ⥤
+    DerivedCategory (ModuleCat A)).objObjPreimageIso K
+  exact ((DerivedTensor.Bifunctor.functor.mapIso ((Iso.refl _).prod e.symm)) ≪≫
+    Complex.derivedActionIso _ ≪≫ e).isIso_hom
 
 /-- The regular-module action on an arbitrary derived object as an isomorphism. -/
 @[stacks 064M "regular-module derived action isomorphism"]
@@ -181,7 +185,8 @@ noncomputable def derivedAction (M : ModuleCat A) :
 /-- The degree-zero regular-module derived action is invertible. -/
 @[stacks 064M "degree-zero regular-module derived action isomorphism instance"]
 noncomputable instance derivedAction_isIso (M : ModuleCat A) :
-    IsIso (derivedAction M) := sorry
+    IsIso (derivedAction M) := by
+  exact Complex.derivedAction_isIso (singleComplex M)
 
 /-- The degree-zero regular-module action as an isomorphism. -/
 @[stacks 064M "degree-zero derived tensor unit isomorphism"]

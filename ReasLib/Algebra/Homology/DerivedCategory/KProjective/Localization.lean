@@ -44,7 +44,11 @@ theorem map_bijective
     Function.Bijective
       (L.map :
         ((HomotopyCategory.quotient A (up ℤ)).obj P ⟶ K) →
-          (L.obj ((HomotopyCategory.quotient A (up ℤ)).obj P) ⟶ L.obj K)) := sorry
+          (L.obj ((HomotopyCategory.quotient A (up ℤ)).obj P) ⟶ L.obj K)) := by
+  letI : L.IsLocalization (HomotopyCategory.subcategoryAcyclic A).trW := by
+    rw [← HomotopyCategory.quasiIso_eq_trW_subcategoryAcyclic]
+    infer_instance
+  exact (CochainComplex.IsKProjective.leftOrthogonal P).map_bijective_of_isTriangulated L K
 
 /-- Stacks 064B, generalized from bounded-above termwise-projective complexes: a K-projective
 source computes morphisms in any localization of the homotopy category at quasi-isomorphisms. -/
@@ -64,7 +68,7 @@ theorem homEquiv_apply
     [L.IsLocalization (HomotopyCategory.quasiIso A (up ℤ))]
     (P : CochainComplex A ℤ) (K : HomotopyCategory A (up ℤ)) [P.IsKProjective]
     (f : (HomotopyCategory.quotient A (up ℤ)).obj P ⟶ K) :
-    homEquiv L P K f = L.map f := sorry
+    homEquiv L P K f = L.map f := rfl
 
 /-- The K-projective localization equivalence is contravariantly natural along homotopy
 morphisms between K-projective sources. -/
@@ -76,7 +80,8 @@ theorem homEquiv_naturality_left
     (f : (HomotopyCategory.quotient A (up ℤ)).obj P ⟶
       (HomotopyCategory.quotient A (up ℤ)).obj Q)
     (g : (HomotopyCategory.quotient A (up ℤ)).obj Q ⟶ K) :
-    homEquiv L P K (f ≫ g) = L.map f ≫ homEquiv L Q K g := sorry
+    homEquiv L P K (f ≫ g) = L.map f ≫ homEquiv L Q K g := by
+  exact L.map_comp f g
 
 /-- The K-projective localization equivalence is covariantly natural in its homotopy-category
 target. -/
@@ -85,7 +90,8 @@ theorem homEquiv_naturality_right
     [L.IsLocalization (HomotopyCategory.quasiIso A (up ℤ))]
     (P : CochainComplex A ℤ) {K K' : HomotopyCategory A (up ℤ)} [P.IsKProjective]
     (f : (HomotopyCategory.quotient A (up ℤ)).obj P ⟶ K) (g : K ⟶ K') :
-    homEquiv L P K' (f ≫ g) = homEquiv L P K f ≫ L.map g := sorry
+    homEquiv L P K' (f ≫ g) = homEquiv L P K f ≫ L.map g := by
+  exact L.map_comp f g
 
 /-- Mapping the inverse of the K-projective localization equivalence recovers the localized
 morphism. -/
@@ -95,7 +101,8 @@ theorem homEquiv_map_symm_apply
     [L.IsLocalization (HomotopyCategory.quasiIso A (up ℤ))]
     (P : CochainComplex A ℤ) (K : HomotopyCategory A (up ℤ)) [P.IsKProjective]
     (f : L.obj ((HomotopyCategory.quotient A (up ℤ)).obj P) ⟶ L.obj K) :
-    L.map ((homEquiv L P K).symm f) = f := sorry
+    L.map ((homEquiv L P K).symm f) = f := by
+  exact (homEquiv L P K).apply_symm_apply f
 
 /-- Applying the inverse K-projective localization equivalence to a mapped homotopy morphism
 recovers that morphism. -/
@@ -105,7 +112,8 @@ theorem homEquiv_symm_map
     [L.IsLocalization (HomotopyCategory.quasiIso A (up ℤ))]
     (P : CochainComplex A ℤ) (K : HomotopyCategory A (up ℤ)) [P.IsKProjective]
     (f : (HomotopyCategory.quotient A (up ℤ)).obj P ⟶ K) :
-    (homEquiv L P K).symm (L.map f) = f := sorry
+    (homEquiv L P K).symm (L.map f) = f := by
+  exact (homEquiv L P K).symm_apply_apply f
 
 /-- Any quasi-isomorphism localization is fully faithful on all morphisms from the image of a
 K-projective complex. -/

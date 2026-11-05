@@ -179,16 +179,18 @@ Please include:
 
 ### Mathematics
 
-- Jiedong Jiang, Haoda Li (李昊达)
-
-### Additional contributors
-
-- 王悦峰
-- 胡永乐
-- 章子衡
-- 原泽
-- 符逸铭
-- 李一笑
+- Jiedong Jiang
+- Haoda Li
+- Yuefeng Wang
+- Yongle Hu
+- Ziheng Zhang
+- Ze Yuan
+- Yiming Fu
+- Yixiao Li
+- Zhenhua Wu
+- Nailin Guan
+- Tian Zhou
+- Yuze Sun
 
 See [ATTRIBUTION.md](ATTRIBUTION.md) for the current team credits and how individual contributions are recorded.
 

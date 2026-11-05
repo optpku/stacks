@@ -1127,7 +1127,7 @@
   "published_source_sha256": {
     ".gitignore": "62e463a750a16f190f39c774094837477d71b5e2c063010cbf6bfa246eace170",
     "INDEPENDENT_REVIEW.md": "eb81ab219e79133f85d33425042b35832e6142e8e48f7e160787d0ddd23d4a53",
-    "README.md": "45c09d98a91bec451ac683eee09fa6770251e0c7baea1f4955428146eb06fd2f",
+    "README.md": "476d1d8e7daa630014813a08c80093ff8767129fb1f96a2d647f541816c84f26",
     "source-provenance.json": "b3c40a3bb8881da3f263c0ab9d5a3ebde45b53f4ab05e334c5cd40cdbb3bdfea",
     "annals-uniform-mordell-lang/AnnalsChallenge.lean": "981affea4d13d78b0a3dea358a882bde555164a0b8534198ec3dbb670fb04b77",
     "annals-uniform-mordell-lang/LICENSE": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
@@ -2152,7 +2152,8 @@
     "jacobian-foundations/ReasLib/Topology/Sheaves/Ring/Definition.lean": "79c412270f3580752ad946d50ad996bd2fedc6b31e8c83d52097b2a61294e442",
     "jacobian-foundations/ReasLib/Topology/Sheaves/Ring/Pullback.lean": "5b021da42dad55c3e06740ab332081250b47056a5f0f039aeec3cc4d3db347b0",
     "jacobian-foundations/ReasLib/Topology/Sheaves/Stalks/Pullback.lean": "341ba4e09c2c35ef1e1b6db7a941d0dcbeb3f280a0368f5853973f00eb4cd98c",
-    "jacobian-foundations/ReasLib/Topology/Sheaves/Stalks/Sheafification.lean": "95e063130c5d2c3ac5cdac4d0d7da7121edd392f0584d0bc7d634fa2f20b6459"
+    "jacobian-foundations/ReasLib/Topology/Sheaves/Stalks/Sheafification.lean": "95e063130c5d2c3ac5cdac4d0d7da7121edd392f0584d0bc7d634fa2f20b6459",
+    "validation/reaslib-reuse.json": "fa547727f6e94d42b55fb15c0f82306d829a387d7af043949d240f386dcd179d"
   },
   "bundled_reaslib_modules": 1002,
   "annals_lean_files": 9,

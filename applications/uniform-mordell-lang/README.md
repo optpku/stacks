@@ -12,6 +12,40 @@ The application uses Lean **4.32.0** and Mathlib commit `81a5d257c8e410db227a666
 | [validation/validation.json](validation/validation.json) | Build and audit results for the published source files. |
 | [INDEPENDENT_REVIEW.md](INDEPENDENT_REVIEW.md) | Mathematical review questions and source entry points. |
 
+## ReasLib reuse
+
+| Measure | Count | Scope |
+|---|---:|---|
+| Written direct ReasLib imports | **6** | Four in `JacobianFoundations.Genus`, two in `JacobianFoundations.Picard`. |
+| Transitive ReasLib imports of the UML statement | **968** | Deduplicated source-module closure; excludes Mathlib and Lean. |
+| Bundled ReasLib snapshot | **1,002** | The complete snapshot covered by the foundations build. |
+
+The [import manifest](validation/reaslib-reuse.json) records the root module, all 968 ReasLib module names, and hashes of the application entry sources. Import counts describe module dependencies; the following interface table shows concrete calls in the application.
+
+| Construction | Application definition | ReasLib interface called | Interface owner |
+|---|---|---|---|
+| Genus | `CurveJacobian.genus` | `Scheme.Hom.cohomologyFinrank` | [Cohomology/GlobalSections.lean](jacobian-foundations/ReasLib/AlgebraicGeometry/Scheme/Module/Cohomology/GlobalSections.lean) |
+| Jacobian | `PicardConstruction.jacobian` | `RelativePicard.component C 0` | [Relative/Components.lean](jacobian-foundations/ReasLib/AlgebraicGeometry/Scheme/Module/Picard/Relative/Components.lean) |
+| Group structure | `PicardConstruction.groupStructure` | `RelativePicard.componentZeroGrpObj` | [Relative/Group.lean](jacobian-foundations/ReasLib/AlgebraicGeometry/Scheme/Module/Picard/Relative/Group.lean) |
+| Graph class and Abel–Jacobi map | `PicardConstruction.sectionGroupClass`, `normalizedClass`, `ofCurve` | `RelativePicard.sectionClass` and `RelativePicard.degreeZeroGroupRepresentation` | [Relative/Pointed.lean](jacobian-foundations/ReasLib/AlgebraicGeometry/Scheme/Module/Picard/Relative/Pointed.lean), [Relative/Group.lean](jacobian-foundations/ReasLib/AlgebraicGeometry/Scheme/Module/Picard/Relative/Group.lean) |
+
+The `PicardConstruction` names are in `AlgebraicGeometry.CurveJacobian`. The current Abel–Jacobi construction uses the normalized graph class and its degree-zero group representation; `graphHilbertPoint` remains a separate compatibility helper.
+
+All six directly imported modules are listed below. Paths are relative to `jacobian-foundations/ReasLib/`.
+
+| Consumer | Directly imported module | Infrastructure made available |
+|---|---|---|
+| `Genus.lean` | [Algebra/Category/ModuleCat/Sheaf/GrothendieckLarge.lean](jacobian-foundations/ReasLib/Algebra/Category/ModuleCat/Sheaf/GrothendieckLarge.lean) | Large-site module-sheaf infrastructure and injective resolutions. |
+| `Genus.lean` | [AlgebraicGeometry/RingedSpace/Module/Sections/Basic.lean](jacobian-foundations/ReasLib/AlgebraicGeometry/RingedSpace/Module/Sections/Basic.lean) | Module-valued sections and restriction of scalars on a ringed space. |
+| `Genus.lean` | [AlgebraicGeometry/Scheme/GlobalSections.lean](jacobian-foundations/ReasLib/AlgebraicGeometry/Scheme/GlobalSections.lean) | The global-functions ring and the map induced by the structure morphism. |
+| `Genus.lean` | [AlgebraicGeometry/Scheme/Module/Cohomology/GlobalSections.lean](jacobian-foundations/ReasLib/AlgebraicGeometry/Scheme/Module/Cohomology/GlobalSections.lean) | Scheme-module cohomology with the induced scalar action and finrank. |
+| `Picard.lean` | [AlgebraicGeometry/Scheme/Module/Picard/Relative/AbelMap.lean](jacobian-foundations/ReasLib/AlgebraicGeometry/Scheme/Module/Picard/Relative/AbelMap.lean) | Relative Picard degree components, group interfaces, and Hilbert-divisor compatibility infrastructure. |
+| `Picard.lean` | [AlgebraicGeometry/Scheme/Module/Picard/Relative/Pointed/Represented.lean](jacobian-foundations/ReasLib/AlgebraicGeometry/Scheme/Module/Picard/Relative/Pointed/Represented.lean) | Arbitrary-base pointed Picard interfaces, including the imported `sectionClass` construction. |
+
+The shared layers follow `Mathlib → ReasLib → JacobianFoundations → AnnalsChallenge`. Mathlib provides standard carriers and general APIs, ReasLib provides the reusable geometry and cohomology interfaces, and the application defines the paper-specific bound and final statement. Import and interface counts do not measure completed proofs.
+
+## Build and validation
+
 From this directory, with Elan and Python 3 available:
 
 ```sh

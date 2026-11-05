@@ -1,17 +1,84 @@
 # Formalizing the Stacks Project in Lean
 
-The [Stacks Project](https://stacks.math.columbia.edu/) is a collaborative, open-source textbook and reference work on algebraic geometry, covering topics from commutative algebra and scheme theory to cohomology and algebraic stacks. It systematically organizes mathematical definitions, lemmas, propositions, and theorems, together with detailed proofs. We are formalizing the [Stacks Project](https://stacks.math.columbia.edu/) in Lean 4 and organizing its mathematical content into **ReasLib**, a shared library of definitions, theorem statements, proofs, and dependencies. **ReasLib currently contains 25,634 Lean source files.**
+We are building **ReasLib**, a shared Lean 4 library of mathematical definitions,
+theorem statements, proofs, and dependencies, based on Mathlib and the
+[Stacks Project](https://stacks.math.columbia.edu/). Our goal is to make this
+mathematics reusable across chapters, papers, and future research projects.
+AI-assisted formalization and library integration are organized through
+[Quokka](https://quokka.reaslab.io).
 
-Our work turns entries from the Stacks Project into reusable Lean definitions and results built on Mathlib. Shared mathematical content is organized by subject, with chapter-based modules retaining their correspondence to the source. The goal is a library that can support further formalization and mathematical work as proofs are completed and definitions and statements are refined. AI-assisted formalization and integration are organized through [Quokka](https://quokka.reaslab.io).
+We have completed an initial Lean formalization of the Stacks mathematical
+statements and organized the results into ReasLib. **Many proofs remain unfinished
+and are marked with `sorry`.** Statement formalization, proof completion, and
+mathematical review are separate parts of the work.
 
-The library is under active development and contains unfinished proofs marked with `sorry`. We welcome downstream use of ReasLib and contributions to fill in the remaining `sorry` placeholders along the way. See [pull requests and merging](#pull-requests-and-merging) to get started.
+## Why this library
+
+- **Shared mathematical interfaces.** Reusable definitions and results live in
+  subject-based modules. Several source entries can use the same declarations,
+  with their maps and compatibility properties maintained together.
+- **A clear link to the source.** Chapter-based files record how those declarations
+  correspond to the original Stacks entries. Readers can follow the textbook,
+  while library users work with the mathematical interfaces.
+- **Reuse beyond Stacks.** ReasLib remains independent of the chapter files.
+  Other papers and projects can import its modules directly, and new applications
+  help identify and improve the interfaces they need.
+
+## Library organization
+
+| Path | Contents |
+| --- | --- |
+| [`ReasLib/`](ReasLib/) | Shared mathematical definitions, statements, and proofs, organized by subject. |
+| [`stacks_project/`](stacks_project/) | Chapter-based checks linking shared declarations to the original Stacks entries. |
+| [`lakefile.toml`](lakefile.toml) | Library targets and dependency revisions. |
+| [`lean-toolchain`](lean-toolchain) | Lean version used by the project. |
+
+The dependency direction is:
+
+```text
+Mathlib → ReasLib → Stacks chapter checks / other mathematical projects
+```
+
+The chapter files import shared modules and use `#check`, `recall`, and tag
+annotations to record the correspondence with the source. Where present,
+`@[stacks TAG]` identifies the original entry at
+`https://stacks.math.columbia.edu/tag/TAG`. Mathematical review checks that the
+definitions, assumptions, and conclusions express the intended source content.
+
+### One interface, several source entries
+
+The constant-sheaf interfaces are collected in
+[`ReasLib.Topology.Sheaves.Types.Constant`](ReasLib/Topology/Sheaves/Types/Constant.lean).
+They connect Mathlib's canonical constant sheaf to the concrete model of
+locally constant functions and provide related stalk maps.
+
+| Stacks entry | Use of the shared interface |
+| --- | --- |
+| [006W](https://stacks.math.columbia.edu/tag/006W) | Relates the constant sheaf to the source's locally constant function model. |
+| [007B](https://stacks.math.columbia.edu/tag/007B) | Uses the constant-presheaf and constant-sheaf stalk interfaces. |
+| [0081](https://stacks.math.columbia.edu/tag/0081) | Uses the comparison from sheafification to the concrete function model. |
+
+These chapter entries share one module, so the maps and their properties have a
+common place to be maintained. Some of those properties still have unfinished
+proofs.
+
+### An application beyond Stacks
+
+In a separate application, we have used ReasLib to formalize the statements and
+data interfaces needed for **Uniform Mordell–Lang for curves**, through
+`JacobianFoundations` and an AnnalsChallenge adapter. This application has no
+data-level `sorry`; the main theorem and other proposition-level obligations
+remain unproved. It also exposed a Picard/sheafification interface issue that
+led to a shared-interface repair. This is how a new paper can both use and improve
+the library.
 
 ## Library overview
 
-ReasLib spans algebraic geometry, category theory, algebra, ring theory, topology,
-and related areas. Its source files are organized as follows:
+ReasLib covers algebraic geometry, category theory, algebra, ring theory,
+topology, and related subjects. The following repository statistics were
+reported on **5 November 2026** and cover `ReasLib/`.
 
-| Subject directory | Lean source files | Definitions | Theorems | Source lines |
+| Subject directory | Lean source files | Definitions | Theorem declarations | Source lines |
 | --- | ---: | ---: | ---: | ---: |
 | [AlgebraicGeometry](ReasLib/AlgebraicGeometry/) | 12,892 | 53,670 | 56,538 | 1,509,581 |
 | [CategoryTheory](ReasLib/CategoryTheory/) | 5,293 | 16,479 | 28,484 | 600,724 |
@@ -22,45 +89,27 @@ and related areas. Its source files are organized as follows:
 | Other subject directories | 431 | 1,014 | 2,009 | 49,548 |
 | **Total** | **25,634** | **96,900** | **124,346** | **2,972,207** |
 
-The repository is organized as follows.
-
-| Path | Contents |
-| --- | --- |
-| [`ReasLib/`](ReasLib/) | Shared mathematical definitions and results, organized by subject. |
-| [`stacks_project/`](stacks_project/) | Chapter-organized checks linking ReasLib declarations to the original Stacks Project entries. |
-| [`lakefile.toml`](lakefile.toml) | Library targets, options, and dependency revisions. |
-| [`lean-toolchain`](lean-toolchain) | Required Lean toolchain. |
-
-`ReasLib/` contains the mathematical definitions, statements, and proofs, organized
-by subject. The check files in `stacks_project/` follow the original Stacks Project
-chapter structure and record how its entries correspond to declarations in
-ReasLib. They import the relevant library modules and use `#check` to check
-declarations against the expected statements. Where present, `@[stacks TAG]`
-annotations identify the original entry at `https://stacks.math.columbia.edu/tag/TAG`.
+Theorem declaration counts include statements whose proofs contain `sorry`;
+they are not counts of completed proofs. The table does not include the
+chapter-check files or Mathlib.
 
 ## How to use
 
-### Work with the source locally
-
-To use ReasLib locally, please clone and build the library:
+### Explore the source locally
 
 ```sh
 git clone https://github.com/optpku/stacks.git
 cd stacks
-lake exe cache get
-lake build ReasLib
 ```
 
-You can also build individual modules and their dependencies. For example, the first command below builds the ReasLib module for the size of schemes. The second builds the check module corresponding to Stacks Project Lemma 3.9.1:
-
-```sh
-lake build ReasLib.AlgebraicGeometry.Scheme.Size
-lake build stacks_project.Chap03.Lemma_3_9_1
-```
+Start from a subject in `ReasLib/`, or follow a chapter entry in
+`stacks_project/` to the shared declarations it uses.
 
 ### Use ReasLib as a project dependency
 
-In a Lean project using a compatible toolchain and Mathlib revision, add the following to `lakefile.toml`. Replace `<commit-or-tag>` with the revision you intend to use:
+Use the Lean version in [`lean-toolchain`](lean-toolchain) and a compatible
+Mathlib revision. Add the following to your project's `lakefile.toml`, replacing
+`<commit-or-tag>` with the revision you want to use:
 
 ```toml
 [[require]]
@@ -69,38 +118,51 @@ git = "https://github.com/optpku/stacks.git"
 rev = "<commit-or-tag>"
 ```
 
-Run `lake update stacks_project` to resolve the dependency. The Lake package name is `stacks_project`. Its shared mathematical modules use the `ReasLib` prefix. Use `import ReasLib` to load the main modules together, or import individual modules as needed. Import a specific module to use its declarations:
+The Lake package name is `stacks_project`; the shared mathematical modules use
+the `ReasLib` prefix. Import the module needed by your application, for example:
 
 ```lean
-import ReasLib.AlgebraicGeometry.Scheme.Size
+import ReasLib.Topology.Sheaves.Types.Constant
 
-#check AlgebraicGeometry.Scheme.size
-#check AlgebraicGeometry.Scheme.size_eq
+#check TopCat.Sheaf.Constant.toDiscrete
+#check TopCat.Sheaf.Constant.toStalk
 ```
 
+## Contributing
 
-## Pull requests and merging
+You can contribute with your own local Lean and AI tools. Useful starting points
+include:
 
-We welcome proof completions, corrections to mathematical statements, improvements to shared definitions and theorem statements, and documentation fixes. You may use AI tools when preparing a contribution.
+1. **Review a statement.** Choose a Stacks tag and check its definitions,
+   assumptions, and conclusion against the source. Propose a correction or a
+   clearer mathematical expression.
+2. **Improve a shared interface.** Reuse existing Mathlib and ReasLib objects,
+   connect equivalent representations, or make an interface useful to more
+   downstream results.
+3. **Adapt an existing proof or fill a genuine gap.** First look for suitable
+   existing results. Align definitions and assumptions before transferring a
+   proof, and preserve its source and contributor credits.
+4. **Bring a new application.** Try using the library for a paper, textbook, or
+   another mathematical domain. A small example showing a missing or awkward
+   interface is a useful contribution.
 
 ### Preparing a pull request
 
-1. Fork the repository and create a branch for a focused change.
-2. Reuse existing Mathlib and ReasLib definitions where possible. Put reusable mathematical content in `ReasLib/`, and maintain the corresponding chapter entry when changing the formalization of a Stacks item. ReasLib modules should remain independent of `stacks_project` chapter modules.
-3. Build the changed modules and affected downstream modules. For changes to shared definitions or theorem statements, also run `lake build ReasLib`. Include the commands and results in the PR description, and identify anything you could not check.
-4. Open a [pull request](https://github.com/optpku/stacks/pulls) describing the mathematical source, the change, and its effect on existing users.
+1. Work on a focused change in your own branch or fork.
+2. Put reusable mathematical content in `ReasLib/`. When changing a Stacks
+   formalization, update its chapter correspondence too. ReasLib modules should
+   remain independent of `stacks_project` chapter modules.
+3. Open a [pull request](https://github.com/optpku/stacks/pulls) explaining the
+   mathematical source, your change, and its effect on existing users.
 
-Please include the following information:
+Please include:
 
-- **Source:** the Stacks tag or other reference, with the source version where relevant.
-- **Change:** the statement, proof, or definition being added or fixed.
-- **Dependencies:** any changed public declarations and affected downstream uses.
-- **Proof status:** remaining `sorry` placeholders, including known gaps in
-  dependencies used by the contribution.
-- **Checks:** the build commands run and their results.
-- **Credits:** the people responsible for mathematical review, statements, proofs, and library integration, as applicable.
-
-For documentation-only changes, source references and Lean builds are needed only where relevant to the change.
+- **Source:** the Stacks tag or other reference, with its version where relevant.
+- **Change:** the statement, proof, definition, or interface being added or fixed.
+- **Dependencies:** changed public declarations and affected downstream uses.
+- **Proof status:** remaining `sorry` placeholders, including known gaps in dependencies.
+- **Credits:** the people responsible for statements, proofs, mathematical review,
+  and library integration; retain existing author notices and identify AI assistance.
 
 ## Contributors
 
@@ -117,7 +179,16 @@ For documentation-only changes, source references and Lean builds are needed onl
 
 ### Mathematics
 
-- Jiedong Jiang, Haoda Li
+- Jiedong Jiang, Haoda Li (李昊达)
+
+### Additional contributors
+
+- 王悦峰
+- 胡永乐
+- 章子衡
+- 原泽
+- 符逸铭
+- 李一笑
 
 See [ATTRIBUTION.md](ATTRIBUTION.md) for the current team credits and how individual contributions are recorded.
 

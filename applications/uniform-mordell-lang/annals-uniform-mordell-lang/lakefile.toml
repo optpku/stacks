@@ -5,7 +5,7 @@ defaultTargets = ["AnnalsChallenge", "UniformMordellLangChecks"]
 lintDriver = "batteries/runLinter"
 
 [leanOptions]
-# Compatibility for ReasLib definitions elaborated before Lean 4.33.
+# Elaborator compatibility for the existing categorical ReasLib interfaces.
 backward.defeqAttrib.useBackward = true
 backward.isDefEq.respectTransparency = false
 pp.unicode.fun = true # pretty-prints `fun a ↦ b`
@@ -19,7 +19,7 @@ warn.sorry = false
 [[require]]
 name = "mathlib"
 scope = "leanprover-community"
-rev = "d1ddae43a4db43e0acf2d9d9e18b54037dbe3ea0"
+rev = "v4.32.0"
 
 [[require]]
 name = "JacobianFoundations"

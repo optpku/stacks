@@ -1,0 +1,220 @@
+{
+  "source_revision": "d7f29c6395ae4bfd6b440c7b50ccca2fb2a97382",
+  "reaslib_tree": "cb41b294f4c170ccea4f307c1b14422250c9f97e",
+  "scope": "Tracked Lean blobs in the top-level ReasLib/ tree. Matching top-level subject umbrella files are grouped by subject. Excludes ReasLib.lean, stacks_project, Mathlib, applications, and build artifacts.",
+  "declaration_method": "Static line-start declaration commands after removing nested comments, docstrings, strings, and character literals. theorem/lemma are separate from def/abbrev/opaque/instance/structure/class/inductive; examples and generated declarations are excluded. constant/constants are ordinary identifiers in this source and are not counted as declarations.",
+  "line_method": "Physical source lines, including copyright headers, comments, and blank lines.",
+  "totals": {
+    "files": 25634,
+    "physical_lines": 2972207,
+    "theorem_lemma_commands": 124346,
+    "other_declaration_commands": 96896,
+    "sorry_tokens": 107672,
+    "bytes": 131071924,
+    "explicit_declaration_commands": 221242
+  },
+  "declaration_kinds": {
+    "abbrev": 16167,
+    "structure": 1749,
+    "def": 61728,
+    "theorem": 123538,
+    "instance": 16181,
+    "lemma": 808,
+    "class": 1010,
+    "inductive": 61,
+    "example": 3
+  },
+  "subjects": {
+    "Algebra": {
+      "files": 3249,
+      "physical_lines": 428521,
+      "theorem_lemma_commands": 19451,
+      "other_declaration_commands": 15451,
+      "sorry_tokens": 17281,
+      "bytes": 18615938
+    },
+    "AlgebraicGeometry": {
+      "files": 12893,
+      "physical_lines": 1509871,
+      "theorem_lemma_commands": 56538,
+      "other_declaration_commands": 53669,
+      "sorry_tokens": 50303,
+      "bytes": 69296172
+    },
+    "AlgebraicTopology": {
+      "files": 370,
+      "physical_lines": 49665,
+      "theorem_lemma_commands": 2814,
+      "other_declaration_commands": 1570,
+      "sorry_tokens": 2538,
+      "bytes": 2103516
+    },
+    "Analysis": {
+      "files": 4,
+      "physical_lines": 489,
+      "theorem_lemma_commands": 18,
+      "other_declaration_commands": 1,
+      "sorry_tokens": 1,
+      "bytes": 22498
+    },
+    "CategoryTheory": {
+      "files": 5294,
+      "physical_lines": 601585,
+      "theorem_lemma_commands": 28484,
+      "other_declaration_commands": 16479,
+      "sorry_tokens": 24118,
+      "bytes": 24992083
+    },
+    "Data": {
+      "files": 6,
+      "physical_lines": 398,
+      "theorem_lemma_commands": 17,
+      "other_declaration_commands": 5,
+      "sorry_tokens": 0,
+      "bytes": 14709
+    },
+    "FieldTheory": {
+      "files": 146,
+      "physical_lines": 17823,
+      "theorem_lemma_commands": 694,
+      "other_declaration_commands": 278,
+      "sorry_tokens": 416,
+      "bytes": 793802
+    },
+    "Geometry": {
+      "files": 7,
+      "physical_lines": 1417,
+      "theorem_lemma_commands": 55,
+      "other_declaration_commands": 33,
+      "sorry_tokens": 10,
+      "bytes": 67769
+    },
+    "GroupTheory": {
+      "files": 7,
+      "physical_lines": 680,
+      "theorem_lemma_commands": 45,
+      "other_declaration_commands": 26,
+      "sorry_tokens": 30,
+      "bytes": 29553
+    },
+    "LinearAlgebra": {
+      "files": 169,
+      "physical_lines": 16688,
+      "theorem_lemma_commands": 731,
+      "other_declaration_commands": 321,
+      "sorry_tokens": 434,
+      "bytes": 684101
+    },
+    "ModelTheory": {
+      "files": 1,
+      "physical_lines": 58,
+      "theorem_lemma_commands": 1,
+      "other_declaration_commands": 0,
+      "sorry_tokens": 0,
+      "bytes": 1909
+    },
+    "NumberTheory": {
+      "files": 46,
+      "physical_lines": 5973,
+      "theorem_lemma_commands": 282,
+      "other_declaration_commands": 183,
+      "sorry_tokens": 232,
+      "bytes": 269605
+    },
+    "Order": {
+      "files": 10,
+      "physical_lines": 686,
+      "theorem_lemma_commands": 36,
+      "other_declaration_commands": 25,
+      "sorry_tokens": 44,
+      "bytes": 25171
+    },
+    "RepresentationTheory": {
+      "files": 24,
+      "physical_lines": 3002,
+      "theorem_lemma_commands": 118,
+      "other_declaration_commands": 133,
+      "sorry_tokens": 85,
+      "bytes": 136905
+    },
+    "RingTheory": {
+      "files": 2896,
+      "physical_lines": 288028,
+      "theorem_lemma_commands": 13084,
+      "other_declaration_commands": 6964,
+      "sorry_tokens": 10498,
+      "bytes": 12050026
+    },
+    "SetTheory": {
+      "files": 5,
+      "physical_lines": 224,
+      "theorem_lemma_commands": 12,
+      "other_declaration_commands": 9,
+      "sorry_tokens": 13,
+      "bytes": 7379
+    },
+    "Topology": {
+      "files": 507,
+      "physical_lines": 47099,
+      "theorem_lemma_commands": 1966,
+      "other_declaration_commands": 1749,
+      "sorry_tokens": 1669,
+      "bytes": 1960788
+    }
+  },
+  "schema_version": 1,
+  "declaration_scope": "Explicit source declaration commands, not elaborated environment constants. Instances, including anonymous instances, are counted. Excludes examples, constructors, fields, projections and other compiler-generated declarations.",
+  "declaration_pattern": "(?m)^[ \\t]*(?:(?:@\\[[^\\]]*\\]|private|protected|public|noncomputable|unsafe|partial|nonrec|local|scoped)\\s+)*(?P<kind>theorem|lemma|def|abbrev|opaque|axiom|axioms|instance|structure|class|inductive|coinductive|example)\\b",
+  "sorry_scope": "Standalone sorry tokens after masking comments and literals; not a count of unfinished or sorry-dependent declarations.",
+  "readme_rows": [
+    {
+      "subject": "AlgebraicGeometry",
+      "files": 12893,
+      "other_declaration_commands": 53669,
+      "theorem_lemma_commands": 56538,
+      "physical_lines": 1509871
+    },
+    {
+      "subject": "CategoryTheory",
+      "files": 5294,
+      "other_declaration_commands": 16479,
+      "theorem_lemma_commands": 28484,
+      "physical_lines": 601585
+    },
+    {
+      "subject": "Algebra",
+      "files": 3249,
+      "other_declaration_commands": 15451,
+      "theorem_lemma_commands": 19451,
+      "physical_lines": 428521
+    },
+    {
+      "subject": "RingTheory",
+      "files": 2896,
+      "other_declaration_commands": 6964,
+      "theorem_lemma_commands": 13084,
+      "physical_lines": 288028
+    },
+    {
+      "subject": "Topology",
+      "files": 507,
+      "other_declaration_commands": 1749,
+      "theorem_lemma_commands": 1966,
+      "physical_lines": 47099
+    },
+    {
+      "subject": "AlgebraicTopology",
+      "files": 370,
+      "other_declaration_commands": 1570,
+      "theorem_lemma_commands": 2814,
+      "physical_lines": 49665
+    },
+    {
+      "subject": "Other subjects",
+      "files": 425,
+      "other_declaration_commands": 1014,
+      "theorem_lemma_commands": 2009,
+      "physical_lines": 47438
+    }
+  ]
+}

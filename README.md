@@ -45,23 +45,6 @@ annotations to record the correspondence with the source. Where present,
 `https://stacks.math.columbia.edu/tag/TAG`. Mathematical review checks that the
 definitions, assumptions, and conclusions express the intended source content.
 
-### One interface, several source entries
-
-The constant-sheaf interfaces are collected in
-[`ReasLib.Topology.Sheaves.Types.Constant`](ReasLib/Topology/Sheaves/Types/Constant.lean).
-They connect Mathlib's canonical constant sheaf to the concrete model of
-locally constant functions and provide related stalk maps.
-
-| Stacks entry | Use of the shared interface |
-| --- | --- |
-| [006W](https://stacks.math.columbia.edu/tag/006W) | Relates the constant sheaf to the source's locally constant function model. |
-| [007B](https://stacks.math.columbia.edu/tag/007B) | Uses the constant-presheaf and constant-sheaf stalk interfaces. |
-| [0081](https://stacks.math.columbia.edu/tag/0081) | Uses the comparison from sheafification to the concrete function model. |
-
-These chapter entries share one module, so the maps and their properties have a
-common place to be maintained. Some of those properties still have unfinished
-proofs.
-
 ### An application beyond Stacks
 
 The [Uniform Mordell–Lang application](applications/uniform-mordell-lang/)

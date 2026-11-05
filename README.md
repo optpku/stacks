@@ -162,7 +162,7 @@ Please include:
 
 ### Formalization
 
-- Chenyi Li, Wanli Ma, Ziyu Wang
+- Chenyi Li, Wanli Ma, Ziyu Wang, Shu Miao, Min Cui
 
 ### Mathematics
 

@@ -1,0 +1,6 @@
+.lake/
+.work/
+__pycache__/
+*.olean
+*.ilean
+*.trace

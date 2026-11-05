@@ -73,8 +73,9 @@ led to a shared-interface repair. This is how a new paper can both use and impro
 the library.
 
 The [independent UML application](applications/uniform-mordell-lang/) is included
-with its own Lean 4.33.0-rc1 projects, ReasLib source snapshot, build instructions,
-and data-hole audit. Build it separately from the Stacks root project.
+with Lean 4.32.0 and the same Mathlib pin as the Stacks root project, a ReasLib
+source snapshot, build instructions, and a data-hole audit. It retains separate
+Lake projects and build targets.
 
 ## Library overview
 

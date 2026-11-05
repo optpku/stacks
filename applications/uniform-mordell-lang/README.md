@@ -2,7 +2,7 @@
 
 This independent application formalizes the statement of Theorem 1.1 in Dimitrov, Gao, and Habegger, [Uniformity in Mordell–Lang for curves](https://annals.math.princeton.edu/2021/194-1/p04). Its genus, Jacobian, group structure, and pointed Abel–Jacobi map are built through JacobianFoundations and a bundled ReasLib source snapshot. Mathematical proofs remain deferred with `sorry`.
 
-The application uses Lean **4.33.0-rc1** and Mathlib commit `d1ddae43a4db43e0acf2d9d9e18b54037dbe3ea0`. It has its own Lake projects and is built separately from the Stacks root project, which uses a different toolchain. Its bundled `ReasLib` modules belong to this application workspace; they are not imported alongside the root project's ReasLib in a single Lean environment.
+The application uses Lean **4.32.0** and Mathlib commit `81a5d257c8e410db227a6665ed08f64fea08e997`. These pins match the Stacks root project. It retains its own Lake projects and is built separately from the root project. Its bundled `ReasLib` modules belong to this application workspace; they are not imported alongside the root project's ReasLib in a single Lean environment.
 
 | Directory | Purpose |
 |---|---|

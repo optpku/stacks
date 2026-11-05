@@ -1,9 +1,11 @@
 {
   "success": true,
-  "scope": "Independent Uniform Mordell\u2013Lang application, all 1002 bundled ReasLib modules, JacobianFoundations, selected AnnalsChallenge modules, semantic guards and data-hole audit.",
+  "scope": "Independent Uniform Mordell\u2013Lang application on Stacks Lean 4.32.0 / Mathlib pins, all 1002 bundled ReasLib modules, JacobianFoundations, selected AnnalsChallenge modules, semantic guards and data-hole audit.",
   "root_stacks_build_included": false,
   "proofs_deferred": true,
-  "lean": "Lean (version 4.33.0-rc1, x86_64-unknown-linux-gnu, commit 62eed1db4d67327ec8120be05f1a1b0847d74561, Release)",
+  "lean": "Lean (version 4.32.0, x86_64-unknown-linux-gnu, commit 8c9756b28d64dab099da31a4c09229a9e6a2ef35, Release)",
+  "toolchain_matches_stacks": true,
+  "mathlib_revision": "81a5d257c8e410db227a6665ed08f64fea08e997",
   "checks": [
     {
       "name": "toolchain",
@@ -49,42 +51,42 @@
   "census": [
     {
       "root": "AlgebraicGeometry.JacobianChallenge.genus",
-      "visited": 28149,
+      "visited": 28218,
       "proof_only_declarations": 0,
       "data_declarations": 0,
       "data_holes": 0
     },
     {
       "root": "AlgebraicGeometry.JacobianChallenge.Jacobian",
-      "visited": 36371,
+      "visited": 36424,
       "proof_only_declarations": 46,
       "data_declarations": 0,
       "data_holes": 0
     },
     {
       "root": "AlgebraicGeometry.JacobianChallenge.Jacobian.instGrpObj",
-      "visited": 36593,
+      "visited": 36646,
       "proof_only_declarations": 50,
       "data_declarations": 0,
       "data_holes": 0
     },
     {
       "root": "AlgebraicGeometry.JacobianChallenge.Jacobian.ofCurve",
-      "visited": 38020,
+      "visited": 38073,
       "proof_only_declarations": 93,
       "data_declarations": 0,
       "data_holes": 0
     },
     {
       "root": "UniformMordellLang.c",
-      "visited": 69055,
+      "visited": 69126,
       "proof_only_declarations": 54,
       "data_declarations": 0,
       "data_holes": 0
     },
     {
       "root": "UniformMordellLang.theorem_1_1",
-      "visited": 69056,
+      "visited": 69127,
       "proof_only_declarations": 55,
       "data_declarations": 0,
       "data_holes": 0
@@ -1120,14 +1122,14 @@
   "published_source_sha256": {
     ".gitignore": "62e463a750a16f190f39c774094837477d71b5e2c063010cbf6bfa246eace170",
     "INDEPENDENT_REVIEW.md": "eb81ab219e79133f85d33425042b35832e6142e8e48f7e160787d0ddd23d4a53",
-    "README.md": "4f9a4b32183f5424cb212477ce6a21a0da13b5e4d684637a122db5f6db484ebf",
-    "source-provenance.json": "7309d9337eb2b7924e2983098f100c3ba8260fcee13d061de648fad46bddaed0",
+    "README.md": "8935ccbe0d8ef5116f155b33e834ff98a4c76ab32df303ef4bfe8e8969d2d57c",
+    "source-provenance.json": "a2ce16bbdb6e2858a42a39a876482887fcc15d53b7182b91a43208e5a81b012c",
     "annals-uniform-mordell-lang/AnnalsChallenge.lean": "981affea4d13d78b0a3dea358a882bde555164a0b8534198ec3dbb670fb04b77",
     "annals-uniform-mordell-lang/LICENSE": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
     "annals-uniform-mordell-lang/UniformMordellLangChecks.lean": "c6d32181cd7eb565de792b26f96e034a4a990189e670b47a4694c06c3f7cea5a",
-    "annals-uniform-mordell-lang/lake-manifest.json": "e8402eb44004fadf77d7342a9ace96d19420679ba1df04216f7b74069417ece7",
-    "annals-uniform-mordell-lang/lakefile.toml": "f3859280838900b417f488055db4220489455d0c96da819f6149e58435ab0566",
-    "annals-uniform-mordell-lang/lean-toolchain": "02f25adee7c1d6bf2e95b7b5b13f45b9892c7dd53ef470d5372ac60bda3df023",
+    "annals-uniform-mordell-lang/lake-manifest.json": "4caae5c087b27bd6cbb472235a382f89dcc6a4b9097da350d5ee7259fa230d0d",
+    "annals-uniform-mordell-lang/lakefile.toml": "3f61481b23eaac4b99422a23ffcbdf5721a9d7d84f7a37eab6b7eb928d338043",
+    "annals-uniform-mordell-lang/lean-toolchain": "2773c517aa90b66ea8a2c52bddddf84393157797f8341be0df45294fff7fd32e",
     "annals-uniform-mordell-lang/AnnalsChallenge/AnnalsOfMathematics/2021-194-1-UniformMordellLang.lean": "f1f21baeb15d6c06f8866ae7413df9270dc18483b3a71209442172b82af22471",
     "annals-uniform-mordell-lang/AnnalsChallenge/Definitions/AlgebraicJacobian.lean": "5326329c876dc5c2e1c84f6a5639b903ac10b7aed5645f1372660be1f0fa70bb",
     "annals-uniform-mordell-lang/AnnalsChallenge/Definitions/Jacobian/Genus.lean": "3f889c3fff7aa5c2513c927c2366bfb6e2483aaae0da2b4bd1ad6fdb8e7ca7ae",
@@ -1135,12 +1137,12 @@
     "annals-uniform-mordell-lang/AnnalsChallenge/Tests/UniformMordellLang.lean": "7be8fa119a72f87795dbd2ba1f64060a77440ecfc13058a725d3c6eb9a340ccd",
     "annals-uniform-mordell-lang/AnnalsChallenge/Tests/UniformMordellLangReasLib.lean": "e2cf031743cc4298453f9a23bc061f511e5a853e75cf0a1dd55f1e78d82d7b9c",
     "annals-uniform-mordell-lang/AnnalsChallenge/Tests/UniformMordellLangSemantics.lean": "0c0091bdb33d668407e08b83ac56168f6e220dea3cbf8ef166de0e4ee090d39e",
-    "annals-uniform-mordell-lang/scripts/check_uniform_mordell_lang.py": "1c231c04b2328bd4cb33359e0393cace5d6e380e12a931078ba2d50bdb359bed",
+    "annals-uniform-mordell-lang/scripts/check_uniform_mordell_lang.py": "5512e14745c184972b478d373ab8bda84eb4de2173d0a9f26886047bbf0f1af0",
     "jacobian-foundations/JacobianFoundations.lean": "28381931fb69509160881927d3cef52ee662858b5b629c5a1e985638d7223f2e",
     "jacobian-foundations/LICENSE": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
-    "jacobian-foundations/lake-manifest.json": "8259cedcb62e946723d15089c7e41ba1eca07350bec9ee95aeee298032112d66",
-    "jacobian-foundations/lakefile.toml": "79d4f4ed4826a6495b3dc96a2a43d0d3badb779458955023424fdd143a15a48e",
-    "jacobian-foundations/lean-toolchain": "02f25adee7c1d6bf2e95b7b5b13f45b9892c7dd53ef470d5372ac60bda3df023",
+    "jacobian-foundations/lake-manifest.json": "3cf00d2e3ee02685a63e06fbbd03d9f8e1c83ef6cfbd22d114d900d15a4fb8ad",
+    "jacobian-foundations/lakefile.toml": "f20415cc68d40eeb81622e8cd22e54e410af926ebcedd4baccf4520ee508fa50",
+    "jacobian-foundations/lean-toolchain": "2773c517aa90b66ea8a2c52bddddf84393157797f8341be0df45294fff7fd32e",
     "jacobian-foundations/reaslib-source-snapshot.json": "bf32a9057866e2ba64a8cf368b5cde76cd18821c8a6190953625a6d615737729",
     "jacobian-foundations/JacobianFoundations/Genus.lean": "49fc2b845ec1ec5715114a3bbbc8592c4b1abae980db6aabf504f8294594ae69",
     "jacobian-foundations/JacobianFoundations/Picard.lean": "e34d283b8e2a20bd1657261cba047914d4614a0df008cbbd5b795eae0c889ef6",
@@ -2149,5 +2151,6 @@
   },
   "bundled_reaslib_modules": 1002,
   "annals_lean_files": 9,
-  "foundations_lean_files": 1005
+  "foundations_lean_files": 1005,
+  "migration_lean_source_changes": {}
 }

@@ -77,6 +77,27 @@ with Lean 4.32.0 and the same Mathlib pin as the Stacks root project, a ReasLib
 source snapshot, build instructions, and a data-hole audit. It retains separate
 Lake projects and build targets.
 
+#### ReasLib reuse
+
+The two JacobianFoundations entry modules contain **6 direct ReasLib imports**.
+The UML statement's deduplicated transitive import closure contains **968 ReasLib
+modules**, within the bundled 1,002-module snapshot. These figures exclude
+Mathlib modules.
+
+| Application consumer | Direct ReasLib imports | Interfaces called in the consumer | Mathematical role |
+|---|---:|---|---|
+| [Genus.lean](applications/uniform-mordell-lang/jacobian-foundations/JacobianFoundations/Genus.lean) | 4 | `Scheme.Hom.cohomologyFinrank`; `SheafOfModules.LargeSite.injectiveResolutions` | Structure-sheaf cohomology and the scalar action used for genus. |
+| [Picard.lean](applications/uniform-mordell-lang/jacobian-foundations/JacobianFoundations/Picard.lean) | 2 | `RelativePicard.component`; `RelativePicard.componentZeroGrpObj`; `RelativePicard.sectionClass`; `RelativePicard.degreeZeroGroupRepresentation` | Degree-zero Picard representation, Jacobian group structure, and the normalized graph class defining the pointed Abel–Jacobi map. |
+
+Mathlib supplies the underlying objects and general mathematical APIs; ReasLib
+organizes the shared cohomology and Picard interfaces; the application adapters
+assemble these into the paper's statement. The 968-module count measures imports;
+the table identifies concrete interface calls. The application README lists
+[all six direct imports and the interface owners](applications/uniform-mordell-lang/#reaslib-reuse),
+with a [source-based import manifest](applications/uniform-mordell-lang/validation/reaslib-reuse.json).
+
+#### Build and audit results
+
 The [recorded validation](applications/uniform-mordell-lang/validation/validation.json)
 passes all nine checks:
 

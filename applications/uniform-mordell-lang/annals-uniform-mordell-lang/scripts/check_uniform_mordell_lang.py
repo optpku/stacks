@@ -62,6 +62,19 @@ def main():
             }
         assert (report["repositories"]["foundations"]["toolchain"] ==
                 report["repositories"]["annals"]["toolchain"])
+        expected_toolchain = "leanprover/lean4:v4.32.0"
+        expected_mathlib = "81a5d257c8e410db227a6665ed08f64fea08e997"
+        assert report["repositories"]["annals"]["toolchain"] == expected_toolchain
+        for repo in [root, foundations]:
+            pinned = json.loads((repo / "lake-manifest.json").read_text())
+            assert next(p["rev"] for p in pinned["packages"]
+                        if p["name"] == "mathlib") == expected_mathlib
+        repository_root = root.parents[2]
+        if (repository_root / "lean-toolchain").exists():
+            assert (repository_root / "lean-toolchain").read_text().strip() == expected_toolchain
+            pinned = json.loads((repository_root / "lake-manifest.json").read_text())
+            assert next(p["rev"] for p in pinned["packages"]
+                        if p["name"] == "mathlib") == expected_mathlib
         report["lean"] = run("toolchain", ["lake", "env", "lean", "--version"]).strip()
         run("foundations-build", ["lake", "--rehash", "build", "ReasLib", "JacobianFoundations"], cwd=foundations)
         run("annals-build", ["lake", "--rehash", "build"])

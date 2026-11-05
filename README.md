@@ -1,6 +1,6 @@
 # Formalizing the Stacks Project in Lean
 
-The [Stacks Project](https://stacks.math.columbia.edu/) is a collaborative, open-source textbook and reference work on algebraic geometry, covering topics from commutative algebra and scheme theory to cohomology and algebraic stacks. It systematically organizes mathematical definitions, lemmas, propositions, and theorems, together with detailed proofs. We are formalizing the [Stacks Project](https://stacks.math.columbia.edu/) in Lean 4 and organizing its mathematical content into **ReasLib**, a shared library of definitions, theorem statements, proofs, and dependencies. **ReasLib currently contains 24,070 Lean source files.**
+The [Stacks Project](https://stacks.math.columbia.edu/) is a collaborative, open-source textbook and reference work on algebraic geometry, covering topics from commutative algebra and scheme theory to cohomology and algebraic stacks. It systematically organizes mathematical definitions, lemmas, propositions, and theorems, together with detailed proofs. We are formalizing the [Stacks Project](https://stacks.math.columbia.edu/) in Lean 4 and organizing its mathematical content into **ReasLib**, a shared library of definitions, theorem statements, proofs, and dependencies. **ReasLib currently contains 25,634 Lean source files.**
 
 Our work turns entries from the Stacks Project into reusable Lean definitions and results built on Mathlib. Shared mathematical content is organized by subject, with chapter-based modules retaining their correspondence to the source. The goal is a library that can support further formalization and mathematical work as proofs are completed and definitions and statements are refined. AI-assisted formalization and integration are organized through [Quokka](https://quokka.reaslab.io).
 
@@ -13,14 +13,14 @@ and related areas. Its source files are organized as follows:
 
 | Subject directory | Lean source files | Definitions | Theorems | Source lines |
 | --- | ---: | ---: | ---: | ---: |
-| [AlgebraicGeometry](ReasLib/AlgebraicGeometry/) | 11,563 | 44,055 | 48,038 | 1,231,011 |
-| [CategoryTheory](ReasLib/CategoryTheory/) | 5,202 | 15,741 | 27,750 | 564,139 |
-| [Algebra](ReasLib/Algebra/) | 3,174 | 14,642 | 18,453 | 389,487 |
-| [RingTheory](ReasLib/RingTheory/) | 2,844 | 6,351 | 12,082 | 256,530 |
-| [Topology](ReasLib/Topology/) | 500 | 1,695 | 1,930 | 43,448 |
-| [AlgebraicTopology](ReasLib/AlgebraicTopology/) | 369 | 1,570 | 2,787 | 47,796 |
-| Other subject directories | 418 | 983 | 1,922 | 45,218 |
-| **Total** | **24,070** | **85,037** | **112,962** | **2,577,629** |
+| [AlgebraicGeometry](ReasLib/AlgebraicGeometry/) | 12,892 | 53,670 | 56,538 | 1,509,581 |
+| [CategoryTheory](ReasLib/CategoryTheory/) | 5,293 | 16,479 | 28,484 | 600,724 |
+| [Algebra](ReasLib/Algebra/) | 3,248 | 15,454 | 19,451 | 428,092 |
+| [RingTheory](ReasLib/RingTheory/) | 2,895 | 6,964 | 13,084 | 287,777 |
+| [Topology](ReasLib/Topology/) | 506 | 1,749 | 1,966 | 46,958 |
+| [AlgebraicTopology](ReasLib/AlgebraicTopology/) | 369 | 1,570 | 2,814 | 49,527 |
+| Other subject directories | 431 | 1,014 | 2,009 | 49,548 |
+| **Total** | **25,634** | **96,900** | **124,346** | **2,972,207** |
 
 The repository is organized as follows.
 
@@ -117,7 +117,7 @@ For documentation-only changes, source references and Lean builds are needed onl
 
 ### Mathematics
 
-- Jiedong Jiang, Haodao Li
+- Jiedong Jiang, Haoda Li
 
 See [ATTRIBUTION.md](ATTRIBUTION.md) for the current team credits and how individual contributions are recorded.
 

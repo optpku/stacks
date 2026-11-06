@@ -144,7 +144,7 @@ include:
 [Quokka](https://quokka.reaslab.io/) coordinates AI-assisted formalization and
 library integration using M2F.
 [ReasBook](https://github.com/optpku/ReasBook), with its
-[reading and review interface](https://reasbook.reaslab.io/), supports reading
+[reading and review platform](https://reasbook.reaslab.io/), supports reading
 formalized literature, exploring dependencies, and mathematical review.
 
 Our longer-term goal is to connect ReasLib with

@@ -357,6 +357,6 @@
     "source_scope_change": "Omit only the independent graphHilbertPoint compatibility helper; retain every other declaration unchanged.",
     "published_source_changed": false
   },
-  "source_commit": "22268aa77f2fdada4bb868fe997603376894fe01",
+  "source_commit": "311401049e122c12589d715e95dd006b93266647",
   "published_library_imports_changed": false
 }

@@ -9099,7 +9099,7 @@
     "UniformMordellLang.c",
     "UniformMordellLang.theorem_1_1"
   ],
-  "source_commit": "22268aa77f2fdada4bb868fe997603376894fe01",
+  "source_commit": "311401049e122c12589d715e95dd006b93266647",
   "entry_source_sha256": {
     "AnnalsChallenge.AnnalsOfMathematics.2021-194-1-UniformMordellLang": "f1f21baeb15d6c06f8866ae7413df9270dc18483b3a71209442172b82af22471",
     "JacobianFoundations.Genus": "49fc2b845ec1ec5715114a3bbbc8592c4b1abae980db6aabf504f8294594ae69",

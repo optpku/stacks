@@ -1,5 +1,5 @@
 {
-  "source_revision": "d7f29c6395ae4bfd6b440c7b50ccca2fb2a97382",
+  "source_revision": "cf07c83d0fbf025427e9e9caa9985004fe5f233e",
   "reaslib_tree": "cb41b294f4c170ccea4f307c1b14422250c9f97e",
   "scope": "Tracked Lean blobs in the top-level ReasLib/ tree. Matching top-level subject umbrella files are grouped by subject. Excludes ReasLib.lean, stacks_project, Mathlib, applications, and build artifacts.",
   "declaration_method": "Static line-start declaration commands after removing nested comments, docstrings, strings, and character literals. theorem/lemma are separate from def/abbrev/opaque/instance/structure/class/inductive; examples and generated declarations are excluded. constant/constants are ordinary identifiers in this source and are not counted as declarations.",

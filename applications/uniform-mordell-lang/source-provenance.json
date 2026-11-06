@@ -4127,9 +4127,9 @@
     "Retain the supported categorical elaboration compatibility options on Lean 4.32.",
     "The data-hole audit checks arguments of sorryAx recursively, including non-Prop holes nested in a proposition-valued hole type; add a negative regression fixture."
   ],
-  "previous_publication_commit": "c0897cf98aa1681aeb91c93d44cb09057e5f8710",
+  "previous_publication_commit": "4a64f0cc06ae19d8d8f1e51529333b603d0268ac",
   "lean_432_migration": {
-    "previous_publication": "c0897cf98aa1681aeb91c93d44cb09057e5f8710",
+    "previous_publication": "4a64f0cc06ae19d8d8f1e51529333b603d0268ac",
     "toolchain_matches_stacks": true,
     "mathlib_matches_stacks": true,
     "lean_source_changes": {}

@@ -1128,7 +1128,7 @@
     ".gitignore": "62e463a750a16f190f39c774094837477d71b5e2c063010cbf6bfa246eace170",
     "INDEPENDENT_REVIEW.md": "eb81ab219e79133f85d33425042b35832e6142e8e48f7e160787d0ddd23d4a53",
     "README.md": "59cdb74527140e023f4d53c0db49745093338d2fe9326df9d570a17755fd3fae",
-    "source-provenance.json": "b3c40a3bb8881da3f263c0ab9d5a3ebde45b53f4ab05e334c5cd40cdbb3bdfea",
+    "source-provenance.json": "86c7ec37c4a0208d55273ab918e3e3a06948ac7e356f014488e850bb8506d377",
     "annals-uniform-mordell-lang/AnnalsChallenge.lean": "981affea4d13d78b0a3dea358a882bde555164a0b8534198ec3dbb670fb04b77",
     "annals-uniform-mordell-lang/LICENSE": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
     "annals-uniform-mordell-lang/UniformMordellLangChecks.lean": "c6d32181cd7eb565de792b26f96e034a4a990189e670b47a4694c06c3f7cea5a",
@@ -2156,15 +2156,15 @@
     "validation/reaslib-reuse.json": "fa547727f6e94d42b55fb15c0f82306d829a387d7af043949d240f386dcd179d",
     "REASLIB_REQUIRED_MODULES.md": "28302e8af96aa73003e5a5b0f1c5eafee72b1c7ac626d072ccfd4075e3b2771c",
     "analysis/TraceReasLibDependencies.lean": "dbc28fb2cede6b13027e9eb73f68d66a89302ce98773cb27856c0d314e6a7810",
-    "validation/required-reaslib-dependencies.json": "c11e583938d9e54875f95d3e859fc2f0e3caf6c7f48ed3960690bafd384329ad",
-    "validation/import-necessity-experiments.json": "8fe54dd25af86aeb349aa61fc5920427c0ded59f8c0f938f39d5ea63089165d2"
+    "validation/required-reaslib-dependencies.json": "2703f63e0d155d691aba533fd749c70fb5f3d6b0949d6c4cd0977ed948b41217",
+    "validation/import-necessity-experiments.json": "2031e039cb284f3d73d5ff99cef3bf91b24cde7edd1356a1c5e933e272efc06d"
   },
   "bundled_reaslib_modules": 1002,
   "annals_lean_files": 9,
   "foundations_lean_files": 1005,
   "migration_lean_source_changes": {},
   "review": {
-    "base_commit": "19565e132b35b390ffabbb23481130df1225563b",
+    "base_commit": "18b52f99a9b92226de7e61c60b830991007dc5c3",
     "engineering_blockers_after_fixes": [],
     "audit_fix": "Recursively audit sorryAx arguments before classifying the outer hole.",
     "regression_fixture": "reject-nested-data-hole",
@@ -2186,5 +2186,10 @@
     "six_interface_reaslib_declarations": 460,
     "fine_grained_profile_transitive_modules": 960,
     "analysis_lean_files": 1
+  },
+  "publication_metadata_update": {
+    "reason": "Normalize Stacks history references after the author-email rewrite and refresh the affected publication-file hashes.",
+    "lean_sources_changed": false,
+    "build_and_audit_checks_rerun": false
   }
 }

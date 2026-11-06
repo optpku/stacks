@@ -86,6 +86,9 @@ declarations. “Other declarations” includes definitions, instances, and type
 declarations. Theorem/lemma counts include unfinished `sorry` proofs.
 Chapter checks, Mathlib, and bundled application snapshots are excluded.
 
+Recorded build and audit validation covers the independent UML application.
+Full top-level clean-build validation remains outstanding.
+
 ## How to use
 
 ### Explore the source locally

@@ -23,7 +23,7 @@ rev = "v4.32.0"
 [[require]]
 name = "check_recall_tag"
 git = "https://github.com/imathwy/check_recall_tag.git"
-rev = "32f364c5c74fda7630e14d3593ff2e7a5319adee"
+rev = "7c6d64d3dd89328ff3c7f18f205a0bbd3a20c6a3"
 
 # Shared mathematical infrastructure lives in its own library target and remains independent of
 # `stacks_project.Chap*`; chapter modules consume it through one-way compatibility imports.
